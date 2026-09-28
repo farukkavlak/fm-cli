@@ -28,6 +28,7 @@ internal static class FmApi
 		"scan" => Game.ScanReport(q["q"]),
 		"find" => Find(q["name"], Int(q["limit"], 10)),
 		"continue" => Continue(),
+		"next" => Next(),
 		"refprops" => RefProps(q["path"]),
 		"bind" => Bind(q["path"]),
 		"rawexists" => RawExists(q["path"]),
@@ -97,6 +98,19 @@ internal static class FmApi
 		Walk(node, 0, depth, sb, ref count);
 		sb.AppendLine($"-- {count} node(s)");
 		return sb.ToString();
+	}
+
+	/// <summary>
+	/// Advance the game, the way the Continue button does. The event carries no payload; the
+	/// game decides what advancing means from its current state.
+	/// </summary>
+	private static string Next()
+	{
+		var events = Game.Events;
+		if (events == null) return "error: event subsystem unavailable";
+
+		events.SendEvent(new FM.UI.ContinueGameEvent());
+		return "sent ContinueGameEvent";
 	}
 
 	/// <summary>

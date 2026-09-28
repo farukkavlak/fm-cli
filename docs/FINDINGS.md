@@ -490,6 +490,34 @@ yani event ile veri ağacı aynı adresleme sistemini paylaşıyor.
 Yani `fm saves` / `fm load` event göndererek yapılabilir görünüyor; kariyer *oluşturma*
 sihirbazı ise çok adımlı, sonraki milestone.
 
+## 8.10 Gelen kutusu okunuyor + `fm next`'in gerçek davranışı
+
+`ContinueGameEvent` (alansız, `new` edilip gönderiliyor) doğru event ama **oyun reddedebiliyor**:
+kariyer başında "response required" mesajları Continue'yu blokluyor, tarih ilerlemiyor.
+
+→ `fm next` sessizce başarısız olmamalı, "bloke: N mesaj cevap bekliyor" demeli.
+
+Gelen kutusu ağaçta, yolu:
+
+```
+PortalScreenA2.1.1.1.4.Messages4.0.1.BindingSetterA.MessagesStreamedObjectListA.items0.<0..9>
+  .BindingRemapper1.NewsItem (NewsItemReference)
+     NewsTitleString  NewsFirstBubbleSpeechString  NewsItemTimeSent
+     NewsItemHasBeenRead  NewsHasResponded  CanRespond  NewsItemIsPriority
+  .Person (PersonReference)
+     Name  Initials  Team
+```
+
+Okunan gerçek veri: başkandan karşılama mesajı, basın sorumlusunun notu, 10 mesaj, 5'i
+`CanRespond = True`.
+
+**`Name` geçerli bir `PersonReference` property'si** — burada çalışıyor. Yani kadro oyuncularında
+eksik olması isim yanlışlığından değil, sadece canlanmamış olmasından.
+
+⚠ String'lerde gömülü veri öneki var:
+`"BAAAACAxMTEB...=Sadettin Saran"` — muhtemelen `EmbeddedDataHandler`'ın tıklanabilir bağlantı
+markup'ı. `=` sonrası alınmalı; CLI'a basmadan önce temizlenecek.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması
