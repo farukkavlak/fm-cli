@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Text;
+using Il2CppInterop.Runtime;
 using SI.Bindable;
 using SI.Core;
 
@@ -25,8 +26,11 @@ internal static class FmApi
 		"props" => Props(q["path"]),
 		"subsystems" => Game.SubsystemReport(),
 		"scan" => Game.ScanReport(q["q"]),
-		"find" => Find(q["name"]),
+		"find" => Find(q["name"], Int(q["limit"], 10)),
 		"continue" => Continue(),
+		"refprops" => RefProps(q["path"]),
+		"bind" => Bind(q["path"]),
+		"rawexists" => RawExists(q["path"]),
 		_ => null, // 404
 	};
 
@@ -94,8 +98,9 @@ internal static class FmApi
 		var events = Game.Events;
 		if (events == null) return "error: event subsystem unavailable";
 
-		var node = FindByName("LastSave", out var err);
-		if (err != null) return err;
+		var hits = FindAll("LastSave", 1);
+		if (hits.Count == 0) return "error: no LastSave node (is the main menu up?)";
+		var node = hits[0].Node;
 
 		var record = node.Value?.Get()?.TryCast<SI.Core.Record>();
 		if (record == null) return "error: LastSave held no Record";
@@ -105,33 +110,111 @@ internal static class FmApi
 		return "sent LoadSelectedGameEvent";
 	}
 
-	private static string Find(string name)
+	/// <summary>
+	/// Locate nodes by name and report their full paths, so /tree and /get can address them.
+	/// Panel subtrees are keyed by GUID, so paths are impractical to guess by hand.
+	/// </summary>
+	private static string Find(string name, int limit)
 	{
 		if (string.IsNullOrEmpty(name)) return "error: ?name= required";
-		var node = FindByName(name, out var err);
-		return err ?? $"{node.Name} = {Describe(node.Value)}  [{node.ChildCount}]";
+
+		var hits = FindAll(name, limit);
+		if (hits.Count == 0) return $"error: no node named '{name}'";
+
+		var sb = new StringBuilder();
+		foreach (var (path, node) in hits)
+			sb.AppendLine($"{path}\n    = {Describe(node.Value) ?? "<no value>"}  [{node.ChildCount}]");
+		return sb.ToString();
 	}
 
-	/// <summary>Breadth-first search by node name, so callers need not know panel GUID paths.</summary>
-	private static IReadOnlyNode FindByName(string name, out string error)
+	private static List<(string Path, IReadOnlyNode Node)> FindAll(string name, int limit)
 	{
-		var root = Root(out error);
-		if (error != null) return null;
+		var hits = new List<(string, IReadOnlyNode)>();
+		var root = Root(out var err);
+		if (err != null) return hits;
 
-		var queue = new Queue<IReadOnlyNode>();
-		queue.Enqueue(root);
+		var queue = new Queue<(IReadOnlyNode Node, string Path)>();
+		queue.Enqueue((root, ""));
 		var seen = 0;
 
-		while (queue.Count > 0 && seen < MaxNodes)
+		while (queue.Count > 0 && seen < MaxNodes && hits.Count < limit)
 		{
-			var n = queue.Dequeue();
+			var (n, prefix) = queue.Dequeue();
 			seen++;
-			if (string.Equals(n.Name, name, StringComparison.OrdinalIgnoreCase)) return n;
-			for (var c = n.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+
+			var nodeName = n.Name ?? "";
+			var path = prefix.Length == 0 ? nodeName : prefix + "." + nodeName;
+			if (string.Equals(nodeName, name, StringComparison.OrdinalIgnoreCase)) hits.Add((path, n));
+
+			for (var c = n.FirstChild; c != null; c = c.NextSibling) queue.Enqueue((c, path));
 		}
 
-		error = $"error: no node named '{name}' within {seen} nodes";
-		return null;
+		return hits;
+	}
+
+
+	/// <summary>Bindings.Exists through a span, to test path addressing without side effects.</summary>
+	private static string RawExists(string path)
+	{
+		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
+		var b = Game.Bindings;
+		if (b == null) return "error: bindings unavailable";
+		try
+		{
+			var key = Interop.WithSpan(path, span => Bindings.MakeKey(ref span));
+			var exists = Interop.WithSpan(path, span => b.Exists(ref span));
+			return $"'{path}': exists={exists}  makeKey={key.m_key} valid={key.IsValid()}";
+		}
+		catch (Exception ex) { return $"error: {ex.GetType().Name}: {ex.Message}"; }
+	}
+
+	/// <summary>
+	/// Materialise a path. The tree is lazy: a reference's properties only exist once something
+	/// binds them, which is what the UI does when it opens a screen. Binding from here is the
+	/// same act, minus the screen.
+	/// </summary>
+	private static string Bind(string path)
+	{
+		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
+
+		var b = Game.Bindings;
+		if (b == null) return "error: bindings unavailable";
+
+		try
+		{
+			var before = Interop.WithSpan(path, span => b.Exists(ref span));
+			var key = Interop.WithSpan(path, span => b.Bind(ref span, NoOp));
+			var after = Interop.WithSpan(path, span => b.Exists(ref span));
+			return $"'{path}': existed={before} -> bound(key={key.m_key}, valid={key.IsValid()}) -> exists={after}";
+		}
+		catch (Exception ex)
+		{
+			return $"error: bind threw {ex.GetType().Name}: {ex.Message}";
+		}
+	}
+
+	private static Bindings.ValueChangedCallback _noOp;
+
+	/// <summary>
+	/// Binding requires a callback; we only want the side effect. It must be a real il2cpp
+	/// delegate — handing the game a null function pointer crashes it when the value changes.
+	/// </summary>
+	private static Bindings.ValueChangedCallback NoOp =>
+		_noOp ??= DelegateSupport.ConvertDelegate<Bindings.ValueChangedCallback>(
+			(Action<Bindings.Key, TypedValue>)((_, _) => { }));
+
+	/// <summary>Ask the reference at a path which properties it accepts.</summary>
+	private static string RefProps(string path)
+	{
+		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
+
+		var node = Resolve(path, out var err);
+		if (err != null) return err;
+
+		var value = node.Value?.Get();
+		if (value == null) return "error: node has no value";
+
+		return Schema.Describe(value) ?? $"error: not a reference ({node.Value.DataType?.Name})";
 	}
 
 	// ------------------------------------------------------------------ walking

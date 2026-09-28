@@ -1,4 +1,4 @@
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using System;
 
 namespace FmCliProbe;
 
@@ -8,15 +8,19 @@ namespace FmCliProbe;
 internal static class Interop
 {
 	/// <summary>
-	/// Il2CppInterop exposes no string -> ReadOnlySpan&lt;char&gt; conversion, but
-	/// ReadOnlySpan&lt;char&gt; does have a constructor over an il2cpp char array, so we go
-	/// through one. The array is a copy; Bindings only reads the characters.
+	/// Run <paramref name="body"/> with an il2cpp ReadOnlySpan&lt;char&gt; over the string.
+	///
+	/// The array-taking constructor does not survive the interop boundary — every path built
+	/// that way arrived as an empty span, so unrelated paths all resolved to the same key.
+	/// Pointing the span straight at the pinned managed string is what actually works. The
+	/// callback shape keeps the string pinned for the whole call, which is required because the
+	/// span carries no reference of its own.
 	/// </summary>
-	public static Il2CppSystem.ReadOnlySpan<char> Span(string s)
+	public static unsafe T WithSpan<T>(string s, Func<Il2CppSystem.ReadOnlySpan<char>, T> body)
 	{
-		var chars = new Il2CppStructArray<char>(s.Length);
-		for (var i = 0; i < s.Length; i++)
-			chars[i] = s[i];
-		return new Il2CppSystem.ReadOnlySpan<char>(chars);
+		fixed (char* p = s)
+		{
+			return body(new Il2CppSystem.ReadOnlySpan<char>((void*)p, s.Length));
+		}
 	}
 }

@@ -311,27 +311,33 @@ var bindings = all[0].TryCast<FM.UI.NewGameHandlerModule>().m_bindings;
 
 `FMNavigationManager` ve `PanelManager` de `UnityEngine.Object.FindObjectOfType` ile bulunuyor.
 
-### 8.2 `ReadOnlySpan<char>` köprüsü ✅
+### 8.2 `ReadOnlySpan<char>` köprüsü ❌ ÇALIŞMIYOR
 
-Il2CppInterop `string → ReadOnlySpan<char>` dönüşümü vermiyor, ama `Il2CppSystem.ReadOnlySpan<char>`'ın
-il2cpp dizisinden kurucusu var:
+> Bu bölüm 2026-09-28'de düzeltildi. Önceden "çalışıyor" yazıyordu; yanlıştı.
 
-```csharp
-var chars = new Il2CppStructArray<char>(s.Length);
-for (var i = 0; i < s.Length; i++) chars[i] = s[i];
-var span = new Il2CppSystem.ReadOnlySpan<char>(chars);
-bindings.Get(span);           // by-value overload
-bindings.Exists(ref span);    // ref overload
-```
+`Bindings`'in string alan bütün girişleri (`Get`, `Exists`, `Bind`, `MakeKey`) `ReadOnlySpan<char>`
+istiyor ve **bu tip Il2CppInterop sınırından geçmiyor.** İki yöntem de denendi, ikisi de sessizce
+boş span üretti:
 
-Kod: `plugin/FmCliProbe/src/Interop.cs`. Canlı testte çalıştı:
+1. `Il2CppStructArray<char>` → `new ReadOnlySpan<char>(array)`
+2. `fixed (char* p = s)` → `new ReadOnlySpan<char>((void*)p, s.Length)`
+
+Kanıt: her string aynı key'i veriyor ve var olmayan yollar `true` dönüyor.
 
 ```
-Exists("Game") = true   Get -> (GameReference) FM.UI.GameReference
+'GameStateCache25': exists=True  makeKey=12638124528392833969
+'zzzNotARealPath':  exists=True  makeKey=12638124528392833969
 ```
 
-**Namespace notu:** interop assembly'lerinde `Il2Cpp` öneki **yok** — `SI.Bindable.Bindings`,
-`FM.UI.TeamReference` düz yazılıyor. Sadece BCL tipleri `Il2CppSystem.*`.
+Sessizce başarısız olduğu için ilk testlerde fark edilmedi: `Exists("Game") = true` sonucu
+gerçek değil, boş path'in köke çözülmesiydi.
+
+**Sonuç:** path string'i ile adresleme kullanılamaz. Çalışan iki yol var:
+
+- **Ağaçta gezinme** — `IReadOnlyNode.Name` düz `System.String`, `FirstChild`/`NextSibling` ile
+  geziliyor. Okuma bununla yapılıyor ve sorunsuz.
+- **`BindingPath.Create(string)`** — string kabul ediyor, ama onu tüketen `BindingBag.Queue`
+  bir `IBindableElement` (UI elemanı) istiyor, yani view'a bağlı.
 
 ### 8.3 Ağaç global mi? ✅ EVET
 
@@ -460,8 +466,13 @@ sihirbazı ise çok adımlı, sonraki milestone.
 - [x] Probe plugin yazımı ve kurulumu
 - [x] Probe v1 — singleton'lar + Bindings instance'ı bulundu
 - [x] Probe v2 — ağaç gezildi, string path çalıştı, canlı veri okundu
-- [ ] **Probe v3** — `game.Human.Team`'e `GetProperties` ile şemasını sor; kadro listesini `Bind` edip
-      oyuncu başına `Condition` oku. Bu çalışırsa `fm squad --fitness` fiilen var demektir.
+- [x] Kayıt yükleme — `LoadSelectedGameEvent` ile CLI'dan kariyer açılıyor
+- [x] Kadro listesi bulundu: `GameStateCache.Manager.Club.MainTeam.Players.ListLoader0.<0..1A>`
+      (27 oyuncu, her biri `PersonReference`)
+- [ ] **Oyuncu özelliklerini canlandır.** Ağaç tembel: oyuncu düğümlerinde sadece `UniqueId` var,
+      `Name`/`Condition` yok. Path ile `Bind` span yüzünden çalışmıyor (§8.2), o yüzden sıradaki
+      deneme: Squad ekranını event/panel ile açtırmak — UI'ın kendisi özellikleri canlandırıyor,
+      biz de ağaçtan okuyoruz. Ekranın görünür olması gerekmiyor.
 - [ ] Veri katmanı: path → TypedValue sarmalayıcı, referans gezinme, lazy bind
 - [x] Plugin içinde HTTP server (v0.2.0: /health /tree /get /exists /props)
 - [ ] `fm-cli` komut katmanı
