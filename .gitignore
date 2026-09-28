@@ -1,0 +1,8 @@
+# .NET build output
+bin/
+obj/
+
+# Probe reports are regenerated per run; the committed one under docs/ is the reference copy.
+fm-cli-probe.txt
+
+.DS_Store

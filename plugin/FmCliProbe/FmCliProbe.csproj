@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>FmCliProbe</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Interop assemblies are reference-only; never copy them next to the plugin. -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <!-- Set FM26_BEP to the shadow bundle the arm64 launcher builds (default ~/fm26_bep). -->
+  <PropertyGroup>
+    <BepRoot Condition="'$(FM26_BEP)' != ''">$(FM26_BEP)</BepRoot>
+    <BepRoot Condition="'$(BepRoot)' == ''">$(HOME)/fm26_bep</BepRoot>
+    <BepCore>$(BepRoot)/BepInEx/core</BepCore>
+    <BepInterop>$(BepRoot)/BepInEx/interop</BepInterop>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx.Core"><HintPath>$(BepCore)/BepInEx.Core.dll</HintPath></Reference>
+    <Reference Include="BepInEx.Unity.IL2CPP"><HintPath>$(BepCore)/BepInEx.Unity.IL2CPP.dll</HintPath></Reference>
+    <Reference Include="Il2CppInterop.Runtime"><HintPath>$(BepCore)/Il2CppInterop.Runtime.dll</HintPath></Reference>
+    <Reference Include="Il2CppInterop.Common"><HintPath>$(BepCore)/Il2CppInterop.Common.dll</HintPath></Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Il2Cppmscorlib"><HintPath>$(BepInterop)/Il2Cppmscorlib.dll</HintPath></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(BepInterop)/UnityEngine.CoreModule.dll</HintPath></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(BepInterop)/UnityEngine.dll</HintPath></Reference>
+    <Reference Include="Unity.InputSystem"><HintPath>$(BepInterop)/Unity.InputSystem.dll</HintPath></Reference>
+    <Reference Include="UnityEngine.UIElementsModule"><HintPath>$(BepInterop)/UnityEngine.UIElementsModule.dll</HintPath></Reference>
+    <Reference Include="FM.UI"><HintPath>$(BepInterop)/FM.UI.dll</HintPath></Reference>
+    <Reference Include="FMGame"><HintPath>$(BepInterop)/FMGame.dll</HintPath></Reference>
+    <Reference Include="SI.Bindable"><HintPath>$(BepInterop)/SI.Bindable.dll</HintPath></Reference>
+    <Reference Include="SI.UI"><HintPath>$(BepInterop)/SI.UI.dll</HintPath></Reference>
+    <Reference Include="SI.Core"><HintPath>$(BepInterop)/SI.Core.dll</HintPath></Reference>
+  </ItemGroup>
+
+</Project>
