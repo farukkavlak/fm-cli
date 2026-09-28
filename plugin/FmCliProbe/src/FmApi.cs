@@ -22,6 +22,9 @@ internal static class FmApi
 		"get" => Get(q["path"]),
 		"exists" => Exists(q["path"]),
 		"props" => Props(q["path"]),
+		"bindhunt" => Game.HuntReport(),
+		"modules" => Game.ModuleReport(),
+		"scan" => Game.ScanReport(q["q"]),
 		_ => null, // 404
 	};
 
