@@ -8,60 +8,57 @@ using SI.Bindable;
 
 namespace FmCliProbe;
 
-/// <summary>Entry points into the running game.</summary>
+/// <summary>
+/// Entry points into the running game.
+///
+/// Everything hangs off <see cref="SI.Core.GameSubsystems"/>, a static registry the game keeps
+/// of its own subsystems. Walking that list avoids both the generic Get&lt;T&gt;() (unreliable on
+/// arm64) and the earlier approach of hunting for whichever ScriptableObject happened to hold a
+/// reference, which broke depending on how far the game had booted.
+/// </summary>
 internal static class Game
 {
-	private static Bindings _bindings;
+	/// <summary>The binding tree: all game data, addressable by path.</summary>
+	public static Bindings Bindings => Subsystem<BindingSubsystem>();
 
-	/// <summary>
-	/// The live binding tree. There is no global accessor, so we go through one of the few
-	/// objects that hold a reference. Which of them is populated depends on how far the game
-	/// has booted, so every known route is tried; see <see cref="HuntReport"/> to inspect them.
-	/// </summary>
-	public static Bindings Bindings
+	/// <summary>The event bus: how actions are fired and game events observed.</summary>
+	public static SI.Core.EventSubsystem Events => Subsystem<SI.Core.EventSubsystem>();
+
+	private static T Subsystem<T>() where T : Il2CppSystem.Object
 	{
-		get
+		var all = SI.Core.GameSubsystems.s_subsystems;
+		if (all == null) return null;
+
+		foreach (var s in all)
 		{
-			if (_bindings != null) return _bindings;
-
-			foreach (var route in Routes)
-			{
-				if (route.Find() is not { } found) continue;
-				_bindings = found;
-				Plugin.Log.LogInfo($"[fm-cli] bindings via {route.Name}");
-				break;
-			}
-
-			return _bindings;
+			if (s == null) continue;
+			var typed = new Il2CppSystem.Object(s.Pointer).TryCast<T>();
+			if (typed != null) return typed;
 		}
+		return null;
 	}
 
-	private sealed class Route
+	/// <summary>Every registered subsystem, for diagnosing what the game has booted so far.</summary>
+	public static string SubsystemReport()
 	{
-		public string Name;
-		public Func<Bindings> Find;
-		public Func<int> Count;
-	}
+		var all = SI.Core.GameSubsystems.s_subsystems;
+		if (all == null) return "GameSubsystems.s_subsystems is null (too early in boot?)";
 
-	private static readonly Route[] Routes =
-	{
-		new()
+		var sb = new StringBuilder();
+		sb.AppendLine($"{all.Count} subsystem(s):");
+		foreach (var s in all)
 		{
-			Name = "FM.UI.SaveGameHandlerModule",
-			Count = () => Count<FM.UI.SaveGameHandlerModule>(),
-			Find = () => First<FM.UI.SaveGameHandlerModule>(m => m.m_bindingSubsystem),
-		},
-		new()
-		{
-			Name = "FM.UI.NewGameHandlerModule",
-			Count = () => Count<FM.UI.NewGameHandlerModule>(),
-			Find = () => First<FM.UI.NewGameHandlerModule>(m => m.m_bindings),
-		},
-	};
+			string name;
+			try { name = s == null ? "<null>" : new Il2CppSystem.Object(s.Pointer).GetIl2CppType().FullName; }
+			catch (Exception ex) { name = $"<threw {ex.GetType().Name}>"; }
+			sb.AppendLine("  " + name);
+		}
+		return sb.ToString();
+	}
 
 	/// <summary>
-	/// Every loaded ScriptableObject type, by il2cpp name. Unlike <see cref="ModuleReport"/>
-	/// this assumes nothing about which types should exist, so it shows what is actually there.
+	/// Every loaded ScriptableObject type, by il2cpp name. Assumes nothing about which types
+	/// should exist, so it shows what is actually there.
 	/// </summary>
 	public static string ScanReport(string filter)
 	{
@@ -83,68 +80,6 @@ internal static class Game
 		sb.AppendLine($"{counts.Count} distinct ScriptableObject type(s)");
 		foreach (var kv in counts.OrderBy(kv => kv.Key))
 			sb.AppendLine($"  {kv.Value,4}  {kv.Key}");
-		return sb.ToString();
-	}
-
-	/// <summary>
-	/// Which game modules are alive. Modules are ScriptableObjects loaded per scene, so this
-	/// says what is reachable at the current stage of the boot.
-	/// </summary>
-	public static string ModuleReport()
-	{
-		var sb = new StringBuilder();
-		void Line<T>(string name) where T : Il2CppSystem.Object
-		{
-			try { sb.AppendLine($"{name}: {Count<T>()}"); }
-			catch (Exception ex) { sb.AppendLine($"{name}: threw {ex.GetType().Name}"); }
-		}
-
-		Line<FM.UI.LoadGameHandlerModule>("LoadGameHandlerModule");
-		Line<FM.UI.SaveGameHandlerModule>("SaveGameHandlerModule");
-		Line<FM.UI.NewGameHandlerModule>("NewGameHandlerModule");
-		Line<FM.UI.DevicesInputHandler>("DevicesInputHandler");
-		Line<FM.UI.InputRebindingModule>("InputRebindingModule");
-		Line<FM.UI.NativeSettingsHandlerModule>("NativeSettingsHandlerModule");
-		return sb.ToString();
-	}
-
-	private static int Count<T>() where T : Il2CppSystem.Object
-		=> Resources.FindObjectsOfTypeAll(Il2CppType.Of<T>()).Count;
-
-	private static Bindings First<T>(Func<T, Bindings> pick) where T : Il2CppSystem.Object
-	{
-		foreach (var o in Resources.FindObjectsOfTypeAll(Il2CppType.Of<T>()))
-		{
-			var typed = o.TryCast<T>();
-			if (typed == null) continue;
-			try
-			{
-				if (pick(typed) is { } b) return b;
-			}
-			catch
-			{
-				// Field may not be initialised this early in the boot.
-			}
-		}
-		return null;
-	}
-
-	/// <summary>Which routes exist and which are populated, for diagnosing boot states.</summary>
-	public static string HuntReport()
-	{
-		var sb = new StringBuilder();
-		foreach (var route in Routes)
-		{
-			int count;
-			try { count = route.Count(); }
-			catch (Exception ex) { sb.AppendLine($"{route.Name}: count threw {ex.GetType().Name}"); continue; }
-
-			string state;
-			try { state = route.Find() != null ? "POPULATED" : "null"; }
-			catch (Exception ex) { state = $"threw {ex.GetType().Name}"; }
-
-			sb.AppendLine($"{route.Name}: {count} instance(s), bindings {state}");
-		}
 		return sb.ToString();
 	}
 }

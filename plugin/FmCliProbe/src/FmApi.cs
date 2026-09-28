@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Text;
 using SI.Bindable;
@@ -22,9 +23,10 @@ internal static class FmApi
 		"get" => Get(q["path"]),
 		"exists" => Exists(q["path"]),
 		"props" => Props(q["path"]),
-		"bindhunt" => Game.HuntReport(),
-		"modules" => Game.ModuleReport(),
+		"subsystems" => Game.SubsystemReport(),
 		"scan" => Game.ScanReport(q["q"]),
+		"find" => Find(q["name"]),
+		"continue" => Continue(),
 		_ => null, // 404
 	};
 
@@ -81,6 +83,55 @@ internal static class FmApi
 		Walk(node, 0, depth, sb, ref count);
 		sb.AppendLine($"-- {count} node(s)");
 		return sb.ToString();
+	}
+
+	/// <summary>
+	/// Resume the most recent save. The main menu exposes it as a DynamicReference, which
+	/// derives from Record, so it can be handed straight to the load event the game listens for.
+	/// </summary>
+	private static string Continue()
+	{
+		var events = Game.Events;
+		if (events == null) return "error: event subsystem unavailable";
+
+		var node = FindByName("LastSave", out var err);
+		if (err != null) return err;
+
+		var record = node.Value?.Get()?.TryCast<SI.Core.Record>();
+		if (record == null) return "error: LastSave held no Record";
+
+		var evt = new FM.UI.LoadSelectedGameEvent { LoadGameDataRecord = record };
+		events.SendEvent(evt);
+		return "sent LoadSelectedGameEvent";
+	}
+
+	private static string Find(string name)
+	{
+		if (string.IsNullOrEmpty(name)) return "error: ?name= required";
+		var node = FindByName(name, out var err);
+		return err ?? $"{node.Name} = {Describe(node.Value)}  [{node.ChildCount}]";
+	}
+
+	/// <summary>Breadth-first search by node name, so callers need not know panel GUID paths.</summary>
+	private static IReadOnlyNode FindByName(string name, out string error)
+	{
+		var root = Root(out error);
+		if (error != null) return null;
+
+		var queue = new Queue<IReadOnlyNode>();
+		queue.Enqueue(root);
+		var seen = 0;
+
+		while (queue.Count > 0 && seen < MaxNodes)
+		{
+			var n = queue.Dequeue();
+			seen++;
+			if (string.Equals(n.Name, name, StringComparison.OrdinalIgnoreCase)) return n;
+			for (var c = n.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+		}
+
+		error = $"error: no node named '{name}' within {seen} nodes";
+		return null;
 	}
 
 	// ------------------------------------------------------------------ walking
