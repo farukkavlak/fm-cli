@@ -399,6 +399,59 @@ Plugin `Load()` içinde `Application.runInBackground = true` yapmalı, yoksa kul
 oyun donar ve komutlar cevap vermez. Ayrıca oyun küçültülünce render CPU'su simülasyona kalır →
 `fm next` normal oynamaktan hızlı olabilir.
 
+## 8.9 Aksiyon katmanı: event bus (UI simülasyonu DEĞİL)
+
+FM26 aksiyonları bir **global event bus** üzerinden yürütüyor. Menü gezme / tuş simülasyonu
+gerekmiyor — olayı doğrudan gönderiyoruz.
+
+```csharp
+// SI.Core.EventSubsystem : ISubsystem
+public void SendEvent(EventBase evt);
+public void Register<TEventType>(EventDispatcher.EventCallback<TEventType> callback);
+public void Unregister<TEventType>(EventDispatcher.EventCallback<TEventType> callback);
+```
+
+`Register` ayrıca **oyun olaylarını dinlememizi** sağlıyor (gün ilerledi, maç bitti...) — hook'a
+gerek yok, ki zaten arm64'te managed detour yoktu. Bu, §7'deki "poll ederiz" planını gereksiz kılıyor.
+
+⚠ `Register<T>` generic → arm64'te riskli olabilir. `SendEvent(EventBase)` non-generic, güvenli.
+
+### Erişim (Bindings ile aynı desen)
+
+`eventSubsystem` alanını tutan ScriptableObject'ler: `FM.UI.DevicesInputHandler`,
+`FM.UI.InputRebindingModule`, `FM.UI.NativeSettingsHandlerModule` — hepsi `IGameModule`.
+
+```csharp
+var m = Resources.FindObjectsOfTypeAll(Il2CppType.Of<FM.UI.DevicesInputHandler>())[0]
+    .TryCast<FM.UI.DevicesInputHandler>();
+var events = m.eventSubsystem;
+```
+
+### Event anatomisi
+
+```csharp
+public sealed class LoadSelectedGameEvent : EventBase<LoadSelectedGameEvent>
+{
+    public Record LoadGameDataRecord;
+}
+
+// SI.Bindable.Events.EventContextBase : IEvent, IEventOwner
+public abstract EventBase GetPooledEvent();
+public void Setup(IEventOwner owner, VisualElement target, Bindings.Key overrideKey);
+public void PrepareToSend();
+public virtual bool IsSendable();
+```
+
+Event'ler havuzdan alınıyor (`GetPooledEvent`), context bir `Bindings.Key` ile kuruluyor —
+yani event ile veri ağacı aynı adresleme sistemini paylaşıyor.
+
+### Kayıt yükleme
+
+`LoadSelectedGameEvent` + `LoadGameTileSelectionEvent` + `SaveGameReference` mevcut.
+`SaveGameReference` bir `*Reference` tipi → kayıtlar da binding ağacında adreslenebilir.
+Yani `fm saves` / `fm load` event göndererek yapılabilir görünüyor; kariyer *oluşturma*
+sihirbazı ise çok adımlı, sonraki milestone.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması
@@ -410,7 +463,7 @@ oyun donar ve komutlar cevap vermez. Ayrıca oyun küçültülünce render CPU's
 - [ ] **Probe v3** — `game.Human.Team`'e `GetProperties` ile şemasını sor; kadro listesini `Bind` edip
       oyuncu başına `Condition` oku. Bu çalışırsa `fm squad --fitness` fiilen var demektir.
 - [ ] Veri katmanı: path → TypedValue sarmalayıcı, referans gezinme, lazy bind
-- [ ] Plugin içinde HTTP server
+- [x] Plugin içinde HTTP server (v0.2.0: /health /tree /get /exists /props)
 - [ ] `fm-cli` komut katmanı
 - [ ] MCP server
 - [ ] Ses
