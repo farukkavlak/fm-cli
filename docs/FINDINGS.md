@@ -339,6 +339,38 @@ gerçek değil, boş path'in köke çözülmesiydi.
 - **`BindingPath.Create(string)`** — string kabul ediyor, ama onu tüketen `BindingBag.Queue`
   bir `IBindableElement` (UI elemanı) istiyor, yani view'a bağlı.
 
+### 8.2b Key türetmesi çözüldü — path adresleme geri geldi ✅
+
+Span çalışmıyor ama `Get`/`Bind`/`Exists`'in **`Bindings.Key` alan overload'ları span istemiyor.
+`Key` sadece bir `ulong`. Yani key'i kendimiz hesaplarsak span'a hiç ihtiyacımız yok.
+
+`Bindings.MakeKey`'in arm64 disassembly'sinden çıkarıldı (`GameAssembly.arm64.dylib`,
+`il2cpp` bölümü, VA `0x36C0E90` → asıl hash `0x36BE5EC`), canlı ağaçtan alınan
+**608 örneğin 608'inde** doğrulandı.
+
+```
+key(path):
+    acc = Bindings.RootKey
+    for segment in path.split('.'):
+        h = 0xcbf29ce484222325                    # FNV-1a 64 offset basis
+        for c in segment.lower():
+            h = (h ^ c) * 0x100000001B3           # ⚠ UTF-16 kod birimi, byte DEĞİL
+        x = (h ^ acc) * 0xff51afd7ed558ccd        # MurmurHash3 fmix64 çarpanı
+        acc = x ^ (x >> 32)
+    return acc
+```
+
+Üç kritik ayrıntı:
+
+1. **UTF-16 kod birimi üzerinde** hash — byte üzerinde denediğimiz ~20 varyantın tutmama sebebi buydu
+   (`ldrh w21, [x8, x23, lsl #1]` → 2 byte'lık okuma)
+2. **Küçük harfe çevriliyor** — path'ler büyük/küçük harf duyarsız (`Bindings.s_pathComparer` ile tutarlı)
+3. **Başlangıç kök key** — bu yüzden boş path kökü veriyor, span bozukken gördüğümüz davranış
+
+Kod: `plugin/FmCliProbe/src/PathKey.cs`
+
+Key'ler çalıştırmalar arası **kararlı** (600/600 aynı), yani saf fonksiyon — cache'lenebilir.
+
 ### 8.3 Ağaç global mi? ✅ EVET
 
 `GetDescendantCount(RootKey) = 6093`. Kök 169 çocuklu. Ağaç **oyunun tamamı için tek ve global**,
@@ -469,10 +501,12 @@ sihirbazı ise çok adımlı, sonraki milestone.
 - [x] Kayıt yükleme — `LoadSelectedGameEvent` ile CLI'dan kariyer açılıyor
 - [x] Kadro listesi bulundu: `GameStateCache.Manager.Club.MainTeam.Players.ListLoader0.<0..1A>`
       (27 oyuncu, her biri `PersonReference`)
-- [ ] **Oyuncu özelliklerini canlandır.** Ağaç tembel: oyuncu düğümlerinde sadece `UniqueId` var,
-      `Name`/`Condition` yok. Path ile `Bind` span yüzünden çalışmıyor (§8.2), o yüzden sıradaki
-      deneme: Squad ekranını event/panel ile açtırmak — UI'ın kendisi özellikleri canlandırıyor,
-      biz de ağaçtan okuyoruz. Ekranın görünür olması gerekmiyor.
+- [x] Path adresleme — key hesaplayarak çözüldü (§8.2b), span'a gerek kalmadı
+- [ ] **Oyuncu özelliklerini canlandır.** Ağaç hâlâ tembel: oyuncu düğümünde sadece `UniqueId`
+      var. `Bind(key)` var olmayan özelliği **oluşturmuyor**; denenen isimlerin
+      (`Name`, `Condition`, `Age`, `Fitness`, `FullName`...) hiçbiri yok.
+      Demek ki canlandırmayı yapan şey `BindingBag.Queue(id, element, BindingPath, cb)` —
+      bir `IBindableElement` üzerinden. Sıradaki deneme: Squad ekranını event/panel ile açtırmak.
 - [ ] Veri katmanı: path → TypedValue sarmalayıcı, referans gezinme, lazy bind
 - [x] Plugin içinde HTTP server (v0.2.0: /health /tree /get /exists /props)
 - [ ] `fm-cli` komut katmanı

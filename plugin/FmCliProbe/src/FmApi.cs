@@ -31,6 +31,7 @@ internal static class FmApi
 		"refprops" => RefProps(q["path"]),
 		"bind" => Bind(q["path"]),
 		"rawexists" => RawExists(q["path"]),
+		"keys" => Keys(Int(q["depth"], 4)),
 		_ => null, // 404
 	};
 
@@ -45,18 +46,27 @@ internal static class FmApi
 		return $"bindings: ok\ndescendants: {b.GetDescendantCount(ref root)}";
 	}
 
+	/// <summary>Read a value by path, using a locally computed key rather than a span.</summary>
 	private static string Get(string path)
 	{
 		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
-		var node = Resolve(path, out var err);
-		return err ?? Describe(node.Value);
+
+		var b = Game.Bindings;
+		if (b == null) return "error: bindings unavailable";
+
+		var key = PathKey.Of(path);
+		if (!b.Exists(ref key)) return $"error: '{path}' does not exist";
+
+		return Describe(b.Get(ref key)) ?? "<no value>";
 	}
 
 	private static string Exists(string path)
 	{
 		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
-		Resolve(path, out var err);
-		return err == null ? "true" : "false";
+		var b = Game.Bindings;
+		if (b == null) return "error: bindings unavailable";
+		var key = PathKey.Of(path);
+		return b.Exists(ref key).ToString().ToLowerInvariant();
 	}
 
 	/// <summary>
@@ -161,9 +171,8 @@ internal static class FmApi
 		if (b == null) return "error: bindings unavailable";
 		try
 		{
-			var key = Interop.WithSpan(path, span => Bindings.MakeKey(ref span));
-			var exists = Interop.WithSpan(path, span => b.Exists(ref span));
-			return $"'{path}': exists={exists}  makeKey={key.m_key} valid={key.IsValid()}";
+			var key = PathKey.Of(path);
+			return $"'{path}': key={key.m_key} exists={b.Exists(ref key)}";
 		}
 		catch (Exception ex) { return $"error: {ex.GetType().Name}: {ex.Message}"; }
 	}
@@ -182,10 +191,12 @@ internal static class FmApi
 
 		try
 		{
-			var before = Interop.WithSpan(path, span => b.Exists(ref span));
-			var key = Interop.WithSpan(path, span => b.Bind(ref span, NoOp));
-			var after = Interop.WithSpan(path, span => b.Exists(ref span));
-			return $"'{path}': existed={before} -> bound(key={key.m_key}, valid={key.IsValid()}) -> exists={after}";
+			var key = PathKey.Of(path);
+			var before = b.Exists(ref key);
+			b.Bind(ref key, NoOp);
+			var after = b.Exists(ref key);
+			var value = after ? Describe(b.Get(ref key)) : null;
+			return $"'{path}': existed={before} -> exists={after}  value={value ?? "<none>"}";
 		}
 		catch (Exception ex)
 		{
@@ -215,6 +226,46 @@ internal static class FmApi
 		if (value == null) return "error: node has no value";
 
 		return Schema.Describe(value) ?? $"error: not a reference ({node.Value.DataType?.Name})";
+	}
+
+	/// <summary>
+	/// Dump (parent key, child name, child key) triples.
+	///
+	/// Keys are ulongs and the span-free overloads take them directly, so if the key for a child
+	/// can be derived from its parent's key and its name, path addressing becomes possible again
+	/// without going near ReadOnlySpan. This exists to collect enough samples to work that out.
+	/// </summary>
+	private static string Keys(int maxDepth)
+	{
+		var root = Root(out var err);
+		if (err != null) return err;
+
+		var sb = new StringBuilder();
+		sb.AppendLine("parentKey\tchildKey\tname");
+
+		var stack = new Stack<(IReadOnlyNode Node, int Depth)>();
+		stack.Push((root, 0));
+		var seen = 0;
+
+		while (stack.Count > 0 && seen < MaxNodes)
+		{
+			var (node, depth) = stack.Pop();
+			seen++;
+			if (depth >= maxDepth) continue;
+
+			ulong parentKey;
+			try { parentKey = node.Key.m_key; }
+			catch { continue; }
+
+			for (var c = node.FirstChild; c != null; c = c.NextSibling)
+			{
+				try { sb.AppendLine($"{parentKey}\t{c.Key.m_key}\t{c.Name}"); }
+				catch { continue; }
+				stack.Push((c, depth + 1));
+			}
+		}
+
+		return sb.ToString();
 	}
 
 	// ------------------------------------------------------------------ walking
