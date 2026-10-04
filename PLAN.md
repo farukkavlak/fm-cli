@@ -126,7 +126,7 @@
 
 ## 7. Maç
 
-- [ ] `fm next` — ilerle (maça kadar)
+- [~] `fm next` — ilerletiyor; bloke mesajı tespit edip bildirmesi kaldı
 - [ ] Maç öncesi brifing / takım konuşması
 - [ ] Maçı simüle et (hızlı sonuç)
 - [ ] Canlı maç takibi (metin akışı)
@@ -181,8 +181,8 @@
 
 ## 11. İletişim
 
-- [ ] Inbox oku (`fm inbox`)
-- [ ] Mesaja cevap ver / aksiyon al
+- [~] Inbox oku — veri okunuyor, ambalaj yok
+- [x] Mesaja cevap ver / aksiyon al (`/newsaction`)
 - [ ] Basın toplantısı
 - [ ] Maç öncesi/sonrası röportaj
 - [ ] Oyuncuyla konuş (övgü, uyarı, söz verme)

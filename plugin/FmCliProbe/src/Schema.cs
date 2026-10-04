@@ -111,7 +111,14 @@ internal static class Schema
 	/// in PropertyIdentifierSet with its name, display name and owning type, so the names are
 	/// right there in the running process.
 	/// </summary>
-	private static string NameOf(PropertyID property)
+	/// <summary>The registered name alone, for callers that match on it rather than print it.</summary>
+	public static string PlainNameOf(PropertyID property)
+	{
+		try { return property.GetIdentifierSet()?.GetInfo(property)?.Name; }
+		catch { return null; }
+	}
+
+	public static string NameOf(PropertyID property)
 	{
 		try
 		{

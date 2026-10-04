@@ -645,6 +645,38 @@ Eksik tek parça: `Action` düğümü bir `DynamicReference` — yani `Dictionar
 property id → değer torbası. Aksiyonun **sayısal id'si** ağaçta isimli çocuk olarak görünmüyor;
 sözlüğü doğrudan gezip kayıt defteri isimleriyle basmak gerekiyor.
 
+## 8.15 Mesaja cevap verildi, zaman ilerledi
+
+Aksiyonun bütün kimliği `Action` düğümünün sözlüğünde duruyor — ağaç 9 çocuk gösteriyordu,
+sözlükte **31 giriş** var:
+
+```
+ActionTitle               Cancel Training Camp / Decline Introduction / Accept Current Vision
+IsNewsActionButton        hangi event'in gideceğini söylüyor
+NewsAction                RunNewsActionEvent için aksiyon id'si
+ActionResponseId          NewsResponseActionEvent.ResponseId
+ActionResponseValue       NewsResponseActionEvent.ResponseValue
+ActionID                  NewsResponseActionEvent.ResponseActionId
+ActionDataReferences      List<TypedValue> — **atlanırsa oyun çöküyor**
+```
+
+⚠ Alanları elle doldurup `ResponseActionDataReferences`'ı null bırakmak oyunu düşürdü:
+`libc++abi: terminating due to uncaught exception of type NativeThreadAbortException`.
+İş parçacığı sorunu değil (köprü zaten `MainThreadTick` üzerinde); handler null listeyi geziyor.
+Çözüm: alanları tek tek yazmak yerine **aksiyon kaydını olduğu gibi kopyalamak** — `/newsaction`.
+
+```
+/newsaction?news=<mesaj yolu>&action=<aksiyon yolu>
+```
+
+Sonuç: `NewsHasResponded = True`, oyun ayakta. Beş bloke mesajın dördü cevaplandı
+(iki "Decline Introduction", bir "Accept Current Vision", bir "Begin Introduction") ve
+**`/next` tarihi ilerletti**: gelen kutusu 08:45 → 11:51 → 12:55. Üst üste çalışıyor.
+
+`fm next`'in gerçek semantiği böylece netleşti: ilerlet → cevap gerekiyorsa dur → cevapla →
+ilerlet. Bloke eden mesajı `has-required-actions` ayırt ediyor; `CanRespond` yetmiyor
+(cevaplanmış mesajda da `True` kalıyor).
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması
@@ -661,7 +693,8 @@ sözlüğü doğrudan gezip kayıt defteri isimleriyle basmak gerekiyor.
 - [x] **Event kataloğu** — 275 aksiyon tipi, alanlarıyla (§8.11)
 - [x] **Canlandırma mekanizması** — event gönder, veri ağaçta belirir (§8.13)
 - [x] **Genel event göndericisi** — `/send?event=...` (§8.14)
-- [ ] `DynamicReference` sözlüğünü gez — aksiyonların sayısal id'si orada (§8.14)
+- [x] `DynamicReference` sözlüğünü gez — `/dyn`, aksiyon kimliği orada (§8.15)
+- [x] **Mesaja cevap ver** — `/newsaction`, `fm next` artık ilerliyor (§8.15)
 - [ ] **Oyuncu özelliklerini canlandır.** Ağaç hâlâ tembel: oyuncu düğümünde sadece `UniqueId`
       var. `Bind(key)` var olmayan özelliği **oluşturmuyor**; denenen isimlerin
       (`Name`, `Condition`, `Age`, `Fitness`, `FullName`...) hiçbiri yok.

@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Text;
 using Il2CppInterop.Runtime;
 using SI.Bindable;
+using SI.Bindable.Reference.Core;
 using SI.Core;
 
 namespace FmCliProbe;
@@ -36,6 +37,8 @@ internal static class FmApi
 		"schema" => Schema.Catalog(q["filter"]),
 		"spanexists" => SpanExists(q["path"]),
 		"send" => Send.Event(q),
+		"dyn" => Dynamic(q["path"]),
+		"newsaction" => Send.NewsAction(q["news"], q["action"]),
 		_ => null, // 404
 	};
 
@@ -390,6 +393,38 @@ internal static class FmApi
 	{
 		var d = Describe(v);
 		return d == null ? "" : " = " + d;
+	}
+
+	/// <summary>
+	/// A DynamicReference's entries, named.
+	///
+	/// It is a property-id-keyed bag (base: SI.Core.Record), and the binding tree only shows the
+	/// entries some element happened to name as child nodes. The numeric ids an action needs are
+	/// in here, and the bag reports its own keys, so nothing has to be guessed.
+	/// </summary>
+	private static string Dynamic(string path)
+	{
+		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
+
+		var value = ValueAt(path, out var error);
+		if (error != null) return error;
+
+		var record = value.TryCast<SI.Bindable.DynamicReference>();
+		if (record == null) return $"error: not a DynamicReference ({value.GetIl2CppType()?.Name})";
+
+		var keys = new Il2CppSystem.Collections.Generic.List<PropertyID>();
+		record.GetProperties(keys);
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"{keys.Count} entr(ies), Count={record.Count}:");
+		foreach (var key in keys)
+		{
+			string described;
+			try { described = Describe(record[key.ID]) ?? "<no value>"; }
+			catch (Exception ex) { described = $"<threw {ex.GetType().Name}>"; }
+			sb.AppendLine($"  {key.ID,12}  {Schema.NameOf(key),-40}  {described}");
+		}
+		return sb.ToString();
 	}
 
 	private static string Describe(TypedValue v)
