@@ -74,15 +74,16 @@ internal static class Schema
 	{
 		var types = AppDomain.CurrentDomain.GetAssemblies()
 			.SelectMany(TypesOf)
-			.Where(t => typeof(SI.Interop.InteropReference).IsAssignableFrom(t) && t != typeof(SI.Interop.InteropReference))
+			// Not every reference type derives from InteropReference — several sit directly on
+			// Il2CppSystem.Object — so the static enumerator is the criterion, not the base type.
+			.Where(t => Enumerator(t) != null)
 			.Where(t => filter == null || t.Name.Contains(filter, StringComparison.OrdinalIgnoreCase))
 			.OrderBy(t => t.FullName, StringComparer.Ordinal);
 
 		var sb = new StringBuilder();
 		foreach (var type in types)
 		{
-			var enumerate = type.GetMethod("GetPropertiesInternal",
-				BindingFlags.Public | BindingFlags.Static);
+			var enumerate = Enumerator(type);
 			var describe = type.GetMethod("GetPropertyDescriptionInternal",
 				BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(uint) }, null);
 			var kind = type.GetMethod("GetPropertyTypeInternal",
@@ -123,6 +124,16 @@ internal static class Schema
 				: $"{info.Name}  \u2014 {display}";
 		}
 		catch (Exception ex) { return $"<threw {ex.GetType().Name}>"; }
+	}
+
+	private static MethodInfo Enumerator(Type type)
+	{
+		try
+		{
+			return type.GetMethod("GetPropertiesInternal", BindingFlags.Public | BindingFlags.Static,
+				null, new[] { typeof(List<PropertyID>) }, null);
+		}
+		catch { return null; }
 	}
 
 	private static Type[] TypesOf(Assembly assembly)

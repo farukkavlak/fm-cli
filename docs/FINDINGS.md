@@ -541,8 +541,12 @@ isimli olarak kayıtlı.
 Her `*Reference` tipinin `GetPropertiesInternal` ve `GetPropertyTypeInternal` metotları **static**.
 Yani bir düğümü canlandırmaya hiç gerek yok: tip kendi property'lerini canlı veri olmadan sayıyor.
 
-Sonuç — `/schema` tek çağrıda: **160 referans tipi, 6571 property, hepsi isimli, 0 çözümsüz.**
+Sonuç — `/schema` tek çağrıda: **931 referans tipi, 14504 property, hepsi isimli, 0 çözümsüz.**
 `docs/reference/data-model.txt`.
+
+⚠ Tipleri `InteropReference`'dan türeyenlerle sınırlamak yetmiyor: bir kısmı (ör.
+`NewsActionDataReference`) doğrudan `Il2CppSystem.Object` üzerinde duruyor. Ölçüt baz tip değil,
+**static `GetPropertiesInternal`'ın varlığı** — bu düzeltme modeli 160 tipten 931'e çıkardı.
 
 | Tip | Property |
 |---|---|
