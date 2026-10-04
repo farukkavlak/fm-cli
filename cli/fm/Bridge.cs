@@ -26,7 +26,9 @@ internal sealed class Bridge
 		}
 		catch (TaskCanceledException)
 		{
-			throw new FmUnavailable();
+			// A stalled request is not a missing game: the bridge runs on the game's main
+			// thread, so a busy frame looks exactly like a timeout.
+			throw new FmBusy();
 		}
 	}
 
@@ -56,5 +58,7 @@ internal sealed class Bridge
 }
 
 internal sealed class FmUnavailable : Exception;
+
+internal sealed class FmBusy : Exception;
 
 internal sealed class FmError(string text) : Exception(text);

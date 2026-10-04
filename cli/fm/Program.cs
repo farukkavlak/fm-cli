@@ -46,6 +46,11 @@ internal static class Program
 			Console.Error.WriteLine("FM çalışmıyor. `fm start` ile başlat.");
 			return 69; // EX_UNAVAILABLE
 		}
+		catch (FmBusy)
+		{
+			Console.Error.WriteLine("FM yanıt vermedi — meşgul olabilir (yükleme, maç). Tekrar dene.");
+			return 75; // EX_TEMPFAIL
+		}
 		catch (FmError error)
 		{
 			Console.Error.WriteLine(error.Message);
@@ -67,21 +72,7 @@ internal static class Program
 			return 69;
 		}
 
-		var squad = await Load();
-		if (squad.GetArrayLength() == 0)
-		{
-			// The squad only exists in the binding tree once its screen has bound it, and that
-			// takes a frame or two, so the screen is opened and the read retried.
-			await Fm.Get("send",
-				("event", "OpenSubtabEvent"),
-				("SubtabPanelID", "SquadScreen"),
-				("MainTabPanelID", "SquadScreen"),
-				("ObjectUniqueID", "0"),
-				("SecondaryTab", "false"));
-
-			await Task.Delay(TimeSpan.FromSeconds(5));
-			squad = await Load();
-		}
+		var squad = await Bound("squad", "SquadScreen");
 
 		if (json)
 		{
@@ -105,8 +96,29 @@ internal static class Program
 		// column to print until a view that carries one is opened.
 		Table.Write(new[] { "OYUNCU", "POZİSYON", "YAŞ", "TAKIM" }, rows);
 		return 0;
+	}
 
-		async Task<JsonElement> Load() => await Fm.GetJson("squad");
+	/// <summary>
+	/// Reads a shaped endpoint, opening the screen that binds it if nothing is there yet.
+	///
+	/// Only one screen's data is bound at a time: reading the squad unbinds the inbox and the
+	/// other way round, so every command has to be able to bring its own screen back.
+	/// </summary>
+	private static async Task<JsonElement> Bound(string route, string panel)
+	{
+		var data = await Fm.GetJson(route);
+		if (data.GetArrayLength() > 0) return data;
+
+		await Fm.Get("send",
+			("event", "OpenSubtabEvent"),
+			("SubtabPanelID", panel),
+			("MainTabPanelID", panel),
+			("ObjectUniqueID", "0"),
+			("SecondaryTab", "false"));
+
+		// Binding takes a frame or two, so the read waits rather than reporting nothing.
+		await Task.Delay(TimeSpan.FromSeconds(5));
+		return await Fm.GetJson(route);
 	}
 
 	private static async Task<int> Inbox(bool json)
@@ -117,7 +129,7 @@ internal static class Program
 			return 69;
 		}
 
-		var inbox = await Fm.GetJson("inbox");
+		var inbox = await Bound("inbox", "PortalScreen");
 		if (json)
 		{
 			Console.WriteLine(inbox.ToString());
@@ -153,7 +165,7 @@ internal static class Program
 
 		// Continue is refused outright while a message needs answering, and the game says
 		// nothing about it, so the blocking messages are reported instead of a silent no-op.
-		var inbox = await Fm.GetJson("inbox");
+		var inbox = await Bound("inbox", "PortalScreen");
 		var blocking = inbox.EnumerateArray().Where(Blocking).ToList();
 		if (blocking.Count > 0)
 		{

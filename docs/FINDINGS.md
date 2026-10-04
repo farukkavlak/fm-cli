@@ -824,6 +824,22 @@ Pratik sonuç: veri hâlâ **ekranın bağladığı kümeye** eşit. Kadro ekran
 (`Nation` düğümü çocuksuz — ekran yalnızca bayrak görselini kullanıyor), kondisyon/moral de yok.
 Bunlar için ilgili ekranı/görünümü açtırmak gerekiyor.
 
+## 8.22 Aynı anda tek ekranın verisi bağlı
+
+`fm squad` çalıştırdıktan sonra `fm inbox` **boş** dönüyordu. Veri kaybı değil: `SquadScreen`
+açılınca portal ekranının mesaj ağacı çözülüyor. Ağaç yalnızca o an bağlı olanı taşıyor.
+
+Sonuç: her komut **kendi ekranını açabilmek zorunda**. `fm squad` → `SquadScreen`,
+`fm inbox`/`fm next` → `PortalScreen` ("Overview"). Boş cevap gelirse ekran açılıp okuma
+tekrarlanıyor; dolu gelirse event hiç gönderilmiyor.
+
+Yani ekran geçişi bizim için bedava değil, ama görünür de değil — oyun küçültülmüş halde
+ekranları değiştiriyor.
+
+⚠ Zaman aşımı "oyun yok" demek değil. Köprü oyunun ana thread'inde çalıştığı için meşgul bir
+kare (yükleme, maç) zaman aşımına benziyor; `fm` artık ikisini ayırıyor:
+"FM yanıt vermedi — meşgul olabilir" (exit 75) ile "FM çalışmıyor" (exit 69).
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması
