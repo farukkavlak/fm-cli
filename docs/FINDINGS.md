@@ -677,6 +677,43 @@ Sonuç: `NewsHasResponded = True`, oyun ayakta. Beş bloke mesajın dördü ceva
 ilerlet. Bloke eden mesajı `has-required-actions` ayırt ediyor; `CanRespond` yetmiyor
 (cevaplanmış mesajda da `True` kalıyor).
 
+## 8.16 Kadro canlandı: ekranlar isimle adreslenebiliyor
+
+`PanelID` bir `ScriptableObject` — yani `Resources.FindObjectsOfTypeAll` ile **bütün ekran
+envanteri** adıyla listelenebiliyor, property kayıt defterinin bir katman üstü:
+
+```
+/panels?filter=squad
+  1355920640  SquadScreen
+  3249775616  InternationalSquadScreen
+```
+
+Navigasyon event'i bu yüzden artık elle asset bulmayı gerektirmiyor; `/send` bir `PanelID`
+alanını **adıyla** çözüyor:
+
+```
+/send?event=OpenSubtabEvent&SubtabPanelID=SquadScreen&MainTabPanelID=SquadScreen
+     &ObjectUniqueID=0&SecondaryTab=false
+```
+
+Ağaç 4198 → 5732. Hem A takımı hem U19 kadrosu canlandı:
+
+```
+..SquadScreenAC.1.1.2.FirstTeamC.0.02.1.4.TileVariables2.1.Items   (42 satır, 27 oyuncu)
+  Name = Marco Asensio          PositionCombinedString = M (C), AM (RLC)   Age = 29
+  Name = N'Golo Kanté           PositionCombinedString = DM, M (C)         Age = 34
+  ...
+Team: Name = Fenerbahçe   PlayerCount = 27   CanViewSquadNumbers = True
+```
+
+⚠ `GameStateCache.Manager.Club.MainTeam.Players.ListLoader0.<n>` düğümleri **hâlâ iskelet**
+(sadece `UniqueId`, `IsPersonFemale`...). Canlanan şey ekranın kendi satır listesi. Yani veri
+oyuncu nesnesinde değil, **ekranın bağladığı yerde** birikiyor — `fm squad` o yolu okumalı.
+
+Dolayısıyla canlanan property kümesi = ekranın kolonları (`Name`, `PositionCombinedString`,
+`Age`, `Nation`, `AverageRating`, `OverallAppearances`). `Condition`/`Morale` gibi alanlar için
+ilgili görünümü/kolon setini açtırmak gerekecek.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması
@@ -695,7 +732,8 @@ ilerlet. Bloke eden mesajı `has-required-actions` ayırt ediyor; `CanRespond` y
 - [x] **Genel event göndericisi** — `/send?event=...` (§8.14)
 - [x] `DynamicReference` sözlüğünü gez — `/dyn`, aksiyon kimliği orada (§8.15)
 - [x] **Mesaja cevap ver** — `/newsaction`, `fm next` artık ilerliyor (§8.15)
-- [ ] **Oyuncu özelliklerini canlandır.** Ağaç hâlâ tembel: oyuncu düğümünde sadece `UniqueId`
+- [x] **Oyuncu özelliklerini canlandır** — `OpenSubtabEvent` + `SquadScreen` (§8.16)
+- [ ] Kondisyon/moral gibi kolonları açtır — ekranın görünümünü değiştirmek gerekiyor Ağaç hâlâ tembel: oyuncu düğümünde sadece `UniqueId`
       var. `Bind(key)` var olmayan özelliği **oluşturmuyor**; denenen isimlerin
       (`Name`, `Condition`, `Age`, `Fitness`, `FullName`...) hiçbiri yok.
       Demek ki canlandırmayı yapan şey `BindingBag.Queue(id, element, BindingPath, cb)` —

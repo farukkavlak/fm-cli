@@ -39,6 +39,7 @@ internal static class FmApi
 		"send" => Send.Event(q),
 		"dyn" => Dynamic(q["path"]),
 		"newsaction" => Send.NewsAction(q["news"], q["action"]),
+		"panels" => Panels.Catalog(q["filter"]),
 		_ => null, // 404
 	};
 

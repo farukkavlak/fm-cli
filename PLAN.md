@@ -40,8 +40,8 @@
 
 ## 2. Kadro ve oyuncu
 
-- [~] Kadro listesi bulundu (27 oyuncu, `MainTeam.Players`) — isim/özellik henüz canlanmıyor
-- [ ] `fm squad` — kadroyu tablo olarak bas
+- [x] Kadro canlandı — isim, pozisyon, yaş, uyruk, ortalama rating (§8.16)
+- [~] `fm squad` — veri hazır, ambalaj yok
 - [ ] `fm squad --fitness` — kondisyon/yorgunluk
 - [ ] `fm squad --morale` — moral
 - [ ] `fm player <isim>` — oyuncu kartı (öznitelikler, sözleşme, form)

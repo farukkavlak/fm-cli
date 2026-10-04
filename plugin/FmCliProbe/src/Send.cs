@@ -99,6 +99,15 @@ internal static class Send
 		if (target == typeof(bool)) return bool.Parse(raw);
 		if (target == typeof(float)) return float.Parse(raw);
 
+		// A panel is addressed by its asset name, not by a binding path: it is a
+		// ScriptableObject that exists before anything binds it.
+		if (target == typeof(SI.Bindable.PanelID))
+		{
+			var panel = Panels.ByName(raw);
+			if (panel == null) throw new Exception($"no panel named '{raw}'");
+			return panel;
+		}
+
 		if (typeof(Il2CppObjectBase).IsAssignableFrom(target))
 		{
 			var value = FmApi.ValueAt(raw, out var error);
@@ -117,7 +126,7 @@ internal static class Send
 	}
 
 	private static string Describe(Type target, string raw, object value) =>
-		typeof(Il2CppObjectBase).IsAssignableFrom(target) ? $"{target.Name} from '{raw}'" : value.ToString();
+		typeof(Il2CppObjectBase).IsAssignableFrom(target) ? $"{target.Name} '{raw}'" : value.ToString();
 
 	private static Type[] TypesOf(Assembly assembly)
 	{
