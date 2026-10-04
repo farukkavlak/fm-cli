@@ -518,6 +518,75 @@ eksik olması isim yanlışlığından değil, sadece canlanmamış olmasından.
 `"BAAAACAxMTEB...=Sadettin Saran"` — muhtemelen `EmbeddedDataHandler`'ın tıklanabilir bağlantı
 markup'ı. `=` sonrası alınmalı; CLI'a basmadan önce temizlenecek.
 
+## 8.11 Şema statik: oyunun kendi kayıt defteri
+
+Şu ana kadarki hata, veri modelini canlı ağacı dürterek keşfetmeye çalışmaktı. Model statik —
+sadece *değerler* canlı. Oyun kendi şemasını üç kayıt defterinde tutuyor:
+
+```csharp
+// SI.Bindable.Reference.Core
+PropertyIdentifierSet.m_idToInfo   : Dictionary<uint, PropertyIDInfo>
+ReferenceIdentifierSet             // referans tiplerinin adları
+ContextIdentifierSet               // bağlam adları
+
+PropertyIDInfo { uint ID; string Name; string DisplayName; int Flag; }
+PropertyID.GetIdentifierSet()      // instance metot — generic static'e dokunmaya gerek yok
+```
+
+`GetPropertyDescriptionInternal` release build'de boş dönüyor (§bugünün bilançosu'nda
+"açıklamalar ayıklanmış" diye not edilen şey), ama **kayıt defteri ayıklanmamış**. Yani property
+ID'lerinin okunaksız dört karakterlik kodlar (`g96I`, `7upK`) olması bir engel değil: her ID
+isimli olarak kayıtlı.
+
+Her `*Reference` tipinin `GetPropertiesInternal` ve `GetPropertyTypeInternal` metotları **static**.
+Yani bir düğümü canlandırmaya hiç gerek yok: tip kendi property'lerini canlı veri olmadan sayıyor.
+
+Sonuç — `/schema` tek çağrıda: **160 referans tipi, 6571 property, hepsi isimli, 0 çözümsüz.**
+`docs/reference/data-model.txt`.
+
+| Tip | Property |
+|---|---|
+| `PersonReference` | 1245 |
+| `ClubReference` | 492 |
+| `TeamReference` | 461 |
+| `CompReference` | 296 |
+| `MatchTacticReference` | 227 |
+
+`BindingKind` ayrıca property'nin referans olup olmadığını ve **hangi tipe gittiğini** söylüyor
+(`Reference -> person`), yani düz liste değil gezilebilir bir grafik: 1449 kenar.
+
+### Aksiyon yüzeyi de statik
+
+`EventBase<T>`'den türeyen her tip = FM26'da yapılabilen her aksiyon. Interop DLL'lerinden,
+oyun çalışmadan: **275 event**, alanlarıyla. `tools/sigdump --catalog events`,
+`docs/reference/events.txt`.
+
+Mesaja cevap verme bu yüzden artık tahmin değil:
+
+```csharp
+NewsResponseActionEvent {
+    NewsItemReference NewsItem;  int ResponseId;  int ResponseValue;
+    int ResponseActionId;        List<TypedValue> ResponseActionDataReferences;
+}
+```
+
+`NewsItemReference`'ın 44 property'sinden ilgili olanlar: `NewsActionData`,
+`NewsItemActionDataReferences`, `NewsItemAction`, `CanRespond`, `ContinueText`,
+`LatestResponseString`.
+
+## 8.12 Span köprüsü `ref` ile de ölü
+
+§8.2'deki değer geçen aşırı yükleme çalışmıyordu; API `ref ReadOnlySpan<char>` de sunuyor ve
+pointer geçtiği için sağ kalması beklenirdi. Kalmıyor:
+
+```
+'app.LastSave'          : exists=True
+'ZzNotAPathZz.NopeNope' : exists=True   ← çöp yol da True
+```
+
+Aynı yanlış pozitif. Yani `Create(path, flags)`, `FindNodeWithName`, `FindContext` — span alan
+her şey kapalı; adresleme §8.2b'deki kendi key hesabımızla kalıyor.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması
@@ -530,6 +599,8 @@ markup'ı. `=` sonrası alınmalı; CLI'a basmadan önce temizlenecek.
 - [x] Kadro listesi bulundu: `GameStateCache.Manager.Club.MainTeam.Players.ListLoader0.<0..1A>`
       (27 oyuncu, her biri `PersonReference`)
 - [x] Path adresleme — key hesaplayarak çözüldü (§8.2b), span'a gerek kalmadı
+- [x] **Veri modelinin tamamı** — 160 tip / 6571 property, isimli (§8.11)
+- [x] **Event kataloğu** — 275 aksiyon tipi, alanlarıyla (§8.11)
 - [ ] **Oyuncu özelliklerini canlandır.** Ağaç hâlâ tembel: oyuncu düğümünde sadece `UniqueId`
       var. `Bind(key)` var olmayan özelliği **oluşturmuyor**; denenen isimlerin
       (`Name`, `Condition`, `Age`, `Fitness`, `FullName`...) hiçbiri yok.

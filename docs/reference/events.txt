@@ -1,0 +1,1121 @@
+FM.GamePlugin.EventToPlugin  [FM.GamePlugin]
+    SI.Interop.InteropReference Target
+    FM.GamePlugin.InteropEventIDs ID
+    SI.Core.TypedValue DataToSend
+    System.Boolean IsDisposed
+FM.Graphics.Environment.ManagerCloseUpCameraEvent  [FM.Graphics]
+    FM.Graphics.Environment.ManagerCloseUpCamera+TabType TabType
+    System.Boolean IsTab
+    System.Boolean IsCloseUp
+    System.Boolean IsDisposed
+FM.Graphics.FrameStats+ToggleFrameStatsEvent  [FM.Graphics]
+    System.Boolean IsDisposed
+FM.Graphics.MatchAdShownEvent  [FM.Graphics]
+    System.String Name
+    System.Boolean IsExternal
+    System.Boolean IsDisposed
+Graphics.Environment.ManagerRotationDisableEvent  [FM.Graphics]
+    System.Boolean IsDisposed
+Graphics.Environment.ManagerRotationEnableEvent  [FM.Graphics]
+    System.Boolean IsDisposed
+Graphics.Environment.ManagerRotationEvent  [FM.Graphics]
+    System.Single Delta
+    System.Boolean IsDisposed
+FM.Match.Camera.OnCameraStateChangedEvent  [FM.Match]
+    System.Boolean Value
+    Il2CppSystem.Collections.Generic.List`1<FM.Match.MatchStandsRoofs> Roofs
+    UnityEngine.Transform Transform
+    System.String Name
+    System.Boolean IsDisposed
+FM.Match.Camera.OnGoalLinePositionRequestedEvent  [FM.Match]
+    Il2CppSystem.Action`1<UnityEngine.Vector2> OnGoalLinePositionRequested
+    System.Boolean IsDisposed
+FM.Match.Camera.RequestPitchBoundariesEvent  [FM.Match]
+    Il2CppSystem.Action`3<UnityEngine.Vector2> OnPitchBoundariesRequested
+    System.Boolean IsDisposed
+FM.Match.Cutscene.DynamicCutscenePropEvent  [FM.Match]
+    UnityEngine.GameObject Prop
+    System.Boolean Created
+    System.Boolean IsDisposed
+FM.Match.Cutscene.OnCrowdMoodAnimationCutsceneBehaviourStartedEvent  [FM.Match]
+    FM.Match.FixtureTeam FixtureTeam
+    SI.Match.CrowdMood CrowdMood
+    System.Boolean IsDisposed
+FM.Match.Cutscene.OnGraphBindingComplete  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.Cutscene.OnLoopingMatchAudioCutsceneBehaviourChangedEvent  [FM.Match]
+    FM.Match.FixtureTeam FixtureTeam
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Audio.AudioEvent> AudioEventRef
+    System.Single FadeInDuration
+    System.Single FadeOutDuration
+    System.Boolean IsDisposed
+FM.Match.Cutscene.OnOneShotMatchAudioCutsceneBehaviourPausedEvent  [FM.Match]
+    System.Int32 HashCode
+    System.Single FadeOutDuration
+    System.Boolean IsDisposed
+FM.Match.Cutscene.OnOneShotMatchAudioCutsceneBehaviourStartedEvent  [FM.Match]
+    System.Int32 HashCode
+    FM.Match.FixtureTeam FixtureTeam
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Audio.AudioEvent> AudioEventRef
+    System.Single FadeInDuration
+    System.Boolean IsDisposed
+FM.Match.MatchAuditGraphicsSettingChangeEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchExitEvent  [FM.Match]
+    FM.UI.MatchReference MatchReference
+    SI.Core.TypedValue DataToSend
+    System.Boolean IsDisposed
+FM.Match.MatchIncidentClickEvent  [FM.Match]
+    System.Int32 IncidentTimeSlice
+    System.Boolean IsDisposed
+FM.Match.MatchOnlinePauseEvent  [FM.Match]
+    System.Boolean Paused
+    System.Boolean IsDisposed
+FM.Match.MatchOpenTacticsEvent  [FM.Match]
+    System.Boolean OpenTactics
+    System.Boolean ConfirmTacticalChanges
+    System.Boolean EnableSubs
+    System.Boolean HasPendingTacticalChanges
+    System.Boolean IsDisposed
+FM.Match.MatchPreferenceChangedEvent`1  [FM.Match]
+    T NewValue
+    System.UInt32 Property
+    System.Boolean IsDisposed
+FM.Match.MatchSaveMatchEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchSeekEvent  [FM.Match]
+    System.Single Time
+    System.Boolean AbsoluteTime
+    System.Boolean IsDisposed
+FM.Match.MatchSeekLiveEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchShowHighlightEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchShowNextHighlightEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchShowOverviewEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchShowPreviousHighlightEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchSkipReplayEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchStartCountdownEvent  [FM.Match]
+    System.Boolean StartCountdown
+    System.Boolean InLiveMatchPlaybackState
+    System.Boolean IsDisposed
+FM.Match.MatchStartEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.MatchTogglePlayPauseEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.OnHawkeyeReplayAnimationUpdateEvent  [FM.Match]
+    System.Single Opacity
+    UnityEngine.Vector3 TargetOffset
+    System.Single SplineDollyPosition
+    System.Boolean IsDisposed
+FM.Match.OnMatchTacticsChangedEvent  [FM.Match]
+    System.Boolean IsDisposed
+FM.Match.OnSeekEvent  [FM.Match]
+    System.Int32 Slice
+    System.Int32 CurrentFirstIndex
+    System.Int32 CurrentLastIndex
+    System.Boolean Regenerate
+    System.Boolean IsDisposed
+FM.Match.TeamTalkEvent  [FM.Match]
+    FM.UI.MatchReference MatchReference
+    System.Boolean IsDisposed
+FM.Match.TimelineSeekEvent  [FM.Match]
+    System.Int32 Time
+    System.Boolean IsDisposed
+FM.UI.AbortAddManagerEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.AddColumnEvent  [FM.UI]
+    System.String TableID
+    System.String ColumnID
+    System.Boolean IsDisposed
+FM.UI.AddManagerEditSessionEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.AddManagerEvent  [FM.UI]
+    FM.UI.AddUserEditSessionReference SessionReference
+    System.Boolean IsDisposed
+FM.UI.AdviceOptionsSelectionEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    SI.Core.TypedValue SelectedOptionIndex
+    SI.Core.TypedValue InPossession
+    SI.Core.TypedValue Club
+    SI.Core.TypedValue Date
+    SI.Core.TypedValue OpponentTeam
+    SI.Core.TypedValue Team
+    System.Boolean IsDisposed
+FM.UI.AuditManagerEvent  [FM.UI]
+    SI.Bindable.Bindings+Key AppearanceData
+    SI.Bindable.Bindings+Key ManagerPersonaKey
+    System.Boolean IsDisposed
+FM.UI.BackToEditManagerAppearanceFromPersonaEvent  [FM.UI]
+    SI.Bindable.BindingPath AppearanceDataPathToWrite
+    SI.Bindable.DynamicReference AppearanceData
+    System.Boolean IsQuickStart
+    System.Boolean IsOnlyEdit
+    FM.UI.EditManagerAppearanceModule+PanelOnCloseBehaviour CloseBehaviour
+    FM.UI.EditManagerAppearanceModule+PanelOnCloseBehaviour SaveBehaviour
+    System.Boolean IsDisposed
+FM.UI.BlockPlayerEvent  [FM.UI]
+    System.UInt64 PlayerID
+    System.Boolean IsBlocked
+    System.Boolean IsDisposed
+FM.UI.CacheModulePreferenceEvent  [FM.UI]
+    System.String PreferenceKey
+    SI.Core.TypedValue CachedValue
+    System.Boolean IsDisposed
+FM.UI.CacheModulePreferenceLateBindingUpdateEvent  [FM.UI]
+    System.String PreferenceKey
+    SI.Bindable.Bindings+Key DestinationBindingKey
+    SI.Core.TypedValue CachedValue
+    System.Boolean IsDisposed
+FM.UI.CalculateCoachingAttributesEvent  [FM.UI]
+    System.Int32 JobAreaIndex
+    System.Int32 JobTypeIndex
+    System.Boolean IsDisposed
+FM.UI.CalculateMentalAttributesEvent  [FM.UI]
+    System.Int32 JobAreaIndex
+    System.Int32 JobTypeIndex
+    System.Boolean IsDisposed
+FM.UI.CalculateNationalitiesAndLanguagesEvent  [FM.UI]
+    SI.Bindable.Bindings+Key NationalitiesKey
+    SI.Bindable.Bindings+Key LanguagesKey
+    System.Boolean IsDisposed
+FM.UI.CalculateReputationEvent  [FM.UI]
+    System.Int32 PreviousFootballCareerIndex
+    System.Int32 PreviousJobAreaIndex
+    System.Int32 PreviousJobRenownIndex
+    System.Int32 PreviousJobTypeIndex
+    System.Int32 BadgeIndex
+    System.Boolean IsDisposed
+FM.UI.CancelColourPreferencesEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.CancelPreferenceChangesEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ChangeSelectionEvent  [FM.UI]
+    FM.UI.ChangeDirection Direction
+    System.Boolean IsDisposed
+FM.UI.CharacterSettingsResetAppearanceEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ClearRichPresenceEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.CloseEditManagerScreenEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ColourPickerClosedEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ConfirmColoursEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ConfirmCreateAClubFeature1Event  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ConfirmSelectedManagerEvent  [FM.UI]
+    FM.UI.AddUserEditSessionReference SessionReference
+    System.Boolean IsDisposed
+FM.UI.ConfirmTeamSelectionEvent  [FM.UI]
+    FM.UI.TacticReference TacticReference
+    System.Boolean UsingInstantResult
+    System.Boolean TeamSelectionCancelled
+    System.Boolean IsDisposed
+FM.UI.ContinueGameEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ContinueToPersonaSetupWithDataEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.CreateFeature1GameEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.DeleteSelectedGameEvent  [FM.UI]
+    SI.Bindable.Bindings+Key DeleteGameDataKey
+    System.Boolean IsDisposed
+FM.UI.DeleteTacticEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    System.Boolean IsDisposed
+FM.UI.DialogActionEvent  [FM.UI]
+    FM.UI.DialogActionType ActionID
+    SI.Core.TypedValue Payload
+    System.Boolean IsDisposed
+FM.UI.DialogChangeDropdownSelectionEvent  [FM.UI]
+    SI.Core.TypedValue SelectedValue
+    System.Boolean IsDisposed
+FM.UI.DialogChangeInputFieldEvent  [FM.UI]
+    SI.Core.TypedValue SelectedValue
+    System.Boolean IsDisposed
+FM.UI.DisposeLoadedManagerModelEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.FMMenuOptionEvent  [FM.UI]
+    FM.UI.FMMenuOptionEvent+FMMenuOption MenuOption
+    SI.Core.DataCollection DataCollection
+    System.String PanelIDColumn
+    System.Boolean IsDisposed
+FM.UI.FMpediaBackSectionEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.FMpediaChangeSectionEvent  [FM.UI]
+    System.UInt32 SectionID
+    System.Boolean IsDisposed
+FM.UI.FMpediaForwardSectionEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.FMpediaOpenOnSectionEvent  [FM.UI]
+    System.UInt32 SectionID
+    System.Boolean IsDisposed
+FM.UI.FilterOnlineLobbiesEvent  [FM.UI]
+    SI.Core.Record LobbyFilters
+    System.Boolean IsDisposed
+FM.UI.FormationOptionEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    SI.Core.TypedValue InPossession
+    SI.Core.TypedValue Data
+    System.Boolean IsDisposed
+FM.UI.GameplayOptionEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    SI.Core.TypedValue Data
+    Il2CppSystem.Collections.Generic.List`1<SI.Bindable.Events.IOpenPanelEvent+Argument> Arguments
+    System.Boolean IsDisposed
+FM.UI.GenericActionEvent  [FM.UI]
+    FM.UI.ActionReference Interop
+    FM.GamePlugin.ActionID ID
+    System.UInt32 Event
+    SI.Core.TypedValue ActionData
+    System.Boolean IsDisposed
+FM.UI.GetBodyTypeEvent  [FM.UI]
+    SI.Bindable.Bindings+Key IndexKey
+    System.Boolean IsDisposed
+FM.UI.GetCoachingAndMentalAttributesEvent  [FM.UI]
+    SI.Bindable.Bindings+Key CoachingAttributesKey
+    SI.Bindable.Bindings+Key MentalAttributesKey
+    SI.Bindable.Bindings+Key CoachingNumAttributesKey
+    SI.Bindable.Bindings+Key MentalNumAttributesKey
+    System.Boolean Force
+    System.Boolean IsDisposed
+FM.UI.GetManagerNonPlayingAttributesListEvent  [FM.UI]
+    FM.UI.ManagerPersonaReference ManagerPersonaRef
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> CoachingPropsList
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> MentalPropsList
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> TendenciesList
+    System.Boolean IsDisposed
+FM.UI.GlobalMatchExitEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.GoBackToEditManagerAppearanceEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.GoOnHolidayEvent  [FM.UI]
+    FM.UI.GoOnHolidayReference HolidayReference
+    System.Boolean ReturnFromHoliday
+    System.Boolean IsDisposed
+FM.UI.HumanStatusActionClickedEvent  [FM.UI]
+    System.Int32 Action
+    System.String Password
+    FM.UI.PersonReference PersonReference
+    System.Boolean IsDisposed
+FM.UI.HumanStatusActionConfirmEvent  [FM.UI]
+    System.Boolean Confirm
+    System.String Password
+    System.Boolean IsDisposed
+FM.UI.IGEPanelSetupEvent  [FM.UI]
+    SI.Bindable.Bindings+Key IGEObjectKey
+    SI.Bindable.Bindings+Key IGEEditorKey
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> PanelID
+    FM.UI.IGEModule+IGEPanelIndex PanelIndex
+    System.Boolean IsDisposed
+FM.UI.InputRebindingStateChangedEvent  [FM.UI]
+    FM.UI.InputRebindingState State
+    SI.Core.TypedValue Data
+    System.Boolean IsDisposed
+FM.UI.InstantResultEvent  [FM.UI]
+    FM.UI.TacticReference TacticReference
+    SI.Core.TypedValue DataToSend
+    System.Boolean IsDisposed
+FM.UI.IntroPanelOpenedEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.JoinOnlineLobbyEvent  [FM.UI]
+    SI.Core.Record JoinLobbyDataRecord
+    System.Boolean IsDisposed
+FM.UI.JoinOnlineLobbyWithPasswordEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.KickPlayerEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.LoadGameTileSelectionEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.LoadManagerEnvironmentEvent  [FM.UI]
+    System.Boolean Show
+    System.Boolean IsDisposed
+FM.UI.LoadSelectedGameEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ManagerCreationCheckMandatoryDropdownEvent  [FM.UI]
+    System.Int32 Selection
+    FM.UI.DbSummaryNationReference SelectionNation
+    SI.Bindable.Bindings+Key ListFieldsValidKey
+    System.Int32 IndexListFieldsValid
+    SI.Bindable.Bindings+Key FieldsSelectedKey
+    System.Boolean IsDisposed
+FM.UI.ManagerCreationCheckMandatoryFieldEvent  [FM.UI]
+    System.String Field
+    SI.Bindable.Bindings+Key ListFieldsValidKey
+    System.Int32 IndexListFieldsValid
+    SI.Bindable.Bindings+Key FieldsSelectedKey
+    System.Boolean IsDisposed
+FM.UI.ManagerCreationCheckMandatoryRadioGroupEvent  [FM.UI]
+    System.Int32 SelectionIndexInt
+    System.Boolean SelectionIndexBool
+    SI.Bindable.Bindings+Key ListFieldsValidKey
+    System.Int32 IndexListFieldsValid
+    SI.Bindable.Bindings+Key FieldsSelectedKey
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean IsDisposed
+FM.UI.ManagerCreationRefreshReputationMandatoryFieldsEvent  [FM.UI]
+    System.Int32 SelectionJobRenown
+    SI.Bindable.Bindings+Key ListFieldsValidKey
+    SI.Bindable.Bindings+Key FieldsSelectedKey
+    SI.Bindable.Bindings+Key TotalMandatoryFieldsKey
+    System.Int32 TotalMandatoryFieldsConst
+    System.Boolean IsDisposed
+FM.UI.ManagerCreationResetListFieldsValidEvent  [FM.UI]
+    SI.Bindable.Bindings+Key ListFieldsValidKey
+    System.Boolean ResetValue
+    System.Boolean IsDisposed
+FM.UI.ManagerCreationValidateProfanityEvent  [FM.UI]
+    Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray Fields
+    SI.Translation.TranslationID ErrorNotificationTitle
+    SI.Bindable.Bindings+Key SourceKey
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean ForceUpdate
+    System.Boolean IsDisposed
+FM.UI.ManagerEditNamesValidationEvent  [FM.UI]
+    Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray Fields
+    SI.Translation.TranslationID ErrorNotificationTitle
+    SI.Bindable.Bindings+Key SourceKey
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean ForceUpdate
+    SI.Interop.InteropReference Target
+    FM.GamePlugin.InteropEventIDs ID
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> PanelID
+    Il2CppSystem.Collections.Generic.List`1<SI.Bindable.Events.IOpenPanelEvent+Argument> Arguments
+    System.String Anchor
+    SI.Bindable.RebindMethod RebindMethod
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> ClosePanelID
+    System.Boolean IsDisposed
+FM.UI.MapFileBrowserEntryToSaveReferenceEvent  [FM.UI]
+    SI.Core.Record SaveGameRecord
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean IsDisposed
+FM.UI.MarkMediaNewsAsReadEvent  [FM.UI]
+    FM.UI.NewsItemReference NewsItem
+    System.Boolean IsDisposed
+FM.UI.MatchContinueEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.MatchNavOptionEvent  [FM.UI]
+    SI.Interop.InteropReference Team
+    SI.Interop.InteropReference Tactic
+    SI.Interop.InteropReference Match
+    SI.Core.TypedValue Data
+    System.Boolean IsDisposed
+FM.UI.MatchPlayerMenuEvent  [FM.UI]
+    FM.UI.MatchTacticReference Target
+    SI.Core.TypedValue Data
+    SI.Bindable.PanelID PlayerPanel
+    SI.Bindable.PanelID PlayerInstructionsPanel
+    System.Boolean IsDisposed
+FM.UI.MessagesPanelReadyEvent  [FM.UI]
+    FM.UI.NewsItemReference NewsItem
+    System.Int32 PortalSourceId
+    System.Boolean IsDisposed
+FM.UI.ModifyTacticEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    SI.Core.TypedValue Data
+    SI.Core.TypedValue SecondaryData
+    SI.Core.TypedValue Team
+    System.Boolean IsAddingSlot
+    System.Boolean IsDisposed
+FM.UI.NewFeature1GameEvent  [FM.UI]
+    System.Boolean QuickStart
+    System.Boolean IsDisposed
+FM.UI.NewGameCancelFlowEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.NewGameChangeConfirmationEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.NewGameConfirmCreateGameEvent  [FM.UI]
+    System.Boolean IsQuickStart
+    System.Boolean IsDisposed
+FM.UI.NewGameCreatedEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.NewGameLoadDatabaseEvent  [FM.UI]
+    System.Boolean IsQuickStart
+    System.Boolean IsWorldCup
+    System.Boolean IsDisposed
+FM.UI.NewGameSelectNationEvent  [FM.UI]
+    System.Boolean Selected
+    SI.Interop.InteropReference Nation
+    System.Boolean IsDisposed
+FM.UI.NewGameShowGamemodesEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.NewGameShowManagerSelectionEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.NewGameShowNewGameEvent  [FM.UI]
+    FM.UI.GameMode GameMode
+    FM.UI.AddUserEditSessionReference SessionReference
+    System.Boolean IsDisposed
+FM.UI.NewGameStartNewOnlineGameEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.NewsResponseActionEvent  [FM.UI]
+    FM.UI.NewsItemReference NewsItem
+    System.Int32 ResponseId
+    System.Int32 ResponseValue
+    System.Int32 ResponseActionId
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> ResponseActionDataReferences
+    System.Boolean IsDisposed
+FM.UI.OnlineCareerPreferencesConfirmChangesEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.OpenBookmarkEvent  [FM.UI]
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> BookmarkPanelID
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> MainTabPanelID
+    System.Boolean IsDisposed
+FM.UI.OpenDescendantDropdownEvent  [FM.UI]
+    UnityEngine.UIElements.VisualElement EventCaller
+    System.String OptionalDropdownName
+    System.Boolean IsDisposed
+FM.UI.OpenDynamicCardEvent  [FM.UI]
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> PanelID
+    Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2[[System.String> Arguments
+    FM.UI.DynamicCardCollection DynamicCardCollection
+    FM.UI.DynamicCardConfig+PlatformType PlatformType
+    System.Boolean IsDisposed
+FM.UI.OpenDynamicCardFromNewsActionEvent  [FM.UI]
+    SI.Bindable.Bindings+Key Key
+    System.UInt32 Identifier
+    System.Int32 NewsActionID
+    System.Int32 DynamicCardID
+    System.Boolean IsDisposed
+FM.UI.OpenEditManagerCardEvent  [FM.UI]
+    SI.Bindable.Bindings+Key ManagerPersona
+    SI.Bindable.Bindings+Key ManagerCharacterSettings
+    SI.Bindable.Bindings+Key IsQuickStart
+    SI.Bindable.Bindings+Key IsOnlyEdit
+    FM.UI.AddUserEditSessionReference SessionReference
+    System.Boolean IsDisposed
+FM.UI.OpenGenericDynamicCardEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.OpenIGEPanelEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.OpenManagerSelectionScreenEvent  [FM.UI]
+    SI.Bindable.Bindings+Key IsQuickStart
+    SI.Bindable.Bindings+Key IsOnlyEdit
+    System.Boolean IsDisposed
+FM.UI.OpenNewsActionPanelEvent  [FM.UI]
+    System.Int32 ActionId
+    System.Int32 DynamicCardId
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> ActionDataReferences
+    FM.UI.NewsItemReference NewsItem
+    System.Int32 PortalSourceId
+    System.Boolean IsDisposed
+FM.UI.OpenPkmEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.OpenSubtabEvent  [FM.UI]
+    SI.Bindable.PanelID SubtabPanelID
+    SI.Bindable.PanelID MainTabPanelID
+    System.Int32 ObjectUniqueID
+    System.Boolean SecondaryTab
+    System.Boolean IsDisposed
+FM.UI.PlayAnimationEvent  [FM.UI]
+    System.String AnimationID
+    System.Boolean IsDisposed
+FM.UI.PlayerStatusFlagEvent  [FM.UI]
+    System.Int32 PlayerStatusFlagID
+    System.Int32 IneligibilityReason
+    FM.UI.PersonReference PlayerDataReference
+    FM.UI.PersonReference HumanDataReference
+    FM.UI.TeamReference TeamDataReference
+    System.Boolean IsDisposed
+FM.UI.PortalMessagesEvent  [FM.UI]
+    FM.UI.PersonReference HumanReference
+    FM.UI.TeamReference ContextTeamReference
+    SI.Core.TypedValue Data
+    System.Boolean IsDisposed
+FM.UI.PortalNewsAggregatorSelectSiteEvent  [FM.UI]
+    SI.Core.TypedValue SelectedValue
+    SI.Bindable.PanelID NewsAggregatorPanelID
+    System.Boolean IsDisposed
+FM.UI.PreferencesConfirmChangesEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.PrivacyPolicyConfirmSelectionsEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.QuickChangeTacticInstructionEvent  [FM.UI]
+    SI.Interop.InteropReference TargetHandler
+    UnityEngine.UIElements.VisualElement EventCaller
+    UnityEngine.Vector2 Direction
+    SI.Core.TypedValue Data
+    System.Boolean IsDisposed
+FM.UI.QuitGameEvent  [FM.UI]
+    FM.UI.QuitGameEventAction QuitGameEventAction
+    System.Boolean IsDisposed
+FM.UI.RadialMenuControlChangedEvent  [FM.UI]
+    System.Boolean HoldEnabled
+    System.Boolean IsDisposed
+FM.UI.RadialMenuSetupEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.RandomiseManagerAppearanceElementEvent  [FM.UI]
+    SI.Bindable.Bindings+Key BodyType
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Int32 RangeFrom
+    System.Int32 RangeToMale
+    System.Int32 RangeToFemale
+    System.Boolean ForceUpdate
+    System.Boolean IsDisposed
+FM.UI.RandomiseManagerMorphValuesEvent  [FM.UI]
+    SI.Bindable.Bindings+Key BodyType
+    FM.Graphics.CharacterBuilder.AppearanceController.AppearanceControlData MaleAppearanceData
+    FM.Graphics.CharacterBuilder.AppearanceController.AppearanceControlData FemaleAppearanceData
+    System.Boolean IsDisposed
+FM.UI.RecruitmentFocusEditConfirmationDialogEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    SI.Bindable.PanelID ParentPanelID
+    System.Boolean CancelEdit
+    System.String Name
+    System.Boolean IsDisposed
+FM.UI.RefreshPropAfterXSecondsEvent  [FM.UI]
+    System.UInt32 PropID
+    System.Single WaitingTime
+    SI.Interop.InteropReference Target
+    System.Boolean IsDisposed
+FM.UI.RemoveColumnEvent  [FM.UI]
+    System.String TableID
+    System.String ColumnID
+    System.Boolean IsDisposed
+FM.UI.ReportPlayerEvent  [FM.UI]
+    SI.Core.Record ReportDataRecord
+    System.Boolean IsDisposed
+FM.UI.RequestForgottenPasswordEmailEvent  [FM.UI]
+    System.String Email
+    System.Boolean IsDisposed
+FM.UI.RequestLoginFMFCEvent  [FM.UI]
+    System.String Email
+    System.String Password
+    System.Boolean IsDisposed
+FM.UI.RequestLogoutFMFCEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.RequestRefreshOrAutoLoginEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.RequestResendVerificationEmailEvent  [FM.UI]
+    System.String Email
+    System.Boolean IsDisposed
+FM.UI.ResetCoachingAttributesEvent  [FM.UI]
+    SI.Bindable.Bindings+Key CoachingAttributesKey
+    System.Boolean IsDisposed
+FM.UI.ResetColourPreferencesEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ResetMentalAttributesEvent  [FM.UI]
+    SI.Bindable.Bindings+Key MentalAttributesKey
+    System.Boolean IsDisposed
+FM.UI.ResetToDefaultPreferencesEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ResetTutorialEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.ReturnToBasePanelEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.RevertPlayerInstructionsEvent  [FM.UI]
+    SI.Interop.InteropReference TargetHandler
+    System.UInt32 TeamSelectionIndex
+    System.Boolean InPossession
+    SI.Bindable.Bindings+Key DataToSendKey
+    System.Boolean IsDisposed
+FM.UI.RoleOptionEvent  [FM.UI]
+    SI.Interop.InteropReference Tactic
+    SI.Core.TypedValue InPossession
+    SI.Core.TypedValue SelectionIndex
+    SI.Core.TypedValue PositionMask
+    SI.Core.TypedValue Person
+    SI.Core.TypedValue Data
+    System.Boolean IsDisposed
+FM.UI.RunNewsActionEvent  [FM.UI]
+    FM.UI.NewsItemReference NewsItem
+    FM.UI.SpeakToReference SpeakTo
+    System.Int32 NewsActionID
+    System.Int32 DynamicCardID
+    System.Int32 PortalSourceId
+    System.Boolean IsDisposed
+FM.UI.SaveAddonEvent  [FM.UI]
+    SI.Core.TypedValue DataToSend
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> PanelID
+    System.Boolean IsDisposed
+FM.UI.SaveCharacterSettingsEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.SaveGameConflictEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.SaveGameEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.SearchResultClickedEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.SearchValueChangesEvent  [FM.UI]
+    System.String Value
+    System.Boolean IsDisposed
+FM.UI.SelectNonPlayingJobEvent  [FM.UI]
+    System.Int32 Role
+    System.Int32 SelectedJob
+    SI.Bindable.Bindings+Key Job1
+    SI.Bindable.Bindings+Key Job2
+    SI.Bindable.Bindings+Key Job3
+    SI.Bindable.Bindings+Key Job4
+    SI.Bindable.Bindings+Key Job5
+    System.Boolean IsDisposed
+FM.UI.SelectOrCreateClubForFeature1Event  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.SelectPlayerEvent  [FM.UI]
+    FM.UI.PersonReference NewPlayerReference
+    System.UInt32 Position
+    FM.UI.TacticReference EditSessionReference
+    System.Boolean IsDisposed
+FM.UI.SetBodyTypeEvent  [FM.UI]
+    SI.Bindable.Bindings+Key IndexKey
+    System.Boolean SetRandom
+    System.Boolean IsDisposed
+FM.UI.SetCompBackgroundEvent  [FM.UI]
+    System.Int32 CompId
+    System.Boolean IsDisposed
+FM.UI.SetDoNotShowEyePatchReplacementDialogEvent  [FM.UI]
+    SI.Bindable.Bindings+Key Hide
+    System.Boolean IsDisposed
+FM.UI.SetManagerEarringEvent  [FM.UI]
+    SI.Bindable.Bindings+Key SelectedSide
+    SI.Bindable.Bindings+Key SelectedEarring
+    SI.Bindable.Bindings+Key MetalColour
+    SI.Bindable.Bindings+Key JewelColour
+    System.Boolean IsDisposed
+FM.UI.SetManagerHearingDeviceEvent  [FM.UI]
+    SI.Bindable.Bindings+Key SelectedSide
+    SI.Bindable.Bindings+Key SelectedDevice
+    SI.Bindable.Bindings+Key BaseColour
+    SI.Bindable.Bindings+Key WireColour
+    SI.Bindable.Bindings+Key OverEarColour
+    System.Boolean IsDisposed
+FM.UI.SetManagerNameFieldsEvent  [FM.UI]
+    SI.Bindable.Bindings+Key SourceKey
+    SI.Bindable.Bindings+Key DestinationKey
+    System.String FirstName
+    System.String MiddleName
+    System.String LastName
+    System.String AddressAs
+    System.Boolean ForceUpdate
+    System.Boolean IsDisposed
+FM.UI.SetManagerOutfitColourEvent  [FM.UI]
+    System.String PieceName
+    SI.Bindable.Bindings+Key PieceColourIndex
+    SI.Bindable.Bindings+Key IsOutfit
+    System.Boolean IsDisposed
+FM.UI.SetNewsActionDataOnPanelEvent  [FM.UI]
+    FM.UI.NewsItemReference NewsItem
+    System.Int32 PortalSourceId
+    System.Boolean IsDisposed
+FM.UI.SetNicknameEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    FM.GamePlugin.InteropEventIDs ID
+    SI.Core.TypedValue DataToSend
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> PanelID
+    System.String Nickname
+    System.Boolean IsDisposed
+FM.UI.SetPieceRoutineFrequencyEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    SI.Core.TypedValue SetPieceRoutineIndex
+    SI.Core.TypedValue RoutineFrequency
+    System.Boolean IsDisposed
+FM.UI.SetPieceRoutineOptionEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    SI.Core.TypedValue Data
+    SI.Core.TypedValue RoutineData
+    SI.Core.TypedValue Team
+    SI.Core.TypedValue TacticInfo
+    System.Boolean IsDisposed
+FM.UI.SetPresetEvent  [FM.UI]
+    SI.Bindable.Bindings+Key PresetIndexKey
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean ForceUpdate
+    System.Boolean IsDisposed
+FM.UI.SetRandomManagerHeightEvent  [FM.UI]
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> ValuesList
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean IsDisposed
+FM.UI.SetRandomManagerOutfitColourEvent  [FM.UI]
+    SI.Bindable.Bindings+Key IsOutfit
+    SI.Bindable.Bindings+Key PrimaryColour
+    SI.Bindable.Bindings+Key SecondaryColour
+    SI.Bindable.Bindings+Key TertiaryColour
+    System.Boolean IsDisposed
+FM.UI.SetRandomRingDataFromDataCollectionEvent  [FM.UI]
+    SI.Bindable.Bindings+Key RingFinger
+    SI.Bindable.Bindings+Key BodyType
+    Il2CppSystem.Collections.Generic.List`1<SI.Bindable.Bindings+Key> DestinationKeys
+    System.Int32 RangeFrom
+    System.Int32 RangeToMale
+    System.Int32 RangeToFemale
+    System.Boolean ForceUpdate
+    System.Boolean IsDisposed
+FM.UI.SetRandomValueFromDataCollectionEvent  [FM.UI]
+    System.Int32 RangeFrom
+    System.Int32 RangeTo
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean ForceUpdate
+    System.Boolean IsDisposed
+FM.UI.SetRandomValueFromRangeEvent  [FM.UI]
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Single RangeFrom
+    System.Single RangeTo
+    System.Boolean UseIntegerValues
+    System.Boolean ForceUpdate
+    System.Boolean IsDisposed
+FM.UI.SetRichPresenceEvent  [FM.UI]
+    System.String RichPresenceKey
+    System.Boolean IsDisposed
+FM.UI.SetRichPresenceVariableEvent  [FM.UI]
+    System.String RichPresenceKey
+    System.String RichPresenceVar
+    System.Boolean IsDisposed
+FM.UI.ShowDateWidgetEvent  [FM.UI]
+    System.Boolean SetShowing
+    UnityEngine.UIElements.VisualElement EventCaller
+    System.Boolean IsDisposed
+FM.UI.SignUpForFMFCEvent  [FM.UI]
+    System.String Email
+    System.String ConfirmEmail
+    System.String Password
+    System.String FirstName
+    System.String SecondName
+    System.String Locale
+    System.Boolean LoginImmediate
+    System.Boolean IsDisposed
+FM.UI.SimulateButtonClickEvent  [FM.UI]
+    UnityEngine.UIElements.VisualElement EventCaller
+    System.String OptionalButtonName
+    System.Boolean IsDisposed
+FM.UI.SimulateCheckboxClickEvent  [FM.UI]
+    UnityEngine.UIElements.VisualElement EventCaller
+    System.String OptionalCheckboxName
+    System.Boolean IsDisposed
+FM.UI.SpeakToActionEvent  [FM.UI]
+    FM.UI.PersonReference NPC
+    FM.UI.SpeakToReference SpeakTo
+    System.UInt32 Event
+    System.UInt32 RejectConfirmationEvent
+    SI.Core.TypedValue ResponseValue
+    System.Int32 ResponseId
+    System.UInt32 ActionId
+    SI.Bindable.DynamicReference ActionData
+    SI.Bindable.DynamicReference ActionProps
+    SI.Bindable.DynamicReference ConfirmationStrings
+    SI.Bindable.DynamicReference OkStrings
+    SI.Bindable.PanelID PanelAttached
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> ResponseActionDataReferences
+    System.Int32 DynamicCardId
+    System.Int32 ResponseActionId
+    System.Boolean IsExitButton
+    System.Boolean IsContinueMatchFlowButton
+    System.Boolean LaunchedFromQuickAction
+    System.Boolean LaunchedFromDropdown
+    System.Boolean RequiresConfirmation
+    System.Boolean IsInductionSpeakTo
+    System.Boolean IsDisposed
+FM.UI.StartEditManagerAppearanceEvent  [FM.UI]
+    SI.Bindable.DynamicReference Data
+    SI.Bindable.BindingPath AppearanceDataPath
+    System.Boolean IsQuickStart
+    System.Boolean IsOnlyEdit
+    FM.UI.EditManagerAppearanceModule+PanelOnCloseBehaviour CloseBehaviour
+    FM.UI.EditManagerAppearanceModule+PanelOnCloseBehaviour SaveBehaviour
+    System.Boolean IsDisposed
+FM.UI.StartEditManagerDetailsEvent  [FM.UI]
+    System.Boolean IsSummaryActive
+    System.Boolean IsDisposed
+FM.UI.StartEditManagerPersonaEvent  [FM.UI]
+    SI.Bindable.DynamicReference Data
+    System.Boolean isQuickStart
+    System.Boolean isOnlyEdit
+    System.Boolean IsDisposed
+FM.UI.StartLoadingSaveEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.StoreApplyItemEvent  [FM.UI]
+    System.UInt32 StoreItemId
+    System.Int32 ApplicableInstances
+    System.Boolean IsDisposed
+FM.UI.StoreApplyItemToSelectionEvent  [FM.UI]
+    System.UInt32 StoreItemId
+    System.Int32 SelectionId
+    System.Boolean IsDisposed
+FM.UI.StoreEditSessionEvent  [FM.UI]
+    FM.UI.AddUserEditSessionReference SessionReference
+    System.Boolean IsDisposed
+FM.UI.StoreEnterEvent  [FM.UI]
+    System.Boolean IsDisposed
+FM.UI.StoreExitEvent  [FM.UI]
+    System.Boolean IsInSave
+    System.Boolean IsDisposed
+FM.UI.StorePurchaseItemEvent  [FM.UI]
+    System.UInt32 StoreItemId
+    System.Boolean IsDisposed
+FM.UI.StoreRemoveItemEvent  [FM.UI]
+    System.UInt32 StoreItemId
+    System.Boolean IsDisposed
+FM.UI.StoreSelectionCardLoadEvent  [FM.UI]
+    System.UInt32 StoreItemId
+    SI.Core.DataCollection DataCollection
+    System.String CardIDColumn
+    Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2[[System.String> Arguments
+    System.Boolean IsDisposed
+FM.UI.SwapCancelEvent  [FM.UI]
+    System.UInt32 ControllerSwappingMode
+    SI.Bindable.Bindings+Key ControllerSwappingModeKey
+    System.Boolean IsDisposed
+FM.UI.SwapPlayersEvent  [FM.UI]
+    System.Int32 Player1
+    System.Int32 Player2
+    System.UInt32 SwapPosition
+    System.Boolean IsInPossession
+    FM.UI.TacticReference EditSessionReference
+    System.Boolean IsDisposed
+FM.UI.SwitchNewsActionDataOnPanelEvent  [FM.UI]
+    System.Int32 SelectedTabIndex
+    System.Int32 UniqueId
+    System.Boolean ShowNextMessage
+    FM.UI.PersonReference HumanReference
+    FM.UI.TeamReference TeamReference
+    System.Boolean IsDisposed
+FM.UI.TacticRoleMenuShowEvent  [FM.UI]
+    UnityEngine.UIElements.VisualElement Target
+    SI.Core.TypedValue AvailableRolesData
+    SI.Core.TypedValue TeamSelectionIndexData
+    SI.Core.TypedValue InPossessionData
+    SI.Core.TypedValue TacticData
+    System.Boolean IsDisposed
+FM.UI.TacticTeamSelectionDropdownEvent  [FM.UI]
+    SI.Interop.InteropReference Target
+    SI.Core.TypedValue Data
+    FM.UI.TeamReference Team
+    SI.Core.TypedValue Position
+    SI.Core.TypedValue IsInPossession
+    SI.Core.TypedValue TeamSelectionIndex
+    System.Boolean IsDisposed
+FM.UI.TacticsPitchPositionEvent  [FM.UI]
+    FM.UI.TacticsPitchPositionPanels PanelToOpen
+    System.Int32 TeamSelectionIndex
+    System.Boolean InPossession
+    System.Boolean IsDisposed
+FM.UI.TacticsPositionButtonEvent  [FM.UI]
+    FM.UI.TacticReference EditSessionReference
+    System.UInt32 OwnPosition
+    System.UInt32 SelectedPosition
+    System.Int32 OwnPersonIndex
+    System.Int32 SelectedPersonIndex
+    System.Boolean IsInPossession
+    System.UInt32 ControllerSwappingMode
+    SI.Bindable.Bindings+Key SelectedPositionKey
+    SI.Bindable.Bindings+Key SelectedPersonIndexKey
+    SI.Bindable.Bindings+Key ControllerSwappingModeKey
+    System.Boolean IsDisposed
+FM.UI.TacticsTeamInstructionShowContextMenuEvent  [FM.UI]
+    UnityEngine.UIElements.VisualElement Target
+    SI.Bindable.BindingPath SelectedOptionPath
+    System.UInt32 CurrentSelectedOption
+    FM.UI.TacticTeamInstructionEntry TeamInstruction
+    System.Boolean OpenGoToOptionUsingButtonsRightClickEvent
+    System.Boolean IsDisposed
+FM.UI.TeamTrainingChangeEvent  [FM.UI]
+    SI.Interop.InteropReference TeamTrainingTarget
+    SI.Interop.InteropReference SingleTrainingTarget
+    SI.Core.TypedValue CurrentlySelectedFromTable
+    SI.Core.TypedValue Data
+    FM.GamePlugin.InteropEventIDs TeamEventID
+    FM.GamePlugin.InteropEventIDs SingleEventID
+    System.Boolean IsDisposed
+FM.UI.ToggleBookmarkSelectionEvent  [FM.UI]
+    SI.Bindable.PanelID PanelID
+    System.Boolean WasSelected
+    System.Boolean IsDisposed
+FM.UI.ToggleCoachingAttributesEvent  [FM.UI]
+    System.Int32 Index
+    System.Boolean Selected
+    System.Boolean IsDisposed
+FM.UI.ToggleMentalAttributesEvent  [FM.UI]
+    System.Int32 Index
+    System.Boolean Selected
+    System.Boolean IsDisposed
+FM.UI.TogglePhoneNavigationPanelEvent  [FM.UI]
+    System.Boolean Checked
+    System.Boolean IsDisposed
+FM.UI.TouchlineShoutMenuEvent  [FM.UI]
+    FM.UI.MatchTacticReference Target
+    FM.UI.MatchReference Match
+    SI.Core.TypedValue Data
+    SI.Bindable.PanelID IndividualTouchlineShoutPanel
+    System.Boolean IsDisposed
+FM.UI.TriggerTutorialEvent  [FM.UI]
+    System.UInt32 ID
+    System.Boolean CheckGrid
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> Arguments
+    System.Boolean IsDisposed
+FM.UI.TryOpenOnlinePanelEvent  [FM.UI]
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> PanelID
+    System.String Anchor
+    Il2CppSystem.Collections.Generic.List`1<SI.Bindable.Events.IOpenPanelEvent+Argument> Arguments
+    SI.Bindable.RebindMethod RebindMethod
+    System.Boolean IsDisposed
+FM.UI.TutorialActionEvent  [FM.UI]
+    System.UInt32 ID
+    System.Boolean IsDisposed
+FM.UI.UpdateSecondNavigationEvent  [FM.UI]
+    System.Boolean IsDisposed
+SI.Bindable.Events.UpdateSelectedSaveFileEvent  [FM.UI]
+    SI.Bindable.Bindings+Key SourceKey
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean IsDisposed
+SI.Anim.OnPlayableBehaviourPauseEvent  [SI.Anim]
+    SI.Anim.CharacterClipPlayable CharacterClipPlayable
+    System.Boolean IsDisposed
+SI.Anim.OnPlayableBehaviourPlayEvent  [SI.Anim]
+    SI.Anim.CharacterClipPlayable CharacterClipPlayable
+    System.Boolean IsDisposed
+SI.Anim.OnPlayableCreateEvent  [SI.Anim]
+    SI.Anim.CharacterClipPlayable CharacterClipPlayable
+    System.Boolean IsDisposed
+SI.Anim.OnPlayableDestroyEvent  [SI.Anim]
+    SI.Anim.CharacterClipPlayable CharacterClipPlayable
+    System.Boolean IsDisposed
+FM.UI.ChangeDropdownSelectionEvent  [SI.Bindable]
+    FM.UI.DropdownNavigation Direction
+    System.String DropdownName
+    System.Boolean IsDisposed
+SI.Bindable.EmbeddedDataClickedEvent  [SI.Bindable]
+    SI.Core.Record Record
+    SI.Bindable.Bindings+Key ViewKey
+    System.Boolean IsDisposed
+SI.Bindable.Events.ChangeListSliceSortEvent  [SI.Bindable]
+    SI.Bindable.Reference.Core.PropertyID Property
+    System.Boolean IsDisposed
+SI.Bindable.Events.CloseDialogEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Bindable.Events.CloseNotificationEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Bindable.Events.ClosePanelEvent  [SI.Bindable]
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> PanelID
+    System.Boolean IsDisposed
+SI.Bindable.Events.FocusOnChildEvent  [SI.Bindable]
+    UnityEngine.UIElements.VisualElement EventCaller
+    System.Boolean IsDisposed
+SI.Bindable.Events.FocusSpecificElementEvent  [SI.Bindable]
+    System.String FocusserName
+    System.Boolean IsDisposed
+SI.Bindable.Events.LimitNavigatableElementsEvent  [SI.Bindable]
+    UnityEngine.UIElements.VisualElement EventCaller
+    System.Boolean IsDisposed
+SI.Bindable.Events.ModifyNumericPropertyEvent  [SI.Bindable]
+    SI.Bindable.Bindings+Key SourceKey
+    SI.Bindable.Bindings+Key DestinationKey
+    SI.Bindable.Bindings+Key ModifierKey
+    SI.Bindable.Bindings+Key ClampMinKey
+    SI.Bindable.Bindings+Key ClampMaxKey
+    SI.Bindable.Events.Operation Operation
+    System.Boolean IsDisposed
+SI.Bindable.Events.OpenPanelDataCollectionEvent  [SI.Bindable]
+    System.Int32 SelectedRow
+    SI.Core.DataCollection DataCollection
+    System.String PanelIDColumn
+    System.Boolean IsDisposed
+SI.Bindable.Events.OpenPanelEvent  [SI.Bindable]
+    UnityEngine.AddressableAssets.AssetReferenceT`1<SI.Bindable.PanelID> PanelID
+    Il2CppSystem.Collections.Generic.List`1<SI.Bindable.Events.IOpenPanelEvent+Argument> Arguments
+    System.String Anchor
+    SI.Bindable.RebindMethod RebindMethod
+    System.Boolean IsDisposed
+SI.Bindable.Events.OpenTabEvent  [SI.Bindable]
+    System.String Target
+    UnityEngine.AddressableAssets.AssetReference Template
+    Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2[[System.String> Arguments
+    System.Boolean IsDisposed
+SI.Bindable.Events.OpenURLEvent  [SI.Bindable]
+    System.String Url
+    System.Boolean IsDisposed
+SI.Bindable.Events.PanelHistoryBackEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Bindable.Events.PanelHistoryCloseEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Bindable.Events.PanelHistoryForwardEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Bindable.Events.ProcessNotificationEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Bindable.Events.SetDatastoreValueEvent  [SI.Bindable]
+    SI.Bindable.Bindings+Key SourceKey
+    SI.Bindable.Bindings+Key DestinationKey
+    System.Boolean ForceUpdate
+    System.Boolean CopyDynamicReference
+    System.Boolean IsDisposed
+SI.Bindable.Events.ShortcutDpadEvent  [SI.Bindable]
+    UnityEngine.UIElements.VisualElement EventCaller
+    UnityEngine.Vector2 Direction
+    System.Boolean IsDisposed
+SI.Bindable.Events.ShortcutDpadSimulateButtonClickEvent  [SI.Bindable]
+    UnityEngine.UIElements.VisualElement EventCaller
+    UnityEngine.Vector2 Direction
+    System.String UpButtonName
+    System.String DownButtonName
+    System.Boolean IsDisposed
+SI.Bindable.Events.StreamedListResetSortingEvent  [SI.Bindable]
+    System.String ListViewIdentifier
+    System.Boolean IsDisposed
+SI.Bindable.Events.TableMoveElementEvent  [SI.Bindable]
+    SI.Bindable.StreamedTable Table
+    SI.Bindable.Events.TableMoveElementEvent+MoveDirection Direction
+    SI.Core.TypedValue Element
+    System.Boolean IsDisposed
+SI.Bindable.Events.TableRemoveElementEvent  [SI.Bindable]
+    SI.Bindable.StreamedTable Table
+    SI.Core.TypedValue Element
+    System.Boolean IsDisposed
+SI.Bindable.Events.TriggerAnchorEvent  [SI.Bindable]
+    System.String Anchor
+    System.Boolean IsDisposed
+SI.Bindable.Events.TriggerDialogEvent  [SI.Bindable]
+    System.String Type
+    SI.Core.TypedValue Payload
+    System.String Title
+    System.String Description
+    SI.Bindable.Events.TriggerDialogEvent+DialogEventButtonData PrimaryButtonData
+    SI.Bindable.Events.TriggerDialogEvent+DialogEventButtonData SecondaryButtonData
+    SI.Bindable.Events.TriggerDialogEvent+DialogEventButtonData TertiaryButtonData
+    SI.Bindable.Events.TriggerDialogEvent+DialogEventButtonData QuaternaryButtonData
+    System.Boolean IsCheckboxVisible
+    System.Boolean IsDynamicContentVisible
+    Il2CppSystem.Collections.Generic.List`1<SI.Core.TypedValue> DropdownOptions
+    System.Boolean IsDisposed
+SI.Bindable.Events.TriggerNotificationEvent  [SI.Bindable]
+    System.String Title
+    System.String Description
+    System.String Type
+    SI.Core.TypedValue Payload
+    System.Boolean IsDisposed
+SI.Bindable.Events.ValidateProfanityTextEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Bindable.GradientFieldConfirmedEvent  [SI.Bindable]
+    UnityEngine.Vector2 Value
+    System.Boolean IsDisposed
+SI.Bindable.RadialMenuClosePressedEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Bindable.SIText+RefreshEmbeddedDataStyleEvent  [SI.Bindable]
+    System.Boolean IsDisposed
+SI.Core.EventBase`1  [SI.Core]
+    System.Boolean IsDisposed
+SI.Core.SetScenePayloadValue  [SI.Core]
+    System.String Name
+    SI.Core.TypedValue Value
+    System.Boolean IsDisposed
+SI.Interop.EventFromPlugin  [SI.Interop]
+    SI.Core.TypedValue Value
+    System.Boolean IsDisposed
+SI.Services.AuditEvent  [SI.Services]
+    System.String EventName
+    SI.Core.StructList`1<SI.Services.AuditEventData> EventParameters
+    System.Boolean IsDisposed
+SI.UI.ControllerStateChangedEvent  [SI.UI]
+    System.Boolean ControllerConnected
+    System.Boolean IsDisposed
+SI.UI.Events.RadialMenuCloseReleasedEvent  [SI.UI]
+    System.Boolean IsDisposed
+SI.UI.Events.SICarouselTileSwitchToEvent  [SI.UI]
+    System.Int32 Index
+    System.String Target
+    System.Boolean IsDisposed
+SI.UI.FullScreenFloatingBlockAnchorCloseAllEvent  [SI.UI]
+    System.Boolean IsDisposed
+SI.UI.Image+RefreshSIImageEvent  [SI.UI]
+    System.Boolean IsDisposed

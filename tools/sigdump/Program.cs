@@ -58,6 +58,64 @@ if (args.Length > 1 && args[0] == "--holders")
     return 0;
 }
 
+// --catalog events|references: every type of that family across the interop assemblies, with
+// the fields that make it usable. The game's action surface and data model are both static
+// metadata, so they can be listed in one pass rather than discovered screen by screen.
+if (args.Length > 1 && args[0] == "--catalog")
+{
+    var family = args[1];
+    foreach (var dll in Directory.GetFiles(interop, "*.dll").OrderBy(x => x))
+    {
+        Assembly a;
+        try { a = mlc.LoadFromAssemblyPath(dll); } catch { continue; }
+
+        Type[] types;
+        try { types = a.GetTypes(); } catch { continue; }
+
+        foreach (var ty in types.OrderBy(SafeName, StringComparer.Ordinal))
+        {
+          // A handful of types trip the metadata reader; skipping them beats losing the catalog.
+          try
+          {
+            if (!DerivesFrom(ty, family == "events" ? "SI.Core.EventBase" : "SI.Interop.InteropReference"))
+                continue;
+
+            // Interop surfaces an auto-property's storage as "_Name_k__BackingField"; that is
+            // the payload a caller actually sets, so it is the only part worth printing.
+            var payload = ty.GetProperties(BindingFlags.Public | BindingFlags.NonPublic
+                                           | BindingFlags.Instance)
+                .Select(pr => (Name: Unmangle(pr.Name), Type: Short(pr.PropertyType)))
+                .Where(x => x.Name != null)
+                .ToList();
+
+            Console.WriteLine($"{ty.FullName}  [{Path.GetFileNameWithoutExtension(dll)}]");
+            foreach (var (name, pt) in payload)
+                Console.WriteLine($"    {pt} {name}");
+          }
+          catch (Exception ex) { Console.Error.WriteLine($"skipped {ty.FullName}: {ex.GetType().Name}"); }
+        }
+    }
+    return 0;
+
+    static bool DerivesFrom(Type ty, string baseName)
+    {
+        for (var b = ty.BaseType; b != null; b = SafeBase(b))
+            if (b.FullName?.StartsWith(baseName, StringComparison.Ordinal) == true) return true;
+        return false;
+    }
+
+    static Type SafeBase(Type t) { try { return t.BaseType; } catch { return null; } }
+
+    // Reading FullName can throw for a few nested types, and an unguarded sort key takes the
+    // whole catalog down with it.
+    static string SafeName(Type t) { try { return t.FullName ?? t.Name; } catch { return t.Name; } }
+
+    static string Unmangle(string n) =>
+        n.StartsWith('_') && n.EndsWith("_k__BackingField", StringComparison.Ordinal)
+            ? n[1..^"_k__BackingField".Length]
+            : null;
+}
+
 var asmName = args.Length > 0 ? args[0] : "SI.Bindable.dll";
 var typeName = args.Length > 1 ? args[1] : "SI.Bindable.Bindings";
 var wanted = args.Length > 2 ? args[2..] : null;
