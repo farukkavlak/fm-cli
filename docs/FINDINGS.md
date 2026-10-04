@@ -714,6 +714,43 @@ Dolayısıyla canlanan property kümesi = ekranın kolonları (`Name`, `Position
 `Age`, `Nation`, `AverageRating`, `OverallAppearances`). `Condition`/`Morale` gibi alanlar için
 ilgili görünümü/kolon setini açtırmak gerekecek.
 
+## 8.17 Gömülü markup: oyunun kendi parser'ı
+
+Bağlı string'ler metnin önünde base64 bir tıklama-hedefi bloğu taşıyor ve ayırıcı **güvenilir
+değil** — `=` dolgusu yalnızca bloğun uzunluğu gerektirdiğinde çıkıyor, bu yüzden
+`"...cHJvZmlsZQ==Fenerbahçe"` ile `"...wcm9maWxlN'Golo Kanté"` aynı kuralla ayrışmıyor.
+Regex yerine oyunun parser'ı:
+
+```csharp
+SI.Translation.EmbeddedDataUtilities.ContainsEmbeddedData(string)  // span almıyor
+SI.Translation.EmbeddedDataUtilities.RemoveEmbeddedData(string)    // -> temiz metin
+```
+
+`tools/sigdump --method <ad>` bu arayışta eklendi: bir yardımcının hangi tipte durduğunu
+namespace tahmin etmeden buluyor.
+
+## 8.18 CLI katmanı
+
+Bilgi plugin'de, biçim CLI'da. Panel yolları her oturumda GUID'lerle değiştiği için hiçbir
+sabit yol yok: `/squad` ve `/inbox` ağaçta **şekil** arıyor — alanları dolmuş bir referans —
+ve JSON döndürüyor.
+
+```
+/squad   -> [{Name, Age, PositionCombinedString, Team}]
+/inbox   -> [{NewsTitleString, Sender, NewsItemTimeSent, CanRespond, NewsHasResponded, ...}]
+```
+
+`cli/fm` bunları tabloya çeviriyor; çıktı pipe'a giderse sekmeli basıyor (`fm squad | awk`).
+
+İki davranış notu:
+
+- `fm squad` veri yoksa `SquadScreen`'i kendisi açıp tekrar okuyor (canlanma bir-iki kare alıyor).
+- `fm next` önce gelen kutusuna bakıyor; cevap bekleyen varsa event'i hiç göndermiyor,
+  **bloke eden mesajları listeliyor** — §8.10'da not edilen sessiz başarısızlığın karşılığı.
+
+⚠ Kadro ekranı ülke **adını** bağlamıyor (bayrak kullanıyor), o yüzden `fm squad`'da ülke
+kolonu yok. Kondisyon/moral de aynı sebeple yok: canlanan küme ekranın kolon setine eşit.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması

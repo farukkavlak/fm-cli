@@ -58,6 +58,48 @@ if (args.Length > 1 && args[0] == "--holders")
     return 0;
 }
 
+// --method <NamePart>: which type, in any interop assembly, declares a method whose name
+// contains this. Answers "where does this helper live?" without guessing namespaces.
+if (args.Length > 1 && args[0] == "--method")
+{
+    var wantedName = args[1];
+    foreach (var dll in Directory.GetFiles(interop, "*.dll").OrderBy(x => x))
+    {
+        Assembly a;
+        try { a = mlc.LoadFromAssemblyPath(dll); } catch { continue; }
+
+        Type[] types;
+        try { types = a.GetTypes(); } catch { continue; }
+
+        foreach (var ty in types)
+        {
+            MethodInfo[] methods;
+            try { methods = ty.GetMethods(BindingFlags.Public | BindingFlags.NonPublic
+                                          | BindingFlags.Instance | BindingFlags.Static); }
+            catch { continue; }
+
+            foreach (var m in methods)
+            {
+                if (m.Name.IndexOf(wantedName, StringComparison.OrdinalIgnoreCase) < 0) continue;
+                if (m.Name.StartsWith("NativeMethodInfoPtr", StringComparison.Ordinal)) continue;
+
+                string ps;
+                try
+                {
+                    ps = string.Join(", ", m.GetParameters().Select(x =>
+                        (x.ParameterType.IsByRef ? "ref " : "") + Short(x.ParameterType)));
+                }
+                catch { ps = "?"; }
+
+                Console.WriteLine($"{SafeFullName(ty)}.{m.Name}({ps}) : {Short(m.ReturnType)}  [{Path.GetFileNameWithoutExtension(dll)}]");
+            }
+        }
+    }
+    return 0;
+
+    static string SafeFullName(Type t) { try { return t.FullName ?? t.Name; } catch { return t.Name; } }
+}
+
 // --catalog events|references: every type of that family across the interop assemblies, with
 // the fields that make it usable. The game's action surface and data model are both static
 // metadata, so they can be listed in one pass rather than discovered screen by screen.

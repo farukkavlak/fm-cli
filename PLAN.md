@@ -14,10 +14,10 @@
 - [x] Ağaçta gezinme, düğüm okuma, tam yol raporlama
 - [x] `Application.runInBackground` — terminale geçince oyun donmuyor
 - [x] `tools/sigdump` — interop'un gerçekten neyi açtığını raporlayan araç
-- [ ] `fm` CLI binary (şu an her şey `curl`)
+- [x] `fm` CLI binary
 - [ ] Oyunu gizli başlatma (`fm open --hidden`)
-- [ ] Plugin ↔ CLI protokolü: JSON çıktı (`--json`)
-- [ ] Hata yönetimi: oyun kapalıysa/yükleniyorsa anlamlı mesaj
+- [x] Plugin ↔ CLI protokolü: JSON çıktı (`--json`)
+- [x] Hata yönetimi: oyun kapalıysa/yükleniyorsa anlamlı mesaj
 - [ ] FM27'ye taşıma: sürüme özel her şey tek config dosyasında
 
 ---
@@ -41,7 +41,7 @@
 ## 2. Kadro ve oyuncu
 
 - [x] Kadro canlandı — isim, pozisyon, yaş, uyruk, ortalama rating (§8.16)
-- [~] `fm squad` — veri hazır, ambalaj yok
+- [x] `fm squad` — kadroyu tablo olarak bas
 - [ ] `fm squad --fitness` — kondisyon/yorgunluk
 - [ ] `fm squad --morale` — moral
 - [ ] `fm player <isim>` — oyuncu kartı (öznitelikler, sözleşme, form)
@@ -126,7 +126,7 @@
 
 ## 7. Maç
 
-- [~] `fm next` — ilerletiyor; bloke mesajı tespit edip bildirmesi kaldı
+- [x] `fm next` — ilerle, bloke eden mesajları bildir
 - [ ] Maç öncesi brifing / takım konuşması
 - [ ] Maçı simüle et (hızlı sonuç)
 - [ ] Canlı maç takibi (metin akışı)
@@ -181,7 +181,7 @@
 
 ## 11. İletişim
 
-- [~] Inbox oku — veri okunuyor, ambalaj yok
+- [x] Inbox oku (`fm inbox`)
 - [x] Mesaja cevap ver / aksiyon al (`/newsaction`)
 - [ ] Basın toplantısı
 - [ ] Maç öncesi/sonrası röportaj
@@ -225,10 +225,10 @@
 
 ## 14. CLI kalitesi
 
-- [ ] Renkli, hizalı tablolar
+- [x] Renkli, hizalı tablolar
 - [ ] Sparkline / mini grafik (form, kondisyon trendi)
 - [ ] `--json` her komutta (script'lenebilir)
-- [ ] Pipe dostu çıktı (`fm squad | grep ...`)
+- [x] Pipe dostu çıktı (`fm squad | grep ...`)
 - [ ] İnteraktif TUI modu (liste gez, seç, aksiyon al)
 - [ ] Fuzzy isim eşleme (`fm player osim` → Osimhen)
 - [ ] Kısaltmalar / takma adlar

@@ -3,25 +3,46 @@
 Gerçek **Football Manager 26**'yı terminalden oynat.
 
 ```
-$ fm squad --fitness
-$ fm results "Süper Lig"
-$ fm transfers list
-$ fm next
+$ fm inbox
+SAAT   GÖNDEREN          KONU
+08:05  Sadettin Saran    Welcome to Fenerbahçe!                      okunmadı
+08:13  Zeki Murat Göle   Fenerbahçe Tactics Introduction             okunmadı, cevap bekliyor
+...
+5 mesaj cevap bekliyor — bunlar `fm next`'i blokluyor.
+
+$ fm squad
+OYUNCU              POZİSYON          YAŞ  TAKIM
+Marco Asensio       M (C), AM (RLC)   29   Fenerbahçe
+N'Golo Kanté        DM, M (C)         34   Fenerbahçe
+...
 ```
 
 Oyunu sıfırdan yazmıyoruz — gerçek FM26'nın içine bir BepInEx plugin'i enjekte edip
-oyunun kendi veri katmanını (`SI.Bindable.Bindings`) ve navigasyon sistemini CLI'a açıyoruz.
+oyunun kendi veri katmanını (`SI.Bindable.Bindings`) ve olay sistemini CLI'a açıyoruz.
 Oyun arka planda açık kalır; ekran, fare, ekran görüntüsü yok.
 
-**Durum:** keşif tamamlandı, BepInEx arm64'te çalışıyor, probe plugin canlı test bekliyor.
+**Durum:** kadro, gelen kutusu, mesaj cevaplama ve zaman ilerletme çalışıyor.
 
-📄 Bütün teknik bulgular, API'ler, kısıtlar ve kurulum adımları: **[docs/FINDINGS.md](docs/FINDINGS.md)**
+📄 Bütün teknik bulgular, API'ler ve kısıtlar: **[docs/FINDINGS.md](docs/FINDINGS.md)**
+📋 Yol haritası: **[PLAN.md](PLAN.md)**
 
 ## Yapı
 
 ```
-plugin/FmCliProbe/    FM26 içinde çalışan keşif plugin'i (C#, BepInEx 6 IL2CPP)
-docs/FINDINGS.md      araştırma notları — buradan başla
+plugin/FmCliProbe/        FM26 içinde çalışan plugin (C#, BepInEx 6 IL2CPP)
+cli/fm/                   `fm` komutu (.NET)
+tools/sigdump/            interop'un gerçekten neyi açtığını raporlayan araç
+docs/reference/           oyundan çıkarılmış veri modeli ve event kataloğu
+```
+
+## Komutlar
+
+```
+fm squad        kadroyu bas
+fm inbox        gelen kutusu
+fm next         zamanı ilerlet (bloke eden mesajları bildirir)
+fm status       bağlantı durumu
+--json          ham veri (script'lenebilir)
 ```
 
 ## Gereksinimler
@@ -31,10 +52,26 @@ docs/FINDINGS.md      araştırma notları — buradan başla
 - BepInEx 6 IL2CPP arm64 — kurulum `docs/FINDINGS.md` §3'te
 - .NET SDK
 
-## Plugin'i derle ve kur
+## Derle ve kur
 
 ```bash
+# plugin
 dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release
 cp plugin/FmCliProbe/bin/Release/net6.0/FmCliProbe.dll \
-   "$HOME/fm26_bep/BepInEx/plugins/FmCliProbe/"
+   "$HOME/Library/Application Support/Steam/steamapps/common/Football Manager 26/BepInEx/plugins/FmCliProbe/"
+
+# cli
+dotnet build cli/fm -c Release
+ln -sf "$PWD/cli/fm/bin/Release/net10.0/fm" /usr/local/bin/fm
 ```
+
+## Referans dosyaları
+
+`docs/reference/` oyundan çıkarılmış, elle yazılmamış iki katalog içeriyor:
+
+| Dosya | İçerik |
+|---|---|
+| `data-model.txt` | 931 referans tipi, 14504 isimli property, referans kenarlarıyla |
+| `events.txt` | 275 event tipi, alanlarıyla — FM26'nın aksiyon yüzeyi |
+
+Yenilemek için: `curl localhost:7777/schema` ve `dotnet run --project tools/sigdump -- --catalog events`.

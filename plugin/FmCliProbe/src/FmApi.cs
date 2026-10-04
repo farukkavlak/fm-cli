@@ -40,6 +40,8 @@ internal static class FmApi
 		"dyn" => Dynamic(q["path"]),
 		"newsaction" => Send.NewsAction(q["news"], q["action"]),
 		"panels" => Panels.Catalog(q["filter"]),
+		"squad" => Report.Squad(),
+		"inbox" => Report.Inbox(),
 		_ => null, // 404
 	};
 
@@ -434,7 +436,7 @@ internal static class FmApi
 		try
 		{
 			if (v.IsNull) return null;
-			return $"({v.DataType?.Name ?? "?"}) {v.AsString()}";
+			return $"({v.DataType?.Name ?? "?"}) {Text.Clean(v.AsString())}";
 		}
 		catch (Exception ex)
 		{
