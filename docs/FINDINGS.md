@@ -591,6 +591,60 @@ pointer geçtiği için sağ kalması beklenirdi. Kalmıyor:
 Aynı yanlış pozitif. Yani `Create(path, flags)`, `FindNodeWithName`, `FindContext` — span alan
 her şey kapalı; adresleme §8.2b'deki kendi key hesabımızla kalıyor.
 
+## 8.13 Canlandırma çözüldü: doğru event'i gönder, veri ağaçta belirir
+
+Tembel ağaç problemi (§bugünün bilançosu) ekranı *açtırmayı* gerektirmiyor; doğru event
+yetiyor. Gelen kutusunda bir mesaj için:
+
+```
+curl --get localhost:7777/send \
+  --data-urlencode event=SetNewsActionDataOnPanelEvent \
+  --data-urlencode "NewsItem=<mesajın yolu>" \
+  --data-urlencode PortalSourceId=0
+```
+
+Ağaç **4198 → 5921** düğüm. Belirenler: mesajın tam gövde metni, `SpeakTo.Actions`,
+`npcaction`, `has-required-actions`, `respondedtype`, ve cevap seçenekleri:
+
+```
+Actions8.0.Action
+  ActionTitle = Cancel Training Camp
+  Ticked = False   Recommended = False   IsDisabled = False   IsPopupButton = False
+```
+
+Yani "oyuncu özelliklerini canlandır" maddesi de artık bir keşif değil, doğru event'i bulma
+işi — ekranın görünür olmasına gerek yok.
+
+⚠ `OpenTabEvent{Target="SquadFirstTeam"}` denendi, ağaç değişmedi; muhtemelen `Template`
+(AssetReference) alanı da gerekiyor. Kadro için doğru event hâlâ aranıyor.
+
+## 8.14 Genel event göndericisi
+
+Aksiyon yüzeyi kapalı bir küme (275 tip, hepsi düz alanlar), o yüzden aksiyon başına route
+yazmak yerine tek route event'i reflection ile kuruyor: referans alanları **binding yolundan**,
+geri kalanı string'den parse ediliyor.
+
+```
+/send?event=<TypeName>&<Alan>=<değer|yol>
+```
+
+Tip adı tam ya da kısa verilebiliyor. Böylece kataloglanan her aksiyon, kataloglandığı anda
+erişilebilir hale geliyor — `plugin/FmCliProbe/src/Send.cs`.
+
+### Cevap zinciri (henüz tetiklenmedi)
+
+```
+NewsItem.NewsActionData -> NewsActionDataReference { NewsAction, ActionDataReferences,
+                                                     DynamicCardId, UniqueId }
+NewsResponseActionEvent { NewsItem, ResponseId, ResponseValue, ResponseActionId,
+                          ResponseActionDataReferences }
+RunNewsActionEvent      { NewsItem, SpeakTo, NewsActionID, DynamicCardID, PortalSourceId }
+```
+
+Eksik tek parça: `Action` düğümü bir `DynamicReference` — yani `Dictionary<uint, TypedValue>`,
+property id → değer torbası. Aksiyonun **sayısal id'si** ağaçta isimli çocuk olarak görünmüyor;
+sözlüğü doğrudan gezip kayıt defteri isimleriyle basmak gerekiyor.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması
@@ -605,6 +659,9 @@ her şey kapalı; adresleme §8.2b'deki kendi key hesabımızla kalıyor.
 - [x] Path adresleme — key hesaplayarak çözüldü (§8.2b), span'a gerek kalmadı
 - [x] **Veri modelinin tamamı** — 160 tip / 6571 property, isimli (§8.11)
 - [x] **Event kataloğu** — 275 aksiyon tipi, alanlarıyla (§8.11)
+- [x] **Canlandırma mekanizması** — event gönder, veri ağaçta belirir (§8.13)
+- [x] **Genel event göndericisi** — `/send?event=...` (§8.14)
+- [ ] `DynamicReference` sözlüğünü gez — aksiyonların sayısal id'si orada (§8.14)
 - [ ] **Oyuncu özelliklerini canlandır.** Ağaç hâlâ tembel: oyuncu düğümünde sadece `UniqueId`
       var. `Bind(key)` var olmayan özelliği **oluşturmuyor**; denenen isimlerin
       (`Name`, `Condition`, `Age`, `Fitness`, `FullName`...) hiçbiri yok.

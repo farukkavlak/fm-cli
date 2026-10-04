@@ -35,6 +35,7 @@ internal static class FmApi
 		"keys" => Keys(Int(q["depth"], 4)),
 		"schema" => Schema.Catalog(q["filter"]),
 		"spanexists" => SpanExists(q["path"]),
+		"send" => Send.Event(q),
 		_ => null, // 404
 	};
 
@@ -332,6 +333,17 @@ internal static class FmApi
 			Walk(c, depth + 1, maxDepth, sb, ref count);
 			if (count >= MaxNodes) return;
 		}
+	}
+
+	/// <summary>The il2cpp value a path holds, for callers that need the object and not a report.</summary>
+	public static Il2CppSystem.Object ValueAt(string path, out string error)
+	{
+		var node = Resolve(path, out error);
+		if (error != null) return null;
+
+		var value = node.Value?.Get();
+		if (value == null) error = $"error: '{path}' holds no value";
+		return value;
 	}
 
 	/// <summary>Walk a dotted path down from the root by node name.</summary>
