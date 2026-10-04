@@ -35,7 +35,8 @@ internal static class Program
 				"inbox" => await Inbox(json),
 				"next" => await Next(),
 				"status" => await Status(),
-				"start" => Started(),
+				"continue" => await Continue(),
+				"start" => await Attach(args.Contains("--debug")),
 				"help" or "--help" or "-h" => Help(),
 				_ => Unknown(command),
 			};
@@ -52,17 +53,17 @@ internal static class Program
 		}
 	}
 
-	private static int Started()
-	{
-		Console.WriteLine("FM zaten açık.");
-		return 0;
-	}
+	/// <summary>`start` typed inside a session, or with the game already up.</summary>
+	private static async Task<int> Attach(bool debug) =>
+		await Launcher.Start(Fm, debug) ? 0 : 69;
+
+	private static async Task<int> Continue() => await Launcher.LoadSave(Fm) ? 0 : 69;
 
 	private static async Task<int> Squad(bool json)
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile son kaydı aç.");
+			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
 			return 69;
 		}
 
@@ -112,7 +113,7 @@ internal static class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile son kaydı aç.");
+			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
 			return 69;
 		}
 
@@ -146,7 +147,7 @@ internal static class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile son kaydı aç.");
+			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
 			return 69;
 		}
 
@@ -170,7 +171,9 @@ internal static class Program
 	private static async Task<int> Status()
 	{
 		var inGame = await Fm.InGame();
-		Console.WriteLine(inGame ? "FM açık, kayıt yüklü." : "FM açık, kayıt yüklü değil.");
+		Console.WriteLine(inGame
+			? "FM açık, kayıt yüklü."
+			: "FM açık, kayıt yüklü değil — `continue` ile yükle.");
 		return inGame ? 0 : 69;
 	}
 
@@ -197,6 +200,7 @@ internal static class Program
 			    --debug       pencereyi gizleme (log'u da söyler)
 			  fm              oturuma gir (oyun açıkken)
 
+			  continue        açık oyunda son kaydı yükle
 			  squad           kadroyu bas
 			  inbox           gelen kutusu
 			  next            zamanı ilerlet

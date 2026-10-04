@@ -22,10 +22,13 @@ internal static class Launcher
 
 	public static async Task<bool> Start(Bridge fm, bool debug)
 	{
+		// An already-running game is attached to rather than refused: the save may still need
+		// loading, which is the part worth doing.
 		if (await Up(fm))
 		{
-			Console.WriteLine("FM zaten açık.");
-			return true;
+			Console.WriteLine($"FM zaten açık — ona bağlanıyorum{(debug ? "" : ", pencereyi gizliyorum")}.");
+			if (!debug) Hide();
+			return await LoadSave(fm);
 		}
 
 		var script = Path.Combine(GameDirectory, "run_bepinex_arm64.sh");
@@ -48,8 +51,37 @@ internal static class Launcher
 
 		if (!debug) Hide();
 
+		return await LoadSave(fm);
+	}
+
+	/// <summary>
+	/// Brings a running game to a loaded save, which is what every other command needs.
+	/// </summary>
+	public static async Task<bool> LoadSave(Bridge fm)
+	{
+		if (await fm.InGame())
+		{
+			Console.WriteLine("Kayıt zaten yüklü.");
+			return true;
+		}
+
+		if (!await Menu(fm))
+		{
+			Console.WriteLine("Ana menü bekleniyor…");
+			if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
+			{
+				Console.Error.WriteLine("Oyun ana menüye gelmedi.");
+				return false;
+			}
+		}
+
 		Console.WriteLine("Son kayıt yükleniyor…");
-		await fm.Get("continue");
+		var answer = await fm.Get("continue");
+		if (answer.StartsWith("error", StringComparison.Ordinal))
+		{
+			Console.Error.WriteLine(answer.Trim());
+			return false;
+		}
 
 		if (!await WaitFor(() => fm.InGame(), TimeSpan.FromMinutes(3)))
 		{

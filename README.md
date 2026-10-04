@@ -38,12 +38,34 @@ docs/reference/           oyundan çıkarılmış veri modeli ve event kataloğu
 ## Komutlar
 
 ```
-fm squad        kadroyu bas
-fm inbox        gelen kutusu
-fm next         zamanı ilerlet (bloke eden mesajları bildirir)
-fm status       bağlantı durumu
+fm start        oyunu başlat, kaydı yükle, oturuma gir
+  --debug       pencereyi gizleme
+fm              oturuma gir (oyun açıkken)
+
+continue        açık oyunda son kaydı yükle
+squad           kadroyu bas
+inbox           gelen kutusu
+next            zamanı ilerlet (bloke eden mesajları bildirir)
+status          bağlantı durumu
 --json          ham veri (script'lenebilir)
 ```
+
+Oturumda komutlar `fm` öneki olmadan verilir:
+
+```
+$ fm start
+FM başlatılıyor…
+Son kayıt yükleniyor…
+Hazır.
+fm› next
+Bloke: 5 mesaj cevap bekliyor.
+  08:13  Club vision and expectations meeting
+  ...
+```
+
+`fm start` oyun zaten açıksa ona bağlanır; kayıt yüklü değilse yükler. Oyun tamamen
+gizli çalışamıyor (UI olmadan veri bağlanmıyor, `docs/FINDINGS.md` §8.19) — pencere
+gizlenir, oyun arkada döner.
 
 ## Gereksinimler
 

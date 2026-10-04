@@ -8,7 +8,7 @@ internal static class Session
 {
 	public static async Task<int> Run(Func<string[], Task<int>> execute)
 	{
-		Console.WriteLine("fm oturumu — komutlar: squad, inbox, next, status, help · çıkış: quit");
+		Console.WriteLine("fm oturumu — komutlar: squad, inbox, next, continue, status, help · çıkış: quit");
 
 		while (true)
 		{
