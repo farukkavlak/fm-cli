@@ -3,16 +3,32 @@ using System.Diagnostics;
 namespace FmCli;
 
 /// <summary>
-/// Starts the game and gets it to a playable save.
+/// Starts the game and gets it to a playable save, out of sight.
 ///
 /// Running it truly headless does not work: with -batchmode -nographics the process and the
-/// bridge come up, but the UI never boots and so the binding tree is never built — and the whole
-/// data path depends on the UI having bound its data. The window therefore has to exist. It can
-/// be hidden, which is what happens unless --debug asks to watch it.
+/// bridge come up, but the UI never boots and so the binding tree is never built — the whole
+/// data path depends on the UI having bound its data. The window therefore has to exist, but it
+/// does not have to be seen, and getting it out of the way takes three separate things:
+///
+///   1. LSUIElement in the bundle, or the Dock keeps an icon and a menu bar appears.
+///   2. A windowed launch, because a fullscreen game owns a Space that cannot be minimised.
+///   3. Minimising the window, since macOS clamps an off-screen move back into view and
+///      hiding the app the way ⌘H does leaves a Unity window on screen regardless.
+///
+/// Data keeps flowing while minimised, which is what makes this worth doing.
 /// </summary>
 internal static class Launcher
 {
 	private const string AppName = "Football Manager 26";
+
+	/// <summary>
+	/// The bundle the launcher actually execs — a shadow of the Steam one, assembled for
+	/// BepInEx. Its Info.plist is ours to patch; Steam's copy is left alone.
+	/// </summary>
+	private static string AppBundle =>
+		Environment.GetEnvironmentVariable("FM_APP")
+		?? Path.Combine(
+			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "fm26_bep/fm.app");
 
 	private static string GameDirectory =>
 		Environment.GetEnvironmentVariable("FM_HOME")
@@ -26,8 +42,8 @@ internal static class Launcher
 		// loading, which is the part worth doing.
 		if (await Up(fm))
 		{
-			Console.WriteLine($"FM zaten açık — ona bağlanıyorum{(debug ? "" : ", pencereyi gizliyorum")}.");
-			if (!debug) Hide();
+			Console.WriteLine($"FM zaten açık — ona bağlanıyorum{(debug ? "" : ", pencereyi küçültüyorum")}.");
+			if (!debug) Minimise();
 			return await LoadSave(fm);
 		}
 
@@ -39,8 +55,10 @@ internal static class Launcher
 			return false;
 		}
 
+		if (!debug) DropFromDock();
+
 		var log = Path.Combine(Path.GetTempPath(), "fm-cli-launch.log");
-		Spawn(script, log);
+		Spawn(script, log, debug);
 		Console.WriteLine($"FM başlatılıyor…{(debug ? $"  (log: {log})" : "")}");
 
 		if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
@@ -49,7 +67,7 @@ internal static class Launcher
 			return false;
 		}
 
-		if (!debug) Hide();
+		if (!debug) Minimise();
 
 		return await LoadSave(fm);
 	}
@@ -93,11 +111,15 @@ internal static class Launcher
 		return true;
 	}
 
-	private static void Spawn(string script, string log)
+	private static void Spawn(string script, string log, bool debug)
 	{
+		// A windowed launch is what makes the window minimisable later; fullscreen would put the
+		// game on its own Space instead.
+		var windowed = debug ? "" : " -screen-fullscreen 0 -screen-width 640 -screen-height 360";
+
 		// Detached: the game must outlive this command, and its own output goes to a file so a
 		// crash before BepInEx logs anything is still readable.
-		var shell = $"exec \"{script}\" >> \"{log}\" 2>&1";
+		var shell = $"exec \"{script}\"{windowed} >> \"{log}\" 2>&1";
 		Process.Start(new ProcessStartInfo("/bin/sh", ["-c", shell])
 		{
 			WorkingDirectory = Path.GetDirectoryName(script)!,
@@ -106,23 +128,71 @@ internal static class Launcher
 		});
 	}
 
-	/// <summary>Hide the window the way ⌘H does, leaving the game running behind everything.</summary>
-	private static void Hide()
+	/// <summary>
+	/// Marks the bundle as an accessory app, which is the only way to keep it out of the Dock.
+	/// The original plist is kept beside it, so this is undoable by hand.
+	/// </summary>
+	private static void DropFromDock()
+	{
+		var plist = Path.Combine(AppBundle, "Contents/Info.plist");
+		if (!File.Exists(plist)) return;
+
+		if (Plist($"Print :LSUIElement", plist) == "true") return;
+
+		var backup = plist + ".backup";
+		if (!File.Exists(backup)) File.Copy(plist, backup);
+
+		Plist("Add :LSUIElement bool true", plist);
+	}
+
+	private static string Plist(string command, string plist)
 	{
 		try
 		{
-			Process.Start(new ProcessStartInfo("/usr/bin/osascript",
-			[
-				"-e",
-				$"tell application \"System Events\" to set visible of process \"{AppName}\" to false",
-			])
-			{ RedirectStandardError = true })?.WaitForExit(5000);
+			using var buddy = Process.Start(new ProcessStartInfo("/usr/libexec/PlistBuddy",
+				["-c", command, plist])
+			{ RedirectStandardOutput = true, RedirectStandardError = true })!;
+
+			var output = buddy.StandardOutput.ReadToEnd().Trim();
+			buddy.WaitForExit(5000);
+			return output;
 		}
-		catch (Exception)
+		catch (Exception) { return ""; }
+	}
+
+	/// <summary>
+	/// Takes the window off the screen. Moving it instead does not work — macOS clamps the
+	/// position back so part of it stays reachable.
+	/// </summary>
+	private static void Minimise()
+	{
+		var script = $"""
+			tell application "System Events" to tell process "{AppName}"
+				repeat with w in windows
+					try
+						set value of attribute "AXMinimized" of w to true
+					end try
+				end repeat
+			end tell
+			""";
+
+		var error = Osascript(script);
+		if (!string.IsNullOrEmpty(error))
+			Console.WriteLine("(pencere küçültülemedi — Sistem Ayarları › Gizlilik › Erişilebilirlik'te terminale izin ver)");
+	}
+
+	private static string Osascript(string script)
+	{
+		try
 		{
-			// Hiding needs accessibility permission; the game still runs if it is refused.
-			Console.WriteLine("(pencere gizlenemedi — Sistem Ayarları › Erişilebilirlik izni gerekebilir)");
+			using var osascript = Process.Start(new ProcessStartInfo("/usr/bin/osascript", ["-e", script])
+			{ RedirectStandardError = true, RedirectStandardOutput = true })!;
+
+			var error = osascript.StandardError.ReadToEnd().Trim();
+			osascript.WaitForExit(10000);
+			return error;
 		}
+		catch (Exception ex) { return ex.Message; }
 	}
 
 	private static async Task<bool> Up(Bridge fm)

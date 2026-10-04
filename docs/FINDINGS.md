@@ -751,26 +751,40 @@ ve JSON döndürüyor.
 ⚠ Kadro ekranı ülke **adını** bağlamıyor (bayrak kullanıyor), o yüzden `fm squad`'da ülke
 kolonu yok. Kondisyon/moral de aynı sebeple yok: canlanan küme ekranın kolon setine eşit.
 
-## 8.19 Oyun gizlenebilir, headless çalıştırılamaz
+## 8.19 Oyunu tamamen gizlemek: üç ayrı parça
 
-Ölçüldü, tahmin değil. `-batchmode -nographics` ile:
+Headless çalışmıyor, bu ölçüldü. `-batchmode -nographics` ile:
 
 ```
 süreç: çalışıyor   köprü: ayakta   bindings: unavailable  (4 dakika boyunca)
 ```
 
 UI boot etmeyince binding ağacı hiç kurulmuyor — bütün veri yolumuz ekranların veriyi
-bağlamasına dayandığı için headless bizi veriden kesiyor. **Pencere var olmak zorunda.**
+bağlamasına dayandığı için headless bizi veriden kesiyor. **Pencere var olmak zorunda, ama
+görünmek zorunda değil.** Görünmemesi için üç ayrı şey gerekiyor ve biri eksik kalırsa oyun
+ekranda duruyor:
 
-Ama gizlenebiliyor. macOS'ta ⌘H karşılığı:
+| Parça | Olmazsa |
+|---|---|
+| `LSUIElement` (bundle Info.plist) | Dock'ta ikon ve menü çubuğu kalır |
+| Pencereli başlatma (`-screen-fullscreen 0`) | Tam ekran kendi Space'ini alır, küçültülemez |
+| Pencereyi küçültme (`AXMinimized`) | Pencere ekranda kalır |
 
-```
-osascript -e 'tell application "System Events" to set visible of process "Football Manager 26" to false'
-```
+İki yanlış yol (ikisini de denedim):
 
-Gizliyken `fm squad` hâlâ 27 oyuncu basıyor, yani gizleme veri yolunu bozmuyor
-(`Application.runInBackground` sayesinde). `fm start` varsayılan olarak gizliyor; `--debug`
-pencereyi bırakıyor. Gizleme Erişilebilirlik izni istiyor, reddedilirse oyun yine çalışıyor.
+- **⌘H karşılığı** (`set visible of process ... to false`) — `visible` `false` dönüyor ama
+  Unity penceresi ekranda kalıyor. Yani bu çağrı FM'de **yanlış pozitif**, §8.2'deki span
+  tuzağının aynısı: başarı raporluyor, iş yapmıyor.
+- **Pencereyi ekran dışına taşımak** — macOS konumu geri kırpıyor: `{-4000, -4000}` istedim,
+  `-600` oldu, pencerenin 40 pikseli görünür kaldı.
+
+Küçültülmüş ve Dock'suz haldeyken veri akmaya devam ediyor (`fm squad` → 27 oyuncu), çünkü
+`Application.runInBackground` zaten açık. `fm start` üçünü de yapıyor; `--debug` hiçbirini
+yapmaz, pencere normal görünür.
+
+⚠ `LSUIElement` yaması **gölge bundle'a** (`~/fm26_bep/fm.app`) yazılıyor, Steam'in kopyasına
+dokunulmuyor. Orijinal plist yanına `.backup` olarak bırakılıyor; geri almak için üzerine
+kopyalamak yeterli. `FM_APP` ile başka bir bundle gösterilebilir.
 
 ## 8.20 Çeviri tablosu: `TranslationID` kendini metne çeviriyor
 

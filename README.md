@@ -63,9 +63,12 @@ Bloke: 5 mesaj cevap bekliyor.
   ...
 ```
 
-`fm start` oyun zaten açıksa ona bağlanır; kayıt yüklü değilse yükler. Oyun tamamen
-gizli çalışamıyor (UI olmadan veri bağlanmıyor, `docs/FINDINGS.md` §8.19) — pencere
-gizlenir, oyun arkada döner.
+`fm start` oyun zaten açıksa ona bağlanır; kayıt yüklü değilse yükler.
+
+Oyun **Dock'ta ve ekranda görünmez**: bundle accessory olarak işaretlenir, pencereli
+başlatılır ve küçültülür. Veri bu haldeyken de akar. `--debug` üçünü de atlar.
+Gerçekten headless (`-nographics`) çalışmıyor — UI olmadan binding ağacı kurulmuyor
+(`docs/FINDINGS.md` §8.19). Küçültme Erişilebilirlik izni ister; verilmezse `fm` bunu söyler.
 
 ## Gereksinimler
 

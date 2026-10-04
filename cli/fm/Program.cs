@@ -197,7 +197,7 @@ internal static class Program
 			fm — Football Manager 26'yı terminalden yönet
 
 			  fm start        oyunu başlat, kaydı yükle, oturuma gir
-			    --debug       pencereyi gizleme (log'u da söyler)
+			    --debug       pencereyi göster (normalde Dock'ta ve ekranda görünmez)
 			  fm              oturuma gir (oyun açıkken)
 
 			  continue        açık oyunda son kaydı yükle

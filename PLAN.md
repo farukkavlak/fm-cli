@@ -15,7 +15,7 @@
 - [x] `Application.runInBackground` — terminale geçince oyun donmuyor
 - [x] `tools/sigdump` — interop'un gerçekten neyi açtığını raporlayan araç
 - [x] `fm` CLI binary
-- [x] Oyunu gizli başlatma (`fm start`, pencere saklanır — headless imkânsız, §8.19)
+- [x] Oyunu gizli başlatma — Dock'ta yok, ekranda yok (`fm start`, §8.19)
 - [x] Plugin ↔ CLI protokolü: JSON çıktı (`--json`)
 - [x] Hata yönetimi: oyun kapalıysa/yükleniyorsa anlamlı mesaj
 - [ ] FM27'ye taşıma: sürüme özel her şey tek config dosyasında
