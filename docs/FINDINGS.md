@@ -897,6 +897,36 @@ Yani oturum referansı + cevap seçenekleri + seçimi gönderen event — mesaj 
 Hepsi `docs/reference/COOKBOOK.md`'de alan alan toplandı; ham kataloglar `actions.txt` ve
 `enums.txt`.
 
+## 8.24 Katalog artık yetenek: enum'lar isimle, TypedValue çalışıyor, kuru çalıştırma var
+
+§8.23'teki kataloglar `/send` tarafından kullanılabilir hale geldi:
+
+```
+/send?event=EventToPlugin&ID=EventFmxPressConferenceAnswerQuestion&dry=1
+  -> dry run, NOT sent: FM.GamePlugin.EventToPlugin
+       ID = EventFmxPressConferenceAnswerQuestion
+```
+
+Üç ekleme:
+
+1. **Enum alanları isimle** çözülüyor (`InteropEventIDs`, roller, direktifler — hepsi enum).
+2. **`TypedValue` alanları** scalar'dan kuruluyor. `TypedValue.Create<T>` generic ve arm64'te
+   generic il2cpp çağrıları riskliydi (§3'teki `GenericMethod::GetMethod not found` uyarısı),
+   **ama çalışıyor** — o uyarı yalnızca *enjekte edilmiş* sınıflar için geçerliymiş.
+   `Data = TypedValue '5'` kuruldu.
+3. **`dry=1`** — event'i tam kurup payload'ı raporluyor, göndermiyor. Yeni bir aksiyonu kayda
+   dokunmadan doğrulamanın yolu.
+
+Negatif testler de yapıldı (§bu projede yanlış pozitif bol):
+
+```
+ID=ZzYokBoyleBirSeyZz&dry=1  -> <'ZzYokBoyleBirSeyZz' is not a InteropEventIDs>
+ID=ZzYokBoyleBirSeyZz        -> error: alan çözülemedi, gönderilmedi   (oyun ayakta)
+```
+
+Yani bir alan çözülemezse event **hiç gönderilmiyor** — yarım payload'la oyunu çökertme
+(§8.15'te yaşadığımız şey) bu yoldan tekrarlanamaz.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması

@@ -20,6 +20,7 @@ internal static class Send
 {
 	public static string Event(NameValueCollection query)
 	{
+		var dry = query["dry"] == "1";
 		var typeName = query["event"];
 		if (string.IsNullOrEmpty(typeName)) return "error: ?event=<TypeName> required";
 
@@ -34,16 +35,23 @@ internal static class Send
 		catch (Exception ex) { return $"error: cannot construct {type.FullName}: {ex.InnerException?.Message ?? ex.Message}"; }
 
 		var log = new StringBuilder();
+		var failed = false;
 		foreach (string name in query)
 		{
-			if (name == null || name == "event") continue;
+			if (name is null or "event" or "dry") continue;
 
 			var assigned = Assign(instance, type, name, query[name]);
+			if (assigned.StartsWith("<", StringComparison.Ordinal)) failed = true;
 			log.AppendLine($"  {name} = {assigned}");
 		}
 
 		var payload = (instance as Il2CppObjectBase)?.TryCast<SI.Core.EventBase>();
 		if (payload == null) return $"error: {type.FullName} is not an EventBase";
+
+		// A dry run resolves the whole payload and reports it without sending, which is how a
+		// new event gets checked without putting anything into the save.
+		if (dry) return $"dry run, NOT sent: {type.FullName}\n{log}";
+		if (failed) return $"error: alan çözülemedi, gönderilmedi: {type.FullName}\n{log}";
 
 		events.SendEvent(payload);
 		return $"sent {type.FullName}\n{log}";
@@ -99,6 +107,17 @@ internal static class Send
 		if (target == typeof(bool)) return bool.Parse(raw);
 		if (target == typeof(float)) return float.Parse(raw);
 
+		// An enum field takes the member name as the game spells it, which is the whole value of
+		// having the enum catalogue: InteropEventIDs and the tactical roles are all enums.
+		if (target.IsEnum)
+		{
+			return Enum.TryParse(target, raw, ignoreCase: true, out var member)
+				? member
+				: throw new Exception($"'{raw}' is not a {target.Name}; see docs/reference/enums.txt");
+		}
+
+		if (target == typeof(SI.Core.TypedValue)) return TypedValue(raw);
+
 		// A panel is addressed by its asset name, not by a binding path: it is a
 		// ScriptableObject that exists before anything binds it.
 		if (target == typeof(SI.Bindable.PanelID))
@@ -123,6 +142,30 @@ internal static class Send
 		}
 
 		throw new Exception($"unsupported field type {target.Name}");
+	}
+
+	/// <summary>
+	/// Wraps a scalar as a TypedValue, which is what the game's own payload fields carry.
+	///
+	/// TypedValue.Create is generic, and generic il2cpp calls are the unreliable part on arm64,
+	/// so a failure is reported as such rather than left to look like a bad argument.
+	/// </summary>
+	private static object TypedValue(string raw)
+	{
+		try
+		{
+			if (int.TryParse(raw, out var number))
+				return SI.Core.TypedValue.Create<int>(number);
+
+			if (bool.TryParse(raw, out var flag))
+				return SI.Core.TypedValue.Create<bool>(flag);
+
+			return SI.Core.TypedValue.Create<string>(raw);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception($"TypedValue oluşturulamadı ({ex.GetType().Name}) — generic çağrı arm64'te çalışmıyor olabilir");
+		}
 	}
 
 	private static string Describe(Type target, string raw, object value) =>

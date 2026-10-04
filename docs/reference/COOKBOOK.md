@@ -12,8 +12,13 @@ Oyunun aksiyon ve veri yüzeyi, **deneyerek değil metadata'dan** çıkarılmı�
 isimle gönderiliyor:
 
 ```
-/send?event=<TypeName>&<Alan>=<değer|binding-yolu>
+/send?event=<TypeName>&<Alan>=<değer|binding-yolu|EnumÜyeAdı>[&dry=1]
 ```
+
+Alan tipleri: sayı/bool/string doğrudan, **referans** binding yolundan, **enum** üye adından,
+**`TypedValue`** scalar'dan, **`PanelID`** ekran adından. `dry=1` payload'ı kurup raporlar ama
+göndermez — yeni bir aksiyonu kayda dokunmadan denemenin yolu. Bir alan çözülemezse event hiç
+gönderilmez.
 
 **Simülasyon katmanı** — `FM.GamePlugin.InteropEventIDs`, **680 event** (`actions.txt`).
 Bunlar oyunun kendi motoruna giden aksiyonlar: basın toplantısında soru cevaplamak, transfer
