@@ -15,7 +15,7 @@
 - [x] `Application.runInBackground` — terminale geçince oyun donmuyor
 - [x] `tools/sigdump` — interop'un gerçekten neyi açtığını raporlayan araç
 - [x] `fm` CLI binary
-- [ ] Oyunu gizli başlatma (`fm open --hidden`)
+- [x] Oyunu gizli başlatma (`fm start`, pencere saklanır — headless imkânsız, §8.19)
 - [x] Plugin ↔ CLI protokolü: JSON çıktı (`--json`)
 - [x] Hata yönetimi: oyun kapalıysa/yükleniyorsa anlamlı mesaj
 - [ ] FM27'ye taşıma: sürüme özel her şey tek config dosyasında
@@ -24,7 +24,7 @@
 
 ## 1. Oyun yaşam döngüsü
 
-- [x] Oyunu başlat
+- [x] Oyunu başlat (`fm start`)
 - [x] **Son kaydı yükle** (`LoadSelectedGameEvent`)
 - [ ] Kayıtları listele (`fm saves`)
 - [ ] Belirli kaydı yükle (`fm load "Fenerbahçe"`)
@@ -229,14 +229,14 @@
 - [ ] Sparkline / mini grafik (form, kondisyon trendi)
 - [ ] `--json` her komutta (script'lenebilir)
 - [x] Pipe dostu çıktı (`fm squad | grep ...`)
-- [ ] İnteraktif TUI modu (liste gez, seç, aksiyon al)
+- [~] İnteraktif oturum (`fm start` sonrası komutlar `fm` önekisiz) — TUI değil, REPL
 - [ ] Fuzzy isim eşleme (`fm player osim` → Osimhen)
 - [ ] Kısaltmalar / takma adlar
 - [ ] Tab tamamlama (zsh/bash)
 - [ ] `fm status` — tek ekranda özet (tarih, sıradaki maç, inbox, uyarılar)
 - [ ] Onay isteyen aksiyonlar (transfer teklifi gibi) için `--yes`
 - [ ] Geri alma yok — yıkıcı aksiyonlarda uyarı
-- [ ] Oyun kapalıysa otomatik başlat
+- [x] Oyun kapalıysa otomatik başlat (`fm start`)
 
 ---
 

@@ -25,10 +25,15 @@ internal static class Panels
 			try { name = panel.name; }
 			catch { continue; }
 
-			if (!string.IsNullOrEmpty(filter) &&
-			    name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0) continue;
+			// A panel's title is a TranslationID, and any of those can render itself, so the
+			// inventory reads the way the game's own menus do.
+			var title = Title(panel);
 
-			found.Add($"  {panel.ID,12}  {name}");
+			if (!string.IsNullOrEmpty(filter) &&
+			    name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0 &&
+			    title.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0) continue;
+
+			found.Add($"  {panel.ID,12}  {name,-44}  {title}");
 		}
 
 		found.Sort(StringComparer.OrdinalIgnoreCase);
@@ -36,6 +41,16 @@ internal static class Panels
 		sb.AppendLine($"{found.Count} panel(s):");
 		foreach (var line in found) sb.AppendLine(line);
 		return sb.ToString();
+	}
+
+	private static string Title(PanelID panel)
+	{
+		try
+		{
+			var title = panel.Title;
+			return title.IsValid ? Text.Clean(title.TranslatedString) ?? "" : "";
+		}
+		catch { return ""; }
 	}
 
 	/// <summary>The panel with this name, for callers that address a screen the way a user would.</summary>

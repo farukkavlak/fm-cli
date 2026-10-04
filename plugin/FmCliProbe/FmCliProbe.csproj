@@ -38,6 +38,7 @@
     <Reference Include="SI.Core"><HintPath>$(BepInterop)/SI.Core.dll</HintPath></Reference>
     <Reference Include="SI.Interop"><HintPath>$(BepInterop)/SI.Interop.dll</HintPath></Reference>
     <Reference Include="SI.Bindable.Reference.Core"><HintPath>$(BepInterop)/SI.Bindable.Reference.Core.dll</HintPath></Reference>
+    <Reference Include="FM.GamePlugin"><HintPath>$(BepInterop)/FM.GamePlugin.dll</HintPath></Reference>
   </ItemGroup>
 
 </Project>

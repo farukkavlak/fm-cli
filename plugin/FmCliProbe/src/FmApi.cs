@@ -42,6 +42,7 @@ internal static class FmApi
 		"panels" => Panels.Catalog(q["filter"]),
 		"squad" => Report.Squad(),
 		"inbox" => Report.Inbox(),
+		"bindprop" => Materialise.Property(q["path"], q["name"]),
 		_ => null, // 404
 	};
 

@@ -8,6 +8,22 @@ internal static class Program
 
 	public static async Task<int> Main(string[] args)
 	{
+		// With no command, drop into the session rather than printing help: the game is usually
+		// already running and typing "fm" before every command gets old.
+		if (args.Length == 0) return await Session.Run(Run);
+
+		if (args[0] == "start")
+		{
+			if (!await Launcher.Start(Fm, args.Contains("--debug"))) return 69;
+			return await Session.Run(Run);
+		}
+
+		return await Run(args);
+	}
+
+	/// <summary>Runs one command, whether it came from argv or from the session prompt.</summary>
+	public static async Task<int> Run(string[] args)
+	{
 		var command = args.Length > 0 ? args[0] : "help";
 		var json = args.Contains("--json");
 
@@ -19,13 +35,14 @@ internal static class Program
 				"inbox" => await Inbox(json),
 				"next" => await Next(),
 				"status" => await Status(),
+				"start" => Started(),
 				"help" or "--help" or "-h" => Help(),
 				_ => Unknown(command),
 			};
 		}
 		catch (FmUnavailable)
 		{
-			Console.Error.WriteLine("FM çalışmıyor. Oyunu BepInEx ile başlat, sonra tekrar dene.");
+			Console.Error.WriteLine("FM çalışmıyor. `fm start` ile başlat.");
 			return 69; // EX_UNAVAILABLE
 		}
 		catch (FmError error)
@@ -33,6 +50,12 @@ internal static class Program
 			Console.Error.WriteLine(error.Message);
 			return 1;
 		}
+	}
+
+	private static int Started()
+	{
+		Console.WriteLine("FM zaten açık.");
+		return 0;
 	}
 
 	private static async Task<int> Squad(bool json)
@@ -170,12 +193,18 @@ internal static class Program
 		Console.WriteLine("""
 			fm — Football Manager 26'yı terminalden yönet
 
-			  fm squad        kadroyu bas
-			  fm inbox        gelen kutusu
-			  fm next         zamanı ilerlet
-			  fm status       bağlantı durumu
+			  fm start        oyunu başlat, kaydı yükle, oturuma gir
+			    --debug       pencereyi gizleme (log'u da söyler)
+			  fm              oturuma gir (oyun açıkken)
+
+			  squad           kadroyu bas
+			  inbox           gelen kutusu
+			  next            zamanı ilerlet
+			  status          bağlantı durumu
 
 			  --json          ham veri (script'lenebilir)
+
+			Oturumda komutları `fm` yazmadan verirsin; çıkmak için `quit`.
 			""");
 		return 0;
 	}

@@ -1,0 +1,40 @@
+39 panel(s):
+     350157824  PlayerSelectionCard                           Player selection
+     366431744  SaveNeedsReconcileDialog                      
+     445212160  RecruitmentScreen                             Recruitment
+     490349056  PostMatchNewsPanel                            Breaking News
+     580590080  InternationalOnThePitchScreen                 Match Day
+     622234624  ManagerPersonaDetailsScreen_EditMode          
+     783526912  PostMatchNewsPanelTitle                       
+     862320640  PlayerInstructionsCard                        Player Instructions
+     907004928  FullScreenTeamSelection                       Team Selection
+     963683328  OnlineCareerPreferences                       Online Career Preferences
+     963683329  OnlineCareerPreferencesFullScreen             Online Career Preferences
+     989379584  PortalScreen                                  Overview
+    1178068224  PreferencesCard                               Preferences
+    1234566789  LoadGameLoadingScreen                         
+    1318413056  GameWorldBackground                           
+    1355920640  SquadScreen                                   Squad
+    1387947264  CareerScreen                                  Career
+    1390397696  ControllerIntroduction                        Controller Introduction
+    1482690304  InternationalCareerScreen                     Career
+    1533303040  OnThePitchPenaltiesCard                       Penalties
+    1883068160  TeamSelectionTitleBar                         
+    1905439488  OverviewTitleBar                              
+    1928824064  FormationEditCard                             Formation
+    1949089023  Watermark                                     
+    1949089024  GameVersion                                   
+    2099962112  OnThePitchScreen                              Match Day
+    2263778048  OnThePitchSetPiecesTool                       Set Pieces
+    2798441472  ManagerPersonaManagementStyleScreen_EditMode  
+    2831727104  PlayerInstructionRoleEditCard                 Player Roles
+    2938361344  TutorialDialog                                
+    3249775616  InternationalSquadScreen                      Squad
+    3254644224  NationalPoolScreen                            National Pool
+    3361210368  PhoneDashboardHeaderNavigationTabs            
+    3412035072  GenericModalDialog                            
+    3590070784  ManagerPersonaBackgroundScreen_EditMode       
+    3706171392  ClubScreen                                    Club
+    3744011264  HomeRibbon                                    
+    3806739968  NationScreen                                  Nation
+    4119577600  OnThePitchOppositionInstructionsCard          Opposition Instructions

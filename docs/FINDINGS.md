@@ -751,6 +751,65 @@ ve JSON döndürüyor.
 ⚠ Kadro ekranı ülke **adını** bağlamıyor (bayrak kullanıyor), o yüzden `fm squad`'da ülke
 kolonu yok. Kondisyon/moral de aynı sebeple yok: canlanan küme ekranın kolon setine eşit.
 
+## 8.19 Oyun gizlenebilir, headless çalıştırılamaz
+
+Ölçüldü, tahmin değil. `-batchmode -nographics` ile:
+
+```
+süreç: çalışıyor   köprü: ayakta   bindings: unavailable  (4 dakika boyunca)
+```
+
+UI boot etmeyince binding ağacı hiç kurulmuyor — bütün veri yolumuz ekranların veriyi
+bağlamasına dayandığı için headless bizi veriden kesiyor. **Pencere var olmak zorunda.**
+
+Ama gizlenebiliyor. macOS'ta ⌘H karşılığı:
+
+```
+osascript -e 'tell application "System Events" to set visible of process "Football Manager 26" to false'
+```
+
+Gizliyken `fm squad` hâlâ 27 oyuncu basıyor, yani gizleme veri yolunu bozmuyor
+(`Application.runInBackground` sayesinde). `fm start` varsayılan olarak gizliyor; `--debug`
+pencereyi bırakıyor. Gizleme Erişilebilirlik izni istiyor, reddedilirse oyun yine çalışıyor.
+
+## 8.20 Çeviri tablosu: `TranslationID` kendini metne çeviriyor
+
+```csharp
+SI.Translation.TranslationID.TranslatedString   // property, span yok
+SI.Translation.TranslationManager.GetTranslationFromID(TranslationID)
+```
+
+`PanelID.Title` bir `TranslationID` olduğu için ekran envanteri artık oyunun menülerindeki
+adlarla okunuyor: `SquadScreen → "Squad"`. `docs/reference/panels.txt`.
+
+⚠ Envanter **kısmi**: panel'ler Addressables ile talep üzerine yükleniyor, o yüzden
+`Resources.FindObjectsOfTypeAll` yalnızca o ana kadar dokunulmuş olanları görüyor
+(bu oturumda 39). Tam liste için addressable kataloğunu yüklemek gerekecek.
+
+## 8.21 Property'yi talep üzerine canlandırma — yarısı çalışıyor
+
+Hedef: ekran açmadan tek bir property'yi (ör. `Condition`) ağaca sokmak. Mekanizmanın iki adımı
+da span'sız görünüyordu:
+
+```csharp
+FM.GamePlugin.GameInteropSubsystem.AddNode(Bindings.Key key, Bindings.Key parentKey, PropertyID property)
+FM.GamePlugin.GameInteropSubsystem.OpenChannel(InteropReference reference, PropertyID property, Bindings.Key key)
+```
+
+İkisi de hatasız dönüyor, **ama düğüm oluşmuyor**: `rawexists` hedef anahtar için `False`.
+Sebebi `AddNode`'un ağaca düğüm yaratmaması — yaratma `Bindings.Create(ReadOnlySpan<char>, NodeFlags)`
+üzerinde ve §8.12'deki ölü span köprüsünün arkasında. `Bindings.Set(ref Key, ...)` span almıyor
+ama `NodeFlags` parametresi de yok, yani var olmayan anahtarı oluşturması beklenmiyor.
+
+Yani: kanalı açabiliyoruz, kanalın yazacağı düğümü yaratamıyoruz. `/bindprop` route'u bu yarım
+mekanizmayı belgelemek için duruyor. Çözüm için denenecekler: `HandlerAccess.Set` ile düğüm
+oluşup oluşmadığı (bir `TypedValue` üretmek gerekiyor), `AddAlias`, ya da `Bindings.Create`'e
+span'ı farklı bir yolla geçirmek.
+
+Pratik sonuç: veri hâlâ **ekranın bağladığı kümeye** eşit. Kadro ekranında ülke adı yok
+(`Nation` düğümü çocuksuz — ekran yalnızca bayrak görselini kullanıyor), kondisyon/moral de yok.
+Bunlar için ilgili ekranı/görünümü açtırmak gerekiyor.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması

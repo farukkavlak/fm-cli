@@ -24,6 +24,12 @@ internal static class Game
 	/// <summary>The event bus: how actions are fired and game events observed.</summary>
 	public static SI.Core.EventSubsystem Events => Subsystem<SI.Core.EventSubsystem>();
 
+	/// <summary>
+	/// The bridge to the game simulation. It can create a node for a property and start feeding
+	/// it, which is how a value enters the tree without a screen asking for it.
+	/// </summary>
+	public static FM.GamePlugin.GameInteropSubsystem Interop => Subsystem<FM.GamePlugin.GameInteropSubsystem>();
+
 	private static T Subsystem<T>() where T : Il2CppSystem.Object
 	{
 		var all = SI.Core.GameSubsystems.s_subsystems;
