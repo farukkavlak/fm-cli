@@ -58,6 +58,48 @@ if (args.Length > 1 && args[0] == "--holders")
     return 0;
 }
 
+// --enums [NamePart]: every enum in the interop assemblies with its members and values.
+// Tactical roles, mentalities, instruction settings, clause types and so on are all closed
+// lists compiled into metadata, so they can be read rather than discovered by trial.
+if (args.Length > 0 && args[0] == "--enums")
+{
+    var want = args.Length > 1 ? args[1] : null;
+    foreach (var dll in Directory.GetFiles(interop, "*.dll").OrderBy(x => x))
+    {
+        Assembly a;
+        try { a = mlc.LoadFromAssemblyPath(dll); } catch { continue; }
+
+        Type[] types;
+        try { types = a.GetTypes(); } catch { continue; }
+
+        foreach (var ty in types.OrderBy(EnumName, StringComparer.Ordinal))
+        {
+          try
+          {
+            if (!ty.IsEnum) continue;
+
+            var name = EnumName(ty);
+            if (want != null && name.IndexOf(want, StringComparison.OrdinalIgnoreCase) < 0) continue;
+
+            // An il2cpp enum keeps its backing storage in a field named value__, which is not
+            // one of the named members.
+            var members = ty.GetFields(BindingFlags.Public | BindingFlags.Static)
+                .Select(f => (f.Name, Value: f.GetRawConstantValue()))
+                .ToList();
+            if (members.Count == 0) continue;
+
+            Console.WriteLine($"{name}  [{Path.GetFileNameWithoutExtension(dll)}]");
+            foreach (var (member, value) in members)
+                Console.WriteLine($"    {value,6}  {member}");
+          }
+          catch (Exception ex) { Console.Error.WriteLine($"skipped: {ex.GetType().Name}"); }
+        }
+    }
+    return 0;
+
+    static string EnumName(Type t) { try { return t.FullName ?? t.Name; } catch { return t.Name; } }
+}
+
 // --method <NamePart>: which type, in any interop assembly, declares a method whose name
 // contains this. Answers "where does this helper live?" without guessing namespaces.
 if (args.Length > 1 && args[0] == "--method")

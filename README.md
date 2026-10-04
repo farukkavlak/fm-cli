@@ -96,7 +96,12 @@ ln -sf "$PWD/cli/fm/bin/Release/net10.0/fm" /usr/local/bin/fm
 
 | Dosya | İçerik |
 |---|---|
+| `COOKBOOK.md` | **buradan başla** — taktik, transfer, basın, konuşma, antrenman reçeteleri |
 | `data-model.txt` | 931 referans tipi, 14504 isimli property, referans kenarlarıyla |
-| `events.txt` | 275 event tipi, alanlarıyla — FM26'nın aksiyon yüzeyi |
+| `events.txt` | 275 UI event tipi, alanlarıyla |
+| `actions.txt` | 225 `ActionID` + 680 `InteropEventIDs` — simülasyonun aksiyon yüzeyi |
+| `enums.txt` | 2160 enum, 19119 üye — roller, direktifler, mentalite, formasyonlar |
+| `panels.txt` | yüklü ekranlar, çevrilmiş isimleriyle (kısmi) |
 
-Yenilemek için: `curl localhost:7777/schema` ve `dotnet run --project tools/sigdump -- --catalog events`.
+Yenilemek için: oyun açıkken `curl localhost:7777/schema` ve `/panels`; oyun gerekmeden
+`dotnet run --project tools/sigdump -- --catalog events` / `--enums` / `--method <ad>`.

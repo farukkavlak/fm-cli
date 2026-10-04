@@ -840,6 +840,63 @@ ekranları değiştiriyor.
 kare (yükleme, maç) zaman aşımına benziyor; `fm` artık ikisini ayırıyor:
 "FM yanıt vermedi — meşgul olabilir" (exit 75) ile "FM çalışmıyor" (exit 69).
 
+## 8.23 Aksiyon yüzeyinin tamamı: iki katman, ikisi de kataloglu
+
+§8.11'deki "şema statik" bulgusunun aksiyon tarafındaki karşılığı. Oyunun yapabildiği her şey
+derlenmiş metadata'da duruyor, oyun çalışmasına bile gerek yok.
+
+| Katman | Nerede | Adet |
+|---|---|---|
+| UI event'leri | `EventBase<T>` türevleri | 275 |
+| Simülasyon event'leri | `FM.GamePlugin.InteropEventIDs` | **680** |
+| UI aksiyonları | `FM.GamePlugin.ActionID` | **225** |
+| Enum'lar (roller, direktifler, mentalite…) | her yerde | **2160 enum / 19119 üye** |
+
+**Köprü doğrulandı:** §8.15'te bir aksiyon kaydında `Event = 27` görmüştük ve ne olduğunu
+bilmiyorduk. `Event` alanı doğrudan bir `InteropEventIDs` değeri:
+
+```
+Action.Event = 27           -> InteropEventIDs.EventFmxNewsResponseAction
+Action.Event = 1231635054   -> (RunNewsAction tarafı)
+```
+
+Yani **bir ekrandaki herhangi bir butonun ne gönderdiğini `/dyn` ile okuyup adıyla
+eşleştirebiliyoruz**, ve tersine aksiyonun adını bilince hangi ID'yi göndereceğimizi biliyoruz.
+`FM.GamePlugin.EventToPlugin { InteropReference Target; InteropEventIDs ID; TypedValue DataToSend; }`
+bu katmanın genel taşıyıcısı; `GameInteropSubsystem.m_handlers` da `Dictionary<ActionID, …>`.
+
+### FM26'nın iki fazlı taktiği enum düzeyinde
+
+Deneyerek aylar alacak şey tek dökümde çıktı:
+
+```
+FM.UI.InPossessionRole        57 üye   (InvertedFullBack, WideCentreBack, Mezzala, Regista…)
+FM.UI.OutOfPossessionRole     46 üye   (OPPressingFullBack, OPScreeningCentralMidfielder…)
+FM.UI.TeamInstructionPhaseID  14 üye   (BuildUp, Progression, FinalThird / HighPress,
+                                        MidBlock, LowBlock, PressingTrap…)
+FM.UI.TacticTeamInstructions  33 üye   FM.UI.PlayerInstruction  36 üye (PI_*)
+FM.UI.TacticalStyles          13 üye   FM.UI.TacticMentalities   8 üye
+FM.UI.Formation               72 üye
+```
+
+⚠ Rol enum'ları **bit maskesi** (1, 2, 4 … 1.4e17), yani bir pozisyonun uygun rolleri tek
+sayıda toplanıyor. Faz ve mentalite düz sayı.
+
+`TacticTeamSelectionDropdownEvent`'in `IsInPossession` alanı taşıması, iki fazın aynı event'le
+farklı bayrakla sürüldüğünü gösteriyor.
+
+### Basın toplantısı gelen kutusuyla aynı şekle sahip
+
+`PressConferenceEditSessionReference` (10 property: `JournalistSpeaking`,
+`NumberOfQuestionsAsked`, `TotalNumberOfQuestions`, `ConversationRoomAtmosphere`…) artı
+`EventFmxPressConferenceAnswerQuestion`, `…NoComment`, `…EarlyExit`, `…StormOut`.
+
+Yani oturum referansı + cevap seçenekleri + seçimi gönderen event — mesaj cevaplamanın
+(§8.15) birebir aynısı. Aynı desenle çözülmesi bekleniyor.
+
+Hepsi `docs/reference/COOKBOOK.md`'de alan alan toplandı; ham kataloglar `actions.txt` ve
+`enums.txt`.
+
 ## 9. Sıradaki adımlar
 
 - [x] FM26 kurulumu, IL2CPP doğrulaması
