@@ -22,6 +22,12 @@ internal static class Session
 
 			if (words[0] is "quit" or "exit" or "q") break;
 
+			if (words[0] is "clear" or "cls")
+			{
+				Console.Write("\u001b[2J\u001b[H");
+				continue;
+			}
+
 			// `fm squad` typed inside the session is still what someone means.
 			if (words[0] == "fm") words = words.Skip(1).ToArray();
 			if (words.Length == 0) continue;

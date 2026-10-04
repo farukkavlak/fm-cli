@@ -116,9 +116,18 @@ internal static class Program
 			("ObjectUniqueID", "0"),
 			("SecondaryTab", "false"));
 
-		// Binding takes a frame or two, so the read waits rather than reporting nothing.
-		await Task.Delay(TimeSpan.FromSeconds(5));
-		return await Fm.GetJson(route);
+		// Binding lands a few seconds later, and how many depends on what the game is doing, so
+		// this waits for the data rather than for a fixed delay.
+		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+		while (DateTime.UtcNow < deadline)
+		{
+			await Task.Delay(TimeSpan.FromSeconds(2));
+
+			data = await Fm.GetJson(route);
+			if (data.GetArrayLength() > 0) return data;
+		}
+
+		return data;
 	}
 
 	private static async Task<int> Inbox(bool json)
@@ -227,8 +236,7 @@ internal static class Program
 
 	private static int Unknown(string command)
 	{
-		Console.Error.WriteLine($"bilinmeyen komut: {command}");
-		Help();
+		Console.Error.WriteLine($"bilinmeyen komut: {command} — komutlar için `help`");
 		return 64; // EX_USAGE
 	}
 }
