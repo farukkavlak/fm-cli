@@ -1868,8 +1868,12 @@ listesini yalnızca onda olan bir görünümden tanıyor (kadro: "Dynamics", ver
 Transfer"). Bunu ayırmadan önce `fm squad`, `fm players`'tan sonra "görünüm seçildi ama veri
 gelmedi" diye düşüyordu.
 
-Sınırlar: yalnızca ekrandaki satırlar bağlı (21), liste kaydırılamıyor; süzgeç oyunda kalıyor
-ve kaldırılamıyor; isimle arama ("Edit Search") yok; kolon başlıkları oyunun alan adları.
+Süzgeç oyunda kalıyor; yenisi eskisinin yerine geçiyor ("Edit Search (1)" sayacı 1'de kaldı),
+`--clear` sayfanın kendi "Clear" butonuna basıyor (`EventFmxResetFilter`). "Unhappy" süzgeci sıfır
+satır verdi; boş mu, yoksa bilgi mi yetmiyor, bakılmadı.
+
+Sınırlar: yalnızca ekrandaki satırlar bağlı (21), liste kaydırılamıyor; isimle arama ("Edit
+Search", `EventFmxFilterStoreFilter`) yok; kolon başlıkları oyunun alan adları.
 
 ## 8.39 MCP: komutlar araç olarak
 

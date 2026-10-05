@@ -776,6 +776,7 @@ internal static partial class Program
 			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler
 			  players         oyuncu veritabanı (ekrandaki satırlar)
 			    --filters / --filter "<x>"   hazır süzgeçler: Transfer Listed, Contract Expiring…
+			    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)
 			    --views / --view "<x>"       kolonları belirleyen görünümler
 			  table           lig tablosu
 			  fixtures        sıradaki maçlar

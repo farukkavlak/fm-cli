@@ -281,6 +281,14 @@ internal static partial class Program
 		}
 
 		var before = (await Fm.GetJson("people")).ToString();
+
+		// A quick filter stays on until the page's own Clear is pressed.
+		if (args.Contains("--clear"))
+		{
+			var cleared = await Arriving("press", [("text", "Clear"), ("event", "EventToPlugin")]);
+			if (cleared.StartsWith("error", StringComparison.Ordinal)) return Report(cleared);
+		}
+
 		if (Option(args, "--filter") is { } wantedFilter)
 		{
 			if (Choose(filterNames, wantedFilter, "Süzgeç") is not { } filter) return 1;
@@ -308,7 +316,7 @@ internal static partial class Program
 		JsonElement people = default;
 		var last = "";
 		var waited = 0;
-		var asked = Option(args, "--filter") != null || Option(args, "--view") != null;
+		var asked = Option(args, "--filter") != null || Option(args, "--view") != null || args.Contains("--clear");
 		await Until(async () =>
 		{
 			var now = await Fm.GetJson("people");

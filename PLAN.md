@@ -167,7 +167,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 - [ ] Transfer listem (`fm transfers list`)
 - [~] Oyuncu ara — `fm players [--filter "<hazır süzgeç>"] [--view "<görünüm>"]`: veritabanının
-      ekrandaki 21 satırı (§8.38); isimle arama, kaydırma ve süzgeci kaldırma yok
+      ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); isimle arama ve kaydırma yok
 - [k] Teklif ver — `PersonMakeOfferForPlayer`
 - [k] Gelen teklife yanıt — `EventFmxTransferOfferResponse`
 - [k] Sözleşme teklifi / yenileme — `PersonOfferContract`, `ContractEditSessionReference` (80)
