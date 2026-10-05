@@ -81,6 +81,7 @@ save --yes      oyunu kaydet (dosyanın üzerine yazar)
 tactic                      taktik: stil, mentalite, on bir mevki, roller, oyuncular
 tactic new "<stil>" "<topla diziliş>" "<topsuz diziliş>"   taktik oluştur (eksik adımı listeler)
 tactic mentality [<x>]      mentaliteyi göster / değiştir;  tactic style [<x>] aynısı stil için
+tactic role <mevki> [<rol>] mevkinin rolünü göster / değiştir (--oop: topsuz rol)
 tactic pick                 ilk 11'i oyuna seçtir
 setpieces new [<no> …]      duran top rutinlerini kur (altı soru)
 

@@ -1419,7 +1419,23 @@ fm tactic pick                ilk 11'i oyuna seçtir
 | elle Quick Pick (11 boşken) | 11 oyuncu geldi; `tactic pick` dolu on birde aynı on biri bildirdi |
 | `open` gerilemesi: First Team, Finances, Club Vision, Match Rules, Fixture Schedule (iki sekmede) | açıldı / belirsiz olan reddedildi; `squad --fitness`, `inbox` aynı |
 
-Açık kalanlar: rol ve diziliş değiştirme, takım talimatları, yedekler, taktik yuvaları
+**Rol değiştirme: `fm tactic role`.** Planlayıcıda mevki başına iki liste var (topla / topsuz),
+event'i `RoleOptionEvent`. Satırın gösterdiği şey düz metin değil kayıt: `{ TacticsRoleName,
+Role (bit maskesi), Selected, StarRange (oyuncuya uygunluk) }`; son iki satır "Go to Role
+Selection" ve "Go to Player Instructions". 22 liste mevki sırasıyla geliyor ama üstünde hangi
+mevkinin listesi olduğu yazmıyor; komut, listenin `Selected` işaretlediği rolü taktikteki rolle
+karşılaştırıp uyuşmazsa dokunmuyor. Seçim: satırı seç + listenin event'ini kuyruğa koy
+(`/select?…&fire=1`).
+
+| Deneme (temiz kayıt, yeni taktik) | Sonuç |
+|---|---|
+| `tactic role` / `role ZZ` / `role DM` | mevki listesi / red / "DMR, DML'ye uyuyor" |
+| `role GK`, `role GK --oop` | üçer rol, yürürlükteki işaretli (Goalkeeper / Sweeper Keeper) |
+| `role GK Ball --dry`, `role GK Ball`, tekrar | değişmedi / Goalkeeper → Ball-Playing Goalkeeper / "zaten" |
+| `role DML Dropping --oop`, `role ST 1` | topsuz rol ve forvet rolü değişti; `fm tactic` üçünü de yeni haliyle gösterdi |
+| elle (önceki oturum): aynı listeden ikinci satır | aynı değişim |
+
+Açık kalanlar: diziliş değiştirme, takım talimatları, yedekler, taktik yuvaları
 (planlayıcıda "Create New Tactic · Load Tactic · Copy Tactic" ve "Save · Load… · Clear Slot"
 listeleri var), "Pick Rotated Squad" gibi diğer seçim menüsü satırları.
 
@@ -1784,7 +1800,7 @@ mutluluk ayrıntısı sayfada bağlı ama okunmuyor.
 ## 8.39 MCP: komutlar araç olarak
 
 `fm mcp`, Model Context Protocol'ün stdio taşımasını konuşuyor (satır başına bir JSON-RPC
-mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 25 araç var ve **her araç bir
+mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 26 araç var ve **her araç bir
 komut**: argümanlar kullanıcının yazacağı kelimelere çevriliyor, komut terminaldeki gibi
 çalışıyor, bastığı metin sonuç oluyor (`isError` = çıkış kodu sıfır değil). Davranış tek yerde
 duruyor; CLI'da çalışan her şey araçta da çalışıyor.
@@ -1792,7 +1808,7 @@ duruyor; CLI'da çalışan her şey araçta da çalışıyor.
 ```
 fm_status  fm_next  fm_inbox  fm_reply  fm_talk  fm_tour  fm_dialog
 fm_squad  fm_player  fm_table  fm_fixtures
-fm_tactic  fm_tactic_set  fm_tactic_pick  fm_tactic_new  fm_setpieces_new
+fm_tactic  fm_tactic_set  fm_tactic_role  fm_tactic_pick  fm_tactic_new  fm_setpieces_new
 fm_match (varsayılan: instant)  fm_sub  fm_save (confirm: true ister)
 fm_pages  fm_open  fm_buttons  fm_press  fm_dropdowns  fm_select
 ```
