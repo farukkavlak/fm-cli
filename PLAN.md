@@ -387,6 +387,26 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - **`fm reply`'dan hemen sonraki `fm next` mesajı hâlâ engel sanıyordu**; `reply` artık gelen
   kutusunun güncellenmesini bekliyor.
 
+**Kayıt dosyasının durumu (sabah itibarıyla)**
+
+- Ana kayıt (`Faruk Kavlak - Fenerbahçe.fm`) **30 Haziran 2025'teki temiz haline geri kondu**;
+  bayt bayt aynı, yalnızca dosya tarihi değişti.
+- Gece iki şey yazdı: oyunun otomatik kaydı (7 Temmuz) ve `fm save --yes` denemesi (maç günü).
+  İkisi de `~/fm26_bep/save-backups/`'ta duruyor; `…matchday.fm` maç denemeleri için hazır.
+- Oyun klasöründe oyunun kendi bıraktığı iki dosya var: `… (v02).fm` (temiz halin kopyası) ve
+  `last save overwrite backup.fm` (7 Temmuz otomatik kaydı). Silinmedi.
+- Maç günü kaydındaki kariyerde özensiz verilmiş sözler var (şampiyonluk, kupa, kaleci
+  transferi): toplantı "ilk seçeneği söyle" diye yürütüldü.
+
+**Faruk'u bekleyen kararlar**
+
+1. Otomatik kayıt açık kalsın mı? Açıkken zamanı ilerleten her oturum ana kaydı değiştirebilir.
+2. `fm match` varsayılanı: şimdi maçı oynatıyor (6-8 dk), `--instant` isteyince simüle ediyor;
+   MCP aracında ise varsayılan instant. Aynı olsun mu?
+3. MCP araçları komutlarla bire bir (25 araç, Türkçe düz metin). Araç sayısı / dil / JSON çıktı?
+4. Konuşmalarda varsayılan: `fm match --talk` ilk cümleyi söylüyor; bu her zaman önerilen değil.
+5. Sırada ne olsun: maç içi yönetimin kalanı mı, taktikte rol/diziliş mi, transfer mi?
+
 ### 2026-10-05
 
 **Kazanımlar**
