@@ -1245,7 +1245,8 @@ m_npcDataBinding -> NPC      m_speakToBinding -> SpeakTo
 ```
 fm inbox                    mesajlar artık numaralı
 fm reply <# | konu>         mesajı aç, cevaplarını listele
-fm reply <#> "<cevap>"      cevapla   (--dry ile yalnızca söyler)
+fm reply <#> <no | "cevap"> cevapla: listedeki numarasıyla ya da metninin bir parçasıyla
+                            (--dry ile yalnızca söyler)
 ```
 
 **Hangi mesaj açık?** Ekrandaki cevaplar o an açık mesaja ait; yeni mesaj açılırken bir an

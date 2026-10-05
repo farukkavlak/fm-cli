@@ -299,7 +299,7 @@ internal static class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: reply <# | konu> [\"<cevap>\"] [--dry]   (numaralar için `inbox`)");
+			Console.Error.WriteLine("kullanım: reply <# | konu> [<cevap no> | \"<cevap>\"] [--dry]   (numaralar için `inbox`)");
 			return 64;
 		}
 
@@ -349,20 +349,36 @@ internal static class Program
 		if (words.Count == 1)
 		{
 			Console.WriteLine($"{title}\n");
-			foreach (var answer in answers) Console.WriteLine("  " + Field(answer, "Label"));
-			Console.WriteLine($"\nCevaplamak için: reply {words[0]} \"<cevap>\"");
+			Options(Console.Out);
+			Console.WriteLine($"\nCevaplamak için: reply {words[0]} <numara>");
 			return 0;
 		}
 
-		var wanted = answers
-			.Where(a => Field(a, "Label").Contains(words[1], StringComparison.OrdinalIgnoreCase))
-			.ToList();
+		// An answer is named by its number in that listing or by a piece of its text.
+		List<JsonElement> wanted;
+		if (int.TryParse(words[1], out var number))
+		{
+			if (number < 1 || number > answers.Count)
+			{
+				Console.Error.WriteLine($"{number} numaralı cevap yok. Seçenekler:");
+				Options(Console.Error);
+				return 1;
+			}
+			wanted = [answers[number - 1]];
+		}
+		else
+		{
+			wanted = answers
+				.Where(a => Field(a, "Label").Contains(words[1], StringComparison.OrdinalIgnoreCase))
+				.ToList();
+		}
+
 		if (wanted.Count != 1)
 		{
 			Console.Error.WriteLine(wanted.Count == 0
 				? $"'{words[1]}' diye bir cevap yok. Seçenekler:"
 				: $"'{words[1]}' birden çok cevaba uyuyor:");
-			foreach (var answer in answers) Console.Error.WriteLine("  " + Field(answer, "Label"));
+			Options(Console.Error);
 			return 1;
 		}
 
@@ -376,6 +392,11 @@ internal static class Program
 			? $"(kuru) '{Field(wanted[0], "Label")}' cevabı verilecekti: {title}"
 			: $"Cevaplandı: {title} → {Field(wanted[0], "Label")}");
 		return 0;
+
+		void Options(TextWriter output)
+		{
+			for (var i = 0; i < answers.Count; i++) output.WriteLine($"  {i + 1}  {Field(answers[i], "Label")}");
+		}
 
 		async Task<string> Selected()
 		{
@@ -657,7 +678,7 @@ internal static class Program
 			    --morale      moral, hiyerarşi ve sosyal grup
 			  inbox           gelen kutusu
 			  reply <#>       mesajın cevap seçenekleri
-			  reply <#> "<cevap>"   mesajı cevapla
+			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next            zamanı ilerlet
 
 			  pages [metin]               oyunun bütün sayfaları
