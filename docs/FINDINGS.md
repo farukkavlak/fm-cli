@@ -1838,17 +1838,50 @@ satır kaydına alınmıyor). ⚠ Taktik ekranı altta bağlıyken bir oyuncunun
 kolonları boş geldi: `/squad` aynı adı bağlayan iki listeyi birleştirirken eksik kalıyor; düz
 `fm squad`'da da aynı. Çözülmedi.
 
+### Oyuncu veritabanı: `fm players`
+
+Recruitment › Player Database, kadro tablosuyla aynı türden bir kişi tablosu: aynı adlı görünüm
+listesi (`ViewDropdown`: Overview, General Info, Contract, Transfer, Selection Info, Scout -
+Transfer, Scout - Position, Stats ›, International, Attributes ›) ve bir "Quick Filters" listesi
+(`inputs-combobox-default-default`: Transfer Listed, Loan listed, Contract Expired, Contract
+Expiring, Home-Grown, Unhappy, No Preferred Foot, Goalkeepers, Defenders, Midfielders, Attackers,
+Extensive Knowledge). Süzgeç listesinin event'i var (`EventToPlugin`, veri `SelectedQuickFilter`),
+yani seçmek + event'i göndermek gerekiyor; görünüm listesi yalnızca değer yazıyor.
+
+Satırın kişisi `binding` adıyla, yanında satırın `Index`'i ile bağlı; ad dışındaki her şey
+(kulüp, değer, mevki, durum) komşu hücrelerde ve görünüme göre değişiyor. `/squad` kişinin kendi
+kaydında mevki ya da forma numarası aradığı için bu tabloyu görmüyordu; `/people` satırı
+şeklinden tanıyor.
+
+| Deneme | Sonuç |
+|---|---|
+| `players --filters` / `--views` | 12 süzgeç / 10 görünüm |
+| `players` | 21 satır: yaş, değer, kulüp, mevki, "Scouting Required" |
+| `players --filter zzz` | red |
+| `players --filter "Transfer Listed"` | 21 satır, durum kolonunda "Lst"; oyunun sayacı "players found (Filtered)" |
+| `players --view transfer` | değer, AskingPrice |
+| `players --filter "contract expiring" --view Contract` | maaş aralığı, sözleşme türü |
+| ardından `fm squad`, `--fitness`, `--morale`, `--view injuries` | kadro tablosu kendi listesinden okundu |
+
+⚠ İki tablo aynı anda yüklü kalabiliyor ve ikisinin de `ViewDropdown`'u var; komutlar kendi
+listesini yalnızca onda olan bir görünümden tanıyor (kadro: "Dynamics", veritabanı: "Scout -
+Transfer"). Bunu ayırmadan önce `fm squad`, `fm players`'tan sonra "görünüm seçildi ama veri
+gelmedi" diye düşüyordu.
+
+Sınırlar: yalnızca ekrandaki satırlar bağlı (21), liste kaydırılamıyor; süzgeç oyunda kalıyor
+ve kaldırılamıyor; isimle arama ("Edit Search") yok; kolon başlıkları oyunun alan adları.
+
 ## 8.39 MCP: komutlar araç olarak
 
 `fm mcp`, Model Context Protocol'ün stdio taşımasını konuşuyor (satır başına bir JSON-RPC
-mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 27 araç var ve **her araç bir
+mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 28 araç var ve **her araç bir
 komut**: argümanlar kullanıcının yazacağı kelimelere çevriliyor, komut terminaldeki gibi
 çalışıyor, bastığı metin sonuç oluyor (`isError` = çıkış kodu sıfır değil). Davranış tek yerde
 duruyor; CLI'da çalışan her şey araçta da çalışıyor.
 
 ```
 fm_status  fm_next  fm_inbox  fm_reply  fm_talk  fm_tour  fm_dialog
-fm_squad  fm_player  fm_table  fm_fixtures
+fm_squad  fm_player  fm_players  fm_table  fm_fixtures
 fm_tactic  fm_tactic_set  fm_tactic_role  fm_tactic_player  fm_tactic_pick  fm_tactic_new  fm_setpieces_new
 fm_match (varsayılan: instant)  fm_sub  fm_save (confirm: true ister)
 fm_pages  fm_open  fm_buttons  fm_press  fm_dropdowns  fm_select

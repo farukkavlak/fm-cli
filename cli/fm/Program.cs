@@ -35,6 +35,7 @@ internal static partial class Program
 			{
 				"squad" => await Squad(json, args),
 				"player" => await Player(json, args),
+				"players" => await Players(json, args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
 				"inbox" => await Inbox(json),
@@ -207,11 +208,21 @@ internal static partial class Program
 
 		return squad;
 
+		// Other tables of people have a view list by the same name; the squad's is the one
+		// that offers the dressing-room view.
 		async Task<bool> Choose(string choice) =>
-			Sent(await Fm.Get("select", ("name", "ViewDropdown"), ("choice", choice)));
+			await ViewList("Dynamics") is { } list
+			&& Sent(await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice)));
 
 		static bool Sent(string answer) => !answer.StartsWith("error", StringComparison.Ordinal);
 	}
+
+	/// <summary>The table view list on screen that offers a given view, which tells one table's list from another's.</summary>
+	private static async Task<JsonElement?> ViewList(string offering) =>
+		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Name") == "ViewDropdown")
+			.Cast<JsonElement?>()
+			.FirstOrDefault(d => d.Value.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == offering));
 
 	private static bool Carries(JsonElement rows, string field) =>
 		rows.EnumerateArray().Any(row => row.TryGetProperty(field, out _));
@@ -711,7 +722,7 @@ internal static partial class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] is "--name" or "--tab" or "--view") { i++; continue; }
+			if (args[i] is "--name" or "--tab" or "--view" or "--filter") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}
@@ -763,6 +774,9 @@ internal static partial class Program
 			    --views       kadro tablosunun bütün görünümlerini listele
 			    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
 			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler
+			  players         oyuncu veritabanı (ekrandaki satırlar)
+			    --filters / --filter "<x>"   hazır süzgeçler: Transfer Listed, Contract Expiring…
+			    --views / --view "<x>"       kolonları belirleyen görünümler
 			  table           lig tablosu
 			  fixtures        sıradaki maçlar
 			  inbox           gelen kutusu

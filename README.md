@@ -63,6 +63,7 @@ squad           kadroyu bas
   --morale      moral, hiyerarşi ve sosyal grup
   --views       tablonun bütün görünümleri;  --view "<ad>": o görünümün kolonları
 player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler
+players         oyuncu veritabanı;  --filter "<x>" hazır süzgeç,  --view "<x>" kolonlar
 table           lig tablosu
 fixtures        sıradaki maçlar
 inbox           gelen kutusu

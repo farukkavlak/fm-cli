@@ -40,6 +40,7 @@ internal static class FmApi
 		"dyn" => Dynamic(q["path"]),
 		"panels" => Panels.Catalog(q["filter"]),
 		"squad" => Report.Squad(),
+		"people" => Report.People(),
 		"inbox" => Report.Inbox(),
 		"tour" => Report.Tour(),
 		"player" => PlayerCard.Current(),

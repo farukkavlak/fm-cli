@@ -17,7 +17,16 @@ internal static class Report
 {
 	private const int MaxNodes = 40000;
 
-	public static string Squad()
+	public static string Squad() => People(squadOnly: true);
+
+	/// <summary>
+	/// Any table of people on screen — the player database, a shortlist — read the way the
+	/// squad is, but without insisting that the named record itself carries a position: such
+	/// tables keep even that in a neighbouring cell.
+	/// </summary>
+	public static string People() => People(squadOnly: false);
+
+	private static string People(bool squadOnly)
 	{
 		var players = new List<Dictionary<string, string>>();
 		var byName = new Dictionary<string, Dictionary<string, string>>();
@@ -36,6 +45,7 @@ internal static class Report
 			// opponents are bound as named people too.
 			if (!fields.ContainsKey("PositionCombinedString") &&
 			    !fields.ContainsKey("SquadNumberBlankIfInvalid") &&
+			    !(!squadOnly && (fields.ContainsKey("Age") || IsTableRow(node))) &&
 			    !byName.ContainsKey(name)) continue;
 
 			// Both squads hang under the same tab container, so the path cannot tell them apart;
@@ -203,6 +213,13 @@ internal static class Report
 			if (Fields(node).TryGetValue("DisplayString", out var text)) bubbles[index] = text;
 		}
 	}
+
+	/// <summary>
+	/// A table binds each row's person as "binding" beside the row's index, whatever columns
+	/// the view in force puts around it.
+	/// </summary>
+	private static bool IsTableRow(IReadOnlyNode person) =>
+		person.Name == "binding" && Sibling(person, "Index") != null;
 
 	/// <summary>The name of the team a squad row belongs to, found by climbing to its list.</summary>
 	private static string TeamOf(IReadOnlyNode node)

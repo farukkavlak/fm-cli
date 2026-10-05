@@ -162,12 +162,10 @@ internal static partial class Program
 		var opened = await OpenPage("First Team", "Squad");
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		List<string> views = [];
-		await Until(async () => (views = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.Where(d => Field(d, "Name") == "ViewDropdown")
-			.SelectMany(d => d.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? ""))
-			.ToList()).Count > 0, seconds: 10);
+		JsonElement? viewList = null;
+		await Until(async () => (viewList = await ViewList("Dynamics")) != null, seconds: 10);
 
+		var views = viewList?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList() ?? [];
 		if (views.Count == 0)
 		{
 			Console.Error.WriteLine("Kadro tablosunun görünüm listesi bulunamadı.");
@@ -189,7 +187,7 @@ internal static partial class Program
 		}
 
 		var before = Keys(await Fm.GetJson("squad"));
-		var selected = await Fm.Get("select", ("name", "ViewDropdown"), ("choice", view));
+		var selected = await Fm.Get("select", ("ptr", Field(viewList.Value, "Pointer")), ("choice", view));
 		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
 
 		// The rows refill a moment after the view changes; two readings alike, and unlike the
@@ -212,11 +210,21 @@ internal static partial class Program
 			return 0;
 		}
 
-		// Bound by the table for its own use (sorting, icons, the pitch view), in every view.
+		Columns(squad.EnumerateArray().Where(p => !Field(p, "Team").Contains("U19", StringComparison.Ordinal)).ToList());
+		return 0;
+
+		static string Keys(JsonElement squad) =>
+			string.Join(",", squad.EnumerateArray().SelectMany(p => p.EnumerateObject().Select(f => f.Name)).Distinct().OrderBy(k => k));
+	}
+
+	/// <summary>Prints people with every field their rows carry as a column, less the table's own bookkeeping.</summary>
+	private static void Columns(List<JsonElement> rows)
+	{
+		// Bound by a table for its own use (sorting, icons, the pitch view), in every view.
 		string[] noise = ["UniqueId", "Regenerated", "Team", "Count", "PlayerStatusSortType", "NewgenAppearanceDescription",
 			"AverageRating", "Index", "SquadNumberBlankIfInvalid", "PositionValue", "Position", "SubstituteString", "StatusType",
-			"TransferValueRangeStatus", "Level"];
-		var rows = squad.EnumerateArray().Where(p => Field(p, "Team") is var team && !team.Contains("U19", StringComparison.Ordinal)).ToList();
+			"TransferValueRangeStatus", "Level", "AddOnType", "MaxValue", "MinValue"];
+
 		var columns = rows.SelectMany(p => p.EnumerateObject().Select(f => f.Name))
 			.Distinct()
 			.Where(c => c != "Name" && !noise.Contains(c))
@@ -227,10 +235,102 @@ internal static partial class Program
 			.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
 			.Select(p => new[] { Field(p, "Name") }.Concat(columns.Select(c => Field(p, c))).ToArray())
 			.ToList());
-		return 0;
+	}
 
-		static string Keys(JsonElement squad) =>
-			string.Join(",", squad.EnumerateArray().SelectMany(p => p.EnumerateObject().Select(f => f.Name)).Distinct().OrderBy(k => k));
+	/// <summary>
+	/// The player database: every player the game knows, as its Player Database page lists them.
+	/// A quick filter narrows it (transfer listed, contract expiring…) and a view decides which
+	/// columns the rows carry. Only the rows the page has on screen are bound, so this is the
+	/// top of the list, not all of it.
+	/// </summary>
+	private static async Task<int> Players(bool json, string[] args)
+	{
+		if (await NotNow() is { } refused) return refused;
+
+		var opened = await OpenPage("Player Database", "Recruitment");
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+
+		const string filterList = "inputs-combobox-default-default";
+		JsonElement? views = null, filters = null;
+		await Until(async () =>
+		{
+			var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().ToList();
+			views = await ViewList("Scout - Transfer");
+			filters = lists.Where(d => Field(d, "Name") == filterList).Cast<JsonElement?>().FirstOrDefault();
+			return views != null && filters != null;
+		}, seconds: 12);
+
+		if (views == null || filters == null)
+		{
+			Console.Error.WriteLine("Oyuncu veritabanı sayfası beklenen listeleri göstermedi.");
+			return 1;
+		}
+
+		var viewNames = views.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		var filterNames = filters.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+
+		if (args.Contains("--filters"))
+		{
+			foreach (var name in filterNames) Console.WriteLine(name);
+			return 0;
+		}
+		if (args.Contains("--views"))
+		{
+			foreach (var name in viewNames) Console.WriteLine(name);
+			return 0;
+		}
+
+		var before = (await Fm.GetJson("people")).ToString();
+		if (Option(args, "--filter") is { } wantedFilter)
+		{
+			if (Choose(filterNames, wantedFilter, "Süzgeç") is not { } filter) return 1;
+
+			// The filter is sent to the search by the list's own event, not just written.
+			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("choice", filter), ("fire", "1"));
+			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
+		}
+
+		if (Option(args, "--view") is { } wantedView)
+		{
+			if (Choose(viewNames, wantedView, "Görünüm") is not { } view) return 1;
+			if (view.EndsWith("›", StringComparison.Ordinal))
+			{
+				Console.Error.WriteLine($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor.");
+				return 1;
+			}
+
+			var chosen = await Fm.Get("select", ("ptr", Field(views.Value, "Pointer")), ("choice", view));
+			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
+		}
+
+		// The rows refill a moment after a filter or view changes; two readings alike, and
+		// unlike what was there before unless nothing was asked for, mean they have landed.
+		JsonElement people = default;
+		var last = "";
+		var waited = 0;
+		var asked = Option(args, "--filter") != null || Option(args, "--view") != null;
+		await Until(async () =>
+		{
+			var now = await Fm.GetJson("people");
+			var text = now.ToString();
+			var settled = text == last && now.GetArrayLength() > 0 && (!asked || text != before || ++waited >= 5);
+			last = text;
+			if (settled) people = now;
+			return settled;
+		}, seconds: 25);
+
+		if (people.ValueKind != JsonValueKind.Array) people = await Fm.GetJson("people");
+		if (json)
+		{
+			Console.WriteLine(people.ToString());
+			return 0;
+		}
+
+		Columns(people.EnumerateArray().ToList());
+
+		var count = await Found("PersonListCountString");
+		Console.WriteLine($"\n{people.GetArrayLength()} satır ekranda{(count != null ? $"; oyun: \"{count}\"" : "")}");
+		return 0;
 	}
 
 	private static readonly string[] ShortDays = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
