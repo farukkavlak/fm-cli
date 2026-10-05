@@ -32,6 +32,7 @@ internal static partial class Program
 			return command switch
 			{
 				"squad" => await Squad(json, args),
+				"player" => await Player(json, args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
 				"inbox" => await Inbox(json),
@@ -681,7 +682,11 @@ internal static partial class Program
 		while (true)
 		{
 			var answer = await Fm.Get(route, query);
-			var missing = answer.StartsWith("error: no ", StringComparison.Ordinal);
+			// Not there yet, or the game is still sending what the last press queued: a page
+			// that is opening holds the queue for a moment. Either clears by itself or is
+			// reported once the wait is up.
+			var missing = answer.StartsWith("error: no ", StringComparison.Ordinal)
+			              || answer.StartsWith("error: the event queue is blocked", StringComparison.Ordinal);
 			if (!missing || DateTime.UtcNow >= deadline) return answer;
 
 			await Task.Delay(TimeSpan.FromSeconds(1));
@@ -750,6 +755,7 @@ internal static partial class Program
 			  squad           kadroyu bas
 			    --fitness     kondisyon ve maç formu, en yorgun önce
 			    --morale      moral, hiyerarşi ve sosyal grup
+			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler
 			  table           lig tablosu
 			  fixtures        sıradaki maçlar
 			  inbox           gelen kutusu

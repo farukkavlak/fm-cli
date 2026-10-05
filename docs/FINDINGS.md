@@ -1682,6 +1682,42 @@ Sezon başlamadığı için tablo sıfırlarla ve alfabetik geldi; puanlı bir t
 maçın sonuç kolonunda (`Result`) denenmedi. Tam fikstür sayfası (yedi maçtan fazlası) açılmadı.
 
 
+## 8.38 Oyuncu sayfası: `fm player`
+
+Kadro tablosundaki isim butonu (`NameButton`, `OpenPanelEvent`) oyuncunun sayfasını tablonun
+üstüne açıyor. Sayfa şunları bağlıyor (`/player`):
+
+```
+Person { Name, Age, SquadNumber, PositionCombinedStringLong, DateOfBirth, IsGoalkeeper,
+         InternationalCapsAndGoalsString, TransferValueRange.TransferValueRangeString,
+         FullContract { Wage.DisplayValue, AgreedPlayingTime.DisplayValue, EndDateDescription } }
+attribute { AttributeTypeInfo.Name = "Technique", AttributeValues.PropertyValue = 13 }   × 36
+ConditionString, InjuryDescription, Personality, Right/LeftFootednessString, Height, Nation.Name
+Text = "Dictates Tempo"   (oyuncu alışkanlıkları)
+```
+
+Alttaki kadro tablosu da yaş ve isim bağladığı için sayfa önce yalnızca onda bulunan şeyden
+(özellik listesi) bulunuyor, gerisi onun içinden okunuyor. Özellikler hangi bloğa ait olduğunu
+söyleyen bir sırayla bağlanmıyor; CLI zihinsel (14), fiziksel (8) ve duran top (4) adlarını
+biliyor, kalanı teknik ya da kalecilik sayıyor.
+
+**⚠ Sayfa açılırken buton kuyruğu bir an dolu.** Sayfayı açan basıştan hemen sonraki `/press`
+"kuyruk tıkalı" (`OpenPanelEventContext status=Sending`) diye reddedildi; bu §8.27'deki kalıcı
+tıkanma değil, birkaç saniyede kendiliğinden boşalıyor. CLI artık bu cevabı da "henüz hazır
+değil" sayıp 8 sn'ye kadar yeniden deniyor.
+
+| Deneme | Sonuç |
+|---|---|
+| `player` / `player Zzz` / `player a` | kullanım / 29 isimle red / beş isimle "birden çok" |
+| `player guendouzi` (Messages'tan) | kimlik, sözleşme, 3 alışkanlık, 36 özellik dört blokta; 11 sn |
+| `player Kerem` iki kez | aynı çıktı; ikincisi sayfa zaten açık olduğu için anında |
+| `player Ederson` | blok başlığı "KALECİLİK", 14 kaleci özelliği |
+| `player Talisca` | "Sakatlık: A moderate hamstring strain" (kadro tablosundaki sakatla aynı oyuncu) |
+
+Yalnızca kadro tablosunun listelediği oyuncular açılabiliyor (A takım ve özet sayfasındaki
+birkaç genç); başka kulübün oyuncusu için arama ekranı gerekiyor. Sezon istatistikleri, form ve
+mutluluk ayrıntısı sayfada bağlı ama okunmuyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

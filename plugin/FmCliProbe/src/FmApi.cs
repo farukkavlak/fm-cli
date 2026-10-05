@@ -42,6 +42,7 @@ internal static class FmApi
 		"squad" => Report.Squad(),
 		"inbox" => Report.Inbox(),
 		"tour" => Report.Tour(),
+		"player" => PlayerCard.Current(),
 		"table" => Report.Table(),
 		"fixtures" => Report.Fixtures(),
 		"save" => Save(),

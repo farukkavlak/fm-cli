@@ -27,7 +27,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 2. **`fm tactic` kalanı** — oluşturma, okuma, mentalite, stil ve Quick Pick tamam (§8.30,
    §8.31). Kalan: rol ve diziliş değiştirme (`FMPitchPosition.Events`, rol açılır listeleri),
    takım talimatları, yedekler, tek oyuncu değiştirme.
-3. **Ucuz okuma komutları:** `fm table` ve `fm fixtures` çıktı (§8.37); kalan `fm player <isim>`,
+3. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player` çıktı (§8.37, §8.38); kalan
    maç sonu raporu (istatistikler devre arası ekranında bağlı, §8.34), tam fikstür ve sonuçlar.
    Sayfalar artık adıyla açılıyor (`fm open`), yani her biri "aç, şekle göre oku". Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
@@ -101,12 +101,12 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
       (Risk Assessment), oynama süresi (Playing Time). Contract, Transfer, Reports, Development,
       International, Home-Grown Status, Attributes, Stats satırları hiç okunmadı (§8.26)
 - [~] Uyruk — `Nation` düğümü çocuksuz (§8.21), ama `NationButton` üç harfli kodu taşıyor; `fm squad`'a eklenmedi
-- [ ] `fm player <isim>` — oyuncu kartı (öznitelikler, sözleşme, form)
-- [ ] Öznitelikler (teknik / zihinsel / fiziksel)
+- [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); yalnızca kendi kadron
+- [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)
 - [ ] Gizli öznitelikler (scout görüşü kadarıyla)
 - [ ] Pozisyon yetkinlikleri
 - [ ] Sakatlık durumu ve geçmişi
-- [ ] Sözleşme detayları, bitiş tarihi, maaş, madde ve bonuslar
+- [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
 - [ ] Form, maç ratingleri, sezon istatistikleri
 - [ ] Kariyer geçmişi, transfer geçmişi
 - [ ] Gelişim grafiği / potansiyel
@@ -364,7 +364,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   oynadı (6 dk, 0-0). Onay pencereleri `fm dialog` ile, kaydetme `fm save --yes` ile.
 - **Basın toplantısı ve beklentiler toplantısı `fm talk` ile yürüdü**; liste cevaplı soru dahil.
 - **`fm setpieces new`** duran top sihirbazını, **`fm table` / `fm fixtures`** tabloyu ve
-  sıradaki maçları veriyor.
+  sıradaki maçları, **`fm player <isim>`** oyuncunun sayfasını veriyor.
 - **`fm next` bekliyor ve anlatıyor**; oyunun durumu sabit bir yoldan okunuyor (`continue.State`).
 - **`fm talk` takım toplantısını yürüttü** (yedi cümle, "End Chat").
 - **`fm tactic` taktiği okuyor**, `mentality` / `style` değiştiriyor, `pick` ilk 11'i seçtiriyor.
