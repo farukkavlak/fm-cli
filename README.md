@@ -61,6 +61,7 @@ continue        açık oyunda son kaydı yükle
 squad           kadroyu bas
   --fitness     kondisyon ve maç formu, en yorgun önce
   --morale      moral, hiyerarşi ve sosyal grup
+  --views       tablonun bütün görünümleri;  --view "<ad>": o görünümün kolonları
 player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler
 table           lig tablosu
 fixtures        sıradaki maçlar

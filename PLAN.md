@@ -98,10 +98,9 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [ ] `fm squad --u19` — altyapı kadrosu (eski `fm squad` özet panosundan basıyordu, artık basmıyor)
 - [x] `fm squad --fitness` — kondisyon ve maç formu, "Selection Info" görünümünden (§8.26)
 - [x] `fm squad --morale` — moral, hiyerarşi, sosyal grup, "Dynamics" görünümünden (§8.26)
-- [~] Kadro tablosunun diğer görünümleri — `fm select ViewDropdown "<görünüm>"` + `fm squad --json`
-      ile veri geliyor, kendi tablo komutları yok: sakatlık (Injuries), sakatlık riski
-      (Risk Assessment), oynama süresi (Playing Time). Contract, Transfer, Reports, Development,
-      International, Home-Grown Status, Attributes, Stats satırları hiç okunmadı (§8.26)
+- [x] Kadro tablosunun bütün görünümleri — `fm squad --views`, `fm squad --view "<ad>"`; kolonlar
+      veriden çıkıyor (§8.38). Alt menülü ikisi (Attributes, Stats) seçilemiyor
+- [ ] `/squad` iki listeyi birleştirirken bir oyuncunun kolonlarını eksik bırakabiliyor (Musaba)
 - [~] Uyruk — `Nation` düğümü çocuksuz (§8.21), ama `NationButton` üç harfli kodu taşıyor; `fm squad`'a eklenmedi
 - [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); yalnızca kendi kadron
 - [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)

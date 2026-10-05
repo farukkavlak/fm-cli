@@ -150,6 +150,89 @@ internal static partial class Program
 		static string Suffixed(string value, string suffix) => value.Length > 0 ? value + suffix : "";
 	}
 
+	/// <summary>
+	/// The squad table in any of its views, printed with whatever columns that view binds.
+	///
+	/// The table has a dozen views and each binds different fields, so instead of a command per
+	/// view the columns are taken from the data: every field a row carries, less the handful
+	/// that are the table's own bookkeeping.
+	/// </summary>
+	private static async Task<int> SquadAnyView(bool json, string wanted)
+	{
+		var opened = await OpenPage("First Team", "Squad");
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+
+		List<string> views = [];
+		await Until(async () => (views = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Name") == "ViewDropdown")
+			.SelectMany(d => d.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? ""))
+			.ToList()).Count > 0, seconds: 10);
+
+		if (views.Count == 0)
+		{
+			Console.Error.WriteLine("Kadro tablosunun görünüm listesi bulunamadı.");
+			return 1;
+		}
+
+		if (wanted == null)
+		{
+			foreach (var name in views) Console.WriteLine(name);
+			return 0;
+		}
+
+		// A view marked with › is a menu of further views, which this cannot reach into yet.
+		if (Choose(views, wanted, "Görünüm") is not { } view) return 1;
+		if (view.EndsWith("›", StringComparison.Ordinal))
+		{
+			Console.Error.WriteLine($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor.");
+			return 1;
+		}
+
+		var before = Keys(await Fm.GetJson("squad"));
+		var selected = await Fm.Get("select", ("name", "ViewDropdown"), ("choice", view));
+		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
+
+		// The rows refill a moment after the view changes; two readings alike, and unlike the
+		// view before unless it was this one already, mean it has landed.
+		JsonElement squad = default;
+		var last = "";
+		var waited = 0;
+		await Until(async () =>
+		{
+			squad = await Fm.GetJson("squad");
+			var keys = Keys(squad);
+			var settled = keys == last && (keys != before || ++waited >= 4);
+			last = keys;
+			return settled;
+		}, seconds: 15);
+
+		if (json)
+		{
+			Console.WriteLine(squad.ToString());
+			return 0;
+		}
+
+		// Bound by the table for its own use (sorting, icons, the pitch view), in every view.
+		string[] noise = ["UniqueId", "Regenerated", "Team", "Count", "PlayerStatusSortType", "NewgenAppearanceDescription",
+			"AverageRating", "Index", "SquadNumberBlankIfInvalid", "PositionValue", "Position", "SubstituteString", "StatusType",
+			"TransferValueRangeStatus", "Level"];
+		var rows = squad.EnumerateArray().Where(p => Field(p, "Team") is var team && !team.Contains("U19", StringComparison.Ordinal)).ToList();
+		var columns = rows.SelectMany(p => p.EnumerateObject().Select(f => f.Name))
+			.Distinct()
+			.Where(c => c != "Name" && !noise.Contains(c))
+			.Where(c => rows.Any(p => Field(p, c) is { Length: > 0 and < 60 }))
+			.ToList();
+
+		Table.Write(["Name", .. columns], rows
+			.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
+			.Select(p => new[] { Field(p, "Name") }.Concat(columns.Select(c => Field(p, c))).ToArray())
+			.ToList());
+		return 0;
+
+		static string Keys(JsonElement squad) =>
+			string.Join(",", squad.EnumerateArray().SelectMany(p => p.EnumerateObject().Select(f => f.Name)).Distinct().OrderBy(k => k));
+	}
+
 	private static readonly string[] ShortDays = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
 
 	private static async Task<int> LeagueTable(bool json)

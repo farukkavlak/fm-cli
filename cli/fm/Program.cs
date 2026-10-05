@@ -94,6 +94,8 @@ internal static partial class Program
 
 		if (args.Contains("--fitness")) return await SquadFitness(json);
 		if (args.Contains("--morale")) return await SquadMorale(json);
+		if (args.Contains("--views")) return await SquadAnyView(json, null);
+		if (Option(args, "--view") is { } asked) return await SquadAnyView(json, asked);
 
 		// The plain listing reads one named view like the others do. Reading whatever happened
 		// to be bound gave a different squad depending on the command that ran before.
@@ -709,7 +711,7 @@ internal static partial class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] is "--name" or "--tab") { i++; continue; }
+			if (args[i] is "--name" or "--tab" or "--view") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}
@@ -758,6 +760,8 @@ internal static partial class Program
 			  squad           kadroyu bas
 			    --fitness     kondisyon ve maç formu, en yorgun önce
 			    --morale      moral, hiyerarşi ve sosyal grup
+			    --views       kadro tablosunun bütün görünümlerini listele
+			    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
 			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler
 			  table           lig tablosu
 			  fixtures        sıradaki maçlar

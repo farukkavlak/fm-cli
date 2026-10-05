@@ -1797,6 +1797,28 @@ Yalnızca kadro tablosunun listelediği oyuncular açılabiliyor (A takım ve ö
 birkaç genç); başka kulübün oyuncusu için arama ekranı gerekiyor. Sezon istatistikleri, form ve
 mutluluk ayrıntısı sayfada bağlı ama okunmuyor.
 
+### Kadro tablosunun bütün görünümleri: `fm squad --view`
+
+Tablonun on dört görünümü var (`fm squad --views`): Selection Info, General Info, Attributes ›,
+Contract, Transfer, Home-Grown Status, Playing Time, Dynamics, Reports, Injuries, Risk
+Assessment, Stats ›, International, Development. `fm squad --view "<ad>"` görünümü seçip
+satırların taşıdığı **bütün** alanları kolon yapıyor; hangi kolonların geleceği veriden çıkıyor,
+yalnızca tablonun her görünümde bağladığı on beş kadar iç alan atılıyor.
+
+| Görünüm | Gelen kolonlar |
+|---|---|
+| Contract | SquadNumber, TransferValueRangeString, AgreedPlayingTime, ContractStatus, Wage |
+| Injuries | Sharpness, Condition, InjuriesTimeMissed, InjurySeverity, InjuryDescription |
+| Playing Time | PlayingTimeHappinessLevel, AgreedPlayingTime, ActualPlayingTime, FutureAgreedPlayingTime |
+| Transfer | TransferValueRangeString, AskingPrice, TransferOptions |
+| Development | MinValue, MaxValue, TrainingRating |
+
+Kolon başlıkları oyunun alan adları, çevrilmedi. "Attributes ›" ve "Stats ›" alt menü; içleri
+seçilemiyor. Sözleşme bitiş tarihi Contract görünümünde gelmedi (paketlenmiş tarih alanları
+satır kaydına alınmıyor). ⚠ Taktik ekranı altta bağlıyken bir oyuncunun (Musaba) mevki ve yaş
+kolonları boş geldi: `/squad` aynı adı bağlayan iki listeyi birleştirirken eksik kalıyor; düz
+`fm squad`'da da aynı. Çözülmedi.
+
 ## 8.39 MCP: komutlar araç olarak
 
 `fm mcp`, Model Context Protocol'ün stdio taşımasını konuşuyor (satır başına bir JSON-RPC
