@@ -32,7 +32,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
    Sayfalar artık adıyla açılıyor (`fm open`), yani her biri "aç, şekle göre oku". Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
 4. **Transfer ve sözleşme** — okuma tarafı başladı: `fm players` veritabanını hazır süzgeçlerle
-   listeliyor (§8.38). Kalan: isimle arama, başka kulübün oyuncusunun sayfası, kısa liste, ve
+   listeliyor (§8.38). `fm search` ve `fm player` herhangi bir oyuncuyu buluyor. Kalan: kısa liste, ve
    teklif (`TransferOfferEditSessionReference`, 99 property; geri alınamaz, `--yes` ve `--dry` ile).
 5. **MCP'yi gerçek istemciyle denemek.** `fm mcp` protokolü konuşuyor ve araçlar çalışıyor
    (§8.39) ama Claude Code / Desktop'tan hiç çağrılmadı. Ardından: araç çıktısındaki
@@ -71,7 +71,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [ ] Ekran açmadan tek property canlandırma — kanal açılıyor, düğüm yaratılamıyor (§8.21)
 - [x] Radyo gruplarını listeleme ve seçme — `/dropdowns` + `/select` (§8.30)
 - [x] Etiketin etrafındaki eleman ağacı — `/elements` (§8.30)
-- [ ] Metin kutusuna yazma — arama (`SearchBox`), "Edit Search" ve "farklı kaydet" bunu bekliyor (§8.38)
+- [x] Metin kutusuna yazma — `/textboxes`, `/type` (§8.38); "Edit Search" ve "farklı kaydet"te denenmedi
+- [x] İsimle arama — `fm search <metin>`; `fm player` kadro dışındaki oyuncuyu aramayla açıyor (§8.38)
 - [ ] FM27'ye taşıma: sürüme özel her şey tek config dosyasında
 
 ---
@@ -104,7 +105,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
       veriden çıkıyor (§8.38). Alt menülü ikisi (Attributes, Stats) seçilemiyor
 - [ ] `/squad` iki listeyi birleştirirken bir oyuncunun kolonlarını eksik bırakabiliyor (Musaba)
 - [~] Uyruk — `Nation` düğümü çocuksuz (§8.21), ama `NationButton` üç harfli kodu taşıyor; `fm squad`'a eklenmedi
-- [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); yalnızca kendi kadron
+- [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); kadro dışındakiler aramayla
 - [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)
 - [ ] Gizli öznitelikler (scout görüşü kadarıyla)
 - [ ] Pozisyon yetkinlikleri
@@ -327,7 +328,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 ## 15. MCP + doğal dil
 
-- [x] MCP server — `fm mcp` (stdio), 28 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
+- [x] MCP server — `fm mcp` (stdio), 29 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
 - [ ] "Kadroda yorgun kim var?"
 - [ ] "Sol bek arıyorum, 10M bütçem var, öner"
 - [ ] "Bu hafta kimi dinlendirmeliyim?"
@@ -369,10 +370,11 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - **İlk maç oynandı.** Maç gününün on iki durağı çıkarıldı; `fm match --talk` tek komutla
   oynadı (6 dk, 0-0). Onay pencereleri `fm dialog` ile, kaydetme `fm save --yes` ile.
 - **Basın toplantısı ve beklentiler toplantısı `fm talk` ile yürüdü**; liste cevaplı soru dahil.
-- **`fm mcp`**: komutların hepsi MCP aracı olarak sunuluyor (28 araç); protokol elle denendi.
+- **`fm mcp`**: komutların hepsi MCP aracı olarak sunuluyor (29 araç); protokol elle denendi.
 - **`fm tactic role`** mevkinin topla / topsuz rolünü, **`fm tactic player`** ilk 11'deki oyuncuyu
   değiştiriyor; **`fm squad --view`** kadro tablosunun her görünümünü, **`fm players`** oyuncu
-  veritabanını (hazır süzgeçlerle) basıyor.
+  veritabanını (hazır süzgeçlerle) basıyor; **`fm search`** ve **`fm player`** herhangi bir
+  oyuncuyu adıyla buluyor (metin kutusuna yazma çözüldü).
 - **`fm match --instant`** maçı 9 sn'de simüle ettiriyor; **`fm sub`** maç içinde oyuncu değiştiriyor.
 - **`fm setpieces new`** duran top sihirbazını, **`fm table` / `fm fixtures`** tabloyu ve
   sıradaki maçları, **`fm player <isim>`** oyuncunun sayfasını veriyor.
@@ -409,10 +411,10 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 1. Otomatik kayıt açık kalsın mı? Açıkken zamanı ilerleten her oturum ana kaydı değiştirebilir.
 2. `fm match` varsayılanı: şimdi maçı oynatıyor (6-8 dk), `--instant` isteyince simüle ediyor;
    MCP aracında ise varsayılan instant. Aynı olsun mu?
-3. MCP araçları komutlarla bire bir (28 araç, Türkçe düz metin). Araç sayısı / dil / JSON çıktı?
+3. MCP araçları komutlarla bire bir (29 araç, Türkçe düz metin). Araç sayısı / dil / JSON çıktı?
 4. Konuşmalarda varsayılan: `fm match --talk` ilk cümleyi söylüyor; bu her zaman önerilen değil.
 5. Sırada ne olsun: maç içi yönetimin kalanı mı, taktikte diziliş/talimat mı, transfer mi?
-   Transfer ve arama için önce "metin kutusuna yazma" gerekiyor (§8.38).
+   (Metin kutusuna yazma ve isimle arama gece sonunda çözüldü; transferin önü açık.)
 
 ### 2026-10-05
 

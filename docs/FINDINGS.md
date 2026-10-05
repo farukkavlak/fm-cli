@@ -1812,8 +1812,7 @@ değil" sayıp 8 sn'ye kadar yeniden deniyor.
 | `player Ederson` | blok başlığı "KALECİLİK", 14 kaleci özelliği |
 | `player Talisca` | "Sakatlık: A moderate hamstring strain" (kadro tablosundaki sakatla aynı oyuncu) |
 
-Yalnızca kadro tablosunun listelediği oyuncular açılabiliyor (A takım ve özet sayfasındaki
-birkaç genç); başka kulübün oyuncusu için arama ekranı gerekiyor. Sezon istatistikleri, form ve
+Kadro tablosunun listelemediği oyuncular oyunun aramasıyla bulunuyor (aşağıda). Sezon istatistikleri, form ve
 mutluluk ayrıntısı sayfada bağlı ama okunmuyor.
 
 ### Kadro tablosunun bütün görünümleri: `fm squad --view`
@@ -1875,27 +1874,53 @@ satır verdi; boş mu, yoksa bilgi mi yetmiyor, bakılmadı.
 Sınırlar: yalnızca ekrandaki satırlar bağlı (21), liste kaydırılamıyor; isimle arama ("Edit
 Search", `EventFmxFilterStoreFilter`) yok; kolon başlıkları oyunun alan adları.
 
-### İsimle arama: yarım kaldı
+### Metin kutusuna yazmak ve isimle arama: `fm search`, kadro dışı `fm player`
 
-Üst çubuktaki "Search" butonu (`dashboard-hud-search-button`) arama panelini açıyor. Panel
-`game.Search`'i bağlıyor (`SearchReference`: `Name`, `Results`, `PersonList`, `Clubs`,
-`Competitions`…, `SearchIsFinished`) ve metni `SearchBox` adlı bir elemandan alıyor
-(`OnSubmitEvents` → `OpenPanel`, `SearchResultClicked`). `SearchValueChangesEvent { Value }`
-elle gönderildi: hata yok, `Search.Name` boş kaldı, sonuç gelmedi. Metnin kutuya **yazılması**
-gerekiyor gibi; eklentide metin kutusuna yazan bir yol yok. Bu, başka kulübün oyuncusunu açmanın
-(`fm player`), "Edit Search"ün ve "farklı kaydet"in ortak eksiği.
+Üst çubuktaki "Search" butonu (`dashboard-hud-search-button`) arama panelini açıyor; panel
+metni `SearchBox` adlı elemandan alıyor (`BindableTextEditBox`, içinde bir Unity `TextField`).
+`SearchValueChangesEvent { Value }` elle gönderildi: hata yok, `game.Search.Name` boş kaldı,
+sonuç gelmedi. **Metin kutunun kendisine yazılmalı**: `m_textField.value = "Osimhen"` kutunun
+değişim olayını tetikliyor, arama çalışıyor (`/type?name=SearchBox&text=…`; `/textboxes`
+ekrandaki kutuları listeliyor; `submit=1` kutunun `OnSubmitEvents`'ini de kuyruğa koyuyor).
+
+Sonuçlar `…list.items.N.searchresult` (`SearchRecordType`: Player, Staff, Club…) ve aynı satırın
+içinde `Person.Name`, `Club.Name`. Her oyuncu sonucunun kendi butonu var (`PlayerSearchButton`,
+`OpenPanel` + `SearchResultClicked`), hepsinin etiketi "Player"; buton verisini kendi satırının
+içinden alıyor (`…items.N.1.PersonRemapper…`).
+
+İki tuzak, ikisi de art arda arama yapınca çıktı:
+
+- **Önceki aramanın sonuç butonları yüklü kalıyor.** "Sıradaki n. buton" diye basmak ilk aramada
+  çalıştı, ikincisinde eski butona bastı. `/searchopen?name=` butonu, verisini o sonucun
+  satırından alan buton olarak buluyor.
+- **Açılan oyuncu sayfaları üst üste yüklü kalıyor.** `/player` ilk bulduğunu veriyordu, yani
+  hep ilk açılanı. Artık `?name=` ile isteneni veriyor.
+
+Oyunun araması gevşek: "icardi" Carlos Vicente'yi, "mauro icardi" dört oyuncuyu getirdi. `fm
+player` sonuçları adında yazılanı gerçekten içerenlere daraltıyor; bir tane kalırsa açıyor.
+
+| Deneme | Sonuç |
+|---|---|
+| `search Osimhen` / `Galatasaray` / `zzzqqq` | Player Victor Osimhen (Galatasaray) / iki Club satırı / boş |
+| `player osimhen`, `icardi`, `muslera` art arda | üçünün de sayfası; maaş aralık olarak ("£400K - £550K p/w"), kişilik "Scouting Required" |
+| araya `player kante` (kadrodan) ve yine `player osimhen` | ikisi de doğru sayfa |
+| `player vicente` / `pizarro` | "2 / 3 oyuncuya uyuyor", isimler ve kulüpleriyle |
+| `player zzzqqq` | "kadroda da aramada da yok" |
+
+Açık: aynı adı taşıyan iki oyuncu ayırt edilemiyor (iki "Carlos Vicente"); "Edit Search" ve
+"farklı kaydet" de aynı metin kutusu yolunu bekliyor, denenmedi.
 
 ## 8.39 MCP: komutlar araç olarak
 
 `fm mcp`, Model Context Protocol'ün stdio taşımasını konuşuyor (satır başına bir JSON-RPC
-mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 28 araç var ve **her araç bir
+mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 29 araç var ve **her araç bir
 komut**: argümanlar kullanıcının yazacağı kelimelere çevriliyor, komut terminaldeki gibi
 çalışıyor, bastığı metin sonuç oluyor (`isError` = çıkış kodu sıfır değil). Davranış tek yerde
 duruyor; CLI'da çalışan her şey araçta da çalışıyor.
 
 ```
 fm_status  fm_next  fm_inbox  fm_reply  fm_talk  fm_tour  fm_dialog
-fm_squad  fm_player  fm_players  fm_table  fm_fixtures
+fm_squad  fm_player  fm_players  fm_search  fm_table  fm_fixtures
 fm_tactic  fm_tactic_set  fm_tactic_role  fm_tactic_player  fm_tactic_pick  fm_tactic_new  fm_setpieces_new
 fm_match (varsayılan: instant)  fm_sub  fm_save (confirm: true ister)
 fm_pages  fm_open  fm_buttons  fm_press  fm_dropdowns  fm_select

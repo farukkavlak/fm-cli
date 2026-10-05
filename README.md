@@ -62,7 +62,8 @@ squad           kadroyu bas
   --fitness     kondisyon ve maç formu, en yorgun önce
   --morale      moral, hiyerarşi ve sosyal grup
   --views       tablonun bütün görünümleri;  --view "<ad>": o görünümün kolonları
-player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler
+player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla)
+search <metin>  oyunun araması: oyuncu, kulüp, turnuva
 players         oyuncu veritabanı;  --filter "<x>" hazır süzgeç,  --view "<x>" kolonlar
 table           lig tablosu
 fixtures        sıradaki maçlar

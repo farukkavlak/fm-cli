@@ -695,6 +695,39 @@ internal static class Buttons
 	}
 
 	/// <summary>
+	/// Press the control of a given name whose event is fed from one of the given nodes. A list
+	/// repeats the same control once per row, all with the same label, and what tells them
+	/// apart is the row each takes its data from.
+	/// </summary>
+	internal static string PressFedBy(string name, HashSet<ulong> sources, bool dry)
+	{
+		foreach (var control in Controls(out _))
+		{
+			if (!string.Equals(NameOf(control.Element), name, StringComparison.OrdinalIgnoreCase)) continue;
+
+			var events = control.Lists[0].Events;
+			var contexts = events.Events;
+			var fed = false;
+			for (var i = 0; i < contexts.Length && !fed; i++)
+			{
+				try { fed = contexts[i] != null && sources.Contains(contexts[i].SourceKey.m_key); }
+				catch { }
+			}
+			if (!fed) continue;
+
+			if (dry) return $"dry run, NOT pressed: {name} \"{control.Label}\"";
+
+			var queue = Game.UiEvents;
+			if (queue == null) return "error: UIEventQueue unavailable";
+			if (Waiting(queue) > 0) return $"error: the event queue is blocked by {Waiting(queue)} event(s) that never resolved; see /queue";
+
+			queue.QueueEvents(events);
+			return $"pressed {name} \"{control.Label}\"";
+		}
+		return $"error: no control named '{name}' is fed from that row";
+	}
+
+	/// <summary>
 	/// Click a button the way a pointer would. A button that answers a dialog carries no event
 	/// list to queue — its handler is code — so the click itself has to be simulated.
 	/// </summary>

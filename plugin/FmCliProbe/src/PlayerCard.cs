@@ -21,17 +21,39 @@ internal static class PlayerCard
 		"ThreeLetterName", "PositionCombinedString",
 	};
 
-	public static string Current()
+	/// <summary>
+	/// Pages opened one after another stay loaded under each other, so there can be several
+	/// players' pages at once; `name` asks for a particular one, and without it the first found
+	/// is given.
+	/// </summary>
+	public static string Current(string name)
 	{
-		IReadOnlyNode page = null;
+		var pages = new List<IReadOnlyNode>();
+		var seenPages = new HashSet<ulong>();
 		foreach (var (_, node) in Report.Walk())
 		{
 			if (node.Name != "AttributeTypeInfo") continue;
-			page = node;
-			while (page.Parent?.Parent != null) page = page.Parent;
-			break;
+
+			var root = node;
+			while (root.Parent?.Parent != null) root = root.Parent;
+			if (seenPages.Add(root.Key.m_key)) pages.Add(root);
 		}
-		if (page == null) return "{}\n";
+
+		string first = null;
+		foreach (var page in pages)
+		{
+			var card = Read(page, out var who);
+			if (card == null) continue;
+			if (!string.IsNullOrEmpty(name) && string.Equals(who, name, StringComparison.OrdinalIgnoreCase)) return card;
+			first ??= card;
+		}
+
+		return string.IsNullOrEmpty(name) ? first ?? "{}\n" : "{}\n";
+	}
+
+	private static string Read(IReadOnlyNode page, out string who)
+	{
+		who = null;
 
 		var header = new Dictionary<string, string>();
 		var attributes = new List<Dictionary<string, string>>();
@@ -117,7 +139,7 @@ internal static class PlayerCard
 			}
 		}
 
-		if (!header.ContainsKey("Name")) return "{}\n";
+		if (!header.TryGetValue("Name", out who)) return null;
 
 		return "{\"Player\": " + Report.Json(header)
 		       + ", \"Traits\": [" + string.Join(", ", traits.Select(t => $"\"{Report.Escape(t)}\"")) + "]"

@@ -36,6 +36,7 @@ internal static partial class Program
 				"squad" => await Squad(json, args),
 				"player" => await Player(json, args),
 				"players" => await Players(json, args),
+				"search" => await Search(json, args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
 				"inbox" => await Inbox(json),
@@ -773,7 +774,8 @@ internal static partial class Program
 			    --morale      moral, hiyerarşi ve sosyal grup
 			    --views       kadro tablosunun bütün görünümlerini listele
 			    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
-			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler
+			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla bulur)
+			  search <metin>  oyunun aramasında bul: oyuncu, kulüp, turnuva…
 			  players         oyuncu veritabanı (ekrandaki satırlar)
 			    --filters / --filter "<x>"   hazır süzgeçler: Transfer Listed, Contract Expiring…
 			    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)

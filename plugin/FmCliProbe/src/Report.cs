@@ -112,6 +112,78 @@ internal static class Report
 	}
 
 	/// <summary>
+	/// What the game's search found: each result's kind, and for a person the name and club.
+	/// </summary>
+	public static string SearchResults()
+	{
+		var results = new List<Dictionary<string, string>>();
+
+		foreach (var (_, node) in Walk())
+		{
+			if (node.Name != "searchresult" || node.Parent == null) continue;
+
+			var fields = new Dictionary<string, string>();
+			if (Fields(node).TryGetValue("SearchRecordType", out var kind)) fields["Kind"] = kind;
+
+			// The result's record sits beside the row that shows it: a person with a club, or
+			// just a named club, competition or nation.
+			var queue = new Queue<IReadOnlyNode>();
+			queue.Enqueue(node.Parent);
+			var seen = 0;
+			while (queue.Count > 0 && seen++ < 300)
+			{
+				var current = queue.Dequeue();
+				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+
+				if (current.Name is not ("Person" or "Club" or "Competition" or "Nation")) continue;
+				if (!Fields(current).TryGetValue("Name", out var name) || name.Length == 0) continue;
+				fields.TryAdd(current.Name == "Person" ? "Name" : current.Name, name);
+			}
+
+			if (fields.Count > 1) results.Add(fields);
+		}
+
+		return "[\n  " + string.Join(",\n  ", results.Select(Json)) + "\n]\n";
+	}
+
+	/// <summary>
+	/// Open the page of a person the search found, by pressing the button of that result's own
+	/// row. Results from an earlier search can still be loaded with buttons of their own, so
+	/// the button is matched to the row by where it takes its data from.
+	/// </summary>
+	public static string OpenSearchResult(string name, bool dry)
+	{
+		if (string.IsNullOrEmpty(name)) return "error: ?name=<person's full name> required (see /search)";
+
+		foreach (var (_, node) in Walk())
+		{
+			if (node.Name != "searchresult" || node.Parent == null) continue;
+
+			var keys = new HashSet<ulong>();
+			var matches = false;
+
+			var queue = new Queue<IReadOnlyNode>();
+			queue.Enqueue(node.Parent);
+			while (queue.Count > 0 && keys.Count < 600)
+			{
+				var current = queue.Dequeue();
+				keys.Add(current.Key.m_key);
+				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+
+				if (current.Name == "Person" && Fields(current).TryGetValue("Name", out var who) && who == name) matches = true;
+			}
+			if (!matches) continue;
+
+			// The row is the result's parent, and the button takes its data from inside it
+			// (…items.N.searchresult beside …items.N.1.PersonRemapper…).
+			var pressed = Buttons.PressFedBy("PlayerSearchButton", keys, dry);
+			if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
+		}
+
+		return $"error: no search result on screen opens '{name}'";
+	}
+
+	/// <summary>
 	/// The league table on screen, one record per row.
 	///
 	/// A row is a record holding the position and the points; the team's name and the rest of
