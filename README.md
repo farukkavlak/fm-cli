@@ -15,7 +15,7 @@ $ fm reply 4
   2  Accept Current Vision
   3  View Club Vision
 
-$ fm reply 4 2
+Seçim (1-3, x: vazgeç): 2
 Cevaplandı: Club vision and expectations meeting → Accept Current Vision
 
 $ fm squad
@@ -62,7 +62,7 @@ squad           kadroyu bas
   --fitness     kondisyon ve maç formu, en yorgun önce
   --morale      moral, hiyerarşi ve sosyal grup
 inbox           gelen kutusu
-reply <#>       mesajın cevap seçenekleri
+reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
 reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 next            zamanı ilerlet (bloke eden mesajları bildirir)
 pages           oyunun bütün sayfaları (77)

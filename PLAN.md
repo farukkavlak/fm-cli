@@ -251,7 +251,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 ## 11. İletişim
 
 - [x] Inbox oku (`fm inbox`)
-- [x] Mesaja cevap ver — `fm reply <#> "<cevap>"`, mesajın kendi butonuna basarak (§8.29)
+- [x] Mesaja cevap ver — `fm reply <#>` seçenekleri gösterip seçimi soruyor; `fm reply <#> <no>`
+      tek satırda cevaplıyor (§8.29)
 - [~] Çok adımlı cevaplar (tanıtım turu) — başlıyor, bitirilemiyor (§8.29)
 - [k] Basın toplantısı — `PressConferenceEditSessionReference` + `EventFmxPressConferenceAnswerQuestion` / `NoComment` / `EarlyExit` / `StormOut` (COOKBOOK §3)
 - [ ] Maç öncesi/sonrası röportaj

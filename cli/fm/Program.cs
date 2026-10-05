@@ -346,41 +346,39 @@ internal static class Program
 			return 0;
 		}
 
-		if (words.Count == 1)
+		JsonElement? answerTo = null;
+		if (words.Count > 1)
 		{
-			Console.WriteLine($"{title}\n");
-			Options(Console.Out);
-			Console.WriteLine($"\nCevaplamak için: reply {words[0]} <numara>");
-			return 0;
-		}
-
-		// An answer is named by its number in that listing or by a piece of its text.
-		List<JsonElement> wanted;
-		if (int.TryParse(words[1], out var number))
-		{
-			if (number < 1 || number > answers.Count)
-			{
-				Console.Error.WriteLine($"{number} numaralı cevap yok. Seçenekler:");
-				Options(Console.Error);
-				return 1;
-			}
-			wanted = [answers[number - 1]];
+			answerTo = Resolve(words[1]);
+			if (answerTo == null) return 1;
 		}
 		else
 		{
-			wanted = answers
-				.Where(a => Field(a, "Label").Contains(words[1], StringComparison.OrdinalIgnoreCase))
-				.ToList();
+			Console.WriteLine($"{title}\n");
+			Options(Console.Out);
+
+			// At a terminal the choice is asked for on the spot. A script gets the listing and
+			// nothing else, since there is no one there to answer.
+			if (Console.IsInputRedirected)
+			{
+				Console.WriteLine($"\nCevaplamak için: reply {words[0]} <numara>");
+				return 0;
+			}
+
+			while (answerTo == null)
+			{
+				Console.Write($"\nSeçim (1-{answers.Count}, x: vazgeç): ");
+				var typed = Console.ReadLine()?.Trim();
+				if (string.IsNullOrEmpty(typed) || typed.Equals("x", StringComparison.OrdinalIgnoreCase))
+				{
+					Console.WriteLine("Vazgeçildi, mesaj cevaplanmadı.");
+					return 0;
+				}
+				answerTo = Resolve(typed);
+			}
 		}
 
-		if (wanted.Count != 1)
-		{
-			Console.Error.WriteLine(wanted.Count == 0
-				? $"'{words[1]}' diye bir cevap yok. Seçenekler:"
-				: $"'{words[1]}' birden çok cevaba uyuyor:");
-			Options(Console.Error);
-			return 1;
-		}
+		var wanted = new List<JsonElement> { answerTo.Value };
 
 		var query = new List<(string, string)> { ("ptr", Field(wanted[0], "Pointer")) };
 		if (args.Contains("--dry")) query.Add(("dry", "1"));
@@ -392,6 +390,30 @@ internal static class Program
 			? $"(kuru) '{Field(wanted[0], "Label")}' cevabı verilecekti: {title}"
 			: $"Cevaplandı: {title} → {Field(wanted[0], "Label")}");
 		return 0;
+
+		// An answer is named by its number in the listing or by a piece of its text.
+		JsonElement? Resolve(string pick)
+		{
+			if (int.TryParse(pick, out var number))
+			{
+				if (number >= 1 && number <= answers.Count) return answers[number - 1];
+
+				Console.Error.WriteLine($"{number} numaralı cevap yok. Seçenekler:");
+				Options(Console.Error);
+				return null;
+			}
+
+			var matches = answers
+				.Where(a => Field(a, "Label").Contains(pick, StringComparison.OrdinalIgnoreCase))
+				.ToList();
+			if (matches.Count == 1) return matches[0];
+
+			Console.Error.WriteLine(matches.Count == 0
+				? $"'{pick}' diye bir cevap yok. Seçenekler:"
+				: $"'{pick}' birden çok cevaba uyuyor:");
+			Options(Console.Error);
+			return null;
+		}
 
 		void Options(TextWriter output)
 		{
@@ -677,7 +699,7 @@ internal static class Program
 			    --fitness     kondisyon ve maç formu, en yorgun önce
 			    --morale      moral, hiyerarşi ve sosyal grup
 			  inbox           gelen kutusu
-			  reply <#>       mesajın cevap seçenekleri
+			  reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next            zamanı ilerlet
 
