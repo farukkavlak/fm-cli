@@ -94,8 +94,10 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [ ] `fm squad --u19` — altyapı kadrosu (eski `fm squad` özet panosundan basıyordu, artık basmıyor)
 - [x] `fm squad --fitness` — kondisyon ve maç formu, "Selection Info" görünümünden (§8.26)
 - [x] `fm squad --morale` — moral, hiyerarşi, sosyal grup, "Dynamics" görünümünden (§8.26)
-- [~] Kadro tablosunun diğer görünümleri — veri `--json`'da geliyor, tablo komutu yok: maaş,
-      sözleşme, piyasa değeri, oynama süresi, sakatlık riski (§8.26)
+- [~] Kadro tablosunun diğer görünümleri — `fm select ViewDropdown "<görünüm>"` + `fm squad --json`
+      ile veri geliyor, kendi tablo komutları yok: sakatlık (Injuries), sakatlık riski
+      (Risk Assessment), oynama süresi (Playing Time). Contract, Transfer, Reports, Development,
+      International, Home-Grown Status, Attributes, Stats satırları hiç okunmadı (§8.26)
 - [~] Uyruk — `Nation` düğümü çocuksuz (§8.21), ama `NationButton` üç harfli kodu taşıyor; `fm squad`'a eklenmedi
 - [ ] `fm player <isim>` — oyuncu kartı (öznitelikler, sözleşme, form)
 - [ ] Öznitelikler (teknik / zihinsel / fiziksel)
@@ -371,10 +373,10 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 **Kayıplar / engeller**
 
-- **Basın toplantısı görülmedi** — kayıtta bekleyen yok. Sırada 4. adıma indi.
+- **Basın toplantısı görülmedi** — kayıtta bekleyen yok. Sıradaki işlerde duruyor.
 - **Kontrol adresleri ekran değişince değişiyor.** Çözüldü: `/press?text=` ve
   `/select?name=&choice=` etiketle buluyor; etiket birden çok kontrole uyarsa reddediyor.
-- **Test tıklamaları kayda yazılmadı.** Oyun kaydedilmeden üç kez yeniden başlatıldı; "okundu
+- **Test tıklamaları kayda yazılmadı.** Oyun gün boyu kaydedilmeden yeniden başlatıldı; "okundu
   işaretle" dahil hiçbir değişiklik kalıcı değil.
 - **Kondisyon -1 = sakat.** Talisca (hamstring) ve Becão (ön çapraz bağ); "Injuries"
   görünümünden doğrulandı, `fm squad --fitness` durumu ayrı kolonda gösteriyor.
