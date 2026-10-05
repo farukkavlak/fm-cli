@@ -927,6 +927,73 @@ ID=ZzYokBoyleBirSeyZz        -> error: alan çözülemedi, gönderilmedi   (oyun
 Yani bir alan çözülemezse event **hiç gönderilmiyor** — yarım payload'la oyunu çökertme
 (§8.15'te yaşadığımız şey) bu yoldan tekrarlanamaz.
 
+## 8.25 Kontroller event'lerini kendileri tarif ediyor: `/buttons` ve `/press`
+
+Bir aksiyonun payload'ını nasıl dolduracağımızı şimdiye kadar tahmin ediyor ya da kaydı elle
+kopyalıyorduk (§8.15). Buna gerek yokmuş: oyun bu eşlemeyi kendisi tutuyor.
+
+**Mekanizma.** Her UI event tipinin bir `…EventContext` sınıfı var
+(`SI.Bindable.Events.EventContext<T>`). Context, event'in her alanı için bir `BindingPath`
+taşıyor ve `FillEvent(T)` ile event'i onlardan dolduruyor:
+
+```
+SpeakToActionEventContext
+    m_responseIdBinding, m_responseValueBinding, m_actionIdBinding, m_actionDataBinding,
+    m_responseActionIdBinding, m_responseActionDataReferencesBinding, m_eventBinding, …
+```
+
+Context'ler kontrollerin üzerinde `SI.Bindable.EventList` olarak asılı: `SIButton.Events`,
+`SIButton.RightClickEvents`, `SIDropdown.SelectionEvents`, `SICheckBox.CheckedEvents`,
+`FMPitchPosition.Events`, `FMTacticsPanel.SelectionEvent`… Kontrol kullanılınca listesi
+`SI.Core.UIEventQueue.QueueEvents(EventList)`'e gidiyor; `UIEventQueue` bir `GameSubsystem`.
+
+**`/buttons`** yüklü bütün `UIDocument`'leri gezip event listesi taşıyan her kontrolü döküyor:
+
+```
+0x3f0d3c000  SIButton  ""  name=MarkAllReadButton
+  Events[0] EventToPluginContext  source=…Messages4.0.1.BindingSetterA
+      m_targetHandler = -> "human"
+      m_dataToSendBinding = -> "team"
+      m_id = EventFmxMarkAllHumanMessagesAsRead
+```
+
+Filtre: `?type=` (blokta geçen metin, ör. context ya da event adı), `?text=` (etiket),
+`?limit=`. Portal ekranında 130, kadro ekranında 236 kontrol var.
+
+**`/press?ptr=<adres>[&list=<ad>][&dry=1]`** kontrolün listesini kuyruğa koyuyor. Payload'ı biz
+kurmuyoruz, oyun kuruyor; yarım payload'la çökertme (§8.15) bu yoldan mümkün değil.
+
+Doğrulama:
+
+| Deneme | Sonuç |
+|---|---|
+| `dry=1` ile "Squad" | ağaç 4198'de kaldı |
+| uydurma adres (`0xdeadbeef`) | `error: no control at …`, oyun ayakta |
+| "Squad" → "Portal", üç tur | her turda 4198 → 6093 → 4198, `/squad` 49 satır → boş |
+| "Tümünü okundu işaretle" (`EventToPluginContext`) | "Unread (10)" → "Unread (0)"; `dry=1`'de 10'da kaldı |
+
+Sonuncusu §8.23'teki simülasyon katmanının (`EventToPlugin` + `InteropEventIDs`) ilk canlı
+gönderimi. Tek gözlem — işlem tekrarlanamıyor.
+
+**`EventToPlugin`'in gerçek şekli** de buradan okunuyor: `Target` bir binding yolundan
+(`"human"`), `DataToSend` bir başkasından (`"team"`, `"selectedadviceoption"`), `ID` sabit.
+Yani simülasyon event'leri de çoğunlukla "kime + hangi veriyle" ikilisi.
+
+⚠ Kısıtlar:
+
+- Adresler ekran yeniden kurulunca değişiyor; nav bar gibi kalıcı parçalarınki değişmiyor.
+  `/press` adresi her çağrıda taze gezintide arıyor, bayat adres hata dönüyor.
+- Yalnızca **yüklü** ekranın kontrolleri var. Bir ekrandaki butona basmak için önce o ekrana
+  gitmek gerekiyor — ama gitmek de bir butona basmak.
+- Bağlanmamış alanlar `-1` görünüyor (`m_newsActionId = -1`): context bağımlılıklarını
+  kuyruğa girince çözüyor, listelemede henüz çözülmemiş olabilir.
+- Buton metinlerinde `<link>`/`<style>` markup'ı kalıyor.
+
+Basın toplantısı için bunun anlamı: cevaplar `SpeakToActionEvent` ile gidiyor, onu da inbox'la
+aynı modül (`NewsActionHandlerModule`) işliyor; `SpeakToActionReference`'ın 31 property'si
+§8.15'teki 31 girişli aksiyon kaydının ta kendisi. Toplantı ekranı açıldığında cevap butonları
+`SpeakToActionEventContext` olarak listelenmeli. Henüz canlı görülmedi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

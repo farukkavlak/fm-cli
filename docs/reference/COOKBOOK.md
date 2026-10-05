@@ -45,6 +45,17 @@ Ayrıca `FM.GamePlugin.ActionID` — **225 isimli UI aksiyonu** (`PersonMakeOffe
 `PersonOfferContract`, `ClubRequestIncreaseBudgets`…). `GameInteropSubsystem.m_handlers`
 bunları `Dictionary<ActionID, …>` olarak tutuyor.
 
+**En kısa yol: kontrolün kendisine bas.** Ekrandaki her kontrol göndereceği event'i ve
+alanlarının hangi binding yolundan geldiğini taşıyor (`docs/FINDINGS.md` §8.25):
+
+```
+/buttons[?type=<metin>][&text=<etiket>]      yüklü ekranın kontrolleri, event'leriyle
+/press?ptr=<adres>[&list=<ad>][&dry=1]       kontrolün event listesini kuyruğa koy
+```
+
+Payload'ı oyun dolduruyor. `/send` hâlâ ekranı olmayan ya da ekranına gitmek istemediğimiz
+event'ler için duruyor.
+
 ---
 
 ## 1. Taktik — FM26'nın iki fazı

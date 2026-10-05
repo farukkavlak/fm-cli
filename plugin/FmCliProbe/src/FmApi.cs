@@ -43,6 +43,8 @@ internal static class FmApi
 		"squad" => Report.Squad(),
 		"inbox" => Report.Inbox(),
 		"bindprop" => Materialise.Property(q["path"], q["name"]),
+		"buttons" => Buttons.Catalog(q),
+		"press" => Buttons.Press(q),
 		_ => null, // 404
 	};
 

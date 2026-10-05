@@ -30,6 +30,12 @@ internal static class Game
 	/// </summary>
 	public static FM.GamePlugin.GameInteropSubsystem Interop => Subsystem<FM.GamePlugin.GameInteropSubsystem>();
 
+	/// <summary>
+	/// The queue a control puts its events on. Going through it, rather than sending an event
+	/// directly, leaves the filling of the payload to the game.
+	/// </summary>
+	public static SI.Core.UIEventQueue UiEvents => Subsystem<SI.Core.UIEventQueue>();
+
 	private static T Subsystem<T>() where T : Il2CppSystem.Object
 	{
 		var all = SI.Core.GameSubsystems.s_subsystems;

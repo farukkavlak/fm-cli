@@ -15,27 +15,32 @@ aranmadı demek, yok demek değil.
 Sıra, "en çok şeyin önünü açan önce" mantığıyla. Her adım bitince buradan silinip aşağıdaki
 ilgili bölümde `[x]` olur, günlüğe bir satır düşülür.
 
-1. **Simülasyon katmanını canlı doğrula — basın toplantısı.** `EventToPlugin` şimdiye kadar
-   yalnızca `dry=1` ile kuruldu, hiç gönderilmedi. 680 event'in tamamı bu taşıyıcıdan geçiyor,
-   yani yazma tarafının geri kalanı buna bağlı. Basın toplantısı en az bilinmeyenli aday: inbox
-   ile aynı şekil (oturum referansı + seçenekler + cevap event'i, §8.23).
-   Bekleyen toplantı yoksa aynı doğrulama oyuncu konuşmasıyla
-   (`EventFmxConversationReplySelected`) yapılır.
-2. **`fm squad --fitness` / `--morale`.** Projenin ilk hedef komutu ve en eski açık madde.
-   Yeni aday: `events.txt`'te `AddColumnEvent { ColumnID }` ve `SetPresetEvent { PresetIndexKey }`
-   var; kadro görünümüne kolon ekletmek ya da hazır görünüme geçmek kondisyon/morali ağaca
-   sokabilir. `/bindprop` yolu (§8.21) hâlâ yarım, ona dönmüyoruz.
-3. **Tam ekran envanteri.** `panels.txt` 39 panel tutuyor çünkü paneller talep üzerine
-   yükleniyor. Lig tablosu, fikstür, finans, antrenman ekranlarının `PanelID` adları lazım;
-   canlı dürtmeyle değil, statik olarak (asset/metadata) toplu çıkarılacak.
-4. **`fm tactic`** — önce oku (`TacticReference`, 207 property), sonra yaz (`ModifyTacticEvent`,
-   formasyon → mentalite → rol → talimat sırasıyla). Enum'ların hepsi elde.
-5. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
-   "Ekranı isimle aç + şekle göre oku" deseni kanıtlı (§8.16, §8.22); 3. adım bitince bunlar
-   seri iş.
-6. **Oyuncu konuşmaları** — 1. adımdaki desenin `ConversationEditSessionReference` ile tekrarı.
-7. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property) + `ActionID`
-   aksiyonları. Geri alınamaz olduğu için `--yes` onayı ve `dry=1` ile birlikte.
+Bütün adımların ortak aracı artık `/buttons` + `/press` (§8.25): ekrandaki her kontrol hangi
+event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyruğa konarak
+"basılıyor". Yeni bir alan açmak = o ekrana git, `/buttons` ile bak, `/press` ile dene.
+
+1. **`fm squad --fitness` / `--morale`.** Projenin ilk hedef komutu ve en eski açık madde.
+   Kadro ekranının alt sekmeleri artık basılabiliyor: "Medical Centre", "Dynamics", "Training",
+   "First Team". Sıra: sekmeye bas → o ekranın bağladığı veriyi ağaçtan oku → `Report`'a şekil
+   ekle. Uyruk da çözüldü sayılır: `NationButton` üç harfli kodu metin olarak taşıyor.
+2. **`fm buttons` / `fm press` CLI'a çıksın**, ve mevcut `/newsaction` ile ekran açma kodu
+   `/press` üzerine taşınsın. Elle kayıt kopyalayan tek yer `/newsaction`; oyunun kendi
+   doldurucusu varken ona gerek kalmıyor.
+3. **Ekran haritası.** Statik `PanelID` avı yerine gezgin: her navigasyon butonuna basıp
+   ekranın kontrollerini dök, sonucu `docs/reference/screens.txt` olarak sakla. Hangi komutun
+   hangi ekrandan, hangi butonla yapıldığı tek dosyada olur.
+4. **Basın toplantısı ve oyuncu konuşmaları.** Bu kayıtta bekleyen toplantı yok, o yüzden canlı
+   görülmedi. Cevaplar `SpeakToActionEvent` ile gidiyor ve bunu inbox'la aynı modül
+   (`NewsActionHandlerModule`) işliyor. Toplantı açılınca cevap butonları `/buttons`'ta
+   `SpeakToActionEventContext` olarak görünmeli; 4 bekleyen "Tasks" mesajı aynı yolun ilk
+   denemesi olabilir.
+5. **`fm tactic`** — önce oku (`TacticReference`, 207 property), sonra yaz. Taktik ekranındaki
+   kontroller (`FMPitchPosition.Events`, `FMTacticsPanel.SelectionEvent`) da event listesi
+   taşıyor, yani rol ve formasyon değişimi de basılabilir olmalı.
+6. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
+   3. adım bitince seri iş.
+7. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property). Geri alınamaz
+   olduğu için `--yes` onayı ve `dry=1` ile birlikte.
 8. **Maç** — `EventFmxGoToMatch`, hızlı sonuç, maç sonrası özet.
 9. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
 
@@ -61,7 +66,8 @@ ilgili bölümde `[x]` olur, günlüğe bir satır düşülür.
 - [x] Ekranı isimle açma; her komut kendi ekranını geri getiriyor (§8.16, §8.22)
 - [x] Veri bağlanana kadar bekleme (sabit gecikme yerine 20 sn'ye kadar yoklama)
 - [~] Ekran envanteri — 39 panel, yalnızca yüklenmiş olanlar (`panels.txt`)
-- [ ] `EventToPlugin` ile simülasyon event'ini canlı gönderme (yalnızca `dry=1` denendi)
+- [x] Ekrandaki kontrolleri event'leriyle listeleme (`/buttons`) ve basma (`/press`) (§8.25)
+- [x] Simülasyon event'ini canlı gönderme — `EventToPlugin`, oyunun kendi doldurucusuyla (§8.25)
 - [ ] Ekran açmadan tek property canlandırma — kanal açılıyor, düğüm yaratılamıyor (§8.21)
 - [ ] FM27'ye taşıma: sürüme özel her şey tek config dosyasında
 
@@ -89,7 +95,7 @@ ilgili bölümde `[x]` olur, günlüğe bir satır düşülür.
 - [x] `fm squad` — kadroyu tablo olarak bas
 - [ ] `fm squad --fitness` — kondisyon/yorgunluk (kadro ekranı bağlamıyor; aday `AddColumnEvent` / `SetPresetEvent`)
 - [ ] `fm squad --morale` — moral (aynı engel)
-- [ ] Uyruk adı — `Nation` düğümü çocuksuz, ekran yalnızca bayrak görseli kullanıyor (§8.21)
+- [~] Uyruk — `Nation` düğümü çocuksuz (§8.21), ama `NationButton` üç harfli kodu taşıyor; `fm squad`'a eklenmedi
 - [ ] `fm player <isim>` — oyuncu kartı (öznitelikler, sözleşme, form)
 - [ ] Öznitelikler (teknik / zihinsel / fiziksel)
 - [ ] Gizli öznitelikler (scout görüşü kadarıyla)
@@ -327,6 +333,29 @@ ilgili bölümde `[x]` olur, günlüğe bir satır düşülür.
 ---
 
 ## Günlük
+
+### 2026-10-05
+
+**Kazanımlar**
+
+- **Her kontrol kendi event'ini tarif ediyor.** Oyunda her UI event'inin bir `…EventContext`
+  sınıfı var; hangi binding yolunun hangi alanı doldurduğunu o tutuyor. `/buttons` bunları
+  ekrandaki bütün kontroller için döküyor (portal: 130 kontrol, kadro: 236).
+- **Basmak çalışıyor.** `/press` kontrolün kendi event listesini `UIEventQueue`'ya koyuyor,
+  payload'ı oyun dolduruyor. Kadro/Portal sekmeleri arasında üç tur: ağaç her seferinde
+  4198 → 6093 → 4198. Kuru çalıştırma ve uydurma adres hiçbir şey değiştirmedi.
+- **Simülasyon katmanı canlı doğrulandı.** "Tümünü okundu işaretle" butonu bir
+  `EventToPluginContext` (`EventFmxMarkAllHumanMessagesAsRead`); basınca "Unread (10)" →
+  "Unread (0)". Tek gözlem: tekrarı yok çünkü işlem bir kez yapılabiliyor.
+- **Plan ve bulgular ayrıldı:** sıralı iş listesi burada, `FINDINGS.md` §9 buraya yönleniyor.
+
+**Kayıplar / engeller**
+
+- **Basın toplantısı görülmedi** — kayıtta bekleyen yok. Sırada 4. adıma indi.
+- **Kontrol adresleri ekran değişince değişiyor.** `/press` adresi her seferinde yeniden arıyor,
+  yani bayat adres hata veriyor, çökme yok; ama CLI adresi saklayamaz, etikete göre bulmalı.
+- **Buton metinlerinde markup kalıyor** (`<link="0"><style="Norml">…`); `Text.Clean` bunu
+  temizlemiyor.
 
 ### 2026-10-04
 
