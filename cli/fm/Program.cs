@@ -779,6 +779,7 @@ internal static partial class Program
 			  tactic mentality [<x>]      mentaliteyi göster ya da değiştir
 			  tactic style [<x>]          oyun stilini göster ya da değiştir
 			  tactic pick                 ilk 11'i oyuna seçtir (Quick Pick)
+			  tactic role <mevki> [<rol>] bir mevkinin rolünü göster ya da değiştir (--oop: topsuz rol)
 			  tactic new ["<stil>" ["<topla diziliş>" ["<topsuz diziliş>"]]]
 			                  taktik oluştur; eksik bıraktığın adımın seçeneklerini listeler
 

@@ -402,8 +402,9 @@ internal static partial class Program
 			case "mentality": return await TacticSetting("Mentalite", "MentalityString", "Very Defensive", wanted, dry);
 			case "style": return await TacticSetting("Stil", "Style", "Gegenpress", wanted, dry);
 			case "pick": return await TacticPick(dry);
+			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			default:
-				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic mentality [<x>] | tactic style [<x>] | tactic pick   [--dry]");
+				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop]   [--dry]");
 				return 64;
 		}
 
@@ -507,6 +508,104 @@ internal static partial class Program
 		}, seconds: 8);
 		Console.WriteLine(took ? $"{what}: {current} → {pick}" : $"{what} {pick} seçildi ama taktik hâlâ {now} gösteriyor.");
 		return took ? 0 : 1;
+	}
+
+	/// <summary>
+	/// Shows or changes the role of one slot, with the ball or (--oop) without it.
+	///
+	/// The planner keeps two lists per slot, one per phase, in the order of the slots. Which
+	/// list is which is not written on it, so the role each one marks as selected is checked
+	/// against the tactic before anything is chosen from it.
+	/// </summary>
+	private static async Task<int> TacticRole(List<string> words, bool withoutBall, bool dry)
+	{
+		if (await Planner() is not { } tactic)
+		{
+			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
+			return 1;
+		}
+
+		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
+		var spots = slots.Select(s => Spot(Field(s, "IPPosition"))).ToList();
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine($"kullanım: tactic role <mevki> [<rol>] [--oop]   mevkiler: {string.Join(" ", spots)}");
+			return 64;
+		}
+
+		if (Choose(spots, words[0], "Mevki") is not { } spot) return 1;
+		var at = spots.IndexOf(spot);
+
+		List<JsonElement> lists = [];
+		await Until(async () =>
+		{
+			var roleLists = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(c => Field(c, "Type") == "SIDropdown" && Field(c, "Events").Contains("RoleOption", StringComparison.Ordinal))
+				.Select(c => Field(c, "Pointer"))
+				.ToList();
+			var all = (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray().ToDictionary(d => Field(d, "Pointer"), d => d);
+			lists = roleLists.Where(all.ContainsKey).Select(p => all[p]).ToList();
+			return lists.Count == slots.Count * 2;
+		}, seconds: 8);
+
+		if (lists.Count != slots.Count * 2)
+		{
+			Console.Error.WriteLine($"Taktik ekranında {slots.Count * 2} rol listesi bekleniyordu, {lists.Count} var.");
+			return 1;
+		}
+
+		var list = lists[at * 2 + (withoutBall ? 1 : 0)];
+		var roles = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "")
+			.Where(c => !c.StartsWith("Go to ", StringComparison.Ordinal)).ToList();
+		var current = int.TryParse(Field(list, "Marked"), out var marked) && marked < roles.Count ? roles[marked] : "";
+		var known = Field(slots[at], withoutBall ? "OOPRoleName" : "IPRoleName");
+
+		if (Plain(current) != Plain(known))
+		{
+			Console.Error.WriteLine($"{spot} için bulunan liste taktikle uyuşmuyor (listede '{current}', taktikte '{Role(known)}'); dokunulmadı.");
+			return 1;
+		}
+
+		var phase = withoutBall ? "topsuz" : "topla";
+		if (words.Count < 2)
+		{
+			Console.WriteLine($"{spot} ({phase}): {current}\n");
+			for (var n = 0; n < roles.Count; n++) Console.WriteLine($"  {n + 1,2}  {roles[n]}{(roles[n] == current ? "  ←" : "")}");
+			return 0;
+		}
+
+		if (Choose(roles, words[1], "Rol") is not { } pick) return 1;
+		if (pick == current)
+		{
+			Console.WriteLine($"{spot} ({phase}) zaten {pick}.");
+			return 0;
+		}
+		if (dry)
+		{
+			Console.WriteLine($"(kuru) {spot} ({phase}): {current} → {pick} yapılacaktı.");
+			return 0;
+		}
+
+		var selected = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", pick), ("fire", "1"));
+		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
+
+		var now = known;
+		var took = await Until(async () =>
+		{
+			var fresh = await Fm.GetJson("tactic");
+			if (fresh.TryGetProperty("Slots", out var list) && list.GetArrayLength() > at) now = Field(list[at], withoutBall ? "OOPRoleName" : "IPRoleName");
+			return Plain(now) == Plain(pick);
+		}, seconds: 8);
+
+		Console.WriteLine(took ? $"{spot} ({phase}): {current} → {pick}" : $"{pick} seçildi ama taktik hâlâ {Role(now)} gösteriyor.");
+		return took ? 0 : 1;
+
+		// "Ball-Playing Goalkeeper" and "OPBallPlayingGoalkeeper" name the same role.
+		static string Plain(string role)
+		{
+			var letters = new string(role.Where(char.IsLetter).ToArray()).ToLowerInvariant();
+			return letters.StartsWith("op", StringComparison.Ordinal) && role.StartsWith("OP", StringComparison.Ordinal) ? letters[2..] : letters;
+		}
 	}
 
 	/// <summary>Lets the game pick the eleven, as its Quick Pick button does.</summary>

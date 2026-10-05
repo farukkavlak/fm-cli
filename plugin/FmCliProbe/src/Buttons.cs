@@ -247,6 +247,24 @@ internal static class Buttons
 		return $"selected {described} ({how}) and sent its {events.Count} event(s)";
 	}
 
+	/// <summary>Whether a row's displayed record says it is the selected one.</summary>
+	private static bool Marked(SI.Core.TypedValue choice)
+	{
+		try
+		{
+			var record = choice?.Get()?.TryCast<DynamicReference>();
+			if (record == null) return false;
+
+			var entries = Send.Entries(record);
+			if (entries.TryGetValue("RowData", out var row) && row != null && !row.IsNull) return Marked(row);
+			if (entries.TryGetValue("DisplayValue", out var shown) && shown != null && !shown.IsNull
+			    && shown.Get()?.TryCast<DynamicReference>() != null) return Marked(shown);
+
+			return entries.TryGetValue("Selected", out var selected) && selected != null && !selected.IsNull && selected.AsString() == "True";
+		}
+		catch { return false; }
+	}
+
 	/// <summary>The rows of a row's submenu, or null when it has none.</summary>
 	private static Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> Children(SI.Core.TypedValue choice)
 	{
@@ -381,10 +399,14 @@ internal static class Buttons
 			return HasChildren(entries) ? inner + SubmenuMark : inner;
 		}
 
-		foreach (var name in new[] { "DisplayValue", "Text", "Name", "PanelTitle", "ActionTitle", "Title" })
+		foreach (var name in new[] { "DisplayValue", "TacticsRoleName", "Text", "Name", "PanelTitle", "ActionTitle", "Title" })
 		{
-			if (entries.TryGetValue(name, out var value) && value != null && !value.IsNull)
-				return Text.Clean(value.AsString());
+			if (!entries.TryGetValue(name, out var value) || value == null || value.IsNull) continue;
+
+			// What a row shows can itself be a record — a role with its name and how well it
+			// suits the player — and then the text is one level further in.
+			if (value.Get()?.TryCast<DynamicReference>() != null) return Choice(value);
+			return Text.Clean(value.AsString());
 		}
 		return "{" + string.Join(", ", entries.Keys.Take(8)) + "}";
 	}
@@ -505,6 +527,14 @@ internal static class Buttons
 				var submenus = "";
 				if (deep)
 				{
+					// A list of options marks the one in force on the row itself.
+					for (var i = 0; i < count && i < 60; i++)
+					{
+						if (!Marked(choices[i])) continue;
+						submenus += $", \"Marked\": \"{i}\"";
+						break;
+					}
+
 					var parts = new List<string>();
 					for (var i = 0; i < count && i < 60; i++)
 					{
@@ -515,7 +545,7 @@ internal static class Buttons
 						for (var c = 0; c < children.Count && c < 60; c++) inner.Add($"\"{Report.Escape(Choice(children[c]) ?? "")}\"");
 						parts.Add($"\"{i}\": [{string.Join(", ", inner)}]");
 					}
-					submenus = ", \"Submenus\": {" + string.Join(", ", parts) + "}";
+					submenus += ", \"Submenus\": {" + string.Join(", ", parts) + "}";
 				}
 
 				rows.Add("{"
