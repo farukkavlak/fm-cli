@@ -22,7 +22,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 1. **Maç içi yönetim.** Sakatlıkta oyun değişiklik bekleyip duruyor ve `fm match` orada
    bırakıyor (§8.34). Gereken: yedekleri okumak, oyuncu değiştirmek (oyuncu menüsündeki
-   "Substitute Off ›" ya da "Dugout" tavsiyesindeki "Do it"), sonra maç hızı / anında sonuç.
+   "Substitute Off ›" ya da "Dugout" tavsiyesindeki "Do it"), sonra maç hızı.
    Bire bir oyuncu konuşması henüz çıkmadı; `fm talk` aynı şablonu bekliyor.
 2. **`fm tactic` kalanı** — oluşturma, okuma, mentalite, stil ve Quick Pick tamam (§8.30,
    §8.31). Kalan: rol ve diziliş değiştirme (`FMPitchPosition.Events`, rol açılır listeleri),
@@ -200,10 +200,10 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] Maç gününü oyna — `fm match [--talk]`: kadro gönder, onay penceresi, konuşmalar, maç,
       çıkış; gol/devre/sonuç bildiriyor (§8.34)
 - [ ] Maç içi oyuncu değişikliği — sakatlıkta maç duruyor, `fm match` söyleyip bırakıyor
-- [ ] Maç hızı / anında sonuç (`EventFmxRequestInstantResult`, `…HighlightModeChanged`) — maç ~7 dk
+- [x] Anında sonuç — `fm match --instant`, 9 sn (§8.34)
+- [ ] Maç hızı (`EventFmxHighlightModeChanged`, `…HighlightSpeedChanged`) — oynanan maç ~6-7 dk
 - [k] Maç içi taktik değişimi — `EventFmxMatchTacticsChanged`, `MatchTacticReference` (227)
 - [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
-- [ ] Maçı simüle et (hızlı sonuç)
 - [ ] Canlı maç takibi (metin akışı)
 - [ ] Maç içi: oyuncu değişikliği, taktik değişimi, shout
 - [ ] Maç sonrası: rating, istatistik, basın
@@ -216,7 +216,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 ## 8. Lig, kupa, takvim
 
 - [x] Lig tablosu — `fm table` (§8.37); puanlı tabloda denenmedi
-- [~] Fikstür — `fm fixtures` sıradaki yedi maçı veriyor (§8.37); sonuçlar ve tam liste yok
+- [~] Fikstür — `fm fixtures` son oynanan ve sıradaki maçları, sonucuyla veriyor (§8.37); tam liste yok
 - [ ] Başka ligler / ülkeler
 - [ ] Kupa ağaçları
 - [ ] Avrupa kupaları

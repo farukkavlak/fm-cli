@@ -1596,6 +1596,30 @@ Hız için katalogda `EventFmxHighlightModeChanged`, `EventFmxHighlightSpeedChan
 `EventFmxBetweenHighlightSpeedChanged`, `EventFmxRequestInstantResult` var; ilk maç gizli
 pencerede yaklaşık 7 dakika sürdü.
 
+### Anında sonuç: `fm match --instant`
+
+Kadro gönderme ekranında "Instant Result" butonu var (`OpenPanelEvent`). Sırayla üç pencere
+açıyor: "Instant Result — Are you sure you want to leave this match to your staff?" (Cancel /
+Confirm; Confirm `InstantResultEvent` gönderiyor), "Team Selection — Proceed with simulate
+match?" (No / Yes), ve simülasyon sürerken butonsuz bir "Match in progress..." bildirimi.
+Ardından `State = CanContinue`; maç sahnesi hiç yüklenmiyor.
+
+Oynanmış maç fikstür kaydında saat yerine sonuç taşıyor: `HasResult = True`,
+`ResultLinkableNoSpaces = "1 - 0"`, `ResultType`. `fm fixtures` sonucu gösteriyor.
+
+| Deneme (maç günü kaydından) | Sonuç |
+|---|---|
+| elle: Instant Result, `fm dialog Zzz` / `Confirm --dry` / `Cancel` | red / değişmedi / pencere kapandı |
+| elle: Instant Result, `fm dialog 2`, `fm dialog Yes` | ikinci pencere açıldı, sonra maç simüle edildi (0 - 3) |
+| `fm match --instant` | 9 sn: "Maç simüle edildi: Sarıyer maçı 1 - 0"; saat 14:00 → 16:00 |
+| `fm fixtures` sonrasında | 7 Temmuz satırında sonuç "1 - 0", saat boş |
+| maç yokken `fm match` | "şu an oynanacak maç yok" |
+
+Aynı maç bu gece dört kez oynandı ve dördü de farklı bitti (devre arası 0-3, 0-0, 0 - 3,
+1 - 0): sonuç kayıtta yazılı değil, her seferinde yeniden üretiliyor. Sonuç dizgisinde hangi
+tarafın biz olduğu yazmıyor; tarafsız sahada ayırt edilemedi. `ResultType` "0 - 3"te 1 idi,
+başka skorda bakılmadı.
+
 ## 8.35 Kaydetmek, ve oyunun kendi kaydı
 
 `SaveGameEvent` (alansız) oyunu kendi dosyasının üzerine kaydediyor; `game.GameSaving` kalkıp

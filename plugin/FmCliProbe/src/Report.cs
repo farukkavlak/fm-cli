@@ -136,8 +136,12 @@ internal static class Report
 		{
 			if (node.Name != "Fixture") continue;
 
+			// One to come has a kick-off time, one already played a result instead.
+			// Other records by this name carry neither and are only links to a fixture.
 			var fields = Fields(node);
-			if (!fields.ContainsKey("KickoffTime")) continue;
+			fields.TryGetValue("ResultLinkableNoSpaces", out var result);
+			if (!fields.ContainsKey("KickoffTime") && string.IsNullOrEmpty(result)) continue;
+			if (!string.IsNullOrEmpty(result)) fields["Result"] = result;
 
 			// A date is a packed struct, which the record builder leaves out as noise.
 			var date = Child(node, "FixtureDate");
@@ -149,7 +153,7 @@ internal static class Report
 
 			// The same fixture is bound by every tile that shows it.
 			fields.TryGetValue("ShortName", out var opponent);
-			if (!seen.Add($"{day}|{fields["KickoffTime"]}|{opponent}")) continue;
+			if (!seen.Add($"{day}|{opponent}")) continue;
 			fixtures.Add(fields);
 		}
 

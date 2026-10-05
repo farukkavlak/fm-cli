@@ -43,6 +43,16 @@ internal static partial class Program
 			return 1;
 		}
 
+		if (args.Contains("--instant"))
+		{
+			if (inMatch)
+			{
+				Console.Error.WriteLine("Maç başladı; anında sonuç yalnızca kadro gönderilmeden önce istenebiliyor. Sürdürmek için: match");
+				return 1;
+			}
+			return await InstantResult(state);
+		}
+
 		var talk = args.Contains("--talk");
 		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null;
 		var pressedAt = DateTime.MinValue;
@@ -138,6 +148,71 @@ internal static partial class Program
 		return 0;
 	}
 
+	/// <summary>
+	/// Leaves the match to the staff: the game simulates it in a few seconds instead of
+	/// playing it out. The button is on the team submission screen and asks twice.
+	/// </summary>
+	private static async Task<int> InstantResult(JsonElement state)
+	{
+		if (Field(state, "State") == "Tactics")
+		{
+			await Fm.Get("next");
+			await Until(async () => Field(await Fm.GetJson("state"), "State") == "SubmitTeam", seconds: 15);
+		}
+
+		var asked = await Arriving("press", [("text", "Instant Result")]);
+		if (asked.StartsWith("error", StringComparison.Ordinal)) return Report(asked);
+
+		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(2);
+		var quiet = 0;
+		while (DateTime.UtcNow < deadline)
+		{
+			await Task.Delay(TimeSpan.FromSeconds(1.5));
+
+			var dialogs = await Fm.GetJson("dialog");
+			if (dialogs.GetArrayLength() > 0)
+			{
+				quiet = 0;
+				var dialog = dialogs[0];
+				// While it simulates, the game shows a notice with nothing to press.
+				if (dialog.GetProperty("Buttons").GetArrayLength() == 0) continue;
+
+				var want = Field(dialog, "Title") switch { "Instant Result" => "Confirm", "Team Selection" => "Yes", _ => null };
+				var button = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") == want);
+				if (button == null)
+				{
+					Console.Error.WriteLine($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}   (cevap: dialog)");
+					return 1;
+				}
+
+				await Fm.Get("click", ("ptr", Field(button.Value, "Pointer")));
+				continue;
+			}
+
+			state = await Fm.GetJson("state");
+			var over = Field(state, "DuringMatch") != "True" && Field(state, "State") is not ("Tactics" or "SubmitTeam" or "Match" or "Processing");
+			if (over && ++quiet >= 2) break;
+		}
+
+		if (Field(state, "State") is "Tactics" or "SubmitTeam")
+		{
+			Console.Error.WriteLine("Anında sonuç istendi ama oyun hâlâ kadro ekranında.");
+			return 1;
+		}
+
+		// The result is on the fixture itself once played; the newest one with a result is this match.
+		var played = (await Shown("fixtures", "Overview", "Portal")).EnumerateArray()
+			.Where(f => Field(f, "Result") != "" && Field(f, "Date") != "")
+			.OrderBy(f => Field(f, "Date"))
+			.LastOrDefault();
+		Console.WriteLine(played.ValueKind == JsonValueKind.Object
+			? $"Maç simüle edildi: {Field(played, "ShortName")} maçı {Field(played, "Result")}"
+			: "Maç simüle edildi.");
+
+		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);
+		return 0;
+	}
+
 	/// <summary>Prints the score when it changes, and the whistle when the period does.</summary>
 	private static void Scoreline(JsonElement state, ref string period, ref string score)
 	{
@@ -210,9 +285,20 @@ internal static partial class Program
 		var answered = await Fm.Get("click", ("ptr", Field(buttons[labels.IndexOf(pick)], "Pointer")));
 		if (answered.StartsWith("error", StringComparison.Ordinal)) return Report(answered);
 
+		// Answered means this dialog is gone; another may have taken its place, since some
+		// questions are followed by a second one.
 		var count = dialogs.GetArrayLength();
-		var closed = await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() < count, seconds: 8);
+		var was = Field(dialog, "Title") + "|" + Field(dialog, "Description");
+		var closed = await Until(async () =>
+		{
+			var now = await Fm.GetJson("dialog");
+			return now.GetArrayLength() < count || Field(now[0], "Title") + "|" + Field(now[0], "Description") != was;
+		}, seconds: 8);
 		Console.WriteLine(closed ? $"{Field(dialog, "Title")} → {pick}" : $"'{pick}' denildi ama pencere hâlâ açık.");
+
+		var next = await Fm.GetJson("dialog");
+		if (closed && next.GetArrayLength() > 0)
+			Console.WriteLine($"Yeni soru: {Field(next[0], "Title")} — {Field(next[0], "Description")}   (cevap: dialog)");
 		return closed ? 0 : 1;
 	}
 }

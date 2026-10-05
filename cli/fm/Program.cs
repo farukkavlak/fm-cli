@@ -611,7 +611,7 @@ internal static partial class Program
 
 		if (!bar.Contains(page, StringComparer.OrdinalIgnoreCase)) return await Fm.Get("open", query.ToArray());
 
-		var pressed = await Fm.Get("press", ("text", page), ("name", "SIButton"), ("event", "OpenSubtab"));
+		var pressed = await Arriving("press", [("text", page), ("name", "SIButton"), ("event", "OpenSubtab")]);
 		return pressed.StartsWith("error", StringComparison.Ordinal) ? pressed : $"opened {tabName} › {siblings.First(s => s.Equals(page, StringComparison.OrdinalIgnoreCase))}";
 	}
 
@@ -764,6 +764,7 @@ internal static partial class Program
 			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
 			  match           maç gününü oyna: kadroyu gönder, maçı izle, maçtan çık; golleri ve sonucu bas
 			    --talk        takım konuşmalarında ilk (önerilen) cümleyi söyle; yoksa konuşmadan geçer
+			    --instant     maçı oynatma, yardımcılara bırak: oyun birkaç saniyede simüle eder
 			  dialog [cevap]  açık onay penceresini göster ya da cevapla
 			  talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin
 			  talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık
