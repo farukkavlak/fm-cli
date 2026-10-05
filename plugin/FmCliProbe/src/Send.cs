@@ -234,7 +234,7 @@ internal static class Send
 			+ $"data={(response.ResponseActionDataReferences == null ? "null" : "list")})";
 	}
 
-	private static System.Collections.Generic.Dictionary<string, SI.Core.TypedValue> Entries(
+	internal static System.Collections.Generic.Dictionary<string, SI.Core.TypedValue> Entries(
 		SI.Bindable.DynamicReference record)
 	{
 		// There is no name lookup without a span, so the record's own keys are named through the

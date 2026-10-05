@@ -994,6 +994,68 @@ aynı modül (`NewsActionHandlerModule`) işliyor; `SpeakToActionReference`'ın 
 §8.15'teki 31 girişli aksiyon kaydının ta kendisi. Toplantı ekranı açıldığında cevap butonları
 `SpeakToActionEventContext` olarak listelenmeli. Henüz canlı görülmedi.
 
+## 8.26 Kondisyon ve moral: veri tablonun görünümünde
+
+§8.21'den beri açık olan soru: kondisyon/moral neden ağaçta yok? Çünkü kadro ekranının açılış
+sayfası ("Overview") bir özet panosu; asıl tablo **"First Team"** alt sekmesinde ve tablo
+yalnızca **seçili görünümün** kolonlarını bağlıyor.
+
+"First Team"e basınca ağaç 4198 → ~11100 düğüm. Görünüm seçici `ViewDropdown` adlı bir
+`SIDropdown`, 14 seçenekli:
+
+```
+Selection Info · General Info · Attributes › · Contract · Transfer · Home-Grown Status ·
+Playing Time · Dynamics · Reports · Injuries · Risk Assessment · Stats › · International ·
+Development
+```
+
+| Görünüm | Satırda gelen |
+|---|---|
+| Selection Info | `Condition`, `Sharpness`, `Morale`, `PlayingTimeHappinessLevel`, `Goals`, `AverageRating`, son beş maç |
+| General Info | `Wage`, `AgreedPlayingTime`, `TransferValueRangeString`, `CoachBestRole`, `CoachBestPosition`, yıldızlar, sözleşme bitişi |
+| Dynamics | `Morale`, `MoraleString`, `HierarchyInfluenceCategoryString`, `SocialGroupString`, `PromisesCount`, `HierarchyOverallHappinessLevel` |
+
+Diğer görünümler seçilebiliyor (hepsi denendi, etiket ve ağaç boyutu değişti) ama satırları
+henüz okunmadı.
+
+**Açılır liste event taşımıyor.** Görünüm değiştirmek bir event göndermiyor, bağlı bir değere
+(`…BindingVariables0.selectedView`) yazıyor; o yüzden `/buttons`'ta görünmüyor. İki route:
+
+```
+/dropdowns[?text=<metin>]                          listeler, seçenekleri ve yazdıkları yolla
+/select?name=<liste adı>&choice=<seçenek>[&dry=1]  ya da ?ptr=<adres>&index=<n>
+```
+
+Seçim `SIDropdown.OnSelectionChangedInternal(int)` üzerinden — açık listede bir satıra
+tıklamanın vardığı yer. Seçenek adı kaydın `RowData` girişinin içinde; `ChildList` taşıyanlar
+alt menü (`Attributes ›`, `Stats ›`).
+
+**Etiketle adresleme.** Adresler ekranla birlikte öldüğü için `/press?text=<etiket>[&name=<ad>]`
+eklendi. Etiket tek bir kontrole uymuyorsa basmıyor, adayları listeliyor.
+
+**Satır birleştirme.** Tablo bir oyuncuyu hücrelere dağıtıyor: her hücre aynı `PersonReference`'ı
+bir iki alan için ayrı bağlıyor (`Morale` bir hücrede, `Condition` satırın kendisinde). `/squad`
+artık adı bağlı düğümün çevresindeki bütün değerleri topluyor; hangi alanların geleceğini isimle
+sormuyor, yerleşimin kendi değişkenlerini (`Is…`, `Can…`, küçük harfle başlayanlar) eliyor. Özet
+panosu tabloyla aynı anda bağlı kaldığı için aynı oyuncu iki listede çıkıyor; kayıtlar isimle
+birleştiriliyor.
+
+⚠ Satırı tanıtan alan görünüme göre değişiyor: çoğunda `PositionCombinedString`, Dynamics'te
+yalnızca `SquadNumberBlankIfInvalid`. İlk denemede Dynamics satırları bu yüzden hiç görünmedi.
+
+Doğrulama (her biri oyun yeniden başlatıldıktan sonra):
+
+| Deneme | Sonuç |
+|---|---|
+| `fm squad --fitness`, portal ekranından | 27 oyuncu, 4,8 sn |
+| `fm squad --morale`, portal ekranından | 27 oyuncu, 6,5 sn |
+| fitness → inbox → morale → düz kadro, üç tur | her turda 27 / 12 / 27 / 47 satır, aynı ilk satırlar |
+| `/select` geçersiz indeks, olmayan seçenek, `dry=1` | hata ya da değişiklik yok |
+| `/press?text=ZzYokZz` | `error: no control labelled …` |
+
+⚠ `Condition` iki oyuncuda `-1` (Talisca, Rodrigo Becão). Ne anlama geldiği doğrulanmadı;
+CLI "-" basıyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

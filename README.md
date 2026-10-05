@@ -21,7 +21,8 @@ Oyunu sıfırdan yazmıyoruz — gerçek FM26'nın içine bir BepInEx plugin'i e
 oyunun kendi veri katmanını (`SI.Bindable.Bindings`) ve olay sistemini CLI'a açıyoruz.
 Oyun arka planda açık kalır; ekran, fare, ekran görüntüsü yok.
 
-**Durum:** kadro, gelen kutusu, mesaj cevaplama ve zaman ilerletme çalışıyor.
+**Durum:** kadro (kondisyon ve moral dahil), gelen kutusu, mesaj cevaplama ve zaman ilerletme
+çalışıyor. Ekrandaki her buton ve açılır liste plugin üzerinden listelenip kullanılabiliyor.
 
 📄 Bütün teknik bulgular, API'ler ve kısıtlar: **[docs/FINDINGS.md](docs/FINDINGS.md)**
 📋 Yol haritası: **[PLAN.md](PLAN.md)**
@@ -44,6 +45,8 @@ fm              oturuma gir (oyun açıkken)
 
 continue        açık oyunda son kaydı yükle
 squad           kadroyu bas
+  --fitness     kondisyon ve maç formu, en yorgun önce
+  --morale      moral, hiyerarşi ve sosyal grup
 inbox           gelen kutusu
 next            zamanı ilerlet (bloke eden mesajları bildirir)
 status          bağlantı durumu

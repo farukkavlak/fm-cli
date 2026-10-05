@@ -20,7 +20,7 @@ internal static class Report
 	public static string Squad()
 	{
 		var players = new List<Dictionary<string, string>>();
-		var seen = new HashSet<string>();
+		var byName = new Dictionary<string, Dictionary<string, string>>();
 
 		foreach (var (path, node) in Walk())
 		{
@@ -30,17 +30,36 @@ internal static class Report
 
 			var fields = Fields(node);
 			if (!fields.TryGetValue("Name", out var name) || string.IsNullOrEmpty(name)) continue;
-			if (!fields.ContainsKey("PositionCombinedString")) continue;
-			if (!seen.Add(name)) continue;
+
+			// Which fields mark a row depends on the table's view: most carry the position, the
+			// dynamics view only the shirt number. A name alone is not enough, since staff and
+			// opponents are bound as named people too.
+			if (!fields.ContainsKey("PositionCombinedString") &&
+			    !fields.ContainsKey("SquadNumberBlankIfInvalid") &&
+			    !byName.ContainsKey(name)) continue;
 
 			// Both squads hang under the same tab container, so the path cannot tell them apart;
 			// the team the row list is bound to can.
 			var team = TeamOf(node);
 			if (team != null) fields["Team"] = team;
 
+			// A table spreads one player over many cells, each binding the same person for a
+			// field or two, so the rest of the row is gathered from around the named node.
+			if (node.Parent != null) Merge(fields, node.Parent);
+
 			var nation = Child(node, "Nation");
 			if (nation != null && Fields(nation).TryGetValue("Name", out var nationName))
 				fields["Nation"] = nationName;
+
+			// The same player can be bound by more than one list at once — the overview keeps
+			// its tiles while a table is up — and each knows different things about him.
+			if (byName.TryGetValue(name, out var known))
+			{
+				foreach (var (key, value) in fields) known.TryAdd(key, value);
+				continue;
+			}
+
+			byName[name] = fields;
 			players.Add(fields);
 		}
 
@@ -94,6 +113,63 @@ internal static class Report
 				return name;
 		}
 		return null;
+	}
+
+	/// <summary>
+	/// Adds the values bound anywhere under a row, keyed by the name the game gives them.
+	///
+	/// Which columns exist depends on the view the table is showing, so nothing is asked for by
+	/// name: whatever the row carries is taken, minus the layout's own bookkeeping, which is
+	/// recognisable by its spelling.
+	/// </summary>
+	private static void Merge(Dictionary<string, string> fields, IReadOnlyNode row)
+	{
+		var queue = new Queue<IReadOnlyNode>();
+		queue.Enqueue(row);
+		var seen = 0;
+
+		while (queue.Count > 0 && seen++ < 600)
+		{
+			var node = queue.Dequeue();
+			for (var c = node.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+
+			var name = node.Name;
+			if (string.IsNullOrEmpty(name)) continue;
+
+			// A formatted value sits one level down, under the name of what it formats.
+			if (name is "DisplayValue" or "PropertyValue") name = node.Parent?.Name;
+			if (!IsData(name) || fields.ContainsKey(name)) continue;
+
+			var text = Scalar(node);
+			if (!string.IsNullOrEmpty(text)) fields[name] = text;
+		}
+	}
+
+	private static bool IsData(string name)
+	{
+		if (string.IsNullOrEmpty(name) || !char.IsUpper(name[0])) return false;
+
+		foreach (var prefix in new[] { "Is", "Has", "Can", "Disable", "Use", "Dragged", "Highlight" })
+			if (name.StartsWith(prefix, StringComparison.Ordinal) && name.Length > prefix.Length && char.IsUpper(name[prefix.Length]))
+				return false;
+
+		return !name.EndsWith("Color", StringComparison.Ordinal) && !name.EndsWith("Index", StringComparison.Ordinal);
+	}
+
+	private static string Scalar(IReadOnlyNode node)
+	{
+		try
+		{
+			var value = node.Value;
+			if (value == null || value.IsNull) return null;
+
+			var type = value.DataType?.Name ?? "";
+			if (type.EndsWith("Reference", StringComparison.Ordinal) || type.StartsWith("List", StringComparison.Ordinal)
+			    || type is "GameDate" or "Color32") return null;
+
+			return Text.Clean(value.AsString());
+		}
+		catch { return null; }
 	}
 
 	private static IReadOnlyNode Child(IReadOnlyNode node, string name)

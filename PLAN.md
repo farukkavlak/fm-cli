@@ -19,30 +19,27 @@ Bütün adımların ortak aracı artık `/buttons` + `/press` (§8.25): ekrandak
 event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyruğa konarak
 "basılıyor". Yeni bir alan açmak = o ekrana git, `/buttons` ile bak, `/press` ile dene.
 
-1. **`fm squad --fitness` / `--morale`.** Projenin ilk hedef komutu ve en eski açık madde.
-   Kadro ekranının alt sekmeleri artık basılabiliyor: "Medical Centre", "Dynamics", "Training",
-   "First Team". Sıra: sekmeye bas → o ekranın bağladığı veriyi ağaçtan oku → `Report`'a şekil
-   ekle. Uyruk da çözüldü sayılır: `NationButton` üç harfli kodu metin olarak taşıyor.
-2. **`fm buttons` / `fm press` CLI'a çıksın**, ve mevcut `/newsaction` ile ekran açma kodu
+1. **`fm buttons` / `fm press` CLI'a çıksın**, ve mevcut `/newsaction` ile ekran açma kodu
    `/press` üzerine taşınsın. Elle kayıt kopyalayan tek yer `/newsaction`; oyunun kendi
    doldurucusu varken ona gerek kalmıyor.
-3. **Ekran haritası.** Statik `PanelID` avı yerine gezgin: her navigasyon butonuna basıp
+2. **Ekran haritası.** Statik `PanelID` avı yerine gezgin: her navigasyon butonuna basıp
    ekranın kontrollerini dök, sonucu `docs/reference/screens.txt` olarak sakla. Hangi komutun
    hangi ekrandan, hangi butonla yapıldığı tek dosyada olur.
-4. **Basın toplantısı ve oyuncu konuşmaları.** Bu kayıtta bekleyen toplantı yok, o yüzden canlı
+3. **Basın toplantısı ve oyuncu konuşmaları.** Bu kayıtta bekleyen toplantı yok, o yüzden canlı
    görülmedi. Cevaplar `SpeakToActionEvent` ile gidiyor ve bunu inbox'la aynı modül
    (`NewsActionHandlerModule`) işliyor. Toplantı açılınca cevap butonları `/buttons`'ta
    `SpeakToActionEventContext` olarak görünmeli; 4 bekleyen "Tasks" mesajı aynı yolun ilk
    denemesi olabilir.
-5. **`fm tactic`** — önce oku (`TacticReference`, 207 property), sonra yaz. Taktik ekranındaki
+4. **`fm tactic`** — önce oku (`TacticReference`, 207 property), sonra yaz. Taktik ekranındaki
    kontroller (`FMPitchPosition.Events`, `FMTacticsPanel.SelectionEvent`) da event listesi
    taşıyor, yani rol ve formasyon değişimi de basılabilir olmalı.
-6. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
-   3. adım bitince seri iş.
-7. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property). Geri alınamaz
+5. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
+   2. adım bitince seri iş. Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
+   Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
+6. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property). Geri alınamaz
    olduğu için `--yes` onayı ve `dry=1` ile birlikte.
-8. **Maç** — `EventFmxGoToMatch`, hızlı sonuç, maç sonrası özet.
-9. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
+7. **Maç** — `EventFmxGoToMatch`, hızlı sonuç, maç sonrası özet.
+8. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
 
 ---
 
@@ -67,6 +64,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] Veri bağlanana kadar bekleme (sabit gecikme yerine 20 sn'ye kadar yoklama)
 - [~] Ekran envanteri — 39 panel, yalnızca yüklenmiş olanlar (`panels.txt`)
 - [x] Ekrandaki kontrolleri event'leriyle listeleme (`/buttons`) ve basma (`/press`) (§8.25)
+- [x] Açılır listeleri seçenekleriyle listeleme (`/dropdowns`) ve seçme (`/select`) (§8.26)
+- [x] Kontrolü etiketle, listeyi adıyla adresleme — adresler ekran değişince bayatlıyor
 - [x] Simülasyon event'ini canlı gönderme — `EventToPlugin`, oyunun kendi doldurucusuyla (§8.25)
 - [ ] Ekran açmadan tek property canlandırma — kanal açılıyor, düğüm yaratılamıyor (§8.21)
 - [ ] FM27'ye taşıma: sürüme özel her şey tek config dosyasında
@@ -93,8 +92,10 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 - [x] Kadro canlandı — isim, pozisyon, yaş, uyruk, ortalama rating (§8.16)
 - [x] `fm squad` — kadroyu tablo olarak bas
-- [ ] `fm squad --fitness` — kondisyon/yorgunluk (kadro ekranı bağlamıyor; aday `AddColumnEvent` / `SetPresetEvent`)
-- [ ] `fm squad --morale` — moral (aynı engel)
+- [x] `fm squad --fitness` — kondisyon ve maç formu, "Selection Info" görünümünden (§8.26)
+- [x] `fm squad --morale` — moral, hiyerarşi, sosyal grup, "Dynamics" görünümünden (§8.26)
+- [~] Kadro tablosunun diğer görünümleri — veri `--json`'da geliyor, tablo komutu yok: maaş,
+      sözleşme, piyasa değeri, oynama süresi, sakatlık riski (§8.26)
 - [~] Uyruk — `Nation` düğümü çocuksuz (§8.21), ama `NationButton` üç harfli kodu taşıyor; `fm squad`'a eklenmedi
 - [ ] `fm player <isim>` — oyuncu kartı (öznitelikler, sözleşme, form)
 - [ ] Öznitelikler (teknik / zihinsel / fiziksel)
@@ -349,11 +350,19 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   "Unread (0)". Tek gözlem: tekrarı yok çünkü işlem bir kez yapılabiliyor.
 - **Plan ve bulgular ayrıldı:** sıralı iş listesi burada, `FINDINGS.md` §9 buraya yönleniyor.
 
+- **`fm squad --fitness` ve `--morale` çıktı** — en eski açık madde. Veri kadro özetinde
+  değil, "First Team" tablosunun görünümlerindeymiş; görünüm seçici event taşımayan bir açılır
+  liste olduğu için `/dropdowns` + `/select` eklendi. Soğuk başlangıçtan 5-7 sn; fitness, inbox,
+  morale, düz kadro sırasıyla üç tur, hepsi aynı sonuç.
+
 **Kayıplar / engeller**
 
 - **Basın toplantısı görülmedi** — kayıtta bekleyen yok. Sırada 4. adıma indi.
-- **Kontrol adresleri ekran değişince değişiyor.** `/press` adresi her seferinde yeniden arıyor,
-  yani bayat adres hata veriyor, çökme yok; ama CLI adresi saklayamaz, etikete göre bulmalı.
+- **Kontrol adresleri ekran değişince değişiyor.** Çözüldü: `/press?text=` ve
+  `/select?name=&choice=` etiketle buluyor; etiket birden çok kontrole uyarsa reddediyor.
+- **Test tıklamaları kayda yazılmadı.** Oyun kaydedilmeden üç kez yeniden başlatıldı; "okundu
+  işaretle" dahil hiçbir değişiklik kalıcı değil.
+- **Kondisyon bazı oyuncularda -1** (Talisca, Becão); CLI "-" basıyor, anlamı doğrulanmadı.
 - **Buton metinlerinde markup kalıyor** (`<link="0"><style="Norml">…`); `Text.Clean` bunu
   temizlemiyor.
 

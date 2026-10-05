@@ -31,7 +31,7 @@ internal static class Program
 		{
 			return command switch
 			{
-				"squad" => await Squad(json),
+				"squad" => await Squad(json, args),
 				"inbox" => await Inbox(json),
 				"next" => await Next(),
 				"status" => await Status(),
@@ -64,13 +64,16 @@ internal static class Program
 
 	private static async Task<int> Continue() => await Launcher.LoadSave(Fm) ? 0 : 69;
 
-	private static async Task<int> Squad(bool json)
+	private static async Task<int> Squad(bool json, string[] args)
 	{
 		if (!await Fm.InGame())
 		{
 			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
 			return 69;
 		}
+
+		if (args.Contains("--fitness")) return await SquadFitness(json);
+		if (args.Contains("--morale")) return await SquadMorale(json);
 
 		var squad = await Bound("squad", "SquadScreen");
 
@@ -97,6 +100,116 @@ internal static class Program
 		Table.Write(new[] { "OYUNCU", "POZİSYON", "YAŞ", "TAKIM" }, rows);
 		return 0;
 	}
+
+	private static async Task<int> SquadFitness(bool json)
+	{
+		var squad = await SquadView("Selection Info", "Condition");
+		if (json)
+		{
+			Console.WriteLine(squad.ToString());
+			return 0;
+		}
+
+		// Most tired first: that is the question the column gets looked at for.
+		var rows = squad.EnumerateArray()
+			.Where(p => Field(p, "Condition") != "")
+			.OrderBy(p => Number(p, "Condition"))
+			.ThenBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
+			.Select(p => new[]
+			{
+				Field(p, "Name"),
+				Field(p, "PositionCombinedString"),
+				Percent(p, "Condition"),
+				Percent(p, "Sharpness"),
+			})
+			.ToList();
+
+		Table.Write(new[] { "OYUNCU", "POZİSYON", "KONDİSYON", "MAÇ FORMU" }, rows);
+		return 0;
+	}
+
+	private static async Task<int> SquadMorale(bool json)
+	{
+		var squad = await SquadView("Dynamics", "MoraleString");
+		if (json)
+		{
+			Console.WriteLine(squad.ToString());
+			return 0;
+		}
+
+		var rows = squad.EnumerateArray()
+			.Where(p => Field(p, "MoraleString") != "")
+			.OrderBy(p => Number(p, "Morale"))
+			.ThenBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
+			.Select(p => new[]
+			{
+				Field(p, "Name"),
+				Field(p, "MoraleString"),
+				Field(p, "HierarchyInfluenceCategoryString"),
+				Field(p, "SocialGroupString").Trim('(', ')', ' '),
+			})
+			.ToList();
+
+		Table.Write(new[] { "OYUNCU", "MORAL", "HİYERARŞİ", "GRUP" }, rows);
+		return 0;
+	}
+
+	/// <summary>
+	/// The first-team table under one of its views, which is where a column like condition
+	/// lives: the table binds only the columns of the view it is showing.
+	///
+	/// Choosing the view is tried first, since the table is often already up. If it is not, the
+	/// squad screen is opened and its First Team tab pressed, the way a user would get there.
+	/// </summary>
+	private static async Task<JsonElement> SquadView(string view, string marker)
+	{
+		var squad = await Fm.GetJson("squad");
+		if (Carries(squad, marker)) return squad;
+
+		if (!await Choose(view))
+		{
+			await Bound("squad", "SquadScreen");
+
+			if (!await Until(async () => Sent(await Fm.Get("press", ("text", "First Team"), ("name", "SIButton")))))
+				throw new FmError("Kadro ekranında 'First Team' sekmesi bulunamadı.");
+
+			if (!await Until(() => Choose(view)))
+				throw new FmError($"Kadro tablosunda '{view}' görünümü bulunamadı.");
+		}
+
+		await Until(async () => Carries(squad = await Fm.GetJson("squad"), marker));
+		if (!Carries(squad, marker))
+			throw new FmError($"'{view}' görünümü seçildi ama '{marker}' verisi gelmedi.");
+
+		return squad;
+
+		async Task<bool> Choose(string choice) =>
+			Sent(await Fm.Get("select", ("name", "ViewDropdown"), ("choice", choice)));
+
+		static bool Sent(string answer) => !answer.StartsWith("error", StringComparison.Ordinal);
+	}
+
+	private static bool Carries(JsonElement rows, string field) =>
+		rows.EnumerateArray().Any(row => row.TryGetProperty(field, out _));
+
+	/// <summary>Polls until a condition holds, since how long the game takes is not ours to know.</summary>
+	private static async Task<bool> Until(Func<Task<bool>> condition)
+	{
+		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+		while (DateTime.UtcNow < deadline)
+		{
+			if (await condition()) return true;
+			await Task.Delay(TimeSpan.FromSeconds(1.5));
+		}
+		return false;
+	}
+
+	/// <summary>The game reports -1 where it has no value to show, which is not a percentage.</summary>
+	private static string Percent(JsonElement element, string name) =>
+		Number(element, name) is >= 0 and <= 100 and var value ? $"{value}%" : "-";
+
+	private static int Number(JsonElement element, string name) =>
+		int.TryParse(Field(element, name), out var number) ? number : int.MaxValue;
 
 	/// <summary>
 	/// Reads a shaped endpoint, opening the screen that binds it if nothing is there yet.
@@ -223,6 +336,8 @@ internal static class Program
 
 			  continue        açık oyunda son kaydı yükle
 			  squad           kadroyu bas
+			    --fitness     kondisyon ve maç formu, en yorgun önce
+			    --morale      moral, hiyerarşi ve sosyal grup
 			  inbox           gelen kutusu
 			  next            zamanı ilerlet
 			  status          bağlantı durumu

@@ -45,6 +45,8 @@ internal static class FmApi
 		"bindprop" => Materialise.Property(q["path"], q["name"]),
 		"buttons" => Buttons.Catalog(q),
 		"press" => Buttons.Press(q),
+		"dropdowns" => Buttons.Dropdowns(q),
+		"select" => Buttons.Select(q),
 		_ => null, // 404
 	};
 

@@ -62,12 +62,8 @@ internal static class Buttons
 	/// </summary>
 	public static string Press(NameValueCollection q)
 	{
-		var raw = q["ptr"];
-		if (string.IsNullOrEmpty(raw)) return "error: ?ptr=<0x…> required (see /buttons)";
-		if (!TryPointer(raw, out var pointer)) return $"error: '{raw}' is not a pointer";
-
-		var control = Controls(out _).FirstOrDefault(c => c.Element.Pointer == pointer);
-		if (control == null) return $"error: no control at {raw} (the screen may have changed)";
+		var control = Find(q, out var error);
+		if (control == null) return error;
 
 		var listName = q["list"] ?? control.Lists[0].Name;
 		var list = control.Lists.FirstOrDefault(l => string.Equals(l.Name, listName, StringComparison.OrdinalIgnoreCase));
@@ -83,6 +79,190 @@ internal static class Buttons
 		return $"queued {list.Name}:\n{described}";
 	}
 
+	/// <summary>
+	/// The dropdowns on the loaded screens, with their choices.
+	///
+	/// A dropdown that only changes what a screen shows — a table's view, a filter — carries no
+	/// event list, because choosing writes straight to a bound value. So it never appears among
+	/// the controls above and is listed here by what it offers instead.
+	/// </summary>
+	public static string Dropdowns(NameValueCollection q)
+	{
+		var filter = q["text"];
+		var paths = KeyPaths();
+		var sb = new StringBuilder();
+		var shown = 0;
+
+		foreach (var dropdown in AllDropdowns())
+		{
+			string block;
+			try { block = Describe(dropdown, paths); }
+			catch (Exception ex) { block = $"0x{dropdown.Pointer.ToInt64():x}  <threw {ex.GetType().Name}>\n"; }
+
+			if (!string.IsNullOrEmpty(filter) && block.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0) continue;
+			sb.Append(block);
+			shown++;
+		}
+
+		sb.AppendLine($"-- {shown} dropdown(s)");
+		return sb.ToString();
+	}
+
+	/// <summary>
+	/// Choose from a dropdown by index, through the handler a click on the open list reaches,
+	/// so the bound value and any selection events follow as they would for a user.
+	/// </summary>
+	public static string Select(NameValueCollection q)
+	{
+		SIDropdown dropdown;
+		var raw = q["ptr"];
+		var name = q["name"];
+		if (!string.IsNullOrEmpty(raw))
+		{
+			if (!TryPointer(raw, out var pointer)) return $"error: '{raw}' is not a pointer";
+			dropdown = AllDropdowns().FirstOrDefault(d => d.Pointer == pointer);
+			if (dropdown == null) return $"error: no dropdown at {raw} (the screen may have changed)";
+		}
+		else if (!string.IsNullOrEmpty(name))
+		{
+			var named = AllDropdowns().Where(d => string.Equals(NameOf(d), name, StringComparison.OrdinalIgnoreCase)).ToList();
+			if (named.Count != 1) return $"error: {named.Count} dropdown(s) named '{name}' on the loaded screens";
+			dropdown = named[0];
+		}
+		else return "error: ?ptr=<0x…> or ?name=<dropdown> required (see /dropdowns)";
+
+		var choices = dropdown.m_choices;
+		var count = choices?.Count ?? 0;
+
+		int index;
+		var wanted = q["choice"];
+		if (!string.IsNullOrEmpty(wanted))
+		{
+			index = -1;
+			for (var i = 0; i < count; i++)
+			{
+				if (!string.Equals(Choice(choices[i]), wanted, StringComparison.OrdinalIgnoreCase)) continue;
+				index = i;
+				break;
+			}
+			if (index < 0) return $"error: no choice '{wanted}' in this dropdown (see /dropdowns)";
+		}
+		else if (!int.TryParse(q["index"], out index)) return "error: ?index=<n> or ?choice=<text> required";
+
+		if (index < 0 || index >= count) return $"error: index {index} is outside 0..{count - 1}";
+
+		var before = dropdown.SelectedIndex;
+		var described = $"'{Choice(choices[index])}' (index {index}, was {before})";
+		if (q["dry"] == "1") return $"dry run, NOT selected: {described}";
+
+		dropdown.OnSelectionChangedInternal(index);
+		return $"selected {described}, now {dropdown.SelectedIndex}";
+	}
+
+	private static IEnumerable<SIDropdown> AllDropdowns()
+	{
+		foreach (var element in Elements())
+		{
+			SIDropdown dropdown;
+			try { dropdown = element.TryCast<SIDropdown>(); }
+			catch { continue; }
+			if (dropdown != null) yield return dropdown;
+		}
+	}
+
+	private static string Describe(SIDropdown dropdown, Dictionary<ulong, string> paths)
+	{
+		var sb = new StringBuilder();
+		var choices = dropdown.m_choices;
+		var count = choices?.Count ?? 0;
+		var selected = dropdown.SelectedIndex;
+
+		string bound;
+		try
+		{
+			var key = dropdown.m_selectionValueBindingKey.m_key;
+			bound = paths.TryGetValue(key, out var path) ? path : $"key {key}";
+		}
+		catch { bound = "?"; }
+
+		string enabled;
+		try { enabled = dropdown.enabledInHierarchy ? "" : "  DISABLED"; } catch { enabled = ""; }
+
+		sb.AppendLine($"0x{dropdown.Pointer.ToInt64():x}  \"{LabelOf(dropdown)}\"  name={dropdown.name}  {count} choice(s), selected {selected}{enabled}");
+		sb.AppendLine($"      writes {bound}");
+		for (var i = 0; i < count && i < 40; i++)
+			sb.AppendLine($"      {(i == selected ? '*' : ' ')} {i,2}  {Choice(choices[i])}");
+		return sb.ToString();
+	}
+
+	/// <summary>A choice is usually a record with its text in one of a few well-known entries.</summary>
+	private static string Choice(SI.Core.TypedValue choice)
+	{
+		if (choice == null || choice.IsNull) return "<null>";
+
+		var record = choice.Get()?.TryCast<DynamicReference>();
+		if (record == null) return Text.Clean(choice.AsString());
+
+		var entries = Send.Entries(record);
+
+		// A menu row wraps what it shows in RowData and keeps its own flags beside it.
+		if (entries.TryGetValue("RowData", out var row) && row != null && !row.IsNull)
+		{
+			var inner = Choice(row);
+			return entries.ContainsKey("ChildList") ? inner + " ›" : inner;
+		}
+
+		foreach (var name in new[] { "DisplayValue", "Text", "Name", "PanelTitle", "ActionTitle", "Title" })
+		{
+			if (entries.TryGetValue(name, out var value) && value != null && !value.IsNull)
+				return Text.Clean(value.AsString());
+		}
+		return "{" + string.Join(", ", entries.Keys.Take(8)) + "}";
+	}
+
+	/// <summary>
+	/// The control a request means: by pointer, or by the label a user would read. A pointer
+	/// does not outlive its screen, so anything that runs unattended addresses by label, and a
+	/// label that fits more than one control is refused rather than guessed at.
+	/// </summary>
+	private static Control Find(NameValueCollection q, out string error)
+	{
+		error = null;
+		var controls = Controls(out _).ToList();
+
+		var raw = q["ptr"];
+		if (!string.IsNullOrEmpty(raw))
+		{
+			if (!TryPointer(raw, out var pointer)) { error = $"error: '{raw}' is not a pointer"; return null; }
+
+			var at = controls.FirstOrDefault(c => c.Element.Pointer == pointer);
+			if (at == null) error = $"error: no control at {raw} (the screen may have changed)";
+			return at;
+		}
+
+		var text = q["text"];
+		if (string.IsNullOrEmpty(text)) { error = "error: ?ptr=<0x…> or ?text=<label> required (see /buttons)"; return null; }
+
+		var name = q["name"];
+		var matches = controls
+			.Where(c => string.Equals(c.Label, text, StringComparison.OrdinalIgnoreCase))
+			.Where(c => string.IsNullOrEmpty(name) || string.Equals(NameOf(c.Element), name, StringComparison.OrdinalIgnoreCase))
+			.ToList();
+
+		if (matches.Count == 1) return matches[0];
+
+		error = matches.Count == 0
+			? $"error: no control labelled '{text}' on the loaded screens"
+			: $"error: {matches.Count} controls are labelled '{text}'; narrow it with &name=\n"
+			  + string.Join("\n", matches.Select(c => $"  0x{c.Element.Pointer.ToInt64():x}  {Short(c.TypeName)}  name={NameOf(c.Element)}"));
+		return null;
+	}
+
+	private static string NameOf(VisualElement element)
+	{
+		try { return element.name ?? ""; } catch { return ""; }
+	}
+
 	// ------------------------------------------------------------------ walking
 
 	private sealed class Control
@@ -96,7 +276,26 @@ internal static class Buttons
 	private static IEnumerable<Control> Controls(out int walked)
 	{
 		var found = new List<Control>();
-		walked = 0;
+		var elements = Elements();
+		walked = elements.Count;
+
+		foreach (var element in elements)
+		{
+			try
+			{
+				var control = AsControl(element);
+				if (control != null) found.Add(control);
+			}
+			catch { }
+		}
+
+		return found;
+	}
+
+	/// <summary>Every element of every loaded document, in tree order.</summary>
+	private static List<VisualElement> Elements()
+	{
+		var elements = new List<VisualElement>();
 
 		foreach (var o in Resources.FindObjectsOfTypeAll(Il2CppType.Of<UIDocument>()))
 		{
@@ -107,16 +306,13 @@ internal static class Buttons
 
 			var stack = new Stack<VisualElement>();
 			stack.Push(root);
-			while (stack.Count > 0 && walked < MaxElements)
+			while (stack.Count > 0 && elements.Count < MaxElements)
 			{
 				var element = stack.Pop();
-				walked++;
+				elements.Add(element);
 
 				try
 				{
-					var control = AsControl(element);
-					if (control != null) found.Add(control);
-
 					var hierarchy = element.hierarchy;
 					for (var i = hierarchy.childCount - 1; i >= 0; i--) stack.Push(hierarchy.ElementAt(i));
 				}
@@ -124,7 +320,7 @@ internal static class Buttons
 			}
 		}
 
-		return found;
+		return elements;
 	}
 
 	private static Control AsControl(VisualElement element)

@@ -50,8 +50,13 @@ alanlarının hangi binding yolundan geldiğini taşıyor (`docs/FINDINGS.md` §
 
 ```
 /buttons[?type=<metin>][&text=<etiket>]      yüklü ekranın kontrolleri, event'leriyle
-/press?ptr=<adres>[&list=<ad>][&dry=1]       kontrolün event listesini kuyruğa koy
+/press?text=<etiket>[&name=<ad>][&dry=1]     kontrolün event listesini kuyruğa koy (ya da ?ptr=)
+/dropdowns[?text=<metin>]                    açılır listeler, seçenekleriyle
+/select?name=<ad>&choice=<seçenek>[&dry=1]   listeden seç (ya da ?ptr=&index=)
 ```
+
+Açılır listeler ayrı, çünkü bir görünüm ya da filtre seçmek event göndermiyor, bağlı bir
+değere yazıyor (§8.26).
 
 Payload'ı oyun dolduruyor. `/send` hâlâ ekranı olmayan ya da ekranına gitmek istemediğimiz
 event'ler için duruyor.
