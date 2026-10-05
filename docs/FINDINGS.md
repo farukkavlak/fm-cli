@@ -1875,6 +1875,16 @@ satır verdi; boş mu, yoksa bilgi mi yetmiyor, bakılmadı.
 Sınırlar: yalnızca ekrandaki satırlar bağlı (21), liste kaydırılamıyor; isimle arama ("Edit
 Search", `EventFmxFilterStoreFilter`) yok; kolon başlıkları oyunun alan adları.
 
+### İsimle arama: yarım kaldı
+
+Üst çubuktaki "Search" butonu (`dashboard-hud-search-button`) arama panelini açıyor. Panel
+`game.Search`'i bağlıyor (`SearchReference`: `Name`, `Results`, `PersonList`, `Clubs`,
+`Competitions`…, `SearchIsFinished`) ve metni `SearchBox` adlı bir elemandan alıyor
+(`OnSubmitEvents` → `OpenPanel`, `SearchResultClicked`). `SearchValueChangesEvent { Value }`
+elle gönderildi: hata yok, `Search.Name` boş kaldı, sonuç gelmedi. Metnin kutuya **yazılması**
+gerekiyor gibi; eklentide metin kutusuna yazan bir yol yok. Bu, başka kulübün oyuncusunu açmanın
+(`fm player`), "Edit Search"ün ve "farklı kaydet"in ortak eksiği.
+
 ## 8.39 MCP: komutlar araç olarak
 
 `fm mcp`, Model Context Protocol'ün stdio taşımasını konuşuyor (satır başına bir JSON-RPC

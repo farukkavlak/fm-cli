@@ -71,6 +71,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [ ] Ekran açmadan tek property canlandırma — kanal açılıyor, düğüm yaratılamıyor (§8.21)
 - [x] Radyo gruplarını listeleme ve seçme — `/dropdowns` + `/select` (§8.30)
 - [x] Etiketin etrafındaki eleman ağacı — `/elements` (§8.30)
+- [ ] Metin kutusuna yazma — arama (`SearchBox`), "Edit Search" ve "farklı kaydet" bunu bekliyor (§8.38)
 - [ ] FM27'ye taşıma: sürüme özel her şey tek config dosyasında
 
 ---
@@ -410,7 +411,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
    MCP aracında ise varsayılan instant. Aynı olsun mu?
 3. MCP araçları komutlarla bire bir (28 araç, Türkçe düz metin). Araç sayısı / dil / JSON çıktı?
 4. Konuşmalarda varsayılan: `fm match --talk` ilk cümleyi söylüyor; bu her zaman önerilen değil.
-5. Sırada ne olsun: maç içi yönetimin kalanı mı, taktikte rol/diziliş mi, transfer mi?
+5. Sırada ne olsun: maç içi yönetimin kalanı mı, taktikte diziliş/talimat mı, transfer mi?
+   Transfer ve arama için önce "metin kutusuna yazma" gerekiyor (§8.38).
 
 ### 2026-10-05
 
