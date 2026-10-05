@@ -929,33 +929,8 @@ Yani bir alan çözülemezse event **hiç gönderilmiyor** — yarım payload'la
 
 ## 9. Sıradaki adımlar
 
-- [x] FM26 kurulumu, IL2CPP doğrulaması
-- [x] Il2CppDumper ile tam dump
-- [x] BepInEx arm64'te ayağa kaldırma — **çalışıyor**, 2 plugin yüklendi
-- [x] Probe plugin yazımı ve kurulumu
-- [x] Probe v1 — singleton'lar + Bindings instance'ı bulundu
-- [x] Probe v2 — ağaç gezildi, string path çalıştı, canlı veri okundu
-- [x] Kayıt yükleme — `LoadSelectedGameEvent` ile CLI'dan kariyer açılıyor
-- [x] Kadro listesi bulundu: `GameStateCache.Manager.Club.MainTeam.Players.ListLoader0.<0..1A>`
-      (27 oyuncu, her biri `PersonReference`)
-- [x] Path adresleme — key hesaplayarak çözüldü (§8.2b), span'a gerek kalmadı
-- [x] **Veri modelinin tamamı** — 160 tip / 6571 property, isimli (§8.11)
-- [x] **Event kataloğu** — 275 aksiyon tipi, alanlarıyla (§8.11)
-- [x] **Canlandırma mekanizması** — event gönder, veri ağaçta belirir (§8.13)
-- [x] **Genel event göndericisi** — `/send?event=...` (§8.14)
-- [x] `DynamicReference` sözlüğünü gez — `/dyn`, aksiyon kimliği orada (§8.15)
-- [x] **Mesaja cevap ver** — `/newsaction`, `fm next` artık ilerliyor (§8.15)
-- [x] **Oyuncu özelliklerini canlandır** — `OpenSubtabEvent` + `SquadScreen` (§8.16)
-- [ ] Kondisyon/moral gibi kolonları açtır — ekranın görünümünü değiştirmek gerekiyor Ağaç hâlâ tembel: oyuncu düğümünde sadece `UniqueId`
-      var. `Bind(key)` var olmayan özelliği **oluşturmuyor**; denenen isimlerin
-      (`Name`, `Condition`, `Age`, `Fitness`, `FullName`...) hiçbiri yok.
-      Demek ki canlandırmayı yapan şey `BindingBag.Queue(id, element, BindingPath, cb)` —
-      bir `IBindableElement` üzerinden. Sıradaki deneme: Squad ekranını event/panel ile açtırmak.
-- [ ] Veri katmanı: path → TypedValue sarmalayıcı, referans gezinme, lazy bind
-- [x] Plugin içinde HTTP server (v0.2.0: /health /tree /get /exists /props)
-- [ ] `fm-cli` komut katmanı
-- [ ] MCP server
-- [ ] Ses
+Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
+("Sıradaki işler" ve "Günlük"). Bu dosya yalnızca bulguları taşıyor.
 
 ---
 

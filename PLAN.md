@@ -1,7 +1,43 @@
 # fm-cli — Yol Haritası
 
 > FM26'da yapılabilen her şeyi CLI komutuna çevirme listesi.
-> Durum: `[x]` çalışıyor · `[~]` kısmen · `[ ]` yapılacak · `[?]` yapılabilirliği belirsiz
+> Durum: `[x]` çalışıyor · `[~]` kısmen · `[k]` katalogda var, canlı denenmedi · `[ ]` yapılacak ·
+> `[?]` yapılabilirliği belirsiz
+
+`[k]` şu demek: verisi ve event'i metadata'dan çıkarıldı (`docs/reference/COOKBOOK.md`), yani
+keşif bitti, geriye canlı doğrulama ve komutu yazmak kaldı. İşaretsiz `[ ]` ise katalogda henüz
+aranmadı demek, yok demek değil.
+
+---
+
+## Sıradaki işler (2026-10-05)
+
+Sıra, "en çok şeyin önünü açan önce" mantığıyla. Her adım bitince buradan silinip aşağıdaki
+ilgili bölümde `[x]` olur, günlüğe bir satır düşülür.
+
+1. **Simülasyon katmanını canlı doğrula — basın toplantısı.** `EventToPlugin` şimdiye kadar
+   yalnızca `dry=1` ile kuruldu, hiç gönderilmedi. 680 event'in tamamı bu taşıyıcıdan geçiyor,
+   yani yazma tarafının geri kalanı buna bağlı. Basın toplantısı en az bilinmeyenli aday: inbox
+   ile aynı şekil (oturum referansı + seçenekler + cevap event'i, §8.23).
+   Bekleyen toplantı yoksa aynı doğrulama oyuncu konuşmasıyla
+   (`EventFmxConversationReplySelected`) yapılır.
+2. **`fm squad --fitness` / `--morale`.** Projenin ilk hedef komutu ve en eski açık madde.
+   Yeni aday: `events.txt`'te `AddColumnEvent { ColumnID }` ve `SetPresetEvent { PresetIndexKey }`
+   var; kadro görünümüne kolon ekletmek ya da hazır görünüme geçmek kondisyon/morali ağaca
+   sokabilir. `/bindprop` yolu (§8.21) hâlâ yarım, ona dönmüyoruz.
+3. **Tam ekran envanteri.** `panels.txt` 39 panel tutuyor çünkü paneller talep üzerine
+   yükleniyor. Lig tablosu, fikstür, finans, antrenman ekranlarının `PanelID` adları lazım;
+   canlı dürtmeyle değil, statik olarak (asset/metadata) toplu çıkarılacak.
+4. **`fm tactic`** — önce oku (`TacticReference`, 207 property), sonra yaz (`ModifyTacticEvent`,
+   formasyon → mentalite → rol → talimat sırasıyla). Enum'ların hepsi elde.
+5. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
+   "Ekranı isimle aç + şekle göre oku" deseni kanıtlı (§8.16, §8.22); 3. adım bitince bunlar
+   seri iş.
+6. **Oyuncu konuşmaları** — 1. adımdaki desenin `ConversationEditSessionReference` ile tekrarı.
+7. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property) + `ActionID`
+   aksiyonları. Geri alınamaz olduğu için `--yes` onayı ve `dry=1` ile birlikte.
+8. **Maç** — `EventFmxGoToMatch`, hızlı sonuç, maç sonrası özet.
+9. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
 
 ---
 
@@ -18,6 +54,15 @@
 - [x] Oyunu gizli başlatma — Dock'ta yok, ekranda yok (`fm start`, §8.19)
 - [x] Plugin ↔ CLI protokolü: JSON çıktı (`--json`)
 - [x] Hata yönetimi: oyun kapalıysa/yükleniyorsa anlamlı mesaj
+- [x] Veri modeli kataloğu — 931 referans tipi, 14504 property (`data-model.txt`, §8.11)
+- [x] Aksiyon kataloğu — 275 UI event, 680 `InteropEventIDs`, 225 `ActionID`, 2160 enum (§8.23)
+- [x] Genel event göndericisi `/send` — referans, enum, `TypedValue`, `PanelID` alanları isimle (§8.24)
+- [x] Kuru çalıştırma (`dry=1`) ve çözülemeyen alanda göndermeme (§8.24)
+- [x] Ekranı isimle açma; her komut kendi ekranını geri getiriyor (§8.16, §8.22)
+- [x] Veri bağlanana kadar bekleme (sabit gecikme yerine 20 sn'ye kadar yoklama)
+- [~] Ekran envanteri — 39 panel, yalnızca yüklenmiş olanlar (`panels.txt`)
+- [ ] `EventToPlugin` ile simülasyon event'ini canlı gönderme (yalnızca `dry=1` denendi)
+- [ ] Ekran açmadan tek property canlandırma — kanal açılıyor, düğüm yaratılamıyor (§8.21)
 - [ ] FM27'ye taşıma: sürüme özel her şey tek config dosyasında
 
 ---
@@ -42,8 +87,9 @@
 
 - [x] Kadro canlandı — isim, pozisyon, yaş, uyruk, ortalama rating (§8.16)
 - [x] `fm squad` — kadroyu tablo olarak bas
-- [ ] `fm squad --fitness` — kondisyon/yorgunluk
-- [ ] `fm squad --morale` — moral
+- [ ] `fm squad --fitness` — kondisyon/yorgunluk (kadro ekranı bağlamıyor; aday `AddColumnEvent` / `SetPresetEvent`)
+- [ ] `fm squad --morale` — moral (aynı engel)
+- [ ] Uyruk adı — `Nation` düğümü çocuksuz, ekran yalnızca bayrak görseli kullanıyor (§8.21)
 - [ ] `fm player <isim>` — oyuncu kartı (öznitelikler, sözleşme, form)
 - [ ] Öznitelikler (teknik / zihinsel / fiziksel)
 - [ ] Gizli öznitelikler (scout görüşü kadarıyla)
@@ -62,52 +108,60 @@
 
 ## 3. Taktik
 
-- [ ] Mevcut taktiği göster (`fm tactic`)
-- [ ] Formasyon değiştir
-- [ ] **In Possession / Out of Possession** ayrı şekiller (FM26 yeniliği)
-- [ ] Oyuncu rolleri (Inverted Full-Back, Wide Centre-Back dahil)
-- [ ] Takım talimatları
-- [ ] Taktik stilleri (Low Block dahil)
-- [ ] İlk 11 seç / oyuncu değiştir
+> Katalog: COOKBOOK §1. Yazma tarafının ana event'i `ModifyTacticEvent`.
+
+- [k] Mevcut taktiği göster (`fm tactic`) — `TacticReference`, 207 property
+- [k] Formasyon değiştir — `Formation` enum'u, 72 üye
+- [k] **In Possession / Out of Possession** ayrı şekiller — aynı event, `IsInPossession` bayrağı
+- [k] Oyuncu rolleri — 57 topla + 46 topsuz rol; değerler bit maskesi
+- [k] Oyuncu talimatları — `PlayerInstruction`, 36 üye
+- [k] Takım talimatları — 33 eksen, 14 faz (`TeamInstructionPhaseID`)
+- [k] Mentalite (8) ve taktik stilleri (13)
+- [k] İlk 11 seç / oyuncu değiştir — `TacticTeamSelectionDropdownEvent`
 - [ ] Yedek kulübesi
 - [ ] Duran top düzenleri (korner, faul, penaltı sırası)
 - [ ] Kaptan / yardımcı kaptan
-- [ ] Taktik kaydet / yükle / kopyala
-- [ ] Rakibe göre taktik önerisi
+- [k] Taktik kaydet / yükle / kopyala — `ModifyTacticOption`, `EventFmxDuplicateTactic`, `EventFmxSetPresetTactic`
+- [k] Rakip talimatları — `EventFmxOppositionInstructionsApplyAdvice` / `Clear`
 - [ ] Taktik akıcılığı (familiarity)
 
 ---
 
 ## 4. Antrenman
 
-- [ ] Haftalık antrenman programı göster
+> Katalog: COOKBOOK §5.
+
+- [k] Haftalık antrenman programı göster — `CustomTrainingScheduleReference`, `DailyScheduleReference`
 - [ ] Antrenman programı değiştir
 - [ ] Maç hazırlığı odağı
-- [ ] Bireysel antrenman (oyuncu bazlı)
-- [ ] Pozisyon öğretme
+- [k] Bireysel antrenman odağı — `EventFmxPlayerTrainingFocusChanged` + `…ConfirmTrainingFocusChanges`
+- [k] Pozisyon / hareket öğretme — `PersonTrainingNewPosition`, `PersonTrainingNewPreferredMove`
 - [ ] Mentor / mentee ilişkileri
-- [ ] **Antrenman raporları** (form + medikal + antrenör geri bildirimi — FM26'da genişletildi)
-- [ ] Yoğunluk ayarı
-- [ ] Dinlenme günleri
+- [k] **Antrenman raporları** — `PersonRequestTrainingReport`
+- [k] Yoğunluk ayarı — `EventFmxPlayerTrainingIntensityLevelChanged`
+- [k] Dinlenme — `PersonRestTrainingSchedule` / `PersonCancelRestTrainingSchedule`
 - [ ] Gençlik antrenmanı
 
 ---
 
 ## 5. Transfer ve sözleşme
 
+> Katalog: COOKBOOK §2. Pazarlığın tamamı `TransferOfferEditSessionReference` (99 property).
+
 - [ ] Transfer listem (`fm transfers list`)
 - [ ] Oyuncu ara (filtreli)
-- [ ] Teklif ver
-- [ ] Gelen teklifleri gör / kabul / reddet / pazarlık
-- [ ] Sözleşme teklifi / yenileme
-- [ ] Sözleşme maddeleri (bonus, serbest kalma, satış yüzdesi)
-- [ ] Kiralık gönder / al
-- [ ] Oyuncuyu transfer/kiralık listesine koy
+- [k] Teklif ver — `PersonMakeOfferForPlayer`
+- [k] Gelen teklife yanıt — `EventFmxTransferOfferResponse`
+- [k] Sözleşme teklifi / yenileme — `PersonOfferContract`, `ContractEditSessionReference` (80)
+- [k] Sözleşme maddeleri — `EventFmxAddContractBonus`, `ClubTransferClausesReference`
+- [k] Kiralık — `CanMakeLoanOffer`, `PersonOfferExtendLoan`, `LoanToBuy*`
+- [k] Oyuncuyu kulüplere öner — `PersonOfferToClubs`
+- [k] Sözleşme feshi / serbest bırakma — `PersonMutualTerminationContract`, `PersonReleaseClubFreeTransfer`
 - [ ] Serbest oyuncular
-- [ ] Bonservissiz ön anlaşma
-- [ ] Menajerle görüşme
-- [ ] Transfer bütçesi ↔ maaş bütçesi aktarımı
-- [ ] Takas teklifi (`ExchangePlayers` binding'leri görüldü)
+- [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
+- [k] Menajerle görüşme — `PersonAskAgentAboutClientContractRenewal`
+- [k] Transfer bütçesi ↔ maaş bütçesi — `ClubBudgetAdjustmentTransfers` / `Wages`, `ClubRequestIncreaseBudgets`
+- [k] Takas teklifi — `ExchangePlayersList`, `ExchangePotentialPlayersList`
 - [ ] Transfer dönemi durumu / kalan gün
 
 ---
@@ -127,6 +181,8 @@
 ## 7. Maç
 
 - [x] `fm next` — ilerle, bloke eden mesajları bildir
+- [k] Maça gir / çık — `EventFmxGoToMatch`, `EventFmxExitMatch`; `MatchReference` 206 property
+- [k] Maç içi taktik değişimi — `EventFmxMatchTacticsChanged`, `MatchTacticReference` (227)
 - [ ] Maç öncesi brifing / takım konuşması
 - [ ] Maçı simüle et (hızlı sonuç)
 - [ ] Canlı maç takibi (metin akışı)
@@ -183,9 +239,9 @@
 
 - [x] Inbox oku (`fm inbox`)
 - [x] Mesaja cevap ver / aksiyon al (`/newsaction`)
-- [ ] Basın toplantısı
+- [k] Basın toplantısı — `PressConferenceEditSessionReference` + `EventFmxPressConferenceAnswerQuestion` / `NoComment` / `EarlyExit` / `StormOut` (COOKBOOK §3)
 - [ ] Maç öncesi/sonrası röportaj
-- [ ] Oyuncuyla konuş (övgü, uyarı, söz verme)
+- [k] Oyuncuyla konuş — `ConversationEditSessionReference` (24) + `EventFmxConversationReplySelected` (COOKBOOK §4)
 - [ ] Oyuncu şikâyetlerini yönet
 - [ ] Soyunma odası atmosferi / takım liderleri
 - [ ] Sosyal medya / haber akışı
@@ -270,9 +326,41 @@
 
 ---
 
-## Bugünün bilançosu (2026-09-28)
+## Günlük
 
-### + Kazanımlar
+### 2026-10-04
+
+**Kazanımlar**
+
+- **Veri modeli büyüdü:** bazı referans tipleri `InteropReference`'tan türemiyormuş; filtre
+  düzelince 160 tip / 6571 property → 931 tip / 14504 property.
+- **Canlandırma çözüldü:** ekran açmak şart değil, ekranın göndereceği event'i göndermek yetiyor.
+  Kadro `SquadScreen` isimle açılarak geldi.
+- **Mesaja cevap verildi, zaman ilerledi.** `/newsaction` aksiyonun kendi kaydını kopyalıyor;
+  dört bloke mesajdan sonra saat 08:45 → 12:55.
+- **`fm` CLI çıktı:** `start`, `continue`, `squad`, `inbox`, `next`, oturum (REPL), `--json`.
+- **Oyun tamamen gizli:** `LSUIElement` + pencereli başlatma + küçültme, üçü birden.
+- **Aksiyon yüzeyinin tamamı statik çıktı:** 680 simülasyon event'i, 225 `ActionID`, 2160 enum.
+  Taktik, transfer, basın, konuşma, antrenman alan alan `COOKBOOK.md`'de.
+- **`/send` katalogları kullanıyor:** enum isimle, `TypedValue` scalar'dan, `dry=1` ile kuru
+  çalıştırma. Generic il2cpp çağrıları arm64'te çalışıyor.
+
+**Kayıplar / engeller**
+
+- **Oyun headless çalışmıyor.** `-batchmode -nographics` ile UI boot etmiyor, binding gelmiyor.
+- **Aynı anda tek ekranın verisi bağlı** (§8.22) — her komut kendi ekranını açmak zorunda.
+- **Ekran açmadan property canlandırma yarım** (§8.21) — span köprüsü yine duvar.
+- **Kondisyon/moral hâlâ yok**, kadro ekranı bağlamıyor.
+- **Oyun bir kez daha çöktü:** event alan alan doldurulunca `ResponseActionDataReferences` null
+  kaldı. `dry=1` ve "çözülemeyen alanda gönderme" bunun için eklendi.
+- **İki yanlış pozitif:** pencere gizleme `visible=false` dönüp ekranda kaldı; `fm inbox` bir kez
+  dolu gelip sonra boş geldi.
+
+**Sıradaki adım:** en üstteki "Sıradaki işler" listesi.
+
+### 2026-09-28
+
+**Kazanımlar**
 
 - **Oyunu CLI'dan kariyere soktuk.** `curl /continue` → FM kaydı yükledi, ağaç 186 → 4198 düğüm.
   Projenin "yazma" tarafı kanıtlandı.
@@ -285,7 +373,7 @@
   Artık her deneme için kullanıcıya "şuna bas" demeye gerek yok.
 - **`tools/sigdump`** — dump'a değil interop'un gerçeğine bakan araç. İki yanlış yolu bu çözdü.
 
-### − Kayıplar / engeller
+**Kayıplar / engeller**
 
 - **`ReadOnlySpan<char>` köprüsü çalışmıyor** (§8.2). İki yöntem de sessizce boş span üretti.
   Sonuç: path string'i ile `Get`/`Exists`/`Bind` **kullanılamıyor**.
@@ -296,7 +384,7 @@
 - **Property ID'leri okunaksız** — bir kısmı FourCC (`NEWS`, `gend`), çoğu hash; release build'de
   açıklamalar ayıklanmış.
 
-### → Sıradaki adım
+**Sıradaki adım** (yapıldı, 2026-10-04)
 
 Squad ekranını event/panel ile açtırmak. UI'ın kendisi oyuncu özelliklerini canlandırıyor; biz de
 ağaçtan okuruz. Span'a gerek yok, ekranın görünür olması da gerekmiyor.
