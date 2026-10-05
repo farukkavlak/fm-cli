@@ -32,11 +32,17 @@ internal static partial class Program
 			return command switch
 			{
 				"squad" => await Squad(json, args),
+				"table" => await LeagueTable(json),
+				"fixtures" => await Fixtures(json),
 				"inbox" => await Inbox(json),
 				"reply" => await Reply(args),
 				"next" => await Next(args),
 				"tour" => await Tour(json, args),
 				"talk" => await TalkTo(json, args),
+				"match" => await PlayMatch(args),
+				"save" => await SaveGame(args),
+				"dialog" => await Dialog(json, args),
+				"setpieces" => await SetPieces(args),
 				"tactic" => await Tactic(json, args),
 				"pages" => await PageList(json, args),
 				"open" => await Open(args),
@@ -261,6 +267,14 @@ internal static partial class Program
 		{
 			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
 			return 69;
+		}
+
+		// Reading the inbox means bringing the portal up, and during a match that would be
+		// opened over the match itself.
+		if (Field(await Fm.GetJson("state"), "DuringMatch") == "True")
+		{
+			Console.Error.WriteLine("Maç sırasında gelen kutusu okunmuyor. Maç için: match");
+			return 1;
 		}
 
 		var inbox = await Bound("inbox", "PortalScreen");
@@ -736,14 +750,20 @@ internal static partial class Program
 			  squad           kadroyu bas
 			    --fitness     kondisyon ve maç formu, en yorgun önce
 			    --morale      moral, hiyerarşi ve sosyal grup
+			  table           lig tablosu
+			  fixtures        sıradaki maçlar
 			  inbox           gelen kutusu
 			  reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
+			  match           maç gününü oyna: kadroyu gönder, maçı izle, maçtan çık; golleri ve sonucu bas
+			    --talk        takım konuşmalarında ilk (önerilen) cümleyi söyle; yoksa konuşmadan geçer
+			  dialog [cevap]  açık onay penceresini göster ya da cevapla
 			  talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin
 			  talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık
 			  tour            açık tanıtım turunu sonuna kadar yürüt
 			    --skip        turu atla (tur izin veriyorsa)
+			  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığında oyunun seçimi kalır)
 			  tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
 			  tactic mentality [<x>]      mentaliteyi göster ya da değiştir
 			  tactic style [<x>]          oyun stilini göster ya da değiştir
@@ -762,6 +782,7 @@ internal static partial class Program
 			  select <liste> "<seçenek>"  listeden seç
 			    --dry                     press ve select için: yapma, ne yapacağını söyle
 			  status          tarih ve oyunun şu an neyi beklediği
+			  save --yes      oyunu kaydet (dosyanın üzerine yazar, geri alınamaz)
 
 			  --json          ham veri (script'lenebilir)
 

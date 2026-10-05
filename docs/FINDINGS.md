@@ -1446,17 +1446,27 @@ alt 8 bit saat. `265467401` → 2025, 182. gün (1 Temmuz), saat 9. Saat birimi 
 05:45'ten sayılıyor gibi: 9 → 08:00, 13 → 09:00, 17 → 10:00, 30 → 13:15. Bu dört durağın
 saatine çevresindeki mesajlardan bakılarak yapılmış bir **uydurma**, oyundan okunmuş değil.
 
-**`fm next` artık bekliyor ve anlatıyor:**
+**`fm next` artık bekliyor ve anlatıyor** (temiz kayıttan, üç mesaj cevaplandıktan sonra):
 
 ```
 $ fm next 5
-30 Haziran 2025 Pazartesi 09:00 → 09:15
-30 Haziran 2025 Pazartesi 09:15 → 13:15
+30 Haziran 2025 Pazartesi 09:00 → 12:00
+  yeni: Super League registration window open
+  yeni: Fenerbahçe player contracts set to expire
+  yeni: Fenerbahçe staff contracts set to expire
+  yeni: Fenerbahçe Home Grown Status Update
+İlerle denildi ama ne saat ne gelen kutusu değişti.
+30 Haziran 2025 Pazartesi 12:00 → 13:15
   yeni: Match Preparation Training: Sarıyer
+İlerle denildi ama ne saat ne gelen kutusu değişti.
 30 Haziran 2025 Pazartesi → 1 Temmuz 2025 Salı 08:00
   yeni: Set Code of Conduct  (cevap bekliyor)
 Bloke: 1 mesaj cevap bekliyor.
+  Now  Set Code of Conduct
+Cevaplamak için: reply <#>   (numaralar için: inbox)
 ```
+
+Beş basışın ikisi hiçbir şeyi değiştirmedi; neden olduğu bilinmiyor, komut bunu olduğu gibi söylüyor.
 
 İlerle'ye basıyor, oyun bir şeyi değiştirene kadar (4 sn), sonra iki okuma üst üste boşta
 görünene kadar (3 dk'ya kadar) bekliyor; tarih/saat farkını ve gelen yeni mesajları basıyor.
@@ -1512,6 +1522,165 @@ diyor; ikisi de değilse mesajın kapanmasını bekliyor.
 Tepki dökümü 20 oyuncuya karşı 21 kayıt sayıyor ve cümleden cümleye neredeyse hiç değişmedi;
 oyuncu adıyla eşlenmedi. Basın toplantısı ve bire bir oyuncu konuşması henüz görülmedi; aynı
 şablonu kullanıyorlarsa `fm talk` olduğu gibi çalışır.
+
+## 8.34 Maç günü: duraklar, onay pencereleri, `fm match`
+
+Maç günü `continue.State` sırayla şu değerleri alıyor; her durakta ekranda **o durağın kendi
+ilerle butonu** var (`name=continue-button`), etiketi ve event'i durağa göre değişiyor:
+
+| `State` | Ekrandaki buton → event | Ne oluyor |
+|---|---|---|
+| `Tactics` | "Review Team Selection" → `ContinueGameEvent` | taktik ekranı açılıyor |
+| `SubmitTeam` | "Go To Match" → `ContinueGameEvent` | **onay penceresi**: "Team Selection — Proceed to match?" |
+| `Match` | (yok) | maç sahnesi yükleniyor; bağlı düğüm sayısı ~6000'den ~700'e düşüyor |
+| `TeamTalk` | "Address the Team" → `MatchContinueEvent` | maç öncesi konuşma ekranı |
+| `StepOntoThePitch` | "Go to Dugout" → `EventFmxTeamTalkProcessTalk` + `MatchContinue` | konuşma seçenekleri burada (`fm talk`) |
+| `WarmUp` | "Kick Off" → `MatchContinue` | birkaç saniye sonra kendiliğinden başlıyor |
+| `MatchLoading` | (yok) | **top oyunda** — adı yanıltıcı; ilk yarı ve ikinci yarı boyunca bu |
+| `TeamTalk` (`Period = HalfTime`) | "Address the Team" | devre arası özeti (istatistik, olaylar) |
+| `SecondHalf` | "Second Half" → `TeamTalkProcessTalk` + `MatchContinue` | devre arası konuşması burada |
+| `FullTimeTeamTalk` | "Address the Team" | maç sonu özeti |
+| `LeaveMatch` | "Leave Match" → `TeamTalkProcessTalk` + `MatchContinue` | maç sonu konuşması burada |
+| `CanContinue` | "Continue" | normal ekrana dönüş; `DuringMatch = False` |
+
+Kural tek: **ekranda ilerle butonu varsa bas, yoksa bekle** — butonun olmadığı an topun oyunda
+olduğu an. `fm match` bunu yapıyor.
+
+**Skor ve dakika** maç ekranının panelinde, ada göre bulunuyor (`/state` maç sırasında ekliyor):
+`MatchTime` ("23:44"), `MatchHomeScore`, `MatchAwayScore`, `MatchStatePeriod` (KickOff,
+FirstHalf, HalfTime, SecondHalf, FullTime), `IsHomeTeamHuman`, `MatchHighlightCommentary`
+(o anki anlatım cümlesi: "GOAL FOR FENERBAHÇE A.Ş.!!", "It's a corner"). Devre arası ve maç
+sonu ekranları ayrıca `MatchScore`, `TotalShots`, `ShotsOnTarget`, `TotalPossession`,
+`ExpectedGoals`, oyuncu başına `TotalRating` ve olay listesini (`IncidentType`) bağlıyor;
+bunlar henüz okunmuyor.
+
+**Onay pencereleri sessiz.** "Go To Match"e basınca pencere açılıyor ama `State` değişmiyor,
+buton yerinde duruyor; iki kez basınca **iki pencere üst üste** açıldı. Pencere sabit adlı iki
+metinden tanınıyor (`#dialog-title`, `#dialog-description`). Butonları event listesi taşımıyor
+(işleyicisi kodda), o yüzden `/press` ile basılamıyor: `SIButton.SimulateButtonClick(bool)`
+gerçek tıklamayı taklit ediyor (`/click?ptr=`). Yalnızca onay isteyen pencerenin tek butonu var
+ve üstünde yazı yok ("Injured Players").
+
+```
+fm dialog            açık pencereyi göster      fm dialog <no|yazı>   cevapla
+fm match             maç gününü baştan sona oyna; golleri, devreyi ve sonucu bas
+fm match --talk      konuşma duraklarında ilk (önerilen) cümleyi söyle
+```
+
+**Maç kendiliğinden durabiliyor.** İkinci denemede 19:49'da bir oyuncu sakatlandı; oyun maç
+içi taktik ekranını açıp değişiklik bekledi. Bu sırada ilerle butonu yok, pencere yok, saat
+duruyor. `fm match` bunu saatin 45 sn kıpırdamamasından anlayıp duruyor ve söylüyor. Elle
+"Cancel"a basınca "Injured Players — …you still have an injured player on the pitch" penceresi
+çıktı. Ekranda ayrıca "Dugout" paneli vardı (`EventFmxMatchDugoutConfirmEvent` = "Do it",
+`…DismissEvent`, `…JumpToEvent`): yardımcının maç içi tavsiyeleri. İçeriği okunmadan kapatıldı;
+sakat oyuncuyu değiştirme tavsiyesi büyük olasılıkla oradaydı. **Maç içi oyuncu değişikliği
+henüz yok.**
+
+Doğrulama:
+
+| Deneme | Sonuç |
+|---|---|
+| elle, durak durak (ilk maç) | yukarıdaki tablo bu maçtan; devre arası 0-3 öndeydik, maç sonu skoru not edilmedi (sonraki haber: "Fenerbahçe hammer Sarıyer") |
+| `fm match` (Messages sayfasından) | kadroyu gönderdi, pencereyi geçti, 13:47'de golü bildirdi; 19:49'daki sakatlıkta takıldı, sonunda "Injured Players" penceresini görüp durdu |
+| `fm match --talk` (maç günü kaydından, yeni oturum) | baştan sona tek komut, 6 dk: üç durakta konuştu, devre 0-0, maç sonu 0-0, "Maç bitti: 0-0", oyun `CanContinue` |
+| maç sırasında `fm status` / `fm inbox` | skor ve dakika / "maç sırasında okunmuyor" |
+| `fm dialog` pencere yokken | "açık bir onay penceresi yok" |
+
+"Saat 45 sn durursa dur" kuralı yazıldıktan sonra tetiklenmedi (ikinci maçta sakatlık olmadı);
+`fm dialog <cevap>` da canlı pencerede denenmedi — pencereyi `fm match` kendi tıkladı.
+
+Maç içinde ayrıca şunlar buton/liste olarak duruyor, denenmedi: mentalite listesi, "Shouts"
+listesi (Encourage, Calm Down, Focus, Fire Up, No Pressure, Demand More, Praise, Berate), oyuncu
+başına menü (rol, talimat, "Substitute Off ›"), `MatchTogglePlayPause`, `MatchSkipReplay`.
+Hız için katalogda `EventFmxHighlightModeChanged`, `EventFmxHighlightSpeedChanged`,
+`EventFmxBetweenHighlightSpeedChanged`, `EventFmxRequestInstantResult` var; ilk maç gizli
+pencerede yaklaşık 7 dakika sürdü.
+
+## 8.35 Kaydetmek, ve oyunun kendi kaydı
+
+`SaveGameEvent` (alansız) oyunu kendi dosyasının üzerine kaydediyor; `game.GameSaving` kalkıp
+iniyor, 2 sn sürdü. `fm save --yes` bunu gönderip bitmesini bekliyor; `--yes` olmadan yalnızca
+neyin üzerine yazacağını söylüyor. Oyun eski dosyayı `last save overwrite backup.fm` adıyla
+yanında bırakıyor.
+
+**⚠ Oyun kendiliğinden de kaydediyor.** Oturumlar "kaydetmeden yeniden başlat, temiz kayda dön"
+varsayımıyla yürüyordu. Oyun 7 Temmuz sabahına geçerken otomatik kayıt aldı: ana dosyanın
+üzerine yazdı, eski hali `… (v02).fm` oldu. Bir sonraki `fm start` 30 Haziran yerine 7 Temmuz'u
+yükledi. Yani **zamanı ilerleten bir oturum kayda yazılabiliyor**; "test tıklamaları kayda
+yazılmıyor" (PLAN günlüğü, 5 Ekim) yalnızca aynı gün içinde doğru.
+
+## 8.36 Duran top sihirbazı ve liste cevapları
+
+**Set Pieces Introduction da "Decline" sunmuyor** (taktik turu gibi): "Begin" bir sihirbaz
+açıyor. "Let’s go" (`EventFmxSetPieceCreatorStart`), ardından altı soru; her birinde `Option`
+adlı bir liste (2-3 seçenek, biri hazır seçili) ve "Next" (`EventFmxSetPieceCreatorNextStep`,
+`name=buttons-next-primary-default`); son soruda aynı butonun etiketi "Confirm". Onaylayınca
+mesaj kapanıyor.
+
+| Soru | Seçenekler (ilk kelimeleri) |
+|---|---|
+| 1 korner nereye | front of the penalty area · around the penalty spot · back of the penalty area |
+| 2 kavis | bend in towards goal · bend away from goal |
+| 3 hücumda geride kalan | more defenders back · a few stay back · fewer stay back |
+| 4 savunmada markaj | cover key areas (alan) · karışık · tightly mark (adam) |
+| 5 bekler | defend the opposition · near-side full-back on the post · both on the posts |
+| 6 ileride kalan | all defend the box · a few left forward · one or two left forward |
+
+`fm setpieces new [<no> …]` sihirbazı yürütüyor; numara verilmeyen soruda oyunun seçimi kalıyor.
+Tura "Begin" demeden de çalışıyor: Match Day › Set Pieces sayfası rutin yokken sihirbazla açılıyor.
+
+| Deneme (temiz kayıttan, 1 Temmuz) | Sonuç |
+|---|---|
+| `setpieces new 9` | "1. soru: '9' diye bir seçenek yok" |
+| `setpieces new --dry` | ilk soruyu listeledi, durdu |
+| `setpieces new 2 1 3` | altı soru basıldı (1→2., 3→3. seçenek, kalanı oyunun seçimi), "kuruldu"; Set Pieces mesajı engel olmaktan çıktı |
+| ardından `setpieces new` | "sihirbaz açılmadı, zaten kurulmuş olabilir" |
+| elle (önceki oturum): Let’s go, Next ×5, Confirm | aynı altı soru, mesaj kapandı |
+
+Seçilen cevapların oyunda kaldığı ayrıca okunmadı; yalnızca seçim çağrısının hata vermediği ve
+sihirbazın bittiği görüldü.
+
+**Bazı sorular listeden cevaplanıyor.** Basın toplantısında "What position do you feel the squad
+could do with strengthening in?" sorusunun cevabı buton değil, `GenericDropdown` adlı bir
+`SIDropdown` (15 seçenek: mevkiler ve "No Comment"). Seçmek (`OnSelectionChangedInternal`)
+değeri `SelectedAction`'a yazıyor ama **göndermiyor**; `ProcessSelectionEvents()` de göndermedi.
+Listenin `SelectionEvents` listesini buton gibi UI kuyruğuna koymak gönderdi — context alanlarını
+`SelectedAction.*` yollarından dolduruyor. `/select?…&fire=1` artık bunu yapıyor; `fm talk`
+liste cevaplarını seçenek olarak sayıyor.
+
+**Basın toplantısı** `continue.State = PressConference`, buton "Attend Press Conference". Mesajı
+("…to meet the media": Attend / Decline) cevaplayınca konuşma açılıyor: "Start Press
+Conference", ardından on dört soru (biri liste cevaplı), sonunda "Exit Press Conference". Şablon
+toplantıyla aynı (§8.33): başlıklar cevabın tonunu veriyor (Positive, Disagree, Make Demands),
+tepkiler gazetecilerin (yedi kişi). İki ayrı oturumda `fm talk` ile baştan sona yürüdü; ikincisinde
+liste sorusu `fm talk "No Comment"` ile cevaplandı ve sıradaki soru geldi. (İlkinde liste
+cevabı henüz tanınmıyordu: `talk` "konuşma bitti" dedi, toplantı açık kaldı.)
+
+"Expectations and Promises Meeting" de aynı şablon: konu menüsü (lig / Şampiyonlar Ligi / kupa
+hedefi, sözler, davranış kuralları), her konuda bir hedef cümlesi, sonunda "End Chat".
+
+## 8.37 Lig tablosu ve fikstür
+
+İkisi de portalın ana sayfasındaki kutulardan okunuyor (`/table`, `/fixtures`).
+
+- Tablo satırı `TablePosition` + `LeaguePoints` taşıyan kayıt; takım adı ve `LeagueGamesPlayed`,
+  `…Won`, `…Drawn`, `…Lost`, `LeagueGoalDifference` çevresinde bağlı. 18 satır geldi.
+- Fikstür satırı `Fixture` kaydı: `KickoffTime`, `FixtureDate` (paketlenmiş tarih, §8.32),
+  `MatchVenueShort` (H / A / N), `HasResult`; rakibin adı yanındaki `Club.ShortName`'de, turnuva
+  `comp.Name`'de. Portal kutusu sıradaki yedi maçı veriyor. Başka kulüplerin lig maçları da aynı
+  türden kayıtla bağlı ama tarihsiz; `fm fixtures` tarihsiz olanları atıyor.
+
+```
+$ fm fixtures
+TARİH      SAAT   YER       RAKİP       TURNUVA
+7 Tem Pzt  14:00  Tarafsız  Sarıyer     Friendly
+9 Tem Çar  20:00  Tarafsız  Boluspor    Friendly
+12 Tem Cmt 19:30  Tarafsız  Adana D.S.  Friendly
+```
+
+Sezon başlamadığı için tablo sıfırlarla ve alfabetik geldi; puanlı bir tabloda ve oynanmış
+maçın sonuç kolonunda (`Result`) denenmedi. Tam fikstür sayfası (yedi maçtan fazlası) açılmadı.
+
 
 ## 9. Sıradaki adımlar
 

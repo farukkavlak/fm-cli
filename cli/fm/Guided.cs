@@ -98,17 +98,42 @@ internal static partial class Program
 		return null;
 	}
 
+	/// <summary>Something that can be said: a button to press, or one choice of a dropdown answer.</summary>
+	private sealed record Line(string Label, string Pointer, string Choice, string Heading);
+
 	/// <summary>
-	/// What can be said in the conversation on screen. Every answer is a button of the same
-	/// kind, on screen once per layout the panel keeps, so they are told apart by their text.
+	/// What can be said in the conversation on screen.
+	///
+	/// Most answers are buttons, on screen once per layout the panel keeps, so they are told
+	/// apart by their text. Some questions are answered from a dropdown instead ("Choose a
+	/// position"), and then each of its choices is an answer. A message's own answers are
+	/// buttons of another kind and are not part of a conversation.
 	/// </summary>
-	private static async Task<List<JsonElement>> TalkOptions() =>
-		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Where(c => Field(c, "Name") == "StandardButton" && Field(c, "Events").Contains("SpeakToAction", StringComparison.Ordinal))
+	private static async Task<List<Line>> TalkOptions()
+	{
+		var controls = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(c => Field(c, "Events").Contains("SpeakToAction", StringComparison.Ordinal))
 			.Where(c => Field(c, "Enabled") == "True" && Field(c, "Label") != "")
-			.GroupBy(c => Field(c, "Label"))
-			.Select(g => g.First())
 			.ToList();
+
+		var lines = controls
+			.Where(c => Field(c, "Name") == "StandardButton")
+			.GroupBy(c => Field(c, "Label"))
+			.Select(g => new Line(g.Key, Field(g.First(), "Pointer"), null, null))
+			.ToList();
+
+		var lists = controls.Where(c => Field(c, "Type") == "SIDropdown").Select(c => Field(c, "Pointer")).ToHashSet();
+		if (lists.Count > 0)
+		{
+			foreach (var list in (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Where(d => lists.Contains(Field(d, "Pointer"))))
+			{
+				var heading = Field(controls.First(c => Field(c, "Pointer") == Field(list, "Pointer")), "Label");
+				foreach (var choice in list.GetProperty("Choices").EnumerateArray())
+					lines.Add(new Line(choice.GetString(), Field(list, "Pointer"), choice.GetString(), heading));
+			}
+		}
+		return lines;
+	}
 
 	/// <summary>
 	/// A conversation — a squad meeting, a chat with a player, a press conference — one line at
@@ -144,8 +169,9 @@ internal static partial class Program
 			return 1;
 		}
 
-		var labels = options.Select(o => Field(o, "Label")).ToList();
+		var labels = options.Select(o => o.Label).ToList();
 		if (Choose(labels, words[0], "Cevap") is not { } pick) return 1;
+		var said = options[labels.IndexOf(pick)];
 
 		if (args.Contains("--dry"))
 		{
@@ -153,14 +179,24 @@ internal static partial class Program
 			return 0;
 		}
 
-		var pressed = await Fm.Get("press", ("ptr", Field(options[labels.IndexOf(pick)], "Pointer")));
+		var pressed = said.Choice == null
+			? await Fm.Get("press", ("ptr", said.Pointer))
+			: await Fm.Get("select", ("ptr", said.Pointer), ("choice", said.Choice), ("fire", "1"));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
 		Console.WriteLine($"» {pick}\n");
 
-		// The reply and the next set of answers arrive together, a moment later.
-		var was = string.Join("|", labels);
-		if (!await Until(async () => string.Join("|", (options = await TalkOptions()).Select(o => Field(o, "Label"))) != was, seconds: 10))
+		// The reply and the next set of answers arrive together, a moment later. In between the
+		// panel is briefly empty, so an empty one is only believed after it has stayed empty.
+		var was = Key(options);
+		var empty = 0;
+		if (!await Until(async () =>
+		    {
+			    options = await TalkOptions();
+			    if (options.Count == 0) return ++empty >= 3;
+			    empty = 0;
+			    return Key(options) != was;
+		    }, seconds: 12))
 		{
 			Console.Error.WriteLine("Söylendi ama konuşma ilerlemedi.");
 			return 1;
@@ -173,7 +209,9 @@ internal static partial class Program
 		}
 		return await Show(options);
 
-		async Task<int> Show(List<JsonElement> offered)
+		static string Key(List<Line> lines) => string.Join("|", lines.Select(l => l.Label));
+
+		async Task<int> Show(List<Line> offered)
 		{
 			var talk = await Fm.GetJson("talk");
 			if (json)
@@ -197,26 +235,151 @@ internal static partial class Program
 				.ToList();
 			if (mood.Count > 0) Console.WriteLine($"\nTepkiler: {string.Join(" · ", mood)}");
 
-			// The heading an answer sits under names the approach it takes.
-			var details = talk.GetProperty("Answers").EnumerateArray().ToDictionary(a => Field(a, "Label"), a => a);
-			string heading = null;
+			// The heading an answer sits under names the approach it takes; a dropdown's
+			// choices sit under the dropdown's own prompt.
+			var details = talk.GetProperty("Answers").EnumerateArray()
+				.GroupBy(a => Field(a, "Label"))
+				.ToDictionary(g => g.Key, g => g.First());
+			var heading = "";
 			Console.WriteLine();
 			for (var i = 0; i < offered.Count; i++)
 			{
-				var label = Field(offered[i], "Label");
-				details.TryGetValue(label, out var detail);
+				var known = details.TryGetValue(offered[i].Label, out var detail);
 
-				var group = detail.ValueKind == JsonValueKind.Object ? Field(detail, "Group") : "";
-				if (group != (heading ?? "") && group.Length > 0) Console.WriteLine($"[{group}]");
+				var group = offered[i].Heading ?? (known ? Field(detail, "Group") : "");
+				if (group != heading && group.Length > 0) Console.WriteLine($"[{group}]");
 				heading = group;
 
-				var recommended = detail.ValueKind == JsonValueKind.Object && Field(detail, "Recommended") == "True" ? "  (önerilen)" : "";
-				Console.WriteLine($"  {i + 1}  {label}{recommended}");
+				var recommended = known && Field(detail, "Recommended") == "True" ? "  (önerilen)" : "";
+				Console.WriteLine($"  {i + 1,2}  {offered[i].Label}{recommended}");
 			}
 
 			Console.WriteLine("\nSöylemek için: talk <numara>");
 			return 0;
 		}
+	}
+
+	/// <summary>
+	/// Sets up the team's set piece routines through the game's wizard: six questions, each
+	/// answered from a short list, the last one confirmed.
+	///
+	/// Every question comes with an answer already chosen, so with nothing said the wizard is
+	/// walked on the game's defaults. A number per question picks something else.
+	/// </summary>
+	private static async Task<int> SetPieces(string[] args)
+	{
+		var words = Words(args).ToList();
+		if (words.Count == 0 || words[0] != "new")
+		{
+			Console.Error.WriteLine("kullanım: setpieces new [<1. sorunun cevabı> <2.> …] [--dry]   (yazılmayan soruda oyunun seçtiği kalır)");
+			return 64;
+		}
+
+		if (!await Fm.InGame())
+		{
+			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			return 69;
+		}
+
+		// The wizard's Next and its final Confirm are the same button under two labels.
+		const string onward = "buttons-next-primary-default";
+		const string start = "Let’s go";
+		var picks = words.Skip(1).ToList();
+		var dry = args.Contains("--dry");
+
+		if (await Named(onward) == null && await Labelled(start) == null)
+		{
+			var opened = await OpenPage("Set Pieces", "Match Day");
+			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+			await Until(async () => await Labelled(start) != null || await Named(onward) != null, seconds: 10);
+		}
+
+		if (await Labelled(start) is { } begin)
+		{
+			if (dry)
+			{
+				Console.WriteLine("(kuru) Duran top sihirbazı başlatılacaktı.");
+				return 0;
+			}
+			await Fm.Get("press", ("ptr", Field(begin, "Pointer")));
+			await Until(async () => await Named(onward) != null, seconds: 10);
+		}
+
+		if (await Named(onward) == null)
+		{
+			Console.Error.WriteLine("Duran top sihirbazı açılmadı. Rutinler zaten kurulmuş olabilir.");
+			return 1;
+		}
+
+		var previous = "";
+		for (var step = 0; step < 12; step++)
+		{
+			JsonElement? list = null;
+			if (!await Until(async () => (list = await Question(previous)) != null, seconds: 10))
+			{
+				Console.Error.WriteLine($"{step + 1}. sorunun seçenekleri gelmedi.");
+				return 1;
+			}
+
+			var choices = list.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+			previous = string.Join("|", choices);
+
+			var current = int.TryParse(Field(list.Value, "Selected"), out var index) && index >= 0 && index < choices.Count ? choices[index] : null;
+			var pick = current;
+			if (step < picks.Count && Choose(choices, picks[step], $"{step + 1}. soru") is var asked)
+			{
+				if (asked == null) return 1;
+				pick = asked;
+			}
+
+			Console.WriteLine($"{step + 1}.");
+			for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {(choices[n] == pick ? "●" : "○")} {n + 1}  {choices[n]}");
+
+			if (dry)
+			{
+				Console.WriteLine("\n(kuru) Burada duruldu; sihirbaz bu soruda açık.");
+				return 0;
+			}
+
+			if (pick != null && pick != current)
+			{
+				var selected = await Fm.Get("select", ("ptr", Field(list.Value, "Pointer")), ("choice", pick));
+				if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
+			}
+
+			if (await Named(onward) is not { } button)
+			{
+				Console.Error.WriteLine("Sihirbazın ilerle butonu kayboldu.");
+				return 1;
+			}
+
+			var last = Field(button, "Label") == "Confirm";
+			await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+
+			if (!last) continue;
+
+			var done = await Until(async () => await Named(onward) == null, seconds: 10);
+			Console.WriteLine(done ? "\nDuran top rutinleri kuruldu." : "\nOnaylandı ama sihirbaz hâlâ açık.");
+			return done ? 0 : 1;
+		}
+
+		Console.Error.WriteLine("Sihirbaz on iki sorudan sonra hâlâ bitmedi; bırakıldı.");
+		return 1;
+
+		// The list of the question now showing: the one named "Option" whose choices are not
+		// the ones just answered.
+		async Task<JsonElement?> Question(string answered) =>
+			(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+				.Where(d => Field(d, "Name") == "Option" && d.GetProperty("Choices").GetArrayLength() > 0)
+				.Cast<JsonElement?>()
+				.FirstOrDefault(d => string.Join("|", d.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString())) != answered);
+	}
+
+	private static async Task<JsonElement?> Named(string name)
+	{
+		foreach (var control in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
+			if (Field(control, "Name") == name && Field(control, "Enabled") == "True") return control;
+		return null;
 	}
 
 	private static async Task<int> Tactic(bool json, string[] args)

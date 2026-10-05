@@ -185,7 +185,19 @@ internal static class Buttons
 		if (q["dry"] == "1") return $"dry run, NOT selected: {described}";
 
 		dropdown.OnSelectionChangedInternal(index);
-		if (q["fire"] == "1") dropdown.ProcessSelectionEvents();
+
+		// Most dropdowns only write their choice to a bound value. One that answers a question
+		// also carries events to send once chosen, and those go the way a pressed button's do:
+		// onto the UI queue, where the game fills them from the choice just written.
+		if (q["fire"] == "1")
+		{
+			var events = dropdown.SelectionEvents;
+			var queue = Game.UiEvents;
+			if (events == null || events.Count == 0) return $"error: selected {described}, but this dropdown has no events to send";
+			if (queue == null) return "error: UIEventQueue unavailable";
+			queue.QueueEvents(events);
+			return $"selected {described} and sent its {events.Count} event(s)";
+		}
 		return $"selected {described}, now {dropdown.SelectedIndex}";
 	}
 
@@ -571,6 +583,81 @@ internal static class Buttons
 		}
 
 		return elements;
+	}
+
+	/// <summary>
+	/// Click a button the way a pointer would. A button that answers a dialog carries no event
+	/// list to queue — its handler is code — so the click itself has to be simulated.
+	/// </summary>
+	public static string Click(NameValueCollection q)
+	{
+		if (!TryPointer(q["ptr"] ?? "", out var pointer)) return "error: ?ptr=<0x…> required";
+
+		foreach (var element in Elements())
+		{
+			if (element.Pointer != pointer) continue;
+
+			SIButton button;
+			try { button = element.TryCast<SIButton>(); } catch { button = null; }
+			if (button == null) return "error: that element is not a button";
+			if (q["dry"] == "1") return $"dry run, NOT clicked: \"{LabelOf(button)}\" name={NameOf(button)}";
+
+			button.SimulateButtonClick(q["arg"] == "1");
+			return $"clicked \"{LabelOf(button)}\" name={NameOf(button)}";
+		}
+		return $"error: no element at {q["ptr"]} (the screen may have changed)";
+	}
+
+	/// <summary>Every button inside one element, with or without events, as pointer, label and name.</summary>
+	internal static List<(string Pointer, string Label, string Name)> ButtonsUnder(VisualElement root)
+	{
+		var found = new List<(string, string, string)>();
+		var stack = new Stack<VisualElement>();
+		stack.Push(root);
+		var seen = 0;
+
+		while (stack.Count > 0 && seen++ < 2000)
+		{
+			var element = stack.Pop();
+			try
+			{
+				if (element.TryCast<SIButton>() != null && element.enabledInHierarchy && element.worldBound.width > 0)
+				{
+					found.Add(($"0x{element.Pointer.ToInt64():x}", LabelOf(element), NameOf(element)));
+					continue;
+				}
+
+				var hierarchy = element.hierarchy;
+				for (var i = hierarchy.childCount - 1; i >= 0; i--) stack.Push(hierarchy.ElementAt(i));
+			}
+			catch { }
+		}
+		return found;
+	}
+
+	/// <summary>The labelled, enabled controls inside one element, as pointer and label.</summary>
+	internal static List<(string Pointer, string Label, string Name)> ControlsUnder(VisualElement root)
+	{
+		var found = new List<(string, string, string)>();
+		var stack = new Stack<VisualElement>();
+		stack.Push(root);
+		var seen = 0;
+
+		while (stack.Count > 0 && seen++ < 2000)
+		{
+			var element = stack.Pop();
+			try
+			{
+				var control = AsControl(element);
+				if (control != null && control.Label.Length > 0 && element.enabledInHierarchy)
+					found.Add(($"0x{element.Pointer.ToInt64():x}", control.Label, NameOf(element)));
+
+				var hierarchy = element.hierarchy;
+				for (var i = hierarchy.childCount - 1; i >= 0; i--) stack.Push(hierarchy.ElementAt(i));
+			}
+			catch { }
+		}
+		return found;
 	}
 
 	private static Control AsControl(VisualElement element)

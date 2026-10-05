@@ -10,7 +10,7 @@ aranmadı demek, yok demek değil.
 
 ---
 
-## Sıradaki işler (2026-10-05)
+## Sıradaki işler (2026-10-06)
 
 Sıra, "en çok şeyin önünü açan önce" mantığıyla. Her adım bitince buradan silinip aşağıdaki
 ilgili bölümde `[x]` olur, günlüğe bir satır düşülür.
@@ -20,19 +20,20 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 "basılıyor". Yeni bir alan açmak = `fm open "<sayfa>"`, `fm buttons` ile bak, `fm press` ile dene.
 77 sayfanın listesi `docs/reference/screens.txt`'te.
 
-1. **Basın toplantısı ve bire bir oyuncu konuşması.** Takım toplantısı `fm talk` ile yürüdü
-   (§8.33); basın toplantısı bu kayıtta henüz çıkmadı. Oyun onu `continue.State =
-   PressConference` ile haber verecek; aynı şablonsa `fm talk` olduğu gibi çalışır.
+1. **Maç içi yönetim.** Sakatlıkta oyun değişiklik bekleyip duruyor ve `fm match` orada
+   bırakıyor (§8.34). Gereken: yedekleri okumak, oyuncu değiştirmek (oyuncu menüsündeki
+   "Substitute Off ›" ya da "Dugout" tavsiyesindeki "Do it"), sonra maç hızı / anında sonuç.
+   Bire bir oyuncu konuşması henüz çıkmadı; `fm talk` aynı şablonu bekliyor.
 2. **`fm tactic` kalanı** — oluşturma, okuma, mentalite, stil ve Quick Pick tamam (§8.30,
    §8.31). Kalan: rol ve diziliş değiştirme (`FMPitchPosition.Events`, rol açılır listeleri),
    takım talimatları, yedekler, tek oyuncu değiştirme.
-3. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
+3. **Ucuz okuma komutları:** `fm table` ve `fm fixtures` çıktı (§8.37); kalan `fm player <isim>`,
+   maç sonu raporu (istatistikler devre arası ekranında bağlı, §8.34), tam fikstür ve sonuçlar.
    Sayfalar artık adıyla açılıyor (`fm open`), yani her biri "aç, şekle göre oku". Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
 4. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property). Geri alınamaz
    olduğu için `--yes` onayı ve `dry=1` ile birlikte.
-5. **Maç** — `EventFmxGoToMatch`, hızlı sonuç, maç sonrası özet.
-6. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
+5. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
 
 ---
 
@@ -77,10 +78,11 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] **Son kaydı yükle** (`LoadSelectedGameEvent`)
 - [ ] Kayıtları listele (`fm saves`)
 - [ ] Belirli kaydı yükle (`fm load "Fenerbahçe"`)
-- [ ] Kaydet / farklı kaydet (`SaveGameEvent` mevcut)
+- [x] Kaydet — `fm save --yes`, dosyanın üzerine (§8.35)
+- [ ] Farklı kaydet (kayıt tarayıcısı paneli: `SaveGameHandlerModule.m_saveBrowserPanel`)
 - [ ] Kaydı sil (`DeleteSelectedGameEvent` mevcut)
 - [ ] Oyunu kapat
-- [ ] Otomatik kaydetme ayarı
+- [ ] Otomatik kaydetme ayarı — ⚠ açık ve ana dosyanın üzerine yazıyor (§8.35)
 - [ ] Bulut kayıt durumu
 - [?] Kariyer **oluşturma** (çok adımlı sihirbaz — lig seçimi, veritabanı boyutu, menajer profili)
 - [?] Menajer profili düzenleme (isim, doğum tarihi, uyruk, görünüm)
@@ -130,7 +132,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [k] Takım talimatları — 33 eksen, 14 faz (`TeamInstructionPhaseID`)
 - [k] İlk 11 seç / oyuncu değiştir — `TacticTeamSelectionDropdownEvent`
 - [ ] Yedek kulübesi
-- [ ] Duran top düzenleri (korner, faul, penaltı sırası)
+- [x] Duran top rutinlerini kur — `fm setpieces new`, oyunun altı soruluk sihirbazı (§8.36)
+- [ ] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası
 - [ ] Kaptan / yardımcı kaptan
 - [k] Taktik kaydet / yükle / kopyala — `ModifyTacticOption`, `EventFmxDuplicateTactic`, `EventFmxSetPresetTactic`
 - [k] Rakip talimatları — `EventFmxOppositionInstructionsApplyAdvice` / `Clear`
@@ -194,14 +197,14 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] `fm next` — ilerle, bloke eden mesajları ve oyunun ilerle butonunun ne dediğini bildir
 - [x] `fm next [n]` zamanı ilerletiyor, oyunun durmasını bekliyor, tarih/saat ve yeni mesajları
       bildiriyor; oyunun kendi durumunu okuyor (`continue.State`, §8.32)
-- [ ] Maç günü durakları (`PressConference`, `Tactics`, `TeamTalk`, `Match`, `SubmitTeam`…)
-      tanınıyor ama geçilemiyor
-- [k] Maça gir / çık — `EventFmxGoToMatch`, `EventFmxExitMatch`; `MatchReference` 206 property
+- [x] Maç gününü oyna — `fm match [--talk]`: kadro gönder, onay penceresi, konuşmalar, maç,
+      çıkış; gol/devre/sonuç bildiriyor (§8.34)
+- [ ] Maç içi oyuncu değişikliği — sakatlıkta maç duruyor, `fm match` söyleyip bırakıyor
+- [ ] Maç hızı / anında sonuç (`EventFmxRequestInstantResult`, `…HighlightModeChanged`) — maç ~7 dk
 - [k] Maç içi taktik değişimi — `EventFmxMatchTacticsChanged`, `MatchTacticReference` (227)
-- [ ] Maç öncesi brifing / takım konuşması
+- [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
 - [ ] Maçı simüle et (hızlı sonuç)
 - [ ] Canlı maç takibi (metin akışı)
-- [ ] Devre arası konuşma
 - [ ] Maç içi: oyuncu değişikliği, taktik değişimi, shout
 - [ ] Maç sonrası: rating, istatistik, basın
 - [ ] Maç istatistikleri (xG, pas haritası, ısı haritası → terminalde?)
@@ -212,8 +215,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 ## 8. Lig, kupa, takvim
 
-- [ ] Lig tablosu (`fm table`)
-- [ ] Fikstür / sonuçlar (`fm results`, `fm fixtures`)
+- [x] Lig tablosu — `fm table` (§8.37); puanlı tabloda denenmedi
+- [~] Fikstür — `fm fixtures` sıradaki yedi maçı veriyor (§8.37); sonuçlar ve tam liste yok
 - [ ] Başka ligler / ülkeler
 - [ ] Kupa ağaçları
 - [ ] Avrupa kupaları
@@ -256,7 +259,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] Mesaja cevap ver — `fm reply <#>` seçenekleri gösterip seçimi soruyor; `fm reply <#> <no>`
       tek satırda cevaplıyor (§8.29)
 - [x] Tanıtım turları — `fm tour` yürütüyor, `fm tour --skip` atlıyor (§8.30)
-- [k] Basın toplantısı — `PressConferenceEditSessionReference` + `EventFmxPressConferenceAnswerQuestion` / `NoComment` / `EarlyExit` / `StormOut` (COOKBOOK §3)
+- [x] Basın toplantısı — `fm talk`; liste cevaplı sorular dahil (§8.36)
 - [ ] Maç öncesi/sonrası röportaj
 - [x] Takım toplantısı — `fm talk`: ne dendi, tepkiler, söylenebilecekler (§8.33)
 - [~] Oyuncuyla bire bir konuş — `fm talk` aynı şablonu bekliyor, canlı görülmedi
@@ -309,7 +312,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [ ] Kısaltmalar / takma adlar
 - [ ] Tab tamamlama (zsh/bash)
 - [~] `fm status` — tarih, saat ve oyunun neyi beklediği (§8.32); sıradaki maç ve uyarılar yok
-- [ ] Onay isteyen aksiyonlar (transfer teklifi gibi) için `--yes`
+- [x] Onay pencereleri — `fm dialog` gösteriyor / cevaplıyor (§8.34)
+- [~] Onay isteyen aksiyonlar için `--yes` — yalnızca `fm save`'de
 - [ ] Geri alma yok — yıkıcı aksiyonlarda uyarı
 - [x] Oyun kapalıysa otomatik başlat (`fm start`)
 
@@ -356,6 +360,11 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - **Taktik turu taktik istiyordu.** Takımın taktiği yoktu; sihirbazla oluşturunca mesaj
   kendiliğinden kapandı. `fm tactic new "<stil>" "<topla>" "<topsuz>"`.
 - **`fm next` zamanı ilerletti** — ilk kez, iki ayrı oturumda (30/6 → 1/7/2025).
+- **İlk maç oynandı.** Maç gününün on iki durağı çıkarıldı; `fm match --talk` tek komutla
+  oynadı (6 dk, 0-0). Onay pencereleri `fm dialog` ile, kaydetme `fm save --yes` ile.
+- **Basın toplantısı ve beklentiler toplantısı `fm talk` ile yürüdü**; liste cevaplı soru dahil.
+- **`fm setpieces new`** duran top sihirbazını, **`fm table` / `fm fixtures`** tabloyu ve
+  sıradaki maçları veriyor.
 - **`fm next` bekliyor ve anlatıyor**; oyunun durumu sabit bir yoldan okunuyor (`continue.State`).
 - **`fm talk` takım toplantısını yürüttü** (yedi cümle, "End Chat").
 - **`fm tactic` taktiği okuyor**, `mentality` / `style` değiştiriyor, `pick` ilk 11'i seçtiriyor.
@@ -364,6 +373,9 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 **Kayıplar / engeller**
 
+- **⚠ Oyun otomatik kayıt aldı.** 7 Temmuz'a geçerken ana kayıt dosyasının üzerine yazdı;
+  temiz hal `(v02)` adıyla yanında ve `~/fm26_bep/save-backups/`'ta duruyor (§8.35).
+- **Sakatlık maçı durdurdu.** Oyun değişiklik bekledi; maç içi oyuncu değişikliği henüz yok.
 - **`fm open` bazı sayfaları verisiz açıyordu** (Tactics). Dünkü doğrulama yalnızca panelin
   açıldığına bakmıştı. Artık sekmenin ilk sayfasından alt sekme butonuna basıyor (§8.31).
 - **`fm reply`'dan hemen sonraki `fm next` mesajı hâlâ engel sanıyordu**; `reply` artık gelen

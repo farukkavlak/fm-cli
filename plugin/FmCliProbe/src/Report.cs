@@ -102,6 +102,62 @@ internal static class Report
 	}
 
 	/// <summary>
+	/// The league table on screen, one record per row.
+	///
+	/// A row is a record holding the position and the points; the team's name and the rest of
+	/// the columns are bound around it, and which columns there are depends on the table shown.
+	/// </summary>
+	public static string Table()
+	{
+		var rows = new SortedDictionary<int, Dictionary<string, string>>();
+
+		foreach (var (_, node) in Walk())
+		{
+			var fields = Fields(node);
+			if (!fields.ContainsKey("LeaguePoints") || !fields.TryGetValue("TablePosition", out var raw)) continue;
+			if (!int.TryParse(raw, out var position) || rows.ContainsKey(position)) continue;
+
+			if (node.Parent != null) Merge(fields, node.Parent);
+			rows[position] = fields;
+		}
+
+		return "[\n  " + string.Join(",\n  ", rows.Values.Select(Json)) + "\n]\n";
+	}
+
+	/// <summary>
+	/// The fixtures on screen: when, where, against whom, in what, and the result once played.
+	/// </summary>
+	public static string Fixtures()
+	{
+		var fixtures = new List<Dictionary<string, string>>();
+		var seen = new HashSet<string>();
+
+		foreach (var (_, node) in Walk())
+		{
+			if (node.Name != "Fixture") continue;
+
+			var fields = Fields(node);
+			if (!fields.ContainsKey("KickoffTime")) continue;
+
+			// A date is a packed struct, which the record builder leaves out as noise.
+			var date = Child(node, "FixtureDate");
+			string day = null;
+			try { day = State.Date(date?.Value?.AsString())?.Day.ToString("yyyy-MM-dd"); } catch { }
+			if (day != null) fields["Date"] = day;
+
+			if (node.Parent != null) Merge(fields, node.Parent);
+
+			// The same fixture is bound by every tile that shows it.
+			fields.TryGetValue("ShortName", out var opponent);
+			if (!seen.Add($"{day}|{fields["KickoffTime"]}|{opponent}")) continue;
+			fixtures.Add(fields);
+		}
+
+		fixtures.Sort((a, b) => string.CompareOrdinal(a.GetValueOrDefault("Date", ""), b.GetValueOrDefault("Date", "")));
+		return "[\n  " + string.Join(",\n  ", fixtures.Select(Json)) + "\n]\n";
+	}
+
+	/// <summary>
 	/// The introduction tour on screen: which step it is on and what the guide is saying.
 	///
 	/// A tour is a conversation whose reference counts its steps; the speech bubbles hang beside

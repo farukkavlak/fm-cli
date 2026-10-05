@@ -35,7 +35,45 @@ internal static class State
 			fields["Clock"] = date.Value.Clock.ToString();
 		}
 
+		// A match keeps its scoreboard under the match screen's own panel, so it is looked for
+		// by name, and only while there is a match to look in.
+		if (fields.TryGetValue("DuringMatch", out var during) && during == "True") Scoreboard(fields);
+
 		return Report.Json(fields) + "\n";
+	}
+
+	private static readonly Dictionary<string, string> MatchFields = new()
+	{
+		["MatchTime"] = "MatchTime",
+		["MatchHomeScore"] = "HomeScore",
+		["MatchAwayScore"] = "AwayScore",
+		["MatchStatePeriod"] = "Period",
+		["IsHomeTeamHuman"] = "HumanIsHome",
+		["IsPlaying"] = "Playing",
+		["MatchHighlightCommentary"] = "Commentary",
+	};
+
+	private static void Scoreboard(Dictionary<string, string> fields)
+	{
+		var missing = MatchFields.Count;
+		foreach (var (_, node) in Report.Walk())
+		{
+			var name = node.Name;
+			if (name == null || !MatchFields.TryGetValue(name, out var field) || fields.ContainsKey(field)) continue;
+
+			string text;
+			try
+			{
+				var value = node.Value;
+				if (value == null || value.IsNull) continue;
+				text = Text.Clean(value.AsString());
+			}
+			catch { continue; }
+
+			if (string.IsNullOrEmpty(text)) continue;
+			fields[field] = text;
+			if (--missing == 0) return;
+		}
 	}
 
 	private static void Put(Dictionary<string, string> fields, string name, string value)
@@ -60,7 +98,7 @@ internal static class State
 	/// The game packs a date into one number: the year above bit 17, then the day of the year
 	/// (from 1) in nine bits, then eight bits of clock whose unit is not yet known.
 	/// </summary>
-	private static (DateTime Day, int Clock)? Date(string text)
+	internal static (DateTime Day, int Clock)? Date(string text)
 	{
 		if (text == null) return null;
 

@@ -61,10 +61,26 @@ continue        açık oyunda son kaydı yükle
 squad           kadroyu bas
   --fitness     kondisyon ve maç formu, en yorgun önce
   --morale      moral, hiyerarşi ve sosyal grup
+table           lig tablosu
+fixtures        sıradaki maçlar
 inbox           gelen kutusu
 reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
 reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
-next            zamanı ilerlet (bloke eden mesajları bildirir)
+talk            açık konuşma (toplantı, basın toplantısı, takım konuşması): ne dendi, seçenekler
+talk <no>       söyle;  talk leave: çık
+tour            açık tanıtım turunu yürüt;  --skip: atla
+next [n]        zamanı ilerlet, oyunun durmasını bekle, ne olduğunu söyle
+match           maç gününü oyna: kadroyu gönder, maçı izle, maçtan çık;  --talk: konuşmalarda konuş
+dialog [cevap]  açık onay penceresini göster ya da cevapla
+status          tarih, saat ve oyunun neyi beklediği
+save --yes      oyunu kaydet (dosyanın üzerine yazar)
+
+tactic                      taktik: stil, mentalite, on bir mevki, roller, oyuncular
+tactic new "<stil>" "<topla diziliş>" "<topsuz diziliş>"   taktik oluştur (eksik adımı listeler)
+tactic mentality [<x>]      mentaliteyi göster / değiştir;  tactic style [<x>] aynısı stil için
+tactic pick                 ilk 11'i oyuna seçtir
+setpieces new [<no> …]      duran top rutinlerini kur (altı soru)
+
 pages           oyunun bütün sayfaları (77)
 open "<sayfa>"  sayfayı aç
   --tab <sekme> aynı adda birden çok sayfa varsa
@@ -72,8 +88,7 @@ buttons         ekrandaki butonlar ve ne gönderdikleri
 press "<etiket>"            butona bas
 dropdowns       ekrandaki açılır listeler ve seçenekleri
 select <liste> "<seçenek>"  listeden seç
-  --dry         press ve select için: yapma, ne yapacağını söyle
-status          bağlantı durumu
+  --dry         değiştiren komutlarda: yapma, ne yapacağını söyle
 --json          ham veri (script'lenebilir)
 ```
 

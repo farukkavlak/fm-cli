@@ -53,7 +53,11 @@ internal sealed class Bridge
 		if (!health.Contains("ok")) return false;
 
 		var digits = new string(health.Where(char.IsDigit).ToArray());
-		return int.TryParse(digits, out var nodes) && nodes > 1000;
+		if (int.TryParse(digits, out var nodes) && nodes > 1000) return true;
+
+		// A match runs in a scene of its own with only a few hundred nodes bound, far fewer
+		// than the main menu has; what the menu lacks is a game date.
+		return (await Get("state")).Contains("\"Date\"");
 	}
 }
 

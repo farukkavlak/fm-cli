@@ -42,12 +42,17 @@ internal static class FmApi
 		"squad" => Report.Squad(),
 		"inbox" => Report.Inbox(),
 		"tour" => Report.Tour(),
+		"table" => Report.Table(),
+		"fixtures" => Report.Fixtures(),
+		"save" => Save(),
+		"dialog" => Dialogs.Open(),
 		"talk" => Talk.Current(),
 		"state" => State.Current(),
 		"tactic" => Tactics.Current(),
 		"bindprop" => Materialise.Property(q["path"], q["name"]),
 		"buttons" => Buttons.Catalog(q),
 		"press" => Buttons.Press(q),
+		"click" => Buttons.Click(q),
 		"dropdowns" => Buttons.Dropdowns(q),
 		"select" => Buttons.Select(q),
 		"queue" => Buttons.Queue(q),
@@ -132,6 +137,19 @@ internal static class FmApi
 
 		events.SendEvent(new FM.UI.ContinueGameEvent());
 		return "sent ContinueGameEvent";
+	}
+
+	/// <summary>
+	/// Save the game over its current file, as the game's own save shortcut does. The event
+	/// carries nothing; progress shows up as game.GameSaving in /state.
+	/// </summary>
+	private static string Save()
+	{
+		var events = Game.Events;
+		if (events == null) return "error: event subsystem unavailable";
+
+		events.SendEvent(new FM.UI.SaveGameEvent());
+		return "sent SaveGameEvent";
 	}
 
 	/// <summary>

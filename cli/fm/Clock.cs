@@ -31,6 +31,15 @@ internal static partial class Program
 		for (var taken = 0; taken < times; taken++)
 		{
 			var state = await Fm.GetJson("state");
+
+			// Match day has its own line of stops and its own Continue buttons, and reading the
+			// inbox from inside the match would mean opening the portal over it.
+			if (Field(state, "DuringMatch") == "True" || Field(state, "State") is "Tactics" or "SubmitTeam")
+			{
+				(taken == 0 ? Console.Error : Console.Out).WriteLine("Maç günü. Oynamak için: match");
+				return taken == 0 ? 1 : 0;
+			}
+
 			var inbox = (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList();
 
 			// Straight after a load the game still calls itself free to continue while messages
@@ -143,7 +152,7 @@ internal static partial class Program
 				break;
 
 			case "PressConference": output.WriteLine("Oyun basın toplantısı bekliyor."); break;
-			case "Tactics": output.WriteLine("Oyun maç öncesi taktik onayı bekliyor."); break;
+			case "Tactics" or "SubmitTeam": output.WriteLine("Maç günü. Oynamak için: match"); break;
 			case "TeamNews": output.WriteLine("Oyun maç öncesi takım haberlerini bekliyor."); break;
 			case "TeamTalk": output.WriteLine("Oyun takım konuşması bekliyor."); break;
 			case "TunnelInterview": output.WriteLine("Oyun tünel röportajı bekliyor."); break;
@@ -154,6 +163,62 @@ internal static partial class Program
 		}
 
 		if (!string.IsNullOrEmpty(button) && button is not ("Continue" or "Response Required")) output.WriteLine($"İlerle butonu: {button}");
+	}
+
+	/// <summary>
+	/// Saves the game over its current file and waits until the game says it is done.
+	///
+	/// There is no undo for this: what was in the file before is gone. The game refuses to save
+	/// at some moments (mid-match, mid-processing) and says so through CanSave.
+	/// </summary>
+	private static async Task<int> SaveGame(string[] args)
+	{
+		if (!await Fm.InGame())
+		{
+			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			return 69;
+		}
+
+		var state = await Fm.GetJson("state");
+		if (Field(state, "CanSave") != "True")
+		{
+			Console.Error.WriteLine("Oyun şu an kaydetmeye izin vermiyor (maç ya da işlem sürüyor olabilir).");
+			return 1;
+		}
+
+		if (!args.Contains("--yes"))
+		{
+			Console.Error.WriteLine($"Bu, kayıt dosyasının üzerine yazar ({Pretty(Field(state, "Date"))} durumuyla); geri alınamaz.");
+			Console.Error.WriteLine("Onaylamak için: save --yes");
+			return 1;
+		}
+
+		var sent = await Fm.Get("save");
+		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
+
+		// Saving shows as a flag that goes up and comes down; a save that never raises it within
+		// a few seconds did not start.
+		var started = await Until(async () => Field(await Fm.GetJson("state"), "Saving") == "True" || Field(await Fm.GetJson("state"), "State") == "Saving", seconds: 6);
+		var dialogs = await Fm.GetJson("dialog");
+		if (dialogs.GetArrayLength() > 0)
+		{
+			Console.Error.WriteLine($"Oyun bir şey soruyor: {Field(dialogs[0], "Title")} — {Field(dialogs[0], "Description")}   (cevap: dialog)");
+			return 1;
+		}
+		if (!started)
+		{
+			Console.Error.WriteLine("Kaydet denildi ama oyun kaydetmeye başlamadı.");
+			return 1;
+		}
+
+		var done = await Until(async () =>
+		{
+			var now = await Fm.GetJson("state");
+			return Field(now, "Saving") != "True" && Field(now, "State") != "Saving";
+		}, seconds: 180);
+
+		Console.WriteLine(done ? $"Kaydedildi ({Pretty(Field(state, "Date"))})." : "Kayıt üç dakikadır sürüyor; beklemeyi bıraktım.");
+		return done ? 0 : 75;
 	}
 
 	private static async Task<int> Status(bool json)
@@ -172,6 +237,13 @@ internal static partial class Program
 		}
 
 		var flow = Field(state, "State");
+		if (Field(state, "DuringMatch") == "True")
+		{
+			Console.WriteLine($"Maçtayız. {Field(state, "MatchTime")}  {Field(state, "HomeScore")}-{Field(state, "AwayScore")}"
+			                  + (Field(state, "HumanIsHome") == "True" ? " (ev sahibiyiz)" : " (deplasmandayız)"));
+			Console.WriteLine("Sürdürmek için: match");
+			return 0;
+		}
 		if (flow == "CanContinue" && (await Bound("inbox", "PortalScreen")).EnumerateArray().Any(Blocking)) flow = "NeedAction";
 
 		Console.WriteLine($"FM açık, kayıt yüklü. {Pretty(Field(state, "Date"))} {Time(state)}");
