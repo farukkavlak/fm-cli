@@ -4,11 +4,14 @@ Gerçek **Football Manager 26**'yı terminalden oynat.
 
 ```
 $ fm inbox
-SAAT   GÖNDEREN          KONU
-08:05  Sadettin Saran    Welcome to Fenerbahçe!                      okunmadı
-08:13  Zeki Murat Göle   Fenerbahçe Tactics Introduction             okunmadı, cevap bekliyor
+#  SAAT   GÖNDEREN          KONU
+1  08:05  Sadettin Saran    Welcome to Fenerbahçe!                      okunmadı
+4  08:13  Sadettin Saran    Club vision and expectations meeting        okunmadı, cevap bekliyor
 ...
-5 mesaj cevap bekliyor — bunlar `fm next`'i blokluyor.
+4 mesaj cevap bekliyor — bunlar `fm next`'i blokluyor. Cevaplamak için: reply <#>
+
+$ fm reply 4 "Accept Current"
+Cevaplandı: Club vision and expectations meeting → Accept Current Vision
 
 $ fm squad
 OYUNCU          POZİSYON         YAŞ  STATÜ         MAAŞ         DEĞER          DURUM
@@ -54,6 +57,8 @@ squad           kadroyu bas
   --fitness     kondisyon ve maç formu, en yorgun önce
   --morale      moral, hiyerarşi ve sosyal grup
 inbox           gelen kutusu
+reply <#>       mesajın cevap seçenekleri
+reply <#> "<cevap>"   mesajı cevapla
 next            zamanı ilerlet (bloke eden mesajları bildirir)
 pages           oyunun bütün sayfaları (77)
 open "<sayfa>"  sayfayı aç

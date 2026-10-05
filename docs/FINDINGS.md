@@ -1216,6 +1216,78 @@ yalnızca tablo açıkken 27 kişi geliyordu; `/open` panoyu atlayıp doğrudan 
 okuyor ("General Info": yaş, statü, maaş, piyasa değeri). Altyapı kadrosu bu yüzden çıktıdan
 düştü; "Under 19s" sayfasından ayrıca okunması gerekiyor.
 
+## 8.29 Mesaj cevaplamak bir butona basmak: `fm reply`
+
+Mesaj listesindeki her satır bir buton (`NewsItemButton`, `SetNewsActionDataOnPanelEvent`).
+Basınca mesaj açılıyor ve **cevapları buton olarak** beliriyor:
+
+```
+Begin Introduction     SIButton  SpeakToAction
+Decline Introduction   SIButton  SpeakToAction
+```
+
+Yani inbox cevabı da `SpeakToActionEvent` — §8.25'te basın toplantısı için beklenen event.
+Context, §8.15'te elle çıkarmaya çalıştığımız eşlemeyi açıkça veriyor:
+
+```
+m_eventBinding                        -> action.Event
+m_responseIdBinding                   -> action.ActionResponseId
+m_responseValueBinding                -> action.ActionResponseValue
+m_actionIdBinding                     -> action.ActionID
+m_responseActionIdBinding             -> action.NewsAction          (ActionID değil)
+m_responseActionDataReferencesBinding -> action.ActionDataReferences
+m_npcDataBinding -> NPC      m_speakToBinding -> SpeakTo
+```
+
+`/newsaction` `ResponseActionId`'yi `ActionID`'den dolduruyordu; oyunun kendi eşlemesi
+`NewsAction`. O route silindi, yerini kontrolün kendisine basmak aldı.
+
+```
+fm inbox                    mesajlar artık numaralı
+fm reply <# | konu>         mesajı aç, cevaplarını listele
+fm reply <#> "<cevap>"      cevapla   (--dry ile yalnızca söyler)
+```
+
+**Hangi mesaj açık?** Ekrandaki cevaplar o an açık mesaja ait; yeni mesaj açılırken bir an
+öncekinin cevapları duruyor. `HumanPortalLastSelectedMessage` açık mesajın `UniqueId`'sini
+tutuyor; `fm reply` cevapları ancak o değer istenen mesaja eşitlenince okuyor, sonra iki okuma
+üst üste aynı gelene kadar bekliyor (cevabı olmayan mesaj hiç dolmuyor).
+
+**Aynı liste iki kez ekranda olabiliyor.** Messages sayfası portalın üstüne kart olarak
+açılınca her mesajın iki `NewsItemButton`'ı oluyor; ikisi de aynı event'i gönderiyor. `/press`
+buna `any=1` denirse razı oluyor, kendiliğinden seçmiyor.
+
+**Bloke eden mesaj `NewsItemIsPriority` olan.** `CanRespond` yetmiyor: "Pre-season
+Preparation" cevaplanabilir (tek seçenek: Cancel Training Camp) ama öncelikli değil ve oyunun
+"Tasks" sayacında yok. CLI onu "cevaplanabilir" diye gösteriyor.
+
+**Oyunun ilerle butonu neyi beklediğini yazıyor.** `continue-button`'ın etiketi duruma göre
+"Continue", "Response Required" ya da "Complete Introduction". `fm next` bloke olduğunda bunu da
+basıyor.
+
+Doğrulama:
+
+| Deneme | Sonuç |
+|---|---|
+| `reply 4`, `5`, `6`, `7`, `8` listeleme | her mesajın kendi seçenekleri (3 / 1 / 2 / 2 / 1), ham buton verisiyle aynı |
+| `reply 1` (cevabı yok) | "cevap seçeneği sunmuyor", 3,8 sn |
+| `reply 99`, `reply Fenerbahçe` (7 mesaja uyuyor), `reply 5 "Zzz"` | üçü de reddedildi |
+| `reply 7 Decline --dry` | bekleyen sayısı değişmedi |
+| `reply 7 Decline`, `reply 6 Decline`, `reply 4 "Accept Current"` | bekleyen 5 → 4 → 3 → 2, kuyruk boş |
+
+### ⚠ Tanıtım turu başlıyor, bitmiyor
+
+`reply 5 Begin` ("Fenerbahçe Tactics Introduction", tek seçeneği bu) mesajı kapatmadı:
+"Tactics Introduction" paneli açıldı, mesajdaki buton "Continue Introduction"a, oyunun ilerle
+butonu "Complete Introduction"a döndü, `SpeakTo.CurrentInductionStepIndex = 1 / Max = 1`.
+"Continue Introduction"a on kez, ilerle butonuna bir kez basmak hiçbir şeyi değiştirmedi; mesaj
+`NewsHasResponded = False` kaldı.
+
+§8.15'te aynı cevap `NewsResponseActionEvent` ile gönderilince mesaj kapanmış ve zaman
+ilerlemişti. Yani eski yol turu atlıyordu; butonun gerçek davranışı turu başlatmak. Turun
+adımları ekrandaki kontroller arasında görünmüyor — çözülmedi. Sonuç: bu kayıtta `fm next`
+bugünkü haliyle zamanı ilerletirken **görülmedi**.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

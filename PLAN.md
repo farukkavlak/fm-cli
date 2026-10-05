@@ -20,13 +20,16 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 "basılıyor". Yeni bir alan açmak = `fm open "<sayfa>"`, `fm buttons` ile bak, `fm press` ile dene.
 77 sayfanın listesi `docs/reference/screens.txt`'te.
 
-1. **Inbox cevabını `/press` üzerine taşı** ve `fm reply` komutunu çıkar. Mesaj açılınca
-   cevap butonlarının nasıl listelendiğine henüz bakılmadı; `/newsaction` o zamana kadar duruyor.
+1. **Tanıtım turları (induction).** "Begin Introduction" cevabı turu başlatıyor ama bitmiyor:
+   mesaj cevaplanmamış kalıyor, oyunun ilerle butonu "Complete Introduction" diyor, ona ve
+   mesajdaki "Continue Introduction"a basmak durumu değiştirmedi (§8.29). "Decline" sunmayan tek
+   mesaj Tactics Introduction; `fm next` bu kayıtta ona takılıyor. Turun adımlarının nerede
+   sunulduğu bulunmalı (`TriggerTutorialEventContext`, `InductionReference`).
 2. **Basın toplantısı ve oyuncu konuşmaları.** Bu kayıtta bekleyen toplantı yok, o yüzden canlı
    görülmedi. Cevaplar `SpeakToActionEvent` ile gidiyor ve bunu inbox'la aynı modül
    (`NewsActionHandlerModule`) işliyor. Toplantı açılınca cevap butonları `/buttons`'ta
-   `SpeakToActionEventContext` olarak görünmeli; 4 bekleyen "Tasks" mesajı aynı yolun ilk
-   denemesi olabilir.
+   `SpeakToActionEventContext` olarak görünmeli. Aynı yol inbox'ta doğrulandı: `fm reply` üç
+   mesajı `SpeakToActionEvent` ile cevapladı (§8.29).
 3. **`fm tactic`** — önce oku (`TacticReference`, 207 property), sonra yaz. Taktik ekranındaki
    kontroller (`FMPitchPosition.Events`, `FMTacticsPanel.SelectionEvent`) da event listesi
    taşıyor, yani rol ve formasyon değişimi de basılabilir olmalı.
@@ -189,7 +192,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 ## 7. Maç
 
-- [x] `fm next` — ilerle, bloke eden mesajları bildir
+- [x] `fm next` — ilerle, bloke eden mesajları ve oyunun ilerle butonunun ne dediğini bildir
+- [ ] `fm next` bugünkü haliyle zamanı ilerletirken görülmedi — bu kayıtta tanıtım turu blokluyor
 - [k] Maça gir / çık — `EventFmxGoToMatch`, `EventFmxExitMatch`; `MatchReference` 206 property
 - [k] Maç içi taktik değişimi — `EventFmxMatchTacticsChanged`, `MatchTacticReference` (227)
 - [ ] Maç öncesi brifing / takım konuşması
@@ -247,7 +251,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 ## 11. İletişim
 
 - [x] Inbox oku (`fm inbox`)
-- [x] Mesaja cevap ver / aksiyon al (`/newsaction`)
+- [x] Mesaja cevap ver — `fm reply <#> "<cevap>"`, mesajın kendi butonuna basarak (§8.29)
+- [~] Çok adımlı cevaplar (tanıtım turu) — başlıyor, bitirilemiyor (§8.29)
 - [k] Basın toplantısı — `PressConferenceEditSessionReference` + `EventFmxPressConferenceAnswerQuestion` / `NoComment` / `EarlyExit` / `StormOut` (COOKBOOK §3)
 - [ ] Maç öncesi/sonrası röportaj
 - [k] Oyuncuyla konuş — `ConversationEditSessionReference` (24) + `EventFmxConversationReplySelected` (COOKBOOK §4)
@@ -371,6 +376,12 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   `fm squad --fitness` soğuk başlangıçtan 4,8 sn yerine 2,2 sn.
 - **`fm squad` artık hep aynı şeyi basıyor:** "General Info" görünümünden maaş, değer, statü.
 
+- **`fm reply` çıktı.** Mesajı açınca cevapları buton olarak geliyor (`SpeakToActionEvent`,
+  basın toplantısı için beklenen event'in aynısı). Üç mesaj cevaplandı, her birinde bekleyen
+  sayısı bir düştü (5 → 2). Elle kayıt kopyalayan `/newsaction` silindi.
+- **Hangi mesajın blokladığı düzeldi:** `NewsItemIsPriority`. "Pre-season Preparation" yalnızca
+  isteğe bağlı bir cevap sunuyor, artık "cevaplanabilir" diye görünüyor.
+
 **Kayıplar / engeller**
 
 - **Basın toplantısı görülmedi** — kayıtta bekleyen yok. Sıradaki işlerde duruyor.
@@ -385,6 +396,9 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   çözdü, yukarıda.
 - **`fm squad` önceki komuta göre farklı kadro basıyordu** (47 ya da 27 satır): hangi liste
   bağlıysa onu okuyordu. Sabit bir görünüme bağlandı; altyapı kadrosu bu arada düştü.
+- **Tanıtım turu bitirilemedi.** "Begin Introduction" turu başlatıyor, mesaj açık kalıyor;
+  bu kayıtta `fm next` buna takılıyor. Dünkü `/newsaction` aynı cevabı farklı bir event'le
+  gönderip mesajı kapatıyordu, yani buton yolu oyunun gerçek davranışı ve daha uzun.
 - **Bir deneme oyunun buton kuyruğunu tıkadı.** Menünün seçim event'ini elle kuyruğa koymak
   çözülemeyen bir event bıraktı; arkasındaki bütün basışlar "gönderildi" deyip hiçbir şey
   yapmadı. `/queue` ve `/press`'teki koruma bunun için eklendi (§8.27).

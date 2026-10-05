@@ -456,6 +456,10 @@ internal static class Buttons
 
 		if (matches.Count == 1) return matches[0];
 
+		// The same list can be on screen twice — a card over the page it was opened from — and
+		// then its rows are interchangeable. The caller says so; it is never assumed.
+		if (matches.Count > 1 && q["any"] == "1") return matches[^1];
+
 		error = matches.Count == 0
 			? $"error: no control labelled '{text}' on the loaded screens"
 			: $"error: {matches.Count} controls are labelled '{text}'; narrow it with &name=\n"

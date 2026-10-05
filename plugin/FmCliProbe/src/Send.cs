@@ -177,63 +177,7 @@ internal static class Send
 		catch { return new Type[0]; }
 	}
 
-	/// <summary>
-	/// Run one of a message's actions, with the payload copied from the action's own record.
-	///
-	/// Each action node carries everything the UI would send: which event it is
-	/// (IsNewsActionButton), the response and action ids, and the action's data references.
-	/// Filling the event by hand left ResponseActionDataReferences null and the game aborted, so
-	/// the record is copied wholesale instead of field by field.
-	/// </summary>
-	public static string NewsAction(string newsPath, string actionPath)
-	{
-		if (string.IsNullOrEmpty(newsPath) || string.IsNullOrEmpty(actionPath))
-			return "error: ?news=<path>&action=<path> required";
-
-		var events = Game.Events;
-		if (events == null) return "error: event subsystem unavailable";
-
-		var newsValue = FmApi.ValueAt(newsPath, out var newsError);
-		if (newsError != null) return newsError;
-		var news = newsValue.TryCast<FM.UI.NewsItemReference>();
-		if (news == null) return $"error: '{newsPath}' is not a NewsItemReference";
-
-		var actionValue = FmApi.ValueAt(actionPath, out var actionError);
-		if (actionError != null) return actionError;
-		var action = actionValue.TryCast<SI.Bindable.DynamicReference>();
-		if (action == null) return $"error: '{actionPath}' is not a DynamicReference";
-
-		var entries = Entries(action);
-		var title = Text(entries, "ActionTitle");
-
-		if (Number(entries, "IsNewsActionButton") == 1)
-		{
-			var run = new FM.UI.RunNewsActionEvent
-			{
-				NewsItem = news,
-				NewsActionID = Number(entries, "NewsAction"),
-				DynamicCardID = Number(entries, "DynamicCardId"),
-				PortalSourceId = 0,
-			};
-			events.SendEvent(run);
-			return $"sent RunNewsActionEvent for '{title}' (NewsActionID={run.NewsActionID})";
-		}
-
-		var response = new FM.UI.NewsResponseActionEvent
-		{
-			NewsItem = news,
-			ResponseId = Number(entries, "ActionResponseId"),
-			ResponseValue = Number(entries, "ActionResponseValue"),
-			ResponseActionId = Number(entries, "ActionID"),
-			ResponseActionDataReferences = List(entries, "ActionDataReferences"),
-		};
-		events.SendEvent(response);
-		return $"sent NewsResponseActionEvent for '{title}' "
-			+ $"(ResponseId={response.ResponseId} ResponseValue={response.ResponseValue} "
-			+ $"ResponseActionId={response.ResponseActionId} "
-			+ $"data={(response.ResponseActionDataReferences == null ? "null" : "list")})";
-	}
-
+	/// <summary>A record's entries by name, for the callers that read what a control or menu row carries.</summary>
 	internal static System.Collections.Generic.Dictionary<string, SI.Core.TypedValue> Entries(
 		SI.Bindable.DynamicReference record)
 	{
@@ -249,25 +193,5 @@ internal static class Send
 			if (!string.IsNullOrEmpty(name)) entries[name] = record[key.ID];
 		}
 		return entries;
-	}
-
-	private static int Number(
-		System.Collections.Generic.Dictionary<string, SI.Core.TypedValue> entries, string name)
-	{
-		if (!entries.TryGetValue(name, out var value) || value == null || value.IsNull) return 0;
-		return int.TryParse(value.AsString(), out var number) ? number : 0;
-	}
-
-	private static string Text(
-		System.Collections.Generic.Dictionary<string, SI.Core.TypedValue> entries, string name) =>
-		entries.TryGetValue(name, out var value) && value != null && !value.IsNull
-			? value.AsString()
-			: "?";
-
-	private static Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> List(
-		System.Collections.Generic.Dictionary<string, SI.Core.TypedValue> entries, string name)
-	{
-		if (!entries.TryGetValue(name, out var value) || value == null || value.IsNull) return null;
-		return value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>();
 	}
 }

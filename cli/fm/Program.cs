@@ -33,6 +33,7 @@ internal static class Program
 			{
 				"squad" => await Squad(json, args),
 				"inbox" => await Inbox(json),
+				"reply" => await Reply(args),
 				"next" => await Next(),
 				"pages" => await PageList(json, args),
 				"open" => await Open(args),
@@ -267,8 +268,9 @@ internal static class Program
 		}
 
 		var rows = inbox.EnumerateArray()
-			.Select(m => new[]
+			.Select((m, i) => new[]
 			{
+				(i + 1).ToString(),
 				Field(m, "NewsItemTimeSent"),
 				Field(m, "Sender"),
 				Field(m, "NewsTitleString"),
@@ -276,13 +278,140 @@ internal static class Program
 			})
 			.ToList();
 
-		Table.Write(new[] { "SAAT", "GÖNDEREN", "KONU", "" }, rows);
+		Table.Write(new[] { "#", "SAAT", "GÖNDEREN", "KONU", "" }, rows);
 
 		var waiting = inbox.EnumerateArray().Count(Blocking);
 		if (waiting > 0)
-			Console.WriteLine($"\n{waiting} mesaj cevap bekliyor — bunlar `fm next`'i blokluyor.");
+			Console.WriteLine($"\n{waiting} mesaj cevap bekliyor — bunlar `fm next`'i blokluyor. Cevaplamak için: reply <#>");
 
 		return 0;
+	}
+
+	/// <summary>
+	/// Answers a message. With only the message named, its answers are listed; with one of them
+	/// named too, that answer is given.
+	///
+	/// An answer is a button the message shows once opened, so this opens the message and
+	/// presses what is there. The game fills in what the answer carries.
+	/// </summary>
+	private static async Task<int> Reply(string[] args)
+	{
+		var words = Words(args).ToList();
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine("kullanım: reply <# | konu> [\"<cevap>\"] [--dry]   (numaralar için `inbox`)");
+			return 64;
+		}
+
+		if (!await Fm.InGame())
+		{
+			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			return 69;
+		}
+
+		var inbox = (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList();
+		var message = Pick(inbox, words[0]);
+		if (message is not { } chosen) return 1;
+
+		var title = Field(chosen, "NewsTitleString");
+		var opened = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+
+		// The answers on screen belong to whichever message is open, so they are only read once
+		// the game reports this one as selected; until then they are the previous message's.
+		var id = Field(chosen, "UniqueId");
+		if (!await Until(async () => await Selected() == id))
+		{
+			Console.Error.WriteLine($"'{title}' açılamadı.");
+			return 1;
+		}
+
+		// The panel fills a moment after the selection changes, and a message without answers
+		// never fills, so two readings in a row that agree are taken as settled.
+		List<JsonElement> answers = [];
+		var previous = "?";
+		for (var attempt = 0; attempt < 8; attempt++)
+		{
+			await Task.Delay(TimeSpan.FromSeconds(1));
+			answers = await Answers();
+
+			var labels = string.Join("|", answers.Select(a => Field(a, "Pointer")));
+			if (labels == previous && attempt >= 1) break;
+			previous = labels;
+		}
+
+		if (answers.Count == 0)
+		{
+			Console.WriteLine($"'{title}' cevap seçeneği sunmuyor.");
+			return 0;
+		}
+
+		if (words.Count == 1)
+		{
+			Console.WriteLine($"{title}\n");
+			foreach (var answer in answers) Console.WriteLine("  " + Field(answer, "Label"));
+			Console.WriteLine($"\nCevaplamak için: reply {words[0]} \"<cevap>\"");
+			return 0;
+		}
+
+		var wanted = answers
+			.Where(a => Field(a, "Label").Contains(words[1], StringComparison.OrdinalIgnoreCase))
+			.ToList();
+		if (wanted.Count != 1)
+		{
+			Console.Error.WriteLine(wanted.Count == 0
+				? $"'{words[1]}' diye bir cevap yok. Seçenekler:"
+				: $"'{words[1]}' birden çok cevaba uyuyor:");
+			foreach (var answer in answers) Console.Error.WriteLine("  " + Field(answer, "Label"));
+			return 1;
+		}
+
+		var query = new List<(string, string)> { ("ptr", Field(wanted[0], "Pointer")) };
+		if (args.Contains("--dry")) query.Add(("dry", "1"));
+
+		var pressed = await Fm.Get("press", query.ToArray());
+		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+
+		Console.WriteLine(args.Contains("--dry")
+			? $"(kuru) '{Field(wanted[0], "Label")}' cevabı verilecekti: {title}"
+			: $"Cevaplandı: {title} → {Field(wanted[0], "Label")}");
+		return 0;
+
+		async Task<string> Selected()
+		{
+			var found = await Fm.Get("find", ("name", "HumanPortalLastSelectedMessage"), ("limit", "1"));
+			var at = found.IndexOf("(DynamicNumber) ", StringComparison.Ordinal);
+			return at < 0 ? "" : new string(found[(at + 16)..].TakeWhile(char.IsDigit).ToArray());
+		}
+
+		async Task<List<JsonElement>> Answers() =>
+			(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(c => Field(c, "Events").Contains("SpeakToAction", StringComparison.Ordinal))
+				.Where(c => Field(c, "Enabled") == "True" && Field(c, "Label") != "")
+				.ToList();
+	}
+
+	/// <summary>A message by its number in the inbox listing, or by a piece of its subject.</summary>
+	private static JsonElement? Pick(List<JsonElement> inbox, string wanted)
+	{
+		if (int.TryParse(wanted, out var number))
+		{
+			if (number >= 1 && number <= inbox.Count) return inbox[number - 1];
+
+			Console.Error.WriteLine($"{number} numaralı mesaj yok; gelen kutusunda {inbox.Count} mesaj var.");
+			return null;
+		}
+
+		var matches = inbox
+			.Where(m => Field(m, "NewsTitleString").Contains(wanted, StringComparison.OrdinalIgnoreCase))
+			.ToList();
+		if (matches.Count == 1) return matches[0];
+
+		Console.Error.WriteLine(matches.Count == 0
+			? $"Konusunda '{wanted}' geçen mesaj yok."
+			: $"'{wanted}' {matches.Count} mesaja uyuyor; numarasıyla seç:");
+		foreach (var match in matches) Console.Error.WriteLine("  " + Field(match, "NewsTitleString"));
+		return null;
 	}
 
 	private static async Task<int> Next()
@@ -302,6 +431,13 @@ internal static class Program
 			Console.Error.WriteLine($"Bloke: {blocking.Count} mesaj cevap bekliyor.");
 			foreach (var message in blocking)
 				Console.Error.WriteLine($"  {Field(message, "NewsItemTimeSent")}  {Field(message, "NewsTitleString")}");
+
+			// The game's own Continue button is relabelled with what it is waiting for.
+			var waitingFor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(c => Field(c, "Name") == "continue-button")
+				.Select(c => Field(c, "Label"))
+				.FirstOrDefault();
+			if (!string.IsNullOrEmpty(waitingFor)) Console.Error.WriteLine($"Oyunun ilerle butonu şunu diyor: {waitingFor}");
 
 			return 1;
 		}
@@ -484,7 +620,14 @@ internal static class Program
 		return inGame ? 0 : 69;
 	}
 
+	/// <summary>
+	/// A message holds the game up when it is a priority one still unanswered. Being answerable
+	/// is not enough: some messages only offer something optional, like cancelling a camp.
+	/// </summary>
 	private static bool Blocking(JsonElement message) =>
+		Field(message, "NewsItemIsPriority") == "True" && Answerable(message);
+
+	private static bool Answerable(JsonElement message) =>
 		Field(message, "CanRespond") == "True" && Field(message, "NewsHasResponded") != "True";
 
 	private static string Flags(JsonElement message)
@@ -492,6 +635,7 @@ internal static class Program
 		var flags = new List<string>();
 		if (Field(message, "NewsItemHasBeenRead") != "True") flags.Add("okunmadı");
 		if (Blocking(message)) flags.Add("cevap bekliyor");
+		else if (Answerable(message)) flags.Add("cevaplanabilir");
 		return string.Join(", ", flags);
 	}
 
@@ -512,6 +656,8 @@ internal static class Program
 			    --fitness     kondisyon ve maç formu, en yorgun önce
 			    --morale      moral, hiyerarşi ve sosyal grup
 			  inbox           gelen kutusu
+			  reply <#>       mesajın cevap seçenekleri
+			  reply <#> "<cevap>"   mesajı cevapla
 			  next            zamanı ilerlet
 
 			  pages [metin]               oyunun bütün sayfaları
