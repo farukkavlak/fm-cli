@@ -115,6 +115,17 @@ internal static class Buttons
 			shown++;
 		}
 
+		foreach (var group in Radio.Groups())
+		{
+			string block;
+			try { block = Radio.Describe(group); }
+			catch (Exception ex) { block = $"0x{group.Pointer.ToInt64():x}  <threw {ex.GetType().Name}>\n"; }
+
+			if (!string.IsNullOrEmpty(filter) && block.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0) continue;
+			sb.Append(block);
+			shown++;
+		}
+
 		sb.AppendLine($"-- {shown} dropdown(s)");
 		return sb.ToString();
 	}
@@ -125,6 +136,10 @@ internal static class Buttons
 	/// </summary>
 	public static string Select(NameValueCollection q)
 	{
+		// A radio group is chosen from the same way, so it answers to the same route.
+		var radio = Radio.Select(q);
+		if (radio != null) return radio;
+
 		SIDropdown dropdown;
 		var raw = q["ptr"];
 		var name = q["name"];
@@ -422,6 +437,10 @@ internal static class Buttons
 			}
 			catch { }
 		}
+		foreach (var group in Radio.Groups())
+		{
+			try { rows.Add(Radio.Json(group)); } catch { }
+		}
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
 	}
 
@@ -502,7 +521,7 @@ internal static class Buttons
 	}
 
 	/// <summary>Every element of every loaded document, in tree order.</summary>
-	private static List<VisualElement> Elements()
+	internal static List<VisualElement> Elements()
 	{
 		var elements = new List<VisualElement>();
 
@@ -556,7 +575,7 @@ internal static class Buttons
 	}
 
 	/// <summary>The text a user would read on the control: its own, or the first inside it.</summary>
-	private static string LabelOf(VisualElement element)
+	internal static string LabelOf(VisualElement element)
 	{
 		var queue = new Queue<VisualElement>();
 		queue.Enqueue(element);
@@ -642,7 +661,7 @@ internal static class Buttons
 		}
 	}
 
-	private static string Render(object value)
+	internal static string Render(object value)
 	{
 		switch (value)
 		{
@@ -663,7 +682,7 @@ internal static class Buttons
 
 	// ------------------------------------------------------------------ type shapes
 
-	private sealed class Shape
+	internal sealed class Shape
 	{
 		public Type Type;
 		public MethodInfo Cast;
@@ -677,7 +696,7 @@ internal static class Buttons
 	/// The interop wrapper for an il2cpp type name, and which of its members are event lists.
 	/// Asked once per type, since a screen holds thousands of elements of a few dozen types.
 	/// </summary>
-	private static Shape ShapeOf(string il2cppName)
+	internal static Shape ShapeOf(string il2cppName)
 	{
 		if (il2cppName == null) return new Shape();
 		if (Shapes.TryGetValue(il2cppName, out var known)) return known;
@@ -753,7 +772,7 @@ internal static class Buttons
 		return paths;
 	}
 
-	private static bool TryPointer(string raw, out IntPtr pointer)
+	internal static bool TryPointer(string raw, out IntPtr pointer)
 	{
 		pointer = IntPtr.Zero;
 		var hex = raw.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? raw[2..] : raw;
@@ -762,7 +781,7 @@ internal static class Buttons
 		return true;
 	}
 
-	private static string Short(string fullName)
+	internal static string Short(string fullName)
 	{
 		if (fullName == null) return "?";
 		var dot = Math.Max(fullName.LastIndexOf('.'), fullName.LastIndexOf('+'));

@@ -101,6 +101,49 @@ internal static class Report
 		return sb.ToString();
 	}
 
+	/// <summary>
+	/// The introduction tour on screen: which step it is on and what the guide is saying.
+	///
+	/// A tour is a conversation whose reference counts its steps; the speech bubbles hang beside
+	/// it. Nothing bound means no tour is open, which is answered as an empty record.
+	/// </summary>
+	public static string Tour()
+	{
+		foreach (var (_, node) in Walk())
+		{
+			if (node.Name != "SpeakTo") continue;
+
+			var fields = Fields(node);
+			if (!fields.TryGetValue("CurrentInductionStepIndex", out var step)) continue;
+			fields.TryGetValue("MaxInductionStepIndex", out var max);
+
+			var bubbles = new SortedDictionary<int, string>();
+			if (node.Parent != null) Bubbles(node.Parent, bubbles);
+
+			return "{"
+				+ $"\"Step\": \"{Escape(step)}\", \"Max\": \"{Escape(max ?? "")}\", "
+				+ "\"Says\": [" + string.Join(", ", bubbles.Values.Select(b => $"\"{Escape(b)}\"")) + "]}\n";
+		}
+		return "{}\n";
+	}
+
+	/// <summary>The guide's lines in the order they were said; the list holds them by index.</summary>
+	private static void Bubbles(IReadOnlyNode under, SortedDictionary<int, string> bubbles)
+	{
+		var queue = new Queue<IReadOnlyNode>();
+		queue.Enqueue(under);
+		var seen = 0;
+
+		while (queue.Count > 0 && seen++ < 400)
+		{
+			var node = queue.Dequeue();
+			for (var c = node.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+
+			if (node.Name != "bubble" || !int.TryParse(node.Parent?.Name, out var index)) continue;
+			if (Fields(node).TryGetValue("DisplayString", out var text)) bubbles[index] = text;
+		}
+	}
+
 	/// <summary>The name of the team a squad row belongs to, found by climbing to its list.</summary>
 	private static string TeamOf(IReadOnlyNode node)
 	{
