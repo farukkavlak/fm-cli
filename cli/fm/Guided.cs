@@ -821,15 +821,19 @@ internal static partial class Program
 		return open[0].GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 	}
 
-	/// <summary>A choice by its number in the listing, its exact name, or a piece of it that fits only one.</summary>
+	/// <summary>
+	/// A choice by its number in the listing, its exact name, or a piece of it that fits only one.
+	/// Names are matched without their accents: nobody types "Kanté" or "Škriniar" at a prompt.
+	/// </summary>
 	private static string Choose(List<string> choices, string pick, string what)
 	{
 		if (int.TryParse(pick, out var number) && number >= 1 && number <= choices.Count) return choices[number - 1];
 
-		var exact = choices.FirstOrDefault(c => c.Equals(pick, StringComparison.OrdinalIgnoreCase));
+		var wanted = Fold(pick);
+		var exact = choices.FirstOrDefault(c => Fold(c) == wanted);
 		if (exact != null) return exact;
 
-		var close = choices.Where(c => c.Contains(pick, StringComparison.OrdinalIgnoreCase)).ToList();
+		var close = choices.Where(c => Fold(c).Contains(wanted, StringComparison.Ordinal)).ToList();
 		if (close.Count == 1) return close[0];
 
 		Console.Error.WriteLine(close.Count == 0
@@ -837,6 +841,26 @@ internal static partial class Program
 			: $"{what}: '{pick}' birden çok seçeneğe uyuyor:");
 		foreach (var choice in close.Count == 0 ? choices : close) Console.Error.WriteLine($"  {choice}");
 		return null;
+	}
+
+	/// <summary>
+	/// Lower case with the accents taken off. Done from a table rather than by Unicode
+	/// decomposition, which is not available when the runtime carries no culture data.
+	/// </summary>
+	private static string Fold(string text)
+	{
+		const string accented = "áàâäãåāăąéèêëēěęėíìîïīıóòôöõøōőúùûüūůűçćčďđğľĺłñńňřśšşşťţýÿžźżæœß";
+		const string plain    = "aaaaaaaaaeeeeeeeeiiiiiioooooooouuuuuuucccddglllnnnrssssttyyzzzaos";
+
+		var folded = new System.Text.StringBuilder(text.Length);
+		foreach (var raw in text)
+		{
+			// The dotted capital İ lowers to "i" plus a combining dot under invariant rules.
+			var c = raw == 'İ' ? 'i' : char.ToLowerInvariant(raw);
+			var at = accented.IndexOf(c);
+			folded.Append(at >= 0 && at < plain.Length ? plain[at] : c);
+		}
+		return folded.ToString();
 	}
 
 	/// <summary>The first bound value by that name anywhere on the loaded screens, as text.</summary>

@@ -156,7 +156,16 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var table = await Shown("table", "Overview", "Portal");
+		// Other pages carry a cut-down table of a few rows around the team; only the portal's
+		// is the whole league, so anything short is not taken for it.
+		var table = await Fm.GetJson("table");
+		if (table.GetArrayLength() < 10)
+		{
+			var opened = await OpenPage("Overview", "Portal");
+			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+			await Until(async () => (table = await Fm.GetJson("table")).GetArrayLength() >= 10);
+		}
+
 		if (json)
 		{
 			Console.WriteLine(table.ToString());
