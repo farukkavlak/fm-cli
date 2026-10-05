@@ -1053,8 +1053,16 @@ Doğrulama (her biri oyun yeniden başlatıldıktan sonra):
 | `/select` geçersiz indeks, olmayan seçenek, `dry=1` | hata ya da değişiklik yok |
 | `/press?text=ZzYokZz` | `error: no control labelled …` |
 
-⚠ `Condition` iki oyuncuda `-1` (Talisca, Rodrigo Becão). Ne anlama geldiği doğrulanmadı;
-CLI "-" basıyor.
+`Condition = -1` sakat oyuncu demek. İki oyuncuda görüldü ve ikisi de "Injuries" görünümünde
+sakat: Talisca (`InjuryDescription = A moderate hamstring strain`) ve Rodrigo Becão
+(`A torn ACL`); ikisinin de `StatusTitleShort`'u `Inj`, tabloda başka `Inj` yok. CLI kondisyonu
+"-" basıp durumu ayrı kolonda gösteriyor. `StatusTitleShort` oyuncunun ilk durum bayrağı
+(`Inj`, `Wnt`, `Hol`…) ve her görünümde geliyor.
+
+Aynı turda okunan diğer görünümler: Injuries (`InjurySeverity`, `InjuryDescription`,
+`InjuriesTimeMissed`), Risk Assessment (`OverallInjuryRisk`, `InjurySusceptibility`, `Load`,
+`MatchLoad`), Playing Time (`AgreedPlayingTime`, `ActualPlayingTime`,
+`FutureAgreedPlayingTime`, `PlayingTimeHappinessLevel`).
 
 ## 9. Sıradaki adımlar
 

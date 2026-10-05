@@ -121,10 +121,11 @@ internal static class Program
 				Field(p, "PositionCombinedString"),
 				Percent(p, "Condition"),
 				Percent(p, "Sharpness"),
+				Field(p, "StatusTitleShort"),
 			})
 			.ToList();
 
-		Table.Write(new[] { "OYUNCU", "POZİSYON", "KONDİSYON", "MAÇ FORMU" }, rows);
+		Table.Write(new[] { "OYUNCU", "POZİSYON", "KONDİSYON", "MAÇ FORMU", "DURUM" }, rows);
 		return 0;
 	}
 
@@ -204,7 +205,7 @@ internal static class Program
 		return false;
 	}
 
-	/// <summary>The game reports -1 where it has no value to show, which is not a percentage.</summary>
+	/// <summary>An injured player's condition comes back as -1, which is not a percentage.</summary>
 	private static string Percent(JsonElement element, string name) =>
 		Number(element, name) is >= 0 and <= 100 and var value ? $"{value}%" : "-";
 

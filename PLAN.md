@@ -362,7 +362,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   `/select?name=&choice=` etiketle buluyor; etiket birden çok kontrole uyarsa reddediyor.
 - **Test tıklamaları kayda yazılmadı.** Oyun kaydedilmeden üç kez yeniden başlatıldı; "okundu
   işaretle" dahil hiçbir değişiklik kalıcı değil.
-- **Kondisyon bazı oyuncularda -1** (Talisca, Becão); CLI "-" basıyor, anlamı doğrulanmadı.
+- **Kondisyon -1 = sakat.** Talisca (hamstring) ve Becão (ön çapraz bağ); "Injuries"
+  görünümünden doğrulandı, `fm squad --fitness` durumu ayrı kolonda gösteriyor.
 - **Buton metinlerinde markup kalıyor** (`<link="0"><style="Norml">…`); `Text.Clean` bunu
   temizlemiyor.
 
