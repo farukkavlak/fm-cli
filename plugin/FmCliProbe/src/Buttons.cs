@@ -97,7 +97,7 @@ internal static class Buttons
 	/// </summary>
 	public static string Dropdowns(NameValueCollection q)
 	{
-		if (q["json"] == "1") return DropdownsJson();
+		if (q["json"] == "1") return DropdownsJson(q["deep"] == "1");
 
 		var filter = q["text"];
 		var paths = KeyPaths();
@@ -169,6 +169,10 @@ internal static class Buttons
 		var choices = dropdown.m_choices;
 		var count = choices?.Count ?? 0;
 
+		// A row with a submenu is chosen from by the path of indices down to the row meant:
+		// "7,3" is the fourth row of the eighth row's submenu.
+		if (!string.IsNullOrEmpty(q["path"])) return SelectPath(dropdown, q["path"], q);
+
 		int index;
 		var wanted = q["choice"];
 		if (!string.IsNullOrEmpty(wanted))
@@ -199,6 +203,63 @@ internal static class Buttons
 			return $"selected {described} and sent its {events.Count} event(s)";
 		}
 		return $"selected {described}, now {dropdown.SelectedIndex}";
+	}
+
+	private static string SelectPath(SIDropdown dropdown, string raw, NameValueCollection q)
+	{
+		var path = new Il2CppSystem.Collections.Generic.List<int>();
+		var labels = new List<string>();
+		var rows = dropdown.m_choices;
+		SI.Core.TypedValue chosen = null;
+
+		foreach (var part in raw.Split(','))
+		{
+			if (!int.TryParse(part, out var index)) return $"error: '{raw}' is not a path of indices like 7,3";
+			if (rows == null || index < 0 || index >= rows.Count) return $"error: index {index} is outside the menu at depth {path.Count}";
+
+			path.Add(index);
+			chosen = rows[index];
+			labels.Add(Choice(chosen));
+			rows = Children(chosen);
+		}
+
+		var described = string.Join(" › ", labels);
+		if (q["dry"] == "1") return $"dry run, NOT selected: {described}";
+
+		// How a submenu row reaches the bound value is not settled; the ways are kept apart
+		// so each can be tried against the live game.
+		var how = q["how"] ?? "bind";
+		switch (how)
+		{
+			case "path": dropdown.OnSelectionChangedInternal(path.Cast<Il2CppSystem.Collections.Generic.IReadOnlyList<int>>()); break;
+			case "try": dropdown.TrySetSelectedValue(chosen); break;
+			case "bind": dropdown.UpdateDropdownSelectionBinding(chosen); break;
+			default: return $"error: how={how} is not one of path, try, bind";
+		}
+
+		if (q["fire"] != "1") return $"selected {described} ({how})";
+
+		var events = dropdown.SelectionEvents;
+		var queue = Game.UiEvents;
+		if (events == null || events.Count == 0) return $"error: selected {described}, but this dropdown has no events to send";
+		if (queue == null) return "error: UIEventQueue unavailable";
+		queue.QueueEvents(events);
+		return $"selected {described} ({how}) and sent its {events.Count} event(s)";
+	}
+
+	/// <summary>The rows of a row's submenu, or null when it has none.</summary>
+	private static Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> Children(SI.Core.TypedValue choice)
+	{
+		try
+		{
+			var record = choice?.Get()?.TryCast<DynamicReference>();
+			if (record == null) return null;
+			if (!Send.Entries(record).TryGetValue("ChildList", out var value) || value == null || value.IsNull) return null;
+
+			var list = value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>();
+			return list != null && list.Count > 0 ? list : null;
+		}
+		catch { return null; }
 	}
 
 	/// <summary>Every menu row carries a child list; only a filled one makes it a submenu.</summary>
@@ -427,7 +488,7 @@ internal static class Buttons
 		return listName is "Events" or "SelectionEvents" or "ShortcutEvent" ? text : $"{listName}→{text}";
 	}
 
-	private static string DropdownsJson()
+	private static string DropdownsJson(bool deep)
 	{
 		var rows = new List<string>();
 		foreach (var dropdown in AllDropdowns())
@@ -439,13 +500,31 @@ internal static class Buttons
 				var names = new List<string>();
 				for (var i = 0; i < count && i < 60; i++) names.Add(Choice(choices[i]));
 
+				// Submenus are only spelled out on request: most callers want the top level,
+				// and a menu of menus is large.
+				var submenus = "";
+				if (deep)
+				{
+					var parts = new List<string>();
+					for (var i = 0; i < count && i < 60; i++)
+					{
+						var children = Children(choices[i]);
+						if (children == null) continue;
+
+						var inner = new List<string>();
+						for (var c = 0; c < children.Count && c < 60; c++) inner.Add($"\"{Report.Escape(Choice(children[c]) ?? "")}\"");
+						parts.Add($"\"{i}\": [{string.Join(", ", inner)}]");
+					}
+					submenus = ", \"Submenus\": {" + string.Join(", ", parts) + "}";
+				}
+
 				rows.Add("{"
 					+ $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", "
 					+ $"\"Name\": \"{Report.Escape(NameOf(dropdown))}\", "
 					+ $"\"Label\": \"{Report.Escape(LabelOf(dropdown))}\", "
 					+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "
 					+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
-					+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]}");
+					+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]" + submenus + "}");
 			}
 			catch { }
 		}

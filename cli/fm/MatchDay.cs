@@ -242,6 +242,101 @@ internal static partial class Program
 		score = now;
 	}
 
+	/// <summary>
+	/// A substitution during a match.
+	///
+	/// On the match screen every player on the pitch has a menu, and one of its rows opens the
+	/// bench: choosing a name there takes him off for that player. So who is on, who is on the
+	/// bench and how many changes are left are all read from those menus.
+	/// </summary>
+	private static async Task<int> Substitute(bool json, string[] args)
+	{
+		if (!await Fm.InGame() || Field(await Fm.GetJson("state"), "DuringMatch") != "True")
+		{
+			Console.Error.WriteLine("Değişiklik yalnızca maç sırasında yapılır.");
+			return 1;
+		}
+
+		const string off = "Substitute Off";
+		var menus = await Menus();
+		if (menus.Count == 0)
+		{
+			Console.Error.WriteLine("Sahadaki oyuncuların menüsü ekranda yok (devre arası ya da konuşma ekranı olabilir).");
+			return 1;
+		}
+
+		var onPitch = menus.Select(m => m.GetProperty("Choices")[0].GetString()).ToList();
+		var bench = Bench(menus[0]);
+		var words = Words(args).ToList();
+
+		if (json)
+		{
+			Console.WriteLine(JsonSerializer.Serialize(new { OnPitch = onPitch, Bench = bench }));
+			return 0;
+		}
+
+		if (words.Count < 2)
+		{
+			Console.WriteLine("Sahada:");
+			foreach (var menu in menus)
+			{
+				var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+				Console.WriteLine($"  {rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))})");
+			}
+			Console.WriteLine("\nKulübede:");
+			foreach (var name in bench) Console.WriteLine($"  {name}");
+			Console.WriteLine("\nDeğiştirmek için: sub <çıkan> <giren>");
+			return 0;
+		}
+
+		if (Choose(onPitch, words[0], "Çıkan") is not { } leaving) return 1;
+		var from = menus[onPitch.IndexOf(leaving)];
+
+		// The bench is listed per player, since who may replace whom can differ.
+		var choices = Bench(from);
+		if (Choose(choices, words[1], "Giren") is not { } coming) return 1;
+
+		var row = from.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList().FindIndex(c => c.StartsWith(off, StringComparison.Ordinal));
+		var entry = from.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Select(c => c.GetString()).ToList().IndexOf(coming);
+
+		// A submenu row is written to the menu's bound value and the menu's own events sent
+		// after it, which is what choosing it by hand comes to.
+		var query = new List<(string, string)> { ("ptr", Field(from, "Pointer")), ("path", $"{row},{entry}"), ("fire", "1") };
+		if (args.Contains("--dry")) query.Add(("dry", "1"));
+
+		var selected = await Fm.Get("select", query.ToArray());
+		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
+		if (args.Contains("--dry"))
+		{
+			Console.WriteLine($"(kuru) {leaving} çıkacak, {coming} girecekti.");
+			return 0;
+		}
+
+		// Done when the player who left no longer has a menu on the pitch.
+		var made = await Until(async () => !(await Menus()).Any(m => m.GetProperty("Choices")[0].GetString() == leaving), seconds: 20);
+		Console.WriteLine(made
+			? $"Değişiklik verildi: {leaving} çıkıyor, {coming} giriyor. Oyun bunu ilk duraklamada uyguluyor."
+			: $"{coming} seçildi ama {leaving} hâlâ sahada görünüyor; oyun onay bekliyor olabilir (buttons).");
+		return made ? 0 : 1;
+
+		async Task<List<JsonElement>> Menus() =>
+			(await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
+				.Where(d => d.GetProperty("Choices").EnumerateArray().Any(c => (c.GetString() ?? "").StartsWith(off, StringComparison.Ordinal)))
+				.ToList();
+
+		// The submenu's first row is a count ("3/5 Substitutes"), not a player.
+		static List<string> Bench(JsonElement menu)
+		{
+			if (!menu.TryGetProperty("Submenus", out var submenus)) return [];
+
+			var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+			var at = rows.FindIndex(c => c.StartsWith("Substitute Off", StringComparison.Ordinal));
+			return at >= 0 && submenus.TryGetProperty(at.ToString(), out var list)
+				? list.EnumerateArray().Select(c => c.GetString() ?? "").Where(c => !c.EndsWith("Substitutes", StringComparison.Ordinal)).ToList()
+				: [];
+		}
+	}
+
 	/// <summary>The confirmation dialogs on screen, and answering one by its button.</summary>
 	private static async Task<int> Dialog(bool json, string[] args)
 	{

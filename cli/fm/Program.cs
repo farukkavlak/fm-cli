@@ -41,6 +41,7 @@ internal static partial class Program
 				"tour" => await Tour(json, args),
 				"talk" => await TalkTo(json, args),
 				"match" => await PlayMatch(args),
+				"sub" => await Substitute(json, args),
 				"save" => await SaveGame(args),
 				"dialog" => await Dialog(json, args),
 				"setpieces" => await SetPieces(args),
@@ -765,6 +766,7 @@ internal static partial class Program
 			  match           maç gününü oyna: kadroyu gönder, maçı izle, maçtan çık; golleri ve sonucu bas
 			    --talk        takım konuşmalarında ilk (önerilen) cümleyi söyle; yoksa konuşmadan geçer
 			    --instant     maçı oynatma, yardımcılara bırak: oyun birkaç saniyede simüle eder
+			  sub             maç sırasında: sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
 			  dialog [cevap]  açık onay penceresini göster ya da cevapla
 			  talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin
 			  talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık

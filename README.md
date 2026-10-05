@@ -72,6 +72,8 @@ talk <no>       söyle;  talk leave: çık
 tour            açık tanıtım turunu yürüt;  --skip: atla
 next [n]        zamanı ilerlet, oyunun durmasını bekle, ne olduğunu söyle
 match           maç gününü oyna: kadroyu gönder, maçı izle, maçtan çık;  --talk: konuşmalarda konuş
+  --instant     maçı oynatma, yardımcılara bırak (birkaç saniye)
+sub             maç sırasında sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
 dialog [cevap]  açık onay penceresini göster ya da cevapla
 status          tarih, saat ve oyunun neyi beklediği
 save --yes      oyunu kaydet (dosyanın üzerine yazar)

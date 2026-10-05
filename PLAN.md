@@ -20,9 +20,9 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 "basılıyor". Yeni bir alan açmak = `fm open "<sayfa>"`, `fm buttons` ile bak, `fm press` ile dene.
 77 sayfanın listesi `docs/reference/screens.txt`'te.
 
-1. **Maç içi yönetim.** Sakatlıkta oyun değişiklik bekleyip duruyor ve `fm match` orada
-   bırakıyor (§8.34). Gereken: yedekleri okumak, oyuncu değiştirmek (oyuncu menüsündeki
-   "Substitute Off ›" ya da "Dugout" tavsiyesindeki "Do it"), sonra maç hızı.
+1. **Maç içi yönetimin kalanı.** `fm sub` oyuncu değiştiriyor (§8.34). Kalan: sakatlık
+   durağını `fm match`'in kendisinin geçmesi (sub + "Confirm Changes"), maç içi mentalite / rol /
+   shout (hepsi alt menülü listeler, seçim yolu belli), "Dugout" tavsiyelerini okumak, maç hızı.
    Bire bir oyuncu konuşması henüz çıkmadı; `fm talk` aynı şablonu bekliyor.
 2. **`fm tactic` kalanı** — oluşturma, okuma, mentalite, stil ve Quick Pick tamam (§8.30,
    §8.31). Kalan: rol ve diziliş değiştirme (`FMPitchPosition.Events`, rol açılır listeleri),
@@ -199,13 +199,14 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
       bildiriyor; oyunun kendi durumunu okuyor (`continue.State`, §8.32)
 - [x] Maç gününü oyna — `fm match [--talk]`: kadro gönder, onay penceresi, konuşmalar, maç,
       çıkış; gol/devre/sonuç bildiriyor (§8.34)
-- [ ] Maç içi oyuncu değişikliği — sakatlıkta maç duruyor, `fm match` söyleyip bırakıyor
+- [x] Maç içi oyuncu değişikliği — `fm sub <çıkan> <giren>`; `fm sub` sahayı ve kulübeyi listeler (§8.34)
+- [ ] Sakatlık durağı — maç duruyor, `fm match` söyleyip bırakıyor; `fm sub` + "Confirm Changes" orada denenmedi
 - [x] Anında sonuç — `fm match --instant`, 9 sn (§8.34)
 - [ ] Maç hızı (`EventFmxHighlightModeChanged`, `…HighlightSpeedChanged`) — oynanan maç ~6-7 dk
 - [k] Maç içi taktik değişimi — `EventFmxMatchTacticsChanged`, `MatchTacticReference` (227)
 - [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
 - [ ] Canlı maç takibi (metin akışı)
-- [ ] Maç içi: oyuncu değişikliği, taktik değişimi, shout
+- [ ] Maç içi: taktik/rol değişimi, shout (listeleri ekranda, alt menü seçimi çözüldü — §8.34)
 - [ ] Maç sonrası: rating, istatistik, basın
 - [ ] Maç istatistikleri (xG, pas haritası, ısı haritası → terminalde?)
 - [ ] Highlight özeti (metin)
@@ -363,6 +364,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - **İlk maç oynandı.** Maç gününün on iki durağı çıkarıldı; `fm match --talk` tek komutla
   oynadı (6 dk, 0-0). Onay pencereleri `fm dialog` ile, kaydetme `fm save --yes` ile.
 - **Basın toplantısı ve beklentiler toplantısı `fm talk` ile yürüdü**; liste cevaplı soru dahil.
+- **`fm match --instant`** maçı 9 sn'de simüle ettiriyor; **`fm sub`** maç içinde oyuncu değiştiriyor.
 - **`fm setpieces new`** duran top sihirbazını, **`fm table` / `fm fixtures`** tabloyu ve
   sıradaki maçları, **`fm player <isim>`** oyuncunun sayfasını veriyor.
 - **`fm next` bekliyor ve anlatıyor**; oyunun durumu sabit bir yoldan okunuyor (`continue.State`).
@@ -375,7 +377,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 - **⚠ Oyun otomatik kayıt aldı.** 7 Temmuz'a geçerken ana kayıt dosyasının üzerine yazdı;
   temiz hal `(v02)` adıyla yanında ve `~/fm26_bep/save-backups/`'ta duruyor (§8.35).
-- **Sakatlık maçı durdurdu.** Oyun değişiklik bekledi; maç içi oyuncu değişikliği henüz yok.
+- **Sakatlık maçı durdurdu.** Oyun değişiklik bekledi. `fm sub` sonradan yazıldı ve canlı
+  maçta iki değişiklik yaptı, ama sakatlık durağının kendisinde denenmedi.
 - **`fm open` bazı sayfaları verisiz açıyordu** (Tactics). Dünkü doğrulama yalnızca panelin
   açıldığına bakmıştı. Artık sekmenin ilk sayfasından alt sekme butonuna basıyor (§8.31).
 - **`fm reply`'dan hemen sonraki `fm next` mesajı hâlâ engel sanıyordu**; `reply` artık gelen

@@ -1573,8 +1573,8 @@ duruyor. `fm match` bunu saatin 45 sn kıpırdamamasından anlayıp duruyor ve s
 "Cancel"a basınca "Injured Players — …you still have an injured player on the pitch" penceresi
 çıktı. Ekranda ayrıca "Dugout" paneli vardı (`EventFmxMatchDugoutConfirmEvent` = "Do it",
 `…DismissEvent`, `…JumpToEvent`): yardımcının maç içi tavsiyeleri. İçeriği okunmadan kapatıldı;
-sakat oyuncuyu değiştirme tavsiyesi büyük olasılıkla oradaydı. **Maç içi oyuncu değişikliği
-henüz yok.**
+sakat oyuncuyu değiştirme tavsiyesi büyük olasılıkla oradaydı. Değişikliğin kendisi artık var
+(aşağıda `fm sub`), ama sakatlık durağında denenmedi.
 
 Doğrulama:
 
@@ -1619,6 +1619,45 @@ Aynı maç bu gece dört kez oynandı ve dördü de farklı bitti (devre arası 
 1 - 0): sonuç kayıtta yazılı değil, her seferinde yeniden üretiliyor. Sonuç dizgisinde hangi
 tarafın biz olduğu yazmıyor; tarafsız sahada ayırt edilemedi. `ResultType` "0 - 3"te 1 idi,
 başka skorda bakılmadı.
+
+### Maç içi oyuncu değişikliği: `fm sub`
+
+Maç ekranında sahadaki her oyuncunun bir menüsü var (`SIDropdown`, `SelectionEvents` =
+`MatchPlayerMenuEvent`, veri `modify-data`'dan). Satırları: ad, ruh hali, kondisyon, iki rol
+alt menüsü, "Player Instructions", "Touchline Shouts ›", **"Substitute Off ›"**. Sonuncunun alt
+menüsü kulübe: ilk satır sayaç ("15/15 Substitutes"), sonrakiler `{ Type = 7, PropertyValue =
+<oyuncu>, DisplayValue = "N'Golo Kanté - DM, M (C)", Player2 = <kulübe sırası> }`.
+
+**Alt menü satırı nasıl seçilir.** Üç yol denendi, canlı maçta:
+
+| Yol | Sonuç |
+|---|---|
+| `OnSelectionChangedInternal(IReadOnlyList<int>)` (indeks yolu "7,3") | hata yok, `modify-data` boş kaldı, değişiklik olmadı |
+| aynısı + `SelectionEvents`'i kuyruğa koymak | olmadı |
+| `UpdateDropdownSelectionBinding(<satır>)` + `SelectionEvents`'i kuyruğa koymak | **oldu**: Guendouzi'nin yerinde Kanté, `MatchTeamHasPendingChanges = True`, iki dakika sonra `False` ve Kanté'nin ruh hali "Seemed calm coming onto the pitch" |
+
+Yani satırın kendisi listenin bağlı değerine yazılıyor, sonra listenin event'i gönderiliyor
+(liste cevaplı basın sorusuyla aynı kalıp, §8.36). `/select?ptr=&path=7,3&fire=1` bunu yapıyor;
+`/dropdowns?json=1&deep=1` alt menüleri de veriyor. Maç durmuyor; oyun değişikliği ilk
+duraklamada uyguluyor.
+
+```
+fm sub                  sahadakiler (ruh hali, kondisyon) ve kulübe
+fm sub <çıkan> <giren>  değiştir (isimlerin bir parçası yeter)
+```
+
+| Deneme (canlı maç, 4. dakika) | Sonuç |
+|---|---|
+| maç başlamadan `sub` | "yalnızca maç sırasında" |
+| `sub` | 11 oyuncu, 7 kişilik kulübe |
+| `sub Zzz Kanté` / `sub Guendouzi Zzz` / `… --dry` | red / red / değişmedi |
+| `sub Musaba Oğuz` | 1,3 sn; Oğuz kulübeden çıktı, kulübe 5 kişi kaldı |
+
+Maç içi taktik ekranındaki ("Tactics" butonu, `MatchOpenTacticsEvent`; maçı durduruyor) listeler
+de aynı kalıpta ve denenmedi: 18 `TacticTeamSelectionDropdownEvent` listesi ("All Players ›" alt
+menüsüyle; ilk 11 ve yedekler), 22 `RoleOptionEvent` listesi (rol değişimi), 2 `ModifyTactic`.
+Sakatlık durağında (`fm match`'in bıraktığı yer) `fm sub` denenmedi; orada ayrıca "Confirm
+Changes"e basmak gerekecek.
 
 ## 8.35 Kaydetmek, ve oyunun kendi kaydı
 
