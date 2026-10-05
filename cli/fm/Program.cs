@@ -34,7 +34,7 @@ internal static partial class Program
 				"squad" => await Squad(json, args),
 				"inbox" => await Inbox(json),
 				"reply" => await Reply(args),
-				"next" => await Next(),
+				"next" => await Next(args),
 				"tour" => await Tour(json, args),
 				"tactic" => await Tactic(json, args),
 				"pages" => await PageList(json, args),
@@ -43,7 +43,7 @@ internal static partial class Program
 				"dropdowns" => await Dropdowns(json, args),
 				"press" => await Press(args),
 				"select" => await Select(args),
-				"status" => await Status(),
+				"status" => await Status(json),
 				"continue" => await Continue(),
 				"start" => await Attach(args.Contains("--debug")),
 				"help" or "--help" or "-h" => Help(),
@@ -477,39 +477,6 @@ internal static partial class Program
 		return null;
 	}
 
-	private static async Task<int> Next()
-	{
-		if (!await Fm.InGame())
-		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
-			return 69;
-		}
-
-		// Continue is refused outright while a message needs answering, and the game says
-		// nothing about it, so the blocking messages are reported instead of a silent no-op.
-		var inbox = await Bound("inbox", "PortalScreen");
-		var blocking = inbox.EnumerateArray().Where(Blocking).ToList();
-		if (blocking.Count > 0)
-		{
-			Console.Error.WriteLine($"Bloke: {blocking.Count} mesaj cevap bekliyor.");
-			foreach (var message in blocking)
-				Console.Error.WriteLine($"  {Field(message, "NewsItemTimeSent")}  {Field(message, "NewsTitleString")}");
-
-			// The game's own Continue button is relabelled with what it is waiting for.
-			var waitingFor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.Where(c => Field(c, "Name") == "continue-button")
-				.Select(c => Field(c, "Label"))
-				.FirstOrDefault();
-			if (!string.IsNullOrEmpty(waitingFor)) Console.Error.WriteLine($"Oyunun ilerle butonu şunu diyor: {waitingFor}");
-			if (await TourOpen()) Console.Error.WriteLine("Açık bir tanıtım turu var; yürütmek için: tour");
-
-			return 1;
-		}
-
-		Console.WriteLine(await Fm.Get("next"));
-		return 0;
-	}
-
 	/// <summary>
 	/// What can be pressed on the screen the game is showing. Unlabelled controls are icons and
 	/// layout, and outnumber the rest, so they are left out unless asked for.
@@ -729,15 +696,6 @@ internal static partial class Program
 		return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
 	}
 
-	private static async Task<int> Status()
-	{
-		var inGame = await Fm.InGame();
-		Console.WriteLine(inGame
-			? "FM açık, kayıt yüklü."
-			: "FM açık, kayıt yüklü değil — `continue` ile yükle.");
-		return inGame ? 0 : 69;
-	}
-
 	/// <summary>
 	/// A message holds the game up when it is a priority one still unanswered. Being answerable
 	/// is not enough: some messages only offer something optional, like cancelling a camp.
@@ -779,7 +737,7 @@ internal static partial class Program
 			  inbox           gelen kutusu
 			  reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
-			  next            zamanı ilerlet
+			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
 			  tour            açık tanıtım turunu sonuna kadar yürüt
 			    --skip        turu atla (tur izin veriyorsa)
 			  tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
@@ -799,7 +757,7 @@ internal static partial class Program
 			  dropdowns [metin]           ekrandaki açılır listeler ve seçenekleri
 			  select <liste> "<seçenek>"  listeden seç
 			    --dry                     press ve select için: yapma, ne yapacağını söyle
-			  status          bağlantı durumu
+			  status          tarih ve oyunun şu an neyi beklediği
 
 			  --json          ham veri (script'lenebilir)
 
