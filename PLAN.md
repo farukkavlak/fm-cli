@@ -25,9 +25,9 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
    (`NewsActionHandlerModule`) işliyor. Toplantı açılınca cevap butonları `/buttons`'ta
    `SpeakToActionEventContext` olarak görünmeli. Aynı yol inbox'ta doğrulandı: `fm reply` üç
    mesajı `SpeakToActionEvent` ile cevapladı (§8.29).
-2. **`fm tactic`** — oluşturma tamam (`fm tactic new`, §8.30); sıra okumada ve değiştirmede. Önce oku (`TacticReference`, 207 property), sonra yaz. Taktik ekranındaki
-   kontroller (`FMPitchPosition.Events`, `FMTacticsPanel.SelectionEvent`) da event listesi
-   taşıyor, yani rol ve formasyon değişimi de basılabilir olmalı.
+2. **`fm tactic` kalanı** — oluşturma, okuma, mentalite, stil ve Quick Pick tamam (§8.30,
+   §8.31). Kalan: rol ve diziliş değiştirme (`FMPitchPosition.Events`, rol açılır listeleri),
+   takım talimatları, yedekler, tek oyuncu değiştirme.
 3. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
    Sayfalar artık adıyla açılıyor (`fm open`), yani her biri "aç, şekle göre oku". Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
@@ -60,6 +60,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] Ekrandaki kontrolleri event'leriyle listeleme (`/buttons`) ve basma (`/press`) (§8.25)
 - [x] `fm buttons`, `fm press`, `fm dropdowns`, `fm select` — ekranı CLI'dan gezmek (§8.27)
 - [x] Ekran haritası ve sayfayı adıyla açma — `fm pages`, `fm open "<sayfa>"`, 77 sayfa (§8.28)
+- [x] Sayfayı verisi bağlanacak şekilde açma — sekmenin ilk sayfası + alt sekme butonu (§8.31)
+- [ ] Yalnızca "More" menüsünde olan sayfalar hâlâ bookmark'la açılıyor; verileri bağlanmayabilir
 - [x] Kuyruk denetimi — `/queue`, tıkalıyken `/press` reddediyor (§8.27)
 - [x] Açılır listeleri seçenekleriyle listeleme (`/dropdowns`) ve seçme (`/select`) (§8.26)
 - [x] Kontrolü etiketle, listeyi adıyla adresleme — adresler ekran değişince bayatlıyor
@@ -120,13 +122,14 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 > Katalog: COOKBOOK §1. Yazma tarafının ana event'i `ModifyTacticEvent`.
 
 - [x] Taktik oluştur — `fm tactic new "<stil>" "<topla>" "<topsuz>"`, oyunun sihirbazıyla (§8.30)
-- [k] Mevcut taktiği göster (`fm tactic`) — `TacticReference`, 207 property
+- [x] Mevcut taktiği göster — `fm tactic`: stil, mentalite, 11 mevki, top/topsuz roller, oyuncular (§8.31)
+- [x] Mentalite ve stil değiştir — `fm tactic mentality <x>`, `fm tactic style <x>` (§8.31)
+- [x] İlk 11'i oyuna seçtir — `fm tactic pick` (Quick Pick) (§8.31)
 - [k] Formasyon değiştir — `Formation` enum'u, 72 üye
 - [k] **In Possession / Out of Possession** ayrı şekiller — aynı event, `IsInPossession` bayrağı
 - [k] Oyuncu rolleri — 57 topla + 46 topsuz rol; değerler bit maskesi
 - [k] Oyuncu talimatları — `PlayerInstruction`, 36 üye
 - [k] Takım talimatları — 33 eksen, 14 faz (`TeamInstructionPhaseID`)
-- [k] Mentalite (8) ve taktik stilleri (13)
 - [k] İlk 11 seç / oyuncu değiştir — `TacticTeamSelectionDropdownEvent`
 - [ ] Yedek kulübesi
 - [ ] Duran top düzenleri (korner, faul, penaltı sırası)
@@ -352,12 +355,14 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - **Taktik turu taktik istiyordu.** Takımın taktiği yoktu; sihirbazla oluşturunca mesaj
   kendiliğinden kapandı. `fm tactic new "<stil>" "<topla>" "<topsuz>"`.
 - **`fm next` zamanı ilerletti** — ilk kez, iki ayrı oturumda (30/6 → 1/7/2025).
+- **`fm tactic` taktiği okuyor**, `mentality` / `style` değiştiriyor, `pick` ilk 11'i seçtiriyor.
 - **Radyo grupları** (`SIRadioGroup`) `/dropdowns` ve `/select`'e girdi; `/elements` event
   taşımayan kontrolleri bulmak için eklendi.
 
 **Kayıplar / engeller**
 
-- **`fm open Tactics` taktik yokken boş panel açıyor.** Sihirbaza giriş "No Tactic Set" kutusu.
+- **`fm open` bazı sayfaları verisiz açıyordu** (Tactics). Dünkü doğrulama yalnızca panelin
+  açıldığına bakmıştı. Artık sekmenin ilk sayfasından alt sekme butonuna basıyor (§8.31).
 - **`fm reply`'dan hemen sonraki `fm next` mesajı hâlâ engel sanıyordu**; `reply` artık gelen
   kutusunun güncellenmesini bekliyor.
 

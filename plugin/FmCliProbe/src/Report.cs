@@ -224,7 +224,7 @@ internal static class Report
 	}
 
 	/// <summary>A node's immediate string/number children, cleaned of embedded markup.</summary>
-	private static Dictionary<string, string> Fields(IReadOnlyNode node)
+	internal static Dictionary<string, string> Fields(IReadOnlyNode node)
 	{
 		var fields = new Dictionary<string, string>();
 		for (var c = node.FirstChild; c != null; c = c.NextSibling)
@@ -263,7 +263,7 @@ internal static class Report
 		return null;
 	}
 
-	private static IEnumerable<(string Path, IReadOnlyNode Node)> Walk()
+	internal static IEnumerable<(string Path, IReadOnlyNode Node)> Walk()
 	{
 		var bindings = Game.Bindings;
 		if (bindings == null) yield break;

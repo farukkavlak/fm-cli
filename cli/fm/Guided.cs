@@ -98,13 +98,201 @@ internal static partial class Program
 		return null;
 	}
 
-	private static async Task<int> Tactic(string[] args)
+	private static async Task<int> Tactic(bool json, string[] args)
 	{
 		var words = Words(args).ToList();
 		if (words.Count > 0 && words[0] == "new") return await TacticNew(words.Skip(1).ToList(), args.Contains("--dry"));
 
-		Console.Error.WriteLine("kullanım: tactic new [\"<stil>\" [\"<topla diziliş>\" [\"<topsuz diziliş>\"]]] [--dry]");
-		return 64;
+		if (!await Fm.InGame())
+		{
+			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			return 69;
+		}
+
+		var dry = args.Contains("--dry");
+		var wanted = words.Count > 1 ? words[1] : null;
+		switch (words.Count > 0 ? words[0] : "")
+		{
+			case "": break;
+			// Each setting is a dropdown on the planner, known by something only it offers.
+			case "mentality": return await TacticSetting("Mentalite", "MentalityString", "Very Defensive", wanted, dry);
+			case "style": return await TacticSetting("Stil", "Style", "Gegenpress", wanted, dry);
+			case "pick": return await TacticPick(dry);
+			default:
+				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic mentality [<x>] | tactic style [<x>] | tactic pick   [--dry]");
+				return 64;
+		}
+
+		if (await Planner() is not { } tactic)
+		{
+			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
+			return 1;
+		}
+		var header = tactic.GetProperty("Tactic");
+
+		if (json)
+		{
+			Console.WriteLine(tactic.ToString());
+			return 0;
+		}
+
+		Console.WriteLine(Field(header, "Name"));
+		Console.WriteLine($"Stil: {Field(header, "Style")} · Mentalite: {Field(header, "MentalityString")}"
+		                  + $" · Yoğunluk: {Field(header, "TacticalIntensity")} · Alışkanlık: {Field(header, "TacticalFamiliarity")}\n");
+
+		var rows = tactic.GetProperty("Slots").EnumerateArray().Select(slot => new[]
+		{
+			Spot(Field(slot, "IPPosition")),
+			Role(Field(slot, "IPRoleName")),
+			Spot(Field(slot, "OOPPosition")),
+			Role(Field(slot, "OOPRoleName")),
+			Field(slot, "Player") is { Length: > 0 } player ? player : "-",
+		}).ToList();
+
+		Table.Write(["TOPLA", "ROL", "TOPSUZ", "ROL", "OYUNCU"], rows);
+		return 0;
+	}
+
+	/// <summary>The tactic as the planner binds it, opening the planner if it is not up; null without a tactic.</summary>
+	private static async Task<JsonElement?> Planner()
+	{
+		var tactic = await Fm.GetJson("tactic");
+		if (!tactic.TryGetProperty("Tactic", out _))
+		{
+			var opened = await OpenPage("Tactics", "Match Day");
+			if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
+
+			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 10);
+		}
+		return tactic.TryGetProperty("Tactic", out _) ? tactic : null;
+	}
+
+	/// <summary>
+	/// Shows or changes one of the planner's dropdown settings. The change is read back from the
+	/// tactic itself rather than taken on the dropdown's word.
+	/// </summary>
+	private static async Task<int> TacticSetting(string what, string field, string marker, string wanted, bool dry)
+	{
+		if (await Planner() is not { } tactic)
+		{
+			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
+			return 1;
+		}
+
+		JsonElement? list = null;
+		await Until(async () => (list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Name") == "dropdown-base-no-background")
+			.Cast<JsonElement?>()
+			.FirstOrDefault(d => d.Value.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == marker))) != null, seconds: 8);
+		if (list is not { } dropdown)
+		{
+			Console.Error.WriteLine($"{what} listesi taktik ekranında bulunamadı.");
+			return 1;
+		}
+
+		var choices = dropdown.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+		var current = Field(tactic.GetProperty("Tactic"), field);
+
+		if (wanted == null)
+		{
+			Console.WriteLine($"{what}: {current}\n");
+			for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {n + 1,2}  {choices[n]}{(choices[n] == current ? "  ←" : "")}");
+			return 0;
+		}
+
+		if (Choose(choices, wanted, what) is not { } pick) return 1;
+		if (pick == current)
+		{
+			Console.WriteLine($"{what} zaten {pick}.");
+			return 0;
+		}
+		if (dry)
+		{
+			Console.WriteLine($"(kuru) {what}: {current} → {pick} yapılacaktı.");
+			return 0;
+		}
+
+		var selected = await Fm.Get("select", ("ptr", Field(dropdown, "Pointer")), ("choice", pick));
+		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
+
+		var now = current;
+		var took = await Until(async () =>
+		{
+			if ((await Fm.GetJson("tactic")).TryGetProperty("Tactic", out var header)) now = Field(header, field);
+			return now == pick;
+		}, seconds: 8);
+		Console.WriteLine(took ? $"{what}: {current} → {pick}" : $"{what} {pick} seçildi ama taktik hâlâ {now} gösteriyor.");
+		return took ? 0 : 1;
+	}
+
+	/// <summary>Lets the game pick the eleven, as its Quick Pick button does.</summary>
+	private static async Task<int> TacticPick(bool dry)
+	{
+		if (await Planner() is not { } before)
+		{
+			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
+			return 1;
+		}
+
+		var query = new List<(string, string)> { ("text", "Quick Pick"), ("name", "button") };
+		if (dry) query.Add(("dry", "1"));
+
+		var pressed = await Arriving("press", query.ToArray());
+		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+		if (dry)
+		{
+			Console.WriteLine("(kuru) Quick Pick'e basılacaktı.");
+			return 0;
+		}
+
+		// With an eleven already picked the names may not change, so a full eleven is the test.
+		JsonElement tactic = before;
+		var full = await Until(async () => Eleven(tactic = await Fm.GetJson("tactic")).Count == 11, seconds: 10);
+		var names = Eleven(tactic);
+		Console.WriteLine(full ? $"İlk 11 seçildi: {string.Join(", ", names)}" : $"Quick Pick'e basıldı ama {names.Count} oyuncu seçili.");
+		return full ? 0 : 1;
+
+		static List<string> Eleven(JsonElement tactic) =>
+			tactic.TryGetProperty("Slots", out var slots)
+				? slots.EnumerateArray().Select(s => Field(s, "Player")).Where(p => p.Length > 0).ToList()
+				: [];
+	}
+
+	/// <summary>
+	/// A pitch position from the game's bit mask, in the abbreviations players use. A central
+	/// position carries a second bit saying which side of centre it is on.
+	/// </summary>
+	private static string Spot(string mask)
+	{
+		if (!long.TryParse(mask, out var bits)) return mask;
+
+		(long Bit, string Name)[] spots =
+		[
+			(1, "GK"), (4, "DR"), (8, "DL"), (16, "DC"), (32, "WBR"), (64, "WBL"), (128, "DM"),
+			(256, "MR"), (512, "ML"), (1024, "MC"), (2048, "AMR"), (4096, "AML"), (8192, "AMC"),
+			(16384, "ST"), (32768, "STR"), (65536, "STL"),
+		];
+
+		var name = spots.FirstOrDefault(s => (bits & s.Bit) != 0).Name;
+		if (name == null) return mask;
+
+		if ((bits & 1048576) != 0) name += "L";
+		if ((bits & 2097152) != 0) name += "R";
+		return name;
+	}
+
+	/// <summary>"OPPressingCentralMidfielder" → "Pressing Central Midfielder".</summary>
+	private static string Role(string entry)
+	{
+		if (entry.StartsWith("OP", StringComparison.Ordinal) && entry.Length > 2 && char.IsUpper(entry[2])) entry = entry[2..];
+
+		var spaced = new System.Text.StringBuilder();
+		foreach (var c in entry)
+		{
+			if (char.IsUpper(c) && spaced.Length > 0) spaced.Append(' ');
+			spaced.Append(c);
+		}
+		return spaced.Length > 0 ? spaced.ToString() : "-";
 	}
 
 	/// <summary>

@@ -1365,6 +1365,64 @@ ilerlemedi, haber sayfası açıldı. `fm next` etikete bakmıyor.
 hemen ardından gelen `fm next` mesajı hâlâ engel sanıyordu. Artık mesaj engel olmaktan çıkana
 kadar (8 sn'ye kadar) bekliyor.
 
+## 8.31 Taktiği okumak ve değiştirmek; sayfayı verisiyle açmak
+
+**⚠ `OpenBookmarkEvent` sayfayı açıyor ama verisini bağlamayabiliyor.** §8.28'de "ilgili panel
+aktif" diye doğrulanan Tactics sayfası aslında boş geliyordu: planlayıcı bir takım ve taktik
+referansı bekliyor, bookmark bunları vermiyor. Dün yalnızca panelin açıldığına bakılmıştı.
+
+| Açılış yolu (iki tur, her seferinde Messages'tan) | `Tactic.MentalityString` |
+|---|---|
+| `OpenBookmarkEvent` (eski `fm open Tactics`) | bağlanmadı |
+| bookmark, ardından "Tactics" alt sekme butonu | bağlanmadı (zaten o sayfadayken buton bir şey yapmıyor) |
+| sekmenin ilk sayfası (Match Day › Overview), ardından "Tactics" alt sekme butonu | bağlandı |
+
+`fm open` artık böyle çalışıyor: sekmenin ilk sayfasını bookmark'la açıyor, alt sekme çubuğu o
+sekmeninkine dönene kadar bekliyor (iki sekmede aynı adlı sayfa olabiliyor), sonra sayfanın
+kendi butonuna basıyor. Yalnızca "More" menüsünde olan sayfaların butonu yok; onlar yine
+bookmark'la açılıyor ve verileri bağlanmayabilir. `/press` bunun için `event=` süzgeci aldı:
+aynı etiketi taşıyan kontrolleri gönderdikleri event ayırıyor.
+
+**Taktik, planlayıcının bağladığı veriden okunuyor** (`/tactic`): başlık `Tactic` düğümünde
+(`Name`, `MentalityString`, `TacticalStyle`, `TacticalIntensity`, `TacticalFamiliarity`), on bir
+mevki `Position` kayıtlarında:
+
+```
+TeamSelectionIndex  0..10        IPPosition / OOPPosition   PositionMask bit maskesi
+IPRole / OOPRole    bit maskesi  yanında PlayerRole = RoleDataEntry adı (topsuz olan "OP…" ile başlıyor)
+player-name         seçili oyuncu (11 seçilmemişse boş)
+```
+
+`PositionMask`: 1 GK, 4 DR, 8 DL, 16 DC, 32 WBR, 64 WBL, 128 DM, 256 MR, 512 ML, 1024 MC,
+2048 AMR, 4096 AML, 8192 AMC, 16384 ST; ortadaki mevkiler ayrıca 1048576 (sol) ya da 2097152
+(sağ) taşıyor (`2097168` = sağ stoper).
+
+**Ayarlar açılır liste, ilk 11 tek buton.** Mentalite ve stil planlayıcıda adsız iki açılır
+liste (`dropdown-base-no-background`); hangisi olduğu yalnızca kendisinde bulunan bir seçenekten
+anlaşılıyor. Seçmek doğrudan uygulanıyor, onay sormuyor. Stili değiştirmek taktiğin adını ve
+yoğunluğunu da değiştirdi (Gegenpress 5, Tiki-Taka 4). "Quick Pick" butonu
+(`EventFmxQuickPick`) boş on biri doldurdu.
+
+```
+fm tactic                     taktiği bas (--json ham veri)
+fm tactic mentality [<x>]     göster / değiştir        fm tactic style [<x>]
+fm tactic pick                ilk 11'i oyuna seçtir
+```
+
+| Deneme | Sonuç |
+|---|---|
+| taktik yokken `fm tactic` | "taktiği yok", 12 sn |
+| `tactic new 2 3 3` sonrası `fm tactic` (Messages'tan) | 11 satır, roller ekrandaki rol butonlarıyla aynı, 2,5 sn |
+| `mentality` / `Zzz` / `"Very Att" --dry` | liste / red / değişmedi |
+| `mentality Attacking`, `mentality 4`, `mentality Balanced` | Positive → Attacking → Balanced, üçüncüsü "zaten" |
+| `style Gegen` | Tiki-Taka → Gegenpress, taktik adı da değişti |
+| elle Quick Pick (11 boşken) | 11 oyuncu geldi; `tactic pick` dolu on birde aynı on biri bildirdi |
+| `open` gerilemesi: First Team, Finances, Club Vision, Match Rules, Fixture Schedule (iki sekmede) | açıldı / belirsiz olan reddedildi; `squad --fitness`, `inbox` aynı |
+
+Açık kalanlar: rol ve diziliş değiştirme, takım talimatları, yedekler, taktik yuvaları
+(planlayıcıda "Create New Tactic · Load Tactic · Copy Tactic" ve "Save · Load… · Clear Slot"
+listeleri var), "Pick Rotated Squad" gibi diğer seçim menüsü satırları.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

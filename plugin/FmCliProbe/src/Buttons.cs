@@ -467,10 +467,14 @@ internal static class Buttons
 		var text = q["text"];
 		if (string.IsNullOrEmpty(text)) { error = "error: ?ptr=<0x…> or ?text=<label> required (see /buttons)"; return null; }
 
+		// The same label can sit on controls that do different things — a tab and a tile that
+		// both say "Tactics" — and what a control sends is what tells them apart.
 		var name = q["name"];
+		var sends = q["event"];
 		var matches = controls
 			.Where(c => string.Equals(c.Label, text, StringComparison.OrdinalIgnoreCase))
 			.Where(c => string.IsNullOrEmpty(name) || string.Equals(NameOf(c.Element), name, StringComparison.OrdinalIgnoreCase))
+			.Where(c => string.IsNullOrEmpty(sends) || Sends(c, sends))
 			.ToList();
 
 		if (matches.Count == 1) return matches[0];
@@ -484,6 +488,24 @@ internal static class Buttons
 			: $"error: {matches.Count} controls are labelled '{text}'; narrow it with &name=\n"
 			  + string.Join("\n", matches.Select(c => $"  0x{c.Element.Pointer.ToInt64():x}  {Short(c.TypeName)}  name={NameOf(c.Element)}"));
 		return null;
+	}
+
+	private static bool Sends(Control control, string eventName)
+	{
+		foreach (var (_, list) in control.Lists)
+		{
+			var contexts = list.Events;
+			for (var i = 0; i < contexts.Length; i++)
+			{
+				try
+				{
+					if (contexts[i] != null && Short(contexts[i].GetIl2CppType().FullName).StartsWith(eventName, StringComparison.OrdinalIgnoreCase))
+						return true;
+				}
+				catch { }
+			}
+		}
+		return false;
 	}
 
 	private static string NameOf(VisualElement element)

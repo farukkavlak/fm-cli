@@ -36,7 +36,7 @@ internal static partial class Program
 				"reply" => await Reply(args),
 				"next" => await Next(),
 				"tour" => await Tour(json, args),
-				"tactic" => await Tactic(args),
+				"tactic" => await Tactic(json, args),
 				"pages" => await PageList(json, args),
 				"open" => await Open(args),
 				"buttons" => await Buttons(json, args),
@@ -570,11 +570,65 @@ internal static partial class Program
 			return 64;
 		}
 
-		var query = new List<(string, string)> { ("page", words[0]) };
-		if (Option(args, "--tab") is { } tab) query.Add(("tab", tab));
-		if (args.Contains("--dry")) query.Add(("dry", "1"));
+		if (args.Contains("--dry"))
+		{
+			var query = new List<(string, string)> { ("page", words[0]), ("dry", "1") };
+			if (Option(args, "--tab") is { } tab) query.Add(("tab", tab));
+			return Report(await Arriving("open", query.ToArray()));
+		}
 
-		return Report(await Arriving("open", query.ToArray()));
+		return Report(await OpenPage(words[0], Option(args, "--tab")));
+	}
+
+	/// <summary>
+	/// Opens a page the way that leaves its data bound.
+	///
+	/// The bookmark event opens any page by name, but a page that needs to be told what it is
+	/// about — the tactics planner wants a team — comes up empty that way. The tab's own row of
+	/// subtab buttons opens it properly, and only from another page of that tab: pressing the
+	/// button of a page that is already up does nothing. So the tab's first page is opened by
+	/// bookmark and the subtab button pressed from there. Pages that are only in the tab's
+	/// "More" menu have no button, and fall back to the bookmark.
+	/// </summary>
+	private static async Task<string> OpenPage(string page, string tab = null)
+	{
+		var query = new List<(string, string)> { ("page", page) };
+		if (tab != null) query.Add(("tab", tab));
+
+		// A dry run names the page in full or says why it cannot: "…: <tab> › <page> (panel …".
+		var planned = await Arriving("open", [.. query, ("dry", "1")]);
+		if (planned.StartsWith("error", StringComparison.Ordinal)) return planned;
+
+		var from = planned.IndexOf(": ", StringComparison.Ordinal) + 2;
+		var to = planned.IndexOf(" › ", StringComparison.Ordinal);
+		if (from < 2 || to < from) return await Fm.Get("open", query.ToArray());
+		var tabName = planned[from..to];
+
+		var siblings = (await Fm.GetJson("pages")).EnumerateArray()
+			.Where(p => Field(p, "Tab") == tabName)
+			.Select(p => Field(p, "Page"))
+			.ToList();
+		if (siblings.Count == 0 || siblings[0].Equals(page, StringComparison.OrdinalIgnoreCase))
+			return await Fm.Get("open", query.ToArray());
+
+		await Fm.Get("open", ("page", siblings[0]), ("tab", tabName));
+
+		// The row of subtabs belongs to whichever tab is up, and two tabs can both have a page
+		// by this name, so it is only trusted once every button on it is one of this tab's.
+		List<string> bar = [];
+		await Until(async () =>
+		{
+			bar = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(c => Field(c, "Name") == "SIButton" && Field(c, "Events") == "OpenSubtab")
+				.Select(c => Field(c, "Label"))
+				.ToList();
+			return bar.Count > 0 && bar.All(label => siblings.Contains(label, StringComparer.OrdinalIgnoreCase));
+		}, seconds: 8);
+
+		if (!bar.Contains(page, StringComparer.OrdinalIgnoreCase)) return await Fm.Get("open", query.ToArray());
+
+		var pressed = await Fm.Get("press", ("text", page), ("name", "SIButton"), ("event", "OpenSubtab"));
+		return pressed.StartsWith("error", StringComparison.Ordinal) ? pressed : $"opened {tabName} › {siblings.First(s => s.Equals(page, StringComparison.OrdinalIgnoreCase))}";
 	}
 
 	private static async Task<int> Dropdowns(bool json, string[] args)
@@ -728,6 +782,10 @@ internal static partial class Program
 			  next            zamanı ilerlet
 			  tour            açık tanıtım turunu sonuna kadar yürüt
 			    --skip        turu atla (tur izin veriyorsa)
+			  tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
+			  tactic mentality [<x>]      mentaliteyi göster ya da değiştir
+			  tactic style [<x>]          oyun stilini göster ya da değiştir
+			  tactic pick                 ilk 11'i oyuna seçtir (Quick Pick)
 			  tactic new ["<stil>" ["<topla diziliş>" ["<topsuz diziliş>"]]]
 			                  taktik oluştur; eksik bıraktığın adımın seçeneklerini listeler
 
