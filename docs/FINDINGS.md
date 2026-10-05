@@ -1423,6 +1423,96 @@ Açık kalanlar: rol ve diziliş değiştirme, takım talimatları, yedekler, ta
 (planlayıcıda "Create New Tactic · Load Tactic · Copy Tactic" ve "Save · Load… · Clear Slot"
 listeleri var), "Pick Rotated Squad" gibi diğer seçim menüsü satırları.
 
+## 8.32 Oyunun durumu sabit bir yolda: `fm next` ve `fm status`
+
+Ekranların verisi GUID'li panel yollarının altında ve ekrana göre gelip gidiyor. Ama kökte iki
+kayıt **hangi sayfa açık olursa olsun** bağlı ve yolları sabit (`PathKey` ile okunuyor):
+
+```
+continue.State                     ContinueFlowState: oyun neyi bekliyor
+continue.ContinueButtonMainString  ilerle butonunun yazısı
+game.GameProcessing / GameSaving / GameWaiting / CanSave / IsDuringMatch
+game.CurrentGameDate               paketlenmiş tarih
+game.ImmediateUserRequiredTask     sıradaki zorunlu iş (NewsItemId, DynamicCardId)
+```
+
+`ContinueFlowState` 33 değerli (`enums.txt`): `CanContinue`, `NeedAction`, `PressConference`,
+`Tactics`, `TeamNews`, `TeamTalk`, `TunnelInterview`, `Processing`, `Match`, `Saving`,
+`SubmitTeam`, `PostMatchReaction`, `NewsAggregator`, `LatestScores`… Yani maç gününün bütün
+durakları tek alandan okunabiliyor; gelen kutusundan ya da buton yazısından çıkarım gerekmiyor.
+
+**Tarih tek sayı.** `GameDate.Data1`: bit 17 ve üstü yıl, sonraki 9 bit yılın günü (1'den),
+alt 8 bit saat. `265467401` → 2025, 182. gün (1 Temmuz), saat 9. Saat birimi çeyrek saat ve
+05:45'ten sayılıyor gibi: 9 → 08:00, 13 → 09:00, 17 → 10:00, 30 → 13:15. Bu dört durağın
+saatine çevresindeki mesajlardan bakılarak yapılmış bir **uydurma**, oyundan okunmuş değil.
+
+**`fm next` artık bekliyor ve anlatıyor:**
+
+```
+$ fm next 5
+30 Haziran 2025 Pazartesi 09:00 → 09:15
+30 Haziran 2025 Pazartesi 09:15 → 13:15
+  yeni: Match Preparation Training: Sarıyer
+30 Haziran 2025 Pazartesi → 1 Temmuz 2025 Salı 08:00
+  yeni: Set Code of Conduct  (cevap bekliyor)
+Bloke: 1 mesaj cevap bekliyor.
+```
+
+İlerle'ye basıyor, oyun bir şeyi değiştirene kadar (4 sn), sonra iki okuma üst üste boşta
+görünene kadar (3 dk'ya kadar) bekliyor; tarih/saat farkını ve gelen yeni mesajları basıyor.
+`next <n>` bir şey engel olana kadar n kez tekrarlıyor.
+
+⚠ İki tuzak:
+
+- **Yükledikten hemen sonra `State = CanContinue`**, oysa dört mesaj cevap bekliyor; alan ilk
+  gerçek durağa kadar güncellenmiyor. `next` ve `status` bu yüzden gelen kutusuna da bakıyor.
+- **`NewsAggregator` gibi duraklarda ilerle butonu sayfa açıyor**, zaman ilerlemiyor. Bunlar
+  "geçilebilir" sayılıyor (`NewsAggregator`, `Portal`, `LatestScores`, `Fixtures`, `Results`):
+  `next` basıp geçiyor ve "oyun önce bir sayfa gösterdi" diyor. Maçla ilgili durumlarda
+  (`PressConference`, `Tactics`, `TeamTalk`, `Match`…) basmıyor, yalnızca neyi beklediğini söylüyor.
+
+Temiz kayıttan 1 Temmuz 10:00'a kadar olan bütün yol (taktik oluştur, 11 seç, üç mesajı cevapla,
+davranış kurallarını devret, Dynamics turunu reddet) üç ayrı oturumda yalnızca CLI ile yürüdü.
+
+## 8.33 Konuşmalar: `fm talk`
+
+"Meet the Players → Introduce yourself to the Squad" bir toplantı açıyor. Beklendiği gibi
+(§8.25, §8.29) söylenebilecek her cümle bir `SpeakToActionEvent` butonu; ama mesaj cevaplarından
+farklı bir şablonda: `name=StandardButton`. Tanıtım turunun Continue / Skip / End butonları da
+aynı türden, yani **tur da bir konuşma**.
+
+```
+…SpeakToSenderMessagesRemapper.NewsResponseOptionalButtons.items.N
+    Action        { ActionTitle = "Convince", IsHeader = True }        yaklaşımın adı
+    SubActions.items.M.Action { ActionTitle = <cümle>, Hint, Recommended, IsDisabled }
+…SpeechBubbleList.items.N.bubble { DisplayString, IsHuman }             karşı tarafın dediği
+…binding { InteractionBodyLanguageString = "Pleased", …Level = 7 }      dinleyen başına bir tane
+```
+
+Aynı buton panelde iki kez duruyor (iki yerleşim), ikisi de aynı kaynağa bağlı; metne göre
+tekilleştiriliyor. Toplantı yedi cümle sürdü, sonuncusu "End Chat"; ondan sonra mesaj
+cevaplanmış sayıldı. "Leave Meeting" ayrı bir buton (`continue-button`, `ClosePanelEvent`).
+
+```
+fm talk              ne dendi, tepkilerin dökümü, başlığıyla söylenebilecekler
+fm talk <no|parça>   söyle; cevabı ve yeni seçenekleri bas      fm talk leave   çık
+```
+
+`fm reply` artık cevabın ne açtığına bakıyor: tur açıldıysa `tour`, konuşma açıldıysa `talk`
+diyor; ikisi de değilse mesajın kapanmasını bekliyor.
+
+| Deneme | Sonuç |
+|---|---|
+| konuşma yokken `talk` | "açık bir konuşma yok" |
+| `reply "Meet the Players" 1` | "konuşma açıldı… talk" |
+| `talk Zzz` / `talk 1 --dry` | red / seçenekler aynı kaldı |
+| `talk 1`, `talk attacking`, ardından altı kez `talk 1` | her seferinde karşı cevap + yeni seçenekler; "End Chat" sonrası "konuşma bitti", mesaj kapandı |
+| elle aynı toplantı (önceki oturum, yedi basış) | aynı akış |
+
+Tepki dökümü 20 oyuncuya karşı 21 kayıt sayıyor ve cümleden cümleye neredeyse hiç değişmedi;
+oyuncu adıyla eşlenmedi. Basın toplantısı ve bire bir oyuncu konuşması henüz görülmedi; aynı
+şablonu kullanıyorlarsa `fm talk` olduğu gibi çalışır.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

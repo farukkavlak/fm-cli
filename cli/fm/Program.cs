@@ -36,6 +36,7 @@ internal static partial class Program
 				"reply" => await Reply(args),
 				"next" => await Next(args),
 				"tour" => await Tour(json, args),
+				"talk" => await TalkTo(json, args),
 				"tactic" => await Tactic(json, args),
 				"pages" => await PageList(json, args),
 				"open" => await Open(args),
@@ -396,19 +397,20 @@ internal static partial class Program
 
 		Console.WriteLine($"Cevaplandı: {title} → {Field(wanted[0], "Label")}");
 
-		// Beginning an introduction answers nothing yet: it opens a tour, and the message only
-		// closes once that has been walked to its end.
-		if (Field(wanted[0], "Label").StartsWith("Begin", StringComparison.OrdinalIgnoreCase)
-		    && await Until(TourOpen, seconds: 6))
-		{
-			Console.WriteLine("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour");
-			return 0;
-		}
+		// An answer can open something instead of closing the message: an introduction opens a
+		// tour, "introduce yourself" a meeting. Otherwise the inbox catches up a moment later,
+		// and a `next` issued in that moment would still find the message in the way, so the
+		// command holds on until one of the three has happened.
+		var tour = false;
+		var talking = false;
+		var settled = await Until(async () =>
+			(tour = await TourOpen())
+			|| (talking = (await TalkOptions()).Count > 0)
+			|| !StillAnswerable(await Fm.GetJson("inbox"), id), seconds: 8);
 
-		// The inbox catches up a moment after the answer, and a `next` issued in that moment
-		// would still find the message in the way, so the command holds on until it has.
-		if (Blocking(chosen) && !await Until(async () => !StillBlocking(await Fm.GetJson("inbox"), id), seconds: 8))
-			Console.WriteLine("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor.");
+		if (tour) Console.WriteLine("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour");
+		else if (talking) Console.WriteLine("Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk");
+		else if (!settled) Console.WriteLine("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor.");
 		return 0;
 
 		// An answer is named by its number in the listing or by a piece of its text.
@@ -703,8 +705,8 @@ internal static partial class Program
 	private static bool Blocking(JsonElement message) =>
 		Field(message, "NewsItemIsPriority") == "True" && Answerable(message);
 
-	private static bool StillBlocking(JsonElement inbox, string id) =>
-		inbox.EnumerateArray().Any(m => Field(m, "UniqueId") == id && Blocking(m));
+	private static bool StillAnswerable(JsonElement inbox, string id) =>
+		inbox.EnumerateArray().Any(m => Field(m, "UniqueId") == id && Answerable(m));
 
 	private static bool Answerable(JsonElement message) =>
 		Field(message, "CanRespond") == "True" && Field(message, "NewsHasResponded") != "True";
@@ -738,6 +740,8 @@ internal static partial class Program
 			  reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
+			  talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin
+			  talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık
 			  tour            açık tanıtım turunu sonuna kadar yürüt
 			    --skip        turu atla (tur izin veriyorsa)
 			  tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller

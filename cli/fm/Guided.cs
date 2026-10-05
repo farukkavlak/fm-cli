@@ -98,6 +98,127 @@ internal static partial class Program
 		return null;
 	}
 
+	/// <summary>
+	/// What can be said in the conversation on screen. Every answer is a button of the same
+	/// kind, on screen once per layout the panel keeps, so they are told apart by their text.
+	/// </summary>
+	private static async Task<List<JsonElement>> TalkOptions() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(c => Field(c, "Name") == "StandardButton" && Field(c, "Events").Contains("SpeakToAction", StringComparison.Ordinal))
+			.Where(c => Field(c, "Enabled") == "True" && Field(c, "Label") != "")
+			.GroupBy(c => Field(c, "Label"))
+			.Select(g => g.First())
+			.ToList();
+
+	/// <summary>
+	/// A conversation — a squad meeting, a chat with a player, a press conference — one line at
+	/// a time: what was said back, how the room is taking it, and what can be said next.
+	/// </summary>
+	private static async Task<int> TalkTo(bool json, string[] args)
+	{
+		var words = Words(args).ToList();
+		var options = await TalkOptions();
+
+		if (words.Count == 0) return await Show(options);
+
+		if (words[0] == "leave")
+		{
+			var exit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(c => Field(c, "Name") == "continue-button" && Field(c, "Events").Contains("ClosePanel", StringComparison.Ordinal))
+				.Cast<JsonElement?>().FirstOrDefault();
+			if (exit is not { } leave)
+			{
+				Console.Error.WriteLine("Çıkılacak bir konuşma yok.");
+				return 1;
+			}
+
+			await Fm.Get("press", ("ptr", Field(leave, "Pointer")));
+			var left = await Until(async () => (await TalkOptions()).Count == 0, seconds: 8);
+			Console.WriteLine(left ? "Konuşmadan çıkıldı." : "Çık denildi ama konuşma hâlâ açık.");
+			return left ? 0 : 1;
+		}
+
+		if (options.Count == 0)
+		{
+			Console.Error.WriteLine("Açık bir konuşma yok.");
+			return 1;
+		}
+
+		var labels = options.Select(o => Field(o, "Label")).ToList();
+		if (Choose(labels, words[0], "Cevap") is not { } pick) return 1;
+
+		if (args.Contains("--dry"))
+		{
+			Console.WriteLine($"(kuru) Şu söylenecekti: {pick}");
+			return 0;
+		}
+
+		var pressed = await Fm.Get("press", ("ptr", Field(options[labels.IndexOf(pick)], "Pointer")));
+		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+
+		Console.WriteLine($"» {pick}\n");
+
+		// The reply and the next set of answers arrive together, a moment later.
+		var was = string.Join("|", labels);
+		if (!await Until(async () => string.Join("|", (options = await TalkOptions()).Select(o => Field(o, "Label"))) != was, seconds: 10))
+		{
+			Console.Error.WriteLine("Söylendi ama konuşma ilerlemedi.");
+			return 1;
+		}
+
+		if (options.Count == 0)
+		{
+			Console.WriteLine("Konuşma bitti.");
+			return 0;
+		}
+		return await Show(options);
+
+		async Task<int> Show(List<JsonElement> offered)
+		{
+			var talk = await Fm.GetJson("talk");
+			if (json)
+			{
+				Console.WriteLine(talk.ToString());
+				return 0;
+			}
+
+			if (offered.Count == 0)
+			{
+				Console.Error.WriteLine("Açık bir konuşma yok.");
+				return 1;
+			}
+
+			foreach (var line in talk.GetProperty("Says").EnumerateArray())
+				Console.WriteLine("  " + line.GetString()?.Replace("\n", "\n  "));
+
+			var mood = talk.GetProperty("Mood").EnumerateObject()
+				.OrderByDescending(m => int.TryParse(m.Value.GetString(), out var n) ? n : 0)
+				.Select(m => $"{m.Value.GetString()} {m.Name}")
+				.ToList();
+			if (mood.Count > 0) Console.WriteLine($"\nTepkiler: {string.Join(" · ", mood)}");
+
+			// The heading an answer sits under names the approach it takes.
+			var details = talk.GetProperty("Answers").EnumerateArray().ToDictionary(a => Field(a, "Label"), a => a);
+			string heading = null;
+			Console.WriteLine();
+			for (var i = 0; i < offered.Count; i++)
+			{
+				var label = Field(offered[i], "Label");
+				details.TryGetValue(label, out var detail);
+
+				var group = detail.ValueKind == JsonValueKind.Object ? Field(detail, "Group") : "";
+				if (group != (heading ?? "") && group.Length > 0) Console.WriteLine($"[{group}]");
+				heading = group;
+
+				var recommended = detail.ValueKind == JsonValueKind.Object && Field(detail, "Recommended") == "True" ? "  (önerilen)" : "";
+				Console.WriteLine($"  {i + 1}  {label}{recommended}");
+			}
+
+			Console.WriteLine("\nSöylemek için: talk <numara>");
+			return 0;
+		}
+	}
+
 	private static async Task<int> Tactic(bool json, string[] args)
 	{
 		var words = Words(args).ToList();

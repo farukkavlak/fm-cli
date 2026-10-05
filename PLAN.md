@@ -20,11 +20,9 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 "basılıyor". Yeni bir alan açmak = `fm open "<sayfa>"`, `fm buttons` ile bak, `fm press` ile dene.
 77 sayfanın listesi `docs/reference/screens.txt`'te.
 
-1. **Basın toplantısı ve oyuncu konuşmaları.** Bu kayıtta bekleyen toplantı yok, o yüzden canlı
-   görülmedi. Cevaplar `SpeakToActionEvent` ile gidiyor ve bunu inbox'la aynı modül
-   (`NewsActionHandlerModule`) işliyor. Toplantı açılınca cevap butonları `/buttons`'ta
-   `SpeakToActionEventContext` olarak görünmeli. Aynı yol inbox'ta doğrulandı: `fm reply` üç
-   mesajı `SpeakToActionEvent` ile cevapladı (§8.29).
+1. **Basın toplantısı ve bire bir oyuncu konuşması.** Takım toplantısı `fm talk` ile yürüdü
+   (§8.33); basın toplantısı bu kayıtta henüz çıkmadı. Oyun onu `continue.State =
+   PressConference` ile haber verecek; aynı şablonsa `fm talk` olduğu gibi çalışır.
 2. **`fm tactic` kalanı** — oluşturma, okuma, mentalite, stil ve Quick Pick tamam (§8.30,
    §8.31). Kalan: rol ve diziliş değiştirme (`FMPitchPosition.Events`, rol açılır listeleri),
    takım talimatları, yedekler, tek oyuncu değiştirme.
@@ -194,8 +192,10 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 ## 7. Maç
 
 - [x] `fm next` — ilerle, bloke eden mesajları ve oyunun ilerle butonunun ne dediğini bildir
-- [x] `fm next` zamanı ilerletiyor — iki oturumda 30/6 → 1/7/2025 (§8.30)
-- [ ] `fm next` tek adım atıyor ve ilerle butonunun etiketine bakmıyor ("News Site" olunca sayfa açıyor)
+- [x] `fm next [n]` zamanı ilerletiyor, oyunun durmasını bekliyor, tarih/saat ve yeni mesajları
+      bildiriyor; oyunun kendi durumunu okuyor (`continue.State`, §8.32)
+- [ ] Maç günü durakları (`PressConference`, `Tactics`, `TeamTalk`, `Match`, `SubmitTeam`…)
+      tanınıyor ama geçilemiyor
 - [k] Maça gir / çık — `EventFmxGoToMatch`, `EventFmxExitMatch`; `MatchReference` 206 property
 - [k] Maç içi taktik değişimi — `EventFmxMatchTacticsChanged`, `MatchTacticReference` (227)
 - [ ] Maç öncesi brifing / takım konuşması
@@ -258,7 +258,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] Tanıtım turları — `fm tour` yürütüyor, `fm tour --skip` atlıyor (§8.30)
 - [k] Basın toplantısı — `PressConferenceEditSessionReference` + `EventFmxPressConferenceAnswerQuestion` / `NoComment` / `EarlyExit` / `StormOut` (COOKBOOK §3)
 - [ ] Maç öncesi/sonrası röportaj
-- [k] Oyuncuyla konuş — `ConversationEditSessionReference` (24) + `EventFmxConversationReplySelected` (COOKBOOK §4)
+- [x] Takım toplantısı — `fm talk`: ne dendi, tepkiler, söylenebilecekler (§8.33)
+- [~] Oyuncuyla bire bir konuş — `fm talk` aynı şablonu bekliyor, canlı görülmedi
 - [ ] Oyuncu şikâyetlerini yönet
 - [ ] Soyunma odası atmosferi / takım liderleri
 - [ ] Sosyal medya / haber akışı
@@ -307,7 +308,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [ ] Fuzzy isim eşleme (`fm player osim` → Osimhen)
 - [ ] Kısaltmalar / takma adlar
 - [ ] Tab tamamlama (zsh/bash)
-- [ ] `fm status` — tek ekranda özet (tarih, sıradaki maç, inbox, uyarılar)
+- [~] `fm status` — tarih, saat ve oyunun neyi beklediği (§8.32); sıradaki maç ve uyarılar yok
 - [ ] Onay isteyen aksiyonlar (transfer teklifi gibi) için `--yes`
 - [ ] Geri alma yok — yıkıcı aksiyonlarda uyarı
 - [x] Oyun kapalıysa otomatik başlat (`fm start`)
@@ -355,6 +356,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - **Taktik turu taktik istiyordu.** Takımın taktiği yoktu; sihirbazla oluşturunca mesaj
   kendiliğinden kapandı. `fm tactic new "<stil>" "<topla>" "<topsuz>"`.
 - **`fm next` zamanı ilerletti** — ilk kez, iki ayrı oturumda (30/6 → 1/7/2025).
+- **`fm next` bekliyor ve anlatıyor**; oyunun durumu sabit bir yoldan okunuyor (`continue.State`).
+- **`fm talk` takım toplantısını yürüttü** (yedi cümle, "End Chat").
 - **`fm tactic` taktiği okuyor**, `mentality` / `style` değiştiriyor, `pick` ilk 11'i seçtiriyor.
 - **Radyo grupları** (`SIRadioGroup`) `/dropdowns` ve `/select`'e girdi; `/elements` event
   taşımayan kontrolleri bulmak için eklendi.

@@ -42,6 +42,7 @@ internal static class FmApi
 		"squad" => Report.Squad(),
 		"inbox" => Report.Inbox(),
 		"tour" => Report.Tour(),
+		"talk" => Talk.Current(),
 		"state" => State.Current(),
 		"tactic" => Tactics.Current(),
 		"bindprop" => Materialise.Property(q["path"], q["name"]),
