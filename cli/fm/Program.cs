@@ -34,6 +34,10 @@ internal static class Program
 				"squad" => await Squad(json, args),
 				"inbox" => await Inbox(json),
 				"next" => await Next(),
+				"buttons" => await Buttons(json, args),
+				"dropdowns" => await Dropdowns(json, args),
+				"press" => await Press(args),
+				"select" => await Select(args),
 				"status" => await Status(),
 				"continue" => await Continue(),
 				"start" => await Attach(args.Contains("--debug")),
@@ -303,6 +307,135 @@ internal static class Program
 		return 0;
 	}
 
+	/// <summary>
+	/// What can be pressed on the screen the game is showing. Unlabelled controls are icons and
+	/// layout, and outnumber the rest, so they are left out unless asked for.
+	/// </summary>
+	private static async Task<int> Buttons(bool json, string[] args)
+	{
+		var controls = await Fm.GetJson("buttons", ("json", "1"));
+		if (json)
+		{
+			Console.WriteLine(controls.ToString());
+			return 0;
+		}
+
+		var all = args.Contains("--all");
+		var filter = Words(args).FirstOrDefault();
+
+		var rows = controls.EnumerateArray()
+			.Where(c => all || Field(c, "Label") != "")
+			.Select(c => new[]
+			{
+				Field(c, "Label"),
+				Field(c, "Name"),
+				Field(c, "Events") + (Field(c, "Enabled") == "True" ? "" : "  (kapalı)"),
+			})
+			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+			.ToList();
+
+		Table.Write(new[] { "ETİKET", "AD", "NE GÖNDERİR" }, rows);
+		return 0;
+	}
+
+	private static async Task<int> Dropdowns(bool json, string[] args)
+	{
+		var dropdowns = await Fm.GetJson("dropdowns", ("json", "1"));
+		if (json)
+		{
+			Console.WriteLine(dropdowns.ToString());
+			return 0;
+		}
+
+		var filter = Words(args).FirstOrDefault();
+		var rows = dropdowns.EnumerateArray()
+			.Where(d => args.Contains("--all") || Field(d, "Enabled") == "True")
+			.Select(d => new[]
+			{
+				Field(d, "Name"),
+				Field(d, "Label"),
+				string.Join(" · ", d.GetProperty("Choices").EnumerateArray().Select(c => c.GetString())),
+			})
+			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+			.ToList();
+
+		Table.Write(new[] { "LİSTE", "SEÇİLİ", "SEÇENEKLER" }, rows);
+		return 0;
+	}
+
+	private static async Task<int> Press(string[] args)
+	{
+		var words = Words(args).ToList();
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine("kullanım: press \"<etiket>\" [--name <ad>] [--dry]   (etiketler için `buttons`)");
+			return 64;
+		}
+
+		var query = new List<(string, string)> { ("text", words[0]) };
+		if (Option(args, "--name") is { } name) query.Add(("name", name));
+		if (args.Contains("--dry")) query.Add(("dry", "1"));
+
+		return Report(await Arriving("press", query.ToArray()));
+	}
+
+	private static async Task<int> Select(string[] args)
+	{
+		var words = Words(args).ToList();
+		if (words.Count < 2)
+		{
+			Console.Error.WriteLine("kullanım: select <liste> \"<seçenek>\" [--dry]   (listeler için `dropdowns`)");
+			return 64;
+		}
+
+		var query = new List<(string, string)> { ("name", words[0]), ("choice", words[1]) };
+		if (args.Contains("--dry")) query.Add(("dry", "1"));
+
+		return Report(await Arriving("select", query.ToArray()));
+	}
+
+	/// <summary>
+	/// Asks again for a short while when the control is not there yet. A screen takes a moment
+	/// to build after the press that opened it, and two commands in a row should not have to
+	/// know how long.
+	/// </summary>
+	private static async Task<string> Arriving(string route, (string, string)[] query)
+	{
+		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
+		while (true)
+		{
+			var answer = await Fm.Get(route, query);
+			var missing = answer.StartsWith("error: no ", StringComparison.Ordinal);
+			if (!missing || DateTime.UtcNow >= deadline) return answer;
+
+			await Task.Delay(TimeSpan.FromSeconds(1));
+		}
+	}
+
+	/// <summary>The bridge answers in plain text and marks a refusal by how the line starts.</summary>
+	private static int Report(string answer)
+	{
+		var failed = answer.StartsWith("error", StringComparison.Ordinal);
+		(failed ? Console.Error : Console.Out).WriteLine(answer.TrimEnd());
+		return failed ? 1 : 0;
+	}
+
+	/// <summary>A command's positional arguments: everything that is neither a flag nor a flag's value.</summary>
+	private static IEnumerable<string> Words(string[] args)
+	{
+		for (var i = 1; i < args.Length; i++)
+		{
+			if (args[i] == "--name") { i++; continue; }
+			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
+		}
+	}
+
+	private static string Option(string[] args, string flag)
+	{
+		var at = Array.IndexOf(args, flag);
+		return at >= 0 && at + 1 < args.Length ? args[at + 1] : null;
+	}
+
 	private static async Task<int> Status()
 	{
 		var inGame = await Fm.InGame();
@@ -341,6 +474,14 @@ internal static class Program
 			    --morale      moral, hiyerarşi ve sosyal grup
 			  inbox           gelen kutusu
 			  next            zamanı ilerlet
+
+			  buttons [metin]             ekrandaki butonlar ve ne gönderdikleri
+			    --all                     etiketsizleri de göster
+			  press "<etiket>"            butona bas
+			    --name <ad>               aynı etiketten birden çok varsa
+			  dropdowns [metin]           ekrandaki açılır listeler ve seçenekleri
+			  select <liste> "<seçenek>"  listeden seç
+			    --dry                     press ve select için: yapma, ne yapacağını söyle
 			  status          bağlantı durumu
 
 			  --json          ham veri (script'lenebilir)

@@ -256,6 +256,7 @@ ConversationCanSetTrainingTargets  SpeakTo -> SpeakTo
 | `actions.txt` | 225 `ActionID` + 680 `InteropEventIDs`, isim sırasında |
 | `enums.txt` | 2160 enum, 19119 üye |
 | `panels.txt` | yüklü ekranlar, çevrilmiş isimleriyle (kısmi) |
+| `screens.txt` | altı ana sekme ve 77 alt sayfası, menülerden okunmuş |
 
 Yenileme: `/schema`, `/panels` (oyun açıkken) ve
 `sigdump --catalog events` / `--enums` / `--method <ad>` (oyun gerekmez).

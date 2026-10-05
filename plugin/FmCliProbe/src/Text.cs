@@ -23,4 +23,16 @@ internal static class Text
 		}
 		catch { return value; }
 	}
+
+	/// <summary>
+	/// A label as a user reads it. Text shown on a control also carries rich-text tags for
+	/// colour and links, which are presentation and would keep a label from being matched.
+	/// </summary>
+	public static string Plain(string value)
+	{
+		var cleaned = Clean(value);
+		return string.IsNullOrEmpty(cleaned)
+			? cleaned
+			: System.Text.RegularExpressions.Regex.Replace(cleaned, "<[^<>]+>", "").Trim();
+	}
 }

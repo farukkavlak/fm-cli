@@ -28,6 +28,8 @@ internal static class Buttons
 
 	public static string Catalog(NameValueCollection q)
 	{
+		if (q["json"] == "1") return ControlsJson();
+
 		var typeFilter = q["type"];
 		var textFilter = q["text"];
 		var limit = int.TryParse(q["limit"], out var parsed) ? parsed : 200;
@@ -75,6 +77,13 @@ internal static class Buttons
 		var queue = Game.UiEvents;
 		if (queue == null) return "error: UIEventQueue unavailable\n" + described;
 
+		// The queue drains every frame, so anything still in it by the time another request
+		// arrives is waiting on data that is not coming — and everything queued behind it
+		// waits too, the game's own clicks included.
+		var waiting = Waiting(queue);
+		if (waiting > 0)
+			return $"error: the event queue is blocked by {waiting} event(s) that never resolved; see /queue\n" + Queue(null);
+
 		queue.QueueEvents(list.Events);
 		return $"queued {list.Name}:\n{described}";
 	}
@@ -88,6 +97,8 @@ internal static class Buttons
 	/// </summary>
 	public static string Dropdowns(NameValueCollection q)
 	{
+		if (q["json"] == "1") return DropdownsJson();
+
 		var filter = q["text"];
 		var paths = KeyPaths();
 		var sb = new StringBuilder();
@@ -126,7 +137,16 @@ internal static class Buttons
 		else if (!string.IsNullOrEmpty(name))
 		{
 			var named = AllDropdowns().Where(d => string.Equals(NameOf(d), name, StringComparison.OrdinalIgnoreCase)).ToList();
-			if (named.Count != 1) return $"error: {named.Count} dropdown(s) named '{name}' on the loaded screens";
+
+			// Several lists can share a name — every main tab has its own menu of subtabs — and
+			// then the choice asked for is what tells them apart.
+			if (named.Count > 1 && !string.IsNullOrEmpty(q["choice"]))
+				named = named.Where(d => IndexOfChoice(d, q["choice"]) >= 0).ToList();
+
+			if (named.Count != 1)
+				return named.Count == 0
+					? $"error: no dropdown named '{name}' offers that on the loaded screens"
+					: $"error: {named.Count} dropdowns named '{name}' fit; the choice does not tell them apart";
 			dropdown = named[0];
 		}
 		else return "error: ?ptr=<0x…> or ?name=<dropdown> required (see /dropdowns)";
@@ -138,13 +158,7 @@ internal static class Buttons
 		var wanted = q["choice"];
 		if (!string.IsNullOrEmpty(wanted))
 		{
-			index = -1;
-			for (var i = 0; i < count; i++)
-			{
-				if (!string.Equals(Choice(choices[i]), wanted, StringComparison.OrdinalIgnoreCase)) continue;
-				index = i;
-				break;
-			}
+			index = IndexOfChoice(dropdown, wanted);
 			if (index < 0) return $"error: no choice '{wanted}' in this dropdown (see /dropdowns)";
 		}
 		else if (!int.TryParse(q["index"], out index)) return "error: ?index=<n> or ?choice=<text> required";
@@ -158,6 +172,22 @@ internal static class Buttons
 		dropdown.OnSelectionChangedInternal(index);
 		return $"selected {described}, now {dropdown.SelectedIndex}";
 	}
+
+	private static int IndexOfChoice(SIDropdown dropdown, string wanted)
+	{
+		var choices = dropdown.m_choices;
+		var count = choices?.Count ?? 0;
+		for (var i = 0; i < count; i++)
+		{
+			// The submenu mark is ours, added for the listing, so it is not part of the name.
+			var text = Choice(choices[i]) ?? "";
+			if (text.EndsWith(SubmenuMark, StringComparison.Ordinal)) text = text[..^SubmenuMark.Length];
+			if (string.Equals(text, wanted, StringComparison.OrdinalIgnoreCase)) return i;
+		}
+		return -1;
+	}
+
+	private const string SubmenuMark = " ›";
 
 	private static IEnumerable<SIDropdown> AllDropdowns()
 	{
@@ -209,7 +239,7 @@ internal static class Buttons
 		if (entries.TryGetValue("RowData", out var row) && row != null && !row.IsNull)
 		{
 			var inner = Choice(row);
-			return entries.ContainsKey("ChildList") ? inner + " ›" : inner;
+			return entries.ContainsKey("ChildList") ? inner + SubmenuMark : inner;
 		}
 
 		foreach (var name in new[] { "DisplayValue", "Text", "Name", "PanelTitle", "ActionTitle", "Title" })
@@ -218,6 +248,130 @@ internal static class Buttons
 				return Text.Clean(value.AsString());
 		}
 		return "{" + string.Join(", ", entries.Keys.Take(8)) + "}";
+	}
+
+	/// <summary>
+	/// What is sitting in the UI event queue, and with clear=1, empties it.
+	///
+	/// An event whose bindings never resolve stays at the head and holds up the rest, which
+	/// looks from outside like every button having stopped working.
+	/// </summary>
+	public static string Queue(NameValueCollection q)
+	{
+		var queue = Game.UiEvents;
+		if (queue == null) return "error: UIEventQueue unavailable";
+
+		var contexts = queue.m_eventContextQueue;
+		var count = contexts?.Count ?? 0;
+		var sb = new StringBuilder();
+		sb.AppendLine($"{count} event(s) waiting");
+
+		if (count > 0)
+		{
+			try
+			{
+				var head = contexts.Peek();
+				sb.AppendLine($"  head: {Short(head.GetIl2CppType().FullName)}  status={head.Status}  sendable={head.IsSendable()}");
+			}
+			catch (Exception ex) { sb.AppendLine($"  head: <threw {ex.GetType().Name}>"); }
+		}
+
+		if (q?["clear"] == "1" && count > 0)
+		{
+			contexts.Clear();
+			queue.m_uniqueContexts?.Clear();
+			sb.AppendLine($"cleared; {contexts.Count} left");
+		}
+		return sb.ToString();
+	}
+
+	private static int Waiting(SI.Core.UIEventQueue queue)
+	{
+		try { return queue.m_eventContextQueue?.Count ?? 0; }
+		catch { return 0; }
+	}
+
+	// ------------------------------------------------------------------ records for the CLI
+
+	private static string ControlsJson()
+	{
+		var rows = new List<string>();
+		foreach (var control in Controls(out _))
+		{
+			var events = new List<string>();
+			foreach (var (listName, list) in control.Lists)
+			{
+				var contexts = list.Events;
+				for (var i = 0; i < contexts.Length; i++)
+				{
+					if (contexts[i] == null) continue;
+					try { events.Add(Summary(contexts[i], listName)); } catch { }
+				}
+			}
+
+			bool enabled;
+			try { enabled = control.Element.enabledInHierarchy; } catch { enabled = true; }
+
+			rows.Add(Report.Json(new Dictionary<string, string>
+			{
+				["Pointer"] = $"0x{control.Element.Pointer.ToInt64():x}",
+				["Type"] = Short(control.TypeName),
+				["Label"] = control.Label,
+				["Name"] = NameOf(control.Element),
+				["Enabled"] = enabled ? "True" : "False",
+				["Events"] = string.Join(", ", events),
+			}));
+		}
+		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
+	}
+
+	/// <summary>
+	/// One event in a few words: which it is, and for the carrier of simulation events, which
+	/// of those it carries — the context's type alone says only "an event for the simulation".
+	/// </summary>
+	private static string Summary(EventContextBase context, string listName)
+	{
+		var typeName = context.GetIl2CppType().FullName;
+		var text = Short(typeName).Replace("EventContext", "").Replace("Context", "");
+
+		var shape = ShapeOf(typeName);
+		var id = shape.Type?.GetProperty("m_id", BindingFlags.Public | BindingFlags.Instance);
+		if (id != null)
+		{
+			try
+			{
+				var value = id.GetValue(shape.Cast.Invoke(context, null))?.ToString();
+				if (!string.IsNullOrEmpty(value) && value != "None") text += ":" + value;
+			}
+			catch { }
+		}
+
+		return listName is "Events" or "SelectionEvents" or "ShortcutEvent" ? text : $"{listName}→{text}";
+	}
+
+	private static string DropdownsJson()
+	{
+		var rows = new List<string>();
+		foreach (var dropdown in AllDropdowns())
+		{
+			try
+			{
+				var choices = dropdown.m_choices;
+				var count = choices?.Count ?? 0;
+				var names = new List<string>();
+				for (var i = 0; i < count && i < 60; i++) names.Add(Choice(choices[i]));
+
+				rows.Add("{"
+					+ $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", "
+					+ $"\"Name\": \"{Report.Escape(NameOf(dropdown))}\", "
+					+ $"\"Label\": \"{Report.Escape(LabelOf(dropdown))}\", "
+					+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "
+					+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
+					+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]}");
+			}
+			catch { }
+		}
+		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
 	}
 
 	/// <summary>
@@ -359,7 +513,7 @@ internal static class Buttons
 			try
 			{
 				var text = current.TryCast<TextElement>()?.text;
-				if (!string.IsNullOrWhiteSpace(text)) return Text.Clean(text);
+				if (!string.IsNullOrWhiteSpace(text)) return Text.Plain(text);
 
 				var hierarchy = current.hierarchy;
 				for (var i = 0; i < hierarchy.childCount; i++) queue.Enqueue(hierarchy.ElementAt(i));
@@ -556,7 +710,7 @@ internal static class Buttons
 	private static string Short(string fullName)
 	{
 		if (fullName == null) return "?";
-		var dot = fullName.LastIndexOf('.');
+		var dot = Math.Max(fullName.LastIndexOf('.'), fullName.LastIndexOf('+'));
 		return dot < 0 ? fullName : fullName[(dot + 1)..];
 	}
 }

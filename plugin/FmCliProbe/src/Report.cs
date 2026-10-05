@@ -244,9 +244,9 @@ internal static class Report
 		}
 	}
 
-	private static string Json(Dictionary<string, string> fields) =>
+	internal static string Json(Dictionary<string, string> fields) =>
 		"{" + string.Join(", ", fields.Select(kv => $"\"{Escape(kv.Key)}\": \"{Escape(kv.Value)}\"")) + "}";
 
-	private static string Escape(string s) =>
+	internal static string Escape(string s) =>
 		s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "");
 }

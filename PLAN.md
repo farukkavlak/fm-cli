@@ -19,12 +19,14 @@ Bütün adımların ortak aracı artık `/buttons` + `/press` (§8.25): ekrandak
 event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyruğa konarak
 "basılıyor". Yeni bir alan açmak = o ekrana git, `/buttons` ile bak, `/press` ile dene.
 
-1. **`fm buttons` / `fm press` CLI'a çıksın**, ve mevcut `/newsaction` ile ekran açma kodu
-   `/press` üzerine taşınsın. Elle kayıt kopyalayan tek yer `/newsaction`; oyunun kendi
-   doldurucusu varken ona gerek kalmıyor.
-2. **Ekran haritası.** Statik `PanelID` avı yerine gezgin: her navigasyon butonuna basıp
-   ekranın kontrollerini dök, sonucu `docs/reference/screens.txt` olarak sakla. Hangi komutun
-   hangi ekrandan, hangi butonla yapıldığı tek dosyada olur.
+1. **Menüden sayfa açma.** `screens.txt` altı ana sekmenin 77 alt sayfasını sayıyor ama
+   menüden seçmek sayfayı açmıyor (§8.27): seçim `selectedSubtabElement`'e yazılıyor, sayfa
+   değişmiyor. Seçilen kaydın `PropertyValue`'su bir panel değil, iç içe bir kayıt; her satır
+   bir `ChildList` taşıyor. Sıra: o alt listeleri oku (`/dropdowns` derinleşsin), yaprak
+   satırı seçmeyi dene (`OnSelectionChangedInternal`'ın liste alan hali), olmazsa kayıttaki
+   paneli `OpenSubtabEvent`'e elle ver. Bu çözülünce her komut ekranına tek adımda gider.
+2. **Inbox cevabını `/press` üzerine taşı** ve `fm reply` komutunu çıkar. Mesaj açılınca
+   cevap butonlarının nasıl listelendiğine henüz bakılmadı; `/newsaction` o zamana kadar duruyor.
 3. **Basın toplantısı ve oyuncu konuşmaları.** Bu kayıtta bekleyen toplantı yok, o yüzden canlı
    görülmedi. Cevaplar `SpeakToActionEvent` ile gidiyor ve bunu inbox'la aynı modül
    (`NewsActionHandlerModule`) işliyor. Toplantı açılınca cevap butonları `/buttons`'ta
@@ -34,7 +36,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
    kontroller (`FMPitchPosition.Events`, `FMTacticsPanel.SelectionEvent`) da event listesi
    taşıyor, yani rol ve formasyon değişimi de basılabilir olmalı.
 5. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
-   2. adım bitince seri iş. Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
+   1. adım bitince seri iş. Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
 6. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property). Geri alınamaz
    olduğu için `--yes` onayı ve `dry=1` ile birlikte.
@@ -62,8 +64,10 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] Kuru çalıştırma (`dry=1`) ve çözülemeyen alanda göndermeme (§8.24)
 - [x] Ekranı isimle açma; her komut kendi ekranını geri getiriyor (§8.16, §8.22)
 - [x] Veri bağlanana kadar bekleme (sabit gecikme yerine 20 sn'ye kadar yoklama)
-- [~] Ekran envanteri — 39 panel, yalnızca yüklenmiş olanlar (`panels.txt`)
 - [x] Ekrandaki kontrolleri event'leriyle listeleme (`/buttons`) ve basma (`/press`) (§8.25)
+- [x] `fm buttons`, `fm press`, `fm dropdowns`, `fm select` — ekranı CLI'dan gezmek (§8.27)
+- [~] Ekran haritası — ana sekmeler ve alt sayfaları `screens.txt`'te; menüden açma çalışmıyor
+- [x] Kuyruk denetimi — `/queue`, tıkalıyken `/press` reddediyor (§8.27)
 - [x] Açılır listeleri seçenekleriyle listeleme (`/dropdowns`) ve seçme (`/select`) (§8.26)
 - [x] Kontrolü etiketle, listeyi adıyla adresleme — adresler ekran değişince bayatlıyor
 - [x] Simülasyon event'ini canlı gönderme — `EventToPlugin`, oyunun kendi doldurucusuyla (§8.25)
@@ -292,7 +296,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [ ] Sparkline / mini grafik (form, kondisyon trendi)
 - [ ] `--json` her komutta (script'lenebilir)
 - [x] Pipe dostu çıktı (`fm squad | grep ...`)
-- [~] İnteraktif oturum (`fm start` sonrası komutlar `fm` önekisiz) — TUI değil, REPL
+- [~] İnteraktif oturum (`fm start` sonrası komutlar `fm` önekisiz) — TUI değil, REPL; tırnaklı
+      ifadeler tek kelime sayılıyor
 - [ ] Fuzzy isim eşleme (`fm player osim` → Osimhen)
 - [ ] Kısaltmalar / takma adlar
 - [ ] Tab tamamlama (zsh/bash)
@@ -355,6 +360,13 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   liste olduğu için `/dropdowns` + `/select` eklendi. Soğuk başlangıçtan 5-7 sn; fitness, inbox,
   morale, düz kadro sırasıyla üç tur, hepsi aynı sonuç.
 
+- **Sakat oyuncu `Condition = -1` veriyor**; "Injuries" görünümünden doğrulandı, fitness
+  tablosuna durum kolonu eklendi.
+- **Ekran CLI'dan gezilebiliyor:** `fm buttons`, `fm press "<etiket>"`, `fm dropdowns`,
+  `fm select <liste> "<seçenek>"`. Etiketlerdeki `<link>`/`<style>` markup'ı temizlendi; art
+  arda komutlar ekranın kurulmasını 8 sn'ye kadar bekliyor.
+- **Ekran haritası çıktı:** altı ana sekmenin 77 alt sayfası `docs/reference/screens.txt`'te.
+
 **Kayıplar / engeller**
 
 - **Basın toplantısı görülmedi** — kayıtta bekleyen yok. Sırada 4. adıma indi.
@@ -364,8 +376,14 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   işaretle" dahil hiçbir değişiklik kalıcı değil.
 - **Kondisyon -1 = sakat.** Talisca (hamstring) ve Becão (ön çapraz bağ); "Injuries"
   görünümünden doğrulandı, `fm squad --fitness` durumu ayrı kolonda gösteriyor.
-- **Buton metinlerinde markup kalıyor** (`<link="0"><style="Norml">…`); `Text.Clean` bunu
-  temizlemiyor.
+- **Menüden sayfa açılamıyor.** Menü satırını seçmek ve menünün kendi event'lerini kuyruğa
+  koymak denendi (Finances, Tactics, First Team); üçünde de ekran değişmedi. Sıradaki ilk iş.
+- **Bir deneme oyunun buton kuyruğunu tıkadı.** Menünün seçim event'ini elle kuyruğa koymak
+  çözülemeyen bir event bıraktı; arkasındaki bütün basışlar "gönderildi" deyip hiçbir şey
+  yapmadı. `/queue` ve `/press`'teki koruma bunun için eklendi (§8.27).
+- **Alt sekmenin açılır butonu da açmıyor.** "Dynamics" butonunun `LeftClickEvents`'i kuyruğa
+  girdi, ekran değişmedi. Düz alt sekme butonları ("First Team") ve pano kutuları
+  ("Medical Centre") açıyor.
 
 ### 2026-10-04
 

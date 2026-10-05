@@ -1064,6 +1064,88 @@ Aynı turda okunan diğer görünümler: Injuries (`InjurySeverity`, `InjuryDesc
 `MatchLoad`), Playing Time (`AgreedPlayingTime`, `ActualPlayingTime`,
 `FutureAgreedPlayingTime`, `PlayingTimeHappinessLevel`).
 
+## 8.27 CLI'dan gezinme, ve menülerin sakladığı ekran haritası
+
+§8.25 ve §8.26'daki route'lar CLI'a çıktı:
+
+```
+fm buttons [metin] [--all]          etiketli kontroller ve ne gönderdikleri
+fm press "<etiket>" [--name <ad>]   butona bas
+fm dropdowns [metin]                açılır listeler ve seçenekleri
+fm select <liste> "<seçenek>"       listeden seç
+```
+
+`--dry` ikisinde de var; `--json` listelerde. Plugin tarafında `/buttons?json=1` ve
+`/dropdowns?json=1`. "Ne gönderir" kolonu context adının kısası; simülasyon taşıyıcısında
+event'in adı da geliyor (`EventToPlugin:EventFmxQuickPick`).
+
+Üç pratik ayrıntı:
+
+- **Etiketlerde rich-text etiketi var** (`<color><link="0"><style="Norml">Talisca…`).
+  `EmbeddedDataUtilities` bunlara dokunmuyor, ayrıca ayıklanıyor; yoksa oyuncu adıyla buton
+  bulunamıyor.
+- **Aynı etiket birden çok kontrolde olabiliyor** ("All": bir buton, bir de eğitim katmanı).
+  `/press` o durumda basmıyor, adayları adlarıyla listeliyor; `--name` ile daraltılıyor.
+- **Ekran bir basıştan sonra hemen hazır değil.** `press "Squad"` ardından `press "First Team"`
+  ilk denemede "yok" dönüyordu; CLI "yok" cevabında 8 sn'ye kadar yeniden soruyor.
+
+### Menüler bütün ekranları sayıyor
+
+Her ana sekmenin (`Portal`, `Squad`, `Recruitment`, `Match Day`, `Club`, `Career`) bir
+`NavTabDropdown`'u var ve ekran açık olmasa da alt sayfalarını listeliyor: toplam 77 sayfa.
+`Recruitment` altında Player Database, Shortlists, Transfer Activity, Contracts; `Match Day`
+altında Tactics, Set Pieces, Opposition Instructions; `Club` altında Finances, Staff, Board…
+Tam liste `docs/reference/screens.txt`. §8.20'deki 39 panellik envanterin yerini alıyor.
+
+### ⚠ Ama menüden açılmıyor
+
+| Deneme | Sonuç |
+|---|---|
+| `/select` ile menü satırı (Finances, Tactics, Messages) | `SelectedIndex` değişti, ekran değişmedi |
+| ardından menünün `SelectionEvents`'ini `/press` ile kuyruğa koymak | kuyruğa girdi, ekran değişmedi |
+| "Dynamics" açılır alt sekmesinin `LeftClickEvents`'i | kuyruğa girdi, ekran değişmedi |
+
+Seçim gerçekten yazılıyor: `…NavigationTabPortalBindingVariables12.selectedSubtabElement`
+artık `{DisplayValue = "First Team", PropertyValue = DynamicReference}`. Menünün event'i
+(`OpenSubtabEventContext`) panelini `selectedSubtabElement.PropertyValue`'dan okuyor, oysa o
+değer panel değil, iç içe bir kayıt. Her menü satırı ayrıca bir `ChildList` taşıyor. Yani
+açılacak sayfa büyük ihtimalle bir kat aşağıda — doğrulanmadı.
+
+### ⚠ Çözülemeyen bir event kuyruğu tıkıyor
+
+İkinci denemenin bir yan etkisi vardı: menünün `SelectionEvents`'i kuyruğa konunca içindeki
+`OpenSubtabEventContext` gönderilemiyor ve **kuyruğun başında kalıyor**. Arkasındaki her şey
+bekliyor — bizim basışlarımız da, oyunun kendi tıklamaları da.
+
+```
+/queue  ->  1 event(s) waiting
+              head: OpenSubtabEventContext  status=Sending  sendable=False
+```
+
+Dışarıdan görünüşü: `/press` "queued" diyor, ekran değişmiyor. `/send` ile giden event'ler
+kuyruğu kullanmadığı için çalışmaya devam ediyor (`fm inbox`, düz `fm squad`), bu yüzden fark
+edilmesi gecikti: ilk olayda Portal, Squad, First Team, Under 19s ve bir pano kutusu art arda
+basıldı, hiçbiri ekranı değiştirmedi; oyun yeniden başlatılınca düzeldi.
+
+İki önlem:
+
+- **`/queue[?clear=1]`** kuyrukta bekleyeni gösteriyor ve boşaltıyor.
+- **`/press` tıkalı kuyruğa basmıyor.** Kuyruk her karede boşaldığı için, bir istek geldiğinde
+  hâlâ dolu olması tıkanma demek; hata dönüyor ve baştaki event'i söylüyor.
+
+Doğrulama: temiz başlangıçta sırayla denendi. Menü satırını seçmek kuyruğu tıkamadı (0 bekleyen,
+sonraki basış çalıştı); `SelectionEvents`'i kuyruğa koymak tıkadı (1 bekleyen), sonraki
+`fm press Squad` reddedildi; `clear=1` sonrası Squad → 6098, Portal → 4206 düğüm, yani basışlar
+geri geldi. Aynı tıkanma sonraki üç denemede **tekrar üretilemedi** (aynı context ikinci kez
+kuyruğa girmedi), dolayısıyla tıkanma iki kez, temizleme bir kez gözlendi.
+
+Ders: `/press`'i yalnızca kontrolün kendi ana listesiyle (bir butonun `Events`'i) kullan.
+Verisi başka bir etkileşimle dolan listeleri (`SelectionEvents`) elle kuyruğa koyma.
+
+Çalışan gezinme yolları: ana sekme butonu (`OpenPanel`), düz alt sekme butonu ("First Team",
+`OpenSubtab`), pano kutusu ("Medical Centre", `OpenPanel`) ve §8.16'daki elle
+`OpenSubtabEvent`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

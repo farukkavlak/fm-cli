@@ -1,0 +1,102 @@
+FM26 ekran haritası — ana sekmeler ve alt sayfaları
+
+Kaynak: `fm dropdowns --json`, her ana sekmenin NavTabDropdown menüsü (2026-10-05, İngilizce arayüz).
+Sıra oyunun kendi menü sırası. Her satır kendi alt listesini taşıyor; o listeler henüz okunmadı.
+
+Portal
+    Overview
+    Messages
+    Calendar
+    News Site
+    Fixture Schedule
+    Stages
+    Opposition Report
+
+Squad
+    Overview
+    First Team
+    Under 19s
+    Training
+    Youth Setup
+    Dynamics
+    Medical Centre
+    Squad Feedback
+    Internationals
+    Discipline
+    Promises
+    Targets
+    Squad Numbers
+    Registration
+    Loans
+
+Recruitment
+    Overview
+    Player Database
+    Player Recommendations
+    Recruitment Focuses
+    Shortlists
+    Squad Planner
+    Transfer Activity
+    TransferRoom (In)
+    TransferRoom (Out)
+    Recruitment Budgets
+    Staff Database
+    Staff Transfer Activity
+    Staff Shortlist
+    Contracts
+    Transfer Window
+    Transfer History
+    Recruitment Objectives
+    Recruitment Feedback
+    Clauses
+
+Match Day
+    Overview
+    Match Squad
+    Tactics
+    Set Pieces
+    Penalties
+    Opposition Instructions
+    Data Hub
+    Competitions
+    Fixture Schedule
+    Next Opposition Report
+    Match Preparation Training
+    Tactics Feedback
+    Matches Feedback
+    Team Priorities
+    Match Rules
+
+Club
+    Overview
+    Club Site
+    Club Vision
+    Performance Feedback
+    Staff
+    Finances
+    Responsibilities
+    Facilities
+    Board
+    Supporters
+    Affiliates
+    Job Centre Report
+    Transfer History
+
+Career
+    Overview
+    My Profile
+    My Contract
+    My Badges
+    My Relationships
+    My History
+    Managerial Stats
+    Managerial Vacancies
+
+Squad sekmesindeki açılır alt sekmeler
+    Training: Overview, Individual Training, Units, Mentoring, Training Intensity, Coach Assignments
+    Youth Setup: Overview, Youth Environment, Youth Performance, Youth Candidates, Under 19s Competitions, U19 Fixtures
+    Dynamics: Overview, Captains, Hierarchy, Social Groups, Happiness
+    Medical Centre: Overview, Current Injuries, Risk Assessment, Recently Returned, Player Summary, Season Summary
+
+Squad › First Team tablosunun görünümleri (ViewDropdown)
+    Selection Info, General Info, Attributes, Contract, Transfer, Home-Grown Status, Playing Time, Dynamics, Reports, Injuries, Risk Assessment, Stats, International, Development

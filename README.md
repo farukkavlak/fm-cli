@@ -49,6 +49,11 @@ squad           kadroyu bas
   --morale      moral, hiyerarşi ve sosyal grup
 inbox           gelen kutusu
 next            zamanı ilerlet (bloke eden mesajları bildirir)
+buttons         ekrandaki butonlar ve ne gönderdikleri
+press "<etiket>"            butona bas
+dropdowns       ekrandaki açılır listeler ve seçenekleri
+select <liste> "<seçenek>"  listeden seç
+  --dry         press ve select için: yapma, ne yapacağını söyle
 status          bağlantı durumu
 --json          ham veri (script'lenebilir)
 ```
