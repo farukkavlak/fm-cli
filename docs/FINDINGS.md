@@ -1781,6 +1781,37 @@ Yalnızca kadro tablosunun listelediği oyuncular açılabiliyor (A takım ve ö
 birkaç genç); başka kulübün oyuncusu için arama ekranı gerekiyor. Sezon istatistikleri, form ve
 mutluluk ayrıntısı sayfada bağlı ama okunmuyor.
 
+## 8.39 MCP: komutlar araç olarak
+
+`fm mcp`, Model Context Protocol'ün stdio taşımasını konuşuyor (satır başına bir JSON-RPC
+mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 25 araç var ve **her araç bir
+komut**: argümanlar kullanıcının yazacağı kelimelere çevriliyor, komut terminaldeki gibi
+çalışıyor, bastığı metin sonuç oluyor (`isError` = çıkış kodu sıfır değil). Davranış tek yerde
+duruyor; CLI'da çalışan her şey araçta da çalışıyor.
+
+```
+fm_status  fm_next  fm_inbox  fm_reply  fm_talk  fm_tour  fm_dialog
+fm_squad  fm_player  fm_table  fm_fixtures
+fm_tactic  fm_tactic_set  fm_tactic_pick  fm_tactic_new  fm_setpieces_new
+fm_match (varsayılan: instant)  fm_sub  fm_save (confirm: true ister)
+fm_pages  fm_open  fm_buttons  fm_press  fm_dropdowns  fm_select
+```
+
+Repo kökündeki `.mcp.json` sunucuyu `fm mcp` olarak tanımlıyor; Claude Code projeyi açınca
+onay soracak.
+
+| Deneme (elle beslenen JSON-RPC, borudan) | Sonuç |
+|---|---|
+| `initialize` (istemcinin sürümüyle), bildirim, `tools/list` | sürüm geri verildi, bildirime cevap yok, 25 araç |
+| bozuk JSON / bilinmeyen metot / bilinmeyen araç | −32700 / −32601 / −32602 |
+| maç sırasında `fm_status`, `fm_sub`, `fm_fixtures` | skor ve dakika / saha ve kulübe / "maç sırasında açılmıyor" (`isError`) |
+| maç dışında 15 araç art arda | status, fixtures (sonuçla), table, tactic, mentalite listesi ve kuru değişim, player, inbox, squad fitness, open, next çalıştı; olmayan mesaj, onaysız save, maç yokken match, olmayan buton `isError` döndü |
+
+**Gerçek bir MCP istemcisiyle (Claude Code / Desktop) denenmedi**; yalnızca protokol elle
+konuşuldu. Bilinen sınırlar: oynanan maç (`mode=play`) altı-sekiz dakika sürüyor ve istemcinin
+araç zaman aşımına takılabilir; çıktılar Türkçe ve yönlendirmeler komut adıyla ("Oynamak için:
+match"), araç adıyla değil; araçlar düz metin döndürüyor, `--json` çıktısı sunulmuyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

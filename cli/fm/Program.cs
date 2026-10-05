@@ -12,6 +12,8 @@ internal static partial class Program
 		// already running and typing "fm" before every command gets old.
 		if (args.Length == 0) return await Session.Run(Run);
 
+		if (args[0] == "mcp") return await Mcp.Serve(Run);
+
 		if (args[0] == "start")
 		{
 			if (!await Launcher.Start(Fm, args.Contains("--debug"))) return 69;
@@ -794,6 +796,7 @@ internal static partial class Program
 			  save --yes      oyunu kaydet (dosyanın üzerine yazar, geri alınamaz)
 
 			  --json          ham veri (script'lenebilir)
+			  fm mcp          komutları MCP araçları olarak sun (stdio); bir modelin oynaması için
 
 			Oturumda komutları `fm` yazmadan verirsin; çıkmak için `quit`.
 			""");

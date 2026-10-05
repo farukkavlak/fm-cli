@@ -93,6 +93,7 @@ dropdowns       ekrandaki açılır listeler ve seçenekleri
 select <liste> "<seçenek>"  listeden seç
   --dry         değiştiren komutlarda: yapma, ne yapacağını söyle
 --json          ham veri (script'lenebilir)
+fm mcp          komutları MCP araçları olarak sun (stdio); repo kökündeki .mcp.json bunu tanımlıyor
 ```
 
 Oturumda komutlar `fm` öneki olmadan verilir:

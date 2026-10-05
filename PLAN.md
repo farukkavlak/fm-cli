@@ -33,7 +33,9 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
 4. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property). Geri alınamaz
    olduğu için `--yes` onayı ve `dry=1` ile birlikte.
-5. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
+5. **MCP'yi gerçek istemciyle denemek.** `fm mcp` protokolü konuşuyor ve araçlar çalışıyor
+   (§8.39) ama Claude Code / Desktop'tan hiç çağrılmadı. Ardından: araç çıktısındaki
+   yönlendirmeleri araç adına çevirmek, uzun maç için zaman aşımı, `--json` her komutta.
 
 ---
 
@@ -322,7 +324,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 
 ## 15. MCP + doğal dil
 
-- [ ] MCP server — komutları Claude'a tool olarak aç
+- [x] MCP server — `fm mcp` (stdio), 25 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
 - [ ] "Kadroda yorgun kim var?"
 - [ ] "Sol bek arıyorum, 10M bütçem var, öner"
 - [ ] "Bu hafta kimi dinlendirmeliyim?"
@@ -364,6 +366,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - **İlk maç oynandı.** Maç gününün on iki durağı çıkarıldı; `fm match --talk` tek komutla
   oynadı (6 dk, 0-0). Onay pencereleri `fm dialog` ile, kaydetme `fm save --yes` ile.
 - **Basın toplantısı ve beklentiler toplantısı `fm talk` ile yürüdü**; liste cevaplı soru dahil.
+- **`fm mcp`**: komutların hepsi MCP aracı olarak sunuluyor (25 araç); protokol elle denendi.
 - **`fm match --instant`** maçı 9 sn'de simüle ettiriyor; **`fm sub`** maç içinde oyuncu değiştiriyor.
 - **`fm setpieces new`** duran top sihirbazını, **`fm table` / `fm fixtures`** tabloyu ve
   sıradaki maçları, **`fm player <isim>`** oyuncunun sayfasını veriyor.

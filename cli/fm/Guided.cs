@@ -529,9 +529,18 @@ internal static partial class Program
 			return 0;
 		}
 
-		// With an eleven already picked the names may not change, so a full eleven is the test.
+		// With an eleven already picked the names may not change, so the test is a full eleven
+		// that reads the same twice running — the first reading can still be the old one.
 		JsonElement tactic = before;
-		var full = await Until(async () => Eleven(tactic = await Fm.GetJson("tactic")).Count == 11, seconds: 10);
+		var last = "";
+		var full = await Until(async () =>
+		{
+			await Task.Delay(TimeSpan.FromSeconds(1));
+			var picked = string.Join("|", Eleven(tactic = await Fm.GetJson("tactic")));
+			var settled = picked == last && Eleven(tactic).Count == 11;
+			last = picked;
+			return settled;
+		}, seconds: 12);
 		var names = Eleven(tactic);
 		Console.WriteLine(full ? $"İlk 11 seçildi: {string.Join(", ", names)}" : $"Quick Pick'e basıldı ama {names.Count} oyuncu seçili.");
 		return full ? 0 : 1;
