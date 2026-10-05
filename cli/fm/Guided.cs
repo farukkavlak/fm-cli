@@ -403,8 +403,9 @@ internal static partial class Program
 			case "style": return await TacticSetting("Stil", "Style", "Gegenpress", wanted, dry);
 			case "pick": return await TacticPick(dry);
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
+			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
 			default:
-				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop]   [--dry]");
+				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop] | tactic player <mevki> <oyuncu>   [--dry]");
 				return 64;
 		}
 
@@ -435,7 +436,78 @@ internal static partial class Program
 		}).ToList();
 
 		Table.Write(["TOPLA", "ROL", "TOPSUZ", "ROL", "OYUNCU"], rows);
+
+		// The match squad lists the eleven first; whoever comes after is on the bench.
+		if (tactic.TryGetProperty("Squad", out var squad))
+		{
+			var bench = squad.EnumerateArray()
+				.Where(e => int.TryParse(Field(e, "Index"), out var place) && place >= rows.Count && Field(e, "PlayerIndex") != "-1")
+				.Select(e => Field(e, "Name"))
+				.ToList();
+			if (bench.Count > 0) Console.WriteLine($"\nYedekler: {string.Join(", ", bench)}");
+		}
 		return 0;
+	}
+
+	/// <summary>
+	/// Puts a substitute into a slot of the eleven. Whoever was there changes places with him,
+	/// as it does when the same is chosen from the slot's list on the planner. Only the bench
+	/// is bound with names there, so only the bench can be named.
+	/// </summary>
+	private static async Task<int> TacticPlayer(List<string> words, bool dry)
+	{
+		if (await Planner() is not { } tactic)
+		{
+			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
+			return 1;
+		}
+
+		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
+		var spots = slots.Select(s => Spot(Field(s, "IPPosition"))).ToList();
+		var squad = tactic.TryGetProperty("Squad", out var listed) ? listed.EnumerateArray().Where(e => Field(e, "PlayerIndex") != "-1").ToList() : [];
+
+		if (words.Count < 2)
+		{
+			Console.Error.WriteLine($"kullanım: tactic player <mevki> <oyuncu>   mevkiler: {string.Join(" ", spots)}");
+			if (squad.Count > 0) Console.Error.WriteLine($"yedekler: {string.Join(", ", squad.Select(e => Field(e, "Name")))}");
+			return 64;
+		}
+
+		if (Choose(spots, words[0], "Mevki") is not { } spot) return 1;
+		var at = spots.IndexOf(spot);
+
+		var names = squad.Select(e => Field(e, "Name")).ToList();
+		if (names.Count == 0)
+		{
+			Console.Error.WriteLine("Maç kadrosu boş; önce: tactic pick");
+			return 1;
+		}
+		if (Choose(names, words[1], "Oyuncu") is not { } name) return 1;
+
+		var player = Field(squad[names.IndexOf(name)], "PlayerIndex");
+		var slot = Field(slots[at], "TeamSelectionIndex");
+		var current = Field(slots[at], "Player");
+		if (Field(slots[at], "PlayerIndex") == player)
+		{
+			Console.WriteLine($"{spot} zaten {name}.");
+			return 0;
+		}
+
+		var query = new List<(string, string)> { ("slot", slot), ("player", player) };
+		if (dry) query.Add(("dry", "1"));
+
+		var picked = await Arriving("pickplayer", query.ToArray());
+		if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
+		if (dry)
+		{
+			Console.WriteLine($"(kuru) {spot}: {current} → {name} yapılacaktı.");
+			return 0;
+		}
+
+		var took = await Until(async () =>
+			(await Fm.GetJson("tactic")).TryGetProperty("Slots", out var now) && now.GetArrayLength() > at && Field(now[at], "PlayerIndex") == player, seconds: 8);
+		Console.WriteLine(took ? $"{spot}: {(current.Length > 0 ? current : "boş")} → {name}" : $"{name} seçildi ama {spot} hâlâ {current} gösteriyor.");
+		return took ? 0 : 1;
 	}
 
 	/// <summary>The tactic as the planner binds it, opening the planner if it is not up; null without a tactic.</summary>

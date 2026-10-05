@@ -16,6 +16,7 @@ internal static class Tactics
 		Dictionary<string, string> header = null;
 		var styles = new Dictionary<string, string>();
 		var slots = new SortedDictionary<int, Dictionary<string, string>>();
+		var selection = new SortedDictionary<int, Dictionary<string, string>>();
 
 		foreach (var (_, node) in Report.Walk())
 		{
@@ -31,6 +32,21 @@ internal static class Tactics
 					if (Report.Fields(node).TryGetValue("Name", out var style) && node.Parent?.Parent is { } holder
 					    && Report.Fields(holder).TryGetValue("ID", out var id))
 						styles[id] = style;
+					break;
+
+				// The match squad: eleven starters and the substitutes after them, each with the
+				// player's own index, which is what a selection is made by.
+				case "tacticsteamselection":
+					var entry = Report.Fields(node);
+					if (!entry.TryGetValue("Index", out var place) || !int.TryParse(place, out var order)) break;
+					if (!selection.TryGetValue(order, out var known)) selection[order] = known = new Dictionary<string, string> { ["Index"] = place };
+
+					if (entry.TryGetValue("PlayerIndex", out var who)) known.TryAdd("PlayerIndex", who);
+					for (var c = node.FirstChild; c != null; c = c.NextSibling)
+					{
+						if (c.Name != "Player") continue;
+						if (Report.Fields(c).TryGetValue("ShirtName", out var shirt)) known.TryAdd("Name", shirt);
+					}
 					break;
 
 				case "Position":
@@ -54,7 +70,79 @@ internal static class Tactics
 			header["Style"] = styleName;
 
 		return "{\"Tactic\": " + Report.Json(header) + ", \"Slots\": [\n  "
-		       + string.Join(",\n  ", slots.Values.Select(Report.Json)) + "\n]}\n";
+		       + string.Join(",\n  ", slots.Values.Select(Report.Json)) + "\n], \"Squad\": [\n  "
+		       + string.Join(",\n  ", selection.Values.Where(e => e.ContainsKey("Name")).Select(Report.Json)) + "\n]}\n";
+	}
+
+	/// <summary>
+	/// Put a player into a slot of the team selection, as choosing him from that slot's list
+	/// does. Every slot has such a list, and each of its rows names the slot it would fill and
+	/// the player it would put there, so the row is found by those two numbers rather than by
+	/// where it sits in which menu.
+	/// </summary>
+	public static string Pick(System.Collections.Specialized.NameValueCollection q)
+	{
+		if (!int.TryParse(q["slot"], out var slot) || !int.TryParse(q["player"], out var player))
+			return "error: ?slot=<team selection index>&player=<player index> required (see /tactic)";
+
+		foreach (var dropdown in Buttons.AllDropdowns())
+		{
+			SI.Bindable.EventList events;
+			try { events = dropdown.SelectionEvents; } catch { continue; }
+			if (events == null || events.Count == 0) continue;
+
+			string type;
+			try { type = events.Events[0]?.GetIl2CppType().Name ?? ""; } catch { continue; }
+			if (!type.StartsWith("TacticTeamSelectionDropdown", StringComparison.Ordinal)) continue;
+
+			var row = Find(dropdown.m_choices, slot, player, 2);
+			if (row == null) continue;
+
+			if (q["dry"] == "1") return $"dry run, NOT picked: player {player} into slot {slot}";
+
+			var queue = Game.UiEvents;
+			if (queue == null) return "error: UIEventQueue unavailable";
+
+			dropdown.UpdateDropdownSelectionBinding(row);
+			queue.QueueEvents(events);
+			return $"picked player {player} into slot {slot}";
+		}
+
+		return $"error: no selection list on screen offers player {player} for slot {slot}";
+	}
+
+	private static SI.Core.TypedValue Find(Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> rows, int slot, int player, int depth)
+	{
+		if (rows == null || depth == 0) return null;
+
+		for (var i = 0; i < rows.Count; i++)
+		{
+			var row = rows[i];
+			if (Offers(row, slot, player)) return row;
+
+			var inner = Find(Buttons.Children(row), slot, player, depth - 1);
+			if (inner != null) return inner;
+		}
+		return null;
+	}
+
+	/// <summary>Whether a row's displayed record is "this player into this slot".</summary>
+	private static bool Offers(SI.Core.TypedValue row, int slot, int player)
+	{
+		try
+		{
+			var entries = Send.Entries(row?.Get()?.TryCast<DynamicReference>());
+			if (entries.TryGetValue("RowData", out var data) && data != null && !data.IsNull) return Offers(data, slot, player);
+			if (!entries.TryGetValue("DisplayValue", out var shown) || shown == null || shown.IsNull) return false;
+
+			var record = shown.Get()?.TryCast<DynamicReference>();
+			if (record == null) return false;
+
+			var fields = Send.Entries(record);
+			return fields.TryGetValue("TeamSelectionIndex", out var s) && fields.TryGetValue("Index", out var p)
+			       && s.AsString() == slot.ToString() && p.AsString() == player.ToString();
+		}
+		catch { return false; }
 	}
 
 	/// <summary>

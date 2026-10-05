@@ -50,6 +50,7 @@ internal static class FmApi
 		"talk" => Talk.Current(),
 		"state" => State.Current(),
 		"tactic" => Tactics.Current(),
+		"pickplayer" => Tactics.Pick(q),
 		"bindprop" => Materialise.Property(q["path"], q["name"]),
 		"buttons" => Buttons.Catalog(q),
 		"press" => Buttons.Press(q),

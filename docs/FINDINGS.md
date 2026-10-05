@@ -1435,7 +1435,26 @@ karşılaştırıp uyuşmazsa dokunmuyor. Seçim: satırı seç + listenin event
 | `role DML Dropping --oop`, `role ST 1` | topsuz rol ve forvet rolü değişti; `fm tactic` üçünü de yeni haliyle gösterdi |
 | elle (önceki oturum): aynı listeden ikinci satır | aynı değişim |
 
-Açık kalanlar: diziliş değiştirme, takım talimatları, yedekler, taktik yuvaları
+**İlk 11'e oyuncu koymak: `fm tactic player`.** Her mevkinin bir seçim listesi var
+(`TacticTeamSelectionDropdownEvent`): üstte önerilen oyuncu, altında "All Players ›" alt menüsü.
+Satırın gösterdiği kayıt `{ Player, Index (oyuncunun kendi numarası), TeamSelectionIndex (dolduracağı
+mevki), PlayerTeamSelectionIndex (şu an nerede; −1 kadroda değil), StarRange }`. Satırda isim yok;
+satır "şu oyuncu şu mevkiye" diye iki sayıyla bulunuyor (`/pickplayer?slot=&player=`), sonra alt
+menü kalıbıyla seçiliyor (bağlı değere yaz + event'i kuyruğa koy). Maç kadrosu
+`tacticsteamselection` kayıtlarında: `Index` 0-10 ilk on bir, sonrası yedekler; `PlayerIndex` ve
+yalnızca yedeklerde `Player.ShirtName`.
+
+| Deneme | Sonuç |
+|---|---|
+| `fm tactic` | tablonun altında "Yedekler: Mert Günok, Söyüncü, Kanté, D. Nene, Mert Müldür, Fred, Brown" |
+| `tactic player` / `player ST zzz` / `player DML Fred --dry` | kullanım + yedekler / red / değişmedi |
+| `tactic player DML Fred` | "DML: Guendouzi → Fred"; `fm tactic` Fred'i on birde, Guendouzi'yi yedekte gösterdi |
+
+Yalnızca yedekler adıyla seçilebiliyor: ilk on birdekilerin ve kadro dışındakilerin adı bu
+ekranda bağlı değil, o yüzden iki as oyuncunun yerini değiştirmek ya da kadro dışından birini
+almak henüz yok.
+
+Açık kalanlar: diziliş değiştirme, takım talimatları, taktik yuvaları
 (planlayıcıda "Create New Tactic · Load Tactic · Copy Tactic" ve "Save · Load… · Clear Slot"
 listeleri var), "Pick Rotated Squad" gibi diğer seçim menüsü satırları.
 
@@ -1822,7 +1841,7 @@ kolonları boş geldi: `/squad` aynı adı bağlayan iki listeyi birleştirirken
 ## 8.39 MCP: komutlar araç olarak
 
 `fm mcp`, Model Context Protocol'ün stdio taşımasını konuşuyor (satır başına bir JSON-RPC
-mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 26 araç var ve **her araç bir
+mesajı): `initialize`, `ping`, `tools/list`, `tools/call`. 27 araç var ve **her araç bir
 komut**: argümanlar kullanıcının yazacağı kelimelere çevriliyor, komut terminaldeki gibi
 çalışıyor, bastığı metin sonuç oluyor (`isError` = çıkış kodu sıfır değil). Davranış tek yerde
 duruyor; CLI'da çalışan her şey araçta da çalışıyor.
@@ -1830,7 +1849,7 @@ duruyor; CLI'da çalışan her şey araçta da çalışıyor.
 ```
 fm_status  fm_next  fm_inbox  fm_reply  fm_talk  fm_tour  fm_dialog
 fm_squad  fm_player  fm_table  fm_fixtures
-fm_tactic  fm_tactic_set  fm_tactic_role  fm_tactic_pick  fm_tactic_new  fm_setpieces_new
+fm_tactic  fm_tactic_set  fm_tactic_role  fm_tactic_player  fm_tactic_pick  fm_tactic_new  fm_setpieces_new
 fm_match (varsayılan: instant)  fm_sub  fm_save (confirm: true ister)
 fm_pages  fm_open  fm_buttons  fm_press  fm_dropdowns  fm_select
 ```

@@ -266,7 +266,7 @@ internal static class Buttons
 	}
 
 	/// <summary>The rows of a row's submenu, or null when it has none.</summary>
-	private static Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> Children(SI.Core.TypedValue choice)
+	internal static Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> Children(SI.Core.TypedValue choice)
 	{
 		try
 		{
