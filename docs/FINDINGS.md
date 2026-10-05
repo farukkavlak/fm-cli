@@ -1277,18 +1277,93 @@ Doğrulama:
 | `reply 7 Decline --dry` | bekleyen sayısı değişmedi |
 | `reply 7 Decline`, `reply 6 Decline`, `reply 4 "Accept Current"` | bekleyen 5 → 4 → 3 → 2, kuyruk boş |
 
-### ⚠ Tanıtım turu başlıyor, bitmiyor
+### Tanıtım turu başlıyor, bitmiyor — çözüldü (§8.30)
 
-`reply 5 Begin` ("Fenerbahçe Tactics Introduction", tek seçeneği bu) mesajı kapatmadı:
-"Tactics Introduction" paneli açıldı, mesajdaki buton "Continue Introduction"a, oyunun ilerle
-butonu "Complete Introduction"a döndü, `SpeakTo.CurrentInductionStepIndex = 1 / Max = 1`.
-"Continue Introduction"a on kez, ilerle butonuna bir kez basmak hiçbir şeyi değiştirmedi; mesaj
-`NewsHasResponded = False` kaldı.
+`reply 5 Begin` ("Fenerbahçe Tactics Introduction") mesajı kapatmıyordu: tur paneli açılıyor,
+mesajdaki buton "Continue Introduction"a dönüyor, ona basmak hiçbir şeyi değiştirmiyordu. Sebep
+§8.30'da: o tur ekranda bir şey yapılmasını bekliyordu, mesajdaki buton turu ilerletmiyor.
 
-§8.15'te aynı cevap `NewsResponseActionEvent` ile gönderilince mesaj kapanmış ve zaman
-ilerlemişti. Yani eski yol turu atlıyordu; butonun gerçek davranışı turu başlatmak. Turun
-adımları ekrandaki kontroller arasında görünmüyor — çözülmedi. Sonuç: bu kayıtta `fm next`
-bugünkü haliyle zamanı ilerletirken **görülmedi**.
+## 8.30 Tanıtım turları ve taktik sihirbazı
+
+**Tur, adımlarını sayan bir konuşma.** "Begin Introduction" bir panel açıyor; panelin
+`SpeakTo` referansı `CurrentInductionStepIndex` / `MaxInductionStepIndex` taşıyor, rehberin
+söylediği de yanındaki `SpeechBubbleList…bubble.DisplayString`'te. Turun kendi butonları var
+ve mesajdakilerden **adlarıyla** ayrılıyor (`name=StandardButton`):
+
+```
+Continue            sonraki adım            (son adımda yok)
+Previous            önceki adım
+Skip Introduction   turu atla
+End Introduction    yalnızca son adımda; mesajı kapatan bu
+```
+
+Mesajın içindeki "Continue Introduction" butonu turu ilerletmiyor, yalnızca tur panelini geri
+getiriyor — dün on kez basıp sonuç alamamamızın sebebi buydu.
+
+**Bazı adımlar senden iş bekliyor.** Taktik turu tek adım (1/1) ve hiçbir tur butonu
+sunmuyor; rehber "select the tactical display shown" diyor. Takımın taktiği yok
+(`Tactic.HasTactic = False`) ve tur ancak taktik oluşturulunca kapanıyor. "Decline" sunmayan
+tek tur olması da bundan: taktiksiz devam edilemiyor.
+
+**Tur açmadan da olur.** Taktik sihirbazla oluşturulunca "Tactics Introduction" mesajı
+cevaplanmış sayılıyor; "Begin"e hiç basmak gerekmiyor.
+
+**Taktik sihirbazı üç seçim, üç buton:**
+
+| Aşama (`TacticCreatorCurrentStage`) | Seçilen | Liste | İlerleten buton → event |
+|---|---|---|---|
+| 0 | stil (11 seçenek) | `tac-styles-options` | "Formation (In Possession)" → `EventFmxTacticCreatorIncrementStage` |
+| 1 | topla diziliş | `all-options-list` | "Formation (Out of Possession)" → aynı event |
+| 2 | topsuz diziliş | `all-options-list` | "Confirm" → `EventFmxConfirmedCreateNewTactic` |
+
+Dizilişlerin listesi seçilen stile göre değişiyor (Gegenpress 12 / 10, Control Possession
+farklı sıra), yani önceden listelenemiyor. İlerleten buton seçim yapılana kadar kapalı.
+Sihirbaza giriş "No Tactic Set" kutusu: tur panelinde ve Match Day › Overview'da var.
+`fm open Tactics` taktik yokken boş bir panel açıyor, sihirbazı değil.
+
+**Seçenekler radyo grubu.** Stil ve diziliş kutuları event listesi taşımıyor, o yüzden
+`/buttons`'ta yoklar: `SIRadioGroup` içinde `SIRadioButton`. Açılır liste gibi bağlı bir değere
+yazıyorlar. Seçmek = kutunun kendi tıklama işleyicisi (`SIRadioButton.OnClickedOrSubmitted()`).
+`/dropdowns` ve `/select` artık radyo gruplarını da kapsıyor. Geçilen aşamanın grubu ekranda
+kalıyor ama etiketleri boşalıyor; bunlar listelenmiyor.
+
+**Etiketin etrafına bakmak: `/elements`.** `/buttons` yalnızca event listesi taşıyan
+kontrolleri görüyor. `/elements?text=Gegenpress&up=11&depth=1&members=1` etiketin çevresindeki
+eleman ağacını tipleriyle döküyor; radyo grubu böyle bulundu. Event taşımayan bir şeye
+"nasıl basılır" sorusunun aracı.
+
+```
+fm tour               açık turu sonuna kadar yürüt, her adımda rehberin dediğini bas
+fm tour --skip        turu atla (tur sunuyorsa)
+fm tactic new         sihirbazı aç, stilleri listele
+fm tactic new "<stil>" "<topla>" "<topsuz>"   taktiği oluştur; eksik bırakılan aşamanın
+                      seçeneklerini listeler. Seçim: numara, tam ad ya da tek uyan parça
+```
+
+Doğrulama (temiz kayıttan iki ayrı oturum):
+
+| Deneme | Sonuç |
+|---|---|
+| `tactic new` (tur açık değil, Messages sayfasından) | sihirbaz açıldı, 11 stil |
+| `tactic new Zzz` / `Tiki` (iki stile uyuyor) / `Gegen --dry` | red / red / `TacticCreatorTacticalStyle` −1 kaldı |
+| `tactic new Gegen` → `… "4-2-3-1"` → `… "9-9-9"` → `… "4-1-4-1"` | aşama aşama ilerledi, uydurma diziliş reddedildi, taktik oluştu |
+| ikinci oturum: `tactic new "Control Poss" 4 3` | tek komutta oluştu: Control Possession · 4-3-3 DM Wide · 4-1-4-1 DM |
+| taktik varken `tactic new` | "zaten bir taktiği var" |
+| `reply 7 Begin` + `tour` (Squad, 7 adım) | 7 adım basıldı, mesaj kapandı, 8 sn |
+| `reply 6 Begin` + `tour --skip` | mesaj kapandı |
+| taktik turunda `tour` / `tour --skip` | "senden bir şey bekliyor, `tactic new`" / "atlanamıyor" |
+| elle: Dynamics turu (6 adım) Continue ×5 + End | adım sayacı 1→6, mesaj kapandı |
+
+**Zaman ilerledi.** Dört mesaj cevaplanınca `fm next` iki oturumda da çalıştı: saat 08:45 →
+11:51, ikinci basışta 30/6 → 1/7/2025. Sonraki engeller sırayla: "Set Code of Conduct" (üç
+cevap, `fm reply` ile geçildi) ve "Dynamics Introduction" turu.
+
+**İlerle butonu her zaman "ilerle" değil.** Etiketi bir kez "News Site" oldu; basınca zaman
+ilerlemedi, haber sayfası açıldı. `fm next` etikete bakmıyor.
+
+**`fm reply` cevabın işlenmesini bekliyor.** Gelen kutusu cevaptan bir an sonra güncelleniyor;
+hemen ardından gelen `fm next` mesajı hâlâ engel sanıyordu. Artık mesaj engel olmaktan çıkana
+kadar (8 sn'ye kadar) bekliyor.
 
 ## 9. Sıradaki adımlar
 

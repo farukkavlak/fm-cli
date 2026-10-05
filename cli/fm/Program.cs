@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace FmCli;
 
-internal static class Program
+internal static partial class Program
 {
 	private static readonly Bridge Fm = new();
 
@@ -35,6 +35,8 @@ internal static class Program
 				"inbox" => await Inbox(json),
 				"reply" => await Reply(args),
 				"next" => await Next(),
+				"tour" => await Tour(json, args),
+				"tactic" => await Tactic(args),
 				"pages" => await PageList(json, args),
 				"open" => await Open(args),
 				"buttons" => await Buttons(json, args),
@@ -202,15 +204,15 @@ internal static class Program
 		rows.EnumerateArray().Any(row => row.TryGetProperty(field, out _));
 
 	/// <summary>Polls until a condition holds, since how long the game takes is not ours to know.</summary>
-	private static async Task<bool> Until(Func<Task<bool>> condition)
+	private static async Task<bool> Until(Func<Task<bool>> condition, double seconds = 20)
 	{
-		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
-		while (DateTime.UtcNow < deadline)
+		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(seconds);
+		while (true)
 		{
 			if (await condition()) return true;
-			await Task.Delay(TimeSpan.FromSeconds(1.5));
+			if (DateTime.UtcNow >= deadline) return false;
+			await Task.Delay(TimeSpan.FromSeconds(1));
 		}
-		return false;
 	}
 
 	/// <summary>An injured player's condition comes back as -1, which is not a percentage.</summary>
@@ -386,9 +388,27 @@ internal static class Program
 		var pressed = await Fm.Get("press", query.ToArray());
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
-		Console.WriteLine(args.Contains("--dry")
-			? $"(kuru) '{Field(wanted[0], "Label")}' cevabı verilecekti: {title}"
-			: $"Cevaplandı: {title} → {Field(wanted[0], "Label")}");
+		if (args.Contains("--dry"))
+		{
+			Console.WriteLine($"(kuru) '{Field(wanted[0], "Label")}' cevabı verilecekti: {title}");
+			return 0;
+		}
+
+		Console.WriteLine($"Cevaplandı: {title} → {Field(wanted[0], "Label")}");
+
+		// Beginning an introduction answers nothing yet: it opens a tour, and the message only
+		// closes once that has been walked to its end.
+		if (Field(wanted[0], "Label").StartsWith("Begin", StringComparison.OrdinalIgnoreCase)
+		    && await Until(TourOpen, seconds: 6))
+		{
+			Console.WriteLine("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour");
+			return 0;
+		}
+
+		// The inbox catches up a moment after the answer, and a `next` issued in that moment
+		// would still find the message in the way, so the command holds on until it has.
+		if (Blocking(chosen) && !await Until(async () => !StillBlocking(await Fm.GetJson("inbox"), id), seconds: 8))
+			Console.WriteLine("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor.");
 		return 0;
 
 		// An answer is named by its number in the listing or by a piece of its text.
@@ -481,6 +501,7 @@ internal static class Program
 				.Select(c => Field(c, "Label"))
 				.FirstOrDefault();
 			if (!string.IsNullOrEmpty(waitingFor)) Console.Error.WriteLine($"Oyunun ilerle butonu şunu diyor: {waitingFor}");
+			if (await TourOpen()) Console.Error.WriteLine("Açık bir tanıtım turu var; yürütmek için: tour");
 
 			return 1;
 		}
@@ -670,6 +691,9 @@ internal static class Program
 	private static bool Blocking(JsonElement message) =>
 		Field(message, "NewsItemIsPriority") == "True" && Answerable(message);
 
+	private static bool StillBlocking(JsonElement inbox, string id) =>
+		inbox.EnumerateArray().Any(m => Field(m, "UniqueId") == id && Blocking(m));
+
 	private static bool Answerable(JsonElement message) =>
 		Field(message, "CanRespond") == "True" && Field(message, "NewsHasResponded") != "True";
 
@@ -702,6 +726,10 @@ internal static class Program
 			  reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next            zamanı ilerlet
+			  tour            açık tanıtım turunu sonuna kadar yürüt
+			    --skip        turu atla (tur izin veriyorsa)
+			  tactic new ["<stil>" ["<topla diziliş>" ["<topsuz diziliş>"]]]
+			                  taktik oluştur; eksik bıraktığın adımın seçeneklerini listeler
 
 			  pages [metin]               oyunun bütün sayfaları
 			  open "<sayfa>"              sayfayı aç
