@@ -34,6 +34,8 @@ internal static class Program
 				"squad" => await Squad(json, args),
 				"inbox" => await Inbox(json),
 				"next" => await Next(),
+				"pages" => await PageList(json, args),
+				"open" => await Open(args),
 				"buttons" => await Buttons(json, args),
 				"dropdowns" => await Dropdowns(json, args),
 				"press" => await Press(args),
@@ -79,7 +81,9 @@ internal static class Program
 		if (args.Contains("--fitness")) return await SquadFitness(json);
 		if (args.Contains("--morale")) return await SquadMorale(json);
 
-		var squad = await Bound("squad", "SquadScreen");
+		// The plain listing reads one named view like the others do. Reading whatever happened
+		// to be bound gave a different squad depending on the command that ran before.
+		var squad = await SquadView("General Info", "Wage");
 
 		if (json)
 		{
@@ -88,20 +92,21 @@ internal static class Program
 		}
 
 		var rows = squad.EnumerateArray()
+			.Where(p => Field(p, "Wage") != "")
+			.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
 			.Select(p => new[]
 			{
 				Field(p, "Name"),
 				Field(p, "PositionCombinedString"),
 				Field(p, "Age"),
-				Field(p, "Team"),
+				Field(p, "AgreedPlayingTime"),
+				Field(p, "Wage"),
+				Field(p, "TransferValueRangeString"),
+				Field(p, "StatusTitleShort"),
 			})
-			.OrderBy(r => r[3], StringComparer.OrdinalIgnoreCase)
-			.ThenBy(r => r[0], StringComparer.OrdinalIgnoreCase)
 			.ToList();
 
-		// The squad screen binds a nation flag rather than its name, so there is no country
-		// column to print until a view that carries one is opened.
-		Table.Write(new[] { "OYUNCU", "POZİSYON", "YAŞ", "TAKIM" }, rows);
+		Table.Write(new[] { "OYUNCU", "POZİSYON", "YAŞ", "STATÜ", "MAAŞ", "DEĞER", "DURUM" }, rows);
 		return 0;
 	}
 
@@ -164,7 +169,7 @@ internal static class Program
 	/// lives: the table binds only the columns of the view it is showing.
 	///
 	/// Choosing the view is tried first, since the table is often already up. If it is not, the
-	/// squad screen is opened and its First Team tab pressed, the way a user would get there.
+	/// First Team page is opened by name and the view chosen once the table has built.
 	/// </summary>
 	private static async Task<JsonElement> SquadView(string view, string marker)
 	{
@@ -173,10 +178,8 @@ internal static class Program
 
 		if (!await Choose(view))
 		{
-			await Bound("squad", "SquadScreen");
-
-			if (!await Until(async () => Sent(await Fm.Get("press", ("text", "First Team"), ("name", "SIButton")))))
-				throw new FmError("Kadro ekranında 'First Team' sekmesi bulunamadı.");
+			if (!await Until(async () => Sent(await Fm.Get("open", ("page", "First Team")))))
+				throw new FmError("'First Team' sayfası açılamadı.");
 
 			if (!await Until(() => Choose(view)))
 				throw new FmError($"Kadro tablosunda '{view}' görünümü bulunamadı.");
@@ -338,6 +341,42 @@ internal static class Program
 		return 0;
 	}
 
+	/// <summary>Every page the game has, read from its own menus, so none has to be open to be listed.</summary>
+	private static async Task<int> PageList(bool json, string[] args)
+	{
+		var pages = await Fm.GetJson("pages");
+		if (json)
+		{
+			Console.WriteLine(pages.ToString());
+			return 0;
+		}
+
+		var filter = Words(args).FirstOrDefault();
+		var rows = pages.EnumerateArray()
+			.Select(p => new[] { Field(p, "Tab"), Field(p, "Page") })
+			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+			.ToList();
+
+		Table.Write(new[] { "SEKME", "SAYFA" }, rows);
+		return 0;
+	}
+
+	private static async Task<int> Open(string[] args)
+	{
+		var words = Words(args).ToList();
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine("kullanım: open \"<sayfa>\" [--tab <sekme>] [--dry]   (sayfalar için `pages`)");
+			return 64;
+		}
+
+		var query = new List<(string, string)> { ("page", words[0]) };
+		if (Option(args, "--tab") is { } tab) query.Add(("tab", tab));
+		if (args.Contains("--dry")) query.Add(("dry", "1"));
+
+		return Report(await Arriving("open", query.ToArray()));
+	}
+
 	private static async Task<int> Dropdowns(bool json, string[] args)
 	{
 		var dropdowns = await Fm.GetJson("dropdowns", ("json", "1"));
@@ -425,7 +464,7 @@ internal static class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] == "--name") { i++; continue; }
+			if (args[i] is "--name" or "--tab") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}
@@ -475,6 +514,9 @@ internal static class Program
 			  inbox           gelen kutusu
 			  next            zamanı ilerlet
 
+			  pages [metin]               oyunun bütün sayfaları
+			  open "<sayfa>"              sayfayı aç
+			    --tab <sekme>             aynı adda birden çok sayfa varsa
 			  buttons [metin]             ekrandaki butonlar ve ne gönderdikleri
 			    --all                     etiketsizleri de göster
 			  press "<etiket>"            butona bas

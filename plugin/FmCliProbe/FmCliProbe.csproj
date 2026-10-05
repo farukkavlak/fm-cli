@@ -33,6 +33,8 @@
     <Reference Include="UnityEngine"><HintPath>$(BepInterop)/UnityEngine.dll</HintPath></Reference>
     <Reference Include="Unity.InputSystem"><HintPath>$(BepInterop)/Unity.InputSystem.dll</HintPath></Reference>
     <Reference Include="UnityEngine.UIElementsModule"><HintPath>$(BepInterop)/UnityEngine.UIElementsModule.dll</HintPath></Reference>
+    <Reference Include="Unity.Addressables"><HintPath>$(BepInterop)/Unity.Addressables.dll</HintPath></Reference>
+    <Reference Include="Unity.ResourceManager"><HintPath>$(BepInterop)/Unity.ResourceManager.dll</HintPath></Reference>
     <Reference Include="FM.UI"><HintPath>$(BepInterop)/FM.UI.dll</HintPath></Reference>
     <Reference Include="FMGame"><HintPath>$(BepInterop)/FMGame.dll</HintPath></Reference>
     <Reference Include="SI.Bindable"><HintPath>$(BepInterop)/SI.Bindable.dll</HintPath></Reference>

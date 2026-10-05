@@ -1,7 +1,8 @@
-FM26 ekran haritası — ana sekmeler ve alt sayfaları
+FM26 ekran haritası — ana sekmeler ve sayfaları
 
-Kaynak: `fm dropdowns --json`, her ana sekmenin NavTabDropdown menüsü (2026-10-05, İngilizce arayüz).
-Sıra oyunun kendi menü sırası. Her satır kendi alt listesini taşıyor; o listeler henüz okunmadı.
+Kaynak: `fm pages` (her ana sekmenin kendi menüsü), 2026-10-05, İngilizce arayüz.
+Sıra oyunun menü sırası. `fm open "<sayfa>"` ile açılır; adı birden çok sekmede geçen
+sayfa için `--tab <sekme>`. (kart) işaretliler ekranın üstüne kart olarak açılıyor.
 
 Portal
     Overview
@@ -20,14 +21,14 @@ Squad
     Youth Setup
     Dynamics
     Medical Centre
-    Squad Feedback
+    Squad Feedback  (kart)
     Internationals
     Discipline
-    Promises
-    Targets
+    Promises  (kart)
+    Targets  (kart)
     Squad Numbers
-    Registration
-    Loans
+    Registration  (kart)
+    Loans  (kart)
 
 Recruitment
     Overview
@@ -36,67 +37,62 @@ Recruitment
     Recruitment Focuses
     Shortlists
     Squad Planner
-    Transfer Activity
+    Transfer Activity  (kart)
     TransferRoom (In)
     TransferRoom (Out)
     Recruitment Budgets
     Staff Database
-    Staff Transfer Activity
+    Staff Transfer Activity  (kart)
     Staff Shortlist
-    Contracts
+    Contracts  (kart)
     Transfer Window
-    Transfer History
-    Recruitment Objectives
-    Recruitment Feedback
-    Clauses
+    Transfer History  (kart)
+    Recruitment Objectives  (kart)
+    Recruitment Feedback  (kart)
+    Clauses  (kart)
 
 Match Day
     Overview
     Match Squad
     Tactics
     Set Pieces
-    Penalties
-    Opposition Instructions
+    Penalties  (kart)
+    Opposition Instructions  (kart)
     Data Hub
     Competitions
     Fixture Schedule
     Next Opposition Report
-    Match Preparation Training
-    Tactics Feedback
-    Matches Feedback
-    Team Priorities
-    Match Rules
+    Match Preparation Training  (kart)
+    Tactics Feedback  (kart)
+    Matches Feedback  (kart)
+    Team Priorities  (kart)
+    Match Rules  (kart)
 
 Club
     Overview
     Club Site
     Club Vision
-    Performance Feedback
-    Staff
+    Performance Feedback  (kart)
+    Staff  (kart)
     Finances
     Responsibilities
-    Facilities
-    Board
+    Facilities  (kart)
+    Board  (kart)
     Supporters
-    Affiliates
+    Affiliates  (kart)
     Job Centre Report
-    Transfer History
+    Transfer History  (kart)
 
 Career
     Overview
-    My Profile
-    My Contract
-    My Badges
-    My Relationships
-    My History
-    Managerial Stats
-    Managerial Vacancies
+    My Profile  (kart)
+    My Contract  (kart)
+    My Badges  (kart)
+    My Relationships  (kart)
+    My History  (kart)
+    Managerial Stats  (kart)
+    Managerial Vacancies  (kart)
 
-Squad sekmesindeki açılır alt sekmeler
-    Training: Overview, Individual Training, Units, Mentoring, Training Intensity, Coach Assignments
-    Youth Setup: Overview, Youth Environment, Youth Performance, Youth Candidates, Under 19s Competitions, U19 Fixtures
-    Dynamics: Overview, Captains, Hierarchy, Social Groups, Happiness
-    Medical Centre: Overview, Current Injuries, Risk Assessment, Recently Returned, Player Summary, Season Summary
-
-Squad › First Team tablosunun görünümleri (ViewDropdown)
-    Selection Info, General Info, Attributes, Contract, Transfer, Home-Grown Status, Playing Time, Dynamics, Reports, Injuries, Risk Assessment, Stats, International, Development
+Squad › First Team tablosunun görünümleri (`fm select ViewDropdown "<görünüm>"`)
+    Selection Info, General Info, Attributes, Contract, Transfer, Home-Grown Status, Playing Time,
+    Dynamics, Reports, Injuries, Risk Assessment, Stats, International, Development

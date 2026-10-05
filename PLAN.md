@@ -17,31 +17,26 @@ ilgili bölümde `[x]` olur, günlüğe bir satır düşülür.
 
 Bütün adımların ortak aracı artık `/buttons` + `/press` (§8.25): ekrandaki her kontrol hangi
 event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyruğa konarak
-"basılıyor". Yeni bir alan açmak = o ekrana git, `/buttons` ile bak, `/press` ile dene.
+"basılıyor". Yeni bir alan açmak = `fm open "<sayfa>"`, `fm buttons` ile bak, `fm press` ile dene.
+77 sayfanın listesi `docs/reference/screens.txt`'te.
 
-1. **Menüden sayfa açma.** `screens.txt` altı ana sekmenin 77 alt sayfasını sayıyor ama
-   menüden seçmek sayfayı açmıyor (§8.27): seçim `selectedSubtabElement`'e yazılıyor, sayfa
-   değişmiyor. Seçilen kaydın `PropertyValue`'su bir panel değil, iç içe bir kayıt; her satır
-   bir `ChildList` taşıyor. Sıra: o alt listeleri oku (`/dropdowns` derinleşsin), yaprak
-   satırı seçmeyi dene (`OnSelectionChangedInternal`'ın liste alan hali), olmazsa kayıttaki
-   paneli `OpenSubtabEvent`'e elle ver. Bu çözülünce her komut ekranına tek adımda gider.
-2. **Inbox cevabını `/press` üzerine taşı** ve `fm reply` komutunu çıkar. Mesaj açılınca
+1. **Inbox cevabını `/press` üzerine taşı** ve `fm reply` komutunu çıkar. Mesaj açılınca
    cevap butonlarının nasıl listelendiğine henüz bakılmadı; `/newsaction` o zamana kadar duruyor.
-3. **Basın toplantısı ve oyuncu konuşmaları.** Bu kayıtta bekleyen toplantı yok, o yüzden canlı
+2. **Basın toplantısı ve oyuncu konuşmaları.** Bu kayıtta bekleyen toplantı yok, o yüzden canlı
    görülmedi. Cevaplar `SpeakToActionEvent` ile gidiyor ve bunu inbox'la aynı modül
    (`NewsActionHandlerModule`) işliyor. Toplantı açılınca cevap butonları `/buttons`'ta
    `SpeakToActionEventContext` olarak görünmeli; 4 bekleyen "Tasks" mesajı aynı yolun ilk
    denemesi olabilir.
-4. **`fm tactic`** — önce oku (`TacticReference`, 207 property), sonra yaz. Taktik ekranındaki
+3. **`fm tactic`** — önce oku (`TacticReference`, 207 property), sonra yaz. Taktik ekranındaki
    kontroller (`FMPitchPosition.Events`, `FMTacticsPanel.SelectionEvent`) da event listesi
    taşıyor, yani rol ve formasyon değişimi de basılabilir olmalı.
-5. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
-   1. adım bitince seri iş. Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
+4. **Ucuz okuma komutları:** `fm table`, `fm fixtures`, `fm player <isim>`, `fm status`.
+   Sayfalar artık adıyla açılıyor (`fm open`), yani her biri "aç, şekle göre oku". Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
-6. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property). Geri alınamaz
+5. **Transfer ve sözleşme** — `TransferOfferEditSessionReference` (99 property). Geri alınamaz
    olduğu için `--yes` onayı ve `dry=1` ile birlikte.
-7. **Maç** — `EventFmxGoToMatch`, hızlı sonuç, maç sonrası özet.
-8. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
+6. **Maç** — `EventFmxGoToMatch`, hızlı sonuç, maç sonrası özet.
+7. **`--json` her komutta, ardından MCP server.** Komut sayısı 8-10'a çıkınca anlamlı.
 
 ---
 
@@ -66,7 +61,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] Veri bağlanana kadar bekleme (sabit gecikme yerine 20 sn'ye kadar yoklama)
 - [x] Ekrandaki kontrolleri event'leriyle listeleme (`/buttons`) ve basma (`/press`) (§8.25)
 - [x] `fm buttons`, `fm press`, `fm dropdowns`, `fm select` — ekranı CLI'dan gezmek (§8.27)
-- [~] Ekran haritası — ana sekmeler ve alt sayfaları `screens.txt`'te; menüden açma çalışmıyor
+- [x] Ekran haritası ve sayfayı adıyla açma — `fm pages`, `fm open "<sayfa>"`, 77 sayfa (§8.28)
 - [x] Kuyruk denetimi — `/queue`, tıkalıyken `/press` reddediyor (§8.27)
 - [x] Açılır listeleri seçenekleriyle listeleme (`/dropdowns`) ve seçme (`/select`) (§8.26)
 - [x] Kontrolü etiketle, listeyi adıyla adresleme — adresler ekran değişince bayatlıyor
@@ -95,7 +90,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 ## 2. Kadro ve oyuncu
 
 - [x] Kadro canlandı — isim, pozisyon, yaş, uyruk, ortalama rating (§8.16)
-- [x] `fm squad` — kadroyu tablo olarak bas
+- [x] `fm squad` — A takım: pozisyon, yaş, statü, maaş, piyasa değeri, durum ("General Info")
+- [ ] `fm squad --u19` — altyapı kadrosu (eski `fm squad` özet panosundan basıyordu, artık basmıyor)
 - [x] `fm squad --fitness` — kondisyon ve maç formu, "Selection Info" görünümünden (§8.26)
 - [x] `fm squad --morale` — moral, hiyerarşi, sosyal grup, "Dynamics" görünümünden (§8.26)
 - [~] Kadro tablosunun diğer görünümleri — veri `--json`'da geliyor, tablo komutu yok: maaş,
@@ -367,6 +363,12 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   arda komutlar ekranın kurulmasını 8 sn'ye kadar bekliyor.
 - **Ekran haritası çıktı:** altı ana sekmenin 77 alt sayfası `docs/reference/screens.txt`'te.
 
+- **Sayfalar adıyla açılıyor.** Menü satırı açacağı panelin asset GUID'ini taşıyor;
+  `OpenBookmarkEvent` panel nesnesi değil asset referansı aldığı için yüklemeyi oyun yapıyor.
+  Altı sekmeden on bir açılış denendi (ikisi tekrar), hepsi açıldı, kuyruk boş kaldı.
+  `fm squad --fitness` soğuk başlangıçtan 4,8 sn yerine 2,2 sn.
+- **`fm squad` artık hep aynı şeyi basıyor:** "General Info" görünümünden maaş, değer, statü.
+
 **Kayıplar / engeller**
 
 - **Basın toplantısı görülmedi** — kayıtta bekleyen yok. Sırada 4. adıma indi.
@@ -376,8 +378,11 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
   işaretle" dahil hiçbir değişiklik kalıcı değil.
 - **Kondisyon -1 = sakat.** Talisca (hamstring) ve Becão (ön çapraz bağ); "Injuries"
   görünümünden doğrulandı, `fm squad --fitness` durumu ayrı kolonda gösteriyor.
-- **Menüden sayfa açılamıyor.** Menü satırını seçmek ve menünün kendi event'lerini kuyruğa
-  koymak denendi (Finances, Tactics, First Team); üçünde de ekran değişmedi. Sıradaki ilk iş.
+- **Menüden seçerek sayfa açılamadı** (seçmek, menünün event'lerini kuyruğa koymak,
+  `ProcessSelectionEvents` — üçü de ekranı değiştirmedi). Menünün verisinden event kurmak
+  çözdü, yukarıda.
+- **`fm squad` önceki komuta göre farklı kadro basıyordu** (47 ya da 27 satır): hangi liste
+  bağlıysa onu okuyordu. Sabit bir görünüme bağlandı; altyapı kadrosu bu arada düştü.
 - **Bir deneme oyunun buton kuyruğunu tıkadı.** Menünün seçim event'ini elle kuyruğa koymak
   çözülemeyen bir event bıraktı; arkasındaki bütün basışlar "gönderildi" deyip hiçbir şey
   yapmadı. `/queue` ve `/press`'teki koruma bunun için eklendi (§8.27).

@@ -107,7 +107,7 @@ internal static class Buttons
 		foreach (var dropdown in AllDropdowns())
 		{
 			string block;
-			try { block = Describe(dropdown, paths); }
+			try { block = Describe(dropdown, paths, q["deep"] == "1"); }
 			catch (Exception ex) { block = $"0x{dropdown.Pointer.ToInt64():x}  <threw {ex.GetType().Name}>\n"; }
 
 			if (!string.IsNullOrEmpty(filter) && block.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0) continue;
@@ -170,7 +170,20 @@ internal static class Buttons
 		if (q["dry"] == "1") return $"dry run, NOT selected: {described}";
 
 		dropdown.OnSelectionChangedInternal(index);
+		if (q["fire"] == "1") dropdown.ProcessSelectionEvents();
 		return $"selected {described}, now {dropdown.SelectedIndex}";
+	}
+
+	/// <summary>Every menu row carries a child list; only a filled one makes it a submenu.</summary>
+	private static bool HasChildren(Dictionary<string, SI.Core.TypedValue> entries)
+	{
+		if (!entries.TryGetValue("ChildList", out var value) || value == null || value.IsNull) return false;
+		try
+		{
+			var list = value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>();
+			return list != null && list.Count > 0;
+		}
+		catch { return false; }
 	}
 
 	private static int IndexOfChoice(SIDropdown dropdown, string wanted)
@@ -189,7 +202,7 @@ internal static class Buttons
 
 	private const string SubmenuMark = " ›";
 
-	private static IEnumerable<SIDropdown> AllDropdowns()
+	internal static IEnumerable<SIDropdown> AllDropdowns()
 	{
 		foreach (var element in Elements())
 		{
@@ -200,7 +213,7 @@ internal static class Buttons
 		}
 	}
 
-	private static string Describe(SIDropdown dropdown, Dictionary<ulong, string> paths)
+	private static string Describe(SIDropdown dropdown, Dictionary<ulong, string> paths, bool deep = false)
 	{
 		var sb = new StringBuilder();
 		var choices = dropdown.m_choices;
@@ -221,8 +234,46 @@ internal static class Buttons
 		sb.AppendLine($"0x{dropdown.Pointer.ToInt64():x}  \"{LabelOf(dropdown)}\"  name={dropdown.name}  {count} choice(s), selected {selected}{enabled}");
 		sb.AppendLine($"      writes {bound}");
 		for (var i = 0; i < count && i < 40; i++)
+		{
 			sb.AppendLine($"      {(i == selected ? '*' : ' ')} {i,2}  {Choice(choices[i])}");
+			if (deep) Dump(choices[i], 5, 4, sb);
+		}
 		return sb.ToString();
+	}
+
+	/// <summary>
+	/// A value's contents, records and lists followed a few levels down. A choice is a record
+	/// of records, and what selecting it would hand to an event is somewhere inside.
+	/// </summary>
+	private static void Dump(SI.Core.TypedValue value, int indent, int depth, StringBuilder sb)
+	{
+		if (value == null || value.IsNull || depth == 0) return;
+
+		Il2CppSystem.Object held;
+		try { held = value.Get(); } catch { return; }
+		if (held == null) return;
+
+		var pad = new string(' ', indent * 2);
+
+		var record = held.TryCast<DynamicReference>();
+		if (record != null)
+		{
+			foreach (var (name, entry) in Send.Entries(record))
+			{
+				sb.AppendLine($"{pad}{name} = {Render(entry) ?? "<null>"}");
+				Dump(entry, indent + 1, depth - 1, sb);
+			}
+			return;
+		}
+
+		var list = held.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>();
+		if (list == null) return;
+
+		for (var i = 0; i < list.Count && i < 30; i++)
+		{
+			sb.AppendLine($"{pad}[{i}] {Render(list[i]) ?? "<null>"}");
+			Dump(list[i], indent + 1, depth - 1, sb);
+		}
 	}
 
 	/// <summary>A choice is usually a record with its text in one of a few well-known entries.</summary>
@@ -239,7 +290,7 @@ internal static class Buttons
 		if (entries.TryGetValue("RowData", out var row) && row != null && !row.IsNull)
 		{
 			var inner = Choice(row);
-			return entries.ContainsKey("ChildList") ? inner + SubmenuMark : inner;
+			return HasChildren(entries) ? inner + SubmenuMark : inner;
 		}
 
 		foreach (var name in new[] { "DisplayValue", "Text", "Name", "PanelTitle", "ActionTitle", "Title" })

@@ -67,6 +67,32 @@ internal static class Panels
 		return null;
 	}
 
+	/// <summary>The title of the loaded panel with this id, or its asset name if it has none.</summary>
+	public static string TitleById(uint id)
+	{
+		foreach (var panel in All())
+		{
+			try
+			{
+				if (panel.ID != id) continue;
+				var title = Title(panel);
+				return string.IsNullOrEmpty(title) ? panel.name : title;
+			}
+			catch { }
+		}
+		return null;
+	}
+
+	public static string NameById(uint id)
+	{
+		foreach (var panel in All())
+		{
+			try { if (panel.ID == id) return panel.name; }
+			catch { }
+		}
+		return null;
+	}
+
 	private static IEnumerable<PanelID> All()
 	{
 		foreach (var o in Resources.FindObjectsOfTypeAll(Il2CppType.Of<PanelID>()))

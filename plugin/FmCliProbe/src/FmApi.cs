@@ -48,6 +48,8 @@ internal static class FmApi
 		"dropdowns" => Buttons.Dropdowns(q),
 		"select" => Buttons.Select(q),
 		"queue" => Buttons.Queue(q),
+		"pages" => Pages.Catalog(),
+		"open" => Pages.Open(q),
 		_ => null, // 404
 	};
 

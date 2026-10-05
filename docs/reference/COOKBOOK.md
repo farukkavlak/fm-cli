@@ -50,6 +50,8 @@ alanlarının hangi binding yolundan geldiğini taşıyor (`docs/FINDINGS.md` §
 
 ```
 /buttons[?type=<metin>][&text=<etiket>]      yüklü ekranın kontrolleri, event'leriyle
+/pages                                       oyunun bütün sayfaları
+/open?page=<ad>[&tab=<sekme>][&dry=1]        sayfayı adıyla aç (§8.28)
 /press?text=<etiket>[&name=<ad>][&dry=1]     kontrolün event listesini kuyruğa koy (ya da ?ptr=)
 /dropdowns[?text=<metin>]                    açılır listeler, seçenekleriyle
 /select?name=<ad>&choice=<seçenek>[&dry=1]   listeden seç (ya da ?ptr=&index=)

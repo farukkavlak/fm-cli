@@ -1142,9 +1142,79 @@ kuyruğa girmedi), dolayısıyla tıkanma iki kez, temizleme bir kez gözlendi.
 Ders: `/press`'i yalnızca kontrolün kendi ana listesiyle (bir butonun `Events`'i) kullan.
 Verisi başka bir etkileşimle dolan listeleri (`SelectionEvents`) elle kuyruğa koyma.
 
+(Sonradan çözüldü, §8.28: menünün verisinden `OpenBookmarkEvent` kurarak.)
+
 Çalışan gezinme yolları: ana sekme butonu (`OpenPanel`), düz alt sekme butonu ("First Team",
 `OpenSubtab`), pano kutusu ("Medical Centre", `OpenPanel`) ve §8.16'daki elle
 `OpenSubtabEvent`.
+
+## 8.28 Sayfayı adıyla açmak: menü satırı panelin GUID'ini taşıyor
+
+§8.27'de açık kalan soru. Menü satırlarının içi (`/dropdowns?deep=1`):
+
+```
+Club Vision
+  RowData
+    DisplayValue = Club Vision
+    PropertyValue
+      Value          = eeeab88fa446f5147a744eefc51bf031     panel asset'inin GUID'i
+      SubtabText     = Club Vision
+      PanelID        = 2362315008
+      OpensCard      = False
+      ObjectUniqueID = -1
+  ChildList = (çoğunda boş)
+```
+
+Yani her satır açacağı paneli iki şekilde söylüyor: asset GUID'i ve panel id'si. Menünün ilk
+satırı sekmenin kendi ekranı (`PanelID = 3706171392` = `ClubScreen`). `ChildList` her satırda
+var ama yalnızca birkaçında dolu (Finances, Supporters, Job Centre Report) — §8.27'deki "asıl
+sayfalar bir kat aşağıda" tahmini yanlıştı.
+
+**Neden seçmek yetmiyordu:** 75 menü satırından yalnızca 9'unun `PanelID` nesnesi yüklü.
+Paneller ilk ziyarette yükleniyor, o yüzden §8.16'daki `OpenSubtabEvent` (panel *nesnesi*
+istiyor) çoğu sayfa için kurulamıyor. `OpenBookmarkEvent` ise asset *referansı* alıyor:
+
+```csharp
+OpenBookmarkEvent { AssetReferenceT<PanelID> BookmarkPanelID; AssetReferenceT<PanelID> MainTabPanelID; }
+```
+
+`new AssetReferenceT<PanelID>(guid)` interop'tan kurulabiliyor; yüklemeyi oyun yapıyor.
+Açılışlardan sonra yüklü panel sayısı 39'dan 49'a çıktı.
+
+```
+/pages                                    77 sayfa: sekme, ad, panel id, GUID, kart mı
+/open?page=<ad>[&tab=<sekme>][&dry=1]     adıyla aç
+fm pages [metin]      fm open "<sayfa>" [--tab <sekme>]
+```
+
+Sekme adı menünün ilk satırındaki panelin başlığı; ana sayfanınki "Overview" çıktığı için orada
+asset adı kullanılıyor (`PortalScreen` → Portal).
+
+Doğrulama:
+
+| Deneme | Sonuç |
+|---|---|
+| olmayan sayfa, `dry=1` | hata / ağaç değişmedi |
+| "Overview" (altı sekmede var) | reddedildi, altı sekme listelendi; `--tab Club` ile açıldı |
+| Finances, Tactics, Player Database, Staff, First Team, Messages, Calendar, Competitions, Training, Club Vision ×2, First Team ×2 | hepsinde ilgili panel aktif, kuyruk boş |
+| fitness → inbox → düz kadro → morale → düz kadro, üç tur | 27 / 12 / 27 / 27 / 27 satır, her turda |
+
+⚠ Gözlemler:
+
+- Sayfa bazen bir öncekinin **üstüne kart** olarak açılıyor (ekmek kırıntısı "Calendar ›
+  Competitions"); alttaki sayfanın verisi de bağlı kalıyor. `OpensCard = True` olanlar (33 sayfa)
+  zaten kart.
+- Menüler açılıştan birkaç saniye sonra doluyor; `fm open` o arada "yok" cevabında bekliyor.
+- Panel başlığı sayfa adından farklı olabiliyor (Tactics → "Tactics Planner", Staff →
+  "Staff Report").
+
+### `fm squad` hangi liste bağlıysa onu okuyordu
+
+`/squad` ağaçta adı bağlı her oyuncuyu topluyor. Özet panosu açıkken 47 kişi (A takım + U19),
+yalnızca tablo açıkken 27 kişi geliyordu; `/open` panoyu atlayıp doğrudan tabloya gidince düz
+`fm squad` önceki komuta göre farklı sonuç vermeye başladı. Artık o da adı belli bir görünümü
+okuyor ("General Info": yaş, statü, maaş, piyasa değeri). Altyapı kadrosu bu yüzden çıktıdan
+düştü; "Under 19s" sayfasından ayrıca okunması gerekiyor.
 
 ## 9. Sıradaki adımlar
 

@@ -11,9 +11,15 @@ SAAT   GÖNDEREN          KONU
 5 mesaj cevap bekliyor — bunlar `fm next`'i blokluyor.
 
 $ fm squad
-OYUNCU              POZİSYON          YAŞ  TAKIM
-Marco Asensio       M (C), AM (RLC)   29   Fenerbahçe
-N'Golo Kanté        DM, M (C)         34   Fenerbahçe
+OYUNCU          POZİSYON         YAŞ  STATÜ         MAAŞ         DEĞER          DURUM
+Anthony Musaba  AM (RL), ST (C)  24   Squad Player  £14.25K p/w  £2M - £4.9M
+Ederson         GK               31   Star Player   £230K p/w    £56M - £62M
+...
+
+$ fm squad --fitness
+OYUNCU             POZİSYON         KONDİSYON  MAÇ FORMU  DURUM
+Talisca            AM (RC), ST (C)  -          35%        Inj
+Dominik Livaković  GK               98%        82%
 ...
 ```
 
@@ -49,6 +55,9 @@ squad           kadroyu bas
   --morale      moral, hiyerarşi ve sosyal grup
 inbox           gelen kutusu
 next            zamanı ilerlet (bloke eden mesajları bildirir)
+pages           oyunun bütün sayfaları (77)
+open "<sayfa>"  sayfayı aç
+  --tab <sekme> aynı adda birden çok sayfa varsa
 buttons         ekrandaki butonlar ve ne gönderdikleri
 press "<etiket>"            butona bas
 dropdowns       ekrandaki açılır listeler ve seçenekleri
