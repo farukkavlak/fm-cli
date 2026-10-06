@@ -404,7 +404,11 @@ internal static partial class Program
 
 		if (answers.Count == 0)
 		{
-			Console.WriteLine($"'{title}' cevap seçeneği sunmuyor.");
+			// Nothing to answer, but the message is open and can be read.
+			Console.WriteLine(title);
+			var body = await MessageBody(Field(chosen, "NewsFirstBubbleSpeechString"));
+			if (body.Length > 0) Console.WriteLine($"  {body.Replace("\n", "\n  ")}");
+			Console.WriteLine("\n(cevap seçeneği yok)");
 			return 0;
 		}
 
@@ -419,7 +423,8 @@ internal static partial class Program
 			// What the message says comes before what can be said back: an answer such as
 			// "Accept" means nothing without the terms it accepts.
 			Console.WriteLine(title);
-			if (Field(chosen, "NewsFirstBubbleSpeechString") is { Length: > 0 } says) Console.WriteLine($"  {says.Replace("\n", "\n  ")}");
+			var says = await MessageBody(Field(chosen, "NewsFirstBubbleSpeechString"));
+			if (says.Length > 0) Console.WriteLine($"  {says.Replace("\n", "\n  ")}");
 			Console.WriteLine();
 			if (!Ui.Interactive) Options(Console.Out);
 
@@ -512,6 +517,39 @@ internal static partial class Program
 				.Where(c => Field(c, "Events").Contains("SpeakToAction", StringComparison.Ordinal))
 				.Where(c => Field(c, "Enabled") == "True" && Field(c, "Label") != "")
 				.ToList();
+	}
+
+	/// <summary>
+	/// The whole of an open message, read from the text on its page, which starts with the
+	/// opening line the inbox gives. Only that line when the page does not have it.
+	/// </summary>
+	private static async Task<string> MessageBody(string opening)
+	{
+		if (opening.Length == 0) return "";
+		try
+		{
+			// Matching text with letters such as "ç" in it does not find the element, so the
+			// probe is the longest stretch of the opening line in plain ASCII.
+			var probe = System.Text.RegularExpressions.Regex.Matches(opening, @"[\x20-\x7E]+")
+				.Select(m => m.Value.Trim())
+				.OrderByDescending(v => v.Length)
+				.FirstOrDefault() ?? "";
+			// Whole words only: a stretch cut beside an accented letter or mid-word did not match.
+			var words = probe.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1).Take(7).ToArray();
+			probe = string.Join(" ", words);
+			if (probe.Length < 12) return opening;
+			var found = await Fm.Get("elements", ("text", probe), ("up", "0"), ("depth", "0"));
+			const string marker = "#MessageBodyText \"";
+			var at = found.IndexOf(marker, StringComparison.Ordinal);
+			if (at < 0) return opening;
+			var start = at + marker.Length;
+			var end = found.LastIndexOf('"');
+			return end > start ? found[start..end].Trim() : opening;
+		}
+		catch (FmError)
+		{
+			return opening;
+		}
 	}
 
 	/// <summary>A message by its number in the inbox listing, or by a piece of its subject.</summary>
@@ -813,7 +851,7 @@ internal static partial class Program
 			  fixtures        sıradaki maçlar
 			  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
 			  inbox           gelen kutusu
-			  reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
+			  reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
 			  match           maç gününü oyna: terminalde izlemek mi anında sonuç mu diye sorar
