@@ -468,7 +468,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - Gece başında yedek: `~/fm26_bep/save-backups/Faruk Kavlak - Fenerbahçe.2026-10-06-night-start.fm`
   (30 Haziran 2025).
-- Ana kayıt `fm save --yes` ile en son **12 Temmuz 2025**'te kaydedildi (Adana D.S. maçından
+- Ana kayıt `fm save --yes` ile en son **19 Temmuz 2025**'te kaydedildi (Defrel imzasından
   sonra); sonrası oyunun kendi haftalık otomatik kaydına kaldı.
 
 **Karar bekleyenler**
