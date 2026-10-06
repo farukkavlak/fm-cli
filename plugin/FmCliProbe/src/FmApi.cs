@@ -64,6 +64,7 @@ internal static class FmApi
 		"click" => Buttons.Click(q),
 		"textboxes" => TextBoxes.Catalog(),
 		"type" => TextBoxes.Type(q),
+		"setnumber" => NumberBoxes.Set(q),
 		"dropdowns" => Buttons.Dropdowns(q),
 		"select" => Buttons.Select(q),
 		"queue" => Buttons.Queue(q),

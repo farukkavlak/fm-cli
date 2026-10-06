@@ -37,6 +37,7 @@ internal static partial class Program
 				"player" => await Player(json, args),
 				"players" => await Players(json, args),
 				"search" => await Search(json, args),
+				"offer" => await Offer(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
 				"report" => await MatchReport.Show(Fm, json),
@@ -794,6 +795,8 @@ internal static partial class Program
 			    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
 			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla bulur)
 			  search <metin>  oyunun aramasında bul: oyuncu, kulüp, turnuva…
+			  offer <oyuncu> <bonservis>  transfer teklifi yap (ör. 7.5M); --loan kiralık, --dry gönderme
+			                  geri alınamaz: terminalde sorar, script'te --yes ister
 			  players         oyuncu veritabanı (ekrandaki satırlar)
 			    --filters / --filter "<x>"   hazır süzgeçler: Transfer Listed, Contract Expiring…
 			    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)

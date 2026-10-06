@@ -1999,6 +1999,36 @@ ekranındaki listeyi seçmek gerekecek (ürün kararı: kullanıcı açıp kapat
 (`Bindings.Set` ile bir `TypedValue`) denenmedi: `TypedValue.Create<T>` generic, interop'tan
 çağrılabilirliği belirsiz.
 
+## 8.42 Transfer teklifi: `fm offer`
+
+Yol, oyuncunun sayfasından:
+
+1. Sayfadaki **değer butonu** (etiketi değerin kendisi: "£6.8M - £10.5M" ya da "Not for Sale")
+   oyuncunun aksiyon panelini açıyor: Make An Offer, Add To Shortlist, Scout Player, Ask Agent
+   About Availability, Transfer ›… Bu panel bir `SpeakTo`, yani `fm talk` de görüyor.
+2. **Make An Offer** teklif ekranını açıyor: `transfer-offer-button` / `loan-offer-button`,
+   Negotiable listesi, bonservis kutusu (`FMCombobox`, `name=combobox`), ödeme şekli
+   ("Immediate"), madde ekleme ("Add"), Undo / Revert ve **Make Offer**.
+3. **Make Offer** gönderiyor; kontroller kapanıyor, `talk` "An offer has been made for …"
+   diyor ve yalnızca "Exit Talks" kalıyor. Teklif, oyuncunun aksiyonlarında "Withdraw Transfer
+   Offer" olarak görünüyor; oyuncu kısa listeye de ekleniyor.
+
+Denendi: Icardi'ye £7.25M (elle), Kerem Demirbay'a £1.5M (`fm offer … --yes`).
+
+**Bonservisi yazmak çözülmedi.** Kutunun + / −'si `EventFmxIncrement/DecrementCashValue`
+gönderiyor; adım tutarla büyüyor (0'dan 1, 2, …; £6.75M'de £0.25M, yaklaşık %4). `fm offer`
+tutarı bununla yürüyor: £40K'dan £1.5M'ye ~2 dk. Yazma denemeleri (`/setnumber`):
+
+| Deneme | Sonuç |
+|---|---|
+| `m_numericInput` (LongField) değerini kur + `TryTriggerValidationEvent()` | alan değişti, teklif değişmedi |
+| Focus → değer → Blur | aynı |
+| Doğrulama verisini (`…cash-list-remapper.combobox-validation`) sayıyla doldurup `ValidateValueEvents`'i ateşlemek | event gitti, teklif değişmedi |
+| `OnNumericValueChanged(key, value)` doğrudan | aynı; ⚠ değeri havuzdaki `TypedValue` üzerinde yerinde değiştirdiğim için oyun kilitlendi, kaldırıldı |
+
+Sıradaki deneme: `EventFmxValidateCashValue`'nun beklediği veri tipi (muhtemelen yazılan metin,
+"1.5m"), ya da `DisplayValuePair`/`cashselection` referansının kendisi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

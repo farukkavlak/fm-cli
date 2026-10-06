@@ -97,27 +97,18 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// A player's page: who he is, his contract, his traits and his attributes.
+	/// Brings up a player's page and returns what it binds, or null having said why not.
 	///
-	/// The page is opened the way a user opens it, by pressing the player's name in the squad
-	/// table, so for now it reaches the players that table lists.
+	/// In the squad, his name in the table opens his page; anyone else is found with the game's
+	/// search. The page is opened the way a user opens it, so its actions are on screen too.
 	/// </summary>
-	private static async Task<int> Player(bool json, string[] args)
+	private static async Task<JsonElement?> OpenPlayer(string wanted)
 	{
-		var wanted = string.Join(" ", Words(args));
-		if (wanted.Length == 0)
-		{
-			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası>");
-			return 64;
-		}
-
-		if (await NotNow() is { } refused) return refused;
-
 		var card = await Fm.GetJson("player");
 		if (!card.TryGetProperty("Player", out var open) || !Fold(Field(open, "Name")).Contains(Fold(wanted), StringComparison.Ordinal))
 		{
 			var opened = await OpenPage("First Team", "Squad");
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+			if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return null; }
 
 			// The table fills over a couple of seconds, a few rows at a time, so its names are
 			// taken once two readings in a row agree.
@@ -142,20 +133,20 @@ internal static partial class Program
 			{
 				full = Choose(everyone, wanted, "Oyuncu");
 				var pressed = await Arriving("press", [("text", full), ("name", "NameButton"), ("any", "1")]);
-				if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+				if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
 			}
 			else if (own.Count > 0)
 			{
-				if (Choose(everyone, wanted, "Oyuncu") is not { } mine) return 1;
+				if (Choose(everyone, wanted, "Oyuncu") is not { } mine) return null;
 				full = mine;
 				var found = (await SearchFor(full)).Where(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)).ToList();
 				if (found.Count == 0)
 				{
 					Console.Error.WriteLine($"{full} kadroda ama aramada çıkmadı.");
-					return 1;
+					return null;
 				}
 				var pressed = await Arriving("searchopen", [("name", Field(found[0], "Name"))]);
-				if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+				if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
 			}
 			else
 			{
@@ -171,23 +162,44 @@ internal static partial class Program
 							? $"'{wanted}' aramada tam olarak çıkmadı; en yakınlar:"
 							: $"'{wanted}' aramada {close.Count} oyuncuya uyuyor; adı biraz daha yaz:");
 					foreach (var hit in close.Count == 0 ? found : close) Console.Error.WriteLine($"  {Field(hit, "Name")}  ({Field(hit, "Club")})");
-					return 1;
+					return null;
 				}
 				full = Field(close[0], "Name");
 
 				// Each result has a button of its own; the plugin finds the one fed from this
 				// result's row, since an earlier search's buttons can still be loaded.
 				var pressed = await Arriving("searchopen", [("name", full)]);
-				if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+				if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
 			}
 
 			// Pages opened earlier stay loaded beneath, so his is asked for by name.
 			if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out _), seconds: 15))
 			{
 				Console.Error.WriteLine($"{full} için oyuncu sayfası açılmadı.");
-				return 1;
+				return null;
 			}
 		}
+
+		return card;
+	}
+
+	/// <summary>
+	/// A player's page: who he is, his contract, his traits and his attributes.
+	///
+	/// The page is opened the way a user opens it, by pressing the player's name in the squad
+	/// table, so for now it reaches the players that table lists.
+	/// </summary>
+	private static async Task<int> Player(bool json, string[] args)
+	{
+		var wanted = string.Join(" ", Words(args));
+		if (wanted.Length == 0)
+		{
+			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası>");
+			return 64;
+		}
+
+		if (await NotNow() is { } refused) return refused;
+		if (await OpenPlayer(wanted) is not { } card) return 1;
 
 		if (json)
 		{

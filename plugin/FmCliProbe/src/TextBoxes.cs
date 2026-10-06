@@ -87,3 +87,75 @@ internal static class TextBoxes
 		return $"typed \"{text}\" and submitted";
 	}
 }
+
+/// <summary>
+/// The game's number boxes, the money ones on an offer: an FMCombobox around a LongField.
+///
+/// ⚠ Setting the number does not reach the game yet (FINDINGS §8.42): the field takes it and
+/// the validation event goes, but the offer keeps its amount. inspect=1 shows what the box is
+/// bound to. Writing into the box's bound values in place hung the game, so that is not done.
+/// </summary>
+internal static class NumberBoxes
+{
+	public static string Set(System.Collections.Specialized.NameValueCollection q)
+	{
+		if (!Buttons.TryPointer(q["ptr"], out var pointer)) return "error: ?ptr=<0x…> of the box required (see /buttons, Type FMCombobox)";
+		if (!long.TryParse(q["value"], out var value)) return "error: ?value=<whole number> required";
+
+		FM.UI.Widgets.FMCombobox box = null;
+		foreach (var element in Buttons.Elements())
+		{
+			if (element.Pointer != pointer) continue;
+			try { box = element.TryCast<FM.UI.Widgets.FMCombobox>(); } catch { }
+			break;
+		}
+		if (box == null) return "error: no number box at that pointer";
+
+		if (q["inspect"] == "1") return Inspect(box);
+
+		var field = box.m_numericInput;
+		if (field == null) return "error: that box takes no typed number";
+
+		var before = field.value;
+		if (q["dry"] == "1") return $"dry run, NOT set: {value} (was {before})";
+
+		// As a person does it: into the box, the number in, and out again. Leaving the box is
+		// what sends the amount; setting the field alone changes nothing the game sees.
+		try { box.Focus(); field.Focus(); } catch { }
+		field.value = value;
+		try { field.Blur(); box.Blur(); } catch { }
+		box.TryTriggerValidationEvent();
+		return $"set {value} (was {before})";
+	}
+
+	/// <summary>What the box is bound to: its value, its selection, and the data its validation event sends.</summary>
+	private static string Inspect(FM.UI.Widgets.FMCombobox box)
+	{
+		var b = Game.Bindings;
+		var sb = new System.Text.StringBuilder();
+		void Show(string label, SI.Bindable.Bindings.Key key)
+		{
+			var k = key;
+			var exists = b.Exists(ref k);
+			var value = exists ? b.Get(ref k) : null;
+			sb.AppendLine($"{label}: key={key.m_key} exists={exists} value={FmApi.Describe(value)} path={(exists ? b.GetPathDebug(ref k) : "")}");
+			var record = value?.Get()?.TryCast<SI.Bindable.DynamicReference>();
+			if (record == null) return;
+			var keys = new Il2CppSystem.Collections.Generic.List<SI.Bindable.Reference.Core.PropertyID>();
+			record.GetProperties(keys);
+			foreach (var id in keys)
+			{
+				string described;
+				try { described = FmApi.Describe(record[id.ID]); } catch (Exception ex) { described = ex.GetType().Name; }
+				sb.AppendLine($"    {id.ID,12}  {Schema.NameOf(id),-30} {described}");
+			}
+		}
+		Show("value", box.m_bindingKey);
+		Show("selected", box.m_selectedBindingKey);
+		Show("validationData", box.m_validationDataToSendBindingKey);
+		Show("validation", box.m_validationKey);
+		Show("eventView", box.m_eventBindingViewKey);
+		sb.AppendLine($"numericInput={box.m_numericInput?.value}");
+		return sb.ToString();
+	}
+}
