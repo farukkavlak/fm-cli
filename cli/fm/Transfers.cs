@@ -34,9 +34,24 @@ internal static partial class Program
 		var wanted = string.Join(" ", target != null ? words.SkipLast(1) : words);
 
 		if (await NotNow() is { } refused) return refused;
-		if (await OpenPlayer(wanted) is not { } card) return 1;
-		var player = card.GetProperty("Player");
-		var name = Field(player, "Name");
+
+		// An offer already open for him — "Negotiate" on a rejection opens one — is carried on
+		// from where it is, rather than started again from his page.
+		var screen = string.Join(" ", ((await Fm.GetJson("talk")).TryGetProperty("Says", out var says) ? says.EnumerateArray().Select(l => l.GetString()) : []));
+		var resumed = await Named("transfer-offer-button") != null || await Labelled("Make Offer") != null && screen.Contains("an offer for", StringComparison.Ordinal);
+		resumed = resumed && Fold(screen).Contains(Fold(wanted), StringComparison.Ordinal);
+
+		string name;
+		if (resumed)
+		{
+			var at = screen.IndexOf("an offer for ", StringComparison.Ordinal);
+			name = at >= 0 ? screen[(at + 13)..].TrimEnd('.', ' ') : wanted;
+		}
+		else
+		{
+			if (await OpenPlayer(wanted) is not { } card) return 1;
+			var player = card.GetProperty("Player");
+			name = Field(player, "Name");
 
 		// The actions sit behind his value on the page.
 		if (await Labelled("Make An Offer") == null)
@@ -54,13 +69,14 @@ internal static partial class Program
 		}
 
 		await Fm.Get("press", ("ptr", Field(make, "Pointer")));
-		if (!await Until(async () => await Named("transfer-offer-button") != null, seconds: 10))
+		if (!await Until(async () => await FeeBoxNow() != null, seconds: 10))
 		{
 			Console.Error.WriteLine("Teklif ekranı açılmadı.");
 			return 1;
 		}
+		}
 
-		if (loan && await Named("loan-offer-button") is { } loanTab)
+		if (!resumed && loan && await Named("loan-offer-button") is { } loanTab)
 		{
 			await Fm.Get("press", ("ptr", Field(loanTab, "Pointer")));
 			await Task.Delay(TimeSpan.FromSeconds(2));
@@ -167,6 +183,12 @@ internal static partial class Program
 
 		async Task<long?> Fee() => Money(await FeeLabel() ?? "");
 	}
+
+	private static async Task<JsonElement?> FeeBoxNow() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+		.Where(c => Field(c, "Name") == "combobox" && Field(c, "Events").Contains("ValidateCashValue", StringComparison.Ordinal))
+		.Cast<JsonElement?>()
+		.FirstOrDefault();
 
 	/// <summary>"£6.75M", "750K", "€1.2m" or "12000000" in whole units of money; null if it is none of these.</summary>
 	internal static long? Money(string text)
