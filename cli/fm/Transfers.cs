@@ -5,8 +5,8 @@ namespace FmCli;
 
 /// <summary>
 /// Bidding for a player, the way the game's own offer screen does it: from his page, the
-/// value opens his actions, "Make An Offer" opens the offer, the fee is walked to the amount
-/// with the screen's own + and −, and "Make Offer" sends it.
+/// value opens his actions, "Make An Offer" opens the offer, the fee is typed into its box,
+/// and "Make Offer" sends it.
 /// </summary>
 internal static partial class Program
 {
