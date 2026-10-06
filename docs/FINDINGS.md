@@ -2040,6 +2040,16 @@ tutarı bununla yürüyor: £40K'dan £1.5M'ye ~2 dk. Yazma denemeleri (`/setnum
 | Doğrulama verisini (`…cash-list-remapper.combobox-validation`) sayıyla doldurup `ValidateValueEvents`'i ateşlemek | event gitti, teklif değişmedi |
 | `OnNumericValueChanged(key, value)` doğrudan | aynı; ⚠ değeri havuzdaki `TypedValue` üzerinde yerinde değiştirdiğim için oyun kilitlendi, kaldırıldı |
 
+### Teklif kabulünden sonrası (keşfedilmedi, bir tuzak)
+
+Akış: teklif → kulüp ya reddediyor ("… bid rejected": Negotiate / Interact with Board) ya da
+pazarlıkla karşılık veriyor ("… deal negotiated": Accept / Withdraw / View Offer). ⚠ "Accept"
+kulübün **kendi** rakamını kabul ediyor: £3M teklif £8.25M olarak kabul edildi; mesajın ilk
+cümlesi bunu söylemiyordu, `reply` artık en azından o cümleyi basıyor. Ardından "… offer
+accepted" geliyor ve oyunun ilerle butonu **"Negotiate Contract"** oluyor. O durumda genel
+Continue'ya basmak zamanı ilerletti ve teklif geri çekildi ("Fenerbahçe's offer has been
+withdrawn"). Oyuncuyla sözleşme ekranı açılmadı, keşfedilmedi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

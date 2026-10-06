@@ -147,8 +147,10 @@ internal static partial class Program
 				if (blocking.Count == 0)
 				{
 					// Something to do that no message holds: a deal to go on with, a screen to finish.
+					// Not a button to press blind: Continue with "Negotiate Contract" showing moved
+					// time on and the deal was withdrawn (FINDINGS §8.42).
 					output.WriteLine(button is { Length: > 0 }
-						? $"Oyun bir adım bekliyor: \"{button}\". Yapmak için: press \"{button}\"   (ekrandakiler: buttons)"
+						? $"Oyun bir adım bekliyor: \"{button}\". Bu adım henüz komutla yapılamıyor; `next` onu atlayabilir (ör. transferi geri çeker)."
 						: "Oyun bir adım bekliyor ama ne olduğunu söylemiyor. Ekrandakiler için: buttons");
 					return;
 				}
