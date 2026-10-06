@@ -139,6 +139,27 @@ internal static partial class Program
 	/// A conversation — a squad meeting, a chat with a player, a press conference — one line at
 	/// a time: what was said back, how the room is taking it, and what can be said next.
 	/// </summary>
+	/// <summary>The reactions shown last, so the next showing can say what moved.</summary>
+	private static Dictionary<string, int> LastMood = [];
+
+	private static string Moved(string reaction, int now)
+	{
+		if (LastMood.Count == 0) return "";
+		var change = now - LastMood.GetValueOrDefault(reaction);
+		return change == 0 ? "" : $" ({(change > 0 ? "+" : "")}{change})";
+	}
+
+	/// <summary>A reaction in the colour of its mood, its move marked.</summary>
+	private static string MoodRich(string reaction, int now)
+	{
+		var lower = reaction.ToLowerInvariant();
+		var colour = lower.Contains("angry") || lower.Contains("annoyed") || lower.Contains("disappoint") || lower.Contains("unhappy") || lower.Contains("negative") || lower.Contains("frustrat")
+			? "red"
+			: lower.Contains("neutral") || lower.Contains("expressionless") || lower.Contains("content") ? "grey" : "green";
+		var moved = Moved(reaction, now);
+		return $"[{colour}]{now} {Ui.Safe(reaction)}[/]{(moved.Length > 0 ? $"[bold]{moved}[/]" : "")}";
+	}
+
 	private static async Task<int> TalkTo(bool json, string[] args)
 	{
 		var words = Words(args).ToList();
@@ -209,6 +230,10 @@ internal static partial class Program
 		async Task<int?> Say(Line said)
 		{
 			var line = said.Label;
+
+			// The room before the line, to say afterwards what it moved.
+			if ((await Fm.GetJson("talk")).TryGetProperty("Mood", out var before))
+				LastMood = before.EnumerateObject().ToDictionary(m => m.Name, m => int.TryParse(m.Value.GetString(), out var n) ? n : 0);
 			var pressed = said.Choice == null
 				? await Fm.Get("press", ("ptr", said.Pointer))
 				: await Fm.Get("select", ("ptr", said.Pointer), ("choice", said.Choice), ("fire", "1"));
@@ -234,6 +259,7 @@ internal static partial class Program
 
 			if (options.Count == 0)
 			{
+				LastMood = [];
 				Console.WriteLine("Konuşma bitti.");
 				return 0;
 			}
@@ -265,11 +291,18 @@ internal static partial class Program
 			foreach (var line in talk.GetProperty("Says").EnumerateArray())
 				Console.WriteLine("  " + line.GetString()?.Replace("\n", "\n  "));
 
-			var mood = talk.GetProperty("Mood").EnumerateObject()
-				.OrderByDescending(m => int.TryParse(m.Value.GetString(), out var n) ? n : 0)
-				.Select(m => $"{m.Value.GetString()} {m.Name}")
+			// How the room took the last line: each reaction with how many it moved by.
+			var counts = talk.GetProperty("Mood").EnumerateObject()
+				.ToDictionary(m => m.Name, m => int.TryParse(m.Value.GetString(), out var n) ? n : 0);
+			var mood = counts.OrderByDescending(m => m.Value)
+				.Select(m => Ui.Rich ? MoodRich(m.Key, m.Value) : $"{m.Value} {m.Key}{Moved(m.Key, m.Value)}")
 				.ToList();
-			if (mood.Count > 0) Console.WriteLine($"\nTepkiler: {string.Join(" · ", mood)}");
+			if (mood.Count > 0)
+			{
+				if (Ui.Rich) Ui.Line($"\n[dim]Tepkiler:[/] {string.Join(" [dim]·[/] ", mood)}");
+				else Console.WriteLine($"\nTepkiler: {string.Join(" · ", mood)}");
+			}
+			LastMood = counts;
 
 			// The heading an answer sits under names the approach it takes; a dropdown's
 			// choices sit under the dropdown's own prompt.
