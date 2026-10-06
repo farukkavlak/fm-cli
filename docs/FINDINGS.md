@@ -1982,6 +1982,23 @@ Sonuç: §8.22'deki "aynı anda tek ekranın verisi bağlı" kısıtı okuma iç
 kondisyon, rakip, fikstür gibi okumalar ekran açmadan, birbirini bozmadan yapılabilir.
 Komutları bu yola taşımak ayrı iş (PLAN.md).
 
+## 8.41 Ayarlar ve maç hızı: nerede duruyorlar
+
+§8.40'taki `/pull` ile ekran açmadan okunanlar:
+
+| Yol | Property | Değer (bu kayıtta) |
+|---|---|---|
+| `settings` (`SettingsReference`, 106 property) | `MatchSpeedDuringHighlights` | 1.5 (en çok 10) |
+| | `MatchSpeedBetweenHighlights` | 30 (`…Max` 5 — birimleri farklı, indeksli olabilir) |
+| | `MatchHighlightMode`, `MatchHighlightModes` | referans / liste |
+| `game` (`GameReference`) | `AutosaveModeAndIntervalString` | "Saves automatically every week" |
+| | `LastSaveDate`, `NumberTimesSaved`, `GameTimeSinceLastSave` | |
+
+Otomatik kayıt **ayarı** burada yalnızca metin olarak okunuyor; değiştirmek için Preferences
+ekranındaki listeyi seçmek gerekecek (ürün kararı: kullanıcı açıp kapatabilmeli). Yazma tarafı
+(`Bindings.Set` ile bir `TypedValue`) denenmedi: `TypedValue.Create<T>` generic, interop'tan
+çağrılabilirliği belirsiz.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

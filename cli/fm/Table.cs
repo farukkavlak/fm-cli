@@ -1,7 +1,7 @@
 namespace FmCli;
 
 /// <summary>
-/// Aligned, pipe-friendly output. Colour and padding go to a terminal; a redirected stream gets
+/// Aligned, pipe-friendly output. A terminal gets a framed table; a redirected stream gets
 /// tab-separated columns so `fm squad | awk` behaves.
 /// </summary>
 internal static class Table
@@ -23,21 +23,24 @@ internal static class Table
 			return;
 		}
 
-		var widths = headers.Select((h, i) =>
-			Math.Max(Width(h), rows.Max(r => i < r.Length ? Width(r[i]) : 0))).ToArray();
+		var table = new Spectre.Console.Table
+		{
+			Border = Spectre.Console.TableBorder.Rounded,
+			BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey),
+		};
 
-		Console.WriteLine(Dim(Row(headers.ToArray(), widths)));
-		foreach (var row in rows) Console.WriteLine(Row(row, widths));
+		// A column of numbers reads best against the right edge.
+		for (var i = 0; i < headers.Count; i++)
+		{
+			var column = new Spectre.Console.TableColumn($"[dim]{Ui.Safe(headers[i])}[/]");
+			var numeric = rows.All(r => i >= r.Length || r[i].Length == 0 || double.TryParse(r[i].TrimEnd('%'), out _));
+			if (numeric) column.Alignment = Spectre.Console.Justify.Right;
+			table.AddColumn(column);
+		}
+
+		foreach (var row in rows)
+			Spectre.Console.TableExtensions.AddRow(table, headers.Select((_, i) => Ui.Safe(i < row.Length ? row[i] : "")).ToArray());
+
+		Ui.Out.Write(table);
 	}
-
-	private static string Row(string[] cells, int[] widths) =>
-		string.Join("  ", cells.Select((c, i) => Pad(c, widths[i]))).TrimEnd();
-
-	// Accented Latin and Turkish letters are single-width, but string.Length counts UTF-16 units,
-	// so combining sequences would otherwise overpad. Normalising keeps columns straight.
-	private static int Width(string s) => s.Normalize(System.Text.NormalizationForm.FormC).Length;
-
-	private static string Pad(string s, int width) => s + new string(' ', Math.Max(0, width - Width(s)));
-
-	private static string Dim(string s) => $"\u001b[2m{s}\u001b[0m";
 }

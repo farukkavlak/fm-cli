@@ -370,10 +370,38 @@ internal static partial class Program
 			.Where(c => rows.Any(p => Field(p, c) is { Length: > 0 and < 60 }))
 			.ToList();
 
-		Table.Write(["Name", .. columns], rows
+		Table.Write(["OYUNCU", .. columns.Select(Heading)], rows
 			.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
 			.Select(p => new[] { Field(p, "Name") }.Concat(columns.Select(c => Field(p, c))).ToArray())
 			.ToList());
+	}
+
+	/// <summary>The columns' names as a reader knows them; anything else spelled out from the game's own field name.</summary>
+	private static readonly Dictionary<string, string> Headings = new()
+	{
+		["PositionCombinedString"] = "POZİSYON", ["Age"] = "YAŞ", ["Wage"] = "MAAŞ", ["SquadNumber"] = "NO",
+		["TransferValueRangeString"] = "DEĞER", ["AskingPrice"] = "İSTENEN", ["TransferOptions"] = "TRANSFER DURUMU",
+		["AgreedPlayingTime"] = "STATÜ", ["FutureAgreedPlayingTime"] = "GELECEK STATÜ", ["ActualPlayingTime"] = "GERÇEK SÜRE",
+		["PlayingTimeHappinessLevel"] = "SÜRE MEMNUNİYETİ", ["ContractStatus"] = "SÖZLEŞME", ["Condition"] = "KONDİSYON",
+		["Sharpness"] = "MAÇ FORMU", ["InjuriesTimeMissed"] = "KAÇIRACAĞI SÜRE", ["InjurySeverity"] = "SAKATLIK DERECESİ",
+		["InjuryDescription"] = "SAKATLIK", ["TrainingRating"] = "ANTRENMAN NOTU", ["MoraleString"] = "MORAL",
+		["StatusTitleShort"] = "DURUM", ["Nation"] = "ÜLKE", ["Club"] = "KULÜP", ["Personality"] = "KİŞİLİK",
+		["HierarchyInfluenceCategoryString"] = "HİYERARŞİ", ["SocialGroupString"] = "GRUP", ["Height"] = "BOY",
+	};
+
+	private static string Heading(string field)
+	{
+		if (Headings.TryGetValue(field, out var known)) return known;
+
+		// "InternationalCapsAndGoalsString" → "INTERNATIONAL CAPS AND GOALS".
+		var name = field.EndsWith("String", StringComparison.Ordinal) && field.Length > 6 ? field[..^6] : field;
+		var spaced = new System.Text.StringBuilder();
+		for (var i = 0; i < name.Length; i++)
+		{
+			if (i > 0 && char.IsUpper(name[i]) && (char.IsLower(name[i - 1]) || i + 1 < name.Length && char.IsLower(name[i + 1]))) spaced.Append(' ');
+			spaced.Append(name[i]);
+		}
+		return spaced.ToString().ToUpperInvariant();
 	}
 
 	/// <summary>

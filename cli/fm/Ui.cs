@@ -56,6 +56,9 @@ internal static class Ui
 		return picked < 0 ? null : picked;
 	}
 
+	/// <summary>One line of markup, for files that keep Spectre's names out of their way.</summary>
+	public static void Line(string markup) => Out.MarkupLine(markup);
+
 	/// <summary>Text from the game, made safe to put inside markup.</summary>
 	public static string Safe(string text) => Markup.Escape(text ?? "");
 

@@ -10,6 +10,13 @@ internal static class Session
 	{
 		Console.WriteLine("fm oturumu — komutlar: squad, inbox, next, continue, status, help · çıkış: quit");
 
+		// Opening on where things stand saves typing the first command of every session.
+		if (Ui.Rich)
+		{
+			Console.WriteLine();
+			await execute(["status"]);
+		}
+
 		while (true)
 		{
 			Console.Write(Prompt());

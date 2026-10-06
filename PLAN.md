@@ -334,21 +334,22 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### Görselleştirme ve akıcılık (öncelikli, 2026-10-06)
 
-- [ ] Terminal arayüz kütüphanesi seç — .NET tarafında Spectre.Console (tablo, panel, canlı
-      güncelleme, seçim istemi) ve Terminal.Gui (tam ekran TUI) ilk adaylar; karşılaştır, birini seç
-- [ ] **Saha çizimi** — `fm tactic` dizilişi saha üstünde göstersin: mevkiler yerinde, altında
-      oyuncu ve rol; topla / topsuz iki ayrı saha (veri hazır: `IPPosition`, `OOPPosition`, §8.31)
-- [ ] Değişiklik sahada görünsün — rol, oyuncu, mentalite değişince önce/sonra ya da vurgulu çizim
-- [ ] Maç ekranı — canlı skor, dakika, anlatım satırı (`MatchHighlightCommentary`), sahadaki on
-      bir ve kulübe tek ekranda; `fm sub` buradan
-- [ ] Seçim istemleri — numara yazdırmak yerine okla gezilen liste (cevaplar, roller, oyuncular,
-      konuşma cümleleri); script'te bugünkü düz çıktı kalsın
-- [ ] Konuşma ekranı — karşı tarafın dediği, tepkiler ve seçenekler bir arada; tepki değişimi görünür
-- [ ] Oyuncu kartı — özellikler renkli / çubuklu, bloklar yan yana (bugün düz tablo)
-- [ ] Lig tablosu ve fikstür — takım vurgusu, form, sonuç renkleri
-- [ ] Kolon başlıkları — `fm squad --view` ve `fm players` oyunun alan adlarını basıyor
-      (`TransferValueRangeString`); okunur başlıklar
-- [ ] Akış — "şimdi ne yapmalıyım" her ekranda belli olsun; `fm status` tek bakışta durum
+- [x] Terminal arayüz kütüphanesi seç — **Spectre.Console** (2026-10-07). Terminal.Gui tam ekran
+      bir uygulama ister ve komut + pipe yapısını bozardı; Spectre panel, tablo, ızgara ve okla
+      seçimi mevcut komutların çıktısına ekliyor, script/MCP düz çıktıyı koruyor (`Ui.Rich`)
+- [x] **Saha çizimi** — `fm tactic` iki sahayı yan yana çiziyor (dar terminalde alt alta)
+- [x] Değişiklik sahada görünsün — `tactic role` / `player` / `pick` sonrası değişen mevki sarı
+- [~] Maç ekranı — anlatım satırları, takım adlarıyla skor, maç öncesi kadro sahada, izle /
+      anında sonuç seçimi, konuşmada söz seçimi, maç sonu raporu (`fm report`). Kalan: sahadaki on
+      bir ve kulübe aynı ekranda, `fm sub` buradan
+- [x] Seçim istemleri — reply, talk, dialog, sub, tactic new/mentality/style/role/player,
+      setpieces new, match okla soruyor; script'te düz çıktı
+- [~] Konuşma ekranı — `talk` konuşmayı baştan sona okla yürütüyor (basın toplantısı, takım
+      toplantısı denendi). Kalan: tepki değişimini görünür kılmak
+- [x] Oyuncu kartı — mevki sahası, renkli çubuklar, bloklar yan yana, scout aralığı gölgeli
+- [~] Lig tablosu ve fikstür — tablo: bölge renkleri ve takım vurgusu. Kalan: form, fikstür renkleri
+- [x] Kolon başlıkları — `squad --view` / `players` okunur başlık basıyor
+- [~] Akış — `fm status` takım, menajer ve sıradaki maçı bir panelde veriyor; `next` gürültüsü azaldı
 
 ### Diğer
 

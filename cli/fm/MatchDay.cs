@@ -43,7 +43,17 @@ internal static partial class Program
 			return 1;
 		}
 
-		if (args.Contains("--instant"))
+		// Watching it or leaving it to the staff is the manager's call each time, as in the
+		// game; at a terminal it is asked when neither was said.
+		var instant = args.Contains("--instant");
+		if (!inMatch && !instant && !args.Contains("--play") && Ui.Interactive)
+		{
+			var how = Ui.Ask("Maçı nasıl oynayalım?", ["İzle: canlı anlatım, konuşmalarda sözü sen seç", "Anında sonuç: yardımcılar yönetsin, birkaç saniyede biter"]);
+			if (how == null) return 0;
+			instant = how == 1;
+		}
+
+		if (instant)
 		{
 			if (inMatch)
 			{
@@ -53,8 +63,13 @@ internal static partial class Program
 			return await InstantResult(state);
 		}
 
-		var talk = args.Contains("--talk");
-		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null;
+		// A talk stop waits for someone to choose what is said. At a terminal it is asked on the
+		// spot; a script is handed the choice and the match left waiting, unless told to pass
+		// the talks by.
+		var passTalks = args.Contains("--no-talk");
+		var names = await MatchNames();
+		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null, commentary = null;
+		var heard = new Queue<string>();
 		var pressedAt = DateTime.MinValue;
 		var clockAt = DateTime.UtcNow;
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(40);
@@ -68,9 +83,35 @@ internal static partial class Program
 			else if (inMatch) break;
 
 			if (flow != stop && Stops.TryGetValue(flow, out var named)) Console.WriteLine($"— {named}");
+
+			// Before the team goes in, the manager sees it on the pitch and may stop to change it.
+			if (flow == "Tactics" && stop != "Tactics" && Ui.Interactive && !inMatch)
+			{
+				var tactic = await Fm.GetJson("tactic");
+				if (tactic.TryGetProperty("Slots", out var slots) && slots.EnumerateArray().Any(slot => Field(slot, "Player") != ""))
+				{
+					Pitch.Draw(tactic);
+					if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine($"Yedekler: {string.Join(", ", benched)}");
+					Console.WriteLine();
+					if (Ui.Ask("Kadro bu.", ["Maça çık"], cancel: "Değişiklik yapacağım (tactic player / role), sonra match") == null) return 0;
+				}
+			}
 			stop = flow;
 
-			Scoreline(state, ref period, ref score);
+			Scoreline(state, names, ref period, ref score);
+
+			// A goal is shown again as a replay, its lines and all; a line heard a moment ago
+			// is not news the second time.
+			var said = Field(state, "Commentary");
+			if (said.Length > 0 && said != commentary && !heard.Contains(said) && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime")
+			{
+				heard.Enqueue(said);
+				if (heard.Count > 40) heard.Dequeue();
+				var minute = Field(state, "MatchTime");
+				if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(minute),6}[/]  {Ui.Safe(said)}");
+				else Console.WriteLine($"  {minute,6}  {said}");
+			}
+			commentary = said;
 
 			// A dialog holds everything up and nothing else says it is there. The one asking
 			// whether to proceed to the match is expected; anything else is the user's call.
@@ -79,6 +120,28 @@ internal static partial class Program
 			{
 				var dialog = dialogs[0];
 				var yes = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") == "Yes");
+
+				// No eleven picked: the game will not go on, and who plays is the manager's call.
+				if (Field(dialog, "Title") == "Team Selection" && Field(dialog, "Description").Contains("not selected any", StringComparison.Ordinal))
+				{
+					var ok = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault();
+					if (ok != null) await Fm.Get("click", ("ptr", Field(ok.Value, "Pointer")));
+
+					if (!Ui.Interactive)
+					{
+						Console.Error.WriteLine("İlk 11 seçilmemiş. Yardımcıya seçtirmek için: tactic pick   ·   kendin: tactic player <mevki> <oyuncu>   ·   sonra: match");
+						return 1;
+					}
+					if (Ui.Ask("İlk 11 seçilmemiş.", ["Yardımcı seçsin (Quick Pick)"], cancel: "Kendim seçeceğim, maçtan çık") == null)
+					{
+						Console.WriteLine("Kadro için: tactic player <mevki> <oyuncu>   ·   sonra: match");
+						return 0;
+					}
+					if (await TacticPick(dry: false) != 0) return 1;
+					pressed = null;
+					continue;
+				}
+
 				if (Field(dialog, "Title") != "Team Selection" || yes == null)
 				{
 					Console.Error.WriteLine($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}");
@@ -91,13 +154,39 @@ internal static partial class Program
 				continue;
 			}
 
-			// Each talk stop offers something to say before its Continue; said once, or not at all.
-			if (talk && spoke != flow && (await TalkOptions()) is { Count: > 0 } lines)
+			// Each talk stop offers something to say before its Continue.
+			if (!passTalks && spoke != flow && (await TalkOptions()) is { Count: > 0 } lines)
 			{
-				spoke = flow;
-				await Fm.Get("press", ("ptr", lines[0].Pointer));
-				Console.WriteLine($"  » {lines[0].Label}");
-				await Task.Delay(TimeSpan.FromSeconds(3));
+				var talk = await Fm.GetJson("talk");
+				if (talk.TryGetProperty("Says", out var says))
+					foreach (var spoken in says.EnumerateArray())
+						Console.WriteLine("  " + spoken.GetString()?.Replace("\n", "\n  "));
+
+				if (!Ui.Interactive)
+				{
+					Console.WriteLine();
+					for (var i = 0; i < lines.Count; i++) Console.WriteLine($"  {i + 1,2}  {lines[i].Label}");
+					Console.WriteLine("\nMaç konuşmada bekliyor. Söylemek için: talk <numara>, sonra: match"
+					                  + "   (konuşmadan geçmek için: match --no-talk)");
+					return 0;
+				}
+
+				if (Ui.Ask("Ne diyorsun?", lines.Select(l => l.Label).ToList(), cancel: "Konuşmadan geç") is not { } chosen)
+				{
+					spoke = flow;
+					continue;
+				}
+
+				var line = lines[chosen];
+				var sent = line.Choice == null
+					? await Fm.Get("press", ("ptr", line.Pointer))
+					: await Fm.Get("select", ("ptr", line.Pointer), ("choice", line.Choice), ("fire", "1"));
+				if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
+				Console.WriteLine($"  » {line.Label}");
+
+				// What comes back, and whether there is more to say, arrives a moment later.
+				var before = string.Join("|", lines.Select(l => l.Label));
+				await Until(async () => string.Join("|", (await TalkOptions()).Select(l => l.Label)) != before, seconds: 10);
 				continue;
 			}
 
@@ -144,6 +233,12 @@ internal static partial class Program
 		}
 
 		Console.WriteLine(score == null ? "Maçtan çıkıldı." : $"Maç bitti: {score}");
+		if (score != null)
+		{
+			// The full-time numbers are the first thing a manager looks at after the whistle.
+			Console.WriteLine();
+			try { await MatchReport.Show(Fm, json: false); } catch (FmError) { }
+		}
 		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);
 		return 0;
 	}
@@ -213,15 +308,38 @@ internal static partial class Program
 		return 0;
 	}
 
+	/// <summary>
+	/// Our team and the opponent, read before kick-off. Which of them the scoreboard puts first
+	/// is the match's own word, since on neutral ground the fixture does not say. Null when the
+	/// game does not give the names.
+	/// </summary>
+	private static async Task<(string Own, string Opponent)?> MatchNames()
+	{
+		try
+		{
+			var (own, _) = await Fm.OwnTeam();
+			var opponent = Field(await Fm.Pull("Human.Team.NextMatchOpponent", "Name"), "Name");
+			if (own.Length == 0 || opponent.Length == 0) return null;
+			return (own, opponent);
+		}
+		catch (FmError)
+		{
+			return null;
+		}
+	}
+
 	/// <summary>Prints the score when it changes, and the whistle when the period does.</summary>
-	private static void Scoreline(JsonElement state, ref string period, ref string score)
+	private static void Scoreline(JsonElement state, (string Own, string Opponent)? names, ref string period, ref string score)
 	{
 		var home = Field(state, "HomeScore");
 		var away = Field(state, "AwayScore");
 		if (home.Length == 0 || away.Length == 0) return;
 
 		var now = $"{home}-{away}";
-		var side = Field(state, "HumanIsHome") switch { "True" => " (ev sahibiyiz)", "False" => " (deplasmandayız)", _ => "" };
+		// With the sides named the board says who is home; without, which side we are.
+		var side = names != null && Field(state, "HumanIsHome") is "True" or "False" ? "" : Field(state, "HumanIsHome") switch { "True" => " (ev sahibiyiz)", "False" => " (deplasmandayız)", _ => "" };
+		if (names is { } n && Field(state, "HumanIsHome") is "True" or "False")
+			now = Field(state, "HumanIsHome") == "True" ? $"{n.Own} {now} {n.Opponent}" : $"{n.Opponent} {now} {n.Own}";
 
 		var current = Field(state, "Period");
 		if (current != period && current.Length > 0)
@@ -238,7 +356,11 @@ internal static partial class Program
 			period = current;
 		}
 
-		if (score != null && now != score) Console.WriteLine($"  {Field(state, "MatchTime")}  GOL  {now}{side}");
+		if (score != null && now != score)
+		{
+			if (Ui.Rich) Ui.Line($"  [bold yellow]{Ui.Safe(Field(state, "MatchTime")),6}  GOL  {Ui.Safe(now)}{side}[/]");
+			else Console.WriteLine($"  {Field(state, "MatchTime")}  GOL  {now}{side}");
+		}
 		score = now;
 	}
 

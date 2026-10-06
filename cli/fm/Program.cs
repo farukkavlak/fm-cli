@@ -39,6 +39,7 @@ internal static partial class Program
 				"search" => await Search(json, args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
+				"report" => await MatchReport.Show(Fm, json),
 				"inbox" => await Inbox(json),
 				"reply" => await Reply(args),
 				"next" => await Next(args),
@@ -98,6 +99,24 @@ internal static partial class Program
 		if (args.Contains("--morale")) return await SquadMorale(json);
 		if (args.Contains("--views")) return await SquadAnyView(json, null);
 		if (Option(args, "--view") is { } asked) return await SquadAnyView(json, asked);
+
+		// At a terminal the first team is read from its own data, which needs no screen.
+		if (Ui.Rich && !json)
+		{
+			try
+			{
+				var players = await Fm.Pull("Human.Team.Players", SquadBoard.Fields, list: true);
+				if (players.ValueKind == JsonValueKind.Array && players.GetArrayLength() > 0)
+				{
+					SquadBoard.Draw(players);
+					return 0;
+				}
+			}
+			catch (FmError)
+			{
+				// An older plugin has no /pull; the table below still works.
+			}
+		}
 
 		// The plain listing reads one named view like the others do. Reading whatever happened
 		// to be bound gave a different squad depending on the command that ran before.
@@ -781,12 +800,15 @@ internal static partial class Program
 			    --views / --view "<x>"       kolonları belirleyen görünümler
 			  table           lig tablosu
 			  fixtures        sıradaki maçlar
+			  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
 			  inbox           gelen kutusu
 			  reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
-			  match           maç gününü oyna: kadroyu gönder, maçı izle, maçtan çık; golleri ve sonucu bas
-			    --talk        takım konuşmalarında ilk (önerilen) cümleyi söyle; yoksa konuşmadan geçer
+			  match           maç gününü oyna: terminalde izlemek mi anında sonuç mu diye sorar
+			    --play        maçı izle: anlatım, goller, sonuç; konuşmalarda sözü sorar
+			                  (script'te konuşmada durur: talk <no>, sonra match)
+			    --no-talk     konuşmaları geç
 			    --instant     maçı oynatma, yardımcılara bırak: oyun birkaç saniyede simüle eder
 			  sub             maç sırasında: sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
 			  dialog [cevap]  açık onay penceresini göster ya da cevapla

@@ -73,9 +73,10 @@ internal static partial class Program
 			var to = Field(now, "Date");
 			if (from != to) Console.WriteLine($"{Pretty(from)} → {Pretty(to)} {Time(now)}");
 			else if (Field(state, "Clock") != Field(now, "Clock") || arrived.Count > 0) Console.WriteLine($"{Pretty(to)} {Time(state)} → {Time(now)}");
-			else
+			else if (times == 1)
 			{
-				// Continue can also mean "show me this": the button sometimes opens a page.
+				// Continue can also mean "show me this": the button sometimes opens a page. Over
+				// several steps such a step is only noise between the ones that moved.
 				Console.WriteLine(flow == "CanContinue"
 					? "İlerle denildi ama ne saat ne gelen kutusu değişti."
 					: $"Oyun önce bir sayfa gösterdi ({flow}); zaman ilerlemedi.");
@@ -151,7 +152,7 @@ internal static partial class Program
 					: "Cevaplamak için: reply <#>   (numaralar için: inbox)");
 				break;
 
-			case "PressConference": output.WriteLine("Oyun basın toplantısı bekliyor."); break;
+			case "PressConference": output.WriteLine("Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>"); break;
 			case "Tactics" or "SubmitTeam": output.WriteLine("Maç günü. Oynamak için: match"); break;
 			case "TeamNews": output.WriteLine("Oyun maç öncesi takım haberlerini bekliyor."); break;
 			case "TeamTalk": output.WriteLine("Oyun takım konuşması bekliyor."); break;
