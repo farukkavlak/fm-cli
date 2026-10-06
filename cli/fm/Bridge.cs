@@ -46,6 +46,35 @@ internal sealed class Bridge
 		}
 	}
 
+	/// <summary>
+	/// Properties read straight from the game's data, with no screen opened for them: of the
+	/// reference at a path, or of every entry of the list there. A property is bound by the
+	/// first read and arrives on a later one, so this asks again while anything is missing.
+	/// </summary>
+	public async Task<JsonElement> Pull(string path, string props, bool list = false)
+	{
+		var wanted = props.Split(',').Length;
+		JsonElement data = default;
+		for (var attempt = 0; attempt < 6; attempt++)
+		{
+			data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"));
+			var records = data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().ToList() : [data];
+			var complete = records.All(r => r.EnumerateObject().Count(p => p.Name != "Index") >= wanted);
+			if (complete && (attempt > 0 || records.Count > 0)) return data;
+			await Task.Delay(TimeSpan.FromMilliseconds(250));
+		}
+		return data;
+	}
+
+	/// <summary>The manager's own team: its name and short name, read without a screen.</summary>
+	public async Task<(string Name, string Short)> OwnTeam()
+	{
+		var team = await Pull("Human.Team", "Name,ShortName");
+		return (Text(team, "Name"), Text(team, "ShortName"));
+
+		static string Text(JsonElement e, string name) => e.TryGetProperty(name, out var v) ? v.GetString() ?? "" : "";
+	}
+
 	/// <summary>True once a save is loaded, rather than merely the game being up.</summary>
 	public async Task<bool> InGame()
 	{

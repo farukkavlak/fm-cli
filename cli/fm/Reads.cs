@@ -502,6 +502,12 @@ internal static partial class Program
 			return 0;
 		}
 
+		if (Ui.Rich)
+		{
+			Standings.Draw(table, (await Fm.OwnTeam()).Name);
+			return 0;
+		}
+
 		var rows = table.EnumerateArray().Select(row => new[]
 		{
 			Field(row, "TablePosition"),
