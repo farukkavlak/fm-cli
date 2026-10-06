@@ -144,6 +144,30 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		var options = await TalkOptions();
 
+		// At a terminal the conversation is held right here: what was said, then the answers
+		// to pick from with the arrows, until it ends or the question is put aside.
+		if (words.Count == 0 && !json && Ui.Interactive && options.Count > 0)
+		{
+			while (true)
+			{
+				var talk = await Show(options, footer: false);
+				if (talk != 0) return talk;
+
+				var recommended = await Recommended();
+				var labels = options.Select(o => o.Label + (recommended.Contains(o.Label) ? "  (önerilen)" : "")).ToList();
+				Console.WriteLine();
+				if (Ui.Ask("Ne diyorsun?", labels, cancel: "Şimdilik bir şey deme") is not { } asked)
+				{
+					Console.WriteLine("Konuşma açık kaldı. Devam için: talk");
+					return 0;
+				}
+
+				var result = await Say(options[asked]);
+				if (result != null) return result.Value;
+				Console.WriteLine();
+			}
+		}
+
 		if (words.Count == 0) return await Show(options);
 
 		if (words[0] == "leave")
@@ -169,9 +193,8 @@ internal static partial class Program
 			return 1;
 		}
 
-		var labels = options.Select(o => o.Label).ToList();
-		if (Choose(labels, words[0], "Cevap") is not { } pick) return 1;
-		var said = options[labels.IndexOf(pick)];
+		var offered = options.Select(o => o.Label).ToList();
+		if (Choose(offered, words[0], "Cevap") is not { } pick) return 1;
 
 		if (args.Contains("--dry"))
 		{
@@ -179,39 +202,52 @@ internal static partial class Program
 			return 0;
 		}
 
-		var pressed = said.Choice == null
-			? await Fm.Get("press", ("ptr", said.Pointer))
-			: await Fm.Get("select", ("ptr", said.Pointer), ("choice", said.Choice), ("fire", "1"));
-		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+		return await Say(options[offered.IndexOf(pick)]) ?? await Show(options);
 
-		Console.WriteLine($"» {pick}\n");
-
-		// The reply and the next set of answers arrive together, a moment later. In between the
-		// panel is briefly empty, so an empty one is only believed after it has stayed empty.
-		var was = Key(options);
-		var empty = 0;
-		if (!await Until(async () =>
-		    {
-			    options = await TalkOptions();
-			    if (options.Count == 0) return ++empty >= 3;
-			    empty = 0;
-			    return Key(options) != was;
-		    }, seconds: 12))
+		// Says one line and waits for the conversation to move on. Null means it goes on, with
+		// the next answers in options; a number is how the command ends.
+		async Task<int?> Say(Line said)
 		{
-			Console.Error.WriteLine("Söylendi ama konuşma ilerlemedi.");
-			return 1;
+			var line = said.Label;
+			var pressed = said.Choice == null
+				? await Fm.Get("press", ("ptr", said.Pointer))
+				: await Fm.Get("select", ("ptr", said.Pointer), ("choice", said.Choice), ("fire", "1"));
+			if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+
+			Console.WriteLine($"» {line}\n");
+
+			// The reply and the next set of answers arrive together, a moment later. In between the
+			// panel is briefly empty, so an empty one is only believed after it has stayed empty.
+			var was = Key(options);
+			var empty = 0;
+			if (!await Until(async () =>
+			    {
+				    options = await TalkOptions();
+				    if (options.Count == 0) return ++empty >= 3;
+				    empty = 0;
+				    return Key(options) != was;
+			    }, seconds: 12))
+			{
+				Console.Error.WriteLine("Söylendi ama konuşma ilerlemedi.");
+				return 1;
+			}
+
+			if (options.Count == 0)
+			{
+				Console.WriteLine("Konuşma bitti.");
+				return 0;
+			}
+			return null;
 		}
 
-		if (options.Count == 0)
-		{
-			Console.WriteLine("Konuşma bitti.");
-			return 0;
-		}
-		return await Show(options);
+		async Task<HashSet<string>> Recommended() =>
+			(await Fm.GetJson("talk")).TryGetProperty("Answers", out var answers)
+				? answers.EnumerateArray().Where(a => Field(a, "Recommended") == "True").Select(a => Field(a, "Label")).ToHashSet()
+				: [];
 
 		static string Key(List<Line> lines) => string.Join("|", lines.Select(l => l.Label));
 
-		async Task<int> Show(List<Line> offered)
+		async Task<int> Show(List<Line> offered, bool footer = true)
 		{
 			var talk = await Fm.GetJson("talk");
 			if (json)
@@ -241,6 +277,7 @@ internal static partial class Program
 				.GroupBy(a => Field(a, "Label"))
 				.ToDictionary(g => g.Key, g => g.First());
 			var heading = "";
+			if (!footer) return 0;
 			Console.WriteLine();
 			for (var i = 0; i < offered.Count; i++)
 			{
@@ -448,6 +485,10 @@ internal static partial class Program
 		return 0;
 	}
 
+	/// <summary>"AMR   Asensio · Inside Forward": a slot as it reads in a list to choose from.</summary>
+	private static List<string> SlotLabels(List<JsonElement> slots, string roleField) =>
+		slots.Select(s => $"{Spot(Field(s, "IPPosition")),-4}  {(Field(s, "Player") is { Length: > 0 } p ? p : "—")} · {Role(Field(s, roleField))}").ToList();
+
 	/// <summary>After a change, the pitch with what changed marked, for someone at a terminal.</summary>
 	private static async Task ShowChange(HashSet<(int, bool)> changed)
 	{
@@ -485,6 +526,18 @@ internal static partial class Program
 		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
 		var spots = slots.Select(s => Spot(Field(s, "IPPosition"))).ToList();
 		var squad = tactic.TryGetProperty("Squad", out var listed) ? listed.EnumerateArray().Where(e => Field(e, "PlayerIndex") != "-1").ToList() : [];
+
+		if (words.Count < 2 && Ui.Interactive && squad.Count > 0)
+		{
+			if (words.Count == 0)
+			{
+				if (Ui.Ask("Hangi mevki?", SlotLabels(slots, "IPRoleName")) is not { } slotAsked) return 0;
+				words.Add(spots[slotAsked]);
+			}
+			var benchNames = squad.Select(e => Field(e, "Name")).ToList();
+			if (Ui.Ask($"{words[0]} mevkisine kim?", benchNames) is not { } asked) return 0;
+			words.Add(benchNames[asked]);
+		}
 
 		if (words.Count < 2)
 		{
@@ -571,6 +624,12 @@ internal static partial class Program
 		var choices = dropdown.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 		var current = Field(tactic.GetProperty("Tactic"), field);
 
+		if (wanted == null && Ui.Interactive)
+		{
+			if (Ui.Ask(what, choices, choices.IndexOf(current)) is not { } asked) return 0;
+			wanted = choices[asked];
+		}
+
 		if (wanted == null)
 		{
 			Console.WriteLine($"{what}: {current}\n");
@@ -620,6 +679,12 @@ internal static partial class Program
 
 		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
 		var spots = slots.Select(s => Spot(Field(s, "IPPosition"))).ToList();
+		if (words.Count == 0 && Ui.Interactive)
+		{
+			var roleField = withoutBall ? "OOPRoleName" : "IPRoleName";
+			if (Ui.Ask("Hangi mevki?", SlotLabels(slots, roleField)) is not { } asked) return 0;
+			words.Add(spots[asked]);
+		}
 		if (words.Count == 0)
 		{
 			Console.Error.WriteLine($"kullanım: tactic role <mevki> [<rol>] [--oop]   mevkiler: {string.Join(" ", spots)}");
@@ -660,6 +725,11 @@ internal static partial class Program
 		}
 
 		var phase = withoutBall ? "topsuz" : "topla";
+		if (words.Count < 2 && Ui.Interactive)
+		{
+			if (Ui.Ask($"{spot} ({phase}) rolü", roles, roles.IndexOf(current)) is not { } asked) return 0;
+			words.Add(roles[asked]);
+		}
 		if (words.Count < 2)
 		{
 			Console.WriteLine($"{spot} ({phase}): {current}\n");
@@ -857,6 +927,16 @@ internal static partial class Program
 			{
 				Console.Error.WriteLine($"{what} seçenekleri gelmedi.");
 				return 1;
+			}
+
+			if (i >= picks.Count && Ui.Interactive && !dry)
+			{
+				if (Ui.Ask($"{what} seç", choices) is not { } asked)
+				{
+					Console.WriteLine("Vazgeçildi; sihirbaz bu adımda açık kaldı. Devam için: tactic new");
+					return 0;
+				}
+				picks.Add(choices[asked]);
 			}
 
 			if (i >= picks.Count)

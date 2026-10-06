@@ -275,6 +275,27 @@ internal static partial class Program
 			return 0;
 		}
 
+		// At a terminal whoever is missing is asked for: first who goes off, then who of
+		// those allowed to replace him comes on.
+		if (words.Count < 2 && Ui.Interactive)
+		{
+			if (words.Count == 0)
+			{
+				var described = menus.Select(m =>
+				{
+					var rows = m.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+					return $"{rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))})";
+				}).ToList();
+				if (Ui.Ask("Kim çıksın?", described) is not { } goingOff) return 0;
+				words.Add(onPitch[goingOff]);
+			}
+
+			if (Choose(onPitch, words[0], "Çıkan") is not { } named) return 1;
+			var allowed = Bench(menus[onPitch.IndexOf(named)]);
+			if (Ui.Ask($"{named} yerine kim girsin?", allowed) is not { } comingOn) return 0;
+			words.Add(allowed[comingOn]);
+		}
+
 		if (words.Count < 2)
 		{
 			Console.WriteLine("Sahada:");
@@ -359,6 +380,13 @@ internal static partial class Program
 
 		// A dialog that only wants acknowledging has one button and no words on it.
 		var labels = buttons.Select(b => Field(b, "Label") is { Length: > 0 } label ? label : "Tamam").ToList();
+
+		if (words.Count == 0 && Ui.Interactive)
+		{
+			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}\n");
+			if (Ui.Ask("Cevap", labels) is not { } answer) return 0;
+			words.Add(labels[answer]);
+		}
 
 		if (words.Count == 0)
 		{

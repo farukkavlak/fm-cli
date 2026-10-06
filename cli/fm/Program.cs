@@ -390,27 +390,22 @@ internal static partial class Program
 		else
 		{
 			Console.WriteLine($"{title}\n");
-			Options(Console.Out);
+			if (!Ui.Interactive) Options(Console.Out);
 
 			// At a terminal the choice is asked for on the spot. A script gets the listing and
 			// nothing else, since there is no one there to answer.
-			if (Console.IsInputRedirected)
+			if (!Ui.Interactive)
 			{
 				Console.WriteLine($"\nCevaplamak için: reply {words[0]} <numara>");
 				return 0;
 			}
 
-			while (answerTo == null)
+			if (Ui.Ask("Cevabın", answers.Select(a => Field(a, "Label")).ToList()) is not { } asked)
 			{
-				Console.Write($"\nSeçim (1-{answers.Count}, x: vazgeç): ");
-				var typed = Console.ReadLine()?.Trim();
-				if (string.IsNullOrEmpty(typed) || typed.Equals("x", StringComparison.OrdinalIgnoreCase))
-				{
-					Console.WriteLine("Vazgeçildi, mesaj cevaplanmadı.");
-					return 0;
-				}
-				answerTo = Resolve(typed);
+				Console.WriteLine("Vazgeçildi, mesaj cevaplanmadı.");
+				return 0;
 			}
+			answerTo = answers[asked];
 		}
 
 		var wanted = new List<JsonElement> { answerTo.Value };
