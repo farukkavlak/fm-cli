@@ -121,23 +121,10 @@ internal static partial class Program
 				var dialog = dialogs[0];
 				var yes = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") == "Yes");
 
-				// No eleven picked: the game will not go on, and who plays is the manager's call.
-				if (Field(dialog, "Title") == "Team Selection" && Field(dialog, "Description").Contains("not selected any", StringComparison.Ordinal))
+				// The eleven cannot go out as it is: who plays is the manager's call.
+				if (TeamProblem(dialog) is { } problem)
 				{
-					var ok = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault();
-					if (ok != null) await Fm.Get("click", ("ptr", Field(ok.Value, "Pointer")));
-
-					if (!Ui.Interactive)
-					{
-						Console.Error.WriteLine("İlk 11 seçilmemiş. Yardımcıya seçtirmek için: tactic pick   ·   kendin: tactic player <mevki> <oyuncu>   ·   sonra: match");
-						return 1;
-					}
-					if (Ui.Ask("İlk 11 seçilmemiş.", ["Yardımcı seçsin (Quick Pick)"], cancel: "Kendim seçeceğim, maçtan çık") == null)
-					{
-						Console.WriteLine("Kadro için: tactic player <mevki> <oyuncu>   ·   sonra: match");
-						return 0;
-					}
-					if (await TacticPick(dry: false) != 0) return 1;
+					if (await SettleTeam(dialog, problem) is { } leave) return leave;
 					pressed = null;
 					continue;
 				}
@@ -272,6 +259,16 @@ internal static partial class Program
 				// While it simulates, the game shows a notice with nothing to press.
 				if (dialog.GetProperty("Buttons").GetArrayLength() == 0) continue;
 
+				if (TeamProblem(dialog) is { } problem)
+				{
+					if (await SettleTeam(dialog, problem) is { } stop) return stop;
+
+					// The team changed, so the instant result is asked for again.
+					var again = await Arriving("press", [("text", "Instant Result")]);
+					if (again.StartsWith("error", StringComparison.Ordinal)) return Report(again);
+					continue;
+				}
+
 				var want = Field(dialog, "Title") switch { "Instant Result" => "Confirm", "Team Selection" => "Yes", _ => null };
 				var button = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") == want);
 				if (button == null)
@@ -334,6 +331,43 @@ internal static partial class Program
 		{
 			return null;
 		}
+	}
+
+	/// <summary>
+	/// What is wrong with the team, when the game's Team Selection notice says it cannot play as
+	/// picked: no eleven at all, or someone injured or otherwise unavailable in it. Null for the
+	/// notices that only ask whether to go on.
+	/// </summary>
+	private static string TeamProblem(JsonElement dialog)
+	{
+		if (Field(dialog, "Title") != "Team Selection") return null;
+		var said = Field(dialog, "Description");
+		if (said.Contains("not selected any", StringComparison.Ordinal)) return "İlk 11 seçilmemiş.";
+		if (said.Contains("unavailable", StringComparison.Ordinal) || said.Contains("injured", StringComparison.Ordinal) || said.Contains("suspended", StringComparison.Ordinal))
+			return said.Split('\n')[0].Trim();
+		return null;
+	}
+
+	/// <summary>
+	/// Puts the notice away and has the team sorted: at a terminal by asking whether the
+	/// assistant should pick again; in a script by saying how. Null means carry on.
+	/// </summary>
+	private static async Task<int?> SettleTeam(JsonElement dialog, string problem)
+	{
+		var ok = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault();
+		if (ok != null) await Fm.Get("click", ("ptr", Field(ok.Value, "Pointer")));
+
+		if (!Ui.Interactive)
+		{
+			Console.Error.WriteLine($"{problem} Yardımcıya yeniden seçtirmek için: tactic pick   ·   kendin: tactic player <mevki> <oyuncu>   ·   sonra: match");
+			return 1;
+		}
+		if (Ui.Ask(problem, ["Yardımcı yeniden seçsin (Quick Pick)"], cancel: "Kendim değiştireceğim, maçtan çık") == null)
+		{
+			Console.WriteLine("Kadro için: tactic player <mevki> <oyuncu>   ·   sonra: match");
+			return 0;
+		}
+		return await TacticPick(dry: false) != 0 ? 1 : null;
 	}
 
 	/// <summary>Prints the score when it changes, and the whistle when the period does.</summary>
