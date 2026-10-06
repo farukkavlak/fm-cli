@@ -794,6 +794,7 @@ internal static partial class Program
 			    --views       kadro tablosunun bütün görünümlerini listele
 			    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
 			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla bulur)
+			    --actions     oyuncu için yapılabilecekler: teklif, kısa liste, scout, menajer…
 			  search <metin>  oyunun aramasında bul: oyuncu, kulüp, turnuva…
 			  offer <oyuncu> <bonservis>  transfer teklifi yap (ör. 7.5M); --loan kiralık, --dry gönderme
 			                  geri alınamaz: terminalde sorar, script'te --yes ister

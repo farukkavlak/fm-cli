@@ -56,6 +56,14 @@ internal static class Ui
 		return picked < 0 ? null : picked;
 	}
 
+	/// <summary>Asks for a line of text; empty or no one to ask comes back as null.</summary>
+	public static string Text(string question)
+	{
+		if (!Interactive) return null;
+		var answer = Out.Prompt(new TextPrompt<string>(Safe(question)).AllowEmpty());
+		return string.IsNullOrWhiteSpace(answer) ? null : answer.Trim();
+	}
+
 	/// <summary>One line of markup, for files that keep Spectre's names out of their way.</summary>
 	public static void Line(string markup) => Out.MarkupLine(markup);
 

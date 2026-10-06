@@ -97,6 +97,47 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// What can be done about a player, as his page offers it behind his value: shortlist,
+	/// scout, enquire, bid, and the rest. At a terminal one is chosen with the arrows; a bid
+	/// asks for the fee and goes the way `offer` goes.
+	/// </summary>
+	private static async Task<int> PlayerActions(JsonElement player)
+	{
+		var name = Field(player, "Name");
+		if ((await TalkOptions()).Count == 0)
+		{
+			var opened = await Arriving("press", [("text", Field(player, "Value")), ("name", "SIButton"), ("any", "1")]);
+			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+			await Until(async () => (await TalkOptions()).Count > 0, seconds: 8);
+		}
+
+		var options = await TalkOptions();
+		if (options.Count == 0)
+		{
+			Console.Error.WriteLine($"{name} için aksiyon bulunamadı.");
+			return 1;
+		}
+
+		var labels = options.Select(o => o.Heading is { Length: > 0 } heading ? $"{heading} › {o.Label}" : o.Label).ToList();
+		if (!Ui.Interactive)
+		{
+			for (var i = 0; i < labels.Count; i++) Console.WriteLine($"  {i + 1,2}  {labels[i]}");
+			Console.WriteLine("\nYapmak için: talk <numara>   (teklif için: offer <oyuncu> <bonservis>)");
+			return 0;
+		}
+
+		if (Ui.Ask($"{name}: ne yapalım?", labels, cancel: "Hiçbir şey") is not { } chosen) return 0;
+
+		if (options[chosen].Label == "Make An Offer")
+		{
+			if (Ui.Text("Bonservis (ör. 7.5M, 750K; boş: vazgeç)") is not { } fee) return 0;
+			return await Offer(["offer", name, fee]);
+		}
+
+		return await TalkTo(false, ["talk", (chosen + 1).ToString()]);
+	}
+
+	/// <summary>
 	/// Brings up a player's page and returns what it binds, or null having said why not.
 	///
 	/// In the squad, his name in the table opens his page; anyone else is found with the game's
@@ -194,12 +235,13 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası>");
+			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası> [--actions]");
 			return 64;
 		}
 
 		if (await NotNow() is { } refused) return refused;
 		if (await OpenPlayer(wanted) is not { } card) return 1;
+		if (args.Contains("--actions")) return await PlayerActions(card.GetProperty("Player"));
 
 		if (json)
 		{
@@ -255,6 +297,7 @@ internal static partial class Program
 		if (Ui.Rich)
 		{
 			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList());
+			Ui.Line($"[dim]Teklif, kısa liste, scout…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]");
 			return 0;
 		}
 
