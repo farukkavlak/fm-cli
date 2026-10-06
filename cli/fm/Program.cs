@@ -400,7 +400,7 @@ internal static partial class Program
 			// nothing else, since there is no one there to answer.
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine($"\nCevaplamak için: reply {words[0]} <numara>");
+				Console.WriteLine($"\nCevaplamak için: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} <numara>");
 				return 0;
 			}
 
@@ -794,7 +794,7 @@ internal static partial class Program
 			  talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık
 			  tour            açık tanıtım turunu sonuna kadar yürüt
 			    --skip        turu atla (tur izin veriyorsa)
-			  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığında oyunun seçimi kalır)
+			  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)
 			  tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
 			  tactic mentality [<x>]      mentaliteyi göster ya da değiştir
 			  tactic style [<x>]          oyun stilini göster ya da değiştir

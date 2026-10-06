@@ -308,7 +308,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0 || words[0] != "new")
 		{
-			Console.Error.WriteLine("kullanım: setpieces new [<1. sorunun cevabı> <2.> …] [--dry]   (yazılmayan soruda oyunun seçtiği kalır)");
+			Console.Error.WriteLine("kullanım: setpieces new [<1. sorunun cevabı> <2.> …] [--dry]   (terminalde yazılmayan soru sorulur; script'te oyunun seçtiği kalır)");
 			return 64;
 		}
 
@@ -369,8 +369,23 @@ internal static partial class Program
 				pick = asked;
 			}
 
-			Console.WriteLine($"{step + 1}.");
-			for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {(choices[n] == pick ? "●" : "○")} {n + 1}  {choices[n]}");
+			// At a terminal an unanswered question is asked, starting on the game's choice;
+			// with no one to ask, the game's choice stands.
+			if (step >= picks.Count && Ui.Interactive && !dry)
+			{
+				if (Ui.Ask($"{step + 1}. soru", choices, choices.IndexOf(current ?? ""), cancel: "Sihirbazı burada bırak") is not { } chosen)
+				{
+					Console.WriteLine("Sihirbaz bu soruda açık bırakıldı. Devam için: setpieces new");
+					return 0;
+				}
+				pick = choices[chosen];
+				Console.WriteLine($"{step + 1}. {pick}");
+			}
+			else
+			{
+				Console.WriteLine($"{step + 1}.");
+				for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {(choices[n] == pick ? "●" : "○")} {n + 1}  {choices[n]}");
+			}
 
 			if (dry)
 			{
