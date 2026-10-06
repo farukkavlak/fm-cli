@@ -81,7 +81,9 @@ internal static class MatchReport
 			grid.AddRow($"[{hc}]{new string('█', hb)}[/]", $"[bold]{Ui.Safe(h)}[/]", $"[dim]{label}[/]", $"[bold]{Ui.Safe(a)}[/]", $"[{ac}]{new string('█', ab)}[/]");
 		}
 
-		var lines = new List<string> { $"[bold]{Ui.Safe(home)}  {score}  {Ui.Safe(away)}[/]" };
+		var (own, _) = await fm.OwnTeam();
+		string Side(string team) => team == own ? $"[yellow]{Ui.Safe(team)}[/]" : Ui.Safe(team);
+		var lines = new List<string> { $"[bold]{Side(home)}  {score}  {Side(away)}[/]" };
 		if (competition.Length > 0) lines.Add($"[dim]{Ui.Safe(competition)}" + (F(fixture, "Attendance") is { Length: > 0 } crowd ? $" · {Ui.Safe(crowd)} seyirci" : "") + "[/]");
 		if (scorers.Length > 0) lines.Add($"[dim]Goller:[/] {Ui.Safe(scorers.Replace("\n", " · "))}");
 		if (star.Length > 0) lines.Add($"[dim]Maçın oyuncusu:[/] {Ui.Safe(star)}" + (rating.Length > 0 ? $" [green1]{Ui.Safe(rating)}[/]" : ""));

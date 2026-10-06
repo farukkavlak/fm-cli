@@ -300,9 +300,17 @@ internal static partial class Program
 			.Where(f => Field(f, "Result") != "" && Field(f, "Date") != "")
 			.OrderBy(f => Field(f, "Date"))
 			.LastOrDefault();
-		Console.WriteLine(played.ValueKind == JsonValueKind.Object
-			? $"Maç simüle edildi: {Field(played, "ShortName")} maçı {Field(played, "Result")}"
-			: "Maç simüle edildi.");
+		Console.WriteLine("Maç simüle edildi.");
+		Console.WriteLine();
+		try
+		{
+			if (await MatchReport.Show(Fm, json: false) != 0 && played.ValueKind == JsonValueKind.Object)
+				Console.WriteLine($"{Field(played, "ShortName")} maçı {Field(played, "Result")}");
+		}
+		catch (FmError)
+		{
+			if (played.ValueKind == JsonValueKind.Object) Console.WriteLine($"{Field(played, "ShortName")} maçı {Field(played, "Result")}");
+		}
 
 		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);
 		return 0;
