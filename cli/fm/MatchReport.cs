@@ -44,7 +44,14 @@ internal static class MatchReport
 		}
 
 		var score = $"{F(fixture, "HomeScore")}-{F(fixture, "AwayScore")}";
-		var scorers = F(fixture, "GoalscorersString");
+
+		// Each side's goals, from its own list of match events; the fixture's scorers string
+		// only names the team it is read for.
+		var homeGoals = await Goals(fm, at + ".HomeEventInfos");
+		var awayGoals = await Goals(fm, at + ".AwayEventInfos");
+		var scorers = homeGoals.Count + awayGoals.Count > 0
+			? string.Join("   ", new[] { (home, homeGoals), (away, awayGoals) }.Where(s => s.Item2.Count > 0).Select(s => $"{s.Item1}: {string.Join(", ", s.Item2)}"))
+			: F(fixture, "GoalscorersString");
 		var rating = Round(F(fixture, "PlayerOfTheMatchRating"), 1);
 
 		if (!Ui.Rich)
@@ -96,6 +103,28 @@ internal static class MatchReport
 			Padding = new Padding(1, 0, 1, 0),
 		});
 		return 0;
+	}
+
+	/// <summary>"Kerem Aktürkoğlu 36', 77'" for each scorer in a side's list of match events.</summary>
+	private static async Task<List<string>> Goals(Bridge fm, string list)
+	{
+		var goals = new List<string>();
+		try
+		{
+			var events = await fm.Pull(list, "EventType,TimeString", list: true);
+			if (events.ValueKind != JsonValueKind.Array) return goals;
+			foreach (var entry in events.EnumerateArray())
+			{
+				if (F(entry, "EventType") != "0") continue;
+				var row = $"fmcli.{list.Replace('.', '_')}.{F(entry, "Index")}.Player";
+				var name = F(await fm.Pull(row, "Name"), "Name");
+				goals.Add($"{name} {F(entry, "TimeString")}".Trim());
+			}
+		}
+		catch (FmError)
+		{
+		}
+		return goals;
 	}
 
 	/// <summary>A number as the game shows it: possession as a percentage, expected goals to two places.</summary>

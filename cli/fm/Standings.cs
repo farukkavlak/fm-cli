@@ -42,6 +42,30 @@ internal static class Standings
 		Ui.Out.Write(grid);
 	}
 
+	/// <summary>The fixtures, each result in the colour of what it was for us.</summary>
+	public static void Fixtures(string[] headers, List<string[]> rows, List<string> kinds)
+	{
+		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) };
+		foreach (var header in headers) table.AddColumn(new TableColumn($"[dim]{header}[/]"));
+
+		for (var i = 0; i < rows.Count; i++)
+		{
+			var cells = rows[i].Select(Ui.Safe).ToArray();
+			var result = cells[^1];
+			if (result.Length > 0)
+				cells[^1] = (i < kinds.Count ? kinds[i] : "") switch
+				{
+					"1" => $"[black on green1] G [/] {result}",
+					"10" => $"[white on red] M [/] {result}",
+					_ => $"[grey] · [/] {result}",
+				};
+			else cells = cells.Select(c => $"[dim]{c}[/]").ToArray();
+			table.AddRow(cells);
+		}
+
+		Ui.Out.Write(table);
+	}
+
 	/// <summary>
 	/// The colour the game gives a place that leads somewhere: the title and Europe at the top,
 	/// relegation at the bottom. The game names the group by a number only.
