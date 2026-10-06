@@ -439,7 +439,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   gitti (Icardi £7.25M → yönetim "rakip kulüp" diye engelledi; Demirbay £1.5M). `fm player
   <isim> --actions` kısa liste, scout, teklif gibi aksiyonları okla sunuyor.
 - **Oynanan:** Sarıyer 0-4 (izlendi, üç konuşma seçildi), Boluspor 0-1 (anında sonuç),
-  Adana D.S. (script modu). Tanıtım turlarının hepsi, basın toplantısı, beklentiler toplantısı,
+  Adana D.S. 0-4 (script modu: konuşmada durdu, `talk 1`, `match --no-talk`), Al-Ittihad 3-2
+  yenilgi (anında). Tanıtım turlarının hepsi, basın toplantısı, beklentiler toplantısı,
   kamp kadrosu, davranış kuralları.
 - Düzeltmeler: `fm player Kerem` kadrodaki oyuncuyu bulamıyordu (tablo satırları parça parça
   doluyor); taktik sihirbazının ilk "Confirm"ü turda yutuluyordu; `next N` boş adım gürültüsü.
@@ -453,15 +454,19 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   teklifi o yüzden kayıtta yok.
 - "Club vision" mesajında **Negotiate** ayrı bir pazarlık ekranı açıyor, `talk` onu cevapsız
   görüyor. Vizyon kabul edildi; pazarlık ekranı keşfedilmedi.
-- Fikstürde sonuç renkleri yok: `ResultType` = 1 galibiyet görünüyor, beraberlik / yenilgi
-  değeri henüz görülmedi.
+- **Demirbay transferi bozuldu, iki hatayla.** £2.3M reddedildi; Negotiate ile £3M verdim.
+  Kulüp pazarlıkla döndü, mesajın içine bakmadan "Accept" dedim: kabul edilen rakam £8.25M'miş.
+  Sonra oyun "Negotiate Contract" beklerken genel Continue'ya basınca teklif geri çekildi.
+  Düzeltmeler: `reply` artık mesajın ilk cümlesini cevaplardan önce basıyor; `status` bekleyen
+  adıma "bas" demiyor. Oyuncuyla sözleşme ekranı hâlâ keşfedilmedi (§8.42 sonu).
+- Fikstür renkleri: `ResultType` 1 galibiyet, 10 yenilgi; beraberlik değeri henüz görülmedi.
 
 **Kayıt dosyasının durumu**
 
 - Gece başında yedek: `~/fm26_bep/save-backups/Faruk Kavlak - Fenerbahçe.2026-10-06-night-start.fm`
   (30 Haziran 2025).
-- Ana kayıt `fm save --yes` ile **7 Temmuz 2025, Sarıyer maçından sonra** kaydedildi; sonrası
-  oyunun kendi haftalık otomatik kaydına kaldı.
+- Ana kayıt `fm save --yes` ile en son **12 Temmuz 2025**'te kaydedildi (Adana D.S. maçından
+  sonra); sonrası oyunun kendi haftalık otomatik kaydına kaldı.
 
 **Karar bekleyenler**
 
