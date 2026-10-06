@@ -970,8 +970,14 @@ internal static partial class Program
 
 			await Fm.Get("press", ("ptr", Field(button.Value, "Pointer")));
 
+			// A press can be swallowed — during the tactics tour the first Confirm went nowhere
+			// and a second one went through — so the button is pressed once more before giving up.
 			var expected = i + 1 < stages.Length ? i + 1 : (int?)null;
-			if (!await Until(async () => await CreatorStage() == expected))
+			if (!await Until(async () => await CreatorStage() == expected, seconds: 8)
+			    && await Labelled(onward) is { } again)
+				await Fm.Get("press", ("ptr", Field(again, "Pointer")));
+
+			if (!await Until(async () => await CreatorStage() == expected, seconds: 12))
 			{
 				Console.Error.WriteLine($"{what} seçildi ({pick}) ama sihirbaz aynı adımda kaldı.");
 				return 1;
