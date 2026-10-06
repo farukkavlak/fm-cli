@@ -1941,6 +1941,47 @@ konuşuldu. Bilinen sınırlar: oynanan maç (`mode=play`) altı-sekiz dakika s�
 araç zaman aşımına takılabilir; çıktılar Türkçe ve yönlendirmeler komut adıyla ("Oynamak için:
 match"), araç adıyla değil; araçlar düz metin döndürüyor, `--json` çıktısı sunulmuyor.
 
+## 8.40 Span köprüsü çözüldü: ekran açmadan her veri
+
+§8.12 ve §8.21'in kilidi açıldı. Sorun span'ın kendisi değilmiş, Il2CppInterop'un
+`ReadOnlySpan<char>` sarmalayıcısıymış: üretilen kod span'ı yolda kaybediyor. `ReadOnlySpan<char>`
+bellekte yalnızca `{ char* pointer; int length; }`. Bunu native bellekte elle kurup metodu
+il2cpp `MethodInfo`'suyla (`NativeMethodInfoPtr_…` statik alanı) `il2cpp_runtime_invoke` ile
+çağırınca, byref parametreye struct'ın adresini vererek, her yol doğru çalışıyor
+(`plugin/…/RawPath.cs`):
+
+```
+pathexists  app.LastSave            → true
+pathexists  ZzNotAPathZz.NopeNope   → false      (§8.12'de bu da true dönüyordu)
+pathbind    Human.Team.Name         → (String) Fenerbahçe     ← hiçbir ekran bağlamamıştı
+pathbind    Human.Team.NextMatchOpponent.Name → Sarıyer
+pathbind    Human.Team.Nation.Name  → Türkiye
+```
+
+`Bindings.Bind(ref ReadOnlySpan<char> path, callback)` bir ekranın yaptığını yapıyor: düğümü
+yaratıyor, üstteki referansı buluyor, property'nin kanalını açıyor. Değer çoğu zaman aynı
+karede, bazen bir sonrakinde geliyor.
+
+**Listeler.** `Human.Team.Players` 27 `PersonReference` tutan bir liste, ama `Players.0.Name`
+bağlanınca boş kalıyor: listenin elemanı ağaçta bağlanabilir bir düğüm değil. Ekranın tablosu
+her satıra kendi düğümünü veriyor; aynısını yapıyoruz: elemanı `Bindings.Set(ref span, TypedValue,
+NodeFlags, SetFlags)` ile `fmcli.<liste>.<n>` düğümüne koy, property'leri onun altına bağla.
+
+```
+/pull?path=Human.Team.Players&props=Name,Condition&list=1
+  {"Index": "0", "Name": "Dorgéles Néné", "Condition": "100"}
+  {"Index": "4", "Name": "Talisca", "Condition": "-1"}      (sakat)
+  …27 satır
+```
+
+İlk çağrı bağlıyor, değerler ikinci çağrıda geliyor; `/pull` idempotent, eksik kalmayana
+kadar tekrar sorulur. Hangi referansın hangi property'leri kabul ettiği `/schema` kataloğunda
+(§8.11) statik olarak var, yani "ne okunabilir" sorusu deneme-yanılma değil.
+
+Sonuç: §8.22'deki "aynı anda tek ekranın verisi bağlı" kısıtı okuma için kalkıyor. Kadro,
+kondisyon, rakip, fikstür gibi okumalar ekran açmadan, birbirini bozmadan yapılabilir.
+Komutları bu yola taşımak ayrı iş (PLAN.md).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

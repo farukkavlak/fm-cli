@@ -32,6 +32,10 @@ internal static class FmApi
 		"next" => Next(),
 		"refprops" => RefProps(q["path"]),
 		"bind" => Bind(q["path"]),
+		"pathexists" => RawPath.Exists(q["path"]),
+		"pathbind" => RawPath.Bind(q["path"]),
+		"pathlist" => RawPath.List(q["path"]),
+		"pull" => RawPath.Pull(q["path"], q["props"], q["list"] == "1"),
 		"rawexists" => RawExists(q["path"]),
 		"keys" => Keys(Int(q["depth"], 4)),
 		"schema" => Schema.Catalog(q["filter"]),
@@ -300,7 +304,7 @@ internal static class FmApi
 	/// Binding requires a callback; we only want the side effect. It must be a real il2cpp
 	/// delegate — handing the game a null function pointer crashes it when the value changes.
 	/// </summary>
-	private static Bindings.ValueChangedCallback NoOp =>
+	internal static Bindings.ValueChangedCallback NoOp =>
 		_noOp ??= DelegateSupport.ConvertDelegate<Bindings.ValueChangedCallback>(
 			(Action<Bindings.Key, TypedValue>)((_, _) => { }));
 
@@ -467,7 +471,7 @@ internal static class FmApi
 		return sb.ToString();
 	}
 
-	private static string Describe(TypedValue v)
+	internal static string Describe(TypedValue v)
 	{
 		if (v == null) return null;
 		try
