@@ -343,6 +343,10 @@ internal static partial class Program
 		var away = Field(state, "AwayScore");
 		if (home.Length == 0 || away.Length == 0) return;
 
+		// After the whistle the match stops saying which side is ours; the board as it last
+		// stood, with the names, is the one to keep.
+		if (names != null && score != null && Field(state, "HumanIsHome") is not ("True" or "False")) return;
+
 		var now = $"{home}-{away}";
 		// With the sides named the board says who is home; without, which side we are.
 		var side = names != null && Field(state, "HumanIsHome") is "True" or "False" ? "" : Field(state, "HumanIsHome") switch { "True" => " (ev sahibiyiz)", "False" => " (deplasmandayız)", _ => "" };

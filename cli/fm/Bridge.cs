@@ -66,6 +66,24 @@ internal sealed class Bridge
 		return data;
 	}
 
+	/// <summary>A list of plain numbers at a path, bound first if need be: recent form as points per match.</summary>
+	public async Task<List<int>> Numbers(string path)
+	{
+		await Get("pathbind", ("path", path));
+		for (var attempt = 0; attempt < 4; attempt++)
+		{
+			var listed = await Get("pathlist", ("path", path));
+			if (!listed.StartsWith("error", StringComparison.Ordinal))
+				return listed.Split('\n')
+					.Select(line => line.IndexOf(") ", StringComparison.Ordinal) is var at and >= 0 && int.TryParse(line[(at + 2)..].Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(), out var n) ? (int?)n : null)
+					.Where(n => n != null)
+					.Select(n => n!.Value)
+					.ToList();
+			await Task.Delay(250);
+		}
+		return [];
+	}
+
 	/// <summary>The manager's own team: its name and short name, read without a screen.</summary>
 	public async Task<(string Name, string Short)> OwnTeam()
 	{

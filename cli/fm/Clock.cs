@@ -240,8 +240,11 @@ internal static partial class Program
 		var flow = Field(state, "State");
 		if (Field(state, "DuringMatch") == "True")
 		{
-			Console.WriteLine($"Maçtayız. {Field(state, "MatchTime")}  {Field(state, "HomeScore")}-{Field(state, "AwayScore")}"
-			                  + (Field(state, "HumanIsHome") == "True" ? " (ev sahibiyiz)" : " (deplasmandayız)"));
+			var score = $"{Field(state, "HomeScore")}-{Field(state, "AwayScore")}";
+			var board = await MatchNames() is { } sides
+				? Field(state, "HumanIsHome") == "True" ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
+				: score + (Field(state, "HumanIsHome") == "True" ? " (ev sahibiyiz)" : " (deplasmandayız)");
+			Console.WriteLine($"Maçtayız. {Field(state, "MatchTime")}  {board}");
 			Console.WriteLine("Sürdürmek için: match");
 			return 0;
 		}
@@ -254,6 +257,7 @@ internal static partial class Program
 			var manager = Field(await Fm.Pull("Human", "Name"), "Name");
 			var lines = new List<string> { $"[bold]{Ui.Safe(Pretty(Field(state, "Date")))}[/] {Time(state)}" };
 			if (next != null) lines.Add($"[dim]Sıradaki maç:[/] {Ui.Safe(next)}");
+			if (await Form() is { Length: > 0 } form) lines.Add($"[dim]Form:[/] {form}");
 			Ui.Out.Write(new Spectre.Console.Panel(new Spectre.Console.Markup(string.Join("\n", lines)))
 			{
 				Header = new Spectre.Console.PanelHeader($" [bold yellow]{Ui.Safe(team)}[/] [dim]·[/] {Ui.Safe(manager)} "),
@@ -301,6 +305,29 @@ internal static partial class Program
 		{
 			// An older plugin has no /pull; the status is still worth giving without it.
 			return null;
+		}
+	}
+
+	/// <summary>
+	/// The team's last results, oldest first, as the game keeps them: points per match, three
+	/// for a win, one for a draw. Drawn as coloured letters.
+	/// </summary>
+	private static async Task<string> Form()
+	{
+		try
+		{
+			var points = await Fm.Numbers("Human.Team.RecentFormValuesAllComps");
+			return string.Join(" ", points.Select(p => p switch
+			{
+				3 => "[black on green1] G [/]",
+				1 => "[black on grey] B [/]",
+				0 => "[white on red] M [/]",
+				_ => $"[dim]{p}[/]",
+			}));
+		}
+		catch (FmError)
+		{
+			return "";
 		}
 	}
 
