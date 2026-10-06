@@ -58,36 +58,41 @@ fm start        oyunu başlat, kaydı yükle, oturuma gir
 fm              oturuma gir (oyun açıkken)
 
 continue        açık oyunda son kaydı yükle
-squad           kadroyu bas
+squad           kadro: terminalde kondisyon ve maç formu çubuklu (ekran açmadan)
   --fitness     kondisyon ve maç formu, en yorgun önce
   --morale      moral, hiyerarşi ve sosyal grup
   --views       tablonun bütün görünümleri;  --view "<ad>": o görünümün kolonları
-player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla)
+player <isim>   oyuncu kartı: kimlik, sözleşme, mevki sahası, renkli özellikler (kadro dışıysa aramayla)
+  --actions     teklif, kısa liste, scout, menajer… (terminalde okla seçilir)
+offer <oyuncu> <bonservis>  transfer teklifi (ör. 7.5M);  --loan kiralık, --dry gönderme, --yes script'te
 search <metin>  oyunun araması: oyuncu, kulüp, turnuva
 players         oyuncu veritabanı;  --filter "<x>" hazır süzgeç,  --view "<x>" kolonlar
 table           lig tablosu
 fixtures        sıradaki maçlar
+report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
 inbox           gelen kutusu
-reply <#>       mesajın cevaplarını göster ve seçimi sor (x: vazgeç)
+reply <#>       mesajın cevaplarını göster ve okla seçtir
 reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
-talk            açık konuşma (toplantı, basın toplantısı, takım konuşması): ne dendi, seçenekler
+talk            açık konuşma (toplantı, basın toplantısı, takım konuşması): terminalde baştan sona okla yürür
 talk <no>       söyle;  talk leave: çık
 tour            açık tanıtım turunu yürüt;  --skip: atla
 next [n]        zamanı ilerlet, oyunun durmasını bekle, ne olduğunu söyle
-match           maç gününü oyna: kadroyu gönder, maçı izle, maçtan çık;  --talk: konuşmalarda konuş
+match           maç günü: terminalde "izle mi, anında sonuç mu" diye sorar; izlerken kadro sahada,
+                konuşmalarda söz senin, anlatım, skor ve maç sonu raporu
+  --play        izle (script'te konuşmada durur: talk <no>, sonra match);  --no-talk konuşmaları geç
   --instant     maçı oynatma, yardımcılara bırak (birkaç saniye)
 sub             maç sırasında sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
 dialog [cevap]  açık onay penceresini göster ya da cevapla
-status          tarih, saat ve oyunun neyi beklediği
+status          takım, tarih, sıradaki maç, form ve oyunun neyi beklediği
 save --yes      oyunu kaydet (dosyanın üzerine yazar)
 
-tactic                      taktik: stil, mentalite, on bir mevki, roller, oyuncular
+tactic                      taktik: terminalde topla / topsuz iki saha, mevkiler, roller, oyuncular
 tactic new "<stil>" "<topla diziliş>" "<topsuz diziliş>"   taktik oluştur (eksik adımı listeler)
 tactic mentality [<x>]      mentaliteyi göster / değiştir;  tactic style [<x>] aynısı stil için
 tactic role <mevki> [<rol>] mevkinin rolünü göster / değiştir (--oop: topsuz rol)
 tactic player <mevki> <oyuncu>  yedeklerden birini o mevkiye koy
 tactic pick                 ilk 11'i oyuna seçtir
-setpieces new [<no> …]      duran top rutinlerini kur (altı soru)
+setpieces new [<no> …]      duran top rutinlerini kur (altı soru; terminalde okla sorar)
 
 pages           oyunun bütün sayfaları (77)
 open "<sayfa>"  sayfayı aç
