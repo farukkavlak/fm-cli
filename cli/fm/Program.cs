@@ -302,6 +302,9 @@ internal static partial class Program
 			return 0;
 		}
 
+		if (Ui.Rich) InboxView.Draw(inbox);
+		else
+		{
 		var rows = inbox.EnumerateArray()
 			.Select((m, i) => new[]
 			{
@@ -314,6 +317,7 @@ internal static partial class Program
 			.ToList();
 
 		Table.Write(new[] { "#", "SAAT", "GÖNDEREN", "KONU", "" }, rows);
+		}
 
 		var waiting = inbox.EnumerateArray().Count(Blocking);
 		if (waiting > 0)
@@ -733,13 +737,13 @@ internal static partial class Program
 	/// A message holds the game up when it is a priority one still unanswered. Being answerable
 	/// is not enough: some messages only offer something optional, like cancelling a camp.
 	/// </summary>
-	private static bool Blocking(JsonElement message) =>
+	internal static bool Blocking(JsonElement message) =>
 		Field(message, "NewsItemIsPriority") == "True" && Answerable(message);
 
 	private static bool StillAnswerable(JsonElement inbox, string id) =>
 		inbox.EnumerateArray().Any(m => Field(m, "UniqueId") == id && Answerable(m));
 
-	private static bool Answerable(JsonElement message) =>
+	internal static bool Answerable(JsonElement message) =>
 		Field(message, "CanRespond") == "True" && Field(message, "NewsHasResponded") != "True";
 
 	private static string Flags(JsonElement message)
