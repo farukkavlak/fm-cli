@@ -413,7 +413,11 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine($"{title}\n");
+			// What the message says comes before what can be said back: an answer such as
+			// "Accept" means nothing without the terms it accepts.
+			Console.WriteLine(title);
+			if (Field(chosen, "NewsFirstBubbleSpeechString") is { Length: > 0 } says) Console.WriteLine($"  {says.Replace("\n", "\n  ")}");
+			Console.WriteLine();
 			if (!Ui.Interactive) Options(Console.Out);
 
 			// At a terminal the choice is asked for on the spot. A script gets the listing and

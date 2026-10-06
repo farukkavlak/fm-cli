@@ -144,6 +144,14 @@ internal static partial class Program
 		{
 			case "NeedAction":
 				var blocking = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
+				if (blocking.Count == 0)
+				{
+					// Something to do that no message holds: a deal to go on with, a screen to finish.
+					output.WriteLine(button is { Length: > 0 }
+						? $"Oyun bir adım bekliyor: \"{button}\". Yapmak için: press \"{button}\"   (ekrandakiler: buttons)"
+						: "Oyun bir adım bekliyor ama ne olduğunu söylemiyor. Ekrandakiler için: buttons");
+					return;
+				}
 				output.WriteLine($"Bloke: {blocking.Count} mesaj cevap bekliyor.");
 				foreach (var message in blocking)
 					output.WriteLine($"  {Field(message, "NewsItemTimeSent")}  {Field(message, "NewsTitleString")}");
