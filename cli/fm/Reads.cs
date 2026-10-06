@@ -196,6 +196,11 @@ internal static partial class Program
 		}
 
 		var player = card.GetProperty("Player");
+		var traits = card.GetProperty("Traits").EnumerateArray().Select(t => t.GetString()).ToList();
+		if (!Ui.Rich) PlainHeader();
+
+		void PlainHeader()
+		{
 		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Field(player, "SquadNumber")), Suffixed(Field(player, "Age"), " yaş"),
 			Field(player, "Nation"), Field(player, "PositionCombinedStringLong")));
 		Console.WriteLine(Line(" · ", Prefixed("Değer ", Field(player, "Value")), Prefixed("Maaş ", Field(player, "Wage")),
@@ -207,8 +212,8 @@ internal static partial class Program
 		var injury = Field(player, "InjuryDescription");
 		if (injury.Length > 0) Console.WriteLine($"Sakatlık: {injury}");
 
-		var traits = card.GetProperty("Traits").EnumerateArray().Select(t => t.GetString()).ToList();
 		if (traits.Count > 0) Console.WriteLine($"Alışkanlıklar: {string.Join("; ", traits)}");
+		}
 
 		// The page lays its attributes out in blocks, but binds them in no order that says which
 		// block is which. The mental, physical and set piece attributes are the same fourteen,
@@ -219,7 +224,11 @@ internal static partial class Program
 		string[] setPieces = ["Corners", "Free Kick Taking", "Long Throws", "Penalty Taking"];
 
 		var all = card.GetProperty("Attributes").EnumerateArray().OrderBy(a => Field(a, "Name")).ToList();
-		if (all.Count == 0) return 0;
+		if (all.Count == 0)
+		{
+			if (Ui.Rich) Card.Draw(player, traits, []);
+			return 0;
+		}
 
 		var first = Field(player, "IsGoalkeeper") == "True" ? "KALECİLİK" : "TEKNİK";
 		string[] titles = [first, "ZİHİNSEL", "FİZİKSEL", "DURAN TOP"];
@@ -230,6 +239,12 @@ internal static partial class Program
 			all.Where(a => physical.Contains(Field(a, "Name"))).ToList(),
 			all.Where(a => setPieces.Contains(Field(a, "Name"))).ToList(),
 		];
+
+		if (Ui.Rich)
+		{
+			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList());
+			return 0;
+		}
 
 		var headers = new List<string>();
 		for (var b = 0; b < blocks.Count; b++)
