@@ -426,6 +426,13 @@ internal static partial class Program
 		Console.WriteLine($"Stil: {Field(header, "Style")} · Mentalite: {Field(header, "MentalityString")}"
 		                  + $" · Yoğunluk: {Field(header, "TacticalIntensity")} · Alışkanlık: {Field(header, "TacticalFamiliarity")}\n");
 
+		if (Ui.Rich)
+		{
+			Pitch.Draw(tactic);
+			if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine($"\nYedekler: {string.Join(", ", benched)}");
+			return 0;
+		}
+
 		var rows = tactic.GetProperty("Slots").EnumerateArray().Select(slot => new[]
 		{
 			Spot(Field(slot, "IPPosition")),
@@ -437,16 +444,29 @@ internal static partial class Program
 
 		Table.Write(["TOPLA", "ROL", "TOPSUZ", "ROL", "OYUNCU"], rows);
 
-		// The match squad lists the eleven first; whoever comes after is on the bench.
-		if (tactic.TryGetProperty("Squad", out var squad))
-		{
-			var bench = squad.EnumerateArray()
-				.Where(e => int.TryParse(Field(e, "Index"), out var place) && place >= rows.Count && Field(e, "PlayerIndex") != "-1")
-				.Select(e => Field(e, "Name"))
-				.ToList();
-			if (bench.Count > 0) Console.WriteLine($"\nYedekler: {string.Join(", ", bench)}");
-		}
+		if (Bench(tactic) is { Count: > 0 } bench) Console.WriteLine($"\nYedekler: {string.Join(", ", bench)}");
 		return 0;
+	}
+
+	/// <summary>After a change, the pitch with what changed marked, for someone at a terminal.</summary>
+	private static async Task ShowChange(HashSet<(int, bool)> changed)
+	{
+		if (!Ui.Rich) return;
+		var tactic = await Fm.GetJson("tactic");
+		if (!tactic.TryGetProperty("Slots", out _)) return;
+		Console.WriteLine();
+		Pitch.Draw(tactic, changed);
+	}
+
+	/// <summary>The match squad lists the eleven first; whoever comes after is on the bench.</summary>
+	private static List<string> Bench(JsonElement tactic)
+	{
+		if (!tactic.TryGetProperty("Squad", out var squad)) return [];
+		var eleven = tactic.GetProperty("Slots").GetArrayLength();
+		return squad.EnumerateArray()
+			.Where(e => int.TryParse(Field(e, "Index"), out var place) && place >= eleven && Field(e, "PlayerIndex") != "-1")
+			.Select(e => Field(e, "Name"))
+			.ToList();
 	}
 
 	/// <summary>
@@ -507,6 +527,7 @@ internal static partial class Program
 		var took = await Until(async () =>
 			(await Fm.GetJson("tactic")).TryGetProperty("Slots", out var now) && now.GetArrayLength() > at && Field(now[at], "PlayerIndex") == player, seconds: 8);
 		Console.WriteLine(took ? $"{spot}: {(current.Length > 0 ? current : "boş")} → {name}" : $"{name} seçildi ama {spot} hâlâ {current} gösteriyor.");
+		if (took) await ShowChange([(at, false), (at, true)]);
 		return took ? 0 : 1;
 	}
 
@@ -670,6 +691,7 @@ internal static partial class Program
 		}, seconds: 8);
 
 		Console.WriteLine(took ? $"{spot} ({phase}): {current} → {pick}" : $"{pick} seçildi ama taktik hâlâ {Role(now)} gösteriyor.");
+		if (took) await ShowChange([(at, withoutBall)]);
 		return took ? 0 : 1;
 
 		// "Ball-Playing Goalkeeper" and "OPBallPlayingGoalkeeper" name the same role.
@@ -714,6 +736,19 @@ internal static partial class Program
 		}, seconds: 12);
 		var names = Eleven(tactic);
 		Console.WriteLine(full ? $"İlk 11 seçildi: {string.Join(", ", names)}" : $"Quick Pick'e basıldı ama {names.Count} oyuncu seçili.");
+
+		// Whoever the game moved in is marked, so a pick that changed two places shows as two.
+		if (full && Ui.Rich)
+		{
+			var was = before.GetProperty("Slots").EnumerateArray().Select(s => Field(s, "PlayerIndex")).ToList();
+			var moved = tactic.GetProperty("Slots").EnumerateArray()
+				.Select((s, i) => (Index: i, Player: Field(s, "PlayerIndex")))
+				.Where(s => s.Index >= was.Count || was[s.Index] != s.Player)
+				.SelectMany(s => new[] { (s.Index, false), (s.Index, true) })
+				.ToHashSet();
+			Console.WriteLine();
+			Pitch.Draw(tactic, moved);
+		}
 		return full ? 0 : 1;
 
 		static List<string> Eleven(JsonElement tactic) =>
@@ -726,7 +761,7 @@ internal static partial class Program
 	/// A pitch position from the game's bit mask, in the abbreviations players use. A central
 	/// position carries a second bit saying which side of centre it is on.
 	/// </summary>
-	private static string Spot(string mask)
+	internal static string Spot(string mask)
 	{
 		if (!long.TryParse(mask, out var bits)) return mask;
 
@@ -746,7 +781,7 @@ internal static partial class Program
 	}
 
 	/// <summary>"OPPressingCentralMidfielder" → "Pressing Central Midfielder".</summary>
-	private static string Role(string entry)
+	internal static string Role(string entry)
 	{
 		if (entry.StartsWith("OP", StringComparison.Ordinal) && entry.Length > 2 && char.IsUpper(entry[2])) entry = entry[2..];
 
