@@ -246,10 +246,61 @@ internal static partial class Program
 		}
 		if (flow == "CanContinue" && (await Bound("inbox", "PortalScreen")).EnumerateArray().Any(Blocking)) flow = "NeedAction";
 
-		Console.WriteLine($"FM açık, kayıt yüklü. {Pretty(Field(state, "Date"))} {Time(state)}");
+		var next = await NextMatch(Field(state, "Date"));
+		if (Ui.Rich)
+		{
+			var (team, _) = await Fm.OwnTeam();
+			var manager = Field(await Fm.Pull("Human", "Name"), "Name");
+			var lines = new List<string> { $"[bold]{Ui.Safe(Pretty(Field(state, "Date")))}[/] {Time(state)}" };
+			if (next != null) lines.Add($"[dim]Sıradaki maç:[/] {Ui.Safe(next)}");
+			Ui.Out.Write(new Spectre.Console.Panel(new Spectre.Console.Markup(string.Join("\n", lines)))
+			{
+				Header = new Spectre.Console.PanelHeader($" [bold yellow]{Ui.Safe(team)}[/] [dim]·[/] {Ui.Safe(manager)} "),
+				Border = Spectre.Console.BoxBorder.Rounded,
+				BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey),
+				Padding = new Spectre.Console.Padding(1, 0, 1, 0),
+			});
+		}
+		else
+		{
+			Console.WriteLine($"FM açık, kayıt yüklü. {Pretty(Field(state, "Date"))} {Time(state)}");
+			if (next != null) Console.WriteLine($"Sıradaki maç: {next}");
+		}
 		if (Passable(flow)) Console.WriteLine("İlerlemeye hazır: next");
 		else await Explain(state, Console.Out, flow);
 		return 0;
+	}
+
+	/// <summary>
+	/// "Sarıyer · tarafsız saha · Friendly · 7 Temmuz Pazartesi 14:00 (7 gün sonra)", read from
+	/// the team's next fixture without opening a screen. The fixture's own date is a packed
+	/// value, so the day is counted on from today by the distance the game gives.
+	/// </summary>
+	private static async Task<string> NextMatch(string today)
+	{
+		try
+		{
+			var fixture = await Fm.Pull("Human.Team.NextFixture", "KickoffTime,MatchVenueShort,FixtureDateDistanceInDays,IsFutureMatch");
+			if (Field(fixture, "IsFutureMatch") != "True") return null;
+
+			var opponent = Field(await Fm.Pull("Human.Team.NextFixture.TeamOpponent", "Name"), "Name");
+			var competition = Field(await Fm.Pull("Human.Team.NextFixture.Competition", "Name"), "Name");
+			var venue = Field(fixture, "MatchVenueShort") switch { "H" => "iç saha", "A" => "deplasman", "N" => "tarafsız saha", var other => other };
+
+			var days = int.TryParse(Field(fixture, "FixtureDateDistanceInDays"), out var d) ? d : -1;
+			var when = days switch { 0 => "bugün", 1 => "yarın", > 1 => $"{days} gün sonra", _ => "" };
+			var day = DateTime.TryParseExact(today, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var now) && days >= 0
+				? $"{now.AddDays(days).Day} {Months[now.AddDays(days).Month - 1]} {Days[(int)now.AddDays(days).DayOfWeek]} "
+				: "";
+
+			var parts = new[] { opponent, venue, competition, $"{day}{Field(fixture, "KickoffTime")}".Trim() }.Where(p => p.Length > 0);
+			return string.Join(" · ", parts) + (when.Length > 0 ? $" ({when})" : "");
+		}
+		catch (FmError)
+		{
+			// An older plugin has no /pull; the status is still worth giving without it.
+			return null;
+		}
 	}
 
 	/// <summary>"2025-07-01" → "1 Temmuz 2025 Salı".</summary>
