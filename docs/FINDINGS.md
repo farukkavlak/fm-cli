@@ -2015,7 +2015,21 @@ Yol, oyuncunun sayfasından:
 
 Denendi: Icardi'ye £7.25M (elle), Kerem Demirbay'a £1.5M (`fm offer … --yes`).
 
-**Bonservisi yazmak çözülmedi.** Kutunun + / −'si `EventFmxIncrement/DecrementCashValue`
+**Bonservisi yazmak — çözüldü (gecenin sonunda).** `FMCombobox` yazılanı ancak sayı alanı
+**odağı kaybedince** alıyor (`OnLostFocusInput`); odağı kazanınca da girişi açıyor
+(`OnGainFocusInput`). Oyun küçültülü olduğu için gerçek odak hiç oluşmuyor, `Focus()`/`Blur()`
+bir şey yapmıyor. Olayları elle üretip kutunun kendi işleyicilerine vermek yetti:
+
+```csharp
+box.OnGainFocusInput(FocusEventBase<FocusInEvent>.GetPooled(field, null, FocusChangeDirection.unspecified, box.focusController, false));
+field.value = 1500000;
+box.OnLostFocusInput(FocusEventBase<FocusOutEvent>.GetPooled(field, null, FocusChangeDirection.unspecified, box.focusController, false));
+```
+
+Kutu "£1.5M" gösterdi; `fm offer … 2.25M` 22 saniyede gitti (eskiden ~2 dk). Aynı desen odakla
+çalışan başka kutularda da (metin alanları dahil) işe yarayabilir.
+
+Önceki denemeler (kayıt için): Kutunun + / −'si `EventFmxIncrement/DecrementCashValue`
 gönderiyor; adım tutarla büyüyor (0'dan 1, 2, …; £6.75M'de £0.25M, yaklaşık %4). `fm offer`
 tutarı bununla yürüyor: £40K'dan £1.5M'ye ~2 dk. Yazma denemeleri (`/setnumber`):
 
@@ -2025,9 +2039,6 @@ tutarı bununla yürüyor: £40K'dan £1.5M'ye ~2 dk. Yazma denemeleri (`/setnum
 | Focus → değer → Blur | aynı |
 | Doğrulama verisini (`…cash-list-remapper.combobox-validation`) sayıyla doldurup `ValidateValueEvents`'i ateşlemek | event gitti, teklif değişmedi |
 | `OnNumericValueChanged(key, value)` doğrudan | aynı; ⚠ değeri havuzdaki `TypedValue` üzerinde yerinde değiştirdiğim için oyun kilitlendi, kaldırıldı |
-
-Sıradaki deneme: `EventFmxValidateCashValue`'nun beklediği veri tipi (muhtemelen yazılan metin,
-"1.5m"), ya da `DisplayValuePair`/`cashselection` referansının kendisi.
 
 ## 9. Sıradaki adımlar
 

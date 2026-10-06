@@ -66,11 +66,21 @@ internal static partial class Program
 			await Task.Delay(TimeSpan.FromSeconds(2));
 		}
 
-		// The fee box moves in steps that grow with the amount, about one in twenty-five, so
-		// it is walked there with its own + and −. Typing the amount in would be quicker, but
-		// a typed number does not reach the game yet (FINDINGS §8.42).
+		// The amount is typed into the fee box, which takes it when it loses focus (FINDINGS
+		// §8.42). The game may round it, so it is read back; should typing not take, the box's
+		// own + and − walk it there, in steps of about one in twenty-five.
 		var fee = await Fee();
-		if (target is { } goal && fee != null)
+		if (target is { } typed && fee != typed && await FeeBox() is { } box)
+		{
+			var set = await Fm.Get("setnumber", ("ptr", Field(box, "Pointer")), ("value", typed.ToString(CultureInfo.InvariantCulture)));
+			if (!set.StartsWith("error", StringComparison.Ordinal))
+			{
+				var was = fee;
+				await Until(async () => (fee = await Fee()) != was, seconds: 4);
+			}
+		}
+
+		if (target is { } goal && fee != null && fee != goal)
 		{
 			string plus = null, minus = null;
 			foreach (var control in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())

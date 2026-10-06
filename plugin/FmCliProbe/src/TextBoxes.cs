@@ -91,9 +91,9 @@ internal static class TextBoxes
 /// <summary>
 /// The game's number boxes, the money ones on an offer: an FMCombobox around a LongField.
 ///
-/// ⚠ Setting the number does not reach the game yet (FINDINGS §8.42): the field takes it and
-/// the validation event goes, but the offer keeps its amount. inspect=1 shows what the box is
-/// bound to. Writing into the box's bound values in place hung the game, so that is not done.
+/// The box commits a typed number when its field loses focus (FINDINGS §8.42). inspect=1 shows
+/// what the box is bound to. Writing into its bound values in place hung the game, so that is
+/// not done.
 /// </summary>
 internal static class NumberBoxes
 {
@@ -121,11 +121,29 @@ internal static class NumberBoxes
 
 		// As a person does it: into the box, the number in, and out again. Leaving the box is
 		// what sends the amount; setting the field alone changes nothing the game sees.
-		try { box.Focus(); field.Focus(); } catch { }
+		// The box listens for its number field gaining and losing focus, and only commits
+		// what was typed when it loses it. A minimised game moves no real focus, so the two
+		// events are made and handed to the box's own handlers.
+		var log = "";
+		try
+		{
+			var into = FocusEventBase<FocusInEvent>.GetPooled(field.Cast<IEventHandler>(), null, FocusChangeDirection.unspecified, box.focusController, false);
+			box.OnGainFocusInput(into.Cast<FocusInEvent>());
+			log += " focus-in";
+		}
+		catch (Exception ex) { log += $" focus-in threw {ex.GetType().Name}"; }
+
 		field.value = value;
-		try { field.Blur(); box.Blur(); } catch { }
-		box.TryTriggerValidationEvent();
-		return $"set {value} (was {before})";
+
+		try
+		{
+			var away = FocusEventBase<FocusOutEvent>.GetPooled(field.Cast<IEventHandler>(), null, FocusChangeDirection.unspecified, box.focusController, false);
+			box.OnLostFocusInput(away.Cast<FocusOutEvent>());
+			log += " focus-out";
+		}
+		catch (Exception ex) { log += $" focus-out threw {ex.GetType().Name}"; }
+
+		return $"set {value} (was {before}){log}";
 	}
 
 	/// <summary>What the box is bound to: its value, its selection, and the data its validation event sends.</summary>

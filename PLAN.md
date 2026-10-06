@@ -446,9 +446,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 **Kayıplar / engeller**
 
-- **Bonservisi yazmak çözülmedi** (§8.42). Kutuya sayı yazılıyor ama teklife geçmiyor; `fm offer`
-  tutarı + / − ile yürüyor, £40K'dan £1.5M'ye ~2 dk. Denemelerden biri oyunun değer nesnesini
-  yerinde değiştirdi ve ana thread kilitlendi; o kod kaldırıldı.
+- **Bonservisi yazmak** uzun sürdü ama sonunda çözüldü (§8.42): kutu tutarı odak kaybında
+  alıyor, odak olayları elle üretilince `fm offer` 22 sn'ye indi. Yoldaki denemelerden biri
+  oyunun değer nesnesini yerinde değiştirdi ve ana thread kilitlendi; o kod kaldırıldı.
 - **Oyun bir kez çöktü**: açıkken plugin DLL'inin üzerine kopyaladım. Kayıttan sonraki Demirbay
   teklifi o yüzden kayıtta yok.
 - "Club vision" mesajında **Negotiate** ayrı bir pazarlık ekranı açıyor, `talk` onu cevapsız
