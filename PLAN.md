@@ -10,7 +10,7 @@ aranmadı demek, yok demek değil.
 
 ---
 
-## Sıradaki işler (2026-10-06)
+## Sıradaki işler (2026-10-07)
 
 Sıra, "en çok şeyin önünü açan önce" mantığıyla. Her adım bitince buradan silinip aşağıdaki
 ilgili bölümde `[x]` olur, günlüğe bir satır düşülür.
@@ -20,8 +20,13 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 "basılıyor". Yeni bir alan açmak = `fm open "<sayfa>"`, `fm buttons` ile bak, `fm press` ile dene.
 77 sayfanın listesi `docs/reference/screens.txt`'te.
 
-0. **UX ve görselleştirme** — yön kararı (yukarıda "Ürün kararları", ayrıntı §14). Yeni komut
-   eklemeden önce var olanların akıcı ve görsel hale gelmesi.
+**Okuma için artık ekran gerekmiyor** (§8.40): `/pull?path=<yol>&props=<a,b>[&list=1]`. Hangi
+referansın hangi property'si olduğu `/schema`'da. Yeni bir okuma komutu önce buradan denenmeli;
+ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
+
+0. **UX ve görselleştirme** — yön kararı (yukarıda "Ürün kararları", ayrıntı §14). Büyük kısmı
+   7 Ekim gecesi yapıldı (günlük). Kalan: maç ekranında on bir ve kulübe, fikstür renkleri,
+   form; otomatik kayıt ve maç hızı ayarları (karar bekliyor).
 1. **Maç içi yönetimin kalanı.** `fm sub` oyuncu değiştiriyor (§8.34). Kalan: sakatlık
    durağını `fm match`'in kendisinin geçmesi (sub + "Confirm Changes"), maç içi mentalite / rol /
    shout (hepsi alt menülü listeler, seçim yolu belli), "Dugout" tavsiyelerini okumak, maç hızı.
@@ -401,6 +406,72 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-07 (gece, otonom)
+
+**Kazanımlar**
+
+- **Görselleştirme: Spectre.Console.** Terminalde çizim var, pipe/script/MCP'de düz çıktı aynen
+  kaldı (`Ui.Rich`). `fm tactic` iki sahayı yan yana çiziyor; rol / oyuncu / Quick Pick
+  değişince değişen mevki sarı. Oyuncu kartı: mevki sahası, renkli özellik çubukları, scout
+  aralığı gölgeli. Lig tablosu: Avrupa / küme düşme bölgeleri, takımımız vurgulu. Gelen kutusu:
+  okunmamış kalın, bekleyen kırmızı, mesajın ilk cümlesi altında. Bütün düz tablolar çerçeveli.
+- **Okla seçim.** reply, talk, dialog, sub, tactic new / mentality / style / role / player,
+  setpieces new, match, player --actions: eksik seçimi terminalde okla soruyor, son satır hep
+  "vazgeç". `talk` konuşmayı baştan sona yürütüyor; basın toplantısı ve beklentiler toplantısı
+  böyle oynandı. Her cümleden sonra tepkilerin ne kadar oynadığı görünüyor.
+- **Ekran açmadan veri (FINDINGS §8.40) — gecenin asıl kilidi.** `ReadOnlySpan<char>`'ı elle
+  kurup oyunun yol alan metodlarını il2cpp'den doğrudan çağırınca `Bindings.Bind(path)` çalıştı.
+  `/pull?path=…&props=…[&list=1]` herhangi bir referansın ya da listenin property'lerini okuyor:
+  `Human.Team.Name`, sıradaki maç, son maçın istatistikleri, kadronun kondisyonu… Ekranlar
+  birbirini bozmuyor, maç sürerken bile okunuyor.
+- **Bunun üstüne:** `fm status` takım, menajer ve sıradaki maçı bir panelde veriyor; `fm squad`
+  ekransız ve çubuklu; yeni **`fm report`** son maçın skorunu, gollerini, maçın oyuncusunu ve
+  istatistiklerini iki taraf yan yana veriyor.
+- **Maç günü kararlara göre.** `fm match` terminalde "izle mi, anında sonuç mu" diye soruyor;
+  izlerken kadroyu sahada gösterip onay alıyor, ilk 11 yoksa yardımcıya seçtirmeyi teklif
+  ediyor, her konuşmada cümleyi sorduruyor (ya da geçiliyor), anlatımı (gol tekrarları ayıklanmış)
+  ve takım adlı skoru basıyor, maç sonu raporla bitiyor. Script / MCP: `--play` konuşmada durup
+  seçenekleri veriyor (`talk <no>`, sonra `match`), `--no-talk` geçiyor, `--instant` simüle
+  ettiriyor. `--talk` (ilk cümleyi söyle) kaldırıldı. MCP'de `mode` artık zorunlu.
+- **Transfer teklifi: `fm offer <oyuncu> <bonservis>`** (`--loan`, `--dry`, script'te `--yes`).
+  Oyuncu sayfası → değer butonu → Make An Offer → bonservis → Make Offer. İki gerçek teklif
+  gitti (Icardi £7.25M → yönetim "rakip kulüp" diye engelledi; Demirbay £1.5M). `fm player
+  <isim> --actions` kısa liste, scout, teklif gibi aksiyonları okla sunuyor.
+- **Oynanan:** Sarıyer 0-4 (izlendi, üç konuşma seçildi), Boluspor 0-1 (anında sonuç),
+  Adana D.S. (script modu). Tanıtım turlarının hepsi, basın toplantısı, beklentiler toplantısı,
+  kamp kadrosu, davranış kuralları.
+- Düzeltmeler: `fm player Kerem` kadrodaki oyuncuyu bulamıyordu (tablo satırları parça parça
+  doluyor); taktik sihirbazının ilk "Confirm"ü turda yutuluyordu; `next N` boş adım gürültüsü.
+
+**Kayıplar / engeller**
+
+- **Bonservisi yazmak çözülmedi** (§8.42). Kutuya sayı yazılıyor ama teklife geçmiyor; `fm offer`
+  tutarı + / − ile yürüyor, £40K'dan £1.5M'ye ~2 dk. Denemelerden biri oyunun değer nesnesini
+  yerinde değiştirdi ve ana thread kilitlendi; o kod kaldırıldı.
+- **Oyun bir kez çöktü**: açıkken plugin DLL'inin üzerine kopyaladım. Kayıttan sonraki Demirbay
+  teklifi o yüzden kayıtta yok.
+- "Club vision" mesajında **Negotiate** ayrı bir pazarlık ekranı açıyor, `talk` onu cevapsız
+  görüyor. Vizyon kabul edildi; pazarlık ekranı keşfedilmedi.
+- Fikstürde sonuç renkleri yok: `ResultType` = 1 galibiyet görünüyor, beraberlik / yenilgi
+  değeri henüz görülmedi.
+
+**Kayıt dosyasının durumu**
+
+- Gece başında yedek: `~/fm26_bep/save-backups/Faruk Kavlak - Fenerbahçe.2026-10-06-night-start.fm`
+  (30 Haziran 2025).
+- Ana kayıt `fm save --yes` ile **7 Temmuz 2025, Sarıyer maçından sonra** kaydedildi; sonrası
+  oyunun kendi haftalık otomatik kaydına kaldı.
+
+**Karar bekleyenler**
+
+1. **Otomatik kayıt ayarı**: oyunda "her hafta" açık (`game.AutosaveModeAndIntervalString`).
+   Kullanıcıya nasıl sorulsun: `fm settings autosave` gibi bir komut mu, ilk `fm start`'ta bir
+   kerelik soru mu? Değiştirmek Preferences ekranından; henüz yazılmadı.
+2. **Maç hızı**: `settings.MatchSpeedDuringHighlights` 1.5 (en çok 10). İzlenen bir maç ~10 dk
+   sürüyor. Hızlandırmak bir oyun ayarı, kullanıcının seçimi; komutu yazılsın mı?
+3. **`fm player` sonrası aksiyon menüsü** şimdilik `--actions` bayrağıyla; kartın altında hep
+   sorsun mu, yoksa bayrakta mı kalsın?
 
 ### 2026-10-06 (gece, otonom)
 
