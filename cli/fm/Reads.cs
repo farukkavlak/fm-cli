@@ -632,8 +632,8 @@ internal static partial class Program
 
 		if (Ui.Rich)
 		{
-			// The game marks each result by what it was for us: 1 a win, 10 a defeat; a draw's
-			// mark has not been seen yet, so anything else is left uncoloured.
+			// The game marks each result by what it was for us: 1 a win, 3 a win on penalties,
+			// 10 a defeat; a draw's mark has not been seen yet, so anything else is left uncoloured.
 			var kinds = fixtures.EnumerateArray().Where(fixture => Field(fixture, "Date") != "").Select(f => Field(f, "ResultType")).ToList();
 			Standings.Fixtures(["TARİH", "SAAT", "YER", "RAKİP", "TURNUVA", "SONUÇ"], rows, kinds);
 			return 0;

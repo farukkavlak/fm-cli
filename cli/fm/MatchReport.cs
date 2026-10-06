@@ -22,7 +22,7 @@ internal static class MatchReport
 	public static async Task<int> Show(Bridge fm, bool json)
 	{
 		const string at = "Human.Team.LastFixture";
-		var fields = string.Join(",", new[] { "HasResult", "HomeScore", "AwayScore", "GoalscorersString", "PlayerOfTheMatchRating", "Attendance" }
+		var fields = string.Join(",", new[] { "HasResult", "HomeScore", "AwayScore", "GoalscorersString", "PlayerOfTheMatchRating", "Attendance", "Result", "HomeTeamWon", "AwayTeamWon" }
 			.Concat(Numbers.SelectMany(n => new[] { "Home" + n.Field, "Away" + n.Field })));
 
 		var fixture = await fm.Pull(at, fields);
@@ -45,6 +45,12 @@ internal static class MatchReport
 
 		var score = $"{F(fixture, "HomeScore")}-{F(fixture, "AwayScore")}";
 
+		// A draw settled on penalties: the game marks the result with a "p" and says who won.
+		var shootout = F(fixture, "Result").EndsWith(" p", StringComparison.Ordinal)
+			? F(fixture, "HomeTeamWon") == "True" ? home : F(fixture, "AwayTeamWon") == "True" ? away : null
+			: null;
+		if (shootout != null) score += " (pen.)";
+
 		// Each side's goals, from its own list of match events; the fixture's scorers string
 		// only names the team it is read for.
 		var homeGoals = await Goals(fm, at + ".HomeEventInfos");
@@ -57,6 +63,7 @@ internal static class MatchReport
 		if (!Ui.Rich)
 		{
 			Console.WriteLine($"{home} {score} {away}" + (competition.Length > 0 ? $"  ({competition})" : ""));
+			if (shootout != null) Console.WriteLine($"Penaltılarla kazanan: {shootout}");
 			if (scorers.Length > 0) Console.WriteLine($"Goller: {scorers.Replace("\n", "; ")}");
 			if (star.Length > 0) Console.WriteLine($"Maçın oyuncusu: {star}" + (rating.Length > 0 ? $" ({rating})" : ""));
 			foreach (var (label, field) in Numbers)
@@ -92,6 +99,7 @@ internal static class MatchReport
 		string Side(string team) => team == own ? $"[yellow]{Ui.Safe(team)}[/]" : Ui.Safe(team);
 		var lines = new List<string> { $"[bold]{Side(home)}  {score}  {Side(away)}[/]" };
 		if (competition.Length > 0) lines.Add($"[dim]{Ui.Safe(competition)}" + (F(fixture, "Attendance") is { Length: > 0 } crowd ? $" · {Ui.Safe(crowd)} seyirci" : "") + "[/]");
+		if (shootout != null) lines.Add($"[dim]Penaltılarla kazanan:[/] {Side(shootout)}");
 		if (scorers.Length > 0) lines.Add($"[dim]Goller:[/] {Ui.Safe(scorers.Replace("\n", " · "))}");
 		if (star.Length > 0) lines.Add($"[dim]Maçın oyuncusu:[/] {Ui.Safe(star)}" + (rating.Length > 0 ? $" [green1]{Ui.Safe(rating)}[/]" : ""));
 

@@ -55,7 +55,7 @@ internal static class Standings
 			if (result.Length > 0)
 				cells[^1] = (i < kinds.Count ? kinds[i] : "") switch
 				{
-					"1" => $"[black on green1] G [/] {result}",
+					"1" or "3" => $"[black on green1] G [/] {result}",
 					"10" => $"[white on red] M [/] {result}",
 					_ => $"[grey] · [/] {result}",
 				};

@@ -402,7 +402,9 @@ internal static partial class Program
 			period = current;
 		}
 
-		if (score != null && now != score)
+		// A goal is the numbers moving; the board's words change too once the sides are known.
+		static string Numbers(string board) => System.Text.RegularExpressions.Regex.Match(board, @"\d+-\d+").Value;
+		if (score != null && Numbers(now) != Numbers(score))
 		{
 			if (Ui.Rich) Ui.Line($"  [bold yellow]{Ui.Safe(Field(state, "MatchTime")),6}  GOL  {Ui.Safe(now)}{side}[/]");
 			else Console.WriteLine($"  {Field(state, "MatchTime")}  GOL  {now}{side}");
