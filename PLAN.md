@@ -458,7 +458,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   Kulüp pazarlıkla döndü, mesajın içine bakmadan "Accept" dedim: kabul edilen rakam £8.25M'miş.
   Sonra oyun "Negotiate Contract" beklerken genel Continue'ya basınca teklif geri çekildi.
   Düzeltmeler: `reply` artık mesajın ilk cümlesini cevaplardan önce basıyor; `status` bekleyen
-  adıma "bas" demiyor. Oyuncuyla sözleşme ekranı hâlâ keşfedilmedi (§8.42 sonu).
+  adıma "bas" demiyor.
+- **Sonra transfer zinciri baştan sona çalıştı:** Defrel (Modena, listede) £160K → kabul →
+  `fm contract`: menajer £9,250 istedi, £7,500 önerildi, kabul, imza. `fm register` sezon kadro
+  listesini yardımcıya seçtirip gönderiyor.
 - Fikstür renkleri: `ResultType` 1 galibiyet, 10 yenilgi; beraberlik değeri henüz görülmedi.
 
 **Kayıt dosyasının durumu**

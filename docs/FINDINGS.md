@@ -2050,6 +2050,23 @@ accepted" geliyor ve oyunun ilerle butonu **"Negotiate Contract"** oluyor. O dur
 Continue'ya basmak zamanı ilerletti ve teklif geri çekildi ("Fenerbahçe's offer has been
 withdrawn"). Oyuncuyla sözleşme ekranı açılmadı, keşfedilmedi.
 
+### Sözleşme görüşmesi: `fm contract` (çözüldü)
+
+"… offer accepted" mesajında **Enter Contract Negotiations** görüşmeyi açıyor. Görüşme iki
+adım: önce vaatler ("Add Promise" listesi, **Finalise Promises**), sonra **Negotiate Contract** ile
+şartlar. Şartlar ekranda `…Contract Negotiation Contents Block.BlockRemapper0.negotiation`
+altında bağlı (`ContractEditSessionReference`); her şart bir `{PropertyValue, DisplayValue}`
+kaydı: `Wage`, `EndDate`, `AgentFee`, `LoyaltyBonus`, `ContractStatus`. Ücret kutusu teklifteki
+gibi bir `FMCombobox` ("£9,250 p/w"), aynı odak yöntemiyle yazılıyor. Menajerin kendi şartları
+**Finalise Deal** ile kabul ediliyor; değiştirilmiş şartlar **Suggest Terms** ile öneriliyor, menajer
+kabul ederse sırada yine Finalise Deal, ardından Exit Talks.
+
+⚠ Bu noktada oyunun genel ilerle butonu da "Negotiate Contract" yazıyor (`continue-button`,
+`ContinueGame`). Etikete göre buton arayan kod onu bulup basınca görüşme kapanıyor, teklif geri
+çekiliyor. Görüşmenin kendi butonları `StandardButton` adını taşıyor; yalnızca onlara basılmalı.
+
+Denendi: Defrel, Modena'dan £160K; menajer £9,250/hafta istedi, £7,500 önerildi, kabul etti, imzalandı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
