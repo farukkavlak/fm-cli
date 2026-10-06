@@ -49,11 +49,22 @@ internal static partial class Program
 		}
 
 		await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
-		await Task.Delay(TimeSpan.FromSeconds(2));
 
-		if (await Labelled(confirmLabel) is not { } confirm)
+		// Confirm stays disabled until the list is complete, which the pick takes a moment over.
+		JsonElement? ready = null;
+		await Until(async () => (ready = await Labelled(confirmLabel)) != null, seconds: 12);
+		if (ready is not { } confirm)
 		{
-			Console.Error.WriteLine($"Ekranda '{confirmLabel}' yok.");
+			// The list breaks one of the competition's rules: say which, since what to leave
+			// out to meet it is the manager's call.
+			var broken = await BrokenRules();
+			if (broken.Count > 0)
+			{
+				Console.Error.WriteLine($"{what} gönderilemiyor, kurallar tutmuyor:");
+				foreach (var (rule, met) in broken) Console.Error.WriteLine($"  {(met ? "✓" : "✗")} {rule}");
+				Console.Error.WriteLine("Tutmayan kota için listeden oyuncu çıkarmak gerekiyor; kimin çıkacağı senin kararın (oyunda, Registration ekranı).");
+			}
+			else Console.Error.WriteLine($"Ekranda '{confirmLabel}' açılmadı.");
 			return 1;
 		}
 		await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
@@ -72,5 +83,23 @@ internal static partial class Program
 		await Fm.Get("click", ("ptr", Field(yes.Value, "Pointer")));
 		Console.WriteLine($"{what} yardımcının seçimiyle gönderildi.");
 		return 0;
+	}
+
+	/// <summary>The registration page's rules, each with whether the list meets it, in the page's order.</summary>
+	private static async Task<List<(string Rule, bool Met)>> BrokenRules()
+	{
+		static List<string> Values(string found) => found.Split('\n')
+			.Where(l => l.TrimStart().StartsWith("= (", StringComparison.Ordinal))
+			.Select(l => l[(l.IndexOf(") ", StringComparison.Ordinal) + 2)..].Trim())
+			.Select(v => v.EndsWith("[0]", StringComparison.Ordinal) || v.EndsWith("]", StringComparison.Ordinal) ? v[..v.LastIndexOf('[')].Trim() : v)
+			.ToList();
+
+		var rules = Values(await Fm.Get("find", ("name", "SquadSelectionRuleString"), ("limit", "20")));
+		var met = Values(await Fm.Get("find", ("name", "CurrentlyMeetsRule"), ("limit", "20")));
+
+		// The first "meets" is the whole list's; the rest go with the rules in order.
+		if (met.Count == rules.Count + 1) met = met.Skip(1).ToList();
+		if (met.Count != rules.Count) return [];
+		return rules.Zip(met, (r, m) => (r, m is "1" or "True")).ToList();
 	}
 }

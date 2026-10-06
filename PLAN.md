@@ -484,6 +484,11 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
    sürüyor. Hızlandırmak bir oyun ayarı, kullanıcının seçimi; komutu yazılsın mı?
 3. **`fm player` sonrası aksiyon menüsü** şimdilik `--actions` bayrağıyla; kartın altında hep
    sorsun mu, yoksa bayrakta mı kalsın?
+4. **Şampiyonlar Ligi kadro listesi (oyun burada bekliyor).** 3. ön eleme (Feyenoord) için liste
+   isteniyor; yardımcının 24 kişilik seçimi iki yerli kotasını tutturmuyor (Türkiye'de yetişmiş
+   en az 8, kulüpte yetişmiş en az 4). Tutmayan kotanın yeri boş kalmalı, yani yabancılardan
+   birkaçı listeden çıkmalı. Kimin çıkacağı senin kararın; `fm register` kuralları ✓/✗ ile
+   gösteriyor. Tek tek oyuncu çıkarma/ekleme komutu yok, istersen sıradaki iş o olabilir.
 
 ### 2026-10-06 (gece, otonom)
 
