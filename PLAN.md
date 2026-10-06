@@ -460,8 +460,12 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   Düzeltmeler: `reply` artık mesajın ilk cümlesini cevaplardan önce basıyor; `status` bekleyen
   adıma "bas" demiyor.
 - **Sonra transfer zinciri baştan sona çalıştı:** Defrel (Modena, listede) £160K → kabul →
-  `fm contract`: menajer £9,250 istedi, £7,500 önerildi, kabul, imza. `fm register` sezon kadro
-  listesini yardımcıya seçtirip gönderiyor.
+  `fm contract`: menajer £9,250 istedi, £7,500 önerildi, kabul, imza; "set to sign" mesajına
+  Accept, Defrel kadroda. `fm register` / `fm numbers` sezon kadro listesini ve forma
+  numaralarını yardımcıya yaptırıp gönderiyor (terminalde soruyor).
+- **Sakat / eksik on bir** artık maçı durdurmuyor: iki maç yolu da "Team Selection" uyarısını
+  tanıyıp yardımcıya yeniden seçtirmeyi teklif ediyor (önceden anında sonuç her denemede bir
+  uyarı daha biriktiriyordu).
 - Fikstür renkleri: `ResultType` 1 galibiyet, 10 yenilgi; beraberlik değeri henüz görülmedi.
 
 **Kayıt dosyasının durumu**
