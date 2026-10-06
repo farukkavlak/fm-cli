@@ -119,24 +119,42 @@ internal static partial class Program
 			var opened = await OpenPage("First Team", "Squad");
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-			List<string> names = [];
-			await Until(async () => (names = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			// The table fills over a couple of seconds, a few rows at a time, so its names are
+			// taken once two readings in a row agree.
+			var names = await Settled(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.Where(c => Field(c, "Name") == "NameButton" && Field(c, "Label") != "")
 				.Select(c => Field(c, "Label"))
 				.Distinct()
-				.ToList()).Count >= 11, seconds: 15);
+				.ToList());
+
+			// Its data says who is in the squad even where a row has not been built; a name the
+			// table has built is pressed there, anyone else of ours is reached by the search.
+			var squad = await Settled(async () => (await Fm.GetJson("squad")).EnumerateArray()
+				.Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToList());
+			var everyone = names.Union(squad).ToList();
 
 			// In the squad, his name in the table opens his page. Anyone else is looked for
 			// with the game's search, whose player results each open that player's page.
 			var folded = Fold(wanted);
-			var own = names.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
+			var own = everyone.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
 			string full;
-			if (own.Count > 0)
+			if (own.Count > 0 && names.Contains(Choose(everyone, wanted, "Oyuncu") ?? ""))
 			{
-				if (Choose(names, wanted, "Oyuncu") is not { } mine) return 1;
-				full = mine;
-
+				full = Choose(everyone, wanted, "Oyuncu");
 				var pressed = await Arriving("press", [("text", full), ("name", "NameButton"), ("any", "1")]);
+				if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+			}
+			else if (own.Count > 0)
+			{
+				if (Choose(everyone, wanted, "Oyuncu") is not { } mine) return 1;
+				full = mine;
+				var found = (await SearchFor(full)).Where(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)).ToList();
+				if (found.Count == 0)
+				{
+					Console.Error.WriteLine($"{full} kadroda ama aramada çıkmadı.");
+					return 1;
+				}
+				var pressed = await Arriving("searchopen", [("name", Field(found[0], "Name"))]);
 				if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 			}
 			else
@@ -239,6 +257,21 @@ internal static partial class Program
 		static string Line(string separator, params string[] parts) => string.Join(separator, parts.Where(p => p.Length > 0));
 		static string Prefixed(string prefix, string value) => value.Length > 0 ? prefix + value : "";
 		static string Suffixed(string value, string suffix) => value.Length > 0 ? value + suffix : "";
+	}
+
+	/// <summary>A list read until it stops growing: two readings in a row the same length, and not empty.</summary>
+	private static async Task<List<string>> Settled(Func<Task<List<string>>> read, double seconds = 15)
+	{
+		List<string> now = [];
+		var last = -1;
+		await Until(async () =>
+		{
+			now = await read();
+			var same = now.Count > 0 && now.Count == last;
+			last = now.Count;
+			return same;
+		}, seconds);
+		return now;
 	}
 
 	/// <summary>
