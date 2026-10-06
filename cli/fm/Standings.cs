@@ -8,16 +8,20 @@ internal static class Standings
 {
 	public static void Draw(JsonElement table, string own)
 	{
+		// The league's own page binds a shorter table, without wins, draws, losses and goals.
+		var full = table.EnumerateArray().Any(r => F(r, "LeagueGamesWon").Length > 0);
+
 		var grid = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn("[dim]#[/]").RightAligned())
 			.AddColumn(new TableColumn(""))
 			.AddColumn(new TableColumn("[dim]TAKIM[/]"))
-			.AddColumn(new TableColumn("[dim]O[/]").RightAligned())
-			.AddColumn(new TableColumn("[dim]G[/]").RightAligned())
-			.AddColumn(new TableColumn("[dim]B[/]").RightAligned())
-			.AddColumn(new TableColumn("[dim]M[/]").RightAligned())
-			.AddColumn(new TableColumn("[dim]AV[/]").RightAligned())
-			.AddColumn(new TableColumn("[dim]P[/]").RightAligned());
+			.AddColumn(new TableColumn("[dim]O[/]").RightAligned());
+		if (full)
+			grid.AddColumn(new TableColumn("[dim]G[/]").RightAligned())
+				.AddColumn(new TableColumn("[dim]B[/]").RightAligned())
+				.AddColumn(new TableColumn("[dim]M[/]").RightAligned())
+				.AddColumn(new TableColumn("[dim]AV[/]").RightAligned());
+		grid.AddColumn(new TableColumn("[dim]P[/]").RightAligned());
 
 		foreach (var row in table.EnumerateArray())
 		{
@@ -27,16 +31,16 @@ internal static class Standings
 			var difference = F(row, "LeagueGoalDifference");
 			var shownDifference = int.TryParse(difference, out var d) && d > 0 ? "+" + difference : difference;
 
-			grid.AddRow(
+			var cells = new List<string>
+			{
 				Cell(F(row, "TablePosition")),
 				Zone(F(row, "StageQualificationPlaceColorGroupId")),
 				Cell(F(row, "Name") + (mine ? "  ◀" : "")),
 				Cell(F(row, "LeagueGamesPlayed")),
-				Cell(F(row, "LeagueGamesWon")),
-				Cell(F(row, "LeagueGamesDrawn")),
-				Cell(F(row, "LeagueGamesLost")),
-				Cell(shownDifference),
-				$"[bold{(mine ? " yellow" : "")}]{Ui.Safe(F(row, "LeaguePoints"))}[/]");
+			};
+			if (full) cells.AddRange([Cell(F(row, "LeagueGamesWon")), Cell(F(row, "LeagueGamesDrawn")), Cell(F(row, "LeagueGamesLost")), Cell(shownDifference)]);
+			cells.Add($"[bold{(mine ? " yellow" : "")}]{Ui.Safe(F(row, "LeaguePoints"))}[/]");
+			grid.AddRow(cells.ToArray());
 		}
 
 		Ui.Out.Write(grid);

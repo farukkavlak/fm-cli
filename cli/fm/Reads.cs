@@ -576,7 +576,16 @@ internal static partial class Program
 		{
 			var opened = await OpenPage("Overview", "Portal");
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Until(async () => (table = await Fm.GetJson("table")).GetArrayLength() >= 10);
+			await Until(async () => (table = await Fm.GetJson("table")).GetArrayLength() >= 10, seconds: 8);
+
+			// Near the season the portal shows another competition's tile instead; the league's
+			// own page, opened from its name on the portal, always has the table.
+			if (table.GetArrayLength() < 10 && await LeagueName() is { } league)
+			{
+				var pressed = await Arriving("press", [("text", league), ("name", "SIButton"), ("any", "1")]);
+				if (!pressed.StartsWith("error", StringComparison.Ordinal))
+					await Until(async () => (table = await Fm.GetJson("table")).GetArrayLength() >= 10, seconds: 10);
+			}
 		}
 
 		if (json)
@@ -605,6 +614,22 @@ internal static partial class Program
 
 		Table.Write(["#", "TAKIM", "O", "G", "B", "M", "AV", "P"], rows);
 		return 0;
+	}
+
+	/// <summary>The team's league among its competitions: the one that is neither European, a cup nor a friendly.</summary>
+	private static async Task<string> LeagueName()
+	{
+		for (var n = 1; n <= 8; n++)
+		{
+			string name;
+			try { name = Field(await Fm.Pull($"Human.Team.CurrentComp{n}", "Name"), "Name"); }
+			catch (FmError) { return null; }
+			if (name.Length == 0) continue;
+			if (name.Contains("UEFA", StringComparison.Ordinal) || name.Contains("Cup", StringComparison.Ordinal)
+			    || name.Contains("Friendly", StringComparison.Ordinal) || name.Contains("Champions", StringComparison.Ordinal)) continue;
+			return name;
+		}
+		return null;
 	}
 
 	private static async Task<int> Fixtures(bool json)
