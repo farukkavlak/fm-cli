@@ -39,6 +39,7 @@ internal static partial class Program
 				"search" => await Search(json, args),
 				"offer" => await Offer(args),
 				"register" => await Register(args),
+				"numbers" => await Numbers(args),
 				"contract" => await Contract(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
@@ -828,6 +829,7 @@ internal static partial class Program
 			    --skip        turu atla (tur izin veriyorsa)
 			  contract        açık sözleşme görüşmesi: şartlar; --wage <tutar> ücret, --sign --yes imzala
 			  register        sezon kadro listesini gönder (terminalde sorar; script'te --auto: yardımcı seçer)
+			  numbers         forma numaralarını gönder (aynı şekilde)
 			  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)
 			  tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
 			  tactic mentality [<x>]      mentaliteyi göster ya da değiştir

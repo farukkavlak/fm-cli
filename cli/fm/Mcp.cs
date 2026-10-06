@@ -56,6 +56,8 @@ internal static class Mcp
 			a => ["contract", .. (Str(a, "wage") is { Length: > 0 } w ? new[] { "--wage", w } : []), .. (a.TryGetProperty("sign", out var sign) && sign.ValueKind == JsonValueKind.True ? new[] { "--sign", "--yes" } : [])]),
 		new("fm_register", "Submit the season's squad list, which the competition asks for: the assistant picks it. Picking players one by one is not available.",
 			None, _ => ["register", "--auto"]),
+		new("fm_numbers", "Submit the squad numbers the competition asks for: the assistant assigns them.",
+			None, _ => ["numbers", "--auto"]),
 		new("fm_players", "The player database (every player the game knows), as far as the page has rows on screen — about twenty. `filter` applies one of the game's quick filters (Transfer Listed, Loan listed, Contract Expiring, Unhappy, Goalkeepers…) and it stays applied; `view` chooses which columns the rows carry (Overview, General Info, Contract, Transfer…). list=filters or list=views prints the choices.",
 			"""{"type":"object","properties":{"filter":{"type":"string"},"view":{"type":"string"},"list":{"type":"string","enum":["filters","views"]},"clear":{"type":"boolean","description":"Remove the filter in force first."}}}""",
 			a => ["players", .. Str(a, "list") switch { "filters" => new[] { "--filters" }, "views" => ["--views"], _ => [] }, .. Flag(a, "clear", "--clear"),
