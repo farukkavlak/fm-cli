@@ -20,6 +20,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 "basılıyor". Yeni bir alan açmak = `fm open "<sayfa>"`, `fm buttons` ile bak, `fm press` ile dene.
 77 sayfanın listesi `docs/reference/screens.txt`'te.
 
+0. **UX ve görselleştirme** — yön kararı (yukarıda "Ürün kararları", ayrıntı §14). Yeni komut
+   eklemeden önce var olanların akıcı ve görsel hale gelmesi.
 1. **Maç içi yönetimin kalanı.** `fm sub` oyuncu değiştiriyor (§8.34). Kalan: sakatlık
    durağını `fm match`'in kendisinin geçmesi (sub + "Confirm Changes"), maç içi mentalite / rol /
    shout (hepsi alt menülü listeler, seçim yolu belli), "Dugout" tavsiyelerini okumak, maç hızı.
@@ -37,6 +39,25 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 5. **MCP'yi gerçek istemciyle denemek.** `fm mcp` protokolü konuşuyor ve araçlar çalışıyor
    (§8.39) ama Claude Code / Desktop'tan hiç çağrılmadı. Ardından: araç çıktısındaki
    yönlendirmeleri araç adına çevirmek, uzun maç için zaman aşımı, `--json` her komutta.
+
+---
+
+## Ürün kararları (Faruk, 2026-10-06)
+
+Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
+
+- **Otomatik kayıt bir ayar.** Kullanıcı açıp kapatacak (§12); bizim varsayılan seçmemiz
+  gerekmiyor.
+- **Maçı oynatmak da geçmek de seçenek.** Hangisi varsayılan diye bir karar yok; ikisi de
+  kullanıcıya sunulacak (`fm match` her seferinde sormalı ya da ayardan okumalı).
+- **Konuşmada cümleyi kullanıcı seçer, oyundaki gibi.** "İlk cümleyi söyle" anlamsız:
+  `fm match --talk` bu haliyle kalkacak. Maç akışı konuşma durağına gelince seçenekleri
+  gösterip seçtirmeli (`fm talk`'ın yaptığı gibi), konuşmadan geçmek de bir seçenek olmalı.
+- **Projenin asıl işi UX.** Komutların çalışması yetmiyor; adam CLI'dan gerçekten kolay ve
+  akıcı oynayabilmeli. Yoksa projenin anlamı yok.
+- **Görselleştirme şart.** 4-3-3 terminalde 4-3-3 gibi görünmeli; değişiklik yapınca saha
+  üstünde görülmeli. Tablo dökmek yerine CLI ölçeğinde çizim. Bunun için hazır, güçlü terminal
+  arayüz kütüphaneleri var; araştırılıp biri seçilecek (bkz. §14 "Görselleştirme").
 
 ---
 
@@ -203,6 +224,7 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [x] `fm next` — ilerle, bloke eden mesajları ve oyunun ilerle butonunun ne dediğini bildir
 - [x] `fm next [n]` zamanı ilerletiyor, oyunun durmasını bekliyor, tarih/saat ve yeni mesajları
       bildiriyor; oyunun kendi durumunu okuyor (`continue.State`, §8.32)
+- [ ] `fm match --talk` kalkacak: konuşma durağında seçenekler gösterilip seçtirilecek (ürün kararı)
 - [x] Maç gününü oyna — `fm match [--talk]`: kadro gönder, onay penceresi, konuşmalar, maç,
       çıkış; gol/devre/sonuç bildiriyor (§8.34)
 - [x] Maç içi oyuncu değişikliği — `fm sub <çıkan> <giren>`; `fm sub` sahayı ve kulübeyi listeler (§8.34)
@@ -286,7 +308,8 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - [ ] Oyun hızı / detay seviyesi
 - [ ] Hangi ligler yüklü (add/remove league)
 - [ ] Bildirim tercihleri
-- [ ] Otomatik kaydetme sıklığı
+- [ ] Otomatik kaydetme aç / kapat ve sıklığı — kullanıcı seçecek (ürün kararı)
+- [ ] Maç varsayılanı: oynat / anında sonuç — kullanıcı seçecek
 - [ ] Skin / tema (bizde anlamsız ama API'de var)
 
 ---
@@ -308,6 +331,26 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 ---
 
 ## 14. CLI kalitesi
+
+### Görselleştirme ve akıcılık (öncelikli, 2026-10-06)
+
+- [ ] Terminal arayüz kütüphanesi seç — .NET tarafında Spectre.Console (tablo, panel, canlı
+      güncelleme, seçim istemi) ve Terminal.Gui (tam ekran TUI) ilk adaylar; karşılaştır, birini seç
+- [ ] **Saha çizimi** — `fm tactic` dizilişi saha üstünde göstersin: mevkiler yerinde, altında
+      oyuncu ve rol; topla / topsuz iki ayrı saha (veri hazır: `IPPosition`, `OOPPosition`, §8.31)
+- [ ] Değişiklik sahada görünsün — rol, oyuncu, mentalite değişince önce/sonra ya da vurgulu çizim
+- [ ] Maç ekranı — canlı skor, dakika, anlatım satırı (`MatchHighlightCommentary`), sahadaki on
+      bir ve kulübe tek ekranda; `fm sub` buradan
+- [ ] Seçim istemleri — numara yazdırmak yerine okla gezilen liste (cevaplar, roller, oyuncular,
+      konuşma cümleleri); script'te bugünkü düz çıktı kalsın
+- [ ] Konuşma ekranı — karşı tarafın dediği, tepkiler ve seçenekler bir arada; tepki değişimi görünür
+- [ ] Oyuncu kartı — özellikler renkli / çubuklu, bloklar yan yana (bugün düz tablo)
+- [ ] Lig tablosu ve fikstür — takım vurgusu, form, sonuç renkleri
+- [ ] Kolon başlıkları — `fm squad --view` ve `fm players` oyunun alan adlarını basıyor
+      (`TransferValueRangeString`); okunur başlıklar
+- [ ] Akış — "şimdi ne yapmalıyım" her ekranda belli olsun; `fm status` tek bakışta durum
+
+### Diğer
 
 - [x] Renkli, hizalı tablolar
 - [ ] Sparkline / mini grafik (form, kondisyon trendi)
@@ -406,15 +449,13 @@ event'i hangi veriyle göndereceğini kendisi söylüyor ve kendi listesi kuyru�
 - Maç günü kaydındaki kariyerde özensiz verilmiş sözler var (şampiyonluk, kupa, kaleci
   transferi): toplantı "ilk seçeneği söyle" diye yürütüldü.
 
-**Faruk'u bekleyen kararlar**
+**Bekleyen kararlar — 6 Ekim sabahı cevaplandı**
 
-1. Otomatik kayıt açık kalsın mı? Açıkken zamanı ilerleten her oturum ana kaydı değiştirebilir.
-2. `fm match` varsayılanı: şimdi maçı oynatıyor (6-8 dk), `--instant` isteyince simüle ediyor;
-   MCP aracında ise varsayılan instant. Aynı olsun mu?
-3. MCP araçları komutlarla bire bir (29 araç, Türkçe düz metin). Araç sayısı / dil / JSON çıktı?
-4. Konuşmalarda varsayılan: `fm match --talk` ilk cümleyi söylüyor; bu her zaman önerilen değil.
-5. Sırada ne olsun: maç içi yönetimin kalanı mı, taktikte diziliş/talimat mı, transfer mi?
-   (Metin kutusuna yazma ve isimle arama gece sonunda çözüldü; transferin önü açık.)
+1. Otomatik kayıt: ayar olacak, kullanıcı seçecek.
+2. `fm match` oynat / geç: ikisi de seçenek olarak sunulacak.
+3. MCP araçlarının biçimi: konuşulmadı, açık.
+4. Konuşmada ilk cümleyi söylemek: anlamsız, kullanıcı seçecek.
+5. Sırada ne var: UX ve görselleştirme (yukarıda "Ürün kararları").
 
 ### 2026-10-05
 
