@@ -201,3 +201,141 @@ internal static partial class Program
 		return double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? (long)Math.Round(value * multiplier) : null;
 	}
 }
+
+internal static partial class Program
+{
+	/// <summary>
+	/// The contract on the table once a club has accepted a bid and talks with the player are
+	/// open: what he is asking for, and finalising it. The wage can be set first; the other
+	/// terms are the agent's.
+	/// </summary>
+	private static async Task<int> Contract(string[] args)
+	{
+		// The talks keep their terms under a "negotiation" record on the screen they are open on.
+		var found = await Fm.Get("find", ("name", "EndDate"), ("limit", "5"));
+		var basePath = found.Split('\n')
+			.Select(l => l.Trim())
+			.Where(l => l.EndsWith(".negotiation.EndDate", StringComparison.Ordinal))
+			.Select(l => l.TrimStart('.')[..^".EndDate".Length])
+			.FirstOrDefault();
+		if (basePath == null)
+		{
+			Console.Error.WriteLine("Açık bir sözleşme görüşmesi yok. Kabul edilen bir teklifte: reply \"<oyuncu> offer accepted\" → Enter Contract Negotiations");
+			return 1;
+		}
+
+		// Promises come first in the talks; with none to give, the game moves on to the terms.
+		// Only the talks' own buttons: the game's Continue is also labelled "Negotiate Contract"
+		// at this point, and pressing it walks away from the deal.
+		const string talks = "StandardButton";
+		for (var step = 0; step < 2 && await Proposal() == null; step++)
+		{
+			var onward = await Labelled("Finalise Promises", talks) ?? await Labelled("Negotiate Contract", talks);
+			if (onward == null) break;
+			await Fm.Get("press", ("ptr", Field(onward.Value, "Pointer")));
+			await Until(async () => await Proposal() != null || await Labelled("Negotiate Contract", talks) != null, seconds: 8);
+		}
+
+		if (Option(args, "--wage") is { } asked)
+		{
+			if (Money(asked) is not { } wage)
+			{
+				Console.Error.WriteLine($"'{asked}' bir tutar değil. Örnek: 9000, 12.5K");
+				return 64;
+			}
+			var box = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Cast<JsonElement?>()
+				.FirstOrDefault(c => Field(c.Value, "Name") == "combobox" && Field(c.Value, "Label").EndsWith("p/w", StringComparison.Ordinal));
+			if (box == null)
+			{
+				Console.Error.WriteLine("Ücret kutusu bulunamadı.");
+				return 1;
+			}
+			var set = await Fm.Get("setnumber", ("ptr", Field(box.Value, "Pointer")), ("value", wage.ToString(CultureInfo.InvariantCulture)));
+			if (set.StartsWith("error", StringComparison.Ordinal)) return Report(set);
+			await Task.Delay(TimeSpan.FromSeconds(1));
+		}
+
+		async Task<string> Term(string name)
+		{
+			var record = await Fm.Get("dyn", ("path", $"{basePath}.{name}"));
+			var at = record.IndexOf("DisplayValue", StringComparison.Ordinal);
+			if (at < 0) return "";
+			var line = record[at..].Split('\n')[0];
+			var value = line.IndexOf(") ", StringComparison.Ordinal);
+			return value < 0 ? "" : line[(value + 2)..].Trim();
+		}
+
+		var status = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Name") == "inputs-combobox-default-default" && d.GetProperty("Choices").EnumerateArray().Any(c => (c.GetString() ?? "").Contains("Squad Player", StringComparison.Ordinal)))
+			.Select(d => Field(d, "Label"))
+			.FirstOrDefault() ?? "";
+
+		var rows = new List<string[]>
+		{
+			new[] { "Haftalık ücret", await Term("Wage") },
+			new[] { "Süre", await Term("EndDate") },
+			new[] { "Kadro statüsü", status },
+			new[] { "Menajer ücreti", await Term("AgentFee") },
+			new[] { "Sadakat primi", await Term("LoyaltyBonus") },
+			new[] { "Sözleşme türü", await Term("ContractStatus") },
+		}.Where(r => r[1].Length > 0).ToList();
+		Table.Write(["ŞART", "TEKLİF"], rows);
+
+		if (!args.Contains("--sign"))
+		{
+			if (!Ui.Interactive)
+			{
+				Console.WriteLine("\nBu şartlarla bitirmek için: contract --sign --yes   (ücreti değiştirmek: contract --wage <tutar>)");
+				return 0;
+			}
+			var what = Ui.Ask("Ne yapalım?", ["Bu şartlarla imzala", "Ücreti değiştir"], cancel: "Şimdilik bırak");
+			if (what == null) return 0;
+			if (what == 1)
+			{
+				if (Ui.Text("Haftalık ücret (ör. 9000, 12.5K)") is not { } typed) return 0;
+				return await Contract(["contract", "--wage", typed]);
+			}
+		}
+		else if (!args.Contains("--yes") && !Ui.Interactive)
+		{
+			Console.Error.WriteLine("Sözleşme imzalanınca geri alınamaz. Bitirmek için --yes ekle.");
+			return 1;
+		}
+
+		// The agent's own terms are taken with Finalise Deal; changed ones are put to him with
+		// Suggest Terms, and he answers.
+		if (await Proposal() is not { } finalise)
+		{
+			Console.Error.WriteLine("'Finalise Deal' / 'Suggest Terms' butonu yok; görüşme başka bir adımda olabilir. Bakmak için: talk");
+			return 1;
+		}
+
+		var before = string.Join(" ", ((await Fm.GetJson("talk")).TryGetProperty("Says", out var s0) ? s0.EnumerateArray().Select(l => l.GetString()) : []));
+		await Fm.Get("press", ("ptr", Field(finalise, "Pointer")));
+		var said = before;
+		await Until(async () =>
+		{
+			var talk = await Fm.GetJson("talk");
+			said = string.Join(" ", talk.TryGetProperty("Says", out var s1) ? s1.EnumerateArray().Select(l => l.GetString()) : []);
+			return said != before;
+		}, seconds: 12);
+		// The talks echo the line said ("» Suggest Terms"); only something else is the agent's answer.
+		var answer = said != before && !said.StartsWith("»", StringComparison.Ordinal) ? said : "";
+		if (answer.Length > 0) Console.WriteLine(answer);
+
+		var next = await TalkOptions();
+		if (next.Count == 1 && next[0].Label == "Exit Talks")
+		{
+			await Fm.Get("press", ("ptr", next[0].Pointer));
+			Console.WriteLine("Anlaşma tamam; görüşme kapandı.");
+		}
+		else if (next.Any(l => l.Label == "Finalise Deal"))
+			Console.WriteLine("Menajer bu şartları kabul ediyor. İmzalamak için: contract --sign --yes");
+		else if (next.Count > 0)
+			Console.WriteLine($"Sırada: {string.Join(" · ", next.Select(l => l.Label))}   (talk ile, ya da yeniden: contract)");
+		return 0;
+
+		async Task<JsonElement?> Proposal() => await Labelled("Finalise Deal", talks) ?? await Labelled("Suggest Terms", talks);
+	}
+}
