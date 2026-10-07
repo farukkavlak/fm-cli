@@ -247,7 +247,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [k] Transfer bütçesi ↔ maaş bütçesi — `ClubBudgetAdjustmentTransfers` / `Wages`, `ClubRequestIncreaseBudgets`
 - [~] Takas teklifi — kartta "+ Takasa oyuncu ekle", transfer ya da kiralık (§8.45); takaslı
       teklif gönderilip cevabı görülmedi
-- [ ] Transfer dönemi durumu / kalan gün
+- [x] Transfer dönemi durumu / kalan gün — `fm status` (§8.55)
 
 ---
 
@@ -469,7 +469,7 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
 - **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
   okuyan genel `/namedrows`.
-- **Maç içi mentalite ve bağırış** (FINDINGS §8.54).
+- **Maç içi mentalite ve bağırış** (FINDINGS §8.54). `fm status` transfer dönemini yazıyor (§8.55).
 - **Oyuncu talimatları** (FINDINGS §8.53): `fm tactic pi <mevki> [<talimat> [<değer>]]`.
 - **Rakip talimatları** (FINDINGS §8.49): `fm opposition`, `--advice`, `--clear`, elle ayar.
 - **Takım talimatları** (FINDINGS §8.48): `tactic instructions` topla oynarken; sağ tık kartı.

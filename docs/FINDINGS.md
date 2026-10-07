@@ -2452,6 +2452,18 @@ ve her oyuncu için bir menü (roller ›, Player Instructions, Touchline Shouts
   `fm shout` var ama işlediği doğrulanmadı.
 - Lig maçından önce oyun "Defrel is ineligible" diye kadroyu reddetti; Quick Pick düzeltti.
 
+## 8.55 Transfer dönemi (8 Ekim)
+
+`Human.Team.Division.TransferWindowData` (`TransferWindowReference`): `TransferWindowStatus`
+(10 Ağustos 2025'te 1, dönem açık), `TransferWindowDaysRemaining` (33), `StartDate`, `EndDate`
+(`GameDate`, çözülmemiş), giriş/çıkış sayıları ve değerleri. İlk okumada bağlanıyor, `Pull`'un
+yeniden denemesi yetiyor. `fm status` "Transfer: dönem açık, 33 gün kaldı" yazıyor. Kapalı
+dönemdeki değer görülmedi (1 dışındaki her şey "kapalı" sayılıyor).
+
+Topsuz takım talimatları için bir deneme daha: "Team Shape" görünümündeki "Out of Possession"
+sekmesi (`TutorialActionElement` içinde `SIButton #OOP`?) basıldıktan sonra talimat görünümü yine
+topla oynarkenkileri gösterdi. Açık.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -261,6 +261,7 @@ internal static partial class Program
 		if (flow == "CanContinue" && (await Bound("inbox", "PortalScreen")).EnumerateArray().Any(Blocking)) flow = "NeedAction";
 
 		var next = await NextMatch(Field(state, "Date"));
+		var window = await TransferWindow();
 		if (Ui.Rich)
 		{
 			var (team, _) = await Fm.OwnTeam();
@@ -268,6 +269,7 @@ internal static partial class Program
 			var lines = new List<string> { $"[bold]{Ui.Safe(Pretty(Field(state, "Date")))}[/] {Time(state)}" };
 			if (next != null) lines.Add($"[dim]Sıradaki maç:[/] {Ui.Safe(next)}");
 			if (await Form() is { Length: > 0 } form) lines.Add($"[dim]Form:[/] {form}");
+			if (window != null) lines.Add($"[dim]Transfer:[/] {Ui.Safe(window)}");
 			Ui.Out.Write(new Spectre.Console.Panel(new Spectre.Console.Markup(string.Join("\n", lines)))
 			{
 				Header = new Spectre.Console.PanelHeader($" [bold yellow]{Ui.Safe(team)}[/] [dim]·[/] {Ui.Safe(manager)} "),
@@ -280,10 +282,28 @@ internal static partial class Program
 		{
 			Console.WriteLine($"FM açık, kayıt yüklü. {Pretty(Field(state, "Date"))} {Time(state)}");
 			if (next != null) Console.WriteLine($"Sıradaki maç: {next}");
+			if (window != null) Console.WriteLine($"Transfer: {window}");
 		}
 		if (Passable(flow)) Console.WriteLine("İlerlemeye hazır: next");
 		else await Explain(state, Console.Out, flow);
 		return 0;
+	}
+
+	/// <summary>
+	/// The league's transfer window: open with so many days left, or closed (FINDINGS §8.55).
+	/// The window's record is bound on the first read, so it is read until it answers.
+	/// </summary>
+	private static async Task<string> TransferWindow()
+	{
+		try
+		{
+			var window = await Fm.Pull("Human.Team.Division.TransferWindowData", "TransferWindowStatus,TransferWindowDaysRemaining");
+			var status = Field(window, "TransferWindowStatus");
+			if (status.Length == 0) return null;
+			if (status != "1") return "dönem kapalı";
+			return int.TryParse(Field(window, "TransferWindowDaysRemaining"), out var days) ? $"dönem açık, {days} gün kaldı" : "dönem açık";
+		}
+		catch (FmError) { return null; }
 	}
 
 	/// <summary>
