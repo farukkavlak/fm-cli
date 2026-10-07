@@ -51,7 +51,7 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
   listesi "kulüpte yetişmiş 4" ve "Türkiye'de yetişmiş 8" kotasını tutmuyor; yardımcının
   25'inden yabancı oyuncu çıkarmak gerekiyor ama komut yalnızca "yardımcı yapsın" diyebiliyor.
   Liste gönderilmeden `next` ilerlemiyor. Gereken: listeyi göster (kim kayıtlı, kim hangi kotada),
-  oyuncu çıkar/ekle, kuralları canlı göster, sonra gönder.
+  oyuncu çıkar/ekle, kuralları canlı göster, sonra gönder. Araştırma: FINDINGS §8.43.
 - **`fm players` dar terminalde okunmuyor.** 110 sütunda 15 kolonun hepsi basılıyor; isimler
   harf harf kırılıyor ("Abdelh / amid / Sabiri"), "Scouting Required" dört satıra bölünüyor,
   `IS INJURED` True/False yazıyor. Terminale sığacak kolonları seçmeli, ham değerleri

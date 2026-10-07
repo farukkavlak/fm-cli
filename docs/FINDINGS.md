@@ -2067,6 +2067,41 @@ kabul ederse sırada yine Finalise Deal, ardından Exit Talks.
 
 Denendi: Defrel, Modena'dan £160K; menajer £9,250/hafta istedi, £7,500 önerildi, kabul etti, imzalandı.
 
+## 8.43 Kadro kaydı: listeyi elle düzenlemek (araştırma, uygulanmadı)
+
+`fm register` yalnızca "Ask Assistant to Pick" + "Confirm" yapıyor. Yardımcının listesi kotayı
+tutmayınca (UCL 3. ön eleme, 2 Ağustos 2025: Türkiye'de yetişmiş 6/8, kulüpte yetişmiş 2/4)
+oyun kilitleniyor. Elle düzenlemek için gerekenler:
+
+**Ekranı açmak.** `fm open "Registration"` ve `register`'ın `OpenPage`'i bazen Squad
+Overview'da kalıyor (orada kayıt yalnızca bir kutucuk). Kutucuktaki `UCL` butonu (`OpenPanel`)
+asıl ekranı güvenilir açtı: `fm press "UCL"`. Turnuva adı kutucukta yazdığı gibi; Süper Lig
+listesi açıkken başka olur.
+
+**Okumak — hepsi `/tree`'de bağlı, `FM.UI.SquadRegistrationEditSession` (`squadreg`):**
+- Kurallar: her biri `SquadSelectionRuleTitle` ("Homegrown in Nation"), `SquadSelectionRuleString`,
+  `SquadSelectionRuleValue` ("6/8 Min.", "24/25 Max."), `CurrentlyMeetsRule` (0/1).
+- Satırlar: `SelectionTable1 … Standardplayertable-club2 › Items` (44 satır = 42 oyuncu + başlıklar).
+  Satır başına `A › squadreg.Selected` (bool), `CanChangeSelection`, `binding.Name/Age/
+  PositionCombinedString`, `PlayerStatusFlagsForSquadRegistration` (liste).
+- Bayraklar ekranda `PlayerStatusFlag` butonu olarak da var: `HGN` (ülkede yetişmiş), `HGC`
+  (kulüpte yetişmiş; HGN'ye de sayılır), `Inj`, `Wnt`.
+
+**Seçmek.** Satır = `TableRowNavigatable`; ilk hücresi `StreamedTable+SelectionCell`, içinde
+düz bir Unity `Toggle`. Olay listesi yok, o yüzden `/buttons`'ta görünmüyor; `/click` da
+"not a button" diyor. Seçim tablonun kendi modelinden geçiyor (`StreamedListView`):
+`SelectedItemsBinding`, `SetListSelection(int)`, `ClearSelection()`, `OnSelectionChanged`.
+`SelectionCell`'in kendi geri çağrıları var: `m_onClick` (`EventCallback<ClickEvent>`),
+`m_onSubmit` (`EventCallback<NavigationSubmitEvent>`), `SetSelectedState(bool)`.
+Plan: `TextBoxes`'taki gibi olayı havuzdan alıp (`NavigationSubmitEvent.GetPooled()` ya da
+`ClickEvent`) hücrenin kendi geri çağrısına vermek — oyuncunun tıklaması/Enter'ı. Toggle'ın
+`value`'sunu yazmak tek başına oyuna gitmeyebilir (metin kutusunda gitmiyordu).
+Doğrulama: `Maximum squad size` değeri 24/25 → 23/25 olmalı; geri almak için `Undo`
+(`EventFmxRevertChanges`). Confirm'e basılmadıkça hiçbir şey oyuna yazılmıyor.
+
+Statik ipucu: `InteropEventIDs` içinde `EventFmxSelectPlayer` (24) var; tablonun
+`SelectionEvents`'i büyük ihtimalle bunu gönderiyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
