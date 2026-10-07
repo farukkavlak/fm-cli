@@ -40,9 +40,16 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
 4. **Transfer ve sözleşme** — okuma tarafı başladı: `fm players` veritabanını hazır süzgeçlerle
    listeliyor (§8.38). `fm search` ve `fm player` herhangi bir oyuncuyu buluyor. `fm offer`
-   teklifi kart olarak çiziyor ve şart şart düzenletiyor, karşı teklifi de açıyor (§8.42, 7 Ekim
-   akşamı). Kalan: `fm contract`'a aynı kart ve düzenleme; alt menülü bonuslar (kupa / ödül);
-   kabul edilen bir teklifin "Accept" tuzağını kart üzerinden göstermek; kısa liste.
+   teklifi kart olarak çiziyor ve şart şart düzenletiyor: ek ödeme ve madde ekleme / kaldırma,
+   her şartın pazarlık kilidi (Negotiable · Semi · Non · Remove & Exclude), karşı teklifi de
+   açıyor (§8.42, 7 Ekim akşamı). Kalan:
+   - **Alt menü seçimi** — kupa / ödül bonusu ve takasa oyuncu ("Add Player › Other Player From
+     Squad ›") buna takılıyor; altı yol denendi (§8.42). Sıradaki ipucu: oyun alt menüyü ayrı bir
+     çocuk dropdown olarak açıyor (`m_childrenDropdowns`, `HandleDropdownSelection`).
+   - `fm contract`'a aynı kart ve düzenleme.
+   - Kiralık teklif kartla denenmedi (`--loan`; şartları farklı).
+   - Kabul edilen bir teklifin "Accept" tuzağını kart üzerinden göstermek; kısa liste.
+   - Faruk'un kararı bekleniyor (7 Ekim akşamı soruldu): önce alt menü mü, `fm contract` mı?
 5. **MCP'yi gerçek istemciyle denemek.** `fm mcp` protokolü konuşuyor ve araçlar çalışıyor
    (§8.39) ama Claude Code / Desktop'tan hiç çağrılmadı. Ardından: araç çıktısındaki
    yönlendirmeleri araç adına çevirmek, uzun maç için zaman aşımı, `--json` her komutta.
@@ -212,7 +219,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Transfer listem (`fm transfers list`)
 - [~] Oyuncu ara — `fm players [--filter "<hazır süzgeç>"] [--view "<görünüm>"]`: veritabanının
       ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); isimle arama ve kaydırma yok
-- [k] Teklif ver — `PersonMakeOfferForPlayer`
+- [x] Teklif ver — `fm offer`: kart, şart düzenleme, pazarlık kilitleri, karşı teklif (§8.42)
 - [k] Gelen teklife yanıt — `EventFmxTransferOfferResponse`
 - [k] Sözleşme teklifi / yenileme — `PersonOfferContract`, `ContractEditSessionReference` (80)
 - [k] Sözleşme maddeleri — `EventFmxAddContractBonus`, `ClubTransferClausesReference`
@@ -223,7 +230,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
 - [k] Menajerle görüşme — `PersonAskAgentAboutClientContractRenewal`
 - [k] Transfer bütçesi ↔ maaş bütçesi — `ClubBudgetAdjustmentTransfers` / `Wages`, `ClubRequestIncreaseBudgets`
-- [k] Takas teklifi — `ExchangePlayersList`, `ExchangePotentialPlayersList`
+- [k] Takas teklifi — `ExchangePlayersList`, `ExchangePotentialPlayersList`; teklif ekranında
+      "Players To Exchange" bölümü açılıyor ama oyuncu seçimi alt menüde, seçilemiyor (§8.42)
 - [ ] Transfer dönemi durumu / kalan gün
 
 ---
@@ -502,9 +510,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - `fm offer` "kötüymüş": üçü birden — yavaş (~20 sn), kırılgan (bonservis sahte odak olaylarıyla
   yazılıyor), görünür değil (teklif ekranı terminalde yok, tek satır sonuç). "Böyle şeylerde
-  UX'i arttırmamız lazım." 8 Ekim'de buradan devam: teklif ekranını terminalde çiz, şartları
-  okla/istemle düzenlet, gönderimden önce özet ve onay; zinciri hızlandır, yazılan tutarı geri
-  okuyup doğrula. Aynısı `fm contract` için.
+  UX'i arttırmamız lazım." Aynı akşam yapıldı (c23ac95, a91cb58): kart, okla düzenleme,
+  gönderimden önce onay, ~30 sn → ~5 sn. `fm contract` için aynısı sırada (yukarıda §4).
 
 **Karar bekleyenler**
 
