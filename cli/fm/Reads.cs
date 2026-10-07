@@ -48,7 +48,7 @@ internal static partial class Program
 		{
 			var opened = await Arriving("press", [("text", "Search"), ("name", "dashboard-hud-search-button")]);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
-			await Until(async () => (await Fm.GetJson("textboxes")).EnumerateArray().Any(b => Field(b, "Type") == "SearchBox"), seconds: 10);
+			await Until(async () => (await Fm.GetJson("textboxes")).EnumerateArray().Any(b => Field(b, "Type") == "SearchBox"), seconds: 10, every: 0.25);
 		}
 
 		var typed = await Fm.Get("type", ("name", "SearchBox"), ("text", text));
@@ -56,17 +56,21 @@ internal static partial class Program
 
 		// Results for the text before can still be showing; two readings alike after the game
 		// says the search is finished are taken as this one's.
+		// An empty answer is only believed after a while: right after typing, the search has
+		// not started and the list is empty, and stays so for two readings.
 		List<JsonElement> results = [];
 		var last = "?";
+		var typedAt = DateTime.UtcNow;
 		await Until(async () =>
 		{
-			await Task.Delay(500);
+			await Task.Delay(300);
 			var found = await Fm.GetJson("search");
-			var same = found.ToString() == last && await Found("SearchIsFinished") == "True";
+			var same = found.ToString() == last && await Found("SearchIsFinished") == "True"
+			           && (found.GetArrayLength() > 0 || DateTime.UtcNow - typedAt > TimeSpan.FromSeconds(3));
 			last = found.ToString();
 			results = found.EnumerateArray().ToList();
 			return same;
-		}, seconds: 12);
+		}, seconds: 12, every: 0.25);
 		return results;
 	}
 
@@ -128,11 +132,8 @@ internal static partial class Program
 
 		if (Ui.Ask($"{name}: ne yapalım?", labels, cancel: "Hiçbir şey") is not { } chosen) return 0;
 
-		if (options[chosen].Label == "Make An Offer")
-		{
-			if (Ui.Text("Bonservis (ör. 7.5M, 750K; boş: vazgeç)") is not { } fee) return 0;
-			return await Offer(["offer", name, fee]);
-		}
+		// The offer opens on its card, where the fee is set with the other terms.
+		if (options[chosen].Label == "Make An Offer") return await Offer(["offer", name]);
 
 		return await TalkTo(false, ["talk", (chosen + 1).ToString()]);
 	}
@@ -140,87 +141,69 @@ internal static partial class Program
 	/// <summary>
 	/// Brings up a player's page and returns what it binds, or null having said why not.
 	///
-	/// In the squad, his name in the table opens his page; anyone else is found with the game's
-	/// search. The page is opened the way a user opens it, so its actions are on screen too.
+	/// Every page is reached with the game's search, whose player results each open that
+	/// player's page; the squad's names are read from the game's data, with no screen opened,
+	/// so a part of one of ours is completed before searching. The page is opened the way a
+	/// user opens it, so its actions are on screen too.
 	/// </summary>
 	private static async Task<JsonElement?> OpenPlayer(string wanted)
 	{
 		var card = await Fm.GetJson("player");
-		if (!card.TryGetProperty("Player", out var open) || !Fold(Field(open, "Name")).Contains(Fold(wanted), StringComparison.Ordinal))
+		if (card.TryGetProperty("Player", out var open) && Fold(Field(open, "Name")).Contains(Fold(wanted), StringComparison.Ordinal))
+			return card;
+
+		var folded = Fold(wanted);
+		var squad = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray()
+			.Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct().ToList();
+		var own = squad.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
+
+		string full;
+		if (own.Count > 0)
 		{
-			var opened = await OpenPage("First Team", "Squad");
-			if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return null; }
-
-			// The table fills over a couple of seconds, a few rows at a time, so its names are
-			// taken once two readings in a row agree.
-			var names = await Settled(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.Where(c => Field(c, "Name") == "NameButton" && Field(c, "Label") != "")
-				.Select(c => Field(c, "Label"))
-				.Distinct()
-				.ToList());
-
-			// Its data says who is in the squad even where a row has not been built; a name the
-			// table has built is pressed there, anyone else of ours is reached by the search.
-			var squad = await Settled(async () => (await Fm.GetJson("squad")).EnumerateArray()
-				.Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToList());
-			var everyone = names.Union(squad).ToList();
-
-			// In the squad, his name in the table opens his page. Anyone else is looked for
-			// with the game's search, whose player results each open that player's page.
-			var folded = Fold(wanted);
-			var own = everyone.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
-			string full;
-			if (own.Count > 0 && names.Contains(Choose(everyone, wanted, "Oyuncu") ?? ""))
+			if (Choose(own, wanted, "Oyuncu") is not { } mine) return null;
+			full = mine;
+			if (!(await SearchFor(full)).Any(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)))
 			{
-				full = Choose(everyone, wanted, "Oyuncu");
-				var pressed = await Arriving("press", [("text", full), ("name", "NameButton"), ("any", "1")]);
-				if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
-			}
-			else if (own.Count > 0)
-			{
-				if (Choose(everyone, wanted, "Oyuncu") is not { } mine) return null;
-				full = mine;
-				var found = (await SearchFor(full)).Where(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)).ToList();
-				if (found.Count == 0)
-				{
-					Console.Error.WriteLine($"{full} kadroda ama aramada çıkmadı.");
-					return null;
-				}
-				var pressed = await Arriving("searchopen", [("name", Field(found[0], "Name"))]);
-				if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
-			}
-			else
-			{
-				// The game's search is loose — "icardi" also finds a Vicente — so its results are
-				// narrowed to the names that really contain what was typed.
-				var found = (await SearchFor(wanted)).Where(r => Field(r, "Kind") == "Player").ToList();
-				var close = found.Where(r => Fold(Field(r, "Name")).Contains(folded, StringComparison.Ordinal)).ToList();
-				if (close.Count != 1)
-				{
-					Console.Error.WriteLine(found.Count == 0
-						? $"'{wanted}' adında bir oyuncu kadroda da aramada da yok."
-						: close.Count == 0
-							? $"'{wanted}' aramada tam olarak çıkmadı; en yakınlar:"
-							: $"'{wanted}' aramada {close.Count} oyuncuya uyuyor; adı biraz daha yaz:");
-					foreach (var hit in close.Count == 0 ? found : close) Console.Error.WriteLine($"  {Field(hit, "Name")}  ({Field(hit, "Club")})");
-					return null;
-				}
-				full = Field(close[0], "Name");
-
-				// Each result has a button of its own; the plugin finds the one fed from this
-				// result's row, since an earlier search's buttons can still be loaded.
-				var pressed = await Arriving("searchopen", [("name", full)]);
-				if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
-			}
-
-			// Pages opened earlier stay loaded beneath, so his is asked for by name.
-			if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out _), seconds: 15))
-			{
-				Console.Error.WriteLine($"{full} için oyuncu sayfası açılmadı.");
+				Console.Error.WriteLine($"{full} kadroda ama aramada çıkmadı.");
 				return null;
 			}
 		}
+		else
+		{
+			// The game's search is loose — "icardi" also finds a Vicente — so its results are
+			// narrowed to the names that really contain what was typed.
+			var found = (await SearchFor(wanted)).Where(r => Field(r, "Kind") == "Player").ToList();
+			var close = found.Where(r => Fold(Field(r, "Name")).Contains(folded, StringComparison.Ordinal)).ToList();
+			// A whole name, or else one whose words start the way it was typed, outranks a match
+			// inside a word.
+			var exact = close.Where(r => Fold(Field(r, "Name")) == folded).ToList();
+			var starting = close.Where(r => (" " + Fold(Field(r, "Name"))).Contains(" " + folded, StringComparison.Ordinal)).ToList();
+			if (exact.Count == 1) close = exact;
+			else if (starting.Count > 0) close = starting;
+			if (close.Count != 1)
+			{
+				Console.Error.WriteLine(found.Count == 0
+					? $"'{wanted}' adında bir oyuncu kadroda da aramada da yok."
+					: close.Count == 0
+						? $"'{wanted}' aramada tam olarak çıkmadı; en yakınlar:"
+						: $"'{wanted}' aramada {close.Count} oyuncuya uyuyor; adı biraz daha yaz:");
+				foreach (var hit in close.Count == 0 ? found : close) Console.Error.WriteLine($"  {Field(hit, "Name")}  ({Field(hit, "Club")})");
+				return null;
+			}
+			full = Field(close[0], "Name");
+		}
 
+		// Each result has a button of its own; the plugin finds the one fed from this result's
+		// row, since an earlier search's buttons can still be loaded.
+		var pressed = await Arriving("searchopen", [("name", full)]);
+		if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
+
+		// Pages opened earlier stay loaded beneath, so his is asked for by name.
+		if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out _), seconds: 15, every: 0.25))
+		{
+			Console.Error.WriteLine($"{full} için oyuncu sayfası açılmadı.");
+			return null;
+		}
 		return card;
 	}
 

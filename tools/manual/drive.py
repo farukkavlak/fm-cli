@@ -30,6 +30,11 @@ SCENES = {
 	"reply": ("fm reply 19", [("wait", r"Respond"), ("snap", "reply"), ("keys", "\r"), ("exit",), ("snap", "reply-done")]),
 	"register": ("fm register", [("wait", r"Yardımcı seçsin"), ("snap", "register"), ("pick", r"Emre Mor"), ("snap", "register-pick"),
 		("keys", "\r"), ("wait", r"> Listeyi gönder"), ("snap", "register-ready"), ("keys", "\r"), ("exit",), ("snap", "register-done")]),
+	"offer": ("fm offer 'Mauro Icardi' 5M", [("wait", r"değiştirmek istediğini seç"), ("snap", "offer"),
+		("pick", r"Sonraki satıştan pay"), ("keys", "\r"), ("wait", r"Seçimi değiştir"), ("pick", r"Seçimi değiştir"), ("keys", "\r"),
+		("wait", r"35%"), ("pick", r"35%"), ("snap", "offer-choice"), ("keys", "\r"),
+		("wait", r"Sonraki satıştan pay: 35%"), ("snap", "offer-edited"),
+		("pick", r"Gönderme, ekranı"), ("keys", "\r"), ("exit",)]),
 }
 
 

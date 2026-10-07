@@ -252,14 +252,14 @@ internal static partial class Program
 		rows.EnumerateArray().Any(row => row.TryGetProperty(field, out _));
 
 	/// <summary>Polls until a condition holds, since how long the game takes is not ours to know.</summary>
-	private static async Task<bool> Until(Func<Task<bool>> condition, double seconds = 20)
+	private static async Task<bool> Until(Func<Task<bool>> condition, double seconds = 20, double every = 1)
 	{
 		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(seconds);
 		while (true)
 		{
 			if (await condition()) return true;
 			if (DateTime.UtcNow >= deadline) return false;
-			await Task.Delay(TimeSpan.FromSeconds(1));
+			await Task.Delay(TimeSpan.FromSeconds(every));
 		}
 	}
 
@@ -787,7 +787,7 @@ internal static partial class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] is "--name" or "--tab" or "--view" or "--filter" or "--wage") { i++; continue; }
+			if (args[i] is "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}

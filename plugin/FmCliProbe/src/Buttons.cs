@@ -382,6 +382,8 @@ internal static class Buttons
 		}
 	}
 
+	internal static string ChoiceText(SI.Core.TypedValue choice) => Choice(choice);
+
 	/// <summary>A choice is usually a record with its text in one of a few well-known entries.</summary>
 	private static string Choice(SI.Core.TypedValue choice)
 	{

@@ -15,38 +15,26 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		var loan = args.Contains("--loan");
 		var dry = args.Contains("--dry");
-		if (words.Count < (loan ? 1 : 2))
+		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: offer <oyuncu> <bonservis, ör. 7.5M | 750K> [--loan] [--dry] [--yes]");
+			Console.Error.WriteLine("kullanım: offer <oyuncu> [bonservis, ör. 7.5M | 750K] [--term \"Şart=değer\"]… [--loan] [--dry] [--yes]");
 			return 64;
 		}
 
-		long? target = null;
-		if (!loan || words.Count > 1)
-		{
-			target = Money(words[^1]);
-			if (target == null)
-			{
-				Console.Error.WriteLine($"'{words[^1]}' bir tutar değil. Örnek: 7.5M, 750K, 12000000");
-				return 64;
-			}
-		}
+		// The fee is optional: left out, the offer keeps what its screen shows, and at a
+		// terminal it is changed there with the rest.
+		var target = words.Count > 1 ? Money(words[^1]) : null;
 		var wanted = string.Join(" ", target != null ? words.SkipLast(1) : words);
 
 		if (await NotNow() is { } refused) return refused;
 
-		// An offer already open for him — "Negotiate" on a rejection opens one — is carried on
-		// from where it is, rather than started again from his page.
-		var screen = string.Join(" ", ((await Fm.GetJson("talk")).TryGetProperty("Says", out var says) ? says.EnumerateArray().Select(l => l.GetString()) : []));
-		var resumed = await Named("transfer-offer-button") != null || await Labelled("Make Offer") != null && screen.Contains("an offer for", StringComparison.Ordinal);
-		resumed = resumed && Fold(screen).Contains(Fold(wanted), StringComparison.Ordinal);
+		// An offer already open for him — ours not yet sent, or the other club's answer opened
+		// with "Negotiate" or "View Offer" — is carried on from where it is.
+		var open = await OfferScreen.Read(Fm);
+		var resumed = open != null && Fold(open.Player).Contains(Fold(wanted), StringComparison.Ordinal);
 
 		string name;
-		if (resumed)
-		{
-			var at = screen.IndexOf("an offer for ", StringComparison.Ordinal);
-			name = at >= 0 ? screen[(at + 13)..].TrimEnd('.', ' ') : wanted;
-		}
+		if (resumed) name = open.Player;
 		else
 		{
 			if (await OpenPlayer(wanted) is not { } card) return 1;
@@ -59,7 +47,7 @@ internal static partial class Program
 			var value = Field(player, "Value");
 			var opened = await Arriving("press", [("text", value), ("name", "SIButton"), ("any", "1")]);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Until(async () => await Labelled("Make An Offer") != null, seconds: 8);
+			await Until(async () => await Labelled("Make An Offer") != null, seconds: 8, every: 0.25);
 		}
 
 		if (await Labelled("Make An Offer") is not { } make)
@@ -68,10 +56,21 @@ internal static partial class Program
 			return 1;
 		}
 
+		// The game can refuse with a dialog instead ("Cannot sign …: already agreed to join
+		// his loan club"); that is the answer then, and it is closed.
 		await Fm.Get("press", ("ptr", Field(make, "Pointer")));
-		if (!await Until(async () => await FeeBoxNow() != null, seconds: 10))
+		JsonElement refusal = default;
+		if (!await Until(async () => await FeeBoxNow() != null || (refusal = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 10, every: 0.25))
 		{
 			Console.Error.WriteLine("Teklif ekranı açılmadı.");
+			return 1;
+		}
+		if (refusal.ValueKind == JsonValueKind.Array && refusal.GetArrayLength() > 0)
+		{
+			var dialog = refusal[0];
+			Console.Error.WriteLine($"{name} için teklif yapılamıyor. Oyun diyor ki: {Field(dialog, "Title")}. {Field(dialog, "Description")}".TrimEnd());
+			if (dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") is "Ok" or "OK" or "Close") is { } ok)
+				await Fm.Get("click", ("ptr", Field(ok, "Pointer")));
 			return 1;
 		}
 		}
@@ -92,7 +91,7 @@ internal static partial class Program
 			if (!set.StartsWith("error", StringComparison.Ordinal))
 			{
 				var was = fee;
-				await Until(async () => (fee = await Fee()) != was, seconds: 4);
+				await Until(async () => (fee = await Fee()) != was, seconds: 4, every: 0.2);
 			}
 		}
 
@@ -128,9 +127,20 @@ internal static partial class Program
 			}
 		}
 
-		var shown = await FeeLabel();
+		// Other terms asked for by name: --term "Percentage Of Next Sale=20%".
+		for (var i = 0; i < args.Length - 1; i++)
+		{
+			if (args[i] != "--term") continue;
+			if (await SetTerm(args[i + 1]) is { } failed)
+			{
+				Console.Error.WriteLine($"{args[i + 1]}: {failed}");
+				return 1;
+			}
+		}
+
 		var what = loan ? "kiralık teklif" : "transfer teklifi";
-		Console.WriteLine($"{name}: {what}{(shown != null ? $", bonservis {shown}" : "")}");
+		if (await OfferScreen.Read(Fm) is { } offer) offer.Draw();
+		else Console.WriteLine($"{name}: {what}{(await FeeLabel() is { } shown ? $", bonservis {shown}" : "")}");
 
 		if (dry)
 		{
@@ -138,7 +148,8 @@ internal static partial class Program
 			return 0;
 		}
 
-		// An offer cannot be taken back once the other club has it.
+		// An offer cannot be taken back once the other club has it, so at a terminal it is
+		// looked over and changed term by term before it goes.
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
@@ -146,7 +157,7 @@ internal static partial class Program
 				Console.Error.WriteLine("Teklif geri alınamaz. Göndermek için --yes ekle (ya da önce --dry ile bak).");
 				return 1;
 			}
-			if (Ui.Ask("Teklif gönderilsin mi?", ["Gönder"], cancel: "Gönderme, ekranı açık bırak") == null) return 0;
+			if (!await EditOffer()) return 0;
 		}
 
 		if (await Labelled("Make Offer") is not { } send)
@@ -161,7 +172,7 @@ internal static partial class Program
 
 		var said = before;
 		JsonElement? exit = null;
-		await Until(async () => (said = await Said()) != before && (exit = await Labelled("Exit Talks")) != null, seconds: 12);
+		await Until(async () => (said = await Said()) != before && (exit = await Labelled("Exit Talks")) != null, seconds: 12, every: 0.25);
 		Console.WriteLine(said != before && said.Length > 0 ? said : "Teklif gönderildi.");
 		if (exit is { } leave) await Fm.Get("press", ("ptr", Field(leave, "Pointer")));
 		Console.WriteLine("Cevap birkaç gün içinde gelen kutusuna düşer.");
@@ -171,6 +182,125 @@ internal static partial class Program
 		{
 			var talk = await Fm.GetJson("talk");
 			return talk.TryGetProperty("Says", out var says) ? string.Join(" ", says.EnumerateArray().Select(l => l.GetString())) : "";
+		}
+
+		// Walks the terms with the arrows until the offer is sent (true) or left (false).
+		async Task<bool> EditOffer()
+		{
+			while (true)
+			{
+				if (await OfferScreen.Read(Fm) is not { } now) return true;
+
+				var items = new List<string>();
+				var actions = new List<Func<Task<string>>>();
+				items.Add("Teklifi gönder"); actions.Add(null);
+				foreach (var option in now.Options.Where(o => o.Choice.Choices.Count > 1))
+				{
+					items.Add($"{OfferScreen.OptionName(option)}: {option.Choice.Value}");
+					actions.Add(() => PickChoice(OfferScreen.OptionName(option), option.Choice, s => s.Options.FirstOrDefault(o => o.Choice.Pointer == option.Choice.Pointer)?.Choice));
+				}
+				foreach (var row in now.Rows)
+				{
+					items.Add($"{OfferScreen.Say(row.Label)}: {row.Shown}");
+					actions.Add(() => EditRow(row));
+				}
+				foreach (var add in now.Adds)
+				{
+					items.Add(add.Section == "Additional Fees" ? "+ Ek ödeme ekle" : "+ Madde ekle");
+					actions.Add(() => AddTerm(add));
+				}
+
+				if (Ui.Ask("Teklif — değiştirmek istediğini seç:", items, cancel: "Gönderme, ekranı açık bırak") is not { } picked) return false;
+				if (actions[picked] == null)
+				{
+					if (Ui.Ask($"{now.Player} için {now.BudgetCost} teklif gidecek. Geri alınamaz.", ["Gönder"], cancel: "Geri dön") == null) continue;
+					return true;
+				}
+
+				// The card is drawn again in place of the old one, so the terminal holds one offer.
+				var failed = await actions[picked]();
+				Ui.Out.Clear(true);
+				if (await OfferScreen.Read(Fm) is { } redrawn) redrawn.Draw();
+				if (failed != null) Ui.Line($"[red]{Ui.Safe(failed)}[/]");
+			}
+		}
+
+		async Task<string> EditRow(OfferScreen.Term row)
+		{
+			var ways = new List<string>();
+			if (row.Choice != null) ways.Add($"Seçimi değiştir ({row.Choice.Value})");
+			if (row.Amount != null) ways.Add($"Tutarı değiştir ({row.Amount.Value})");
+			if (row.Remove.Length > 0) ways.Add("Kaldır");
+			if (ways.Count == 0) return "Bu şart değiştirilemiyor.";
+
+			var way = ways.Count == 1 ? 0 : Ui.Ask(OfferScreen.Say(row.Label), ways, cancel: "Geri");
+			if (way == null) return null;
+			var chosen = ways[way.Value];
+			if (chosen.StartsWith("Seçimi", StringComparison.Ordinal))
+				return await PickChoice(OfferScreen.Say(row.Label), row.Choice, s => s.Row(row.Label)?.Choice);
+			if (chosen.StartsWith("Tutarı", StringComparison.Ordinal))
+			{
+				if (Ui.Text($"{OfferScreen.Say(row.Label)} tutarı (ör. 7.5M, 250K; boş: vazgeç)") is not { } typed) return null;
+				if (Money(typed) is not { } amount) return $"'{typed}' bir tutar değil.";
+				return await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row.Label)?.Amount);
+			}
+			return await OfferScreen.Remove(Fm, row);
+		}
+
+		async Task<string> PickChoice(string title, OfferScreen.Control control, Func<OfferScreen, OfferScreen.Control> after)
+		{
+			if (Ui.Ask(title, control.Choices, current: control.Choices.IndexOf(control.Value), cancel: "Geri") is not { } picked) return null;
+			return control.Choices[picked] == control.Value ? null : await OfferScreen.Choose(Fm, control, control.Choices[picked], after);
+		}
+
+		async Task<string> AddTerm(OfferScreen.Term add)
+		{
+			// A choice that opens a submenu (a bonus for a trophy or an award) cannot be added yet.
+			var choices = add.Choice.Choices.Where(c => !c.EndsWith("›", StringComparison.Ordinal)).ToList();
+			if (Ui.Ask(add.Section == "Additional Fees" ? "Hangi ödeme?" : "Hangi madde?", choices.Select(OfferScreen.Say).ToList(), cancel: "Geri") is not { } picked) return null;
+			return await OfferScreen.Add(Fm, add, choices[picked]);
+		}
+
+		// "Label=value[,value]": the term is added if it is not there yet, then each value goes
+		// to its dropdown when it is one of its choices and to its amount box otherwise.
+		async Task<string> SetTerm(string asked)
+		{
+			var eq = asked.IndexOf('=');
+			if (eq <= 0) return "biçim: \"Şart=değer\", ör. \"Percentage Of Next Sale=20%\"";
+			var label = asked[..eq].Trim();
+			var values = asked[(eq + 1)..].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+			bool Named(string l) => Fold(l) == Fold(label) || Fold(OfferScreen.Say(l)) == Fold(label);
+
+			if (await OfferScreen.Read(Fm) is not { } now) return "teklif ekranı açık değil";
+			if (now.Options.FirstOrDefault(o => Named(OfferScreen.OptionName(o)) || Named(o.Label)) is { } option)
+				return values.Length == 1 && option.Choice.Choices.Contains(values[0])
+					? await OfferScreen.Choose(Fm, option.Choice, values[0], s => s.Options.FirstOrDefault(o => o.Choice.Pointer == option.Choice.Pointer)?.Choice)
+					: $"seçenekler: {string.Join(", ", option.Choice.Choices)}";
+
+			var row = now.Rows.FirstOrDefault(r => Named(r.Label));
+			if (row == null)
+			{
+				var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(Named));
+				if (add == null) return $"böyle bir şart yok. Eklenebilenler: {string.Join(", ", now.Adds.SelectMany(a => a.Choice.Choices))}";
+				var full = add.Choice.Choices.First(Named);
+				if (await OfferScreen.Add(Fm, add, full) is { } failed) return failed;
+				row = (await OfferScreen.Read(Fm))?.Row(full);
+				if (row == null) return "eklendi ama ekranda bulunamadı";
+			}
+
+			foreach (var value in values)
+			{
+				string failed;
+				if (row.Choice != null && row.Choice.Choices.Contains(value))
+					failed = await OfferScreen.Choose(Fm, row.Choice, value, s => s.Row(row.Label)?.Choice);
+				else if (row.Amount != null && Money(value) is { } amount)
+					failed = await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row.Label)?.Amount);
+				else
+					failed = row.Choice != null ? $"'{value}' yok; seçenekler: {string.Join(", ", row.Choice.Choices)}" : $"'{value}' bir tutar değil";
+				if (failed != null) return failed;
+				row = (await OfferScreen.Read(Fm))?.Row(row.Label) ?? row;
+			}
+			return null;
 		}
 
 		async Task<JsonElement?> FeeBox() =>
@@ -190,14 +320,17 @@ internal static partial class Program
 		.Cast<JsonElement?>()
 		.FirstOrDefault();
 
-	/// <summary>"£6.75M", "750K", "€1.2m" or "12000000" in whole units of money; null if it is none of these.</summary>
+	/// <summary>
+	/// "£6.75M", "750K", "€1.2m", "12,000,000" or "12000000" in whole units of money; null if it
+	/// is anything else. Strict on purpose: "25 games" is not 25M.
+	/// </summary>
 	internal static long? Money(string text)
 	{
-		var digits = new string(text.Where(c => char.IsDigit(c) || c is '.' or ',' or 'k' or 'K' or 'm' or 'M' or 'b' or 'B').ToArray()).Replace(",", "");
-		if (digits.Length == 0) return null;
+		var match = System.Text.RegularExpressions.Regex.Match(text.Trim(), @"^[£€$]?\s*(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?\s*([kmb])?$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+		if (!match.Success) return null;
 
-		var multiplier = char.ToUpperInvariant(digits[^1]) switch { 'K' => 1_000L, 'M' => 1_000_000L, 'B' => 1_000_000_000L, _ => 1L };
-		var number = multiplier == 1 ? digits : digits[..^1];
+		var multiplier = match.Groups[3].Value.ToUpperInvariant() switch { "K" => 1_000L, "M" => 1_000_000L, "B" => 1_000_000_000L, _ => 1L };
+		var number = match.Groups[1].Value.Replace(",", "") + match.Groups[2].Value;
 		return double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? (long)Math.Round(value * multiplier) : null;
 	}
 }

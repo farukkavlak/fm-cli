@@ -9,6 +9,10 @@ internal sealed class Bridge
 
 	private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(120) };
 
+	// FM_TRACE=1 prints every call and how long it took, to see where a command's time goes.
+	private static readonly bool Trace = Environment.GetEnvironmentVariable("FM_TRACE") == "1";
+	private static readonly System.Diagnostics.Stopwatch Clock = System.Diagnostics.Stopwatch.StartNew();
+
 	public async Task<string> Get(string route, params (string Key, string Value)[] query)
 	{
 		var url = Base + route;
@@ -18,7 +22,10 @@ internal sealed class Bridge
 
 		try
 		{
-			return await _http.GetStringAsync(url);
+			var started = Clock.ElapsedMilliseconds;
+			var body = await _http.GetStringAsync(url);
+			if (Trace) Console.Error.WriteLine($"[{started / 1000.0,6:0.00}s +{Clock.ElapsedMilliseconds - started,5}ms] {route} {Uri.UnescapeDataString(url[(Base.Length + route.Length)..])}");
+			return body;
 		}
 		catch (HttpRequestException)
 		{
