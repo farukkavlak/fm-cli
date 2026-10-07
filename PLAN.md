@@ -39,8 +39,10 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
    Sayfalar artık adıyla açılıyor (`fm open`), yani her biri "aç, şekle göre oku". Kadro tablosunun diğer görünümleri (Contract, Transfer, Injuries,
    Playing Time, Development…) aynı mekanizmayla hazır: görünümü seç, satırı oku.
 4. **Transfer ve sözleşme** — okuma tarafı başladı: `fm players` veritabanını hazır süzgeçlerle
-   listeliyor (§8.38). `fm search` ve `fm player` herhangi bir oyuncuyu buluyor. Kalan: kısa liste, ve
-   teklif (`TransferOfferEditSessionReference`, 99 property; geri alınamaz, `--yes` ve `--dry` ile).
+   listeliyor (§8.38). `fm search` ve `fm player` herhangi bir oyuncuyu buluyor. `fm offer`
+   teklifi kart olarak çiziyor ve şart şart düzenletiyor, karşı teklifi de açıyor (§8.42, 7 Ekim
+   akşamı). Kalan: `fm contract`'a aynı kart ve düzenleme; alt menülü bonuslar (kupa / ödül);
+   kabul edilen bir teklifin "Accept" tuzağını kart üzerinden göstermek; kısa liste.
 5. **MCP'yi gerçek istemciyle denemek.** `fm mcp` protokolü konuşuyor ve araçlar çalışıyor
    (§8.39) ama Claude Code / Desktop'tan hiç çağrılmadı. Ardından: araç çıktısındaki
    yönlendirmeleri araç adına çevirmek, uzun maç için zaman aşımı, `--json` her komutta.
@@ -54,7 +56,10 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
 - **`fm reply <#>` bir kez yanlış mesajı açtı.** `reply 19` 18'i ("Training Review") açtı;
   hemen ardından 7 denemede hep doğruydu. Önceki komutlar başka sayfa açmıştı (`player`,
   `search`); gelen kutusu listesi bayat okunmuş olabilir. Seyrek, ama yanlış mesaja cevap
-  vermek geri alınamaz: açtıktan sonra başlığı doğrulamalı.
+  vermek geri alınamaz: açtıktan sonra başlığı doğrulamalı. 7 Ekim akşamı bir sebebi görüldü:
+  gelen kutusu iki `inbox` arasında 18 mesajdan 16'ya indi (okunmuş eski mesajlar düştü),
+  `reply 17` ilk seferde doğru mesajı okudu, cevap vermek için çağrılınca "17 numaralı mesaj
+  yok" dedi. Numara komutlar arasında kayıyor; numarayla birlikte başlık da tutulmalı.
 
 ---
 

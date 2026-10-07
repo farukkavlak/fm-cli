@@ -131,12 +131,18 @@ internal sealed class OfferScreen
 	public static string Say(string label) => Turkish.TryGetValue(label, out var said) ? said : label;
 
 	/// <summary>The offer-wide choices have no label of their own; what they offer says which is which.</summary>
-	public static string OptionName(Term option) =>
-		option.Choice.Choices.Contains("Non-Negotiable") ? Say("Negotiable")
-		: option.Choice.Choices.Contains("No Deadline") ? Say("Deadline")
-		// On the other club's answer: theirs, or the one we sent before it.
-		: option.Choice.Choices.Contains("Previous Offer") ? "Gösterilen"
+	public static string OptionKey(Term option) =>
+		option.Choice.Choices.Contains("Non-Negotiable") ? "Negotiable"
+		: option.Choice.Choices.Contains("No Deadline") ? "Deadline"
+		: option.Choice.Choices.Contains("Previous Offer") ? "Shown"
 		: option.Label;
+
+	public static string OptionName(Term option) => OptionKey(option) switch
+	{
+		// On the other club's answer: theirs, or the one we sent before it.
+		"Shown" => "Gösterilen",
+		var key => Say(key),
+	};
 
 	public void Draw()
 	{

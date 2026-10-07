@@ -272,10 +272,13 @@ internal static partial class Program
 			bool Named(string l) => Fold(l) == Fold(label) || Fold(OfferScreen.Say(l)) == Fold(label);
 
 			if (await OfferScreen.Read(Fm) is not { } now) return "teklif ekranı açık değil";
-			if (now.Options.FirstOrDefault(o => Named(OfferScreen.OptionName(o)) || Named(o.Label)) is { } option)
-				return values.Length == 1 && option.Choice.Choices.Contains(values[0])
-					? await OfferScreen.Choose(Fm, option.Choice, values[0], s => s.Options.FirstOrDefault(o => o.Choice.Pointer == option.Choice.Pointer)?.Choice)
+			if (now.Options.FirstOrDefault(o => Named(OfferScreen.OptionKey(o)) || Named(o.Label)) is { } option)
+			{
+				var picked = values.Length == 1 ? option.Choice.Choices.FirstOrDefault(c => Fold(c) == Fold(values[0])) : null;
+				return picked != null
+					? await OfferScreen.Choose(Fm, option.Choice, picked, s => s.Options.FirstOrDefault(o => o.Choice.Pointer == option.Choice.Pointer)?.Choice)
 					: $"seçenekler: {string.Join(", ", option.Choice.Choices)}";
+			}
 
 			var row = now.Rows.FirstOrDefault(r => Named(r.Label));
 			if (row == null)
@@ -288,11 +291,21 @@ internal static partial class Program
 				if (row == null) return "eklendi ama ekranda bulunamadı";
 			}
 
+			// A choice can carry figures that change with the offer ("2 Instalments (£500 each)"),
+			// so the start of one is enough when only one starts that way.
+			string ChoiceFor(OfferScreen.Control control, string value)
+			{
+				if (control == null) return null;
+				if (control.Choices.FirstOrDefault(c => Fold(c) == Fold(value)) is { } exact) return exact;
+				var starting = control.Choices.Where(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal)).ToList();
+				return starting.Count == 1 ? starting[0] : null;
+			}
+
 			foreach (var value in values)
 			{
 				string failed;
-				if (row.Choice != null && row.Choice.Choices.Contains(value))
-					failed = await OfferScreen.Choose(Fm, row.Choice, value, s => s.Row(row.Label)?.Choice);
+				if (ChoiceFor(row.Choice, value) is { } picked)
+					failed = await OfferScreen.Choose(Fm, row.Choice, picked, s => s.Row(row.Label)?.Choice);
 				else if (row.Amount != null && Money(value) is { } amount)
 					failed = await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row.Label)?.Amount);
 				else

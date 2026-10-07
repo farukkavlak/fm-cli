@@ -2040,6 +2040,49 @@ tutarı bununla yürüyor: £40K'dan £1.5M'ye ~2 dk. Yazma denemeleri (`/setnum
 | Doğrulama verisini (`…cash-list-remapper.combobox-validation`) sayıyla doldurup `ValidateValueEvents`'i ateşlemek | event gitti, teklif değişmedi |
 | `OnNumericValueChanged(key, value)` doğrudan | aynı; ⚠ değeri havuzdaki `TypedValue` üzerinde yerinde değiştirdiğim için oyun kilitlendi, kaldırıldı |
 
+### Teklif ekranını okumak ve düzenlemek: `/offer` (7 Ekim 2026 akşamı)
+
+Ekran veriye bağlı (`…transfer-offer-remapper7…binding-variables0.transferoffer`,
+`TransferOfferEditSessionReference`) ama şartların listeleri (`TransferOfferTransferBaseOptions`,
+`TransferOfferAdditionalClauses`…) ağaçta yalnızca `List<TypedValue>` olarak görünüyor. Ekranın
+kendisini okumak daha kolay çıktı:
+
+- Başlık: `#club-player-text` ("Galatasaray"), `#player-text` ("(Mauro Icardi)"); maliyet
+  `#Text_TransferCostValue`, `#Text_TotalCostValue`.
+- Şartlar `#frames-contract-terms` satırları; üç başlığın altında: `#players-to-exchange-title`
+  ("Base Details"), `#fees-title` ("Additional Fees"), `#clauses-title` ("Additional Clauses").
+  Satırın adı `#primary-text`. Değeri bir `FMCombobox` (tutar), bir `SIDropdown` (seçim) ya da
+  ikisi birden: "After League Appearances" = "20 games" + "£250K". Satırdaki
+  `#lock-button-remapper` altında ayrı bir dropdown var (0 · 1 · 2, kilit), değer değil.
+- Başlıkların üstünde teklif çapında iki dropdown: Negotiable / Non-Negotiable ve cevap süresi
+  (No Deadline · Today · Tomorrow · Next Week). Karşı teklifte bir üçüncüsü: Current Offer /
+  Previous Offer, kulübün teklifiyle bizim öncekini değiştiriyor.
+- Ek ödeme ve madde başlıklarının her birinde bir "Add" dropdown'u. Ödemeler: Instalments (6/12
+  monthly), After League Appearances, Per League Appearance, After International Appearances,
+  Minimum League Goals, Players To Exchange, iki alt menülü bonus. Maddeler: Loan Back Length,
+  Can Be Recalled From Loan Back, Percentage Of Next Sale, Percentage Of Profit From Next Sale,
+  Buy Back Price, Selling Team Wage Contribution, Arrange Friendly, Sell Player First.
+
+Değiştirmek:
+
+| İş | Yol | Not |
+|---|---|---|
+| Şart ya da madde eklemek | "Add" dropdown'unda `/select … fire=1` | `fire` olmadan seçim görünür ama satır gelmez |
+| Seçimi değiştirmek (%20, End Of Season, 20 games) | `/select … fire=1` | aynı |
+| Cevap süresi | `/select` | olay göndermiyor; `fire=1` "no events to send" der ama değer yazılmış olur |
+| Tutar | `/setnumber` (odak olayları, yukarıda) | ek ödemelerde de çalışıyor |
+| Satırı kaldırmak | satırın `#remove-button-visible` altındaki butona `/click` | |
+| Alt menülü bonus (kupa, ödül) | `/select path=8,3` + `how=bind/path/try` + `fire=1` | üçü de satır eklemedi; açık |
+
+Doğrulandı: Robin Hack'e £4M + %10 sonraki satış + cevap yarın gönderildi. Gladbach'ın
+cevabında "View Offer" aynı ekranı açtı: kulüp %20 istiyordu, "Previous Offer"da bizimki tam
+olarak duruyordu (£4M, Immediate, %10, Tomorrow). Icardi'ye giden teklifte ise kulübümüzün
+yönetimi "Board set to block Icardi deal" ile araya girdi (rakip kulüp). Mesaj bedeli £5.25M
+diyordu, ekran £5.3M (£5M + 20 maç sonrası £300K); farkın nereden geldiği bilinmiyor.
+
+Oyun teklifi baştan reddedince ekranı açmıyor, bir diyalog açıyor ("Cannot sign Orkun: This
+player has already agreed to join his loan club."). `offer` artık bunu bekliyor ve söylüyor.
+
 ### Teklif kabulünden sonrası (keşfedilmedi, bir tuzak)
 
 Akış: teklif → kulüp ya reddediyor ("… bid rejected": Negotiate / Interact with Board) ya da

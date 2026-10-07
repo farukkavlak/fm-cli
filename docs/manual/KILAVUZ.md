@@ -211,15 +211,49 @@ Oynanmış maçlar beyaz ve sonuçlu, oynanacaklar soluk.
 uygular, `--view "<x>"` kolonları değiştirir. *(Çıktısı şu an dar terminalde dağınık;
 düzeltilince görüntüsü buraya gelecek.)*
 
-Teklif:
+### Teklif — `offer`
 
 ```
-fm offer "<oyuncu>" 7.5M          bonservis teklifi
-fm offer "<oyuncu>" 7.5M --loan   kiralık
-fm offer "<oyuncu>" 7.5M --dry    göndermeden ne yapacağını söyle
+fm offer "<oyuncu>"                 teklif ekranını aç, kartı göster, okla düzenle
+fm offer "<oyuncu>" 7.5M            bonservisi baştan yaz
+fm offer "<oyuncu>" --loan          kiralık
+fm offer "<oyuncu>" 7.5M --dry      hazırla, kartı göster, gönderme
 ```
 
-> `offer` yeniden ele alınıyor (yavaş ve görsel değil); bu bölüm değişecek.
+Teklif terminalde bir kart olarak çizilir: temel şartlar (bonservis, transfer tarihi), ek
+ödemeler, ek maddeler, bütçeden ne çıkacağı. Altında bir menü var: bir şartı seçip değerini
+değiştirirsin, "+ Ek ödeme ekle" / "+ Madde ekle" ile yenisini koyarsın, bir şartı kaldırırsın.
+Her değişiklikten sonra kart oyundan yeniden okunur, yani gördüğün şey oyunun ekranında
+olanın kendisi. "Teklifi gönder" bir kez daha sorar, çünkü gönderilen teklif geri alınamaz.
+
+![fm offer](img/offer.png)
+
+Sonraki satıştan payı %25'ten %35'e çekince:
+
+![fm offer — düzenlendi](img/offer-edited.png)
+
+Script'ten (ya da menüye girmeden) şartlar `--term "Şart=değer"` ile verilir; oyunun kendi
+adları ve seçenekleri kullanılır, Türkçe karşılıkları da olur. Ekranda olmayan bir ödeme ya
+da madde önce eklenir. İki değeri olan şartta (kaç maç sonra, ne kadar) değerler virgülle
+ayrılır. Göndermek için `--yes`:
+
+```
+fm offer "Robin Hack" 4M \
+  --term "Percentage Of Next Sale=10%" \
+  --term "After League Appearances=20 games,250K" \
+  --term "Transfer Date=End Of Season" \
+  --term "Cevap süresi=Tomorrow" --yes
+```
+
+Kulübün cevabı gelen kutusuna düşer. "View Offer" ya da "Negotiate" ile açılan karşı teklif de
+aynı komutla kart olarak görünür ve oradan düzenlenip geri gönderilir (`fm offer Hack`).
+"Gösterilen" satırı kulübün teklifiyle senin önceki teklifin arasında geçiş yapar.
+
+Oyun teklifi baştan reddederse (oyuncu başka kulüple anlaşmışsa, rakip kulüpse…) sebebini
+olduğu gibi yazar: `Orkun Kökçü için teklif yapılamıyor. Oyun diyor ki: Cannot sign Orkun.
+This player has already agreed to join his loan club.`
+
+Henüz olmayan: alt menülü bonuslar (bir kupa ya da ödül kazanınca ödeme) eklenemiyor.
 
 ## 11. Kaydetmek — `save`
 
