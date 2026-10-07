@@ -49,15 +49,22 @@ internal static partial class Program
 			var before = string.Join("|", rows.Select(Values));
 			if (args.Contains("--advice"))
 			{
-				if (await Labelled("Apply all advice", "StandardButton") is not { } apply)
+				// The assistant's buttons come a moment after the card's rows.
+				JsonElement? apply = null;
+				await Until(async () => (apply = await Labelled("Apply all advice", "StandardButton")) != null, seconds: 4, every: 0.25);
+				if (apply == null)
 				{
 					Console.Error.WriteLine("Yardımcının önerisi yok (ya da zaten uygulanmış).");
 					return 1;
 				}
-				await Fm.Get("press", ("ptr", Field(apply, "Pointer")));
+				await Fm.Get("press", ("ptr", Field(apply.Value, "Pointer")));
 			}
 			else if (await Labelled("Clear Instructions") is { } clear) await Fm.Get("press", ("ptr", Field(clear, "Pointer")));
-			await Until(async () => string.Join("|", (rows = await Rows()).Select(Values)) != before, seconds: 5, every: 0.25);
+			// The table is laid out again while the advice lands: rows go missing for a moment.
+			var count = rows.Count;
+			await Until(async () => (rows = await Rows()).Count >= count && string.Join("|", rows.Select(Values)) != before, seconds: 5, every: 0.25);
+			await Task.Delay(500);
+			rows = await Rows();
 		}
 
 		var words = Words(args).ToList();
