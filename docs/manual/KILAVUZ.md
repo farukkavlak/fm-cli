@@ -253,7 +253,16 @@ Oyun teklifi baştan reddederse (oyuncu başka kulüple anlaşmışsa, rakip kul
 olduğu gibi yazar: `Orkun Kökçü için teklif yapılamıyor. Oyun diyor ki: Cannot sign Orkun.
 This player has already agreed to join his loan club.`
 
-Henüz olmayan: alt menülü bonuslar (bir kupa ya da ödül kazanınca ödeme) eklenemiyor.
+Her şartın bir de pazarlık kilidi var (oyundaki asma kilit): **Pazarlığa açık**, **Yarı
+pazarlıklı**, **Pazarlıksız** ve ek ödeme ile maddelerde **Çıkar ve yasakla** (karşı taraf bunu
+teklife geri koyamaz). Menüde şartı seçip "Pazarlık durumu"ndan değiştirilir; kartta açık
+olmayanlar renkli yazar. Script'te değer olarak verilir:
+`--term "Fee=Non-Negotiable"`, `--term "Instalments (12 monthly)=Remove & Exclude"`.
+
+![fm offer — kilitler](img/offer-locked.png)
+
+Henüz olmayan: alt menülü seçimler eklenemiyor. Bunlar bir kupa ya da ödül kazanınca ödenen
+bonuslar ve takasa oyuncu koymak.
 
 ## 11. Kaydetmek — `save`
 

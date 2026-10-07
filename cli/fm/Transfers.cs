@@ -201,10 +201,12 @@ internal static partial class Program
 				}
 				foreach (var row in now.Rows)
 				{
-					items.Add($"{OfferScreen.Say(row.Label)}: {row.Shown}");
+					items.Add(OfferScreen.MenuLine(row));
 					actions.Add(() => EditRow(row));
 				}
-				foreach (var add in now.Adds)
+				// Only what can be added: a list whose every choice opens a submenu (a player to
+				// exchange, a bonus for a trophy) cannot be chosen from yet.
+				foreach (var add in now.Adds.Where(a => a.Choice.Choices.Any(c => !c.EndsWith("›", StringComparison.Ordinal))))
 				{
 					items.Add(add.Section == "Additional Fees" ? "+ Ek ödeme ekle" : "+ Madde ekle");
 					actions.Add(() => AddTerm(add));
@@ -230,6 +232,7 @@ internal static partial class Program
 			var ways = new List<string>();
 			if (row.Choice != null) ways.Add($"Seçimi değiştir ({row.Choice.Value})");
 			if (row.Amount != null) ways.Add($"Tutarı değiştir ({row.Amount.Value})");
+			if (row.Lock != null) ways.Add($"Pazarlık durumu ({OfferScreen.SayLock(row.Lock.Value)})");
 			if (row.Remove.Length > 0) ways.Add("Kaldır");
 			if (ways.Count == 0) return "Bu şart değiştirilemiyor.";
 
@@ -243,6 +246,12 @@ internal static partial class Program
 				if (Ui.Text($"{OfferScreen.Say(row.Label)} tutarı (ör. 7.5M, 250K; boş: vazgeç)") is not { } typed) return null;
 				if (Money(typed) is not { } amount) return $"'{typed}' bir tutar değil.";
 				return await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row.Label)?.Amount);
+			}
+			if (chosen.StartsWith("Pazarlık", StringComparison.Ordinal))
+			{
+				var names = row.Lock.Choices.Select(OfferScreen.SayLock).ToList();
+				if (Ui.Ask($"{OfferScreen.Say(row.Label)} — karşı taraf bunu ne kadar değiştirebilsin?", names, current: row.Lock.Choices.IndexOf(row.Lock.Value), cancel: "Geri") is not { } picked) return null;
+				return row.Lock.Choices[picked] == row.Lock.Value ? null : await OfferScreen.SetLock(Fm, row, row.Lock.Choices[picked]);
 			}
 			return await OfferScreen.Remove(Fm, row);
 		}
@@ -304,7 +313,10 @@ internal static partial class Program
 			foreach (var value in values)
 			{
 				string failed;
-				if (ChoiceFor(row.Choice, value) is { } picked)
+				var lockName = row.Lock?.Choices.FirstOrDefault(l => Fold(l) == Fold(value) || Fold(OfferScreen.SayLock(l)) == Fold(value));
+				if (lockName != null)
+					failed = await OfferScreen.SetLock(Fm, row, lockName);
+				else if (ChoiceFor(row.Choice, value) is { } picked)
 					failed = await OfferScreen.Choose(Fm, row.Choice, picked, s => s.Row(row.Label)?.Choice);
 				else if (row.Amount != null && Money(value) is { } amount)
 					failed = await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row.Label)?.Amount);

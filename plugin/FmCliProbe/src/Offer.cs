@@ -55,11 +55,13 @@ internal static class Offer
 			}
 			catch { return; }
 
+			// A heading is known by its text: the base terms and the players to exchange share
+			// the element name.
 			switch (name)
 			{
-				case "players-to-exchange-title": section = "Base Details"; break;
-				case "fees-title": section = "Additional Fees"; break;
-				case "clauses-title": section = "Additional Clauses"; break;
+				case "players-to-exchange-title" or "fees-title" or "clauses-title":
+					try { section = Text.Plain(element.TryCast<TextElement>()?.text ?? "") ; } catch { }
+					break;
 				case "frames-contract-terms":
 					if (Row(element, section) is { } row) rows.Add(row);
 					return;
@@ -70,7 +72,7 @@ internal static class Offer
 			if (dropdown != null && Shown(dropdown))
 			{
 				var label = Buttons.LabelOf(dropdown);
-				if (label == "Add" && section.Length > 0) adds.Add($"{{\"Section\": \"{section}\", {Choices(dropdown)}}}");
+				if (label.StartsWith("Add", System.StringComparison.Ordinal) && section.Length > 0) adds.Add($"{{\"Section\": \"{section}\", {Choices(dropdown)}}}");
 				else if (section.Length == 0) options.Add($"{{\"Label\": \"{Report.Escape(label)}\", {Choices(dropdown)}}}");
 				return;
 			}
@@ -98,6 +100,7 @@ internal static class Offer
 
 		FMCombobox box = null;
 		SIDropdown choice = null;
+		SIDropdown lockList = null;
 		string fixedText = "";
 		string remove = "";
 		var stack = new Stack<VisualElement>();
@@ -114,8 +117,21 @@ internal static class Offer
 			}
 			catch { continue; }
 
-			// The lock beside a term is a dropdown of its own; it is not the term's value.
-			if (name == "lock-button-remapper") continue;
+			// The lock beside a term is a dropdown of its own, not the term's value: how firmly
+			// the term is held in the talks (FINDINGS §8.42).
+			if (name == "lock-button-remapper")
+			{
+				if (lockList == null)
+				{
+					foreach (var inner in Buttons.AllDropdownsUnder(element))
+					{
+						if (!Shown(inner)) continue;
+						lockList = inner;
+						break;
+					}
+				}
+				continue;
+			}
 
 			if (box == null)
 			{
@@ -159,7 +175,13 @@ internal static class Offer
 			try { amount = box.m_numericInput?.value ?? 0; } catch { }
 			parts.Add($"\"Amount\": {{\"Pointer\": \"0x{box.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(box))}\", \"Number\": \"{amount}\"}}");
 		}
-		if (parts.Count == 0) parts.Add($"\"Fixed\": \"{Report.Escape(fixedText)}\"");
+		if (lockList != null)
+		{
+			var count = 0;
+			try { count = lockList.m_choices?.Count ?? 0; } catch { }
+			parts.Add($"\"Lock\": {{\"Pointer\": \"0x{lockList.Pointer.ToInt64():x}\", \"Index\": \"{lockList.SelectedIndex}\", \"Count\": \"{count}\"}}");
+		}
+		if (parts.Count == 0 || parts.Count == 1 && lockList != null) parts.Add($"\"Fixed\": \"{Report.Escape(fixedText)}\"");
 		sb.Append(string.Join(", ", parts));
 		return sb.Append('}').ToString();
 	}

@@ -2072,7 +2072,23 @@ Değiştirmek:
 | Cevap süresi | `/select` | olay göndermiyor; `fire=1` "no events to send" der ama değer yazılmış olur |
 | Tutar | `/setnumber` (odak olayları, yukarıda) | ek ödemelerde de çalışıyor |
 | Satırı kaldırmak | satırın `#remove-button-visible` altındaki butona `/click` | |
-| Alt menülü bonus (kupa, ödül) | `/select path=8,3` + `how=bind/path/try` + `fire=1` | üçü de satır eklemedi; açık |
+| Pazarlık kilidi | satırdaki `#lock-button-remapper` dropdown'unda `/select index=N fire=1` | aşağıda |
+| Alt menülü bonus (kupa, ödül), takas oyuncusu | `/select path=8,3` + `how=bind/path/try/process/value/trigger` (+ `fire=1`) | hiçbiri satır eklemedi; açık |
+
+**Pazarlık kilidi.** Her şartın yanındaki asma kilit, `…clause-variables1.lock-button-remapper7.lock.LockStatus`'a
+yazan isimsiz bir dropdown; seçenekleri yalnızca sayı. Adları dil dosyasında (`example.ltf`,
+"Negotiation Locks UI", FM-45573): 0 **Negotiable** (açık kilit), 1 **Semi-Negotiable** (kapalı,
+turuncu), 2 **Non-Negotiable** (kapalı, kırmızı), 3 **Remove & Exclude** (çöp kutusu; yalnızca
+ek ödeme ve maddelerde, temel şartlarda üç seçenek var). Ekranda olmayan bir ödemeye Remove &
+Exclude demek için önce eklemek gerekiyor; 12 aylık taksite deyince oyun 6 aylığı da kendiliğinden
+ekleyip yasakladı. Yasaklı satırın değeri gizleniyor.
+
+**Alt menü.** "Add" listesi seçimini `…binding-variables0.SelectedClause`'a yazıyor. Alt menünün
+yaprakları da üst seviyedekilerle aynı biçimde (`RowData {PropertyValue, DisplayValue}`; ödüllerin
+hepsinde PropertyValue aynı, 1635214434). `SIDropdown`'da `m_childrenDropdowns`, `m_selectionPath`,
+`HandleDropdownSelection(ChangeDropdownSelectionEvent)` var: oyunda alt menü ayrı bir çocuk
+dropdown olarak açılıyor, seçimi o yapıyor olabilir. Denenmedi. "Players To Exchange" ayrı bir
+bölüm açıyor; tek seçeneği "Add Player › Other Player From Squad ›", aynı engel.
 
 Doğrulandı: Robin Hack'e £4M + %10 sonraki satış + cevap yarın gönderildi. Gladbach'ın
 cevabında "View Offer" aynı ekranı açtı: kulüp %20 istiyordu, "Previous Offer"da bizimki tam

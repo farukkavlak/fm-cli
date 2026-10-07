@@ -234,7 +234,21 @@ internal static class Buttons
 			case "path": dropdown.OnSelectionChangedInternal(path.Cast<Il2CppSystem.Collections.Generic.IReadOnlyList<int>>()); break;
 			case "try": dropdown.TrySetSelectedValue(chosen); break;
 			case "bind": dropdown.UpdateDropdownSelectionBinding(chosen); break;
-			default: return $"error: how={how} is not one of path, try, bind";
+			// As a click on the open submenu ends: the path chosen, then the dropdown's own
+			// handling of what it now holds, rather than its events queued from outside.
+			case "process":
+				dropdown.OnSelectionChangedInternal(path.Cast<Il2CppSystem.Collections.Generic.IReadOnlyList<int>>());
+				dropdown.ProcessSelectionEvents();
+				return $"selected {described} (process); pending={dropdown.m_hasPendingSelectionEvents}";
+			case "value":
+				var set = dropdown.SetSelectedValue(chosen);
+				dropdown.ProcessSelectionEvents();
+				return $"selected {described} (value, set={set}); pending={dropdown.m_hasPendingSelectionEvents}";
+			case "trigger":
+				dropdown.OnSelectionChangedInternal(path.Cast<Il2CppSystem.Collections.Generic.IReadOnlyList<int>>());
+				dropdown.TriggerSelectionEvent(path[0]);
+				return $"selected {described} (trigger)";
+			default: return $"error: how={how} is not one of path, try, bind, process, value, trigger";
 		}
 
 		if (q["fire"] != "1") return $"selected {described} ({how})";
@@ -307,6 +321,29 @@ internal static class Buttons
 	}
 
 	private const string SubmenuMark = " ›";
+
+	internal static IEnumerable<SIDropdown> AllDropdownsUnder(VisualElement root)
+	{
+		var stack = new Stack<VisualElement>();
+		stack.Push(root);
+		var seen = 0;
+		while (stack.Count > 0 && seen++ < 400)
+		{
+			var element = stack.Pop();
+			SIDropdown dropdown = null;
+			try { dropdown = element.TryCast<SIDropdown>(); } catch { }
+			if (dropdown != null) yield return dropdown;
+
+			VisualElement[] children;
+			try
+			{
+				var hierarchy = element.hierarchy;
+				children = Enumerable.Range(0, hierarchy.childCount).Select(i => hierarchy.ElementAt(i)).ToArray();
+			}
+			catch { continue; }
+			for (var i = children.Length - 1; i >= 0; i--) stack.Push(children[i]);
+		}
+	}
 
 	internal static IEnumerable<SIDropdown> AllDropdowns()
 	{

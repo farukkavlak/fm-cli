@@ -9,7 +9,7 @@ sees; pyte keeps a terminal screen and we photograph that.
 A scene is a list of steps in SCENES below:
   ("wait", "<regex>")    wait until the screen shows it (60 s, 600 s for matches)
   ("keys", "<keys>")     type; "\\r" is Enter, DOWN / UP move in menus
-  ("pick", "<regex>")    move down a menu until the highlighted line matches
+  ("pick", "<regex>")    move through a menu until the highlighted line matches
   ("exit",)              wait for the command to finish
   ("snap", "<name>")     photograph the screen as <out-dir>/<name>.png
 """
@@ -34,6 +34,11 @@ SCENES = {
 		("pick", r"Sonraki satıştan pay"), ("keys", "\r"), ("wait", r"Seçimi değiştir"), ("pick", r"Seçimi değiştir"), ("keys", "\r"),
 		("wait", r"35%"), ("pick", r"35%"), ("snap", "offer-choice"), ("keys", "\r"),
 		("wait", r"Sonraki satıştan pay: 35%"), ("snap", "offer-edited"),
+		("pick", r"Gönderme, ekranı"), ("keys", "\r"), ("exit",)]),
+	"offer-lock": ("fm offer 'Robin Hack'", [("wait", r"değiştirmek istediğini seç"),
+		("pick", r"Bonservis:"), ("keys", "\r"), ("wait", r"Pazarlık durumu"), ("pick", r"Pazarlık durumu"), ("keys", "\r"),
+		("wait", r"ne kadar değiştirebilsin"), ("pick", r"Yarı pazarlıklı"), ("snap", "offer-lock"), ("keys", "\r"),
+		("wait", r"Yarı pazarlıklı"), ("snap", "offer-locked"),
 		("pick", r"Gönderme, ekranı"), ("keys", "\r"), ("exit",)]),
 }
 
@@ -133,11 +138,17 @@ def play(out, name):
 				break
 			pump(0.6)  # let the redraw settle
 		elif kind == "pick":
-			for _ in range(80):
+			# Menus open on the current choice, so the one wanted can be above: down to the
+			# bottom first, then back up.
+			key, last = DOWN, None
+			for _ in range(160):
 				current = next((l for l in screen.display if l.lstrip().startswith(">")), "")
 				if re.search(arg, current):
 					break
-				os.write(fd, DOWN.encode())
+				if current == last:
+					key = UP
+				last = current
+				os.write(fd, key.encode())
 				alive = pump(0.15)
 			pump(0.4)
 		elif kind == "keys":

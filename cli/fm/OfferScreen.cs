@@ -24,9 +24,16 @@ internal sealed class OfferScreen
 
 	public sealed record Control(string Pointer, string Value, List<string> Choices);
 
-	public sealed record Term(string Section, string Label, string Detail, string Remove, Control Choice, Control Amount, string Fixed)
+	/// <summary>
+	/// How firmly a term is held in the talks: the padlock beside it. Its choices are bare
+	/// indices; these are the game's names for them. The last is only offered on terms that
+	/// can be left out, and takes the term out of the deal for good.
+	/// </summary>
+	public static readonly string[] Locks = ["Negotiable", "Semi-Negotiable", "Non-Negotiable", "Remove & Exclude"];
+
+	public sealed record Term(string Section, string Label, string Detail, string Remove, Control Choice, Control Amount, string Fixed, Control Lock = null)
 	{
-		public string Shown => string.Join(" · ", new[] { Choice?.Value, Amount?.Value, Fixed }.Where(v => !string.IsNullOrEmpty(v)));
+		public string Shown => string.Join(" · ", new[] { Choice?.Value, Amount?.Value, Fixed }.Where(v => !string.IsNullOrEmpty(v))) is { Length: > 0 } shown ? shown : "—";
 	}
 
 	/// <summary>The offer as it stands, or null when no offer screen is open.</summary>
@@ -44,7 +51,10 @@ internal sealed class OfferScreen
 			Rows = rows.EnumerateArray().Select(r => new Term(F(r, "Section"), F(r, "Label"), F(r, "Detail"), F(r, "Remove"),
 				r.TryGetProperty("Choice", out var c) ? ControlOf(c) : null,
 				r.TryGetProperty("Amount", out var a) ? new Control(F(a, "Pointer"), F(a, "Value"), []) : null,
-				F(r, "Fixed"))).ToList(),
+				F(r, "Fixed"),
+				r.TryGetProperty("Lock", out var l) && int.TryParse(F(l, "Index"), out var at) && int.TryParse(F(l, "Count"), out var count)
+					? new Control(F(l, "Pointer"), at >= 0 && at < Locks.Length ? Locks[at] : "", Locks.Take(count).ToList())
+					: null)).ToList(),
 			Adds = data.GetProperty("Adds").EnumerateArray().Select(a => new Term(F(a, "Section"), "Add", "", "", ControlOf(a), null, "")).ToList(),
 		};
 
@@ -71,6 +81,16 @@ internal sealed class OfferScreen
 		var said = await fm.Get("setnumber", ("ptr", control.Pointer), ("value", amount.ToString(CultureInfo.InvariantCulture)));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
 		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value) || Program.Money(control.Value) == amount ? null : "tutar ekranda değişmedi";
+	}
+
+	/// <summary>Sets how firmly a term is held; the lock's choices are indices.</summary>
+	public static async Task<string> SetLock(Bridge fm, Term term, string lockName)
+	{
+		var index = term.Lock.Choices.IndexOf(lockName);
+		if (index < 0) return $"'{lockName}' bu şartta yok; seçenekler: {string.Join(", ", term.Lock.Choices)}";
+		var said = await fm.Get("select", ("ptr", term.Lock.Pointer), ("index", index.ToString(CultureInfo.InvariantCulture)), ("fire", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
+		return await Settles(fm, s => s.Row(term.Label)?.Lock?.Value == lockName) ? null : $"'{lockName}' ekranda görünmedi";
 	}
 
 	/// <summary>Puts another term in from a heading's "Add" list.</summary>
@@ -107,6 +127,7 @@ internal sealed class OfferScreen
 		["Base Details"] = "Temel şartlar",
 		["Additional Fees"] = "Ek ödemeler",
 		["Additional Clauses"] = "Ek maddeler",
+		["Players To Exchange"] = "Takas oyuncuları",
 		["Fee"] = "Bonservis",
 		["Transfer Date"] = "Transfer tarihi",
 		["Negotiable"] = "Pazarlık",
@@ -125,7 +146,16 @@ internal sealed class OfferScreen
 		["Arrange Friendly"] = "Hazırlık maçı",
 		["Loan Back Length"] = "Geri kiralama süresi",
 		["Can Be Recalled From Loan Back"] = "Geri kiralamadan çağrılabilir",
+		["Semi-Negotiable"] = "Yarı pazarlıklı",
+		["Non-Negotiable"] = "Pazarlıksız",
+		["Remove & Exclude"] = "Çıkar ve yasakla",
 	};
+
+	/// <summary>A term as one line of the edit menu: its value, and its lock when it is not the usual.</summary>
+	public static string MenuLine(Term row) =>
+		$"{Say(row.Label)}: {row.Shown}" + (row.Lock is { Value: not "Negotiable" and not "" } l ? $" ({SayLock(l.Value)})" : "");
+
+	public static string SayLock(string lockName) => lockName == "Negotiable" ? "Pazarlığa açık" : Say(lockName);
 
 	/// <summary>A label in Turkish where one is known; the game's own word otherwise.</summary>
 	public static string Say(string label) => Turkish.TryGetValue(label, out var said) ? said : label;
@@ -153,7 +183,7 @@ internal sealed class OfferScreen
 			foreach (var group in Rows.GroupBy(r => r.Section))
 			{
 				Console.WriteLine($"{Say(group.Key)}:");
-				foreach (var row in group) Console.WriteLine($"  {Say(row.Label)}: {row.Shown}");
+				foreach (var row in group) Console.WriteLine($"  {Say(row.Label)}: {row.Shown}{(row.Lock is { Value: not "Negotiable" and not "" } l ? $"  [{SayLock(l.Value)}]" : "")}");
 			}
 			Console.WriteLine($"Bütçeden çıkacak: {BudgetCost} · Olası toplam: {TotalCost}");
 			return;
@@ -164,7 +194,9 @@ internal sealed class OfferScreen
 		{
 			grid.AddRow(new Markup($"[bold]{Ui.Safe(Say(group.Key))}[/]"), new Text(""));
 			foreach (var row in group)
-				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(row.Shown)}[/]" + (row.Detail.Length > 0 ? $" [dim]{Ui.Safe(row.Detail)}[/]" : "")));
+				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(row.Shown)}[/]"
+					+ (row.Detail.Length > 0 ? $" [dim]{Ui.Safe(row.Detail)}[/]" : "")
+					+ LockMark(row.Lock)));
 		}
 		grid.AddRow(new Text(""), new Text(""));
 		grid.AddRow(new Markup("[dim]Bütçeden çıkacak[/]"), new Markup($"[bold]{Ui.Safe(BudgetCost)}[/]"));
@@ -179,6 +211,18 @@ internal sealed class OfferScreen
 			Padding = new Padding(1, 0, 1, 0),
 		});
 	}
+
+	/// <summary>
+	/// A term open to negotiation is the usual case and goes unmarked. No padlock glyph: it
+	/// takes two cells and pushes the card's border out.
+	/// </summary>
+	private static string LockMark(Control lockState) => lockState?.Value switch
+	{
+		"Semi-Negotiable" => $"  [darkorange]{SayLock("Semi-Negotiable")}[/]",
+		"Non-Negotiable" => $"  [red]{SayLock("Non-Negotiable")}[/]",
+		"Remove & Exclude" => $"  [red]✕ {SayLock("Remove & Exclude")}[/]",
+		_ => "",
+	};
 
 	private static bool Same(string a, string b) => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 
