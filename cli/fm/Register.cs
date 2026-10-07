@@ -60,6 +60,17 @@ internal static partial class Program
 			// The list breaks one of the competition's rules: say which, since what to leave
 			// out to meet it is the manager's call.
 			var broken = await BrokenRules();
+			if (broken.Count > 0 && broken.All(r => r.Met))
+			{
+				// Every rule holds and Confirm is still off: the game takes no changes to a list
+				// already sent until its window allows them, whatever the list.
+				var window = FoundValues(await Fm.Get("find", ("name", "RegistrationDaysLeft"), ("limit", "1"))).FirstOrDefault();
+				Console.Error.WriteLine($"{what} kuralları tutuyor ama oyun şu an değişiklik kabul etmiyor (Confirm kapalı"
+				                        + (string.IsNullOrEmpty(window) ? ")." : $", kayıt: {window}).")
+				                        + " Daha önce gönderilen liste geçerli.");
+				if (await Labelled("Undo") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
+				return 1;
+			}
 			if (broken.Count > 0)
 			{
 				Console.Error.WriteLine($"{what} gönderilemiyor, kurallar tutmuyor:");
@@ -88,16 +99,16 @@ internal static partial class Program
 	}
 
 	/// <summary>The registration page's rules, each with whether the list meets it, in the page's order.</summary>
+	private static List<string> FoundValues(string found) => found.Split('\n')
+		.Where(l => l.TrimStart().StartsWith("= (", StringComparison.Ordinal))
+		.Select(l => l[(l.IndexOf(") ", StringComparison.Ordinal) + 2)..].Trim())
+		.Select(v => v.EndsWith("[0]", StringComparison.Ordinal) || v.EndsWith("]", StringComparison.Ordinal) ? v[..v.LastIndexOf('[')].Trim() : v)
+		.ToList();
+
 	private static async Task<List<(string Rule, bool Met)>> BrokenRules()
 	{
-		static List<string> Values(string found) => found.Split('\n')
-			.Where(l => l.TrimStart().StartsWith("= (", StringComparison.Ordinal))
-			.Select(l => l[(l.IndexOf(") ", StringComparison.Ordinal) + 2)..].Trim())
-			.Select(v => v.EndsWith("[0]", StringComparison.Ordinal) || v.EndsWith("]", StringComparison.Ordinal) ? v[..v.LastIndexOf('[')].Trim() : v)
-			.ToList();
-
-		var rules = Values(await Fm.Get("find", ("name", "SquadSelectionRuleString"), ("limit", "20")));
-		var met = Values(await Fm.Get("find", ("name", "CurrentlyMeetsRule"), ("limit", "20")));
+		var rules = FoundValues(await Fm.Get("find", ("name", "SquadSelectionRuleString"), ("limit", "20")));
+		var met = FoundValues(await Fm.Get("find", ("name", "CurrentlyMeetsRule"), ("limit", "20")));
 
 		// The first "meets" is the whole list's; the rest go with the rules in order.
 		if (met.Count == rules.Count + 1) met = met.Skip(1).ToList();

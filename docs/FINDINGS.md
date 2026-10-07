@@ -2094,8 +2094,13 @@ ekranı açıyor; `OpenRegistration` önce adıyla, olmazsa bununla açar.
   Kayıt sütununun anahtarı da sabit değil ("A", kaydırınca "9"…).
 - Tablo sanal: yalnızca görünen ~27 satır kurulu. `/regscroll?to=0..1` (`ScrollViewToScroll.
   verticalScroller`) ile kaydırıp beş noktada okuyup isimle birleştiriyoruz.
-- Kural değerleri (`SquadSelectionRuleValue`, `CurrentlyMeetsRule`) bağlı ve canlı; ama liste
-  gönderildikten sonra ekran yeniden açılana kadar tazelenmiyor.
+- Kural değerleri (`SquadSelectionRuleValue`, `CurrentlyMeetsRule`) bağlı ve canlı. Daha önce
+  "gönderimden sonra ekran yeniden açılana kadar tazelenmiyor" diye not düşülmüştü; 7 Ekim
+  akşamı bakıldı: ekleme, çıkarma, Undo ve yardımcı seçiminden sonra sayılar doğru değişti.
+  Başarılı bir gönderimin ardından yeniden denenemedi (aşağıda: oyun artık göndermeye izin
+  vermiyor), o kısım doğrulanmadı.
+- Düzenleme oturumu (`squadreg`, `SquadRegistrationEditSession`) ekran kapanınca bitmiyor:
+  çıkarılan oyuncu başka sayfaya gidip dönünce de çıkarılmış duruyor, `Undo` geri alıyor.
 - Oturumun `Players` listesi `/pull ... list=1` ile tam geliyor (31 uygun oyuncu), ama
   `RegisteredPlayers`, `Selected` gibi alanları bu yoldan bağlanmıyor.
 
@@ -2104,6 +2109,15 @@ bulabiliyor). O arada tablo kaydırılırsa anahtar başka oyuncuya bağlanıyor
 erken yeniden tıklamak da geri çeviriyor. `Flip` tıkladıktan sonra kaydırmadan, değer
 değişene kadar bekliyor. Tıklama çizim anına denk gelirse Unity "dirty repaint" hatası veriyor;
 yalnızca o durumda yeniden deniyor.
+
+**Gönderilmiş listeyi değiştirmek.** Liste gönderilmiş, `RegistrationDaysLeft = "Closes now"`
+iken (UCL 3. ön eleme, 2 Ağustos 2025) oyun `CanConfirmChanges`'ı kapalı tutuyor: oyuncu
+çıkarmak, yardımcıya yeniden seçtirmek, hepsi `RuleWarningStrings = "Squad selection is fully
+compliant"` iken bile. Oyun yeniden başlatılıp temiz oturumda denendi, aynı. Yani oyunun kararı,
+bizim okumamız değil; hangisinin (gönderilmiş olması mı, son gün mü) sebep olduğu ayrılamadı.
+`register --send` bunu "kurallar tutuyor ama oyun şu an değişiklik kabul etmiyor" diye söylüyor
+ve değişikliği `Undo` ile geri alıyor (önceden bütün kurallar ✓ iken "kurallar tutmuyor"
+diyordu).
 
 **Kota mantığı.** "Minimum of 8 homegrown" zorunluluk değil: eksik her yetişmiş oyuncu için bir
 yer boş kalınca oyun kuralı ✓ sayıyor (6/8 ✓, liste en fazla 23). `CurrentlyMeetsRule`'a
