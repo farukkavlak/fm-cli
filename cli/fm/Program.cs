@@ -41,6 +41,7 @@ internal static partial class Program
 				"register" => await Register(args),
 				"numbers" => await Numbers(args),
 				"contract" => await Contract(args),
+				"opposition" => await Opposition(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
 				"report" => await MatchReport.Show(Fm, json),
@@ -907,6 +908,8 @@ internal static partial class Program
 			                  "Will appoint player as captain", "Tüm teklif=Pazarlıksız")
 			    --wage <tutar>  haftalık ücret;  --next: vaatleri onayla, şartlara geç
 			    --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
+			  opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)
+			    --advice / --clear   yardımcının önerisini uygula / temizle;  opposition <oyuncu> Pres=Always
 			  register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar; terminalde okla ekle/çıkar
 			    --in <oyuncu> / --out <oyuncu>   listeye koy / listeden çıkar (tekrarlanabilir)
 			    --auto        önce yardımcı seçsin;  --send: gönder (kurallar tutunca)

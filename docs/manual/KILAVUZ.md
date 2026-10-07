@@ -199,6 +199,17 @@ fm tactic instructions "Goal Kicks"            seçeneklerini göster (terminald
 Şimdilik yalnızca topla oynarken talimatlar var. Bitiş bölgesindeki ve ilerlemedeki "Dribbling"
 oyunda tek ayar; biri değişince öteki de değişir.
 
+### Rakip talimatları — `opposition`
+
+Sıradaki rakibin her oyuncusu için sıkı markaj, pres, sert giriş ve hangi ayağa yönlendirileceği:
+
+```
+fm opposition                                tablo
+fm opposition --advice                       yardımcının önerisini uygula
+fm opposition Kaku Pres=Always "Sert giriş=Hard"
+fm opposition --clear                        hepsini temizle
+```
+
 ## 8. Maç günü — `match`, `sub`, `talk`, `report`
 
 `fm match` maç gününde önce sorar: **Maçı nasıl oynayalım?**

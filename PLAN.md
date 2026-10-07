@@ -201,7 +201,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası
 - [ ] Kaptan / yardımcı kaptan
 - [k] Taktik kaydet / yükle / kopyala — `ModifyTacticOption`, `EventFmxDuplicateTactic`, `EventFmxSetPresetTactic`
-- [k] Rakip talimatları — `EventFmxOppositionInstructionsApplyAdvice` / `Clear`
+- [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
 - [ ] Taktik akıcılığı (familiarity)
 
 ---
@@ -447,6 +447,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-08 (gece, otonom)
 
+- **Rakip talimatları** (FINDINGS §8.49): `fm opposition`, `--advice`, `--clear`, elle ayar.
 - **Takım talimatları** (FINDINGS §8.48): `tactic instructions` topla oynarken; sağ tık kartı.
 - **Diziliş değiştirme / taktik yuvaları** (FINDINGS §8.47): `tactic new` taktik varken de,
   `tactic slot`. `players` dar terminale sığıyor, `reply` numaraları son `inbox`'a bağlı.

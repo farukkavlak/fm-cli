@@ -2356,6 +2356,24 @@ diziliyor, adresleri değişiyor; hücre beklenip basma gerekirse yeniden deneni
 Denendi: Tempo, Dribbling, Patience, Goal Kicks, iki tur ileri geri, 16/16. Topsuz talimatlar:
 planlayıcının "Out of Possession" düğmesi bir kez görünüp sonra kayboldu, görünüm değişmedi; açık.
 
+## 8.49 Rakip talimatları (8 Ekim)
+
+Taktik ekranındaki "Opposition Instructions" (`OpenCardButton`, `OpenPanel`) kartı açıyor; sayfa
+yeni açıldıysa ilk basış bazen cevapsız kalıyor, ikinci basış açıyor. Kartta rakibin her oyuncusu
+için `#NameText` ve ardından dört isimsiz `SIDropdown`, bu sırayla (veride `OppositionPlayer…`):
+`Marking` (Never / Always), `PressingTrigger` (Never / Always), `Tackling` (Normal / Easy / Hard),
+`ShowOnToFoot` (Left / Right / Weaker Foot); "-" ayarsız. Sıra, yardımcının önerisini uygulayıp
+veriyi (`…OppositionInstructionTable…Items.N.binding`) ekranla karşılaştırarak bulundu: Şut'ta
+`PressingTrigger 2, Tackling 3` = ikinci ve üçüncü liste "Always", "Hard".
+
+- Listeler olay göndermiyor; seçim yazılıyor ve kart kapatılıp açılınca duruyor.
+- "Apply all advice" ve "Confirm" görüşmenin butonları (`StandardButton`, `SpeakToAction`);
+  "Clear Instructions" `EventFmxOppositionInstructionsClear`.
+- Mevki sütunu ayrı bir liste, aynı sırada; okunmuyor.
+
+`fm opposition` tabloyu gösteriyor; `--advice`, `--clear`, `opposition Kaku Pres=Always "Sert
+giriş=Easy"`. Al-Ain hazırlık maçı için yardımcının önerisi uygulandı (kaydedilmedi).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
