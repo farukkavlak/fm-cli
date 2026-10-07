@@ -5,7 +5,10 @@ sen her şeyi `fm` komutlarıyla yaparsın.
 
 > Ekran görüntüleri gerçek oyundan alınıyor. Yenilemek için oyun açıkken:
 > `tools/manual/shots.sh` (hepsi) ya da `tools/manual/shots.sh squad` (adında "squad" geçenler).
-> Bir komut eklenince ya da değişince: görüntüsünü `shots.sh`'teki listeye ekle, buraya bölümünü yaz.
+> Okla seçilen, oyunu değiştiren komutlar (`reply`, `register`, `match`…) oynanarak çekilir:
+> `uv run --with pyte tools/manual/drive.py docs/manual/img <sahne>` — sahneler `drive.py`'nin
+> başında, hangi tuşa basılacağı ve ne zaman fotoğraf çekileceğiyle. Bunlar oyunu ilerletir.
+> Bir komut eklenince ya da değişince: görüntüsünü ilgili listeye ekle, buraya bölümünü yaz.
 
 **İçindekiler**
 1. [Başlarken](#1-başlarken)
@@ -58,19 +61,34 @@ hangi komutla çözüleceğini burada yazar.
 - **cevaplanabilir**: istersen cevap verirsin, vermezsen oyun devam eder.
 - **cevap bekliyor**: cevaplamadan zaman ilerlemez.
 
-Cevaplamak için mesajın numarasını ver; seçenekler çıkar, okla seçersin:
+Cevaplamak için mesajın numarasını ver. Mesajın tamamı ve cevapları çıkar, okla seçip Enter'a basarsın:
 
-```
-$ fm reply 4
-  1  Negotiate
-  2  Accept Current Vision
-  3  View Club Vision
+![fm reply 19](img/reply.png)
 
-Seçim (1-3, x: vazgeç): 2
-Cevaplandı: Club vision and expectations meeting → Accept Current Vision
-```
+Seçince oyunun ne dediği altta yazar:
 
-Seçimi doğrudan da verebilirsin: `fm reply 4 2` ya da `fm reply 4 accept`.
+![fm reply 19 — cevaplandı](img/reply-done.png)
+
+Burada mesaj cevaplandı ama oyun kadro listesini hâlâ bekliyor: listeyi göndermek ayrı bir
+iş, onu `register` yapıyor (aşağıda).
+
+Seçimi doğrudan da verebilirsin: `fm reply 4 2` ya da cevabın bir parçasıyla `fm reply 4 accept`.
+
+### Kadro listesi — `register`, `numbers`
+
+Sezon başında ve her Avrupa turundan önce oyun kayıtlı oyuncu listesi ister. `fm register`
+yardımcının listesini kurup göndermeyi teklif eder:
+
+![fm register](img/register.png)
+
+Liste turnuvanın kurallarını tutmazsa gönderilmez; hangi kuralın tutmadığını söyler:
+
+![fm register — kurallar tutmuyor](img/register-done.png)
+
+> **Şu an eksik:** listeden oyuncu çıkarıp eklemek komutla henüz yapılamıyor. Kota tutmayınca
+> oyun burada bekliyor (PLAN.md, "Bilinen hatalar").
+
+`fm numbers` forma numaralarını aynı şekilde gönderir. Script'te sormadan: `--auto`.
 
 ## 4. Zamanı ilerletmek — `next`
 

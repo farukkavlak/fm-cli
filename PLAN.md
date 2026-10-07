@@ -45,6 +45,22 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
    (§8.39) ama Claude Code / Desktop'tan hiç çağrılmadı. Ardından: araç çıktısındaki
    yönlendirmeleri araç adına çevirmek, uzun maç için zaman aşımı, `--json` her komutta.
 
+### Bilinen hatalar (kılavuz çekimi sırasında bulundu, 2026-10-07)
+
+- **`fm register` kotayı tutmayan listeyi düzeltemiyor — oyunu blokluyor.** Şampiyonlar Ligi
+  listesi "kulüpte yetişmiş 4" ve "Türkiye'de yetişmiş 8" kotasını tutmuyor; yardımcının
+  25'inden yabancı oyuncu çıkarmak gerekiyor ama komut yalnızca "yardımcı yapsın" diyebiliyor.
+  Liste gönderilmeden `next` ilerlemiyor. Gereken: listeyi göster (kim kayıtlı, kim hangi kotada),
+  oyuncu çıkar/ekle, kuralları canlı göster, sonra gönder.
+- **`fm players` dar terminalde okunmuyor.** 110 sütunda 15 kolonun hepsi basılıyor; isimler
+  harf harf kırılıyor ("Abdelh / amid / Sabiri"), "Scouting Required" dört satıra bölünüyor,
+  `IS INJURED` True/False yazıyor. Terminale sığacak kolonları seçmeli, ham değerleri
+  çevirmeli (sakat → kırmızı isim, `squad` gibi).
+- **`fm reply <#>` bir kez yanlış mesajı açtı.** `reply 19` 18'i ("Training Review") açtı;
+  hemen ardından 7 denemede hep doğruydu. Önceki komutlar başka sayfa açmıştı (`player`,
+  `search`); gelen kutusu listesi bayat okunmuş olabilir. Seyrek, ama yanlış mesaja cevap
+  vermek geri alınamaz: açtıktan sonra başlığı doğrulamalı.
+
 ---
 
 ## Ürün kararları (Faruk, 2026-10-06)
