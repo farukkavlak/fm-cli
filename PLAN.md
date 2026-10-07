@@ -259,7 +259,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Scout odakları (recruitment focus)
 - [x] Kısa liste — `fm shortlist` (§8.56)
 - [ ] Oyuncu karşılaştırma
-- [ ] Rakip analizi / next opponent raporu
+- [~] Rakip analizi — `fm opponent`: raporun özeti (§8.57); kilit oyuncular ve taktik analizi yok
 - [ ] Gençlik adayları / youth intake
 
 ---
@@ -470,6 +470,7 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
 - **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
   okuyan genel `/namedrows`.
+- `fm shortlist` (§8.56), `fm saves`, `fm opponent` (§8.57).
 - **Maç içi mentalite ve bağırış** (FINDINGS §8.54). `fm status` transfer dönemini yazıyor (§8.55).
 - **Oyuncu talimatları** (FINDINGS §8.53): `fm tactic pi <mevki> [<talimat> [<değer>]]`.
 - **Rakip talimatları** (FINDINGS §8.49): `fm opposition`, `--advice`, `--clear`, elle ayar.

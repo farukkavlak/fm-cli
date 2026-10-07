@@ -2481,6 +2481,14 @@ yok. Oyuncu kısa listesi Recruitment › Overview'daki "Shortlists" döşemesin
 (`layout-tile-interaction-button`) açılıyor; tablosu `/people` ile oyuncu veritabanı gibi okunuyor
 (Demirbay, Cancellieri, Icardi, Osimhen — teklif verilenler otomatik ekleniyor). `fm shortlist`.
 
+## 8.57 Rakip raporu (8 Ekim)
+
+Match Day › "Next Opposition Report" özet döşemeleri düz metin: takım, lig, Form, Most Used
+Formation, Top Goalscorer / Most Assists / Highest Average Rating (sayı + isim), Team News
+satırları. Okumak için genel bir yol: `/texts?anchor=<metin>&up=N` o metni bulup N üst elemana
+çıkıyor ve altındaki görünen bütün metinleri okuma sırasıyla veriyor. `fm opponent`.
+Denendi: Feyenoord (rövanş öncesi), iki kez.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
