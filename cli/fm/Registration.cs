@@ -1,0 +1,305 @@
+using System.Text.Json;
+using Spectre.Console;
+
+namespace FmCli;
+
+/// <summary>
+/// The squad list a competition asks for, made by hand: who is on it, the competition's rules
+/// and how the list stands against each, and a switch per player. The assistant's pick is one
+/// choice among the others, since a pick that breaks a quota cannot be sent.
+/// </summary>
+internal static partial class Program
+{
+	private sealed record Registered(string Name, string Age, string Position, string Flags, string Status, bool On, bool CanChange);
+
+	private sealed record RegRule(string Title, string Value, bool Meets);
+
+	private static async Task<int> Register(string[] args)
+	{
+		if (await NotNow() is { } refused) return refused;
+		if (!await OpenRegistration())
+		{
+			Console.Error.WriteLine("Kadro kayıt ekranı açılmadı.");
+			return 1;
+		}
+
+		var (rules, players) = await ReadRegistration();
+
+		if (args.Contains("--auto"))
+		{
+			if (await Labelled("Ask Assistant to Pick") is not { } pick) return Report("error: 'Ask Assistant to Pick' ekranda yok");
+			await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
+			await Task.Delay(1500);
+			(rules, players) = await ReadRegistration();
+		}
+
+		// Names given on the line are put on or taken off before anything is shown.
+		var changes = Values(args, "--in").Select(n => (n, true)).Concat(Values(args, "--out").Select(n => (n, false))).ToList();
+		foreach (var (wanted, on) in changes)
+		{
+			var matches = players.Where(p => Fold(p.Name).Contains(Fold(wanted), StringComparison.Ordinal)).ToList();
+			if (matches.Count != 1)
+			{
+				Console.Error.WriteLine(matches.Count == 0 ? $"Listede '{wanted}' yok." : $"'{wanted}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(m => m.Name))}");
+				return 1;
+			}
+			var player = matches[0];
+			if (player.On == on) continue;
+			if (!player.CanChange)
+			{
+				Console.Error.WriteLine($"{player.Name} değiştirilemiyor ({player.Status}).");
+				return 1;
+			}
+			if (!await Flip(player.Name, on)) return 1;
+			(rules, players) = await ReadRegistration();
+		}
+
+		if (Ui.Interactive && changes.Count == 0 && !args.Contains("--send"))
+			return await RegisterByHand(rules, players);
+
+		ShowRegistration(rules, players);
+		if (args.Contains("--send")) return await SendList("Confirm", "Kadro listesi");
+
+		Console.WriteLine(rules.All(r => r.Meets)
+			? "Kurallar tutuyor. Göndermek için: register --send"
+			: "Oyuncu eklemek / çıkarmak için: register --in <oyuncu> / --out <oyuncu>;  yardımcının seçimi: --auto");
+		return 0;
+	}
+
+	/// <summary>The list on screen, a player at a time, until it is sent or left.</summary>
+	private static async Task<int> RegisterByHand(List<RegRule> rules, List<Registered> players)
+	{
+		ShowRegistration(rules, players);
+		var changed = false;
+
+		while (true)
+		{
+			var actions = new List<string>();
+			if (rules.All(r => r.Meets)) actions.Add("Listeyi gönder");
+			actions.Add("Yardımcı seçsin");
+			var choosable = players.Where(p => p.CanChange).ToList();
+			var choices = actions.Concat(choosable.Select(p =>
+				$"{(p.On ? "✓" : "·")} {Ui.Fit(p.Name, 24),-24} {p.Age,2}  {Ui.Fit(p.Position, 18),-18} {string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(FlagName))}")).ToList();
+
+			var picked = Ui.Ask(RulesLine(rules), choices, cancel: changed ? "Çık, değişiklikleri geri al" : "Çık");
+			if (picked is not { } index)
+			{
+				if (changed && await Labelled("Undo") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
+				Console.WriteLine(changed ? "Değişiklikler geri alındı; liste gönderilmedi." : "Liste gönderilmedi.");
+				return 0;
+			}
+
+			var action = choices[index];
+			if (action == "Listeyi gönder") return await SendList("Confirm", "Kadro listesi");
+			if (action == "Yardımcı seçsin")
+			{
+				if (await Labelled("Ask Assistant to Pick") is { } pick) await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
+				await Task.Delay(1500);
+			}
+			else if (choosable[index - actions.Count] is var player && !await Flip(player.Name, !player.On)) return 1;
+
+			changed = true;
+			(rules, players) = await ReadRegistration();
+		}
+	}
+
+	private static string RulesLine(List<RegRule> rules)
+	{
+		var parts = rules.Where(r => r.Title != "Replacements").Select(r =>
+			$"{(r.Meets ? "✓" : "✗")} {RuleName(r.Title)} {r.Value.Split(' ')[0]}");
+		return string.Join("   ", parts);
+	}
+
+	private static string RuleName(string title) => title switch
+	{
+		"Maximum squad size" => "en fazla",
+		"Minimum squad size" => "en az",
+		"Homegrown in Nation" => "ülkede yetişmiş (HGN+HGC)",
+		"Homegrown at Club" => "kulüpte yetişmiş (HGC)",
+		"Goalkeepers in the squad" => "kaleci",
+		"Replacements" => "değişiklik",
+		_ => title,
+	};
+
+	private static void ShowRegistration(List<RegRule> rules, List<Registered> players)
+	{
+		if (!Ui.Rich)
+		{
+			foreach (var r in rules) Console.WriteLine($"{(r.Meets ? "✓" : "✗")}\t{r.Value}\t{r.Title}");
+			foreach (var p in players) Console.WriteLine($"{(p.On ? "✓" : "·")}\t{p.Name}\t{p.Age}\t{p.Position}\t{p.Flags}\t{p.Status}{(p.CanChange ? "" : "\tdeğiştirilemez")}");
+			return;
+		}
+
+		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
+			.AddColumn(new TableColumn(""))
+			.AddColumn(new TableColumn("[dim]OYUNCU[/]"))
+			.AddColumn(new TableColumn("[dim]YAŞ[/]").RightAligned())
+			.AddColumn(new TableColumn("[dim]MEVKİ[/]"))
+			.AddColumn(new TableColumn("[dim]YETİŞME[/]"))
+			.AddColumn(new TableColumn("[dim]DURUM[/]"));
+
+		foreach (var p in players)
+		{
+			var mark = p.On ? "[green]✓[/]" : "[dim]·[/]";
+			var name = !p.CanChange ? $"[dim]{Ui.Safe(p.Name)}[/]" : p.On ? $"[bold]{Ui.Safe(p.Name)}[/]" : Ui.Safe(p.Name);
+			var flags = string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(f => f switch
+			{
+				"HGC" => "[green]kulüpte[/]",
+				"HGN" => "[aqua]ülkede[/]",
+				"Inj" => "[red]sakat[/]",
+				"Wnt" => "[yellow]ayrılmak istiyor[/]",
+				_ => $"[dim]{Ui.Safe(f)}[/]",
+			}));
+			table.AddRow(mark, name, p.Age, Ui.Safe(p.Position), flags, p.CanChange ? $"[dim]{Ui.Safe(p.Status)}[/]" : $"[dim]{Ui.Safe(p.Status)} · değiştirilemez[/]");
+		}
+		Ui.Out.Write(table);
+
+		foreach (var r in rules.Where(r => r.Title != "Replacements"))
+		{
+			// A homegrown minimum the list falls short of can still be met: each missing
+			// homegrown player is one fewer place for the rest, and the game counts it so.
+			var shortBy = Short(r);
+			var note = r.Meets && shortBy > 0 ? $"  [dim]({shortBy} eksik: listede o kadar yer az)[/]" : "";
+			Ui.Line($"  {(r.Meets ? "[green]✓[/]" : "[red]✗[/]")} {Ui.Safe(r.Value.Split(' ')[0]),-6} {Ui.Safe(RuleName(r.Title))}{note}");
+		}
+	}
+
+	private static int Short(RegRule rule)
+	{
+		var parts = rule.Value.Split(' ')[0].Split('/');
+		return rule.Value.Contains("Min.", StringComparison.Ordinal) && parts.Length == 2
+		       && int.TryParse(parts[0], out var have) && int.TryParse(parts[1], out var need) && have < need ? need - have : 0;
+	}
+
+	private static string FlagName(string flag) => flag switch
+	{
+		"HGC" => "kulüpte",
+		"HGN" => "ülkede",
+		"Inj" => "sakat",
+		"Wnt" => "ayrılmak istiyor",
+		_ => flag,
+	};
+
+	/// <summary>
+	/// Every player on the page. The table only builds the rows in view, so it is read a
+	/// screenful at a time from the top down, each row kept under its name.
+	/// </summary>
+	private static async Task<(List<RegRule>, List<Registered>)> ReadRegistration()
+	{
+		var rules = new List<RegRule>();
+		var players = new List<Registered>();
+		var seen = new HashSet<string>();
+
+		foreach (var stop in new[] { "0", "0.25", "0.5", "0.75", "1" })
+		{
+			await Fm.Get("regscroll", ("to", stop));
+			var page = await Settled();
+
+			rules = page.GetProperty("Rules").EnumerateArray()
+				.Select(r => new RegRule(Field(r, "Title"), Field(r, "Value"), Field(r, "Meets") == "True")).ToList();
+			foreach (var p in page.GetProperty("Players").EnumerateArray())
+			{
+				if (!seen.Add(Field(p, "Name"))) continue;
+				players.Add(new Registered(Field(p, "Name"), Field(p, "Age"), Field(p, "Position"), Field(p, "Flags"), Field(p, "Status"),
+					Field(p, "Selected") == "True", Field(p, "Enabled") == "True"));
+			}
+			if (Field(page, "ScrollEnd") is "0" or "") break;
+		}
+		await Fm.Get("regscroll", ("to", "0"));
+		return (rules, players);
+	}
+
+	/// <summary>
+	/// Scrolls until the player's row is built, then flips his switch to <paramref name="on"/>.
+	/// A click that lands while the game draws the screen is refused by Unity, so whether it
+	/// took is read back from the row, and a refused one is tried again.
+	/// </summary>
+	private static async Task<bool> Flip(string name, bool on)
+	{
+		for (var attempt = 0; attempt < 3; attempt++)
+		{
+			if (await RowOf(name) is not { } row)
+			{
+				Console.Error.WriteLine($"{name} ekranda bulunamadı.");
+				return false;
+			}
+			if ((Field(row, "Selected") == "True") == on) return true;
+
+			var answer = await Fm.Get("regtoggle", ("ptr", Field(row, "Pointer")));
+			var refused = answer.Contains("dirty repaint", StringComparison.Ordinal);
+			if (answer.StartsWith("error", StringComparison.Ordinal) && !refused) return Report(answer) == 0;
+
+			// The game takes the click on one of its own frames, which in the background can be
+			// a second or more away. Until then the table must not move: a scroll hands the
+			// switch to another player, and the click with it. Clicking again would undo it.
+			if (await Until(async () => (await Fm.GetJson("registration")).GetProperty("Players").EnumerateArray()
+				    .Any(p => Field(p, "Name") == name && (Field(p, "Selected") == "True") == on), seconds: 6)) return true;
+			if (!refused) break;
+		}
+		Console.Error.WriteLine($"{name} değiştirilemedi.");
+		return false;
+	}
+
+	/// <summary>
+	/// The page once it has stopped changing. A scroll hands rows built for other players to
+	/// new ones, and for a frame or two a row can show the new name with the old player's tick;
+	/// two reads in a row that agree are taken as settled.
+	/// </summary>
+	private static async Task<JsonElement> Settled()
+	{
+		static string Ticks(JsonElement page) => string.Join(",", page.GetProperty("Players").EnumerateArray()
+			.Select(p => Field(p, "Name") + "=" + Field(p, "Selected")));
+
+		await Task.Delay(250);
+		var page = await Fm.GetJson("registration");
+		for (var i = 0; i < 6; i++)
+		{
+			await Task.Delay(250);
+			var again = await Fm.GetJson("registration");
+			if (Ticks(again) == Ticks(page)) return again;
+			page = again;
+		}
+		return page;
+	}
+
+	/// <summary>The player's row, scrolled into view.</summary>
+	private static async Task<JsonElement?> RowOf(string name)
+	{
+		foreach (var stop in new[] { "0", "0.25", "0.5", "0.75", "1" })
+		{
+			await Fm.Get("regscroll", ("to", stop));
+			var row = (await Settled()).GetProperty("Players").EnumerateArray()
+				.Cast<JsonElement?>().FirstOrDefault(p => Field(p!.Value, "Name") == name);
+			if (row != null) return row;
+		}
+		return null;
+	}
+
+	/// <summary>
+	/// The registration page. Opening it by name sometimes leaves the squad overview up, where
+	/// the list is a tile; the tile's competition button, just before "N assigned", opens it.
+	/// </summary>
+	private static async Task<bool> OpenRegistration()
+	{
+		async Task<bool> Up() => (await Fm.GetJson("registration")).GetProperty("Players").GetArrayLength() > 0;
+		if (await Up()) return true;
+
+		await OpenPage("Registration", "Squad");
+		if (await Until(Up, seconds: 5)) return true;
+
+		var controls = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
+		var assigned = controls.FindIndex(c => System.Text.RegularExpressions.Regex.IsMatch(Field(c, "Label"), @"^\d+ assigned$"));
+		if (assigned <= 0) return false;
+
+		await Fm.Get("press", ("ptr", Field(controls[assigned - 1], "Pointer")));
+		return await Until(Up, seconds: 10);
+	}
+
+	private static List<string> Values(string[] args, string flag)
+	{
+		var found = new List<string>();
+		for (var i = 0; i < args.Length - 1; i++)
+			if (args[i] == flag) found.Add(args[i + 1]);
+		return found;
+	}
+}

@@ -3,15 +3,12 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The season's squad list, which the competition asks every club for. The registration page
-/// has the assistant pick it and a Confirm that asks once more; choosing names by hand is not
-/// done from here yet.
+/// The squad list a competition asks every club for, and the squad numbers. Both pages have the
+/// assistant fill them in and a Confirm that asks once more; the squad list can also be made
+/// by hand, a player at a time, which is what a list that breaks a quota needs.
 /// </summary>
 internal static partial class Program
 {
-	private static Task<int> Register(string[] args) =>
-		AssistantList(args, "register", "Registration", "Ask Assistant to Pick", "Confirm", "Sezon kadro listesi", "Kadro listesi");
-
 	private static Task<int> Numbers(string[] args) =>
 		AssistantList(args, "numbers", "Squad Numbers", "Ask Assistant to Assign", "Confirm Squad Numbers", "Forma numaraları", "Forma numaraları");
 
@@ -49,8 +46,13 @@ internal static partial class Program
 		}
 
 		await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
+		return await SendList(confirmLabel, what);
+	}
 
-		// Confirm stays disabled until the list is complete, which the pick takes a moment over.
+	/// <summary>Presses the page's Confirm and answers the question it asks.</summary>
+	private static async Task<int> SendList(string confirmLabel, string what)
+	{
+		// Confirm stays disabled until the list is complete, which a pick takes a moment over.
 		JsonElement? ready = null;
 		await Until(async () => (ready = await Labelled(confirmLabel)) != null, seconds: 12);
 		if (ready is not { } confirm)
@@ -62,7 +64,7 @@ internal static partial class Program
 			{
 				Console.Error.WriteLine($"{what} gönderilemiyor, kurallar tutmuyor:");
 				foreach (var (rule, met) in broken) Console.Error.WriteLine($"  {(met ? "✓" : "✗")} {rule}");
-				Console.Error.WriteLine("Tutmayan kota için listeden oyuncu çıkarmak gerekiyor; kimin çıkacağı senin kararın (oyunda, Registration ekranı).");
+				Console.Error.WriteLine("Listeden oyuncu çıkarıp eklemek için: register (terminalde) ya da register --in/--out <oyuncu>");
 			}
 			else Console.Error.WriteLine($"Ekranda '{confirmLabel}' açılmadı.");
 			return 1;
@@ -81,7 +83,7 @@ internal static partial class Program
 		}
 
 		await Fm.Get("click", ("ptr", Field(yes.Value, "Pointer")));
-		Console.WriteLine($"{what} yardımcının seçimiyle gönderildi.");
+		Console.WriteLine($"{what} gönderildi.");
 		return 0;
 	}
 

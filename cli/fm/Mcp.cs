@@ -54,8 +54,9 @@ internal static class Mcp
 		new("fm_contract", "The contract talks open after a club accepts a bid (reply to '<player> offer accepted' with 'Enter Contract Negotiations' first): shows the terms on the table. wage sets the weekly wage. sign=true puts the terms to the agent — his own are finalised, changed ones he answers; call again with sign=true once he accepts. Signing cannot be undone.",
 			"""{"type":"object","properties":{"wage":{"type":"string","description":"Weekly wage, e.g. 9000 or 12.5K."},"sign":{"type":"boolean"}}}""",
 			a => ["contract", .. (Str(a, "wage") is { Length: > 0 } w ? new[] { "--wage", w } : []), .. (a.TryGetProperty("sign", out var sign) && sign.ValueKind == JsonValueKind.True ? new[] { "--sign", "--yes" } : [])]),
-		new("fm_register", "Submit the season's squad list, which the competition asks for: the assistant picks it. Picking players one by one is not available.",
-			None, _ => ["register", "--auto"]),
+		new("fm_register", "The squad list a competition asks for (a message 'squad to be decided' blocks time until it is sent). Without arguments it shows every player — on the list or not, homegrown flags, who cannot be changed (loaned out) — and the competition's rules with whether the list meets each. `add` / `remove` put players on or take them off; `auto` lets the assistant pick first; `send` submits it, which only works once every rule is met. A homegrown quota the club cannot fill is met by leaving that many places empty: take players without a homegrown flag off. Takes 20-60 seconds.",
+			"""{"type":"object","properties":{"add":{"type":"array","items":{"type":"string"},"description":"Names (or unique pieces) to put on the list."},"remove":{"type":"array","items":{"type":"string"},"description":"Names (or unique pieces) to take off."},"auto":{"type":"boolean"},"send":{"type":"boolean"}}}""",
+			a => ["register", .. Flag(a, "auto", "--auto"), .. Each(a, "add", "--in"), .. Each(a, "remove", "--out"), .. Flag(a, "send", "--send")]),
 		new("fm_numbers", "Submit the squad numbers the competition asks for: the assistant assigns them.",
 			None, _ => ["numbers", "--auto"]),
 		new("fm_players", "The player database (every player the game knows), as far as the page has rows on screen — about twenty. `filter` applies one of the game's quick filters (Transfer Listed, Loan listed, Contract Expiring, Unhappy, Goalkeepers…) and it stays applied; `view` chooses which columns the rows carry (Overview, General Info, Contract, Transfer…). list=filters or list=views prints the choices.",
@@ -237,4 +238,12 @@ internal static class Mcp
 
 	private static string[] Flag(JsonElement arguments, string name, string flag) =>
 		arguments.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True ? [flag] : [];
+
+	/// <summary>A list argument as a repeated option: ["a", "b"] → --in a --in b. A lone string counts as one.</summary>
+	private static string[] Each(JsonElement arguments, string name, string flag)
+	{
+		if (!arguments.TryGetProperty(name, out var value)) return [];
+		var items = value.ValueKind == JsonValueKind.Array ? value.EnumerateArray().Select(v => v.GetString() ?? "") : [value.GetString() ?? ""];
+		return items.Where(i => i.Length > 0).SelectMany(i => new[] { flag, i }).ToArray();
+	}
 }

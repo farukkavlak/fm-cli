@@ -866,7 +866,9 @@ internal static partial class Program
 			  tour            açık tanıtım turunu sonuna kadar yürüt
 			    --skip        turu atla (tur izin veriyorsa)
 			  contract        açık sözleşme görüşmesi: şartlar; --wage <tutar> ücret, --sign --yes imzala
-			  register        sezon kadro listesini gönder (terminalde sorar; script'te --auto: yardımcı seçer)
+			  register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar; terminalde okla ekle/çıkar
+			    --in <oyuncu> / --out <oyuncu>   listeye koy / listeden çıkar (tekrarlanabilir)
+			    --auto        önce yardımcı seçsin;  --send: gönder (kurallar tutunca)
 			  numbers         forma numaralarını gönder (aynı şekilde)
 			  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)
 			  tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
