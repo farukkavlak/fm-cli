@@ -201,7 +201,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] İki as oyuncunun yerini değiştirme, kadro dışından oyuncu alma (adları taktik ekranında bağlı değil)
 - [x] Duran top rutinlerini kur — `fm setpieces new`, oyunun altı soruluk sihirbazı (§8.36)
 - [ ] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası
-- [ ] Kaptan / yardımcı kaptan
+- [~] Kaptan / yardımcı kaptan — `fm captains`: okuma, kaptan değişimi; yardımcı yalnızca boşken (§8.58)
 - [k] Taktik kaydet / yükle / kopyala — `ModifyTacticOption`, `EventFmxDuplicateTactic`, `EventFmxSetPresetTactic`
 - [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
 - [ ] Taktik akıcılığı (familiarity)
@@ -465,7 +465,8 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
    bloklamaya başlayınca geri çektim** (para harcamayan seçenek; oyuncuya yeniden teklif yapılabilir).
 2. **Kaptanlık.** Sezon kaptanı seçilmeden oyun ilerlemiyordu ve kaptan boştu; Škriniar (yardımcı
    kaptandı) kaptan yapıldı. Yardımcı kaptan seçimi oyuna bırakıldı. Başka biri olsun istersen
-   Squad › Dynamics › Captains.
+   Squad › Dynamics › Captains. Yardımcı kaptan boştu; `fm captains` denerken **Kerem Aktürkoğlu**
+   yapıldı (oyun bir kez atanınca sayfada değiştirme listesi göstermiyor).
 
 - **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp

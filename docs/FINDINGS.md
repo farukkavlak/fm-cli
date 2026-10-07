@@ -2489,6 +2489,18 @@ satırları. Okumak için genel bir yol: `/texts?anchor=<metin>&up=N` o metni bu
 çıkıyor ve altındaki görünen bütün metinleri okuma sırasıyla veriyor. `fm opponent`.
 Denendi: Feyenoord (rövanş öncesi), iki kez.
 
+## 8.58 Kaptanlar (8 Ekim)
+
+Kaptan ve yardımcısı veride: `Human.Team.Captain` / `Human.Team.ViceCaptain` (`person`), sayfa açmadan
+okunuyor. Squad › Dynamics › Captains (alt sekme listesinden) iki `GenericDropdown` gösteriyor:
+"Change Captain" ("Select Captain" boşken) ve "Select Vice Captain"; seçim olay gönderiyor ve bir
+onay diyaloğu açıyor ("Are you sure…", Yes). Seçili olanın adı listede "(Selected)" ekiyle.
+⚠ Yardımcı kaptan atandıktan sonra sayfa yalnızca kaptan listesini kuruyor; yardımcıyı değiştiren
+liste yok (sayfa yeniden açılınca da). 7 Ağustos'taki sezon başı kaptanlık mesajında ikisi birden vardı.
+
+Bu deneme için Kerem Aktürkoğlu yardımcı kaptan yapıldı (önceki boştu). `fm captains [--captain X]
+[--vice Y]`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -47,6 +47,7 @@ internal static partial class Program
 				"shortlist" => await Shortlist(json),
 				"saves" => Saves(),
 				"opponent" => await Opponent(json),
+				"captains" => await Captains(args),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
@@ -832,7 +833,7 @@ internal static partial class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] is "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role") { i++; continue; }
+			if (args[i] is "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}
@@ -920,6 +921,7 @@ internal static partial class Program
 			    --wage <tutar>  haftalık ücret;  --next: vaatleri onayla, şartlara geç
 			    --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
 			  training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role
+			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
 			  saves           diskteki kayıtlar, en yenisi önce
 			  shortlist       kısa listedeki oyuncular (teklif verilenler de)
