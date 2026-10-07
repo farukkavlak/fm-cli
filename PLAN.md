@@ -475,6 +475,11 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - Ana kayıt `fm save --yes` ile en son **19 Temmuz 2025**'te kaydedildi (Defrel imzasından
   sonra); sonrası oyunun kendi haftalık otomatik kaydına kaldı.
 
+**Sabah geri bildirimi (Faruk, 7 Ekim)**
+
+- `fm offer` (teklifin ~20 sn'de gitmesi, bonservisin sahte odak olaylarıyla yazılması) "kötüymüş";
+  8 Ekim'de buradan devam edilecek. Neyin kötü olduğu henüz konuşulmadı.
+
 **Karar bekleyenler**
 
 1. **Otomatik kayıt ayarı**: oyunda "her hafta" açık (`game.AutosaveModeAndIntervalString`).
