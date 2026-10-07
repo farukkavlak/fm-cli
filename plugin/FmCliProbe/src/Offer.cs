@@ -373,7 +373,8 @@ internal static class Offer
 					root = parent;
 					try
 					{
-						if (root.Q<VisualElement>("club-player-text") != null && root.Q<VisualElement>("players-to-exchange-title") != null) return root;
+						// The other club's answer to a loan has no exchange heading; its header is enough.
+						if (root.Q<VisualElement>("club-player-text") != null && (root.Q<VisualElement>("players-to-exchange-title") != null || root.Q<VisualElement>("player-text") != null)) return root;
 					}
 					catch { }
 				}
