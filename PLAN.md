@@ -174,7 +174,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Kariyer geçmişi, transfer geçmişi
 - [ ] Gelişim grafiği / potansiyel
 - [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
-- [ ] Oyuncu mutluluk/şikâyet durumu
+- [~] Oyuncu mutluluk durumu — `fm happiness` (§8.59); şikâyetlerin nedeni yok
 - [x] Kadro derinliği analizi (pozisyon bazlı) — `fm depth`, mevki dizgilerinden
 - [x] Yaş profili — `fm depth`'in altında
 

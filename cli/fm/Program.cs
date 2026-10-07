@@ -49,6 +49,7 @@ internal static partial class Program
 				"opponent" => await Opponent(json),
 				"captains" => await Captains(args),
 				"depth" => await Depth(json),
+				"happiness" => await Happiness(json),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
@@ -944,6 +945,7 @@ internal static partial class Program
 			    --wage <tutar>  haftalık ücret;  --next: vaatleri onayla, şartlara geç
 			    --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
 			  training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role
+			  happiness       oyuncuların mutluluğu, en mutsuz önce
 			  depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri

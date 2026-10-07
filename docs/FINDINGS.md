@@ -2501,6 +2501,15 @@ liste yok (sayfa yeniden açılınca da). 7 Ağustos'taki sezon başı kaptanlı
 Bu deneme için Kerem Aktürkoğlu yardımcı kaptan yapıldı (önceki boştu). `fm captains [--captain X]
 [--vice Y]`.
 
+## 8.59 Oyuncu mutluluğu (8 Ekim)
+
+Squad › Dynamics alt sekme listesinden "Happiness". Kadro tablosu okuyucuları (`/squad`, `/people`)
+burada bayat veri veriyor; sayfa düz metinden okunuyor (`/texts`, bir oyuncunun mutluluk
+seviyesinden 12 üste çıkıp): isim, "N year-old …" tanımı, seviye (Very Unhappy…Very Happy), ardından
+durum bayrakları (Wnt, Unr, FtT, Rst). Üstte takımın genel durumu bir cümle ("The players are
+currently content…"). `fm happiness` en mutsuzdan sıralıyor. 10 Ağustos'ta en düşük "Slightly Happy"
+(Álvarez, Kerem).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
