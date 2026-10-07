@@ -2374,6 +2374,23 @@ veriyi (`…OppositionInstructionTable…Items.N.binding`) ekranla karşılaşt�
 `fm opposition` tabloyu gösteriyor; `--advice`, `--clear`, `opposition Kaku Pres=Always "Sert
 giriş=Easy"`. Al-Ain hazırlık maçı için yardımcının önerisi uygulandı (kaydedilmedi).
 
+## 8.50 Antrenman yoğunluğu (8 Ekim)
+
+"Training" bir alt sekme listesi (`SecondaryTabDropdownButton`); "Training Intensity"
+`/select … fire=1` ile açılıyor. Sayfada:
+- Üstte beş takım kuralı (`inputs-combobox-default-default`, `EventFmxSetTrainingIntensity`);
+  etiketleri okunmadı, kullanılmadı.
+- Oyuncu başına bir liste (`dropdown-base-regular-trailing-icon`,
+  `EventFmxPlayerTrainingIntensityLevelChanged`): Automatic, Half / Normal / Double Intensity, "No
+  pitch or gym work ›" (1–6 Days, 1–2 Weeks), "Send On Holiday ›" (1–4 weeks; yalnızca bazı
+  oyuncularda). Alt menü §8.45'teki yolla seçiliyor.
+- "Ask <fitness koçu> to set all training intensities" görüşme butonu.
+
+Tablo sanal (ekranda ~15 satır); `/namedrows?dropdown=<ad>[&to=0..1]` her `#NameText`'i ardından
+gelen listeyle eşleştiriyor ve kaydırıyor (`Registration.Scroll`), CLI beş noktada okuyup isimle
+birleştiriyor (21 oyuncu). `fm intensity` liste, `intensity <oyuncu> <seviye>`, `--auto`.
+Denendi: Kanté yarım → 3 gün dinlenme → normal, Fred çift → normal, iki tur.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -217,8 +217,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [k] Pozisyon / hareket öğretme — `PersonTrainingNewPosition`, `PersonTrainingNewPreferredMove`
 - [ ] Mentor / mentee ilişkileri
 - [k] **Antrenman raporları** — `PersonRequestTrainingReport`
-- [k] Yoğunluk ayarı — `EventFmxPlayerTrainingIntensityLevelChanged`
-- [k] Dinlenme — `PersonRestTrainingSchedule` / `PersonCancelRestTrainingSchedule`
+- [x] Yoğunluk ayarı — `fm intensity`: oyuncu başına seviye, `--auto` (§8.50); takım kuralları yok
+- [x] Dinlenme — `fm intensity <oyuncu> "dinlen 3"` / `"tatil 1"` (§8.50)
 - [ ] Gençlik antrenmanı
 
 ---
@@ -447,6 +447,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-08 (gece, otonom)
 
+- **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
+  okuyan genel `/namedrows`.
 - **Rakip talimatları** (FINDINGS §8.49): `fm opposition`, `--advice`, `--clear`, elle ayar.
 - **Takım talimatları** (FINDINGS §8.48): `tactic instructions` topla oynarken; sağ tık kartı.
 - **Diziliş değiştirme / taktik yuvaları** (FINDINGS §8.47): `tactic new` taktik varken de,

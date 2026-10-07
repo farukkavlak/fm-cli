@@ -210,6 +210,16 @@ fm opposition Kaku Pres=Always "Sert giriş=Hard"
 fm opposition --clear                        hepsini temizle
 ```
 
+### Antrenman yoğunluğu — `intensity`
+
+```
+fm intensity                       her oyuncunun yoğunluğu
+fm intensity Kanté yarım           otomatik · yarım · normal · çift
+fm intensity Kanté "dinlen 3"      3 gün saha ve salon çalışması yok (7, 14: bir, iki hafta)
+fm intensity Fred "tatil 1"        bir hafta tatil (oyun izin verirse)
+fm intensity --auto                hepsini kondisyon hocasına bırak
+```
+
 ## 8. Maç günü — `match`, `sub`, `talk`, `report`
 
 `fm match` maç gününde önce sorar: **Maçı nasıl oynayalım?**

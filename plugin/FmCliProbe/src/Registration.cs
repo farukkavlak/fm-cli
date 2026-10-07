@@ -58,7 +58,7 @@ internal static class Registration
 		return $"scrolled to {offset} of {end}";
 	}
 
-	private static (float Offset, float End) Scroll(VisualElement inside, float? to)
+	internal static (float Offset, float End) Scroll(VisualElement inside, float? to)
 	{
 		if (inside == null) return (0, 0);
 		ScrollView view = null;
