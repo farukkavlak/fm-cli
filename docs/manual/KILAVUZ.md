@@ -187,6 +187,18 @@ fm tactic slot          yuvalar ve hangisi etkin
 fm tactic slot 1        1. yuvadaki taktiğe geç
 ```
 
+### Takım talimatları — `tactic instructions`
+
+```
+fm tactic instructions                         evre evre bütün talimatlar
+fm tactic instructions Tempo Higher            birini değiştir
+fm tactic instructions "Final Third/Dribbling" Encourage
+fm tactic instructions "Goal Kicks"            seçeneklerini göster (terminalde okla seçtirir)
+```
+
+Şimdilik yalnızca topla oynarken talimatlar var. Bitiş bölgesindeki ve ilerlemedeki "Dribbling"
+oyunda tek ayar; biri değişince öteki de değişir.
+
 ## 8. Maç günü — `match`, `sub`, `talk`, `report`
 
 `fm match` maç gününde önce sorar: **Maçı nasıl oynayalım?**

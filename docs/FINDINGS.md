@@ -2334,6 +2334,28 @@ Yeni taktik yeni bir **yuvaya** giriyor ve etkin oluyor.
 gösterip değiştiriyor. Denendi: 4-2-3-1 DM Wide / 4-4-1-1 2 DM kuruldu, yuvalar 3→2→1→3→1 gezildi.
 Kayıtta şimdi üç yuva var (1: asıl 4-3-3, etkin).
 
+## 8.48 Takım talimatları (8 Ekim)
+
+Taktik ekranında "Team Instructions" (`TutorialActionElement`, `/press` ile) talimat görünümünü
+açıyor. Topla oynarken talimatlar evre başlıkları altında: `#PhaseText` (Overview, Final Third,
+Progression, Buildup), her talimat bir hücre: adı `#text`, ayarı `#text-second`. `/instructions`
+bunları evre, ad, değer olarak veriyor.
+
+Değiştirmek: her talimatın üç kontrolü var ve yalnızca biri işe yarıyor:
+- `CellButton` sol tık (`TacticsTeamInstructionShowMenu`): başka bir menü, ayarları açmıyor.
+- `CellButton` **sağ tık listesi** (`RightClickEvents → OpenGenericDynamicCard`): ayarların
+  kartını açıyor. `/press?ptr=…&list=RightClickEvents` ile basılıyor. ✓
+- `layout-tile-interaction-button` (yalnızca Overview'daki yedi talimatta): aynı kart.
+Kartta ayarlar `options-list` adlı bir radyo grubu; `/select name=options-list choice=…` yazıyor,
+oyuna hemen işliyor (sayfadan çıkıp dönünce duruyor). Kart açık kalınca sıradaki açılmıyor; kartın
+`PanelHistoryClose` butonu (açılmadan önce olmayan) basılıyor. Kart kapanınca hücreler yeniden
+diziliyor, adresleri değişiyor; hücre beklenip basma gerekirse yeniden deneniyor.
+
+"Final Third/Dribbling" ile "Progression/Dribbling" oyunda tek ayar: biri değişince öteki de değişti.
+
+Denendi: Tempo, Dribbling, Patience, Goal Kicks, iki tur ileri geri, 16/16. Topsuz talimatlar:
+planlayıcının "Out of Possession" düğmesi bir kez görünüp sonra kayboldu, görünüm değişmedi; açık.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

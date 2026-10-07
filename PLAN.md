@@ -192,7 +192,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [k] **In Possession / Out of Possession** ayrı şekiller — aynı event, `IsInPossession` bayrağı
 - [x] Oyuncu rolleri — `fm tactic role <mevki> [<rol>] [--oop]` (§8.31)
 - [k] Oyuncu talimatları — `PlayerInstruction`, 36 üye
-- [k] Takım talimatları — 33 eksen, 14 faz (`TeamInstructionPhaseID`)
+- [~] Takım talimatları — `fm tactic instructions`: topla oynarken dört evre, okuma ve değiştirme
+      (§8.48); topsuz talimatlar ve bölge ("Zone") görünümleri yok
 - [x] İlk 11'e yedeklerden oyuncu koy — `fm tactic player <mevki> <oyuncu>` (§8.31)
 - [x] Yedek kulübesini göster — `fm tactic`'in "Yedekler" satırı
 - [ ] İki as oyuncunun yerini değiştirme, kadro dışından oyuncu alma (adları taktik ekranında bağlı değil)
@@ -446,6 +447,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-08 (gece, otonom)
 
+- **Takım talimatları** (FINDINGS §8.48): `tactic instructions` topla oynarken; sağ tık kartı.
 - **Diziliş değiştirme / taktik yuvaları** (FINDINGS §8.47): `tactic new` taktik varken de,
   `tactic slot`. `players` dar terminale sığıyor, `reply` numaraları son `inbox`'a bağlı.
 - **Alt menüler çözüldü** (FINDINGS §8.45). Sebep: oyun seçilen satırın `RowData`'sını bekliyordu,
