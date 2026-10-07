@@ -2067,40 +2067,49 @@ kabul ederse sırada yine Finalise Deal, ardından Exit Talks.
 
 Denendi: Defrel, Modena'dan £160K; menajer £9,250/hafta istedi, £7,500 önerildi, kabul etti, imzalandı.
 
-## 8.43 Kadro kaydı: listeyi elle düzenlemek (araştırma, uygulanmadı)
+## 8.43 Kadro kaydı: listeyi elle düzenlemek (`fm register`)
 
-`fm register` yalnızca "Ask Assistant to Pick" + "Confirm" yapıyor. Yardımcının listesi kotayı
-tutmayınca (UCL 3. ön eleme, 2 Ağustos 2025: Türkiye'de yetişmiş 6/8, kulüpte yetişmiş 2/4)
-oyun kilitleniyor. Elle düzenlemek için gerekenler:
+Yardımcının listesi kotayı tutmayınca (UCL 3. ön eleme, 2 Ağustos 2025: Türkiye'de yetişmiş
+6/8, kulüpte yetişmiş 2/4) oyun kilitleniyordu. Çözüm ve yolda öğrenilenler:
 
-**Ekranı açmak.** `fm open "Registration"` ve `register`'ın `OpenPage`'i bazen Squad
-Overview'da kalıyor (orada kayıt yalnızca bir kutucuk). Kutucuktaki `UCL` butonu (`OpenPanel`)
-asıl ekranı güvenilir açtı: `fm press "UCL"`. Turnuva adı kutucukta yazdığı gibi; Süper Lig
-listesi açıkken başka olur.
+**Ekranı açmak.** `OpenPage("Registration")` bazen Squad Overview'da kalıyor (orada kayıt bir
+kutucuk). Kutucuktaki turnuva butonu (`UCL`, "N assigned"ın hemen önündeki `OpenPanel`) asıl
+ekranı açıyor; `OpenRegistration` önce adıyla, olmazsa bununla açar.
 
-**Okumak — hepsi `/tree`'de bağlı, `FM.UI.SquadRegistrationEditSession` (`squadreg`):**
-- Kurallar: her biri `SquadSelectionRuleTitle` ("Homegrown in Nation"), `SquadSelectionRuleString`,
-  `SquadSelectionRuleValue` ("6/8 Min.", "24/25 Max."), `CurrentlyMeetsRule` (0/1).
-- Satırlar: `SelectionTable1 … Standardplayertable-club2 › Items` (44 satır = 42 oyuncu + başlıklar).
-  Satır başına `A › squadreg.Selected` (bool), `CanChangeSelection`, `binding.Name/Age/
-  PositionCombinedString`, `PlayerStatusFlagsForSquadRegistration` (liste).
-- Bayraklar ekranda `PlayerStatusFlag` butonu olarak da var: `HGN` (ülkede yetişmiş), `HGC`
-  (kulüpte yetişmiş; HGN'ye de sayılır), `Inj`, `Wnt`.
+**Satır.** `TableRowNavigatable`; hücreleri: `StreamedTable+SelectionCell` (içinde Unity
+`Toggle`), sonra **`SICheckBox #inputs-switch-toggle-large-default`** (listede olmak), sonra
+`#StatusFlags` (HGN, HGC, Inj, Wnt, Trn), isim, yaş, mevki, statü.
+- İlk hücredeki kutu **kayıt değil**, tablonun çoklu satır seçimi. Ona tıklamak (`m_onClick`,
+  `m_onSubmit`) yalnızca vurguyu değiştiriyor.
+- Hücreye `SendEvent` ile uydurma `ClickEvent` göndermek oyunun `FMCrashReporter.OnClick`'inde
+  patlıyor (her tıklamayı dinliyor, işaretçi bilgisi bekliyor). Kullanma.
+- Kayıt anahtarı `SICheckBox`: `SimulateCheckboxClick()` ile çevriliyor (`/regtoggle`).
+  Confirm'e kadar oyuna bir şey yazılmıyor; `Undo` geri alır.
 
-**Seçmek.** Satır = `TableRowNavigatable`; ilk hücresi `StreamedTable+SelectionCell`, içinde
-düz bir Unity `Toggle`. Olay listesi yok, o yüzden `/buttons`'ta görünmüyor; `/click` da
-"not a button" diyor. Seçim tablonun kendi modelinden geçiyor (`StreamedListView`):
-`SelectedItemsBinding`, `SetListSelection(int)`, `ClearSelection()`, `OnSelectionChanged`.
-`SelectionCell`'in kendi geri çağrıları var: `m_onClick` (`EventCallback<ClickEvent>`),
-`m_onSubmit` (`EventCallback<NavigationSubmitEvent>`), `SetSelectedState(bool)`.
-Plan: `TextBoxes`'taki gibi olayı havuzdan alıp (`NavigationSubmitEvent.GetPooled()` ya da
-`ClickEvent`) hücrenin kendi geri çağrısına vermek — oyuncunun tıklaması/Enter'ı. Toggle'ın
-`value`'sunu yazmak tek başına oyuna gitmeyebilir (metin kutusunda gitmiyordu).
-Doğrulama: `Maximum squad size` değeri 24/25 → 23/25 olmalı; geri almak için `Undo`
-(`EventFmxRevertChanges`). Confirm'e basılmadıkça hiçbir şey oyuna yazılmıyor.
+**Okumak — tuzaklar.**
+- `SICheckBox.Value` ilk tıklamaya kadar hep False dönüyor. Doğrusu anahtarın kendi bağlantı
+  anahtarından okumak: `Bindings.Get(box.m_valueKey)`.
+- Veri ağacında satır başına `squadreg.Selected` var ama ağaç kaydırmanın geride bıraktığı
+  satırları tutuyor: aynı oyuncu iki kez, farklı değerlerle. İsimle eşleştirme yanlış okur.
+  Kayıt sütununun anahtarı da sabit değil ("A", kaydırınca "9"…).
+- Tablo sanal: yalnızca görünen ~27 satır kurulu. `/regscroll?to=0..1` (`ScrollViewToScroll.
+  verticalScroller`) ile kaydırıp beş noktada okuyup isimle birleştiriyoruz.
+- Kural değerleri (`SquadSelectionRuleValue`, `CurrentlyMeetsRule`) bağlı ve canlı; ama liste
+  gönderildikten sonra ekran yeniden açılana kadar tazelenmiyor.
+- Oturumun `Players` listesi `/pull ... list=1` ile tam geliyor (31 uygun oyuncu), ama
+  `RegisteredPlayers`, `Selected` gibi alanları bu yoldan bağlanmıyor.
 
-Statik ipucu: `InteropEventIDs` içinde `EventFmxSelectPlayer` (24) var; tablonun
-`SelectionEvents`'i büyük ihtimalle bunu gönderiyor.
+**Tıklamak — yarış.** Tıklama oyunun bir sonraki karesinde işleniyor (arka planda 1 sn'yi
+bulabiliyor). O arada tablo kaydırılırsa anahtar başka oyuncuya bağlanıyor ve tıklama kayboluyor;
+erken yeniden tıklamak da geri çeviriyor. `Flip` tıkladıktan sonra kaydırmadan, değer
+değişene kadar bekliyor. Tıklama çizim anına denk gelirse Unity "dirty repaint" hatası veriyor;
+yalnızca o durumda yeniden deniyor.
+
+**Kota mantığı.** "Minimum of 8 homegrown" zorunluluk değil: eksik her yetişmiş oyuncu için bir
+yer boş kalınca oyun kuralı ✓ sayıyor (6/8 ✓, liste en fazla 23). `CurrentlyMeetsRule`'a
+bakmak yeterli, değere değil.
+
+Statik ipucu: `InteropEventIDs` içinde `EventFmxSelectPlayer` (24) var; kullanmaya gerek kalmadı.
 
 ## 9. Sıradaki adımlar
 

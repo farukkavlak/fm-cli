@@ -71,6 +71,7 @@ internal static partial class Program
 	{
 		ShowRegistration(rules, players);
 		var changed = false;
+		var before = players.Where(p => p.On).Select(p => p.Name).ToHashSet();
 
 		while (true)
 		{
@@ -90,7 +91,17 @@ internal static partial class Program
 			}
 
 			var action = choices[index];
-			if (action == "Listeyi gönder") return await SendList("Confirm", "Kadro listesi");
+			if (action == "Listeyi gönder")
+			{
+				// The table above is the list as it was; say what became of it.
+				var now = players.Where(p => p.On).Select(p => p.Name).ToHashSet();
+				var gone = before.Except(now).ToList();
+				var came = now.Except(before).ToList();
+				Ui.Line($"Liste: [bold]{now.Count}[/] oyuncu"
+				        + (came.Count > 0 ? $"  [green]+ {Ui.Safe(string.Join(", ", came))}[/]" : "")
+				        + (gone.Count > 0 ? $"  [red]− {Ui.Safe(string.Join(", ", gone))}[/]" : ""));
+				return await SendList("Confirm", "Kadro listesi");
+			}
 			if (action == "Yardımcı seçsin")
 			{
 				if (await Labelled("Ask Assistant to Pick") is { } pick) await Fm.Get("press", ("ptr", Field(pick, "Pointer")));

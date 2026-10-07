@@ -9,6 +9,7 @@ sees; pyte keeps a terminal screen and we photograph that.
 A scene is a list of steps in SCENES below:
   ("wait", "<regex>")    wait until the screen shows it (60 s, 600 s for matches)
   ("keys", "<keys>")     type; "\\r" is Enter, DOWN / UP move in menus
+  ("pick", "<regex>")    move down a menu until the highlighted line matches
   ("exit",)              wait for the command to finish
   ("snap", "<name>")     photograph the screen as <out-dir>/<name>.png
 """
@@ -27,7 +28,8 @@ NAMES = ["black", "red", "green", "brown", "blue", "magenta", "cyan", "white"]
 # name: (command, steps)
 SCENES = {
 	"reply": ("fm reply 19", [("wait", r"Respond"), ("snap", "reply"), ("keys", "\r"), ("exit",), ("snap", "reply-done")]),
-	"register": ("fm register", [("wait", r"Yardımcı yapsın"), ("snap", "register"), ("keys", "\r"), ("exit",), ("snap", "register-done")]),
+	"register": ("fm register", [("wait", r"Yardımcı seçsin"), ("snap", "register"), ("pick", r"Emre Mor"), ("snap", "register-pick"),
+		("keys", "\r"), ("wait", r"> Listeyi gönder"), ("snap", "register-ready"), ("keys", "\r"), ("exit",), ("snap", "register-done")]),
 }
 
 
@@ -125,6 +127,14 @@ def play(out, name):
 				print(text().rstrip(), file=sys.stderr)
 				break
 			pump(0.6)  # let the redraw settle
+		elif kind == "pick":
+			for _ in range(80):
+				current = next((l for l in screen.display if l.lstrip().startswith(">")), "")
+				if re.search(arg, current):
+					break
+				os.write(fd, DOWN.encode())
+				alive = pump(0.15)
+			pump(0.4)
 		elif kind == "keys":
 			os.write(fd, arg.encode())
 			alive = pump(0.4)

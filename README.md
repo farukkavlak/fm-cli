@@ -77,6 +77,8 @@ reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 talk            açık konuşma (toplantı, basın toplantısı, takım konuşması): terminalde baştan sona okla yürür
 talk <no>       söyle;  talk leave: çık
 tour            açık tanıtım turunu yürüt;  --skip: atla
+register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar; terminalde okla ekle/çıkar
+  --in / --out <oyuncu>  listeye koy / çıkar;  --auto yardımcı seçsin;  --send gönder
 next [n]        zamanı ilerlet, oyunun durmasını bekle, ne olduğunu söyle
 match           maç günü: terminalde "izle mi, anında sonuç mu" diye sorar; izlerken kadro sahada,
                 konuşmalarda söz senin, anlatım, skor ve maç sonu raporu

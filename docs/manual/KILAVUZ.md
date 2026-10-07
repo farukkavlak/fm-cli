@@ -76,19 +76,40 @@ Seçimi doğrudan da verebilirsin: `fm reply 4 2` ya da cevabın bir parçasıyl
 
 ### Kadro listesi — `register`, `numbers`
 
-Sezon başında ve her Avrupa turundan önce oyun kayıtlı oyuncu listesi ister. `fm register`
-yardımcının listesini kurup göndermeyi teklif eder:
+Sezon başında ve her Avrupa turundan önce oyun kayıtlı oyuncu listesi ister; gönderilmeden
+zaman ilerlemez. `fm register` listeyi açar: kim listede (✓), kim yetişme kotasına sayılıyor
+(**kulüpte** / **ülkede**), kim değiştirilemez (kiralıkta olanlar), ve turnuvanın kuralları.
 
 ![fm register](img/register.png)
 
-Liste turnuvanın kurallarını tutmazsa gönderilmez; hangi kuralın tutmadığını söyler:
+Altta menü var: oyuncunun üstüne gelip Enter'a basınca listeye girer ya da çıkar.
+"Yardımcı seçsin" oyunun önerdiği listeyi kurar.
 
-![fm register — kurallar tutmuyor](img/register-done.png)
+![fm register — oyuncu seçimi](img/register-pick.png)
 
-> **Şu an eksik:** listeden oyuncu çıkarıp eklemek komutla henüz yapılamıyor. Kota tutmayınca
-> oyun burada bekliyor (PLAN.md, "Bilinen hatalar").
+Menünün başlığı kuralların anlık halini gösterir. Hepsi ✓ olunca en üste **Listeyi gönder** gelir:
 
-`fm numbers` forma numaralarını aynı şekilde gönderir. Script'te sormadan: `--auto`.
+![fm register — kurallar tutuyor](img/register-ready.png)
+
+Gönderince ne değiştiği yazılır:
+
+![fm register — gönderildi](img/register-done.png)
+
+> **Yetişme kotası tutmuyorsa:** UEFA listesi 25 kişi, bunun 8'i yetişmiş oyunculara ayrılmış.
+> Yetişmiş oyuncun eksikse o kadar yer boş kalır: yetişme bayrağı olmayan oyunculardan
+> çıkarırsın, oyun kotayı ✓ sayar. Örnekte 6 yetişmiş oyuncu vardı (8'den 2 eksik), yani
+> en fazla 23 kişi; Emre Mor çıkınca liste gönderilebildi.
+
+Script'te ya da Claude'dan:
+
+```
+fm register                        listeyi ve kuralları yaz
+fm register --out "Emre Mor"       listeden çıkar  (--in: listeye koy; ikisi de tekrarlanabilir)
+fm register --auto                 önce yardımcı seçsin
+fm register --send                 gönder (kurallar tutuyorsa)
+```
+
+`fm numbers` forma numaralarını yardımcıya verdirip gönderir. Script'te sormadan: `--auto`.
 
 ## 4. Zamanı ilerletmek — `next`
 

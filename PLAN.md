@@ -47,11 +47,6 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
 
 ### Bilinen hatalar (kılavuz çekimi sırasında bulundu, 2026-10-07)
 
-- **`fm register` kotayı tutmayan listeyi düzeltemiyor — oyunu blokluyor.** Şampiyonlar Ligi
-  listesi "kulüpte yetişmiş 4" ve "Türkiye'de yetişmiş 8" kotasını tutmuyor; yardımcının
-  25'inden yabancı oyuncu çıkarmak gerekiyor ama komut yalnızca "yardımcı yapsın" diyebiliyor.
-  Liste gönderilmeden `next` ilerlemiyor. Gereken: listeyi göster (kim kayıtlı, kim hangi kotada),
-  oyuncu çıkar/ekle, kuralları canlı göster, sonra gönder. Araştırma: FINDINGS §8.43.
 - **`fm players` dar terminalde okunmuyor.** 110 sütunda 15 kolonun hepsi basılıyor; isimler
   harf harf kırılıyor ("Abdelh / amid / Sabiri"), "Scouting Required" dört satıra bölünüyor,
   `IS INJURED` True/False yazıyor. Terminale sığacak kolonları seçmeli, ham değerleri
@@ -422,6 +417,13 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-07 (akşam)
+
+- **`fm register` artık listeyi elle düzenliyor** (FINDINGS §8.43). Bütün uygun oyuncular,
+  yetişme bayrakları, kurallar; terminalde okla, script'te `--in/--out`, MCP'de `add/remove`.
+  UCL 3. ön eleme listesi gönderildi (Emre Mor dışarıda, 23 kişi), oyun kaydedildi.
+- Kılavuz (`docs/manual/KILAVUZ.md`) ve çekim araçları (`tools/manual/`) eklendi.
 
 ### 2026-10-07 (gece, otonom)
 
