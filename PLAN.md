@@ -447,6 +447,22 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-08 (gece, otonom)
 
+**Kayıtta ne değişti:** 5 Ağustos'ta kaydedildi (eklenti yeniden yüklenmeden önce, ilerleme kaybolmasın
+diye). Sonra: Al-Ain hazırlık maçı 4-2 kazanıldı, basın toplantısına katılındı (ölçülü cevaplar),
+Feyenoord deplasmanı (UCL 3. ön eleme ilk maç) 1-0 kaybedildi, oyun 6 Ağustos akşamında. Bu son
+kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
+
+**Karar bekleyenler (8 Ekim)**
+
+1. **Cancellieri kiralığı.** Celesti iki kez aynı şeyi istedi: aylık £42.5K oynarsa / £190K
+   oynamazsa, maaşın %100'ü bizden, sezon sonunda £14.75M'lık satın alma *opsiyonu* (toplam
+   "£15.25M'lık anlaşma"). Mesaj (`inbox`'ta "Celesti negotiation over Cancellieri") bloklamıyor,
+   açık duruyor. Seçenekler: kabul et (`reply <#> Accept`), geri çek, ya da kartla yeniden pazarlık.
+   Önerim: geri çek — oynamazsa ayda £190K bu kadro için pahalı.
+2. **Kaptanlık.** Sezon kaptanı seçilmeden oyun ilerlemiyordu ve kaptan boştu; Škriniar (yardımcı
+   kaptandı) kaptan yapıldı. Yardımcı kaptan seçimi oyuna bırakıldı. Başka biri olsun istersen
+   Squad › Dynamics › Captains.
+
 - **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
   okuyan genel `/namedrows`.
