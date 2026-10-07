@@ -115,6 +115,10 @@ internal static class Offer
 				case "frames-contract-terms" or "frames-contract terms":
 					if (Row(element, section) is { } row) rows.Add(row);
 					return;
+				// A player put into the deal: his name, his position, transfer or loan, and a way out.
+				case "exchange-player-row-enabled":
+					if (Row(element, section, exchange: true) is { } player) rows.Add(player);
+					return;
 				// The contract's headings are plain text: "Bonuses & Clauses", "Additional
 				// Promises", and "Entire offer" before its lock.
 				case "text" when contract:
@@ -147,16 +151,22 @@ internal static class Offer
 	}
 
 	/// <summary>One term: its name, what it is set to, and the control that changes it.</summary>
-	private static string Row(VisualElement frame, string section)
+	private static string Row(VisualElement frame, string section, bool exchange = false)
 	{
 		if (!Shown(frame)) return null;
 
 		string label;
-		try { label = Text.Plain(frame.Q<TextElement>("primary-text")?.text ?? ""); } catch { label = ""; }
+		try { label = Text.Plain(frame.Q<TextElement>(exchange ? "NameText" : "primary-text")?.text ?? ""); } catch { label = ""; }
 		if (label.Length == 0) return null;
 
 		string secondary;
-		try { secondary = Text.Plain(frame.Q<TextElement>("secondary-text")?.text ?? ""); } catch { secondary = ""; }
+		try
+		{
+			secondary = exchange
+				? Text.Plain(frame.Q<VisualElement>("exchange-person-position-remapper")?.Q<TextElement>("text")?.text ?? "")
+				: Text.Plain(frame.Q<TextElement>("secondary-text")?.text ?? "");
+		}
+		catch { secondary = ""; }
 
 		FMCombobox box = null;
 		SIDropdown choice = null;
@@ -203,6 +213,11 @@ internal static class Offer
 			{
 				try { choice = element.TryCast<SIDropdown>(); } catch { }
 				if (choice != null && !Shown(choice)) choice = null;
+			}
+			// The exchange row's own remove button sits loose in the row.
+			if (exchange && remove.Length == 0 && name == "buttons-controls-pc-default")
+			{
+				try { if (element.TryCast<SI.Bindable.SIButton>() != null && element.enabledInHierarchy) remove = $"0x{element.Pointer.ToInt64():x}"; } catch { }
 			}
 			if (name == "fixed-text" && fixedText.Length == 0)
 			{

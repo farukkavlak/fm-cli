@@ -204,9 +204,7 @@ internal static partial class Program
 					items.Add(OfferScreen.MenuLine(row));
 					actions.Add(() => EditTerm("offer", row));
 				}
-				// Only what can be added: a list whose every choice opens a submenu (a player to
-				// exchange, a bonus for a trophy) cannot be chosen from yet.
-				foreach (var add in now.Adds.Where(a => a.Choice.Choices.Any(c => !c.EndsWith("›", StringComparison.Ordinal))))
+				foreach (var add in now.Adds)
 				{
 					items.Add(AddLine(add));
 					actions.Add(() => AddTerm("offer", add));

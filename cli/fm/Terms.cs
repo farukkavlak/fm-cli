@@ -50,6 +50,7 @@ internal static partial class Program
 	private static string AddLine(OfferScreen.Term add) => add.Section switch
 	{
 		"Additional Fees" => "+ Ek ödeme ekle",
+		"Players To Exchange" => "+ Takasa oyuncu ekle",
 		"Add Bonus" => "+ Prim ekle",
 		"Add Promise" => "+ Vaat ekle",
 		_ => "+ Madde ekle",
@@ -57,17 +58,40 @@ internal static partial class Program
 
 	private static async Task<string> AddTerm(string route, OfferScreen.Term add)
 	{
-		// A choice that opens a submenu (a bonus for a trophy or an award) cannot be added yet.
-		var choices = add.Choice.Choices.Where(c => !c.EndsWith("›", StringComparison.Ordinal)).ToList();
 		var question = add.Section switch
 		{
 			"Additional Fees" => "Hangi ödeme?",
+			"Players To Exchange" => "Hangi oyuncu?",
 			"Add Bonus" => "Hangi prim?",
 			"Add Promise" => "Hangi vaat?",
 			_ => "Hangi madde?",
 		};
-		if (Ui.Ask(question, choices.Select(OfferScreen.Say).ToList(), cancel: "Geri") is not { } picked) return null;
-		return await OfferScreen.Add(Fm, add, choices[picked], route);
+
+		// A choice ending in › opens a submenu (a trophy, an award, a player of the squad): the
+		// menu walks down it until a choice without one (FINDINGS §8.45).
+		var path = new List<string>();
+		var choices = add.Choice.Choices;
+		while (true)
+		{
+			if (choices.Count == 0) return "Bu menü boş.";
+			var title = path.Count == 0 ? question : string.Join(" › ", path.Select(OfferScreen.Say));
+			if (Ui.Ask(title, choices.Select(OfferScreen.Say).ToList(), cancel: path.Count == 0 ? "Geri" : "Bir üst menü") is not { } picked)
+			{
+				if (path.Count == 0) return null;
+				path.RemoveAt(path.Count - 1);
+				choices = path.Count == 0 ? add.Choice.Choices : await OfferScreen.Submenu(Fm, add, path);
+				continue;
+			}
+			var choice = choices[picked];
+			if (!choice.EndsWith(" ›", StringComparison.Ordinal))
+			{
+				if (path.Count == 0) return await OfferScreen.Add(Fm, add, choice, route);
+				path.Add(choice);
+				return (await OfferScreen.AddPath(Fm, add, path, route)).Error;
+			}
+			path.Add(choice[..^2]);
+			choices = await OfferScreen.Submenu(Fm, add, path);
+		}
 	}
 
 	/// <summary>
@@ -102,13 +126,26 @@ internal static partial class Program
 		}
 
 		var row = now.Rows.FirstOrDefault(r => Named(r.Label));
+		if (row == null && label.Contains('>'))
+		{
+			// A submenu's leaf: "Bonus After Competition Achievement>Turkish Cup>Bonus upon winning…".
+			var names = label.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+			var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(c => Fold(c.Replace(" ›", "")) == Fold(names[0]) || Fold(OfferScreen.Say(c.Replace(" ›", ""))) == Fold(names[0])));
+			if (add == null) return $"'{names[0]}' hiçbir ekleme listesinde yok";
+			names[0] = add.Choice.Choices.First(c => Fold(c.Replace(" ›", "")) == Fold(names[0]) || Fold(OfferScreen.Say(c.Replace(" ›", ""))) == Fold(names[0])).Replace(" ›", "");
+			var (failed, added) = await OfferScreen.AddPath(Fm, add, names, route);
+			if (failed != null) return failed;
+			row = added;
+		}
 		if (row == null)
 		{
 			var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(Named));
 			if (add == null) return $"böyle bir şart yok. Eklenebilenler: {string.Join(", ", now.Adds.SelectMany(a => a.Choice.Choices))}";
 			var full = add.Choice.Choices.First(Named);
 			if (await OfferScreen.Add(Fm, add, full, route) is { } failed) return failed;
-			row = (await OfferScreen.Read(Fm, route))?.Row(full);
+			var after = await OfferScreen.Read(Fm, route);
+			if (after?.Adds.Any(a => Fold(a.Section) == Fold(full)) == true && values.Length == 0) return null;
+			row = after?.Row(full);
 			if (row == null) return "eklendi ama ekranda bulunamadı";
 		}
 

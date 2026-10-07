@@ -261,8 +261,21 @@ olmayanlar renkli yazar. Script'te değer olarak verilir:
 
 ![fm offer — kilitler](img/offer-locked.png)
 
-Henüz olmayan: alt menülü seçimler eklenemiyor. Bunlar bir kupa ya da ödül kazanınca ödenen
-bonuslar ve takasa oyuncu koymak.
+Kupa ya da ödül primi ve takasa oyuncu alt menülerde: menüde "›" ile biten bir seçeneğe girince
+bir alt seviye açılır ("Turnuva başarısı primi › Turkish Cup › Bonus upon reaching the Semi Final…",
+"Kadrodan bir oyuncu › A takım › Mert Müldür"); "Bir üst menü" geri çıkar. Script'te yol `>` ile
+yazılır:
+
+```
+fm offer "Robin Hack" 4M \
+  --term "Bonus After Competition Achievement>Turkish Cup>Bonus upon reaching the Semi Final of the Turkish Cup=100K" \
+  --term "Oyuncu ödülü primi>World Golden Ball=250K" \
+  --term "Players To Exchange" --term "Other Player From Squad>Senior Squad>Mert Müldür=6 Month Loan"
+```
+
+Takasa konan oyuncu "Takas oyuncuları" başlığı altında görünür; değeri transfer ya da kiralık
+süresidir. Sözleşmede aynı yol primler için de geçerli:
+`--term "Competition Bonuses>Turkish Super League>Winning the Super League=200K"`.
 
 ### Sözleşme — `contract`
 

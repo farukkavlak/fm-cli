@@ -43,9 +43,8 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
    teklifi kart olarak çiziyor ve şart şart düzenletiyor: ek ödeme ve madde ekleme / kaldırma,
    her şartın pazarlık kilidi (Negotiable · Semi · Non · Remove & Exclude), karşı teklifi de
    açıyor (§8.42, 7 Ekim akşamı). Kalan:
-   - **Alt menü seçimi** — kupa / ödül bonusu ve takasa oyuncu ("Add Player › Other Player From
-     Squad ›") buna takılıyor; altı yol denendi (§8.42). Sıradaki ipucu: oyun alt menüyü ayrı bir
-     çocuk dropdown olarak açıyor (`m_childrenDropdowns`, `HandleDropdownSelection`).
+   - Alt menü seçimi 8 Ekim gecesi çözüldü (§8.45): kupa / ödül primleri, takasa oyuncu, alt
+     menülü sözleşme maddeleri; kartta kademeli menü, script'te `--term "A>B>C=değer"`.
    - Kiralık teklif kartla denenmedi (`--loan`; şartları farklı).
    - Kabul edilen bir teklifin "Accept" tuzağını kart üzerinden göstermek; kısa liste.
    - `fm contract` kartı 7→8 Ekim gecesi yapıldı (§8.44): vaatler + şartlar, yenileme, menajerin
@@ -230,7 +229,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [k] Gelen teklife yanıt — `EventFmxTransferOfferResponse`
 - [x] Sözleşme görüşmesi — `fm contract [oyuncu]`: kart, vaatler, şartlar, kilitler, menajerin
       karşı teklifi, iptal; kendi oyuncumuzla yenileme (§8.44)
-- [~] Sözleşme maddeleri ve primleri — kartta ekle / kaldır / değiştir; kupa ve ödül primleri alt menüde (§8.42)
+- [x] Sözleşme maddeleri ve primleri — kartta ekle / kaldır / değiştir, kupa ve ödül primleri dahil (§8.45)
 - [ ] Yenilemede oyuncunun kararı (gelen kutusu) ve "menajere sor" (`Discuss New Contract`) yolu
 - [k] Kiralık — `fm offer --loan` var ama canlı denenmedi; `CanMakeLoanOffer`, `PersonOfferExtendLoan`, `LoanToBuy*`
 - [k] Oyuncuyu kulüplere öner — `PersonOfferToClubs`
@@ -239,8 +238,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
 - [k] Menajerle görüşme — `PersonAskAgentAboutClientContractRenewal`
 - [k] Transfer bütçesi ↔ maaş bütçesi — `ClubBudgetAdjustmentTransfers` / `Wages`, `ClubRequestIncreaseBudgets`
-- [k] Takas teklifi — `ExchangePlayersList`, `ExchangePotentialPlayersList`; teklif ekranında
-      "Players To Exchange" bölümü açılıyor ama oyuncu seçimi alt menüde, seçilemiyor (§8.42)
+- [~] Takas teklifi — kartta "+ Takasa oyuncu ekle", transfer ya da kiralık (§8.45); takaslı
+      teklif gönderilip cevabı görülmedi
 - [ ] Transfer dönemi durumu / kalan gün
 
 ---
@@ -442,6 +441,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-08 (gece, otonom)
 
+- **Alt menüler çözüldü** (FINDINGS §8.45). Sebep: oyun seçilen satırın `RowData`'sını bekliyordu,
+  biz menü satırını yazıyorduk. Kupa / ödül primleri, takasa oyuncu (transfer ya da kiralık),
+  sözleşmede alt menülü maddeler; kartta kademeli menü, script'te `A>B>C`. Prim adları kalıbına
+  göre Türkçe ("Turkish Cup: Semi Final primi").
 - **`fm contract` kart oldu** (FINDINGS §8.44). Teklifteki gibi: vaatler ve şartlar kart olarak,
   okla düzenleme, `--term`, kilitler, ekle / kaldır. `fm contract <oyuncu>` kendi oyuncumuzla
   yenileme görüşmesini açıyor. Menajerin cevabı "neyin değiştiği" olarak yazılıyor; kuralı

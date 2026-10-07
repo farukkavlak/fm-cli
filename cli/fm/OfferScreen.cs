@@ -174,7 +174,31 @@ internal sealed class OfferScreen
 	{
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => s.Row(choice) != null, route) ? null : $"'{choice}' eklenmedi";
+		// "Players To Exchange" opens a section of its own rather than a row.
+		return await Settles(fm, s => s.Row(choice) != null || s.Adds.Any(a => Same(a.Section, choice)), route) ? null : $"'{choice}' eklenmedi";
+	}
+
+	/// <summary>
+	/// Puts in a term from a submenu of an "Add" list: the names down to it, top first
+	/// ("Bonus After Competition Achievement", "Turkish Cup", "Bonus upon reaching the Final…").
+	/// Its row is named after the leaf, not the menu, so the new row is told by being new.
+	/// Returns the error, or null and the row that came.
+	/// </summary>
+	public static async Task<(string Error, Term Row)> AddPath(Bridge fm, Term add, IReadOnlyList<string> names, string route = "offer")
+	{
+		var before = await Read(fm, route);
+		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("names", string.Join(">", names)), ("fire", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return (said, null);
+		OfferScreen after = null;
+		if (!await Settles(fm, s => (after = s).Rows.Count > (before?.Rows.Count ?? 0), route)) return ($"'{names[^1]}' eklenmedi", null);
+		return (null, after.Rows.FirstOrDefault(r => before?.Row(r) == null) ?? after.Rows[^1]);
+	}
+
+	/// <summary>One level of an "Add" list's submenu: the names under the path given.</summary>
+	public static async Task<List<string>> Submenu(Bridge fm, Term add, IReadOnlyList<string> names)
+	{
+		var data = await fm.GetJson("menu", ("ptr", add.Choice.Pointer), ("names", string.Join(">", names)));
+		return data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [];
 	}
 
 	public static async Task<string> Remove(Bridge fm, Term term, string route = "offer")
@@ -260,10 +284,18 @@ internal sealed class OfferScreen
 		["Sell On Fee Percentage"] = "Satıştan oyuncuya pay",
 		["Match Highest Earner Clause"] = "En yüksek maaşa eşitleme",
 		["Injury Release Clause"] = "Uzun sakatlıkta fesih",
+		["Bonus After Competition Achievement"] = "Turnuva başarısı primi",
+		["Bonus After Player Award Achievement"] = "Oyuncu ödülü primi",
+		["Competition Bonuses"] = "Turnuva primleri",
+		["Award Bonuses"] = "Ödül primleri",
+		["Other Player From Squad"] = "Kadrodan bir oyuncu",
+		["Senior Squad"] = "A takım",
+		["U19 Squad"] = "U19 takımı",
 		// Why the game will not take a term.
 		["Above max allowed %"] = "izin verilen oranın üstünde",
 		["Contract too short"] = "sözleşme bunun için fazla kısa",
 		["Not allowed to exceed appearance bonus"] = "maç başı ücreti aşamaz",
+		["Clause offers no wage increase"] = "madde ücreti artırmıyor",
 		["Wage After Reaching International Appearances"] = "Milli maç sayısına ulaşınca ücret",
 		["Wage After Reaching Club League Games"] = "Lig maçı sayısına ulaşınca ücret",
 		["The long-term aims for the club are:"] = "Kulübün uzun vadeli hedefi",
@@ -291,7 +323,26 @@ internal sealed class OfferScreen
 	public static string SayDetail(string detail) => string.Join(" · ", detail.Split(" · ").Select(Say));
 
 	/// <summary>A label in Turkish where one is known; the game's own word otherwise.</summary>
-	public static string Say(string label) => Turkish.TryGetValue(label, out var said) ? said : label.TrimEnd(':');
+	public static string Say(string label) =>
+		label.EndsWith(" ›", StringComparison.Ordinal) ? Say(label[..^2]) + " ›"
+		: Turkish.TryGetValue(label, out var said) ? said
+		: Bonus(label) ?? label.TrimEnd(':');
+
+	/// <summary>
+	/// Bonuses for a trophy or an award are named after it, so they are put in Turkish by their
+	/// shape: "Bonus upon winning World Golden Ball", "Bonus upon reaching the Semi Final of the
+	/// Turkish Cup", "Winning the Super League" (a contract's competition bonus).
+	/// </summary>
+	private static string Bonus(string label)
+	{
+		var reaching = System.Text.RegularExpressions.Regex.Match(label, @"^Bonus upon reaching the (.+) of the (.+)$");
+		if (reaching.Success) return $"{reaching.Groups[2].Value}: {reaching.Groups[1].Value} primi";
+		var winning = System.Text.RegularExpressions.Regex.Match(label, @"^(?:Bonus upon winning|Winning) (?:the )?(.+)$");
+		if (winning.Success) return $"{winning.Groups[1].Value} kazanılırsa prim";
+		var qualifying = System.Text.RegularExpressions.Regex.Match(label, @"^Qualifying for the (.+)$");
+		if (qualifying.Success) return $"{qualifying.Groups[1].Value}'e katılım primi";
+		return null;
+	}
 
 	/// <summary>The offer-wide choices have no label of their own; what they offer says which is which.</summary>
 	public static string OptionKey(Term option) =>

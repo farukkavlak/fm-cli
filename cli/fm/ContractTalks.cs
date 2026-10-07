@@ -187,7 +187,7 @@ internal static partial class Program
 				items.Add($"{OfferScreen.Say(option.Label)}: {OfferScreen.SayLock(option.Lock.Value)}");
 				actions.Add(() => PickLock("contract", option, s => s.Options.FirstOrDefault(o => o.Lock?.Pointer == option.Lock.Pointer)?.Lock));
 			}
-			foreach (var add in now.Adds.Where(a => a.Choice.Choices.Any(c => !c.EndsWith("›", StringComparison.Ordinal))))
+			foreach (var add in now.Adds)
 			{
 				items.Add(AddLine(add));
 				actions.Add(() => AddTerm("contract", add));

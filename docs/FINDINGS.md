@@ -2073,7 +2073,7 @@ Değiştirmek:
 | Tutar | `/setnumber` (odak olayları, yukarıda) | ek ödemelerde de çalışıyor |
 | Satırı kaldırmak | satırın `#remove-button-visible` altındaki butona `/click` | |
 | Pazarlık kilidi | satırdaki `#lock-button-remapper` dropdown'unda `/select index=N fire=1` | aşağıda |
-| Alt menülü bonus (kupa, ödül), takas oyuncusu | `/select path=8,3` + `how=bind/path/try/process/value/trigger` (+ `fire=1`) | hiçbiri satır eklemedi; açık |
+| Alt menülü bonus (kupa, ödül), takas oyuncusu | `/select names=A>B>C fire=1` (yaprağın `RowData`'sı yazılır) | çözüldü, §8.45 |
 
 **Pazarlık kilidi.** Her şartın yanındaki asma kilit, `…clause-variables1.lock-button-remapper7.lock.LockStatus`'a
 yazan isimsiz bir dropdown; seçenekleri yalnızca sayı. Adları dil dosyasında (`example.ltf`,
@@ -2244,6 +2244,46 @@ Denendi (kaydedilmedi): Mert Günok £13.5K (menajer önce £14.75K istedi), Lev
 £20K kabul (kartın içinden imzalandı, karar bekleniyor), Anthony Musaba'ya kaptan yardımcılığı
 vaadi ("The current vice-captain is Milan Škriniar"; menajer "kaptanlık istemiyor" dedi ama vaadi
 kabul etti), Kerem Aktürkoğlu £130K + menajer £800K → £145K, £1.1M karşı teklif.
+
+## 8.45 Alt menüden seçmek: kupa / ödül primleri, takasa oyuncu (çözüldü, 8 Ekim gecesi)
+
+§8.42'deki altı deneme neden tutmadı: "Add" listesinin olayı (`EventFmxTransferOfferAddClause`,
+`m_dataToSendBinding = SelectedClause`) bağlı değeri gönderiyor. Üst seviye bir seçim
+`SelectedClause`'a satırın **`RowData` kaydını** yazıyor (`{PropertyValue, DisplayValue}`).
+Bizim `UpdateDropdownSelectionBinding(chosen)` ise menü satırının kendisini yazıyordu
+(`{RowData, ChildList}`), yani oyun bir sarmalayıcı alıp hiçbir şey eklemiyordu.
+
+Yaprakların `RowData`'sı neyin primi olduğunu da taşıyor (`/choicedump?ptr=&path=7,0,0`):
+
+```
+Bonus After Competition Achievement › Turkish Super League › Bonus upon winning the Super League
+  RowData: PropertyValue 1668116578, DisplayValue "...",
+           Competition { Competition 130286, Stage 0, ... }
+Bonus After Player Award Achievement › GOAL50
+  RowData: PropertyValue 1635214434 (bütün ödüllerde aynı), { <ödül id> 2000061133 }
+```
+
+Çözüm: yaprağın `RowData`'sını `UpdateDropdownSelectionBinding`'e verip olayı göndermek
+(`/select … how=rowdata fire=1`, artık varsayılan). Takas listesinin yapraklarında `RowData` yok;
+kayıt doğrudan `{DisplayValue, PropertyValue: {DatabaseReferenceField: <kişi id>}}`, o zaman
+kaydın kendisi yazılıyor. Olay `EventFmxTransferOfferAddExchangePlayer`.
+
+Denendi, hepsi tek seferde satır ekledi: Süper Lig şampiyonluğu, Türkiye Kupası yarı finali,
+GOAL50, Altın Top (teklifte); sözleşmede "Competition Bonuses › Turkish Super League › Winning
+the Super League", "Award Bonuses › GOAL50", "Wage After Reaching Club League Games › 5 games";
+takasa Mert Müldür (6 aylık kiralık).
+
+Yol boyunca bulunanlar:
+- Açılır liste açılınca (`SIDropdown.ShowDropdown()`) her seçenek bir `DropdownRowNavigatable`
+  satırı; her satırın içinde gizli bir `#ChildDropdown` (`SIDropdown`) var, alt menülü satırınki
+  alt menünün seçeneklerini taşıyor. Satıra submit / click vermek çocuğu açmadı; gerek kalmadı.
+- Alt menü `/select names=A>B>C` ile adla seçiliyor; `/menu?ptr=&names=A>B` bir seviyenin
+  adlarını veriyor (CLI menüde kademe kademe iniyor).
+- Takas satırı başka bir şablon: `#exchange-player-row-enabled` içinde `#NameText`,
+  `#exchange-person-position-remapper`, transfer / kiralık seçimi (Transfer, 1–12 Month Loan,
+  Loan Until End Of Season…) ve serbest duran kaldır butonu. `/offer` artık bunu satır olarak okuyor.
+- Sözleşmede alt menülü madde "Wage After Reaching Club League Games ›" (5–30 maç) da aynı yolla
+  ekleniyor; eklenince oyun "Clause offers no wage increase" diyor, ücreti girilince düzeliyor.
 
 ## 9. Sıradaki adımlar
 

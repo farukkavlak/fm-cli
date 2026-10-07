@@ -173,6 +173,28 @@ internal static class Buttons
 		// "7,3" is the fourth row of the eighth row's submenu.
 		if (!string.IsNullOrEmpty(q["path"])) return SelectPath(dropdown, q["path"], q);
 
+		// Or by the names down to it: "Bonus After Competition Achievement>Turkish Cup>Bonus upon…".
+		if (!string.IsNullOrEmpty(q["names"]))
+		{
+			var indices = new List<string>();
+			var level = dropdown.m_choices;
+			foreach (var part in q["names"].Split('>'))
+			{
+				var wantedName = part.Trim();
+				var found = -1;
+				for (var i = 0; i < (level?.Count ?? 0); i++)
+				{
+					var text = Choice(level[i]) ?? "";
+					if (text.EndsWith(SubmenuMark, StringComparison.Ordinal)) text = text[..^SubmenuMark.Length];
+					if (string.Equals(text, wantedName, StringComparison.OrdinalIgnoreCase)) { found = i; break; }
+				}
+				if (found < 0) return $"error: no '{wantedName}' at depth {indices.Count}";
+				indices.Add(found.ToString());
+				level = Children(level[found]);
+			}
+			return SelectPath(dropdown, string.Join(",", indices), q);
+		}
+
 		int index;
 		var wanted = q["choice"];
 		if (!string.IsNullOrEmpty(wanted))
@@ -228,12 +250,20 @@ internal static class Buttons
 
 		// How a submenu row reaches the bound value is not settled; the ways are kept apart
 		// so each can be tried against the live game.
-		var how = q["how"] ?? "bind";
+		var how = q["how"] ?? "rowdata";
 		switch (how)
 		{
 			case "path": dropdown.OnSelectionChangedInternal(path.Cast<Il2CppSystem.Collections.Generic.IReadOnlyList<int>>()); break;
 			case "try": dropdown.TrySetSelectedValue(chosen); break;
 			case "bind": dropdown.UpdateDropdownSelectionBinding(chosen); break;
+			// What a top-level choice writes is the row's own record (RowData), not the menu row
+			// around it; a submenu leaf's record also names what it is for (FINDINGS §8.45).
+			// Some lists (players to exchange) have no RowData around the leaf: the leaf is it.
+			case "rowdata":
+				var record = chosen?.Get()?.TryCast<DynamicReference>();
+				if (record == null) return $"error: {described} is not a record";
+				dropdown.UpdateDropdownSelectionBinding(Send.Entries(record).TryGetValue("RowData", out var rowData) && rowData != null && !rowData.IsNull ? rowData : chosen);
+				break;
 			// As a click on the open submenu ends: the path chosen, then the dropdown's own
 			// handling of what it now holds, rather than its events queued from outside.
 			case "process":
@@ -248,7 +278,7 @@ internal static class Buttons
 				dropdown.OnSelectionChangedInternal(path.Cast<Il2CppSystem.Collections.Generic.IReadOnlyList<int>>());
 				dropdown.TriggerSelectionEvent(path[0]);
 				return $"selected {described} (trigger)";
-			default: return $"error: how={how} is not one of path, try, bind, process, value, trigger";
+			default: return $"error: how={how} is not one of rowdata, path, try, bind, process, value, trigger";
 		}
 
 		if (q["fire"] != "1") return $"selected {described} ({how})";

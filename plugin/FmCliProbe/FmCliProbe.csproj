@@ -32,6 +32,7 @@
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(BepInterop)/UnityEngine.CoreModule.dll</HintPath></Reference>
     <Reference Include="UnityEngine"><HintPath>$(BepInterop)/UnityEngine.dll</HintPath></Reference>
     <Reference Include="Unity.InputSystem"><HintPath>$(BepInterop)/Unity.InputSystem.dll</HintPath></Reference>
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(BepInterop)/UnityEngine.IMGUIModule.dll</HintPath></Reference>
     <Reference Include="UnityEngine.UIElementsModule"><HintPath>$(BepInterop)/UnityEngine.UIElementsModule.dll</HintPath></Reference>
     <Reference Include="Unity.Addressables"><HintPath>$(BepInterop)/Unity.Addressables.dll</HintPath></Reference>
     <Reference Include="Unity.ResourceManager"><HintPath>$(BepInterop)/Unity.ResourceManager.dll</HintPath></Reference>
