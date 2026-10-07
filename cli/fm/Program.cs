@@ -108,6 +108,7 @@ internal static partial class Program
 			return 69;
 		}
 
+		if (args.Contains("--u19")) return await SquadYouth(json);
 		if (args.Contains("--fitness")) return await SquadFitness(json);
 		if (args.Contains("--morale")) return await SquadMorale(json);
 		if (args.Contains("--views")) return await SquadAnyView(json, null);
@@ -157,6 +158,26 @@ internal static partial class Program
 			.ToList();
 
 		Table.Write(new[] { "OYUNCU", "POZİSYON", "YAŞ", "STATÜ", "MAAŞ", "DEĞER", "DURUM" }, rows);
+		return 0;
+	}
+
+	/// <summary>The under-19s: the squad table carries them too, under their own team name.</summary>
+	private static async Task<int> SquadYouth(bool json)
+	{
+		var squad = await SquadView("Overview", "PositionCombinedString");
+		var youth = squad.EnumerateArray().Where(p => Field(p, "Team").Contains("U19", StringComparison.Ordinal)).ToList();
+		if (json)
+		{
+			Console.WriteLine(JsonSerializer.Serialize(youth));
+			return 0;
+		}
+		if (youth.Count == 0)
+		{
+			Console.WriteLine("Kadro tablosunda U19 oyuncusu yok.");
+			return 0;
+		}
+		Table.Write(["OYUNCU", "YAŞ", "POZİSYON", "TAKIM"], youth.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
+			.Select(p => new[] { Field(p, "Name"), Field(p, "Age"), Field(p, "PositionCombinedString"), Field(p, "Team") }).ToList());
 		return 0;
 	}
 
@@ -882,6 +903,7 @@ internal static partial class Program
 			  continue        açık oyunda son kaydı yükle
 			  squad           kadroyu bas
 			    --fitness     kondisyon ve maç formu, en yorgun önce
+			    --u19         altyapı (U19) kadrosu
 			    --morale      moral, hiyerarşi ve sosyal grup
 			    --views       kadro tablosunun bütün görünümlerini listele
 			    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)

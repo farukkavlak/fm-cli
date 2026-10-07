@@ -155,7 +155,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Kadro canlandı — isim, pozisyon, yaş, uyruk, ortalama rating (§8.16)
 - [x] `fm squad` — A takım: pozisyon, yaş, statü, maaş, piyasa değeri, durum ("General Info")
-- [ ] `fm squad --u19` — altyapı kadrosu (eski `fm squad` özet panosundan basıyordu, artık basmıyor)
+- [x] `fm squad --u19` — altyapı kadrosu, kadro tablosundaki U19 satırlarından
 - [x] `fm squad --fitness` — kondisyon ve maç formu, "Selection Info" görünümünden (§8.26)
 - [x] `fm squad --morale` — moral, hiyerarşi, sosyal grup, "Dynamics" görünümünden (§8.26)
 - [x] Kadro tablosunun bütün görünümleri — `fm squad --views`, `fm squad --view "<ad>"`; kolonlar
