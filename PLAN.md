@@ -46,15 +46,20 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
    - **Alt menü seçimi** — kupa / ödül bonusu ve takasa oyuncu ("Add Player › Other Player From
      Squad ›") buna takılıyor; altı yol denendi (§8.42). Sıradaki ipucu: oyun alt menüyü ayrı bir
      çocuk dropdown olarak açıyor (`m_childrenDropdowns`, `HandleDropdownSelection`).
-   - `fm contract`'a aynı kart ve düzenleme.
    - Kiralık teklif kartla denenmedi (`--loan`; şartları farklı).
    - Kabul edilen bir teklifin "Accept" tuzağını kart üzerinden göstermek; kısa liste.
-   - Faruk'un kararı bekleniyor (7 Ekim akşamı soruldu): önce alt menü mü, `fm contract` mı?
+   - `fm contract` kartı 7→8 Ekim gecesi yapıldı (§8.44): vaatler + şartlar, yenileme, menajerin
+     karşı teklifi, kuralın neden tutmadığı. Yenilemede oyuncunun kararı gelen kutusuna düşüyor;
+     o mesajın cevabı henüz denenmedi.
 5. **MCP'yi gerçek istemciyle denemek.** `fm mcp` protokolü konuşuyor ve araçlar çalışıyor
    (§8.39) ama Claude Code / Desktop'tan hiç çağrılmadı. Ardından: araç çıktısındaki
    yönlendirmeleri araç adına çevirmek, uzun maç için zaman aşımı, `--json` her komutta.
 
 ### Bilinen hatalar (kılavuz çekimi sırasında bulundu, 2026-10-07)
+
+- **Tek isimli oyuncu açılmıyor.** `fm contract Fred` / `fm player Fred`: kadroda "Fred" var ama
+  oyunun araması "Fred"i bulmuyor (Fred Onyedinma, Fred Rutten…); `OpenPlayer` aramaya dayanıyor.
+  Kendi oyuncumuz için kadro ekranındaki isim butonundan açmak gerek.
 
 - **`fm players` dar terminalde okunmuyor.** 110 sütunda 15 kolonun hepsi basılıyor; isimler
   harf harf kırılıyor ("Abdelh / amid / Sabiri"), "Scouting Required" dört satıra bölünüyor,
@@ -223,8 +228,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); isimle arama ve kaydırma yok
 - [x] Teklif ver — `fm offer`: kart, şart düzenleme, pazarlık kilitleri, karşı teklif (§8.42)
 - [k] Gelen teklife yanıt — `EventFmxTransferOfferResponse`
-- [~] Sözleşme görüşmesi — `fm contract`: kabul edilen transferde vaatler, şartlar, ücret, imza (§8.42); yenileme ve kart yok
-- [k] Sözleşme maddeleri — `EventFmxAddContractBonus`, `ClubTransferClausesReference`
+- [x] Sözleşme görüşmesi — `fm contract [oyuncu]`: kart, vaatler, şartlar, kilitler, menajerin
+      karşı teklifi, iptal; kendi oyuncumuzla yenileme (§8.44)
+- [~] Sözleşme maddeleri ve primleri — kartta ekle / kaldır / değiştir; kupa ve ödül primleri alt menüde (§8.42)
+- [ ] Yenilemede oyuncunun kararı (gelen kutusu) ve "menajere sor" (`Discuss New Contract`) yolu
 - [k] Kiralık — `fm offer --loan` var ama canlı denenmedi; `CanMakeLoanOffer`, `PersonOfferExtendLoan`, `LoanToBuy*`
 - [k] Oyuncuyu kulüplere öner — `PersonOfferToClubs`
 - [k] Sözleşme feshi / serbest bırakma — `PersonMutualTerminationContract`, `PersonReleaseClubFreeTransfer`
@@ -432,6 +439,14 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-08 (gece, otonom)
+
+- **`fm contract` kart oldu** (FINDINGS §8.44). Teklifteki gibi: vaatler ve şartlar kart olarak,
+  okla düzenleme, `--term`, kilitler, ekle / kaldır. `fm contract <oyuncu>` kendi oyuncumuzla
+  yenileme görüşmesini açıyor. Menajerin cevabı "neyin değiştiği" olarak yazılıyor; kuralı
+  tutmayan şartın sebebi (görüşme kaydındaki `InvalidOrDisabledReason`) satırın yanında. Teklif
+  ve sözleşme aynı düzenleme kodunu paylaşıyor (`Terms.cs`). Kılavuz bölümü + üç görüntü.
 
 ### 2026-10-07 (akşam)
 

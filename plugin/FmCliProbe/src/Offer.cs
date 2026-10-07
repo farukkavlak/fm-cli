@@ -16,20 +16,68 @@ namespace FmCliProbe;
 /// with /setnumber), a dropdown of choices (set with /select), or plain text. Above the rows
 /// are the offer-wide choices (negotiable or not, a deadline for the answer) and below them
 /// what it costs. Each heading but the first has an "Add" dropdown that puts another row in.
+///
+/// The contract talks are built from the same parts (FINDINGS §8.44): rows named
+/// <c>#frames-contract terms</c>, a lock beside each, "Add Promise" / "Add Bonus" / "Add Clause"
+/// lists, and a lock for the entire offer. They come in two stages, promises and then terms,
+/// each its own block.
 /// </summary>
 internal static class Offer
 {
-	public static string Current()
+	public static string Current() => Read(Root(), contract: false);
+
+	/// <summary>The contract talks on screen: the promises stage or the terms stage.</summary>
+	public static string Contract() => Read(ContractRoot(out var stage), contract: true, stage);
+
+	private static string Read(VisualElement root, bool contract, string stage = "")
 	{
-		var root = Root();
 		if (root == null) return "{}\n";
 
 		var rows = new List<string>();
 		var adds = new List<string>();
 		var options = new List<string>();
 		var section = "";
+		var lastText = "";
+		var texts = new List<string>();
 
 		Visit(root);
+
+		// Beside the terms, in panels of their own: what the wage does to the budget, and the
+		// contract he has now.
+		if (contract)
+		{
+			texts.Clear();
+			foreach (var element in Buttons.Elements())
+			{
+				try
+				{
+					if (element.name != "text" || !Shown(element)) continue;
+					texts.Add(Text.Plain(element.TryCast<TextElement>()?.text ?? ""));
+				}
+				catch { }
+			}
+		}
+		// Labels can repeat elsewhere on screen ("Wage" on a page beneath), so a value is only
+		// taken when it looks like one.
+		var facts = new List<string>();
+		foreach (var (label, looks) in new (string, System.Func<string, bool>)[]
+		{
+			("Cost", v => v.Contains("p/w")), ("Current", v => v.Contains("p/w")), ("Avg.", v => v.Contains("p/w")),
+			("Remaining", v => v.Contains("p/w") || v == "N/A"), ("Wage", v => v.Contains("p/w")), ("Contract Expires", v => v.Contains('/')),
+		})
+		{
+			for (var at = texts.IndexOf(label); at >= 0; at = texts.IndexOf(label, at + 1))
+			{
+				// His contract is read from the talks' player report only, where the wage follows
+				// the transfer value; a page beneath can carry another player's.
+				if (label == "Wage" && (at == 0 || texts[at - 1] != "Transfer Value")) continue;
+				if (label == "Contract Expires" && !texts.Skip(System.Math.Max(0, at - 3)).Take(3).Contains("Wage")) continue;
+				var value = texts.Skip(at + 1).Take(3).FirstOrDefault(looks);
+				if (value == null) continue;
+				facts.Add($"\"{label}\": \"{Report.Escape(value)}\"");
+				break;
+			}
+		}
 
 		string Plain(string name)
 		{
@@ -37,12 +85,14 @@ internal static class Offer
 		}
 
 		return "{"
-			+ $"\"Club\": \"{Report.Escape(Plain("club-player-text"))}\", "
-			+ $"\"Player\": \"{Report.Escape(Plain("player-text").Trim('(', ')'))}\", "
+			+ (contract
+				? $"\"Stage\": \"{stage}\", \"Club\": \"{Report.Escape(Plain("club-subtitle-text"))}\", \"Player\": \"{Report.Escape(Plain("club-player-text").Trim('(', ')'))}\", "
+				: $"\"Club\": \"{Report.Escape(Plain("club-player-text"))}\", \"Player\": \"{Report.Escape(Plain("player-text").Trim('(', ')'))}\", ")
 			+ $"\"BudgetCost\": \"{Report.Escape(Plain("Text_TransferCostValue"))}\", "
 			+ $"\"TotalCost\": \"{Report.Escape(Plain("Text_TotalCostValue"))}\", "
 			+ "\"Options\": [" + string.Join(", ", options) + "], "
 			+ "\"Rows\": [" + string.Join(", ", rows) + "], "
+			+ "\"Facts\": {" + string.Join(", ", facts) + "}, "
 			+ "\"Adds\": [" + string.Join(", ", adds) + "]}\n";
 
 		void Visit(VisualElement element)
@@ -62,9 +112,16 @@ internal static class Offer
 				case "players-to-exchange-title" or "fees-title" or "clauses-title":
 					try { section = Text.Plain(element.TryCast<TextElement>()?.text ?? "") ; } catch { }
 					break;
-				case "frames-contract-terms":
+				case "frames-contract-terms" or "frames-contract terms":
 					if (Row(element, section) is { } row) rows.Add(row);
 					return;
+				// The contract's headings are plain text: "Bonuses & Clauses", "Additional
+				// Promises", and "Entire offer" before its lock.
+				case "text" when contract:
+					try { lastText = Text.Plain(element.TryCast<TextElement>()?.text ?? ""); } catch { }
+					texts.Add(lastText);
+					if (lastText is "Bonuses & Clauses" or "Additional Promises") section = lastText;
+					break;
 			}
 
 			SIDropdown dropdown = null;
@@ -72,7 +129,10 @@ internal static class Offer
 			if (dropdown != null && Shown(dropdown))
 			{
 				var label = Buttons.LabelOf(dropdown);
-				if (label.StartsWith("Add", System.StringComparison.Ordinal) && section.Length > 0) adds.Add($"{{\"Section\": \"{section}\", {Choices(dropdown)}}}");
+				if (label.StartsWith("Add", System.StringComparison.Ordinal) && (contract || section.Length > 0))
+					adds.Add($"{{\"Section\": \"{(contract ? label : section)}\", {Choices(dropdown)}}}");
+				else if (contract && IsLock(dropdown))
+					options.Add($"{{\"Label\": \"{Report.Escape(lastText)}\", \"Lock\": {LockOf(dropdown)}}}");
 				else if (section.Length == 0) options.Add($"{{\"Label\": \"{Report.Escape(label)}\", {Choices(dropdown)}}}");
 				return;
 			}
@@ -103,6 +163,7 @@ internal static class Offer
 		SIDropdown lockList = null;
 		string fixedText = "";
 		string remove = "";
+		var warning = false;
 		var stack = new Stack<VisualElement>();
 		stack.Push(frame);
 		var seen = 0;
@@ -119,7 +180,7 @@ internal static class Offer
 
 			// The lock beside a term is a dropdown of its own, not the term's value: how firmly
 			// the term is held in the talks (FINDINGS §8.42).
-			if (name == "lock-button-remapper")
+			if (name is "lock-button-remapper" or "lock-button-enabled")
 			{
 				if (lockList == null)
 				{
@@ -147,8 +208,17 @@ internal static class Offer
 			{
 				try { fixedText = Text.Plain(element.TryCast<TextElement>()?.text ?? ""); } catch { }
 			}
-			if (remove.Length == 0 && name == "remove-button-visible")
+			// The warning's frame is always there; only an icon inside it is the warning.
+			if (name == "warning-visible")
 			{
+				try { warning |= element.hierarchy.childCount > 0 && Shown(element); } catch { }
+				continue;
+			}
+			if (remove.Length == 0 && name is "remove-button-visible" or "remove-button-enabled")
+			{
+				var usable = true;
+				try { usable = element.enabledInHierarchy; } catch { }
+				if (!usable) continue;
 				var button = Buttons.ButtonsUnder(element).FirstOrDefault();
 				if (button.Pointer != null) remove = button.Pointer;
 			}
@@ -165,6 +235,7 @@ internal static class Offer
 		sb.Append($"\"Section\": \"{section}\", \"Label\": \"{Report.Escape(label)}\", ");
 		if (secondary.Length > 0) sb.Append($"\"Detail\": \"{Report.Escape(secondary)}\", ");
 		if (remove.Length > 0) sb.Append($"\"Remove\": \"{remove}\", ");
+		if (warning) sb.Append("\"Warning\": \"True\", ");
 
 		// A term can have both: "After League Appearances" is a number of games and an amount.
 		var parts = new List<string>();
@@ -175,15 +246,34 @@ internal static class Offer
 			try { amount = box.m_numericInput?.value ?? 0; } catch { }
 			parts.Add($"\"Amount\": {{\"Pointer\": \"0x{box.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(box))}\", \"Number\": \"{amount}\"}}");
 		}
-		if (lockList != null)
-		{
-			var count = 0;
-			try { count = lockList.m_choices?.Count ?? 0; } catch { }
-			parts.Add($"\"Lock\": {{\"Pointer\": \"0x{lockList.Pointer.ToInt64():x}\", \"Index\": \"{lockList.SelectedIndex}\", \"Count\": \"{count}\"}}");
-		}
+		if (lockList != null) parts.Add($"\"Lock\": {LockOf(lockList)}");
 		if (parts.Count == 0 || parts.Count == 1 && lockList != null) parts.Add($"\"Fixed\": \"{Report.Escape(fixedText)}\"");
 		sb.Append(string.Join(", ", parts));
 		return sb.Append('}').ToString();
+	}
+
+	/// <summary>
+	/// A padlock: its choices are the lock values themselves ("0 · 1 · 2", or "0 · 2" where only
+	/// open and closed are offered), with the one set given by its position.
+	/// </summary>
+	private static string LockOf(SIDropdown dropdown)
+	{
+		var names = new List<string>();
+		var choices = dropdown.m_choices;
+		for (var i = 0; i < (choices?.Count ?? 0) && i < 8; i++) names.Add($"\"{Report.Escape(Buttons.ChoiceText(choices[i]) ?? "")}\"");
+		var enabled = false;
+		try { enabled = dropdown.enabledInHierarchy; } catch { }
+		return $"{{\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Index\": \"{dropdown.SelectedIndex}\", \"Enabled\": \"{enabled}\", \"Choices\": [{string.Join(", ", names)}]}}";
+	}
+
+	private static bool IsLock(SIDropdown dropdown)
+	{
+		var choices = dropdown.m_choices;
+		var count = choices?.Count ?? 0;
+		if (count == 0) return false;
+		for (var i = 0; i < count; i++)
+			if (!int.TryParse(Buttons.ChoiceText(choices[i]) ?? "", out _)) return false;
+		return true;
 	}
 
 	/// <summary>A dropdown as pointer, what it shows, and what it offers.</summary>
@@ -201,6 +291,36 @@ internal static class Offer
 	private static bool Shown(VisualElement element)
 	{
 		try { return element.panel != null && element.worldBound.width > 0; } catch { return false; }
+	}
+
+	/// <summary>
+	/// The contract talks' block: "Contract Negotiation Promises Block" first, then
+	/// "Contract Negotiation Contents Block". Found by climbing from a shown term row.
+	/// </summary>
+	private static VisualElement ContractRoot(out string stage)
+	{
+		stage = "";
+		foreach (var element in Buttons.Elements())
+		{
+			try
+			{
+				if (element.name != "frames-contract terms" || !Shown(element)) continue;
+			}
+			catch { continue; }
+
+			VisualElement root = element;
+			for (var climbed = 0; climbed < 60; climbed++)
+			{
+				try { root = root.hierarchy.parent; } catch { break; }
+				if (root == null) break;
+				string name;
+				try { name = root.name ?? ""; } catch { continue; }
+				if (!name.StartsWith("Contract Negotiation", System.StringComparison.Ordinal)) continue;
+				stage = name.Contains("Promises") ? "Promises" : "Terms";
+				return root;
+			}
+		}
+		return null;
 	}
 
 	/// <summary>The offer's panel: the nearest ancestor of its total that also holds its header.</summary>

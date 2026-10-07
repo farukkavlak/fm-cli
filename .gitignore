@@ -8,3 +8,4 @@ fm-cli-probe.txt
 .DS_Store
 cli/fm/bin/
 cli/fm/obj/
+__pycache__/

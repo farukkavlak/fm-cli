@@ -2184,6 +2184,67 @@ bakmak yeterli, değere değil.
 
 Statik ipucu: `InteropEventIDs` içinde `EventFmxSelectPlayer` (24) var; kullanmaya gerek kalmadı.
 
+## 8.44 Sözleşme görüşmesi kartı ve yenileme (`fm contract`, 7→8 Ekim gecesi)
+
+Görüşme ekranı teklif ekranıyla aynı parçalardan kurulu, bu yüzden plugin'in `/offer` okuyucusu
+genelleştirildi; `/contract` aynı JSON'u verir (+ `Stage`, `Facts`).
+
+**Yenileme.** Kendi oyuncumuzun sayfasında değer butonu aksiyonları açıyor; listede
+**Enter Contract Negotiations** var. Basınca oyun bir onay penceresi açıyor ("Enter contract
+negotiations? … without discussing this with their agent", Yes / No). Yes görüşmeyi açar.
+`fm contract <oyuncu>` bunu yapıyor; terminalde uyarıyı sorar, script'te geçip not düşer.
+
+**İki blok, iki aşama.** Kök, satırdan yukarı çıkınca bulunan `BindingRemapper`:
+`Contract Negotiation Promises Block` (vaatler) ya da `… Contents Block` (şartlar).
+- Satırlar `#frames-contract terms` (teklifte tireli: `frames-contract-terms`). Adı
+  `#primary-text`, açıklaması `#secondary-text` (vaatte "Will want to see progress…", ek
+  maddede oyunun itirazı: "Contract too short", "Not allowed to exceed appearance bonus").
+- Değer: `FMCombobox` (tutar, `/setnumber`) ya da `#inputs-combobox-default-default` (seçim).
+- Kilit: `#lock-button-enabled` altında, seçenekleri kilit değerlerinin kendisi: şartlarda
+  "0 · 1 · 2", vaatlerde ve "Entire offer"da "0 · 2". Seçili olan `SelectedIndex` ile.
+  "Entire offer" kilidi olay göndermiyor (teklifteki cevap süresi gibi), yalnızca yazılıyor.
+- Kaldırma: `#remove-button-enabled` / `#remove-button-visible` altındaki buton
+  (`EventFmxRemoveAddOn`); menajerin istediği bazı maddelerde kapalı.
+- Ekleme listeleri etiketli: "Add Promise", "Add Bonus" (`EventFmxAddContractBonus`),
+  "Add Clause" (`EventFmxAddContractClause`). Kupa / ödül bonusları yine alt menüde (§8.42).
+- Görüşmenin butonları (`StandardButton`): vaatlerde **Finalise Promises** (menajerin
+  vaatleri olduğu gibi) ya da değiştirilince **Suggest Promises**; ardından
+  **Negotiate Contract**. Şartlarda **Finalise Deal** / **Suggest Terms**. Ayrıca
+  `Reset` (`EventFmxResetTerms`) ve `Use Existing Contract`.
+- **Cancel Negotiations** bir onay penceresi açar ("you may not be able to immediately re-enter
+  talks", Cancel / Confirm). Gerçekten de iptal edilen oyuncuyla (Oğuz Aydın) hemen yeniden
+  görüşme açılamadı: aksiyonlarda "Enter Contract Negotiations" kayboldu. Mert Müldür'de ise
+  açıldı; kural belli değil.
+
+**Kenar panelleri.** Maaş bütçesine etki (`#frames-contract negotiations-wage budget impact`:
+Cost / Current / Avg. / Remaining) ve oyuncu raporu (Wage, Contract Expires) görüşme bloğunun
+dışında, ayrı ızgara elemanlarında. Ekrandaki bütün `#text`'ler sırayla okunup etiketten sonra
+gelen değer alınıyor. ⚠ Alttaki sayfalarda da "Wage" var (vaatler aşamasında başka oyuncunun
+£22K'sı okundu); oyuncu raporundaki ücret "Transfer Value"dan hemen sonra gelen.
+
+**Neden geçersiz.** Bir şart kurala uymayınca satırda yalnızca bir uyarı ikonu çıkıyor
+(`#warning-visible` içinde `ui-concepts-warning_small`; çerçeve hep var, içi boşsa uyarı yok)
+ve öneri butonu kapanıyor (`Suggest Terms`, `Enabled=False`). Sebep görüşme kaydında:
+`ContractEditSessionReference.<Bileşen>ComponentInfo.BaseComponentData.InvalidOrDisabledReason`
+(`WeeklyWage`, `AgentFee`, `LoyaltyBonus`, `EndDate`, `StartDate`, `ContractStatus`). Örnek:
+ücreti £32.5K'dan £30K'ya düşürünce menajer ücreti (£155K) "Above max allowed %" oldu; £100K'ya
+inince öneri geri geldi. Kart bu sebebi satırın yanına yazıyor.
+
+**Menajerin cevabı.** Önerilen şartlara menajer ya "kabul" der (kart aynı kalır, Finalise
+Deal gelir) ya da kendi şartlarını karta geri koyar (yine Finalise Deal, ama değerler değişmiş).
+İkisini ayırmak için kart öneriden önce ve sonra okunup farklar yazılıyor ("Menajerin istediği:
+Haftalık ücret £130,000 → £145,000 · Menajer ücreti £1M → £1.1M"). Aynı adlı iki prim olabiliyor
+(iki "Seasonal Landmark Goal Bonus"), satırlar ad + sıra ile eşleşiyor.
+
+**Yenilemede imza hemen olmuyor.** Finalise Deal'den sonra menajer "I'll be in touch regarding
+my client's final decision in the near future" diyor ve yalnızca Exit Talks kalıyor; karar
+günler sonra gelen kutusuna geliyor. Transferde (Defrel, §8.42) aynı noktada imza oluyordu.
+
+Denendi (kaydedilmedi): Mert Günok £13.5K (menajer önce £14.75K istedi), Levent Mercan £22K →
+£20K kabul (kartın içinden imzalandı, karar bekleniyor), Anthony Musaba'ya kaptan yardımcılığı
+vaadi ("The current vice-captain is Milan Škriniar"; menajer "kaptanlık istemiyor" dedi ama vaadi
+kabul etti), Kerem Aktürkoğlu £130K + menajer £800K → £145K, £1.1M karşı teklif.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

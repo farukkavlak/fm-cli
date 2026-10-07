@@ -40,6 +40,20 @@ SCENES = {
 		("wait", r"ne kadar değiştirebilsin"), ("pick", r"Yarı pazarlıklı"), ("snap", "offer-lock"), ("keys", "\r"),
 		("wait", r"Yarı pazarlıklı"), ("snap", "offer-locked"),
 		("pick", r"Gönderme, ekranı"), ("keys", "\r"), ("exit",)]),
+	# Changes the game: opens renewal talks, puts a wage to the agent, then calls them off.
+	"contract": ("fm contract 'Kerem Aktürkoğlu'", [("wait", r"Yine de gir"), ("keys", "\r"),
+		("wait", r"Vaatler — değiştirmek"), ("snap", "contract-promises"),
+		("pick", r"Vaatleri onayla"), ("keys", "\r"), ("wait", r"Sözleşme — değiştirmek"), ("snap", "contract-terms"),
+		("pick", r"Haftalık ücret"), ("keys", "\r"), ("wait", r"Tutarı değiştir"), ("pick", r"Tutarı"), ("keys", "\r"),
+		("wait", r"tutarı"), ("keys", "130000\r"), ("wait", r"Haftalık ücret: £130,000"), ("snap", "contract-invalid"),
+		("pick", r"Menajer ücreti"), ("keys", "\r"), ("wait", r"Tutarı değiştir"), ("pick", r"Tutarı"), ("keys", "\r"),
+		("wait", r"tutarı"), ("keys", "800000\r"), ("wait", r"Menajer ücreti: £800K"),
+		("pick", r"Şartları menajere öner"), ("keys", "\r"), ("wait", r"Menajerin istediği|kabul ediyor"), ("snap", "contract-answer"),
+		("pick", r"Görüşmeyi iptal et"), ("keys", "\r"), ("wait", r"İptal et"), ("pick", r"İptal et"), ("keys", "\r"), ("exit",)]),
+	# The same talks carried on once open: the answer to a proposal.
+	"contract-answer": ("fm contract", [("wait", r"Şartları menajere öner"),
+		("pick", r"Şartları menajere öner"), ("keys", "\r"), ("wait", r"Menajerin istediği|kabul ediyor"), ("snap", "contract-answer"),
+		("pick", r"Şimdilik bırak"), ("keys", "\r"), ("exit",)]),
 }
 
 

@@ -1,0 +1,143 @@
+namespace FmCli;
+
+/// <summary>
+/// Changing one term of a deal on screen: the transfer offer (route "offer") and the contract
+/// talks (route "contract") are built from the same rows, and both are changed through these.
+/// </summary>
+internal static partial class Program
+{
+	/// <summary>One term, at a terminal: its choice, its amount, its lock, or taking it out.</summary>
+	private static async Task<string> EditTerm(string route, OfferScreen.Term row)
+	{
+		var ways = new List<string>();
+		if (row.Choice != null && row.Choice.Choices.Count > 1) ways.Add($"Seçimi değiştir ({row.Choice.Value})");
+		if (row.Amount != null) ways.Add($"Tutarı değiştir ({row.Amount.Value})");
+		if (row.Lock != null && row.Lock.Choices.Count > 1) ways.Add($"Pazarlık durumu ({OfferScreen.SayLock(row.Lock.Value)})");
+		if (row.Remove.Length > 0) ways.Add("Kaldır");
+		if (ways.Count == 0) return "Bu şart değiştirilemiyor.";
+
+		var way = ways.Count == 1 ? 0 : Ui.Ask(OfferScreen.Say(row.Label), ways, cancel: "Geri");
+		if (way == null) return null;
+		var chosen = ways[way.Value];
+		if (chosen.StartsWith("Seçimi", StringComparison.Ordinal))
+			return await PickTermChoice(route, OfferScreen.Say(row.Label), row.Choice, s => s.Row(row)?.Choice);
+		if (chosen.StartsWith("Tutarı", StringComparison.Ordinal))
+		{
+			if (Ui.Text($"{OfferScreen.Say(row.Label)} tutarı (ör. 7.5M, 250K, 12000; boş: vazgeç)") is not { } typed) return null;
+			if (Money(typed) is not { } amount) return $"'{typed}' bir tutar değil.";
+			return await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row)?.Amount, route);
+		}
+		if (chosen.StartsWith("Pazarlık", StringComparison.Ordinal))
+			return await PickLock(route, row, s => s.Row(row)?.Lock);
+		if (Ui.Ask($"{OfferScreen.Say(row.Label)} kaldırılsın mı?", ["Kaldır"], cancel: "Geri") == null) return null;
+		return await OfferScreen.Remove(Fm, row, route);
+	}
+
+	private static async Task<string> PickLock(string route, OfferScreen.Term term, Func<OfferScreen, OfferScreen.Control> after)
+	{
+		var names = term.Lock.Choices.Select(OfferScreen.SayLock).ToList();
+		if (Ui.Ask($"{OfferScreen.Say(term.Label)} — karşı taraf bunu ne kadar değiştirebilsin?", names, current: term.Lock.Choices.IndexOf(term.Lock.Value), cancel: "Geri") is not { } picked) return null;
+		return term.Lock.Choices[picked] == term.Lock.Value ? null : await OfferScreen.SetLock(Fm, term, term.Lock.Choices[picked], route, after);
+	}
+
+	private static async Task<string> PickTermChoice(string route, string title, OfferScreen.Control control, Func<OfferScreen, OfferScreen.Control> after)
+	{
+		if (Ui.Ask(title, control.Choices, current: control.Choices.IndexOf(control.Value), cancel: "Geri") is not { } picked) return null;
+		return control.Choices[picked] == control.Value ? null : await OfferScreen.Choose(Fm, control, control.Choices[picked], after, route);
+	}
+
+	/// <summary>The menu line for one of the "Add" lists.</summary>
+	private static string AddLine(OfferScreen.Term add) => add.Section switch
+	{
+		"Additional Fees" => "+ Ek ödeme ekle",
+		"Add Bonus" => "+ Prim ekle",
+		"Add Promise" => "+ Vaat ekle",
+		_ => "+ Madde ekle",
+	};
+
+	private static async Task<string> AddTerm(string route, OfferScreen.Term add)
+	{
+		// A choice that opens a submenu (a bonus for a trophy or an award) cannot be added yet.
+		var choices = add.Choice.Choices.Where(c => !c.EndsWith("›", StringComparison.Ordinal)).ToList();
+		var question = add.Section switch
+		{
+			"Additional Fees" => "Hangi ödeme?",
+			"Add Bonus" => "Hangi prim?",
+			"Add Promise" => "Hangi vaat?",
+			_ => "Hangi madde?",
+		};
+		if (Ui.Ask(question, choices.Select(OfferScreen.Say).ToList(), cancel: "Geri") is not { } picked) return null;
+		return await OfferScreen.Add(Fm, add, choices[picked], route);
+	}
+
+	/// <summary>
+	/// "Label=value[,value]": the term is added if it is not there yet, then each value goes to
+	/// its lock when it names one, to its dropdown when it is one of its choices, and to its
+	/// amount box otherwise.
+	/// </summary>
+	private static async Task<string> SetTerm(string route, string asked)
+	{
+		// A name alone adds the term as it comes ("Will appoint player as captain").
+		var eq = asked.IndexOf('=');
+		if (eq == 0) return "biçim: \"Şart=değer\", ör. \"Percentage Of Next Sale=20%\"";
+		var label = (eq < 0 ? asked : asked[..eq]).Trim();
+		var values = eq < 0 ? [] : asked[(eq + 1)..].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+		bool Named(string l) => Fold(l.TrimEnd(':')) == Fold(label.TrimEnd(':')) || Fold(OfferScreen.Say(l)) == Fold(label);
+		string LockNamed(OfferScreen.Control control, string value) =>
+			control?.Choices.FirstOrDefault(l => Fold(l) == Fold(value) || Fold(OfferScreen.SayLock(l)) == Fold(value));
+
+		if (await OfferScreen.Read(Fm, route) is not { } now) return "ekran açık değil";
+		if (now.Options.FirstOrDefault(o => (o.Choice != null && Named(OfferScreen.OptionKey(o))) || Named(o.Label)) is { } option)
+		{
+			if (option.Lock != null)
+			{
+				return values.Length == 1 && LockNamed(option.Lock, values[0]) is { } lockName
+					? await OfferScreen.SetLock(Fm, option, lockName, route, s => s.Options.FirstOrDefault(o => o.Lock?.Pointer == option.Lock.Pointer)?.Lock)
+					: $"seçenekler: {string.Join(", ", option.Lock.Choices)}";
+			}
+			var picked = values.Length == 1 ? option.Choice.Choices.FirstOrDefault(c => Fold(c) == Fold(values[0])) : null;
+			return picked != null
+				? await OfferScreen.Choose(Fm, option.Choice, picked, s => s.Options.FirstOrDefault(o => o.Choice?.Pointer == option.Choice.Pointer)?.Choice, route)
+				: $"seçenekler: {string.Join(", ", option.Choice.Choices)}";
+		}
+
+		var row = now.Rows.FirstOrDefault(r => Named(r.Label));
+		if (row == null)
+		{
+			var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(Named));
+			if (add == null) return $"böyle bir şart yok. Eklenebilenler: {string.Join(", ", now.Adds.SelectMany(a => a.Choice.Choices))}";
+			var full = add.Choice.Choices.First(Named);
+			if (await OfferScreen.Add(Fm, add, full, route) is { } failed) return failed;
+			row = (await OfferScreen.Read(Fm, route))?.Row(full);
+			if (row == null) return "eklendi ama ekranda bulunamadı";
+		}
+
+		// A choice can carry figures that change with the offer ("2 Instalments (£500 each)"),
+		// so the start of one is enough when only one starts that way.
+		string ChoiceFor(OfferScreen.Control control, string value)
+		{
+			if (control == null) return null;
+			if (control.Choices.FirstOrDefault(c => Fold(c) == Fold(value)) is { } exact) return exact;
+			var starting = control.Choices.Where(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal)).ToList();
+			return starting.Count == 1 ? starting[0] : null;
+		}
+
+		foreach (var value in values)
+		{
+			string failed;
+			if (Fold(value) is "remove" or "kaldir")
+				return row.Remove.Length > 0 ? await OfferScreen.Remove(Fm, row, route) : $"{row.Label} kaldırılamıyor";
+			if (LockNamed(row.Lock, value) is { } lockName)
+				failed = await OfferScreen.SetLock(Fm, row, lockName, route);
+			else if (ChoiceFor(row.Choice, value) is { } picked)
+				failed = await OfferScreen.Choose(Fm, row.Choice, picked, s => s.Row(row)?.Choice, route);
+			else if (row.Amount != null && Money(value) is { } amount)
+				failed = await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row)?.Amount, route);
+			else
+				failed = row.Choice != null ? $"'{value}' yok; seçenekler: {string.Join(", ", row.Choice.Choices)}" : $"'{value}' bir tutar değil";
+			if (failed != null) return failed;
+			row = (await OfferScreen.Read(Fm, route))?.Row(row) ?? row;
+		}
+		return null;
+	}
+}

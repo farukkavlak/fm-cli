@@ -18,6 +18,10 @@ internal sealed class OfferScreen
 	public string Player { get; private init; } = "";
 	public string BudgetCost { get; private init; } = "";
 	public string TotalCost { get; private init; } = "";
+	/// <summary>The contract talks only: "Promises" or "Terms", and what sits beside the terms.</summary>
+	public string Stage { get; private init; } = "";
+	public Dictionary<string, string> Facts { get; private init; } = [];
+	public bool IsContract => Stage.Length > 0;
 	public List<Term> Options { get; private init; } = [];
 	public List<Term> Rows { get; private init; } = [];
 	public List<Term> Adds { get; private init; } = [];
@@ -33,30 +37,52 @@ internal sealed class OfferScreen
 
 	public sealed record Term(string Section, string Label, string Detail, string Remove, Control Choice, Control Amount, string Fixed, Control Lock = null)
 	{
+		/// <summary>The game marks a contract term the agent will not take as it stands.</summary>
+		public bool Warning { get; init; }
+
+		/// <summary>Which of the terms with this name it is: an agent can ask for two goal bonuses.</summary>
+		public int Nth { get; init; }
+
 		public string Shown => string.Join(" · ", new[] { Choice?.Value, Amount?.Value, Fixed }.Where(v => !string.IsNullOrEmpty(v))) is { Length: > 0 } shown ? shown : "—";
 	}
 
 	/// <summary>The offer as it stands, or null when no offer screen is open.</summary>
-	public static async Task<OfferScreen> Read(Bridge fm)
+	public static async Task<OfferScreen> Read(Bridge fm, string route = "offer")
 	{
-		var data = await fm.GetJson("offer");
+		var data = await fm.GetJson(route);
 		if (!data.TryGetProperty("Rows", out var rows)) return null;
 		return new OfferScreen
 		{
+			Stage = F(data, "Stage"),
+			Facts = data.TryGetProperty("Facts", out var facts) ? facts.EnumerateObject().ToDictionary(f => f.Name, f => f.Value.GetString() ?? "") : [],
 			Club = F(data, "Club"),
 			Player = F(data, "Player"),
 			BudgetCost = F(data, "BudgetCost"),
 			TotalCost = F(data, "TotalCost"),
-			Options = data.GetProperty("Options").EnumerateArray().Select(o => new Term("", F(o, "Label"), "", "", ControlOf(o), null, "")).ToList(),
+			Options = data.GetProperty("Options").EnumerateArray().Select(o => o.TryGetProperty("Lock", out var l)
+				? new Term("", F(o, "Label"), "", "", null, null, "", LockOf(l))
+				: new Term("", F(o, "Label"), "", "", ControlOf(o), null, "")).ToList(),
 			Rows = rows.EnumerateArray().Select(r => new Term(F(r, "Section"), F(r, "Label"), F(r, "Detail"), F(r, "Remove"),
 				r.TryGetProperty("Choice", out var c) ? ControlOf(c) : null,
 				r.TryGetProperty("Amount", out var a) ? new Control(F(a, "Pointer"), F(a, "Value"), []) : null,
 				F(r, "Fixed"),
-				r.TryGetProperty("Lock", out var l) && int.TryParse(F(l, "Index"), out var at) && int.TryParse(F(l, "Count"), out var count)
-					? new Control(F(l, "Pointer"), at >= 0 && at < Locks.Length ? Locks[at] : "", Locks.Take(count).ToList())
-					: null)).ToList(),
+				r.TryGetProperty("Lock", out var l) ? LockOf(l) : null)
+				{ Warning = F(r, "Warning") == "True" }).ToList() is var read
+				? read.Select((r, i) => r with { Nth = read.Take(i).Count(o => Same(o.Label, r.Label)) }).ToList()
+				: [],
 			Adds = data.GetProperty("Adds").EnumerateArray().Select(a => new Term(F(a, "Section"), "Add", "", "", ControlOf(a), null, "")).ToList(),
 		};
+
+		// The padlock's choices are the lock values themselves: "0 · 1 · 2", or "0 · 2" where only
+		// open and closed are offered.
+		static Control LockOf(JsonElement e)
+		{
+			var names = e.GetProperty("Choices").EnumerateArray()
+				.Select(c => int.TryParse(c.GetString(), out var n) && n >= 0 && n < Locks.Length ? Locks[n] : c.GetString() ?? "")
+				.ToList();
+			var at = int.TryParse(F(e, "Index"), out var i) ? i : -1;
+			return new Control(F(e, "Pointer"), at >= 0 && at < names.Count ? names[at] : "", names);
+		}
 
 		static Control ControlOf(JsonElement e) =>
 			new(F(e, "Pointer"), F(e, "Value"), e.TryGetProperty("Choices", out var c) ? c.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : []);
@@ -64,58 +90,109 @@ internal sealed class OfferScreen
 
 	public Term Row(string label) => Rows.FirstOrDefault(r => Same(r.Label, label));
 
+	/// <summary>The same term on a later reading of the screen.</summary>
+	public Term Row(Term like) => Rows.FirstOrDefault(r => Same(r.Label, like.Label) && r.Nth == like.Nth);
+
+	/// <summary>The contract's own terms and the part of the talks' record that judges each.</summary>
+	private static readonly Dictionary<string, string> Components = new()
+	{
+		["Wage"] = "WeeklyWageComponentInfo",
+		["Agent Fee"] = "AgentFeeComponentInfo",
+		["Loyalty Bonus"] = "LoyaltyBonusComponentInfo",
+		["Contract Length"] = "EndDateComponentInfo",
+		["Contract Start Date"] = "StartDateComponentInfo",
+		["Playing Time"] = "ContractStatusComponentInfo",
+	};
+
+	/// <summary>
+	/// The talks with the game's reason beside each base term it will not take ("Above max
+	/// allowed %"). The screen only shows a warning icon; the reason is in the talks' record
+	/// (FINDINGS §8.44). Bonuses and clauses carry theirs on screen already.
+	/// </summary>
+	public async Task<OfferScreen> WithReasons(Bridge fm)
+	{
+		if (!IsContract) return this;
+		var found = await fm.Get("find", ("name", "negotiation"), ("limit", "10"));
+		var path = found.Split('\n').Select(l => l.Trim())
+			.Where(l => l.EndsWith(".negotiation", StringComparison.Ordinal) && l.Contains("Contract Negotiation", StringComparison.Ordinal) && l.Contains("Block", StringComparison.Ordinal) && !l.Contains("Other Info", StringComparison.Ordinal))
+			.Select(l => l.TrimStart('.'))
+			.FirstOrDefault();
+		if (path == null) return this;
+
+		var rows = new List<Term>();
+		foreach (var row in Rows)
+		{
+			var reason = "";
+			if (row.Section.Length == 0 && Components.TryGetValue(row.Label, out var component))
+			{
+				var data = await fm.GetJson("pull", ("path", $"{path}.{component}.BaseComponentData"), ("props", "InvalidOrDisabledReason"));
+				reason = F(data, "InvalidOrDisabledReason");
+			}
+			rows.Add(reason.Length > 0 && !row.Detail.Contains(reason, StringComparison.Ordinal) ? row with { Detail = row.Detail.Length > 0 ? $"{row.Detail} · {reason}" : reason } : row);
+		}
+		return new OfferScreen
+		{
+			Stage = Stage, Facts = Facts, Club = Club, Player = Player, BudgetCost = BudgetCost, TotalCost = TotalCost,
+			Options = Options, Rows = rows, Adds = Adds,
+		};
+	}
+
 	// ------------------------------------------------------------------ changing it
 
 	/// <summary>Picks a choice on a term's dropdown; true once the screen shows it.</summary>
-	public static async Task<string> Choose(Bridge fm, Control control, string choice, Func<OfferScreen, Control> after)
+	public static async Task<string> Choose(Bridge fm, Control control, string choice, Func<OfferScreen, Control> after, string route = "offer")
 	{
 		// Most of these send their choice on as events; a few (the deadline) only write it.
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c.Value == choice) ? null : $"'{choice}' ekranda görünmedi";
+		// The game marks its advice in the list ("Backup (Recommended)") but not in what it shows.
+		return await Settles(fm, s => after(s) is { } c && (c.Value == choice || choice.StartsWith(c.Value + " (", StringComparison.Ordinal)), route) ? null : $"'{choice}' ekranda görünmedi";
 	}
 
 	/// <summary>Types an amount into a term's box; the game may round it, so whatever it shows is taken.</summary>
-	public static async Task<string> Type(Bridge fm, Control control, long amount, Func<OfferScreen, Control> after)
+	public static async Task<string> Type(Bridge fm, Control control, long amount, Func<OfferScreen, Control> after, string route = "offer")
 	{
 		var said = await fm.Get("setnumber", ("ptr", control.Pointer), ("value", amount.ToString(CultureInfo.InvariantCulture)));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value) || Program.Money(control.Value) == amount ? null : "tutar ekranda değişmedi";
+		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value, route) || Program.Money(control.Value) == amount ? null : "tutar ekranda değişmedi";
 	}
 
 	/// <summary>Sets how firmly a term is held; the lock's choices are indices.</summary>
-	public static async Task<string> SetLock(Bridge fm, Term term, string lockName)
+	public static async Task<string> SetLock(Bridge fm, Term term, string lockName, string route = "offer", Func<OfferScreen, Control> after = null)
 	{
 		var index = term.Lock.Choices.IndexOf(lockName);
 		if (index < 0) return $"'{lockName}' bu şartta yok; seçenekler: {string.Join(", ", term.Lock.Choices)}";
+		// The lock on the entire contract offer only writes its choice, like the offer's deadline.
 		var said = await fm.Get("select", ("ptr", term.Lock.Pointer), ("index", index.ToString(CultureInfo.InvariantCulture)), ("fire", "1"));
-		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => s.Row(term.Label)?.Lock?.Value == lockName) ? null : $"'{lockName}' ekranda görünmedi";
+		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
+		after ??= s => s.Row(term)?.Lock;
+		return await Settles(fm, s => after(s)?.Value == lockName, route) ? null : $"'{lockName}' ekranda görünmedi";
 	}
 
 	/// <summary>Puts another term in from a heading's "Add" list.</summary>
-	public static async Task<string> Add(Bridge fm, Term add, string choice)
+	public static async Task<string> Add(Bridge fm, Term add, string choice, string route = "offer")
 	{
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => s.Row(choice) != null) ? null : $"'{choice}' eklenmedi";
+		return await Settles(fm, s => s.Row(choice) != null, route) ? null : $"'{choice}' eklenmedi";
 	}
 
-	public static async Task<string> Remove(Bridge fm, Term term)
+	public static async Task<string> Remove(Bridge fm, Term term, string route = "offer")
 	{
+		var before = (await Read(fm, route))?.Rows.Count ?? int.MaxValue;
 		var said = await fm.Get("click", ("ptr", term.Remove));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => s.Row(term.Label) == null) ? null : $"'{term.Label}' kaldırılmadı";
+		return await Settles(fm, s => s.Row(term) == null || s.Rows.Count < before, route) ? null : $"'{term.Label}' kaldırılmadı";
 	}
 
 	/// <summary>A change lands a frame or so later; this waits for the screen to show it.</summary>
-	private static async Task<bool> Settles(Bridge fm, Func<OfferScreen, bool> done)
+	private static async Task<bool> Settles(Bridge fm, Func<OfferScreen, bool> done, string route)
 	{
 		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(4);
 		while (DateTime.UtcNow < deadline)
 		{
 			await Task.Delay(200);
-			if (await Read(fm) is { } now && done(now)) return true;
+			if (await Read(fm, route) is { } now && done(now)) return true;
 		}
 		return false;
 	}
@@ -149,6 +226,59 @@ internal sealed class OfferScreen
 		["Semi-Negotiable"] = "Yarı pazarlıklı",
 		["Non-Negotiable"] = "Pazarlıksız",
 		["Remove & Exclude"] = "Çıkar ve yasakla",
+
+		// The contract talks (FINDINGS §8.44).
+		["Promises"] = "Vaatler",
+		["Terms"] = "Şartlar",
+		["Additional Promises"] = "Ek vaatler",
+		["Bonuses & Clauses"] = "Primler ve maddeler",
+		["Entire offer"] = "Tüm teklif",
+		["Playing Time"] = "Kadro statüsü",
+		["Contract Start Date"] = "Başlangıç",
+		["Wage"] = "Haftalık ücret",
+		["Loyalty Bonus"] = "Sadakat primi",
+		["Agent Fee"] = "Menajer ücreti",
+		["Signing On Fee"] = "İmza parası",
+		["Contract Length"] = "Süre",
+		["Contract Type"] = "Sözleşme türü",
+		["Appearance Fee"] = "Maç başı ücret",
+		["Unused Substitute Fee"] = "Oynamayan yedek ücreti",
+		["Clean Sheet Bonus"] = "Gol yememe primi",
+		["International Cap Bonus"] = "Milli maç primi",
+		["Goal Bonus"] = "Gol primi",
+		["Assist Bonus"] = "Asist primi",
+		["Promotion Wage Rise"] = "Lig atlarsa zam",
+		["Yearly Wage Rise"] = "Yıllık zam",
+		["Top Division Relegation Wage Drop"] = "Küme düşerse maaş indirimi",
+		["One-Year Extension After League Games (Final Season)"] = "Lig maçı sayısıyla 1 yıl uzatma (son sezon)",
+		["One-Year Extension After League Games (Avoid Relegation Final Season)"] = "Lig maçı sayısıyla 1 yıl uzatma (kümede kalınırsa)",
+		["Optional Contract Extension By Club"] = "Kulüp opsiyonu",
+		["Minimum Fee Release Clause"] = "Serbest kalma bedeli",
+		["Minimum Fee Release Clause (Foreign Clubs)"] = "Serbest kalma bedeli (yabancı kulüpler)",
+		["Minimum Fee Release Clause (Domestic Clubs)"] = "Serbest kalma bedeli (yerli kulüpler)",
+		["Relegation Release Clause"] = "Küme düşerse serbest kalma",
+		["Sell On Fee Percentage"] = "Satıştan oyuncuya pay",
+		["Match Highest Earner Clause"] = "En yüksek maaşa eşitleme",
+		["Injury Release Clause"] = "Uzun sakatlıkta fesih",
+		// Why the game will not take a term.
+		["Above max allowed %"] = "izin verilen oranın üstünde",
+		["Contract too short"] = "sözleşme bunun için fazla kısa",
+		["Not allowed to exceed appearance bonus"] = "maç başı ücreti aşamaz",
+		["Wage After Reaching International Appearances"] = "Milli maç sayısına ulaşınca ücret",
+		["Wage After Reaching Club League Games"] = "Lig maçı sayısına ulaşınca ücret",
+		["The long-term aims for the club are:"] = "Kulübün uzun vadeli hedefi",
+		["The aims for the league this season are:"] = "Bu sezon ligdeki hedef",
+		["The aims for cup competitions this season are:"] = "Bu sezon kupalardaki hedef",
+		["Will look to strengthen the following area of the first team squad:"] = "Kadroda şu bölge güçlendirilecek",
+		["Will appoint player as captain"] = "Kaptan yapılacak",
+		["Will appoint player as vice-captain"] = "Kaptan yardımcısı yapılacak",
+		["Will assign player as free kick taker"] = "Serbest vuruşları o kullanacak",
+		["Will assign player as penalty taker"] = "Penaltıları o kullanacak",
+		["Will allow the player to treat the club as a stepping stone"] = "Kulübü basamak olarak görebilecek",
+		["Will improve training facilities"] = "Antrenman tesisleri iyileştirilecek",
+		["Will improve first team coaching staff"] = "A takım çalıştırıcıları güçlendirilecek",
+		["Will play player in preferred position and role"] = "Sevdiği mevki ve rolde oynayacak",
+		["Will look to bring in a suitable signing to help player settle"] = "Uyumu için uygun bir transfer yapılacak",
 	};
 
 	/// <summary>A term as one line of the edit menu: its value, and its lock when it is not the usual.</summary>
@@ -157,8 +287,11 @@ internal sealed class OfferScreen
 
 	public static string SayLock(string lockName) => lockName == "Negotiable" ? "Pazarlığa açık" : Say(lockName);
 
+	/// <summary>A term's notes, each in Turkish where it is known.</summary>
+	public static string SayDetail(string detail) => string.Join(" · ", detail.Split(" · ").Select(Say));
+
 	/// <summary>A label in Turkish where one is known; the game's own word otherwise.</summary>
-	public static string Say(string label) => Turkish.TryGetValue(label, out var said) ? said : label;
+	public static string Say(string label) => Turkish.TryGetValue(label, out var said) ? said : label.TrimEnd(':');
 
 	/// <summary>The offer-wide choices have no label of their own; what they offer says which is which.</summary>
 	public static string OptionKey(Term option) =>
@@ -176,6 +309,11 @@ internal sealed class OfferScreen
 
 	public void Draw()
 	{
+		if (IsContract)
+		{
+			DrawContract();
+			return;
+		}
 		if (!Ui.Rich)
 		{
 			Console.WriteLine($"{Player} → {Club}");
@@ -206,6 +344,61 @@ internal sealed class OfferScreen
 		Ui.Out.Write(new Panel(grid)
 		{
 			Header = new PanelHeader($" [bold]{Ui.Safe(Player)}[/] → {Ui.Safe(Club)} "),
+			Border = BoxBorder.Rounded,
+			BorderStyle = new Style(Color.Grey),
+			Padding = new Padding(1, 0, 1, 0),
+		});
+	}
+
+	/// <summary>The contract talks: the stage's terms, the offer-wide lock, what it costs.</summary>
+	private void DrawContract()
+	{
+		var title = Say(Stage);
+		var lockLine = Options.Where(o => o.Lock != null).Select(o => $"{Say(o.Label)}: {SayLock(o.Lock.Value)}").ToList();
+		var shown = Options.Where(o => o.Choice != null && o.Choice.Value is not "" and not "Current Offer").Select(o => o.Choice.Value).ToList();
+		var costs = new List<string>();
+		if (Facts.TryGetValue("Cost", out var cost)) costs.Add($"maaş bütçesine etkisi {cost}");
+		if (Facts.TryGetValue("Remaining", out var left) && left != "N/A") costs.Add($"kalan {left}");
+		var now = Facts.TryGetValue("Wage", out var wage)
+			? $"şu an {wage}" + (Facts.TryGetValue("Contract Expires", out var ends) ? $", {ends}'e kadar" : "")
+			: "";
+
+		if (!Ui.Rich)
+		{
+			Console.WriteLine($"{Player} · {Club} — {title}");
+			foreach (var group in Rows.GroupBy(r => r.Section))
+			{
+				Console.WriteLine($"{(group.Key.Length > 0 ? Say(group.Key) : title)}:");
+				foreach (var row in group)
+					Console.WriteLine($"  {Say(row.Label)}: {row.Shown}{(row.Detail.Length > 0 ? $" ({SayDetail(row.Detail)})" : "")}"
+						+ (row.Lock is { Value: not "Negotiable" and not "" } l ? $"  [{SayLock(l.Value)}]" : "")
+						+ (row.Warning ? "  [kurala uymuyor]" : ""));
+			}
+			foreach (var line in lockLine.Concat(shown)) Console.WriteLine(line);
+			if (costs.Count > 0) Console.WriteLine(string.Join(" · ", costs));
+			if (now.Length > 0) Console.WriteLine($"Mevcut sözleşme: {now}");
+			return;
+		}
+
+		var grid = new Grid().AddColumn(new GridColumn().NoWrap().PadRight(2)).AddColumn();
+		foreach (var group in Rows.GroupBy(r => r.Section))
+		{
+			grid.AddRow(new Markup($"[bold]{Ui.Safe(group.Key.Length > 0 ? Say(group.Key) : title)}[/]"), new Text(""));
+			foreach (var row in group)
+				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(row.Shown)}[/]"
+					+ (row.Detail.Length > 0 ? Stage == "Terms" ? $"  [red]{Ui.Safe(SayDetail(row.Detail))}[/]" : $" [dim]{Ui.Safe(row.Detail)}[/]" : "")
+					+ LockMark(row.Lock)
+					+ (row.Warning ? "  [red]kurala uymuyor[/]" : "")));
+		}
+		grid.AddRow(new Text(""), new Text(""));
+		foreach (var line in lockLine) grid.AddRow(new Markup("[dim]Teklif[/]"), new Markup(Ui.Safe(line)));
+		if (shown.Count > 0) grid.AddRow(new Markup("[dim]Gösterilen[/]"), new Markup(Ui.Safe(string.Join(" · ", shown))));
+		if (costs.Count > 0) grid.AddRow(new Markup("[dim]Bütçe[/]"), new Markup(Ui.Safe(string.Join(" · ", costs))));
+		if (now.Length > 0) grid.AddRow(new Markup("[dim]Mevcut sözleşme[/]"), new Markup(Ui.Safe(now)));
+
+		Ui.Out.Write(new Panel(grid)
+		{
+			Header = new PanelHeader($" [bold]{Ui.Safe(Player)}[/] · {Ui.Safe(Club)} — {Ui.Safe(title)} "),
 			Border = BoxBorder.Rounded,
 			BorderStyle = new Style(Color.Grey),
 			Padding = new Padding(1, 0, 1, 0),

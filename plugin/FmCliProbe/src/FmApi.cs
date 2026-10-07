@@ -55,6 +55,7 @@ internal static class FmApi
 		"save" => Save(),
 		"dialog" => Dialogs.Open(),
 		"offer" => Offer.Current(),
+		"contract" => Offer.Contract(),
 		"talk" => Talk.Current(),
 		"state" => State.Current(),
 		"tactic" => Tactics.Current(),

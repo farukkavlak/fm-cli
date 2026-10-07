@@ -20,7 +20,7 @@ sen her şeyi `fm` komutlarıyla yaparsın.
 7. [Taktik — `tactic`](#7-taktik--tactic)
 8. [Maç günü — `match`, `sub`, `talk`, `report`](#8-maç-günü--match-sub-talk-report)
 9. [Lig ve fikstür — `table`, `fixtures`](#9-lig-ve-fikstür--table-fixtures)
-10. [Transfer — `players`, `offer`](#10-transfer--players-offer)
+10. [Transfer ve sözleşme — `players`, `offer`, `contract`](#10-transfer-ve-sözleşme--players-offer-contract)
 11. [Kaydetmek — `save`](#11-kaydetmek--save)
 12. [Her şeye erişim — `pages`, `buttons`, `press`](#12-her-şeye-erişim--pages-buttons-press)
 13. [Claude'dan oynamak — MCP](#13-claudedan-oynamak--mcp)
@@ -205,7 +205,7 @@ Soldaki renkli şeritler bölgeleri gösterir (üstte Avrupa, altta küme düşm
 
 Oynanmış maçlar beyaz ve sonuçlu, oynanacaklar soluk.
 
-## 10. Transfer — `players`, `offer`
+## 10. Transfer ve sözleşme — `players`, `offer`, `contract`
 
 `fm players` oyunun oyuncu veritabanını listeler: `--filter "<x>"` hazır süzgeçlerden birini
 uygular, `--view "<x>"` kolonları değiştirir. *(Çıktısı şu an dar terminalde dağınık;
@@ -263,6 +263,55 @@ olmayanlar renkli yazar. Script'te değer olarak verilir:
 
 Henüz olmayan: alt menülü seçimler eklenemiyor. Bunlar bir kupa ya da ödül kazanınca ödenen
 bonuslar ve takasa oyuncu koymak.
+
+### Sözleşme — `contract`
+
+```
+fm contract "<oyuncu>"        kendi oyuncumuzla yeni sözleşme görüşmesini aç
+fm contract                   açık görüşmeyi kart olarak göster, okla düzenle
+```
+
+Görüşme iki aşamalı, oyundaki gibi. Önce **vaatler**: kadro statüsü, başlangıç tarihi ve
+menajerin istediği vaatler (kaptanlık, kulübün hedefi…). "+ Vaat ekle" ile sen de vaat
+verirsin; bir vaadi değiştirince menü "Vaatleri menajere öner" olur, menajer kabul edince
+"Vaatleri onayla, şartlara geç".
+
+![fm contract — vaatler](img/contract-promises.png)
+
+Sonra **şartlar**: ücret, süre, menajer ücreti, sadakat primi, primler ve maddeler. Kartın
+altında maaş bütçesine etkisi ve oyuncunun şu anki sözleşmesi yazar.
+
+![fm contract — şartlar](img/contract-terms.png)
+
+Bir şart oyunun kuralına uymazsa (ör. ücreti düşürünce menajer ücreti izin verilen oranı
+aşar) satırın yanında kırmızıyla sebebi yazar — "Menajer ücreti: £1.1M (izin verilen oranın
+üstünde)" — ve öneri gönderilemez; o şartı düzeltince geri gelir.
+
+"Şartları menajere öner" deyince menajer ya kabul eder ya da kendi istediklerini karta geri
+koyar; kart neyin değiştiğini söyler:
+
+![fm contract — menajerin cevabı](img/contract-answer.png)
+
+"Bu şartlarla imzala" bir kez daha sorar. Yenilemede oyuncu kararını hemen vermez: menajer
+"kararı birkaç gün içinde bildireceğiz" der, cevap gelen kutusuna düşer. Transferde (teklif
+kabul edildikten sonra gelen kutusundaki "Enter Contract Negotiations") imza o an olur.
+
+Script'ten:
+
+```
+fm contract "Levent Mercan"                       görüşmeyi aç, vaatleri göster
+fm contract --term "Kadro statüsü=Regular Starter" --term "Will appoint player as captain"
+fm contract --next                                vaatleri onayla (ya da öner), şartlara geç
+fm contract --wage 20K --term "Yıllık zam=10%" --term "Appearance Fee=kaldır"
+fm contract --term "Haftalık ücret=Pazarlıksız"   bir şartın kilidi; "Tüm teklif=…" hepsinin
+fm contract --sign --yes                          menajere sun / imzala
+fm contract --cancel                              görüşmeyi iptal et
+```
+
+Değeri olmayan bir ad (`--term "Will appoint player as captain"`) vaadi ya da maddeyi ekler,
+`=kaldır` kaldırır. Vaatler aşamasında olmayan bir şart, `--next` ile şartlara geçilince
+uygulanır. Menajere sormadan görüşmeye girmek oyunda oyuncuyu ve menajeri üzebilir; oyun bunu
+sorar, `contract` da terminalde sorar. İptal edilen görüşme bir süre yeniden açılamayabilir.
 
 ## 11. Kaydetmek — `save`
 
