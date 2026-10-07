@@ -138,7 +138,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Oyunu başlat (`fm start`)
 - [x] **Son kaydı yükle** (`LoadSelectedGameEvent`)
-- [ ] Kayıtları listele (`fm saves`)
+- [x] Kayıtları listele (`fm saves`)
 - [ ] Belirli kaydı yükle (`fm load "Fenerbahçe"`)
 - [x] Kaydet — `fm save --yes`, dosyanın üzerine (§8.35)
 - [ ] Farklı kaydet (kayıt tarayıcısı paneli: `SaveGameHandlerModule.m_saveBrowserPanel`)
@@ -257,7 +257,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Scout raporları
 - [ ] Scout ata (bölge/oyuncu/takım)
 - [ ] Scout odakları (recruitment focus)
-- [ ] Kısa liste (shortlist)
+- [x] Kısa liste — `fm shortlist` (§8.56)
 - [ ] Oyuncu karşılaştırma
 - [ ] Rakip analizi / next opponent raporu
 - [ ] Gençlik adayları / youth intake
