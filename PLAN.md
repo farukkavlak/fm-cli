@@ -154,16 +154,18 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       veriden çıkıyor (§8.38). Alt menülü ikisi (Attributes, Stats) seçilemiyor
 - [ ] `/squad` iki listeyi birleştirirken bir oyuncunun kolonlarını eksik bırakabiliyor (Musaba)
 - [~] Uyruk — `Nation` düğümü çocuksuz (§8.21), ama `NationButton` üç harfli kodu taşıyor; `fm squad`'a eklenmedi
+- [x] Turnuva kadro listesi — `fm register`: kim listede, yetişme kotaları, kurallar; okla ekle / çıkar, gönder (§8.43)
+- [~] Forma numaraları — `fm numbers` yardımcıya verdiriyor; elle numara verme yok
 - [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); kadro dışındakiler aramayla
 - [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)
 - [ ] Gizli öznitelikler (scout görüşü kadarıyla)
 - [ ] Pozisyon yetkinlikleri
-- [ ] Sakatlık durumu ve geçmişi
+- [~] Sakatlık durumu — `fm player` sakatlığı, `fm squad --view Injuries` listeyi veriyor; geçmiş yok
 - [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
-- [ ] Form, maç ratingleri, sezon istatistikleri
+- [~] Form — `fm squad --fitness` maç formunu veriyor; maç ratingleri ve sezon istatistikleri yok
 - [ ] Kariyer geçmişi, transfer geçmişi
 - [ ] Gelişim grafiği / potansiyel
-- [ ] Milli takım durumu
+- [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
 - [ ] Oyuncu mutluluk/şikâyet durumu
 - [ ] Kadro derinliği analizi (pozisyon bazlı)
 - [ ] Yaş profili / kadro dengesi
@@ -221,9 +223,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); isimle arama ve kaydırma yok
 - [x] Teklif ver — `fm offer`: kart, şart düzenleme, pazarlık kilitleri, karşı teklif (§8.42)
 - [k] Gelen teklife yanıt — `EventFmxTransferOfferResponse`
-- [k] Sözleşme teklifi / yenileme — `PersonOfferContract`, `ContractEditSessionReference` (80)
+- [~] Sözleşme görüşmesi — `fm contract`: kabul edilen transferde vaatler, şartlar, ücret, imza (§8.42); yenileme ve kart yok
 - [k] Sözleşme maddeleri — `EventFmxAddContractBonus`, `ClubTransferClausesReference`
-- [k] Kiralık — `CanMakeLoanOffer`, `PersonOfferExtendLoan`, `LoanToBuy*`
+- [k] Kiralık — `fm offer --loan` var ama canlı denenmedi; `CanMakeLoanOffer`, `PersonOfferExtendLoan`, `LoanToBuy*`
 - [k] Oyuncuyu kulüplere öner — `PersonOfferToClubs`
 - [k] Sözleşme feshi / serbest bırakma — `PersonMutualTerminationContract`, `PersonReleaseClubFreeTransfer`
 - [ ] Serbest oyuncular
@@ -253,8 +255,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] `fm next` — ilerle, bloke eden mesajları ve oyunun ilerle butonunun ne dediğini bildir
 - [x] `fm next [n]` zamanı ilerletiyor, oyunun durmasını bekliyor, tarih/saat ve yeni mesajları
       bildiriyor; oyunun kendi durumunu okuyor (`continue.State`, §8.32)
-- [ ] `fm match --talk` kalkacak: konuşma durağında seçenekler gösterilip seçtirilecek (ürün kararı)
-- [x] Maç gününü oyna — `fm match [--talk]`: kadro gönder, onay penceresi, konuşmalar, maç,
+- [x] Konuşma durağında cümleyi kullanıcı seçer — `--talk` kalktı; `fm match --play` her konuşmada sözü soruyor
+- [x] Maç gününü oyna — `fm match`: izlemek mi anında sonuç mu diye sorar; kadro gönder, onay penceresi, konuşmalar, maç,
       çıkış; gol/devre/sonuç bildiriyor (§8.34)
 - [x] Maç içi oyuncu değişikliği — `fm sub <çıkan> <giren>`; `fm sub` sahayı ve kulübeyi listeler (§8.34)
 - [ ] Sakatlık durağı — maç duruyor, `fm match` söyleyip bırakıyor; `fm sub` + "Confirm Changes" orada denenmedi
@@ -262,10 +264,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Maç hızı (`EventFmxHighlightModeChanged`, `…HighlightSpeedChanged`) — oynanan maç ~6-7 dk
 - [k] Maç içi taktik değişimi — `EventFmxMatchTacticsChanged`, `MatchTacticReference` (227)
 - [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
-- [ ] Canlı maç takibi (metin akışı)
+- [~] Canlı maç takibi — `fm match --play` anlatım satırlarını, golleri ve skoru akıtıyor; maç ekranının kalanı §14
 - [ ] Maç içi: taktik/rol değişimi, shout (listeleri ekranda, alt menü seçimi çözüldü — §8.34)
-- [ ] Maç sonrası: rating, istatistik, basın
-- [ ] Maç istatistikleri (xG, pas haritası, ısı haritası → terminalde?)
+- [x] Maç sonrası — `fm report`: skor, goller, maçın oyuncusu ve notu, istatistikler; basın toplantısı `fm talk`
+- [~] Maç istatistikleri — `fm report` topla oynama, şut, isabet, xG, korner, faul; pas / ısı haritası yok
 - [ ] Highlight özeti (metin)
 - [?] Maç içi gerçek zamanlı yönetim (v2 — bambaşka problem)
 
@@ -279,7 +281,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Kupa ağaçları
 - [ ] Avrupa kupaları
 - [ ] Gol krallığı / asist / form tablosu
-- [ ] Takvim: sıradaki maçlar, önemli tarihler
+- [~] Takvim — `fm status` ve `fm fixtures` sıradaki maçı veriyor; önemli tarihler (transfer dönemi, kayıt) yok
 - [ ] Sezon özeti / ödüller
 
 ---
@@ -324,7 +326,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Oyuncu şikâyetlerini yönet
 - [ ] Soyunma odası atmosferi / takım liderleri
 - [ ] Sosyal medya / haber akışı
-- [ ] Sözleşme görüşmelerinde diyalog
+- [~] Sözleşme görüşmelerinde diyalog — `fm contract` vaat adımını geçip menajerin cevabını basıyor; vaat seçmek yok
 
 ---
 
@@ -388,12 +390,12 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Pipe dostu çıktı (`fm squad | grep ...`)
 - [~] İnteraktif oturum (`fm start` sonrası komutlar `fm` önekisiz) — TUI değil, REPL; tırnaklı
       ifadeler tek kelime sayılıyor
-- [ ] Fuzzy isim eşleme (`fm player osim` → Osimhen)
+- [~] İsim eşleme — isim parçası ve aksansız yazım tutuyor ("kerem", "skriniar"); yazım hatası tutmuyor (`osim` → Osimhen olur, `osimen` olmaz)
 - [ ] Kısaltmalar / takma adlar
 - [ ] Tab tamamlama (zsh/bash)
-- [~] `fm status` — tarih, saat ve oyunun neyi beklediği (§8.32); sıradaki maç ve uyarılar yok
+- [x] `fm status` — tarih, saat, oyunun neyi beklediği, sıradaki maç, bekleyen mesajlar (§8.32)
 - [x] Onay pencereleri — `fm dialog` gösteriyor / cevaplıyor (§8.34)
-- [~] Onay isteyen aksiyonlar için `--yes` — yalnızca `fm save`'de
+- [x] Geri alınamayan işlerde onay — terminalde sorar, script'te `--yes` ister: `save`, `offer`, `contract`
 - [ ] Geri alma yok — yıkıcı aksiyonlarda uyarı
 - [x] Oyun kapalıysa otomatik başlat (`fm start`)
 
@@ -401,7 +403,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ## 15. MCP + doğal dil
 
-- [x] MCP server — `fm mcp` (stdio), 29 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
+- [x] MCP server — `fm mcp` (stdio), 34 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
 - [ ] "Kadroda yorgun kim var?"
 - [ ] "Sol bek arıyorum, 10M bütçem var, öner"
 - [ ] "Bu hafta kimi dinlendirmeliyim?"
