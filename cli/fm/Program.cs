@@ -697,6 +697,10 @@ internal static partial class Program
 		var query = new List<(string, string)> { ("page", page) };
 		if (tab != null) query.Add(("tab", tab));
 
+		// Right after a match the navigation is rebuilt and the page list is empty for a while
+		// (FINDINGS §8.52); it is waited for rather than reported as no such page.
+		await Until(async () => (await Fm.GetJson("pages")).GetArrayLength() > 0, seconds: 5, every: 0.5);
+
 		// A dry run names the page in full or says why it cannot: "…: <tab> › <page> (panel …".
 		var planned = await Arriving("open", [.. query, ("dry", "1")]);
 		if (planned.StartsWith("error", StringComparison.Ordinal)) return planned;

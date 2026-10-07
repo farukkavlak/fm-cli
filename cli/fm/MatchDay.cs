@@ -293,10 +293,17 @@ internal static partial class Program
 		}
 
 		// The result is on the fixture itself once played; the newest one with a result is this match.
-		var played = (await Shown("fixtures", "Overview", "Portal")).EnumerateArray()
-			.Where(f => Field(f, "Result") != "" && Field(f, "Date") != "")
-			.OrderBy(f => Field(f, "Date"))
-			.LastOrDefault();
+		// On the results screen the page list can be empty, so the fixtures may not open; the
+		// report below does not need them (FINDINGS §8.52).
+		JsonElement played = default;
+		try
+		{
+			played = (await Shown("fixtures", "Overview", "Portal")).EnumerateArray()
+				.Where(f => Field(f, "Result") != "" && Field(f, "Date") != "")
+				.OrderBy(f => Field(f, "Date"))
+				.LastOrDefault();
+		}
+		catch (FmError) { }
 		Console.WriteLine("Maç simüle edildi.");
 		Console.WriteLine();
 		try
