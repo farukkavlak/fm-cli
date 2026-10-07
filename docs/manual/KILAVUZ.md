@@ -142,6 +142,16 @@ Moral, takım içi hiyerarşi ve sosyal grup:
 Oyundaki kadro tablosunun başka görünümleri de var: `fm squad --views` listeler,
 `fm squad --view "<ad>"` o görünümün kolonlarını gösterir.
 
+### Kadro derinliği — `depth`
+
+Her saha mevkisinde (GK'den ST'ye) kimlerin oynayabildiği, oyuncuların mevki bilgisinden; kiralıkta
+olanlar ve U19 hariç. Hiç oyuncusu olmayan mevki kırmızı "YOK", tek oyunculu "tek". Altında yaş
+profili.
+
+```
+fm depth
+```
+
 ## 6. Oyuncu kartı — `player`, `search`
 
 `fm player <isim>` oyuncunun kartını açar: kimlik, sözleşme, sahadaki mevkisi ve renkli

@@ -175,8 +175,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Gelişim grafiği / potansiyel
 - [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
 - [ ] Oyuncu mutluluk/şikâyet durumu
-- [ ] Kadro derinliği analizi (pozisyon bazlı)
-- [ ] Yaş profili / kadro dengesi
+- [x] Kadro derinliği analizi (pozisyon bazlı) — `fm depth`, mevki dizgilerinden
+- [x] Yaş profili — `fm depth`'in altında
 
 ---
 
@@ -471,7 +471,10 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
 - **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
   okuyan genel `/namedrows`.
-- `fm shortlist` (§8.56), `fm saves`, `fm opponent` (§8.57).
+- `fm shortlist` (§8.56), `fm saves`, `fm opponent` (§8.57), `fm captains` (§8.58), `fm depth`
+  (kadro derinliği: 10 Ağustos'ta sağ orta sahada oyuncu yok, sol orta sahada tek).
+- Oyun bir kez kilitlendi (ana iş parçacığı 30 sn+ cevap vermedi, kaptanlar sayfasıyla uğraştıktan
+  sonra); yeniden başlatıldı, kayıt 10 Ağustos'tan geri geldi. Sebebi bulunamadı.
 - **Maç içi mentalite ve bağırış** (FINDINGS §8.54). `fm status` transfer dönemini yazıyor (§8.55).
 - **Oyuncu talimatları** (FINDINGS §8.53): `fm tactic pi <mevki> [<talimat> [<değer>]]`.
 - **Rakip talimatları** (FINDINGS §8.49): `fm opposition`, `--advice`, `--clear`, elle ayar.
