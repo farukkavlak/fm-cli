@@ -60,6 +60,9 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
   oyunun araması "Fred"i bulmuyor (Fred Onyedinma, Fred Rutten…); `OpenPlayer` aramaya dayanıyor.
   Kendi oyuncumuz için kadro ekranındaki isim butonundan açmak gerek.
 
+- ~~`fm players` dar terminalde okunmuyor~~ — 8 Ekim gecesi: kolonlar önceliğe göre sığdırılıyor,
+  ham değerler okunur, sakat kırmızı. ~~`reply` numarası kayıyor~~ — numara son `inbox`'taki
+  mesajın kimliğine bağlandı. Eski not:
 - **`fm players` dar terminalde okunmuyor.** 110 sütunda 15 kolonun hepsi basılıyor; isimler
   harf harf kırılıyor ("Abdelh / amid / Sabiri"), "Scouting Required" dört satıra bölünüyor,
   `IS INJURED` True/False yazıyor. Terminale sığacak kolonları seçmeli, ham değerleri

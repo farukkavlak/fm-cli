@@ -400,7 +400,8 @@ internal static partial class Program
 		// Bound by a table for its own use (sorting, icons, the pitch view), in every view.
 		string[] noise = ["UniqueId", "Regenerated", "Team", "Count", "PlayerStatusSortType", "NewgenAppearanceDescription",
 			"AverageRating", "Index", "SquadNumberBlankIfInvalid", "PositionValue", "Position", "SubstituteString", "StatusType",
-			"TransferValueRangeStatus", "Level", "AddOnType", "MaxValue", "MinValue"];
+			"TransferValueRangeStatus", "Level", "AddOnType", "MaxValue", "MinValue", "Grade", "ScoutedBestRole",
+			"ScoutedBestPosition", "Text"];
 
 		var columns = rows.SelectMany(p => p.EnumerateObject().Select(f => f.Name))
 			.Distinct()
@@ -408,11 +409,66 @@ internal static partial class Program
 			.Where(c => rows.Any(p => Field(p, c) is { Length: > 0 and < 60 }))
 			.ToList();
 
-		Table.Write(["OYUNCU", .. columns.Select(Heading)], rows
-			.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
-			.Select(p => new[] { Field(p, "Name") }.Concat(columns.Select(c => Field(p, c))).ToArray())
-			.ToList());
+		var ordered = rows.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase).ToList();
+		if (!Ui.Rich)
+		{
+			Table.Write(["OYUNCU", .. columns.Select(Heading)], ordered
+				.Select(p => new[] { Field(p, "Name") }.Concat(columns.Select(c => Field(p, c))).ToArray())
+				.ToList());
+			return;
+		}
+
+		// At a terminal the values are made readable and the columns that do not fit the width
+		// are left out, least wanted first; the name never wraps.
+		var shown = columns
+			.Select(c => (Field: c, Values: ordered.Select(p => Readable(c, Field(p, c))).ToList()))
+			.Where(c => c.Values.Any(v => v.Length > 0))
+			.OrderBy(c => Wanted(c.Field))
+			.ToList();
+		var names = ordered.Select(p => Field(p, "Name")).ToList();
+		int Width(IEnumerable<(string Field, List<string> Values)> cols) =>
+			names.Max(n => n.Length) + 4 + cols.Sum(c => Math.Max(Heading(c.Field).Length, c.Values.Max(v => v.Length)) + 3);
+		var room = Ui.Out.Profile.Width;
+		while (shown.Count > 1 && Width(shown) > room) shown.RemoveAt(shown.Count - 1);
+		var dropped = columns.Count - shown.Count;
+
+		var table = new Spectre.Console.Table { Border = Spectre.Console.TableBorder.Rounded, BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey) };
+		table.AddColumn(new Spectre.Console.TableColumn("[dim]OYUNCU[/]") { NoWrap = true });
+		foreach (var c in shown) table.AddColumn(new Spectre.Console.TableColumn($"[dim]{Ui.Safe(Heading(c.Field))}[/]") { NoWrap = true });
+		for (var i = 0; i < ordered.Count; i++)
+		{
+			var injured = Field(ordered[i], "StatusTitleShort").Contains("Inj", StringComparison.Ordinal) || Field(ordered[i], "IsInjured") == "True";
+			var name = injured ? $"[red]{Ui.Safe(names[i])}[/]" : Ui.Safe(names[i]);
+			Spectre.Console.TableExtensions.AddRow(table, [name, .. shown.Select(c => Ui.Safe(c.Values[i]))]);
+		}
+		Ui.Out.Write(table);
+		if (dropped > 0) Ui.Line($"[dim]{dropped} kolon sığmadı; hepsi için: fm players --json ya da daha geniş terminal[/]");
 	}
+
+	/// <summary>The game's raw values as a reader wants them: no "-1", no "Scouting Required", yes for True.</summary>
+	private static string Readable(string field, string value) => (field, value) switch
+	{
+		(_, "-1" or "-" or "None" or "False") => "",
+		(_, "True") => "evet",
+		("ShortGradeString", "Scouting Required") => "",
+		_ => value,
+	};
+
+	/// <summary>Which columns stay when the terminal is narrow: lower first.</summary>
+	private static int Wanted(string field) => field switch
+	{
+		"Age" => 0,
+		"PositionCombinedString" => 1,
+		"TransferValueRangeString" => 2,
+		"ShortName" or "Club" => 3,
+		"Wage" => 4,
+		"StatusTitleShort" => 5,
+		"AgreedPlayingTime" => 6,
+		"AskingPrice" => 7,
+		"ContractStatus" => 8,
+		"ShortGradeString" => 9,
+		_ => 10,
+	};
 
 	/// <summary>The columns' names as a reader knows them; anything else spelled out from the game's own field name.</summary>
 	private static readonly Dictionary<string, string> Headings = new()
@@ -425,6 +481,8 @@ internal static partial class Program
 		["InjuryDescription"] = "SAKATLIK", ["TrainingRating"] = "ANTRENMAN NOTU", ["MoraleString"] = "MORAL",
 		["StatusTitleShort"] = "DURUM", ["Nation"] = "ÜLKE", ["Club"] = "KULÜP", ["Personality"] = "KİŞİLİK",
 		["HierarchyInfluenceCategoryString"] = "HİYERARŞİ", ["SocialGroupString"] = "GRUP", ["Height"] = "BOY",
+		["ShortName"] = "KULÜP", ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = "SCOUT MASRAFI",
+		["DaysSinceLastScouted"] = "SON SCOUT", ["ScoutedMinWage"] = "MAAŞ (EN AZ)", ["ScoutedMaxWage"] = "MAAŞ (EN ÇOK)",
 	};
 
 	private static string Heading(string field)

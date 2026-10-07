@@ -319,6 +319,7 @@ internal static partial class Program
 		}
 
 		var inbox = await Bound("inbox", "PortalScreen");
+		RememberNumbers(inbox);
 		if (json)
 		{
 			Console.WriteLine(inbox.ToString());
@@ -553,10 +554,43 @@ internal static partial class Program
 	}
 
 	/// <summary>A message by its number in the inbox listing, or by a piece of its subject.</summary>
+	/// <summary>
+	/// Where the numbers last shown by `inbox` are kept. The inbox drops read messages and takes
+	/// new ones between commands, so "reply 17" means the seventeenth as it was shown, not as
+	/// it is now (PLAN, known bugs: once a reply opened the message above the one meant).
+	/// </summary>
+	private static readonly string NumbersFile = Path.Combine(Path.GetTempPath(), "fm-cli-inbox-numbers.json");
+
+	private static void RememberNumbers(JsonElement inbox)
+	{
+		try
+		{
+			var shown = inbox.EnumerateArray().Select(m => new[] { Field(m, "UniqueId"), Field(m, "NewsTitleString") }).ToList();
+			File.WriteAllText(NumbersFile, JsonSerializer.Serialize(shown));
+		}
+		catch { }
+	}
+
 	private static JsonElement? Pick(List<JsonElement> inbox, string wanted)
 	{
 		if (int.TryParse(wanted, out var number))
 		{
+			// The number as `inbox` showed it, found again by the message's id.
+			string[][] shown = null;
+			try
+			{
+				if (File.Exists(NumbersFile) && DateTime.UtcNow - File.GetLastWriteTimeUtc(NumbersFile) < TimeSpan.FromHours(12))
+					shown = JsonSerializer.Deserialize<string[][]>(File.ReadAllText(NumbersFile));
+			}
+			catch { }
+			if (shown != null && number >= 1 && number <= shown.Length)
+			{
+				var (id, title) = (shown[number - 1][0], shown[number - 1][1]);
+				if (inbox.FirstOrDefault(m => Field(m, "UniqueId") == id) is { ValueKind: JsonValueKind.Object } same) return same;
+				Console.Error.WriteLine($"{number} numaralı mesaj ('{title}') artık gelen kutusunda yok. Güncel numaralar için: inbox");
+				return null;
+			}
+
 			if (number >= 1 && number <= inbox.Count) return inbox[number - 1];
 
 			Console.Error.WriteLine($"{number} numaralı mesaj yok; gelen kutusunda {inbox.Count} mesaj var.");
