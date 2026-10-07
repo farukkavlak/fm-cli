@@ -38,6 +38,7 @@ Oyun arka planda açık kalır; ekran, fare, ekran görüntüsü yok.
 **Durum:** kadro (kondisyon ve moral dahil), gelen kutusu, mesaj cevaplama ve zaman ilerletme
 çalışıyor. Ekrandaki her buton ve açılır liste plugin üzerinden listelenip kullanılabiliyor.
 
+📖 Ekran görüntülü kullanım kılavuzu: **[docs/manual/KILAVUZ.md](docs/manual/KILAVUZ.md)**
 📄 Bütün teknik bulgular, API'ler ve kısıtlar: **[docs/FINDINGS.md](docs/FINDINGS.md)**
 📋 Yol haritası: **[PLAN.md](PLAN.md)**
 
