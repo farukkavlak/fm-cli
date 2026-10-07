@@ -2474,6 +2474,13 @@ başında başlamış ve o anki derlemeyi tutuyor: gece eklenen araçlar (`fm_op
 ve `fm_status`'un transfer satırı yoktu, `fm_contract`'ın açıklaması eskiydi. Yeni derlemeden sonra
 istemcide MCP sunucusunu yeniden başlatmak gerekiyor (Claude Code'da `/mcp`).
 
+## 8.56 Kısa liste (8 Ekim)
+
+"Shortlists" alt sekmesi personel kısa listesiyle karışık bir genel sayfa açıyor ve oyuncu tablosu
+yok. Oyuncu kısa listesi Recruitment › Overview'daki "Shortlists" döşemesinden
+(`layout-tile-interaction-button`) açılıyor; tablosu `/people` ile oyuncu veritabanı gibi okunuyor
+(Demirbay, Cancellieri, Icardi, Osimhen — teklif verilenler otomatik ekleniyor). `fm shortlist`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

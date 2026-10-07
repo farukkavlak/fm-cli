@@ -229,7 +229,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 > Katalog: COOKBOOK §2. Pazarlığın tamamı `TransferOfferEditSessionReference` (99 property).
 
-- [ ] Transfer listem (`fm transfers list`)
+- [x] Kısa liste — `fm shortlist` (§8.56); transfer listesine konan kendi oyuncularımız yok
 - [~] Oyuncu ara — `fm players [--filter "<hazır süzgeç>"] [--view "<görünüm>"]`: veritabanının
       ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); isimle arama ve kaydırma yok
 - [x] Teklif ver — `fm offer`: kart, şart düzenleme, pazarlık kilitleri, karşı teklif (§8.42)

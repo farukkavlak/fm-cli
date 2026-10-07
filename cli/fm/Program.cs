@@ -44,6 +44,7 @@ internal static partial class Program
 				"opposition" => await Opposition(args),
 				"intensity" => await Intensity(args),
 				"shout" => await Shout(args),
+				"shortlist" => await Shortlist(json),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
@@ -917,6 +918,7 @@ internal static partial class Program
 			    --wage <tutar>  haftalık ücret;  --next: vaatleri onayla, şartlara geç
 			    --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
 			  training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role
+			  shortlist       kısa listedeki oyuncular (teklif verilenler de)
 			  intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto
 			  opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)
 			    --advice / --clear   yardımcının önerisini uygula / temizle;  opposition <oyuncu> Pres=Always
