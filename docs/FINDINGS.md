@@ -2510,6 +2510,14 @@ durum bayrakları (Wnt, Unr, FtT, Rst). Üstte takımın genel durumu bir cümle
 currently content…"). `fm happiness` en mutsuzdan sıralıyor. 10 Ağustos'ta en düşük "Slightly Happy"
 (Álvarez, Kerem).
 
+## 8.60 Maç hazırlığı (8 Ekim)
+
+Match Day › "Match Preparation Training" bir kart olarak açılıyor (`panel …, card`); içinde taktik
+hazırlık (topla: Progression, topsuz: Mid Block) ve duran top hazırlığı (Attacking Free Kicks,
+Defending Corners), her biri bir açıklama cümlesiyle. `/texts` ile okunuyor, `fm prep`.
+Değiştirmek açık: kartta ne `/buttons` ne `/dropdowns` bir kontrol gösteriyor; Match Day
+genel bakıştaki "Tactical Preparation" döşemesi de yeni bir şey açmadı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

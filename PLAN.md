@@ -214,7 +214,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [k] Haftalık antrenman programı göster — `CustomTrainingScheduleReference`, `DailyScheduleReference`
 - [ ] Antrenman programı değiştir
-- [ ] Maç hazırlığı odağı
+- [~] Maç hazırlığı odağı — `fm prep` okuyor (§8.60); değiştirmek yok
 - [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
 - [k] Pozisyon / hareket öğretme — `PersonTrainingNewPosition`, `PersonTrainingNewPreferredMove`
 - [ ] Mentor / mentee ilişkileri
@@ -471,6 +471,7 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
 - **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
   okuyan genel `/namedrows`.
+- `fm squad --u19`, `fm happiness` (§8.59), `fm prep` (§8.60).
 - `fm shortlist` (§8.56), `fm saves`, `fm opponent` (§8.57), `fm captains` (§8.58), `fm depth`
   (kadro derinliği: 10 Ağustos'ta sağ orta sahada oyuncu yok, sol orta sahada tek).
 - Oyun bir kez kilitlendi (ana iş parçacığı 30 sn+ cevap vermedi, kaptanlar sayfasıyla uğraştıktan
