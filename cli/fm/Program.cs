@@ -43,6 +43,7 @@ internal static partial class Program
 				"contract" => await Contract(args),
 				"opposition" => await Opposition(args),
 				"intensity" => await Intensity(args),
+				"shout" => await Shout(args),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
@@ -902,6 +903,7 @@ internal static partial class Program
 			                  (script'te konuşmada durur: talk <no>, sonra match)
 			    --no-talk     konuşmaları geç
 			    --instant     maçı oynatma, yardımcılara bırak: oyun birkaç saniyede simüle eder
+			  shout [<x>]     maç sırasında kenardan bağır (Encourage, Fire Up, Calm Down…)
 			  sub             maç sırasında: sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
 			  dialog [cevap]  açık onay penceresini göster ya da cevapla
 			  talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin

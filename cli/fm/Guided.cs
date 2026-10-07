@@ -480,6 +480,11 @@ internal static partial class Program
 
 		var dry = args.Contains("--dry");
 		var wanted = words.Count > 1 ? words[1] : null;
+
+		// During a match the planner's pages are gone; the match screen has its own list.
+		if (words.Count > 0 && words[0] == "mentality" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
+			return await MatchList("Mentalite", d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Very Attacking"), wanted, dry, events: false);
+
 		switch (words.Count > 0 ? words[0] : "")
 		{
 			case "": break;
@@ -1241,6 +1246,56 @@ internal static partial class Program
 			await Task.Delay(500);
 			await CloseCard();
 		}
+	}
+
+	/// <summary>
+	/// A list on the match screen (FINDINGS §8.54): mentality, which only writes its bound value,
+	/// and touchline shouts, which send theirs. Chosen the way a submenu leaf is, by its record.
+	/// </summary>
+	private static async Task<int> MatchList(string what, Func<JsonElement, bool> which, string wanted, bool dry, bool events)
+	{
+		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => which(d.Value));
+		if (list == null)
+		{
+			Console.Error.WriteLine($"Maç ekranında {what.ToLowerInvariant()} listesi yok.");
+			return 1;
+		}
+		var choices = list.Value.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
+		var current = Field(list.Value, "Label");
+		if (wanted == null && Ui.Interactive && !dry && Ui.Ask(what, choices, current: choices.IndexOf(current), cancel: "Vazgeç") is { } asked)
+			wanted = choices[asked];
+		if (wanted == null)
+		{
+			Console.WriteLine($"{what}{(current.Length > 0 && current != "Shouts" ? $": {current}" : "")}\nSeçenekler: {string.Join(" · ", choices)}");
+			return 0;
+		}
+		var hit = choices.Where(c => Fold(c) == Fold(wanted)).ToList();
+		if (hit.Count == 0) hit = choices.Where(c => Fold(c).StartsWith(Fold(wanted), StringComparison.Ordinal)).ToList();
+		if (hit.Count != 1)
+		{
+			Console.Error.WriteLine($"{what}: '{wanted}' yok. Seçenekler: {string.Join(" · ", choices)}");
+			return 1;
+		}
+		if (dry)
+		{
+			Console.WriteLine($"(kuru) {what}: {hit[0]}");
+			return 0;
+		}
+		var said = await Fm.Get("select", ("ptr", Field(list.Value, "Pointer")), ("path", choices.IndexOf(hit[0]).ToString()), ("fire", events ? "1" : "0"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+		Console.WriteLine($"{what}: {hit[0]}");
+		return 0;
+	}
+
+	private static async Task<int> Shout(string[] args)
+	{
+		if (Field(await Fm.GetJson("state"), "DuringMatch") != "True")
+		{
+			Console.Error.WriteLine("Bağırışlar yalnızca maç sırasında.");
+			return 1;
+		}
+		var words = Words(args).ToList();
+		return await MatchList("Bağırış", d => Field(d, "Name") == "shouts-dropdown", words.Count > 0 ? string.Join(" ", words) : null, args.Contains("--dry"), events: true);
 	}
 
 	/// <summary>The active tactic's fields; empty while the planner is between tactics.</summary>

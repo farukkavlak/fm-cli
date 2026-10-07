@@ -2436,6 +2436,22 @@ talimatlar mevkiye mi oyuncuya mı) ve rolün kendisi var; dokunulmadı. Döşem
 `fm tactic pi <mevki> [<talimat> [<değer>]]`. Denendi: DR Shooting / Forward Runs, AML Shooting,
 iki tur ileri geri; ayarlar eski haline döndü.
 
+## 8.54 Maç içinde: mentalite ve bağırış (8 Ekim, Samsunspor deplasmanı)
+
+Maç sırasında sayfa kataloğu yok, taktik sayfası açılmıyor. Maç ekranının kendi kontrolleri:
+"Tactics" (`MatchOpenTactics`), "Instructions", bağırışlar (`shouts-dropdown`,
+`TouchlineShoutMenu`), mentalite listesi (`dropdown-base-regular`, Very Defensive…Very Attacking)
+ve her oyuncu için bir menü (roller ›, Player Instructions, Touchline Shouts ›, Substitute Off ›).
+
+- **Mentalite** listesi olay göndermiyor. Satırın indeksle seçilmesi (`OnSelectionChangedInternal`)
+  değeri sıfırladı (`Selected = -1`); satırın kaydını bağlı değere yazmak (`/select path=N`,
+  §8.45'teki `rowdata`) işledi: maçın taktiği (`..MatchUI2D.Tactic.MentalityString`) Positive,
+  Attacking, Balanced, Cautious oldu. `fm tactic mentality` maç sırasında bu listeyi kullanıyor.
+- **Bağırış** listesinin satırları `{Title, Description, TouchlineShoutAction, TouchlineShoutType}`;
+  seçim olay gönderiyor. Etkisi veriden okunamadı (`HavePendingTouchlineShout` bağlanmadı);
+  `fm shout` var ama işlediği doğrulanmadı.
+- Lig maçından önce oyun "Defrel is ineligible" diye kadroyu reddetti; Quick Pick düzeltti.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

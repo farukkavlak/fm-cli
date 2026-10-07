@@ -275,7 +275,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Sakatlık durağı — maç duruyor, `fm match` söyleyip bırakıyor; `fm sub` + "Confirm Changes" orada denenmedi
 - [x] Anında sonuç — `fm match --instant`, 9 sn (§8.34)
 - [ ] Maç hızı (`EventFmxHighlightModeChanged`, `…HighlightSpeedChanged`) — oynanan maç ~6-7 dk
-- [k] Maç içi taktik değişimi — `EventFmxMatchTacticsChanged`, `MatchTacticReference` (227)
+- [~] Maç içi taktik değişimi — mentalite (`fm tactic mentality` maç sırasında) ✓, bağırış (`fm shout`,
+      doğrulanmadı) (§8.54); roller ve talimatlar maç içinde yok
 - [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
 - [~] Canlı maç takibi — `fm match --play` anlatım satırlarını, golleri ve skoru akıtıyor; maç ekranının kalanı §14
 - [ ] Maç içi: taktik/rol değişimi, shout (listeleri ekranda, alt menü seçimi çözüldü — §8.34)
@@ -459,7 +460,8 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
    oynamazsa, maaşın %100'ü bizden, sezon sonunda £14.75M'lık satın alma *opsiyonu* (toplam
    "£15.25M'lık anlaşma"). Mesaj (`inbox`'ta "Celesti negotiation over Cancellieri") bloklamıyor,
    açık duruyor. Seçenekler: kabul et (`reply <#> Accept`), geri çek, ya da kartla yeniden pazarlık.
-   Önerim: geri çek — oynamazsa ayda £190K bu kadro için pahalı.
+   Önerim: geri çek — oynamazsa ayda £190K bu kadro için pahalı. **7 Ağustos'ta mesaj zamanı
+   bloklamaya başlayınca geri çektim** (para harcamayan seçenek; oyuncuya yeniden teklif yapılabilir).
 2. **Kaptanlık.** Sezon kaptanı seçilmeden oyun ilerlemiyordu ve kaptan boştu; Škriniar (yardımcı
    kaptandı) kaptan yapıldı. Yardımcı kaptan seçimi oyuna bırakıldı. Başka biri olsun istersen
    Squad › Dynamics › Captains.
@@ -467,6 +469,7 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
 - **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
   okuyan genel `/namedrows`.
+- **Maç içi mentalite ve bağırış** (FINDINGS §8.54).
 - **Oyuncu talimatları** (FINDINGS §8.53): `fm tactic pi <mevki> [<talimat> [<değer>]]`.
 - **Rakip talimatları** (FINDINGS §8.49): `fm opposition`, `--advice`, `--clear`, elle ayar.
 - **Takım talimatları** (FINDINGS §8.48): `tactic instructions` topla oynarken; sağ tık kartı.
