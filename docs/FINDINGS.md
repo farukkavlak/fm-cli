@@ -2404,6 +2404,23 @@ ilk üçünü sırayla veriyor. Alt menülü seçim §8.45 yoluyla.
 Denendi: Kanté odak Endurance ↔ None, mevki "Midfielder (Centre) › Central Midfielder" ↔ asıl
 mevki, iki tur.
 
+## 8.52 Oynanarak öğrenilenler (8 Ekim, 5–6 Ağustos 2025 oyun içi)
+
+- **Maç sonrası sayfa listesi boş.** Anında simüle edilen maçtan sonra oyun "Results" durumunda
+  (`State = Results`, ilerle butonu "Response Required") ve `/pages` boş dizi dönüyor; navigasyon
+  menüleri kurulmamış. Sayfa açmaya çalışan her komut "no page named" diyordu. `OpenPage` artık
+  listeyi 5 sn bekliyor, `match --instant` fikstürü okuyamazsa raporu yine basıyor.
+- **Basın toplantısı** `reply <#> Attend Press Conference` + `talk` ile soru soru yürüyor
+  (soru, gazetecilerin tepkisi, cevap seçenekleri gruplu). Ayrı komut gerekmedi.
+- **Sezon kaptanı mesajı** ("Choose … captain"): "Confirm Captains" kaptan boşken bir diyalog
+  açıyor ("You must select a captain before confirming"). "Review Captaincy" mesajın içinde
+  `GenericDropdown`'lar açıyor (Select Captain / Change Vice Captain, `SpeakToAction`); seçim bir
+  onay diyaloğu daha açıyor (Yes). Sonra Confirm Captains kabul edildi.
+- **Kiralık karşı teklifi** mesajdaki "View Offer" ile teklif ekranı olarak açılıyor ama başlığında
+  takas bölümü yok; `/offer` kökü artık başlıktan da bulunuyor. Karşı teklife kartla cevap gitti.
+- **Rakip önerisi** kart açılır açılmaz "Apply all advice" butonu henüz yok; birkaç yüz ms sonra
+  geliyor. Öneri uygulanırken tablo bir an eksik satırlarla diziliyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
