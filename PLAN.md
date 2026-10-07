@@ -191,7 +191,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       yuvaya kurar, `fm tactic slot [<n>]` üç yuva arasında geçer (§8.47); yuva boşaltma yok
 - [k] **In Possession / Out of Possession** ayrı şekiller — aynı event, `IsInPossession` bayrağı
 - [x] Oyuncu rolleri — `fm tactic role <mevki> [<rol>] [--oop]` (§8.31)
-- [k] Oyuncu talimatları — `PlayerInstruction`, 36 üye
+- [~] Oyuncu talimatları — `fm tactic pi <mevki>`: topla oynarken talimatlar (§8.53); topsuz ve
+      "oyuncuya özel" yok
 - [~] Takım talimatları — `fm tactic instructions`: topla oynarken dört evre, okuma ve değiştirme
       (§8.48); topsuz talimatlar ve bölge ("Zone") görünümleri yok
 - [x] İlk 11'e yedeklerden oyuncu koy — `fm tactic player <mevki> <oyuncu>` (§8.31)
@@ -466,6 +467,7 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
 - **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
   okuyan genel `/namedrows`.
+- **Oyuncu talimatları** (FINDINGS §8.53): `fm tactic pi <mevki> [<talimat> [<değer>]]`.
 - **Rakip talimatları** (FINDINGS §8.49): `fm opposition`, `--advice`, `--clear`, elle ayar.
 - **Takım talimatları** (FINDINGS §8.48): `tactic instructions` topla oynarken; sağ tık kartı.
 - **Diziliş değiştirme / taktik yuvaları** (FINDINGS §8.47): `tactic new` taktik varken de,

@@ -45,4 +45,27 @@ internal static class Instructions
 		}
 		return "[" + string.Join(", ", rows) + "]\n";
 	}
+
+	/// <summary>
+	/// The tiles of a card such as a player's instructions (FINDINGS §8.53): each a
+	/// <c>layout-tile-interaction-button</c> holding its name in <c>#title-text</c> and its setting
+	/// in <c>#name</c>. Tiles with no setting (links to other pages) are left out.
+	/// </summary>
+	public static string Tiles()
+	{
+		var rows = new List<string>();
+		foreach (var element in Buttons.Elements())
+		{
+			try
+			{
+				if (element.name != "layout-tile-interaction-button" || element.panel == null || element.worldBound.width <= 0) continue;
+				var title = Text.Plain(element.Q<TextElement>("title-text")?.text ?? "");
+				var value = Text.Plain(element.Q<TextElement>("name")?.text ?? "");
+				if (title.Length == 0 || value.Length == 0) continue;
+				rows.Add($"{{\"Label\": \"{Report.Escape(title)}\", \"Value\": \"{Report.Escape(value)}\", \"Pointer\": \"0x{element.Pointer.ToInt64():x}\"}}");
+			}
+			catch { }
+		}
+		return "[" + string.Join(", ", rows) + "]\n";
+	}
 }

@@ -2421,6 +2421,21 @@ mevki, iki tur.
 - **Rakip önerisi** kart açılır açılmaz "Apply all advice" butonu henüz yok; birkaç yüz ms sonra
   geliyor. Öneri uygulanırken tablo bir an eksik satırlarla diziliyor.
 
+## 8.53 Oyuncu talimatları (8 Ekim)
+
+Bir mevkinin rol listesinde (`RoleOption`) "Go to Player Instructions" seçilince (`fire=1`) oyuncu
+talimatları kartı açılıyor. Talimatlar döşeme (`layout-tile-interaction-button`): adı
+`#title-text`, ayarı `#name`; döşemenin üzerinde ayarı tek tek kaydıran `#leftarrowbutton` /
+`#rightarrowbutton` da var. Döşemeye basmak ayarların listesini (isimsiz radyo grubu) ve bir
+açıklama kartı açıyor; `/select` yazıyor, kalıcı. Kartlar kendi `PanelHistoryClose` butonlarıyla
+kapatılıyor; talimat kartı açık kalırsa taktik ekranının rol listeleri görünmüyor.
+
+Kartta ayrıca "Apply to: Position / Player" (`EventFmxDisable/EnablePositionPersonalisedRole`,
+talimatlar mevkiye mi oyuncuya mı) ve rolün kendisi var; dokunulmadı. Döşemeleri `/tiles` okuyor.
+
+`fm tactic pi <mevki> [<talimat> [<değer>]]`. Denendi: DR Shooting / Forward Runs, AML Shooting,
+iki tur ileri geri; ayarlar eski haline döndü.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

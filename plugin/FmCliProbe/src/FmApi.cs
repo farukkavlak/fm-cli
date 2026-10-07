@@ -62,6 +62,7 @@ internal static class FmApi
 		"choicedump" => Submenus.Dump(q),
 		"menu" => Submenus.Menu(q),
 		"instructions" => Instructions.Current(),
+		"tiles" => Instructions.Tiles(),
 		"opposition" => Opposition.Current(),
 		"namedrows" => NamedRows.Read(q),
 		"talk" => Talk.Current(),

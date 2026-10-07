@@ -199,6 +199,14 @@ fm tactic instructions "Goal Kicks"            seçeneklerini göster (terminald
 Şimdilik yalnızca topla oynarken talimatlar var. Bitiş bölgesindeki ve ilerlemedeki "Dribbling"
 oyunda tek ayar; biri değişince öteki de değişir.
 
+### Oyuncu talimatları — `tactic pi`
+
+```
+fm tactic pi DR                          sağ bekin talimatları
+fm tactic pi DR Shooting "Shoot Less"    birini değiştir
+fm tactic pi AML "Forward Runs"          seçeneklerini göster
+```
+
 ### Rakip talimatları — `opposition`
 
 Sıradaki rakibin her oyuncusu için sıkı markaj, pres, sert giriş ve hangi ayağa yönlendirileceği:
