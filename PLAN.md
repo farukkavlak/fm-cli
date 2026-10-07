@@ -477,8 +477,11 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 **Sabah geri bildirimi (Faruk, 7 Ekim)**
 
-- `fm offer` (teklifin ~20 sn'de gitmesi, bonservisin sahte odak olaylarıyla yazılması) "kötüymüş";
-  8 Ekim'de buradan devam edilecek. Neyin kötü olduğu henüz konuşulmadı.
+- `fm offer` "kötüymüş": üçü birden — yavaş (~20 sn), kırılgan (bonservis sahte odak olaylarıyla
+  yazılıyor), görünür değil (teklif ekranı terminalde yok, tek satır sonuç). "Böyle şeylerde
+  UX'i arttırmamız lazım." 8 Ekim'de buradan devam: teklif ekranını terminalde çiz, şartları
+  okla/istemle düzenlet, gönderimden önce özet ve onay; zinciri hızlandır, yazılan tutarı geri
+  okuyup doğrula. Aynısı `fm contract` için.
 
 **Karar bekleyenler**
 
