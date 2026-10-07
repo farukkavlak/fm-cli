@@ -175,6 +175,18 @@ Değiştirmek için:
 | `tactic new "<stil>" "<topla>" "<topsuz>"` | yeni taktik oluştur |
 | `setpieces new` | duran top rutinlerini kur (altı soru, okla) |
 
+### Diziliş değiştirmek — `tactic new`, `tactic slot`
+
+Oyunda bir taktiğin dizilişi sonradan değişmiyor; yeni bir taktik kuruluyor. `fm tactic new`
+sihirbazı açar (stil, topla diziliş, topsuz diziliş); takımın taktiği varsa yenisi yeni bir
+yuvaya girer ve etkin olur. Takım en fazla üç taktik tutar:
+
+```
+fm tactic new Gegenpress "4-2-3-1 DM Wide" "4-4-1-1 2 DM"
+fm tactic slot          yuvalar ve hangisi etkin
+fm tactic slot 1        1. yuvadaki taktiğe geç
+```
+
 ## 8. Maç günü — `match`, `sub`, `talk`, `report`
 
 `fm match` maç gününde önce sorar: **Maçı nasıl oynayalım?**

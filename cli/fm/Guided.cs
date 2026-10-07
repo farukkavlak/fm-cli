@@ -489,8 +489,9 @@ internal static partial class Program
 			case "pick": return await TacticPick(dry);
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
+			case "slot": return await TacticSlot(wanted, dry);
 			default:
-				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop] | tactic player <mevki> <oyuncu>   [--dry]");
+				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic slot [<n>] | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop] | tactic player <mevki> <oyuncu>   [--dry]");
 				return 64;
 		}
 
@@ -913,6 +914,59 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// The team keeps up to three tactics, one per slot, and plays the active one. The slots
+	/// other than the active one are buttons numbered by slot (EventFmxSetTacticSlot); the
+	/// active one is shown by its name (FINDINGS §8.47).
+	/// </summary>
+	private static async Task<int> TacticSlot(string wanted, bool dry)
+	{
+		var opened = await OpenPage("Tactics", "Match Day");
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+
+		List<JsonElement> slots = [];
+		await Until(async () => (slots = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Events").Contains("EventFmxSetTacticSlot", StringComparison.Ordinal)).ToList()).Count > 0
+			|| Field(await TacticInfo(), "TacticCount") == "1", seconds: 6, every: 0.5);
+		var tactic = await TacticInfo();
+		var active = int.TryParse(Field(tactic, "CurrentTacticSlot"), out var a) ? a + 1 : 0;
+
+		if (wanted == null)
+		{
+			var numbers = slots.Select(b => Field(b, "Label")).Append(active.ToString()).OrderBy(n => n).ToList();
+			foreach (var n in numbers)
+				Console.WriteLine(n == active.ToString() ? $"{n}  {Field(tactic, "Name")}  (etkin)" : $"{n}");
+			Console.WriteLine($"\nGeçmek için: tactic slot <n>{(numbers.Count < 3 ? " · yeni yuva: tactic new" : " · üç yuva dolu")}");
+			return 0;
+		}
+		if (wanted == active.ToString())
+		{
+			Console.WriteLine($"{wanted}. yuva zaten etkin: {Field(tactic, "Name")}");
+			return 0;
+		}
+		if (slots.FirstOrDefault(b => Field(b, "Label") == wanted) is not { ValueKind: JsonValueKind.Object } slot)
+		{
+			Console.Error.WriteLine($"{wanted} numaralı taktik yuvası yok. Yuvalar için: tactic slot");
+			return 1;
+		}
+		if (dry)
+		{
+			Console.WriteLine($"(kuru) {wanted}. yuvaya geçilecek.");
+			return 0;
+		}
+		// Queued, its event does nothing; a click on the button does (FINDINGS §8.47).
+		await Fm.Get("click", ("ptr", Field(slot, "Pointer")));
+		var now = "";
+		await Until(async () => (now = Field(await TacticInfo(), "CurrentTacticSlot")) == (int.Parse(wanted) - 1).ToString(), seconds: 6, every: 0.25);
+		var name = Field(await TacticInfo(), "Name");
+		Console.WriteLine(now == (int.Parse(wanted) - 1).ToString() ? $"{wanted}. yuva etkin: {name}" : "Yuva değişmedi.");
+		return 0;
+	}
+
+	/// <summary>The active tactic's fields; empty while the planner is between tactics.</summary>
+	private static async Task<JsonElement> TacticInfo() =>
+		(await Fm.GetJson("tactic")).TryGetProperty("Tactic", out var tactic) ? tactic : JsonDocument.Parse("{}").RootElement;
+
+	/// <summary>
 	/// Creates the team's tactic through the game's own wizard: a style, then a formation with
 	/// the ball, then one without it.
 	///
@@ -949,14 +1003,36 @@ internal static partial class Program
 				await Until(async () => (tile = await Labelled("No Tactic Set")) != null, seconds: 10);
 			}
 
-			if (tile == null)
+			if (tile != null)
 			{
-				Console.Error.WriteLine("Takımın zaten bir taktiği var; sihirbaz yalnızca taktik yokken açılıyor.");
-				return 1;
+				await Fm.Get("press", ("ptr", Field(tile.Value, "Pointer")));
+				await Until(async () => (stage = await CreatorStage()) != null, seconds: 12);
 			}
-
-			await Fm.Get("press", ("ptr", Field(tile.Value, "Pointer")));
-			await Until(async () => (stage = await CreatorStage()) != null, seconds: 12);
+			else
+			{
+				// With a tactic in place the tactics page's own "Create New Tactic" opens the same
+				// wizard; the new tactic takes the slot and the old one stays loadable by name
+				// (FINDINGS §8.47). This is how a formation is changed.
+				await OpenPage("Tactics", "Match Day");
+				JsonElement? create = null;
+				await Until(async () => (create = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+					.Cast<JsonElement?>()
+					.FirstOrDefault(d => d.Value.TryGetProperty("Choices", out var cs) && cs.ValueKind == JsonValueKind.Array && cs.EnumerateArray().Any(c => c.ValueKind == JsonValueKind.String && c.GetString() == "Create New Tactic"))) != null, seconds: 10);
+				if (create == null)
+				{
+					Console.Error.WriteLine("Yeni taktik kurulamıyor: üç taktik yuvası dolu (oyun 'Create New Tactic' vermiyor). Bir yuvaya geçip oyunda boşaltmak gerek; yuvalar için: tactic slot");
+					return 1;
+				}
+				if (!dry && Ui.Interactive && Ui.Ask($"Etkin taktik ({Field(await TacticInfo(), "Name")}) yerine yenisi kurulacak; eskisi kayıtlı taktiklerde kalır.", ["Devam"], cancel: "Vazgeç") == null)
+					return 0;
+				if (dry)
+				{
+					Console.WriteLine("(kuru) Takımın taktiği var; 'Create New Tactic' sihirbazı açacak ve etkin taktiğin yerine yenisini kuracak.");
+					return 0;
+				}
+				await Fm.Get("select", ("ptr", Field(create.Value, "Pointer")), ("choice", "Create New Tactic"), ("fire", "1"));
+				await Until(async () => (stage = await CreatorStage()) != null, seconds: 12);
+			}
 		}
 
 		if (stage is not { } at || at >= stages.Length)

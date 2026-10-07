@@ -187,7 +187,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Mevcut taktiği göster — `fm tactic`: stil, mentalite, 11 mevki, top/topsuz roller, oyuncular (§8.31)
 - [x] Mentalite ve stil değiştir — `fm tactic mentality <x>`, `fm tactic style <x>` (§8.31)
 - [x] İlk 11'i oyuna seçtir — `fm tactic pick` (Quick Pick) (§8.31)
-- [k] Formasyon değiştir — `Formation` enum'u, 72 üye
+- [x] Formasyon değiştir — oyunda yeni taktik kurmakla oluyor: `fm tactic new` taktik varken yeni
+      yuvaya kurar, `fm tactic slot [<n>]` üç yuva arasında geçer (§8.47); yuva boşaltma yok
 - [k] **In Possession / Out of Possession** ayrı şekiller — aynı event, `IsInPossession` bayrağı
 - [x] Oyuncu rolleri — `fm tactic role <mevki> [<rol>] [--oop]` (§8.31)
 - [k] Oyuncu talimatları — `PlayerInstruction`, 36 üye
@@ -445,6 +446,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-08 (gece, otonom)
 
+- **Diziliş değiştirme / taktik yuvaları** (FINDINGS §8.47): `tactic new` taktik varken de,
+  `tactic slot`. `players` dar terminale sığıyor, `reply` numaraları son `inbox`'a bağlı.
 - **Alt menüler çözüldü** (FINDINGS §8.45). Sebep: oyun seçilen satırın `RowData`'sını bekliyordu,
   biz menü satırını yazıyorduk. Kupa / ödül primleri, takasa oyuncu (transfer ya da kiralık),
   sözleşmede alt menülü maddeler; kartta kademeli menü, script'te `A>B>C`. Prim adları kalıbına

@@ -2311,6 +2311,29 @@ listelerde `Disabled` dizisini veriyor, `/menu` bunları hiç listelemiyor; CLI 
 Gönderildi: Matteo Cancellieri (Celesti), sezon sonuna kadar, maaşın %100'ü, aylık £20K oynarsa /
 £100K oynamazsa, satın alma opsiyonu yok, cevap süresi bir hafta. Cevap bekleniyor.
 
+## 8.47 Diziliş değiştirmek: taktik yuvaları (8 Ekim)
+
+FM26'da var olan taktiğin dizilişini değiştiren bir kontrol taktik ekranında yok
+(`FormationOptionEvent` hiçbir kontrolde görünmüyor; `FormationEditCard` paneli var ama
+`OpenPanelEvent`'in `PanelID`'si bir asset GUID'i istiyor, adla açılamadı). Oyunun yolu yeni taktik
+kurmak: taktik menüsündeki ikinci liste (`ModifyTactic`, `add-data`, `IsAddingSlot = True`)
+"Create New Tactic" ile aynı sihirbazı açıyor (`tac-styles-options` → `all-options-list` ×2).
+Yeni taktik yeni bir **yuvaya** giriyor ve etkin oluyor.
+
+- En fazla üç yuva (`TacticReference.TacticCount`, `CurrentTacticSlot` sıfırdan). Üçü doluyken
+  "Create New Tactic" listeden kalkıyor.
+- Etkin olmayan yuvalar numaralı butonlar (`EventFmxSetTacticSlot`, veri `slot1`/`slot2`); etkin
+  yuva adıyla gösteriliyor. ⚠ Butonun olaylarını kuyruğa koymak (`/press`) yuvayı değiştirmedi;
+  `/click` (gerçek tıklama) değiştirdi.
+- Ana taktik listesinde öteki kayıtlı taktiklerin adları da var; birini seçmek onu etkin yuvaya
+  **kopyalıyor** ("Copy of: 4-3-3 DM Wide - Gegenpress"), yuva değiştirmiyor.
+- Alışkanlık (`TacticalFamiliarity`) yeni taktikte de 8306 göründü; bu değer taktik başına değil
+  gibi, doğrulanmadı.
+
+`fm tactic new` artık taktik varken de çalışıyor (yeni yuva), `fm tactic slot [<n>]` yuvaları
+gösterip değiştiriyor. Denendi: 4-2-3-1 DM Wide / 4-4-1-1 2 DM kuruldu, yuvalar 3→2→1→3→1 gezildi.
+Kayıtta şimdi üç yuva var (1: asıl 4-3-3, etkin).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
