@@ -75,7 +75,9 @@ internal static class Submenus
 		}
 
 		var names = new List<string>();
-		for (var i = 0; i < (level?.Count ?? 0) && i < 200; i++) names.Add($"\"{Report.Escape(Buttons.ChoiceText(level[i]) ?? "")}\"");
+		// A greyed-out row is left out: the game would not take it.
+		for (var i = 0; i < (level?.Count ?? 0) && i < 200; i++)
+			if (!Buttons.ChoiceDisabled(level[i])) names.Add($"\"{Report.Escape(Buttons.ChoiceText(level[i]) ?? "")}\"");
 		return "[" + string.Join(", ", names) + "]\n";
 	}
 

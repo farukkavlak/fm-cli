@@ -245,6 +245,16 @@ fm offer "Robin Hack" 4M \
   --term "Cevap süresi=Tomorrow" --yes
 ```
 
+Kiralıkta (`--loan`) kart başka şartlarla gelir: aylık ücret (oynarsa / oynamazsa), maaş
+katkısı yüzdesi, süre; ardından kiralık maddeleri (forma süresi sözü, primler), evet / hayır
+seçenekleri (kupa maçlarında oynayabilir, geri çağrılabilir…) ve kalıcı olursa satın alma
+bedelleri. Oyunun gri gösterdiği (o teklifte verilmeyen) seçenekler menüde çıkmaz.
+
+```
+fm offer "Matteo Cancellieri" --loan --term "Maaş katkısı (oynarsa)=100%" \
+  --term "Playing Monthly Fee=20K" --term "Opsiyonlu satın alma bedeli=kaldır" --yes
+```
+
 Kulübün cevabı gelen kutusuna düşer. "View Offer" ya da "Negotiate" ile açılan karşı teklif de
 aynı komutla kart olarak görünür ve oradan düzenlenip geri gönderilir (`fm offer Hack`).
 "Gösterilen" satırı kulübün teklifiyle senin önceki teklifin arasında geçiş yapar.

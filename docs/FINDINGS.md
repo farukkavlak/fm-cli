@@ -2285,6 +2285,32 @@ Yol boyunca bulunanlar:
 - Sözleşmede alt menülü madde "Wage After Reaching Club League Games ›" (5–30 maç) da aynı yolla
   ekleniyor; eklenince oyun "Clause offers no wage increase" diyor, ücreti girilince düzeliyor.
 
+## 8.46 Kiralık teklifi kartla (8 Ekim gecesi)
+
+`fm offer <oyuncu> --loan` teklif ekranında `loan-offer-button`'a basıp aynı okuyucuyla kartı
+çiziyor; kiralık ekranı aynı satırlardan kurulu, başlıkları farklı:
+- İlk blok başlıksız: Playing / Unused Monthly Fee (tutar), Playing / Unused Wage Percentage
+  (%0–200, yanında haftalık karşılığı), Duration (6 Months / End Of Season).
+- `#clause-area-title` iki kez: **Loan Clauses** (Agreed Playing Time, Preferred Position / Role,
+  kupa ve ödül primleri; "Add": Loan To Buy Fee, Buy Back Price, alt menülü primler) ve **Loan
+  Options** (değeri olmayan evet / hayır maddeleri: Can play in cup matches, Can be recalled…).
+- `#ltb-fees-title` **Loan-to-buy Fees** (Optional / Mandatory Future Fee, maç sayısına ya da
+  başarıya bağlı), `#ltb-additional-fees-title`, `#ltb-clauses-title`: kalıcı olursa ek ödemeler
+  ve maddeler (transferdekilerin aynısı).
+- Toplam `#Text_TotalCostValue`, başlığı "Overall Cost if deal becomes permanent (Including
+  Monthly Contributions)"; satın alma bedeli kaldırılınca bu satır da kayboluyor. Okuyucu kökü
+  artık bir şart satırından da buluyor.
+- Yardımcının notları (`talk`'ta): kulübün istediği katkı ve ücretler, satın alma opsiyonu.
+
+**Kapalı seçenekler.** "Add" listelerinde oyunun gri gösterdiği satırların kaydında
+`Disabled = True` var (ör. yabancı kulüpten kiralıkta "Can play for parent club", zaten eklenmiş
+"Can be recalled"). Seçmek olay gönderiyor ama hiçbir şey eklemiyor. `/offer` ve `/contract`
+listelerde `Disabled` dizisini veriyor, `/menu` bunları hiç listelemiyor; CLI menüde göstermiyor,
+`--term` ile istenirse "listede kapalı" diyor.
+
+Gönderildi: Matteo Cancellieri (Celesti), sezon sonuna kadar, maaşın %100'ü, aylık £20K oynarsa /
+£100K oynamazsa, satın alma opsiyonu yok, cevap süresi bir hafta. Cevap bekleniyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

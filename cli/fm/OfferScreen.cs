@@ -18,6 +18,9 @@ internal sealed class OfferScreen
 	public string Player { get; private init; } = "";
 	public string BudgetCost { get; private init; } = "";
 	public string TotalCost { get; private init; } = "";
+	/// <summary>What the total is of: a loan's is the cost should it become permanent.</summary>
+	public string TotalCostTitle { get; private init; } = "";
+	public bool IsLoan => Rows.Any(r => r.Label == "Playing Monthly Fee");
 	/// <summary>The contract talks only: "Promises" or "Terms", and what sits beside the terms.</summary>
 	public string Stage { get; private init; } = "";
 	public Dictionary<string, string> Facts { get; private init; } = [];
@@ -26,7 +29,13 @@ internal sealed class OfferScreen
 	public List<Term> Rows { get; private init; } = [];
 	public List<Term> Adds { get; private init; } = [];
 
-	public sealed record Control(string Pointer, string Value, List<string> Choices);
+	public sealed record Control(string Pointer, string Value, List<string> Choices)
+	{
+		/// <summary>Choices the game greys out: listed, but not taken.</summary>
+		public List<string> Disabled { get; init; } = [];
+
+		public List<string> Open => Choices.Where(c => !Disabled.Contains(c)).ToList();
+	}
 
 	/// <summary>
 	/// How firmly a term is held in the talks: the padlock beside it. Its choices are bare
@@ -43,7 +52,9 @@ internal sealed class OfferScreen
 		/// <summary>Which of the terms with this name it is: an agent can ask for two goal bonuses.</summary>
 		public int Nth { get; init; }
 
-		public string Shown => string.Join(" · ", new[] { Choice?.Value, Amount?.Value, Fixed }.Where(v => !string.IsNullOrEmpty(v))) is { Length: > 0 } shown ? shown : "—";
+		// A loan clause with nothing to set ("Can be recalled") is there or not: being there is yes.
+		public string Shown => string.Join(" · ", new[] { Choice?.Value, Amount?.Value, Fixed }.Where(v => !string.IsNullOrEmpty(v))) is { Length: > 0 } shown ? shown
+			: Remove.Length > 0 && Choice == null && Amount == null ? "evet" : "—";
 	}
 
 	/// <summary>The offer as it stands, or null when no offer screen is open.</summary>
@@ -59,6 +70,7 @@ internal sealed class OfferScreen
 			Player = F(data, "Player"),
 			BudgetCost = F(data, "BudgetCost"),
 			TotalCost = F(data, "TotalCost"),
+			TotalCostTitle = F(data, "TotalCostTitle"),
 			Options = data.GetProperty("Options").EnumerateArray().Select(o => o.TryGetProperty("Lock", out var l)
 				? new Term("", F(o, "Label"), "", "", null, null, "", LockOf(l))
 				: new Term("", F(o, "Label"), "", "", ControlOf(o), null, "")).ToList(),
@@ -85,7 +97,10 @@ internal sealed class OfferScreen
 		}
 
 		static Control ControlOf(JsonElement e) =>
-			new(F(e, "Pointer"), F(e, "Value"), e.TryGetProperty("Choices", out var c) ? c.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : []);
+			new(F(e, "Pointer"), F(e, "Value"), e.TryGetProperty("Choices", out var c) ? c.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [])
+			{
+				Disabled = e.TryGetProperty("Disabled", out var d) ? d.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [],
+			};
 	}
 
 	public Term Row(string label) => Rows.FirstOrDefault(r => Same(r.Label, label));
@@ -251,6 +266,35 @@ internal sealed class OfferScreen
 		["Non-Negotiable"] = "Pazarlıksız",
 		["Remove & Exclude"] = "Çıkar ve yasakla",
 
+		// A loan (FINDINGS §8.46).
+		["Loan Options"] = "Kiralık seçenekleri",
+		["Loan Clauses"] = "Kiralık maddeleri",
+		["Loan-to-buy Fees"] = "Satın alma bedelleri",
+		["Future Additional Fees"] = "Satın almada ek ödemeler",
+		["Future Additional Clauses"] = "Satın almada ek maddeler",
+		["Playing Monthly Fee"] = "Aylık ücret (oynarsa)",
+		["Unused Monthly Fee"] = "Aylık ücret (oynamazsa)",
+		["Playing Wage Percentage"] = "Maaş katkısı (oynarsa)",
+		["Unused Wage Percentage"] = "Maaş katkısı (oynamazsa)",
+		["Duration"] = "Süre",
+		["Agreed Playing Time"] = "Söz verilen forma süresi",
+		["Preferred Position"] = "Tercih edilen mevki",
+		["Preferred Role"] = "Tercih edilen rol",
+		["Can play in cup matches"] = "Kupa maçlarında oynayabilir",
+		["Can play against own team"] = "Kendi kulübüne karşı oynayabilir",
+		["Can be recalled"] = "Geri çağrılabilir",
+		["Loan cannot be terminated"] = "Kiralık feshedilemez",
+		["Can play against parent club's B team"] = "Kulübün B takımına karşı oynayabilir",
+		["Can play for parent club"] = "Kendi kulübünde de oynayabilir",
+		["Can play for parent club reserves"] = "Kulübün yedeklerinde oynayabilir",
+		["Can play for parent club in cup matches"] = "Kupada kendi kulübünde oynayabilir",
+		["Increased playing time second season"] = "İkinci sezon daha çok forma",
+		["Loan To Buy Fee"] = "Satın alma opsiyonu",
+		["Optional Future Fee"] = "Opsiyonlu satın alma bedeli",
+		["Mandatory Future Fee"] = "Zorunlu satın alma bedeli",
+		["Future Fee After Matches Played"] = "Maç sayısına bağlı satın alma",
+		["Future Fee After Competition Achievement"] = "Başarıya bağlı satın alma",
+
 		// The contract talks (FINDINGS §8.44).
 		["Promises"] = "Vaatler",
 		["Terms"] = "Şartlar",
@@ -371,25 +415,26 @@ internal sealed class OfferScreen
 			foreach (var option in Options) Console.WriteLine($"  {OptionName(option)}: {option.Choice.Value}");
 			foreach (var group in Rows.GroupBy(r => r.Section))
 			{
-				Console.WriteLine($"{Say(group.Key)}:");
+				Console.WriteLine($"{SectionName(group.Key)}:");
 				foreach (var row in group) Console.WriteLine($"  {Say(row.Label)}: {row.Shown}{(row.Lock is { Value: not "Negotiable" and not "" } l ? $"  [{SayLock(l.Value)}]" : "")}");
 			}
-			Console.WriteLine($"Bütçeden çıkacak: {BudgetCost} · Olası toplam: {TotalCost}");
+			var costs = new[] { BudgetCost.Length > 0 ? $"Bütçeden çıkacak: {BudgetCost}" : "", TotalCost.Length > 0 ? $"{TotalName}: {TotalCost}" : "" }.Where(c => c.Length > 0).ToList();
+			if (costs.Count > 0) Console.WriteLine(string.Join(" · ", costs));
 			return;
 		}
 
 		var grid = new Grid().AddColumn(new GridColumn().NoWrap().PadRight(2)).AddColumn();
 		foreach (var group in Rows.GroupBy(r => r.Section))
 		{
-			grid.AddRow(new Markup($"[bold]{Ui.Safe(Say(group.Key))}[/]"), new Text(""));
+			grid.AddRow(new Markup($"[bold]{Ui.Safe(SectionName(group.Key))}[/]"), new Text(""));
 			foreach (var row in group)
 				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(row.Shown)}[/]"
 					+ (row.Detail.Length > 0 ? $" [dim]{Ui.Safe(row.Detail)}[/]" : "")
 					+ LockMark(row.Lock)));
 		}
 		grid.AddRow(new Text(""), new Text(""));
-		grid.AddRow(new Markup("[dim]Bütçeden çıkacak[/]"), new Markup($"[bold]{Ui.Safe(BudgetCost)}[/]"));
-		grid.AddRow(new Markup("[dim]Olası toplam[/]"), new Markup($"{Ui.Safe(TotalCost)}"));
+		if (BudgetCost.Length > 0) grid.AddRow(new Markup("[dim]Bütçeden çıkacak[/]"), new Markup($"[bold]{Ui.Safe(BudgetCost)}[/]"));
+		if (TotalCost.Length > 0) grid.AddRow(new Markup($"[dim]{Ui.Safe(TotalName)}[/]"), new Markup($"{Ui.Safe(TotalCost)}"));
 		grid.AddRow(new Markup("[dim]Teklif[/]"), new Markup(Ui.Safe(string.Join(" · ", Options.Select(o => o.Choice.Value)))));
 
 		Ui.Out.Write(new Panel(grid)
@@ -400,6 +445,11 @@ internal sealed class OfferScreen
 			Padding = new Padding(1, 0, 1, 0),
 		});
 	}
+
+	/// <summary>The first block has no heading on a loan; the others are the game's.</summary>
+	private string SectionName(string section) => section.Length > 0 ? Say(section) : IsLoan ? "Kiralık şartları" : "Temel şartlar";
+
+	private string TotalName => TotalCostTitle.Contains("permanent", StringComparison.OrdinalIgnoreCase) ? "Kalıcı olursa toplam" : "Olası toplam";
 
 	/// <summary>The contract talks: the stage's terms, the offer-wide lock, what it costs.</summary>
 	private void DrawContract()

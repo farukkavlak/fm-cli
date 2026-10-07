@@ -45,7 +45,7 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
    açıyor (§8.42, 7 Ekim akşamı). Kalan:
    - Alt menü seçimi 8 Ekim gecesi çözüldü (§8.45): kupa / ödül primleri, takasa oyuncu, alt
      menülü sözleşme maddeleri; kartta kademeli menü, script'te `--term "A>B>C=değer"`.
-   - Kiralık teklif kartla denenmedi (`--loan`; şartları farklı).
+   - Kiralık teklif kartla çalışıyor ve gönderildi (§8.46); kulübün cevabı bekleniyor.
    - Kabul edilen bir teklifin "Accept" tuzağını kart üzerinden göstermek; kısa liste.
    - `fm contract` kartı 7→8 Ekim gecesi yapıldı (§8.44): vaatler + şartlar, yenileme, menajerin
      karşı teklifi, kuralın neden tutmadığı. Yenilemede oyuncunun kararı gelen kutusuna düşüyor;
@@ -231,7 +231,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       karşı teklifi, iptal; kendi oyuncumuzla yenileme (§8.44)
 - [x] Sözleşme maddeleri ve primleri — kartta ekle / kaldır / değiştir, kupa ve ödül primleri dahil (§8.45)
 - [ ] Yenilemede oyuncunun kararı (gelen kutusu) ve "menajere sor" (`Discuss New Contract`) yolu
-- [k] Kiralık — `fm offer --loan` var ama canlı denenmedi; `CanMakeLoanOffer`, `PersonOfferExtendLoan`, `LoanToBuy*`
+- [~] Kiralık — `fm offer --loan`: kart, şartlar, satın alma opsiyonu, gönderildi (§8.46); cevabı ve
+      kiralık uzatma (`PersonOfferExtendLoan`) görülmedi
 - [k] Oyuncuyu kulüplere öner — `PersonOfferToClubs`
 - [k] Sözleşme feshi / serbest bırakma — `PersonMutualTerminationContract`, `PersonReleaseClubFreeTransfer`
 - [ ] Serbest oyuncular
@@ -445,6 +446,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   biz menü satırını yazıyorduk. Kupa / ödül primleri, takasa oyuncu (transfer ya da kiralık),
   sözleşmede alt menülü maddeler; kartta kademeli menü, script'te `A>B>C`. Prim adları kalıbına
   göre Türkçe ("Turkish Cup: Semi Final primi").
+- **Kiralık teklifi kartla** (FINDINGS §8.46): kiralığın kendi başlıkları okunuyor, evet / hayır
+  maddeleri, kalıcı olursa toplam; oyunun gri gösterdiği seçenekler menüden çıktı. Cancellieri'ye
+  kiralık teklif gönderildi.
 - **`fm contract` kart oldu** (FINDINGS §8.44). Teklifteki gibi: vaatler ve şartlar kart olarak,
   okla düzenleme, `--term`, kilitler, ekle / kaldır. `fm contract <oyuncu>` kendi oyuncumuzla
   yenileme görüşmesini açıyor. Menajerin cevabı "neyin değiştiği" olarak yazılıyor; kuralı

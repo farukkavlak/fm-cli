@@ -53,7 +53,8 @@ internal static partial class Program
 		"Players To Exchange" => "+ Takasa oyuncu ekle",
 		"Add Bonus" => "+ Prim ekle",
 		"Add Promise" => "+ Vaat ekle",
-		_ => "+ Madde ekle",
+		"Additional Clauses" or "Add Clause" => "+ Madde ekle",
+		var other => $"+ Ekle: {OfferScreen.Say(other)}",
 	};
 
 	private static async Task<string> AddTerm(string route, OfferScreen.Term add)
@@ -70,7 +71,7 @@ internal static partial class Program
 		// A choice ending in › opens a submenu (a trophy, an award, a player of the squad): the
 		// menu walks down it until a choice without one (FINDINGS §8.45).
 		var path = new List<string>();
-		var choices = add.Choice.Choices;
+		var choices = add.Choice.Open;
 		while (true)
 		{
 			if (choices.Count == 0) return "Bu menü boş.";
@@ -79,7 +80,7 @@ internal static partial class Program
 			{
 				if (path.Count == 0) return null;
 				path.RemoveAt(path.Count - 1);
-				choices = path.Count == 0 ? add.Choice.Choices : await OfferScreen.Submenu(Fm, add, path);
+				choices = path.Count == 0 ? add.Choice.Open : await OfferScreen.Submenu(Fm, add, path);
 				continue;
 			}
 			var choice = choices[picked];
@@ -140,7 +141,8 @@ internal static partial class Program
 		if (row == null)
 		{
 			var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(Named));
-			if (add == null) return $"böyle bir şart yok. Eklenebilenler: {string.Join(", ", now.Adds.SelectMany(a => a.Choice.Choices))}";
+			if (add == null) return $"böyle bir şart yok. Eklenebilenler: {string.Join(", ", now.Adds.SelectMany(a => a.Choice.Open))}";
+			if (add.Choice.Disabled.Any(Named)) return $"oyun '{label}' maddesini bu teklifte vermiyor (listede kapalı)";
 			var full = add.Choice.Choices.First(Named);
 			if (await OfferScreen.Add(Fm, add, full, route) is { } failed) return failed;
 			var after = await OfferScreen.Read(Fm, route);

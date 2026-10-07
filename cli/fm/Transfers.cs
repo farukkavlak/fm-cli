@@ -204,7 +204,7 @@ internal static partial class Program
 					items.Add(OfferScreen.MenuLine(row));
 					actions.Add(() => EditTerm("offer", row));
 				}
-				foreach (var add in now.Adds)
+				foreach (var add in now.Adds.Where(a => a.Choice.Open.Count > 0))
 				{
 					items.Add(AddLine(add));
 					actions.Add(() => AddTerm("offer", add));

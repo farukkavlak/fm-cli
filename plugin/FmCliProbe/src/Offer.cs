@@ -90,6 +90,7 @@ internal static class Offer
 				: $"\"Club\": \"{Report.Escape(Plain("club-player-text"))}\", \"Player\": \"{Report.Escape(Plain("player-text").Trim('(', ')'))}\", ")
 			+ $"\"BudgetCost\": \"{Report.Escape(Plain("Text_TransferCostValue"))}\", "
 			+ $"\"TotalCost\": \"{Report.Escape(Plain("Text_TotalCostValue"))}\", "
+			+ $"\"TotalCostTitle\": \"{Report.Escape(Plain("Text_TotalCostTitle"))}\", "
 			+ "\"Options\": [" + string.Join(", ", options) + "], "
 			+ "\"Rows\": [" + string.Join(", ", rows) + "], "
 			+ "\"Facts\": {" + string.Join(", ", facts) + "}, "
@@ -109,7 +110,10 @@ internal static class Offer
 			// the element name.
 			switch (name)
 			{
-				case "players-to-exchange-title" or "fees-title" or "clauses-title":
+				// A loan's headings have names of their own: options and clauses of the loan, then
+				// the fees and clauses should it become permanent.
+				case "players-to-exchange-title" or "fees-title" or "clauses-title"
+					or "clause-area-title" or "ltb-fees-title" or "ltb-additional-fees-title" or "ltb-clauses-title":
 					try { section = Text.Plain(element.TryCast<TextElement>()?.text ?? "") ; } catch { }
 					break;
 				case "frames-contract-terms" or "frames-contract terms":
@@ -295,12 +299,18 @@ internal static class Offer
 	private static string Choices(SIDropdown dropdown)
 	{
 		var names = new List<string>();
+		var disabled = new List<string>();
 		var choices = dropdown.m_choices;
-		for (var i = 0; i < (choices?.Count ?? 0) && i < 60; i++) names.Add($"\"{Report.Escape(Buttons.ChoiceText(choices[i]) ?? "")}\"");
+		for (var i = 0; i < (choices?.Count ?? 0) && i < 60; i++)
+		{
+			var name = $"\"{Report.Escape(Buttons.ChoiceText(choices[i]) ?? "")}\"";
+			names.Add(name);
+			if (Buttons.ChoiceDisabled(choices[i])) disabled.Add(name);
+		}
 		var enabled = false;
 		try { enabled = dropdown.enabledInHierarchy; } catch { }
 		return $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", "
-			+ $"\"Enabled\": \"{enabled}\", \"Choices\": [{string.Join(", ", names)}]";
+			+ $"\"Enabled\": \"{enabled}\", \"Choices\": [{string.Join(", ", names)}], \"Disabled\": [{string.Join(", ", disabled)}]";
 	}
 
 	private static bool Shown(VisualElement element)
@@ -338,29 +348,35 @@ internal static class Offer
 		return null;
 	}
 
-	/// <summary>The offer's panel: the nearest ancestor of its total that also holds its header.</summary>
+	/// <summary>
+	/// The offer's panel: the nearest ancestor of its total that also holds its header. A loan
+	/// with no fee to buy him has no total, so a term row will do as well.
+	/// </summary>
 	private static VisualElement Root()
 	{
-		foreach (var element in Buttons.Elements())
+		foreach (var anchor in new[] { "Text_TotalCostValue", "frames-contract-terms" })
 		{
-			try
+			foreach (var element in Buttons.Elements())
 			{
-				if (element.name != "Text_TotalCostValue" || !Shown(element)) continue;
-			}
-			catch { continue; }
-
-			VisualElement root = element;
-			for (var climbed = 0; climbed < 40; climbed++)
-			{
-				VisualElement parent;
-				try { parent = root.hierarchy.parent; } catch { break; }
-				if (parent == null) break;
-				root = parent;
 				try
 				{
-					if (root.Q<VisualElement>("club-player-text") != null && root.Q<VisualElement>("players-to-exchange-title") != null) return root;
+					if (element.name != anchor || !Shown(element)) continue;
 				}
-				catch { }
+				catch { continue; }
+
+				VisualElement root = element;
+				for (var climbed = 0; climbed < 40; climbed++)
+				{
+					VisualElement parent;
+					try { parent = root.hierarchy.parent; } catch { break; }
+					if (parent == null) break;
+					root = parent;
+					try
+					{
+						if (root.Q<VisualElement>("club-player-text") != null && root.Q<VisualElement>("players-to-exchange-title") != null) return root;
+					}
+					catch { }
+				}
 			}
 		}
 		return null;

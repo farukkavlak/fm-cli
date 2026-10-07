@@ -291,6 +291,17 @@ internal static class Buttons
 		return $"selected {described} ({how}) and sent its {events.Count} event(s)";
 	}
 
+	/// <summary>Whether a menu row is greyed out: the game lists it but will not take it.</summary>
+	internal static bool ChoiceDisabled(SI.Core.TypedValue choice)
+	{
+		try
+		{
+			var record = choice?.Get()?.TryCast<DynamicReference>();
+			return record != null && Send.Entries(record).TryGetValue("Disabled", out var value) && value != null && !value.IsNull && value.AsString() == "True";
+		}
+		catch { return false; }
+	}
+
 	/// <summary>Whether a row's displayed record says it is the selected one.</summary>
 	private static bool Marked(SI.Core.TypedValue choice)
 	{
