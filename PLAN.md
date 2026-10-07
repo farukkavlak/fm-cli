@@ -50,8 +50,9 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
    - `fm contract` kartı 7→8 Ekim gecesi yapıldı (§8.44): vaatler + şartlar, yenileme, menajerin
      karşı teklifi, kuralın neden tutmadığı. Yenilemede oyuncunun kararı gelen kutusuna düşüyor;
      o mesajın cevabı henüz denenmedi.
-5. **MCP'yi gerçek istemciyle denemek.** `fm mcp` protokolü konuşuyor ve araçlar çalışıyor
-   (§8.39) ama Claude Code / Desktop'tan hiç çağrılmadı. Ardından: araç çıktısındaki
+5. **MCP'yi gerçek istemciyle denemek.** 8 Ekim gecesi Claude Code'dan çağrıldı (`fm_status`,
+   `fm_tactic`), çalışıyor; sunucu süreci eski derlemeyi tuttuğu için yeni araçlar `/mcp` ile
+   yeniden başlatınca gelir (§8.55). Ardından: araç çıktısındaki
    yönlendirmeleri araç adına çevirmek, uzun maç için zaman aşımı, `--json` her komutta.
 
 ### Bilinen hatalar (kılavuz çekimi sırasında bulundu, 2026-10-07)

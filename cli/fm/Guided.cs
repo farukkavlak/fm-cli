@@ -651,6 +651,14 @@ internal static partial class Program
 
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 10);
 		}
+		// The pitch shows the eleven slots only in its combined view; after "In / Out of
+		// Possession" or "Both" it lays out no slots (FINDINGS §8.55), so it is put back.
+		if (tactic.TryGetProperty("Tactic", out _) && (!tactic.TryGetProperty("Slots", out var slots) || slots.GetArrayLength() == 0)
+			&& await Labelled("Combined") is { } combined)
+		{
+			await Fm.Get("press", ("ptr", Field(combined, "Pointer")));
+			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);
+		}
 		return tactic.TryGetProperty("Tactic", out _) ? tactic : null;
 	}
 

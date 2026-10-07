@@ -2464,6 +2464,16 @@ Topsuz takım talimatları için bir deneme daha: "Team Shape" görünümündeki
 sekmesi (`TutorialActionElement` içinde `SIButton #OOP`?) basıldıktan sonra talimat görünümü yine
 topla oynarkenkileri gösterdi. Açık.
 
+⚠ Bu deneme sahayı "Out of Possession" görünümünde bıraktı ve `fm tactic` ilk 11'i boş okudu: saha
+on bir slotu yalnızca **Combined** görünümde diziyor (In Possession / Out of Possession / Both'ta
+`/tactic` `Slots = []`). `Planner()` artık slotlar boşsa "Combined"a basıp yeniden okuyor.
+
+**MCP gerçek istemciden.** Claude Code oturumunda yüklü `fm` MCP sunucusunun araçları çağrıldı:
+`fm_status`, `fm_tactic` çalıştı, çıktı CLI'ınkiyle aynı. Ama sunucu süreci (`fm mcp`) oturum
+başında başlamış ve o anki derlemeyi tutuyor: gece eklenen araçlar (`fm_opposition`, `fm_intensity`…)
+ve `fm_status`'un transfer satırı yoktu, `fm_contract`'ın açıklaması eskiydi. Yeni derlemeden sonra
+istemcide MCP sunucusunu yeniden başlatmak gerekiyor (Claude Code'da `/mcp`).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
