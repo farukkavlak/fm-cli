@@ -213,7 +213,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [k] Haftalık antrenman programı göster — `CustomTrainingScheduleReference`, `DailyScheduleReference`
 - [ ] Antrenman programı değiştir
 - [ ] Maç hazırlığı odağı
-- [k] Bireysel antrenman odağı — `EventFmxPlayerTrainingFocusChanged` + `…ConfirmTrainingFocusChanges`
+- [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
 - [k] Pozisyon / hareket öğretme — `PersonTrainingNewPosition`, `PersonTrainingNewPreferredMove`
 - [ ] Mentor / mentee ilişkileri
 - [k] **Antrenman raporları** — `PersonRequestTrainingReport`
@@ -447,6 +447,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-08 (gece, otonom)
 
+- **Bireysel antrenman** (FINDINGS §8.51): `fm training`, odak / mevki-rol / topsuz rol.
 - **Antrenman yoğunluğu ve dinlendirme** (FINDINGS §8.50): `fm intensity`; sanal tabloyu kaydırıp
   okuyan genel `/namedrows`.
 - **Rakip talimatları** (FINDINGS §8.49): `fm opposition`, `--advice`, `--clear`, elle ayar.

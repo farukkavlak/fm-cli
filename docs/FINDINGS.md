@@ -2391,6 +2391,19 @@ gelen listeyle eşleştiriyor ve kaydırıyor (`Registration.Scroll`), CLI beş 
 birleştiriyor (21 oyuncu). `fm intensity` liste, `intensity <oyuncu> <seviye>`, `--auto`.
 Denendi: Kanté yarım → 3 gün dinlenme → normal, Fred çift → normal, iki tur.
 
+## 8.51 Bireysel antrenman (8 Ekim)
+
+"Training › Individual Training", görünüm listesi (`ViewDropdown`) "List" yapılınca satır başına
+dört liste: mevki/rol eğitimi (`EventFmxPlayerTrainingPositionChanged`; "AM (R) - Playing position"
+ya da "Defender (Right) › …" alt menüsünden bir rol), topsuz rol (`EventFmxPlayerOOPTrainingRoleChanged`;
+"Defenders ›"…), ek odak (`EventFmxPlayerTrainingFocusChanged`; Endurance, Quickness, Free Kick
+Taking…) ve yoğunluk. İlk üçü aynı eleman adını taşıyor; `/namedrows?count=3` her ismin ardından
+ilk üçünü sırayla veriyor. Alt menülü seçim §8.45 yoluyla.
+
+"Ask <yardımcı> to assign all individual training" görüşme butonu da var; kullanılmadı.
+Denendi: Kanté odak Endurance ↔ None, mevki "Midfielder (Centre) › Central Midfielder" ↔ asıl
+mevki, iki tur.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -210,6 +210,15 @@ fm opposition Kaku Pres=Always "Sert giriş=Hard"
 fm opposition --clear                        hepsini temizle
 ```
 
+### Bireysel antrenman — `training`
+
+```
+fm training                                    herkesin mevki/rol, topsuz rol ve odak eğitimi
+fm training Kanté --focus Endurance            ek odak (None: kaldır)
+fm training Kanté --position "Midfielder (Centre)>Central Midfielder"
+fm training Kanté --position "Midfielder (Centre)"   o alt menüdeki rolleri listeler
+```
+
 ### Antrenman yoğunluğu — `intensity`
 
 ```

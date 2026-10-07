@@ -33,8 +33,19 @@ internal static class NamedRows
 			return "scrolled\n";
 		}
 
+		// count=N takes the first N such dropdowns after each name, as a list.
+		var count = int.TryParse(q["count"], out var n) ? n : 0;
 		var rows = new List<string>();
+		var lists = new List<string>();
 		string name = null;
+		string rowName = null;
+		void Flush()
+		{
+			if (count > 0 && rowName != null && lists.Count > 0)
+				rows.Add($"{{\"Name\": \"{Report.Escape(rowName)}\", \"Lists\": [{string.Join(", ", lists)}]}}");
+			lists.Clear();
+			rowName = null;
+		}
 		foreach (var element in Buttons.Elements())
 		{
 			string elementName;
@@ -47,10 +58,13 @@ internal static class NamedRows
 
 			if (elementName == "NameText")
 			{
+				Flush();
 				try { name = Text.Plain(element.TryCast<TextElement>()?.text ?? ""); } catch { name = null; }
+				rowName = name;
 				continue;
 			}
-			if (name == null || elementName != wanted) continue;
+			if (name == null && (count == 0 || rowName == null || lists.Count >= count)) continue;
+			if (elementName != wanted) continue;
 
 			SIDropdown dropdown = null;
 			try { dropdown = element.TryCast<SIDropdown>(); } catch { }
@@ -59,9 +73,17 @@ internal static class NamedRows
 			var choices = new List<string>();
 			var list = dropdown.m_choices;
 			for (var i = 0; i < (list?.Count ?? 0); i++) choices.Add($"\"{Report.Escape(Buttons.ChoiceText(list[i]) ?? "")}\"");
-			rows.Add($"{{\"Name\": \"{Report.Escape(name)}\", \"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", \"Choices\": [{string.Join(", ", choices)}]}}");
+			var control = $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", \"Choices\": [{string.Join(", ", choices)}]";
+			if (count > 0)
+			{
+				if (lists.Count < count) lists.Add("{" + control + "}");
+				name = null;
+				continue;
+			}
+			rows.Add($"{{\"Name\": \"{Report.Escape(name)}\", {control}}}");
 			name = null;
 		}
+		Flush();
 		return "[" + string.Join(", ", rows) + "]\n";
 	}
 }

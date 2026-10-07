@@ -82,6 +82,9 @@ internal static class Mcp
 		new("fm_tactic_instructions", "The team instructions in possession, phase by phase (Overview, Final Third, Progression, Buildup), or with `name` and `value` changes one. A name in two phases is given as 'Final Third/Dribbling'; leaving `value` out lists its choices. Final Third and Progression Dribbling are one setting in the game.",
 			"""{"type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}}}""",
 			a => ["tactic", "instructions", .. (Str(a, "name") is { Length: > 0 } n ? new[] { n } : []), .. (Str(a, "value") is { Length: > 0 } v ? new[] { v } : [])]),
+		new("fm_training", "Individual training: per player the position or role trained, a role out of possession and an extra focus. Without `player` lists everyone. With `player`, `focus` (e.g. 'Endurance', 'None'), `position` and `role` change his; position and role are submenus given as a path, e.g. 'Midfielder (Centre)>Central Midfielder' (a submenu name alone lists its choices).",
+			"""{"type":"object","properties":{"player":{"type":"string"},"focus":{"type":"string"},"position":{"type":"string"},"role":{"type":"string"}}}""",
+			a => ["training", .. (Str(a, "player") is { Length: > 0 } p ? new[] { p } : []), .. Opt2(a, "focus", "--focus"), .. Opt2(a, "position", "--position"), .. Opt2(a, "role", "--role")]),
 		new("fm_intensity", "Training intensity per player. Without arguments lists every player's. `player` with `level` sets one: automatic, half, normal, double, 'rest 3' (no pitch or gym work for 3 days; 7 or 14 for a week or two) or 'holiday 1' (weeks). auto=true leaves all of them to the head of fitness.",
 			"""{"type":"object","properties":{"player":{"type":"string"},"level":{"type":"string"},"auto":{"type":"boolean"}}}""",
 			a => ["intensity", .. Flag(a, "auto", "--auto"), .. (Str(a, "player") is { Length: > 0 } p ? new[] { p } : []), .. (Str(a, "level") is { Length: > 0 } l ? new[] { l } : [])]),
@@ -258,4 +261,7 @@ internal static class Mcp
 		var items = value.ValueKind == JsonValueKind.Array ? value.EnumerateArray().Select(v => v.GetString() ?? "") : [value.GetString() ?? ""];
 		return items.Where(i => i.Length > 0).SelectMany(i => new[] { flag, i }).ToArray();
 	}
+
+	/// <summary>An argument as an option with its value: focus → --focus <value>.</summary>
+	private static string[] Opt2(JsonElement a, string name, string flag) => Str(a, name) is { Length: > 0 } v ? [flag, v] : [];
 }
