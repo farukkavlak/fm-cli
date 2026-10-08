@@ -66,6 +66,7 @@ internal static class FmApi
 		"texts" => Texts.Around(q),
 		"form" => Form.Read(q),
 		"setcontrol" => Form.Set(q),
+		"scoped" => Scoped.Handle(q),
 		"opposition" => Opposition.Current(),
 		"namedrows" => NamedRows.Read(q),
 		"talk" => Talk.Current(),

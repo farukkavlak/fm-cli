@@ -2628,6 +2628,21 @@ aynı olunca alınıyor. Sayfa en son kariyer sekmesinde bırakıldıysa döşem
 
 `fm player <isim> --career`: Kerem, Talisca, Škriniar, Ederson (kaleci), Osimhen (kadro dışı).
 
+## 8.64 Topsuz takım talimatları: bir deneme daha (9 Ekim gecesi, açık)
+
+Taktik sayfasının kökündeki `BindingSetter #InPossessionSetter` kendi kapsamında `inpossession`
+diye bir değişken tutuyor (`True`). Rol menüleri (`TacticRoleMenuShowEvent`,
+`m_inPossessionBindingPath`) ve tavsiye listesi (`AdviceOptionsSelectionEvent`) bunu okuyor.
+Değişkeni yazmak için köprüye `/scoped?ptr=<BindingSetter>&path=<ad>[&from=<yol>]` eklendi:
+setter'ın `Key`'i ile yolun anahtarını hesaplayıp (`PathKey.Of(root, path)`) `from`'daki değeri
+(`const.False` / `const.True`) oraya yazıyor — SetDatastoreValue'nun yaptığı gibi. Yazma işledi
+(`True -> False`), ama talimat görünümü topla oynarken talimatlarını göstermeye devam etti,
+"Team Instructions" yeniden açılınca da. Talimat hücreleri `data.TacticTeamInstruction`
+kayıtlarına bağlı; taktikte `InPossessionInstructionList` ve `OutOfPossessionInstructionList`
+var ama `Human.Team.Tactic` altında değer yok (planlayıcının taktiği başka bir yolda, `/tactic`
+onu ağacı gezerek buluyor). Değişken geri `True` yapıldı. Sıradaki deneme: planlayıcının tactic
+düğümünün yolunu bulup `OutOfPossessionInstructionList`'i oradan okumak.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
