@@ -2599,7 +2599,11 @@ position") "Do it" baştan kapalı; maç başında bir de "No Dugout Events" yer
 büyük olasılıkla değişikliği yapıyor), denenemeden çizelgeden düştü. Çizelge hızla kayıyor:
 numara iki komut arasında değişebiliyor (terminalde listeden seçmek bu yüzden daha sağlam).
 
-Maç: Fenerbahçe 0-0 Göztepe. Aynı maçta `fm sub`'ın kulübeyi boş gösterdiği görüldü: kalecinin
+**Saat donabiliyor.** Konyaspor maçında korner sonrası `MatchTime` 45 sn'den uzun 17:57'de kaldı,
+anlatım akmaya devam etti; `fm match` "maç durdu, karar bekliyor" deyip çıktı, oyun ise devre arasına
+kadar kendi gitti. Artık anlatım değişiyorsa maç sürüyor sayılıyor.
+
+Maç: Fenerbahçe 0-0 Göztepe; Fenerbahçe 1-0 Konyaspor (Kerem 18'). Göztepe maçında `fm sub`'ın kulübeyi boş gösterdiği görüldü: kalecinin
 menüsünde kulübe alt menüsü gelmiyor; artık kulübe dolu olan ilk menüden okunuyor.
 
 `fm dugout` (liste, `<no> uygula | kaldır`), maç sırasında `fm tactic role <oyuncu> [<rol>]

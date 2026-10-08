@@ -112,6 +112,7 @@ internal static partial class Program
 				if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(minute),6}[/]  {Ui.Safe(said)}");
 				else Console.WriteLine($"  {minute,6}  {said}");
 			}
+			var talking = said.Length > 0 && said != commentary;
 			commentary = said;
 
 			// A dialog holds everything up and nothing else says it is there. The one asking
@@ -205,8 +206,10 @@ internal static partial class Program
 			// With the ball in play the clock moves. One that has stood still this long, with no
 			// Continue to press, means the game has stopped for a decision of its own accord —
 			// an injury opens the tactics screen and waits for a substitution.
+			// The clock can also hang on a minute while play goes on (seen after a corner, for
+			// most of a minute); commentary still coming means the match is still going.
 			var time = Field(state, "MatchTime");
-			if (time != clock || button != null || Field(state, "Period") is not ("FirstHalf" or "SecondHalf" or "ExtraTime"))
+			if (time != clock || talking || button != null || Field(state, "Period") is not ("FirstHalf" or "SecondHalf" or "ExtraTime"))
 			{
 				clock = time;
 				clockAt = DateTime.UtcNow;
@@ -473,6 +476,19 @@ internal static partial class Program
 			return 0;
 		}
 
+		// At a terminal the eleven are drawn where they play before anything is asked.
+		if (words.Count == 0 && Ui.Rich && await MatchPositions() is { Count: > 0 } positions && positions.Count == menus.Count)
+		{
+			DrawMatchPitch(positions, menus);
+			Console.WriteLine($"Kulübe: {string.Join(", ", bench.Select(b => b.Split(" - ")[0]))}");
+			if (!Ui.Interactive)
+			{
+				Console.WriteLine("\nDeğiştirmek için: sub <çıkan> <giren>");
+				return 0;
+			}
+			Console.WriteLine();
+		}
+
 		// At a terminal whoever is missing is asked for: first who goes off, then who of
 		// those allowed to replace him comes on.
 		if (words.Count < 2 && Ui.Interactive)
@@ -492,15 +508,6 @@ internal static partial class Program
 			var allowed = Bench(menus[onPitch.IndexOf(named)]);
 			if (Ui.Ask($"{named} yerine kim girsin?", allowed) is not { } comingOn) return 0;
 			words.Add(allowed[comingOn]);
-		}
-
-		// At a terminal the eleven stand where they play.
-		if (words.Count < 2 && Ui.Rich && await MatchPositions() is { Count: > 0 } positions && positions.Count == menus.Count)
-		{
-			DrawMatchPitch(positions, menus);
-			Console.WriteLine($"Kulübe: {string.Join(", ", bench.Select(b => b.Split(" - ")[0]))}");
-			Console.WriteLine("\nDeğiştirmek için: sub <çıkan> <giren>");
-			return 0;
 		}
 
 		if (words.Count < 2)
