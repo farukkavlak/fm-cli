@@ -311,7 +311,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ## 9. Finans
 
-- [ ] Bütçe durumu
+- [x] Bütçe durumu — `fm budget`; transfer ↔ maaş dağılımı `fm budget ayarla` (§8.65)
 - [ ] Gelir/gider dökümü (`ExpenditureBreakdown*` binding'leri mevcut)
 - [ ] Maaş bordrosu
 - [ ] Sponsorluklar
@@ -465,6 +465,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Bütçe** (FINDINGS §8.65): `fm budget` transfer / maaş / scouting bütçesi; `budget ayarla`
+  kurulun kaydırıcısının 16 adımını rakamlarıyla listeler, seçileni uygular. Denendi, geri alındı.
+- Maç hazırlığını değiştirmek: kartta kontrol yok (antrenman takviminden geliyor olabilir), açık.
+  Topsuz takım talimatları: `/scoped` ile sayfa değişkeni yazıldı ama görünüm değişmedi (§8.64), açık.
 - **Oyuncu kariyeri** (FINDINGS §8.63): `fm player <isim> --career` sezon sezon kulüp, geliş
   (bonservis / kiralık / bedelsiz), lig, maç, gol, puan ve toplamlar.
 - `fm next` her iki basıştan birini oyun yutuyordu; artık boşa giden basışta bir kez daha basıyor.

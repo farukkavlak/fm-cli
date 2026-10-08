@@ -53,6 +53,7 @@ internal static partial class Program
 				"prep" => await Prep(),
 				"settings" => await SettingsCommand(args),
 				"dugout" => await Dugout(json, args),
+				"budget" => await Budget(json, args),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
@@ -954,6 +955,7 @@ internal static partial class Program
 			    --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
 			  training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role
 			  prep            maç hazırlığı antrenmanı: taktik ve duran top odakları
+			  budget          transfer, maaş ve scouting bütçesi;  budget ayarla [<adım>]: transfer ↔ maaş dağılımı
 			  settings        oyun ayarları: maç gösterimi ve hızı, otomatik kayıt, dil, para birimi, birimler
 			  settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
 			  happiness       oyuncuların mutluluğu, en mutsuz önce

@@ -2647,6 +2647,22 @@ var ama `Human.Team.Tactic` altında değer yok (planlayıcının taktiği başk
 onu ağacı gezerek buluyor). Değişken geri `True` yapıldı. Sıradaki deneme: planlayıcının tactic
 düğümünün yolunu bulup `OutOfPossessionInstructionList`'i oradan okumak.
 
+## 8.65 Bütçeler ve transfer ↔ maaş kaydırıcısı (9 Ekim gecesi)
+
+Recruitment › Recruitment Budgets: döşemeler düz metin — "Transfer Budget" (Current, Spent this
+season, Original Budget), "Wage Budget" (Available, "Currently spending …"), "Scouting".
+"Adjust Transfer and Wage Budget" bir konuşma seçeneği (`SpeakToAction`); basınca "Budget
+Adjustment" kartı açılıyor: kurulun cümlesi ("The board will not allow you to increase the transfer
+budget as there is not enough excess wage budget to compensate."), maaş ve transfer bütçesi,
+**`SISlider` 0–15** (bu kayıtta 15 = transfer en yüksek), "Cancel" / "Got It". `/setcontrol` ile
+adım değişince rakamlar bir iki kare sonra güncelleniyor ve yürürlükteki adımdan farklıysa
+sonlarına `*` konuyor (bayat okumayı bu yıldızla ayırmak gerekti: bir okumada 13. adım 12'ninki
+geldi). Adımlar doğrusal: her adım transferden ~£738K alıp maaşa haftalık ~£14.2K ekliyor; 0'da
+transfer £40, maaş £2.34M p/w. Kart sayfada iki kopya (aynı değere bağlı).
+
+Denendi: 14. adım "Got It" → sayfa transfer £10.33M, boşta maaş £36K p/w; 15'e geri → £11.07M,
+£22K. Liste üç kez okundu, 16 farklı adım. `fm budget`, `fm budget ayarla [<adım>]`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

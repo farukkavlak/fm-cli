@@ -448,6 +448,23 @@ Değeri olmayan bir ad (`--term "Will appoint player as captain"`) vaadi ya da m
 uygulanır. Menajere sormadan görüşmeye girmek oyunda oyuncuyu ve menajeri üzebilir; oyun bunu
 sorar, `contract` da terminalde sorar. İptal edilen görüşme bir süre yeniden açılamayabilir.
 
+### Bütçe — `budget`
+
+```
+$ fm budget
+Transfer bütçesi: £11.07M (bu sezon harcanan £4.9M, başta £11.25M)
+Maaş bütçesi: £22K p/w boşta · ödenen £2.1M p/w
+Scouting bütçesi: £360K
+```
+
+`budget ayarla` kurulun transfer ↔ maaş kaydırıcısını açar ve her adımı rakamıyla listeler;
+terminalde okla seçersin, script'te `budget ayarla <adım>`. Seçmezsen hiçbir şey değişmez.
+
+```
+  14  Transfer £10,336,378    · Maaş £2,142,221 p/w
+  15  Transfer £11,074,688    · Maaş £2,128,023 p/w  ← şu an
+```
+
 ## 11. Kaydetmek ve oyun ayarları — `save`, `settings`
 
 `fm save --yes` oyunu kaydeder. Mevcut kaydın üzerine yazar, o yüzden `--yes` ister.
