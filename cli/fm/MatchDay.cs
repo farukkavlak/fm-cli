@@ -249,7 +249,11 @@ internal static partial class Program
 			Console.WriteLine();
 			try { await MatchReport.Show(Fm, json: false); } catch (FmError) { }
 		}
-		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);
+		// What holds the game up after the whistle is read afresh: usually the press conference.
+		var after = await Fm.GetJson("state");
+		var flowAfter = Field(after, "State");
+		if (flowAfter == "CanContinue" && (await Bound("inbox", "PortalScreen")).EnumerateArray().Any(Blocking)) flowAfter = "NeedAction";
+		if (flowAfter.Length > 0 && !Passable(flowAfter)) await Explain(after, Console.Out, flowAfter);
 		return 0;
 	}
 
