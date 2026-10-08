@@ -2663,6 +2663,27 @@ transfer £40, maaş £2.34M p/w. Kart sayfada iki kopya (aynı değere bağlı)
 Denendi: 14. adım "Got It" → sayfa transfer £10.33M, boşta maaş £36K p/w; 15'e geri → £11.07M,
 £22K. Liste üç kez okundu, 16 farklı adım. `fm budget`, `fm budget ayarla [<adım>]`.
 
+## 8.66 Takvim ve sezonun bütün fikstürü (9 Ekim gecesi)
+
+Match Day › Fixture Schedule yalnızca ~10 maçlık bir liste (kaydırınca da 10; `/scroll` eklendi:
+metnin içinde durduğu listeyi bulup `to=0..1` kaydırıyor). Sezonun tamamı **Portal › Calendar**'da:
+`MonthDropdown` (Haziran 2025 … Temmuz 2026) bir ayı ızgara olarak çiziyor; `/texts?anchor=<Ay
+Yıl>&up=14` hafta günü başlıklarından sonra gün gün okuyor. ⚠ Bu ay seçici sayfa kapandıktan
+sonra da arka planda yüklü kalabiliyor; Fixture Schedule açıkken görülüp sanki onunmuş gibi
+yanıltmıştı.
+
+Bir gün: "28 Jul" (ay başında ayın adıyla) ya da "29"; sonra "Training", maç ("Match",
+turnuva, saat ya da skor, rakip, lig sırası "7th" yalnızca ligde, H/A/N), altyapı maçı (kısa kod
+"U19" ya da hazırlık için "FR", "KNY U19s", H/A, saat/skor), ve notlar ("Transfer window opens",
+"Transfer window closes (midnight)", "Turkish Super Cup Final", "Fenerbahçe enter Turkish Super
+Cup", milli maçlar "Bulgaria", "v", "Türkiye"). Skor **ev–deplasman** yazılıyor ("2-4" deplasmanda
+4-2 galibiyet), penaltıyla biten "1-1p". Izgara birkaç karede çiziliyor (bir okumada U19 satırı
+yarım geldi): iki ardışık okuma aynı olunca alınıyor; sayfa açılır açılmaz seçilen ay bazen
+tutmuyor, bir kez daha seçiliyor.
+
+`fm calendar [ay]` (Türkçe/İngilizce ay adı, numara, "2025-09"; `--u19`), `fm fixtures --all`
+(14 ay, ~14 sn): 44 maç, hazırlık maçlarından 17 Mayıs'taki son lig maçına.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

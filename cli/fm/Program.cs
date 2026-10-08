@@ -54,9 +54,10 @@ internal static partial class Program
 				"settings" => await SettingsCommand(args),
 				"dugout" => await Dugout(json, args),
 				"budget" => await Budget(json, args),
+				"calendar" => await CalendarCommand(json, args),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
-				"fixtures" => await Fixtures(json),
+				"fixtures" => await Fixtures(json, args.Contains("--all")),
 				"report" => await MatchReport.Show(Fm, json),
 				"inbox" => await Inbox(json),
 				"reply" => await Reply(args),
@@ -928,7 +929,8 @@ internal static partial class Program
 			    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)
 			    --views / --view "<x>"       kolonları belirleyen görünümler
 			  table           lig tablosu
-			  fixtures        sıradaki maçlar
+			  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
+			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
 			  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
 			  inbox           gelen kutusu
 			  reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir

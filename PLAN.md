@@ -251,7 +251,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Serbest oyuncular
 - [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
 - [k] Menajerle görüşme — `PersonAskAgentAboutClientContractRenewal`
-- [k] Transfer bütçesi ↔ maaş bütçesi — `ClubBudgetAdjustmentTransfers` / `Wages`, `ClubRequestIncreaseBudgets`
+- [x] Transfer bütçesi ↔ maaş bütçesi — `fm budget ayarla` (§8.65); bütçe artışı istemek yok
 - [~] Takas teklifi — kartta "+ Takasa oyuncu ekle", transfer ya da kiralık (§8.45); takaslı
       teklif gönderilip cevabı görülmedi
 - [x] Transfer dönemi durumu / kalan gün — `fm status` (§8.55)
@@ -299,12 +299,12 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ## 8. Lig, kupa, takvim
 
 - [x] Lig tablosu — `fm table` (§8.37); puanlı tabloda denenmedi
-- [~] Fikstür — `fm fixtures` son oynanan ve sıradaki maçları, sonucuyla veriyor (§8.37); tam liste yok
+- [x] Fikstür — `fm fixtures` son ve sıradaki maçlar; `fm fixtures --all` sezonun tamamı (§8.66)
 - [ ] Başka ligler / ülkeler
 - [ ] Kupa ağaçları
 - [ ] Avrupa kupaları
 - [ ] Gol krallığı / asist / form tablosu
-- [~] Takvim — `fm status` ve `fm fixtures` sıradaki maçı veriyor; önemli tarihler (transfer dönemi, kayıt) yok
+- [x] Takvim — `fm calendar [ay]`: maçlar, transfer dönemi açılış / kapanış, kupa kuraları, milli maçlar (§8.66)
 - [ ] Sezon özeti / ödüller
 
 ---
@@ -465,6 +465,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Takvim** (FINDINGS §8.66): `fm calendar [ay]` gün gün maçlar ve önemli tarihler; `fm fixtures
+  --all` sezonun bütün fikstürü, sonuçlar bizim açımızdan ve renkli.
 - **Bütçe** (FINDINGS §8.65): `fm budget` transfer / maaş / scouting bütçesi; `budget ayarla`
   kurulun kaydırıcısının 16 adımını rakamlarıyla listeler, seçileni uygular. Denendi, geri alındı.
 - Maç hazırlığını değiştirmek: kartta kontrol yok (antrenman takviminden geliyor olabilir), açık.

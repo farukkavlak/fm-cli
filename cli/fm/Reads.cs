@@ -674,9 +674,10 @@ internal static partial class Program
 		return null;
 	}
 
-	private static async Task<int> Fixtures(bool json)
+	private static async Task<int> Fixtures(bool json, bool all = false)
 	{
 		if (await NotNow() is { } refused) return refused;
+		if (all) return await AllFixtures(json);
 
 		var fixtures = await Shown("fixtures", "Overview", "Portal");
 		if (json)
@@ -713,5 +714,52 @@ internal static partial class Program
 			DateTime.TryParseExact(date, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var day)
 				? $"{day.Day} {Months[day.Month - 1][..3]} {ShortDays[(int)day.DayOfWeek]}"
 				: date;
+	}
+
+	/// <summary>
+	/// The whole season's fixtures, gathered month by month from the calendar (FINDINGS §8.66):
+	/// date, competition, venue, opponent and his league place, kick-off or our score.
+	/// </summary>
+	private static async Task<int> AllFixtures(bool json)
+	{
+		if (await CalendarMonths() is not var (months, showing)) return 1;
+		var matches = new List<CalendarMatch>();
+		foreach (var month in months)
+		{
+			var days = await CalendarMonth(month);
+			if (days == null) continue;
+			foreach (var m in days.SelectMany(d => d.Matches))
+				if (!matches.Any(x => x.Day == m.Day && x.Opponent == m.Opponent)) matches.Add(m);
+		}
+		if (showing.Length > 0) await Fm.Get("select", ("name", "MonthDropdown"), ("choice", showing));
+		matches = matches.OrderBy(m => m.Day).ToList();
+		if (matches.Count == 0)
+		{
+			Console.Error.WriteLine("Takvimde maç bulunamadı.");
+			return 1;
+		}
+
+		if (json)
+		{
+			Console.WriteLine(JsonSerializer.Serialize(matches));
+			return 0;
+		}
+
+		var played = new System.Text.RegularExpressions.Regex(@"^\d+-\d+[pe]?$");
+		var rows = matches.Select(m => new[]
+		{
+			$"{m.Day.Day} {Months[m.Day.Month - 1][..3]} {ShortDays[(int)m.Day.DayOfWeek]}",
+			played.IsMatch(m.TimeOrScore) ? "" : m.TimeOrScore,
+			m.Venue switch { "H" => "İç saha", "A" => "Deplasman", "N" => "Tarafsız", _ => "" },
+			m.Opponent + (m.Place.Length > 0 ? $" ({m.Place})" : ""),
+			m.Competition,
+			played.IsMatch(m.TimeOrScore) ? Ours(m).Replace("-", " - ") : "",
+		}).ToList();
+		// The game's own result marks, as `fixtures` colours them: 1 a win, 10 a defeat.
+		var kinds = matches.Select(m => !played.IsMatch(m.TimeOrScore) ? "" : MatchOutcome(m) switch { > 0 => "1", < 0 => "10", _ => "" }).ToList();
+		string[] headers = ["TARİH", "SAAT", "YER", "RAKİP", "TURNUVA", "SONUÇ"];
+		if (Ui.Rich) Standings.Fixtures(headers, rows, kinds);
+		else Table.Write(headers, rows);
+		return 0;
 	}
 }

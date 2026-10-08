@@ -64,6 +64,7 @@ internal static class FmApi
 		"instructions" => Instructions.Current(),
 		"tiles" => Instructions.Tiles(),
 		"texts" => Texts.Around(q),
+		"scroll" => Texts.Scroll(q),
 		"form" => Form.Read(q),
 		"setcontrol" => Form.Set(q),
 		"scoped" => Scoped.Handle(q),

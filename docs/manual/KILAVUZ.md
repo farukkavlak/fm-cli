@@ -317,6 +317,19 @@ Soldaki renkli şeritler bölgeleri gösterir (üstte Avrupa, altta küme düşm
 
 Oynanmış maçlar beyaz ve sonuçlu, oynanacaklar soluk.
 
+`fixtures --all` sezonun bütün fikstürünü verir (takvimden ay ay toplar, ~15 sn). `calendar [ay]`
+bir ayı gün gün gösterir: maçlar, transfer döneminin açılıp kapandığı gün, kupa kuraları, milli
+maçlar; `--u19` altyapı maçlarını da ekler.
+
+```
+$ fm calendar eylül
+Eylül 2025
+   5 Cum  World Cup Quals (EUR) · Bulgaria v Türkiye
+  13 Cmt  Başakşehir FK (6th) · iç saha · Super League · 16:00
+          Transfer window closes (midnight) · Super League
+  20 Cmt  Gençlerbirliği (18th) · deplasman · Super League · 18:00
+```
+
 ## 10. Transfer ve sözleşme — `players`, `offer`, `contract`
 
 `fm players` oyunun oyuncu veritabanını listeler: `--filter "<x>"` hazır süzgeçlerden birini
