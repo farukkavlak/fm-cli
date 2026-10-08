@@ -2610,6 +2610,12 @@ kadar kendi gitti. Artık anlatım değişiyorsa maç sürüyor sayılıyor.
 Maç: Fenerbahçe 0-0 Göztepe; Fenerbahçe 1-0 Konyaspor (Kerem 18'). Göztepe maçında `fm sub`'ın kulübeyi boş gösterdiği görüldü: kalecinin
 menüsünde kulübe alt menüsü gelmiyor; artık kulübe dolu olan ilk menüden okunuyor.
 
+**Saha.** Maç ekranında her oyuncu menüsünden önce mevkisini yazan bir buton var ("GK", "D (R)",
+"D (C)", "DM", "M (C)", "AM (L)", "ST (C)"; `OpenDescendantDropdown`), menülerle aynı sırada. Her
+hat **sağdan sola** listeleniyor (DR, DCR, DCL, DL): ilk çizimde stoperler ve merkez orta sahalar
+ters düşmüştü. `fm sub` terminalde on biri bu mevkilere göre sahaya çiziyor (Kasımpaşa maçında
+denendi, `ptyout.py` ile stdin kapalı sahte terminalde).
+
 `fm dugout` (liste, `<no> uygula | kaldır`), maç sırasında `fm tactic role <oyuncu> [<rol>]
 [--oop]`, `fm match --play` akışında yeni tavsiye "Yardımcı: …" satırı.
 

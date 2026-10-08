@@ -394,9 +394,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       seçimi mevcut komutların çıktısına ekliyor, script/MCP düz çıktıyı koruyor (`Ui.Rich`)
 - [x] **Saha çizimi** — `fm tactic` iki sahayı yan yana çiziyor (dar terminalde alt alta)
 - [x] Değişiklik sahada görünsün — `tactic role` / `player` / `pick` sonrası değişen mevki sarı
-- [~] Maç ekranı — anlatım satırları, takım adlarıyla skor, maç öncesi kadro sahada, izle /
-      anında sonuç seçimi, konuşmada söz seçimi, maç sonu raporu (`fm report`). Kalan: sahadaki on
-      bir ve kulübe aynı ekranda, `fm sub` buradan
+- [x] Maç ekranı — anlatım satırları, takım adlarıyla skor, maç öncesi kadro sahada, izle /
+      anında sonuç seçimi, konuşmada söz seçimi, maç sonu raporu (`fm report`), yardımcının
+      tavsiyeleri akışta; maç sırasında `fm sub` on biri sahada çizip kulübeyi altında veriyor
 - [x] Seçim istemleri — reply, talk, dialog, sub, tactic new/mentality/style/role/player,
       setpieces new, match okla soruyor; script'te düz çıktı
 - [~] Konuşma ekranı — `talk` konuşmayı baştan sona okla yürütüyor (basın toplantısı, takım

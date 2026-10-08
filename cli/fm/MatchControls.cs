@@ -325,11 +325,12 @@ internal static partial class Program
 			placed.Add((line, lane, rows[0], rows.Count > 2 ? rows[2] : ""));
 		}
 
-		// Central players share the middle three lanes, in the order the screen lists them.
+		// Central players share the middle three lanes. The screen lists each line from the
+		// right (DR, DCR, DCL, DL), so the first of them stands furthest right.
 		foreach (var line in placed.Select(p => p.Line).Distinct().ToList())
 		{
 			var centre = placed.Select((p, i) => (p, i)).Where(x => x.p.Line == line && x.p.Lane < 0).Select(x => x.i).ToList();
-			int[] lanes = centre.Count switch { 1 => [2], 2 => [1, 3], 3 => [1, 2, 3], _ => Enumerable.Range(0, centre.Count).Select(k => Math.Min(4, k)).ToArray() };
+			int[] lanes = centre.Count switch { 1 => [2], 2 => [3, 1], 3 => [3, 2, 1], _ => Enumerable.Range(0, centre.Count).Select(k => Math.Max(0, 4 - k)).ToArray() };
 			for (var k = 0; k < centre.Count; k++) placed[centre[k]] = placed[centre[k]] with { Lane = lanes[k] };
 		}
 
