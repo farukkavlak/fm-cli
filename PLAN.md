@@ -239,7 +239,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Oyuncu ara — `fm players [--filter "<hazır süzgeç>"] [--view "<görünüm>"]`: veritabanının
       ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); isimle arama ve kaydırma yok
 - [x] Teklif ver — `fm offer`: kart, şart düzenleme, pazarlık kilitleri, karşı teklif (§8.42)
-- [k] Gelen teklife yanıt — `EventFmxTransferOfferResponse`
+- [x] Gelen teklife yanıt — mesajda `reply <#> Accept | Reject`; "View Offer" sonrası `fm offer` (argümansız) kartı gösteriyor (§8.67)
 - [x] Sözleşme görüşmesi — `fm contract [oyuncu]`: kart, vaatler, şartlar, kilitler, menajerin
       karşı teklifi, iptal; kendi oyuncumuzla yenileme (§8.44)
 - [x] Sözleşme maddeleri ve primleri — kartta ekle / kaldır / değiştir, kupa ve ödül primleri dahil (§8.45)
@@ -465,6 +465,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Gelen teklif** (FINDINGS §8.67): Kocaelispor'un Levent Mercan için £1.4M teklifi; `fm offer` açık kartı
+  gösterdi, teklif reddedildi (oyuncu da ilgilenmiyordu). `fm status` / `fm next` maç sonu açık soruyu söylüyor.
+  Avrupa Ligi kadro listesi yardımcının seçimiyle gönderildi (`register --send`).
 - **Takvim** (FINDINGS §8.66): `fm calendar [ay]` gün gün maçlar ve önemli tarihler; `fm fixtures
   --all` sezonun bütün fikstürü, sonuçlar bizim açımızdan ve renkli.
 - **Bütçe** (FINDINGS §8.65): `fm budget` transfer / maaş / scouting bütçesi; `budget ayarla`

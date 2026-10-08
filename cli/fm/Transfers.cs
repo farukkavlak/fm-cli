@@ -17,6 +17,16 @@ internal static partial class Program
 		var dry = args.Contains("--dry");
 		if (words.Count == 0)
 		{
+			// An offer already on screen — one of ours, or another club's for one of our players
+			// opened from its message with "View Offer" — is shown as it stands.
+			if (await Fm.InGame() && await OfferScreen.Read(Fm) is { } shown)
+			{
+				shown.Draw();
+				var answers = await TalkOptions();
+				if (answers.Count > 0) Console.WriteLine($"\nEkrandaki seçenekler: {string.Join(" · ", answers.Select(a => a.Label))}  (talk <no>)");
+				Console.WriteLine("Gelen teklifi reddetmek ya da kabul etmek: teklifin mesajına reply <#> Reject | Accept");
+				return 0;
+			}
 			Console.Error.WriteLine("kullanım: offer <oyuncu> [bonservis, ör. 7.5M | 750K] [--term \"Şart=değer\"]… [--loan] [--dry] [--yes]");
 			return 64;
 		}

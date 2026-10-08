@@ -2690,6 +2690,19 @@ tutmuyor, bir kez daha seçiliyor.
 `fm calendar [ay]` (Türkçe/İngilizce ay adı, numara, "2025-09"; `--u19`), `fm fixtures --all`
 (14 ay, ~14 sn): 44 maç, hazırlık maçlarından 17 Mayıs'taki son lig maçına.
 
+## 8.67 Gelen transfer teklifi (9 Ekim gecesi, 7 Eylül 2025 oyun içi)
+
+Mesaj: "Kocaelispor make Levent offer" — Accept, Reject, View Offer, Delegate. "View Offer" teklif
+ekranını açıyor ve bu ekran bizim teklif kartımızla aynı yapıda: `/offer` kulüp, oyuncu, bütçe
+maliyeti, şartlar (bonservis £775K, iki taksit £625K, 20 maç sonrası £155K, sonraki satıştan %20)
+okunuyor; kontroller `Enabled = False` (karşı tarafın teklifi). Ekranda tek konuşma seçeneği
+"Accept Offer". Reddetmek mesajdan: `reply <#> Reject` (konuşma açıkken de mesaj cevaplanabildi).
+`fm offer` artık argümansız çağrılınca ekrandaki teklifi çiziyor.
+
+Maç sonrası "Match Reaction" sorusu: oyun `CanContinue` derken bir konuşma (soru + cevaplar) açık
+kalıyor; Continue onu `EventFmxPressConferenceEarlyExit` ile geçiyor. `fm status` artık soruyu
+söylüyor, `fm next` duruyor (`--skip` ile geçer).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
