@@ -916,6 +916,7 @@ internal static partial class Program
 			    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
 			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla bulur)
 			    --actions     oyuncu için yapılabilecekler: teklif, kısa liste, scout, menajer…
+			    --career      sezon sezon kariyeri: kulüp, geliş (bonservis / kiralık), maç, gol, puan
 			  search <metin>  oyunun aramasında bul: oyuncu, kulüp, turnuva…
 			  offer <oyuncu> [bonservis]  transfer teklifi: kart olarak gösterir, terminalde okla düzenletir
 			    --term "<şart>=<değer>"   bir şartı koy ya da değiştir (ör. "Percentage Of Next Sale=20%",

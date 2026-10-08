@@ -2611,6 +2611,23 @@ menüsünde kulübe alt menüsü gelmiyor; artık kulübe dolu olan ilk menüden
 
 Maç: Fenerbahçe 1-1 Feyenoord (Talisca pen. 79'); ilk maç 0-1, toplam 1-2.
 
+## 8.63 Oyuncunun kariyeri (9 Ekim gecesi)
+
+Oyuncu sayfasındaki "Career Stats" döşemesi (`layout-tile-interaction-button`) sezon sezon tabloyu
+açıyor; `/texts?anchor=Total Apps&up=16` düz metin olarak veriyor: başlık (Sel., Year, Team, Info,
+Nation, Division, Total Apps, Goals | kalecide Cln Sh, Ast, PoM, Avg Rat), sonra satırlar, sonra
+"Total" ve toplamlar (ödenen bonservislerin toplamı, maç, gol, asist, PoM, puan).
+
+Satır uzunluğu değişken: "Info" yalnızca o kulübe gelişte dolu (£19.5M, Loan, Free, Undisc.).
+Sabit olan son yedi hücre (ülke, lig, maç, gol, asist, PoM, puan); baştan yıl ve kulüp; arada
+kalan geliş. Yıl "2025/26" ya da takvim yılı ligleri için "2020". ⚠ Bazı oyuncularda "Total"
+etiketi genişliksiz çiziliyor ve `/texts`'te çıkmıyor; o zaman toplamlar son beş sayı (önlerinde
+para birimiyle başlayan bonservis toplamı). ⚠ Sayfa açılır açılmaz döşeme yok, tablo da birkaç
+karede doluyor (ilk okuma bir önceki oyuncunun ya da yarım tabloyu verdi); iki ardışık okuma
+aynı olunca alınıyor. Sayfa en son kariyer sekmesinde bırakıldıysa döşeme yok, tablo zaten orada.
+
+`fm player <isim> --career`: Kerem, Talisca, Škriniar, Ederson (kaleci), Osimhen (kadro dışı).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

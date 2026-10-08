@@ -166,6 +166,22 @@ Oyunun genel araması — oyuncu, teknik adam, kulüp:
 
 ![fm search Arda](img/search.png)
 
+
+`player <isim> --career` sezon sezon kariyeri verir: kulüp, nasıl geldiği (bonservis, kiralık,
+bedelsiz), lig, maç, gol, puan ve en altta toplamlar. Kalecide gol yerine gol yemeden maç.
+
+```
+$ fm player kerem --career
+                          Kerem Aktürkoğlu — kariyer
+│ Sezon   │ Takım          │ Geliş    │ Lig                         │ Maç │ Gol │
+│ 2025/26 │ Fenerbahçe     │ £19.5M   │ Super League (Türkiye)      │   3 │   1 │
+│         │ Benfica        │          │ Premier League (Portugal)   │   0 │   - │
+│ 2024/25 │ Benfica        │ £10.25M  │ Premier League (Portugal)   │  30 │  11 │
+│ 2020/21 │ Galatasaray    │ bedelsiz │ Super League (Türkiye)      │  27 │   6 │
+│ 2016/17 │ Bodrum FK      │ kiralık  │ 3. League Group 2 (Türkiye) │  27 │   4 │
+          Toplam 259 maç · 75 gol · ödenen bonservisler £29.75M
+```
+
 ## 7. Taktik — `tactic`
 
 Taktiği iki saha olarak çizer: topla oynarken ve topsuzken. Her mevkide oyuncu, mevki kısaltması

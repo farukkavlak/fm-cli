@@ -177,7 +177,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Sakatlık durumu — `fm player` sakatlığı, `fm squad --view Injuries` listeyi veriyor; geçmiş yok
 - [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
 - [~] Form — `fm squad --fitness` maç formunu veriyor; maç ratingleri ve sezon istatistikleri yok
-- [ ] Kariyer geçmişi, transfer geçmişi
+- [x] Kariyer geçmişi, transfer geçmişi — `fm player <isim> --career` (§8.63)
 - [ ] Gelişim grafiği / potansiyel
 - [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
 - [~] Oyuncu mutluluk durumu — `fm happiness` (§8.59); şikâyetlerin nedeni yok
@@ -465,6 +465,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Oyuncu kariyeri** (FINDINGS §8.63): `fm player <isim> --career` sezon sezon kulüp, geliş
+  (bonservis / kiralık / bedelsiz), lig, maç, gol, puan ve toplamlar.
+- `fm next` her iki basıştan birini oyun yutuyordu; artık boşa giden basışta bir kez daha basıyor.
 - **Maç ekranı** (FINDINGS §8.62): `fm shout` doğrulandı (oyun listeyi kapatıyor, anlatım
   söylüyor) ve kapalıyken reddediyor; maç içinde `tactic role <oyuncu> [<rol>]`; `fm dugout`
   yardımcının tavsiyeleri (uygula / kaldır); `match --play` tavsiyeleri akışta yazıyor.
