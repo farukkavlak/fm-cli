@@ -2713,6 +2713,9 @@ goller 2', 25', 60', 81'). Sebep `/pull?list=1`: her girdi `fmcli.<liste>.<n>` d
 okuma `?gen=` ile kendi satırlarını açıyor (CLI bir okumanın denemeleri boyunca aynı, okumadan okumaya
 farklı nesil veriyor) ve her kayıt kendi satır yolunu (`Row`) taşıyor; iç içe okuma (golcünün adı)
 oradan yapılıyor. Düzeltmeden sonra rapor 2', 26', 60', 82' verdi, dört okumada aynı.
+`fm squad` (terminal görünümü 30 oyuncuyu bu yolla okuyor) yine ~0,2 sn. ⚠ Bedeli: her okuma
+bağlama ağacına yeni düğümler ekliyor ve hiçbiri silinmiyor; çok uzun bir oturumda ağaç büyür.
+Gerekirse eski nesillerin düğümlerini kaldırmak (ya da satır sayısıyla sınırlı bir halka) eklenebilir.
 
 ## 9. Sıradaki adımlar
 
