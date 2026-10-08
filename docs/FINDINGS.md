@@ -2516,7 +2516,11 @@ Match Day › "Match Preparation Training" bir kart olarak açılıyor (`panel �
 hazırlık (topla: Progression, topsuz: Mid Block) ve duran top hazırlığı (Attacking Free Kicks,
 Defending Corners), her biri bir açıklama cümlesiyle. `/texts` ile okunuyor, `fm prep`.
 Değiştirmek açık: kartta ne `/buttons` ne `/dropdowns` bir kontrol gösteriyor; Match Day
-genel bakıştaki "Tactical Preparation" döşemesi de yeni bir şey açmadı.
+genel bakıştaki "Tactical Preparation" döşemesi de yeni bir şey açmadı. 9 Ekim gecesi `/form` ile
+bakıldı: kartta kutu, kaydırıcı, radyo da yok, yalnızca metin. Hazırlık büyük olasılıkla antrenman
+takviminden (Training › Schedule'daki maç hazırlığı seansları) geliyor; oradan denenecek.
+⚠ Duran top sırası sabit değil: 23 Ağustos'ta önce "Defending Free Kicks" geldi; `fm prep`
+"hücum/savunma"yı artık sıraya göre değil adın başına göre yazıyor.
 
 ## 8.61 Oyun ayarları: Preferences, kaydırıcı ve aç/kapa (8→9 Ekim gecesi)
 

@@ -33,12 +33,17 @@ internal static partial class Program
 		var setPart = Pairs(texts.Skip(setPieces + 1).Take(end - setPieces - 1).ToList()).ToList();
 
 		string[] tacticalNames = ["Topla", "Topsuz"];
-		string[] setNames = ["Duran top (hücum)", "Duran top (savunma)"];
 		Console.WriteLine("Maç hazırlığı");
 		for (var i = 0; i < tacticalPart.Count; i++)
 			Console.WriteLine($"  {(i < 2 ? tacticalNames[i] : "Taktik")}: {tacticalPart[i].Name} — {tacticalPart[i].Means}");
-		for (var i = 0; i < setPart.Count; i++)
-			Console.WriteLine($"  {(i < 2 ? setNames[i] : "Duran top")}: {setPart[i].Name} — {setPart[i].Means}");
+
+		// The set pieces are not in a fixed order; the name says which side of them it is.
+		foreach (var (name, means) in setPart)
+		{
+			var side = name.StartsWith("Defending", StringComparison.Ordinal) ? "Duran top (savunma)"
+				: name.StartsWith("Attacking", StringComparison.Ordinal) ? "Duran top (hücum)" : "Duran top";
+			Console.WriteLine($"  {side}: {name} — {means}");
+		}
 		return 0;
 	}
 }
