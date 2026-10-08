@@ -53,6 +53,16 @@ internal static partial class Program
 				return taken == 0 ? 1 : 0;
 			}
 
+			// A question left open after a match is the manager's to answer; Continue would
+			// walk past it. It is said once and the step left to him, unless told to skip it.
+			if (taken == 0 && !args.Contains("--skip") && (await TalkOptions()).Count > 0)
+			{
+				var asked = (await Fm.GetJson("talk")).TryGetProperty("Says", out var says) ? says.EnumerateArray().Select(x => x.GetString()).LastOrDefault() : null;
+				Console.Error.WriteLine($"Açık bir soru var{(asked != null ? $": \"{asked}\"" : "")}");
+				Console.Error.WriteLine("Cevaplamak için: talk   ·   cevaplamadan geçmek için: next --skip");
+				return 1;
+			}
+
 			var known = inbox.Select(m => Field(m, "UniqueId")).ToHashSet();
 
 			var sent = await Fm.Get("next");
@@ -298,6 +308,15 @@ internal static partial class Program
 			Console.WriteLine($"FM açık, kayıt yüklü. {Pretty(Field(state, "Date"))} {Time(state)}");
 			if (next != null) Console.WriteLine($"Sıradaki maç: {next}");
 			if (window != null) Console.WriteLine($"Transfer: {window}");
+		}
+		// A question put after a match (the reaction, a tunnel interview) waits as a conversation
+		// while the game still calls itself free to go on; going on would pass it by unanswered.
+		if (Passable(flow) && (await TalkOptions()).Count > 0)
+		{
+			var asked = (await Fm.GetJson("talk")).TryGetProperty("Says", out var says) ? says.EnumerateArray().Select(x => x.GetString()).LastOrDefault() : null;
+			Console.WriteLine($"Açık bir soru var{(asked != null ? $": \"{asked}\"" : "")}");
+			Console.WriteLine("Cevaplamak için: talk   (geçmek için: next)");
+			return 0;
 		}
 		if (Passable(flow)) Console.WriteLine("İlerlemeye hazır: next");
 		else await Explain(state, Console.Out, flow);

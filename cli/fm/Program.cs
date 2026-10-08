@@ -936,6 +936,7 @@ internal static partial class Program
 			  reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
+			    --skip        maç sonu açık bir soru varsa cevaplamadan geç
 			  match           maç gününü oyna: terminalde izlemek mi anında sonuç mu diye sorar
 			    --play        maçı izle: anlatım, goller, sonuç; konuşmalarda sözü sorar
 			                  (script'te konuşmada durur: talk <no>, sonra match)
