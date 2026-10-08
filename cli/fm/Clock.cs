@@ -65,6 +65,21 @@ internal static partial class Program
 				return 75;
 			}
 
+			// Every other press after a stop is swallowed: the date, the hour and the state all
+			// stay as they were and the next press goes through. One more press is that next one.
+			if (flow == "CanContinue" && Field(now, "Date") == Field(state, "Date") && Field(now, "Clock") == Field(state, "Clock")
+			    && Field(now, "State") == flow)
+			{
+				sent = await Fm.Get("next");
+				if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
+				if (await Settled(now) is not { } again)
+				{
+					Console.Error.WriteLine("Oyun üç dakikadır işliyor; beklemeyi bıraktım. Durum için: status");
+					return 75;
+				}
+				now = again;
+			}
+
 			var arrived = (await Bound("inbox", "PortalScreen")).EnumerateArray()
 				.Where(m => !known.Contains(Field(m, "UniqueId")))
 				.ToList();
