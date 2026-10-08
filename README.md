@@ -53,60 +53,106 @@ docs/reference/           oyundan çıkarılmış veri modeli ve event kataloğu
 
 ## Komutlar
 
+Tam liste `fm help`; aşağıdaki onun çıktısı. Kullanım örnekleri `docs/manual/KILAVUZ.md`.
+
 ```
 fm start        oyunu başlat, kaydı yükle, oturuma gir
-  --debug       pencereyi gizleme
+  --debug       pencereyi göster (normalde Dock'ta ve ekranda görünmez)
 fm              oturuma gir (oyun açıkken)
 
 continue        açık oyunda son kaydı yükle
-squad           kadro: terminalde kondisyon ve maç formu çubuklu (ekran açmadan)
+squad           kadroyu bas
   --fitness     kondisyon ve maç formu, en yorgun önce
+  --u19         altyapı (U19) kadrosu
   --morale      moral, hiyerarşi ve sosyal grup
-  --views       tablonun bütün görünümleri;  --view "<ad>": o görünümün kolonları
-player <isim>   oyuncu kartı: kimlik, sözleşme, mevki sahası, renkli özellikler (kadro dışıysa aramayla)
-  --actions     teklif, kısa liste, scout, menajer… (terminalde okla seçilir)
-offer <oyuncu> <bonservis>  transfer teklifi (ör. 7.5M);  --loan kiralık, --dry gönderme, --yes script'te
-search <metin>  oyunun araması: oyuncu, kulüp, turnuva
-players         oyuncu veritabanı;  --filter "<x>" hazır süzgeç,  --view "<x>" kolonlar
+  --views       kadro tablosunun bütün görünümlerini listele
+  --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
+player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla bulur)
+  --actions     oyuncu için yapılabilecekler: teklif, kısa liste, scout, menajer…
+  --career      sezon sezon kariyeri: kulüp, geliş (bonservis / kiralık), maç, gol, puan
+search <metin>  oyunun aramasında bul: oyuncu, kulüp, turnuva…
+offer <oyuncu> [bonservis]  transfer teklifi: kart olarak gösterir, terminalde okla düzenletir
+  --term "<şart>=<değer>"   bir şartı koy ya da değiştir (ör. "Percentage Of Next Sale=20%",
+                            "Fee=Non-Negotiable"); --loan kiralık, --dry gönderme
+                geri alınamaz: terminalde sorar, script'te --yes ister
+players         oyuncu veritabanı (ekrandaki satırlar)
+  --filters / --filter "<x>"   hazır süzgeçler: Transfer Listed, Contract Expiring…
+  --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)
+  --views / --view "<x>"       kolonları belirleyen görünümler
 table           lig tablosu
-fixtures        sıradaki maçlar
+fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
+calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
 report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
 inbox           gelen kutusu
-reply <#>       mesajın cevaplarını göster ve okla seçtir
+reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir
 reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
-talk            açık konuşma (toplantı, basın toplantısı, takım konuşması): terminalde baştan sona okla yürür
-talk <no>       söyle;  talk leave: çık
-tour            açık tanıtım turunu yürüt;  --skip: atla
-register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar; terminalde okla ekle/çıkar
-  --in / --out <oyuncu>  listeye koy / çıkar;  --auto yardımcı seçsin;  --send gönder
-next [n]        zamanı ilerlet, oyunun durmasını bekle, ne olduğunu söyle
-match           maç günü: terminalde "izle mi, anında sonuç mu" diye sorar; izlerken kadro sahada,
-                konuşmalarda söz senin, anlatım, skor ve maç sonu raporu
-  --play        izle (script'te konuşmada durur: talk <no>, sonra match);  --no-talk konuşmaları geç
-  --instant     maçı oynatma, yardımcılara bırak (birkaç saniye)
-sub             maç sırasında sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
+next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
+  --skip        maç sonu açık bir soru varsa cevaplamadan geç
+match           maç gününü oyna: terminalde izlemek mi anında sonuç mu diye sorar
+  --play        maçı izle: anlatım, goller, sonuç; konuşmalarda sözü sorar
+                (script'te konuşmada durur: talk <no>, sonra match)
+  --no-talk     konuşmaları geç
+  --instant     maçı oynatma, yardımcılara bırak: oyun birkaç saniyede simüle eder
+shout [<x>]     maç sırasında kenardan bağır (Encourage, Fire Up, Calm Down…)
+sub             maç sırasında: sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
+dugout          maç sırasında yardımcının tavsiyeleri;  dugout <no> uygula | kaldır
 dialog [cevap]  açık onay penceresini göster ya da cevapla
-status          takım, tarih, sıradaki maç, form ve oyunun neyi beklediği
-save --yes      oyunu kaydet (dosyanın üzerine yazar)
+talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin
+talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık
+tour            açık tanıtım turunu sonuna kadar yürüt
+  --skip        turu atla (tur izin veriyorsa)
+contract [oyuncu]  sözleşme görüşmesi kartı: vaatler, sonra şartlar; terminalde okla düzenle
+                oyuncu verilirse (bizim oyuncumuz) yeni sözleşme görüşmesini açar
+  --term "Şart=değer"  bir şartı ayarla / ekle ("Wage=20K", "Appearance Fee=kaldır",
+                "Will appoint player as captain", "Tüm teklif=Pazarlıksız")
+  --wage <tutar>  haftalık ücret;  --next: vaatleri onayla, şartlara geç
+  --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
+training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role
+prep            maç hazırlığı antrenmanı: taktik ve duran top odakları
+budget          transfer, maaş ve scouting bütçesi;  budget ayarla [<adım>]: transfer ↔ maaş dağılımı
+settings        oyun ayarları: maç gösterimi ve hızı, otomatik kayıt, dil, para birimi, birimler
+settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
+happiness       oyuncuların mutluluğu, en mutsuz önce
+depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
+captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
+opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
+saves           diskteki kayıtlar, en yenisi önce
+shortlist       kısa listedeki oyuncular (teklif verilenler de)
+intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto
+opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)
+  --advice / --clear   yardımcının önerisini uygula / temizle;  opposition <oyuncu> Pres=Always
+register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar; terminalde okla ekle/çıkar
+  --in <oyuncu> / --out <oyuncu>   listeye koy / listeden çıkar (tekrarlanabilir)
+  --auto        önce yardımcı seçsin;  --send: gönder (kurallar tutunca)
+numbers         forma numaralarını gönder (aynı şekilde)
+setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)
+tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
+tactic mentality [<x>]      mentaliteyi göster ya da değiştir
+tactic style [<x>]          oyun stilini göster ya da değiştir
+tactic pick                 ilk 11'i oyuna seçtir (Quick Pick)
+tactic role <mevki> [<rol>] bir mevkinin rolünü göster ya da değiştir (--oop: topsuz rol)
+                            maç sırasında: tactic role <oyuncu> [<rol>]
+tactic player <mevki> <oyuncu>  yedeklerden birini o mevkiye koy (oradaki yedeğe geçer)
+tactic new ["<stil>" ["<topla diziliş>" ["<topsuz diziliş>"]]]
+                taktik oluştur; eksik bıraktığın adımın seçeneklerini listeler
 
-tactic                      taktik: terminalde topla / topsuz iki saha, mevkiler, roller, oyuncular
-tactic new "<stil>" "<topla diziliş>" "<topsuz diziliş>"   taktik oluştur (eksik adımı listeler)
-tactic mentality [<x>]      mentaliteyi göster / değiştir;  tactic style [<x>] aynısı stil için
-tactic role <mevki> [<rol>] mevkinin rolünü göster / değiştir (--oop: topsuz rol)
-tactic player <mevki> <oyuncu>  yedeklerden birini o mevkiye koy
-tactic pick                 ilk 11'i oyuna seçtir
-setpieces new [<no> …]      duran top rutinlerini kur (altı soru; terminalde okla sorar)
-
-pages           oyunun bütün sayfaları (77)
-open "<sayfa>"  sayfayı aç
-  --tab <sekme> aynı adda birden çok sayfa varsa
-buttons         ekrandaki butonlar ve ne gönderdikleri
+pages [metin]               oyunun bütün sayfaları
+open "<sayfa>"              sayfayı aç
+  --tab <sekme>             aynı adda birden çok sayfa varsa
+buttons [metin]             ekrandaki butonlar ve ne gönderdikleri
+  --all                     etiketsizleri de göster
 press "<etiket>"            butona bas
-dropdowns       ekrandaki açılır listeler ve seçenekleri
+  --name <ad>               aynı etiketten birden çok varsa
+dropdowns [metin]           ekrandaki açılır listeler ve seçenekleri
 select <liste> "<seçenek>"  listeden seç
-  --dry         değiştiren komutlarda: yapma, ne yapacağını söyle
+  --dry                     press ve select için: yapma, ne yapacağını söyle
+status          tarih ve oyunun şu an neyi beklediği
+save --yes      oyunu kaydet (dosyanın üzerine yazar, geri alınamaz)
+
 --json          ham veri (script'lenebilir)
-fm mcp          komutları MCP araçları olarak sun (stdio); repo kökündeki .mcp.json bunu tanımlıyor
+fm mcp          komutları MCP araçları olarak sun (stdio); bir modelin oynaması için
+
+Oturumda komutları `fm` yazmadan verirsin; çıkmak için `quit`.
 ```
 
 Oturumda komutlar `fm` öneki olmadan verilir:
