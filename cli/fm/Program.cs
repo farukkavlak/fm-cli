@@ -551,6 +551,9 @@ internal static partial class Program
 			(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.Where(c => Field(c, "Events").Contains("SpeakToAction", StringComparison.Ordinal))
 				.Where(c => Field(c, "Enabled") == "True" && Field(c, "Label") != "")
+				// A quick question inside a message comes with its answers twice, one button per
+				// layout; they say and do the same, so one of each is listed.
+				.GroupBy(c => Field(c, "Label")).Select(g => g.First())
 				.ToList();
 	}
 

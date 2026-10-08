@@ -494,6 +494,15 @@ internal static partial class Program
 			words.Add(allowed[comingOn]);
 		}
 
+		// At a terminal the eleven stand where they play.
+		if (words.Count < 2 && Ui.Rich && await MatchPositions() is { Count: > 0 } positions && positions.Count == menus.Count)
+		{
+			DrawMatchPitch(positions, menus);
+			Console.WriteLine($"Kulübe: {string.Join(", ", bench.Select(b => b.Split(" - ")[0]))}");
+			Console.WriteLine("\nDeğiştirmek için: sub <çıkan> <giren>");
+			return 0;
+		}
+
 		if (words.Count < 2)
 		{
 			Console.WriteLine("Sahada:");

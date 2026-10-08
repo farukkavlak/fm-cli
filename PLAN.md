@@ -57,6 +57,12 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
 
 ### Bilinen hatalar (kılavuz çekimi sırasında bulundu, 2026-10-07)
 
+- **Basın mesajındaki ara soru (9 Ekim gecesi).** Maç sonrası basın mesajı önce bir taraftar sorusu
+  soruyordu ("Asensio'yu neden çıkarmadın?"); cevaplar iki kez listeleniyordu (artık teke
+  indiriliyor). Bu durumda "Send Assistant" seçilince oyun yardımcıyı göndermek yerine soruyu
+  konuşma olarak açtı (`talk` ile cevaplandı, sonra mesaj kapandı). Ara soru varken önce onun
+  cevaplanması gerekiyor olabilir; `reply` bunu söylemiyor.
+
 - **Tek isimli oyuncu açılmıyor.** `fm contract Fred` / `fm player Fred`: kadroda "Fred" var ama
   oyunun araması "Fred"i bulmuyor (Fred Onyedinma, Fred Rutten…); `OpenPlayer` aramaya dayanıyor.
   Kendi oyuncumuz için kadro ekranındaki isim butonundan açmak gerek.
