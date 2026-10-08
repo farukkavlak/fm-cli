@@ -459,6 +459,18 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-09 (gece, otonom)
 
+**Kayıtta ne değişti:** 10 Ağustos'tan 13 Eylül'e oynandı. Sonuçlar: Feyenoord 1-1 (toplam 1-2, UCL'den
+elendik, Avrupa Ligi'ne düştük), Göztepe 0-0, Konyaspor 1-0, Kasımpaşa deplasman 2-0. 23 Ağustos'ta
+elle kaydedildi; sonrası oyunun haftalık otomatik kaydında. Yedek: `save-backups/…2025-08-13-feyenoord-day.fm`.
+
+**Gece verdiğim oyun kararları (geri alınabilir, istersen değiştir):**
+- Asensio ve Söyüncü sakatlıklarında iğne yerine fizyoterapist (ücretsiz, risksiz).
+- Basın toplantılarına yardımcı gönderildi; iki maç sonu sorusuna ılımlı cevap verildi.
+- Avrupa Ligi kadro listesi yardımcının seçimiyle gönderildi; lig listesi transfer dönemi sonunda
+  olduğu gibi onaylandı (kurallar tutuyordu).
+- Kocaelispor'un Levent Mercan için £1.4M teklifi reddedildi (oyuncu da ilgilenmiyordu).
+- Ayarlar ve bütçe denendi, eski değerlerine döndürüldü.
+
 - **`fm settings`** (FINDINGS §8.61): oyunun tercihleri — maç gösterimi, vurgu / ara hızı, dinamik
   mod, otomatik kayıt (aç/kapa, sıklık, tür), dil, para birimi, maaş, tarih, birimler. Çıplak hali
   gösterir ve terminalde okla değiştirtir; `settings <ayar> <değer>`. Oyunda ayar "Confirm"
