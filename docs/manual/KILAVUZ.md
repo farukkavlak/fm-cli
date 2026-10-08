@@ -167,6 +167,8 @@ Oyunun genel araması — oyuncu, teknik adam, kulüp:
 ![fm search Arda](img/search.png)
 
 
+![fm player --career](img/career.png)
+
 `player <isim> --career` sezon sezon kariyeri verir: kulüp, nasıl geldiği (bonservis, kiralık,
 bedelsiz), lig, maç, gol, puan ve en altta toplamlar. Kalecide gol yerine gol yemeden maç.
 
@@ -321,6 +323,8 @@ Soldaki renkli şeritler bölgeleri gösterir (üstte Avrupa, altta küme düşm
 
 Oynanmış maçlar beyaz ve sonuçlu, oynanacaklar soluk.
 
+![fm calendar](img/calendar.png)
+
 `fixtures --all` sezonun bütün fikstürünü verir (takvimden ay ay toplar, ~15 sn). `calendar [ay]`
 bir ayı gün gün gösterir: maçlar, transfer döneminin açılıp kapandığı gün, kupa kuraları, milli
 maçlar; `--u19` altyapı maçlarını da ekler.
@@ -466,6 +470,8 @@ uygulanır. Menajere sormadan görüşmeye girmek oyunda oyuncuyu ve menajeri ü
 sorar, `contract` da terminalde sorar. İptal edilen görüşme bir süre yeniden açılamayabilir.
 
 ### Bütçe — `budget`
+
+![fm budget](img/budget.png)
 
 ```
 $ fm budget
