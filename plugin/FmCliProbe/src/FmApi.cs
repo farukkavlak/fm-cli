@@ -35,7 +35,7 @@ internal static class FmApi
 		"pathexists" => RawPath.Exists(q["path"]),
 		"pathbind" => RawPath.Bind(q["path"]),
 		"pathlist" => RawPath.List(q["path"]),
-		"pull" => RawPath.Pull(q["path"], q["props"], q["list"] == "1"),
+		"pull" => RawPath.Pull(q["path"], q["props"], q["list"] == "1", q["gen"]),
 		"rawexists" => RawExists(q["path"]),
 		"keys" => Keys(Int(q["depth"], 4)),
 		"schema" => Schema.Catalog(q["filter"]),

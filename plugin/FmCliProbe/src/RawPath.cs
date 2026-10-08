@@ -100,7 +100,7 @@ internal static class RawPath
 	/// An entry of a list is not a node the tree can bind under, so each one is first put at
 	/// a node of its own, fmcli.&lt;list&gt;.&lt;n&gt;, the way a screen's table gives each row one.
 	/// </summary>
-	public static string Pull(string path, string props, bool list)
+	public static string Pull(string path, string props, bool list, string generation = null)
 	{
 		if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(props)) return "error: ?path=&props=a,b,c required";
 		var b = Game.Bindings;
@@ -126,7 +126,11 @@ internal static class RawPath
 		var entries = b.Get(ref key)?.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>();
 		if (entries == null) return $"error: '{path}' is not a list";
 
-		var rows = "fmcli." + path.Replace('.', '_');
+		// Each reading gets rows of its own (?gen=, the same across one reading's retries): a row
+		// reused from an earlier reading keeps the properties bound under it and answers with
+		// the old entry's values (a match report gave the previous match's goal minutes under
+		// the new scorers' names).
+		var rows = string.IsNullOrEmpty(generation) ? $"fmcli.{path.Replace('.', '_')}" : $"fmcli.{path.Replace('.', '_')}.g{generation}";
 		for (var i = 0; i < entries.Count; i++)
 		{
 			var row = $"{rows}.{i}";
@@ -139,7 +143,11 @@ internal static class RawPath
 		string Record(string at, string[] wanted, int? index)
 		{
 			var fields = new System.Collections.Generic.Dictionary<string, string>();
-			if (index is { } n) fields["Index"] = n.ToString();
+			if (index is { } n)
+			{
+				fields["Index"] = n.ToString();
+				fields["Row"] = at;
+			}
 			foreach (var name in wanted)
 			{
 				var child = $"{at}.{name}";

@@ -2703,6 +2703,17 @@ Maç sonrası "Match Reaction" sorusu: oyun `CanContinue` derken bir konuşma (s
 kalıyor; Continue onu `EventFmxPressConferenceEarlyExit` ile geçiyor. `fm status` artık soruyu
 söylüyor, `fm next` duruyor (`--skip` ile geçer).
 
+## 8.68 Liste okumasında bayat satırlar (9 Ekim gecesi)
+
+Gençlerbirliği 4-0 Fenerbahçe maçından sonra `fm report` golleri doğru isimlerle ama önceki maçın
+dakikalarıyla verdi (17', 50', 53', 66' — Başakşehir maçındaki gollerimizin dakikaları; anlatımda
+goller 2', 25', 60', 81'). Sebep `/pull?list=1`: her girdi `fmcli.<liste>.<n>` düğümüne konuyor ve
+özellikleri onun altında bağlanıyor; aynı düğüm sonraki okumada yeniden kullanılınca altındaki
+`TimeString` eski değerini veriyor (yeni girdi düğüme yazılsa da çocuklar tazelenmiyor). Artık her
+okuma `?gen=` ile kendi satırlarını açıyor (CLI bir okumanın denemeleri boyunca aynı, okumadan okumaya
+farklı nesil veriyor) ve her kayıt kendi satır yolunu (`Row`) taşıyor; iç içe okuma (golcünün adı)
+oradan yapılıyor. Düzeltmeden sonra rapor 2', 26', 60', 82' verdi, dört okumada aynı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

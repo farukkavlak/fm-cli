@@ -459,9 +459,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-09 (gece, otonom)
 
-**Kayıtta ne değişti:** 10 Ağustos'tan 13 Eylül'e oynandı. Sonuçlar: Feyenoord 1-1 (toplam 1-2, UCL'den
-elendik, Avrupa Ligi'ne düştük), Göztepe 0-0, Konyaspor 1-0, Kasımpaşa deplasman 2-0. 23 Ağustos'ta
-elle kaydedildi; sonrası oyunun haftalık otomatik kaydında. Yedek: `save-backups/…2025-08-13-feyenoord-day.fm`.
+**Kayıtta ne değişti:** 10 Ağustos'tan 20 Eylül'e oynandı. Sonuçlar: Feyenoord 1-1 (toplam 1-2, UCL'den
+elendik, Avrupa Ligi'ne düştük), Göztepe 0-0, Konyaspor 1-0, Kasımpaşa deplasman 2-0, Başakşehir 4-1,
+Gençlerbirliği deplasman 0-4. 20 Eylül'de (maçtan sonra) elle kaydedildi. Yedek: `save-backups/…2025-08-13-feyenoord-day.fm`.
 
 **Gece verdiğim oyun kararları (geri alınabilir, istersen değiştir):**
 - Asensio ve Söyüncü sakatlıklarında iğne yerine fizyoterapist (ücretsiz, risksiz).
@@ -477,6 +477,9 @@ elle kaydedildi; sonrası oyunun haftalık otomatik kaydında. Yedek: `save-back
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Maç raporundaki gol dakikaları önceki maçtan geliyordu** (FINDINGS §8.68): köprünün liste okuması
+  satır düğümlerini yeniden kullanıyordu; artık her okuma kendi satırlarını açıyor.
+- Gençlerbirliği deplasmanı 0-4 kaybedildi (sonuncu takım; 22 şut, 1.23 xG'ye karşı 1.81).
 - **Gelen teklif** (FINDINGS §8.67): Kocaelispor'un Levent Mercan için £1.4M teklifi; `fm offer` açık kartı
   gösterdi, teklif reddedildi (oyuncu da ilgilenmiyordu). `fm status` / `fm next` maç sonu açık soruyu söylüyor.
   Avrupa Ligi kadro listesi yardımcının seçimiyle gönderildi (`register --send`).

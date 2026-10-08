@@ -124,7 +124,7 @@ internal static class MatchReport
 			foreach (var entry in events.EnumerateArray())
 			{
 				if (F(entry, "EventType") != "0") continue;
-				var row = $"fmcli.{list.Replace('.', '_')}.{F(entry, "Index")}.Player";
+				var row = (F(entry, "Row") is { Length: > 0 } at ? at : $"fmcli.{list.Replace('.', '_')}.{F(entry, "Index")}") + ".Player";
 				var name = F(await fm.Pull(row, "Name"), "Name");
 				goals.Add($"{name} {F(entry, "TimeString")}".Trim());
 			}

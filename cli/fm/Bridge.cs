@@ -58,15 +58,19 @@ internal sealed class Bridge
 	/// reference at a path, or of every entry of the list there. A property is bound by the
 	/// first read and arrives on a later one, so this asks again while anything is missing.
 	/// </summary>
+	private static int pulls;
+
 	public async Task<JsonElement> Pull(string path, string props, bool list = false)
 	{
 		var wanted = props.Split(',').Length;
+		// A list's entries are put at rows of their own for this reading (FINDINGS §8.68).
+		var generation = list ? Interlocked.Increment(ref pulls).ToString() + DateTime.UtcNow.Ticks.ToString()[^6..] : "";
 		JsonElement data = default;
 		for (var attempt = 0; attempt < 6; attempt++)
 		{
-			data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"));
+			data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation));
 			var records = data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().ToList() : [data];
-			var complete = records.All(r => r.EnumerateObject().Count(p => p.Name != "Index") >= wanted);
+			var complete = records.All(r => r.EnumerateObject().Count(p => p.Name is not ("Index" or "Row")) >= wanted);
 			if (complete && (attempt > 0 || records.Count > 0)) return data;
 			await Task.Delay(TimeSpan.FromMilliseconds(250));
 		}
