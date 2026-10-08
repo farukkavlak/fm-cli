@@ -484,6 +484,8 @@ internal static partial class Program
 		// During a match the planner's pages are gone; the match screen has its own list.
 		if (words.Count > 0 && words[0] == "mentality" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
 			return await MatchList("Mentalite", d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Very Attacking"), wanted, dry, events: false);
+		if (words.Count > 0 && words[0] == "role" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
+			return await MatchRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 
 		switch (words.Count > 0 ? words[0] : "")
 		{
@@ -1270,6 +1272,15 @@ internal static partial class Program
 		}
 		var choices = list.Value.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
 		var current = Field(list.Value, "Label");
+
+		// After a shout the game shuts the list for a while; choosing from it then does nothing.
+		if (Field(list.Value, "Enabled") != "True")
+		{
+			Console.Error.WriteLine(events
+				? "Oyuncular az önce bir bağırış duydu; oyun yeni bağırışa bir süre izin vermiyor."
+				: $"Maç ekranındaki {what.ToLowerInvariant()} listesi şu an kapalı.");
+			return 1;
+		}
 		if (wanted == null && Ui.Interactive && !dry && Ui.Ask(what, choices, current: choices.IndexOf(current), cancel: "Vazgeç") is { } asked)
 			wanted = choices[asked];
 		if (wanted == null)
@@ -1291,7 +1302,15 @@ internal static partial class Program
 		}
 		var said = await Fm.Get("select", ("ptr", Field(list.Value, "Pointer")), ("path", choices.IndexOf(hit[0]).ToString()), ("fire", events ? "1" : "0"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-		Console.WriteLine($"{what}: {hit[0]}");
+
+		// A shout that reached the players closes the list behind it: the one sign of it on screen.
+		if (events && !await Until(async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			    .Any(d => which(d) && Field(d, "Enabled") != "True"), seconds: 4, every: 0.25))
+		{
+			Console.Error.WriteLine($"{what}: {hit[0]} gönderildi ama oyun bağırış listesini kapatmadı; duyulmamış olabilir.");
+			return 1;
+		}
+		Console.WriteLine($"{what}: {hit[0]}{(events ? " (oyun yeni bağırışı bir süre kapattı)" : "")}");
 		return 0;
 	}
 

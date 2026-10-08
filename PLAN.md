@@ -276,11 +276,13 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Sakatlık durağı — maç duruyor, `fm match` söyleyip bırakıyor; `fm sub` + "Confirm Changes" orada denenmedi
 - [x] Anında sonuç — `fm match --instant`, 9 sn (§8.34)
 - [x] Maç hızı — `fm settings vurgu hızı` (en çok 10x), `ara hızı` (en çok 40x), `maç gösterimi` (§8.61); maç içinden değiştirmek yok
-- [~] Maç içi taktik değişimi — mentalite (`fm tactic mentality` maç sırasında) ✓, bağırış (`fm shout`,
-      doğrulanmadı) (§8.54); roller ve talimatlar maç içinde yok
+- [~] Maç içi taktik değişimi — mentalite ✓, bağırış ✓ (`fm shout`, §8.62), rol ✓ (`fm tactic role
+      <oyuncu>` maç sırasında); oyuncu / takım talimatı maç içinde yok, oyuncuya özel bağırış yok
 - [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
 - [~] Canlı maç takibi — `fm match --play` anlatım satırlarını, golleri ve skoru akıtıyor; maç ekranının kalanı §14
-- [ ] Maç içi: taktik/rol değişimi, shout (listeleri ekranda, alt menü seçimi çözüldü — §8.34)
+- [x] Maç içi: rol değişimi, shout (§8.62)
+- [~] Yardımcının maç içi tavsiyeleri — `fm dugout` okuyor, uygula / kaldır; "uygula"nın etkisi
+      doğrulanmadı; `match --play` yeni tavsiyeyi akışta yazıyor
 - [x] Maç sonrası — `fm report`: skor, goller, maçın oyuncusu ve notu, istatistikler; basın toplantısı `fm talk`
 - [~] Maç istatistikleri — `fm report` topla oynama, şut, isabet, xG, korner, faul; pas / ısı haritası yok
 - [ ] Highlight özeti (metin)
@@ -457,6 +459,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Maç ekranı** (FINDINGS §8.62): `fm shout` doğrulandı (oyun listeyi kapatıyor, anlatım
+  söylüyor) ve kapalıyken reddediyor; maç içinde `tactic role <oyuncu> [<rol>]`; `fm dugout`
+  yardımcının tavsiyeleri (uygula / kaldır); `match --play` tavsiyeleri akışta yazıyor.
+  Feyenoord rövanşı 1-1 (toplam 1-2, UCL'den elendik).
 
 ### 2026-10-08 (gece, otonom)
 

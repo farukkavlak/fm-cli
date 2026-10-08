@@ -70,6 +70,7 @@ internal static partial class Program
 		var names = await MatchNames();
 		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null, commentary = null;
 		var heard = new Queue<string>();
+		var advised = new HashSet<string>();
 		var pressedAt = DateTime.MinValue;
 		var clockAt = DateTime.UtcNow;
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(40);
@@ -177,7 +178,23 @@ internal static partial class Program
 				continue;
 			}
 
-			var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			var controls = await Fm.GetJson("buttons", ("json", "1"));
+
+			// New advice from the assistant lands on the Dugout timeline under its minute. The
+			// panel shows the newest entry, and only between highlights.
+			var marks = DugoutMarks(controls);
+			if (marks.Count > 0 && marks.Any(m => !advised.Contains(m)))
+			{
+				var advice = await DugoutText();
+				if (advice.Length > 0)
+				{
+					if (Ui.Rich) Ui.Line($"  [cyan]{Ui.Safe(marks.Last()),5}'  Yardımcı: {Ui.Safe(Advice(advice))}[/] [dim](dugout)[/]");
+					else Console.WriteLine($"  {marks.Last(),5}'  Yardımcı: {Advice(advice)}  (dugout)");
+					foreach (var mark in marks) advised.Add(mark);
+				}
+			}
+
+			var button = controls.EnumerateArray()
 				.Where(c => Field(c, "Name") == "continue-button" && Field(c, "Enabled") == "True")
 				.Cast<JsonElement?>()
 				.FirstOrDefault(c => !Field(c.Value, "Events").Contains("ClosePanel", StringComparison.Ordinal));

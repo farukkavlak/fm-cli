@@ -2561,6 +2561,43 @@ değişti. Ayarı doğrulamak için sayfayı yeniden açıp okumak gerek.
 Dil değiştirmek denenmedi: komutlar İngilizce metinlere bakıyor, geri dönmek de Türkçe arayüzde
 gezinmeyi gerektirir.
 
+## 8.62 Maç ekranı: bağırışın izi, rol, Dugout tavsiyeleri (9 Ekim gecesi, Feyenoord rövanşı)
+
+**Bağırış doğrulandı.** Bağırış seçilince oyun bağırış listesini kapatıyor (`#shouts-enabled`
+`DISABLED`, `/dropdowns` `Enabled = False`) ve birkaç oyun dakikası sonra açıyor (22'de Encourage,
+28'de yeniden açıktı). Anlatım da söylüyor: Focus'tan sonra "Faruk Kavlak is clearly demanding
+concentration from his players now". Liste kapalıyken seçmek hata vermiyor ama bir şey yapmıyor
+(eski `fm shout` "başarılı" diyordu); artık reddediyor ve bağırıştan sonra listenin kapandığını
+görmeden "oldu" demiyor.
+
+**Rol.** Her oyuncunun maç menüsünde iki rol satırı var: topla ("Centre Forward ›": Deep-Lying
+Forward, Centre Forward, Target Forward, Poacher, Channel Forward, False Nine) ve topsuz ("Centre
+Forward ›": Centre Forward, Tracking…, Central Outlet…). `fm sub`'daki yol (`/select path=3,k
+fire=1`) işliyor; satırın etiketi hemen yeni rol oluyor ("Poacher ›"). Menüde ayrıca oyuncuya
+özel bağırış alt menüsü var (komutu yok). Maç içi rol değişikliği takımın kayıtlı taktiğine
+yazılmıyor (maç sonrası `fm tactic` yine Centre Forward).
+
+**Dugout.** Maç ekranının sol tarafında bir döşeme: son birkaç tavsiye zaman çizelgesinde,
+her biri dakikasıyla bir buton (`DugoutEvent0…5`, `EventFmxMatchDugoutJumpToEvent`). Seçilenin
+metni bir konuşma balonunda (`#text`); altında "Do it" (`EventFmxMatchDugoutConfirmEvent`),
+kaldır (`…DismissEvent`), önceki / sonraki. Görülen tavsiyeler: "Add opposition instruction for
+Hwang In-Beom: Go hard when tackling", "Add team instruction: Discourage Long Shots / Work Ball
+Into Box", "Tell Talisca: Shoot Less Often", "If you wish to make a change I think we should
+introduce Mert Müldür.", ve eylemsiz yorumlar ("Feyenoord seem to be pushing players forward…").
+Çizelge kayıyor: eski olaylar düşüyor. ⚠ Döşeme **pozisyon oynatılırken gizleniyor**, aradaki
+hızlı bölümde görünüyor (2 sn'lik yoklamayla 78–79' gizli, 80–95' görünür); gizliyken butonlar
+listelenmiyor. Veride `MatchDugoutEventCount`, `MatchDugoutTimelineEvent0..5.Text` var ama maç
+referansının yolu bulunamadı (`..MatchUI2D` ile `/pull` oyunda hata fırlattı).
+
+"Do it"e basınca panel bir sonraki tavsiyeye geçti; uygulanan olayın kendisinde görünür bir iz
+yok ve etkisi (Talisca'ya "Shoot Less Often") maç sonrası taktikte görünmedi — maç içi
+değişiklikler maçın kendi taktiğinde kalıyor. Yani "Do it"in işlediği **doğrulanmadı**.
+
+`fm dugout` (liste, `<no> uygula | kaldır`), maç sırasında `fm tactic role <oyuncu> [<rol>]
+[--oop]`, `fm match --play` akışında yeni tavsiye "Yardımcı: …" satırı.
+
+Maç: Fenerbahçe 1-1 Feyenoord (Talisca pen. 79'); ilk maç 0-1, toplam 1-2.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

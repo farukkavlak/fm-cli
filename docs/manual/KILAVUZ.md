@@ -257,8 +257,32 @@ fm intensity --auto                hepsini kondisyon hocasına bırak
 
 Script'te sormadan: `match --play` (izle) ya da `match --instant`. `--no-talk` konuşmaları geçer.
 
-Maç sırasında oyuncu değişikliği: `sub` sahadakileri ve kulübeyi listeler,
-`sub <çıkan> <giren>` değişikliği yapar.
+Maç sırasında:
+
+| Komut | Ne yapar |
+|---|---|
+| `sub` / `sub <çıkan> <giren>` | sahadakiler ve kulübe / oyuncu değiştir |
+| `tactic mentality [<x>]` | mentaliteyi göster / değiştir |
+| `tactic role <oyuncu> [<rol>]` | oyuncunun rolü (`--oop`: topsuz rolü); rol yazmazsan okla seçtirir |
+| `shout [<x>]` | kenardan bağır (Encourage, Focus, Fire Up…) |
+| `dugout` | yardımcının tavsiyeleri; `dugout <no> uygula` / `dugout <no> kaldır` |
+
+```
+$ fm tactic role talisca poacher
+Talisca: Centre Forward → Poacher
+$ fm shout focus
+Bağırış: Focus (oyun yeni bağırışı bir süre kapattı)
+$ fm shout encourage
+Oyuncular az önce bir bağırış duydu; oyun yeni bağırışa bir süre izin vermiyor.
+$ fm dugout
+  1   34'  Takım talimatı: Discourage Long Shots
+  2   36'  Oyuncu talimatı (Talisca): Shoot Less Often
+  3   48'  We must improve our game, especially in creating chances.
+```
+
+Bağırıştan sonra oyun yeni bağırışa birkaç dakika izin vermiyor; `shout` bunu söyler. Yardımcının
+tavsiyeleri `match --play` akışında da çıkar ("Yardımcı: …"). Dugout paneli pozisyon oynatılırken
+gizleniyor; `dugout` o sırada çağrılırsa panel geri gelene kadar bekler.
 
 Basın toplantısı, toplantı gibi açık bir konuşmayı `talk` baştan sona okla yürütür;
 `talk leave` çıkar.

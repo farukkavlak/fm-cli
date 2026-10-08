@@ -1,0 +1,265 @@
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
+namespace FmCli;
+
+/// <summary>
+/// The rest of the match screen (FINDINGS §8.62): a player's role changed from his menu, and the
+/// assistant's advice in the Dugout panel, read one entry at a time and taken or dismissed.
+/// </summary>
+internal static partial class Program
+{
+	/// <summary>
+	/// A role change during a match. Each player's menu on the match screen has two role rows,
+	/// with the ball and without it, each opening the roles he can take there; choosing one is
+	/// written to the menu and its event sent, as a substitution is.
+	/// </summary>
+	private static async Task<int> MatchRole(List<string> words, bool withoutBall, bool dry)
+	{
+		var menus = await PlayerMenus();
+		if (menus.Count == 0)
+		{
+			Console.Error.WriteLine("Sahadaki oyuncuların menüsü ekranda yok (devre arası ya da konuşma ekranı olabilir).");
+			return 1;
+		}
+
+		var names = menus.Select(m => Rows(m)[0]).ToList();
+		string Current(JsonElement menu) => RoleRow(menu, withoutBall) is var row and >= 0 ? Rows(menu)[row].Replace(" ›", "") : "?";
+
+		if (words.Count == 0 && Ui.Interactive)
+		{
+			if (Ui.Ask(withoutBall ? "Kimin topsuz rolü?" : "Kimin rolü?", menus.Select(m => $"{Rows(m)[0]}  ({Current(m)})").ToList()) is not { } asked) return 0;
+			words.Add(names[asked]);
+		}
+		if (words.Count == 0)
+		{
+			Console.WriteLine(withoutBall ? "Topsuz roller:" : "Roller:");
+			foreach (var menu in menus) Console.WriteLine($"  {Rows(menu)[0]}: {Current(menu)}");
+			Console.WriteLine($"\nDeğiştirmek: tactic role <oyuncu> <rol>{(withoutBall ? " --oop" : "")}");
+			return 0;
+		}
+
+		if (Choose(names, words[0], "Oyuncu") is not { } player) return 1;
+		var chosen = menus[names.IndexOf(player)];
+		var roleRow = RoleRow(chosen, withoutBall);
+		var roles = roleRow >= 0 ? Submenu(chosen, roleRow) : [];
+		if (roles.Count == 0)
+		{
+			Console.Error.WriteLine($"{player} için rol listesi yok.");
+			return 1;
+		}
+
+		var wanted = words.Count > 1 ? string.Join(" ", words.Skip(1)) : null;
+		if (wanted == null && Ui.Interactive && Ui.Ask($"{player} hangi rolde oynasın?", roles, roles.IndexOf(Current(chosen))) is { } pick)
+			wanted = roles[pick];
+		if (wanted == null)
+		{
+			Console.WriteLine($"{player}: {Current(chosen)}\nRoller: {string.Join(" · ", roles)}");
+			return 0;
+		}
+		if (Choose(roles, wanted, "Rol") is not { } role) return 1;
+		if (role == Current(chosen))
+		{
+			Console.WriteLine($"{player} zaten {role}.");
+			return 0;
+		}
+		if (dry)
+		{
+			Console.WriteLine($"(kuru) {player}: {Current(chosen)} → {role}");
+			return 0;
+		}
+
+		var said = await Fm.Get("select", ("ptr", Field(chosen, "Pointer")), ("path", $"{roleRow},{roles.IndexOf(role)}"), ("fire", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+
+		// The menu's own row says the role he now has.
+		var before = Current(chosen);
+		var made = await Until(async () => (await PlayerMenus()).FirstOrDefault(m => Rows(m)[0] == player) is { ValueKind: JsonValueKind.Object } m && Current(m) == role, seconds: 5, every: 0.25);
+		Console.WriteLine(made ? $"{player}: {before} → {role}" : $"{player} için {role} seçildi ama menüsü hâlâ {before} diyor.");
+		return made ? 0 : 1;
+	}
+
+	/// <summary>The menus of the players on the pitch, each with its submenus spelled out.</summary>
+	private static async Task<List<JsonElement>> PlayerMenus() =>
+		(await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
+			.Where(d => Rows(d).Any(c => c.StartsWith("Substitute Off", StringComparison.Ordinal)))
+			.ToList();
+
+	private static List<string> Rows(JsonElement menu) =>
+		menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+
+	private static List<string> Submenu(JsonElement menu, int row) =>
+		menu.TryGetProperty("Submenus", out var submenus) && submenus.TryGetProperty(row.ToString(), out var list)
+			? list.EnumerateArray().Select(c => c.GetString() ?? "").ToList()
+			: [];
+
+	/// <summary>The row of the role with the ball (the first of the two) or without it (the second).</summary>
+	private static int RoleRow(JsonElement menu, bool withoutBall)
+	{
+		var rows = Rows(menu);
+		var roleRows = Enumerable.Range(0, rows.Count)
+			.Where(i => rows[i].EndsWith(" ›", StringComparison.Ordinal)
+			            && !rows[i].StartsWith("Touchline Shouts", StringComparison.Ordinal)
+			            && !rows[i].StartsWith("Substitute Off", StringComparison.Ordinal))
+			.ToList();
+		var at = withoutBall ? 1 : 0;
+		return at < roleRows.Count ? roleRows[at] : -1;
+	}
+
+	/// <summary>
+	/// The assistant's advice during a match. The Dugout panel keeps the latest few entries on a
+	/// timeline, each a button labelled with its minute; jumping to one shows its text, and "Do
+	/// it" carries it out (a team or opposition instruction, a word with a player) or the cross
+	/// puts it away.
+	/// </summary>
+	private static async Task<int> Dugout(bool json, string[] args)
+	{
+		if (Field(await Fm.GetJson("state"), "DuringMatch") != "True")
+		{
+			Console.Error.WriteLine("Yardımcının maç içi tavsiyeleri yalnızca maç sırasında.");
+			return 1;
+		}
+
+		// The panel is put away while a highlight plays and comes back between them.
+		var entries = await DugoutEntries();
+		if (entries.Count == 0 && !await DugoutShowing())
+		{
+			Console.Error.WriteLine("Dugout paneli pozisyon oynatılırken gizleniyor; bekliyorum…");
+			if (await Until(DugoutShowing, seconds: 30, every: 0.5)) entries = await DugoutEntries();
+		}
+		if (entries.Count == 0)
+		{
+			Console.WriteLine("Yardımcının şu an bir tavsiyesi yok.");
+			return 0;
+		}
+
+		if (json)
+		{
+			Console.WriteLine(JsonSerializer.Serialize(entries.Select(e => new { e.Minute, e.Text })));
+			return 0;
+		}
+
+		var words = Words(args).ToList();
+		if (words.Count == 0)
+		{
+			for (var i = 0; i < entries.Count; i++) Console.WriteLine($"  {i + 1}  {entries[i].Minute,3}'  {Advice(entries[i].Text)}");
+			if (Ui.Ask("Hangisi?", entries.Select(e => $"{e.Minute}'  {Advice(e.Text)}").ToList()) is not { } picked)
+			{
+				if (!Ui.Interactive) Console.WriteLine("\nUygulamak: dugout <no> uygula   ·   kaldırmak: dugout <no> kaldır");
+				return 0;
+			}
+			words.Add((picked + 1).ToString());
+		}
+
+		if (!int.TryParse(words[0], out var number) || number < 1 || number > entries.Count)
+		{
+			Console.Error.WriteLine($"'{words[0]}' bir tavsiye numarası değil (1–{entries.Count}).");
+			return 1;
+		}
+		var entry = entries[number - 1];
+
+		var action = words.Count > 1 ? Fold(words[1]) : null;
+		if (action == null)
+		{
+			Console.WriteLine($"{entry.Minute}'  {Advice(entry.Text)}");
+			if (Ui.Ask("Ne yapalım?", ["Uygula", "Kaldır"]) is not { } asked) return 0;
+			action = asked == 0 ? "uygula" : "kaldir";
+		}
+
+		var (event_, verb) = action switch
+		{
+			"uygula" or "do" or "evet" => ("MatchDugoutConfirm", "uygulandı"),
+			"kaldir" or "sil" or "dismiss" or "hayir" => ("MatchDugoutDismiss", "kaldırıldı"),
+			_ => (null, null),
+		};
+		if (event_ == null)
+		{
+			Console.Error.WriteLine($"'{words[1]}' anlaşılmadı: uygula ya da kaldır.");
+			return 1;
+		}
+
+		// The buttons act on whichever entry is showing, so that one is brought up first.
+		if (await ShowDugoutEntry(entry.Pointer) != entry.Text)
+		{
+			Console.Error.WriteLine("Tavsiye panelde açılamadı; liste değişmiş olabilir: dugout");
+			return 1;
+		}
+		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Events").Contains(event_, StringComparison.Ordinal) && Field(b, "Enabled") == "True");
+		if (button.ValueKind != JsonValueKind.Object)
+		{
+			Console.Error.WriteLine("Bu tavsiye için o buton şu an kapalı.");
+			return 1;
+		}
+		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+
+		// Either way the panel moves on from the entry: to the next one, or away when none is left.
+		var moved = await Until(async () => await DugoutText() != entry.Text, seconds: 4, every: 0.25);
+		Console.WriteLine(moved
+			? $"{entry.Minute}'  {Advice(entry.Text)} — {verb}."
+			: $"{entry.Minute}'  {Advice(entry.Text)} — butona basıldı ama panel aynı tavsiyede duruyor.");
+		return moved ? 0 : 1;
+	}
+
+	private sealed record DugoutEntry(string Minute, string Pointer, string Text);
+
+	/// <summary>Every entry on the Dugout timeline with its text, oldest first.</summary>
+	private static async Task<List<DugoutEntry>> DugoutEntries()
+	{
+		var marks = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$"))
+			.OrderBy(b => int.Parse(Field(b, "Name")["DugoutEvent".Length..]))
+			.Select(b => (Minute: Field(b, "Label"), Pointer: Field(b, "Pointer")))
+			.ToList();
+
+		var entries = new List<DugoutEntry>();
+		var showing = await DugoutText();
+		foreach (var (minute, pointer) in marks)
+		{
+			var text = await ShowDugoutEntry(pointer);
+			if (text.Length > 0) entries.Add(new(minute, pointer, text));
+		}
+
+		// Put back the entry that was showing, so reading the list changes nothing.
+		var was = entries.FirstOrDefault(e => e.Text == showing);
+		if (was != null && entries.LastOrDefault()?.Text != showing) await ShowDugoutEntry(was.Pointer);
+		return entries;
+	}
+
+	private static async Task<bool> DugoutShowing() =>
+		(await Fm.GetJson("texts", ("anchor", "Dugout"), ("up", "0"))).GetArrayLength() > 0;
+
+	/// <summary>The minutes on the Dugout timeline, from a listing of the screen's buttons: a new one is new advice.</summary>
+	internal static List<string> DugoutMarks(JsonElement buttons) =>
+		buttons.EnumerateArray().Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$")).Select(b => Field(b, "Label")).ToList();
+
+	/// <summary>Jumps to one entry and returns its text once the panel shows it.</summary>
+	private static async Task<string> ShowDugoutEntry(string pointer)
+	{
+		var before = await DugoutText();
+		await Fm.Get("press", ("ptr", pointer));
+		var text = before;
+		await Until(async () => (text = await DugoutText()) != before, seconds: 1.5, every: 0.2);
+		return text;
+	}
+
+	/// <summary>What the Dugout panel says now: its title, then the entry's text, then "Do it".</summary>
+	private static async Task<string> DugoutText()
+	{
+		var texts = (await Fm.GetJson("texts", ("anchor", "Dugout"), ("up", "12"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
+		return texts.Skip(1).FirstOrDefault(t => t != "Do it") ?? "";
+	}
+
+	/// <summary>The kind of advice said in Turkish, its substance left as the game puts it.</summary>
+	private static string Advice(string text)
+	{
+		var team = Regex.Match(text, @"^Add team instruction: (.+)$");
+		if (team.Success) return $"Takım talimatı: {team.Groups[1].Value}";
+		var opposition = Regex.Match(text, @"^Add opposition instruction for (.+?): (.+)$");
+		if (opposition.Success) return $"Rakip talimatı ({opposition.Groups[1].Value}): {opposition.Groups[2].Value}";
+		var tell = Regex.Match(text, @"^Tell (.+?): (.+)$");
+		if (tell.Success) return $"Oyuncu talimatı ({tell.Groups[1].Value}): {tell.Groups[2].Value}";
+		return text;
+	}
+}

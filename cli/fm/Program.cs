@@ -52,6 +52,7 @@ internal static partial class Program
 				"happiness" => await Happiness(json),
 				"prep" => await Prep(),
 				"settings" => await SettingsCommand(args),
+				"dugout" => await Dugout(json, args),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json),
@@ -935,6 +936,7 @@ internal static partial class Program
 			    --instant     maçı oynatma, yardımcılara bırak: oyun birkaç saniyede simüle eder
 			  shout [<x>]     maç sırasında kenardan bağır (Encourage, Fire Up, Calm Down…)
 			  sub             maç sırasında: sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
+			  dugout          maç sırasında yardımcının tavsiyeleri;  dugout <no> uygula | kaldır
 			  dialog [cevap]  açık onay penceresini göster ya da cevapla
 			  talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin
 			  talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık
@@ -969,6 +971,7 @@ internal static partial class Program
 			  tactic style [<x>]          oyun stilini göster ya da değiştir
 			  tactic pick                 ilk 11'i oyuna seçtir (Quick Pick)
 			  tactic role <mevki> [<rol>] bir mevkinin rolünü göster ya da değiştir (--oop: topsuz rol)
+			                              maç sırasında: tactic role <oyuncu> [<rol>]
 			  tactic player <mevki> <oyuncu>  yedeklerden birini o mevkiye koy (oradaki yedeğe geçer)
 			  tactic new ["<stil>" ["<topla diziliş>" ["<topsuz diziliş>"]]]
 			                  taktik oluştur; eksik bıraktığın adımın seçeneklerini listeler
