@@ -2518,6 +2518,49 @@ Defending Corners), her biri bir açıklama cümlesiyle. `/texts` ile okunuyor, 
 Değiştirmek açık: kartta ne `/buttons` ne `/dropdowns` bir kontrol gösteriyor; Match Day
 genel bakıştaki "Tactical Preparation" döşemesi de yeni bir şey açmadı.
 
+## 8.61 Oyun ayarları: Preferences, kaydırıcı ve aç/kapa (8→9 Ekim gecesi)
+
+**Yol.** Üst çubuktaki etiketsiz `dashboard-hud-fm-button` FM menüsünü açıyor (Save Game,
+"Saves automatically every week", Preferences, Hall of Fame… döşemeleri). "Preferences"
+döşemesinin butonu ("Manage settings for this game") özet sayfayı açıyor: Region (dil, para
+birimi), Interface, Saves, Sounds. "See all" bütün tercihleri sekmeli açıyor: Your World,
+Audio & Visual, Accessibility, Match Day, Processing, Third Party, Shortcuts
+(`DetailedPreferencesTabButton`). Bu katman `/buttons` listesinde görünmüyor (olay taşıyan
+kontrol az), ama `Elements()` içinde; metinle tıklamak için `/click?text=<yazı>[&name=<buton>]`
+eklendi: metni bulup üstündeki ilk `SIButton`'a basıyor. ⚠ "Match Day" hem sekme hem ana menü
+butonu; `name=DetailedPreferencesTabButton` olmadan ana menüdeki açılıyor ve ayarlar kapanıyor.
+
+**Okumak.** `/form?anchor=<metin>&up=N`: `/texts` gibi, ama metinlerin arasına kontrolleri de
+okuma sırasıyla koyuyor (`dropdown`, `radio`, `slider`: Value/Low/High, `checkbox`: Value).
+Her ayar başlığının altındaki ilk kontrol. Bütün tercihler için `anchor=All Preferences&up=6`.
+Your World'de kayıt bloğunda iki başlık ("Every", "Auto save type") iki listeden önce geliyor;
+o ikisi sundukları bir seçenekle ayırt ediliyor (Fortnight / Single File). Sekme birkaç karede
+doluyor: başlıklar listelerden önce gelebiliyor.
+
+**Değiştirmek.** Liste ve radyo grubu her yerdeki gibi `/select` (bu listeler olay taşımıyor,
+değeri yerel bir değişkene yazıyor). `SISlider` için `slider.value = n` (adım indeksi; etiketi
+hemen değişiyor), `SICheckBox` için `SimulateCheckboxClick` — ikisi `/setcontrol?ptr=&value=`.
+**Hiçbiri tek başına işlemiyor:** sayfanın altındaki "Confirm" (`PreferencesConfirmChangesEvent`
++ paneli kapat) basılınca işleniyor. Kapatma çarpısı `CancelPreferenceChangesEvent` gönderiyor.
+Kanıt: kayıt sıklığı "Day" seçili ama onaysızken iki gün geçişinde kayıt alınmadı; onaydan sonraki
+ilk gün geçişinde oyun kaydetti ve FM menüsü "Saves automatically every day" yazdı.
+`Settings.MatchSpeedDuringHighlights` onaydan hemen sonra 2'ye döndü ve oyun yeniden açılınca da
+öyle kaldı (ayarlar kayda değil oyunun kendi tercih dosyasına).
+
+**Kaydırıcı adımları** (etiketler sayfadan okundu): vurgu sırasında 0.5x, 0.75x, 1x, 1.25x,
+1.5x, 1.75x, 2x, 2.5x, 3x, 4x, 10x (indeks 0–10, varsayılan 1.5x); vurgular arası 4x, 8x, 10x,
+20x, 30x, 40x (0–5, varsayılan 30x). Maç gösterimi radyo grubu `HighlightModes`: Full Match,
+Comprehensive, Extended, Key, Only Commentary.
+
+`Game.AutosaveModeAndIntervalString` `/pull` ile bir kez bağlanınca güncellenmiyor gibi
+(değişiklikten sonra "every week" kaldı); FM menüsündeki metin oyun bir sonraki kaydı alınca
+değişti. Ayarı doğrulamak için sayfayı yeniden açıp okumak gerek.
+
+`fm settings`: çıplak hali gösterir ve terminalde hangisinin değişeceğini sorar;
+`settings <ayar> [<değer>]`. Para birimi Euro'ya alınınca `fm player` değerleri € ile verdi.
+Dil değiştirmek denenmedi: komutlar İngilizce metinlere bakıyor, geri dönmek de Türkçe arayüzde
+gezinmeyi gerektirir.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

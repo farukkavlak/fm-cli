@@ -595,47 +595,7 @@ internal static class Buttons
 		var rows = new List<string>();
 		foreach (var dropdown in AllDropdowns())
 		{
-			try
-			{
-				var choices = dropdown.m_choices;
-				var count = choices?.Count ?? 0;
-				var names = new List<string>();
-				for (var i = 0; i < count && i < 60; i++) names.Add(Choice(choices[i]));
-
-				// Submenus are only spelled out on request: most callers want the top level,
-				// and a menu of menus is large.
-				var submenus = "";
-				if (deep)
-				{
-					// A list of options marks the one in force on the row itself.
-					for (var i = 0; i < count && i < 60; i++)
-					{
-						if (!Marked(choices[i])) continue;
-						submenus += $", \"Marked\": \"{i}\"";
-						break;
-					}
-
-					var parts = new List<string>();
-					for (var i = 0; i < count && i < 60; i++)
-					{
-						var children = Children(choices[i]);
-						if (children == null) continue;
-
-						var inner = new List<string>();
-						for (var c = 0; c < children.Count && c < 60; c++) inner.Add($"\"{Report.Escape(Choice(children[c]) ?? "")}\"");
-						parts.Add($"\"{i}\": [{string.Join(", ", inner)}]");
-					}
-					submenus += ", \"Submenus\": {" + string.Join(", ", parts) + "}";
-				}
-
-				rows.Add("{"
-					+ $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", "
-					+ $"\"Name\": \"{Report.Escape(NameOf(dropdown))}\", "
-					+ $"\"Label\": \"{Report.Escape(LabelOf(dropdown))}\", "
-					+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "
-					+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
-					+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]" + submenus + "}");
-			}
+			try { rows.Add(DropdownJson(dropdown, deep)); }
 			catch { }
 		}
 		foreach (var group in Radio.Groups())
@@ -643,6 +603,48 @@ internal static class Buttons
 			try { rows.Add(Radio.Json(group)); } catch { }
 		}
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
+	}
+
+	internal static string DropdownJson(SIDropdown dropdown, bool deep)
+	{
+		var choices = dropdown.m_choices;
+		var count = choices?.Count ?? 0;
+		var names = new List<string>();
+		for (var i = 0; i < count && i < 60; i++) names.Add(Choice(choices[i]));
+
+		// Submenus are only spelled out on request: most callers want the top level,
+		// and a menu of menus is large.
+		var submenus = "";
+		if (deep)
+		{
+			// A list of options marks the one in force on the row itself.
+			for (var i = 0; i < count && i < 60; i++)
+			{
+				if (!Marked(choices[i])) continue;
+				submenus += $", \"Marked\": \"{i}\"";
+				break;
+			}
+
+			var parts = new List<string>();
+			for (var i = 0; i < count && i < 60; i++)
+			{
+				var children = Children(choices[i]);
+				if (children == null) continue;
+
+				var inner = new List<string>();
+				for (var c = 0; c < children.Count && c < 60; c++) inner.Add($"\"{Report.Escape(Choice(children[c]) ?? "")}\"");
+				parts.Add($"\"{i}\": [{string.Join(", ", inner)}]");
+			}
+			submenus += ", \"Submenus\": {" + string.Join(", ", parts) + "}";
+		}
+
+		return "{"
+			+ $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", "
+			+ $"\"Name\": \"{Report.Escape(NameOf(dropdown))}\", "
+			+ $"\"Label\": \"{Report.Escape(LabelOf(dropdown))}\", "
+			+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "
+			+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
+			+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]" + submenus + "}";
 	}
 
 	/// <summary>
@@ -813,7 +815,8 @@ internal static class Buttons
 	/// </summary>
 	public static string Click(NameValueCollection q)
 	{
-		if (!TryPointer(q["ptr"] ?? "", out var pointer)) return "error: ?ptr=<0x…> required";
+		if (!string.IsNullOrEmpty(q["text"])) return ClickText(q);
+		if (!TryPointer(q["ptr"] ?? "", out var pointer)) return "error: ?ptr=<0x…> or ?text=<shown text> required";
 
 		foreach (var element in Elements())
 		{
@@ -828,6 +831,39 @@ internal static class Buttons
 			return $"clicked \"{LabelOf(button)}\" name={NameOf(button)}";
 		}
 		return $"error: no element at {q["ptr"]} (the screen may have changed)";
+	}
+
+	/// <summary>
+	/// Click the button a shown text sits in: a tile whose title is the text, a tab, a link.
+	/// Many of these carry no label of their own, so the text is the only stable handle on them.
+	/// </summary>
+	private static string ClickText(NameValueCollection q)
+	{
+		var wanted = q["text"];
+		foreach (var element in Elements())
+		{
+			try
+			{
+				if (element.panel == null || element.worldBound.width <= 0) continue;
+				if (Text.Plain(element.TryCast<TextElement>()?.text ?? "") != wanted) continue;
+			}
+			catch { continue; }
+
+			for (var e = element; e != null; e = e.hierarchy.parent)
+			{
+				SIButton button;
+				try { button = e.TryCast<SIButton>(); } catch { button = null; }
+				if (button == null) continue;
+
+				// The same words can label two things at once — a tab and the main menu entry —
+				// and ?name= says which kind of button is meant.
+				if (!string.IsNullOrEmpty(q["name"]) && NameOf(button) != q["name"]) break;
+				if (q["dry"] == "1") return $"dry run, NOT clicked: \"{wanted}\" name={NameOf(button)}";
+				button.SimulateButtonClick(q["arg"] == "1");
+				return $"clicked \"{wanted}\" name={NameOf(button)}";
+			}
+		}
+		return $"error: no button shows '{wanted}'";
 	}
 
 	/// <summary>Every button inside one element, with or without events, as pointer, label and name.</summary>

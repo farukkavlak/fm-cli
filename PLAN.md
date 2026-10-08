@@ -26,7 +26,7 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
 
 0. **UX ve görselleştirme** — yön kararı (yukarıda "Ürün kararları", ayrıntı §14). Büyük kısmı
    7 Ekim gecesi yapıldı (günlük). Kalan: maç ekranında on bir ve kulübe, fikstür renkleri,
-   form; otomatik kayıt ve maç hızı ayarları (karar bekliyor).
+   form. Otomatik kayıt ve maç hızı `fm settings`'te (9 Ekim gecesi).
 1. **Maç içi yönetimin kalanı.** `fm sub` oyuncu değiştiriyor (§8.34). Kalan: sakatlık
    durağını `fm match`'in kendisinin geçmesi (sub + "Confirm Changes"), maç içi mentalite / rol /
    shout (hepsi alt menülü listeler, seçim yolu belli), "Dugout" tavsiyelerini okumak, maç hızı.
@@ -275,7 +275,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Maç içi oyuncu değişikliği — `fm sub <çıkan> <giren>`; `fm sub` sahayı ve kulübeyi listeler (§8.34)
 - [ ] Sakatlık durağı — maç duruyor, `fm match` söyleyip bırakıyor; `fm sub` + "Confirm Changes" orada denenmedi
 - [x] Anında sonuç — `fm match --instant`, 9 sn (§8.34)
-- [ ] Maç hızı (`EventFmxHighlightModeChanged`, `…HighlightSpeedChanged`) — oynanan maç ~6-7 dk
+- [x] Maç hızı — `fm settings vurgu hızı` (en çok 10x), `ara hızı` (en çok 40x), `maç gösterimi` (§8.61); maç içinden değiştirmek yok
 - [~] Maç içi taktik değişimi — mentalite (`fm tactic mentality` maç sırasında) ✓, bağırış (`fm shout`,
       doğrulanmadı) (§8.54); roller ve talimatlar maç içinde yok
 - [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
@@ -347,14 +347,15 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ## 12. Ayarlar
 
-- [ ] **Dil değiştir**
-- [ ] **Para birimi değiştir**
-- [ ] Tarih formatı
-- [ ] Ölçü birimi (metrik/emperyal)
-- [ ] Oyun hızı / detay seviyesi
+- [x] **Dil değiştir** — `fm settings dil` (uyarıyla: komutlar İngilizce okuyor; canlı denenmedi) (§8.61)
+- [x] **Para birimi değiştir** — `fm settings para birimi euro` (§8.61)
+- [x] Tarih formatı — `fm settings tarih`
+- [x] Ölçü birimi — `fm settings boy / kısa mesafe / uzun mesafe / sıcaklık`, maaş haftalık/aylık/yıllık
+- [x] Maç hızı ve gösterimi — `fm settings vurgu hızı / ara hızı / maç gösterimi / dinamik mod`
+- [ ] Detay seviyesi (FM menüsünde "Detail Level" döşemesi)
 - [ ] Hangi ligler yüklü (add/remove league)
 - [ ] Bildirim tercihleri
-- [ ] Otomatik kaydetme aç / kapat ve sıklığı — kullanıcı seçecek (ürün kararı)
+- [x] Otomatik kaydetme aç / kapat, sıklığı ve türü — `fm settings otomatik kayıt / kayıt sıklığı / kayıt türü`
 - [ ] Maç varsayılanı: oynat / anında sonuç — kullanıcı seçecek
 - [ ] Skin / tema (bizde anlamsız ama API'de var)
 
@@ -447,6 +448,15 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-09 (gece, otonom)
+
+- **`fm settings`** (FINDINGS §8.61): oyunun tercihleri — maç gösterimi, vurgu / ara hızı, dinamik
+  mod, otomatik kayıt (aç/kapa, sıklık, tür), dil, para birimi, maaş, tarih, birimler. Çıplak hali
+  gösterir ve terminalde okla değiştirtir; `settings <ayar> <değer>`. Oyunda ayar "Confirm"
+  basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
+  (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
+  Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
 
 ### 2026-10-08 (gece, otonom)
 

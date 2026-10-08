@@ -21,7 +21,7 @@ sen her şeyi `fm` komutlarıyla yaparsın.
 8. [Maç günü — `match`, `sub`, `talk`, `report`](#8-maç-günü--match-sub-talk-report)
 9. [Lig ve fikstür — `table`, `fixtures`](#9-lig-ve-fikstür--table-fixtures)
 10. [Transfer ve sözleşme — `players`, `offer`, `contract`](#10-transfer-ve-sözleşme--players-offer-contract)
-11. [Kaydetmek — `save`](#11-kaydetmek--save)
+11. [Kaydetmek ve oyun ayarları — `save`, `settings`](#11-kaydetmek-ve-oyun-ayarları--save-settings)
 12. [Her şeye erişim — `pages`, `buttons`, `press`](#12-her-şeye-erişim--pages-buttons-press)
 13. [Claude'dan oynamak — MCP](#13-claudedan-oynamak--mcp)
 
@@ -408,9 +408,55 @@ Değeri olmayan bir ad (`--term "Will appoint player as captain"`) vaadi ya da m
 uygulanır. Menajere sormadan görüşmeye girmek oyunda oyuncuyu ve menajeri üzebilir; oyun bunu
 sorar, `contract` da terminalde sorar. İptal edilen görüşme bir süre yeniden açılamayabilir.
 
-## 11. Kaydetmek — `save`
+## 11. Kaydetmek ve oyun ayarları — `save`, `settings`
 
 `fm save --yes` oyunu kaydeder. Mevcut kaydın üzerine yazar, o yüzden `--yes` ister.
+
+`fm settings` oyunun ayarlarını gösterir: maçın ne kadarının gösterildiği ve hızı, otomatik
+kayıt, dil, para birimi, birimler. Terminaldeysen ardından hangisini değiştirmek istediğini
+okla sorar; "Hiçbiri" ile çıkarsın.
+
+```
+$ fm settings
+Maç
+  maç gösterimi: Önemli anlar        az gösterim maçı kısaltır
+  dinamik mod: Kapalı                 gösterimi oyun seçer
+  vurgu hızı: 1.5x                    pozisyon oynarken
+  ara hızı: 30x                       pozisyonlar arası
+Kayıt
+  otomatik kayıt: Açık
+  kayıt sıklığı: Her hafta
+  kayıt türü: 3 dosya, sırayla
+Bölge ve birimler
+  dil: English                        İngilizce dışı komutları bozar
+  para birimi: £ - UK Pound Sterling
+  maaş: Haftalık
+  tarih: dd/mm/yyyy
+  sıcaklık: Santigrat · boy: Santimetre · kısa mesafe: Metre · uzun mesafe: Kilometre
+```
+
+Tek bir ayarı adıyla değiştirmek için değeri de yaz; değer yazmazsan seçenekleri okla sunar
+(şu anki işaretli):
+
+```
+$ fm settings vurgu hızı 2x
+vurgu hızı: 1.5x → 2x
+$ fm settings kayıt sıklığı her gün
+kayıt sıklığı: Her hafta → Her gün
+$ fm settings para birimi euro
+para birimi: £ - UK Pound Sterling → € - Euro
+$ fm settings otomatik kayıt kapalı
+```
+
+Değer Türkçe ya da oyundaki İngilizce adıyla, baştan ya da içinden bir parçayla yazılabilir
+("euro", "uk pound", "2" = 2x); birden çok seçeneğe uyarsa hangileri olduğunu söyler. Oyunda
+ayarlar ancak "Confirm" ile işlenir; `settings` bunu kendisi yapar ve sayfayı yeniden açıp yeni
+değeri okuyarak doğrular.
+
+Maçı kısaltmanın iki yolu var: **maç gösterimi** "Yalnızca anlatım" ya da "Önemli anlar"
+(daha az pozisyon) ve **hızlar** (vurgu sırasında en çok 10x, aradaki sürede en çok 40x).
+Dili değiştirmek mümkün ama fm-cli oyunun İngilizce yazılarını okuduğu için çoğu komut çalışmaz
+hale gelir; `settings` bunu sorar, script'te `--yes` ister.
 
 ## 12. Her şeye erişim — `pages`, `buttons`, `press`
 
