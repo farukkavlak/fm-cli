@@ -279,7 +279,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Maç gününü oyna — `fm match`: izlemek mi anında sonuç mu diye sorar; kadro gönder, onay penceresi, konuşmalar, maç,
       çıkış; gol/devre/sonuç bildiriyor (§8.34)
 - [x] Maç içi oyuncu değişikliği — `fm sub <çıkan> <giren>`; `fm sub` sahayı ve kulübeyi listeler (§8.34)
-- [ ] Sakatlık durağı — maç duruyor, `fm match` söyleyip bırakıyor; `fm sub` + "Confirm Changes" orada denenmedi
+- [~] Sakatlık durağı — durak: değişiklik + "Confirm Changes" (§8.69, elle doğrulandı); `match` ve `sub` bunu yapıyor, yeni akış canlı durakta denenmedi
 - [x] Anında sonuç — `fm match --instant`, 9 sn (§8.34)
 - [x] Maç hızı — `fm settings vurgu hızı` (en çok 10x), `ara hızı` (en çok 40x), `maç gösterimi` (§8.61); maç içinden değiştirmek yok
 - [~] Maç içi taktik değişimi — mentalite ✓, bağırış ✓ (`fm shout`, §8.62), rol ✓ (`fm tactic role
@@ -477,6 +477,9 @@ Gençlerbirliği deplasman 0-4. 20 Eylül'de (maçtan sonra) elle kaydedildi. Ye
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Sakatlık durağı** (FINDINGS §8.69): Forest maçında Kanté sakatlandı; maç duraklıyor, değişiklik
+  "Confirm Changes" ile işleniyor. `match --play` durağı tanıyıp soruyor, `sub` onaylayıp sürdürüyor.
+  Avrupa Ligi ilk maç: Fenerbahçe 1-2 Nott'm Forest.
 - **Maç raporundaki gol dakikaları önceki maçtan geliyordu** (FINDINGS §8.68): köprünün liste okuması
   satır düğümlerini yeniden kullanıyordu; artık her okuma kendi satırlarını açıyor.
 - Gençlerbirliği deplasmanı 0-4 kaybedildi (sonuncu takım; 22 şut, 1.23 xG'ye karşı 1.81).

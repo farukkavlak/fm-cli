@@ -71,6 +71,7 @@ internal static partial class Program
 		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null, commentary = null;
 		var heard = new Queue<string>();
 		var advised = new HashSet<string>();
+		var firstLook = true;
 		var pressedAt = DateTime.MinValue;
 		var clockAt = DateTime.UtcNow;
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(40);
@@ -98,6 +99,7 @@ internal static partial class Program
 				}
 			}
 			stop = flow;
+			if (inMatch && Field(state, "Playing") == "True") firstLook = false;
 
 			Scoreline(state, names, ref period, ref score);
 
@@ -196,6 +198,36 @@ internal static partial class Program
 					else Console.WriteLine($"  {minute,5}'  Yardımcı: {Advice(advice)}  (dugout)");
 					foreach (var mark in marks) advised.Add(mark);
 				}
+			}
+
+			// An injury stops the match: the clock halts, play is paused and the screen offers
+			// "Confirm Changes" (FINDINGS §8.69). The assistant's note on the Dugout says who.
+			if (Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
+			    && ConfirmChanges(controls) is { } confirm)
+			{
+				var why = await DugoutText();
+				Console.WriteLine($"  Maç {Field(state, "MatchTime")}'da durdu{(why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}");
+
+				// Called again while stopped, `match` means: go on as things are.
+				if (!Ui.Interactive && firstLook)
+				{
+					await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
+					await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
+					Console.WriteLine("  Değişiklik yapılmadan sürdürüldü.");
+					clockAt = DateTime.UtcNow;
+					firstLook = false;
+					continue;
+				}
+				if (!Ui.Interactive)
+				{
+					Console.WriteLine("  Değişiklik için: sub <çıkan> <giren> (maçı da sürdürür)   ·   değişiklik yapmadan sürdürmek: match");
+					return 0;
+				}
+				await Substitute(false, ["sub"]);
+				await Fm.Get("press", ("ptr", Field(ConfirmChanges(await Fm.GetJson("buttons", ("json", "1"))) ?? confirm, "Pointer")));
+				await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
+				clockAt = DateTime.UtcNow;
+				continue;
 			}
 
 			var button = controls.EnumerateArray()
@@ -551,6 +583,17 @@ internal static partial class Program
 			return 0;
 		}
 
+		// At an injury stop the change waits for "Confirm Changes", which also restarts play.
+		if (Field(await Fm.GetJson("state"), "Playing") != "True" && ConfirmChanges(await Fm.GetJson("buttons", ("json", "1"))) is { } resume)
+		{
+			await Fm.Get("press", ("ptr", Field(resume, "Pointer")));
+			var going = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
+			Console.WriteLine(going
+				? $"Değişiklik yapıldı: {leaving} çıktı, {coming} girdi. Maç sürüyor; izlemeye devam: match"
+				: $"{coming} seçildi ve değişiklik onaylandı ama maç hâlâ duruyor: buttons");
+			return going ? 0 : 1;
+		}
+
 		// Done when the player who left no longer has a menu on the pitch.
 		var made = await Until(async () => !(await Menus()).Any(m => m.GetProperty("Choices")[0].GetString() == leaving), seconds: 20);
 		Console.WriteLine(made
@@ -642,4 +685,9 @@ internal static partial class Program
 			Console.WriteLine($"Yeni soru: {Field(next[0], "Title")} — {Field(next[0], "Description")}   (cevap: dialog)");
 		return closed ? 0 : 1;
 	}
+
+	/// <summary>The "Confirm Changes" button the match screen shows while it waits at a stop, if it does.</summary>
+	private static JsonElement? ConfirmChanges(JsonElement controls) =>
+		controls.EnumerateArray().Cast<JsonElement?>()
+			.FirstOrDefault(c => Field(c.Value, "Label") == "Confirm Changes" && Field(c.Value, "Enabled") == "True");
 }

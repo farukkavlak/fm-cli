@@ -2717,6 +2717,28 @@ oradan yapılıyor. Düzeltmeden sonra rapor 2', 26', 60', 82' verdi, dört okum
 bağlama ağacına yeni düğümler ekliyor ve hiçbiri silinmiyor; çok uzun bir oturumda ağaç büyür.
 Gerekirse eski nesillerin düğümlerini kaldırmak (ya da satır sayısıyla sınırlı bir halka) eklenebilir.
 
+## 8.69 Sakatlık durağı (9 Ekim gecesi, Fenerbahçe–Nott'm Forest, UEFA Avrupa Ligi)
+
+16:36'da Kanté bileğini burktu. Oyun taktik ekranını **açmadı** (8.34'teki ilk maçta açmıştı);
+maç ekranında kaldı ve durakladı: `/state`'te `Playing` alanı yok, saat duruyor, onay penceresi
+yok. Dugout'a bir not düştü: "N'Golo Kanté has picked up an injury and we should substitute him as
+soon as possible. It looks like he's suffered a twisted ankle." (Do it açık). Ekranda bir de
+**"Confirm Changes"** (`button-primary-leading-icon-label`) belirdi.
+
+`fm sub Kanté Fred` değişikliği verdi ("ilk duraklamada uygulanır") ama maç durmaya devam etti;
+"Confirm Changes"e (`/press`) basınca 4 sn içinde `Playing = True`, saat 19:34, Fred sahada
+("Seemed calm coming onto the pitch"). Yani durak: değişiklik → Confirm Changes.
+
+Artık: `fm match --play` durağı hemen tanıyor (Playing yok + Confirm Changes), yardımcının notunu
+yazıyor; terminalde değişikliği soruyor ve sürdürüyor, script'te `sub <çıkan> <giren>` diyor ve
+çıkıyor. `fm sub` durakta değişikliği yapıp Confirm Changes'e kendisi basıyor; durakta yeniden
+çağrılan `fm match` değişiklik yapmadan sürdürüyor. Yeni akış canlı bir durakta henüz
+denenmedi (bu maçta elle yapıldı).
+
+Aynı maçta diğer maçların skor kartları gol atanla ve çok satırlı geldi ("LIN 0 - 1 VFB Linfield 0
+VfB Stuttgart 1 (Bilal El Khannouss 1)\nFenerbahçe drop down to 12th position"); skor kartı
+süzgeci artık satır sonlarını da kapsıyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

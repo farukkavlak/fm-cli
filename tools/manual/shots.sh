@@ -24,6 +24,10 @@ SHOTS=(
 	"fixtures|fm fixtures"
 	"report|fm report"
 	"search|fm search Arda"
+	"career|fm player Kerem --career"
+	"calendar|fm calendar eylül"
+	"fixtures-all|fm fixtures --all"
+	"budget|fm budget"
 )
 
 shoot() {

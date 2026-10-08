@@ -275,7 +275,8 @@ internal static partial class Program
 		return string.Join(" ", texts.Skip(1).Where(t => t != "Do it"));
 	}
 
-	private static readonly Regex ScoreCard = new(@"^(\S+) (\d+ - \d+) (\S+)(?: (.+))?$");
+	// "FB 0 - 0 GÖZ", maybe with the scorers and a line on the table after it.
+	private static readonly Regex ScoreCard = new(@"^(\S+) (\d+ - \d+) (\S+)(?: (.+))?$", RegexOptions.Singleline);
 
 	/// <summary>A score card is news of the table, not something to act on.</summary>
 	private static bool IsScoreCard(string text) => ScoreCard.IsMatch(text);

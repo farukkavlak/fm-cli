@@ -296,6 +296,10 @@ $ fm dugout
   3   48'  We must improve our game, especially in creating chances.
 ```
 
+Bir oyuncu sakatlanınca maç durur: `match --play` yardımcının notunu yazar ("Kanté … twisted
+ankle") ve terminalde kimin çıkıp kimin gireceğini sorar; script'te `sub <çıkan> <giren>` maçı da
+sürdürür, değişiklik yapmadan sürdürmek için yeniden `match`.
+
 Bağırıştan sonra oyun yeni bağırışa birkaç dakika izin vermiyor; `shout` bunu söyler. Yardımcının
 tavsiyeleri `match --play` akışında da çıkar ("Yardımcı: …"). Dugout paneli pozisyon oynatılırken
 gizleniyor; `dugout` o sırada çağrılırsa panel geri gelene kadar bekler.
