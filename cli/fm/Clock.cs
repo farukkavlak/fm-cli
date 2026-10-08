@@ -311,7 +311,7 @@ internal static partial class Program
 		}
 		// A question put after a match (the reaction, a tunnel interview) waits as a conversation
 		// while the game still calls itself free to go on; going on would pass it by unanswered.
-		if (Passable(flow) && (await TalkOptions()).Count > 0)
+		if ((Passable(flow) || flow is "NeedAction" or "PressConference") && (await TalkOptions()).Count > 0)
 		{
 			var asked = (await Fm.GetJson("talk")).TryGetProperty("Says", out var says) ? says.EnumerateArray().Select(x => x.GetString()).LastOrDefault() : null;
 			Console.WriteLine($"Açık bir soru var{(asked != null ? $": \"{asked}\"" : "")}");
