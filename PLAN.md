@@ -281,8 +281,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
 - [~] Canlı maç takibi — `fm match --play` anlatım satırlarını, golleri ve skoru akıtıyor; maç ekranının kalanı §14
 - [x] Maç içi: rol değişimi, shout (§8.62)
-- [~] Yardımcının maç içi tavsiyeleri — `fm dugout` okuyor, uygula / kaldır; "uygula"nın etkisi
-      doğrulanmadı; `match --play` yeni tavsiyeyi akışta yazıyor
+- [x] Yardımcının maç içi tavsiyeleri — `fm dugout` okuyor, uygula / kaldır (doğrulama: Do it
+      kapanıyor / tavsiye düşüyor); `match --play` yeni tavsiyeyi akışta yazıyor (§8.62)
 - [x] Maç sonrası — `fm report`: skor, goller, maçın oyuncusu ve notu, istatistikler; basın toplantısı `fm talk`
 - [~] Maç istatistikleri — `fm report` topla oynama, şut, isabet, xG, korner, faul; pas / ısı haritası yok
 - [ ] Highlight özeti (metin)

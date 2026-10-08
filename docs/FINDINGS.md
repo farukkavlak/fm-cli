@@ -2589,9 +2589,18 @@ hızlı bölümde görünüyor (2 sn'lik yoklamayla 78–79' gizli, 80–95' gö
 listelenmiyor. Veride `MatchDugoutEventCount`, `MatchDugoutTimelineEvent0..5.Text` var ama maç
 referansının yolu bulunamadı (`..MatchUI2D` ile `/pull` oyunda hata fırlattı).
 
-"Do it"e basınca panel bir sonraki tavsiyeye geçti; uygulanan olayın kendisinde görünür bir iz
-yok ve etkisi (Talisca'ya "Shoot Less Often") maç sonrası taktikte görünmedi — maç içi
-değişiklikler maçın kendi taktiğinde kalıyor. Yani "Do it"in işlediği **doğrulanmadı**.
+"Do it"e basınca panel bazen bir sonraki tavsiyeye geçiyor; etkisi (Talisca'ya "Shoot Less
+Often") maç sonrası taktikte görünmedi — maç içi değişiklikler maçın kendi taktiğinde kalıyor.
+**İz şu:** uygulanan tavsiyeye geri dönünce "Do it" kapalı (`Enabled = False`); kaldırılan
+tavsiye çizelgeden düşüyor. Göztepe maçında "Discourage Long Shots" ve bir yorum (kaldır) böyle
+doğrulandı. Eylemsiz yorumlarda ve skor kartlarında ("FB 0 - 0 GÖZ — Fenerbahçe move up to 13th
+position") "Do it" baştan kapalı; maç başında bir de "No Dugout Events" yer tutucusu var.
+"Marco Asensio is struggling and wants to be substituted" uygulanabilir göründü (Do it açık;
+büyük olasılıkla değişikliği yapıyor), denenemeden çizelgeden düştü. Çizelge hızla kayıyor:
+numara iki komut arasında değişebiliyor (terminalde listeden seçmek bu yüzden daha sağlam).
+
+Maç: Fenerbahçe 0-0 Göztepe. Aynı maçta `fm sub`'ın kulübeyi boş gösterdiği görüldü: kalecinin
+menüsünde kulübe alt menüsü gelmiyor; artık kulübe dolu olan ilk menüden okunuyor.
 
 `fm dugout` (liste, `<no> uygula | kaldır`), maç sırasında `fm tactic role <oyuncu> [<rol>]
 [--oop]`, `fm match --play` akışında yeni tavsiye "Yardımcı: …" satırı.

@@ -135,15 +135,15 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(entries.Select(e => new { e.Minute, e.Text })));
+			Console.WriteLine(JsonSerializer.Serialize(entries.Select(e => new { e.Minute, e.Text, CanDo = e.Open })));
 			return 0;
 		}
 
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			for (var i = 0; i < entries.Count; i++) Console.WriteLine($"  {i + 1}  {entries[i].Minute,3}'  {Advice(entries[i].Text)}");
-			if (Ui.Ask("Hangisi?", entries.Select(e => $"{e.Minute}'  {Advice(e.Text)}").ToList()) is not { } picked)
+			for (var i = 0; i < entries.Count; i++) Console.WriteLine($"  {i + 1}  {entries[i].Minute,3}'  {Advice(entries[i].Text)}{Mark(entries[i])}");
+			if (Ui.Ask("Hangisi?", entries.Select(e => $"{e.Minute}'  {Advice(e.Text)}{Mark(e)}").ToList()) is not { } picked)
 			{
 				if (!Ui.Interactive) Console.WriteLine("\nUygulamak: dugout <no> uygula   ·   kaldırmak: dugout <no> kaldır");
 				return 0;
@@ -178,6 +178,12 @@ internal static partial class Program
 			return 1;
 		}
 
+		if (action is "uygula" or "do" or "evet" && !entry.Open)
+		{
+			Console.Error.WriteLine($"{entry.Minute}'  {Advice(entry.Text)} — bunun uygulanacak bir yanı yok ya da zaten uygulandı.");
+			return 1;
+		}
+
 		// The buttons act on whichever entry is showing, so that one is brought up first.
 		if (await ShowDugoutEntry(entry.Pointer) != entry.Text)
 		{
@@ -194,15 +200,22 @@ internal static partial class Program
 		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
-		// Either way the panel moves on from the entry: to the next one, or away when none is left.
-		var moved = await Until(async () => await DugoutText() != entry.Text, seconds: 4, every: 0.25);
-		Console.WriteLine(moved
+		// Taken advice keeps its place but its "Do it" goes dark; dismissed advice leaves the
+		// timeline. The panel may also have moved on to the next entry meanwhile.
+		var done = await Until(async () =>
+		{
+			var now = await DugoutEntries();
+			var same = now.FirstOrDefault(e => e.Minute == entry.Minute && e.Text == entry.Text);
+			return event_ == "MatchDugoutConfirm" ? same is { Open: false } : same == null;
+		}, seconds: 8, every: 1);
+		Console.WriteLine(done
 			? $"{entry.Minute}'  {Advice(entry.Text)} — {verb}."
-			: $"{entry.Minute}'  {Advice(entry.Text)} — butona basıldı ama panel aynı tavsiyede duruyor.");
-		return moved ? 0 : 1;
+			: $"{entry.Minute}'  {Advice(entry.Text)} — butona basıldı ama oyun {(event_ == "MatchDugoutConfirm" ? "tavsiyeyi uygulanmış göstermiyor" : "tavsiyeyi listeden kaldırmadı")}.");
+		return done ? 0 : 1;
 	}
 
-	private sealed record DugoutEntry(string Minute, string Pointer, string Text);
+	/// <summary>One entry on the timeline; Open while its "Do it" can still be pressed.</summary>
+	private sealed record DugoutEntry(string Minute, string Pointer, string Text, bool Open);
 
 	/// <summary>Every entry on the Dugout timeline with its text, oldest first.</summary>
 	private static async Task<List<DugoutEntry>> DugoutEntries()
@@ -218,7 +231,7 @@ internal static partial class Program
 		foreach (var (minute, pointer) in marks)
 		{
 			var text = await ShowDugoutEntry(pointer);
-			if (text.Length > 0) entries.Add(new(minute, pointer, text));
+			if (text.Length > 0 && text != "No Dugout Events") entries.Add(new(minute, pointer, text, await DugoutOpen()));
 		}
 
 		// Put back the entry that was showing, so reading the list changes nothing.
@@ -226,6 +239,13 @@ internal static partial class Program
 		if (was != null && entries.LastOrDefault()?.Text != showing) await ShowDugoutEntry(was.Pointer);
 		return entries;
 	}
+
+	private static async Task<bool> DugoutOpen() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Any(b => Field(b, "Events").Contains("MatchDugoutConfirm", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
+
+	private static string Mark(DugoutEntry entry) =>
+		IsScoreCard(entry.Text) ? "" : entry.Open ? "  [uygulanabilir]" : "";
 
 	private static async Task<bool> DugoutShowing() =>
 		(await Fm.GetJson("texts", ("anchor", "Dugout"), ("up", "0"))).GetArrayLength() > 0;
@@ -244,16 +264,26 @@ internal static partial class Program
 		return text;
 	}
 
-	/// <summary>What the Dugout panel says now: its title, then the entry's text, then "Do it".</summary>
+	/// <summary>
+	/// What the Dugout panel says now, between its title and "Do it": a line of advice, or a
+	/// score card ("FB", "0 - 0", "GÖZ", "Fenerbahçe move up to 13th position").
+	/// </summary>
 	private static async Task<string> DugoutText()
 	{
 		var texts = (await Fm.GetJson("texts", ("anchor", "Dugout"), ("up", "12"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-		return texts.Skip(1).FirstOrDefault(t => t != "Do it") ?? "";
+		return string.Join(" ", texts.Skip(1).Where(t => t != "Do it"));
 	}
+
+	private static readonly Regex ScoreCard = new(@"^(\S+) (\d+ - \d+) (\S+)(?: (.+))?$");
+
+	/// <summary>A score card is news of the table, not something to act on.</summary>
+	private static bool IsScoreCard(string text) => ScoreCard.IsMatch(text);
 
 	/// <summary>The kind of advice said in Turkish, its substance left as the game puts it.</summary>
 	private static string Advice(string text)
 	{
+		var card = ScoreCard.Match(text);
+		if (card.Success) return $"Skor {card.Groups[1].Value} {card.Groups[2].Value} {card.Groups[3].Value}{(card.Groups[4].Success ? $" — {card.Groups[4].Value}" : "")}";
 		var team = Regex.Match(text, @"^Add team instruction: (.+)$");
 		if (team.Success) return $"Takım talimatı: {team.Groups[1].Value}";
 		var opposition = Regex.Match(text, @"^Add opposition instruction for (.+?): (.+)$");

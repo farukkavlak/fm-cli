@@ -186,10 +186,13 @@ internal static partial class Program
 			if (marks.Count > 0 && marks.Any(m => !advised.Contains(m)))
 			{
 				var advice = await DugoutText();
-				if (advice.Length > 0)
+				if (advice.Length > 0 && (IsScoreCard(advice) || advice == "No Dugout Events")) foreach (var mark in marks) advised.Add(mark);
+				else if (advice.Length > 0)
 				{
-					if (Ui.Rich) Ui.Line($"  [cyan]{Ui.Safe(marks.Last()),5}'  Yardımcı: {Ui.Safe(Advice(advice))}[/] [dim](dugout)[/]");
-					else Console.WriteLine($"  {marks.Last(),5}'  Yardımcı: {Advice(advice)}  (dugout)");
+					// The newest mark can come unlabelled; the clock says when it is.
+					var minute = marks.Last() is { Length: > 0 } labelled ? labelled : Field(state, "MatchTime").Split(':')[0].TrimStart('0');
+					if (Ui.Rich) Ui.Line($"  [cyan]{Ui.Safe(minute),5}'  Yardımcı: {Ui.Safe(Advice(advice))}[/] [dim](dugout)[/]");
+					else Console.WriteLine($"  {minute,5}'  Yardımcı: {Advice(advice)}  (dugout)");
 					foreach (var mark in marks) advised.Add(mark);
 				}
 			}
@@ -460,7 +463,8 @@ internal static partial class Program
 		}
 
 		var onPitch = menus.Select(m => m.GetProperty("Choices")[0].GetString()).ToList();
-		var bench = Bench(menus[0]);
+		// The goalkeeper's menu can come without the bench spelled out; any other has it.
+		var bench = menus.Select(Bench).FirstOrDefault(b => b.Count > 0) ?? [];
 		var words = Words(args).ToList();
 
 		if (json)
