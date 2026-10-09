@@ -264,7 +264,9 @@ internal static partial class Program
 		if (!await Choose(view))
 		{
 			if (!await Until(async () => Sent(await Fm.Get("open", ("page", "First Team")))))
-				throw new FmError("'First Team' sayfası açılamadı.");
+				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0
+					? $"Oyun menüsüz bir ekranda ({Field(await Fm.GetJson("state"), "State")}); sayfalar açılamıyor. Geçmek için: next"
+					: "'First Team' sayfası açılamadı.");
 
 			if (!await Until(() => Choose(view)))
 				throw new FmError($"Kadro tablosunda '{view}' görünümü bulunamadı.");
@@ -743,7 +745,13 @@ internal static partial class Program
 
 		// Right after a match the navigation is rebuilt and the page list is empty for a while
 		// (FINDINGS §8.52); it is waited for rather than reported as no such page.
-		await Until(async () => (await Fm.GetJson("pages")).GetArrayLength() > 0, seconds: 5, every: 0.5);
+		if (!await Until(async () => (await Fm.GetJson("pages")).GetArrayLength() > 0, seconds: 5, every: 0.5))
+		{
+			// A screen of its own — the round's results after a European night, a press
+			// conference — takes the menus away until it is moved past.
+			var flow = Field(await Fm.GetJson("state"), "State");
+			return $"error: oyun menüsüz bir ekranda ({flow}); sayfalar açılamıyor. Geçmek için: next";
+		}
 
 		// A dry run names the page in full or says why it cannot: "…: <tab> › <page> (panel …".
 		var planned = await Arriving("open", [.. query, ("dry", "1")]);

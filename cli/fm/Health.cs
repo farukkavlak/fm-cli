@@ -12,9 +12,11 @@ internal static partial class Program
 	private static async Task<int> Health(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		JsonElement injuries, risks;
+		JsonElement injuries, risks, general;
 		try
 		{
+			// The General view says who is away on loan ("Out On Loan" for playing time).
+			general = await SquadView("General Info", "AgreedPlayingTime");
 			injuries = await SquadView("Injuries", "InjuriesTimeMissed");
 			risks = await SquadView("Risk Assessment", "OverallInjuryRisk");
 		}
@@ -24,9 +26,9 @@ internal static partial class Program
 			return 1;
 		}
 
-		// Players out on loan are in the table too, marked by their status.
-		static bool Here(JsonElement p) => !Field(p, "StatusTitleShort").StartsWith("Lnd", StringComparison.Ordinal)
-		                                   && !Field(p, "StatusTitleShort").Equals("Loan", StringComparison.OrdinalIgnoreCase);
+		// Players out on loan are in the table too; they are someone else's to look after.
+		var away = general.EnumerateArray().Where(p => Field(p, "AgreedPlayingTime") == "Out On Loan").Select(p => Field(p, "Name")).ToHashSet();
+		bool Here(JsonElement p) => !away.Contains(Field(p, "Name"));
 		static int Number(JsonElement p, string f) => int.TryParse(Field(p, f), out var n) ? n : -1;
 
 		var all = injuries.EnumerateArray().Where(Here).ToList();
