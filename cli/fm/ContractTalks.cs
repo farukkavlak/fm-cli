@@ -16,6 +16,7 @@ internal static partial class Program
 
 	private static async Task<int> Contract(string[] args)
 	{
+		if (args.Contains("--agent")) return await AskAgent(args);
 		var wanted = string.Join(" ", Words(args));
 		var screen = await OfferScreen.Read(Fm, "contract");
 		if (screen != null) screen = await TalksSettled();

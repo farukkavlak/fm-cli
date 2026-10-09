@@ -250,7 +250,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Sözleşme feshi / serbest bırakma — `fm release <oyuncu> [--free|--mutual] [--yes]` (§8.76); `--yes` ile gerçek bırakma denenmedi
 - [ ] Serbest oyuncular
 - [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
-- [k] Menajerle görüşme — `PersonAskAgentAboutClientContractRenewal`
+- [x] Menajerle görüşme — `fm contract <oyuncu> --agent`, sonra `talk` (§8.76)
 - [x] Transfer bütçesi ↔ maaş bütçesi — `fm budget ayarla` (§8.65); bütçe artışı istemek yok
 - [~] Takas teklifi — kartta "+ Takasa oyuncu ekle", transfer ya da kiralık (§8.45); takaslı
       teklif gönderilip cevabı görülmedi
@@ -475,6 +475,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   tazminatı söyleyip soruyor (Fred: £7,5M), komut onu gösteriyor. ⚠ Karşılıklı fesih oyunda
   **onaysız** işliyor — denemede Fred'e gitti; oyun kaydedilmeden yeniden başlatılıp geri alındı.
   Komut bu yüzden `--mutual`'da kendisi onay istiyor.
+- **Menajere yenileme sorusu**: `fm contract <oyuncu> --agent` aynı sözleşme bölümünden "Discuss New Contract
+  With Agent"i açıp konuşmayı `talk`a bırakıyor (Fred'in menajeri: "he doesn't want to, under any circumstances").
 
 ### 2026-10-09 (gece, otonom)
 

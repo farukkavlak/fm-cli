@@ -554,6 +554,11 @@ Değeri olmayan bir ad (`--term "Will appoint player as captain"`) vaadi ya da m
 uygulanır. Menajere sormadan görüşmeye girmek oyunda oyuncuyu ve menajeri üzebilir; oyun bunu
 sorar, `contract` da terminalde sorar. İptal edilen görüşme bir süre yeniden açılamayabilir.
 
+### Menajere sormak — `contract --agent`
+
+`fm contract Kerem --agent` menajerine yenilemeye açık olup olmadığını sorar; ilgi derecesini
+`talk <numara>` ile seçersin, cevabı görürsün.
+
 ### Serbest bırakma — `release`
 
 ```

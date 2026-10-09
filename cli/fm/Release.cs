@@ -10,6 +10,54 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
+	/// <summary>His wage on his page opens the contract section, where the talks about it are; null once open.</summary>
+	private static async Task<int?> OpenContractSection(string name)
+	{
+		var wage = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(c => Field(c, "Name") == "ContractDetails");
+		if (wage.ValueKind != JsonValueKind.Object)
+		{
+			Console.Error.WriteLine($"{name} bizim oyuncumuz değil ya da sözleşmesi açılamıyor.");
+			return 1;
+		}
+		var opened = await Arriving("press", [("ptr", Field(wage, "Pointer"))]);
+		return opened.StartsWith("error", StringComparison.Ordinal) ? Report(opened) : null;
+	}
+
+	/// <summary>
+	/// Asking his agent whether he would renew (FINDINGS §8.76): the conversation is the game's
+	/// own, carried on with `talk` — how keen we are, then the agent's answer.
+	/// </summary>
+	private static async Task<int> AskAgent(string[] args)
+	{
+		if (await NotNow() is { } refused) return refused;
+		var wanted = string.Join(" ", Words(args));
+		if (wanted.Length == 0)
+		{
+			Console.Error.WriteLine("kullanım: contract <oyuncu> --agent");
+			return 64;
+		}
+		if (await OpenPlayer(wanted) is not { } card) return 1;
+		var name = Field(card.GetProperty("Player"), "Name");
+		if (await OpenContractSection(name) is { } failed) return failed;
+
+		const string ask = "Discuss New Contract With Agent";
+		async Task<bool> Offered()
+		{
+			if ((await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(c => Field(c, "Label") == ask)) return true;
+			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+			return false;
+		}
+		if (!await Until(Offered, seconds: 10, every: 0.5))
+		{
+			Console.Error.WriteLine($"{name} için menajerle görüşme seçeneği yok (yakın zamanda konuşulmuş olabilir).");
+			return 1;
+		}
+		var pressed = await Arriving("press", [("text", ask), ("any", "1")]);
+		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+		await Task.Delay(1000);
+		return await TalkTo(false, ["talk"]);
+	}
+
 	private static async Task<int> Release(string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
@@ -22,14 +70,7 @@ internal static partial class Program
 		if (await OpenPlayer(wanted) is not { } card) return 1;
 		var name = Field(card.GetProperty("Player"), "Name");
 
-		var wage = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(c => Field(c, "Name") == "ContractDetails");
-		if (wage.ValueKind != JsonValueKind.Object)
-		{
-			Console.Error.WriteLine($"{name} bizim oyuncumuz değil ya da sözleşmesi açılamıyor.");
-			return 1;
-		}
-		var opened = await Arriving("press", [("ptr", Field(wage, "Pointer"))]);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		if (await OpenContractSection(name) is { } failed) return failed;
 
 		JsonElement list = default;
 		async Task<bool> Listed()

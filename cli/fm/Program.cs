@@ -970,6 +970,7 @@ internal static partial class Program
 			  tour            açık tanıtım turunu sonuna kadar yürüt
 			    --skip        turu atla (tur izin veriyorsa)
 			  contract [oyuncu]  sözleşme görüşmesi kartı: vaatler, sonra şartlar; terminalde okla düzenle
+			  contract <oyuncu> --agent  menajerine yenilemeye açık mı diye sor (sonra talk ile)
 			  release <oyuncu> [--free | --mutual] [--yes]  bedelsiz serbest bırak (tazminatı gösterir) ya da karşılıklı fesih
 			                  oyuncu verilirse (bizim oyuncumuz) yeni sözleşme görüşmesini açar
 			    --term "Şart=değer"  bir şartı ayarla / ekle ("Wage=20K", "Appearance Fee=kaldır",

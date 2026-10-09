@@ -2849,6 +2849,10 @@ Contract" ve "Release" listesi (`GenericDropdown`): "Release On A Free", "Mutual
 `fm release <oyuncu>` iki yolu listeler; `--free` oyunun penceresini gösterip `--yes` olmadan "No"
 der; `--mutual` `--yes` olmadan göndermez. `--yes` ile gerçek bırakma denenmedi.
 
+"Discuss New Contract With Agent" menajerle konuşmayı açıyor: dört ilgi derecesi (Very Interested …
+Curious) birer cümle, cevap ("…he doesn't want to, under any circumstances"), "End Chat". `talk`
+olduğu gibi yürütüyor; `fm contract <oyuncu> --agent` oraya götürüyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
