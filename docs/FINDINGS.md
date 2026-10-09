@@ -2833,6 +2833,24 @@ Hangi alışkanlığın çalışıldığı ekranda yazmıyor. Veride `PlayerTrai
 PlayerTraitsReference.TraitInDevelopment` var ama `Human.Team.Players` satırından `PlayerTraining`
 okunamadı (boş döndü); açık. Sahip olunanlar oyuncu kartında (`/player` → `Traits`).
 
+## 8.76 Serbest bırakma ve karşılıklı fesih (10 Ekim)
+
+Oyuncu sayfasında maaş butonu (`ContractDetails`, etiketi "£83K p/w") sözleşme bölümünü açıyor;
+konuşma alanında "Discuss New Contract With Agent", "Enter Contract Negotiations", "DoF To Negotiate
+Contract" ve "Release" listesi (`GenericDropdown`): "Release On A Free", "Mutual Termination".
+
+- **Release On A Free**: `/dialog` "Release Fred?" — "Fenerbahçe will have to pay £7.5M in
+  compensation to Fred. The cost … deducted from the current transfer budget." Yes / No.
+- ⚠ **Mutual Termination onay sormuyor**: seçilir seçilmez "Alright, I'll pass on your decision to
+  him, and make sure the board are in agreement." Denemede bu yüzden işlendi; oyun kaydedilmeden
+  kapatılıp geri alındı (ana kayıt 9 Ekim'den beri yazılmamıştı).
+- Liste sayfa otururken yeniden kuruluyor; bayat işaretçi yeniden bulunuyor.
+
+`fm release <oyuncu>` iki yolu listeler; `--free` oyunun penceresini gösterip `--yes` olmadan "No"
+der; `--mutual` `--yes` olmadan göndermez. `--yes` ile gerçek bırakma denenmedi.
+
+## 9. Sıradaki adımlar
+
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
 ("Sıradaki işler" ve "Günlük"). Bu dosya yalnızca bulguları taşıyor.
 

@@ -102,6 +102,7 @@ talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konu
 tour            açık tanıtım turunu sonuna kadar yürüt
   --skip        turu atla (tur izin veriyorsa)
 contract [oyuncu]  sözleşme görüşmesi kartı: vaatler, sonra şartlar; terminalde okla düzenle
+release <oyuncu> [--free | --mutual] [--yes]  bedelsiz serbest bırak (tazminatı gösterir) ya da karşılıklı fesih
                 oyuncu verilirse (bizim oyuncumuz) yeni sözleşme görüşmesini açar
   --term "Şart=değer"  bir şartı ayarla / ekle ("Wage=20K", "Appearance Fee=kaldır",
                 "Will appoint player as captain", "Tüm teklif=Pazarlıksız")

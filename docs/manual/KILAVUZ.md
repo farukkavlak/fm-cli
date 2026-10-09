@@ -554,6 +554,18 @@ Değeri olmayan bir ad (`--term "Will appoint player as captain"`) vaadi ya da m
 uygulanır. Menajere sormadan görüşmeye girmek oyunda oyuncuyu ve menajeri üzebilir; oyun bunu
 sorar, `contract` da terminalde sorar. İptal edilen görüşme bir süre yeniden açılamayabilir.
 
+### Serbest bırakma — `release`
+
+```
+fm release Fred                  iki yolu gösterir
+fm release Fred --free           oyunun tazminat penceresini gösterir, onaylamaz
+fm release Fred --free --yes     bedelsiz serbest bırak (tazminat transfer bütçesinden)
+fm release Fred --mutual --yes   karşılıklı fesih teklif et
+```
+
+Karşılıklı fesih oyunda onay sormadan işler; bu yüzden komut `--yes` (ya da terminalde okla onay)
+olmadan göndermez.
+
 ### Bütçe — `budget`
 
 ![fm budget](img/budget.png)

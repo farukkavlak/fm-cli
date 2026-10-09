@@ -247,7 +247,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Kiralık — `fm offer --loan`: kart, şartlar, satın alma opsiyonu, gönderildi (§8.46); cevabı ve
       kiralık uzatma (`PersonOfferExtendLoan`) görülmedi
 - [k] Oyuncuyu kulüplere öner — `PersonOfferToClubs`
-- [k] Sözleşme feshi / serbest bırakma — `PersonMutualTerminationContract`, `PersonReleaseClubFreeTransfer`
+- [~] Sözleşme feshi / serbest bırakma — `fm release <oyuncu> [--free|--mutual] [--yes]` (§8.76); `--yes` ile gerçek bırakma denenmedi
 - [ ] Serbest oyuncular
 - [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
 - [k] Menajerle görüşme — `PersonAskAgentAboutClientContractRenewal`
@@ -471,6 +471,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Alışkanlık öğretme** (FINDINGS §8.75): `fm training <oyuncu> --trait [<alışkanlık>]`, `--trait-remove`,
   `--trait-cancel`, `--trait-suggest`; yardımcının itirazı onay penceresi, `--yes` ile geçiliyor.
   Archie Brown'a "Plays One-Twos" başlatılıp iptal edildi; kalıcı değişiklik yok.
+- **Serbest bırakma** (FINDINGS §8.76): `fm release <oyuncu> [--free | --mutual] [--yes]`. Bedelsizde oyun
+  tazminatı söyleyip soruyor (Fred: £7,5M), komut onu gösteriyor. ⚠ Karşılıklı fesih oyunda
+  **onaysız** işliyor — denemede Fred'e gitti; oyun kaydedilmeden yeniden başlatılıp geri alındı.
+  Komut bu yüzden `--mutual`'da kendisi onay istiyor.
 
 ### 2026-10-09 (gece, otonom)
 
