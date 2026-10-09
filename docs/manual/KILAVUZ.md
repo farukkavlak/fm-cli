@@ -284,6 +284,19 @@ fm training Kanté --position "Midfielder (Centre)>Central Midfielder"
 fm training Kanté --position "Midfielder (Centre)"   o alt menüdeki rolleri listeler
 ```
 
+### Antrenman programı — `schedule`
+
+Bu haftanın ve gelecek haftanın antrenmanı, gün gün üç seans. Terminalde bugün `▶` ile, maç
+günleri sarı; geçmiş günler ve dinlenme soluk.
+
+```
+$ fm schedule
+GÜN           1. SEANS               2. SEANS               3. SEANS
+Pzt 6 Ekim    yolculuk               Recovery               dinlenme
+Sal 7 Ekim    Attacking Shadow Play  Defensive Shadow Play  dinlenme
+Çar 8 Ekim    Match Tactics          Match Practice         Recovery
+```
+
 ### Antrenman yoğunluğu — `intensity`
 
 ```

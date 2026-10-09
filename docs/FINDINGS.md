@@ -2773,7 +2773,21 @@ Kadro tablosunun Contract görünümü bitiş tarihini bağlamıyor (yalnızca "
 `fm player` ile aynı. `fm contracts`: en yakın biten önce, bir yıldan az kalan kırmızı, iki yıldan
 az sarı.
 
-## 9. Sıradaki adımlar
+## 8.73 Antrenman programı (10 Ekim)
+
+Squad › Training › Overview'daki "Training" kutusu bu haftayı ve gelecek haftayı takvim olarak
+çiziyor (Training › altında ayrı bir Schedule sayfası yok). ⚠ Alt sekme menüsündeki "Overview"
+Youth Setup / Dynamics / Medical Centre menülerinde de var: `/select?name=` ayırt edemiyor,
+`/dropdowns?json=1`'den Label "Training" olanın işaretçisiyle seçiliyor. Menü "Overview" seçili
+görünse de Squad'ın kendi Overview'u açık kalabiliyor; orada takvim günleri çizilmiyor (kutular
+"kapalı"), o yüzden seçim her seferinde yeniden gönderiliyor.
+
+`/texts?anchor=Thur&up=3` (`#Calendar`): "Mon"…"Sun", sonra gün gün: gün ("29 Sep" ızgara ya da ay
+başında, sonra "30") ve üç seans — seans adı ("Recovery", "Ball Retention", "Match Tactics",
+"Attacking Shadow Play", "Rest", "Travel"…) ya da maç günü maçın yeri ("H", "A", "N"). 5 Ekim'de
+okununca: 29 Eylül–12 Ekim, iki deplasman maçı (2 ve 5 Ekim). Üç farklı sayfadan başlayıp aynı
+çıktı. `fm schedule [--json]`. Değiştirmek (seans koymak, PLAN "Antrenman programı değiştir")
+denenmedi.
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
 ("Sıradaki işler" ve "Günlük"). Bu dosya yalnızca bulguları taşıyor.

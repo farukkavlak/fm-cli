@@ -218,7 +218,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 > Katalog: COOKBOOK §5.
 
-- [k] Haftalık antrenman programı göster — `CustomTrainingScheduleReference`, `DailyScheduleReference`
+- [x] Haftalık antrenman programı göster — `fm schedule`: bu hafta ve gelecek hafta, gün gün üç seans (§8.73)
 - [ ] Antrenman programı değiştir
 - [~] Maç hazırlığı odağı — `fm prep` okuyor (§8.60); değiştirmek yok
 - [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
@@ -456,6 +456,11 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-10
+
+- **Antrenman programı** (FINDINGS §8.73): `fm schedule` bu hafta ve gelecek hafta, her gün üç seans,
+  maç günleri sarı. Oyun 5 Ekim 2025.
 
 ### 2026-10-09 (gece, otonom)
 

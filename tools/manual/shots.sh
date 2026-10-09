@@ -31,6 +31,7 @@ SHOTS=(
 	"contracts|fm contracts"
 	"health|fm health"
 	"league|fm league"
+	"schedule|fm schedule"
 )
 
 shoot() {
