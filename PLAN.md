@@ -461,6 +461,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - **Antrenman programı** (FINDINGS §8.73): `fm schedule` bu hafta ve gelecek hafta, her gün üç seans,
   maç günleri sarı. Oyun 5 Ekim 2025.
+- `fm player Fred` açılmıyordu: oyunun araması yalnızca ilk birkaç sonucu gösteriyor, kısa adlı
+  bizim oyuncu listeye girmiyor. Kendi oyuncumuz aramada yoksa kadro tablosundaki adından açılıyor.
+  Arama ayrıca önceki aramanın ekranda kalan sonuçlarını yeni sanmıyor.
 
 ### 2026-10-09 (gece, otonom)
 

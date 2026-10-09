@@ -51,13 +51,16 @@ internal static partial class Program
 			await Until(async () => (await Fm.GetJson("textboxes")).EnumerateArray().Any(b => Field(b, "Type") == "SearchBox"), seconds: 10, every: 0.25);
 		}
 
+		// What the box showed before is remembered: an earlier search's results stay up, marked
+		// finished, until the game starts on the new text.
+		var before = (await Fm.GetJson("search")).ToString();
 		var typed = await Fm.Get("type", ("name", "SearchBox"), ("text", text));
 		if (typed.StartsWith("error", StringComparison.Ordinal)) throw new FmError(typed);
 
 		// Results for the text before can still be showing; two readings alike after the game
 		// says the search is finished are taken as this one's.
-		// An empty answer is only believed after a while: right after typing, the search has
-		// not started and the list is empty, and stays so for two readings.
+		// An empty answer, or the one from before, is only believed after a while: right after
+		// typing, the search has not started and the list is still what it was.
 		List<JsonElement> results = [];
 		var last = "?";
 		var typedAt = DateTime.UtcNow;
@@ -66,7 +69,7 @@ internal static partial class Program
 			await Task.Delay(300);
 			var found = await Fm.GetJson("search");
 			var same = found.ToString() == last && await Found("SearchIsFinished") == "True"
-			           && (found.GetArrayLength() > 0 || DateTime.UtcNow - typedAt > TimeSpan.FromSeconds(3));
+			           && ((found.GetArrayLength() > 0 && found.ToString() != before) || DateTime.UtcNow - typedAt > TimeSpan.FromSeconds(3));
 			last = found.ToString();
 			results = found.EnumerateArray().ToList();
 			return same;
@@ -158,14 +161,25 @@ internal static partial class Program
 		var own = squad.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
 
 		string full;
+		var fromSquad = false;
 		if (own.Count > 0)
 		{
 			if (Choose(own, wanted, "Oyuncu") is not { } mine) return null;
 			full = mine;
 			if (!(await SearchFor(full)).Any(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)))
 			{
-				Console.Error.WriteLine($"{full} kadroda ama aramada çıkmadı.");
-				return null;
+				// The game's search lists only its first few hits, and a short name like "Fred"
+				// can be left out; a player of ours is then opened from the squad's own table, where
+				// his name can show twice (the page and the one beneath), both opening him.
+				var opened = await OpenPage("First Team", "Squad");
+				var pressedName = opened.StartsWith("error", StringComparison.Ordinal) ? opened
+					: await Arriving("press", [("text", full), ("name", "NameButton"), ("any", "1")]);
+				if (pressedName.StartsWith("error", StringComparison.Ordinal))
+				{
+					Console.Error.WriteLine($"{full} kadroda ama ne aramada ne kadro tablosunda açılabildi.");
+					return null;
+				}
+				fromSquad = true;
 			}
 		}
 		else
@@ -195,8 +209,11 @@ internal static partial class Program
 
 		// Each result has a button of its own; the plugin finds the one fed from this result's
 		// row, since an earlier search's buttons can still be loaded.
-		var pressed = await Arriving("searchopen", [("name", full)]);
-		if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
+		if (!fromSquad)
+		{
+			var pressed = await Arriving("searchopen", [("name", full)]);
+			if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
+		}
 
 		// Pages opened earlier stay loaded beneath, so his is asked for by name.
 		if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out _), seconds: 15, every: 0.25))
