@@ -301,6 +301,19 @@ Fred — antrenman raporu (Zeki Murat Göle)
 Tavsiyeyi uygulamak ya da eleştirmek için: reply "Fred's training report"
 ```
 
+Alışkanlık (oyuncu hareketi) öğretmek:
+
+```
+fm training "Archie Brown" --trait                     sahip oldukları ve öğrenebilecekleri
+fm training "Archie Brown" --trait "one-twos"          öğretmeye başla
+fm training "Archie Brown" --trait-remove "down left"  bir alışkanlığı bıraktır
+fm training "Archie Brown" --trait-suggest             yardımcıya sor
+fm training "Archie Brown" --trait-cancel              süren eğitimi durdur
+```
+
+Yardımcı karşıysa ("Really Unsuitable To Add", yaşlı oyuncuda "Too Old To Change Game") komut
+itirazı gösterir ve durur; terminalde okla sorar, yine de yapmak için `--yes`.
+
 ### Antrenman programı — `schedule`
 
 Bu haftanın ve gelecek haftanın antrenmanı, gün gün üç seans. Terminalde bugün `▶` ile, maç

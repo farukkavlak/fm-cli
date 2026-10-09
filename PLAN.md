@@ -222,7 +222,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Antrenman programı değiştir
 - [~] Maç hazırlığı odağı — `fm prep` okuyor (§8.60); değiştirmek yok
 - [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
-- [k] Pozisyon / hareket öğretme — `PersonTrainingNewPosition`, `PersonTrainingNewPreferredMove`
+- [x] Pozisyon / hareket öğretme — pozisyon `fm training --position` (§8.51), alışkanlık `fm training <oyuncu> --trait` (§8.75)
 - [ ] Mentor / mentee ilişkileri
 - [x] **Antrenman raporları** — `fm training <oyuncu> --report [--coach <ad>]` (§8.74)
 - [x] Yoğunluk ayarı — `fm intensity`: oyuncu başına seviye, `--auto` (§8.50); takım kuralları yok
@@ -468,6 +468,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   raporu istiyor, gelen mesajı açıp değerlendirmeyi ve ekteki ilerleme raporunu basıyor. Yan ürün:
   `reply` artık gövdesinde oyuncu adı geçen mesajların tamamını gösteriyor (önceden ilk cümle).
   Denemelerde Fred, Kerem, Talisca, Kanté için raporlar gelen kutusunda (oyun kaydedilmedi).
+- **Alışkanlık öğretme** (FINDINGS §8.75): `fm training <oyuncu> --trait [<alışkanlık>]`, `--trait-remove`,
+  `--trait-cancel`, `--trait-suggest`; yardımcının itirazı onay penceresi, `--yes` ile geçiliyor.
+  Archie Brown'a "Plays One-Twos" başlatılıp iptal edildi; kalıcı değişiklik yok.
 
 ### 2026-10-09 (gece, otonom)
 

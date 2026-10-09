@@ -2814,7 +2814,24 @@ Gövdede oyuncu adı `<link>` içinde: `/elements?text=` ham metinde aradığı 
 dört; bizim Fred yok). Kendi oyuncumuz aramada yoksa First Team tablosundaki `NameButton`'dan
 açılıyor (aynı ad iki kez yüklü olabiliyor, `any=1`).
 
-## 9. Sıradaki adımlar
+## 8.75 Alışkanlık öğretme (10 Ekim)
+
+Oyuncunun antrenman sayfası ("Training Rating" döşemesi), sonra oradaki "Traits" döşemesi: yardımcı
+antrenörle konuşma alanında "Start New Trait Training" (`GenericDropdown`; kategoriler — Movement,
+Passing, Finishing, Defending, Technique alt menülü, "Discipline Training" tek başına — ve içlerinde
+**yalnızca öğrenebileceği** alışkanlıklar; `/dropdowns?deep=1` alt menüleri veriyor, `/select
+names=Kategori>Alışkanlık&fire=1`), "Remove Trait" (sahip oldukları), "Ask For Trait Training
+Suggestion". Bir alışkanlık çalışılırken bunların yerine yalnızca "Cancel Current Trait Training".
+
+Yardımcının görüşü **onay penceresi** olarak geliyor (`/dialog`, "Start training" / "Don't start
+training", iptalde "Unfinished Training"): "Too Old To Change Game" (Fred, 32), "Really Unsuitable
+To Add" / "…To Remove". Öneri varsa o da pencere ("Player Trait Suggestion: … long flat bullet
+throws"), yoksa konuşmada cümle ("I can't think of any suitable trait…"). Her işlemden sonra cevap
+ekranda kalıyor; "Acknowledge and Move On" ile seçenekler geri geliyor.
+
+Hangi alışkanlığın çalışıldığı ekranda yazmıyor. Veride `PlayerTrainingReference.Traits ->
+PlayerTraitsReference.TraitInDevelopment` var ama `Human.Team.Players` satırından `PlayerTraining`
+okunamadı (boş döndü); açık. Sahip olunanlar oyuncu kartında (`/player` → `Traits`).
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
 ("Sıradaki işler" ve "Günlük"). Bu dosya yalnızca bulguları taşıyor.

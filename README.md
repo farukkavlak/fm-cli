@@ -109,6 +109,8 @@ contract [oyuncu]  sözleşme görüşmesi kartı: vaatler, sonra şartlar; term
   --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
 training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role
 training <oyuncu> --report [--coach <ad>]  antrenörden antrenman raporu iste ve göster
+training <oyuncu> --trait ["<alışkanlık>"]  alışkanlıkları ve öğretilebilecekler; verilirse öğret
+                --trait-remove "<a>" bıraktır · --trait-cancel · --trait-suggest · --yes: yardımcının itirazına rağmen
 prep            maç hazırlığı antrenmanı: taktik ve duran top odakları
 schedule        antrenman programı: bu hafta ve gelecek hafta, gün gün üç seans
 budget          transfer, maaş ve scouting bütçesi;  budget ayarla [<adım>]: transfer ↔ maaş dağılımı
