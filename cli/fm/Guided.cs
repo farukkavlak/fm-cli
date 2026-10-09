@@ -217,6 +217,14 @@ internal static partial class Program
 		var offered = options.Select(o => o.Label).ToList();
 		if (Choose(offered, words[0], "Cevap") is not { } pick) return 1;
 
+		// A number means whatever conversation is open now, which may not be the one it was read
+		// from; letting a player go is never done on a number alone (FINDINGS §8.76).
+		if (pick is "Mutual Termination" or "Release On A Free" && !args.Contains("--yes"))
+		{
+			Console.Error.WriteLine($"'{pick}' oyuncuyu gönderir; talk ile yalnızca --yes verilirse. Önerilen yol: release <oyuncu>");
+			return 1;
+		}
+
 		if (args.Contains("--dry"))
 		{
 			Console.WriteLine($"(kuru) Şu söylenecekti: {pick}");

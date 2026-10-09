@@ -477,6 +477,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   Komut bu yüzden `--mutual`'da kendisi onay istiyor.
 - **Menajere yenileme sorusu**: `fm contract <oyuncu> --agent` aynı sözleşme bölümünden "Discuss New Contract
   With Agent"i açıp konuşmayı `talk`a bırakıyor (Fred'in menajeri: "he doesn't want to, under any circumstances").
+- ⚠ Kaza: denemeler arasında `fm release Fred` sözleşme bölümünü açtığı için `talk 4` Kerem'in konuşması yerine
+  Fred'inkinde "Mutual Termination"ı seçti; oyun kaydedilmeden yeniden başlatılıp geri alındı. `talk` artık
+  numarayla Mutual Termination / Release On A Free'yi `--yes` olmadan göndermiyor.
 
 ### 2026-10-09 (gece, otonom)
 
