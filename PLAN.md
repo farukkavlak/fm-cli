@@ -208,7 +208,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Duran top rutinlerini kur — `fm setpieces new`, oyunun altı soruluk sihirbazı (§8.36)
 - [ ] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası
 - [~] Kaptan / yardımcı kaptan — `fm captains`: okuma, kaptan değişimi; yardımcı yalnızca boşken (§8.58)
-- [k] Taktik kaydet / yükle / kopyala — `ModifyTacticOption`, `EventFmxDuplicateTactic`, `EventFmxSetPresetTactic`
+- [~] Taktik kaydet / yükle / kopyala — `fm tactic copy`, `fm tactic clear <n> --yes` (§8.77); dosyaya Save / Load… yok
 - [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
 - [ ] Taktik akıcılığı (familiarity)
 
@@ -480,6 +480,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - ⚠ Kaza: denemeler arasında `fm release Fred` sözleşme bölümünü açtığı için `talk 4` Kerem'in konuşması yerine
   Fred'inkinde "Mutual Termination"ı seçti; oyun kaydedilmeden yeniden başlatılıp geri alındı. `talk` artık
   numarayla Mutual Termination / Release On A Free'yi `--yes` olmadan göndermiyor.
+- **Taktik kopyala / yuva boşalt** (FINDINGS §8.77): `fm tactic copy`, `fm tactic clear <n> --yes`. Kopyalanıp
+  silindi, tek yuvaya dönüldü.
 
 ### 2026-10-09 (gece, otonom)
 

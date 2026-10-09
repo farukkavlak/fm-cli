@@ -1011,6 +1011,7 @@ internal static partial class Program
 			  tactic player <mevki> <oyuncu>  yedeklerden birini o mevkiye koy (oradaki yedeğe geçer)
 			  tactic new ["<stil>" ["<topla diziliş>" ["<topsuz diziliş>"]]]
 			                  taktik oluştur; eksik bıraktığın adımın seçeneklerini listeler
+			  tactic copy [<taktik>]  taktiği yeni yuvaya kopyala · tactic clear [<n>] --yes: yuvayı boşalt
 
 			  pages [metin]               oyunun bütün sayfaları
 			  open "<sayfa>"              sayfayı aç

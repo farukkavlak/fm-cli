@@ -505,10 +505,12 @@ internal static partial class Program
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
 			case "slot": return await TacticSlot(wanted, dry);
+			case "copy": return await TacticCopy(wanted, dry);
+			case "clear": return await TacticClear(wanted, args.Contains("--yes"), dry);
 			case "pi": return await PlayerInstructions(words.Skip(1).ToList(), dry);
 			case "instructions" or "instruction": return await TacticInstructions(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			default:
-				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic slot [<n>] | tactic pi <mevki> [<talimat> [<değer>]] | tactic instructions [<talimat> [<değer>]] | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop] | tactic player <mevki> <oyuncu>   [--dry]");
+				Console.Error.WriteLine("kullanım: tactic | tactic new … | tactic slot [<n>] | tactic copy [<taktik>] | tactic clear [<n>] --yes | tactic pi <mevki> [<talimat> [<değer>]] | tactic instructions [<talimat> [<değer>]] | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop] | tactic player <mevki> <oyuncu>   [--dry]");
 				return 64;
 		}
 
@@ -960,7 +962,8 @@ internal static partial class Program
 			var numbers = slots.Select(b => Field(b, "Label")).Append(active.ToString()).OrderBy(n => n).ToList();
 			foreach (var n in numbers)
 				Console.WriteLine(n == active.ToString() ? $"{n}  {Field(tactic, "Name")}  (etkin)" : $"{n}");
-			Console.WriteLine($"\nGeçmek için: tactic slot <n>{(numbers.Count < 3 ? " · yeni yuva: tactic new" : " · üç yuva dolu")}");
+			var full = int.TryParse(Field(tactic, "TacticCount"), out var count) && count >= 3;
+			Console.WriteLine($"\nGeçmek için: tactic slot <n>{(full ? " · üç yuva dolu" : " · yeni yuva: tactic new ya da tactic copy")}");
 			return 0;
 		}
 		if (wanted == active.ToString())

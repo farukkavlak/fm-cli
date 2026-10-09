@@ -2853,6 +2853,16 @@ der; `--mutual` `--yes` olmadan göndermez. `--yes` ile gerçek bırakma denenme
 Curious) birer cümle, cevap ("…he doesn't want to, under any circumstances"), "End Chat". `talk`
 olduğu gibi yürütüyor; `fm contract <oyuncu> --agent` oraya götürüyor.
 
+## 8.77 Taktik kopyalama ve yuva boşaltma (10 Ekim)
+
+Taktik sayfasında etiketsiz iki menü (`dropdown-base-no-background`): yuvanın taktiği için "Primary
+Trained Tactic · Edit Tactic · Presets... › (on hazır stil, her biri alt menülü) · Save · Load... ·
+Manage Tactics... · Clear Slot" ve yuva doldurmak için "Create New Tactic · Load Tactic · Copy Tactic ›"
+(alt menüde kopyalanabilecek taktikler). `/select names=Copy Tactic>4-3-3 DM Wide - Custom Gegenpress`
+yeni yuvaya "Copy of: …" adıyla kopyalıyor ve onu etkin yapıyor (`TacticCount` 1→2). "Clear Slot"
+etkin yuvayı siliyor; önce `/dialog` "Are you sure you want to delete this tactic?" → Confirm.
+Save / Load… (dosyaya .fmf) denenmedi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

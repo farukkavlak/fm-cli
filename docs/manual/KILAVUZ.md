@@ -242,6 +242,9 @@ yuvaya girer ve etkin olur. Takım en fazla üç taktik tutar:
 fm tactic new Gegenpress "4-2-3-1 DM Wide" "4-4-1-1 2 DM"
 fm tactic slot          yuvalar ve hangisi etkin
 fm tactic slot 1        1. yuvadaki taktiğe geç
+fm tactic copy          etkin taktiği yeni yuvaya kopyala ("Copy of: …"), kopya etkin olur
+fm tactic clear 2       2. yuvayı boşaltmadan önce ne silineceğini söyler
+fm tactic clear 2 --yes boşalt (oyunun "Are you sure…" sorusu onaylanır); tek taktik silinmez
 ```
 
 ### Takım talimatları — `tactic instructions`
