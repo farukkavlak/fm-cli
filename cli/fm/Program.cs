@@ -55,6 +55,7 @@ internal static partial class Program
 				"dugout" => await Dugout(json, args),
 				"budget" => await Budget(json, args),
 				"calendar" => await CalendarCommand(json, args),
+				"league" => await League(json, args),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json, args.Contains("--all")),
@@ -929,6 +930,7 @@ internal static partial class Program
 			    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)
 			    --views / --view "<x>"       kolonları belirleyen görünümler
 			  table           lig tablosu
+			  league [turnuva]  liderler: en golcü takım, gol / asist kralı, en yüksek puan (varsayılan: lig)
 			  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
 			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
 			  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler

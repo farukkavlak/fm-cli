@@ -2743,6 +2743,18 @@ Aynı maçta diğer maçların skor kartları gol atanla ve çok satırlı geldi
 VfB Stuttgart 1 (Bilal El Khannouss 1)\nFenerbahçe drop down to 12th position"); skor kartı
 süzgeci artık satır sonlarını da kapsıyor.
 
+## 8.70 Turnuva liderleri (9 Ekim gecesi)
+
+Match Day menüsündeki "Competitions ›" alt menüsü kulübün turnuvalarını veriyor (UEFA Champions
+League, UEFA Europa League, Super League, Turkish Cup, Turkish Super Cup; sıra değişebiliyor, ad
+ile seçmek gerek: `/select names=Competitions>Super League&fire=1` — `names` alt menü işaretsiz
+adı istiyor). Turnuva sayfasında bir "Stats" döşemesi düz metin: "Teams" (Most Goals, Most
+Possession, Most Yellow Cards, Most Clean Sheets) ve "Players" (Highest Average Rating, Most Goals,
+Most Assists, Most Clean Sheets), her biri etiket, isim, sayı. Yeni başlamış bir turnuvada isim
+boş kalabiliyor (Türkiye Kupası'nda üçlüler kaydı); etiketlere göre ayrıştırılıyor. Turnuva
+değişince önceki döşeme bir an ekranda kalıyor: değişene ya da iki okuma aynı olana kadar bekleniyor.
+Tam gol krallığı tablosu bu döşemede yok (yalnızca birinci). `fm league [turnuva]`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -303,7 +303,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Başka ligler / ülkeler
 - [ ] Kupa ağaçları
 - [ ] Avrupa kupaları
-- [ ] Gol krallığı / asist / form tablosu
+- [~] Gol krallığı / asist / form tablosu — `fm league [turnuva]` liderleri veriyor (§8.70); tam liste yok
 - [x] Takvim — `fm calendar [ay]`: maçlar, transfer dönemi açılış / kapanış, kupa kuraları, milli maçlar (§8.66)
 - [ ] Sezon özeti / ödüller
 
@@ -477,6 +477,8 @@ Gençlerbirliği deplasman 0-4. 20 Eylül'de (maçtan sonra) elle kaydedildi. Ye
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Turnuva liderleri** (FINDINGS §8.70): `fm league [turnuva]` en golcü takım, gol / asist kralı, en
+  yüksek puan; lig, Avrupa Ligi, Türkiye Kupası.
 - **Sakatlık durağı** (FINDINGS §8.69): Forest maçında Kanté sakatlandı; maç duraklıyor, değişiklik
   "Confirm Changes" ile işleniyor. `match --play` durağı tanıyıp soruyor, `sub` onaylayıp sürdürüyor.
   Avrupa Ligi ilk maç: Fenerbahçe 1-2 Nott'm Forest. Beşiktaş derbisi 2-3; raporda penaltı golleri

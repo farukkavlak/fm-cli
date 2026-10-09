@@ -338,6 +338,19 @@ Eylül 2025
   20 Cmt  Gençlerbirliği (18th) · deplasman · Super League · 18:00
 ```
 
+`league [turnuva]` turnuvanın liderlerini verir (varsayılan lig):
+
+```
+$ fm league
+Super League — liderler
+Takımlar
+  En çok gol: Galatasaray (22)
+Oyuncular
+  En yüksek ortalama puan: Victor Osimhen (8.24)
+  En çok gol: Victor Osimhen (13)
+  En çok asist: Yusuf Özdemir (4)
+```
+
 ## 10. Transfer ve sözleşme — `players`, `offer`, `contract`
 
 `fm players` oyunun oyuncu veritabanını listeler: `--filter "<x>"` hazır süzgeçlerden birini
