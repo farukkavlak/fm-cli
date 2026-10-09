@@ -142,6 +142,18 @@ Moral, takım içi hiyerarşi ve sosyal grup:
 Oyundaki kadro tablosunun başka görünümleri de var: `fm squad --views` listeler,
 `fm squad --view "<ad>"` o görünümün kolonlarını gösterir.
 
+### Sözleşme takvimi — `contracts`
+
+Kadronun sözleşmeleri, en yakın biten önce; terminalde bir yıldan az kalan kırmızı, iki yıldan
+az kalan sarı. Yenilemek için `contract <oyuncu>`.
+
+```
+$ fm contracts
+OYUNCU            YAŞ  MEVKİ            BİTİŞ      KALAN
+Grégoire Defrel   34   ST (C)           30/6/2026  9 ay
+Fred              32   DM, M/AM (C)     30/6/2027  1 yıl 9 ay
+```
+
 ### Kadro sağlığı — `health`
 
 Sakatlar ve dönüş süreleri, kondisyonu düşük olanlar, maç formu düşük olanlar ve oyunun

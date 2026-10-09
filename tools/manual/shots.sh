@@ -28,6 +28,9 @@ SHOTS=(
 	"calendar|fm calendar eylül"
 	"fixtures-all|fm fixtures --all"
 	"budget|fm budget"
+	"contracts|fm contracts"
+	"health|fm health"
+	"league|fm league"
 )
 
 shoot() {

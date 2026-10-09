@@ -2765,6 +2765,14 @@ Kadro tablosunun "Injuries" görünümü: `IsInjured`, `InjuriesTimeMissed` ("3 
 olanları tek raporda veriyor. Puanın oyundaki karşılığı (düşük / yüksek) bilinmediği için
 yalnızca en yüksek basamak gösteriliyor.
 
+## 8.72 Sözleşme takvimi (9 Ekim gecesi)
+
+Kadro tablosunun Contract görünümü bitiş tarihini bağlamıyor (yalnızca "Full Time"). Veriden:
+`Human.Team.Players` liste okumasının her satırının (`Row`) altında `FullContract.EndDateDescription`
+("30/6/2028"). 28 oyuncu önce hepsi bağlanıp sonra okununca ~1,4 sn. Kerem ve Škriniar 30/6/2029,
+`fm player` ile aynı. `fm contracts`: en yakın biten önce, bir yıldan az kalan kırmızı, iki yıldan
+az sarı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
