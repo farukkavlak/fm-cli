@@ -2755,6 +2755,16 @@ boş kalabiliyor (Türkiye Kupası'nda üçlüler kaydı); etiketlere göre ayr�
 değişince önceki döşeme bir an ekranda kalıyor: değişene ya da iki okuma aynı olana kadar bekleniyor.
 Tam gol krallığı tablosu bu döşemede yok (yalnızca birinci). `fm league [turnuva]`.
 
+## 8.71 Kadro sağlığı (9 Ekim gecesi)
+
+Kadro tablosunun "Injuries" görünümü: `IsInjured`, `InjuriesTimeMissed` ("3 days"), sakatlık adı
+("A twisted ankle"), derecesi; sakat olmayanlarda da bir süre yazıyor (geçmiş). "Risk Assessment":
+`OverallInjuryRisk` basamaklı bir puan (bu kadroda 75, 92, 150, 165, 275, 385; en çok oynayanlar
+385), `InjurySusceptibility`, `MatchLoad`, `Load`. Kondisyon ve maç formu her görünümde var.
+`fm health` sakatları, kondisyonu %85 altı, maç formu %60 altı olanları ve risk puanı en yüksek
+olanları tek raporda veriyor. Puanın oyundaki karşılığı (düşük / yüksek) bilinmediği için
+yalnızca en yüksek basamak gösteriliyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

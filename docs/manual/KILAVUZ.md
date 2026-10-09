@@ -142,6 +142,23 @@ Moral, takım içi hiyerarşi ve sosyal grup:
 Oyundaki kadro tablosunun başka görünümleri de var: `fm squad --views` listeler,
 `fm squad --view "<ad>"` o görünümün kolonlarını gösterir.
 
+### Kadro sağlığı — `health`
+
+Sakatlar ve dönüş süreleri, kondisyonu düşük olanlar, maç formu düşük olanlar ve oyunun
+sakatlık riski puanı en yüksek olanlar tek raporda:
+
+```
+$ fm health
+Sakat
+  N'Golo Kanté — A twisted ankle, 3 gün daha
+Yorgun (kondisyon %85 altı)
+  Kerem Aktürkoğlu 51%
+Maç formu düşük (%60 altı)
+  Çağlar Söyüncü 47%
+Sakatlık riski en yüksek (oyunun puanı 385)
+  Fred
+```
+
 ### Kadro derinliği — `depth`
 
 Her saha mevkisinde (GK'den ST'ye) kimlerin oynayabildiği, oyuncuların mevki bilgisinden; kiralıkta

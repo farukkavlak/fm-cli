@@ -56,6 +56,7 @@ internal static partial class Program
 				"budget" => await Budget(json, args),
 				"calendar" => await CalendarCommand(json, args),
 				"league" => await League(json, args),
+				"health" => await Health(json),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json, args.Contains("--all")),
@@ -964,6 +965,7 @@ internal static partial class Program
 			  settings        oyun ayarları: maç gösterimi ve hızı, otomatik kayıt, dil, para birimi, birimler
 			  settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
 			  happiness       oyuncuların mutluluğu, en mutsuz önce
+			  health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler
 			  depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri

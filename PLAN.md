@@ -374,7 +374,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 > FM arayüzünde yapması işkence olan, terminalde tek satır olan şeyler.
 
 - [ ] Serbest sorgu: `fm query "yaş<23 ve potansiyel>4 ve sözleşme<1yıl"`
-- [ ] Kadro sağlık taraması: yorgun + sakatlık riski + form düşüşü tek raporda
+- [x] Kadro sağlık taraması — `fm health`: sakat, yorgun, maç formu düşük, sakatlık riski en yüksek (§8.71)
 - [ ] Sözleşme takvimi: kim ne zaman bitiyor, kim tehlikede
 - [ ] Derinlik matrisi: hangi pozisyon zayıf
 - [ ] Transfer fırsat taraması (bütçe + ihtiyaç + uygunluk)
@@ -477,6 +477,8 @@ Gençlerbirliği deplasman 0-4. 20 Eylül'de (maçtan sonra) elle kaydedildi. Ye
   basılınca işleniyor; komut onaylıyor ve sayfayı yeniden açıp doğruluyor. Köprüye `/form`
   (metin + kontrol okuma sırasıyla), `/setcontrol` (kaydırıcı, aç/kapa) ve `/click?text=`.
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
+- **Kadro sağlığı** (FINDINGS §8.71): `fm health` sakatlar (süresiyle), yorgunlar, maç formu düşükler,
+  sakatlık riski en yüksekler.
 - **Turnuva liderleri** (FINDINGS §8.70): `fm league [turnuva]` en golcü takım, gol / asist kralı, en
   yüksek puan; lig, Avrupa Ligi, Türkiye Kupası.
 - **Sakatlık durağı** (FINDINGS §8.69): Forest maçında Kanté sakatlandı; maç duraklıyor, değişiklik
