@@ -11,13 +11,15 @@ internal static class SquadBoard
 {
 	public const string Fields = "Name,SquadNumber,PositionCombinedString,Age,Condition,Sharpness,IsInjured";
 
-	public static void Draw(JsonElement players)
+	/// <summary>Draws the board; <paramref name="nations"/> gives each player's three-letter nation by name, when read.</summary>
+	public static void Draw(JsonElement players, IReadOnlyDictionary<string, string> nations = null)
 	{
 		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn("[dim]NO[/]").RightAligned())
 			.AddColumn(new TableColumn("[dim]OYUNCU[/]"))
 			.AddColumn(new TableColumn("[dim]MEVKİ[/]"))
 			.AddColumn(new TableColumn("[dim]YAŞ[/]").RightAligned())
+			.AddColumn(new TableColumn("[dim]ULUS[/]"))
 			.AddColumn(new TableColumn("[dim]KONDİSYON[/]"))
 			.AddColumn(new TableColumn("[dim]MAÇ FORMU[/]"))
 			.AddColumn(new TableColumn(""));
@@ -30,6 +32,7 @@ internal static class SquadBoard
 				injured ? $"[red]{Ui.Safe(F(player, "Name"))}[/]" : $"[bold]{Ui.Safe(F(player, "Name"))}[/]",
 				Ui.Safe(F(player, "PositionCombinedString")),
 				Ui.Safe(F(player, "Age")),
+				$"[dim]{Ui.Safe(nations?.GetValueOrDefault(F(player, "Name")) ?? "")}[/]",
 				Meter(F(player, "Condition")),
 				Meter(F(player, "Sharpness")),
 				injured ? "[red]sakat[/]" : "");

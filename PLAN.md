@@ -167,7 +167,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kadro tablosunun bütün görünümleri — `fm squad --views`, `fm squad --view "<ad>"`; kolonlar
       veriden çıkıyor (§8.38). Alt menülü ikisi (Attributes, Stats) seçilemiyor
 - [ ] `/squad` iki listeyi birleştirirken bir oyuncunun kolonlarını eksik bırakabiliyor (Musaba)
-- [~] Uyruk — `Nation` düğümü çocuksuz (§8.21), ama `NationButton` üç harfli kodu taşıyor; `fm squad`'a eklenmedi
+- [x] Uyruk — `fm squad` terminal görünümünde ULUS sütunu (oyuncunun `Nation.ThreeLetterName`, satırının altından)
 - [x] Turnuva kadro listesi — `fm register`: kim listede, yetişme kotaları, kurallar; okla ekle / çıkar, gönder (§8.43)
 - [~] Forma numaraları — `fm numbers` yardımcıya verdiriyor; elle numara verme yok
 - [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); kadro dışındakiler aramayla
