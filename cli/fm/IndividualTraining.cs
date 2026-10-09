@@ -14,6 +14,7 @@ internal static partial class Program
 
 	private static async Task<int> IndividualTraining(string[] args)
 	{
+		if (args.Contains("--report")) return await TrainingReport(args);
 		if (await NotNow() is { } refused) return refused;
 
 		var opened = await OpenPage("Training", "Squad");

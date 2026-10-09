@@ -2789,6 +2789,33 @@ okununca: 29 Eylül–12 Ekim, iki deplasman maçı (2 ve 5 Ekim). Üç farklı 
 çıktı. `fm schedule [--json]`. Değiştirmek (seans koymak, PLAN "Antrenman programı değiştir")
 denenmedi.
 
+## 8.74 Antrenman raporu (10 Ekim)
+
+Oyuncu sayfasındaki "Training Rating" döşemesi (`layout-tile-interaction-button`) oyuncunun antrenman
+sayfasını açıyor; konuşma alanında "Request Training Report" bir liste (`GenericDropdown`,
+`SpeakToAction`): seçenekleri antrenörler. Biri seçilince cevap "Okay, I'll sort that out for you now."
+ve mesaj **hemen** geliyor: "Fred's training report" (oyuncunun kısa adıyla). ⚠ Cevap ekranda kalıyor
+ve liste "Acknowledge and Move On" basılana kadar yok; sayfa oyuncudan oyuncuya yeniden kullanılıyor.
+⚠ Gelen kutusu verisi bağlı değilken okumak (`Bound`) Portal'ı açıp antrenman sayfasını kapatıyor:
+önce okunmalı.
+
+Mesaj: gövde "I've put together a training report on Fred as requested." + bulgu cümleleri; ek
+"Progress Report": `/texts?anchor=Attachments&up=2` → gövde, "Attachments", "Progress Report", gidişat
+("Player is showing signs of decline" / "…performing steadily"), "Attribute", özellik/değer çiftleri
+(oyuncuya göre değişiyor: Fred'de Strength/Agility/Pace/Stamina, Talisca'da yalnız Free Kick Taking),
+"Training", gidişat yine, puan "4.70", "T.Rat", bir seviye ("None", "Half"; simgesi
+`scaling-icons-condition-level-…`, yoğunluk ya da odak değil — **yük olduğu tahmin**), birim
+("Def. Unit"), sonra "Player Report" kartı. Cevaplar: Apply Advice, Delegate…, Criticise …'s Training.
+
+Gövdede oyuncu adı `<link>` içinde: `/elements?text=` ham metinde aradığı için bulamıyordu ve
+`reply` gövdeden yalnızca ilk cümleyi gösteriyordu; eklenti artık görünen metinle de eşleşiyor.
+
+`fm player Fred` açılmıyordu: oyunun araması yalnızca ilk birkaç sonucu listeliyor ("Fred" için
+dört; bizim Fred yok). Kendi oyuncumuz aramada yoksa First Team tablosundaki `NameButton`'dan
+açılıyor (aynı ad iki kez yüklü olabiliyor, `any=1`).
+
+## 9. Sıradaki adımlar
+
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
 ("Sıradaki işler" ve "Günlük"). Bu dosya yalnızca bulguları taşıyor.
 

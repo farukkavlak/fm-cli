@@ -282,6 +282,23 @@ fm training                                    herkesin mevki/rol, topsuz rol ve
 fm training Kanté --focus Endurance            ek odak (None: kaldır)
 fm training Kanté --position "Midfielder (Centre)>Central Midfielder"
 fm training Kanté --position "Midfielder (Centre)"   o alt menüdeki rolleri listeler
+fm training Fred --report                      raporu hazırlayabilecek antrenörler (terminalde okla seçtirir)
+fm training Fred --report --coach zeki         antrenörden rapor iste ve göster
+```
+
+Rapor bir mesaj olarak gelir; komut onu açıp basar:
+
+```
+Fred — antrenman raporu (Zeki Murat Göle)
+  Has shown early signs that he may be on the decline over the last three months.
+  He is now training as a central midfielder.
+  He has been below par in training lately.
+
+  Gidişat: Player is showing signs of decline
+  Strength 10 · Agility 16 · Pace 9 · Stamina 12
+  Antrenman puanı 4.70 · yük Half · Def. Unit
+
+Tavsiyeyi uygulamak ya da eleştirmek için: reply "Fred's training report"
 ```
 
 ### Antrenman programı — `schedule`

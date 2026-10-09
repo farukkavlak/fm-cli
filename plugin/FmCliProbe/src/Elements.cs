@@ -41,7 +41,9 @@ internal static class Elements
 
 			string own;
 			try { own = element.TryCast<TextElement>()?.text; } catch { continue; }
-			if (own == null || own.IndexOf(text, StringComparison.OrdinalIgnoreCase) < 0) continue;
+			// A name in a message is wrapped in a link tag, so the text is also matched as shown.
+			if (own == null || (own.IndexOf(text, StringComparison.OrdinalIgnoreCase) < 0
+			                    && Text.Plain(own).IndexOf(text, StringComparison.OrdinalIgnoreCase) < 0)) continue;
 			roots.Add(element);
 		}
 

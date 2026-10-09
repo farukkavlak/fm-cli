@@ -224,7 +224,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
 - [k] Pozisyon / hareket öğretme — `PersonTrainingNewPosition`, `PersonTrainingNewPreferredMove`
 - [ ] Mentor / mentee ilişkileri
-- [k] **Antrenman raporları** — `PersonRequestTrainingReport`
+- [x] **Antrenman raporları** — `fm training <oyuncu> --report [--coach <ad>]` (§8.74)
 - [x] Yoğunluk ayarı — `fm intensity`: oyuncu başına seviye, `--auto` (§8.50); takım kuralları yok
 - [x] Dinlenme — `fm intensity <oyuncu> "dinlen 3"` / `"tatil 1"` (§8.50)
 - [ ] Gençlik antrenmanı
@@ -464,6 +464,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - `fm player Fred` açılmıyordu: oyunun araması yalnızca ilk birkaç sonucu gösteriyor, kısa adlı
   bizim oyuncu listeye girmiyor. Kendi oyuncumuz aramada yoksa kadro tablosundaki adından açılıyor.
   Arama ayrıca önceki aramanın ekranda kalan sonuçlarını yeni sanmıyor.
+- **Antrenman raporu** (FINDINGS §8.74): `fm training <oyuncu> --report [--coach <ad>]` antrenörden
+  raporu istiyor, gelen mesajı açıp değerlendirmeyi ve ekteki ilerleme raporunu basıyor. Yan ürün:
+  `reply` artık gövdesinde oyuncu adı geçen mesajların tamamını gösteriyor (önceden ilk cümle).
+  Denemelerde Fred, Kerem, Talisca, Kanté için raporlar gelen kutusunda (oyun kaydedilmedi).
 
 ### 2026-10-09 (gece, otonom)
 

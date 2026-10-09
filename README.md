@@ -108,6 +108,7 @@ contract [oyuncu]  sözleşme görüşmesi kartı: vaatler, sonra şartlar; term
   --wage <tutar>  haftalık ücret;  --next: vaatleri onayla, şartlara geç
   --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
 training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role
+training <oyuncu> --report [--coach <ad>]  antrenörden antrenman raporu iste ve göster
 prep            maç hazırlığı antrenmanı: taktik ve duran top odakları
 schedule        antrenman programı: bu hafta ve gelecek hafta, gün gün üç seans
 budget          transfer, maaş ve scouting bütçesi;  budget ayarla [<adım>]: transfer ↔ maaş dağılımı
