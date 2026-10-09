@@ -479,7 +479,8 @@ Gençlerbirliği deplasman 0-4. 20 Eylül'de (maçtan sonra) elle kaydedildi. Ye
   Denemeler sonunda ayarlar eski haline döndürüldü (1.5x / 30x, Önemli anlar, her hafta).
 - **Sakatlık durağı** (FINDINGS §8.69): Forest maçında Kanté sakatlandı; maç duraklıyor, değişiklik
   "Confirm Changes" ile işleniyor. `match --play` durağı tanıyıp soruyor, `sub` onaylayıp sürdürüyor.
-  Avrupa Ligi ilk maç: Fenerbahçe 1-2 Nott'm Forest.
+  Avrupa Ligi ilk maç: Fenerbahçe 1-2 Nott'm Forest. Beşiktaş derbisi 2-3; raporda penaltı golleri
+  eksikti (olay türü 2), VAR iptali akışta "GOL" diye yazılıyordu — ikisi düzeltildi.
 - **Maç raporundaki gol dakikaları önceki maçtan geliyordu** (FINDINGS §8.68): köprünün liste okuması
   satır düğümlerini yeniden kullanıyordu; artık her okuma kendi satırlarını açıyor.
 - Gençlerbirliği deplasmanı 0-4 kaybedildi (sonuncu takım; 22 şut, 1.23 xG'ye karşı 1.81).

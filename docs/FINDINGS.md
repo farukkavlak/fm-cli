@@ -2735,6 +2735,10 @@ yazıyor; terminalde değişikliği soruyor ve sürdürüyor, script'te `sub <ç
 çağrılan `fm match` değişiklik yapmadan sürdürüyor. Yeni akış canlı bir durakta henüz
 denenmedi (bu maçta elle yapıldı).
 
+Beşiktaş derbisinde (2-3) rapor üçüncü golü atladı: olay listesinde penaltı golü `EventType = 2`
+("pen 56'"), normal gol 0. Rapor artık ikisini de sayıyor; kendi kalesine golün türü görülmedi.
+91'de VAR bir golü iptal etti: skor 3-3 olup 2-3'e döndü; akış bunu "GOL İPTAL (VAR)" diye yazıyor.
+
 Aynı maçta diğer maçların skor kartları gol atanla ve çok satırlı geldi ("LIN 0 - 1 VFB Linfield 0
 VfB Stuttgart 1 (Bilal El Khannouss 1)\nFenerbahçe drop down to 12th position"); skor kartı
 süzgeci artık satır sonlarını da kapsıyor.

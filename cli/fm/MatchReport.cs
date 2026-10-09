@@ -123,7 +123,10 @@ internal static class MatchReport
 			if (events.ValueKind != JsonValueKind.Array) return goals;
 			foreach (var entry in events.EnumerateArray())
 			{
-				if (F(entry, "EventType") != "0") continue;
+				// 0 a goal, 2 a penalty ("pen 56'"); an own goal's type has not been seen, its time
+				// is expected to say "og". Other types are cards and the like.
+				var time = F(entry, "TimeString");
+				if (F(entry, "EventType") is not ("0" or "2") && !time.Contains("og", StringComparison.OrdinalIgnoreCase)) continue;
 				var row = (F(entry, "Row") is { Length: > 0 } at ? at : $"fmcli.{list.Replace('.', '_')}.{F(entry, "Index")}") + ".Player";
 				var name = F(await fm.Pull(row, "Name"), "Name");
 				goals.Add($"{name} {F(entry, "TimeString")}".Trim());

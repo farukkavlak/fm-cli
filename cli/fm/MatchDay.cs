@@ -472,8 +472,11 @@ internal static partial class Program
 		static string Numbers(string board) => System.Text.RegularExpressions.Regex.Match(board, @"\d+-\d+").Value;
 		if (score != null && Numbers(now) != Numbers(score))
 		{
-			if (Ui.Rich) Ui.Line($"  [bold yellow]{Ui.Safe(Field(state, "MatchTime")),6}  GOL  {Ui.Safe(now)}{side}[/]");
-			else Console.WriteLine($"  {Field(state, "MatchTime")}  GOL  {now}{side}");
+			// The total going down is a goal taken back by the video referee.
+			static int Total(string board) => board.Split('-').Sum(x => int.TryParse(x, out var g) ? g : 0);
+			var word = Total(Numbers(now)) < Total(Numbers(score)) ? "GOL İPTAL (VAR)" : "GOL";
+			if (Ui.Rich) Ui.Line($"  [bold yellow]{Ui.Safe(Field(state, "MatchTime")),6}  {word}  {Ui.Safe(now)}{side}[/]");
+			else Console.WriteLine($"  {Field(state, "MatchTime")}  {word}  {now}{side}");
 		}
 		score = now;
 	}
