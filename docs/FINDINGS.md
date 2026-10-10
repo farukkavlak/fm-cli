@@ -3078,6 +3078,44 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   `SessionType1..3`. Sıradaki deneme: takvimi düzenleyen sayfayı bulmak (`screens.txt`'te "Training Schedule" / "Calendar"
   paneli; olası yol günün hücresinin üstündeki gün başlığı ya da Training alt menüsünde gizli bir sekme).
 
+## 8.89 Antrenman programını değiştirmek (10 Ekim akşam)
+
+- Düzenleyen sayfa **Portal › Calendar'ın "Training" sekmesi** (General / Training / Fixtures). Sekme butonları
+  (`#navigation-tab-default-default`) olay taşımıyor, `/buttons`'ta yok; `/click?ptr=` ile basılıyor. Sayfa açılır
+  açılmaz gelen tıklama boşa gidebiliyor, ızgara gelene kadar yeniden deneniyor. Her sekmenin kendi `MonthDropdown`'ı var:
+  ay sekmeye geçtikten sonra seçilmeli.
+- Izgara: her haftanın başında bir kart (`#TrainingFocusCard`: programın adı + türü, "Tactical" / "Training Style"),
+  sonra günler; her günde üç buton (`FMCalendarEvent #Training_TrainingSessionDynamicItem`, bir `DropTarget #View`
+  içinde — seanslar sürüklenebiliyor olmalı, denenmedi). Maç günü ortadaki buton maçın kendisi (içinde lig kısaltması,
+  rakip, H/A: birden çok metin). Geçmiş günler, maç ve "Travel" kapalı (`enabledInHierarchy = false`).
+- `/form?anchor=Monday&up=18&buttons=1` sekmeleri, ay listesini ve ızgarayı tek okumada, sırasıyla veriyor
+  (`buttons=1` yeni: buton da bir öğe; `Text` ilk metni, `Texts` içindeki hepsi). "Go On Holiday" çapası Training
+  sekmesinde gizlendiği için işe yaramıyor.
+- **Seans penceresi** (bir seansa tıklayınca): adsız bir kategori listesi (General, Match Preparation, Attacking,
+  Defending, Technical, Tactical, Goalkeeping, Set Pieces, Physical, Extra-Curricular; `…trainingsessioncategory`'ye
+  yazıyor, `fire=1` ile), o kategorinin seansları (`SetDatastoreValue` butonları), seçili seansın anlatımı (Primary /
+  Secondary / Tertiary Focus: kime, bir cümle, "Impacts", "Priority" %, "Attributes" adları, etki çiftleri
+  "Condition" / "Slightly Reduced"), Cancel ve Confirm (`EventFmxConfirmTrainingSession`). Onaylanınca haftanın adı
+  "Tactical (Modified)" oluyor; sayfadan çıkıp dönünce duruyor ✓.
+- Kategorideki seanslar güne göre değişiyor (9 Ekim'de Match Preparation yalnızca "Match Tactics"; "Match Practice",
+  "Match Focus", "Travel" başka günlerde). CLI kataloğu `~/.config/fm-cli/training-sessions.json`'da tutuyor,
+  yazılan ad katalogda yoksa yeniden okuyor. Adlar iç içe ("Rest" ⊂ "Transition - Restrict"): önce tam eşleşme.
+  Seçenek butonlarının arasında etiketsiz bir buton da var, atlanıyor.
+- **Hafta penceresi** (karta tıklayınca): tür listesi (`…trainingschedulecategory`: "Pre-Season ›" alt menüsü
+  Early / Mid / Late — `names=Pre-Season>Early` —, Tactical Style, Scenario, Training Style), türün programları
+  (Training Style: Defence, Possession, Attack, Physical, Technical, Set Piece, Tactical, Balanced [Recommended];
+  Tactical Style: Route One, Gegenpress, Tiki-Taka, Fluid Counter-Attack, Catenaccio, Wing Play, Control Possession,
+  Vertical Tiki-Taka, Direct Counter-Attack, Park the Bus, Clean Slate; Scenario: Boot Camp, Full Week of Rest;
+  Pre-Season: Light, Normal, Heavy, Tactical, Technical), başlık ("Tactical - No matches": haftadaki maç sayısına göre
+  şablon), bir cümle, etki çubukları (Injury Risk, Condition… — değerleri çizim, okunmadı), "Create New Schedule"
+  (denenmedi), Cancel, Confirm (`EventFmxConfirmTrainingSchedule`). Sezon öncesi programının kartı "Light - Early".
+- Bir haftaya aynı programı yeniden uygulamak "(Modified)"i kaldırıyor; 6 Ekim haftası birebir eski haline döndü,
+  3 Kasım haftasında ise 4 Kasım'ın ilk seansı "Ground Defence" yerine "Defending" geldi (şablon o an bilinen
+  fikstüre göre yeniden kuruluyor olabilir).
+- İki pencere de etiketi aynı kontroller taşıyor ("Tactical" hem takvimde seans hem pencerede seçenek):
+  `/press?text=…&event=SetDatastoreValue` ya da işaretçiyle basılmalı; `/click` ile yanlış "Tactical"a basmak
+  takvimdeki seansın penceresini açtı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

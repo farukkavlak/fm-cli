@@ -219,7 +219,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 > Katalog: COOKBOOK §5.
 
 - [x] Haftalık antrenman programı göster — `fm schedule`: bu hafta ve gelecek hafta, gün gün üç seans (§8.73)
-- [ ] Antrenman programı değiştir
+- [x] Antrenman programı değiştir — `fm schedule set <gün> <1-3> [<seans>]` tek seans, `fm schedule style <gün> [<program>]` bütün hafta (§8.89); kendi programını oluşturmak ("Create New Schedule") yok
 - [~] Maç hazırlığı odağı — `fm prep` okuyor (§8.60); değiştirmek yok
 - [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
 - [x] Pozisyon / hareket öğretme — pozisyon `fm training --position` (§8.51), alışkanlık `fm training <oyuncu> --trait` (§8.75)
@@ -501,6 +501,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Orta grup: antrenman programını değiştirmek** (FINDINGS §8.89, 10 Ekim akşam): düzenleyen sayfa Portal › Calendar'ın
+  Training sekmesiymiş. `fm schedule set` tek seansı, `fm schedule style` bütün haftayı değiştiriyor; seçenek yazılmazsa
+  okla. Plugin'de `/form?buttons=1`. Not: bir haftaya aynı programı yeniden uygulamak haftayı birebir eski haline
+  getirmeyebiliyor (3 Kasım haftasında bir seans farklı geldi).
 - **Orta grup: antrenman programı** (FINDINGS §8.88): ilk bakış; düzenleyen sayfa bulunamadı, olaylar ve veri tipleri
   not edildi.
 - **Orta grup: `fm penalties`** (FINDINGS §8.87): okuma ve üç kural; sıra sürüklemeyle değişiyor, yapılmadı.
