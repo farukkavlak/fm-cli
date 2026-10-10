@@ -150,7 +150,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Farklı kaydet (kayıt tarayıcısı paneli: `SaveGameHandlerModule.m_saveBrowserPanel`)
 - [ ] Kaydı sil (`DeleteSelectedGameEvent` mevcut)
 - [ ] Oyunu kapat
-- [ ] Otomatik kaydetme ayarı — ⚠ açık ve ana dosyanın üzerine yazıyor (§8.35)
+- [x] Otomatik kaydetme ayarı — `fm settings` (§8.61); ⚠ açıkken ana dosyanın üzerine yazıyor (§8.35)
 - [ ] Bulut kayıt durumu
 - [?] Kariyer **oluşturma** (çok adımlı sihirbaz — lig seçimi, veritabanı boyutu, menajer profili)
 - [?] Menajer profili düzenleme (isim, doğum tarihi, uyruk, görünüm)
@@ -376,7 +376,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Serbest sorgu: `fm query "yaş<23 ve potansiyel>4 ve sözleşme<1yıl"`
 - [x] Kadro sağlık taraması — `fm health`: sakat, yorgun, maç formu düşük, sakatlık riski en yüksek (§8.71)
 - [x] Sözleşme takvimi — `fm contracts`: en yakın biten önce, renkli (§8.72)
-- [ ] Derinlik matrisi: hangi pozisyon zayıf
+- [x] Derinlik matrisi: hangi pozisyon zayıf — `fm depth`, `fm doctor` ince mevkiler
 - [ ] Transfer fırsat taraması (bütçe + ihtiyaç + uygunluk)
 - [ ] Sezon karşılaştırması / trend
 - [ ] `fm diff` — son maçtan beri ne değişti
