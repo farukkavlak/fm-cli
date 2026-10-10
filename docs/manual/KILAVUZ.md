@@ -780,6 +780,9 @@ Sıradaki tur Fourth Round: kura 31/10/2025
 Aşamalar: First Round · Second Round · Third Round · Fourth Round
 ```
 
+Lig tablosu burada `FORM` sütunuyla gelir: son beş lig maçı, eskiden yeniye (G galibiyet, B
+beraberlik, M yenilgi) — kendi ligin için de: `fm stages "turkish super league"`.
+
 `fm table <turnuva>` de kendi turnuvan olmayan bir ad verince buraya düşer: `fm table bundesliga`.
 Uzun bir turu okumak birkaç saniye sürer (liste kaydırılarak okunuyor); kupada aşama yazmadan
 sormak, çekilmiş son turu ararken 20 saniyeyi bulabilir.

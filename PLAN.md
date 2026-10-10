@@ -399,7 +399,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       setpieces new, match okla soruyor; script'te düz çıktı
 - [x] Konuşma ekranı — `talk` konuşmayı baştan sona okla yürütüyor (basın toplantısı, takım toplantısı, bire bir); tepki değişimi satırda ("Encouraged (+1)")
 - [x] Oyuncu kartı — mevki sahası, renkli çubuklar, bloklar yan yana, scout aralığı gölgeli
-- [~] Lig tablosu ve fikstür — tablo: bölge renkleri ve takım vurgusu; fikstür: G / B / M renkli. Kalan: tabloda form (öbür takımların `RecentFormValuesAllComps` listesi; `/pull` liste değerini açmıyor)
+- [~] Lig tablosu ve fikstür — tablo: bölge renkleri ve takım vurgusu; fikstür: G / B / M renkli. Form: `fm stages <lig>` tablosunda son beş maç G / B / M (§8.115); çıplak `fm table`'da yok (o sayfa formu bağlamıyor)
 - [x] Kolon başlıkları — `squad --view` / `players` okunur başlık basıyor
 - [~] Akış — `fm status` takım, menajer ve sıradaki maçı bir panelde veriyor; `next` gürültüsü azaldı
 

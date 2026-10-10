@@ -3574,6 +3574,18 @@ devret / geri al, zaten o durumda olan.
   (son iki galibiyet 3; öncesindeki iki beraberlik ve bir yenilgi 0 / 2 / 1 olarak geliyor — sıra ya da kodlama
   belirsiz). Tablodaki öbür takımların satırına bu alan `/table` ile gelmiyor (yalnızca tek değerli alanlar).
 
+## 8.115 Tabloda form (11 Ekim gece)
+
+- Stages sayfasındaki lig tablosunda her satırın form hücresi takımı (`binding` = `TeamReference`) ve onun
+  `RecentFormValues` listesini bağlıyor: satır öğesi › hücre › `BindingRemapper` › `binding` › `RecentFormValues`. Satırın
+  puan kaydı başka bir hücrede; plugin `/table` satırın atalarından aşağı doğru en yakın `RecentFormValues`'ı arayıp
+  satıra ekliyor.
+- **Kodlar** (toto usulü): 3 galibiyet, 0 yenilgi, 1 golsüz beraberlik, 2 gollü beraberlik; **eskiden yeniye**, beş maç.
+  Doğrulama: Göztepe 8G 1B 0M → 3,3,3,3,3; Fenerbahçe (… Beşiktaş 2-3 M, Antalyaspor 0-0 B, Karagümrük 2-0 G) → …,0,1,3;
+  bütün turnuvalardaki karşılığı `Human.Team.RecentFormValuesAllComps` = 0,2,1,3,3 (Salzburg 1-1 = 2, Antalyaspor 0-0 = 1).
+- Portal karosundaki ve turnuvanın kendi sayfasındaki tabloda bu hücre yok: form `fm stages <lig>` ile (ve `fm table <başka
+  lig>` ile) geliyor, çıplak `fm table`'da gelmiyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

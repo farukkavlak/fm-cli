@@ -823,8 +823,17 @@ internal static partial class Program
 				Field(row, "LeagueGamesDrawn"), Field(row, "LeagueGamesLost"), Field(row, "LeagueGoalDifference"), Field(row, "LeaguePoints"),
 			}
 			: [Field(row, "TablePosition"), Field(row, "Name"), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
+		string[] headers = full ? ["#", "TAKIM", "O", "G", "B", "M", "AV", "P"] : ["#", "TAKIM", "O", "P"];
 
-		Table.Write(full ? ["#", "TAKIM", "O", "G", "B", "M", "AV", "P"] : ["#", "TAKIM", "O", "P"], rows);
+		// The last five league results, oldest first, where the page binds them.
+		var forms = table.EnumerateArray().Select(row => Standings.Form(Field(row, "RecentFormValues"))).ToList();
+		if (forms.Any(f => f.Length > 0))
+		{
+			headers = [.. headers, "FORM"];
+			rows = rows.Select((row, at) => (string[])[.. row, forms[at]]).ToList();
+		}
+
+		Table.Write(headers, rows);
 	}
 
 	/// <summary>

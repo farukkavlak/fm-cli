@@ -224,6 +224,19 @@ internal static class Report
 			if (rows.ContainsKey(position)) continue;
 
 			if (node.Parent != null) Merge(fields, node.Parent);
+
+			// The team's last results are bound under another cell of the same row — the form
+			// column's — so they are looked for from the row's ancestors down, nearest first.
+			if (!fields.ContainsKey("RecentFormValues"))
+			{
+				var hops = 0;
+				for (var up = node.Parent; up != null && hops < 5; up = up.Parent, hops++)
+				{
+					if (FormUnder(up, 0) is not { } form) continue;
+					fields["RecentFormValues"] = form;
+					break;
+				}
+			}
 			rows[position] = fields;
 		}
 
@@ -401,6 +414,30 @@ internal static class Report
 	}
 
 	/// <summary>A node's immediate string/number children, cleaned of embedded markup.</summary>
+	private static string FormUnder(IReadOnlyNode node, int depth)
+	{
+		if (depth > 5) return null;
+		for (var c = node.FirstChild; c != null; c = c.NextSibling)
+		{
+			try
+			{
+				if (c.Name == "RecentFormValues" && c.Value is { IsNull: false } value
+				    && value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>() is { } results)
+				{
+					var codes = new List<string>();
+					for (var i = 0; i < results.Count; i++)
+					{
+						try { codes.Add(results[i] is { IsNull: false } code ? Text.Clean(code.AsString()) : ""); } catch { codes.Add("?"); }
+					}
+					return string.Join(",", codes);
+				}
+			}
+			catch { }
+			if (FormUnder(c, depth + 1) is { } found) return found;
+		}
+		return null;
+	}
+
 	internal static Dictionary<string, string> Fields(IReadOnlyNode node)
 	{
 		var fields = new Dictionary<string, string>();
@@ -421,6 +458,19 @@ internal static class Report
 				if (type.EndsWith("Reference", StringComparison.Ordinal) || type == "GameDate") continue;
 
 				text = Text.Clean(value.AsString());
+
+				// A team's recent results are a list of codes; as a string a list is only its
+				// type's name, so this one is given as its entries (FINDINGS §8.115).
+				if (name.StartsWith("RecentFormValues", StringComparison.Ordinal)
+				    && value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>() is { } results)
+				{
+					var codes = new List<string>();
+					for (var i = 0; i < results.Count; i++)
+					{
+						try { codes.Add(results[i] is { IsNull: false } code ? Text.Clean(code.AsString()) : ""); } catch { codes.Add("?"); }
+					}
+					text = string.Join(",", codes);
+				}
 			}
 			catch { continue; }
 

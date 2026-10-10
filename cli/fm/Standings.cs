@@ -22,6 +22,8 @@ internal static class Standings
 				.AddColumn(new TableColumn("[dim]M[/]").RightAligned())
 				.AddColumn(new TableColumn("[dim]AV[/]").RightAligned());
 		grid.AddColumn(new TableColumn("[dim]P[/]").RightAligned());
+		var form = table.EnumerateArray().Any(r => F(r, "RecentFormValues").Length > 0);
+		if (form) grid.AddColumn(new TableColumn("[dim]FORM[/]"));
 
 		foreach (var row in table.EnumerateArray())
 		{
@@ -40,6 +42,7 @@ internal static class Standings
 			};
 			if (full) cells.AddRange([Cell(F(row, "LeagueGamesWon")), Cell(F(row, "LeagueGamesDrawn")), Cell(F(row, "LeagueGamesLost")), Cell(shownDifference)]);
 			cells.Add($"[bold{(mine ? " yellow" : "")}]{Ui.Safe(F(row, "LeaguePoints"))}[/]");
+			if (form) cells.Add(string.Join(" ", Form(F(row, "RecentFormValues")).Select(r => r switch { 'G' => "[green]G[/]", 'M' => "[red]M[/]", _ => "[yellow]B[/]" })));
 			grid.AddRow(cells.ToArray());
 		}
 
@@ -87,4 +90,10 @@ internal static class Standings
 
 	private static string F(JsonElement element, string name) =>
 		element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "";
+	/// <summary>
+	/// A team's last league results, oldest first, as the game codes them: 3 a win, 0 a defeat,
+	/// 1 a goalless draw and 2 a score draw (FINDINGS §8.115).
+	/// </summary>
+	public static string Form(string codes) =>
+		new(codes.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim() switch { "3" => 'G', "0" => 'M', "1" or "2" => 'B', _ => '?' }).Where(c => c != '?').ToArray());
 }
