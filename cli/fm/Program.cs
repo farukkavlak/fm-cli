@@ -127,6 +127,7 @@ internal static partial class Program
 		if (args.Contains("--u19")) return await SquadYouth(json);
 		if (args.Contains("--fitness")) return await SquadFitness(json);
 		if (args.Contains("--morale")) return await SquadMorale(json);
+		if (args.Contains("--stats")) return await SquadStats(json);
 		if (args.Contains("--views")) return await SquadAnyView(json, null);
 		if (Option(args, "--view") is { } asked) return await SquadAnyView(json, asked);
 
@@ -254,6 +255,65 @@ internal static partial class Program
 
 		Table.Write(new[] { "OYUNCU", "MORAL", "HİYERARŞİ", "GRUP" }, rows);
 		return 0;
+	}
+
+	/// <summary>
+	/// The season so far for each player, read from the squad's own data with no screen: games
+	/// (started and from the bench), minutes, goals, assists, average rating and cards. The
+	/// "club" in the game's own figures is wherever he plays now, so those out on loan are left
+	/// out of the table and named under it with their loan club.
+	/// </summary>
+	private static async Task<int> SquadStats(bool json)
+	{
+		var players = await Fm.Pull("Human.Team.Players",
+			"Name,ClubAppearancesThisSeason,ClubGoalsThisSeason,ClubAssistsThisSeason,ClubAverageRatingThisSeason,"
+			+ "StartingAppearances.PropertyValue,SubAppearances.PropertyValue,Minutes.PropertyValue,YellowCards.PropertyValue,RedCards.PropertyValue,LoanClub.Name", list: true);
+		if (json)
+		{
+			Console.WriteLine(players.ToString());
+			return 0;
+		}
+
+		// A player loaned to us carries a loan club too: ours.
+		var (team, _) = await Fm.OwnTeam();
+		var everyone = players.EnumerateArray().Where(p => Field(p, "Name").Length > 0).ToList();
+		var away = everyone.Where(p => Field(p, "LoanClub.Name") is { Length: > 0 } club && club != team).ToList();
+		var all = everyone.Except(away).ToList();
+		var played = all.Where(p => Number(p, "ClubAppearancesThisSeason") is > 0 and < int.MaxValue)
+			.OrderByDescending(p => Number(p, "Minutes.PropertyValue") is var m and < int.MaxValue ? m : 0)
+			.ToList();
+
+		var rows = played.Select(p => new[]
+		{
+			Field(p, "Name"),
+			Field(p, "SubAppearances.PropertyValue") is { Length: > 0 } sub and not "0"
+				? $"{Field(p, "StartingAppearances.PropertyValue")} (+{sub})" : Field(p, "StartingAppearances.PropertyValue"),
+			Field(p, "Minutes.PropertyValue"),
+			Field(p, "ClubGoalsThisSeason"),
+			Field(p, "ClubAssistsThisSeason"),
+			double.TryParse(Field(p, "ClubAverageRatingThisSeason"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var rating) && rating > 0
+				? rating.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "-",
+			Cards(p),
+		}).ToList();
+
+		Table.Write(new[] { "OYUNCU", "MAÇ", "DAKİKA", "GOL", "ASİST", "PUAN", "KART" }, rows);
+
+		var benched = all.Except(played).Select(p => Field(p, "Name")).ToList();
+		if (benched.Count > 0) Console.WriteLine($"\nBu sezon oynamayanlar: {string.Join(", ", benched)}");
+		if (away.Count > 0)
+			Console.WriteLine($"Kiralıkta: {string.Join(", ", away.Select(p => $"{Field(p, "Name")} ({Field(p, "LoanClub.Name")}, {Field(p, "ClubAppearancesThisSeason")} maç)"))}");
+		Console.WriteLine("MAÇ: ilk on bir (+ yedekten girdiği)");
+		return 0;
+
+		static string Cards(JsonElement p)
+		{
+			var yellow = Field(p, "YellowCards.PropertyValue");
+			var red = Field(p, "RedCards.PropertyValue");
+			var parts = new List<string>();
+			if (yellow is { Length: > 0 } and not "0") parts.Add($"{yellow} sarı");
+			if (red is { Length: > 0 } and not "0") parts.Add($"{red} kırmızı");
+			return parts.Count > 0 ? string.Join(", ", parts) : "-";
+		}
 	}
 
 	/// <summary>
@@ -954,9 +1014,10 @@ internal static partial class Program
 			    --fitness     kondisyon ve maç formu, en yorgun önce
 			    --u19         altyapı (U19) kadrosu
 			    --morale      moral, hiyerarşi ve sosyal grup
+			    --stats       sezon istatistikleri: maç, dakika, gol, asist, ortalama puan, kart
 			    --views       kadro tablosunun bütün görünümlerini listele
 			    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
-			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla bulur)
+			  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler, mevki puanları, sakatlık geçmişi (kadro dışıysa aramayla bulur)
 			    --actions     oyuncu için yapılabilecekler: teklif, kısa liste, scout, menajer…
 			    --career      sezon sezon kariyeri: kulüp, geliş (bonservis / kiralık), maç, gol, puan
 			  search <metin>  oyunun aramasında bul: oyuncu, kulüp, turnuva…
@@ -1030,7 +1091,7 @@ internal static partial class Program
 			    --auto        önce yardımcı seçsin;  --send: gönder (kurallar tutunca)
 			  numbers         forma numaralarını gönder (aynı şekilde)
 			  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)
-			  tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
+			  tactic          takımın taktiği: stil, mentalite, akıcılık, on bir mevki ve roller
 			  tactic mentality [<x>]      mentaliteyi göster ya da değiştir
 			  tactic style [<x>]          oyun stilini göster ya da değiştir
 			  tactic pick                 ilk 11'i oyuna seçtir (Quick Pick)
