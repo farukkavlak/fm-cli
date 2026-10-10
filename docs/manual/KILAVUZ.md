@@ -866,7 +866,8 @@ $ fm diff
   Kasa              £52.72M → £51.26M (-£1.46M)
   Transfer bütçesi  £12M → £11.07M (-£930K)
   Gelen             Grégoire Defrel
-  Sakatlanan        Talisca (Hamstring, 12 gün)
+  Giden             Edin Džeko
+  İyileşen          Talisca
   Sözleşme          Fred: 30/6/2026 → 30/6/2027
 
 OYUNCU             MAÇ  GOL  ASİST  ORT. PUAN
