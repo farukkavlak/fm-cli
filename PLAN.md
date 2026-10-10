@@ -176,7 +176,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Form — `fm squad --fitness` maç formunu, `fm squad --stats` sezon istatistiklerini (§8.80), `fm player <ad> --matches` maç maç puanları veriyor (§8.84)
 - [x] Kariyer geçmişi, transfer geçmişi — `fm player <isim> --career` (§8.63)
 - [~] Gelişim grafiği / potansiyel — potansiyel kartta (§8.85); gelişim grafiği yok (`AbilityProgressHistory` dört sayı, ölçeği belirsiz; `/pull` listeyi açmıyor)
-- [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
+- [~] Milli takım — `fm internationals`: ülke, toplam milli maç / gol, bu sezon oynadıkları (§8.101); davet / kamp durumu yok (milli arada bakılacak)
 - [~] Oyuncu mutluluk durumu — `fm happiness` (§8.59); şikâyetlerin nedeni yok
 - [x] Kadro derinliği analizi (pozisyon bazlı) — `fm depth`, mevki dizgilerinden
 - [x] Yaş profili — `fm depth`'in altında

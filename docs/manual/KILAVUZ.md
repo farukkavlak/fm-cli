@@ -1236,3 +1236,17 @@ Teklifin mesajı birkaç gün sonra gelen kutusundan düşer ama teklif beklemey
 "Review Transfer Offer" diye durur. O zaman cevap buradan verilir. Pazarlıksız ya da bir kez bekletilmiş teklif
 yeniden bekletilemez.
 
+### Milli oyuncular — `internationals`
+
+```
+$ fm internationals
+OYUNCU             ÜLKE      MİLLİ MAÇ  GOL  BU SEZON
+Edson Álvarez      Mexico    96         7    4 maç
+Milan Škriniar     Slovakia  85         3    4 maç
+Dorgéles Néné      Mali      27         8    4 maç, 1 gol
+…
+22 oyuncu milli olmuş; 9 tanesi bu sezon milli takımda oynadı.
+```
+
+Milli arada kimlerin yorulacağını görmek için: "BU SEZON" sütunu dolu olanlar davet alanlar.
+

@@ -3328,6 +3328,17 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
 - Avrupa Ligi lig aşaması: 36 takımın 33'ü bağlı (liste sanal, son üç satır ekrana girmeden bağlanmıyor); G / B / M /
   AV sütunları var. Lig, turnuva sayfasından açılınca yalnızca O ve P geliyor. Kupada tablo yok, komut bunu söylüyor.
 
+## 8.101 Milli oyuncular (10 Ekim akşam)
+
+- `Human.Team.Players` listesinde oyuncu başına `/pull` ile geliyor: `Nation.Name`, `InternationalCapsAndGoalsString`
+  ("85 caps / 3 goals", hiç yoksa "No Caps"), `InternationalAppearancesThisSeason`, `InternationalGoalsThisSeason`.
+  `InternationalReturnDate` paketli tarih (`GameDate { Data1 = … }`), çözülmedi. `fm internationals` bunları basıyor.
+- Bilinmeyen property listede yalnızca o alanı düşürüyor (kaydı boşaltmıyor; tek kayıtta `{}` dönüyordu, §8.95).
+- Squad › Internationals sayfası milli arada olmayınca neredeyse boş ("Players on international duty: 0", "Upcoming
+  event: Euro U19 Ch'ship Quals 12th Nov-31st Mar"); davet durumu milli ara gelince yeniden bakılacak. Tabloya giden
+  satırların yolu (`..<panel>…Items.N.binding`) `/pathbind` ile bağlanamıyor (oyun `IndexOutOfRange` atıyor), tablodaki
+  form sütunu bu yüzden hâlâ kapalı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
