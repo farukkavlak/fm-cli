@@ -231,13 +231,17 @@ internal static partial class Program
 		}
 
 		// The name arrives before the rest: the attributes, the contract and the career bind a
-		// moment later.
+		// moment later, the attributes a few at a time, so their count has to hold still.
+		var counted = -1;
 		await Until(async () =>
 		{
 			var now = await Fm.GetJson("player", ("name", full));
 			if (now.TryGetProperty("Player", out _)) card = now;
-			return card.GetProperty("Attributes").GetArrayLength() > 0 && Field(card.GetProperty("Player"), "TotalCareerLeagueAppearances").Length > 0;
-		}, seconds: 4, every: 0.25);
+			var count = card.GetProperty("Attributes").GetArrayLength();
+			var still = count == counted;
+			counted = count;
+			return count > 0 && still && Field(card.GetProperty("Player"), "TotalCareerLeagueAppearances").Length > 0;
+		}, seconds: 5, every: 0.25);
 		return card;
 	}
 

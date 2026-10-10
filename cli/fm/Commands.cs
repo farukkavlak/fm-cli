@@ -16,7 +16,7 @@ internal static partial class Program
 		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
 		"opposition", "saves", "save", "shortlist", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
-		"dropdowns", "press", "select", "completion", "export", "diff", "help",
+		"dropdowns", "press", "select", "completion", "export", "diff", "compare", "help",
 	];
 
 	/// <summary>
@@ -36,7 +36,7 @@ internal static partial class Program
 		["kulup"] = "club", ["personel"] = "staff", ["finans"] = "finances", ["taraftar"] = "supporters",
 		["yonetim"] = "board", ["tesis"] = "facilities", ["saglik"] = "health", ["derinlik"] = "depth", ["doktor"] = "doctor",
 		["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["liste"] = "shortlist",
-		["numara"] = "numbers", ["taktik"] = "tactic", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff",
+		["numara"] = "numbers", ["taktik"] = "tactic", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare",
 	};
 
 	/// <summary>
@@ -84,6 +84,7 @@ internal static partial class Program
 		["training"] = ["--report", "--coach", "--trait", "--trait-remove", "--trait-cancel", "--trait-suggest", "--focus", "--position", "--role", "--yes"],
 		["tactic"] = ["new", "slot", "copy", "clear", "pi", "instructions", "mentality", "style", "pick", "role", "player", "--oop", "--dry"],
 		["finances"] = ["gelir", "gider"],
+		["diff"] = ["--keep", "--reset"],
 		["captains"] = ["--captain", "--vice"],
 		["intensity"] = ["--auto"],
 		["tour"] = ["--skip"],
@@ -92,7 +93,7 @@ internal static partial class Program
 	};
 
 	// Commands whose next word is one of our players, which completion offers by name.
-	private static readonly string[] TakesOurPlayer = ["player", "contract", "release", "training", "intensity", "captains"];
+	private static readonly string[] TakesOurPlayer = ["player", "compare", "contract", "release", "training", "intensity", "captains"];
 
 	/// <summary>Our players' names, one a line, for completion; nothing at all when the game is not up.</summary>
 	private static async Task<int> OurNames()
