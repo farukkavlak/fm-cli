@@ -298,9 +298,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Lig tablosu — `fm table` (§8.37); puanlı tabloda denenmedi
 - [x] Fikstür — `fm fixtures` son ve sıradaki maçlar; `fm fixtures --all` sezonun tamamı (§8.66)
-- [ ] Başka ligler / ülkeler — oyunun araması turnuva döndürmüyor (§8.81)
-- [ ] Kupa ağaçları
-- [~] Avrupa kupaları — `fm table europa` lig aşaması tablosu (36'nın 33'ü, §8.100), `fm league <turnuva>` liderler; eleme turları yok
+- [x] Başka ligler / ülkeler — `fm stages "<turnuva>"` / `fm table <turnuva>`: dünyadaki her turnuvanın tablosu ve turları (§8.105); `--list` hepsini sayar
+- [x] Kupa ağaçları — `fm stages "<kupa>" [tur] [--all]`: eşleşmeler, skor, penaltı / uzatma, toplam skor (§8.105)
+- [~] Avrupa kupaları — `fm table europa` lig aşaması tablosu (36'nın 33'ü, §8.100), `fm league <turnuva>` liderler; eleme turları `fm stages` ile (§8.105)
 - [~] Gol krallığı / asist / form tablosu — `fm league [turnuva]` liderleri veriyor (§8.70); tam liste yok — veri `CompReference.PlayerStats`ta, açan kart bulunamadı (§8.81)
 - [x] Takvim — `fm calendar [ay]`: maçlar, transfer dönemi açılış / kapanış, kupa kuraları, milli maçlar (§8.66)
 - [ ] Sezon özeti / ödüller

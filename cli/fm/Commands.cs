@@ -12,7 +12,7 @@ internal static partial class Program
 	private static readonly string[] CommandNames =
 	[
 		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "offers", "contract", "contracts", "release", "propose",
-		"table", "league", "fixtures", "calendar", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
+		"table", "stages", "league", "fixtures", "calendar", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
 		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "dynamics", "news", "internationals", "mentoring", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
 		"opposition", "saves", "save", "load", "shortlist", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
@@ -35,7 +35,7 @@ internal static partial class Program
 		["yogunluk"] = "intensity", ["butce"] = "budget", ["ayarlar"] = "settings", ["mutluluk"] = "happiness", ["dinamik"] = "dynamics", ["mentor"] = "mentoring", ["milli"] = "internationals", ["milliler"] = "internationals", ["haber"] = "news", ["haberler"] = "news",
 		["kulup"] = "club", ["personel"] = "staff", ["finans"] = "finances", ["taraftar"] = "supporters",
 		["yonetim"] = "board", ["tesis"] = "facilities", ["saglik"] = "health", ["derinlik"] = "depth", ["doktor"] = "doctor",
-		["oner"] = "propose", ["teklifler"] = "offers", ["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["yukle"] = "load", ["liste"] = "shortlist",
+		["oner"] = "propose", ["teklifler"] = "offers", ["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["yukle"] = "load", ["turlar"] = "stages", ["asamalar"] = "stages", ["liste"] = "shortlist",
 		["numara"] = "numbers", ["taktik"] = "tactic", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare", ["penalti"] = "penalties", ["aticilar"] = "takers", ["sorgu"] = "query",
 	};
 
@@ -82,6 +82,7 @@ internal static partial class Program
 		["setpieces"] = ["new", "korner", "frikik", "kanat", "derin", "tac"],
 		["stop"] = ["--save", "--no-save"],
 		["load"] = ["--save", "--no-save"],
+		["stages"] = ["--all", "--list", "--refresh"],
 		["save"] = ["--yes", "--as"],
 		["saves"] = ["delete", "--yes"],
 		["query"] = ["--sort", "--asc"],

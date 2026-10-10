@@ -3394,6 +3394,38 @@ satır seçilince sağda kaydın özeti (boyut, oyun tarihi, ülkeler, menajer /
 Canlı doğrulama: farklı kaydet (yeni ad, var olan ad), yüklü kaydı silmeyi reddetme, silme, ana menüden eski yedeği
 (`(v02)`) yükleme, kayıttayken yeniden başlatarak yükleme, olmayan / belirsiz ad.
 
+## 8.105 Stages sayfası: kupa turları, eleme eşleşmeleri, her ülkenin ligi (10 Ekim gece)
+
+**Sayfa.** Portal › Stages. Üstünde dört liste: turnuva (tek seçeneği "Competitions ›" alt menüsü olan liste; etiketi
+seçili turnuvanın adı), aşama ("First Round … Fourth Round", "League Phase", alt menülü "Main Path ›"; sonda hep
+"xG Table"), görünüm ("Round / Tree" kupada; ligde "Overall / Home Record / Away Record / Last 5 Games …") ve sezon.
+Sayfa her açılışta **sıradaki maçın turnuvasına** dönüyor.
+
+**Turnuva menüsü dünyanın tamamı:** Competitions › kıta › (ülke ›) Men's / Women's › turnuva (› Under 19s …). Bu kayıtta
+195 turnuva. `/menu?ptr=&names=a>b` her dalı veriyor, `/select?ptr=&names=Competitions>Europe>Türkiye>Men's>Turkish Cup`
+seçiyor. "Başka ligler"in yolu bu (§8.81'de aranıp bulunamamıştı): başka ülkenin lig tablosu da burada, `/table?groups=1`
+son grubu veriyor.
+- Turnuva seçilince sayfa yeniden kuruluyor: listelerin pointer'ları değişebiliyor (her zaman değil), o yüzden her adımda
+  yeniden bulunuyorlar; seçimin tuttuğu etiket + pointer + aşama seçenekleri değişince anlaşılıyor.
+- Sayfanın turnuvaya verdiği ad menüdekinden kısa olabiliyor ("English FA Cup" → "FA Cup").
+
+**Bir eşleşmenin yapısı.** Her eşleşme bir `#MainPart`: `#LeftSide` (ev), `#Versus`, `#RightSide`. Takım adı `SIText #text`;
+yanındaki `SIText #SIText` iki maçlı turda **toplam skor**. `#Versus`'ta skor (oynanmadıysa "V"), iki yanında
+`#HomeResultTypeVisible` / `#AwayResultTypeVisible`: turu geçen tarafta "p" (penaltılar) ya da "e" (uzatma). Düz metin
+akışından bu taraf bilgisi çıkmıyor; plugin `/ties` yapıdan okuyor.
+- ⚠ `SIButton` da bir `TextElement` (Unity `Button`), kendi metni boş: metin toplarken "TextElement'se dur" demek
+  butonun içindeki asıl yazıyı kaçırıyor (ilk `/ties` yalnızca "p"/"e"leri veriyordu).
+- Lig rozeti ("2L", "SL") ve ülke kodu ("CZE") `#MainPart`'ın dışında; okunmuyor.
+- Liste sanal: uzun turda 18 eşleşme çiziliyor (Türkiye Kupası 2. tur 39 eşleşme). `/scroll?anchor=<ev takımı>&to=0..1`
+  onar adımda gezilip birleştiriliyor.
+- Kurası çekilmemiş tur: "This round will be drawn on 31/10/2025", eşleşme yok. Sayfa kupada son aşamada (Final) açılıyor;
+  aşama yazılmayınca çekilmiş son tur ikiye bölerek aranıyor.
+- "Tree" görünümü aynı eşleşmeleri takım / gol alt alta veriyor; kullanılmadı.
+
+`fm stages [turnuva] [aşama] [--all|--list|--refresh]`; turnuva listesi `~/.config/fm-cli/competitions.json`'da tutuluyor,
+ad bulunamazsa bir kez yeniden yürünüyor. Canlı: Türkiye Kupası (oynanmış / çekilmiş / çekilmemiş tur), Avrupa Ligi
+playoff (toplam skor, penaltı), FA Cup, Premier League, Bundesliga, Şampiyonlar Ligi; belirsiz ad ("cup").
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

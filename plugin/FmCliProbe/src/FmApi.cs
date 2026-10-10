@@ -70,6 +70,7 @@ internal static class FmApi
 		"rowmove" => TableRows.Move(q),
 		"rowremove" => TableRows.Remove(q),
 		"rowselect" => TableRows.Select(q),
+		"ties" => Ties.Current(),
 		"scoped" => Scoped.Handle(q),
 		"opposition" => Opposition.Current(),
 		"namedrows" => NamedRows.Read(q),

@@ -97,6 +97,7 @@ internal static partial class Program
 				"intensity" => await Intensity(args),
 				"shout" => await Shout(args),
 				"shortlist" => await Shortlist(json),
+				"stages" => await Stages(json, args),
 				"saves" => args.Length > 1 && args[1] is "delete" or "sil" ? await DeleteSave(args) : Saves(json),
 				"load" => await LoadNamed(args),
 				"opponent" => await Opponent(json),
@@ -1151,6 +1152,7 @@ internal static partial class Program
 			    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)
 			    --views / --view "<x>"       kolonları belirleyen görünümler
 			  table [turnuva] lig tablosu; turnuva adıyla o turnuvanın tablosu (ör. table europa)
+			  stages [turnuva] [aşama]   kupa turları ve eşleşmeleri, lig aşaması tablosu; dünyadaki her turnuva (--all, --list)
 			  league [turnuva]  liderler: en golcü takım, gol / asist kralı, en yüksek puan (varsayılan: lig)
 			  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
 			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da

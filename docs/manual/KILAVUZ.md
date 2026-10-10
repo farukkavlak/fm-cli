@@ -667,7 +667,7 @@ Maç bitince `report`:
 
 ![fm report](img/report.png)
 
-## 9. Lig ve fikstür — `table`, `fixtures`
+## 9. Lig, kupa ve fikstür — `table`, `fixtures`, `league`, `stages`
 
 ![fm table](img/table.png)
 
@@ -707,6 +707,43 @@ Oyuncular
   En çok gol: Victor Osimhen (13)
   En çok asist: Yusuf Özdemir (4)
 ```
+
+### Kupalar ve başka ligler — `stages`
+
+`fm stages "<turnuva>"` bir turnuvayı aşama aşama gösterir: kupada turun eşleşmeleri, lig aşamasında
+tablo. Yalnızca kendi turnuvaların değil, oyunun dünyasındaki her turnuva yazılabilir; adın bir
+parçası yeter (`fm stages "fa cup"`, `fm stages bundesliga`). Hepsinin listesi: `fm stages --list`.
+
+```
+$ fm stages "turkish cup" "second round"
+
+Turkish Cup · Second Round
+EV                    SKOR    DEPLASMAN
+Nazillispor           2 - 1   Ergene Velimeşe
+Manisa FK (pen.)      1 - 1   Kırklarelispor
+Kütahyaspor Futbol    1 - 3   Fethiyespor (uz.)
+…
+```
+
+Takımın yanındaki `(pen.)` turu penaltılarla, `(uz.)` uzatmada geçtiğini söyler. İki maçlı turlarda
+(Avrupa elemeleri) son maçın skorunun yanında `TOPLAM` sütunu da gelir. Henüz oynanmamış eşleşmede
+skor yerinde `-` durur.
+
+Aşama yazmazsan kupada kurası çekilmiş son tur gelir, altında sıradaki turun kura tarihiyle;
+ligde tablo. Çıktının sonunda turnuvanın bütün aşamaları sayılır; birini görmek için adını ekle,
+hepsini art arda görmek için `--all`:
+
+```
+$ fm stages "turkish cup"
+…
+Sıradaki tur Fourth Round: kura 31/10/2025
+
+Aşamalar: First Round · Second Round · Third Round · Fourth Round
+```
+
+`fm table <turnuva>` de kendi turnuvan olmayan bir ad verince buraya düşer: `fm table bundesliga`.
+Uzun bir turu okumak birkaç saniye sürer (liste kaydırılarak okunuyor); kupada aşama yazmadan
+sormak, çekilmiş son turu ararken 20 saniyeyi bulabilir.
 
 ## 10. Transfer ve sözleşme — `players`, `offer`, `contract`
 

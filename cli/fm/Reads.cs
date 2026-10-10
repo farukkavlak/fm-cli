@@ -739,6 +739,9 @@ internal static partial class Program
 		var wanted = await LeagueName();
 		if (string.Join(" ", Words(args)) is { Length: > 0 } typed)
 		{
+			// A competition that is not ours has no button to open it from; the Stages page
+			// reaches all of them.
+			if (!ours.Any(o => Fold(o).Contains(Fold(typed))) && !int.TryParse(typed, out _)) return await Stages(json, ["stages", typed]);
 			if (Choose(ours, typed, "Turnuva") is not { } chosen) return 64;
 			wanted = chosen;
 		}
@@ -800,6 +803,12 @@ internal static partial class Program
 			return 0;
 		}
 
+		WriteStandings(table);
+		return 0;
+	}
+
+	private static void WriteStandings(JsonElement table)
+	{
 		// The portal's tile has only games and points; the columns it leaves out are left out.
 		var full = table.EnumerateArray().Any(r => Field(r, "LeagueGamesWon").Length > 0);
 		var rows = table.EnumerateArray().Select(row => full
@@ -811,7 +820,6 @@ internal static partial class Program
 			: [Field(row, "TablePosition"), Field(row, "Name"), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
 
 		Table.Write(full ? ["#", "TAKIM", "O", "G", "B", "M", "AV", "P"] : ["#", "TAKIM", "O", "P"], rows);
-		return 0;
 	}
 
 	/// <summary>The team's league among its competitions: the one that is neither European, a cup nor a friendly.</summary>
