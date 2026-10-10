@@ -3291,8 +3291,8 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   "Accept / Stall / Reject Offer" üçlüsü (`EventFmxTransferCentreResponse`) satır seçilmeden kapalı.
 - `/press` ile `cancel-reject-button` teklifi onaysız reddetti ✓: liste boşaldı, oyun "CanContinue"a döndü.
 - **`fm offers`** bunu komuta bağladı (aynı akşam, kayıt 19 Ekim'e dönünce teklif yeniden bekliyordu): liste, `view`
-  (teklif kartı), `stall` ✓ (durum "Offer Made (Stalled)", ikinci kez bekletilemiyor — buton kapanıyor ✓), `accept` /
-  `reject` (`--yes` ister; komutla gönderilmedi, ret aynı butonla elle doğrulanmıştı). Bir oyuncuya birden çok teklif
+  (teklif kartı), `stall` ✓ (durum "Offer Made (Stalled)", ikinci kez bekletilemiyor — buton kapanıyor ✓), `accept` ✓
+  (Defrel: durum "Contract"e geçti, teklif listede kalıyor) / `reject` (`--yes` ister; ret aynı butonla elle doğrulanmıştı). Bir oyuncuya birden çok teklif
   varken satırların sırası görülmedi; kod her teklif için "kulüp, tür, -, durum, bedel" beşlisini ve sıradaki
   `transfer-link-button`'ı eşliyor.
 
