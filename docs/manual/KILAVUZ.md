@@ -273,6 +273,25 @@ $ fm player kerem --career
           Toplam 259 maç · 75 gol · ödenen bonservisler £29.75M
 ```
 
+### İki oyuncu yan yana — `compare`
+
+`fm compare fred guendouzi` iki oyuncunun kimliğini ve özelliklerini yan yana basar; her
+özellikte iyi olan yeşil (düz çıktıda `◂`). Çok kelimeli adı tırnakla ya da araya `vs` koy.
+Scout edilmemiş oyuncunun özelliği aralık olabilir ("14-17"); aralıklar örtüşüyorsa işaret konmaz.
+
+```
+$ fm compare kerem vs osimhen
+	Kerem Aktürkoğlu	Victor Osimhen
+Yaş	26	26
+Mevki	AM (RLC), ST (C)	ST (C)
+Değer	£37M - £41M	£120M - £146M
+…
+Pace	12	17 ◂
+Stamina	14 ◂	13
+…
+Kerem Aktürkoğlu 10 özellikte, Victor Osimhen 14 özellikte önde.
+```
+
 ## 7. Taktik — `tactic`
 
 Taktiği iki saha olarak çizer: topla oynarken ve topsuzken. Her mevkide oyuncu, mevki kısaltması

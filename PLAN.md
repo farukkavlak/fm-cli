@@ -264,7 +264,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Scout ata (bölge/oyuncu/takım)
 - [ ] Scout odakları (recruitment focus)
 - [x] Kısa liste — `fm shortlist` (§8.56)
-- [ ] Oyuncu karşılaştırma
+- [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
 - [~] Rakip analizi — `fm opponent`: raporun özeti (§8.57); kilit oyuncular ve taktik analizi yok
 - [ ] Gençlik adayları / youth intake
 
@@ -501,6 +501,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Kolay grup: `fm compare`**: iki oyuncu sayfası art arda açılıyor. Yan ürün: ikinci sayfa özelliklerin yarısı
+  gelmişken okunabiliyordu (Guendouzi 36 yerine ~18); artık özellik sayısı iki okumada aynı kalınca alınıyor.
 - **Kolay grup: `fm diff`**: bakışı `~/.config/fm-cli`'ye yazıp sonrakinde karşılaştırıyor; oyuncu verisi `/pull` ile,
   lig / kasa / bütçe diğer komutların `--json`'ından. Değer, maaş, statü `/pull` ile gelmiyor (yalnızca ekrandan), dışarıda kaldı.
   Gerçek bir ilerlemeyle değil, kayıtlı anı elle değiştirerek denendi.
