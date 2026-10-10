@@ -3620,6 +3620,9 @@ devret / geri al, zaten o durumda olan.
 - ⚠ `Choose` sayı yazılınca onu **sıra numarası** sayıyor ("17" → 17. seçenek = 31 yaş); arama listelerinde yazılanla
   birebir eşleşen seçenek önce aranıyor.
 - Mevki doğrudan seçilemese de rol mevkiyi veriyor (Wing-Back, Centre Forward…).
+- **Mevki koşulu:** "Add Attribute" › Position: "If · Position · [Is Natural At | Is Accomplished At | Is Competent At |
+  Cannot Play At | Can Play] · [Goalkeeper, Defender (Right) … Striker (Centre)]". `--position DL` bunu "Is Natural At" ile
+  kuruyor (kısa adlar oyunun uzun adlarına çevriliyor).
 - **Nitelik koşulu:** "Add Attribute" listesi (etiketi "Add Condition") › Attributes › Technical / Mental / Physical /
   Goalkeeping › nitelik (`/select names=… fire=1`) panele bir satır ekliyor: "If · Pace · [Is At Least | Is At Most | Is
   Between | Is Not Between] · 15 · - · + · [1, 5, 10, 15, 20]". Değer ayrı bir **butonun** yazısı (`/form?buttons=1`'de

@@ -811,6 +811,7 @@ Artem Shumanskiy        186  20   Krylja Sovetov  £375K - £3.7M
 Benoný Breki Andrésson  188  20   Stockport       £600K - £6M
 ```
 
+- `--position DL` — asıl mevkisi (GK, DR, DL, DC, WBR, WBL, DM, MR, ML, MC, AMR, AML, AMC, ST)
 - `--role "<rol>"` — topla oynarken oynayabildiği rol (Centre Forward, Wing-Back, Deep-Lying Playmaker…)
 - `--age 18-23` — yaş aralığı
 - `--grade B` — scoutların verdiği en düşük not (A+ … F)
@@ -819,6 +820,8 @@ Benoný Breki Andrésson  188  20   Stockport       £600K - £6M
 - `--attr "pace>=16"` — nitelik koşulu (1–20; `>=`, `<=`, `>`, `<`), istediğin kadar tekrarlanır:
   `fm players --age 18-23 --attr "pace>=16" --attr "finishing>=13"`. Scoutlarının bilmediği
   oyuncuların nitelikleri bilinmediği için onlar bu aramada çıkmaz.
+
+Örneğin genç ve hızlı bir sol bek: `fm players --position DL --age 18-23 --attr "pace>=14"`.
 
 Bunlar da oyunda açık kalır: bir sonraki `fm players` aynı aramayla gelir, `--clear` sıfırlar.
 Liste yine yalnızca ekrandaki ~20 satırdır (ada göre sıralı); daraltmak için süzgeçleri sıkılaştır.

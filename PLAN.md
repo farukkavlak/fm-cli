@@ -235,7 +235,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kısa liste — `fm shortlist` (§8.56); transfer listesine konan kendi oyuncularımız yok
 - [~] Oyuncu ara — `fm players [--filter "<hazır süzgeç>"] [--view "<görünüm>"]`: veritabanının
       ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); gerçek arama `--role --age --grade --contract --listed`
-      (§8.117), nitelik koşulu `--attr "pace>=16"`; mevkiyle (saha parçacığı) arama ve kaydırma yok
+      (§8.117), nitelik koşulu `--attr "pace>=16"`, mevki `--position DL`; kaydırma (ilk 21 satırdan ötesi) yok
 - [x] Teklif ver — `fm offer`: kart, şart düzenleme, pazarlık kilitleri, karşı teklif (§8.42)
 - [x] Gelen teklife yanıt — mesajda `reply <#> Accept | Reject`; "View Offer" sonrası `fm offer` (argümansız) kartı gösteriyor (§8.67)
 - [x] Sözleşme görüşmesi — `fm contract [oyuncu]`: kart, vaatler, şartlar, kilitler, menajerin
@@ -427,7 +427,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] MCP server — `fm mcp` (stdio), 34 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
 - [ ] "Kadroda yorgun kim var?"
-- [ ] "Sol bek arıyorum, 10M bütçem var, öner"
+- [~] "Sol bek arıyorum, 10M bütçem var, öner" — araması var: `fm players --position DL --age … --attr …` (§8.117); bütçeye göre süzme (Transfer Value koşulu) yok
 - [ ] "Bu hafta kimi dinlendirmeliyim?"
 - [ ] "Rakibi analiz et, taktik öner"
 - [ ] Çok adımlı görev: "transfer dönemi bitmeden kadroyu güçlendir"

@@ -709,9 +709,10 @@ internal static partial class Program
 			conditions.Add((match.Groups[1].Value, op is ">=" or ">", op == ">" ? bound + 1 : op == "<" ? bound - 1 : bound));
 		}
 		var searched = false;
-		if (search.Count > 0 || conditions.Count > 0)
+		var position = Option(args, "--position");
+		if (search.Count > 0 || conditions.Count > 0 || position != null)
 		{
-			if (await ApplySearch(search, conditions) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
+			if (await ApplySearch(search, conditions, position) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
 			searched = true;
 		}
 

@@ -168,8 +168,28 @@ internal static partial class Program
 	/// "and"), chosen in, and waited for — a choice made before the last one has landed is lost.
 	/// Null when applied; otherwise what went wrong, with the panel closed again.
 	/// </summary>
-	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted, List<(string Attribute, bool AtLeast, int Value)> conditions = null)
+	// The game's position names by the short ones written on the pitch.
+	private static readonly Dictionary<string, string> PositionNames = new(StringComparer.OrdinalIgnoreCase)
 	{
+		["GK"] = "Goalkeeper", ["DR"] = "Defender (Right)", ["DL"] = "Defender (Left)", ["DC"] = "Defender (Centre)",
+		["WBR"] = "Wing-Back (Right)", ["WBL"] = "Wing-Back (Left)", ["DM"] = "Defensive Midfielder",
+		["MR"] = "Midfielder (Right)", ["ML"] = "Midfielder (Left)", ["MC"] = "Midfielder (Centre)",
+		["AMR"] = "Attacking Midfielder (Right)", ["AML"] = "Attacking Midfielder (Left)", ["AMC"] = "Attacking Midfielder (Centre)",
+		["ST"] = "Striker (Centre)", ["STC"] = "Striker (Centre)",
+	};
+
+	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted,
+		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null)
+	{
+		// What can be told to be wrong from the words alone is said before the panel is opened.
+		string place = null;
+		if (position != null)
+		{
+			var squeezed = new string(position.Where(char.IsLetter).ToArray());
+			place = PositionNames.TryGetValue(squeezed, out var full) ? full : Choose(PositionNames.Values.Distinct().ToList(), position, "Mevki");
+			if (place == null) return "";
+		}
+
 		JsonElement edit = default;
 		await Until(async () => (edit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxFilterStoreFilter", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
@@ -267,6 +287,25 @@ internal static partial class Program
 				await Until(async () => (row = await Row()).At >= 0 && Shown() != before, seconds: 3, every: 0.3);
 			}
 			if (Shown() != value) return await Close($"error: {name} için değer {value} yapılamadı (panelde {Shown()})");
+		}
+
+		// The position he is natural at: a condition of its own ("Add Attribute" › Position), a
+		// row with how well he plays there and where. The pitch at the top of the panel says the
+		// same but is not made of buttons.
+		if (position != null)
+		{
+			var adder = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Add Condition");
+			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
+			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Position"), ("fire", "1"));
+			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
+			async Task<JsonElement> Where() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+				.LastOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Defender (Right)"));
+			JsonElement where = default;
+			if (!await Until(async () => (where = await Where()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
+				return await Close("error: mevki koşulu panele eklenmedi");
+			await Fm.Get("select", ("ptr", Field(where, "Pointer")), ("choice", place), ("fire", "1"));
+			if (!await Until(async () => Field(await Where(), "Label") == place, seconds: 4, every: 0.4))
+				return await Close($"error: mevki '{place}' seçildi ama panel tutmadı");
 		}
 
 		if (await PanelButton("Apply") is not { } apply) return await Close("error: arama panelinde Apply yok");
