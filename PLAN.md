@@ -172,13 +172,13 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Forma numaraları — `fm numbers` yardımcıya verdiriyor; elle numara verme yok
 - [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); kadro dışındakiler aramayla
 - [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)
-- [ ] Gizli öznitelikler (scout görüşü kadarıyla)
+- [~] Gizli öznitelikler (scout görüşü kadarıyla) — kartta kulübün gördüğü potansiyel (`PerceivedPotentialAbility`, /200); kişilik özellikleri, tutarlılık vb. `/pull` ile gelmiyor (§8.85)
 - [x] Pozisyon yetkinlikleri — `fm player` mevki başına 1–20 puanı veriyor (§8.80)
 - [x] Sakatlık durumu — `fm player` sakatlığı ve geçmişi (§8.80), `fm squad --view Injuries` listeyi veriyor
 - [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
 - [x] Form — `fm squad --fitness` maç formunu, `fm squad --stats` sezon istatistiklerini (§8.80), `fm player <ad> --matches` maç maç puanları veriyor (§8.84)
 - [x] Kariyer geçmişi, transfer geçmişi — `fm player <isim> --career` (§8.63)
-- [ ] Gelişim grafiği / potansiyel
+- [~] Gelişim grafiği / potansiyel — potansiyel kartta (§8.85); gelişim grafiği yok (`AbilityProgressHistory` denenmedi)
 - [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
 - [~] Oyuncu mutluluk durumu — `fm happiness` (§8.59); şikâyetlerin nedeni yok
 - [x] Kadro derinliği analizi (pozisyon bazlı) — `fm depth`, mevki dizgilerinden

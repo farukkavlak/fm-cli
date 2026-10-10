@@ -3032,6 +3032,17 @@ kutularından açılıyor:
   hatası toleransı. `fm compare`'de ikinci oyuncu sayfası özelliklerin yarısı gelmişken okunabiliyordu; `OpenPlayer` artık
   özellik sayısı iki okumada aynı kalınca alıyor.
 
+## 8.85 Gizli özellikler ve potansiyel (10 Ekim)
+
+- `/pull` ile **`PerceivedPotentialAbility`** geliyor (200 üzerinden; Ederson 160, Semedo 140, Škriniar 155, Kerem 146,
+  Osimhen 164); kadro dışı oyuncuda kartın yolundan (`fmcli.card.p…`). Adı "algılanan": kulübün personelinin gördüğü,
+  gerçek PA değil. Kartta sayı olarak gösteriliyor; oyunun yıldızları kulübün seviyesine göre göreceli, çevrilmedi.
+- Gelmeyenler: `PlayerCurrentAbility`, `PlayerPotentialAbility`, `DebugCurrentAbility` (boş), `PotentialAbilityStarRange` /
+  `CoachPotentialAbilityStarRange` / `ScoutPotentialAbilityStarRange` `.MinValue/.MaxValue` (boş). Kişilik özellikleri
+  (`AttributeAmbition`, `…Professionalism`, `…Loyalty`, `…Pressure`, `…Temperament`) oyuncuda `PropertyValue = 0`;
+  veri modelinde bunlar `IAgentReference` / `INonPlayerReference` üzerinde. Tutarlılık, büyük maç, sakatlığa yatkınlık
+  gibi gizli özelliklerin adı veri modelinde yok. Oyuncunun kişiliği yalnızca `Personality` metni ("Perfectionist").
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
