@@ -140,6 +140,12 @@ Moral, takım içi hiyerarşi ve sosyal grup:
 
 ![fm squad --morale](img/squad-morale.png)
 
+Sezon istatistikleri: maç (ilk on bir, yedekten girdikleri parantezde), dakika, gol, asist,
+ortalama puan, kart; en çok oynayan önce. Altında hiç oynamayanlar ve kiralıktakiler (kulübü ve
+orada oynadığı maç).
+
+![fm squad --stats](img/squad-stats.png)
+
 Oyundaki kadro tablosunun başka görünümleri de var: `fm squad --views` listeler,
 `fm squad --view "<ad>"` o görünümün kolonlarını gösterir.
 
@@ -185,7 +191,17 @@ fm depth
 ## 6. Oyuncu kartı — `player`, `search`
 
 `fm player <isim>` oyuncunun kartını açar: kimlik, sözleşme, sahadaki mevkisi ve renkli
-özellikleri. Kadronda olmayan bir oyuncuyu da arayıp bulur.
+özellikleri. Kadronda olmayan bir oyuncuyu da arayıp bulur. Kartın altında hangi mevkide ne
+kadar iyi olduğu (oyunun 1-20 puanı: 20 doğal mevki, 15 ve üstü usta, 10 ve üstü yeterli) ve
+sakatlık geçmişi var: kaç sakatlık, bu ve geçen sezon kaç, son beşi tarihiyle ve süresiyle.
+
+```
+$ fm player Fred
+Mevkiler (20 doğal, 15+ usta, 10+ yeterli): DM 20 · M (C) 17 · AM (C) 15 · M (L) 10 · AM (L) 10
+Sakatlık geçmişi: 7 sakatlık · bu sezon 0, geçen sezon 2 · kaçırdığı maç: 0%
+  Mart 2025  A moderate hamstring strain, 14 gün
+  Temmuz 2024  Sprained knee ligaments, 17 gün
+```
 
 ![fm player Ederson](img/player.png)
 
@@ -217,7 +233,9 @@ $ fm player kerem --career
 ## 7. Taktik — `tactic`
 
 Taktiği iki saha olarak çizer: topla oynarken ve topsuzken. Her mevkide oyuncu, mevki kısaltması
-ve rolü var; rollerin açılımı altta.
+ve rolü var; rollerin açılımı altta. Başlıktaki **akıcılık**, takımın bu taktiğe ne kadar
+alıştığı (oyunun taktik ekranındaki çubuk); altta taktiği henüz tam bilmeyen oyuncular yüzdeleriyle,
+en az bilen önce ("Taktiğe tam alışamayanlar: İsmail 71%, Kerem 74%…").
 
 ![fm tactic](img/tactic.png)
 

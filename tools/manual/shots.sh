@@ -18,6 +18,7 @@ SHOTS=(
 	"squad|fm squad"
 	"squad-fitness|fm squad --fitness"
 	"squad-morale|fm squad --morale"
+	"squad-stats|fm squad --stats"
 	"player|fm player Ederson"
 	"tactic|fm tactic"
 	"table|fm table"

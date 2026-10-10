@@ -173,10 +173,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); kadro dışındakiler aramayla
 - [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)
 - [ ] Gizli öznitelikler (scout görüşü kadarıyla)
-- [ ] Pozisyon yetkinlikleri
-- [~] Sakatlık durumu — `fm player` sakatlığı, `fm squad --view Injuries` listeyi veriyor; geçmiş yok
+- [x] Pozisyon yetkinlikleri — `fm player` mevki başına 1–20 puanı veriyor (§8.80)
+- [x] Sakatlık durumu — `fm player` sakatlığı ve geçmişi (§8.80), `fm squad --view Injuries` listeyi veriyor
 - [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
-- [~] Form — `fm squad --fitness` maç formunu veriyor; maç ratingleri ve sezon istatistikleri yok
+- [~] Form — `fm squad --fitness` maç formunu, `fm squad --stats` sezon istatistiklerini veriyor (§8.80); maç maç puanlar yok
 - [x] Kariyer geçmişi, transfer geçmişi — `fm player <isim> --career` (§8.63)
 - [ ] Gelişim grafiği / potansiyel
 - [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
@@ -210,7 +210,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Kaptan / yardımcı kaptan — `fm captains`: okuma, kaptan değişimi; yardımcı yalnızca boşken (§8.58)
 - [~] Taktik kaydet / yükle / kopyala — `fm tactic copy`, `fm tactic clear <n> --yes` (§8.77); dosyaya Save / Load… yok
 - [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
-- [ ] Taktik akıcılığı (familiarity)
+- [x] Taktik akıcılığı (familiarity) — `fm tactic` takımın ve on birin yüzdesi (§8.80); evre evre döküm yok
 
 ---
 
@@ -492,6 +492,12 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Kulübün kalanı** (FINDINGS §8.79): `fm finances gelir|gider [dönem]` kalem kalem, `fm finances` sponsor
   anlaşmalarını tek tek veriyor, `fm supporters` (beklentiler, seyirci, profil), `fm facilities` (stadyum,
   antrenman, altyapı). Yönetim kartı okundu ama talepte bulunmak eylem — ayrı iş.
+
+
+- **Kolay okumalar (1. grup, öğleden sonra)** (FINDINGS §8.80): `fm tactic` akıcılığı yüzde olarak veriyor, takımın
+  ve on birin ("Taktiğe tam alışamayanlar: İsmail 71%…"); `fm player` mevki puanları ve sakatlık geçmişi (kadro dışı
+  oyuncuda da); `fm squad --stats` sezon istatistikleri, kiralıktakiler ayrı. Yan ürün: oyuncu sayfası artık
+  özellikler bağlanmadan okunmuyor; arama, önceki aramanın geç beliren sonuçlarını yeni sanmıyor.
 
 ### 2026-10-09 (gece, otonom)
 

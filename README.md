@@ -65,9 +65,10 @@ squad           kadroyu bas
   --fitness     kondisyon ve maç formu, en yorgun önce
   --u19         altyapı (U19) kadrosu
   --morale      moral, hiyerarşi ve sosyal grup
+  --stats       sezon istatistikleri: maç, dakika, gol, asist, ortalama puan, kart
   --views       kadro tablosunun bütün görünümlerini listele
   --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)
-player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler (kadro dışıysa aramayla bulur)
+player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler, mevki puanları, sakatlık geçmişi (kadro dışıysa aramayla bulur)
   --actions     oyuncu için yapılabilecekler: teklif, kısa liste, scout, menajer…
   --career      sezon sezon kariyeri: kulüp, geliş (bonservis / kiralık), maç, gol, puan
 search <metin>  oyunun aramasında bul: oyuncu, kulüp, turnuva…
@@ -140,7 +141,7 @@ register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar
   --auto        önce yardımcı seçsin;  --send: gönder (kurallar tutunca)
 numbers         forma numaralarını gönder (aynı şekilde)
 setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)
-tactic          takımın taktiği: stil, mentalite, on bir mevki ve roller
+tactic          takımın taktiği: stil, mentalite, akıcılık, on bir mevki ve roller
 tactic mentality [<x>]      mentaliteyi göster ya da değiştir
 tactic style [<x>]          oyun stilini göster ya da değiştir
 tactic pick                 ilk 11'i oyuna seçtir (Quick Pick)

@@ -2929,6 +2929,37 @@ kutularından açılıyor:
   buton), Board Requests tablosu (Request · Status · Started · Outcome · Completed; şimdilik boş).
   Talep etmek denenmedi.
 
+## 8.80 Taktik akıcılığı, mevki puanları, sakatlık geçmişi, sezon istatistikleri (10 Ekim)
+
+- **Akıcılık** 10000 üzerinden tutuluyor. Takımınki `Tactic.TacticalFamiliarity` (9089 → %91; §8.47'de
+  "alışkanlık" diye geçen sayı bu). Oyuncununki taktik ekranının altındaki kadro tablosunun Familiarity
+  kolonunda: `…binding.Player.TacticalFamiliarity.AverageFamiliarity`. Bu bir `PlayerTacticalFamiliarityReference`;
+  ama `/pull` ile `Human.Team.Players.<n>.TacticalFamiliarity` boş dönüyor, çünkü değer satırın mevki/diziliş
+  bağlamına bağlı. Okurken satırdan yukarı çıkılıyor; aynı satırda iki seviye aşağıda `PlayerIndex` var.
+  Tablo planlayıcıdan biraz sonra doluyor, ilk okumada kolon boş olabiliyor. Bağlanan yalnızca on bir
+  oyuncu. Ayrıntılı döküm (`TacticalFamiliarityDetails`: mentalite, tempo, genişlik…) "Familiarity"
+  butonunun üzerine gelince açılan ipucunda; tıklamak açmıyor, okunmadı.
+- **Mevki puanları**: `PersonReference.PositionalAbilities`, 15 elemanlı bir liste; her eleman
+  `DisplayValue` ("DM", "M (L)"…) ve `PropertyValue` (1–20) taşıyan bir `DynamicReference`. İkinci
+  elemanın adı boş (hep 1).
+- **Sakatlık geçmişi**: `PersonReference.InjuriesHistory` → `PlayerInjuryReference` (`InjuryDescription`,
+  `InjuryDate` paketli GameDate, `InjuryDurationDays`, `IsActive`). Özet alanları `InjuriesThisSeason`,
+  `InjuriesLastSeason`, `InjuriesPercentageMissedString` ("0% missed").
+- Kadro dışındaki oyuncu için bir yol lazımdı: `/player` artık sayfadaki `Person` değerini
+  `fmcli.card.p<isim karması>` yoluna koyuyor ve `Path` alanında veriyor; `/pull` oradan okuyor.
+  Oyuncu başına ayrı yol açılıyor, çünkü başkası için tekrar kullanılan yol eski oyuncunun değerlerini
+  veriyor (§8.68).
+- Bu çağrıyla bağlanan bir liste aynı karede boş geliyor ("is not a list"); `Fm.Pull` bunu tekrar deniyor.
+- **Sezon istatistikleri** ekransız: `Human.Team.Players` üzerinde `ClubAppearancesThisSeason`, `ClubGoalsThisSeason`,
+  `ClubAssistsThisSeason`, `ClubAverageRatingThisSeason`, ayrıca `StartingAppearances`, `SubAppearances`,
+  `Minutes`, `YellowCards`, `RedCards` (`valueCount`; `/pull`'da `Minutes.PropertyValue` gibi noktalı
+  prop çalışıyor). ⚠ "Club" oyuncunun şu an oynadığı kulüp: kiralıktakilerin rakamları kiralık
+  kulübünki. Kiralıkta olan `LoanClub.Name` ile ayrılıyor; bize kiralananın `LoanClub`'ı biziz.
+- İki eski yarış daha çıktı: (1) oyuncu sayfasında isim, özelliklerden ve sözleşmeden önce bağlanıyor;
+  komut artık özellikler ve lig kariyeri gelene kadar en çok 4 sn bekliyor. (2) Arama kutusu yeni
+  açılınca önceki aramanın sonuçları biraz geç beliriyor ve yeni sonuç sanılıyordu ("Arda Güler" →
+  Fred Onyedinma); "önceki" hali artık liste durulunca alınıyor (6/6 temiz).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
