@@ -3604,6 +3604,24 @@ devret / geri al, zaten o durumda olan.
 
 `fm staff find [metin] [--role] [--free|--employed] [--reputation] [--filter] [--view] [--clear]`.
 
+## 8.117 Oyuncu veritabanında gerçek arama (11 Ekim gece)
+
+- Player Database'in arama paneli (aynı `EventFmxFilterStoreFilter` butonu): "Position" (saha üstünde mevki parçacıkları —
+  `SIButton` değil, `#position-widget`; tıklanamadı), "Role (In Possession)" / "Role (Out of Possession)" (bütün roller),
+  "Aged Between (Years)" … "and" … (iki liste, 15–45), "Minimum Scouting Grade" (A+ … F), "Contract Status" (Expiring
+  (1 Year / 6 Months / 3 Months / 1 Month), Expired, Unattached, Non-Contract, Youth, Amateur…), "Transfer Status" /
+  "Loan Status" (Not Listed / Listed), "Add Attribute" (koşul; kullanılmadı), "Exclude" (kendi kadromuz, tarama dışı).
+- Listelerin olayları: `EventFmxSelectFilterValue`, yaşta `…MinValue` / `…MaxValue`. ⚠ Seçimler art arda hızlı gönderilince
+  **kayboluyor** (üçü birden gönderilip Apply'a basılınca yalnızca ilki tuttu): her seçimden sonra panelin o listede yeni
+  değeri gösterdiği bekleniyor. Yaş koşulu "Conditions" altında "Age Is Between a and b" satırı olarak beliriyor.
+- Panelin `Cancel` / `Apply` butonları olay taşımıyor, `/buttons`'ta yok; `/form?anchor=Apply&buttons=1` pointer'larını veriyor.
+- ⚠ `Choose` sayı yazılınca onu **sıra numarası** sayıyor ("17" → 17. seçenek = 31 yaş); arama listelerinde yazılanla
+  birebir eşleşen seçenek önce aranıyor.
+- Mevki doğrudan seçilemese de rol mevkiyi veriyor (Wing-Back, Centre Forward…).
+
+`fm players --role --age a-b --grade --contract --listed --loan-listed` (+ var olan `--filter`, `--view`, `--clear`). Canlı:
+17–21 yaş santrforlar, 20–23 yaş kanat bekleri, sözleşmesi 6 ay içinde biten B+ üstü oyuncular, olmayan rol, bozuk yaş.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

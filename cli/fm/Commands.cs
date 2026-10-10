@@ -73,7 +73,7 @@ internal static partial class Program
 	{
 		["squad"] = ["--fitness", "--morale", "--stats", "--u19", "--views", "--view"],
 		["player"] = ["--actions", "--career", "--matches"],
-		["players"] = ["--filters", "--filter", "--free", "--clear", "--views", "--view"],
+		["players"] = ["--role", "--age", "--grade", "--contract", "--listed", "--loan-listed", "--filters", "--filter", "--free", "--clear", "--views", "--view"],
 		["fixtures"] = ["--all"],
 		["calendar"] = ["--u19"],
 		["schedule"] = ["set", "style"],

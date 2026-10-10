@@ -67,9 +67,10 @@ internal static partial class Program
 
 			async Task<int> Cancel(int code)
 			{
-				// The panel's own Cancel is the last one drawn; another page's can be under it.
-				var cancel = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(b => Field(b, "Label") == "Cancel");
-				if (cancel.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(cancel, "Pointer")));
+				// The panel's own Cancel carries no event; it is found in the panel, beside Apply.
+				var cancel = (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray()
+					.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == "Cancel").Select(i => Field(i, "Pointer")).LastOrDefault();
+				if (cancel != null) await Fm.Get("click", ("ptr", cancel));
 				return code;
 			}
 
@@ -160,5 +161,60 @@ internal static partial class Program
 		Columns(rows, "KİŞİ");
 		Console.WriteLine($"\n{rows.Count} kişi (sayfanın gösterdiği kadarı). Daraltmak: --role <görev> · --free · --reputation <seviye> · --view <görünüm> · sıfırlamak: --clear");
 		return 0;
+	}
+	/// <summary>
+	/// Sets lists in a database page's search panel ("Edit Search") and applies them: each is
+	/// found by the heading it stands under (the second list of a pair by the word between them,
+	/// "and"), chosen in, and waited for — a choice made before the last one has landed is lost.
+	/// Null when applied; otherwise what went wrong, with the panel closed again.
+	/// </summary>
+	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted)
+	{
+		JsonElement edit = default;
+		await Until(async () => (edit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxFilterStoreFilter", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
+		if (edit.ValueKind != JsonValueKind.Object) return "error: sayfada arama paneli butonu yok";
+		await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
+
+		async Task<JsonElement?> Under(string heading)
+		{
+			var items = (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"))).EnumerateArray().ToList();
+			for (var at = 0; at + 1 < items.Count; at++)
+				if (Field(items[at], "Kind") == "text" && Field(items[at], "Text") == heading && Field(items[at + 1], "Kind") == "dropdown") return items[at + 1];
+			return null;
+		}
+		// The panel's own Cancel and Apply carry no events, so they are not among the page's
+		// controls; they are found in the panel, beside each other.
+		async Task<string> PanelButton(string label) =>
+			(await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray()
+				.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == label).Select(i => Field(i, "Pointer")).LastOrDefault();
+		async Task<string> Close(string error)
+		{
+			if (await PanelButton("Cancel") is { } cancel) await Fm.Get("click", ("ptr", cancel));
+			return error;
+		}
+
+		foreach (var (heading, typed, what) in wanted)
+		{
+			JsonElement? list = null;
+			await Until(async () => (list = await Under(heading)) != null, seconds: 6, every: 0.4);
+			if (list == null) return await Close($"error: arama panelinde '{heading}' yok");
+			var choices = list.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+			// A number typed is the choice itself (an age), not its place in the list.
+			var choice = choices.FirstOrDefault(c => string.Equals(c, typed, StringComparison.OrdinalIgnoreCase)) ?? Choose(choices, typed, what);
+			if (choice == null) return await Close("");
+			if (Field(list.Value, "Label") == choice) continue;
+
+			var picked = await Fm.Get("select", ("ptr", Field(list.Value, "Pointer")), ("choice", choice), ("fire", "1"));
+			if (picked.StartsWith("error", StringComparison.Ordinal)) return await Close(picked);
+			if (!await Until(async () => await Under(heading) is { } now && Field(now, "Label") == choice, seconds: 4, every: 0.4))
+				return await Close($"error: {what}: '{choice}' seçildi ama panel tutmadı");
+		}
+
+		if (await PanelButton("Apply") is not { } apply) return await Close("error: arama panelinde Apply yok");
+		var applied = await Fm.Get("click", ("ptr", apply));
+		if (applied.StartsWith("error", StringComparison.Ordinal)) return await Close(applied);
+		await Until(async () => await PanelButton("Apply") == null, seconds: 5, every: 0.4);
+		return null;
 	}
 }

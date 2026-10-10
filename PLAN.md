@@ -234,7 +234,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Kısa liste — `fm shortlist` (§8.56); transfer listesine konan kendi oyuncularımız yok
 - [~] Oyuncu ara — `fm players [--filter "<hazır süzgeç>"] [--view "<görünüm>"]`: veritabanının
-      ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); isimle arama ve kaydırma yok
+      ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); gerçek arama `--role --age --grade --contract --listed`
+      (§8.117); mevkiyle (saha parçacığı) ve nitelik koşuluyla arama, kaydırma yok
 - [x] Teklif ver — `fm offer`: kart, şart düzenleme, pazarlık kilitleri, karşı teklif (§8.42)
 - [x] Gelen teklife yanıt — mesajda `reply <#> Accept | Reject`; "View Offer" sonrası `fm offer` (argümansız) kartı gösteriyor (§8.67)
 - [x] Sözleşme görüşmesi — `fm contract [oyuncu]`: kart, vaatler, şartlar, kilitler, menajerin
@@ -375,7 +376,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kadro sağlık taraması — `fm health`: sakat, yorgun, maç formu düşük, sakatlık riski en yüksek (§8.71)
 - [x] Sözleşme takvimi — `fm contracts`: en yakın biten önce, renkli (§8.72)
 - [x] Derinlik matrisi: hangi pozisyon zayıf — `fm depth`, `fm doctor` ince mevkiler
-- [ ] Transfer fırsat taraması (bütçe + ihtiyaç + uygunluk)
+- [~] Transfer fırsat taraması (bütçe + ihtiyaç + uygunluk) — taşları var: `fm players --role --age --grade --contract --listed` (§8.117), `fm scout <odak>` (§8.109), `fm budget`; tek komutta birleştirilmedi
 - [ ] Sezon karşılaştırması / trend
 - [x] `fm diff` — son bakıştan beri ne değişti: lig sırası, kasa, bütçe, gelen/giden, sakatlar, sözleşmeler, maç/gol/asist (`--keep`, `--reset`)
 - [ ] `fm watch` — bir oyuncuyu/durumu izle, değişince haber ver (`Bindings.Bind` ile)

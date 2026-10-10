@@ -796,11 +796,29 @@ sormak, çekilmiş son turu ararken 20 saniyeyi bulabilir.
 ## 10. Transfer ve sözleşme — `players`, `offer`, `contract`
 
 `fm players` oyunun oyuncu veritabanını listeler: `--filter "<x>"` hazır süzgeçlerden birini
-uygular, `--view "<x>"` kolonları değiştirir. *(Çıktısı şu an dar terminalde dağınık;
-düzeltilince görüntüsü buraya gelecek.)*
+uygular, `--view "<x>"` kolonları değiştirir.
 
 Serbest oyuncular için `fm players --free` (sözleşmesi bitmiş olanlar; `--view Contract` ile maaş ve
 statü kolonları gelir). Süzgeç oyunda açık kalır, `fm players --clear` kaldırır.
+
+Belirli bir oyuncu tipi aramak için oyunun arama panelindeki süzgeçler de komutta:
+
+```
+$ fm players --role "centre forward" --age 17-21 --view "General Info"
+OYUNCU                  BOY  YAŞ  KULÜP           DEĞER
+Arnu                    185  18   R. Madrid       £375K - £3.9M
+Artem Shumanskiy        186  20   Krylja Sovetov  £375K - £3.7M
+Benoný Breki Andrésson  188  20   Stockport       £600K - £6M
+```
+
+- `--role "<rol>"` — topla oynarken oynayabildiği rol (Centre Forward, Wing-Back, Deep-Lying Playmaker…)
+- `--age 18-23` — yaş aralığı
+- `--grade B` — scoutların verdiği en düşük not (A+ … F)
+- `--contract "expiring (6 months)"` — sözleşme durumu (Expiring (1 Year), Expired, Unattached…)
+- `--listed`, `--loan-listed` — transfer / kiralık listesinde olanlar
+
+Bunlar da oyunda açık kalır: bir sonraki `fm players` aynı aramayla gelir, `--clear` sıfırlar.
+Liste yine yalnızca ekrandaki ~20 satırdır (ada göre sıralı); daraltmak için süzgeçleri sıkılaştır.
 
 ### Teklif — `offer`
 

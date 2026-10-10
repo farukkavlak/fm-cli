@@ -675,6 +675,32 @@ internal static partial class Program
 			if (cleared.StartsWith("error", StringComparison.Ordinal)) return Report(cleared);
 		}
 
+		// The page's search panel: the role he can play, his age, the scouts' grade, his
+		// contract and whether he is listed. A search stays on until --clear.
+		var search = new List<(string Heading, string Choice, string What)>();
+		if (Option(args, "--role") is { } searchRole) search.Add(("Role (In Possession)", searchRole, "Rol"));
+		if (Option(args, "--age") is { } ages)
+		{
+			var ends = ages.Split('-', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+			if (ends.Length != 2 || !int.TryParse(ends[0], out _) || !int.TryParse(ends[1], out _))
+			{
+				Console.Error.WriteLine("Yaş aralığı iki sayıyla:  --age 18-23");
+				return 64;
+			}
+			search.Add(("Aged Between (Years)", ends[0], "En küçük yaş"));
+			search.Add(("and", ends[1], "En büyük yaş"));
+		}
+		if (Option(args, "--grade") is { } grade) search.Add(("Minimum Scouting Grade", grade, "Scout notu"));
+		if (Option(args, "--contract") is { } contract) search.Add(("Contract Status", contract, "Sözleşme durumu"));
+		if (args.Contains("--listed")) search.Add(("Transfer Status", "Listed", "Transfer durumu"));
+		if (args.Contains("--loan-listed")) search.Add(("Loan Status", "Listed", "Kiralık durumu"));
+		var searched = false;
+		if (search.Count > 0)
+		{
+			if (await ApplySearch(search) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
+			searched = true;
+		}
+
 		// Free agents are the players whose contract has run out.
 		if ((Option(args, "--filter") ?? (args.Contains("--free") ? "Contract Expired" : null)) is { } wantedFilter)
 		{
@@ -703,7 +729,7 @@ internal static partial class Program
 		JsonElement people = default;
 		var last = "";
 		var waited = 0;
-		var asked = Option(args, "--filter") != null || Option(args, "--view") != null || args.Contains("--clear") || args.Contains("--free");
+		var asked = searched || Option(args, "--filter") != null || Option(args, "--view") != null || args.Contains("--clear") || args.Contains("--free");
 		await Until(async () =>
 		{
 			var now = await Fm.GetJson("people");
