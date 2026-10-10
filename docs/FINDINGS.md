@@ -3042,6 +3042,8 @@ kutularından açılıyor:
   (`AttributeAmbition`, `…Professionalism`, `…Loyalty`, `…Pressure`, `…Temperament`) oyuncuda `PropertyValue = 0`;
   veri modelinde bunlar `IAgentReference` / `INonPlayerReference` üzerinde. Tutarlılık, büyük maç, sakatlığa yatkınlık
   gibi gizli özelliklerin adı veri modelinde yok. Oyuncunun kişiliği yalnızca `Personality` metni ("Perfectionist").
+- `AbilityProgressHistory` dört `DynamicNumber`lık bir liste (Škriniar: 34980, 34980, 34980, 34760); ölçeği ve hangi
+  dönemleri tuttuğu belli değil, gelişim grafiği için kullanılmadı.
 
 ## 9. Sıradaki adımlar
 
