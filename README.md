@@ -126,6 +126,7 @@ staff           kulüp personeli: kim hangi işte, yaşı, maaşı, sözleşmesi
 finances        finans: kasa, bu ayın gelir/gideri, borç, FFP, oyuncu tipine göre maaş bordrosu, sponsorluk, projeksiyon
 finances gelir|gider [ay|geçen ay|sezon|geçen sezon]   kalem kalem gelir ya da gider
 supporters      taraftarlar: hava, beklentiler ve tepkileri, seyirci, kombine, taraftar profili
+board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri
 facilities      tesisler: stadyum (kapasite, zemin, ölçüler), antrenman tesisi, altyapı, ticari
 health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler
 depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili

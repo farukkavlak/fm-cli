@@ -22,7 +22,7 @@ sen her şeyi `fm` komutlarıyla yaparsın.
 9. [Lig ve fikstür — `table`, `fixtures`](#9-lig-ve-fikstür--table-fixtures)
 10. [Transfer ve sözleşme — `players`, `offer`, `contract`](#10-transfer-ve-sözleşme--players-offer-contract)
 11. [Kaydetmek ve oyun ayarları — `save`, `settings`](#11-kaydetmek-ve-oyun-ayarları--save-settings)
-12. [Kulüp — `club`, `staff`, `finances`, `supporters`, `facilities`](#12-kulüp--club-staff-finances-supporters-facilities)
+12. [Kulüp — `club`, `staff`, `finances`, `supporters`, `board`, `facilities`](#12-kulüp--club-staff-finances-supporters-board-facilities)
 13. [Her şeye erişim — `pages`, `buttons`, `press`](#13-her-şeye-erişim--pages-buttons-press)
 14. [Claude'dan oynamak — MCP](#14-claudedan-oynamak--mcp)
 
@@ -662,7 +662,7 @@ Maçı kısaltmanın iki yolu var: **maç gösterimi** "Yalnızca anlatım" ya d
 Dili değiştirmek mümkün ama fm-cli oyunun İngilizce yazılarını okuduğu için çoğu komut çalışmaz
 hale gelir; `settings` bunu sorar, script'te `--yes` ister.
 
-## 12. Kulüp — `club`, `staff`, `finances`, `supporters`, `facilities`
+## 12. Kulüp — `club`, `staff`, `finances`, `supporters`, `board`, `facilities`
 
 Hepsi yalnızca okur; oyunda hiçbir şeyi değiştirmez.
 
@@ -706,7 +706,8 @@ Sağlık 6 kişi — eksik: Head of Sports Science 0/1, Physio 1/5, Sports Scien
 ![fm finances](img/finances.png)
 
 Kasa ve aylara göre bakiyesi, bu ayın geliri ve gideri, kalan borç, finansal fair play durumu,
-haftalık maaş bordrosu (oyuncu statüsüne göre: yıldız, düzenli ilk 11, rotasyon…), sponsorluk
+haftalık maaş bordrosu (oyuncu statüsüne göre: yıldız, düzenli ilk 11, rotasyon…), maç bileti ve
+kombine fiyatı, sponsorluk
 anlaşmaları tek tek (tür, sezonluk değer, bitiş) ve yönetimin önümüzdeki sezonlar için bakiye/ciro tahmini. Zarar parantezle ve kırmızı yazılır.
 Transfer ve maaş bütçesi için `budget`.
 
@@ -745,6 +746,25 @@ $ fm supporters
 Beklentiler
   Play entertaining football (tercih, oyun tarzı) — hoşnut
   Get the better of our rivals Galatasaray (zorunlu, rekabet) — henüz yargılamıyor
+```
+
+### Yönetimin ve taraftarın görüşü — `board`
+
+Yönetimin menajer hakkında söyledikleri, konu konu: genel, son maçlar, oyuncuların desteği, taktik,
+transfer, kulübün vizyonu ve kültürü, turnuvalar. Altında memnun oldukları (+) ve endişeleri (-),
+sonra taraftarın aynı görüşleri. Cümleler oyunun kendi (İngilizce) cümleleri.
+
+![fm board](img/board.png)
+
+```
+$ fm board
+Yönetim
+  Genel       To summarise, the board are satisfied with your management of the team.
+  Maçlar      The board are disappointed with the team's recent results.
+  Memnun oldukları
+    + Pleased with the highly impressive 4-1 Turkish Super League dismantling of Başakşehir FK.
+  Endişeleri
+    - Extremely disappointed about the heavy 0-4 Turkish Super League defeat against Gençlerbirliği.
 ```
 
 ### Tesisler — `facilities`

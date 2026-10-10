@@ -260,7 +260,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ## 6. Scouting
 
-- [ ] Scout raporları
+- [ ] Scout raporları — Recruitment genel görünümü tavsiyelerin ikisini gösteriyor, tam kart açılmadı (§8.81)
 - [ ] Scout ata (bölge/oyuncu/takım)
 - [ ] Scout odakları (recruitment focus)
 - [x] Kısa liste — `fm shortlist` (§8.56)
@@ -300,10 +300,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Lig tablosu — `fm table` (§8.37); puanlı tabloda denenmedi
 - [x] Fikstür — `fm fixtures` son ve sıradaki maçlar; `fm fixtures --all` sezonun tamamı (§8.66)
-- [ ] Başka ligler / ülkeler
+- [ ] Başka ligler / ülkeler — oyunun araması turnuva döndürmüyor (§8.81)
 - [ ] Kupa ağaçları
 - [ ] Avrupa kupaları
-- [~] Gol krallığı / asist / form tablosu — `fm league [turnuva]` liderleri veriyor (§8.70); tam liste yok
+- [~] Gol krallığı / asist / form tablosu — `fm league [turnuva]` liderleri veriyor (§8.70); tam liste yok — veri `CompReference.PlayerStats`ta, açan kart bulunamadı (§8.81)
 - [x] Takvim — `fm calendar [ay]`: maçlar, transfer dönemi açılış / kapanış, kupa kuraları, milli maçlar (§8.66)
 - [ ] Sezon özeti / ödüller
 
@@ -315,8 +315,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Gelir/gider dökümü — `fm finances gelir|gider [ay|geçen ay|sezon|geçen sezon]` kalem kalem (§8.79)
 - [x] Maaş bordrosu — `fm finances`: toplam / bütçe, oyuncu statüsüne göre; personel maaşları `fm staff` (§8.78)
 - [x] Sponsorluklar — `fm finances`: anlaşma anlaşma tür, sezonluk değer, bitiş, süre (§8.79)
-- [ ] Bilet fiyatları
-- [~] Kulüp değeri / borç — `fm finances` kalan ve başlangıç borcu; kulüp değeri yok
+- [x] Bilet fiyatları — `fm finances` maç bileti ve kombine (§8.81); değiştirmek yok
+- [~] Kulüp değeri / borç — `fm finances` kalan ve başlangıç borcu; kulüp değeri yalnızca boş bir debug alanında (§8.81)
 - [x] Finansal fair play durumu — `fm finances` (§8.78)
 
 ---
@@ -332,7 +332,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Yönetimle görüşme / talep — kart okundu (§8.79): talep türleri Build New Stadium, Facilities, Finance, Networking, Staff, New Contract; geçmiş boş, talep etmek denenmedi
 - [x] Taraftar memnuniyeti — `fm supporters`: hava, beklentiler ve tepkileri, seyirci, profil (§8.79)
 - [x] Kulüp vizyonu / hedefler — `fm club` (§8.78)
-- [ ] İş güvenliği (sacılma riski)
+- [~] İş güvenliği (sacılma riski) — `fm board` yönetimin ve taraftarın görüşü konu konu (§8.81); `JobSecurityStatus` sayısının karşılığı bilinmiyor
 
 ---
 
@@ -498,6 +498,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   ve on birin ("Taktiğe tam alışamayanlar: İsmail 71%…"); `fm player` mevki puanları ve sakatlık geçmişi (kadro dışı
   oyuncuda da); `fm squad --stats` sezon istatistikleri, kiralıktakiler ayrı. Yan ürün: oyuncu sayfası artık
   özellikler bağlanmadan okunmuyor; arama, önceki aramanın geç beliren sonuçlarını yeni sanmıyor.
+- **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
+  endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
+  kulüp değeri (yalnızca debug alanı).
 
 ### 2026-10-09 (gece, otonom)
 

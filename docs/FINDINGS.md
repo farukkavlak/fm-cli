@@ -2960,6 +2960,29 @@ kutularından açılıyor:
   açılınca önceki aramanın sonuçları biraz geç beliriyor ve yeni sonuç sanılıyordu ("Arda Güler" →
   Fred Onyedinma); "önceki" hali artık liste durulunca alınıyor (6/6 temiz).
 
+## 8.81 Yönetim ve taraftar güveni, bilet fiyatları; park edilen okumalar (10 Ekim)
+
+- **Güven** ekransız: `Human.Team.TeamConfidence` (`TeamConfidenceReference`, 69 property). Her konunun bir cümlesi
+  ve bir notu var: `BoardConfidenceOverallString/Grade`, `BoardMatch…`, `BoardSquadConfidence…`, `BoardTactics…`,
+  `BoardTransferConfidenceOverallSummaryText`, `BoardVision…`, `BoardCultureProgressString`,
+  `InternationalCompConfidenceStringLong`; taraftar için aynıları `Supporter…` önekli. `BoardFeedbackHighlights` /
+  `…Criticism` (taraftarda `SupporterFeedback…`) düz string listeleri: `/pathlist` her birini `(String) …` diye veriyor
+  (`Fm.Strings`). Notlar sayı: genel 5 (Club › Overview'de "C · memnun"), maçlar 3 ("disappointed"), taktik 6;
+  taraftarın genel notu 4 ama cümlesi yine "satisfied". Ölçek doğrulanmadı, komut yalnızca cümleleri basıyor.
+  `TeamReference.JobSecurityStatus` = 4; karşılığı bilinmiyor, kullanılmadı.
+- **Bilet**: `Human.Team.Club` üzerinde `MatchTicketPrice` (71.73), `SeasonTicketPrice` (1253.10), `SeasonTicketHolders`
+  (25000); para birimi sterlin (oyun £ gösteriyor). Kulüp değeri yalnızca `FinanceDebugClubValue`'da ve boş dönüyor.
+- **Park edilenler**:
+  - *Tam gol / asist listesi*: `CompReference.PlayerStats` (`CompetitionStatsPlayerStatsListReference`: `StatValueHeader`,
+    `Players` → `Player`, `Team`, `StatValue`) ve hangi istatistik olduğunu seçen `PlayerStatsType` var. Ama
+    `Human.Team.Division.PlayerStats` `/pull` ile boş dönüyor; değeri ancak onu bağlayan ekran (panel
+    `CompetitionSiteStatsCard`, "Stats") doldurur. Turnuva sayfasındaki Stats döşemesi `TileInteraction = False`,
+    tıklanmıyor; kartı açan yol bulunamadı.
+  - *Başka ligler*: oyunun araması bu kayıtta turnuva döndürmüyor ("Premier", "Bundesliga" → boş), yani
+    `fm table <lig>` için önce bir turnuva sayfasını açacak başka bir yol lazım (ya da lig yüklü değil, §12).
+  - *Scout tavsiyeleri*: `fm open "Player Recommendations"` Recruitment'ın genel görünümünü açıyor; "Recommendations (9)"
+    döşemesi yalnızca ikisini gösteriyor (ad, mevki, "C-" notu). Tam liste ayrı bir kartta, açılmadı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

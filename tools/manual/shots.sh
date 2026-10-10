@@ -38,6 +38,7 @@ SHOTS=(
 	"finances|fm finances"
 	"finances-expenditure|fm finances gider sezon"
 	"supporters|fm supporters"
+	"board|fm board"
 	"facilities|fm facilities"
 )
 
