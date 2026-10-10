@@ -264,7 +264,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kısa liste — `fm shortlist` (§8.56)
 - [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
 - [~] Rakip analizi — `fm opponent`: raporun özeti (§8.57); kilit oyuncular ve taktik analizi yok
-- [ ] Gençlik adayları / youth intake
+- [~] Gençlik adayları / youth intake — `fm youth`: altyapı notu, A takıma aday görülenler, alım tarihi (§8.112); alım gününde aday listesi bakılacak (Mart)
 
 ---
 

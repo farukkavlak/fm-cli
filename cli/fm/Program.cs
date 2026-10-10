@@ -98,6 +98,7 @@ internal static partial class Program
 				"shout" => await Shout(args),
 				"shortlist" => await Shortlist(json),
 				"stages" => await Stages(json, args),
+				"youth" => await Youth(json),
 				"responsibilities" => await Responsibilities(json, args),
 				"world" => await World(json),
 				"scout" => await Scout(json, args),
@@ -1215,6 +1216,7 @@ internal static partial class Program
 			  finances gelir|gider [ay|geçen ay|sezon|geçen sezon]   kalem kalem gelir ya da gider
 			  supporters      taraftarlar: hava, beklentiler ve tepkileri, seyirci, kombine, taraftar profili
 			  responsibilities [süzgeç]   personel işleri kimde;  delegate "<görev>" devret · take "<görev>" geri al
+			  youth           altyapı: notu, tesis ve kadro, A takıma aday görülenler, altyapı alımının tarihi
 			  board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri
 			    request ["<talep>" --yes]   yönetimden istenebilecekler; adıyla birini iste
 			  doctor          kadroda ne yanlış: sakatlar, yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri

@@ -259,6 +259,9 @@ internal static class Mcp
 			a => Str(a, "delegate") is { Length: > 0 } d ? ["responsibilities", "delegate", d]
 				: Str(a, "take") is { Length: > 0 } t ? ["responsibilities", "take", t]
 				: ["responsibilities", .. Opt(a, "filter"), "--json"]),
+		new("fm_youth", "The youth setup: the academy's overall rating, coaching and recruitment, youth level and stadium, staff numbers, the youngsters thought ready for the first team, and the date of the next youth intake.",
+			"""{"type":"object","properties":{}}""",
+			_ => ["youth", "--json"]),
 		new("fm_saves", "The save files on disk, newest first. With `delete`, removes that save (the loaded one is refused); `confirm` must be true.",
 			"""{"type":"object","properties":{"delete":{"type":"string"},"confirm":{"type":"boolean"}}}""",
 			a => Str(a, "delete") is { Length: > 0 } gone ? ["saves", "delete", gone, .. Flag(a, "confirm", "--yes")] : ["saves"]),

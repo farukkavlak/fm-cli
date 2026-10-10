@@ -1200,6 +1200,24 @@ Renewing the Chief Scout's contract: artık sende.
 
 Devredince işi oyunun önerdiği kişi alır; belirli bir kişiye vermek henüz yok.
 
+### Altyapı — `youth`
+
+`fm youth` altyapının durumunu verir: genel not, akademi, altyapı kadrosu, A takıma aday görülen
+gençler ve bir sonraki altyapı alımının tarihi.
+
+```
+$ fm youth
+Altyapı notu      Good
+Akademi           antrenman: Great training facilities · tarama: Great training facilities · seviye: 11
+Kadro             antrenör 11/13 · tarama 0/0 · sağlık 5/5
+Altyapı alımı     11th March 2026 (141 days to go)
+
+A takıma aday görülenler
+OYUNCU           MEVKİ   YAŞ
+S. Chérif        ST (C)  18
+Yiğit Efe Demir  D (C)   21
+```
+
 ### Tesisler — `facilities`
 
 ![fm facilities](img/facilities.png)

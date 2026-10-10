@@ -3534,6 +3534,21 @@ iki okuma aynı olana dek beklenmezse kayıt adının yerinde "Credits" okunuyor
 `fm responsibilities [süzgeç]`, `… delegate "<görev>"`, `… take "<görev>"`. Canlı: tam liste, süzme, belirsiz ad, iki görevde
 devret / geri al, zaten o durumda olan.
 
+## 8.112 Altyapı (11 Ekim gece)
+
+- Squad › Youth Setup'ın alt sekmeleri (`SecondaryTabDropdownButton`): Overview, Youth Environment, Youth Performance,
+  Youth Candidates, Under 19s Competitions, U19 Fixtures. `fm open "Youth Environment"` adıyla bulmuyor; sekme listesinden
+  `fire=1` ile seçiliyor.
+- Youth Environment'ta iki metin bloğu: (1) "Overall Youth Rating · Good · Youth Facilities · 2 First Team Candidates ·
+  Player / Best Pos / Age / Ability / Potential · <ad, mevki, yaş>… · 2026 Youth Intake · 11th March 2026 · (141 days to
+  go)" — yetenek / potansiyel yıldız çizimi, metni yok; (2) "Club Atmosphere" cümleleri, "Academy Coaching · … · Youth
+  Recruitment · … · Youth Level · 11 · Youth Stadium · …", "Staff · Coaching Team · 11 / 13 · Recruitment Team · 0 / 0 ·
+  Medical Team · 5 / 5".
+- Youth Performance ve Youth Candidates sekmelerinin içeriği bulunamadı (çapa olacak metin bilinmiyor; adaylar Mart'taki
+  alımdan önce boş olmalı).
+
+`fm youth`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
