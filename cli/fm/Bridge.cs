@@ -101,6 +101,26 @@ internal sealed class Bridge
 		return [];
 	}
 
+	/// <summary>A list of plain strings at a path, bound first if need be: the board's praise, one sentence each.</summary>
+	public async Task<List<string>> Strings(string path)
+	{
+		await Get("pathbind", ("path", path));
+		for (var attempt = 0; attempt < 4; attempt++)
+		{
+			var listed = await Get("pathlist", ("path", path));
+			if (!listed.StartsWith("error", StringComparison.Ordinal))
+				return listed.Split('\n')
+					.Select(line => line.IndexOf("(String) ", StringComparison.Ordinal) is var at and >= 0 ? line[(at + 9)..] : null)
+					// Each entry ends with its type in brackets.
+					.Select(text => text?[..(text.LastIndexOf("  [", StringComparison.Ordinal) is var end and >= 0 ? end : text.Length)].Trim())
+					.Where(text => !string.IsNullOrEmpty(text))
+					.Select(text => text!)
+					.ToList();
+			await Task.Delay(250);
+		}
+		return [];
+	}
+
 	/// <summary>The manager's own team: its name and short name, read without a screen.</summary>
 	public async Task<(string Name, string Short)> OwnTeam()
 	{
