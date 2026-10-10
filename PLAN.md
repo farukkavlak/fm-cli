@@ -402,7 +402,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Konuşma ekranı — `talk` konuşmayı baştan sona okla yürütüyor (basın toplantısı, takım
       toplantısı denendi). Kalan: tepki değişimini görünür kılmak
 - [x] Oyuncu kartı — mevki sahası, renkli çubuklar, bloklar yan yana, scout aralığı gölgeli
-- [~] Lig tablosu ve fikstür — tablo: bölge renkleri ve takım vurgusu. Kalan: form, fikstür renkleri
+- [~] Lig tablosu ve fikstür — tablo: bölge renkleri ve takım vurgusu; fikstür: G / B / M renkli. Kalan: tabloda form (öbür takımların `RecentFormValuesAllComps` listesi; `/pull` liste değerini açmıyor)
 - [x] Kolon başlıkları — `squad --view` / `players` okunur başlık basıyor
 - [~] Akış — `fm status` takım, menajer ve sıradaki maçı bir panelde veriyor; `next` gürültüsü azaldı
 
@@ -459,6 +459,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- Fikstürde beraberlik de renkli (oyunun işareti `ResultType` 9; 1 galibiyet, 3 penaltıyla, 10 mağlubiyet).
 - **`fm stop`**: oyunu kapatıyor (süreç sonlandırılıyor); kaydedip kaydetmemeyi soruyor, script'te `--save` /
   `--no-save` şart. `--no-save` denendi (3 sn), `--save` yolu `fm save --yes`'in kendisi, ayrıca denenmedi.
 - **Serbest oyuncular ve bir sızıntı** (FINDINGS §8.92): `fm players --free`. `/pull` ile okunan kendi kadromuz

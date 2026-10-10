@@ -60,6 +60,7 @@ internal static class Standings
 				cells[^1] = (i < kinds.Count ? kinds[i] : "") switch
 				{
 					"1" or "3" => $"[black on green1] G [/] {result}",
+					"9" => $"[black on grey] B [/] {result}",
 					"10" => $"[white on red] M [/] {result}",
 					_ => $"[grey] · [/] {result}",
 				};

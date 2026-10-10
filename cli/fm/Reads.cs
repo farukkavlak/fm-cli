@@ -817,7 +817,7 @@ internal static partial class Program
 		if (Ui.Rich)
 		{
 			// The game marks each result by what it was for us: 1 a win, 3 a win on penalties,
-			// 10 a defeat; a draw's mark has not been seen yet, so anything else is left uncoloured.
+			// 9 a draw, 10 a defeat; anything else is left uncoloured.
 			var kinds = fixtures.EnumerateArray().Where(fixture => Field(fixture, "Date") != "").Select(f => Field(f, "ResultType")).ToList();
 			Standings.Fixtures(["TARİH", "SAAT", "YER", "RAKİP", "TURNUVA", "SONUÇ"], rows, kinds);
 			return 0;
@@ -871,8 +871,10 @@ internal static partial class Program
 			m.Competition,
 			played.IsMatch(m.TimeOrScore) ? Ours(m).Replace("-", " - ") : "",
 		}).ToList();
-		// The game's own result marks, as `fixtures` colours them: 1 a win, 10 a defeat.
-		var kinds = matches.Select(m => !played.IsMatch(m.TimeOrScore) ? "" : MatchOutcome(m) switch { > 0 => "1", < 0 => "10", _ => "" }).ToList();
+		// The game's own result marks, as `fixtures` colours them: 1 a win, 9 a draw, 10 a
+		// defeat. Level after penalties or extra time is not called a draw.
+		var kinds = matches.Select(m => !played.IsMatch(m.TimeOrScore) ? ""
+			: MatchOutcome(m) switch { > 0 => "1", < 0 => "10", _ => char.IsDigit(m.TimeOrScore[^1]) ? "9" : "" }).ToList();
 		string[] headers = ["TARİH", "SAAT", "YER", "RAKİP", "TURNUVA", "SONUÇ"];
 		if (Ui.Rich) Standings.Fixtures(headers, rows, kinds);
 		else Table.Write(headers, rows);
