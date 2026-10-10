@@ -31,6 +31,12 @@ internal static partial class Program
 		bool Here(JsonElement p) => !away.Contains(Field(p, "Name"));
 		static int Number(JsonElement p, string f) => int.TryParse(Field(p, f), out var n) ? n : -1;
 
+		// The Injuries view's time is how long he has been out so far; how long is left is the
+		// injury's own return days, read from the team's data.
+		var returns = (await Fm.Pull("Human.Team.Players", "Name,CurrentInjury.InjuryReturnDays", list: true)).EnumerateArray()
+			.GroupBy(p => Field(p, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "CurrentInjury.InjuryReturnDays"));
+		string Left(JsonElement p) => returns.TryGetValue(Field(p, "Name"), out var days) && int.TryParse(days, out var n) && n > 0 ? $"{n} gün daha" : "";
+
 		var all = injuries.EnumerateArray().Where(Here).ToList();
 		var hurt = all.Where(p => Field(p, "IsInjured") == "True").ToList();
 		var tired = all.Where(p => Field(p, "IsInjured") != "True" && Number(p, "Condition") is >= 0 and < 85).OrderBy(p => Number(p, "Condition")).ToList();
@@ -43,7 +49,7 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonSerializer.Serialize(new
 			{
-				Injured = hurt.Select(p => new { Name = Field(p, "Name"), Injury = Field(p, "InjuryName"), Out = Field(p, "InjuriesTimeMissed") }),
+				Injured = hurt.Select(p => new { Name = Field(p, "Name"), Injury = Field(p, "InjuryName"), OutSoFar = Field(p, "InjuriesTimeMissed"), Left = Left(p) }),
 				Tired = tired.Select(p => new { Name = Field(p, "Name"), Condition = Number(p, "Condition") }),
 				LowSharpness = rusty.Select(p => new { Name = Field(p, "Name"), Sharpness = Number(p, "Sharpness") }),
 				HighestRisk = atRisk.Select(p => Field(p, "Name")), RiskScore = top,
@@ -59,20 +65,15 @@ internal static partial class Program
 			foreach (var line in list) Console.WriteLine($"  {line}");
 		}
 
-		Section("Sakat", hurt.Select(p => $"{Field(p, "Name")} — {Injury(p)}"));
+		Section("Sakat", hurt.Select(p => $"{Field(p, "Name")} — {string.Join(", ", new[] { Injury(p), Left(p) }.Where(x => x.Length > 0))}"));
 		Section("Yorgun (kondisyon %85 altı)", tired.Select(p => $"{Field(p, "Name")} {Number(p, "Condition")}%"));
 		Section("Maç formu düşük (%60 altı)", rusty.Select(p => $"{Field(p, "Name")} {Number(p, "Sharpness")}%"));
 		Section($"Sakatlık riski en yüksek (oyunun puanı {top})", atRisk.Select(p => $"{Field(p, "Name")}"));
 		if (tired.Count + atRisk.Count > 0) Console.WriteLine("\nDinlendirmek için: intensity <oyuncu> \"dinlen 1\"");
 		return 0;
 
-		// The injury's name and how long it keeps him out, from whichever fields the view bound.
-		static string Injury(JsonElement p)
-		{
-			var name = new[] { "InjuryName", "InjuryDescription", "Injury" }.Select(f => Field(p, f)).FirstOrDefault(v => v.Length > 0) ?? "";
-			var time = System.Text.RegularExpressions.Regex.Replace(Field(p, "InjuriesTimeMissed"), @"\b(days?|weeks?|months?)\b",
-				m => m.Value.StartsWith("day") ? "gün" : m.Value.StartsWith("week") ? "hafta" : "ay");
-			return string.Join(", ", new[] { name, time.Length > 0 ? $"{time} daha" : "" }.Where(x => x.Length > 0));
-		}
+		// The injury's name, from whichever field the view bound.
+		static string Injury(JsonElement p) =>
+			new[] { "InjuryName", "InjuryDescription", "Injury" }.Select(f => Field(p, f)).FirstOrDefault(v => v.Length > 0) ?? "";
 	}
 }
