@@ -694,10 +694,24 @@ internal static partial class Program
 		if (Option(args, "--contract") is { } contract) search.Add(("Contract Status", contract, "Sözleşme durumu"));
 		if (args.Contains("--listed")) search.Add(("Transfer Status", "Listed", "Transfer durumu"));
 		if (args.Contains("--loan-listed")) search.Add(("Loan Status", "Listed", "Kiralık durumu"));
-		var searched = false;
-		if (search.Count > 0)
+		// --attr "pace>=15" (also <=, >, <), as many as wanted.
+		var conditions = new List<(string Attribute, bool AtLeast, int Value)>();
+		for (var i = 0; i + 1 < args.Length; i++)
 		{
-			if (await ApplySearch(search) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
+			if (args[i] != "--attr") continue;
+			var match = System.Text.RegularExpressions.Regex.Match(args[i + 1], @"^\s*(.+?)\s*(>=|<=|>|<)\s*(\d+)\s*$");
+			if (!match.Success || !int.TryParse(match.Groups[3].Value, out var bound))
+			{
+				Console.Error.WriteLine($"'{args[i + 1]}': nitelik koşulu \"<nitelik>>=<sayı>\" biçiminde (örnek: --attr \"pace>=15\").");
+				return 64;
+			}
+			var op = match.Groups[2].Value;
+			conditions.Add((match.Groups[1].Value, op is ">=" or ">", op == ">" ? bound + 1 : op == "<" ? bound - 1 : bound));
+		}
+		var searched = false;
+		if (search.Count > 0 || conditions.Count > 0)
+		{
+			if (await ApplySearch(search, conditions) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
 			searched = true;
 		}
 

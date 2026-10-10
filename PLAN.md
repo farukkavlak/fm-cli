@@ -235,7 +235,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kısa liste — `fm shortlist` (§8.56); transfer listesine konan kendi oyuncularımız yok
 - [~] Oyuncu ara — `fm players [--filter "<hazır süzgeç>"] [--view "<görünüm>"]`: veritabanının
       ekrandaki 21 satırı, `--clear` süzgeci kaldırır (§8.38); gerçek arama `--role --age --grade --contract --listed`
-      (§8.117); mevkiyle (saha parçacığı) ve nitelik koşuluyla arama, kaydırma yok
+      (§8.117), nitelik koşulu `--attr "pace>=16"`; mevkiyle (saha parçacığı) arama ve kaydırma yok
 - [x] Teklif ver — `fm offer`: kart, şart düzenleme, pazarlık kilitleri, karşı teklif (§8.42)
 - [x] Gelen teklife yanıt — mesajda `reply <#> Accept | Reject`; "View Offer" sonrası `fm offer` (argümansız) kartı gösteriyor (§8.67)
 - [x] Sözleşme görüşmesi — `fm contract [oyuncu]`: kart, vaatler, şartlar, kilitler, menajerin

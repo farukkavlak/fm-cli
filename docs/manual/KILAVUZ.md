@@ -816,6 +816,9 @@ Benoný Breki Andrésson  188  20   Stockport       £600K - £6M
 - `--grade B` — scoutların verdiği en düşük not (A+ … F)
 - `--contract "expiring (6 months)"` — sözleşme durumu (Expiring (1 Year), Expired, Unattached…)
 - `--listed`, `--loan-listed` — transfer / kiralık listesinde olanlar
+- `--attr "pace>=16"` — nitelik koşulu (1–20; `>=`, `<=`, `>`, `<`), istediğin kadar tekrarlanır:
+  `fm players --age 18-23 --attr "pace>=16" --attr "finishing>=13"`. Scoutlarının bilmediği
+  oyuncuların nitelikleri bilinmediği için onlar bu aramada çıkmaz.
 
 Bunlar da oyunda açık kalır: bir sonraki `fm players` aynı aramayla gelir, `--clear` sıfırlar.
 Liste yine yalnızca ekrandaki ~20 satırdır (ada göre sıralı); daraltmak için süzgeçleri sıkılaştır.

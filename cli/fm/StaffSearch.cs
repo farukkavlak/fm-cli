@@ -168,7 +168,7 @@ internal static partial class Program
 	/// "and"), chosen in, and waited for — a choice made before the last one has landed is lost.
 	/// Null when applied; otherwise what went wrong, with the panel closed again.
 	/// </summary>
-	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted)
+	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted, List<(string Attribute, bool AtLeast, int Value)> conditions = null)
 	{
 		JsonElement edit = default;
 		await Until(async () => (edit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -209,6 +209,64 @@ internal static partial class Program
 			if (picked.StartsWith("error", StringComparison.Ordinal)) return await Close(picked);
 			if (!await Until(async () => await Under(heading) is { } now && Field(now, "Label") == choice, seconds: 4, every: 0.4))
 				return await Close($"error: {what}: '{choice}' seçildi ama panel tutmadı");
+		}
+
+		// Attribute conditions: "Add Attribute" › Attributes › group › attribute puts a row in the
+		// panel — the attribute, "Is At Least" or "Is At Most", and a value set from a short list
+		// (1, 5, 10, 15, 20) and nudged by one with - and +.
+		foreach (var (typed, atLeast, value) in conditions ?? [])
+		{
+			var adder = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Add Condition");
+			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
+			var attributes = new List<(string Group, string Name)>();
+			foreach (var group in new[] { "Technical", "Mental", "Physical", "Goalkeeping" })
+			{
+				var names = await Fm.GetJson("menu", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{group}"));
+				if (names.ValueKind == JsonValueKind.Array) attributes.AddRange(names.EnumerateArray().Select(n => (group, n.GetString())));
+			}
+			var name = attributes.Select(a => a.Name).FirstOrDefault(n => Fold(n) == Fold(typed)) ?? Choose(attributes.Select(a => a.Name).Distinct().ToList(), typed, "Nitelik");
+			if (name == null) return await Close("");
+			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{attributes.First(a => a.Name == name).Group}>{name}"), ("fire", "1"));
+			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
+
+			// The row just added is the last one that names the attribute.
+			async Task<(List<JsonElement> Items, int At)> Row()
+			{
+				var items = (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
+				return (items, items.FindLastIndex(i => Field(i, "Kind") == "text" && Field(i, "Text") == name));
+			}
+			(List<JsonElement> Items, int At) row = default;
+			if (!await Until(async () => (row = await Row()).At >= 0 && row.Items.Skip(row.At).Any(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Is At Least")), seconds: 5, every: 0.4))
+				return await Close($"error: {name} koşulu panele eklenmedi");
+
+			JsonElement Next(Func<JsonElement, bool> fits) => row.Items.Skip(row.At + 1).FirstOrDefault(fits);
+			var how = Next(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Is At Least"));
+			var wantedHow = atLeast ? "Is At Least" : "Is At Most";
+			if (Field(how, "Label") != wantedHow)
+			{
+				await Fm.Get("select", ("ptr", Field(how, "Pointer")), ("choice", wantedHow), ("fire", "1"));
+				await Until(async () => (row = await Row()).At >= 0 && Field(Next(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Is At Least")), "Label") == wantedHow, seconds: 4, every: 0.4);
+			}
+
+			// The value: the nearest of the list's, then one step at a time.
+			// The value shows on a button of its own, between the comparison and the - and +.
+			int Shown() => row.Items.Skip(row.At + 1).Where(i => Field(i, "Kind") is "text" or "button").Select(i => int.TryParse(Field(i, "Text"), out var n) ? n : -1).FirstOrDefault(n => n >= 0, -1);
+			var presets = Next(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "20"));
+			var nearest = new[] { 1, 5, 10, 15, 20 }.OrderBy(preset => Math.Abs(preset - value)).First();
+			if (Shown() != nearest && presets.ValueKind == JsonValueKind.Object)
+			{
+				await Fm.Get("select", ("ptr", Field(presets, "Pointer")), ("choice", nearest.ToString()), ("fire", "1"));
+				await Until(async () => (row = await Row()).At >= 0 && Shown() == nearest, seconds: 4, every: 0.4);
+			}
+			for (var guard = 0; guard < 6 && Shown() != value && Shown() >= 0; guard++)
+			{
+				var before = Shown();
+				var step = Next(i => Field(i, "Kind") == "button" && Field(i, "Text") == (before < value ? "+" : "-"));
+				if (step.ValueKind != JsonValueKind.Object) break;
+				await Fm.Get("click", ("ptr", Field(step, "Pointer")));
+				await Until(async () => (row = await Row()).At >= 0 && Shown() != before, seconds: 3, every: 0.3);
+			}
+			if (Shown() != value) return await Close($"error: {name} için değer {value} yapılamadı (panelde {Shown()})");
 		}
 
 		if (await PanelButton("Apply") is not { } apply) return await Close("error: arama panelinde Apply yok");
