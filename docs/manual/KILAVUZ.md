@@ -935,6 +935,31 @@ terminalde okla seçersin, script'te `budget ayarla <adım>`. Seçmezsen hiçbir
   15  Transfer £11,074,688    · Maaş £2,128,023 p/w  ← şu an
 ```
 
+### Scoutların bulduğu oyuncular — `scout`
+
+`fm scout` scout odaklarını sayar: neye bakıldığı, durumu, kimin atandığı ve kaç oyuncu çıktığı.
+
+```
+$ fm scout
+#  ODAK                               DURUM        ATANAN               EŞLEŞEN  YAKIN  SÜREN
+1  South Eastern Europe               In Progress  1 scout · 1 analyst  0        12     7
+5  Türkiye (7/10/2025)                Complete     1 scout · 1 analyst  5        7      0
+```
+
+`fm scout 5` (ya da adıyla: `fm scout "south eastern"`) o odağın oyuncularını verir: mevki, en iyi
+rolü, kulübü, değer aralığı, scoutların notu (A–E) ve tavsiyesi. Eşleşen varsa onlar gelir; yoksa
+yakın eşleşenler. Hangisini istediğini de söyleyebilirsin: `--matched`, `--near`, `--progress`
+(hâlâ incelenenler). Adın yanındaki `(Inj)` gibi notlar oyunun durum işaretleridir.
+
+```
+$ fm scout 5
+Türkiye (7/10/2025) · Complete · 1 scout · 1 analyst — eşleşenler (5)
+OYUNCU         ÜLKE  YAŞ  MEVKİ             ROL             KULÜP         DEĞER          NOT  TAVSİYE
+Mohamed Bayo   GUI   27   AM (RL), ST (C)   Centre Forward  Gaziantep FK  £170K - £1.7M  B    Quality
+```
+
+Yeni odak kurmak ve scout atamak henüz yok (oyunda iki adımlı bir sihirbaz).
+
 ## 11. Kaydetmek, yüklemek ve oyun ayarları — `save`, `saves`, `load`, `settings`
 
 `fm save --yes` oyunu kaydeder. Mevcut kaydın üzerine yazar, o yüzden `--yes` ister.

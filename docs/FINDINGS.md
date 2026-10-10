@@ -3486,6 +3486,27 @@ kez kaydet / yükle turu, üzerine yazma, uzun ad, Türkçe karakterli ad ("Öb�
 `fm board request ["<talep>" --yes]`. Canlı: liste, belirsiz ad, onaysız, üç gerçek talep (biri alt menüden), talep
 alınmayan durum, kararların gelişi.
 
+## 8.109 Scout odakları: okuma (11 Ekim gece)
+
+- Recruitment › Recruitment Focuses bir odağı gösteriyor; odak, seçenekleri yalnızca **durum** olan adsız bir listeden
+  seçiliyor (['In Progress' ×4, 'Complete' ×2]). `/select?ptr=&index=N` odağı değiştiriyor; başlık metinde: ad, durum,
+  "Assigned to:", "1 scout", "1 analyst", "Assignments (4)", "Matched (a)", "Nearly Matched (b)", "In Progress (c)".
+- Sonuç tablosu **metinde var** (§8.103'te "yok" denmişti: o an seçili odağın eşleşeni yoktu ve Matched sekmesi boştu).
+  Satır: [durum işareti] ad, ülke, yaş, mevkiler, en iyi rol, kulüp, lig, değer aralığı, not (A–E), tavsiye ("Quality",
+  "Very Good", "Practical", "Last Resort", "Superb", "Good"). Durum işareti ("Inj") yalnızca bazı satırlarda, adın önünde —
+  hücreler onar onar sayılamıyor; satır başı "ad + üç harfli ülke + yaş" kalıbından bulunuyor.
+- Sekmeler `matched-tab` / `nearly-matched-tab` / `in-progress-tab` (`EventFmxRecruitmentFocusChangeResultsTable`):
+  `/press` (olayı kuyruğa koymak) tabloyu değiştirmiyor, `/click` değiştiriyor.
+- Tablo sanal (18 satır); `/scroll` ile kalanı geliyor.
+- **Odak kurma / düzenleme** ("Edit Recruitment Focus", `SpeakToAction`) iki adımlı sihirbaz açıyor. 1/2: saha üstünde mevki
+  butonları (`EventFmxSelectPosition`, "Any Position" / "Any Tactic"), topla / topsuz rol ve rol yeterliliği (± butonlar).
+  2/2: ad (en çok 25 harf), en düşük şimdiki / potansiyel yetenek, yaş aralığı, tarama bölgeleri ("Choose an area"),
+  öncelik (Top / Standard), "Ongoing", scout ve analist atama ("Edit"), "Include results found in other Recruitment
+  Focuses"; ayrıca "Further Details" sekmesi. `Cancel` → "Are you sure you want to cancel this Focus?" (Confirm).
+  Yazılmadı: çok kontrollü, ayrı bir iş.
+
+`fm scout [#|ad] [--matched|--near|--progress]`. Canlı: altı odak, üç sekme, işaretli satırlar, 21 satırlık liste.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

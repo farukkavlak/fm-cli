@@ -15,7 +15,7 @@ internal static partial class Program
 		"table", "stages", "league", "fixtures", "calendar", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
 		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "dynamics", "news", "internationals", "mentoring", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
-		"opposition", "saves", "save", "load", "shortlist", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
+		"opposition", "saves", "save", "load", "shortlist", "scout", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
 		"dropdowns", "press", "select", "completion", "export", "diff", "compare", "penalties", "takers", "query", "help",
 	];
 
@@ -82,6 +82,7 @@ internal static partial class Program
 		["setpieces"] = ["new", "korner", "frikik", "kanat", "derin", "tac"],
 		["stop"] = ["--save", "--no-save"],
 		["load"] = ["--save", "--no-save"],
+		["scout"] = ["--near", "--progress", "--matched"],
 		["board"] = ["request", "--yes"],
 		["stages"] = ["--all", "--list", "--refresh"],
 		["save"] = ["--yes", "--as"],

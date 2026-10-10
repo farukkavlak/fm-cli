@@ -258,9 +258,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ## 6. Scouting
 
-- [ ] Scout raporları — Recruitment genel görünümü tavsiyelerin ikisini gösteriyor, tam kart açılmadı (§8.81)
+- [~] Scout raporları — `fm scout <odak>`: odağın bulduğu oyuncular, not ve tavsiyeyle (§8.109); oyuncunun tam rapor kartı yok
 - [ ] Scout ata (bölge/oyuncu/takım)
-- [ ] Scout odakları (recruitment focus)
+- [~] Scout odakları (recruitment focus) — `fm scout`: odaklar, durum, atananlar, sayılar (§8.109); kurmak / düzenlemek yok (iki adımlı sihirbaz, notları §8.109'da)
 - [x] Kısa liste — `fm shortlist` (§8.56)
 - [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
 - [~] Rakip analizi — `fm opponent`: raporun özeti (§8.57); kilit oyuncular ve taktik analizi yok
