@@ -100,6 +100,7 @@ internal static partial class Program
 				"captains" => await Captains(args),
 				"depth" => await Depth(json),
 				"happiness" => await Happiness(json),
+				"mentoring" => await Mentoring(json, args),
 				"internationals" => await Internationals(json),
 				"news" => await News(json, args),
 				"dynamics" => await Dynamics(json),
@@ -1193,6 +1194,7 @@ internal static partial class Program
 			  settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
 			  happiness       oyuncuların mutluluğu, en mutsuz önce
 			  internationals  milli oyuncular: ülke, toplam milli maç ve gol, bu sezon oynadıkları
+			  mentoring       mentorluk grupları ve üyeleri;  --auto: grupları yardımcıya kurdur
 			  dynamics        soyunma odası: hava, menajere destek, hiyerarşi ve sosyal gruplar
 			  contracts       sözleşme takvimi: kimin sözleşmesi ne zaman bitiyor, en yakın önce
 			  contracts <oyuncu>  bir oyuncunun sözleşmesi: ücret, statü, primler ve maddeler

@@ -220,7 +220,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Maç hazırlığı odağı — `fm prep` okuyor (§8.60); değiştirmek yok: seans listelerinde bu odaklar yok, "Match Focus" seansı kilitli (§8.92)
 - [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
 - [x] Pozisyon / hareket öğretme — pozisyon `fm training --position` (§8.51), alışkanlık `fm training <oyuncu> --trait` (§8.75)
-- [ ] Mentor / mentee ilişkileri
+- [~] Mentor / mentee ilişkileri — `fm mentoring`: gruplar ve üyeleri, `--auto` yardımcıya kurduruyor (§8.102); elle grup kurmak yok
 - [x] **Antrenman raporları** — `fm training <oyuncu> --report [--coach <ad>]` (§8.74)
 - [x] Yoğunluk ayarı — `fm intensity`: oyuncu başına seviye, `--auto` (§8.50); takım kuralları yok
 - [x] Dinlenme — `fm intensity <oyuncu> "dinlen 3"` / `"tatil 1"` (§8.50)
@@ -456,6 +456,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm internationals`** (§8.101) ve **`fm mentoring`** (§8.102) (akşam): milli oyuncular veriden; mentorluk grupları
+  okunuyor, yardımcıya kurduruluyor (oyunda bir grup kuruldu, kaydedilmedi).
 - **`fm table` yanlış turnuvayı gösteriyordu** (akşam, FINDINGS §8.100): Avrupa maçı öncesi lig yerine Avrupa Ligi
   tablosu. Düzeltildi; `fm table <turnuva>` eklendi (plugin `/table?groups=1`). `fm news <#>` haberin tamamı,
   `fm offers` gelen teklifler. Oyun yeni plugin'le açık, 19 Ekim 2025 (otomatik kayıt); Defrel teklifi bekliyor.

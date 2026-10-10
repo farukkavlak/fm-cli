@@ -3339,6 +3339,18 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   satırların yolu (`..<panel>…Items.N.binding`) `/pathbind` ile bağlanamıyor (oyun `IndexOutOfRange` atıyor), tablodaki
   form sütunu bu yüzden hâlâ kapalı.
 
+## 8.102 Mentorluk grupları (10 Ekim akşam)
+
+- Squad › Training sekmesinin alt listesinde "Mentoring" (`fm open` adıyla bulmuyor; `SecondaryTabDropdownButton`
+  seçimiyle açılıyor). Boşken: "Mentoring Groups", "Create New Mentoring Group" (`EventFmxAddMentoringGroup`, panel
+  açıyor — denenmedi) ve konuşma butonu "Ask <yardımcı> to assign mentoring groups" (`SpeakToAction`).
+- Yardımcıya sorunca bir grup kuruldu ("Mentoring Group 1", "3/3"), ardından "Acknowledge and Move On".
+- Üyeler sayfanın metninde yok; grubun grafiği (`MentoringGroupRelationship1`) her üyeyi `Person.Personality` ve
+  `Person.Name` ile, ikili ilişkileri `MentoringGroupRelationshipScore` (0-2) ile bağlıyor, grubun adı arkalarından
+  geliyor. `fm mentoring` üyeleri buradan okuyor ✓ (Škriniar, Brown, Mercan); `--auto` yardımcıya kurduruyor ✓.
+- Açık: birden çok grup varken blokların sırası görülmedi (kod her `MentoringGroupRelationshipN` bloğunu ayrı grup
+  sayıyor); elle grup kurmak / oyuncu eklemek; ilişki puanlarını göstermek.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

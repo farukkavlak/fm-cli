@@ -1250,3 +1250,18 @@ Dorgéles Néné      Mali      27         8    4 maç, 1 gol
 
 Milli arada kimlerin yorulacağını görmek için: "BU SEZON" sütunu dolu olanlar davet alanlar.
 
+### Mentorluk grupları — `mentoring`
+
+Gençlerin tecrübelilerden öğrenmesi için kurulan gruplar.
+
+```
+$ fm mentoring
+Mentoring Group 1 (3)
+OYUNCU          KİŞİLİK
+Milan Škriniar  Perfectionist
+Archie Brown    Balanced
+Levent Mercan   Resolute
+```
+
+Hiç grup yoksa `fm mentoring --auto` grupları yardımcına kurdurur. Elle grup kurmak henüz yok.
+
