@@ -3184,6 +3184,30 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   §8.85'teki dört sayının ölçeği hâlâ belirsiz. Antrenman raporunun kaydında (`TrainingProgressReportReference`)
   `AbilityGraphDataFull` / `AbilityGraphDataRecent` / `AbilityProgression` alanları var; grafik oradan denenebilir.
 
+## 8.93 Duran top rutini: vuruş tipi, hedef, görevler (10 Ekim akşam)
+
+- **Vuruş tipi** iki `SIButton` (`EventFmxSetPieceRoutineDeliverySelect`, veri `const.Zero` / `const.One`); `/press`
+  çalışıyor. ⚠ Butonların adı (`…-active-regular` / `…-inactive-regular`) seçimi göstermiyor, çizildiği gibi kalıyor;
+  seçim ağaçta `routine.SetPieceDeliveryType` (0 Inswinger, 1 Outswinger). Vuruş tipi değişince atıcı öbür ayağın
+  listesinden geliyor (korner: Inswinger → Kerem, Outswinger → Asensio).
+- **Hedef** ("Aim For") bir `SIDropdown` (`EventFmxSetPieceStrategyConfirmed`), `/select?choice=…&fire=1`. Korner:
+  Mixed · Short · Near Post · Far Post · Edge of Area · Centre; kanat ve derin serbest vuruş: Mixed · Short · Long ·
+  Near Post · Cross Centre · Far Post · Best Header; şut mesafesinde hedef ve vuruş tipi yok. **Taçta** aynı event iki
+  butonda ("Work Into Box" / "Long Throw"), seçim ağaçta `routine.SetPieceStrategy` (0 / 1). Work Into Box'ta
+  oyunculara görev verilemiyor ("Individual instructions can't be set…"), Long Throw'da yerler geliyor.
+- **Görevler:** her yer (A1…, B1, C1…, D1…) için bir `SIDropdown` (`EventFmxSetPieceInstrChanged`), sayfadaki
+  yerlerle aynı sırada; "Stay Back If Needed" gibi görevlerde hemen ardından ikinci liste
+  (`…SecondaryInstrChanged`, "gerekmezse ne yapsın"). Yerin grubu (Aerial Threats, Box Threats, Creators, Recovery
+  Defenders) metinlerde "(3/9)" sayacından önceki satır. Grup değiştirmek oyunda sürükleme; denenmedi.
+- Önceki türün kontrolleri sayfada kalıyor (taçta boş etiketli vuruş butonları ve eski hedef listesi); CLI bir
+  kontrolü yalnızca sayfa onun başlığını ("Delivery Type", "Aim For", "Throw-In Instructions") yazıyorsa alıyor.
+- ⚠ **Sayfayı açan basış ara sıra yutuluyor:** `OpenPage` "Match Day › Overview"ı açıp 0,2 sn sonra "Set Pieces"
+  sekmesine basıyor; basış başarı dönüyor ama oyun Overview'da kalıyor (10 çağrıda 3). `ShowSetPieceKind` sayfa 10 sn
+  gelmezse bir kez yeniden açıyor: 12 ardışık çağrıda 12 başarı ✓ (üçü yeniden açarak, ~15 sn).
+- Doğrulama: korner vuruş out → in, hedef Far → Near, A3 değiştir / geri al (sayfadan çıkıp dönünce duruyor), D1
+  ikinci seçim; taç Long ↔ Work beş tur. Hepsi eski haline döndü.
+- Açık: "Scenario" (Attacking / Defending), rutin ekleme / kaydetme / yükleme menüleri, savunma ve orta saha taçları.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

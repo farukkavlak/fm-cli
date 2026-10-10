@@ -79,6 +79,7 @@ internal static partial class Program
 		["schedule"] = ["set", "style"],
 		["penalties"] = ["move", "add", "remove"],
 		["takers"] = ["korner", "frikik", "kanat", "derin", "tac"],
+		["setpieces"] = ["new", "korner", "frikik", "kanat", "derin", "tac"],
 		["stop"] = ["--save", "--no-save"],
 		["query"] = ["--sort", "--asc"],
 		["next"] = ["--skip"],

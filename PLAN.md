@@ -206,7 +206,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Yedek kulübesini göster — `fm tactic`'in "Yedekler" satırı
 - [ ] İki as oyuncunun yerini değiştirme, kadro dışından oyuncu alma (adları taktik ekranında bağlı değil)
 - [x] Duran top rutinlerini kur — `fm setpieces new`, oyunun altı soruluk sihirbazı (§8.36)
-- [~] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası — `fm penalties` sırayı ve üç kuralı okuyor, kuralları değiştiriyor (§8.87), `penalties move / add / remove` sırayı değiştiriyor (§8.90); `fm takers` korner, serbest vuruş ve taç atıcılarını okuyor ve değiştiriyor (§8.91); vuruş tipi, hedef ve oyuncu görevleri açık
+- [~] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası — `fm penalties` sırayı ve üç kuralı okuyor, kuralları değiştiriyor (§8.87), `penalties move / add / remove` sırayı değiştiriyor (§8.90); `fm takers` korner, serbest vuruş ve taç atıcılarını okuyor ve değiştiriyor (§8.91); `fm setpieces <tür>` vuruş tipi, hedef ve oyuncu görevlerini okuyor ve değiştiriyor (§8.93); savunma senaryosu, rutin ekleme / kaydetme ve yerler arası sürükleme yok
 - [~] Kaptan / yardımcı kaptan — `fm captains`: okuma, kaptan değişimi; yardımcı yalnızca boşken (§8.58)
 - [~] Taktik kaydet / yükle / kopyala — `fm tactic copy`, `fm tactic clear <n> --yes` (§8.77); dosyaya Save / Load… yok
 - [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
@@ -459,6 +459,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm setpieces <tür>`** (akşam, FINDINGS §8.93): duran top rutininin vuruş tipi, hedefi ve yer yer oyuncu görevleri;
+  okuma ve değiştirme, beş türde. Sayfayı açan basış ara sıra yutuluyordu (oyun Match Day › Overview'da kalıyor);
+  `takers` ve `setpieces` artık bir kez yeniden açıyor (12 ardışık çağrıda 12 başarı, üçü yeniden açarak).
 - **`fm query`**: kadroda serbest sorgu (yaş, mevki, kondisyon, maç formu, sakat, potansiyel, maaş, sözleşme süresi,
   statü, maç / gol / asist / puan…); ekran açmadan tek `/pull`. Maaş `FullContract.Wage.DisplayValue`, statü
   `FullContract.AgreedPlayingTime.DisplayValue` yolundan geliyor; piyasa değeri `/pull`'da bulunamadı.

@@ -1208,6 +1208,8 @@ internal static partial class Program
 			    --auto        önce yardımcı seçsin;  --send: gönder (kurallar tutunca)
 			  numbers         forma numaralarını gönder (aynı şekilde)
 			  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)
+			  setpieces <tür>             rutin: vuruş tipi, hedef, oyuncuların görevleri (korner, frikik, kanat, derin, tac)
+			  setpieces <tür> vurus <in|out> | hedef <seçenek> | <yer> <görev> [<olmazsa>]   rutini değiştir
 			  tactic          takımın taktiği: stil, mentalite, akıcılık, on bir mevki ve roller
 			  tactic mentality [<x>]      mentaliteyi göster ya da değiştir
 			  tactic style [<x>]          oyun stilini göster ya da değiştir

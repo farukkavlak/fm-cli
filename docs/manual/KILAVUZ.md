@@ -371,6 +371,44 @@ fm takers frikik sol remove talisca    listeden çıkar
 Eklenebilecekler o listenin ayağını kullananlar; yanlış ad yazarsan kimlerin eklenebileceğini söyler.
 Savunma ve orta saha taçlarında oyun atıcı seçtirmiyor.
 
+### Duran top rutini — `setpieces <tür>`
+
+Topun nasıl kullanılacağı ve rutindeki her oyuncunun görevi. Türler `takers`'takilerle aynı.
+
+```
+$ fm setpieces korner
+Korner
+  Vuruş tipi  Inswinger   (Inswinger · Outswinger)
+  Atıcı       Kerem Aktürkoğlu   (sıra: takers korner)
+  Hedef       Near Post   (Mixed · Short · Near Post · Far Post · Edge of Area · Centre)
+
+YER  GRUP                GÖREV                          OLMAZSA
+A1   Aerial Threats      Attack Near Post
+A2   Aerial Threats      Attack Near Post
+A3   Aerial Threats      Lurk at Far Post
+C1   Creators            Lurk Outside Area (Near Side)
+C2   Creators            Lurk Outside Area (Far Side)
+D1   Recovery Defenders  Stay Back
+D2   Recovery Defenders  Stay Back
+D3   Recovery Defenders  Stay Back If Needed            Go Forward
+D4   Recovery Defenders  Stay Back If Needed            Go Forward
+```
+
+Değiştirmek:
+
+```
+fm setpieces korner vurus out              dışa kıvrılan (atıcı öbür ayağın listesinden gelir)
+fm setpieces korner hedef "far post"       topun gideceği yer; adın bir parçası ya da sıra numarası yeter
+fm setpieces korner a3 "attack far"        A3'ün görevi
+fm setpieces korner d1 needed centre       D1: gerekirse geride kal, gerekmezse ceza sahası dışında bekle
+fm setpieces korner a1 ?                   A1'e verilebilecek görevleri listeler
+fm setpieces tac hedef long                taçta: Work Into Box ya da Long Throw
+```
+
+"OLMAZSA" yalnızca "Stay Back If Needed" gibi iki seçimli görevlerde dolu. Taç "Work Into Box"tayken oyun
+oyunculara tek tek görev verdirmiyor; "Long Throw" seçilince yerler gelir. Şut mesafesindeki serbest vuruşta
+vuruş tipi ve hedef yok.
+
 ### Kadroda sorgu — `query`
 
 Koşulları `ve` ile bağla; her koşul bir alan, bir karşılaştırma ve bir değer.

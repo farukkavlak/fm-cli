@@ -347,11 +347,12 @@ internal static partial class Program
 	private static async Task<int> SetPieces(string[] args)
 	{
 		var words = Words(args).ToList();
-		if (words.Count == 0 || words[0] != "new")
+		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: setpieces new [<1. sorunun cevabı> <2.> …] [--dry]   (terminalde yazılmayan soru sorulur; script'te oyunun seçtiği kalır)");
+			Console.Error.WriteLine(RoutineUsage);
 			return 64;
 		}
+		if (words[0] != "new") return await SetPieceRoutine(args.Contains("--json"), words);
 
 		if (!await Fm.InGame())
 		{

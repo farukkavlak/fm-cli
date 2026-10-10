@@ -123,6 +123,12 @@ internal static class Mcp
 				: Str(a, "side") is { Length: > 0 } side && Str(a, "action") is { Length: > 0 } action
 					? ["takers", kind, side, action, .. (Str(a, "player") is { Length: > 0 } p ? new[] { p } : []), .. (a.TryGetProperty("place", out var place) ? new[] { place.ToString() } : [])]
 					: ["takers", kind]),
+		new("fm_setpieces", "A set piece routine: delivery (Inswinger / Outswinger), where the ball is aimed, and each place in the routine (A1, C2, D3…) with its task. `kind`: korner, frikik = free kick in shooting range, kanat = wide free kick, derin = deep free kick, tac = throw-in in the attacking third. To change it give one of: `delivery` (in or out); `aim` (a choice's name or a piece of it); `slot` with `task` (and `otherwise` for the second choice some tasks have). The result lists the choices.",
+			"""{"type":"object","required":["kind"],"properties":{"kind":{"type":"string","enum":["korner","frikik","kanat","derin","tac"]},"delivery":{"type":"string","enum":["in","out"]},"aim":{"type":"string"},"slot":{"type":"string"},"task":{"type":"string"},"otherwise":{"type":"string"}}}""",
+			a => Str(a, "delivery") is { Length: > 0 } delivery ? ["setpieces", Str(a, "kind"), "vurus", delivery, "--json"]
+				: Str(a, "aim") is { Length: > 0 } aim ? ["setpieces", Str(a, "kind"), "hedef", aim, "--json"]
+				: Str(a, "slot") is { Length: > 0 } slot && Str(a, "task") is { Length: > 0 } task ? ["setpieces", Str(a, "kind"), slot, task, .. Opt(a, "otherwise"), "--json"]
+				: ["setpieces", Str(a, "kind"), "--json"]),
 		new("fm_happiness", "How happy each first-team player is (Very Unhappy … Very Happy), least happy first, with his status flags (Wnt: wanted by another club, Unr: unregistered, FtT: future transfer, Rst: resting…).",
 			"""{"type":"object","properties":{}}""",
 			_ => ["happiness"]),

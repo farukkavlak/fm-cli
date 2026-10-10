@@ -161,11 +161,10 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Puts a kind of set piece up on the page and opens its takers: the two tables' pointers,
-	/// right then left, or null when they did not come. The lists of the kind shown before stay
-	/// up until the button is pressed again, so tables already seen are not taken for the new ones.
+	/// Puts a kind of set piece up on the Set Pieces page and waits for it to stand still;
+	/// gives the kind's taker button, or null when the page did not come to it.
 	/// </summary>
-	private static async Task<List<string>> OpenTakers(string top, string leaf, HashSet<string> seen)
+	private static async Task<JsonElement?> ShowSetPieceKind(string top, string leaf)
 	{
 		var shown = leaf ?? top;
 		JsonElement? Menu(JsonElement dropdowns) => dropdowns.EnumerateArray().Cast<JsonElement?>()
@@ -194,19 +193,36 @@ internal static partial class Program
 			}, seconds: 10, every: 0.5);
 		}
 
-		if (!await Still(null, null)) return null;
+		// The press that opens the page is now and then swallowed (the game stays on the tab's
+		// overview); the page is opened once more before giving up.
+		if (!await Still(null, null))
+		{
+			await OpenPage("Set Pieces", "Match Day");
+			if (!await Still(null, null)) return null;
+		}
 		var said = leaf == null
 			? await Fm.Get("select", ("ptr", Field(menu.Value, "Pointer")), ("choice", top), ("fire", "1"))
 			: await Fm.Get("select", ("ptr", Field(menu.Value, "Pointer")), ("names", $"{top}>{leaf}"), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return null;
 		await Task.Delay(500);
 		if (!await Still(top == "Throw-Ins" ? "taker-picker-button" : "taker-button", shown)) return null;
+		return button;
+	}
+
+	/// <summary>
+	/// Puts a kind of set piece up on the page and opens its takers: the two tables' pointers,
+	/// right then left, or null when they did not come. The lists of the kind shown before stay
+	/// up until the button is pressed again, so tables already seen are not taken for the new ones.
+	/// </summary>
+	private static async Task<List<string>> OpenTakers(string top, string leaf, HashSet<string> seen)
+	{
+		if (await ShowSetPieceKind(top, leaf) is not { } button) return null;
 
 		static List<string> Tables(JsonElement buttons) => buttons.EnumerateArray()
 			.Where(b => Field(b, "Type") == "StreamedTable" && Field(b, "Events").Contains("SetPieceTakerMove", StringComparison.Ordinal))
 			.Select(b => Field(b, "Pointer")).ToList();
 
-		var pressed = await Fm.Get("press", ("ptr", Field(button.Value, "Pointer")));
+		var pressed = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return null;
 
 		List<string> tables = [];
