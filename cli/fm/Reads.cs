@@ -53,7 +53,15 @@ internal static partial class Program
 
 		// What the box showed before is remembered: an earlier search's results stay up, marked
 		// finished, until the game starts on the new text.
+		// A box just opened shows the earlier results a moment late, so it is let settle first.
 		var before = (await Fm.GetJson("search")).ToString();
+		for (var look = 0; look < 6; look++)
+		{
+			await Task.Delay(300);
+			var now = (await Fm.GetJson("search")).ToString();
+			if (now == before && look > 0) break;
+			before = now;
+		}
 		var typed = await Fm.Get("type", ("name", "SearchBox"), ("text", text));
 		if (typed.StartsWith("error", StringComparison.Ordinal)) throw new FmError(typed);
 
@@ -221,6 +229,15 @@ internal static partial class Program
 			Console.Error.WriteLine($"{full} için oyuncu sayfası açılmadı.");
 			return null;
 		}
+
+		// The name arrives before the rest: the attributes, the contract and the career bind a
+		// moment later.
+		await Until(async () =>
+		{
+			var now = await Fm.GetJson("player", ("name", full));
+			if (now.TryGetProperty("Player", out _)) card = now;
+			return card.GetProperty("Attributes").GetArrayLength() > 0 && Field(card.GetProperty("Player"), "TotalCareerLeagueAppearances").Length > 0;
+		}, seconds: 4, every: 0.25);
 		return card;
 	}
 
@@ -252,6 +269,7 @@ internal static partial class Program
 
 		var player = card.GetProperty("Player");
 		var traits = card.GetProperty("Traits").EnumerateArray().Select(t => t.GetString()).ToList();
+		var history = await PlayerHistory(Field(player, "Path"));
 		if (!Ui.Rich) PlainHeader();
 
 		void PlainHeader()
@@ -268,6 +286,7 @@ internal static partial class Program
 		if (injury.Length > 0) Console.WriteLine($"Sakatlık: {injury}");
 
 		if (traits.Count > 0) Console.WriteLine($"Alışkanlıklar: {string.Join("; ", traits)}");
+		foreach (var line in history) Console.WriteLine(line);
 		}
 
 		// The page lays its attributes out in blocks, but binds them in no order that says which
@@ -281,7 +300,11 @@ internal static partial class Program
 		var all = card.GetProperty("Attributes").EnumerateArray().OrderBy(a => Field(a, "Name")).ToList();
 		if (all.Count == 0)
 		{
-			if (Ui.Rich) Card.Draw(player, traits, []);
+			if (Ui.Rich)
+			{
+				Card.Draw(player, traits, []);
+				foreach (var line in history) Console.WriteLine(line);
+			}
 			return 0;
 		}
 
@@ -298,6 +321,7 @@ internal static partial class Program
 		if (Ui.Rich)
 		{
 			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList());
+			foreach (var line in history) Console.WriteLine(line);
 			Ui.Line($"[dim]Teklif, kısa liste, scout…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]");
 			return 0;
 		}
@@ -328,6 +352,59 @@ internal static partial class Program
 		static string Line(string separator, params string[] parts) => string.Join(separator, parts.Where(p => p.Length > 0));
 		static string Prefixed(string prefix, string value) => value.Length > 0 ? prefix + value : "";
 		static string Suffixed(string value, string suffix) => value.Length > 0 ? value + suffix : "";
+	}
+
+	/// <summary>
+	/// What the page itself leaves out, pulled from the player it puts at a path of its own:
+	/// how well he plays each position, and the injuries he has had.
+	/// </summary>
+	private static async Task<List<string>> PlayerHistory(string path)
+	{
+		if (path.Length == 0) return [];
+		var lines = new List<string>();
+
+		// 1–20 per position: 20 is his natural one, 15 and up accomplished, 10 and up competent;
+		// below that the game itself calls him unconvincing or worse there.
+		var positions = (await Fm.Pull(path + ".PositionalAbilities", "DisplayValue,PropertyValue", list: true)).EnumerateArray()
+			.Select(p => (Name: Field(p, "DisplayValue"), Rating: int.TryParse(Field(p, "PropertyValue"), out var r) ? r : 0))
+			.Where(p => p.Name.Length > 0 && p.Rating >= 10)
+			.OrderByDescending(p => p.Rating)
+			.ToList();
+		if (positions.Count > 0)
+			lines.Add($"Mevkiler (20 doğal, 15+ usta, 10+ yeterli): {string.Join(" · ", positions.Select(p => $"{p.Name} {p.Rating}"))}");
+
+		var summary = await Fm.Pull(path, "InjuriesThisSeason,InjuriesLastSeason,InjuriesPercentageMissedString");
+		var injuries = (await Fm.Pull(path + ".InjuriesHistory", "InjuryDescription,InjuryDate,InjuryDurationDays,IsActive", list: true)).EnumerateArray()
+			.Select(i => (What: Field(i, "InjuryDescription"), When: Day(Field(i, "InjuryDate")), Days: Field(i, "InjuryDurationDays"), Now: Field(i, "IsActive") == "True"))
+			.Where(i => i.What.Length > 0)
+			.OrderByDescending(i => i.When ?? DateTime.MinValue)
+			.ToList();
+		if (injuries.Count == 0)
+		{
+			lines.Add("Sakatlık geçmişi: yok");
+			return lines;
+		}
+
+		lines.Add($"Sakatlık geçmişi: {injuries.Count} sakatlık · bu sezon {Field(summary, "InjuriesThisSeason")}, geçen sezon {Field(summary, "InjuriesLastSeason")}"
+		          + (Field(summary, "InjuriesPercentageMissedString") is { Length: > 0 } missed ? $" · kaçırdığı maç: {missed.Replace(" missed", "")}" : ""));
+		foreach (var injury in injuries.Take(5))
+			lines.Add($"  {(injury.When is { } on ? $"{Months[on.Month - 1]} {on.Year}" : "?"),-9}  {injury.What}, {injury.Days} gün{(injury.Now ? " (sürüyor)" : "")}");
+		if (injuries.Count > 5) lines.Add($"  … ve {injuries.Count - 5} eski sakatlık daha");
+		return lines;
+	}
+
+	/// <summary>
+	/// The game packs a date into one number: the year above bit 17, then the day of the year
+	/// (from 1) in nine bits (the plugin's State.Date reads it the same way).
+	/// </summary>
+	private static DateTime? Day(string text)
+	{
+		var at = text.IndexOf("Data1 = ", StringComparison.Ordinal);
+		if (at < 0 || !long.TryParse(new string(text[(at + 8)..].TakeWhile(char.IsDigit).ToArray()), out var packed)) return null;
+		var year = (int)(packed >> 17);
+		var dayOfYear = (int)((packed >> 8) & 0x1FF);
+		if (year < 1900 || year > 2200 || dayOfYear < 1 || dayOfYear > 366) return null;
+		return new DateTime(year, 1, 1).AddDays(dayOfYear - 1);
 	}
 
 	/// <summary>A list read until it stops growing: two readings in a row the same length, and not empty.</summary>

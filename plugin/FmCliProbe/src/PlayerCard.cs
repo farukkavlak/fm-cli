@@ -59,6 +59,7 @@ internal static class PlayerCard
 		var attributes = new List<Dictionary<string, string>>();
 		var traits = new List<string>();
 		var groups = new List<ulong>();
+		SI.Core.TypedValue personValue = null;
 
 		var queue = new Queue<IReadOnlyNode>();
 		queue.Enqueue(page);
@@ -78,6 +79,7 @@ internal static class PlayerCard
 					var person = Report.Fields(node);
 					if (!person.ContainsKey("Name") || !person.ContainsKey("Age")) break;
 					foreach (var (key, value) in person) header.TryAdd(key, value);
+					try { personValue = node.Value; } catch { }
 
 					try
 					{
@@ -140,6 +142,12 @@ internal static class PlayerCard
 		}
 
 		if (!header.TryGetValue("Name", out who)) return null;
+
+		// The person is also put at a path of his own, so what the page does not show (his
+		// rating in each position, his injuries) can be pulled from there. One path per player:
+		// a path reused for someone else would answer with the first one's values.
+		if (personValue is { IsNull: false } && RawPath.Set($"fmcli.card.p{(uint)who.GetHashCode()}", personValue) == null)
+			header["Path"] = $"fmcli.card.p{(uint)who.GetHashCode()}";
 
 		return "{\"Player\": " + Report.Json(header)
 		       + ", \"Traits\": [" + string.Join(", ", traits.Select(t => $"\"{Report.Escape(t)}\"")) + "]"

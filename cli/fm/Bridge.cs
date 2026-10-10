@@ -68,7 +68,13 @@ internal sealed class Bridge
 		JsonElement data = default;
 		for (var attempt = 0; attempt < 6; attempt++)
 		{
-			data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation));
+			// A list bound by this very call holds nothing until the next frame.
+			try { data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation)); }
+			catch (FmError e) when (attempt < 5 && e.Message.Contains("is not a list", StringComparison.Ordinal))
+			{
+				await Task.Delay(TimeSpan.FromMilliseconds(250));
+				continue;
+			}
 			var records = data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().ToList() : [data];
 			var complete = records.All(r => r.EnumerateObject().Count(p => p.Name is not ("Index" or "Row")) >= wanted);
 			if (complete && (attempt > 0 || records.Count > 0)) return data;
