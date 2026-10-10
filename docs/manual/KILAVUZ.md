@@ -452,6 +452,39 @@ Sal 7 Ekim    Attacking Shadow Play  Defensive Shadow Play  dinlenme
 Çar 8 Ekim    Match Tactics          Match Practice         Recovery
 ```
 
+**Bir seansı değiştirmek** — gün, günün kaçıncı seansı (1-3), istersen seansın adı:
+
+```
+$ fm schedule set 9 3 quickness
+9 Ekim Perşembe, 3. seans: Rest → Quickness
+  A specialised session focused on speed. Performed as a team.
+  Özellikler: Acceleration, Agility, Pace
+  Etkiler: Fatigue ↑ · Injury Risk ↑↑ · Condition ↓↓
+```
+
+Seansın adını yazmazsan terminalde önce kategoriyi (General, Attacking, Physical…), sonra o
+kategorinin seanslarını okla seçersin; şu anki seçim işaretli gelir. Adın bir parçası yeter
+(`"shadow"` iki seansa uyarsa hangileri olduğunu söyler); aynı ad iki kategorideyse
+`physical/recovery` diye kategorisiyle yaz. Değişiklikten sonra seansın ne çalıştırdığı ve
+kondisyona, sakatlık riskine etkisi yazılır (↑ artırır, ↓ azaltır, çift ok: çok).
+
+Gün şöyle yazılır: `14` (bugünden sonraki ilk 14'ü), `"14 ekim"`, `2025-10-14`, `yarın`, `cuma`.
+Geçmiş günler, maçın kendisi ve yolculuk değiştirilemez.
+
+**Haftanın programını değiştirmek** — o haftadan herhangi bir gün ve programın adı:
+
+```
+$ fm schedule style 14 gegenpress
+13 Ekim haftası: Control Possession → Gegenpress
+  A training schedule focused on a selected tactical style.
+```
+
+Program yazmazsan türü (Training Style, Tactical Style, Scenario, Pre-Season › Early/Mid/Late) ve
+programı okla seçersin. Aynı ad birden çok türde varsa (Tactical, Technical) sezon içi olan
+seçilir; sezon öncesi programı için türüyle yaz: `"pre-season early/light"`. Program bütün
+haftanın seanslarını yeniden yazar; tek tek değiştirdiğin seanslar gider. Elle değiştirilmiş bir
+haftanın adı oyunda "Tactical (Modified)" diye görünür.
+
 ### Antrenman yoğunluğu — `intensity`
 
 ```

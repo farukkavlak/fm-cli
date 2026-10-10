@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Linq;
 using SI.Bindable;
 using UnityEngine.UIElements;
 
@@ -12,7 +13,8 @@ namespace FmCliProbe;
 /// ?up=N levels), every visible text and every control in reading order, so a caller can pair
 /// each control with the heading above it. Lists and radio groups are chosen from through
 /// /select as anywhere else; sliders and switches, which only settings pages use, are set here
-/// (FINDINGS §8.61).
+/// (FINDINGS §8.61). With ?buttons=1 a button is an item too, with the text on it, so a grid of
+/// them — the calendar's training sessions — can be told apart by the day written above it.
 /// </summary>
 internal static class Form
 {
@@ -33,12 +35,12 @@ internal static class Form
 
 			var root = element;
 			for (var i = 0; i < up && root.hierarchy.parent != null; i++) root = root.hierarchy.parent;
-			return "[\n  " + string.Join(",\n  ", Items(root)) + "\n]\n";
+			return "[\n  " + string.Join(",\n  ", Items(root, q["buttons"] == "1")) + "\n]\n";
 		}
 		return "[]\n";
 	}
 
-	private static List<string> Items(VisualElement root)
+	private static List<string> Items(VisualElement root, bool buttons)
 	{
 		var items = new List<string>();
 		var stack = new Stack<VisualElement>();
@@ -50,7 +52,7 @@ internal static class Form
 			{
 				if (e.resolvedStyle.display == DisplayStyle.None || e.panel == null) continue;
 
-				var item = Control(e);
+				var item = Control(e) ?? (buttons ? Button(e) : null);
 				if (item != null)
 				{
 					items.Add(item);
@@ -98,6 +100,39 @@ internal static class Form
 				+ $"\"Value\": \"{(box.value ? "True" : "False")}\"}}";
 
 		return null;
+	}
+
+	private static string Button(VisualElement e)
+	{
+		if (e.TryCast<SIButton>() == null || e.worldBound.width <= 0) return null;
+		return "{\"Kind\": \"button\", "
+			+ $"\"Pointer\": \"0x{e.Pointer.ToInt64():x}\", "
+			+ $"\"Name\": \"{Report.Escape(e.name ?? "")}\", "
+			+ $"\"Enabled\": \"{(e.enabledInHierarchy ? "True" : "False")}\", "
+			+ $"\"Text\": \"{Report.Escape(Buttons.LabelOf(e))}\", "
+			+ $"\"Texts\": [{string.Join(", ", TextsIn(e).Select(t => $"\"{Report.Escape(t)}\""))}]}}";
+	}
+
+	/// <summary>Every visible text inside an element, in reading order: a card's title and its badges.</summary>
+	private static List<string> TextsIn(VisualElement root)
+	{
+		var texts = new List<string>();
+		var stack = new Stack<VisualElement>();
+		stack.Push(root);
+		while (stack.Count > 0 && texts.Count < 20)
+		{
+			var e = stack.Pop();
+			try
+			{
+				if (e.resolvedStyle.display == DisplayStyle.None) continue;
+				var plain = Text.Plain(e.TryCast<TextElement>()?.text ?? "");
+				if (plain.Length > 0 && e.worldBound.width > 0) texts.Add(plain);
+				var h = e.hierarchy;
+				for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
+			}
+			catch { }
+		}
+		return texts;
 	}
 
 	private static string Kind(string kind, string json) => $"{{\"Kind\": \"{kind}\", " + json[1..];

@@ -103,9 +103,11 @@ internal static class Mcp
 		new("fm_prep", "The match preparation focus in training: the tactical focus in and out of possession and the two set-piece focuses, each with what it works on.",
 			"""{"type":"object","properties":{}}""",
 			_ => ["prep"]),
-		new("fm_schedule", "The training schedule for this week and the next: each day's three sessions (Recovery, Match Tactics, Rest, Travel…) and the match days (H/A/N).",
-			"""{"type":"object","properties":{}}""",
-			_ => ["schedule"]),
+		new("fm_schedule", "The training schedule for this week and the next: each day's three sessions (Recovery, Match Tactics, Rest, Travel…) and the match days (H/A/N). With `day` (\"2025-10-14\", \"14\", \"14 ekim\") it changes it: `slot` (1-3) with `session` (\"Quickness\", \"Physical/Recovery\") sets that session, `slot` alone lists the categories and the sessions on offer; `style` (\"Gegenpress\", \"Training Style/Balanced\", \"Pre-Season Early/Light\") sets the whole week's schedule, and style=\"?\" lists the kinds. Past days and match slots cannot be changed.",
+			"""{"type":"object","properties":{"day":{"type":"string"},"slot":{"type":"integer"},"session":{"type":"string"},"style":{"type":"string"}}}""",
+			a => Str(a, "day") is not { Length: > 0 } day ? ["schedule"]
+				: Str(a, "style") is { Length: > 0 } style ? ["schedule", "style", day, .. (style == "?" ? Array.Empty<string>() : [style])]
+				: ["schedule", "set", day, a.TryGetProperty("slot", out var slot) ? slot.ToString() : "", .. (Str(a, "session") is { Length: > 0 } s ? new[] { s } : [])]),
 		new("fm_happiness", "How happy each first-team player is (Very Unhappy … Very Happy), least happy first, with his status flags (Wnt: wanted by another club, Unr: unregistered, FtT: future transfer, Rst: resting…).",
 			"""{"type":"object","properties":{}}""",
 			_ => ["happiness"]),

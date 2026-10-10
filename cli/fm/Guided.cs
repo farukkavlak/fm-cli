@@ -1623,7 +1623,7 @@ internal static partial class Program
 			var folded = Fold(name(item));
 			// The whole name, and each word in it, as typed and as far as it was typed.
 			var against = new[] { folded }.Concat(wanted.Contains(' ') ? [] : folded.Split(' ', '-', '\''));
-			return against.Where(w => w.Length > 0)
+			return against.Where(w => w.Length > 0).DefaultIfEmpty(folded)
 				.Min(w => Math.Min(Typos(wanted, w), w.Length > wanted.Length ? Typos(wanted, w[..wanted.Length]) : int.MaxValue));
 		}
 		var scored = all.Select(i => (Item: i, Typos: Distance(i))).Where(x => x.Typos <= leeway).ToList();

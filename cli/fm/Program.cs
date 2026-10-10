@@ -99,7 +99,7 @@ internal static partial class Program
 				"depth" => await Depth(json),
 				"happiness" => await Happiness(json),
 				"prep" => await Prep(json),
-				"schedule" => await Schedule(json),
+				"schedule" => args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json),
 				"settings" => await SettingsCommand(args),
 				"dugout" => await Dugout(json, args),
 				"budget" => await Budget(json, args),
@@ -1128,6 +1128,8 @@ internal static partial class Program
 			                  --trait-remove "<a>" bıraktır · --trait-cancel · --trait-suggest · --yes: yardımcının itirazına rağmen
 			  prep            maç hazırlığı antrenmanı: taktik ve duran top odakları
 			  schedule        antrenman programı: bu hafta ve gelecek hafta, gün gün üç seans
+			  schedule set <gün> <1|2|3> [<seans>]   bir seansı değiştir; seans yazılmazsa okla seç
+			  schedule style <gün> [<program>]       o haftanın programını değiştir (Tactical, Gegenpress…)
 			  budget          transfer, maaş ve scouting bütçesi;  budget ayarla [<adım>]: transfer ↔ maaş dağılımı
 			  settings        oyun ayarları: maç gösterimi ve hızı, otomatik kayıt, dil, para birimi, birimler
 			  settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
