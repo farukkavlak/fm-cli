@@ -84,7 +84,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new { Name = Field(player, "Name"), Seasons = rows, Fees = spent, Totals = numbers }));
+			Console.WriteLine(JsonOut.Of(new { Name = Field(player, "Name"), Seasons = rows, Fees = spent, Totals = numbers }));
 			return 0;
 		}
 

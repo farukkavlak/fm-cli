@@ -34,7 +34,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new
+			Console.WriteLine(JsonOut.Of(new
 			{
 				Board = BoardAreas.ToDictionary(a => a.Label, a => Field(said, a.Field)), BoardPraise = praise, BoardWorries = worries,
 				Supporters = SupporterAreas.ToDictionary(a => a.Label, a => Field(said, a.Field)), SupporterPraise = fansPraise, SupporterWorries = fansWorries,

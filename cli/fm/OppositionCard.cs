@@ -103,6 +103,12 @@ internal static partial class Program
 			rows = await Rows();
 		}
 
+		if (args.Contains("--json"))
+		{
+			Console.WriteLine(JsonOut.Of(rows.Select(r => new Dictionary<string, string> { ["Name"] = Field(r, "Name") }
+				.Concat(OppositionColumns.Select(c => KeyValuePair.Create(c.Key, Value(r, c.Key)))).ToDictionary())));
+			return 0;
+		}
 		if (Ui.Rich)
 		{
 			var table = new Spectre.Console.Table { Border = Spectre.Console.TableBorder.Rounded, BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey) };

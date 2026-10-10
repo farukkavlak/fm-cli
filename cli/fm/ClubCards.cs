@@ -98,7 +98,7 @@ internal static partial class Program
 		};
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(fans));
+			Console.WriteLine(JsonOut.Of(fans));
 			return 0;
 		}
 
@@ -185,7 +185,7 @@ internal static partial class Program
 		};
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(facilities));
+			Console.WriteLine(JsonOut.Of(facilities));
 			return 0;
 		}
 

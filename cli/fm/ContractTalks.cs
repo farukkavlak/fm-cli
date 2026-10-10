@@ -77,7 +77,9 @@ internal static partial class Program
 		}
 
 		var shown = await TalksSettled();
-		if (shown != null) (await shown.WithReasons(Fm)).Draw();
+		var json = args.Contains("--json");
+		if (shown != null && json) Console.WriteLine(JsonOut.Of((await shown.WithReasons(Fm)).Summary()));
+		else if (shown != null) (await shown.WithReasons(Fm)).Draw();
 		if (left.Count > 0)
 		{
 			Console.Error.WriteLine(shown is { Stage: "Promises" }
@@ -85,6 +87,7 @@ internal static partial class Program
 				: $"Ekranda bulunamadı: {string.Join(", ", left)}");
 			return 1;
 		}
+		if (json && !args.Contains("--sign")) return 0;
 		if (shown is { Stage: "Promises" })
 		{
 			Console.WriteLine("\nVaatleri onaylayıp şartlara geçmek için: contract --next   (vaat değiştirmek: --term \"Vaat=değer\")");

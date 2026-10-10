@@ -82,7 +82,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new
+			Console.WriteLine(JsonOut.Of(new
 			{
 				Teams = teams.Select(t => new { t.Team, Roles = t.Roles.Select(r => new { r.Role, r.Filled, r.Wanted }), t.Board }),
 				Staff = staff.Select(p => new { Name = p[0], Team = p[1], Job = p[2], Age = p[3], Nation = p[4], Time = p[5], Contract = p[6], Wage = p[7], Expires = p[8] }),

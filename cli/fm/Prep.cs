@@ -6,7 +6,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static async Task<int> Prep()
+	private static async Task<int> Prep(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
 		var opened = await OpenPage("Match Preparation Training", "Match Day");
@@ -31,6 +31,16 @@ internal static partial class Program
 		var end = texts.IndexOf("Training Overview") is var e && e > setPieces ? e : texts.Count;
 		var tacticalPart = Pairs(texts.Skip(tactical + 1).Take(setPieces - tactical - 1).ToList()).ToList();
 		var setPart = Pairs(texts.Skip(setPieces + 1).Take(end - setPieces - 1).ToList()).ToList();
+
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(new
+			{
+				Tactical = tacticalPart.Select(p => new { p.Name, p.Means }),
+				SetPieces = setPart.Select(p => new { p.Name, p.Means }),
+			}));
+			return 0;
+		}
 
 		string[] tacticalNames = ["Topla", "Topsuz"];
 		Console.WriteLine("Maç hazırlığı");

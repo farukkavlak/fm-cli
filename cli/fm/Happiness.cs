@@ -54,7 +54,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(players.Select(p => new { p.Name, p.Level, p.Flags })));
+			Console.WriteLine(JsonOut.Of(players.Select(p => new { p.Name, p.Level, p.Flags })));
 			return 0;
 		}
 		foreach (var (name, level, flags) in players)

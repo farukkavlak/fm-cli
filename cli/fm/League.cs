@@ -43,15 +43,20 @@ internal static partial class Program
 		var said = await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("names", $"Competitions>{competition}"), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
-		// Another competition's tile can still be up for a moment; the new one is taken once it
-		// has changed (or stood the same twice, when it was this one already).
+		// Another competition's tile can still be up for a moment, and a tile fills in its names
+		// and figures a beat after its labels. It is taken once it reads the same twice, has
+		// changed from before (or had time to, when it was this one already) and every leader
+		// has a name — or has had time to, since a competition barely begun leaves names out.
 		List<string> texts = [];
 		var previous = "";
+		var reads = 0;
 		await Until(async () =>
 		{
 			texts = await LeaderTexts();
+			reads++;
 			var now = string.Join("|", texts);
-			var settled = texts.Contains("Players") && (now != before || now == previous);
+			var whole = Leaders(texts, "Teams", "Players").Concat(Leaders(texts, "Players", null)).All(l => l.Name != "-" && l.Figure != "-");
+			var settled = texts.Contains("Players") && now == previous && (now != before || reads >= 4) && (whole || reads >= 8);
 			previous = now;
 			return settled;
 		}, seconds: 10, every: 0.5);
@@ -65,7 +70,12 @@ internal static partial class Program
 		var players = Leaders(texts, "Players", null);
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new { Competition = competition, Teams = teams, Players = players }));
+			Console.WriteLine(JsonOut.Of(new
+			{
+				Competition = competition,
+				Teams = teams.Select(t => new { Stat = t.Label, Team = t.Name, t.Figure }),
+				Players = players.Select(p => new { Stat = p.Label, Player = p.Name, p.Figure }),
+			}));
 			return 0;
 		}
 

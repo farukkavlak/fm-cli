@@ -511,7 +511,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new { OnPitch = onPitch, Bench = bench }));
+			Console.WriteLine(JsonOut.Of(new { OnPitch = onPitch, Bench = bench }));
 			return 0;
 		}
 

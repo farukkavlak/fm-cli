@@ -136,7 +136,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(entries.Select(e => new { e.Minute, e.Text, CanDo = e.Open })));
+			Console.WriteLine(JsonOut.Of(entries.Select(e => new { e.Minute, e.Text, CanDo = e.Open })));
 			return 0;
 		}
 

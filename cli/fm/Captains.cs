@@ -56,6 +56,11 @@ internal static partial class Program
 		}
 
 		var (captain, vice) = await Now();
+		if (args.Contains("--json"))
+		{
+			Console.WriteLine(JsonOut.Of(new { Captain = captain, ViceCaptain = vice }));
+			return 0;
+		}
 		Console.WriteLine($"Kaptan: {(captain.Length > 0 ? captain : "-")}");
 		Console.WriteLine($"Yardımcı kaptan: {(vice.Length > 0 ? vice : "-")}");
 		if (changes.Count == 0) Console.WriteLine("\nDeğiştirmek: captains --captain <oyuncu> · --vice <oyuncu>");

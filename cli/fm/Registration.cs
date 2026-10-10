@@ -54,6 +54,11 @@ internal static partial class Program
 			(rules, players) = await ReadRegistration();
 		}
 
+		if (args.Contains("--json") && !args.Contains("--send"))
+		{
+			Console.WriteLine(JsonOut.Of(new { Rules = rules, Players = players }));
+			return 0;
+		}
 		if (Ui.Interactive && changes.Count == 0 && !args.Contains("--send"))
 			return await RegisterByHand(rules, players);
 

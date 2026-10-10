@@ -39,7 +39,7 @@ internal static class MatchReport
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new { Home = home, Away = away, Competition = competition, PlayerOfTheMatch = star, Fixture = fixture }));
+			Console.WriteLine(JsonOut.Of(new { Home = home, Away = away, Competition = competition, PlayerOfTheMatch = star, Fixture = fixture }));
 			return 0;
 		}
 

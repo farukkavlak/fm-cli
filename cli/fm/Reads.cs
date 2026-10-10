@@ -446,7 +446,8 @@ internal static partial class Program
 
 		if (wanted == null)
 		{
-			foreach (var name in views) Console.WriteLine(name);
+			if (json) Console.WriteLine(JsonOut.Of(views));
+			else foreach (var name in views) Console.WriteLine(name);
 			return 0;
 		}
 
@@ -835,7 +836,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(matches));
+			Console.WriteLine(JsonOut.Of(matches));
 			return 0;
 		}
 

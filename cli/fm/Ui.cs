@@ -8,7 +8,10 @@ namespace FmCli;
 /// </summary>
 internal static class Ui
 {
-	public static bool Rich => !Console.IsOutputRedirected;
+	public static bool Rich => !Json && !Console.IsOutputRedirected;
+
+	/// <summary>The command was asked for --json: nothing is drawn and nothing is asked.</summary>
+	public static bool Json { get; set; }
 
 	/// <summary>
 	/// A console bound to whatever Console.Out is now, since the MCP server swaps it per call.

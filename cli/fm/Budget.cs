@@ -28,7 +28,7 @@ internal static partial class Program
 		{
 			if (json)
 			{
-				Console.WriteLine(JsonSerializer.Serialize(overview));
+				Console.WriteLine(JsonOut.Of(overview));
 				return 0;
 			}
 			foreach (var (name, value) in overview) Console.WriteLine($"{name}: {value}");

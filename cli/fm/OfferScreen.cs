@@ -402,6 +402,14 @@ internal sealed class OfferScreen
 		var key => Say(key),
 	};
 
+	/// <summary>What the screen says, for --json.</summary>
+	public object Summary() => new
+	{
+		Club, Player, Stage, BudgetCost, TotalCost, IsLoan, Facts,
+		Terms = Rows.Select(r => new { r.Section, r.Label, Value = r.Shown, r.Detail, r.Warning }),
+		Options = Options.Select(o => new { o.Label, Value = o.Shown }),
+	};
+
 	public void Draw()
 	{
 		if (IsContract)

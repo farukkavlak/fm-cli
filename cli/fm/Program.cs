@@ -28,6 +28,7 @@ internal static partial class Program
 	{
 		var command = args.Length > 0 ? args[0] : "help";
 		var json = args.Contains("--json");
+		Ui.Json = json;
 
 		// Aliases and unambiguous starts stand for the command; the rest of the code sees its name.
 		if (ResolveCommand(command) is not { } resolved) return 64; // EX_USAGE
@@ -54,12 +55,12 @@ internal static partial class Program
 				"intensity" => await Intensity(args),
 				"shout" => await Shout(args),
 				"shortlist" => await Shortlist(json),
-				"saves" => Saves(),
+				"saves" => Saves(json),
 				"opponent" => await Opponent(json),
 				"captains" => await Captains(args),
 				"depth" => await Depth(json),
 				"happiness" => await Happiness(json),
-				"prep" => await Prep(),
+				"prep" => await Prep(json),
 				"schedule" => await Schedule(json),
 				"settings" => await SettingsCommand(args),
 				"dugout" => await Dugout(json, args),
@@ -119,6 +120,11 @@ internal static partial class Program
 		{
 			Console.Error.WriteLine(error.Message);
 			return 1;
+		}
+		finally
+		{
+			// In a session the next command, and the prompt, are drawn again.
+			Ui.Json = false;
 		}
 	}
 
@@ -202,7 +208,7 @@ internal static partial class Program
 		var youth = squad.EnumerateArray().Where(p => Field(p, "Team").Contains("U19", StringComparison.Ordinal)).ToList();
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(youth));
+			Console.WriteLine(JsonOut.Of(youth));
 			return 0;
 		}
 		if (youth.Count == 0)

@@ -12,7 +12,7 @@ internal static partial class Program
 		Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
 		"Library", "Application Support", "Sports Interactive", "Football Manager 26", "games");
 
-	private static int Saves()
+	private static int Saves(bool json)
 	{
 		if (!Directory.Exists(SavesFolder))
 		{
@@ -23,6 +23,14 @@ internal static partial class Program
 		if (files.Count == 0)
 		{
 			Console.WriteLine("Kayıt yok.");
+			return 0;
+		}
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(files.Select(f => new
+			{
+				Name = Path.GetFileNameWithoutExtension(f.Name), Written = f.LastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture), Bytes = f.Length,
+			})));
 			return 0;
 		}
 		var tr = CultureInfo.InvariantCulture;

@@ -46,7 +46,7 @@ internal static partial class Program
 		};
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new { Team = team, League = league, Summary = rows.ToDictionary(r => r.Item1, r => r.Item2), News = news }));
+			Console.WriteLine(JsonOut.Of(new { Team = team, League = league, Summary = rows.ToDictionary(r => r.Item1, r => r.Item2), News = news }));
 			return 0;
 		}
 		Console.WriteLine($"{team} · {league}");

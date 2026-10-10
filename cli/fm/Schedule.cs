@@ -52,7 +52,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(days.Select(x => new { Date = x.Day.ToString("yyyy-MM-dd"), x.Sessions })));
+			Console.WriteLine(JsonOut.Of(days.Select(x => new { Date = x.Day.ToString("yyyy-MM-dd"), x.Sessions })));
 			return 0;
 		}
 

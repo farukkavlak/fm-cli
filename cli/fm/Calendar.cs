@@ -153,7 +153,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(busy));
+			Console.WriteLine(JsonOut.Of(busy));
 			return 0;
 		}
 

@@ -123,7 +123,7 @@ internal static partial class Program
 			await LeavePreferences();
 			if (json)
 			{
-				Console.WriteLine(JsonSerializer.Serialize(found.Select(f => new { f.Setting.Name, f.Setting.Group, Value = ValueOf(f), Choices = f.Choices })));
+				Console.WriteLine(JsonOut.Of(found.Select(f => new { f.Setting.Name, f.Setting.Group, Value = ValueOf(f), Choices = f.Choices })));
 				return 0;
 			}
 			DrawSettings(found);
@@ -157,7 +157,8 @@ internal static partial class Program
 			if (asked == null)
 			{
 				await LeavePreferences();
-				if (!Ui.Interactive)
+				if (json) Console.WriteLine(JsonOut.Of(new { wanted.Name, wanted.Group, Value = ValueOf(now), Choices = now.Choices }));
+				else if (!Ui.Interactive)
 				{
 					Console.WriteLine($"{wanted.Name}: {Shown(wanted, ValueOf(now))}");
 					Console.WriteLine($"Seçenekler: {string.Join(" · ", shownChoices)}");

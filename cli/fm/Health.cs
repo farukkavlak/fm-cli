@@ -47,7 +47,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new
+			Console.WriteLine(JsonOut.Of(new
 			{
 				Injured = hurt.Select(p => new { Name = Field(p, "Name"), Injury = Field(p, "InjuryName"), OutSoFar = Field(p, "InjuriesTimeMissed"), Left = Left(p) }),
 				Tired = tired.Select(p => new { Name = Field(p, "Name"), Condition = Number(p, "Condition") }),

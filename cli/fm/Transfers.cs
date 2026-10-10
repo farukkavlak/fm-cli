@@ -21,6 +21,11 @@ internal static partial class Program
 			// opened from its message with "View Offer" — is shown as it stands.
 			if (await Fm.InGame() && await OfferScreen.Read(Fm) is { } shown)
 			{
+				if (args.Contains("--json"))
+				{
+					Console.WriteLine(JsonOut.Of(shown.Summary()));
+					return 0;
+				}
 				shown.Draw();
 				var answers = await TalkOptions();
 				if (answers.Count > 0) Console.WriteLine($"\nEkrandaki seçenekler: {string.Join(" · ", answers.Select(a => a.Label))}  (talk <no>)");

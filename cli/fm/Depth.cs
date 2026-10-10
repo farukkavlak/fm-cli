@@ -56,7 +56,7 @@ internal static partial class Program
 		var depth = DepthRows.SelectMany(r => r).ToDictionary(s => s, s => players.Where(p => p.Slots.Contains(s)).Select(p => p.Name).ToList());
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(depth));
+			Console.WriteLine(JsonOut.Of(depth));
 			return 0;
 		}
 

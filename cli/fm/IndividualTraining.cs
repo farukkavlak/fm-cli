@@ -102,10 +102,21 @@ internal static partial class Program
 			}
 			if (changes.Count > 0) return 0;
 			var shown = all[name];
+			if (args.Contains("--json"))
+			{
+				Console.WriteLine(JsonOut.Of(new { Name = name, Position = Value(shown, 0), OutOfPossession = Value(shown, 1), Focus = Value(shown, 2) }));
+				return 0;
+			}
 			for (var i = 0; i < 3; i++) Console.WriteLine($"{TrainingParts[i]}: {Value(shown, i)}");
 			return 0;
 		}
 
+		if (args.Contains("--json"))
+		{
+			Console.WriteLine(JsonOut.Of(all.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
+				.Select(r => new { Name = Field(r, "Name"), Position = Value(r, 0), OutOfPossession = Value(r, 1), Focus = Value(r, 2) })));
+			return 0;
+		}
 		Table.Write(["OYUNCU", .. TrainingParts.Select(p => p.ToUpperInvariant())], all.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
 			.Select(r => new[] { Field(r, "Name"), Value(r, 0), Value(r, 1), Value(r, 2) }).ToList());
 		Console.WriteLine("\nDeğiştirmek: training <oyuncu> --focus \"Quickness\" · --position \"Midfielder (Centre)>Box-To-Box Midfielder\" · --role \"…\"");

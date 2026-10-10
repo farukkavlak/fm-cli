@@ -126,6 +126,12 @@ internal static partial class Program
 		}
 
 		var list = await All();
+		if (args.Contains("--json"))
+		{
+			Console.WriteLine(JsonOut.Of(list.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
+				.Select(r => new { Name = Field(r, "Name"), Intensity = Field(r, "Value") })));
+			return 0;
+		}
 		Table.Write(["OYUNCU", "YOĞUNLUK"], list.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
 			.Select(r => new[] { Field(r, "Name"), Say(Field(r, "Value")) }).ToList());
 		Console.WriteLine("\nDeğiştirmek: intensity <oyuncu> <otomatik|yarım|normal|çift|\"dinlen 3\"|\"tatil 1\">  ·  hepsini antrenöre bırak: intensity --auto");

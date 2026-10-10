@@ -35,7 +35,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(rows.Select(r => new { r.Name, r.Age, r.Position, Ends = r.Text })));
+			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, r.Age, r.Position, Ends = r.Text })));
 			return 0;
 		}
 

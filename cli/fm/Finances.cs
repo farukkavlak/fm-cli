@@ -101,7 +101,7 @@ internal static partial class Program
 		};
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(finances));
+			Console.WriteLine(JsonOut.Of(finances));
 			return 0;
 		}
 
@@ -237,7 +237,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonSerializer.Serialize(new { Kind = kind, Period = tab, Total = total, Turnover = turnover, Items = all.Select(a => new { a.Item, a.Amount }) }));
+			Console.WriteLine(JsonOut.Of(new { Kind = kind, Period = tab, Total = total, Turnover = turnover, Items = all.Select(a => new { a.Item, a.Amount }) }));
 			return 0;
 		}
 		var title = $"{(kind == "Income" ? "Gelir" : "Gider")} — {label}: {total}" + (turnover != null && turnover != total ? $" (ciro {turnover})" : "");

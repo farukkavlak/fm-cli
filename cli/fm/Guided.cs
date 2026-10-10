@@ -698,6 +698,11 @@ internal static partial class Program
 			await Fm.Get("press", ("ptr", Field(combined, "Pointer")));
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);
 		}
+		// The team instructions take the pitch's place; "Team Shape" beside their button puts it
+		// back, and it answers only a real click.
+		if (tactic.TryGetProperty("Tactic", out _) && (!tactic.TryGetProperty("Slots", out var shown) || shown.GetArrayLength() == 0)
+			&& !(await Fm.Get("click", ("text", "Team Shape"), ("name", "team-shape"))).StartsWith("error", StringComparison.Ordinal))
+			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);
 		return tactic.TryGetProperty("Tactic", out _) ? tactic : null;
 	}
 
@@ -733,6 +738,11 @@ internal static partial class Program
 			wanted = choices[asked];
 		}
 
+		if (wanted == null && Ui.Json)
+		{
+			Console.WriteLine(JsonOut.Of(new { Value = current, Choices = choices }));
+			return 0;
+		}
 		if (wanted == null)
 		{
 			Console.WriteLine($"{what}: {current}\n");
@@ -987,6 +997,11 @@ internal static partial class Program
 		if (wanted == null)
 		{
 			var numbers = slots.Select(b => Field(b, "Label")).Append(active.ToString()).OrderBy(n => n).ToList();
+			if (Ui.Json)
+			{
+				Console.WriteLine(JsonOut.Of(numbers.Select(n => new { Slot = int.Parse(n), Active = n == active.ToString(), Name = n == active.ToString() ? Field(tactic, "Name") : null })));
+				return 0;
+			}
 			foreach (var n in numbers)
 				Console.WriteLine(n == active.ToString() ? $"{n}  {Field(tactic, "Name")}  (etkin)" : $"{n}");
 			var full = int.TryParse(Field(tactic, "TacticCount"), out var count) && count >= 3;
@@ -1041,13 +1056,16 @@ internal static partial class Program
 		{
 			foreach (var label in oop ? new[] { "Team Instructions", mode } : ["Team Instructions"])
 			{
-				// The planner's buttons come a moment after the page.
-				JsonElement? button = null;
-				await Until(async () => (button = await Labelled(label)) != null, seconds: 8, every: 0.5);
-				if (button != null && (label != "Team Instructions" || (await Rows()).Count == 0))
+				// The planner's buttons come a moment after the page, and a press made too soon
+				// after it opens can go unanswered, so it is made again.
+				for (var attempt = 0; attempt < 3 && (label != "Team Instructions" || (await Rows()).Count == 0); attempt++)
 				{
+					JsonElement? button = null;
+					await Until(async () => (button = await Labelled(label)) != null, seconds: 8, every: 0.5);
+					if (button == null) break;
 					await Fm.Get("press", ("ptr", Field(button.Value, "Pointer")));
-					await Task.Delay(800);
+					if (label != "Team Instructions") { await Task.Delay(800); break; }
+					await Until(async () => (await Rows()).Count > 0, seconds: 3, every: 0.25);
 				}
 			}
 			await Until(async () => (rows = await Rows()).Count > 0, seconds: 8, every: 0.5);
@@ -1058,6 +1076,11 @@ internal static partial class Program
 			return 1;
 		}
 
+		if (words.Count == 0 && Ui.Json)
+		{
+			Console.WriteLine(JsonOut.Of(rows.Select(r => new { Phase = Field(r, "Phase"), Label = Field(r, "Label"), Value = Field(r, "Value") })));
+			return 0;
+		}
 		if (words.Count == 0)
 		{
 			foreach (var phase in rows.GroupBy(r => Field(r, "Phase")))
@@ -1142,6 +1165,11 @@ internal static partial class Program
 			if (Ui.Ask(name, choices, current: choices.IndexOf(current), cancel: "Vazgeç") is not { } picked) return 0;
 			choice = choices[picked];
 		}
+		else if (Ui.Json)
+		{
+			Console.WriteLine(JsonOut.Of(new { Instruction = name, Value = current, Choices = choices }));
+			return 0;
+		}
 		else
 		{
 			Console.WriteLine($"{name}: {current}\nSeçenekler: {string.Join(" · ", choices)}");
@@ -1210,9 +1238,14 @@ internal static partial class Program
 			.Where(b => Field(b, "Events") == "PanelHistoryClose").Select(b => Field(b, "Pointer")).ToHashSet();
 
 		var beforeCard = await Closers();
-		await Fm.Get("select", ("ptr", Field(lists[at * 2], "Pointer")), ("choice", "Go to Player Instructions"), ("fire", "1"));
+		// Just after the pitch is laid out again the choice can go unanswered, so it is made again.
 		List<JsonElement> tiles = [];
-		if (!await Until(async () => (tiles = await Tiles()).Count > 0, seconds: 8, every: 0.25))
+		for (var attempt = 0; attempt < 3 && tiles.Count == 0; attempt++)
+		{
+			await Fm.Get("select", ("ptr", Field(lists[at * 2], "Pointer")), ("choice", "Go to Player Instructions"), ("fire", "1"));
+			await Until(async () => (tiles = await Tiles()).Count > 0, seconds: 4, every: 0.25);
+		}
+		if (tiles.Count == 0)
 		{
 			Console.Error.WriteLine($"{spot}: oyuncu talimatları açılmadı.");
 			return 1;
@@ -1224,6 +1257,12 @@ internal static partial class Program
 			foreach (var close in (await Closers()).Except(beforeCard)) await Fm.Get("press", ("ptr", close));
 		}
 
+		if (words.Count == 1 && Ui.Json)
+		{
+			Console.WriteLine(JsonOut.Of(new { Position = spot, Role = role, Instructions = tiles.Select(t => new { Label = Field(t, "Label"), Value = Field(t, "Value") }) }));
+			await CloseCard();
+			return 0;
+		}
 		if (words.Count == 1)
 		{
 			Console.WriteLine($"{spot} · {role}");
@@ -1263,6 +1302,11 @@ internal static partial class Program
 			{
 				if (Ui.Interactive && !dry && Ui.Ask($"{spot} · {name}", choices, current: choices.IndexOf(current), cancel: "Vazgeç") is { } picked)
 					words.Add(choices[picked]);
+				else if (Ui.Json)
+				{
+					Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = name, Value = current, Choices = choices }));
+					return 0;
+				}
 				else
 				{
 					Console.WriteLine($"{spot} · {name}: {current}\nSeçenekler: {string.Join(" · ", choices)}");
