@@ -711,7 +711,17 @@ internal static partial class Program
 
 		void Options(TextWriter output)
 		{
-			for (var i = 0; i < answers.Count; i++) output.WriteLine($"  {i + 1}  {Field(answers[i], "Label")}");
+			// A message can carry a quick question of its own (a journalist's, after a match)
+			// beside its answers; the question's answers are a conversation's buttons. Choosing
+			// one of the message's answers first leaves the question open, to be had with `talk`.
+			static bool Asked(JsonElement a) => Field(a, "Name") == "StandardButton";
+			var mixed = answers.Any(Asked) && !answers.All(Asked);
+			for (var i = 0; i < answers.Count; i++)
+			{
+				if (mixed && (i == 0 || Asked(answers[i]) != Asked(answers[i - 1])))
+					output.WriteLine(Asked(answers[i]) ? "  Mesajdaki soruya cevap:" : "  Mesajın kendisine cevap (soru cevapsız kalırsa ardından talk ile sorulur):");
+				output.WriteLine($"  {i + 1}  {Field(answers[i], "Label")}");
+			}
 		}
 
 		async Task<string> Selected()
