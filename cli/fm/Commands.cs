@@ -92,7 +92,7 @@ internal static partial class Program
 		["contract"] = ["--agent", "--term", "--wage", "--next", "--sign", "--cancel", "--yes"],
 		["release"] = ["--free", "--mutual", "--yes"],
 		["propose"] = ["--loan", "--yes"],
-		["mentoring"] = ["--auto"],
+		["mentoring"] = ["new", "remove", "--auto", "--name", "--yes"],
 		["offers"] = ["view", "accept", "stall", "reject", "--yes"],
 		["training"] = ["--report", "--coach", "--trait", "--trait-remove", "--trait-cancel", "--trait-suggest", "--focus", "--position", "--role", "--yes"],
 		["tactic"] = ["new", "slot", "copy", "clear", "pi", "instructions", "mentality", "style", "pick", "role", "player", "--oop", "--dry"],

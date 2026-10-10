@@ -1326,5 +1326,22 @@ Archie Brown    Balanced
 Levent Mercan   Resolute
 ```
 
-Hiç grup yoksa `fm mentoring --auto` grupları yardımcına kurdurur. Elle grup kurmak henüz yok.
+Hiç grup yoksa `fm mentoring --auto` grupları yardımcına kurdurur.
+
+Elle kurmak için önce kimlerin seçilebildiğine bak, sonra üç oyuncuyu yaz (bir grup hep üç kişi):
+
+```
+$ fm mentoring new
+OYUNCU              YAŞ  YÜK     KİŞİLİK            HİYERARŞİ
+Talisca             31   Light   Spirited           Influential Player
+Dorgéles Néné       22   Light   Fairly Determined  Others
+Fred                32   Light   Fairly Loyal       Influential Player
+…
+
+$ fm mentoring new talisca fred nene --name "Deneme Grubu"
+Kuruldu: Deneme Grubu — Talisca, Fred, Dorgéles Néné
+```
+
+`--name` yazmazsan oyun grubu kendisi adlandırır ("Mentoring Group 2"). Bir grubu dağıtmak için
+`fm mentoring remove "<grup>" --yes`; oyun bunu sormadan yaptığı için `--yes` komutta.
 

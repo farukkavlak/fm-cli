@@ -56,6 +56,9 @@ internal static class TableRows
 			catch { continue; }
 
 			if (!Shows(row, wanted, 0)) continue;
+			// The same name can be a row of the page behind as well; the one meant is the one
+			// that has what is asked of it.
+			if (q["check"] is "1" or "0" && Toggle(row, 0) == null) continue;
 
 			var list = row.TableParent;
 			if (list == null) return "error: that row has no list";
@@ -71,18 +74,34 @@ internal static class TableRows
 				return $"row {row.Index} {(toggle.value ? "expanded" : "collapsed")}";
 			}
 
+			// A table that takes several rows ticks them one by one, with the box at the row's
+			// start — the players of a mentoring group (FINDINGS §8.106).
+			if (q["check"] is "1" or "0")
+			{
+				var box = Toggle(row, 0);
+				if (box == null) return "error: that row has no box to tick";
+				// The box only shows the state; what counts is the list's own selection, which a
+				// click on the box adds the row to or takes it from.
+				var selection = list.ListElement?.SelectionInternal;
+				if (selection == null) return "error: that row's list keeps no selection";
+				var on = q["check"] == "1";
+				var before = selection.Contains(row.Index);
+				if (before != on) selection.SetSelected(row.Index, on);
+				return $"row {row.Index} {(before ? "ticked" : "unticked")} -> {(selection.Contains(row.Index) ? "ticked" : "unticked")}";
+			}
+
 			list.SetListSelection(row.Index);
 			return $"selected row {row.Index}";
 		}
 		return $"error: no row shows '{wanted}'";
 	}
 
-	private static ExpandedToggle Toggle(UnityEngine.UIElements.VisualElement element, int depth)
+	private static UnityEngine.UIElements.Toggle Toggle(UnityEngine.UIElements.VisualElement element, int depth)
 	{
-		if (depth > 6) return null;
+		if (depth > 8) return null;
 		try
 		{
-			if (element.TryCast<ExpandedToggle>() is { } toggle) return toggle;
+			if (element.TryCast<UnityEngine.UIElements.Toggle>() is { } toggle) return toggle;
 			var count = element.hierarchy.childCount;
 			for (var i = 0; i < count; i++)
 				if (Toggle(element.hierarchy[i], depth + 1) is { } found) return found;
@@ -93,7 +112,7 @@ internal static class TableRows
 
 	private static bool Shows(UnityEngine.UIElements.VisualElement element, string wanted, int depth)
 	{
-		if (depth > 12) return false;
+		if (depth > 28) return false;
 		try
 		{
 			var text = element.TryCast<UnityEngine.UIElements.TextElement>();

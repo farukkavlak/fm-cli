@@ -111,9 +111,12 @@ internal static class Mcp
 		new("fm_internationals", "Our players' national teams: country, caps and goals in all, and games and goals for it this season.",
 			"""{"type":"object","properties":{}}""",
 			a => ["internationals", "--json"]),
-		new("fm_mentoring", "The mentoring groups (players grouped to learn from one another) with each member's personality. auto=true asks the assistant to set the groups up.",
-			"""{"type":"object","properties":{"auto":{"type":"boolean"}}}""",
-			a => ["mentoring", .. Flag(a, "auto", "--auto"), "--json"]),
+		new("fm_mentoring", "The mentoring groups (three players each, grouped to learn from one another) with each member's personality. auto=true asks the assistant to set the groups up. candidates=true lists who can be picked (age, workload, personality, standing). players (exactly three names, optional name) makes a group; remove takes a group apart (confirm must be true).",
+			"""{"type":"object","properties":{"auto":{"type":"boolean"},"candidates":{"type":"boolean"},"players":{"type":"array","items":{"type":"string"},"minItems":3,"maxItems":3},"name":{"type":"string"},"remove":{"type":"string"},"confirm":{"type":"boolean"}}}""",
+			a => Str(a, "remove") is { Length: > 0 } gone ? ["mentoring", "remove", gone, .. Flag(a, "confirm", "--yes")]
+				: a.TryGetProperty("players", out var players) && players.ValueKind == JsonValueKind.Array ? ["mentoring", "new", .. players.EnumerateArray().Select(p => p.GetString() ?? ""), .. Opt2(a, "name", "--name")]
+				: a.TryGetProperty("candidates", out var c) && c.ValueKind == JsonValueKind.True ? ["mentoring", "new", "--json"]
+				: ["mentoring", .. Flag(a, "auto", "--auto"), "--json"]),
 		new("fm_dynamics", "The dressing room: its atmosphere, how many players back the manager, and each player's place in the hierarchy (Team Leader, Highly Influential, Influential, Other) and social group.",
 			"""{"type":"object","properties":{}}""",
 			a => ["dynamics", "--json"]),

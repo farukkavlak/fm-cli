@@ -3426,6 +3426,30 @@ akışından bu taraf bilgisi çıkmıyor; plugin `/ties` yapıdan okuyor.
 ad bulunamazsa bir kez yeniden yürünüyor. Canlı: Türkiye Kupası (oynanmış / çekilmiş / çekilmemiş tur), Avrupa Ligi
 playoff (toplam skor, penaltı), FA Cup, Premier League, Bundesliga, Şampiyonlar Ligi; belirsiz ad ("cup").
 
+## 8.106 Elle mentorluk grubu (11 Ekim gece)
+
+- Bir grup tam **üç oyuncu** (`MentoringGroupPlayerOne/Two/Three`). Sayfadaki grup listesi bir `SIRadioGroup` (seçenekler
+  grupların adları); çizilen grafik yalnızca **seçili grubun** (`selectedmentoringgroup`). Her grubu okumak için sırayla
+  `/select?name=SIRadioGroup&index=N` ve grafiğin yetişmesini bekleme (ad hemen, üyeler biraz sonra değişiyor). §8.102'deki
+  "her blok ayrı grup" varsayımı yanlıştı: birden çok grupta tek grup, yanlış adla görünüyordu.
+- "Create New Mentoring Group" (`EventFmxAddMentoringGroup` + `OpenPanel`) **grubu hemen yaratıp** düzenleyiciyi açıyor:
+  "0/3 Selected", ad kutusu (`EditBox`), tablo (Sel. / Player / Age / Workload / Personality / Hierarchy), `Confirm`
+  (`EventFmxEditMentoringGroup`, `…EditMentoringGroupName`, `PanelHistoryBack`), `Auto Select`, `Undo Changes`, `Clear All`.
+  Onaylamadan çıkılırsa boş bir grup kalıyor (sayfada yine "3/3" yazıyor); CLI vazgeçince onu siliyor.
+- **Satır işaretlemek:** baştaki kutu sıradan Unity `Toggle`'ı, ama değerini yazmak seçimi saydırmıyor (sayaç "0/3" kalıyor).
+  Sayan şey listenin kendi seçimi: `row.TableParent.ListElement.SelectionInternal.SetSelected(row.Index, true)` →
+  "3/3 Selected", `Confirm` açılıyor. Plugin `/rowselect?text=<ad>&check=1|0`. Dördüncü de işaretlenebiliyor ("4/3").
+- Aynı ad arkadaki sayfanın tablosunda da satır (Training'in oyuncu listesi); `check` isteyen çağrı kutusu olan satırı arıyor.
+  `Shows` derinliği 12'den 28'e çıktı (ad hücrede 13+ kat içeride).
+- Liste sanal (16 satır çiziliyor, kalanı kaydırınca); kaydırma çapası iş yükü hücresi ("Light"), ad değil.
+- Silme: grubu seç, `EventFmxDeleteMentoringGroup` taşıyan ikon butona tıkla — **sormadan** siliyor.
+- ⚠ Radyo grubu sayfadan bir an sonra geliyor. İlk yazımda "önceki gruplar" listesi boş okundu, vazgeçme temizliği bütün
+  grupları yeni sanıp sildi (kayıt edilmemiş oturumda; gruplar yeniden kuruldu). Adlar artık sayfa metni ile radyo grubu
+  aynı şeyi söyleyene dek bekleniyor ve temizlik yalnızca "tam bir fazla grup" varken, o tek grubu siliyor.
+
+`fm mentoring new [<o1> <o2> <o3>] [--name]`, `fm mentoring remove "<grup>" --yes`. Canlı: iki grup kurma (adlı / adsız),
+çok gruplu okuma, aday listesi (artık grup bırakmıyor), olmayan oyuncu, iki oyuncu, onaysız / onaylı dağıtma.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -1200,6 +1200,8 @@ internal static partial class Program
 			  happiness       oyuncuların mutluluğu, en mutsuz önce
 			  internationals  milli oyuncular: ülke, toplam milli maç ve gol, bu sezon oynadıkları
 			  mentoring       mentorluk grupları ve üyeleri;  --auto: grupları yardımcıya kurdur
+			    new [<o1> <o2> <o3>] [--name "<ad>"]   elle grup kur; oyuncusuz: kimler seçilebilir
+			    remove "<grup>" --yes                  grubu dağıt
 			  dynamics        soyunma odası: hava, menajere destek, hiyerarşi ve sosyal gruplar
 			  contracts       sözleşme takvimi: kimin sözleşmesi ne zaman bitiyor, en yakın önce
 			  contracts <oyuncu>  bir oyuncunun sözleşmesi: ücret, statü, primler ve maddeler
