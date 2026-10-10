@@ -357,9 +357,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Tarih formatı — `fm settings tarih`
 - [x] Ölçü birimi — `fm settings boy / kısa mesafe / uzun mesafe / sıcaklık`, maaş haftalık/aylık/yıllık
 - [x] Maç hızı ve gösterimi — `fm settings vurgu hızı / ara hızı / maç gösterimi / dinamik mod`
-- [ ] Detay seviyesi (FM menüsünde "Detail Level" döşemesi)
+- [?] Detay seviyesi — FM26'nın tercihlerinde böyle bir ayar yok (sekmeler: Your World, Audio & Visual, Accessibility, Match Day, Processing, Third Party, Shortcuts; §8.99); yakını `settings diğer maçların hızı`
 - [ ] Hangi ligler yüklü (add/remove league)
-- [ ] Bildirim tercihleri
+- [?] Bildirim tercihleri — FM26'nın tercihlerinde bildirim sekmesi yok (§8.99)
 - [x] Otomatik kaydetme aç / kapat, sıklığı ve türü — `fm settings otomatik kayıt / kayıt sıklığı / kayıt türü`
 - [x] Maç varsayılanı: oynat / anında sonuç — `fm match` terminalde her seferinde soruyor, script'te `--play` / `--instant` (kalıcı bir varsayılan yok, ürün kararı gereği)
 - [ ] Skin / tema (bizde anlamsız ama API'de var)
@@ -456,6 +456,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm settings`'e dört ayar** (akşam, FINDINGS §8.99): oran biçimi, diğer maçların hızı, maç takvimi, okumadan ilerleme yok.
+  ⚠ Deneme sırasında oyun bir kez kilitlendi (ana thread, 13. ardışık ayar değişikliğinde); yeniden başlatıldı, 19 Ekim
+  2025 otomatik kaydından açıldı (Qarabağ 6-0 gitti). Bütün ayarlar eski değerinde.
 - **Gelen teklife mesajsız cevap** (akşam, FINDINGS §8.98): Defrel teklifinin mesajı listeden düşünce oyun "Review Transfer
   Offer"da durdu; Transfer Activity satırındaki ikon butonuyla reddedildi (satış kararı Faruk'un, oyuncu kaldı).
   Sıradaki iş adayı: `fm offers` (bekleyen teklifler + kabul / beklet / reddet), yöntem belli.

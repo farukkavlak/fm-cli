@@ -921,6 +921,11 @@ Bölge ve birimler
   maaş: Haftalık
   tarih: dd/mm/yyyy
   sıcaklık: Santigrat · boy: Santimetre · kısa mesafe: Metre · uzun mesafe: Kilometre
+  oran biçimi: Fractional (e.g. 15-1)
+İşlem
+  diğer maçların hızı: Fast (Less Responsive)        Fast: gün ilerletme daha çabuk
+  maç takvimi: Allow matches to be moved for TV broadcast
+  okumadan ilerleme yok: Kapalı                      bütün mesajlar okunmadan Continue çalışmaz
 ```
 
 Tek bir ayarı adıyla değiştirmek için değeri de yaz; değer yazmazsan seçenekleri okla sunar

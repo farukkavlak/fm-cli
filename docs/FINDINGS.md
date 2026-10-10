@@ -3290,6 +3290,25 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
 - Açık: bunu komuta bağlamak (`fm offers`: bekleyen teklifler + kabul / beklet / reddet). Birden çok teklif varken
   hangi ikon hangi satırın, görülmedi.
 
+## 8.99 Tercihlerin kalan sekmeleri; bir kilitlenme (10 Ekim akşam)
+
+- "All Preferences" sekmeleri: Your World, Audio & Visual, Accessibility, Match Day, Processing, Third Party, Shortcuts.
+  Bildirim ya da "detay seviyesi" diye bir sekme / ayar yok.
+- **Processing:** Continue Game Timeout (liste + kutu), Match Scheduling Options, Speed to Process Other Teams' Matches
+  (Fast / Normal / Slow), Match Storage Space, Continue Button Legacy Mode ("Don't Continue the game until all messages
+  are read"), Automatically Open a Must Respond Message, Disable Fixtures and Results Forced Screen.
+  **Your World**'de ayrıca Match Odds, tarih ayracı, para biçimleri, ondalık / basamak simgeleri.
+- `fm settings`'e eklendi: oran biçimi, diğer maçların hızı, maç takvimi, okumadan ilerleme yok (hepsi değiştirilip geri
+  alındı ✓).
+- ⚠ Processing sekmesinde listeler başlıklarından sonra doluyor: seçenekler boş, seçili değer yok okunabiliyordu
+  ("'fast' bir seçenek değil. Seçenekler:" / "yapıldı ama sayfa yeniden açılınca ?"). `PreferencesTab` artık listelerin
+  dolmasını ve formun iki okumada aynı kalmasını bekliyor; üç turda altı değişiklik temiz ✓. Değişiklikten sonraki
+  doğrulama okuması yine de bir kez "okunamadı" dedi (değer tutmuştu).
+- ⚠ **Kilitlenme:** art arda 13. ayar değişikliğinde ("Automatically Open a Must Respond Message" → açık) köprü
+  "the main thread did not run this request within 30s" dedi ve oyun bir daha cevap vermedi (süreç ayakta, %1 CPU).
+  Yeniden başlatmak gerekti. Neden o ayar mı, sayfayı hızlı açıp kapamak mı, bilinmiyor; o ayar CLI'a eklenmedi
+  (zaten mesajı kendiliğinden açması CLI akışına uymuyor). Tercih kilitlenmeden önce yazılmıştı, sonradan kapatıldı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

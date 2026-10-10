@@ -76,6 +76,13 @@ internal static partial class Program
 		new("boy", "Bölge ve birimler", "Your World", "Height", SettingKind.Dropdown, UnitTurkish),
 		new("kısa mesafe", "Bölge ve birimler", "Your World", "Short Distance", SettingKind.Dropdown, UnitTurkish),
 		new("uzun mesafe", "Bölge ve birimler", "Your World", "Long Distance", SettingKind.Dropdown, UnitTurkish),
+		new("oran biçimi", "Bölge ve birimler", "Your World", "Match Odds", SettingKind.Dropdown),
+		new("diğer maçların hızı", "İşlem", "Processing", "Speed to Process Other Teams' Matches", SettingKind.Dropdown,
+			Hint: "Fast: gün ilerletme daha çabuk"),
+		new("maç takvimi", "İşlem", "Processing", "Match Scheduling Options", SettingKind.Dropdown,
+			Hint: "maçlar yayın için kaydırılsın mı"),
+		new("okumadan ilerleme yok", "İşlem", "Processing", "Continue Button Legacy Mode", SettingKind.Checkbox,
+			Hint: "bütün mesajlar okunmadan Continue çalışmaz"),
 	];
 
 	/// <summary>A setting as found on its page: the control, its choices and which one is in force.</summary>
@@ -269,10 +276,18 @@ internal static partial class Program
 		await Fm.Get("click", ("text", tab), ("name", "DetailedPreferencesTabButton"));
 		// The tab fills in over a few frames: its headings can be there before the lists under them.
 		List<JsonElement> form = [];
+		var read = "";
 		await Until(async () =>
 		{
 			form = (await Fm.GetJson("form", ("anchor", "All Preferences"), ("up", "6"))).EnumerateArray().ToList();
-			return Settings.Where(s => s.Tab == tab).All(s => Locate(s, form) != null);
+			// A list can be on the page before its choices are (seen on Processing: no choices,
+			// nothing in force), and what is there is only trusted once it reads the same twice.
+			var whole = Settings.Where(s => s.Tab == tab).All(s => Locate(s, form) is { } now
+				&& (s.Kind != SettingKind.Dropdown || (now.Choices.Count > 0 && now.Current >= 0)));
+			var key = string.Join("|", form.Select(f => f.GetRawText()));
+			var settled = whole && key == read;
+			read = key;
+			return settled;
 		}, seconds: 8, every: 0.25);
 		if (form.Count == 0) Console.Error.WriteLine($"Ayarlarda {tab} sekmesi okunamadı.");
 		return form.Count == 0 ? null : form;
