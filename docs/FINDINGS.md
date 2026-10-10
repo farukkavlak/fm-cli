@@ -3549,6 +3549,19 @@ devret / geri al, zaten o durumda olan.
 
 `fm youth`.
 
+## 8.113 `/pull` liste değerlerini açıyor; gelişim verisi (11 Ekim gece)
+
+- `/pull`'da değeri `List<TypedValue>` olan özellik artık öğeleri virgülle ayrılmış olarak geliyor (önce yalnızca tipin adı
+  geliyordu; §8.85 ve §8.92'de park edilen şey). İlk okuma boş dönebiliyor (bağlanma gecikmesi), ikincide dolu.
+- **`AbilityProgressHistory`** (kendi oyuncularımızda): son dört aylık ölçüm, her biri **yetenek × 220** (Ederson 35860 →
+  163; Oosterwolde 29700, 29920, 29920, 30360 → 135, 136, 136, 138). Çoğu tam sayı çıkıyor; küsuratlılar (Kahveci 108.3,
+  Asensio 143.4) sakatlık / form düşüşü dönemlerine denk geliyor. Yeni gelen oyuncuda üç ölçüm var (Defrel).
+  `PerceivedPotentialAbility` ile aynı ölçek (/200).
+- Başka kulübün oyuncusunda bu özellik gelmiyor.
+- `RecentFormValuesAllComps` oyuncuda yok; takımlarda denenmedi (tablodaki form sütunu için sıradaki adım).
+
+`fm progress` (kadro tablosu, değişime göre sıralı) ve oyuncu kartında "Yetenek" satırı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

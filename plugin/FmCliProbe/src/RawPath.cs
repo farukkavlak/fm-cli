@@ -158,6 +158,23 @@ internal static class RawPath
 					if (!b.Exists(ref childKey) || b.Get(ref childKey) is not { IsNull: false } now) continue;
 					value = now;
 				}
+				// A value that is itself a list — a run of recent results, a history of numbers —
+				// is given as its entries, comma-separated; as a string it is only its type's name.
+				try
+				{
+					var entriesOf = value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>();
+					if (entriesOf != null)
+					{
+						var parts = new System.Collections.Generic.List<string>();
+						for (var e = 0; e < entriesOf.Count; e++)
+						{
+							try { parts.Add(entriesOf[e] is { IsNull: false } entry ? Text.Clean(entry.AsString()) : ""); } catch { parts.Add("?"); }
+						}
+						fields[name] = string.Join(",", parts);
+						continue;
+					}
+				}
+				catch { }
 				try { fields[name] = Text.Clean(value.AsString()); } catch { }
 			}
 			return Report.Json(fields);

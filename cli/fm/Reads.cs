@@ -278,12 +278,16 @@ internal static partial class Program
 
 		// The potential the club's staff see in him, out of 200. The game turns it into stars
 		// measured against the club's own level, so it is given as the number.
-		var potential = int.TryParse(Field(await Fm.Pull(Field(card.GetProperty("Player"), "Path"), "PerceivedPotentialAbility"), "PerceivedPotentialAbility"), out var pa) && pa > 0 ? pa : 0;
+		var seen = await Fm.Pull(Field(card.GetProperty("Player"), "Path"), "PerceivedPotentialAbility,AbilityProgressHistory");
+		var potential = int.TryParse(Field(seen, "PerceivedPotentialAbility"), out var pa) && pa > 0 ? pa : 0;
+		// His ability at the last four monthly measurements, out of 200 (FINDINGS §8.113).
+		var ability = AbilityHistory(Field(seen, "AbilityProgressHistory"));
 
 		if (json)
 		{
 			var node = System.Text.Json.Nodes.JsonNode.Parse(card.ToString())!;
 			if (potential > 0) node["Player"]!["PerceivedPotentialAbility"] = potential;
+			if (ability.Count > 0) node["Player"]!["AbilityHistory"] = new System.Text.Json.Nodes.JsonArray(ability.Select(v => (System.Text.Json.Nodes.JsonNode)v).ToArray());
 			Console.WriteLine(node.ToJsonString());
 			return 0;
 		}
@@ -303,6 +307,7 @@ internal static partial class Program
 			Prefixed("Sağ ayak ", Field(player, "RightFootednessString")), Prefixed("Sol ayak ", Field(player, "LeftFootednessString")),
 			Suffixed(Field(player, "Height"), " cm"), Field(player, "InternationalCapsAndGoalsString")));
 
+		if (ability.Count > 0) Console.WriteLine($"Yetenek (son dört ay): {string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))} /200");
 		if (potential > 0) Console.WriteLine($"Potansiyel (kulübün gözünden): {potential}/200");
 		var injury = Field(player, "InjuryDescription");
 		if (injury.Length > 0) Console.WriteLine($"Sakatlık: {injury}");
@@ -324,7 +329,7 @@ internal static partial class Program
 		{
 			if (Ui.Rich)
 			{
-				Card.Draw(player, traits, [], potential);
+				Card.Draw(player, traits, [], potential, ability);
 				foreach (var line in history) Console.WriteLine(line);
 			}
 			return 0;
@@ -342,7 +347,7 @@ internal static partial class Program
 
 		if (Ui.Rich)
 		{
-			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList(), potential);
+			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList(), potential, ability);
 			foreach (var line in history) Console.WriteLine(line);
 			Ui.Line($"[dim]Teklif, kısa liste, scout…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]");
 			return 0;
@@ -820,6 +825,56 @@ internal static partial class Program
 			: [Field(row, "TablePosition"), Field(row, "Name"), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
 
 		Table.Write(full ? ["#", "TAKIM", "O", "G", "B", "M", "AV", "P"] : ["#", "TAKIM", "O", "P"], rows);
+	}
+
+	/// <summary>
+	/// The game keeps a player's ability at the last four monthly measurements as whole numbers
+	/// 220 to the point; out of 200 they are what the development graph draws.
+	/// </summary>
+	private static List<double> AbilityHistory(string raw) =>
+		raw.Split(',', StringSplitOptions.RemoveEmptyEntries)
+			.Select(v => double.TryParse(v, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var n) ? Math.Round(n / 220, 1) : -1)
+			.Where(v => v > 0).ToList();
+
+	/// <summary>
+	/// Who is getting better and who worse: every player's ability at the last four monthly
+	/// measurements, and the change across them.
+	/// </summary>
+	private static async Task<int> Progress(bool json)
+	{
+		if (await NotNow() is { } refused) return refused;
+		List<(string Name, string Age, List<double> Ability, int Potential)> rows = [];
+		await Until(async () =>
+		{
+			var pulled = await Fm.GetJson("pull", ("path", "Human.Team.Players"), ("props", "Name,Age,AbilityProgressHistory,PerceivedPotentialAbility"), ("list", "1"));
+			rows = pulled.EnumerateArray().Where(p => Field(p, "Name").Length > 0)
+				.Select(p => (Field(p, "Name"), Field(p, "Age"), AbilityHistory(Field(p, "AbilityProgressHistory")), int.TryParse(Field(p, "PerceivedPotentialAbility"), out var pa) ? pa : 0)).ToList();
+			return rows.Count > 0 && rows.All(r => r.Item3.Count > 0);
+		}, seconds: 8, every: 0.6);
+		if (rows.Count == 0)
+		{
+			Console.Error.WriteLine("Kadro okunamadı.");
+			return 1;
+		}
+		rows = rows.OrderByDescending(r => r.Ability.Count > 0 ? r.Ability[^1] - r.Ability[0] : 0).ThenByDescending(r => r.Ability.LastOrDefault()).ToList();
+
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, r.Age, r.Ability, Change = r.Ability.Count > 0 ? Math.Round(r.Ability[^1] - r.Ability[0], 1) : 0, r.Potential })));
+			return 0;
+		}
+		static string N(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+		Table.Write(["OYUNCU", "YAŞ", "YETENEK (eski → yeni)", "DEĞİŞİM", "POTANSİYEL"], rows.Select(r =>
+		{
+			var change = r.Ability.Count > 0 ? Math.Round(r.Ability[^1] - r.Ability[0], 1) : 0;
+			return new[]
+			{
+				r.Name, r.Age, string.Join(" → ", r.Ability.Select(N)),
+				change > 0 ? "+" + N(change) : change < 0 ? N(change) : "=", r.Potential > 0 ? r.Potential.ToString() : "",
+			};
+		}).ToList());
+		Console.WriteLine("\nYetenek 200 üzerinden, son dört aylık ölçüm; potansiyel kulübün gözünden.");
+		return 0;
 	}
 
 	/// <summary>The team's league among its competitions: the one that is neither European, a cup nor a friendly.</summary>

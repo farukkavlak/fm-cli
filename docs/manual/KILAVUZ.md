@@ -231,6 +231,22 @@ profili.
 fm depth
 ```
 
+### Kim gelişiyor — `progress`
+
+`fm progress` kadrodaki herkesin son dört aylık yetenek ölçümünü (200 üzerinden) ve aradaki değişimi
+verir; en çok gelişen üstte, en çok gerileyen altta. Aynı satır oyuncu kartında da var ("Yetenek").
+
+```
+$ fm progress
+OYUNCU              YAŞ  YETENEK (eski → yeni)      DEĞİŞİM  POTANSİYEL
+Archie Brown        23   130 → 130 → 134.7 → 133.6  +3.6     149
+Jayden Oosterwolde  24   135 → 136 → 136 → 138      +3       149
+Ederson             32   163 → 163 → 163 → 163      =        160
+İrfan Can Kahveci   30   123 → 123 → 122 → 108.3    -14.7    124
+```
+
+Sayılar oyunun gelişim grafiğinin verisi; başka kulüplerin oyuncuları için oyun bunu vermiyor.
+
 ## 6. Oyuncu kartı — `player`, `search`
 
 `fm player <isim>` oyuncunun kartını açar: kimlik, sözleşme, sahadaki mevkisi ve renkli
