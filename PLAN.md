@@ -206,7 +206,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Yedek kulübesini göster — `fm tactic`'in "Yedekler" satırı
 - [ ] İki as oyuncunun yerini değiştirme, kadro dışından oyuncu alma (adları taktik ekranında bağlı değil)
 - [x] Duran top rutinlerini kur — `fm setpieces new`, oyunun altı soruluk sihirbazı (§8.36)
-- [~] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası — `fm penalties` sırayı ve üç kuralı okuyor, kuralları değiştiriyor (§8.87), `penalties move / add / remove` sırayı değiştiriyor (§8.90); duran top düzenleri açık
+- [~] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası — `fm penalties` sırayı ve üç kuralı okuyor, kuralları değiştiriyor (§8.87), `penalties move / add / remove` sırayı değiştiriyor (§8.90); `fm takers` korner, serbest vuruş ve taç atıcılarını okuyor ve değiştiriyor (§8.91); vuruş tipi, hedef ve oyuncu görevleri açık
 - [~] Kaptan / yardımcı kaptan — `fm captains`: okuma, kaptan değişimi; yardımcı yalnızca boşken (§8.58)
 - [~] Taktik kaydet / yükle / kopyala — `fm tactic copy`, `fm tactic clear <n> --yes` (§8.77); dosyaya Save / Load… yok
 - [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
@@ -459,6 +459,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **Duran top atıcıları** (FINDINGS §8.91): `fm takers` beş türün (korner, üç serbest vuruş, hücum bölgesi tacı)
+  sağ ve sol atıcı listelerini veriyor, `fm takers <tür>` özellikleriyle; `takers <tür> <sağ|sol> move / add / remove`
+  sırayı değiştiriyor. Penaltıdaki taşıma kodu ortak hale geldi (`Reorder`). Denemelerden sonra bütün listeler eski
+  haline döndü; oyun 5 Ekim 2025, kaydedilmedi.
 - **Antrenman programı** (FINDINGS §8.73): `fm schedule` bu hafta ve gelecek hafta, her gün üç seans,
   maç günleri sarı. Oyun 5 Ekim 2025.
 - `fm player Fred` açılmıyordu: oyunun araması yalnızca ilk birkaç sonucu gösteriyor, kısa adlı

@@ -3136,6 +3136,36 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
 - Aynı yöntemler sürüklenen öbür tablolara da uymalı (köşe/serbest vuruş atıcıları, kaptan sırası); denenmedi.
   `OnAddItemInternal(object, int)` de var, kullanılmadı.
 
+## 8.91 Duran top atıcıları (10 Ekim gece)
+
+- Match Day › Set Pieces bir seferde tek türü gösteriyor. Tür listesi (ilk seçeneği "Corners" olan `SIDropdown`):
+  Corners, Free Kicks › (Shooting Range, Wide, Deep), Throw-Ins › (Defensive Third, Middle Third, Attacking Third).
+  `/select?ptr=…&names=Free Kicks>Wide&fire=1` türü değiştiriyor; sayfadaki "Set Piece Type" yazısının yanındaki metin
+  hangi türün açık olduğunu söylüyor.
+- Atıcıyı gösteren buton (`taker-button`; taçta `taker-picker-button`) `OpenPanel` ile iki liste açıyor: korner ve
+  serbest vuruşta "Right Footers" / "Left Footers", taçta "Right Side" / "Left Side". İkisi de penaltıdaki gibi
+  `StreamedTable` (`EventFmxSetPieceTakerMove`, `…TakerRemoveFromList`), yanında "Add Player" listesi
+  (`…TakerAddToList`) ve "Set X as the default taker from both sides" anahtarı (`…TakerBothSides`, denenmedi).
+  `/buttons`'taki ilk tablo sağ, ikincisi sol. Kolonlar türe göre: korner Tec / Cro / Cor, serbest vuruş Tec / Fre /
+  Long Sh. (kanat ve derinde üçüncü kolon başka), taç L Th / Position.
+- **Yalnızca hücum bölgesi tacında atıcı seçiliyor**; Defensive Third ve Middle Third sayfalarında buton yok.
+- `/rowmove`, `/rowremove` ve "Add Player" seçimi (§8.90) burada da çalışıyor, sayfadan çıkıp dönünce duruyor ✓
+  (korner sol: ekle 2. sıraya / zaten var / çıkar, üç tur; korner sağ, serbest vuruş sol ve taç sağ: taşı ve geri al).
+  "Add Player" seçeneğinin `PropertyValue`'su burada sayı değil kayıt: `{SetPieceType, SetPieceSide, Index, Player}`;
+  köprü içindeki `Index`'ten yine `#<Index>` adını veriyor. Listede yalnızca o ayağı kullananlar var (sol ayaklılarda
+  Brown, Fred, Oosterwolde, Defrel).
+- ⚠ **Sayfa adım adım çiziliyor.** Sayfa açılır açılmaz yapılan tür seçimi kayboluyor ama liste o türün adını
+  göstermeye devam ediyor (sayfa korneri gösterirken liste "Shooting Range" diyor); bir sonraki açılışta da öyle
+  kalıyor. Tür değişince de eski türün atıcı butonu bir süre yerinde duruyor ve basılınca eski türün listelerini
+  açıyor. CLI her seferinde türü yeniden seçiyor ve listenin, "Set Piece Type" metninin ve butonun iki okumada aynı
+  kalmasını bekliyor; açılan tabloların işaretçileri de öncekilerden farklı olmalı (eski panel yerinde kalabiliyor).
+- ⚠ `/rowremove` bir kez "VisualElements cannot be marked for dirty repaint under an active visual tree" ile
+  döndü (çağrı çizim anına denk geldi, §8.78'deki yarış); satır yine de çıkmıştı. CLI bu hatada önce sayfaya bakıyor,
+  değişiklik görünmüyorsa bir kez daha gönderiyor.
+- Sayfanın kalanı okunmadı: vuruş tipi (Inswinger / Outswinger, `EventFmxSetPieceRoutineDeliverySelect`), hedef
+  ("Aim For": Mixed, Short, Near Post…, `…StrategyConfirmed`), oyuncu görevleri (`…InstrChanged`), Attacking /
+  Defending, rutin kaydet / yükle.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

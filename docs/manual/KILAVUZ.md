@@ -326,6 +326,48 @@ fm penalties remove asensio        listeden çıkar
 Terminalde `fm penalties move` (ya da `add`, `remove`) tek başına yazılırsa oyuncuyu ve yeni
 sırayı okla seçersin. Her değişiklikten sonra yeni sıra basılır.
 
+### Duran top atıcıları — `takers`
+
+```
+$ fm takers
+DURAN TOP                     SAĞ                                                         SOL
+Korner                        1. Kerem Aktürkoğlu, 2. Oğuz Aydın, 3. Nélson Semedo        1. Marco Asensio, 2. Talisca, 3. Levent Mercan
+Serbest vuruş · şut mesafesi  1. Talisca, 2. Marco Asensio, 3. Kerem Aktürkoğlu           1. Talisca, 2. Marco Asensio, 3. Kerem Aktürkoğlu
+Serbest vuruş · kanat         1. Kerem Aktürkoğlu, 2. Mattéo Guendouzi, 3. Nélson Semedo  1. Talisca, 2. Marco Asensio, 3. Fred
+Serbest vuruş · derin         1. Kerem Aktürkoğlu, 2. Mattéo Guendouzi, 3. Nélson Semedo  1. Talisca, 2. Marco Asensio, 3. Fred
+Taç · hücum bölgesi           1. Archie Brown, 2. Dorgéles Néné, 3. Mert Müldür           1. Archie Brown, 2. Dorgéles Néné, 3. Mert Müldür
+```
+
+Her türün iki listesi var: korner ve serbest vuruşta sağ ayaklılar ve sol ayaklılar, taçta sağ taraf ve
+sol taraf. Beş türü dolaştığı için bu komut 15-20 saniye sürer; tek tür 4-5 saniye:
+
+```
+$ fm takers korner
+Korner — sağ ayaklılar  (sağ)
+SIRA  #   OYUNCU            MAÇA          TEKNİK  ORTA  KORNER
+1     9   Kerem Aktürkoğlu  ilk 11 · AML  13      11    14
+2     70  Oğuz Aydın        yedek         13      12    11
+3     27  Nélson Semedo     ilk 11 · DR   15      13    10
+
+Korner — sol ayaklılar  (sol)
+SIRA  #   OYUNCU         MAÇA          TEKNİK  ORTA  KORNER
+1     21  Marco Asensio  ilk 11 · AMR  17      13    15
+2     94  Talisca        ilk 11 · STC  18      13    13
+3     22  Levent Mercan  ilk 11 · DL   14      14    10
+```
+
+Türler: `korner`, `frikik` (şut mesafesi), `kanat`, `derin`, `tac`. Sırayı değiştirmek penaltıdaki gibi,
+araya hangi liste olduğu (`sağ` ya da `sol`) giriyor:
+
+```
+fm takers korner sağ move semedo 1     Semedo sağ ayaklılarda ilk sıraya
+fm takers korner sol add fred 2        Fred'i sol ayaklılara ikinci sıraya ekle
+fm takers frikik sol remove talisca    listeden çıkar
+```
+
+Eklenebilecekler o listenin ayağını kullananlar; yanlış ad yazarsan kimlerin eklenebileceğini söyler.
+Savunma ve orta saha taçlarında oyun atıcı seçtirmiyor.
+
 ### İki oyuncu yan yana — `compare`
 
 `fm compare fred guendouzi` iki oyuncunun kimliğini ve özelliklerini yan yana basar; her
