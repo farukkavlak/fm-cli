@@ -90,6 +90,13 @@ internal static partial class Program
 		if (json && !args.Contains("--sign")) return 0;
 		if (shown is { Stage: "Promises" })
 		{
+			// A card whose promises offer nothing to choose is one the game has locked (seen with
+			// a 34-year-old in his last year, FINDINGS §8.94): --next does nothing on it.
+			if (shown.Rows.Count > 0 && shown.Rows.All(r => r.Choice is { Value: "None Selected", Choices.Count: 0 }))
+			{
+				Console.WriteLine("\nOyun bu kartı kilitli açtı: vaatlerde seçilecek bir şey yok, görüşme ilerlemiyor. Çıkmak için: contract --cancel   (menajere sormak: contract <oyuncu> --agent)");
+				return 1;
+			}
 			Console.WriteLine("\nVaatleri onaylayıp şartlara geçmek için: contract --next   (vaat değiştirmek: --term \"Vaat=değer\")");
 			return 0;
 		}

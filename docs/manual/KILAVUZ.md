@@ -844,6 +844,23 @@ sorar, `contract` da terminalde sorar. İptal edilen görüşme bir süre yenide
 `fm contract Kerem --agent` menajerine yenilemeye açık olup olmadığını sorar; ilgi derecesini
 `talk <numara>` ile seçersin, cevabı görürsün.
 
+### Oyuncuyu kulüplere önermek — `propose`
+
+Satmak ya da kiralamak istediğin oyuncuyu başka kulüplere duyurur (oyundaki "Offer via TransferRoom").
+
+```
+$ fm propose "cengiz ünder" 60M
+Cengiz Ünder kulüplere önerilecek: satış, bonservis £60M
+Göndermek için: propose "Cengiz Ünder" 60000000 --yes
+
+$ fm propose söyüncü --loan --yes
+Çağlar Söyüncü kulüplere kiralık olarak önerilecek.
+Önerildi. İlgilenen kulüpler önümüzdeki günlerde gelen kutusuna düşer.
+```
+
+Ücret yazmazsan bonservis "belirtilmemiş" gider. Terminalde göndermeden önce sorar; script'te `--yes` ister.
+Bir oyuncu bir kez önerilir; ikinci denemede oyun seçeneği göstermez.
+
 ### Serbest bırakma — `release`
 
 ```

@@ -3208,6 +3208,31 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   ikinci seçim; taç Long ↔ Work beş tur. Hepsi eski haline döndü.
 - Açık: "Scenario" (Attacking / Defending), rutin ekleme / kaydetme / yükleme menüleri, savunma ve orta saha taçları.
 
+## 8.94 Kulüplere önerme, kilitli görüşme kartı, bire bir konuşma (10 Ekim akşam)
+
+- **Kulüplere önerme = "Offer via TransferRoom".** Oyuncunun sayfasında **değer** butonu transfer aksiyonlarını açıyor
+  (Set Transfer Status, Offer via TransferRoom, Hire An Intermediary To Sell Player, Ask Agent About Market Interest,
+  Enter Contract Negotiations + transfer / kiralık durumu ve gelen tekliflere otomatik cevap seçenekleri); **maaş**
+  butonu sözleşme aksiyonlarını (§8.76). "Offer via TransferRoom" küçük bir teklif ekranı açıyor: "Transfer Offer" /
+  "Loan Offer" (`EventFmxTransferOfferSelectOfferType`), "Targets (0)" (kulüp seçme paneli, okunmadı), bonservis
+  `FMCombobox`'ı (`/setnumber` çalışıyor: "Unspecified" → "£50K"), ek ücret ve madde listeleri, "Offer Player"
+  (`SpeakToAction`). Kiralıkta bonservis alanı yok, yalnızca ek maddeler. `/offer` okuyucusu bu ekranı görmüyor (`{}`).
+- "Offer Player" onaysız gönderiyor; gönderilince aksiyon listesinden "Offer via TransferRoom" ve "Hire An
+  Intermediary…" kalkıyor (ikinci denemede seçenek yok ✓ negatif test). Transfer dönemi kapalıyken de gönderilebiliyor.
+  Denenenler: Defrel £50K (elle), Cengiz Ünder £60M (`fm propose`), Söyüncü kiralık (`fm propose --loan`).
+- ⚠ Oyuncu sayfasında aksiyon listesi açık kalınca `status` bunu "Açık bir soru var" sanıyor (liste `SpeakToAction`
+  butonları). `propose` işi bitince Portal › Overview'a dönüyor; `contract`'tan "Exit Talks" ile çıkınca aynı şey olur.
+- **Kilitli görüşme kartı.** Defrel (34 yaş, sözleşmesinin son yılı) için "Enter Contract Negotiations" kartı açıyor ama
+  vaatlerin ikisi de "None Selected", seçenek listeleri boş, bütün kontroller kapalı; `--next` hiçbir şey yapmıyor.
+  Müldür'de aynı akış sorunsuz (şartlar → `--sign --yes` → iki gün sonra "Mert Müldür signs new 3-year Fenerbahçe deal"
+  haberi; oyuncunun kararı soru olarak gelmiyor). CLI kilitli kartı söylüyor. Kartta "Cancel Negotiations" yok, çıkış
+  "Exit Talks" butonu (`contract --cancel` bunu bilmiyor — açık).
+- **Bire bir oyuncu konuşması** `fm talk` şablonuyla aynı ✓: sakatlık mesajındaki "Talk to Doğukan About Injury" cevabı
+  konuşmayı açtı ("What can I do for you?"), tek cümle seçildi, tepki "Expressionless → Encouraged (+1)", "End Chat".
+  Konuşmadan sonra mesaj hâlâ tedavi seçimi bekliyor ("You have discussed the issue…", üç seçenek) ama oyun onu artık
+  "cevap bekliyor" diye işaretlemiyor; Continue butonu "Address Injury" diyor. `status` bu durumda gelen kutusuna
+  yönlendiriyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

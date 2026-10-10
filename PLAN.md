@@ -243,10 +243,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Sözleşme görüşmesi — `fm contract [oyuncu]`: kart, vaatler, şartlar, kilitler, menajerin
       karşı teklifi, iptal; kendi oyuncumuzla yenileme (§8.44)
 - [x] Sözleşme maddeleri ve primleri — kartta ekle / kaldır / değiştir, kupa ve ödül primleri dahil (§8.45)
-- [ ] Yenilemede oyuncunun kararı (gelen kutusu) ve "menajere sor" (`Discuss New Contract`) yolu
+- [x] Yenilemede oyuncunun kararı ve "menajere sor" yolu — `contract --agent` (§8.74 civarı); menajer şartları kabul edince karar soru olarak değil haber olarak geliyor ("Mert Müldür signs new 3-year Fenerbahçe deal", iki gün sonra; §8.94)
 - [~] Kiralık — `fm offer --loan`: kart, şartlar, satın alma opsiyonu, gönderildi (§8.46); cevabı ve
       kiralık uzatma (`PersonOfferExtendLoan`) görülmedi
-- [k] Oyuncuyu kulüplere öner — `PersonOfferToClubs`
+- [x] Oyuncuyu kulüplere öner — `fm propose <oyuncu> [ücret] [--loan] [--yes]` ("Offer via TransferRoom", §8.94); hedef kulüp seçmek ve ek maddeler yok
 - [~] Sözleşme feshi / serbest bırakma — `fm release <oyuncu> [--free|--mutual] [--yes]` (§8.76); `--yes` ile gerçek bırakma denenmedi
 - [x] Serbest oyuncular — `fm players --free` ("Contract Expired" süzgeci, §8.92)
 - [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
@@ -345,7 +345,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Basın toplantısı — `fm talk`; liste cevaplı sorular dahil (§8.36)
 - [ ] Maç öncesi/sonrası röportaj
 - [x] Takım toplantısı — `fm talk`: ne dendi, tepkiler, söylenebilecekler (§8.33)
-- [~] Oyuncuyla bire bir konuş — `fm talk` aynı şablonu bekliyor, canlı görülmedi
+- [x] Oyuncuyla bire bir konuş — `fm talk` şablonu canlıda doğrulandı (sakatlık mesajından açılan konuşma, tepki değişimiyle; §8.94)
 - [ ] Oyuncu şikâyetlerini yönet
 - [ ] Soyunma odası atmosferi / takım liderleri
 - [ ] Sosyal medya / haber akışı
@@ -364,7 +364,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Hangi ligler yüklü (add/remove league)
 - [ ] Bildirim tercihleri
 - [x] Otomatik kaydetme aç / kapat, sıklığı ve türü — `fm settings otomatik kayıt / kayıt sıklığı / kayıt türü`
-- [ ] Maç varsayılanı: oynat / anında sonuç — kullanıcı seçecek
+- [x] Maç varsayılanı: oynat / anında sonuç — `fm match` terminalde her seferinde soruyor, script'te `--play` / `--instant` (kalıcı bir varsayılan yok, ürün kararı gereği)
 - [ ] Skin / tema (bizde anlamsız ama API'de var)
 
 ---
@@ -420,7 +420,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] `fm status` — tarih, saat, oyunun neyi beklediği, sıradaki maç, bekleyen mesajlar (§8.32)
 - [x] Onay pencereleri — `fm dialog` gösteriyor / cevaplıyor (§8.34)
 - [x] Geri alınamayan işlerde onay — terminalde sorar, script'te `--yes` ister: `save`, `offer`, `contract`
-- [ ] Geri alma yok — yıkıcı aksiyonlarda uyarı
+- [x] Geri alma yok — yıkıcı aksiyonlarda uyarı: teklif, sözleşme imzası, serbest bırakma / fesih, kayıt, taktik silme, dil değişimi, alışkanlık antrenmanı ve konuşmadaki fesih seçenekleri terminalde soruyor, script'te `--yes` istiyor (10 Ekim taraması)
 - [x] Oyun kapalıysa otomatik başlat (`fm start`)
 
 ---
@@ -459,6 +459,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm propose`** (akşam, FINDINGS §8.94): oyuncuyu kulüplere önerme, satış ya da kiralık; canlıda iki oyuncu önerildi.
+  Bire bir oyuncu konuşması `fm talk` ile canlıda görüldü. Yenilemede oyuncunun kararı haber olarak geliyor (Müldür imzaladı).
+  `contract` kilitli açılan kartı söylüyor (Defrel). Oyun 11 Ekim 2025'e ilerledi (kaydedilmedi; yedek `…2026-10-10-evening.fm`).
 - **`fm setpieces <tür>`** (akşam, FINDINGS §8.93): duran top rutininin vuruş tipi, hedefi ve yer yer oyuncu görevleri;
   okuma ve değiştirme, beş türde. Sayfayı açan basış ara sıra yutuluyordu (oyun Match Day › Overview'da kalıyor);
   `takers` ve `setpieces` artık bir kez yeniden açıyor (12 ardışık çağrıda 12 başarı, üçü yeniden açarak).
