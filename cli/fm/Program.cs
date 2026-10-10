@@ -118,6 +118,7 @@ internal static partial class Program
 				"compare" => await Compare(json, args),
 				"penalties" => await Penalties(json, args),
 				"takers" => await Takers(json, args),
+				"query" => await Query(json, args),
 				"__names" => await OurNames(),
 				"facilities" => await Facilities(json),
 				"contracts" => await ContractsCalendar(json),
@@ -1182,6 +1183,8 @@ internal static partial class Program
 			  board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri
 			  doctor          kadroda ne yanlış: sakatlar, yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri
 			  facilities      tesisler: stadyum (kapasite, zemin, ölçüler), antrenman tesisi, altyapı, ticari
+			  query "<koşullar>"   kadroda sorgu: "yaş<23 ve potansiyel>140", "sözleşme<1yıl", "mevki=ST ve gol>2";  çıplak hali alanları listeler
+			    --sort <alan> / --asc      sıralama (varsayılan: ilk koşulun alanı)
 			  health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler
 			  depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>

@@ -16,7 +16,7 @@ internal static partial class Program
 		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
 		"opposition", "saves", "save", "shortlist", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
-		"dropdowns", "press", "select", "completion", "export", "diff", "compare", "penalties", "takers", "help",
+		"dropdowns", "press", "select", "completion", "export", "diff", "compare", "penalties", "takers", "query", "help",
 	];
 
 	/// <summary>
@@ -36,7 +36,7 @@ internal static partial class Program
 		["kulup"] = "club", ["personel"] = "staff", ["finans"] = "finances", ["taraftar"] = "supporters",
 		["yonetim"] = "board", ["tesis"] = "facilities", ["saglik"] = "health", ["derinlik"] = "depth", ["doktor"] = "doctor",
 		["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["liste"] = "shortlist",
-		["numara"] = "numbers", ["taktik"] = "tactic", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare", ["penalti"] = "penalties", ["aticilar"] = "takers",
+		["numara"] = "numbers", ["taktik"] = "tactic", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare", ["penalti"] = "penalties", ["aticilar"] = "takers", ["sorgu"] = "query",
 	};
 
 	/// <summary>
@@ -80,6 +80,7 @@ internal static partial class Program
 		["penalties"] = ["move", "add", "remove"],
 		["takers"] = ["korner", "frikik", "kanat", "derin", "tac"],
 		["stop"] = ["--save", "--no-save"],
+		["query"] = ["--sort", "--asc"],
 		["next"] = ["--skip"],
 		["match"] = ["--play", "--instant", "--no-talk"],
 		["offer"] = ["--loan", "--dry", "--term", "--yes"],
