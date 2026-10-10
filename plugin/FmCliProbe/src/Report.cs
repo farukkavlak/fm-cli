@@ -62,10 +62,13 @@ internal static class Report
 				fields["Nation"] = nationName;
 
 			// The same player can be bound by more than one list at once — the overview keeps
-			// its tiles while a table is up — and each knows different things about him.
+			// its tiles while a table is up — and each knows different things about him. One
+			// list can hold a field still empty that another has filled (FINDINGS §8.86).
 			if (byName.TryGetValue(name, out var known))
 			{
-				foreach (var (key, value) in fields) known.TryAdd(key, value);
+				foreach (var (key, value) in fields)
+					if (!known.TryGetValue(key, out var had) || (string.IsNullOrEmpty(had) && !string.IsNullOrEmpty(value)))
+						known[key] = value;
 				continue;
 			}
 
