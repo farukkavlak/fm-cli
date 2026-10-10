@@ -279,7 +279,7 @@ internal static partial class Program
 		{
 			// The full-time numbers are the first thing a manager looks at after the whistle.
 			Console.WriteLine();
-			try { await MatchReport.Show(Fm, json: false); } catch (FmError) { }
+			try { await MatchReport.Show(Fm, json: false, expected: score); } catch (FmError) { }
 		}
 		// What holds the game up after the whistle is read afresh: usually the press conference.
 		var after = await Fm.GetJson("state");

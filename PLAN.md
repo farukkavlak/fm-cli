@@ -459,6 +459,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **Maç sonu raporu bayattı** (akşam): `match` bitince basılan rapor bir önceki maçın takımlarını ve istatistiklerini yeni
+  gollerle karışık gösterdi ("Antalyaspor 0-0 Fenerbahçe", Karagümrük 2-0'ından sonra); birkaç saniye sonra `fm report`
+  doğruydu. `match` artık raporu, maçın skoru `LastFixture`'da görünene kadar bekletiyor (en çok 12 sn; bir sonraki maçta
+  doğrulanacak). Karagümrük 2-0; Asensio'nun darbesi oyunu durdurmadı, sakatlık durağı yine denk gelmedi.
 - **`fm dynamics`** (akşam, FINDINGS §8.95): sosyal gruplar, hiyerarşi, kişilik ve menajere destek. Ön anlaşma sözü
   (`contract --term`) canlıda doğrulandı; `contract --cancel` vaat aşamasında da çıkıyor.
 - **`fm propose`** (akşam, FINDINGS §8.94): oyuncuyu kulüplere önerme, satış ya da kiralık; canlıda iki oyuncu önerildi.

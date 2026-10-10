@@ -19,23 +19,33 @@ internal static class MatchReport
 		("Faul", "Fouls"),
 	];
 
-	public static async Task<int> Show(Bridge fm, bool json)
+	public static async Task<int> Show(Bridge fm, bool json, string expected = null)
 	{
 		const string at = "Human.Team.LastFixture";
 		var fields = string.Join(",", new[] { "HasResult", "HomeScore", "AwayScore", "GoalscorersString", "PlayerOfTheMatchRating", "Attendance", "Result", "HomeTeamWon", "AwayTeamWon" }
 			.Concat(Numbers.SelectMany(n => new[] { "Home" + n.Field, "Away" + n.Field })));
 
-		var fixture = await fm.Pull(at, fields);
+		// Straight after the whistle the last fixture is still the one before (seen: the old
+		// match's teams and numbers under the new goals), so a caller that knows the result
+		// waits for it to show.
+		JsonElement fixture = default;
+		string home = "", away = "", star = "", competition = "";
+		for (var attempt = 0; attempt < (expected == null ? 1 : 24); attempt++)
+		{
+			if (attempt > 0) await Task.Delay(500);
+			fixture = await fm.Pull(at, fields);
+			if (F(fixture, "HasResult") != "True") continue;
+			home = F(await fm.Pull(at + ".HomeTeam", "Name"), "Name");
+			away = F(await fm.Pull(at + ".AwayTeam", "Name"), "Name");
+			star = F(await fm.Pull(at + ".PlayerOfTheMatch", "Name"), "Name");
+			competition = F(await fm.Pull(at + ".Competition", "Name"), "Name");
+			if (expected == null || $"{home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}" == expected) break;
+		}
 		if (F(fixture, "HasResult") != "True")
 		{
 			Console.Error.WriteLine("Oynanmış bir maç yok.");
 			return 1;
 		}
-
-		var home = F(await fm.Pull(at + ".HomeTeam", "Name"), "Name");
-		var away = F(await fm.Pull(at + ".AwayTeam", "Name"), "Name");
-		var star = F(await fm.Pull(at + ".PlayerOfTheMatch", "Name"), "Name");
-		var competition = F(await fm.Pull(at + ".Competition", "Name"), "Name");
 
 		if (json)
 		{
