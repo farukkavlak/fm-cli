@@ -3450,6 +3450,24 @@ playoff (toplam skor, penaltı), FA Cup, Premier League, Bundesliga, Şampiyonla
 `fm mentoring new [<o1> <o2> <o3>] [--name]`, `fm mentoring remove "<grup>" --yes`. Canlı: iki grup kurma (adlı / adsız),
 çok gruplu okuma, aday listesi (artık grup bırakmıyor), olmayan oyuncu, iki oyuncu, onaysız / onaylı dağıtma.
 
+## 8.107 Taktiği dosyaya kaydetmek ve yüklemek (11 Ekim gece)
+
+- Taktik menüsü (içinde "Clear Slot" olan etiketsiz liste) › **Save**: panel — "Change Preview Image", başlık kutusu,
+  açıklama kutusu (ikisi de `EditBox`), "No save created yet.", `Cancel` (`PanelHistoryClose`), `Save` (`SaveAddon`).
+  Başlık yazılıp Save'e basılınca `…/Football Manager 26/tactics/<başlık>.fmf` yazılıyor (1 KB) ve **etkin taktiğin adı da
+  başlık oluyor**. Save başlık yazıldıktan bir an sonra açılıyor (hemen tıklanınca "disabled"). Aynı ada yeniden kaydetmek
+  sorusuz üzerine yazdı.
+- **Load...**: "Name / Last saved" tablosu, `Delete` (`EventDeleteAddOn`), `Load` (`EventLoadAddOn, ClosePanel`). Satır
+  `/rowselect` ile seçilince Load açılıyor; yüklenen taktik **etkin yuvadakinin yerine** geçiyor (yuva sayısı değişmiyor).
+  Liste yeni yazılmış dosyayı ilk açılışta göstermeyebiliyor; kapatıp açınca geliyor.
+- Yüklemeden sonra planlayıcı kendiliğinden yeniden bağlanmıyor (`/tactic` boş); sayfa yeniden açılınca ad geliyor.
+- ⚠ Sayfa açıldıktan hemen sonra bulunan menü, değiştirilmekte olan eski sayfanın menüsü olabiliyor; seçim boşa gidiyor.
+  Panel 3 sn'de açılmazsa menü yeniden bulunup seçim tekrarlanıyor (`TacticPanel`).
+- Öbür menüdeki "Load Tactic" (yeni yuvaya) denenmedi; `tactic copy` + `tactic load` aynı işi görüyor.
+
+`fm tactic save "<ad>" [--note] [--yes]`, `fm tactic saved [delete "<ad>" --yes]`, `fm tactic load "<ad>" --yes`. Canlı: iki
+kez kaydet / yükle turu, üzerine yazma, uzun ad, Türkçe karakterli ad ("Öbür"), belirsiz ad, silme.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

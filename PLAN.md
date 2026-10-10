@@ -205,7 +205,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Duran top rutinlerini kur — `fm setpieces new`, oyunun altı soruluk sihirbazı (§8.36)
 - [~] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası — `fm penalties` sırayı ve üç kuralı okuyor, kuralları değiştiriyor (§8.87), `penalties move / add / remove` sırayı değiştiriyor (§8.90); `fm takers` korner, serbest vuruş ve taç atıcılarını okuyor ve değiştiriyor (§8.91); `fm setpieces <tür>` vuruş tipi, hedef ve oyuncu görevlerini okuyor ve değiştiriyor (§8.93); savunma senaryosu, rutin ekleme / kaydetme ve yerler arası sürükleme yok
 - [~] Kaptan / yardımcı kaptan — `fm captains`: okuma, kaptan değişimi; yardımcı yalnızca boşken (§8.58)
-- [~] Taktik kaydet / yükle / kopyala — `fm tactic copy`, `fm tactic clear <n> --yes` (§8.77); dosyaya Save / Load… yok
+- [x] Taktik kaydet / yükle / kopyala — `fm tactic copy`, `fm tactic clear <n> --yes` (§8.77); dosyaya `fm tactic save / saved / load` (§8.107)
 - [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
 - [x] Taktik akıcılığı (familiarity) — `fm tactic` takımın ve on birin yüzdesi (§8.80); evre evre döküm yok
 

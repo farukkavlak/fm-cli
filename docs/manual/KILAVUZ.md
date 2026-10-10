@@ -491,6 +491,9 @@ fm tactic slot 1        1. yuvadaki taktiğe geç
 fm tactic copy          etkin taktiği yeni yuvaya kopyala ("Copy of: …"), kopya etkin olur
 fm tactic clear 2       2. yuvayı boşaltmadan önce ne silineceğini söyler
 fm tactic clear 2 --yes boşalt (oyunun "Are you sure…" sorusu onaylanır); tek taktik silinmez
+fm tactic save "Baskı"  etkin taktiği dosyaya kaydet (--note "<açıklama>"); taktiğin adı da bu olur
+fm tactic saved         kaydedilmiş taktikler;  saved delete "<ad>" --yes: birini sil
+fm tactic load "Baskı"  ne olacağını söyler; --yes ile etkin yuvadaki taktiğin yerine yükler
 ```
 
 ### Takım talimatları — `tactic instructions`

@@ -221,6 +221,12 @@ internal static class Mcp
 		new("fm_tactic_clear", "Clear a tactic slot (it is made active first). Without yes=true it only says what would be deleted. The last tactic is never cleared.",
 			"""{"type":"object","properties":{"slot":{"type":"string"},"yes":{"type":"boolean"}}}""",
 			a => ["tactic", "clear", .. (Str(a, "slot") is { Length: > 0 } n ? new[] { n } : []), .. Flag(a, "yes", "--yes")]),
+		new("fm_tactic_file", "Tactics kept as files. Without arguments: the saved tactics. save=<name> writes the active tactic under that name (the tactic takes the name too; overwrite=true to replace a file). load=<name> puts a saved tactic in the active slot in place of the one there (confirm must be true). delete=<name> removes a file (confirm must be true).",
+			"""{"type":"object","properties":{"save":{"type":"string"},"note":{"type":"string"},"overwrite":{"type":"boolean"},"load":{"type":"string"},"delete":{"type":"string"},"confirm":{"type":"boolean"}}}""",
+			a => Str(a, "save") is { Length: > 0 } saved ? ["tactic", "save", saved, .. Opt2(a, "note", "--note"), .. Flag(a, "overwrite", "--yes")]
+				: Str(a, "load") is { Length: > 0 } loaded ? ["tactic", "load", loaded, .. Flag(a, "confirm", "--yes")]
+				: Str(a, "delete") is { Length: > 0 } gone ? ["tactic", "saved", "delete", gone, .. Flag(a, "confirm", "--yes")]
+				: ["tactic", "saved", "--json"]),
 		new("fm_tactic_new", "Create a tactic through the game's wizard: a style, then a formation in possession, then one out of possession. This is also how the formation is changed: with a tactic in place it goes into a new slot (up to three) and becomes the active one; the old one stays in its slot (fm_tactic_slot). Leave a step out to get its choices listed; the wizard stays where it is.",
 			"""{"type":"object","properties":{"style":{"type":"string"},"in_possession":{"type":"string"},"out_of_possession":{"type":"string"}}}""",
 			a => ["tactic", "new", .. Opt(a, "style"), .. Opt(a, "in_possession"), .. Opt(a, "out_of_possession")]),
