@@ -3516,6 +3516,24 @@ time) · Saves automatically every week · 0 Days, 13 Hours, 55 Minutes · Estim
 iki okuma aynı olana dek beklenmezse kayıt adının yerinde "Credits" okunuyor. `fm world` bunu veriyor ve menüyü
 (`PanelHistoryClose`) kapatıyor. Yüklü kaydın adını veren ikinci yer burası (ilki kayıt tarayıcısının kutusu, §8.104).
 
+## 8.111 Personel sorumlulukları (11 Ekim gece)
+
+- Club › Responsibilities ("Staff Responsibilities"): gruplar halinde uzun, sanal bir liste (2420 px; sekiz grup, 29
+  görev). Grup: ad + `TakeControlAll` ("Take Control of All") + `DelegateAll` ("Delegate All to Recommended"). Görev:
+  başlık, açıklama, "Take Control" / "Delegate" (`buttons-segmented-button-row-…`), `AssignableStaff` listesi (etiketi
+  görev kimdeyse o; seçenekleri adsız `PersonReference`), altında kişinin unvanı. `/form?anchor=&up=12&buttons=1` hepsini
+  okuma sırasıyla veriyor.
+- ⚠ İkili butonun **adı** hangisinin geçerli olduğunu söylemiyor: "Take Control" hep `…-active-…`, "Delegate" hep
+  `…-inactive-…`. Geçerli olan, **basılamayan**: görev menajerdeyken "Take Control" kapalı, "Delegate" açık; devredilmişken
+  tersi. İkisi de kapalıysa görev kilitli (U19 takım seçimi → U19 menajeri).
+- "Delegate"e tıklamak görevi oyunun önerdiği kişiye veriyor (Devin Özek, futbol direktörü); soru sormuyor. Etiket
+  butonlardan bir an sonra güncelleniyor. "Take Control" geri alıyor.
+- Belirli bir kişiye vermek (`AssignableStaff` seçenekleri) denenmedi: seçeneklerin adı `/dropdowns`'ta yok.
+- Yalnızca personel işleri burada; antrenman, transfer, basın gibi öbür devirler bu sayfada değil.
+
+`fm responsibilities [süzgeç]`, `… delegate "<görev>"`, `… take "<görev>"`. Canlı: tam liste, süzme, belirsiz ad, iki görevde
+devret / geri al, zaten o durumda olan.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

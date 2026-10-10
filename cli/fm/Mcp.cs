@@ -254,6 +254,11 @@ internal static class Mcp
 		new("fm_world", "Which save is loaded, when it was last saved (real and in-game), the autosave setting, time played, and the size of the game world: nations, leagues and players loaded, detail levels.",
 			"""{"type":"object","properties":{}}""",
 			_ => ["world", "--json"]),
+		new("fm_responsibilities", "Who does what among the staff duties (hiring and firing, contract renewals, coaching courses, team selection): each duty, who holds it, and whether the manager kept it or delegated it. `filter` narrows the list. `delegate` or `take` with a duty's name (or its distinguishing words) hands it on to the person the game recommends, or takes it back.",
+			"""{"type":"object","properties":{"filter":{"type":"string"},"delegate":{"type":"string"},"take":{"type":"string"}}}""",
+			a => Str(a, "delegate") is { Length: > 0 } d ? ["responsibilities", "delegate", d]
+				: Str(a, "take") is { Length: > 0 } t ? ["responsibilities", "take", t]
+				: ["responsibilities", .. Opt(a, "filter"), "--json"]),
 		new("fm_saves", "The save files on disk, newest first. With `delete`, removes that save (the loaded one is refused); `confirm` must be true.",
 			"""{"type":"object","properties":{"delete":{"type":"string"},"confirm":{"type":"boolean"}}}""",
 			a => Str(a, "delete") is { Length: > 0 } gone ? ["saves", "delete", gone, .. Flag(a, "confirm", "--yes")] : ["saves"]),

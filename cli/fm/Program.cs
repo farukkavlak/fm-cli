@@ -98,6 +98,7 @@ internal static partial class Program
 				"shout" => await Shout(args),
 				"shortlist" => await Shortlist(json),
 				"stages" => await Stages(json, args),
+				"responsibilities" => await Responsibilities(json, args),
 				"world" => await World(json),
 				"scout" => await Scout(json, args),
 				"saves" => args.Length > 1 && args[1] is "delete" or "sil" ? await DeleteSave(args) : Saves(json),
@@ -1213,6 +1214,7 @@ internal static partial class Program
 			  finances        finans: kasa, bu ayın gelir/gideri, borç, FFP, oyuncu tipine göre maaş bordrosu, sponsorluk, projeksiyon
 			  finances gelir|gider [ay|geçen ay|sezon|geçen sezon]   kalem kalem gelir ya da gider
 			  supporters      taraftarlar: hava, beklentiler ve tepkileri, seyirci, kombine, taraftar profili
+			  responsibilities [süzgeç]   personel işleri kimde;  delegate "<görev>" devret · take "<görev>" geri al
 			  board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri
 			    request ["<talep>" --yes]   yönetimden istenebilecekler; adıyla birini iste
 			  doctor          kadroda ne yanlış: sakatlar, yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri

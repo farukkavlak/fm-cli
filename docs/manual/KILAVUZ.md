@@ -1176,6 +1176,30 @@ Karar sonradan gelen kutusuna mesaj olarak düşer ("Number of scouts increased"
 board request - …"). Cevap bekleyen talepler varken oyun yeni talep açtırmıyor; komut o zaman
 "Yönetim şu an talep almıyor" der.
 
+### Kim neyi yapıyor — `responsibilities`
+
+`fm responsibilities` personel işlerinin kimde olduğunu gösterir: işe alma / çıkarma, sözleşme
+yenileme, kurslar, takım seçimi. Yanına bir şey yazarsan süzer (`fm responsibilities u19`).
+
+```
+$ fm responsibilities u19
+Recruit Staff (U19)
+GÖREV                                                    KİMDE         
+Hiring and Firing the Fenerbahçe A.Ş. Under 19s Manager  Faruk Kavlak  sende
+Hiring and Firing Fenerbahçe Under 19s Coaching Staff    Devin Özek    devredildi
+```
+
+Bir işi devretmek ya da geri almak için görevin adını (ayırt eden kelimeleri yeter) yaz:
+
+```
+$ fm responsibilities delegate "renewing chief scout"
+Renewing the Chief Scout's contract: devredildi → Devin Özek
+$ fm responsibilities take "renewing chief scout"
+Renewing the Chief Scout's contract: artık sende.
+```
+
+Devredince işi oyunun önerdiği kişi alır; belirli bir kişiye vermek henüz yok.
+
 ### Tesisler — `facilities`
 
 ![fm facilities](img/facilities.png)
