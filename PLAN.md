@@ -346,7 +346,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Oyuncuyla bire bir konuş — `fm talk` şablonu canlıda doğrulandı (sakatlık mesajından açılan konuşma, tepki değişimiyle; §8.94)
 - [ ] Oyuncu şikâyetlerini yönet
 - [x] Soyunma odası atmosferi / takım liderleri — `fm dynamics`: menajere destek, sosyal gruplar, her oyuncunun hiyerarşisi ve kişiliği (§8.95)
-- [ ] Sosyal medya / haber akışı
+- [~] Sosyal medya / haber akışı — `fm news`: haber sitesindeki başlıklar, konu, yaş ve ilk cümle (§8.97); haberin tamamı ve sosyal medya yok
 - [x] Sözleşme görüşmelerinde diyalog — `fm contract` vaatleri gösteriyor, `--term` ile vaat seçtiriyor / ekletiyor, menajerin cevabını basıyor
 
 ---
@@ -457,6 +457,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm news`** (akşam, FINDINGS §8.97): basın başlıkları. `fm contracts <oyuncu>` (§8.96): sözleşmenin primleri ve
+  maddeleri. `fm propose` uçtan uca doğrulandı: Defrel £50K'ya önerildikten bir hafta sonra Angers aynı bedelle teklif
+  yaptı (mesaj cevapsız bırakıldı — satış kararı Faruk'un).
 - **Maç sonu raporu bayattı** (akşam): `match` bitince basılan rapor bir önceki maçın takımlarını ve istatistiklerini yeni
   gollerle karışık gösterdi ("Antalyaspor 0-0 Fenerbahçe", Karagümrük 2-0'ından sonra); birkaç saniye sonra `fm report`
   doğruydu. `match` artık raporu, maçın skoru `LastFixture`'da görünene kadar bekletiyor (en çok 12 sn; bir sonraki maçta

@@ -99,6 +99,7 @@ internal static partial class Program
 				"captains" => await Captains(args),
 				"depth" => await Depth(json),
 				"happiness" => await Happiness(json),
+				"news" => await News(json),
 				"dynamics" => await Dynamics(json),
 				"prep" => await Prep(json),
 				"schedule" => args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json),
@@ -1149,6 +1150,7 @@ internal static partial class Program
 			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
 			  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
 			  inbox           gelen kutusu
+			  news            basının yazdıkları: haber sitesindeki başlıklar, en yeni önce
 			  reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle

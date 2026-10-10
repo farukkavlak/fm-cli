@@ -1195,3 +1195,17 @@ Düşersek indirim        25%
 
 Yalnızca sözleşmede olan şartlar listelenir. Kupa ve ödül primleri burada görünmüyor (oyun onları ayrı bir listede
 tutuyor); yenileme kartında (`contract <oyuncu>`) görürsün.
+
+### Basın ne yazıyor — `news`
+
+Gelen kutusu değil; oyunun haber sitesindeki başlıklar, en yeni önce. Rakipler, transfer söylentileri, lig.
+
+```
+$ fm news
+Tiago still searching for first goal   · Fatih Karagümrük · 30 dk önce
+    Fatih Karagümrük A.Ş.'s Tiago Çukur has vowed to put an end to growing concern over his lack of goals for the club.
+Argentina call-up unlikely for Barco   · Argentina · 2 saat önce
+Fatih Tekke chasing Muçi   · Beşiktaş · 20 saat önce
+…
+```
+

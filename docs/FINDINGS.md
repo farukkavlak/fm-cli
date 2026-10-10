@@ -3264,6 +3264,18 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
 - Doğrulama: Müldür'ün yeni sözleşmesi imzalanan şartlarla aynı (£31.5K, maç başı £8K, gol yememe £4.7K, yedek £3.9K,
   30/6/2028).
 
+## 8.97 Haber sitesi (10 Ekim akşam)
+
+- Portal › News Site sayfası her haberi bir `NewsItemReference` olarak bağlıyor: `NewsTitleString`,
+  `HeadlineSubTitle` (kulüp, turnuva ya da ülke), `NewsItemAgeString` ("1 day 10 hours 15 minutes ago"),
+  büyük karolarda `NewsBodyString` (ilk cümle), `MediaNewsCategory`. `fm news` `/tree?depth=40`'tan okuyor.
+- Aynı sayfada gelen kutusu mesajları da bağlı (aynı `NewsTitleString`); onların yaşı yok, öyle ayrılıyorlar.
+- ⚠ Sayfa karo karo doluyor ve yarım haliyle de bir an sabit duruyor: iki okuma aynı diye kabul edilince 16 başlığın
+  8'i geldi. Üç okuma şartıyla dört ardışık çağrıda 16 / 16 ✓ (araya başka sayfa açarak).
+- Haberin tamamı karonun butonunda (`NewsItemButton`, `SetNewsActionDataOnPanel`); açılmadı.
+- **Kulüplere önerme sonuç verdi:** Defrel 11 Ekim'de £50K ile önerildi (§8.94), 17 Ekim'de gelen kutusuna "Angers SCO
+  make Defrel offer" düştü (£50,000, pazarlıksız; Accept / Reject / View Offer).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
