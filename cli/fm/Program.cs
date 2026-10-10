@@ -98,6 +98,7 @@ internal static partial class Program
 				"shout" => await Shout(args),
 				"shortlist" => await Shortlist(json),
 				"stages" => await Stages(json, args),
+				"world" => await World(json),
 				"scout" => await Scout(json, args),
 				"saves" => args.Length > 1 && args[1] is "delete" or "sil" ? await DeleteSave(args) : Saves(json),
 				"load" => await LoadNamed(args),
@@ -1226,6 +1227,7 @@ internal static partial class Program
 			  takers [<tür>]  duran top atıcıları: korner, frikik, kanat, derin, tac; türle birlikte iki liste ayrıntısıyla
 			  takers <tür> <sağ|sol> move <oyuncu|sıra> <yeni sıra> · add <oyuncu> [<sıra>] · remove <oyuncu|sıra>   o listenin sırasını değiştir
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
+			  world           yüklü kayıt, son kayıt zamanı, oynanan süre; dünyada kaç ülke / lig / oyuncu yüklü
 			  saves           diskteki kayıtlar, en yenisi önce
 			    delete "<ad>" --yes   bir kaydı sil (yüklü olan silinmez)
 			  load "<ad>"     belirli bir kaydı yükle; oyun bir kayıttaysa kapatıp yeniden açar (--save / --no-save)

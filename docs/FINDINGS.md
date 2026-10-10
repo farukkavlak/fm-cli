@@ -3507,6 +3507,15 @@ alınmayan durum, kararların gelişi.
 
 `fm scout [#|ad] [--matched|--near|--progress]`. Canlı: altı odak, üç sekme, işaretli satırlar, 21 satırlık liste.
 
+## 8.110 FM menüsünden dünya ve kayıt bilgisi (11 Ekim gece)
+
+FM menüsünün (`dashboard-hud-fm-button`) döşemeleri metin olarak: "Add / Remove Leagues · Selected Nations · 5 · Selected
+Leagues · 12 · Approximate player count · 34500 · Game Status · <menajer> · <kulüp> · Playing · 1/32 connections · Detail
+Level · …" ve kayıt bloğu "<kayıt adı> · Save Game · Save Game As · Last saved over 31 minutes ago · (2 days ago in-game
+time) · Saves automatically every week · 0 Days, 13 Hours, 55 Minutes · Estimated game speed:". Döşemeler sırayla doluyor:
+iki okuma aynı olana dek beklenmezse kayıt adının yerinde "Credits" okunuyor. `fm world` bunu veriyor ve menüyü
+(`PanelHistoryClose`) kapatıyor. Yüklü kaydın adını veren ikinci yer burası (ilki kayıt tarayıcısının kutusu, §8.104).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

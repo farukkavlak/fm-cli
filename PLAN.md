@@ -359,7 +359,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Ölçü birimi — `fm settings boy / kısa mesafe / uzun mesafe / sıcaklık`, maaş haftalık/aylık/yıllık
 - [x] Maç hızı ve gösterimi — `fm settings vurgu hızı / ara hızı / maç gösterimi / dinamik mod`
 - [?] Detay seviyesi — FM26'nın tercihlerinde böyle bir ayar yok (sekmeler: Your World, Audio & Visual, Accessibility, Match Day, Processing, Third Party, Shortcuts; §8.99); yakını `settings diğer maçların hızı`
-- [ ] Hangi ligler yüklü (add/remove league)
+- [~] Hangi ligler yüklü (add/remove league) — `fm world`: kaç ülke / lig / oyuncu, detay seviyesi, yüklü kaydın adı ve son kayıt (FM menüsünden); lig ekleyip çıkarmak yok; turnuvaların listesi `fm stages --list`
 - [?] Bildirim tercihleri — FM26'nın tercihlerinde bildirim sekmesi yok (§8.99)
 - [x] Otomatik kaydetme aç / kapat, sıklığı ve türü — `fm settings otomatik kayıt / kayıt sıklığı / kayıt türü`
 - [x] Maç varsayılanı: oynat / anında sonuç — `fm match` terminalde her seferinde soruyor, script'te `--play` / `--instant` (kalıcı bir varsayılan yok, ürün kararı gereği)

@@ -105,6 +105,75 @@ internal static partial class Program
 		return null;
 	}
 
+	/// <summary>The FM menu behind the unlabelled button on the top bar: the save, the world, preferences.</summary>
+	private static async Task<bool> OpenFmMenu()
+	{
+		if (await OnScreen("Save Game As")) return true;
+		var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
+		if (menu.ValueKind != JsonValueKind.Object)
+		{
+			Console.Error.WriteLine("Oyunun FM menüsü bulunamadı.");
+			return false;
+		}
+		await Fm.Get("click", ("ptr", Field(menu, "Pointer")));
+		return await Until(() => OnScreen("Save Game As"), seconds: 8, every: 0.25);
+	}
+
+	/// <summary>
+	/// The game's world and the save it is in, as the FM menu tells it: which file, when it was
+	/// last saved, how many nations, leagues and players are loaded, the detail level, the time
+	/// played.
+	/// </summary>
+	private static async Task<int> World(bool json)
+	{
+		if (await NotNow() is { } refused) return refused;
+		if (!await OpenFmMenu()) return 1;
+
+		// The menu's tiles fill in one after another; it is read once two looks agree.
+		var texts = new List<string>();
+		var previous = "?";
+		await Until(async () =>
+		{
+			texts = (await Fm.GetJson("texts", ("anchor", "Manage settings for this game"), ("up", "12"))).EnumerateArray()
+				.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
+			var key = string.Join("|", texts);
+			var settled = key == previous && texts.Contains("Selected Leagues") && texts.Contains("Estimated game speed:") && texts.IndexOf("Save Game") > 0;
+			previous = key;
+			return settled;
+		}, seconds: 8, every: 0.5);
+
+		string After(string label, int skip = 1) => texts.IndexOf(label) is >= 0 and var at && at + skip < texts.Count ? texts[at + skip] : "";
+		string Before(string label, int back = 1) => texts.IndexOf(label) is var at && at - back >= 0 ? texts[at - back] : "";
+		var saved = After("Save Game As");
+		var when = After("Save Game As", 2) is { } w && w.StartsWith('(') ? w.Trim('(', ')') : "";
+		var auto = texts.FirstOrDefault(t => t.StartsWith("Saves automatically", StringComparison.Ordinal) || t.StartsWith("Autosave", StringComparison.Ordinal)) ?? "";
+		var played = Before("Estimated game speed:");
+		var world = new
+		{
+			Save = Before("Save Game"), LastSaved = saved, LastSavedAt = when, Autosave = auto, Played = played,
+			Nations = After("Selected Nations"), Leagues = After("Selected Leagues"), Players = After("Approximate player count"),
+			Manager = After("Game Status"), Club = After("Game Status", 2), Status = After("Game Status", 3),
+			InternationalDetail = After("International Competition Detail Levels"), CompetitionDetail = After("Competition Detail Levels"),
+		};
+
+		// The menu is a layer over the page; it is closed again so the next command finds the page.
+		var close = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(b => Field(b, "Events") == "PanelHistoryClose");
+		if (close.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
+
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(world));
+			return 0;
+		}
+		Console.WriteLine($"Kayıt     {world.Save}");
+		Console.WriteLine($"          {world.LastSaved}{(when.Length > 0 ? $" ({when})" : "")} · {world.Autosave}");
+		Console.WriteLine($"Oynanan   {world.Played}");
+		Console.WriteLine($"Dünya     {world.Nations} ülke · {world.Leagues} lig · yaklaşık {world.Players} oyuncu");
+		Console.WriteLine($"Detay     turnuvalar: {world.CompetitionDetail} · milli turnuvalar: {world.InternationalDetail}");
+		Console.WriteLine($"Menajer   {world.Manager} · {world.Club} · {world.Status}");
+		return 0;
+	}
+
 	/// <summary>
 	/// Opens the game's save browser (FM menu › Save Game As) and says which box takes the name
 	/// and what is in it — the loaded save's own name, until something else is typed or a row is
@@ -112,17 +181,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<(string Box, string Current)?> OpenSaveBrowser()
 	{
-		if (!await OnScreen("Save Game As"))
-		{
-			var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
-			if (menu.ValueKind != JsonValueKind.Object)
-			{
-				Console.Error.WriteLine("Oyunun FM menüsü bulunamadı.");
-				return null;
-			}
-			await Fm.Get("click", ("ptr", Field(menu, "Pointer")));
-			await Until(() => OnScreen("Save Game As"), seconds: 8, every: 0.25);
-		}
+		if (!await OpenFmMenu()) return null;
 		await Fm.Get("click", ("text", "Save Game As"));
 
 		JsonElement box = default;

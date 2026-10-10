@@ -990,6 +990,18 @@ Hazır: Faruk Kavlak - Fenerbahçe (v02) (12 Ekim 2025 Pazar).
 
 `fm saves delete "<ad>" --yes` bir kaydı siler; geri alınamaz. O an yüklü olan kayıt silinmez.
 
+`fm world` hangi kayıtta olduğunu ve oyunun dünyasını söyler:
+
+```
+$ fm world
+Kayıt     Faruk Kavlak - Fenerbahçe
+          Last saved over 31 minutes ago (2 days ago in-game time) · Saves automatically every week
+Oynanan   0 Days, 13 Hours, 55 Minutes
+Dünya     5 ülke · 12 lig · yaklaşık 34500 oyuncu
+Detay     turnuvalar: Default · milli turnuvalar: Default
+Menajer   Faruk Kavlak · Fenerbahçe A.Ş. · Playing
+```
+
 `fm stop` oyunu kapatır. Kaydedilmemiş ilerleme oyunla birlikte gittiği için önce sorar: "Kaydet ve
 kapat" ya da "Kaydetmeden kapat". Script'te hangisi olduğunu sen söylersin: `fm stop --save` ya da
 `fm stop --no-save`. (Oturumdaki `quit` yalnızca oturumdan çıkar, oyun açık kalır.)
