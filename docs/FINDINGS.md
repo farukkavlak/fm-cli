@@ -3583,8 +3583,9 @@ devret / geri al, zaten o durumda olan.
 - **Kodlar** (toto usulü): 3 galibiyet, 0 yenilgi, 1 golsüz beraberlik, 2 gollü beraberlik; **eskiden yeniye**, beş maç.
   Doğrulama: Göztepe 8G 1B 0M → 3,3,3,3,3; Fenerbahçe (… Beşiktaş 2-3 M, Antalyaspor 0-0 B, Karagümrük 2-0 G) → …,0,1,3;
   bütün turnuvalardaki karşılığı `Human.Team.RecentFormValuesAllComps` = 0,2,1,3,3 (Salzburg 1-1 = 2, Antalyaspor 0-0 = 1).
-- Portal karosundaki ve turnuvanın kendi sayfasındaki tabloda bu hücre yok: form `fm stages <lig>` ile (ve `fm table <başka
-  lig>` ile) geliyor, çıplak `fm table`'da gelmiyor.
+- Portal karosundaki ve turnuvanın kendi sayfasındaki tabloda bu hücre yok. `fm table [turnuva]` bu yüzden artık önce
+  Stages sayfasını deniyor (turnuva orada kendi adıyla ya da "<ülke adı> … <lig>" olarak tek çıkıyorsa; ülke
+  `Human.Team.Nation.Name`): G / B / M / AV ve FORM ile tam tablo, ~9 sn. Olmazsa (eleme turundaki kupa, JSON) eski yol.
 
 ## 9. Sıradaki adımlar
 

@@ -18,6 +18,8 @@ internal static partial class Program
 
 		var words = Words(args).ToList();
 		var all = args.Contains("--all");
+		// Asked for by `table`: the table alone, with nothing said around it.
+		var bare = args.Contains("--bare");
 
 		var opened = await OpenPage("Stages", "Portal");
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
@@ -141,7 +143,8 @@ internal static partial class Program
 				continue;
 			}
 
-			Console.WriteLine($"\n{competition} · {name}");
+			if (bare && table == null) return 1;
+			if (!bare) Console.WriteLine($"\n{competition} · {name}");
 			if (note != null) Console.WriteLine($"Kura henüz çekilmedi; çekiliş {note}.");
 			else if (ties != null) WriteTies(ties.Value);
 			else if (table != null && Ui.Rich) Standings.Draw(table.Value, (await Fm.OwnTeam()).Name);
@@ -156,7 +159,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		if (!all)
+		if (!all && !bare)
 		{
 			Console.WriteLine($"\nAşamalar: {string.Join(" · ", stages.Select(s => string.Join(" › ", s)))}");
 			Console.WriteLine($"Birini görmek için: stages \"{competition}\" \"<aşama>\"   ·   hepsi: --all");

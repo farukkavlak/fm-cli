@@ -751,6 +751,28 @@ internal static partial class Program
 			wanted = chosen;
 		}
 
+		// The Stages page has the whole table — wins, draws, defeats, goal difference and the
+		// last five results — where the portal's tile has games and points; it is used when the
+		// competition can be told apart there, and what follows is the way when it cannot (or
+		// when the stage it is at is a knockout round, with no table).
+		if (!json && File.Exists(CompetitionsFile))
+		{
+			try
+			{
+				var nation = "";
+				await Until(async () => (nation = Field(await Fm.Pull("Human.Team.Nation", "Name"), "Name")).Length > 0, seconds: 3, every: 0.5);
+				var every = System.Text.Json.JsonSerializer.Deserialize<List<string[]>>(File.ReadAllText(CompetitionsFile)) ?? [];
+				// A continental competition goes by its own name there; a domestic one by the
+				// country's ("Super League" is "Turkish Super League").
+				var leagues = every.Where(p => p[^1] == wanted).ToList();
+				if (leagues.Count == 0)
+					leagues = every.Where(p => p[^1].EndsWith(wanted, StringComparison.Ordinal) && p.Contains(nation) && p.Contains("Men's")
+						&& !p.Any(step => step.StartsWith("Under", StringComparison.Ordinal))).ToList();
+				if (nation.Length > 0 && leagues.Count == 1 && await Stages(false, ["stages", leagues[0][^1], "--bare"]) == 0) return 0;
+			}
+			catch (Exception e) when (e is FmError or System.Text.Json.JsonException or IOException) { }
+		}
+
 		// The portal's tile holds the table of the competition the next match is in — the
 		// league most weeks, Europe before a European night — so it is only taken when that is
 		// the one asked for. Any other is on the competition's own page, opened from its name.
