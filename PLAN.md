@@ -454,6 +454,36 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ## Günlük
 
+### 2026-10-11 (gece, otonom — "orta grup")
+
+**Biten komutlar** (her biri canlıda denendi, FINDINGS'te bölümü var):
+
+- **Kayıtlar** (§8.104): `fm load "<ad>"` (kayıttayken oyunu yeniden başlatıp ana menüden yüklüyor), `fm save --as "<ad>"`,
+  `fm saves delete "<ad>"`, `fm start --menu`.
+- **`fm stages`** (§8.105): kupa turları ve eşleşmeleri (penaltı / uzatma / toplam skor), dünyadaki her turnuvanın tablosu;
+  `fm table <başka lig>` buraya düşüyor.
+- **`fm mentoring new / remove`** (§8.106): elle üçlü grup kurma, dağıtma; çok gruplu okuma düzeltildi.
+- **`fm tactic save / saved / load`** (§8.107): taktiği dosyaya kaydet, geri yükle.
+- **`fm board request`** (§8.108): yönetimden 33 tür talep.
+- **`fm scout`** (§8.109): scout odakları ve her odağın bulduğu oyuncular.
+- **`fm world`** (§8.110), **`fm responsibilities`** (§8.111, devret / geri al), **`fm youth`** (§8.112).
+
+**Plugin:** `/rowselect` (satır seç, `check=` işaretle, `expand=`), `/ties`, `/click` devre dışı butonu reddediyor.
+
+**Kayıpsız kazalar:**
+- Devre dışı "Delete"e simüle tıklama oyunu kilitledi (yeniden başlatıldı; koruma eklendi).
+- Mentorluk temizliği bir kez bütün grupları sildi (sayfa tam yüklenmeden okunan boş "önceki" listesi yüzünden);
+  gruplar yeniden kuruldu, okuma artık sayfa oturana dek bekliyor ve en çok bir grubu siliyor.
+
+**Kayıtta ne değişti:** ana kayıt 19 Ekim 2025 haliyle bir kez üzerine yazıldı (farklı kaydet denemesi). Sonrası
+kaydedilmedi: oyun 23 Ekim'e ilerletildi; yönetimden üç talep yapıldı (transfer bütçesi, scout sayısı, U19 antrenör
+sayısı — ikisi kabul edildi); Defrel'in Angers'e satışı onaylandı (1 Ocak 2026'da gidiyor; teklifi akşam sen kabul
+ettirmiştin); mentorluk grubu yeniden kuruldu (Škriniar, Brown, Mercan).
+
+**Park edilenler:** scout odağı kurma / scout atama (iki adımlı sihirbaz, notları §8.109); topla / topsuz ayrı şekil
+(kapsamı belirsiz); rakip raporunda kilit oyuncular (bu rakipte veri yok, lig rakibinde bakılacak); belirli kişiye
+sorumluluk verme; Youth Performance / Candidates sekmeleri.
+
 ### 2026-10-10
 
 - **`fm internationals`** (§8.101) ve **`fm mentoring`** (§8.102) (akşam): milli oyuncular veriden; mentorluk grupları
