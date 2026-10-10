@@ -3166,6 +3166,24 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   ("Aim For": Mixed, Short, Near Post…, `…StrategyConfirmed`), oyuncu görevleri (`…InstrChanged`), Attacking /
   Defending, rutin kaydet / yükle.
 
+## 8.92 Serbest oyuncular, kişi listesine sızan kadro, iki park (10 Ekim gece)
+
+- **Serbest oyuncular** oyuncu veritabanının hazır süzgeci "Contract Expired": satırların durumu `FrA`, kulüp boş
+  (bir amatör dışında). `fm players --free` bunu seçiyor.
+- ⚠ **`/pull`'un kendi düğümleri kişi listelerine sızıyordu.** `list=1` her girdiyi `fmcli.<liste>.<n>` düğümüne
+  koyuyor ve orada bağlı bırakıyor; `/people` ağaçtaki adı ve yaşı (ya da mevkisi) bağlı her `PersonReference`'ı satır
+  sayıyor. `fm squad`, `contracts`, `doctor`, `diff` kadroyu yaşla okuduğu için sonraki `fm players --filter …`
+  listesinde kendi oyuncularımız da çıkıyordu (serbest oyuncular arasında Ederson). `/people` ve `/squad` artık
+  `fmcli.` altındaki düğümleri atlıyor ✓ (squad + contracts sonrası `players --free`: 21 satır, bizden kimse yok;
+  `search`, `shortlist`, `squad` aynı).
+- **Maç hazırlığı odağını değiştirmek (park).** Karttaki odaklar (Build Up, High Press, Attacking Corners, Defending
+  Free Kicks) seans kataloğunda yok (`~/.config/fm-cli/training-sessions.json`, on kategori). Maçtan önceki "Match
+  Focus" seansı takvimde kapalı (`enabledInHierarchy = false`), tıklanamıyor. Odak büyük olasılıkla rakibe göre
+  kendiliğinden seçiliyor; değiştiren bir kontrol bulunamadı.
+- **Gelişim grafiği (park).** `AbilityProgressHistory` `/pull`'da `List<TypedValue>` diye geliyor (liste açılmıyor);
+  §8.85'teki dört sayının ölçeği hâlâ belirsiz. Antrenman raporunun kaydında (`TrainingProgressReportReference`)
+  `AbilityGraphDataFull` / `AbilityGraphDataRecent` / `AbilityProgression` alanları var; grafik oradan denenebilir.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

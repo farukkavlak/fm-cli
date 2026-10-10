@@ -178,7 +178,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
 - [x] Form — `fm squad --fitness` maç formunu, `fm squad --stats` sezon istatistiklerini (§8.80), `fm player <ad> --matches` maç maç puanları veriyor (§8.84)
 - [x] Kariyer geçmişi, transfer geçmişi — `fm player <isim> --career` (§8.63)
-- [~] Gelişim grafiği / potansiyel — potansiyel kartta (§8.85); gelişim grafiği yok (`AbilityProgressHistory` denenmedi)
+- [~] Gelişim grafiği / potansiyel — potansiyel kartta (§8.85); gelişim grafiği yok (`AbilityProgressHistory` dört sayı, ölçeği belirsiz; `/pull` listeyi açmıyor)
 - [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
 - [~] Oyuncu mutluluk durumu — `fm happiness` (§8.59); şikâyetlerin nedeni yok
 - [x] Kadro derinliği analizi (pozisyon bazlı) — `fm depth`, mevki dizgilerinden
@@ -220,7 +220,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Haftalık antrenman programı göster — `fm schedule`: bu hafta ve gelecek hafta, gün gün üç seans (§8.73)
 - [x] Antrenman programı değiştir — `fm schedule set <gün> <1-3> [<seans>]` tek seans, `fm schedule style <gün> [<program>]` bütün hafta (§8.89); kendi programını oluşturmak ("Create New Schedule") yok
-- [~] Maç hazırlığı odağı — `fm prep` okuyor (§8.60); değiştirmek yok
+- [~] Maç hazırlığı odağı — `fm prep` okuyor (§8.60); değiştirmek yok: seans listelerinde bu odaklar yok, "Match Focus" seansı kilitli (§8.92)
 - [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
 - [x] Pozisyon / hareket öğretme — pozisyon `fm training --position` (§8.51), alışkanlık `fm training <oyuncu> --trait` (§8.75)
 - [ ] Mentor / mentee ilişkileri
@@ -248,7 +248,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       kiralık uzatma (`PersonOfferExtendLoan`) görülmedi
 - [k] Oyuncuyu kulüplere öner — `PersonOfferToClubs`
 - [~] Sözleşme feshi / serbest bırakma — `fm release <oyuncu> [--free|--mutual] [--yes]` (§8.76); `--yes` ile gerçek bırakma denenmedi
-- [ ] Serbest oyuncular
+- [x] Serbest oyuncular — `fm players --free` ("Contract Expired" süzgeci, §8.92)
 - [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
 - [x] Menajerle görüşme — `fm contract <oyuncu> --agent`, sonra `talk` (§8.76)
 - [x] Transfer bütçesi ↔ maaş bütçesi — `fm budget ayarla` (§8.65); bütçe artışı istemek yok
@@ -459,6 +459,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **Serbest oyuncular ve bir sızıntı** (FINDINGS §8.92): `fm players --free`. `/pull` ile okunan kendi kadromuz
+  (squad, contracts, doctor…) sonraki `fm players` listesine karışıyordu; köprü artık kendi koyduğu düğümleri kişi
+  listelerine almıyor. Maç hazırlığı odağını değiştirmek ve gelişim grafiği denendi, ikisi de park.
 - **Duran top atıcıları** (FINDINGS §8.91): `fm takers` beş türün (korner, üç serbest vuruş, hücum bölgesi tacı)
   sağ ve sol atıcı listelerini veriyor, `fm takers <tür>` özellikleriyle; `takers <tür> <sağ|sol> move / add / remove`
   sırayı değiştiriyor. Penaltıdaki taşıma kodu ortak hale geldi (`Reorder`). Denemelerden sonra bütün listeler eski

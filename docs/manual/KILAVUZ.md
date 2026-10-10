@@ -641,6 +641,9 @@ Oyuncular
 uygular, `--view "<x>"` kolonları değiştirir. *(Çıktısı şu an dar terminalde dağınık;
 düzeltilince görüntüsü buraya gelecek.)*
 
+Serbest oyuncular için `fm players --free` (sözleşmesi bitmiş olanlar; `--view Contract` ile maaş ve
+statü kolonları gelir). Süzgeç oyunda açık kalır, `fm players --clear` kaldırır.
+
 ### Teklif — `offer`
 
 ```
