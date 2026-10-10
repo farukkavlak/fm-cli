@@ -99,6 +99,7 @@ internal static partial class Program
 				"captains" => await Captains(args),
 				"depth" => await Depth(json),
 				"happiness" => await Happiness(json),
+				"dynamics" => await Dynamics(json),
 				"prep" => await Prep(json),
 				"schedule" => args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json),
 				"settings" => await SettingsCommand(args),
@@ -1176,6 +1177,7 @@ internal static partial class Program
 			  settings        oyun ayarları: maç gösterimi ve hızı, otomatik kayıt, dil, para birimi, birimler
 			  settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
 			  happiness       oyuncuların mutluluğu, en mutsuz önce
+			  dynamics        soyunma odası: hava, menajere destek, hiyerarşi ve sosyal gruplar
 			  contracts       sözleşme takvimi: kimin sözleşmesi ne zaman bitiyor, en yakın önce
 			  club            kulüp özeti: yönetim notu ve hedefler, taraftar, kasa ve maaş, tesisler, ekipteki boşluklar
 			  staff           kulüp personeli: kim hangi işte, yaşı, maaşı, sözleşmesi; ekiplerdeki eksikler ve yönetimin görüşü

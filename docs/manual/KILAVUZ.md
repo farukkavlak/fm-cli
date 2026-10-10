@@ -1156,3 +1156,23 @@ Dosya adı verilmezse rapor ekrana basılır (`fm export | less`).
 `fm mcp` bütün komutları MCP araçları olarak sunar; repo kökündeki `.mcp.json` bunu
 tanımlıyor. Claude Code'da proje açıkken araçlar `fm_status`, `fm_squad`, `fm_match`… adıyla
 gelir. İlk çağrılacak olan `fm_status`: oyunun neyi beklediğini ve hangi aracın onu çözdüğünü söyler.
+
+### Soyunma odası — `dynamics`
+
+Kim kiminle takılıyor, kimin sözü geçiyor, kim nasıl bir karakter.
+
+```
+$ fm dynamics
+Menajere destek: 0 destekliyor · 21 kararsız · 0 karşı
+
+Çekirdek grup (6)
+  This group is made up of players who share similar levels of professionalism.
+OYUNCU            HİYERARŞİ     KİŞİLİK
+Kerem Aktürkoğlu  Takım lideri  Perfectionist
+İsmail Yüksek     Takım lideri  Fairly Determined
+Çağlar Söyüncü    Çok etkili    Fairly Loyal
+…
+```
+
+Gruplar oyunun kendi ayrımı (çekirdek, ikincil A / B, gruba girmeyenler); altındaki cümle grubu neyin bir arada
+tuttuğunu söyler. Takım liderlerini üzmek soyunma odasını çabuk bozar; kaptan seçerken ve birini satarken bak.

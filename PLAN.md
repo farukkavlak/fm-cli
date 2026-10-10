@@ -172,7 +172,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Forma numaraları — `fm numbers` yardımcıya verdiriyor; elle numara verme yok
 - [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); kadro dışındakiler aramayla
 - [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)
-- [~] Gizli öznitelikler (scout görüşü kadarıyla) — kartta kulübün gördüğü potansiyel (`PerceivedPotentialAbility`, /200); kişilik özellikleri, tutarlılık vb. `/pull` ile gelmiyor (§8.85)
+- [~] Gizli öznitelikler (scout görüşü kadarıyla) — kartta kulübün gördüğü potansiyel (`PerceivedPotentialAbility`, /200); kişilik özellikleri, tutarlılık vb. `/pull` ile gelmiyor (§8.85); kişilik `fm dynamics`'te (§8.95)
 - [x] Pozisyon yetkinlikleri — `fm player` mevki başına 1–20 puanı veriyor (§8.80)
 - [x] Sakatlık durumu — `fm player` sakatlığı ve geçmişi (§8.80), `fm squad --view Injuries` listeyi veriyor
 - [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
@@ -249,7 +249,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Oyuncuyu kulüplere öner — `fm propose <oyuncu> [ücret] [--loan] [--yes]` ("Offer via TransferRoom", §8.94); hedef kulüp seçmek ve ek maddeler yok
 - [~] Sözleşme feshi / serbest bırakma — `fm release <oyuncu> [--free|--mutual] [--yes]` (§8.76); `--yes` ile gerçek bırakma denenmedi
 - [x] Serbest oyuncular — `fm players --free` ("Contract Expired" süzgeci, §8.92)
-- [k] Ön anlaşma sözü — `EventFmxAddPreContractPromise`
+- [x] Ön anlaşma sözü — `fm contract --term "<vaat>"` vaat ekliyor, `=kaldır` çıkarıyor ("Add Promise", `EventFmxAddPreContractPromise`; 18 Ekim 2025 oyun gününde Defrel kartında doğrulandı)
 - [x] Menajerle görüşme — `fm contract <oyuncu> --agent`, sonra `talk` (§8.76)
 - [x] Transfer bütçesi ↔ maaş bütçesi — `fm budget ayarla` (§8.65); bütçe artışı istemek yok
 - [~] Takas teklifi — kartta "+ Takasa oyuncu ekle", transfer ya da kiralık (§8.45); takaslı
@@ -343,13 +343,13 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       tek satırda cevaplıyor (§8.29)
 - [x] Tanıtım turları — `fm tour` yürütüyor, `fm tour --skip` atlıyor (§8.30)
 - [x] Basın toplantısı — `fm talk`; liste cevaplı sorular dahil (§8.36)
-- [ ] Maç öncesi/sonrası röportaj
+- [x] Maç öncesi/sonrası röportaj — basın toplantısı gelen kutusundan açılıyor, `fm talk` yürütüyor
 - [x] Takım toplantısı — `fm talk`: ne dendi, tepkiler, söylenebilecekler (§8.33)
 - [x] Oyuncuyla bire bir konuş — `fm talk` şablonu canlıda doğrulandı (sakatlık mesajından açılan konuşma, tepki değişimiyle; §8.94)
 - [ ] Oyuncu şikâyetlerini yönet
-- [ ] Soyunma odası atmosferi / takım liderleri
+- [x] Soyunma odası atmosferi / takım liderleri — `fm dynamics`: menajere destek, sosyal gruplar, her oyuncunun hiyerarşisi ve kişiliği (§8.95)
 - [ ] Sosyal medya / haber akışı
-- [~] Sözleşme görüşmelerinde diyalog — `fm contract` vaat adımını geçip menajerin cevabını basıyor; vaat seçmek yok
+- [x] Sözleşme görüşmelerinde diyalog — `fm contract` vaatleri gösteriyor, `--term` ile vaat seçtiriyor / ekletiyor, menajerin cevabını basıyor
 
 ---
 
@@ -459,6 +459,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm dynamics`** (akşam, FINDINGS §8.95): sosyal gruplar, hiyerarşi, kişilik ve menajere destek. Ön anlaşma sözü
+  (`contract --term`) canlıda doğrulandı; `contract --cancel` vaat aşamasında da çıkıyor.
 - **`fm propose`** (akşam, FINDINGS §8.94): oyuncuyu kulüplere önerme, satış ya da kiralık; canlıda iki oyuncu önerildi.
   Bire bir oyuncu konuşması `fm talk` ile canlıda görüldü. Yenilemede oyuncunun kararı haber olarak geliyor (Müldür imzaladı).
   `contract` kilitli açılan kartı söylüyor (Defrel). Oyun 11 Ekim 2025'e ilerledi (kaydedilmedi; yedek `…2026-10-10-evening.fm`).

@@ -13,7 +13,7 @@ internal static partial class Program
 	[
 		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "contract", "contracts", "release", "propose",
 		"table", "league", "fixtures", "calendar", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
-		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "club",
+		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "dynamics", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
 		"opposition", "saves", "save", "shortlist", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
 		"dropdowns", "press", "select", "completion", "export", "diff", "compare", "penalties", "takers", "query", "help",
@@ -32,7 +32,7 @@ internal static partial class Program
 		["fikstur"] = "fixtures", ["takvim"] = "calendar", ["rapor"] = "report", ["mesaj"] = "inbox", ["gelen"] = "inbox",
 		["cevap"] = "reply", ["ileri"] = "next", ["mac"] = "match", ["bagir"] = "shout", ["degis"] = "sub",
 		["konus"] = "talk", ["antrenman"] = "training", ["hazirlik"] = "prep", ["program"] = "schedule",
-		["yogunluk"] = "intensity", ["butce"] = "budget", ["ayarlar"] = "settings", ["mutluluk"] = "happiness",
+		["yogunluk"] = "intensity", ["butce"] = "budget", ["ayarlar"] = "settings", ["mutluluk"] = "happiness", ["dinamik"] = "dynamics",
 		["kulup"] = "club", ["personel"] = "staff", ["finans"] = "finances", ["taraftar"] = "supporters",
 		["yonetim"] = "board", ["tesis"] = "facilities", ["saglik"] = "health", ["derinlik"] = "depth", ["doktor"] = "doctor",
 		["oner"] = "propose", ["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["liste"] = "shortlist",

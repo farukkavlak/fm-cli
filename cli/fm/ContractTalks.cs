@@ -332,7 +332,15 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> CallOff()
 	{
-		if (await Labelled("Cancel Negotiations", TalksButton) is not { } cancel) return "Görüşmede iptal butonu yok.";
+		if (await Labelled("Cancel Negotiations", TalksButton) is not { } cancel)
+		{
+						// The promises stage has no cancel either: nothing has been put to the agent yet, and
+			// walking off the page is the way out.
+			await Fm.Get("press", ("text", "Exit Talks"), ("any", "1"));
+			await OpenPage("Overview", "Portal");
+			return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25)
+				? null : "Görüşmede iptal butonu yok.";
+		}
 		await Fm.Get("press", ("ptr", Field(cancel, "Pointer")));
 
 		JsonElement dialog = default;

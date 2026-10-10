@@ -3233,6 +3233,24 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   "cevap bekliyor" diye işaretlemiyor; Continue butonu "Address Injury" diyor. `status` bu durumda gelen kutusuna
   yönlendiriyor.
 
+## 8.95 Soyunma odası: sosyal gruplar, hiyerarşi, kişilik (10 Ekim akşam)
+
+- Squad › Dynamics › **Social Groups** her oyuncuyu grubunun altında veriyor: grup adı ("Core Social Group",
+  "Secondary Social Group A / B", "Others"), grubu neyin tuttuğunu söyleyen cümle, "Player · Hierarchy · Personality"
+  başlıkları, sonra oyuncu başına ad, "N year-old …", hiyerarşi ("Team Leader", "Highly Influential Player",
+  "Influential Player", "Others") ve **kişilik** (Perfectionist, Professional, Iron Willed…). `fm dynamics` bu tek
+  sayfayı okuyor; kişilik böylece gizli özniteliklerden okunabilen ilk parça.
+- Aynı sekmedeki **Hierarchy** sayfası oyuncuları hiyerarşiye göre gruplayıp oynama süresini de veriyor; bir adın
+  önündeki kısa etiketler durum bayrağı (Wnt, Inj, Loa, Slt, Unr — önündeki değil **sonraki** oyuncuya ait).
+- `/pull`: `Human.Team.ManagerSupportPlayers{Supportive,Neutral,Opposing}Count` geliyor (0 / 21 / 0);
+  `CurrentDressingRoomAtmosphere` ham sayı (15, ölçeği belirsiz); `SocialGroupFeedbackString` liste (açılmıyor).
+  Oyuncu başına `HierarchyInfluenceCategoryString` ve `SocialGroupString` boş geliyor. Bilinmeyen bir property
+  istenince `/pull` bütün kaydı `{}` döndürüyor.
+- **Vaat eklemek** (`EventFmxAddPreContractPromise`): `fm contract --term "Will appoint player as captain"` ekledi
+  ("Kaptan yapılacak: evet"), `=kaldır` çıkardı ✓. §8.94'teki kilitli kart bir hafta sonra aynı oyuncuda normal açıldı
+  (Playing Time seçenekleri dolu, "Finalise Promises" var); kilit o güne özgüydü, nedeni bilinmiyor. Vaat aşamasında
+  "Cancel Negotiations" da "Exit Talks" da yok; `contract --cancel` sayfadan çıkarak kapatıyor ✓.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
