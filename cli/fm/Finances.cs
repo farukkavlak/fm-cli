@@ -79,6 +79,8 @@ internal static partial class Program
 		(string Competition, string Status) ffp = t.IndexOf("FFP") is var f && f >= 0 && f + 2 < t.Count ? (t[f + 1], t[f + 2]) : ("-", "-");
 
 		var sponsors = await Sponsors();
+		// Ticket prices are not on the card; the club's own data has them, in pounds.
+		var tickets = await Fm.Pull("Human.Team.Club", "MatchTicketPrice,SeasonTicketPrice,SeasonTicketHolders");
 
 		var finances = new
 		{
@@ -93,6 +95,7 @@ internal static partial class Program
 				Total = After("Total Sponsorships income"), Sources = After("Sources"),
 				Deals = sponsors.Select(d => new { Type = d[0], PerSeason = d[1], Until = d[2], Duration = d[3], TotalValue = d[4] }),
 			},
+			Tickets = new { Match = Pounds(Field(tickets, "MatchTicketPrice")), Season = Pounds(Field(tickets, "SeasonTicketPrice")), Holders = Field(tickets, "SeasonTicketHolders") },
 			Projections = projections.Select(p => new { p.Season, p.Balance, p.Turnover }),
 			Months = months.Select(m => new { m.Month, m.Balance }),
 		};
@@ -127,6 +130,10 @@ internal static partial class Program
 		foreach (var (status, players, wage) in statuses.Where(s => s.Players > 0))
 			Row($"{PlayerStatusTurkish[status]} ({players})", $"{wage} haftalık");
 
+		Heading("Bilet");
+		Row("Maç bileti", finances.Tickets.Match);
+		Row("Kombine", int.TryParse(finances.Tickets.Holders, out var holders) ? $"{finances.Tickets.Season} · {holders:N0} kombine sahibi" : finances.Tickets.Season);
+
 		Heading("Sponsorluk");
 		Row("Toplam gelir", $"{finances.Sponsorship.Total} ({finances.Sponsorship.Sources} kaynak)");
 		foreach (var d in sponsors)
@@ -142,6 +149,10 @@ internal static partial class Program
 		else Console.WriteLine("\nKalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]");
 		return 0;
 	}
+
+	private static string Pounds(string raw) =>
+		double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
+			? $"£{Math.Round(v):N0}" : "-";
 
 	/// <summary>
 	/// The sponsorship card, opened from the finances card's sponsorship tile: type, value per season,
