@@ -839,11 +839,22 @@ internal static class Buttons
 			try { button = element.TryCast<SIButton>(); } catch { button = null; }
 			if (button == null) return "error: that element is not a button";
 			if (q["dry"] == "1") return $"dry run, NOT clicked: \"{LabelOf(button)}\" name={NameOf(button)}";
+			if (Disabled(button) && q["force"] != "1") return $"error: \"{LabelOf(button)}\" is disabled";
 
 			button.SimulateButtonClick(q["arg"] == "1");
 			return $"clicked \"{LabelOf(button)}\" name={NameOf(button)}";
 		}
 		return $"error: no element at {q["ptr"]} (the screen may have changed)";
+	}
+
+	/// <summary>
+	/// A disabled button's handler can still be run by a simulated click, and the game is not
+	/// ready for it: the save browser's Delete with nothing selected locked the main thread
+	/// (FINDINGS §8.104).
+	/// </summary>
+	private static bool Disabled(SIButton button)
+	{
+		try { return !button.enabledInHierarchy; } catch { return false; }
 	}
 
 	/// <summary>
@@ -872,6 +883,7 @@ internal static class Buttons
 				// and ?name= says which kind of button is meant.
 				if (!string.IsNullOrEmpty(q["name"]) && NameOf(button) != q["name"]) break;
 				if (q["dry"] == "1") return $"dry run, NOT clicked: \"{wanted}\" name={NameOf(button)}";
+				if (Disabled(button) && q["force"] != "1") return $"error: \"{wanted}\" is disabled";
 				button.SimulateButtonClick(q["arg"] == "1");
 				return $"clicked \"{wanted}\" name={NameOf(button)}";
 			}

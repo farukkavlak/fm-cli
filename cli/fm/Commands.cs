@@ -15,7 +15,7 @@ internal static partial class Program
 		"table", "league", "fixtures", "calendar", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
 		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "dynamics", "news", "internationals", "mentoring", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
-		"opposition", "saves", "save", "shortlist", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
+		"opposition", "saves", "save", "load", "shortlist", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
 		"dropdowns", "press", "select", "completion", "export", "diff", "compare", "penalties", "takers", "query", "help",
 	];
 
@@ -35,7 +35,7 @@ internal static partial class Program
 		["yogunluk"] = "intensity", ["butce"] = "budget", ["ayarlar"] = "settings", ["mutluluk"] = "happiness", ["dinamik"] = "dynamics", ["mentor"] = "mentoring", ["milli"] = "internationals", ["milliler"] = "internationals", ["haber"] = "news", ["haberler"] = "news",
 		["kulup"] = "club", ["personel"] = "staff", ["finans"] = "finances", ["taraftar"] = "supporters",
 		["yonetim"] = "board", ["tesis"] = "facilities", ["saglik"] = "health", ["derinlik"] = "depth", ["doktor"] = "doctor",
-		["oner"] = "propose", ["teklifler"] = "offers", ["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["liste"] = "shortlist",
+		["oner"] = "propose", ["teklifler"] = "offers", ["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["yukle"] = "load", ["liste"] = "shortlist",
 		["numara"] = "numbers", ["taktik"] = "tactic", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare", ["penalti"] = "penalties", ["aticilar"] = "takers", ["sorgu"] = "query",
 	};
 
@@ -81,6 +81,9 @@ internal static partial class Program
 		["takers"] = ["korner", "frikik", "kanat", "derin", "tac"],
 		["setpieces"] = ["new", "korner", "frikik", "kanat", "derin", "tac"],
 		["stop"] = ["--save", "--no-save"],
+		["load"] = ["--save", "--no-save"],
+		["save"] = ["--yes", "--as"],
+		["saves"] = ["delete", "--yes"],
 		["query"] = ["--sort", "--asc"],
 		["next"] = ["--skip"],
 		["match"] = ["--play", "--instant", "--no-talk"],
@@ -97,7 +100,7 @@ internal static partial class Program
 		["captains"] = ["--captain", "--vice"],
 		["intensity"] = ["--auto"],
 		["tour"] = ["--skip"],
-		["start"] = ["--debug"],
+		["start"] = ["--debug", "--menu"],
 		["completion"] = ["zsh", "bash"],
 	};
 

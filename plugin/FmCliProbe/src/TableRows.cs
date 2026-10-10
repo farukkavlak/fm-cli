@@ -35,6 +35,77 @@ internal static class TableRows
 		return $"removed row {index}";
 	}
 
+	/// <summary>
+	/// Selects the row that shows a text, as a click on it would: the row's own list is told its
+	/// index. A page's buttons that act on "the selected one" stay disabled until this is done —
+	/// the save browser's Delete (FINDINGS §8.104).
+	/// </summary>
+	public static string Select(NameValueCollection q)
+	{
+		var wanted = q["text"];
+		if (string.IsNullOrEmpty(wanted)) return "error: ?text=<a cell's text> required";
+
+		foreach (var e in Buttons.Elements())
+		{
+			TableRowNavigatable row;
+			try
+			{
+				row = e.TryCast<TableRowNavigatable>();
+				if (row == null || row.panel == null || row.worldBound.width <= 0) continue;
+			}
+			catch { continue; }
+
+			if (!Shows(row, wanted, 0)) continue;
+
+			var list = row.TableParent;
+			if (list == null) return "error: that row has no list";
+			if (q["dry"] == "1") return $"dry run, NOT selected: row {row.Index}";
+
+			// A row that stands for several — a career with its older files — opens with the
+			// toggle at its start.
+			if (q["expand"] is "1" or "0")
+			{
+				var toggle = Toggle(row, 0);
+				if (toggle == null) return "error: that row has nothing to expand";
+				toggle.value = q["expand"] == "1";
+				return $"row {row.Index} {(toggle.value ? "expanded" : "collapsed")}";
+			}
+
+			list.SetListSelection(row.Index);
+			return $"selected row {row.Index}";
+		}
+		return $"error: no row shows '{wanted}'";
+	}
+
+	private static ExpandedToggle Toggle(UnityEngine.UIElements.VisualElement element, int depth)
+	{
+		if (depth > 6) return null;
+		try
+		{
+			if (element.TryCast<ExpandedToggle>() is { } toggle) return toggle;
+			var count = element.hierarchy.childCount;
+			for (var i = 0; i < count; i++)
+				if (Toggle(element.hierarchy[i], depth + 1) is { } found) return found;
+		}
+		catch { }
+		return null;
+	}
+
+	private static bool Shows(UnityEngine.UIElements.VisualElement element, string wanted, int depth)
+	{
+		if (depth > 12) return false;
+		try
+		{
+			var text = element.TryCast<UnityEngine.UIElements.TextElement>();
+			if (text != null && Text.Plain(text.text ?? "") == wanted) return true;
+			var count = element.hierarchy.childCount;
+			for (var i = 0; i < count; i++)
+				if (Shows(element.hierarchy[i], wanted, depth + 1)) return true;
+		}
+		catch { }
+		return false;
+	}
+
 	private static StreamedTable Find(NameValueCollection q, out string error)
 	{
 		error = null;

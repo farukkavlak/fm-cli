@@ -36,7 +36,7 @@ internal static class Launcher
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
 			"Library/Application Support/Steam/steamapps/common", AppName);
 
-	public static async Task<bool> Start(Bridge fm, bool debug)
+	public static async Task<bool> Start(Bridge fm, bool debug, bool load = true)
 	{
 		// An already-running game is attached to rather than refused: the save may still need
 		// loading, which is the part worth doing.
@@ -44,7 +44,7 @@ internal static class Launcher
 		{
 			Console.WriteLine($"FM zaten açık — ona bağlanıyorum{(debug ? "" : ", pencereyi küçültüyorum")}.");
 			if (!debug) Minimise();
-			return await LoadSave(fm);
+			return !load || await LoadSave(fm);
 		}
 
 		var script = Path.Combine(GameDirectory, "run_bepinex_arm64.sh");
@@ -69,7 +69,7 @@ internal static class Launcher
 
 		if (!debug) Minimise();
 
-		return await LoadSave(fm);
+		return !load || await LoadSave(fm);
 	}
 
 	/// <summary>

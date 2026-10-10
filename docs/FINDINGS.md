@@ -3362,6 +3362,38 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   Progress (7)" (`EventFmxRecruitmentFocusChangeResultsTable`), konuşma butonları "Edit / Remove / Create a New
   Recruitment Focus". Odak listesi ve sonuç tablosunun satırları metinde de `/people`'da da yok.
 
+## 8.104 Kayıt tarayıcısı: farklı kaydet, sil, belirli kaydı yükle (10 Ekim gece)
+
+**Oyun içinde.** FM menüsü (`dashboard-hud-fm-button`) › "Save Game As" kayıt tarayıcısını açıyor: bir isim kutusu
+(`BindableTextEditBox #EditBox`, içinde o an yüklü kaydın adı — yüklü kaydın adını veren tek yer bu; `game.GameName`
+boş), "Name / Last saved" tablosu (klasördeki bütün `.fm`'ler), `Delete` (`DeleteSelectedGame`), `Cancel`
+(`ClosePanel`), `Save` (`SaveGame`).
+- **Farklı kaydet:** kutuya `/type` ile adı yaz, `Save`'e tıkla; `Saving` kalkıp iniyor, dosya 2 sn'de yazılıyor. Ad
+  varsa "Replace Existing File?" (Cancel / Confirm) soruyor. Sonraki kayıtlar yeni dosyaya gidiyor.
+- **Sil:** satırı seç → `Delete` açılıyor → "Delete File" (No / Yes) → dosya diskten gidiyor. Satır seçmek kutuya o
+  satırın adını yazıyor: silmeden sonra `Cancel` ile çıkılmalı, `Save` ile değil.
+- **Satır seçmek:** `TableRowNavigatable.TableParent.SetListSelection(row.Index)` — plugin `/rowselect?text=<hücre
+  yazısı>[&dry=1]` (`&expand=1|0` satırdaki `ExpandedToggle`'ı çeviriyor; kayıt listesinde bir etkisi görülmedi).
+- ⚠ **Devre dışı butona simüle tıklama oyunu kilitledi:** hiçbir satır seçili değilken `Delete`'e `/click` ana thread'i
+  dondurdu, oyun yeniden başlatıldı. `/click` artık devre dışı butonu reddediyor (`force=1` ile zorlanır).
+- ⚠ Önceki oturumdan cevapsız kalmış bir pencere (mentorluk onayı) açıkken yeni pencere ("Replace Existing File?")
+  görünmüyor, `/dialog` eskisini veriyor; eskisi cevaplanınca yenisi geliyor.
+
+**Ana menüde.** Oyun içinde "Load Game" yok: başka kayıt yalnızca ana menüden yükleniyor ("Load an FM26 career…"
+döşemesi, `LoadGameTileSelection`). Açılan ekran aynı tablo + `Delete` + `Load` (`LoadSelectedGame, ClosePanel`);
+satır seçilince sağda kaydın özeti (boyut, oyun tarihi, ülkeler, menajer / takım) çıkıyor ve `Load` açılıyor.
+"Browse" aynı listeyi dosya adlarıyla (`.fm`) veriyor, "Back to last saves" geri döndürüyor.
+- Liste sanal: gizli penceredeki ekranda yalnızca **üç satır** çiziliyor (ilk açılışta bazen bir). Kalanlar `/scroll`
+  ile geliyor; kaydırma çapası olarak satırın tarihi kullanılıyor, çünkü kaydın adı arkadaki ana menü döşemesinde de
+  yazıyor ve `/scroll` ilk bulduğunu alıyor.
+- macOS dosya adını ayrık harfle veriyor ("c" + sedil), oyun birleşik "ç" gösteriyor; CLI ICU'suz derlendiği için
+  `string.Normalize()` hiçbir şey yapmıyor. Adlar elle birleştiriliyor (`Composed`), yoksa satır bulunmuyor.
+- `fm load` bir kayıttayken oyunu kapatıp `fm start --menu` gibi ana menüye açıyor, sonra satırı seçip `Load`'a basıyor:
+  ana menüden 14 sn, yeniden başlatmayla ~80 sn.
+
+Canlı doğrulama: farklı kaydet (yeni ad, var olan ad), yüklü kaydı silmeyi reddetme, silme, ana menüden eski yedeği
+(`(v02)`) yükleme, kayıttayken yeniden başlatarak yükleme, olmayan / belirsiz ad.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

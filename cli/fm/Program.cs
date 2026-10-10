@@ -16,7 +16,9 @@ internal static partial class Program
 
 		if (args[0] == "start")
 		{
-			if (!await Launcher.Start(Fm, args.Contains("--debug"))) return 69;
+			// --menu stops at the main menu: the save to load is then chosen with `load`.
+			if (!await Launcher.Start(Fm, args.Contains("--debug"), load: !args.Contains("--menu"))) return 69;
+			if (args.Contains("--menu")) return 0;
 			return await Session.Run(Run);
 		}
 
@@ -95,7 +97,8 @@ internal static partial class Program
 				"intensity" => await Intensity(args),
 				"shout" => await Shout(args),
 				"shortlist" => await Shortlist(json),
-				"saves" => Saves(json),
+				"saves" => args.Length > 1 && args[1] is "delete" or "sil" ? await DeleteSave(args) : Saves(json),
+				"load" => await LoadNamed(args),
 				"opponent" => await Opponent(json),
 				"captains" => await Captains(args),
 				"depth" => await Depth(json),
@@ -151,7 +154,7 @@ internal static partial class Program
 				"select" => await Select(args),
 				"status" => await Status(json),
 				"continue" => await Continue(),
-				"start" => await Attach(args.Contains("--debug")),
+				"start" => await Attach(args.Contains("--debug"), !args.Contains("--menu")),
 				"stop" => await Stop(args),
 				"help" or "--help" or "-h" => Help(),
 				_ => Unknown(command),
@@ -175,8 +178,8 @@ internal static partial class Program
 	}
 
 	/// <summary>`start` typed inside a session, or with the game already up.</summary>
-	private static async Task<int> Attach(bool debug) =>
-		await Launcher.Start(Fm, debug) ? 0 : 69;
+	private static async Task<int> Attach(bool debug, bool load = true) =>
+		await Launcher.Start(Fm, debug, load) ? 0 : 69;
 
 	private static async Task<int> Continue() => await Launcher.LoadSave(Fm) ? 0 : 69;
 
@@ -1119,7 +1122,7 @@ internal static partial class Program
 	private const string HelpText = """
 			fm — Football Manager 26'yı terminalden yönet
 
-			  fm start        oyunu başlat, kaydı yükle, oturuma gir
+			  fm start        oyunu başlat, kaydı yükle, oturuma gir   (--menu: kayıt yüklemeden ana menüde bırak)
 			    --debug       pencereyi göster (normalde Dock'ta ve ekranda görünmez)
 			  fm              oturuma gir (oyun açıkken)
 			  stop            oyunu kapat; önce kaydedilsin mi diye sorar (--save / --no-save)
@@ -1217,6 +1220,8 @@ internal static partial class Program
 			  takers <tür> <sağ|sol> move <oyuncu|sıra> <yeni sıra> · add <oyuncu> [<sıra>] · remove <oyuncu|sıra>   o listenin sırasını değiştir
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
 			  saves           diskteki kayıtlar, en yenisi önce
+			    delete "<ad>" --yes   bir kaydı sil (yüklü olan silinmez)
+			  load "<ad>"     belirli bir kaydı yükle; oyun bir kayıttaysa kapatıp yeniden açar (--save / --no-save)
 			  diff            son bakıştan bu yana ne değişti: lig sırası, kasa, bütçe, gelen/giden, sakatlar, sözleşmeler, maç/gol/asist
 			    --keep        bu bakışı kaydetme (karşılaştırma yine öncekiyle);  --reset: yalnızca şimdiki hali kaydet
 			  export [dosya.md] [komut…]  komutların çıktısı başlık başlık tek Markdown rapor (varsayılan: durum, kadro,
@@ -1256,6 +1261,7 @@ internal static partial class Program
 			    --dry                     press ve select için: yapma, ne yapacağını söyle
 			  status          tarih ve oyunun şu an neyi beklediği
 			  save --yes      oyunu kaydet (dosyanın üzerine yazar, geri alınamaz)
+			    --as "<ad>"   başka adla kaydet; sonraki kayıtlar da o dosyaya gider
 
 			  --json          ham veri (script'lenebilir)
 			  completion zsh  tab tamamlama: ~/.zshrc'ye `source <(fm completion zsh)`; bash'te `eval "$(fm completion bash)"`

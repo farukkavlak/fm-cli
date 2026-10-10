@@ -142,10 +142,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Oyunu başlat (`fm start`)
 - [x] **Son kaydı yükle** (`LoadSelectedGameEvent`)
 - [x] Kayıtları listele (`fm saves`)
-- [ ] Belirli kaydı yükle (`fm load "Fenerbahçe"`)
+- [x] Belirli kaydı yükle — `fm load "<ad>" [--save|--no-save]`; kayıttayken oyunu yeniden başlatıyor (§8.104); `fm start --menu`
 - [x] Kaydet — `fm save --yes`, dosyanın üzerine (§8.35)
-- [ ] Farklı kaydet (kayıt tarayıcısı paneli: `SaveGameHandlerModule.m_saveBrowserPanel`)
-- [ ] Kaydı sil (`DeleteSelectedGameEvent` mevcut)
+- [x] Farklı kaydet — `fm save --as "<ad>" --yes` (§8.104)
+- [x] Kaydı sil — `fm saves delete "<ad>" --yes`; yüklü kayıt silinmez (§8.104)
 - [x] Oyunu kapat — `fm stop` (önce kaydedilsin mi diye sorar; `--save` / `--no-save`)
 - [x] Otomatik kaydetme ayarı — `fm settings` (§8.61); ⚠ açıkken ana dosyanın üzerine yazıyor (§8.35)
 - [ ] Bulut kayıt durumu

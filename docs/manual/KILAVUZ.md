@@ -895,9 +895,35 @@ terminalde okla seçersin, script'te `budget ayarla <adım>`. Seçmezsen hiçbir
   15  Transfer £11,074,688    · Maaş £2,128,023 p/w  ← şu an
 ```
 
-## 11. Kaydetmek ve oyun ayarları — `save`, `settings`
+## 11. Kaydetmek, yüklemek ve oyun ayarları — `save`, `saves`, `load`, `settings`
 
 `fm save --yes` oyunu kaydeder. Mevcut kaydın üzerine yazar, o yüzden `--yes` ister.
+
+`fm save --as "deneme" --yes` başka adla kaydeder. Yüklediğin dosya olduğu gibi kalır; oyun bundan
+sonra yeni dosyaya kaydeder (kendi otomatik kayıtları da oraya gider). O adda bir kayıt varsa üzerine
+yazar; `--yes` olmadan hangisinin olacağını söyler:
+
+```
+$ fm save --as "deneme"
+Oyun 'deneme' adıyla yeni bir dosyaya kaydedilir (19 Ekim 2025 Pazar); sonraki kayıtlar da oraya gider.
+Onaylamak için: save --as "deneme" --yes
+```
+
+`fm saves` diskteki kayıtları gösterir. `fm load "<ad>"` bunlardan birini yükler. Adın tamamını
+yazmak gerekmez: `fm load v02`, adında "v02" geçen tek kaydı bulur. Oyun bir kaydı yalnızca ana
+menüden yüklediği için, o an bir kayıttaysan oyun kapatılıp yeniden açılır (bir iki dakika) ve
+kaydedilmemiş ilerleme gider; bu yüzden önce sorar ("Önce kaydet" / "Kaydetmeden yükle"), script'te
+`--save` ya da `--no-save` dersin. `fm start --menu` oyunu kayıt yüklemeden ana menüde açar.
+
+```
+$ fm load v02 --no-save
+Oyun kapatılıyor…
+FM başlatılıyor…
+'Faruk Kavlak - Fenerbahçe (v02)' yükleniyor…
+Hazır: Faruk Kavlak - Fenerbahçe (v02) (12 Ekim 2025 Pazar).
+```
+
+`fm saves delete "<ad>" --yes` bir kaydı siler; geri alınamaz. O an yüklü olan kayıt silinmez.
 
 `fm stop` oyunu kapatır. Kaydedilmemiş ilerleme oyunla birlikte gittiği için önce sorar: "Kaydet ve
 kapat" ya da "Kaydetmeden kapat". Script'te hangisi olduğunu sen söylersin: `fm stop --save` ya da

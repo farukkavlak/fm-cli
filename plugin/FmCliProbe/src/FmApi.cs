@@ -69,6 +69,7 @@ internal static class FmApi
 		"setcontrol" => Form.Set(q),
 		"rowmove" => TableRows.Move(q),
 		"rowremove" => TableRows.Remove(q),
+		"rowselect" => TableRows.Select(q),
 		"scoped" => Scoped.Handle(q),
 		"opposition" => Opposition.Current(),
 		"namedrows" => NamedRows.Read(q),

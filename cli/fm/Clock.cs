@@ -222,6 +222,16 @@ internal static partial class Program
 			return 1;
 		}
 
+		if (Array.IndexOf(args, "--as") is >= 0 and var at)
+		{
+			if (at + 1 >= args.Length || args[at + 1].StartsWith("--", StringComparison.Ordinal))
+			{
+				Console.Error.WriteLine("Hangi adla?  save --as \"<ad>\" --yes");
+				return 64;
+			}
+			return await SaveAs(args[at + 1], state, args.Contains("--yes"));
+		}
+
 		if (!args.Contains("--yes"))
 		{
 			Console.Error.WriteLine($"Bu, kayıt dosyasının üzerine yazar ({Pretty(Field(state, "Date"))} durumuyla); geri alınamaz.");
