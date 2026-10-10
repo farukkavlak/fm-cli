@@ -206,7 +206,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Yedek kulübesini göster — `fm tactic`'in "Yedekler" satırı
 - [ ] İki as oyuncunun yerini değiştirme, kadro dışından oyuncu alma (adları taktik ekranında bağlı değil)
 - [x] Duran top rutinlerini kur — `fm setpieces new`, oyunun altı soruluk sihirbazı (§8.36)
-- [~] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası — `fm penalties` sırayı ve üç kuralı okuyor, kuralları değiştiriyor; sırayı değiştirmek (sürükleme) ve duran top düzenleri açık (§8.87)
+- [~] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası — `fm penalties` sırayı ve üç kuralı okuyor, kuralları değiştiriyor (§8.87), `penalties move / add / remove` sırayı değiştiriyor (§8.90); duran top düzenleri açık
 - [~] Kaptan / yardımcı kaptan — `fm captains`: okuma, kaptan değişimi; yardımcı yalnızca boşken (§8.58)
 - [~] Taktik kaydet / yükle / kopyala — `fm tactic copy`, `fm tactic clear <n> --yes` (§8.77); dosyaya Save / Load… yok
 - [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
@@ -501,6 +501,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Orta grup: penaltı sırasını değiştirmek** (FINDINGS §8.90, 10 Ekim akşam): `fm penalties move / add / remove`.
+  Sürükleme, tablonun kendi `OnMoveItemInternal` / `OnRemoveItemInternal` yöntemleriyle (plugin `/rowmove`,
+  `/rowremove`); "Add Player" listesindeki kişiler kadrodaki `Index` ile eşleniyor.
 - **Orta grup: antrenman programını değiştirmek** (FINDINGS §8.89, 10 Ekim akşam): düzenleyen sayfa Portal › Calendar'ın
   Training sekmesiymiş. `fm schedule set` tek seansı, `fm schedule style` bütün haftayı değiştiriyor; seçenek yazılmazsa
   okla. Plugin'de `/form?buttons=1`. Not: bir haftaya aynı programı yeniden uygulamak haftayı birebir eski haline

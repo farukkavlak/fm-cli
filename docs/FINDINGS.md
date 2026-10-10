@@ -3116,6 +3116,26 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   `/press?text=…&event=SetDatastoreValue` ya da işaretçiyle basılmalı; `/click` ile yanlış "Tactical"a basmak
   takvimdeki seansın penceresini açtı.
 
+## 8.90 Penaltı sırasını değiştirmek: sürüklenen tablo (10 Ekim akşam)
+
+- `StreamedTable` (SI.Bindable) satır sürüklenip bırakılınca kendi **`OnMoveItemInternal(int from, int to)`**
+  yöntemini çağırıyor: taşınanı `m_dragKey`'e ("itemmoved") yazıp `DragEvents`'i
+  (`EventFmxSetPiecePenaltyCandidatesMove`) gönderiyor. Satır çıkarmak **`OnRemoveItemInternal(int index)`**
+  (`m_removeKey` "itemremoved", `RemoveEvents`). Interop'ta ikisi de çağrılabiliyor: `/rowmove?ptr=<tablo>&from=&to=`
+  ve `/rowremove?ptr=<tablo>&index=` (0'dan sayılır; `to` taşınanın yeni yeri, aradakiler birer kayıyor).
+  `IsDragCellActive` bu tabloda false (ayrı bir sürükleme hücresi yok, satırın kendisi sürükleniyor) — bakılmıyor.
+  Tablonun işaretçisi `/buttons?json=1`'de (`Type` "StreamedTable", `Events`'te "PenaltyCandidatesMove").
+- "Add Player" listesi (`…playerselected`'a yazıyor, `EventFmxSetPiecePenaltyCandidatesAdd`): seçeneklerin
+  `DisplayValue`'su `FM.UI.PersonReference`, `PropertyValue`'su kişinin **`Index`**'i. Köprü böyle bir seçeneği artık
+  `#<Index>` diye adlandırıyor; adı `/pull?path=Human.Team.Players&props=Name,Index&list=1` veriyor (bağlandıktan sonra
+  satırın `Index` alanı kişininkine dönüyor: Ederson 19301, Kerem 24884). `/select?ptr=…&choice=%23<Index>&fire=1`
+  oyuncuyu sona ekliyor; listede yalnızca henüz penaltıcı olmayanlar var.
+- Üçü de sayfadan çıkıp dönünce duruyor ✓ (taşı 2→0 ve geri, çıkar, ekle; üç tur). Tablo satır satır yeniden
+  çiziliyor: değişiklikten hemen sonra okunan satırda mevki hücresi eksik olabiliyor, CLI bütün hücreler iki okumada
+  aynı kalana kadar bekliyor.
+- Aynı yöntemler sürüklenen öbür tablolara da uymalı (köşe/serbest vuruş atıcıları, kaptan sırası); denenmedi.
+  `OnAddItemInternal(object, int)` de var, kullanılmadı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
