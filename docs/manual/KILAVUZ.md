@@ -312,7 +312,19 @@ SIRA  #   OYUNCU            MAÇA          SOĞUKKANLILIK  PENALTI
   3. Penaltı kaçıran bir sonrakini bırakır: kapalı
 ```
 
-`fm penalties 3 açık` üçüncü kuralı açar. Sırayı değiştirmek şimdilik oyunda, sürükleyerek.
+`fm penalties 3 açık` üçüncü kuralı açar.
+
+Sırayı değiştirmek:
+
+```
+fm penalties move kerem 1          Kerem ilk sırada atsın (öbürleri birer kayar)
+fm penalties move 3 1              aynısı, sıra numarasıyla
+fm penalties add osimhen           kadrodan birini ekle (sona); "add osimhen 2": ikinci sıraya
+fm penalties remove asensio        listeden çıkar
+```
+
+Terminalde `fm penalties move` (ya da `add`, `remove`) tek başına yazılırsa oyuncuyu ve yeni
+sırayı okla seçersin. Her değişiklikten sonra yeni sıra basılır.
 
 ### İki oyuncu yan yana — `compare`
 

@@ -486,7 +486,14 @@ internal static class Buttons
 			// What a row shows can itself be a record — a role with its name and how well it
 			// suits the player — and then the text is one level further in.
 			if (value.Get()?.TryCast<DynamicReference>() != null) return Choice(value);
-			return Text.Clean(value.AsString());
+
+			// A list of people shows each as a person reference, which has no text of its own;
+			// the row's value is his index, and the caller knows the squad by that (§8.90).
+			var text = Text.Clean(value.AsString());
+			if (text.EndsWith("PersonReference", StringComparison.Ordinal)
+			    && entries.TryGetValue("PropertyValue", out var person) && person != null && !person.IsNull)
+				return "#" + Text.Clean(person.AsString());
+			return text;
 		}
 		return "{" + string.Join(", ", entries.Keys.Take(8)) + "}";
 	}

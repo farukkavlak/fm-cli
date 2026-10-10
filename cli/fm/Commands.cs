@@ -77,6 +77,7 @@ internal static partial class Program
 		["fixtures"] = ["--all"],
 		["calendar"] = ["--u19"],
 		["schedule"] = ["set", "style"],
+		["penalties"] = ["move", "add", "remove"],
 		["next"] = ["--skip"],
 		["match"] = ["--play", "--instant", "--no-talk"],
 		["offer"] = ["--loan", "--dry", "--term", "--yes"],

@@ -1147,6 +1147,7 @@ internal static partial class Program
 			  depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 			  penalties       penaltı sırası (soğukkanlılık, penaltı özelliği) ve kim ne zaman bırakır kuralları;  penalties <1|2|3> açık|kapalı
+			  penalties move <oyuncu|sıra> <yeni sıra> · add <oyuncu> [<sıra>] · remove <oyuncu|sıra>   sırayı değiştir
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
 			  saves           diskteki kayıtlar, en yenisi önce
 			  diff            son bakıştan bu yana ne değişti: lig sırası, kasa, bütçe, gelen/giden, sakatlar, sözleşmeler, maç/gol/asist
