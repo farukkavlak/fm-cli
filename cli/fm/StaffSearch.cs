@@ -179,7 +179,7 @@ internal static partial class Program
 	};
 
 	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted,
-		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null)
+		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null, string maxValue = null)
 	{
 		// What can be told to be wrong from the words alone is said before the panel is opened.
 		string place = null;
@@ -214,6 +214,15 @@ internal static partial class Program
 			return error;
 		}
 
+		// The list that adds a condition; the panel takes a moment to be there after it opens.
+		async Task<JsonElement> Adder()
+		{
+			JsonElement found = default;
+			await Until(async () => (found = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(d => Field(d, "Label") == "Add Condition")).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
+			return found;
+		}
+
 		foreach (var (heading, typed, what) in wanted)
 		{
 			JsonElement? list = null;
@@ -236,7 +245,7 @@ internal static partial class Program
 		// (1, 5, 10, 15, 20) and nudged by one with - and +.
 		foreach (var (typed, atLeast, value) in conditions ?? [])
 		{
-			var adder = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Add Condition");
+			var adder = await Adder();
 			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
 			var attributes = new List<(string Group, string Name)>();
 			foreach (var group in new[] { "Technical", "Mental", "Physical", "Goalkeeping" })
@@ -294,7 +303,7 @@ internal static partial class Program
 		// same but is not made of buttons.
 		if (position != null)
 		{
-			var adder = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Add Condition");
+			var adder = await Adder();
 			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Position"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
@@ -306,6 +315,25 @@ internal static partial class Program
 			await Fm.Get("select", ("ptr", Field(where, "Pointer")), ("choice", place), ("fire", "1"));
 			if (!await Until(async () => Field(await Where(), "Label") == place, seconds: 4, every: 0.4))
 				return await Close($"error: mevki '{place}' seçildi ama panel tutmadı");
+		}
+
+		// What he may cost at most: "Add Attribute" › Transfer Value, a row that opens on "Is At
+		// Most" with the amount chosen from a list of round figures.
+		if (maxValue != null)
+		{
+			var adder = await Adder();
+			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
+			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Transfer Value"), ("fire", "1"));
+			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
+			async Task<JsonElement> Amounts() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+				.LastOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "£7.5M"));
+			JsonElement amounts = default;
+			if (!await Until(async () => (amounts = await Amounts()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
+				return await Close("error: değer koşulu panele eklenmedi");
+			if (!amounts.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == maxValue))
+				return await Close($"error: değer listesinde '{maxValue}' yok");
+			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", maxValue), ("fire", "1"));
+			await Task.Delay(1200);
 		}
 
 		if (await PanelButton("Apply") is not { } apply) return await Close("error: arama panelinde Apply yok");

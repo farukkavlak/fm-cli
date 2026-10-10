@@ -710,9 +710,24 @@ internal static partial class Program
 		}
 		var searched = false;
 		var position = Option(args, "--position");
-		if (search.Count > 0 || conditions.Count > 0 || position != null)
+
+		// The most he may be worth: the page takes round figures, so the largest of them that
+		// is not above what was typed is used, and said when it differs.
+		string maxValue = null;
+		if (Option(args, "--max-value") is { } typedValue)
 		{
-			if (await ApplySearch(search, conditions, position) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
+			string[] figures = ["£0", "£1K", "£10K", "£20K", "£40K", "£60K", "£100K", "£250K", "£500K", "£1M", "£2.5M", "£5M", "£7.5M", "£10M", "£15M", "£20M", "£30M", "£40M", "£60M", "£80M", "£100M"];
+			if (Money(typedValue) is not { } limit || limit < 0)
+			{
+				Console.Error.WriteLine($"'{typedValue}': para olmalı (500K, 10M).");
+				return 64;
+			}
+			maxValue = figures.LastOrDefault(f => Money(f) is { } amount && amount <= limit) ?? figures[0];
+			if (Money(maxValue) != limit) Console.WriteLine($"(değer sınırı oyunun listesindeki {maxValue} olarak alındı)");
+		}
+		if (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null)
+		{
+			if (await ApplySearch(search, conditions, position, maxValue) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
 			searched = true;
 		}
 

@@ -3623,6 +3623,8 @@ devret / geri al, zaten o durumda olan.
 - **Mevki koşulu:** "Add Attribute" › Position: "If · Position · [Is Natural At | Is Accomplished At | Is Competent At |
   Cannot Play At | Can Play] · [Goalkeeper, Defender (Right) … Striker (Centre)]". `--position DL` bunu "Is Natural At" ile
   kuruyor (kısa adlar oyunun uzun adlarına çevriliyor).
+- **Değer koşulu:** "Add Attribute" › Transfer Value: "If · Transfer Value · [Is At Most] · £100M · - · + · [£0, £1K … £7.5M,
+  £10M, £15M … £100M]". `--max-value` yazılanı aşmayan en büyük hazır tutarı seçiyor.
 - **Nitelik koşulu:** "Add Attribute" listesi (etiketi "Add Condition") › Attributes › Technical / Mental / Physical /
   Goalkeeping › nitelik (`/select names=… fire=1`) panele bir satır ekliyor: "If · Pace · [Is At Least | Is At Most | Is
   Between | Is Not Between] · 15 · - · + · [1, 5, 10, 15, 20]". Değer ayrı bir **butonun** yazısı (`/form?buttons=1`'de
@@ -3630,7 +3632,7 @@ devret / geri al, zaten o durumda olan.
   ("Aged Between 18 and 23 And Pace Is At Least 16" → Daghim, Dinkçi, Ebosele, Franculino…). Satırın sonundaki adsız buton
   koşulu kaldırıyor (kullanılmadı; `--clear` hepsini siliyor).
 
-`fm players --role --age a-b --grade --contract --listed --loan-listed --attr "<nitelik>>=<n>"` (+ var olan `--filter`, `--view`, `--clear`). Canlı:
+`fm players --position --max-value --role --age a-b --grade --contract --listed --loan-listed --attr "<nitelik>>=<n>"` (+ var olan `--filter`, `--view`, `--clear`). Canlı:
 17–21 yaş santrforlar, 20–23 yaş kanat bekleri, sözleşmesi 6 ay içinde biten B+ üstü oyuncular, olmayan rol, bozuk yaş.
 
 ## 9. Sıradaki adımlar

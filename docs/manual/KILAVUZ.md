@@ -813,6 +813,8 @@ Benoný Breki Andrésson  188  20   Stockport       £600K - £6M
 
 - `--position DL` — asıl mevkisi (GK, DR, DL, DC, WBR, WBL, DM, MR, ML, MC, AMR, AML, AMC, ST)
 - `--role "<rol>"` — topla oynarken oynayabildiği rol (Centre Forward, Wing-Back, Deep-Lying Playmaker…)
+- `--max-value 10M` — değeri en çok bu kadar olanlar (oyunun listesindeki yuvarlak tutarlardan biri
+  kullanılır: 8M yazarsan 7.5M alınır ve bunu söyler)
 - `--age 18-23` — yaş aralığı
 - `--grade B` — scoutların verdiği en düşük not (A+ … F)
 - `--contract "expiring (6 months)"` — sözleşme durumu (Expiring (1 Year), Expired, Unattached…)
@@ -821,7 +823,16 @@ Benoný Breki Andrésson  188  20   Stockport       £600K - £6M
   `fm players --age 18-23 --attr "pace>=16" --attr "finishing>=13"`. Scoutlarının bilmediği
   oyuncuların nitelikleri bilinmediği için onlar bu aramada çıkmaz.
 
-Örneğin genç ve hızlı bir sol bek: `fm players --position DL --age 18-23 --attr "pace>=14"`.
+Örneğin 10 milyonu geçmeyen, genç bir sol bek:
+
+```
+$ fm players --position DL --max-value 10M --age 18-25 --grade C --view "General Info"
+OYUNCU           BOY  YAŞ  KULÜP           DEĞER
+Antonino Gallo   182  25   U.S. Lecce      £4.7M - £7.6M
+Hodei Arrillaga  175  21   Eibar           £300K - £3.1M
+John Tolkin      170  23   Holstein Kiel   £2.7M - £5.4M
+Moussa Diarra    183  24   RSC Anderlecht  £6M - £7.4M
+```
 
 Bunlar da oyunda açık kalır: bir sonraki `fm players` aynı aramayla gelir, `--clear` sıfırlar.
 Liste yine yalnızca ekrandaki ~20 satırdır (ada göre sıralı); daraltmak için süzgeçleri sıkılaştır.

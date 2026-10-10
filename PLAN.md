@@ -427,7 +427,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] MCP server — `fm mcp` (stdio), 34 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
 - [ ] "Kadroda yorgun kim var?"
-- [~] "Sol bek arıyorum, 10M bütçem var, öner" — araması var: `fm players --position DL --age … --attr …` (§8.117); bütçeye göre süzme (Transfer Value koşulu) yok
+- [~] "Sol bek arıyorum, 10M bütçem var, öner" — araması var: `fm players --position DL --max-value 10M --age … --attr …` (§8.117); öneriyi sıralamak LLM'e kalıyor (MCP `fm_players`)
 - [ ] "Bu hafta kimi dinlendirmeliyim?"
 - [ ] "Rakibi analiz et, taktik öner"
 - [ ] Çok adımlı görev: "transfer dönemi bitmeden kadroyu güçlendir"
