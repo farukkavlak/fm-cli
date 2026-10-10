@@ -41,6 +41,14 @@ SHOTS=(
 	"supporters|fm supporters"
 	"board|fm board"
 	"facilities|fm facilities"
+	"stages|fm stages 'turkish cup' 'second round'"
+	"scout|fm scout"
+	"scout-focus|fm scout 5"
+	"progress|fm progress"
+	"youth|fm youth"
+	"world|fm world"
+	"responsibilities|fm responsibilities u19"
+	"opponent|fm opponent"
 )
 
 shoot() {

@@ -233,6 +233,8 @@ fm depth
 
 ### Kim gelişiyor — `progress`
 
+![fm progress](img/progress.png)
+
 `fm progress` kadrodaki herkesin son dört aylık yetenek ölçümünü (200 üzerinden) ve aradaki değişimi
 verir; en çok gelişen üstte, en çok gerileyen altta. Aynı satır oyuncu kartında da var ("Yetenek").
 
@@ -688,6 +690,8 @@ Maç bitince `report`:
 
 ### Rakip — `opponent`
 
+![fm opponent](img/opponent.png)
+
 `fm opponent` sıradaki rakibi özetler: ligdeki yeri, en çok kullandığı diziliş, gol / asist kralı,
 sezon sayıları ve kadro haberleri.
 
@@ -748,6 +752,8 @@ Oyuncular
 ```
 
 ### Kupalar ve başka ligler — `stages`
+
+![fm stages](img/stages.png)
 
 `fm stages "<turnuva>"` bir turnuvayı aşama aşama gösterir: kupada turun eşleşmeleri, lig aşamasında
 tablo. Yalnızca kendi turnuvaların değil, oyunun dünyasındaki her turnuva yazılabilir; adın bir
@@ -975,6 +981,8 @@ terminalde okla seçersin, script'te `budget ayarla <adım>`. Seçmezsen hiçbir
 ```
 
 ### Scoutların bulduğu oyuncular — `scout`
+
+![fm scout](img/scout-focus.png)
 
 `fm scout` scout odaklarını sayar: neye bakıldığı, durumu, kimin atandığı ve kaç oyuncu çıktığı.
 
@@ -1217,6 +1225,8 @@ board request - …"). Cevap bekleyen talepler varken oyun yeni talep açtırmı
 
 ### Kim neyi yapıyor — `responsibilities`
 
+![fm responsibilities](img/responsibilities.png)
+
 `fm responsibilities` personel işlerinin kimde olduğunu gösterir: işe alma / çıkarma, sözleşme
 yenileme, kurslar, takım seçimi. Yanına bir şey yazarsan süzer (`fm responsibilities u19`).
 
@@ -1240,6 +1250,8 @@ Renewing the Chief Scout's contract: artık sende.
 Devredince işi oyunun önerdiği kişi alır; belirli bir kişiye vermek henüz yok.
 
 ### Altyapı — `youth`
+
+![fm youth](img/youth.png)
 
 `fm youth` altyapının durumunu verir: genel not, akademi, altyapı kadrosu, A takıma aday görülen
 gençler ve bir sonraki altyapı alımının tarihi.
