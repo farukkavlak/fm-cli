@@ -3276,6 +3276,20 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
 - **Kulüplere önerme sonuç verdi:** Defrel 11 Ekim'de £50K ile önerildi (§8.94), 17 Ekim'de gelen kutusuna "Angers SCO
   make Defrel offer" düştü (£50,000, pazarlıksız; Accept / Reject / View Offer).
 
+## 8.98 Gelen teklife mesaj olmadan cevap (10 Ekim akşam)
+
+- Gelen teklifin mesajı ("Angers SCO make Defrel offer") birkaç gün sonra gelen kutusu listesinden düşüyor ama teklif
+  bekliyor; süresi dolarken Continue butonu "Review Transfer Offer" oluyor ve `inbox`'ta cevap bekleyen mesaj görünmüyor.
+- Teklif **Recruitment › Transfer Activity**'de: "Most Recent Offers" altında oyuncu, kulüp, durum ("Offer Made"),
+  bedel, "1 Unresponded Offers (1 Total)". Satırdaki "Offer Made" (`transfer-link-button`) teklif ekranını açıyor;
+  `fm offer` onu kart olarak çiziyor ✓ ama o ekranda yalnızca "Accept Offer" var.
+- Satırın kendi ikon butonları (etiketsiz): `accept-button` (`EventFmxTransferCentreResponseAccept`), `stall-button`
+  (`…ResponseStall`; pazarlıksız teklifte kapalı), `cancel-reject-button` (`…ResponseCancelReject`). Alttaki etiketli
+  "Accept / Stall / Reject Offer" üçlüsü (`EventFmxTransferCentreResponse`) satır seçilmeden kapalı.
+- `/press` ile `cancel-reject-button` teklifi onaysız reddetti ✓: liste boşaldı, oyun "CanContinue"a döndü.
+- Açık: bunu komuta bağlamak (`fm offers`: bekleyen teklifler + kabul / beklet / reddet). Birden çok teklif varken
+  hangi ikon hangi satırın, görülmedi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

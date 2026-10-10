@@ -456,6 +456,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **Gelen teklife mesajsız cevap** (akşam, FINDINGS §8.98): Defrel teklifinin mesajı listeden düşünce oyun "Review Transfer
+  Offer"da durdu; Transfer Activity satırındaki ikon butonuyla reddedildi (satış kararı Faruk'un, oyuncu kaldı).
+  Sıradaki iş adayı: `fm offers` (bekleyen teklifler + kabul / beklet / reddet), yöntem belli.
 - **`fm news`** (akşam, FINDINGS §8.97): basın başlıkları. `fm contracts <oyuncu>` (§8.96): sözleşmenin primleri ve
   maddeleri. `fm propose` uçtan uca doğrulandı: Defrel £50K'ya önerildikten bir hafta sonra Angers aynı bedelle teklif
   yaptı (mesaj cevapsız bırakıldı — satış kararı Faruk'un).
