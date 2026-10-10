@@ -26,9 +26,44 @@ internal static partial class Program
 	/// <summary>Runs one command, whether it came from argv or from the session prompt.</summary>
 	public static async Task<int> Run(string[] args)
 	{
+		var format = args.Contains("--json") ? "json" : args.Contains("--csv") ? "csv" : args.Contains("--md") ? "md" : null;
+		if (format is null or "json")
+		{
+			Ui.Format = format;
+			try { return await RunCommand(args); }
+			// In a session the next command, and the prompt, are drawn again.
+			finally { Ui.Format = null; }
+		}
+
+		// CSV is the tables alone; Markdown keeps the lines between them, each its own line.
+		var output = Console.Out;
+		Table.Sink = output;
+		Table.Wrote = false;
+		Ui.Format = format;
+		Console.SetOut(format == "csv" ? TextWriter.Null : new MarkdownLines(output));
+		try
+		{
+			var code = await RunCommand(args);
+			if (code == 0 && format == "csv" && !Table.Wrote)
+			{
+				Console.Error.WriteLine("Bu komutun çıktısında tablo yok; --md ya da --json dene.");
+				return 1;
+			}
+			return code;
+		}
+		finally
+		{
+			Console.Out.Flush();
+			Console.SetOut(output);
+			Table.Sink = null;
+			Ui.Format = null;
+		}
+	}
+
+	private static async Task<int> RunCommand(string[] args)
+	{
 		var command = args.Length > 0 ? args[0] : "help";
 		var json = args.Contains("--json");
-		Ui.Json = json;
 
 		// Aliases and unambiguous starts stand for the command; the rest of the code sees its name.
 		if (ResolveCommand(command) is not { } resolved) return 64; // EX_USAGE
@@ -75,6 +110,7 @@ internal static partial class Program
 				"board" => await Board(json),
 				"doctor" => await Doctor(json),
 				"completion" => Completion(args),
+				"export" => await Export(args),
 				"__names" => await OurNames(),
 				"facilities" => await Facilities(json),
 				"contracts" => await ContractsCalendar(json),
@@ -120,11 +156,6 @@ internal static partial class Program
 		{
 			Console.Error.WriteLine(error.Message);
 			return 1;
-		}
-		finally
-		{
-			// In a session the next command, and the prompt, are drawn again.
-			Ui.Json = false;
 		}
 	}
 
@@ -1107,6 +1138,9 @@ internal static partial class Program
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
 			  saves           diskteki kayıtlar, en yenisi önce
+			  export [dosya.md] [komut…]  komutların çıktısı başlık başlık tek Markdown rapor (varsayılan: durum, kadro,
+			                  tablo, fikstür, sağlık, sözleşmeler, finans);  export <dosya.csv> "<komut>": o komutun tablosu
+			  --json / --csv / --md   her komutta: tablo yerine JSON, CSV ya da Markdown; soru sorulmaz
 			  shortlist       kısa listedeki oyuncular (teklif verilenler de)
 			  intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto
 			  opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)

@@ -737,19 +737,17 @@ internal static partial class Program
 			return 0;
 		}
 
-		var rows = table.EnumerateArray().Select(row => new[]
-		{
-			Field(row, "TablePosition"),
-			Field(row, "Name"),
-			Field(row, "LeagueGamesPlayed"),
-			Field(row, "LeagueGamesWon"),
-			Field(row, "LeagueGamesDrawn"),
-			Field(row, "LeagueGamesLost"),
-			Field(row, "LeagueGoalDifference"),
-			Field(row, "LeaguePoints"),
-		}).ToList();
+		// The portal's tile has only games and points; the columns it leaves out are left out.
+		var full = table.EnumerateArray().Any(r => Field(r, "LeagueGamesWon").Length > 0);
+		var rows = table.EnumerateArray().Select(row => full
+			? new[]
+			{
+				Field(row, "TablePosition"), Field(row, "Name"), Field(row, "LeagueGamesPlayed"), Field(row, "LeagueGamesWon"),
+				Field(row, "LeagueGamesDrawn"), Field(row, "LeagueGamesLost"), Field(row, "LeagueGoalDifference"), Field(row, "LeaguePoints"),
+			}
+			: [Field(row, "TablePosition"), Field(row, "Name"), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
 
-		Table.Write(["#", "TAKIM", "O", "G", "B", "M", "AV", "P"], rows);
+		Table.Write(full ? ["#", "TAKIM", "O", "G", "B", "M", "AV", "P"] : ["#", "TAKIM", "O", "P"], rows);
 		return 0;
 	}
 

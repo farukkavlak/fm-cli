@@ -8,10 +8,15 @@ namespace FmCli;
 /// </summary>
 internal static class Ui
 {
-	public static bool Rich => !Json && !Console.IsOutputRedirected;
+	public static bool Rich => Format == null && !Console.IsOutputRedirected;
 
-	/// <summary>The command was asked for --json: nothing is drawn and nothing is asked.</summary>
-	public static bool Json { get; set; }
+	/// <summary>
+	/// "json", "csv" or "md" when the command was asked for one: nothing is drawn and nothing
+	/// is asked, and the tables come out in that form.
+	/// </summary>
+	public static string Format { get; set; }
+
+	public static bool Json => Format == "json";
 
 	/// <summary>
 	/// A console bound to whatever Console.Out is now, since the MCP server swaps it per call.
