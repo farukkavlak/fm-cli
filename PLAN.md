@@ -61,9 +61,8 @@ ekran açıp bağlanan veriyi beklemek yalnızca tıklama gereken yerlerde.
   sorusuyla birlikte geliyor; "Send Assistant" kaydediliyor, ardından oyun cevapsız kalan soruyu konuşma olarak soruyor
   (`talk` ile cevaplanınca mesaj kapanıyor). Hata değil; `reply` artık iki grubu ayrı başlıkla listeliyor.
 
-- **Tek isimli oyuncu açılmıyor.** `fm contract Fred` / `fm player Fred`: kadroda "Fred" var ama
-  oyunun araması "Fred"i bulmuyor (Fred Onyedinma, Fred Rutten…); `OpenPlayer` aramaya dayanıyor.
-  Kendi oyuncumuz için kadro ekranındaki isim butonundan açmak gerek.
+- ~~Tek isimli oyuncu açılmıyor~~ — `fm player` arama yedeğiyle (25603ca) çözülmüş: 10 Ekim akşam `fm propose fred`
+  Fred'in sayfasını açtı.
 
 - ~~`fm players` dar terminalde okunmuyor~~ — 8 Ekim gecesi: kolonlar önceliğe göre sığdırılıyor,
   ham değerler okunur, sakat kırmızı. ~~`reply` numarası kayıyor~~ — numara son `inbox`'taki
