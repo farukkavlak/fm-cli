@@ -484,6 +484,10 @@ ettirmiştin); mentorluk grubu yeniden kuruldu (Škriniar, Brown, Mercan).
 **Sonradan eklenenler:** `fm progress` (§8.113: son dört aylık yetenek; plugin `/pull` artık liste değerlerini açıyor),
 `fm opponent`'a rakibin sezon sayıları (§8.114). Maç sonu raporunun bayat golcü vermesi düzeltmesi bu maçta doğrulandı.
 
+Ardından: lig tablosunda **FORM** sütunu ve `fm table`'ın tam tabloyu Stages sayfasından alması (§8.115), **`fm staff
+find`** (personel veritabanı; görev / serbest / itibar araması, §8.116), **`fm players --role --age --grade --contract
+--listed`** (oyuncu veritabanında gerçek arama, §8.117), kılavuza yeni ekran görüntüleri.
+
 **Park edilenler:** scout odağı kurma / scout atama (iki adımlı sihirbaz, notları §8.109); topla / topsuz ayrı şekil
 (kapsamı belirsiz); rakip raporunda kilit oyuncular (bu rakipte veri yok, lig rakibinde bakılacak); belirli kişiye
 sorumluluk verme; Youth Performance / Candidates sekmeleri.
