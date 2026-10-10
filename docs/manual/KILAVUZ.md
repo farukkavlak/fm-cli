@@ -832,8 +832,17 @@ Henüz komutu olmayan bir şey için oyunun ekranlarını doğrudan kullanabilir
 | `dialog [cevap]` | açık onay penceresini göster / cevapla |
 | `tour` | açık tanıtım turunu yürüt (`--skip`: atla) |
 
-Değiştiren komutların çoğu `--dry` alır: yapmaz, ne yapacağını söyler. `--json` her yerde
-ham veri verir.
+Değiştiren komutların çoğu `--dry` alır: yapmaz, ne yapacağını söyler. Bir şey gösteren her
+komut `--json` alır: tablo yerine JSON basar, soru sormaz, renk kullanmaz. Örnek:
+
+```
+$ fm captains --json
+{"Captain":"Milan Škriniar","ViceCaptain":"Kerem Aktürkoğlu"}
+$ fm league --json | jq -r '.Players[] | "\(.Stat): \(.Player)"'
+Highest Average Rating: Victor Osimhen
+Most Goals: Victor Osimhen
+…
+```
 
 ## 14. Claude'dan oynamak — MCP
 

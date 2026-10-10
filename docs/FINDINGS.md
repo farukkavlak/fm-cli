@@ -2999,6 +2999,23 @@ kutularından açılıyor:
   `fm health` kadro görünümlerini değiştiriyordu. Yeniden başlatıp aynı sırayı (stats, status, health, doctor, player,
   board, tactic, health, doctor) yürütünce tekrarlamadı. Neden bilinmiyor.
 
+## 8.83 `--json` her komutta; taktik ekranının iki görünümü (10 Ekim)
+
+- **`--json` tek yazıcıdan**: `JsonOut.Of` tuple alanlarını yazıyor (varsayılan serileştirici `(string, string)`'i `{}`
+  basıyordu: `fm league --json` boş nesneler veriyordu) ve Türkçe harfleri `\u00E7` diye kaçırmıyor. `--json` verilince
+  `Ui.Rich` ve `Ui.Interactive` kapalı: hiçbir şey çizilmiyor, soru sorulmuyor, komut script yoluna düşüyor. Yeni:
+  saves, captains, prep, intensity, opposition, register, training, offer/contract ekranı, tactic slot / mentality /
+  style / pi / instructions, `settings <ayar>`, `squad --views`. Eylem komutları (numbers, setpieces, shout, release,
+  match, next…) metin kalıyor.
+- **`fm league` yarışı**: lider kutusu etiketleri adlardan bir an önce geliyor; "iki okuma aynı" yetmiyordu (3 denemede
+  2'si "-"). Artık her liderin adı ve değeri gelene kadar (ya da ~4 sn) bekliyor.
+- **Taktik ekranı: "Team Shape" / "Team Instructions"** (`ButtonGroup #FMShapeAndInstructionsButtons`). Talimat
+  görünümünde saha yok, `/tactic` `Slots = []` veriyor ve "Combined" butonu da yok; `tactic pi` "Mevki: 'DR' diye bir
+  seçenek yok" diyordu. `#team-shape` bir `SIButton`, `/press` onu bulmuyor; `/click?text=Team Shape&name=team-shape`
+  gerçek tıklamayla sahayı geri getiriyor. `Planner()` bunu yapıyor. Sahaya dönünce ilk "Go to Player Instructions"
+  seçimi yutulabiliyor, `tactic instructions`'ta da sayfa açıldıktan 0,5 sn sonraki "Team Instructions" basışı; ikisi
+  de yeniden deniyor. instructions ↔ pi dört kez art arda ✓.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

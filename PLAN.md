@@ -410,7 +410,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Renkli, hizalı tablolar
 - [ ] Sparkline / mini grafik (form, kondisyon trendi)
-- [ ] `--json` her komutta (script'lenebilir)
+- [x] `--json` her komutta (script'lenebilir) — bir şey gösteren her komut; `--json` soru sormuyor, çizmiyor (§8.83)
 - [x] Pipe dostu çıktı (`fm squad | grep ...`)
 - [~] İnteraktif oturum (`fm start` sonrası komutlar `fm` önekisiz) — TUI değil, REPL; tırnaklı
       ifadeler tek kelime sayılıyor
@@ -501,6 +501,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Kolay grup: `--json`** (FINDINGS §8.83): bir şey gösteren her komut JSON veriyor; tuple'lar ve Türkçe harfler
+  düzgün. Yan ürün: `fm league` adlar gelmeden okuyordu; `tactic pi` talimat görünümünden sahaya dönemiyordu
+  ("Team Shape" gerçek tıklama), `tactic instructions` erken basışı kaçırıyordu.
 - **2. grup** (FINDINGS §8.82): kısaltmalar ve Türkçe takma adlar, `fm completion zsh|bash`, `fm doctor`. Yan ürün:
   `fm health` sakatın kalan süresi yerine şimdiye kadar kaçırdığı süreyi "daha" diye yazıyordu; düzeldi. Oyun bir kez
   kendiliğinden çöktü (13:19, oyunun kendi iş parçacığında yakalanmamış hata); aynı sıra yeniden başlatınca tekrarlamadı.
