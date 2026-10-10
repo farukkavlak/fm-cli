@@ -127,7 +127,7 @@ internal static partial class Program
 				"facilities" => await Facilities(json),
 				"contracts" => await ContractsCalendar(json, args),
 				"training" => await IndividualTraining(args),
-				"table" => await LeagueTable(json),
+				"table" => await LeagueTable(json, args),
 				"fixtures" => await Fixtures(json, args.Contains("--all")),
 				"report" => await MatchReport.Show(Fm, json),
 				"inbox" => await Inbox(json),
@@ -1145,7 +1145,7 @@ internal static partial class Program
 			    --free                       serbest oyuncular (sözleşmesi bitmiş; "Contract Expired" süzgeci)
 			    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)
 			    --views / --view "<x>"       kolonları belirleyen görünümler
-			  table           lig tablosu
+			  table [turnuva] lig tablosu; turnuva adıyla o turnuvanın tablosu (ör. table europa)
 			  league [turnuva]  liderler: en golcü takım, gol / asist kralı, en yüksek puan (varsayılan: lig)
 			  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
 			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da

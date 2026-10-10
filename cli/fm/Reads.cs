@@ -725,27 +725,67 @@ internal static partial class Program
 
 	private static readonly string[] ShortDays = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
 
-	private static async Task<int> LeagueTable(bool json)
+	private static async Task<int> LeagueTable(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		// Other pages carry a cut-down table of a few rows around the team; only the portal's
-		// is the whole league, so anything short is not taken for it.
-		var table = await Fm.GetJson("table");
-		if (table.GetArrayLength() < 10)
+		// Which competition: the league unless another of ours is named.
+		var ours = new List<string>();
+		for (var n = 1; n <= 8; n++)
 		{
-			var opened = await OpenPage("Overview", "Portal");
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Until(async () => (table = await Fm.GetJson("table")).GetArrayLength() >= 10, seconds: 8);
+			try { if (Field(await Fm.Pull($"Human.Team.CurrentComp{n}", "Name"), "Name") is { Length: > 0 } name) ours.Add(name); }
+			catch (FmError) { break; }
+		}
+		var wanted = await LeagueName();
+		if (string.Join(" ", Words(args)) is { Length: > 0 } typed)
+		{
+			if (Choose(ours, typed, "Turnuva") is not { } chosen) return 64;
+			wanted = chosen;
+		}
 
-			// Near the season the portal shows another competition's tile instead; the league's
-			// own page, opened from its name on the portal, always has the table.
-			if (table.GetArrayLength() < 10 && await LeagueName() is { } league)
+		// The portal's tile holds the table of the competition the next match is in — the
+		// league most weeks, Europe before a European night — so it is only taken when that is
+		// the one asked for. Any other is on the competition's own page, opened from its name.
+		var opened = await OpenPage("Overview", "Portal");
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+
+		// Each table bound on screen apart from the others (the tile and a competition's page
+		// can both be up); the biggest of those not seen before is the one just opened.
+		static string Key(JsonElement t) => string.Join("|", t.EnumerateArray().Select(r => Field(r, "Name") + Field(r, "LeaguePoints")));
+		async Task<JsonElement?> Biggest(HashSet<string> not) =>
+			(await Fm.GetJson("table", ("groups", "1"))).EnumerateArray().Cast<JsonElement?>()
+				.Where(t => t.Value.GetArrayLength() >= 10 && !not.Contains(Key(t.Value)))
+				.OrderByDescending(t => t.Value.GetArrayLength()).FirstOrDefault();
+		async Task<JsonElement?> Settled(HashSet<string> not, double seconds)
+		{
+			JsonElement? found = null;
+			var previous = "";
+			return await Until(async () =>
 			{
-				var pressed = await Arriving("press", [("text", league), ("name", "SIButton"), ("any", "1")]);
-				if (!pressed.StartsWith("error", StringComparison.Ordinal))
-					await Until(async () => (table = await Fm.GetJson("table")).GetArrayLength() >= 10, seconds: 10);
+				found = await Biggest(not);
+				var key = found is { } t ? Key(t) : "";
+				var same = key.Length > 0 && key == previous;
+				previous = key;
+				return same;
+			}, seconds: seconds, every: 0.6) ? found : null;
+		}
+
+		var tile = await Settled([], 8);
+		string shown = null;
+		try { shown = Field(await Fm.Pull("Human.Team.NextFixture.Competition", "Name"), "Name"); } catch (FmError) { }
+
+		JsonElement table;
+		if (tile is { } onTile && (wanted == null || shown == wanted)) table = onTile;
+		else
+		{
+			var seen = (await Fm.GetJson("table", ("groups", "1"))).EnumerateArray().Select(Key).ToHashSet();
+			var pressed = await Arriving("press", [("text", wanted), ("name", "SIButton"), ("any", "1")]);
+			if (pressed.StartsWith("error", StringComparison.Ordinal) || await Settled(seen, 12) is not { } onPage)
+			{
+				Console.Error.WriteLine($"{wanted}: tablo açılmadı (kupada tablo olmaz).");
+				return 1;
 			}
+			table = onPage;
 		}
 
 		if (json)

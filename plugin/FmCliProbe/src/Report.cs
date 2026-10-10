@@ -196,21 +196,42 @@ internal static class Report
 	/// A row is a record holding the position and the points; the team's name and the rest of
 	/// the columns are bound around it, and which columns there are depends on the table shown.
 	/// </summary>
-	public static string Table()
+	public static string Table(bool groups = false)
 	{
-		var rows = new SortedDictionary<int, Dictionary<string, string>>();
+		// Several tables can be bound at once — the portal's tile and a competition's page —
+		// and their rows share positions; rows are kept apart by the list they sit in (the path
+		// less its last two steps). Asked for as one table, the first row at a position wins.
+		var tables = new Dictionary<string, SortedDictionary<int, Dictionary<string, string>>>();
+		var order = new List<string>();
 
-		foreach (var (_, node) in Walk())
+		foreach (var (path, node) in Walk())
 		{
 			var fields = Fields(node);
 			if (!fields.ContainsKey("LeaguePoints") || !fields.TryGetValue("TablePosition", out var raw)) continue;
-			if (!int.TryParse(raw, out var position) || rows.ContainsKey(position)) continue;
+			if (!int.TryParse(raw, out var position)) continue;
+
+			var key = "";
+			if (groups)
+			{
+				var steps = path.Split('.');
+				key = steps.Length > 2 ? string.Join(".", steps, 0, steps.Length - 2) : path;
+			}
+			if (!tables.TryGetValue(key, out var rows))
+			{
+				tables[key] = rows = new SortedDictionary<int, Dictionary<string, string>>();
+				order.Add(key);
+			}
+			if (rows.ContainsKey(position)) continue;
 
 			if (node.Parent != null) Merge(fields, node.Parent);
 			rows[position] = fields;
 		}
 
-		return "[\n  " + string.Join(",\n  ", rows.Values.Select(Json)) + "\n]\n";
+		static string Rows(SortedDictionary<int, Dictionary<string, string>> rows) =>
+			"[\n  " + string.Join(",\n  ", rows.Values.Select(Json)) + "\n]";
+
+		if (!groups) return (tables.TryGetValue("", out var only) ? Rows(only) : "[\n  \n]") + "\n";
+		return "[\n" + string.Join(",\n", order.Select(k => Rows(tables[k]))) + "\n]\n";
 	}
 
 	/// <summary>

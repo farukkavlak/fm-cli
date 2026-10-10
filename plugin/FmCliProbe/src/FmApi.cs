@@ -50,7 +50,7 @@ internal static class FmApi
 		"inbox" => Report.Inbox(),
 		"tour" => Report.Tour(),
 		"player" => PlayerCard.Current(q["name"]),
-		"table" => Report.Table(),
+		"table" => Report.Table(q["groups"] == "1"),
 		"fixtures" => Report.Fixtures(),
 		"save" => Save(),
 		"dialog" => Dialogs.Open(),

@@ -300,7 +300,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Fikstür — `fm fixtures` son ve sıradaki maçlar; `fm fixtures --all` sezonun tamamı (§8.66)
 - [ ] Başka ligler / ülkeler — oyunun araması turnuva döndürmüyor (§8.81)
 - [ ] Kupa ağaçları
-- [ ] Avrupa kupaları
+- [~] Avrupa kupaları — `fm table europa` lig aşaması tablosu (36'nın 33'ü, §8.100), `fm league <turnuva>` liderler; eleme turları yok
 - [~] Gol krallığı / asist / form tablosu — `fm league [turnuva]` liderleri veriyor (§8.70); tam liste yok — veri `CompReference.PlayerStats`ta, açan kart bulunamadı (§8.81)
 - [x] Takvim — `fm calendar [ay]`: maçlar, transfer dönemi açılış / kapanış, kupa kuraları, milli maçlar (§8.66)
 - [ ] Sezon özeti / ödüller
@@ -397,8 +397,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       tavsiyeleri akışta; maç sırasında `fm sub` on biri sahada çizip kulübeyi altında veriyor
 - [x] Seçim istemleri — reply, talk, dialog, sub, tactic new/mentality/style/role/player,
       setpieces new, match okla soruyor; script'te düz çıktı
-- [~] Konuşma ekranı — `talk` konuşmayı baştan sona okla yürütüyor (basın toplantısı, takım
-      toplantısı denendi). Kalan: tepki değişimini görünür kılmak
+- [x] Konuşma ekranı — `talk` konuşmayı baştan sona okla yürütüyor (basın toplantısı, takım toplantısı, bire bir); tepki değişimi satırda ("Encouraged (+1)")
 - [x] Oyuncu kartı — mevki sahası, renkli çubuklar, bloklar yan yana, scout aralığı gölgeli
 - [~] Lig tablosu ve fikstür — tablo: bölge renkleri ve takım vurgusu; fikstür: G / B / M renkli. Kalan: tabloda form (öbür takımların `RecentFormValuesAllComps` listesi; `/pull` liste değerini açmıyor)
 - [x] Kolon başlıkları — `squad --view` / `players` okunur başlık basıyor
@@ -457,6 +456,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm table` yanlış turnuvayı gösteriyordu** (akşam, FINDINGS §8.100): Avrupa maçı öncesi lig yerine Avrupa Ligi
+  tablosu. Düzeltildi; `fm table <turnuva>` eklendi (plugin `/table?groups=1`). `fm news <#>` haberin tamamı,
+  `fm offers` gelen teklifler. Oyun yeni plugin'le açık, 19 Ekim 2025 (otomatik kayıt); Defrel teklifi bekliyor.
 - **`fm settings`'e dört ayar** (akşam, FINDINGS §8.99): oran biçimi, diğer maçların hızı, maç takvimi, okumadan ilerleme yok.
   ⚠ Deneme sırasında oyun bir kez kilitlendi (ana thread, 13. ardışık ayar değişikliğinde); yeniden başlatıldı, 19 Ekim
   2025 otomatik kaydından açıldı (Qarabağ 6-0 gitti). Bütün ayarlar eski değerinde.

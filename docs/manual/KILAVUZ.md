@@ -673,6 +673,9 @@ Maç bitince `report`:
 
 Soldaki renkli şeritler bölgeleri gösterir (üstte Avrupa, altta küme düşme). Senin takımın sarı ve okla işaretli.
 
+`fm table` her zaman ligi verir; başka bir turnuvanın tablosu için adını yaz: `fm table europa` Avrupa Ligi'nin
+lig aşamasını gösterir. Kupalarda tablo olmaz.
+
 ![fm fixtures](img/fixtures.png)
 
 Oynanmış maçlar beyaz ve sonuçlu, oynanacaklar soluk.

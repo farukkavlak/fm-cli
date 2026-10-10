@@ -3315,6 +3315,19 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   Yeniden başlatmak gerekti. Neden o ayar mı, sayfayı hızlı açıp kapamak mı, bilinmiyor; o ayar CLI'a eklenmedi
   (zaten mesajı kendiliğinden açması CLI akışına uymuyor). Tercih kilitlenmeden önce yazılmıştı, sonradan kapatıldı.
 
+## 8.100 Tablo: hangi turnuvanın? (10 Ekim akşam)
+
+- ⚠ `fm table` Avrupa maçı öncesinde lig yerine Avrupa Ligi tablosunu veriyordu: Portal › Overview'daki karo **sıradaki
+  maçın turnuvasının** tablosunu gösteriyor. Üstelik plugin'in `/table`'ı ekranda bağlı bütün tabloların satırlarını
+  sıra numarasına göre tek tabloda birleştiriyordu (ilk 18 satır lig, 19-27 Avrupa).
+- Plugin: `/table?groups=1` her tabloyu ayrı veriyor; satırlar içinde durdukları listeye göre ayrılıyor (yolun son iki
+  adımı atılınca kalan). Eski çağrı (`/table`) aynı.
+- CLI: `fm table [turnuva]`. Varsayılan lig (`LeagueName`); karodaki tablo yalnızca `Human.Team.NextFixture.Competition`
+  istenen turnuvaysa alınıyor, değilse turnuvanın adı taşıyan `SIButton`'a basılıp o sayfada yeni beliren tablo
+  bekleniyor. Altı ardışık çağrı (lig / Avrupa dönüşümlü, araya başka sayfa girerek) tutarlı ✓.
+- Avrupa Ligi lig aşaması: 36 takımın 33'ü bağlı (liste sanal, son üç satır ekrana girmeden bağlanmıyor); G / B / M /
+  AV sütunları var. Lig, turnuva sayfasından açılınca yalnızca O ve P geliyor. Kupada tablo yok, komut bunu söylüyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
