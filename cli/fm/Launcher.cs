@@ -195,6 +195,19 @@ internal static class Launcher
 		catch (Exception ex) { return ex.Message; }
 	}
 
+	/// <summary>
+	/// Closes the game: the process is ended, as nothing in the game's own quit can be reached
+	/// without its window. True once the bridge has stopped answering.
+	/// </summary>
+	public static async Task<bool> Stop(Bridge fm)
+	{
+		using (var kill = Process.Start(new ProcessStartInfo("/usr/bin/pkill", ["-f", AppBundle]) { UseShellExecute = false }))
+			if (kill != null) await kill.WaitForExitAsync();
+		return await WaitFor(async () => !await Up(fm), TimeSpan.FromSeconds(20));
+	}
+
+	public static Task<bool> Running(Bridge fm) => Up(fm);
+
 	private static async Task<bool> Up(Bridge fm)
 	{
 		try { return (await fm.Get("health")).Length > 0; }

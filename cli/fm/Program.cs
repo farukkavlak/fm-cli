@@ -145,6 +145,7 @@ internal static partial class Program
 				"status" => await Status(json),
 				"continue" => await Continue(),
 				"start" => await Attach(args.Contains("--debug")),
+				"stop" => await Stop(args),
 				"help" or "--help" or "-h" => Help(),
 				_ => Unknown(command),
 			};
@@ -171,6 +172,41 @@ internal static partial class Program
 		await Launcher.Start(Fm, debug) ? 0 : 69;
 
 	private static async Task<int> Continue() => await Launcher.LoadSave(Fm) ? 0 : 69;
+
+	/// <summary>
+	/// Closes the game. What has not been saved goes with it, so whether to save first is
+	/// asked or said outright, never assumed.
+	/// </summary>
+	private static async Task<int> Stop(string[] args)
+	{
+		if (!await Launcher.Running(Fm))
+		{
+			Console.WriteLine("FM açık değil.");
+			return 0;
+		}
+
+		bool? save = args.Contains("--save") ? true : args.Contains("--no-save") ? false : null;
+		if (save == null && await Fm.InGame())
+		{
+			if (!Ui.Interactive)
+			{
+				Console.Error.WriteLine("Kaydedilmemiş ilerleme oyunla birlikte gider. Hangisi:  stop --save   ya da   stop --no-save");
+				return 1;
+			}
+			var date = Pretty(Field(await Fm.GetJson("state"), "Date"));
+			if (Ui.Ask($"Oyun kapanıyor ({date}). Kaydedilmemiş ilerleme kaybolur.", ["Kaydet ve kapat", "Kaydetmeden kapat"]) is not { } asked) return 0;
+			save = asked == 0;
+		}
+
+		if (save == true && await SaveGame(["--yes"]) is not 0 and var failed) return failed;
+		if (!await Launcher.Stop(Fm))
+		{
+			Console.Error.WriteLine("Oyun kapanmadı.");
+			return 1;
+		}
+		Console.WriteLine("FM kapandı.");
+		return 0;
+	}
 
 	private static async Task<int> Squad(bool json, string[] args)
 	{
@@ -1069,6 +1105,7 @@ internal static partial class Program
 			  fm start        oyunu başlat, kaydı yükle, oturuma gir
 			    --debug       pencereyi göster (normalde Dock'ta ve ekranda görünmez)
 			  fm              oturuma gir (oyun açıkken)
+			  stop            oyunu kapat; önce kaydedilsin mi diye sorar (--save / --no-save)
 
 			  continue        açık oyunda son kaydı yükle
 			  squad           kadroyu bas

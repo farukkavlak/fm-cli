@@ -11,7 +11,7 @@ internal static partial class Program
 {
 	private static readonly string[] CommandNames =
 	[
-		"status", "start", "continue", "squad", "player", "players", "search", "offer", "contract", "contracts", "release",
+		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "contract", "contracts", "release",
 		"table", "league", "fixtures", "calendar", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
 		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
@@ -27,7 +27,7 @@ internal static partial class Program
 	{
 		["s"] = "status", ["n"] = "next", ["i"] = "inbox", ["t"] = "table", ["fx"] = "fixtures", ["m"] = "match",
 		["p"] = "player", ["tc"] = "tactic", ["sq"] = "squad",
-		["durum"] = "status", ["kadro"] = "squad", ["oyuncu"] = "player", ["oyuncular"] = "players", ["ara"] = "search",
+		["durum"] = "status", ["kapat"] = "stop", ["kadro"] = "squad", ["oyuncu"] = "player", ["oyuncular"] = "players", ["ara"] = "search",
 		["sozlesme"] = "contract", ["sozlesmeler"] = "contracts", ["tablo"] = "table", ["puan"] = "table", ["lig"] = "league",
 		["fikstur"] = "fixtures", ["takvim"] = "calendar", ["rapor"] = "report", ["mesaj"] = "inbox", ["gelen"] = "inbox",
 		["cevap"] = "reply", ["ileri"] = "next", ["mac"] = "match", ["bagir"] = "shout", ["degis"] = "sub",
@@ -79,6 +79,7 @@ internal static partial class Program
 		["schedule"] = ["set", "style"],
 		["penalties"] = ["move", "add", "remove"],
 		["takers"] = ["korner", "frikik", "kanat", "derin", "tac"],
+		["stop"] = ["--save", "--no-save"],
 		["next"] = ["--skip"],
 		["match"] = ["--play", "--instant", "--no-talk"],
 		["offer"] = ["--loan", "--dry", "--term", "--yes"],
