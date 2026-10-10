@@ -85,6 +85,7 @@ internal static partial class Program
 				"players" => await Players(json, args),
 				"search" => await Search(json, args),
 				"offer" => await Offer(args),
+				"offers" => await Offers(json, args),
 				"register" => await Register(args),
 				"numbers" => await Numbers(args),
 				"contract" => await Contract(args),
@@ -1170,6 +1171,7 @@ internal static partial class Program
 			    --skip        turu atla (tur izin veriyorsa)
 			  contract [oyuncu]  sözleşme görüşmesi kartı: vaatler, sonra şartlar; terminalde okla düzenle
 			  contract <oyuncu> --agent  menajerine yenilemeye açık mı diye sor (sonra talk ile)
+			  offers          oyuncularımıza gelen, cevap bekleyen teklifler;  offers <# | oyuncu> view | accept | stall | reject
 			  propose <oyuncu> [ücret] [--loan] [--yes]  oyuncuyu kulüplere öner (satış ya da kiralık)
 			  release <oyuncu> [--free | --mutual] [--yes]  bedelsiz serbest bırak (tazminatı gösterir) ya da karşılıklı fesih
 			                  oyuncu verilirse (bizim oyuncumuz) yeni sözleşme görüşmesini açar

@@ -11,7 +11,7 @@ internal static partial class Program
 {
 	private static readonly string[] CommandNames =
 	[
-		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "contract", "contracts", "release", "propose",
+		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "offers", "contract", "contracts", "release", "propose",
 		"table", "league", "fixtures", "calendar", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
 		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "dynamics", "news", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
@@ -35,7 +35,7 @@ internal static partial class Program
 		["yogunluk"] = "intensity", ["butce"] = "budget", ["ayarlar"] = "settings", ["mutluluk"] = "happiness", ["dinamik"] = "dynamics", ["haber"] = "news", ["haberler"] = "news",
 		["kulup"] = "club", ["personel"] = "staff", ["finans"] = "finances", ["taraftar"] = "supporters",
 		["yonetim"] = "board", ["tesis"] = "facilities", ["saglik"] = "health", ["derinlik"] = "depth", ["doktor"] = "doctor",
-		["oner"] = "propose", ["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["liste"] = "shortlist",
+		["oner"] = "propose", ["teklifler"] = "offers", ["kaptan"] = "captains", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["liste"] = "shortlist",
 		["numara"] = "numbers", ["taktik"] = "tactic", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare", ["penalti"] = "penalties", ["aticilar"] = "takers", ["sorgu"] = "query",
 	};
 
@@ -88,6 +88,7 @@ internal static partial class Program
 		["contract"] = ["--agent", "--term", "--wage", "--next", "--sign", "--cancel", "--yes"],
 		["release"] = ["--free", "--mutual", "--yes"],
 		["propose"] = ["--loan", "--yes"],
+		["offers"] = ["view", "accept", "stall", "reject", "--yes"],
 		["training"] = ["--report", "--coach", "--trait", "--trait-remove", "--trait-cancel", "--trait-suggest", "--focus", "--position", "--role", "--yes"],
 		["tactic"] = ["new", "slot", "copy", "clear", "pi", "instructions", "mentality", "style", "pick", "role", "player", "--oop", "--dry"],
 		["finances"] = ["gelir", "gider"],

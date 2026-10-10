@@ -244,6 +244,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Kiralık — `fm offer --loan`: kart, şartlar, satın alma opsiyonu, gönderildi (§8.46); cevabı ve
       kiralık uzatma (`PersonOfferExtendLoan`) görülmedi
 - [x] Oyuncuyu kulüplere öner — `fm propose <oyuncu> [ücret] [--loan] [--yes]` ("Offer via TransferRoom", §8.94); hedef kulüp seçmek ve ek maddeler yok
+- [x] Gelen teklifler — `fm offers`: cevap bekleyen teklifler; `view` / `accept` / `stall` / `reject` (§8.98). Mesajı gelen kutusundan düşmüş teklif de buradan cevaplanıyor
 - [~] Sözleşme feshi / serbest bırakma — `fm release <oyuncu> [--free|--mutual] [--yes]` (§8.76); `--yes` ile gerçek bırakma denenmedi
 - [x] Serbest oyuncular — `fm players --free` ("Contract Expired" süzgeci, §8.92)
 - [x] Ön anlaşma sözü — `fm contract --term "<vaat>"` vaat ekliyor, `=kaldır` çıkarıyor ("Add Promise", `EventFmxAddPreContractPromise`; 18 Ekim 2025 oyun gününde Defrel kartında doğrulandı)
@@ -461,7 +462,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   2025 otomatik kaydından açıldı (Qarabağ 6-0 gitti). Bütün ayarlar eski değerinde.
 - **Gelen teklife mesajsız cevap** (akşam, FINDINGS §8.98): Defrel teklifinin mesajı listeden düşünce oyun "Review Transfer
   Offer"da durdu; Transfer Activity satırındaki ikon butonuyla reddedildi (satış kararı Faruk'un, oyuncu kaldı).
-  Sıradaki iş adayı: `fm offers` (bekleyen teklifler + kabul / beklet / reddet), yöntem belli.
+  Ardından `fm offers` yazıldı; Defrel teklifi BEKLETİLDİ (karar Faruk'un: `fm offers defrel accept --yes` ya da `reject --yes`).
 - **`fm news`** (akşam, FINDINGS §8.97): basın başlıkları. `fm contracts <oyuncu>` (§8.96): sözleşmenin primleri ve
   maddeleri. `fm propose` uçtan uca doğrulandı: Defrel £50K'ya önerildikten bir hafta sonra Angers aynı bedelle teklif
   yaptı (mesaj cevapsız bırakıldı — satış kararı Faruk'un).

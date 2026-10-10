@@ -3287,8 +3287,11 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   (`…ResponseStall`; pazarlıksız teklifte kapalı), `cancel-reject-button` (`…ResponseCancelReject`). Alttaki etiketli
   "Accept / Stall / Reject Offer" üçlüsü (`EventFmxTransferCentreResponse`) satır seçilmeden kapalı.
 - `/press` ile `cancel-reject-button` teklifi onaysız reddetti ✓: liste boşaldı, oyun "CanContinue"a döndü.
-- Açık: bunu komuta bağlamak (`fm offers`: bekleyen teklifler + kabul / beklet / reddet). Birden çok teklif varken
-  hangi ikon hangi satırın, görülmedi.
+- **`fm offers`** bunu komuta bağladı (aynı akşam, kayıt 19 Ekim'e dönünce teklif yeniden bekliyordu): liste, `view`
+  (teklif kartı), `stall` ✓ (durum "Offer Made (Stalled)", ikinci kez bekletilemiyor — buton kapanıyor ✓), `accept` /
+  `reject` (`--yes` ister; komutla gönderilmedi, ret aynı butonla elle doğrulanmıştı). Bir oyuncuya birden çok teklif
+  varken satırların sırası görülmedi; kod her teklif için "kulüp, tür, -, durum, bedel" beşlisini ve sıradaki
+  `transfer-link-button`'ı eşliyor.
 
 ## 8.99 Tercihlerin kalan sekmeleri; bir kilitlenme (10 Ekim akşam)
 

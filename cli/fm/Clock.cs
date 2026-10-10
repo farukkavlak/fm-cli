@@ -175,7 +175,7 @@ internal static partial class Program
 					// Not a button to press blind: Continue with "Negotiate Contract" showing moved
 					// time on and the deal was withdrawn (FINDINGS §8.42).
 					output.WriteLine(button is { Length: > 0 }
-						? $"Oyun bir adım bekliyor: \"{button}\". Cevabı yarım kalmış bir mesaj olabilir (inbox, sonra reply <#>); değilse bu adım henüz komutla yapılamıyor ve `next` onu atlayabilir (ör. transferi geri çeker)."
+						? $"Oyun bir adım bekliyor: \"{button}\". Cevabı yarım kalmış bir mesaj (inbox, sonra reply <#>) ya da bekleyen bir teklif (offers) olabilir; değilse bu adım henüz komutla yapılamıyor ve `next` onu atlayabilir (ör. transferi geri çeker)."
 						: "Oyun bir adım bekliyor ama ne olduğunu söylemiyor. Ekrandakiler için: buttons");
 					return;
 				}

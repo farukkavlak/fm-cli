@@ -1214,3 +1214,20 @@ Fatih Tekke chasing Muçi   · Beşiktaş · 20 saat önce
 …
 ```
 
+### Oyuncularımıza gelen teklifler — `offers`
+
+```
+$ fm offers
+#  OYUNCU           KULÜP       TÜR    DURUM       BEDEL
+1  Grégoire Defrel  Angers SCO  Satış  Offer Made  £50K
+
+$ fm offers defrel view          teklifin bütün şartları, kart olarak
+$ fm offers defrel stall         beklet: karar için zaman kazan
+$ fm offers defrel accept --yes  kabul et (oyun ayrıca sormaz)
+$ fm offers 1 reject --yes       reddet
+```
+
+Teklifin mesajı birkaç gün sonra gelen kutusundan düşer ama teklif beklemeye devam eder; süresi dolarken oyun
+"Review Transfer Offer" diye durur. O zaman cevap buradan verilir. Pazarlıksız ya da bir kez bekletilmiş teklif
+yeniden bekletilemez.
+
