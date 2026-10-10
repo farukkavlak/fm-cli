@@ -1125,6 +1125,20 @@ Yönetim
     - Extremely disappointed about the heavy 0-4 Turkish Super League defeat against Gençlerbirliği.
 ```
 
+`fm board request` yönetimden neler istenebileceğini sayar (tesis, bütçe, altyapı ağı, personel
+kadrosu, yeni stadyum, yeni sözleşme). Birini istemek için adını yaz; adın ayırt eden bir parçası
+yeter, `--yes` olmadan yalnızca neyin isteneceğini söyler:
+
+```
+$ fm board request "scouts allowed" --yes
+İstendi: Scouts Allowed
+  Yönetim: The board will get back to you shortly to let you know of their decision
+```
+
+Karar sonradan gelen kutusuna mesaj olarak düşer ("Number of scouts increased", "Board respond to
+board request - …"). Cevap bekleyen talepler varken oyun yeni talep açtırmıyor; komut o zaman
+"Yönetim şu an talep almıyor" der.
+
 ### Tesisler — `facilities`
 
 ![fm facilities](img/facilities.png)

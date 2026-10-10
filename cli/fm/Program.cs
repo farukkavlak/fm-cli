@@ -120,7 +120,7 @@ internal static partial class Program
 				"staff" => await Staff(json),
 				"finances" => await Finances(json, args),
 				"supporters" => await Supporters(json),
-				"board" => await Board(json),
+				"board" => args.Length > 1 && args[1] is "request" or "talep" ? await BoardRequests(json, args) : await Board(json),
 				"doctor" => await Doctor(json),
 				"completion" => Completion(args),
 				"export" => await Export(args),
@@ -1211,6 +1211,7 @@ internal static partial class Program
 			  finances gelir|gider [ay|geçen ay|sezon|geçen sezon]   kalem kalem gelir ya da gider
 			  supporters      taraftarlar: hava, beklentiler ve tepkileri, seyirci, kombine, taraftar profili
 			  board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri
+			    request ["<talep>" --yes]   yönetimden istenebilecekler; adıyla birini iste
 			  doctor          kadroda ne yanlış: sakatlar, yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri
 			  facilities      tesisler: stadyum (kapasite, zemin, ölçüler), antrenman tesisi, altyapı, ticari
 			  query "<koşullar>"   kadroda sorgu: "yaş<23 ve potansiyel>140", "sözleşme<1yıl", "mevki=ST ve gol>2";  çıplak hali alanları listeler

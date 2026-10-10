@@ -3468,6 +3468,24 @@ playoff (toplam skor, penaltı), FA Cup, Premier League, Bundesliga, Şampiyonla
 `fm tactic save "<ad>" [--note] [--yes]`, `fm tactic saved [delete "<ad>" --yes]`, `fm tactic load "<ad>" --yes`. Canlı: iki
 kez kaydet / yükle turu, üzerine yazma, uzun ad, Türkçe karakterli ad ("Öbür"), belirsiz ad, silme.
 
+## 8.108 Yönetimden talep (11 Ekim gece)
+
+- Club › Board › "N board member" döşemesi kartı açıyor. Talep türleri dört `GenericDropdown` (etiketi tür: Facilities,
+  Finance, Networking, Staff; seçenekleri talepler, bazıları alt menülü — "Negotiate Existing Affiliation › <kulüp>",
+  "Coaching Staff Allowed › <takım>") ve iki düz buton (`StandardButton`: Build New Stadium, New Contract); hepsi
+  `SpeakToAction`. `/dropdowns?deep=1` alt menüleri `Submenus` altında indeksle veriyor. Bu kayıtta 33 talep.
+- `/select?ptr=&choice=<talep>&fire=1` (alt menüde `names=ana>alt`) talebi iletiyor; `/talk`: "» <talep>", "The board will
+  get back to you shortly to let you know of their decision", tek cevap "Acknowledge and Move On".
+- Yapılmış talep listeden kalkıyor. **Üç talepten sonra kartta hiç talep seçeneği kalmadı** (liste de buton da yok,
+  açıklama yok); iki gün sonra kararlar gelen kutusuna düşünce ("Number of scouts increased", "Staff Numbers Update",
+  "Board respond to board request - Increase Transfer Budget") seçenekler geri geldi.
+- Karttaki "Board Requests" tablosu (Request · Status · Started · Outcome · Completed) bu taleplerle dolmadı; uzun süren
+  işler (tesis, stadyum) için olabilir.
+- Build New Stadium / New Contract denenmedi (görüşme açmaları beklenir; `talk` ile cevaplanır).
+
+`fm board request ["<talep>" --yes]`. Canlı: liste, belirsiz ad, onaysız, üç gerçek talep (biri alt menüden), talep
+alınmayan durum, kararların gelişi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

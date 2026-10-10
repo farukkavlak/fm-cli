@@ -82,6 +82,7 @@ internal static partial class Program
 		["setpieces"] = ["new", "korner", "frikik", "kanat", "derin", "tac"],
 		["stop"] = ["--save", "--no-save"],
 		["load"] = ["--save", "--no-save"],
+		["board"] = ["request", "--yes"],
 		["stages"] = ["--all", "--list", "--refresh"],
 		["save"] = ["--yes", "--as"],
 		["saves"] = ["delete", "--yes"],

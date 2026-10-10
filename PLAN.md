@@ -325,9 +325,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Personel işe al / kov (Coaching, Scouting, Medical)
 - [ ] Personel sorumlulukları (delegasyon)
 - [x] Tesisler (antrenman, gençlik, altyapı) — `fm facilities`: stadyum, antrenman, altyapı, ticari (§8.79)
-- [ ] Tesis geliştirme talebi
+- [x] Tesis geliştirme talebi — `fm board request "improve training facilities" --yes` (§8.108)
 - [x] Yönetim kurulu beklentileri — `fm club`: not, hava, vizyon hedefleri (§8.78)
-- [ ] Yönetimle görüşme / talep — kart okundu (§8.79): talep türleri Build New Stadium, Facilities, Finance, Networking, Staff, New Contract; geçmiş boş, talep etmek denenmedi
+- [x] Yönetimle görüşme / talep — `fm board request ["<talep>" --yes]`: 33 talep türü, karar mesajla geliyor (§8.108); Build New Stadium / New Contract görüşmesi denenmedi
 - [x] Taraftar memnuniyeti — `fm supporters`: hava, beklentiler ve tepkileri, seyirci, profil (§8.79)
 - [x] Kulüp vizyonu / hedefler — `fm club` (§8.78)
 - [~] İş güvenliği (sacılma riski) — `fm board` yönetimin ve taraftarın görüşü konu konu (§8.81); `JobSecurityStatus` sayısının karşılığı bilinmiyor
