@@ -3016,6 +3016,22 @@ kutularından açılıyor:
   seçimi yutulabiliyor, `tactic instructions`'ta da sayfa açıldıktan 0,5 sn sonraki "Team Instructions" basışı; ikisi
   de yeniden deniyor. instructions ↔ pi dört kez art arda ✓.
 
+## 8.84 Maç maç puanlar: Match Ratings sayfası (10 Ekim)
+
+- Oyuncuda `PastMatches` / `PastMatchesRatings` (`List<TypedValue>`) var ama `pathlist` boş veriyor (kaptan yoluyla da,
+  oyuncu sayfası açıkken de); kart yolu (`fmcli.card.p…`) altında liste değil. `LastFiveMatchesForm` alanları `/pull`'da boş.
+- Oyuncu sayfasındaki form kutusu (`layout-tile-interaction-button`, metni "Last 5 Club Games", üstünde son beş maçın
+  ortalaması) yalnızca gerçek tıklamayla (`/click?text=Last 5 Club Games&name=layout-tile-interaction-button`) **Match
+  Ratings** sayfasını açıyor. `/texts?anchor=All Competitions&up=10`: başlık, takım ve turnuva süzgeçleri, özet (Apps, Max. /
+  Min. / Average Rating, Goals Scored, Assists), kolon başlıkları (`#, Date, Pos., Role, Matches, Score, Inf, xG, Ast, Gls,
+  Rating`), sonra satırlar. `Inf` yalnızca oyuna girip çıkanlarda metin ("on 75", "off 60"). Kalecide `xGA, Conc, CS`; CS bir
+  ikon, metni yok. Skor ev sahibi önce (Gençlerbirliği deplasmanı "4 - 0", Ederson 4 gol yemiş). Milli maçlar da listede;
+  kadroda olup oynamadığı maçlar "-" mevki ve 0.00 puanla (Apps 20, satır 22).
+- Liste sanal (`VirtualisedList`, 19 satır görünüyor): `/scroll?anchor=<bir satırın tarihi>&to=0.5|1` ile kalanlar geliyor.
+- Kolay grup, aynı gün: `--json` her komutta (§8.83), `--csv` / `--md` ve `fm export`, `fm diff`, `fm compare`, yazım
+  hatası toleransı. `fm compare`'de ikinci oyuncu sayfası özelliklerin yarısı gelmişken okunabiliyordu; `OpenPlayer` artık
+  özellik sayısı iki okumada aynı kalınca alıyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

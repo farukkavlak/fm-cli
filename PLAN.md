@@ -176,7 +176,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Pozisyon yetkinlikleri — `fm player` mevki başına 1–20 puanı veriyor (§8.80)
 - [x] Sakatlık durumu — `fm player` sakatlığı ve geçmişi (§8.80), `fm squad --view Injuries` listeyi veriyor
 - [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
-- [~] Form — `fm squad --fitness` maç formunu, `fm squad --stats` sezon istatistiklerini veriyor (§8.80); maç maç puanlar yok
+- [x] Form — `fm squad --fitness` maç formunu, `fm squad --stats` sezon istatistiklerini (§8.80), `fm player <ad> --matches` maç maç puanları veriyor (§8.84)
 - [x] Kariyer geçmişi, transfer geçmişi — `fm player <isim> --career` (§8.63)
 - [ ] Gelişim grafiği / potansiyel
 - [~] Milli takım — `fm player` milli maç ve golü veriyor; davet / kadro durumu yok
@@ -501,6 +501,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Kolay grup: maç maç puanlar** (FINDINGS §8.84): `PastMatchesRatings` `/pull`'la boş liste; oyuncu sayfasındaki form
+  kutusu ("Last 5 Club Games") tıklanınca açılan Match Ratings sayfası okunuyor. Skor ev sahibi önce, hangi tarafta
+  oynadığını söylemiyor (fikstürle eşlemek 18 sn sürdüğü için yapılmadı).
 - **Kolay grup: yazım hatası** (`Matching`): önce içeren adlar, yoksa 4-6 harfte 1, 7+ harfte 2 harf farkla en yakınlar.
   Oyunun araması "osimen"de oyuncu bulmuyor, "osim"de buluyor; o yüzden adın ilk 4, sonra 3 harfiyle yeniden aranıyor.
   Kadroda yazım hatası eşleşmesi, dünyada tam eşleşme yoksa kullanılıyor (`sane` iki Sané'yi soruyor, kadrodan birini değil).

@@ -279,6 +279,22 @@ $ fm player kerem --career
           Toplam 259 maç · 75 gol · ödenen bonservisler £29.75M
 ```
 
+### Maç maç puanlar — `player --matches`
+
+Oyuncunun bu sezonki bütün maçları: tarih, rakip, skor, mevki ve rol, oyuna girdiği / çıktığı
+dakika, xG, gol, asist ve puan; üstte maç sayısı, en iyi, en kötü ve ortalama puan. Kalecide
+xG yerine rakibin xG'si ve yediği gol. Skor oyunun verdiği gibi ev sahibi önce.
+
+```
+$ fm player kerem --matches
+Kerem Aktürkoğlu — 22 maç · ortalama 6.91 · en iyi 8.90 · en kötü 6.20 · 7 gol · 3 asist
+#   TARİH       RAKİP           SKOR (EV-DEP)  MEVKİ      GİRDİ/ÇIKTI  xG   GOL  AS  PUAN
+17  13/09/2025  Başakşehir FK   4 - 1          AM (L) IW               0.2  1    1   8.50
+16  08/09/2025  Spain           0 - 4          ST (C) CHF  60' çıktı   0.0  0    0   6.20
+15  05/09/2025  Bulgaria        0 - 2          ST (C) CHF  75' girdi   0.0  0    0   6.60
+…
+```
+
 ### İki oyuncu yan yana — `compare`
 
 `fm compare fred guendouzi` iki oyuncunun kimliğini ve özelliklerini yan yana basar; her
