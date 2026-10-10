@@ -117,6 +117,7 @@ internal static partial class Program
 				"diff" => await Diff(json, args),
 				"compare" => await Compare(json, args),
 				"penalties" => await Penalties(json, args),
+				"takers" => await Takers(json, args),
 				"__names" => await OurNames(),
 				"facilities" => await Facilities(json),
 				"contracts" => await ContractsCalendar(json),
@@ -1148,6 +1149,8 @@ internal static partial class Program
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 			  penalties       penaltı sırası (soğukkanlılık, penaltı özelliği) ve kim ne zaman bırakır kuralları;  penalties <1|2|3> açık|kapalı
 			  penalties move <oyuncu|sıra> <yeni sıra> · add <oyuncu> [<sıra>] · remove <oyuncu|sıra>   sırayı değiştir
+			  takers [<tür>]  duran top atıcıları: korner, frikik, kanat, derin, tac; türle birlikte iki liste ayrıntısıyla
+			  takers <tür> <sağ|sol> move <oyuncu|sıra> <yeni sıra> · add <oyuncu> [<sıra>] · remove <oyuncu|sıra>   o listenin sırasını değiştir
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
 			  saves           diskteki kayıtlar, en yenisi önce
 			  diff            son bakıştan bu yana ne değişti: lig sırası, kasa, bütçe, gelen/giden, sakatlar, sözleşmeler, maç/gol/asist

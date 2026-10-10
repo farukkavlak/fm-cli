@@ -114,6 +114,12 @@ internal static class Mcp
 				? ["penalties", action, .. (Str(a, "player") is { Length: > 0 } p ? new[] { p } : []), .. (a.TryGetProperty("place", out var place) ? new[] { place.ToString() } : [])]
 				: a.TryGetProperty("rule", out var rule) ? ["penalties", rule.ToString(), a.TryGetProperty("on", out var on) && on.ValueKind == JsonValueKind.True ? "açık" : "kapalı"]
 				: ["penalties"]),
+		new("fm_takers", "The set piece takers. Without `kind`: the order for all five kinds. With `kind` (korner, frikik = free kick in shooting range, kanat = wide free kick, derin = deep free kick, tac = throw-in in the attacking third): its two lists (right and left) with each taker's attributes. `side` (sağ or sol) with `action` changes that list: \"move\" puts `player` (a name or his place) at `place`; \"add\" adds one of our players, at `place` when given, else last; \"remove\" takes `player` out.",
+			"""{"type":"object","properties":{"kind":{"type":"string","enum":["korner","frikik","kanat","derin","tac"]},"side":{"type":"string","enum":["sağ","sol"]},"action":{"type":"string","enum":["move","add","remove"]},"player":{"type":"string"},"place":{"type":"integer"}}}""",
+			a => Str(a, "kind") is not { Length: > 0 } kind ? ["takers"]
+				: Str(a, "side") is { Length: > 0 } side && Str(a, "action") is { Length: > 0 } action
+					? ["takers", kind, side, action, .. (Str(a, "player") is { Length: > 0 } p ? new[] { p } : []), .. (a.TryGetProperty("place", out var place) ? new[] { place.ToString() } : [])]
+					: ["takers", kind]),
 		new("fm_happiness", "How happy each first-team player is (Very Unhappy … Very Happy), least happy first, with his status flags (Wnt: wanted by another club, Unr: unregistered, FtT: future transfer, Rst: resting…).",
 			"""{"type":"object","properties":{}}""",
 			_ => ["happiness"]),

@@ -43,7 +43,25 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count > 0 && PenaltyVerb(words[0]) is { } verb)
 		{
-			if (await PenaltyOrder(verb, words.Skip(1).ToList(), Form) is { } failed) return failed;
+			var table = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(c => Field(c, "Type") == "StreamedTable" && Field(c, "Events").Contains("PenaltyCandidatesMove", StringComparison.Ordinal));
+			if (table.ValueKind != JsonValueKind.Object)
+			{
+				Console.Error.WriteLine("Penaltıcılar tablosu sayfada bulunamadı.");
+				return 1;
+			}
+			var order = new DraggedList("penalties", "Penaltıcı", "penaltıcılar", "Penaltıcılara", Field(table, "Pointer"),
+				async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d.Value, "Label") == "Add Player"),
+				async () =>
+				{
+					// A row half drawn has a number where he starts.
+					var read = await Form();
+					var now = PenaltyTakers(read);
+					return (now.Select(t => new Placed(t.Order, t.Name)).ToList(),
+						string.Join("|", read.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text"))),
+						now.All(t => !int.TryParse(t.Where, out _)));
+				});
+			if (await Reorder(order, verb, words.Skip(1).ToList()) is { } failed) return failed;
 			form = await Form();
 			words = [];
 		}
@@ -94,8 +112,10 @@ internal static partial class Program
 			Console.WriteLine("\nSıra: penalties move <oyuncu> <sıra> · add <oyuncu> [<sıra>] · remove <oyuncu>   ·   kural: penalties <1|2|3> açık|kapalı");
 		return 0;
 
-		static string Starting(string where) => where.StartsWith("Starting at ", StringComparison.Ordinal) ? $"ilk 11 · {where[12..]}" : where;
 	}
+
+	private static string Starting(string where) =>
+		where.StartsWith("Starting at ", StringComparison.Ordinal) ? $"ilk 11 · {where[12..]}" : where == "On Subs bench" ? "yedek" : where;
 
 	private sealed record PenaltyTaker(int Order, string Number, string Name, string Where, string Composure, string Penalties);
 
@@ -131,99 +151,114 @@ internal static partial class Program
 		_ => null,
 	};
 
+	/// <summary>One row of a list kept in order: his place and his name.</summary>
+	private sealed record Placed(int Order, string Name);
+
 	/// <summary>
-	/// Moves a taker to a place in the order, adds a player to it or takes one out, and waits for
-	/// the page to show it. Null when it went through; otherwise the exit code.
+	/// A list of players whose order is changed on the page by dragging: the table that holds it,
+	/// the "Add Player" list beside it, and how it is read — its rows, a key that changes when
+	/// any cell does, and whether every row is drawn whole. The words are for what is said:
+	/// the command, one of them, all of them, and "to them".
 	/// </summary>
-	private static async Task<int?> PenaltyOrder(string verb, List<string> words, Func<Task<List<JsonElement>>> form)
+	private sealed record DraggedList(string Command, string One, string All, string To, string Pointer,
+		Func<Task<JsonElement?>> Adds, Func<Task<(List<Placed> Rows, string Key, bool Whole)>> Read);
+
+	/// <summary>
+	/// Moves a player to a place in the order, adds one to it or takes one out, and waits for
+	/// the page to show it (§8.90). Null when it went through; otherwise the exit code.
+	/// </summary>
+	private static async Task<int?> Reorder(DraggedList list, string verb, List<string> words)
 	{
-		var takers = PenaltyTakers(await form());
-		var table = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.FirstOrDefault(c => Field(c, "Type") == "StreamedTable" && Field(c, "Events").Contains("PenaltyCandidatesMove", StringComparison.Ordinal));
-		if (table.ValueKind != JsonValueKind.Object)
-		{
-			Console.Error.WriteLine("Penaltıcılar tablosu sayfada bulunamadı.");
-			return 1;
-		}
-		var pointer = Field(table, "Pointer");
+		var takers = (await list.Read()).Rows;
 
 		// A place in the order, when the last word is one.
 		int? place = words.Count > 0 && int.TryParse(words[^1], out var n) && (verb != "remove" || words.Count > 1) ? n : null;
 		if (verb == "move" && words.Count == 1 && place != null) place = null;
 		var who = string.Join(" ", place != null ? words.Take(words.Count - 1) : words);
 
-		async Task<bool> Shows(Func<List<PenaltyTaker>, bool> done)
+		async Task<bool> Shows(Func<List<Placed>, bool> done)
 		{
-			List<PenaltyTaker> now = [];
 			var previous = "";
 			return await Until(async () =>
 			{
 				// The table is redrawn row by row; it is read once every cell has stood still
-				// and each row is whole (a row half drawn has a number where he starts).
-				var read = await form();
-				now = PenaltyTakers(read);
-				var key = string.Join("|", read.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text")));
-				var settled = key == previous && now.All(t => !int.TryParse(t.Where, out _)) && done(now);
+				// and each row is whole.
+				var (now, key, whole) = await list.Read();
+				var settled = key == previous && whole && done(now);
 				previous = key;
 				return settled;
 			}, seconds: 6, every: 0.4);
+		}
+
+		// A call that lands while the page is being painted is thrown out of, sometimes after
+		// it has done its work (§8.91): the page says which, and it is sent again only when
+		// nothing has changed. Null when the page shows it, "" when it does not, else the error.
+		async Task<string> Dragged(Func<List<Placed>, bool> done, string route, params (string, string)[] query)
+		{
+			for (var again = false; ; again = true)
+			{
+				var said = await Fm.Get(route, query);
+				if (!said.StartsWith("error", StringComparison.Ordinal)) return await Shows(done) ? null : "";
+				if (!said.Contains("active visual tree", StringComparison.Ordinal)) return said;
+				if (await Shows(done)) return null;
+				if (again) return said;
+			}
 		}
 
 		if (verb == "add")
 		{
 			if (who.Length == 0 && !Ui.Interactive)
 			{
-				Console.Error.WriteLine("kullanım: penalties add <oyuncu> [<sıra>]");
+				Console.Error.WriteLine($"kullanım: {list.Command} add <oyuncu> [<sıra>]");
 				return 64;
 			}
 			// The list names its players by their index; the squad says whose each is.
-			var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Add Player");
-			if (list.ValueKind != JsonValueKind.Object)
+			if (await list.Adds() is not { } adds)
 			{
 				Console.Error.WriteLine("Sayfada \"Add Player\" listesi yok.");
 				return 1;
 			}
 			var squad = (await Fm.Pull("Human.Team.Players", "Name,Index", list: true)).EnumerateArray()
 				.Where(p => Field(p, "Name").Length > 0).GroupBy(p => Field(p, "Index")).ToDictionary(g => g.Key, g => Field(g.First(), "Name"));
-			var candidates = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "")
+			var candidates = adds.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "")
 				.Where(c => c.StartsWith('#') && squad.ContainsKey(c[1..])).Select(c => (Choice: c, Name: squad[c[1..]])).ToList();
 
 			string picked;
 			if (who.Length == 0)
 			{
-				if (Ui.Ask("Penaltıcılara kim eklensin?", candidates.Select(c => c.Name).ToList()) is not { } asked) return 0;
+				if (Ui.Ask($"{list.To} kim eklensin?", candidates.Select(c => c.Name).ToList()) is not { } asked) return 0;
 				picked = candidates[asked].Name;
 			}
 			else
 			{
 				if (takers.Any(t => Fold(t.Name).Contains(Fold(who), StringComparison.Ordinal)))
 				{
-					Console.Error.WriteLine($"'{who}' zaten penaltıcılar arasında; yerini değiştirmek için: penalties move \"{who}\" <sıra>");
+					Console.Error.WriteLine($"'{who}' zaten {list.All} arasında; yerini değiştirmek için: {list.Command} move \"{who}\" <sıra>");
 					return 1;
 				}
 				picked = Choose(candidates.Select(c => c.Name).ToList(), who, "Eklenecek oyuncu");
 				if (picked == null) return 1;
 			}
-			var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", candidates.First(c => c.Name == picked).Choice), ("fire", "1"));
+			var said = await Fm.Get("select", ("ptr", Field(adds, "Pointer")), ("choice", candidates.First(c => c.Name == picked).Choice), ("fire", "1"));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 			if (!await Shows(now => now.Any(t => t.Name == picked)))
 			{
 				Console.Error.WriteLine($"{picked} eklendi ama listede görünmedi.");
 				return 1;
 			}
-			takers = PenaltyTakers(await form());
+			takers = (await list.Read()).Rows;
 			if (place == null || place == takers.Count) return null;
 			// He is added at the end; from there he is moved like anyone else.
 			who = picked;
 			verb = "move";
 		}
 
-		PenaltyTaker taker;
+		Placed taker;
 		if (who.Length == 0)
 		{
 			if (!Ui.Interactive || takers.Count == 0)
 			{
-				Console.Error.WriteLine(verb == "move" ? "kullanım: penalties move <oyuncu|sıra> <yeni sıra>" : "kullanım: penalties remove <oyuncu|sıra>");
+				Console.Error.WriteLine(verb == "move" ? $"kullanım: {list.Command} move <oyuncu|sıra> <yeni sıra>" : $"kullanım: {list.Command} remove <oyuncu|sıra>");
 				return 64;
 			}
 			if (Ui.Ask(verb == "move" ? "Kimin sırası değişsin?" : "Kim çıkarılsın?", takers.Select(t => $"{t.Order}. {t.Name}").ToList()) is not { } asked) return 0;
@@ -232,16 +267,16 @@ internal static partial class Program
 		else if (int.TryParse(who, out var order) && order >= 1 && order <= takers.Count) taker = takers[order - 1];
 		else
 		{
-			var named = Choose(takers.Select(t => t.Name).ToList(), who, "Penaltıcı");
+			var named = Choose(takers.Select(t => t.Name).ToList(), who, list.One);
 			if (named == null) return 1;
 			taker = takers.First(t => t.Name == named);
 		}
 
 		if (verb == "remove")
 		{
-			var removed = await Fm.Get("rowremove", ("ptr", pointer), ("index", (taker.Order - 1).ToString()), ("force", "1"));
-			if (removed.StartsWith("error", StringComparison.Ordinal)) return Report(removed);
-			if (await Shows(now => now.All(t => t.Name != taker.Name))) return null;
+			var removed = await Dragged(now => now.All(t => t.Name != taker.Name), "rowremove", ("ptr", list.Pointer), ("index", (taker.Order - 1).ToString()), ("force", "1"));
+			if (removed == null) return null;
+			if (removed.Length > 0) return Report(removed);
 			Console.Error.WriteLine($"{taker.Name} çıkarıldı ama listede hâlâ görünüyor.");
 			return 1;
 		}
@@ -254,14 +289,15 @@ internal static partial class Program
 		}
 		if (place == null || place < 1 || place > takers.Count)
 		{
-			Console.Error.WriteLine($"Yeni sıra 1 ile {takers.Count} arasında olmalı: penalties move \"{taker.Name}\" <sıra>");
+			Console.Error.WriteLine($"Yeni sıra 1 ile {takers.Count} arasında olmalı: {list.Command} move \"{taker.Name}\" <sıra>");
 			return 64;
 		}
 		if (place == taker.Order) return null;
 
-		var moved = await Fm.Get("rowmove", ("ptr", pointer), ("from", (taker.Order - 1).ToString()), ("to", (place.Value - 1).ToString()), ("force", "1"));
-		if (moved.StartsWith("error", StringComparison.Ordinal)) return Report(moved);
-		if (await Shows(now => now.Count >= place && now[place.Value - 1].Name == taker.Name)) return null;
+		var moved = await Dragged(now => now.Count >= place && now[place.Value - 1].Name == taker.Name, "rowmove",
+			("ptr", list.Pointer), ("from", (taker.Order - 1).ToString()), ("to", (place.Value - 1).ToString()), ("force", "1"));
+		if (moved == null) return null;
+		if (moved.Length > 0) return Report(moved);
 		Console.Error.WriteLine($"{taker.Name} taşındı ama {place}. sırada görünmüyor.");
 		return 1;
 	}

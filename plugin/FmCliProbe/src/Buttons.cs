@@ -488,11 +488,17 @@ internal static class Buttons
 			if (value.Get()?.TryCast<DynamicReference>() != null) return Choice(value);
 
 			// A list of people shows each as a person reference, which has no text of its own;
-			// the row's value is his index, and the caller knows the squad by that (§8.90).
+			// the row's value is his index, and the caller knows the squad by that (§8.90). A
+			// set piece taker's value is a record with the index in it, beside the kind and side.
 			var text = Text.Clean(value.AsString());
 			if (text.EndsWith("PersonReference", StringComparison.Ordinal)
 			    && entries.TryGetValue("PropertyValue", out var person) && person != null && !person.IsNull)
-				return "#" + Text.Clean(person.AsString());
+			{
+				var taker = person.Get()?.TryCast<DynamicReference>();
+				if (taker == null) return "#" + Text.Clean(person.AsString());
+				if (Send.Entries(taker).TryGetValue("Index", out var index) && index != null && !index.IsNull)
+					return "#" + Text.Clean(index.AsString());
+			}
 			return text;
 		}
 		return "{" + string.Join(", ", entries.Keys.Take(8)) + "}";
