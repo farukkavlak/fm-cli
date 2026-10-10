@@ -1234,9 +1234,19 @@ KİŞİ               WORKING WITH YOUNGSTER  TACTICAL  TECHNICAL  DEFENDING  AT
 Abdullah Gür       12                      5         5          5          5          Coach  FrA
 ```
 
-`--filter` oyunun hazır süzgeçlerinden biridir (kulübe gelmek isteyenler: `staff find --filters`),
-`--view` sütunları değiştirir (Contract, Rating, Coaching, Medical, Mental, Scouting). `DURUM`'daki
-`FrA` serbest demek. İşe almak (görüşme ve sözleşme) henüz yok.
+Aramayı oyunun kendi süzgeçleriyle daraltırsın: `--role <görev>` (scout, coach, physio, goalkeeping
+coach, assistant manager…), `--free` (bir kulüpte çalışmayanlar), `--reputation <seviye>` (good,
+very good, superb…). `--view` sütunları değiştirir (Contract, Rating, Coaching, Medical, Mental,
+Scouting); `--filter` kulübe gelmek isteyenleri seçer (`staff find --filters`).
+
+```
+$ fm staff find --role scout --free --view scouting
+KİŞİ         ANALYSING DATA  JUDGING PLAYER ABILITY  JUDGING PLAYER POTENTIAL  JOB    DURUM
+Ibrahim Bâ   3               15                      14                        Scout  FrA
+```
+
+Arama oyunda açık kalır (sonraki `staff find` de aynı süzgeçle gelir); sıfırlamak için `--clear`.
+`DURUM`'daki `FrA` serbest demek. İşe almak (görüşme ve sözleşme) henüz yok.
 
 ### Kim neyi yapıyor — `responsibilities`
 

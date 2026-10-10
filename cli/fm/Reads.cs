@@ -524,7 +524,7 @@ internal static partial class Program
 		string[] noise = ["UniqueId", "Regenerated", "Team", "Count", "PlayerStatusSortType", "NewgenAppearanceDescription",
 			"AverageRating", "Index", "SquadNumberBlankIfInvalid", "PositionValue", "Position", "SubstituteString", "StatusType",
 			"TransferValueRangeStatus", "Level", "AddOnType", "MaxValue", "MinValue", "Grade", "ScoutedBestRole",
-			"ScoutedBestPosition", "Text"];
+			"ScoutedBestPosition", "Text", "Person"];
 
 		var columns = rows.SelectMany(p => p.EnumerateObject().Select(f => f.Name))
 			.Distinct()

@@ -1082,7 +1082,7 @@ internal static partial class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] is "--note" or "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice" or "--coach" or "--trait" or "--trait-remove") { i++; continue; }
+			if (args[i] is "--employed" or "--reputation" or "--note" or "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice" or "--coach" or "--trait" or "--trait-remove") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}

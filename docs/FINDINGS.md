@@ -3594,11 +3594,15 @@ devret / geri al, zaten o durumda olan.
   (`inputs-combobox-default-default`): "Interested staff - First Team / Reserves / Youth Team" (`fire=1` ile). Görünüm
   listesi `ViewAltDropdown`: Contract, Rating, Coaching, Medical, Mental, Scouting — nitelik görünümlerinde satırlara 20
   üzerinden nitelikler bağlanıyor (Working With Youngsters, Tactical, Technical, Defending, Attacking, Goalkeeping…).
-- Liste sanal ve ada göre sıralı (21 satır); belirli bir göreve göre oyun tarafında süzme bulunmadı — komut sayfanın
-  gösterdiğini ad / göreve göre daraltıyor.
+- Liste sanal ve ada göre sıralı (21 satır çiziliyor; süzgeçsiz ~9000 kişi).
+- **Arama paneli:** `EventFmxFilterStoreFilter` taşıyan buton ("Edit Search", arama varken "Edit Search (2)") paneli açıyor:
+  "Staff Role" (Any / Coaching › / Recruitment Team › / Medical ›; alt menülerde on altı görev), "Employed" (Any / No /
+  By Club / By Nation), "Reputation" (Minimal … Exceptional), "Add Attribute" (koşul eklemek; kullanılmadı), `Cancel`,
+  `Apply`. Seçimler `/select … fire=1` ile, sonra `Apply`; satırlar süzülmüş geliyor. Arama sayfada kalıyor; `Clear`
+  (`EventFmxResetFilter`) sıfırlıyor. Aynı panel oyuncu veritabanında da var (orada kullanılmıyor).
 - İşe alma (yaklaşma, sözleşme) denenmedi.
 
-`fm staff find [metin] [--filter] [--view] [--filters] [--views]`.
+`fm staff find [metin] [--role] [--free|--employed] [--reputation] [--filter] [--view] [--clear]`.
 
 ## 9. Sıradaki adımlar
 
