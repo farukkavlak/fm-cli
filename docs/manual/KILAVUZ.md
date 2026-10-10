@@ -1214,6 +1214,8 @@ Fatih Tekke chasing Muçi   · Beşiktaş · 20 saat önce
 …
 ```
 
+Başlıkların önünde numara var; `fm news 3` ya da `fm news tiago` o haberin tamamını verir.
+
 ### Oyuncularımıza gelen teklifler — `offers`
 
 ```

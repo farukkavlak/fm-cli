@@ -3272,7 +3272,10 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
 - Aynı sayfada gelen kutusu mesajları da bağlı (aynı `NewsTitleString`); onların yaşı yok, öyle ayrılıyorlar.
 - ⚠ Sayfa karo karo doluyor ve yarım haliyle de bir an sabit duruyor: iki okuma aynı diye kabul edilince 16 başlığın
   8'i geldi. Üç okuma şartıyla dört ardışık çağrıda 16 / 16 ✓ (araya başka sayfa açarak).
-- Haberin tamamı karonun butonunda (`NewsItemButton`, `SetNewsActionDataOnPanel`); açılmadı.
+- **Haberin tamamı** karonun kendi `#newsBodyText` metninde (çok paragraflı; ağaçtaki `NewsBodyString` yalnızca ilk
+  cümle). Karo butonu (`layout-tile-interaction-button`, `RunNewsAction, MarkMediaNewsAsRead`) haberi mesaj
+  görünümünde açıyor, orada metin `#BodyText`. `fm news <#>` karoya basıp bu iki addan birini taşıyan metni okuyor ✓
+  (dört haber, biri altı paragraf). Yaş "Just Now" da olabiliyor.
 - **Kulüplere önerme sonuç verdi:** Defrel 11 Ekim'de £50K ile önerildi (§8.94), 17 Ekim'de gelen kutusuna "Angers SCO
   make Defrel offer" düştü (£50,000, pazarlıksız; Accept / Reject / View Offer).
 
