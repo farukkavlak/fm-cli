@@ -844,6 +844,48 @@ Most Goals: Victor Osimhen
 …
 ```
 
+Aynı şekilde `--csv` yalnızca tabloları CSV olarak basar (tablosu olmayan komut hata verir),
+`--md` tabloları Markdown tablosuna çevirip aradaki satırları korur:
+
+```
+$ fm table --csv | head -3
+#,TAKIM,O,G,B,M,AV,P
+1,Galatasaray,8,7,0,1,18,21
+2,Göztepe,7,6,1,0,11,19
+```
+
+### Rapor dosyası — `export`
+
+`fm export rapor.md` durum, kadro, lig tablosu, fikstür, sağlık, sözleşmeler ve finansı başlık
+başlık tek bir Markdown dosyasına yazar (~15 sn). İstediğin komutları sırayla da verebilirsin;
+birden çok kelimeli komut tırnak içinde:
+
+```
+$ fm export rapor.md
+/…/rapor.md yazıldı (7/7 bölüm).
+$ fm export maç-öncesi.md opponent "squad --fitness" health
+$ fm export kadro.csv "squad --stats"      CSV: tek komutun tablosu
+```
+
+Dosyanın başı şöyle:
+
+```
+# Fenerbahçe — 5 Ekim 2025
+
+## Durum
+FM açık, kayıt yüklü. 5 Ekim 2025 Pazar 17:15
+Sıradaki maç: Fatih Karagümrük · iç saha · Super League · 18 Ekim Cumartesi 16:00 (13 gün sonra)
+
+## Kadro
+
+| OYUNCU | POZİSYON | YAŞ | STATÜ | MAAŞ | DEĞER | DURUM |
+|---|---|---|---|---|---|---|
+| Anthony Musaba | AM (RL), ST (C) | 24 | Squad Player | £14.25K p/w | £2.1M - £5.2M |  |
+…
+```
+
+Dosya adı verilmezse rapor ekrana basılır (`fm export | less`).
+
 ## 14. Claude'dan oynamak — MCP
 
 `fm mcp` bütün komutları MCP araçları olarak sunar; repo kökündeki `.mcp.json` bunu

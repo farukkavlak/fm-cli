@@ -381,7 +381,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Sezon karşılaştırması / trend
 - [ ] `fm diff` — son maçtan beri ne değişti
 - [ ] `fm watch` — bir oyuncuyu/durumu izle, değişince haber ver (`Bindings.Bind` ile)
-- [ ] Export: CSV / JSON / Markdown rapor
+- [x] Export: CSV / JSON / Markdown rapor — her komutta `--csv` / `--md`; `fm export rapor.md [komutlar…]` başlık başlık rapor, `export x.csv "<komut>"`
 
 ---
 
@@ -501,6 +501,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Kolay grup: export**: `--csv` / `--md` her komutta (tablolar `Table.Write`'tan geçtiği için tek yerde), `fm export`
+  birkaç komutu tek Markdown rapora yazıyor. Yan ürün: düz `fm table` portal kutusunda boş G/B/M/AV kolonları basıyordu.
 - **Kolay grup: `--json`** (FINDINGS §8.83): bir şey gösteren her komut JSON veriyor; tuple'lar ve Türkçe harfler
   düzgün. Yan ürün: `fm league` adlar gelmeden okuyordu; `tactic pi` talimat görünümünden sahaya dönemiyordu
   ("Team Shape" gerçek tıklama), `tactic instructions` erken basışı kaçırıyordu.
