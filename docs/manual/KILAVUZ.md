@@ -809,6 +809,10 @@ terminalde okla seçersin, script'te `budget ayarla <adım>`. Seçmezsen hiçbir
 
 `fm save --yes` oyunu kaydeder. Mevcut kaydın üzerine yazar, o yüzden `--yes` ister.
 
+`fm stop` oyunu kapatır. Kaydedilmemiş ilerleme oyunla birlikte gittiği için önce sorar: "Kaydet ve
+kapat" ya da "Kaydetmeden kapat". Script'te hangisi olduğunu sen söylersin: `fm stop --save` ya da
+`fm stop --no-save`. (Oturumdaki `quit` yalnızca oturumdan çıkar, oyun açık kalır.)
+
 `fm settings` oyunun ayarlarını gösterir: maçın ne kadarının gösterildiği ve hızı, otomatik
 kayıt, dil, para birimi, birimler. Terminaldeysen ardından hangisini değiştirmek istediğini
 okla sorar; "Hiçbiri" ile çıkarsın.

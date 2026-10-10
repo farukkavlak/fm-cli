@@ -149,7 +149,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kaydet — `fm save --yes`, dosyanın üzerine (§8.35)
 - [ ] Farklı kaydet (kayıt tarayıcısı paneli: `SaveGameHandlerModule.m_saveBrowserPanel`)
 - [ ] Kaydı sil (`DeleteSelectedGameEvent` mevcut)
-- [ ] Oyunu kapat
+- [x] Oyunu kapat — `fm stop` (önce kaydedilsin mi diye sorar; `--save` / `--no-save`)
 - [x] Otomatik kaydetme ayarı — `fm settings` (§8.61); ⚠ açıkken ana dosyanın üzerine yazıyor (§8.35)
 - [ ] Bulut kayıt durumu
 - [?] Kariyer **oluşturma** (çok adımlı sihirbaz — lig seçimi, veritabanı boyutu, menajer profili)
@@ -459,6 +459,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm stop`**: oyunu kapatıyor (süreç sonlandırılıyor); kaydedip kaydetmemeyi soruyor, script'te `--save` /
+  `--no-save` şart. `--no-save` denendi (3 sn), `--save` yolu `fm save --yes`'in kendisi, ayrıca denenmedi.
 - **Serbest oyuncular ve bir sızıntı** (FINDINGS §8.92): `fm players --free`. `/pull` ile okunan kendi kadromuz
   (squad, contracts, doctor…) sonraki `fm players` listesine karışıyordu; köprü artık kendi koyduğu düğümleri kişi
   listelerine almıyor. Maç hazırlığı odağını değiştirmek ve gelişim grafiği denendi, ikisi de park.
