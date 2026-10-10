@@ -72,7 +72,7 @@ internal static partial class Program
 	private static readonly Dictionary<string, string[]> CommandFlags = new()
 	{
 		["squad"] = ["--fitness", "--morale", "--stats", "--u19", "--views", "--view"],
-		["player"] = ["--actions", "--career"],
+		["player"] = ["--actions", "--career", "--matches"],
 		["players"] = ["--filters", "--filter", "--clear", "--views", "--view"],
 		["fixtures"] = ["--all"],
 		["calendar"] = ["--u19"],

@@ -266,7 +266,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası> [--actions] [--career]");
+			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches]");
 			return 64;
 		}
 
@@ -274,6 +274,7 @@ internal static partial class Program
 		if (await OpenPlayer(wanted) is not { } card) return 1;
 		if (args.Contains("--actions")) return await PlayerActions(card.GetProperty("Player"));
 		if (args.Contains("--career")) return await Career(card, json);
+		if (args.Contains("--matches")) return await PlayerMatches(card, json);
 
 		if (json)
 		{
