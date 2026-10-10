@@ -175,7 +175,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Gizli öznitelikler (scout görüşü kadarıyla) — kartta kulübün gördüğü potansiyel (`PerceivedPotentialAbility`, /200); kişilik özellikleri, tutarlılık vb. `/pull` ile gelmiyor (§8.85); kişilik `fm dynamics`'te (§8.95)
 - [x] Pozisyon yetkinlikleri — `fm player` mevki başına 1–20 puanı veriyor (§8.80)
 - [x] Sakatlık durumu — `fm player` sakatlığı ve geçmişi (§8.80), `fm squad --view Injuries` listeyi veriyor
-- [~] Sözleşme: maaş, bitiş tarihi, oynama süresi `fm player`'da; madde ve bonuslar yok
+- [x] Sözleşme — maaş, bitiş tarihi, oynama süresi `fm player`'da; primler ve maddeler `fm contracts <oyuncu>` (§8.96)
 - [x] Form — `fm squad --fitness` maç formunu, `fm squad --stats` sezon istatistiklerini (§8.80), `fm player <ad> --matches` maç maç puanları veriyor (§8.84)
 - [x] Kariyer geçmişi, transfer geçmişi — `fm player <isim> --career` (§8.63)
 - [~] Gelişim grafiği / potansiyel — potansiyel kartta (§8.85); gelişim grafiği yok (`AbilityProgressHistory` dört sayı, ölçeği belirsiz; `/pull` listeyi açmıyor)

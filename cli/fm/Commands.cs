@@ -100,7 +100,7 @@ internal static partial class Program
 	};
 
 	// Commands whose next word is one of our players, which completion offers by name.
-	private static readonly string[] TakesOurPlayer = ["player", "compare", "contract", "release", "propose", "training", "intensity", "captains"];
+	private static readonly string[] TakesOurPlayer = ["player", "compare", "contract", "contracts", "release", "propose", "training", "intensity", "captains"];
 
 	/// <summary>Our players' names, one a line, for completion; nothing at all when the game is not up.</summary>
 	private static async Task<int> OurNames()

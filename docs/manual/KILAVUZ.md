@@ -1176,3 +1176,22 @@ Kerem Aktürkoğlu  Takım lideri  Perfectionist
 
 Gruplar oyunun kendi ayrımı (çekirdek, ikincil A / B, gruba girmeyenler); altındaki cümle grubu neyin bir arada
 tuttuğunu söyler. Takım liderlerini üzmek soyunma odasını çabuk bozar; kaptan seçerken ve birini satarken bak.
+
+### Bir oyuncunun sözleşmesi — `contracts <oyuncu>`
+
+```
+$ fm contracts kerem
+Kerem Aktürkoğlu — sözleşme 30/6/2029 tarihine kadar
+ŞART                    DEĞER
+Haftalık ücret          £115K p/w
+Vergi sonrası           £93K p/w
+Kadro statüsü           Regular Starter
+Tür                     Full Contract
+Maç başı ücret          £23.5K
+Gol primi               £17.5K
+Oynamayan yedek ücreti  £5.75K
+Düşersek indirim        25%
+```
+
+Yalnızca sözleşmede olan şartlar listelenir. Kupa ve ödül primleri burada görünmüyor (oyun onları ayrı bir listede
+tutuyor); yenileme kartında (`contract <oyuncu>`) görürsün.

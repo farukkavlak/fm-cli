@@ -123,7 +123,7 @@ internal static partial class Program
 				"query" => await Query(json, args),
 				"__names" => await OurNames(),
 				"facilities" => await Facilities(json),
-				"contracts" => await ContractsCalendar(json),
+				"contracts" => await ContractsCalendar(json, args),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
 				"fixtures" => await Fixtures(json, args.Contains("--all")),
@@ -1179,6 +1179,7 @@ internal static partial class Program
 			  happiness       oyuncuların mutluluğu, en mutsuz önce
 			  dynamics        soyunma odası: hava, menajere destek, hiyerarşi ve sosyal gruplar
 			  contracts       sözleşme takvimi: kimin sözleşmesi ne zaman bitiyor, en yakın önce
+			  contracts <oyuncu>  bir oyuncunun sözleşmesi: ücret, statü, primler ve maddeler
 			  club            kulüp özeti: yönetim notu ve hedefler, taraftar, kasa ve maaş, tesisler, ekipteki boşluklar
 			  staff           kulüp personeli: kim hangi işte, yaşı, maaşı, sözleşmesi; ekiplerdeki eksikler ve yönetimin görüşü
 			  finances        finans: kasa, bu ayın gelir/gideri, borç, FFP, oyuncu tipine göre maaş bordrosu, sponsorluk, projeksiyon

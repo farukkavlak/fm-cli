@@ -3251,6 +3251,19 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   (Playing Time seçenekleri dolu, "Finalise Promises" var); kilit o güne özgüydü, nedeni bilinmiyor. Vaat aşamasında
   "Cancel Negotiations" da "Exit Talks" da yok; `contract --cancel` sayfadan çıkarak kapatıyor ✓.
 
+## 8.96 Sözleşmenin primleri ve maddeleri (10 Ekim akşam)
+
+- `FullContract`'ın her şartı bir `displayvaluewithsort`: `<Alan>.DisplayValue` okunur metni veriyor (`AppearanceBonus`
+  "£23.5K", `GoalBonus`, `CleanSheetBonus`, `UnusedSubBonus`, `LoyaltyBonus`, `WageAfterTax` "£93K p/w after tax",
+  `ContractType`, `RelegationWageDecrease` "25%", `MinimumFeeReleaseClauseValue`, `SellingOnFeePercentage`…). Olmayan
+  şart "-", evet / hayır maddeleri "No". Ekran açmadan, maç sırasında da okunuyor.
+- İlk istekte değer boş dönüyor (bağlanması bir kare sürüyor); `fm contracts <oyuncu>` alanları önce bir kez isteyip
+  sonra okuyor. `ContractBonuses` / `ContractClauses` (`contractaddonlistreference`) liste olarak açılmıyor;
+  `ContractBonusesCount` boş. Kupa / ödül primleri (yeni imzalanan Müldür sözleşmesindeki "UEFA Europa League
+  kazanılırsa") bu yüzden görünmüyor.
+- Doğrulama: Müldür'ün yeni sözleşmesi imzalanan şartlarla aynı (£31.5K, maç başı £8K, gol yememe £4.7K, yedek £3.9K,
+  30/6/2028).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
