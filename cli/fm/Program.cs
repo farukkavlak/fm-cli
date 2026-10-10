@@ -1090,6 +1090,7 @@ internal static partial class Program
 			                  geri alınamaz: terminalde sorar, script'te --yes ister
 			  players         oyuncu veritabanı (ekrandaki satırlar)
 			    --filters / --filter "<x>"   hazır süzgeçler: Transfer Listed, Contract Expiring…
+			    --free                       serbest oyuncular (sözleşmesi bitmiş; "Contract Expired" süzgeci)
 			    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)
 			    --views / --view "<x>"       kolonları belirleyen görünümler
 			  table           lig tablosu

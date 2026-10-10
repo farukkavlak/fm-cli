@@ -670,7 +670,8 @@ internal static partial class Program
 			if (cleared.StartsWith("error", StringComparison.Ordinal)) return Report(cleared);
 		}
 
-		if (Option(args, "--filter") is { } wantedFilter)
+		// Free agents are the players whose contract has run out.
+		if ((Option(args, "--filter") ?? (args.Contains("--free") ? "Contract Expired" : null)) is { } wantedFilter)
 		{
 			if (Choose(filterNames, wantedFilter, "Süzgeç") is not { } filter) return 1;
 
@@ -697,7 +698,7 @@ internal static partial class Program
 		JsonElement people = default;
 		var last = "";
 		var waited = 0;
-		var asked = Option(args, "--filter") != null || Option(args, "--view") != null || args.Contains("--clear");
+		var asked = Option(args, "--filter") != null || Option(args, "--view") != null || args.Contains("--clear") || args.Contains("--free");
 		await Until(async () =>
 		{
 			var now = await Fm.GetJson("people");

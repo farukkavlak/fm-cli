@@ -59,7 +59,7 @@ internal static class Mcp
 			a => ["register", .. Flag(a, "auto", "--auto"), .. Each(a, "add", "--in"), .. Each(a, "remove", "--out"), .. Flag(a, "send", "--send")]),
 		new("fm_numbers", "Submit the squad numbers the competition asks for: the assistant assigns them.",
 			None, _ => ["numbers", "--auto"]),
-		new("fm_players", "The player database (every player the game knows), as far as the page has rows on screen — about twenty. `filter` applies one of the game's quick filters (Transfer Listed, Loan listed, Contract Expiring, Unhappy, Goalkeepers…) and it stays applied; `view` chooses which columns the rows carry (Overview, General Info, Contract, Transfer…). list=filters or list=views prints the choices.",
+		new("fm_players", "The player database (every player the game knows), as far as the page has rows on screen — about twenty. `filter` applies one of the game's quick filters (Transfer Listed, Loan listed, Contract Expired — the free agents —, Contract Expiring, Unhappy, Goalkeepers…) and it stays applied; `view` chooses which columns the rows carry (Overview, General Info, Contract, Transfer…). list=filters or list=views prints the choices.",
 			"""{"type":"object","properties":{"filter":{"type":"string"},"view":{"type":"string"},"list":{"type":"string","enum":["filters","views"]},"clear":{"type":"boolean","description":"Remove the filter in force first."}}}""",
 			a => ["players", .. Str(a, "list") switch { "filters" => new[] { "--filters" }, "views" => ["--views"], _ => [] }, .. Flag(a, "clear", "--clear"),
 				.. Str(a, "filter") is { Length: > 0 } filter ? new[] { "--filter", filter } : [],

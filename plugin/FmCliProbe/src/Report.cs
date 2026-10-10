@@ -37,6 +37,10 @@ internal static class Report
 			// under MainTeam.Players never have one.
 			if (node.Value?.DataType?.Name != "PersonReference") continue;
 
+			// What /pull has put at nodes of its own is not a row of the screen: a squad read
+			// that way stays bound and would turn up in every list of people after it (§8.92).
+			if (path.StartsWith("fmcli.", StringComparison.Ordinal) || path.Contains(".fmcli.", StringComparison.Ordinal)) continue;
+
 			var fields = Fields(node);
 			if (!fields.TryGetValue("Name", out var name) || string.IsNullOrEmpty(name)) continue;
 
