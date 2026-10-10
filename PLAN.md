@@ -373,7 +373,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 > FM arayüzünde yapması işkence olan, terminalde tek satır olan şeyler.
 
-- [ ] Serbest sorgu: `fm query "yaş<23 ve potansiyel>4 ve sözleşme<1yıl"`
+- [~] Serbest sorgu — `fm query "yaş<23 ve potansiyel>140 ve sözleşme<1yıl"`: kendi kadromuzda on yedi alan, `--sort`; oyuncu veritabanında (başka kulüpler) yok
 - [x] Kadro sağlık taraması — `fm health`: sakat, yorgun, maç formu düşük, sakatlık riski en yüksek (§8.71)
 - [x] Sözleşme takvimi — `fm contracts`: en yakın biten önce, renkli (§8.72)
 - [x] Derinlik matrisi: hangi pozisyon zayıf — `fm depth`, `fm doctor` ince mevkiler
@@ -459,6 +459,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- **`fm query`**: kadroda serbest sorgu (yaş, mevki, kondisyon, maç formu, sakat, potansiyel, maaş, sözleşme süresi,
+  statü, maç / gol / asist / puan…); ekran açmadan tek `/pull`. Maaş `FullContract.Wage.DisplayValue`, statü
+  `FullContract.AgreedPlayingTime.DisplayValue` yolundan geliyor; piyasa değeri `/pull`'da bulunamadı.
 - `player --matches` puanların çubuk grafiğini de basıyor (eski → yeni, 5.5–9 ölçeği).
 - Fikstürde beraberlik de renkli (oyunun işareti `ResultType` 9; 1 galibiyet, 3 penaltıyla, 10 mağlubiyet).
 - **`fm stop`**: oyunu kapatıyor (süreç sonlandırılıyor); kaydedip kaydetmemeyi soruyor, script'te `--save` /

@@ -371,6 +371,35 @@ fm takers frikik sol remove talisca    listeden çıkar
 Eklenebilecekler o listenin ayağını kullananlar; yanlış ad yazarsan kimlerin eklenebileceğini söyler.
 Savunma ve orta saha taçlarında oyun atıcı seçtirmiyor.
 
+### Kadroda sorgu — `query`
+
+Koşulları `ve` ile bağla; her koşul bir alan, bir karşılaştırma ve bir değer.
+
+```
+$ fm query "yaş<25 ve potansiyel>140"
+OYUNCU              YAŞ  MEVKİ            POTANSİYEL
+Dorgéles Néné       22   AM (RL), ST (C)  144
+Archie Brown        23   D/WB/M (L)       149
+Jayden Oosterwolde  24   D (LC)           148
+
+3 oyuncu (28 içinden)
+```
+
+```
+fm query "sözleşme<1yıl"               sözleşmesi bir yıldan az kalanlar
+fm query "mevki=ST ve gol>2"           forvet oynayabilen, ikiden çok gol atanlar
+fm query "kondisyon<70 ve !sakat"      yorgun ama sakat olmayanlar
+fm query "maaş>150K" --sort yaş        haftalık 150 binden çok alanlar, yaşa göre
+fm query                               alanların listesi
+```
+
+Alanlar: `ad`, `yaş`, `mevki`, `no`, `ülke`, `boy`, `kondisyon`, `form` (maç formu), `sakat`, `potansiyel`
+(kulübün gördüğü, 200 üzerinden), `maaş` (haftalık), `sözleşme` (kalan süre: `1yıl`, `18ay`), `statü`, `maç`,
+`gol`, `asist`, `puan`. Karşılaştırmalar: `<  <=  >  >=  =  !=`. Yazı alanlarında `=` "içinde geçiyor"
+demek (`mevki=ST` hem "ST (C)" hem "AM (RC), ST (C)" olanı bulur). Sonuç ilk koşulun alanına göre sıralanır
+("küçüktür" sorduysan küçükten büyüğe); `--sort <alan>` ve `--asc` değiştirir. Kabukta `<` ve `>` için
+koşulu tırnak içine al.
+
 ### İki oyuncu yan yana — `compare`
 
 `fm compare fred guendouzi` iki oyuncunun kimliğini ve özelliklerini yan yana basar; her
