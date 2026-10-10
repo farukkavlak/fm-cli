@@ -3045,6 +3045,13 @@ kutularından açılıyor:
 - `AbilityProgressHistory` dört `DynamicNumber`lık bir liste (Škriniar: 34980, 34980, 34980, 34760); ölçeği ve hangi
   dönemleri tuttuğu belli değil, gelişim grafiği için kullanılmadı.
 
+## 8.86 `/squad` iki listeyi birleştirirken boş kalan alan (10 Ekim)
+
+Kadro görünümleri notundaki Musaba hatası (taktik ekranı altta bağlıyken mevki ve yaş boş) bugün taktik ekranı açıkken üç
+denemede de çıkmadı. Kodda olası bir neden vardı: aynı oyuncu iki listede bağlıyken ilk bulunan kayıt bir alanı
+henüz boş tutuyorsa, öbür listedeki dolu değer `TryAdd` yüzünden yazılmıyordu. Artık boş alan dolu değerle
+dolduruluyor. Hatanın bu olduğu doğrulanmadı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

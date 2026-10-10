@@ -166,7 +166,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] `fm squad --morale` — moral, hiyerarşi, sosyal grup, "Dynamics" görünümünden (§8.26)
 - [x] Kadro tablosunun bütün görünümleri — `fm squad --views`, `fm squad --view "<ad>"`; kolonlar
       veriden çıkıyor (§8.38). Alt menülü ikisi (Attributes, Stats) seçilemiyor
-- [ ] `/squad` iki listeyi birleştirirken bir oyuncunun kolonlarını eksik bırakabiliyor (Musaba)
+- [~] `/squad` iki listeyi birleştirirken bir oyuncunun kolonlarını eksik bırakabiliyor (Musaba) — olası neden düzeltildi (boş alan öbür listeden doluyor), hata yeniden görülmedi (§8.86)
 - [x] Uyruk — `fm squad` terminal görünümünde ULUS sütunu (oyuncunun `Nation.ThreeLetterName`, satırının altından)
 - [x] Turnuva kadro listesi — `fm register`: kim listede, yetişme kotaları, kurallar; okla ekle / çıkar, gönder (§8.43)
 - [~] Forma numaraları — `fm numbers` yardımcıya verdiriyor; elle numara verme yok
