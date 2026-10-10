@@ -59,7 +59,7 @@ internal static partial class Program
 			.Where(c => Option(args, c.Item1) != null).Select(c => (Option(args, c.Item1), c.Item2)).ToList();
 		if (words.Count > 0)
 		{
-			var names = all.Keys.Where(n => Fold(n).Contains(Fold(words[0]), StringComparison.Ordinal)).ToList();
+			var names = Matching(all.Keys, n => n, words[0]);
 			if (names.Count != 1)
 			{
 				Console.Error.WriteLine(names.Count == 0 ? $"Listede '{words[0]}' yok." : $"'{words[0]}' {names.Count} oyuncuya uyuyor: {string.Join(", ", names)}");

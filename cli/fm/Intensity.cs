@@ -66,7 +66,7 @@ internal static partial class Program
 			var who = words[0];
 			var level = string.Join(" ", words.Skip(1));
 			var rows = await All();
-			var names = rows.Keys.Where(n => Fold(n).Contains(Fold(who), StringComparison.Ordinal)).ToList();
+			var names = Matching(rows.Keys, n => n, who);
 			if (names.Count != 1)
 			{
 				Console.Error.WriteLine(names.Count == 0 ? $"Listede '{who}' yok." : $"'{who}' {names.Count} oyuncuya uyuyor: {string.Join(", ", names)}");

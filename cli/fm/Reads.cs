@@ -167,6 +167,10 @@ internal static partial class Program
 		var squad = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray()
 			.Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct().ToList();
 		var own = squad.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
+		// A typo of one of ours — unless someone elsewhere has the name as it was typed.
+		if (own.Count == 0 && Matching(squad, n => n, wanted) is { Count: > 0 } typo
+		    && !(await SearchFor(wanted)).Any(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")).Contains(folded, StringComparison.Ordinal)))
+			own = typo;
 
 		string full;
 		var fromSquad = false;
@@ -193,9 +197,15 @@ internal static partial class Program
 		else
 		{
 			// The game's search is loose — "icardi" also finds a Vicente — so its results are
-			// narrowed to the names that really contain what was typed.
+			// narrowed to the names that really contain what was typed, or are a typo away.
+			// It finds nothing for a typo, though, so then the name's start is searched for.
 			var found = (await SearchFor(wanted)).Where(r => Field(r, "Kind") == "Player").ToList();
-			var close = found.Where(r => Fold(Field(r, "Name")).Contains(folded, StringComparison.Ordinal)).ToList();
+			var close = Matching(found, r => Field(r, "Name"), wanted);
+			for (var start = 4; close.Count == 0 && start >= 3 && wanted.Trim().Length > start; start--)
+			{
+				var wider = (await SearchFor(wanted.Trim()[..start])).Where(r => Field(r, "Kind") == "Player").ToList();
+				if ((close = Matching(wider, r => Field(r, "Name"), wanted)).Count > 0) found = wider;
+			}
 			// A whole name, or else one whose words start the way it was typed, outranks a match
 			// inside a word.
 			var exact = close.Where(r => Fold(Field(r, "Name")) == folded).ToList();

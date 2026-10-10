@@ -37,7 +37,7 @@ internal static partial class Program
 			}
 			var choices = dropdown.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 			var names = choices.Select(c => c.Replace(" (Selected)", "")).ToList();
-			var hits = names.Where(n => Fold(n).Contains(Fold(wanted), StringComparison.Ordinal)).ToList();
+			var hits = Matching(names, n => n, wanted);
 			if (hits.Count != 1)
 			{
 				Console.Error.WriteLine(hits.Count == 0 ? $"'{wanted}' adaylar arasında yok." : $"'{wanted}' {hits.Count} oyuncuya uyuyor: {string.Join(", ", hits)}");

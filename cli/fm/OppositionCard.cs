@@ -72,7 +72,7 @@ internal static partial class Program
 		{
 			// "opposition <oyuncu> <talimat>=<değer>"
 			var who = words[0];
-			var matches = rows.Where(r => Fold(Field(r, "Name")).Contains(Fold(who), StringComparison.Ordinal)).ToList();
+			var matches = Matching(rows, r => Field(r, "Name"), who);
 			if (matches.Count != 1)
 			{
 				Console.Error.WriteLine(matches.Count == 0 ? $"Rakipte '{who}' yok." : $"'{who}' {matches.Count} oyuncuya uyuyor: {string.Join(", ", matches.Select(r => Field(r, "Name")))}");

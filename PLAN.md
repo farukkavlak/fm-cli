@@ -414,7 +414,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Pipe dostu çıktı (`fm squad | grep ...`)
 - [~] İnteraktif oturum (`fm start` sonrası komutlar `fm` önekisiz) — TUI değil, REPL; tırnaklı
       ifadeler tek kelime sayılıyor
-- [~] İsim eşleme — isim parçası ve aksansız yazım tutuyor ("kerem", "skriniar"); yazım hatası tutmuyor (`osim` → Osimhen olur, `osimen` olmaz)
+- [x] İsim eşleme — isim parçası, aksansız yazım ve ufak yazım hatası (`osimen` → Osimhen, `guendozi` → Guendouzi); oyunun araması bulamazsa adın başıyla yeniden arar
 - [x] Kısaltmalar / takma adlar — komutun tek anlamlı başı, kısa adlar (s, n, t, fx…), Türkçe adlar aksanlı/aksansız; oturumda da
 - [x] Tab tamamlama (zsh/bash) — `fm completion zsh|bash`; zsh açıklamalar, seçenekler ve kadrodaki oyuncu adları
 - [x] `fm status` — tarih, saat, oyunun neyi beklediği, sıradaki maç, bekleyen mesajlar (§8.32)
@@ -501,6 +501,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Kolay grup: yazım hatası** (`Matching`): önce içeren adlar, yoksa 4-6 harfte 1, 7+ harfte 2 harf farkla en yakınlar.
+  Oyunun araması "osimen"de oyuncu bulmuyor, "osim"de buluyor; o yüzden adın ilk 4, sonra 3 harfiyle yeniden aranıyor.
+  Kadroda yazım hatası eşleşmesi, dünyada tam eşleşme yoksa kullanılıyor (`sane` iki Sané'yi soruyor, kadrodan birini değil).
 - **Kolay grup: `fm compare`**: iki oyuncu sayfası art arda açılıyor. Yan ürün: ikinci sayfa özelliklerin yarısı
   gelmişken okunabiliyordu (Guendouzi 36 yerine ~18); artık özellik sayısı iki okumada aynı kalınca alınıyor.
 - **Kolay grup: `fm diff`**: bakışı `~/.config/fm-cli`'ye yazıp sonrakinde karşılaştırıyor; oyuncu verisi `/pull` ile,

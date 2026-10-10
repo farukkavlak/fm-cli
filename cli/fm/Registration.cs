@@ -37,7 +37,7 @@ internal static partial class Program
 		var changes = Values(args, "--in").Select(n => (n, true)).Concat(Values(args, "--out").Select(n => (n, false))).ToList();
 		foreach (var (wanted, on) in changes)
 		{
-			var matches = players.Where(p => Fold(p.Name).Contains(Fold(wanted), StringComparison.Ordinal)).ToList();
+			var matches = Matching(players, p => p.Name, wanted);
 			if (matches.Count != 1)
 			{
 				Console.Error.WriteLine(matches.Count == 0 ? $"Listede '{wanted}' yok." : $"'{wanted}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(m => m.Name))}");

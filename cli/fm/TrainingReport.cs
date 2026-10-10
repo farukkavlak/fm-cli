@@ -50,7 +50,7 @@ internal static partial class Program
 		string coach;
 		if (Option(args, "--coach") is { } asked)
 		{
-			var fits = coaches.Where(c => Fold(c).Contains(Fold(asked), StringComparison.Ordinal)).ToList();
+			var fits = Matching(coaches, c => c, asked);
 			if (fits.Count != 1)
 			{
 				Console.Error.WriteLine(fits.Count == 0 ? $"'{asked}' adında bir antrenör yok." : $"'{asked}' {fits.Count} antrenöre uyuyor:");

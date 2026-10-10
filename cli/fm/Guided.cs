@@ -1595,7 +1595,7 @@ internal static partial class Program
 		var exact = choices.FirstOrDefault(c => Fold(c) == wanted);
 		if (exact != null) return exact;
 
-		var close = choices.Where(c => Fold(c).Contains(wanted, StringComparison.Ordinal)).ToList();
+		var close = Matching(choices, c => c, pick);
 		if (close.Count == 1) return close[0];
 
 		Console.Error.WriteLine(close.Count == 0
@@ -1603,6 +1603,46 @@ internal static partial class Program
 			: $"{what}: '{pick}' birden çok seçeneğe uyuyor:");
 		foreach (var choice in close.Count == 0 ? choices : close) Console.Error.WriteLine($"  {choice}");
 		return null;
+	}
+
+	/// <summary>
+	/// The items whose name holds what was typed (accents and case aside); when none does, the
+	/// ones it is a typo away from: "osimen" is Osimhen, "guendozi" Guendouzi. A word typed
+	/// short counts against the start of a name's word ("osime"). Short words get no leeway.
+	/// </summary>
+	private static List<T> Matching<T>(IEnumerable<T> items, Func<T, string> name, string typed)
+	{
+		var all = items.ToList();
+		var wanted = Fold(typed).Trim();
+		var holding = all.Where(i => Fold(name(i)).Contains(wanted, StringComparison.Ordinal)).ToList();
+		if (holding.Count > 0 || wanted.Length < 4) return holding;
+
+		var leeway = wanted.Length >= 7 ? 2 : 1;
+		int Distance(T item)
+		{
+			var folded = Fold(name(item));
+			// The whole name, and each word in it, as typed and as far as it was typed.
+			var against = new[] { folded }.Concat(wanted.Contains(' ') ? [] : folded.Split(' ', '-', '\''));
+			return against.Where(w => w.Length > 0)
+				.Min(w => Math.Min(Typos(wanted, w), w.Length > wanted.Length ? Typos(wanted, w[..wanted.Length]) : int.MaxValue));
+		}
+		var scored = all.Select(i => (Item: i, Typos: Distance(i))).Where(x => x.Typos <= leeway).ToList();
+		return scored.Count == 0 ? [] : scored.Where(x => x.Typos == scored.Min(y => y.Typos)).Select(x => x.Item).ToList();
+
+		// Letters added, dropped, changed or swapped to make one word the other.
+		static int Typos(string a, string b)
+		{
+			var d = new int[a.Length + 1, b.Length + 1];
+			for (var i = 0; i <= a.Length; i++) d[i, 0] = i;
+			for (var j = 0; j <= b.Length; j++) d[0, j] = j;
+			for (var i = 1; i <= a.Length; i++)
+				for (var j = 1; j <= b.Length; j++)
+				{
+					d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1));
+					if (i > 1 && j > 1 && a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1]) d[i, j] = Math.Min(d[i, j], d[i - 2, j - 2] + 1);
+				}
+			return d[a.Length, b.Length];
+		}
 	}
 
 	/// <summary>

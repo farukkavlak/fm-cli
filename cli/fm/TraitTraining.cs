@@ -164,7 +164,7 @@ internal static partial class Program
 		string path;
 		if (learn != null)
 		{
-			var fits = addable.Where(a => Fold(a.Trait).Contains(Fold(learn), StringComparison.Ordinal)).ToList();
+			var fits = Matching(addable, a => a.Trait, learn);
 			var exact = fits.Where(a => Fold(a.Trait) == Fold(learn)).ToList();
 			if (exact.Count == 1) fits = exact;
 			if (fits.Count != 1)
