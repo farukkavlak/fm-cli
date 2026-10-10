@@ -409,7 +409,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ### Diğer
 
 - [x] Renkli, hizalı tablolar
-- [ ] Sparkline / mini grafik (form, kondisyon trendi)
+- [~] Sparkline / mini grafik (form, kondisyon trendi) — `player --matches` puanları çubuk satırı olarak veriyor (`Ui.Bar`); kondisyon trendi yok (geçmişi tutulmuyor)
 - [x] `--json` her komutta (script'lenebilir) — bir şey gösteren her komut; `--json` soru sormuyor, çizmiyor (§8.83)
 - [x] Pipe dostu çıktı (`fm squad | grep ...`)
 - [~] İnteraktif oturum (`fm start` sonrası komutlar `fm` önekisiz) — TUI değil, REPL; tırnaklı
@@ -459,6 +459,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ### 2026-10-10
 
+- `player --matches` puanların çubuk grafiğini de basıyor (eski → yeni, 5.5–9 ölçeği).
 - Fikstürde beraberlik de renkli (oyunun işareti `ResultType` 9; 1 galibiyet, 3 penaltıyla, 10 mağlubiyet).
 - **`fm stop`**: oyunu kapatıyor (süreç sonlandırılıyor); kaydedip kaydetmemeyi soruyor, script'te `--save` /
   `--no-save` şart. `--no-save` denendi (3 sn), `--save` yolu `fm save --yes`'in kendisi, ayrıca denenmedi.

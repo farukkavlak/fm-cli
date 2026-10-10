@@ -77,6 +77,17 @@ internal static partial class Program
 			+ (keeper ? $"{cleanSheets} gol yemediği maç" : $"{summary.Goals} gol · {summary.Assists} asist"));
 		var subs = all.Any(r => r.OnOff.Length > 0);
 		var rich = Ui.Rich;
+
+		// His ratings as a row of bars, oldest first, on the scale ratings mostly live on.
+		var ratings = all.AsEnumerable().Reverse()
+			.Select(r => double.TryParse(r.Rating, NumberStyles.Float, CultureInfo.InvariantCulture, out var rating) ? rating : (double?)null)
+			.Where(r => r != null).Select(r => r.Value).ToList();
+		if (ratings.Count > 1)
+		{
+			var bars = ratings.Select(r => (Bar: Ui.Bar(r, 5.5, 9), Rating: r)).ToList();
+			if (rich) Ui.Line($"[dim]puan[/]  {string.Concat(bars.Select(b => b.Rating >= 7.5 ? $"[green]{b.Bar}[/]" : b.Rating < 6.5 ? $"[red]{b.Bar}[/]" : b.Bar.ToString()))}  [dim]eski → yeni[/]");
+			else Console.WriteLine($"puan  {string.Concat(bars.Select(b => b.Bar))}  eski → yeni");
+		}
 		// The page gives the score home side first and does not say which side he was on.
 		var heads = new List<string> { "#", "TARİH", "RAKİP", "SKOR (EV-DEP)", "MEVKİ" };
 		if (subs) heads.Add(rich ? "" : "GİRDİ/ÇIKTI");

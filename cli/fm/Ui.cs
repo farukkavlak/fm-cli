@@ -78,6 +78,13 @@ internal static class Ui
 	/// <summary>Text from the game, made safe to put inside markup.</summary>
 	public static string Safe(string text) => Markup.Escape(text ?? "");
 
+	/// <summary>
+	/// One bar for a value on a scale from low to high, eighths of a line tall: a row of them
+	/// is a small chart of how something has gone.
+	/// </summary>
+	public static char Bar(double value, double low, double high) =>
+		"▁▂▃▄▅▆▇█"[(int)Math.Round(Math.Clamp((value - low) / (high - low), 0, 1) * 7)];
+
 	/// <summary>Cuts a name to a width, marking the cut.</summary>
 	public static string Fit(string text, int width) =>
 		text.Length <= width ? text : text[..(width - 1)] + "…";
