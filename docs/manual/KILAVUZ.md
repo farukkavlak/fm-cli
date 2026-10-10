@@ -854,6 +854,29 @@ $ fm table --csv | head -3
 2,Göztepe,7,6,1,0,11,19
 ```
 
+### Son bakıştan bu yana — `diff`
+
+`fm diff` o anki hali kaydeder; bir sonraki `fm diff` aradan geçen sürede neyin değiştiğini
+söyler ve yeni hali kaydeder (~13 sn, yalnızca lig tablosu ile finans sayfalarını açar):
+
+```
+$ fm diff
+20 Eylül 2025 → 5 Ekim 2025 · 15 gün
+  Lig               10. → 8. sıra · 7 → 11 puan (2 maçta 4)
+  Kasa              £52.72M → £51.26M (-£1.46M)
+  Transfer bütçesi  £12M → £11.07M (-£930K)
+  Gelen             Grégoire Defrel
+  Sakatlanan        Talisca (Hamstring, 12 gün)
+  Sözleşme          Fred: 30/6/2026 → 30/6/2027
+
+OYUNCU             MAÇ  GOL  ASİST  ORT. PUAN
+Kerem Aktürkoğlu    +2   +2     +1  6.88
+Ederson             +2              6.55 → 6.70
+```
+
+`--keep` bu bakışı kaydetmez (karşılaştırma hep aynı günle yapılır, ör. haftalık özet için),
+`--reset` yalnızca şimdiki hali kaydeder. Kayıt `~/.config/fm-cli/diff-<takım>.json`.
+
 ### Rapor dosyası — `export`
 
 `fm export rapor.md` durum, kadro, lig tablosu, fikstür, sağlık, sözleşmeler ve finansı başlık

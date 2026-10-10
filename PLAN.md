@@ -379,7 +379,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Derinlik matrisi: hangi pozisyon zayıf — `fm depth`, `fm doctor` ince mevkiler
 - [ ] Transfer fırsat taraması (bütçe + ihtiyaç + uygunluk)
 - [ ] Sezon karşılaştırması / trend
-- [ ] `fm diff` — son maçtan beri ne değişti
+- [x] `fm diff` — son bakıştan beri ne değişti: lig sırası, kasa, bütçe, gelen/giden, sakatlar, sözleşmeler, maç/gol/asist (`--keep`, `--reset`)
 - [ ] `fm watch` — bir oyuncuyu/durumu izle, değişince haber ver (`Bindings.Bind` ile)
 - [x] Export: CSV / JSON / Markdown rapor — her komutta `--csv` / `--md`; `fm export rapor.md [komutlar…]` başlık başlık rapor, `export x.csv "<komut>"`
 
@@ -501,6 +501,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Kolay grup: `fm diff`**: bakışı `~/.config/fm-cli`'ye yazıp sonrakinde karşılaştırıyor; oyuncu verisi `/pull` ile,
+  lig / kasa / bütçe diğer komutların `--json`'ından. Değer, maaş, statü `/pull` ile gelmiyor (yalnızca ekrandan), dışarıda kaldı.
+  Gerçek bir ilerlemeyle değil, kayıtlı anı elle değiştirerek denendi.
 - **Kolay grup: export**: `--csv` / `--md` her komutta (tablolar `Table.Write`'tan geçtiği için tek yerde), `fm export`
   birkaç komutu tek Markdown rapora yazıyor. Yan ürün: düz `fm table` portal kutusunda boş G/B/M/AV kolonları basıyordu.
 - **Kolay grup: `--json`** (FINDINGS §8.83): bir şey gösteren her komut JSON veriyor; tuple'lar ve Türkçe harfler
