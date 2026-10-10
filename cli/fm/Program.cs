@@ -27,16 +27,19 @@ internal static partial class Program
 	public static async Task<int> Run(string[] args)
 	{
 		var format = args.Contains("--json") ? "json" : args.Contains("--csv") ? "csv" : args.Contains("--md") ? "md" : null;
+		// A command run by another (export, diff) hands the form back when it is done; in a
+		// session the next command, and the prompt, are drawn again.
+		var outer = Ui.Format;
 		if (format is null or "json")
 		{
 			Ui.Format = format;
 			try { return await RunCommand(args); }
-			// In a session the next command, and the prompt, are drawn again.
-			finally { Ui.Format = null; }
+			finally { Ui.Format = outer; }
 		}
 
 		// CSV is the tables alone; Markdown keeps the lines between them, each its own line.
 		var output = Console.Out;
+		var (outerSink, outerWrote) = (Table.Sink, Table.Wrote);
 		Table.Sink = output;
 		Table.Wrote = false;
 		Ui.Format = format;
@@ -55,8 +58,8 @@ internal static partial class Program
 		{
 			Console.Out.Flush();
 			Console.SetOut(output);
-			Table.Sink = null;
-			Ui.Format = null;
+			(Table.Sink, Table.Wrote) = (outerSink, outerWrote);
+			Ui.Format = outer;
 		}
 	}
 
@@ -111,6 +114,7 @@ internal static partial class Program
 				"doctor" => await Doctor(json),
 				"completion" => Completion(args),
 				"export" => await Export(args),
+				"diff" => await Diff(json, args),
 				"__names" => await OurNames(),
 				"facilities" => await Facilities(json),
 				"contracts" => await ContractsCalendar(json),
@@ -1138,6 +1142,8 @@ internal static partial class Program
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 			  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
 			  saves           diskteki kayıtlar, en yenisi önce
+			  diff            son bakıştan bu yana ne değişti: lig sırası, kasa, bütçe, gelen/giden, sakatlar, sözleşmeler, maç/gol/asist
+			    --keep        bu bakışı kaydetme (karşılaştırma yine öncekiyle);  --reset: yalnızca şimdiki hali kaydet
 			  export [dosya.md] [komut…]  komutların çıktısı başlık başlık tek Markdown rapor (varsayılan: durum, kadro,
 			                  tablo, fikstür, sağlık, sözleşmeler, finans);  export <dosya.csv> "<komut>": o komutun tablosu
 			  --json / --csv / --md   her komutta: tablo yerine JSON, CSV ya da Markdown; soru sorulmaz
