@@ -3600,7 +3600,9 @@ devret / geri al, zaten o durumda olan.
   By Club / By Nation), "Reputation" (Minimal … Exceptional), "Add Attribute" (koşul eklemek; kullanılmadı), `Cancel`,
   `Apply`. Seçimler `/select … fire=1` ile, sonra `Apply`; satırlar süzülmüş geliyor. Arama sayfada kalıyor; `Clear`
   (`EventFmxResetFilter`) sıfırlıyor. Aynı panel oyuncu veritabanında da var (orada kullanılmıyor).
-- İşe alma (yaklaşma, sözleşme) denenmedi.
+- İşe alma: satırdaki ad butonu (`OpenPanel`, `/press`) personel kartını açıyor (Managerial / Coaching / Scouting / Medical
+  sekmeleri, "Plans", "No relationship with you" döşemeleri) ama kartta olay taşıyan bir "sözleşme teklif et" kontrolü
+  yok, `/talk` de boş; eylem büyük olasılıkla sağ tık / kart menüsünde. Bulunamadı, park.
 
 `fm staff find [metin] [--role] [--free|--employed] [--reputation] [--filter] [--view] [--clear]`.
 
