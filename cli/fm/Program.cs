@@ -59,6 +59,9 @@ internal static partial class Program
 				"calendar" => await CalendarCommand(json, args),
 				"league" => await League(json, args),
 				"health" => await Health(json),
+				"club" => await Club(json),
+				"staff" => await Staff(json),
+				"finances" => await Finances(json),
 				"contracts" => await ContractsCalendar(json),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
@@ -761,7 +764,7 @@ internal static partial class Program
 
 		var from = planned.IndexOf(": ", StringComparison.Ordinal) + 2;
 		var to = planned.IndexOf(" › ", StringComparison.Ordinal);
-		if (from < 2 || to < from) return await Fm.Get("open", query.ToArray());
+		if (from < 2 || to < from) return await OpenBookmark(query.ToArray());
 		var tabName = planned[from..to];
 
 		var siblings = (await Fm.GetJson("pages")).EnumerateArray()
@@ -769,9 +772,9 @@ internal static partial class Program
 			.Select(p => Field(p, "Page"))
 			.ToList();
 		if (siblings.Count == 0 || siblings[0].Equals(page, StringComparison.OrdinalIgnoreCase))
-			return await Fm.Get("open", query.ToArray());
+			return await OpenBookmark(query.ToArray());
 
-		await Fm.Get("open", ("page", siblings[0]), ("tab", tabName));
+		await OpenBookmark(("page", siblings[0]), ("tab", tabName));
 
 		// The row of subtabs belongs to whichever tab is up, and two tabs can both have a page
 		// by this name, so it is only trusted once every button on it is one of this tab's.
@@ -785,10 +788,27 @@ internal static partial class Program
 			return bar.Count > 0 && bar.All(label => siblings.Contains(label, StringComparer.OrdinalIgnoreCase));
 		}, seconds: 8);
 
-		if (!bar.Contains(page, StringComparer.OrdinalIgnoreCase)) return await Fm.Get("open", query.ToArray());
+		if (!bar.Contains(page, StringComparer.OrdinalIgnoreCase)) return await OpenBookmark(query.ToArray());
 
 		var pressed = await Arriving("press", [("text", page), ("name", "SIButton"), ("event", "OpenSubtab")]);
 		return pressed.StartsWith("error", StringComparison.Ordinal) ? pressed : $"opened {tabName} › {siblings.First(s => s.Equals(page, StringComparison.OrdinalIgnoreCase))}";
+	}
+
+	/// <summary>
+	/// Opens a page by bookmark. Now and then the game is laying out its screen when the bridge
+	/// sends the event, and refuses to add the panel ("VisualElements cannot be added to an active
+	/// visual tree…", FINDINGS §8.78); a moment later the same event goes through.
+	/// </summary>
+	private static async Task<string> OpenBookmark(params (string, string)[] query)
+	{
+		var answer = "";
+		for (var attempt = 0; attempt < 3; attempt++)
+		{
+			answer = await Fm.Get("open", query);
+			if (!answer.Contains("active visual tree", StringComparison.Ordinal)) return answer;
+			await Task.Delay(500);
+		}
+		return answer.Split('\n')[0];
 	}
 
 	private static async Task<int> Dropdowns(bool json, string[] args)
@@ -988,6 +1008,9 @@ internal static partial class Program
 			  settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
 			  happiness       oyuncuların mutluluğu, en mutsuz önce
 			  contracts       sözleşme takvimi: kimin sözleşmesi ne zaman bitiyor, en yakın önce
+			  club            kulüp özeti: yönetim notu ve hedefler, taraftar, kasa ve maaş, tesisler, ekipteki boşluklar
+			  staff           kulüp personeli: kim hangi işte, yaşı, maaşı, sözleşmesi; ekiplerdeki eksikler ve yönetimin görüşü
+			  finances        finans: kasa, bu ayın gelir/gideri, borç, FFP, oyuncu tipine göre maaş bordrosu, sponsorluk, projeksiyon
 			  health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler
 			  depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>

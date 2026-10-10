@@ -312,26 +312,26 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ## 9. Finans
 
 - [x] Bütçe durumu — `fm budget`; transfer ↔ maaş dağılımı `fm budget ayarla` (§8.65)
-- [ ] Gelir/gider dökümü (`ExpenditureBreakdown*` binding'leri mevcut)
-- [ ] Maaş bordrosu
-- [ ] Sponsorluklar
+- [~] Gelir/gider dökümü — `fm finances`: bu ayın gelir/gideri, aylık bakiye, projeksiyon (§8.78); kalem kalem döküm yok (`ExpenditureBreakdown*` binding'leri mevcut)
+- [x] Maaş bordrosu — `fm finances`: toplam / bütçe, oyuncu statüsüne göre; personel maaşları `fm staff` (§8.78)
+- [~] Sponsorluklar — `fm finances` toplam gelir ve kaynak sayısı; sponsor sponsor yok
 - [ ] Bilet fiyatları
-- [ ] Kulüp değeri / borç
-- [ ] Finansal fair play durumu
+- [~] Kulüp değeri / borç — `fm finances` kalan ve başlangıç borcu; kulüp değeri yok
+- [x] Finansal fair play durumu — `fm finances` (§8.78)
 
 ---
 
 ## 10. Personel ve kulüp
 
-- [ ] Teknik ekip listesi
+- [x] Teknik ekip listesi — `fm staff`: kişi kişi iş, yaş, maaş, sözleşme; rol eksikleri ve yönetimin görüşü (§8.78)
 - [ ] Personel işe al / kov (Coaching, Scouting, Medical)
 - [ ] Personel sorumlulukları (delegasyon)
-- [ ] Tesisler (antrenman, gençlik, altyapı)
+- [~] Tesisler (antrenman, gençlik, altyapı) — `fm club` seviyeleri veriyor; Facilities kartının ayrıntısı yok
 - [ ] Tesis geliştirme talebi
-- [ ] Yönetim kurulu beklentileri
+- [x] Yönetim kurulu beklentileri — `fm club`: not, hava, vizyon hedefleri (§8.78)
 - [ ] Yönetimle görüşme / talep
-- [ ] Taraftar memnuniyeti
-- [ ] Kulüp vizyonu / hedefler
+- [~] Taraftar memnuniyeti — `fm club`: hava ve yönetime etkisi; beklentilerin listesi yok
+- [x] Kulüp vizyonu / hedefler — `fm club` (§8.78)
 - [ ] İş güvenliği (sacılma riski)
 
 ---
@@ -482,6 +482,12 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   numarayla Mutual Termination / Release On A Free'yi `--yes` olmadan göndermiyor.
 - **Taktik kopyala / yuva boşalt** (FINDINGS §8.77): `fm tactic copy`, `fm tactic clear <n> --yes`. Kopyalanıp
   silindi, tek yuvaya dönüldü.
+
+- **Kulüp okumaları** (FINDINGS §8.78): `fm club` (Club › Overview'ün kutuları: yönetim notu, hedefler, taraftar,
+  kasa, maaş, tesisler, ekip boşlukları), `fm staff` (Staff kartının All Staff tablosu, kaydırarak 45 kişi),
+  `fm finances` (finans kartı: gelir/gider, borç, FFP, statüye göre maaş, sponsorluk, projeksiyon). Hepsi salt okuma.
+  Yan ürün: sayfa açmak ara sıra oyunun çizim anına denk gelip "VisualElements cannot be added to an active visual
+  tree…" hatası veriyordu; `OpenPage` artık bu cevapta yarım saniye bekleyip yeniden deniyor (8/8 temiz).
 
 ### 2026-10-09 (gece, otonom)
 

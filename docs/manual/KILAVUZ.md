@@ -22,8 +22,9 @@ sen her şeyi `fm` komutlarıyla yaparsın.
 9. [Lig ve fikstür — `table`, `fixtures`](#9-lig-ve-fikstür--table-fixtures)
 10. [Transfer ve sözleşme — `players`, `offer`, `contract`](#10-transfer-ve-sözleşme--players-offer-contract)
 11. [Kaydetmek ve oyun ayarları — `save`, `settings`](#11-kaydetmek-ve-oyun-ayarları--save-settings)
-12. [Her şeye erişim — `pages`, `buttons`, `press`](#12-her-şeye-erişim--pages-buttons-press)
-13. [Claude'dan oynamak — MCP](#13-claudedan-oynamak--mcp)
+12. [Kulüp — `club`, `staff`, `finances`](#12-kulüp--club-staff-finances)
+13. [Her şeye erişim — `pages`, `buttons`, `press`](#13-her-şeye-erişim--pages-buttons-press)
+14. [Claude'dan oynamak — MCP](#14-claudedan-oynamak--mcp)
 
 ---
 
@@ -643,7 +644,65 @@ Maçı kısaltmanın iki yolu var: **maç gösterimi** "Yalnızca anlatım" ya d
 Dili değiştirmek mümkün ama fm-cli oyunun İngilizce yazılarını okuduğu için çoğu komut çalışmaz
 hale gelir; `settings` bunu sorar, script'te `--yes` ister.
 
-## 12. Her şeye erişim — `pages`, `buttons`, `press`
+## 12. Kulüp — `club`, `staff`, `finances`
+
+Üçü de yalnızca okur; oyunda hiçbir şeyi değiştirmez.
+
+### Kulüp özeti — `club`
+
+![fm club](img/club.png)
+
+Kulübün tek ekranlık hali: yönetimin notu ve havası, taraftarların havası, kulüp vizyonundaki
+hedefler (önem derecesi ve şu anki durumu), kasa, geçen ayın geliri ve gideri, haftalık maaşın
+bütçeye oranı, itibar, stadyum ve tesisler, her ekipte kaç kişi olduğu ve hangi rollerin boş olduğu.
+
+```
+$ fm club
+Yönetim
+  Not                    C · memnun
+  Taraftar               memnun · yönetime etkisi yüksek
+Hedefler
+  Work within wage budget (zorunlu) — yolunda
+  Win the Super League (bu sezon) — memnun
+```
+
+### Personel — `staff`
+
+![fm staff](img/staff.png)
+
+Kulüpte çalışan herkes, önce A takım sonra U19: işi, yaşı, uyruğu, haftalık maaşı ve sözleşmesinin
+bittiği tarih. Altında her ekip (antrenörler, scouting, sağlık) için yönetimin istediği en az
+sayıya göre eksik roller ve yönetimin ekip hakkındaki görüşü.
+
+```
+$ fm staff
+A takım
+  Faruk Kavlak             Manager                     25 TUR  £62K p/w · 30/6/2027
+  Zeki Murat Göle          Assistant Manager           46 TUR  £4.7K p/w · 30/6/2026
+…
+Sağlık 6 kişi — eksik: Head of Sports Science 0/1, Physio 1/5, Sports Scientist 0/3
+```
+
+### Finans — `finances`
+
+![fm finances](img/finances.png)
+
+Kasa ve aylara göre bakiyesi, bu ayın geliri ve gideri, kalan borç, finansal fair play durumu,
+haftalık maaş bordrosu (oyuncu statüsüne göre: yıldız, düzenli ilk 11, rotasyon…), toplam sponsorluk
+geliri ve yönetimin önümüzdeki sezonlar için bakiye/ciro tahmini. Zarar parantezle ve kırmızı yazılır.
+Transfer ve maaş bütçesi için `budget`.
+
+```
+$ fm finances
+Kasa
+  Bakiye                 £51,257,456
+  Bu ay gelir            £381K
+  Borç                   £124,551,321 kaldı (başta £285,857,212)
+Yönetimin projeksiyonu
+  2026/27                bakiye (£34.96M) · ciro £161M
+```
+
+## 13. Her şeye erişim — `pages`, `buttons`, `press`
 
 Henüz komutu olmayan bir şey için oyunun ekranlarını doğrudan kullanabilirsin:
 
@@ -661,7 +720,7 @@ Henüz komutu olmayan bir şey için oyunun ekranlarını doğrudan kullanabilir
 Değiştiren komutların çoğu `--dry` alır: yapmaz, ne yapacağını söyler. `--json` her yerde
 ham veri verir.
 
-## 13. Claude'dan oynamak — MCP
+## 14. Claude'dan oynamak — MCP
 
 `fm mcp` bütün komutları MCP araçları olarak sunar; repo kökündeki `.mcp.json` bunu
 tanımlıyor. Claude Code'da proje açıkken araçlar `fm_status`, `fm_squad`, `fm_match`… adıyla

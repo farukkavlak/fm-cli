@@ -2863,6 +2863,41 @@ yeni yuvaya "Copy of: …" adıyla kopyalıyor ve onu etkin yapıyor (`TacticCou
 etkin yuvayı siliyor; önce `/dialog` "Are you sure you want to delete this tactic?" → Confirm.
 Save / Load… (dosyaya .fmf) denenmedi.
 
+## 8.78 Kulüp: genel bakış, personel, finans (10 Ekim)
+
+**Club › Overview** kutularla dolu ve hepsi tek `/texts` okumasında geliyor
+(`anchor=Overall Balance&up=18`). Sıra: Club Vision (Actionable / Informational Objectives, Current
+Season Objective; her hedef "metin · Required|Desired|Preferred · On Course|Reserving Judgement|Not
+Judging|Satisfied…"), Board ("0 requests"), Finances (Overall Balance, Income/Expenditure "l/m", Wages
+"/ £… p/w", yüzde), Supporters (Supporter influence on the board), Affiliates, Facilities (Stadium,
+Training, Youth, Corporate), Job Centre Report, Performance Feedback (Board notu "C" + hava,
+Supporters hava; Highlights / Criticisms yalnızca sayı), Club Site (Club Reputation, Stadium), Transfer
+History, Staff (ekip başına "dolu / yer" ve "N vacant roles (…)"), Responsibilities. "Board" ve
+"Supporters" Performance Feedback'in içinde yeniden geçiyor; kutu sınırı yalnızca sonraki başlıklara
+bakılarak bulunmalı.
+
+**Personel**: subtab "Staff" yalnızca `StaffReportCard`'ı açıyor (sorumluluklar, antrenör yükü).
+Kişi listesi Overview'deki Staff kutusunun `layout-tile-interaction-button`'unda (`OpenPanel`,
+`ClubAllStaffC`); `/click?text=Coaching Team` ona basıyor. Kartın Overview sekmesi ekip başına
+"N Coaching Staff", rol rol "dolu / yönetimin istediği en az" ve "Board feedback" cümlesi. "All Staff"
+sekmesi (`navigation-tab-default-default`) dokuz kolonlu tablo: Name, Team (Senior / U19 Squad), Club
+Job, Age, Nationality, F/PT, Type, Wage, Expiring. Yalnızca görünen ~27 satır çiziliyor;
+`/scroll?anchor=Senior Squad&to=0..1` ile beş noktada okunup adla birleştiriliyor (45 kişi).
+Doktorlar ve başkan "N/A" maaşlı.
+
+**Finans**: subtab "Finances" bir açılır menü (`SecondaryTabDropdownButton`); Overview'deki bakiye
+kutusu (`/click?text=Overall Balance`) finans kartını açıyor (`anchor=Remaining Debt&up=16`): Income
+"This month", FFP (yarışma + Compliant), Debts And Loans (Remaining / Original), Wages ve "Player
+types and their total basic wage:" (sayı · statü · haftalık toplam), Sponsorship (toplam, Sources),
+Projections (sezon · Balance · Turnover; zarar parantezli), Expenditure "This Month", Summary (Month ·
+Balance satırları), Recruitment Budgets.
+
+**Sayfa açarken render yarışı**: `/open` ara sıra il2cpp hatası döndü — `PanelManager.Open` →
+`VisualElement.Add`: "VisualElements cannot be added to an active visual tree during
+generateVisualContent callback execution nor during visual tree rendering". Köprü olayı oyunun
+çizim anında gönderince oluyor; hemen tekrar göndermek geçiyor. CLI `OpenBookmark` üç kez deniyor.
+Kalıcı çözüm eklentide olayı çizim dışı bir ana iş parçacığı anına ertelemek olur (denenmedi).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

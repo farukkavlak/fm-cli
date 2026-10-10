@@ -119,6 +119,11 @@ budget          transfer, maaş ve scouting bütçesi;  budget ayarla [<adım>]:
 settings        oyun ayarları: maç gösterimi ve hızı, otomatik kayıt, dil, para birimi, birimler
 settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
 happiness       oyuncuların mutluluğu, en mutsuz önce
+contracts       sözleşme takvimi: kimin sözleşmesi ne zaman bitiyor, en yakın önce
+club            kulüp özeti: yönetim notu ve hedefler, taraftar, kasa ve maaş, tesisler, ekipteki boşluklar
+staff           kulüp personeli: kim hangi işte, yaşı, maaşı, sözleşmesi; ekiplerdeki eksikler ve yönetimin görüşü
+finances        finans: kasa, bu ayın gelir/gideri, borç, FFP, oyuncu tipine göre maaş bordrosu, sponsorluk, projeksiyon
+health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler
 depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
