@@ -464,8 +464,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   yaptı (mesaj cevapsız bırakıldı — satış kararı Faruk'un).
 - **Maç sonu raporu bayattı** (akşam): `match` bitince basılan rapor bir önceki maçın takımlarını ve istatistiklerini yeni
   gollerle karışık gösterdi ("Antalyaspor 0-0 Fenerbahçe", Karagümrük 2-0'ından sonra); birkaç saniye sonra `fm report`
-  doğruydu. `match` artık raporu, maçın skoru `LastFixture`'da görünene kadar bekletiyor (en çok 12 sn; bir sonraki maçta
-  doğrulanacak). Karagümrük 2-0; Asensio'nun darbesi oyunu durdurmadı, sakatlık durağı yine denk gelmedi.
+  doğruydu. `match` artık raporu, maçın skoru `LastFixture`'da görünene kadar bekletiyor (en çok 12 sn; Qarabağ 6-0'ında
+  doğrulandı ✓: rapor ilk basışta doğru). Karagümrük 2-0; Asensio'nun darbesi oyunu durdurmadı, sakatlık durağı yine denk gelmedi.
 - **`fm dynamics`** (akşam, FINDINGS §8.95): sosyal gruplar, hiyerarşi, kişilik ve menajere destek. Ön anlaşma sözü
   (`contract --term`) canlıda doğrulandı; `contract --cancel` vaat aşamasında da çıkıyor.
 - **`fm propose`** (akşam, FINDINGS §8.94): oyuncuyu kulüplere önerme, satış ya da kiralık; canlıda iki oyuncu önerildi.
