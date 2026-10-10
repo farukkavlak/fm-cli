@@ -475,10 +475,13 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - Mentorluk temizliği bir kez bütün grupları sildi (sayfa tam yüklenmeden okunan boş "önceki" listesi yüzünden);
   gruplar yeniden kuruldu, okuma artık sayfa oturana dek bekliyor ve en çok bir grubu siliyor.
 
-**Kayıtta ne değişti:** ana kayıt 19 Ekim 2025 haliyle bir kez üzerine yazıldı (farklı kaydet denemesi). Sonrası
-kaydedilmedi: oyun 23 Ekim'e ilerletildi; yönetimden üç talep yapıldı (transfer bütçesi, scout sayısı, U19 antrenör
-sayısı — ikisi kabul edildi); Defrel'in Angers'e satışı onaylandı (1 Ocak 2026'da gidiyor; teklifi akşam sen kabul
+**Kayıtta ne değişti:** ana kayıt önce 19 Ekim 2025 haliyle (farklı kaydet denemesi), sonra **23 Ekim 2025** haliyle
+kaydedildi (plugin değişikliği için yeniden başlatmadan önce): Qarabağ 2-0 kazanıldı (Asensio, Talisca pen.); yönetimden üç talep yapıldı (transfer bütçesi — reddedildi, "kulüp şu an
+karşılayamıyor"; scout sayısı — artırıldı; U19 antrenör sayısı — "Staff Numbers Update" mesajı geldi, okunmadı); Defrel'in Angers'e satışı onaylandı (1 Ocak 2026'da gidiyor; teklifi akşam sen kabul
 ettirmiştin); mentorluk grubu yeniden kuruldu (Škriniar, Brown, Mercan).
+
+**Sonradan eklenenler:** `fm progress` (§8.113: son dört aylık yetenek; plugin `/pull` artık liste değerlerini açıyor),
+`fm opponent`'a rakibin sezon sayıları (§8.114). Maç sonu raporunun bayat golcü vermesi düzeltmesi bu maçta doğrulandı.
 
 **Park edilenler:** scout odağı kurma / scout atama (iki adımlı sihirbaz, notları §8.109); topla / topsuz ayrı şekil
 (kapsamı belirsiz); rakip raporunda kilit oyuncular (bu rakipte veri yok, lig rakibinde bakılacak); belirli kişiye
