@@ -3064,6 +3064,20 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
   bağlamında hangi satırın nereye gittiği olmalı; yapılmadı. Kişi referansını ada çevirmek için seçeneği bir düğüme koyup
   (`RawPath.Set`) `Name`'ini bağlamak denenebilir.
 
+## 8.88 Antrenman programını değiştirmek: ilk bakış (10 Ekim)
+
+- Club › Responsibilities › "Training Responsibility": genel ve bireysel antrenmanı menajer yönetiyor ("Leads General
+  Training … Faruk Kavlak, Manager"; "Take Control" / "Delegate"). Yani program bizim elimizde.
+- Squad › Training › Overview'daki takvim (§8.73) yalnızca özet: seans hücreleri `DynamicItem DISABLED`, tıklanmıyor.
+  "This Week's Schedule" kutusu `/press` ile kuyruğa giriyor ama yeni bir şey açmıyor; `/click` ile bir
+  `PanelHistoryClose` beliriyor, içeriği ayırt edilemedi.
+- Katalogdaki olaylar: `EventFmxConfirmTrainingSession`, `…ConfirmTrainingSessionFromMenu`, `…CreateCustomTrainingSchedule`,
+  `…SaveCustomTrainingSchedule`, `…ConfirmTrainingSchedule`, `…CancelTrainingSchedule`, `…DeleteCustomTrainingSchedule`.
+  Veri: `CustomTrainingScheduleReference` (`TrainingSessions`, `CurrentTrainingSession`, `TrainingSessionCategoryDropdown`,
+  `TrainingScheduleDropdown`, `LoadTrainingScheduleType`), `CalendarWeekReference.CanEditTrainingSchedule`,
+  `SessionType1..3`. Sıradaki deneme: takvimi düzenleyen sayfayı bulmak (`screens.txt`'te "Training Schedule" / "Calendar"
+  paneli; olası yol günün hücresinin üstündeki gün başlığı ya da Training alt menüsünde gizli bir sekme).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

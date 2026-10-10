@@ -501,6 +501,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Orta grup: antrenman programı** (FINDINGS §8.88): ilk bakış; düzenleyen sayfa bulunamadı, olaylar ve veri tipleri
+  not edildi.
 - **Orta grup: `fm penalties`** (FINDINGS §8.87): okuma ve üç kural; sıra sürüklemeyle değişiyor, yapılmadı.
   Ayrıca: kartta kulübün gördüğü potansiyel (§8.85), `/squad` boş alan birleştirme düzeltmesi (§8.86, doğrulanmadı).
 - **Kolay grup: maç maç puanlar** (FINDINGS §8.84): `PastMatchesRatings` `/pull`'la boş liste; oyuncu sayfasındaki form
