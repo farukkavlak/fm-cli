@@ -519,6 +519,15 @@ internal static partial class Program
 			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
 			return 1;
 		}
+		// The squad table under the pitch, where each player's familiarity is, fills a moment
+		// after the planner itself.
+		if (!Familiar(tactic))
+			await Until(async () =>
+			{
+				var now = await Fm.GetJson("tactic");
+				if (now.TryGetProperty("Tactic", out _)) tactic = now;
+				return Familiar(tactic);
+			}, seconds: 4, every: 0.25);
 		var header = tactic.GetProperty("Tactic");
 
 		if (json)
@@ -529,12 +538,13 @@ internal static partial class Program
 
 		Console.WriteLine(Field(header, "Name"));
 		Console.WriteLine($"Stil: {Field(header, "Style")} · Mentalite: {Field(header, "MentalityString")}"
-		                  + $" · Yoğunluk: {Field(header, "TacticalIntensity")} · Alışkanlık: {Field(header, "TacticalFamiliarity")}\n");
+		                  + $" · Yoğunluk: {Field(header, "TacticalIntensity")} · Akıcılık: {Familiarity(header, "TacticalFamiliarity")}\n");
 
 		if (Ui.Rich)
 		{
 			Pitch.Draw(tactic);
 			if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine($"\nYedekler: {string.Join(", ", benched)}");
+			if (Unfamiliar(tactic) is { Count: > 0 } learning) Console.WriteLine($"Taktiğe tam alışamayanlar: {string.Join(", ", learning)}");
 			return 0;
 		}
 
@@ -545,9 +555,10 @@ internal static partial class Program
 			Spot(Field(slot, "OOPPosition")),
 			Role(Field(slot, "OOPRoleName")),
 			Field(slot, "Player") is { Length: > 0 } player ? player : "-",
+			Field(slot, "Familiarity") is { Length: > 0 } known ? $"{known}%" : "-",
 		}).ToList();
 
-		Table.Write(["TOPLA", "ROL", "TOPSUZ", "ROL", "OYUNCU"], rows);
+		Table.Write(["TOPLA", "ROL", "TOPSUZ", "ROL", "OYUNCU", "AKICILIK"], rows);
 
 		if (Bench(tactic) is { Count: > 0 } bench) Console.WriteLine($"\nYedekler: {string.Join(", ", bench)}");
 		return 0;
@@ -567,6 +578,22 @@ internal static partial class Program
 		Pitch.Draw(tactic, changed);
 	}
 
+	/// <summary>The team's familiarity, which the game keeps out of 10000, as a percentage.</summary>
+	private static string Familiarity(JsonElement header, string field) =>
+		int.TryParse(Field(header, field), out var tenThousandths) ? $"{(tenThousandths + 50) / 100}%" : "-";
+
+	private static bool Familiar(JsonElement tactic) =>
+		tactic.TryGetProperty("Slots", out var slots) && slots.EnumerateArray().Any(s => Field(s, "Familiarity").Length > 0);
+
+	/// <summary>"Oosterwolde 71%": the eleven who do not know the tactic fully yet, least first.</summary>
+	private static List<string> Unfamiliar(JsonElement tactic) =>
+		tactic.GetProperty("Slots").EnumerateArray()
+			.Select(s => (Name: Field(s, "Player"), Known: int.TryParse(Field(s, "Familiarity"), out var k) ? k : 100))
+			.Where(p => p.Known < 100 && p.Name.Length > 0)
+			.OrderBy(p => p.Known)
+			.Select(p => $"{p.Name} {p.Known}%")
+			.ToList();
+
 	/// <summary>The match squad lists the eleven first; whoever comes after is on the bench.</summary>
 	private static List<string> Bench(JsonElement tactic)
 	{
@@ -574,7 +601,7 @@ internal static partial class Program
 		var eleven = tactic.GetProperty("Slots").GetArrayLength();
 		return squad.EnumerateArray()
 			.Where(e => int.TryParse(Field(e, "Index"), out var place) && place >= eleven && Field(e, "PlayerIndex") != "-1")
-			.Select(e => Field(e, "Name"))
+			.Select(e => Field(e, "Familiarity") is { Length: > 0 } known && known != "100" ? $"{Field(e, "Name")} {known}%" : Field(e, "Name"))
 			.ToList();
 	}
 

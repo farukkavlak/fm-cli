@@ -17,6 +17,7 @@ internal static class Tactics
 		var styles = new Dictionary<string, string>();
 		var slots = new SortedDictionary<int, Dictionary<string, string>>();
 		var selection = new SortedDictionary<int, Dictionary<string, string>>();
+		var familiarity = new Dictionary<string, string>();
 
 		foreach (var (_, node) in Report.Walk())
 		{
@@ -49,6 +50,13 @@ internal static class Tactics
 					}
 					break;
 
+				// The squad table's familiarity column: each row's player knows the tactic out of
+				// 10000, as the team as a whole does in the headline.
+				case "TacticalFamiliarity":
+					if (!Report.Fields(node).TryGetValue("AverageFamiliarity", out var known10k) || !int.TryParse(known10k, out var tenths)) break;
+					if (RowPlayer(node) is { } rowPlayer) familiarity.TryAdd(rowPlayer, ((tenths + 50) / 100).ToString());
+					break;
+
 				case "Position":
 					var slot = Report.Fields(node);
 					if (!slot.ContainsKey("IPRole") || !slot.TryGetValue("TeamSelectionIndex", out var raw)) break;
@@ -65,6 +73,9 @@ internal static class Tactics
 		// Lists stringify to their type name, which says nothing in a record.
 		foreach (var key in header.Where(kv => kv.Value.StartsWith("System.", StringComparison.Ordinal)).Select(kv => kv.Key).ToList())
 			header.Remove(key);
+
+		foreach (var record in slots.Values.Concat(selection.Values))
+			if (record.TryGetValue("PlayerIndex", out var who) && familiarity.TryGetValue(who, out var percent)) record["Familiarity"] = percent;
 
 		if (header.TryGetValue("TacticalStyle", out var styleId) && styles.TryGetValue(styleId, out var styleName))
 			header["Style"] = styleName;
@@ -149,6 +160,31 @@ internal static class Tactics
 	/// What hangs beside a slot's position record: the roles by name, and the player picked for
 	/// it. A role without the ball is the one whose name starts with "OP".
 	/// </summary>
+	/// <summary>
+	/// The player a cell of a squad table row belongs to: the nearest ancestor with a player
+	/// index a few levels down is the row, and that index is his.
+	/// </summary>
+	private static string RowPlayer(IReadOnlyNode cell)
+	{
+		var holder = cell.Parent;
+		for (var up = 0; holder != null && up < 6; up++, holder = holder.Parent)
+		{
+			var level = new List<IReadOnlyNode> { holder };
+			for (var down = 0; down < 3 && level.Count > 0; down++)
+			{
+				var next = new List<IReadOnlyNode>();
+				foreach (var n in level)
+					for (var c = n.FirstChild; c != null; c = c.NextSibling)
+					{
+						if (c.Name == "PlayerIndex" && Report.Fields(n).TryGetValue("PlayerIndex", out var index)) return index;
+						next.Add(c);
+					}
+				level = next;
+			}
+		}
+		return null;
+	}
+
 	private static void Around(IReadOnlyNode holder, Dictionary<string, string> slot)
 	{
 		var queue = new Queue<IReadOnlyNode>();
