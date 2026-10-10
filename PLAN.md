@@ -415,8 +415,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] İnteraktif oturum (`fm start` sonrası komutlar `fm` önekisiz) — TUI değil, REPL; tırnaklı
       ifadeler tek kelime sayılıyor
 - [~] İsim eşleme — isim parçası ve aksansız yazım tutuyor ("kerem", "skriniar"); yazım hatası tutmuyor (`osim` → Osimhen olur, `osimen` olmaz)
-- [ ] Kısaltmalar / takma adlar
-- [ ] Tab tamamlama (zsh/bash)
+- [x] Kısaltmalar / takma adlar — komutun tek anlamlı başı, kısa adlar (s, n, t, fx…), Türkçe adlar aksanlı/aksansız; oturumda da
+- [x] Tab tamamlama (zsh/bash) — `fm completion zsh|bash`; zsh açıklamalar, seçenekler ve kadrodaki oyuncu adları
 - [x] `fm status` — tarih, saat, oyunun neyi beklediği, sıradaki maç, bekleyen mesajlar (§8.32)
 - [x] Onay pencereleri — `fm dialog` gösteriyor / cevaplıyor (§8.34)
 - [x] Geri alınamayan işlerde onay — terminalde sorar, script'te `--yes` ister: `save`, `offer`, `contract`
@@ -449,7 +449,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [ ] Kariyer günlüğü otomatik yazılsın (LLM, maç verilerinden)
 - [ ] Web dashboard (plugin zaten HTTP konuşuyor)
 - [ ] Mobil bildirim: "Osimhen sakatlandı"
-- [ ] `fm doctor` — kadronda neyin yanlış olduğunu söyleyen tanı komutu
+- [x] `fm doctor` — sakatlar (kalan gün), yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri; ekransız (§8.82)
 - [ ] Zaman serisi DB'ye akıt, Grafana'da kariyer dashboard'u
 - [ ] Başka oyunlara aynı mimari (Unity + IL2CPP olan her şey)
 
@@ -501,6 +501,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **2. grup** (FINDINGS §8.82): kısaltmalar ve Türkçe takma adlar, `fm completion zsh|bash`, `fm doctor`. Yan ürün:
+  `fm health` sakatın kalan süresi yerine şimdiye kadar kaçırdığı süreyi "daha" diye yazıyordu; düzeldi. Oyun bir kez
+  kendiliğinden çöktü (13:19, oyunun kendi iş parçacığında yakalanmamış hata); aynı sıra yeniden başlatınca tekrarlamadı.
 
 ### 2026-10-09 (gece, otonom)
 

@@ -31,6 +31,7 @@ SHOTS=(
 	"budget|fm budget"
 	"contracts|fm contracts"
 	"health|fm health"
+	"doctor|fm doctor"
 	"league|fm league"
 	"schedule|fm schedule"
 	"club|fm club"

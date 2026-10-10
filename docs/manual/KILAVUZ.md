@@ -44,6 +44,28 @@ dışında her komutun başına `fm` eklenir (`fm squad`). Bu kılavuz ikinci ya
 
 Oyun ekranda ve Dock'ta görünmez. Pencereyi görmek istersen: `fm start --debug`.
 
+### Kısaltmalar ve tab tamamlama
+
+Komutun tamamını yazmak gerekmez:
+
+- Başı yeter, tek bir komuta uyuyorsa: `fm sq` → `squad`, `fm fix` → `fixtures`. Birden çok komuta
+  uyuyorsa (`fm re`) adaylar listelenir.
+- Kısa adlar: `s` status · `n` next · `i` inbox · `t` table · `fx` fixtures · `m` match · `p` player · `tc` tactic.
+- Türkçe adlar, aksanlı ya da aksansız: `kadro`, `taktik`, `maç`/`mac`, `tablo`, `fikstür`, `gelen`, `ileri`,
+  `sağlık`, `yönetim`, `doktor`… Oyuncu bırakan ya da teklif gönderen komutların kısa adı yok.
+
+Tab tamamlama için kabuğuna bir satır ekle:
+
+```
+# ~/.zshrc
+source <(fm completion zsh)
+# ~/.bashrc (macOS'un bash'i <(…) ile yükleyemiyor)
+eval "$(fm completion bash)"
+```
+
+zsh komutları açıklamalarıyla, seçenekleri (`fm squad --<Tab>`) ve oyun açıksa kadrodaki oyuncuların
+adlarını tamamlar: `fm player Ke<Tab>` → `fm player Kerem\ Aktürkoğlu`.
+
 ## 2. Neredeyim? — `status`
 
 Kaybolduğunda ilk yazacağın komut. Tarihi, sıradaki maçı, son maçların formunu ve oyunun
@@ -169,13 +191,34 @@ sakatlık riski puanı en yüksek olanlar tek raporda:
 ```
 $ fm health
 Sakat
-  N'Golo Kanté — A twisted ankle, 3 gün daha
+  N'Golo Kanté — A twisted ankle, 1 gün daha
 Yorgun (kondisyon %85 altı)
   Kerem Aktürkoğlu 51%
 Maç formu düşük (%60 altı)
   Çağlar Söyüncü 47%
 Sakatlık riski en yüksek (oyunun puanı 385)
   Fred
+```
+
+### Kadroda ne yanlış — `doctor`
+
+Sağlık, sözleşme, derinlik ve yönetim okumalarını tek bakışta toplar; her bulgunun yanında içine
+girmek için hangi komutun kullanılacağı yazar. Ekran açmaz, bir iki saniye sürer. Sakatlar ve
+dönüşlerine kalan gün, kondisyonu %85 altı olanlar, maç formu %60 altı olanlar, sözleşmesi bir
+yıl içinde bitenler, sağlam oyuncusu bir ya da hiç olmayan mevkiler (sakatlar sayılmaz) ve yönetimin
+endişeleri. Mutluluk ve taktiğe alışma ayrı komutlarda (`happiness`, `tactic`).
+
+![fm doctor](img/doctor.png)
+
+```
+$ fm doctor
+! Sakat: 1  → health
+    N'Golo Kanté — A twisted ankle, 1 gün daha
+! Sözleşmesi bir yıl içinde bitiyor: 1  → contract <oyuncu>
+    Grégoire Defrel — 30/6/2026
+! İnce mevkiler (sağlam oyuncu bir ya da hiç)  → depth
+    ML   yalnızca Archie Brown
+    MR   kimse yok
 ```
 
 ### Kadro derinliği — `depth`

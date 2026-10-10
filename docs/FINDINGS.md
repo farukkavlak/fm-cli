@@ -2983,6 +2983,22 @@ kutularından açılıyor:
   - *Scout tavsiyeleri*: `fm open "Player Recommendations"` Recruitment'ın genel görünümünü açıyor; "Recommendations (9)"
     döşemesi yalnızca ikisini gösteriyor (ad, mevki, "C-" notu). Tam liste ayrı bir kartta, açılmadı.
 
+## 8.82 Kısaltmalar, tab tamamlama, `fm doctor`; health'in sakatlık süresi (10 Ekim)
+
+- **`InjuriesTimeMissed` kalan süre değil**: kadro tablosunun Injuries görünümündeki süre ("10 days") oyuncunun
+  şimdiye kadar kaçırdığı süre. Kalan süre `CurrentInjury.InjuryReturnDays` (aynı gün Kanté: kaçırdığı 10 gün,
+  kalan 1; sakatlık geçmişinde "A twisted ankle, 10 gün"). `fm health` önceden ilkini "… gün daha" diye yazıyordu.
+  `CurrentInjury.InjuryDescription` / `InjuryReturnDays` `Human.Team.Players` üzerinde ekransız okunuyor.
+- **`fm doctor`** tamamen `/pull` ile çalışıyor (~1,8 sn): kondisyon, `Sharpness`, sakatlık, `FullContract.EndDateDescription`,
+  `PositionCombinedString`, `LoanClub.Name` ve yönetimin eleştiri listesi. Mutluluk (`Morale`, `Happiness…`) `/pull` ile
+  dönmüyor; `fm happiness` ekrandan okumaya devam ediyor.
+- **Tamamlama**: komut açıklamaları yardım metninden (`HelpText`) alınıyor, ikinci bir liste tutulmuyor. macOS'un bash
+  3.2'si `source <(…)` ile fonksiyon tanımlamıyor; bash için `eval "$(fm completion bash)"`. zsh'teki oyuncu adları
+  `fm __names`'ten (oyun kapalıyken sessizce boş).
+- ⚠ Oyun bir kez kendiliğinden çöktü (SIGABRT, `GameAssembly` içinde `__cxa_rethrow`, BepInEx günlüğünde iz yok); o sırada
+  `fm health` kadro görünümlerini değiştiriyordu. Yeniden başlatıp aynı sırayı (stats, status, health, doctor, player,
+  board, tactic, health, doctor) yürütünce tekrarlamadı. Neden bilinmiyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

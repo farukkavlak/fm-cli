@@ -127,6 +127,7 @@ finances        finans: kasa, bu ayın gelir/gideri, borç, FFP, oyuncu tipine g
 finances gelir|gider [ay|geçen ay|sezon|geçen sezon]   kalem kalem gelir ya da gider
 supporters      taraftarlar: hava, beklentiler ve tepkileri, seyirci, kombine, taraftar profili
 board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri
+doctor          kadroda ne yanlış: sakatlar, yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri
 facilities      tesisler: stadyum (kapasite, zemin, ölçüler), antrenman tesisi, altyapı, ticari
 health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler
 depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
@@ -167,6 +168,11 @@ status          tarih ve oyunun şu an neyi beklediği
 save --yes      oyunu kaydet (dosyanın üzerine yazar, geri alınamaz)
 
 --json          ham veri (script'lenebilir)
+completion zsh  tab tamamlama: ~/.zshrc'ye `source <(fm completion zsh)`; bash'te `eval "$(fm completion bash)"`
+
+Kısaltmalar: komutun başı yeter, tek komuta uyuyorsa (sq → squad, fix → fixtures). Kısa adlar:
+s status · n next · i inbox · t table · fx fixtures · m match · p player · tc tactic.
+Türkçe adlar da olur, aksansız da: kadro, taktik, maç, tablo, fikstür, gelen, ileri, sağlık, yönetim…
 fm mcp          komutları MCP araçları olarak sun (stdio); bir modelin oynaması için
 
 Oturumda komutları `fm` yazmadan verirsin; çıkmak için `quit`.
