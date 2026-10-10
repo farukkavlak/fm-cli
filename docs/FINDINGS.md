@@ -3351,6 +3351,17 @@ dolduruluyor. Hatanın bu olduğu doğrulanmadı.
 - Açık: birden çok grup varken blokların sırası görülmedi (kod her `MentoringGroupRelationshipN` bloğunu ayrı grup
   sayıyor); elle grup kurmak / oyuncu eklemek; ilişki puanlarını göstermek.
 
+## 8.103 Kolay çıkmayan iki okuma (10 Ekim akşam)
+
+- **Mutluluğun nedeni.** Veri modelinde oyuncuda `HappinessNegatives` / `HappinessPositives`, `HappinessPlayingTime` …
+  (`HappinessCategoryReference`: `Description`, `DetailedString`, `ProsList`, `ConsList`) var, ama `Human.Team.Players`
+  satırlarında `/pull` hiçbirini vermiyor; `/pathbind` bağlıyor, `/pathlist` "is not a list ()" diyor. Oyuncunun kendi
+  sayfası açıkken denenmedi.
+- **Scout odakları.** Recruitment › Recruitment Focuses: seçili odağın adı, durumu ve atananlar metinde ("South Eastern
+  Europe · In Progress · 1 scout · 1 analyst · Assignments (4)"), sonuç sekmeleri "Matched (0) / Nearly Matched (12) / In
+  Progress (7)" (`EventFmxRecruitmentFocusChangeResultsTable`), konuşma butonları "Edit / Remove / Create a New
+  Recruitment Focus". Odak listesi ve sonuç tablosunun satırları metinde de `/people`'da da yok.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
