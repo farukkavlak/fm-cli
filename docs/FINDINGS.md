@@ -3052,6 +3052,18 @@ denemede de çıkmadı. Kodda olası bir neden vardı: aynı oyuncu iki listede 
 henüz boş tutuyorsa, öbür listedeki dolu değer `TryAdd` yüzünden yazılmıyordu. Artık boş alan dolu değerle
 dolduruluyor. Hatanın bu olduğu doğrulanmadı.
 
+## 8.87 Penaltı sırası (10 Ekim)
+
+- Match Day › Penalties: `/form?anchor=Penalty Takers&up=12` sırayı (Order, forma no, ad, "Starting at STC",
+  Composure, Penalty Taking) ve üç kuralı `SICheckBox` olarak (değeriyle) veriyor. `/setcontrol?ptr=…&value=true|false`
+  kuralı değiştiriyor; sayfadan çıkıp dönünce duruyor ✓ (denemeden sonra hepsi kapalıya döndürüldü).
+- Sırayı değiştirmek: satırlar `FMDraggableObject`; tablo (`StreamedTable`, etiketi "Jump to Top") `DragEvents →
+  EventFmxSetPiecePenaltyCandidatesMove` ve `RemoveEvents → …Remove` taşıyor; "Add Player" listesi
+  (`EventFmxSetPiecePenaltyCandidatesAdd`) seçeneklerini `FM.UI.PersonReference` olarak veriyor, köprü adlarını okuyamıyor
+  (`Choice` yalnızca `DynamicReference`'ı açıyor). Ayrıca `EventFmxSetPieceSwapPenaltyCandidates` var. Sürükleme olayının
+  bağlamında hangi satırın nereye gittiği olmalı; yapılmadı. Kişi referansını ada çevirmek için seçeneği bir düğüme koyup
+  (`RawPath.Set`) `Name`'ini bağlamak denenebilir.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

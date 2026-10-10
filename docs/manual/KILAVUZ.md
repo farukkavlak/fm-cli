@@ -298,6 +298,22 @@ Kerem Aktürkoğlu — 22 maç · ortalama 6.91 · en iyi 8.90 · en kötü 6.20
 …
 ```
 
+### Penaltı sırası — `penalties`
+
+```
+$ fm penalties
+SIRA  #   OYUNCU            MAÇA          SOĞUKKANLILIK  PENALTI
+1     94  Talisca           ilk 11 · STC  15             15
+2     21  Marco Asensio     ilk 11 · AMR  15             14
+3     9   Kerem Aktürkoğlu  ilk 11 · AML  12             13
+
+  1. İki gol atan da atabilir: kapalı
+  2. Bir penaltı atan bir sonrakini bırakır: kapalı
+  3. Penaltı kaçıran bir sonrakini bırakır: kapalı
+```
+
+`fm penalties 3 açık` üçüncü kuralı açar. Sırayı değiştirmek şimdilik oyunda, sürükleyerek.
+
 ### İki oyuncu yan yana — `compare`
 
 `fm compare fred guendouzi` iki oyuncunun kimliğini ve özelliklerini yan yana basar; her

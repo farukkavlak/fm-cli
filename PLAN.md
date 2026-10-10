@@ -206,7 +206,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Yedek kulübesini göster — `fm tactic`'in "Yedekler" satırı
 - [ ] İki as oyuncunun yerini değiştirme, kadro dışından oyuncu alma (adları taktik ekranında bağlı değil)
 - [x] Duran top rutinlerini kur — `fm setpieces new`, oyunun altı soruluk sihirbazı (§8.36)
-- [ ] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası
+- [~] Duran top düzenlerini okuma / sonradan değiştirme, penaltı sırası — `fm penalties` sırayı ve üç kuralı okuyor, kuralları değiştiriyor; sırayı değiştirmek (sürükleme) ve duran top düzenleri açık (§8.87)
 - [~] Kaptan / yardımcı kaptan — `fm captains`: okuma, kaptan değişimi; yardımcı yalnızca boşken (§8.58)
 - [~] Taktik kaydet / yükle / kopyala — `fm tactic copy`, `fm tactic clear <n> --yes` (§8.77); dosyaya Save / Load… yok
 - [x] Rakip talimatları — `fm opposition`: tablo, yardımcının önerisi, temizle, oyuncu başına ayar (§8.49)
@@ -501,6 +501,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Yönetim görüşü ve bilet** (FINDINGS §8.81): `fm board` yönetimin ve taraftarın konu konu görüşü, memnun oldukları ve
   endişeleri; `fm finances` maç bileti ve kombine fiyatı. Park: tam gol listesi, başka ligler, scout tavsiyeleri,
   kulüp değeri (yalnızca debug alanı).
+- **Orta grup: `fm penalties`** (FINDINGS §8.87): okuma ve üç kural; sıra sürüklemeyle değişiyor, yapılmadı.
+  Ayrıca: kartta kulübün gördüğü potansiyel (§8.85), `/squad` boş alan birleştirme düzeltmesi (§8.86, doğrulanmadı).
 - **Kolay grup: maç maç puanlar** (FINDINGS §8.84): `PastMatchesRatings` `/pull`'la boş liste; oyuncu sayfasındaki form
   kutusu ("Last 5 Club Games") tıklanınca açılan Match Ratings sayfası okunuyor. Skor ev sahibi önce, hangi tarafta
   oynadığını söylemiyor (fikstürle eşlemek 18 sn sürdüğü için yapılmadı).
