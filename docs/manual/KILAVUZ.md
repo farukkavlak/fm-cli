@@ -22,7 +22,7 @@ sen her şeyi `fm` komutlarıyla yaparsın.
 9. [Lig ve fikstür — `table`, `fixtures`](#9-lig-ve-fikstür--table-fixtures)
 10. [Transfer ve sözleşme — `players`, `offer`, `contract`](#10-transfer-ve-sözleşme--players-offer-contract)
 11. [Kaydetmek ve oyun ayarları — `save`, `settings`](#11-kaydetmek-ve-oyun-ayarları--save-settings)
-12. [Kulüp — `club`, `staff`, `finances`](#12-kulüp--club-staff-finances)
+12. [Kulüp — `club`, `staff`, `finances`, `supporters`, `facilities`](#12-kulüp--club-staff-finances-supporters-facilities)
 13. [Her şeye erişim — `pages`, `buttons`, `press`](#13-her-şeye-erişim--pages-buttons-press)
 14. [Claude'dan oynamak — MCP](#14-claudedan-oynamak--mcp)
 
@@ -644,9 +644,9 @@ Maçı kısaltmanın iki yolu var: **maç gösterimi** "Yalnızca anlatım" ya d
 Dili değiştirmek mümkün ama fm-cli oyunun İngilizce yazılarını okuduğu için çoğu komut çalışmaz
 hale gelir; `settings` bunu sorar, script'te `--yes` ister.
 
-## 12. Kulüp — `club`, `staff`, `finances`
+## 12. Kulüp — `club`, `staff`, `finances`, `supporters`, `facilities`
 
-Üçü de yalnızca okur; oyunda hiçbir şeyi değiştirmez.
+Hepsi yalnızca okur; oyunda hiçbir şeyi değiştirmez.
 
 ### Kulüp özeti — `club`
 
@@ -688,8 +688,8 @@ Sağlık 6 kişi — eksik: Head of Sports Science 0/1, Physio 1/5, Sports Scien
 ![fm finances](img/finances.png)
 
 Kasa ve aylara göre bakiyesi, bu ayın geliri ve gideri, kalan borç, finansal fair play durumu,
-haftalık maaş bordrosu (oyuncu statüsüne göre: yıldız, düzenli ilk 11, rotasyon…), toplam sponsorluk
-geliri ve yönetimin önümüzdeki sezonlar için bakiye/ciro tahmini. Zarar parantezle ve kırmızı yazılır.
+haftalık maaş bordrosu (oyuncu statüsüne göre: yıldız, düzenli ilk 11, rotasyon…), sponsorluk
+anlaşmaları tek tek (tür, sezonluk değer, bitiş) ve yönetimin önümüzdeki sezonlar için bakiye/ciro tahmini. Zarar parantezle ve kırmızı yazılır.
 Transfer ve maaş bütçesi için `budget`.
 
 ```
@@ -701,6 +701,40 @@ Kasa
 Yönetimin projeksiyonu
   2026/27                bakiye (£34.96M) · ciro £161M
 ```
+
+Kalem kalem gelir ya da gider: `finances gelir` / `finances gider`, dönemi arkasına yaz — `ay`
+(varsayılan), `geçen ay`, `sezon`, `geçen sezon`. Büyükten küçüğe sıralı; sıfır olan kalemler soluk.
+
+![fm finances gider sezon](img/finances-expenditure.png)
+
+```
+$ fm finances gider sezon
+Gider — bu sezon: £57,523,168
+  Player Wages                  £26,556,424
+  Tax                           £7,399,431
+```
+
+### Taraftarlar — `supporters`
+
+![fm supporters](img/supporters.png)
+
+Taraftarın genel havası, yönetime etkisi, son maçlardan sonraki tepkisi, ortalama seyirci, kombine
+sahibi ve bekleme listesi, sosyal medya takipçisi, rakipler; her beklenti (önemi, türü, şu anki
+tepkisi) ve taraftar profili (çekirdek, aile, iyi gün dostu…).
+
+```
+$ fm supporters
+Beklentiler
+  Play entertaining football (tercih, oyun tarzı) — hoşnut
+  Get the better of our rivals Galatasaray (zorunlu, rekabet) — henüz yargılamıyor
+```
+
+### Tesisler — `facilities`
+
+![fm facilities](img/facilities.png)
+
+Stadyum (kapasite, yapım yılı, sahibi, zemin ısıtma, çatı, zemin, saha ölçüsü ve durumu),
+antrenman tesisi, altyapı tesisleri, akademi antrenmanı, genç oyuncu bulma ve kurumsal tesisler.
 
 ## 13. Her şeye erişim — `pages`, `buttons`, `press`
 

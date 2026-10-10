@@ -2898,6 +2898,37 @@ generateVisualContent callback execution nor during visual tree rendering". Köp
 çizim anında gönderince oluyor; hemen tekrar göndermek geçiyor. CLI `OpenBookmark` üç kez deniyor.
 Kalıcı çözüm eklentide olayı çizim dışı bir ana iş parçacığı anına ertelemek olur (denenmedi).
 
+## 8.79 Gelir/gider dökümü, sponsorlar, taraftarlar, tesisler, yönetim kartı (10 Ekim)
+
+Hepsi Club › Overview'deki bir kutudan (`layout-tile-interaction-button`) ya da finans kartının
+kutularından açılıyor:
+
+- **Sponsorlar**: finans kartında `/click?text=Total Sponsorships income` → Sponsorships kartı
+  (`anchor=Value (Per Season)&up=14`): Type · Value (Per Season) · Until · Duration · Total Value, beşer
+  hücre; sonuncusu "N additional club partner in a deal totalling …" ve "-" tarihli.
+- **Gelir dökümü**: finans kartında `/click?text=Turnover` → Income kartı; **gider**: `/click?text=This
+  Month` (gider kutusunun alt yazısı; gelirinki küçük m'li "This month") → Expenditure kartı. İkisinde
+  de dört dönem sekmesi (`ThisMonthTab`, `LastMonthTab`, `ThisSeasonTab`, `LastSeasonTab`) ve
+  "Income/Expenditure Breakdown" altında Item · Total ikilileri (gelirde 17, giderde 21 kalem). Liste
+  yalnızca görünen satırları çiziyor; görünen bir kalemi çapa yapıp 0 / 0,5 / 1'e kaydırarak toplanıyor.
+  ⚠ Kart en son bırakılan sekmede açılıyor — "bu ay" için de sekmeye basmak gerekiyor.
+- **Taraftarlar**: Overview'de `/click?text=Supporter influence on the board` (`anchor=Supporter
+  Profile&up=12`): profil "35% · Core" ikilileri, Season Ticket Holders, Social media followers, Average
+  Attendance, Season Ticket Waiting List, genel cümle, beklenti tablosu (metin · Required/Desired/Preferred
+  · Playing style/Reputation/Signing/Rivalry/Competition · Pleased/Satisfied/Reserving Judgement…),
+  sözcünün paragrafı, Fierce / Other Rivals sayısı, Matches Feedback (Board / Supporters). ⚠ Tablonun
+  Type kolonu birkaç kare sonra çiziliyor; o ana kadar satırlar üç hücre — ilk iki satır dört hücre
+  arayla hizalanınca okunmalı.
+- **Tesisler**: `/click?text=Facilities` (`anchor=Under-Soil Heating&up=16`): About Club (Founded,
+  lig sırası), Stadium notu ve Name, City, Rent, Capacity, Year Built/Rebuilt, Owned By, Under-Soil
+  Heating, Roof, Surface, Pitch Dimensions, Maximum Pitch Dimensions, Pitch Condition; Corporate;
+  Training ("Great training facilities", Name); Youth, Youth Stadium, Youth Level, Academy Coaching,
+  Youth Recruitment. "Name" iki kez geçiyor; bölüm başlığından sonra aranmalı.
+- **Yönetim**: `/click?text=1 board member`: üyeler (Sadettin Saran · President), talep türleri
+  (Build New Stadium, Facilities, Finance, Networking, Staff, New Contract — her biri talep açan
+  buton), Board Requests tablosu (Request · Status · Started · Outcome · Completed; şimdilik boş).
+  Talep etmek denenmedi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

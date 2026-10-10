@@ -312,9 +312,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ## 9. Finans
 
 - [x] Bütçe durumu — `fm budget`; transfer ↔ maaş dağılımı `fm budget ayarla` (§8.65)
-- [~] Gelir/gider dökümü — `fm finances`: bu ayın gelir/gideri, aylık bakiye, projeksiyon (§8.78); kalem kalem döküm yok (`ExpenditureBreakdown*` binding'leri mevcut)
+- [x] Gelir/gider dökümü — `fm finances gelir|gider [ay|geçen ay|sezon|geçen sezon]` kalem kalem (§8.79)
 - [x] Maaş bordrosu — `fm finances`: toplam / bütçe, oyuncu statüsüne göre; personel maaşları `fm staff` (§8.78)
-- [~] Sponsorluklar — `fm finances` toplam gelir ve kaynak sayısı; sponsor sponsor yok
+- [x] Sponsorluklar — `fm finances`: anlaşma anlaşma tür, sezonluk değer, bitiş, süre (§8.79)
 - [ ] Bilet fiyatları
 - [~] Kulüp değeri / borç — `fm finances` kalan ve başlangıç borcu; kulüp değeri yok
 - [x] Finansal fair play durumu — `fm finances` (§8.78)
@@ -326,11 +326,11 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Teknik ekip listesi — `fm staff`: kişi kişi iş, yaş, maaş, sözleşme; rol eksikleri ve yönetimin görüşü (§8.78)
 - [ ] Personel işe al / kov (Coaching, Scouting, Medical)
 - [ ] Personel sorumlulukları (delegasyon)
-- [~] Tesisler (antrenman, gençlik, altyapı) — `fm club` seviyeleri veriyor; Facilities kartının ayrıntısı yok
+- [x] Tesisler (antrenman, gençlik, altyapı) — `fm facilities`: stadyum, antrenman, altyapı, ticari (§8.79)
 - [ ] Tesis geliştirme talebi
 - [x] Yönetim kurulu beklentileri — `fm club`: not, hava, vizyon hedefleri (§8.78)
-- [ ] Yönetimle görüşme / talep
-- [~] Taraftar memnuniyeti — `fm club`: hava ve yönetime etkisi; beklentilerin listesi yok
+- [ ] Yönetimle görüşme / talep — kart okundu (§8.79): talep türleri Build New Stadium, Facilities, Finance, Networking, Staff, New Contract; geçmiş boş, talep etmek denenmedi
+- [x] Taraftar memnuniyeti — `fm supporters`: hava, beklentiler ve tepkileri, seyirci, profil (§8.79)
 - [x] Kulüp vizyonu / hedefler — `fm club` (§8.78)
 - [ ] İş güvenliği (sacılma riski)
 
@@ -488,6 +488,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   `fm finances` (finans kartı: gelir/gider, borç, FFP, statüye göre maaş, sponsorluk, projeksiyon). Hepsi salt okuma.
   Yan ürün: sayfa açmak ara sıra oyunun çizim anına denk gelip "VisualElements cannot be added to an active visual
   tree…" hatası veriyordu; `OpenPage` artık bu cevapta yarım saniye bekleyip yeniden deniyor (8/8 temiz).
+
+- **Kulübün kalanı** (FINDINGS §8.79): `fm finances gelir|gider [dönem]` kalem kalem, `fm finances` sponsor
+  anlaşmalarını tek tek veriyor, `fm supporters` (beklentiler, seyirci, profil), `fm facilities` (stadyum,
+  antrenman, altyapı). Yönetim kartı okundu ama talepte bulunmak eylem — ayrı iş.
 
 ### 2026-10-09 (gece, otonom)
 

@@ -61,7 +61,9 @@ internal static partial class Program
 				"health" => await Health(json),
 				"club" => await Club(json),
 				"staff" => await Staff(json),
-				"finances" => await Finances(json),
+				"finances" => await Finances(json, args),
+				"supporters" => await Supporters(json),
+				"facilities" => await Facilities(json),
 				"contracts" => await ContractsCalendar(json),
 				"training" => await IndividualTraining(args),
 				"table" => await LeagueTable(json),
@@ -1011,6 +1013,9 @@ internal static partial class Program
 			  club            kulüp özeti: yönetim notu ve hedefler, taraftar, kasa ve maaş, tesisler, ekipteki boşluklar
 			  staff           kulüp personeli: kim hangi işte, yaşı, maaşı, sözleşmesi; ekiplerdeki eksikler ve yönetimin görüşü
 			  finances        finans: kasa, bu ayın gelir/gideri, borç, FFP, oyuncu tipine göre maaş bordrosu, sponsorluk, projeksiyon
+			  finances gelir|gider [ay|geçen ay|sezon|geçen sezon]   kalem kalem gelir ya da gider
+			  supporters      taraftarlar: hava, beklentiler ve tepkileri, seyirci, kombine, taraftar profili
+			  facilities      tesisler: stadyum (kapasite, zemin, ölçüler), antrenman tesisi, altyapı, ticari
 			  health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler
 			  depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>

@@ -35,6 +35,9 @@ SHOTS=(
 	"club|fm club"
 	"staff|fm staff"
 	"finances|fm finances"
+	"finances-expenditure|fm finances gider sezon"
+	"supporters|fm supporters"
+	"facilities|fm facilities"
 )
 
 shoot() {
