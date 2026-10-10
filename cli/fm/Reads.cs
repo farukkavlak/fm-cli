@@ -276,9 +276,15 @@ internal static partial class Program
 		if (args.Contains("--career")) return await Career(card, json);
 		if (args.Contains("--matches")) return await PlayerMatches(card, json);
 
+		// The potential the club's staff see in him, out of 200. The game turns it into stars
+		// measured against the club's own level, so it is given as the number.
+		var potential = int.TryParse(Field(await Fm.Pull(Field(card.GetProperty("Player"), "Path"), "PerceivedPotentialAbility"), "PerceivedPotentialAbility"), out var pa) && pa > 0 ? pa : 0;
+
 		if (json)
 		{
-			Console.WriteLine(card.ToString());
+			var node = System.Text.Json.Nodes.JsonNode.Parse(card.ToString())!;
+			if (potential > 0) node["Player"]!["PerceivedPotentialAbility"] = potential;
+			Console.WriteLine(node.ToJsonString());
 			return 0;
 		}
 
@@ -297,6 +303,7 @@ internal static partial class Program
 			Prefixed("Sağ ayak ", Field(player, "RightFootednessString")), Prefixed("Sol ayak ", Field(player, "LeftFootednessString")),
 			Suffixed(Field(player, "Height"), " cm"), Field(player, "InternationalCapsAndGoalsString")));
 
+		if (potential > 0) Console.WriteLine($"Potansiyel (kulübün gözünden): {potential}/200");
 		var injury = Field(player, "InjuryDescription");
 		if (injury.Length > 0) Console.WriteLine($"Sakatlık: {injury}");
 
@@ -317,7 +324,7 @@ internal static partial class Program
 		{
 			if (Ui.Rich)
 			{
-				Card.Draw(player, traits, []);
+				Card.Draw(player, traits, [], potential);
 				foreach (var line in history) Console.WriteLine(line);
 			}
 			return 0;
@@ -335,7 +342,7 @@ internal static partial class Program
 
 		if (Ui.Rich)
 		{
-			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList());
+			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList(), potential);
 			foreach (var line in history) Console.WriteLine(line);
 			Ui.Line($"[dim]Teklif, kısa liste, scout…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]");
 			return 0;

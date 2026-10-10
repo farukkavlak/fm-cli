@@ -10,7 +10,7 @@ namespace FmCli;
 /// </summary>
 internal static class Card
 {
-	public static void Draw(JsonElement player, IReadOnlyList<string> traits, IReadOnlyList<(string Title, List<JsonElement> Attributes)> blocks)
+	public static void Draw(JsonElement player, IReadOnlyList<string> traits, IReadOnlyList<(string Title, List<JsonElement> Attributes)> blocks, int potential = 0)
 	{
 		var console = Ui.Out;
 
@@ -30,6 +30,7 @@ internal static class Card
 				: ""),
 		};
 
+		if (potential > 0) who.Add($"[dim]Potansiyel[/] [yellow]{potential}[/][dim]/200, kulübün gözünden[/]");
 		var injury = F(player, "InjuryDescription");
 		if (injury.Length > 0) who.Add($"[red]Sakatlık:[/] {Ui.Safe(injury)}");
 		if (traits.Count > 0) who.Add($"[dim]Alışkanlıklar:[/] {Ui.Safe(string.Join(" · ", traits))}");
