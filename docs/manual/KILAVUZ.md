@@ -686,6 +686,26 @@ Maç bitince `report`:
 
 ![fm report](img/report.png)
 
+### Rakip — `opponent`
+
+`fm opponent` sıradaki rakibi özetler: ligdeki yeri, en çok kullandığı diziliş, gol / asist kralı,
+sezon sayıları ve kadro haberleri.
+
+```
+$ fm opponent
+Kocaelispor · 9th in Turkish Super League
+  Diziliş: 4-3-3 DM Wide
+  Gol kralı: Bruno Petković (6)
+  Asist kralı: Can Keleş (3)
+Genel performans (Super League, This Season):
+  maç başı gol 1.2 · penaltısız xG/90 1.1 · maç başı yenen 1.3 · maç başı şut 11.6 · pas % 90.3
+  Performing to an average level — Kocaelispor are performing around average statistically.
+Kadro haberleri:
+  Mateusz Wieteska unregistered
+```
+
+Ligi oyunda yüklü olmayan bir rakipte (Avrupa'dan küçük bir kulüp) sezon sayıları gelmez.
+
 ## 9. Lig, kupa ve fikstür — `table`, `fixtures`, `league`, `stages`
 
 ![fm table](img/table.png)

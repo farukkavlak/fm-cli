@@ -3562,6 +3562,18 @@ devret / geri al, zaten o durumda olan.
 
 `fm progress` (kadro tablosu, değişime göre sıralı) ve oyuncu kartında "Yetenek" satırı.
 
+## 8.114 Rakibin sezon sayıları ve takım formu (11 Ekim gece)
+
+- Portal › Opposition Report'ta "General Performance" döşemesi: "<lig>, This Season", sonra değer / etiket çiftleri
+  (Gl/Gm, Np-xG/90, Conc/Gm, xGA/Gm, Sh/Gm, Shot %, Pas %, Tck %), ardından bir hüküm ("Performing to an average level")
+  ve cümlesi. Döşeme sayılar gelmeden bir an "No Data Available" yazıyor; ligi yüklü olmayan rakipte (Qarabağ) öyle
+  kalıyor. Öbür döşemeler ("Defending - Defenders", "Creativity - Midfielders"…) rakibe göre değişiyor, okunmadı.
+- `fm opponent` bu bloğu "Genel performans" olarak ekliyor. "Form" satırı önceden bir sonraki başlığı ("Most Used
+  Formation") basıyordu (form çizim, yazısı yok); artık "-".
+- Takımın formu veride: `Human.Team.RecentFormValuesAllComps` = "0,2,1,3,3" (beş maç). Kodların karşılığı çözülmedi
+  (son iki galibiyet 3; öncesindeki iki beraberlik ve bir yenilgi 0 / 2 / 1 olarak geliyor — sıra ya da kodlama
+  belirsiz). Tablodaki öbür takımların satırına bu alan `/table` ile gelmiyor (yalnızca tek değerli alanlar).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

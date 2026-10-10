@@ -263,7 +263,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Scout odakları (recruitment focus) — `fm scout`: odaklar, durum, atananlar, sayılar (§8.109); kurmak / düzenlemek yok (iki adımlı sihirbaz, notları §8.109'da)
 - [x] Kısa liste — `fm shortlist` (§8.56)
 - [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
-- [~] Rakip analizi — `fm opponent`: raporun özeti (§8.57); kilit oyuncular ve taktik analizi yok
+- [~] Rakip analizi — `fm opponent`: raporun özeti (§8.57) ve sezon sayıları: maç başı gol / xG / şut, pas ve top kapma yüzdesi, hüküm (§8.114); kilit oyuncular ve taktik analizi yok
 - [~] Gençlik adayları / youth intake — `fm youth`: altyapı notu, A takıma aday görülenler, alım tarihi (§8.112); alım gününde aday listesi bakılacak (Mart)
 
 ---
