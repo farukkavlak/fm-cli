@@ -177,7 +177,11 @@ internal static partial class Program
 			var choices = lists[i].GetProperty("Choices");
 			if (choices.GetArrayLength() != 1 || choices[0].GetString() != "Competitions ›") continue;
 			if (Field(lists[i], "Label").Length == 0) continue;
-			return (lists[i], lists[i + 1]);
+			// The stage list is the one that ends in the xG table; until it is there the page
+			// is still being built, and the list after the competition's is the season's.
+			var stage = lists.Skip(i + 1).FirstOrDefault(l => l.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "xG Table"));
+			if (stage.ValueKind != JsonValueKind.Object) return null;
+			return (lists[i], stage);
 		}
 		return null;
 	}

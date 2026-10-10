@@ -55,7 +55,8 @@ internal static class Ties
 		Collect(side, "", texts, 0);
 		var names = texts.FindAll(t => t.Name != "SIText").ConvertAll(t => t.Text);
 		var badges = texts.FindAll(t => t.Name == "SIText").ConvertAll(t => t.Text);
-		return (string.Join(" ", names), string.Join(" ", badges));
+		// A side not yet decided lists the clubs it can still be.
+		return (string.Join(" / ", names), string.Join(" ", badges));
 	}
 
 	/// <summary>The texts that are showing under an element, each with which result-type holder it is in.</summary>
