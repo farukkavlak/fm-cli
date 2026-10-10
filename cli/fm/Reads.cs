@@ -518,7 +518,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Prints people with every field their rows carry as a column, less the table's own bookkeeping.</summary>
-	private static void Columns(List<JsonElement> rows)
+	private static void Columns(List<JsonElement> rows, string who = "OYUNCU")
 	{
 		// Bound by a table for its own use (sorting, icons, the pitch view), in every view.
 		string[] noise = ["UniqueId", "Regenerated", "Team", "Count", "PlayerStatusSortType", "NewgenAppearanceDescription",
@@ -535,7 +535,7 @@ internal static partial class Program
 		var ordered = rows.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase).ToList();
 		if (!Ui.Rich)
 		{
-			Table.Write(["OYUNCU", .. columns.Select(Heading)], ordered
+			Table.Write([who, .. columns.Select(Heading)], ordered
 				.Select(p => new[] { Field(p, "Name") }.Concat(columns.Select(c => Field(p, c))).ToArray())
 				.ToList());
 			return;
@@ -556,7 +556,7 @@ internal static partial class Program
 		var dropped = columns.Count - shown.Count;
 
 		var table = new Spectre.Console.Table { Border = Spectre.Console.TableBorder.Rounded, BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey) };
-		table.AddColumn(new Spectre.Console.TableColumn("[dim]OYUNCU[/]") { NoWrap = true });
+		table.AddColumn(new Spectre.Console.TableColumn($"[dim]{who}[/]") { NoWrap = true });
 		foreach (var c in shown) table.AddColumn(new Spectre.Console.TableColumn($"[dim]{Ui.Safe(Heading(c.Field))}[/]") { NoWrap = true });
 		for (var i = 0; i < ordered.Count; i++)
 		{

@@ -82,6 +82,7 @@ internal static partial class Program
 		["setpieces"] = ["new", "korner", "frikik", "kanat", "derin", "tac"],
 		["stop"] = ["--save", "--no-save"],
 		["load"] = ["--save", "--no-save"],
+		["staff"] = ["find", "--filter", "--view", "--filters", "--views"],
 		["responsibilities"] = ["take", "delegate", "--yes"],
 		["scout"] = ["--near", "--progress", "--matched"],
 		["board"] = ["request", "--yes"],

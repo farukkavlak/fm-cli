@@ -1223,6 +1223,21 @@ Karar sonradan gelen kutusuna mesaj olarak düşer ("Number of scouts increased"
 board request - …"). Cevap bekleyen talepler varken oyun yeni talep açtırmıyor; komut o zaman
 "Yönetim şu an talep almıyor" der.
 
+### Personel aramak — `staff find`
+
+`fm staff find` oyunun personel veritabanını listeler (antrenör, scout, fizyoterapist…): görevi,
+sözleşmesi, maaşı. Yanına yazdığın şey gelenleri ad ya da göreve göre süzer.
+
+```
+$ fm staff find --filter "first team" --view coaching
+KİŞİ               WORKING WITH YOUNGSTER  TACTICAL  TECHNICAL  DEFENDING  ATTACKING  JOB    DURUM
+Abdullah Gür       12                      5         5          5          5          Coach  FrA
+```
+
+`--filter` oyunun hazır süzgeçlerinden biridir (kulübe gelmek isteyenler: `staff find --filters`),
+`--view` sütunları değiştirir (Contract, Rating, Coaching, Medical, Mental, Scouting). `DURUM`'daki
+`FrA` serbest demek. İşe almak (görüşme ve sözleşme) henüz yok.
+
 ### Kim neyi yapıyor — `responsibilities`
 
 ![fm responsibilities](img/responsibilities.png)

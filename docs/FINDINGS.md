@@ -3587,6 +3587,19 @@ devret / geri al, zaten o durumda olan.
   Stages sayfasını deniyor (turnuva orada kendi adıyla ya da "<ülke adı> … <lig>" olarak tek çıkıyorsa; ülke
   `Human.Team.Nation.Name`): G / B / M / AV ve FORM ile tam tablo, ~9 sn. Olmazsa (eleme turundaki kupa, JSON) eski yol.
 
+## 8.116 Personel veritabanı (11 Ekim gece)
+
+- Recruitment › Staff Database oyuncu veritabanının kardeşi: satırlar `/people` ile geliyor (`Name`, `Age`, `JobString`,
+  `ContractStatus`, `Wage`, `StatusTitleShort` — "FrA" serbest). Süzgeç listesi aynı adlı kutu
+  (`inputs-combobox-default-default`): "Interested staff - First Team / Reserves / Youth Team" (`fire=1` ile). Görünüm
+  listesi `ViewAltDropdown`: Contract, Rating, Coaching, Medical, Mental, Scouting — nitelik görünümlerinde satırlara 20
+  üzerinden nitelikler bağlanıyor (Working With Youngsters, Tactical, Technical, Defending, Attacking, Goalkeeping…).
+- Liste sanal ve ada göre sıralı (21 satır); belirli bir göreve göre oyun tarafında süzme bulunmadı — komut sayfanın
+  gösterdiğini ad / göreve göre daraltıyor.
+- İşe alma (yaklaşma, sözleşme) denenmedi.
+
+`fm staff find [metin] [--filter] [--view] [--filters] [--views]`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
