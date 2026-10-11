@@ -1122,6 +1122,7 @@ Bulduklarını görmek için: scout "CLI sol bek"
   Yazmazsan komut sorar; kendisi seçmez.
 - **En düşük yetenek / potansiyel** yıldızla: `--ability 3 --potential 3.5` (yarım yıldız adımlarıyla 0.5–5).
 - **Kim baksın** dersen `--by "soykan, ciloglu"`; yazmazsan oyun kendi seçer. Scoutları `fm scout staff` listeler.
+  Analist için aynısı: `--analysts "bayar"`.
 - Yazmadığın her şey oyunun bıraktığı gibi kalır (her mevki, 15–50 yaş, her yer).
 
 `fm scout edit <#|ad>` var olan bir odağı aynı seçeneklerle değiştirir; yalnızca yazdıkların değişir.

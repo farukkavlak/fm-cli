@@ -1098,7 +1098,7 @@ internal static partial class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] is "--for" or "--by" or "--ability" or "--potential" or "--area" or "--priority" or "--max-value" or "--attr" or "--age" or "--grade" or "--contract" or "--employed" or "--reputation" or "--note" or "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice" or "--coach" or "--trait" or "--trait-remove") { i++; continue; }
+			if (args[i] is "--for" or "--by" or "--analysts" or "--ability" or "--potential" or "--area" or "--priority" or "--max-value" or "--attr" or "--age" or "--grade" or "--contract" or "--employed" or "--reputation" or "--note" or "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice" or "--coach" or "--trait" or "--trait-remove") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}
@@ -1193,8 +1193,8 @@ internal static partial class Program
 			  table [turnuva] lig tablosu; turnuva adıyla o turnuvanın tablosu (ör. table europa)
 			  stages [turnuva] [aşama]   kupa turları ve eşleşmeleri, lig aşaması tablosu; dünyadaki her turnuva (--all, --list)
 			  scout [#|odak]  scout odakları; bir odağın bulduğu oyuncular (--matched, --near, --progress)
-			  scout new [--position <mevki>] [--role <rol>] [--area "<bölge>, …"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by "<scout>, …"] [--name <ad>] --priority top|standard|ongoing   yeni odak
-			  scout edit <#|ad> [--area …] [--age …] [--ability …] [--potential …] [--by …] [--name …] [--priority …]   var olan odağı değiştirir
+			  scout new [--position <mevki>] [--role <rol>] [--area "<bölge>, …"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by "<scout>, …"] [--analysts "<analist>, …"] [--name <ad>] --priority top|standard|ongoing   yeni odak
+			  scout edit <#|ad> [--area …] [--age …] [--ability …] [--potential …] [--by …] [--analysts …] [--name …] [--priority …]   var olan odağı değiştirir
 			  scout areas [yol] · scout remove <#|ad> [--yes] · scout restart <#|ad>   bölge seçenekleri; odağı durdur / yeniden başlat
 			  scout staff     scout ekibi: yeteneği / potansiyeli görme, bildiği bölge ve ülke sayısı, üzerindeki odaklar
 			  scout player <ad> [--by <scout>] --for <süre>   oyuncuya scout gönder ("1 hafta", "2 ay", "3 maç", "tam"); scout who <ad>: kimler atanabilir

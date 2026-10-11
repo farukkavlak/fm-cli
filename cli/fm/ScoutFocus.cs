@@ -58,24 +58,28 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Names the scouts a focus is given to, in the window behind "Assign Scouts › Edit": "Assign
-	/// Any Scouts" is switched off, which opens the table, and each one wanted is ticked. The
-	/// names as the game has them, or null (the reason said) when one is not among them.
+	/// Names the scouts — or the analysts — a focus is given to, in the window behind "Assign
+	/// Scouts › Edit": "Assign Any Scouts" is switched off, which opens the table, and each one
+	/// wanted is ticked. The names as the game has them, or null (the reason said) when one is
+	/// not among them.
 	/// </summary>
-	private static async Task<List<string>> AssignFocusScouts(string typed)
+	private static async Task<List<string>> AssignFocusScouts(string typed, bool analysts = false)
 	{
+		var (plural, one, who) = analysts ? ("Analysts", "analyst", "Analist") : ("Scouts", "scout", "Scout");
+		// The window's own box: "Assign Any Scouts", but "Assign Any Analyst".
+		var box = analysts ? "Assign Any Analyst" : "Assign Any Scouts";
 		var form = await FocusForm("Back");
-		if (FormAfter(form, "Assign Scouts", "button") is not { } edit || Field(edit, "Text") != "Edit")
+		if (FormAfter(form, $"Assign {plural}", "button") is not { } edit || Field(edit, "Text") != "Edit")
 		{
-			Console.Error.WriteLine("Formda scout seçme butonu yok.");
+			Console.Error.WriteLine($"Formda {who.ToLowerInvariant()} seçme butonu yok.");
 			return null;
 		}
 		await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
-		async Task<List<JsonElement>> Window() => (await Fm.GetJson("form", ("anchor", "Assign Any Scouts"), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
+		async Task<List<JsonElement>> Window() => (await Fm.GetJson("form", ("anchor", box), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
 		List<JsonElement> window = [];
 		if (!await Until(async () => (window = await Window()).Any(i => Field(i, "Kind") == "checkbox"), seconds: 6, every: 0.4))
 		{
-			Console.Error.WriteLine("Scout seçme penceresi açılmadı.");
+			Console.Error.WriteLine($"{who} seçme penceresi açılmadı.");
 			return null;
 		}
 		async Task Close(string button)
@@ -90,9 +94,9 @@ internal static partial class Program
 		var texts = window.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).SkipWhile(t => t != "World Knowledge").Skip(1).ToList();
 		var names = Enumerable.Range(0, Math.Max(0, texts.Count - 2)).Where(i => int.TryParse(texts[i + 2], out _)).Select(i => texts[i]).ToList();
 		var picked = new List<string>();
-		foreach (var one in typed.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+		foreach (var wanted in typed.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
 		{
-			if (Choose(names, one, "Scout") is not { } name)
+			if (Choose(names, wanted, who) is not { } name)
 			{
 				await Close("Cancel");
 				return null;
@@ -102,11 +106,11 @@ internal static partial class Program
 		// Ticked ones the caller did not name (an edited focus has its own) come off.
 		foreach (var name in names)
 			await Fm.Get("rowselect", ("text", name), ("check", picked.Contains(name) ? "1" : "0"));
-		var counted = await Until(async () => (await Window()).Any(i => Field(i, "Text") == $"{picked.Count} scout(s) selected"), seconds: 4, every: 0.3);
+		var counted = await Until(async () => (await Window()).Any(i => Field(i, "Text") == $"{picked.Count} {one}(s) selected"), seconds: 4, every: 0.3);
 		if (!counted)
 		{
 			await Close("Cancel");
-			Console.Error.WriteLine("Scoutlar seçilemedi (pencere seçilen sayısını göstermedi).");
+			Console.Error.WriteLine($"{who} seçilemedi (pencere seçilen sayısını göstermedi).");
 			return null;
 		}
 		await Close("Confirm");
@@ -371,20 +375,20 @@ internal static partial class Program
 	{
 		string position = Option(args, "--position"), role = Option(args, "--role"), name = Option(args, "--name"),
 			age = Option(args, "--age"), area = Option(args, "--area"), priority = Option(args, "--priority"),
-			ability = Option(args, "--ability"), potential = Option(args, "--potential"), by = Option(args, "--by");
+			ability = Option(args, "--ability"), potential = Option(args, "--potential"), by = Option(args, "--by"), analysts = Option(args, "--analysts");
 		// `scout edit <#|ad>` goes through the same form, opened on a focus there already; what is
 		// not named is left as it stands.
 		var edit = args[1] is "edit" or "duzenle";
 		var which = string.Join(" ", Words(args).Skip(1));
-		if (edit && (which.Length == 0 || (area ?? age ?? name ?? priority ?? ability ?? potential ?? by) == null || position != null || role != null))
+		if (edit && (which.Length == 0 || (area ?? age ?? name ?? priority ?? ability ?? potential ?? by ?? analysts) == null || position != null || role != null))
 		{
-			Console.Error.WriteLine("kullanım: scout edit <#|ad> [--area \"<eklenecek bölge>, …\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>, …\"] [--name <ad>] [--priority top|standard|ongoing]\n" +
+			Console.Error.WriteLine("kullanım: scout edit <#|ad> [--area \"<eklenecek bölge>, …\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>, …\"] [--analysts \"<analist>, …\"] [--name <ad>] [--priority top|standard|ongoing]\n" +
 				"  mevki ve rol buradan değişmez; onun için yeni odak kur: scout new");
 			return 64;
 		}
 		if (!edit && position == null && area == null)
 		{
-			Console.Error.WriteLine("kullanım: scout new [--position <mevki>] [--role <rol>] [--area \"<bölge>[, <bölge>…]\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>[, <scout>…]\"] [--name <ad>] --priority top|standard|ongoing\n" +
+			Console.Error.WriteLine("kullanım: scout new [--position <mevki>] [--role <rol>] [--area \"<bölge>[, <bölge>…]\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>[, <scout>…]\"] [--analysts \"<analist>[, …]\"] [--name <ad>] --priority top|standard|ongoing\n" +
 				"  en az bir mevki ya da bölge gerek. Bölgeler: scout areas [yol]   ör. --area \"Türkiye, Region>Europe>Northern Europe\"");
 			return 64;
 		}
@@ -557,6 +561,15 @@ internal static partial class Program
 				return 64;
 			}
 			chosen.Add(string.Join(" + ", scouts));
+		}
+		if (analysts != null)
+		{
+			if (await AssignFocusScouts(analysts, analysts: true) is not { } picked)
+			{
+				await AbandonFocus();
+				return 64;
+			}
+			chosen.Add($"analist: {string.Join(" + ", picked)}");
 		}
 
 		await Fm.Get("click", ("text", "Confirm"));

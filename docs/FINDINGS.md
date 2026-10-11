@@ -3892,6 +3892,18 @@ devret / geri al, zaten o durumda olan.
 
 `fm happiness <oyuncu>`, `fm happiness --why`.
 
+## 8.128 Odakta analist seçimi; ekran görüntüsü siyah gelebiliyor (11 Ekim)
+
+- **Analist:** odak formunda "Assign Analysts (n) › Edit" scout penceresinin eşini açıyor: başlık "Assigned Analyst",
+  kutu **"Assign Any Analyst"** (tekil — scoutlarda "Assign Any Scouts"), tablo (ad, rol, aktif odak sayısı, "Ana D",
+  "Jud A", "Tac Knw"), altta "n analyst(s) selected", Cancel / Confirm. Satırlar yine `/rowselect?text=<ad>&check=1|0`.
+  `fm scout new / edit … --analysts "<ad>, …"`. Kulüpte tek analist var (Ekrem Bayar): seçim yolu canlıda yürüdü, birden
+  çok analist arasında seçim görülmedi.
+- ⚠ **`/shot` simsiyah dönebiliyor** (70 KB'lık tek renk PNG). 11 Ekim akşamüstü oyun iki kez yeniden başlatıldıktan
+  sonra her görüntü siyah geldi; köprü ve bütün okumalar çalışıyordu, ekran uyanıktı. Pencere küçültülmüş durumdaydı
+  (`CGWindowList`: 1470×920, ekranda değil). Önceki oturumda aynı gizli pencerede çiziyordu; farkın nedeni bulunamadı
+  (pencereyi öne almak denenmedi). Siyah gelirse: `fm start --debug` ile görünür pencere.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
