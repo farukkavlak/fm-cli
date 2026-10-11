@@ -221,21 +221,32 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> PlayerInstructions(List<string> words, bool dry)
 	{
-		if (await Planner() is not { } tactic)
+		var slots = await PiSlots();
+		if (slots.Count == 0)
 		{
 			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
 			return 1;
 		}
-		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
-		var spots = slots.Select(s => Spot(Field(s, "IPPosition"))).ToList();
+		var spots = slots.Select(s => s.Spot).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine($"kullanım: tactic pi <mevki> [<talimat> [<değer>]]   mevkiler: {string.Join(" ", spots)}");
+			Console.Error.WriteLine($"kullanım: tactic pi <mevki|oyuncu> [<talimat> [<değer>]]   mevkiler: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}");
 			return 64;
 		}
-		if (Choose(spots, words[0], "Mevki") is not { } spot) return 1;
-		var slot = slots[spots.IndexOf(spot)];
-		var index = Field(slot, "TeamSelectionIndex");
+		// A slot by its position as the pitch shows it, or by the player in it.
+		var slot = slots.FirstOrDefault(s => Fold(s.Spot) == Fold(words[0]));
+		if (slot == null)
+		{
+			var byName = Matching(slots, s => s.Player, words[0]);
+			if (byName.Count != 1)
+			{
+				Console.Error.WriteLine($"'{words[0]}' bir mevkiye ya da ilk on birdeki tek bir oyuncuya uymuyor. Mevkiler: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}");
+				return 1;
+			}
+			slot = byName[0];
+		}
+		var spot = slot.Spot;
+		var index = slot.Index;
 
 		var groups = await PlayerInstructionCatalogue();
 		if (groups.Count == 0)
@@ -251,7 +262,7 @@ internal static partial class Program
 		}
 		string Setting(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) ? g.Options.FirstOrDefault(o => o.Id == n.Option).Name ?? n.Option.ToString() : "?";
 		bool Fixed(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) && n.Locked;
-		var roles = $"{Role(Field(slot, "IPRoleName"))} / topsuz {Role(Field(slot, "OOPRoleName"))}";
+		var roles = slot.Role.Length > 0 ? $"{slot.Player} · {slot.Role} / topsuz {slot.RoleWithoutBall}" : slot.Player;
 
 		if (words.Count == 1)
 		{
@@ -259,7 +270,7 @@ internal static partial class Program
 			{
 				Console.WriteLine(JsonOut.Of(new
 				{
-					Position = spot, Role = Role(Field(slot, "IPRoleName")), RoleWithoutBall = Role(Field(slot, "OOPRoleName")),
+					Position = spot, slot.Player, slot.Role, slot.RoleWithoutBall,
 					Instructions = groups.Select(g => new { Label = g.Name, WithBall = g.WithBall, Value = Setting(g), ByRole = Fixed(g), Choices = g.Options.Select(o => o.Name) }),
 				}));
 				return 0;
@@ -282,7 +293,7 @@ internal static partial class Program
 		var current = Setting(group);
 		if (Fixed(group))
 		{
-			Console.Error.WriteLine($"{name}: {current} — rolün ({Role(Field(slot, group.WithBall ? "IPRoleName" : "OOPRoleName"))}) parçası, değiştirilemiyor. Rolü değiştirmek için: tactic role {spot}{(group.WithBall ? "" : " --oop")}");
+			Console.Error.WriteLine($"{name}: {current} — rolün{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")} parçası, değiştirilemiyor. Rolü değiştirmek için: tactic role {spot}{(group.WithBall ? "" : " --oop")}");
 			return 1;
 		}
 		// Some settings are not on offer to every role ("Cut Inside" for a centre-back), as on the card.
@@ -329,6 +340,37 @@ internal static partial class Program
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, Was = current, Value = took ? choice : current, Changed = took }));
 		else Console.WriteLine(took ? $"{name}: {current} → {choice}" : $"{name}: oyun değişikliği almadı.");
 		return took ? 0 : 1;
+	}
+
+	private sealed record PiSlot(string Spot, string Index, string Player, string Role, string RoleWithoutBall);
+
+	/// <summary>
+	/// The eleven slots with the player in each, read from the tactic with no page (FINDINGS §8.133),
+	/// so they are found during a match too. The role names are only on the planner's pitch, so they
+	/// are taken from it when it can be opened — not during a match.
+	/// </summary>
+	private static async Task<List<PiSlot>> PiSlots()
+	{
+		var scopes = new List<string>();
+		for (var i = 0; i < 11; i++)
+		{
+			var scope = $"fmcli.sl{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
+			foreach (var (to, from, number) in new[] { ("Boolean", "const.True", ""), ("team", "Human.Team", ""), ("TeamSelectionIndex", "", i.ToString()), ("InPossession", "const.True", "") })
+				if (from.Length > 0) await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("from", from)); else await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("int", number));
+			scopes.Add(scope);
+		}
+		var read = await PullEach(scopes.Select(s => ($"{s}.team.Tactic", "IPPosition,PlayerFromTeamSelectionIndex.Name")).ToList());
+		var slots = read.Select((r, i) => new PiSlot(Spot(Field(r, "IPPosition")), i.ToString(), Field(r, "PlayerFromTeamSelectionIndex.Name"), "", ""))
+			.Where(s => Field(read[int.Parse(s.Index)], "IPPosition").Length > 0).ToList();
+		if (slots.Count == 0 || Field(await Fm.GetJson("state"), "DuringMatch") == "True") return slots;
+
+		if (await Planner() is { } tactic && tactic.TryGetProperty("Slots", out var planned))
+			foreach (var p in planned.EnumerateArray())
+			{
+				var at = slots.FindIndex(s => s.Index == Field(p, "TeamSelectionIndex"));
+				if (at >= 0) slots[at] = slots[at] with { Role = Role(Field(p, "IPRoleName")), RoleWithoutBall = Role(Field(p, "OOPRoleName")) };
+			}
+		return slots;
 	}
 
 	private sealed record PlayerInstructionGroup(int Id, string Name, bool WithBall, List<(long Id, string Name)> Options);
