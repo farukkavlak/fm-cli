@@ -4158,6 +4158,13 @@ Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki top
   engelliyor. `UE` süreç sinyal almıyor; büyük olasılıkla yeniden başlatmaya kadar kalıyor.
   Yapılan: eklenti port doluysa 7778… alıyor ve `~/.config/fm-cli/port`'a yazıyor, CLI oradan okuyor; `fm start`'ın
   "açık mı" yoklaması 3 sn'de vazgeçiyor (ae6b1f8). Denendi: ikinci oyun 7778'de açıldı, `fm start` bağlandı.
+  `sudo spindump 96032` (Faruk, `~/Desktop/fm-hang.txt`): süreç **"(suspended) (zombie)"**, "Unresponsive for 2156
+  seconds before sampling" — yani oyun öldürülmeden ~36 dk önce donmuştu (o sırada iş ilanları denemeleri: "Available
+  Jobs" press'i `MigratePanelIDBinding` exception, `/click` döngüsü, `jobs.py`). Ana iş parçacığı bir NSTimer'dan (Unity
+  oyuncu döngüsü) GameAssembly'ye, oradan **aynı yönetilen çerçevenin (0x303434e30) onlarca kez iç içe** çağrıldığı bir
+  özyinelemeye giriyor, en altta `tlv_get_addr` → çekirdek, "suspended". `kill -CONT` ve ReportCrash'i kapatmak süreci
+  bırakmadı. Sıradaki: hangi çağrının özyinelemeye soktuğunu bulmak (spindump'taki diğer iş parçacıkları, özellikle
+  fm-cli-http; GameAssembly ofseti 6365168/6365364 ile `sigdump`), donmayı yeniden üretmek.
   Sıradaki: (1) `/quit` → `Application.Quit()` (yazılmadı); (2) dinleyiciyi oyun kapanırken durdurmak
   (`Application.quitting` / `Unload`) ve iş parçacığını kapatmak; (3) çıkışın gerçekten nerede takıldığına bakmak.
 - **Çizim hataları:** `Player.log`'da bir oturumda 1321 "Assertion failed" (`UIR.VisualChangesProcessor.
