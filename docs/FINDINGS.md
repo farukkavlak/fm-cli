@@ -3734,7 +3734,17 @@ devret / geri al, zaten o durumda olan.
   `Focus.Running` bu butondan okunuyor, listede "Durduruldu" diye gösteriliyor.
 - **Restart** form açmadan odağın yeni bir kopyasını başlatıyor; eski giriş durmuş olarak kalıyor (liste bir uzuyor).
   Durmuş girişi listeden tamamen silen bir şey görülmedi.
-- Bu oturumda oyunda iki durmuş "CLI deneme" ve bir durmuş "CLI sol bek" girişi kaldı (kaydedilmedi).
+- Bu oturumda oyunda iki durmuş "CLI deneme" ve bir durmuş "CLI sol bek" girişi kaldı (kaydedilmedi). Gün dönünce
+  durmuş girişlerin adı "CLI deneme (24/10/2025)", durumu "Complete" oldu.
+- ⚠ **Butonlar her zaman yok — açık soru.** İki oyun günü sonra (26 Ekim, sportif direktör kendiliğinden beşinci bir odak
+  "Europe" açmışken) sayfada yalnızca "Edit Recruitment Focus" kaldı: "Create", "Remove" ve "Restart" hiçbir odakta yok.
+  Denenen: "Assigning Scouts" sorumluluğu Devin Özek'te görünüyordu (Club › Responsibilities › Scouting Responsibility;
+  aynı sekmede "When you scout a player, add them to your shortlist for / watch them for" varsayılanları da var), geri
+  alındı (`responsibilities take`) — butonlar gelmedi, bir adım ilerletince de. 24 Ekim'de beş odak sürerken "Remove" ve
+  "Restart" vardı, yani düz bir "en çok beş" sınırı da açıklamıyor. Neden bilinmiyor; komutlar buton yoksa bunu söylüyor.
+  `Focus.Running` bu yüzden "Remove var" yerine "Restart yok"tan okunuyor (yoksa hepsi "Durduruldu" görünüyordu).
+- Maç sonrası basın toplantısı beklerken (`continue` butonu "Attend Press Conference") sayfalar açılıyor ama içerik
+  eksik geliyor; `scout` o an yanlış okudu. Basın mesajı cevaplanınca düzeliyor.
 
 `fm scout new [--position] [--role] [--area "a, b"] [--age 18-23] [--name] --priority top|standard|ongoing`,
 `fm scout areas [yol]`, `fm scout remove <#|ad> [--yes]`, `fm scout restart <#|ad>`.

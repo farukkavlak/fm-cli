@@ -466,6 +466,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   kalıyor), `fm scout restart`. Kurulan odak oyunun düzenleme formunda doğrulandı.
 - **`fm opponent` genişledi** (§8.121): menajer ve tarzı (mentalite, pres, markaj), maç beklentisi, savunma / yaratıcılık
   blokları ve öne çıkan oyuncular — lig rakibinde dolu geliyor.
+- **Açık soru:** 26 Ekim'de odak sayfasından "Create / Remove / Restart" butonları kayboldu (yalnızca "Edit" var); neden
+  bilinmiyor (§8.120). Komutlar o durumda "oyun şu an sunmuyor" diyor. `<komut> --help` artık komutu çalıştırmıyor.
+- Kocaelispor 1-0 kaybedildi (26 Ekim); sakatlık durağı yine çıkmadı. Oyun 26 Ekim 2025 akşamı, kaydedilmedi.
 - Çalışmayan: scout görevini **iptal** (oyun soruyu kapatıyor, görev duruyor) — komut bunu doğrulayıp söylüyor.
 - Canlıda (kayıtta duruyor, kaydedilmedi): Čerin kısa listede (6 ay) ve soru soruldu; Čerin, Jović, Icardi izleniyor;
   Jović'e kiralık ilgisi; Şahin ve Chirivella denemeye çağrıldı — ikisini de kulüpleri reddetti, ilgi ertesi sabah haber

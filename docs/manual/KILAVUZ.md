@@ -1085,6 +1085,9 @@ $ fm scout remove "cli deneme" --yes
 Odak durduruldu: CLI deneme  (listede kalır; yeniden başlatmak: scout restart)
 ```
 
+Oyun bu üç işi her zaman sunmuyor: bazı günler odak sayfasında yalnızca "düzenle" çıkıyor (beş odak
+sürerken görüldü; kesin nedeni bilinmiyor). O zaman komut "oyun şu an açtırmıyor" der.
+
 Henüz yok: en düşük yetenek / potansiyel (yıldız), belirli scout ve analist atamak, topsuz rol,
 var olan odağı düzenlemek.
 

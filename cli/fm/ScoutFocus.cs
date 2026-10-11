@@ -94,7 +94,13 @@ internal static partial class Program
 		var clicked = "";
 		// The button is drawn a moment after the page; clicked, not queued — its action is code.
 		await Until(async () => !(clicked = await Fm.Get("click", ("text", "Create a New Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
-		if (clicked.StartsWith("error", StringComparison.Ordinal)) { Report(clicked); return false; }
+		if (clicked.StartsWith("error", StringComparison.Ordinal))
+		{
+			// The page does not always offer it (FINDINGS §8.120): seen gone with five focuses running.
+			Console.Error.WriteLine("Oyun şu an yeni odak açtırmıyor: sayfada 'Create a New Recruitment Focus' yok.\n" +
+				"  Beş odak sürerken böyle görüldü; süren odaklar: scout · scout atama kimde: responsibilities scouts");
+			return false;
+		}
 		if (await Until(async () => FormButton(await FocusForm("Next"), "Next") != null, seconds: 8, every: 0.5)) return true;
 		Console.Error.WriteLine("Odak formu açılmadı.");
 		return false;
@@ -168,6 +174,10 @@ internal static partial class Program
 		}
 
 		if (await NotNow() is { } refused) return refused;
+		// The focuses as they stand, so the one this makes can be told from them afterwards.
+		var page = await OpenPage("Recruitment Focuses", "Recruitment");
+		if (page.StartsWith("error", StringComparison.Ordinal)) return Report(page);
+		var existing = await ScoutFocuses();
 		if (!await OpenFocusForm()) return 1;
 
 		// Step one: the position, and the role in it.
@@ -262,17 +272,17 @@ internal static partial class Program
 		await Fm.Get("click", ("ptr", Field(FormButton(second, tab).Value, "Pointer")));
 		await Task.Delay(400);
 
-		var names = (await ScoutFocusNames()).ToList();
 		await Fm.Get("click", ("text", "Confirm"));
 		// Made once the form is gone and the list of focuses is one longer.
 		List<Focus> after = [];
-		var made = await Until(async () => FormButton(await FocusForm("Back"), "Confirm") == null && (after = await ScoutFocuses()).Count > names.Count, seconds: 12, every: 0.7);
+		var made = await Until(async () => FormButton(await FocusForm("Back"), "Confirm") == null && (after = await ScoutFocuses()).Count > existing.Count, seconds: 12, every: 0.7);
 		if (!made)
 		{
 			Console.Error.WriteLine("Odak kurulmuş görünmüyor; bak: scout");
 			return 1;
 		}
-		var added = after.FirstOrDefault(f => name != null ? f.Name == name : !names.Contains(f.Name)) ?? after[^1];
+		// The new one: running, and of a name there is now one more of.
+		var added = after.FirstOrDefault(f => f.Running && after.Count(a => a.Name == f.Name) > existing.Count(e => e.Name == f.Name)) ?? after[^1];
 		Console.WriteLine($"Odak kuruldu: {added.Name} · {tab}{(chosen.Count > 0 ? " · " + string.Join(" · ", chosen) : "")}{(ages != null ? $" · {ages.Groups[1].Value}–{ages.Groups[2].Value} yaş" : "")} · {added.Assigned}");
 		Console.WriteLine($"Bulduklarını görmek için: scout \"{added.Name}\"");
 		return 0;
@@ -287,10 +297,6 @@ internal static partial class Program
 			if (await FocusAt(index) is { } focus) focuses.Add(focus);
 		return focuses;
 	}
-
-	/// <summary>How many focuses there are, as the list on the page behind the form has them.</summary>
-	private static async Task<IEnumerable<string>> ScoutFocusNames() =>
-		await FocusList() is { } list ? list.GetProperty("Choices").EnumerateArray().Select((c, i) => i.ToString()) : [];
 
 	/// <summary>
 	/// Stopping a focus ("Remove Recruitment Focus": it leaves the scouting priorities but stays
@@ -332,7 +338,7 @@ internal static partial class Program
 		if (shown.Running == restart)
 		{
 			Console.Error.WriteLine(restart
-				? $"'{shown.Name}' zaten sürüyor."
+				? shown.Status == "In Progress" ? $"'{shown.Name}' zaten sürüyor." : $"Oyun '{shown.Name}' ({shown.Status}) için 'Restart Recruitment Focus' sunmuyor."
 				: $"'{shown.Name}' zaten durmuş ({shown.State}). Yeniden başlatmak için: scout restart {shown.Index + 1}");
 			return 1;
 		}
@@ -340,7 +346,11 @@ internal static partial class Program
 		if (restart)
 		{
 			var started = await Fm.Get("click", ("text", "Restart Recruitment Focus"));
-			if (started.StartsWith("error", StringComparison.Ordinal)) return Report(started);
+			if (started.StartsWith("error", StringComparison.Ordinal))
+			{
+				Console.Error.WriteLine($"Oyun '{shown.Name}' için 'Restart Recruitment Focus' sunmuyor (FINDINGS §8.120: buton her zaman çıkmıyor).");
+				return 1;
+			}
 			if (!await Until(async () => await FocusList() is { } list && list.GetProperty("Choices").GetArrayLength() > focuses.Count, seconds: 8, every: 0.5))
 			{
 				Console.Error.WriteLine($"'{shown.Name}' yeniden başlamış görünmüyor; bak: scout");
@@ -357,7 +367,11 @@ internal static partial class Program
 			return 0;
 		}
 		var clicked = await Fm.Get("click", ("text", "Remove Recruitment Focus"));
-		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
+		if (clicked.StartsWith("error", StringComparison.Ordinal))
+		{
+			Console.Error.WriteLine($"Oyun '{shown.Name}' için 'Remove Recruitment Focus' sunmuyor (FINDINGS §8.120: buton her zaman çıkmıyor).");
+			return 1;
+		}
 		JsonElement dialogs = default;
 		if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.4)
 			|| dialogs[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(b => Field(b, "Label") == "Confirm") is not { ValueKind: JsonValueKind.Object } confirm)

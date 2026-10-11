@@ -12,8 +12,8 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>
-	/// A focus that has been removed is not gone: it stays in the list, its status as it was,
-	/// and only its button tells — "Restart" where a running one has "Remove" (FINDINGS §8.120).
+	/// A focus that has been removed is not gone: it stays in the list, its status as it was
+	/// until the day turns, and only its button tells — it has "Restart" (FINDINGS §8.120).
 	/// </summary>
 	private sealed record Focus(int Index, string Name, string Status, string Assigned, int Matched, int Near, int InProgress, bool Running = true)
 	{
@@ -157,7 +157,7 @@ internal static partial class Program
 				In(texts.FirstOrDefault(t => t.StartsWith("Matched (", StringComparison.Ordinal)) ?? ""),
 				In(texts.FirstOrDefault(t => t.StartsWith("Nearly Matched (", StringComparison.Ordinal)) ?? ""),
 				In(texts.FirstOrDefault(t => t.StartsWith("In Progress (", StringComparison.Ordinal)) ?? ""),
-				(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Label") == "Remove Recruitment Focus"));
+				(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().All(b => Field(b, "Label") != "Restart Recruitment Focus"));
 			var key = read.ToString();
 			var settled = key == previous;
 			previous = key;
