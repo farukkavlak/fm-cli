@@ -125,7 +125,7 @@ internal static partial class Program
 				"internationals" => await Internationals(json),
 				"news" => await News(json, args),
 				"dynamics" => await Dynamics(json),
-				"prep" => await Prep(json),
+				"prep" => await Prep(json, args),
 				"schedule" => args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json),
 				"settings" => await SettingsCommand(args),
 				"dugout" => await Dugout(json, args),
@@ -1236,7 +1236,8 @@ internal static partial class Program
 			  training <oyuncu> --report [--coach <ad>]  antrenörden antrenman raporu iste ve göster
 			  training <oyuncu> --trait ["<alışkanlık>"]  alışkanlıkları ve öğretilebilecekler; verilirse öğret
 			                  --trait-remove "<a>" bıraktır · --trait-cancel · --trait-suggest · --yes: yardımcının itirazına rağmen
-			  prep            maç hazırlığı antrenmanı: taktik ve duran top odakları
+			  prep            maç hazırlığı antrenmanı: taktik ve duran top odakları, her birinin seçenekleri
+			  prep <topla | topsuz | duran1 | duran2> [odak]   o hazırlığı değiştir ("prep topla progression"); odak yazılmazsa seçenekleri sunar
 			  schedule        antrenman programı: bu hafta ve gelecek hafta, gün gün üç seans
 			  schedule set <gün> <1|2|3> [<seans>]   bir seansı değiştir; seans yazılmazsa okla seç
 			  schedule style <gün> [<program>]       o haftanın programını değiştir (Tactical, Gegenpress…)

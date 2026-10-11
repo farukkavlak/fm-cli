@@ -691,6 +691,37 @@ fm intensity Fred "tatil 1"        bir hafta tatil (oyun izin verirse)
 fm intensity --auto                hepsini kondisyon hocasına bırak
 ```
 
+### Maç hazırlığı — `prep`
+
+Sıradaki maç için antrenmanda neye çalışıldığı: topla ve topsuz birer taktik odak, iki de duran top odağı.
+`fm prep` dördünü, ne işe yaradıklarını ve yerlerine neyin seçilebileceğini gösterir; oyunun rakibe göre
+önerdiği seçenek `(öneri)` diye işaretlidir.
+
+```
+$ fm prep
+Maç hazırlığı
+  Topla        Final Third — Focus on attacking situations in the final third in possession.
+               başka: Build Up (öneri) · Progression
+  Topsuz       High Press — Focus on a high press out of possession to disrupt and win the ball back high.
+               başka: Low Block · Mid Block
+  Duran top 1  Defending Corners — Focus on the Opposition's main strategies from attacking corners.
+               başka: Attacking Free Kicks (öneri) · Defending Free Kicks (öneri) · Penalties
+  Duran top 2  Attacking Corners — Study the Opposition's defensive set-up at corners to identify vulnerabilities.
+               başka: Attacking Free Kicks (öneri) · Defending Free Kicks (öneri) · Penalties
+
+Değiştir: prep <topla | topsuz | duran1 | duran2> [odak]
+```
+
+Değiştirmek için yuvayı ve odağı yaz (adın bir parçası yeter); odağı yazmazsan seçenekleri okla sunar:
+
+```
+$ fm prep topla progression
+Topla: Final Third → Progression
+$ fm prep duran1 "free kicks"
+```
+
+İki duran top yuvası aynı odağı alamaz.
+
 ## 8. Maç günü — `match`, `sub`, `talk`, `report`
 
 `fm match` maç gününde önce sorar: **Maçı nasıl oynayalım?**

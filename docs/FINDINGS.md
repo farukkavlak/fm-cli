@@ -3959,6 +3959,30 @@ devret / geri al, zaten o durumda olan.
   durumunu döküyor; `/shot?rt=<doku adı>&path=` bir render dokusunu PNG yazıyor (Unity'nin `EncodeToPNG`'si interop'tan
   çağrılamıyor — dizi argümanı taşınmıyor; PNG elle yazılıyor).
 
+## 8.130 Maç hazırlığı odağı: okumak ve değiştirmek, ekransız (11 Ekim akşam) — §8.60 / §8.92'deki parkın çözümü
+
+- **Veri:** `Human.Team.TeamTraining.TrainingMatchFocus` (`MatchFocusReference`). `/contexts` → `TrainingMatchFocus:
+  FixtureHasResult` (oynanacak maç için `False`); `TeamTraining`'in kendisi `human` istiyor ama `Human.Team` altından
+  zaten geliyor. Kurulum: `/pathset?to=fmcli.mf.FixtureHasResult&from=const.False`,
+  `/pathset?to=fmcli.mf.training&from=Human.Team.TeamTraining`, sonra `fmcli.mf.training.TrainingMatchFocus`.
+- **Şimdiki odaklar:** `MatchFocusInPossessionType`, `MatchFocusOutOfPossessionType`, `MatchFocusFirstSetPiece`,
+  `MatchFocusSecondSetPiece` — her biri bir seans (`MatchFocusSessionName`, `…Description`, `…Value`, `…IsSuggested`).
+- **Seçenekler:** `MatchFocusInPossessionValues` (Build Up · Progression · Final Third), `MatchFocusOutOfPossessionValues`
+  (Low Block · Mid Block · High Press) doğrudan seans listeleri. Duran toplar tek listede, iki yuva için ortak:
+  `MatchFocusSetPiecesDropdown` satırları `{ RowData = seans, Disabled }` — Attacking / Defending Corners, Attacking /
+  Defending Free Kicks, Penalties; iki yuvada seçili olanlar `Disabled = True`. `IsSuggested` oyunun rakibe göre önerisi.
+  `MatchFocusAvailability` = 2 (anlamı bilinmiyor; sıradaki maç varken görülen değer).
+- **Değiştirmek:** `EventToPlugin`, hedef `TeamTraining` referansı, kimlikler `EventFmxMatchFocusSelectInPossessionType`,
+  `…SelectOutOfPossessionType`, `…SelectFirstSetPiece`, `…SelectSecondSetPiece`. **Veri seçeneğin kendisi** (listedeki
+  seans; duran topta satırın `RowData`'sı). Sayı gönderilince (0, 1, 2, 3) oyun hepsini ilk seçenek sayıyor. Bunun için
+  `/send`'de `DataToSend=path:<yol>` o yoldaki değeri gönderiyor.
+- ⚠ Oyun iki duran top yuvasına aynı odağı kabul ediyor (olayla gönderilince); sayfa bunu `Disabled` ile engelliyor, CLI de
+  reddediyor.
+- Doğrulama: topla üç seçenek ileri geri (5 geçiş), topsuz üç seçenek, duran top 1 ve 2 ayrı ayrı; her adımda okuma
+  uyuyor. Değişiklikten sonra oyunun kendi kartı (Match Day › Match Preparation Training) "Progression · Mid Block ·
+  Penalties · Attacking Corners" yazdı. Hepsi eski haline döndürüldü. Görülmedi: değişikliğin maça etkisi, kayıttan
+  sonra durup durmadığı, maç oynanınca odakların kendiliğinden yeni rakibe dönüp dönmediği.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

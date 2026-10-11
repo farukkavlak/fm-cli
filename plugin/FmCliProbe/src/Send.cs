@@ -116,6 +116,14 @@ internal static class Send
 				: throw new Exception($"'{raw}' is not a {target.Name}; see docs/reference/enums.txt");
 		}
 
+		// "path:<binding path>" sends what the tree holds there — a choice out of a list, as a
+		// dropdown sends the entry itself and not its number (FINDINGS §8.130).
+		if (target == typeof(SI.Core.TypedValue) && raw.StartsWith("path:", StringComparison.Ordinal))
+		{
+			var key = PathKey.Of(raw[5..]);
+			var b = Game.Bindings;
+			return b.Exists(ref key) && b.Get(ref key) is { IsNull: false } held ? held : throw new Exception($"'{raw[5..]}' holds no value");
+		}
 		if (target == typeof(SI.Core.TypedValue)) return TypedValue(raw);
 
 		// A panel is addressed by its asset name, not by a binding path: it is a

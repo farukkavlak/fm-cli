@@ -217,7 +217,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Haftalık antrenman programı göster — `fm schedule`: bu hafta ve gelecek hafta, gün gün üç seans (§8.73)
 - [x] Antrenman programı değiştir — `fm schedule set <gün> <1-3> [<seans>]` tek seans, `fm schedule style <gün> [<program>]` bütün hafta (§8.89); kendi programını oluşturmak ("Create New Schedule") yok
-- [~] Maç hazırlığı odağı — `fm prep` okuyor (§8.60); değiştirmek yok: seans listelerinde bu odaklar yok, "Match Focus" seansı kilitli (§8.92)
+- [x] Maç hazırlığı odağı — `fm prep` dört odağı ve seçeneklerini okuyor, `fm prep <topla | topsuz | duran1 | duran2> [odak]` değiştiriyor; ekransız (§8.130)
 - [x] Bireysel antrenman odağı — `fm training <oyuncu> --focus/--position/--role` (§8.51)
 - [x] Pozisyon / hareket öğretme — pozisyon `fm training --position` (§8.51), alışkanlık `fm training <oyuncu> --trait` (§8.75)
 - [x] Mentor / mentee ilişkileri — `fm mentoring`: gruplar ve üyeleri, `--auto` yardımcıya kurduruyor (§8.102); `new <o1> <o2> <o3> [--name]` elle kuruyor, `remove` dağıtıyor (§8.106)
@@ -467,7 +467,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   aynı yolla açılabilir.
 - ⚠ Siyah ekran görüntüsünün nedeni bulundu: Match Day › Overview açılınca oyun arayüzü çizmeyi bırakıyor (§8.129).
   Çaresi yok; ekran görüntüsü gereken oturumda o sayfadan uzak durulacak.
-- Maç hazırlığı odağı parkı henüz yeniden denenmedi (tam o sayfanın altında; ekran görüntüsüyle bakılamıyor).
+- **Maç hazırlığı odağı** (§8.130): aynı yolla açıldı. `fm prep` dört odağı, anlamlarını, seçenekleri ve oyunun önerisini
+  veriyor; `fm prep topla progression` gibi değiştiriyor (odak yazılmazsa okla seçtiriyor). §8.92'deki "değiştiren kontrol
+  yok" sonucu sayfa için doğruydu; veri tarafında her odağın bir seçme olayı varmış.
 
 ### 2026-10-11 (akşamüstü — eski parklar, ekran görüntüsüyle)
 

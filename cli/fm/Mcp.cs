@@ -126,9 +126,9 @@ internal static class Mcp
 		new("fm_news", "The media's headlines from the game's news site, newest first: title, what it is about (a club, a competition), age and opening sentence where there is one. Not the inbox.",
 			"""{"type":"object","properties":{"item":{"type":"string","description":"A headline's number in the list or a piece of its title: gives that item in full."}}}""",
 			a => ["news", .. Opt(a, "item"), "--json"]),
-		new("fm_prep", "The match preparation focus in training: the tactical focus in and out of possession and the two set-piece focuses, each with what it works on.",
-			"""{"type":"object","properties":{}}""",
-			_ => ["prep"]),
+		new("fm_prep", "The match preparation focus in training for the next match: the tactical focus in and out of possession and the two set-piece focuses, each with what it works on and what it could be instead (the game's suggestion marked). With `slot` (\"topla\" in possession, \"topsuz\" out of possession, \"duran1\" / \"duran2\" the set-piece slots) and `focus` (\"Progression\", \"Mid Block\", \"Attacking Free Kicks\"…) it changes that one.",
+			"""{"type":"object","properties":{"slot":{"type":"string"},"focus":{"type":"string"}}}""",
+			a => ["prep", .. (Str(a, "slot") is { Length: > 0 } sl ? new[] { sl } : []), .. (Str(a, "focus") is { Length: > 0 } fo ? new[] { fo } : [])]),
 		new("fm_schedule", "The training schedule for this week and the next: each day's three sessions (Recovery, Match Tactics, Rest, Travel…) and the match days (H/A/N). With `day` (\"2025-10-14\", \"14\", \"14 ekim\") it changes it: `slot` (1-3) with `session` (\"Quickness\", \"Physical/Recovery\") sets that session, `slot` alone lists the categories and the sessions on offer; `style` (\"Gegenpress\", \"Training Style/Balanced\", \"Pre-Season Early/Light\") sets the whole week's schedule, and style=\"?\" lists the kinds. Past days and match slots cannot be changed.",
 			"""{"type":"object","properties":{"day":{"type":"string"},"slot":{"type":"integer"},"session":{"type":"string"},"style":{"type":"string"}}}""",
 			a => Str(a, "day") is not { Length: > 0 } day ? ["schedule"]
