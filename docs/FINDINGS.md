@@ -4058,6 +4058,17 @@ Kaptan değişikliğinin aynı sınırı var mı bakılmadı. `PlayerMakeViceCap
 (olay değil; `GenericActionEvent` bir `ActionReference` istiyor), oyuncunun sağ tık menüsünde yok. Denemeden sonra oyun
 kaydedilmeden yeniden başlatıldı.
 
+## 8.135 Sorumluluğu belirli bir kişiye vermek (11 Ekim gece) — §8.111'in devamı
+
+- Görevin `AssignableStaff` listesinin satırları yalnızca `PersonReference`; metin yok, `/dropdowns` "FM.UI.PersonReference"
+  yazıyor. Köprüye `/rowput?ptr=<liste>&i=<n>&to=<yol>` eklendi: satırı bir yola koyuyor, `/pull?path=<yol>&props=Name` adını
+  veriyor. "Renewing the Loan Manager's contract" için: Faruk Kavlak, Devin Özek (futbol direktörü), Şenol Çorlu, Sadettin
+  Saran (başkan). Listede ilk satır menajerin kendisi.
+- Liste olay taşımıyor; `/select?ptr=&index=<n>` (olaysız) yetiyor: görev o kişiye geçiyor, etiket bir an sonra güncelleniyor,
+  sayfa yeniden okununca da duruyor. Menajerin kendisini seçmek "Take Control" ile aynı.
+- Doğrulama: aynı görevde Faruk → Şenol Çorlu → Devin Özek → Faruk → Sadettin Saran, sonra `take` ile geri; her adımda okuma
+  uyuyor. Kilitli görevde (U19 takım seçimi) denenmedi; komut iki buton da kapalıysa reddediyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -264,9 +264,10 @@ internal static class Mcp
 		new("fm_world", "Which save is loaded, when it was last saved (real and in-game), the autosave setting, time played, and the size of the game world: nations, leagues and players loaded, detail levels.",
 			"""{"type":"object","properties":{}}""",
 			_ => ["world", "--json"]),
-		new("fm_responsibilities", "Who does what among the staff duties (hiring and firing, contract renewals, coaching courses, team selection): each duty, who holds it, and whether the manager kept it or delegated it. `filter` narrows the list. `delegate` or `take` with a duty's name (or its distinguishing words) hands it on to the person the game recommends, or takes it back.",
-			"""{"type":"object","properties":{"filter":{"type":"string"},"delegate":{"type":"string"},"take":{"type":"string"}}}""",
-			a => Str(a, "delegate") is { Length: > 0 } d ? ["responsibilities", "delegate", d]
+		new("fm_responsibilities", "Who does what among the staff duties (hiring and firing, contract renewals, coaching courses, team selection): each duty, who holds it, and whether the manager kept it or delegated it. `filter` narrows the list. `delegate` or `take` with a duty's name (or its distinguishing words) hands it on to the person the game recommends, or takes it back. `give` with a duty's name hands it to someone in particular: `to` names him; without `to` the people who can take it are listed.",
+			"""{"type":"object","properties":{"filter":{"type":"string"},"delegate":{"type":"string"},"take":{"type":"string"},"give":{"type":"string"},"to":{"type":"string"}}}""",
+			a => Str(a, "give") is { Length: > 0 } g ? ["responsibilities", "give", g, .. Opt(a, "to")]
+				: Str(a, "delegate") is { Length: > 0 } d ? ["responsibilities", "delegate", d]
 				: Str(a, "take") is { Length: > 0 } t ? ["responsibilities", "take", t]
 				: ["responsibilities", .. Opt(a, "filter"), "--json"]),
 		new("fm_youth", "The youth setup: the academy's overall rating, coaching and recruitment, youth level and stadium, staff numbers, the youngsters thought ready for the first team, the date of the next youth intake and whether its candidates have arrived. `training`=true gives the under-19s' training week instead: how it went, the average rating, each player's extra focus and rating.",

@@ -63,6 +63,7 @@ internal static class FmApi
 		"dropdownrows" => Submenus.Rows(),
 		"rowsubmit" => Submenus.Submit(q),
 		"choicedump" => Submenus.Dump(q),
+		"rowput" => Submenus.Put(q),
 		"menu" => Submenus.Menu(q),
 		"instructions" => Instructions.Current(),
 		"tiles" => Instructions.Tiles(),

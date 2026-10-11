@@ -1716,7 +1716,16 @@ $ fm responsibilities take "renewing chief scout"
 Renewing the Chief Scout's contract: artık sende.
 ```
 
-Devredince işi oyunun önerdiği kişi alır; belirli bir kişiye vermek henüz yok.
+`delegate` işi oyunun önerdiği kişiye verir. Belirli birine vermek için `give`; kişiyi yazmazsan
+kimlere verilebileceğini sayar (terminalde okla seçtirir):
+
+```
+$ fm responsibilities give "loan manager's contract"
+Renewing the Loan Manager's contract: Faruk Kavlak
+Verilebilecekler: Faruk Kavlak · Devin Özek · Şenol Çorlu · Sadettin Saran
+$ fm responsibilities give "loan manager's contract" Şenol
+Renewing the Loan Manager's contract: Faruk Kavlak → Şenol Çorlu
+```
 
 ### Altyapı — `youth`
 

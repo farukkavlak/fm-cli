@@ -10,7 +10,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record Duty(string Group, string Title, string About, bool Mine, string Holder, string Take, bool CanTake, string Delegate, bool CanDelegate);
+	private sealed record Duty(string Group, string Title, string About, bool Mine, string Holder, string Take, bool CanTake, string Delegate, bool CanDelegate, string Staff = "");
 
 	private static async Task<int> Responsibilities(bool json, string[] args)
 	{
@@ -19,6 +19,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		var words = Words(args).ToList();
+		if (words.Count > 0 && words[0] is "give" or "ver") return await GiveDuty(words.Skip(1).ToList(), args.Contains("--yes"));
 		var action = words.Count > 0 && words[0] is "take" or "delegate" or "al" or "devret" ? words[0] : null;
 		if (action != null) return await SetDuty(action is "take" or "al", string.Join(" ", words.Skip(1)), args.Contains("--yes"));
 
@@ -41,7 +42,7 @@ internal static partial class Program
 			Console.WriteLine($"\n{group.Key}");
 			Table.Write(["GÖREV", "KİMDE", ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? "sende" : d.CanTake ? "devredildi" : "devredildi (kilitli)" }).ToList());
 		}
-		Console.WriteLine("\nDevretmek: responsibilities delegate \"<görev>\"   ·   geri almak: responsibilities take \"<görev>\"");
+		Console.WriteLine("\nDevretmek: responsibilities delegate \"<görev>\"   ·   belirli birine: responsibilities give \"<görev>\" <kişi>   ·   geri almak: responsibilities take \"<görev>\"");
 		return 0;
 	}
 
@@ -95,6 +96,7 @@ internal static partial class Program
 		string group = null, title = null, about = "";
 		JsonElement take = default, hand = default;
 		var holders = new List<string>();
+		var staff = "";
 
 		void Close()
 		{
@@ -102,11 +104,12 @@ internal static partial class Program
 				// Which of the pair is in force is told by the other being the one that can be
 				// pressed: "Take Control" is dead while the duty is the manager's own.
 				duties.Add(new Duty(group, title, about, Field(take, "Enabled") != "True" && Field(hand, "Enabled") == "True", string.Join(", ", holders.Distinct()),
-					Field(take, "Pointer"), Field(take, "Enabled") == "True", Field(hand, "Pointer"), Field(hand, "Enabled") == "True"));
+					Field(take, "Pointer"), Field(take, "Enabled") == "True", Field(hand, "Pointer"), Field(hand, "Enabled") == "True", staff));
 			title = null;
 			about = "";
 			take = hand = default;
 			holders = [];
+			staff = "";
 		}
 
 		for (var at = 0; at < items.Count; at++)
@@ -131,10 +134,130 @@ internal static partial class Program
 			}
 			else if (kind == "button" && Field(item, "Text") == "Take Control") take = item;
 			else if (kind == "button" && Field(item, "Text") == "Delegate") hand = item;
-			else if (kind == "dropdown" && Field(item, "Name") == "AssignableStaff") holders.Add(Field(item, "Label"));
+			else if (kind == "dropdown" && Field(item, "Name") == "AssignableStaff")
+			{
+				holders.Add(Field(item, "Label"));
+				staff = Field(item, "Pointer");
+			}
 		}
 		Close();
 		return duties;
+	}
+
+	/// <summary>One duty by its title, whole or by its words; null (with the candidates said) when it is not one.</summary>
+	private static async Task<Duty> FindDuty(string typed)
+	{
+		var all = await Duties(stopAt: null);
+		var wanted = Fold(typed);
+		var hits = all.Where(d => Fold(d.Title) == wanted).ToList();
+		if (hits.Count == 0) hits = all.Where(d => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(w => Fold(d.Title).Contains(w))).ToList();
+		if (hits.Count == 1) return hits[0];
+		Console.Error.WriteLine(hits.Count == 0 ? $"'{typed}' diye bir görev yok (hepsi: responsibilities)." : $"'{typed}' birden çok göreve uyuyor:");
+		foreach (var hit in hits) Console.Error.WriteLine($"  {hit.Title}   ({hit.Group})");
+		return null;
+	}
+
+	/// <summary>
+	/// Hands a duty to someone in particular: the duty's list of who can take it (FINDINGS §8.135)
+	/// has only people in it, no text, so each row is put where its name can be read.
+	/// </summary>
+	private static async Task<int> GiveDuty(List<string> words, bool yes)
+	{
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine("kullanım: responsibilities give \"<görev>\" [<kişi>]");
+			return 64;
+		}
+		if (await FindDuty(words[0]) is not { } duty) return 64;
+
+		// Back up the list to where the duty is laid out, its list with it.
+		var first = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault();
+		if (first != null) await Fm.Get("scroll", ("anchor", first), ("to", "0"));
+		await Task.Delay(500);
+		var now = (await Duties(stopAt: duty.Title)).FirstOrDefault(d => d.Group == duty.Group && d.Title == duty.Title);
+		if (now == null || now.Staff.Length == 0)
+		{
+			Console.Error.WriteLine($"{duty.Title}: sayfada bulunamadı.");
+			return 1;
+		}
+		if (!now.CanTake && !now.CanDelegate)
+		{
+			Console.Error.WriteLine($"{duty.Title}: kilitli, oyun başkasına verdirmiyor ({now.Holder}).");
+			return 1;
+		}
+
+		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Pointer") == now.Staff);
+		var count = list.ValueKind == JsonValueKind.Object ? list.GetProperty("Choices").GetArrayLength() : 0;
+		var scope = $"fmcli.duty{DateTime.UtcNow.Ticks % 100000000}";
+		var readings = new List<(string Path, string Props)>();
+		for (var i = 0; i < count; i++)
+		{
+			var put = await Fm.Get("rowput", ("ptr", now.Staff), ("i", i.ToString()), ("to", $"{scope}.r{i}"));
+			if (put.StartsWith("error", StringComparison.Ordinal)) return Report(put);
+			readings.Add(($"{scope}.r{i}", "Name"));
+		}
+		var people = (await PullEach(readings)).Select(r => Field(r, "Name")).ToList();
+		if (people.Count == 0 || people.Any(p => p.Length == 0))
+		{
+			Console.Error.WriteLine($"{duty.Title}: kimlere verilebileceği okunamadı.");
+			return 1;
+		}
+
+		string person;
+		if (words.Count > 1)
+		{
+			if (Choose(people, string.Join(" ", words.Skip(1)), duty.Title) is not { } picked) return 1;
+			person = picked;
+		}
+		else if (Ui.Interactive)
+		{
+			if (Ui.Ask(duty.Title, people, current: people.IndexOf(now.Holder), cancel: "Vazgeç") is not { } picked) return 0;
+			person = people[picked];
+		}
+		else
+		{
+			Console.WriteLine($"{duty.Title}: {now.Holder}\nVerilebilecekler: {string.Join(" · ", people)}");
+			return 0;
+		}
+		if (person == now.Holder)
+		{
+			Console.WriteLine($"{duty.Title}: zaten {person}.");
+			return 0;
+		}
+
+		var said = await Fm.Get("select", ("ptr", now.Staff), ("index", people.IndexOf(person).ToString()));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+
+		Duty after = null;
+		var changed = await Until(async () =>
+		{
+			var dialogs = await Fm.GetJson("dialog");
+			if (dialogs.GetArrayLength() > 0 && yes)
+			{
+				var go = dialogs[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(x => Field(x, "Name").Contains("primary", StringComparison.Ordinal));
+				if (go.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(go, "Pointer")));
+			}
+			else if (dialogs.GetArrayLength() > 0) return true;
+			var anchor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault();
+			if (anchor == null) return false;
+			after = ParseDuties((await Fm.GetJson("form", ("anchor", anchor), ("up", "12"), ("buttons", "1"))).EnumerateArray().ToList())
+				.FirstOrDefault(d => d.Group == duty.Group && d.Title == duty.Title);
+			return after?.Holder == person;
+		}, seconds: 6, every: 0.5);
+
+		var asked = await Fm.GetJson("dialog");
+		if (asked.GetArrayLength() > 0)
+		{
+			Console.Error.WriteLine($"Oyun soruyor: {Field(asked[0], "Title")} — {Field(asked[0], "Description")}   (cevap: dialog, ya da komutu --yes ile yinele)");
+			return 1;
+		}
+		if (!changed)
+		{
+			Console.Error.WriteLine($"{duty.Title}: {person} seçildi ama görev hâlâ {after?.Holder ?? now.Holder}.");
+			return 1;
+		}
+		Console.WriteLine($"{duty.Title}: {now.Holder} → {person}");
+		return 0;
 	}
 
 	/// <summary>Takes a duty back or hands it on, with the page's own button for it.</summary>
@@ -145,17 +268,7 @@ internal static partial class Program
 			Console.Error.WriteLine($"Hangi görev?  responsibilities {(take ? "take" : "delegate")} \"<görev>\"");
 			return 64;
 		}
-		var all = await Duties(stopAt: null);
-		var wanted = Fold(typed);
-		var hits = all.Where(d => Fold(d.Title) == wanted).ToList();
-		if (hits.Count == 0) hits = all.Where(d => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(w => Fold(d.Title).Contains(w))).ToList();
-		if (hits.Count != 1)
-		{
-			Console.Error.WriteLine(hits.Count == 0 ? $"'{typed}' diye bir görev yok (hepsi: responsibilities)." : $"'{typed}' birden çok göreve uyuyor:");
-			foreach (var hit in hits) Console.Error.WriteLine($"  {hit.Title}   ({hit.Group})");
-			return 64;
-		}
-		var duty = hits[0];
+		if (await FindDuty(typed) is not { } duty) return 64;
 		if (duty.Mine == take)
 		{
 			Console.WriteLine($"{duty.Title}: zaten {(take ? "sende" : $"devredilmiş ({duty.Holder})")}.");

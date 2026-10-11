@@ -100,6 +100,21 @@ internal static class Submenus
 		return sb.ToString();
 	}
 
+	/// <summary>
+	/// Puts a dropdown's row at a path (?ptr=&amp;i=&amp;to=), so a row that is only a reference — a
+	/// list of people with no text, as who can take a duty (FINDINGS §8.135) — can be read by /pull.
+	/// </summary>
+	public static string Put(NameValueCollection q)
+	{
+		if (!Buttons.TryPointer(q["ptr"] ?? "", out var pointer)) return "error: ?ptr=<0x…> required";
+		if (string.IsNullOrEmpty(q["to"])) return "error: ?to=<path> required";
+		var dropdown = Buttons.AllDropdowns().FirstOrDefault(d => d.Pointer == pointer);
+		if (dropdown == null) return $"error: no dropdown at {q["ptr"]}";
+		var rows = dropdown.m_choices;
+		if (!int.TryParse(q["i"], out var i) || rows == null || i < 0 || i >= rows.Count) return $"error: ?i= must be 0..{(rows?.Count ?? 0) - 1}";
+		return RawPath.Set(q["to"], rows[i]) ?? $"{q["to"]} = {FmApi.Describe(rows[i])}";
+	}
+
 	private static void DumpRecord(SI.Core.TypedValue value, string indent, int depth, StringBuilder sb)
 	{
 		var record = value?.Get()?.TryCast<DynamicReference>();

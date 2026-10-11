@@ -325,7 +325,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 - [x] Teknik ekip listesi — `fm staff`: kişi kişi iş, yaş, maaş, sözleşme; rol eksikleri ve yönetimin görüşü (§8.78)
 - [x] Personel işe al / kov (Coaching, Scouting, Medical) — `fm staff find` (arama, §8.116), `fm staff hire <ad>` (sözleşme masası, `contract` ile sürer), `fm staff fire <ad>` (tazminat onayı); kişinin sağ tık menüsü `fm actions` (§8.118). Teklifin cevabının düştüğü an görülmedi
-- [~] Personel sorumlulukları (delegasyon) — `fm responsibilities`: 29 personel işi kimde, `delegate` / `take` (§8.111); belirli kişiye verme ve personel dışı devirler yok
+- [x] Personel sorumlulukları (delegasyon) — `fm responsibilities`: 29 personel işi kimde, `delegate` / `take` (§8.111), belirli kişiye `give` (§8.135); personel dışı devirler (antrenman, transfer, basın) bu sayfada değil
 - [x] Tesisler (antrenman, gençlik, altyapı) — `fm facilities`: stadyum, antrenman, altyapı, ticari (§8.79)
 - [x] Tesis geliştirme talebi — `fm board request "improve training facilities" --yes` (§8.108)
 - [x] Yönetim kurulu beklentileri — `fm club`: not, hava, vizyon hedefleri (§8.78)
