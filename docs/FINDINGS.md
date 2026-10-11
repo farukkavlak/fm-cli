@@ -3688,7 +3688,9 @@ devret / geri al, zaten o durumda olan.
     "Make An Offer" / "Make Enquiry" / "Offer Trial" kalkıyor, `Transfer>Withdraw Transfer Offer` geliyor (oyun soruyu bir
     teklif sayıyor).
   - **İlgi:** `Transfer>Declare Interest>` As Top Target / For Transfer / For Loan → "Declare Interest? Are you sure…"
-    (No / Yes). Yes'ten sonra menü değişmiyor; işlediğine dair bir iz bu oturumda **görülmedi**.
+    (No / Yes). Yes'ten sonra menü değişmiyor; iz ertesi sabah haberde: "Fenerbahçe step up chase for Gnezda Čerin",
+    "Fenerbahçe seek loan deal for Jović", ardından gazeteci sorusu ("Is there anything in stories connecting…":
+    Respond / Decline).
   - **Deneme:** `Transfer>Offer Trial>` 1–4 Week(s) → "Offer Trial — Offer a trial to …?" (No / Yes) → "Trial Offered";
     menüde `Transfer>Withdraw Trial Offer`.
 - ⚠ **Cancel Assignment işlemiyor.** "Do you want to cancel the assignment and stop scouting this player?" penceresinde
@@ -3700,7 +3702,9 @@ devret / geri al, zaten o durumda olan.
   sanıyordu. `PersonMenu` artık açık pencere varsa başlamıyor; tek butonlu bildirimler okunup kapatılıyor.
 - Ad eşleme: arama "cerin" için Nocerino'yu ve ikinci soyadı Cerín olan birini de getiriyor; yazılan kelimeyi adında
   **kelime olarak** taşıyan tek kişi varsa o seçiliyor.
-- Görülmedi: sorunun, ilginin ve deneme davetinin cevabı (gün ilerleyince gelen kutusunda bakılacak).
+- Deneme davetinin cevabı 15 oyun dakikası sonra geldi: "Fenerbahçe's Chirivella bid rejected — Panathinaikos have
+  rejected the offer" (Negotiate / Interact with Board) — oyun daveti de teklif sayıyor. Kabul edilen bir deneme ve
+  sorunun (enquiry) cevabı **görülmedi**.
 
 `fm scout player <ad> [--by <scout>] --for <süre> [--cancel]`, `fm scout who <ad>`, `fm shortlist add <ad> --for <süre>` /
 `remove <ad>`, `fm interest <ad> --top|--transfer|--loan [--yes]`, `fm enquire <ad>`, `fm trial <ad> --for <hafta> [--yes]`.

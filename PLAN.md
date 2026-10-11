@@ -256,7 +256,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Transfer dönemi durumu / kalan gün — `fm status` (§8.55)
 
 ---
-- [~] İlgi duyurma, kulübe sorma, denemeye çağırma — `fm interest`, `fm enquire`, `fm trial` (§8.119); cevapları görülmedi
+- [~] İlgi duyurma, kulübe sorma, denemeye çağırma — `fm interest`, `fm enquire`, `fm trial` (§8.119); ilgi haber oluyor, deneme reddi geliyor; sorunun cevabı ve kabul edilen deneme görülmedi
 
 ## 6. Scouting
 
@@ -463,7 +463,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   söylenmezse komut seçenekleri sayar, kendisi seçmez. İlgi ve deneme `--yes` ister.
 - Çalışmayan: scout görevini **iptal** (oyun soruyu kapatıyor, görev duruyor) — komut bunu doğrulayıp söylüyor.
 - Canlıda (kayıtta duruyor, kaydedilmedi): Čerin kısa listede (6 ay) ve soru soruldu; Čerin, Jović, Icardi izleniyor;
-  Jović'e kiralık ilgisi; Şahin ve Chirivella denemeye çağrıldı. Cevaplar görülmedi. Oyun 24 Ekim 2025.
+  Jović'e kiralık ilgisi; Şahin ve Chirivella denemeye çağrıldı — ikisini de kulüpleri reddetti, ilgi ertesi sabah haber
+  oldu. Oyun 24 Ekim 2025.
 
 ### 2026-10-11 (gündüz)
 
