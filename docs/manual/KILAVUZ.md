@@ -1879,6 +1879,17 @@ Kerem Aktürkoğlu  Takım lideri  Perfectionist
 Gruplar oyunun kendi ayrımı (çekirdek, ikincil A / B, gruba girmeyenler); altındaki cümle grubu neyin bir arada
 tuttuğunu söyler. Takım liderlerini üzmek soyunma odasını çabuk bozar; kaptan seçerken ve birini satarken bak.
 
+### Kaptanlar — `captains`
+
+```
+fm captains                          kaptan ve yardımcısı
+fm captains --captain "Škriniar"     kaptanı değiştir
+fm captains --vice "İsmail Yüksek"   yardımcı kaptanı değiştir
+```
+
+Oyun yardımcı kaptanın günde bir kez değişmesine izin veriyor; aynı gün ikinci kez denersen komut
+bunu söyler, `fm next` sonrası yeniden dene. Yardımcı adayları oyunun önerdiği birkaç kişi.
+
 ### Bir oyuncunun sözleşmesi — `contracts <oyuncu>`
 
 ```

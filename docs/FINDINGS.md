@@ -4047,6 +4047,17 @@ devret / geri al, zaten o durumda olan.
   Tackling, Marking Target, Shooting ileri geri (6/6); kilitli Trigger Press reddedildi. Hepsi eski haline döndü.
   Görülmedi: maç sırasında, `Disabled` bir ayarın gerçekten reddedildiği an.
 
+## 8.134 Yardımcı kaptan günde bir kez (11 Ekim gece) — §8.58'in düzeltmesi
+
+Kaptanlar sayfası yardımcı antrenörle bir konuşma (`SpeakTo`: `SpeechBubbleHistory`, `OptionalActions`). "Change Vice
+Captain" seçilince konuşma geçmişine yazılıyor ve liste o gün bir daha gelmiyor; yalnızca "Change Captain" kalıyor.
+§8.58'deki "yardımcı atanınca liste kayboluyor" bundanmış. Ertesi gün (`fm next`) liste geri geliyor ve değişiklik işliyor:
+23 Ekim'de Kerem → İsmail Yüksek, aynı gün ikinci deneme listesiz, 24 Ekim'de Yüksek → Kerem. Oyun yeniden başlatılınca
+da liste geri geliyor (kaydedilmemiş oturumda). Yardımcı adayları sınırlı (3 kişi), kaptan adayları bütün kadro.
+Kaptan değişikliğinin aynı sınırı var mı bakılmadı. `PlayerMakeViceCaptain` / `TeamSelectViceCaptain` birer `ActionID`
+(olay değil; `GenericActionEvent` bir `ActionReference` istiyor), oyuncunun sağ tık menüsünde yok. Denemeden sonra oyun
+kaydedilmeden yeniden başlatıldı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -29,9 +29,10 @@ internal static partial class Program
 				.FirstOrDefault(d => Field(d.Value, "Name") == "GenericDropdown" && (Field(d.Value, "Label") == $"Change {list}" || Field(d.Value, "Label") == $"Select {list}"))) != null, seconds: 8, every: 0.5);
 			if (dropdown == null)
 			{
-				// Once a vice-captain is named, the page only offers the captain's list (FINDINGS §8.58).
+				// The page is a talk with the assistant, and a change made in it takes its list away
+				// until the next day (FINDINGS §8.134).
 				Console.Error.WriteLine(list == "Vice Captain"
-					? "Oyun yardımcı kaptan atandıktan sonra bu sayfada onu değiştirme listesi göstermiyor; sezon başı kaptanlık mesajındaki 'Review Captaincy' bunu yapıyor."
+					? "Yardımcı kaptan bugün zaten değişti; oyun günde bir kez izin veriyor. Yarın (fm next sonrası) yeniden dene."
 					: $"Kaptanlar sayfasında '{list}' listesi yok.");
 				return 1;
 			}
