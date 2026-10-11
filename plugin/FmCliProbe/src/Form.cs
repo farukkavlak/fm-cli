@@ -99,6 +99,15 @@ internal static class Form
 				+ $"\"Enabled\": \"{(e.enabledInHierarchy ? "True" : "False")}\", "
 				+ $"\"Value\": \"{(box.value ? "True" : "False")}\"}}";
 
+		// A rating shown in stars and stepped with the buttons beside it; the value is the game's
+		// own scale, not a count of stars (FINDINGS §8.124).
+		var stars = e.TryCast<FM.UI.FMStarRatingTemp>();
+		if (stars != null)
+			return "{\"Kind\": \"stars\", "
+				+ $"\"Pointer\": \"0x{e.Pointer.ToInt64():x}\", "
+				+ $"\"Value\": \"{stars.m_unmappedMinValue}\", "
+				+ $"\"Shown\": \"{stars.m_minValue}\"}}";
+
 		return null;
 	}
 

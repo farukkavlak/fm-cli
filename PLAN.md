@@ -261,8 +261,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ## 6. Scouting
 
 - [x] Scout raporları — `fm scout <odak>`: odağın bulduğu oyuncular, not ve tavsiyeyle (§8.109); `fm player <ad> --report`: oyuncunun tam raporu — not, yetenek / potansiyel, ilgisi, değeri, artılar / eksiler, kadrodaki sırası (§8.123)
-- [~] Scout ata (bölge/oyuncu/takım) — oyuncuya: `fm scout player <ad> [--by <scout>] --for <süre>`, `scout who` (§8.119); iptal işlemiyor; bölge / takım odak sihirbazında (§8.109)
-- [~] Scout odakları (recruitment focus) — `fm scout`: odaklar, durum, atananlar, sayılar (§8.109); `scout new` (mevki, rol, bölge, yaş, ad, öncelik), `scout remove` / `restart`, `scout areas` (§8.120); en düşük yetenek, belirli scout atama, var olanı düzenleme yok
+- [~] Scout ata (bölge/oyuncu/takım) — oyuncuya: `fm scout player <ad> [--by <scout>] --for <süre>`, `scout who` (§8.119); iptal oyunun kendi işleyicisiyle de işlemiyor (§8.124); bölge / takım odak sihirbazında (§8.109)
+- [x] Scout odakları (recruitment focus) — `fm scout`: odaklar, durum, atananlar, sayılar (§8.109); `scout new` (mevki, rol, bölge, yaş, ad, öncelik), `scout remove` / `restart`, `scout areas` (§8.120); en düşük yetenek / potansiyel (`--ability`, `--potential`), belirli scout (`--by`), `scout edit` (§8.124); analist seçimi yok
 - [x] Kısa liste — `fm shortlist` (§8.56); `shortlist add <ad> --for <süre>` / `remove <ad>` (§8.119)
 - [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
 - [x] Rakip analizi — `fm opponent`: raporun özeti (§8.57), sezon sayıları ve hüküm (§8.114), menajer ve oyun tarzı, beklenti, birim birim analiz ve öne çıkan oyuncular (§8.121)
@@ -455,6 +455,14 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-11 (öğleden sonra — "yarım kalanları kapatalım")
+
+- `fm scout new` artık en düşük yeteneği / potansiyeli yıldızla (`--ability`, `--potential`) ve belirli scoutları
+  (`--by`) alıyor; `fm scout edit <#|ad>` var olan odağı değiştiriyor. `scout restart` canlıda görüldü (§8.124).
+- Köprüye göz: `/shot` ekran görüntüsü alıyor. Youth Candidates gibi "okunmuyor" denen sayfalara artık bakılabilir.
+- Scout görevi iptali: oyunun kendi işleyicisiyle basınca da kalkmıyor — bizim tıklamamız değil. Park.
+- Oyun 23 Ekim 2025 kaydından açık, kaydedilmedi; oturumda deneme odakları kaldı.
 
 ### 2026-10-11 (akşam)
 

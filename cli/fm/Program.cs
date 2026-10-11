@@ -111,7 +111,7 @@ internal static partial class Program
 				"scout" => args.Length > 1 && args[1] is "player" or "oyuncu" ? await ScoutPlayer(args)
 					: args.Length > 1 && args[1] is "who" or "kim" ? await ScoutList(json, args)
 					: args.Length > 1 && args[1] is "staff" or "ekip" ? await ScoutStaff(json)
-					: args.Length > 1 && args[1] is "new" or "yeni" ? await ScoutNew(args)
+					: args.Length > 1 && args[1] is "new" or "yeni" or "edit" or "duzenle" ? await ScoutNew(args)
 					: args.Length > 1 && args[1] is "remove" or "sil" or "restart" or "yeniden" ? await ScoutRemove(args)
 					: args.Length > 1 && args[1] is "areas" or "bolgeler" ? await ScoutAreas(json, args)
 					: await Scout(json, args),
@@ -1098,7 +1098,7 @@ internal static partial class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] is "--for" or "--by" or "--area" or "--priority" or "--max-value" or "--attr" or "--age" or "--grade" or "--contract" or "--employed" or "--reputation" or "--note" or "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice" or "--coach" or "--trait" or "--trait-remove") { i++; continue; }
+			if (args[i] is "--for" or "--by" or "--ability" or "--potential" or "--area" or "--priority" or "--max-value" or "--attr" or "--age" or "--grade" or "--contract" or "--employed" or "--reputation" or "--note" or "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice" or "--coach" or "--trait" or "--trait-remove") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}
@@ -1193,7 +1193,8 @@ internal static partial class Program
 			  table [turnuva] lig tablosu; turnuva adıyla o turnuvanın tablosu (ör. table europa)
 			  stages [turnuva] [aşama]   kupa turları ve eşleşmeleri, lig aşaması tablosu; dünyadaki her turnuva (--all, --list)
 			  scout [#|odak]  scout odakları; bir odağın bulduğu oyuncular (--matched, --near, --progress)
-			  scout new [--position <mevki>] [--role <rol>] [--area "<bölge>, …"] [--age 18-23] [--name <ad>] --priority top|standard|ongoing   yeni odak
+			  scout new [--position <mevki>] [--role <rol>] [--area "<bölge>, …"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by "<scout>, …"] [--name <ad>] --priority top|standard|ongoing   yeni odak
+			  scout edit <#|ad> [--area …] [--age …] [--ability …] [--potential …] [--by …] [--name …] [--priority …]   var olan odağı değiştirir
 			  scout areas [yol] · scout remove <#|ad> [--yes] · scout restart <#|ad>   bölge seçenekleri; odağı durdur / yeniden başlat
 			  scout staff     scout ekibi: yeteneği / potansiyeli görme, bildiği bölge ve ülke sayısı, üzerindeki odaklar
 			  scout player <ad> [--by <scout>] --for <süre>   oyuncuya scout gönder ("1 hafta", "2 ay", "3 maç", "tam"); scout who <ad>: kimler atanabilir

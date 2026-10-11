@@ -3799,6 +3799,37 @@ devret / geri al, zaten o durumda olan.
 
 `fm player <ad> --report`.
 
+## 8.124 Odakta yıldız, belirli scout, düzenleme; iptalin ardındaki pencere; ekran görüntüsü (11 Ekim)
+
+- **Ekran görüntüsü: `/shot?path=<dosya.png>`** (`ScreenCapture.CaptureScreenshot`). Gizli pencerede de çiziyor
+  (2940×1838), dosya bir iki kare sonra yazılıyor. Metnin ve üyelerin söylemediğini görmenin tek yolu (yıldız, seçili
+  sekme, ikon). ⚠ `scale=3` (8820×5514) oyunu kilitledi; köprü artık 4096 pikseli aşan ölçeği 1'e indiriyor.
+- **Yıldızlar** `FM.UI.FMStarRatingTemp`: `m_unmappedMinValue` oyunun sayısı, `m_minValue` çizilen yarım yıldız sayısı.
+  `/form` bunu `Kind: stars` (Value = oyunun sayısı, Shown = çizilen) olarak veriyor; iki yanındaki butonlar − / +.
+  Ölçek 1–15: 1–10 yarım yıldız adımları (0.5★–5★); 11–15 yine 1–5 yarım yıldız olarak çiziliyor (14 → ★★, 15 → ★★½).
+  Dokunulmamış form 14 / 15'te açılıyor; − ile 13, 12, 11, 10 (=5★), 9… diye iniyor. `SetStars` 1–10 aralığına iner.
+- **Belirli scout:** "Assign Scouts (n) › Edit" → "Assigned Scout" penceresi: "Assign Any Scouts" kutusu açıkken tablo
+  kapalı; kapatınca (`/setcontrol value=false`) satırlar `/rowselect?text=<ad>&check=1|0` ile işaretleniyor, altta
+  "n scout(s) selected", "Confirm". Forma dönünce seçilenler buton olarak diziliyor. Analistler için aynı pencere
+  ("Assign Analysts") — yazılmadı.
+- **Düzenleme:** "Edit Recruitment Focus" aynı sihirbazı dolu açıyor (başlık yine "Create a New…"). Onaylayınca odak
+  yerinde değişiyor ama oyun eski halini "<ad> (<tarih>)" adıyla "Complete" olarak listeye ekliyor (bir süre sonra
+  beliriyor). Canlıda doğrulandı: ad, yaş, yıldız, scout, öncelik (ekran görüntüsünde "Ongoing" seçili), eklenen bölge.
+- **Restart çalışırken görüldü:** bitmiş "Turkish Super League (13/10/2025)" → yeni "Turkish Super League" In Progress.
+- `scout staff`'taki bölge / ülke sayısı (13 / 44) üç scoutta da aynı çünkü panelin "World Knowledge" kartı öyle
+  gösteriyor (ekran görüntüsüyle bakıldı); okuma hatası değil.
+- **Cancel Assignment — neden işlemediği daraldı.** `/dialog?data=1` penceresinin verisini döküyor
+  (`DialogManager.m_currentDialog`): Type `Confirm1198281291` (= `ActionID.PersonStopScoutPlayersClub`), "Yes" bir
+  `Callback` + `PluginContextActionsModule.DialogPayloadData` taşıyor, "No" `EventID=close`. `/dialog?press=primary`
+  butonu oyunun kendi işleyicisiyle basıyor (`FMDialogHandler.PressPrimaryButton`) — pencere kapanıyor, görev yine
+  duruyor. Yani tıklamamız eksik değil; oyunun kendi yolu da kaldırmıyor (oyun hatası ya da aksiyon başka bir şeyi
+  durduruyor). `EventFmxCancelScoutingPlayer`'ı gönderen hiçbir kontrol Recruitment sayfalarında yok; elle `/send`
+  denenmedi (hedef ve yük tahmin gerektiriyor). Park.
+- ⚠ `pkill` bazen oyunu öldürmüyor: süreç %100 CPU'da asılı kalıyor, köprü cevap vermiyor, `fm start` hata veriyor.
+  Açık bir pencere varken görüldü. `pkill -9 -f 'fm26_bep/fm.app'` ile bitir.
+
+`fm scout new … [--ability <yıldız>] [--potential <yıldız>] [--by "<scout>, …"]`, `fm scout edit <#|ad> […]`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

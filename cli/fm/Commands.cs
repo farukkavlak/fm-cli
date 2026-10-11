@@ -84,7 +84,7 @@ internal static partial class Program
 		["load"] = ["--save", "--no-save"],
 		["staff"] = ["find", "hire", "fire", "--wage", "--term", "--sign", "--mutual", "--yes", "--role", "--free", "--employed", "--reputation", "--filter", "--view", "--filters", "--views", "--clear"],
 		["responsibilities"] = ["take", "delegate", "--yes"],
-		["scout"] = ["player", "who", "new", "remove", "restart", "areas", "staff", "--position", "--role", "--area", "--age", "--name", "--priority", "--yes", "--by", "--for", "--cancel", "--near", "--progress", "--matched"],
+		["scout"] = ["player", "who", "new", "edit", "remove", "restart", "areas", "staff", "--position", "--role", "--area", "--age", "--ability", "--potential", "--name", "--priority", "--yes", "--by", "--for", "--cancel", "--near", "--progress", "--matched"],
 		["shortlist"] = ["add", "remove", "--for"],
 		["interest"] = ["--top", "--transfer", "--loan", "--yes"],
 		["trial"] = ["--for", "--yes"],

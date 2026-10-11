@@ -1072,7 +1072,19 @@ Bulduklarını görmek için: scout "CLI sol bek"
   `fm scout areas` verir; altı olanlar `›` ile biter: `fm scout areas "Region>Europe"`.
 - **Öncelik** `top` (hemen, iki kişiyle), `standard` (tek scout, daha yavaş) ya da `ongoing` (sürekli).
   Yazmazsan komut sorar; kendisi seçmez.
+- **En düşük yetenek / potansiyel** yıldızla: `--ability 3 --potential 3.5` (yarım yıldız adımlarıyla 0.5–5).
+- **Kim baksın** dersen `--by "soykan, ciloglu"`; yazmazsan oyun kendi seçer. Scoutları `fm scout staff` listeler.
 - Yazmadığın her şey oyunun bıraktığı gibi kalır (her mevki, 15–50 yaş, her yer).
+
+`fm scout edit <#|ad>` var olan bir odağı aynı seçeneklerle değiştirir; yalnızca yazdıkların değişir.
+Mevki ve rol buradan değişmez, `--area` ile yazdığın bölgeler eklenir. Oyun odağın eski halini listede
+"Complete" olarak bırakır.
+
+```
+$ fm scout edit "CLI yildiz" --ability 2.5 --age 19-22 --by "gorgec" --name "CLI yildiz 2" --priority ongoing
+Odak güncellendi: CLI yildiz 2 · yetenek ≥ 2.5★ · Ongoing · Serkan Görgeç · 19–22 yaş
+(oyun eski halini listede 'Complete' olarak bırakır)
+```
 
 `fm scout remove <#|ad>` bir odağı durdurur; `--yes` olmadan yalnızca ne olacağını söyler. Oyun durdurulan
 odağı silmez: listede **Durduruldu** diye kalır, bulduğu oyuncular da durur. `fm scout restart <#|ad>`

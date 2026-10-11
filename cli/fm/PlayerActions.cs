@@ -94,7 +94,7 @@ internal static partial class Program
 			await Fm.Get("actions", ("close", "1"));
 			if (still)
 			{
-				Console.Error.WriteLine($"{name}: oyun soruyu kapattı ama görev duruyor — iptal buradan işlemiyor; süresi dolunca kendiliğinden biter.");
+				Console.Error.WriteLine($"{name}: oyun onayı aldı ama görevi kaldırmadı (oyunun kendi davranışı, FINDINGS §8.124); süresi dolunca kendiliğinden biter.");
 				return 1;
 			}
 			Console.WriteLine($"{name}: scout görevi kaldırıldı.");

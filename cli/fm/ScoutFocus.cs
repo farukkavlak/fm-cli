@@ -33,6 +33,86 @@ internal static partial class Program
 		return all.FirstOrDefault(l => Bare(l) == want) ?? (all.Where(l => Bare(l).StartsWith(want, StringComparison.Ordinal)).ToList() is { Count: 1 } one ? one[0] : null);
 	}
 
+	/// <summary>"3", "3.5", "2,5": a number of stars, as the half-star steps the form counts in (1–10).</summary>
+	private static int? StarSteps(string typed) =>
+		double.TryParse(typed.Replace(',', '.').TrimEnd('*', '★'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var stars)
+			&& stars * 2 is >= 1 and <= 10 && stars * 2 == Math.Floor(stars * 2) ? (int)(stars * 2) : null;
+
+	/// <summary>
+	/// Steps a star rating of the form to a value with the buttons on either side of it. The
+	/// game counts half stars from 1 to 10; an untouched rating sits above that (11–15, drawn as
+	/// one to five half stars — FINDINGS §8.124), so it is stepped down from there.
+	/// </summary>
+	private static async Task<bool> SetStars(string heading, int steps)
+	{
+		for (var tries = 0; tries < 24; tries++)
+		{
+			var form = await FocusForm("Back");
+			if (FormAfter(form, heading, "stars") is not { } stars || !int.TryParse(Field(stars, "Value"), out var now)) return false;
+			if (now == steps) return true;
+			if (FormAfter(form, heading, "button", now < steps ? 1 : 0) is not { } step || Field(step, "Enabled") != "True") return false;
+			await Fm.Get("click", ("ptr", Field(step, "Pointer")));
+			await Until(async () => FormAfter(await FocusForm("Back"), heading, "stars") is { } after && Field(after, "Value") != now.ToString(), seconds: 3, every: 0.2);
+		}
+		return false;
+	}
+
+	/// <summary>
+	/// Names the scouts a focus is given to, in the window behind "Assign Scouts › Edit": "Assign
+	/// Any Scouts" is switched off, which opens the table, and each one wanted is ticked. The
+	/// names as the game has them, or null (the reason said) when one is not among them.
+	/// </summary>
+	private static async Task<List<string>> AssignFocusScouts(string typed)
+	{
+		var form = await FocusForm("Back");
+		if (FormAfter(form, "Assign Scouts", "button") is not { } edit || Field(edit, "Text") != "Edit")
+		{
+			Console.Error.WriteLine("Formda scout seçme butonu yok.");
+			return null;
+		}
+		await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
+		async Task<List<JsonElement>> Window() => (await Fm.GetJson("form", ("anchor", "Assign Any Scouts"), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
+		List<JsonElement> window = [];
+		if (!await Until(async () => (window = await Window()).Any(i => Field(i, "Kind") == "checkbox"), seconds: 6, every: 0.4))
+		{
+			Console.Error.WriteLine("Scout seçme penceresi açılmadı.");
+			return null;
+		}
+		async Task Close(string button)
+		{
+			if (FormButton(await Window(), button) is { } close) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
+			await Until(async () => (await Window()).Count == 0, seconds: 4, every: 0.3);
+		}
+
+		var any = window.First(i => Field(i, "Kind") == "checkbox");
+		if (Field(any, "Value") == "True") await Fm.Get("setcontrol", ("ptr", Field(any, "Pointer")), ("value", "false"));
+		// A row is a name, a job and how many focuses he is on; the count is what marks it.
+		var texts = window.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).SkipWhile(t => t != "World Knowledge").Skip(1).ToList();
+		var names = Enumerable.Range(0, Math.Max(0, texts.Count - 2)).Where(i => int.TryParse(texts[i + 2], out _)).Select(i => texts[i]).ToList();
+		var picked = new List<string>();
+		foreach (var one in typed.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+		{
+			if (Choose(names, one, "Scout") is not { } name)
+			{
+				await Close("Cancel");
+				return null;
+			}
+			if (!picked.Contains(name)) picked.Add(name);
+		}
+		// Ticked ones the caller did not name (an edited focus has its own) come off.
+		foreach (var name in names)
+			await Fm.Get("rowselect", ("text", name), ("check", picked.Contains(name) ? "1" : "0"));
+		var counted = await Until(async () => (await Window()).Any(i => Field(i, "Text") == $"{picked.Count} scout(s) selected"), seconds: 4, every: 0.3);
+		if (!counted)
+		{
+			await Close("Cancel");
+			Console.Error.WriteLine("Scoutlar seçilemedi (pencere seçilen sayısını göstermedi).");
+			return null;
+		}
+		await Close("Confirm");
+		return picked;
+	}
+
 	/// <summary>Leaves the form without making anything of it.</summary>
 	private static async Task AbandonFocus()
 	{
@@ -290,10 +370,21 @@ internal static partial class Program
 	private static async Task<int> ScoutNewForm(string[] args)
 	{
 		string position = Option(args, "--position"), role = Option(args, "--role"), name = Option(args, "--name"),
-			age = Option(args, "--age"), area = Option(args, "--area"), priority = Option(args, "--priority");
-		if (position == null && area == null)
+			age = Option(args, "--age"), area = Option(args, "--area"), priority = Option(args, "--priority"),
+			ability = Option(args, "--ability"), potential = Option(args, "--potential"), by = Option(args, "--by");
+		// `scout edit <#|ad>` goes through the same form, opened on a focus there already; what is
+		// not named is left as it stands.
+		var edit = args[1] is "edit" or "duzenle";
+		var which = string.Join(" ", Words(args).Skip(1));
+		if (edit && (which.Length == 0 || (area ?? age ?? name ?? priority ?? ability ?? potential ?? by) == null || position != null || role != null))
 		{
-			Console.Error.WriteLine("kullanım: scout new [--position <mevki>] [--role <rol>] [--area \"<bölge>[, <bölge>…]\"] [--age 18-23] [--name <ad>] --priority top|standard|ongoing\n" +
+			Console.Error.WriteLine("kullanım: scout edit <#|ad> [--area \"<eklenecek bölge>, …\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>, …\"] [--name <ad>] [--priority top|standard|ongoing]\n" +
+				"  mevki ve rol buradan değişmez; onun için yeni odak kur: scout new");
+			return 64;
+		}
+		if (!edit && position == null && area == null)
+		{
+			Console.Error.WriteLine("kullanım: scout new [--position <mevki>] [--role <rol>] [--area \"<bölge>[, <bölge>…]\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>[, <scout>…]\"] [--name <ad>] --priority top|standard|ongoing\n" +
 				"  en az bir mevki ya da bölge gerek. Bölgeler: scout areas [yol]   ör. --area \"Türkiye, Region>Europe>Northern Europe\"");
 			return 64;
 		}
@@ -308,13 +399,19 @@ internal static partial class Program
 			Console.Error.WriteLine("Yaş aralığı: --age 18-23");
 			return 64;
 		}
+		foreach (var (flag, typed) in new[] { ("--ability", ability), ("--potential", potential) })
+			if (typed != null && StarSteps(typed) == null)
+			{
+				Console.Error.WriteLine($"{flag}: yarım yıldız adımlarıyla 0.5–5 arası bir sayı (ör. {flag} 3.5).");
+				return 64;
+			}
 		var tabs = new Dictionary<string, string> { ["top"] = "Top", ["standard"] = "Standard", ["ongoing"] = "Ongoing", ["standart"] = "Standard", ["surekli"] = "Ongoing" };
 		if (priority != null && !tabs.ContainsKey(Fold(priority)))
 		{
 			Console.Error.WriteLine("Öncelik: --priority top | standard | ongoing");
 			return 64;
 		}
-		if (priority == null)
+		if (priority == null && !edit)
 		{
 			if (Ui.Ask("Odağın önceliği?", ["Top — hemen, iki kişiyle", "Standard — tek scout, daha yavaş", "Ongoing — sürekli"]) is not { } asked)
 			{
@@ -329,7 +426,21 @@ internal static partial class Program
 		var page = await OpenPage("Recruitment Focuses", "Recruitment");
 		if (page.StartsWith("error", StringComparison.Ordinal)) return Report(page);
 		var existing = await ScoutFocuses();
-		if (!await OpenFocusForm()) return 1;
+		Focus editing = null;
+		if (edit)
+		{
+			if (int.TryParse(which, out var number) && number >= 1 && number <= existing.Count) editing = existing[number - 1];
+			else if (Choose(existing.Select(f => f.Name).Distinct().ToList(), which, "Odak") is { } wanted) editing = existing.First(f => f.Name == wanted);
+			else return 64;
+			if (await FocusAt(editing.Index) is not { } shown || shown.Name != editing.Name
+				|| (await Fm.Get("click", ("text", "Edit Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal)
+				|| !await Until(async () => FormButton(await FocusForm("Next"), "Next") != null, seconds: 8, every: 0.5))
+			{
+				Console.Error.WriteLine($"Oyun '{editing.Name}' için düzenlemeyi açmadı.");
+				return 1;
+			}
+		}
+		else if (!await OpenFocusForm()) return 1;
 
 		// Step one: the position, and the role in it.
 		var chosen = new List<string>();
@@ -419,11 +530,47 @@ internal static partial class Program
 			}
 			chosen.Add(path.Split('>')[^1]);
 		}
-		var tab = tabs[Fold(priority)];
-		await Fm.Get("click", ("ptr", Field(FormButton(second, tab).Value, "Pointer")));
-		await Task.Delay(400);
+		foreach (var (heading, typed) in new[] { ("Minimum Current Ability", ability), ("Minimum Potential Ability", potential) })
+		{
+			if (typed == null) continue;
+			if (!await SetStars(heading, StarSteps(typed).Value))
+			{
+				await AbandonFocus();
+				Console.Error.WriteLine($"{heading}: {typed} yıldıza getirilemedi.");
+				return 1;
+			}
+			chosen.Add($"{(heading.Contains("Current") ? "yetenek" : "potansiyel")} ≥ {StarSteps(typed).Value / 2.0:0.#}★");
+		}
+		var tab = priority == null ? null : tabs[Fold(priority)];
+		if (tab != null)
+		{
+			second = await FocusForm("Back");
+			await Fm.Get("click", ("ptr", Field(FormButton(second, tab).Value, "Pointer")));
+			await Task.Delay(400);
+			if (edit) chosen.Add(tab);
+		}
+		if (by != null)
+		{
+			if (await AssignFocusScouts(by) is not { } scouts)
+			{
+				await AbandonFocus();
+				return 64;
+			}
+			chosen.Add(string.Join(" + ", scouts));
+		}
 
 		await Fm.Get("click", ("text", "Confirm"));
+		if (edit)
+		{
+			if (!await Until(async () => FormButton(await FocusForm("Back"), "Confirm") == null, seconds: 12, every: 0.7))
+			{
+				Console.Error.WriteLine("Form kapanmadı; değişiklik işlenmemiş olabilir. Bak: scout");
+				return 1;
+			}
+			if (ages != null) chosen.Add($"{ages.Groups[1].Value}–{ages.Groups[2].Value} yaş");
+			Console.WriteLine($"Odak güncellendi: {name ?? editing.Name} · {string.Join(" · ", chosen)}\n(oyun eski halini listede 'Complete' olarak bırakır)");
+			return 0;
+		}
 		// Made once the form is gone and the list of focuses is one longer.
 		List<Focus> after = [];
 		var made = await Until(async () => FormButton(await FocusForm("Back"), "Confirm") == null && (after = await ScoutFocuses()).Count > existing.Count, seconds: 12, every: 0.7);

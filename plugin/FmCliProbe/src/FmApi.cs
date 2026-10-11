@@ -53,7 +53,8 @@ internal static class FmApi
 		"table" => Report.Table(q["groups"] == "1"),
 		"fixtures" => Report.Fixtures(),
 		"save" => Save(),
-		"dialog" => Dialogs.Open(),
+		"dialog" => Dialogs.Open(q),
+		"shot" => Shot(q),
 		"offer" => Offer.Current(),
 		"contract" => Offer.Contract(),
 		"submenu" => Submenus.Open(q),
@@ -405,6 +406,21 @@ internal static class FmApi
 			Walk(c, depth + 1, maxDepth, sb, ref count);
 			if (count >= MaxNodes) return;
 		}
+	}
+
+	/// <summary>
+	/// Writes what the game is drawing to a PNG (?path=…, ?scale=N for N times the window's size):
+	/// the one way to see what no text or member says — a star's colour, an icon, a page that
+	/// reads as empty. The file is there a frame or two after this returns.
+	/// </summary>
+	private static string Shot(NameValueCollection q)
+	{
+		var path = q["path"];
+		if (string.IsNullOrEmpty(path)) return "error: ?path=<file.png> required";
+		// A capture several times a large window's size locked the game (FINDINGS §8.124).
+		var scale = int.TryParse(q["scale"], out var n) && n >= 1 && UnityEngine.Screen.width * n <= 4096 ? n : 1;
+		UnityEngine.ScreenCapture.CaptureScreenshot(path, scale);
+		return $"capturing {UnityEngine.Screen.width * scale}x{UnityEngine.Screen.height * scale} -> {path}";
 	}
 
 	/// <summary>The il2cpp value a path holds, for callers that need the object and not a report.</summary>

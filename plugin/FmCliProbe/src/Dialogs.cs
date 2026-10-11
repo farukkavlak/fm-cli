@@ -15,8 +15,58 @@ namespace FmCliProbe;
 /// </summary>
 internal static class Dialogs
 {
-	public static string Open()
+	/// <summary>
+	/// What the dialog on screen is made of, as the game holds it: its type and, for each of its
+	/// buttons, the event it stands for, whom it goes to and what it carries.
+	/// </summary>
+	private static string Data()
 	{
+		var manager = SI.Bindable.DialogManager.Instance;
+		if (manager == null) return "error: no dialog manager";
+		var data = manager.m_currentDialog?.Value;
+		if (data is null) return "error: no current dialog";
+		var lines = new List<string> { $"Type={data.Type}  Title={Text.Plain(data.Title ?? "")}  visible={manager.m_isDialogVisible}  queued={manager.m_dialogs?.Count}" };
+		foreach (var (slot, button) in new[] { ("primary", data.PrimaryButton), ("secondary", data.SecondaryButton), ("tertiary", data.TertiaryButton), ("quaternary", data.QuaternaryButton) })
+		{
+			if (button is null) continue;
+			string Say(SI.Core.TypedValue value) { try { return value == null ? "null" : FmApi.Describe(value); } catch (System.Exception e) { return $"<{e.GetType().Name}>"; } }
+			lines.Add($"{slot}: Text={Text.Plain(button.Text ?? "")}  EventID={button.EventID}  Visible={button.IsVisible}  Callback={(button.Callback != null ? "yes" : "no")}"
+				+ $"  DontClose={button.DontCloseOnClick}  Target={Say(button.Target)}  Payload={Say(button.Payload)}");
+		}
+		var handler = FM.UI.FMDialogHandler.Instance;
+		if (handler?.m_eventToPluginHandlerList is { } plugin)
+			foreach (var entry in plugin)
+				if (entry != null && entry.Type == data.Type) lines.Add($"to plugin: {entry.Type} -> {entry.EventID}");
+		if (handler?.m_dialogActionHandlerList is { } actions)
+			foreach (var entry in actions)
+				if (entry != null && entry.Type == data.Type) lines.Add($"action: {entry.Type} -> {entry.ActionID}");
+		return string.Join("\n", lines) + "\n";
+	}
+
+	/// <summary>
+	/// Answers the dialog the way the game's own handler does when its button is pressed. A
+	/// simulated click on the button closes some dialogs without their answer ever being sent.
+	/// </summary>
+	private static string Answer(string slot)
+	{
+		var handler = FM.UI.FMDialogHandler.Instance;
+		if (handler == null) return "error: no dialog handler";
+		if (SI.Bindable.DialogManager.Instance?.m_isDialogVisible != true) return "error: no dialog is showing";
+		switch (slot)
+		{
+			case "primary": handler.PressPrimaryButton(null); break;
+			case "secondary": handler.PressSecondaryButton(null); break;
+			case "tertiary": handler.PressTertiaryButton(null); break;
+			case "quaternary": handler.PressQuaternaryButton(null); break;
+			default: return "error: ?press=primary|secondary|tertiary|quaternary";
+		}
+		return $"pressed {slot}";
+	}
+
+	public static string Open(System.Collections.Specialized.NameValueCollection q)
+	{
+		if (q["data"] == "1") return Data();
+		if (!string.IsNullOrEmpty(q["press"])) return Answer(q["press"]);
 		var rows = new List<string>();
 
 		foreach (var element in Buttons.Elements())
