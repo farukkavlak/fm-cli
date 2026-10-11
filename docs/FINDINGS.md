@@ -3736,18 +3736,29 @@ devret / geri al, zaten o durumda olan.
   Durmuş girişi listeden tamamen silen bir şey görülmedi.
 - Bu oturumda oyunda iki durmuş "CLI deneme" ve bir durmuş "CLI sol bek" girişi kaldı (kaydedilmedi). Gün dönünce
   durmuş girişlerin adı "CLI deneme (24/10/2025)", durumu "Complete" oldu.
-- ⚠ **Butonlar her zaman yok — açık soru.** İki oyun günü sonra (26 Ekim, sportif direktör kendiliğinden beşinci bir odak
-  "Europe" açmışken) sayfada yalnızca "Edit Recruitment Focus" kaldı: "Create", "Remove" ve "Restart" hiçbir odakta yok.
-  Denenen: "Assigning Scouts" sorumluluğu Devin Özek'te görünüyordu (Club › Responsibilities › Scouting Responsibility;
-  aynı sekmede "When you scout a player, add them to your shortlist for / watch them for" varsayılanları da var), geri
-  alındı (`responsibilities take`) — butonlar gelmedi, bir adım ilerletince de. 24 Ekim'de beş odak sürerken "Remove" ve
-  "Restart" vardı, yani düz bir "en çok beş" sınırı da açıklamıyor. Neden bilinmiyor; komutlar buton yoksa bunu söylüyor.
-  `Focus.Running` bu yüzden "Remove var" yerine "Restart yok"tan okunuyor (yoksa hepsi "Durduruldu" görünüyordu).
+- ⚠ **Sayfanın butonları her zaman yok.** İki oyun günü sonra (26 Ekim) sayfada yalnızca "Edit Recruitment Focus" (bir de
+  ara ara "Create Recommended Focus") kaldı: "Create", "Remove", "Restart" yok. Neden bilinmiyor — "Assigning Scouts"
+  sorumluluğunu geri almak (Club › Responsibilities › Scouting Responsibility; o sekmede "When you scout a player, add
+  them to your shortlist for / watch them for" varsayılanları da var) ve bir adım ilerlemek değiştirmedi; beş odak sınırı
+  da değil (altıncısı kuruldu).
+- **Görevler paneli her zaman çalışıyor.** Sayfadaki "Assignments (n)" butonu (`/click`; `/press` açmıyor) "Scouting
+  Assignments" panelini açıyor: başlık "Active Assignments (n)", solda scout listesi (buton değil; `/rowselect?text=<ad>`
+  seçiyor), sağda seçili scoutun "Judging Player Ability / Potential" notu, "Regions (n)" / "Nations (n)" bilgisi ve
+  "Recruitment Focuses" altında üzerindeki odaklar — her birinin yanında iki ikon (`button-base-leading-icon`: ilki
+  düzenle / OpenPanel, ikincisi kaldır / TriggerDialog → aynı "Remove Recruitment Focus" sorusu) — ve aynı sihirbazı açan
+  "Create a New Recruitment Focus". `/form?anchor=Active Assignments (n)&up=4&buttons=1` hepsini sırayla veriyor.
+  `scout new` ve `scout remove` sayfada buton yoksa bu panelden yürüyor; `scout staff` paneli okuyor.
+- **Yarım kalan form geri geliyor.** Sihirbaz açıkken başka sayfa açılırsa kapanmıyor: yeniden "Create" denince kaldığı
+  yerden (2/2, yazılan ad ve yaşla) açılıyor. `OpenFocusForm` bunu görürse Cancel → Confirm ile atıp temizini açıyor;
+  `scout new` hata alırsa formu kapatıp çıkıyor.
+- Durdurmayı doğrulamak: durmuş giriş gün dönene kadar "In Progress" kalıyor ve "Restart" butonu da her zaman çıkmıyor;
+  güvenilir tek iz sayfadaki "Assignments (n)" sayısının bir azalması. `Focus.Running` "Restart yok"tan okunuyor, yani
+  yeni durdurulmuş bir odak listede bir gün "In Progress" görünebilir.
 - Maç sonrası basın toplantısı beklerken (`continue` butonu "Attend Press Conference") sayfalar açılıyor ama içerik
   eksik geliyor; `scout` o an yanlış okudu. Basın mesajı cevaplanınca düzeliyor.
 
 `fm scout new [--position] [--role] [--area "a, b"] [--age 18-23] [--name] --priority top|standard|ongoing`,
-`fm scout areas [yol]`, `fm scout remove <#|ad> [--yes]`, `fm scout restart <#|ad>`.
+`fm scout areas [yol]`, `fm scout remove <#|ad> [--yes]`, `fm scout restart <#|ad>`, `fm scout staff`.
 
 ## 8.121 Rakip raporunun kalanı: menajer, beklenti, birim döşemeleri (11 Ekim)
 

@@ -1085,8 +1085,19 @@ $ fm scout remove "cli deneme" --yes
 Odak durduruldu: CLI deneme  (listede kalır; yeniden başlatmak: scout restart)
 ```
 
-Oyun bu üç işi her zaman sunmuyor: bazı günler odak sayfasında yalnızca "düzenle" çıkıyor (beş odak
-sürerken görüldü; kesin nedeni bilinmiyor). O zaman komut "oyun şu an açtırmıyor" der.
+Durdurduğun odak gün dönene kadar listede "In Progress" yazmaya devam eder; ertesi gün adı tarihle
+biter ve durumu "Complete" olur. `scout restart` oyun o butonu gösterdiğinde çalışır (her gün göstermiyor).
+
+`fm scout staff` scout ekibini verir: kim oyuncunun yeteneğini ve potansiyelini ne kadar iyi görüyor,
+kaç bölge ve ülke biliyor, şu an hangi odaklarda çalışıyor:
+
+```
+$ fm scout staff
+SCOUT          GÖREV  YETENEĞİ GÖRME  POTANSİYELİ GÖRME  BÖLGE  ÜLKE  ODAKLARI
+Serkan Görgeç  Scout  Competent       Average            13     44    Türkiye
+Sercan Soykan  Scout  Good            Average            13     44    Europe, South Eastern Europe
+Cihan Çiloğlu  Scout  Average         Average            13     44    Turkish 1. League, Turkish Super League
+```
 
 Henüz yok: en düşük yetenek / potansiyel (yıldız), belirli scout ve analist atamak, topsuz rol,
 var olan odağı düzenlemek.

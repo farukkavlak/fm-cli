@@ -139,6 +139,7 @@ saves           diskteki kayıtlar, en yenisi önce
 shortlist       kısa listedeki oyuncular (teklif verilenler de);  add <ad> --for <süre> · remove <ad>
 scout new [--position <mevki>] [--role <rol>] [--area "<bölge>, …"] [--age 18-23] [--name <ad>] --priority <öncelik>   yeni scout odağı
 scout areas [yol] · scout remove <#|ad> · scout restart <#|ad>   bölge seçenekleri; odağı durdur / yeniden başlat
+scout staff     scout ekibi: gözleri, bildikleri yer, üzerlerindeki odaklar
 scout player <ad> [--by <scout>] --for <süre>   oyuncuya scout gönder;  scout who <ad>: atanabilecek scoutlar
 interest <ad> --top|--transfer|--loan · enquire <ad> · trial <ad> --for <hafta>   ilgi duyur, kulübe sor, denemeye çağır
 intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto

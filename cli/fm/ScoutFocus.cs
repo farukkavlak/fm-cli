@@ -49,9 +49,16 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> FocusArea(string pointer, string typed)
 	{
-		async Task<List<string>> Under(string path) =>
-			(await Fm.GetJson("menu", ("ptr", pointer), ("names", path))) is { ValueKind: JsonValueKind.Array } list
-				? list.EnumerateArray().Select(x => (x.GetString() ?? "").Replace(" ›", "")).ToList() : [];
+		// A leaf has nothing under it, and the bridge says so as an error.
+		async Task<List<string>> Under(string path)
+		{
+			try
+			{
+				return (await Fm.GetJson("menu", ("ptr", pointer), ("names", path))) is { ValueKind: JsonValueKind.Array } list
+					? list.EnumerateArray().Select(x => (x.GetString() ?? "").Replace(" ›", "")).ToList() : [];
+			}
+			catch (FmError) { return []; }
+		}
 
 		var parts = typed.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		if (parts.Length > 1)
@@ -87,7 +94,123 @@ internal static partial class Program
 		return null;
 	}
 
-	private static async Task<bool> OpenFocusForm()
+	/// <summary>
+	/// The remove icon beside a focus in the assignments panel ("Assignments (n)" on the focus
+	/// page): the panel shows one scout's focuses at a time, so each scout is selected in turn
+	/// until the focus is found. The icon is the second of the two after its name (the first edits).
+	/// </summary>
+	private static async Task<bool> RemoveInAssignments(string focus)
+	{
+		var open = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal));
+		if (open.ValueKind != JsonValueKind.Object) return false;
+		await Fm.Get("click", ("ptr", Field(open, "Pointer")));
+
+		async Task<List<JsonElement>> Panel()
+		{
+			List<JsonElement> items = [];
+			await Until(async () =>
+			{
+				// The panel's heading carries the same count as the button that opened it.
+				var heading = "Active " + Field(open, "Label");
+				items = (await Fm.GetJson("form", ("anchor", heading), ("up", "4"), ("buttons", "1"))).EnumerateArray().ToList();
+				return items.Any(i => Field(i, "Text") == "Recruitment Focuses");
+			}, seconds: 6, every: 0.5);
+			return items;
+		}
+
+		var panel = await Panel();
+		// The staff list: name and job in pairs, up to where the selected one's own heading repeats a name.
+		var texts = panel.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).Skip(2).ToList();
+		var staff = new List<string>();
+		for (var i = 0; i + 1 < texts.Count && !staff.Contains(texts[i]); i += 2) staff.Add(texts[i]);
+
+		foreach (var scout in staff)
+		{
+			await Fm.Get("rowselect", ("text", scout));
+			await Task.Delay(700);
+			panel = await Panel();
+			var from = panel.FindIndex(i => Field(i, "Text") == "Recruitment Focuses");
+			var at = from < 0 ? -1 : panel.FindIndex(from, i => Field(i, "Kind") == "text" && Field(i, "Text") == focus);
+			if (at < 0) continue;
+			var icons = panel.Skip(at + 1).TakeWhile(i => Field(i, "Kind") == "button" && Field(i, "Name") == "button-base-leading-icon").ToList();
+			if (icons.Count < 2) return false;
+			return !(await Fm.Get("click", ("ptr", Field(icons[1], "Pointer")))).StartsWith("error", StringComparison.Ordinal);
+		}
+		return false;
+	}
+
+	/// <summary>
+	/// The scouting team as the assignments panel shows it: each scout's eye for ability and
+	/// potential, how much of the world he knows, and the focuses he is working on.
+	/// </summary>
+	private static async Task<int> ScoutStaff(bool json)
+	{
+		if (await NotNow() is { } refused) return refused;
+		var opened = await OpenPage("Recruitment Focuses", "Recruitment");
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		JsonElement open = default;
+		await Until(async () => (open = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
+		if (open.ValueKind != JsonValueKind.Object)
+		{
+			Console.Error.WriteLine("Görevler paneli bulunamadı.");
+			return 1;
+		}
+		await Fm.Get("click", ("ptr", Field(open, "Pointer")));
+		var heading = "Active " + Field(open, "Label");
+
+		async Task<List<string>> Texts()
+		{
+			List<string> texts = [];
+			var last = "";
+			await Until(async () =>
+			{
+				texts = (await Fm.GetJson("texts", ("anchor", heading), ("up", "4"))).EnumerateArray().Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
+				var key = string.Join("|", texts);
+				var settled = key == last && texts.Contains("Recruitment Focuses");
+				last = key;
+				return settled;
+			}, seconds: 6, every: 0.4);
+			return texts;
+		}
+
+		var first = await Texts();
+		var staff = new List<(string Name, string Job)>();
+		for (var i = 2; i + 1 < first.Count && staff.All(m => m.Name != first[i]); i += 2) staff.Add((first[i], first[i + 1]));
+
+		var rows = new List<(string Name, string Job, string Ability, string Potential, string Regions, string Nations, List<string> Focuses)>();
+		foreach (var (name, job) in staff)
+		{
+			await Fm.Get("rowselect", ("text", name));
+			List<string> texts = [];
+			// The right-hand side is his once its own heading names him.
+			await Until(async () => (texts = await Texts()).Skip(2 + staff.Count * 2).FirstOrDefault() == name, seconds: 5, every: 0.4);
+			var own = texts.Skip(2 + staff.Count * 2).ToList();
+			string After(string label) => own.IndexOf(label) is var at && at >= 0 && at + 1 < own.Count ? own[at + 1] : "";
+			static string Count(string label) => Regex.Match(label ?? "", @"\((\d+)\)") is { Success: true } m ? m.Groups[1].Value : "-";
+			var focuses = own.SkipWhile(t => t != "Recruitment Focuses").Skip(1).Where(t => t != "Create a New Recruitment Focus").ToList();
+			rows.Add((name, job, After("Judging Player Ability"), After("Judging Player Potential"),
+				Count(own.FirstOrDefault(t => t.StartsWith("Regions (", StringComparison.Ordinal))), Count(own.FirstOrDefault(t => t.StartsWith("Nations (", StringComparison.Ordinal))), focuses));
+		}
+		await Fm.Get("click", ("name", "BackButton"));
+
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, r.Job, JudgingAbility = r.Ability, JudgingPotential = r.Potential, r.Regions, r.Nations, r.Focuses })));
+			return 0;
+		}
+		Table.Write(["SCOUT", "GÖREV", "YETENEĞİ GÖRME", "POTANSİYELİ GÖRME", "BÖLGE", "ÜLKE", "ODAKLARI"],
+			rows.Select(r => new[] { r.Name, r.Job, r.Ability, r.Potential, r.Regions, r.Nations, r.Focuses.Count > 0 ? string.Join(", ", r.Focuses) : "-" }).ToList());
+		Console.WriteLine($"\n{Field(open, "Label").Replace("Assignments", "Süren görev")}. Bir oyuncuya göndermek: scout player <ad> --by <scout> --for <süre>");
+		return 0;
+	}
+
+	/// <summary>How many assignments are running, as the focus page's "Assignments (n)" button counts them.</summary>
+	private static async Task<int?> Assignments() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Select(b => Regex.Match(Field(b, "Label"), @"^Assignments \((\d+)\)$"))
+			.FirstOrDefault(m => m.Success) is { } found ? int.Parse(found.Groups[1].Value) : null;
+
+	private static async Task<bool> OpenFocusForm(bool again = false)
 	{
 		var opened = await OpenPage("Recruitment Focuses", "Recruitment");
 		if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return false; }
@@ -96,12 +219,30 @@ internal static partial class Program
 		await Until(async () => !(clicked = await Fm.Get("click", ("text", "Create a New Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
-			// The page does not always offer it (FINDINGS §8.120): seen gone with five focuses running.
-			Console.Error.WriteLine("Oyun şu an yeni odak açtırmıyor: sayfada 'Create a New Recruitment Focus' yok.\n" +
-				"  Beş odak sürerken böyle görüldü; süren odaklar: scout · scout atama kimde: responsibilities scouts");
+			// The page does not always offer it (FINDINGS §8.120); the assignments panel behind
+			// "Assignments (n)" has a button of the same name that opens the same form.
+			var assignments = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal));
+			if (assignments.ValueKind == JsonValueKind.Object)
+			{
+				await Fm.Get("click", ("ptr", Field(assignments, "Pointer")));
+				await Until(async () => !(clicked = await Fm.Get("click", ("text", "Create a New Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+			}
+		}
+		if (clicked.StartsWith("error", StringComparison.Ordinal))
+		{
+			Console.Error.WriteLine("Oyun şu an yeni odak açtırmıyor: ne odak sayfasında ne görevler panelinde 'Create a New Recruitment Focus' var.");
 			return false;
 		}
-		if (await Until(async () => FormButton(await FocusForm("Next"), "Next") != null, seconds: 8, every: 0.5)) return true;
+		// A form left half-filled (a run that failed, a page opened over it) comes back as it was
+		// left, on its second step: it is thrown away and a clean one opened.
+		var leftover = false;
+		if (await Until(async () => FormButton(await FocusForm("Next"), "Next") != null || (leftover = FormButton(await FocusForm("Back"), "Confirm") != null), seconds: 8, every: 0.5))
+		{
+			if (!leftover) return true;
+			await AbandonFocus();
+			await Task.Delay(800);
+			return !again && await OpenFocusForm(again: true);
+		}
 		Console.Error.WriteLine("Odak formu açılmadı.");
 		return false;
 	}
@@ -137,6 +278,17 @@ internal static partial class Program
 	}
 
 	private static async Task<int> ScoutNew(string[] args)
+	{
+		try { return await ScoutNewForm(args); }
+		catch (FmError)
+		{
+			// Whatever went wrong, the form is not left open behind the next command.
+			if (FormButton(await FocusForm("Next"), "Next") != null || FormButton(await FocusForm("Back"), "Confirm") != null) await AbandonFocus();
+			throw;
+		}
+	}
+
+	private static async Task<int> ScoutNewForm(string[] args)
 	{
 		string position = Option(args, "--position"), role = Option(args, "--role"), name = Option(args, "--name"),
 			age = Option(args, "--age"), area = Option(args, "--area"), priority = Option(args, "--priority");
@@ -366,10 +518,17 @@ internal static partial class Program
 			if (!Ui.Interactive) Console.WriteLine($"'{shown.Name}' ({shown.Matched} eşleşen, {shown.Near} yakın) scout önceliklerinden çıkarılır. Onaylamak için: scout remove {shown.Index + 1} --yes");
 			return 0;
 		}
-		var clicked = await Fm.Get("click", ("text", "Remove Recruitment Focus"));
-		if (clicked.StartsWith("error", StringComparison.Ordinal))
+		if (await Assignments() is not { } assignments)
 		{
-			Console.Error.WriteLine($"Oyun '{shown.Name}' için 'Remove Recruitment Focus' sunmuyor (FINDINGS §8.120: buton her zaman çıkmıyor).");
+			Console.Error.WriteLine("Sayfada görev sayısı okunamadı; bak: scout");
+			return 1;
+		}
+		var clicked = await Fm.Get("click", ("text", "Remove Recruitment Focus"));
+		// The page does not always have the button (FINDINGS §8.120); the assignments panel lists
+		// each scout's focuses with a remove icon beside them.
+		if (clicked.StartsWith("error", StringComparison.Ordinal) && !await RemoveInAssignments(shown.Name))
+		{
+			Console.Error.WriteLine($"Oyun '{shown.Name}' için kaldırmayı sunmuyor: ne odak sayfasında ne görevler panelinde bir kaldır butonu var.");
 			return 1;
 		}
 		JsonElement dialogs = default;
@@ -380,9 +539,11 @@ internal static partial class Program
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
-		// Stopped once no running focus of that name is left where this one was counted.
-		var running = focuses.Count(f => f.Name == shown.Name && f.Running);
-		var stopped = await Until(async () => (await ScoutFocuses()).Count(f => f.Name == shown.Name && f.Running) < running, seconds: 20, every: 1);
+		await Task.Delay(800);
+		await OpenPage("Recruitment Focuses", "Recruitment");
+		// Stopped once the page counts one assignment fewer: the entry itself stays listed, and
+		// until the day turns nothing on it says it has stopped.
+		var stopped = await Until(async () => await Assignments() is { } now && now < assignments, seconds: 15, every: 0.7);
 		if (!stopped)
 		{
 			Console.Error.WriteLine($"'{shown.Name}' hâlâ sürüyor görünüyor; bak: scout");

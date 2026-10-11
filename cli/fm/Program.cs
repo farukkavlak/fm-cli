@@ -110,6 +110,7 @@ internal static partial class Program
 				"world" => await World(json),
 				"scout" => args.Length > 1 && args[1] is "player" or "oyuncu" ? await ScoutPlayer(args)
 					: args.Length > 1 && args[1] is "who" or "kim" ? await ScoutList(json, args)
+					: args.Length > 1 && args[1] is "staff" or "ekip" ? await ScoutStaff(json)
 					: args.Length > 1 && args[1] is "new" or "yeni" ? await ScoutNew(args)
 					: args.Length > 1 && args[1] is "remove" or "sil" or "restart" or "yeniden" ? await ScoutRemove(args)
 					: args.Length > 1 && args[1] is "areas" or "bolgeler" ? await ScoutAreas(json, args)
@@ -1193,6 +1194,7 @@ internal static partial class Program
 			  scout [#|odak]  scout odakları; bir odağın bulduğu oyuncular (--matched, --near, --progress)
 			  scout new [--position <mevki>] [--role <rol>] [--area "<bölge>, …"] [--age 18-23] [--name <ad>] --priority top|standard|ongoing   yeni odak
 			  scout areas [yol] · scout remove <#|ad> [--yes] · scout restart <#|ad>   bölge seçenekleri; odağı durdur / yeniden başlat
+			  scout staff     scout ekibi: yeteneği / potansiyeli görme, bildiği bölge ve ülke sayısı, üzerindeki odaklar
 			  scout player <ad> [--by <scout>] --for <süre>   oyuncuya scout gönder ("1 hafta", "2 ay", "3 maç", "tam"); scout who <ad>: kimler atanabilir
 			  league [turnuva]  liderler: en golcü takım, gol / asist kralı, en yüksek puan (varsayılan: lig)
 			  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
