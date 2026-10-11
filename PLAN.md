@@ -256,7 +256,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Transfer dönemi durumu / kalan gün — `fm status` (§8.55)
 
 ---
-- [~] İlgi duyurma, kulübe sorma, denemeye çağırma — `fm interest`, `fm enquire`, `fm trial` (§8.119); ilgi haber oluyor, deneme reddi geliyor; sorunun cevabı ve kabul edilen deneme görülmedi
+- [~] İlgi duyurma, kulübe sorma, denemeye çağırma — `fm interest`, `fm enquire`, `fm trial` (§8.119); ilgi haber oluyor, deneme reddi ve sorunun cevabı ("£6,25M istiyorlar") gelen kutusuna düşüyor; kabul edilen deneme görülmedi
 
 ## 6. Scouting
 

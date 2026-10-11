@@ -3703,8 +3703,9 @@ devret / geri al, zaten o durumda olan.
 - Ad eşleme: arama "cerin" için Nocerino'yu ve ikinci soyadı Cerín olan birini de getiriyor; yazılan kelimeyi adında
   **kelime olarak** taşıyan tek kişi varsa o seçiliyor.
 - Deneme davetinin cevabı 15 oyun dakikası sonra geldi: "Fenerbahçe's Chirivella bid rejected — Panathinaikos have
-  rejected the offer" (Negotiate / Interact with Board) — oyun daveti de teklif sayıyor. Kabul edilen bir deneme ve
-  sorunun (enquiry) cevabı **görülmedi**.
+  rejected the offer" (Negotiate / Interact with Board) — oyun daveti de teklif sayıyor. Sorunun (enquiry) cevabı bir
+  gün sonra: "Panathinaikos respond to Gnezda Čerin offer — Panathinaikos want £6,250,000" (Accept / Withdraw / View
+  Offer / Interact with Board); Withdraw ile kapatıldı. Kabul edilen bir deneme **görülmedi**.
 
 `fm scout player <ad> [--by <scout>] --for <süre> [--cancel]`, `fm scout who <ad>`, `fm shortlist add <ad> --for <süre>` /
 `remove <ad>`, `fm interest <ad> --top|--transfer|--loan [--yes]`, `fm enquire <ad>`, `fm trial <ad> --for <hafta> [--yes]`.
