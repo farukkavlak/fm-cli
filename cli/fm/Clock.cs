@@ -159,6 +159,20 @@ internal static partial class Program
 			|| Field(state, "State") is "Processing" or "Saving" or "Waiting";
 	}
 
+	/// <summary>
+	/// No club to manage: the manager has a name but `Human.Team` gives none (after the sack,
+	/// 10 Ocak 2026, FINDINGS §8.142). A read can come back empty the first time, so it is read twice.
+	/// </summary>
+	internal static async Task<bool> Unemployed()
+	{
+		for (var look = 0; look < 2; look++)
+		{
+			if ((await Fm.OwnTeam()).Name.Length > 0) return false;
+			await Task.Delay(400);
+		}
+		return Field(await Fm.Pull("Human", "Name"), "Name").Length > 0;
+	}
+
 	/// <summary>Why the game will not continue, in the terms of what to do about it.</summary>
 	private static async Task Explain(JsonElement state, TextWriter output, string flow = null)
 	{
@@ -342,6 +356,8 @@ internal static partial class Program
 			if (next != null) Console.WriteLine($"Sıradaki maç: {next}");
 			if (window != null) Console.WriteLine($"Transfer: {window}");
 		}
+		if (await Unemployed())
+			Console.WriteLine("İşsizsin: bir kulübün menajeri değilsin, kadro ve taktik komutları çalışmaz. İş ilanları: open \"Managerial Vacancies\"");
 		// A question put after a match (the reaction, a tunnel interview) waits as a conversation
 		// while the game still calls itself free to go on; going on would pass it by unanswered.
 		if ((Passable(flow) || flow is "NeedAction" or "PressConference") && (await TalkOptions()).Count > 0)

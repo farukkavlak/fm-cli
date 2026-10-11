@@ -461,7 +461,9 @@ internal static partial class Program
 					: "'First Team' sayfası açılamadı.");
 
 			if (!await Until(() => Choose(view)))
-				throw new FmError($"Kadro tablosunda '{view}' görünümü bulunamadı.");
+				throw new FmError(await Unemployed()
+					? "İşsizsin: yönetecek bir kadro yok. İş ilanları: open \"Managerial Vacancies\""
+					: $"Kadro tablosunda '{view}' görünümü bulunamadı.");
 		}
 
 		await Until(async () => Carries(squad = await Fm.GetJson("squad"), marker));

@@ -4139,6 +4139,16 @@ de taze okuyor.
   kilitli (sezon sonu). Komut artık o köprü cevabını hata saymıyor (canlı denenemedi; bir sonraki transferde).
 - `fm contract "Matteo Cancellieri"` bir kez "kadroda da aramada da yok" dedi (arama boş döndü), hemen ardından buldu.
 
+## 8.142 Kovulmak (11 Ekim gece, oyun 10 Ocak 2026)
+
+Süper Kupa finali 3-3, penaltılarla kayıp; aynı akşam ikinci "Board request meeting to discuss your future". Toplantı:
+"neden kötü" → "zor fikstür" ("fikstür o kadar zor değildi", Disappointed) → yalnızca [Threaten] seçenekleri (istifa,
+"benden iyisini bulamazsınız", soyunma odası, taraftar) → "soyunma odası mutsuz olur" (Insulted) → End Chat. Bir adım
+sonra "Decision to terminate your contract" ve haber "Faruk Kavlak sacked by Fenerbahçe" (cevapsız). Ondan sonra
+`Human.Name` var ama `Human.Team` boş; `status` "ilerlemeye hazır" diyip geçiyordu, `squad` "General Info görünümü
+bulunamadı" hatası veriyordu. Şimdi ikisi de "İşsizsin … İş ilanları: open \"Managerial Vacancies\"" diyor (`Unemployed()`).
+Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki toplantı arasında üç hafta vardı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
