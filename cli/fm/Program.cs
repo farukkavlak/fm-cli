@@ -120,6 +120,7 @@ internal static partial class Program
 				"opponent" => await Opponent(json),
 				"captains" => await Captains(args),
 				"depth" => await Depth(json),
+				"targets" => await Targets(json, args),
 				"happiness" => await Happiness(json, args),
 				"mentoring" => await Mentoring(json, args),
 				"internationals" => await Internationals(json),
@@ -1185,6 +1186,8 @@ internal static partial class Program
 			    --term "<şart>=<değer>"   bir şartı koy ya da değiştir (ör. "Percentage Of Next Sale=20%",
 			                              "Fee=Non-Negotiable"); --loan kiralık, --dry gönderme
 			                  geri alınamaz: terminalde sorar, script'te --yes ister
+			  targets         transfer hedefleri: kalan bütçe ve kadroda ince mevkiler
+			  targets <mevki> [--max-value <para>] [players'ın arama seçenekleri]   o mevkide bütçeye sığan oyuncular ("targets DL", "targets \"sol bek\" --age 18-24")
 			  players         oyuncu veritabanı (ekrandaki satırlar)
 			    --filters / --filter "<x>"   hazır süzgeçler: Transfer Listed, Contract Expiring…
 			    --free                       serbest oyuncular (sözleşmesi bitmiş; "Contract Expired" süzgeci)

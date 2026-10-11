@@ -677,7 +677,7 @@ internal static partial class Program
 		}
 
 		// The page's search panel: the role he can play, his age, the scouts' grade, his
-		// contract and whether he is listed. A search stays on until --clear.
+		// contract and whether he is listed. A search stays on in the game until the next one or --clear.
 		var search = new List<(string Heading, string Choice, string What)>();
 		if (Option(args, "--role") is { } searchRole) search.Add(("Role (In Possession)", searchRole, "Rol"));
 		if (Option(args, "--age") is { } ages)
@@ -728,6 +728,15 @@ internal static partial class Program
 		}
 		if (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null)
 		{
+			// A search is added to whatever an earlier one left on, and two positions both
+			// required find almost no one (FINDINGS §8.131): each search starts from a clean one.
+			if (!args.Contains("--clear"))
+			{
+				var cleared = await Arriving("press", [("text", "Clear"), ("event", "EventToPlugin")]);
+				if (cleared.StartsWith("error", StringComparison.Ordinal)) return Report(cleared);
+				await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.Any(b => Field(b, "Label") == "Edit Search"), seconds: 4, every: 0.3);
+			}
 			if (await ApplySearch(search, conditions, position, maxValue) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
 			searched = true;
 		}
