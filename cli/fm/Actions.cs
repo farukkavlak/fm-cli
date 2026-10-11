@@ -38,11 +38,12 @@ internal static partial class Program
 		}
 		if (found.Count > 1)
 		{
-			var labels = found.Select(r => $"{Field(r, "Name")} ({Field(r, "Kind")}{(Field(r, "Club").Length > 0 ? ", " + Field(r, "Club") : "")})").ToList();
+			var who = await Who(found);
+			var labels = found.Select((r, i) => $"{Field(r, "Name")} ({(Field(r, "Kind") == "Player" ? "" : Field(r, "Kind") + ", ")}{who[i]})").ToList();
 			if (Ui.Ask($"'{wanted}' birden çok kişiye uyuyor:", labels) is { } picked) found = [found[picked]];
 			else
 			{
-				if (!Ui.Interactive) Console.Error.WriteLine($"'{wanted}' birden çok kişiye uyuyor: {string.Join(" · ", labels)}. Adı tam yaz.");
+				if (!Ui.Interactive) Console.Error.WriteLine($"'{wanted}' birden çok kişiye uyuyor; adı tam yaz:\n" + string.Join("\n", labels.Select(l => "  " + l)));
 				return null;
 			}
 		}

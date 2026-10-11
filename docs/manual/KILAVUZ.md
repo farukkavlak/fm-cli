@@ -333,6 +333,11 @@ Oyunun genel araması — oyuncu, teknik adam, kulüp:
 
 ![fm search Arda](img/search.png)
 
+Her kişinin yanında, oyunun kendi listelerindeki gibi, onu adaşlarından ayıran bilgiler durur: yaş, mevki,
+ülke, kulüp. Bir komuta yazılan ad birden çok kişiye uyuyorsa (ör. `actions néné`: Fenerbahçe'deki
+Dorgéles Néné, AVS'deki Nenê…) komut tahmin etmez; aynı satırlarla seçtirir, terminal yoksa listeleyip
+tam adı ister.
+
 
 ![fm player --career](img/career.png)
 

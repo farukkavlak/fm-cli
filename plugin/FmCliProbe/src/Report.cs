@@ -125,7 +125,7 @@ internal static class Report
 	{
 		var results = new List<Dictionary<string, string>>();
 
-		foreach (var (_, node) in Walk())
+		foreach (var (path, node) in Walk())
 		{
 			if (node.Name != "searchresult" || node.Parent == null) continue;
 
@@ -134,17 +134,20 @@ internal static class Report
 
 			// The result's record sits beside the row that shows it: a person with a club, or
 			// just a named club, competition or nation.
-			var queue = new Queue<IReadOnlyNode>();
-			queue.Enqueue(node.Parent);
+			var queue = new Queue<(IReadOnlyNode Node, string Path)>();
+			queue.Enqueue((node.Parent, path[..path.LastIndexOf('.')]));
 			var seen = 0;
 			while (queue.Count > 0 && seen++ < 300)
 			{
-				var current = queue.Dequeue();
-				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+				var (current, at) = queue.Dequeue();
+				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue((c, at + "." + c.Name));
 
 				if (current.Name is not ("Person" or "Club" or "Competition" or "Nation")) continue;
 				if (!Fields(current).TryGetValue("Name", out var name) || name.Length == 0) continue;
-				fields.TryAdd(current.Name == "Person" ? "Name" : current.Name, name);
+				// The person's path lets a caller pull what the row does not show (age, positions,
+				// nation) to tell two of the same name apart.
+				if (current.Name == "Person" && fields.TryAdd("Name", name)) fields["Path"] = at;
+				else fields.TryAdd(current.Name, name);
 			}
 
 			if (fields.Count > 1) results.Add(fields);

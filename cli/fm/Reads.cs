@@ -39,6 +39,44 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// What tells people of one name apart, the way the game's own lists do: age, positions,
+	/// nation and club, one line per search result ("22 · AM (RL), ST (C) · MLI · Fenerbahçe").
+	/// The row binds only the name, so each person is put at a node of ours and read there; the
+	/// game fills the values on the second reading.
+	/// </summary>
+	private static async Task<List<string>> Who(List<JsonElement> results)
+	{
+		var read = new Dictionary<string, string>[results.Count];
+		for (var i = 0; i < results.Count; i++)
+			if (Field(results[i], "Path") is { Length: > 0 } path)
+				try { await Fm.Get("pathset", ("to", $"fmcli.who.p{i}"), ("from", path)); } catch (FmError) { }
+		await Until(async () =>
+		{
+			for (var i = 0; i < results.Count; i++)
+			{
+				if (Field(results[i], "Path").Length == 0 || read[i]?.GetValueOrDefault("Age") is { Length: > 0 }) continue;
+				try
+				{
+					var person = await Fm.GetJson("pull", ("path", $"fmcli.who.p{i}"), ("props", "Age,PositionCombinedString"));
+					var nation = await Fm.GetJson("pull", ("path", $"fmcli.who.p{i}.Nation"), ("props", "ThreeLetterName"));
+					read[i] = new() { ["Age"] = Field(person, "Age"), ["Positions"] = Field(person, "PositionCombinedString"), ["Nation"] = Field(nation, "ThreeLetterName") };
+				}
+				catch (FmError) { }
+			}
+			return read.Select((r, i) => Field(results[i], "Path").Length == 0 || r?.GetValueOrDefault("Age") is { Length: > 0 }).All(x => x);
+		}, seconds: 4, every: 0.5);
+
+		return results.Select((r, i) => string.Join(" · ", new[]
+		{
+			read[i]?.GetValueOrDefault("Age") is { Length: > 0 } age ? $"{age} yaş" : "",
+			// A coach's positions are from his playing days and would read as his job.
+			Field(r, "Kind") == "Player" ? read[i]?.GetValueOrDefault("Positions") ?? "" : "",
+			read[i]?.GetValueOrDefault("Nation") ?? "",
+			Field(r, "Club"),
+		}.Where(s => s.Length > 0))).ToList();
+	}
+
+	/// <summary>
 	/// Types a name into the game's search and returns what it found. The search box only takes
 	/// text typed into it, and its results arrive a moment after.
 	/// </summary>
@@ -102,11 +140,12 @@ internal static partial class Program
 			return 0;
 		}
 
-		Table.Write(["TÜR", "AD", "KULÜP"], results.Select(r => new[]
+		var who = await Who(results);
+		Table.Write(["TÜR", "AD", "KİM"], results.Select((r, i) => new[]
 		{
 			Field(r, "Kind"),
 			Field(r, "Name") is { Length: > 0 } person ? person : Field(r, "Club") + Field(r, "Competition") + Field(r, "Nation"),
-			Field(r, "Name").Length > 0 ? Field(r, "Club") : "",
+			Field(r, "Name").Length > 0 ? who[i] : "",
 		}).ToList());
 		return 0;
 	}
@@ -219,7 +258,9 @@ internal static partial class Program
 					: close.Count == 0
 						? $"'{wanted}' aramada tam olarak çıkmadı; en yakınlar:"
 						: $"'{wanted}' aramada {close.Count} oyuncuya uyuyor; adı biraz daha yaz:");
-				foreach (var hit in close.Count == 0 ? found : close) Console.Error.WriteLine($"  {Field(hit, "Name")}  ({Field(hit, "Club")})");
+				var hits = close.Count == 0 ? found : close;
+				var who = await Who(hits);
+				for (var i = 0; i < hits.Count; i++) Console.Error.WriteLine($"  {Field(hits[i], "Name")}  ({who[i]})");
 				return null;
 			}
 			full = Field(close[0], "Name");
