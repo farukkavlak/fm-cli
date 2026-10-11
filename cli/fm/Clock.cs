@@ -182,9 +182,14 @@ internal static partial class Program
 				output.WriteLine($"Bloke: {blocking.Count} mesaj cevap bekliyor.");
 				foreach (var message in blocking)
 					output.WriteLine($"  {Field(message, "NewsItemTimeSent")}  {Field(message, "NewsTitleString")}");
+				// One message waiting: name it by its subject, which `reply` takes as well as a number
+				// and which does not go stale the way the numbers of the last `inbox` do.
+				var only = blocking.Count == 1 ? Field(blocking[0], "NewsTitleString") : null;
 				output.WriteLine(await TourOpen()
 					? "Açık bir tanıtım turu var; yürütmek için: tour"
-					: "Cevaplamak için: reply <#>   (numaralar için: inbox)");
+					: only is { Length: > 0 } && !only.Contains('"')
+						? $"Cevaplamak için: reply \"{only}\""
+						: "Cevaplamak için: reply <#>   (numaralar için: inbox)");
 				break;
 
 			case "PressConference": output.WriteLine("Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>"); break;
