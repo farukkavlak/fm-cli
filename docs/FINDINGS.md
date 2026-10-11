@@ -3902,7 +3902,16 @@ devret / geri al, zaten o durumda olan.
 - ⚠ **`/shot` simsiyah dönebiliyor** (70 KB'lık tek renk PNG). 11 Ekim akşamüstü oyun iki kez yeniden başlatıldıktan
   sonra her görüntü siyah geldi; köprü ve bütün okumalar çalışıyordu, ekran uyanıktı. Pencere küçültülmüş durumdaydı
   (`CGWindowList`: 1470×920, ekranda değil). Önceki oturumda aynı gizli pencerede çiziyordu; farkın nedeni bulunamadı
-  (pencereyi öne almak denenmedi). Siyah gelirse: `fm start --debug` ile görünür pencere.
+  (pencereyi öne almak denenmedi). **Oyunu bir kez daha yeniden başlatmak düzeltti** (aynı gizli pencere, 1 MB'lık
+  gerçek görüntü) — yani o açılışa özgü bir durumdu. Siyah gelirse: yeniden başlat.
+- ⚠ **Seçme penceresinin tablosu yalnızca görünen satırları kuruyor — o siyah oturumda tek satır.** `--by` üç scouttan
+  yalnızca birini (Serkan Görgeç) sunuyordu; `/scroll … to=0.5` kalanları getirdi. Seçici artık tabloyu üç derinlikte
+  okuyor ve her adı göründüğü derinlikte işaretliyor. Kaydırırken ikinci bir tuzak: satırın ülke bayrakları kendi
+  kaydırıcısının içinde (kaydıracak bir şeyi yok), `/scroll?ptr=<bayrak butonu>` onu bulup "not in a scrolling list"
+  diyordu — köprü artık kaydıracak şeyi olmayan kaydırıcıyı atlayıp yukarıdakine çıkıyor. Doğrulama: `scout edit … --by
+  "soykan, ciloglu"` → ikisi de odakta; `--by ciloglu` → tek; `scout staff` her adımda uyuyor.
+- ⚠ `scout edit <#>`: düzenleme listenin sırasını değiştiriyor (eski hal "Complete" olarak ekleniyor), art arda iki
+  komutta aynı numara başka odağa denk gelebiliyor. Adla vermek güvenli.
 
 ## 9. Sıradaki adımlar
 

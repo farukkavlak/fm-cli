@@ -91,8 +91,28 @@ internal static partial class Program
 		var any = window.First(i => Field(i, "Kind") == "checkbox");
 		if (Field(any, "Value") == "True") await Fm.Get("setcontrol", ("ptr", Field(any, "Pointer")), ("value", "false"));
 		// A row is a name, a job and how many focuses he is on; the count is what marks it.
-		var texts = window.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).SkipWhile(t => t != "World Knowledge").Skip(1).ToList();
-		var names = Enumerable.Range(0, Math.Max(0, texts.Count - 2)).Where(i => int.TryParse(texts[i + 2], out _)).Select(i => texts[i]).ToList();
+		static List<string> Rows(List<JsonElement> view)
+		{
+			var texts = view.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).SkipWhile(t => t != "World Knowledge").Skip(1).ToList();
+			return Enumerable.Range(0, Math.Max(0, texts.Count - 2)).Where(i => int.TryParse(texts[i + 2], out _)).Select(i => texts[i]).ToList();
+		}
+		// The table lays out only the rows in view — at times a single one (FINDINGS §8.128) — so it
+		// is read at three depths, and each name keeps the depth it showed at. A row's nation
+		// button says which list to scroll.
+		async Task Show(string share)
+		{
+			var inRow = (await Window()).FirstOrDefault(i => Field(i, "Kind") == "button" && Field(i, "Text") is not ("Cancel" or "Confirm"));
+			if (inRow.ValueKind != JsonValueKind.Object) return;
+			await Fm.Get("scroll", ("ptr", Field(inRow, "Pointer")), ("to", share));
+			await Task.Delay(400);
+		}
+		var depth = new Dictionary<string, string>();
+		foreach (var share in new[] { "0", "0.5", "1" })
+		{
+			await Show(share);
+			foreach (var shown in Rows(await Window())) depth.TryAdd(shown, share);
+		}
+		var names = depth.Keys.ToList();
 		var picked = new List<string>();
 		foreach (var wanted in typed.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
 		{
@@ -105,7 +125,10 @@ internal static partial class Program
 		}
 		// Ticked ones the caller did not name (an edited focus has its own) come off.
 		foreach (var name in names)
+		{
+			await Show(depth[name]);
 			await Fm.Get("rowselect", ("text", name), ("check", picked.Contains(name) ? "1" : "0"));
+		}
 		var counted = await Until(async () => (await Window()).Any(i => Field(i, "Text") == $"{picked.Count} {one}(s) selected"), seconds: 4, every: 0.3);
 		if (!counted)
 		{

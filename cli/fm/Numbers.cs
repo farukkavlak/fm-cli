@@ -196,7 +196,8 @@ internal static partial class Program
 		var after = new List<string>();
 		void Close()
 		{
-			if (picker is { } p && name != null)
+			// A row caught while the table scrolls can be short of its cells; another view has it whole.
+			if (picker is { } p && name != null && after.Count >= 3)
 				rows.Add(new NumberRow(name, Field(p, "Label"), before.FirstOrDefault() ?? "", after.ElementAtOrDefault(0) ?? "", after.ElementAtOrDefault(1) ?? "",
 					after.ElementAtOrDefault(2) ?? "", Field(p, "Pointer"), Field(p, "Enabled") == "True",
 					p.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList()));

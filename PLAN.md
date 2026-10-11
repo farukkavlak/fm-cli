@@ -468,8 +468,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   önceki oyuncuya yazılıyordu, "Delighted" olan oyuncu (Kerem) listeden düşüyordu.
 - **Odakta analist seçimi** (§8.128): `fm scout new / edit … --analysts "<ad>, …"`. Kulüpte tek analist olduğu için
   seçim yalnızca onunla denendi.
-- ⚠ Ekran görüntüsü (`/shot`) oyunu yeniden başlattıktan sonra siyah gelmeye başladı (§8.128); tam gol listesi ve maç
-  hazırlığı odağı parkları bu yüzden bu oturumda yeniden denenmedi.
+- ⚠ Ekran görüntüsü (`/shot`) bir açılışta siyah geldi, bir sonraki yeniden başlatmada düzeldi (§8.128). O sırada scout
+  seçicinin üç scouttan yalnızca birini gördüğü çıktı (tablo tek satır kuruyordu): seçici artık tabloyu kaydırarak okuyor.
+  Tam gol listesi ve maç hazırlığı odağı parkları henüz yeniden denenmedi.
 - Köprü: `/scroll?ptr=` ve `/rowselect?…&and=` (aynı yazı altta kalan sayfada da varsa doğru listeyi / satırı bulmak için).
 
 ### 2026-10-11 (öğleden sonra — "yarım kalanları kapatalım")

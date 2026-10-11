@@ -66,6 +66,9 @@ internal static class Registration
 		{
 			try { view = e.TryCast<StreamedListView>()?.ScrollViewToScroll; } catch { }
 			if (view == null) try { view = e.TryCast<ScrollView>(); } catch { }
+			// A cell can be a scroller of its own with nothing to scroll (a row's flags); the
+			// list is further up.
+			try { if (view != null && view.verticalScroller.highValue <= 0) view = null; } catch { view = null; }
 		}
 		if (view == null) return (0, 0);
 
