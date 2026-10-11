@@ -1281,7 +1281,82 @@ Ibrahim Bâ   3               15                      14                        
 ```
 
 Arama oyunda açık kalır (sonraki `staff find` de aynı süzgeçle gelir); sıfırlamak için `--clear`.
-`DURUM`'daki `FrA` serbest demek. İşe almak (görüşme ve sözleşme) henüz yok.
+`DURUM`'daki `FrA` serbest demek.
+
+### Personel almak ve göndermek — `staff hire`, `staff fire`
+
+`fm staff hire <ad>` o kişiyle sözleşme görüşmesini açar ve ne istediğini gösterir; henüz bir şey
+teklif edilmiş olmaz.
+
+```
+$ fm staff hire "Antonio Agostini"
+Antonio Agostini ·  — Şartlar
+Şartlar:
+  Job: Physio
+  Secondary Job: None
+  Contract Status: Full Time
+  Haftalık ücret: £1,400 p/w
+  Start Date: Immediate - 23/10/2025
+  Süre: 3 years (Oct 2025 - Jun 2028)
+
+Menajere sunmak / imzalamak için: contract --sign --yes   (şart değiştirmek: --wage <tutar>, --term "Şart=değer")
+```
+
+Buradan sonrası oyuncu sözleşmesiyle aynı: `fm contract --wage 1200` ile pazarlık edersin (karşı
+teklifini söyler), `fm contract --sign --yes` ile teklifi verirsin, `fm contract --cancel` ile
+vazgeçersin. Hepsini tek satırda da yazabilirsin: `fm staff hire "<ad>" --wage 1200 --sign --yes`.
+Teklif verilince kararı birkaç gün içinde gelen kutusuna düşer; o arada teklifi geri çekmek için
+`fm actions "<ad>" "Withdraw Contract Offer"`.
+
+`fm staff fire <ad>` kendi personelinle yolları ayırır. Oyun ödenecek tazminatı söyler; `--yes`
+yazmadıysan komut "Hayır" deyip çıkar.
+
+```
+$ fm staff fire "Cabir Sevim"
+Release Cabir Sevim?
+  Are you sure you want to terminate Cabir Sevim's contract?
+  Fenerbahçe will have to pay £110K in compensation to Cabir Sevim.
+
+Vazgeçildi. Feshetmek için: staff fire "Cabir Sevim" --yes
+```
+
+`--mutual` tazminatsız karşılıklı fesih teklif eder; oyun bunu sormadan işlediği için o da `--yes` ister.
+
+### Bir kişi için ne yapılabilir — `actions`
+
+`fm actions <kişi>` oyunun o kişi için sağ tıkta açtığı menüyü gösterir. Kişi oyuncu da olabilir,
+personel de; kadromuzda olması gerekmez.
+
+```
+$ fm actions "Cabir Sevim"
+Cabir Sevim
+  Contract ›
+    Enter Contract Negotiations
+    DoF To Negotiate Contract
+    Terminate Contract
+    Mutual Termination
+  Report ›
+    Find Similar Staff
+  Misc ›
+    Set Nickname
+    Send On Coaching Course
+```
+
+Bir oyuncuda liste uzundur: scout atamak (`Scout Player`, `Assign Scout › <scout> › <süre>`), listeye
+almak (`Add To Shortlist › <süre>`), ilgi bildirmek (`Declare Interest › For Transfer`), denemeye
+çağırmak (`Offer Trial › 2 Weeks`), kadro planına eklemek… Çok uzun alt menüler sayısıyla yazılır;
+tamamı için `--all`.
+
+Yapmak için seçeneği de yaz. Yolun tamamı şart değil, son kısmı tekse yeter:
+
+```
+$ fm actions "Jerome Opoku" "Add To Shortlist > Indefinitely"
+$ fm actions "Cabir Sevim" "send on coaching course"
+```
+
+⚠ Seçenek yazınca oyun onu hemen yapar. Oyun kendisi soruyorsa (tazminat, geri çekme) soruyu görürsün
+ve `fm dialog Yes` / `fm dialog No` ile cevaplarsın; sormuyorsa iş olmuştur. Terminalde seçenek yazmadan
+çalıştırırsan menüde okla gezersin.
 
 ### Kim neyi yapıyor — `responsibilities`
 

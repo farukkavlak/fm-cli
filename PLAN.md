@@ -323,7 +323,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ## 10. Personel ve kulüp
 
 - [x] Teknik ekip listesi — `fm staff`: kişi kişi iş, yaş, maaş, sözleşme; rol eksikleri ve yönetimin görüşü (§8.78)
-- [~] Personel işe al / kov (Coaching, Scouting, Medical) — `fm staff find`: personel veritabanı; görev / serbest / itibar araması, nitelik görünümleri (§8.116); işe alma / kovma yok
+- [x] Personel işe al / kov (Coaching, Scouting, Medical) — `fm staff find` (arama, §8.116), `fm staff hire <ad>` (sözleşme masası, `contract` ile sürer), `fm staff fire <ad>` (tazminat onayı); kişinin sağ tık menüsü `fm actions` (§8.118). Teklifin cevabının düştüğü an görülmedi
 - [~] Personel sorumlulukları (delegasyon) — `fm responsibilities`: 29 personel işi kimde, `delegate` / `take` (§8.111); belirli kişiye verme ve personel dışı devirler yok
 - [x] Tesisler (antrenman, gençlik, altyapı) — `fm facilities`: stadyum, antrenman, altyapı, ticari (§8.79)
 - [x] Tesis geliştirme talebi — `fm board request "improve training facilities" --yes` (§8.108)
@@ -454,6 +454,17 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-11 (gündüz)
+
+- **Personel işe alma / kovma** (§8.118): `fm staff hire <ad>` (sözleşme masasını açar, `contract` ile sürer),
+  `fm staff fire <ad>` (oyun tazminatı sorar; `--yes` olmadan "Hayır"). Gece "teklif eylemi bulunamadı" diye park edilen şey
+  kişinin sağ tık menüsüymüş; köprüye `/actions` eklendi.
+- **`fm actions <kişi>`**: o menünün tamamı — oyuncuya scout atamak, listeye almak, ilgi bildirmek, denemeye çağırmak;
+  personeli kursa göndermek. Seçenek yazılınca yapılır.
+- Canlıda: Agostini'ye (fizyoterapist) £1.400'e teklif verildi, Cabir Sevim (kondisyoner) kovuldu — ikisi de deneme; ardından
+  23 Ekim kaydı kaydetmeden yeniden yüklendi, yani kayıtta ikisi de yok.
+- Görülmedi: personel teklifinin cevabının geldiği an; "Mutual Termination" personelde.
 
 ### 2026-10-11 (gece, otonom — "orta grup")
 

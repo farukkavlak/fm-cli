@@ -122,7 +122,11 @@ internal static partial class Program
 				"league" => await League(json, args),
 				"health" => await Health(json),
 				"club" => await Club(json),
-				"staff" => args.Length > 1 && args[1] is "find" or "ara" ? await StaffFind(json, args) : await Staff(json),
+				"staff" => args.Length > 1 && args[1] is "find" or "ara" ? await StaffFind(json, args)
+					: args.Length > 1 && args[1] is "hire" or "al" ? await StaffHire(args)
+					: args.Length > 1 && args[1] is "fire" or "kov" ? await StaffFire(args)
+					: await Staff(json),
+				"actions" => await Actions(json, args),
 				"finances" => await Finances(json, args),
 				"supporters" => await Supporters(json),
 				"board" => args.Length > 1 && args[1] is "request" or "talep" ? await BoardRequests(json, args) : await Board(json),
@@ -1220,6 +1224,9 @@ internal static partial class Program
 			  youth           altyapı: notu, tesis ve kadro, A takıma aday görülenler, altyapı alımının tarihi
 			  progress        kim gelişiyor, kim geriliyor: her oyuncunun son dört aylık yeteneği ve değişimi
 			  staff find [metin] [--filter <süzgeç>] [--view <görünüm>]   personel veritabanı: görev, sözleşme, maaş, nitelikler
+			  staff hire <ad> [--wage <tutar>] [--sign --yes]   personel al: sözleşme görüşmesini açar, `contract` ile sürer
+			  staff fire <ad> [--mutual] [--yes]   personelle yolları ayır: oyun tazminatı söyler, --yes olmadan "Hayır" der
+			  actions <kişi> ["<seçenek>"]   oyunun o kişi için sağ tık menüsü (scout ata, listeye al, kursa gönder…); seçenek yazılırsa yapılır
 			  board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri
 			    request ["<talep>" --yes]   yönetimden istenebilecekler; adıyla birini iste
 			  doctor          kadroda ne yanlış: sakatlar, yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri

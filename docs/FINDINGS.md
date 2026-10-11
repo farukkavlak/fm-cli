@@ -3635,6 +3635,46 @@ devret / geri al, zaten o durumda olan.
 `fm players --position --max-value --role --age a-b --grade --contract --listed --loan-listed --attr "<nitelik>>=<n>"` (+ var olan `--filter`, `--view`, `--clear`). Canlı:
 17–21 yaş santrforlar, 20–23 yaş kanat bekleri, sözleşmesi 6 ay içinde biten B+ üstü oyuncular, olmayan rol, bozuk yaş.
 
+## 8.118 Kişinin sağ tık menüsü; personel işe alma ve kovma (11 Ekim)
+
+- Bir kişinin adının geçtiği hemen her yerde (tablo satırı, arama sonucu, anasayfa döşemesi) ad, `FM.UI.PluginContextMenuBindings`
+  türünde bir öğenin içinde duruyor: sağ tıkta oyunun o kişi için sunduğu menüyü açan öğe. Tabloda bir satır işaretlenince
+  beliren "Actions" butonu da aynı tür (`#ActionsDropdown`). Olay listesi taşımıyor, `SIButton` değil — `/buttons` ve `/click`
+  görmüyor; §8.116'da "bulunamadı" denen şey buydu.
+- Açmak: öğenin `m_manipulator`'ı (`SI.UI.ContextMenuDescriptionManipulator`) → `OpenOnShortcutEvent(evt)`; `evt` hedefi o öğe
+  olan bir `NavigationSubmitEvent`. Menü bir an sonra doluyor.
+- Okumak: `SI.UI.ContextMenuSubsystem.m_popupContext.Description` bir `MenuDescription`; `m_root.FirstChild` / `Next` zinciriyle
+  girişler: `Name`, `Kind` (Item / Folder), `Flags` (Visible 1, Enabled 2, Selected 4), `HandleInteraction` (tıklamanın yaptığı).
+  Seçmek: girişin `HandleInteraction.Invoke()`'u, ardından `CloseContextMenu()`.
+- Köprü: `/actions?open=1&text=<görünen ad>` (ya da `&name=ActionsDropdown`, `&ptr=`), `/actions` (JSON: `Path` "A>B>C", `Name`,
+  `Folder`, `Enabled`), `/actions?choose=<Path>`, `/actions?close=1`. ⚠ `text` / `name` / `ptr` vermeden açtırma: sayfanın
+  arkasındaki ilk öğenin menüsü açılır (ilk denemede anasayfadaki bir oyuncununki açıldı).
+- Menünün ilk girişi kişinin kendi adı (sayfasını açar). Sonrası kime göre değişiyor:
+  - **Oyuncu (başka kulüp):** Add To Club Squad Planner › mevki, Ask Agent About Availability, Make An Offer, Transfer › (Offer
+    Trial › 1–4 Weeks, Make Enquiry, Declare Interest › As Top Target / For Transfer / For Loan, Add as Transfer Target),
+    Scout Player (Any Scout - For 1 Week), Fully Scout, Add To Shortlist › süre, Report › (Assign to Scouting Pool › süre,
+    Assign Scout › scout › süre, Assign Coach › …, Compare With › kadromuz, Find Similar Players, Add to Not Interested List),
+    Misc › (Set Nickname, Keep History After Retirement). ~190 giriş.
+  - **Personel (bizde değil):** Approach To Sign, Add To Staff Shortlist › süre, Report › Find Similar Staff, Misc › Set Nickname.
+    Teklif yapıldıktan sonra: Contract › Change Contract Offer / Withdraw Contract Offer ("Withdraw Offer?" Yes / No).
+  - **Kendi personelimiz:** Contract › Enter Contract Negotiations / DoF To Negotiate Contract / Terminate Contract / Mutual
+    Termination, Report › Find Similar Staff, Misc › Set Nickname / Send On Coaching Course.
+- Kişiye ulaşmak: oyunun araması (`SearchFor`); sonuç satırları da bu menüyü taşıyor, yani oyunun bildiği herkes için çalışıyor
+  (personel veritabanında satırın ekranda olması gerekmiyor).
+- **İşe alma:** "Approach To Sign" oyuncularla aynı sözleşme masasını açıyor (`/contract`, Stage "Terms"): Job (Coaching › /
+  Scouting › / Medical ›), Secondary Job, Contract Status, Wage, Start Date, süre. `contract` olduğu gibi yürütüyor: £1.400
+  isteyen fizyoterapiste £1.200 denince "Offering me the requested wage will make the rest of our negotiations much easier"
+  diye £1.400'e döndü; kabul edince "I'll be in touch regarding my final decision in the near future". Recruitment › Staff
+  Transfer Activity "Transfers In 1" oldu. Cevap üç oyun günü içinde gelmedi (26 Ekim sabahına kadar bakıldı) — imzanın
+  düştüğü an **görülmedi**.
+- **Kovma:** "Terminate Contract" → `/dialog` "Release Cabir Sevim?" — "Fenerbahçe will have to pay £110K in compensation".
+  Yes'ten sonra menüsünden Contract klasörü kalktı; listeden çıkması bir sonraki ilerlemede ("Cabir Sevim sacked" mesajı,
+  antrenör sayısı 17 → 16). "Mutual Termination" denenmedi (oyuncuda onaysız işliyor, §8.76 — burada da öyle sayılıp
+  CLI'da onay isteniyor).
+- ⚠ `fm staff` bir kez boş tablo verdi (Staff Transfer Activity kartı açıkken); anasayfaya dönünce düzeldi. Nedenine bakılmadı.
+
+`fm staff hire <ad> [--wage] [--term] [--sign --yes]`, `fm staff fire <ad> [--mutual] [--yes]`, `fm actions <kişi> ["<seçenek>"] [--all]`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
