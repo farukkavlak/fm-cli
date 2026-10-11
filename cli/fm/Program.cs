@@ -14,6 +14,8 @@ internal static partial class Program
 
 		if (args[0] == "mcp") return await Mcp.Serve(Run);
 
+		if (args[0] == "start" && args.Skip(1).Any(a => a is "--help" or "-h")) return HelpFor("start");
+
 		if (args[0] == "start")
 		{
 			// --menu stops at the main menu: the save to load is then chosen with `load`.
@@ -77,6 +79,9 @@ internal static partial class Program
 			command = resolved;
 			args = [resolved, .. args.Skip(1)];
 		}
+
+		// Asking a command about itself never runs it (`match --help` used to start the match).
+		if (command != "help" && args.Skip(1).Any(a => a is "--help" or "-h")) return HelpFor(command);
 
 		try
 		{
@@ -1131,6 +1136,23 @@ internal static partial class Program
 	private static int Help()
 	{
 		Console.WriteLine(HelpText);
+		return 0;
+	}
+
+	/// <summary>The lines of the help that are about one command: its own, and those indented under them.</summary>
+	private static int HelpFor(string command)
+	{
+		var own = false;
+		var any = false;
+		foreach (var line in HelpText.Split('\n'))
+		{
+			var indent = line.Length - line.TrimStart().Length;
+			if (indent <= 2) own = indent == 2 && (line.TrimStart().Split(' ', '\t')[0] == command || line.TrimStart().StartsWith("fm " + command + " ", StringComparison.Ordinal));
+			if (!own || line.Trim().Length == 0) continue;
+			Console.WriteLine(line);
+			any = true;
+		}
+		if (!any) Console.WriteLine($"{command}: yardım satırı yok; hepsi için: help");
 		return 0;
 	}
 
