@@ -120,7 +120,7 @@ internal static partial class Program
 				"opponent" => await Opponent(json),
 				"captains" => await Captains(args),
 				"depth" => await Depth(json),
-				"happiness" => await Happiness(json),
+				"happiness" => await Happiness(json, args),
 				"mentoring" => await Mentoring(json, args),
 				"internationals" => await Internationals(json),
 				"news" => await News(json, args),
@@ -1243,6 +1243,8 @@ internal static partial class Program
 			  settings        oyun ayarları: maç gösterimi ve hızı, otomatik kayıt, dil, para birimi, birimler
 			  settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x); değer yoksa okla seçtirir
 			  happiness       oyuncuların mutluluğu, en mutsuz önce
+			    happiness <oyuncu>   neden öyle: moral, soyunma odasındaki yeri, memnun olduğu ve şikâyet ettiği şeyler
+			    --why           şikâyeti olan herkes, şikâyetleriyle
 			  internationals  milli oyuncular: ülke, toplam milli maç ve gol, bu sezon oynadıkları
 			  mentoring       mentorluk grupları ve üyeleri;  --auto: grupları yardımcıya kurdur
 			    new [<o1> <o2> <o3>] [--name "<ad>"]   elle grup kur; oyuncusuz: kimler seçilebilir

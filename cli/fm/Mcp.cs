@@ -155,9 +155,9 @@ internal static class Mcp
 				: Str(a, "aim") is { Length: > 0 } aim ? ["setpieces", Str(a, "kind"), "hedef", aim, "--json"]
 				: Str(a, "slot") is { Length: > 0 } slot && Str(a, "task") is { Length: > 0 } task ? ["setpieces", Str(a, "kind"), slot, task, .. Opt(a, "otherwise"), "--json"]
 				: ["setpieces", Str(a, "kind"), "--json"]),
-		new("fm_happiness", "How happy each first-team player is (Very Unhappy … Very Happy), least happy first, with his status flags (Wnt: wanted by another club, Unr: unregistered, FtT: future transfer, Rst: resting…).",
-			"""{"type":"object","properties":{}}""",
-			_ => ["happiness"]),
+		new("fm_happiness", "How happy each first-team player is (Very Unhappy … Delighted), least happy first, with his status flags (Wnt: wanted by another club, Unr: unregistered, FtT: future transfer, Rst: resting…). `player` gives one player's reasons: morale, standing in the dressing room, what he is pleased about and what he holds against the club. `why` lists every player who has a complaint, with the complaints (takes ~15 seconds).",
+			"""{"type":"object","properties":{"player":{"type":"string"},"why":{"type":"boolean"}}}""",
+			a => ["happiness", .. Str(a, "player") is { Length: > 0 } who ? new[] { who } : [], .. Flag(a, "why", "--why")]),
 		new("fm_depth", "Squad depth: for each position (GK, DL/DC/DR, WBL/DM/WBR, ML/MC/MR, AML/AMC/AMR, ST) the first-team players who can play it, from their position strings; loanees and under-19s left out. Then the age profile.",
 			"""{"type":"object","properties":{}}""",
 			_ => ["depth"]),

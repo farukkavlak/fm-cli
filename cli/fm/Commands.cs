@@ -86,6 +86,7 @@ internal static partial class Program
 		["responsibilities"] = ["take", "delegate", "--yes"],
 		["youth"] = ["--training"],
 		["numbers"] = ["--auto", "--send"],
+		["happiness"] = ["--why"],
 		["scout"] = ["player", "who", "new", "edit", "remove", "restart", "areas", "staff", "--position", "--role", "--area", "--age", "--ability", "--potential", "--name", "--priority", "--yes", "--by", "--for", "--cancel", "--near", "--progress", "--matched"],
 		["shortlist"] = ["add", "remove", "--for"],
 		["interest"] = ["--top", "--transfer", "--loan", "--yes"],

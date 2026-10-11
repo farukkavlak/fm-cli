@@ -177,7 +177,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kariyer geçmişi, transfer geçmişi — `fm player <isim> --career` (§8.63)
 - [x] Gelişim grafiği / potansiyel — potansiyel kartta (§8.85); son dört aylık yetenek kartta ve `fm progress` tablosunda (§8.113)
 - [~] Milli takım — `fm internationals`: ülke, toplam milli maç / gol, bu sezon oynadıkları (§8.101); davet / kamp durumu yok (milli arada bakılacak)
-- [~] Oyuncu mutluluk durumu — `fm happiness` (§8.59); şikâyetlerin nedeni yok
+- [x] Oyuncu mutluluk durumu — `fm happiness` (§8.59); nedenleri `fm happiness <oyuncu>` ve `--why` (§8.127)
 - [x] Kadro derinliği analizi (pozisyon bazlı) — `fm depth`, mevki dizgilerinden
 - [x] Yaş profili — `fm depth`'in altında
 
@@ -462,7 +462,11 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   menüsüyle açılınca doluyor. `fm numbers` artık tabloyu veriyor (numara, oyuncunun istediği numara, mevki, statü), boş
   numaraları sayıyor ve oyunun değişiklik alıp almadığını söylüyor. Elle verme (`fm numbers <oyuncu> <no>`, `--send`)
   yazıldı ama **denenemedi**: numaralar sezon başında / yeni transferde kaydediliyor, şu an hepsi kilitli.
-- Köprü: `/scroll?ptr=` (aynı yazı altta kalan sayfada da varsa doğru listeyi kaydırmak için).
+- **Mutluluğun nedeni** (§8.127): Happiness sayfasında satır seçilince sağdaki panel doluyormuş. `fm happiness <oyuncu>`
+  morali, soyunma odasındaki yeri, şikâyetleri ve memnun olduğu şeyleri veriyor; `fm happiness --why` şikâyeti olan
+  herkesi (bugün 21 oyuncudan 4'ü, hepsi oynama süresi). Bu arada iki eski hata çıktı ve düzeldi: durum bayrakları bir
+  önceki oyuncuya yazılıyordu, "Delighted" olan oyuncu (Kerem) listeden düşüyordu.
+- Köprü: `/scroll?ptr=` ve `/rowselect?…&and=` (aynı yazı altta kalan sayfada da varsa doğru listeyi / satırı bulmak için).
 
 ### 2026-10-11 (öğleden sonra — "yarım kalanları kapatalım")
 

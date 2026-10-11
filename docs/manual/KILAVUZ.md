@@ -236,6 +236,31 @@ endişeleri. Mutluluk ve taktiğe alışma ayrı komutlarda (`happiness`, `tacti
 
 ![fm doctor](img/doctor.png)
 
+### Kim mutlu, kim neden değil — `happiness`
+
+`fm happiness` oyuncuları en mutsuzdan başlayarak sıralar; yanındaki kısaltmalar oyunun durum
+bayrakları (Wnt: başka kulüp istiyor, Slt: hafif sakat, Rst: dinlendiriliyor, Unr: kayıtsız, FtT: gidecek).
+
+`fm happiness <oyuncu>` nedenini söyler: morali, soyunma odasındaki yeri, şikâyetleri (−) ve memnun
+olduğu şeyler (+).
+
+```
+$ fm happiness alvarez
+Edson Álvarez  Biraz mutsuz · moral Okay · Highly Influential Player · Slt
+  − (Minor Issue) Unhappy with his amount of playing time
+  + Is enjoying playing for the club
+  + Is pleased to be considered a highly influential player within the dressing room
+```
+
+`fm happiness --why` yalnızca şikâyeti olanları, şikâyetleriyle verir (~10 sn):
+
+```
+Anthony Musaba  Biraz mutlu · moral Fairly Good · Others
+  − (Pre-concern) Is starting to feel that his agreed playing time is not being fulfilled
+…
+21 oyuncudan 4 tanesinin şikâyeti var; kalan 17 oyuncunun yok.
+```
+
 ```
 $ fm doctor
 ! Sakat: 1  → health

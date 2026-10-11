@@ -56,6 +56,9 @@ internal static class TableRows
 			catch { continue; }
 
 			if (!Shows(row, wanted, 0)) continue;
+			// A name alone can be a row of the page behind, a description alone two players'
+			// ("24 year-old winger"): ?and= asks the row to show a second text too.
+			if (!string.IsNullOrEmpty(q["and"]) && !Shows(row, q["and"], 0)) continue;
 			// The same name can be a row of the page behind as well; the one meant is the one
 			// that has what is asked of it.
 			if (q["check"] is "1" or "0" && Toggle(row, 0) == null) continue;

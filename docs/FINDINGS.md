@@ -3870,6 +3870,28 @@ devret / geri al, zaten o durumda olan.
 `fm numbers` tabloyu, boş numaraları ve oyunun değişiklik alıp almadığını yazar; `fm numbers <oyuncu> <no>` + `--send`,
 `--auto`.
 
+## 8.127 Mutluluğun nedeni: satır seçilince dolan panel (11 Ekim) — §8.103'teki parkın çözümü
+
+- Squad › Dynamics › Happiness sayfasında sağdaki panel "No Player Selected" diye açılıyor; bir satır **seçilince**
+  doluyor: ad, tanım, Happiness, Morale, Hierarchy, **Positives** maddeleri, **Negatives** maddeleri, "Actions".
+  `/texts?anchor=Morale&up=3` panelin tamamını sırayla veriyor. Şikâyetler ağırlığıyla geliyor: "(Pre-concern) Is
+  starting to feel that his agreed playing time is not being fulfilled", "(Minor Issue) Unhappy with his amount of
+  playing time". Veri modelindeki `HappinessNegatives` / `HappinessPositives`'i `/pull` ile almaya gerek kalmadı.
+- **Satırı seçmek:** `/rowselect?text=<ad>` alttaki First Team tablosunun aynı adlı satırını seçiyordu ("selected row
+  10", sayfada hiçbir şey değişmiyor). Bu sayfaya özgü yazı satırın tanımı ("32 year-old experienced goalkeeper"), ama o
+  da iki oyuncuda aynı olabiliyor ("24 year-old winger": Musaba ve Oğuz Aydın). `/rowselect`'e `&and=<ikinci yazı>`
+  eklendi: satır ikisini de göstermeli (tanım + ad).
+- ⚠ **`fm happiness`'ın iki eski hatası** (ekran görüntüsüyle karşılaştırınca çıktı): durum sütunu satırın **başında**
+  olduğu için bayraklar addan önce geliyor — eski okuma bayrağı bir önceki oyuncuya yazıyordu (Škriniar'ın "Rst"i
+  Semedo'da, Diego Carlos'un "Unr"u Álvarez'de görünüyordu). Ve seviye listesinde **"Delighted"** yoktu: Kerem
+  Aktürkoğlu listeden sessizce düşüyordu.
+- Sayfa 21 oyuncu listeliyor (hiyerarşi sayacı 3 + 9 + 5 + 4); kiralıktakilerin bir kısmı var, bir kısmı yok.
+- Doğrulama: Álvarez (bir şikâyet), Kerem (yok), Musaba / Oğuz Aydın (aynı tanım, farklı içerik ✓), `--why` 21 oyuncu
+  10 sn; olmayan ad ve iki oyuncuya uyan ad reddediliyor.
+- Açık: paneldeki "Actions" (oyuncuyla konuşma başlığı olabilir), okunmadı.
+
+`fm happiness <oyuncu>`, `fm happiness --why`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
