@@ -4124,6 +4124,21 @@ ve End Chat; sakatlık ve "çabuk çözülür" cevaplarıyla yönetim "more time
 Düzeltme: `inbox` her seferinde portalı yeniden açıp okuyor (`FreshInbox`); `status`/`next` bekleyen mesaj bulamazsa bir kez
 de taze okuyor.
 
+## 8.141 Gelen kiralık baştan sona ve forma numarası (11 Ekim gece, oyun 5–10 Ocak 2026)
+
+- 5 Ocak dönem açıldı. `fm offer "Matteo Cancellieri" --loan --yes` (Celesti; sezon sonu, £14.75M opsiyon, maaş %100/%60).
+  Ertesi saat "Cancellieri offer accepted". Mesajda **yalnızca** "Delegate 'Player contract discussions…' to Devin Özek"
+  vardı; "Enter Contract Negotiations" yok (transferde vardı, §8.42), Transfer Activity satırı "Contract" aşamasında, ekranda
+  görüşmeyi açan kontrol bulunamadı (`/elements?text=Negotiate` boş). Delegate seçildi; `fm responsibilities` bu
+  sorumluluğu listelemiyor (transfer bölümü okunmuyor olabilir).
+- 10 Ocak "Cancellieri set to move on loan to Fenerbahçe" (öncelikli, cevap bekliyor; ilerle butonu "Confirm Transfer"):
+  anlaştı, Bologna'yı reddetti, sağlık temiz, £250K bütçeden. Seçenekler Accept / Delay Transfer / Cancel / Delegate.
+  `reply … 1` (Accept) → "Cancellieri loan completed", kadroda "Düzenli ilk 11".
+- Numara: `numbers` onu "Numara bekleyen"de gösterdi. `numbers "Matteo Cancellieri" 19` seçimi yazdı ama köprü
+  "dropdown has no events to send" döndü ve komut hata bastı; `--send` ile "gönderildi", tabloda 19. Ardından değişiklik
+  kilitli (sezon sonu). Komut artık o köprü cevabını hata saymıyor (canlı denenemedi; bir sonraki transferde).
+- `fm contract "Matteo Cancellieri"` bir kez "kadroda da aramada da yok" dedi (arama boş döndü), hemen ardından buldu.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

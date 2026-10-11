@@ -166,7 +166,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] `/squad` iki listeyi birleştirirken bir oyuncunun kolonlarını eksik bırakabiliyor (Musaba) — olası neden düzeltildi (boş alan öbür listeden doluyor), hata yeniden görülmedi (§8.86)
 - [x] Uyruk — `fm squad` terminal görünümünde ULUS sütunu (oyuncunun `Nation.ThreeLetterName`, satırının altından)
 - [x] Turnuva kadro listesi — `fm register`: kim listede, yetişme kotaları, kurallar; okla ekle / çıkar, gönder (§8.43)
-- [~] Forma numaraları — `fm numbers`: kim kaç giyiyor, istediği numara, boş numaralar, oyun değişiklik alıyor mu (§8.126); `fm numbers <oyuncu> <no>` + `--send` yazıldı ama canlıda denenemedi (numaralar sezon sonuna kadar kilitli)
+- [x] Forma numaraları — `fm numbers`: kim kaç giyiyor, istediği numara, boş numaralar, oyun değişiklik alıyor mu (§8.126); `fm numbers <oyuncu> <no> --send` canlıda doğrulandı: Cancellieri 19 (§8.141); kaydedilince kilitleniyor
 - [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); kadro dışındakiler aramayla
 - [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)
 - [~] Gizli öznitelikler (scout görüşü kadarıyla) — kartta kulübün gördüğü potansiyel (`PerceivedPotentialAbility`, /200); kişilik özellikleri, tutarlılık vb. `/pull` ile gelmiyor (§8.85); kişilik `fm dynamics`'te (§8.95)
@@ -242,8 +242,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       karşı teklifi, iptal; kendi oyuncumuzla yenileme (§8.44)
 - [x] Sözleşme maddeleri ve primleri — kartta ekle / kaldır / değiştir, kupa ve ödül primleri dahil (§8.45)
 - [x] Yenilemede oyuncunun kararı ve "menajere sor" yolu — `contract --agent` (§8.74 civarı); menajer şartları kabul edince karar soru olarak değil haber olarak geliyor ("Mert Müldür signs new 3-year Fenerbahçe deal", iki gün sonra; §8.94)
-- [~] Kiralık — `fm offer --loan`: kart, şartlar, satın alma opsiyonu, gönderildi (§8.46); cevabı ve
-      kiralık uzatma (`PersonOfferExtendLoan`) görülmedi
+- [~] Kiralık — `fm offer --loan`: kart, şartlar, satın alma opsiyonu, gönderildi (§8.46); cevabı görüldü ve kiralama
+      tamamlandı (Cancellieri, §8.141). Eksik: kabulden sonra oyuncuyla görüşmeyi kendimiz açmak (mesajda yalnız "Delegate"
+      vardı, DoF'a bırakıldı), son onay mesajı ("set to move … Accept") `reply` ile yapıldı; kiralık uzatma görülmedi
 - [x] Oyuncuyu kulüplere öner — `fm propose <oyuncu> [ücret] [--loan] [--yes]` ("Offer via TransferRoom", §8.94); hedef kulüp seçmek ve ek maddeler yok
 - [x] Gelen teklifler — `fm offers`: cevap bekleyen teklifler; `view` / `accept` / `stall` / `reject` (§8.98). Mesajı gelen kutusundan düşmüş teklif de buradan cevaplanıyor
 - [x] Sözleşme feshi / serbest bırakma — `fm release <oyuncu> [--free|--mutual] [--yes]` (§8.76); `--free --yes` canlıda işledi, oyun gün ilerleyince uyguluyor (§8.136); `--mutual --yes`in sonucu görülmedi

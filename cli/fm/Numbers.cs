@@ -129,7 +129,9 @@ internal static partial class Program
 			return 1;
 		}
 		var answer = await Fm.Get("select", ("ptr", shown.Dropdown), ("choice", choice), ("fire", "1"));
-		if (answer.StartsWith("error", StringComparison.Ordinal)) return Report(answer);
+		// The number's menu carries no events of its own: the choice is written to its value all
+		// the same, which is all the page needs (Cancellieri took 19 this way, 10 Ocak 2026).
+		if (answer.StartsWith("error", StringComparison.Ordinal) && !answer.Contains("has no events to send", StringComparison.Ordinal)) return Report(answer);
 
 		NumberRow after = null;
 		await Until(async () => (after = (await NumbersInView()).FirstOrDefault(r => r.Name == player.Name))?.Number == number.ToString(), seconds: 5, every: 0.5);
