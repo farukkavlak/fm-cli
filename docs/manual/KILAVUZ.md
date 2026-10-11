@@ -54,6 +54,9 @@ Komutun tamamını yazmak gerekmez:
 - Türkçe adlar, aksanlı ya da aksansız: `kadro`, `taktik`, `maç`/`mac`, `tablo`, `fikstür`, `gelen`, `ileri`,
   `sağlık`, `yönetim`, `doktor`… Oyuncu bırakan ya da teklif gönderen komutların kısa adı yok.
 
+Bir komutun ne aldığını unuttuysan sonuna `--help` yaz; komut çalışmaz, yalnızca kendi yardım
+satırlarını basar: `fm scout --help`, `fm match --help`. Hepsi için `fm help`.
+
 Tab tamamlama için kabuğuna bir satır ekle:
 
 ```
