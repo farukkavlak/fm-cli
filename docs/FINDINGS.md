@@ -3774,6 +3774,8 @@ devret / geri al, zaten o durumda olan.
 
 ## 8.122 Youth Performance / Candidates: yine bulunamadı (11 Ekim)
 
+> Düzeltme §8.125'te: sayfalar çiziliyor; aşağıdaki sonuç yanlış çıktı.
+
 - Squad › Youth Setup'ın sekme listesinden "Youth Performance" / "Youth Candidates" `fire=1` ile seçiliyor ("sent its 1
   event(s)") ama okunabilen içerik değişmiyor: `/buttons` Squad › Overview döşemelerini, `/people` 42 kişilik A takım + U19
   listesini (alanlar: Team, AverageRating, Count, Regenerated) vermeye devam ediyor. Sayfada "Youth Performance | Youth
@@ -3829,6 +3831,18 @@ devret / geri al, zaten o durumda olan.
   Açık bir pencere varken görüldü. `pkill -9 -f 'fm26_bep/fm.app'` ile bitir.
 
 `fm scout new … [--ability <yıldız>] [--potential <yıldız>] [--by "<scout>, …"]`, `fm scout edit <#|ad> […]`.
+
+## 8.125 Youth Performance / Candidates: çiziliyormuş (11 Ekim) — §8.122'nin düzeltmesi
+
+- `/shot` ile bakınca iki görünüm de geliyor; §8.122'nin "içerik çizilmiyor" sonucu yanlıştı.
+  - **Youth Performance** tam da §8.122'de "yanıltıcı" denen tablo: "Under 19s Training Review" (haftanın hükmü, sakat
+    sayısı, program, ortalama puan) + oyuncu / mevki / ek odak / antrenman puanı. `/texts?anchor=Under 19s Training
+    Review&up=10` hepsini veriyor (satır beş metin; "-" o hafta çalışmamış). Altyapının "performans"ı bundan ibaret.
+  - **Youth Candidates** Mart'taki alıma kadar boş: "0 Players | Awaiting prospects" (`up=2`) ve ortada "The latest
+    youth candidates are not yet available…" (bu yazı `/texts`'e gelmiyor). Adaylar gelince nasıl göründüğü **görülmedi**.
+- Ders: bir sayfa "okunmuyor" görünüyorsa önce ekran görüntüsüne bak.
+
+`fm youth` alım adaylarının gelip gelmediğini söylüyor; `fm youth --training` U19'un antrenman haftası.
 
 ## 9. Sıradaki adımlar
 

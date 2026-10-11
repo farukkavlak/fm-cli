@@ -1549,10 +1549,25 @@ Akademi           antrenman: Great training facilities · tarama: Great training
 Kadro             antrenör 11/13 · tarama 0/0 · sağlık 5/5
 Altyapı alımı     11th March 2026 (141 days to go)
 
+Alım adayları     henüz yok (her yıl Mart'ta bir maçla belli oluyor)
+
 A takıma aday görülenler
 OYUNCU           MEVKİ   YAŞ
 S. Chérif        ST (C)  18
 Yiğit Efe Demir  D (C)   21
+```
+
+`fm youth --training` U19'un antrenman haftasını verir: hafta nasıl geçti, ortalama puan ve her oyuncunun
+ek odağı ile puanı (en iyiden başlayarak; `-` o hafta çalışmamış demek).
+
+```
+$ fm youth --training
+U19 antrenman haftası: Very Good Week · 3 players currently injured · ortalama 7.76
+
+OYUNCU                YAŞ  MEVKİ            EK ODAK             PUAN
+Adnan Efe Fettahoğlu  16   M (C), AM (RC)   Attacking Movement  8.80
+Engin Can Biterge     18   GK               GK Tactical         8.80
+Sidiki Chérif         18   AM (RL), ST (C)  Final Third         8.50
 ```
 
 ### Tesisler — `facilities`

@@ -266,7 +266,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kısa liste — `fm shortlist` (§8.56); `shortlist add <ad> --for <süre>` / `remove <ad>` (§8.119)
 - [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
 - [x] Rakip analizi — `fm opponent`: raporun özeti (§8.57), sezon sayıları ve hüküm (§8.114), menajer ve oyun tarzı, beklenti, birim birim analiz ve öne çıkan oyuncular (§8.121)
-- [~] Gençlik adayları / youth intake — `fm youth`: altyapı notu, A takıma aday görülenler, alım tarihi (§8.112); alım gününde aday listesi bakılacak (Mart)
+- [~] Gençlik adayları / youth intake — `fm youth`: altyapı notu, A takıma aday görülenler, alım tarihi (§8.112); `fm youth --training` U19 antrenman haftası, alım adayları gelene kadar "henüz yok" (§8.125); alım gününde aday listesi bakılacak (Mart)
 
 ---
 
@@ -462,6 +462,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
   (`--by`) alıyor; `fm scout edit <#|ad>` var olan odağı değiştiriyor. `scout restart` canlıda görüldü (§8.124).
 - Köprüye göz: `/shot` ekran görüntüsü alıyor. Youth Candidates gibi "okunmuyor" denen sayfalara artık bakılabilir.
 - Scout görevi iptali: oyunun kendi işleyicisiyle basınca da kalkmıyor — bizim tıklamamız değil. Park.
+- Ekran görüntüsü Youth Performance / Candidates bilmecesini çözdü (§8.125): sayfalar çiziliyormuş. `fm youth` alım
+  adaylarını, `fm youth --training` U19'un antrenman haftasını veriyor.
 - Oyun 23 Ekim 2025 kaydından açık, kaydedilmedi; oturumda deneme odakları kaldı.
 
 ### 2026-10-11 (akşam)
