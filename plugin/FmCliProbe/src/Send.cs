@@ -150,7 +150,7 @@ internal static class Send
 	/// TypedValue.Create is generic, and generic il2cpp calls are the unreliable part on arm64,
 	/// so a failure is reported as such rather than left to look like a bad argument.
 	/// </summary>
-	private static object TypedValue(string raw)
+	internal static object TypedValue(string raw)
 	{
 		try
 		{

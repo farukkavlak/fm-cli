@@ -3904,6 +3904,7 @@ devret / geri al, zaten o durumda olan.
   (`CGWindowList`: 1470×920, ekranda değil). Önceki oturumda aynı gizli pencerede çiziyordu; farkın nedeni bulunamadı
   (pencereyi öne almak denenmedi). **Oyunu bir kez daha yeniden başlatmak düzeltti** (aynı gizli pencere, 1 MB'lık
   gerçek görüntü) — yani o açılışa özgü bir durumdu. Siyah gelirse: yeniden başlat.
+  **Düzeltme (§8.129):** açılışa özgü değil; Match Day › Overview açılınca başlıyor.
 - ⚠ **Seçme penceresinin tablosu yalnızca görünen satırları kuruyor — o siyah oturumda tek satır.** `--by` üç scouttan
   yalnızca birini (Serkan Görgeç) sunuyordu; `/scroll … to=0.5` kalanları getirdi. Seçici artık tabloyu üç derinlikte
   okuyor ve her adı göründüğü derinlikte işaretliyor. Kaydırırken ikinci bir tuzak: satırın ülke bayrakları kendi
@@ -3912,6 +3913,51 @@ devret / geri al, zaten o durumda olan.
   "soykan, ciloglu"` → ikisi de odakta; `--by ciloglu` → tek; `scout staff` her adımda uyuyor.
 - ⚠ `scout edit <#>`: düzenleme listenin sırasını değiştiriyor (eski hal "Complete" olarak ekleniyor), art arda iki
   komutta aynı numara başka odağa denk gelebiliyor. Adla vermek güvenli.
+
+## 8.129 Tam istatistik listeleri ekransız; bir verinin istediği değişkenler; siyah ekranın gerçek nedeni (11 Ekim akşam)
+
+- **Bir property'nin istediği değişkenler okunabiliyor.** `InteropReference.GetContexts(propertyId, list)` o property'nin
+  hangi bağlam değişkenlerini istediğini veriyor; adları `ContextID.GetIdentifierSet().GetInfo(id).Name`. Köprüde
+  `/contexts?path=<referans>`: referansın değişken isteyen her property'si, istedikleriyle. Lig için 90 satır, örn.
+  `PlayerStats: Type, Stage` · `PlayerTopStats: Type, Stage` · `TeamStats: Type, Stage` · `TopTeamStat: Type, Stage` ·
+  `PlayerStatsType: StatCategory` · `PlayerStatsDropdownCategories: Gender` · `Fixtures: IsForcedScreen, Date` ·
+  `TransferInOutList: Year, ViewID, Number` · `AllStages: NextSeason, Year`. **`/pull` ile boş dönen bir property'ye önce
+  bununla bak** (§8.81'de `PlayerStats` bu yüzden boştu).
+- **Değişken vermek = yanına aynı adla bir düğüm koymak.** Sayfalar bunu `BindingVariables` ile yapıyor (kartın ağacında
+  `StatFlagC › Type = 27` ve altında `comp › PlayerTopStats`). Köprüde `/pathset?to=<yol>&int=<n>` bir sayı,
+  `/pathset?to=<yol>&from=<yol>` başka bir yoldaki değeri (referansı) koyuyor. `fmcli.x.Type = 2`, `fmcli.x.Stage = -1`,
+  `fmcli.x.comp = Human.Team.Division` konunca `/pull?path=fmcli.x.comp.PlayerStats…` doluyor. Oyun -1…100 sayılarını
+  hazır tutuyor (`TypedValue.s_commonInts`, ilk eleman -1); ötesi `TypedValue.Create<int>` ile yapılıyor.
+  `from` ile konan referans o çağrıda bağlandıysa değeri bir kare sonra geliyor ("has no value yet" → yeniden dene).
+- **Listeler.** `comp.PlayerStats` → `StatValueHeader`, `ContextStatValueHeader1/2` (sütun başlıkları: "Gls", "Apps",
+  "Mins/Gl") ve `Players` (ligde 97–100 satır): `Position` ("1st", "2nd", paylaşılan sırada "="), `StatValue`,
+  `ContextStatValue1/2`, `Player`, `Team`. `comp.TeamStats.Teams` aynı, ama değerler `DisplayValuePair`
+  (`StatValue.DisplayValue`); form türlerinde `DisplayValue` boş, `PropertyValue` maç maç puan listesi ("3,1,3,3,3").
+  İç içe ad `/pull`'da çalışıyor (`Player.Name`, `StatValue.DisplayValue`). `Stage = -1` turnuvanın tamamı.
+- **Tür numaraları** 0…160 tek tek sorularak çıkarıldı (`PlayerTopStats.ShortString` / `TopTeamStat.ShortString`): 127
+  oyuncu, 100 takım istatistiği. Örn. oyuncu 2 Goals, 5 Assists, 27 Average Rating, 68 Expected Goals, 103 Saves; takım
+  5 Form, 2 Average Attendance, 15 Goals, 28 Average Possession, 49 Points per Game. Oyuncu ve takım numaraları ayrı
+  diziler (15 oyuncuda "Dribbles/90", takımda "Goals"). `PlayerStatsType` (kategori başına tür listesi) her kategoride
+  aynı 19 numarayı verdi — `StatCategory` düz sayı değil galiba; kullanılmadı. CLI katalogu ilk kullanımda çıkarıp
+  `~/.config/fm-cli/league-stats.json`'a yazıyor (~25 sn, bir kez; `league --stats --refresh`).
+- **Kulübün turnuvaları** `Human.Team.CurrentComp1…8` (`.Name`): menüdeki beş turnuvayla aynı. `fm league` artık hiç
+  sayfa açmıyor: liderler `TopTeamStat` / `PlayerTopStats` (Stats kartındaki 10 + 10), tam sıralama `--stat`.
+  Doğrulama: karttaki değerlerle aynı (Osimhen 13 gol, Galatasaray 24), Europa League ve kupa da okunuyor, başlamamış
+  Süper Kupa "istatistik yok".
+- **Stats kartı** (yan bulgu): turnuva sayfasındaki Stats döşemesinin `layout-tile-interaction-button`'ına `/click?ptr=`
+  kartı açıyor (10 takım + 10 oyuncu lideri, cezalılar, sakatlık tablosu). §8.81'de "tıklanmıyor" denmişti; `/press`
+  değil gerçek tıklama gerekiyormuş. Kart yalnızca liderleri bağlıyor, tam liste orada da yok.
+- ⚠ **Siyah ekranın nedeni: Match Day › Overview.** §8.128'deki "o açılışa özgü" sonucu yanlış. Sayfa (`OnThePitchScreen`)
+  açıldığı anda oyun arayüzü çizmeyi bırakıyor ve oturum boyunca öyle kalıyor: `/shot` 70 KB tek renk, arayüzün
+  çizildiği ara doku (`ColourSpaceConversion`) da boş. Gizli pencereyle ilgisi yok (`fm start --debug` ile de aynı).
+  Bazı açılışlarda `Player.log`'da `UIR.RenderChain.ProcessChanges` içinde dört "Assertion failed" görünüyor, bazısında
+  hiçbir şey. Okumalar ve tıklamalar çalışmaya devam ediyor; bilinen yan etkisi tabloların yalnızca görünen (tek) satırı
+  kurması. Eski `fm league` Match Day › Overview üzerinden gittiği için her çalıştığında ekranı karartıyordu.
+  **Ekran görüntüsü gerekiyorsa o oturumda Match Day › Overview'ı açma** (prep, setpieces, takers, penalties… oradan
+  geçiyor); karardıysa tek çare yeniden başlatmak. Neden çizmeyi bıraktığı bilinmiyor.
+- Köprü teşhisleri: `/shot?cams=1` kameraları, UI belgelerini (hangi dokuya çizdikleri), render dokularını ve ekran
+  durumunu döküyor; `/shot?rt=<doku adı>&path=` bir render dokusunu PNG yazıyor (Unity'nin `EncodeToPNG`'si interop'tan
+  çağrılamıyor — dizi argümanı taşınmıyor; PNG elle yazılıyor).
 
 ## 9. Sıradaki adımlar
 

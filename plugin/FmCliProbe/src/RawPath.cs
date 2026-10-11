@@ -92,6 +92,80 @@ internal static class RawPath
 	}
 
 	/// <summary>
+	/// The variables each property of the reference at a path asks for: a property such as a
+	/// competition's top scorer answers only when a variable by that name ("Type") is set
+	/// somewhere above it in the tree.
+	/// </summary>
+	public static string Contexts(string path)
+	{
+		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
+		var b = Game.Bindings;
+		var key = PathKey.Of(path);
+		if (!b.Exists(ref key)) Bind(path);
+		if (!b.Exists(ref key) || b.Get(ref key) is not { IsNull: false } held) return $"error: '{path}' has no value yet";
+		var reference = held.Get()?.TryCast<SI.Interop.InteropReference>();
+		if (reference == null) return $"error: '{path}' is not a reference ({FmApi.Describe(held)})";
+
+		var properties = new Il2CppSystem.Collections.Generic.List<SI.Bindable.Reference.Core.PropertyID>();
+		reference.GetProperties(properties);
+		var sb = new System.Text.StringBuilder();
+		foreach (var property in properties)
+		{
+			var contexts = new Il2CppSystem.Collections.Generic.List<SI.Bindable.Reference.Core.ContextID>();
+			try { reference.GetContexts(property.ID, contexts); } catch (Exception ex) { sb.AppendLine($"{Schema.PlainNameOf(property)}: {ex.GetType().Name}"); continue; }
+			if (contexts.Count == 0) continue;
+			var names = new System.Collections.Generic.List<string>();
+			foreach (var context in contexts)
+			{
+				string name = null;
+				try { name = context.GetIdentifierSet()?.GetInfo(context)?.Name; } catch { }
+				names.Add(name ?? "?");
+			}
+			sb.AppendLine($"{Schema.PlainNameOf(property)}: {string.Join(", ", names)}");
+		}
+		return sb.Length == 0 ? "no property asks for a variable\n" : sb.ToString();
+	}
+
+	/// <summary>
+	/// Puts at a path what another path holds (?from=) or a whole number (?int=): how a
+	/// reference and the variables its properties ask for are laid out side by side, the way a
+	/// page's BindingVariables lay them out.
+	/// </summary>
+	public static string Put(string to, string from, string number, string nodeFlags)
+	{
+		if (string.IsNullOrEmpty(to)) return "error: ?to=<path>&from=<path> | &int=<n> required";
+		var b = Game.Bindings;
+		SI.Core.TypedValue value;
+		if (!string.IsNullOrEmpty(from))
+		{
+			var source = PathKey.Of(from);
+			if (!b.Exists(ref source)) Bind(from);
+			if (!b.Exists(ref source) || b.Get(ref source) is not { IsNull: false } held) return $"error: '{from}' has no value yet";
+			value = held;
+		}
+		else
+		{
+			// The game keeps the numbers -1…100 ready-made (the first is -1); any other is made.
+			if (!int.TryParse(number, out var n)) return "error: ?int= must be a whole number";
+			var ints = SI.Core.TypedValue.s_commonInts;
+			try { value = n >= -1 && n + 1 < ints.Length ? ints[n + 1] : Send.TypedValue(number) as SI.Core.TypedValue; }
+			catch (Exception ex) { return $"error: {ex.Message}"; }
+			if (value == null) return $"error: no value for {n}";
+		}
+
+		var flags = byte.TryParse(nodeFlags, out var f) ? f : (byte)Bindings.NodeFlags.Default;
+		var setFlags = (int)Bindings.SetFlags.Default;
+		unsafe
+		{
+			Invoke("NativeMethodInfoPtr_Set_Public_Key_byref_ReadOnlySpan_1_Char_TypedValue_NodeFlags_SetFlags_0", to,
+				[IL2CPP.Il2CppObjectBaseToPtrNotNull(value), (IntPtr)(&flags), (IntPtr)(&setFlags)], out var error);
+			if (error != null) return error;
+		}
+		var key = PathKey.Of(to);
+		return $"{to} = {(b.Exists(ref key) ? FmApi.Describe(b.Get(ref key)) : "<not set>")}";
+	}
+
+	/// <summary>
 	/// Reads properties of what is at a path, binding whatever is not bound yet: of the
 	/// reference there, or with list=1 of every entry of the list there, one record each.
 	///

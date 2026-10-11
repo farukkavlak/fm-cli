@@ -303,7 +303,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Başka ligler / ülkeler — `fm stages "<turnuva>"` / `fm table <turnuva>`: dünyadaki her turnuvanın tablosu ve turları (§8.105); `--list` hepsini sayar
 - [x] Kupa ağaçları — `fm stages "<kupa>" [tur] [--all]`: eşleşmeler, skor, penaltı / uzatma, toplam skor (§8.105)
 - [~] Avrupa kupaları — `fm table europa` lig aşaması tablosu (36'nın 33'ü, §8.100), `fm league <turnuva>` liderler; eleme turları `fm stages` ile (§8.105)
-- [~] Gol krallığı / asist / form tablosu — `fm league [turnuva]` liderleri veriyor (§8.70); tam liste yok — veri `CompReference.PlayerStats`ta, açan kart bulunamadı (§8.81)
+- [x] Gol krallığı / asist / form tablosu — `fm league [turnuva] --stat <ad> [--teams]`: 127 oyuncu, 100 takım istatistiğinde tam sıralama, ekransız (§8.129); `fm league` liderler
 - [x] Takvim — `fm calendar [ay]`: maçlar, transfer dönemi açılış / kapanış, kupa kuraları, milli maçlar (§8.66)
 - [ ] Sezon özeti / ödüller
 
@@ -455,6 +455,19 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-11 (akşam — tam gol listesi)
+
+- **Tam sıralamalar** (§8.129): `fm league [turnuva] --stat <ad>` bir istatistikte herkesi sıralıyor (gol krallığı, asist,
+  puan, xG, kurtarış…; `--teams` ile takımlar: form, seyirci, gol…), `--top <n>` / `--all`, `fm league --stats` 227
+  istatistiğin adını sayıyor. Hiç sayfa açılmıyor; `fm league`'in liderleri de artık böyle okunuyor ve 4 + 4 yerine
+  kartın 10 + 10'unu veriyor.
+- Yolu açan şey genel: oyun, bir verinin hangi değişkenleri istediğini söylüyor (`/contexts`), değişken de yanına
+  konan bir düğüm (`/pathset`). `/pull` ile boş dönen başka okumalar (fikstür, transfer listeleri, geçmiş sezonlar)
+  aynı yolla açılabilir.
+- ⚠ Siyah ekran görüntüsünün nedeni bulundu: Match Day › Overview açılınca oyun arayüzü çizmeyi bırakıyor (§8.129).
+  Çaresi yok; ekran görüntüsü gereken oturumda o sayfadan uzak durulacak.
+- Maç hazırlığı odağı parkı henüz yeniden denenmedi (tam o sayfanın altında; ekran görüntüsüyle bakılamıyor).
 
 ### 2026-10-11 (akşamüstü — eski parklar, ekran görüntüsüyle)
 

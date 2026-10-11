@@ -801,18 +801,52 @@ Eylül 2025
   20 Cmt  Gençlerbirliği (18th) · deplasman · Super League · 18:00
 ```
 
-`league [turnuva]` turnuvanın liderlerini verir (varsayılan lig):
+`league [turnuva]` turnuvanın liderlerini verir (varsayılan lig): on takım, on oyuncu istatistiği, her birinde
+kim önde.
 
 ```
 $ fm league
 Super League — liderler
 Takımlar
-  En çok gol: Galatasaray (22)
+  En çok gol: Galatasaray (24)
+  Topa en çok sahip olan: Trabzonspor (64%)
+  …
 Oyuncular
-  En yüksek ortalama puan: Victor Osimhen (8.24)
+  En yüksek ortalama puan: Victor Osimhen (7.80)
   En çok gol: Victor Osimhen (13)
-  En çok asist: Yusuf Özdemir (4)
+  En çok asist: Felipe Augusto (5)
+  …
 ```
+
+`--stat <ad>` o istatistikte herkesi sıralar: gol krallığı, asist, puan, xG, kurtarış… İlk 20'yi gösterir;
+`--top <n>` ya da `--all` ile daha fazlası.
+
+```
+$ fm league --stat gol --top 5
+Super League — Goals (ilk 5 / 97 oyuncu)
+#   OYUNCU             TAKIM           Gls   Apps   Mins/Gl
+1   Victor Osimhen     Galatasaray     13    9      62.31
+2   Steve Mounié       Alanyaspor      8     8      89.38
+=   Eldor Shomurodov   Başakşehir FK   8     9      100.75
+4   Talisca            Fenerbahçe      7     9      115.71
+5   Juan Santos        Göztepe         6     8      109.50
+```
+
+Takım sıralamaları için `--teams` (yalnızca takımlarda olan bir istatistikte, örneğin formda, kendiliğinden):
+
+```
+$ fm league --stat form --top 3
+Super League — Form (ilk 3 / 18 takım)
+#   TAKIM         Form    Home Form   Away Form
+1   Göztepe       GGGGG   GGGGG       BGGG
+2   Fenerbahçe    GBGGG   BGGMG       MGMB
+3   Galatasaray   GGMGG   GGGGG       GGGM
+```
+
+Ad oyunun kendi adı (`"expected goals"`, `"average rating"`, `saves`), bir parçası yeter; sık kullanılanların
+Türkçesi de var: `gol`, `asist`, `puan`, `sari`, `kirmizi`, `sut`, `kurtaris`, `form`, `seyirci`. Hepsinin listesi
+(127 oyuncu, 100 takım istatistiği): `fm league --stats`. Başka turnuva: `fm league europa --stat asist`.
+İlk kullanımda istatistik adları oyundan bir kez okunur (yarım dakika kadar).
 
 ### Kupalar ve başka ligler — `stages`
 

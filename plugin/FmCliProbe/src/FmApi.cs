@@ -35,6 +35,8 @@ internal static class FmApi
 		"pathexists" => RawPath.Exists(q["path"]),
 		"pathbind" => RawPath.Bind(q["path"]),
 		"pathlist" => RawPath.List(q["path"]),
+		"contexts" => RawPath.Contexts(q["path"]),
+		"pathset" => RawPath.Put(q["to"], q["from"], q["int"], q["flags"]),
 		"pull" => RawPath.Pull(q["path"], q["props"], q["list"] == "1", q["gen"]),
 		"rawexists" => RawExists(q["path"]),
 		"keys" => Keys(Int(q["depth"], 4)),
@@ -415,12 +417,98 @@ internal static class FmApi
 	/// </summary>
 	private static string Shot(NameValueCollection q)
 	{
+		if (q["cams"] == "1")
+		{
+			var sb = new StringBuilder();
+			foreach (var c in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.Camera>())
+				sb.AppendLine($"{c.name} enabled={c.enabled} active={c.gameObject.activeInHierarchy} depth={c.depth} clear={c.clearFlags} " +
+					$"target={(c.targetTexture == null ? "screen" : c.targetTexture.name)} mask={c.cullingMask} rect={c.rect}");
+			foreach (var d in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.UIElements.UIDocument>())
+			{
+				var ps = d.panelSettings;
+				sb.AppendLine($"doc {d.name} enabled={d.enabled} active={d.gameObject.activeInHierarchy} sort={d.sortingOrder} " +
+					(ps == null ? "no settings" : $"settings={ps.name} order={ps.sortingOrder} target={(ps.targetTexture == null ? "screen" : ps.targetTexture.name)} clearColor={ps.clearColor} color={ps.colorClearValue} display={ps.targetDisplay}") +
+					$" children={d.rootVisualElement?.childCount}");
+			}
+			foreach (var ps in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.UIElements.PanelSettings>())
+				sb.AppendLine($"settings {ps.name} order={ps.sortingOrder} target={(ps.targetTexture == null ? "screen" : ps.targetTexture.name)} clearColor={ps.clearColor} color={ps.colorClearValue}");
+			foreach (var t in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.RenderTexture>())
+				sb.AppendLine($"rt {t.name} {t.width}x{t.height} created={t.IsCreated()}");
+			sb.AppendLine($"screen {UnityEngine.Screen.width}x{UnityEngine.Screen.height} full={UnityEngine.Screen.fullScreen} focus={UnityEngine.Application.isFocused} bg={UnityEngine.Application.runInBackground} fps={UnityEngine.Application.targetFrameRate}");
+			return sb.ToString();
+		}
+
 		var path = q["path"];
 		if (string.IsNullOrEmpty(path)) return "error: ?path=<file.png> required";
+		// The interface is drawn into a texture of its own before it reaches the screen; ?rt=<name>
+		// writes that texture instead, for when the screen itself comes out black (FINDINGS §8.129).
+		if (!string.IsNullOrEmpty(q["rt"]))
+		{
+			foreach (var texture in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.RenderTexture>())
+			{
+				if (texture.name != q["rt"]) continue;
+				var before = UnityEngine.RenderTexture.active;
+				UnityEngine.RenderTexture.active = texture;
+				var copy = new UnityEngine.Texture2D(texture.width, texture.height, UnityEngine.TextureFormat.RGBA32, false);
+				copy.ReadPixels(new UnityEngine.Rect(0, 0, texture.width, texture.height), 0, 0);
+				copy.Apply();
+				UnityEngine.RenderTexture.active = before;
+				var pixels = copy.GetPixels32();
+				var rgba = new byte[texture.width * texture.height * 4];
+				// An il2cpp array's elements start past its four-word header.
+				System.Runtime.InteropServices.Marshal.Copy(IntPtr.Add(pixels.Pointer, 4 * IntPtr.Size), rgba, 0, rgba.Length);
+				UnityEngine.Object.Destroy(copy);
+				System.IO.File.WriteAllBytes(path, Png(rgba, texture.width, texture.height));
+				return $"wrote {texture.name} {texture.width}x{texture.height} -> {path}";
+			}
+			return $"error: no render texture named '{q["rt"]}' (?cams=1 lists them)";
+		}
+
 		// A capture several times a large window's size locked the game (FINDINGS §8.124).
 		var scale = int.TryParse(q["scale"], out var n) && n >= 1 && UnityEngine.Screen.width * n <= 4096 ? n : 1;
 		UnityEngine.ScreenCapture.CaptureScreenshot(path, scale);
 		return $"capturing {UnityEngine.Screen.width * scale}x{UnityEngine.Screen.height * scale} -> {path}";
+	}
+
+	/// <summary>
+	/// A PNG of RGBA rows given bottom row first, as a texture holds them. Written by hand:
+	/// Unity's own encoder cannot be called through the interop (its array argument does not
+	/// marshal).
+	/// </summary>
+	private static byte[] Png(byte[] rgba, int width, int height)
+	{
+		using var packed = new System.IO.MemoryStream();
+		using (var zlib = new System.IO.Compression.ZLibStream(packed, System.IO.Compression.CompressionLevel.Fastest, leaveOpen: true))
+		{
+			for (var y = height - 1; y >= 0; y--)
+			{
+				zlib.WriteByte(0);
+				zlib.Write(rgba, y * width * 4, width * 4);
+			}
+		}
+
+		using var png = new System.IO.MemoryStream();
+		png.Write(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
+		void Chunk(string type, byte[] data)
+		{
+			var body = new byte[4 + data.Length];
+			Encoding.ASCII.GetBytes(type, 0, 4, body, 0);
+			data.CopyTo(body, 4);
+			var crc = 0xFFFFFFFFu;
+			foreach (var b in body)
+			{
+				crc ^= b;
+				for (var k = 0; k < 8; k++) crc = (crc & 1) != 0 ? 0xEDB88320u ^ (crc >> 1) : crc >> 1;
+			}
+			crc ^= 0xFFFFFFFFu;
+			png.Write(new[] { (byte)(data.Length >> 24), (byte)(data.Length >> 16), (byte)(data.Length >> 8), (byte)data.Length });
+			png.Write(body);
+			png.Write(new[] { (byte)(crc >> 24), (byte)(crc >> 16), (byte)(crc >> 8), (byte)crc });
+		}
+		Chunk("IHDR", new[] { (byte)(width >> 24), (byte)(width >> 16), (byte)(width >> 8), (byte)width, (byte)(height >> 24), (byte)(height >> 16), (byte)(height >> 8), (byte)height, (byte)8, (byte)6, (byte)0, (byte)0, (byte)0 });
+		Chunk("IDAT", packed.ToArray());
+		Chunk("IEND", []);
+		return png.ToArray();
 	}
 
 	/// <summary>The il2cpp value a path holds, for callers that need the object and not a report.</summary>
