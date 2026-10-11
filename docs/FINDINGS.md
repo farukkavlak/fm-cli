@@ -4069,6 +4069,14 @@ kaydedilmeden yeniden başlatıldı.
 - Doğrulama: aynı görevde Faruk → Şenol Çorlu → Devin Özek → Faruk → Sadettin Saran, sonra `take` ile geri; her adımda okuma
   uyuyor. Kilitli görevde (U19 takım seçimi) denenmedi; komut iki buton da kapalıysa reddediyor.
 
+## 8.136 Serbest bırakma gerçekten işliyor, gün ilerleyince (11 Ekim gece) — §8.76'nın devamı
+
+`fm release Musaba --free --yes`: pencere ("£3.5M in compensation") Yes ile kapandı; o an Musaba hâlâ kadroda, transfer
+bütçesi değişmemiş (£11.1M). Bir gün ilerletince (`fm next`) haber "Musaba given free transfer — … has officially now been
+released", kadrodan çıktı, bütçe £7.62M (tazminat düştü). Yani onay hemen, işlem gün değişiminde. Komut artık "serbest
+bırakılıyor … gün ilerleyince" diyor. Deneme kaydedilmeden yeniden başlatılarak geri alındı. Karşılıklı fesih `--yes` ile
+yine denenmedi (oyuncunun ve yönetimin cevabı sonraki günlerde gelir).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

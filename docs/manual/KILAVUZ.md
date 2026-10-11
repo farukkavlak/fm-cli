@@ -1191,7 +1191,8 @@ fm release Fred --mutual --yes   karşılıklı fesih teklif et
 ```
 
 Karşılıklı fesih oyunda onay sormadan işler; bu yüzden komut `--yes` (ya da terminalde okla onay)
-olmadan göndermez.
+olmadan göndermez. Bedelsiz bırakmayı oyun hemen onaylar ama gün ilerleyince uygular: `fm next`
+sonrası "… given free transfer" haberi gelir, oyuncu kadrodan çıkar, tazminat bütçeden düşer.
 
 ### Bütçe — `budget`
 

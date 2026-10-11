@@ -146,7 +146,8 @@ internal static partial class Program
 				if (!Ui.Interactive) Console.WriteLine($"Vazgeçildi. Serbest bırakmak için: release \"{name}\" --free --yes");
 				return 0;
 			}
-			Console.WriteLine($"{name} serbest bırakıldı.");
+			// The game acts on it when the day moves on (FINDINGS §8.136): until then he is still in the squad.
+			Console.WriteLine($"{name} serbest bırakılıyor: oyun onayladı, gün ilerleyince (next) kadrodan çıkar ve tazminat bütçeden düşer.");
 			return 0;
 		}
 
