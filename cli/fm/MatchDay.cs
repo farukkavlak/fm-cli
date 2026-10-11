@@ -411,7 +411,10 @@ internal static partial class Program
 		if (Field(dialog, "Title") != "Team Selection") return null;
 		var said = Field(dialog, "Description");
 		if (said.Contains("not selected any", StringComparison.Ordinal)) return "İlk 11 seçilmemiş.";
-		if (said.Contains("unavailable", StringComparison.Ordinal) || said.Contains("injured", StringComparison.Ordinal) || said.Contains("suspended", StringComparison.Ordinal))
+		// "cannot be registered": one sold but not yet gone, picked among the substitutes (Defrel,
+		// 30 Kasım 2025 — agreed to Angers, leaving on 1 January).
+		if (said.Contains("unavailable", StringComparison.Ordinal) || said.Contains("injured", StringComparison.Ordinal) || said.Contains("suspended", StringComparison.Ordinal)
+		    || said.Contains("cannot be registered", StringComparison.Ordinal))
 			return said.Split('\n')[0].Trim();
 		return null;
 	}
