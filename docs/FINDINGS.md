@@ -3738,6 +3738,18 @@ devret / geri al, zaten o durumda olan.
 `fm scout new [--position] [--role] [--area "a, b"] [--age 18-23] [--name] --priority top|standard|ongoing`,
 `fm scout areas [yol]`, `fm scout remove <#|ad> [--yes]`, `fm scout restart <#|ad>`.
 
+## 8.121 Rakip raporunun kalanı: menajer, beklenti, birim döşemeleri (11 Ekim)
+
+- Portal › Opposition Report'un bütün yazısı tek okumada geliyor: `/texts?anchor=Manager Information&up=10` (111 metin;
+  `up` 6'ya kadar yalnızca menajer döşemesi). Lig rakibinde (Kocaelispor) dolu; Qarabağ'da (ligi yüklü değil) boştu.
+- **Manager Information:** ad, ülke, "Win %" ("33% - Pld 9"), "Pfd. Formation", "Playing Mentality", "Pressing Style",
+  "Marking Style"; "Days In Tenure" → "No data available".
+- **Summary:** maçın nasıl beklendiği tek cümle. **Previous Meetings:** "None" ya da geçmiş.
+- **Birim döşemeleri** başlığı "<Konu> - <Birim>" ("Defending - Defenders", "Creativity - Defenders / Midfielders /
+  Attackers"); rakibe göre hangileri çıkacağı değişiyor. İki biçim: (a) kapsam + değer / etiket çiftleri + hüküm;
+  (b) yalnızca hüküm + öne çıkan oyuncu hakkında birkaç cümle (satır sonlarıyla tek metin) — raporun "kilit oyuncu"su bu.
+- `fm opponent` hepsini ekliyor; `--json`'da `Manager`, `Expectation`, `PreviousMeetings`, `Units`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

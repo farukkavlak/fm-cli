@@ -265,7 +265,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Scout odakları (recruitment focus) — `fm scout`: odaklar, durum, atananlar, sayılar (§8.109); `scout new` (mevki, rol, bölge, yaş, ad, öncelik), `scout remove` / `restart`, `scout areas` (§8.120); en düşük yetenek, belirli scout atama, var olanı düzenleme yok
 - [x] Kısa liste — `fm shortlist` (§8.56); `shortlist add <ad> --for <süre>` / `remove <ad>` (§8.119)
 - [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
-- [~] Rakip analizi — `fm opponent`: raporun özeti (§8.57) ve sezon sayıları: maç başı gol / xG / şut, pas ve top kapma yüzdesi, hüküm (§8.114); kilit oyuncular ve taktik analizi yok
+- [x] Rakip analizi — `fm opponent`: raporun özeti (§8.57), sezon sayıları ve hüküm (§8.114), menajer ve oyun tarzı, beklenti, birim birim analiz ve öne çıkan oyuncular (§8.121)
 - [~] Gençlik adayları / youth intake — `fm youth`: altyapı notu, A takıma aday görülenler, alım tarihi (§8.112); alım gününde aday listesi bakılacak (Mart)
 
 ---
@@ -464,6 +464,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Scout odağı kurmak** (§8.120): `fm scout new --position DL --role wing-back --area "Northern Europe, turkiye" --age 18-23
   --name … --priority standard`, `fm scout areas`, `fm scout remove` (durdurur — oyun silmiyor, listede "Durduruldu"
   kalıyor), `fm scout restart`. Kurulan odak oyunun düzenleme formunda doğrulandı.
+- **`fm opponent` genişledi** (§8.121): menajer ve tarzı (mentalite, pres, markaj), maç beklentisi, savunma / yaratıcılık
+  blokları ve öne çıkan oyuncular — lig rakibinde dolu geliyor.
 - Çalışmayan: scout görevini **iptal** (oyun soruyu kapatıyor, görev duruyor) — komut bunu doğrulayıp söylüyor.
 - Canlıda (kayıtta duruyor, kaydedilmedi): Čerin kısa listede (6 ay) ve soru soruldu; Čerin, Jović, Icardi izleniyor;
   Jović'e kiralık ilgisi; Şahin ve Chirivella denemeye çağrıldı — ikisini de kulüpleri reddetti, ilgi ertesi sabah haber

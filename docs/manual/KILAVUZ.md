@@ -692,8 +692,8 @@ Maç bitince `report`:
 
 ![fm opponent](img/opponent.png)
 
-`fm opponent` sıradaki rakibi özetler: ligdeki yeri, en çok kullandığı diziliş, gol / asist kralı,
-sezon sayıları ve kadro haberleri.
+`fm opponent` sıradaki rakibi özetler: ligdeki yeri, dizilişi, gol / asist kralı, menajeri ve oyun
+tarzı, maçın nasıl beklendiği, sezon sayıları, analistlerin birim birim görüşü ve kadro haberleri.
 
 ```
 $ fm opponent
@@ -701,14 +701,26 @@ Kocaelispor · 9th in Turkish Super League
   Diziliş: 4-3-3 DM Wide
   Gol kralı: Bruno Petković (6)
   Asist kralı: Can Keleş (3)
+  Menajer: Selçuk İnan (Türkiye) · galibiyet 33% - Pld 9 · mentalite Balanced · pres Balanced · markaj Mixed
+  Beklenti: This should be a close contest between two very evenly-matched teams.
 Genel performans (Super League, This Season):
   maç başı gol 1.2 · penaltısız xG/90 1.1 · maç başı yenen 1.3 · maç başı şut 11.6 · pas % 90.3
   Performing to an average level — Kocaelispor are performing around average statistically.
+Defending - Defenders: Performing much better than average
+  Pas % 89.0 · Tck/90 3.9 · Tck % 87.0 · Int/90 4.1 · Hdr W/90 1.9
+Creativity - Attackers: Performing much better than average
+  Darko Churlinov is performing well above average in key statistics for this creative role.
+  Attempts a high number of dribbles per 90 minutes compared to average.
+Creativity - Midfielders: Performing much worse than an average
+  Show is performing well below average in key statistics for this creative role.
 Kadro haberleri:
   Mateusz Wieteska unregistered
 ```
 
-Ligi oyunda yüklü olmayan bir rakipte (Avrupa'dan küçük bir kulüp) sezon sayıları gelmez.
+Alttaki bloklar rakibe göre değişir: bazıları bir birimin sayılarını verir, bazıları o birimde öne
+çıkan (ya da aksayan) oyuncuyu anlatır. Dikkat edilecek adam orada yazar.
+
+Ligi oyunda yüklü olmayan bir rakipte (Avrupa'dan küçük bir kulüp) sezon sayıları ve bu bloklar gelmez.
 
 ## 9. Lig, kupa ve fikstür — `table`, `fixtures`, `league`, `stages`
 
