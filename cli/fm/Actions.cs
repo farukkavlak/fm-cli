@@ -25,9 +25,12 @@ internal static partial class Program
 		}
 		var found = (await SearchFor(wanted)).Where(r => Field(r, "Name").Length > 0 && (kind == null || Field(r, "Kind") == kind)).ToList();
 		var exact = found.Where(r => Fold(Field(r, "Name")) == Fold(wanted)).ToList();
-		if (exact.Count > 0) found = exact;
 		// One whose name has the typed words as words of its own is meant over those that merely hold them ("cerin": Čerin, not Nocerino).
-		else if (found.Where(r => Fold(wanted).Split(' ').All(w => Fold(Field(r, "Name")).Split(' ', '-').Contains(w))).ToList() is { Count: 1 } worded) found = worded;
+		var worded = found.Where(r => Fold(wanted).Split(' ').All(w => Fold(Field(r, "Name")).Split(' ', '-').Contains(w))).ToList();
+		// A whole name is not meant over another's surname alike: "néné" folds to AVS's Nenê as a whole and to
+		// our Dorgéles Néné as a word, and doing the thing to the wrong one is worse than asking (FINDINGS §8.138).
+		if (exact.Count > 0) found = worded.Count > exact.Count ? worded : exact;
+		else if (worded.Count == 1) found = worded;
 		if (found.Count == 0)
 		{
 			Console.Error.WriteLine(kind == "Staff" ? $"'{wanted}' adında bir personel bulunamadı. Aramak için: staff find" : $"'{wanted}' bulunamadı.");
