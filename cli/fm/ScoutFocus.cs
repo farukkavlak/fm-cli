@@ -192,7 +192,6 @@ internal static partial class Program
 			rows.Add((name, job, After("Judging Player Ability"), After("Judging Player Potential"),
 				Count(own.FirstOrDefault(t => t.StartsWith("Regions (", StringComparison.Ordinal))), Count(own.FirstOrDefault(t => t.StartsWith("Nations (", StringComparison.Ordinal))), focuses));
 		}
-		await Fm.Get("click", ("name", "BackButton"));
 
 		if (json)
 		{
