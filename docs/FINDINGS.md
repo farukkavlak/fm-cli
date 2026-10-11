@@ -3772,6 +3772,17 @@ devret / geri al, zaten o durumda olan.
   (b) yalnızca hüküm + öne çıkan oyuncu hakkında birkaç cümle (satır sonlarıyla tek metin) — raporun "kilit oyuncu"su bu.
 - `fm opponent` hepsini ekliyor; `--json`'da `Manager`, `Expectation`, `PreviousMeetings`, `Units`.
 
+## 8.122 Youth Performance / Candidates: yine bulunamadı (11 Ekim)
+
+- Squad › Youth Setup'ın sekme listesinden "Youth Performance" / "Youth Candidates" `fire=1` ile seçiliyor ("sent its 1
+  event(s)") ama okunabilen içerik değişmiyor: `/buttons` Squad › Overview döşemelerini, `/people` 42 kişilik A takım + U19
+  listesini (alanlar: Team, AverageRating, Count, Regenerated) vermeye devam ediyor. Sayfada "Youth Performance | Youth
+  Candidates | Youth Performance" üçlüsü var ama bu bir görünüm listesinin (`DropTarget #View`) seçenekleri, içerik değil.
+- ⚠ Yanıltıcı: `/texts?anchor=17 year-old winger&up=20` 189 metin döndürüyor ("Player | Position | Additional Focus |
+  Training Rating"…) — bu arkada yüklü kalmış U19 bireysel antrenman tablosu, altyapı performansı değil.
+- Sonuç: içerik büyük olasılıkla gizli pencerede hiç çizilmiyor ya da başka bir kökte; bir sonraki deneme `--debug`
+  pencereyle (görünür) yapılmalı. Park.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
