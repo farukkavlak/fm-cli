@@ -4149,6 +4149,35 @@ sonra "Decision to terminate your contract" ve haber "Faruk Kavlak sacked by Fen
 bulunamadı" hatası veriyordu. Şimdi ikisi de "İşsizsin … İş ilanları: open \"Managerial Vacancies\"" diyor (`Unemployed()`).
 Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki toplantı arasında üç hafta vardı.
 
+## 8.143 Çizim hataları, iş ilanları ve kapanmayan oyun (11 Ekim gece, oyun 10 Ocak 2026, işsiz) — YARIM
+
+- **Kapanmayan oyun:** `pkill` (TERM) ve ardından `kill -9` sonrası oyun süreci `UE` (çıkıyor, kesintisiz bekleme)
+  durumunda kaldı; 7777'yi tutmaya ve bağlantıyı kabul edip cevap vermemeye devam etti. Ayrıca ona bağlanmaya çalışan
+  `fm start`'lar da `UE`'de takıldı. İkinci oyun yalnızca **TERM** ile kapatıldığında da aynısı oldu → sinyal türü değil,
+  çıkış kendisi takılıyor. Şüphe: eklentinin `HttpListener` iş parçacığı (bağlantı kabul ederken çekirdekte) çıkışı
+  engelliyor. `UE` süreç sinyal almıyor; büyük olasılıkla yeniden başlatmaya kadar kalıyor.
+  Yapılan: eklenti port doluysa 7778… alıyor ve `~/.config/fm-cli/port`'a yazıyor, CLI oradan okuyor; `fm start`'ın
+  "açık mı" yoklaması 3 sn'de vazgeçiyor (ae6b1f8). Denendi: ikinci oyun 7778'de açıldı, `fm start` bağlandı.
+  Sıradaki: (1) `/quit` → `Application.Quit()` (yazılmadı); (2) dinleyiciyi oyun kapanırken durdurmak
+  (`Application.quitting` / `Unload`) ve iş parçacığını kapatmak; (3) çıkışın gerçekten nerede takıldığına bakmak.
+- **Çizim hataları:** `Player.log`'da bir oturumda 1321 "Assertion failed" (`UIR.VisualChangesProcessor.
+  DepthFirstOnVisualsChanged` ← `RenderChain.ProcessChanges`). Ölçüm (hata sayısı farkı): boşta 10 sn +0, okuma
+  (`/state`, `/buttons`) +0, `fm open "My Profile"` +44, Vacancies +36, **gerçek tıklama** My History +78 / My Profile +51,
+  aynı sayfayı yeniden açmak +0. Yani sayfa ilk kurulurken oyunun kendisi üretiyor; bizim açma yöntemimize özgü değil.
+  Ekran 2940×1838 tam ekran (`-screen-width 640` yok sayılıyor) — çözünürlük neden değil. Bu hataların siyah ekranla
+  (§8.129) ilişkisi kanıtlanmadı.
+- **İş ilanları:** Career › Managerial Vacancies döşemesi ilk üç ilanı gösteriyor (Crystal Palace, Spurs, Como; "12 Jobs
+  Available"). "Available Jobs" event'le açılmadı (`MigratePanelIDBinding` exception); `/click` ile açıldı, ağaçta 18
+  `ClubButton` (ilk 11 ilan: Palace, Spurs, Como, Notts Co, Stuttgart, Augsburg, HSV, Arsenal, Wolfsburg, A. Madrid,
+  Udinese; altta ikinci bir liste: Fenerbahçe, Kayserispor, Sheffield Wed, Stoke, Ceuta) ama **panel taze oyunda bile
+  çizilmiyor** (ekran görüntüsü boş) — çizim sorununun tekrarlanabilir küçük örneği. Palace'ın iş panelinde
+  "Apply For Job" (`EventFmxApplyForJob`) **kapalı**, "Declare Interest In Job" (`EventFmxDeclareInterestInJob`) açık;
+  nedeni bilinmiyor. Kulübe gerçek tıklama kulüp sayfasını açıyor (iş butonu yok); iş paneli `press … name=ClubButton`
+  ile açılmıştı.
+- Eklentiye `/repaint?how=dirty|panel|doc` yazıldı (her elemana MarkDirtyRepaint / panel ayarını yeniden atamak / belgeyi
+  kapatıp açmak) — **derlendi, oyuna kurulmadı, denenmedi**. Deneme planı: iş ilanları paneli boşken üçünü sırayla dene,
+  her birinden sonra `/shot`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

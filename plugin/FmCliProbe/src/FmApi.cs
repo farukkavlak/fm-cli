@@ -57,6 +57,9 @@ internal static class FmApi
 		"save" => Save(),
 		"dialog" => Dialogs.Open(q),
 		"shot" => Shot(q),
+		"repaint" => Repaint(q["how"]),
+		// The game's own way out: killing it can leave it stuck in the kernel holding the port.
+		"quit" => Quit(),
 		"offer" => Offer.Current(),
 		"contract" => Offer.Contract(),
 		"submenu" => Submenus.Open(q),
@@ -409,6 +412,62 @@ internal static class FmApi
 			Walk(c, depth + 1, maxDepth, sb, ref count);
 			if (count >= MaxNodes) return;
 		}
+	}
+
+	private static string Quit()
+	{
+		UnityEngine.Application.Quit();
+		return "quitting";
+	}
+
+	/// <summary>
+	/// Tries to bring back drawing that stopped: the interface's render chain fails its own checks
+	/// ("Assertion failed" in UIR.RenderChain) and a panel, or the whole screen, stays unpainted
+	/// (FINDINGS §8.129, §8.143). ?how=dirty marks every element for repaint; ?how=panel gives each
+	/// document its panel settings again, which builds its render chain anew; ?how=doc turns each
+	/// document off and on.
+	/// </summary>
+	private static string Repaint(string how)
+	{
+		var sb = new StringBuilder();
+		foreach (var d in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.UIElements.UIDocument>())
+		{
+			if (d == null || !d.gameObject.activeInHierarchy) continue;
+			try
+			{
+				switch (how)
+				{
+					case "panel":
+						var settings = d.panelSettings;
+						d.panelSettings = null;
+						d.panelSettings = settings;
+						break;
+					case "doc":
+						d.enabled = false;
+						d.enabled = true;
+						break;
+					default:
+						var count = 0;
+						var stack = new System.Collections.Generic.Stack<UnityEngine.UIElements.VisualElement>();
+						if (d.rootVisualElement != null) stack.Push(d.rootVisualElement);
+						while (stack.Count > 0 && count < 200000)
+						{
+							var e = stack.Pop();
+							e.MarkDirtyRepaint();
+							count++;
+							for (var i = 0; i < e.childCount; i++) stack.Push(e[i]);
+						}
+						sb.Append($"{count} elements ");
+						break;
+				}
+				sb.AppendLine($"{d.name}: {how ?? "dirty"} ok");
+			}
+			catch (Exception ex)
+			{
+				sb.AppendLine($"{d.name}: {ex.GetType().Name} {ex.Message}");
+			}
+		}
+		return sb.Length > 0 ? sb.ToString() : "error: no active document";
 	}
 
 	/// <summary>
