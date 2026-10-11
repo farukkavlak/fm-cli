@@ -16,7 +16,7 @@ internal static partial class Program
 		"dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "budget", "settings", "happiness", "dynamics", "news", "internationals", "mentoring", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "opponent",
 		"opposition", "saves", "save", "load", "world", "shortlist", "scout", "responsibilities", "youth", "progress", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
-		"dropdowns", "press", "select", "completion", "export", "diff", "compare", "penalties", "takers", "query", "actions", "help",
+		"dropdowns", "press", "select", "completion", "export", "diff", "compare", "penalties", "takers", "query", "actions", "interest", "trial", "enquire", "help",
 	];
 
 	/// <summary>
@@ -84,7 +84,10 @@ internal static partial class Program
 		["load"] = ["--save", "--no-save"],
 		["staff"] = ["find", "hire", "fire", "--wage", "--term", "--sign", "--mutual", "--yes", "--role", "--free", "--employed", "--reputation", "--filter", "--view", "--filters", "--views", "--clear"],
 		["responsibilities"] = ["take", "delegate", "--yes"],
-		["scout"] = ["--near", "--progress", "--matched"],
+		["scout"] = ["player", "who", "--by", "--for", "--cancel", "--near", "--progress", "--matched"],
+		["shortlist"] = ["add", "remove", "--for"],
+		["interest"] = ["--top", "--transfer", "--loan", "--yes"],
+		["trial"] = ["--for", "--yes"],
 		["board"] = ["request", "--yes"],
 		["stages"] = ["--all", "--list", "--refresh"],
 		["save"] = ["--yes", "--as"],

@@ -280,6 +280,17 @@ internal static class Mcp
 		new("fm_actions", "What the game lets be done about a person — the menu a right click on the name raises: for a player scouting assignments, shortlist, declare interest, offer a trial, squad planner; for staff approach to sign, shortlist; for our own staff contract talks, termination, coaching course. Without `choose` it lists the menu (paths joined with ' > '); with `choose` (a path, or its last part when that is unique) it does it at once and says what followed (a question from the game, a conversation, contract talks).",
 			"""{"type":"object","properties":{"person":{"type":"string"},"choose":{"type":"string","description":"e.g. 'Add To Shortlist > Indefinitely', 'Send On Coaching Course'"}},"required":["person"]}""",
 			a => Str(a, "choose") is { Length: > 0 } pick ? ["actions", Str(a, "person") ?? "", pick] : ["actions", Str(a, "person") ?? "", "--json"]),
+		new("fm_scout_player", "Sends a scout to watch a player: the scouting pool, or the scout named in `by` (`who`=true lists the scouts he can be given to). `length` is required: '1 week', '2 weeks', '1 month', '2 months', '3 months', '1 match' … '4 matches', or 'extensive'. Cancelling an assignment does not take effect from here.",
+			"""{"type":"object","properties":{"player":{"type":"string"},"length":{"type":"string"},"by":{"type":"string"},"who":{"type":"boolean"}},"required":["player"]}""",
+			a => a.TryGetProperty("who", out var who) && who.ValueKind == JsonValueKind.True ? ["scout", "who", Str(a, "player") ?? "", "--json"]
+				: ["scout", "player", Str(a, "player") ?? "", .. Opt2(a, "by", "--by"), .. Opt2(a, "length", "--for")]),
+		new("fm_shortlist_change", "Puts a player on the shortlist for `length` ('1 month', '3 months', '6 months', '1 year', 'indefinitely'), or with `remove` takes him off it.",
+			"""{"type":"object","properties":{"player":{"type":"string"},"length":{"type":"string"},"remove":{"type":"boolean"}},"required":["player"]}""",
+			a => a.TryGetProperty("remove", out var remove) && remove.ValueKind == JsonValueKind.True ? ["shortlist", "remove", Str(a, "player") ?? ""]
+				: ["shortlist", "add", Str(a, "player") ?? "", .. Opt2(a, "length", "--for")]),
+		new("fm_approach", "A move towards a player short of an offer. `move`: 'interest' (with `as`: top, transfer or loan), 'enquire' (asks his club what it would take; the answer comes to the inbox), 'trial' (with `weeks` 1-4). The game asks before interest and trial are sent; `confirm` true answers yes, otherwise the question is shown and declined.",
+			"""{"type":"object","properties":{"player":{"type":"string"},"move":{"type":"string","enum":["interest","enquire","trial"]},"as":{"type":"string","enum":["top","transfer","loan"]},"weeks":{"type":"string"},"confirm":{"type":"boolean"}},"required":["player","move"]}""",
+			a => [Str(a, "move") ?? "interest", Str(a, "player") ?? "", .. (Str(a, "as") is { Length: > 0 } how ? new[] { "--" + how } : []), .. Opt2(a, "weeks", "--for"), .. Flag(a, "confirm", "--yes")]),
 		new("fm_saves", "The save files on disk, newest first. With `delete`, removes that save (the loaded one is refused); `confirm` must be true.",
 			"""{"type":"object","properties":{"delete":{"type":"string"},"confirm":{"type":"boolean"}}}""",
 			a => Str(a, "delete") is { Length: > 0 } gone ? ["saves", "delete", gone, .. Flag(a, "confirm", "--yes")] : ["saves"]),

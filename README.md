@@ -136,7 +136,9 @@ depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
 opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri
 saves           diskteki kayıtlar, en yenisi önce
-shortlist       kısa listedeki oyuncular (teklif verilenler de)
+shortlist       kısa listedeki oyuncular (teklif verilenler de);  add <ad> --for <süre> · remove <ad>
+scout player <ad> [--by <scout>] --for <süre>   oyuncuya scout gönder;  scout who <ad>: atanabilecek scoutlar
+interest <ad> --top|--transfer|--loan · enquire <ad> · trial <ad> --for <hafta>   ilgi duyur, kulübe sor, denemeye çağır
 intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto
 opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)
   --advice / --clear   yardımcının önerisini uygula / temizle;  opposition <oyuncu> Pres=Always

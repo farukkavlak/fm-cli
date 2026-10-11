@@ -1040,7 +1040,62 @@ OYUNCU         ÜLKE  YAŞ  MEVKİ             ROL             KULÜP         DE
 Mohamed Bayo   GUI   27   AM (RL), ST (C)   Centre Forward  Gaziantep FK  £170K - £1.7M  B    Quality
 ```
 
-Yeni odak kurmak ve scout atamak henüz yok (oyunda iki adımlı bir sihirbaz).
+Yeni odak kurmak henüz yok (oyunda iki adımlı bir sihirbaz).
+
+### Bir oyuncuyu izletmek, listeye almak, kulübüne yoklamak
+
+`fm scout player <ad> --for <süre>` o oyuncuya scout gönderir. Süreyi sen söylersin: `"1 hafta"`,
+`"2 ay"`, `"3 maç"` ya da `tam` (scoutlar onu iyice tanıyana kadar). Kimi göndereceğini söylemezsen
+boşta kim varsa o gider; belirli birini istersen `--by`:
+
+```
+$ fm scout player "Luka Jović" --for "1 hafta"
+Luka Jović: Report › Assign to Scouting Pool › For 1 Week — yapıldı.
+
+$ fm scout who "Mauro Icardi"
+Devin Özek (Director of Football)
+Serkan Görgeç (Scout)
+…
+$ fm scout player "Mauro Icardi" --by görgeç --for "2 maç"
+```
+
+Süreyi yazmazsan komut bir şey yapmaz, seçenekleri sayar (oturumda okla sorar). Zaten izlenen bir
+oyuncuda "zaten izleniyor" der. **Görevi iptal etmek (`--cancel`) şu an işlemiyor:** oyun soruyu
+kapatıyor ama görev duruyor; komut bunu kontrol edip söyler. Süre dolunca görev kendiliğinden biter.
+
+`fm shortlist add <ad> --for <süre>` oyuncuyu kısa listeye alır (`"1 ay"`, `"3 ay"`, `"6 ay"`,
+`"1 yıl"`, `süresiz`), `fm shortlist remove <ad>` çıkarır:
+
+```
+$ fm shortlist add "Adam Gnezda Čerin" --for "6 ay"
+Adam Gnezda Čerin: Add To Shortlist › 6 Months — yapıldı.
+```
+
+Teklif vermeden önce kulübü yoklamanın üç yolu:
+
+- `fm enquire <ad>` kulübüne "ne istersiniz?" diye sorar. Cevap gelen kutusuna düşer.
+- `fm interest <ad> --top | --transfer | --loan` ilgimizi duyurur (gözde hedef / transfer / kiralık).
+- `fm trial <ad> --for "2 hafta"` oyuncuyu denemeye çağırır (1–4 hafta).
+
+İlgi ve deneme için oyun önce sorar. `--yes` yazmadıysan komut soruyu gösterir ve "Hayır" der:
+
+```
+$ fm trial "Pedro Chirivella" --for "1 hafta"
+Offer Trial
+  Offer a trial to Pedro Chirivella?
+
+Gönderilmedi. Göndermek için aynı komut, sonuna --yes
+
+$ fm trial "Pedro Chirivella" --for "1 hafta" --yes
+Offer Trial
+  Offer a trial to Pedro Chirivella?
+
+Trial Offered
+  Pedro Chirivella has been offered a trial and a response will be received shortly.
+```
+
+Ad yazarken soyadı yeter: `cerin` Čerin'i bulur. Birden çok kişiye uyarsa komut kim olduklarını
+sayar. Bunların hepsi oyuncunun sağ tık menüsündeki girişler; menünün tamamı `fm actions <ad>`.
 
 ## 11. Kaydetmek, yüklemek ve oyun ayarları — `save`, `saves`, `load`, `settings`
 

@@ -256,13 +256,14 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Transfer dönemi durumu / kalan gün — `fm status` (§8.55)
 
 ---
+- [~] İlgi duyurma, kulübe sorma, denemeye çağırma — `fm interest`, `fm enquire`, `fm trial` (§8.119); cevapları görülmedi
 
 ## 6. Scouting
 
 - [~] Scout raporları — `fm scout <odak>`: odağın bulduğu oyuncular, not ve tavsiyeyle (§8.109); oyuncunun tam rapor kartı yok
-- [ ] Scout ata (bölge/oyuncu/takım)
+- [~] Scout ata (bölge/oyuncu/takım) — oyuncuya: `fm scout player <ad> [--by <scout>] --for <süre>`, `scout who` (§8.119); iptal işlemiyor; bölge / takım odak sihirbazında (§8.109)
 - [~] Scout odakları (recruitment focus) — `fm scout`: odaklar, durum, atananlar, sayılar (§8.109); kurmak / düzenlemek yok (iki adımlı sihirbaz, notları §8.109'da)
-- [x] Kısa liste — `fm shortlist` (§8.56)
+- [x] Kısa liste — `fm shortlist` (§8.56); `shortlist add <ad> --for <süre>` / `remove <ad>` (§8.119)
 - [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
 - [~] Rakip analizi — `fm opponent`: raporun özeti (§8.57) ve sezon sayıları: maç başı gol / xG / şut, pas ve top kapma yüzdesi, hüküm (§8.114); kilit oyuncular ve taktik analizi yok
 - [~] Gençlik adayları / youth intake — `fm youth`: altyapı notu, A takıma aday görülenler, alım tarihi (§8.112); alım gününde aday listesi bakılacak (Mart)
@@ -454,6 +455,15 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-11 (akşam)
+
+- **Oyuncuya scout / kısa liste / yoklama** (§8.119): `fm scout player <ad> [--by <scout>] --for <süre>`, `fm scout who`,
+  `fm shortlist add / remove`, `fm interest`, `fm enquire`, `fm trial`. Hepsi sağ tık menüsünün girişleri; süre ve tür
+  söylenmezse komut seçenekleri sayar, kendisi seçmez. İlgi ve deneme `--yes` ister.
+- Çalışmayan: scout görevini **iptal** (oyun soruyu kapatıyor, görev duruyor) — komut bunu doğrulayıp söylüyor.
+- Canlıda (kayıtta duruyor, kaydedilmedi): Čerin kısa listede (6 ay) ve soru soruldu; Čerin, Jović, Icardi izleniyor;
+  Jović'e kiralık ilgisi; Şahin ve Chirivella denemeye çağrıldı. Cevaplar görülmedi. Oyun 24 Ekim 2025.
 
 ### 2026-10-11 (gündüz)
 

@@ -17,9 +17,17 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<(string Name, List<JsonElement> Entries)?> PersonMenu(string wanted, string kind = null)
 	{
+		// A question already on screen would be taken for the answer to whatever is chosen here.
+		if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } waiting && waiting.GetArrayLength() > 0)
+		{
+			Console.Error.WriteLine($"Oyun bir soru bekliyor: {Field(waiting[0], "Title")} — önce onu cevapla: dialog");
+			return null;
+		}
 		var found = (await SearchFor(wanted)).Where(r => Field(r, "Name").Length > 0 && (kind == null || Field(r, "Kind") == kind)).ToList();
 		var exact = found.Where(r => Fold(Field(r, "Name")) == Fold(wanted)).ToList();
 		if (exact.Count > 0) found = exact;
+		// One whose name has the typed words as words of its own is meant over those that merely hold them ("cerin": Čerin, not Nocerino).
+		else if (found.Where(r => Fold(wanted).Split(' ').All(w => Fold(Field(r, "Name")).Split(' ', '-').Contains(w))).ToList() is { Count: 1 } worded) found = worded;
 		if (found.Count == 0)
 		{
 			Console.Error.WriteLine(kind == "Staff" ? $"'{wanted}' adında bir personel bulunamadı. Aramak için: staff find" : $"'{wanted}' bulunamadı.");
@@ -104,6 +112,12 @@ internal static partial class Program
 		{
 			var dialog = dialogs[0];
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
+			// A note with one button asks nothing: it is read out and closed, or it would sit over the next command.
+			if (dialog.GetProperty("Buttons").GetArrayLength() == 1)
+			{
+				await Fm.Get("click", ("ptr", Field(dialog.GetProperty("Buttons")[0], "Pointer")));
+				return 0;
+			}
 			Console.WriteLine($"\nCevaplamak için: dialog <{string.Join(" | ", dialog.GetProperty("Buttons").EnumerateArray().Select(b => Field(b, "Label")))}>");
 			return 0;
 		}

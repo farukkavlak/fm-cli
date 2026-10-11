@@ -96,13 +96,16 @@ internal static partial class Program
 				"opposition" => await Opposition(args),
 				"intensity" => await Intensity(args),
 				"shout" => await Shout(args),
-				"shortlist" => await Shortlist(json),
+				"shortlist" => args.Length > 1 && args[1] is "add" or "ekle" or "remove" or "sil" or "cikar" ? await ShortlistChange(args) : await Shortlist(json),
+				"interest" or "trial" or "enquire" => await Approach(args[0], args),
 				"stages" => await Stages(json, args),
 				"progress" => await Progress(json),
 				"youth" => await Youth(json),
 				"responsibilities" => await Responsibilities(json, args),
 				"world" => await World(json),
-				"scout" => await Scout(json, args),
+				"scout" => args.Length > 1 && args[1] is "player" or "oyuncu" ? await ScoutPlayer(args)
+					: args.Length > 1 && args[1] is "who" or "kim" ? await ScoutList(json, args)
+					: await Scout(json, args),
 				"saves" => args.Length > 1 && args[1] is "delete" or "sil" ? await DeleteSave(args) : Saves(json),
 				"load" => await LoadNamed(args),
 				"opponent" => await Opponent(json),
@@ -1086,7 +1089,7 @@ internal static partial class Program
 	{
 		for (var i = 1; i < args.Length; i++)
 		{
-			if (args[i] is "--max-value" or "--attr" or "--age" or "--grade" or "--contract" or "--employed" or "--reputation" or "--note" or "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice" or "--coach" or "--trait" or "--trait-remove") { i++; continue; }
+			if (args[i] is "--for" or "--by" or "--max-value" or "--attr" or "--age" or "--grade" or "--contract" or "--employed" or "--reputation" or "--note" or "--name" or "--tab" or "--view" or "--filter" or "--wage" or "--term" or "--focus" or "--position" or "--role" or "--captain" or "--vice" or "--coach" or "--trait" or "--trait-remove") { i++; continue; }
 			if (!args[i].StartsWith("--", StringComparison.Ordinal)) yield return args[i];
 		}
 	}
@@ -1163,6 +1166,7 @@ internal static partial class Program
 			  table [turnuva] lig tablosu; turnuva adıyla o turnuvanın tablosu (ör. table europa)
 			  stages [turnuva] [aşama]   kupa turları ve eşleşmeleri, lig aşaması tablosu; dünyadaki her turnuva (--all, --list)
 			  scout [#|odak]  scout odakları; bir odağın bulduğu oyuncular (--matched, --near, --progress)
+			  scout player <ad> [--by <scout>] --for <süre>   oyuncuya scout gönder ("1 hafta", "2 ay", "3 maç", "tam"); scout who <ad>: kimler atanabilir
 			  league [turnuva]  liderler: en golcü takım, gol / asist kralı, en yüksek puan (varsayılan: lig)
 			  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
 			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
@@ -1251,6 +1255,10 @@ internal static partial class Program
 			                  tablo, fikstür, sağlık, sözleşmeler, finans);  export <dosya.csv> "<komut>": o komutun tablosu
 			  --json / --csv / --md   her komutta: tablo yerine JSON, CSV ya da Markdown; soru sorulmaz
 			  shortlist       kısa listedeki oyuncular (teklif verilenler de)
+			    add <ad> --for <süre> · remove <ad>   listeye al ("3 ay", "1 yıl", "süresiz") / listeden çıkar
+			  interest <ad> --top|--transfer|--loan [--yes]   oyuncuya ilgimizi duyur
+			  enquire <ad>    kulübüne ne isteyeceğini sor
+			  trial <ad> --for <1-4 hafta> [--yes]   oyuncuyu denemeye çağır
 			  intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto
 			  opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)
 			    --advice / --clear   yardımcının önerisini uygula / temizle;  opposition <oyuncu> Pres=Always

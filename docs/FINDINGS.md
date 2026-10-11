@@ -3675,6 +3675,36 @@ devret / geri al, zaten o durumda olan.
 
 `fm staff hire <ad> [--wage] [--term] [--sign --yes]`, `fm staff fire <ad> [--mutual] [--yes]`, `fm actions <kişi> ["<seçenek>"] [--all]`.
 
+## 8.119 Oyuncuya scout, kısa liste, ilgi, soru, deneme (11 Ekim)
+
+- Hepsi oyuncunun sağ tık menüsünün girişleri (§8.118); ayrı sayfa ya da sihirbaz gerekmiyor.
+  - **Scout:** `Report>Assign to Scouting Pool>` (Until Extensive Knowledge, For 1 Week / 2 Weeks / 1 Month / 2 Months /
+    3 Months, For 1–4 Match(es)) ya da `Report>Assign Scout><ad (görev)>>` aynı süreler; kökteki "Scout Player (Any Scout -
+    For 1 Week)" ve "Fully Scout" bunların kısayolu. Atanınca menüde "Scouting In Progress" (kapalı) ve
+    `Report>Cancel Assignment` beliriyor, atama klasörleri kalkıyor. Kısa listedeki satırda "Scouting Required" → not.
+  - **Kısa liste:** `Add To Shortlist>` Indefinitely / 1 Month / 3 Months / 6 Months / 1 Year; listedeyken
+    "Remove From Shortlist (Default)". İkisi de soru sormadan, anında.
+  - **Soru:** `Transfer>Make Enquiry` → tek butonlu "Enquiry Made … His club will respond shortly"; ardından menüde
+    "Make An Offer" / "Make Enquiry" / "Offer Trial" kalkıyor, `Transfer>Withdraw Transfer Offer` geliyor (oyun soruyu bir
+    teklif sayıyor).
+  - **İlgi:** `Transfer>Declare Interest>` As Top Target / For Transfer / For Loan → "Declare Interest? Are you sure…"
+    (No / Yes). Yes'ten sonra menü değişmiyor; işlediğine dair bir iz bu oturumda **görülmedi**.
+  - **Deneme:** `Transfer>Offer Trial>` 1–4 Week(s) → "Offer Trial — Offer a trial to …?" (No / Yes) → "Trial Offered";
+    menüde `Transfer>Withdraw Trial Offer`.
+- ⚠ **Cancel Assignment işlemiyor.** "Do you want to cancel the assignment and stop scouting this player?" penceresinde
+  Yes'e `/click` (düz ve `arg=1`), menü açık tutularak (`keep=1`) da denendi: pencere kapanıyor, menüde "Scouting In
+  Progress" ve "Cancel Assignment" duruyor; bir gün ilerletince de aynı. Üç oyuncuda (odakta olan ve olmayan) tekrarlandı.
+  Aynı tıklama "Offer Trial" ve personel feshi sorularında işliyor — fark bilinmiyor. `scout player --cancel` sonucu
+  menüden doğrulayıp öyle söylüyor.
+- ⚠ Açık bir pencere varken menüden yeni bir şey seçilirse yeni soru onun **altına** diziliyor; komut eskisini kendi cevabı
+  sanıyordu. `PersonMenu` artık açık pencere varsa başlamıyor; tek butonlu bildirimler okunup kapatılıyor.
+- Ad eşleme: arama "cerin" için Nocerino'yu ve ikinci soyadı Cerín olan birini de getiriyor; yazılan kelimeyi adında
+  **kelime olarak** taşıyan tek kişi varsa o seçiliyor.
+- Görülmedi: sorunun, ilginin ve deneme davetinin cevabı (gün ilerleyince gelen kutusunda bakılacak).
+
+`fm scout player <ad> [--by <scout>] --for <süre> [--cancel]`, `fm scout who <ad>`, `fm shortlist add <ad> --for <süre>` /
+`remove <ad>`, `fm interest <ad> --top|--transfer|--loan [--yes]`, `fm enquire <ad>`, `fm trial <ad> --for <hafta> [--yes]`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
