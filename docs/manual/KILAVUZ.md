@@ -586,7 +586,8 @@ TOPSUZ
   …
 ```
 
-Sayfa açmadan okur ve değiştirir (maç sırasında henüz denenmedi).
+Sayfa açmadan okur ve değiştirir. Maç sırasında da çalışır: o zaman maçın taktiğini değiştirir, oyun
+değişikliği ilk ölü topta uygular, takımın kayıtlı taktiği olduğu gibi kalır (`tactic pi` için de aynısı).
 Talimat adları ve seçenekleri ilk kullanımda oyundan bir kez okunup saklanır (`--refresh` yeniden okur).
 "Dribbling" oyunda tek ayar (ekranda hem son üçte birde hem ilerlemede görünür). Savunma çizgisinin
 ofsayt tuzağı gibi ek ayarlar henüz yok.
@@ -617,6 +618,8 @@ Topsuz
 
 "(rolden)" yazanları rol belirliyor; değiştirmek isteyince komut bunu söyler ve rolü değiştirmeyi
 (`tactic role DR`, topsuzsa `--oop`) önerir. Kart açılmaz, talimatlar doğrudan oyunun verisinden okunup yazılır.
+Mevki yerine oyuncunun adı da olur (`fm tactic pi Semedo`); maç sırasında rol adları görünmez, değişiklik maçın taktiğine
+gider.
 
 ### Rakip talimatları — `opposition`
 

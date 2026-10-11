@@ -283,7 +283,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Anında sonuç — `fm match --instant`, 9 sn (§8.34)
 - [x] Maç hızı — `fm settings vurgu hızı` (en çok 10x), `ara hızı` (en çok 40x), `maç gösterimi` (§8.61); maç içinden değiştirmek yok
 - [~] Maç içi taktik değişimi — mentalite ✓, bağırış ✓ (`fm shout`, §8.62), rol ✓ (`fm tactic role
-      <oyuncu>` maç sırasında); oyuncu / takım talimatı maç içinde yok, oyuncuya özel bağırış yok
+      <oyuncu>` maç sırasında), takım ve oyuncu talimatları ✓ (`tactic instructions`, `tactic pi <oyuncu>`; ilk ölü topta
+      uygulanıyor, §8.137); oyuncuya özel bağırış yok
 - [x] Maç öncesi, devre arası ve maç sonu takım konuşması — `fm talk` ya da `fm match --talk`
 - [~] Canlı maç takibi — `fm match --play` anlatım satırlarını, golleri ve skoru akıtıyor; maç ekranının kalanı §14
 - [x] Maç içi: rol değişimi, shout (§8.62)

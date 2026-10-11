@@ -38,6 +38,11 @@ internal static partial class Program
 			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
 			return 69;
 		}
+		if (!await FindMatchTactic())
+		{
+			Console.Error.WriteLine("Maçın taktiği bulunamadı.");
+			return 1;
+		}
 		var catalogue = await TeamInstructionCatalogue(refresh);
 		if (catalogue.Count == 0)
 		{
@@ -119,16 +124,42 @@ internal static partial class Program
 		var scope = await TacticScope(target.Id);
 		if (scope == null) return Report("error: taktik bağlanamadı");
 		// Written before it is bound, the setting stays a value of that place and never reaches the game.
-		await PullEach([($"{scope}.team.Tactic", "SelectedTeamInstructionOption")]);
-		var said = await Fm.Get("pathset", ("to", $"{scope}.team.Tactic.SelectedTeamInstructionOption"), ("int", option.ToString()));
+		await PullEach([($"{TacticAt(scope)}", "SelectedTeamInstructionOption")]);
+		var said = await Fm.Get("pathset", ("to", $"{TacticAt(scope)}.SelectedTeamInstructionOption"), ("int", option.ToString()));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
 		// Read back from a place of its own: the one written to answers with what was written.
 		long? after = null;
 		var took = await Until(async () => (after = (await TeamInstructionsNow([target])).GetValueOrDefault(target.Id)) == option, seconds: 5, every: 0.3);
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Instruction = target.Name, Was = current, Value = took ? choice : Setting(target), Changed = took }));
-		else Console.WriteLine(took ? $"{target.Name}: {current} → {choice}" : $"{target.Name}: oyun değişikliği almadı.");
+		else Console.WriteLine(took ? $"{target.Name}: {current} → {choice}{Stoppage()}" : $"{target.Name}: oyun değişikliği almadı.");
 		return took ? 0 : 1;
+	}
+
+	/// <summary>
+	/// Where the tactic is read and written. Outside a match it is the team's (`Human.Team.Tactic`
+	/// beside a `Boolean` set True); during one it is the match's own (`MatchUI….Tactic`, a
+	/// MatchTacticReference with the same properties), which the game applies at the next stoppage
+	/// and which leaves the team's tactic as it was (FINDINGS §8.137).
+	/// </summary>
+	private static string matchTactic;
+
+	private static string TacticAt(string scope) => matchTactic != null ? $"{scope}.tac" : $"{scope}.team.Tactic";
+
+	private static string Stoppage() => matchTactic != null ? "   (maçta: ilk ölü topta uygulanır; takımın kayıtlı taktiği değişmez)" : "";
+
+	private static (string To, string From, string Number)[] TacticVariables() =>
+		matchTactic != null ? [("tac", matchTactic, "")] : [("Boolean", "const.True", ""), ("team", "Human.Team", "")];
+
+	/// <summary>During a match, finds the match's tactic; false when there is a match but no tactic of it to be found.</summary>
+	private static async Task<bool> FindMatchTactic()
+	{
+		matchTactic = null;
+		if (Field(await Fm.GetJson("state"), "DuringMatch") != "True") return true;
+		var found = await Fm.Get("find", ("name", "Tactic"), ("limit", "40"));
+		matchTactic = found.Split('\n').Select(l => l.Trim()).Where(l => l.StartsWith("..MatchUI", StringComparison.Ordinal) && l.EndsWith(".Tactic", StringComparison.Ordinal))
+			.Select(l => l[2..]).FirstOrDefault();
+		return matchTactic != null;
 	}
 
 	private static int tacticScopes;
@@ -137,7 +168,7 @@ internal static partial class Program
 	private static async Task<string> TacticScope(int instruction)
 	{
 		var scope = $"fmcli.ti{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
-		foreach (var (to, from, number) in new[] { ("Boolean", "const.True", ""), ("team", "Human.Team", ""), ("TeamInstructionID", "", instruction.ToString()) })
+		foreach (var (to, from, number) in (IEnumerable<(string, string, string)>)[.. TacticVariables(), ("TeamInstructionID", "", instruction.ToString())])
 		{
 			var set = from.Length > 0 ? await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("from", from)) : await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("int", number));
 			if (set.StartsWith("error", StringComparison.Ordinal)) return null;
@@ -151,7 +182,7 @@ internal static partial class Program
 		var scopes = new List<(int Id, string Scope)>();
 		foreach (var i in instructions)
 			if (await TacticScope(i.Id) is { } scope) scopes.Add((i.Id, scope));
-		var read = await PullEach(scopes.Select(s => ($"{s.Scope}.team.Tactic", "SelectedTeamInstructionOption")).ToList());
+		var read = await PullEach(scopes.Select(s => ($"{TacticAt(s.Scope)}", "SelectedTeamInstructionOption")).ToList());
 		var now = new Dictionary<int, long>();
 		foreach (var ((id, _), record) in scopes.Zip(read))
 			if (long.TryParse(Field(record, "SelectedTeamInstructionOption"), out var option)) now[id] = option;
@@ -221,6 +252,11 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> PlayerInstructions(List<string> words, bool dry)
 	{
+		if (!await FindMatchTactic())
+		{
+			Console.Error.WriteLine("Maçın taktiği bulunamadı.");
+			return 1;
+		}
 		var slots = await PiSlots();
 		if (slots.Count == 0)
 		{
@@ -331,14 +367,14 @@ internal static partial class Program
 		var option = open.First(o => o.Name == choice).Id;
 		var scope = await PlayerScope(index, group);
 		if (scope == null) return Report("error: taktik bağlanamadı");
-		await PullEach([($"{scope}.team.Tactic", "SelectedPlayerInstruction")]);
-		var said = await Fm.Get("pathset", ("to", $"{scope}.team.Tactic.SelectedPlayerInstruction"), ("int", option.ToString()));
+		await PullEach([($"{TacticAt(scope)}", "SelectedPlayerInstruction")]);
+		var said = await Fm.Get("pathset", ("to", $"{TacticAt(scope)}.SelectedPlayerInstruction"), ("int", option.ToString()));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
 		long? after = null;
 		var took = await Until(async () => (after = (await PlayerInstructionsNow(index, [group])).GetValueOrDefault(group.Id)?.Option) == option, seconds: 5, every: 0.3);
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, Was = current, Value = took ? choice : current, Changed = took }));
-		else Console.WriteLine(took ? $"{name}: {current} → {choice}" : $"{name}: oyun değişikliği almadı.");
+		else Console.WriteLine(took ? $"{name}: {current} → {choice}{Stoppage()}" : $"{name}: oyun değişikliği almadı.");
 		return took ? 0 : 1;
 	}
 
@@ -355,11 +391,11 @@ internal static partial class Program
 		for (var i = 0; i < 11; i++)
 		{
 			var scope = $"fmcli.sl{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
-			foreach (var (to, from, number) in new[] { ("Boolean", "const.True", ""), ("team", "Human.Team", ""), ("TeamSelectionIndex", "", i.ToString()), ("InPossession", "const.True", "") })
+			foreach (var (to, from, number) in (IEnumerable<(string, string, string)>)[.. TacticVariables(), ("TeamSelectionIndex", "", i.ToString()), ("InPossession", "const.True", "")])
 				if (from.Length > 0) await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("from", from)); else await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("int", number));
 			scopes.Add(scope);
 		}
-		var read = await PullEach(scopes.Select(s => ($"{s}.team.Tactic", "IPPosition,PlayerFromTeamSelectionIndex.Name")).ToList());
+		var read = await PullEach(scopes.Select(s => ($"{TacticAt(s)}", "IPPosition,PlayerFromTeamSelectionIndex.Name")).ToList());
 		var slots = read.Select((r, i) => new PiSlot(Spot(Field(r, "IPPosition")), i.ToString(), Field(r, "PlayerFromTeamSelectionIndex.Name"), "", ""))
 			.Where(s => Field(read[int.Parse(s.Index)], "IPPosition").Length > 0).ToList();
 		if (slots.Count == 0 || Field(await Fm.GetJson("state"), "DuringMatch") == "True") return slots;
@@ -386,11 +422,11 @@ internal static partial class Program
 	private static async Task<string> PlayerScope(string index, PlayerInstructionGroup group)
 	{
 		var scope = $"fmcli.pi{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
-		foreach (var (to, from, number) in new[]
-		{
-			("Boolean", "const.True", ""), ("team", "Human.Team", ""), ("TeamSelectionIndex", "", index),
+		foreach (var (to, from, number) in (IEnumerable<(string, string, string)>)
+		[
+			.. TacticVariables(), ("TeamSelectionIndex", "", index),
 			("PlayerInstructionGroupID", "", group.Id.ToString()), ("InPossession", group.WithBall ? "const.True" : "const.False", ""),
-		})
+		])
 		{
 			var set = from.Length > 0 ? await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("from", from)) : await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("int", number));
 			if (set.StartsWith("error", StringComparison.Ordinal)) return null;
@@ -404,7 +440,7 @@ internal static partial class Program
 		var scopes = new List<(PlayerInstructionGroup Group, string Scope)>();
 		foreach (var g in groups)
 			if (await PlayerScope(index, g) is { } scope) scopes.Add((g, scope));
-		var read = await PullEach(scopes.Select(s => ($"{s.Scope}.team.Tactic", "SelectedPlayerInstruction,PlayerInstructionGroupIsLocked")).ToList());
+		var read = await PullEach(scopes.Select(s => ($"{TacticAt(s.Scope)}", "SelectedPlayerInstruction,PlayerInstructionGroupIsLocked")).ToList());
 		var now = new Dictionary<int, PlayerInstructionNow>();
 		foreach (var ((group, scope), record) in scopes.Zip(read))
 		{
@@ -413,7 +449,7 @@ internal static partial class Program
 			// Only a group that is to be changed needs its settings looked at.
 			if (groups.Count == 1)
 			{
-				var rows = await Fm.Pull($"{scope}.team.Tactic.PlayerInstructionGroupOptions", "PropertyValue,Disabled", list: true);
+				var rows = await Fm.Pull($"{TacticAt(scope)}.PlayerInstructionGroupOptions", "PropertyValue,Disabled", list: true);
 				if (rows.ValueKind == JsonValueKind.Array)
 					foreach (var row in rows.EnumerateArray())
 						if (Field(row, "Disabled") == "True" && long.TryParse(Field(row, "PropertyValue"), out var off)) disabled.Add(off);

@@ -4077,6 +4077,20 @@ released", kadrodan çıktı, bütçe £7.62M (tazminat düştü). Yani onay hem
 bırakılıyor … gün ilerleyince" diyor. Deneme kaydedilmeden yeniden başlatılarak geri alındı. Karşılıklı fesih `--yes` ile
 yine denenmedi (oyuncunun ve yönetimin cevabı sonraki günlerde gelir).
 
+## 8.137 Maç içinde takım ve oyuncu talimatları (11 Ekim gece, Kocaelispor deplasmanı)
+
+- Maç sırasında `Human.Team.Tactic` (Boolean True da False da) maçın taktiği **değil**: `IsDuringMatch = False`, maç ekranından
+  mentalite "Positive" yapılınca orada "Balanced" kaldı. Maçın taktiği `MatchUI2E.Tactic` (`MatchReference.Tactic`, tipi
+  `MatchTacticReference`): aynı property'ler (`SelectedTeamInstructionOption`, `SelectedPlayerInstruction`, `IPPosition`,
+  `PlayerFromTeamSelectionIndex`…), aynı değişkenler, `Boolean` istemiyor, `IsDuringMatch = True`. Düğümün adı oturuma göre
+  değişiyor (`MatchUI2E`); `/find?name=Tactic` ile `..MatchUI….Tactic` olan seçiliyor.
+- Yazma aynı yolla (önce bağla, sonra yaz). Yazınca `MatchUI2E.MatchTeamHasPendingChanges = True` oluyor ve **ilk ölü topta
+  kendiliğinden** `False`'a dönüyor (44:43'te yazılan Tempo 45:23'te; ikinci denemede 61'de yazılan, 71'den önce); değer
+  ondan sonra da duruyor. Onay butonu gerekmedi. Takımın kayıtlı taktiği değişmiyor (oyunun maç içi davranışı).
+- Doğrulama: Tempo (Much Higher → Standard), takım Tackling (Standard → Get Stuck In), DR (Semedo) oyuncu Tackling (Standard →
+  Tackle Harder) maç içinde; her biri yeni bir yerden okununca yeni değerde, kayıtlı taktikte eskisi. Görülmedi: değişikliğin
+  maç motoruna etkisi (ölçülemiyor), sonraki maçta maç taktiğinin kayıtlıya dönüp dönmediği.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
