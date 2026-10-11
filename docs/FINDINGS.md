@@ -3998,6 +3998,34 @@ devret / geri al, zaten o durumda olan.
 - Doğrulama: DR, DL, DR, "sol bek" art arda dördü de doğru, sonunda panelde iki koşul (mevki + değer). `--age --listed`
   ve `--free` bozulmadı.
 
+## 8.132 Takım talimatları ekransız; topsuz talimatlar (11 Ekim gece) — §8.48 / §8.64'teki parkın çözümü
+
+- **Talimat = numara.** Taktik sayfasının hücreleri (`BindingVariablesNoPhase`, `…Phase0/1/2`, yanlarında `thisphase` -1…2)
+  her talimatı `ID` değişkeniyle statik veriden alıyor: `data.TacticTeamInstruction` → `Name`, `PhaseID`,
+  `TeamInstructionOptionsList` (ayarların numaraları), `HasExtraInstruction`. Bir ayarın adı `data.TacticTeamInstructionOption`
+  (`ID` = ayarın numarası). Ekransız: `/pathset?to=fmcli.x.ID&int=<n>`, `/pathset?to=fmcli.x.data&from=data`.
+- **Numaralar:** 1–31; 2, 13, 14 boş. Topla: 1 Passing Directness, 3 Attacking Transition, 4 Attacking Width, 5 Creative
+  Freedom, 6 Play for Set Pieces, 7 Time Wasting, 16 GK Distribution, 17 GK Distribution (Speed), 18 Patience, 19 Dribbling,
+  20 Pass Reception, 21 Tempo, 24 Build-Up Strategy, 26 Crossing Style, 27 Shots from Distance, 28 Supporting Runs,
+  29 Goal Kicks, 30 Progress Through. Topsuz: 8 Line of Engagement, 9 Defensive Line, 10 Trigger Press, 11 Defensive
+  Transition, 12 Tackling, 15 Defensive Line Behaviour, 22 Cross Engagement, 23 Short Goalkeeper Distribution, 25 Pressing
+  Trap. 31 ikinci bir "Supporting Runs" (ek ayarsız), sayfada yok. Ek ayarı olanlar: 9, 16, 28 (okunmadı).
+- **Seçili ayar** takımın taktiğinde: `Human.Team.Tactic` bir `Boolean` değişkeni istiyor (`/contexts`). **`True` sayfanın
+  taktiği**; `False` başka bir kopya (aynı ad, ama ayarları farklı olabiliyor — ilk denemede ona yazıldı, sayfa değişmedi).
+  `Tactic.SelectedTeamInstructionOption` yanına `TeamInstructionID` konunca o talimatın ayar numarasını veriyor.
+  `Tactic.DefensiveLine`, `Tackling`, `Tempo`… gibi adlı alanlar da aynı numarayı veriyor.
+- **Değiştirmek:** o yola ayarın numarasını yazmak (`/pathset?to=<…>.Tactic.SelectedTeamInstructionOption&int=<ayar>`) —
+  ama önce o yol bir kez okunup bağlanmalı; bağlanmadan yazılan değer o düğümde kalıyor, oyuna gitmiyor ve yeni bir yerden
+  okununca eski değer geliyor. Okuma da yeni bir yerden yapılmalı: yazılan yer yazılanı söylüyor.
+  `EventFmxSetTacticTeamInstruction` (EventToPlugin, taktik hedefli, veri sayı ya da ayar referansı) hiçbir şey değiştirmedi.
+- `Tactic.InPossessionInstructionList` / `OutOfPossessionInstructionList` (değişkenler `ShowCurrentTeamInstructions`, `ID`)
+  evre listesi değil, taktik kartının özet satırları. `data.TacticTeamInstructionsForPhase` bir `List<Int32>`; `/pull` onu
+  liste olarak açamıyor ve `thisphase`/`InPossession` ile art arda zorlanırken **oyun çöktü** (bir kez). Gruplama CLI'da
+  kartın düzeninden sabit.
+- Doğrulama: Tempo üç kez (Much Higher → Standard → Lower → Much Higher), her seferinde oyunun kartı aynı değeri gösterdi;
+  topsuzda Tackling, Defensive Line, Pressing Trap, Trigger Press ileri geri (8/8), Tackling'de sayfanın kendi hücresi
+  (`TeamInstructionID = 12`) Standard → Get Stuck In → Standard. Hepsi eski haline döndü. Görülmedi: maç sırasında.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

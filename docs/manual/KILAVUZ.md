@@ -568,14 +568,28 @@ fm tactic load "Baskı"  ne olacağını söyler; --yes ile etkin yuvadaki takti
 ### Takım talimatları — `tactic instructions`
 
 ```
-fm tactic instructions                         evre evre bütün talimatlar
+fm tactic instructions                         topla (evre evre) ve topsuz bütün talimatlar
+fm tactic instructions --oop                   yalnızca topsuz talimatlar
 fm tactic instructions Tempo Higher            birini değiştir
-fm tactic instructions "Final Third/Dribbling" Encourage
+fm tactic instructions "Defensive Line" Lower  topsuz bir talimatı değiştir
 fm tactic instructions "Goal Kicks"            seçeneklerini göster (terminalde okla seçtirir)
 ```
 
-Şimdilik yalnızca topla oynarken talimatlar var. Bitiş bölgesindeki ve ilerlemedeki "Dribbling"
-oyunda tek ayar; biri değişince öteki de değişir.
+Örnek çıktının topsuz kısmı:
+
+```
+TOPSUZ
+  Line of Engagement: High Press
+  Defensive Line: Higher
+  Trigger Press: Much More Often
+  Tackling: Standard
+  …
+```
+
+Sayfa açmadan okur ve değiştirir (maç sırasında henüz denenmedi).
+Talimat adları ve seçenekleri ilk kullanımda oyundan bir kez okunup saklanır (`--refresh` yeniden okur).
+"Dribbling" oyunda tek ayar (ekranda hem son üçte birde hem ilerlemede görünür). Savunma çizgisinin
+ofsayt tuzağı gibi ek ayarlar henüz yok.
 
 ### Oyuncu talimatları — `tactic pi`
 

@@ -197,8 +197,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Oyuncu rolleri — `fm tactic role <mevki> [<rol>] [--oop]` (§8.31)
 - [~] Oyuncu talimatları — `fm tactic pi <mevki>`: topla oynarken talimatlar (§8.53); topsuz ve
       "oyuncuya özel" yok
-- [~] Takım talimatları — `fm tactic instructions`: topla oynarken dört evre, okuma ve değiştirme
-      (§8.48); topsuz talimatlar ve bölge ("Zone") görünümleri yok
+- [x] Takım talimatları — `fm tactic instructions [--oop]`: topla dört evre ve topsuz dokuz talimat, sayfa açmadan okuma
+      ve değiştirme (§8.132); savunma çizgisi / kaleci dağıtımı / destek koşularının ek ayarı ve bölge ("Zone") görünümü yok
 - [x] İlk 11'e yedeklerden oyuncu koy — `fm tactic player <mevki> <oyuncu>` (§8.31)
 - [x] Yedek kulübesini göster — `fm tactic`'in "Yedekler" satırı
 - [ ] İki as oyuncunun yerini değiştirme, kadro dışından oyuncu alma (adları taktik ekranında bağlı değil)
