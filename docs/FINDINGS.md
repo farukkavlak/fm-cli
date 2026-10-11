@@ -4091,6 +4091,18 @@ yine denenmedi (oyuncunun ve yönetimin cevabı sonraki günlerde gelir).
   Tackle Harder) maç içinde; her biri yeni bir yerden okununca yeni değerde, kayıtlı taktikte eskisi. Görülmedi: değişikliğin
   maç motoruna etkisi (ölçülemiyor), sonraki maçta maç taktiğinin kayıtlıya dönüp dönmediği.
 
+## 8.138 Aracı başaramayınca mesaj yeniden açılıyor (11 Ekim gece, oyun 12 Kasım 2025)
+
+Néné "kiralık istiyorum" dedi; mesajda "Ask Kanté to Resolve Issue" seçildi → Kanté'yle kısa konuşma (tek cümle + End Chat)
+→ hemen "Kanté unable to resolve Néné's unhappiness" (cevapsız haber) ve oyun "Response Required"da kaldı. Bekleyen,
+Néné'nin ilk mesajıydı: aynı mesaj artık iki seçenek veriyor ("Discuss Issue with Néné", "Decline") ama
+`NewsHasResponded = True` kalıyor — bizim "bloke eden mesaj" kuralı (öncelikli + cevaplanabilir + cevaplanmamış) onu
+görmüyor. Konuşma bitince de bayraklar aynı (Priority/CanRespond/HasResponded hepsi True), yani bayraklardan ayırt
+edilemiyor. `status`/`next` artık başka bloke eden yokken öncelikli + `CanRespond` mesajları "yeniden cevap bekliyor
+olabilir" diye sayıyor. Ayrıca: Çağlar (süre sözü) ve Musaba (kiralık sözü) doğrudan konuşmayla kapandı; Musaba ve
+Néné `actions … "Available for loan"` ile kiralığa açıldı (kartta görünmüyor; kartta transfer durumu yok).
+Yan bulgu: `fm actions néné` kendi oyuncumuzu değil başka kulüpten "Nenê"yi buldu; `fm player néné` doğrusunu buluyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

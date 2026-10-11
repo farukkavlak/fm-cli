@@ -171,6 +171,22 @@ internal static partial class Program
 				var blocking = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
 				if (blocking.Count == 0)
 				{
+					// A message answered once that the game opens again: after a teammate asked to talk a
+					// player round fails, the player's message offers its choices anew but stays marked
+					// as answered (FINDINGS §8.138).
+					var again = (await Bound("inbox", "PortalScreen")).EnumerateArray()
+						.Where(m => Field(m, "NewsItemIsPriority") == "True" && Field(m, "CanRespond") == "True")
+						.Select(m => Field(m, "NewsTitleString")).Where(t => t is { Length: > 0 }).ToList();
+					if (again.Count > 0)
+					{
+						output.WriteLine("Oyun bir mesajın yeniden cevaplanmasını bekliyor olabilir:");
+						foreach (var title in again) output.WriteLine($"  {title}");
+						output.WriteLine(again.Count == 1 && !again[0].Contains('"')
+							? $"Bakmak için: reply \"{again[0]}\""
+							: "Bakmak için: reply <#>   (numaralar için: inbox)");
+						if (button is { Length: > 0 } and not ("Continue" or "Response Required")) output.WriteLine($"İlerle butonu: {button}");
+						return;
+					}
 					// Something to do that no message holds: a deal to go on with, a screen to finish.
 					// Not a button to press blind: Continue with "Negotiate Contract" showing moved
 					// time on and the deal was withdrawn (FINDINGS §8.42).
