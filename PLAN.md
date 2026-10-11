@@ -195,8 +195,8 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       yuvaya kurar, `fm tactic slot [<n>]` üç yuva arasında geçer (§8.47); yuva boşaltma yok
 - [k] **In Possession / Out of Possession** ayrı şekiller — aynı event, `IsInPossession` bayrağı
 - [x] Oyuncu rolleri — `fm tactic role <mevki> [<rol>] [--oop]` (§8.31)
-- [~] Oyuncu talimatları — `fm tactic pi <mevki>`: topla oynarken talimatlar (§8.53); topsuz ve
-      "oyuncuya özel" yok
+- [x] Oyuncu talimatları — `fm tactic pi <mevki>`: topla on bir, topsuz dört talimat, rolden gelenler işaretli, kart
+      açmadan (§8.53, §8.133); "oyuncuya özel" (Apply to: Player) ve pas / orta stratejisinin ek ayarı yok
 - [x] Takım talimatları — `fm tactic instructions [--oop]`: topla dört evre ve topsuz dokuz talimat, sayfa açmadan okuma
       ve değiştirme (§8.132); savunma çizgisi / kaleci dağıtımı / destek koşularının ek ayarı ve bölge ("Zone") görünümü yok
 - [x] İlk 11'e yedeklerden oyuncu koy — `fm tactic player <mevki> <oyuncu>` (§8.31)

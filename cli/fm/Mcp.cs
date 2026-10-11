@@ -222,7 +222,7 @@ internal static class Mcp
 		new("fm_shout", "A touchline shout during a match (Encourage, Calm Down, Focus, Fire Up, No Pressure, Demand More, Praise, Berate). Without `shout` lists them. fm_tactic_set with setting=mentality also works during a match.",
 			"""{"type":"object","properties":{"shout":{"type":"string"}}}""",
 			a => ["shout", .. (Str(a, "shout") is { Length: > 0 } x ? new[] { x } : [])]),
-		new("fm_tactic_pi", "One position's player instructions in possession (Shooting, Forward Runs, Dribbling Frequency, Passing Risk…). `position` is the slot as fm_tactic shows it (DR, AML, ST…); with `name` and `value` one is changed, with `name` alone its choices are listed.",
+		new("fm_tactic_pi", "One position's player instructions with the ball (Shooting, Forward Runs, Dribbling Frequency, Passing Risk…) and without it (Trigger Press, Marking, Tackling, Marking Target). Ones marked as from the role are fixed by it and change only with the role. `position` is the slot as fm_tactic shows it (DR, AML, ST…); with `name` and `value` one is changed, with `name` alone its choices are listed.",
 			"""{"type":"object","required":["position"],"properties":{"position":{"type":"string"},"name":{"type":"string"},"value":{"type":"string"}}}""",
 			a => ["tactic", "pi", Str(a, "position"), .. (Str(a, "name") is { Length: > 0 } n ? new[] { n } : []), .. (Str(a, "value") is { Length: > 0 } v ? new[] { v } : [])]),
 		new("fm_tactic_slot", "The team's tactic slots (up to three) and which is active; `slot` makes another one active.",

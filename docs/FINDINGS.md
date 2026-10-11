@@ -4026,6 +4026,27 @@ devret / geri al, zaten o durumda olan.
   topsuzda Tackling, Defensive Line, Pressing Trap, Trigger Press ileri geri (8/8), Tackling'de sayfanın kendi hücresi
   (`TeamInstructionID = 12`) Standard → Get Stuck In → Standard. Hepsi eski haline döndü. Görülmedi: maç sırasında.
 
+## 8.133 Oyuncu talimatları ekransız; topsuz oyuncu talimatları (11 Ekim gece) — §8.53'ün devamı
+
+- **Gruplar** statik veride: `data.TacticPlayerInstructionGroup` yanına `PlayerInstructionGroupID` (`ID` değil) konunca
+  `Name`, `PlayerInstructionGroupOptionsInt` (ayar numaraları), `HasExtraInstruction`. 0–14: 0 Attacking Width, 1 Dribbling
+  Direction, 2 Dribbling Frequency, 3 Forward Runs, 4 Freedom of Movement, 5 Hold Up Ball, 6 Shooting, 7 Passing Strategy,
+  8 Passing Risk, 9 Crossing Strategy, 10 Cross From — topla; **11 Trigger Press, 12 Marking, 13 Tackling, 14 Marking
+  Target — topsuz**. Ek ayarı olanlar 7 ve 9 (okunmadı).
+- **Ayar adı:** `data.TacticPlayerInstructionOption` yanına `PlayerInstructionGroupID` **ve** `playerinstructionoptionid`.
+  `playerinstructionoptionid` ayarın sırası değil numarası (`OptionsInt`'teki değer): 0 her grupta "Standard" (ya da
+  "No", "Follow Tactical Position"), öbürleri 1–35 arasında, gruplar arasında tekrar etmiyor.
+- **Slotun ayarı** taktikte (`Human.Team.Tactic`, `Boolean = True`, §8.132): yanına `TeamSelectionIndex` (slot, `/tactic`'teki),
+  `PlayerInstructionGroupID`, `InPossession` (topla gruplar için True, topsuz için False) → `SelectedPlayerInstruction`
+  (ayar numarası), `PlayerInstructionGroupIsLocked` (rol belirliyor: DR Wing Back'te Forward Runs "Make More Runs",
+  Pressing Full Back'te Trigger Press "More Often"; kalecide neredeyse hepsi), `PlayerInstructionGroupOptions` (her ayar
+  `{PropertyValue, Disabled}`: rolün izin vermediği ayarlar). Yanlış `InPossession` ile okunan grup kilitli görünüyor.
+- **Değiştirmek** takımınkiyle aynı: yolu bir kez okuyup bağla, `SelectedPlayerInstruction`'a ayar numarasını yaz, yeni bir
+  yerden oku. Kartın "Apply to: Position / Player" ayarına dokunulmadı; yazılan mevkiye gidiyor (kart da mevkiyi gösteriyor).
+- Doğrulama: DR Shooting bu yolla "Shoot Less Often" yapılınca oyunun kartı onu, geri alınınca "Standard" gösterdi; DR
+  Tackling, Marking Target, Shooting ileri geri (6/6); kilitli Trigger Press reddedildi. Hepsi eski haline döndü.
+  Görülmedi: maç sırasında, `Disabled` bir ayarın gerçekten reddedildiği an.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

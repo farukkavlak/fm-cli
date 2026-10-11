@@ -594,10 +594,29 @@ ofsayt tuzağı gibi ek ayarlar henüz yok.
 ### Oyuncu talimatları — `tactic pi`
 
 ```
-fm tactic pi DR                          sağ bekin talimatları
+fm tactic pi DR                          sağ bekin talimatları, topla ve topsuz
 fm tactic pi DR Shooting "Shoot Less"    birini değiştir
+fm tactic pi DR Tackling "Tackle Harder" topsuz bir talimatı değiştir
 fm tactic pi AML "Forward Runs"          seçeneklerini göster
 ```
+
+Örnek çıktı:
+
+```
+DR · Wing Back / topsuz Pressing Full Back
+Topla
+  Shooting: Standard
+  Forward Runs: Make More Runs (rolden)
+  …
+Topsuz
+  Trigger Press: More Often (rolden)
+  Marking: Standard
+  Tackling: Standard
+  Marking Target: Standard
+```
+
+"(rolden)" yazanları rol belirliyor; değiştirmek isteyince komut bunu söyler ve rolü değiştirmeyi
+(`tactic role DR`, topsuzsa `--oop`) önerir. Kart açılmaz, talimatlar doğrudan oyunun verisinden okunup yazılır.
 
 ### Rakip talimatları — `opposition`
 

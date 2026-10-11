@@ -212,6 +212,225 @@ internal static partial class Program
 		return catalogue;
 	}
 
+	/// <summary>
+	/// One position's player instructions with the ball and without it, read and changed with no
+	/// card opened (FINDINGS §8.133). A group (`data.TacticPlayerInstructionGroup` beside a
+	/// `PlayerInstructionGroupID`, 0–10 with the ball, 11–14 without) names its settings by number;
+	/// the tactic gives the slot's (`TeamSelectionIndex`, `InPossession`) setting and whether the
+	/// role fixes it, and takes a new one written there.
+	/// </summary>
+	private static async Task<int> PlayerInstructions(List<string> words, bool dry)
+	{
+		if (await Planner() is not { } tactic)
+		{
+			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
+			return 1;
+		}
+		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
+		var spots = slots.Select(s => Spot(Field(s, "IPPosition"))).ToList();
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine($"kullanım: tactic pi <mevki> [<talimat> [<değer>]]   mevkiler: {string.Join(" ", spots)}");
+			return 64;
+		}
+		if (Choose(spots, words[0], "Mevki") is not { } spot) return 1;
+		var slot = slots[spots.IndexOf(spot)];
+		var index = Field(slot, "TeamSelectionIndex");
+
+		var groups = await PlayerInstructionCatalogue();
+		if (groups.Count == 0)
+		{
+			Console.Error.WriteLine("Oyuncu talimatları oyundan okunamadı.");
+			return 1;
+		}
+		var now = await PlayerInstructionsNow(index, groups);
+		if (now.Count == 0)
+		{
+			Console.Error.WriteLine($"{spot}: talimatlar okunamadı.");
+			return 1;
+		}
+		string Setting(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) ? g.Options.FirstOrDefault(o => o.Id == n.Option).Name ?? n.Option.ToString() : "?";
+		bool Fixed(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) && n.Locked;
+		var roles = $"{Role(Field(slot, "IPRoleName"))} / topsuz {Role(Field(slot, "OOPRoleName"))}";
+
+		if (words.Count == 1)
+		{
+			if (Ui.Json)
+			{
+				Console.WriteLine(JsonOut.Of(new
+				{
+					Position = spot, Role = Role(Field(slot, "IPRoleName")), RoleWithoutBall = Role(Field(slot, "OOPRoleName")),
+					Instructions = groups.Select(g => new { Label = g.Name, WithBall = g.WithBall, Value = Setting(g), ByRole = Fixed(g), Choices = g.Options.Select(o => o.Name) }),
+				}));
+				return 0;
+			}
+			Console.WriteLine($"{spot} · {roles}");
+			foreach (var side in groups.GroupBy(g => g.WithBall))
+			{
+				if (Ui.Rich) Ui.Line($"[bold]{(side.Key ? "Topla" : "Topsuz")}[/]"); else Console.WriteLine(side.Key ? "Topla" : "Topsuz");
+				foreach (var g in side)
+					if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(g.Name),-22}[/] [yellow]{Ui.Safe(Setting(g))}[/]{(Fixed(g) ? " [dim](rolden)[/]" : "")}");
+					else Console.WriteLine($"  {g.Name}: {Setting(g)}{(Fixed(g) ? " (rolden)" : "")}");
+			}
+			Console.WriteLine($"\nDeğiştirmek: tactic pi {spot} \"<talimat>\" <değer>   (rolden gelenler rol değişince değişir)");
+			return 0;
+		}
+
+		if (Choose(groups.Select(g => g.Name).ToList(), words[1], spot) is not { } named) return 1;
+		var group = groups.First(g => g.Name == named);
+		var name = $"{spot} · {group.Name}";
+		var current = Setting(group);
+		if (Fixed(group))
+		{
+			Console.Error.WriteLine($"{name}: {current} — rolün ({Role(Field(slot, group.WithBall ? "IPRoleName" : "OOPRoleName"))}) parçası, değiştirilemiyor. Rolü değiştirmek için: tactic role {spot}{(group.WithBall ? "" : " --oop")}");
+			return 1;
+		}
+		// Some settings are not on offer to every role ("Cut Inside" for a centre-back), as on the card.
+		var open = group.Options.Where(o => !now[group.Id].Disabled.Contains(o.Id)).ToList();
+		var choices = open.Select(o => o.Name).ToList();
+
+		string choice;
+		if (words.Count > 2)
+		{
+			if (Choose(choices, string.Join(" ", words.Skip(2)), name) is not { } picked) return 1;
+			choice = picked;
+		}
+		else if (Ui.Interactive && !dry)
+		{
+			if (Ui.Ask(name, choices, current: choices.IndexOf(current), cancel: "Vazgeç") is not { } picked) return 0;
+			choice = choices[picked];
+		}
+		else if (Ui.Json)
+		{
+			Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, Value = current, Choices = choices }));
+			return 0;
+		}
+		else
+		{
+			Console.WriteLine($"{name}: {current}\nSeçenekler: {string.Join(" · ", choices)}");
+			return 0;
+		}
+
+		if (dry || choice == current)
+		{
+			Console.WriteLine(dry ? $"(kuru) {name}: {current} → {choice}" : $"{name} zaten {choice}.");
+			return 0;
+		}
+
+		var option = open.First(o => o.Name == choice).Id;
+		var scope = await PlayerScope(index, group);
+		if (scope == null) return Report("error: taktik bağlanamadı");
+		await PullEach([($"{scope}.team.Tactic", "SelectedPlayerInstruction")]);
+		var said = await Fm.Get("pathset", ("to", $"{scope}.team.Tactic.SelectedPlayerInstruction"), ("int", option.ToString()));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+
+		long? after = null;
+		var took = await Until(async () => (after = (await PlayerInstructionsNow(index, [group])).GetValueOrDefault(group.Id)?.Option) == option, seconds: 5, every: 0.3);
+		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, Was = current, Value = took ? choice : current, Changed = took }));
+		else Console.WriteLine(took ? $"{name}: {current} → {choice}" : $"{name}: oyun değişikliği almadı.");
+		return took ? 0 : 1;
+	}
+
+	private sealed record PlayerInstructionGroup(int Id, string Name, bool WithBall, List<(long Id, string Name)> Options);
+
+	private sealed record PlayerInstructionNow(long Option, bool Locked, HashSet<long> Disabled);
+
+	/// <summary>The groups 0–10 are the ones with the ball, 11–14 (pressing, marking, tackling) without it.</summary>
+	private const int PlayerInstructionGroups = 15, FirstWithoutBall = 11;
+
+	private static string PlayerInstructionsFile => Path.Combine(DiffFolder, "player-instructions.json");
+
+	/// <summary>A fresh place beside which the tactic answers for one slot's one group.</summary>
+	private static async Task<string> PlayerScope(string index, PlayerInstructionGroup group)
+	{
+		var scope = $"fmcli.pi{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
+		foreach (var (to, from, number) in new[]
+		{
+			("Boolean", "const.True", ""), ("team", "Human.Team", ""), ("TeamSelectionIndex", "", index),
+			("PlayerInstructionGroupID", "", group.Id.ToString()), ("InPossession", group.WithBall ? "const.True" : "const.False", ""),
+		})
+		{
+			var set = from.Length > 0 ? await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("from", from)) : await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("int", number));
+			if (set.StartsWith("error", StringComparison.Ordinal)) return null;
+		}
+		return scope;
+	}
+
+	/// <summary>Each group's setting for one slot, whether the role fixes it, and the settings the role does not allow.</summary>
+	private static async Task<Dictionary<int, PlayerInstructionNow>> PlayerInstructionsNow(string index, List<PlayerInstructionGroup> groups)
+	{
+		var scopes = new List<(PlayerInstructionGroup Group, string Scope)>();
+		foreach (var g in groups)
+			if (await PlayerScope(index, g) is { } scope) scopes.Add((g, scope));
+		var read = await PullEach(scopes.Select(s => ($"{s.Scope}.team.Tactic", "SelectedPlayerInstruction,PlayerInstructionGroupIsLocked")).ToList());
+		var now = new Dictionary<int, PlayerInstructionNow>();
+		foreach (var ((group, scope), record) in scopes.Zip(read))
+		{
+			if (!long.TryParse(Field(record, "SelectedPlayerInstruction"), out var option)) continue;
+			var disabled = new HashSet<long>();
+			// Only a group that is to be changed needs its settings looked at.
+			if (groups.Count == 1)
+			{
+				var rows = await Fm.Pull($"{scope}.team.Tactic.PlayerInstructionGroupOptions", "PropertyValue,Disabled", list: true);
+				if (rows.ValueKind == JsonValueKind.Array)
+					foreach (var row in rows.EnumerateArray())
+						if (Field(row, "Disabled") == "True" && long.TryParse(Field(row, "PropertyValue"), out var off)) disabled.Add(off);
+			}
+			now[group.Id] = new PlayerInstructionNow(option, Field(record, "PlayerInstructionGroupIsLocked") == "True", disabled);
+		}
+		return now;
+	}
+
+	/// <summary>The fifteen groups with their settings' names, asked once and kept like the team's.</summary>
+	private static async Task<List<PlayerInstructionGroup>> PlayerInstructionCatalogue()
+	{
+		if (File.Exists(PlayerInstructionsFile))
+		{
+			try
+			{
+				var kept = JsonSerializer.Deserialize<List<KeptInstruction>>(File.ReadAllText(PlayerInstructionsFile)) ?? [];
+				if (kept.Count == PlayerInstructionGroups)
+					return kept.Select(k => new PlayerInstructionGroup(k.Id, k.Name, k.Id < FirstWithoutBall, k.Options.Select(o => (o.Id, o.Name)).ToList())).ToList();
+			}
+			catch (Exception e) when (e is JsonException or InvalidOperationException or IOException) { }
+		}
+
+		if (!Ui.Json) Console.Error.WriteLine("Oyuncu talimatları oyundan okunuyor (bir kez)…");
+		async Task<string> Static(string tag, int group, long? option)
+		{
+			var scope = $"fmcli.{tag}{group}{(option is { } o ? $"_{o}" : "")}";
+			await Fm.Get("pathset", ("to", $"{scope}.PlayerInstructionGroupID"), ("int", group.ToString()));
+			if (option is { } id) await Fm.Get("pathset", ("to", $"{scope}.playerinstructionoptionid"), ("int", id.ToString()));
+			await Fm.Get("pathset", ("to", $"{scope}.data"), ("from", "data"));
+			return scope;
+		}
+
+		var ids = Enumerable.Range(0, PlayerInstructionGroups).ToList();
+		var scopes = new List<string>();
+		foreach (var id in ids) scopes.Add(await Static("pic", id, null));
+		var entries = await PullEach(scopes.Select(s => ($"{s}.data.TacticPlayerInstructionGroup", "Name,PlayerInstructionGroupOptionsInt")).ToList());
+
+		// A setting is named beside its group: the number alone ("playerinstructionoptionid") does not say whose it is.
+		var wanted = ids.Zip(entries).SelectMany(p => Field(p.Second, "PlayerInstructionGroupOptionsInt").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(o => (Group: p.First, Option: long.Parse(o)))).ToList();
+		var optionScopes = new List<string>();
+		foreach (var (group, option) in wanted) optionScopes.Add(await Static("pio", group, option));
+		var names = (await PullEach(optionScopes.Select(s => ($"{s}.data.TacticPlayerInstructionOption", "Name")).ToList()))
+			.Zip(wanted).ToDictionary(p => p.Second, p => Field(p.First, "Name"));
+
+		var catalogue = new List<PlayerInstructionGroup>();
+		foreach (var (id, entry) in ids.Zip(entries))
+		{
+			var options = wanted.Where(w => w.Group == id).Select(w => (w.Option, names[w])).ToList();
+			if (Field(entry, "Name").Length == 0 || options.Count == 0 || options.Any(o => o.Item2.Length == 0)) return [];
+			// The game lists "Standard" last; it reads better first.
+			catalogue.Add(new PlayerInstructionGroup(id, Field(entry, "Name"), id < FirstWithoutBall, [.. options.Where(o => o.Option == 0), .. options.Where(o => o.Option != 0)]));
+		}
+
+		Directory.CreateDirectory(DiffFolder);
+		File.WriteAllText(PlayerInstructionsFile, JsonSerializer.Serialize(catalogue.Select(g => new KeptInstruction(g.Id, g.Name, g.Options.Select(o => new KeptOption(o.Id, o.Name)).ToList()))));
+		return catalogue;
+	}
+
 	private sealed record KeptOption(long Id, string Name);
 
 	private sealed record KeptInstruction(int Id, string Name, List<KeptOption> Options);
