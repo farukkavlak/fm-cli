@@ -4103,6 +4103,16 @@ olabilir" diye sayıyor. Ayrıca: Çağlar (süre sözü) ve Musaba (kiralık s�
 Néné `actions … "Available for loan"` ile kiralığa açıldı (kartta görünmüyor; kartta transfer durumu yok).
 Yan bulgu: `fm actions néné` kendi oyuncumuzu değil başka kulüpten "Nenê"yi buldu; `fm player néné` doğrusunu buluyor.
 
+## 8.139 Sakatlık durağı canlıda (11 Ekim gece, oyun 22 Kasım 2025, Alanyaspor iç saha)
+
+24:36'da Archie Brown bileğini burktu ("There are suggestions it could be a twisted ankle"); saat durdu. `fm match --play`
+durağı **tanımadı**: 45 sn boyunca "Confirm Changes" görülmedi, saat-durdu yoluyla çıktı. Dugout "No Dugout Events" diyordu
+(kim sakat yazmıyor). Sonra `fm sub` sahayı/kulübeyi doğru listeledi (sakat işareti yok), `sub brown mercan` değişikliği
+verdi (Mercan sahaya geçti) ama "Confirm Changes"e basmadı — o an buton görünmüyordu; birkaç saniye sonra
+`/buttons`'ta açık ("MatchOpenTactics"). Ardından `fm match` durağı tanıdı, Confirm'e bastı, maç Mercan'la sürdü.
+Yani buton durağın hemen başında yok, biraz sonra geliyor: `sub` artık 5 sn bekliyor; saat-durdu mesajı `sub`/`match`
+yolunu söylüyor. İlk 45 sn'de neden görülmediği belli değil (maç döngüsü her turda butonları okuyor).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

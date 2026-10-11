@@ -213,7 +213,8 @@ internal static partial class Program
 				{
 					await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
 					await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
-					Console.WriteLine("  Değişiklik yapılmadan sürdürüldü.");
+					// A change given with `sub` beforehand is made by this same press.
+					Console.WriteLine("  Maç sürdürüldü (bekleyen değişiklik varsa onunla).");
 					clockAt = DateTime.UtcNow;
 					firstLook = false;
 					continue;
@@ -249,7 +250,8 @@ internal static partial class Program
 			else if (DateTime.UtcNow - clockAt > TimeSpan.FromSeconds(45))
 			{
 				Console.Error.WriteLine($"Maç {time}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik).");
-				Console.Error.WriteLine("Ekrandakiler için: buttons   ·   kadro için: tactic   ·   hallettikten sonra: match");
+				// Seen at a real injury stop (FINDINGS §8.139): `sub` then `match` carried on from there.
+				Console.Error.WriteLine("Değişiklik için: sub <çıkan> <giren>   ·   olduğu gibi sürdürmek: match   ·   ekrandakiler: buttons");
 				return 1;
 			}
 
@@ -586,10 +588,16 @@ internal static partial class Program
 			return 0;
 		}
 
-		// At an injury stop the change waits for "Confirm Changes", which also restarts play.
-		if (Field(await Fm.GetJson("state"), "Playing") != "True" && ConfirmChanges(await Fm.GetJson("buttons", ("json", "1"))) is { } resume)
+		// At an injury stop the change waits for "Confirm Changes", which also restarts play. The
+		// button is not on screen the moment the change is chosen (Alanyaspor, 22 Kasım 2025: the
+		// change went in and the match stayed stopped), so it is waited for a little.
+		JsonElement? resume = null;
+		if (Field(await Fm.GetJson("state"), "Playing") != "True")
+			await Until(async () => (resume = ConfirmChanges(await Fm.GetJson("buttons", ("json", "1")))) != null, seconds: 5, every: 0.5);
+		if (resume is { } confirmed)
 		{
-			await Fm.Get("press", ("ptr", Field(resume, "Pointer")));
+			var resumeAt = confirmed;
+			await Fm.Get("press", ("ptr", Field(resumeAt, "Pointer")));
 			var going = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 			Console.WriteLine(going
 				? $"Değişiklik yapıldı: {leaving} çıktı, {coming} girdi. Maç sürüyor; izlemeye devam: match"
