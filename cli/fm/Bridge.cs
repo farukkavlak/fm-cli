@@ -5,13 +5,36 @@ namespace FmCli;
 /// <summary>Talks to the plugin running inside the game.</summary>
 internal sealed class Bridge
 {
-	private const string Base = "http://127.0.0.1:7777/";
+	// The plugin writes the port it took: the usual one is skipped when a dead game still holds it.
+	private static string Base => $"http://127.0.0.1:{PluginPort()}/";
+
+	private static int PluginPort()
+	{
+		try
+		{
+			var file = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "port");
+			if (File.Exists(file) && int.TryParse(File.ReadAllText(file).Trim(), out var port) && port > 0) return port;
+		}
+		catch { }
+		return 7777;
+	}
 
 	private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(120) };
 
 	// FM_TRACE=1 prints every call and how long it took, to see where a command's time goes.
 	private static readonly bool Trace = Environment.GetEnvironmentVariable("FM_TRACE") == "1";
 	private static readonly System.Diagnostics.Stopwatch Clock = System.Diagnostics.Stopwatch.StartNew();
+
+	/// <summary>
+	/// Whether a bridge answers at all, asked briefly: a dying game can hold the port and take
+	/// the connection without ever answering (11 Ekim 2026), which the usual long wait would sit on.
+	/// </summary>
+	public async Task<bool> Answers()
+	{
+		using var quick = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+		try { return (await quick.GetStringAsync(Base + "health")).Length > 0; }
+		catch { return false; }
+	}
 
 	public async Task<string> Get(string route, params (string Key, string Value)[] query)
 	{

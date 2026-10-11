@@ -210,6 +210,7 @@ internal static class Launcher
 
 	private static async Task<bool> Up(Bridge fm)
 	{
+		if (!await fm.Answers()) return false;
 		try { return (await fm.Get("health")).Length > 0; }
 		catch (FmUnavailable) { return false; }
 	}

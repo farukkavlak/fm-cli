@@ -29,7 +29,7 @@ public class Plugin : BasePlugin
 		// so we never inject a MonoBehaviour. BepInEx's main-thread pump is enough.
 		IL2CPPChainloader.MainThreadTick += _bridge.Pump;
 
-		Log.LogInfo($"[fm-cli] ready on http://127.0.0.1:{Port}/");
+		Log.LogInfo($"[fm-cli] ready on http://127.0.0.1:{_bridge.Port}/");
 	}
 
 	public override bool Unload()

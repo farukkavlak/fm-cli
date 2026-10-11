@@ -16,7 +16,10 @@ namespace FmCliProbe;
 /// </summary>
 internal sealed class HttpBridge
 {
-	private readonly int _port;
+	private int _port;
+
+	/// <summary>The port the bridge took, once started.</summary>
+	public int Port => _port;
 	private readonly Func<string, NameValueCollection, string> _handle;
 	private readonly ConcurrentQueue<Job> _jobs = new();
 
@@ -40,9 +43,32 @@ internal sealed class HttpBridge
 
 	public void Start()
 	{
-		_listener = new HttpListener();
-		_listener.Prefixes.Add($"http://127.0.0.1:{_port}/");
-		_listener.Start();
+		// A game killed while it held the port can sit in the kernel for a long time, exiting but
+		// not gone, and keep the port the whole while (11 Ekim 2026); the next free one is taken
+		// then, and written where the CLI looks for it.
+		var first = _port;
+		for (var port = first; ; port++)
+		{
+			_listener = new HttpListener();
+			_listener.Prefixes.Add($"http://127.0.0.1:{port}/");
+			try
+			{
+				_listener.Start();
+				_port = port;
+				break;
+			}
+			catch (HttpListenerException) when (port < first + 10)
+			{
+				try { _listener.Close(); } catch { }
+			}
+		}
+		try
+		{
+			var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli");
+			System.IO.Directory.CreateDirectory(dir);
+			System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "port"), _port.ToString());
+		}
+		catch { /* the CLI falls back to the usual port */ }
 		_running = true;
 
 		_thread = new Thread(Listen) { IsBackground = true, Name = "fm-cli-http" };
