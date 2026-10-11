@@ -135,7 +135,30 @@ fm register --auto                 önce yardımcı seçsin
 fm register --send                 gönder (kurallar tutuyorsa)
 ```
 
-`fm numbers` forma numaralarını yardımcıya verdirip gönderir. Script'te sormadan: `--auto`.
+`fm numbers` forma numaralarını gösterir: kim kaç giyiyor, kim hangi numarayı istemiş, hangi numaralar boş.
+
+```
+NO   İSTEDİĞİ   OYUNCU              MEVKİ              STATÜ
+4    4          Çağlar Söyüncü      D (C)              Rotasyon
+6               Mattéo Guendouzi    DM, M (C)          Önemli
+…
+-    40         Dominik Livaković   GK                 Kiralıkta
+
+Boş numaralar: 1 2 8 10 15 16 19 23 25 28 29 36 38 40 41 …
+Oyun şu an numara değişikliği almıyor: numaralar sezon başında ya da yeni transfer gelince
+kaydediliyor, sonra sezon sonuna kadar değişmiyor.
+```
+
+Oyun numara beklerken (sezon başı, yeni transfer):
+
+```
+fm numbers "livakovic" 40    numarayı sayfada seç (dolu numarayı vermez, kimde olduğunu söyler)
+fm numbers --send            sayfadakini kaydet — kaydedilince sezon sonuna kadar değişmez
+fm numbers --auto            hepsini yardımcı dağıtsın ve göndersin
+```
+
+> Elle numara verme henüz canlıda denenemedi (sezon ortasında numaralar kilitli); ilk sezon başında
+> ya da ilk transferde doğrulanacak.
 
 ## 4. Zamanı ilerletmek — `next`
 

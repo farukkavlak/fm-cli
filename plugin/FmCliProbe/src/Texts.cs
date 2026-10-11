@@ -55,13 +55,14 @@ internal static class Texts
 	}
 
 	/// <summary>
-	/// Scrolls the list a shown text sits in (?anchor=…) to a share of its length (?to=0..1),
+	/// Scrolls the list a shown text (?anchor=…) or a control (?ptr=…) sits in to a share of its length (?to=0..1),
 	/// for tables that only lay out the rows in view; without ?to= it only says where it is.
 	/// </summary>
 	public static string Scroll(NameValueCollection q)
 	{
 		var anchor = q["anchor"];
-		if (string.IsNullOrEmpty(anchor)) return "error: ?anchor=<text> required";
+		var byPointer = Buttons.TryPointer(q["ptr"] ?? "", out var pointer);
+		if (string.IsNullOrEmpty(anchor) && !byPointer) return "error: ?anchor=<text> or ?ptr=<0x…> required";
 		float? to = float.TryParse(q["to"], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var share)
 			? System.Math.Clamp(share, 0f, 1f) : null;
 
@@ -69,14 +70,16 @@ internal static class Texts
 		{
 			try
 			{
-				if (element.panel == null || element.worldBound.width <= 0) continue;
-				if (Text.Plain(element.TryCast<TextElement>()?.text ?? "") != anchor) continue;
+				// The same text can sit in a list of a page left open underneath; a pointer says which.
+				if (byPointer) { if (element.Pointer != pointer) continue; }
+				else if (element.panel == null || element.worldBound.width <= 0) continue;
+				else if (Text.Plain(element.TryCast<TextElement>()?.text ?? "") != anchor) continue;
 			}
 			catch { continue; }
 
 			var (offset, end) = Registration.Scroll(element, to);
 			return end <= 0 ? "error: that text is not in a scrolling list" : $"{offset:0.#} of {end:0.#}\n";
 		}
-		return $"error: nothing shows '{anchor}'";
+		return byPointer ? $"error: nothing at {q["ptr"]} (the screen may have changed)" : $"error: nothing shows '{anchor}'";
 	}
 }

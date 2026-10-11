@@ -94,7 +94,7 @@ internal static partial class Program
 				"offer" => await Offer(args),
 				"offers" => await Offers(json, args),
 				"register" => await Register(args),
-				"numbers" => await Numbers(args),
+				"numbers" => await Numbers(json, args),
 				"contract" => await Contract(args),
 				"release" => await Release(args),
 				"propose" => await Propose(args),
@@ -1296,7 +1296,9 @@ internal static partial class Program
 			  register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar; terminalde okla ekle/çıkar
 			    --in <oyuncu> / --out <oyuncu>   listeye koy / listeden çıkar (tekrarlanabilir)
 			    --auto        önce yardımcı seçsin;  --send: gönder (kurallar tutunca)
-			  numbers         forma numaralarını gönder (aynı şekilde)
+			  numbers         forma numaraları: kim kaç giyiyor, kim hangisini istedi, boş numaralar
+			    numbers <oyuncu> <no>   numara ver (oyun aldığı sürece: sezon başı ya da yeni transfer);  --send: kaydet
+			    --auto        yardımcı dağıtsın ve göndersin
 			  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)
 			  setpieces <tür>             rutin: vuruş tipi, hedef, oyuncuların görevleri (korner, frikik, kanat, derin, tac)
 			  setpieces <tür> vurus <in|out> | hedef <seçenek> | <yer> <görev> [<olmazsa>]   rutini değiştir

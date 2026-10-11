@@ -15,6 +15,7 @@ internal static partial class Program
 		["Star Player"] = "Yıldız", ["Important Player"] = "Önemli", ["Regular Starter"] = "Düzenli ilk 11",
 		["Squad Player"] = "Rotasyon", ["Impact Sub"] = "Etkili yedek", ["Fringe Player"] = "Kenarda",
 		["Emergency Backup"] = "Acil durum yedeği", ["Youngster"] = "Genç", ["Not Needed"] = "İhtiyaç yok",
+		["Backup"] = "Yedek", ["Breakthrough Prospect"] = "Çıkış yapan genç", ["Future Prospect"] = "Geleceğin oyuncusu",
 	};
 
 	private static async Task<int> Finances(bool json, string[] args)

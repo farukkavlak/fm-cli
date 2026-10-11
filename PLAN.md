@@ -166,7 +166,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] `/squad` iki listeyi birleştirirken bir oyuncunun kolonlarını eksik bırakabiliyor (Musaba) — olası neden düzeltildi (boş alan öbür listeden doluyor), hata yeniden görülmedi (§8.86)
 - [x] Uyruk — `fm squad` terminal görünümünde ULUS sütunu (oyuncunun `Nation.ThreeLetterName`, satırının altından)
 - [x] Turnuva kadro listesi — `fm register`: kim listede, yetişme kotaları, kurallar; okla ekle / çıkar, gönder (§8.43)
-- [~] Forma numaraları — `fm numbers` yardımcıya verdiriyor; elle numara verme yok
+- [~] Forma numaraları — `fm numbers`: kim kaç giyiyor, istediği numara, boş numaralar, oyun değişiklik alıyor mu (§8.126); `fm numbers <oyuncu> <no>` + `--send` yazıldı ama canlıda denenemedi (numaralar sezon sonuna kadar kilitli)
 - [x] `fm player <isim>` — kimlik, sözleşme, alışkanlıklar, 36 özellik (§8.38); kadro dışındakiler aramayla
 - [x] Öznitelikler (teknik / zihinsel / fiziksel / duran top; kalecide kalecilik)
 - [~] Gizli öznitelikler (scout görüşü kadarıyla) — kartta kulübün gördüğü potansiyel (`PerceivedPotentialAbility`, /200); kişilik özellikleri, tutarlılık vb. `/pull` ile gelmiyor (§8.85); kişilik `fm dynamics`'te (§8.95)
@@ -455,6 +455,14 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ---
 
 ## Günlük
+
+### 2026-10-11 (akşamüstü — eski parklar, ekran görüntüsüyle)
+
+- **Forma numaraları** (§8.126): "Squad Numbers" sayfası doğrudan açılınca boş çiziliyormuş; First Team'den kadro
+  menüsüyle açılınca doluyor. `fm numbers` artık tabloyu veriyor (numara, oyuncunun istediği numara, mevki, statü), boş
+  numaraları sayıyor ve oyunun değişiklik alıp almadığını söylüyor. Elle verme (`fm numbers <oyuncu> <no>`, `--send`)
+  yazıldı ama **denenemedi**: numaralar sezon başında / yeni transferde kaydediliyor, şu an hepsi kilitli.
+- Köprü: `/scroll?ptr=` (aynı yazı altta kalan sayfada da varsa doğru listeyi kaydırmak için).
 
 ### 2026-10-11 (öğleden sonra — "yarım kalanları kapatalım")
 

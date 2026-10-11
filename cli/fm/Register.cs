@@ -3,52 +3,11 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The squad list a competition asks every club for, and the squad numbers. Both pages have the
-/// assistant fill them in and a Confirm that asks once more; the squad list can also be made
-/// by hand, a player at a time, which is what a list that breaks a quota needs.
+/// Sending a list the game asks every club for — the squad list, the squad numbers: the page's
+/// Confirm, which asks once more, and why it is off when it is.
 /// </summary>
 internal static partial class Program
 {
-	private static Task<int> Numbers(string[] args) =>
-		AssistantList(args, "numbers", "Squad Numbers", "Ask Assistant to Assign", "Confirm Squad Numbers", "Forma numaraları", "Forma numaraları");
-
-	/// <summary>
-	/// A list the competition asks for that the assistant can fill in — the registered squad,
-	/// the squad numbers — on a page with an "Ask Assistant to …" button and a Confirm that asks
-	/// once more.
-	/// </summary>
-	private static async Task<int> AssistantList(string[] args, string command, string page, string assist, string confirmLabel, string question, string what)
-	{
-		if (await NotNow() is { } refused) return refused;
-
-		if (await Labelled(assist) == null)
-		{
-			var opened = await OpenPage(page, "Squad");
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Until(async () => await Labelled(assist) != null, seconds: 10);
-		}
-
-		if (await Labelled(assist) is not { } pick)
-		{
-			Console.Error.WriteLine($"'{page}' ekranı açılmadı.");
-			return 1;
-		}
-
-		// The list is the manager's call; the assistant's is offered, not taken.
-		if (!args.Contains("--auto"))
-		{
-			if (!Ui.Interactive)
-			{
-				Console.Error.WriteLine($"{what} yardımcıya yaptırıp göndermek için: {command} --auto   (tek tek seçmek henüz komutla yapılamıyor)");
-				return 1;
-			}
-			if (Ui.Ask(question, ["Yardımcı yapsın ve gönder"], cancel: "Kendim yapacağım (oyunda), şimdilik bırak") == null) return 0;
-		}
-
-		await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
-		return await SendList(confirmLabel, what);
-	}
-
 	/// <summary>Presses the page's Confirm and answers the question it asks.</summary>
 	private static async Task<int> SendList(string confirmLabel, string what)
 	{

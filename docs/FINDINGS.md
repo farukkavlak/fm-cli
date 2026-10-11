@@ -3844,6 +3844,32 @@ devret / geri al, zaten o durumda olan.
 
 `fm youth` alım adaylarının gelip gelmediğini söylüyor; `fm youth --training` U19'un antrenman haftası.
 
+## 8.126 Forma numaraları: sayfa neden boştu, tablo, kilit (11 Ekim) — §8.92'deki parkın çözümü
+
+- **Boş sayfanın nedeni.** `/shot` ile bakınca "Squad Numbers" gerçekten boş çiziliyordu (başlık + dört kapalı buton,
+  yol "Squad › Numbers"). Sayfa yalnızca **First Team sayfasından**, kadro menüsünün "More › Squad Numbers" girişiyle
+  açılınca doluyor (yol "Squad › First Team › Numbers"): `OpenPage("First Team")`, sonra
+  `/select?name=SecondaryTabDropdownButton&choice=Squad Numbers&fire=1`. Doğrudan açılan sayfa hangi takımın
+  numaralarını göstereceğini bilmiyor. Boş haldeyken aynı seçimi yeniden göndermek doldurmuyor; önce First Team.
+- **Tablo** `/form?anchor=Prom.&up=14&buttons=1` ile satır satır geliyor: numara seçici (`SIDropdown`; `Label` o anki
+  numara ya da "-", `Enabled`, `Choices`), varsa oyuncunun **istediği numara** (Pref.), ad butonu, mevki, statü, yaş.
+  Seçicinin seçenekleri kimin neyi giydiğini de söylüyor: "7. Fred" dolu, "8" boş, "12. (Dedicated to the fans)" emekli.
+  42 satır (A takım + numara almış gençler + kiralıktakiler); tablo yalnızca görünen 24 satırı kuruyor, kalanı kaydırmayla.
+- **Kaydırma:** `/scroll?anchor=<ad>` yanlış listeyi kaydırıyordu — aynı ad altta açık kalmış First Team tablosunda da
+  yazıyor ve ilk bulunan o. `/scroll?ptr=<kontrol>` eklendi (satırın kendi seçicisi verilir). ⚠ Kaydırınca satırlar
+  yeniden kullanılıyor; seçicinin pointer'ı yalnızca o görünüm için geçerli.
+- **Kilit.** Sayfanın kendi notu: "Squad numbers can only be registered at the start of the season or when a new
+  signing arrives. Once registered, they cannot be changed until next season." 23 Ekim'de bütün seçiciler ve dört buton
+  (Undo Changes, Clear All, Ask Assistant to Assign, Confirm Squad Numbers) kapalı; kiralıktaki yedi oyuncu numarasız
+  ("-", yeşil çerçeveli) ama onlar da kapalı. Eski `fm numbers` kapalı butonu bulamayınca "ekran açılmadı" diyordu.
+- Veride `PreferredSquadNumber` `/pull` ile geliyor (Söyüncü 4, Livaković 40, Cengiz 17); `SquadNumber` gelmiyor.
+  `PromisedSquadNumber` de var (Prom. sütunu), dolu örnek görülmedi.
+- **Doğrulanmadı:** elle numara vermek (`/select?ptr=<seçici>&choice=…&fire=1`, sonra Confirm). Sezon başı ya da yeni
+  transferde denenecek; dolu numarayı seçince oyunun ne yaptığı (takas mı, ret mi) bilinmiyor — komut dolu numarayı vermiyor.
+
+`fm numbers` tabloyu, boş numaraları ve oyunun değişiklik alıp almadığını yazar; `fm numbers <oyuncu> <no>` + `--send`,
+`--auto`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
