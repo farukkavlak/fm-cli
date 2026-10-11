@@ -3709,6 +3709,35 @@ devret / geri al, zaten o durumda olan.
 `fm scout player <ad> [--by <scout>] --for <süre> [--cancel]`, `fm scout who <ad>`, `fm shortlist add <ad> --for <süre>` /
 `remove <ad>`, `fm interest <ad> --top|--transfer|--loan [--yes]`, `fm enquire <ad>`, `fm trial <ad> --for <hafta> [--yes]`.
 
+## 8.120 Scout odağı kurmak, durdurmak, yeniden başlatmak (11 Ekim)
+
+- "Create a New Recruitment Focus" / "Edit Recruitment Focus" / "Remove…" / "Restart…" `SpeakToAction` taşıyor; `/press`
+  (olayı kuyruğa koymak) hiçbir şey açmıyor, `/click` açıyor.
+- Sihirbazın iki adımı da `/form?anchor=<Next|Back>&up=12&buttons=1` ile baştan sona okunuyor.
+  - **1/2:** "Any Position" onay kutusu (`/setcontrol value=false`) kalkınca saha butonları açılıyor (GK, D (R), D (C)×3,
+    D (L), WB (R), DM×3, WB (L), M (R), M (C)×3, M (L), AM (R), AM (C)×3, AM (L), ST (C)×3); biri tıklanınca "Next" ve
+    "Role (In Possession)" listesi açılıyor (`/select choice=`). "Any Tactic" listesi, topsuz sekme ve rol yeterliliği (±)
+    burada; düzenlemede ayrıca "Or — Find a replacement" (kadrodaki o mevkinin oyuncuları).
+  - **2/2:** ad `/textboxes` → `/type` (EditBox); yaş iki liste — `/select` "no events to send" diyor ama seçim tutuyor
+    (üst liste alttakine göre daralıyor, ikincisi yeniden okunmalı); bölge iç içe liste: Competition › / Nation › / Region ›
+    / Continent › / Recently Selected ›, `/menu?ptr=&names=<yol>` ile gezilir, `/select?names=Region>Europe>Northern
+    Europe&fire=1` ekler ("Scouting Areas (n)" artıyor, eklenen bölge buton olarak beliriyor); öncelik `Priority-Tab` /
+    `Standard-Tab` / `Ongoing-Tab` tıklaması; "Confirm". En düşük şimdiki / potansiyel yetenek yıldızlı, ± butonlarla
+    (değeri metin olarak okunmuyor) — yazılmadı. "Assign Scouts / Analysts › Edit" ayrı pencere — yazılmadı.
+  - "Cancel" → "Are you sure you want to cancel this Focus?" (Cancel / Confirm).
+- Kurulan odak canlıda "Edit" ile yeniden açılıp doğrulandı: Defender (Left) · wing-back, 18–23, Northern Europe + Türkiye,
+  ad. Öncelik formdan okunamıyor (seçili sekme metinde yok).
+- **Remove silmiyor.** "Removing this Focus will immediately remove this from the scouting priorities" (Cancel / Confirm):
+  odak listede kalıyor, durumu "In Progress" yazmaya devam ediyor, "Assignments (n)" bir azalıyor, sıralamada sona düşüyor;
+  tek fark butonu — süren odakta "Remove Recruitment Focus", durmuş ya da bitmişte "**Restart** Recruitment Focus".
+  `Focus.Running` bu butondan okunuyor, listede "Durduruldu" diye gösteriliyor.
+- **Restart** form açmadan odağın yeni bir kopyasını başlatıyor; eski giriş durmuş olarak kalıyor (liste bir uzuyor).
+  Durmuş girişi listeden tamamen silen bir şey görülmedi.
+- Bu oturumda oyunda iki durmuş "CLI deneme" ve bir durmuş "CLI sol bek" girişi kaldı (kaydedilmedi).
+
+`fm scout new [--position] [--role] [--area "a, b"] [--age 18-23] [--name] --priority top|standard|ongoing`,
+`fm scout areas [yol]`, `fm scout remove <#|ad> [--yes]`, `fm scout restart <#|ad>`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

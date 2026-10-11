@@ -11,7 +11,14 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record Focus(int Index, string Name, string Status, string Assigned, int Matched, int Near, int InProgress);
+	/// <summary>
+	/// A focus that has been removed is not gone: it stays in the list, its status as it was,
+	/// and only its button tells — "Restart" where a running one has "Remove" (FINDINGS §8.120).
+	/// </summary>
+	private sealed record Focus(int Index, string Name, string Status, string Assigned, int Matched, int Near, int InProgress, bool Running = true)
+	{
+		public string State => Status == "In Progress" && !Running ? "Durduruldu" : Status;
+	}
 
 	private static async Task<int> Scout(bool json, string[] args)
 	{
@@ -39,7 +46,7 @@ internal static partial class Program
 			{
 				Table.Write(["#", "ODAK", "DURUM", "ATANAN", "EŞLEŞEN", "YAKIN", "SÜREN"], focuses.Select(f => new[]
 				{
-					(f.Index + 1).ToString(), f.Name, f.Status, f.Assigned, f.Matched.ToString(), f.Near.ToString(), f.InProgress.ToString(),
+					(f.Index + 1).ToString(), f.Name, f.State, f.Assigned, f.Matched.ToString(), f.Near.ToString(), f.InProgress.ToString(),
 				}).ToList());
 				Console.WriteLine("\nBir odağın bulduğu oyuncular: scout <#|ad>   (--near: yakın eşleşenler, --progress: incelenenler)");
 			}
@@ -105,7 +112,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"{shown.Name} · {shown.Status} · {shown.Assigned} — {title} ({expected})");
+		Console.WriteLine($"{shown.Name} · {shown.State} · {shown.Assigned} — {title} ({expected})");
 		if (rows.Count == 0) Console.WriteLine("Bu sekmede oyuncu yok.");
 		else Table.Write(["OYUNCU", "ÜLKE", "YAŞ", "MEVKİ", "ROL", "KULÜP", "LİG", "DEĞER", "NOT", "TAVSİYE"], rows);
 		if (rows.Count < expected) Console.WriteLine($"({expected} oyuncunun {rows.Count} tanesi ekranda; liste yalnızca görünen satırları çiziyor.)");
@@ -149,7 +156,8 @@ internal static partial class Program
 				assigned >= 0 ? string.Join(" · ", texts.Skip(assigned + 1).Take(at - assigned - 1)) : "",
 				In(texts.FirstOrDefault(t => t.StartsWith("Matched (", StringComparison.Ordinal)) ?? ""),
 				In(texts.FirstOrDefault(t => t.StartsWith("Nearly Matched (", StringComparison.Ordinal)) ?? ""),
-				In(texts.FirstOrDefault(t => t.StartsWith("In Progress (", StringComparison.Ordinal)) ?? ""));
+				In(texts.FirstOrDefault(t => t.StartsWith("In Progress (", StringComparison.Ordinal)) ?? ""),
+				(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Label") == "Remove Recruitment Focus"));
 			var key = read.ToString();
 			var settled = key == previous;
 			previous = key;

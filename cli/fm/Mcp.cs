@@ -280,6 +280,15 @@ internal static class Mcp
 		new("fm_actions", "What the game lets be done about a person — the menu a right click on the name raises: for a player scouting assignments, shortlist, declare interest, offer a trial, squad planner; for staff approach to sign, shortlist; for our own staff contract talks, termination, coaching course. Without `choose` it lists the menu (paths joined with ' > '); with `choose` (a path, or its last part when that is unique) it does it at once and says what followed (a question from the game, a conversation, contract talks).",
 			"""{"type":"object","properties":{"person":{"type":"string"},"choose":{"type":"string","description":"e.g. 'Add To Shortlist > Indefinitely', 'Send On Coaching Course'"}},"required":["person"]}""",
 			a => Str(a, "choose") is { Length: > 0 } pick ? ["actions", Str(a, "person") ?? "", pick] : ["actions", Str(a, "person") ?? "", "--json"]),
+		new("fm_scout_focus", "Sets up, stops or restarts a recruitment focus. `action` new: at least `position` (e.g. DL, 'D (C)', STC) or `area`; `role` goes with a position; `area` is one or more comma-separated places — a continent, region or nation by name ('Northern Europe', 'Türkiye') or a path for a competition ('Competition>Türkiye>Super League'); `age` like '18-23'; `name` up to 25 letters; `priority` (top, standard, ongoing) is required. `action` areas lists the area choices under `area` (a path, or empty for the top). `action` remove stops the focus named in `focus` (number or name; it stays listed as stopped; needs `confirm`), restart sets a stopped or complete one going again.",
+			"""{"type":"object","properties":{"action":{"type":"string","enum":["new","areas","remove","restart"]},"focus":{"type":"string"},"position":{"type":"string"},"role":{"type":"string"},"area":{"type":"string"},"age":{"type":"string"},"name":{"type":"string"},"priority":{"type":"string","enum":["top","standard","ongoing"]},"confirm":{"type":"boolean"}},"required":["action"]}""",
+			a => Str(a, "action") switch
+			{
+				"areas" => ["scout", "areas", .. Opt(a, "area"), "--json"],
+				"remove" => ["scout", "remove", Str(a, "focus") ?? "", .. Flag(a, "confirm", "--yes")],
+				"restart" => ["scout", "restart", Str(a, "focus") ?? ""],
+				_ => ["scout", "new", .. Opt2(a, "position", "--position"), .. Opt2(a, "role", "--role"), .. Opt2(a, "area", "--area"), .. Opt2(a, "age", "--age"), .. Opt2(a, "name", "--name"), .. Opt2(a, "priority", "--priority")],
+			}),
 		new("fm_scout_player", "Sends a scout to watch a player: the scouting pool, or the scout named in `by` (`who`=true lists the scouts he can be given to). `length` is required: '1 week', '2 weeks', '1 month', '2 months', '3 months', '1 match' … '4 matches', or 'extensive'. Cancelling an assignment does not take effect from here.",
 			"""{"type":"object","properties":{"player":{"type":"string"},"length":{"type":"string"},"by":{"type":"string"},"who":{"type":"boolean"}},"required":["player"]}""",
 			a => a.TryGetProperty("who", out var who) && who.ValueKind == JsonValueKind.True ? ["scout", "who", Str(a, "player") ?? "", "--json"]

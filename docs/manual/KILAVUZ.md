@@ -1040,7 +1040,38 @@ OYUNCU         ÜLKE  YAŞ  MEVKİ             ROL             KULÜP         DE
 Mohamed Bayo   GUI   27   AM (RL), ST (C)   Centre Forward  Gaziantep FK  £170K - £1.7M  B    Quality
 ```
 
-Yeni odak kurmak henüz yok (oyunda iki adımlı bir sihirbaz).
+### Yeni odak kurmak, durdurmak
+
+`fm scout new` scoutlara yeni bir iş verir. Ne arandığını (mevki, istersen rol), nerede arandığını
+(bölge), yaş aralığını ve önceliği söylersin; en az bir mevki ya da bölge gerekir, öncelik her zaman:
+
+```
+$ fm scout new --position DL --role "wing-back" --area "Northern Europe, turkiye" --age 18-23 --name "CLI sol bek" --priority standard
+Odak kuruldu: CLI sol bek · Standard · D (L) · Wing-Back · Northern Europe · Türkiye · 18–23 yaş · 1 scout · 1 analyst
+Bulduklarını görmek için: scout "CLI sol bek"
+```
+
+- **Mevki** sahadaki adıyla: `DL`, `DC`, `WBR`, `DM`, `MC`, `AML`, `ST`…
+- **Bölge** kıta, bölge ya da ülke ise adı yeter (`"Northern Europe"`, `turkiye`). Bir lig için yolunu
+  yazarsın: `"Competition>Türkiye>Super League"`. Birden çok bölge virgülle ayrılır. Seçenekleri
+  `fm scout areas` verir; altı olanlar `›` ile biter: `fm scout areas "Region>Europe"`.
+- **Öncelik** `top` (hemen, iki kişiyle), `standard` (tek scout, daha yavaş) ya da `ongoing` (sürekli).
+  Yazmazsan komut sorar; kendisi seçmez.
+- Yazmadığın her şey oyunun bıraktığı gibi kalır (her mevki, 15–50 yaş, her yer).
+
+`fm scout remove <#|ad>` bir odağı durdurur; `--yes` olmadan yalnızca ne olacağını söyler. Oyun durdurulan
+odağı silmez: listede **Durduruldu** diye kalır, bulduğu oyuncular da durur. `fm scout restart <#|ad>`
+durmuş ya da bitmiş bir odağı yeniden başlatır (oyun ondan yeni bir odak açar, eskisi listede kalır).
+
+```
+$ fm scout remove "cli deneme"
+'CLI deneme' (1 eşleşen, 0 yakın) scout önceliklerinden çıkarılır. Onaylamak için: scout remove 5 --yes
+$ fm scout remove "cli deneme" --yes
+Odak durduruldu: CLI deneme  (listede kalır; yeniden başlatmak: scout restart)
+```
+
+Henüz yok: en düşük yetenek / potansiyel (yıldız), belirli scout ve analist atamak, topsuz rol,
+var olan odağı düzenlemek.
 
 ### Bir oyuncuyu izletmek, listeye almak, kulübüne yoklamak
 
