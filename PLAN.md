@@ -377,7 +377,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kadro sağlık taraması — `fm health`: sakat, yorgun, maç formu düşük, sakatlık riski en yüksek (§8.71)
 - [x] Sözleşme takvimi — `fm contracts`: en yakın biten önce, renkli (§8.72)
 - [x] Derinlik matrisi: hangi pozisyon zayıf — `fm depth`, `fm doctor` ince mevkiler
-- [~] Transfer fırsat taraması (bütçe + ihtiyaç + uygunluk) — taşları var: `fm players --role --age --grade --contract --listed` (§8.117), `fm scout <odak>` (§8.109), `fm budget`; tek komutta birleştirilmedi
+- [x] Transfer fırsat taraması — `fm targets`: bütçe + ince mevkiler; `fm targets <mevki>` o mevkide bütçeye sığanlar (§8.131)
 - [ ] Sezon karşılaştırması / trend
 - [x] `fm diff` — son bakıştan beri ne değişti: lig sırası, kasa, bütçe, gelen/giden, sakatlar, sözleşmeler, maç/gol/asist (`--keep`, `--reset`)
 - [ ] `fm watch` — bir oyuncuyu/durumu izle, değişince haber ver (`Bindings.Bind` ile)
@@ -470,6 +470,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - **Maç hazırlığı odağı** (§8.130): aynı yolla açıldı. `fm prep` dört odağı, anlamlarını, seçenekleri ve oyunun önerisini
   veriyor; `fm prep topla progression` gibi değiştiriyor (odak yazılmazsa okla seçtiriyor). §8.92'deki "değiştiren kontrol
   yok" sonucu sayfa için doğruydu; veri tarafında her odağın bir seçme olayı varmış.
+- **`fm targets`** (§8.131): çıplak hali transfer / maaş bütçesini ve ince mevkileri veriyor, `fm targets <mevki>` o
+  mevkide değeri bütçeyi aşmayan oyuncuları arıyor. Hangi mevkiye bakılacağını komut seçmiyor (Faruk: "A daha mantıklı").
+- Hata düzeldi: oyuncu aramasının koşulları komutlar arasında birikiyordu (eski mevki, eski "Listed"); iki mevki art arda
+  istenince arama "panel tutmadı" diye düşüyor ya da sonuçlar yanlış daralıyordu. Her arama artık öncekini temizliyor.
 
 ### 2026-10-11 (akşamüstü — eski parklar, ekran görüntüsüyle)
 

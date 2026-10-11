@@ -3983,6 +3983,21 @@ devret / geri al, zaten o durumda olan.
   Penalties · Attacking Corners" yazdı. Hepsi eski haline döndürüldü. Görülmedi: değişikliğin maça etkisi, kayıttan
   sonra durup durmadığı, maç oynanınca odakların kendiliğinden yeni rakibe dönüp dönmediği.
 
+## 8.131 `fm targets`; oyuncu aramasında biriken koşullar (11 Ekim akşam)
+
+- **`fm targets`**: bütçe Recruitment Budgets'tan (`BudgetOverview`), ince mevkiler `Human.Team.Players`'ın
+  `PositionCombinedString`'inden (sakat ve kiralıkta olan sayılmaz; `doctor`daki kuralla aynı: sağlam oyuncu ≤ 1).
+  `fm targets <mevki>` = `players --position <mevki> --max-value <transfer bütçesi>` + kullanıcının verdiği öbür seçenekler.
+- ⚠ **Arama paneli koşulları biriktiriyordu.** Panelin koşul listesi (`conditions-list`) her `ApplySearch`'te yeni satır
+  ekliyor, eskiler duruyordu: bir oturumda "Position Is Natural At DR", "… DL" ve önceki bir `--listed`'den "Transfer Status
+  Listed" yan yana. Aynı mevki ikinci kez seçilince oyun yeni satırı eskisiyle birleştiriyor, CLI son satıra bakıp
+  "panel tutmadı" diyordu (DR → DL → DR'de her seferinde). Sayfanın "Clear"ı (`EventFmxResetFilter`) bütün koşulları
+  siliyor ("Edit Search (3)" → "Edit Search"); `players` artık arama kurmadan önce ona basıyor. Satır başına silme de var
+  (`EventFmxRemoveFilterCondition`), açma / kapama kutusu (`…SelectFilterEnabled`) ve ve/veya düğmesi
+  (`…SelectFilterLogicalOperator`); kullanılmadı.
+- Doğrulama: DR, DL, DR, "sol bek" art arda dördü de doğru, sonunda panelde iki koşul (mevki + değer). `--age --listed`
+  ve `--free` bozulmadı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

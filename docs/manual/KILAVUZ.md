@@ -965,6 +965,42 @@ Moussa Diarra    183  24   RSC Anderlecht  £6M - £7.4M
 Bunlar da oyunda açık kalır: bir sonraki `fm players` aynı aramayla gelir, `--clear` sıfırlar.
 Liste yine yalnızca ekrandaki ~20 satırdır (ada göre sıralı); daraltmak için süzgeçleri sıkılaştır.
 
+### Transfer hedefleri — `targets`
+
+İki adım. Önce durum: kalan bütçe ve kadroda ince mevkiler (sağlam oyuncusu bir ya da hiç olan). Hangi mevkiye
+bakılacağına sen karar verirsin.
+
+```
+$ fm targets
+Bütçe: transfer £11.1M · maaş £12.5K p/w boşta
+
+Kadroda ince mevkiler (sağlam oyuncu bir ya da hiç):
+  ML   yalnızca Archie Brown
+  MR   kimse yok
+
+Öbür mevkiler: GK 2 · DL 4 · DC 6 · DR 2 · …
+
+Aramak için: targets <mevki>   (ör. targets DL, targets "sol bek")
+```
+
+Sonra mevkiyi yaz: oyuncu veritabanı o mevkide, değeri transfer bütçesini aşmayanlarla aranır.
+
+```
+$ fm targets MR
+MR — değeri £11.1M ve altı (transfer bütçen; değiştirmek için --max-value <para>)
+Maaş bütçesi: £12.5K p/w boşta
+(değer sınırı oyunun listesindeki £10M olarak alındı)
+OYUNCU               YAŞ   KULÜP                   DEĞER
+Fermín               22    Burgos                  £375K
+Ryan Longman         24    Wrexham                 £2.5M
+…
+```
+
+Mevki kısaltmayla (`DL`, `AMC`, `ST`) ya da Türkçe (`"sol bek"`, `stoper`, `forvet`, `"sag kanat"`). `players`'ın
+arama seçenekleri burada da geçer: `--max-value 5M`, `--age 18-23`, `--grade B`, `--listed`, `--attr "pace>=14"`.
+Liste yalnızca oyunun bildiği (scoutlarının gördüğü) oyunculardır. Arama oyunda açık kalır; her yeni arama öncekini
+siler, kapatmak için `fm players --clear`.
+
 ### Teklif — `offer`
 
 ```
