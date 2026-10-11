@@ -405,6 +405,25 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Lig tablosu ve fikstür — tablo: bölge renkleri ve takım vurgusu; fikstür: G / B / M renkli. Form: tabloda son beş maç G / B / M (§8.115), `fm table` da Stages sayfasından tam tabloyu alıyor
 - [x] Kolon başlıkları — `squad --view` / `players` okunur başlık basıyor
 - [~] Akış — `fm status` takım, menajer ve sıradaki maçı bir panelde veriyor; `next` gürültüsü azaldı
+- [ ] **Canlı maç ekranı — FM'in 2D / 3D / yalnız anlatım seçenekleri gibi, birkaç kaliteli görünüm ve kişiselleştirme**
+      (Faruk 11 Ekim gece: "UX'i önemli"). Bugün `match --play` aşağı akan düz anlatım: skor sabit değil, istatistik yok,
+      müdahale için ikinci terminal gerekiyor, anlatım çok kalabalık, sakatlık durağında ekran sessiz kalıyor.
+      Hedef: gerçek terminalde tek ekranlık panel, script / MCP için bugünkü düz çıktı aynen kalsın.
+      - Görünümler (3-4 tane, maç içinde tuşla geçilsin):
+        1. **Panel** — üstte sabit skor / dakika / yarı + istatistik şeridi (topla oynama, şut, isabet, xG, kart);
+           ortada yalnızca önemli olaylar (gol, kart, sakatlık, değişiklik, yardımcı tavsiyesi) kalıcı; altta anlatımın son
+           2-3 satırı soluk akar; en altta tuş çubuğu.
+        2. **Saha (2D benzeri)** — ASCII / Unicode saha, top hangi bölgede, iki takımın dizilişi, baskı / momentum
+           çubuğu; olay olunca kenarda tek satır.
+        3. **Yalnız önemli anlar** — anlatım yok; gol, kart, sakatlık, tavsiye ve devre / maç sonu özeti (hızlı izleme).
+        4. **Tam anlatım** — bugünkü akış, ama üstte sabit skor satırıyla.
+      - Tuşlar: değişiklik, bağırış, taktik / mentalite, maç hızı, görünüm değiştir, rapor, duraklat. Sakatlık durağında
+        panel kendisi sorsun ("Brown sakatlandı, kim girsin?").
+      - Kişiselleştirme: kullanıcı panelden parça ekleyip çıkarabilsin (istatistik şeridinde hangi sayılar, olay
+        listesinde hangi türler, anlatım satırı sayısı, renkler, tuşlar, varsayılan görünüm); ayar dosyası
+        (`~/.config/fm-cli/match.toml` gibi) + `fm settings` içinden okla düzenleme. Varsayılan dayatma yok.
+      - Gereken veri: maç sırasında canlı istatistik (`fm report`'un okuduğu yer maç içinde de dolu mu), topun konumu /
+        bölgesi (2D görünüm için — maç motorundan ne okunabiliyor bakılacak), momentum.
 
 ### Diğer
 
