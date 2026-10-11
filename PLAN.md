@@ -448,6 +448,47 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 ## 15. MCP + doğal dil
 
 - [x] MCP server — `fm mcp` (stdio), 34 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
+  (11 Ekim: 95 araç; eksik: compare, diff, export, interest, enquire, trial. Açık kalan sunucu eski derlemeyi tutuyor —
+  her çağrıda güncel `fm`'i çalıştırmak düşünülmeli)
+
+### Doğal dil katmanı — karar ve araştırma (11 Ekim gece; **henüz başlanmayacak**, normal plan önce)
+
+Faruk'un tanımı: kullanıcı doğal dilde konuşsun, sistem doğru komutu (function call) çalıştırsın — **başka bir şey değil**
+(yapay zekâ kendi kafasına karar vermez, oyunu yönetmez). **Yerel çalışmalı**: oyun için kimse para ödemek istemez, API
+anahtarı / hesap / internet istememeli. Değiştiren işlerde (teklif, satış, kayıt, numara…) önce ne çalışacağını gösterip onay.
+
+Hedef yapı (katmanlı; bir katman çözemezse bir sonrakine):
+1. **Komut aynen yazıldıysa** model yok (bugünkü hal).
+2. **Kural katmanı** — sık kalıplar ("sıradaki maç", "X'i sat", "kısa listeye ekle") basit eşleştiriciyle.
+3. **Yerel yönlendirici** — cümle → kategori → komut, sonra argümanlar:
+   - Argümanların çoğu sayılabilir (kadrodaki isimler, mevkiler, mentalite/rol/talimat listeleri): mevcut isim
+     eşleştirici (aksansız, yazım hatası) + sözlük ("sol kanat" = AML). Serbest olanlar (bonservis rakamı, başka
+     kulüpten isim) ayrıştırılır ya da sorulur.
+   - Güven düşükse "şunu mu demek istedin?" ile 2-3 seçenek sun; tahmin etme.
+   - Tek cümlede iki istek ("Kerem'i sola al, Musaba girsin"): "ve / sonra" bölücüsü.
+4. **(İsteğe bağlı) bulut** — yalnızca kullanıcı açarsa: Claude Haiku 5.5 (liste fiyatı $0.10 / $0.50 milyon token,
+   tahmini sezon ~$1) ya da TypeSafe **Jev** (karar modeli, ~$0.042 / milyon girdi, çıktı ücretsiz; erken erişim
+   Eylül 2026, barındırılan API; serbest metin argüman dolduramıyor — `UnfillableRoute`; Pydantic AI'da `FallbackModel`
+   ile büyük modele devretme var). Anthropic API'de "tool search" (araçları sonradan yükleme) iki aşamayı kendisi yapıyor.
+
+Yerel yönlendirici adayları (11 Ekim araştırması; rakamlar çoğunlukla tek kaynak — kendi makinemizde ölçülecek):
+- **Gömme tabanlı yönlendirici (semantic router)** — her komuta 5-10 Türkçe örnek cümle; gelen cümle en yakın örneğe
+  (kosinüs benzerliği), eşik altıysa "emin değilim". Küçük çok dilli gömme modeli (ör. multilingual-e5-small sınıfı),
+  tahmini ~100-500 MB RAM, CPU'da ms. **.NET'te ONNX Runtime ile doğrudan** (Python/Ollama kurdurmak yok, `fm` tek parça).
+  Üretken değil → uydurma araç çağrısı yok. **İlk aday.** Riskler: eşik ayarı, çok istekli cümle, örnek yazma emeği.
+- **Laya** (ModernBERT/mmBERT, 322-421M, 100+ dil) ve **Von** (ModernBERT ~395M, CPU, kalibre olasılık) — yerel "Jev
+  benzerleri", seçenekten olasılıkla seçiyor; tahmini ~0.5-1.5 GB. Çok yeni projeler.
+- **FunctionGemma 270M** (Google, araç çağırmaya özel) — dosya ~290 MB, RAM ~550-800 MB (kaynaklar çelişiyor); hazır
+  ~%58, ince ayarla ~%85 doğruluk (tek kaynak); kendi çağrı biçimi var.
+- NanoJev (Qwen3-0.6B), Kev (0.8-9B), Rizzo Flow (1.7-4B), Nimble (9B) — bize ağır / GPU istiyor.
+- Ollama + 7-8B genel model — ~5 GB, FM26'nın yanında 16 GB Mac'te zor; 95 araçta şaşırıyor.
+
+Başlarken sıra: (a) komutların ~12 kategorilik haritası (hangi yol seçilirse seçilsin lazım), (b) en çok kullanılan ~20
+komuta Türkçe örnek cümleler, (c) küçük deneme: ONNX gömme modeli `fm` içinde — doğruluk ve RAM gerçek sayılarla,
+(d) iyiyse genişlet; MCP araçlarını da ~15 kalın araca indirmek (az araç küçük modelde de, bulutta da daha doğru).
+Kaynaklar: pydantic.dev/docs/ai/api/models/typesafe, docs.composio.dev/docs/providers/typesafe,
+openrouter.ai/~typesafe/jev-latest, datacamp.com/blog/top-open-source-jev-alternatives,
+developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, thoughtworks.com/radar/tools/semantic-router.
 - [ ] "Kadroda yorgun kim var?"
 - [~] "Sol bek arıyorum, 10M bütçem var, öner" — araması var: `fm players --position DL --max-value 10M --age … --attr …` (§8.117); öneriyi sıralamak LLM'e kalıyor (MCP `fm_players`)
 - [ ] "Bu hafta kimi dinlendirmeliyim?"
@@ -954,7 +995,7 @@ kısım henüz kaydedilmedi, oyunun otomatik kaydı alabilir.
 
 1. Otomatik kayıt: ayar olacak, kullanıcı seçecek.
 2. `fm match` oynat / geç: ikisi de seçenek olarak sunulacak.
-3. MCP araçlarının biçimi: konuşulmadı, açık.
+3. MCP araçlarının biçimi: 11 Ekim gece konuşuldu — doğal dil katmanı, yerel; bkz. "Doğal dil katmanı" (§15).
 4. Konuşmada ilk cümleyi söylemek: anlamsız, kullanıcı seçecek.
 5. Sırada ne var: UX ve görselleştirme (yukarıda "Ürün kararları").
 
