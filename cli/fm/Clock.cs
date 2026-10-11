@@ -169,6 +169,8 @@ internal static partial class Program
 		{
 			case "NeedAction":
 				var blocking = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
+				// The game says a message waits and the inbox read shows none: it may be an old one.
+				if (blocking.Count == 0) blocking = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
 				if (blocking.Count == 0)
 				{
 					// A message answered once that the game opens again: after a teammate asked to talk a

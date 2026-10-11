@@ -4113,6 +4113,17 @@ verdi (Mercan sahaya geçti) ama "Confirm Changes"e basmadı — o an buton gör
 Yani buton durağın hemen başında yok, biraz sonra geliyor: `sub` artık 5 sn bekliyor; saat-durdu mesajı `sub`/`match`
 yolunu söylüyor. İlk 45 sn'de neden görülmediği belli değil (maç döngüsü her turda butonları okuyor).
 
+## 8.140 Bayat gelen kutusu ve yönetim toplantısı (11 Ekim gece, oyun 14 Aralık 2025)
+
+Rizespor 2-0 yenilgisinden sonra oyun "Response Required"da durdu; `status`, `inbox`, `talk`, `dialog`, `offers` hiçbir şey
+göstermedi, `/shot` simsiyahtı (§8.129). `/inbox` dört maç önceki listeyi (Real Hispalis raporları…) veriyordu: daha önce
+yüklenmiş bir gelen kutusu başka sayfaların altında bağlı kalıyor ve eski haliyle okunuyor. "Response Required"a basınca
+oyun Messages'ı açtı; orada "Board request meeting to discuss your future" (öncelikli, cevaplanabilir) ve bir gazeteci
+sorusu vardı. Yeniden okununca `status` mesajı buldu. Toplantı: Attend → iki soru ("neden kötü", "nasıl düzelteceksin")
+ve End Chat; sakatlık ve "çabuk çözülür" cevaplarıyla yönetim "more time" verdi. Gitmemek sözleşmenin feshi demek.
+Düzeltme: `inbox` her seferinde portalı yeniden açıp okuyor (`FreshInbox`); `status`/`next` bekleyen mesaj bulamazsa bir kez
+de taze okuyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

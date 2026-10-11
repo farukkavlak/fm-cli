@@ -514,6 +514,29 @@ internal static partial class Program
 	/// Only one screen's data is bound at a time: reading the squad unbinds the inbox and the
 	/// other way round, so every command has to be able to bring its own screen back.
 	/// </summary>
+	/// <summary>
+	/// The inbox as it is now. An inbox loaded earlier can stay bound beneath other pages and go
+	/// on answering with what it held then — after four matches it still listed the week before
+	/// while the board's meeting request waited unseen (FINDINGS §8.140). Opening the portal again
+	/// binds the live one.
+	/// </summary>
+	internal static async Task<JsonElement> FreshInbox()
+	{
+		var before = (await Fm.GetJson("inbox")).ToString();
+		var sentAt = DateTime.UtcNow;
+		await Fm.Get("send",
+			("event", "OpenSubtabEvent"),
+			("SubtabPanelID", "PortalScreen"),
+			("MainTabPanelID", "PortalScreen"),
+			("ObjectUniqueID", "0"),
+			("SecondaryTab", "false"));
+		JsonElement data = default;
+		// Changed, or the same for a while: the inbox already open was the live one.
+		await Until(async () => (data = await Fm.GetJson("inbox")).GetArrayLength() > 0
+			&& (data.ToString() != before || DateTime.UtcNow - sentAt > TimeSpan.FromSeconds(2)), seconds: 8, every: 0.5);
+		return data.ValueKind == JsonValueKind.Array && data.GetArrayLength() > 0 ? data : await Bound("inbox", "PortalScreen");
+	}
+
 	private static async Task<JsonElement> Bound(string route, string panel)
 	{
 		var data = await Fm.GetJson(route);
@@ -556,7 +579,7 @@ internal static partial class Program
 			return 1;
 		}
 
-		var inbox = await Bound("inbox", "PortalScreen");
+		var inbox = await FreshInbox();
 		RememberNumbers(inbox);
 		if (json)
 		{
