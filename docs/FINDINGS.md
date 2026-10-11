@@ -3783,6 +3783,22 @@ devret / geri al, zaten o durumda olan.
 - Sonuç: içerik büyük olasılıkla gizli pencerede hiç çizilmiyor ya da başka bir kökte; bir sonraki deneme `--debug`
   pencereyle (görünür) yapılmalı. Park.
 
+## 8.123 Oyuncunun scout raporu (11 Ekim)
+
+- Başka kulübün izlenmiş oyuncusunun sayfasında "Scouting Report" döşemesi var: metinleri "Scouting Report | <not> |
+  <cümle>" ("C | Would be a useful signing."). Döşemenin butonu etiket olarak **cümleyi** taşıyor (`SIButton`, adı
+  "SIButton"); `/click?text=<cümle>` raporu açıyor. Kendi oyuncumuzda ve hiç izlenmemiş oyuncuda döşeme yok ("Player
+  Report" üçlüsü bir görünüm listesinin seçenekleri, buton değil).
+- Rapor `/texts?anchor=Pros&up=12` ile tek okumada: "Scout | Analyst", "<tarih> - Last Scouted By" + ad + görev, "Scout
+  Recommendation" + not + cümle, "Current Ability" / "Potential Ability" (söz olarak: "Leading Super League", "Could
+  improve slightly"), "Transfer Interest", "Loan Interest", "Transfer Value", "Estimated Wage", "Pros" …, "Cons" … (bir
+  madde içinde satır sonu olabiliyor: kayıt kuralı + ayrıntısı), "Matches Watched", mevki, "Best Role" + rol, "Squad
+  Comparison - <mevki>" + Rank / Player / Ability / Potential başlıkları + (sıra, ad) çiftleri (yıldızlar metin değil).
+- Oyuncu sayfası kaldığı sekmeyi hatırlıyor: bir önceki oyuncuda rapor açık bırakıldıysa yenisi de raporda açılıyor
+  (döşeme yok, "Pros" bir an sonra geliyor) — komut ikisinden hangisi önce gelirse onu bekliyor.
+
+`fm player <ad> --report`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

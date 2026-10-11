@@ -1131,6 +1131,30 @@ $ fm shortlist add "Adam Gnezda Čerin" --for "6 ay"
 Adam Gnezda Čerin: Add To Shortlist › 6 Months — yapıldı.
 ```
 
+Scout dönünce raporu `fm player <ad> --report` ile okursun: notu, yeteneği ve potansiyeli için ne
+dedikleri, oyuncunun gelmeye ne kadar istekli olduğu, kaça mal olacağı, artılar, eksiler ve kadronda o
+mevkide kaçıncı sırada olacağı:
+
+```
+$ fm player "Adam Gnezda Čerin" --report
+Adam Gnezda Čerin — scout raporu · son izleyen Sercan Soykan (14/10/2025)
+  Not: C — Would be a useful signing.
+  Yetenek: Leading Super League · Potansiyel: Could improve slightly
+  Transfere ilgisi: Extremely Interested · kiralığa: Very Interested
+  Değer: £5.25M - £6.25M · tahmini maaş: £23,500 p/w - £31,500 p/w
+Artılar:
+  + Is a current international with plenty of experience.
+  + His stamina allows him to keep performing when others often get tired.
+Eksiler:
+  - Would need to learn the language.
+Kadroda sırası (M (C)):
+   7  Talisca
+   8  Adam Gnezda Čerin  ←
+   9  Adnan Efe Fettahoğlu
+```
+
+Kendi oyuncun ya da hiç izlenmemiş biri için rapor yoktur; komut bunu söyler.
+
 Teklif vermeden önce kulübü yoklamanın üç yolu:
 
 - `fm enquire <ad>` kulübüne "ne istersiniz?" diye sorar. Cevap gelen kutusuna düşer.

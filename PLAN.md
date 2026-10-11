@@ -260,7 +260,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ## 6. Scouting
 
-- [~] Scout raporları — `fm scout <odak>`: odağın bulduğu oyuncular, not ve tavsiyeyle (§8.109); oyuncunun tam rapor kartı yok
+- [x] Scout raporları — `fm scout <odak>`: odağın bulduğu oyuncular, not ve tavsiyeyle (§8.109); `fm player <ad> --report`: oyuncunun tam raporu — not, yetenek / potansiyel, ilgisi, değeri, artılar / eksiler, kadrodaki sırası (§8.123)
 - [~] Scout ata (bölge/oyuncu/takım) — oyuncuya: `fm scout player <ad> [--by <scout>] --for <süre>`, `scout who` (§8.119); iptal işlemiyor; bölge / takım odak sihirbazında (§8.109)
 - [~] Scout odakları (recruitment focus) — `fm scout`: odaklar, durum, atananlar, sayılar (§8.109); `scout new` (mevki, rol, bölge, yaş, ad, öncelik), `scout remove` / `restart`, `scout areas` (§8.120); en düşük yetenek, belirli scout atama, var olanı düzenleme yok
 - [x] Kısa liste — `fm shortlist` (§8.56); `shortlist add <ad> --for <süre>` / `remove <ad>` (§8.119)
@@ -469,6 +469,9 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - 26 Ekim'de odak sayfasından "Create / Remove / Restart" butonları kayboldu (nedeni bilinmiyor, §8.120); `scout new` ve
   `scout remove` o zaman "Assignments" paneli üzerinden yürüyor (canlıda kur → durdur döngüsü doğrulandı). Aynı panelden
   **`fm scout staff`**: scoutların gözü, bildikleri yer, üzerlerindeki odaklar. `<komut> --help` artık komutu çalıştırmıyor.
+- **`fm player <ad> --report`** (§8.123): scoutların tam raporu — not ve cümle, yetenek / potansiyel, transfere ilgisi, değer ve
+  maaş tahmini, artılar, eksiler, kadroda o mevkide kaçıncı olacağı.
+- Youth Performance / Candidates yine bulunamadı (§8.122; görünür pencereyle denenecek).
 - Kocaelispor 1-0 kaybedildi (26 Ekim); sakatlık durağı yine çıkmadı. Oyun 26 Ekim 2025 akşamı, kaydedilmedi.
 - Çalışmayan: scout görevini **iptal** (oyun soruyu kapatıyor, görev duruyor) — komut bunu doğrulayıp söylüyor.
 - Canlıda (kayıtta duruyor, kaydedilmedi): Čerin kısa listede (6 ay) ve soru soruldu; Čerin, Jović, Icardi izleniyor;

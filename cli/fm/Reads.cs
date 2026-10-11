@@ -266,7 +266,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches]");
+			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches] [--report]");
 			return 64;
 		}
 
@@ -275,6 +275,7 @@ internal static partial class Program
 		if (args.Contains("--actions")) return await PlayerActions(card.GetProperty("Player"));
 		if (args.Contains("--career")) return await Career(card, json);
 		if (args.Contains("--matches")) return await PlayerMatches(card, json);
+		if (args.Contains("--report")) return await PlayerReport(card, json);
 
 		// The potential the club's staff see in him, out of 200. The game turns it into stars
 		// measured against the club's own level, so it is given as the number.
