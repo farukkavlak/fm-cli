@@ -410,7 +410,9 @@ internal static partial class Program
 		for (var step = 0; step < 12; step++)
 		{
 			JsonElement? list = null;
-			if (!await Until(async () => (list = await Question(previous)) != null, seconds: 10))
+			// A list's choices fill one by one as the question comes in: it is read once none is blank.
+			if (!await Until(async () => (list = await Question(previous)) != null
+			                             && list.Value.GetProperty("Choices").EnumerateArray().All(c => c.GetString() is { Length: > 0 }), seconds: 10, every: 0.25))
 			{
 				Console.Error.WriteLine($"{step + 1}. sorunun seçenekleri gelmedi.");
 				return 1;
