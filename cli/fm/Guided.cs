@@ -702,6 +702,17 @@ internal static partial class Program
 		var took = await Until(async () =>
 			(await Fm.GetJson("tactic")).TryGetProperty("Slots", out var now) && now.GetArrayLength() > at && Field(now[at], "PlayerIndex") == player, seconds: 8);
 		Console.WriteLine(took ? $"{spot}: {(current.Length > 0 ? current : "boş")} → {name}" : $"{name} seçildi ama {spot} hâlâ {current} gösteriyor.");
+		// The one taken off goes to the newcomer's place on the bench; an injured man there still keeps the match from starting.
+		if (took)
+			try
+			{
+				var injured = (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
+					.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToList();
+				bool Hurt(string shown) => shown.Length > 0 && injured.Any(n => n.EndsWith(shown, StringComparison.Ordinal));
+				if (Hurt(name)) Console.WriteLine($"Dikkat: {name} sakat; maç onunla başlamaz.");
+				if (Hurt(current)) Console.WriteLine($"Dikkat: {current} sakat ve şimdi yedeklerde; sakat yedekle maç başlamaz. Yedekleri yardımcıya seçtirmek için: tactic pick");
+			}
+			catch (FmError) { }
 		if (took) await ShowChange([(at, false), (at, true)]);
 		return took ? 0 : 1;
 	}
