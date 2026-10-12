@@ -937,6 +937,27 @@ internal static partial class Program
 			return;
 		}
 
+		// Who is away with his country, for what and when; then the fixtures around it.
+		if (rest[0] == "Internationals" && rest.Contains("Current and Recent Events"))
+		{
+			var events = rest.IndexOf("Current and Recent Events");
+			var fixtures = rest.IndexOf("Fixture Schedule");
+			var end = fixtures > events ? fixtures : rest.Count;
+			Console.WriteLine("\n  Ek: milli takımdakiler");
+			for (var i = events + 1; i + 2 < end; i += 3)
+				Console.WriteLine($"    {rest[i + 2]} — {rest[i]} ({rest[i + 1]})");
+			if (fixtures > 0)
+			{
+				// Played ones have a score; those to come, a kick-off time.
+				var coming = new List<string>();
+				for (var i = fixtures + 1; i + 4 < rest.Count && rest[i + 3] is "H" or "A"; i += 5)
+					if (rest[i + 4].Contains(':'))
+						coming.Add($"{rest[i]} {rest[i + 2]} ({(rest[i + 3] == "H" ? "iç saha" : "deplasman")}) {rest[i + 4]}");
+				if (coming.Count > 0) Console.WriteLine($"    Sıradaki maçlar: {string.Join(" · ", coming)}");
+			}
+			return;
+		}
+
 		// An injury's card: what it is, how it came (in a match, in training), how he is, then what each
 		// answer would mean, in the answers' order.
 		if (rest[0] == "Fitness" && rest.Any(t => t.Contains("Received in", StringComparison.Ordinal)))
