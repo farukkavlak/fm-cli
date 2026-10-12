@@ -846,7 +846,7 @@ internal static partial class Program
 				var all = journalists + 1 < rest.Count && int.TryParse(rest[journalists + 1].Trim('(', ')'), out var n) ? n : people.Count;
 				if (people.Count > 0)
 				{
-					Console.WriteLine(all > people.Count ? $"\n  Gelecek gazeteciler ({all} kişiden {people.Count}'i):" : $"\n  Gelecek gazeteciler ({all}):");
+					Console.WriteLine(all > people.Count ? $"\n  Gelecek gazeteciler ({all} kişi, ekranda görünen {people.Count}):" : $"\n  Gelecek gazeteciler ({all}):");
 					Table.Write(["GAZETECİ", "KURUM", "ETKİ", "İLİŞKİ"], people);
 				}
 			}
