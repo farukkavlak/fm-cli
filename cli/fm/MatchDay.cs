@@ -629,15 +629,17 @@ internal static partial class Program
 			await Fm.Get("press", ("ptr", Field(resumeAt, "Pointer")));
 			var going = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 			Console.WriteLine(going
-				? $"Değişiklik yapıldı: {leaving} çıktı, {coming} girdi. Maç sürüyor; izlemeye devam: match"
+				? $"Değişiklik yapıldı: {leaving} çıktı, {coming.Split(" - ")[0]} girdi. Maç sürüyor; izlemeye devam: match"
 				: $"{coming} seçildi ve değişiklik onaylandı ama maç hâlâ duruyor: buttons");
 			return going ? 0 : 1;
 		}
 
 		// Done when the player who left no longer has a menu on the pitch.
 		var made = await Until(async () => !(await Menus()).Any(m => m.GetProperty("Choices")[0].GetString() == leaving), seconds: 20);
+		// The bench lists a player with his positions ("Reeco Hackett - M (RL), AM (RLC)").
+		var comer = coming.Split(" - ")[0];
 		Console.WriteLine(made
-			? $"Değişiklik verildi: {leaving} çıkıyor, {coming} giriyor. Oyun bunu ilk duraklamada uyguluyor."
+			? $"Değişiklik yapıldı: {leaving} çıktı, {comer} girdi."
 			: $"{coming} seçildi ama {leaving} hâlâ sahada görünüyor; oyun onay bekliyor olabilir (buttons).");
 		return made ? 0 : 1;
 

@@ -1110,7 +1110,7 @@ internal static partial class Program
 		{
 			Console.Error.WriteLine(events
 				? "Oyuncular az önce bir bağırış duydu; oyun yeni bağırışa bir süre izin vermiyor."
-				: $"Maç ekranındaki {what.ToLowerInvariant()} listesi şu an kapalı.");
+				: $"{(current.Length > 0 ? $"{what}: {current}. " : "")}Oyun az önceki değişiklikten sonra {what.ToLowerInvariant()} listesini bir süre kapattı; birazdan yeniden dene.");
 			return 1;
 		}
 		if (wanted == null && Ui.Interactive && !dry && Ui.Ask(what, choices, current: choices.IndexOf(current), cancel: "Vazgeç") is { } asked)
