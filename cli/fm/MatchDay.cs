@@ -115,8 +115,8 @@ internal static partial class Program
 			// Who was booked, hurt and how each played is read off the match screen, which is gone by the
 			// time the whistle is seen (the period drops straight from the second half): so it is read from
 			// the 88th minute on, again every twenty seconds while play lasts.
-			if (Field(state, "Period") is "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var minute)
-			    && minute >= 88 && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(20))
+			if (Field(state, "Period") is "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
+			    && lateMinute >= 88 && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(20))
 			{
 				lastLook = DateTime.UtcNow;
 				try { if (await MatchPlayers() is { Count: > 0 } men) finalMen = men; } catch (FmError) { }
