@@ -538,25 +538,53 @@ internal static partial class Program
 		await Until(async () => (data = await Fm.GetJson("inbox")).GetArrayLength() > 0
 			&& (data.ToString() != before || DateTime.UtcNow - sentAt > TimeSpan.FromSeconds(2)), seconds: 8, every: 0.5);
 		if (data.ValueKind != JsonValueKind.Array || data.GetArrayLength() == 0) data = await Bound("inbox", "PortalScreen");
+		return await AtTop(data);
+	}
 
+	/// <summary>The bound inbox, its list scrolled to the newest first.</summary>
+	internal static async Task<JsonElement> TopInbox() => await AtTop(await Bound("inbox", "PortalScreen"));
+
+	private static async Task<JsonElement> AtTop(JsonElement data)
+	{
 		// The list binds only the rows drawn, and the portal keeps where it was scrolled to: left
 		// halfway down, the newest messages are not among them. The top is the newest.
 		var title = data.EnumerateArray().Select(m => Field(m, "NewsTitleString")).FirstOrDefault(t => t != "");
-		if (title == null) return data;
+		if (title == null) return Oldest(data);
 		try
 		{
+			// Already at the top, the rows bound are the newest.
+			if ((await Fm.Get("scroll", ("anchor", title))).StartsWith("0 of")) return Oldest(data);
 			var moved = await Fm.Get("scroll", ("anchor", title), ("to", "0"));
 			if (moved.StartsWith("0 of") && data.ToString() is var held)
 			{
+				// The rows are drawn again a few at a time: the read is the one that has stopped changing.
 				JsonElement top = default;
+				var last = held;
 				var at = DateTime.UtcNow;
-				await Until(async () => (top = await Fm.GetJson("inbox")).GetArrayLength() > 0
-					&& (top.ToString() != held || DateTime.UtcNow - at > TimeSpan.FromSeconds(1.5)), seconds: 5, every: 0.25);
+				await Until(async () =>
+				{
+					top = await Fm.GetJson("inbox");
+					var now = top.ToString();
+					var settled = top.GetArrayLength() > 0 && now == last && (now != held || DateTime.UtcNow - at > TimeSpan.FromSeconds(1.5));
+					last = now;
+					return settled;
+				}, seconds: 5, every: 0.3);
 				if (top.ValueKind == JsonValueKind.Array && top.GetArrayLength() > 0) data = top;
 			}
 		}
 		catch (FmError) { }
-		return data;
+		return Oldest(data);
+	}
+
+	/// <summary>
+	/// The rows in the order they came, the newest last: a list's rows are bound in the order its
+	/// pool hands them out, and a message's id grows with the day it arrived.
+	/// </summary>
+	private static JsonElement Oldest(JsonElement data)
+	{
+		if (data.ValueKind != JsonValueKind.Array) return data;
+		var rows = data.EnumerateArray().OrderBy(m => long.TryParse(Field(m, "UniqueId"), out var id) ? id : long.MaxValue).Select(m => m.GetRawText());
+		return JsonDocument.Parse("[" + string.Join(",", rows) + "]").RootElement;
 	}
 
 	private static async Task<JsonElement> Bound(string route, string panel)

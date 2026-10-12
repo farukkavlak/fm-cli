@@ -40,7 +40,7 @@ internal static partial class Program
 				return taken == 0 ? 1 : 0;
 			}
 
-			var inbox = (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList();
+			var inbox = (await TopInbox()).EnumerateArray().ToList();
 
 			// Straight after a load the game still calls itself free to continue while messages
 			// are waiting; the inbox knows better until the first real stop.
@@ -90,7 +90,7 @@ internal static partial class Program
 				now = again;
 			}
 
-			var arrived = (await Bound("inbox", "PortalScreen")).EnumerateArray()
+			var arrived = (await TopInbox()).EnumerateArray()
 				.Where(m => !known.Contains(Field(m, "UniqueId")))
 				.ToList();
 
