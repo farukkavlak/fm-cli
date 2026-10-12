@@ -34,6 +34,7 @@ SHOTS=(
 	"doctor|fm doctor"
 	"league|fm league"
 	"schedule|fm schedule"
+	"coaches|fm coaches"
 	"club|fm club"
 	"staff|fm staff"
 	"finances|fm finances"

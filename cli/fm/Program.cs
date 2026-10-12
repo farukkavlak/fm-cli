@@ -100,6 +100,7 @@ internal static partial class Program
 				"propose" => await Propose(args),
 				"opposition" => await Opposition(args),
 				"intensity" => await Intensity(args),
+				"coaches" => await Coaches(args),
 				"shout" => await Shout(args),
 				"shortlist" => args.Length > 1 && args[1] is "add" or "ekle" or "remove" or "sil" or "cikar" ? await ShortlistChange(args) : await Shortlist(json),
 				"interest" or "trial" or "enquire" => await Approach(args[0], args),
@@ -1459,6 +1460,8 @@ internal static partial class Program
 			  enquire <ad>    kulübüne ne isteyeceğini sor
 			  trial <ad> --for <1-4 hafta> [--yes]   oyuncuyu denemeye çağır
 			  intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto
+			  coaches         antrenör görevleri: kim hangi antrenman alanında, alanların iş yükü ve baş antrenörü
+			    coaches <antrenör> <alan> [--off]   ata / görevden al ("coaches Cohen topla taktik");  --auto: yardımcıya bırak
 			  opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)
 			    --advice / --clear   yardımcının önerisini uygula / temizle;  opposition <oyuncu> Pres=Always
 			  register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar; terminalde okla ekle/çıkar

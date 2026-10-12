@@ -747,6 +747,33 @@ fm intensity Fred "tatil 1"        bir hafta tatil (oyun izin verirse)
 fm intensity --auto                hepsini kondisyon hocasına bırak
 ```
 
+### Antrenör görevleri — `coaches`
+
+Dokuz antrenman alanının (hücum / savunma / topla oynama × taktik / teknik, kaleci, kondisyon, duran top)
+her birini hangi antrenörün çalıştırdığı. `✓` görevli olduğu alan ve oradaki yıldızı, `·` atanabileceği
+alan; boş hücre işinin izin vermediği alan (kaleci antrenörüne hücum verilemez). Altta her alanın iş yükü ve
+baş antrenörünün yıldızı. "Coaching assignments need attention" mesajı geldiğinde boş kalan alan burada
+"Antrenörü olmayan alan" diye yazar.
+
+```
+$ fm coaches
+ANTRENÖR         HÜC-TAK  HÜC-TEK  SAV-TAK  SAV-TEK  TOP-TAK  TOP-TEK  KALECİ  KOND   DURAN
+Faruk Kavlak     ✓ ★★★★   ·        ·        ·        ·        ·        ·       ·      ·
+Tom Shaw         ·        ·        ·        ✓ ★★★    ·        ·        ·       ·      ✓ ★★
+David Preece                                                           ✓ ★★★½
+Chris Cohen      ✓ ★★½    ·        ·        ·        ·        ✓ ★★½    ·       ·      ·
+iş yükü          orta     hafif    orta     orta     ağır     ağır     hafif   ağır   hafif
+baş antrenör     ★★★★     ★★½      ★★½      ★★★      yok      ★★½      ★★★½    ★★½    ★★
+Antrenörü olmayan alan: topla taktik
+
+fm coaches Kavlak topla taktik     ata (alan Türkçe ya da oyundaki başlıkla: "Poss Tact")
+fm coaches Kavlak topla taktik --off   görevden al
+fm coaches --auto                  yardımcı hepsini dağıtsın
+```
+
+Bir antrenöre ikinci alan verince ilk alandaki yıldızı düşebilir: Faruk Kavlak topla taktiğe de atanınca
+hücum taktikteki 4 yıldız 3'e indi. İş yükü dağıldıkça her alana ayırdığı emek azalıyor.
+
 ### Maç hazırlığı — `prep`
 
 Sıradaki maç için antrenmanda neye çalışıldığı: topla ve topsuz birer taktik odak, iki de duran top odağı.

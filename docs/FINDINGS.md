@@ -4252,6 +4252,16 @@ Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki top
   be registered." yazıyor (`/texts?anchor=Registration Open&up=6`, tek metin, satırlar `\n`). `register` bunları
   Türkçe basıyor. Onaydan sonra mesaj ekini kaybediyor; ekin "kayıt listesi 19/22, kayıtsız 0" özeti doğrulanmadı.
 
+## 8.147 Antrenör görevleri (20 Şubat 2026, Lincoln)
+
+"Coaching assignments need attention" birkaç günde bir geliyor; tek cevabı "Ask Assistant". Sayfa: Squad › Training,
+`SecondaryTabDropdownButton` → "Coach Assignments". `/form?anchor=Set Coach Assignments&up=3` hepsini sırayla veriyor:
+dokuz başlık (Att Tact … SPC), sonra her antrenör için ad, görev, dokuz kez (`checkbox` + `stars`). Yıldızın `Shown`'u yarım
+yıldız sayısı (8 = 4★), yalnızca atanmış hücrede dolu. İşinin izin vermediği hücrenin kutusu `Enabled=False` (kaleci
+antrenörü, kondisyon hocası). Altta "Coach Workload"/"Lead Coach Rating": dokuz iş yükü yazısı (Light/Average/Heavy), her
+birinin ardından baş antrenör yıldızı; kimsenin olmadığı alanda yıldız öğesi hiç yok. Atama `/setcontrol?ptr=<kutu>&value=1`,
+anında işliyor. Bir antrenöre ikinci alan verince ilk alandaki yıldızı düşüyor (Kavlak hücum taktik 4★ → 3★). `fm coaches`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
