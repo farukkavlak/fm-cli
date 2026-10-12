@@ -342,8 +342,12 @@ internal static partial class Program
 			var board = await MatchNames() is { } sides
 				? home ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
 				: score + (home ? " (ev sahibiyiz)" : " (deplasmandayız)");
-			Console.WriteLine($"Maçtayız. {Field(state, "MatchTime")}  {board}");
-			Console.WriteLine("Sürdürmek için: match");
+			var minute = Field(state, "MatchTime");
+			Console.WriteLine(minute == "" ? $"Maçtayız, başlamadı.  {board}" : $"Maçtayız. {minute}  {board}");
+			// A team talk holds the match until something is said.
+			Console.WriteLine((await TalkOptions()).Count > 0
+				? "Konuşmada bekliyor. Söylemek için: talk   (konuşmadan geçmek için: match --no-talk)"
+				: "Sürdürmek için: match");
 			return 0;
 		}
 		if (flow == "CanContinue" && (await Bound("inbox", "PortalScreen")).EnumerateArray().Any(Blocking)) flow = "NeedAction";
