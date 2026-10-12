@@ -885,7 +885,13 @@ internal static partial class Program
 			rest = rest.Skip(i).ToList();
 		}
 		else rest = rest.Skip(1).ToList();
-		if (rest.Count > 0) Console.WriteLine("  " + string.Join(" · ", rest));
+		// A news article's words come with its page's labels (the date, the score, the scorers,
+		// the ground): the article is the long text, the rest is said in it already.
+		var article = rest.Where(t => t.Length >= 80).ToList();
+		if (article.Count > 0)
+			foreach (var paragraph in article.SelectMany(t => t.Split('\n')).Where(l => l.Trim() != ""))
+				Console.WriteLine("  " + paragraph.Trim());
+		else if (rest.Count > 0) Console.WriteLine("  " + string.Join(" · ", rest));
 	}
 
 	private static async Task<string> MessageBody(string opening)
