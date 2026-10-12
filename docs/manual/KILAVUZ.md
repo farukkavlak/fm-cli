@@ -1483,6 +1483,31 @@ Maçı kısaltmanın iki yolu var: **maç gösterimi** "Yalnızca anlatım" ya d
 Dili değiştirmek mümkün ama fm-cli oyunun İngilizce yazılarını okuduğu için çoğu komut çalışmaz
 hale gelir; `settings` bunu sorar, script'te `--yes` ister.
 
+### İş aramak — `jobs`
+
+Kovulunca ya da istifa edince yeni bir iş gerekir. `fm jobs` açık ilanları listeler:
+
+```
+12 iş ilanı
+
+#   KULÜP           LİG             ÜLKE  SIRA  İTİBAR   MALİ DURUM  BAŞVURU
+1   Crystal Palace  Premier League  ENG   19th  Ulusal   Sağlam      kapalı
+4   Fenerbahçe      Super League    TUR   8th   Kıtasal  Sağlam      açık
+5   Kayserispor     Super League    TUR   18th  Ulusal   Sağlam      açık
+…
+```
+
+"BAŞVURU kapalı" demek, o kulübün şu an başvuru kabul etmediği anlamına gelir. Yine de ilgi
+bildirebilirsin. Liste her ilanı tek tek seçtiği için 15 saniye kadar sürer.
+
+`fm jobs kayseri` (ya da numarasıyla, `fm jobs 5`) ilanın ayrıntısını gösterir: maaş gideri,
+antrenman tesisleri ve menajer kuralları. Kulüp seçince:
+
+- `fm jobs kayseri apply` işe başvurur,
+- `fm jobs kayseri interest` kulübe ilgi bildirir.
+
+İkisi de göndermeden önce sorar. Script'te `--yes` gerekir.
+
 ## 12. Kulüp — `club`, `staff`, `finances`, `supporters`, `board`, `facilities`
 
 Hepsi yalnızca okur; oyunda hiçbir şeyi değiştirmez.

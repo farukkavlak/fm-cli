@@ -126,6 +126,7 @@ internal static partial class Program
 				"internationals" => await Internationals(json),
 				"news" => await News(json, args),
 				"dynamics" => await Dynamics(json),
+				"jobs" => await Jobs(json, args[1..]),
 				"prep" => await Prep(json, args),
 				"schedule" => args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json),
 				"settings" => await SettingsCommand(args),
