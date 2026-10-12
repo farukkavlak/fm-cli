@@ -852,13 +852,21 @@ internal static partial class Program
 			return 1;
 		}
 
-		var list = lists[at * 2 + (withoutBall ? 1 : 0)];
-		var roles = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "")
+		// The screen draws a pair of lists per slot the way the pitch reads, line by line from the
+		// goal and right to left, which is not always the tactic's order of slots (a 4-2-3-1 keeps its
+		// AMC among the defenders).
+		static List<string> RolesOf(JsonElement l) => l.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "")
 			.Where(c => !c.StartsWith("Go to ", StringComparison.Ordinal)).ToList();
-		var current = int.TryParse(Field(list, "Marked"), out var marked) && marked < roles.Count ? roles[marked] : "";
+		static string MarkedOf(JsonElement l) => RolesOf(l) is var r && int.TryParse(Field(l, "Marked"), out var m) && m < r.Count ? r[m] : "";
+		var drawn = spots.Select((s, i) => (Spot: s, Slot: i)).OrderBy(x => PitchOrder(x.Spot)).Select(x => x.Slot).ToList();
+		var pairOf = Enumerable.Range(0, slots.Count).Select(i => drawn.IndexOf(i)).ToArray();
+
+		var list = lists[pairOf[at] * 2 + (withoutBall ? 1 : 0)];
+		var roles = RolesOf(list);
+		var current = MarkedOf(list);
 		var known = Field(slots[at], withoutBall ? "OOPRoleName" : "IPRoleName");
 
-		if (Plain(current) != Plain(known))
+		if (!SameRole(current, Role(known)))
 		{
 			Console.Error.WriteLine($"{spot} için bulunan liste taktikle uyuşmuyor (listede '{current}', taktikte '{Role(known)}'); dokunulmadı.");
 			return 1;
@@ -988,6 +996,27 @@ internal static partial class Program
 		if ((bits & 1048576) != 0) name += "L";
 		if ((bits & 2097152) != 0) name += "R";
 		return name;
+	}
+
+	/// <summary>Where a slot stands as the pitch is read: its line from the goal, then right to left.</summary>
+	private static (int Line, int Side) PitchOrder(string spot)
+	{
+		var prefix = new[] { "GK", "WB", "DM", "AM", "ST", "D", "M" }.First(p => spot.StartsWith(p, StringComparison.Ordinal) || p == "M");
+		var line = prefix switch { "GK" => 0, "D" => 1, "WB" => 2, "DM" => 3, "M" => 4, "AM" => 5, _ => 6 };
+		var side = spot[Math.Min(prefix.Length, spot.Length)..] switch { "R" => 0, "CR" => 1, "CL" => 3, "L" => 4, _ => 2 };
+		return (line, side);
+	}
+
+	/// <summary>
+	/// One role by two of its names: the tactic keeps the older ones ("Ball Playing Defender", even
+	/// "Atacking Midfielder"), its lists say them anew ("Ball-Playing Centre-Back"). A word's first five
+	/// letters in common is enough to tell a list that is not this slot's.
+	/// </summary>
+	private static bool SameRole(string a, string b)
+	{
+		static IEnumerable<string> Stems(string role) => role.Split(' ', '-').Select(w => w.ToLowerInvariant()).Where(w => w.Length >= 5).Select(w => w[..5]);
+		static string Letters(string role) => new string(role.Where(char.IsLetter).ToArray()).ToLowerInvariant();
+		return Letters(a) == Letters(b) || Stems(a).Intersect(Stems(b)).Any();
 	}
 
 	/// <summary>"OPPressingCentralMidfielder" → "Pressing Central Midfielder".</summary>
