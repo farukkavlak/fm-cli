@@ -1258,6 +1258,8 @@ internal static partial class Program
 			bar = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.Where(c => Field(c, "Name") == "SIButton" && Field(c, "Events") == "OpenSubtab")
 				.Select(c => Field(c, "Label"))
+				// A subtab drawn as an icon has no label (Club's row has one): it tells no tab from another.
+				.Where(label => label.Length > 0)
 				.ToList();
 			return bar.Count > 0 && bar.All(label => siblings.Contains(label, StringComparer.OrdinalIgnoreCase));
 		}, seconds: 8);

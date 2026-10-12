@@ -1774,16 +1774,26 @@ ve `fm dialog Yes` / `fm dialog No` ile cevaplarsın; sormuyorsa iş olmuştur. 
 
 ![fm responsibilities](img/responsibilities.png)
 
-`fm responsibilities` personel işlerinin kimde olduğunu gösterir: işe alma / çıkarma, sözleşme
-yenileme, kurslar, takım seçimi. Yanına bir şey yazarsan süzer (`fm responsibilities u19`).
+`fm responsibilities` kulüpteki bütün işlerin kimde olduğunu gösterir. İşler oyundaki dokuz alana
+ayrılır: yönetim, personel, scout, transfer ve sözleşme, medya (basın toplantıları), antrenman, taktik,
+maç günü, duran top. Hepsini okumak yarım dakika kadar sürer. Tek bir alan için adını yaz:
+`fm responsibilities medya` (ya da basın, antrenman, taktik, maç, duran top, transfer, scout,
+personel, yönetim). Başka bir şey yazarsan bütün alanlarda süzer (`fm responsibilities u21`).
 
 ```
-$ fm responsibilities u19
-Recruit Staff (U19)
-GÖREV                                                    KİMDE         
-Hiring and Firing the Fenerbahçe A.Ş. Under 19s Manager  Faruk Kavlak  sende
-Hiring and Firing Fenerbahçe Under 19s Coaching Staff    Devin Özek    devredildi
+$ fm responsibilities medya
+
+== Media  (4 sende, 1 devredilmiş)
+GÖREV                                      KİMDE         
+Attends New Signing Press Conferences      Faruk Kavlak  sende
+Attends League Press Conferences           Tom Shaw      devredildi
+Attends Domestic Cup Press Conferences     Faruk Kavlak  sende
+Attends Continental Cup Press Conferences  Faruk Kavlak  sende
+Attends Broadcast Interviews               Faruk Kavlak  sende
 ```
+
+Basın toplantısı mesajındaki "Delegate …" cevabı da aynı işi devreder; geri almak için
+`fm responsibilities take "league press conferences"`.
 
 Bir işi devretmek ya da geri almak için görevin adını (ayırt eden kelimeleri yeter) yaz:
 

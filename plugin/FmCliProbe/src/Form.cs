@@ -149,7 +149,7 @@ internal static class Form
 	private static string Number(float value) => value.ToString("0.###", CultureInfo.InvariantCulture);
 
 	/// <summary>
-	/// Sets a slider to a value or a switch to on/off (?ptr=…&amp;value=…). A slider is given its
+	/// Sets a slider to a value, a switch to on/off or a radio button on (?ptr=…&amp;value=…). A slider is given its
 	/// value the way a drag ends, so its change callback writes the setting; a switch is clicked
 	/// only when it is not already where it is wanted.
 	/// </summary>
@@ -185,7 +185,16 @@ internal static class Form
 				return $"checkbox {(box.value ? "on" : "off")}";
 			}
 
-			return "error: that element is neither a slider nor a checkbox";
+			// A radio button is only ever turned on; its group turns the others off.
+			var radio = e.TryCast<SIRadioButton>();
+			if (radio != null)
+			{
+				if (radio.value) return "radio already on";
+				radio.OnClickedOrSubmitted(radio);
+				return $"radio {(radio.value ? "on" : "off")}";
+			}
+
+			return "error: that element is neither a slider, a checkbox nor a radio button";
 		}
 		return $"error: no element at {q["ptr"]} (the screen may have changed)";
 	}

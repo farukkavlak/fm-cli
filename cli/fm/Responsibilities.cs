@@ -10,7 +10,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record Duty(string Group, string Title, string About, bool Mine, string Holder, string Take, bool CanTake, string Delegate, bool CanDelegate, string Staff = "");
+	private sealed record Duty(string Group, string Title, string About, bool Mine, string Holder, string Take, bool CanTake, string Delegate, bool CanDelegate, string Staff = "", string Area = "");
 
 	private static async Task<int> Responsibilities(bool json, string[] args)
 	{
@@ -23,25 +23,34 @@ internal static partial class Program
 		var action = words.Count > 0 && words[0] is "take" or "delegate" or "al" or "devret" ? words[0] : null;
 		if (action != null) return await SetDuty(action is "take" or "al", string.Join(" ", words.Skip(1)), args.Contains("--yes"));
 
-		var duties = await Duties(stopAt: null);
+		// An area by name ("medya", "antrenman") shows that one; other words are looked for in them all.
+		var typed = Fold(string.Join(" ", words));
+		var area = DutyAreaWords.GetValueOrDefault(typed) ?? DutyAreas.FirstOrDefault(a => typed.Length > 0 && Fold(a) == typed);
+		var duties = await AllDuties(area != null ? [area] : null);
 		if (duties.Count == 0)
 		{
 			Console.Error.WriteLine("Sorumluluklar sayfası okunamadı.");
 			return 1;
 		}
-		var typed = Fold(string.Join(" ", words));
-		if (typed.Length > 0) duties = duties.Where(d => Fold(d.Group + " " + d.Title + " " + d.Holder).Contains(typed)).ToList();
+		if (area == null && typed.Length > 0) duties = duties.Where(d => Fold(d.Area + " " + d.Group + " " + d.Title + " " + d.Holder).Contains(typed)).ToList();
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(duties.Select(d => new { d.Group, Duty = d.Title, d.About, By = d.Mine ? "manager" : "delegated", d.Holder })));
+			Console.WriteLine(JsonOut.Of(duties.Select(d => new { d.Area, d.Group, Duty = d.Title, d.About, By = d.Mine ? "manager" : "delegated", d.Holder })));
 			return 0;
 		}
-		foreach (var group in duties.GroupBy(d => d.Group))
+		foreach (var inArea in duties.GroupBy(d => d.Area))
 		{
-			Console.WriteLine($"\n{group.Key}");
-			Table.Write(["GÖREV", "KİMDE", ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? "sende" : d.CanTake ? "devredildi" : "devredildi (kilitli)" }).ToList());
+			var mine = inArea.Count(d => d.Mine);
+			Console.WriteLine($"\n== {inArea.Key}  ({mine} sende, {inArea.Count() - mine} devredilmiş)");
+			foreach (var group in inArea.GroupBy(d => d.Group))
+			{
+				// An area of one group repeats its name; the heading is said once.
+				if (group.Key != inArea.Key) Console.WriteLine($"\n{group.Key}");
+				Table.Write(["GÖREV", "KİMDE", ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? "sende" : d.CanTake ? "devredildi" : "devredildi (kilitli)" }).ToList());
+			}
 		}
+		if (area == null && typed.Length == 0) Console.WriteLine("\nYalnızca bir alan: responsibilities medya | antrenman | taktik | maç | duran top | transfer | scout | personel | yönetim");
 		Console.WriteLine("\nDevretmek: responsibilities delegate \"<görev>\"   ·   belirli birine: responsibilities give \"<görev>\" <kişi>   ·   geri almak: responsibilities take \"<görev>\"");
 		return 0;
 	}
@@ -56,7 +65,7 @@ internal static partial class Program
 		var seen = new HashSet<string>();
 		string anchor = null;
 
-		for (var step = 0; step <= 12; step++)
+		async Task<List<JsonElement>> Read()
 		{
 			List<JsonElement> items = [];
 			var previous = "?";
@@ -72,8 +81,20 @@ internal static partial class Program
 				previous = key;
 				return settled;
 			}, seconds: 6, every: 0.4);
-			if (items.Count == 0) break;
+			return items;
+		}
 
+		// From the top, a viewful at a time: "0 of 85.8" says how far below the view the list goes.
+		var items = await Read();
+		if (anchor == null) return duties;
+		var top = await Fm.Get("scroll", ("anchor", anchor), ("to", "0"));
+		var parts = top.Split(" of ");
+		var hidden = parts.Length == 2 && double.TryParse(parts[1].Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var h) ? h : 6000;
+		var steps = Math.Clamp((int)Math.Ceiling(hidden / 450), 0, 12);
+		if (parts.Length == 2 && parts[0].Trim() != "0") items = await Read();
+		for (var step = 0; ; step++)
+		{
+			if (items.Count == 0) break;
 			var found = false;
 			foreach (var duty in ParseDuties(items))
 			{
@@ -81,13 +102,95 @@ internal static partial class Program
 				else duties[duties.FindIndex(d => d.Group == duty.Group && d.Title == duty.Title)] = duty;
 				if (stopAt != null && duty.Title == stopAt) found = true;
 			}
-			if (found) break;
-			if (step == 12) break;
+			if (found || step >= steps) break;
 
-			var moved = await Fm.Get("scroll", ("anchor", anchor), ("to", ((step + 1) / 12.0).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)));
-			if (moved.StartsWith("error", StringComparison.Ordinal) || moved.TrimEnd().EndsWith(" of 0", StringComparison.Ordinal)) break;
+			var moved = await Fm.Get("scroll", ("anchor", anchor), ("to", ((step + 1) / (double)steps).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)));
+			if (moved.StartsWith("error", StringComparison.Ordinal)) break;
+			items = await Read();
 		}
 		return duties;
+	}
+
+	/// <summary>The page's areas, down its left side; each shows its own groups of duties.</summary>
+	private static readonly string[] DutyAreas =
+		["Board", "Staff Responsibilities", "Scouting Responsibility", "Transfer and Contract Responsibilities", "Media", "Training Responsibility", "Tactics", "Match Day", "Set Pieces"];
+
+	private static readonly Dictionary<string, string> DutyAreaWords = new()
+	{
+		["yonetim"] = "Board", ["board"] = "Board", ["personel"] = "Staff Responsibilities", ["staff"] = "Staff Responsibilities",
+		["scout"] = "Scouting Responsibility", ["scouting"] = "Scouting Responsibility", ["transfer"] = "Transfer and Contract Responsibilities",
+		["sozlesme"] = "Transfer and Contract Responsibilities", ["medya"] = "Media", ["media"] = "Media", ["basin"] = "Media",
+		["antrenman"] = "Training Responsibility", ["training"] = "Training Responsibility", ["taktik"] = "Tactics", ["tactics"] = "Tactics",
+		["mac"] = "Match Day", ["mac gunu"] = "Match Day", ["match day"] = "Match Day", ["duran top"] = "Set Pieces", ["set pieces"] = "Set Pieces",
+	};
+
+	/// <summary>Turns the page to one area with its radio button; true once its duties are up.</summary>
+	private static async Task<bool> DutyArea(string area)
+	{
+		// The same words stand elsewhere too (the page's heading, the menu's Match Day): of all the
+		// places they are, the one under a radio button is the area's.
+		// The page draws them a moment after it opens.
+		string radio = null;
+		await Until(async () =>
+		{
+			for (var up = 4; up <= 8 && radio == null; up++)
+			{
+				var found = await Fm.Get("elements", ("text", area), ("up", up.ToString()), ("depth", "0"), ("limit", "10"));
+				radio = found.Split('\n').FirstOrDefault(l => l.StartsWith("0x", StringComparison.Ordinal) && l.EndsWith(" SIRadioButton", StringComparison.Ordinal))?.Split(' ')[0];
+			}
+			return radio != null;
+		}, seconds: 6, every: 0.3);
+		if (radio == null) return false;
+		// What is up before is waited for, or the area the page opens on would pass for the one asked.
+		var before = "";
+		await Until(async () => (before = await DutyKey()).Length > 0, seconds: 6, every: 0.3);
+		var said = await Fm.Get("setcontrol", ("ptr", radio), ("value", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return false;
+		if (said.Contains("already", StringComparison.Ordinal)) return true;
+		return await Until(async () => await DutyKey() is var now && now.Length > 0 && now != before, seconds: 5, every: 0.25);
+
+		async Task<string> DutyKey()
+		{
+			var anchor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault();
+			if (anchor == null) return "";
+			return string.Join("|", (await Fm.GetJson("form", ("anchor", anchor), ("up", "12"))).EnumerateArray().Take(4).Select(i => Field(i, "Text")));
+		}
+	}
+
+	/// <summary>Every duty of the areas given, or of them all, each with its area.</summary>
+	private static async Task<List<Duty>> AllDuties(IEnumerable<string> areas = null)
+	{
+		var all = new List<Duty>();
+		foreach (var area in areas ?? DutyAreas)
+		{
+			if (!await DutyArea(area)) continue;
+			all.AddRange((await Duties(stopAt: null)).Select(d => d with { Area = area }));
+		}
+		if (areas == null && all.Count > 0) KeepDutyAreas(all);
+		return all;
+	}
+
+	/// <summary>
+	/// Which area each duty is in, kept from the last whole reading: the titles do not change, and
+	/// reading all nine areas to find one duty takes half a minute.
+	/// </summary>
+	private static string DutyAreasFile => Path.Combine(DiffFolder, "duty-areas.json");
+
+	private static void KeepDutyAreas(List<Duty> all)
+	{
+		try
+		{
+			Directory.CreateDirectory(DiffFolder);
+			File.WriteAllText(DutyAreasFile, JsonSerializer.Serialize(all.GroupBy(d => d.Title).ToDictionary(g => g.Key, g => g.Select(d => d.Area).Distinct().ToList())));
+		}
+		catch (IOException) { }
+	}
+
+	private static Dictionary<string, List<string>> KeptDutyAreas()
+	{
+		try { return JsonSerializer.Deserialize<Dictionary<string, List<string>>>(File.ReadAllText(DutyAreasFile)) ?? []; }
+		catch (Exception e) when (e is IOException or JsonException) { return []; }
 	}
 
 	private static List<Duty> ParseDuties(List<JsonElement> items)
@@ -147,13 +250,22 @@ internal static partial class Program
 	/// <summary>One duty by its title, whole or by its words; null (with the candidates said) when it is not one.</summary>
 	private static async Task<Duty> FindDuty(string typed)
 	{
-		var all = await Duties(stopAt: null);
 		var wanted = Fold(typed);
-		var hits = all.Where(d => Fold(d.Title) == wanted).ToList();
-		if (hits.Count == 0) hits = all.Where(d => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(w => Fold(d.Title).Contains(w))).ToList();
-		if (hits.Count == 1) return hits[0];
+		bool Exact(string title) => Fold(title) == wanted;
+		bool Worded(string title) => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(w => Fold(title).Contains(w));
+		// A title known from before is looked for in its own area alone.
+		var kept = KeptDutyAreas();
+		var titles = kept.Keys.Where(Exact).ToList();
+		if (titles.Count == 0) titles = kept.Keys.Where(Worded).ToList();
+		var areas = titles.Count == 1 ? kept[titles[0]] : null;
+		var all = await AllDuties(areas);
+		if (areas != null && !all.Any(d => Exact(d.Title) || Worded(d.Title))) all = await AllDuties();
+		var hits = all.Where(d => Exact(d.Title)).ToList();
+		if (hits.Count == 0) hits = all.Where(d => Worded(d.Title)).ToList();
+		// The page is left on the duty's own area, where its buttons are.
+		if (hits.Count == 1) return await DutyArea(hits[0].Area) ? hits[0] : null;
 		Console.Error.WriteLine(hits.Count == 0 ? $"'{typed}' diye bir görev yok (hepsi: responsibilities)." : $"'{typed}' birden çok göreve uyuyor:");
-		foreach (var hit in hits) Console.Error.WriteLine($"  {hit.Title}   ({hit.Group})");
+		foreach (var hit in hits) Console.Error.WriteLine($"  {hit.Title}   ({(hit.Group == hit.Area ? hit.Area : $"{hit.Area} › {hit.Group}")})");
 		return null;
 	}
 

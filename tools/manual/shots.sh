@@ -48,7 +48,7 @@ SHOTS=(
 	"progress|fm progress"
 	"youth|fm youth"
 	"world|fm world"
-	"responsibilities|fm responsibilities u19"
+	"responsibilities|fm responsibilities medya"
 	"opponent|fm opponent"
 )
 

@@ -4299,6 +4299,24 @@ discuss personal matters" (hiçbir kulüp istemiyorken neden?): Discuss / Declin
 "once you're a free agent, you'll have no trouble finding a new club" ikna etti → "agrees to contract termination for a fee
 of £160K" (Confirm / Cancel), bedel transfer bütçesinden düşüyor. Ek "Player Report": kimlik, sözleşme, kulübün kasası.
 
+## 8.150 Sorumlulukların dokuz alanı ve basın devri (13 Mart 2026, Lincoln)
+
+§8.111'deki "yalnızca personel işleri burada" yanlıştı: Club › Responsibilities › Delegation'ın solunda bir
+`SIRadioGroup #StaffResponsibilitiesRadioGroup` var. Dokuz `SIRadioButton`: Board, Staff Responsibilities, Scouting
+Responsibility, Transfer and Contract Responsibilities, Media, Training Responsibility, Tactics, Match Day, Set Pieces.
+Sağdaki liste seçili alanınki; yapısı aynı (grup + Take Control of All / Delegate All, görev + Take Control / Delegate +
+AssignableStaff). Radyo `/click`'e ve eski `/setcontrol`'e gelmiyordu; artık `/setcontrol?ptr=<radyo>&value=1`
+`SIRadioButton.OnClickedOrSubmitted(kendisi)` çağırıyor, liste bir an sonra değişiyor. Yazıyla bulmak: aynı ad başka
+yerde de var (sayfa başlığı "Staff Responsibilities", üst menü "Match Day"), `/elements?text=…&up=6&limit=10`
+sonuçlarından `SIRadioButton` olanı. Okunan: 105 görev (yönetim 7, personel 38, scout 6, transfer 22, medya 5,
+antrenman 6, taktik 6, maç günü 6, duran top 9); üstteki sayaç 54 + 64 = 118 diyor, fark açıklanmadı.
+Medya: New Signing / League / Domestic Cup / Continental Cup Press Conferences, Broadcast Interviews. Basın toplantısı
+mesajında "Delegate 'Attends League Press Conferences' to Tom Shaw" bunun ligi devrediyor.
+
+Hız: Club sayfaları her açılışta 8 sn bekliyordu (alt sekme çubuğunda etiketsiz bir ikon düğmesi "bu sekmenin
+düğmeleri mi" kontrolünü bozuyordu). Liste 12 adımda kaydırılıyordu; `/scroll` cevabı "0 of 85.8" görünmeyen pikseli
+veriyor, adım sayısı ondan. Bir alan 17 sn → 3 sn; görev→alan eşlemesi dosyada (`duty-areas.json`), delegate/take 39 → 4 sn.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
