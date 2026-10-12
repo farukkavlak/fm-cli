@@ -273,7 +273,7 @@ internal static partial class Program
 			}
 			else if (DateTime.UtcNow - clockAt > TimeSpan.FromSeconds(45))
 			{
-				var hurt = (await MatchPlayers()).Where(p => p.Value.Injury > 0).Select(p => p.Key).ToList();
+				var hurt = (await MatchPlayers()).Where(p => p.Value.Injury != 0).Select(p => p.Key).ToList();
 				Console.Error.WriteLine(hurt.Count > 0
 					? $"Maç {time}'da durdu: {string.Join(", ", hurt)} sakatlandı; oyun değişiklik bekliyor."
 					: $"Maç {time}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik).");
@@ -547,6 +547,9 @@ internal static partial class Program
 
 		const string off = "Substitute Off";
 		var menus = await Menus();
+		// At a stop the tactics screen comes up first and spells out the bench a moment later.
+		if (menus.Count > 0 && menus.All(m => Bench(m).Count == 0))
+			await Until(async () => (menus = await Menus()).Any(m => Bench(m).Count > 0), seconds: 4, every: 0.4);
 		if (menus.Count == 0)
 		{
 			Console.Error.WriteLine("Sahadaki oyuncuların menüsü ekranda yok (devre arası ya da konuşma ekranı olabilir).");
@@ -688,7 +691,7 @@ internal static partial class Program
 	private static void MatchMoments(Dictionary<string, MatchMan> men, (string Own, string Opponent)? names)
 	{
 		var booked = men.Where(m => m.Value.Yellow || m.Value.Red).Select(m => m.Key + (m.Value.Red ? " (kırmızı)" : "")).ToList();
-		var hurt = men.Where(m => m.Value.Injury > 0).Select(m => m.Key).ToList();
+		var hurt = men.Where(m => m.Value.Injury != 0).Select(m => m.Key).ToList();
 		if (booked.Count > 0) Console.WriteLine($"Kartlar: {string.Join(", ", booked)}");
 		if (hurt.Count > 0) Console.WriteLine($"Sakatlanan: {string.Join(", ", hurt)}");
 		static double Rated(MatchMan m) => double.TryParse(m.Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) ? r : 0;
@@ -707,7 +710,7 @@ internal static partial class Program
 		/// <summary>"SAKAT · sarı kart · 6.6": what the match has done to him so far.</summary>
 		public string Marks => string.Join(" · ", new[]
 		{
-			Injury > 0 ? "SAKAT" : "", Red ? "kırmızı kart" : Yellow ? "sarı kart" : "",
+			Injury != 0 ? "SAKAT" : "", Red ? "kırmızı kart" : Yellow ? "sarı kart" : "",
 			double.TryParse(Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) && r > 0 ? $"puan {r:0.0}" : "",
 		}.Where(s => s.Length > 0));
 	}
@@ -743,7 +746,7 @@ internal static partial class Program
 		for (var i = 0; i < paths.Count; i++)
 		{
 			try { await Fm.Get("pathset", ("to", $"fmcli.mp.p{i}"), ("from", paths[i])); } catch (FmError) { continue; }
-			readings.Add(($"fmcli.mp.p{i}", "MatchInjuryType,YellowCardedInMatch,RedCardedInMatch,MatchRating"));
+			readings.Add(($"fmcli.mp.p{i}", "MatchInjuryType,YellowCardedInMatch,RedCardedInMatch,MatchRating,PitchShirtShowUnavailableFlag"));
 			readings.Add(($"fmcli.mp.p{i}.Player", "Name"));
 		}
 		var read = await PullEach(readings);
@@ -751,7 +754,12 @@ internal static partial class Program
 		{
 			var name = Field(read[i + 1], "Name");
 			if (name.Length == 0) continue;
-			men[name] = new MatchMan(int.TryParse(Field(read[i], "MatchInjuryType"), out var hurt) ? hurt : 0,
+			// At the stop itself the injury may not be typed yet; the shirt is already marked unavailable.
+			var injury = int.TryParse(Field(read[i], "MatchInjuryType"), out var hurt) ? hurt : 0;
+			if (injury == 0 && Field(read[i], "PitchShirtShowUnavailableFlag") == "True" && Field(read[i], "RedCardedInMatch") != "True") injury = -1;
+			// The same man is read off several drawings of the pitch; what one of them knows is kept.
+			if (men.TryGetValue(name, out var known) && known.Injury != 0 && injury == 0) injury = known.Injury;
+			men[name] = new MatchMan(injury,
 				Field(read[i], "YellowCardedInMatch") == "True", Field(read[i], "RedCardedInMatch") == "True", Field(read[i], "MatchRating"));
 		}
 		return men;
