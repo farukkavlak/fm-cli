@@ -821,7 +821,10 @@ internal static partial class Program
 			var at = found.IndexOf(marker, StringComparison.Ordinal);
 			if (at < 0) return opening;
 			var start = at + marker.Length;
-			var end = found.LastIndexOf('"');
+			// The same words can be in another element too, listed after it: the body ends at
+			// the last quote before the next element's line.
+			var next = System.Text.RegularExpressions.Regex.Match(found[start..], @"\n0x[0-9a-f]+ ");
+			var end = found.LastIndexOf('"', next.Success ? start + next.Index : found.Length - 1);
 			return end > start ? found[start..end].Trim() : opening;
 		}
 		catch (FmError)
