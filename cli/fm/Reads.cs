@@ -47,6 +47,13 @@ internal static partial class Program
 	private static async Task<List<string>> Who(List<JsonElement> results)
 	{
 		var read = new Dictionary<string, string>[results.Count];
+		// A member of staff is told by his job, which the game words for a team and a manager beside him.
+		try
+		{
+			await Fm.Get("pathset", ("to", "fmcli.who.team"), ("from", "Human.Team"));
+			await Fm.Get("pathset", ("to", "fmcli.who.human"), ("from", "Human"));
+		}
+		catch (FmError) { }
 		for (var i = 0; i < results.Count; i++)
 			if (Field(results[i], "Path") is { Length: > 0 } path)
 				try { await Fm.Get("pathset", ("to", $"fmcli.who.p{i}"), ("from", path)); } catch (FmError) { }
@@ -57,9 +64,9 @@ internal static partial class Program
 				if (Field(results[i], "Path").Length == 0 || read[i]?.GetValueOrDefault("Age") is { Length: > 0 }) continue;
 				try
 				{
-					var person = await Fm.GetJson("pull", ("path", $"fmcli.who.p{i}"), ("props", "Age,PositionCombinedString"));
+					var person = await Fm.GetJson("pull", ("path", $"fmcli.who.p{i}"), ("props", "Age,PositionCombinedString,JobString"));
 					var nation = await Fm.GetJson("pull", ("path", $"fmcli.who.p{i}.Nation"), ("props", "ThreeLetterName"));
-					read[i] = new() { ["Age"] = Field(person, "Age"), ["Positions"] = Field(person, "PositionCombinedString"), ["Nation"] = Field(nation, "ThreeLetterName") };
+					read[i] = new() { ["Age"] = Field(person, "Age"), ["Positions"] = Field(person, "PositionCombinedString"), ["Job"] = Field(person, "JobString"), ["Nation"] = Field(nation, "ThreeLetterName") };
 				}
 				catch (FmError) { }
 			}
@@ -70,7 +77,7 @@ internal static partial class Program
 		{
 			read[i]?.GetValueOrDefault("Age") is { Length: > 0 } age ? $"{age} yaş" : "",
 			// A coach's positions are from his playing days and would read as his job.
-			Field(r, "Kind") == "Player" ? read[i]?.GetValueOrDefault("Positions") ?? "" : "",
+			Field(r, "Kind") == "Player" ? read[i]?.GetValueOrDefault("Positions") ?? "" : read[i]?.GetValueOrDefault("Job") ?? "",
 			read[i]?.GetValueOrDefault("Nation") ?? "",
 			Field(r, "Club"),
 		}.Where(s => s.Length > 0))).ToList();

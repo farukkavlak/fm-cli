@@ -55,7 +55,7 @@ internal static partial class Program
 			if (Ui.Ask($"'{wanted}' birden çok kişiye uyuyor:", labels) is { } picked) found = [found[picked]];
 			else
 			{
-				if (!Ui.Interactive) Console.Error.WriteLine($"'{wanted}' birden çok kişiye uyuyor; parantezle ayır (yaş, mevki, ülke ya da kulüp), ör. \"{wanted} ({who[0].Split(" · ")[0]})\":\n" + string.Join("\n", labels.Select(l => "  " + l)));
+				if (!Ui.Interactive) Console.Error.WriteLine($"'{wanted}' birden çok kişiye uyuyor; parantezle ayır (yaş, mevki ya da görev, ülke, kulüp), ör. \"{wanted} ({who[0].Split(" · ")[0]})\":\n" + string.Join("\n", labels.Select(l => "  " + l)));
 				return null;
 			}
 		}

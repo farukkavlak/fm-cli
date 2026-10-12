@@ -156,8 +156,10 @@ internal static partial class Program
 		string ChoiceFor(OfferScreen.Control control, string value)
 		{
 			if (control == null) return null;
-			if (control.Choices.FirstOrDefault(c => Fold(c) == Fold(value)) is { } exact) return exact;
-			var starting = control.Choices.Where(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal)).ToList();
+			// A submenu ("Coaching ›") is not a choice of its own: what is in it is looked for apart.
+			var leaves = control.Choices.Where(c => !c.EndsWith(" ›", StringComparison.Ordinal)).ToList();
+			if (leaves.FirstOrDefault(c => Fold(c) == Fold(value)) is { } exact) return exact;
+			var starting = leaves.Where(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal)).ToList();
 			return starting.Count == 1 ? starting[0] : null;
 		}
 
@@ -172,6 +174,8 @@ internal static partial class Program
 				failed = await OfferScreen.Choose(Fm, row.Choice, picked, s => s.Row(row)?.Choice, route);
 			else if (row.Amount != null && Money(value) is { } amount)
 				failed = await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row)?.Amount, route);
+			else if (row.Choice != null && await OfferScreen.SubChoice(Fm, row.Choice, value) is { } path)
+				failed = await OfferScreen.ChoosePath(Fm, row.Choice, path, s => s.Row(row)?.Choice, route);
 			else
 				failed = row.Choice != null ? $"'{value}' yok; seçenekler: {string.Join(", ", row.Choice.Choices)}" : $"'{value}' bir tutar değil";
 			if (failed != null) return failed;

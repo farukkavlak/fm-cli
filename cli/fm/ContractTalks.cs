@@ -110,7 +110,10 @@ internal static partial class Program
 			Console.Error.WriteLine("Sözleşme imzalanınca geri alınamaz. Bitirmek için --yes ekle.");
 			return 1;
 		}
-		return await Propose() == Outcome.Failed ? 1 : 0;
+		// Terms we changed go to the agent first; taken as they stand, --yes has already said to sign them.
+		var put = await Propose();
+		if (put == Outcome.Accepted) put = await Propose();
+		return put == Outcome.Failed ? 1 : 0;
 	}
 
 	/// <summary>
@@ -262,7 +265,8 @@ internal static partial class Program
 		return await TalksSettled("Terms") is { Stage: "Terms" } ? null : "Şartlara geçilemedi; menajer başka bir şey bekliyor olabilir (talk ile bak).";
 	}
 
-	private enum Outcome { Failed, Answered, Signed }
+	/// <summary>Accepted: the agent took what was suggested as it stood, and Finalise now closes it.</summary>
+	private enum Outcome { Failed, Answered, Accepted, Signed }
 
 	/// <summary>
 	/// Puts the stage to the agent: his own promises or terms are taken with Finalise, changed
@@ -296,13 +300,14 @@ internal static partial class Program
 		if (said != before && said.Length > 0) Tell(said);
 
 		var next = await TalkOptions();
-		if (next.Count == 1 && next[0].Label == "Exit Talks")
+		// Adjusting the budgets stays on offer to the end of a talk with staff; it is no step of the talks.
+		if (next.Any(l => l.Label == "Exit Talks") && next.All(l => l.Label is "Exit Talks" or "Adjust Budgets"))
 		{
 			await LeaveTalks();
 			// A renewal is not signed there and then: the agent takes it away and answers in a few days.
 			var later = said.Contains("final decision", StringComparison.OrdinalIgnoreCase) || said.Contains("be in touch", StringComparison.OrdinalIgnoreCase);
 			Tell(!finalising ? "Görüşme kapandı."
-				: later ? "Teklif menajerde; oyuncunun kararı birkaç gün içinde gelen kutusuna düşer."
+				: later ? "Teklif karşı tarafta; kararı birkaç gün içinde gelen kutusuna düşer."
 				: "Sözleşme imzalandı; görüşme kapandı.");
 			return finalising ? Outcome.Signed : Outcome.Answered;
 		}
@@ -318,9 +323,17 @@ internal static partial class Program
 		if (changed.Count > 0) Tell($"Menajerin istediği: {string.Join(" · ", changed)}");
 
 		if (next.Any(l => l.Label == finalise))
+		{
+			if (!promises && changed.Count == 0 && !finalising)
+			{
+				// On the card the next choice offered is to sign; from the command line --yes has said so already.
+				if (notes != null) Tell("Menajer bu şartları kabul ediyor.");
+				return Outcome.Accepted;
+			}
 			Tell(promises
 				? changed.Count == 0 ? "Menajer bu vaatleri kabul ediyor. Onaylayıp şartlara geçmek için: contract --next" : "Bunları kabul edip şartlara geçmek için: contract --next · pazarlığa devam: --term"
 				: changed.Count == 0 ? "Menajer bu şartları kabul ediyor. İmzalamak için: contract --sign --yes" : "Bunları kabul edip imzalamak için: contract --sign --yes · pazarlığa devam: --wage / --term");
+		}
 		else if (next.Count > 0)
 			Tell($"Sırada: {string.Join(" · ", next.Select(l => l.Label))}");
 		return Outcome.Answered;
@@ -360,9 +373,18 @@ internal static partial class Program
 	private static async Task<OfferScreen> TalksSettled(string stage = null)
 	{
 		OfferScreen screen = null;
-		await Until(async () => (screen = await OfferScreen.Read(Fm, "contract")) is { } s
-			&& s.Club.Length > 0 && s.Rows.Any(r => r.Shown != "—") && s.Facts.ContainsKey("Wage")
-			&& (stage == null || s.Stage == stage), seconds: 8, every: 0.25);
+		string last = null;
+		await Until(async () =>
+		{
+			if ((screen = await OfferScreen.Read(Fm, "contract")) is not { } s || !s.Rows.Any(r => r.Shown != "—") || (stage != null && s.Stage != stage)) return false;
+			if (s.Club.Length > 0 && s.Facts.ContainsKey("Wage")) return true;
+			// One without a club has no wage of his own to wait for (a free agent, staff out of work):
+			// two readings alike are taken as whole.
+			var now = string.Join("|", s.Rows.Select(r => r.Label + "=" + r.Shown));
+			var same = now == last;
+			last = now;
+			return same;
+		}, seconds: 8, every: 0.25);
 		return screen;
 	}
 

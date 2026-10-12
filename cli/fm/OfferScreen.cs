@@ -164,6 +164,32 @@ internal sealed class OfferScreen
 		return await Settles(fm, s => after(s) is { } c && (c.Value == choice || choice.StartsWith(c.Value + " (", StringComparison.Ordinal)), route) ? null : $"'{choice}' ekranda görünmedi";
 	}
 
+	/// <summary>
+	/// A choice that sits in one of the list's submenus ("Coaching ›" › "Performance Analyst"): the path
+	/// to it, the leaf last; null when no submenu holds it, or more than one does.
+	/// </summary>
+	public static async Task<List<string>> SubChoice(Bridge fm, Control control, string value)
+	{
+		var names = value.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToList();
+		var found = new List<List<string>>();
+		foreach (var menu in control.Choices.Where(c => c.EndsWith(" ›", StringComparison.Ordinal)).Select(c => c[..^2]))
+		{
+			if (names.Count > 1 && !string.Equals(menu, names[0], StringComparison.OrdinalIgnoreCase)) continue;
+			var leaves = await fm.GetJson("menu", ("ptr", control.Pointer), ("names", menu));
+			if (leaves.ValueKind != JsonValueKind.Array) continue;
+			var leaf = leaves.EnumerateArray().Select(x => x.GetString() ?? "").FirstOrDefault(l => string.Equals(l, names[^1], StringComparison.OrdinalIgnoreCase));
+			if (leaf != null) found.Add([menu, leaf]);
+		}
+		return found.Count == 1 ? found[0] : null;
+	}
+
+	public static async Task<string> ChoosePath(Bridge fm, Control control, List<string> path, Func<OfferScreen, Control> after, string route = "offer")
+	{
+		var said = await fm.Get("select", ("ptr", control.Pointer), ("names", string.Join(">", path)), ("fire", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
+		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value, route) ? null : $"'{path[^1]}' ekranda görünmedi";
+	}
+
 	/// <summary>Types an amount into a term's box; the game may round it, so whatever it shows is taken.</summary>
 	public static async Task<string> Type(Bridge fm, Control control, long amount, Func<OfferScreen, Control> after, string route = "offer")
 	{
@@ -474,7 +500,7 @@ internal sealed class OfferScreen
 
 		if (!Ui.Rich)
 		{
-			Console.WriteLine($"{Player} · {Club} — {title}");
+			Console.WriteLine($"{Player}{(Club.Length > 0 ? $" · {Club}" : "")} — {title}");
 			foreach (var group in Rows.GroupBy(r => r.Section))
 			{
 				Console.WriteLine($"{(group.Key.Length > 0 ? Say(group.Key) : title)}:");
@@ -507,7 +533,7 @@ internal sealed class OfferScreen
 
 		Ui.Out.Write(new Panel(grid)
 		{
-			Header = new PanelHeader($" [bold]{Ui.Safe(Player)}[/] · {Ui.Safe(Club)} — {Ui.Safe(title)} "),
+			Header = new PanelHeader($" [bold]{Ui.Safe(Player)}[/]{(Club.Length > 0 ? $" · {Ui.Safe(Club)}" : "")} — {Ui.Safe(title)} "),
 			Border = BoxBorder.Rounded,
 			BorderStyle = new Style(Color.Grey),
 			Padding = new Padding(1, 0, 1, 0),
