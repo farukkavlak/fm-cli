@@ -4317,6 +4317,17 @@ Hız: Club sayfaları her açılışta 8 sn bekliyordu (alt sekme çubuğunda et
 düğmeleri mi" kontrolünü bozuyordu). Liste 12 adımda kaydırılıyordu; `/scroll` cevabı "0 of 85.8" görünmeyen pikseli
 veriyor, adım sayısı ondan. Bir alan 17 sn → 3 sn; görev→alan eşlemesi dosyada (`duty-areas.json`), delegate/take 39 → 4 sn.
 
+## 8.151 Maç içi sakatlık, kart ve puan (Stockport, 14 Mart 2026)
+
+Sakatlık durağında (80:05 "That could be a twisted ankle") ne `sub` menüleri ne kadro bayrakları sakatı söylüyor. Maç
+ekranı sahanın her mevkisine `Position.MatchPlayer` (`MatchPlayerReference`) bağlıyor: `MatchInjuryType` (0 sağlam,
+Bayliss'te 2), `YellowCardedInMatch`, `RedCardedInMatch`, `MatchRating` (6.61999…), `Player` → `Name`. `/find?name=
+MatchPlayer` yolları ".." ile başlıyor ve `/pull` onları alamıyor (oyun SetName'de IndexOutOfRange atıyor); önce
+`/pathset to=fmcli.mp.pN from=<yol>`. Saha birkaç karoda çizili (sol / sağ panel, her biri bir takımın 11 mevkisi):
+her karonun ilk oyuncusu okunup her takımdan bir karo alınıyor. `sub` listesi artık "SAKAT · sarı kart · puan 6.6"
+yazıyor, maç durunca "X sakatlandı". Sakatlık durağında `sub Bayliss House` Confirm Changes'e kendisi bastı, maç sürdü
+(§8.139'daki doğrulanmamış hal). Durakta oyun taktik planlayıcısını açıyor; ilk okumada kulübe boş gelebiliyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

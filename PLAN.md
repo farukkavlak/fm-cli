@@ -280,7 +280,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Maç gününü oyna — `fm match`: izlemek mi anında sonuç mu diye sorar; kadro gönder, onay penceresi, konuşmalar, maç,
       çıkış; gol/devre/sonuç bildiriyor (§8.34)
 - [x] Maç içi oyuncu değişikliği — `fm sub <çıkan> <giren>`; `fm sub` sahayı ve kulübeyi listeler (§8.34)
-- [~] Sakatlık durağı — canlıda görüldü (§8.139, Alanyaspor 5-1): `sub` değişikliği verdi, `match` Confirm'e basıp sürdürdü; `sub` artık onay butonunu bekleyip kendisi basıyor (yeni hali bir sonraki durakta doğrulanacak); `sub` listesinde kimin sakat olduğu yazmıyor
+- [x] Sakatlık durağı — canlıda görüldü (§8.139, Alanyaspor 5-1): `sub` değişikliği verdi, `match` Confirm'e basıp sürdürdü; `sub` onay butonunu bekleyip kendisi basıyor, durakta doğrulandı (§8.151); `sub` listesi sakatı, kartları ve maç puanını yazıyor, maç durunca kimin sakatlandığı söyleniyor
 - [x] Anında sonuç — `fm match --instant`, 9 sn (§8.34)
 - [x] Maç hızı — `fm settings vurgu hızı` (en çok 10x), `ara hızı` (en çok 40x), `maç gösterimi` (§8.61); maç içinden değiştirmek yok
 - [~] Maç içi taktik değişimi — mentalite ✓, bağırış ✓ (`fm shout`, §8.62), rol ✓ (`fm tactic role

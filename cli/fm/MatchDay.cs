@@ -259,7 +259,10 @@ internal static partial class Program
 			}
 			else if (DateTime.UtcNow - clockAt > TimeSpan.FromSeconds(45))
 			{
-				Console.Error.WriteLine($"Maç {time}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik).");
+				var hurt = (await MatchPlayers()).Where(p => p.Value.Injury > 0).Select(p => p.Key).ToList();
+				Console.Error.WriteLine(hurt.Count > 0
+					? $"Maç {time}'da durdu: {string.Join(", ", hurt)} sakatlandı; oyun değişiklik bekliyor."
+					: $"Maç {time}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik).");
 				// Seen at a real injury stop (FINDINGS §8.139): `sub` then `match` carried on from there.
 				Console.Error.WriteLine("Değişiklik için: sub <çıkan> <giren>   ·   olduğu gibi sürdürmek: match   ·   ekrandakiler: buttons");
 				return 1;
@@ -582,11 +585,13 @@ internal static partial class Program
 
 		if (words.Count < 2)
 		{
+			var match = await MatchPlayers();
 			Console.WriteLine("Sahada:");
 			foreach (var menu in menus)
 			{
 				var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
-				Console.WriteLine($"  {rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))})");
+				var marks = match.TryGetValue(rows[0] ?? "", out var m) ? m.Marks : "";
+				Console.WriteLine($"  {rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))}){(marks.Length > 0 ? "  " + marks : "")}");
 			}
 			Console.WriteLine("\nKulübede:");
 			foreach (var name in bench) Console.WriteLine($"  {name}");
@@ -659,6 +664,61 @@ internal static partial class Program
 				? list.EnumerateArray().Select(c => c.GetString() ?? "").Where(c => !c.EndsWith("Substitutes", StringComparison.Ordinal)).ToList()
 				: [];
 		}
+	}
+
+	internal sealed record MatchMan(int Injury, bool Yellow, bool Red, string Rating)
+	{
+		/// <summary>"SAKAT · sarı kart · 6.6": what the match has done to him so far.</summary>
+		public string Marks => string.Join(" · ", new[]
+		{
+			Injury > 0 ? "SAKAT" : "", Red ? "kırmızı kart" : Yellow ? "sarı kart" : "",
+			double.TryParse(Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) && r > 0 ? $"puan {r:0.0}" : "",
+		}.Where(s => s.Length > 0));
+	}
+
+	/// <summary>
+	/// Each player of the match by name, with an injury taken in it, his cards and rating
+	/// (FINDINGS §8.151): the match screen binds a MatchPlayer under every position of its pitch.
+	/// Its paths start with "..", which a reading cannot take, so each is put at a node of ours first.
+	/// </summary>
+	private static async Task<Dictionary<string, MatchMan>> MatchPlayers()
+	{
+		var men = new Dictionary<string, MatchMan>();
+		List<string> paths;
+		try { paths = (await Fm.Get("find", ("name", "MatchPlayer"), ("limit", "80"))).Split('\n').Select(l => l.Trim()).Where(l => l.StartsWith("..", StringComparison.Ordinal)).Distinct().ToList(); }
+		catch (FmError) { return men; }
+		// The pitch is drawn on several tiles, each with a team's positions: one tile of each team is
+		// enough, told apart by who stands in its first position.
+		var tiles = paths.Where(p => p.EndsWith(".Position.MatchPlayer", StringComparison.Ordinal))
+			.GroupBy(p => System.Text.RegularExpressions.Regex.Replace(p, @"\.[^.]+\.\d+\.Position\.MatchPlayer$", ""))
+			.Select(g => g.ToList()).ToList();
+		var firsts = new List<(string Path, string Props)>();
+		for (var t = 0; t < tiles.Count; t++)
+		{
+			try { await Fm.Get("pathset", ("to", $"fmcli.mp.t{t}"), ("from", tiles[t][0])); } catch (FmError) { continue; }
+			firsts.Add(($"fmcli.mp.t{t}.Player", "Name"));
+		}
+		var leaders = await PullEach(firsts);
+		paths = tiles.Where((tile, t) => t < leaders.Count).Select((tile, t) => (tile, Lead: Field(leaders[t], "Name")))
+			.Where(x => x.Lead.Length > 0).GroupBy(x => x.Lead).Select(g => g.OrderByDescending(x => x.tile.Count).First().tile)
+			.SelectMany(tile => tile).ToList();
+
+		var readings = new List<(string Path, string Props)>();
+		for (var i = 0; i < paths.Count; i++)
+		{
+			try { await Fm.Get("pathset", ("to", $"fmcli.mp.p{i}"), ("from", paths[i])); } catch (FmError) { continue; }
+			readings.Add(($"fmcli.mp.p{i}", "MatchInjuryType,YellowCardedInMatch,RedCardedInMatch,MatchRating"));
+			readings.Add(($"fmcli.mp.p{i}.Player", "Name"));
+		}
+		var read = await PullEach(readings);
+		for (var i = 0; i + 1 < read.Count; i += 2)
+		{
+			var name = Field(read[i + 1], "Name");
+			if (name.Length == 0) continue;
+			men[name] = new MatchMan(int.TryParse(Field(read[i], "MatchInjuryType"), out var hurt) ? hurt : 0,
+				Field(read[i], "YellowCardedInMatch") == "True", Field(read[i], "RedCardedInMatch") == "True", Field(read[i], "MatchRating"));
+		}
+		return men;
 	}
 
 	/// <summary>The confirmation dialogs on screen, and answering one by its button.</summary>
