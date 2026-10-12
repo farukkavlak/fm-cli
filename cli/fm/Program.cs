@@ -937,6 +937,20 @@ internal static partial class Program
 			return;
 		}
 
+		// A scouting card: who he is, his fitness, the coach's grade and verdict, the clubs after him.
+		if (rest[0] == "Report" && rest.Contains("Coach Report"))
+		{
+			string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";
+			var who = rest.Skip(1).TakeWhile(t => t != "Fitness").Where(t => t != "-").Select(t => t.Replace(" years old", " yaş")).ToList();
+			Console.WriteLine($"\n  Ek: {string.Join(" · ", who)}");
+			if (After("Fitness") is { Length: > 0 } fitness) Console.WriteLine($"    Kondisyon: {fitness}");
+			var grade = After("Coach Report");
+			var verdict = After("Coach Report", 2);
+			if (grade.Length > 0) Console.WriteLine($"    Antrenör notu: {grade}{(verdict is { Length: > 0 } and not "Current Ability" ? $" — {verdict}" : "")}");
+			if (After("Interested Clubs") is { Length: > 0 } clubs) Console.WriteLine($"    İlgilenen kulüp: {clubs.Trim('(', ')')}");
+			return;
+		}
+
 		// A player's card: who he is, his contract and the club's balance.
 		if (rest[0] == "Player Report" && rest.Contains("Duration") && rest.Contains("Wage"))
 		{
