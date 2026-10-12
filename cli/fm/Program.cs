@@ -906,6 +906,15 @@ internal static partial class Program
 			return;
 		}
 
+		// The captaincy card: who holds each armband; the command shows the leaders and changes them.
+		if (rest[0] == "Captains" && rest.Contains("Vice-Captain"))
+		{
+			string Holder(string label) => rest.IndexOf(label) is var i and >= 0 && i + 1 < rest.Count ? rest[i + 1] : "";
+			var vice = Holder("Vice-Captain");
+			Console.WriteLine($"\n  Ek: kaptan {Holder("Captain")}, yardımcısı {(vice.Contains("to be selected", StringComparison.Ordinal) ? "seçilmedi" : vice)}. Görmek ve seçmek için: captains (--captain / --vice <oyuncu>)");
+			return;
+		}
+
 		// The coaching grid in miniature; the command shows it whole and changes it.
 		if (rest[0] == "Coach Assignments")
 		{

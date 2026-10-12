@@ -56,6 +56,9 @@ internal static partial class Program
 			await Until(async () => (field == 0 ? (await Now()).Captain : (await Now()).Vice) == hits[0], seconds: 5, every: 0.25);
 		}
 
+		// The assistant then asks whether there is anything else; leaving it asked would stand as an open question.
+		if (changes.Count > 0) await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+
 		var (captain, vice) = await Now();
 		if (args.Contains("--json"))
 		{
@@ -64,7 +67,7 @@ internal static partial class Program
 		}
 		Console.WriteLine($"Kaptan: {(captain.Length > 0 ? captain : "-")}");
 		Console.WriteLine($"Yardımcı kaptan: {(vice.Length > 0 ? vice : "-")}");
-		if (changes.Count == 0) Console.WriteLine("\nDeğiştirmek: captains --captain <oyuncu> · --vice <oyuncu>");
+		if (changes.Count == 0) Console.WriteLine("\nDeğiştirmek: captains --captain <oyuncu> · --vice <oyuncu>   (soyunma odasının liderleri: dynamics)");
 		return 0;
 	}
 }
