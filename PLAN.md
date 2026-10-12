@@ -293,7 +293,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       kapanıyor / tavsiye düşüyor); `match --play` yeni tavsiyeyi akışta yazıyor (§8.62)
 - [x] Maç sonrası — `fm report`: skor, goller, maçın oyuncusu ve notu, istatistikler; basın toplantısı `fm talk`
 - [~] Maç istatistikleri — `fm report` topla oynama, şut, isabet, xG, korner, faul; pas / ısı haritası yok
-- [ ] Highlight özeti (metin)
+- [~] Highlight özeti (metin) — `match --play` sonunda kartlar (biz / rakip), sakatlananlar, oyuncularımızın puanları (§8.151); goller `report`'ta; dakika dakika önemli anlar listesi yok
 - [?] Maç içi gerçek zamanlı yönetim (v2 — bambaşka problem)
 
 ---

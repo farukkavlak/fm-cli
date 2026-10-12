@@ -4327,6 +4327,11 @@ MatchPlayer` yolları ".." ile başlıyor ve `/pull` onları alamıyor (oyun Set
 her karonun ilk oyuncusu okunup her takımdan bir karo alınıyor. `sub` listesi artık "SAKAT · sarı kart · puan 6.6"
 yazıyor, maç durunca "X sakatlandı". Sakatlık durağında `sub Bayliss House` Confirm Changes'e kendisi bastı, maç sürdü
 (§8.139'daki doğrulanmamış hal). Durakta oyun taktik planlayıcısını açıyor; ilk okumada kulübe boş gelebiliyor.
+İkinci durakta (Rotherham, McGrandles) `MatchInjuryType` henüz 0'dı ama `MatchPlayer.PitchShirtShowUnavailableFlag`
+True'ydu: kırmızı kart değilse sakat sayılıyor. Oyun akarken `MatchPlayer` düğümleri maç ekranının görünümüyle gelip
+gidiyor (3. dakikada 80 yol, 20. dakikada hiç) ve son düdük görüldüğünde (periyot ikinci yarıdan boşa düşüyor) ekran
+gitmiş oluyor: maç boyunca aralıklarla okunup son dolu okuma saklanıyor. Fikstürün `HomeEventInfos` / `AwayEventInfos`
+listesinde yalnızca goller var (kartlar, sakatlıklar yok).
 
 ## 9. Sıradaki adımlar
 

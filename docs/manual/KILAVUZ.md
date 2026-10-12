@@ -839,9 +839,26 @@ $ fm dugout
   3   48'  We must improve our game, especially in creating chances.
 ```
 
-Bir oyuncu sakatlanınca maç durur: `match --play` yardımcının notunu yazar ("Kanté … twisted
-ankle") ve terminalde kimin çıkıp kimin gireceğini sorar; script'te `sub <çıkan> <giren>` maçı da
-sürdürür, değişiklik yapmadan sürdürmek için yeniden `match`.
+Bir oyuncu sakatlanınca maç durur: `match --play` kimin sakatlandığını yazar ("Maç 80:05'da durdu:
+Tom Bayliss sakatlandı") ve terminalde kimin çıkıp kimin gireceğini sorar; script'te
+`sub <çıkan> <giren>` maçı da sürdürür, değişiklik yapmadan sürdürmek için yeniden `match`.
+`sub` listesi her oyuncunun yanına maçta olanı yazar:
+
+```
+$ fm sub
+Sahada:
+  Tendayi Darikwa  (Composed, Poor)  sarı kart · puan 6.8
+  Tom Bayliss  (Anxious, Poor)  SAKAT · puan 6.6
+  …
+```
+
+`match --play` maç bitince skor ve istatistiklerin altına kartları, sakatlananları ve
+oyuncularımızın puanlarını da yazar:
+
+```
+Kartlar: biz: Jack Moylan, Tom Hamer, Tendayi Darikwa · rakip: Zack Nelson
+Puanlarımız: Freddie Draper 9.7 · Kaide Gordon 8.4 · Tom Bayliss 7.4 · …
+```
 
 Bağırıştan sonra oyun yeni bağırışa birkaç dakika izin vermiyor; `shout` bunu söyler. Yardımcının
 tavsiyeleri `match --play` akışında da çıkar ("Yardımcı: …"). Dugout paneli pozisyon oynatılırken
