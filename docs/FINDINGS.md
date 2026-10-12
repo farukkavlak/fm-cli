@@ -4225,6 +4225,15 @@ Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki top
   ×2; 1.–4. kez, haftalık maaş cinsinden). `reply` artık mesajın "Attachments" bölümünü gösteriyor (`/texts?anchor=Attachments`;
   başka mesajın eki olmasın diye gövdenin ilk 40 harfiyle eşleniyor).
 - `reply` gövdesine aynı yazıyı taşıyan ikinci elemanın dökümü karışıyordu (`0x… SIText "…`) — düzeldi.
+- Sonraki günler: Dynamics / Training / Set Pieces / Recruitment Introduction (hepsi `tour` ile; Set Pieces'in cevabı
+  "Continue Introduction", tur değil sihirbaz açıyor → `setpieces new`). `setpieces new` ilk sorunun 2. ve 3. seçeneğini
+  boş okudu (liste yazılar dolmadan okunuyordu) → artık tüm seçenekler dolana kadar bekliyor (**canlıda doğrulanmadı**).
+- Tanıtım basın toplantısı: "<menajer> to meet the media" (Attend / Decline). Eki: olası konular + gelen gazeteciler
+  (ad, kurum, etki, ilişki; başlık 10 der, tablo 8 satır çizer). `status` artık basın mesajını adıyla veriyor.
+  Sorular `talk` ile; seçenek grupları ([Positive] / [Neutral] / [Negative]…) her soruda farklı sırada — "hep 1" kör seçimi
+  bir kez [Negative]'e denk geldi.
+- Hastalık mesajı ("X taken ill": Send Home / Treat At Club), oyuncularla "Expectations and Promises Meeting" (lig hedefi,
+  söz verme; `talk` ile). Quick Pick yapılmadan taktikte oyuncu yok — yeni kulüpte maçtan önce `tactic pick` gerekiyor.
 
 ## 9. Sıradaki adımlar
 
