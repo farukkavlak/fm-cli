@@ -257,7 +257,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Transfer dönemi durumu / kalan gün — `fm status` (§8.55)
 
 ---
-- [~] İlgi duyurma, kulübe sorma, denemeye çağırma — `fm interest`, `fm enquire`, `fm trial` (§8.119); ilgi haber oluyor, deneme reddi ve sorunun cevabı ("£6,25M istiyorlar") gelen kutusuna düşüyor; kabul edilen deneme görülmedi
+- [x] İlgi duyurma, kulübe sorma, denemeye çağırma — `fm interest`, `fm enquire`, `fm trial` (§8.119); ilgi haber oluyor, deneme reddi ve sorunun cevabı ("£6,25M istiyorlar") gelen kutusuna düşüyor; kabul edilen deneme uçtan uca: "set to go on trial" → Accept → kadroda "Free Agent (denemede)", bitince "trial coming to an end" + rapor (§8.148)
 
 ## 6. Scouting
 
@@ -348,7 +348,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Maç öncesi/sonrası röportaj — basın toplantısı gelen kutusundan açılıyor, `fm talk` yürütüyor
 - [x] Takım toplantısı — `fm talk`: ne dendi, tepkiler, söylenebilecekler (§8.33)
 - [x] Oyuncuyla bire bir konuş — `fm talk` şablonu canlıda doğrulandı (sakatlık mesajından açılan konuşma, tepki değişimiyle; §8.94)
-- [ ] Oyuncu şikâyetlerini yönet
+- [~] Oyuncu şikâyetlerini yönet — "<oyuncu> asks to discuss personal matters" `reply` ile açılıyor (Discuss / Decline / menajere ya da kaptana sor), konuşma `talk` ile sürüyor; fesih şikâyeti ikna edildi (§8.149). Başka şikâyet türleri (oynama süresi, söz) görülmedi
 - [x] Soyunma odası atmosferi / takım liderleri — `fm dynamics`: menajere destek, sosyal gruplar, her oyuncunun hiyerarşisi ve kişiliği (§8.95)
 - [~] Sosyal medya / haber akışı — `fm news`: haber sitesindeki başlıklar, konu, yaş ve ilk cümle (§8.97); `fm news <#>` haberin tamamı; sosyal medya yok
 - [x] Sözleşme görüşmelerinde diyalog — `fm contract` vaatleri gösteriyor, `--term` ile vaat seçtiriyor / ekletiyor, menajerin cevabını basıyor
