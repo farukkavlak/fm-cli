@@ -331,9 +331,17 @@ internal static partial class Program
 		if (Field(state, "DuringMatch") == "True")
 		{
 			var score = $"{Field(state, "HomeScore")}-{Field(state, "AwayScore")}";
+			// Before kick-off the match gives neither score nor sides; the fixture knows the venue.
+			var home = Field(state, "HumanIsHome") switch
+			{
+				"True" => true,
+				"False" => false,
+				_ => await FixtureVenue() != "A",
+			};
+			if (score == "-") score = "–";
 			var board = await MatchNames() is { } sides
-				? Field(state, "HumanIsHome") == "True" ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
-				: score + (Field(state, "HumanIsHome") == "True" ? " (ev sahibiyiz)" : " (deplasmandayız)");
+				? home ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
+				: score + (home ? " (ev sahibiyiz)" : " (deplasmandayız)");
 			Console.WriteLine($"Maçtayız. {Field(state, "MatchTime")}  {board}");
 			Console.WriteLine("Sürdürmek için: match");
 			return 0;
@@ -365,7 +373,7 @@ internal static partial class Program
 			if (window != null) Console.WriteLine($"Transfer: {window}");
 		}
 		if (await Unemployed())
-			Console.WriteLine("İşsizsin: bir kulübün menajeri değilsin, kadro ve taktik komutları çalışmaz. İş ilanları: open \"Managerial Vacancies\"");
+			Console.WriteLine("İşsizsin: bir kulübün menajeri değilsin, kadro ve taktik komutları çalışmaz. İş ilanları: jobs");
 		// A question put after a match (the reaction, a tunnel interview) waits as a conversation
 		// while the game still calls itself free to go on; going on would pass it by unanswered.
 		if ((Passable(flow) || flow is "NeedAction" or "PressConference") && (await TalkOptions()).Count > 0)
@@ -402,6 +410,12 @@ internal static partial class Program
 	/// the team's next fixture without opening a screen. The fixture's own date is a packed
 	/// value, so the day is counted on from today by the distance the game gives.
 	/// </summary>
+	private static async Task<string> FixtureVenue()
+	{
+		try { return Field(await Fm.Pull("Human.Team.NextFixture", "MatchVenueShort"), "MatchVenueShort"); }
+		catch (FmError) { return ""; }
+	}
+
 	private static async Task<string> NextMatch(string today)
 	{
 		try

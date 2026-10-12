@@ -463,7 +463,7 @@ internal static partial class Program
 
 			if (!await Until(() => Choose(view)))
 				throw new FmError(await Unemployed()
-					? "İşsizsin: yönetecek bir kadro yok. İş ilanları: open \"Managerial Vacancies\""
+					? "İşsizsin: yönetecek bir kadro yok. İş ilanları: jobs"
 					: $"Kadro tablosunda '{view}' görünümü bulunamadı.");
 		}
 
