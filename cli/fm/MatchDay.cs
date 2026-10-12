@@ -448,6 +448,16 @@ internal static partial class Program
 		var away = Field(state, "AwayScore");
 		if (home.Length == 0 || away.Length == 0) return;
 
+		// After the final whistle the match drops its period and which side is ours, so the
+		// whistle is the flow moving on to the after-match stops, with the board as it last stood.
+		if (Field(state, "Period") == "" && Field(state, "State") is "FullTimeTeamTalk" or "PostMatchReaction" or "LeaveMatch"
+		    && period is not ("" or "FullTime") && score != null)
+		{
+			Console.WriteLine($"  Maç sonu: {score}");
+			period = "FullTime";
+			return;
+		}
+
 		// After the whistle the match stops saying which side is ours; the board as it last
 		// stood, with the names, is the one to keep.
 		if (names != null && score != null && Field(state, "HumanIsHome") is not ("True" or "False")) return;
