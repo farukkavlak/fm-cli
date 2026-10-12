@@ -69,6 +69,7 @@ internal static partial class Program
 		var passTalks = args.Contains("--no-talk");
 		var names = await MatchNames();
 		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null, commentary = null;
+		string lastNamed = null;
 		var heard = new Queue<string>();
 		var advised = new HashSet<string>();
 		var firstLook = true;
@@ -84,7 +85,12 @@ internal static partial class Program
 			if (Field(state, "DuringMatch") == "True") inMatch = true;
 			else if (inMatch) break;
 
-			if (flow != stop && Stops.TryGetValue(flow, out var named)) Console.WriteLine($"— {named}");
+			// The flow can step aside for a moment and come back to the same stop; it is named once.
+			if (flow != stop && Stops.TryGetValue(flow, out var named) && named != lastNamed)
+			{
+				Console.WriteLine($"— {named}");
+				lastNamed = named;
+			}
 
 			// Before the team goes in, the manager sees it on the pitch and may stop to change it.
 			if (flow == "Tactics" && stop != "Tactics" && Ui.Interactive && !inMatch)
@@ -276,7 +282,8 @@ internal static partial class Program
 			return 75;
 		}
 
-		Console.WriteLine(score == null ? "Maçtan çıkıldı." : $"Maç bitti: {score}");
+		// A bare score does not say who won it; the report below names the sides.
+		Console.WriteLine(score == null ? "Maçtan çıkıldı." : score.Any(char.IsLetter) ? $"Maç bitti: {score}" : "Maç bitti.");
 		if (score != null)
 		{
 			// The full-time numbers are the first thing a manager looks at after the whistle.
@@ -441,6 +448,8 @@ internal static partial class Program
 		return await TacticPick(dry: false) != 0 ? 1 : null;
 	}
 
+	private static string LastWhistle;
+
 	/// <summary>Prints the score when it changes, and the whistle when the period does.</summary>
 	private static void Scoreline(JsonElement state, (string Own, string Opponent)? names, ref string period, ref string score)
 	{
@@ -453,7 +462,8 @@ internal static partial class Program
 		if (Field(state, "Period") == "" && Field(state, "State") is "FullTimeTeamTalk" or "PostMatchReaction" or "LeaveMatch"
 		    && period is not ("" or "FullTime") && score != null)
 		{
-			Console.WriteLine($"  Maç sonu: {score}");
+			if (LastWhistle != $"Maç sonu: {score}") Console.WriteLine($"  Maç sonu: {score}");
+			LastWhistle = $"Maç sonu: {score}";
 			period = "FullTime";
 			return;
 		}
@@ -479,7 +489,9 @@ internal static partial class Program
 				"FullTime" => $"Maç sonu: {now}{side}",
 				_ => null,
 			};
-			if (whistle != null) Console.WriteLine($"  {whistle}");
+			// The period can drop out for a moment at a break and come back; the whistle is once.
+			if (whistle != null && whistle != LastWhistle) Console.WriteLine($"  {whistle}");
+			if (whistle != null) LastWhistle = whistle;
 			period = current;
 		}
 
