@@ -69,6 +69,10 @@ internal static partial class Program
 		var passTalks = args.Contains("--no-talk");
 		var names = await MatchNames();
 		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null, commentary = null;
+		Dictionary<string, MatchMan> finalMen = null;
+		// Our squad's names tell our men from theirs in the match's list of players.
+		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
+		catch (FmError) { ourNames = []; }
 		string lastNamed = null;
 		var heard = new Queue<string>();
 		var advised = new HashSet<string>();
@@ -107,6 +111,9 @@ internal static partial class Program
 			if (inMatch && Field(state, "Playing") == "True") firstLook = false;
 
 			Scoreline(state, names, ref period, ref score);
+			// At the whistle, before the match screen goes, who was booked, hurt and how each played.
+			if (period == "FullTime" && finalMen == null)
+				try { finalMen = await MatchPlayers(); } catch (FmError) { finalMen = []; }
 			if (arrivedAt != null)
 			{
 				Console.WriteLine($"— {arrivedAt}");
@@ -296,6 +303,7 @@ internal static partial class Program
 			// The full-time numbers are the first thing a manager looks at after the whistle.
 			Console.WriteLine();
 			try { await MatchReport.Show(Fm, json: false, expected: score); } catch (FmError) { }
+			if (finalMen is { Count: > 0 }) MatchMoments(finalMen, names);
 		}
 		// What holds the game up after the whistle is read afresh: usually the press conference.
 		var after = await Fm.GetJson("state");
@@ -506,9 +514,9 @@ internal static partial class Program
 		static string Numbers(string board) => System.Text.RegularExpressions.Regex.Match(board, @"\d+-\d+").Value;
 		if (score != null && Numbers(now) != Numbers(score))
 		{
-			// The total going down is a goal taken back by the video referee.
+			// The total going down is a goal taken back: offside flagged late, or the video referee.
 			static int Total(string board) => board.Split('-').Sum(x => int.TryParse(x, out var g) ? g : 0);
-			var word = Total(Numbers(now)) < Total(Numbers(score)) ? "GOL İPTAL (VAR)" : "GOL";
+			var word = Total(Numbers(now)) < Total(Numbers(score)) ? "GOL İPTAL" : "GOL";
 			if (Ui.Rich) Ui.Line($"  [bold yellow]{Ui.Safe(Field(state, "MatchTime")),6}  {word}  {Ui.Safe(now)}{side}[/]");
 			else Console.WriteLine($"  {Field(state, "MatchTime")}  {word}  {now}{side}");
 		}
@@ -665,6 +673,27 @@ internal static partial class Program
 				: [];
 		}
 	}
+
+	/// <summary>
+	/// What the score leaves out (PLAN: highlights in words): cards, injuries, and our players by
+	/// their rating, best first. The fixture's own list of events holds only the goals.
+	/// </summary>
+	private static void MatchMoments(Dictionary<string, MatchMan> men, (string Own, string Opponent)? names)
+	{
+		var booked = men.Where(m => m.Value.Yellow || m.Value.Red).Select(m => m.Key + (m.Value.Red ? " (kırmızı)" : "")).ToList();
+		var hurt = men.Where(m => m.Value.Injury > 0).Select(m => m.Key).ToList();
+		if (booked.Count > 0) Console.WriteLine($"Kartlar: {string.Join(", ", booked)}");
+		if (hurt.Count > 0) Console.WriteLine($"Sakatlanan: {string.Join(", ", hurt)}");
+		static double Rated(MatchMan m) => double.TryParse(m.Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) ? r : 0;
+		var ours = OurMen(men).Where(m => Rated(m.Value) > 0).OrderByDescending(m => Rated(m.Value)).ToList();
+		if (ours.Count > 0) Console.WriteLine($"Puanlarımız: {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}");
+	}
+
+	/// <summary>Our men of a match: the squad's names, kept from the team's list.</summary>
+	private static IEnumerable<KeyValuePair<string, MatchMan>> OurMen(Dictionary<string, MatchMan> men) =>
+		ourNames is { Count: > 0 } ? men.Where(m => ourNames.Contains(m.Key)) : [];
+
+	private static HashSet<string> ourNames;
 
 	internal sealed record MatchMan(int Injury, bool Yellow, bool Red, string Rating)
 	{

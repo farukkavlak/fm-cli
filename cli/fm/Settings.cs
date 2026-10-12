@@ -257,7 +257,7 @@ internal static partial class Program
 				var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
 				if (menu.ValueKind != JsonValueKind.Object)
 				{
-					Console.Error.WriteLine("Oyunun FM menüsü bulunamadı.");
+					Console.Error.WriteLine(await FmMenuMissing());
 					return null;
 				}
 				await Fm.Get("click", ("ptr", Field(menu, "Pointer")));
@@ -386,4 +386,10 @@ internal static partial class Program
 		}
 		Ui.Out.Write(table);
 	}
+
+	/// <summary>Why the game's FM menu is not there: most often a screen with no menus at all (the results after a match).</summary>
+	private static async Task<string> FmMenuMissing() =>
+		(await Fm.GetJson("pages")).GetArrayLength() == 0
+			? $"Oyun menüsüz bir ekranda ({Field(await Fm.GetJson("state"), "State")}); FM menüsü açılamıyor. Geçmek için: next"
+			: "Oyunun FM menüsü bulunamadı.";
 }

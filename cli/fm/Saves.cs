@@ -112,7 +112,7 @@ internal static partial class Program
 		var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
 		if (menu.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine("Oyunun FM menüsü bulunamadı.");
+			Console.Error.WriteLine(await FmMenuMissing());
 			return false;
 		}
 		await Fm.Get("click", ("ptr", Field(menu, "Pointer")));
