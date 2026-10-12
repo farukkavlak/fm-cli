@@ -131,7 +131,8 @@ internal static partial class Program
 		return
 		[
 			new("Transfer bütçesi", $"{After(transfer, "Current")} (bu sezon harcanan {After(transfer, "Spent this season")}, başta {After(transfer, "Original Budget")})"),
-			new("Maaş bütçesi", $"{After(wage, "Available")} boşta · {wage.FirstOrDefault(t => t.StartsWith("Currently spending", StringComparison.Ordinal))?.Replace("Currently spending", "ödenen") ?? "-"}"),
+			// The game writes what is over the budget in brackets: "(£1K) p/w".
+			new("Maaş bütçesi", $"{(After(wage, "Available") is var free && free.StartsWith('(') ? $"{free.Replace("(", "").Replace(")", "")} aşılmış" : $"{free} boşta")} · {wage.FirstOrDefault(t => t.StartsWith("Currently spending", StringComparison.Ordinal))?.Replace("Currently spending", "ödenen") ?? "-"}"),
 			new("Scouting bütçesi", After(scouting, "Scouting")),
 		];
 	}

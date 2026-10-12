@@ -4281,6 +4281,24 @@ listeyi yeniden çekmek bu değişkenleri siliyor. Görülen karşılıklar: Rst
 Work Permit Place, Loa = Loan listed, Lst = Transfer listed, Inj = Injured; ikinci bayraklar: Yellow card warning,
 Free Agent. 30 oyuncu bir saniyenin altında.
 
+## 8.149 Personel alımı ve karşılıklı fesih (7–11 Mart 2026, Lincoln)
+
+**Personel alımı:** `staff hire <ad>` → şartlar kartı; serbest personelin kulübü ve "şu anki maaşı" yok, bu yüzden kartın
+hazır olduğunu "kulüp + Wage" ile anlayan bekleme her okumada 8 sn doluyordu (artık iki aynı okuma yeter). Oyun hep
+"Under 18s …" görevi öneriyor; Job listesi iç içe (Coaching › / Scouting › / Medical ›), `/select names=Coaching>Coach`
+seçiyor ama "has no events to send" der, değer yine de değişir. Akış: Suggest Terms → "These terms are acceptable but I
+wish to evaluate all my options…" → Finalise Deal → "I'll be in touch regarding my final decision" → yalnızca Exit Talks
+ve Adjust Budgets kalır. 3–4 gün sonra "<Soyad> set to sign for Lincoln" (Accept / Delay Transfer / Cancel / Delegate),
+ekinde onay kartı: Fee, Wages (+after tax, bütçe payı), Duration, Type, Bonuses & Clauses, Recruitment Budgets
+(parantezli tutar = eksi), Staff (ekip, boş yer, kişi). Accept'ten birkaç saat sonra "completes Lincoln move", `staff`'ta görünür.
+Aynı adlı iki personeli ayırmak için arama sonucunun `JobString`'i: `team` ve `human` bağlamı ister (`fmcli.who.team`
+← Human.Team, `fmcli.who.human` ← Human).
+
+**Karşılıklı fesih:** `release <ad> --mutual --yes` → menajer "I'll pass on your decision…". Ertesi gün oyuncu "asks to
+discuss personal matters" (hiçbir kulüp istemiyorken neden?): Discuss / Decline / Ask Agent / Ask <kaptan>. Konuşmada
+"once you're a free agent, you'll have no trouble finding a new club" ikna etti → "agrees to contract termination for a fee
+of £160K" (Confirm / Cancel), bedel transfer bütçesinden düşüyor. Ek "Player Report": kimlik, sözleşme, kulübün kasası.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

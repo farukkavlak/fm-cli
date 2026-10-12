@@ -928,6 +928,18 @@ internal static partial class Program
 			return;
 		}
 
+		// A player's card: who he is, his contract and the club's balance.
+		if (rest[0] == "Player Report" && rest.Contains("Duration") && rest.Contains("Wage"))
+		{
+			string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";
+			var who = rest.Skip(1).TakeWhile(t => t is not ("Current Ability" or "Contract")).Select(t => t.Replace(" years old", " yaş")).ToList();
+			Console.WriteLine($"\n  Ek: {string.Join(" · ", who)}");
+			Console.WriteLine($"    Sözleşme: {After("Duration")} – {After("Duration", 2)} · {After("Wage")}");
+			if (After("Finances") is { Length: > 0 } balance)
+				Console.WriteLine($"    Kulübün kasası: {(balance.StartsWith('(') ? "-" + balance.Trim('(', ')') : balance)}");
+			return;
+		}
+
 		Console.WriteLine("\n  Ek: " + rest[0]);
 		var table = rest.IndexOf("Fine Type");
 		if (table >= 0 && table + 4 < rest.Count)
