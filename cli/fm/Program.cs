@@ -824,7 +824,34 @@ internal static partial class Program
 		var rest = texts.Skip(start + 1)
 			.Where(t => t is not ("Reset" or "Response Required") && !answers.Contains(t))
 			.ToList();
+		// The panel beside the message (the club, the manager's profile) is not part of it.
+		var side = rest.FindIndex(t => t is "About Club" or "My Profile");
+		if (side >= 0) rest = rest.Take(side).ToList();
 		if (rest.Count == 0) return;
+
+		// A press conference's: the likely talking points, then who is coming (FINDINGS §8.145).
+		if (rest[0] == "Likely Talking Points")
+		{
+			var journalists = rest.IndexOf("Journalists in Attendance");
+			var points = rest.Skip(1).Take((journalists < 0 ? rest.Count : journalists) - 1).Where(t => !t.StartsWith('(')).ToList();
+			Console.WriteLine("\n  Olası konular:");
+			foreach (var point in points) Console.WriteLine($"    · {point}");
+			if (journalists >= 0)
+			{
+				var row = rest.IndexOf("Relationship", journalists);
+				var people = new List<string[]>();
+				for (var i = row + 1; row > 0 && i + 3 < rest.Count; i += 4)
+					people.Add([rest[i], rest[i + 1], rest[i + 2], rest[i + 3]]);
+				// The heading counts them all; the table holds as many as it has drawn.
+				var all = journalists + 1 < rest.Count && int.TryParse(rest[journalists + 1].Trim('(', ')'), out var n) ? n : people.Count;
+				if (people.Count > 0)
+				{
+					Console.WriteLine(all > people.Count ? $"\n  Gelecek gazeteciler ({all} kişiden {people.Count}'i):" : $"\n  Gelecek gazeteciler ({all}):");
+					Table.Write(["GAZETECİ", "KURUM", "ETKİ", "İLİŞKİ"], people);
+				}
+			}
+			return;
+		}
 
 		Console.WriteLine("\n  Ek: " + rest[0]);
 		var table = rest.IndexOf("Fine Type");
