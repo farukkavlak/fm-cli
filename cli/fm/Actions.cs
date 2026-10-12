@@ -23,6 +23,10 @@ internal static partial class Program
 			Console.Error.WriteLine($"Oyun bir soru bekliyor: {Field(waiting[0], "Title")} — önce onu cevapla: dialog");
 			return null;
 		}
+		// "Nathan Ferguson (Hartlepool)": what is in brackets tells apart people of one name, by age, position, nation or club.
+		string qualifier = null;
+		if (System.Text.RegularExpressions.Regex.Match(wanted, @"^(.+?)\s*\((.+)\)\s*$") is { Success: true } q)
+			(wanted, qualifier) = (q.Groups[1].Value, q.Groups[2].Value);
 		var found = (await SearchFor(wanted)).Where(r => Field(r, "Name").Length > 0 && (kind == null || Field(r, "Kind") == kind)).ToList();
 		var exact = found.Where(r => Fold(Field(r, "Name")) == Fold(wanted)).ToList();
 		// One whose name has the typed words as words of its own is meant over those that merely hold them ("cerin": Čerin, not Nocerino).
@@ -40,13 +44,22 @@ internal static partial class Program
 		{
 			var who = await Who(found);
 			var labels = found.Select((r, i) => $"{Field(r, "Name")} ({(Field(r, "Kind") == "Player" ? "" : Field(r, "Kind") + ", ")}{who[i]})").ToList();
+			if (qualifier != null)
+			{
+				var words = Fold(qualifier).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+				var fits = labels.Select((l, i) => (l, i)).Where(x => words.All(w => Fold(x.l).Contains(w))).Select(x => x.i).ToList();
+				if (fits.Count == 1) { found = [found[fits[0]]]; goto chosen; }
+				if (fits.Count == 0) Console.Error.WriteLine($"'({qualifier})' hiçbirine uymuyor.");
+				if (fits.Count > 1) (found, labels) = (fits.Select(i => found[i]).ToList(), fits.Select(i => labels[i]).ToList());
+			}
 			if (Ui.Ask($"'{wanted}' birden çok kişiye uyuyor:", labels) is { } picked) found = [found[picked]];
 			else
 			{
-				if (!Ui.Interactive) Console.Error.WriteLine($"'{wanted}' birden çok kişiye uyuyor; adı tam yaz:\n" + string.Join("\n", labels.Select(l => "  " + l)));
+				if (!Ui.Interactive) Console.Error.WriteLine($"'{wanted}' birden çok kişiye uyuyor; parantezle ayır (yaş, mevki, ülke ya da kulüp), ör. \"{wanted} ({who[0].Split(" · ")[0]})\":\n" + string.Join("\n", labels.Select(l => "  " + l)));
 				return null;
 			}
 		}
+		chosen:
 		var name = Field(found[0], "Name");
 
 		await Fm.Get("actions", ("close", "1"));
