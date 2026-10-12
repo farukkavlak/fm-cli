@@ -224,7 +224,15 @@ internal static partial class Program
 						: "Cevaplamak için: reply <#>   (numaralar için: inbox)");
 				break;
 
-			case "PressConference": output.WriteLine("Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>"); break;
+			case "PressConference":
+				// The press message is the one waiting; named, it can be answered without a look at the inbox.
+				var press = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
+				if (press.Count == 0) press = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
+				var pressTitle = press.Count == 1 ? Field(press[0], "NewsTitleString") : "";
+				output.WriteLine(pressTitle.Length > 0 && !pressTitle.Contains('"')
+					? $"Oyun basın toplantısı bekliyor: {pressTitle}\nKatılmak ya da geçmek için: reply \"{pressTitle}\""
+					: "Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>");
+				break;
 			case "Tactics" or "SubmitTeam": output.WriteLine("Maç günü. Oynamak için: match"); break;
 			case "TeamNews": output.WriteLine("Oyun maç öncesi takım haberlerini bekliyor."); break;
 			case "TeamTalk": output.WriteLine("Oyun takım konuşması bekliyor."); break;
