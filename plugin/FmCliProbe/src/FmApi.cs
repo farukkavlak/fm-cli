@@ -58,6 +58,8 @@ internal static class FmApi
 		"dialog" => Dialogs.Open(q),
 		"shot" => Shot(q),
 		"repaint" => Repaint(q["how"]),
+		"visible" => Visible(q["text"]),
+		"layers" => Layers(q["name"] ?? "PanelManager-container", Int(q["depth"], 3)),
 		// The game's own way out: killing it can leave it stuck in the kernel holding the port.
 		"quit" => Quit(),
 		"offer" => Offer.Current(),
@@ -414,6 +416,65 @@ internal static class FmApi
 		}
 	}
 
+	/// <summary>
+	/// Why a piece of text that is in the tree does not show: each of its ancestors with what
+	/// would hide it — display, visibility, opacity, size and where it sits on screen.
+	/// </summary>
+	private static string Visible(string text)
+	{
+		var sb = new StringBuilder();
+		var found = 0;
+		foreach (var element in Buttons.Elements())
+		{
+			string own;
+			try { own = element.TryCast<UnityEngine.UIElements.TextElement>()?.text; } catch { continue; }
+			if (own == null || own.IndexOf(text ?? "", StringComparison.OrdinalIgnoreCase) < 0) continue;
+			if (found++ >= 2) break;
+			sb.AppendLine($"== \"{own}\"");
+			for (var e = (UnityEngine.UIElements.VisualElement)element; e != null; e = e.parent)
+			{
+				var st = e.resolvedStyle;
+				var b = e.worldBound;
+				sb.AppendLine($"{e.GetType().Name} #{e.name} display={st.display} vis={st.visibility} op={st.opacity:0.##} "
+					+ $"rect=({b.x:0},{b.y:0} {b.width:0}x{b.height:0}) children={e.childCount}");
+			}
+		}
+		return found > 0 ? sb.ToString() : "error: no text matches";
+	}
+
+	/// <summary>
+	/// What is stacked on screen: the children of a named element (the panel manager by default)
+	/// a few levels down, with size, opacity and background, to find what covers what.
+	/// </summary>
+	private static string Layers(string name, int depth)
+	{
+		var sb = new StringBuilder();
+		foreach (var d in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.UIElements.UIDocument>())
+		{
+			if (d == null || !d.gameObject.activeInHierarchy || d.rootVisualElement == null) continue;
+			var stack = new System.Collections.Generic.Stack<UnityEngine.UIElements.VisualElement>();
+			stack.Push(d.rootVisualElement);
+			while (stack.Count > 0)
+			{
+				var e = stack.Pop();
+				if (e.name == name) { Layer(sb, e, 0, depth); break; }
+				for (var i = 0; i < e.childCount; i++) stack.Push(e[i]);
+			}
+		}
+		return sb.Length > 0 ? sb.ToString() : "error: no element by that name";
+	}
+
+	private static void Layer(StringBuilder sb, UnityEngine.UIElements.VisualElement e, int level, int depth)
+	{
+		var st = e.resolvedStyle;
+		var b = e.worldBound;
+		var bg = st.backgroundColor;
+		sb.AppendLine($"{new string(' ', level * 2)}{e.GetType().Name} #{e.name} d={st.display} v={st.visibility} op={st.opacity:0.##} "
+			+ $"bg={bg.r:0.##},{bg.g:0.##},{bg.b:0.##},{bg.a:0.##} rect=({b.x:0},{b.y:0} {b.width:0}x{b.height:0}) n={e.childCount}");
+		if (level >= depth) return;
+		for (var i = 0; i < e.childCount; i++) Layer(sb, e[i], level + 1, depth);
+	}
+
 	private static string Quit()
 	{
 		UnityEngine.Application.Quit();
@@ -424,8 +485,8 @@ internal static class FmApi
 	/// Tries to bring back drawing that stopped: the interface's render chain fails its own checks
 	/// ("Assertion failed" in UIR.RenderChain) and a panel, or the whole screen, stays unpainted
 	/// (FINDINGS §8.129, §8.143). ?how=dirty marks every element for repaint; ?how=panel gives each
-	/// document its panel settings again, which builds its render chain anew; ?how=doc turns each
-	/// document off and on.
+	/// document its panel settings again, which builds its render chain anew. (Turning a document
+	/// off and on was tried: it wipes the whole interface for the rest of the session.)
 	/// </summary>
 	private static string Repaint(string how)
 	{
@@ -441,10 +502,6 @@ internal static class FmApi
 						var settings = d.panelSettings;
 						d.panelSettings = null;
 						d.panelSettings = settings;
-						break;
-					case "doc":
-						d.enabled = false;
-						d.enabled = true;
 						break;
 					default:
 						var count = 0;

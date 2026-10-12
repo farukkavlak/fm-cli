@@ -29,6 +29,14 @@ public class Plugin : BasePlugin
 		// so we never inject a MonoBehaviour. BepInEx's main-thread pump is enough.
 		IL2CPPChainloader.MainThreadTick += _bridge.Pump;
 
+		// A listener still open while the game exits was the one thread left when the game hung
+		// on its way out (FINDINGS §8.143); it is closed as soon as the game starts to quit.
+		Application.quitting += (System.Action)(() =>
+		{
+			Log.LogInfo("[fm-cli] game quitting, closing the bridge");
+			_bridge?.Stop();
+		});
+
 		Log.LogInfo($"[fm-cli] ready on http://127.0.0.1:{_bridge.Port}/");
 	}
 

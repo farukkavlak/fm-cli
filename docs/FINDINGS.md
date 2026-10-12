@@ -4185,6 +4185,25 @@ Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki top
   kapatıp açmak) — **derlendi, oyuna kurulmadı, denenmedi**. Deneme planı: iş ilanları paneli boşken üçünü sırayla dene,
   her birinden sonra `/shot`.
 
+## 8.144 Boş paneller Display Fix modundanmış; oyunun kendi çıkışı (12 Ekim, oyun 10 Ocak 2026, işsiz)
+
+- **Boş çizilen sayfaların nedeni: `FM26DisplayFix` modu.** Mod ekranı 16:10'a zorluyor (2880×1620 → 2940×1838,
+  arayüz 1680×945 yerine 1680×1050). FM'in ızgara yerleşimi buna uymuyor: Career › Managerial Vacancies'te kart katmanı
+  (`PanelManager-container › Card › JobMarketReport`) doğru boyda, ama içindeki `#GridLayout` 12 piksele sıkışıp
+  y=961'e düşüyor, tablo (`JobMarketTableBlock`, 867 px) y=973'ten, yani ekranın altından başlıyor. Overview'daki
+  `GridLayoutElementContent`'in yüksekliği de 0'dı. Yani bu bir çizim hatası değil, yerleşim hatası: eleman ağaçta duruyor,
+  görünür, ama ekranın dışında. Mod `~/fm26_bep/disabled-plugins/`'e taşındı → sayfa eksiksiz çiziliyor
+  (12 ilan + Palace detay paneli). Geri almak için klasörü `BepInEx/plugins/`'e geri koy.
+  Siyah ekranın (§8.129, Match Day › Overview) da aynı nedenden olması muhtemel. İşsizken Match Day yok, takım bulununca denenecek.
+- Bulmak için eklentiye `/visible?text=` (bir yazının atalarında display/visibility/opacity/konum) ve
+  `/layers?name=&depth=` (katmanlar: boyut, saydamlık, arka plan) eklendi.
+- `/repaint`: `dirty` ve `panel` hiçbir şeyi değiştirmedi (sorun çizim değildi). `doc` (belgeyi kapatıp açmak) **arayüzü
+  oturum boyunca tamamen siliyor**, kaldırıldı.
+- **Çıkış:** `Application.Quit()` FM'de "Quit Game And Exit?" penceresini açıyor (oyun yüklüyken). Yes'e basınca oyun
+  2 sn'de temiz kapanıyor, `Application.quitting` tetikleniyor ve eklenti dinleyiciyi kapatıyor. `fm stop` artık:
+  `/quit` → pencereyi onayla → köprünün susmasını ve sürecin bitmesini bekle (~5 sn). Olmazsa `pkill`, sonra `pkill -9`.
+  Üç kez denendi, süreç kalmadı. Eski donmanın (§8.143) kökü ayrıca bulunmadı. O sırada da mod açıktı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -196,14 +196,45 @@ internal static class Launcher
 	}
 
 	/// <summary>
-	/// Closes the game: the process is ended, as nothing in the game's own quit can be reached
-	/// without its window. True once the bridge has stopped answering.
+	/// Closes the game: first through its own quit, which lets it shut down cleanly; a game that
+	/// was only killed could hang on its way out, holding the port (FINDINGS §8.143). Ended by
+	/// force when it does not go. True once the bridge has stopped answering.
 	/// </summary>
 	public static async Task<bool> Stop(Bridge fm)
 	{
-		using (var kill = Process.Start(new ProcessStartInfo("/usr/bin/pkill", ["-f", AppBundle]) { UseShellExecute = false }))
-			if (kill != null) await kill.WaitForExitAsync();
-		return await WaitFor(async () => !await Up(fm), TimeSpan.FromSeconds(20));
+		try
+		{
+			await fm.Get("quit");
+			// With a game loaded it asks "Quit Game And Exit?"; the caller has already settled saving.
+			for (var i = 0; i < 10; i++)
+			{
+				await Task.Delay(500);
+				if ((await fm.Get("dialog")).Contains("Quit Game")) { await fm.Get("dialog", ("press", "primary")); break; }
+			}
+		}
+		catch (FmUnavailable) { }
+		// The bridge closes as the game starts to quit; the process follows a few seconds later.
+		if (await WaitFor(async () => !await Up(fm), TimeSpan.FromSeconds(20))
+		    && await WaitFor(async () => !await Alive(), TimeSpan.FromSeconds(20))) return true;
+
+		await Pkill([]);
+		if (await WaitFor(async () => !await Alive(), TimeSpan.FromSeconds(15))) return true;
+		await Pkill(["-9"]);
+		return await WaitFor(async () => !await Alive(), TimeSpan.FromSeconds(10));
+	}
+
+	private static async Task<bool> Alive()
+	{
+		using var pgrep = Process.Start(new ProcessStartInfo("/usr/bin/pgrep", ["-f", AppBundle]) { UseShellExecute = false, RedirectStandardOutput = true });
+		if (pgrep == null) return false;
+		await pgrep.WaitForExitAsync();
+		return pgrep.ExitCode == 0;
+	}
+
+	private static async Task Pkill(string[] flags)
+	{
+		using var kill = Process.Start(new ProcessStartInfo("/usr/bin/pkill", [.. flags, "-f", AppBundle]) { UseShellExecute = false });
+		if (kill != null) await kill.WaitForExitAsync();
 	}
 
 	public static Task<bool> Running(Bridge fm) => Up(fm);
