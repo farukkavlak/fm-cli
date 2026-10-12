@@ -4203,6 +4203,16 @@ Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki top
   2 sn'de temiz kapanıyor, `Application.quitting` tetikleniyor ve eklenti dinleyiciyi kapatıyor. `fm stop` artık:
   `/quit` → pencereyi onayla → köprünün susmasını ve sürecin bitmesini bekle (~5 sn). Olmazsa `pkill`, sonra `pkill -9`.
   Üç kez denendi, süreç kalmadı. Eski donmanın (§8.143) kökü ayrıca bulunmadı. O sırada da mod açıktı.
+- **Siyah ekran da çözüldü** (19 Ocak 2026, Lincoln): mod kapalıyken Match Day › Overview açılıp ardından First Team
+  açılınca ikisi de tam çiziliyor (~900 KB ekran görüntüsü; eskiden 70 KB simsiyah). §8.129'daki "çaresi yok" notu geçersiz.
+- **İş bulma akışı baştan sona canlı görüldü:** `fm jobs <kulüp> apply --yes` → hemen "<Kulüp> job application received"
+  mesajı (cevaplanabilir: Declare Interest / Do Not), Portal'da "1 applied". 6 gün sonra "Lincoln offer job interview"
+  (bloke eden mesaj: Attend / Decline) → mülakat mevcut `fm talk` konuşmasıyla yürüyor (dil, eski kulüp, başka başvurular,
+  soyunma odası, taraftar, "turn things around", başlama zamanı, DoF, beklenti, transfer/maaş bütçesi, talepler, End Chat).
+  3 gün sonra "Lincoln approach <menajer>" (Enter Contract Negotiations / Reject) → sözleşme ekranı (Contract Negotiation),
+  cevaplar `talk` ile: Finalise Deal / Delay for one week / Cancel → "Exit Talks" → ertesi `next`'te iş başlıyor.
+  Eksik: `talk` sözleşme ekranında maddeleri (maaş, başlama, süre, bonuslar, bütçeler) göstermiyor, yalnızca "Here is our
+  initial offer:" yazıyor.
 
 ## 9. Sıradaki adımlar
 
