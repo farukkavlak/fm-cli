@@ -253,8 +253,9 @@ endişeleri. Mutluluk ve taktiğe alışma ayrı komutlarda (`happiness`, `tacti
 
 ### Kim mutlu, kim neden değil — `happiness`
 
-`fm happiness` oyuncuları en mutsuzdan başlayarak sıralar; yanındaki kısaltmalar oyunun durum
-bayrakları (Wnt: başka kulüp istiyor, Slt: hafif sakat, Rst: dinlendiriliyor, Unr: kayıtsız, FtT: gidecek).
+`fm happiness` oyuncuları en mutsuzdan başlayarak sıralar; yanında oyunun durum bayrakları açık adıyla
+yazar (Rest, Unregistered, Transfer listed, Fitness Test…). `fm squad` da aynı bayrakları son kolonda gösterir;
+denemeye gelmiş oyuncu orada "Free Agent (denemede)" diye görünür.
 
 `fm happiness <oyuncu>` nedenini söyler: morali, soyunma odasındaki yeri, şikâyetleri (−) ve memnun
 olduğu şeyler (+).

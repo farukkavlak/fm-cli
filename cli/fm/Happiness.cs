@@ -36,6 +36,9 @@ internal static partial class Program
 			return 1;
 		}
 		players = players.OrderBy(p => Array.IndexOf(HappinessLevels, p.Level)).ThenBy(p => p.Name).ToList();
+		// The page has three letters for each flag; the players' own lists say them in full.
+		var flags = await SquadFlags();
+		players = players.Select(p => flags.TryGetValue(p.Name, out var f) && f.Count > 0 ? p with { Flags = [FlagWords(f)] } : p).ToList();
 
 		var typed = string.Join(" ", Words(args));
 		if (typed.Length > 0)

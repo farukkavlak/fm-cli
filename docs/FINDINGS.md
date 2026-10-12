@@ -4262,6 +4262,25 @@ antrenörü, kondisyon hocası). Altta "Coach Workload"/"Lead Coach Rating": dok
 birinin ardından baş antrenör yıldızı; kimsenin olmadığı alanda yıldız öğesi hiç yok. Atama `/setcontrol?ptr=<kutu>&value=1`,
 anında işliyor. Bir antrenöre ikinci alan verince ilk alandaki yıldızı düşüyor (Kavlak hücum taktik 4★ → 3★). `fm coaches`.
 
+## 8.148 Deneme ve durum bayrakları (7 Mart 2026, Lincoln)
+
+**Deneme:** `fm trial <ad> --for N --yes` → oyun "Trial Offered" der; aynı akşam her oyuncu için Jez George'dan
+"X set to go on trial with Lincoln" gelir (cevap bekliyor, `next`'i bloklar): Accept / Cancel / Delegate. Accept'ten
+sonraki ilerlemede "X on trial with Lincoln" gelir ve oyuncu kadroya düşer: forma numarası -1, maaş N/A, bayrakları
+Unregistered + Free Agent. Oyunun "denemede" diye ayrı bir bayrağı yok; kadromuzda Free Agent = denemede.
+
+**Aynı adlı iki kişi:** iki "Nathan Ferguson" (serbest, 25; Hartlepool, 30). Tam ad bile ayırmıyordu; artık
+`"Nathan Ferguson (25 yaş)"`, `"(hartlepool)"` gibi parantezli ek, aday etiketinde (yaş · mevki · ülke · kulüp) aranıyor.
+
+**Durum bayrakları:** kadro tablosunun `StatusTitleShort`'u yalnızca ilk bayrağın üç harfi. Tam liste kişinin
+`PlayerStatusFlagsForTeam`'i (`PlayerStatusFlagReference`: `StatusTitleShort`, `StatusTitleFull`, `StatusReason`,
+`StatusType`, `IneligibilityReason`). Bağlam değişkenleri `team` ve `PlayerStatusSortType`: `/pull` ile çekilen
+oyuncu satırlarının üstüne `/pathset?to=<üst>.team&from=Human.Team` ve `…PlayerStatusSortType&int=0`. Aynı nesille
+listeyi yeniden çekmek bu değişkenleri siliyor. Görülen karşılıklar: Rst = Rest ("Needs a rest"), Unr = Unregistered
+("Cannot be registered for next match"), FtT = Fitness Test (eski kılavuz "gidecek" diyordu, yanlış), ESC = Has ESC
+Work Permit Place, Loa = Loan listed, Lst = Transfer listed, Inj = Injured; ikinci bayraklar: Yellow card warning,
+Free Agent. 30 oyuncu bir saniyenin altında.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

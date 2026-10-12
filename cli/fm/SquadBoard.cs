@@ -11,8 +11,9 @@ internal static class SquadBoard
 {
 	public const string Fields = "Name,SquadNumber,PositionCombinedString,Age,Condition,Sharpness,IsInjured";
 
-	/// <summary>Draws the board; <paramref name="nations"/> gives each player's three-letter nation by name, when read.</summary>
-	public static void Draw(JsonElement players, IReadOnlyDictionary<string, string> nations = null)
+	/// <summary>Draws the board; <paramref name="nations"/> gives each player's three-letter nation by name, when read;
+	/// <paramref name="flags"/> each player's status flags by name, shown after the bars.</summary>
+	public static void Draw(JsonElement players, IReadOnlyDictionary<string, string> nations = null, IReadOnlyDictionary<string, List<Program.Flag>> flags = null)
 	{
 		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn("[dim]NO[/]").RightAligned())
@@ -28,17 +29,26 @@ internal static class SquadBoard
 		{
 			var injured = F(player, "IsInjured") == "True";
 			table.AddRow(
-				$"[dim]{Ui.Safe(F(player, "SquadNumber"))}[/]",
+				// One without a number of his own (here on trial, just arrived) has -1.
+				$"[dim]{Ui.Safe(F(player, "SquadNumber") is var no && no.StartsWith('-') ? "" : no)}[/]",
 				injured ? $"[red]{Ui.Safe(F(player, "Name"))}[/]" : $"[bold]{Ui.Safe(F(player, "Name"))}[/]",
 				Ui.Safe(F(player, "PositionCombinedString")),
 				Ui.Safe(F(player, "Age")),
 				$"[dim]{Ui.Safe(nations?.GetValueOrDefault(F(player, "Name")) ?? "")}[/]",
 				Meter(F(player, "Condition")),
 				Meter(F(player, "Sharpness")),
-				injured ? "[red]sakat[/]" : "");
+				Flags(injured, flags?.GetValueOrDefault(F(player, "Name"))));
 		}
 
 		Ui.Out.Write(table);
+	}
+
+	/// <summary>The flags in words, an injury in red before the rest.</summary>
+	private static string Flags(bool injured, List<Program.Flag> mine)
+	{
+		var rest = Program.FlagWords((mine ?? []).Where(f => f.Full != "Injured"));
+		var said = Ui.Safe(rest);
+		return injured ? "[red]sakat[/]" + (said.Length > 0 ? $"[dim], {said}[/]" : "") : $"[dim]{said}[/]";
 	}
 
 	/// <summary>A percentage as a short bar: green when ready, amber when not, red when it is a worry. An injured player's -1 is no reading at all.</summary>

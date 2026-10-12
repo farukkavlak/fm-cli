@@ -271,7 +271,7 @@ internal static partial class Program
 					foreach (var r in placed) await Fm.GetJson("pull", ("path", r.Row + ".Nation"), ("props", "ThreeLetterName"));
 					var nations = new Dictionary<string, string>();
 					foreach (var r in placed) nations[r.Name] = Field(await Fm.Pull(r.Row + ".Nation", "ThreeLetterName"), "ThreeLetterName");
-					SquadBoard.Draw(players, nations);
+					SquadBoard.Draw(players, nations, await SquadFlags());
 					return 0;
 				}
 			}
@@ -290,6 +290,7 @@ internal static partial class Program
 			Console.WriteLine(squad.ToString());
 			return 0;
 		}
+		var flags = await SquadFlags();
 
 		var rows = squad.EnumerateArray()
 			.Where(p => Field(p, "Wage") != "")
@@ -302,7 +303,7 @@ internal static partial class Program
 				Field(p, "AgreedPlayingTime"),
 				Field(p, "Wage"),
 				Field(p, "TransferValueRangeString"),
-				Field(p, "StatusTitleShort"),
+				Status(flags, p),
 			})
 			.ToList();
 
@@ -338,6 +339,7 @@ internal static partial class Program
 			Console.WriteLine(squad.ToString());
 			return 0;
 		}
+		var flags = await SquadFlags();
 
 		// Most tired first: that is the question the column gets looked at for.
 		var rows = squad.EnumerateArray()
@@ -350,7 +352,7 @@ internal static partial class Program
 				Field(p, "PositionCombinedString"),
 				Percent(p, "Condition"),
 				Percent(p, "Sharpness"),
-				Field(p, "StatusTitleShort"),
+				Status(flags, p),
 			})
 			.ToList();
 
