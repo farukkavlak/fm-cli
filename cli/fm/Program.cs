@@ -887,7 +887,10 @@ internal static partial class Program
 			{
 				var row = rest.IndexOf("Relationship", journalists);
 				var people = new List<string[]>();
-				for (var i = row + 1; row > 0 && i + 3 < rest.Count; i += 4)
+				// The panels beside it (the next match, the table) follow on; a journalist's influence
+				// and standing are words, theirs have numbers in them.
+				for (var i = row + 1; row > 0 && i + 3 < rest.Count && rest[i] != "Next Match Preview"
+				     && !rest[i + 2].Any(char.IsDigit) && !rest[i + 3].Any(char.IsDigit); i += 4)
 					people.Add([rest[i], rest[i + 1], rest[i + 2], rest[i + 3]]);
 				// The heading counts them all; the table holds as many as it has drawn.
 				var all = journalists + 1 < rest.Count && int.TryParse(rest[journalists + 1].Trim('(', ')'), out var n) ? n : people.Count;
