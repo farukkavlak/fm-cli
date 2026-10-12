@@ -690,6 +690,7 @@ internal static partial class Program
 			Console.WriteLine(title);
 			var says = await MessageBody(Field(chosen, "NewsFirstBubbleSpeechString"));
 			if (says.Length > 0) Console.WriteLine($"  {says.Replace("\n", "\n  ")}");
+			await WriteAttachment(Field(chosen, "NewsFirstBubbleSpeechString"), answers.Select(a => Field(a, "Label")).ToHashSet());
 			Console.WriteLine();
 			if (!Ui.Interactive) Options(Console.Out);
 
@@ -801,6 +802,46 @@ internal static partial class Program
 	/// The whole of an open message, read from the text on its page, which starts with the
 	/// opening line the inbox gives. Only that line when the page does not have it.
 	/// </summary>
+	/// <summary>
+	/// What a message carries under "Attachments" — the Code of Conduct it asks to confirm, say
+	/// (FINDINGS §8.145). An answer such as "Confirm" agrees to it, so it is shown with the message.
+	/// </summary>
+	private static async Task WriteAttachment(string opening, HashSet<string> answers)
+	{
+		List<string> texts;
+		try
+		{
+			var found = await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "8"));
+			if (found.ValueKind != JsonValueKind.Array) return;
+			texts = found.EnumerateArray().Select(t => t.GetString() ?? "").ToList();
+		}
+		catch (FmError) { return; }
+
+		// Another message's attachment can still be on screen: this one's opens with its words.
+		var start = texts.IndexOf("Attachments");
+		var head = opening.Length > 40 ? opening[..40] : opening;
+		if (start < 0 || head.Length == 0 || !texts.Take(start).Any(t => t.StartsWith(head, StringComparison.Ordinal))) return;
+		var rest = texts.Skip(start + 1)
+			.Where(t => t is not ("Reset" or "Response Required") && !answers.Contains(t))
+			.ToList();
+		if (rest.Count == 0) return;
+
+		Console.WriteLine("\n  Ek: " + rest[0]);
+		var table = rest.IndexOf("Fine Type");
+		if (table >= 0 && table + 4 < rest.Count)
+		{
+			// Fine type, what it is per, then the fine for the first to fourth time.
+			var rows = new List<string[]>();
+			var i = table + 5;
+			for (; i + 5 < rest.Count && rest[i + 1].StartsWith("Issued", StringComparison.Ordinal); i += 6)
+				rows.Add([rest[i], rest[i + 2], rest[i + 3], rest[i + 4], rest[i + 5]]);
+			Table.Write(["CEZA (maaştan, Wk = haftalık)", "1. KEZ", "2. KEZ", "3. KEZ", "4. KEZ"], rows);
+			rest = rest.Skip(i).ToList();
+		}
+		else rest = rest.Skip(1).ToList();
+		if (rest.Count > 0) Console.WriteLine("  " + string.Join(" · ", rest));
+	}
+
 	private static async Task<string> MessageBody(string opening)
 	{
 		if (opening.Length == 0) return "";

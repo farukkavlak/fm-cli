@@ -4214,6 +4214,18 @@ Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki top
   Eksik: `talk` sözleşme ekranında maddeleri (maaş, başlama, süre, bonuslar, bütçeler) göstermiyor, yalnızca "Here is our
   initial offer:" yazıyor.
 
+## 8.145 Yeni kulübün ilk günleri (19–20 Ocak 2026, Lincoln)
+
+- İşe başlayınca üç bloke tanıtım mesajı: Tactics / Responsibilities / Squad Introduction ("Begin" / "Decline"). Tactics
+  turu "select the tactical display" adımında taktik ister: `tactic new` ile kurulunca tur kendiliğinden kapandı.
+  Responsibilities ve Squad turları `tour` ile yürüdü. Turun adım numarası yazısından önce değişiyor, adımlar arasında tur
+  bir an "yok" görünüyor → `tour` artık yazının değişmesini bekliyor ve turu ancak 3 okuma boyunca yoksa bitti sayıyor.
+- Sonra "Choose <kulüp> captain" (Review / Confirm / Warn X) ve "Set Code of Conduct" (Skip / Ask <yardımcı> to Pick /
+  Confirm). Code of Conduct mesajın **ekinde** bir ceza tablosu (Missed Training, Gone AWOL, Multiple Booking ban, Sent Off
+  ×2; 1.–4. kez, haftalık maaş cinsinden). `reply` artık mesajın "Attachments" bölümünü gösteriyor (`/texts?anchor=Attachments`;
+  başka mesajın eki olmasın diye gövdenin ilk 40 harfiyle eşleniyor).
+- `reply` gövdesine aynı yazıyı taşıyan ikinci elemanın dökümü karışıyordu (`0x… SIText "…`) — düzeldi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
