@@ -100,6 +100,21 @@ iş, onu `register` yapıyor (aşağıda).
 
 Seçimi doğrudan da verebilirsin: `fm reply 4 2` ya da cevabın bir parçasıyla `fm reply 4 accept`.
 
+Bazı mesajların bir **eki** olur ve `reply` onu da gösterir. Örneğin yeni kulübün "Set Code of Conduct"
+mesajında "Confirm" demek bu ceza tablosunu onaylamak demektir:
+
+```
+  Ek: Code of Conduct
+CEZA (maaştan, Wk = haftalık)  1. KEZ   2. KEZ   3. KEZ   4. KEZ
+Missed Training                1/2 Wk   1 Week   2 Wks    2 Wks
+Sent Off (Straight Red)        1/2 Wk   1 Week   1 Week   2 Wks
+…
+```
+
+Basın toplantısı mesajında da olası konular ve gelecek gazeteciler (kurum, etki, sana karşı tutum) yazar.
+Toplantıya katılınca sorular `talk` ile cevaplanır. Seçenekler [Positive] / [Neutral] / [Negative] diye
+gruplanır, ama grupların sırası her soruda değişir.
+
 ### Kadro listesi — `register`, `numbers`
 
 Sezon başında ve her Avrupa turundan önce oyun kayıtlı oyuncu listesi ister; gönderilmeden
