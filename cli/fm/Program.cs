@@ -1569,6 +1569,9 @@ internal static partial class Program
 			  tactic mentality [<x>]      mentaliteyi göster ya da değiştir
 			  tactic style [<x>]          oyun stilini göster ya da değiştir
 			  tactic pick                 ilk 11'i oyuna seçtir (Quick Pick)
+			  tactic instructions ["<talimat>" [<değer>]]  takım talimatları: topla (aşama aşama) ve topsuz; değer yoksa seçenekleri
+			  tactic pi <mevki|oyuncu> ["<talimat>" [<değer>]]  oyuncu talimatları (şut, koşu, pres, markaj…)
+			  tactic slot [<n>]           taktik yuvaları; numarayla o taktiğe geç
 			  tactic role <mevki> [<rol>] bir mevkinin rolünü göster ya da değiştir (--oop: topsuz rol)
 			                              maç sırasında: tactic role <oyuncu> [<rol>]
 			  tactic player <mevki> <oyuncu>  yedeklerden birini o mevkiye koy (oradaki yedeğe geçer)

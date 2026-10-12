@@ -1023,6 +1023,8 @@ internal static partial class Program
 	internal static string Role(string entry)
 	{
 		if (entry.StartsWith("OP", StringComparison.Ordinal) && entry.Length > 2 && char.IsUpper(entry[2])) entry = entry[2..];
+		// The game's own name has the letter missing.
+		entry = entry.Replace("Atacking", "Attacking", StringComparison.Ordinal);
 
 		var spaced = new System.Text.StringBuilder();
 		foreach (var c in entry)
