@@ -904,6 +904,13 @@ internal static partial class Program
 			return;
 		}
 
+		// The coaching grid in miniature; the command shows it whole and changes it.
+		if (rest[0] == "Coach Assignments")
+		{
+			Console.WriteLine("\n  Ek: antrenör görevleri. Görmek ve atamak için: coaches");
+			return;
+		}
+
 		// The registration widget: its counts are the numbered shirts of the list, read better by register.
 		if (rest.FirstOrDefault(t => t.StartsWith("Unregistered (", StringComparison.Ordinal)) is { } unregistered)
 		{
