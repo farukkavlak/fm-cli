@@ -937,18 +937,22 @@ internal static partial class Program
 			return;
 		}
 
-		// An injury's card: what it is, when it came, then what each answer would mean, in the answers' order.
-		if (rest[0] == "Fitness" && rest.Any(t => t.Contains("Received in match", StringComparison.Ordinal)))
+		// An injury's card: what it is, how it came (in a match, in training), how he is, then what each
+		// answer would mean, in the answers' order.
+		if (rest[0] == "Fitness" && rest.Any(t => t.Contains("Received in", StringComparison.Ordinal)))
 		{
 			var parts = rest.Skip(1).SelectMany(t => t.Split('\n')).Select(t => t.Trim()).Where(t => t.Length > 0).ToList();
-			var received = parts.FindIndex(t => t.StartsWith("Received in match", StringComparison.Ordinal));
-			var outcomes = parts.Where(t => t.StartsWith("Out for", StringComparison.Ordinal) || t.StartsWith("Available for", StringComparison.Ordinal)).ToList();
-			var states = parts.Where(t => t is "Losing Sharpness" or "Becoming Fatigued").ToList();
-			Console.WriteLine($"\n  Ek: {parts.FirstOrDefault()}{(parts.Count > 1 && received != 1 ? $" — {parts[1]}" : "")}");
-			if (received >= 0) Console.WriteLine($"    {string.Join(" ", parts.Skip(received).Take(3))}");
+			var received = parts.FindIndex(t => t.StartsWith("Received in", StringComparison.Ordinal));
+			var first = parts.FindIndex(t => t.StartsWith("Out for", StringComparison.Ordinal) || t.StartsWith("Available for", StringComparison.Ordinal));
+			if (first < 0) first = parts.Count;
+			// Sharpness and condition stand just before the outcomes.
+			var states = first >= received + 3 ? parts.Skip(first - 2).Take(2).ToList() : [];
+			Console.WriteLine($"\n  Ek: {parts.FirstOrDefault()}{(received > 1 ? $" — {parts[1]}" : "")}");
+			if (received >= 0) Console.WriteLine($"    {string.Join(" ", parts.Skip(received).Take(first - states.Count - received))}");
 			if (states.Count > 0) Console.WriteLine($"    {string.Join(" · ", states)}");
 			// The set keeps the answers in the order they were put in, the order they are shown.
 			var said = answers.ToList();
+			var outcomes = parts.Skip(first).ToList();
 			for (var i = 0; i < outcomes.Count; i++) Console.WriteLine($"    {(i < said.Count ? said[i] : $"{i + 1}. seçenek")}: {outcomes[i]}");
 			return;
 		}
