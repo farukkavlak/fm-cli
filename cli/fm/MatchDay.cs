@@ -112,11 +112,12 @@ internal static partial class Program
 			if (inMatch && Field(state, "Playing") == "True") firstLook = false;
 
 			Scoreline(state, names, ref period, ref score);
-			// Who was booked, hurt and how each played is read off the match screen, which is gone by the
-			// time the whistle is seen (the period drops straight from the second half): so it is read from
-			// the 88th minute on, again every twenty seconds while play lasts.
-			if (Field(state, "Period") is "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
-			    && lateMinute >= 88 && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(20))
+			// Who was booked, hurt and how each played is read off the match screen, whose pitch drawings
+			// come and go as it moves between views, and are gone by the time the whistle is seen (the
+			// period drops straight from the second half): so it is looked at now and then through the
+			// match, more often near the end, and the last reading that found them is kept.
+			if (Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
+			    && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(lateMinute >= 80 ? 15 : 45))
 			{
 				lastLook = DateTime.UtcNow;
 				try { if (await MatchPlayers() is { Count: > 0 } men) finalMen = men; } catch (FmError) { }
@@ -690,10 +691,19 @@ internal static partial class Program
 	/// </summary>
 	private static void MatchMoments(Dictionary<string, MatchMan> men, (string Own, string Opponent)? names)
 	{
-		var booked = men.Where(m => m.Value.Yellow || m.Value.Red).Select(m => m.Key + (m.Value.Red ? " (kırmızı)" : "")).ToList();
-		var hurt = men.Where(m => m.Value.Injury != 0).Select(m => m.Key).ToList();
-		if (booked.Count > 0) Console.WriteLine($"Kartlar: {string.Join(", ", booked)}");
-		if (hurt.Count > 0) Console.WriteLine($"Sakatlanan: {string.Join(", ", hurt)}");
+		// Ours first, then theirs, each named as such once the squad's names are known.
+		string Sides(Func<KeyValuePair<string, MatchMan>, bool> which, Func<KeyValuePair<string, MatchMan>, string> said)
+		{
+			var hits = men.Where(which).ToList();
+			if (ourNames is not { Count: > 0 }) return string.Join(", ", hits.Select(said));
+			var ours = hits.Where(m => ourNames.Contains(m.Key)).Select(said).ToList();
+			var theirs = hits.Where(m => !ourNames.Contains(m.Key)).Select(said).ToList();
+			return string.Join(" · ", new[] { ours.Count > 0 ? $"biz: {string.Join(", ", ours)}" : "", theirs.Count > 0 ? $"rakip: {string.Join(", ", theirs)}" : "" }.Where(x => x.Length > 0));
+		}
+		var booked = Sides(m => m.Value.Yellow || m.Value.Red, m => m.Key + (m.Value.Red ? " (kırmızı)" : ""));
+		var hurt = Sides(m => m.Value.Injury != 0, m => m.Key);
+		if (booked.Length > 0) Console.WriteLine($"Kartlar: {booked}");
+		if (hurt.Length > 0) Console.WriteLine($"Sakatlanan: {hurt}");
 		static double Rated(MatchMan m) => double.TryParse(m.Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) ? r : 0;
 		var ours = OurMen(men).Where(m => Rated(m.Value) > 0).OrderByDescending(m => Rated(m.Value)).ToList();
 		if (ours.Count > 0) Console.WriteLine($"Puanlarımız: {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}");

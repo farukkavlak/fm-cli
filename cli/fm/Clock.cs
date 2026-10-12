@@ -242,7 +242,11 @@ internal static partial class Program
 					? $"Oyun basın toplantısı bekliyor: {pressTitle}\nKatılmak ya da geçmek için: reply \"{pressTitle}\""
 					: "Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>");
 				break;
-			case "Tactics" or "SubmitTeam": output.WriteLine("Maç günü. Oynamak için: match"); break;
+			case "Tactics" or "SubmitTeam":
+				output.WriteLine("Maç günü. Oynamak için: match");
+				if (await HurtInSide() is { Count: > 0 } hurt)
+					output.WriteLine($"Dikkat: seçili kadroda sakat var ({string.Join(", ", hurt)}); maç onlarla başlamaz. Yardımcıya seçtirmek: tactic pick · kendin: tactic player <mevki> <oyuncu>");
+				break;
 			case "TeamNews": output.WriteLine("Oyun maç öncesi takım haberlerini bekliyor."); break;
 			case "TeamTalk": output.WriteLine("Oyun takım konuşması bekliyor."); break;
 			case "TunnelInterview": output.WriteLine("Oyun tünel röportajı bekliyor."); break;
@@ -494,4 +498,22 @@ internal static partial class Program
 		int.TryParse(Field(state, "Clock"), out var clock)
 			? TimeSpan.FromMinutes(5 * 60 + 45 + clock * 15).ToString(@"hh\:mm")
 			: "";
+
+	/// <summary>
+	/// The injured among the eleven and the bench, as the tactics screen of a match day has them
+	/// (by surname); nothing when the screen is not up, so no page is opened for it.
+	/// </summary>
+	private static async Task<List<string>> HurtInSide()
+	{
+		try
+		{
+			var tactic = await Fm.GetJson("tactic");
+			if (!tactic.TryGetProperty("Slots", out var slots)) return [];
+			var picked = slots.EnumerateArray().Select(s => Field(s, "Player")).Concat(Bench(tactic)).Where(n => n.Length > 0).ToList();
+			var injured = (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
+				.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToList();
+			return picked.Where(n => injured.Any(full => full == n || full.EndsWith(" " + n, StringComparison.Ordinal))).ToList();
+		}
+		catch (FmError) { return []; }
+	}
 }
