@@ -85,12 +85,9 @@ internal static partial class Program
 			if (Field(state, "DuringMatch") == "True") inMatch = true;
 			else if (inMatch) break;
 
-			// The flow can step aside for a moment and come back to the same stop; it is named once.
-			if (flow != stop && Stops.TryGetValue(flow, out var named) && named != lastNamed)
-			{
-				Console.WriteLine($"— {named}");
-				lastNamed = named;
-			}
+			// The flow can step aside for a moment and come back to the same stop; it is named once,
+			// after the whistle that led to it.
+			var arrivedAt = flow != stop && Stops.TryGetValue(flow, out var named) && named != lastNamed ? named : null;
 
 			// Before the team goes in, the manager sees it on the pitch and may stop to change it.
 			if (flow == "Tactics" && stop != "Tactics" && Ui.Interactive && !inMatch)
@@ -98,6 +95,8 @@ internal static partial class Program
 				var tactic = await Fm.GetJson("tactic");
 				if (tactic.TryGetProperty("Slots", out var slots) && slots.EnumerateArray().Any(slot => Field(slot, "Player") != ""))
 				{
+					if (arrivedAt != null) Console.WriteLine($"— {lastNamed = arrivedAt}");
+					arrivedAt = null;
 					Pitch.Draw(tactic);
 					if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine($"Yedekler: {string.Join(", ", benched)}");
 					Console.WriteLine();
@@ -108,6 +107,11 @@ internal static partial class Program
 			if (inMatch && Field(state, "Playing") == "True") firstLook = false;
 
 			Scoreline(state, names, ref period, ref score);
+			if (arrivedAt != null)
+			{
+				Console.WriteLine($"— {arrivedAt}");
+				lastNamed = arrivedAt;
+			}
 
 			// A goal is shown again as a replay, its lines and all; a line heard a moment ago
 			// is not news the second time.
