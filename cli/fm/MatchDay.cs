@@ -70,6 +70,7 @@ internal static partial class Program
 		var names = await MatchNames();
 		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null, commentary = null;
 		Dictionary<string, MatchMan> finalMen = null;
+		var lastLook = DateTime.MinValue;
 		// Our squad's names tell our men from theirs in the match's list of players.
 		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
@@ -111,9 +112,15 @@ internal static partial class Program
 			if (inMatch && Field(state, "Playing") == "True") firstLook = false;
 
 			Scoreline(state, names, ref period, ref score);
-			// At the whistle, before the match screen goes, who was booked, hurt and how each played.
-			if (period == "FullTime" && finalMen == null)
-				try { finalMen = await MatchPlayers(); } catch (FmError) { finalMen = []; }
+			// Who was booked, hurt and how each played is read off the match screen, which is gone by the
+			// time the whistle is seen (the period drops straight from the second half): so it is read from
+			// the 88th minute on, again every twenty seconds while play lasts.
+			if (Field(state, "Period") is "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var minute)
+			    && minute >= 88 && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(20))
+			{
+				lastLook = DateTime.UtcNow;
+				try { if (await MatchPlayers() is { Count: > 0 } men) finalMen = men; } catch (FmError) { }
+			}
 			if (arrivedAt != null)
 			{
 				Console.WriteLine($"— {arrivedAt}");
