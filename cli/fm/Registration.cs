@@ -63,6 +63,8 @@ internal static partial class Program
 			return await RegisterByHand(rules, players);
 
 		ShowRegistration(rules, players);
+		// The competition's exemptions (goalkeepers, the young) explain the unticked rows.
+		foreach (var note in await RegistrationNotes()) Console.WriteLine($"  {note}");
 		if (args.Contains("--send")) return await SendList("Confirm", "Kadro listesi");
 
 		Console.WriteLine(rules.All(r => r.Meets)
@@ -136,6 +138,34 @@ internal static partial class Program
 		"Replacements" => "değişiklik",
 		_ => title,
 	};
+
+	/// <summary>
+	/// The lines under the rules that say who need not be on the list, in Turkish where the
+	/// wording is known (FINDINGS §8.146).
+	/// </summary>
+	private static async Task<List<string>> RegistrationNotes()
+	{
+		foreach (var anchor in new[] { "Registration Open", "Registration Closed" })
+		{
+			List<string> texts;
+			try { texts = (await Fm.GetJson("texts", ("anchor", anchor), ("up", "6"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList(); }
+			catch (FmError) { continue; }
+			var block = texts.FirstOrDefault(t => t.Contains("registered", StringComparison.Ordinal));
+			if (block == null) continue;
+			return block.Split('\n').Select(l => l.Trim()).Where(l => l != "").Select(l =>
+			{
+				var young = System.Text.RegularExpressions.Regex.Match(l, @"^Players of the age of (\d+) or younger on (\S+) do not have to be registered\.$");
+				if (young.Success) return $"Kayıt gerekmez: {young.Groups[2].Value} tarihinde {young.Groups[1].Value} yaş ve altı olanlar";
+				if (l == "Goalkeepers do not have to be registered.") return "Kayıt gerekmez: kaleciler";
+				var spaces = System.Text.RegularExpressions.Regex.Match(l, @"^You have (\d+) spaces? available in the squad selection\.$");
+				if (spaces.Success) return $"Listede {spaces.Groups[1].Value} boş yer var";
+				if (l == "If minimum rules cannot be reached, spaces must be left in the squad selection.")
+					return "Bir alt sınır tutmuyorsa listede onun için yer bırakılmalı";
+				return l;
+			}).ToList();
+		}
+		return [];
+	}
 
 	private static void ShowRegistration(List<RegRule> rules, List<Registered> players)
 	{

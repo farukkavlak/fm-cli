@@ -872,6 +872,14 @@ internal static partial class Program
 			return;
 		}
 
+		// The registration widget: its counts are the numbered shirts of the list, read better by register.
+		if (rest.FirstOrDefault(t => t.StartsWith("Unregistered (", StringComparison.Ordinal)) is { } unregistered)
+		{
+			var size = rest.FirstOrDefault(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d+/\d+$"));
+			Console.WriteLine($"\n  Ek: kayıt listesi{(size != null ? $" {size}" : "")}, kayıtsız {unregistered[14..].TrimEnd(')')}. Ayrıntı: register");
+			return;
+		}
+
 		Console.WriteLine("\n  Ek: " + rest[0]);
 		var table = rest.IndexOf("Fine Type");
 		if (table >= 0 && table + 4 < rest.Count)

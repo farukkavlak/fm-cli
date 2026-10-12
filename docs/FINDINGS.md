@@ -4245,6 +4245,12 @@ Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki top
   yerini koruyor. Ortada bırakılınca `/inbox` bir hafta önceki mesajları veriyordu, maç sonrası basın sorusu yoktu.
   Liste en yeni üstte; bağlanan satırlar eskiden yeniye sıralı. `FreshInbox` artık okuduğu bir başlıkla
   `/scroll?anchor=…&to=0` yapıp yeniden okuyor; liste ortaya ve sona kaydırılıp iki kez doğrulandı.
+- Mesajdaki "View Highlights" bir `SIDropdown` (`SpeakToAction`), konuşma sanılıp `next`'i durduruyordu; söylenmiş söz
+  (`/talk` `Says`) ve düğme yoksa açılır menü konuşma sayılmıyor.
+- Transfer kapanışı: "Transfer deadline passed" kayıt listesini bloke eder. Listede işaretsiz kaleciler ve gençler
+  normal: kayıt ekranının sol panelinde "Players of the age of 20 or younger on 1/1/2025…", "Goalkeepers do not have to
+  be registered." yazıyor (`/texts?anchor=Registration Open&up=6`, tek metin, satırlar `\n`). `register` bunları
+  Türkçe basıyor. Onaydan sonra mesaj ekini kaybediyor; ekin "kayıt listesi 19/22, kayıtsız 0" özeti doğrulanmadı.
 
 ## 9. Sıradaki adımlar
 
