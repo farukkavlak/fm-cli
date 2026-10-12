@@ -28,6 +28,7 @@ internal static partial class Program
 		var times = Words(args).Select(w => int.TryParse(w, out var n) ? n : 0).FirstOrDefault(n => n > 0);
 		if (times == 0) times = 1;
 
+		var shown = false;
 		for (var taken = 0; taken < times; taken++)
 		{
 			var state = await Fm.GetJson("state");
@@ -98,6 +99,14 @@ internal static partial class Program
 			var to = Field(now, "Date");
 			if (from != to) Console.WriteLine($"{Pretty(from)} → {Pretty(to)} {Time(now)}");
 			else if (Field(state, "Clock") != Field(now, "Clock") || arrived.Count > 0) Console.WriteLine($"{Pretty(to)} {Time(state)} → {Time(now)}");
+			else if (flow != "CanContinue" && !shown)
+			{
+				// The press only brought a page up (the results after a match); the step asked
+				// for is the one after it.
+				shown = true;
+				taken--;
+				continue;
+			}
 			else if (times == 1)
 			{
 				// Continue can also mean "show me this": the button sometimes opens a page. Over
