@@ -71,9 +71,22 @@ internal static partial class Program
 				return 1;
 			}
 
+			var said = Says(tour);
 			await Fm.Get("press", ("ptr", Field(next, "Pointer")));
-			if (!await Until(async () => Field(tour = await Fm.GetJson("tour"), "Step") != step))
+			// The step's number moves before its words, and between two steps the tour is briefly
+			// not there at all: a step counts once its words have changed too, and the tour as
+			// over only when it stays gone.
+			var gone = 0;
+			if (!await Until(async () =>
 			{
+				tour = await Fm.GetJson("tour");
+				if (!tour.TryGetProperty("Step", out _)) return ++gone >= 3;
+				gone = 0;
+				return Field(tour, "Step") != step && Says(tour) != said;
+			}, seconds: 20, every: 0.5))
+			{
+				// A last step can repeat the one before word for word.
+				if (tour.TryGetProperty("Step", out _) && Field(tour, "Step") != step) continue;
 				Console.Error.WriteLine("\nİlerle denildi ama tur aynı adımda kaldı.");
 				return 1;
 			}
@@ -83,6 +96,9 @@ internal static partial class Program
 		Console.WriteLine("\nTur bitti.");
 		return 0;
 	}
+
+	private static string Says(JsonElement tour) =>
+		tour.TryGetProperty("Says", out var says) ? string.Join("\n", says.EnumerateArray().Select(l => l.GetString())) : "";
 
 	/// <summary>The tour's own buttons share labels with the game's, and differ by name.</summary>
 	private static async Task<JsonElement?> TourButton(string label) => await Labelled(label, "StandardButton");
