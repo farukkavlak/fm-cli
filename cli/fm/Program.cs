@@ -921,6 +921,13 @@ internal static partial class Program
 			return;
 		}
 
+		// A signing waiting to be confirmed: the deal, the contract, what is left to spend and the staff teams.
+		if (rest.Contains("Confirmation") && rest.Contains("Offered Contract"))
+		{
+			Signing(rest);
+			return;
+		}
+
 		Console.WriteLine("\n  Ek: " + rest[0]);
 		var table = rest.IndexOf("Fine Type");
 		if (table >= 0 && table + 4 < rest.Count)
@@ -941,6 +948,70 @@ internal static partial class Program
 			foreach (var paragraph in article.SelectMany(t => t.Split('\n')).Where(l => l.Trim() != ""))
 				Console.WriteLine("  " + paragraph.Trim());
 		else if (rest.Count > 0) Console.WriteLine("  " + string.Join(" · ", rest));
+	}
+
+	/// <summary>
+	/// The card of a signing to confirm, laid out by its labels: "Fee", "Wages", "Duration", then the
+	/// budgets left ("(£5.25K)" in brackets is below nothing) and each staff team's vacant roles.
+	/// </summary>
+	private static void Signing(List<string> card)
+	{
+		string After(string label, int skip = 1) => card.IndexOf(label) is var i and >= 0 && i + skip < card.Count ? card[i + skip] : "";
+		var confirmation = card.IndexOf("Confirmation");
+		var job = confirmation > 1 ? card[confirmation - 1] : "";
+		Console.WriteLine($"\n  Ek: {card[0]}{(job.Length > 0 && job != card[0] ? $" — {job}" : "")}");
+
+		var deal = card.IndexOf("Offer made") >= 0 ? After("Fee") : "";
+		if (deal.Length > 0) Console.WriteLine($"    Bonservis: {deal}");
+
+		var wages = card.IndexOf("Wages");
+		if (wages >= 0 && wages + 1 < card.Count)
+		{
+			var more = card.Skip(wages + 2).TakeWhile(t => t != "Duration").ToList();
+			var net = more.FirstOrDefault(t => t.EndsWith("after tax", StringComparison.Ordinal));
+			var share = more.FirstOrDefault(t => t.Contains("wage budget", StringComparison.Ordinal));
+			var notes = new[] { net != null ? $"vergi sonrası {net[..^"after tax".Length].Trim()}" : null, share != null ? $"maaş bütçesindeki payı %{share.Split(' ')[0].TrimEnd('%')}" : null }.Where(n => n != null).ToList();
+			Console.WriteLine($"    Ücret: {card[wages + 1]}{(notes.Count > 0 ? $" ({string.Join(", ", notes)})" : "")}");
+		}
+		var duration = card.IndexOf("Duration");
+		if (duration >= 0 && duration + 2 < card.Count)
+			Console.WriteLine($"    Süre: {card[duration + 1]} – {card[duration + 2]}{(After("Type") is { Length: > 0 } type ? $" · {type}" : "")}");
+
+		var clauses = card.IndexOf("Clauses");
+		var budgets = card.IndexOf("Recruitment Budgets");
+		if (clauses >= 0 && budgets > clauses + 1)
+		{
+			var items = card.Skip(clauses + 1).Take(budgets - clauses - 1).ToList();
+			var pairs = items.Chunk(2).Select(p => p.Length == 2 ? $"{p[0]} {p[1]}" : p[0]).ToList();
+			Console.WriteLine($"    Maddeler: {string.Join(" · ", pairs)}");
+		}
+
+		if (budgets >= 0)
+		{
+			var left = new List<string>();
+			foreach (var (label, said) in new[] { ("Transfer", "transfer"), ("Wage", "maaş"), ("Scouting", "scouting") })
+			{
+				var at = card.IndexOf(label, budgets);
+				if (at < 0 || at + 2 >= card.Count || card[at + 1] != "Available") continue;
+				var amount = card[at + 2];
+				left.Add(amount.StartsWith('(') ? $"{said} {amount.Replace("(", "-").Replace(")", "")} (aşılmış)" : $"{said} {amount}");
+			}
+			if (left.Count > 0) Console.WriteLine($"    Kalan bütçe: {string.Join(" · ", left)}");
+		}
+
+		var staff = card.IndexOf("Staff", Math.Max(budgets, 0));
+		if (staff >= 0)
+		{
+			var teams = new List<string>();
+			for (var i = staff + 1; i + 2 < card.Count && card[i] != "Responsibilities"; i += 3)
+			{
+				var vacant = card[i + 1];
+				var said = vacant == "All roles filled" ? "dolu"
+					: System.Text.RegularExpressions.Regex.Match(vacant, @"^(\d+) vacant role") is { Success: true } m ? $"{m.Groups[1].Value} boş yer" : vacant;
+				teams.Add($"{card[i]} {card[i + 2]} kişi, {said}");
+			}
+			if (teams.Count > 0) Console.WriteLine($"    Ekipler: {string.Join(" · ", teams)}");
+		}
 	}
 
 	private static async Task<string> MessageBody(string opening)
