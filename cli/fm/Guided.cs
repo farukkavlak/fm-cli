@@ -139,6 +139,11 @@ internal static partial class Program
 			.ToList();
 
 		var lists = controls.Where(c => Field(c, "Type") == "SIDropdown").Select(c => Field(c, "Pointer")).ToHashSet();
+		// A message can offer a dropdown of its own ("View Highlights" under a match report);
+		// a question answered from a dropdown has been asked, so something has been said.
+		if (lists.Count > 0 && lines.Count == 0
+		    && !((await Fm.GetJson("talk")).TryGetProperty("Says", out var says) && says.GetArrayLength() > 0))
+			lists.Clear();
 		if (lists.Count > 0)
 		{
 			foreach (var list in (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Where(d => lists.Contains(Field(d, "Pointer"))))
