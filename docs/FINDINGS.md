@@ -4235,6 +4235,17 @@ Ders: yönetim toplantısında ilk soruda "zor fikstür" kötü gidiyor; iki top
 - Hastalık mesajı ("X taken ill": Send Home / Treat At Club), oyuncularla "Expectations and Promises Meeting" (lig hedefi,
   söz verme; `talk` ile). Quick Pick yapılmadan taktikte oyuncu yok — yeni kulüpte maçtan önce `tactic pick` gerekiyor.
 
+## 8.146 Bradford maçı: başlamadan status, maç sonu satırı, kaydırılmış gelen kutusu (27 Ocak 2026, Lincoln)
+
+- Başlama düdüğünden önce `state`'te skor ve `HumanIsHome` yok, `MatchTime` boş; `status` artık "Maçtayız, başlamadı.
+  Lincoln – Bradford" diyor (ev sahibi fikstürden). Takım konuşması bekliyorsa `match` değil `talk`'a yönlendiriyor.
+- Son düdükten sonra `Period` ve `HumanIsHome` düşüyor, `State` doğrudan `FullTimeTeamTalk`/`LeaveMatch`; "FullTime"
+  dönemi hiç görünmüyor. `match` maç sonu skorunu bu akışa geçişte basıyor (canlı doğrulanmadı, sonraki maçta bak).
+- Gelen kutusu: portal sol listesi sanal (`StreamedListView`), yalnızca çizilen ~16–20 satır bağlanıyor ve portal kaydırma
+  yerini koruyor. Ortada bırakılınca `/inbox` bir hafta önceki mesajları veriyordu, maç sonrası basın sorusu yoktu.
+  Liste en yeni üstte; bağlanan satırlar eskiden yeniye sıralı. `FreshInbox` artık okuduğu bir başlıkla
+  `/scroll?anchor=…&to=0` yapıp yeniden okuyor; liste ortaya ve sona kaydırılıp iki kez doğrulandı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

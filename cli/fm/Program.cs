@@ -537,7 +537,26 @@ internal static partial class Program
 		// Changed, or the same for a while: the inbox already open was the live one.
 		await Until(async () => (data = await Fm.GetJson("inbox")).GetArrayLength() > 0
 			&& (data.ToString() != before || DateTime.UtcNow - sentAt > TimeSpan.FromSeconds(2)), seconds: 8, every: 0.5);
-		return data.ValueKind == JsonValueKind.Array && data.GetArrayLength() > 0 ? data : await Bound("inbox", "PortalScreen");
+		if (data.ValueKind != JsonValueKind.Array || data.GetArrayLength() == 0) data = await Bound("inbox", "PortalScreen");
+
+		// The list binds only the rows drawn, and the portal keeps where it was scrolled to: left
+		// halfway down, the newest messages are not among them. The top is the newest.
+		var title = data.EnumerateArray().Select(m => Field(m, "NewsTitleString")).FirstOrDefault(t => t != "");
+		if (title == null) return data;
+		try
+		{
+			var moved = await Fm.Get("scroll", ("anchor", title), ("to", "0"));
+			if (moved.StartsWith("0 of") && data.ToString() is var held)
+			{
+				JsonElement top = default;
+				var at = DateTime.UtcNow;
+				await Until(async () => (top = await Fm.GetJson("inbox")).GetArrayLength() > 0
+					&& (top.ToString() != held || DateTime.UtcNow - at > TimeSpan.FromSeconds(1.5)), seconds: 5, every: 0.25);
+				if (top.ValueKind == JsonValueKind.Array && top.GetArrayLength() > 0) data = top;
+			}
+		}
+		catch (FmError) { }
+		return data;
 	}
 
 	private static async Task<JsonElement> Bound(string route, string panel)
