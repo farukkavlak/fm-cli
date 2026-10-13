@@ -147,10 +147,12 @@ internal static partial class Program
 	{
 		foreach (var anchor in new[] { "Registration Open", "Registration Closed" })
 		{
-			List<string> texts;
-			try { texts = (await Fm.GetJson("texts", ("anchor", anchor), ("up", "6"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList(); }
+			List<(string Text, string Path)> texts;
+			try { texts = (await Fm.GetJson("texts", ("anchor", anchor), ("up", "6"), ("paths", "1"))).EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList(); }
 			catch (FmError) { continue; }
-			var block = texts.FirstOrDefault(t => t.Contains("registered", StringComparison.Ordinal));
+			// The block is known by its data path; a line the wording of which is not known here is
+			// shown as the game writes it, in its language.
+			var block = texts.FirstOrDefault(t => t.Path == "squadreg.ExtraSquadRules").Text;
 			if (block == null) continue;
 			return block.Split('\n').Select(l => l.Trim()).Where(l => l != "").Select(l =>
 			{
