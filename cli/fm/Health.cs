@@ -33,15 +33,20 @@ internal static partial class Program
 
 		// The Injuries view's time is how long he has been out so far; how long is left is the
 		// injury's own return days, read from the team's data.
-		var returns = (await Fm.Pull("Human.Team.Players", "Name,CurrentInjury.InjuryReturnDays", list: true)).EnumerateArray()
-			.GroupBy(p => Field(p, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "CurrentInjury.InjuryReturnDays"));
+		var team = (await Fm.Pull("Human.Team.Players", "Name,IsInjured,CurrentInjury.InjuryReturnDays", list: true)).EnumerateArray().ToList();
+		var returns = team.GroupBy(p => Field(p, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "CurrentInjury.InjuryReturnDays"));
+		// Who is injured is the team's own word: the table's views do not all carry it (the Injuries view
+		// has the injury's description and the time missed this season, but no flag — Lincoln, 17 Nisan
+		// 2026, when five injured men read as "Sakat: yok").
+		var injuredNow = team.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToHashSet();
+		bool Hurt(JsonElement p) => Field(p, "IsInjured") == "True" || injuredNow.Contains(Field(p, "Name"));
 		string Left(JsonElement p) => returns.TryGetValue(Field(p, "Name"), out var days) && int.TryParse(days, out var n) && n > 0 ? $"{n} gün daha" : "";
 
 		var all = injuries.EnumerateArray().Where(Here).ToList();
-		var hurt = all.Where(p => Field(p, "IsInjured") == "True").ToList();
-		var tired = all.Where(p => Field(p, "IsInjured") != "True" && Number(p, "Condition") is >= 0 and < 85).OrderBy(p => Number(p, "Condition")).ToList();
-		var rusty = all.Where(p => Field(p, "IsInjured") != "True" && Number(p, "Sharpness") is >= 0 and < 60).OrderBy(p => Number(p, "Sharpness")).ToList();
-		var risky = risks.EnumerateArray().Where(Here).Where(p => Field(p, "IsInjured") != "True").ToList();
+		var hurt = all.Where(p => Hurt(p)).ToList();
+		var tired = all.Where(p => !Hurt(p) && Number(p, "Condition") is >= 0 and < 85).OrderBy(p => Number(p, "Condition")).ToList();
+		var rusty = all.Where(p => !Hurt(p) && Number(p, "Sharpness") is >= 0 and < 60).OrderBy(p => Number(p, "Sharpness")).ToList();
+		var risky = risks.EnumerateArray().Where(Here).Where(p => !Hurt(p)).ToList();
 		var top = risky.Select(p => Number(p, "OverallInjuryRisk")).DefaultIfEmpty(0).Max();
 		var atRisk = risky.Where(p => Number(p, "OverallInjuryRisk") == top && top > 0).ToList();
 
