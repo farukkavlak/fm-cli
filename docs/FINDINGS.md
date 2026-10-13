@@ -4386,6 +4386,12 @@ ayrımı ve "Puanlarımız" yok. Maç `match --play` ile baştan sona aktı (0-1
 - `player <ad> --matches`: oynamadığı ya da puan almadığı maçlar 0.00, sayfanın "Min. Rating"i 11.00 geliyor; ikisi
   de "-" yazılıyor, oynamadığı maç "oynamadı".
 
+Ek (Port Vale, 2 Mayıs 2026 — ikinci durak, Moylan 48:36): `match` durağı kapalı "Confirm Changes"ten tanıdı ve
+durdu; `sub` Moylan'ı "SAKAT" gösterdi; değişiksiz `match` kapalı butona bastı, oyun "Injured Players" penceresini
+açtı, komut kapatıp "Değişiklik şart: Jack Moylan" dedi. Bu kez Moylan'ın saha menüsü kalkmadı: `sub Moylan Hackett`
+menü yolundan gitti, maç 49:13'ten sürdü. Planner yuvası yedeği yine denenemedi (menü kalkmadıkça devreye girmiyor).
+Oyundan çıkan sakat maç sonu "Sakatlanan" satırında yok (son okumada sahada değil).
+
 ## 8.155 Kulübe göre değişenler: altyapı takımının adı, kadro tablosunun görünümleri (Lincoln, 17 Nisan 2026)
 
 Elli salt-okur komut art arda çalıştırıldı; ikisi Fenerbahçe kaydına göre yazıldığı için kırıktı.

@@ -243,7 +243,10 @@ internal static partial class Program
 			    && PlannerStop(controls) is { } confirm)
 			{
 				var why = await DugoutText();
-				Console.WriteLine($"  Maç {Field(state, "MatchTime")}'da durdu{(why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}");
+				// Who is down, when it is one of ours: the planner's table says so (Moylan, 2 Mayıs 2026 — the
+				// stop was announced without a name).
+				var down = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList();
+				Console.WriteLine($"  Maç {Field(state, "MatchTime")}'da durdu{(down.Count > 0 ? $": {string.Join(", ", down)} sakatlandı" : why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}");
 
 				// Called again while stopped, `match` means: go on as things are.
 				if (!Ui.Interactive && firstLook)
