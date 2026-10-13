@@ -79,6 +79,7 @@ internal static partial class Program
 		var spent = After("Expenditure");
 		(string Competition, string Status) ffp = t.IndexOf("FFP") is var f && f >= 0 && f + 2 < t.Count ? (t[f + 1], t[f + 2]) : ("-", "-");
 
+		var wages = await WageBill();
 		var sponsors = await Sponsors();
 		// Ticket prices are not on the card; the club's own data has them, in pounds.
 		var tickets = await Fm.Pull("Human.Team.Club", "MatchTicketPrice,SeasonTicketPrice,SeasonTicketHolders");
@@ -89,7 +90,7 @@ internal static partial class Program
 			IncomeThisMonth = income, ExpenditureThisMonth = spent,
 			Ffp = new { ffp.Competition, ffp.Status },
 			Debt = new { Remaining = Before("Remaining Debt"), Original = Before("Original Debt") },
-			Wages = new { Total = After("Wages"), Budget = After("Wages", 2).TrimStart('/', ' ').Replace(" p/w", ""), Share = After("Wages", 3) },
+			Wages = new { wages.Total, wages.Budget, wages.Share },
 			WagesByStatus = statuses.Select(s => new { s.Status, s.Players, s.Wage }),
 			Sponsorship = new
 			{
@@ -129,7 +130,8 @@ internal static partial class Program
 		Heading("Maaş bordrosu");
 		Row("Haftalık toplam", $"{finances.Wages.Total} / {finances.Wages.Budget} ({finances.Wages.Share})");
 		foreach (var (status, players, wage) in statuses.Where(s => s.Players > 0))
-			Row($"{PlayerStatusTurkish[status]} ({players})", $"{wage} haftalık");
+			// The card writes these in the period the game is set to show (a week, a month, a year).
+			Row($"{PlayerStatusTurkish[status]} ({players})", wage);
 
 		Heading("Bilet");
 		Row("Maç bileti", finances.Tickets.Match);
@@ -149,6 +151,19 @@ internal static partial class Program
 		if (Ui.Rich) Ui.Line("\n[dim]Kalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon][/]");
 		else Console.WriteLine("\nKalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]");
 		return 0;
+	}
+
+	/// <summary>
+	/// The weekly wage bill against its budget, from the club's data (in pounds a week whatever the
+	/// game is set to show); the finances card writes them in the game's language and chosen period.
+	/// </summary>
+	private static async Task<(string Total, string Budget, string Share)> WageBill()
+	{
+		var club = await Fm.Pull("Human.Club", "CurrentWageSpending,WageBudget");
+		var ok = double.TryParse(Field(club, "CurrentWageSpending"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var spent);
+		var budgeted = double.TryParse(Field(club, "WageBudget"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var budget);
+		return (ok ? Pounds(Field(club, "CurrentWageSpending")) : "-", budgeted ? Pounds(Field(club, "WageBudget")) : "-",
+			ok && budgeted && budget > 0 ? $"{spent / budget * 100:0.0}%".Replace(',', '.') : "-");
 	}
 
 	private static string Pounds(string raw) =>

@@ -90,11 +90,21 @@ internal static partial class Program
 		var facilities = Tile("Facilities");
 		var site = Tile("Club Site");
 		var staff = Tile("Staff");
-		var teams = new[] { "Coaching Team", "Recruitment Team", "Medical Team" }
-			.Select(team => (Team: team, Filled: After(staff, team), Places: After(staff, team, 3),
-				Vacant: staff.IndexOf(team) is var k && k >= 0 && k + 4 < staff.Count && staff[k + 4].Contains("vacant") ? staff[k + 4] : ""))
-			.ToList();
+		// Each staff team's head count, places and what is missing, from the team's data; the sentence
+		// is the game's own ("1 vacant role (Set Piece Coach)"), in its language.
+		var teams = new List<(string Team, string Filled, string Places, string Vacant)>();
+		foreach (var (team, subgroup) in new[] { ("Coaching Team", "StaffCoachingSubGroup"), ("Recruitment Team", "StaffRecruitmentSubGroup"), ("Medical Team", "StaffMedicalSubGroup") })
+		{
+			var counts = await Fm.Pull($"Human.Team.{subgroup}", "Count,MaxValue,LongString");
+			teams.Add((team, Field(counts, "Count"), Field(counts, "MaxValue"), Field(counts, "LongString")));
+		}
+		// The facilities' grades as the game describes them, from the club's data.
+		async Task<string> Grade(string rating) => Field(await Fm.Pull($"Human.Team.Club.{rating}", "Description"), "Description");
+		var training = await Grade("TrainingFacilityRating");
+		var youthFacilities = await Grade("YouthFacilityRating");
+		var corporate = await Grade("CorporateFacilityRating");
 
+		var wages = await WageBill();
 		var club = new
 		{
 			Objectives = objectives.Select(o => new { o.Group, o.Text, o.Importance, o.Status }),
@@ -103,9 +113,9 @@ internal static partial class Program
 			Finances = new
 			{
 				Balance = finances.FirstOrDefault() ?? "-", IncomeLastMonth = After(finances, "Income"), ExpenditureLastMonth = After(finances, "Expenditure"),
-				Wages = After(finances, "Wages"), WageBudget = After(finances, "Wages", 2).TrimStart('/', ' '), WageShare = After(finances, "Wages", 3),
+				Wages = wages.Total, WageBudget = wages.Budget, WageShare = wages.Share,
 			},
-			Facilities = new { Stadium = After(facilities, "Stadium"), Training = After(facilities, "Training"), Youth = After(facilities, "Youth"), Corporate = After(facilities, "Corporate") },
+			Facilities = new { Stadium = After(facilities, "Stadium"), Training = training, Youth = youthFacilities, Corporate = corporate },
 			Reputation = After(site, "Club Reputation"),
 			Stadium = After(site, "Stadium"),
 			Staff = teams.Select(t => new { t.Team, t.Filled, t.Places, t.Vacant }),
@@ -156,14 +166,14 @@ internal static partial class Program
 		Row("Kasa", Ui.Safe(club.Finances.Balance));
 		Row("Geçen ay gelir", Ui.Safe(club.Finances.IncomeLastMonth));
 		Row("Geçen ay gider", Ui.Safe(club.Finances.ExpenditureLastMonth));
-		Row("Haftalık maaş", Ui.Safe($"{club.Finances.Wages} / {club.Finances.WageBudget.Replace(" p/w", "")} ({club.Finances.WageShare})"));
+		Row("Haftalık maaş", Ui.Safe($"{club.Finances.Wages} / {club.Finances.WageBudget} ({club.Finances.WageShare})"));
 
 		Heading("Kulüp");
 		Row("İtibar", Ui.Safe(ClubSay(club.Reputation)));
 		Row("Stadyum", Ui.Safe($"{club.Stadium} · {ClubSay(club.Facilities.Stadium)}"));
-		Row("Antrenman tesisi", Ui.Safe(ClubSay(FirstWord(club.Facilities.Training))));
-		Row("Altyapı tesisi", Ui.Safe(ClubSay(FirstWord(club.Facilities.Youth))));
-		Row("Ticari", Ui.Safe(ClubSay(club.Facilities.Corporate)));
+		Row("Antrenman tesisi", Ui.Safe(club.Facilities.Training));
+		Row("Altyapı tesisi", Ui.Safe(club.Facilities.Youth));
+		Row("Ticari", Ui.Safe(club.Facilities.Corporate));
 
 		Heading("Ekip");
 		foreach (var t in teams)
@@ -174,8 +184,5 @@ internal static partial class Program
 			else Console.WriteLine($"  {name,-22} {t.Filled}/{t.Places}{open}");
 		}
 		return 0;
-
-		// "Great training facilities" is graded by its first word.
-		static string FirstWord(string text) => text.Split(' ')[0];
 	}
 }
