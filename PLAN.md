@@ -246,7 +246,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
       tamamlandı (Cancellieri, §8.141). Eksik: kabulden sonra oyuncuyla görüşmeyi kendimiz açmak (mesajda yalnız "Delegate"
       vardı, DoF'a bırakıldı), son onay mesajı ("set to move … Accept") `reply` ile yapıldı; kiralık uzatma görülmedi
 - [x] Oyuncuyu kulüplere öner — `fm propose <oyuncu> [ücret] [--loan] [--yes]` ("Offer via TransferRoom", §8.94); hedef kulüp seçmek ve ek maddeler yok
-- [x] Gelen teklifler — `fm offers`: cevap bekleyen teklifler; `view` / `accept` / `stall` / `reject` (§8.98). Mesajı gelen kutusundan düşmüş teklif de buradan cevaplanıyor
+- [x] Gelen teklifler — `fm offers`: cevap bekleyen teklifler; `view` / `accept` / `stall` / `reject` (§8.98). Mesajı gelen kutusundan düşmüş teklif de buradan cevaplanıyor; birden çok oyuncuya gelen teklifler şartlarıyla listeleniyor, satış ve kiralama canlıda kabul / beklet / ret edildi; kiralık gönderme "loan completed"e kadar izlendi (§8.161, 23–29 Haziran 2026)
 - [x] Sözleşme feshi / serbest bırakma — `fm release <oyuncu> [--free|--mutual] [--yes]` (§8.76); `--free --yes` canlıda işledi, oyun gün ilerleyince uyguluyor (§8.136); `--mutual --yes`in sonucu görülmedi
 - [x] Serbest oyuncular — `fm players --free` ("Contract Expired" süzgeci, §8.92)
 - [x] Ön anlaşma sözü — `fm contract --term "<vaat>"` vaat ekliyor, `=kaldır` çıkarıyor ("Add Promise", `EventFmxAddPreContractPromise`; 18 Ekim 2025 oyun gününde Defrel kartında doğrulandı)
