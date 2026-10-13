@@ -418,6 +418,14 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
            çubuğu; olay olunca kenarda tek satır.
         3. **Yalnız önemli anlar** — anlatım yok; gol, kart, sakatlık, tavsiye ve devre / maç sonu özeti (hızlı izleme).
         4. **Tam anlatım** — bugünkü akış, ama üstte sabit skor satırıyla.
+        5. **ASCII 3D** (Faruk 13 Ekim 2026; şimdi yapılmayacak, göz önünde dursun) — maçın 3D görüntüsü terminalde
+           karakterlerle: sahaya eğik bakan kamera, oyuncular ve top derinlikle küçülen / parlaklığı değişen
+           karakterler, üstte yarı saydam skor / durum kutuları. İlham: karakterlerle çizilmiş bir "ASCII MMORPG"
+           videosu (3D sahne karakter ızgarasına dökülüyor, ~140 FPS, HP / MP çubukları üstte). İki yol var:
+           (a) oyunun kendi 3D maç görüntüsünü kare kare alıp (`/shot` benzeri, küçük çözünürlük) parlaklığa göre
+           karaktere çevirmek — veri gerekmez ama kare hızı ve gizli pencerede çizim sınanmalı; (b) oyuncu / top
+           konumlarını okuyup kendi basit 3D sahnemizi çizmek — konum verisi okunabiliyorsa. Önce konum verisi var mı
+           ve `/shot` saniyede kaç kare verebiliyor, o ölçülecek.
       - Tuşlar: değişiklik, bağırış, taktik / mentalite, maç hızı, görünüm değiştir, rapor, duraklat. Sakatlık durağında
         panel kendisi sorsun ("Brown sakatlandı, kim girsin?").
       - Kişiselleştirme: kullanıcı panelden parça ekleyip çıkarabilsin (istatistik şeridinde hangi sayılar, olay
