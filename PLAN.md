@@ -461,6 +461,10 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 Komutlar tek kayıtta yazıldı; Lincoln'de dördü kırık çıktı (§8.155). Aynı türden başka neye bağlıyız, sırayla:
 
+**Sıra (Faruk, 13 Ekim 2026 öğleden sonra):** önce oyun dili bağımlılığı — dökümü çıkar ve çöz ("büyük sıkıntı,
+testten önce onları çözeceğiz, birlikte bakacağız"); Almanya ligi testi ondan sonra. Aşağıdaki maddeler yazıldıkları
+sırada değil, bu sırada ele alınacak: dil dökümü + çözümü → UI / tema dökümü → Almanya kariyeri → uygulama yerelleştirmesi.
+
 - [ ] **Başka ülke, başka lig:** yeni bir kariyer, Almanya liglerinden bir takım. Önce `tools/sweep.sh`, sonra kariyeri
       oynatarak saha testi (maç, mesajlar, transfer); çıkan her fark FINDINGS'e. Mevcut Lincoln kaydı yedekte kalsın.
 - [ ] **Ekran / UI bağımlılığı dökümü:** hangi komut neye dayanıyor, liste halinde — ekrandaki yazı (çapa metni), kontrol
