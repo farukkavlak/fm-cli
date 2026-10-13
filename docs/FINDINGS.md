@@ -4634,6 +4634,51 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
 - Açık: İngilizce bir taramada `depth` bir kez "AgreedPlayingTime verisi gelmedi" dedi; tekrar taramada ve 8 doğrudan
   denemede geçti.
 
+### 8.169 Yazının veri yolu: sayfaları dilden bağımsız okumak (14 Ekim 2026 gece, Lincoln)
+
+- **Her ekran yazısı neyi gösterdiğini söylüyor.** `SI.Bindable.SIText.m_textBinding.Direct.Path.Path` yazının bağlı
+  olduğu veri yolunu veriyor (`day.DayOfTheMonth`, `Event.Competition.Name`, `binding.Name`, `Person.PlayerDescription`,
+  `Team.NextOppositionThreatLevelAssessment`…). Yazı başka yoldan kuruluyorsa (birleştirilmiş metin, tablo başlığı) boş.
+  `/texts` ve `/form` `?paths=1` ile her yazıyı yoluyla veriyor; `?anchorpath=<yol>` tutunacak yazıyı yolundan buluyor;
+  `?most=1` aynı çapa alttaki bir sayfada da varsa en çok yazı toplayanı seçiyor (kadro genel bakışı her sayfanın altında
+  açık kalıyor, "Thur"/"Conor McGrandles" önce oradaki kopyayı buluyordu).
+- **Listeler ve anahtarlar da yolunu söylüyor, ağaç gezmeden.** `SIDropdown.SelectionValueBinding.Path` (yazdığı değer,
+  ör. `setpiece.SetPieceTypeDropdownListSelectedValue`) ve `SelectedValue` (seçili satırın kaydı → `Value`);
+  `SICheckBox.SelectionBinding.Path` (ör. `setpiece.PenaltyChangeIfMissed`). `/dropdowns?json=1` artık `Within` (üst
+  öğe adları: `FirstTeam`, `PlayerSearchMainContentBlock`, `SetPieceRoutine`), `Value`, `Binds`, `Values` (her satırın
+  `PropertyValue`'su) veriyor; `/select?value=<n>` satırı sayısıyla seçiyor (alt menülü satırın sayısı ilk girişininkini
+  tekrarlıyor, onu atlıyor).
+- **Ağaç gezmek oyunu düşürdü.** Listenin kimliğini bulmak için her yoklamada `KeyPaths()` (bütün bağlama ağacı, ~40.000
+  düğüm) çağrıldı: oyun bir kez kilitlendi, bir kez raporsuz kapandı. Kimliği ucuz yerden al (`Within`, `Binds`). Üst
+  seviye bir seçenek `UpdateDropdownSelectionBinding` ile değil `OnSelectionChangedInternal(index)` ile seçilmeli.
+- **Alt sekmeler Guid'le.** Alt sekme listesinin satırları sayfa Guid'ini taşıyor (Takım Dinamikleri › Kaptanlar
+  `f6086796…`, Hiyerarşi `5c93feb8…`, Arkadaş Grupları `f0783a3c…`, Mutluluk `236ce198…`); `/open?guid=` sekme
+  menülerinde bulamazsa görünen alt sekme çubuğunda arıyor. Üst sayfa geç açılıp kartın üstünü örtebiliyor; CLI içerik
+  gelene kadar yeniden seçiyor (`OpenSubpage`). Kulüp karoları `/click?within=Facilities&name=layout-tile-interaction-button`.
+- **Ters tablonun tuzakları.** (1) Tek harfli kodlar: Türkçe iç saha / deplasman / tarafsız "E/D/T"; ters tablo "D"yi
+  "L", "A"yı "For" yapıyordu. Kodun kendi çeviri kimlikleriyle çözülüyor (`Localisation.EnglishAmong`, H/A/N =
+  27584–27586, 27718–27719). (2) Çift çeviri: `Report.Json` zaten İngilizce olan değerleri bir daha ters tablodan
+  geçiriyordu; tablodaki bir İngilizce metne artık dokunulmuyor. (3) Tekil/çoğul çakışması: "Memnun" → "Pleased"
+  (Content olmalı), "Takım Lideri" → "Team Leaders"; okuyucularda eşanlam olarak karşılandı. (4) `/translate` kendi
+  çıktısını da ters tablodan geçiriyordu; artık ham gösteriyor.
+- **Veriden okunanlar.** Mevkiler `PositionCombined` bit maskesi (1 GK, 4 DR, 8 DL, 16 DC, 32 WBR, 64 WBL, 128 DM, 256
+  MR, 512 ML, 1024 MC, 2048 AMR, 4096 AML, 8192 AMC, 16384 ST; oyuncunun `PositionAptitudeList`'i her mevki için
+  `Position` + 1–20 değer); tesisler (`Club.TrainingFacilityRating/YouthFacilityRating/CorporateFacilityRating`
+  `Rating` + `Description`, `YouthCoaching`, `YouthRecruitment`, `TrainingGround`, `Stadium.*`, zemin `Surface` sayı);
+  rakip (`NextFixture.TeamOpponent`: `Description`, `MostUsedFormation`, `RecentFormValues`,
+  `NextOppositionThreatLevelAssessment`, `TopGoalscorerPlayer/MostAssistsPlayer/HighestAverageRatingPlayer` →
+  `Player.Name` + `StatValue`); maç yeri `MatchVenue` (çeviri kimliğiyle İngilizce). Mutluluk seviyesi sayı olarak
+  `HierarchyOverallHappinessLevel` (-20…80) ama eşikleri oyun söylemiyor; sayfadaki yazı kullanılıyor.
+- **Görünüm ve tür numaraları.** Kadro tablosu: Selection Info 0, General Info 1, Dynamics 12, Injuries 14, Risk
+  Assessment 15. Duran top menüsü: korner 0, serbest vuruş şut mesafesi 1 / kanat 3 / derin 4, taç hücum 2 / orta 5 /
+  savunma 6. Takvimin ay listesi: 0 oyunun bulunduğu ay, sonrakiler sırayla.
+- **Sonuç:** Türkçe oyunda tarama 13 hata → 1 (`league`, sezon öncesi); İngilizce 49/50. Okuyucusu yollara / veriye
+  taşınanlar: `squad` görünümleri, `health`, `depth`, `calendar`, `fixtures --all`, `schedule`, antrenman sekmesi,
+  `facilities`, `happiness`, `dynamics`, `captains`, `takers`, `penalties`, `offers`, `opponent`.
+- Açık: `happiness` 28 oyuncudan görünen 21'ini okuyor (tablo yalnız görünen satırları kuruyor). Seans adları
+  ("Dinlenme", "Yolculuk") ve oyuncu açıklamaları motor yazısı, Türkçe kalıyor. Takvim ve fikstürde yarışma adları
+  oyunun verisinde nasıl yazılıyorsa öyle.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

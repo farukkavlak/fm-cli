@@ -495,6 +495,9 @@ sırada değil, bu sırada ele alınacak: dil dökümü + çözümü → UI / te
   katmanı eklentide (oyunun kendi tablosu, FINDINGS §8.162–8.168). Oyun Türkçeyken taramada hata 21 → 12. Sıradaki:
   Türkçede kalan hatalar (görünüm listesi çakışması, takvim ay adları, mevkiler / para biçimi, altı komut incelenmedi),
   motor yazıları (`languages.fmf`), sıra numarasıyla okuma (`opponent`).
+- **Durum (14 Ekim 2026 gece):** yazının veri yolu bulundu (FINDINGS §8.169); Türkçede tarama 13 → 1 hata (`league`,
+  sezon öncesi), İngilizce 49/50. Sıradaki: kalan konumla okumalar (`rest[i + N]`, `After`), motor yazıları
+  (`languages.fmf`), `happiness` görünmeyen satırlar, `settings` "All Preferences" çapası.
 - [ ] **Oyun dili bağımlılığı dökümü:** oyun İngilizce değilken ne kırılır — İngilizce yazıyla aranan her şey (sayfa ve
       sekme adları, başlıklar, buton etiketleri, "Offer Made" / "Required" gibi durum sözcükleri, "N year-old" gibi
       kalıplar, mesaj eki ayrıştırıcıları). Liste: dile bağlı / dilden bağımsız (ad, olay, veri yolu). Oyunu başka dile
@@ -575,6 +578,18 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 ---
 
 ## Günlük
+
+### 2026-10-14 (gece, otonom — yazının veri yolu)
+
+- Kadro görünümleri sayıyla, listeler içinde durdukları panelle (`e88c43d`). İlk deneme oyunu iki kez düşürdü: listeyi
+  bulmak için her yoklamada bütün bağlama ağacı geziliyordu; ucuz kimliğe (`Within`) geçildi.
+- Her ekran yazısının veri yolu (`SIText` bağlaması): takvim, antrenman programı ve sekmesi yollarla; maç yeri kodu
+  kendi çeviri kimlikleriyle; çift çeviri kalktı (`e62dec6`).
+- Tesisler veriden; mutluluk ve arkadaş grupları yollarla; Takım Dinamikleri alt sekmeleri Guid'le (`e9e796f`).
+- Duran top atıcıları ve penaltılar yollarla, türler sayıyla, kural anahtarları bağlandıkları ayarla (`2aa06a3`).
+- Mevkiler `PositionCombined` maskesinden (`depth`, `doctor`, `targets`); teklifler yollarla; `depth` kiralıkları
+  veriden eliyor (`667ebf3`); rakip raporu veriden + yollardan, İngilizcedeki saçma değerler de gitti (`ac73f96`).
+- Türkçe tarama 13 → 1 hata, İngilizce 49/50. Ayrıntı FINDINGS §8.169.
 
 ### 2026-10-13 (akşam / gece — taşınabilirlik)
 

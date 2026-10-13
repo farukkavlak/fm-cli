@@ -321,6 +321,11 @@ Adaylar, sağlamdan zayıfa:
 3. **Ekranı hiç okumamak.** Değer zaten veri yolundan okunabiliyorsa (`Fm.Pull`) sayfa açılmaz. Mesaj ekleri, mali
    tablo gibi yerler için oyunun verisinde karşılığı aranmalı.
 
+**Ölçüldü (14 Ekim 2026, FINDINGS §8.169):** 1. seçenek çalışıyor — `SIText.m_textBinding.Direct.Path` yazının veri
+yolunu veriyor; `/texts`, `/form` `?paths=1` ve `?anchorpath=` ile. Taşınanlar: takvim, antrenman programı, mutluluk,
+arkadaş grupları, duran top atıcıları, penaltılar, teklifler, rakip raporu. Kalan konumla okumalar için `rest[i + N]`,
+`After(...)`, `IndexOf(...) + N` taranacak.
+
 ## 8. Ölçüm planı
 
 1. Oyunu Türkçe (ve/veya Almanca) yapıp `tools/sweep.sh` — kırılanların listesi bu belgedeki tahminle karşılaştırılır.
