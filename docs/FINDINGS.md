@@ -4580,6 +4580,19 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
   açılıyor. Çözüm: kart 3 sn'de gelmezse yeniden tıklamak; üç durumda 9/9 geçti. Eklentinin `?text=` tıklaması artık
   gizli elemanları da atlıyor (`Pages.Shown`), ama bu hatayı tek başına çözmedi.
 
+### 8.166 Düğmeler olayla: katalog ve sınırı (13 Ekim 2026, Lincoln)
+
+- `/press` artık yazısız da basıyor: `?event=EventToPlugin:EventFmxQuickPick` (olay türü + oyunun olay kimliği, `/buttons`
+  `Events` alanındaki biçim) ve gerekirse `&name=`. Yazı verilirse eskisi gibi süzüyor.
+- `tools/buttons-catalog.py` 75 sayfayı açıp her sayfadaki olaylı kontrolleri yazı | eleman adı | olaylar olarak
+  `docs/reference/buttons.txt`'e döküyor (~7200 satır, ~4 dk).
+- **Sınır:** CLI'ın yazıyla bastığı 27 farklı düğmeden 20'si hiçbir sayfada yok (mesaj içi "Acknowledge and Move On",
+  sihirbaz "Next" / "Apply", kayıt penceresi "Save" / "Load", kart içi "All Staff"…); bulunanların olayı çoğunlukla genel
+  (`StandardButton | SpeakToAction`, kutu `OpenPanel`). Kutular (`layout-tile-interaction-button`) olay taşımıyor;
+  onların dilden bağımsız tutamağı ata elemanın UXML adı (ör. "Coaching Team" kutusu `#AllStaffHero` › `#coaches`).
+- Sonuç: düğme düğme olay aramak az şey kurtarıyor; yazıyla bulunan her şeyi (düğme, çapa, başlık) birden kurtaracak
+  olan oyunun çeviri tablosu (BAGIMLILIKLAR §2, seçenek B). Sıradaki adım o.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

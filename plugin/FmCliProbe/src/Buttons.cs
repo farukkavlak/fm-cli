@@ -680,15 +680,23 @@ internal static class Buttons
 			return at;
 		}
 
+		// A label is what a user reads and changes with the language; what a control sends
+		// (?event=EventToPlugin:EventFmxQuickPick) and its element's name do not, and either
+		// can address it alone.
 		var text = q["text"];
-		if (string.IsNullOrEmpty(text)) { error = "error: ?ptr=<0x…> or ?text=<label> required (see /buttons)"; return null; }
+		var name = q["name"];
+		var sends = q["event"];
+		if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(sends))
+		{
+			error = "error: ?ptr=<0x…>, ?event=<event[:id]>[&name=] or ?text=<label> required (see /buttons)";
+			return null;
+		}
+		text ??= "";
 
 		// The same label can sit on controls that do different things — a tab and a tile that
 		// both say "Tactics" — and what a control sends is what tells them apart.
-		var name = q["name"];
-		var sends = q["event"];
 		var matches = controls
-			.Where(c => string.Equals(c.Label, text, StringComparison.OrdinalIgnoreCase))
+			.Where(c => text.Length == 0 || string.Equals(c.Label, text, StringComparison.OrdinalIgnoreCase))
 			.Where(c => string.IsNullOrEmpty(name) || string.Equals(NameOf(c.Element), name, StringComparison.OrdinalIgnoreCase))
 			.Where(c => string.IsNullOrEmpty(sends) || Sends(c, sends))
 			.ToList();
@@ -700,8 +708,8 @@ internal static class Buttons
 		if (matches.Count > 1 && q["any"] == "1") return matches[^1];
 
 		error = matches.Count == 0
-			? $"error: no control labelled '{text}' on the loaded screens"
-			: $"error: {matches.Count} controls are labelled '{text}'; narrow it with &name=\n"
+			? (text.Length > 0 ? $"error: no control labelled '{text}' on the loaded screens" : $"error: no control sends {sends} on the loaded screens")
+			: $"error: {matches.Count} controls are labelled '{text}'{(string.IsNullOrEmpty(sends) ? "" : $" and send {sends}")}; narrow it with &name=\n"
 			  + string.Join("\n", matches.Select(c => $"  0x{c.Element.Pointer.ToInt64():x}  {Short(c.TypeName)}  name={NameOf(c.Element)}"));
 		return null;
 	}
@@ -715,7 +723,10 @@ internal static class Buttons
 			{
 				try
 				{
-					if (contexts[i] != null && Short(contexts[i].GetIl2CppType().FullName).StartsWith(eventName, StringComparison.OrdinalIgnoreCase))
+					if (contexts[i] == null) continue;
+					// "EventToPlugin" names the kind, "EventToPlugin:EventFmxQuickPick" the very event.
+					if (Short(contexts[i].GetIl2CppType().FullName).StartsWith(eventName, StringComparison.OrdinalIgnoreCase)
+					    || Summary(contexts[i], "Events").StartsWith(eventName, StringComparison.OrdinalIgnoreCase))
 						return true;
 				}
 				catch { }
