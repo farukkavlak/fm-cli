@@ -15,7 +15,27 @@ internal static partial class Program
 {
 	private sealed record MatchRow(int Number, string Date, string Position, string Role, string Opponent, string Score, string OnOff, string Xg, string Assists, string Goals, string Conceded, string Rating);
 
+	/// <summary>
+	/// The page is a card over the game, with the player's talks beside it ("Praise Recent Form"…):
+	/// left open, the game is taken to be waiting on a question and time does not move (Hackett, 11
+	/// Nisan 2026). It is closed by going back, once read.
+	/// </summary>
 	private static async Task<int> PlayerMatches(JsonElement card, bool json)
+	{
+		try { return await ReadPlayerMatches(card, json); }
+		finally
+		{
+			try
+			{
+				if ((await Fm.GetJson("texts", ("anchor", "Match Ratings"), ("up", "0"))).GetArrayLength() > 0
+				    && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(c => Field(c.Value, "Name") == "BackButton") is { } back)
+					await Fm.Get("press", ("ptr", Field(back, "Pointer")));
+			}
+			catch (Exception) { }
+		}
+	}
+
+	private static async Task<int> ReadPlayerMatches(JsonElement card, bool json)
 	{
 		var name = Field(card.GetProperty("Player"), "Name");
 		async Task<List<string>> Texts() => (await Fm.GetJson("texts", ("anchor", "All Competitions"), ("up", "10"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
