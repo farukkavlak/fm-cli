@@ -29,43 +29,34 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.ClubHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		// The card's overview: "N Coaching Staff", then "a / b Role" per role, then the board's word.
-		// When the overview is being built anew (after a staff member's card, FINDINGS §8.165) a click
-		// lands on the tile on its way out and nothing opens, so the tile is clicked again.
-		List<string> overview = [];
-		async Task<bool> Opened()
+		// Each staff team from its data (FINDINGS §8.169): head count, each job's filled and wanted
+		// places (StaffSubGroupJobsData) and the board's word on its size.
+		var teams = new List<(string Team, List<(int Filled, int Wanted, string Role)> Roles, string Board)>();
+		foreach (var (team, group) in new[] { ("Coaching Staff", "StaffCoachingSubGroup"), ("Recruitment Staff", "StaffRecruitmentSubGroup"), ("Medical Staff", "StaffMedicalSubGroup") })
 		{
-			overview = (await Fm.GetJson("texts", ("anchor", "All Staff"), ("up", "12"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-			return overview.Contains("Board feedback") && overview.Any(t => t.EndsWith("Medical Staff", StringComparison.Ordinal));
+			var board = Field(await Fm.Pull($"Human.Team.{group}", "StaffSubGroupCountFeedbackString"), "StaffSubGroupCountFeedbackString");
+			var roles = (await Fm.Pull($"Human.Team.{group}.StaffSubGroupJobsData", "JobString,Count,MaxValue", list: true)).EnumerateArray()
+				.Select(j => (Filled: int.TryParse(Field(j, "Count"), out var f) ? f : 0, Wanted: int.TryParse(Field(j, "MaxValue"), out var w) ? w : 0, Role: Field(j, "JobString")))
+				.Where(j => j.Role.Length > 0).ToList();
+			teams.Add((team, roles, board));
 		}
+
+		// The staff card, from its tile (laid out in BindingRemapper #ClubAllStaff). When the overview is
+		// being built anew (after a staff member's card, FINDINGS §8.165) a click lands on the tile on
+		// its way out and nothing opens, so the tile is clicked again.
 		var clicked = "";
-		for (var attempt = 0; attempt < 3 && !overview.Contains("Board feedback"); attempt++)
+		var shown = false;
+		for (var attempt = 0; attempt < 3 && !shown; attempt++)
 		{
-			await Until(async () => !(clicked = await Fm.Get("click", ("text", "Coaching Team"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+			await Until(async () => !(clicked = await Fm.Get("click", ("within", "ClubAllStaff"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 			if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
-			await Until(Opened, seconds: attempt < 2 ? 3 : 10, every: 0.5);
+			shown = await Until(async () => !(await Fm.Get("click", ("text", "All Staff"), ("name", "navigation-tab-default-default"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal),
+				seconds: attempt < 2 ? 3 : 10, every: 0.5);
 		}
-		if (!overview.Contains("Board feedback"))
+		if (!shown)
 		{
 			Console.Error.WriteLine("Personel kartı açılmadı.");
 			return 1;
-		}
-
-		var teams = new List<(string Team, List<(int Filled, int Wanted, string Role)> Roles, string Board)>();
-		for (var i = 0; i < overview.Count; i++)
-		{
-			var team = StaffTeams.FirstOrDefault(t => Regex.IsMatch(overview[i], $@"^\d+ {t}$"));
-			if (team == null) continue;
-			var roles = new List<(int, int, string)>();
-			var j = i + 1;
-			for (; j + 3 < overview.Count && overview[j] != "Board feedback"; j++)
-				if (int.TryParse(overview[j], out var filled) && overview[j + 1] == "/" && int.TryParse(overview[j + 2], out var wanted))
-				{
-					roles.Add((filled, wanted, overview[j + 3]));
-					j += 3;
-				}
-			teams.Add((team, roles, j + 1 < overview.Count ? overview[j + 1] : ""));
-			i = j;
 		}
 
 		var tab = await Fm.Get("click", ("text", "All Staff"), ("name", "navigation-tab-default-default"));
@@ -125,22 +116,20 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>The All Staff table's rows in view, nine cells each, from below its header.</summary>
+	/// <summary>
+	/// The All Staff table's rows in view: a row begins at a name (binding.Name) and holds the eight
+	/// cells after it — team, job, age, nation, time, contract, wage, expiry.
+	/// </summary>
 	private static async Task<List<string[]>> StaffRows()
 	{
-		var texts = (await Fm.GetJson("texts", ("anchor", "All Staff"), ("up", "12"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-		var start = texts.IndexOf("Expiring");
+		var texts = (await Fm.GetJson("texts", ("anchor", "All Staff"), ("up", "12"), ("paths", "1"))).EnumerateArray()
+			.Select(t => (Text: Field(t, "Text"), Path: Field(t, "Path"))).ToList();
 		var rows = new List<string[]>();
-		if (start < 0) return rows;
-		for (var i = start + 1; i + 8 < texts.Count; )
+		for (var i = 0; i < texts.Count; i++)
 		{
-			// A row is told by its age in the fourth cell; anything else is skipped a cell at a time.
-			if (int.TryParse(texts[i + 3], out _) && texts[i + 1].EndsWith("Squad", StringComparison.Ordinal))
-			{
-				rows.Add(texts.GetRange(i, 9).ToArray());
-				i += 9;
-			}
-			else i++;
+			if (texts[i].Path != "binding.Name") continue;
+			var cells = texts.Skip(i + 1).TakeWhile(t => t.Path != "binding.Name").Take(8).Select(t => t.Text).ToList();
+			if (cells.Count == 8) rows.Add([texts[i].Text, .. cells]);
 		}
 		return rows;
 	}
