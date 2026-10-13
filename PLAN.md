@@ -457,6 +457,26 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 ---
 
+### Taşınabilirlik: başka kulüp, tema, dil (Faruk 13 Ekim 2026; akşam başlanacak)
+
+Komutlar tek kayıtta yazıldı; Lincoln'de dördü kırık çıktı (§8.155). Aynı türden başka neye bağlıyız, sırayla:
+
+- [ ] **Başka ülke, başka lig:** yeni bir kariyer, Almanya liglerinden bir takım. Önce `tools/sweep.sh`, sonra kariyeri
+      oynatarak saha testi (maç, mesajlar, transfer); çıkan her fark FINDINGS'e. Mevcut Lincoln kaydı yedekte kalsın.
+- [ ] **Ekran / UI bağımlılığı dökümü:** hangi komut neye dayanıyor, liste halinde — ekrandaki yazı (çapa metni), kontrol
+      adı (`ViewDropdown`, `continue-button`…), olay adı (`EventFmx…`), ağaçta kaç basamak yukarı (`up=N`), sütun / satır
+      sırası, oyunun veri yolu (`Human.Team…`). Hangisi kırılgan, hangisi sağlam.
+- [ ] **Tema / skin:** farklı tema ya da skin kullanan birinde sorun çıkar mı? Skin kontrol adlarını, ağaç derinliğini,
+      sayfa düzenini değiştiriyor mu; ekran çözünürlüğü ve arayüz ölçeği (satırları sanal çizen tablolar) etkiliyor mu.
+      En az bir başka tema / ölçekle `tools/sweep.sh`.
+- [ ] **Oyun dili bağımlılığı dökümü:** oyun İngilizce değilken ne kırılır — İngilizce yazıyla aranan her şey (sayfa ve
+      sekme adları, başlıklar, buton etiketleri, "Offer Made" / "Required" gibi durum sözcükleri, "N year-old" gibi
+      kalıplar, mesaj eki ayrıştırıcıları). Liste: dile bağlı / dilden bağımsız (ad, olay, veri yolu). Oyunu başka dile
+      alıp `tools/sweep.sh` ile ölçülecek; dilden bağımsız bir karşılığı olanlar ona taşınacak.
+- [ ] **Uygulamanın kendi dili (en sonda):** fm-cli'ın çıktısı, yardım metni ve hata mesajları bugün Türkçe ve koda
+      gömülü; yerelleştirme eklenecek (en azından Türkçe / İngilizce, kullanıcı seçsin). Oyundan gelen İngilizce
+      metinlerle karışık çıktı da burada ele alınacak. MCP araç açıklamaları İngilizce kalır.
+
 ## 15. MCP + doğal dil
 
 - [x] MCP server — `fm mcp` (stdio), 34 araç, her araç bir komut (§8.39); gerçek istemciyle denenmedi
