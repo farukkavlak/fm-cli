@@ -16,7 +16,8 @@ internal static class Translations
 		var sb = new StringBuilder();
 		try
 		{
-			sb.AppendLine($"language={SI.Translation.TranslationManager.CurrentLanguage}  available={SI.Translation.TranslationManager.IsAvailable}  showIDs={SI.Translation.TranslationManager.ShowIDs}");
+			Localisation.English("x");
+			sb.AppendLine($"language={SI.Translation.TranslationManager.CurrentLanguage}  available={SI.Translation.TranslationManager.IsAvailable}  showIDs={SI.Translation.TranslationManager.ShowIDs}  toEnglish={Localisation.Entries}  clashes={Localisation.Clashes}");
 		}
 		catch (System.Exception e) { sb.AppendLine($"manager: <{e.GetType().Name}: {e.Message}>"); }
 
@@ -41,6 +42,8 @@ internal static class Translations
 				var line = ById(id, quiet: true);
 				if (line != null) sb.AppendLine(line);
 			}
+
+		if (q["english"] is { Length: > 0 } shown) sb.AppendLine($"\"{shown}\" -> \"{Localisation.English(shown)}\"");
 
 		if (q["text"] is { Length: > 0 } text)
 		{

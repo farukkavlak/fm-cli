@@ -4616,6 +4616,24 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
   dosya geri konunca İngilizce açılıyor. `fm settings` ilk açılışta zaman zaman "Ayarlar sayfası açılmadı" diyor,
   ikinci denemede açılıyor **[açık]**.
 
+### 8.168 Çeviri katmanı: Türkçe oyunda tarama (13 Ekim 2026, Lincoln)
+
+- Eklenti İngilizce tabloyu (`translations-en.tsv`, DLL'e gömülü) yüklüyor. Oyun İngilizce değilse her kimliğin o anki
+  yazısından "gösterilen → İngilizce" ters tablosu kuruluyor (Türkçe: 11.537 girdi, 2.376 çakışma; kurulum <1 sn) ve
+  `Text.Clean` / `Text.Plain` / `Report.Json` ekrandaki yazıyı İngilizceye çeviriyor. Değer bir `TranslationID` ise
+  (`Text.Of`) İngilizcesi kimlikten, belirsizliksiz. İngilizce oyunda katman kapalı (iki tam tarama 49/50).
+- **Türkçe oyunda tam tarama:** katmansız 21 hata → katmanlı 12 (biri `league`, sezon öncesi). Hatasız biten 38'in 7'si
+  İngilizce oyundakiyle birebir aynı; kalanlarda rol / durum yazıları İngilizceye dönüyor ("Regular Starter"), ama
+  oyunun parçalardan kurduğu yazılar Türkçe kalıyor: mevkiler ("D/KB (Sl)", "DOS, OS (M)"), para / birim (Türkçe ayarda
+  maaş aylık, "17,25B £ aylık"), taktik adı ("4-2-3-1 DOS OOS Geniş").
+- Kalan hatalar: kadro görünüm listesi ("Selection Info", "Dynamics" — seçenekler düz yazı; "Dynamics"ın Türkçesi
+  "Squad Dynamics"la aynı, ters tablo ilkini veriyor), `calendar` ("Haziran" ay adı `DateTime` ile çözülüyor, çöküyor),
+  `depth` (mevki çözümlemesi), facilities / happiness / dynamics / schedule / takers / penalties (incelenmedi).
+- Çakışmanın kalıcı çözümü yazının kimliğini kaynağından almak; düz yazı taşıyan yerlerde (görünüm listesi) CLI'ın
+  aradığı İngilizceyi bütün adaylarla eşlemek gerekecek.
+- Açık: İngilizce bir taramada `depth` bir kez "AgreedPlayingTime verisi gelmedi" dedi; tekrar taramada ve 8 doğrudan
+  denemede geçti.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

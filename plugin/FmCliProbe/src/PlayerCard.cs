@@ -121,7 +121,7 @@ internal static class PlayerCard
 				case "Text":
 					try
 					{
-						var text = Text.Clean(node.Value?.AsString() ?? "");
+						var text = Text.Of(node.Value);
 						if (text.Length > 0 && !traits.Contains(text)) traits.Add(text);
 					}
 					catch { }
@@ -133,7 +133,7 @@ internal static class PlayerCard
 					{
 						var value = node.Value;
 						if (value == null || value.IsNull) break;
-						var text = Text.Clean(value.AsString());
+						var text = Text.Of(value);
 						if (text.Length > 0) header[name] = text;
 					}
 					catch { }

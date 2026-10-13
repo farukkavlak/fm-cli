@@ -468,7 +468,7 @@ internal static class Buttons
 		if (choice == null || choice.IsNull) return "<null>";
 
 		var record = choice.Get()?.TryCast<DynamicReference>();
-		if (record == null) return Text.Clean(choice.AsString());
+		if (record == null) return Text.Of(choice);
 
 		var entries = Send.Entries(record);
 
@@ -490,14 +490,14 @@ internal static class Buttons
 			// A list of people shows each as a person reference, which has no text of its own;
 			// the row's value is his index, and the caller knows the squad by that (§8.90). A
 			// set piece taker's value is a record with the index in it, beside the kind and side.
-			var text = Text.Clean(value.AsString());
+			var text = Text.Of(value);
 			if (text.EndsWith("PersonReference", StringComparison.Ordinal)
 			    && entries.TryGetValue("PropertyValue", out var person) && person != null && !person.IsNull)
 			{
 				var taker = person.Get()?.TryCast<DynamicReference>();
-				if (taker == null) return "#" + Text.Clean(person.AsString());
+				if (taker == null) return "#" + Text.Of(person);
 				if (Send.Entries(taker).TryGetValue("Index", out var index) && index != null && !index.IsNull)
-					return "#" + Text.Clean(index.AsString());
+					return "#" + Text.Of(index);
 			}
 			return text;
 		}
@@ -1076,7 +1076,7 @@ internal static class Buttons
 				var text = path.Path;
 				return string.IsNullOrEmpty(text) ? null : $"-> \"{text}\"";
 			case SI.Core.TypedValue typed:
-				return typed.IsNull ? null : $"({typed.DataType?.Name ?? "?"}) {Text.Clean(typed.AsString())}";
+				return typed.IsNull ? null : $"({typed.DataType?.Name ?? "?"}) {Text.Of(typed)}";
 			case PanelID panel:
 				return $"panel {panel.name}";
 			case Il2CppObjectBase reference:

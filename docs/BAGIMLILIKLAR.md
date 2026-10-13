@@ -287,7 +287,9 @@ sayfa → `PanelID` / asset adı; düğme → olay adı (+ gerekirse kontrol ad�
 mevki → sayı alanı. En sağlam yol, ama komut komut iş; her biri oyunda yeniden doğrulanmalı. Karşılığı olmayan yerler
 (mesaj eklerinin İngilizce başlıkları, cümle kalıpları) bununla çözülmez.
 
-**B. Oyunun kendi çeviri tablosunu kullan** — İngilizce sabitleri koruyup çalışma anında oyunun o anki diline
+**B. Oyunun kendi çeviri tablosunu kullan** — **13 Ekim: çalışıyor, eklentide** (FINDINGS §8.167–8.168). Türkçe oyunda
+taramadaki hatalar 21'den 12'ye indi; kalanlar mevki / para biçimi, düz yazı seçeneklerdeki çakışma ve takvimin ay adları.
+—  — İngilizce sabitleri koruyup çalışma anında oyunun o anki diline
 çevirmek. Oyunda bir yerelleştirme altyapısı görünüyor (`NativeSettingsHandlerModule+LanguageChanges.CurrentLanguage`,
 `LocalizedResources`, `EventFmxLanguageChanged`), ama metin anahtarlarına erişip erişemeyeceğimiz bilinmiyor
 **[ölçülecek]**. Tutarsa kodun büyük kısmına dokunmadan tüm dilleri açar.

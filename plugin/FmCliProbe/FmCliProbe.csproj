@@ -18,6 +18,11 @@
     <BepInterop>$(BepRoot)/BepInEx/interop</BepInterop>
   </PropertyGroup>
 
+  <!-- The game's UI texts in English by number (FINDINGS §8.167), for reading the game in another language. -->
+  <ItemGroup>
+    <EmbeddedResource Include="../../docs/reference/translations-en.tsv" LogicalName="translations-en.tsv" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="BepInEx.Core"><HintPath>$(BepCore)/BepInEx.Core.dll</HintPath></Reference>
     <Reference Include="BepInEx.Unity.IL2CPP"><HintPath>$(BepCore)/BepInEx.Unity.IL2CPP.dll</HintPath></Reference>

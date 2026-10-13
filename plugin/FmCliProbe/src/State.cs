@@ -66,7 +66,7 @@ internal static class State
 			{
 				var value = node.Value;
 				if (value == null || value.IsNull) continue;
-				text = Text.Clean(value.AsString());
+				text = Text.Of(value);
 			}
 			catch { continue; }
 
@@ -89,7 +89,7 @@ internal static class State
 			if (!bindings.Exists(ref key)) return null;
 
 			var value = bindings.Get(ref key);
-			return value == null || value.IsNull ? null : Text.Clean(value.AsString());
+			return value == null || value.IsNull ? null : Text.Of(value);
 		}
 		catch { return null; }
 	}

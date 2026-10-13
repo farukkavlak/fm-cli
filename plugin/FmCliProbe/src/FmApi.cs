@@ -724,7 +724,7 @@ internal static class FmApi
 		try
 		{
 			if (v.IsNull) return null;
-			return $"({v.DataType?.Name ?? "?"}) {Text.Clean(v.AsString())}";
+			return $"({v.DataType?.Name ?? "?"}) {Text.Of(v)}";
 		}
 		catch (Exception ex)
 		{

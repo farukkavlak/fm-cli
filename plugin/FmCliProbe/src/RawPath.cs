@@ -242,14 +242,14 @@ internal static class RawPath
 						var parts = new System.Collections.Generic.List<string>();
 						for (var e = 0; e < entriesOf.Count; e++)
 						{
-							try { parts.Add(entriesOf[e] is { IsNull: false } entry ? Text.Clean(entry.AsString()) : ""); } catch { parts.Add("?"); }
+							try { parts.Add(entriesOf[e] is { IsNull: false } entry ? Text.Of(entry) : ""); } catch { parts.Add("?"); }
 						}
 						fields[name] = string.Join(",", parts);
 						continue;
 					}
 				}
 				catch { }
-				try { fields[name] = Text.Clean(value.AsString()); } catch { }
+				try { fields[name] = Text.Of(value); } catch { }
 			}
 			return Report.Json(fields);
 		}

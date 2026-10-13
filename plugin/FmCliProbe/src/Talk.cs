@@ -33,7 +33,7 @@ internal static class Talk
 					break;
 
 				case "InteractionBodyLanguageString":
-					var mood = Text.Clean(node.Value?.AsString() ?? "");
+					var mood = Text.Of(node.Value);
 					if (mood.Length > 0) moods[mood] = moods.TryGetValue(mood, out var count) ? count + 1 : 1;
 					break;
 

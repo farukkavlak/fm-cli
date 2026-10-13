@@ -403,7 +403,7 @@ internal static class Report
 			if (type.EndsWith("Reference", StringComparison.Ordinal) || type.StartsWith("List", StringComparison.Ordinal)
 			    || type is "GameDate" or "Color32") return null;
 
-			return Text.Clean(value.AsString());
+			return Text.Of(value);
 		}
 		catch { return null; }
 	}
@@ -430,7 +430,7 @@ internal static class Report
 					var codes = new List<string>();
 					for (var i = 0; i < results.Count; i++)
 					{
-						try { codes.Add(results[i] is { IsNull: false } code ? Text.Clean(code.AsString()) : ""); } catch { codes.Add("?"); }
+						try { codes.Add(results[i] is { IsNull: false } code ? Text.Of(code) : ""); } catch { codes.Add("?"); }
 					}
 					return string.Join(",", codes);
 				}
@@ -460,7 +460,7 @@ internal static class Report
 				var type = value.DataType?.Name ?? "";
 				if (type.EndsWith("Reference", StringComparison.Ordinal) || type == "GameDate") continue;
 
-				text = Text.Clean(value.AsString());
+				text = Text.Of(value);
 
 				// A team's recent results are a list of codes; as a string a list is only its
 				// type's name, so this one is given as its entries (FINDINGS §8.115).
@@ -470,7 +470,7 @@ internal static class Report
 					var codes = new List<string>();
 					for (var i = 0; i < results.Count; i++)
 					{
-						try { codes.Add(results[i] is { IsNull: false } code ? Text.Clean(code.AsString()) : ""); } catch { codes.Add("?"); }
+						try { codes.Add(results[i] is { IsNull: false } code ? Text.Of(code) : ""); } catch { codes.Add("?"); }
 					}
 					text = string.Join(",", codes);
 				}
@@ -518,7 +518,7 @@ internal static class Report
 	}
 
 	internal static string Json(Dictionary<string, string> fields) =>
-		"{" + string.Join(", ", fields.Select(kv => $"\"{Escape(kv.Key)}\": \"{Escape(kv.Value)}\"")) + "}";
+		"{" + string.Join(", ", fields.Select(kv => $"\"{Escape(kv.Key)}\": \"{Escape(Localisation.English(kv.Value))}\"")) + "}";
 
 	internal static string Escape(string s) =>
 		s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "");

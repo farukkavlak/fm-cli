@@ -17,22 +17,124 @@ internal static class Text
 
 		try
 		{
-			return SI.Translation.EmbeddedDataUtilities.ContainsEmbeddedData(value)
+			return Localisation.English(SI.Translation.EmbeddedDataUtilities.ContainsEmbeddedData(value)
 				? SI.Translation.EmbeddedDataUtilities.RemoveEmbeddedData(value)
-				: value;
+				: value);
 		}
 		catch { return value; }
+	}
+
+	/// <summary>
+	/// A bound value as text. A value that is one of the game's translated texts carries its
+	/// number, and in a game set to another language that number gives the English exactly,
+	/// where going back from the shown words can land on another text translated the same way.
+	/// </summary>
+	public static string Of(SI.Core.TypedValue value)
+	{
+		if (value == null || value.IsNull) return "";
+		try
+		{
+			if (value.DataType?.Name == "TranslationID" && Localisation.EnglishOf(value.As<SI.Translation.TranslationID>().GameID) is { } english)
+				return english;
+		}
+		catch { }
+		return Clean(value.AsString());
 	}
 
 	/// <summary>
 	/// A label as a user reads it. Text shown on a control also carries rich-text tags for
 	/// colour and links, which are presentation and would keep a label from being matched.
 	/// </summary>
+	///
+	/// In a game set to another language the label is given in English where the game's own
+	/// table says what it is (<see cref="Localisation"/>), so what asks for it by its English
+	/// words still finds it.
+	/// </summary>
 	public static string Plain(string value)
 	{
 		var cleaned = Clean(value);
 		return string.IsNullOrEmpty(cleaned)
 			? cleaned
-			: System.Text.RegularExpressions.Regex.Replace(cleaned, "<[^<>]+>", "").Trim();
+			: Localisation.English(System.Text.RegularExpressions.Regex.Replace(cleaned, "<[^<>]+>", "").Trim());
+	}
+}
+
+/// <summary>
+/// The game's UI texts back in English (FINDINGS §8.167). Every UI text has a number that stays
+/// the same in every language; the English for each number ships inside the plugin, and the game
+/// gives the text it shows for that number now. A shown text found among them is answered in
+/// English. In an English game nothing changes.
+///
+/// One English text can stand for several numbers translated differently ("Confirm" is "Onayla"
+/// in one place and "Kabul" in another); each of those comes back as "Confirm". Two English
+/// texts can share a translation; the first in the table is given and the clash is counted.
+/// Texts the engine writes itself (conversation answers, messages) are not in this table.
+/// </summary>
+internal static class Localisation
+{
+	private static string language;
+	private static System.Collections.Generic.Dictionary<string, string> toEnglish;
+	private static System.Collections.Generic.Dictionary<int, string> byId;
+
+	public static int Entries => toEnglish?.Count ?? 0;
+	public static int Clashes { get; private set; }
+
+	/// <summary>The English of one of the game's texts by its number, in a game set to another language.</summary>
+	public static string EnglishOf(int id)
+	{
+		if (Map() == null) return null;
+		return byId != null && byId.TryGetValue(id, out var english) ? english : null;
+	}
+
+	public static string English(string shown)
+	{
+		if (string.IsNullOrEmpty(shown)) return shown;
+		var map = Map();
+		return map != null && map.TryGetValue(shown, out var english) ? english : shown;
+	}
+
+	private static System.Collections.Generic.Dictionary<string, string> Map()
+	{
+		string now;
+		try { now = SI.Translation.TranslationManager.CurrentLanguage; } catch { return null; }
+		if (string.IsNullOrEmpty(now) || now.StartsWith("english", StringComparison.OrdinalIgnoreCase)) return null;
+		if (now == language) return toEnglish;
+
+		language = now;
+		toEnglish = new System.Collections.Generic.Dictionary<string, string>();
+		byId = new System.Collections.Generic.Dictionary<int, string>();
+		Clashes = 0;
+		try
+		{
+			using var stream = typeof(Localisation).Assembly.GetManifestResourceStream("translations-en.tsv");
+			using var reader = new System.IO.StreamReader(stream);
+			string line;
+			while ((line = reader.ReadLine()) != null)
+			{
+				var tab = line.IndexOf('\t');
+				if (tab <= 0 || !int.TryParse(line[..tab], out var id)) continue;
+				var english = line[(tab + 1)..];
+				byId[id] = english;
+				string shown;
+				try { shown = new SI.Translation.TranslationID { GameID = id }.TranslatedString; } catch { continue; }
+				if (string.IsNullOrEmpty(shown)) continue;
+				shown = System.Text.RegularExpressions.Regex.Replace(Clean(shown), "<[^<>]+>", "").Trim();
+				if (shown.Length == 0 || shown == english) continue;
+				if (!toEnglish.TryAdd(shown, english) && toEnglish[shown] != english) Clashes++;
+			}
+		}
+		catch { }
+		return toEnglish;
+	}
+
+	private static string Clean(string value)
+	{
+		try
+		{
+			return SI.Translation.EmbeddedDataUtilities.ContainsEmbeddedData(value)
+				? SI.Translation.EmbeddedDataUtilities.RemoveEmbeddedData(value)
+				: value;
+		}
+		catch { return value; }
 	}
 }

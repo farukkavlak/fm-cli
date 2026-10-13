@@ -282,5 +282,5 @@ internal static class Pages
 	}
 
 	private static string Value(Dictionary<string, SI.Core.TypedValue> entries, string name) =>
-		entries.TryGetValue(name, out var value) && value != null && !value.IsNull ? Text.Clean(value.AsString()) : "";
+		entries.TryGetValue(name, out var value) && value != null && !value.IsNull ? Text.Of(value) : "";
 }
