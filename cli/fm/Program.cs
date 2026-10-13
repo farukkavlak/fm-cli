@@ -940,6 +940,62 @@ internal static partial class Program
 			return;
 		}
 
+		// The weekly roundup of what is delegated: how much is ours and how much the staff's, then the
+		// areas with the number of items each has to report.
+		if (rest[0] == "Responsibilities" && rest.Contains("Delegated to Staff"))
+		{
+			string Before(string label) => rest.IndexOf(label) is > 0 and var at ? rest[at - 1] : "?";
+			Console.WriteLine($"\n  Ek: sorumluluklar — {Before("Under control")} sende · {Before("Delegated to Staff")} devredilmiş");
+			var staffAt = rest.IndexOf("Staff");
+			var people = rest.Skip(staffAt + 1).TakeWhile(t => t.EndsWith("Members", StringComparison.Ordinal) || t.EndsWith("positions", StringComparison.Ordinal) || t.EndsWith("position", StringComparison.Ordinal)).ToList();
+			if (staffAt > 0 && people.Count > 0) Console.WriteLine($"    Personel: {string.Join(" · ", people)}");
+			var areas = new List<string>();
+			for (var i = 1; i + 1 < rest.Count; i++)
+				if (System.Text.RegularExpressions.Regex.IsMatch(rest[i + 1], @"^\(\d+\)$")) areas.Add($"{rest[i]} {rest[i + 1]}");
+			if (areas.Count > 0) Console.WriteLine($"    Bildirilen: {string.Join(" · ", areas)}");
+			Console.WriteLine("    Ayrıntı: responsibilities");
+			return;
+		}
+
+		// The coming two weeks of training, a day to a line, then who is coming on and who is not.
+		if (rest[0] == "Training" && rest.Count > 9 && rest[1] == "Mon" && rest[7] == "Sun")
+		{
+			Console.WriteLine("\n  Ek: antrenman programı");
+			string[] days = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+			static string Session(string s) => s switch { "Rest" => "dinlenme", "Travel" => "yolculuk", "H" => "MAÇ (iç saha)", "A" => "MAÇ (deplasman)", "N" => "MAÇ (tarafsız)", _ => s };
+			var at = 8;
+			for (var day = 0; at + 3 < rest.Count && System.Text.RegularExpressions.Regex.IsMatch(rest[at], @"^\d{1,2}( [A-Z][a-z]{2})?$"); day++, at += 4)
+				Console.WriteLine($"    {days[day % 7]} {rest[at],-7} {string.Join(" · ", rest.Skip(at + 1).Take(3).Select(Session))}");
+			var up = rest.IndexOf("Player Improvements");
+			var down = rest.IndexOf("Player Regressions");
+			var notable = rest.IndexOf("Notable Developments");
+			var parts = new List<string>();
+			if (up > 0) parts.Add($"{rest[up - 1]} gelişen");
+			if (down > 0) parts.Add($"{rest[down - 1]} gerileyen");
+			if (notable > 0)
+			{
+				var names = new List<string>();
+				for (var i = notable + 1; i + 1 < rest.Count && rest[i] != "Action message"; i += 2) names.Add(rest[i]);
+				if (names.Count > 0) parts.Add($"öne çıkanlar: {string.Join(", ", names)}");
+			}
+			if (parts.Count > 0) Console.WriteLine($"    Bireysel antrenman: {string.Join(" · ", parts)}");
+			Console.WriteLine("    Değiştirmek: schedule");
+			return;
+		}
+
+		// The scouts' focuses: how many, by priority, and each with where it stands.
+		if (rest[0] == "Recruitment Focuses" && rest.IndexOf("Ongoing") is > 0 and var ongoing)
+		{
+			var priorities = new List<string>();
+			foreach (var kind in new[] { "Top", "Standard", "Ongoing" })
+				if (rest.IndexOf(kind) is > 0 and var k) priorities.Add($"{rest[k - 1]} {kind}");
+			Console.WriteLine($"\n  Ek: scouting odakları — {string.Join(" · ", rest.Skip(1).TakeWhile(t => !int.TryParse(t, out _)))}  ({string.Join(" · ", priorities)})");
+			for (var i = ongoing + 1; i + 2 < rest.Count && rest[i + 2].EndsWith("players", StringComparison.Ordinal); i += 3)
+				Console.WriteLine($"    {rest[i]} — {rest[i + 1]}, {rest[i + 2]}");
+			Console.WriteLine("    Ayrıntı: scout");
+			return;
+		}
+
 		// A match's card: the score with who played, the scorers, the numbers and who stood out.
 		if (rest[0] == "Match Report" && rest.FindIndex(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d+ - \d+$")) is > 1 and var result && result + 1 < rest.Count)
 		{
