@@ -39,7 +39,7 @@ internal static partial class Program
 
 		var opened = await OpenPage(Screen.SetPieces);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		if (await ShowSetPieceKind(kind.Top, kind.Leaf) == null)
+		if (await ShowSetPieceKind(kind.Value, kind.ThrowIn) == null)
 		{
 			Console.Error.WriteLine($"{kind.Say}: sayfa açılmadı (duran top düzeni kurulmamış olabilir: setpieces new).");
 			return 1;

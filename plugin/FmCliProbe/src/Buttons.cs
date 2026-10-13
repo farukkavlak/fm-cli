@@ -205,8 +205,9 @@ internal static class Buttons
 			if (!int.TryParse(q["value"], out var number)) return $"error: '{q["value"]}' is not a number";
 			for (var i = 0; i < count && index < 0; i++)
 			{
-				if (ValueOf(choices[i]) == number) { index = i; break; }
+				// A row with a submenu only opens it; its number repeats its first entry's.
 				var children = Children(choices[i]);
+				if (children == null && ValueOf(choices[i]) == number) { index = i; break; }
 				for (var c = 0; c < (children?.Count ?? 0); c++)
 					if (ValueOf(children[c]) == number) return SelectPath(dropdown, $"{i},{c}", q);
 			}
@@ -706,9 +707,16 @@ internal static class Buttons
 		}
 		catch { }
 
+		// The number the chosen row stands for, and the data path the list writes it to as the list
+		// itself holds it (no walk of the tree): which kind a menu shows, whose list it is.
+		string value = "", binds = "";
+		try { value = ValueOf(dropdown.SelectedValue)?.ToString() ?? ""; } catch { }
+		try { binds = dropdown.SelectionValueBinding.Path ?? ""; } catch { }
+
 		return "{"
 			+ $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", "
 			+ "\"Within\": [" + string.Join(", ", within) + "], "
+			+ $"\"Value\": \"{value}\", \"Binds\": \"{Report.Escape(binds)}\", "
 			+ $"\"Name\": \"{Report.Escape(NameOf(dropdown))}\", "
 			+ $"\"Label\": \"{Report.Escape(LabelOf(dropdown))}\", "
 			+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "

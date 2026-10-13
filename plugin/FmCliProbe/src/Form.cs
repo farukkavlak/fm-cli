@@ -104,12 +104,18 @@ internal static class Form
 				+ $"\"Low\": \"{Number(slider.lowValue)}\", "
 				+ $"\"High\": \"{Number(slider.highValue)}\"}}";
 
+		// With the data path it writes (SelectionBinding), which says what it switches in any language.
 		var box = e.TryCast<SICheckBox>();
 		if (box != null)
+		{
+			var binds = "";
+			try { binds = box.SelectionBinding.Path ?? ""; } catch { }
 			return "{\"Kind\": \"checkbox\", "
 				+ $"\"Pointer\": \"0x{e.Pointer.ToInt64():x}\", "
 				+ $"\"Enabled\": \"{(e.enabledInHierarchy ? "True" : "False")}\", "
+				+ $"\"Binds\": \"{Report.Escape(binds)}\", "
 				+ $"\"Value\": \"{(box.value ? "True" : "False")}\"}}";
+		}
 
 		// A rating shown in stars and stepped with the buttons beside it; the value is the game's
 		// own scale, not a count of stars (FINDINGS §8.124). Shown counts half stars; a rating that

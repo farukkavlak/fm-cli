@@ -11,14 +11,18 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly (string Say, string Top, string Leaf, string[] Words)[] SetPieceKinds =
+	/// <summary>
+	/// The kinds with takers, by the number each stands for in the page's Set Piece Type menu (the
+	/// game's own, the same in every language); throw-ins have a taker button of their own.
+	/// </summary>
+	private static readonly (string Say, int Value, bool ThrowIn, string[] Words)[] SetPieceKinds =
 	[
-		("Korner", "Corners", null, ["korner", "corner", "corners", "kose"]),
-		("Serbest vuruş · şut mesafesi", "Free Kicks", "Shooting Range", ["frikik", "serbest", "freekick", "sut"]),
-		("Serbest vuruş · kanat", "Free Kicks", "Wide", ["kanat", "frikik-kanat", "wide"]),
-		("Serbest vuruş · derin", "Free Kicks", "Deep", ["derin", "frikik-derin", "deep"]),
-		// Throw-ins in the other two thirds have no taker to choose.
-		("Taç · hücum bölgesi", "Throw-Ins", "Attacking Third", ["tac", "throw", "throwin", "throw-in"]),
+		("Korner", 0, false, ["korner", "corner", "corners", "kose"]),
+		("Serbest vuruş · şut mesafesi", 1, false, ["frikik", "serbest", "freekick", "sut"]),
+		("Serbest vuruş · kanat", 3, false, ["kanat", "frikik-kanat", "wide"]),
+		("Serbest vuruş · derin", 4, false, ["derin", "frikik-derin", "deep"]),
+		// Throw-ins in the other two thirds (6, 5) have no taker to choose.
+		("Taç · hücum bölgesi", 2, true, ["tac", "throw", "throwin", "throw-in"]),
 	];
 
 	private static readonly Dictionary<string, string> TakerHeadings = new()
@@ -28,7 +32,7 @@ internal static partial class Program
 
 	private static readonly Dictionary<string, string> TakerColumns = new()
 	{
-		["Tec"] = "TEKNİK", ["Cro"] = "ORTA", ["Cor"] = "KORNER", ["Fre"] = "FRİKİK", ["Long Sh."] = "UZAK ŞUT", ["L Th"] = "UZUN TAÇ", ["Position"] = "MEVKİ",
+		["Tec"] = "TEKNİK", ["Tech"] = "TEKNİK", ["Cro"] = "ORTA", ["Cor"] = "KORNER", ["Fre"] = "FRİKİK", ["Long Sh."] = "UZAK ŞUT", ["Shots"] = "UZAK ŞUT", ["L Th"] = "UZUN TAÇ", ["Position"] = "MEVKİ",
 	};
 
 	private sealed record SetPieceTaker(int Order, string Number, string Name, string Where, List<string> Stats);
@@ -79,7 +83,7 @@ internal static partial class Program
 		var read = new List<(string Say, List<TakerList> Lists)>();
 		foreach (var kind in kinds)
 		{
-			if (await OpenTakers(kind.Top, kind.Leaf, seen) is not { } tables)
+			if (await OpenTakers(kind.Value, kind.ThrowIn, seen) is not { } tables)
 			{
 				Console.Error.WriteLine($"{kind.Say}: atıcı listeleri açılmadı (duran top düzeni kurulmamış olabilir: setpieces new).");
 				return 1;
@@ -164,29 +168,28 @@ internal static partial class Program
 	/// Puts a kind of set piece up on the Set Pieces page and waits for it to stand still;
 	/// gives the kind's taker button, or null when the page did not come to it.
 	/// </summary>
-	private static async Task<JsonElement?> ShowSetPieceKind(string top, string leaf)
+	private static async Task<JsonElement?> ShowSetPieceKind(int kind, bool throwIn)
 	{
-		var shown = leaf ?? top;
+		// The routine's menu of kinds is the list that writes the set piece's type; its Value is the kind it shows.
 		JsonElement? Menu(JsonElement dropdowns) => dropdowns.EnumerateArray().Cast<JsonElement?>()
-			.FirstOrDefault(d => d.Value.TryGetProperty("Choices", out var c) && c.GetArrayLength() > 0 && c[0].GetString() == "Corners");
+			.FirstOrDefault(d => Field(d.Value, "Binds").EndsWith("SetPieceTypeDropdownListSelectedValue", StringComparison.Ordinal));
 
 		// The page is drawn in steps — a choice made before the routine is up is lost, though
 		// the menu goes on naming it — and after a choice the taker button of the kind shown
 		// before stays a moment and opens that kind's lists. So each time the page is waited
-		// for until its menu, the kind it names and its taker button stand still. Throw-ins
+		// for until its menu, the kind it shows and its taker button stand still. Throw-ins
 		// have a button of their own; the other one stays behind, empty.
 		JsonElement? menu = null, button = null;
-		async Task<bool> Still(string name, string kind)
+		async Task<bool> Still(string name, int? shown)
 		{
 			var previous = "";
 			return await Until(async () =>
 			{
 				menu = Menu(await Fm.GetJson("dropdowns", ("json", "1")));
-				var named = (await Fm.GetJson("texts", ("anchor", "Set Piece Type"), ("up", "6"))).EnumerateArray().Select(t => t.GetString()).ToList();
 				button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
 					.FirstOrDefault(b => (name == null ? Field(b.Value, "Name") is "taker-button" or "taker-picker-button" : Field(b.Value, "Name") == name) && Field(b.Value, "Label").Length > 0);
-				if (menu == null || button == null || named.Count < 2 || (kind != null && named[1] != kind)) { previous = ""; return false; }
-				var key = $"{Field(menu.Value, "Pointer")}|{string.Join("|", named)}|{Field(button.Value, "Pointer")}|{Field(button.Value, "Label")}";
+				if (menu == null || button == null || (shown != null && Field(menu.Value, "Value") != shown.ToString())) { previous = ""; return false; }
+				var key = $"{Field(menu.Value, "Pointer")}|{Field(menu.Value, "Value")}|{Field(button.Value, "Pointer")}|{Field(button.Value, "Label")}";
 				var still = key == previous;
 				previous = key;
 				return still;
@@ -200,12 +203,10 @@ internal static partial class Program
 			await OpenPage(Screen.SetPieces);
 			if (!await Still(null, null)) return null;
 		}
-		var said = leaf == null
-			? await Fm.Get("select", ("ptr", Field(menu.Value, "Pointer")), ("choice", top), ("fire", "1"))
-			: await Fm.Get("select", ("ptr", Field(menu.Value, "Pointer")), ("names", $"{top}>{leaf}"), ("fire", "1"));
+		var said = await Fm.Get("select", ("ptr", Field(menu.Value, "Pointer")), ("value", kind.ToString()), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return null;
 		await Task.Delay(500);
-		if (!await Still(top == "Throw-Ins" ? "taker-picker-button" : "taker-button", shown)) return null;
+		if (!await Still(throwIn ? "taker-picker-button" : "taker-button", kind)) return null;
 		return button;
 	}
 
@@ -214,9 +215,9 @@ internal static partial class Program
 	/// right then left, or null when they did not come. The lists of the kind shown before stay
 	/// up until the button is pressed again, so tables already seen are not taken for the new ones.
 	/// </summary>
-	private static async Task<List<string>> OpenTakers(string top, string leaf, HashSet<string> seen)
+	private static async Task<List<string>> OpenTakers(int kind, bool throwIn, HashSet<string> seen)
 	{
-		if (await ShowSetPieceKind(top, leaf) is not { } button) return null;
+		if (await ShowSetPieceKind(kind, throwIn) is not { } button) return null;
 
 		static List<string> Tables(JsonElement buttons) => buttons.EnumerateArray()
 			.Where(b => Field(b, "Type") == "StreamedTable" && Field(b, "Events").Contains("SetPieceTakerMove", StringComparison.Ordinal))
@@ -240,8 +241,8 @@ internal static partial class Program
 			foreach (var heading in pair)
 			{
 				var texts = (await Fm.GetJson("form", ("anchor", heading), ("up", "8"))).EnumerateArray()
-					.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text")).ToList();
-				if (texts.Count == 0 || texts[0] != heading) continue;
+					.Where(f => Field(f, "Kind") == "text").Select(f => (Field(f, "Text"), Field(f, "Path"))).ToList();
+				if (texts.Count == 0 || texts[0].Item1 != heading) continue;
 				lists.Add(TakerRows(heading, texts));
 				break;
 			}
@@ -249,28 +250,49 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// A list's rows: after the heading come "Add Player", "Name" and the columns, then for each
-	/// taker his place ("1st"), shirt number when he has one, name, where he starts and a value
-	/// under each column; a sentence about taking from both sides ends it.
+	/// A list's rows, by each text's data path (FINDINGS §8.169): a taker is his name (binding.Name),
+	/// where he starts (tactic.TeamSelectedPositionStringFromPlayer) and a value under each column
+	/// (binding.PropertyValue); before the name, drawn without a path, his place ("1st") and his shirt
+	/// number when he has one. The columns are the headings after "Name", as many as a row has values.
 	/// </summary>
-	private static TakerList TakerRows(string heading, List<string> texts)
+	private static TakerList TakerRows(string heading, List<(string Text, string Path)> texts)
 	{
-		static bool Place(string text) => Regex.IsMatch(text, @"^\d+(st|nd|rd|th)$");
-		var cells = texts.Skip(texts.IndexOf("Name") + 1).TakeWhile(t => !t.EndsWith("from both sides", StringComparison.Ordinal)).ToList();
-		var columns = cells.TakeWhile(c => !Place(c)).ToList();
+		// The columns are the headings after "Name", as many as a row has values.
+		var headings = texts.TakeWhile(t => t.Path != "binding.Name").Where(t => t.Path.Length == 0).Select(t => t.Text).ToList();
+		var width = texts.SkipWhile(t => t.Path != "binding.Name").Skip(1).TakeWhile(t => t.Path != "binding.Name").Count(t => t.Path == "binding.PropertyValue");
+		var columns = headings.Skip(headings.IndexOf("Name") + 1).Take(width).ToList();
 		var takers = new List<SetPieceTaker>();
-		var whole = texts.Contains("Name");
-		for (var i = columns.Count; i < cells.Count;)
+		var before = new List<string>();
+		(string Number, string Name, string Where, List<string> Stats)? row = null;
+		void Close()
 		{
-			var row = cells.Skip(i + 1).TakeWhile(c => !Place(c)).ToList();
-			i += row.Count + 1;
-			// A player without a shirt number leaves that cell out.
-			var numbered = row.Count == columns.Count + 3;
-			if (row.Count != columns.Count + 2 && !numbered) { whole = false; continue; }
-			var at = numbered ? 1 : 0;
-			if (int.TryParse(row[at + 1], out _)) whole = false;
-			takers.Add(new(takers.Count + 1, numbered ? row[0] : "", row[at], row[at + 1], row.Skip(at + 2).ToList()));
+			if (row is { } r) takers.Add(new(takers.Count + 1, r.Number, r.Name, r.Where, r.Stats));
+			row = null;
 		}
-		return new(heading, columns, takers, string.Join("|", texts), whole);
+		foreach (var (text, path) in texts)
+		{
+			switch (path)
+			{
+				case "binding.Name":
+					Close();
+					// A player without a shirt number has only his place before his name.
+					var number = before.Count >= 2 && before[^1].All(char.IsDigit) ? before[^1] : "";
+					row = (number, text, "", []);
+					before.Clear();
+					break;
+				case "tactic.TeamSelectedPositionStringFromPlayer" when row is { } r:
+					row = r with { Where = text };
+					break;
+				case "binding.PropertyValue" when row is { } r:
+					r.Stats.Add(text);
+					break;
+				default:
+					if (path.Length == 0) before.Add(text);
+					break;
+			}
+		}
+		Close();
+		var whole = takers.Count > 0 && takers.All(t => t.Where.Length > 0 && t.Stats.Count == columns.Count);
+		return new(heading, columns, takers, string.Join("|", texts.Select(t => t.Text)), whole);
 	}
 }

@@ -11,20 +11,22 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly (string Label, string Say, string[] Words)[] PenaltyRules =
+	/// <summary>The three rules, by the data path each switch writes (the same in every language).</summary>
+	private static readonly (string Label, string Binds, string Say, string[] Words)[] PenaltyRules =
 	[
-		("Allow player who has scored 2 goals to take penalty", "İki gol atan da atabilir", ["iki", "2", "two"]),
-		("Change taker if player has already taken a penalty", "Bir penaltı atan bir sonrakini bırakır", ["atan", "taken", "atti"]),
-		("Change taker if player has already missed a penalty", "Penaltı kaçıran bir sonrakini bırakır", ["kaciran", "missed", "kacirdi"]),
+		("Allow player who has scored 2 goals to take penalty", "setpiece.PenaltyAllowTwoGoalsScorers", "İki gol atan da atabilir", ["iki", "2", "two"]),
+		("Change taker if player has already taken a penalty", "setpiece.PenaltyChangeAlreadyTaken", "Bir penaltı atan bir sonrakini bırakır", ["atan", "taken", "atti"]),
+		("Change taker if player has already missed a penalty", "setpiece.PenaltyChangeIfMissed", "Penaltı kaçıran bir sonrakini bırakır", ["kaciran", "missed", "kacirdi"]),
 	];
 
 	private static async Task<int> Penalties(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		async Task<List<JsonElement>> Form() => (await Fm.GetJson("form", ("anchor", "Penalty Takers"), ("up", "12"))).EnumerateArray().ToList();
+		// The table and the rules under it, from the table's Order heading (one of the game's texts).
+		async Task<List<JsonElement>> Form() => (await Fm.GetJson("form", ("anchor", "Order"), ("up", "26"))).EnumerateArray().ToList();
 
 		var form = await Form();
-		if (!form.Any(f => Field(f, "Text") == "Order"))
+		if (!form.Any(f => Field(f, "Kind") == "checkbox"))
 		{
 			var opened = await OpenPage(Screen.Penalties);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
@@ -36,9 +38,9 @@ internal static partial class Program
 			return 1;
 		}
 
-		// Each rule is its text and then its switch.
-		JsonElement? Switch(string label) =>
-			form.SkipWhile(f => Field(f, "Text") != label).Skip(1).Cast<JsonElement?>().FirstOrDefault(f => Field(f.Value, "Kind") == "checkbox");
+		// Each rule's switch is known by the data path it writes.
+		JsonElement? Switch(string binds) =>
+			form.Cast<JsonElement?>().FirstOrDefault(f => Field(f.Value, "Kind") == "checkbox" && Field(f.Value, "Binds") == binds);
 
 		var words = Words(args).ToList();
 		if (words.Count > 0 && PenaltyVerb(words[0]) is { } verb)
@@ -75,7 +77,7 @@ internal static partial class Program
 				Console.Error.WriteLine("kullanım: penalties <1|2|3> açık|kapalı   (1 iki gol atan, 2 penaltı atan, 3 penaltı kaçıran)");
 				return 64;
 			}
-			if (Switch(rule.Label) is not { } box)
+			if (Switch(rule.Binds) is not { } box)
 			{
 				Console.Error.WriteLine($"'{rule.Say}' anahtarı sayfada yok.");
 				return 1;
@@ -87,13 +89,13 @@ internal static partial class Program
 				await Until(async () =>
 				{
 					form = await Form();
-					return Switch(rule.Label) is { } now && Field(now, "Value") == (on.Value ? "True" : "False");
+					return Switch(rule.Binds) is { } now && Field(now, "Value") == (on.Value ? "True" : "False");
 				}, seconds: 4, every: 0.25);
 			}
 		}
 
 		var takers = PenaltyTakers(form);
-		var rules = PenaltyRules.Select(r => (r.Say, On: Switch(r.Label) is { } b && Field(b, "Value") == "True")).ToList();
+		var rules = PenaltyRules.Select(r => (r.Say, On: Switch(r.Binds) is { } b && Field(b, "Value") == "True")).ToList();
 
 		if (json)
 		{
@@ -120,26 +122,37 @@ internal static partial class Program
 	private sealed record PenaltyTaker(int Order, string Number, string Name, string Where, string Composure, string Penalties);
 
 	/// <summary>
-	/// The takers sit between the column headings and the first rule: order, shirt number, name,
-	/// where he starts, composure, penalty taking.
+	/// The takers by each text's data path (FINDINGS §8.169): his place (index), then drawn without a
+	/// path his shirt number when he has one, his name (binding.Name), where he starts
+	/// (tactic.TeamSelectedPositionStringFromPlayer), composure and penalty taking (binding.PropertyValue).
 	/// </summary>
 	private static List<PenaltyTaker> PenaltyTakers(List<JsonElement> form)
 	{
-		var texts = form.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text")).ToList();
-		var from = texts.IndexOf("Penalty Taking") + 1;
-		var to = texts.IndexOf(PenaltyRules[0].Label) is var end && end > from ? end : texts.Count;
-		var cells = texts.Skip(from).Take(to - from).ToList();
 		var takers = new List<PenaltyTaker>();
-		for (var i = 0; i < cells.Count;)
+		int? order = null;
+		string number = "", name = null, where = "";
+		var values = new List<string>();
+		void Close()
 		{
-			if (!int.TryParse(cells[i], out var order) || order != takers.Count + 1) { i++; continue; }
-			// A player without a shirt number leaves that cell out.
-			var numbered = i + 1 < cells.Count && int.TryParse(cells[i + 1], out _) && i + 2 < cells.Count && !int.TryParse(cells[i + 2], out _);
-			var at = i + (numbered ? 2 : 1);
-			if (at + 3 >= cells.Count) break;
-			takers.Add(new(order, numbered ? cells[i + 1] : "", cells[at], cells[at + 1], cells[at + 2], cells[at + 3]));
-			i = at + 4;
+			if (order is { } o && name != null && values.Count >= 2) takers.Add(new(o, number, name, where, values[0], values[1]));
+			order = null;
+			number = where = "";
+			name = null;
+			values = [];
 		}
+		foreach (var f in form.Where(f => Field(f, "Kind") == "text"))
+		{
+			var text = Field(f, "Text");
+			switch (Field(f, "Path"))
+			{
+				case "index": Close(); order = int.TryParse(text, out var n) ? n : takers.Count + 1; break;
+				case "binding.Name" when order != null: name = text; break;
+				case "tactic.TeamSelectedPositionStringFromPlayer" when name != null: where = text; break;
+				case "binding.PropertyValue" when name != null: values.Add(text); break;
+				case "" when order != null && name == null && text.All(char.IsDigit): number = text; break;
+			}
+		}
+		Close();
 		return takers;
 	}
 
