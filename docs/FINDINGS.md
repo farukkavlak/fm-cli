@@ -4593,6 +4593,29 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
 - Sonuç: düğme düğme olay aramak az şey kurtarıyor; yazıyla bulunan her şeyi (düğme, çapa, başlık) birden kurtaracak
   olan oyunun çeviri tablosu (BAGIMLILIKLAR §2, seçenek B). Sıradaki adım o.
 
+### 8.167 Oyunun çeviri tablosu (13 Ekim 2026, Lincoln; BAGIMLILIKLAR §7 B)
+
+- `SI.Translation.TranslationManager` (SI.Core): `CurrentLanguage` ("english", "turkish"), `IsAvailable`, `ShowIDs`,
+  `CppTranslator` (`ITranslator`: `GetTranslationFromID(int, Span)`, `GetTranslationFromString(string, Span)`; boş
+  değişken listesi `Il2CppSystem.Span<AddVariableData>.Empty`, `default` NullReference veriyor).
+- **Arayüz tablosu:** kimlik 0–~41.000, 40.758 dolu girdi. `new TranslationID { GameID = n }.TranslatedString` ya da
+  `CppTranslator.GetTranslationFromID(n)` o anki dildeki yazıyı veriyor. İngilizce döküm: `docs/reference/translations-en.tsv`.
+- **Kimlik dilden bağımsız** — oyun Türkçeye alınınca (`fm settings dil Türkçe --yes`, çalışma anında, yeniden başlatmadan)
+  aynı kimlikler: 1 Job Centre → İş Piyasası, 362 Confirm → Onayla, 6680 Coaching Team → Antrenör Ekibi, 9287 Most Used
+  Formation → En Çok Kullanılan Diziliş, 22542 Next Opposition Report → Sonraki Rakip Takım Raporu.
+- **Aynı İngilizce, farklı çeviri:** 5.403 İngilizce yazı birden çok kimlikte. Confirm 362 Onayla / 369 Kabul; Cancel
+  370 İptal Et / 3833 İptal; Next 4687 İleri / 8010 Sonraki. Bir İngilizce sabit tek bir çeviriye indirgenemez; o yazının
+  bütün kimliklerinin çevirileri birlikte aranmalı.
+- **`GetTranslationFromString` çevirmiyor** — Türkçede de verilen İngilizceyi geri veriyor.
+- **Motor yazıları bu tabloda yok:** "Acknowledge and Move On", "Exit Talks", mesaj başlıkları / içerikleri (Türkçe
+  arayüzde onlar da Türkçe çıkıyor). Kullanıcı klasöründeki `languages/example.ltf` (149 MB, 546.614 `KEY-n: English
+  [COMMENT …]`) onları bağlam notlarıyla listeliyor, ama `KEY` numaraları çalışma anında hiçbir çağrıyla çevrilmiyor
+  (`CppTranslator` da 0–41 bin aralığını kullanıyor). Çevirileri büyük olasılıkla `game_plugin.bundle/…/languages.fmf`
+  (210 MB) paketinde **[ölçülecek]**.
+- Dil tercihi `Preferences/version 6/current_language.xml` (`<symbol id="value" value="english"/>`); oyun kapalıyken
+  dosya geri konunca İngilizce açılıyor. `fm settings` ilk açılışta zaman zaman "Ayarlar sayfası açılmadı" diyor,
+  ikinci denemede açılıyor **[açık]**.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

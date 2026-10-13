@@ -56,6 +56,7 @@ internal static class FmApi
 		"fixtures" => Report.Fixtures(),
 		"save" => Save(),
 		"dialog" => Dialogs.Open(q),
+		"translate" => Translations.Open(q),
 		"shot" => Shot(q),
 		"repaint" => Repaint(q["how"]),
 		"visible" => Visible(q["text"]),
