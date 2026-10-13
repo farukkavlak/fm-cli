@@ -450,12 +450,17 @@ internal static partial class Program
 	{
 		try
 		{
-			var path = (await Fm.Get("find", ("name", "Match"), ("limit", "20"))).Split('\n').Select(l => l.Trim())
-				.FirstOrDefault(l => l.StartsWith("..", StringComparison.Ordinal) && l.EndsWith(".Match", StringComparison.Ordinal));
+			// Match reports attached to old messages leave their matches behind too: the one being played
+			// is the match state's own. A node of ours set a moment ago can still answer with what it held
+			// before (a home side from one match, an away side from another), so each reading gets a new one.
+			var paths = (await Fm.Get("find", ("name", "Match"), ("limit", "40"))).Split('\n').Select(l => l.Trim())
+				.Where(l => l.StartsWith("..", StringComparison.Ordinal) && l.EndsWith(".Match", StringComparison.Ordinal)).ToList();
+			var path = paths.FirstOrDefault(l => System.Text.RegularExpressions.Regex.IsMatch(l, @"^\.\.MatchStateCache\d+\.Match$"));
 			if (path == null) return null;
-			await Fm.Get("pathset", ("to", "fmcli.match"), ("from", path));
-			var home = Field(await Fm.Pull("fmcli.match.HomeTeam", "Name"), "Name");
-			var away = Field(await Fm.Pull("fmcli.match.AwayTeam", "Name"), "Name");
+			var node = $"fmcli.sides{DateTime.UtcNow.Ticks % 100000}";
+			await Fm.Get("pathset", ("to", node), ("from", path));
+			var home = Field(await Fm.Pull($"{node}.HomeTeam", "Name"), "Name");
+			var away = Field(await Fm.Pull($"{node}.AwayTeam", "Name"), "Name");
 			return home.Length > 0 && away.Length > 0 ? (home, away) : null;
 		}
 		catch (FmError) { return null; }
