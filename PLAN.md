@@ -442,6 +442,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Geri alınamayan işlerde onay — terminalde sorar, script'te `--yes` ister: `save`, `offer`, `contract`
 - [x] Geri alma yok — yıkıcı aksiyonlarda uyarı: teklif, sözleşme imzası, serbest bırakma / fesih, kayıt, taktik silme, dil değişimi, alışkanlık antrenmanı ve konuşmadaki fesih seçenekleri terminalde soruyor, script'te `--yes` istiyor (10 Ekim taraması)
 - [x] Oyun kapalıysa otomatik başlat (`fm start`)
+- [ ] `status` kadrodaki sakatı ancak taktik ekranı açıkken görüyor: maç günü ilk `match` denemesinden önce uyarı yok, deneme "X is injured" diye durunca var (3 ve 11 Nisan 2026, McGrandles ve Ring). Seçili 11'i ekran açmadan veren bir alan bulunmalı (`PlayerReference`'ta aday çıkmadı) ya da `next` maç gününe varınca kadroyu kendisi yoklamalı
 - [ ] `fm start` açılışta pencereyi gizlemiyor — pencere tam ekran boyutunda öne geliyor ve kullanıcı başka pencereye geçene kadar ekranda kalıyor (Faruk, 13 Ekim: "dikkatim dağılıyor"). Ölçüm: pencere 5. saniyede çıkıyor, `Minimise()` ancak ana menü gelince (~60. sn) çalışıyor; `-screen-width 640 -screen-height 360` dikkate alınmıyor (ekran 2940×1840). Denenen ve işe yaramayan: açılış boyunca 0,2 sn'de bir `AXMinimized` yazan betik — pencere menü gelene kadar küçülmedi (geri alındı). Bakılacaklar: Unity `PlayerPrefs`'te çözünürlük/pencere konumu, eklentiden açılışta pencereyi küçültmek/taşımak, `open -g -j` ile başlatmak, ayrı bir Space
 
 ---
