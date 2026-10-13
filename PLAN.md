@@ -267,7 +267,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kısa liste — `fm shortlist` (§8.56); `shortlist add <ad> --for <süre>` / `remove <ad>` (§8.119)
 - [x] Oyuncu karşılaştırma — `fm compare <a> <b>`: kimlik ve özellikler yan yana, iyisi işaretli
 - [x] Rakip analizi — `fm opponent`: raporun özeti (§8.57), sezon sayıları ve hüküm (§8.114), menajer ve oyun tarzı, beklenti, birim birim analiz ve öne çıkan oyuncular (§8.121)
-- [~] Gençlik adayları / youth intake — `fm youth`: altyapı notu, A takıma aday görülenler, alım tarihi (§8.112); `fm youth --training` U19 antrenman haftası, alım adayları gelene kadar "henüz yok" (§8.125); alım gününde aday listesi bakılacak (Mart)
+- [x] Gençlik adayları / youth intake — `fm youth`: altyapı notu, A takıma aday görülenler, alım tarihi (§8.112); `fm youth --training` U19 antrenman haftası, alım adayları gelene kadar "henüz yok" (§8.125); `fm youth candidates` alım listesi: grup, yaş, mevki, rol, yetenek ve potansiyel aralığı (§8.152); adaya sözleşme önermek oyundan
 
 ---
 
@@ -442,6 +442,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Geri alınamayan işlerde onay — terminalde sorar, script'te `--yes` ister: `save`, `offer`, `contract`
 - [x] Geri alma yok — yıkıcı aksiyonlarda uyarı: teklif, sözleşme imzası, serbest bırakma / fesih, kayıt, taktik silme, dil değişimi, alışkanlık antrenmanı ve konuşmadaki fesih seçenekleri terminalde soruyor, script'te `--yes` istiyor (10 Ekim taraması)
 - [x] Oyun kapalıysa otomatik başlat (`fm start`)
+- [ ] `fm start` açılışta pencereyi gizlemiyor — pencere tam ekran boyutunda öne geliyor ve kullanıcı başka pencereye geçene kadar ekranda kalıyor (Faruk, 13 Ekim: "dikkatim dağılıyor"). Ölçüm: pencere 5. saniyede çıkıyor, `Minimise()` ancak ana menü gelince (~60. sn) çalışıyor; `-screen-width 640 -screen-height 360` dikkate alınmıyor (ekran 2940×1840). Denenen ve işe yaramayan: açılış boyunca 0,2 sn'de bir `AXMinimized` yazan betik — pencere menü gelene kadar küçülmedi (geri alındı). Bakılacaklar: Unity `PlayerPrefs`'te çözünürlük/pencere konumu, eklentiden açılışta pencereyi küçültmek/taşımak, `open -g -j` ile başlatmak, ayrı bir Space
 
 ---
 

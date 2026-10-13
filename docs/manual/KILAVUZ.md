@@ -1867,6 +1867,27 @@ Engin Can Biterge     18   GK               GK Tactical         8.80
 Sidiki Chérif         18   AM (RL), ST (C)  Final Third         8.50
 ```
 
+`fm youth candidates` (ya da `fm youth adaylar`) o yılın altyapı alımını listeler; adaylar Mart'ta geldikten
+sonra çalışır. Oyun adayları beş gruba ayırır (Elite, Top, Good, Decent, Poor); her satırda yaş, mevki, rol,
+ülke, şimdiki yetenek ve potansiyel var. Potansiyel bir aralıktır: oyun henüz emin değildir, "en az – en çok" yazar.
+
+![fm youth candidates](img/youth-candidates.png)
+
+```
+$ fm youth candidates
+Altyapı alımı: 16 aday (oyunun gözünde en umut verici önce)
+
+GRUP    OYUNCU           YAŞ  MEVKİ            ROL                     ÜLKE        YETENEK  POTANSİYEL
+Elite   James Cowley     15   D (L)            Inside Wing-Back        England     ★★       ★★★½ – ★★★★½
+Elite   Lucas Bertrand   16   M (C), AM (RC)   Attacking midfielder    England     ★★       ★★★★ – ★★★★★
+Top     Cody Tomlinson   16   GK               No-nonsense goalkeeper  England     ★        ★★½ – ★★★½
+Top     Salifu Sanneh    15   DM, M (C)        Central midfielder      The Gambia  ★        ★★★½ – ★★★★½
+Decent  Chris Price      16   AM (C)           Advanced playmaker      England     ½        ★ – ★★
+```
+
+Adaylar gelmeden önce `fm youth` "henüz yok" der; gelince "GELDİ — liste: youth candidates" yazar. Adaya sözleşme
+önermek şimdilik oyunun içinden (Youth Candidates › Actions).
+
 ### Tesisler — `facilities`
 
 ![fm facilities](img/facilities.png)

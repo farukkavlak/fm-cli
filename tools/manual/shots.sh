@@ -47,6 +47,7 @@ SHOTS=(
 	"scout-focus|fm scout 5"
 	"progress|fm progress"
 	"youth|fm youth"
+	"youth-candidates|fm youth candidates"
 	"world|fm world"
 	"responsibilities|fm responsibilities medya"
 	"opponent|fm opponent"

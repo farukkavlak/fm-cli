@@ -4333,6 +4333,19 @@ gidiyor (3. dakikada 80 yol, 20. dakikada hiç) ve son düdük görüldüğünde
 gitmiş oluyor: maç boyunca aralıklarla okunup son dolu okuma saklanıyor. Fikstürün `HomeEventInfos` / `AwayEventInfos`
 listesinde yalnızca goller var (kartlar, sakatlıklar yok).
 
+## 8.152 Altyapı alımının aday listesi (3 Nisan 2026, Lincoln)
+
+Youth Setup'ın sekme listesinde "Youth Candidates" alım gelmeden de var; sayfayı bulmak için her zaman duran "Youth
+Environment" aranıyor. Sayfa (`YouthReportSiteYouthCandidatesTool` › `CandidatesTable`) beş grubu alt alta diziyor:
+`EliteProspectsBinder`, `TopProspectsBinder`… Başlıklar sayıyla yazılıyor ("Elite Prospects (3)", boş grup "Poor
+Prospects (0)" ve tablosuz), `/texts` de tam eşleşme istiyor; sayılar üstteki lejanttan okunuyor (`/texts?anchor=Elite
+&up=3` → "3","Elite","6","Top"…), sonra `/form?anchor=Elite Prospects (3)&up=7` beş grubun hepsini veriyor. Satır:
+ad, ülke, mevki, rol ve iki `FMStarRatingTemp` (yetenek, potansiyel). Yıldızın `m_minValue`'su yarım yıldız sayısı
+(4 = ★★; `m_unmappedMinValue` = +10). Potansiyel bir aralık: altın yıldızlar `m_minValue`'ya, gümüşler `m_maxValue`'ya
+kadar (Cowley 7 ve 9 → ★★★½ – ★★★★½); `/form` artık `ShownMax` da veriyor. Yetenekte ikisi eşit. Yaş sayfada yazmıyor;
+`/people` tablonun kişilerini `Age` ile veriyor (takım "Lincoln YC"). "Sel." başlığı başka bir tabloda da geçtiği için
+çapa olmuyor. Sözleşme önerme (Actions menüsü) yapılmadı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
