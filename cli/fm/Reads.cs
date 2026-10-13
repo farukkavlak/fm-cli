@@ -892,6 +892,9 @@ internal static partial class Program
 					leagues = every.Where(p => p[^1].EndsWith(wanted, StringComparison.Ordinal) && p.Contains(nation) && p.Contains("Men's")
 						&& !p.Any(step => step.StartsWith("Under", StringComparison.Ordinal))).ToList();
 				if (nation.Length > 0 && leagues.Count == 1 && await Stages(false, ["stages", leagues[0][^1], "--bare"]) == 0) return 0;
+				// With the league over its page opens on the stage being played, the play-offs, which is ties
+				// and no table; the table is the league stage's (2 Mayıs 2026).
+				if (nation.Length > 0 && leagues.Count == 1 && await Stages(false, ["stages", leagues[0][^1], "league", "--bare"]) == 0) return 0;
 			}
 			catch (Exception e) when (e is FmError or System.Text.Json.JsonException or IOException) { }
 		}
