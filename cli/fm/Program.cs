@@ -937,6 +937,17 @@ internal static partial class Program
 			return;
 		}
 
+		// The intake's card: how many came, and the best of them with the group each is put in.
+		if (rest[0] == "Youth Candidates" && rest.IndexOf("Prospect") is > 0 and var prospect)
+		{
+			Console.WriteLine($"\n  Ek: altyapı alımı — {string.Join(" · ", rest.Skip(1).Take(prospect - 2).Reverse())}");
+			var groups = new[] { "Elite", "Top", "Good", "Decent", "Poor" };
+			for (var i = prospect + 1; i + 1 < rest.Count && groups.Contains(rest[i + 1]); i += 2)
+				Console.WriteLine($"    {rest[i + 1],-7}{rest[i]}");
+			Console.WriteLine("    Hepsi: youth candidates");
+			return;
+		}
+
 		// Who is away with his country, for what and when; then the fixtures around it.
 		if (rest[0] == "Internationals" && rest.Contains("Current and Recent Events"))
 		{
