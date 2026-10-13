@@ -96,7 +96,7 @@ internal static partial class Program
 			if (p[1] != lastTeam)
 			{
 				lastTeam = p[1];
-				var title = p[1] == "Senior Squad" ? "A takım" : p[1] == "U19 Squad" ? "U19" : p[1];
+				var title = p[1] == "Senior Squad" ? "A takım" : p[1].EndsWith(" Squad", StringComparison.Ordinal) ? p[1][..^" Squad".Length] : p[1];
 				if (Ui.Rich) Ui.Line($"\n[bold]{Ui.Safe(title)}[/]");
 				else Console.WriteLine($"\n{title}");
 			}
