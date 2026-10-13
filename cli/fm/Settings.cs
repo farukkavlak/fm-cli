@@ -250,7 +250,10 @@ internal static partial class Program
 	{
 		async Task<bool> Showing(string text) => (await Fm.GetJson("texts", ("anchor", text), ("up", "0"))).GetArrayLength() > 0;
 
-		if (!await Showing("All Preferences"))
+		// Through the FM menu, its Preferences tile and "See all". Now and then a step's click lands
+		// before its target listens (the first time in a session most often), so the way is walked
+		// again once before giving up.
+		for (var attempt = 0; attempt < 2 && !await Showing("All Preferences"); attempt++)
 		{
 			if (!await Showing("Manage settings for this game"))
 			{
@@ -264,13 +267,17 @@ internal static partial class Program
 				await Until(() => Showing("Manage settings for this game"), seconds: 8, every: 0.25);
 			}
 			await Fm.Get("click", ("text", "Manage settings for this game"));
-			await Until(() => Showing("See all"), seconds: 8, every: 0.25);
-			await Fm.Get("click", ("text", "See all"));
-			if (!await Until(() => Showing("All Preferences"), seconds: 8, every: 0.25))
-			{
-				Console.Error.WriteLine("Ayarlar sayfası açılmadı.");
-				return null;
-			}
+			// The link reads "See all"; through a Turkish game's table it comes back "See All", whose
+			// translation is the same.
+			var seeAll = "See all";
+			await Until(async () => await Showing(seeAll = "See all") || await Showing(seeAll = "See All"), seconds: 8, every: 0.25);
+			await Fm.Get("click", ("text", seeAll));
+			await Until(() => Showing("All Preferences"), seconds: 8, every: 0.25);
+		}
+		if (!await Showing("All Preferences"))
+		{
+			Console.Error.WriteLine("Ayarlar sayfası açılmadı.");
+			return null;
 		}
 
 		await Fm.Get("click", ("text", tab), ("name", "DetailedPreferencesTabButton"));
