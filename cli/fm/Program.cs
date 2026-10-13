@@ -925,6 +925,15 @@ internal static partial class Program
 		if (side >= 0) rest = rest.Take(side).ToList();
 		if (rest.Count == 0) return;
 
+		// A news story attached to the message that reports it, under the message's own title: the
+		// story is its first paragraph; what follows is the page around it (the league, how long ago,
+		// a player's card, the club's site), which says nothing more.
+		if (rest.Count > 1 && texts.Take(start).Contains(rest[0]))
+		{
+			Console.WriteLine($"\n  Haber: {rest[1].Replace("\n", "\n  ")}");
+			return;
+		}
+
 		// A press conference's: the likely talking points, then who is coming (FINDINGS §8.145).
 		if (rest[0] == "Likely Talking Points")
 		{
@@ -1072,6 +1081,15 @@ internal static partial class Program
 			var teams = new List<string>();
 			for (var i = worst + 1; worst > 0 && i + 1 < rest.Count && int.TryParse(rest[i + 1], out _); i += 2) teams.Add($"{rest[i]} {rest[i + 1]}");
 			if (teams.Count > 0) Console.WriteLine($"    Ligde en çok sakatlık: {string.Join(" · ", teams)}");
+			return;
+		}
+
+		// The loans about to end: who, where he has been and how he has played there.
+		if (rest[0] == "Loans" && rest.IndexOf("Rating") is > 0 and var loanHead)
+		{
+			Console.WriteLine($"\n  Ek: kiralıklar — {rest[1]}");
+			for (var i = loanHead + 1; i + 2 < rest.Count && rest[i] != "Action message"; i += 3)
+				Console.WriteLine($"    {rest[i],-22}{rest[i + 1],-22}ortalama {rest[i + 2]}");
 			return;
 		}
 
@@ -1227,8 +1245,19 @@ internal static partial class Program
 			var fixtures = rest.IndexOf("Fixture Schedule");
 			var end = fixtures > events ? fixtures : rest.Count;
 			Console.WriteLine("\n  Ek: milli takımdakiler");
-			for (var i = events + 1; i + 2 < end; i += 3)
-				Console.WriteLine($"    {rest[i + 2]} — {rest[i]} ({rest[i + 1]})");
+			// An event, its dates, then everyone it takes: one man or several ("FIFA World Cup™",
+			// "11th Jun-19th Jul", "Kaide Gordon", "James Collins"). Read as threes, the second man of an
+			// event was taken for the next event's name (30 Mayıs 2026).
+			static bool Dates(string t) => System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d+\w* \w+-\d+\w* \w+$");
+			for (var i = events + 1; i + 1 < end; )
+			{
+				if (!Dates(rest[i + 1])) { i++; continue; }
+				var called = new List<string>();
+				var k = i + 2;
+				for (; k < end && !(k + 1 < end && Dates(rest[k + 1])); k++) called.Add(rest[k]);
+				Console.WriteLine($"    {rest[i]} ({rest[i + 1]}): {string.Join(", ", called)}");
+				i = k;
+			}
 			if (fixtures > 0)
 			{
 				// Played ones have a score; those to come, a kick-off time.
