@@ -319,11 +319,14 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>The under-19s: the squad table carries them too, under their own team name.</summary>
+	/// <summary>A team name that is one of the club's youth sides: "Fenerbahçe U19", "Lincoln U21s".</summary>
+	internal static bool YouthTeam(string team) => System.Text.RegularExpressions.Regex.IsMatch(team, @"\bU\d\ds?\b");
+
+	/// <summary>The youth sides: at some clubs the squad table carries them too, under their own team name.</summary>
 	private static async Task<int> SquadYouth(bool json)
 	{
-		var squad = await SquadView("Overview", "PositionCombinedString");
-		var youth = squad.EnumerateArray().Where(p => Field(p, "Team").Contains("U19", StringComparison.Ordinal)).ToList();
+		var squad = await SquadView("General Info", "AgreedPlayingTime");
+		var youth = squad.EnumerateArray().Where(p => YouthTeam(Field(p, "Team"))).ToList();
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(youth));
@@ -331,7 +334,7 @@ internal static partial class Program
 		}
 		if (youth.Count == 0)
 		{
-			Console.WriteLine("Kadro tablosunda U19 oyuncusu yok.");
+			Console.WriteLine("Kadro tablosunda altyapı oyuncusu yok (bu kulüpte tablo yalnızca A takımı taşıyor). Altyapının haftası: youth --training");
 			return 0;
 		}
 		Table.Write(["OYUNCU", "YAŞ", "POZİSYON", "TAKIM"], youth.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
@@ -1529,7 +1532,7 @@ internal static partial class Program
 			  continue        açık oyunda son kaydı yükle
 			  squad           kadroyu bas
 			    --fitness     kondisyon ve maç formu, en yorgun önce
-			    --u19         altyapı (U19) kadrosu
+			    --u19         altyapı kadrosu (kadro tablosunda varsa)
 			    --morale      moral, hiyerarşi ve sosyal grup
 			    --stats       sezon istatistikleri: maç, dakika, gol, asist, ortalama puan, kart
 			    --views       kadro tablosunun bütün görünümlerini listele
@@ -1622,7 +1625,7 @@ internal static partial class Program
 			  finances gelir|gider [ay|geçen ay|sezon|geçen sezon]   kalem kalem gelir ya da gider
 			  supporters      taraftarlar: hava, beklentiler ve tepkileri, seyirci, kombine, taraftar profili
 			  responsibilities [süzgeç]   personel işleri kimde;  delegate "<görev>" devret · take "<görev>" geri al
-			  youth           altyapı: notu, tesis ve kadro, A takıma aday görülenler, altyapı alımının tarihi; --training: U19 antrenman haftası; candidates: o yılın alım adayları (grup, yaş, mevki, yetenek, potansiyel)
+			  youth           altyapı: notu, tesis ve kadro, A takıma aday görülenler, altyapı alımının tarihi; --training: altyapı takımının antrenman haftası; candidates: o yılın alım adayları (grup, yaş, mevki, yetenek, potansiyel)
 			  progress        kim gelişiyor, kim geriliyor: her oyuncunun son dört aylık yeteneği ve değişimi
 			  staff find [metin] [--filter <süzgeç>] [--view <görünüm>]   personel veritabanı: görev, sözleşme, maaş, nitelikler
 			  staff hire <ad> [--wage <tutar>] [--sign --yes]   personel al: sözleşme görüşmesini açar, `contract` ile sürer

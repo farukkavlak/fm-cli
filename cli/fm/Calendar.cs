@@ -88,7 +88,8 @@ internal static partial class Program
 			// youth side, H/A/N, then the time or the score.
 			if (i + 3 < texts.Count && token.Length <= 3 && Regex.IsMatch(texts[i + 1], @" U\d\ds$") && texts[i + 2] is "H" or "A" or "N")
 			{
-				today.Youth.Add($"{(token == "U19" ? "U19" : $"U19 {token}")}: {texts[i + 1]} ({texts[i + 2]}) {texts[i + 3]}");
+				// The code is the competition's ("U19", "3N"…); the opponent's name says which age group plays.
+				today.Youth.Add($"Altyapı {token}: {texts[i + 1]} ({texts[i + 2]}) {texts[i + 3]}");
 				i += 3;
 				continue;
 			}

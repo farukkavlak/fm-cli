@@ -1854,7 +1854,7 @@ S. Chérif        ST (C)  18
 Yiğit Efe Demir  D (C)   21
 ```
 
-`fm youth --training` U19'un antrenman haftasını verir: hafta nasıl geçti, ortalama puan ve her oyuncunun
+`fm youth --training` altyapı takımının (kulübe göre U19, U21…) antrenman haftasını verir: hafta nasıl geçti, ortalama puan ve her oyuncunun
 ek odağı ile puanı (en iyiden başlayarak; `-` o hafta çalışmamış demek).
 
 ```

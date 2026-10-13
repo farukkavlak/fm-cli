@@ -46,9 +46,9 @@ internal static partial class Program
 	private static async Task<int> Depth(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var squad = await SquadView("Overview", "PositionCombinedString");
+		var squad = await SquadView("General Info", "AgreedPlayingTime");
 		var players = squad.EnumerateArray()
-			.Where(p => !Field(p, "Team").Contains("U19", StringComparison.Ordinal) && Field(p, "AgreedPlayingTime") != "Out On Loan")
+			.Where(p => !YouthTeam(Field(p, "Team")) && Field(p, "AgreedPlayingTime") != "Out On Loan")
 			.Where(p => Field(p, "PositionCombinedString").Length > 0)
 			.Select(p => (Name: Field(p, "Name"), Age: int.TryParse(Field(p, "Age"), out var a) ? a : 0, Slots: Positions(Field(p, "PositionCombinedString"))))
 			.ToList();
@@ -72,7 +72,7 @@ internal static partial class Program
 
 		var ages = players.Select(p => p.Age).Where(a => a > 0).ToList();
 		Console.WriteLine();
-		Console.WriteLine($"Yaş: ortalama {ages.Average():0.0} · 21 ve altı {ages.Count(a => a <= 21)} · 22-25 {ages.Count(a => a is >= 22 and <= 25)} · 26-29 {ages.Count(a => a is >= 26 and <= 29)} · 30 ve üstü {ages.Count(a => a >= 30)}  ({players.Count} oyuncu, kiralıklar ve U19 hariç)");
+		Console.WriteLine($"Yaş: ortalama {ages.Average():0.0} · 21 ve altı {ages.Count(a => a <= 21)} · 22-25 {ages.Count(a => a is >= 22 and <= 25)} · 26-29 {ages.Count(a => a is >= 26 and <= 29)} · 30 ve üstü {ages.Count(a => a >= 30)}  ({players.Count} oyuncu, kiralıklar ve altyapı hariç)");
 		return 0;
 	}
 }

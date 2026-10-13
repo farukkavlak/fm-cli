@@ -4386,6 +4386,22 @@ ayrımı ve "Puanlarımız" yok. Maç `match --play` ile baştan sona aktı (0-1
 - `player <ad> --matches`: oynamadığı ya da puan almadığı maçlar 0.00, sayfanın "Min. Rating"i 11.00 geliyor; ikisi
   de "-" yazılıyor, oynamadığı maç "oynamadı".
 
+## 8.155 Kulübe göre değişenler: altyapı takımının adı, kadro tablosunun görünümleri (Lincoln, 17 Nisan 2026)
+
+Elli salt-okur komut art arda çalıştırıldı; ikisi Fenerbahçe kaydına göre yazıldığı için kırıktı.
+
+- Youth Performance başlığı kulübün altyapı takımını söylüyor: Fenerbahçe'de "Under 19s Training Review", Lincoln'de
+  "Under 21s Training Review" (üstte "LIN U21s" / "LIN U18s" sekmeleri; sekmeler buton listesinde yok). Sayfa artık her
+  kulüpte olan "Avg. Training Rating" yazısından `up=14` ile bulunuyor, takımın adı başlıktan alınıyor.
+- Kadro tablosunun görünüm listesinde Lincoln'de "Overview" yok: Selection Info, General Info, Attributes ›, Contract,
+  Transfer, Home-Grown Status, Playing Time, Dynamics, Reports, Injuries, Risk Assessment, Stats ›, International,
+  Development. `depth` ve `squad --u19` "Overview" istiyor, 20 sn bekleyip "görünüm bulunamadı" diyordu (tablo o an o
+  alanları taşıyorsa geçiyordu — bu yüzden bazen çalışıyor görünüyordu). İkisi de artık "General Info" (Age,
+  AgreedPlayingTime, PositionCombinedString, Team, Wage…) okuyor.
+- Lincoln'de kadro tablosu yalnızca A takımı taşıyor (28 satır, hepsi "Lincoln"); `squad --u19` bunu söylüyor. Altyapı
+  kadrosunu (U21 / U18) listelemek ayrı iş. Takvimde altyapı maçı satırının başındaki kod yarışmanın ("3N", "FR"),
+  yaş grubu değil; satır "Altyapı 3N: MOR U18s (A) 0-4" diye yazılıyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -37,12 +37,15 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The under-19s' week in training (Youth Setup › Youth Performance): how the week went, the
+	/// The youth team's week in training (Youth Setup › Youth Performance): how the week went, the
 	/// average rating, and each player's extra focus and rating.
 	/// </summary>
 	private static async Task<int> YouthTraining(bool json)
 	{
-		var texts = await YouthView("Youth Performance", "Under 19s Training Review", "10");
+		// The heading names the club's own youth team ("Under 19s Training Review" at one club, "Under
+		// 21s" at another), so the page is found by a label every club has.
+		var texts = await YouthView("Youth Performance", "Avg. Training Rating", "14");
+		var team = texts.FirstOrDefault(t => t.EndsWith(" Training Review", StringComparison.Ordinal)) is { } heading ? heading[..^" Training Review".Length] : "Altyapı";
 		var head = texts.IndexOf("Training Rating");
 		if (head < 0)
 		{
@@ -50,7 +53,7 @@ internal static partial class Program
 			return 1;
 		}
 		var average = texts.IndexOf("Avg. Training Rating") is > 0 and var at ? texts[at - 1] : "";
-		var notes = texts.Skip(1).Take(2).ToList();
+		var notes = texts.SkipWhile(t => !t.EndsWith(" Training Review", StringComparison.Ordinal)).Skip(1).Take(2).ToList();
 		// A row: name, "<age> year-old <kind>", positions, extra focus, rating ("-" when he did not train).
 		var rows = new List<string[]>();
 		for (var i = head + 1; i + 4 < texts.Count + 0; i += 5)
@@ -60,11 +63,11 @@ internal static partial class Program
 		}
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { Week = notes.ElementAtOrDefault(0) ?? "", Note = notes.ElementAtOrDefault(1) ?? "", Average = average,
+			Console.WriteLine(JsonOut.Of(new { Team = team, Week = notes.ElementAtOrDefault(0) ?? "", Note = notes.ElementAtOrDefault(1) ?? "", Average = average,
 				Players = rows.Select(r => new { Player = r[0], Age = r[1], Position = r[2], Focus = r[3], Rating = r[4] }) }));
 			return 0;
 		}
-		Console.WriteLine($"U19 antrenman haftası: {string.Join(" · ", notes)}{(average.Length > 0 ? $" · ortalama {average}" : "")}\n");
+		Console.WriteLine($"{team} antrenman haftası: {string.Join(" · ", notes)}{(average.Length > 0 ? $" · ortalama {average}" : "")}\n");
 		Table.Write(["OYUNCU", "YAŞ", "MEVKİ", "EK ODAK", "PUAN"], rows.OrderByDescending(r => double.TryParse(r[4], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1).ToList());
 		return 0;
 	}
