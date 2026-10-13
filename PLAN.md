@@ -491,6 +491,10 @@ sırada değil, bu sırada ele alınacak: dil dökümü + çözümü → UI / te
 - [ ] **Tema / skin:** farklı tema ya da skin kullanan birinde sorun çıkar mı? Skin kontrol adlarını, ağaç derinliğini,
       sayfa düzenini değiştiriyor mu; ekran çözünürlüğü ve arayüz ölçeği (satırları sanal çizen tablolar) etkiliyor mu.
       En az bir başka tema / ölçekle `tools/sweep.sh`.
+- **Durum (13 Ekim 2026 gece):** sayfalar Guid'le, altyapı takımları veriden, onay pencereleri düğme yuvasıyla, çeviri
+  katmanı eklentide (oyunun kendi tablosu, FINDINGS §8.162–8.168). Oyun Türkçeyken taramada hata 21 → 12. Sıradaki:
+  Türkçede kalan hatalar (görünüm listesi çakışması, takvim ay adları, mevkiler / para biçimi, altı komut incelenmedi),
+  motor yazıları (`languages.fmf`), sıra numarasıyla okuma (`opponent`).
 - [ ] **Oyun dili bağımlılığı dökümü:** oyun İngilizce değilken ne kırılır — İngilizce yazıyla aranan her şey (sayfa ve
       sekme adları, başlıklar, buton etiketleri, "Offer Made" / "Required" gibi durum sözcükleri, "N year-old" gibi
       kalıplar, mesaj eki ayrıştırıcıları). Liste: dile bağlı / dilden bağımsız (ad, olay, veri yolu). Oyunu başka dile
@@ -571,6 +575,17 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 ---
 
 ## Günlük
+
+### 2026-10-13 (akşam / gece — taşınabilirlik)
+
+- Sayfalar Guid'le açılıyor (`ea2eeff`); rakip raporu iki menüde tek panel, araya Portal açılıyor (§8.162–8.163).
+- Altyapı takımları kulübün verisinden; `squad --u19` her altyapı kadrosunu takım kimliğiyle açıyor; U21/U18 sayfası açıkken
+  `depth` yanlış tabloyu okuyordu, düzeldi (`6665744`, §8.164).
+- Onay pencereleri yuvayla: birincil = ilerlet, ikincil = vazgeç; `staff` personel kovma denemesinden sonra açılmıyordu,
+  düzeldi (`558629f`, §8.165).
+- `/press?event=`, düğme kataloğu `tools/buttons-catalog.py` → az şey kurtarıyor (`6f66530`, §8.166).
+- Oyunun çeviri tablosu: kimlikler dilden bağımsız, İngilizce döküm `docs/reference/translations-en.tsv`; eklenti başka
+  dildeki oyunu İngilizce okuyor; Türkçede tarama 21 → 12 hata, İngilizce 49/50 (`7146b94`, `4e82d7d`, §8.167–8.168).
 
 ### 2026-10-11 (akşam — tam gol listesi)
 
