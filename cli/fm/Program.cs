@@ -720,6 +720,13 @@ internal static partial class Program
 			previous = labels;
 		}
 
+		// The answers that are lists, each with what it offers.
+		var listed = new Dictionary<string, List<string>>();
+		if (answers.Any(a => Field(a, "Type") == "SIDropdown"))
+			foreach (var list in (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray())
+				if (answers.Any(a => Field(a, "Pointer") == Field(list, "Pointer")))
+					listed[Field(list, "Pointer")] = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").Where(c => c.Length > 0).ToList();
+
 		if (answers.Count == 0)
 		{
 			// Nothing to answer, but the message is open and can be read.
@@ -768,19 +775,38 @@ internal static partial class Program
 
 		var wanted = new List<JsonElement> { answerTo.Value };
 
+		// A list is answered by choosing from it; pressed like a button it only waits, and holds up
+		// every press after it (the event queue stayed blocked until cleared).
+		string chosenFrom = null;
+		if (listed.TryGetValue(Field(wanted[0], "Pointer"), out var offered) && offered.Count > 0)
+		{
+			if (words.Count > 2)
+				chosenFrom = int.TryParse(words[2], out var nth) && nth >= 1 && nth <= offered.Count ? offered[nth - 1]
+					: offered.FirstOrDefault(o => o.Contains(words[2], StringComparison.OrdinalIgnoreCase));
+			else if (Ui.Interactive && Ui.Ask(Field(wanted[0], "Label"), offered) is { } which) chosenFrom = offered[which];
+			if (chosenFrom == null)
+			{
+				Console.Error.WriteLine($"'{Field(wanted[0], "Label")}' bir liste; içinden biri seçilmeli:");
+				for (var c = 0; c < offered.Count; c++) Console.Error.WriteLine($"  {c + 1}  {offered[c]}");
+				Console.Error.WriteLine($"Cevaplamak için: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} {words.ElementAtOrDefault(1) ?? "<numara>"} <seçenek>");
+				return 1;
+			}
+		}
+
 		var query = new List<(string, string)> { ("ptr", Field(wanted[0], "Pointer")) };
+		if (chosenFrom != null) { query.Add(("choice", chosenFrom)); query.Add(("fire", "1")); }
 		if (args.Contains("--dry")) query.Add(("dry", "1"));
 
-		var pressed = await Fm.Get("press", query.ToArray());
+		var pressed = await Fm.Get(chosenFrom != null ? "select" : "press", query.ToArray());
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine($"(kuru) '{Field(wanted[0], "Label")}' cevabı verilecekti: {title}");
+			Console.WriteLine($"(kuru) '{Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}' cevabı verilecekti: {title}");
 			return 0;
 		}
 
-		Console.WriteLine($"Cevaplandı: {title} → {Field(wanted[0], "Label")}");
+		Console.WriteLine($"Cevaplandı: {title} → {Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}");
 
 		// An answer can open something instead of closing the message: an introduction opens a
 		// tour, "introduce yourself" a meeting. Otherwise the inbox catches up a moment later,
@@ -834,6 +860,10 @@ internal static partial class Program
 				if (mixed && (i == 0 || Asked(answers[i]) != Asked(answers[i - 1])))
 					output.WriteLine(Asked(answers[i]) ? "  Mesajdaki soruya cevap:" : "  Mesajın kendisine cevap (soru cevapsız kalırsa ardından talk ile sorulur):");
 				output.WriteLine($"  {i + 1}  {Field(answers[i], "Label")}");
+				// An answer that is a list: what it offers is the answer ("Confirm pre-season dates" holds
+				// the dates to choose from, 4 Mayıs 2026).
+				if (listed.TryGetValue(Field(answers[i], "Pointer"), out var choices))
+					for (var c = 0; c < choices.Count; c++) output.WriteLine($"       {i + 1} {c + 1}  {choices[c]}");
 			}
 		}
 
