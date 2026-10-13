@@ -100,13 +100,15 @@ internal static class Form
 				+ $"\"Value\": \"{(box.value ? "True" : "False")}\"}}";
 
 		// A rating shown in stars and stepped with the buttons beside it; the value is the game's
-		// own scale, not a count of stars (FINDINGS §8.124).
+		// own scale, not a count of stars (FINDINGS §8.124). Shown counts half stars; a rating that
+		// is a range (a youngster's potential) fills to Shown and outlines on to ShownMax (§8.152).
 		var stars = e.TryCast<FM.UI.FMStarRatingTemp>();
 		if (stars != null)
 			return "{\"Kind\": \"stars\", "
 				+ $"\"Pointer\": \"0x{e.Pointer.ToInt64():x}\", "
 				+ $"\"Value\": \"{stars.m_unmappedMinValue}\", "
-				+ $"\"Shown\": \"{stars.m_minValue}\"}}";
+				+ $"\"Shown\": \"{stars.m_minValue}\", "
+				+ $"\"ShownMax\": \"{stars.m_maxValue}\"}}";
 
 		return null;
 	}

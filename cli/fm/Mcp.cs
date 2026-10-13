@@ -276,9 +276,9 @@ internal static class Mcp
 				: Str(a, "delegate") is { Length: > 0 } d ? ["responsibilities", "delegate", d]
 				: Str(a, "take") is { Length: > 0 } t ? ["responsibilities", "take", t]
 				: ["responsibilities", .. Opt(a, "filter"), "--json"]),
-		new("fm_youth", "The youth setup: the academy's overall rating, coaching and recruitment, youth level and stadium, staff numbers, the youngsters thought ready for the first team, the date of the next youth intake and whether its candidates have arrived. `training`=true gives the under-19s' training week instead: how it went, the average rating, each player's extra focus and rating.",
-			"""{"type":"object","properties":{"training":{"type":"boolean"}}}""",
-			a => ["youth", .. Flag(a, "training", "--training"), "--json"]),
+		new("fm_youth", "The youth setup: the academy's overall rating, coaching and recruitment, youth level and stadium, staff numbers, the youngsters thought ready for the first team, the date of the next youth intake and whether its candidates have arrived. `training`=true gives the under-19s' training week instead: how it went, the average rating, each player's extra focus and rating. `candidates`=true gives the year's intake once it has arrived: each candidate's group (Elite, Top, Good, Decent, Poor), age, position, role, nation, ability and potential in stars (potential is a range).",
+			"""{"type":"object","properties":{"training":{"type":"boolean"},"candidates":{"type":"boolean"}}}""",
+			a => ["youth", .. Flag(a, "training", "--training"), .. Flag(a, "candidates", "--candidates"), "--json"]),
 		new("fm_progress", "Who in the squad is improving and who is declining: each player's ability (out of 200) at the last four monthly measurements, the change across them, and the potential the club sees. Sorted from most improved to most declined.",
 			"""{"type":"object","properties":{}}""",
 			_ => ["progress", "--json"]),

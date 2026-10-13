@@ -20,7 +20,7 @@ internal static partial class Program
 	private static async Task<List<string>> YouthView(string view, string anchor, string up)
 	{
 		var tabs = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.FirstOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Youth Candidates"));
+			.FirstOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Youth Environment"));
 		if (tabs.ValueKind != JsonValueKind.Object) return [];
 		await Fm.Get("select", ("ptr", Field(tabs, "Pointer")), ("choice", view), ("fire", "1"));
 		List<string> texts = [];
@@ -69,6 +69,67 @@ internal static partial class Program
 		return 0;
 	}
 
+	/// <summary>
+	/// The year's intake, once it has come (Youth Setup › Youth Candidates, FINDINGS §8.152): the game
+	/// groups them by how it rates them (Elite, Top, Good, Decent, Poor prospects); a row is name,
+	/// nation, positions, role and two star ratings, the ages come from the table's own people.
+	/// </summary>
+	private static async Task<int> YouthCandidates(bool json)
+	{
+		// The headings carry their counts ("Elite Prospects (3)"), so the legend above is read first.
+		var legend = await YouthView("Youth Candidates", "Elite", "3");
+		var elite = legend.IndexOf("Elite");
+		if (elite < 1)
+		{
+			Console.Error.WriteLine("Alım adayları okunamadı (henüz gelmemiş olabilir: youth).");
+			return 1;
+		}
+		var items = (await Fm.GetJson("form", ("anchor", $"Elite Prospects ({legend[elite - 1]})"), ("up", "7"))).EnumerateArray().ToList();
+		var ages = new Dictionary<string, string>();
+		foreach (var p in (await Fm.GetJson("people")).EnumerateArray()) ages.TryAdd(Field(p, "Name"), Field(p, "Age"));
+
+		// Half stars as the game draws them; a potential still uncertain is a range.
+		static string Stars(int half) => half <= 0 ? "-" : new string('★', half / 2) + (half % 2 == 1 ? "½" : "");
+		static int Half(JsonElement e, string name) => e.TryGetProperty(name, out var v) && int.TryParse(v.GetString(), out var n) ? n : -1;
+		static string Rating(JsonElement e) => Half(e, "ShownMax") > Half(e, "Shown") ? $"{Stars(Half(e, "Shown"))} – {Stars(Half(e, "ShownMax"))}" : Stars(Half(e, "Shown"));
+
+		// A row ends in its two ratings; the four texts before them are name, nation, positions, role.
+		var rows = new List<string[]>();
+		var texts = new List<string>();
+		var stars = new List<JsonElement>();
+		var group = "";
+		foreach (var item in items)
+		{
+			if (Field(item, "Kind") == "stars") stars.Add(item);
+			else if (Field(item, "Kind") == "text")
+			{
+				var text = Field(item, "Text");
+				if (System.Text.RegularExpressions.Regex.Match(text, @"^(\w+) Prospects \(\d+\)$") is { Success: true } m) { group = m.Groups[1].Value; texts.Clear(); }
+				else texts.Add(text);
+				stars.Clear();
+			}
+			if (stars.Count < 2 || texts.Count < 4) continue;
+			var row = texts.TakeLast(4).ToList();
+			rows.Add([group, row[0], ages.GetValueOrDefault(row[0], ""), row[2], row[3], row[1], Rating(stars[0]), Rating(stars[1])]);
+			texts.Clear();
+			stars.Clear();
+		}
+		if (rows.Count == 0)
+		{
+			Console.Error.WriteLine("Alım adayları okunamadı (henüz gelmemiş olabilir: youth).");
+			return 1;
+		}
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(rows.Select(r => new { Group = r[0], Player = r[1], Age = r[2], Position = r[3], Role = r[4], Nation = r[5], Ability = r[6], Potential = r[7] })));
+			return 0;
+		}
+		Console.WriteLine($"Altyapı alımı: {rows.Count} aday (oyunun gözünde en umut verici önce)\n");
+		Table.Write(["GRUP", "OYUNCU", "YAŞ", "MEVKİ", "ROL", "ÜLKE", "YETENEK", "POTANSİYEL"], rows);
+		Console.WriteLine("\nBir adayın ayrıntısı: player <ad> · sözleşme önermek oyunda: Youth Candidates › Actions");
+		return 0;
+	}
+
 	private static async Task<int> Youth(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
@@ -84,7 +145,7 @@ internal static partial class Program
 		{
 			JsonElement tabs = default;
 			await Until(async () => (tabs = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-				.FirstOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Youth Candidates"))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.5);
+				.FirstOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Youth Environment"))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.5);
 			if (tabs.ValueKind != JsonValueKind.Object) break;
 			await Fm.Get("select", ("ptr", Field(tabs, "Pointer")), ("choice", "Youth Environment"), ("fire", "1"));
 			var previous = "?";
@@ -104,6 +165,7 @@ internal static partial class Program
 			return 1;
 		}
 		if (args.Contains("--training") || args.Skip(1).Any(w => w is "training" or "antrenman")) return await YouthTraining(json);
+		if (args.Contains("--candidates") || args.Skip(1).Any(w => w is "candidates" or "adaylar" or "aday")) return await YouthCandidates(json);
 		var overview = await Around("Overall Youth Rating", "9");
 
 		// The intake's own view: how many candidates have come up, or that they are still awaited.
@@ -147,7 +209,7 @@ internal static partial class Program
 		Console.WriteLine($"Stat              {youth.Stadium}");
 		Console.WriteLine($"Kadro             antrenör {youth.Coaches} · tarama {youth.Recruiters} · sağlık {youth.Medical}");
 		if (youth.Intake.Length > 0) Console.WriteLine($"Altyapı alımı     {youth.IntakeDate} ({youth.IntakeIn})");
-		Console.WriteLine(youth.IntakeCandidates == "awaited" ? "Alım adayları     henüz yok (her yıl Mart'ta bir maçla belli oluyor)" : "Alım adayları     GELDİ — oyunda Squad › Youth Setup › Youth Candidates");
+		Console.WriteLine(youth.IntakeCandidates == "awaited" ? "Alım adayları     henüz yok (her yıl Mart'ta bir maçla belli oluyor)" : "Alım adayları     GELDİ — liste: youth candidates");
 		if (candidates.Count > 0)
 		{
 			Console.WriteLine("\nA takıma aday görülenler");
@@ -158,7 +220,7 @@ internal static partial class Program
 			Console.WriteLine();
 			foreach (var line in atmosphere) Console.WriteLine($"  {line}");
 		}
-		Console.WriteLine("\nU19'un antrenman haftası: youth --training");
+		Console.WriteLine("\nGençlerin antrenman haftası: youth --training");
 		return 0;
 	}
 }
