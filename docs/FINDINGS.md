@@ -4460,6 +4460,25 @@ Board / Supporters, Projections altında "End of <sezon>" + üç çift), "Recrui
 not), "Club Vision" (hedef, ağırlık Required / Favoured, durum üçlüleri), "Season Summary" (sakatlık sayıları ve lig
 tablosu). Hepsi satır satır yazılıyor.
 
+## 8.160 Kulüp vizyonu toplantısı ve liste olan cevap (4 Mayıs 2026)
+
+"Pre-season start date to be decided" mesajının cevabı düğme değil `SIDropdown` ("Confirm pre-season dates",
+`GenericDropdown`, olay `SpeakToAction`): seçenekleri tarihler ("29/6/2026 (Pre-season lasts 4 weeks)", "6/7/2026 (…3
+weeks)"). `/press` ile basılınca olay `Initialising` halinde kuyrukta kaldı ve sonraki her basışı tıkadı ("the event
+queue is blocked"); `/queue?clear=1` açtı. Doğrusu `/select?ptr=…&choice=…&fire=1`. `reply` artık liste olan cevabın
+seçeneklerini "1 1", "1 2" diye yazıyor ve üçüncü sözcük olarak seçim istiyor.
+
+"Club vision and expectations meeting" → Negotiate tam ekran "Club Vision Meeting" açıyor (`State=NeedAction`,
+`/talk` yönetimin sözünü veriyor ama cevap yok). `/texts?anchor=Board Visions&up=3`: konuşan, unvan, söz, "Board
+Visions", sekmeler ("Board Vision", "5-Year Plan"), "Actionable Objectives" / "Informational Objectives" altında hedef
++ ağırlık çiftleri (Required, Favoured, Desired, Preferred), sonra Undo, Reset, Confirm, Suggest. Düğmeler: hedef
+başına etiketsiz bir `EventFmxRemoveClubVisionObjective` (zorunlu hedefinki başta yok — altı satıra beş düğme —, bir
+Undo'dan sonra sayfa yeniden diziliyor ve altıncı kapalı olarak geliyor), `EventFmxConfirmTerms` (Confirm),
+`EventFmxSuggestTerms` (Suggest; değişiklik yokken kapalı), `EventFmxUndo`, `EventFmxRevert`, `EndMeetingButton`.
+Canlıda: iki ayrı hedef çıkarılıp önerildi, yönetim ikisini de reddedip nedenini yazdı ("The issue we have with your
+proposal is…") ve hedefi geri koydu; Confirm'den sonra "It's encouraging that we're all on the same page…", End Meeting
+mesajı kapattı. Kabul edilen bir öneri ve "5-Year Plan" sekmesi görülmedi. Komut: `fm vision`.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

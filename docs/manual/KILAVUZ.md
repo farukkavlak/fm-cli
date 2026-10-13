@@ -2014,6 +2014,42 @@ Kerem Aktürkoğlu  Takım lideri  Perfectionist
 Gruplar oyunun kendi ayrımı (çekirdek, ikincil A / B, gruba girmeyenler); altındaki cümle grubu neyin bir arada
 tuttuğunu söyler. Takım liderlerini üzmek soyunma odasını çabuk bozar; kaptan seçerken ve birini satarken bak.
 
+### Kulüp vizyonu toplantısı — `vision`
+
+Sezon bitince yönetim "Club vision and expectations meeting" mesajını yollar. Mesaja `Accept Current Vision`
+dersen hedefler olduğu gibi kalır; `Negotiate` dersen toplantı açılır ve `fm vision` ile yürütülür:
+
+```
+$ fm vision
+Kulüp vizyonu toplantısı
+  Yönetim: Here is our updated strategy for the future. …
+
+Yapılacak hedefler
+  1  Develop players using the club's youth system — tercih
+  2  Sign players under the age of 23 for the first team — tercih
+  3  Work within wage budget — zorunlu
+  4  Grow the club's reputation — tercih
+
+Bilgi amaçlı hedefler
+  5  Maximum one-year contracts for players over the age of 34 — istenen
+  6  Maximum two-year contracts for players over the age of 32 — yeğlenen
+```
+
+İstemediğin bir hedefi çıkarıp yönetime önerirsin; yönetim kabul eder ya da neden olmadığını söyler:
+
+```
+$ fm vision remove 2
+Çıkarıldı: Sign players under the age of 23 for the first team. Yönetime sunmak için: vision suggest
+$ fm vision suggest
+$ fm vision
+  Yönetim: The issue we have with your proposal is that you're unwilling to work towards signing players
+  no older than 23 for the first team.
+```
+
+Zorunlu hedefler çıkarılamaz. `vision undo` son değişikliği, `vision reset` hepsini geri alır. Anlaşınca
+`vision confirm` (geri alınmaz; script'te `--yes` ister), sonra `vision end` toplantıyı kapatır. Toplantı açıkken
+`status` bunu söyler; oyun toplantı bitmeden ilerlemez.
+
 ### Kaptanlar — `captains`
 
 ```

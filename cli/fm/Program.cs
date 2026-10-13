@@ -120,6 +120,7 @@ internal static partial class Program
 				"load" => await LoadNamed(args),
 				"opponent" => await Opponent(json),
 				"captains" => await Captains(args),
+				"vision" => await Vision(json, args),
 				"depth" => await Depth(json),
 				"targets" => await Targets(json, args),
 				"happiness" => await Happiness(json, args),
@@ -821,6 +822,7 @@ internal static partial class Program
 
 		if (tour) Console.WriteLine("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour");
 		else if (talking) Console.WriteLine("Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk");
+		else if (!settled && await VisionControls() != null) Console.WriteLine("Kulüp vizyonu toplantısı açıldı; mesaj toplantı bitince kapanır. Devam için: vision");
 		else if (!settled) Console.WriteLine("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor.");
 		return 0;
 
@@ -1879,6 +1881,7 @@ internal static partial class Program
 			  health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler
 			  depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili
 			  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>
+			  vision          sezon sonu kulüp vizyonu toplantısı: hedefler;  confirm | remove <no> | suggest | undo | reset | end
 			  penalties       penaltı sırası (soğukkanlılık, penaltı özelliği) ve kim ne zaman bırakır kuralları;  penalties <1|2|3> açık|kapalı
 			  penalties move <oyuncu|sıra> <yeni sıra> · add <oyuncu> [<sıra>] · remove <oyuncu|sıra>   sırayı değiştir
 			  takers [<tür>]  duran top atıcıları: korner, frikik, kanat, derin, tac; türle birlikte iki liste ayrıntısıyla
