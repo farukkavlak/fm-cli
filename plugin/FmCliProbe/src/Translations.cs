@@ -79,7 +79,8 @@ internal static class Translations
 			if (quiet && translated.Length == 0) return null;
 			string source;
 			try { source = key.Text ?? ""; } catch (System.Exception e) { source = $"<{e.GetType().Name}>"; }
-			return $"{id}\t{Text.Plain(translated)}\t{Text.Plain(source)}";
+			// As shown, not put back into English: through the reverse table a short text comes back as another.
+			return $"{id}\t{Text.Shown(translated)}\t{Text.Shown(source)}";
 		}
 		catch (System.Exception e) { return quiet ? null : $"{id}: <{e.GetType().Name}: {e.Message}>"; }
 	}

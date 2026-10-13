@@ -1119,7 +1119,7 @@ internal static partial class Program
 			foreach (var m in days.SelectMany(d => d.Matches))
 				if (!matches.Any(x => x.Day == m.Day && x.Opponent == m.Opponent)) matches.Add(m);
 		}
-		if (showing.Length > 0) await Fm.Get("select", ("name", "MonthDropdown"), ("choice", showing));
+		if (showing != null) await Fm.Get("select", ("name", "MonthDropdown"), ("value", showing.Value.ToString()));
 		matches = matches.OrderBy(m => m.Day).ToList();
 		if (matches.Count == 0)
 		{

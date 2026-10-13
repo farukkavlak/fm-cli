@@ -6,10 +6,9 @@ namespace FmCli;
 
 /// <summary>
 /// The training schedule (FINDINGS §8.72): Squad › Training › Overview draws this week and the
-/// next as a calendar. Read as text it is the weekday headings ("Mon" … "Sun"), then day after
-/// day: the day ("29 Sep" where the grid or a month starts, "30" after) and its three sessions —
-/// a session's name ("Recovery", "Match Tactics", "Rest", "Travel"…) or, on a match day, where the
-/// match is played ("H", "A", "N").
+/// next as a calendar, read by each text's data path (FINDINGS §8.169): the day, then its three
+/// sessions — a session's name ("Recovery", "Match Tactics", "Rest", "Travel"…) or, on a match day,
+/// where the match is played ("H", "A", "N").
 /// </summary>
 internal static partial class Program
 {
@@ -29,21 +28,24 @@ internal static partial class Program
 		if (menu.ValueKind == JsonValueKind.Object)
 			await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("choice", "Overview"), ("fire", "1"));
 
-		// The calendar is drawn over a few frames; it is read once two readings in a row agree.
-		List<string> texts = [];
+		// The calendar is drawn over a few frames; it is read once two readings in a row agree. It is
+		// found by its days' data path, not a weekday's name: the squad overview left open underneath
+		// has a week's headings of its own.
+		List<(string Text, string Path)> texts = [];
 		var previous = "";
 		await Until(async () =>
 		{
-			texts = (await Fm.GetJson("texts", ("anchor", "Thur"), ("up", "3"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-			var now = string.Join("|", texts);
-			var settled = now == previous && texts.IndexOf("Sun") is var sun && sun >= 0 && texts.Count > sun + 7;
+			texts = (await Fm.GetJson("texts", ("anchorpath", "day.DayOfTheMonth"), ("up", "9"), ("paths", "1"), ("most", "1")))
+				.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+			var now = string.Join("|", texts.Select(t => t.Text));
+			var settled = now == previous && texts.Count(t => t.Path == "day.DayOfTheMonth") >= 7;
 			previous = now;
 			return settled;
 		}, seconds: 10, every: 0.5);
 
 		var state = await Fm.GetJson("state");
 		var today = DateTime.TryParseExact(Field(state, "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var d) ? d : DateTime.Today;
-		var days = TrainingDays(texts.Skip(texts.IndexOf("Sun") + 1).ToList(), today);
+		var days = TrainingDays(texts, today);
 		if (days.Count == 0)
 		{
 			Console.Error.WriteLine("Antrenman programı okunamadı.");
@@ -98,33 +100,24 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Splits the calendar's texts into days: a day mark ("29 Sep" or "30") and the sessions after it.
-	/// The grid's first day names its month; the year is the one that puts it nearest today.
+	/// Splits the calendar's texts into days by their data paths: a day (day.DayOfTheMonth) and its
+	/// sessions (Event.SessionName), or where a match is played on a match day (Event.MatchVenueShort,
+	/// "H"/"A"/"N" whatever the language). The grid is this week and the next, from Monday.
 	/// </summary>
-	private static List<TrainingDay> TrainingDays(List<string> texts, DateTime today)
+	private static List<TrainingDay> TrainingDays(List<(string Text, string Path)> texts, DateTime today)
 	{
 		List<TrainingDay> days = [];
-		DateTime? next = null;
-		foreach (var text in texts)
+		var next = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+		foreach (var (text, path) in texts)
 		{
-			var mark = DayMark.Match(text);
-			if (mark.Success)
+			if (path == "day.DayOfTheMonth")
 			{
-				var day = int.Parse(mark.Groups[1].Value);
-				DateTime date;
-				if (mark.Groups[2].Success)
-				{
-					var month = Array.IndexOf(MonthNames, mark.Groups[2].Value) + 1;
-					date = new[] { today.Year - 1, today.Year, today.Year + 1 }
-						.Select(y => new DateTime(y, month, Math.Min(day, DateTime.DaysInMonth(y, month))))
-						.MinBy(x => Math.Abs((x - today).TotalDays));
-				}
-				else if (next is { } n && n.Day == day) date = n;
-				else return days; // a day out of step: what was read is all that can be trusted
-				days.Add(new TrainingDay(date, []));
-				next = date.AddDays(1);
+				// A day out of step: what was read is all that can be trusted.
+				if (!int.TryParse(System.Text.RegularExpressions.Regex.Match(text, @"^\d+").Value, out var number) || number != next.Day) return days;
+				days.Add(new TrainingDay(next, []));
+				next = next.AddDays(1);
 			}
-			else if (days.Count > 0) days[^1].Sessions.Add(text);
+			else if (days.Count > 0 && path is "Event.SessionName" or "Event.MatchVenueShort") days[^1].Sessions.Add(text);
 		}
 		return days;
 	}

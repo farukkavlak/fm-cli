@@ -14,44 +14,80 @@ internal static class Texts
 	public static string Around(NameValueCollection q)
 	{
 		var anchor = q["anchor"];
-		if (string.IsNullOrEmpty(anchor)) return "error: ?anchor=<text> required";
+		// ?anchorpath= finds the anchor by the data path it is bound to ("day.DayOfTheWeek"), which
+		// no language changes; ?anchor= by its text.
+		var anchorPath = q["anchorpath"];
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath)) return "error: ?anchor=<text> or ?anchorpath=<data path> required";
 		var up = int.TryParse(q["up"], out var n) ? n : 8;
+		// With ?paths=1 each text comes with the data path it is bound to, which says what it is
+		// whatever language it reads in ("Date", "Fixture.Opponent"…); empty when it is drawn another way.
+		var paths = q["paths"] == "1";
+		// The same anchor can sit on a page left open underneath (a card that shows only a week's
+		// headings); with ?most=1 the place with the most texts around it is given, not the first.
+		var most = q["most"] == "1";
 
+		List<string> best = null;
 		foreach (var element in Buttons.Elements())
 		{
 			try
 			{
 				if (element.panel == null || element.worldBound.width <= 0) continue;
-				if (Text.Plain(element.TryCast<TextElement>()?.text ?? "") != anchor) continue;
+				var text = element.TryCast<TextElement>();
+				if (text == null) continue;
+				if (!string.IsNullOrEmpty(anchorPath) ? PathOf(text) != anchorPath : Text.Plain(text.text ?? "") != anchor) continue;
 			}
 			catch { continue; }
 
 			var root = element;
 			for (var i = 0; i < up && root.hierarchy.parent != null; i++) root = root.hierarchy.parent;
 
-			var texts = new List<string>();
-			var stack = new Stack<VisualElement>();
-			stack.Push(root);
-			while (stack.Count > 0 && texts.Count < 500)
-			{
-				var e = stack.Pop();
-				try
-				{
-					if (e.resolvedStyle.display == DisplayStyle.None || e.panel == null) continue;
-					var t = e.TryCast<TextElement>();
-					if (t != null && e.worldBound.width > 0)
-					{
-						var plain = Text.Plain(t.text ?? "");
-						if (plain.Length > 0) texts.Add($"\"{Report.Escape(plain)}\"");
-					}
-					var h = e.hierarchy;
-					for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
-				}
-				catch { }
-			}
-			return "[" + string.Join(", ", texts) + "]\n";
+			var texts = Under(root, paths);
+			if (!most) return "[" + string.Join(", ", texts) + "]\n";
+			if (best == null || texts.Count > best.Count) best = texts;
 		}
-		return "[]\n";
+		return "[" + string.Join(", ", best ?? []) + "]\n";
+	}
+
+	private static List<string> Under(VisualElement root, bool paths)
+	{
+		var texts = new List<string>();
+		var stack = new Stack<VisualElement>();
+		stack.Push(root);
+		while (stack.Count > 0 && texts.Count < 500)
+		{
+			var e = stack.Pop();
+			try
+			{
+				if (e.resolvedStyle.display == DisplayStyle.None || e.panel == null) continue;
+				var t = e.TryCast<TextElement>();
+				if (t != null && e.worldBound.width > 0)
+				{
+					var path = paths ? PathOf(t) : null;
+					var plain = Text.FieldShown(path, t.text ?? "");
+					if (plain.Length > 0)
+						texts.Add(paths
+							? $"{{\"Text\": \"{Report.Escape(plain)}\", \"Path\": \"{Report.Escape(path ?? "")}\"}}"
+							: $"\"{Report.Escape(plain)}\"");
+				}
+				var h = e.hierarchy;
+				for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
+			}
+			catch { }
+		}
+		return texts;
+	}
+
+	/// <summary>The data path a text is bound to directly, or null when it is set some other way.</summary>
+	internal static string PathOf(TextElement element)
+	{
+		try
+		{
+			var text = element.TryCast<SI.Bindable.SIText>();
+			if (text == null) return null;
+			var path = text.m_textBinding.Direct.Path.Path;
+			return string.IsNullOrEmpty(path) ? null : path;
+		}
+		catch { return null; }
 	}
 
 	/// <summary>

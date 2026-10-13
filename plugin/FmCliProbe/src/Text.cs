@@ -42,6 +42,39 @@ internal static class Text
 	}
 
 	/// <summary>
+	/// A bound field's value, in English where the game's table can say: as <see cref="Of"/>, but a
+	/// short code (a fixture's venue, "H"/"A"/"N") by the numbers of the texts that field is written
+	/// with. Going back from the shown letter through the whole table lands on another one-letter
+	/// text: a Turkish game's "D" for away came back "L".
+	/// </summary>
+	public static string Field(string name, SI.Core.TypedValue value)
+	{
+		if (Codes(name) is not { } ids) return Of(value);
+		try { return Localisation.EnglishAmong(Shown(value.AsString()), ids); }
+		catch { return Of(value); }
+	}
+
+	/// <summary>A shown text bound to a field: as <see cref="Plain"/>, or by its numbers for a short code.</summary>
+	public static string FieldShown(string name, string shown) =>
+		Codes(name) is { } ids ? Localisation.EnglishAmong(Shown(shown), ids) : Plain(shown);
+
+	private static int[] Codes(string name) =>
+		name != null && name.EndsWith("MatchVenueShort", StringComparison.Ordinal) ? Localisation.VenueCodes : null;
+
+	/// <summary>A text as the game shows it, markup and tags removed but not put into English.</summary>
+	internal static string Shown(string value)
+	{
+		if (string.IsNullOrEmpty(value)) return value;
+		try
+		{
+			if (SI.Translation.EmbeddedDataUtilities.ContainsEmbeddedData(value))
+				value = SI.Translation.EmbeddedDataUtilities.RemoveEmbeddedData(value);
+		}
+		catch { }
+		return System.Text.RegularExpressions.Regex.Replace(value, "<[^<>]+>", "").Trim();
+	}
+
+	/// <summary>
 	/// A label as a user reads it. Text shown on a control also carries rich-text tags for
 	/// colour and links, which are presentation and would keep a label from being matched.
 	/// </summary>
@@ -75,6 +108,7 @@ internal static class Localisation
 	private static string language;
 	private static System.Collections.Generic.Dictionary<string, string> toEnglish;
 	private static System.Collections.Generic.Dictionary<int, string> byId;
+	private static System.Collections.Generic.HashSet<string> englishTexts = [];
 
 	public static int Entries => toEnglish?.Count ?? 0;
 	public static int Clashes { get; private set; }
@@ -86,11 +120,37 @@ internal static class Localisation
 		return byId != null && byId.TryGetValue(id, out var english) ? english : null;
 	}
 
+	/// <summary>The texts a fixture's venue is written with: H, A, N (and a second H, A).</summary>
+	public static readonly int[] VenueCodes = [27584, 27585, 27586, 27718, 27719];
+
+	/// <summary>
+	/// The English of a shown text that is one of a few known texts, by their numbers: for codes so
+	/// short that the whole table maps them to something else.
+	/// </summary>
+	public static string EnglishAmong(string shown, int[] ids)
+	{
+		if (string.IsNullOrEmpty(shown) || Map() == null) return shown;
+		foreach (var id in ids)
+		{
+			try
+			{
+				if (Text.Shown(new SI.Translation.TranslationID { GameID = id }.TranslatedString) == shown && EnglishOf(id) is { } english)
+					return english;
+			}
+			catch { }
+		}
+		return shown;
+	}
+
 	public static string English(string shown)
 	{
 		if (string.IsNullOrEmpty(shown)) return shown;
 		var map = Map();
-		return map != null && map.TryGetValue(shown, out var english) ? english : shown;
+		// A text that is already one of the table's English texts stays as it is: values put into
+		// English once (by number) pass through here again on their way out, and the shown-to-English
+		// map would turn them into another text ("A" for away is a Turkish word for "For").
+		if (map == null || englishTexts.Contains(shown)) return shown;
+		return map.TryGetValue(shown, out var english) ? english : shown;
 	}
 
 	private static System.Collections.Generic.Dictionary<string, string> Map()
@@ -103,6 +163,7 @@ internal static class Localisation
 		language = now;
 		toEnglish = new System.Collections.Generic.Dictionary<string, string>();
 		byId = new System.Collections.Generic.Dictionary<int, string>();
+		englishTexts = [];
 		Clashes = 0;
 		try
 		{
@@ -115,6 +176,7 @@ internal static class Localisation
 				if (tab <= 0 || !int.TryParse(line[..tab], out var id)) continue;
 				var english = line[(tab + 1)..];
 				byId[id] = english;
+				englishTexts.Add(english);
 				string shown;
 				try { shown = new SI.Translation.TranslationID { GameID = id }.TranslatedString; } catch { continue; }
 				if (string.IsNullOrEmpty(shown)) continue;

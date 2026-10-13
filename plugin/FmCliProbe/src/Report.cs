@@ -376,7 +376,7 @@ internal static class Report
 			if (name is "DisplayValue" or "PropertyValue") name = node.Parent?.Name;
 			if (!IsData(name) || fields.ContainsKey(name)) continue;
 
-			var text = Scalar(node);
+			var text = Scalar(node, name);
 			if (!string.IsNullOrEmpty(text)) fields[name] = text;
 		}
 	}
@@ -392,7 +392,7 @@ internal static class Report
 		return !name.EndsWith("Color", StringComparison.Ordinal) && !name.EndsWith("Index", StringComparison.Ordinal);
 	}
 
-	private static string Scalar(IReadOnlyNode node)
+	private static string Scalar(IReadOnlyNode node, string name)
 	{
 		try
 		{
@@ -403,7 +403,7 @@ internal static class Report
 			if (type.EndsWith("Reference", StringComparison.Ordinal) || type.StartsWith("List", StringComparison.Ordinal)
 			    || type is "GameDate" or "Color32") return null;
 
-			return Text.Of(value);
+			return Text.Field(name, value);
 		}
 		catch { return null; }
 	}
@@ -460,7 +460,7 @@ internal static class Report
 				var type = value.DataType?.Name ?? "";
 				if (type.EndsWith("Reference", StringComparison.Ordinal) || type == "GameDate") continue;
 
-				text = Text.Of(value);
+				text = Text.Field(name, value);
 
 				// A team's recent results are a list of codes; as a string a list is only its
 				// type's name, so this one is given as its entries (FINDINGS §8.115).

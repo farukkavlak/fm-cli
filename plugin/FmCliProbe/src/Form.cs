@@ -21,23 +21,32 @@ internal static class Form
 	public static string Read(NameValueCollection q)
 	{
 		var anchor = q["anchor"];
-		if (string.IsNullOrEmpty(anchor)) return "error: ?anchor=<text> required";
+		// As /texts: ?anchorpath= finds the anchor by the data path it is bound to, and ?most=1 takes
+		// the place with the most items around it where a page underneath has the same anchor.
+		var anchorPath = q["anchorpath"];
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath)) return "error: ?anchor=<text> or ?anchorpath=<data path> required";
 		var up = int.TryParse(q["up"], out var n) ? n : 8;
+		var most = q["most"] == "1";
 
+		List<string> best = null;
 		foreach (var element in Buttons.Elements())
 		{
 			try
 			{
 				if (element.panel == null || element.worldBound.width <= 0) continue;
-				if (Text.Plain(element.TryCast<TextElement>()?.text ?? "") != anchor) continue;
+				var text = element.TryCast<TextElement>();
+				if (text == null) continue;
+				if (!string.IsNullOrEmpty(anchorPath) ? Texts.PathOf(text) != anchorPath : Text.Plain(text.text ?? "") != anchor) continue;
 			}
 			catch { continue; }
 
 			var root = element;
 			for (var i = 0; i < up && root.hierarchy.parent != null; i++) root = root.hierarchy.parent;
-			return "[\n  " + string.Join(",\n  ", Items(root, q["buttons"] == "1")) + "\n]\n";
+			var items = Items(root, q["buttons"] == "1");
+			if (!most) return "[\n  " + string.Join(",\n  ", items) + "\n]\n";
+			if (best == null || items.Count > best.Count) best = items;
 		}
-		return "[]\n";
+		return best == null ? "[]\n" : "[\n  " + string.Join(",\n  ", best) + "\n]\n";
 	}
 
 	private static List<string> Items(VisualElement root, bool buttons)
@@ -62,8 +71,11 @@ internal static class Form
 				var t = e.TryCast<TextElement>();
 				if (t != null && e.worldBound.width > 0)
 				{
-					var plain = Text.Plain(t.text ?? "");
-					if (plain.Length > 0) items.Add($"{{\"Kind\": \"text\", \"Text\": \"{Report.Escape(plain)}\"}}");
+					// With the data path it is bound to, which says what it is in any language.
+					var path = Texts.PathOf(t);
+					var plain = Text.FieldShown(path, t.text ?? "");
+					if (plain.Length > 0)
+						items.Add($"{{\"Kind\": \"text\", \"Text\": \"{Report.Escape(plain)}\"{(path != null ? $", \"Path\": \"{Report.Escape(path)}\"" : "")}}}");
 				}
 
 				var h = e.hierarchy;
@@ -121,13 +133,14 @@ internal static class Form
 			+ $"\"Name\": \"{Report.Escape(e.name ?? "")}\", "
 			+ $"\"Enabled\": \"{(e.enabledInHierarchy ? "True" : "False")}\", "
 			+ $"\"Text\": \"{Report.Escape(Buttons.LabelOf(e))}\", "
-			+ $"\"Texts\": [{string.Join(", ", TextsIn(e).Select(t => $"\"{Report.Escape(t)}\""))}]}}";
+			+ $"\"Texts\": [{string.Join(", ", TextsIn(e).Select(t => $"\"{Report.Escape(t.Text)}\""))}], "
+			+ $"\"Paths\": [{string.Join(", ", TextsIn(e).Select(t => $"\"{Report.Escape(t.Path ?? "")}\""))}]}}";
 	}
 
 	/// <summary>Every visible text inside an element, in reading order: a card's title and its badges.</summary>
-	private static List<string> TextsIn(VisualElement root)
+	private static List<(string Text, string Path)> TextsIn(VisualElement root)
 	{
-		var texts = new List<string>();
+		var texts = new List<(string Text, string Path)>();
 		var stack = new Stack<VisualElement>();
 		stack.Push(root);
 		while (stack.Count > 0 && texts.Count < 20)
@@ -136,8 +149,10 @@ internal static class Form
 			try
 			{
 				if (e.resolvedStyle.display == DisplayStyle.None) continue;
-				var plain = Text.Plain(e.TryCast<TextElement>()?.text ?? "");
-				if (plain.Length > 0 && e.worldBound.width > 0) texts.Add(plain);
+				var text = e.TryCast<TextElement>();
+				var path = text == null ? null : Texts.PathOf(text);
+				var plain = Text.FieldShown(path, text?.text ?? "");
+				if (plain.Length > 0 && e.worldBound.width > 0) texts.Add((plain, path));
 				var h = e.hierarchy;
 				for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
 			}

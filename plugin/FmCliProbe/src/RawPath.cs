@@ -249,7 +249,7 @@ internal static class RawPath
 					}
 				}
 				catch { }
-				try { fields[name] = Text.Of(value); } catch { }
+				try { fields[name] = Text.Field(name, value); } catch { }
 			}
 			return Report.Json(fields);
 		}

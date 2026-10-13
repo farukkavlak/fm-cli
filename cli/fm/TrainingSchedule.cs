@@ -464,7 +464,7 @@ internal static partial class Program
 	private static async Task<List<ScheduleDay>> TrainingCalendar(DateTime day)
 	{
 		if (await CalendarMonths() is not var (months, _)) return null;
-		var month = months.FirstOrDefault(m => m == day.ToString("MMMM yyyy", CultureInfo.InvariantCulture));
+		var month = months.FirstOrDefault(m => m.Year == day.Year && m.Month == day.Month);
 		if (month == null)
 		{
 			Console.Error.WriteLine($"{DayName(day)} takvimin gösterdiği aylarda yok.");
@@ -492,8 +492,8 @@ internal static partial class Program
 				continue;
 			}
 			var list = page.FirstOrDefault(f => Field(f, "Name") == "MonthDropdown");
-			if (list.ValueKind == JsonValueKind.Object && Field(list, "Label") != month)
-				await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", month));
+			if (list.ValueKind == JsonValueKind.Object && Field(list, "Label") != month.Label)
+				await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("value", month.Value.ToString()));
 
 			var previous = "";
 			var drawn = await Until(async () =>
@@ -511,19 +511,20 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The Training tab read as a form: weekday headings, then for each week its card and its
-	/// days, each a day mark ("29 Sep" where the grid or a month starts, "30" after) and three
-	/// buttons. A match day's middle button is the competition ("SL", "UEL").
+	/// The Training tab's grid read as a form, by each text's data path (FINDINGS §8.169): for each
+	/// week its card (TrainingFocusCard), then its days, each a day (day.DayOfTheMonth) and three
+	/// buttons. A match day's middle button is the competition ("SL", "UEL"). The grid starts on the
+	/// Monday on or before the month's first day; a day out of step ends the reading.
 	/// </summary>
 	private static async Task<List<ScheduleDay>> ReadTrainingGrid(DateTime shown)
 	{
-		var form = (await Fm.GetJson("form", ("anchor", "Monday"), ("up", "18"), ("buttons", "1"))).EnumerateArray().ToList();
+		var form = (await Fm.GetJson("form", ("anchorpath", "day.DayOfTheMonth"), ("up", "14"), ("buttons", "1"), ("most", "1"))).EnumerateArray().ToList();
 		if (!form.Any(f => Field(f, "Name") == "TrainingFocusCard")) return null;
 
 		var days = new List<ScheduleDay>();
 		ScheduleSlot week = null;
-		var month = shown.Month;
-		var started = false;
+		var first = new DateTime(shown.Year, shown.Month, 1);
+		var next = first.AddDays(-(((int)first.DayOfWeek + 6) % 7));
 		foreach (var f in form)
 		{
 			var kind = Field(f, "Kind");
@@ -534,15 +535,11 @@ internal static partial class Program
 				week = new ScheduleSlot(Field(f, "Pointer"), title, Field(f, "Enabled") == "True");
 				continue;
 			}
-			if (kind == "text" && DayMark.Match(Field(f, "Text")) is { Success: true } mark)
+			if (kind == "text" && Field(f, "Path") == "day.DayOfTheMonth")
 			{
-				if (mark.Groups[2].Success) month = Array.IndexOf(MonthNames, mark.Groups[2].Value) + 1;
-				else if (!started) month = shown.Month;
-				started = true;
-				var y = shown.Year + (month - shown.Month > 6 ? -1 : shown.Month - month > 6 ? 1 : 0);
-				var d = int.Parse(mark.Groups[1].Value);
-				if (d > DateTime.DaysInMonth(y, month)) continue;
-				days.Add(new ScheduleDay(new DateTime(y, month, d), [], week));
+				if (!int.TryParse(Regex.Match(Field(f, "Text"), @"^\d+").Value, out var number) || number != next.Day) break;
+				days.Add(new ScheduleDay(next, [], week));
+				next = next.AddDays(1);
 				continue;
 			}
 			// A match's cell carries more than a name: the competition, the opponent, home or away.
