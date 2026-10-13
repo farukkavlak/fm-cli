@@ -461,6 +461,24 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
 Komutlar tek kayıtta yazıldı; Lincoln'de dördü kırık çıktı (§8.155). Aynı türden başka neye bağlıyız, sırayla:
 
+**Döküm:** `docs/BAGIMLILIKLAR.md` (13 Ekim 2026 kod taraması) — dil, oyun ayarları, ekran / tema, kariyere özel
+varsayımlar, gömülü sabitler ve çözüm seçenekleri.
+
+**İlk öncelik (Faruk, 13 Ekim 2026 akşam):** bu bağımlılıkları kaldırmak her şeyin önünde. Yeni özellik yok; döküm
+adım adım, komut komut, oyunda deneyerek temizlenecek. Kararlar:
+- Oyun dili → oyunun kendi çeviri tablosu (BAGIMLILIKLAR §7, seçenek B).
+- "Başlıktan sonraki N. yazı" gibi sıra numarasıyla okuma kaldırılacak (BAGIMLILIKLAR §7.1: yazının veri yolu, öğe
+  adı / kutu yapısı, ya da ekranı hiç okumamak).
+- Kimliği olan her şey kimlikle: sayfa → panel id, düğme → olay adı, lig → `CompetitionType`, durum → sayı / enum.
+
+**Kural — oyuna nasıl tutunulur (yeni ve değişen her kodda):**
+1. Önce dilden bağımsız kimlik aranır: veri yolu (sayı / enum alanı), olay adı, panel id / GUID, oyunun kimlik numarası.
+2. Kimlik yoksa ekran yazısı kullanılabilir, ama İngilizce sabit olarak değil, oyunun çeviri tablosundan geçerek; ve
+   yerinde neden kimlik bulunamadığı yazılır.
+3. Sıra numarasıyla okuma ("şundan sonraki 2. yazı", `rest[i + 2]`) yapılmaz; değer adıyla / yoluyla bulunur.
+4. Para birimi, tarih biçimi, birim, lig / altyapı adı varsayılmaz; oyunun ayarından ya da verisinden okunur.
+5. Diske yazılan önbellek hangi kayda ve dile ait olduğunu taşır.
+
 **Sıra (Faruk, 13 Ekim 2026 öğleden sonra):** önce oyun dili bağımlılığı — dökümü çıkar ve çöz ("büyük sıkıntı,
 testten önce onları çözeceğiz, birlikte bakacağız"); Almanya ligi testi ondan sonra. Aşağıdaki maddeler yazıldıkları
 sırada değil, bu sırada ele alınacak: dil dökümü + çözümü → UI / tema dökümü → Almanya kariyeri → uygulama yerelleştirmesi.
