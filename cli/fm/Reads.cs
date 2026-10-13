@@ -568,7 +568,8 @@ internal static partial class Program
 			return 0;
 		}
 
-		Columns(squad.EnumerateArray().Where(p => !YouthTeam(Field(p, "Team"))).ToList());
+		var youth = await YouthTeams();
+		Columns(squad.EnumerateArray().Where(p => !youth.Contains(Field(p, "Team"))).ToList());
 		return 0;
 
 		static string Keys(JsonElement squad) =>

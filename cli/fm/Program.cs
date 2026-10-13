@@ -312,14 +312,50 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>A team name that is one of the club's youth sides: "Fenerbahçe U19", "Lincoln U21s".</summary>
-	internal static bool YouthTeam(string team) => System.Text.RegularExpressions.Regex.IsMatch(team, @"\bU\d\ds?\b");
+	/// <summary>
+	/// The club's sides other than the senior one, from the game's data (FINDINGS §8.162): each
+	/// team of the club has a type, 0 for the senior side (10 and 12 for the under-21s and
+	/// under-18s at Lincoln), and a unique id that opens its own squad page. A squad row names its
+	/// team, and that name is the data's own, so a comparison with it holds in any language and
+	/// whatever the club calls its youth sides.
+	/// </summary>
+	private static List<(string Name, string Id)> youthTeams;
 
-	/// <summary>The youth sides: at some clubs the squad table carries them too, under their own team name.</summary>
+	internal static async Task<HashSet<string>> YouthTeams() => (await YouthSides()).Select(t => t.Name).ToHashSet();
+
+	private static async Task<List<(string Name, string Id)>> YouthSides()
+	{
+		if (youthTeams != null) return youthTeams;
+		var teams = await Fm.Pull("Human.Team.Club.Teams", "Name,UniqueId,TeamType", list: true);
+		return youthTeams = teams.EnumerateArray()
+			.Where(t => Field(t, "Name").Length > 0 && Field(t, "TeamType") is { Length: > 0 } type && type != "0")
+			.Select(t => (Field(t, "Name"), Field(t, "UniqueId")))
+			.ToList();
+	}
+
+	/// <summary>
+	/// The youth sides, each read off its own squad page, opened by the team's id. At some clubs
+	/// the senior table carries youth players as well; they are on their own team's page too.
+	/// </summary>
 	private static async Task<int> SquadYouth(bool json)
 	{
-		var squad = await SquadView("General Info", "AgreedPlayingTime");
-		var youth = squad.EnumerateArray().Where(p => YouthTeam(Field(p, "Team"))).ToList();
+		if (await NotNow() is { } refused) return refused;
+		var youth = new List<JsonElement>();
+		foreach (var (name, id) in await YouthSides())
+		{
+			if ((await OpenPage(Screen.Squad, team: id)).StartsWith("error", StringComparison.Ordinal)) continue;
+			// The rows come in over a moment: the count is taken once two readings agree.
+			List<JsonElement> rows = [];
+			var last = -1;
+			await Until(async () =>
+			{
+				rows = (await Fm.GetJson("squad")).EnumerateArray().Where(p => Field(p, "Team") == name).ToList();
+				var settled = rows.Count > 0 && rows.Count == last;
+				last = rows.Count;
+				return settled;
+			}, seconds: 10, every: 0.5);
+			youth.AddRange(rows);
+		}
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(youth));
@@ -327,10 +363,10 @@ internal static partial class Program
 		}
 		if (youth.Count == 0)
 		{
-			Console.WriteLine("Kadro tablosunda altyapı oyuncusu yok (bu kulüpte tablo yalnızca A takımı taşıyor). Altyapının haftası: youth --training");
-			return 0;
+			Console.WriteLine("Altyapı kadrosu okunamadı. Altyapının haftası: youth --training");
+			return 1;
 		}
-		Table.Write(["OYUNCU", "YAŞ", "POZİSYON", "TAKIM"], youth.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
+		Table.Write(["OYUNCU", "YAŞ", "POZİSYON", "TAKIM"], youth
 			.Select(p => new[] { Field(p, "Name"), Field(p, "Age"), Field(p, "PositionCombinedString"), Field(p, "Team") }).ToList());
 		return 0;
 	}
@@ -458,10 +494,13 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<JsonElement> SquadView(string view, string marker)
 	{
+		// The table on screen may be a youth side's, which has the same views (FINDINGS §8.164).
+		var youth = await YouthTeams();
+		bool Senior(JsonElement rows) => rows.EnumerateArray().Any(p => !youth.Contains(Field(p, "Team")));
 		var squad = await Fm.GetJson("squad");
-		if (Carries(squad, marker)) return squad;
+		if (Carries(squad, marker) && Senior(squad)) return squad;
 
-		if (!await Choose(view))
+		if (!Senior(squad) || !await Choose(view))
 		{
 			if (!await Until(async () => Sent(await OpenPage(Screen.Squad))))
 				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0
@@ -474,7 +513,7 @@ internal static partial class Program
 					: $"Kadro tablosunda '{view}' görünümü bulunamadı.");
 		}
 
-		await Until(async () => Carries(squad = await Fm.GetJson("squad"), marker));
+		await Until(async () => Carries(squad = await Fm.GetJson("squad"), marker) && Senior(squad));
 		if (!Carries(squad, marker))
 			throw new FmError($"'{view}' görünümü seçildi ama '{marker}' verisi gelmedi.");
 
@@ -1794,7 +1833,7 @@ internal static partial class Program
 			  continue        açık oyunda son kaydı yükle
 			  squad           kadroyu bas
 			    --fitness     kondisyon ve maç formu, en yorgun önce
-			    --u19         altyapı kadrosu (kadro tablosunda varsa)
+			    --u19         altyapı takımlarının kadroları (U21, U18…)
 			    --morale      moral, hiyerarşi ve sosyal grup
 			    --stats       sezon istatistikleri: maç, dakika, gol, asist, ortalama puan, kart
 			    --views       kadro tablosunun bütün görünümlerini listele

@@ -217,7 +217,9 @@ değiştirebilir. Skin'in gerçekten değiştirip değiştirmediği **[ölçüle
     hiçbirini içermez; ligden önce gelirse lig sanılır **[olası]**.
   - Dilden ve ülkeden bağımsız karşılık adayı: `SI.Match.CompetitionType` enum'u ve `IsLeagueStage` / `IsCupStage`
     alanları (`docs/reference/enums.txt:10765`, `data-model.txt:2075`) **[ölçülecek]**.
-- **Altyapı takımının adı** **[kesin]**: `U\d\ds?` (`Program.cs:316`), `( U\d\ds| Yth Cands)$` (`Calendar.cs:89`),
+- **Altyapı takımının adı** **[kesin]**: ~~`U\d\ds?` (`Program.cs:316`)~~ → 13 Ekim: kulübün takımları veriden
+  (`Human.Team.Club.Teams`, `TeamType` ≠ 0), `squad --u19` her altyapı takımını kimliğiyle açıyor (FINDINGS §8.164).
+  Kalanlar: `( U\d\ds| Yth Cands)$` (`Calendar.cs:89`, rakibin altyapısı — takvim veriden okununca kalkar),
   `"Senior Squad"` / `"U19 Squad"` (`OfferScreen.cs:362-363`), "Under 19s / Under 21s Training Review" (§8.155). Almanya'da
   "U19" / "II" (ikinci takım) / "U23" düzeni farklı.
 - **Kadro kaydı kuralları** **[kesin]**: `Registration.cs:133-162` kural adlarını ve açıklama cümlelerini İngiltere /

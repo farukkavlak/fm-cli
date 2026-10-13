@@ -4551,6 +4551,18 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
 - Hâlâ açık: `opponent` çıktısında "Menajer: No data available (Reputation)" ve veri yokken "Beklenti" satırına sonraki
   başlığın düşmesi. İkisi de sıra numarasıyla okuma (`page[at + 2]`, `Next(label)`); kimlikle okumaya geçince kalkacak.
 
+### 8.164 Altyapı takımları veriden (13 Ekim 2026, Lincoln)
+
+- Kadro satırı takımını adıyla taşıyor ("Lincoln", "Lincoln U21s"); ad oyunun verisinden geldiği için, kulübün takım
+  listesiyle (`Human.Team.Club.Teams`, alanlar `Name`, `UniqueId`, `TeamType`; ilk okumada yalnızca ilk satır dolu)
+  karşılaştırmak dilden ve kulübün altyapı adlandırmasından bağımsız. Eskiden `\bU\d\ds?\b` kalıbı vardı.
+- **Hata bulundu:** `SquadView` ekrandaki kadro tablosunu kimin olduğuna bakmadan alıyordu. U21 ya da U18 sayfası açıkken
+  `depth` / `squad --stats` o takımı okuyordu (eski kalıpla `depth` boş listeyle çöküyordu). Artık tabloda A takım
+  satırı yoksa A takım sayfası açılıyor. U21 ve U18 sayfasından çalıştırınca çıktı A takım sayfasındakiyle aynı.
+- `squad --u19` artık her altyapı takımının kadro sayfasını `ObjectUniqueID`'siyle açıp okuyor (Lincoln: U21 10, U18 18;
+  veride `Club.HighestLevelYouthTeam.Players` 10, `SecondHighestLevelYouthTeam.Players` 18). Tablo bir an eksik doluyor
+  (ilk okumada 4 satır), iki okuma aynı sayıyı verene kadar bekleniyor; 3/3 doğru.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

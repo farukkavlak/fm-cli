@@ -212,6 +212,16 @@ orada oynadığı maç).
 Oyundaki kadro tablosunun başka görünümleri de var: `fm squad --views` listeler,
 `fm squad --view "<ad>"` o görünümün kolonlarını gösterir.
 
+Altyapı takımlarının kadroları (kulüpte hangileri varsa: U21, U18, U19…) `fm squad --u19` ile:
+
+```
+$ fm squad --u19
+OYUNCU             YAŞ  POZİSYON        TAKIM
+Charlie Carlisle   18   D (RC)          Lincoln U21s
+Charlie Parks      19   D (C)           Lincoln U21s
+…
+```
+
 ### Sözleşme takvimi — `contracts`
 
 Kadronun sözleşmeleri, en yakın biten önce; terminalde bir yıldan az kalan kırmızı, iki yıldan

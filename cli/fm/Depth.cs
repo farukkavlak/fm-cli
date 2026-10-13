@@ -47,8 +47,9 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 		var squad = await SquadView("General Info", "AgreedPlayingTime");
+		var youth = await YouthTeams();
 		var players = squad.EnumerateArray()
-			.Where(p => !YouthTeam(Field(p, "Team")) && Field(p, "AgreedPlayingTime") != "Out On Loan")
+			.Where(p => !youth.Contains(Field(p, "Team")) && Field(p, "AgreedPlayingTime") != "Out On Loan")
 			.Where(p => Field(p, "PositionCombinedString").Length > 0)
 			.Select(p => (Name: Field(p, "Name"), Age: int.TryParse(Field(p, "Age"), out var a) ? a : 0, Slots: Positions(Field(p, "PositionCombinedString"))))
 			.ToList();
