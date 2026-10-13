@@ -68,9 +68,16 @@ internal static class Radio
 	{
 		var choices = Choices(group);
 		var selected = group.m_selectionIndex;
+		// As a list's: the data paths it reads its items from and writes its choice to, which say whose
+		// group it is in any language (a group often has no name of its own).
+		string items = "", binds = "";
+		try { items = group.ItemsBinding.Path ?? ""; } catch { }
+		try { binds = group.SelectionBinding.Path ?? ""; } catch { }
+		if (binds.Length == 0) try { binds = group.IndexBinding.Path ?? ""; } catch { }
 		return "{"
 			+ $"\"Pointer\": \"0x{group.Pointer.ToInt64():x}\", "
 			+ $"\"Name\": \"{Report.Escape(Name(group))}\", "
+			+ $"\"Items\": \"{Report.Escape(items)}\", \"Binds\": \"{Report.Escape(binds)}\", "
 			+ $"\"Label\": \"{Report.Escape(selected >= 0 && selected < choices.Count ? choices[selected] : "")}\", "
 			+ $"\"Enabled\": \"{(group.enabledInHierarchy ? "True" : "False")}\", "
 			+ $"\"Selected\": \"{selected}\", "

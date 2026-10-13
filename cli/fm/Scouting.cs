@@ -119,20 +119,18 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>The list the focuses are chosen in: the one whose choices are all statuses.</summary>
+	/// <summary>The list the focuses are chosen in: the radio group that lists the club's recruitment focuses.</summary>
 	private static async Task<JsonElement?> FocusList()
 	{
 		foreach (var list in (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray())
-		{
-			var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
-			if (choices.Count > 0 && choices.All(c => c is "In Progress" or "Complete" or "Not Started" or "Paused" or "On Hold")) return list;
-		}
+			if (Field(list, "Items") == "ScoutingInfo.RecruitmentFocusesList" && list.GetProperty("Choices").GetArrayLength() > 0) return list;
 		return null;
 	}
 
 	/// <summary>
-	/// Selects a focus and reads its heading: name, status, who is assigned, and how many
-	/// players are matched, nearly matched and still being looked at.
+	/// Selects a focus and reads it: its name as the page heads it (selectedfocus.Name, with the date
+	/// a finished one carries), and from the focus's own data its status, who is assigned, and how
+	/// many players are matched, nearly matched and still being looked at (FINDINGS §8.169).
 	/// </summary>
 	private static async Task<Focus> FocusAt(int index)
 	{
@@ -143,20 +141,23 @@ internal static partial class Program
 			await Until(async () => await FocusList() is { } now && Field(now, "Selected") == index.ToString(), seconds: 4, every: 0.3);
 		}
 
+		var all = (await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList",
+			"IsFocusComplete,ScoutCount,AnalystCount,RecommendedPlayerPoolCount,NearMissPlayerPoolCount,CurrentPlayerPoolCount", list: true)).EnumerateArray().ToList();
+		if (index >= all.Count) return null;
+		var data = all[index];
+		static int Count(JsonElement e, string name) => int.TryParse(Field(e, name), out var n) ? n : 0;
+		var scouts = Count(data, "ScoutCount");
+		var analysts = Count(data, "AnalystCount");
+		var assigned = string.Join(" · ", new[] { scouts > 0 ? $"{scouts} scout" : "", analysts > 0 ? $"{analysts} analist" : "" }.Where(x => x.Length > 0));
+
 		Focus read = null;
 		var previous = "?";
 		await Until(async () =>
 		{
-			var texts = await FocusTexts();
-			var at = texts.FindIndex(t => t.StartsWith("Assignments (", StringComparison.Ordinal));
-			if (at < 2) return false;
-			static int In(string text) => Regex.Match(text, @"\((\d+)\)") is { Success: true } m ? int.Parse(m.Groups[1].Value) : 0;
-			var assigned = texts.IndexOf("Assigned to:");
-			read = new Focus(index, texts[0], texts[1],
-				assigned >= 0 ? string.Join(" · ", texts.Skip(assigned + 1).Take(at - assigned - 1)) : "",
-				In(texts.FirstOrDefault(t => t.StartsWith("Matched (", StringComparison.Ordinal)) ?? ""),
-				In(texts.FirstOrDefault(t => t.StartsWith("Nearly Matched (", StringComparison.Ordinal)) ?? ""),
-				In(texts.FirstOrDefault(t => t.StartsWith("In Progress (", StringComparison.Ordinal)) ?? ""),
+			var name = (await FocusTexts()).FirstOrDefault(t => t.Path == "selectedfocus.Name").Text;
+			if (name == null) return false;
+			read = new Focus(index, name, Field(data, "IsFocusComplete") == "True" ? "Complete" : "In Progress", assigned,
+				Count(data, "RecommendedPlayerPoolCount"), Count(data, "NearMissPlayerPoolCount"), Count(data, "CurrentPlayerPoolCount"),
 				(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().All(b => Field(b, "Label") != "Restart Recruitment Focus"));
 			var key = read.ToString();
 			var settled = key == previous;
@@ -166,41 +167,47 @@ internal static partial class Program
 		return read;
 	}
 
-	private static async Task<List<string>> FocusTexts()
-	{
-		var anchor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Select(b => Field(b, "Label"))
-			.FirstOrDefault(l => l.StartsWith("Assignments (", StringComparison.Ordinal));
-		if (anchor == null) return [];
-		return (await Fm.GetJson("texts", ("anchor", anchor), ("up", "10"))).EnumerateArray()
-			.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
-	}
+	/// <summary>The focus panel, each text with its data path, from the focus's name.</summary>
+	private static async Task<List<(string Text, string Path)>> FocusTexts() =>
+		(await Fm.GetJson("texts", ("anchorpath", "selectedfocus.Name"), ("up", "10"), ("paths", "1"))).EnumerateArray()
+			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 
 	/// <summary>
-	/// The players in the results table on screen: name, nation, age, positions, best role,
-	/// club, league, value, grade and the scouts' word for him.
+	/// The players in the results table on screen, by each text's data path: name (binding.Name),
+	/// nation, age (binding), positions (binding.PositionCombinedString), best role, club (Club.Name),
+	/// league (club.division.Name), value (binding.TransferValueRangeString), grade and the scouts'
+	/// word for him (gradinginfo.ShortGradeString). A status flag before the name goes with it.
 	/// </summary>
 	private static async Task<List<string[]>> FocusRows()
 	{
-		var texts = await FocusTexts();
-		var from = texts.IndexOf("Recommendation");
 		var rows = new List<string[]>();
-		if (from < 0) return rows;
-		// A row begins where a name is followed by a three-letter nation and an age; whatever
-		// stands before the name is the row's status flag ("Inj", "Wnt"), which most rows lack —
-		// so the cells cannot simply be counted off in tens.
-		var cells = texts.Skip(from + 1).ToList();
 		var flags = new List<string>();
-		for (var at = 0; at < cells.Count; at++)
+		string[] row = null;
+		string last = null;
+		foreach (var (text, path) in await FocusTexts())
 		{
-			var starts = at + 9 < cells.Count && Regex.IsMatch(cells[at + 1], "^[A-Z]{3}$") && int.TryParse(cells[at + 2], out _);
-			if (!starts)
+			switch (path)
 			{
-				flags.Add(cells[at]);
-				continue;
+				case "StatusFlag.StatusTitleShort": flags.Add(text); break;
+				case "binding.Name":
+					row = [text + (flags.Count > 0 ? $" ({string.Join(", ", flags)})" : ""), "", "", "", "", "", "", "", "", ""];
+					flags.Clear();
+					rows.Add(row);
+					break;
+				case "binding" when row != null && row[2] == "": row[2] = text; break;
+				case "binding.PositionCombinedString" when row != null: row[3] = text; break;
+				case "Club.Name" when row != null: row[5] = text; break;
+				case "club.division.Name" when row != null: row[6] = text; break;
+				case "binding.TransferValueRangeString" when row != null: row[7] = text; break;
+				case "gradinginfo.ShortGradeString" when row != null: row[9] = text; break;
+				case "" when row != null:
+					// Drawn without a path: the nation after the name, the role after the positions, the grade after the value.
+					if (last == "binding.Name") row[1] = text;
+					else if (last == "binding.PositionCombinedString") row[4] = text;
+					else if (last == "binding.TransferValueRangeString") row[8] = text;
+					break;
 			}
-			rows.Add([cells[at] + (flags.Count > 0 ? $" ({string.Join(", ", flags)})" : ""), .. cells.Skip(at + 1).Take(9)]);
-			flags.Clear();
-			at += 9;
+			last = path;
 		}
 		return rows;
 	}
