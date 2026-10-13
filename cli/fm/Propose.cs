@@ -88,7 +88,7 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				await OpenPage("Overview", "Portal");
+				await OpenPage(Screen.Home);
 				Console.WriteLine($"Göndermek için: propose \"{name}\"{(fee != null ? " " + fee : "")}{(loan ? " --loan" : "")} --yes");
 				return 0;
 			}
@@ -104,7 +104,7 @@ internal static partial class Program
 			return 1;
 		}
 		// His actions stay up on his page and would read as an open conversation to `status`.
-		await OpenPage("Overview", "Portal");
+		await OpenPage(Screen.Home);
 		Console.WriteLine("Önerildi. İlgilenen kulüpler önümüzdeki günlerde gelen kutusuna düşer.");
 		return 0;
 	}

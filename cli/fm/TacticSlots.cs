@@ -13,7 +13,7 @@ internal static partial class Program
 	/// <summary>The tactics page's menu that offers this choice, once the page is up.</summary>
 	private static async Task<JsonElement?> TacticMenu(string choice)
 	{
-		var opened = await OpenPage("Tactics", "Match Day");
+		var opened = await OpenPage(Screen.Tactics);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return null; }
 		JsonElement menu = default;
 		await Until(async () => (menu = (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()

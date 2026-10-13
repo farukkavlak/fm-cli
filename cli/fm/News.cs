@@ -13,7 +13,7 @@ internal static partial class Program
 	private static async Task<int> News(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("News Site", "Portal");
+		var opened = await OpenPage(Screen.NewsSite);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		// The tiles fill in one after another; the page is read once two readings agree.

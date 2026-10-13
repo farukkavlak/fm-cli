@@ -389,7 +389,7 @@ internal static partial class Program
 
 		if (await Named(onward) == null && await Labelled(start) == null)
 		{
-			var opened = await OpenPage("Set Pieces", "Match Day");
+			var opened = await OpenPage(Screen.SetPieces);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 			await Until(async () => await Labelled(start) != null || await Named(onward) != null, seconds: 10);
 		}
@@ -723,7 +723,7 @@ internal static partial class Program
 		var tactic = await Fm.GetJson("tactic");
 		if (!tactic.TryGetProperty("Tactic", out _))
 		{
-			var opened = await OpenPage("Tactics", "Match Day");
+			var opened = await OpenPage(Screen.Tactics);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
 
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 10);
@@ -1053,7 +1053,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> TacticSlot(string wanted, bool dry)
 	{
-		var opened = await OpenPage("Tactics", "Match Day");
+		var opened = await OpenPage(Screen.Tactics);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		List<JsonElement> slots = [];
@@ -1205,7 +1205,7 @@ internal static partial class Program
 			JsonElement? tile = await Labelled("No Tactic Set");
 			if (tile == null)
 			{
-				await Fm.Get("open", ("page", "Overview"), ("tab", "Match Day"));
+				await OpenPage(Screen.MatchDayHome);
 				await Until(async () => (tile = await Labelled("No Tactic Set")) != null, seconds: 10);
 			}
 
@@ -1219,7 +1219,7 @@ internal static partial class Program
 				// With a tactic in place the tactics page's own "Create New Tactic" opens the same
 				// wizard; the new tactic takes the slot and the old one stays loadable by name
 				// (FINDINGS §8.47). This is how a formation is changed.
-				await OpenPage("Tactics", "Match Day");
+				await OpenPage(Screen.Tactics);
 				JsonElement? create = null;
 				await Until(async () => (create = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 					.Cast<JsonElement?>()

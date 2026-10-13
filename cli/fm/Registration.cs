@@ -330,7 +330,7 @@ internal static partial class Program
 		async Task<bool> Up() => (await Fm.GetJson("registration")).GetProperty("Players").GetArrayLength() > 0;
 		if (await Up()) return true;
 
-		await OpenPage("Registration", "Squad");
+		await OpenPage(Screen.Registration);
 		if (await Until(Up, seconds: 5)) return true;
 
 		var controls = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();

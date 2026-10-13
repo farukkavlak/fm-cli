@@ -24,7 +24,7 @@ internal static partial class Program
 			return 69;
 		}
 
-		var opened = await OpenPage("Managerial Vacancies", "Career");
+		var opened = await OpenPage(Screen.ManagerialVacancies);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		List<string> texts = [];

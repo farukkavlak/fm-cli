@@ -27,7 +27,7 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage("Dynamics", "Squad");
+		var opened = await OpenPage(Screen.Dynamics);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Social Groups"), ("fire", "1"));
 

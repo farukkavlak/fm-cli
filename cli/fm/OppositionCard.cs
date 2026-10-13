@@ -21,22 +21,11 @@ internal static partial class Program
 		var rows = await Rows();
 		if (rows.Count == 0)
 		{
-			var opened = await OpenPage("Tactics", "Match Day");
+			// The card is a page of Match Day's menu of its own; opened from there it needs no
+			// button found by its label.
+			var opened = await OpenPage(Screen.OppositionInstructions);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			JsonElement? card = null;
-			await Until(async () => (card = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-				.FirstOrDefault(b => Field(b.Value, "Label") == "Opposition Instructions" && Field(b.Value, "Name") == "OpenCardButton")) != null, seconds: 8, every: 0.5);
-			if (card == null)
-			{
-				Console.Error.WriteLine("Rakip talimatları kartı bulunamadı (sıradaki maç yok olabilir).");
-				return 1;
-			}
-			// Pressed too soon after the page opens it can go unanswered, so it is pressed again.
-			for (var attempt = 0; attempt < 3 && rows.Count == 0; attempt++)
-			{
-				await Fm.Get("press", ("ptr", Field(card.Value, "Pointer")));
-				await Until(async () => (rows = await Rows()).Count > 0, seconds: 5, every: 0.5);
-			}
+			await Until(async () => (rows = await Rows()).Count > 0, seconds: 8, every: 0.5);
 		}
 		if (rows.Count == 0)
 		{

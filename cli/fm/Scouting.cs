@@ -23,7 +23,7 @@ internal static partial class Program
 	private static async Task<int> Scout(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Recruitment Focuses", "Recruitment");
+		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		JsonElement? list = null;

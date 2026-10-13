@@ -153,7 +153,7 @@ internal static partial class Program
 		if ((await NumbersInView()).Count > 0) return true;
 		for (var attempt = 0; attempt < 2; attempt++)
 		{
-			var opened = await OpenPage("First Team", "Squad");
+			var opened = await OpenPage(Screen.Squad);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return false;
 			await Task.Delay(1500);
 			await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Squad Numbers"), ("fire", "1"));

@@ -12,7 +12,7 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage("Overview", "Recruitment");
+		var opened = await OpenPage(Screen.RecruitmentHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		JsonElement? tile = null;
 		await Until(async () => (tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()

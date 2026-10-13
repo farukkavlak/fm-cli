@@ -4492,6 +4492,65 @@ yazı. Şartlar ayrı sütunda. Cevaplar canlıda: Colchester'ın kiralama tekli
 Wednesday'in Hackett teklifi `stall` → "Offer Made (Stalled)", sonra `accept --yes` → "Contract"; Notts Co'nun Thorn
 kiralaması `accept --yes` → "Contract". Aynı oyuncuya iki teklif varken ipucu "ad + kulüp" yazıyor.
 
+## 8.162 Sayfalar kimlikle: Guid, takım kimliği, alt sekme düğmesi (29 Haziran 2026, Lincoln)
+
+Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adları yerine oyunun kimlikleriyle açmak.
+
+- **Guid kalıcı.** Her sekme menüsü (`NavTabDropdown`) satırında sayfanın varlık Guid'ini taşıyor; oyunun dosyalarından
+  geliyor. Ana sayfanınki (`2d1049f4…`) 28 Eylül'deki Fenerbahçe kaydında da aynıydı. 78 sayfadan 74'ü Guid'le tek
+  başına ayrılıyor; çakışanlar ya aynı sayfanın iki menüde görünmesi (Fixture Schedule, Opposition Report, Transfer
+  History) ya da aynı ekranın farklı takımla açılması.
+- **First Team / Under 21s / Under 18s / Match Squad tek panel** (`TeamSquadReport`, aynı Guid). Satır farkı
+  `ObjectUniqueID`: 675 (A takım = `Human.Team.UniqueId`), 2000778723 (U21), 2000778724 (U18). Eklenti yalnızca Guid'i
+  gönderdiği için `open "Under 21s"` ve `"Under 18s"` **A takımı açıyordu** (ekranda "Senior Squad Players (28)"; komutlar
+  bu sayfaları kullanmadığından fark edilmemişti).
+- **Takım veriden:** `Human.Team.Club.Teams` (liste; ilk `pull` "not a list" der, bağlandıktan sonra okunur) her takımın
+  `UniqueId`, `TeamType` (A takım 0, U21 10, U18 12; adları yönetilen kodda yok) ve `TeamTypeStringDefault`'unu veriyor.
+  Dilden bağımsız kısa yol: `Club.HighestLevelYouthTeam` (U21), `Club.SecondHighestLevelYouthTeam` (U18). Alanlar ilk
+  okumada boş gelebiliyor, ikincide doluyor.
+- **Açmanın yolu: menü satırını seçmek.** `OnSelectionChangedInternal(i)` + menünün `SelectionEvents`'i kuyruğa — tıklamanın
+  yaptığı. Satır takımı taşıdığı için her takım kendi kadrosunu açıyor (U18 → A → U21 → U18, iki tur, her seferinde tek
+  doğru başlık) ve taktik ekranı Portal'dan tek adımda dolu geliyor (eskiden önce sekmenin ilk sayfası, sonra adla alt
+  sekme düğmesi). Zaten seçili satırı yeniden seçmek de açıyor.
+- **Alt menülü satır (Training ›) seçilince sayfa açılmıyor**; alt menünün ilk satırını (aynı Guid) `path`, `process`,
+  `value`, `rowdata`, `trigger` yollarından hiçbiri açmadı. Bookmark olayı Training / Youth Setup / Dynamics'i **boş**
+  açıyor. Açan: sekmenin alt sekme çubuğundaki düğmenin (`SIDropdown`, `LeftClickEvents` → `OpenSubtab`, bağlamı
+  `subtab.Value` / `subtab.ObjectUniqueID`) tıklama olayı. Düğme etiketiyle değil, **ilk satırının Guid'iyle** bulunuyor.
+  `SelectionEvents` ile basmak kuyruğu tıkıyor (`selectedSubtabElement` hiç dolmuyor; `/queue?clear=1`).
+- **Gizli çubuklar:** daha önce açılmış sekmenin alt sekme çubuğu arkada kalıyor; oradaki düğmeye basmak hiçbir şey
+  yapmıyor ama eklenti "opened" diyordu (Youth Setup, Dynamics, Squad Planner Portal'da kaldı). Düğme yalnızca kendisi ve
+  bütün ataları görünürken (`display`, `visibility`, `opacity`, genişlik) sayılıyor.
+- **"More" menüsündekiler** (Medical Centre, Recruitment Budgets, Transfer Window, Competitions, Supporters, Job Centre
+  Report) çubukta düğmesiz; bookmark'la açılıyorlar — Medical Centre dışında hepsi dolu (kart). **Medical Centre açılmıyor**:
+  üst satırı `OpensCard=False`, alt menüsünün ilk satırı `OpensCard=True`; bookmark Squad › More'u seçili gösterip içeriği
+  değiştirmiyor. Kullanan komut yok (`health` kadro tablosunun Risk Assessment görünümünü okuyor); açık.
+- Match Day › Overview bu oturumda açıldı, çizim kararmadı (§8.129'daki karartma bu sefer görülmedi).
+- **Sekme önemli:** Opposition Report Portal'da ve Match Day'de aynı Guid; Match Day'den açılınca başlık "Next Opposition
+  Report" (`opponent` onu arıyor). `open?under=<sekmenin ilk sayfasının Guid'i>` sekmeyi seçiyor.
+- **Opposition Instructions kendi sayfası** (`f3a5a1da…`, kart): doğrudan açınca `/opposition` satırları geliyor. Eskiden Taktik'e
+  Match Day ana sayfası üzerinden gidiliyordu ve "Opposition Instructions" etiketli `OpenCardButton` orada bulunuyordu;
+  menü satırıyla Taktik'e gidince o düğme yok. `opposition` artık kartı kimliğiyle açıyor.
+- **Açık:** `opponent` tam taramada bir kez "Rakip raporu okunamadı" dedi; tek başına ve taramadaki sırayla (takers,
+  penalties, tactic, depth → opponent) dört denemede geçti. Şüphe: soğuk açılış (sayfa oturumda ilk kez açılırken
+  "Next Opposition Report" 10 sn'de gelmiyor). Ayrıca "Beklenti" satırı bir çalıştırmada başlığı ("General Performance")
+  verdi, sonrakinde cümleyi — okuma zamanlaması. → Çözüldü, §8.163.
+
+### 8.163 Rakip raporu tek panel: açık kaldığı biçimi koruyor (13 Ekim 2026)
+
+- Match Day › Next Opposition Report ile Portal'daki rakip raporu aynı panel (Guid `b96211c5…`). Match Day'den açılınca
+  başlık "Next Opposition Report" olur; Portal'dan ya da taktik planlayıcıdan açılınca "Team Report" (Manager
+  Information, General Performance).
+- `opponent` soğuk açılışta düşmüyor. Düşmesinin nedeni `mentoring`, `staff`, `coaches` sonrası: panel "Team Report"
+  biçimindeyken Match Day satırı seçilirse oyun paneli yeniden kurmuyor; ekmek kırıntısı "Tactics Planner › First Team
+  › Team Report" ya da "First Team › Team Report › Team Report" kalıyor, "Next Opposition Report" hiç gelmiyor. `/open`
+  yine "opened" diyor.
+- Kanıt: bu üç komuttan sonra `/open?guid=…&under=<Match Day>` 3/3 boş; araya Portal › Overview açınca dolu.
+  `health`, `captains`, `depth`, `tactic` sonrasında sorun yok.
+- Çözüm: `OpenPage(…, under:)` önce Portal › Overview'u açıyor (~0,2 sn). Bu üç komuttan sonra `opponent` 6/6 geçti,
+  tam tarama 50'de 49 (`league` sezon öncesi).
+- Hâlâ açık: `opponent` çıktısında "Menajer: No data available (Reputation)" ve veri yokken "Beklenti" satırına sonraki
+  başlığın düşmesi. İkisi de sıra numarasıyla okuma (`page[at + 2]`, `Next(label)`); kimlikle okumaya geçince kalkacak.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

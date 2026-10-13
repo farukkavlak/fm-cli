@@ -9,12 +9,12 @@ internal static partial class Program
 	/// Reads a shaped endpoint, opening the page that binds it when nothing is bound yet, and
 	/// waiting for the rows rather than for a fixed delay.
 	/// </summary>
-	private static async Task<JsonElement> Shown(string route, string page, string tab)
+	private static async Task<JsonElement> Shown(string route, string screen)
 	{
 		var data = await Fm.GetJson(route);
 		if (data.GetArrayLength() > 0) return data;
 
-		var opened = await OpenPage(page, tab);
+		var opened = await OpenPage(screen);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
 
 		await Until(async () => (data = await Fm.GetJson(route)).GetArrayLength() > 0);
@@ -238,7 +238,7 @@ internal static partial class Program
 				// The game's search lists only its first few hits, and a short name like "Fred"
 				// can be left out; a player of ours is then opened from the squad's own table, where
 				// his name can show twice (the page and the one beneath), both opening him.
-				var opened = await OpenPage("First Team", "Squad");
+				var opened = await OpenPage(Screen.Squad);
 				var pressedName = opened.StartsWith("error", StringComparison.Ordinal) ? opened
 					: await Arriving("press", [("text", full), ("name", "NameButton"), ("any", "1")]);
 				if (pressedName.StartsWith("error", StringComparison.Ordinal))
@@ -516,7 +516,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> SquadAnyView(bool json, string wanted)
 	{
-		var opened = await OpenPage("First Team", "Squad");
+		var opened = await OpenPage(Screen.Squad);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		JsonElement? viewList = null;
@@ -691,7 +691,7 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage("Player Database", "Recruitment");
+		var opened = await OpenPage(Screen.PlayerDatabase);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		const string filterList = "inputs-combobox-default-default";
@@ -902,7 +902,7 @@ internal static partial class Program
 		// The portal's tile holds the table of the competition the next match is in — the
 		// league most weeks, Europe before a European night — so it is only taken when that is
 		// the one asked for. Any other is on the competition's own page, opened from its name.
-		var opened = await OpenPage("Overview", "Portal");
+		var opened = await OpenPage(Screen.Home);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		// Each table bound on screen apart from the others (the tile and a competition's page
@@ -1066,7 +1066,7 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (all) return await AllFixtures(json);
 
-		var fixtures = await Shown("fixtures", "Overview", "Portal");
+		var fixtures = await Shown("fixtures", Screen.Home);
 		if (json)
 		{
 			Console.WriteLine(fixtures.ToString());

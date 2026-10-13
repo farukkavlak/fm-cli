@@ -15,7 +15,7 @@ internal static partial class Program
 	private static async Task<int> BoardRequests(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Board", "Club");
+		var opened = await OpenPage(Screen.Board);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		// The card is behind the tile that counts the board's members.

@@ -253,7 +253,7 @@ internal static partial class Program
 	private static async Task<int> ScoutStaff(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Recruitment Focuses", "Recruitment");
+		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		JsonElement open = default;
 		await Until(async () => (open = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -318,7 +318,7 @@ internal static partial class Program
 
 	private static async Task<bool> OpenFocusForm(bool again = false)
 	{
-		var opened = await OpenPage("Recruitment Focuses", "Recruitment");
+		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return false; }
 		var clicked = "";
 		// The button is drawn a moment after the page; clicked, not queued — its action is code.
@@ -450,7 +450,7 @@ internal static partial class Program
 
 		if (await NotNow() is { } refused) return refused;
 		// The focuses as they stand, so the one this makes can be told from them afterwards.
-		var page = await OpenPage("Recruitment Focuses", "Recruitment");
+		var page = await OpenPage(Screen.RecruitmentFocuses);
 		if (page.StartsWith("error", StringComparison.Ordinal)) return Report(page);
 		var existing = await ScoutFocuses();
 		Focus editing = null;
@@ -647,7 +647,7 @@ internal static partial class Program
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Recruitment Focuses", "Recruitment");
+		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		var focuses = await ScoutFocuses();
 		if (focuses.Count == 0)
@@ -722,7 +722,7 @@ internal static partial class Program
 		}
 		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
 		await Task.Delay(800);
-		await OpenPage("Recruitment Focuses", "Recruitment");
+		await OpenPage(Screen.RecruitmentFocuses);
 		// Stopped once the page counts one assignment fewer: the entry itself stays listed, and
 		// until the day turns nothing on it says it has stopped.
 		var stopped = await Until(async () => await Assignments() is { } now && now < assignments, seconds: 15, every: 0.7);

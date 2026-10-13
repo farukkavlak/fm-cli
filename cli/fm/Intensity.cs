@@ -22,7 +22,7 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage("Training", "Squad");
+		var opened = await OpenPage(Screen.Training);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Training Intensity"), ("fire", "1"));
 

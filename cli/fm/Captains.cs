@@ -19,7 +19,7 @@ internal static partial class Program
 			.Where(c => Option(args, c.Item1) != null).Select(c => (Wanted: Option(args, c.Item1), List: c.Item2)).ToList();
 		foreach (var (wanted, list) in changes)
 		{
-			var opened = await OpenPage("Dynamics", "Squad");
+			var opened = await OpenPage(Screen.Dynamics);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 			await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Captains"), ("fire", "1"));
 

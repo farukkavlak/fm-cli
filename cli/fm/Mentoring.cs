@@ -13,7 +13,7 @@ internal static partial class Program
 	private static async Task<int> Mentoring(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Training", "Squad");
+		var opened = await OpenPage(Screen.Training);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Mentoring"), ("fire", "1"));
 		if (!await Until(async () => (await Fm.GetJson("texts", ("anchor", "Mentoring Groups"), ("up", "0"))).GetArrayLength() > 0, seconds: 8, every: 0.4))

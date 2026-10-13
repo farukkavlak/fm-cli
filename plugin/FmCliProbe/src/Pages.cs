@@ -7,13 +7,23 @@ using SI.Bindable;
 namespace FmCliProbe;
 
 /// <summary>
-/// The game's pages, as its own navigation menus list them, and a way to open one by name.
+/// The game's pages, as its own navigation menus list them, and a way to open one.
 ///
 /// Each main tab keeps a menu of its pages whether or not any of them is open, and every row
-/// says which panel it stands for: the asset's GUID and the panel's id. Most of those panels
-/// are not loaded until first visited, so a page cannot be opened by handing the game a panel
-/// object. The bookmark event takes asset references instead, and the game loads what it
-/// needs.
+/// says which panel it stands for: the asset's GUID, the panel's id and, for a page about a
+/// team, that team's unique id. The GUID comes from the game's files, so it is the same in
+/// every language and every save; the name is only what the row shows.
+///
+/// A page is opened by choosing its row in that menu, the way a click does. The row carries
+/// the team, so First Team, Under 21s and Under 18s — one panel — each open their own squad,
+/// and a page that has to be told what it is about (the tactics planner) comes up bound.
+///
+/// A row with a submenu (Training ›) does not open its page when chosen, and the bookmark event
+/// opens such a page empty. The page has a button of its own in the bar under the tabs, and a
+/// click on it sends the page's GUID: that button is found by the GUID of its first row, not by
+/// its label. A page kept in the bar's "More" menu has no button, and opens whole by bookmark.
+/// The bar is only there while the page's tab is up, so the tab is opened first and the caller
+/// asks again.
 /// </summary>
 internal static class Pages
 {
@@ -24,7 +34,11 @@ internal static class Pages
 		public string Guid;
 		public string TabGuid;
 		public string PanelId;
+		public string ObjectId;
 		public bool OpensCard;
+		public SIDropdown Menu;
+		public int Row;
+		public bool HasSubmenu;
 	}
 
 	public static string Catalog()
@@ -35,30 +49,67 @@ internal static class Pages
 			["Page"] = p.Name,
 			["PanelID"] = p.PanelId,
 			["Guid"] = p.Guid,
+			["Object"] = p.ObjectId,
 			["OpensCard"] = p.OpensCard ? "True" : "False",
+			["Submenu"] = p.HasSubmenu ? "True" : "False",
 		}));
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
 	}
 
 	public static string Open(NameValueCollection q)
 	{
+		var guid = q["guid"];
 		var name = q["page"];
-		if (string.IsNullOrEmpty(name)) return "error: ?page=<name>[&tab=<tab>] required (see /pages)";
+		if (string.IsNullOrEmpty(guid) && string.IsNullOrEmpty(name))
+			return "error: ?guid=<page guid>[&object=<team id>] or ?page=<name>[&tab=<tab>] required (see /pages)";
 
-		var tab = q["tab"];
-		var matches = All()
-			.Where(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))
-			.Where(p => string.IsNullOrEmpty(tab) || string.Equals(p.Tab, tab, StringComparison.OrdinalIgnoreCase))
-			.ToList();
+		Page page;
+		if (!string.IsNullOrEmpty(guid))
+		{
+			// One page can sit in two menus, and the tab it is opened under changes what it shows:
+			// the opposition report under Match Day is titled for the next match. ?under= names the
+			// tab by the GUID of its first page. One panel can also stand for several teams; without
+			// ?object= the first row is taken, which is the club's own team.
+			var obj = q["object"];
+			var under = q["under"];
+			page = All().FirstOrDefault(p => string.Equals(p.Guid, guid, StringComparison.OrdinalIgnoreCase)
+			                                 && (string.IsNullOrEmpty(obj) || p.ObjectId == obj)
+			                                 && (string.IsNullOrEmpty(under) || string.Equals(p.TabGuid, under, StringComparison.OrdinalIgnoreCase)));
+			if (page == null)
+				return $"error: no page with guid {guid}" + (string.IsNullOrEmpty(obj) ? "" : $" for object {obj}")
+				       + (string.IsNullOrEmpty(under) ? "" : $" under tab {under}");
+		}
+		else
+		{
+			var tab = q["tab"];
+			var matches = All()
+				.Where(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))
+				.Where(p => string.IsNullOrEmpty(tab) || string.Equals(p.Tab, tab, StringComparison.OrdinalIgnoreCase))
+				.ToList();
 
-		if (matches.Count == 0) return $"error: no page named '{name}'" + (string.IsNullOrEmpty(tab) ? "" : $" under '{tab}'");
-		if (matches.Count > 1)
-			return $"error: {matches.Count} pages are named '{name}'; narrow it with &tab=\n"
-			       + string.Join("\n", matches.Select(p => $"  {p.Tab}"));
+			if (matches.Count == 0) return $"error: no page named '{name}'" + (string.IsNullOrEmpty(tab) ? "" : $" under '{tab}'");
+			if (matches.Count > 1)
+				return $"error: {matches.Count} pages are named '{name}'; narrow it with &tab=\n"
+				       + string.Join("\n", matches.Select(p => $"  {p.Tab}"));
+			page = matches[0];
+		}
 
-		var page = matches[0];
 		var described = $"{page.Tab} › {page.Name} (panel {page.PanelId}{(page.OpensCard ? ", card" : "")})";
 		if (q["dry"] == "1") return $"dry run, NOT opened: {described}";
+
+		if (q["how"] != "bookmark")
+		{
+			if (page.HasSubmenu)
+			{
+				switch (Click(page))
+				{
+					case Bar.Clicked: return $"opened {described}";
+					case Bar.Absent when page.Menu != null && Choose(Home(page)):
+						return $"error: no subtab bar for {described} yet; opened {page.Tab} first, ask again";
+				}
+			}
+			else if (Choose(page)) return $"opened {described}";
+		}
 
 		var events = Game.Events;
 		if (events == null) return "error: event subsystem unavailable";
@@ -68,7 +119,83 @@ internal static class Pages
 			BookmarkPanelID = new UnityEngine.AddressableAssets.AssetReferenceT<PanelID>(page.Guid),
 			MainTabPanelID = new UnityEngine.AddressableAssets.AssetReferenceT<PanelID>(page.TabGuid),
 		});
-		return $"opened {described}";
+		return $"opened {described} (bookmark)";
+	}
+
+	/// <summary>
+	/// Chooses the page's row in its tab's menu and sends what the row sends. A row with a
+	/// submenu only opens that submenu, and none of the ways of choosing its first entry opened
+	/// the page either (see <see cref="Click"/>).
+	/// </summary>
+	private static bool Choose(Page page)
+	{
+		var queue = Game.UiEvents;
+		if (page.Menu == null || queue == null) return false;
+		try
+		{
+			page.Menu.OnSelectionChangedInternal(page.Row);
+			var events = page.Menu.SelectionEvents;
+			if (events == null || events.Count == 0) return false;
+			queue.QueueEvents(events);
+			return true;
+		}
+		catch { return false; }
+	}
+
+	/// <summary>The first page of a page's tab: the tab's own screen.</summary>
+	private static Page Home(Page page) => new() { Menu = page.Menu, Row = 0 };
+
+	private enum Bar { Clicked, InMore, Absent }
+
+	/// <summary>
+	/// Clicks the subtab button that opens a page with a submenu: of the dropdowns under the
+	/// tabs, the one whose click sends something and whose first row is that page. A dropdown
+	/// that lists the page further down is the bar's "More" menu.
+	/// </summary>
+	private static Bar Click(Page page)
+	{
+		var queue = Game.UiEvents;
+		var inMore = false;
+		foreach (var dropdown in Buttons.AllDropdowns())
+		{
+			try
+			{
+				// A tab visited earlier keeps its bar, hidden; a click there does nothing.
+				if (dropdown.name == "NavTabDropdown" || !Shown(dropdown)) continue;
+				var choices = dropdown.m_choices;
+				var count = choices?.Count ?? 0;
+				for (var i = 0; i < count; i++)
+				{
+					if (!string.Equals(Read(choices[i])?.Guid, page.Guid, StringComparison.OrdinalIgnoreCase)) continue;
+					var events = dropdown.LeftClickEvents;
+					if (i == 0 && events != null && events.Count > 0 && queue != null)
+					{
+						queue.QueueEvents(events);
+						return Bar.Clicked;
+					}
+					inMore = true;
+				}
+			}
+			catch { }
+		}
+		return inMore ? Bar.InMore : Bar.Absent;
+	}
+
+	private static bool Shown(UnityEngine.UIElements.VisualElement element)
+	{
+		try
+		{
+			if (element.panel == null || element.worldBound.width <= 0) return false;
+			for (var e = element; e != null; e = e.parent)
+			{
+				var style = e.resolvedStyle;
+				if (style.display == UnityEngine.UIElements.DisplayStyle.None
+				    || style.visibility == UnityEngine.UIElements.Visibility.Hidden
+				    || style.opacity <= 0) return false;
+			}
+			return true;
+		}
+		catch { return false; }
 	}
 
 	private static List<Page> All()
@@ -88,7 +215,11 @@ internal static class Pages
 			for (var i = 0; i < count; i++)
 			{
 				var page = Read(choices[i]);
-				if (page != null) rows.Add(page);
+				if (page == null) continue;
+				page.Menu = menu;
+				page.Row = i;
+				page.HasSubmenu = (Buttons.Children(choices[i])?.Count ?? 0) > 0;
+				rows.Add(page);
 			}
 			if (rows.Count == 0) continue;
 
@@ -122,6 +253,7 @@ internal static class Pages
 				Name = Value(panel, "SubtabText"),
 				Guid = Value(panel, "Value"),
 				PanelId = Value(panel, "PanelID"),
+				ObjectId = Value(panel, "ObjectUniqueID"),
 				OpensCard = Value(panel, "OpensCard") == "True",
 			};
 		}

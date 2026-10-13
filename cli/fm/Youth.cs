@@ -136,7 +136,7 @@ internal static partial class Program
 	private static async Task<int> Youth(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Youth Setup", "Squad");
+		var opened = await OpenPage(Screen.YouthSetup);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		Func<string, string, Task<List<string>>> Around = YouthTexts;

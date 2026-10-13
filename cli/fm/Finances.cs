@@ -21,7 +21,7 @@ internal static partial class Program
 	private static async Task<int> Finances(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Overview", "Club");
+		var opened = await OpenPage(Screen.ClubHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		var clicked = "";

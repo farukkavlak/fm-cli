@@ -21,7 +21,7 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage("Recruitment Budgets", "Recruitment");
+		var opened = await OpenPage(Screen.RecruitmentBudgets);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		var budgets = await BudgetOverview();
 		if (budgets == null)

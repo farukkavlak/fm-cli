@@ -406,7 +406,7 @@ internal static partial class Program
 		JsonElement played = default;
 		try
 		{
-			played = (await Shown("fixtures", "Overview", "Portal")).EnumerateArray()
+			played = (await Shown("fixtures", Screen.Home)).EnumerateArray()
 				.Where(f => Field(f, "Result") != "" && Field(f, "Date") != "")
 				.OrderBy(f => Field(f, "Date"))
 				.LastOrDefault();

@@ -12,7 +12,7 @@ internal static partial class Program
 	private static async Task<int> StaffFind(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Staff Database", "Recruitment");
+		var opened = await OpenPage(Screen.StaffDatabase);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		JsonElement? views = null, filters = null;

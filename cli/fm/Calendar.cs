@@ -107,7 +107,7 @@ internal static partial class Program
 	/// <summary>The months the calendar offers, as its dropdown names them, and the one showing.</summary>
 	private static async Task<(List<string> Months, string Showing)?> CalendarMonths()
 	{
-		var opened = await OpenPage("Calendar", "Portal");
+		var opened = await OpenPage(Screen.Calendar);
 		if (opened.StartsWith("error", StringComparison.Ordinal))
 		{
 			Report(opened);

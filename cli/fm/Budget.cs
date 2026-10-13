@@ -13,7 +13,7 @@ internal static partial class Program
 	private static async Task<int> Budget(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Recruitment Budgets", "Recruitment");
+		var opened = await OpenPage(Screen.RecruitmentBudgets);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		var overview = await BudgetOverview();

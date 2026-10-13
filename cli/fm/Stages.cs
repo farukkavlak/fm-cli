@@ -21,7 +21,7 @@ internal static partial class Program
 		// Asked for by `table`: the table alone, with nothing said around it.
 		var bare = args.Contains("--bare");
 
-		var opened = await OpenPage("Stages", "Portal");
+		var opened = await OpenPage(Screen.Stages);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (!await Until(async () => await StageLists() != null, seconds: 10, every: 0.5))
 		{

@@ -26,7 +26,7 @@ internal static partial class Program
 		var form = await Form();
 		if (!form.Any(f => Field(f, "Text") == "Order"))
 		{
-			var opened = await OpenPage("Penalties", "Match Day");
+			var opened = await OpenPage(Screen.Penalties);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 			await Until(async () => (form = await Form()).Any(f => Field(f, "Kind") == "checkbox"), seconds: 10, every: 0.5);
 		}

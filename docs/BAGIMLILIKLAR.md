@@ -58,6 +58,12 @@ stages, jobs, settings, saves.
 Dilden bağımsız karşılık **var**: aynı katalog her sayfanın `PanelID` ve `Guid`'ini taşıyor, açma da zaten GUID ile
 yapılıyor. Sadece arama adla.
 
+**Durum (13 Ekim 2026): çözüldü.** Komutlar sayfaları `cli/fm/Screens.cs`'teki Guid'lerle açıyor (`OpenPage(Screen.Tactics)`);
+eklenti sayfanın menü satırını seçiyor, alt menülü sayfada alt sekme düğmesini ilk satırının Guid'iyle buluyor. Aynı
+ekranın takımları (First Team / U21 / U18) satırdaki takım kimliğiyle ayrılıyor; takım veriden
+(`Club.HighestLevelYouthTeam`…). Elle yazılan `fm open <ad>` oyunun dilindeki adla çalışmaya devam ediyor (kullanıcının
+girdisi). Ayrıntı: FINDINGS §8.162. Açık: Medical Centre hiçbir yolla açılmıyor (kullanan komut yok).
+
 ### 2.2 Buton, menü ve sekme etiketleri **[kesin]**
 
 Komut ekrandaki kontrolleri listeliyor (`/buttons`, `/dropdowns`, `/dialog`, `/actions`), sonra **etiketine bakarak**
@@ -248,6 +254,25 @@ değiştirebilir. Skin'in gerçekten değiştirip değiştirmediği **[ölçüle
    yolu yok. (Taşınabilirlik planının dışında ama listede dursun.)
 
 ---
+
+## 6.5 Platform ve mağaza (Faruk, 13 Ekim 2026: en sonda denenecek)
+
+Mağaza (Steam / Epic / Game Pass), işletim sistemi (macOS / Windows) ve oyun sürümü. Kod taraması **[kesin]**, hiçbiri denenmedi.
+
+- **Kurulum yeri:** `Launcher.cs` oyunu `~/Library/Application Support/Steam/steamapps/common/Football Manager 26` altında
+  arıyor, çalıştırılan kopya `~/fm26_bep/fm.app` ve `run_bepinex_arm64.sh`. Epic'te kurulum yeri başka; Windows'ta hepsi başka.
+- **Kayıt ve taktik klasörü:** `Saves.cs`, `TacticFiles.cs` → `~/Library/Application Support/Sports Interactive/Football Manager 26/`.
+  Windows'ta `Documents\Sports Interactive\…`.
+- **macOS'a özel araçlar:** `osascript` (pencereyi küçültme), `PlistBuddy` (Dock'tan çıkarma), `/usr/bin/pgrep` / `pkill`
+  (kapatma), `.app` paketi. Windows'ta karşılığı yok; gizli başlatma oradan yeniden yazılmalı.
+- **BepInEx:** bugün arm64 için yamalı paket (Il2CppInterop arm64'te bazı kancaları atlıyor). Windows x64 resmi paketle
+  çalışır, ama eklentinin arm64'e göre koyduğu çekinceler orada farklı davranabilir **[ölçülecek]**.
+- **Oyun sürümü:** interop DLL'leri oyunun o sürümünden üretiliyor. Mağazalar arasında sürüm farkı (ya da bir güncelleme)
+  tip / alan adlarını, enum değerlerini değiştirebilir. Sayfa Guid'leri büyük olasılıkla mağazadan bağımsız **[ölçülecek]**.
+- **Oyunun içi:** veri yolları, olay adları, Guid'ler, ekran ağacı mağazaya ve işletim sistemine göre değişmemeli; ekran
+  çözünürlüğü / ölçek ayrı madde (§4).
+
+Yapılacak: yollar ve başlatma tek yerde, platforma göre (ya da ayarla) seçilsin; Windows'ta başlatma / kapatma ayrı.
 
 ## 7. Çözüm seçenekleri (karar birlikte)
 

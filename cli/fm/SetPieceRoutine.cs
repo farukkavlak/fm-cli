@@ -37,7 +37,7 @@ internal static partial class Program
 		}
 		words.RemoveAt(0);
 
-		var opened = await OpenPage("Set Pieces", "Match Day");
+		var opened = await OpenPage(Screen.SetPieces);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (await ShowSetPieceKind(kind.Top, kind.Leaf) == null)
 		{

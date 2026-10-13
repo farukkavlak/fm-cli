@@ -11,7 +11,7 @@ internal static partial class Program
 	private static async Task<int> Opponent(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Next Opposition Report", "Match Day");
+		var opened = await OpenPage(Screen.OppositionReport, under: Screen.MatchDayHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		List<string> texts = [];
@@ -51,7 +51,7 @@ internal static partial class Program
 		// that is not loaded has none ("No Data Available").
 		var stats = new List<(string Label, string Value)>();
 		string scope = "", verdict = "";
-		if (!(await OpenPage("Opposition Report", "Portal")).StartsWith("error", StringComparison.Ordinal))
+		if (!(await OpenPage(Screen.OppositionReport, under: Screen.Home)).StartsWith("error", StringComparison.Ordinal))
 		{
 			List<string> block = [];
 			await Until(async () =>

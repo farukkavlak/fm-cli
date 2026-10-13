@@ -18,7 +18,7 @@ internal static partial class Program
 	private static async Task<int> Schedule(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Training", "Squad");
+		var opened = await OpenPage(Screen.Training);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		// "Overview" is on every subtab menu of the tab, so the Training one is chosen by its pointer.

@@ -463,7 +463,7 @@ internal static partial class Program
 
 		if (!await Choose(view))
 		{
-			if (!await Until(async () => Sent(await Fm.Get("open", ("page", "First Team")))))
+			if (!await Until(async () => Sent(await OpenPage(Screen.Squad))))
 				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0
 					? $"Oyun menüsüz bir ekranda ({Field(await Fm.GetJson("state"), "State")}); sayfalar açılamıyor. Geçmek için: next"
 					: "'First Team' sayfası açılamadı.");
@@ -1572,26 +1572,48 @@ internal static partial class Program
 			return Report(await Arriving("open", query.ToArray()));
 		}
 
-		return Report(await OpenPage(words[0], Option(args, "--tab")));
+		return Report(await OpenNamed(words[0], Option(args, "--tab")));
 	}
 
 	/// <summary>
-	/// Opens a page the way that leaves its data bound.
+	/// Opens a page by its GUID (<see cref="Screen"/>); a page about a team (a squad list) is
+	/// told which by the team's unique id, the club's own team when none is given. A page in two
+	/// tabs' menus is opened under the one whose first page is <paramref name="under"/>.
 	///
-	/// The bookmark event opens any page by name, but a page that needs to be told what it is
-	/// about — the tactics planner wants a team — comes up empty that way. The tab's own row of
-	/// subtab buttons opens it properly, and only from another page of that tab: pressing the
-	/// button of a page that is already up does nothing. So the tab's first page is opened by
-	/// bookmark and the subtab button pressed from there. Pages that are only in the tab's
-	/// "More" menu have no button, and fall back to the bookmark.
+	/// The bridge chooses the page's row in its tab's menu, as a click does, which leaves a page
+	/// that needs to know what it is about (the tactics planner) bound, and needs no name. A row
+	/// with a submenu (Training ›) goes by bookmark.
+	///
+	/// Such a page is one panel in both places, and a panel already up keeps the form it was
+	/// opened in: the tactics planner's team report, chosen again under Match Day, stays the team
+	/// report and never shows the next-match heading (FINDINGS §8.163). Another page is opened
+	/// first so that the panel is built anew.
 	/// </summary>
-	private static async Task<string> OpenPage(string page, string tab = null)
+	internal static async Task<string> OpenPage(string screen, string team = null, string under = null)
 	{
-		var query = new List<(string, string)> { ("page", page) };
-		if (tab != null) query.Add(("tab", tab));
+		var query = new List<(string, string)> { ("guid", screen) };
+		if (team != null) query.Add(("object", team));
+		if (under != null)
+		{
+			query.Add(("under", under));
+			if (screen != Screen.Home && under != Screen.Home) await OpenWith([("guid", Screen.Home)]);
+		}
+		return await OpenWith(query.ToArray());
+	}
 
-		// Right after a match the navigation is rebuilt and the page list is empty for a while
-		// (FINDINGS §8.52); it is waited for rather than reported as no such page.
+	/// <summary>A page as the game's own menus name it, in the game's language: what someone types after `fm open`.</summary>
+	private static Task<string> OpenNamed(string page, string tab = null) =>
+		OpenWith(tab == null ? [("page", page)] : [("page", page), ("tab", tab)]);
+
+	/// <summary>
+	/// Right after a match the navigation is rebuilt and the page list is empty for a while
+	/// (FINDINGS §8.52); it is waited for rather than reported as no such page. Now and then the
+	/// game is laying out its screen when the page is asked for, and refuses to add the panel
+	/// ("VisualElements cannot be added to an active visual tree…", FINDINGS §8.78); a moment
+	/// later the same request goes through.
+	/// </summary>
+	private static async Task<string> OpenWith((string, string)[] query)
+	{
 		if (!await Until(async () => (await Fm.GetJson("pages")).GetArrayLength() > 0, seconds: 5, every: 0.5))
 		{
 			// A screen of its own — the round's results after a European night, a press
@@ -1600,55 +1622,10 @@ internal static partial class Program
 			return $"error: oyun menüsüz bir ekranda ({flow}); sayfalar açılamıyor. Geçmek için: next";
 		}
 
-		// A dry run names the page in full or says why it cannot: "…: <tab> › <page> (panel …".
-		var planned = await Arriving("open", [.. query, ("dry", "1")]);
-		if (planned.StartsWith("error", StringComparison.Ordinal)) return planned;
-
-		var from = planned.IndexOf(": ", StringComparison.Ordinal) + 2;
-		var to = planned.IndexOf(" › ", StringComparison.Ordinal);
-		if (from < 2 || to < from) return await OpenBookmark(query.ToArray());
-		var tabName = planned[from..to];
-
-		var siblings = (await Fm.GetJson("pages")).EnumerateArray()
-			.Where(p => Field(p, "Tab") == tabName)
-			.Select(p => Field(p, "Page"))
-			.ToList();
-		if (siblings.Count == 0 || siblings[0].Equals(page, StringComparison.OrdinalIgnoreCase))
-			return await OpenBookmark(query.ToArray());
-
-		await OpenBookmark(("page", siblings[0]), ("tab", tabName));
-
-		// The row of subtabs belongs to whichever tab is up, and two tabs can both have a page
-		// by this name, so it is only trusted once every button on it is one of this tab's.
-		List<string> bar = [];
-		await Until(async () =>
-		{
-			bar = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.Where(c => Field(c, "Name") == "SIButton" && Field(c, "Events") == "OpenSubtab")
-				.Select(c => Field(c, "Label"))
-				// A subtab drawn as an icon has no label (Club's row has one): it tells no tab from another.
-				.Where(label => label.Length > 0)
-				.ToList();
-			return bar.Count > 0 && bar.All(label => siblings.Contains(label, StringComparer.OrdinalIgnoreCase));
-		}, seconds: 8);
-
-		if (!bar.Contains(page, StringComparer.OrdinalIgnoreCase)) return await OpenBookmark(query.ToArray());
-
-		var pressed = await Arriving("press", [("text", page), ("name", "SIButton"), ("event", "OpenSubtab")]);
-		return pressed.StartsWith("error", StringComparison.Ordinal) ? pressed : $"opened {tabName} › {siblings.First(s => s.Equals(page, StringComparison.OrdinalIgnoreCase))}";
-	}
-
-	/// <summary>
-	/// Opens a page by bookmark. Now and then the game is laying out its screen when the bridge
-	/// sends the event, and refuses to add the panel ("VisualElements cannot be added to an active
-	/// visual tree…", FINDINGS §8.78); a moment later the same event goes through.
-	/// </summary>
-	private static async Task<string> OpenBookmark(params (string, string)[] query)
-	{
 		var answer = "";
 		for (var attempt = 0; attempt < 3; attempt++)
 		{
-			answer = await Fm.Get("open", query);
+			answer = await Arriving("open", query);
 			if (!answer.Contains("active visual tree", StringComparison.Ordinal)) return answer;
 			await Task.Delay(500);
 		}

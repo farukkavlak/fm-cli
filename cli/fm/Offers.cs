@@ -23,7 +23,7 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 		var words = Words(args).ToList();
-		var opened = await OpenPage("Transfer Activity", "Recruitment");
+		var opened = await OpenPage(Screen.TransferActivity);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		// The list is drawn after the page; it is read once two readings agree.

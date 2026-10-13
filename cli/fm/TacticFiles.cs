@@ -216,7 +216,7 @@ internal static partial class Program
 		JsonElement info = default;
 		var loaded = await Until(async () =>
 		{
-			if (Field(info = await TacticInfo(), "Name").Length == 0) await OpenPage("Tactics", "Match Day");
+			if (Field(info = await TacticInfo(), "Name").Length == 0) await OpenPage(Screen.Tactics);
 			return Field(info, "Name") == name;
 		}, seconds: 10, every: 0.6);
 		Console.WriteLine(loaded

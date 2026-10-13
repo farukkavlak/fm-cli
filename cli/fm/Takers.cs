@@ -72,7 +72,7 @@ internal static partial class Program
 			words.RemoveRange(0, 2);
 		}
 
-		var opened = await OpenPage("Set Pieces", "Match Day");
+		var opened = await OpenPage(Screen.SetPieces);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		var seen = new HashSet<string>();
@@ -197,7 +197,7 @@ internal static partial class Program
 		// overview); the page is opened once more before giving up.
 		if (!await Still(null, null))
 		{
-			await OpenPage("Set Pieces", "Match Day");
+			await OpenPage(Screen.SetPieces);
 			if (!await Still(null, null)) return null;
 		}
 		var said = leaf == null

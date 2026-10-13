@@ -134,7 +134,7 @@ internal static partial class Program
 		var texts = await Texts();
 		if (texts.Count == 0)
 		{
-			var opened = await OpenPage("Dynamics", "Squad");
+			var opened = await OpenPage(Screen.Dynamics);
 			if (opened.StartsWith("error", StringComparison.Ordinal))
 			{
 				Console.Error.WriteLine(opened);

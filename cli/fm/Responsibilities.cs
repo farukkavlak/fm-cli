@@ -15,7 +15,7 @@ internal static partial class Program
 	private static async Task<int> Responsibilities(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage("Responsibilities", "Club");
+		var opened = await OpenPage(Screen.Responsibilities);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		var words = Words(args).ToList();

@@ -25,7 +25,7 @@ internal static partial class Program
 	/// <summary>Opens a card from its tile on Club › Overview and reads it once it shows what it should.</summary>
 	private static async Task<List<string>> ClubCard(string tile, string anchor, int up, Func<List<string>, bool> ready)
 	{
-		var opened = await OpenPage("Overview", "Club");
+		var opened = await OpenPage(Screen.ClubHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
 		var clicked = "";
 		await Until(async () => !(clicked = await Fm.Get("click", ("text", tile), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);

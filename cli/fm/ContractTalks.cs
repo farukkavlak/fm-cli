@@ -350,7 +350,7 @@ internal static partial class Program
 						// The promises stage has no cancel either: nothing has been put to the agent yet, and
 			// walking off the page is the way out.
 			await Fm.Get("press", ("text", "Exit Talks"), ("any", "1"));
-			await OpenPage("Overview", "Portal");
+			await OpenPage(Screen.Home);
 			return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25)
 				? null : "Görüşmede iptal butonu yok.";
 		}
