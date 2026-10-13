@@ -4428,6 +4428,18 @@ kaybolmadı. Yani takılma oturuma ait, kayda değil. Sayfa açan komutların or
 durumunda "önce geç: next" deyip duruyor. Nedenin bu olduğu tek gözleme dayanıyor: 11 Nisan'da aynı ekranda `player`
 arama bulamayıp hata vermiş, `next` sorunsuz geçmişti.
 
+## 8.158 Mesaj ekleri: cevabı olmayan mesajda ek hiç yazılmıyordu (30 Nisan 2026)
+
+Gelen kutusundaki on altı mesaj art arda açıldı. `reply`'ın "cevap seçeneği yok" dalı eki hiç yazmıyordu: rapor ve
+tavsiye mesajları (rakip raporu, haftalık Coaching / Recruitment / Development Advice, Home Grown Status, Team of the
+Week, "resumes full training", Regular News Round-up, okunmuş Recruitment Focus Update) yalnızca tek cümlelik gövdeyle
+çıkıyordu. Ek, mesajın kendisinden bir an sonra geliyor; okuma 1,5 sn'ye kadar bekliyor. Satır satır yazılan ekler:
+"Responsibilities" (sende / devredilmiş sayısı, alanlar), "Training" (iki haftalık program, gün başına üç seans; "H" /
+"A" maç), "Recruitment Focuses", "Advice Summary" (toplantı türü + konular "(n)"), "Next Opposition Report" (diziliş,
+gol / asist / ortalama liderleri, Team News, son beş maç), "Homegrown" (statü kazananlar beşli, "Upcoming Status
+Changes" altılı satırlar; satır "N years old" ile tanınıyor). Hâlâ düz dökülenler: Team of the Week (on bir oyuncu
+yazıda yok, yalnızca ödül kutusu), Advice Summary'nin son bölümü, Scouting Report kartı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

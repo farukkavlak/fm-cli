@@ -951,6 +951,64 @@ internal static partial class Program
 			return;
 		}
 
+		// A staff meeting's summary: what kind it was and the topics raised, each with how many items.
+		if (rest[0] == "Advice Summary" && rest.IndexOf("Advice Topics") is > 0 and var topicsAt)
+		{
+			Console.WriteLine($"\n  Ek: tavsiye özeti — {(rest.IndexOf("Meeting type") is >= 0 and var kindAt && kindAt + 1 < rest.Count ? rest[kindAt + 1] : "")}");
+			var topics = rest.Skip(topicsAt + 1).TakeWhile(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"\(\d+\)$")).ToList();
+			foreach (var topic in topics) Console.WriteLine($"    {topic}");
+			var others = rest.Skip(topicsAt + 1 + topics.Count).Where(t => t != "Action message").ToList();
+			if (others.Count > 0) Console.WriteLine($"    Ayrıca: {string.Join(" · ", others)}");
+			return;
+		}
+
+		// The report on the next opponent: where they stand, how they line up, their best men, who is
+		// doubtful and how their last matches went.
+		if (rest[0] == "Next Opposition Report" && rest.Count > 3)
+		{
+			string After(string label, int by = 1) => rest.IndexOf(label) is >= 0 and var at && at + by < rest.Count ? rest[at + by] : "";
+			Console.WriteLine($"\n  Ek: rakip raporu — {rest[1]} · {rest[2]}");
+			if (After("Most Used Formation") is { Length: > 0 } shape) Console.WriteLine($"    Diziliş: {shape}");
+			var best = new[] { ("Gol kralı", "Top Goalscorer"), ("Asist", "Most Assists"), ("En yüksek ortalama", "Highest Average Rating") }
+				.Where(b => After(b.Item2, 2).Length > 0).Select(b => $"{b.Item1}: {After(b.Item2, 2)} ({After(b.Item2)})").ToList();
+			if (best.Count > 0) Console.WriteLine($"    {string.Join(" · ", best)}");
+			var newsAt = rest.IndexOf("Team News");
+			var fixturesAt = rest.IndexOf("Fixture Schedule");
+			if (newsAt > 0 && fixturesAt > newsAt + 1) Console.WriteLine($"    Takım haberleri: {string.Join(" · ", rest.Skip(newsAt + 1).Take(fixturesAt - newsAt - 1))}");
+			var played = new List<string>();
+			for (var i = fixturesAt + 1; fixturesAt > 0 && i + 4 < rest.Count && rest[i + 3] is "H" or "A" or "N"; i += 5)
+				played.Add($"{rest[i]} {rest[i + 2]} ({rest[i + 3]}) {rest[i + 4]}");
+			if (played.Count > 0) Console.WriteLine($"    Son maçları: {string.Join(" · ", played)}");
+			Console.WriteLine("    Ayrıntı: opponent");
+			return;
+		}
+
+		// Who has just become home-grown and who is about to, each with his age, nation and squad.
+		if (rest[0] == "Homegrown" && rest.Contains("Home-Grown Status"))
+		{
+			Console.WriteLine("\n  Ek: altyapı (home-grown) statüsü");
+			var changes = rest.IndexOf("Upcoming Status Changes");
+			var registration = rest.IndexOf("Squad Registration");
+			var end = registration > 0 ? registration : rest.Count;
+			void Rows(int from, int to, int width, string title)
+			{
+				var lines = new List<string>();
+				for (var i = from; i + width - 1 < to; i++)
+				{
+					if (!rest[i + 1].EndsWith("years old", StringComparison.Ordinal)) continue;
+					var said = string.Join(" · ", rest.Skip(i + 4).Take(width - 4).Where(t => t != "-"));
+					lines.Add($"      {rest[i]} ({rest[i + 1].Split(' ')[0]}, {rest[i + 2]}, {rest[i + 3]}){(said.Length > 0 ? $" — {said}" : "")}");
+					i += width - 1;
+				}
+				if (lines.Count == 0) return;
+				Console.WriteLine($"    {title}");
+				foreach (var line in lines) Console.WriteLine(line);
+			}
+			Rows(1, changes > 0 ? changes : end, 5, "Statü kazananlar");
+			if (changes > 0) Rows(changes + 1, end, 6, "Yaklaşan değişiklikler (statü · tarih)");
+			return;
+		}
+
 		// The weekly roundup of what is delegated: how much is ours and how much the staff's, then the
 		// areas with the number of items each has to report.
 		if (rest[0] == "Responsibilities" && rest.Contains("Delegated to Staff"))
