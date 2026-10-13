@@ -352,10 +352,12 @@ internal static partial class Program
 				_ => await FixtureVenue() != "A",
 			};
 			if (score == "-") score = "–";
-			var board = await MatchNames() is { } sides
-				? home ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
+			var named = await MatchNames();
+			var board = named is { } sides
+				? home || watchedMatch ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
 				: score + (home ? " (ev sahibiyiz)" : " (deplasmandayız)");
 			var minute = Field(state, "MatchTime");
+			if (watchedMatch) board += "  (izlediğimiz maç, A takımın değil)";
 			Console.WriteLine(minute == "" ? $"Maçtayız, başlamadı.  {board}" : $"Maçtayız. {minute}  {board}");
 			// A team talk holds the match until something is said.
 			Console.WriteLine((await TalkOptions()).Count > 0

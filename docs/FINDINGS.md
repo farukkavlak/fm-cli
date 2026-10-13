@@ -4351,6 +4351,16 @@ kadar (Cowley 7 ve 9 → ★★★½ – ★★★★½); `/form` artık `ShownM
 `/people` tablonun kişilerini `Age` ile veriyor (takım "Lincoln YC"). "Sel." başlığı başka bir tabloda da geçtiği için
 çapa olmuyor. Sözleşme önerme (Actions menüsü) yapılmadı.
 
+## 8.153 İzlenen maç: U18 – altyapı adayları (7 Nisan 2026)
+
+Alım mesajına "Attend Game" denince maç günü oyun bizi o maça sokuyor (`StepOntoThePitch`, "Lincoln v Lincoln",
+Friendly; kadro seçimi, konuşma yok). `Human.Team.NextMatchOpponent` A takımın sıradaki rakibi olduğu için `status`
+"Lincoln – Leyton Orient" diyordu. Ekranın bağlı olduğu maç kendi takımlarını veriyor: `/find?name=Match` →
+`..MatchStateCache32.Match`, `/pathset` ile kendi düğümümüze, `HomeTeam.Name` "Lincoln U18s", `AwayTeam.Name`
+"Lincoln YC" (bilinmeyen property adı istenirse `/pull` hepsini boş döndürüyor). İkisi de kulübün adı değilse maç
+"izlenen maç": skor satırı ev sahibi önce, maç sonunda A takımın son maç raporu basılmıyor, kartlarda biz / rakip
+ayrımı ve "Puanlarımız" yok. Maç `match --play` ile baştan sona aktı (0-1, Blair-Henry 32').
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

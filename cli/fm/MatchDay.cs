@@ -312,7 +312,8 @@ internal static partial class Program
 		{
 			// The full-time numbers are the first thing a manager looks at after the whistle.
 			Console.WriteLine();
-			try { await MatchReport.Show(Fm, json: false, expected: score); } catch (FmError) { }
+			// The report is the first team's last match; a match only watched has none of its own here.
+			if (!watchedMatch) try { await MatchReport.Show(Fm, json: false, expected: score); } catch (FmError) { }
 			if (finalMen is { Count: > 0 }) MatchMoments(finalMen, names);
 		}
 		// What holds the game up after the whistle is read afresh: usually the press conference.
@@ -423,6 +424,14 @@ internal static partial class Program
 		try
 		{
 			var (own, _) = await Fm.OwnTeam();
+			// A match we only watch — the under-18s against the year's youth candidates — is not the
+			// first team's next fixture: the match on screen names its own two sides (FINDINGS §8.153).
+			watchedMatch = false;
+			if (await MatchSides() is { } sides && sides.Home != own && sides.Away != own)
+			{
+				watchedMatch = true;
+				return (sides.Home, sides.Away);
+			}
 			var opponent = Field(await Fm.Pull("Human.Team.NextMatchOpponent", "Name"), "Name");
 			if (own.Length == 0 || opponent.Length == 0) return null;
 			return (own, opponent);
@@ -431,6 +440,25 @@ internal static partial class Program
 		{
 			return null;
 		}
+	}
+
+	/// <summary>True when the match being played is another of the club's teams', named home first.</summary>
+	private static bool watchedMatch;
+
+	/// <summary>The two teams of the match on screen, from the match the screen is bound to; null without one.</summary>
+	private static async Task<(string Home, string Away)?> MatchSides()
+	{
+		try
+		{
+			var path = (await Fm.Get("find", ("name", "Match"), ("limit", "20"))).Split('\n').Select(l => l.Trim())
+				.FirstOrDefault(l => l.StartsWith("..", StringComparison.Ordinal) && l.EndsWith(".Match", StringComparison.Ordinal));
+			if (path == null) return null;
+			await Fm.Get("pathset", ("to", "fmcli.match"), ("from", path));
+			var home = Field(await Fm.Pull("fmcli.match.HomeTeam", "Name"), "Name");
+			var away = Field(await Fm.Pull("fmcli.match.AwayTeam", "Name"), "Name");
+			return home.Length > 0 && away.Length > 0 ? (home, away) : null;
+		}
+		catch (FmError) { return null; }
 	}
 
 	/// <summary>
@@ -498,9 +526,10 @@ internal static partial class Program
 		if (names != null && score != null && Field(state, "HumanIsHome") is not ("True" or "False")) return;
 
 		var now = $"{home}-{away}";
+		if (watchedMatch && names is { } watched) now = $"{watched.Own} {now} {watched.Opponent}";
 		// With the sides named the board says who is home; without, which side we are.
-		var side = names != null && Field(state, "HumanIsHome") is "True" or "False" ? "" : Field(state, "HumanIsHome") switch { "True" => " (ev sahibiyiz)", "False" => " (deplasmandayız)", _ => "" };
-		if (names is { } n && Field(state, "HumanIsHome") is "True" or "False")
+		var side = watchedMatch ? "" : names != null && Field(state, "HumanIsHome") is "True" or "False" ? "" : Field(state, "HumanIsHome") switch { "True" => " (ev sahibiyiz)", "False" => " (deplasmandayız)", _ => "" };
+		if (!watchedMatch && names is { } n && Field(state, "HumanIsHome") is "True" or "False")
 			now = Field(state, "HumanIsHome") == "True" ? $"{n.Own} {now} {n.Opponent}" : $"{n.Opponent} {now} {n.Own}";
 
 		var current = Field(state, "Period");
@@ -697,7 +726,7 @@ internal static partial class Program
 		string Sides(Func<KeyValuePair<string, MatchMan>, bool> which, Func<KeyValuePair<string, MatchMan>, string> said)
 		{
 			var hits = men.Where(which).ToList();
-			if (ourNames is not { Count: > 0 }) return string.Join(", ", hits.Select(said));
+			if (watchedMatch || ourNames is not { Count: > 0 }) return string.Join(", ", hits.Select(said));
 			var ours = hits.Where(m => ourNames.Contains(m.Key)).Select(said).ToList();
 			var theirs = hits.Where(m => !ourNames.Contains(m.Key)).Select(said).ToList();
 			return string.Join(" · ", new[] { ours.Count > 0 ? $"biz: {string.Join(", ", ours)}" : "", theirs.Count > 0 ? $"rakip: {string.Join(", ", theirs)}" : "" }.Where(x => x.Length > 0));
@@ -706,6 +735,7 @@ internal static partial class Program
 		var hurt = Sides(m => m.Value.Injury != 0, m => m.Key);
 		if (booked.Length > 0) Console.WriteLine($"Kartlar: {booked}");
 		if (hurt.Length > 0) Console.WriteLine($"Sakatlanan: {hurt}");
+		if (watchedMatch) return;
 		static double Rated(MatchMan m) => double.TryParse(m.Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) ? r : 0;
 		var ours = OurMen(men).Where(m => Rated(m.Value) > 0).OrderByDescending(m => Rated(m.Value)).ToList();
 		if (ours.Count > 0) Console.WriteLine($"Puanlarımız: {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}");
