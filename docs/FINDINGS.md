@@ -4333,6 +4333,11 @@ gidiyor (3. dakikada 80 yol, 20. dakikada hiç) ve son düdük görüldüğünde
 gitmiş oluyor: maç boyunca aralıklarla okunup son dolu okuma saklanıyor. Fikstürün `HomeEventInfos` / `AwayEventInfos`
 listesinde yalnızca goller var (kartlar, sakatlıklar yok).
 
+Ek (3–6 Nisan 2026): Wimbledon maçının özetinde kart / puan satırları hiç çıkmadı, üç gün sonraki Reading maçında
+çıktı. 12 saniyede bir `/find?name=MatchPlayer` ölçümü: düğümler maçın yaklaşık yarısında var (37–49. sn, 122–134,
+206–218, 267, 291, 339–352), aradaki pozisyon anlarında yok; 45 saniyede bir bakmak bütün maçı ıskalayabiliyor. Artık
+hiç okunamamışken 5 sn'de bir, sonra 30 sn'de bir (80'den sonra 10) bakılıyor.
+
 ## 8.152 Altyapı alımının aday listesi (3 Nisan 2026, Lincoln)
 
 Youth Setup'ın sekme listesinde "Youth Candidates" alım gelmeden de var; sayfayı bulmak için her zaman duran "Youth

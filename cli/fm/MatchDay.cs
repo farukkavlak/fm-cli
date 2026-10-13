@@ -115,9 +115,11 @@ internal static partial class Program
 			// Who was booked, hurt and how each played is read off the match screen, whose pitch drawings
 			// come and go as it moves between views, and are gone by the time the whistle is seen (the
 			// period drops straight from the second half): so it is looked at now and then through the
-			// match, more often near the end, and the last reading that found them is kept.
+			// match, more often near the end, and the last reading that found them is kept. They are there
+			// about half the time, in stretches of some twenty seconds, so until one reading has found them
+			// it is tried every few seconds: at wider gaps a whole match went by unseen (FINDINGS §8.151).
 			if (Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
-			    && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(lateMinute >= 80 ? 15 : 45))
+			    && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(finalMen == null ? 5 : lateMinute >= 80 ? 10 : 30))
 			{
 				lastLook = DateTime.UtcNow;
 				try { if (await MatchPlayers() is { Count: > 0 } men) finalMen = men; } catch (FmError) { }
