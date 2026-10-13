@@ -414,12 +414,15 @@ internal sealed class OfferScreen
 		return null;
 	}
 
-	/// <summary>The offer-wide choices have no label of their own; what they offer says which is which.</summary>
+	/// <summary>
+	/// The offer-wide choices have no label of their own; what they offer says which is which. The
+	/// negotiation and the offer shown offer the game's own texts; the deadline's choices are the
+	/// engine's ("No Deadline", "Zaman Sınırı Yok"), so it is the one left over.
+	/// </summary>
 	public static string OptionKey(Term option) =>
 		option.Choice.Choices.Contains("Non-Negotiable") ? "Negotiable"
-		: option.Choice.Choices.Contains("No Deadline") ? "Deadline"
 		: option.Choice.Choices.Contains("Previous Offer") ? "Shown"
-		: option.Label;
+		: "Deadline";
 
 	public static string OptionName(Term option) => OptionKey(option) switch
 	{

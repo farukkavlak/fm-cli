@@ -84,7 +84,12 @@ internal static partial class Program
 			var shown = await Arriving("press", [("ptr", offer.Link)]);
 			if (shown.StartsWith("error", StringComparison.Ordinal)) return Report(shown);
 			await Task.Delay(1500);
-			return await Offer(["offer"]);
+			var card = await Offer(["offer"]);
+			// The card stays up in the game with the director's conversation beside it, which reads as a
+			// question waiting (status, next) though there is nothing to answer there. The offers list is
+			// the row already chosen in its menu and does not reopen, so the portal is opened instead.
+			await OpenPage(Screen.Home);
+			return card;
 		}
 
 		var button = verb switch { "accept" => offer.Accept, "stall" => offer.Stall, _ => offer.Reject };
