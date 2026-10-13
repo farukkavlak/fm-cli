@@ -120,39 +120,45 @@ internal static partial class Program
 
 	private static async Task<List<HappyRow>> HappinessRows()
 	{
-		// Any player's level is an anchor; the list sits a dozen levels above it.
-		async Task<List<string>> Texts()
-		{
-			foreach (var level in HappinessLevels)
-			{
-				var texts = (await Fm.GetJson("texts", ("anchor", level), ("up", "12"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-				if (texts.Any(t => Regex.IsMatch(t, @"^\d+ year-old"))) return texts;
-			}
-			return [];
-		}
+		// Read by each text's data path (FINDINGS §8.169), anchored on a player's description, which
+		// only rows of this list carry: a row is its flags (StatusFlag.StatusTitleShort), the name
+		// (binding.Name), the description (Person.PlayerDescription), then the level, which is drawn
+		// without a path but is one of the game's own texts and so comes in English.
+		async Task<List<(string Text, string Path)>> Texts() =>
+			(await Fm.GetJson("texts", ("anchorpath", "Person.PlayerDescription"), ("up", "13"), ("paths", "1"))).EnumerateArray()
+				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+		static bool Listed(List<(string Text, string Path)> t) => t.Count(x => x.Path == "Person.PlayerDescription") > 1;
 
 		var texts = await Texts();
-		if (texts.Count == 0)
+		if (!Listed(texts))
 		{
-			var opened = await OpenPage(Screen.Dynamics);
+			var opened = await OpenSubpage(Screen.Dynamics, Screen.Happiness, async () => Listed(await Texts()));
 			if (opened.StartsWith("error", StringComparison.Ordinal))
 			{
 				Console.Error.WriteLine(opened);
 				return [];
 			}
-			await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Happiness"), ("fire", "1"));
-			await Until(async () => (texts = await Texts()).Count > 0, seconds: 10, every: 0.5);
+			texts = await Texts();
 		}
 
-		// The status column comes first, so a row's flags stand before its name: they are what
-		// lies between the row before's level and this name.
 		var players = new List<HappyRow>();
-		var last = -1;
-		for (var i = 1; i + 1 < texts.Count; i++)
+		var flags = new List<string>();
+		string name = null, description = null;
+		foreach (var (text, path) in texts)
 		{
-			if (!Regex.IsMatch(texts[i], @"^\d+ year-old") || !HappinessLevels.Contains(texts[i + 1])) continue;
-			players.Add(new HappyRow(texts[i - 1], texts[i], texts[i + 1], texts.Skip(last + 1).Take(i - 1 - (last + 1)).ToList()));
-			last = i + 1;
+			switch (path)
+			{
+				case "StatusFlag.StatusTitleShort": flags.Add(text); break;
+				case "binding.Name": name = text; description = null; break;
+				case "Person.PlayerDescription": description = text; break;
+				case "" when name != null && description != null:
+					// A Turkish game's "Memnun" is the translation of both "Content" and "Pleased"; the
+					// reverse table gives the latter, which is not one of the levels.
+					players.Add(new HappyRow(name, description, text == "Pleased" ? "Content" : text, flags));
+					flags = [];
+					name = description = null;
+					break;
+			}
 		}
 		return players;
 	}

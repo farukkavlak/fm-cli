@@ -756,6 +756,7 @@ internal static class Buttons
 			.Where(c => text.Length == 0 || string.Equals(c.Label, text, StringComparison.OrdinalIgnoreCase))
 			.Where(c => string.IsNullOrEmpty(name) || string.Equals(NameOf(c.Element), name, StringComparison.OrdinalIgnoreCase))
 			.Where(c => string.IsNullOrEmpty(sends) || Sends(c, sends))
+			.Where(c => string.IsNullOrEmpty(q["within"]) || Inside(c.Element, q["within"]))
 			.ToList();
 
 		if (matches.Count == 1) return matches[0];
@@ -897,6 +898,7 @@ internal static class Buttons
 	public static string Click(NameValueCollection q)
 	{
 		if (!string.IsNullOrEmpty(q["text"])) return ClickText(q);
+		if (!string.IsNullOrEmpty(q["within"])) return ClickWithin(q);
 		if (!TryPointer(q["ptr"] ?? "", out var pointer)) return "error: ?ptr=<0x…> or ?text=<shown text> required";
 
 		foreach (var element in Elements())
@@ -913,6 +915,51 @@ internal static class Buttons
 			return $"clicked \"{LabelOf(button)}\" name={NameOf(button)}";
 		}
 		return $"error: no element at {q["ptr"]} (the screen may have changed)";
+	}
+
+	/// <summary>
+	/// Click the button that sits inside a named element (?within=Facilities&amp;name=layout-tile-interaction-button):
+	/// a tile is known by the panel it is laid out in, whose name no language changes, where its
+	/// title is translated. More than one fitting is refused rather than guessed at.
+	/// </summary>
+	private static string ClickWithin(NameValueCollection q)
+	{
+		var within = q["within"];
+		var name = q["name"];
+		var found = new List<SIButton>();
+		foreach (var element in Elements())
+		{
+			try
+			{
+				if (element.panel == null || element.worldBound.width <= 0) continue;
+				if (!string.IsNullOrEmpty(name) && !string.Equals(element.name, name, StringComparison.OrdinalIgnoreCase)) continue;
+				var button = element.TryCast<SIButton>();
+				if (button == null || !Inside(element, within)) continue;
+				found.Add(button);
+			}
+			catch { }
+		}
+		if (found.Count != 1)
+			return found.Count == 0
+				? $"error: no button{(string.IsNullOrEmpty(name) ? "" : $" named '{name}'")} inside '{within}' on the loaded screens"
+				: $"error: {found.Count} buttons inside '{within}' fit; narrow it with &name=";
+		var chosen = found[0];
+		if (q["dry"] == "1") return $"dry run, NOT clicked: \"{LabelOf(chosen)}\" name={NameOf(chosen)}";
+		if (Disabled(chosen) && q["force"] != "1") return $"error: \"{LabelOf(chosen)}\" is disabled";
+		chosen.SimulateButtonClick(q["arg"] == "1");
+		return $"clicked \"{LabelOf(chosen)}\" name={NameOf(chosen)}";
+	}
+
+	/// <summary>Whether an element sits inside one with the given name.</summary>
+	internal static bool Inside(VisualElement element, string name)
+	{
+		try
+		{
+			for (var parent = element.hierarchy.parent; parent != null; parent = parent.hierarchy.parent)
+				if (parent.name == name) return true;
+		}
+		catch { }
+		return false;
 	}
 
 	/// <summary>

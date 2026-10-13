@@ -15,6 +15,8 @@ internal static partial class Program
 	private static readonly Dictionary<string, string> HierarchyTurkish = new()
 	{
 		["Team Leader"] = "Takım lideri", ["Highly Influential Player"] = "Çok etkili", ["Influential Player"] = "Etkili", ["Other"] = "Diğer", ["Others"] = "Diğer",
+		// A Turkish game's words are each the translation of the singular and the plural; the reverse table gives the plural.
+		["Team Leaders"] = "Takım lideri", ["Highly Influential Players"] = "Çok etkili", ["Influential Players"] = "Etkili",
 	};
 
 	private static readonly Dictionary<string, string> SocialGroupTurkish = new()
@@ -27,33 +29,58 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage(Screen.Dynamics);
+		async Task<List<(string Text, string Path)>> Read() =>
+			(await Fm.GetJson("texts", ("anchorpath", "binding.PlayerDescription"), ("up", "32"), ("paths", "1"), ("most", "1")))
+				.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+		var opened = await OpenSubpage(Screen.Dynamics, Screen.SocialGroups,
+			async () => (await Read()).Any(t => t.Path.EndsWith("SocialGroupReasons", StringComparison.Ordinal)));
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Social Groups"), ("fire", "1"));
 
-		// The page is whole once two readings agree and at least one player is on it.
-		List<string> texts = [];
+		// Read by each text's data path (FINDINGS §8.169), anchored on a player's description. A group
+		// is its heading (drawn without a path, one of the game's texts and so in English), a sentence on
+		// what holds it together (Team.<Group>SocialGroupReasons), the column headings, then for each
+		// player his name, description, hierarchy (binding.HierarchyInfluenceCategoryString) and
+		// personality. The page is whole once two readings agree and at least one player is on it.
+		List<(string Text, string Path)> texts = [];
 		var previous = "";
 		await Until(async () =>
 		{
-			texts = (await Fm.GetJson("texts", ("anchor", "Core Social Group"), ("up", "8"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-			var key = string.Join("|", texts);
-			var settled = key == previous && texts.Any(t => Regex.IsMatch(t, @"^\d+ year-old"));
+			texts = await Read();
+			var key = string.Join("|", texts.Select(t => t.Text));
+			var settled = key == previous && texts.Any(t => t.Path == "binding.PlayerDescription");
 			previous = key;
 			return settled;
 		}, seconds: 10, every: 0.5);
 
-		// Each group: its name, a sentence on what holds it together, the column headings, then
-		// for each player his name, "N year-old …", hierarchy and personality (status flags such
-		// as Wnt or Inj may come before a name).
 		var groups = new List<(string Name, string Why)>();
 		var players = new List<(string Name, string About, string Hierarchy, string Personality, string Group)>();
-		for (var i = 0; i < texts.Count; i++)
+		var between = new List<(string Text, string Path)>();
+		string name = null, about = null, hierarchy = null;
+		foreach (var (text, path) in texts)
 		{
-			if (texts[i] == "Player" && i >= 2 && i + 2 < texts.Count && texts[i + 1] == "Hierarchy" && texts[i + 2] == "Personality")
-				groups.Add(texts[i - 1].Contains(' ') && texts[i - 1].Length > 30 ? (texts[i - 2], texts[i - 1]) : (texts[i - 1], ""));
-			else if (Regex.IsMatch(texts[i], @"^\d+ year-old") && groups.Count > 0 && i >= 1 && i + 2 < texts.Count)
-				players.Add((texts[i - 1], texts[i], texts[i + 1], texts[i + 2], groups[^1].Name));
+			if (!path.StartsWith("binding", StringComparison.Ordinal))
+			{
+				between.Add((text, path));
+				continue;
+			}
+			// What came between two players' rows, when anything did, is the next group's heading.
+			if (between.Count > 0 && path == "binding.Name")
+			{
+				if (between.FirstOrDefault(t => t.Path.Length == 0) is { Text: { } heading })
+					groups.Add((heading, between.FirstOrDefault(t => t.Path.EndsWith("SocialGroupReasons", StringComparison.Ordinal)).Text ?? ""));
+				between.Clear();
+			}
+			if (groups.Count == 0) continue;
+			switch (path)
+			{
+				case "binding.Name": name = text; about = hierarchy = null; break;
+				case "binding.PlayerDescription": about = text; break;
+				case "binding.HierarchyInfluenceCategoryString": hierarchy = text; break;
+				case "binding" when name != null && about != null:
+					players.Add((name, about, hierarchy ?? "", text, groups[^1].Name));
+					name = null;
+					break;
+			}
 		}
 		if (players.Count == 0)
 		{

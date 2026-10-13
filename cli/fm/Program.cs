@@ -1653,6 +1653,26 @@ internal static partial class Program
 		return await OpenWith(query.ToArray());
 	}
 
+	/// <summary>
+	/// A page listed in another page's subtab menu (Squad Dynamics › Happiness), by its GUID: the
+	/// page whose bar lists it is opened, then the row chosen on that bar. The first page can finish
+	/// opening after the second and cover it, so the row is chosen again until the page shows what
+	/// <paramref name="shown"/> looks for.
+	/// </summary>
+	internal static async Task<string> OpenSubpage(string parent, string screen, Func<Task<bool>> shown)
+	{
+		var opened = await OpenPage(parent);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return opened;
+		var answer = "";
+		for (var attempt = 0; attempt < 4; attempt++)
+		{
+			await Until(async () => !(answer = await Fm.Get("open", ("guid", screen))).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.5);
+			if (answer.StartsWith("error", StringComparison.Ordinal)) return answer;
+			if (await Until(shown, seconds: 3, every: 0.3)) return answer;
+		}
+		return $"error: {answer}, ama sayfa beklenen içeriği göstermedi";
+	}
+
 	/// <summary>A page as the game's own menus name it, in the game's language: what someone types after `fm open`.</summary>
 	private static Task<string> OpenNamed(string page, string tab = null) =>
 		OpenWith(tab == null ? [("page", page)] : [("page", page), ("tab", tab)]);

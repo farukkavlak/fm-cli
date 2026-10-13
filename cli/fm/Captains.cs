@@ -19,9 +19,10 @@ internal static partial class Program
 			.Where(c => Option(args, c.Item1) != null).Select(c => (Wanted: Option(args, c.Item1), List: c.Item2)).ToList();
 		foreach (var (wanted, list) in changes)
 		{
-			var opened = await OpenPage(Screen.Dynamics);
+			// The captains page is a talk with the assistant whose lists are GenericDropdowns.
+			var opened = await OpenSubpage(Screen.Dynamics, Screen.Captains, async () =>
+				(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == "GenericDropdown"));
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Captains"), ("fire", "1"));
 
 			// "Change Captain" once there is one, "Select Captain" while there is none.
 			JsonElement? dropdown = null;

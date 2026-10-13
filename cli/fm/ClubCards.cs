@@ -17,7 +17,7 @@ internal static partial class Program
 		["Core"] = "çekirdek", ["Family"] = "aile", ["Fair Weather"] = "iyi gün dostu", ["Casual"] = "ara sıra gelen",
 		["Hardcore"] = "fanatik", ["Corporate"] = "kurumsal",
 		["Very Good"] = "çok iyi", ["Adequate"] = "yeterli", ["Basic"] = "temel", ["Superb"] = "harika",
-		["State Of The Art"] = "son teknoloji", ["Fair"] = "idare eder", ["Yes"] = "var", ["No"] = "yok",
+		["State Of The Art"] = "son teknoloji", ["Fair"] = "idare eder", ["Yes"] = "var", ["No"] = "yok", ["Club"] = "kulüp",
 	};
 
 	private static string CardSay(string word) => CardWords.TryGetValue(word, out var t) ? t : ClubSay(word);
@@ -136,52 +136,55 @@ internal static partial class Program
 		string Before(string label) => t.IndexOf(label) is var i && i > 0 ? t[i - 1] : "-";
 	}
 
-	private static readonly (string Label, string Turkish)[] StadiumFacts =
-	[
-		("Capacity", "Kapasite"), ("City", "Şehir"), ("Year Built", "Yapım yılı"), ("Year Rebuilt", "Yenilenme"),
-		("Owned By", "Sahibi"), ("Rent", "Kira"), ("Under-Soil Heating", "Zemin ısıtma"), ("Roof", "Çatı"),
-		("Surface", "Zemin"), ("Pitch Dimensions", "Saha ölçüsü"), ("Maximum Pitch Dimensions", "En büyük ölçü"),
-		("Pitch Condition", "Saha durumu"),
-	];
-
+	/// <summary>
+	/// The club's facilities from the game's data, not the Facilities card (FINDINGS §8.169): the card
+	/// writes half its values through bindings a text cannot be traced to, and its labels change with
+	/// the language. Ratings are the game's numbers (their scale is not shown anywhere to check, so none is
+	/// claimed); the descriptions are the game's own, in its language.
+	/// </summary>
 	private static async Task<int> Facilities(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		List<string> t;
-		try { t = await ClubCard("Facilities", "Under-Soil Heating", 16, x => x.Contains("Youth Recruitment")); }
-		catch (FmError e) { return Report(e.Message); }
-		if (t == null)
+		var stadium = await Fm.Pull("Human.Team.Stadium", "Name,Capacity,YearBuilt,YearRebuilt,OwnedByString,Rent,UnderSoilHeating,Roof,Surface,PitchDimensions,MaxPitchDimensions");
+		if (Field(stadium, "Name").Length == 0)
 		{
-			Console.Error.WriteLine("Tesis kartı okunamadı.");
+			Console.Error.WriteLine("Stadyum verisi okunamadı.");
 			return 1;
 		}
-
-		// "Name" recurs (stadium, training ground), so each section is searched from its own heading.
-		string After(string label, string from = null)
+		var city = Field(await Fm.Pull("Human.Team.Stadium.City", "Name"), "Name");
+		var club = await Fm.Pull("Human.Team.Club", "YearFounded,YouthCoaching,YouthRecruitment,YouthSetupCategory");
+		var training = await Fm.Pull("Human.Team.Club.TrainingFacilityRating", "Description,Rating");
+		var youth = await Fm.Pull("Human.Team.Club.YouthFacilityRating", "Description,Rating");
+		var corporate = await Fm.Pull("Human.Team.Club.CorporateFacilityRating", "Description,Rating");
+		static async Task<string> Place(string path)
 		{
-			var start = from == null ? 0 : Math.Max(0, t.IndexOf(from));
-			var i = t.IndexOf(label, start);
-			return i >= 0 && i + 1 < t.Count ? t[i + 1] : "-";
+			var name = Field(await Fm.Pull(path, "Name"), "Name");
+			var town = Field(await Fm.Pull($"{path}.City", "Name"), "Name");
+			return town.Length > 0 && name.Length > 0 && !name.Contains(town) ? $"{name}, {town}" : name;
 		}
-		// "Great training facilities" is graded by what comes before "training"/"youth".
-		static string Grade(string text) => Regex.Replace(text, @"\s+(training|youth) facilities$", "");
+		var ground = await Place("Human.Team.TrainingGround");
+		var youthGround = await Place("Human.Team.Club.YouthStadium");
 
-		var stadiumAt = t.IndexOf("Stadium");
+		// The pitch surface is a number: the game's PitchSurface (1 grass, 2–3 synthetic).
+		var surface = Field(stadium, "Surface") switch { "1" => "çim", "2" or "3" => "sentetik", "" => "", var other => other };
 		var facilities = new
 		{
-			Founded = After("Founded"),
+			Founded = Field(club, "YearFounded"),
 			Stadium = new
 			{
-				Name = After("Name", "Stadium"), Grade = stadiumAt >= 0 && stadiumAt + 1 < t.Count ? t[stadiumAt + 1] : "-",
-				Facts = StadiumFacts.ToDictionary(f => f.Label, f => After(f.Label, "Stadium")),
+				Name = Field(stadium, "Name"), City = city, Capacity = Field(stadium, "Capacity"),
+				YearBuilt = Field(stadium, "YearBuilt"), YearRebuilt = Field(stadium, "YearRebuilt"),
+				OwnedBy = Field(stadium, "OwnedByString"), Rent = Field(stadium, "Rent"),
+				UnderSoilHeating = Field(stadium, "UnderSoilHeating"), Roof = Field(stadium, "Roof"), Surface = surface,
+				PitchDimensions = Field(stadium, "PitchDimensions"), MaxPitchDimensions = Field(stadium, "MaxPitchDimensions"),
 			},
-			Corporate = After("Corporate"),
-			Training = new { Grade = Grade(After("Training")), Name = After("Name", "Training") },
+			Training = new { Name = ground, Rating = Field(training, "Rating"), Description = Field(training, "Description") },
 			Youth = new
 			{
-				Grade = Grade(After("Youth")), Stadium = After("Youth Stadium"), Level = After("Youth Level"),
-				AcademyCoaching = After("Academy Coaching"), YouthRecruitment = After("Youth Recruitment"),
+				Rating = Field(youth, "Rating"), Description = Field(youth, "Description"), Stadium = youthGround,
+				Level = Field(club, "YouthSetupCategory"), AcademyCoaching = Field(club, "YouthCoaching"), YouthRecruitment = Field(club, "YouthRecruitment"),
 			},
+			Corporate = new { Rating = Field(corporate, "Rating"), Description = Field(corporate, "Description") },
 		};
 		if (json)
 		{
@@ -189,25 +192,36 @@ internal static partial class Program
 			return 0;
 		}
 
-		CardHeading($"Stadyum — {facilities.Stadium.Name} ({CardSay(facilities.Stadium.Grade)})");
-		foreach (var (label, turkish) in StadiumFacts)
+		static string Rated(string rating, string description) =>
+			rating.Length == 0 ? description : description.Length > 0 ? $"{description} (seviye {rating})" : $"seviye {rating}";
+		void Row(string label, string value)
 		{
-			var value = facilities.Stadium.Facts[label];
-			if (value is "-" or "Unknown" or "N/A") continue;
-			var shown = value.Replace("all-seater", "tamamı koltuklu").Replace("Council", "belediye").Replace("Grass/Synthetic Mix", "çim/sentetik karışık");
-			CardRow(turkish, CardSay(shown));
+			if (value.Length > 0 && value is not ("Unknown" or "N/A")) CardRow(label, CardSay(value));
 		}
+
+		CardHeading($"Stadyum — {facilities.Stadium.Name}");
+		Row("Şehir", facilities.Stadium.City);
+		Row("Kapasite", facilities.Stadium.Capacity);
+		Row("Yapım yılı", facilities.Stadium.YearBuilt);
+		Row("Yenilenme", facilities.Stadium.YearRebuilt);
+		Row("Sahibi", facilities.Stadium.OwnedBy);
+		Row("Kira", facilities.Stadium.Rent);
+		Row("Zemin ısıtma", facilities.Stadium.UnderSoilHeating);
+		Row("Çatı", facilities.Stadium.Roof);
+		Row("Zemin", facilities.Stadium.Surface);
+		Row("Saha ölçüsü", facilities.Stadium.PitchDimensions);
+		Row("En büyük ölçü", facilities.Stadium.MaxPitchDimensions);
 		CardHeading("Antrenman tesisi");
-		CardRow("Tesis", facilities.Training.Name);
-		CardRow("Seviye", CardSay(facilities.Training.Grade));
+		Row("Tesis", facilities.Training.Name);
+		Row("Seviye", Rated(facilities.Training.Rating, facilities.Training.Description));
 		CardHeading("Altyapı");
-		CardRow("Tesisler", CardSay(facilities.Youth.Grade));
-		CardRow("Akademi antrenmanı", CardSay(facilities.Youth.AcademyCoaching));
-		CardRow("Genç oyuncu bulma", CardSay(facilities.Youth.YouthRecruitment));
-		if (facilities.Youth.Level is not ("-" or "N/A")) CardRow("Akademi seviyesi", facilities.Youth.Level);
-		CardRow("Altyapı stadı", facilities.Youth.Stadium);
+		Row("Tesisler", Rated(facilities.Youth.Rating, facilities.Youth.Description));
+		Row("Akademi antrenmanı", Rated(facilities.Youth.AcademyCoaching, ""));
+		Row("Genç oyuncu bulma", Rated(facilities.Youth.YouthRecruitment, ""));
+		Row("Akademi seviyesi", facilities.Youth.Level);
+		Row("Altyapı stadı", facilities.Youth.Stadium);
 		CardHeading("Ticari");
-		CardRow("Kurumsal tesisler", CardSay(facilities.Corporate));
+		Row("Kurumsal tesisler", Rated(facilities.Corporate.Rating, facilities.Corporate.Description));
 		return 0;
 	}
 }

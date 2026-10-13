@@ -75,6 +75,10 @@ internal static class Pages
 			page = All().FirstOrDefault(p => string.Equals(p.Guid, guid, StringComparison.OrdinalIgnoreCase)
 			                                 && (string.IsNullOrEmpty(obj) || p.ObjectId == obj)
 			                                 && (string.IsNullOrEmpty(under) || string.Equals(p.TabGuid, under, StringComparison.OrdinalIgnoreCase)));
+			// A page under a subtab's menu (Squad Dynamics › Social Groups) is not in the tab menus;
+			// it is chosen from the subtab bar on screen, once its page is open.
+			if (page == null && string.IsNullOrEmpty(obj) && string.IsNullOrEmpty(under))
+				return Subpage(guid, q["dry"] == "1");
 			if (page == null)
 				return $"error: no page with guid {guid}" + (string.IsNullOrEmpty(obj) ? "" : $" for object {obj}")
 				       + (string.IsNullOrEmpty(under) ? "" : $" under tab {under}");
@@ -140,6 +144,39 @@ internal static class Pages
 			return true;
 		}
 		catch { return false; }
+	}
+
+	/// <summary>
+	/// Opens a page listed in a subtab's menu on the bar shown (FINDINGS §8.169): its row there
+	/// carries the page's GUID as the tab menus' rows do. The row is chosen and its events sent. The
+	/// page whose bar it is may still be opening and cover it; the caller checks and asks again.
+	/// </summary>
+	private static string Subpage(string guid, bool dry)
+	{
+		var queue = Game.UiEvents;
+		if (queue == null) return "error: UIEventQueue unavailable";
+		foreach (var dropdown in Buttons.AllDropdowns())
+		{
+			try
+			{
+				if (dropdown.name == "NavTabDropdown" || !Shown(dropdown)) continue;
+				var choices = dropdown.m_choices;
+				var count = choices?.Count ?? 0;
+				for (var i = 0; i < count; i++)
+				{
+					var row = Read(choices[i]);
+					if (!string.Equals(row?.Guid, guid, StringComparison.OrdinalIgnoreCase)) continue;
+					if (dry) return $"dry run, NOT opened: {row.Name} (subtab row {i})";
+					dropdown.OnSelectionChangedInternal(i);
+					var events = dropdown.SelectionEvents;
+					if (events == null || events.Count == 0) return $"error: the subtab row for {row.Name} sends nothing";
+					queue.QueueEvents(events);
+					return $"opened {row.Name} (subtab, panel {row.PanelId})";
+				}
+			}
+			catch { }
+		}
+		return $"error: no page with guid {guid} (a subtab's page: open the page whose bar lists it first)";
 	}
 
 	/// <summary>The first page of a page's tab: the tab's own screen.</summary>

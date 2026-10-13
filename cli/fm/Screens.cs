@@ -25,6 +25,11 @@ internal static class Screen
 	public const string Training = "8d64c97dd31aa8e4cab1d3fc91c7fc91";
 	public const string YouthSetup = "fdc4ca40b0312734b9a99317f9d351d0";
 	public const string Dynamics = "7d9c93953e66d3d468a7acd301e08618";
+	// Squad Dynamics' own subtabs, opened from its bar: see <see cref="Program.OpenSubpage"/>.
+	public const string Captains = "f60867965de3a7f4fbe75b641bee20af";
+	public const string Hierarchy = "5c93feb8d01d89840a52ec0ef3d8cf5f";
+	public const string SocialGroups = "f0783a3c26287104a9d968eb2f2f43ae";
+	public const string Happiness = "236ce198f4ade4a4ea0f33b6fa94937c";
 	public const string Registration = "2711315fec49f2e4cbcbcadd361774b2";
 
 	// Recruitment
