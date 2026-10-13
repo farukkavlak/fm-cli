@@ -3,107 +3,95 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The next opposition report's summary (FINDINGS §8.57): their form, usual formation, top scorer
-/// and assister, best-rated player and team news, read off the page in order.
+/// The next opponent (FINDINGS §8.57, §8.121, §8.169): who they are, their form and usual
+/// formation, their standout players and manager, how the meeting is expected to go — all from the
+/// game's data on the next fixture's opponent — then from the portal's opposition report, by each
+/// text's data path, the team news (row.Text), previous meetings (prevmeetingfixture.*) and the
+/// analysts' tiles (polygonobservation.*). Nothing is read by its place after a heading.
 /// </summary>
 internal static partial class Program
 {
+	private sealed record AnalystTile(string Name, string Scope, List<(string Label, string Value)> Stats, string Verdict);
+
 	private static async Task<int> Opponent(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage(Screen.OppositionReport, under: Screen.MatchDayHome);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		List<string> texts = [];
-		await Until(async () => (texts = (await Fm.GetJson("texts", ("anchor", "Next Opposition Report"), ("up", "12"))).EnumerateArray()
-			.Select(t => t.GetString() ?? "").ToList()).Contains("Most Used Formation"), seconds: 10, every: 0.5);
-		if (!texts.Contains("Most Used Formation"))
+		var fixture = await Fm.Pull("Human.Team.NextFixture", "MatchVenueShort,KickoffTime,FixtureDateDistanceInDays");
+		const string them = "Human.Team.NextFixture.TeamOpponent";
+		var team = await Fm.Pull(them, "Name,Description,MostUsedFormation,RecentFormValues,NextOppositionThreatLevelAssessment");
+		if (Field(team, "Name").Length == 0)
 		{
-			Console.Error.WriteLine("Rakip raporu okunamadı (sıradaki maç yok olabilir).");
+			Console.Error.WriteLine("Rakip okunamadı (sıradaki maç yok olabilir).");
 			return 1;
 		}
-
-		string After(string label, int n = 1) => texts.IndexOf(label) is var at && at >= 0 && at + n < texts.Count ? texts[at + n] : "";
-		var team = After("Next Opposition Report");
-		var league = After("Next Opposition Report", 2);
-		var news = new List<string>();
-		var from = texts.IndexOf("Team News");
-		string[] stops = ["Team Report", "Data Hub", "Match Preview", "Key Players", "Overview"];
-		if (from >= 0)
-			foreach (var t in texts.Skip(from + 1))
-			{
-				if (stops.Contains(t) || news.Count >= 10) break;
-				news.Add(t);
-			}
-
-		var rows = new List<(string, string)>
+		async Task<string> Standout(string which)
 		{
-			// The form is drawn, not written: with nothing written after its heading the next
-			// heading is what follows.
-			("Form", After("Form") == "Most Used Formation" ? "" : After("Form")),
-			("Diziliş", After("Most Used Formation")),
-			("Gol kralı", $"{After("Top Goalscorer", 2)} ({After("Top Goalscorer")})"),
-			("Asist kralı", $"{After("Most Assists", 2)} ({After("Most Assists")})"),
-			("En yüksek ortalama", $"{After("Highest Average Rating", 2)} ({After("Highest Average Rating")})"),
+			var name = Field(await Fm.Pull($"{them}.{which}.Player", "Name"), "Name");
+			var value = Field(await Fm.Pull($"{them}.{which}", "StatValue"), "StatValue");
+			return name.Length == 0 ? "" : value.Length > 0 ? $"{name} ({value})" : name;
+		}
+		var manager = Field(await Fm.Pull($"{them}.Manager", "Name"), "Name");
+		var form = string.Join(" ", Standings.Form(Field(team, "RecentFormValues")));
+		var venue = Field(fixture, "MatchVenueShort") switch { "H" => "iç saha", "A" => "deplasman", "N" => "tarafsız saha", var other => other };
+		var days = Field(fixture, "FixtureDateDistanceInDays");
+		var rows = new List<(string Label, string Value)>
+		{
+			("Form", form),
+			("Diziliş", Field(team, "MostUsedFormation")),
+			("Gol kralı", await Standout("TopGoalscorerPlayer")),
+			("Asist kralı", await Standout("MostAssistsPlayer")),
+			("En yüksek ortalama", await Standout("HighestAverageRatingPlayer")),
+			("Menajer", manager),
 		};
-		// The analysts' numbers for the season are on the portal's own report page: value and
-		// label in pairs, then a verdict in a phrase and a sentence. An opponent from a league
-		// that is not loaded has none ("No Data Available").
-		var stats = new List<(string Label, string Value)>();
-		string scope = "", verdict = "";
+
+		// The portal's report page, read by each text's data path.
+		var news = new List<string>();
+		var meetings = new List<string>();
+		var tiles = new List<AnalystTile>();
 		if (!(await OpenPage(Screen.OppositionReport, under: Screen.Home)).StartsWith("error", StringComparison.Ordinal))
 		{
-			List<string> block = [];
+			List<(string Text, string Path)> page = [];
+			// The analysts' tiles say "No Data Available" for a moment before their numbers arrive;
+			// the page is read once two readings agree.
+			var previous = "";
 			await Until(async () =>
 			{
-				block = (await Fm.GetJson("texts", ("anchor", "General Performance"), ("up", "7"))).EnumerateArray()
-					.Select(t => t.ValueKind == System.Text.Json.JsonValueKind.String ? t.GetString() : "").ToList();
-				// The tile says "No Data Available" for a moment before its numbers arrive, so only
-				// numbers end the wait; without any it runs out and there are none.
-				return block.Count > 3 && double.TryParse(block[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _);
-			}, seconds: 5, every: 0.5);
-			if (block.Count > 3 && !block.Contains("No Data Available"))
+				page = (await Fm.GetJson("texts", ("anchorpath", "Team.NextOppositionThreatLevelAssessment"), ("up", "12"), ("paths", "1"), ("most", "1")))
+					.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+				var now = string.Join("|", page.Select(t => t.Text));
+				var settled = now == previous && page.Any(t => t.Path.StartsWith("polygonobservation.", StringComparison.Ordinal));
+				previous = now;
+				return settled;
+			}, seconds: 6, every: 0.5);
+
+			string lastPlain = null;
+			AnalystTile tile = null;
+			foreach (var (text, path) in page)
 			{
-				scope = block[1];
-				var at = 2;
-				for (; at + 1 < block.Count && double.TryParse(block[at], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _); at += 2)
-					stats.Add((block[at + 1], block[at]));
-				verdict = string.Join(" — ", block.Skip(at));
+				switch (path)
+				{
+					case "row.Text": news.Add(text); break;
+					// A meeting's date is drawn without a path just before its result.
+					case "prevmeetingfixture.ResultLinkableNoSpaces": meetings.Add(lastPlain is { } date ? $"{date} {text}" : text); break;
+					case "polygonobservation.GraphType":
+						tile = new AnalystTile(text, "", [], "");
+						tiles.Add(tile);
+						break;
+					case "polygonobservation.PerformanceSummary" when tile != null:
+						tiles[^1] = tile = tile with { Verdict = text };
+						break;
+					case "" when tile != null && tile.Verdict.Length == 0:
+						// Within a tile: its scope first, then each number and its label.
+						if (tile.Scope.Length == 0) tiles[^1] = tile = tile with { Scope = text };
+						else if (lastPlain is { } number && IsNumber(number) && !IsNumber(text)) tile.Stats.Add((text, number));
+						break;
+				}
+				lastPlain = path.Length == 0 ? text : null;
 			}
 		}
-		// The rest of that page (FINDINGS §8.121): who manages them and how they play, how the
-		// meeting is expected to go, and a tile for each unit the analysts looked at — numbers with
-		// a verdict, or a verdict on the player who stands out in it.
-		var manager = new List<(string Label, string Value)>();
-		var units = new List<(string Name, string Scope, List<(string Label, string Value)> Stats, string Verdict, string Note)>();
-		string summary = "", meetings = "";
-		var page = (await Fm.GetJson("texts", ("anchor", "Manager Information"), ("up", "10"))) is { ValueKind: JsonValueKind.Array } whole
-			? whole.EnumerateArray().Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList() : [];
-		if (page.Count > 16)
-		{
-			string Next(string label) => page.IndexOf(label) is var at && at >= 0 && at + 1 < page.Count ? page[at + 1] : "";
-			static bool Number(string text) => double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _);
-			if (Next("Manager Information") is { Length: > 0 } who) manager.Add(("Menajer", $"{who} ({page[page.IndexOf("Manager Information") + 2]})"));
-			foreach (var (label, shown) in new[] { ("Win %", "galibiyet"), ("Pfd. Formation", "diziliş"), ("Playing Mentality", "mentalite"), ("Pressing Style", "pres"), ("Marking Style", "markaj") })
-				if (Next(label) is { Length: > 0 } value && value != "No data available") manager.Add((shown, value));
-			summary = Next("Summary");
-			meetings = Next("Previous Meetings");
-			for (var at = 0; at < page.Count; at++)
-			{
-				if (!System.Text.RegularExpressions.Regex.IsMatch(page[at], @"^[A-Z][A-Za-z ]+ - [A-Z][A-Za-z ]+$")) continue;
-				var name = page[at];
-				var numbers = new List<(string, string)>();
-				var unitScope = "";
-				var i = at + 1;
-				if (i + 1 < page.Count && Number(page[i + 1])) unitScope = page[i++];
-				for (; i + 1 < page.Count && Number(page[i]); i += 2) numbers.Add((page[i + 1], page[i]));
-				var said = i < page.Count ? page[i++] : "";
-				// A sentence follows the verdict where the tile is about one player.
-				var note = i < page.Count && page[i].Contains(' ') && !page[i].Contains(" - ") && page[i].Length > 40 ? page[i++] : "";
-				units.Add((name, unitScope, numbers, said, note));
-				at = i - 1;
-			}
-		}
+		static bool IsNumber(string text) =>
+			double.TryParse(text.TrimEnd('%'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _);
 
 		static string Turkish(string label) => label switch
 		{
@@ -115,29 +103,24 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Team = team, League = league, Summary = rows.ToDictionary(r => r.Item1, r => r.Item2), News = news,
-				Performance = new { Scope = scope, Stats = stats.ToDictionary(x => x.Label, x => x.Value), Verdict = verdict },
-				Manager = manager.ToDictionary(x => x.Label, x => x.Value), Expectation = summary, PreviousMeetings = meetings,
-				Units = units.Select(u => new { u.Name, u.Scope, Stats = u.Stats.ToDictionary(x => x.Label, x => x.Value), u.Verdict, u.Note }),
+				Team = Field(team, "Name"), Description = Field(team, "Description"), Venue = Field(fixture, "MatchVenueShort"),
+				Kickoff = Field(fixture, "KickoffTime"), InDays = days,
+				Summary = rows.ToDictionary(r => r.Label, r => r.Value), News = news, PreviousMeetings = meetings,
+				Expectation = Field(team, "NextOppositionThreatLevelAssessment"),
+				Tiles = tiles.Select(t => new { t.Name, t.Scope, Stats = t.Stats.ToDictionary(x => x.Label, x => x.Value), t.Verdict }),
 			}));
 			return 0;
 		}
-		Console.WriteLine($"{team} · {league}");
-		foreach (var (label, value) in rows) Console.WriteLine($"  {label}: {(value is "" or " ()" ? "-" : value.Replace("None", "-"))}");
-		if (manager.Count > 0) Console.WriteLine("  " + string.Join(" · ", manager.Select(m => m.Label == "Menajer" ? $"Menajer: {m.Value}" : $"{m.Label} {m.Value}")));
-		if (meetings is { Length: > 0 } and not "None") Console.WriteLine($"  Önceki maçlar: {meetings}");
-		if (summary.Length > 0) Console.WriteLine($"  Beklenti: {summary}");
-		if (stats.Count > 0)
+		Console.WriteLine($"{Field(team, "Name")} · {Field(team, "Description")}");
+		Console.WriteLine($"  Maç: {venue}{(days.Length > 0 ? $" · {days} gün sonra" : "")}{(Field(fixture, "KickoffTime") is { Length: > 0 } k ? $" · {k}" : "")}");
+		foreach (var (label, value) in rows)
+			if (value.Length > 0) Console.WriteLine($"  {label}: {value}");
+		if (meetings.Count > 0) Console.WriteLine($"  Önceki maçlar: {string.Join(" · ", meetings)}");
+		if (Field(team, "NextOppositionThreatLevelAssessment") is { Length: > 0 } expected) Console.WriteLine($"  Beklenti: {expected}");
+		foreach (var t in tiles.Where(t => t.Stats.Count > 0 || t.Verdict.Length > 0))
 		{
-			Console.WriteLine($"Genel performans ({scope}):");
-			Console.WriteLine("  " + string.Join(" · ", stats.Select(x => $"{Turkish(x.Label)} {x.Value}")));
-			if (verdict.Length > 0) Console.WriteLine($"  {verdict}");
-		}
-		foreach (var unit in units)
-		{
-			Console.WriteLine($"{unit.Name}: {unit.Verdict}");
-			if (unit.Stats.Count > 0) Console.WriteLine("  " + string.Join(" · ", unit.Stats.Select(x => $"{x.Label} {x.Value}")));
-			foreach (var line in unit.Note.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) Console.WriteLine($"  {line}");
+			Console.WriteLine($"{t.Name}{(t.Scope.Length > 0 && t.Stats.Count > 0 ? $" ({t.Scope})" : "")}: {t.Verdict}");
+			if (t.Stats.Count > 0) Console.WriteLine("  " + string.Join(" · ", t.Stats.Select(x => $"{Turkish(x.Label)} {x.Value}")));
 		}
 		if (news.Count > 0)
 		{
