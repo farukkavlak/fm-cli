@@ -1084,6 +1084,21 @@ internal static partial class Program
 			return;
 		}
 
+		// An offer for one of ours: the fee, its terms as label and value, and who else is after him.
+		if (rest.Count > 4 && rest[1].Contains("year-old", StringComparison.Ordinal) && rest.IndexOf("Fee") is > 0 and var feeAt && rest.Contains("Additional Details"))
+		{
+			Console.WriteLine($"\n  Ek: teklif — {rest[0]} ({rest[1]})");
+			Console.WriteLine($"    Bedel: {rest[feeAt + 1]}");
+			var details = rest.IndexOf("Additional Details");
+			var report = rest.IndexOf("Coach Report");
+			for (var i = details + 1; i + 1 < (report > details ? report : rest.Count); i += 2) Console.WriteLine($"    {rest[i]}: {rest[i + 1]}");
+			if (report > 0 && report + 2 < rest.Count) Console.WriteLine($"    Antrenör görüşü: {rest[report + 1]} · {rest[report + 2]}");
+			var listed = new[] { "Transfer Status", "Loan Status" }.Select(l => (l, at: rest.LastIndexOf(l))).Where(x => x.at > 0 && x.at + 1 < rest.Count).Select(x => $"{x.l}: {rest[x.at + 1]}").ToList();
+			if (listed.Count > 0) Console.WriteLine($"    {string.Join(" · ", listed)}");
+			if (rest.IndexOf("Interested Clubs") is > 0 and var clubs && clubs + 1 < rest.Count) Console.WriteLine($"    İlgilenen kulüpler: {rest[clubs + 1].Trim('(', ')')}   (hepsi: offers)");
+			return;
+		}
+
 		// The loans about to end: who, where he has been and how he has played there.
 		if (rest[0] == "Loans" && rest.IndexOf("Rating") is > 0 and var loanHead)
 		{
