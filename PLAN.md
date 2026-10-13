@@ -591,8 +591,8 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
   veriden eliyor (`667ebf3`); rakip raporu veriden + yollardan, İngilizcedeki saçma değerler de gitti (`ac73f96`).
 - Türkçe tarama 13 → 1 hata, İngilizce 49/50. Ayrıntı FINDINGS §8.169.
 - Devamı: maaş/tesis/personel (`finances`, `club`), `supporters`, `scout`, `youth`, `staff`, `register` veriden / yollardan;
-  `/pull` tarihleri gün olarak veriyor; `settings` adımları tekrar deniyor. Açık: `anchorpath` ile yukarı çıkınca sayfanın
-  tamamı gelmiyor (Türkçede `youth` notu/adayları, `opponent` haberleri eksik); `Reply` mesaj ekleri hâlâ konumla.
+  `/pull` tarihleri gün olarak veriyor; `settings` adımları tekrar deniyor. `youth` ve `opponent` Türkçede tam (satırlar
+  derin: adaydan 30 üst yukarıda sayfa). Açık: `Reply` mesaj ekleri hâlâ konumla.
 
 ### 2026-10-13 (akşam / gece — taşınabilirlik)
 
