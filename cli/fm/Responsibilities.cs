@@ -175,7 +175,7 @@ internal static partial class Program
 	/// Which area each duty is in, kept from the last whole reading: the titles do not change, and
 	/// reading all nine areas to find one duty takes half a minute.
 	/// </summary>
-	private static string DutyAreasFile => Path.Combine(DiffFolder, "duty-areas.json");
+	private static string DutyAreasFile => CacheFile("duty-areas.json");
 
 	private static void KeepDutyAreas(List<Duty> all)
 	{

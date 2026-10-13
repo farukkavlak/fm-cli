@@ -28,6 +28,9 @@ internal static class State
 		Put(fields, "CanSave", Read(bindings, "game.CanSave"));
 		Put(fields, "DuringMatch", Read(bindings, "game.IsDuringMatch"));
 
+		// The language the game is set to: what the reverse table and the CLI's caches are kept by.
+		try { fields["Language"] = SI.Translation.TranslationManager.CurrentLanguage ?? ""; } catch { }
+
 		// The packed date as the game gives it, not as a day: its clock bits are wanted too.
 		var date = Date(Read(bindings, "game.CurrentGameDate", raw: true));
 		if (date != null)

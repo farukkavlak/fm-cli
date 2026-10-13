@@ -18,6 +18,33 @@ internal static partial class Program
 	private static readonly string DiffFolder = Path.Combine(
 		Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli");
 
+	private static string cacheFolder;
+
+	/// <summary>
+	/// Where a cache of what the game showed is kept: apart for each language the game is set to and
+	/// each career (manager and club), since what is cached carries the game's words and this save's
+	/// competitions. Without a game to ask, the shared folder.
+	/// </summary>
+	private static string CacheFile(string name)
+	{
+		if (cacheFolder == null)
+		{
+			try
+			{
+				var language = Field(Fm.GetJson("state").GetAwaiter().GetResult(), "Language");
+				var manager = Field(Fm.Pull("Human", "Name").GetAwaiter().GetResult(), "Name");
+				var club = Field(Fm.Pull("Human.Club", "Name").GetAwaiter().GetResult(), "Name");
+				static string Safe(string text) => string.Concat(text.Split(Path.GetInvalidFileNameChars())).Trim();
+				cacheFolder = language.Length > 0 && manager.Length > 0
+					? Path.Combine(DiffFolder, "cache", Safe(language), Safe($"{manager} - {club}"))
+					: DiffFolder;
+			}
+			catch { cacheFolder = DiffFolder; }
+			Directory.CreateDirectory(cacheFolder);
+		}
+		return Path.Combine(cacheFolder, name);
+	}
+
 	private static async Task<int> Diff(bool json, string[] args)
 	{
 		if (!await Fm.InGame())

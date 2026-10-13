@@ -9,8 +9,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly string CompetitionsFile = Path.Combine(
-		Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "competitions.json");
+	private static string CompetitionsFile => CacheFile("competitions.json");
 
 	private static async Task<int> Stages(bool json, string[] args)
 	{

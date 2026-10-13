@@ -1507,7 +1507,7 @@ internal static partial class Program
 	/// new ones between commands, so "reply 17" means the seventeenth as it was shown, not as
 	/// it is now (PLAN, known bugs: once a reply opened the message above the one meant).
 	/// </summary>
-	private static readonly string NumbersFile = Path.Combine(Path.GetTempPath(), "fm-cli-inbox-numbers.json");
+	private static string NumbersFile => CacheFile("inbox-numbers.json");
 
 	private static void RememberNumbers(JsonElement inbox)
 	{

@@ -351,7 +351,7 @@ internal static partial class Program
 		return true;
 	}
 
-	private static string SessionCatalogueFile => Path.Combine(DiffFolder, "training-sessions.json");
+	private static string SessionCatalogueFile => CacheFile("training-sessions.json");
 
 	private static Dictionary<string, List<string>> SessionCatalogue()
 	{

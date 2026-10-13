@@ -15,7 +15,7 @@ internal static partial class Program
 {
 	private sealed record TeamInstruction(int Id, string Name, string Group, bool WithBall, List<(long Id, string Name)> Options);
 
-	private static string TeamInstructionsFile => Path.Combine(DiffFolder, "team-instructions.json");
+	private static string TeamInstructionsFile => CacheFile("team-instructions.json");
 
 	/// <summary>
 	/// Where each instruction is shown, in the game's order: the planner's four phases with the
@@ -416,7 +416,7 @@ internal static partial class Program
 	/// <summary>The groups 0–10 are the ones with the ball, 11–14 (pressing, marking, tackling) without it.</summary>
 	private const int PlayerInstructionGroups = 15, FirstWithoutBall = 11;
 
-	private static string PlayerInstructionsFile => Path.Combine(DiffFolder, "player-instructions.json");
+	private static string PlayerInstructionsFile => CacheFile("player-instructions.json");
 
 	/// <summary>A fresh place beside which the tactic answers for one slot's one group.</summary>
 	private static async Task<string> PlayerScope(string index, PlayerInstructionGroup group)

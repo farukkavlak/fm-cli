@@ -31,7 +31,7 @@ internal static partial class Program
 		["sut"] = "Shots", ["mac"] = "Appearances", ["dakika"] = "Minutes", ["kurtaris"] = "Saves", ["form"] = "Form", ["seyirci"] = "Average Attendance",
 	};
 
-	private static string LeagueStatsFile => Path.Combine(DiffFolder, "league-stats.json");
+	private static string LeagueStatsFile => CacheFile("league-stats.json");
 
 	private static async Task<int> League(bool json, string[] args)
 	{
