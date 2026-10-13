@@ -726,6 +726,9 @@ internal static partial class Program
 			Console.WriteLine(title);
 			var body = await MessageBody(Field(chosen, "NewsFirstBubbleSpeechString"));
 			if (body.Length > 0) Console.WriteLine($"  {body.Replace("\n", "\n  ")}");
+			// A report or a piece of advice is mostly its attachment; with nothing to answer it was not
+			// shown at all (30 Nisan 2026).
+			await WriteAttachment(Field(chosen, "NewsFirstBubbleSpeechString"), []);
 			Console.WriteLine("\n(cevap seçeneği yok)");
 			return 0;
 		}
@@ -861,19 +864,27 @@ internal static partial class Program
 	/// </summary>
 	private static async Task WriteAttachment(string opening, HashSet<string> answers)
 	{
-		List<string> texts;
+		// Another message's attachment can still be on screen: this one's opens with its words. And its
+		// own comes a moment after the message: read at once, a message with nothing to answer (the ones
+		// with answers are waited on for those) showed none — the weekly recruitment update, the advice
+		// messages, 30 Nisan 2026. So it is given a little while to turn up.
+		var head = opening.Length > 40 ? opening[..40] : opening;
+		if (head.Length == 0) return;
+		List<string> texts = [];
+		var start = -1;
 		try
 		{
-			var found = await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "8"));
-			if (found.ValueKind != JsonValueKind.Array) return;
-			texts = found.EnumerateArray().Select(t => t.GetString() ?? "").ToList();
+			await Until(async () =>
+			{
+				var found = await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "8"));
+				if (found.ValueKind != JsonValueKind.Array) return false;
+				texts = found.EnumerateArray().Select(t => t.GetString() ?? "").ToList();
+				start = texts.IndexOf("Attachments");
+				return start >= 0 && texts.Take(start).Any(t => t.StartsWith(head, StringComparison.Ordinal));
+			}, seconds: 1.5, every: 0.3);
 		}
 		catch (FmError) { return; }
-
-		// Another message's attachment can still be on screen: this one's opens with its words.
-		var start = texts.IndexOf("Attachments");
-		var head = opening.Length > 40 ? opening[..40] : opening;
-		if (start < 0 || head.Length == 0 || !texts.Take(start).Any(t => t.StartsWith(head, StringComparison.Ordinal))) return;
+		if (start < 0 || !texts.Take(start).Any(t => t.StartsWith(head, StringComparison.Ordinal))) return;
 		var rest = texts.Skip(start + 1)
 			.Where(t => t is not ("Reset" or "Response Required") && !answers.Contains(t))
 			.ToList();
