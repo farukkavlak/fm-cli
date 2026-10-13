@@ -21,7 +21,7 @@ internal static partial class Program
 
 		var (team, _) = await Fm.OwnTeam();
 		var everyone = (await Fm.Pull("Human.Team.Players",
-			"Name,Age,PositionCombinedString,Condition,Sharpness,IsInjured,CurrentInjury.InjuryDescription,CurrentInjury.InjuryReturnDays,"
+			"Name,Age,PositionCombined,Condition,Sharpness,IsInjured,CurrentInjury.InjuryDescription,CurrentInjury.InjuryReturnDays,"
 			+ "FullContract.EndDateDescription,LoanClub.Name", list: true)).EnumerateArray()
 			.Where(p => Field(p, "Name").Length > 0).ToList();
 		// Players out on loan are someone else's to look after; one loaned to us has us as his loan club.
@@ -42,7 +42,7 @@ internal static partial class Program
 			.ToList();
 
 		// Depth counts the fit: an injured player does not cover his position this week.
-		var fit = squad.Where(p => !Injured(p)).Select(p => (Name: Field(p, "Name"), Slots: Positions(Field(p, "PositionCombinedString")))).ToList();
+		var fit = squad.Where(p => !Injured(p)).Select(p => (Name: Field(p, "Name"), Slots: Positions(Field(p, "PositionCombined")))).ToList();
 		var thin = DepthRows.SelectMany(r => r)
 			.Select(slot => (Slot: slot, Players: fit.Where(p => p.Slots.Contains(slot)).Select(p => p.Name).ToList()))
 			.Where(x => x.Players.Count <= 1)

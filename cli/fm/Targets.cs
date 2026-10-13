@@ -66,11 +66,11 @@ internal static partial class Program
 	private static async Task<int> ThinPositions(bool json, string transfer, string wage)
 	{
 		var (team, _) = await Fm.OwnTeam();
-		var squad = (await Fm.Pull("Human.Team.Players", "Name,PositionCombinedString,IsInjured,LoanClub.Name", list: true)).EnumerateArray()
+		var squad = (await Fm.Pull("Human.Team.Players", "Name,PositionCombined,IsInjured,LoanClub.Name", list: true)).EnumerateArray()
 			.Where(p => Field(p, "Name").Length > 0)
 			// Players out on loan are not here to cover; one loaned to us has us as his loan club.
 			.Where(p => Field(p, "LoanClub.Name") is not { Length: > 0 } club || club == team)
-			.Select(p => (Name: Field(p, "Name"), Injured: Field(p, "IsInjured") == "True", Slots: Positions(Field(p, "PositionCombinedString"))))
+			.Select(p => (Name: Field(p, "Name"), Injured: Field(p, "IsInjured") == "True", Slots: Positions(Field(p, "PositionCombined"))))
 			.ToList();
 		var depth = DepthRows.SelectMany(r => r)
 			.Select(slot => (Slot: slot, Fit: squad.Where(p => p.Slots.Contains(slot) && !p.Injured).Select(p => p.Name).ToList(), Injured: squad.Where(p => p.Slots.Contains(slot) && p.Injured).Select(p => p.Name).ToList()))

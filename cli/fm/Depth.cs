@@ -3,8 +3,8 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Squad depth: who can play each position, from the first team's position strings
-/// ("D (RLC), WB (R)", "M/AM (C)", "GK"), loanees and the under-19s left out; then the age
+/// Squad depth: who can play each position, from the first team's position masks (the game's
+/// PositionCombined, the same in every language), loanees and the under-19s left out; then the age
 /// profile. Nothing is opened in the game beyond the squad table (§13 of the plan).
 /// </summary>
 internal static partial class Program
@@ -20,38 +20,31 @@ internal static partial class Program
 		["ST"],
 	];
 
-	/// <summary>"D/WB (RL), DM" → DL, DR, WBL, WBR, DM.</summary>
-	internal static HashSet<string> Positions(string text)
-	{
-		var slots = new HashSet<string>();
-		foreach (var part in text.Split(", ", StringSplitOptions.RemoveEmptyEntries))
-		{
-			var open = part.IndexOf('(');
-			var roles = (open < 0 ? part : part[..open]).Trim().Split('/');
-			var sides = open < 0 ? "C" : part[(open + 1)..].TrimEnd(')');
-			foreach (var role in roles)
-			{
-				if (role is "GK" or "DM" or "ST") { slots.Add(role); continue; }
-				foreach (var side in sides)
-				{
-					// Wing-backs have no centre; a centre striker is the striker.
-					if (role == "WB" && side == 'C') continue;
-					slots.Add($"{role}{side}");
-				}
-			}
-		}
-		return slots;
-	}
+	/// <summary>
+	/// The game's position bits (a player's PositionCombined, the positions he plays well: what
+	/// PositionCombinedString writes out as "D/WB (RL), DM" in the game's language) by slot.
+	/// </summary>
+	private static readonly (int Bit, string Slot)[] PositionBits =
+	[
+		(1, "GK"), (4, "DR"), (8, "DL"), (16, "DC"), (32, "WBR"), (64, "WBL"), (128, "DM"),
+		(256, "MR"), (512, "ML"), (1024, "MC"), (2048, "AMR"), (4096, "AML"), (8192, "AMC"), (16384, "ST"),
+	];
+
+	/// <summary>A PositionCombined mask as slots: 36 → DR, WBR.</summary>
+	internal static HashSet<string> Positions(string mask) =>
+		int.TryParse(mask, out var bits) ? PositionBits.Where(p => (bits & p.Bit) != 0).Select(p => p.Slot).ToHashSet() : [];
 
 	private static async Task<int> Depth(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
 		var squad = await SquadView(SquadTable.GeneralInfo, "AgreedPlayingTime");
 		var youth = await YouthTeams();
+		var masks = (await Fm.Pull("Human.Team.Players", "Name,PositionCombined", list: true)).EnumerateArray()
+			.GroupBy(p => Field(p, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "PositionCombined"));
 		var players = squad.EnumerateArray()
 			.Where(p => !youth.Contains(Field(p, "Team")) && Field(p, "AgreedPlayingTime") != "Out On Loan")
-			.Where(p => Field(p, "PositionCombinedString").Length > 0)
-			.Select(p => (Name: Field(p, "Name"), Age: int.TryParse(Field(p, "Age"), out var a) ? a : 0, Slots: Positions(Field(p, "PositionCombinedString"))))
+			.Where(p => masks.ContainsKey(Field(p, "Name")))
+			.Select(p => (Name: Field(p, "Name"), Age: int.TryParse(Field(p, "Age"), out var a) ? a : 0, Slots: Positions(masks[Field(p, "Name")])))
 			.ToList();
 
 		var depth = DepthRows.SelectMany(r => r).ToDictionary(s => s, s => players.Where(p => p.Slots.Contains(s)).Select(p => p.Name).ToList());
