@@ -4679,6 +4679,34 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
   ("Dinlenme", "Yolculuk") ve oyuncu açıklamaları motor yazısı, Türkçe kalıyor. Takvim ve fikstürde yarışma adları
   oyunun verisinde nasıl yazılıyorsa öyle.
 
+### 8.170 Veri yolu okumasının devamı: veri kayıtları, derin satırlar, oynama akışı (14 Ekim 2026 sabaha karşı)
+
+- **Doğrudan veriden okunanlar:** maaş bordrosu `Human.Club.CurrentWageSpending` / `WageBudget` (haftalık, sterlin);
+  personel ekipleri `Human.Team.Staff{Coaching,Recruitment,Medical}SubGroup` → `Count`, `MaxValue`, `LongString`,
+  `StaffSubGroupCountFeedbackString` (yönetimin görüşü), `StaffSubGroupJobsData` listesi (`JobString`, `Count`,
+  `MaxValue`); taraftar profili `Human.Club.SupporterProfile.FanPercentage*`, `Description`; scout odakları
+  `Human.ScoutingInfo.RecruitmentFocusesList` (`IsFocusComplete`, `ScoutCount`, `AnalystCount`,
+  `RecommendedPlayerPoolCount` = eşleşen, `NearMissPlayerPoolCount` = yakın, `CurrentPlayerPoolCount` = süren);
+  altyapı `Human.Club.IntakeDate`, `YouthCandidatesCount`, `YouthCoaching`, `YouthRecruitment`; takımın ligi
+  `Human.Team.Division.Name` (lig adı tahmini kalktı). Mutluluk nedenleri (`HappinessPositives`) veriden gelmiyor,
+  değer yalnız sayfa bağlamında oluşuyor.
+- **Paketli tarih:** `/pull` `GameDate` alanlarını `yyyy-MM-dd` veriyor; `/state` saati okumak için tarihi ham okuyor
+  (ilk denemede `Text.Of` değişince `/state` tarihi kaybetti, `youth` kalan günü bugünden hesapladı).
+- **Derin satırlar:** "yoldan bulunan öğeden yukarı çıkınca sayfa gelmiyor" sanılan şey yalnız derinlikti: altyapı
+  adayının adından sayfaya 30 üst, rakip raporunda `Team.Description`'dan 14 üst. Tutunma noktası her dilde yazılan bir
+  yol olmalı: Türkçede rakibin beklenti metni boş, altyapı notunun başlığı çevrilmeden kalıyor.
+- **Radyo grupları** artık `Items` (öğelerini okuduğu yol) ve `Binds` veriyor; adı olmayan scout odağı listesi
+  `Items = ScoutingInfo.RecruitmentFocusesList` ile bulunuyor. Kulüp karoları: `Supporters`, `ClubAllStaff`;
+  scout raporu karosu `player-recommendation-cell-remapper`; altyapı alt sekmeleri Environment `1ebaf239…`,
+  Performance `80bb0128…`, Candidates `e88d1df4…`.
+- **Oynama akışı Türkçede:** mesaj cevapları, sezon öncesi toplantı (`talk`), `next`, teklif görüntüleme / reddetme,
+  kiralık onayı, maç günü. Bulunan: `offers <#> view` kartı oyunda açık bırakıyordu, yanındaki direktör konuşması
+  `status`/`next`'e açık soru görünüyordu (portal açılarak kapatılıyor); teklif süresi listesi motor yazısı ("No
+  Deadline" / "Zaman Sınırı Yok"), kalan genel seçenek olarak tanınıyor. `settings` ilk açılışta adım kaçırabiliyor
+  (bir kez daha deneniyor), Türkçede "See all" bağlantısı "See All" dönüyor.
+- Açık: gelen kutusu ekleri (`Reply` / `WriteAttachment`, ~45 konumla okuma); motor yazıları (seans adları, oyuncu
+  açıklamaları) Türkçe kalıyor; İngilizce oyunda bazı rol adları dil değişiminden kalma Türkçe geliyor (oyunun önbelleği).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
