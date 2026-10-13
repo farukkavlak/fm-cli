@@ -951,6 +951,98 @@ internal static partial class Program
 			return;
 		}
 
+		// The season's review: what was expected in each competition, the transfer business, what the
+		// board and the supporters made of it, and where the money is headed.
+		if (rest[0] == "Competitions" && rest.Contains("Board Expectation") && rest.Contains("Performance Feedback"))
+		{
+			int At(string label, int from = 0) => rest.FindIndex(from, t => t == label);
+			var transfers = At("Transfer History");
+			var feedback = At("Performance Feedback");
+			var projections = At("Projections");
+			Console.WriteLine("\n  Ek: sezon değerlendirmesi");
+			var expected = new List<string>();
+			for (var i = At("Board Expectation") + 1; i + 1 < (transfers > 0 ? transfers : feedback); i += 2) expected.Add($"{rest[i]}: {rest[i + 1]}");
+			if (expected.Count > 0) Console.WriteLine($"    Yönetimin beklentisi — {string.Join(" · ", expected)}");
+			if (transfers > 0 && feedback > transfers)
+			{
+				var money = rest.Skip(transfers + 1).Take(feedback - transfers - 1).ToList();
+				var into = money.IndexOf(money.FirstOrDefault(t => t.StartsWith("Transfers In", StringComparison.Ordinal)) ?? "\0");
+				var outOf = money.IndexOf(money.FirstOrDefault(t => t.StartsWith("Transfers Out", StringComparison.Ordinal)) ?? "\0");
+				if (into >= 0 && outOf > into)
+				{
+					Console.WriteLine($"    {money[into]}: {string.Join(" · ", money.Skip(into + 1).Take(outOf - into - 1).Where(t => !t.EndsWith(':')))}");
+					Console.WriteLine($"    {money[outOf]}: {string.Join(" · ", money.Skip(outOf + 1).Where(t => !t.EndsWith(':')))}");
+				}
+				else Console.WriteLine($"    Transfer: {string.Join(" · ", money)}");
+			}
+			foreach (var (who, label) in new[] { ("Yönetim", "Board"), ("Taraftar", "Supporters") })
+			{
+				var from = At(label, feedback + 1);
+				if (from < 0) continue;
+				var to = new[] { At("Supporters", from + 1), projections, rest.Count }.Where(x => x > from).Min();
+				var said = rest.Skip(from + 1).Take(to - from - 1).ToList();
+				// "Highlights", "(10),", "Criticisms", "(2)", the mood, then a line of each kind.
+				var counts = string.Join(" ", said.TakeWhile(t => t is "Highlights" or "Criticisms" || t.StartsWith('('))).Replace(" (", " (").Replace(",", " ·");
+				var lines = said.SkipWhile(t => t is "Highlights" or "Criticisms" || t.StartsWith('(')).ToList();
+				Console.WriteLine($"    {who}: {(lines.Count > 0 ? lines[0] : "")}  [{counts}]");
+				foreach (var line in lines.Skip(1)) Console.WriteLine($"      {(line.StartsWith("Disappointed", StringComparison.Ordinal) || line.StartsWith("Unhappy", StringComparison.Ordinal) ? "-" : "+")} {line}");
+			}
+			for (var i = projections + 1; projections > 0 && i < rest.Count; i++)
+			{
+				if (!rest[i].StartsWith("End of", StringComparison.Ordinal)) continue;
+				var pairs = new List<string>();
+				for (var k = i + 1; k + 1 < rest.Count && !rest[k].StartsWith("End of", StringComparison.Ordinal); k += 2) pairs.Add($"{rest[k]} {rest[k + 1]}");
+				Console.WriteLine($"    Öngörü, {rest[i]}: {string.Join(" · ", pairs)}");
+			}
+			return;
+		}
+
+		// The budgets the board has set: what there is to spend and what has gone.
+		if (rest[0] == "Recruitment Budgets" && rest.Contains("Available"))
+		{
+			Console.WriteLine("\n  Ek: bütçeler");
+			foreach (var (label, name) in new[] { ("Transfer", "Transfer"), ("Wage", "Maaş"), ("Scouting", "Scouting") })
+			{
+				var at = rest.IndexOf(label);
+				if (at < 0 || at + 1 >= rest.Count) continue;
+				var note = at + 3 < rest.Count && rest[at + 2] == "Available" ? $"  ({rest[at + 3]})" : "";
+				Console.WriteLine($"    {name,-9}{rest[at + 1]} kullanılabilir{note}");
+			}
+			if (rest.IndexOf("Overall Balance") is > 0 and var balance) Console.WriteLine($"    Kasa     {rest[balance - 1]}");
+			Console.WriteLine("    Ayrıntı: budget · finances");
+			return;
+		}
+
+		// The club's vision: each objective with how much it matters and how it is going.
+		if (rest[0] == "Club Vision" && rest.Contains("Actionable Objectives"))
+		{
+			Console.WriteLine("\n  Ek: kulüp vizyonu");
+			string[] weights = ["Required", "Favoured", "Desired", "Preferred"];
+			for (var i = 1; i + 2 < rest.Count; i++)
+			{
+				if (rest[i] is "Actionable Objectives" or "Informational Objectives") { Console.WriteLine($"    {(rest[i] == "Actionable Objectives" ? "Yapılacak hedefler" : "Bilgi amaçlı hedefler")}"); continue; }
+				if (!weights.Contains(rest[i + 1])) continue;
+				Console.WriteLine($"      {rest[i]} — {rest[i + 1] switch { "Required" => "zorunlu", "Favoured" => "tercih", "Desired" => "istenen", var w => w }} · {rest[i + 2]}");
+				i += 2;
+			}
+			Console.WriteLine("    Ayrıntı: club");
+			return;
+		}
+
+		// The season's injuries: how many against what was expected, how bad, and the league's worst hit.
+		if (rest[0] == "Season Summary" && rest.Count > 2 && rest[1].Contains("injuries this season", StringComparison.Ordinal))
+		{
+			string After(string label) => rest.IndexOf(label) is >= 0 and var at && at + 1 < rest.Count ? rest[at + 1] : "";
+			Console.WriteLine($"\n  Ek: sezonun sakatlıkları — {rest[1]}");
+			Console.WriteLine($"    Beklenene göre {After("Expected injuries:")} · geçen sezona göre {After("Last Season")}");
+			Console.WriteLine($"    Ağırlık: {string.Join(" · ", new[] { "Major", "Moderate", "Minor", "Slight" }.Where(k => After(k).Length > 0).Select(k => $"{k} {After(k)}"))}");
+			var worst = rest.IndexOf("Injury Table");
+			var teams = new List<string>();
+			for (var i = worst + 1; worst > 0 && i + 1 < rest.Count && int.TryParse(rest[i + 1], out _); i += 2) teams.Add($"{rest[i]} {rest[i + 1]}");
+			if (teams.Count > 0) Console.WriteLine($"    Ligde en çok sakatlık: {string.Join(" · ", teams)}");
+			return;
+		}
+
 		// A staff meeting's summary: what kind it was and the topics raised, each with how many items.
 		if (rest[0] == "Advice Summary" && rest.IndexOf("Advice Topics") is > 0 and var topicsAt)
 		{

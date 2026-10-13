@@ -307,7 +307,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [~] Avrupa kupaları — `fm table europa` lig aşaması tablosu (36'nın 33'ü, §8.100), `fm league <turnuva>` liderler; eleme turları `fm stages` ile (§8.105)
 - [x] Gol krallığı / asist / form tablosu — `fm league [turnuva] --stat <ad> [--teams]`: 127 oyuncu, 100 takım istatistiğinde tam sıralama, ekransız (§8.129); `fm league` liderler
 - [x] Takvim — `fm calendar [ay]`: maçlar, transfer dönemi açılış / kapanış, kupa kuraları, milli maçlar (§8.66)
-- [ ] Sezon özeti / ödüller
+- [~] Sezon özeti / ödüller — sezon sonu mesajları `reply` ile satır satır okunuyor: End of Season Review (beklenti, transferler, yönetim / taraftar görüşü, mali öngörü), yeni bütçeler, kulüp vizyonu hedefleri, sezonun sakatlık raporu (§8.159, 4 Mayıs 2026); ayrı bir `fm season` komutu ve ödüller yok
 
 ---
 

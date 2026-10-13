@@ -4446,6 +4446,20 @@ gol / asist / ortalama liderleri, Team News, son beş maç), "Homegrown" (statü
 Changes" altılı satırlar; satır "N years old" ile tanınıyor). Hâlâ düz dökülenler: Team of the Week (on bir oyuncu
 yazıda yok, yalnızca ödül kutusu), Advice Summary'nin son bölümü, Scouting Report kartı.
 
+## 8.159 Sezon sonu (Lincoln, 2–4 Mayıs 2026)
+
+Son lig maçından (2 Mayıs) sonra `status` "Sıradaki maç" satırını bırakıyor, `fixtures` yalnızca oynanmışları veriyor.
+Ligin Stages sayfası oynanmakta olan aşamada açılıyor ("Playoffs Semi Final", eşleşmeler): `table` "tablo açılmadı"
+diyordu, artık lig aşamasını ("league") ayrıca istiyor. Yeri kesinleşenler: "C", "P" (Cardiff, yükseldi), "Pl", "R".
+İki günde gelenler: Squad Planning for Next Season, Board Set Initial Budgets, Seasonal Performance Analyst Report,
+End of Season Review, Club vision and expectations meeting (cevap: Negotiate / Accept Current Vision / View Club
+Vision), End of Season Team Meeting (Discuss Plans for Next Season), Walker issues Season Injury Report, Pre-season
+start date to be decided (Confirm pre-season dates), Lincoln Supporter Profile Update. Ekler: "Competitions" (sezon
+değerlendirmesi: beklenti çiftleri — "Progress" sütunu yazıda yok —, Transfer History, Performance Feedback altında
+Board / Supporters, Projections altında "End of <sezon>" + üç çift), "Recruitment Budgets" (etiket, tutar, "Available",
+not), "Club Vision" (hedef, ağırlık Required / Favoured, durum üçlüleri), "Season Summary" (sakatlık sayıları ve lig
+tablosu). Hepsi satır satır yazılıyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
