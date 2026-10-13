@@ -232,9 +232,34 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// A table with its teams' names put back. Once a place is settled the page writes it beside the
+	/// team — "C" for the champions, "Pl" for a play-off place — under the same name as the team's own,
+	/// and the mark is what comes through ("1 C 84", Bolton, 18 Nisan 2026). The team is still known by
+	/// its short name, which another table on screen pairs with the full one; the mark is kept as Settled.
+	/// </summary>
+	private static JsonElement NamedStandings(JsonElement table, JsonElement tables)
+	{
+		var names = new Dictionary<string, string>();
+		foreach (var row in tables.EnumerateArray().SelectMany(t => t.EnumerateArray()))
+			if (Field(row, "ShortName") is { Length: > 0 } code && Field(row, "Name") is { Length: > 3 } name) names.TryAdd(code, name);
+		var rows = table.EnumerateArray().Select(row =>
+		{
+			var fields = row.EnumerateObject().ToDictionary(f => f.Name, f => f.Value.ToString());
+			var name = fields.GetValueOrDefault("Name", "");
+			if (name.Length is > 0 and <= 3 && fields.GetValueOrDefault("ShortName", "") is { Length: > 0 } code && code != name)
+			{
+				fields["Settled"] = name;
+				fields["Name"] = names.GetValueOrDefault(code, code);
+			}
+			return fields;
+		}).ToList();
+		return JsonSerializer.SerializeToElement(rows);
+	}
+
+	/// <summary>
 	/// What the stage on screen holds, once it has stopped changing: the date of its draw (a round
-	/// not drawn yet), its ties, or its table — the last of the tables bound, the page's own coming after
-	/// the portal tile's.
+	/// not drawn yet), its ties, or its table — the longest of the tables bound, the page's own being fuller
+	/// than any tile's.
 	/// </summary>
 	private static async Task<(JsonElement? Ties, JsonElement? Table, string Note)> StageContent(bool whole = true)
 	{
@@ -258,7 +283,14 @@ internal static partial class Program
 			.FirstOrDefault(t => t.StartsWith("This round will be drawn", StringComparison.Ordinal));
 		if (note != null) return (null, null, note["This round will be drawn on ".Length..]);
 
-		var table = tables.EnumerateArray().LastOrDefault(t => t.GetArrayLength() >= 2);
+		// After a match the news tiles leave tables of their own behind, three rows of places and points
+		// each, bound after the page's: "the last bound" was one of those, and the league came out three
+		// teams long (18 Nisan 2026). The page's table is the longest, and of equals the one with its
+		// columns; only then the latest.
+		var table = tables.EnumerateArray().Where(t => t.GetArrayLength() >= 2).Reverse()
+			.OrderByDescending(t => t.GetArrayLength())
+			.ThenByDescending(t => t.EnumerateArray().Count(r => Field(r, "LeagueGamesWon").Length > 0)).FirstOrDefault();
+		if (table.ValueKind == JsonValueKind.Array) table = NamedStandings(table, tables);
 		return table.ValueKind == JsonValueKind.Array ? (null, table, null) : (null, null, null);
 	}
 

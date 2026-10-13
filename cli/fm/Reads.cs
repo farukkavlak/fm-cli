@@ -895,11 +895,17 @@ internal static partial class Program
 
 		// Each table bound on screen apart from the others (the tile and a competition's page
 		// can both be up); the biggest of those not seen before is the one just opened.
-		static string Key(JsonElement t) => string.Join("|", t.EnumerateArray().Select(r => Field(r, "Name") + Field(r, "LeaguePoints")));
+		// Names and points come first and the other columns a moment after: read by those two alone, a
+		// table counted as settled while its games were still to come, and went out with places and
+		// points only (18 Nisan 2026).
+		static string Key(JsonElement t) => string.Join("|", t.EnumerateArray().Select(r => Field(r, "Name") + Field(r, "LeaguePoints") + "/" + Field(r, "LeagueGamesPlayed") + "/" + Field(r, "LeagueGamesWon")));
 		async Task<JsonElement?> Biggest(HashSet<string> not) =>
 			(await Fm.GetJson("table", ("groups", "1"))).EnumerateArray().Cast<JsonElement?>()
 				.Where(t => t.Value.GetArrayLength() >= 10 && !not.Contains(Key(t.Value)))
-				.OrderByDescending(t => t.Value.GetArrayLength()).FirstOrDefault();
+				// Two tables of the same league can be up at once, a tile with places and points only and the
+				// full one; of equals the one with the games played is the table (18 Nisan 2026).
+				.OrderByDescending(t => t.Value.GetArrayLength())
+				.ThenByDescending(t => t.Value.EnumerateArray().Count(r => Field(r, "LeagueGamesPlayed").Length > 0)).FirstOrDefault();
 		async Task<JsonElement?> Settled(HashSet<string> not, double seconds)
 		{
 			JsonElement? found = null;
@@ -952,13 +958,18 @@ internal static partial class Program
 	{
 		// The portal's tile has only games and points; the columns it leaves out are left out.
 		var full = table.EnumerateArray().Any(r => Field(r, "LeagueGamesWon").Length > 0);
+		// A place already settled is said beside the team, as the page does with its "C" and "Pl".
+		static string Team(JsonElement row) => Field(row, "Name") + (Field(row, "Settled") switch
+		{
+			"" => "", "C" => " (şampiyon)", "Pl" => " (play-off kesin)", "P" => " (yükseldi)", "R" => " (düştü)", var mark => $" ({mark})",
+		});
 		var rows = table.EnumerateArray().Select(row => full
 			? new[]
 			{
-				Field(row, "TablePosition"), Field(row, "Name"), Field(row, "LeagueGamesPlayed"), Field(row, "LeagueGamesWon"),
+				Field(row, "TablePosition"), Team(row), Field(row, "LeagueGamesPlayed"), Field(row, "LeagueGamesWon"),
 				Field(row, "LeagueGamesDrawn"), Field(row, "LeagueGamesLost"), Field(row, "LeagueGoalDifference"), Field(row, "LeaguePoints"),
 			}
-			: [Field(row, "TablePosition"), Field(row, "Name"), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
+			: [Field(row, "TablePosition"), Team(row), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
 		string[] headers = full ? ["#", "TAKIM", "O", "G", "B", "M", "AV", "P"] : ["#", "TAKIM", "O", "P"];
 
 		// The last five league results, oldest first, where the page binds them.

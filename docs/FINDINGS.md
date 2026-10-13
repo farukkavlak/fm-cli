@@ -4402,6 +4402,21 @@ Elli salt-okur komut art arda çalıştırıldı; ikisi Fenerbahçe kaydına gö
   kadrosunu (U21 / U18) listelemek ayrı iş. Takvimde altyapı maçı satırının başındaki kod yarışmanın ("3N", "FR"),
   yaş grubu değil; satır "Altyapı 3N: MOR U18s (A) 0-4" diye yazılıyor.
 
+## 8.156 Maç sonrası puan tablosu: haber kutularının tabloları ve yeri kesinleşen takımın adı (18 Nisan 2026)
+
+Maçtan hemen sonra `fm table` üç satır basıyordu ("1 Bolton 84", oynanan maç boş). `/table?groups=1` o an yedi tablo
+veriyor: 24 satırlık iki tam tablo ve maç sonrası haber kutularından kalan beş tane 3 satırlık (yalnızca `TablePosition`,
+`Name`, `LeaguePoints`). Stages sayfası "en son bağlanan tabloyu" alıyordu; artık en uzunu, eşitlerde sütunları dolu
+olanı. İkinci kusur: yeri kesinleşen takımın satırında sayfa bir işaret yazıyor ("C" şampiyon, "Pl" play-off, düşenlerde
+"R") ve bu işaret de `Name` adıyla bağlı; düzleştirilince takımın adının üstüne yazıyor ("1 C 84"). `ShortName` ("BOL")
+sağlam: ad, ekrandaki öbür tablolardan kısa adla geri alınıyor, işaret `Settled` alanına taşınıp adın yanına yazılıyor
+("Bolton (şampiyon)", "AFC Wimbledon (düştü)"). Kalıcı çözüm eklentide: aynı adlı ikinci property ilkini ezmesin
+(yeniden başlatma gerektirdiği için bekliyor).
+
+Aynı turda: maç içinde `status`, `dugout`, `shout Encourage`, `tactic mentality Positive`, `sub Street Collins` oyun
+akarken çalıştı, `match --play` akışı bozulmadı. `sub` listesindeki kart / puan işaretleri `MatchPlayer` düğümleri o an
+yoksa boş geliyor (aynı maçta bir çağrıda var, sonrakinde yok).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
