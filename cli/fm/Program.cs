@@ -937,6 +937,26 @@ internal static partial class Program
 			return;
 		}
 
+		// A match's card: the score with who played, the scorers, the numbers and who stood out.
+		if (rest[0] == "Match Report" && rest.FindIndex(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d+ - \d+$")) is > 1 and var result && result + 1 < rest.Count)
+		{
+			Console.WriteLine($"\n  Ek: maç raporu — {rest[result - 1]} {rest[result]} {rest[result + 1]}  ({rest[1]}, {rest[2]})");
+			var stats = rest.IndexOf("Match Stats");
+			var scorers = new List<string>();
+			for (var i = result + 2; i + 1 < (stats > 0 ? stats : rest.Count) && rest[i + 1].EndsWith('\''); i += 2) scorers.Add($"{rest[i]} {rest[i + 1]}");
+			if (scorers.Count > 0) Console.WriteLine($"    Goller: {string.Join(", ", scorers)}");
+			var numbers = new List<string>();
+			static bool Number(string t) => t.Length > 0 && char.IsDigit(t[0]);
+			for (var i = stats + 1; stats > 0 && i + 2 < rest.Count && !Number(rest[i]) && Number(rest[i + 1]) && Number(rest[i + 2]); i += 3)
+				numbers.Add($"{rest[i] switch { "Shots" => "Şut", "Shots On Target" => "İsabetli şut", "xG" => "Gol beklentisi", "Corners" => "Korner", "Possession" => "Topla oynama", "Fouls" => "Faul", var other => other }} {rest[i + 1]} - {rest[i + 2]}");
+			if (numbers.Count > 0) Console.WriteLine($"    {string.Join(" · ", numbers)}");
+			var key = rest.IndexOf("Key Players");
+			var stood = new List<string>();
+			for (var i = key + 1; key > 0 && i + 1 < rest.Count && rest[i] != "Action message" && rest[i + 1] != "Action message"; i += 2) stood.Add($"{rest[i]} ({rest[i + 1]})");
+			if (stood.Count > 0) Console.WriteLine($"    Öne çıkanlar: {string.Join(", ", stood)}");
+			return;
+		}
+
 		// The intake's card: how many came, and the best of them with the group each is put in.
 		if (rest[0] == "Youth Candidates" && rest.IndexOf("Prospect") is > 0 and var prospect)
 		{
