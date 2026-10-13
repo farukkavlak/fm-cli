@@ -150,7 +150,7 @@ internal static partial class Program
 			if (dialogs.GetArrayLength() > 0)
 			{
 				var dialog = dialogs[0];
-				var yes = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") == "Yes");
+				var yes = DialogAnswer(dialog, true);
 
 				// The eleven cannot go out as it is: who plays is the manager's call.
 				if (TeamProblem(dialog) is { } problem)
@@ -377,8 +377,8 @@ internal static partial class Program
 					continue;
 				}
 
-				var want = Field(dialog, "Title") switch { "Instant Result" => "Confirm", "Team Selection" => "Yes", _ => null };
-				var button = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") == want);
+				// Which dialog it is still goes by its title (BAGIMLILIKLAR §2.2); the answer goes by its slot.
+				var button = Field(dialog, "Title") is "Instant Result" or "Team Selection" ? DialogAnswer(dialog, true) : null;
 				if (button == null)
 				{
 					Console.Error.WriteLine($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}   (cevap: dialog)");

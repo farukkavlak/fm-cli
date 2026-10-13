@@ -4563,6 +4563,23 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
   veride `Club.HighestLevelYouthTeam.Players` 10, `SecondHighestLevelYouthTeam.Players` 18). Tablo bir an eksik doluyor
   (ilk okumada 4 satır), iki okuma aynı sayıyı verene kadar bekleniyor; 3/3 doğru.
 
+### 8.165 Onay pencereleri yuvayla; personel kartı tıklaması (13 Ekim 2026, Lincoln)
+
+- Oyunun `DialogManager.m_currentDialog` (`DialogData`) pencerenin `Type`'ını (metin kimliği, ör. serbest bırakma
+  `Confirm1214855239`) ve dört düğme yuvasını (`PrimaryButton`… `QuaternaryButton`, her biri `Text`, `EventID`) tutuyor.
+  `/dialog` artık her pencereye `Type`, her düğmeye `Slot` ve `EventID` ekliyor (düğme yazısını yuvanın yazısıyla
+  eşleyerek). Düğme elemanının adı da yuvayı söylüyor: `buttons-button-primary-default` / `…-secondary-default`.
+- **Kural: ilerleten cevap (Yes, Confirm, Ok) birincil, geri çeken (No, Cancel) ikincil.** Görülen: release --free
+  (Yes birincil, No ikincil `EventID=close`), staff fire (aynı), "Replace Existing File" (Confirm birincil, dosya
+  yazıldı). CLI `DialogAnswer(dialog, agree)` ile seçiyor; 11 yer taşındı (release, staff fire, captains, contract
+  iptali ve menajer uyarısı, scout iptali/durdurma, register, transfer reddi, kayıt üstüne yazma/silme, maç günü).
+- Hâlâ başlıkla tanınan pencereler: "Instant Result", "Team Selection", "Injured Players" (MatchDay), "Replace Existing
+  File", "Delete File" (Saves). `Type`'ları maç / kayıt silme sırasında okunup yazılmalı.
+- **`staff` düşüyordu** ("Personel kartı açılmadı"): `staff fire` ya da Staff Report kartından sonra Club › Overview
+  yeniden kurulurken "Coaching Team" kutusuna tıklama boşa gidiyor (eklenti "clicked" diyor). 2 sn sonra elle tıklayınca
+  açılıyor. Çözüm: kart 3 sn'de gelmezse yeniden tıklamak; üç durumda 9/9 geçti. Eklentinin `?text=` tıklaması artık
+  gizli elemanları da atlıyor (`Pages.Shown`), ama bu hatayı tek başına çözmedi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

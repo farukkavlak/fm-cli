@@ -87,7 +87,7 @@ internal static partial class Program
 			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
 			JsonElement dialogs = default;
 			if (await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.5)
-				&& dialogs[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(b => Field(b, "Label") == "Yes") is { ValueKind: JsonValueKind.Object } yes)
+				&& DialogAnswer(dialogs[0], true) is { } yes)
 				await Fm.Get("click", ("ptr", Field(yes, "Pointer")));
 			// Believed only once his menu no longer offers it: the game has closed the question and kept the assignment before (FINDINGS §8.119).
 			var still = await PersonMenu(name, "Player") is { } after && EntryAt(after.Entries, p => p == "Report>Cancel Assignment") != null;
@@ -253,8 +253,7 @@ internal static partial class Program
 		if (buttons.Count > 1)
 		{
 			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask("Gönderelim mi?", ["Evet", "Hayır"]) == 0);
-			var answer = buttons.FirstOrDefault(b => Field(b, "Label") == (go ? "Yes" : "No"));
-			if (answer.ValueKind != JsonValueKind.Object)
+			if (DialogAnswer(dialog, go) is not { } answer)
 			{
 				Console.WriteLine($"\nCevaplamak için: dialog <{string.Join(" | ", buttons.Select(b => Field(b, "Label")))}>");
 				return 0;

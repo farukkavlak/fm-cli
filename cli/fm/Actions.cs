@@ -348,8 +348,7 @@ internal static partial class Program
 		var buttons = dialog.GetProperty("Buttons").EnumerateArray().ToList();
 		Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
 		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask("Sözleşmesini feshedelim mi?", ["Evet", "Hayır"]) == 0);
-		var answer = buttons.FirstOrDefault(b => Field(b, "Label") == (go ? "Yes" : "No"));
-		if (answer.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
+		if (DialogAnswer(dialog, go) is { } answer) await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
 		if (!go)
 		{
 			if (!Ui.Interactive) Console.WriteLine($"\nVazgeçildi. Feshetmek için: staff fire \"{name}\" --yes");

@@ -63,11 +63,36 @@ internal static class Dialogs
 		return $"pressed {slot}";
 	}
 
+	/// <summary>
+	/// The dialog the game is showing, as its manager holds it: its type, a name that does not
+	/// change with the language, and each button's slot and event, found by the text it shows.
+	/// </summary>
+	private static (string Type, Dictionary<string, (string Slot, string Event)> Buttons)? Current()
+	{
+		try
+		{
+			var manager = SI.Bindable.DialogManager.Instance;
+			if (manager == null || manager.m_isDialogVisible != true) return null;
+			var data = manager.m_currentDialog?.Value;
+			if (data is null) return null;
+			var buttons = new Dictionary<string, (string, string)>();
+			foreach (var (slot, button) in new[] { ("primary", data.PrimaryButton), ("secondary", data.SecondaryButton), ("tertiary", data.TertiaryButton), ("quaternary", data.QuaternaryButton) })
+			{
+				if (button is null) continue;
+				var text = Text.Plain(button.Text ?? "");
+				if (text.Length > 0) buttons.TryAdd(text, (slot, button.EventID ?? ""));
+			}
+			return (data.Type ?? "", buttons);
+		}
+		catch { return null; }
+	}
+
 	public static string Open(System.Collections.Specialized.NameValueCollection q)
 	{
 		if (q["data"] == "1") return Data();
 		if (!string.IsNullOrEmpty(q["press"])) return Answer(q["press"]);
 		var rows = new List<string>();
+		var current = Current();
 
 		foreach (var element in Buttons.Elements())
 		{
@@ -98,11 +123,17 @@ internal static class Dialogs
 			var description = "";
 			try { description = root.Q<TextElement>("dialog-description")?.text ?? ""; } catch { }
 
+			// The manager holds one dialog; it is this one when its buttons are these.
+			var mine = current is { } c && buttons.Any(b => c.Buttons.ContainsKey(b.Label)) ? current : null;
+			string Slot(string label) => mine is { } m && m.Buttons.TryGetValue(label, out var at)
+				? $", \"Slot\": \"{at.Slot}\", \"EventID\": \"{Report.Escape(at.Event)}\"" : "";
+
 			rows.Add("{"
 				+ $"\"Title\": \"{Report.Escape(Text.Plain(title ?? ""))}\", "
 				+ $"\"Description\": \"{Report.Escape(Text.Plain(description))}\", "
+				+ (mine is { } d ? $"\"Type\": \"{Report.Escape(d.Type)}\", " : "")
 				+ "\"Buttons\": [" + string.Join(", ", buttons.Select(b =>
-					$"{{\"Label\": \"{Report.Escape(b.Label)}\", \"Pointer\": \"{b.Pointer}\", \"Name\": \"{Report.Escape(b.Name)}\"}}")) + "]}");
+					$"{{\"Label\": \"{Report.Escape(b.Label)}\", \"Pointer\": \"{b.Pointer}\", \"Name\": \"{Report.Escape(b.Name)}\"{Slot(b.Label)}}}")) + "]}");
 		}
 
 		return "[" + string.Join(", ", rows) + "]\n";

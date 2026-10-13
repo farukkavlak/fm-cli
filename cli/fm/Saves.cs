@@ -230,15 +230,15 @@ internal static partial class Program
 		await Until(async () => !await OnScreen("Last saved"), seconds: 5, every: 0.25);
 	}
 
-	/// <summary>The button of an open dialog with this title, or null when that dialog is not up.</summary>
-	private static async Task<string> DialogButton(string title, string label)
+	/// <summary>
+	/// The answer that goes ahead on an open dialog with this title, or null when that dialog is
+	/// not up. The dialog is still told by its title (BAGIMLILIKLAR §2.2).
+	/// </summary>
+	private static async Task<string> DialogButton(string title)
 	{
 		foreach (var dialog in (await Fm.GetJson("dialog")).EnumerateArray())
-		{
-			if (!Field(dialog, "Title").StartsWith(title, StringComparison.Ordinal)) continue;
-			foreach (var button in dialog.GetProperty("Buttons").EnumerateArray())
-				if (Field(button, "Label") == label) return Field(button, "Pointer");
-		}
+			if (Field(dialog, "Title").StartsWith(title, StringComparison.Ordinal) && DialogAnswer(dialog, true) is { } button)
+				return Field(button, "Pointer");
 		return null;
 	}
 
@@ -289,7 +289,7 @@ internal static partial class Program
 			var now = await Fm.GetJson("state");
 			if (Field(now, "Saving") == "True" || Field(now, "State") == "Saving") return true;
 			if (File.Exists(file) && File.GetLastWriteTimeUtc(file) > before) return true;
-			if (!confirmed && await DialogButton("Replace Existing File", "Confirm") is { } confirm)
+			if (!confirmed && await DialogButton("Replace Existing File") is { } confirm)
 			{
 				confirmed = true;
 				await Fm.Get("click", ("ptr", confirm));
@@ -381,7 +381,7 @@ internal static partial class Program
 		}
 
 		string yes = null;
-		await Until(async () => (yes = await DialogButton("Delete File", "Yes")) != null, seconds: 6, every: 0.25);
+		await Until(async () => (yes = await DialogButton("Delete File")) != null, seconds: 6, every: 0.25);
 		if (yes == null)
 		{
 			Console.Error.WriteLine("Oyun silmeyi sormadı; kayıt silinmedi.");

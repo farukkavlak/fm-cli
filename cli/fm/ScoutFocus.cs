@@ -146,7 +146,7 @@ internal static partial class Program
 		await Fm.Get("click", ("text", "Cancel"));
 		JsonElement dialogs = default;
 		if (await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 4, every: 0.4)
-			&& dialogs[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(b => Field(b, "Label") == "Confirm") is { ValueKind: JsonValueKind.Object } confirm)
+			&& DialogAnswer(dialogs[0], true) is { } confirm)
 			await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
 	}
 
@@ -715,7 +715,7 @@ internal static partial class Program
 		}
 		JsonElement dialogs = default;
 		if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.4)
-			|| dialogs[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(b => Field(b, "Label") == "Confirm") is not { ValueKind: JsonValueKind.Object } confirm)
+			|| DialogAnswer(dialogs[0], true) is not { } confirm)
 		{
 			Console.Error.WriteLine("Oyun durdurmayı sormadı; bak: scout");
 			return 1;

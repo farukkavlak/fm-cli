@@ -84,7 +84,7 @@ internal static partial class Program
 		{
 			var dialog = refusal[0];
 			Console.Error.WriteLine($"{name} için teklif yapılamıyor. Oyun diyor ki: {Field(dialog, "Title")}. {Field(dialog, "Description")}".TrimEnd());
-			if (dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") is "Ok" or "OK" or "Close") is { } ok)
+			if (DialogAnswer(dialog, true) is { } ok)
 				await Fm.Get("click", ("ptr", Field(ok, "Pointer")));
 			return 1;
 		}

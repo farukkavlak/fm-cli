@@ -358,7 +358,7 @@ internal static partial class Program
 
 		JsonElement dialog = default;
 		if (await Until(async () => (dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.25)
-			&& dialog[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(b => Field(b, "Label") == "Confirm") is { ValueKind: JsonValueKind.Object } confirm)
+			&& DialogAnswer(dialog[0], true) is { } confirm)
 			await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
 
 		await LeaveTalks();
@@ -435,10 +435,8 @@ internal static partial class Program
 		if (dialog.ValueKind != JsonValueKind.Array || dialog.GetArrayLength() == 0) return null;
 
 		var warning = dialog[0];
-		var buttons = warning.GetProperty("Buttons").EnumerateArray().ToList();
-		var yes = buttons.FirstOrDefault(b => Field(b, "Label") == "Yes");
-		var no = buttons.FirstOrDefault(b => Field(b, "Label") == "No");
-		if (yes.ValueKind == JsonValueKind.Undefined)
+		// A notice with only "Ok" on it is the game saying no.
+		if (!DialogAsks(warning))
 		{
 			Console.Error.WriteLine($"Oyun diyor ki: {Field(warning, "Title")}. {Field(warning, "Description")}");
 			return 1;
@@ -446,7 +444,7 @@ internal static partial class Program
 		var go = !Ui.Interactive
 			|| Ui.Ask($"{name}: menajerine sormadan görüşmeye giriliyor; oyuncu ve menajer bundan hoşlanmayabilir.", ["Yine de gir"], cancel: "Vazgeç") != null;
 		if (!Ui.Interactive) Console.WriteLine("(Oyun uyardı: menajere sormadan görüşmeye girmek oyuncuyu ve menajeri üzebilir.)");
-		await Fm.Get("click", ("ptr", Field(go ? yes : no, "Pointer")));
+		await Fm.Get("click", ("ptr", Field(DialogAnswer(warning, go)!.Value, "Pointer")));
 		return go ? null : 0;
 	}
 }

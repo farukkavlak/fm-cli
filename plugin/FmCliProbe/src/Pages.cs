@@ -181,7 +181,8 @@ internal static class Pages
 		return inMore ? Bar.InMore : Bar.Absent;
 	}
 
-	private static bool Shown(UnityEngine.UIElements.VisualElement element)
+	/// <summary>Whether an element is on screen: attached, given room, and not hidden by itself or any parent.</summary>
+	internal static bool Shown(UnityEngine.UIElements.VisualElement element)
 	{
 		try
 		{

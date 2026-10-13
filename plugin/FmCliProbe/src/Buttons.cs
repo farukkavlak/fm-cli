@@ -870,6 +870,9 @@ internal static class Buttons
 			{
 				if (element.panel == null || element.worldBound.width <= 0) continue;
 				if (Text.Plain(element.TryCast<TextElement>()?.text ?? "") != wanted) continue;
+				// A card closed earlier keeps its tiles, laid out but hidden; a click there does
+				// nothing and the one on screen is never reached (FINDINGS §8.165).
+				if (!Pages.Shown(element)) continue;
 			}
 			catch { continue; }
 

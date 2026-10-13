@@ -44,7 +44,7 @@ internal static partial class Program
 		JsonElement dialogs = default;
 		await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 15);
 		var yes = dialogs.ValueKind == JsonValueKind.Array && dialogs.GetArrayLength() > 0
-			? dialogs[0].GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault(b => Field(b.Value, "Label") is "Confirm" or "Yes")
+			? DialogAnswer(dialogs[0], true)
 			: null;
 		if (yes == null)
 		{

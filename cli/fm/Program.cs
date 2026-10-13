@@ -1795,6 +1795,24 @@ internal static partial class Program
 		return string.Join(", ", flags);
 	}
 
+	/// <summary>
+	/// A dialog's answer by its place rather than its words (FINDINGS §8.165): the game puts the
+	/// answer that goes ahead (Yes, Confirm, Ok) in the primary slot and the one that backs out (No,
+	/// Cancel) in the secondary. The bridge takes the slot from the game's dialog manager; failing
+	/// that, the button's element is named for it ("buttons-button-primary-default").
+	/// </summary>
+	internal static JsonElement? DialogAnswer(JsonElement dialog, bool agree)
+	{
+		var slot = agree ? "primary" : "secondary";
+		var buttons = dialog.GetProperty("Buttons").EnumerateArray().ToList();
+		foreach (var b in buttons) if (Field(b, "Slot") == slot) return b;
+		foreach (var b in buttons) if (Field(b, "Name").Contains($"-{slot}-", StringComparison.Ordinal)) return b;
+		return null;
+	}
+
+	/// <summary>A dialog that asks: one answer goes ahead, another backs out.</summary>
+	internal static bool DialogAsks(JsonElement dialog) => DialogAnswer(dialog, true) != null && DialogAnswer(dialog, false) != null;
+
 	private static string Field(JsonElement element, string name) =>
 		element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "";
 

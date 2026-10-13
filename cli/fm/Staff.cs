@@ -29,17 +29,22 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.ClubHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		var clicked = "";
-		await Until(async () => !(clicked = await Fm.Get("click", ("text", "Coaching Team"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
-		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
-
 		// The card's overview: "N Coaching Staff", then "a / b Role" per role, then the board's word.
+		// When the overview is being built anew (after a staff member's card, FINDINGS §8.165) a click
+		// lands on the tile on its way out and nothing opens, so the tile is clicked again.
 		List<string> overview = [];
-		await Until(async () =>
+		async Task<bool> Opened()
 		{
 			overview = (await Fm.GetJson("texts", ("anchor", "All Staff"), ("up", "12"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
 			return overview.Contains("Board feedback") && overview.Any(t => t.EndsWith("Medical Staff", StringComparison.Ordinal));
-		}, seconds: 10, every: 0.5);
+		}
+		var clicked = "";
+		for (var attempt = 0; attempt < 3 && !overview.Contains("Board feedback"); attempt++)
+		{
+			await Until(async () => !(clicked = await Fm.Get("click", ("text", "Coaching Team"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+			if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
+			await Until(Opened, seconds: attempt < 2 ? 3 : 10, every: 0.5);
+		}
 		if (!overview.Contains("Board feedback"))
 		{
 			Console.Error.WriteLine("Personel kartı açılmadı.");

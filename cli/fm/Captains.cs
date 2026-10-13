@@ -50,7 +50,7 @@ internal static partial class Program
 			// The game asks "Are you sure…"; asking for it is the answer.
 			JsonElement dialog = default;
 			if (await Until(async () => (dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 4, every: 0.25)
-				&& dialog[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(b => Field(b, "Label") == "Yes") is { ValueKind: JsonValueKind.Object } yes)
+				&& DialogAnswer(dialog[0], true) is { } yes)
 				await Fm.Get("click", ("ptr", Field(yes, "Pointer")));
 			var field = list == "Captain" ? 0 : 1;
 			await Until(async () => (field == 0 ? (await Now()).Captain : (await Now()).Vice) == hits[0], seconds: 5, every: 0.25);

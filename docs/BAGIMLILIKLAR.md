@@ -77,6 +77,10 @@ birini seçiyor. Örnekler:
   `"Create New Tactic"`, `"Ask Assistant to Pick"`, `"Save Game As"`, `"Replace Existing File"`…
 - Görünüm / sekme seçimi: `"General Info"`, `"Overview"`, `"Match Ratings"`, `"Last 5 Club Games"`…
 
+**13 Ekim:** onay pencereleri artık yazıyla değil yuvayla cevaplanıyor (birincil = ilerlet, ikincil = vazgeç;
+FINDINGS §8.165). Pencereyi tanımak için başlığa bakan 5 yer kaldı (Instant Result, Team Selection, Injured Players,
+Replace Existing File, Delete File) — `Type` ile değiştirilecek. Sayfa düğmeleri (Next, Back, Apply, sekmeler…) duruyor.
+
 Dilden bağımsız karşılık: her kontrolün **olay listesi** var (`Events`, ör. `EventFmxDeleteMentoringGroup`) ve çoğunun
 **adı** var. Hepsinde tek başına ayırt edici mi, **[ölçülecek]** (aynı adlı `SIButton` çok).
 

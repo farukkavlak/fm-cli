@@ -134,13 +134,9 @@ internal static partial class Program
 				return 1;
 			}
 			var dialog = dialogs[0];
-			var buttons = dialog.GetProperty("Buttons").EnumerateArray().ToList();
-			var yes = buttons.FirstOrDefault(b => Field(b, "Label") == "Yes");
-			var no = buttons.FirstOrDefault(b => Field(b, "Label") == "No");
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
 			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask("Serbest bırakalım mı?", ["Evet", "Hayır"]) == 0);
-			var chosen = go ? yes : no;
-			if (chosen.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(chosen, "Pointer")));
+			if (DialogAnswer(dialog, go) is { } chosen) await Fm.Get("click", ("ptr", Field(chosen, "Pointer")));
 			if (!go)
 			{
 				if (!Ui.Interactive) Console.WriteLine($"Vazgeçildi. Serbest bırakmak için: release \"{name}\" --free --yes");
