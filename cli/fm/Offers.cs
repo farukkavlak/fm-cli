@@ -11,7 +11,13 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record WaitingOffer(string Player, string Club, string Kind, string Status, string Fee, string Link, string Accept, string Stall, string Reject);
+	private sealed record WaitingOffer(string Player, string Club, string Kind, string Status, string Fee, string Link, string Accept, string Stall, string Reject)
+	{
+		/// <summary>What comes with the fee: instalments, appearance money, a loan's terms and wage share.</summary>
+		public string Terms { get; init; } = "";
+		/// <summary>Where the player stands in the page's list; his offers are on screen only while he is chosen there.</summary>
+		public int At { get; init; }
+	}
 
 	private static async Task<int> Offers(bool json, string[] args)
 	{
@@ -36,7 +42,7 @@ internal static partial class Program
 		{
 			if (json)
 			{
-				Console.WriteLine(JsonOut.Of(offers.Select((o, i) => new { No = i + 1, o.Player, o.Club, o.Kind, o.Status, o.Fee })));
+				Console.WriteLine(JsonOut.Of(offers.Select((o, i) => new { No = i + 1, o.Player, o.Club, o.Kind, o.Status, o.Fee, o.Terms })));
 				return 0;
 			}
 			if (offers.Count == 0)
@@ -44,8 +50,8 @@ internal static partial class Program
 				Console.WriteLine("Bekleyen teklif yok.");
 				return 0;
 			}
-			Table.Write(["#", "OYUNCU", "KULÜP", "TÜR", "DURUM", "BEDEL"],
-				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, o.Kind == "Loan" ? "Kiralık" : o.Kind == "Transfer" ? "Satış" : o.Kind, o.Status, o.Fee]).ToList());
+			Table.Write(["#", "OYUNCU", "KULÜP", "TÜR", "DURUM", "BEDEL", "ŞARTLAR"],
+				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, o.Kind == "Loan" ? "Kiralık" : o.Kind == "Transfer" ? "Satış" : o.Kind, o.Status, o.Fee, o.Terms]).ToList());
 			Console.WriteLine("\nCevap: offers <# | oyuncu> view | accept | stall | reject   (view teklifi kart olarak gösterir)");
 			return 0;
 		}
@@ -70,6 +76,8 @@ internal static partial class Program
 			offer = hits[0];
 		}
 
+		// Only the chosen player's offers are on screen, and the last one read is the last one chosen.
+		if ((await WaitingOffers(offer.At)).FirstOrDefault(o => o.Player == offer.Player && o.Club == offer.Club) is { } fresh) offer = fresh;
 		var what = $"{offer.Club} → {offer.Player} ({offer.Fee})";
 		if (verb == "view")
 		{
@@ -90,7 +98,7 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine($"{what}: {(verb == "accept" ? "kabul" : "ret")} oyunda onaysız işliyor. Göndermek için: offers \"{offer.Player}\" {verb} --yes");
+				Console.WriteLine($"{what}: {(verb == "accept" ? "kabul" : "ret")} oyunda onaysız işliyor. Göndermek için: offers \"{offer.Player} {offer.Club}\" {verb} --yes");
 				return 0;
 			}
 			if (Ui.Ask($"{what}: {(verb == "accept" ? "kabul edelim mi?" : "reddedelim mi?")}", ["Evet", "Hayır"]) != 0) return 0;
@@ -113,25 +121,83 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The offers on the page. The texts give, per player, his name before "N year-old …" and after
-	/// "Status & Fees" one run of club, kind, a dash, status and fee for each offer; the buttons
-	/// give each offer its link and three unlabelled answers, in the same order.
+	/// The offers on the page (FINDINGS §8.161). On the left the players with offers, a radio group; on the
+	/// right the offers for the one chosen there, so each is chosen in turn. A row is the club, the kind
+	/// (Transfer, Loan), any number of clauses, the status and the fee — and for a loan the wage share
+	/// after it; the buttons give each offer its link and three unlabelled answers, in the same order.
 	/// </summary>
-	private static async Task<List<WaitingOffer>> WaitingOffers()
+	private static async Task<List<WaitingOffer>> WaitingOffers(int? only = null)
 	{
-		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
-		var tab = buttons.FirstOrDefault(b => Field(b, "Name") == "activity-tab-button");
+		var offers = new List<WaitingOffer>();
+		var group = await OfferPlayers();
+		var players = group is { } g ? g.GetProperty("Choices").GetArrayLength() : 1;
+		for (var at = 0; at < players; at++)
+		{
+			if (only != null && only != at) continue;
+			if (group is { } list && (players > 1 || only != null))
+			{
+				await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("index", at.ToString()), ("fire", "1"));
+			}
+			// The right side follows the choice in pieces — the rows before the clubs' names in them — so it
+			// is read once two readings agree and the page says how many offers it holds.
+			var last = "";
+			await Until(async () =>
+			{
+				var now = string.Join("|", await OfferTexts());
+				var settled = now == last && Regex.IsMatch(now, @"\d+ \w+ Offers \(");
+				last = now;
+				return settled;
+			}, seconds: 4, every: 0.35);
+			offers.AddRange((await OffersShown()).Select(o => o with { At = at }));
+		}
+		return offers;
+	}
+
+	/// <summary>The list of players with offers, when the page has one.</summary>
+	private static async Task<JsonElement?> OfferPlayers()
+	{
+		try
+		{
+			return (await Fm.GetJson("form", ("anchor", "Most Recent Offers"), ("up", "2"))).EnumerateArray().Cast<JsonElement?>()
+				.FirstOrDefault(c => Field(c.Value, "Kind") == "radio" && Field(c.Value, "Name") == "transfers-list-radio-group");
+		}
+		catch (FmError) { return null; }
+	}
+
+	private static async Task<List<string>> OfferTexts()
+	{
+		var tab = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "activity-tab-button");
 		if (tab.ValueKind != JsonValueKind.Object) return [];
 		var texts = (await Fm.GetJson("texts", ("anchor", Field(tab, "Label")), ("up", "5"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
+		var filter = texts.IndexOf("Filter");
+		return filter >= 0 ? texts.Skip(filter + 1).ToList() : texts;
+	}
 
-		var rows = new List<(string Player, string Club, string Kind, string Status, string Fee)>();
-		var player = "";
-		for (var i = 0; i < texts.Count; i++)
+	/// <summary>The offers for the player chosen in the list.</summary>
+	private static async Task<List<WaitingOffer>> OffersShown()
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
+		var texts = await OfferTexts();
+		var head = texts.FindIndex(t => Regex.IsMatch(t, @"^\d+ year-old"));
+		var from = texts.IndexOf("Status & Fees");
+		if (head < 0 || from < 0) return [];
+		var player = head >= 2 ? texts[head - 2] : "";
+		// "1 Unresponded Offers (1 Total)" while an answer is owed, "1 Active Offers (1 Total)" once given.
+		var to = texts.FindIndex(from, t => Regex.IsMatch(t, @"^\d+ \w+ Offers \("));
+		var body = texts.Skip(from + 1).Take((to < 0 ? texts.Count : to) - from - 1).ToList();
+
+		// A row starts a step before its kind and holds one fee: "£135K (£300K)", "£8.75K (£8.75K) p/m", "Free".
+		static bool Kind(string t) => t is "Transfer" or "Loan" or "Free Transfer" or "Swap" or "Part Exchange";
+		static bool Fee(string t) => Regex.IsMatch(t, @"^(£[\d.,]+[KMB]?|Free|-)( \(.*\))?( p/[mwa])?$");
+		var starts = Enumerable.Range(1, Math.Max(0, body.Count - 1)).Where(i => Kind(body[i])).Select(i => i - 1).ToList();
+		var rows = new List<(string Club, string Kind, string Status, string Fee, string Terms)>();
+		for (var n = 0; n < starts.Count; n++)
 		{
-			if (Regex.IsMatch(texts[i], @"^\d+ year-old") && i >= 2) player = texts[i - 2];
-			if (texts[i] != "Status & Fees" || player.Length == 0) continue;
-			for (var j = i + 1; j + 4 < texts.Count && !texts[j].Contains("Unresponded", StringComparison.Ordinal) && !Regex.IsMatch(texts[j + 2], @"^\d+ year-old"); j += 5)
-				rows.Add((player, texts[j], texts[j + 1], texts[j + 3], texts[j + 4]));
+			var row = body.Skip(starts[n]).Take((n + 1 < starts.Count ? starts[n + 1] : body.Count) - starts[n]).ToList();
+			var fee = row.FindLastIndex(t => Fee(t) && t != "-");
+			if (fee < 3) fee = row.Count - 1;
+			var terms = row.Skip(2).Take(fee - 3).Concat(row.Skip(fee + 1)).Where(t => t != "-").ToList();
+			rows.Add((row[0], row[1], row[fee - 1], row[fee], string.Join(" · ", terms)));
 		}
 
 		var offers = new List<WaitingOffer>();
@@ -141,8 +207,8 @@ internal static partial class Program
 			var until = n + 1 < links.Count ? links[n + 1].at : buttons.Count;
 			string Answer(string name) => buttons.Skip(links[n].at + 1).Take(until - links[n].at - 1)
 				.FirstOrDefault(b => Field(b, "Name") == name && Field(b, "Label").Length == 0 && Field(b, "Enabled") == "True") is { ValueKind: JsonValueKind.Object } b ? Field(b, "Pointer") : null;
-			offers.Add(new(rows[n].Player, rows[n].Club, rows[n].Kind, rows[n].Status, rows[n].Fee, Field(links[n].b, "Pointer"),
-				Answer("accept-button"), Answer("stall-button"), Answer("cancel-reject-button")));
+			offers.Add(new(player, rows[n].Club, rows[n].Kind, rows[n].Status, rows[n].Fee, Field(links[n].b, "Pointer"),
+				Answer("accept-button"), Answer("stall-button"), Answer("cancel-reject-button")) { Terms = rows[n].Terms });
 		}
 		return offers;
 	}

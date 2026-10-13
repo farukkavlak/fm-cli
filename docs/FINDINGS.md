@@ -4479,6 +4479,19 @@ Canlıda: iki ayrı hedef çıkarılıp önerildi, yönetim ikisini de reddedip 
 proposal is…") ve hedefi geri koydu; Confirm'den sonra "It's encouraging that we're all on the same page…", End Meeting
 mesajı kapattı. Kabul edilen bir öneri ve "5-Year Plan" sekmesi görülmedi. Komut: `fm vision`.
 
+## 8.161 Gelen teklifler birden çok oyuncu için: satış ve kiralama (23 Haziran 2026, pencere açık)
+
+Transfer Activity sayfasının solunda teklif alan oyuncular bir radyo grubu (`transfers-list-radio-group`; seçenek
+yazıları durumlar: "Offer Made", "2 Offers", "Contract" — adlar değil), sağında yalnızca seçili oyuncunun teklifleri
+var. `offers` yalnızca seçiliyi listeliyordu (üç oyuncudan biri). Seçim `/select?ptr=…&index=N&fire=1`; sağ taraf
+parça parça doluyor (satırlar kulüp adlarından önce), iki okuma aynı olunca ve "N Unresponded Offers (…)" / cevap
+verilince "N Active Offers (…)" satırı gelince okunuyor. Satır: kulüp, tür (Transfer / Loan), sıfır ya da daha çok şart,
+durum, bedel, kiralıkta ardından "Wages: 90% (90%)". Şartlar birden çok olunca sabit beşli okuma kayıyordu ("DURUM"
+sütununda "£31,000 after 20 league appearances"). Bedel `^£…( \(…\))?( p/m)?$` ile tanınıyor, durum ondan önceki
+yazı. Şartlar ayrı sütunda. Cevaplar canlıda: Colchester'ın kiralama teklifi `reject --yes` → listeden düştü; Sheffield
+Wednesday'in Hackett teklifi `stall` → "Offer Made (Stalled)", sonra `accept --yes` → "Contract"; Notts Co'nun Thorn
+kiralaması `accept --yes` → "Contract". Aynı oyuncuya iki teklif varken ipucu "ad + kulüp" yazıyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
