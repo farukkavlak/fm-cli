@@ -63,7 +63,11 @@ internal static partial class Program
 			}
 			await Fm.Get("scroll", ("anchor", rows.Values.First().Date), ("to", "0"));
 		}
-		var all = rows.Values.OrderByDescending(r => r.Number).ToList();
+		// A match he sat out, or came on too late to be rated in, is given as 0.00; the page's own lowest
+		// rating then reads 11.00 (Collins, 11 Nisan 2026). Neither is a rating.
+		static string Real(string rating) => double.TryParse(rating, NumberStyles.Float, CultureInfo.InvariantCulture, out var r) && r is > 0 and <= 10 ? rating : "-";
+		var all = rows.Values.OrderByDescending(r => r.Number).Select(r => r with { Rating = Real(r.Rating) }).ToList();
+		summary = summary with { Best = Real(summary.Best), Worst = Real(summary.Worst), Average = Real(summary.Average) };
 		var keeper = texts.Contains("xGA");
 
 		if (json)
@@ -98,7 +102,7 @@ internal static partial class Program
 			var cells = new List<string>
 			{
 				rich ? $"[dim]{r.Number}[/]" : r.Number.ToString(CultureInfo.InvariantCulture), rich ? Short(r.Date) : r.Date,
-				rich ? Ui.Safe(r.Opponent) : r.Opponent, r.Score, rich ? $"{r.Position} [dim]{r.Role}[/]" : $"{r.Position} {r.Role}",
+				rich ? Ui.Safe(r.Opponent) : r.Opponent, r.Score, r.Position == "-" ? (rich ? "[dim]oynamadı[/]" : "oynamadı") : rich ? $"{r.Position} [dim]{r.Role}[/]" : $"{r.Position} {r.Role}",
 			};
 			if (subs) cells.Add(rich ? $"[dim]{OnOff(r.OnOff)}[/]" : OnOff(r.OnOff));
 			if (keeper) cells.AddRange([r.Xg, rich && r.Conceded == "0" ? "[green bold]0[/]" : r.Conceded]);

@@ -160,6 +160,16 @@ internal static partial class Program
 					continue;
 				}
 
+				// Playing on from a stop with a hurt man still on: the game will not, and says so with a
+				// notice that has nothing but "Ok" on it. It is closed, and who has to come off is named.
+				if (Field(dialog, "Title") == "Injured Players")
+				{
+					await Fm.Get("dialog", ("press", "primary"));
+					var down = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList();
+					Console.Error.WriteLine($"Oyun sakat oyuncu sahadayken sürdürmüyor{(down.Count > 0 ? $": {string.Join(", ", down)}" : "")}. Değişiklik şart: sub <çıkan> <giren>   (kulübe için: sub)");
+					return 1;
+				}
+
 				if (Field(dialog, "Title") != "Team Selection" || yes == null)
 				{
 					Console.Error.WriteLine($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}");
@@ -230,7 +240,7 @@ internal static partial class Program
 			// An injury stops the match: the clock halts, play is paused and the screen offers
 			// "Confirm Changes" (FINDINGS §8.69). The assistant's note on the Dugout says who.
 			if (Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
-			    && ConfirmChanges(controls) is { } confirm)
+			    && PlannerStop(controls) is { } confirm)
 			{
 				var why = await DugoutText();
 				Console.WriteLine($"  Maç {Field(state, "MatchTime")}'da durdu{(why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}");
@@ -239,9 +249,10 @@ internal static partial class Program
 				if (!Ui.Interactive && firstLook)
 				{
 					await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
-					await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
-					// A change given with `sub` beforehand is made by this same press.
-					Console.WriteLine("  Maç sürdürüldü (bekleyen değişiklik varsa onunla).");
+					// A change given with `sub` beforehand is made by this same press. Whether play went on is
+					// the match's to say: with a hurt man still on, the game answers with a notice instead.
+					if (await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5))
+						Console.WriteLine("  Maç sürdürüldü (bekleyen değişiklik varsa onunla).");
 					clockAt = DateTime.UtcNow;
 					firstLook = false;
 					continue;
@@ -252,7 +263,7 @@ internal static partial class Program
 					return 0;
 				}
 				await Substitute(false, ["sub"]);
-				await Fm.Get("press", ("ptr", Field(ConfirmChanges(await Fm.GetJson("buttons", ("json", "1"))) ?? confirm, "Pointer")));
+				await Fm.Get("press", ("ptr", Field(PlannerStop(await Fm.GetJson("buttons", ("json", "1"))) ?? confirm, "Pointer")));
 				await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 				clockAt = DateTime.UtcNow;
 				continue;
@@ -276,7 +287,7 @@ internal static partial class Program
 			}
 			else if (DateTime.UtcNow - clockAt > TimeSpan.FromSeconds(45))
 			{
-				var hurt = (await MatchPlayers()).Where(p => p.Value.Injury != 0).Select(p => p.Key).ToList();
+				var hurt = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0).Select(p => p.Key).ToList();
 				Console.Error.WriteLine(hurt.Count > 0
 					? $"Maç {time}'da durdu: {string.Join(", ", hurt)} sakatlandı; oyun değişiklik bekliyor."
 					: $"Maç {time}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik).");
@@ -640,7 +651,7 @@ internal static partial class Program
 
 		if (words.Count < 2)
 		{
-			var match = await MatchPlayers();
+			var match = await MatchPlayers(atStop: true);
 			Console.WriteLine("Sahada:");
 			foreach (var menu in menus)
 			{
@@ -652,6 +663,28 @@ internal static partial class Program
 			foreach (var name in bench) Console.WriteLine($"  {name}");
 			Console.WriteLine("\nDeğiştirmek için: sub <çıkan> <giren>");
 			return 0;
+		}
+
+		// A man hurt badly enough loses his menu on the pitch once the game has said he cannot stay on
+		// (Draper, 11 Nisan 2026), and with it the way above. His slot in the planner's table still
+		// takes a substitute, and the stop's button then makes the change and plays on.
+		if (Field(await Fm.GetJson("state"), "Playing") != "True" && !onPitch.Any(n => Named(n, words[0])))
+		{
+			var planner = await Fm.GetJson("tactic");
+			var slots = planner.TryGetProperty("Slots", out var listed) ? listed.EnumerateArray().ToList() : [];
+			var hurtAt = slots.FindIndex(slot => Named(Field(slot, "Player"), words[0]));
+			if (hurtAt >= 0)
+			{
+				var going = Field(slots[hurtAt], "Player");
+				if (await TacticPlayer([Spot(Field(slots[hurtAt], "IPPosition")), words[1]], args.Contains("--dry")) != 0) return 1;
+				if (args.Contains("--dry")) return 0;
+				if (PlannerStop(await Fm.GetJson("buttons", ("json", "1"))) is { } onward) await Fm.Get("press", ("ptr", Field(onward, "Pointer")));
+				var resumed = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
+				Console.WriteLine(resumed
+					? $"Değişiklik yapıldı: {going} çıktı. Maç sürüyor; izlemeye devam: match"
+					: "Değişiklik seçildi ama maç hâlâ duruyor: match");
+				return resumed ? 0 : 1;
+			}
 		}
 
 		if (Choose(onPitch, words[0], "Çıkan") is not { } leaving) return 1;
@@ -702,6 +735,11 @@ internal static partial class Program
 			? $"Değişiklik yapıldı: {leaving} çıktı, {comer} girdi."
 			: $"{coming} seçildi ama {leaving} hâlâ sahada görünüyor; oyun onay bekliyor olabilir (buttons).");
 		return made ? 0 : 1;
+
+		// "Draper" names "Freddie Draper" and the planner's own "Draper".
+		static bool Named(string full, string typed) => full.Length > 0 && typed.Length > 0
+			&& (full.Equals(typed, StringComparison.OrdinalIgnoreCase) || full.EndsWith(" " + typed, StringComparison.OrdinalIgnoreCase)
+				|| typed.EndsWith(" " + full, StringComparison.OrdinalIgnoreCase));
 
 		async Task<List<JsonElement>> Menus() =>
 			(await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
@@ -767,7 +805,7 @@ internal static partial class Program
 	/// (FINDINGS §8.151): the match screen binds a MatchPlayer under every position of its pitch.
 	/// Its paths start with "..", which a reading cannot take, so each is put at a node of ours first.
 	/// </summary>
-	private static async Task<Dictionary<string, MatchMan>> MatchPlayers()
+	private static async Task<Dictionary<string, MatchMan>> MatchPlayers(bool atStop = false)
 	{
 		var men = new Dictionary<string, MatchMan>();
 		List<string> paths;
@@ -809,6 +847,20 @@ internal static partial class Program
 			men[name] = new MatchMan(injury,
 				Field(read[i], "YellowCardedInMatch") == "True", Field(read[i], "RedCardedInMatch") == "True", Field(read[i], "MatchRating"));
 		}
+		// At a stop neither field need say it (Draper, 11 Nisan 2026: type 0, shirt not flagged) while the
+		// planner's own table does, "Inj" in his row; a row is found by the name as written there, "F. Draper".
+		if (atStop)
+			foreach (var (name, man) in men.Where(m => m.Value.Injury == 0 && !m.Value.Red).ToList())
+			{
+				var space = name.IndexOf(' ');
+				var shown = space > 0 ? $"{name[0]}. {name[(space + 1)..]}" : name;
+				try
+				{
+					var row = (await Fm.GetJson("texts", ("anchor", shown), ("up", "11"))).EnumerateArray().Select(t => t.GetString()).ToList();
+					if (row.Contains("Inj")) men[name] = man with { Injury = -1 };
+				}
+				catch (FmError) { }
+			}
 		return men;
 	}
 
@@ -883,4 +935,21 @@ internal static partial class Program
 	private static JsonElement? ConfirmChanges(JsonElement controls) =>
 		controls.EnumerateArray().Cast<JsonElement?>()
 			.FirstOrDefault(c => Field(c.Value, "Label") == "Confirm Changes" && Field(c.Value, "Enabled") == "True");
+
+	/// <summary>
+	/// The button that takes the match on from a stop: "Confirm Changes". It is greyed out until the
+	/// game has seen a change made on its own screen, and still does its work when pressed: with a man
+	/// put into a slot through `tactic player` it stayed grey, and pressing it made the change and
+	/// played on (Draper for Collins, 11 Nisan 2026). With only the lit one looked for, `match` sat at
+	/// the stop for ever. The planner's "Cancel" is the last resort; it would drop such a change.
+	/// </summary>
+	private static JsonElement? PlannerStop(JsonElement controls)
+	{
+		if (ConfirmChanges(controls) is { } confirm) return confirm;
+		var all = controls.EnumerateArray().Cast<JsonElement?>().ToList();
+		return all.FirstOrDefault(c => Field(c.Value, "Label") == "Confirm Changes")
+			?? all.FirstOrDefault(c => Field(c.Value, "Label") == "Cancel" && Field(c.Value, "Enabled") == "True"
+				&& Field(c.Value, "Events").Contains("MatchOpenTactics", StringComparison.Ordinal));
+	}
+
 }

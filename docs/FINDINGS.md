@@ -4361,6 +4361,31 @@ Friendly; kadro seçimi, konuşma yok). `Human.Team.NextMatchOpponent` A takım�
 "izlenen maç": skor satırı ev sahibi önce, maç sonunda A takımın son maç raporu basılmıyor, kartlarda biz / rakip
 ayrımı ve "Puanlarımız" yok. Maç `match --play` ile baştan sona aktı (0-1, Blair-Henry 32').
 
+## 8.154 Sakatlık durağı, ikinci kez: sakat sahada kalamıyor (Leyton Orient, 11 Nisan 2026)
+
+89:00'da Draper sakatlandı ("It could be sprained ankle ligaments"); oyun Tactics Planner'ı açtı. Görülenler:
+
+- `MatchPlayer.MatchInjuryType` 0, `PitchShirtShowUnavailableFlag` False — §8.151'deki iki işaret de boş. Planner
+  tablosunda satırın "Inf" sütunu "Inj" yazıyor (kartlılarda "Yel"). Satır sanal: `/texts?anchor=F. Draper&up=11` →
+  ["ST (C)","CFD","CFD","34","F. Draper","AM (C), ST (C)","Inj","Calm","2","8.28"]; daha yukarı çıkınca da yalnızca o
+  satır geliyor. `MatchPlayer.PlayerStatus` `Tactic` değişkeni istiyor, verilince de boş döndü. Durakta her oyuncunun
+  satırı adın kısa yazımıyla ("Freddie Draper" → "F. Draper") okunuyor.
+- "Confirm Changes" değişiklik yokken kapalı (`Enabled` False); `match` yalnızca açık olanı aradığı için durakta
+  sonsuza dek bekliyordu. "Cancel" (`MatchOpenTactics`) planner'ı kapatıyor ama sakat sahadaysa oyun tek "Ok"lu
+  "Injured Players — … you still have an injured player on the pitch" penceresiyle geri dönüyor: değişiklik şart.
+- O pencereden sonra Draper'ın saha üstü menüsü kalktı ("Substitute Off" olan açılır listeler 11'den 10'a indi),
+  `sub Draper Collins` "öyle bir seçenek yok" dedi. `tactic player ST Collins` (`/pickplayer`) yuvaya Collins'i koydu
+  (tabloda yeşil ok), ama "Confirm Changes" hâlâ kapalı ve `m_hasPendingTacticalChanges` False. Kapalı butona
+  `/press` yine de çalıştı: maç 94:11'den sürdü, Collins "90' girdi" (`player Collins --matches`).
+- Artık: `sub` çıkan oyuncuyu sahada bulamazsa durakta planner yuvasından değiştirip butona basıyor; `match` kapalı
+  "Confirm Changes"e de basıyor, "Injured Players" penceresini kapatıp kimin çıkması gerektiğini söylüyor. Yuva yolu ve
+  kapalı butonla değişiksiz sürdürme henüz canlıda denenmedi (elle yapılanın koda dökülmüş hali).
+- Maç birkaç `match` çağrısıyla bitince son çağrı kart / puan okuyamıyor (94. dakikadan başladı): özet o satırlar
+  olmadan çıktı. Maç sonrası oyun `State=Results` tam ekran "Breaking News" sayfasında duruyor; menü ve arama yok,
+  `player` "no control labelled 'Search'" veriyordu — artık "önce geç: next" diyor.
+- `player <ad> --matches`: oynamadığı ya da puan almadığı maçlar 0.00, sayfanın "Min. Rating"i 11.00 geliyor; ikisi
+  de "-" yazılıyor, oynamadığı maç "oynamadı".
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
