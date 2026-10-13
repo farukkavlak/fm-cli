@@ -21,8 +21,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> YouthTraining(bool json)
 	{
-		// Held by the average's heading (one of the game's texts): from the schedule's name the climb
-		// does not reach the table.
+		// Held by the average's heading (one of the game's texts).
 		async Task<List<(string Text, string Path)>> Read() =>
 			(await Fm.GetJson("texts", ("anchor", "Avg. Training Rating"), ("up", "14"), ("paths", "1"))).EnumerateArray()
 				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
@@ -177,10 +176,13 @@ internal static partial class Program
 		var previous = "?";
 		await Until(async () =>
 		{
-			// Held by its rating's heading (one of the game's texts): from a candidate's name the climb
-			// does not reach the rest of the page (FINDINGS §8.169).
-			overview = (await Fm.GetJson("texts", ("anchor", "Overall Youth Rating"), ("up", "9"), ("paths", "1"))).EnumerateArray()
-				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+			// Held by a candidate's name, thirty levels below the page (rows nest deep); with no
+			// candidate, by the facilities' heading, one of the game's texts. The rating's own heading
+			// is not: a Turkish game leaves it untranslated.
+			overview = await YouthPaths("binding.InitialSurname", "30");
+			if (overview.Count == 0)
+				overview = (await Fm.GetJson("texts", ("anchor", "Youth Facilities"), ("up", "9"), ("paths", "1"))).EnumerateArray()
+					.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 			var key = string.Join("|", overview.Select(t => t.Text));
 			var settled = key == previous && overview.Count > 0 && (overview.All(t => t.Path != "binding.InitialSurname") || overview.Any(t => t.Path == "binding"));
 			previous = key;
@@ -193,7 +195,8 @@ internal static partial class Program
 				var cells = overview.Skip(at + 1).TakeWhile(t => t.Path == "binding").Select(t => t.Text).ToList();
 				candidates.Add([overview[at].Text, cells.ElementAtOrDefault(0) ?? "", cells.ElementAtOrDefault(1) ?? ""]);
 			}
-		var rating = overview.FindIndex(t => t.Text == "Overall Youth Rating") is >= 0 and var r && r + 1 < overview.Count ? overview[r + 1].Text : "";
+		// The rating is drawn without a path just before the facilities' heading.
+		var rating = overview.FindIndex(t => t.Text == "Youth Facilities") is > 0 and var r && overview[r - 1].Path.Length == 0 ? overview[r - 1].Text : "";
 
 		var youth = new
 		{

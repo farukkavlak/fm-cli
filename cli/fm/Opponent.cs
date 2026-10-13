@@ -57,7 +57,9 @@ internal static partial class Program
 			var previous = "";
 			await Until(async () =>
 			{
-				page = (await Fm.GetJson("texts", ("anchorpath", "Team.NextOppositionThreatLevelAssessment"), ("up", "12"), ("paths", "1"), ("most", "1")))
+				// Held by the opponent's description, which every language writes (the expected outcome is
+				// left empty in a Turkish game); the whole report is fourteen levels above it.
+				page = (await Fm.GetJson("texts", ("anchorpath", "Team.Description"), ("up", "14"), ("paths", "1"), ("most", "1")))
 					.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 				var now = string.Join("|", page.Select(t => t.Text));
 				var settled = now == previous && page.Any(t => t.Path.StartsWith("polygonobservation.", StringComparison.Ordinal));
