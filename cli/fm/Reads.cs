@@ -21,7 +21,7 @@ internal static partial class Program
 		return data;
 	}
 
-	/// <summary>Pages are not opened over a match; null when it is safe to read.</summary>
+	/// <summary>Pages are not opened over a match or the results page after it; null when it is safe to read.</summary>
 	private static async Task<int?> NotNow()
 	{
 		if (!await Fm.InGame())
@@ -30,9 +30,18 @@ internal static partial class Program
 			return 69;
 		}
 
-		if (Field(await Fm.GetJson("state"), "DuringMatch") == "True")
+		var state = await Fm.GetJson("state");
+		if (Field(state, "DuringMatch") == "True")
 		{
 			Console.Error.WriteLine("Maç sırasında başka sayfa açılmıyor. Maç için: match");
+			return 1;
+		}
+		// After a match the game stands on its results and news page until it is passed. A page opened
+		// from there leaves that step undone: Continue then did nothing at all, for the rest of the
+		// session, and only loading the save again brought time back (Stevenage, 18 Nisan 2026).
+		if (Field(state, "State") == "Results")
+		{
+			Console.Error.WriteLine("Oyun maç sonrası sonuçlar ekranında; başka sayfa açmadan önce geç: next");
 			return 1;
 		}
 		return null;

@@ -4417,6 +4417,17 @@ Aynı turda: maç içinde `status`, `dugout`, `shout Encourage`, `tactic mentali
 akarken çalıştı, `match --play` akışı bozulmadı. `sub` listesindeki kart / puan işaretleri `MatchPlayer` düğümleri o an
 yoksa boş geliyor (aynı maçta bir çağrıda var, sonrakinde yok).
 
+## 8.157 Sonuç ekranında sayfa açınca zaman duruyor (Stevenage sonrası, 18 Nisan 2026)
+
+Maç bitince oyun `State=Results` ("Breaking News", sağ üstte "Latest Results") ekranında bekliyor. O sırada `fm player
+Moylan` çalıştı (arama oradan da açılabildi) ve başka sayfaya geçti. Sonrasında `next` hep "İlerle denildi ama ne saat
+ne gelen kutusu değişti" dedi: `State=CanContinue`, `Processing` False, açık pencere / konuşma / tur yok, buton kuyruğu
+boş; `ContinueGameEvent` de, Continue'ya gerçek tıklama da saati oynatmadı; geçmişte geri gitmek "Breaking News"e
+dönmedi. Aynı kaydı yeniden yüklemek (oyun kapanıp açılıyor) düzeltti; kayıt maçtan sonra alındığı için bir şey
+kaybolmadı. Yani takılma oturuma ait, kayda değil. Sayfa açan komutların ortak kapısı (`NotNow`) artık `Results`
+durumunda "önce geç: next" deyip duruyor. Nedenin bu olduğu tek gözleme dayanıyor: 11 Nisan'da aynı ekranda `player`
+arama bulamayıp hata vermiş, `next` sorunsuz geçmişti.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

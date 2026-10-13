@@ -198,14 +198,6 @@ internal static partial class Program
 		catch (FmError error)
 		{
 			Console.Error.WriteLine(error.Message);
-			// After a match the game stands on a full-screen page of the day's results and news, with no
-			// menu or search on it, and what a command went looking for is not there (11 Nisan 2026).
-			try
-			{
-				if (Field(await Fm.GetJson("state"), "State") == "Results")
-					Console.Error.WriteLine("Oyun maç sonrası sonuçlar ekranında; orada menü ve arama yok. Önce geç: next");
-			}
-			catch (Exception) { }
 			return 1;
 		}
 	}
