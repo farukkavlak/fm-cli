@@ -141,6 +141,25 @@ internal static partial class Program
 			texts = await Texts();
 		}
 
+		var players = Rows(texts);
+		// The list only lays out the rows in view; the rest come as it is scrolled, by a row's description.
+		var anchor = texts.LastOrDefault(t => t.Path == "Person.PlayerDescription").Text;
+		if (anchor != null)
+		{
+			foreach (var share in new[] { "0.5", "1" })
+			{
+				if ((await Fm.Get("scroll", ("anchor", anchor), ("to", share))).StartsWith("error", StringComparison.Ordinal)) break;
+				await Task.Delay(500);
+				foreach (var row in Rows(await Texts()))
+					if (players.All(p => p.Name != row.Name)) players.Add(row);
+			}
+			await Fm.Get("scroll", ("anchor", anchor), ("to", "0"));
+		}
+		return players;
+	}
+
+	private static List<HappyRow> Rows(List<(string Text, string Path)> texts)
+	{
 		var players = new List<HappyRow>();
 		var flags = new List<string>();
 		string name = null, description = null;
@@ -163,25 +182,38 @@ internal static partial class Program
 		return players;
 	}
 
-	/// <summary>Selects his row and reads the panel it fills: happiness, morale, standing, positives, negatives.</summary>
+	/// <summary>
+	/// Selects his row and reads the panel it fills, by each text's data path (FINDINGS §8.169): his
+	/// name (Person.Name), morale (Person.MoraleString), standing (Person.HierarchyInfluenceCategoryString)
+	/// and the reasons (Reason.Name), split by the Positives and Negatives headings (game texts). A row
+	/// out of view is not laid out, so the list is scrolled until it can be chosen.
+	/// </summary>
 	private static async Task<HappyWhy> WhyHappy(HappyRow player)
 	{
 		var selected = await Fm.Get("rowselect", ("text", player.Description), ("and", player.Name));
+		var anchor = (await Fm.GetJson("texts", ("anchorpath", "Person.PlayerDescription"), ("up", "0"))).EnumerateArray().Select(t => t.GetString()).FirstOrDefault();
+		foreach (var share in new[] { "0", "0.5", "1" })
+		{
+			if (!selected.StartsWith("error", StringComparison.Ordinal) || anchor == null) break;
+			await Fm.Get("scroll", ("anchor", anchor), ("to", share));
+			await Task.Delay(400);
+			selected = await Fm.Get("rowselect", ("text", player.Description), ("and", player.Name));
+		}
 		if (selected.StartsWith("error", StringComparison.Ordinal)) return null;
 
-		List<string> panel = [];
+		List<(string Text, string Path)> panel = [];
 		if (!await Until(async () =>
 		    {
-			    panel = (await Fm.GetJson("texts", ("anchor", "Morale"), ("up", "3"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-			    return panel.Count > 0 && panel[0] == player.Name && panel.Contains("Negatives");
+			    panel = (await Fm.GetJson("texts", ("anchorpath", "Person.MoraleString"), ("up", "5"), ("paths", "1"))).EnumerateArray()
+				    .Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+			    return panel.Any(t => t.Path == "Person.Name" && t.Text == player.Name) && panel.Any(t => t.Text == "Negatives");
 		    }, seconds: 5, every: 0.25)) return null;
 
-		string After(string label) => panel.IndexOf(label) is >= 0 and var at && at + 1 < panel.Count ? panel[at + 1] : "";
-		var from = panel.IndexOf("Positives");
-		var mid = panel.IndexOf("Negatives");
-		if (from < 0 || mid < from) return null;
-		return new HappyWhy(player.Name, After("Happiness"), After("Morale"), After("Hierarchy"),
-			panel.Skip(from + 1).Take(mid - from - 1).ToList(),
-			panel.Skip(mid + 1).Where(t => t != "Actions").ToList());
+		string Bound(string path) => panel.FirstOrDefault(t => t.Path == path).Text ?? "";
+		var mid = panel.FindIndex(t => t.Text == "Negatives");
+		var reasons = panel.Select((t, at) => (t.Text, t.Path, At: at)).Where(t => t.Path == "Reason.Name").ToList();
+		return new HappyWhy(player.Name, player.Level, Bound("Person.MoraleString"), Bound("Person.HierarchyInfluenceCategoryString"),
+			reasons.Where(r => r.At < mid).Select(r => r.Text).ToList(),
+			reasons.Where(r => r.At > mid).Select(r => r.Text).ToList());
 	}
 }
