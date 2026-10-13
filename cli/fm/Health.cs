@@ -16,9 +16,9 @@ internal static partial class Program
 		try
 		{
 			// The General view says who is away on loan ("Out On Loan" for playing time).
-			general = await SquadView("General Info", "AgreedPlayingTime");
-			injuries = await SquadView("Injuries", "InjuriesTimeMissed");
-			risks = await SquadView("Risk Assessment", "OverallInjuryRisk");
+			general = await SquadView(SquadTable.GeneralInfo, "AgreedPlayingTime");
+			injuries = await SquadView(SquadTable.Injuries, "InjuriesTimeMissed");
+			risks = await SquadView(SquadTable.RiskAssessment, "OverallInjuryRisk");
 		}
 		catch (FmError e)
 		{

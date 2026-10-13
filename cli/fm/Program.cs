@@ -284,7 +284,7 @@ internal static partial class Program
 
 		// The plain listing reads one named view like the others do. Reading whatever happened
 		// to be bound gave a different squad depending on the command that ran before.
-		var squad = await SquadView("General Info", "Wage");
+		var squad = await SquadView(SquadTable.GeneralInfo, "Wage");
 
 		if (json)
 		{
@@ -373,7 +373,7 @@ internal static partial class Program
 
 	private static async Task<int> SquadFitness(bool json)
 	{
-		var squad = await SquadView("Selection Info", "Condition");
+		var squad = await SquadView(SquadTable.SelectionInfo, "Condition");
 		if (json)
 		{
 			Console.WriteLine(squad.ToString());
@@ -402,7 +402,7 @@ internal static partial class Program
 
 	private static async Task<int> SquadMorale(bool json)
 	{
-		var squad = await SquadView("Dynamics", "MoraleString");
+		var squad = await SquadView(SquadTable.Dynamics, "MoraleString");
 		if (json)
 		{
 			Console.WriteLine(squad.ToString());
@@ -486,13 +486,19 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// The squad table's views by the number each stands for in its view list, which the game's
+	/// language does not change (the names do: "Dynamics" reads "Squad Dynamics" through a Turkish game).
+	/// </summary>
+	internal enum SquadTable { SelectionInfo = 0, GeneralInfo = 1, Dynamics = 12, Injuries = 14, RiskAssessment = 15 }
+
+	/// <summary>
 	/// The first-team table under one of its views, which is where a column like condition
 	/// lives: the table binds only the columns of the view it is showing.
 	///
 	/// Choosing the view is tried first, since the table is often already up. If it is not, the
-	/// First Team page is opened by name and the view chosen once the table has built.
+	/// First Team page is opened and the view chosen once the table has built.
 	/// </summary>
-	private static async Task<JsonElement> SquadView(string view, string marker)
+	private static async Task<JsonElement> SquadView(SquadTable view, string marker)
 	{
 		// The table on screen may be a youth side's, which has the same views (FINDINGS §8.164).
 		var youth = await YouthTeams();
@@ -519,21 +525,28 @@ internal static partial class Program
 
 		return squad;
 
-		// Other tables of people have a view list by the same name; the squad's is the one
-		// that offers the dressing-room view.
-		async Task<bool> Choose(string choice) =>
-			await ViewList("Dynamics") is { } list
-			&& Sent(await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice)));
+		async Task<bool> Choose(SquadTable choice) =>
+			await ViewList(SquadViews) is { } list
+			&& Sent(await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("value", ((int)choice).ToString())));
 
 		static bool Sent(string answer) => !answer.StartsWith("error", StringComparison.Ordinal);
 	}
 
-	/// <summary>The table view list on screen that offers a given view, which tells one table's list from another's.</summary>
-	private static async Task<JsonElement?> ViewList(string offering) =>
+	/// <summary>The element the squad table's view list sits in; the player database's is another.</summary>
+	private const string SquadViews = "FirstTeam";
+	private const string PlayerSearchViews = "PlayerSearchMainContentBlock";
+
+	/// <summary>
+	/// The table view list on screen that belongs to a panel, known by the named element it sits
+	/// in (BindingRemapper #FirstTeam): other tables of people have a view list by the same name,
+	/// and what the lists offer reads differently in every language.
+	/// </summary>
+	private static async Task<JsonElement?> ViewList(string panel) =>
 		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			.Where(d => Field(d, "Name") == "ViewDropdown")
 			.Cast<JsonElement?>()
-			.FirstOrDefault(d => d.Value.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == offering));
+			.FirstOrDefault(d => d.Value.TryGetProperty("Within", out var within)
+				&& within.EnumerateArray().Any(name => name.GetString() == panel));
 
 	private static bool Carries(JsonElement rows, string field) =>
 		rows.EnumerateArray().Any(row => row.TryGetProperty(field, out _));

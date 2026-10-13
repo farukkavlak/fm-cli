@@ -46,7 +46,7 @@ internal static partial class Program
 	private static async Task<int> Depth(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var squad = await SquadView("General Info", "AgreedPlayingTime");
+		var squad = await SquadView(SquadTable.GeneralInfo, "AgreedPlayingTime");
 		var youth = await YouthTeams();
 		var players = squad.EnumerateArray()
 			.Where(p => !youth.Contains(Field(p, "Team")) && Field(p, "AgreedPlayingTime") != "Out On Loan")

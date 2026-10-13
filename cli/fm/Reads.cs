@@ -520,7 +520,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		JsonElement? viewList = null;
-		await Until(async () => (viewList = await ViewList("Dynamics")) != null, seconds: 10);
+		await Until(async () => (viewList = await ViewList(SquadViews)) != null, seconds: 10);
 
 		var views = viewList?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList() ?? [];
 		if (views.Count == 0)
@@ -700,7 +700,7 @@ internal static partial class Program
 		await Until(async () =>
 		{
 			var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().ToList();
-			views = await ViewList("Scout - Transfer");
+			views = await ViewList(PlayerSearchViews);
 			filters = lists.Where(d => Field(d, "Name") == filterList).Cast<JsonElement?>().FirstOrDefault();
 			return views != null && filters != null;
 		}, seconds: 12);

@@ -195,9 +195,27 @@ internal static class Buttons
 			return SelectPath(dropdown, string.Join(",", indices), q);
 		}
 
-		int index;
+		// Or by the number the row stands for, which the language does not change: a table's view
+		// list gives each view its own (Selection Info is 0 on the squad table whatever it reads).
+		// A top-level row found so goes the way a chosen index does below; writing its record
+		// straight to the binding (SelectPath's way) hung the game on the squad table.
+		int index = -1;
+		if (!string.IsNullOrEmpty(q["value"]))
+		{
+			if (!int.TryParse(q["value"], out var number)) return $"error: '{q["value"]}' is not a number";
+			for (var i = 0; i < count && index < 0; i++)
+			{
+				if (ValueOf(choices[i]) == number) { index = i; break; }
+				var children = Children(choices[i]);
+				for (var c = 0; c < (children?.Count ?? 0); c++)
+					if (ValueOf(children[c]) == number) return SelectPath(dropdown, $"{i},{c}", q);
+			}
+			if (index < 0) return $"error: no choice stands for {number} in this dropdown (see /dropdowns?json=1, Values)";
+		}
+
 		var wanted = q["choice"];
-		if (!string.IsNullOrEmpty(wanted))
+		if (index >= 0) { }
+		else if (!string.IsNullOrEmpty(wanted))
 		{
 			index = IndexOfChoice(dropdown, wanted);
 			if (index < 0) return $"error: no choice '{wanted}' in this dropdown (see /dropdowns)";
@@ -318,6 +336,21 @@ internal static class Buttons
 			return entries.TryGetValue("Selected", out var selected) && selected != null && !selected.IsNull && selected.AsString() == "True";
 		}
 		catch { return false; }
+	}
+
+	/// <summary>The number a row stands for (its record's PropertyValue), or null when it has none.</summary>
+	internal static int? ValueOf(SI.Core.TypedValue choice)
+	{
+		try
+		{
+			var record = choice?.Get()?.TryCast<DynamicReference>();
+			if (record == null) return null;
+			var entries = Send.Entries(record);
+			if (entries.TryGetValue("RowData", out var row) && row != null && !row.IsNull) return ValueOf(row);
+			if (!entries.TryGetValue("PropertyValue", out var value) || value == null || value.IsNull) return null;
+			return int.TryParse(value.AsString(), out var number) ? number : null;
+		}
+		catch { return null; }
 	}
 
 	/// <summary>The rows of a row's submenu, or null when it has none.</summary>
@@ -651,13 +684,37 @@ internal static class Buttons
 			submenus += ", \"Submenus\": {" + string.Join(", ", parts) + "}";
 		}
 
+		// What each row stands for, beside what it reads: a view list is chosen from by these.
+		var values = new List<string>();
+		for (var i = 0; i < count && i < 60; i++)
+		{
+			values.Add(ValueOf(choices[i])?.ToString() ?? "null");
+			var children = Children(choices[i]);
+			if (children == null) continue;
+			for (var c = 0; c < children.Count && c < 60; c++)
+				if (ValueOf(children[c]) is { } inner) values.Add(inner.ToString());
+		}
+
+		// The named elements a list sits in say whose list it is (the squad table's is inside
+		// BindingRemapper #FirstTeam), which no label does. Walking the whole binding tree for the
+		// value it writes instead, on every poll, took the game down twice.
+		var within = new List<string>();
+		try
+		{
+			for (var parent = dropdown.hierarchy.parent; parent != null && within.Count < 40; parent = parent.hierarchy.parent)
+				if (!string.IsNullOrEmpty(parent.name)) within.Add($"\"{Report.Escape(parent.name)}\"");
+		}
+		catch { }
+
 		return "{"
 			+ $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", "
+			+ "\"Within\": [" + string.Join(", ", within) + "], "
 			+ $"\"Name\": \"{Report.Escape(NameOf(dropdown))}\", "
 			+ $"\"Label\": \"{Report.Escape(LabelOf(dropdown))}\", "
 			+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "
 			+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
-			+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]" + submenus + "}";
+			+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "
+			+ "\"Values\": [" + string.Join(", ", values) + "]" + submenus + "}";
 	}
 
 	/// <summary>
