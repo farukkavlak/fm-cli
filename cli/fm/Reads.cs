@@ -1047,20 +1047,14 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>The team's league among its competitions: the one that is neither European, a cup nor a friendly.</summary>
+	/// <summary>
+	/// The team's league: its division in the game's data, which no name has to be guessed from (a
+	/// German league is "Bundesliga", a cup "DFB-Pokal").
+	/// </summary>
 	private static async Task<string> LeagueName()
 	{
-		for (var n = 1; n <= 8; n++)
-		{
-			string name;
-			try { name = Field(await Fm.Pull($"Human.Team.CurrentComp{n}", "Name"), "Name"); }
-			catch (FmError) { return null; }
-			if (name.Length == 0) continue;
-			if (name.Contains("UEFA", StringComparison.Ordinal) || name.Contains("Cup", StringComparison.Ordinal)
-			    || name.Contains("Friendly", StringComparison.Ordinal) || name.Contains("Champions", StringComparison.Ordinal)) continue;
-			return name;
-		}
-		return null;
+		try { return Field(await Fm.Pull("Human.Team.Division", "Name"), "Name") is { Length: > 0 } name ? name : null; }
+		catch (FmError) { return null; }
 	}
 
 	private static async Task<int> Fixtures(bool json, bool all = false)

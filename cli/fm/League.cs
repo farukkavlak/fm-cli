@@ -60,10 +60,11 @@ internal static partial class Program
 		}
 
 		var wanted = string.Join(" ", Words(args));
-		// The league is the default: of the club's competitions, the one whose name says so.
+		// The league is the default: the team's division in the game's data.
 		var names = competitions.Select(c => c.Name).ToList();
+		var division = await LeagueName();
 		var competition = wanted.Length == 0
-			? names.FirstOrDefault(c => c.Contains("League", StringComparison.Ordinal) && !c.StartsWith("UEFA", StringComparison.Ordinal)) ?? names[0]
+			? names.FirstOrDefault(c => c == division) ?? names[0]
 			: Choose(names, wanted, "Turnuva");
 		if (competition == null) return 1;
 		var at = competitions.First(c => c.Name == competition).Path;
