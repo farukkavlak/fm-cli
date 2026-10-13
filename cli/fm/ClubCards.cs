@@ -22,17 +22,22 @@ internal static partial class Program
 
 	private static string CardSay(string word) => CardWords.TryGetValue(word, out var t) ? t : ClubSay(word);
 
-	/// <summary>Opens a card from its tile on Club › Overview and reads it once it shows what it should.</summary>
-	private static async Task<List<string>> ClubCard(string tile, string anchor, int up, Func<List<string>, bool> ready)
+	/// <summary>
+	/// Opens a card from its tile on Club › Overview — the tile known by the panel it is laid out in
+	/// (BindingRemapper #Supporters), which no language changes — and reads it, each text with its
+	/// data path, once it shows what it should.
+	/// </summary>
+	private static async Task<List<(string Text, string Path)>> ClubCard(string panel, string anchorPath, int up, Func<List<(string Text, string Path)>, bool> ready)
 	{
 		var opened = await OpenPage(Screen.ClubHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
 		var clicked = "";
-		await Until(async () => !(clicked = await Fm.Get("click", ("text", tile), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+		await Until(async () => !(clicked = await Fm.Get("click", ("within", panel), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 		if (clicked.StartsWith("error", StringComparison.Ordinal)) throw new FmError(clicked);
 
-		List<string> texts = [];
-		var done = await Until(async () => ready(texts = (await Fm.GetJson("texts", ("anchor", anchor), ("up", up.ToString()))).EnumerateArray().Select(t => t.GetString() ?? "").ToList()), seconds: 10, every: 0.5);
+		List<(string Text, string Path)> texts = [];
+		var done = await Until(async () => ready(texts = (await Fm.GetJson("texts", ("anchorpath", anchorPath), ("up", up.ToString()), ("paths", "1"))).EnumerateArray()
+			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList()), seconds: 10, every: 0.5);
 		return done ? texts : null;
 	}
 
@@ -48,53 +53,51 @@ internal static partial class Program
 		else Console.WriteLine($"  {label,-24} {value}");
 	}
 
-	/// <summary>
-	/// The expectations table's type column is drawn a moment after the rest; until then the rows
-	/// are three cells wide. Ready once the first two rows line up four apart (or there are none).
-	/// </summary>
-	private static bool SupportersReady(List<string> t)
-	{
-		var i = t.IndexOf("Reaction");
-		if (i < 0) return false;
-		static bool Importance(string x) => x is "Required" or "Desired" or "Preferred";
-		return i + 2 >= t.Count || !Importance(t[i + 2]) || (i + 6 < t.Count && Importance(t[i + 6]));
-	}
-
 	private static async Task<int> Supporters(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		List<string> t;
-		try { t = await ClubCard("Supporter influence on the board", "Supporter Profile", 12, SupportersReady); }
+		// The card read by each text's data path (FINDINGS §8.169), from its spokesman's report line; an
+		// expectation is its objective (binding.VisionObjectiveName) and then, drawn without a path,
+		// its importance, type and the fans' reaction, which come a moment after the rest.
+		static bool Ready(List<(string Text, string Path)> t)
+		{
+			var at = t.FindIndex(x => x.Path == "binding.VisionObjectiveName");
+			return t.Any(x => x.Path == "Club.SupporterProfile.Description") && (at < 0 || at + 3 < t.Count && t.Skip(at + 1).Take(3).All(x => x.Path.Length == 0));
+		}
+		List<(string Text, string Path)> t;
+		try { t = await ClubCard("Supporters", "Club.SupporterProfile.SupporterReportCompliedBy", 12, Ready); }
 		catch (FmError e) { return Report(e.Message); }
 		if (t == null)
 		{
 			Console.Error.WriteLine("Taraftar kartı okunamadı.");
 			return 1;
 		}
-		string After(string label, int skip = 1) => t.IndexOf(label) is var i && i >= 0 && i + skip < t.Count ? t[i + skip] : "-";
+		string Bound(string path) => t.FirstOrDefault(x => x.Path == path).Text ?? "-";
+		// The numbers the card writes after their labels (one of the game's texts, in English here).
+		string After(string label) => t.FindIndex(x => x.Text == label) is var i && i >= 0 && i + 1 < t.Count ? t[i + 1].Text : "-";
 
-		// The profile is "35% | Core" pairs; the expectations a four-column table.
-		var profile = new List<(string Share, string Group)>();
-		for (var i = 0; i + 1 < t.Count && t[i] != "Supporters' Influence On The Board"; i++)
-			if (Regex.IsMatch(t[i], @"^\d+%$")) profile.Add((t[i], t[i + 1]));
 		var expectations = new List<string[]>();
-		for (var i = t.IndexOf("Reaction") + 1; i > 0 && i + 3 < t.Count && t[i + 1] is "Required" or "Desired" or "Preferred"; i += 4)
-			expectations.Add(t.GetRange(i, 4).ToArray());
-		var spokesman = t.FirstOrDefault(x => x.StartsWith("Report compiled by", StringComparison.Ordinal));
-		var about = spokesman != null && t.IndexOf(spokesman) + 1 < t.Count ? t[t.IndexOf(spokesman) + 1] : "";
-		var matches = t.IndexOf("Matches Feedback");
+		for (var i = 0; i < t.Count; i++)
+			if (t[i].Path == "binding.VisionObjectiveName" && i + 3 < t.Count)
+				expectations.Add([t[i].Text, t[i + 1].Text, t[i + 2].Text, t[i + 3].Text]);
+
+		// The profile from the club's data: the share of each kind of supporter.
+		var shares = await Fm.Pull("Human.Club.SupporterProfile", "FanPercentageCore,FanPercentageFamily,FanPercentageFairWeather,FanPercentageCasual,FanPercentageHardcore,FanPercentageCorporate");
+		var profile = new[] { ("Core", "Core"), ("Family", "Family"), ("Fair Weather", "FairWeather"), ("Casual", "Casual"), ("Hardcore", "Hardcore"), ("Corporate", "Corporate") }
+			.Select(g => (Share: Field(shares, $"FanPercentage{g.Item2}"), Group: g.Item1)).Where(g => g.Share.Length > 0).ToList();
+		var club = await Fm.Pull("Human.Club", "SeasonTicketHolders");
 
 		var fans = new
 		{
-			Mood = After("Supporter Culture & Expectations"),
-			Influence = After("Supporters' Influence On The Board"),
-			SeasonTicketHolders = After("Season Ticket Holders"), SeasonTicketWaitingList = After("Season Ticket Waiting List"),
+			Mood = Bound("Club.MainTeam.TeamConfidence.SupporterConfidenceOverallString"),
+			Influence = Bound("Club.SupporterBoardInfluenceString"),
+			SeasonTicketHolders = After("Season Ticket Holders") is not "-" and var holders ? holders : Field(club, "SeasonTicketHolders"),
+			SeasonTicketWaitingList = After("Season Ticket Waiting List"),
 			AverageAttendance = After("Average Attendance"), SocialMediaFollowers = After("Social media followers"),
-			Profile = profile.Select(p => new { p.Group, p.Share }),
+			Profile = profile.Select(p => new { p.Group, Share = $"{p.Share}%" }),
 			Expectations = expectations.Select(e => new { Text = e[0], Importance = e[1], Type = e[2], Reaction = e[3] }),
-			About = about,
-			FierceRivals = Before("Fierce Rivals"), OtherRivals = Before("Other Rivals"),
-			AfterMatches = matches >= 0 && matches + 4 < t.Count ? new { Board = t[matches + 2], Supporters = t[matches + 4] } : null,
+			About = Bound("Club.SupporterProfile.Description"),
+			FierceRivals = Bound("Club.FierceRivalCount"), OtherRivals = Bound("Club.OtherRivalCount"),
 		};
 		if (json)
 		{
@@ -105,7 +108,6 @@ internal static partial class Program
 		if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(fans.Mood)}[/]");
 		else Console.WriteLine(fans.Mood);
 		CardRow("Yönetime etkisi", CardSay(fans.Influence));
-		if (fans.AfterMatches != null) CardRow("Son maçlardan sonra", $"taraftar {CardSay(fans.AfterMatches.Supporters)} · yönetim {CardSay(fans.AfterMatches.Board)}");
 		CardRow("Ortalama seyirci", fans.AverageAttendance);
 		CardRow("Kombine sahibi", $"{fans.SeasonTicketHolders} (bekleme listesi {fans.SeasonTicketWaitingList})");
 		CardRow("Sosyal medya takipçisi", fans.SocialMediaFollowers);
@@ -124,16 +126,14 @@ internal static partial class Program
 		}
 
 		CardHeading("Taraftar profili");
-		foreach (var (share, group) in profile.OrderByDescending(p => int.Parse(p.Share.TrimEnd('%'))))
-			CardRow(CardSay(group), share);
-		if (about.Length > 0)
+		foreach (var (share, group) in profile.OrderByDescending(p => int.TryParse(p.Share, out var n) ? n : 0))
+			CardRow(CardSay(group), $"{share}%");
+		if (fans.About is { Length: > 1 } about)
 		{
 			if (Ui.Rich) Ui.Line($"\n[dim]{Ui.Safe(about)}[/]");
 			else Console.WriteLine($"\n{about}");
 		}
 		return 0;
-
-		string Before(string label) => t.IndexOf(label) is var i && i > 0 ? t[i - 1] : "-";
 	}
 
 	/// <summary>
