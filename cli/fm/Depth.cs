@@ -39,10 +39,13 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		var squad = await SquadView(SquadTable.GeneralInfo, "AgreedPlayingTime");
 		var youth = await YouthTeams();
-		var masks = (await Fm.Pull("Human.Team.Players", "Name,PositionCombined", list: true)).EnumerateArray()
+		// Players out on loan are someone else's; one loaned to us has us as his loan club.
+		var (team, _) = await Fm.OwnTeam();
+		var masks = (await Fm.Pull("Human.Team.Players", "Name,PositionCombined,LoanClub.Name", list: true)).EnumerateArray()
+			.Where(p => Field(p, "LoanClub.Name") is not { Length: > 0 } club || club == team)
 			.GroupBy(p => Field(p, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "PositionCombined"));
 		var players = squad.EnumerateArray()
-			.Where(p => !youth.Contains(Field(p, "Team")) && Field(p, "AgreedPlayingTime") != "Out On Loan")
+			.Where(p => !youth.Contains(Field(p, "Team")))
 			.Where(p => masks.ContainsKey(Field(p, "Name")))
 			.Select(p => (Name: Field(p, "Name"), Age: int.TryParse(Field(p, "Age"), out var a) ? a : 0, Slots: Positions(masks[Field(p, "Name")])))
 			.ToList();

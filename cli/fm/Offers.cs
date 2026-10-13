@@ -143,8 +143,9 @@ internal static partial class Program
 			var last = "";
 			await Until(async () =>
 			{
-				var now = string.Join("|", await OfferTexts());
-				var settled = now == last && Regex.IsMatch(now, @"\d+ \w+ Offers \(");
+				var texts = await OfferTexts();
+				var now = string.Join("|", texts.Select(t => t.Text));
+				var settled = now == last && texts.Any(t => t.Path == "binding.name") && texts.Any(t => t.Path == "binding.TransferOfferStatusString");
 				last = now;
 				return settled;
 			}, seconds: 4, every: 0.35);
@@ -158,46 +159,44 @@ internal static partial class Program
 	{
 		try
 		{
-			return (await Fm.GetJson("form", ("anchor", "Most Recent Offers"), ("up", "2"))).EnumerateArray().Cast<JsonElement?>()
-				.FirstOrDefault(c => Field(c.Value, "Kind") == "radio" && Field(c.Value, "Name") == "transfers-list-radio-group");
+			// Radio groups are listed with the dropdowns, by their element's name.
+			return (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
+				.FirstOrDefault(c => Field(c.Value, "Name") == "transfers-list-radio-group");
 		}
 		catch (FmError) { return null; }
 	}
 
-	private static async Task<List<string>> OfferTexts()
-	{
-		var tab = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "activity-tab-button");
-		if (tab.ValueKind != JsonValueKind.Object) return [];
-		var texts = (await Fm.GetJson("texts", ("anchor", Field(tab, "Label")), ("up", "5"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-		var filter = texts.IndexOf("Filter");
-		return filter >= 0 ? texts.Skip(filter + 1).ToList() : texts;
-	}
+	/// <summary>
+	/// The panel of the player chosen in the list, each text with its data path (FINDINGS §8.169),
+	/// from one of its offers' kind, which only this panel carries.
+	/// </summary>
+	private static async Task<List<(string Text, string Path)>> OfferTexts() =>
+		(await Fm.GetJson("texts", ("anchorpath", "binding.TransferOfferTypeString"), ("up", "18"), ("paths", "1"))).EnumerateArray()
+			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 
-	/// <summary>The offers for the player chosen in the list.</summary>
+	/// <summary>
+	/// The offers for the player chosen in the list, by each text's data path: the player
+	/// (binding.name), then per offer the club (Club.Name), its kind (binding.TransferOfferTypeString),
+	/// clauses and options (binding.TransferActivityTable{Clauses,Options}StringN), its status
+	/// (binding.TransferOfferStatusString) and fee lines (binding.TransferActivityTableFeeStringN).
+	/// </summary>
 	private static async Task<List<WaitingOffer>> OffersShown()
 	{
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
 		var texts = await OfferTexts();
-		var head = texts.FindIndex(t => Regex.IsMatch(t, @"^\d+ year-old"));
-		var from = texts.IndexOf("Status & Fees");
-		if (head < 0 || from < 0) return [];
-		var player = head >= 2 ? texts[head - 2] : "";
-		// "1 Unresponded Offers (1 Total)" while an answer is owed, "1 Active Offers (1 Total)" once given.
-		var to = texts.FindIndex(from, t => Regex.IsMatch(t, @"^\d+ \w+ Offers \("));
-		var body = texts.Skip(from + 1).Take((to < 0 ? texts.Count : to) - from - 1).ToList();
+		var player = texts.FirstOrDefault(t => t.Path == "binding.name").Text ?? "";
+		if (player.Length == 0) return [];
 
-		// A row starts a step before its kind and holds one fee: "£135K (£300K)", "£8.75K (£8.75K) p/m", "Free".
-		static bool Kind(string t) => t is "Transfer" or "Loan" or "Free Transfer" or "Swap" or "Part Exchange";
-		static bool Fee(string t) => Regex.IsMatch(t, @"^(£[\d.,]+[KMB]?|Free|-)( \(.*\))?( p/[mwa])?$");
-		var starts = Enumerable.Range(1, Math.Max(0, body.Count - 1)).Where(i => Kind(body[i])).Select(i => i - 1).ToList();
-		var rows = new List<(string Club, string Kind, string Status, string Fee, string Terms)>();
-		for (var n = 0; n < starts.Count; n++)
+		var rows = new List<(string Club, string Kind, string Status, string Fee, List<string> Terms)>();
+		foreach (var (text, path) in texts)
 		{
-			var row = body.Skip(starts[n]).Take((n + 1 < starts.Count ? starts[n + 1] : body.Count) - starts[n]).ToList();
-			var fee = row.FindLastIndex(t => Fee(t) && t != "-");
-			if (fee < 3) fee = row.Count - 1;
-			var terms = row.Skip(2).Take(fee - 3).Concat(row.Skip(fee + 1)).Where(t => t != "-").ToList();
-			rows.Add((row[0], row[1], row[fee - 1], row[fee], string.Join(" · ", terms)));
+			if (path == "Club.Name") { rows.Add((text, "", "", "", [])); continue; }
+			if (rows.Count == 0) continue;
+			var row = rows[^1];
+			if (path == "binding.TransferOfferTypeString") rows[^1] = row with { Kind = text };
+			else if (path == "binding.TransferOfferStatusString") rows[^1] = row with { Status = text };
+			else if (path == "binding.TransferActivityTableFeeString1") rows[^1] = row with { Fee = text };
+			else if (path.StartsWith("binding.TransferActivityTable", StringComparison.Ordinal) && text != "-") row.Terms.Add(text);
 		}
 
 		var offers = new List<WaitingOffer>();
@@ -208,7 +207,7 @@ internal static partial class Program
 			string Answer(string name) => buttons.Skip(links[n].at + 1).Take(until - links[n].at - 1)
 				.FirstOrDefault(b => Field(b, "Name") == name && Field(b, "Label").Length == 0 && Field(b, "Enabled") == "True") is { ValueKind: JsonValueKind.Object } b ? Field(b, "Pointer") : null;
 			offers.Add(new(player, rows[n].Club, rows[n].Kind, rows[n].Status, rows[n].Fee, Field(links[n].b, "Pointer"),
-				Answer("accept-button"), Answer("stall-button"), Answer("cancel-reject-button")) { Terms = rows[n].Terms });
+				Answer("accept-button"), Answer("stall-button"), Answer("cancel-reject-button")) { Terms = string.Join(" · ", rows[n].Terms) });
 		}
 		return offers;
 	}
