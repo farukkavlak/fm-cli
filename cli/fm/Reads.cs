@@ -479,11 +479,12 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The game packs a date into one number: the year above bit 17, then the day of the year
-	/// (from 1) in nine bits (the plugin's State.Date reads it the same way).
+	/// A date as the plugin gives it ("2027-04-03"), or as an older plugin did: the game's packed
+	/// number, the year above bit 17, then the day of the year (from 1) in nine bits.
 	/// </summary>
 	private static DateTime? Day(string text)
 	{
+		if (DateTime.TryParseExact(text, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var day)) return day;
 		var at = text.IndexOf("Data1 = ", StringComparison.Ordinal);
 		if (at < 0 || !long.TryParse(new string(text[(at + 8)..].TakeWhile(char.IsDigit).ToArray()), out var packed)) return null;
 		var year = (int)(packed >> 17);

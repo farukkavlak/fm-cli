@@ -38,6 +38,13 @@ internal static class Text
 				return english;
 		}
 		catch { }
+		// A date is packed into a struct whose text is only its fields; it is given as the day.
+		try
+		{
+			if (value.DataType?.Name == "GameDate" && State.Date(value.AsString()) is { } date)
+				return date.Day.ToString("yyyy-MM-dd");
+		}
+		catch { }
 		return Clean(value.AsString());
 	}
 

@@ -14,61 +14,58 @@ internal static partial class Program
 			.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
 
 	/// <summary>
-	/// One of the page's other views ("Youth Performance", "Youth Candidates"), chosen in its tab
-	/// list and read once its own text has settled (FINDINGS §8.125).
-	/// </summary>
-	private static async Task<List<string>> YouthView(string view, string anchor, string up)
-	{
-		var tabs = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.FirstOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Youth Environment"));
-		if (tabs.ValueKind != JsonValueKind.Object) return [];
-		await Fm.Get("select", ("ptr", Field(tabs, "Pointer")), ("choice", view), ("fire", "1"));
-		List<string> texts = [];
-		var previous = "?";
-		await Until(async () =>
-		{
-			texts = await YouthTexts(anchor, up);
-			var key = string.Join("|", texts);
-			var settled = texts.Count > 0 && key == previous;
-			previous = key;
-			return settled;
-		}, seconds: 6, every: 0.5);
-		return texts;
-	}
-
-	/// <summary>
-	/// The youth team's week in training (Youth Setup › Youth Performance): how the week went, the
-	/// average rating, and each player's extra focus and rating.
+	/// The youth team's week in training (Youth Setup › Youth Performance), by each text's data path
+	/// (FINDINGS §8.169): how the week went (the texts before the schedule's name), the average rating,
+	/// and each player — name (binding.Name), age from his description (Person.PlayerDescription),
+	/// position and extra focus (binding), then his rating, drawn without a path ("-" when he did not train).
 	/// </summary>
 	private static async Task<int> YouthTraining(bool json)
 	{
-		// The heading names the club's own youth team ("Under 19s Training Review" at one club, "Under
-		// 21s" at another), so the page is found by a label every club has.
-		var texts = await YouthView("Youth Performance", "Avg. Training Rating", "14");
-		var team = texts.FirstOrDefault(t => t.EndsWith(" Training Review", StringComparison.Ordinal)) is { } heading ? heading[..^" Training Review".Length] : "Altyapı";
-		var head = texts.IndexOf("Training Rating");
-		if (head < 0)
+		// Held by the average's heading (one of the game's texts): from the schedule's name the climb
+		// does not reach the table.
+		async Task<List<(string Text, string Path)>> Read() =>
+			(await Fm.GetJson("texts", ("anchor", "Avg. Training Rating"), ("up", "14"), ("paths", "1"))).EnumerateArray()
+				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+		List<(string Text, string Path)> texts = [];
+		var opened = await OpenSubpage(Screen.YouthSetup, Screen.YouthPerformance, async () => (texts = await Read()).Any(t => t.Path == "binding.Name"));
+		if (opened.StartsWith("error", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine("Altyapı antrenman tablosu açılmadı.");
 			return 1;
 		}
-		var average = texts.IndexOf("Avg. Training Rating") is > 0 and var at ? texts[at - 1] : "";
-		var notes = texts.SkipWhile(t => !t.EndsWith(" Training Review", StringComparison.Ordinal)).Skip(1).Take(2).ToList();
-		// A row: name, "<age> year-old <kind>", positions, extra focus, rating ("-" when he did not train).
-		var rows = new List<string[]>();
-		for (var i = head + 1; i + 4 < texts.Count + 0; i += 5)
+		var previous = "";
+		await Until(async () =>
 		{
-			if (!texts[i + 1].Contains("year-old", StringComparison.Ordinal)) break;
-			rows.Add([texts[i], texts[i + 1].Split(' ')[0], texts[i + 2], texts[i + 3], texts[i + 4]]);
+			var now = string.Join("|", (texts = await Read()).Select(t => t.Text));
+			var same = now == previous && texts.Any(t => t.Path == "binding.Name");
+			previous = now;
+			return same;
+		}, seconds: 6, every: 0.4);
+
+		var schedule = texts.FindIndex(t => t.Path == "Team.TeamTraining.LastWeekTrainingTemplateName");
+		var notes = schedule > 1 ? texts.Skip(1).Take(schedule - 1).Where(t => t.Path.Length == 0).Select(t => t.Text).ToList() : [];
+		var firstRow = texts.FindIndex(t => t.Path == "binding.Name");
+		var average = texts.Take(firstRow < 0 ? texts.Count : firstRow).Skip(schedule + 1)
+			.FirstOrDefault(t => t.Path.Length == 0 && double.TryParse(t.Text.Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _)).Text ?? "";
+
+		var rows = new List<string[]>();
+		string[] row = null;
+		foreach (var (text, path) in texts.Skip(Math.Max(0, firstRow)))
+		{
+			if (path == "binding.Name") { row = [text, "", "", "", "-"]; rows.Add(row); continue; }
+			if (row == null) continue;
+			if (path == "Person.PlayerDescription") row[1] = System.Text.RegularExpressions.Regex.Match(text, @"\d+").Value;
+			else if (path == "binding") { if (row[2] == "") row[2] = text; else row[3] = text; }
+			else if (path.Length == 0 && row[4] == "-") row[4] = text;
 		}
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { Team = team, Week = notes.ElementAtOrDefault(0) ?? "", Note = notes.ElementAtOrDefault(1) ?? "", Average = average,
+			Console.WriteLine(JsonOut.Of(new { Week = notes.ElementAtOrDefault(0) ?? "", Note = notes.ElementAtOrDefault(1) ?? "", Average = average,
 				Players = rows.Select(r => new { Player = r[0], Age = r[1], Position = r[2], Focus = r[3], Rating = r[4] }) }));
 			return 0;
 		}
-		Console.WriteLine($"{team} antrenman haftası: {string.Join(" · ", notes)}{(average.Length > 0 ? $" · ortalama {average}" : "")}\n");
-		Table.Write(["OYUNCU", "YAŞ", "MEVKİ", "EK ODAK", "PUAN"], rows.OrderByDescending(r => double.TryParse(r[4], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1).ToList());
+		Console.WriteLine($"Altyapı antrenman haftası: {string.Join(" · ", notes)}{(average.Length > 0 ? $" · ortalama {average}" : "")}\n");
+		Table.Write(["OYUNCU", "YAŞ", "MEVKİ", "EK ODAK", "PUAN"], rows.OrderByDescending(r => double.TryParse(r[4].Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1).ToList());
 		return 0;
 	}
 
@@ -79,8 +76,16 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> YouthCandidates(bool json)
 	{
+		// Whether the year's candidates have come is in the club's data.
+		if (int.TryParse(Field(await Fm.Pull("Human.Club", "YouthCandidatesCount"), "YouthCandidatesCount"), out var came) && came == 0)
+		{
+			Console.Error.WriteLine("Bu yılın alım adayları henüz gelmedi (alım tarihi: youth).");
+			return 1;
+		}
 		// The headings carry their counts ("Elite Prospects (3)"), so the legend above is read first.
-		var legend = await YouthView("Youth Candidates", "Elite", "3");
+		// Still read by its words: no intake has come since the pages were mapped by data path.
+		await OpenSubpage(Screen.YouthSetup, Screen.YouthCandidates, async () => (await YouthTexts("Elite", "3")).Count > 0);
+		var legend = await YouthTexts("Elite", "3");
 		var elite = legend.IndexOf("Elite");
 		if (elite < 1)
 		{
@@ -133,71 +138,72 @@ internal static partial class Program
 		return 0;
 	}
 
+	private static async Task<List<(string Text, string Path)>> YouthPaths(string anchorPath, string up) =>
+		(await Fm.GetJson("texts", ("anchorpath", anchorPath), ("up", up), ("paths", "1"), ("most", "1"))).EnumerateArray()
+			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+
+	/// <summary>
+	/// The academy at a glance, from the club's data and the Youth Setup pages' data paths
+	/// (FINDINGS §8.169): coaching and recruitment levels, the youth stadium, the youth team's staff,
+	/// the next intake and whether its candidates have come, the youngsters thought ready for the
+	/// first team, and the dressing room's mood.
+	/// </summary>
 	private static async Task<int> Youth(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage(Screen.YouthSetup);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-
-		Func<string, string, Task<List<string>>> Around = YouthTexts;
-
-		// The environment tab is chosen in the page's own tab list; choosing in a list found
-		// too early (the page before) does nothing, so it is chosen until the tab shows.
-		List<string> details = [];
-		for (var attempt = 0; attempt < 3 && details.Count == 0; attempt++)
-		{
-			JsonElement tabs = default;
-			await Until(async () => (tabs = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-				.FirstOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Youth Environment"))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.5);
-			if (tabs.ValueKind != JsonValueKind.Object) break;
-			await Fm.Get("select", ("ptr", Field(tabs, "Pointer")), ("choice", "Youth Environment"), ("fire", "1"));
-			var previous = "?";
-			await Until(async () =>
-			{
-				var now = await Around("Youth Level", "12");
-				var key = string.Join("|", now);
-				var settled = now.Count > 8 && key == previous;
-				previous = key;
-				if (settled) details = now;
-				return settled;
-			}, seconds: 5, every: 0.5);
-		}
-		if (details.Count == 0)
-		{
-			Console.Error.WriteLine("Gençlik sayfası açılmadı.");
-			return 1;
-		}
 		if (args.Contains("--training") || args.Skip(1).Any(w => w is "training" or "antrenman")) return await YouthTraining(json);
 		if (args.Contains("--candidates") || args.Skip(1).Any(w => w is "candidates" or "adaylar" or "aday")) return await YouthCandidates(json);
-		var overview = await Around("Overall Youth Rating", "9");
 
-		// The intake's own view: how many candidates have come up, or that they are still awaited.
-		var intake = await YouthView("Youth Candidates", "Awaiting prospects", "2") is { Count: > 0 } awaited
-			? awaited : await YouthTexts("Youth Candidates", "0");
+		// The environment tab: the youth team's staff and the academy's level are bound there.
+		List<(string Text, string Path)> details = [];
+		var opened = await OpenSubpage(Screen.YouthSetup, Screen.YouthEnvironment,
+			async () => (details = await YouthPaths("Team.Club.YouthCoachingLevel", "12")).Any(t => t.Path == "Team.StaffCoachingSubGroup.Count"));
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		string Bound(List<(string Text, string Path)> texts, string path) => texts.FirstOrDefault(t => t.Path == path).Text ?? "";
+		string Team(string group) => $"{Bound(details, $"Team.{group}.Count")}/{Bound(details, $"Team.{group}.MaxValue")}";
+		var atmosphere = details.Where(t => t.Path is "data.Description" or "binding.ProConsLongString").Select(t => t.Text).Distinct().ToList();
 
-		static string After(List<string> texts, string label, int skip = 1) =>
-			texts.IndexOf(label) is >= 0 and var at && at + skip < texts.Count ? texts[at + skip] : "";
+		var club = await Fm.Pull("Human.Club", "YouthCoaching,YouthRecruitment,IntakeDate,YouthCandidatesCount");
+		var stadium = Field(await Fm.Pull("Human.Club.YouthStadium", "Name"), "Name");
+		var town = Field(await Fm.Pull("Human.Club.YouthStadium.City", "Name"), "Name");
+		var today = DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var d) ? d : DateTime.Today;
+		var intake = DateTime.TryParseExact(Field(club, "IntakeDate"), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var i) ? i : (DateTime?)null;
 
-		// The candidates: name, best position and age, between the table's last heading and the intake.
+		// The overview page: the rating (drawn without a path, one of the game's texts and so in
+		// English), and the first-team candidates as name (binding.InitialSurname), best position and age.
+		var overview = new List<(string Text, string Path)>();
+		await OpenPage(Screen.YouthSetup);
+		// Read once a candidate's cells are drawn and two readings agree (or there is none to draw).
+		var previous = "?";
+		await Until(async () =>
+		{
+			// Held by its rating's heading (one of the game's texts): from a candidate's name the climb
+			// does not reach the rest of the page (FINDINGS §8.169).
+			overview = (await Fm.GetJson("texts", ("anchor", "Overall Youth Rating"), ("up", "9"), ("paths", "1"))).EnumerateArray()
+				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+			var key = string.Join("|", overview.Select(t => t.Text));
+			var settled = key == previous && overview.Count > 0 && (overview.All(t => t.Path != "binding.InitialSurname") || overview.Any(t => t.Path == "binding"));
+			previous = key;
+			return settled;
+		}, seconds: 6, every: 0.5);
 		var candidates = new List<string[]>();
-		var from = overview.IndexOf("Potential");
-		var intakeAt = overview.FindIndex(t => t.EndsWith("Youth Intake", StringComparison.Ordinal));
-		if (from >= 0)
-			for (var at = from + 1; at + 2 < (intakeAt < 0 ? overview.Count : intakeAt) + 0 && at + 2 < overview.Count; at += 3)
-				candidates.Add([overview[at], overview[at + 1], overview[at + 2]]);
-
-		var atmosphere = details.Where(t => t.Length > 40 && t != After(details, "Youth Stadium")).Distinct().ToList();
-		string Team(string label) => details.IndexOf(label) is >= 0 and var at && at + 3 < details.Count ? $"{details[at + 1]}/{details[at + 3]}" : "";
+		for (var at = 0; at < overview.Count; at++)
+			if (overview[at].Path == "binding.InitialSurname")
+			{
+				var cells = overview.Skip(at + 1).TakeWhile(t => t.Path == "binding").Select(t => t.Text).ToList();
+				candidates.Add([overview[at].Text, cells.ElementAtOrDefault(0) ?? "", cells.ElementAtOrDefault(1) ?? ""]);
+			}
+		var rating = overview.FindIndex(t => t.Text == "Overall Youth Rating") is >= 0 and var r && r + 1 < overview.Count ? overview[r + 1].Text : "";
 
 		var youth = new
 		{
-			Rating = After(overview, "Overall Youth Rating"),
-			AcademyCoaching = After(details, "Academy Coaching"), Recruitment = After(details, "Youth Recruitment"),
-			Level = After(details, "Youth Level"), Stadium = After(details, "Youth Stadium"),
-			Coaches = Team("Coaching Team"), Recruiters = Team("Recruitment Team"), Medical = Team("Medical Team"),
-			Intake = intakeAt >= 0 ? overview[intakeAt] : "", IntakeDate = intakeAt >= 0 && intakeAt + 1 < overview.Count ? overview[intakeAt + 1] : "",
-			IntakeIn = intakeAt >= 0 && intakeAt + 2 < overview.Count ? overview[intakeAt + 2].Trim('(', ')') : "",
-			IntakeCandidates = intake.Contains("Awaiting prospects") ? "awaited" : "arrived",
+			Rating = rating,
+			AcademyCoaching = Field(club, "YouthCoaching"), Recruitment = Field(club, "YouthRecruitment"),
+			Level = Bound(details, "Team.Club.YouthCoachingLevel"),
+			Stadium = town.Length > 0 && stadium.Length > 0 && !stadium.Contains(town) ? $"{stadium}, {town}" : stadium,
+			Coaches = Team("StaffCoachingSubGroup"), Recruiters = Team("StaffRecruitmentSubGroup"), Medical = Team("StaffMedicalSubGroup"),
+			IntakeDate = intake?.ToString("yyyy-MM-dd") ?? "", IntakeInDays = intake is { } when ? (int)(when - today).TotalDays : (int?)null,
+			IntakeCandidates = int.TryParse(Field(club, "YouthCandidatesCount"), out var came) && came > 0 ? "arrived" : "awaited",
 			Candidates = candidates.Select(c => new { Player = c[0], Position = c[1], Age = c[2] }),
 			Atmosphere = atmosphere,
 		};
@@ -207,11 +213,11 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(youth));
 			return 0;
 		}
-		Console.WriteLine($"Altyapı notu      {youth.Rating}");
-		Console.WriteLine($"Akademi           antrenman: {youth.AcademyCoaching} · tarama: {youth.Recruitment} · seviye: {youth.Level}");
+		if (youth.Rating.Length > 0) Console.WriteLine($"Altyapı notu      {youth.Rating}");
+		Console.WriteLine($"Akademi           antrenman seviyesi {youth.AcademyCoaching} · genç oyuncu bulma {youth.Recruitment} · seviye {youth.Level}");
 		Console.WriteLine($"Stat              {youth.Stadium}");
 		Console.WriteLine($"Kadro             antrenör {youth.Coaches} · tarama {youth.Recruiters} · sağlık {youth.Medical}");
-		if (youth.Intake.Length > 0) Console.WriteLine($"Altyapı alımı     {youth.IntakeDate} ({youth.IntakeIn})");
+		if (intake is { } day) Console.WriteLine($"Altyapı alımı     {day.Day} {Months[day.Month - 1]} {day.Year} ({youth.IntakeInDays} gün sonra)");
 		Console.WriteLine(youth.IntakeCandidates == "awaited" ? "Alım adayları     henüz yok (her yıl Mart'ta bir maçla belli oluyor)" : "Alım adayları     GELDİ — liste: youth candidates");
 		if (candidates.Count > 0)
 		{

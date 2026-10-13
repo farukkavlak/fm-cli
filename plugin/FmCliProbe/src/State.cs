@@ -28,7 +28,8 @@ internal static class State
 		Put(fields, "CanSave", Read(bindings, "game.CanSave"));
 		Put(fields, "DuringMatch", Read(bindings, "game.IsDuringMatch"));
 
-		var date = Date(Read(bindings, "game.CurrentGameDate"));
+		// The packed date as the game gives it, not as a day: its clock bits are wanted too.
+		var date = Date(Read(bindings, "game.CurrentGameDate", raw: true));
 		if (date != null)
 		{
 			fields["Date"] = date.Value.Day.ToString("yyyy-MM-dd");
@@ -81,7 +82,7 @@ internal static class State
 		if (!string.IsNullOrEmpty(value)) fields[name] = value;
 	}
 
-	private static string Read(Bindings bindings, string path)
+	private static string Read(Bindings bindings, string path, bool raw = false)
 	{
 		try
 		{
@@ -89,7 +90,7 @@ internal static class State
 			if (!bindings.Exists(ref key)) return null;
 
 			var value = bindings.Get(ref key);
-			return value == null || value.IsNull ? null : Text.Of(value);
+			return value == null || value.IsNull ? null : raw ? value.AsString() : Text.Of(value);
 		}
 		catch { return null; }
 	}
