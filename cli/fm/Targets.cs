@@ -29,8 +29,8 @@ internal static partial class Program
 			Console.Error.WriteLine("Bütçe sayfası okunamadı.");
 			return 1;
 		}
-		// "£11.1M (bu sezon harcanan …)" and "£12.5K p/w boşta · …": the figure comes first.
-		var transfer = budgets.Count > 0 ? budgets[0].Value.Split(' ')[0] : "";
+		// "£11.1M (bu sezon harcanan …)" and "2.123 £ boşta (haftalık) · …": the figure comes first.
+		var transfer = budgets.Count > 0 ? MoneyFormat.Find(budgets[0].Value) ?? "" : "";
 		var wage = budgets.Count > 1 ? budgets[1].Value.Split(" · ")[0] : "";
 
 		var words = Words(args).ToList();

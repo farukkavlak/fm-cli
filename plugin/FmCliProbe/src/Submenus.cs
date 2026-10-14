@@ -94,7 +94,7 @@ internal static class Submenus
 	}
 
 	/// <summary>A four-character id as its characters ("pf20"), or the number when they are not letters.</summary>
-	private static string Code(uint id)
+	internal static string Code(uint id)
 	{
 		if (id == 0) return "";
 		var chars = new[] { (char)(id >> 24), (char)((id >> 16) & 0xFF), (char)((id >> 8) & 0xFF), (char)(id & 0xFF) };
@@ -105,7 +105,7 @@ internal static class Submenus
 	/// A menu row's id ('pf20') and its registered name, through the row's RowData when it has one; with
 	/// a field, the id of the record held there (an attribute's own, 'Pagi', in its PropertyValue).
 	/// </summary>
-	private static (uint Id, string Name) RowId(SI.Core.TypedValue row, string field = null)
+	internal static (uint Id, string Name) RowId(SI.Core.TypedValue row, string field = null)
 	{
 		try
 		{

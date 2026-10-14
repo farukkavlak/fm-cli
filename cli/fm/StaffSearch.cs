@@ -197,6 +197,40 @@ internal static partial class Program
 		["reflexes"] = "Pref", ["punching"] = "Pttp", ["punchingtendency"] = "Pttp",
 	};
 
+	/// <summary>
+	/// Each attribute's number on a player's card (the game's attribute type: 42 is Pace) and its name as
+	/// the game writes it in English (FINDINGS §8.172).
+	/// </summary>
+	private static readonly Dictionary<string, string> AttributeNames = new()
+	{
+		["0"] = "Aerial Reach", ["1"] = "Command Of Area", ["2"] = "Communication", ["3"] = "Eccentricity",
+		["4"] = "Handling", ["5"] = "Kicking", ["6"] = "Reflexes", ["7"] = "Rushing Out (Tendency)",
+		["8"] = "Punching (Tendency)", ["9"] = "Throwing", ["10"] = "One On Ones", ["11"] = "Crossing",
+		["12"] = "Dribbling", ["13"] = "Finishing", ["14"] = "Heading", ["15"] = "Long Shots", ["16"] = "Long Throws",
+		["17"] = "Marking", ["18"] = "Passing", ["19"] = "Penalty Taking", ["20"] = "Free Kick Taking",
+		["21"] = "Tackling", ["22"] = "Technique", ["23"] = "First Touch", ["24"] = "Corners", ["25"] = "Aggression",
+		["26"] = "Anticipation", ["27"] = "Bravery", ["28"] = "Vision", ["29"] = "Decisions", ["30"] = "Determination",
+		["31"] = "Flair", ["32"] = "Leadership", ["33"] = "Off The Ball", ["34"] = "Positioning", ["35"] = "Teamwork",
+		["36"] = "Work Rate", ["37"] = "Composure", ["38"] = "Concentration", ["39"] = "Acceleration", ["40"] = "Agility",
+		["41"] = "Balance", ["42"] = "Pace", ["43"] = "Stamina", ["44"] = "Strength", ["45"] = "Jumping Reach",
+		["46"] = "Natural Fitness"
+	};
+
+	/// <summary>
+	/// A player's card with each attribute named by its id: in another language the name read back
+	/// from the words can be another attribute's (Pace comes back as Speed in a Turkish game).
+	/// </summary>
+	private static JsonElement WithAttributeNames(JsonElement card)
+	{
+		if (!card.TryGetProperty("Attributes", out var list) || !list.EnumerateArray().Any(a => AttributeNames.ContainsKey(Field(a, "Id"))))
+			return card;
+		var node = System.Text.Json.Nodes.JsonNode.Parse(card.GetRawText())!;
+		foreach (var attribute in node["Attributes"]!.AsArray())
+			if (attribute?["Id"]?.GetValue<string>() is { } id && AttributeNames.TryGetValue(id, out var english))
+				attribute["Name"] = english;
+		return JsonDocument.Parse(node.ToJsonString()).RootElement;
+	}
+
 	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted,
 		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null, long? maxValue = null)
 	{

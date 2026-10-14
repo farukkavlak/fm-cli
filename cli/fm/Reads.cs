@@ -216,7 +216,7 @@ internal static partial class Program
 	{
 		var card = await Fm.GetJson("player");
 		if (card.TryGetProperty("Player", out var open) && Fold(Field(open, "Name")).Contains(Fold(wanted), StringComparison.Ordinal))
-			return card;
+			return WithAttributeNames(card);
 
 		var folded = Fold(wanted);
 		var squad = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray()
@@ -309,7 +309,7 @@ internal static partial class Program
 			counted = count;
 			return count > 0 && still && Field(card.GetProperty("Player"), "TotalCareerLeagueAppearances").Length > 0;
 		}, seconds: 5, every: 0.25);
-		return card;
+		return WithAttributeNames(card);
 	}
 
 	/// <summary>

@@ -62,8 +62,8 @@ internal static class Offer
 		var facts = new List<string>();
 		foreach (var (label, looks) in new (string, System.Func<string, bool>)[]
 		{
-			("Cost", v => v.Contains("p/w")), ("Current", v => v.Contains("p/w")), ("Avg.", v => v.Contains("p/w")),
-			("Remaining", v => v.Contains("p/w") || v == "N/A"), ("Wage", v => v.Contains("p/w")), ("Contract Expires", v => v.Contains('/')),
+			("Cost", Money), ("Current", Money), ("Avg.", Money),
+			("Remaining", v => Money(v) || v == "N/A"), ("Wage", Money), ("Contract Expires", v => v.Any(char.IsDigit) && !Money(v)),
 		})
 		{
 			for (var at = texts.IndexOf(label); at >= 0; at = texts.IndexOf(label, at + 1))
@@ -78,6 +78,10 @@ internal static class Offer
 				break;
 			}
 		}
+
+		// A wage by the week, the month or the year, in any currency: a figure with its symbol ("£4K p/w", "17,25B £ aylık").
+		static bool Money(string v) =>
+			v.Any(char.IsDigit) && v.Any(c => char.GetUnicodeCategory(c) == System.Globalization.UnicodeCategory.CurrencySymbol);
 
 		string Plain(string name)
 		{

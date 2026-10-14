@@ -111,7 +111,11 @@ internal static class PlayerCard
 					var group = groups.IndexOf(list);
 					if (group < 0) { groups.Add(list); group = groups.Count - 1; }
 
-					attributes.Add(new Dictionary<string, string> { ["Name"] = attribute, ["Value"] = rating, ["Group"] = group.ToString() });
+					// Its number (42 for Pace) names it in every language; the words read back can be another's.
+					// The screen binds only its name; the id is in the record itself.
+					var id = "";
+					try { id = Submenus.RowId(type.Value).Id.ToString(); } catch { }
+					attributes.Add(new Dictionary<string, string> { ["Name"] = attribute, ["Value"] = rating, ["Group"] = group.ToString(), ["Id"] = id });
 					break;
 
 				case "Nation" when !header.ContainsKey("Nation"):

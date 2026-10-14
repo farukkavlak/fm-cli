@@ -175,10 +175,11 @@ Açılışta dili kontrol eden bir şey yok.
 Oyunun tercihlerinde para birimi, tarih biçimi, birimler var (`Settings.cs:72-78` bunları zaten listeliyor).
 Kod bunların İngiltere varsayılanında olduğunu sanıyor:
 
-- **Para birimi £** **[kesin]**: `Diff.cs:187-192` ve `Finances.cs:156` kendi çıktısında `£` yazıyor;
+- **Para birimi £** ✅ 14 Ekim: oyunun biçimlendiricisinden öğreniliyor (`MoneyFormat`, FINDINGS §8.172); para simgeyle
+  tanınıyor, CLI'ın yazdığı tutarlar oyunun biçiminde. Eski hali **[kesin]**: `Diff.cs:187-192` ve `Finances.cs:156` kendi çıktısında `£` yazıyor;
   `Offers.cs:191` bonservisi `^(£[\d.,]+[KMB]?|Free|-)` ile tanıyor; `Contracts.cs:57` `"£0"` arıyor. `Career.cs:54/82`
   ve `Diff.cs:156` `€` / `$`'ı da kabul ediyor — tutarsız.
-- **Haftalık maaş "p/w"** **[kesin]**: `Club.cs:159`, `Finances.cs:92`, `Budget.cs:134`, eklentide `Offer.cs:65`.
+- **Haftalık maaş "p/w"** (14 Ekim: eklentinin sözleşme kartı ve `budget` artık "p/w" aramıyor; `Query` maaşı sayıdan) **[kesin]**: `Club.cs:159`, `Finances.cs:92`, `Budget.cs:134`, eklentide `Offer.cs:65`.
   Maaşı aylık / yıllık gösteren ayarda ("p/m", "p/a") eklenti değeri bulamaz.
 - **Tarih biçimi `d/M/yyyy` / `dd/MM/yyyy`** **[kesin]**: `Contracts.cs:90`, `Doctor.cs:39`, `Matches.cs:144`.
   ABD biçiminde (ay/gün) sözleşme bitişleri yanlış okunur.
@@ -252,7 +253,7 @@ değiştirebilir. Skin'in gerçekten değiştirip değiştirmediği **[ölçüle
 2. **Ay ve gün adları birkaç kopya**: İngilizce ay kısaltmaları `Calendar.cs:20`; Türkçe ay adları `Clock.cs:9`; Türkçe gün
    kısaltmaları hem `Program.cs:1190` hem `Reads.cs:854`; `ShortDays` / `Days` ayrı ayrı.
 3. **İki ayrı lig tahmini** (§5), iki farklı kuralla.
-4. **Para birimi kendi çıktımızda da £** (`Diff.cs:187`, `Finances.cs:156`): oyun Euro gösterirken `diff` sterlin yazar.
+4. ✅ (14 Ekim, `MoneyFormat`) **Para birimi kendi çıktımızda da £** (`Diff.cs:187`, `Finances.cs:156`): oyun Euro gösterirken `diff` sterlin yazar.
 5. **Oyunun yazım hatasına yama**: `Guided.cs:1038` `"Atacking"` → `"Attacking"`. Oyun düzeltirse zararsız, ama dil
    değişince anlamsız.
 6. **Sabit seçenek listeleri**: oyun ayarları (`Settings.cs:27-84`), 36 oyuncu özelliğinin adları (`Compare.cs:43-46`,
