@@ -2143,7 +2143,11 @@ internal static partial class Program
 		{
 			// A screen of its own — the round's results after a European night, a press
 			// conference — takes the menus away until it is moved past.
-			var flow = Field(await Fm.GetJson("state"), "State");
+			var state = await Fm.GetJson("state");
+			// In a match the pages wait for it to end; what can be done meanwhile is the match's own.
+			if (Field(state, "DuringMatch") == "True")
+				return L("error: maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role; sürdürmek: match");
+			var flow = Field(state, "State");
 			return L($"error: oyun menüsüz bir ekranda ({flow}); sayfalar açılamıyor. Geçmek için: next");
 		}
 

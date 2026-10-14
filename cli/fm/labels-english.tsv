@@ -2266,3 +2266,4 @@ NEDEN	WHY
     Antrenman: {0} · puan {1}{2}	    Training: {0} · rating {1}{2}
     Mutluluk: {0} ({1} artı, {2} eksi)	    Happiness: {0} ({1} good, {2} bad)
     Mevkide yeteneği: {0}	    Positional ability: {0}
+error: maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role; sürdürmek: match	error: pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role; to go on: match
