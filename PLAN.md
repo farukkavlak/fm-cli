@@ -601,6 +601,14 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
   taktik rolü (kimlikle), yuva silme/kaydetme (menü satır numarası), taktik sihirbazı açık kalmıyor, mentorluk grubu,
   antrenman alt sekmeleri Guid, takip listesi, scout ataması, sorumluluk alanları radyo grubundan, ayarlar kendi
   Confirm/kapatma düğmesiyle, `match --instant`. Türkçe ve İngilizce tarama 49/50.
+- Sonra: `talk` bedel penceresi (`talk bedel`/`onayla`, terminalde okla); `status` açık soruyu yalnız söylenmiş sözle
+  sayıyor. Tanınmayan mesaj ekleri artık veri yollarından satır satır (aynı yol yeniden gelince yeni satır).
+- **Para biçimi** (§8.172): oyunun kendi biçimlendiricisinden (`/money`): Türkçede B = bin, M = milyon, MR = milyar,
+  ondalık virgül. `Money()` bunları okuyor (eskiden "9,25B £"yi okuyamıyor, B'yi milyar sanabiliyordu); CLI'ın yazdığı
+  tutarlar da oyunun biçiminde. `budget` veriden; oyuncu araması nitelikleri satırın kimliğiyle (Türkçede "Hız" Pace'ti,
+  Speed okunuyordu), mevkiyi bitiyle, değeri tutarıyla seçiyor. Dil değiştirme artık onay sormuyor.
+- Park: Türkçe oyunda oyunun kendi yazıları CLI çıktısında İngilizceye çevrilmiş görünüyor (gelen kutusu konuları,
+  ek başlıkları). Gösterim için oyunun dilindeki yazıyı mı vermeli? Faruk'a sorulacak (uygulamanın dili kararıyla birlikte).
 
 ### 2026-10-13 (akşam / gece — taşınabilirlik)
 
