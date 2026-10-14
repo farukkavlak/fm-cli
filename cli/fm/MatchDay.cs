@@ -350,6 +350,8 @@ internal static partial class Program
 			await Until(async () => Field(await Fm.GetJson("state"), "State") == "SubmitTeam", seconds: 15);
 		}
 
+		// The submission screen can take longer to draw than a press is usually given; its button is waited for.
+		await Until(async () => !(await Fm.Get("press", ("text", "Instant Result"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal), seconds: 20, every: 0.5);
 		var asked = await Arriving("press", [("text", "Instant Result")]);
 		if (asked.StartsWith("error", StringComparison.Ordinal)) return Report(asked);
 
