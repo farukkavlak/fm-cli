@@ -115,7 +115,7 @@ internal static partial class Program
 				Dim(r.Apps), Dim(r.Goals), Dim(r.Assists), Dim(r.Rating));
 		}
 		if (numbers.Count >= 2)
-			table.Caption(L($"Toplam {numbers[0]} maç · {numbers[1]} {(keeper ? L("gol yemeden maç") : "gol")}{(numbers.Count > 2 ? L($" · {numbers[2]} asist") : "")}{(spent.Length > 0 ? L($" · ödenen bonservisler {spent}") : "")}"));
+			table.Caption(L($"Toplam {numbers[0]} maç · {numbers[1]} {(keeper ? L("gol yemeden maç") : L("gol"))}{(numbers.Count > 2 ? L($" · {numbers[2]} asist") : "")}{(spent.Length > 0 ? L($" · ödenen bonservisler {spent}") : "")}"));
 		Ui.Out.Write(table);
 		return 0;
 

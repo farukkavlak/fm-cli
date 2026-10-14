@@ -579,7 +579,7 @@ internal static partial class Program
 		{
 			// The total going down is a goal taken back: offside flagged late, or the video referee.
 			static int Total(string board) => board.Split('-').Sum(x => int.TryParse(x, out var g) ? g : 0);
-			var word = Total(Numbers(now)) < Total(Numbers(score)) ? L("GOL İPTAL") : "GOL";
+			var word = Total(Numbers(now)) < Total(Numbers(score)) ? L("GOL İPTAL") : L("GOL");
 			if (Ui.Rich) Ui.Line($"  [bold yellow]{Ui.Safe(Field(state, "MatchTime")),6}  {word}  {Ui.Safe(now)}{side}[/]");
 			else Console.WriteLine($"  {Field(state, "MatchTime")}  {word}  {now}{side}");
 		}

@@ -663,7 +663,7 @@ internal static partial class Program
 		["Sharpness"] = L("MAÇ FORMU"), ["InjuriesTimeMissed"] = L("KAÇIRACAĞI SÜRE"), ["InjurySeverity"] = L("SAKATLIK DERECESİ"),
 		["InjuryDescription"] = L("SAKATLIK"), ["TrainingRating"] = L("ANTRENMAN NOTU"), ["MoraleString"] = "MORAL",
 		["StatusTitleShort"] = L("DURUM"), ["Nation"] = L("ÜLKE"), ["Club"] = L("KULÜP"), ["Personality"] = L("KİŞİLİK"),
-		["HierarchyInfluenceCategoryString"] = L("HİYERARŞİ"), ["SocialGroupString"] = L("GRUP"), ["Height"] = "BOY",
+		["HierarchyInfluenceCategoryString"] = L("HİYERARŞİ"), ["SocialGroupString"] = L("GRUP"), ["Height"] = L("BOY"),
 		["ShortName"] = L("KULÜP"), ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = L("SCOUT MASRAFI"),
 		["DaysSinceLastScouted"] = L("SON SCOUT"), ["ScoutedMinWage"] = L("MAAŞ (EN AZ)"), ["ScoutedMaxWage"] = L("MAAŞ (EN ÇOK)"),
 	};
@@ -1089,7 +1089,7 @@ internal static partial class Program
 			// The game marks each result by what it was for us: 1 a win, 3 a win on penalties,
 			// 9 a draw, 10 a defeat; anything else is left uncoloured.
 			var kinds = fixtures.EnumerateArray().Where(fixture => Field(fixture, "Date") != "").Select(f => Field(f, "ResultType")).ToList();
-			Standings.Fixtures([L("TARİH"), L("SAAT"), "YER", L("RAKİP"), L("TURNUVA"), L("SONUÇ")], rows, kinds);
+			Standings.Fixtures([L("TARİH"), L("SAAT"), L("YER"), L("RAKİP"), L("TURNUVA"), L("SONUÇ")], rows, kinds);
 			return 0;
 		}
 
@@ -1145,7 +1145,7 @@ internal static partial class Program
 		// defeat. Level after penalties or extra time is not called a draw.
 		var kinds = matches.Select(m => !played.IsMatch(m.TimeOrScore) ? ""
 			: MatchOutcome(m) switch { > 0 => "1", < 0 => "10", _ => char.IsDigit(m.TimeOrScore[^1]) ? "9" : "" }).ToList();
-		string[] headers = [L("TARİH"), L("SAAT"), "YER", L("RAKİP"), L("TURNUVA"), L("SONUÇ")];
+		string[] headers = [L("TARİH"), L("SAAT"), L("YER"), L("RAKİP"), L("TURNUVA"), L("SONUÇ")];
 		if (Ui.Rich) Standings.Fixtures(headers, rows, kinds);
 		else Table.Write(headers, rows);
 		return 0;

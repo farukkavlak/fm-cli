@@ -115,7 +115,7 @@ internal static partial class Program
 		// The page gives the score home side first and does not say which side he was on.
 		var heads = new List<string> { "#", L("TARİH"), L("RAKİP"), L("SKOR (EV-DEP)"), L("MEVKİ") };
 		if (subs) heads.Add(rich ? "" : L("GİRDİ/ÇIKTI"));
-		heads.AddRange(keeper ? ["xGA", L("YEDİĞİ")] : ["xG", "GOL", "AS"]);
+		heads.AddRange(keeper ? ["xGA", L("YEDİĞİ")] : ["xG", L("GOL"), L("AS")]);
 		heads.Add("PUAN");
 		List<string> Cells(MatchRow r)
 		{

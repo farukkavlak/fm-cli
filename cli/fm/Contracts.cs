@@ -119,7 +119,7 @@ internal static partial class Program
 		{
 			if (ends is not { } e) return "";
 			var months = (e.Year - today.Year) * 12 + e.Month - today.Month;
-			return months < 12 ? $"{Math.Max(months, 0)} ay" : L($"{months / 12} yıl {months % 12} ay");
+			return months < 12 ? L($"{Math.Max(months, 0)} ay") : L($"{months / 12} yıl {months % 12} ay");
 		}
 
 		if (!Ui.Rich)

@@ -28,6 +28,8 @@ with open(CATALOG, "a", encoding="utf-8") as out:
                 continue
             if key in have:
                 continue
+            # The spaces a template starts or ends with join it to what is around it; keep them.
+            english = re.match(r"^\s*", key).group() + english.strip() + re.search(r"\s*$", key).group()
             out.write(f"{key}\t{english}\n")
             have.add(key)
             added += 1

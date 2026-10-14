@@ -191,7 +191,7 @@ internal static partial class Program
 		Console.WriteLine(L($"\n{found.Count} oyuncu ({players.Count} içinden)"));
 		return 0;
 
-		static string Left(int months) => months < 0 ? L("bitti") : months < 12 ? $"{months} ay" : months % 12 == 0 ? L($"{months / 12} yıl") : L($"{months / 12} yıl {months % 12} ay");
+		static string Left(int months) => months < 0 ? L("bitti") : months < 12 ? L($"{months} ay") : months % 12 == 0 ? L($"{months / 12} yıl") : L($"{months / 12} yıl {months % 12} ay");
 
 		// "1yıl", "2 yil", "18ay", "6": a length of time in months.
 		static double? Span(string text)

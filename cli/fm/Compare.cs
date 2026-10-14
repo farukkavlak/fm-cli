@@ -52,7 +52,7 @@ internal static partial class Program
 		];
 
 		string[] facts = ["Age", "PositionCombinedString", "Value", "Wage", "ContractEnds", "Personality", "Height", "RightFootednessString", "LeftFootednessString"];
-		string[] factNames = [L("Yaş"), L("Mevki"), L("Değer"), L("Maaş"), L("Sözleşme"), L("Kişilik"), "Boy", L("Sağ ayak"), L("Sol ayak")];
+		string[] factNames = [L("Yaş"), L("Mevki"), L("Değer"), L("Maaş"), L("Sözleşme"), L("Kişilik"), L("Boy"), L("Sağ ayak"), L("Sol ayak")];
 
 		if (json)
 		{

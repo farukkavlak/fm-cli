@@ -23,10 +23,10 @@ internal static class Card
 			Pair(L("Değer"), F(player, "Value")) + Pair(L("Maaş"), F(player, "Wage")),
 			Pair(L("Sözleşme"), F(player, "ContractEnds")) + Pair(L("Rol"), F(player, "PlayingTime")),
 			Pair(L("Kondisyon"), F(player, "ConditionString")) + Pair(L("Kişilik"), F(player, "Personality")),
-			Pair(L("Ayak"), Feet(player)) + Pair("Boy", Suffixed(F(player, "Height"), " cm")),
+			Pair(L("Ayak"), Feet(player)) + Pair(L("Boy"), Suffixed(F(player, "Height"), " cm")),
 			Pair(L("Milli"), F(player, "InternationalCapsAndGoalsString"))
 			+ Pair(L("Lig kariyeri"), F(player, "TotalCareerLeagueAppearances") is { Length: > 0 } apps
-				? L($"{apps} maç") + Prefixed(", ", Suffixed(F(player, "TotalCareerLeagueGoals"), " gol"))
+				? L($"{apps} maç") + Prefixed(", ", Suffixed(F(player, "TotalCareerLeagueGoals"), L(" gol")))
 				: ""),
 		};
 
