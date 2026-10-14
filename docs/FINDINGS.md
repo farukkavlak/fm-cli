@@ -4730,6 +4730,23 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
 - Önbellekler dile/kariyere ayrılınca yeni klasörde `competitions.json` yoktu; `table` dar portal tablosuna
   düşüyordu. Tablo artık gerekirse listeyi Stages sayfasından bir kez kuruyor.
 
+## 8.172 Para biçimi oyunun biçimlendiricisinden; menü satırlarının kimlikleri (14 Ekim sabah, Türkçe)
+
+- **Para:** `FM.UI.ChartCurrencyVisualFunctionLibrary.TranslateCurrencyValue(double)` oyunun dil ve tercihlerine göre
+  tutarı yazıyor; eklenti `/money?values=…` ile veriyor. Türkçe: 999 → "999 £", 1500 → "1,5B £", 1,5 milyon →
+  "1,5M £", 1,5 milyar → "1,5MR £"; 673621 → "673B £" (kesiyor, yuvarlamıyor). İngilizcede "B" milyar,
+  Türkçede bin: eski `Money()` "9,25B £"yi okuyamıyordu, "B"yi milyar sanabilirdi. CLI (`MoneyFormat.cs`) her
+  süreçte bir kez 999/1500/1,5M/1,5MR örneklerini isteyip harfleri, ondalık işaretini ve simgenin yerini öğreniyor;
+  okuma ("2.619.752 £", "-154.693 £") ve yazma (`Short` oyun gibi kesik, `Exact` gruplu) bunlarla. K ve M
+  çakışmadığı yerde her dilde kabul. Ayar değişince (dil, para biçimi) yeniden öğreniliyor.
+- **Menü satırı kimliği:** `/menu?…&ids=1` her satırın `ID`'sini (dört harfli kod, ör. 'pval', 'ppos') ve
+  `PropertyValue` içindeki kaydın `ID`'sini (`Value`) veriyor. Oyuncu aramasında nitelik satırlarının hepsi 'pf20';
+  niteliğin kendisi içteki kodda: Pace 'Ppac', One on Ones 'Pooo', Heading 'Phea', Vision 'Pcre', Leadership 'Pinf'…
+  Türkçe oyunda geri çeviri bunları "Speed", "Individuals", "Header" diye veriyordu (aynı Türkçe yazının birden çok
+  İngilizcesi). Mevki listesinin satır kimlikleri mevki bitleri (GK 1, DR 4 … ST 16384), Türkçede yazıları
+  "Defence (Right)", "Striker (Core)". Koşul ekleme listesi `conditiontoadd` bağlamasıyla ("Kriter Ekle" çevrilmiyor).
+- Satır kaydındaki 'RTid' bir çeviri numarası değil (UI tablosunda da motor tablosunda da yok).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
