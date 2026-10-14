@@ -34,7 +34,7 @@ internal static class Card
 		{
 			var change = ability[^1] - ability[0];
 			var colour = change > 0.5 ? "green" : change < -0.5 ? "red" : "white";
-			who.Add(L($"[dim]Yetenek[/] [{colour}]{string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))}[/][dim]/200, son dört ay[/]"));
+			who.Add(L($"[dim]Yetenek[/] [{colour}]{string.Join(" → ", ability.Select(v => GameNumbers.Of(v, "0.#")))}[/][dim]/200, son dört ay[/]"));
 		}
 		if (potential > 0) who.Add(L($"[dim]Potansiyel[/] [yellow]{potential}[/][dim]/200, kulübün gözünden[/]"));
 		var injury = F(player, "InjuryDescription");

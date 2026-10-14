@@ -485,7 +485,7 @@ internal static partial class Program
 			Field(p, "ClubGoalsThisSeason"),
 			Field(p, "ClubAssistsThisSeason"),
 			double.TryParse(Field(p, "ClubAverageRatingThisSeason"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var rating) && rating > 0
-				? rating.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "-",
+				? GameNumbers.Of(rating, "0.00") : "-",
 			Cards(p),
 		}).ToList();
 

@@ -366,7 +366,7 @@ internal static partial class Program
 			Prefixed(L("Sağ ayak "), GameWords.Of(Field(player, "RightFootednessString"))), Prefixed(L("Sol ayak "), GameWords.Of(Field(player, "LeftFootednessString"))),
 			Suffixed(Field(player, "Height"), " cm"), Field(player, "InternationalCapsAndGoalsString")));
 
-		if (ability.Count > 0) Console.WriteLine(L($"Yetenek (son dört ay): {string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))} /200"));
+		if (ability.Count > 0) Console.WriteLine(L($"Yetenek (son dört ay): {string.Join(" → ", ability.Select(v => GameNumbers.Of(v, "0.#")))} /200"));
 		if (potential > 0) Console.WriteLine(L($"Potansiyel (kulübün gözünden): {potential}/200"));
 		var injury = Field(player, "InjuryDescription");
 		if (injury.Length > 0) Console.WriteLine(L($"Sakatlık: {injury}"));
@@ -1037,7 +1037,7 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, r.Age, r.Ability, Change = r.Ability.Count > 0 ? Math.Round(r.Ability[^1] - r.Ability[0], 1) : 0, r.Potential })));
 			return 0;
 		}
-		static string N(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+		static string N(double v) => GameNumbers.Of(v, "0.#");
 		Table.Write([L("OYUNCU"), L("YAŞ"), L("YETENEK (eski → yeni)"), L("DEĞİŞİM"), L("POTANSİYEL")], rows.Select(r =>
 		{
 			var change = r.Ability.Count > 0 ? Math.Round(r.Ability[^1] - r.Ability[0], 1) : 0;

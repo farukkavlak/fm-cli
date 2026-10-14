@@ -92,8 +92,7 @@ internal static partial class Program
 				lastPlain = path.Length == 0 ? text : null;
 			}
 		}
-		static bool IsNumber(string text) =>
-			double.TryParse(text.TrimEnd('%'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _);
+		static bool IsNumber(string text) => GameNumbers.Read(text.Trim('%')) != null;
 
 		static string Turkish(string label) => label switch
 		{

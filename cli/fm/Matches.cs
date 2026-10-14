@@ -72,23 +72,24 @@ internal static partial class Program
 
 		// The list lays out only the rows in view; the rest come in as it is scrolled.
 		var rows = new Dictionary<int, MatchRow>();
-		foreach (var row in Rows(texts)) rows[row.Number] = row;
+		var goalkeeper = await Keeper(texts);
+		foreach (var row in Rows(texts, goalkeeper)) rows[row.Number] = row;
 		if (int.TryParse(summary.Apps, out var apps) && rows.Count < apps && rows.Count > 0)
 		{
 			foreach (var at in new[] { "0.5", "1" })
 			{
 				await Fm.Get("scroll", ("anchor", rows.Values.First().Date), ("to", at));
 				await Task.Delay(500);
-				foreach (var row in Rows(await Texts())) rows.TryAdd(row.Number, row);
+				foreach (var row in Rows(await Texts(), goalkeeper)) rows.TryAdd(row.Number, row);
 			}
 			await Fm.Get("scroll", ("anchor", rows.Values.First().Date), ("to", "0"));
 		}
 		// A match he sat out, or came on too late to be rated in, is given as 0.00; the page's own lowest
 		// rating then reads 11.00 (Collins, 11 Nisan 2026). Neither is a rating.
-		static string Real(string rating) => double.TryParse(rating, NumberStyles.Float, CultureInfo.InvariantCulture, out var r) && r is > 0 and <= 10 ? rating : "-";
+		static string Real(string rating) => GameNumbers.Read(rating) is > 0 and <= 10 ? rating : "-";
 		var all = rows.Values.OrderByDescending(r => r.Number).Select(r => r with { Rating = Real(r.Rating) }).ToList();
 		summary = summary with { Best = Real(summary.Best), Worst = Real(summary.Worst), Average = Real(summary.Average) };
-		var keeper = texts.Contains("xGA");
+		var keeper = goalkeeper;
 
 		if (json)
 		{
@@ -104,7 +105,7 @@ internal static partial class Program
 
 		// His ratings as a row of bars, oldest first, on the scale ratings mostly live on.
 		var ratings = all.AsEnumerable().Reverse()
-			.Select(r => double.TryParse(r.Rating, NumberStyles.Float, CultureInfo.InvariantCulture, out var rating) ? rating : (double?)null)
+			.Select(r => GameNumbers.Read(r.Rating))
 			.Where(r => r != null).Select(r => r.Value).ToList();
 		if (ratings.Count > 1)
 		{
@@ -146,8 +147,15 @@ internal static partial class Program
 		// "on 75" is a substitute's minute on, "off 60" the minute he went off.
 		static string OnOff(string text) => Regex.Replace(text, @"^(on|off) (\d+)$", m => $"{m.Groups[2].Value}' {(m.Groups[1].Value == "on" ? L("girdi") : L("çıktı"))}");
 		static string Count(string n, string colour) => n is "" or "0" ? "[dim]0[/]" : $"[{colour} bold]{n}[/]";
-		static string Colour(string rating) => double.TryParse(rating, NumberStyles.Float, CultureInfo.InvariantCulture, out var r)
+		static string Colour(string rating) => GameNumbers.Read(rating) is { } r
 			? r >= 7.5 ? $"[green bold]{rating}[/]" : r < 6.5 ? $"[red]{rating}[/]" : rating : rating;
+	}
+
+	/// <summary>Whether the table is a goalkeeper's: xG against in place of xG, whatever the game calls it.</summary>
+	private static async Task<bool> Keeper(List<string> texts)
+	{
+		await GameWords.Ask(Fm, "xGA");
+		return texts.Any(t => t == "xGA" || GameWords.Same(t, "xGA"));
 	}
 
 	/// <summary>
@@ -155,20 +163,22 @@ internal static partial class Program
 	/// and ends with xG, assists, goals and rating (a keeper's xG against, goals conceded and
 	/// rating); a substitute's minute sits before the xG.
 	/// </summary>
-	private static IEnumerable<MatchRow> Rows(List<string> texts)
+	private static IEnumerable<MatchRow> Rows(List<string> texts, bool keeper)
 	{
 		var start = texts.IndexOf("Inf");
 		if (start < 0) yield break;
-		var keeper = texts.Contains("xGA");
-		var cells = texts.Skip(start + 1).SkipWhile(t => t != "Rating").Skip(1).ToList();
+		// The headings after "Inf" come back in other words in another language ("Pts" for "Rating" in
+		// Turkish); the rows are known by their number and date, not by where the headings end.
+		var cells = texts.Skip(start + 1).ToList();
 		static bool Date(string t) => Regex.IsMatch(t, @"^\d{2}/\d{2}/\d{4}$");
-		var starts = Enumerable.Range(0, cells.Count - 1).Where(i => Regex.IsMatch(cells[i], @"^\d+$") && Date(cells[i + 1])).ToList();
+		var starts = Enumerable.Range(0, Math.Max(0, cells.Count - 1)).Where(i => Regex.IsMatch(cells[i], @"^\d+$") && Date(cells[i + 1])).ToList();
 		for (var s = 0; s < starts.Count; s++)
 		{
 			var row = cells.Skip(starts[s]).Take((s + 1 < starts.Count ? starts[s + 1] : cells.Count) - starts[s]).ToList();
 			if (row.Count < 7) continue;
 			// Whatever the page shows after the table is not the last row's.
-			var onOff = Regex.IsMatch(row[6], @"^(on|off) \d+$");
+			// "on 72" / "gir 72.": a substitute's minute, where another row has its xG.
+			var onOff = GameNumbers.Read(row[6]) == null;
 			var size = 6 + (onOff ? 1 : 0) + (keeper ? 3 : 4);
 			if (row.Count < size) continue;
 			row = row.Take(size).ToList();

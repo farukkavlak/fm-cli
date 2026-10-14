@@ -152,7 +152,7 @@ internal static partial class Program
 
 		static string Or(string text) => text.Length > 0 ? text : "-";
 		static string Plus(int n) => n > 0 ? $"+{n}" : n == 0 ? "" : n.ToString(CultureInfo.InvariantCulture);
-		static string Rating(double r) => r > 0 ? r.ToString("0.00", CultureInfo.InvariantCulture) : "-";
+		static string Rating(double r) => r > 0 ? GameNumbers.Of(r, "0.00") : "-";
 		static string Signed(long n) => n >= 0 ? $"+{Pound(n)}" : $"-{Pound(-n)}";
 	}
 

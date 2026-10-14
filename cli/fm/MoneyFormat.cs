@@ -44,6 +44,7 @@ internal static class MoneyFormat
 		// A default letter meaning another scale than the game's for it is dropped ("B" kept only as a thousand in Turkish).
 		letters = learnt;
 		templates = learntTemplates;
+		GameNumbers.Use(decimalMark);
 	}
 
 	/// <summary>An amount shortened as the game shortens it: three figures at most, cut and not rounded ("673B £", "£2.61M").</summary>
@@ -113,4 +114,31 @@ internal static class MoneyFormat
 		var whole = (long)Math.Round(value * scale);
 		return negative ? -whole : whole;
 	}
+}
+
+/// <summary>
+/// Numbers shown with the game's decimal mark ("7,7" in Turkish, "7.7" in English), the one learnt
+/// from its money formatter. It becomes the culture every text is formatted in, so a rating in an
+/// interpolated line comes out as the game writes it; what is sent to the game or read from it
+/// names the invariant culture.
+/// </summary>
+internal static class GameNumbers
+{
+	public static CultureInfo Culture { get; private set; } = CultureInfo.InvariantCulture;
+
+	public static void Use(char mark)
+	{
+		var culture = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+		culture.NumberFormat.NumberDecimalSeparator = culture.NumberFormat.PercentDecimalSeparator = mark.ToString();
+		culture.NumberFormat.NumberGroupSeparator = culture.NumberFormat.PercentGroupSeparator = mark == ',' ? "." : ",";
+		Culture = culture;
+		CultureInfo.CurrentCulture = CultureInfo.DefaultThreadCurrentCulture = culture;
+	}
+
+	/// <summary>A number the game wrote, with either mark ("7,70", "7.70"), or null.</summary>
+	public static double? Read(string text) =>
+		Regex.IsMatch(text ?? "", @"^-?\d+([.,]\d+)?$") && double.TryParse(text!.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : null;
+
+	/// <summary>A number as the game would write it ("0.00" → "6,85").</summary>
+	public static string Of(double value, string format) => value.ToString(format, Culture);
 }

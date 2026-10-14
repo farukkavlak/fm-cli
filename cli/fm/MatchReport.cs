@@ -160,12 +160,12 @@ internal static class MatchReport
 
 	private static string Round(string value, int places) =>
 		double.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
-			? v.ToString("F" + places, System.Globalization.CultureInfo.InvariantCulture)
+			? GameNumbers.Of(v, "F" + places)
 			: value;
 
 	/// <summary>"55%", "1.23" or "7" as a number to weigh the bars by.</summary>
 	private static double Value(string shown) =>
-		double.TryParse(shown.TrimEnd('%'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0;
+		double.TryParse(shown.TrimEnd('%').Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0;
 
 	private static string F(JsonElement element, string name) =>
 		element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "";

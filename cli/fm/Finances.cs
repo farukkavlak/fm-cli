@@ -163,7 +163,7 @@ internal static partial class Program
 		var ok = double.TryParse(Field(club, "CurrentWageSpending"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var spent);
 		var budgeted = double.TryParse(Field(club, "WageBudget"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var budget);
 		return (ok ? Pounds(Field(club, "CurrentWageSpending")) : "-", budgeted ? Pounds(Field(club, "WageBudget")) : "-",
-			ok && budgeted && budget > 0 ? $"{spent / budget * 100:0.0}%".Replace(',', '.') : "-");
+			ok && budgeted && budget > 0 ? $"{spent / budget * 100:0.0}%" : "-");
 	}
 
 	private static string Pounds(string raw) =>

@@ -172,7 +172,7 @@ internal static partial class Program
 				QueryKind.Months => Value(p, f) is { } months && GameDay(text) is { } ends
 					? $"{ends.Day} {Months[ends.Month - 1]} {ends.Year} · {Left((int)months)}" : text,
 				QueryKind.Money => Value(p, f) is { } money ? L($"{MoneyFormat.Exact((long)money)}/hafta") : text,
-				_ when f.Property == "ClubAverageRatingThisSeason" => Value(p, f) is { } r and > 0 ? r.ToString("0.00", CultureInfo.InvariantCulture) : "-",
+				_ when f.Property == "ClubAverageRatingThisSeason" => Value(p, f) is { } r and > 0 ? GameNumbers.Of(r, "0.00") : "-",
 				_ => text,
 			};
 		}
