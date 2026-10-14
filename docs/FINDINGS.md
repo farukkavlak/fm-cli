@@ -4929,3 +4929,5 @@ Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük
 yeni bağlanan her özellik ikinci okumada geliyor; üst sınırın ~5 katı pay var. Olmayan bir yol (`Human.Team.CurrentComp5`)
 ile henüz gelmemiş bir değer aynı cevabı veriyor (`{}`), bu yüzden `table` olmayan dört yarışma için tam sınırı bekliyor
 (~5,5 sn). Bağlanmış ama `IsNull` kökün bir kare sonra "yok" diye bildirilmesi denenmedi (BAGIMLILIKLAR checklist A).
+Çözüm eklentisiz: sekiz yarışma adı `Human.Team`'den tek okumada (`CurrentComp{i}.Name`) istenince olmayanlar yalnızca
+cevapta eksik kalıyor; `PullEach` iki dolu tur aynı gelince bitiyor. `table` 8,7 → ~2,6 sn.

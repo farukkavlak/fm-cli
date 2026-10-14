@@ -862,13 +862,9 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		// Which competition: the league unless another of ours is named.
-		var ours = new List<string>();
-		for (var n = 1; n <= 8; n++)
-		{
-			try { if (Field(await Fm.Pull($"Human.Team.CurrentComp{n}", "Name"), "Name") is { Length: > 0 } name) ours.Add(name); }
-			catch (FmError) { break; }
-		}
+		// Which competition: the league unless another of ours is named. Read in one go: a slot the
+		// club has no competition in never arrives, and asked one at a time each such slot was waited for.
+		var ours = (await ClubCompetitions()).Select(c => c.Name).ToList();
 		var wanted = await LeagueName();
 		if (string.Join(" ", Words(args)) is { Length: > 0 } typed)
 		{
