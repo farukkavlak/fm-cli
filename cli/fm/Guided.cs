@@ -125,6 +125,45 @@ internal static partial class Program
 	/// position"), and then each of its choices is an answer. A message's own answers are
 	/// buttons of another kind and are not part of a conversation.
 	/// </summary>
+	/// <summary>
+	/// The window a promise about a fee opens ("Propose a fee": a list of fees and Confirm), which is
+	/// neither a dialog nor a line of the talk. Each time the line is chosen another is laid over the
+	/// last, so the last one is the one showing. Null when there is no such window.
+	/// </summary>
+	private static async Task<int?> FeeAsked(List<string> words)
+	{
+		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var w)
+				&& w.EnumerateArray().Any(x => x.GetString() == "notifications-modal-dialog-default-default"))
+			.LastOrDefault();
+		if (list.ValueKind != JsonValueKind.Object) return null;
+		var confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.LastOrDefault(b => Field(b, "Events").Contains("EventFmxConfirmChanges", StringComparison.Ordinal));
+		var fees = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+
+		if (words.Count > 1 && words[0] is "bedel" or "fee")
+		{
+			if (Choose(fees, string.Join(" ", words.Skip(1)), "Bedel") is not { } pick) return 64;
+			var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", pick));
+			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+			Console.WriteLine($"Bedel: {pick}. Göndermek için: talk onayla");
+			return 0;
+		}
+		if (words.Count > 0 && words[0] is "onayla" or "confirm")
+		{
+			if (confirm.ValueKind != JsonValueKind.Object) { Console.Error.WriteLine("Onay düğmesi yok."); return 1; }
+			var said = await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
+			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+			await Task.Delay(1000);
+			Console.WriteLine("Bedel önerildi. Devam için: talk");
+			return 0;
+		}
+		Console.WriteLine($"Bir bedel öner: şu an {Field(list, "Label")}");
+		Console.WriteLine($"  seçenekler: {string.Join(" · ", fees)}");
+		Console.WriteLine("Değiştirmek için: talk bedel <değer>   ·   göndermek için: talk onayla");
+		return 0;
+	}
+
 	private static async Task<List<Line>> TalkOptions()
 	{
 		var controls = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -184,6 +223,8 @@ internal static partial class Program
 	private static async Task<int> TalkTo(bool json, string[] args)
 	{
 		var words = Words(args).ToList();
+		// A promise about a fee asks for the fee in a little window of its own over the talk.
+		if (await FeeAsked(words) is { } fee) return fee;
 		var options = await TalkOptions();
 
 		// At a terminal the conversation is held right here: what was said, then the answers
