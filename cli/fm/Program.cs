@@ -1594,6 +1594,29 @@ internal static partial class Program
 			return;
 		}
 
+		// The squad's win bonuses for the season: for the league and for the cups, low, normal or high, by
+		// data path; the one chosen is the button whose row style is the active one (#low-, #middle-,
+		// #high-button), each row found by its own figure.
+		if (page.Any(t => t.Path == "collectivewinbonus.BonusLeagueData.BonusLowAmount"))
+		{
+			Console.WriteLine(L("\n  Ek: kadronun galibiyet primleri (artış ya da düşüş transfer bütçesine yansır)"));
+			foreach (var (name, data) in new[] { (One("collectivewinbonus.BonusLeagueString"), "BonusLeagueData"), (GameWords.Of("Domestic Cups"), "BonusCupData") })
+			{
+				var levels = new[] { "BonusLowAmount", "BonusNormalAmount", "BonusHighAmount" }.Select(l => One($"collectivewinbonus.{data}.{l}")).ToList();
+				if (levels.All(l => l.Length == 0)) continue;
+				var chosen = -1;
+				try
+				{
+					var tree = await Fm.Get("elements", ("text", GameWords.Of(levels[1])), ("up", "3"), ("depth", "2"), ("members", "1"));
+					var styles = System.Text.RegularExpressions.Regex.Matches(tree, @"m_addedClass = ""([^""]*)""").Select(m => m.Groups[1].Value).ToList();
+					chosen = styles.FindIndex(s => s.Contains("-active-", StringComparison.Ordinal));
+				}
+				catch (FmError) { }
+				Console.WriteLine($"    {name}: {string.Join(" · ", levels.Select((l, i) => i == chosen ? $"[{GameWords.Of(l)}]" : GameWords.Of(l)))}");
+			}
+			return;
+		}
+
 		// The match preparation for the next game: each focus with the phase or slot it is for, by data path
 		// (a "binding" heading, its sentence, then the focus); the cards beside it are the opponent's and the
 		// calendar's, said elsewhere.
@@ -1933,14 +1956,15 @@ internal static partial class Program
 		}
 
 		var matches = inbox
-			.Where(m => Field(m, "NewsTitleString").Contains(wanted, StringComparison.OrdinalIgnoreCase))
+			// The subject as the game shows it, or the English the plugin gives for it.
+			.Where(m => Field(m, "NewsTitleString") is var subject && (subject.Contains(wanted, StringComparison.OrdinalIgnoreCase) || GameWords.Of(subject).Contains(wanted, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 		if (matches.Count == 1) return matches[0];
 
 		Console.Error.WriteLine(matches.Count == 0
 			? L($"Konusunda '{wanted}' geçen mesaj yok.")
 			: L($"'{wanted}' {matches.Count} mesaja uyuyor; numarasıyla seç:"));
-		foreach (var match in matches) Console.Error.WriteLine("  " + Field(match, "NewsTitleString"));
+		foreach (var match in matches) Console.Error.WriteLine("  " + GameWords.Of(Field(match, "NewsTitleString")));
 		return null;
 	}
 

@@ -233,14 +233,14 @@ internal static partial class Program
 				}
 				output.WriteLine(L($"Bloke: {blocking.Count} mesaj cevap bekliyor."));
 				foreach (var message in blocking)
-					output.WriteLine($"  {Field(message, "NewsItemTimeSent")}  {Field(message, "NewsTitleString")}");
+					output.WriteLine($"  {Field(message, "NewsItemTimeSent")}  {GameWords.Of(Field(message, "NewsTitleString"))}");
 				// One message waiting: name it by its subject, which `reply` takes as well as a number
 				// and which does not go stale the way the numbers of the last `inbox` do.
 				var only = blocking.Count == 1 ? Field(blocking[0], "NewsTitleString") : null;
 				output.WriteLine(await TourOpen()
 					? L("Açık bir tanıtım turu var; yürütmek için: tour")
 					: only is { Length: > 0 } && !only.Contains('"')
-						? L($"Cevaplamak için: reply \"{only}\"")
+						? L($"Cevaplamak için: reply \"{GameWords.Of(only)}\"")
 						: L("Cevaplamak için: reply <#>   (numaralar için: inbox)"));
 				break;
 
