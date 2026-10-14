@@ -866,9 +866,18 @@ internal static partial class Program
 		// The screen draws a pair of lists per slot the way the pitch reads, line by line from the
 		// goal and right to left, which is not always the tactic's order of slots (a 4-2-3-1 keeps its
 		// AMC among the defenders).
-		static List<string> RolesOf(JsonElement l) => l.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "")
-			.Where(c => !c.StartsWith("Go to ", StringComparison.Ordinal)).ToList();
-		static string MarkedOf(JsonElement l) => RolesOf(l) is var r && int.TryParse(Field(l, "Marked"), out var m) && m < r.Count ? r[m] : "";
+		// Each row carries the role it offers (the game's role bit, as the tactic's IPRole/OOPRole);
+		// the rows that go elsewhere ("Go to Player Instructions") carry none. Roles are told apart by
+		// that, the names being whatever the game's language calls them.
+		static List<(string Name, string Id)> RowsOf(JsonElement l)
+		{
+			var names = l.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+			var ids = l.TryGetProperty("Roles", out var r) ? r.EnumerateArray().Select(x => x.ValueKind == JsonValueKind.String ? x.GetString() : null).ToList() : [];
+			return names.Select((n, i) => (Name: n, Id: i < ids.Count ? ids[i] : null)).ToList();
+		}
+		static List<string> RolesOf(JsonElement l) => RowsOf(l).Where(r => r.Id != null).Select(r => r.Name).ToList();
+		static string MarkedOf(JsonElement l) => RowsOf(l) is var r && int.TryParse(Field(l, "Marked"), out var m) && m < r.Count ? r[m].Name : "";
+		static string IdOf(JsonElement l, string name) => RowsOf(l).FirstOrDefault(r => r.Name == name).Id;
 		var drawn = spots.Select((s, i) => (Spot: s, Slot: i)).OrderBy(x => PitchOrder(x.Spot)).Select(x => x.Slot).ToList();
 		var pairOf = Enumerable.Range(0, slots.Count).Select(i => drawn.IndexOf(i)).ToArray();
 
@@ -876,8 +885,9 @@ internal static partial class Program
 		var roles = RolesOf(list);
 		var current = MarkedOf(list);
 		var known = Field(slots[at], withoutBall ? "OOPRoleName" : "IPRoleName");
+		var knownId = Field(slots[at], withoutBall ? "OOPRole" : "IPRole");
 
-		if (!SameRole(current, Role(known)))
+		if (IdOf(list, current) is { } currentId ? currentId != knownId : !SameRole(current, Role(known)))
 		{
 			Console.Error.WriteLine($"{spot} için bulunan liste taktikle uyuşmuyor (listede '{current}', taktikte '{Role(known)}'); dokunulmadı.");
 			return 1;
@@ -912,11 +922,13 @@ internal static partial class Program
 		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
 
 		var now = known;
+		var pickId = IdOf(list, pick);
 		var took = await Until(async () =>
 		{
 			var fresh = await Fm.GetJson("tactic");
-			if (fresh.TryGetProperty("Slots", out var list) && list.GetArrayLength() > at) now = Field(list[at], withoutBall ? "OOPRoleName" : "IPRoleName");
-			return Plain(now) == Plain(pick);
+			if (!fresh.TryGetProperty("Slots", out var list) || list.GetArrayLength() <= at) return false;
+			now = Field(list[at], withoutBall ? "OOPRoleName" : "IPRoleName");
+			return pickId != null ? Field(list[at], withoutBall ? "OOPRole" : "IPRole") == pickId : Plain(now) == Plain(pick);
 		}, seconds: 8);
 
 		Console.WriteLine(took ? $"{spot} ({phase}): {current} → {pick}" : $"{pick} seçildi ama taktik hâlâ {Role(now)} gösteriyor.");

@@ -354,6 +354,27 @@ internal static class Buttons
 		catch { return null; }
 	}
 
+	/// <summary>
+	/// The tactical role a row offers (its shown record's Role, the game's role bit: 4096 a
+	/// ball-playing goalkeeper), or null when it is not a role.
+	/// </summary>
+	internal static string RoleOf(SI.Core.TypedValue choice)
+	{
+		try
+		{
+			var record = choice?.Get()?.TryCast<DynamicReference>();
+			if (record == null) return null;
+			var entries = Send.Entries(record);
+			if (entries.TryGetValue("RowData", out var row) && row != null && !row.IsNull) return RoleOf(row);
+			if (entries.TryGetValue("DisplayValue", out var shown) && shown != null && !shown.IsNull
+			    && shown.Get()?.TryCast<DynamicReference>() is { } inner
+			    && Send.Entries(inner).TryGetValue("Role", out var role) && role != null && !role.IsNull)
+				return role.AsString();
+			return null;
+		}
+		catch { return null; }
+	}
+
 	/// <summary>The rows of a row's submenu, or null when it has none.</summary>
 	internal static Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> Children(SI.Core.TypedValue choice)
 	{
@@ -652,6 +673,14 @@ internal static class Buttons
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
 	}
 
+	/// <summary>A list of roles gives each row's role; any other list nothing.</summary>
+	private static string RolesJson(Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> choices, int count)
+	{
+		var roles = new List<string>();
+		for (var i = 0; i < count && i < 60; i++) roles.Add(RoleOf(choices[i]) is { } r ? $"\"{r}\"" : "null");
+		return roles.Any(r => r != "null") ? ", \"Roles\": [" + string.Join(", ", roles) + "]" : "";
+	}
+
 	internal static string DropdownJson(SIDropdown dropdown, bool deep)
 	{
 		var choices = dropdown.m_choices;
@@ -722,7 +751,7 @@ internal static class Buttons
 			+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "
 			+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
 			+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "
-			+ "\"Values\": [" + string.Join(", ", values) + "]" + submenus + "}";
+			+ "\"Values\": [" + string.Join(", ", values) + "]" + RolesJson(choices, count) + submenus + "}";
 	}
 
 	/// <summary>
