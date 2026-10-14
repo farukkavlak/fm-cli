@@ -1270,6 +1270,13 @@ internal static partial class Program
 			return;
 		}
 
+		// The squad numbers' card: how many are given out; the numbers themselves are numbers' to show.
+		if (One("Team.SquadNumbersAssigned") is { Length: > 0 } assigned)
+		{
+			Console.WriteLine(L($"\n  Ek: forma numaraları — {assigned} oyuncuya numara verilmiş. Ayrıntı ve değiştirmek: numbers"));
+			return;
+		}
+
 		// A player's card (one who is unhappy, say): who he is, his value and wage, how happy he is
 		// and the squad's mood. By data path; the age, the contract's end and the moods are drawn
 		// without one, each after its label.
