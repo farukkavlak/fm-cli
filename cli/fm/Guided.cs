@@ -385,7 +385,7 @@ internal static partial class Program
 			var counts = talk.GetProperty("Mood").EnumerateObject()
 				.ToDictionary(m => m.Name, m => int.TryParse(m.Value.GetString(), out var n) ? n : 0);
 			var mood = counts.OrderByDescending(m => m.Value)
-				.Select(m => Ui.Rich ? MoodRich(m.Key, m.Value) : $"{m.Value} {m.Key}{Moved(m.Key, m.Value)}")
+				.Select(m => Ui.Rich ? MoodRich(m.Key, m.Value) : $"{m.Value} {GameWords.Of(m.Key)}{Moved(m.Key, m.Value)}")
 				.ToList();
 			if (mood.Count > 0)
 			{
