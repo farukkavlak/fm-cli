@@ -75,8 +75,8 @@ internal static partial class Program
 		Finding(L($"Sakat: {injured.Count}"), injured.Select(p =>
 			$"{Field(p, "Name")} — {Field(p, "CurrentInjury.InjuryDescription")}{(Number(p, "CurrentInjury.InjuryReturnDays") is > 0 and var days ? L($", {days} gün daha") : "")}").ToList(),
 			"health");
-		Finding(L($"Yorgun (kondisyon %85 altı): {tired.Count}"), Wrapped(tired.Select(p => $"{Field(p, "Name")} {Number(p, "Condition")}%")), L("intensity <oyuncu> \"dinlen 1\""));
-		Finding(L($"Maç formu düşük (%60 altı): {rusty.Count}"), Wrapped(rusty.Select(p => $"{Field(p, "Name")} {Number(p, "Sharpness")}%")), "squad --fitness");
+		Finding(L($"Yorgun (kondisyon %85 altı): {tired.Count}"), Wrapped(tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}")), L("intensity <oyuncu> \"dinlen 1\""));
+		Finding(L($"Maç formu düşük (%60 altı): {rusty.Count}"), Wrapped(rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}")), "squad --fitness");
 		Finding(L($"Sözleşmesi bir yıl içinde bitiyor: {expiring.Count}"), expiring.Select(x => $"{Field(x.Player, "Name")} — {Field(x.Player, "FullContract.EndDateDescription")}").ToList(), L("contract <oyuncu>"));
 		Finding(L("İnce mevkiler (sağlam oyuncu bir ya da hiç)"), thin.Select(x => $"{x.Slot,-4} {(x.Players.Count == 0 ? L("kimse yok") : L($"yalnızca {x.Players[0]}"))}").ToList(), "depth");
 		Finding(L($"Yönetimin endişeleri: {worries.Count}"), worries.Take(3).Concat(worries.Count > 3 ? [$"… ve {worries.Count - 3} tane daha"] : []).ToList(), "board");

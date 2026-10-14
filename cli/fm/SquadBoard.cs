@@ -59,7 +59,7 @@ internal static class SquadBoard
 		const int cells = 10;
 		var full = (int)Math.Round(value / 100.0 * cells);
 		var colour = value >= 90 ? "green1" : value >= 70 ? "yellow" : value >= 50 ? "darkorange" : "red";
-		return $"[{colour}]{new string('█', full)}[/][grey23]{new string('·', cells - full)}[/] {value,3}%";
+		return $"[{colour}]{new string('█', full)}[/][grey23]{new string('·', cells - full)}[/] {GameNumbers.Percent(value),4}";
 	}
 
 	private static string F(JsonElement element, string name) =>

@@ -153,7 +153,7 @@ internal static class MatchReport
 	/// <summary>A number as the game shows it: possession as a percentage, expected goals to two places.</summary>
 	private static string Shown(string field, string value) => field switch
 	{
-		"Possession" when value.Length > 0 && !value.EndsWith('%') => value + "%",
+		"Possession" when value.Length > 0 && !value.Contains('%') => GameNumbers.Percent(value),
 		"ExpectedGoals" => Round(value, 2),
 		_ => value,
 	};
@@ -165,7 +165,7 @@ internal static class MatchReport
 
 	/// <summary>"55%", "1.23" or "7" as a number to weigh the bars by.</summary>
 	private static double Value(string shown) =>
-		double.TryParse(shown.TrimEnd('%').Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0;
+		double.TryParse(shown.Trim('%').Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0;
 
 	private static string F(JsonElement element, string name) =>
 		element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "";

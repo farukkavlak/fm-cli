@@ -94,7 +94,7 @@ internal static partial class Program
 			SeasonTicketHolders = After("Season Ticket Holders") is not "-" and var holders ? holders : Field(club, "SeasonTicketHolders"),
 			SeasonTicketWaitingList = After("Season Ticket Waiting List"),
 			AverageAttendance = After("Average Attendance"), SocialMediaFollowers = After("Social media followers"),
-			Profile = profile.Select(p => new { p.Group, Share = $"{p.Share}%" }),
+			Profile = profile.Select(p => new { p.Group, Share = GameNumbers.Percent(p.Share) }),
 			Expectations = expectations.Select(e => new { Text = e[0], Importance = e[1], Type = e[2], Reaction = e[3] }),
 			About = Bound("Club.SupporterProfile.Description"),
 			FierceRivals = Bound("Club.FierceRivalCount"), OtherRivals = Bound("Club.OtherRivalCount"),
@@ -127,7 +127,7 @@ internal static partial class Program
 
 		CardHeading(L("Taraftar profili"));
 		foreach (var (share, group) in profile.OrderByDescending(p => int.TryParse(p.Share, out var n) ? n : 0))
-			CardRow(CardSay(group), $"{share}%");
+			CardRow(CardSay(group), GameNumbers.Percent(share));
 		if (fans.About is { Length: > 1 } about)
 		{
 			if (Ui.Rich) Ui.Line($"\n[dim]{Ui.Safe(about)}[/]");

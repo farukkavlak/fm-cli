@@ -45,6 +45,13 @@ internal static class MoneyFormat
 		letters = learnt;
 		templates = learntTemplates;
 		GameNumbers.Use(decimalMark);
+		// Which side of the figure the percent sign goes ("50%", "%50"), from the game's own "50%".
+		try
+		{
+			var percent = (await fm.Get("translate", ("words", "50%"))).Split('\n').Select(l => l.Split('\t')).FirstOrDefault(p => p.Length >= 2 && p[0] == "50%");
+			if (percent != null) GameNumbers.PercentFirst = percent[1].Trim().StartsWith('%');
+		}
+		catch { }
 	}
 
 	/// <summary>An amount shortened as the game shortens it: three figures at most, cut and not rounded ("673B £", "£2.61M").</summary>
@@ -138,6 +145,12 @@ internal static class GameNumbers
 	/// <summary>A number the game wrote, with either mark ("7,70", "7.70"), or null.</summary>
 	public static double? Read(string text) =>
 		Regex.IsMatch(text ?? "", @"^-?\d+([.,]\d+)?$") && double.TryParse(text!.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : null;
+
+	/// <summary>Whether the game's language writes the percent sign first ("%50" in Turkish).</summary>
+	public static bool PercentFirst { get; set; }
+
+	/// <summary>A percentage as the game writes it ("70%", "%70").</summary>
+	public static string Percent(object number) => PercentFirst ? $"%{number}" : $"{number}%";
 
 	/// <summary>A number as the game would write it ("0.00" → "6,85").</summary>
 	public static string Of(double value, string format) => value.ToString(format, Culture);

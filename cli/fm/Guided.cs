@@ -643,7 +643,7 @@ internal static partial class Program
 			Spot(Field(slot, "OOPPosition")),
 			RoleOf(slot, withoutBall: true),
 			Field(slot, "Player") is { Length: > 0 } player ? player : "-",
-			Field(slot, "Familiarity") is { Length: > 0 } known ? $"{known}%" : "-",
+			Field(slot, "Familiarity") is { Length: > 0 } known ? GameNumbers.Percent(known) : "-",
 		}).ToList();
 
 		Table.Write([L("TOPLA"), L("ROL"), L("TOPSUZ"), L("ROL"), L("OYUNCU"), L("AKICILIK")], rows);
@@ -668,7 +668,7 @@ internal static partial class Program
 
 	/// <summary>The team's familiarity, which the game keeps out of 10000, as a percentage.</summary>
 	private static string Familiarity(JsonElement header, string field) =>
-		int.TryParse(Field(header, field), out var tenThousandths) ? $"{(tenThousandths + 50) / 100}%" : "-";
+		int.TryParse(Field(header, field), out var tenThousandths) ? GameNumbers.Percent((tenThousandths + 50) / 100) : "-";
 
 	private static bool Familiar(JsonElement tactic) =>
 		tactic.TryGetProperty("Slots", out var slots) && slots.EnumerateArray().Any(s => Field(s, "Familiarity").Length > 0);
@@ -679,7 +679,7 @@ internal static partial class Program
 			.Select(s => (Name: Field(s, "Player"), Known: int.TryParse(Field(s, "Familiarity"), out var k) ? k : 100))
 			.Where(p => p.Known < 100 && p.Name.Length > 0)
 			.OrderBy(p => p.Known)
-			.Select(p => $"{p.Name} {p.Known}%")
+			.Select(p => $"{p.Name} {GameNumbers.Percent(p.Known)}")
 			.ToList();
 
 	/// <summary>The match squad lists the eleven first; whoever comes after is on the bench.</summary>
@@ -689,7 +689,7 @@ internal static partial class Program
 		var eleven = tactic.GetProperty("Slots").GetArrayLength();
 		return squad.EnumerateArray()
 			.Where(e => int.TryParse(Field(e, "Index"), out var place) && place >= eleven && Field(e, "PlayerIndex") != "-1")
-			.Select(e => Field(e, "Familiarity") is { Length: > 0 } known && known != "100" ? $"{Field(e, "Name")} {known}%" : Field(e, "Name"))
+			.Select(e => Field(e, "Familiarity") is { Length: > 0 } known && known != "100" ? $"{Field(e, "Name")} {GameNumbers.Percent(known)}" : Field(e, "Name"))
 			.ToList();
 	}
 

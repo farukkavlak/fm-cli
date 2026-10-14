@@ -592,7 +592,7 @@ internal static partial class Program
 
 	/// <summary>An injured player's condition comes back as -1, which is not a percentage.</summary>
 	private static string Percent(JsonElement element, string name) =>
-		Number(element, name) is >= 0 and <= 100 and var value ? $"{value}%" : "-";
+		Number(element, name) is >= 0 and <= 100 and var value ? GameNumbers.Percent(value) : "-";
 
 	private static int Number(JsonElement element, string name) =>
 		int.TryParse(Field(element, name), out var number) ? number : int.MaxValue;

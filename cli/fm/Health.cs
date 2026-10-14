@@ -71,8 +71,8 @@ internal static partial class Program
 		}
 
 		Section(L("Sakat"), hurt.Select(p => $"{Field(p, "Name")} — {string.Join(", ", new[] { Injury(p), Left(p) }.Where(x => x.Length > 0))}"));
-		Section(L("Yorgun (kondisyon %85 altı)"), tired.Select(p => $"{Field(p, "Name")} {Number(p, "Condition")}%"));
-		Section(L("Maç formu düşük (%60 altı)"), rusty.Select(p => $"{Field(p, "Name")} {Number(p, "Sharpness")}%"));
+		Section(L("Yorgun (kondisyon %85 altı)"), tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}"));
+		Section(L("Maç formu düşük (%60 altı)"), rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}"));
 		Section(L($"Sakatlık riski en yüksek (oyunun puanı {top})"), atRisk.Select(p => $"{Field(p, "Name")}"));
 		if (tired.Count + atRisk.Count > 0) Console.WriteLine(L("\nDinlendirmek için: intensity <oyuncu> \"dinlen 1\""));
 		return 0;
