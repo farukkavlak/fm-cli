@@ -22,6 +22,8 @@ internal static class State
 		// TeamTalk, TunnelInterview, Processing, Match, Waiting, Saving, OnHoliday…
 		Put(fields, "State", Read(bindings, "continue.State"));
 		Put(fields, "Button", Read(bindings, "continue.ContinueButtonMainString"));
+		// What kind of thing waits for an answer, by number: the same in every language, where the button's words are not.
+		Put(fields, "Respond", Read(bindings, "continue.ContinueButtonMustRespondGrouping"));
 		Put(fields, "Processing", Read(bindings, "game.GameProcessing"));
 		Put(fields, "Saving", Read(bindings, "game.GameSaving"));
 		Put(fields, "Waiting", Read(bindings, "game.GameWaiting"));

@@ -213,6 +213,13 @@ internal static partial class Program
 						if (button is { Length: > 0 } and not ("Continue" or "Response Required")) output.WriteLine($"İlerle butonu: {button}");
 						return;
 					}
+					// The kind of thing waiting, by the game's number (3: an offer for one of ours, 16 Temmuz
+					// 2026); the button's words are another language's in another game.
+					if (Field(state, "Respond") == "3")
+					{
+						output.WriteLine("Oyuncularımızdan birine gelen bir teklif cevap bekliyor. Görmek: offers   ·   cevap: offers <#> view | accept | stall | reject");
+						return;
+					}
 					// Something to do that no message holds: a deal to go on with, a screen to finish.
 					// Not a button to press blind: Continue with "Negotiate Contract" showing moved
 					// time on and the deal was withdrawn (FINDINGS §8.42).
