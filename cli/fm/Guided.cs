@@ -164,6 +164,21 @@ internal static partial class Program
 		return 0;
 	}
 
+	/// <summary>At a terminal: the fee a promise asks for, picked with the arrows and sent.</summary>
+	private static async Task AskFee()
+	{
+		await Task.Delay(800);
+		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var w)
+				&& w.EnumerateArray().Any(x => x.GetString() == "notifications-modal-dialog-default-default"))
+			.LastOrDefault();
+		if (list.ValueKind != JsonValueKind.Object) return;
+		var fees = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		if (Ui.Ask("Hangi bedel?", fees) is not { } at) return;
+		await FeeAsked(["bedel", fees[at]]);
+		await FeeAsked(["onayla"]);
+	}
+
 	private static async Task<List<Line>> TalkOptions()
 	{
 		var controls = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -247,6 +262,7 @@ internal static partial class Program
 
 				var result = await Say(options[asked]);
 				if (result != null) return result.Value;
+				await AskFee();
 				Console.WriteLine();
 			}
 		}
