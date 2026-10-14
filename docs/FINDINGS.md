@@ -1683,3 +1683,12 @@ yalnızca konumu söyler ("0 of 586.2"); kaydırınca görünen satırlar tek ad
 `#FinancesFfp`, `#FinancesProjections`, `#FinancesSponsorshipsTile`; döküm kartında sekmeler `#ThisMonthTab`…, seçili olanın
 `#Selected`'ı dolu, toplam `#TotalExpenditure`.
 
+
+### 8.184 Quick Pick: seçim tek adımda ~0,45 sn'de, "bitti" işareti yok (14 Ekim, Türkçe)
+Basıştan sonra `/tactic` 0,1 sn aralıkla izlendi: yerine yedek konmuşsa on bir tek adımda, ara durum olmadan değişiyor
+(8 denemede 0,33–0,54 sn); zaten seçiliyse hiç değişmiyor. Kuyruk (`/queue`) 0,10–0,15 sn'de boşalıyor, değişiklikten
+önce; `/state` hiç değişmiyor — başka işaret yok. `tactic pick` artık 0,25 sn'de bir okuyor: değiştiyse bir sonraki aynı
+okumada, değişmediyse 1,5 sn sessizlikten sonra bitiyor (≈3 kat pay). Eskiden her okumadan önce 1 sn bekleyip iki aynı
+okuma istiyordu: 3,7 → 1,2 sn (değişen) / 2,2 sn (değişmeyen); 10 çalıştırmada doğru. Ayrıca başka sayfa açıkken
+`/tactic` bağlı kaldığı için taktik sayfası açılmıyor, "no control labelled 'Quick Pick'" ile 9 sn sonra düşüyordu: önce
+düğme kuru basışla aranıyor, yoksa sayfa açılıyor (Mesajlar'dan 3/3, 2,2–2,4 sn).

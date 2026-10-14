@@ -1016,6 +1016,11 @@ internal static partial class Program
 		}
 
 		var query = new List<(string, string)> { ("text", "Quick Pick"), ("name", "button") };
+		// The tactic stays bound after another page has been opened over it, so having read it
+		// does not mean its page, and the button, are up.
+		if ((await Fm.Get("press", [.. query, ("dry", "1")])).StartsWith("error: no ", StringComparison.Ordinal)
+		    && await OpenPage(Screen.Tactics) is var opened && opened.StartsWith("error", StringComparison.Ordinal))
+			return Report(opened);
 		if (dry) query.Add(("dry", "1"));
 
 		var pressed = await Arriving("press", query.ToArray());
@@ -1026,18 +1031,25 @@ internal static partial class Program
 			return 0;
 		}
 
-		// With an eleven already picked the names may not change, so the test is a full eleven
-		// that reads the same twice running — the first reading can still be the old one.
+		// The game's pick arrives whole, a little under half a second after the press, and nothing
+		// says it is done: a pick that moved someone is believed once it reads the same again, one
+		// that moved no one only once nothing has changed for a while (FINDINGS §8.184).
 		JsonElement tactic = before;
-		var last = "";
-		var full = await Until(async () =>
+		var old = string.Join("|", Eleven(before));
+		var last = old;
+		var quiet = System.Diagnostics.Stopwatch.StartNew();
+		var settled = await Until(async () =>
 		{
-			await Task.Delay(TimeSpan.FromSeconds(1));
 			var picked = string.Join("|", Eleven(tactic = await Fm.GetJson("tactic")));
-			var settled = picked == last && Eleven(tactic).Count == 11;
-			last = picked;
-			return settled;
-		}, seconds: 12);
+			if (picked != last)
+			{
+				last = picked;
+				quiet.Restart();
+				return false;
+			}
+			return quiet.Elapsed.TotalSeconds >= (picked != old ? 0.2 : 1.5);
+		}, seconds: 12, every: 0.25);
+		var full = settled && Eleven(tactic).Count == 11;
 		var names = Eleven(tactic);
 		Console.WriteLine(full ? L($"İlk 11 seçildi: {string.Join(", ", names)}") : L($"Quick Pick'e basıldı ama {names.Count} oyuncu seçili."));
 

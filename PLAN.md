@@ -599,3 +599,5 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 - Otomatik tur: `next`'in `Settled` beklemesi 16 ilerlemede ölçüldü (başlama ≤1,24 sn / 4 sn, bitiş titremesi ≤0,53 sn /
   1,4 sn); pay yeterli, kod değişmedi (§8.181). Kaptanlar onaylandı, iki Salford teklifi reddedildi; oyun maç gününde.
 - `contracts <oyuncu>`: sabit 300 ms yerine alanlar gelene kadar okuma (`{}` = henüz gelmedi, boş şart "-"), 27/27 aynı (§8.182).
+- `tactic pick`: Quick Pick'in seçimi tek adımda ~0,45 sn'de geliyor; sabit 1 sn'ler yerine değişiklik ya da 1,5 sn
+  sessizlik (3,7 → 1,2/2,2 sn), başka sayfadan çalışmıyordu → düzeldi (§8.184). Bedel penceresi (Guided 161 174) ayrı madde.
