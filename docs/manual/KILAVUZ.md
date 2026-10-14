@@ -791,9 +791,13 @@ haftanın adı oyunda "Tactical (Modified)" diye görünür.
 fm intensity                       her oyuncunun yoğunluğu
 fm intensity Kanté yarım           otomatik · yarım · normal · çift
 fm intensity Kanté "dinlen 3"      3 gün saha ve salon çalışması yok (7, 14: bir, iki hafta)
-fm intensity Fred "tatil 1"        bir hafta tatil (oyun izin verirse)
-fm intensity --auto                hepsini kondisyon hocasına bırak
+fm intensity Fred "tatil 1"        bir hafta tatil (1–4; oyun izin verirse)
+fm intensity --auto                hepsini kondisyon hocasına bırak: oyunun uyarısını gösterir, "hayır" der
+fm intensity --auto --yes          uyarıyı onaylar; değişenleri tek tek yazar
 ```
+
+Tatile giden oyuncu tatil bitene kadar tatilde kalır; oyun o sürede başka seviye almaz. "Otomatik" seçilince
+oyun kendi kurallarına göre hemen bir seviye seçer, listede o seviye görünür.
 
 ### Antrenör görevleri — `coaches`
 

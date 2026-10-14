@@ -109,7 +109,7 @@ internal static partial class Program
 		["finances"] = ["gelir", "gider"],
 		["diff"] = ["--keep", "--reset"],
 		["captains"] = ["--captain", "--vice"],
-		["intensity"] = ["--auto"],
+		["intensity"] = ["--auto", "--yes"],
 		["coaches"] = ["--auto", "--off"],
 		["tour"] = ["--skip"],
 		["start"] = ["--debug", "--menu"],

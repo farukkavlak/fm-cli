@@ -224,7 +224,9 @@ internal static partial class Program
 	/// so the rounds go on until two agree — a property that never comes (the leader of a
 	/// competition not yet begun) is not waited for one reading at a time.
 	/// </summary>
-	private static async Task<List<JsonElement>> PullEach(List<(string Path, string Props)> readings)
+	/// <param name="complete">When a reading has everything it will have although some properties
+	/// are missing (a player the page leaves out answers only some); by default, all of them.</param>
+	private static async Task<List<JsonElement>> PullEach(List<(string Path, string Props)> readings, Func<JsonElement, bool> complete = null)
 	{
 		List<JsonElement> read = [];
 		var previous = "";
@@ -237,7 +239,8 @@ internal static partial class Program
 				catch (FmError) { read.Add(JsonDocument.Parse("{}").RootElement); }
 			}
 			var now = string.Join("|", read.Select(r => r.GetRawText()));
-			var whole = read.Zip(readings).All(pair => pair.First.ValueKind == JsonValueKind.Object && pair.First.EnumerateObject().Count() >= pair.Second.Props.Split(',').Length);
+			var whole = read.Zip(readings).All(pair => pair.First.ValueKind == JsonValueKind.Object
+				&& (pair.First.EnumerateObject().Count() >= pair.Second.Props.Split(',').Length || complete?.Invoke(pair.First) == true));
 			if (whole || (round >= 2 && now == previous && read.Any(r => r.ValueKind == JsonValueKind.Object && r.EnumerateObject().Any()))) break;
 			previous = now;
 			await Task.Delay(250);

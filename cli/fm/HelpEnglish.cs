@@ -142,7 +142,7 @@ internal static partial class Program
 			  interest <name> --top|--transfer|--loan [--yes]   declare our interest in a player
 			  enquire <name>  ask their club what it would want
 			  trial <name> --for <1-4 weeks> [--yes]   invite a player on trial
-			  intensity       training intensity player by player;  intensity <player> <double|"rest 3"|"holiday 1">, --auto
+			  intensity       training intensity player by player;  intensity <player> <double|"rest 3"|"holiday 1">, --auto [--yes]
 			  coaches         coaching assignments: who is in which training area, the areas' workload and lead coach
 			    coaches <coach> <area> [--off]   assign / remove ("coaches Cohen attacking tactical");  --auto: leave it to the assistant
 			  opposition      player-by-player instructions against the next opponent (marking, pressing, tackling, foot)

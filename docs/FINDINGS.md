@@ -1730,3 +1730,27 @@ satır bulunmazsa açık hata. Ölçüm: liste 3/3 aynı (eskisiyle aynı 25 sat
 eklenti yazısıyla ve oyundaki karşılığıyla (`GameWords.Of`) eşleniyor ("Çabukluk", "Cabuk" → Quickness); eskiden yalnız
 eklentinin İngilizcesiyle. Türkçe oyunda İngilizce alt rol adı tutmuyor (rol adları oyunun dilinde geliyor). İngilizcede ve
 küçük ekranda denenmedi.
+
+### 8.187 Antrenman yoğunluğu: veriden okuma, Bireysel Antrenman tablosundan değiştirme (15 Ekim, Türkçe)
+Okuma sayfasız: `<oyuncu>.PlayerTraining.TrainingIntensityOrRest` (`team` değişkeni ister → satırların yanına
+`team = Human.Team`): `IndividualTrainingIntensityRow.DisplayValue/PropertyValue`, `RestDaysRemaining`, `HolidaysRemaining`,
+`IntensityRecommendation`, `CanEdit`. `PropertyValue` listenin seçenek numarasıyla aynı ve dilden bağımsız: Otomatik −1,
+Yarım 0, Normal 1, Çift 2, dinlenme 1–6 gün 10–15, 1 hafta 16, 2 hafta 17, tatil 1–4 hafta 20–23 (`/select?value=` alt
+menüdekileri de seçer). Öneri `10000 + numara` (0 = öneri yok). Eski kaydırma taramasıyla aynı 25 oyuncu, ekrandaki 25
+listeyle (satırın `UniqueId`'si) birebir; 5,9 → 2,3 sn. Görünmeyen oyuncular (rehab, `IsVisible` False) daha az alan
+döndürüyor → `PullEach` onları "tam" sayamayıp turlarca okuyordu; artık `complete` ile tam sayılıyor (Bireysel Antrenman da
+hızlandı). Değiştirme: yoğunluk kartının tablosu sanal (13 satır kuruyor), Bireysel Antrenman'ınki 25'ini de kuruyor ve aynı
+olayı (`EventFmxPlayerTrainingIntensityLevelChanged`) gönderen yoğunluk listesi orada da var → `TrainingControl` (§8.186)
+kullanılıyor; eklenti `/rowcontrols` ve `/buttons?json=1` artık her kontrolün `Page`'ini veriyor: olayın kaynak düğümünden
+yukarı, adı sayfa Guid'iyle başlayan ilk düğüm (`<guid>B0`). Sonuç oyuncunun verisinden (`PropertyValue` = istenen).
+Oyunun davranışları: Otomatik seçilince oyun kurallara göre hemen bir seviye seçiyor (veride Otomatik hiç görünmedi, 25
+yoklamada) → otomatikte "değer değişti" kabul. Tatildeki oyuncu (`HolidaysRemaining` > 0) başka seviye almıyor; dinlenme üstüne
+biniyor, dinlenme kalkınca tatil geri geliyor. Eski kodun Türkçede kırık iki yeri: dinlenme alt menüsü "3 Days" diye seçiliyordu
+(Türkçede "3 Gün", "2 Wks" geliyor), `--auto` düğmesi "Ask … training intensities" yazısıyla aranıyordu (Türkçede "Snowden'den …
+iste"). `--auto`: düğme = `SpeakToAction` + `Page == TrainingIntensity`; basınca her seferinde "Holiday warning" onay
+penceresi (`Confirm2037149489`, 3/3, ~0,1–0,3 sn) — eski kod bunu beklemiyordu. Onaysız birincil olmayan yuva ("Hayır",
+hiçbir şey değişmiyor), `--yes` ile birincil; bitti = düzenlenebilir ve önerisi olan herkes önerisinde. Kart ara sıra yeniden
+kuruluyor ve önceki düğmeye basış kayboluyor → düğme her basıştan hemen önce bulunuyor; pencere gelmeden düğmenin işaretçisi
+değişirse bir kez daha basılıyor (16 → 6–9 sn). Ölçüm: değiştirme 22/22 (dört seviye, dinlenme 1/2/3/6/7/14, tatil 1/2, otomatik,
+oyunun kendi kelimesi "Duble") yalnızca hedef oyuncuda; üç başlangıç durumu (başka sayfa / Bireysel Antrenman / yoğunluk
+kartı); `--auto` 7/7. İngilizcede denenmedi. Not: denemelerde Tom Hamer (1 hafta) ve Ryley Towler (2 hafta) tatile gitti.

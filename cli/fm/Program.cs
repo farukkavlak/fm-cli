@@ -2478,7 +2478,7 @@ internal static partial class Program
 			  interest <ad> --top|--transfer|--loan [--yes]   oyuncuya ilgimizi duyur
 			  enquire <ad>    kulübüne ne isteyeceğini sor
 			  trial <ad> --for <1-4 hafta> [--yes]   oyuncuyu denemeye çağır
-			  intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto
+			  intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto [--yes]
 			  coaches         antrenör görevleri: kim hangi antrenman alanında, alanların iş yükü ve baş antrenörü
 			    coaches <antrenör> <alan> [--off]   ata / görevden al ("coaches Cohen topla taktik");  --auto: yardımcıya bırak
 			  opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)

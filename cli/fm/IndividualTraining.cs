@@ -74,7 +74,17 @@ internal static partial class Program
 	/// only to someone looking (a variable named Judge: the manager), put beside the players'
 	/// rows; a player the game leaves off the page (one in rehab) has IsVisible false.
 	/// </summary>
-	private static async Task<List<TrainingRow>> TrainingRows()
+	private static async Task<List<TrainingRow>> TrainingRows() =>
+		(await PlayersTraining("Judge", "Human", string.Join(",", TrainingData.Select(d => d.Shown))))
+			.Select(p => new TrainingRow(p.Row.Name, p.Row.Id, p.Row.Row, TrainingData.Select(d => Field(p.Data, d.Shown)).ToArray()))
+			.ToList();
+
+	/// <summary>
+	/// Each first-team player on the training pages with these properties of his PlayerTraining.
+	/// What the properties ask for (a Judge, a team: /contexts) is put beside the players' rows as
+	/// the variable named.
+	/// </summary>
+	private static async Task<List<(TrainingRow Row, JsonElement Data)>> PlayersTraining(string variable, string from, string props)
 	{
 		JsonElement players;
 		try { players = await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true); }
@@ -85,15 +95,15 @@ internal static partial class Program
 		if (rows.Count == 0) return [];
 
 		var under = rows[0].Row[..rows[0].Row.LastIndexOf('.')];
-		// The manager is bound by this very call when nothing has bound him yet: then a frame later.
-		if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.Judge"), ("from", "Human"))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.2))
+		// The variable is bound by this very call when nothing has bound it yet: then a frame later.
+		if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.{variable}"), ("from", from))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.2))
 			return [];
 
-		var props = "IsVisible," + string.Join(",", TrainingData.Select(d => d.Shown));
-		var read = await PullEach(rows.Select(r => (r.Row + ".PlayerTraining", props)).ToList());
+		// A player the page leaves out answers only some of them, and is left out here too.
+		var read = await PullEach(rows.Select(r => (r.Row + ".PlayerTraining", "IsVisible," + props)).ToList(), r => Field(r, "IsVisible") == "False");
 		return rows.Zip(read)
 			.Where(x => Field(x.Second, "IsVisible") == "True")
-			.Select(x => new TrainingRow(x.First.Name, x.First.Id, x.First.Row, TrainingData.Select(d => Field(x.Second, d.Shown)).ToArray()))
+			.Select(x => (new TrainingRow(x.First.Name, x.First.Id, x.First.Row, []), x.Second))
 			.ToList();
 	}
 
@@ -175,8 +185,11 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<JsonElement?> TrainingControl(TrainingRow player, string sends)
 	{
+		// Only the individual training page's table: it lays out every row. Another page's lists
+		// that send the same event (the intensity card's) lay out only the rows in view.
 		async Task<List<JsonElement>> Lists() =>
-			(await Fm.GetJson("rowcontrols", ("event", sends), ("gen", Environment.TickCount64.ToString()))).EnumerateArray().ToList();
+			(await Fm.GetJson("rowcontrols", ("event", sends), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+				.Where(l => Field(l, "Page") == Screen.IndividualTraining).ToList();
 		async Task<JsonElement?> ViewList() =>
 			(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d.Value, "Binds") == "selectedView");
 

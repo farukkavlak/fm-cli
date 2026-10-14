@@ -26,7 +26,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
 - [ ] **`Task.Delay` — 89 yer.** Her biri sınıflanacak: döngüde yoklama aralığı (sorun yok) mı, "bekle sonra yap" mı.
   Dosya: satırlar —
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
-  ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · Intensity 43 54 106 · Jobs 231 · Launcher 213 269 · League 243 ·
+  ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · Jobs 231 · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · Matches 82 · Mentoring 45 188 205 217 246 285 297 331 · Numbers 158 177 ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
@@ -59,6 +59,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     "List" yazısı / öğe adı / ad yazısıyla değil, gönderdiği olay + satırın oyuncusu (`UniqueId`, eklenti `/rowcontrols`) ile
     bulunuyor, görünüm `selectedView` = 1, sonuç veriden doğrulanıyor. 7,1 → 2,3 sn; 10/10 + çoklu + alt menüler (§8.186).
     Rehabdaki 2 oyuncu listede yok, oyunun tablosunda da yoklar (aynı 25). İngilizcede ve küçük ekranda denenmedi.
+  - [x] Intensity 43 54 106 (kaydırmadan sonra 400 ms, `--auto`'dan sonra 1,5 sn): liste oyuncuların verisinden
+    (`TrainingIntensityOrRest`, `team` değişkeni), değiştirme Bireysel Antrenman tablosundaki yoğunluk listesiyle (olay +
+    satırın `UniqueId`'si, seçenek numarasıyla `/select?value=`), sonuç veriden; `--auto` düğmesi olay + sayfa Guid'i
+    (eklentide yeni `Page` alanı), oyunun onay penceresi yuvayla (`--yes` yoksa "Hayır"). Stil sınıfı
+    (`dropdown-base-regular-trailing-icon`), "Ask … training intensities" ve "3 Days" yazıları kalktı (son ikisi Türkçede hiç
+    çalışmıyordu). 5,9 → 2,3 sn liste, 3,8 sn değiştirme; 22/22 + `--auto` 7/7 (§8.187). İngilizcede denenmedi.
   - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel isteyen bir söz
     konuşması lazım; o an oyunda yok, ölçülmeden değiştirilmedi. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
@@ -98,7 +104,8 @@ tablodan çevrilemiyor.
   - [ ] Program: kaptan eki "to be selected" · yönetim beklentisi "End of" · "Transfers In/Out" · sezon özeti
     "injuries this season" · home-grown "years old" · Coach Report / Player Report " years old" Replace
   - [x] sakatlık eki "Received in" / "Out for" — Türkçede çalıştı (tablodan çevriliyor)
-  - [ ] Intensity "Ask … training intensities" · Mentoring "assign mentoring groups" · Jobs "Managerial Position" ·
+  - [x] ~~Intensity "Ask … training intensities"~~ (sayfa Guid'iyle, §8.187)
+  - [ ] Mentoring "assign mentoring groups" · Jobs "Managerial Position" ·
     Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" · Penalties "Starting at " / "On Subs bench" ·
     Release "Is there anything else" · Matches "Match Ratings"+"Inf" · Saves "Estimated game speed:"
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da

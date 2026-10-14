@@ -50,10 +50,19 @@ internal static class RowControls
 			}
 			catch { }
 
+			string page = null;
+			try
+			{
+				var events = dropdown.SelectionEvents?.Events;
+				for (var i = 0; page == null && i < (events?.Length ?? 0); i++)
+					if (events[i] != null) page = Buttons.PageOf(events[i]);
+			}
+			catch { }
+
 			var choices = new List<string>();
 			var list = dropdown.m_choices;
 			for (var i = 0; i < (list?.Count ?? 0); i++) choices.Add($"\"{Report.Escape(Buttons.ChoiceText(list[i]) ?? "")}\"");
-			rows.Add($"{{\"Item\": \"{path}\", \"Index\": {index}, \"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", \"Choices\": [{string.Join(", ", choices)}]}}");
+			rows.Add($"{{\"Item\": \"{path}\", \"Index\": {index}, \"Page\": \"{page}\", \"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", \"Choices\": [{string.Join(", ", choices)}]}}");
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";
 	}

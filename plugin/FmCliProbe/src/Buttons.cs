@@ -608,6 +608,7 @@ internal static class Buttons
 		foreach (var control in Controls(out _))
 		{
 			var events = new List<string>();
+			string page = null;
 			foreach (var (listName, list) in control.Lists)
 			{
 				var contexts = list.Events;
@@ -615,6 +616,7 @@ internal static class Buttons
 				{
 					if (contexts[i] == null) continue;
 					try { events.Add(Summary(contexts[i], listName)); } catch { }
+					page ??= PageOf(contexts[i]);
 				}
 			}
 
@@ -629,9 +631,30 @@ internal static class Buttons
 				["Name"] = NameOf(control.Element),
 				["Enabled"] = enabled ? "True" : "False",
 				["Events"] = string.Join(", ", events),
+				["Page"] = page ?? "",
 			}));
 		}
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
+	}
+
+	/// <summary>
+	/// The page whose data an event is fed from: the nearest node above its source named for a
+	/// page's Guid (the page binds its data under "&lt;guid&gt;B0"). Tells apart two buttons that
+	/// send the same event from two pages open together, whatever they say.
+	/// </summary>
+	internal static string PageOf(EventContextBase context)
+	{
+		try
+		{
+			var key = context.SourceKey;
+			for (var node = Game.Bindings?.GetNode(ref key); node != null; node = node.Parent)
+			{
+				var name = node.Name ?? "";
+				if (name.Length >= 32 && name.Take(32).All(Uri.IsHexDigit)) return name[..32];
+			}
+		}
+		catch { }
+		return null;
 	}
 
 	/// <summary>
