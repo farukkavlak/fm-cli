@@ -1470,6 +1470,9 @@ internal static partial class Program
 			// A plain text inside a row (a scout's grade between the player and the report's date) is the row's.
 			var inside = item.Path.Length == 0 && last.Record && n + 1 < items.Count && items[n + 1].Path is { Length: > 0 } next
 				&& !last.Items.Any(t => t.Path == next) && last.Items.Any(t => Root(t.Path) == Root(next));
+			// So is a bare figure right after a row (a training rating drawn without a path after the name).
+			inside |= item.Path.Length == 0 && last.Record && n > 0 && items[n - 1].Path.Length > 0
+				&& System.Text.RegularExpressions.Regex.IsMatch(item.Text, @"^[-+]?\d[\d.,]*%?$");
 			var record = item.Path.Length > 0 || inside;
 			if (parts.Count == 0 || last.Record != record || record && item.Path.Length > 0 && last.Items.Any(t => t.Path == item.Path))
 				parts.Add((record, []));
@@ -1487,7 +1490,8 @@ internal static partial class Program
 			if (!record)
 			{
 				// A row's own label drawn without a path ("Cts 11/7" before a fixture) leads the row it is on.
-				if (part.Count == 1 && k > 0 && parts[k - 1].Items.Count > 1 && k + 1 < parts.Count && parts[k + 1].Items.Count > 1)
+				// A label of words ("Training Rating") is a heading.
+				if (part.Count == 1 && part[0].Text.Any(char.IsDigit) && k > 0 && parts[k - 1].Items.Count > 1 && k + 1 < parts.Count && parts[k + 1].Items.Count > 1)
 				{
 					parts[k + 1] = (true, [part[0], .. parts[k + 1].Items]);
 					continue;
@@ -1505,6 +1509,9 @@ internal static partial class Program
 			lines.Add("  " + text);
 			lastPath = part.Count == 1 ? part[0].Path : null;
 		}
+		// A heading with nothing under it (the actions', shown as the answers) says nothing.
+		if (lines.Count > 1 && parts.Count > 0 && !parts[^1].Record && parts[^1].Items.Count == 1 && !parts[^1].Items[0].Text.Any(char.IsDigit))
+			lines.RemoveAt(lines.Count - 1);
 		return lines.Count > 0 ? lines : [string.Join(" · ", shown)];
 	}
 
