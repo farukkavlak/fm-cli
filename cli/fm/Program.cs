@@ -883,7 +883,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L($"Cevaplandı: {title} → {Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}"));
+		Console.WriteLine(L($"Cevaplandı: {title} → {GameWords.Of(Field(wanted[0], "Label"))}{(chosenFrom != null ? $": {chosenFrom}" : "")}"));
 
 		// An answer can open something instead of closing the message: an introduction opens a
 		// tour, "introduce yourself" a meeting. Otherwise the inbox catches up a moment later,

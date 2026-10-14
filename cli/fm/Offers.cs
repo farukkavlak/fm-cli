@@ -50,8 +50,21 @@ internal static partial class Program
 				Console.WriteLine(L("Bekleyen teklif yok."));
 				return 0;
 			}
+			// The page lists our own bids too, a player of another club's with that club beside him:
+			// a transfer is a sale only when the player is ours.
+			HashSet<string> ours = [];
+			try { ours = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).ToHashSet(); }
+			catch (FmError) { }
+			string Kind(WaitingOffer o) => o.Kind switch
+			{
+				"Loan" => ours.Contains(o.Player) || ours.Count == 0 ? L("Kiralık") : L("Kiralık alım"),
+				"Transfer" => ours.Contains(o.Player) || ours.Count == 0 ? L("Satış") : L("Alım"),
+				"Free Transfer" => L("Bedelsiz"),
+				"Swap" or "Part Exchange" => L("Takas"),
+				var other => other,
+			};
 			Table.Write(["#", L("OYUNCU"), L("KULÜP"), L("TÜR"), L("DURUM"), L("BEDEL"), L("ŞARTLAR")],
-				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, o.Kind switch { "Loan" => L("Kiralık"), "Transfer" => L("Satış"), "Free Transfer" => L("Bedelsiz"), "Swap" or "Part Exchange" => L("Takas"), var other => other }, o.Status, o.Fee, o.Terms]).ToList());
+				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, Kind(o), o.Status, o.Fee, o.Terms]).ToList());
 			Console.WriteLine(L("\nCevap: offers <# | oyuncu> view | accept | stall | reject   (view teklifi kart olarak gösterir)"));
 			return 0;
 		}
