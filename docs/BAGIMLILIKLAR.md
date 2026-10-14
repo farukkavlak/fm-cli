@@ -41,6 +41,8 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     Fixtures→…), "1,4 sn sakin" bunu örtüyor (2,6 kat). Ayrı bir "bitti" işareti yok: `GameManagersNotContinuedCount`
     `Processing`'i birebir izliyor; bir adımda `Processing` hiç görünmedi, yalnız saat değişti (§8.181).
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
+  - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
+    `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
     (değişmezse 3 sn; eskiden sabit 1,5); 20 atama + 2 `--auto` üç durumda doğru (§8.180). İngilizcede denenmedi.
   - [x] `coaches` 3/10: okuma yalnız tam ızgarayı ("ad, görev, dokuz kutu+yıldız", iş yüküne kadar) kabul ediyor; 12

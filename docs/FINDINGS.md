@@ -1647,3 +1647,10 @@ NewsAggregator → CanContinue (0,53 sn), CanContinue → NeedAction (0,1 sn), C
 "iki okuma 700 ms arayla aynı" bunu örtüyor. Bir adımda `Processing` hiç gelmedi, yalnız saat 62 → 65. Durak sonrası
 "basış yutuldu" bu 16'da görülmedi. `game.GameManagersNotContinuedCount` (1 → 0) `Processing` ile aynı anda değişiyor,
 ayrı bir işaret değil. Kod değişmedi.
+
+### 8.182 Sözleşme alanları: bağlanmamış `{}`, boş şart "-" (14 Ekim, Türkçe)
+`contracts <oyuncu>` `FullContract`'ın 26 alanını tek tek soruyor. Hiç okunmamış bir satırda ilk soru `{}` dönüyor; bir
+sonraki okumada (ilk sorudan 0,4–0,9 sn sonra, araya bekleme koymadan) 26 alanın hepsi gelmiş: değeri olmayan şart "-",
+"No" ya da "N/A" — hiçbiri `{}` kalmıyor. Yani `{}` yalnızca "henüz gelmedi". Sabit 300 ms kaldırıldı; `{}` dönen alan
+0,1 sn arayla 5 sn'ye kadar yeniden okunuyor. 27 oyuncu iki kez okundu (ilki çoğunda ilk okuma): iki çıktı aynı, 27/27 tam.
+İngilizcede denenmedi (işaret yazıdan bağımsız).

@@ -50,17 +50,29 @@ internal static partial class Program
 		var ends = Field(await Fm.Pull(contract, "EndDateDescription"), "EndDateDescription");
 
 		// One field at a time: a field the contract does not know empties the whole reading.
-		var terms = new List<(string Say, string Value)>();
-		// Asked for once so they are bound, then read: a value is there a frame after it is asked for.
+		// Asked for once so they are bound, then read until each has come: an unbound field reads as {}, an empty
+		// term as "-", so a field still {} is only late (all 26 arrive, FINDINGS §8.182).
 		foreach (var (field, _) in ContractTerms)
 			try { await Fm.GetJson("pull", ("path", contract), ("props", $"{field}.DisplayValue")); } catch (FmError) { }
-		await Task.Delay(300);
+		var values = new Dictionary<string, string>();
+		await Until(async () =>
+		{
+			foreach (var (field, _) in ContractTerms)
+			{
+				if (values.ContainsKey(field)) continue;
+				try
+				{
+					var read = await Fm.GetJson("pull", ("path", contract), ("props", $"{field}.DisplayValue"));
+					if (read.ValueKind != JsonValueKind.Object || read.EnumerateObject().Any()) values[field] = Field(read, $"{field}.DisplayValue");
+				}
+				catch (FmError) { values[field] = ""; }
+			}
+			return values.Count == ContractTerms.Length;
+		}, seconds: 5, every: 0.1);
+		var terms = new List<(string Say, string Value)>();
 		foreach (var (field, say) in ContractTerms)
 		{
-			JsonElement read;
-			try { read = await Fm.GetJson("pull", ("path", contract), ("props", $"{field}.DisplayValue")); }
-			catch (FmError) { continue; }
-			var value = Field(read, $"{field}.DisplayValue");
+			var value = values.GetValueOrDefault(field, "");
 			if (value.Length > 0 && value is not ("-" or "N/A" or "None" or "No" or "0%") && !(MoneyFormat.IsMoney(value) && Money(value) == 0)) terms.Add((say, value));
 		}
 		// The wage after tax is written in a sentence ("£10.5K p/w after tax", "Vergi sonrası 10,5B £ aylık"):
