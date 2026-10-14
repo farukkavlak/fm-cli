@@ -18,8 +18,8 @@ internal static partial class Program
 	private sealed record CalendarDay(DateTime Day, List<CalendarMatch> Matches, List<string> Notes, List<string> Youth);
 
 	/// <summary>
-	/// A month the calendar offers: the number its list gives it (0 is the month the game is in, and
-	/// on from there), the month that is, and how the list writes it.
+	/// A month the calendar offers: the number its list gives it (counted from the season's first
+	/// month), the month that is, and how the list writes it.
 	/// </summary>
 	private sealed record CalendarMonthChoice(int Value, int Year, int Month, string Label);
 
@@ -133,23 +133,42 @@ internal static partial class Program
 			return null;
 		}
 
-		// The list counts months from the one the game is in; the names are the game's own, in its language.
+		// The list counts months from the season's first, which the names (the game's own, in its
+		// language) would have to be read for. Its Today button chooses the month the game is in, so
+		// the one chosen after it is today's and the rest count from there.
 		if (!DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var today))
 		{
 			Console.Error.WriteLine("Oyunun tarihi okunamadı.");
 			return null;
 		}
+		var todayButton = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Label") == "Today" && Field(b, "Events").Contains("SetDatastoreValue", StringComparison.Ordinal));
+		if (todayButton.ValueKind == JsonValueKind.Object)
+		{
+			await Fm.Get("click", ("ptr", Field(todayButton, "Pointer")));
+			var previous = "";
+			await Until(async () =>
+			{
+				list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Name") == "MonthDropdown");
+				var now = list.ValueKind == JsonValueKind.Object ? Field(list, "Selected") : "";
+				var same = now == previous && now.Length > 0;
+				previous = now;
+				return same;
+			}, seconds: 3, every: 0.3);
+		}
 		var labels = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 		var values = list.GetProperty("Values").EnumerateArray().Select(v => v.ValueKind == JsonValueKind.Number ? v.GetInt32() : int.MinValue).ToList();
+		var at = int.TryParse(Field(list, "Selected"), out var chosen) && chosen >= 0 && chosen < values.Count ? chosen : 0;
+		var todayValue = values[at] == int.MinValue ? 0 : values[at];
 		var months = new List<CalendarMonthChoice>();
 		for (var i = 0; i < labels.Count && i < values.Count; i++)
 		{
 			if (values[i] == int.MinValue) continue;
-			var date = new DateTime(today.Year, today.Month, 1).AddMonths(values[i]);
+			var date = new DateTime(today.Year, today.Month, 1).AddMonths(values[i] - todayValue);
 			months.Add(new(values[i], date.Year, date.Month, labels[i]));
 		}
-		var selected = int.TryParse(Field(list, "Selected"), out var at) && at >= 0 && at < labels.Count ? labels[at] : Field(list, "Label");
-		return (months, months.FirstOrDefault(m => m.Label == selected));
+		var current = months.FirstOrDefault(m => m.Value == todayValue);
+		return (months, current);
 	}
 
 	/// <summary>
@@ -163,7 +182,7 @@ internal static partial class Program
 		if (await CalendarMonths() is not var (months, showing)) return 1;
 
 		var wanted = string.Join(" ", Words(args));
-		var month = wanted.Length == 0 ? months.FirstOrDefault(m => m.Value == 0) ?? showing : PickMonth(months, wanted);
+		var month = wanted.Length == 0 ? showing : PickMonth(months, wanted);
 		if (month == null)
 		{
 			Console.Error.WriteLine($"'{wanted}' takvimde yok. Aylar: {string.Join(", ", months.Select(m => $"{Months[m.Month - 1]} {m.Year}"))}");
