@@ -1574,8 +1574,9 @@ internal static partial class Program
 		else rest = rest.Skip(1).ToList();
 		// A news article's words come with its page's labels (the date, the score, the scorers,
 		// the ground): the article is the long text, the rest is said in it already.
+		// Only when there is little else: a card of bound data with a long sentence in it is laid out whole.
 		var article = rest.Where(t => t.Length >= 80).ToList();
-		if (article.Count > 0)
+		if (article.Count > 0 && (page.Any(t => t.Path == "newsitem.NewsBodyString") || page.Count(t => t.Path.Length > 0 && t.Text.Length < 80) <= 3))
 			foreach (var paragraph in article.SelectMany(t => t.Split('\n')).Where(l => l.Trim() != ""))
 				Console.WriteLine("  " + paragraph.Trim());
 		else if (rest.Count > 0)
