@@ -1291,6 +1291,26 @@ internal static partial class Program
 			return;
 		}
 
+		// A player's training report: how he is getting on, the attributes that moved (by data path), his
+		// training rating and unit beside it, and who he is.
+		if (rest[0] == "Progress Report" && page.Any(t => t.Path == "Person.Name"))
+		{
+			var moved = new List<string>();
+			for (var i = 0; i < page.Count; i++)
+				if (page[i].Path == "row.Name")
+					moved.Add(i + 1 < page.Count && page[i + 1].Path == "row.PropertyValue" ? $"{GameWords.Of(page[i].Text)} {page[i + 1].Text}" : GameWords.Of(page[i].Text));
+			Console.WriteLine(L("\n  Ek: ") + rest[0] + (rest.Count > 1 && rest[1] != "Attribute" ? " — " + rest[1] : ""));
+			if (moved.Count > 0) Console.WriteLine("    " + string.Join(" · ", moved));
+			// The rating is the figure drawn before its label; the unit stands last on the card, before the player's.
+			var rating = rest.FindIndex(t => t == "T.Rat") is > 0 and var r && rest[r - 1].Any(char.IsDigit) ? rest[r - 1] : "";
+			var unit = rest.IndexOf("Player Report") is > 0 and var card && rest[card - 1] is not ("T.Rat" or "N/A") ? rest[card - 1] : "";
+			if (rating.Length > 0 || unit.Length > 0)
+				Console.WriteLine(L($"    Antrenman puanı {(rating.Length > 0 ? rating : "-")}{(unit.Length > 0 ? $" · {unit}" : "")}"));
+			var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
+			Console.WriteLine("    " + string.Join(" · ", new[] { One("Person.Name"), One("Person.PositionCombinedString"), age, One("Nation.ThreeLetterName"), One("Club.ShortName") }.Where(x => x.Length > 0)));
+			return;
+		}
+
 		// The week's training: how many came on and how many went back, the best and the worst by
 		// their training rating. Read by data path: a player's name starts his line, his positions
 		// are on it, the rating is the figure drawn after it without a path.
