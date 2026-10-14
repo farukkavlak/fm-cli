@@ -593,6 +593,10 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 - Devamı: maaş/tesis/personel (`finances`, `club`), `supporters`, `scout`, `youth`, `staff`, `register` veriden / yollardan;
   `/pull` tarihleri gün olarak veriyor; `settings` adımları tekrar deniyor. `youth` ve `opponent` Türkçede tam (satırlar
   derin: adaydan 30 üst yukarıda sayfa). Açık: `Reply` mesaj ekleri hâlâ konumla.
+- Sabaha karşı: `happiness` bütün satırlar + nedenler yollarla; scout raporu yollarla; lig `Division`'dan; önbellekler
+  dile ve kariyere göre ayrı; oynama akışı Türkçede denendi (cevaplar, toplantı, `next`, teklif reddi, kiralık onayı, maç
+  günü): `offers view` kartı açık bırakıyordu, kadro uyarısı İngilizce cümleyle tanınıyordu, ikisi düzeldi
+  (FINDINGS §8.170). Tanınmayan mesaj ekleri yollarla "etiket: değer". Açık: ek türlerinin her biri hâlâ İngilizce başlıkla.
 
 ### 2026-10-13 (akşam / gece — taşınabilirlik)
 
