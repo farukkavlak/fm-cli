@@ -1176,7 +1176,8 @@ internal static partial class Program
 			var topics = rest.Skip(topicsAt + 1).TakeWhile(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"\(\d+\)$")).ToList();
 			foreach (var topic in topics) Console.WriteLine($"    {topic}");
 			var others = rest.Skip(topicsAt + 1 + topics.Count).Where(t => t != "Action message").ToList();
-			if (others.Count > 0) Console.WriteLine($"    Ayrıca: {string.Join(" · ", others)}");
+			if (others.Count > 0)
+				foreach (var line in await LabelledAttachment(others)) Console.WriteLine("    " + line);
 			return;
 		}
 
@@ -1411,13 +1412,17 @@ internal static partial class Program
 		if (article.Count > 0)
 			foreach (var paragraph in article.SelectMany(t => t.Split('\n')).Where(l => l.Trim() != ""))
 				Console.WriteLine("  " + paragraph.Trim());
-		else if (rest.Count > 0) Console.WriteLine("  " + string.Join(" · ", await LabelledAttachment(rest)));
+		else if (rest.Count > 0)
+			foreach (var line in await LabelledAttachment(rest)) Console.WriteLine("  " + line);
 	}
 
 	/// <summary>
-	/// An attachment no reader here knows, laid out by its data paths (FINDINGS §8.169): a value bound
-	/// to the game's data with the label drawn before it ("Fee: £0"), labels with nothing bound after
-	/// them as they are. The same in any language; without paths (an older plugin) the texts as they come.
+	/// An attachment no reader here knows, laid out by its data paths (FINDINGS §8.169): the texts bound
+	/// to the game's data come in records — a table's row is a run of paths that starts again when its
+	/// first path comes round ("binding.Name", "binding.InjuryRiskFactorReason", then "binding.Name"
+	/// again) — and each record is a line; a list of one path ("day.DayOfTheWeek" seven times) is one line.
+	/// Texts with nothing bound are headings, and a word drawn over and over (an icon's "Increased") is
+	/// left out. The same in any language; without paths (an older plugin) the texts as they come.
 	/// </summary>
 	private static async Task<List<string>> LabelledAttachment(List<string> shown)
 	{
@@ -1427,26 +1432,60 @@ internal static partial class Program
 			texts = (await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "8"), ("paths", "1"))).EnumerateArray()
 				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 		}
-		catch (FmError) { return shown; }
+		catch (FmError) { return [string.Join(" · ", shown)]; }
 		var start = texts.FindIndex(t => t.Text == "Attachments");
-		if (start < 0 || !texts.Any(t => t.Path.Length > 0)) return shown;
+		if (start < 0 || !texts.Any(t => t.Path.Length > 0)) return [string.Join(" · ", shown)];
 		// Only what the reader was given: the attachment, not the panels beside it.
 		var wanted = shown.ToHashSet();
-		var items = new List<string>();
-		string label = null;
-		foreach (var (text, path) in texts.Skip(start + 1).Where(t => wanted.Contains(t.Text)))
+		var items = texts.Skip(start + 1).Where(t => wanted.Contains(t.Text)).ToList();
+		var repeated = items.Where(t => t.Path.Length == 0).GroupBy(t => t.Text).Where(g => g.Count() > 2).Select(g => g.Key).ToHashSet();
+
+		// Headings (a run of plain texts) and records (a run of bound ones), in order.
+		items = items.Where(t => t.Path.Length > 0 || !repeated.Contains(t.Text)).ToList();
+		var parts = new List<(bool Record, List<(string Text, string Path)> Items)>();
+		for (var n = 0; n < items.Count; n++)
 		{
-			if (path.Length == 0)
+			var item = items[n];
+			var last = parts.Count > 0 ? parts[^1] : default;
+			// A plain text inside a row (a scout's grade between the player and the report's date) is the row's.
+			var inside = item.Path.Length == 0 && last.Record && n + 1 < items.Count && items[n + 1].Path is { Length: > 0 } next
+				&& !last.Items.Any(t => t.Path == next) && last.Items.Any(t => Root(t.Path) == Root(next));
+			var record = item.Path.Length > 0 || inside;
+			if (parts.Count == 0 || last.Record != record || record && item.Path.Length > 0 && last.Items.Any(t => t.Path == item.Path))
+				parts.Add((record, []));
+			parts[^1].Items.Add(item);
+		}
+
+		static string Root(string path) => path.Split('.')[0];
+
+		var lines = new List<string>();
+		string lastPath = null;
+		for (var k = 0; k < parts.Count; k++)
+		{
+			var (record, part) = parts[k];
+			var text = string.Join(" · ", part.Select(t => t.Text));
+			if (!record)
 			{
-				if (label != null) items.Add(label);
-				label = text;
+				// A row's own label drawn without a path ("Cts 11/7" before a fixture) leads the row it is on.
+				if (part.Count == 1 && k > 0 && parts[k - 1].Items.Count > 1 && k + 1 < parts.Count && parts[k + 1].Items.Count > 1)
+				{
+					parts[k + 1] = (true, [part[0], .. parts[k + 1].Items]);
+					continue;
+				}
+				lines.Add(text);
+				lastPath = null;
 				continue;
 			}
-			items.Add(label != null ? $"{label}: {text}" : text);
-			label = null;
+			// One path after another of the same kind: a list on one line.
+			if (part.Count == 1 && lastPath == part[0].Path && lines.Count > 0)
+			{
+				lines[^1] += " · " + text;
+				continue;
+			}
+			lines.Add("  " + text);
+			lastPath = part.Count == 1 ? part[0].Path : null;
 		}
-		if (label != null) items.Add(label);
-		return items.Count > 0 ? items : shown;
+		return lines.Count > 0 ? lines : [string.Join(" · ", shown)];
 	}
 
 	/// <summary>
