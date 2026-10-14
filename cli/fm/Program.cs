@@ -534,7 +534,7 @@ internal static partial class Program
 		{
 			if (!await Until(async () => Sent(await OpenPage(Screen.Squad))))
 				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0
-					? $"Oyun menüsüz bir ekranda ({Field(await Fm.GetJson("state"), "State")}); sayfalar açılamıyor. Geçmek için: next"
+					? Lf("Oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next", Field(await Fm.GetJson("state"), "State"))
 					: L("'First Team' sayfası açılamadı."));
 
 			if (!await Until(() => Choose(view)))
@@ -1415,7 +1415,7 @@ internal static partial class Program
 		if (rest[0] == "Report" && rest.Contains("Coach Report"))
 		{
 			string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";
-			var who = rest.Skip(1).TakeWhile(t => t != "Fitness").Where(t => t != "-").Select(t => t.Replace(" years old", " yaş")).ToList();
+			var who = rest.Skip(1).TakeWhile(t => t != "Fitness").Where(t => t != "-").Select(t => t.Replace(" years old", L(" yaş"))).ToList();
 			Console.WriteLine(L($"\n  Ek: {string.Join(" · ", who)}"));
 			if (After("Fitness") is { Length: > 0 } fitness) Console.WriteLine(L($"    Kondisyon: {fitness}"));
 			var grade = After("Coach Report");
@@ -1429,7 +1429,7 @@ internal static partial class Program
 		if (rest[0] == "Player Report" && rest.Contains("Duration") && rest.Contains("Wage"))
 		{
 			string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";
-			var who = rest.Skip(1).TakeWhile(t => t is not ("Current Ability" or "Contract")).Select(t => t.Replace(" years old", " yaş")).ToList();
+			var who = rest.Skip(1).TakeWhile(t => t is not ("Current Ability" or "Contract")).Select(t => t.Replace(" years old", L(" yaş"))).ToList();
 			Console.WriteLine(L($"\n  Ek: {string.Join(" · ", who)}"));
 			Console.WriteLine(L($"    Sözleşme: {After("Duration")} – {After("Duration", 2)} · {After("Wage")}"));
 			if (After("Finances") is { Length: > 0 } balance)

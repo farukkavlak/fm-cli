@@ -105,11 +105,14 @@ def keys(folder):
         if not name.endswith(".cs"):
             continue
         src = open(os.path.join(folder, name), encoding="utf-8").read()
-        for m in re.finditer(r"(?<![\w.])L\(", src):
+        for m in re.finditer(r"(?<![\w.])L(f?)\(", src):
             j = m.end()
             if j < len(src) and src[j] in "$@\"" and starts_literal(src, j):
                 k = literal_end(src, j)
-                found.setdefault(key_of(src[j:k]), f"{name}:{src.count(chr(10), 0, j) + 1}")
+                lit = src[j:k]
+                # Lf's literal is the template itself, its braces as written.
+                key = unescape(lit.lstrip("@")[1:-1], lit.startswith("@")) if m.group(1) else key_of(lit)
+                found.setdefault(key, f"{name}:{src.count(chr(10), 0, j) + 1}")
     return found
 
 

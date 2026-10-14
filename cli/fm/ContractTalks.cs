@@ -129,7 +129,7 @@ internal static partial class Program
 		foreach (var asked in terms)
 		{
 			if (await SetTerm("contract", asked) is not { } failed) continue;
-			if (failed.StartsWith("böyle bir şart yok", StringComparison.Ordinal)) { left.Add(asked); continue; }
+			if (failed.StartsWith(L("böyle bir şart yok"), StringComparison.Ordinal)) { left.Add(asked); continue; }
 			Console.Error.WriteLine($"{asked}: {failed}");
 			return null;
 		}
@@ -220,7 +220,7 @@ internal static partial class Program
 				actions.Add(CancelTalks);
 			}
 
-			if (Ui.Ask(promises ? L("Vaatler — değiştirmek istediğini seç:") : L("Sözleşme — değiştirmek istediğini seç:"), items, cancel: "Şimdilik bırak (görüşme açık kalır)") is not { } picked)
+			if (Ui.Ask(promises ? L("Vaatler — değiştirmek istediğini seç:") : L("Sözleşme — değiştirmek istediğini seç:"), items, cancel: L("Şimdilik bırak (görüşme açık kalır)")) is not { } picked)
 				return 0;
 
 			var before = await AgentSays();
@@ -234,7 +234,7 @@ internal static partial class Program
 
 		async Task<Outcome> Signs(List<string> told)
 		{
-			if (Ui.Ask(L("Sözleşme imzalanınca geri alınamaz."), [L("İmzala")], cancel: "Geri dön") == null) return Outcome.Answered;
+			if (Ui.Ask(L("Sözleşme imzalanınca geri alınamaz."), [L("İmzala")], cancel: L("Geri dön")) == null) return Outcome.Answered;
 			var outcome = await Propose(told);
 			// Signed: the card is gone, so what was said is said here.
 			if (outcome == Outcome.Signed) foreach (var line in told) Console.WriteLine(line);
@@ -243,7 +243,7 @@ internal static partial class Program
 
 		async Task<string> CancelTalks()
 		{
-			if (Ui.Ask(L("Görüşme kapanacak; menajer bundan hoşlanmayabilir."), [L("İptal et")], cancel: "Geri dön") == null) return null;
+			if (Ui.Ask(L("Görüşme kapanacak; menajer bundan hoşlanmayabilir."), [L("İptal et")], cancel: L("Geri dön")) == null) return null;
 			if (await CallOff() is { } failed) return failed;
 			await OpenPage(Screen.Home);
 			Console.WriteLine(L("Görüşme iptal edildi."));
@@ -455,7 +455,7 @@ internal static partial class Program
 			return 1;
 		}
 		var go = !Ui.Interactive
-			|| Ui.Ask(L($"{name}: menajerine sormadan görüşmeye giriliyor; oyuncu ve menajer bundan hoşlanmayabilir."), [L("Yine de gir")], cancel: "Vazgeç") != null;
+			|| Ui.Ask(L($"{name}: menajerine sormadan görüşmeye giriliyor; oyuncu ve menajer bundan hoşlanmayabilir."), [L("Yine de gir")], cancel: L("Vazgeç")) != null;
 		if (!Ui.Interactive) Console.WriteLine(L("(Oyun uyardı: menajere sormadan görüşmeye girmek oyuncuyu ve menajeri üzebilir.)"));
 		await Fm.Get("click", ("ptr", Field(DialogAnswer(warning, go)!.Value, "Pointer")));
 		return go ? null : 0;

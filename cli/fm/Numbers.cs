@@ -74,7 +74,7 @@ internal static partial class Program
 
 		// Handing them all to the assistant is the manager's call; it is offered, not taken.
 		if (Ui.Interactive && await Labelled(NumbersAssist) is { } pick
-		    && Ui.Ask(L("Forma numaraları"), [L("Yardımcı dağıtsın ve gönder")], cancel: "Şimdilik bırak") != null)
+		    && Ui.Ask(L("Forma numaraları"), [L("Yardımcı dağıtsın ve gönder")], cancel: L("Şimdilik bırak")) != null)
 		{
 			await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
 			return await SendList(NumbersConfirm, L("Forma numaraları"));
@@ -82,8 +82,8 @@ internal static partial class Program
 		return 0;
 	}
 
-	private const string NumbersLocked =
-		"Oyun şu an numara değişikliği almıyor: numaralar sezon başında ya da yeni transfer gelince kaydediliyor, sonra sezon sonuna kadar değişmiyor.";
+	private static string NumbersLocked => L(
+		"Oyun şu an numara değişikliği almıyor: numaralar sezon başında ya da yeni transfer gelince kaydediliyor, sonra sezon sonuna kadar değişmiyor.");
 
 	/// <summary>`numbers <oyuncu> <no>`: picks the number in the player's row; it is registered by --send.</summary>
 	private static async Task<int> GiveNumber(List<string> words)

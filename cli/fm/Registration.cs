@@ -98,7 +98,7 @@ internal static partial class Program
 			}
 
 			var action = choices[index];
-			if (action == "Listeyi gönder")
+			if (action == L("Listeyi gönder"))
 			{
 				// The table above is the list as it was; say what became of it.
 				var now = players.Where(p => p.On).Select(p => p.Name).ToHashSet();
@@ -109,7 +109,7 @@ internal static partial class Program
 				        + (gone.Count > 0 ? $"  [red]− {Ui.Safe(string.Join(", ", gone))}[/]" : ""));
 				return await SendList("Confirm", L("Kadro listesi"));
 			}
-			if (action == "Yardımcı seçsin")
+			if (action == L("Yardımcı seçsin"))
 			{
 				if (await Labelled("Ask Assistant to Pick") is { } pick) await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
 				await Task.Delay(1500);

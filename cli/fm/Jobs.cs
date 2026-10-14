@@ -165,7 +165,7 @@ internal static partial class Program
 		Console.WriteLine(L($"{jobs.Count} iş ilanı\n"));
 		Table.Write(["#", L("KULÜP"), L("LİG"), L("ÜLKE"), L("SIRA"), L("İTİBAR"), L("MALİ DURUM"), L("BAŞVURU")],
 			jobs.Select(j => (string[])[j.Number.ToString(), j.Club, j.League, j.Nation, j.Position, ReputationTurkish(j.Rating),
-				FinancesTurkish(j.Finances), j.CanApply switch { true => "açık", false => "kapalı", _ => "?" }]).ToList());
+				FinancesTurkish(j.Finances), j.CanApply switch { true => L("açık"), false => L("kapalı"), _ => "?" }]).ToList());
 		Console.WriteLine(L("\nAyrıntı: jobs <kulüp|#>   ·   başvur: jobs <kulüp> apply   ·   ilgi bildir: jobs <kulüp> interest"));
 		return 0;
 	}

@@ -101,7 +101,7 @@ internal static partial class Program
 				}
 				options = await PickerCategory(menu, categories[c], null) ?? [];
 				var names = options.Select(o => o.Name).ToList();
-				if (Ui.Ask(L($"{categories[c]} — seans"), names, names.IndexOf(session.Name), cancel: "Geri") is { } s)
+				if (Ui.Ask(L($"{categories[c]} — seans"), names, names.IndexOf(session.Name), cancel: L("Geri")) is { } s)
 				{
 					chosen = names[s];
 					break;
@@ -213,7 +213,7 @@ internal static partial class Program
 				}
 				options = await PickerCategory(menu, kinds[k].Choice, kinds[k].Path) ?? [];
 				var names = options.Select(o => o.Name).ToList();
-				if (Ui.Ask(L($"{kinds[k].Label} — program"), names, names.FindIndex(n => day.Week.Name.StartsWith(n, StringComparison.Ordinal)), cancel: "Geri") is { } s)
+				if (Ui.Ask(L($"{kinds[k].Label} — program"), names, names.FindIndex(n => day.Week.Name.StartsWith(n, StringComparison.Ordinal)), cancel: L("Geri")) is { } s)
 				{
 					chosen = names[s];
 					break;

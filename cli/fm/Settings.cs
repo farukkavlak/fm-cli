@@ -53,36 +53,36 @@ internal static partial class Program
 
 	private static readonly Setting[] Settings =
 	[
-		new("maç gösterimi", "Maç", "Match Day", "Dynamic Mode", SettingKind.Radio, HighlightTurkish,
-			Hint: "az gösterim maçı kısaltır"),
-		new("dinamik mod", "Maç", "Match Day", "Dynamic Mode", SettingKind.Checkbox,
-			Hint: "gösterimi oyun seçer"),
+		new(L("maç gösterimi"), L("Maç günü"), "Match Day", "Dynamic Mode", SettingKind.Radio, HighlightTurkish,
+			Hint: L("az gösterim maçı kısaltır")),
+		new(L("dinamik mod"), L("Maç günü"), "Match Day", "Dynamic Mode", SettingKind.Checkbox,
+			Hint: L("gösterimi oyun seçer")),
 		// The slider's steps as the page labels them, read off it one step at a time.
-		new("vurgu hızı", "Maç", "Match Day", "Match Speed During Highlights", SettingKind.Slider,
+		new(L("vurgu hızı"), L("Maç günü"), "Match Day", "Match Speed During Highlights", SettingKind.Slider,
 			Steps: ["0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x", "2.5x", "3x", "4x", "10x"],
-			Hint: "pozisyon oynarken"),
-		new("ara hızı", "Maç", "Match Day", "Match Speed Between Highlights", SettingKind.Slider,
+			Hint: L("pozisyon oynarken")),
+		new(L("ara hızı"), L("Maç günü"), "Match Day", "Match Speed Between Highlights", SettingKind.Slider,
 			Steps: ["4x", "8x", "10x", "20x", "30x", "40x"],
-			Hint: "pozisyonlar arası"),
-		new("otomatik kayıt", "Kayıt", "Your World", "Use Auto Saves", SettingKind.Checkbox),
-		new("kayıt sıklığı", "Kayıt", "Your World", "Every", SettingKind.Dropdown, IntervalTurkish, Offers: "Fortnight"),
-		new("kayıt türü", "Kayıt", "Your World", "Auto save type", SettingKind.Dropdown, SaveTypeTurkish, Offers: "Single File"),
-		new("dil", "Bölge ve birimler", "Your World", "Game Language", SettingKind.Dropdown,
-			Hint: "İngilizce dışı komutları bozar"),
-		new("para birimi", "Bölge ve birimler", "Your World", "Currency", SettingKind.Dropdown),
-		new("maaş", "Bölge ve birimler", "Your World", "Wages", SettingKind.Dropdown, UnitTurkish),
-		new("tarih", "Bölge ve birimler", "Your World", "Format", SettingKind.Dropdown),
-		new("sıcaklık", "Bölge ve birimler", "Your World", "Temperature", SettingKind.Dropdown, UnitTurkish),
-		new("boy", "Bölge ve birimler", "Your World", "Height", SettingKind.Dropdown, UnitTurkish),
-		new("kısa mesafe", "Bölge ve birimler", "Your World", "Short Distance", SettingKind.Dropdown, UnitTurkish),
-		new("uzun mesafe", "Bölge ve birimler", "Your World", "Long Distance", SettingKind.Dropdown, UnitTurkish),
-		new("oran biçimi", "Bölge ve birimler", "Your World", "Match Odds", SettingKind.Dropdown),
-		new("diğer maçların hızı", "İşlem", "Processing", "Speed to Process Other Teams' Matches", SettingKind.Dropdown,
-			Hint: "Fast: gün ilerletme daha çabuk"),
-		new("maç takvimi", "İşlem", "Processing", "Match Scheduling Options", SettingKind.Dropdown,
-			Hint: "maçlar yayın için kaydırılsın mı"),
-		new("okumadan ilerleme yok", "İşlem", "Processing", "Continue Button Legacy Mode", SettingKind.Checkbox,
-			Hint: "bütün mesajlar okunmadan Continue çalışmaz"),
+			Hint: L("pozisyonlar arası")),
+		new(L("otomatik kayıt"), L("Kayıt"), "Your World", "Use Auto Saves", SettingKind.Checkbox),
+		new(L("kayıt sıklığı"), L("Kayıt"), "Your World", "Every", SettingKind.Dropdown, IntervalTurkish, Offers: "Fortnight"),
+		new(L("kayıt türü"), L("Kayıt"), "Your World", "Auto save type", SettingKind.Dropdown, SaveTypeTurkish, Offers: "Single File"),
+		new(L("dil"), L("Bölge ve birimler"), "Your World", "Game Language", SettingKind.Dropdown,
+			Hint: L("oyunun ve fm'in yazıları bu dilde")),
+		new(L("para birimi"), L("Bölge ve birimler"), "Your World", "Currency", SettingKind.Dropdown),
+		new(L("maaş"), L("Bölge ve birimler"), "Your World", "Wages", SettingKind.Dropdown, UnitTurkish),
+		new(L("tarih"), L("Bölge ve birimler"), "Your World", "Format", SettingKind.Dropdown),
+		new(L("sıcaklık"), L("Bölge ve birimler"), "Your World", "Temperature", SettingKind.Dropdown, UnitTurkish),
+		new(L("boy"), L("Bölge ve birimler"), "Your World", "Height", SettingKind.Dropdown, UnitTurkish),
+		new(L("kısa mesafe"), L("Bölge ve birimler"), "Your World", "Short Distance", SettingKind.Dropdown, UnitTurkish),
+		new(L("uzun mesafe"), L("Bölge ve birimler"), "Your World", "Long Distance", SettingKind.Dropdown, UnitTurkish),
+		new(L("oran biçimi"), L("Bölge ve birimler"), "Your World", "Match Odds", SettingKind.Dropdown),
+		new(L("diğer maçların hızı"), L("İşlem"), "Processing", "Speed to Process Other Teams' Matches", SettingKind.Dropdown,
+			Hint: L("Fast: gün ilerletme daha çabuk")),
+		new(L("maç takvimi"), L("İşlem"), "Processing", "Match Scheduling Options", SettingKind.Dropdown,
+			Hint: L("maçlar yayın için kaydırılsın mı")),
+		new(L("okumadan ilerleme yok"), L("İşlem"), "Processing", "Continue Button Legacy Mode", SettingKind.Checkbox,
+			Hint: L("bütün mesajlar okunmadan Continue çalışmaz")),
 	];
 
 	/// <summary>A setting as found on its page: the control, its choices and which one is in force.</summary>
@@ -136,7 +136,7 @@ internal static partial class Program
 			DrawSettings(found);
 
 			// At the keyboard the list is also where a change starts.
-			var pick = Ui.Ask(L("Değiştirmek istediğin ayar"), found.Select(f => $"{f.Setting.Name}: {Shown(f.Setting, ValueOf(f))}").ToList(), cancel: "Hiçbiri");
+			var pick = Ui.Ask(L("Değiştirmek istediğin ayar"), found.Select(f => $"{f.Setting.Name}: {Shown(f.Setting, ValueOf(f))}").ToList(), cancel: L("Hiçbiri"));
 			if (pick == null)
 			{
 				if (!Ui.Interactive) Console.WriteLine(L("\nDeğiştirmek: settings <ayar> [<değer>]  (ör. settings vurgu hızı 2x)"));
@@ -238,7 +238,7 @@ internal static partial class Program
 		engineChecked = false;
 		// The screens change at once; the game's own texts (a fixture's venue, a match's kind) only
 		// once it is started again, which would lose what is not saved, so it is said, not done.
-		if (wanted.Name == "dil")
+		if (wanted.Name == L("dil"))
 			Console.WriteLine(L("Ekranlar yeni dilde; oyunun kendi yazıları (maç türü, iç saha / deplasman…) oyun yeniden açılınca değişir: save, sonra stop ve start."));
 		return 0;
 	}
@@ -399,6 +399,6 @@ internal static partial class Program
 	/// <summary>Why the game's FM menu is not there: most often a screen with no menus at all (the results after a match).</summary>
 	private static async Task<string> FmMenuMissing() =>
 		(await Fm.GetJson("pages")).GetArrayLength() == 0
-			? $"Oyun menüsüz bir ekranda ({Field(await Fm.GetJson("state"), "State")}); FM menüsü açılamıyor. Geçmek için: next"
+			? Lf("Oyun menüsüz bir ekranda ({0}); FM menüsü açılamıyor. Geçmek için: next", Field(await Fm.GetJson("state"), "State"))
 			: L("Oyunun FM menüsü bulunamadı.");
 }

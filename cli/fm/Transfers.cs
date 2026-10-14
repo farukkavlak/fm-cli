@@ -225,10 +225,10 @@ internal static partial class Program
 					actions.Add(() => AddTerm("offer", add));
 				}
 
-				if (Ui.Ask(L("Teklif — değiştirmek istediğini seç:"), items, cancel: "Gönderme, ekranı açık bırak") is not { } picked) return false;
+				if (Ui.Ask(L("Teklif — değiştirmek istediğini seç:"), items, cancel: L("Gönderme, ekranı açık bırak")) is not { } picked) return false;
 				if (actions[picked] == null)
 				{
-					if (Ui.Ask(L($"{now.Player} için {now.BudgetCost} teklif gidecek. Geri alınamaz."), [L("Gönder")], cancel: "Geri dön") == null) continue;
+					if (Ui.Ask(L($"{now.Player} için {now.BudgetCost} teklif gidecek. Geri alınamaz."), [L("Gönder")], cancel: L("Geri dön")) == null) continue;
 					return true;
 				}
 

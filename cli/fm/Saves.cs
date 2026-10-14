@@ -487,7 +487,7 @@ internal static partial class Program
 			return 1;
 		}
 		await Until(async () => Field(await Fm.GetJson("state"), "Date").Length > 0, seconds: 60, every: 1);
-		Console.WriteLine($"Hazır: {name} ({Pretty(Field(await Fm.GetJson("state"), "Date"))}).");
+		Console.WriteLine(Lf("Hazır: {0} ({1}).", name, Pretty(Field(await Fm.GetJson("state"), "Date"))));
 		return 0;
 	}
 }

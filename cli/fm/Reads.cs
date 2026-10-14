@@ -196,7 +196,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		if (Ui.Ask(L($"{name}: ne yapalım?"), labels, cancel: "Hiçbir şey") is not { } chosen) return 0;
+		if (Ui.Ask(L($"{name}: ne yapalım?"), labels, cancel: L("Hiçbir şey")) is not { } chosen) return 0;
 
 		// The offer opens on its card, where the fee is set with the other terms.
 		if (options[chosen].Label == "Make An Offer") return await Offer(["offer", name]);

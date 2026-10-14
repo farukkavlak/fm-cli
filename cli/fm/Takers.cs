@@ -110,7 +110,7 @@ internal static partial class Program
 			{
 				var at = side.Value;
 				var heading = lists[at].Heading;
-				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? L("sağ") : "sol")}", L("Atıcı"), L("atıcılar"), L("Atıcılara"), tables[at],
+				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? L("sağ") : L("sol"))}", L("Atıcı"), L("atıcılar"), L("Atıcılara"), tables[at],
 					async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Where(d => Field(d, "Label") == "Add Player").ToList() is { Count: 2 } adds ? adds[at] : null,
 					async () => await TakerLists() is { Count: 2 } now && now[at].Heading == heading
 						? (now[at].Takers.Select(t => new Placed(t.Order, t.Name)).ToList(), now[at].Key, now[at].Whole)

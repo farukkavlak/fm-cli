@@ -100,7 +100,7 @@ internal static partial class Program
 		}
 		else if (Ui.Interactive && !dry)
 		{
-			if (Ui.Ask(target.Name, choices, current: choices.IndexOf(current), cancel: "Vazgeç") is not { } picked) return 0;
+			if (Ui.Ask(target.Name, choices, current: choices.IndexOf(current), cancel: L("Vazgeç")) is not { } picked) return 0;
 			choice = choices[picked];
 		}
 		else if (Ui.Json)
@@ -344,7 +344,7 @@ internal static partial class Program
 		}
 		else if (Ui.Interactive && !dry)
 		{
-			if (Ui.Ask(name, choices, current: choices.IndexOf(current), cancel: "Vazgeç") is not { } picked) return 0;
+			if (Ui.Ask(name, choices, current: choices.IndexOf(current), cancel: L("Vazgeç")) is not { } picked) return 0;
 			choice = choices[picked];
 		}
 		else if (Ui.Json)

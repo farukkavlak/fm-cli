@@ -21,24 +21,24 @@ internal static partial class Program
 
 	private static readonly QueryField[] QueryFields =
 	[
-		new("AD", "Name", QueryKind.Text, "adı", ["ad", "isim", "name"]),
-		new("YAŞ", "Age", QueryKind.Number, "yaşı", ["yas", "age"]),
-		new("MEVKİ", "PositionCombinedString", QueryKind.Text, "oynadığı mevkiler (ST, D (C), AM…)", ["mevki", "pozisyon", "position", "pos"]),
-		new("NO", "SquadNumber", QueryKind.Number, "forma numarası", ["no", "numara", "number"]),
-		new("ÜLKE", "Nation.Name", QueryKind.Text, "ülkesi (oyundaki adıyla: Brazil)", ["ulke", "nation", "milliyet"]),
-		new("BOY", "Height", QueryKind.Number, "boyu, cm", ["boy", "height"]),
-		new("KONDİSYON", "Condition", QueryKind.Number, "kondisyonu, %", ["kondisyon", "condition"]),
-		new("MAÇ FORMU", "Sharpness", QueryKind.Number, "maç formu, %", ["form", "sharpness", "macformu"]),
-		new("SAKAT", "IsInjured", QueryKind.Flag, "sakat mı (sakat / !sakat)", ["sakat", "injured"]),
-		new("POTANSİYEL", "PerceivedPotentialAbility", QueryKind.Number, "kulübün gördüğü potansiyel, 200 üzerinden", ["potansiyel", "potential", "pa"]),
+		new(L("AD"), "Name", QueryKind.Text, L("adı"), ["ad", "isim", "name"]),
+		new(L("YAŞ"), "Age", QueryKind.Number, L("yaşı"), ["yas", "age"]),
+		new(L("MEVKİ"), "PositionCombinedString", QueryKind.Text, L("oynadığı mevkiler (ST, D (C), AM…)"), ["mevki", "pozisyon", "position", "pos"]),
+		new(L("NO"), "SquadNumber", QueryKind.Number, L("forma numarası"), ["no", "numara", "number"]),
+		new(L("ÜLKE"), "Nation.Name", QueryKind.Text, L("ülkesi (oyundaki adıyla: Brazil)"), ["ulke", "nation", "milliyet"]),
+		new(L("BOY"), "Height", QueryKind.Number, L("boyu, cm"), ["boy", "height"]),
+		new(L("KONDİSYON"), "Condition", QueryKind.Number, L("kondisyonu, %"), ["kondisyon", "condition"]),
+		new(L("MAÇ FORMU"), "Sharpness", QueryKind.Number, L("maç formu, %"), ["form", "sharpness", "macformu"]),
+		new(L("SAKAT"), "IsInjured", QueryKind.Flag, L("sakat mı (sakat / !sakat)"), ["sakat", "injured"]),
+		new(L("POTANSİYEL"), "PerceivedPotentialAbility", QueryKind.Number, L("kulübün gördüğü potansiyel, 200 üzerinden"), ["potansiyel", "potential", "pa"]),
 		// The wage's sort value is the weekly wage in pounds, whatever period and currency the game shows.
-		new("MAAŞ", "FullContract.Wage.SortValue", QueryKind.Money, "haftalık maaşı, sterlin (50K, 1.2M)", ["maas", "wage"]),
-		new("SÖZLEŞME", "FullContract.EndDate", QueryKind.Months, "sözleşmesinin kalan süresi (1yıl, 18ay)", ["sozlesme", "contract", "kalan"]),
-		new("STATÜ", "FullContract.AgreedPlayingTime.DisplayValue", QueryKind.Text, "söz verilen oynama süresi (Star Player, Squad Player…)", ["statu", "status", "sure"]),
-		new("MAÇ", "ClubAppearancesThisSeason", QueryKind.Number, "bu sezon maç", ["mac", "apps", "matches"]),
-		new("GOL", "ClubGoalsThisSeason", QueryKind.Number, "bu sezon gol", ["gol", "goals"]),
-		new("ASİST", "ClubAssistsThisSeason", QueryKind.Number, "bu sezon asist", ["asist", "assists"]),
-		new("PUAN", "ClubAverageRatingThisSeason", QueryKind.Number, "bu sezon ortalama puan", ["puan", "rating", "ortalama"]),
+		new(L("MAAŞ"), "FullContract.Wage.SortValue", QueryKind.Money, L("haftalık maaşı, sterlin (50K, 1.2M)"), ["maas", "wage"]),
+		new(L("SÖZLEŞME"), "FullContract.EndDate", QueryKind.Months, L("sözleşmesinin kalan süresi (1yıl, 18ay)"), ["sozlesme", "contract", "kalan"]),
+		new(L("STATÜ"), "FullContract.AgreedPlayingTime.DisplayValue", QueryKind.Text, L("söz verilen oynama süresi (Star Player, Squad Player…)"), ["statu", "status", "sure"]),
+		new(L("MAÇ"), "ClubAppearancesThisSeason", QueryKind.Number, L("bu sezon maç"), ["mac", "apps", "matches"]),
+		new(L("GOL"), "ClubGoalsThisSeason", QueryKind.Number, L("bu sezon gol"), ["gol", "goals"]),
+		new(L("ASİST"), "ClubAssistsThisSeason", QueryKind.Number, L("bu sezon asist"), ["asist", "assists"]),
+		new(L("PUAN"), "ClubAverageRatingThisSeason", QueryKind.Number, L("bu sezon ortalama puan"), ["puan", "rating", "ortalama"]),
 	];
 
 	private sealed record QueryTerm(QueryField Field, string Op, string Raw, double Number);

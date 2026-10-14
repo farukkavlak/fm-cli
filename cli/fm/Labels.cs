@@ -55,6 +55,13 @@ internal static class Labels
 	/// <summary>A text the CLI prints, in the game's language.</summary>
 	public static string L(string text) => AsWritten ? text : Lookup(text.Replace("{", "{{").Replace("}", "}}")) is { } shown ? string.Format(CultureInfo.CurrentCulture, shown) : text;
 
+	/// <summary>
+	/// A text with its template written out ("{0} …"), in the game's language: for values that need an
+	/// await, which an interpolated <see cref="L(ref Template)"/> cannot hold.
+	/// </summary>
+	public static string Lf(string template, params object?[] values) =>
+		string.Format(CultureInfo.CurrentCulture, AsWritten ? template : Lookup(template) ?? template, values);
+
 	/// <summary>A text the CLI prints with values in it, in the game's language.</summary>
 	public static string L(ref Template text) => text.Text();
 

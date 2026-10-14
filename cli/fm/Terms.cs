@@ -9,40 +9,42 @@ internal static partial class Program
 	/// <summary>One term, at a terminal: its choice, its amount, its lock, or taking it out.</summary>
 	private static async Task<string> EditTerm(string route, OfferScreen.Term row)
 	{
+		// What each way is, by its place: the words are in the game's language.
 		var ways = new List<string>();
-		if (row.Choice != null && row.Choice.Choices.Count > 1) ways.Add(L($"Seçimi değiştir ({row.Choice.Value})"));
-		if (row.Amount != null) ways.Add(L($"Tutarı değiştir ({row.Amount.Value})"));
-		if (row.Lock != null && row.Lock.Choices.Count > 1) ways.Add(L($"Pazarlık durumu ({OfferScreen.SayLock(row.Lock.Value)})"));
-		if (row.Remove.Length > 0) ways.Add(L("Kaldır"));
+		var kinds = new List<string>();
+		if (row.Choice != null && row.Choice.Choices.Count > 1) { ways.Add(L($"Seçimi değiştir ({row.Choice.Value})")); kinds.Add("choice"); }
+		if (row.Amount != null) { ways.Add(L($"Tutarı değiştir ({row.Amount.Value})")); kinds.Add("amount"); }
+		if (row.Lock != null && row.Lock.Choices.Count > 1) { ways.Add(L($"Pazarlık durumu ({OfferScreen.SayLock(row.Lock.Value)})")); kinds.Add("lock"); }
+		if (row.Remove.Length > 0) { ways.Add(L("Kaldır")); kinds.Add("remove"); }
 		if (ways.Count == 0) return L("Bu şart değiştirilemiyor.");
 
-		var way = ways.Count == 1 ? 0 : Ui.Ask(OfferScreen.Say(row.Label), ways, cancel: "Geri");
+		var way = ways.Count == 1 ? 0 : Ui.Ask(OfferScreen.Say(row.Label), ways, cancel: L("Geri"));
 		if (way == null) return null;
-		var chosen = ways[way.Value];
-		if (chosen.StartsWith("Seçimi", StringComparison.Ordinal))
+		var chosen = kinds[way.Value];
+		if (chosen == "choice")
 			return await PickTermChoice(route, OfferScreen.Say(row.Label), row.Choice, s => s.Row(row)?.Choice);
-		if (chosen.StartsWith("Tutarı", StringComparison.Ordinal))
+		if (chosen == "amount")
 		{
 			if (Ui.Text(L($"{OfferScreen.Say(row.Label)} tutarı (ör. 7.5M, 250K, 12000; boş: vazgeç)")) is not { } typed) return null;
 			if (Money(typed) is not { } amount) return L($"'{typed}' bir tutar değil.");
 			return await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row)?.Amount, route);
 		}
-		if (chosen.StartsWith("Pazarlık", StringComparison.Ordinal))
+		if (chosen == "lock")
 			return await PickLock(route, row, s => s.Row(row)?.Lock);
-		if (Ui.Ask(L($"{OfferScreen.Say(row.Label)} kaldırılsın mı?"), [L("Kaldır")], cancel: "Geri") == null) return null;
+		if (Ui.Ask(L($"{OfferScreen.Say(row.Label)} kaldırılsın mı?"), [L("Kaldır")], cancel: L("Geri")) == null) return null;
 		return await OfferScreen.Remove(Fm, row, route);
 	}
 
 	private static async Task<string> PickLock(string route, OfferScreen.Term term, Func<OfferScreen, OfferScreen.Control> after)
 	{
 		var names = term.Lock.Choices.Select(OfferScreen.SayLock).ToList();
-		if (Ui.Ask(L($"{OfferScreen.Say(term.Label)} — karşı taraf bunu ne kadar değiştirebilsin?"), names, current: term.Lock.Choices.IndexOf(term.Lock.Value), cancel: "Geri") is not { } picked) return null;
+		if (Ui.Ask(L($"{OfferScreen.Say(term.Label)} — karşı taraf bunu ne kadar değiştirebilsin?"), names, current: term.Lock.Choices.IndexOf(term.Lock.Value), cancel: L("Geri")) is not { } picked) return null;
 		return term.Lock.Choices[picked] == term.Lock.Value ? null : await OfferScreen.SetLock(Fm, term, term.Lock.Choices[picked], route, after);
 	}
 
 	private static async Task<string> PickTermChoice(string route, string title, OfferScreen.Control control, Func<OfferScreen, OfferScreen.Control> after)
 	{
-		if (Ui.Ask(title, control.Choices, current: control.Choices.IndexOf(control.Value), cancel: "Geri") is not { } picked) return null;
+		if (Ui.Ask(title, control.Choices, current: control.Choices.IndexOf(control.Value), cancel: L("Geri")) is not { } picked) return null;
 		return control.Choices[picked] == control.Value ? null : await OfferScreen.Choose(Fm, control, control.Choices[picked], after, route);
 	}
 

@@ -105,7 +105,7 @@ internal static partial class Program
 					Pitch.Draw(tactic);
 					if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine(L($"Yedekler: {string.Join(", ", benched)}"));
 					Console.WriteLine();
-					if (Ui.Ask(L("Kadro bu."), [L("Maça çık")], cancel: "Değişiklik yapacağım (tactic player / role), sonra match") == null) return 0;
+					if (Ui.Ask(L("Kadro bu."), [L("Maça çık")], cancel: L("Değişiklik yapacağım (tactic player / role), sonra match")) == null) return 0;
 				}
 			}
 			stop = flow;
@@ -199,7 +199,7 @@ internal static partial class Program
 					return 0;
 				}
 
-				if (Ui.Ask(L("Ne diyorsun?"), lines.Select(l => l.Label).ToList(), cancel: "Konuşmadan geç") is not { } chosen)
+				if (Ui.Ask(L("Ne diyorsun?"), lines.Select(l => l.Label).ToList(), cancel: L("Konuşmadan geç")) is not { } chosen)
 				{
 					spoke = flow;
 					continue;
@@ -517,7 +517,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{problem} Yardımcıya yeniden seçtirmek için: tactic pick   ·   kendin: tactic player <mevki> <oyuncu>   ·   sonra: match"));
 			return 1;
 		}
-		if (Ui.Ask(problem, [L("Yardımcı yeniden seçsin (Quick Pick)")], cancel: "Kendim değiştireceğim, maçtan çık") == null)
+		if (Ui.Ask(problem, [L("Yardımcı yeniden seçsin (Quick Pick)")], cancel: L("Kendim değiştireceğim, maçtan çık")) == null)
 		{
 			Console.WriteLine(L("Kadro için: tactic player <mevki> <oyuncu>   ·   sonra: match"));
 			return 0;
@@ -539,7 +539,7 @@ internal static partial class Program
 		if (Field(state, "Period") == "" && Field(state, "State") is "FullTimeTeamTalk" or "PostMatchReaction" or "LeaveMatch"
 		    && period is not ("" or "FullTime") && score != null)
 		{
-			if (LastWhistle != $"Maç sonu: {score}") Console.WriteLine(L($"  Maç sonu: {score}"));
+			if (LastWhistle != L($"Maç sonu: {score}")) Console.WriteLine(L($"  Maç sonu: {score}"));
 			LastWhistle = L($"Maç sonu: {score}");
 			period = "FullTime";
 			return;

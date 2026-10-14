@@ -35,7 +35,7 @@ internal static partial class Program
 		Table.Write([L("OYUNCU"), L("ÜLKE"), L("MİLLİ MAÇ"), L("GOL"), L("BU SEZON")], players.Select(p => (string[])
 		[
 			p.Name, p.Nation, Caps(p.Career) is > 0 and var caps ? caps.ToString() : "-", CareerGoals(p.Career) is > 0 and var goals ? goals.ToString() : "-",
-			p.Games > 0 ? $"{p.Games} maç{(p.Goals > 0 ? L($", {p.Goals} gol") : "")}" : "",
+			p.Games > 0 ? L($"{p.Games} maç") + (p.Goals > 0 ? L($", {p.Goals} gol") : "") : "",
 		]).ToList());
 		var called = players.Count(p => p.Games > 0);
 		Console.WriteLine(L($"\n{players.Count(p => Caps(p.Career) > 0)} oyuncu milli olmuş; {called} tanesi bu sezon milli takımda oynadı."));

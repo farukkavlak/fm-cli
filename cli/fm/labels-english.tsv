@@ -2150,3 +2150,72 @@ frikik	freekick
 kanat	wide
 derin	deep
 tac	throw
+böyle bir şart yok	there is no such term
+Vazgeç	Cancel
+Şimdilik bırak (görüşme açık kalır)	Leave it for now (the negotiation stays open)
+Geri dön	Go back
+Şimdilik bir şey deme	Say nothing for now
+Sihirbazı burada bırak	Leave the wizard here
+Değişiklik yapacağım (tactic player / role), sonra match	I will make changes (tactic player / role), then match
+Konuşmadan geç	Skip the talk
+Kendim değiştireceğim, maçtan çık	I will change it myself, leave the match
+Şimdilik bırak	Leave it for now
+az gösterim maçı kısaltır	fewer highlights make the match shorter
+gösterimi oyun seçer	the game chooses the highlights
+pozisyon oynarken	while a move is played
+pozisyonlar arası	between moves
+oyunun ve fm'in yazıları bu dilde	the game's and fm's texts in this language
+Fast: gün ilerletme daha çabuk	Fast: days move on quicker
+maçlar yayın için kaydırılsın mı	whether matches are moved for broadcasting
+bütün mesajlar okunmadan Continue çalışmaz	Continue does not work until every message is read
+Hiçbiri	None
+Gönderme, ekranı açık bırak	Do not send, leave the screen open
+Etkin taktik ({0}) yerine yenisi kurulacak; eskisi kayıtlı taktiklerde kalır.	A new tactic will be built in place of the active one ({0}); the old one stays among the saved tactics.
+Oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next	The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next
+Hazır: {0} ({1}).	Ready: {0} ({1}).
+Oyun menüsüz bir ekranda ({0}); FM menüsü açılamıyor. Geçmek için: next	The game is on a screen without a menu ({0}); the FM menu cannot be opened. To go past it: next
+Oyun şu an numara değişikliği almıyor: numaralar sezon başında ya da yeni transfer gelince kaydediliyor, sonra sezon sonuna kadar değişmiyor.	The game does not take number changes right now: numbers are saved at the start of the season or when a new signing arrives, and then do not change until the end of the season.
+ yaş	 years old
+AD	NAME
+BOY	HEIGHT
+adı	their name
+yaşı	their age
+oynadığı mevkiler (ST, D (C), AM…)	the positions they play (ST, D (C), AM…)
+forma numarası	squad number
+ülkesi (oyundaki adıyla: Brazil)	their nation (by the game's name: Brazil)
+boyu, cm	their height, cm
+kondisyonu, %	their condition, %
+maç formu, %	match sharpness, %
+sakat mı (sakat / !sakat)	whether injured (injured / !injured)
+kulübün gördüğü potansiyel, 200 üzerinden	potential as the club sees it, out of 200
+haftalık maaşı, sterlin (50K, 1.2M)	weekly wage, pounds (50K, 1.2M)
+sözleşmesinin kalan süresi (1yıl, 18ay)	time left on their contract (1year, 18months)
+söz verilen oynama süresi (Star Player, Squad Player…)	promised playing time (Star Player, Squad Player…)
+bu sezon maç	apps this season
+bu sezon gol	goals this season
+bu sezon asist	assists this season
+bu sezon ortalama puan	average rating this season
+maç gösterimi	match display
+dinamik mod	dynamic mode
+vurgu hızı	highlight speed
+ara hızı	speed between highlights
+otomatik kayıt	auto save
+kayıt sıklığı	save frequency
+kayıt türü	save type
+dil	language
+para birimi	currency
+maaş	wages
+tarih	date format
+sıcaklık	temperature
+boy	height
+kısa mesafe	short distance
+uzun mesafe	long distance
+oran biçimi	odds format
+diğer maçların hızı	other matches' speed
+maç takvimi	match scheduling
+okumadan ilerleme yok	no continuing unread
+Kayıt	Saving
+Bölge ve birimler	Region and units
+İşlem	Processing
+
+Maç günü	Match day

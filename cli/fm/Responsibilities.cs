@@ -318,7 +318,7 @@ internal static partial class Program
 		}
 		else if (Ui.Interactive)
 		{
-			if (Ui.Ask(duty.Title, people, current: people.IndexOf(now.Holder), cancel: "Vazgeç") is not { } picked) return 0;
+			if (Ui.Ask(duty.Title, people, current: people.IndexOf(now.Holder), cancel: L("Vazgeç")) is not { } picked) return 0;
 			person = people[picked];
 		}
 		else

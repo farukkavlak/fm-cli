@@ -254,7 +254,7 @@ internal static partial class Program
 				var recommended = await Recommended();
 				var labels = options.Select(o => o.Label + (recommended.Contains(o.Label) ? L("  (önerilen)") : "")).ToList();
 				Console.WriteLine();
-				if (Ui.Ask(L("Ne diyorsun?"), labels, cancel: "Şimdilik bir şey deme") is not { } asked)
+				if (Ui.Ask(L("Ne diyorsun?"), labels, cancel: L("Şimdilik bir şey deme")) is not { } asked)
 				{
 					Console.WriteLine(L("Konuşma açık kaldı. Devam için: talk"));
 					return 0;
@@ -495,7 +495,7 @@ internal static partial class Program
 			// with no one to ask, the game's choice stands.
 			if (step >= picks.Count && Ui.Interactive && !dry)
 			{
-				if (Ui.Ask(L($"{step + 1}. soru"), choices, choices.IndexOf(current ?? ""), cancel: "Sihirbazı burada bırak") is not { } chosen)
+				if (Ui.Ask(L($"{step + 1}. soru"), choices, choices.IndexOf(current ?? ""), cancel: L("Sihirbazı burada bırak")) is not { } chosen)
 				{
 					Console.WriteLine(L("Sihirbaz bu soruda açık bırakıldı. Devam için: setpieces new"));
 					return 0;
@@ -1193,7 +1193,7 @@ internal static partial class Program
 				: L($"{(current.Length > 0 ? $"{what}: {current}. " : "")}Oyun az önceki değişiklikten sonra {what.ToLowerInvariant()} listesini bir süre kapattı; birazdan yeniden dene."));
 			return 1;
 		}
-		if (wanted == null && Ui.Interactive && !dry && Ui.Ask(what, choices, current: choices.IndexOf(current), cancel: "Vazgeç") is { } asked)
+		if (wanted == null && Ui.Interactive && !dry && Ui.Ask(what, choices, current: choices.IndexOf(current), cancel: L("Vazgeç")) is { } asked)
 			wanted = choices[asked];
 		if (wanted == null)
 		{
@@ -1311,7 +1311,7 @@ internal static partial class Program
 					Console.Error.WriteLine(L("Yeni taktik kurulamıyor: üç taktik yuvası dolu (oyun 'Create New Tactic' vermiyor). Bir yuvaya geçip oyunda boşaltmak gerek; yuvalar için: tactic slot"));
 					return 1;
 				}
-				if (!dry && Ui.Interactive && Ui.Ask($"Etkin taktik ({Field(await TacticInfo(), "Name")}) yerine yenisi kurulacak; eskisi kayıtlı taktiklerde kalır.", [L("Devam")], cancel: "Vazgeç") == null)
+				if (!dry && Ui.Interactive && Ui.Ask(Lf("Etkin taktik ({0}) yerine yenisi kurulacak; eskisi kayıtlı taktiklerde kalır.", Field(await TacticInfo(), "Name")), [L("Devam")], cancel: L("Vazgeç")) == null)
 					return 0;
 				if (dry)
 				{
