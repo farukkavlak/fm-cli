@@ -114,44 +114,106 @@ internal static partial class Program
 		if (why.Negatives.Count == 0) Console.WriteLine(L("  Şikâyeti yok."));
 	}
 
+	// Read by each text's data path (FINDINGS §8.169), anchored on a player's description, which
+	// only rows of this list carry: a row is its flags (StatusFlag.StatusTitleShort), the name
+	// (binding.Name), the description (Person.PlayerDescription), then the level, which is drawn
+	// without a path but is one of the game's own texts and so comes in English.
+	private static async Task<List<(string Text, string Path)>> HappinessTexts() =>
+		(await Fm.GetJson("texts", ("anchorpath", "Person.PlayerDescription"), ("up", "13"), ("paths", "1"))).EnumerateArray()
+			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+
 	private static async Task<List<HappyRow>> HappinessRows()
 	{
-		// Read by each text's data path (FINDINGS §8.169), anchored on a player's description, which
-		// only rows of this list carry: a row is its flags (StatusFlag.StatusTitleShort), the name
-		// (binding.Name), the description (Person.PlayerDescription), then the level, which is drawn
-		// without a path but is one of the game's own texts and so comes in English.
-		async Task<List<(string Text, string Path)>> Texts() =>
-			(await Fm.GetJson("texts", ("anchorpath", "Person.PlayerDescription"), ("up", "13"), ("paths", "1"))).EnumerateArray()
-				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 		static bool Listed(List<(string Text, string Path)> t) => t.Count(x => x.Path == "Person.PlayerDescription") > 1;
 
-		var texts = await Texts();
+		var texts = await HappinessTexts();
 		if (!Listed(texts))
 		{
-			var opened = await OpenSubpage(Screen.Dynamics, Screen.Happiness, async () => Listed(await Texts()));
+			var opened = await OpenSubpage(Screen.Dynamics, Screen.Happiness, async () => Listed(await HappinessTexts()));
 			if (opened.StartsWith("error", StringComparison.Ordinal))
 			{
 				Console.Error.WriteLine(opened);
 				return [];
 			}
-			texts = await Texts();
 		}
 
-		var players = Rows(texts);
-		// The list only lays out the rows in view; the rest come as it is scrolled, by a row's description.
-		var anchor = texts.LastOrDefault(t => t.Path == "Person.PlayerDescription").Text;
-		if (anchor != null)
+		// The list is the first team, and only lays out the rows in view: it is scrolled down until
+		// every player of the team has had his row read. One the page leaves out costs a pass, not
+		// a wrong answer.
+		var team = new HashSet<string>();
+		try
 		{
-			foreach (var share in new[] { "0.5", "1" })
-			{
-				if ((await Fm.Get("scroll", ("anchor", anchor), ("to", share))).StartsWith("error", StringComparison.Ordinal)) break;
-				await Task.Delay(500);
-				foreach (var row in Rows(await Texts()))
-					if (players.All(p => p.Name != row.Name)) players.Add(row);
-			}
-			await Fm.Get("scroll", ("anchor", anchor), ("to", "0"));
+			foreach (var p in (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray())
+				if (Field(p, "Name") is { Length: > 0 } name) team.Add(name);
 		}
+		catch (FmError) { }
+		var players = new List<HappyRow>();
+		void Take(List<HappyRow> rows)
+		{
+			foreach (var row in rows)
+				if (players.All(p => p.Name != row.Name)) players.Add(row);
+		}
+		bool Whole() => team.Count > 0 && team.All(n => players.Any(p => p.Name == n));
+
+		var shown = await LaidOut([], moved: false);
+		Take(shown);
+		var anchor = Anchor(shown);
+		if (anchor == null || Whole()) return players;
+		foreach (var share in Sweep)
+		{
+			if (Whole()) break;
+			if (await ScrollList(anchor, share) is not { } moved) break;
+			shown = await LaidOut(shown, moved);
+			Take(shown);
+			anchor = Anchor(shown) ?? anchor;
+		}
+		await ScrollList(anchor, "0");
 		return players;
+	}
+
+	/// <summary>
+	/// Where the list is scrolled to, as shares of its length: the ends and the middle first, which
+	/// on most screens reach every row, then the steps between for a long list on a small one.
+	/// </summary>
+	private static readonly string[] Sweep = ["0", "0.5", "1", "0.1", "0.2", "0.3", "0.4", "0.6", "0.7", "0.8", "0.9"];
+
+	/// <summary>A description in view, to scroll the list by.</summary>
+	private static string Anchor(List<HappyRow> shown) => shown.Count > 0 ? shown[^1].Description : null;
+
+	/// <summary>Scrolls the list to a share of its length; whether it moved, or null when it cannot be scrolled.</summary>
+	private static async Task<bool?> ScrollList(string anchor, string share)
+	{
+		var before = await Fm.Get("scroll", ("anchor", anchor));
+		if (before.StartsWith("error", StringComparison.Ordinal)) return null;
+		var after = await Fm.Get("scroll", ("anchor", anchor), ("to", share));
+		if (after.StartsWith("error", StringComparison.Ordinal)) return null;
+		return after.Trim() != before.Trim();
+	}
+
+	/// <summary>
+	/// The rows in view once the list has laid them out. After a scroll the rows are rebuilt in more
+	/// than one step (15 rows, then 21), so a reading counts once it differs from the one before the
+	/// scroll and the next reading gives the same; not moved, the rows in view are already there. A
+	/// page just opened lays out its names before their levels: no row yet is not a list laid out.
+	/// </summary>
+	private static async Task<List<HappyRow>> LaidOut(List<HappyRow> before, bool moved)
+	{
+		var last = Rows(await HappinessTexts());
+		await Until(async () =>
+		{
+			var now = Rows(await HappinessTexts());
+			var settled = now.Count > 0 && now.SequenceEqual(last, RowSame.Instance) && (!moved || !now.SequenceEqual(before, RowSame.Instance));
+			last = now;
+			return settled;
+		}, seconds: 5, every: 0.05);
+		return last;
+	}
+
+	private sealed class RowSame : IEqualityComparer<HappyRow>
+	{
+		public static readonly RowSame Instance = new();
+		public bool Equals(HappyRow a, HappyRow b) => a?.Name == b?.Name && a?.Description == b?.Description && a?.Level == b?.Level;
+		public int GetHashCode(HappyRow r) => r.Name.GetHashCode();
 	}
 
 	private static List<HappyRow> Rows(List<(string Text, string Path)> texts)
@@ -187,13 +249,17 @@ internal static partial class Program
 	private static async Task<HappyWhy> WhyHappy(HappyRow player)
 	{
 		var selected = await Fm.Get("rowselect", ("text", player.Description), ("and", player.Name));
-		var anchor = (await Fm.GetJson("texts", ("anchorpath", "Person.PlayerDescription"), ("up", "0"))).EnumerateArray().Select(t => t.GetString()).FirstOrDefault();
-		foreach (var share in new[] { "0", "0.5", "1" })
+		// A row out of view is not laid out: the list is scrolled until his row is among those in view.
+		var shown = Rows(await HappinessTexts());
+		var anchor = Anchor(shown);
+		foreach (var share in Sweep)
 		{
-			if (!selected.StartsWith("error", StringComparison.Ordinal) || anchor == null) break;
-			await Fm.Get("scroll", ("anchor", anchor), ("to", share));
-			await Task.Delay(400);
-			selected = await Fm.Get("rowselect", ("text", player.Description), ("and", player.Name));
+			if (anchor == null || !selected.StartsWith("error", StringComparison.Ordinal)) break;
+			if (await ScrollList(anchor, share) is not { } moved) break;
+			shown = await LaidOut(shown, moved);
+			anchor = Anchor(shown) ?? anchor;
+			if (shown.Any(r => r.Name == player.Name && r.Description == player.Description))
+				selected = await Fm.Get("rowselect", ("text", player.Description), ("and", player.Name));
 		}
 		if (selected.StartsWith("error", StringComparison.Ordinal)) return null;
 

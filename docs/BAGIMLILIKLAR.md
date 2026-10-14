@@ -26,7 +26,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
 - [ ] **`Task.Delay` — 89 yer.** Her biri sınıflanacak: döngüde yoklama aralığı (sorun yok) mı, "bekle sonra yap" mı.
   Dosya: satırlar —
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
-  Happiness 148 195 · IndividualTraining 40 50 · Intensity 43 54 106 · Jobs 231 · Launcher 213 269 · League 243 ·
+  ~~Happiness 148 195~~ · IndividualTraining 40 50 · Intensity 43 54 106 · Jobs 231 · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · Matches 82 · Mentoring 45 188 205 217 246 285 297 331 · Numbers 158 177 ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
@@ -50,6 +50,10 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   - [x] Guided 1035 (`tactic pick`): her okumadan önce 1 sn yerine 0,25 sn'de bir; değiştiyse bir aynı okuma, değişmediyse
     1,5 sn sessizlik (seçim tek adımda 0,33–0,54 sn, başka işaret yok). 3,7 → 1,2 / 2,2 sn; başka sayfa açıkken düğme
     bulunamıyordu, artık sayfa açılıyor (§8.184). İngilizcede denenmedi.
+  - [x] Happiness 148 195 (kaydırmadan sonra 500/400 ms): kaydırınca satırlar iki adımda diziliyor (15 → 21); artık okuma
+    "öncekinden farklı ve art arda iki kez aynı" olunca kabul, liste takımın bütün oyuncuları (kulüp verisi) okunana kadar
+    0 / 0,5 / 1 (gerekirse ara onda birler) geziliyor. Üç durumda aynı çıktı, tek oyuncu ve `--why` doğru (§8.185).
+    İngilizcede denenmedi.
   - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel isteyen bir söz
     konuşması lazım; o an oyunda yok, ölçülmeden değiştirilmedi. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
@@ -70,7 +74,8 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   işaret bulunamadı (bağlama adları sürümde gizli); eksiz bir mesajda `#AttachmentsTitleContainer` durumu ölçülecek.
 - [ ] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2112). Denenen çözüm (çubuğun seçili satırı) ölçülünce
   yetersiz çıktı: ana sayfa zaten açıkken çubuk eski seçimde kalıyor → geri alındı. Eklentide `open?guid=&check=1`
-  (yalnızca soru, hiçbir şey açmıyor) duruyor (14 Ekim commit edildi, CLI henüz kullanmıyor). Önce "ana sayfanın açılması bitti" işareti ölçülecek.
+  (yalnızca soru, hiçbir şey açmıyor) duruyor (14 Ekim commit edildi, CLI henüz kullanmıyor). Önce "ana sayfanın açılması bitti" işareti ölçülecek. Ayrıca `fm open X` açılış bitmeden dönüyor: hemen ardından
+  açılan sayfanın üstüne gelebiliyor (Mesajlar › Mutluluk'ta 1/10, §8.185).
 - [ ] **Sabit üst sınırlar** (`Arriving` 8 sn, `Bound` 20 sn, maç akışında 3 sn'ler): yavaş makinede yetmeyebilir; ölçülecek.
 
 ### B. Oyun dili
@@ -98,6 +103,9 @@ tablodan çevrilemiyor.
   öğe adı / olay adıyla basılabilir mi bakılacak.
 - [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
   İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
+- [ ] **Mutluluk seviyesi:** "Biraz Mutlu" / "Biraz Mutsuz" çevrilemiyor (tabloda yok) → `happiness` sıralaması ve rengi
+  bu iki seviyede yanlış; seviyenin veri yolu yok, `HierarchyOverallHappinessLevel` sırayı tutuyor ama eşikleri bilinmiyor
+  (§8.185). Moral yazısı ("Extremely Good") İngilizce gösteriliyor.
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
 - [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
 

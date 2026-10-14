@@ -1692,3 +1692,19 @@ okumada, değişmediyse 1,5 sn sessizlikten sonra bitiyor (≈3 kat pay). Eskide
 okuma istiyordu: 3,7 → 1,2 sn (değişen) / 2,2 sn (değişmeyen); 10 çalıştırmada doğru. Ayrıca başka sayfa açıkken
 `/tactic` bağlı kaldığı için taktik sayfası açılmıyor, "no control labelled 'Quick Pick'" ile 9 sn sonra düşüyordu: önce
 düğme kuru basışla aranıyor, yoksa sayfa açılıyor (Mesajlar'dan 3/3, 2,2–2,4 sn).
+
+### 8.185 Mutluluk listesi: kaydırınca satırlar iki adımda diziliyor (14 Ekim, Türkçe)
+§8.183'teki "kaydırınca görünen satırlar tek adımda yenileniyor" Happiness listesinde tutmuyor: 1 → 0 ve 0 → 1 kaydırmada
+önce 15 satırlık bir ara hal (0,14–0,25 sn), sonra 21 satır (0,2–0,33 sn); 0 → 0,5'te tek adım (27 satır, liste 27 oyuncu,
+uzunluk 670,9). 0,1'lik her adım görünen satırları değiştiriyor (1–2 satır). `happiness` artık: takımın oyuncuları kulüp
+verisinden (`Human.Team.Players`), liste 0 / 0,5 / 1 (gerekirse aradaki onda birler) kaydırılarak her oyuncunun satırı
+okunana kadar geziliyor; her adımda okuma "kaydırmadan öncekinden farklı ve art arda iki kez aynı, boş değil" olunca kabul
+(konum değişmediyse beklemeden). Oyuncu seçerken de satırı görünür olana kadar aynı yol. Ölçüm: zaten açık 5/5, ortaya ya da
+sona kaydırılmış 2/2, Mesajlar'dan 17/17 aynı çıktı; tek oyuncu (üst/orta/alt) 4/4 ~3,8 sn, `--why` 27/27 11 sn.
+Başka sayfadan açılışta 1/10 "okunamadı": önceki adımın `fm open Messages`'ı geç bitip Mutluluk'un üstüne gelmiş (yol
+"Takım Dinamikleri › Mutluluk › Mesajlar"); Messages oturduktan sonra 12/12. `open` açılış bitmeden dönüyor (A "Alt sayfa").
+Dil: seviye yazısının veri yolu yok, `HierarchyOverallHappinessLevel` (80 Delighted, 60 Very Happy, 40 Happy, 20 Slightly
+Happy, -4/-20 Content, -40 Slightly Unhappy, -64 Very Unhappy) sırayı tutuyor ama eşikleri bilinmiyor; satırdaki simge
+`morale-happiness-1..5` + bir ara simge, 8 seviyeye bire bir değil. "Biraz Mutlu"/"Biraz Mutsuz" ne UI tablosunda ne motor
+yazılarında (motor 268883224–231: Delighted, Very Happy, Happy, …, Unhappy, Very Unhappy; 227–229 İngilizce dökümde yok) →
+Türkçede bu iki seviye çevrilmeden geliyor, sıralama ve renk yanlış. Moral (`Person.MoraleString`) İngilizce gösteriliyor.
