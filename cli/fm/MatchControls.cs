@@ -169,8 +169,8 @@ internal static partial class Program
 
 		var (event_, verb) = action switch
 		{
-			"uygula" or "do" or "evet" => ("MatchDugoutConfirm", "uygulandı"),
-			"kaldir" or "sil" or "dismiss" or "hayir" => ("MatchDugoutDismiss", "kaldırıldı"),
+			"uygula" or "apply" or "do" or "evet" or "yes" => ("MatchDugoutConfirm", "uygulandı"),
+			"kaldir" or "sil" or "dismiss" or "hayir" or "no" => ("MatchDugoutDismiss", "kaldırıldı"),
 			_ => (null, null),
 		};
 		if (event_ == null)

@@ -78,7 +78,7 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new { Name = name, Ends = ends, Terms = terms.ToDictionary(t => t.Say, t => t.Value) }));
 			return 0;
 		}
-		Console.WriteLine(L($"{name} — sözleşme {(ends.Length > 0 ? ends + L(" tarihine kadar") : "")}"));
+		Console.WriteLine(ends.Length > 0 ? L($"{name} — sözleşme {ends} tarihine kadar") : L($"{name} — sözleşme"));
 		Table.Write([L("ŞART"), L("DEĞER")], terms.Select(t => (string[])[t.Say, t.Value]).ToList());
 		Console.WriteLine(L($"\nYenilemek için: contract \"{name}\""));
 		return 0;

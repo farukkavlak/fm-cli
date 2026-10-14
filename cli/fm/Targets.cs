@@ -15,6 +15,10 @@ internal static partial class Program
 		["kaleci"] = "GK", ["sol bek"] = "DL", ["sag bek"] = "DR", ["stoper"] = "DC", ["sol kanat bek"] = "WBL", ["sag kanat bek"] = "WBR",
 		["on libero"] = "DM", ["defansif orta saha"] = "DM", ["orta saha"] = "MC", ["sol orta saha"] = "ML", ["sag orta saha"] = "MR",
 		["on numara"] = "AMC", ["ofansif orta saha"] = "AMC", ["sol kanat"] = "AML", ["sag kanat"] = "AMR", ["forvet"] = "ST", ["santrfor"] = "ST",
+		["goalkeeper"] = "GK", ["left back"] = "DL", ["right back"] = "DR", ["centre back"] = "DC", ["center back"] = "DC",
+		["left wing back"] = "WBL", ["right wing back"] = "WBR", ["defensive midfielder"] = "DM", ["central midfielder"] = "MC",
+		["left midfielder"] = "ML", ["right midfielder"] = "MR", ["attacking midfielder"] = "AMC", ["left winger"] = "AML",
+		["right winger"] = "AMR", ["striker"] = "ST",
 	};
 
 	private static async Task<int> Targets(bool json, string[] args)

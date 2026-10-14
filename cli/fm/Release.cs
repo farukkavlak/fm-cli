@@ -93,7 +93,7 @@ internal static partial class Program
 			if (!Ui.Interactive)
 			{
 				var ends = Field(card.GetProperty("Player"), "ContractEnds");
-				Console.WriteLine(L($"{name}: sözleşmesi {(ends.Length > 0 ? ends + L(" tarihinde bitiyor") : L("sürüyor"))}."));
+				Console.WriteLine(ends.Length > 0 ? L($"{name}: sözleşmesi {ends} tarihinde bitiyor.") : L($"{name}: sözleşmesi sürüyor."));
 				Console.WriteLine(L($"  release \"{name}\" --free     bedelsiz serbest bırak (oyun tazminatı söyleyip onay ister)"));
 				Console.WriteLine(L($"  release \"{name}\" --mutual   karşılıklı fesih teklif et (onay için --yes)"));
 				return 0;
