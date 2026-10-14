@@ -4803,8 +4803,29 @@ Aşama 2: Türkçe oyunda CLI yazıldığı gibi (Türkçe), başka her dilde İ
   (`targets "left back"`, `dugout <no> apply`, `prep in|out|sp1|sp2`, ayar adları İngilizce oyunda İngilizce).
 - **Tarama:** İngilizce 49/50, Türkçe 49/50 (`league` sezon öncesi); Türkçe çıktı önceki taramayla aynı, farklar yalnız
   oyunun kendi kelimesi ("Yıldız Oyuncu", "Merkez Arkadaş Grubu", "Duble Yoğunluk").
-- **Açık:** taktik rol adları ("Ball Playing Goalkeeper") iki çeviri tablosunda da yok, sayfa kısaltmayı (AİK) yolsuz
+- **Açık (§8.175'te kapandı):** taktik rol adları ("Ball Playing Goalkeeper") iki çeviri tablosunda da yok, sayfa kısaltmayı (AİK) yolsuz
   çiziyor — Türkçede İngilizce kalıyor. MCP araç açıklamaları İngilizce (model için). Alman/Fransız oyunda denenmedi.
+
+### 8.175 Rol adları ve İngilizce oyunda oynama akışı (14 Ekim 2026 akşam)
+
+- **Rol adları:** taktik rolü yalnız oyunun kodundaki adıyla tutuyor (`BallPlayingGoalkeeper`). Taktik ekranındaki rol
+  listeleri her satırda rol bitini (`Roles`) ve oyunun dilindeki adı taşıyor; iki liste bir mevki, önce topla. CLI
+  `"ip:4096" → "Ayağı İyi Kaleci"` eşlemesini bu listelerden bir kez okuyup dile göre önbelleğe yazıyor
+  (`role-names.json`). Tablo, saha çizimi, kısaltmalar (AİK) ve `tactic pi` buradan geliyor. Bazı satırları oyun
+  İngilizce tutup çizerken çeviriyor ("Wing-Back" → "Kanat Bek"): önbelleğe `GameWords.Of` ile yazılıyor.
+- **Sarma aracının kaçırdıkları:** İngilizcede de kelime olan Türkçe yazılar (`"Boy"`, `"YER"`, `"GOL"`, `"AS"`,
+  `$"{n} ay"`) sarılmamıştı. Katalogda sonu/başı boşluklu 12 şablonun İngilizcesi boşluğu kaybetmişti
+  ("Değer " → "Value" ⇒ "Value£200K"); düzeltildi, `merge.py` artık şablonun kenar boşluklarını koruyor.
+- **İngilizce oyunda denenenler (hepsi çalıştı):** `reply` (yazıyla cevap), `offer` (gerçek teklif, karşı teklif,
+  kabul), `contract` (yenileme + gelen oyuncu: söz → şartlar → `--wage`/`--term` → imza), `talk` (oyuncu konuşması,
+  cümle parçasıyla), `register --auto/--in/--out/--send`, `numbers`, `match --play` takım konuşmalarıyla.
+- **Bulunan:** bizim verdiğimiz teklifin ekinde "Coach Report" yerine "Scouting Report" var; etiket/değer döngüsü
+  sona kadar kayıyordu. Artık ikisini de tanıyor ("Gözlemci görüşü"). Ekler hâlâ sırayla okunuyor (BAGIMLILIKLAR).
+- **Türkçe geri dönüşte bulunan (eskiden beri vardı):** düz `player` kartında "Kişilik Ambitious": etikete tek boşlukla
+  yapışan oyun kelimesi `GameWords.InLine`'da ayrı parça sayılmıyor. Yapıştırmadan önce `GameWords.Of`. Katalogda 8 çift
+  anahtar vardı (sonuncusu kazanıyordu: "Korner" → "Corner"); temizlendi.
+- **Oyunun kendisi:** kayda kuruluş dilinde yazılan adlar (ülke "İskoçya", sakatlık adları, hazırlık maçı
+  turnuvasının adı "Hazırlık") dil değişince oyunun ekranında da eski dilde kalıyor; CLI oyunun gösterdiğini yazıyor.
 
 ## 9. Sıradaki adımlar
 

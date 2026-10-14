@@ -361,8 +361,9 @@ internal static partial class Program
 			Field(player, "Nation"), Field(player, "PositionCombinedStringLong")));
 		Console.WriteLine(Line(" · ", Prefixed(L("Değer "), Field(player, "Value")), Prefixed(L("Maaş "), Field(player, "Wage")),
 			Prefixed(L("Sözleşme "), Field(player, "ContractEnds")), Field(player, "PlayingTime")));
-		Console.WriteLine(Line(" · ", Prefixed(L("Kondisyon "), Field(player, "ConditionString")), Prefixed(L("Kişilik "), Field(player, "Personality")),
-			Prefixed(L("Sağ ayak "), Field(player, "RightFootednessString")), Prefixed(L("Sol ayak "), Field(player, "LeftFootednessString")),
+		// A game word stuck to its label with one space is not told apart from it on the way out: put in the game's words here.
+		Console.WriteLine(Line(" · ", Prefixed(L("Kondisyon "), GameWords.Of(Field(player, "ConditionString"))), Prefixed(L("Kişilik "), GameWords.Of(Field(player, "Personality"))),
+			Prefixed(L("Sağ ayak "), GameWords.Of(Field(player, "RightFootednessString"))), Prefixed(L("Sol ayak "), GameWords.Of(Field(player, "LeftFootednessString"))),
 			Suffixed(Field(player, "Height"), " cm"), Field(player, "InternationalCapsAndGoalsString")));
 
 		if (ability.Count > 0) Console.WriteLine(L($"Yetenek (son dört ay): {string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))} /200"));

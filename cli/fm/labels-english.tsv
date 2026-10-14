@@ -1475,7 +1475,6 @@ Topla oynama	Possession
 Faul	Fouls
 vergi sonrası {0}	{0} after tax
 maaş bütçesindeki payı %{0}	{0}% of the wage budget
-maaş	wage
 {0} boş yer	{0} places free
 error: {0}, ama sayfa beklenen içeriği göstermedi	error: {0}, but the page did not show what was expected
 error: oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next	error: the game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next
@@ -1540,7 +1539,6 @@ eklendi ama ekranda bulunamadı	added, but not found on screen
 kiralık teklif	loan offer
 transfer teklifi	transfer offer
  [dim]← şu an[/]	 [dim]← now[/]
-Korner	Corner
 Memnun oldukları	Pleased with
 Endişeleri	Concerns
 Transfer {0,-14} · Maaş {1}	Transfers {0,-14} · Wages {1}
@@ -2122,13 +2120,11 @@ Hangi prim?	Which bonus?
 Hangi vaat?	Which promise?
 Hangi madde?	Which clause?
 Etkiler: {0}	Effects: {0}
-Transfer bütçesi	Transfer budget
 {0} (bu sezon harcanan {1}, başta {2})	{0} (spent this season {1}, at the start {2})
 Maaş bütçesi	Wage budget
 {0} (haftalık) · ödenen {1} / {2}	{0} (weekly) · paid {1} / {2}
 Scouting bütçesi	Scouting budget
 yıl	yrs
-{0} maç	{0} apps
 SON SCOUT	LAST SCOUTED
 O	P
 G	W
@@ -2137,8 +2133,6 @@ M	L
 AV	GD
 P	PTS
 Mevki/rol	Position/role
-Topla	In possession
-Topsuz	Out of possession
 Duran top 1	Set piece 1
 Duran top 2	Set piece 2
 topla	in
@@ -2175,8 +2169,6 @@ Oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next	Th
 Hazır: {0} ({1}).	Ready: {0} ({1}).
 Oyun menüsüz bir ekranda ({0}); FM menüsü açılamıyor. Geçmek için: next	The game is on a screen without a menu ({0}); the FM menu cannot be opened. To go past it: next
 Oyun şu an numara değişikliği almıyor: numaralar sezon başında ya da yeni transfer gelince kaydediliyor, sonra sezon sonuna kadar değişmiyor.	The game does not take number changes right now: numbers are saved at the start of the season or when a new signing arrives, and then do not change until the end of the season.
- yaş	 years old
-AD	NAME
 BOY	HEIGHT
 adı	their name
 yaşı	their age

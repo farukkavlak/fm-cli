@@ -579,6 +579,15 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 
 ## Günlük
 
+### 2026-10-14 (akşam — açık kalan küçük işler)
+
+- Taktik rol adları oyunun dilinde: rol listelerinden kimlik → ad, dile göre önbellek (FINDINGS §8.175).
+- İngilizce oyunda oynama akışı baştan sona denendi: reply, offer (teklif → karşı teklif → kabul), contract (yenileme
+  ve gelen oyuncu), talk, register, numbers, match --play. Bulunan sızıntılar (Boy, YER, GOL, AS, "ay", kenar
+  boşluğu kaybolan 12 çeviri, "Negotiable: Negotiable", teklif ekinde Scouting Report kayması) düzeltildi.
+- Kılavuza "Dil" bölümü. Kayıt yedeği `…2026-10-14-english-flow.fm`; oyun şu an İngilizce.
+- Sırada: `docs/BAGIMLILIKLAR.md` baştan gözden geçirme (ekler hâlâ sırayla okunuyor).
+
 ### 2026-10-14 (öğleden sonra — CLI'ın yazıları oyunun dilinde)
 
 - CLI'ın koduna gömülü İngilizce oyun yazıları ("In Progress", ekip adları) eklentinin `/translate?words=` yoluyla oyunun
