@@ -880,13 +880,14 @@ internal static partial class Program
 		// last five results — where the portal's tile has games and points; it is used when the
 		// competition can be told apart there, and what follows is the way when it cannot (or
 		// when the stage it is at is a knockout round, with no table).
-		if (!json && File.Exists(CompetitionsFile))
+		// The competitions' list is walked once for each language and career and kept (Competitions).
+		if (!json)
 		{
 			try
 			{
 				var nation = "";
 				await Until(async () => (nation = Field(await Fm.Pull("Human.Team.Nation", "Name"), "Name")).Length > 0, seconds: 3, every: 0.5);
-				var every = System.Text.Json.JsonSerializer.Deserialize<List<string[]>>(File.ReadAllText(CompetitionsFile)) ?? [];
+				var every = await Competitions(false);
 				// A continental competition goes by its own name there; a domestic one by the
 				// country's ("Super League" is "Turkish Super League").
 				var leagues = every.Where(p => p[^1] == wanted).ToList();

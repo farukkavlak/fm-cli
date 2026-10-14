@@ -161,7 +161,8 @@ internal static class Localisation
 		// A text with a note after it ("Takip Listesinden Çıkar (Varsayılan)") is two of the table's
 		// texts put together; each part is put into English on its own.
 		var note = System.Text.RegularExpressions.Regex.Match(shown, @"^(.+?) \((.+)\)$");
-		if (note.Success && map.TryGetValue(note.Groups[1].Value, out var head))
+		// Only words, not codes: "D (M)" is a position, a defender in the centre, not "D" and "M" each.
+		if (note.Success && note.Groups[1].Value.Length >= 4 && map.TryGetValue(note.Groups[1].Value, out var head))
 			return $"{head} ({(map.TryGetValue(note.Groups[2].Value, out var tail) ? tail : note.Groups[2].Value)})";
 		return shown;
 	}
@@ -199,7 +200,41 @@ internal static class Localisation
 			}
 		}
 		catch { }
+		EngineEntries = LoadEngine(now);
 		return toEnglish;
+	}
+
+	/// <summary>How many of the engine's texts (FINDINGS §8.171) were added for this language.</summary>
+	public static int EngineEntries { get; private set; }
+
+	/// <summary>Builds the tables again: after the CLI has written the engine's texts for this language.</summary>
+	public static void Reload() => language = null;
+
+	/// <summary>
+	/// The engine's own texts — what the simulation writes: a menu's entries, a session's name, a
+	/// player's personality — which the UI table does not hold. The CLI unpacks them from the game's
+	/// languages.fmf into ~/.config/fm-cli/engine/<language>.tsv, a shown text and its English per
+	/// line (FINDINGS §8.171); they come after the UI table's, which keep the place where both have a text.
+	/// </summary>
+	private static int LoadEngine(string now)
+	{
+		var added = 0;
+		try
+		{
+			var file = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "engine", now + ".tsv");
+			if (!System.IO.File.Exists(file)) return 0;
+			foreach (var line in System.IO.File.ReadLines(file))
+			{
+				var tab = line.IndexOf('\t');
+				if (tab <= 0) continue;
+				var shown = line[..tab];
+				var english = line[(tab + 1)..];
+				englishTexts.Add(english);
+				if (shown != english && toEnglish.TryAdd(shown, english)) added++;
+			}
+		}
+		catch { }
+		return added;
 	}
 
 	private static string Clean(string value)

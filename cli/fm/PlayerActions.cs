@@ -98,7 +98,7 @@ internal static partial class Program
 		if (await PersonMenu(wanted, "Player") is not { } menu) return 1;
 		var (name, entries) = menu;
 
-		var cancel = EntryAt(entries, p => p == "Report>Cancel Assignment");
+		var cancel = EntryAt(entries, p => p is "Report>Cancel Assignment" or "Report>Cancel Assignments");
 		if (args.Contains("--cancel"))
 		{
 			if (cancel is not { } off)
@@ -115,7 +115,7 @@ internal static partial class Program
 				&& DialogAnswer(dialogs[0], true) is { } yes)
 				await Fm.Get("click", ("ptr", Field(yes, "Pointer")));
 			// Believed only once his menu no longer offers it: the game has closed the question and kept the assignment before (FINDINGS §8.119).
-			var still = await PersonMenu(name, "Player") is { } after && EntryAt(after.Entries, p => p == "Report>Cancel Assignment") != null;
+			var still = await PersonMenu(name, "Player") is { } after && EntryAt(after.Entries, p => p is "Report>Cancel Assignment" or "Report>Cancel Assignments") != null;
 			await Fm.Get("actions", ("close", "1"));
 			if (still)
 			{

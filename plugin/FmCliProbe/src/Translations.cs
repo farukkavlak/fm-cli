@@ -13,6 +13,20 @@ internal static class Translations
 {
 	public static string Open(NameValueCollection q)
 	{
+		// The engine's texts: where the game keeps them, and whether this language's are loaded.
+		if (q["engine"] == "1")
+		{
+			if (q["reload"] == "1") Localisation.Reload();
+			Localisation.English("");
+			Localisation.English("x");
+			var exe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? "";
+			var contents = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(exe)) ?? "";
+			var file = System.IO.Path.Combine(contents, "PlugIns", "game_plugin.bundle", "Contents", "Resources", "data", "game_simulation", "languages.fmf");
+			return "{"
+				+ $"\"Language\": \"{Report.Escape(SI.Translation.TranslationManager.CurrentLanguage ?? "")}\", "
+				+ $"\"File\": \"{Report.Escape(System.IO.File.Exists(file) ? file : "")}\", "
+				+ $"\"Entries\": \"{Localisation.Entries}\", \"Engine\": \"{Localisation.EngineEntries}\"}}\n";
+		}
 		var sb = new StringBuilder();
 		try
 		{

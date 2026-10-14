@@ -384,6 +384,12 @@ internal static partial class Program
 			catch (JsonException) { }
 		}
 
+		// The walk is made in the Stages page's list of competitions, opened for it if need be.
+		if (await StageLists() == null)
+		{
+			await OpenPage(Screen.Stages);
+			if (!await Until(async () => await StageLists() != null, seconds: 10, every: 0.5)) return [];
+		}
 		var list = Field((await StageLists()).Value.Competition, "Pointer");
 		var found = new List<string[]>();
 		async Task Walk(List<string> path, int depth)

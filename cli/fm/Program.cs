@@ -67,10 +67,19 @@ internal static partial class Program
 		}
 	}
 
+	private static bool engineChecked;
+
 	private static async Task<int> RunCommand(string[] args)
 	{
 		var command = args.Length > 0 ? args[0] : "help";
 		var json = args.Contains("--json");
+
+		// A game in another language reads its engine's texts too, once they are unpacked (FINDINGS §8.171).
+		if (!engineChecked && command is not ("start" or "stop" or "help"))
+		{
+			engineChecked = true;
+			await EngineTexts.Ensure(Fm);
+		}
 
 		// Aliases and unambiguous starts stand for the command; the rest of the code sees its name.
 		if (ResolveCommand(command) is not { } resolved) return 64; // EX_USAGE

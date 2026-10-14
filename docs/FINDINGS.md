@@ -4707,6 +4707,29 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
 - Açık: gelen kutusu ekleri (`Reply` / `WriteAttachment`, ~45 konumla okuma); motor yazıları (seans adları, oyuncu
   açıklamaları) Türkçe kalıyor; İngilizce oyunda bazı rol adları dil değişiminden kalma Türkçe geliyor (oyunun önbelleği).
 
+### 8.171 Motorun yazıları: languages.fmf (14 Ekim 2026 sabah)
+
+- **Neredeler:** simülasyonun yazdığı her şey (kişi menüsü, seans adı, kişilik, scout yorumu, teklif süresi, rol
+  adları) UI çeviri tablosunda yok; `fm.app/Contents/PlugIns/game_plugin.bundle/Contents/Resources/data/
+  game_simulation/languages.fmf` içinde. `ShowIDs` açılınca UI yazılarının başına kimlik geliyor (`14593:Genel
+  Bakış`), motor yazılarına gelmiyor.
+- **Biçim:** 26 baytlık başlık (`02 01 'fmf.'…`), ardından 4 KB'lık zstd çerçeveleri ve aralarda zstd'nin atlanabilir
+  çerçeveleri (`5E 2A 4D 18` + uzunluk, dizin verisi). Açılınca ~840 MB; içinde dil başına iki blok (40 blok, 20 dil):
+  `03 01 'ctl.' 10 00`, `u32 boyut`, `u32 0`, `u32 ad uzunluğu`, ad ("English", "Türkçe"), `u32 ilk` (1001 büyük blok,
+  0 küçük), metin havuzu (kayıt: `u8 n` + n kez `u32 uzunluk + UTF-8`; n>1 cinsiyet/hâl varyantları), havuz
+  `blok başı + 8 + boyut`'ta bitiyor, ardından dizin: `u32 sayı` + sayı kez `u32 anahtar` (alt 24 bit kimlik, üst bayt
+  varyant) `u32 konum`. Konum havuzdaki en küçük konuma göre. Kimlik bütün dillerde aynı: İngilizce "Remove From
+  Shortlist" ↔ Türkçe "Takip Listesinden Çıkar", "Assign to Scouting Pool" ↔ "Gözlemci Havuzunu Görevlendir".
+- **Bağlantı:** CLI (`EngineTexts.cs`, ZstdSharp) oyun İngilizce değilse dosyayı bir kez açıyor (~4 sn), "gösterilen →
+  İngilizce" tablosunu `~/.config/fm-cli/engine/<dil>.tsv`'ye yazıyor (Türkçe 4,8 MB) ve `/translate?engine=1&reload=1`
+  ile eklentiye yükletiyor; eklenti bunu UI tablosundan sonra ekliyor (UI'nin karşılığı öncelikli: "Cancel
+  Assignments" UI, "Cancel Assignment" motor). Parçalı metinler (`[%male#1]…`) ve 4 harften kısa kodlar alınmıyor:
+  "D" → "A", "M" → "L" mevkileri bozuyordu. Bir yazı birden çok İngilizceye karşılıksa en sık olanı.
+- **Etkisi:** Türkçe oyunda kişi menüsü ("Add To Club Squad Planner", "Make Enquiry", "Declare Interest"), scout
+  ataması, kişilikler ("Fairly Professional"), penaltıcının yeri ("Not in Matchday Squad") İngilizce okunuyor.
+- Önbellekler dile/kariyere ayrılınca yeni klasörde `competitions.json` yoktu; `table` dar portal tablosuna
+  düşüyordu. Tablo artık gerekirse listeyi Stages sayfasından bir kez kuruyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
