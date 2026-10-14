@@ -32,6 +32,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
   Scouting 100 · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   TacticFiles 181 · Takers 206 · TrainingReport 82 · TrainingSchedule 345 · TraitTraining 32 · Transfers 96 128 131 139
+  - [x] Bridge 103 109 127 147 (`Pull`, `Numbers`, `Strings`): dördü de döngüde yoklama aralığı (250 ms), "bekle sonra
+    yap" yok; değişiklik gerekmedi. Ölçüm (Türkçe, status/board/club/squad/table/health, squad 3 kez): bağlanan değer
+    her yerde 2. okumada (~30 ms sonra, bir kare) geliyor; üst sınır `Pull` 6 okuma ≈ 1,5 sn, `Numbers`/`Strings` 4 ≈ 1 sn
+    → yaklaşık 5 kat pay. Eklentinin cevabında "yol boş" ile "henüz gelmedi" aynı (`{}`), olumlu bir "yok" işareti yok.
+  - [ ] `table`: olmayan `Human.Team.CurrentComp5..8` her biri tam üst sınırı (6 okuma, ~1,4 sn) bekliyor, komut başına
+    ~5,5 sn boşa. Eklenti bağlanmış ama `IsNull` olan kökü (bir kare sonra) "yok" diye bildirebilir mi — ölçülecek.
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   Calendar 157 · ContractTalks 364 · Finances 238 · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·

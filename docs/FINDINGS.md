@@ -4922,3 +4922,10 @@ Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük
 
 **Not:** FM'i dışarıdan bir ajana/CLI'a oynatan mevcut bir proje bulunamadı
 (Nexus, ModDB, Thunderstore, FM Scout, sortitoutsi tarandı — 2026-09). Niş boş.
+
+### 8.179 `/pull` yeniden okumaları: değer bir kare sonra geliyor, "yok" işareti yok (14 Ekim 2026 akşam, Türkçe)
+
+`Bridge.Pull`/`Numbers`/`Strings` 250 ms arayla yeniden okuyor (6 / 4 okuma). Altı komutta izlendi (`FM_TRACE=1`):
+yeni bağlanan her özellik ikinci okumada geliyor; üst sınırın ~5 katı pay var. Olmayan bir yol (`Human.Team.CurrentComp5`)
+ile henüz gelmemiş bir değer aynı cevabı veriyor (`{}`), bu yüzden `table` olmayan dört yarışma için tam sınırı bekliyor
+(~5,5 sn). Bağlanmış ama `IsNull` kökün bir kare sonra "yok" diye bildirilmesi denenmedi (BAGIMLILIKLAR checklist A).
