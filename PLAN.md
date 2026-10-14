@@ -597,6 +597,10 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
   dile ve kariyere göre ayrı; oynama akışı Türkçede denendi (cevaplar, toplantı, `next`, teklif reddi, kiralık onayı, maç
   günü): `offers view` kartı açık bırakıyordu, kadro uyarısı İngilizce cümleyle tanınıyordu, ikisi düzeldi
   (FINDINGS §8.170). Tanınmayan mesaj ekleri yollarla "etiket: değer". Açık: ek türlerinin her biri hâlâ İngilizce başlıkla.
+- Sabah: motorun kendi yazıları `languages.fmf`'ten (FINDINGS §8.171); Türkçede değiştiren komutlar denendi ve düzeldi:
+  taktik rolü (kimlikle), yuva silme/kaydetme (menü satır numarası), taktik sihirbazı açık kalmıyor, mentorluk grubu,
+  antrenman alt sekmeleri Guid, takip listesi, scout ataması, sorumluluk alanları radyo grubundan, ayarlar kendi
+  Confirm/kapatma düğmesiyle, `match --instant`. Türkçe ve İngilizce tarama 49/50.
 
 ### 2026-10-13 (akşam / gece — taşınabilirlik)
 
