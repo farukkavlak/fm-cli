@@ -106,10 +106,21 @@ internal static class FmApi
 		"elements" => Elements.Around(q),
 		"pages" => Pages.Catalog(),
 		"open" => Pages.Open(q),
+		"folders" => Folders(),
 		_ => null, // 404
 	};
 
 	// ------------------------------------------------------------------ routes
+
+	/// <summary>
+	/// Where this copy of the game keeps its files, as the game itself has them: the user's folder
+	/// (saves under "games", tactics under "tactics") and the install. The store and the platform
+	/// decide these; the CLI asks rather than guesses.
+	/// </summary>
+	private static string Folders() =>
+		$"{{\"User\": \"{Report.Escape(UnityEngine.Application.persistentDataPath)}\", " +
+		$"\"Install\": \"{Report.Escape(UnityEngine.Application.dataPath)}\", " +
+		$"\"Platform\": \"{UnityEngine.Application.platform}\", \"Version\": \"{Report.Escape(UnityEngine.Application.version)}\"}}\n";
 
 	private static string Health()
 	{

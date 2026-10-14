@@ -9,9 +9,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly string TacticsFolder = Path.Combine(
-		Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-		"Library", "Application Support", "Sports Interactive", "Football Manager 26", "tactics");
+	private static string TacticsFolder => GameFolders.Tactics;
 
 	private static List<FileInfo> TacticFiles() => Directory.Exists(TacticsFolder)
 		? new DirectoryInfo(TacticsFolder).GetFiles("*.fmf").OrderByDescending(f => f.LastWriteTime).ToList()

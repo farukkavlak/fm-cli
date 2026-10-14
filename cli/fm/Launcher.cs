@@ -44,6 +44,7 @@ internal static class Launcher
 		{
 			Console.WriteLine(L($"FM zaten açık — ona bağlanıyorum{(debug ? "" : L(", pencereyi küçültüyorum"))}."));
 			if (!debug) Minimise();
+			await GameFolders.Learn(fm);
 			return !load || await LoadSave(fm);
 		}
 
@@ -68,6 +69,7 @@ internal static class Launcher
 		}
 
 		if (!debug) Minimise();
+		await GameFolders.Learn(fm);
 
 		return !load || await LoadSave(fm);
 	}

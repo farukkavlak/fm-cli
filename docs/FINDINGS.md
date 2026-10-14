@@ -4827,6 +4827,29 @@ Aşama 2: Türkçe oyunda CLI yazıldığı gibi (Türkçe), başka her dilde İ
 - **Oyunun kendisi:** kayda kuruluş dilinde yazılan adlar (ülke "İskoçya", sakatlık adları, hazırlık maçı
   turnuvasının adı "Hazırlık") dil değişince oyunun ekranında da eski dilde kalıyor; CLI oyunun gösterdiğini yazıyor.
 
+### 8.176 Mesajın gövdesi ve ekleri kimlikle (14 Ekim 2026 gece, Türkçe)
+
+- **Mesaj öğe adıyla:** açık mesajın gövdesi `MessageBodyText` adlı öğe; eklentiye `/texts?anchorname=` eklendi.
+  `anchorname=MessageBodyText&up=5&paths=1&most=1` mesajın tamamını veriyor: gönderen, başlık
+  (`newsitem.NewsTitleString`), saat, gövde (`newsitem.NewsBodyString`), "Attachments" ve ek. Mesaj başlığıyla
+  tanınıyor (bir önceki mesaj ekranda kalabiliyor). Eskiden gövde, gelen kutusunun `NewsFirstBubbleSpeechString`'inin
+  ASCII parçasıyla aranıyordu; cevaplanmış mesajda o alan **son cevabı** taşıyor ("Lincoln sözleşme önerdi."): gövde
+  yerine son cevap basılıyor, ek hiç basılmıyordu (teklif kabul / imzaya hazır mesajları). `newsitem.NewsBodyString`
+  yolu tek başına çapa olmuyor: haber akışında onlarca haber aynı yolu taşıyor.
+- **Yolla okunan ekler:** antrenman özeti (`Person.Name`, `binding.PositionCombinedString`, yolsuz puan; "Best"/"Worst"
+  arası), kondisyon testleri (`binding.Name`, `binding` = sakatlık, yolsuz test sonucu,
+  `Team.PreMatchFitnessTestString`), personel ekipleri (`Team.Staff*SubGroup.ShortString` + `team.Staff*Count`),
+  sorumluluklar (`teamsettings.ResponsibilitiesAssignedTo{Human,Staff}Count`), antrenman programı
+  (`day.DayOfTheMonth`, `Event.SessionName`, `Event.MatchVenueShort`), oyuncumuza teklif (`Person.PlayerDescription`,
+  `feestring`, `report.ScoutedGradeInfo.GradeString`, `row.TransferOfferType`/`row.TotalTransferCost`), imza kartı
+  (`contract.Wage.DisplayValue`, `contract.WageAfterTax.DisplayValue`, `contract.ContractStatusWithType.DisplayValue`,
+  `contractaddon.AddOnNameString/ValueString`). Türkçede bozuk olanlar: teklif eki "year-old" arıyordu, sorumluluklar
+  personel satırı "Members" arıyordu, imza kartında "Süre" eklentide "Time Out"a çevriliyor ("Duration" bulunmuyordu).
+- **Aynı Türkçenin iki İngilizcesi:** "Teklif Yap" eklentide "Make An Offer" dönüyor, CLI "Make Offer" arıyordu →
+  Türkçede `offer` gönderemiyordu. `Labelled` artık `GameWords.Same`: iki İngilizce oyunun dilinde aynı yazılıyorsa aynı.
+- **Açık:** haber listesi yaşa göre sıralanamıyor (yaş yazısı "10 saat 45 dakika önce"; birimler çeviri tablosunda
+  yok). Haberin verisinde `Age`/`Date` var ama sayfa bağlamıyor; Türkçede oyunun sırası kalıyor.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

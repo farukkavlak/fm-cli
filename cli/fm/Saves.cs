@@ -9,9 +9,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly string SavesFolder = Path.Combine(
-		Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-		"Library", "Application Support", "Sports Interactive", "Football Manager 26", "games");
+	private static string SavesFolder => GameFolders.Saves;
 
 	private static int Saves(bool json)
 	{

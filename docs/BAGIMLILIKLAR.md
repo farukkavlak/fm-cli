@@ -98,6 +98,10 @@ Sayfa bulunsa bile içi İngilizce sözcüklerle bölümlere ayrılıyor:
   `Opponent.cs`, `ScoutReport.cs`, `Youth.cs`)
 - Mesaj ekleri: `Program.cs:900-1420` arası, ekin türünü İngilizce başlıktan tanıyor ("Season Summary",
   "Injury Table", "Coach Report", "Likely Talking Points", "Youth Candidates"…) — ~90 sıra numaralı okuma.
+  **14 Ekim gece (FINDINGS §8.176):** mesaj öğe adıyla (`MessageBodyText`) bulunup başlığıyla tanınıyor; rakip raporu,
+  antrenman programı/özeti, kondisyon testleri, sorumluluklar, tavsiye özeti, teklif, imza kartı veri yolundan. Başlık
+  çapaları eklentinin çevirisiyle Türkçede de tutuyor. Hâlâ sırayla: sezon özeti, sakatlık özeti, kiralıklar,
+  altyapı adayları, milli takımlar, maç kartı, home-grown, scout odakları, bütçe, vizyon, basın toplantısı.
 - Cümle kalıpları (regex):
   - `^\d+ year-old` — mutluluk, dinamikler, teklifler, altyapı listeleri (`Happiness.cs:153`, `Dynamics.cs:55`,
     `Offers.cs:181`, `Youth.cs:61`, `Program.cs:1088`)
@@ -272,7 +276,10 @@ Mağaza (Steam / Epic / Game Pass), işletim sistemi (macOS / Windows) ve oyun s
 - **Kurulum yeri:** `Launcher.cs` oyunu `~/Library/Application Support/Steam/steamapps/common/Football Manager 26` altında
   arıyor, çalıştırılan kopya `~/fm26_bep/fm.app` ve `run_bepinex_arm64.sh`. Epic'te kurulum yeri başka; Windows'ta hepsi başka.
 - **Kayıt ve taktik klasörü:** `Saves.cs`, `TacticFiles.cs` → `~/Library/Application Support/Sports Interactive/Football Manager 26/`.
-  Windows'ta `Documents\Sports Interactive\…`.
+  Windows'ta `Documents\Sports Interactive\…`. **14 Ekim gece:** klasör oyuna soruluyor — eklentinin `/folders`'ı
+  (Unity `persistentDataPath`, kurulum yeri, platform, sürüm); `fm start` cevabı `~/.config/fm-cli/user-folder`'a
+  yazıyor, `saves`/taktik dosyaları oradan (`GameFolders.cs`). Oyun hiç cevap vermediyse platformun Unity varsayılanı;
+  `FM_USER_DIR` ikisini de geçer.
 - **macOS'a özel araçlar:** `osascript` (pencereyi küçültme), `PlistBuddy` (Dock'tan çıkarma), `/usr/bin/pgrep` / `pkill`
   (kapatma), `.app` paketi. Windows'ta karşılığı yok; gizli başlatma oradan yeniden yazılmalı.
 - **BepInEx:** bugün arm64 için yamalı paket (Il2CppInterop arm64'te bazı kancaları atlıyor). Windows x64 resmi paketle
