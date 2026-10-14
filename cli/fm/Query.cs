@@ -16,7 +16,7 @@ internal static partial class Program
 	private sealed record QueryField(string Head, string Property, QueryKind Kind, string Means, string[] Words)
 	{
 		/// <summary>The field as it is written in a query, with its Turkish letters.</summary>
-		public string Say => Words[0] switch { "yas" => "yaş", "ulke" => "ülke", "maas" => "maaş", "sozlesme" => "sözleşme", "statu" => "statü", "mac" => "maç", var word => word };
+		public string Say => Words[0] switch { "yas" => L("yaş"), "ulke" => L("ülke"), "maas" => L("maaş"), "sozlesme" => L("sözleşme"), "statu" => L("statü"), "mac" => L("maç"), var word => word };
 	}
 
 	private static readonly QueryField[] QueryFields =
@@ -168,10 +168,10 @@ internal static partial class Program
 			var text = Field(p, f.Property);
 			return f.Kind switch
 			{
-				QueryKind.Flag => text == "True" ? "sakat" : "",
+				QueryKind.Flag => text == "True" ? L("sakat") : "",
 				QueryKind.Months => Value(p, f) is { } months && GameDay(text) is { } ends
 					? $"{ends.Day} {Months[ends.Month - 1]} {ends.Year} · {Left((int)months)}" : text,
-				QueryKind.Money => Value(p, f) is { } money ? $"{MoneyFormat.Exact((long)money)}/hafta" : text,
+				QueryKind.Money => Value(p, f) is { } money ? L($"{MoneyFormat.Exact((long)money)}/hafta") : text,
 				_ when f.Property == "ClubAverageRatingThisSeason" => Value(p, f) is { } r and > 0 ? r.ToString("0.00", CultureInfo.InvariantCulture) : "-",
 				_ => text,
 			};
@@ -187,11 +187,11 @@ internal static partial class Program
 			Console.WriteLine(L($"Koşula uyan oyuncu yok ({players.Count} oyuncuya bakıldı)."));
 			return 0;
 		}
-		Table.Write(shown.Select(f => f.Property == "Name" ? "OYUNCU" : f.Head).ToArray(), found.Select(p => shown.Select(f => Shown(p, f)).ToArray()).ToList());
+		Table.Write(shown.Select(f => f.Property == "Name" ? L("OYUNCU") : f.Head).ToArray(), found.Select(p => shown.Select(f => Shown(p, f)).ToArray()).ToList());
 		Console.WriteLine(L($"\n{found.Count} oyuncu ({players.Count} içinden)"));
 		return 0;
 
-		static string Left(int months) => months < 0 ? "bitti" : months < 12 ? $"{months} ay" : months % 12 == 0 ? $"{months / 12} yıl" : $"{months / 12} yıl {months % 12} ay";
+		static string Left(int months) => months < 0 ? L("bitti") : months < 12 ? $"{months} ay" : months % 12 == 0 ? L($"{months / 12} yıl") : L($"{months / 12} yıl {months % 12} ay");
 
 		// "1yıl", "2 yil", "18ay", "6": a length of time in months.
 		static double? Span(string text)

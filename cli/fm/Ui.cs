@@ -52,8 +52,8 @@ internal static class Ui
 			.Title(Safe(title))
 			.PageSize(Math.Clamp(choices.Count + 1, 3, 20))
 			.HighlightStyle(new Style(Color.Yellow, decoration: Decoration.Bold))
-			.MoreChoicesText("[dim](aşağıda daha fazlası)[/]")
-			.UseConverter(i => i < 0 ? $"[dim]{Safe(cancel)}[/]" : Safe(choices[i]) + (i == current ? " [dim]← şu an[/]" : ""))
+			.MoreChoicesText(L("[dim](aşağıda daha fazlası)[/]"))
+			.UseConverter(i => i < 0 ? $"[dim]{Safe(cancel)}[/]" : Safe(choices[i]) + (i == current ? L(" [dim]← şu an[/]") : ""))
 			.AddChoices(Enumerable.Range(0, choices.Count))
 			.AddChoices(-1);
 

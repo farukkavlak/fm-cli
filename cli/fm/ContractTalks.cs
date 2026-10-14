@@ -139,7 +139,7 @@ internal static partial class Program
 	/// <summary>At a terminal: the card, and the arrows to change it, until it is signed or put aside.</summary>
 	private static async Task<int> HoldTalks(List<string> terms)
 	{
-		var failed = await ApplyTerms(terms) is { Count: 0 } ? null : "Bazı --term'ler bu aşamada yok; kartta elle değiştir.";
+		var failed = await ApplyTerms(terms) is { Count: 0 } ? null : L("Bazı --term'ler bu aşamada yok; kartta elle değiştir.");
 		var said = await AgentSays();
 		var notes = new List<string>();
 		while (true)
@@ -164,33 +164,33 @@ internal static partial class Program
 
 			if (promises && await Labelled("Finalise Promises", TalksButton) != null)
 			{
-				items.Add("Vaatleri onayla, şartlara geç");
+				items.Add(L("Vaatleri onayla, şartlara geç"));
 				actions.Add(PastPromises);
 			}
 			else if (promises && await Labelled("Suggest Promises", TalksButton) != null)
 			{
-				items.Add("Vaatleri menajere öner");
-				actions.Add(async () => await Propose(notes) == Outcome.Failed ? "Öneri gönderilemedi." : null);
+				items.Add(L("Vaatleri menajere öner"));
+				actions.Add(async () => await Propose(notes) == Outcome.Failed ? L("Öneri gönderilemedi.") : null);
 			}
 			else if (promises)
 			{
-				items.Add("Vaatler gönderilemiyor: kırmızı satırları düzelt");
+				items.Add(L("Vaatler gönderilemiyor: kırmızı satırları düzelt"));
 				actions.Add(() => Task.FromResult<string>(null));
 			}
 			else if (await Labelled("Finalise Deal", TalksButton) != null)
 			{
-				items.Add("Bu şartlarla imzala");
+				items.Add(L("Bu şartlarla imzala"));
 				actions.Add(async () => await Signs(notes) == Outcome.Signed ? "" : null);
 			}
 			else if (await Labelled("Suggest Terms", TalksButton) != null)
 			{
-				items.Add("Şartları menajere öner");
+				items.Add(L("Şartları menajere öner"));
 				actions.Add(async () => await Propose(notes) == Outcome.Signed ? "" : null);
 			}
 			else
 			{
 				// The game takes the proposal away while a term breaks its rules; the row says which.
-				items.Add("Öneri gönderilemiyor: kırmızı satırları düzelt");
+				items.Add(L("Öneri gönderilemiyor: kırmızı satırları düzelt"));
 				actions.Add(() => Task.FromResult<string>(null));
 			}
 
@@ -211,12 +211,12 @@ internal static partial class Program
 			}
 			if (!promises && await Labelled("Reset") != null)
 			{
-				items.Add("Sıfırla (menajerin istediklerine dön)");
-				actions.Add(async () => await Labelled("Reset") is { } reset ? (await Fm.Get("press", ("ptr", Field(reset, "Pointer")))).StartsWith("error", StringComparison.Ordinal) ? "Sıfırlanamadı." : null : null);
+				items.Add(L("Sıfırla (menajerin istediklerine dön)"));
+				actions.Add(async () => await Labelled("Reset") is { } reset ? (await Fm.Get("press", ("ptr", Field(reset, "Pointer")))).StartsWith("error", StringComparison.Ordinal) ? L("Sıfırlanamadı.") : null : null);
 			}
 			if (await Labelled("Cancel Negotiations", TalksButton) != null)
 			{
-				items.Add("Görüşmeyi iptal et");
+				items.Add(L("Görüşmeyi iptal et"));
 				actions.Add(CancelTalks);
 			}
 
@@ -266,7 +266,7 @@ internal static partial class Program
 			await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 			await Until(async () => await Labelled(label, TalksButton) == null || await OnTerms(), seconds: 8, every: 0.25);
 		}
-		return await TalksSettled("Terms") is { Stage: "Terms" } ? null : "Şartlara geçilemedi; menajer başka bir şey bekliyor olabilir (talk ile bak).";
+		return await TalksSettled("Terms") is { Stage: "Terms" } ? null : L("Şartlara geçilemedi; menajer başka bir şey bekliyor olabilir (talk ile bak).");
 	}
 
 	/// <summary>Accepted: the agent took what was suggested as it stood, and Finalise now closes it.</summary>
@@ -313,10 +313,10 @@ internal static partial class Program
 			// language which it was is not guessed.
 			var english = Field(await Fm.GetJson("state"), "Language") is "" or "english";
 			var later = said.Contains("final decision", StringComparison.OrdinalIgnoreCase) || said.Contains("be in touch", StringComparison.OrdinalIgnoreCase);
-			Tell(!finalising ? "Görüşme kapandı."
-				: !english ? "Görüşme kapandı: sözleşme ya imzalandı ya da kararı birkaç gün içinde gelen kutusuna düşer (contracts)."
-				: later ? "Teklif karşı tarafta; kararı birkaç gün içinde gelen kutusuna düşer."
-				: "Sözleşme imzalandı; görüşme kapandı.");
+			Tell(!finalising ? L("Görüşme kapandı.")
+				: !english ? L("Görüşme kapandı: sözleşme ya imzalandı ya da kararı birkaç gün içinde gelen kutusuna düşer (contracts).")
+				: later ? L("Teklif karşı tarafta; kararı birkaç gün içinde gelen kutusuna düşer.")
+				: L("Sözleşme imzalandı; görüşme kapandı."));
 			return finalising ? Outcome.Signed : Outcome.Answered;
 		}
 
@@ -326,24 +326,24 @@ internal static partial class Program
 			.Select(r => (r, was: ours.Row(r)))
 			.Where(p => p.was == null || p.was.Shown != p.r.Shown)
 			.Select(p => $"{OfferScreen.Say(p.r.Label)}: {(p.was == null ? "" : p.was.Shown + " → ")}{p.r.Shown}")
-			.Concat(ours?.Rows.Where(r => theirs?.Row(r) == null).Select(r => $"{OfferScreen.Say(r.Label)}: çıkarıldı") ?? [])
+			.Concat(ours?.Rows.Where(r => theirs?.Row(r) == null).Select(r => L($"{OfferScreen.Say(r.Label)}: çıkarıldı")) ?? [])
 			.ToList();
-		if (changed.Count > 0) Tell($"Menajerin istediği: {string.Join(" · ", changed)}");
+		if (changed.Count > 0) Tell(L($"Menajerin istediği: {string.Join(" · ", changed)}"));
 
 		if (next.Any(l => l.Label == finalise))
 		{
 			if (!promises && changed.Count == 0 && !finalising)
 			{
 				// On the card the next choice offered is to sign; from the command line --yes has said so already.
-				if (notes != null) Tell("Menajer bu şartları kabul ediyor.");
+				if (notes != null) Tell(L("Menajer bu şartları kabul ediyor."));
 				return Outcome.Accepted;
 			}
 			Tell(promises
-				? changed.Count == 0 ? "Menajer bu vaatleri kabul ediyor. Onaylayıp şartlara geçmek için: contract --next" : "Bunları kabul edip şartlara geçmek için: contract --next · pazarlığa devam: --term"
-				: changed.Count == 0 ? "Menajer bu şartları kabul ediyor. İmzalamak için: contract --sign --yes" : "Bunları kabul edip imzalamak için: contract --sign --yes · pazarlığa devam: --wage / --term");
+				? changed.Count == 0 ? L("Menajer bu vaatleri kabul ediyor. Onaylayıp şartlara geçmek için: contract --next") : L("Bunları kabul edip şartlara geçmek için: contract --next · pazarlığa devam: --term")
+				: changed.Count == 0 ? L("Menajer bu şartları kabul ediyor. İmzalamak için: contract --sign --yes") : L("Bunları kabul edip imzalamak için: contract --sign --yes · pazarlığa devam: --wage / --term"));
 		}
 		else if (next.Count > 0)
-			Tell($"Sırada: {string.Join(" · ", next.Select(l => l.Label))}");
+			Tell(L($"Sırada: {string.Join(" · ", next.Select(l => l.Label))}"));
 		return Outcome.Answered;
 	}
 
@@ -365,7 +365,7 @@ internal static partial class Program
 			}
 			await OpenPage(Screen.Home);
 			return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 4, every: 0.25)
-				? null : "Görüşmede iptal butonu yok.";
+				? null : L("Görüşmede iptal butonu yok.");
 		}
 		await Fm.Get("press", ("ptr", Field(cancel, "Pointer")));
 
@@ -376,7 +376,7 @@ internal static partial class Program
 
 		await LeaveTalks();
 		return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25)
-			? null : "İptal denildi ama görüşme ekranı hâlâ açık (talk ile bak).";
+			? null : L("İptal denildi ama görüşme ekranı hâlâ açık (talk ile bak).");
 	}
 
 	/// <summary>

@@ -114,19 +114,19 @@ internal static partial class Program
 		if (now.Position > 0 && (now.Position != before.Position || now.Points != before.Points))
 		{
 			var games = now.Played - before.Played;
-			lines.Add(("Lig", $"{before.Position}. → {now.Position}. sıra · {before.Points} → {now.Points} puan"
-				+ (games > 0 ? $" ({games} maçta {now.Points - before.Points})" : "")));
+			lines.Add((L("Lig"), L($"{before.Position}. → {now.Position}. sıra · {before.Points} → {now.Points} puan")
+				+ (games > 0 ? L($" ({games} maçta {now.Points - before.Points})") : "")));
 		}
 		if (now.Balance != before.Balance) lines.Add(("Kasa", $"{Pound(before.Balance)} → {Pound(now.Balance)} ({Signed(now.Balance - before.Balance)})"));
 		if (now.TransferBudget != before.TransferBudget)
-			lines.Add(("Transfer bütçesi", $"{Pound(before.TransferBudget)} → {Pound(now.TransferBudget)} ({Signed(now.TransferBudget - before.TransferBudget)})"));
-		if (joined.Count > 0) lines.Add(("Gelen", string.Join(", ", joined.Select(p => p.Name))));
-		if (left.Count > 0) lines.Add(("Giden", string.Join(", ", left.Select(p => p.Name))));
-		if (hurt.Count > 0) lines.Add(("Sakatlanan", string.Join(", ", hurt.Select(p => $"{p.Name} ({p.Injury}{(p.DaysOut > 0 ? $", {p.DaysOut} gün" : "")})"))));
-		if (healed.Count > 0) lines.Add(("İyileşen", string.Join(", ", healed.Select(p => p.Name))));
-		foreach (var (was, @is) in contracts) lines.Add(("Sözleşme", $"{@is.Name}: {Or(was.ContractEnds)} → {Or(@is.ContractEnds)}"));
+			lines.Add((L("Transfer bütçesi"), $"{Pound(before.TransferBudget)} → {Pound(now.TransferBudget)} ({Signed(now.TransferBudget - before.TransferBudget)})"));
+		if (joined.Count > 0) lines.Add((L("Gelen"), string.Join(", ", joined.Select(p => p.Name))));
+		if (left.Count > 0) lines.Add((L("Giden"), string.Join(", ", left.Select(p => p.Name))));
+		if (hurt.Count > 0) lines.Add((L("Sakatlanan"), string.Join(", ", hurt.Select(p => $"{p.Name} ({p.Injury}{(p.DaysOut > 0 ? L($", {p.DaysOut} gün") : "")})"))));
+		if (healed.Count > 0) lines.Add((L("İyileşen"), string.Join(", ", healed.Select(p => p.Name))));
+		foreach (var (was, @is) in contracts) lines.Add((L("Sözleşme"), $"{@is.Name}: {Or(was.ContractEnds)} → {Or(@is.ContractEnds)}"));
 		foreach (var (was, @is) in loans)
-			lines.Add(("Kiralık", @is.LoanClub.Length > 0 ? $"{@is.Name} → {@is.LoanClub}" : $"{@is.Name} {was.LoanClub}'dan döndü"));
+			lines.Add((L("Kiralık"), @is.LoanClub.Length > 0 ? $"{@is.Name} → {@is.LoanClub}" : L($"{@is.Name} {was.LoanClub}'dan döndü")));
 
 		if (lines.Count == 0 && played.Count == 0)
 		{

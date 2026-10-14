@@ -132,7 +132,7 @@ internal static partial class Program
 					await Task.Delay(1200);
 					(ties, table, note) = await StageContent();
 					name = string.Join(" › ", stages[best]);
-					if (dates.TryGetValue(best + 1, out var draw)) ahead = $"Sıradaki tur {string.Join(" › ", stages[best + 1])}: kura {draw}";
+					if (dates.TryGetValue(best + 1, out var draw)) ahead = L($"Sıradaki tur {string.Join(" › ", stages[best + 1])}: kura {draw}");
 				}
 			}
 
@@ -198,7 +198,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> PickIn(bool stage, (string, string) what)
 	{
-		var answer = "error: Stages sayfasının listeleri bulunamadı";
+		var answer = L("error: Stages sayfasının listeleri bulunamadı");
 		for (var attempt = 0; attempt < 4; attempt++)
 		{
 			if (await StageLists() is { } lists)

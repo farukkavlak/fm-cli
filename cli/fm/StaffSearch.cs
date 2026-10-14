@@ -85,7 +85,7 @@ internal static partial class Program
 					foreach (var sub in subs.EnumerateObject())
 						if (int.TryParse(sub.Name, out var at) && at < top.Count)
 							jobs.AddRange(sub.Value.EnumerateArray().Select(j => (top[at][..^2], j.GetString())));
-				if (Choose(jobs.Select(j => j.Job).ToList(), role, "Görev") is not { } job) return await Cancel(64);
+				if (Choose(jobs.Select(j => j.Job).ToList(), role, L("Görev")) is not { } job) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("names", $"{jobs.First(j => j.Job == job).Department}>{job}"), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
 				await Task.Delay(500);
@@ -94,7 +94,7 @@ internal static partial class Program
 			{
 				var list = lists.FirstOrDefault(d => Has(d, "By Nation"));
 				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
-				if (Choose(choices, employed, "Çalışma durumu") is not { } choice) return await Cancel(64);
+				if (Choose(choices, employed, L("Çalışma durumu")) is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
 				await Task.Delay(500);
@@ -104,7 +104,7 @@ internal static partial class Program
 				var list = lists.FirstOrDefault(d => Has(d, "Exceptional"));
 				if (list.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde itibar listesi yok")));
 				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
-				if (Choose(choices, reputation, "İtibar") is not { } choice) return await Cancel(64);
+				if (Choose(choices, reputation, L("İtibar")) is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
 				await Task.Delay(500);
@@ -116,14 +116,14 @@ internal static partial class Program
 
 		if (Option(args, "--filter") is { } wantedFilter)
 		{
-			if (Choose(filterNames, wantedFilter, "Süzgeç") is not { } filter) return 1;
+			if (Choose(filterNames, wantedFilter, L("Süzgeç")) is not { } filter) return 1;
 			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("choice", filter), ("fire", "1"));
 			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
 			asked = true;
 		}
 		if (Option(args, "--view") is { } wantedView)
 		{
-			if (Choose(viewNames, wantedView, "Görünüm") is not { } view) return 1;
+			if (Choose(viewNames, wantedView, L("Görünüm")) is not { } view) return 1;
 			var chosen = await Fm.Get("select", ("ptr", Field(views.Value, "Pointer")), ("choice", view));
 			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
 			asked = true;
@@ -158,7 +158,7 @@ internal static partial class Program
 			Console.WriteLine(L("Sayfanın gösterdikleri arasında uyan yok."));
 			return 0;
 		}
-		Columns(rows, "KİŞİ");
+		Columns(rows, L("KİŞİ"));
 		Console.WriteLine(L($"\n{rows.Count} kişi (sayfanın gösterdiği kadarı). Daraltmak: --role <görev> · --free · --reputation <seviye> · --view <görünüm> · sıfırlamak: --clear"));
 		return 0;
 	}
@@ -171,11 +171,11 @@ internal static partial class Program
 	// The game's position names by the short ones written on the pitch.
 	private static readonly Dictionary<string, string> PositionNames = new(StringComparer.OrdinalIgnoreCase)
 	{
-		["GK"] = "Goalkeeper", ["DR"] = "Defender (Right)", ["DL"] = "Defender (Left)", ["DC"] = "Defender (Centre)",
-		["WBR"] = "Wing-Back (Right)", ["WBL"] = "Wing-Back (Left)", ["DM"] = "Defensive Midfielder",
-		["MR"] = "Midfielder (Right)", ["ML"] = "Midfielder (Left)", ["MC"] = "Midfielder (Centre)",
-		["AMR"] = "Attacking Midfielder (Right)", ["AML"] = "Attacking Midfielder (Left)", ["AMC"] = "Attacking Midfielder (Centre)",
-		["ST"] = "Striker (Centre)", ["STC"] = "Striker (Centre)",
+		["GK"] = "Goalkeeper", ["DR"] = "Defender (Right)", ["DL"] = "Defender (Left)", ["DC"] = L("Defender (Centre)"),
+		["WBR"] = "Wing-Back (Right)", ["WBL"] = "Wing-Back (Left)", ["DM"] = L("Defensive Midfielder"),
+		["MR"] = L("Midfielder (Right)"), ["ML"] = L("Midfielder (Left)"), ["MC"] = L("Midfielder (Centre)"),
+		["AMR"] = L("Attacking Midfielder (Right)"), ["AML"] = L("Attacking Midfielder (Left)"), ["AMC"] = L("Attacking Midfielder (Centre)"),
+		["ST"] = L("Striker (Centre)"), ["STC"] = L("Striker (Centre)"),
 	};
 
 	/// <summary>
@@ -239,14 +239,14 @@ internal static partial class Program
 		if (position != null)
 		{
 			var squeezed = new string(position.Where(char.IsLetter).ToArray());
-			place = PositionNames.TryGetValue(squeezed, out var full) ? full : Choose(PositionNames.Values.Distinct().ToList(), position, "Mevki");
+			place = PositionNames.TryGetValue(squeezed, out var full) ? full : Choose(PositionNames.Values.Distinct().ToList(), position, L("Mevki"));
 			if (place == null) return "";
 		}
 
 		JsonElement edit = default;
 		await Until(async () => (edit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxFilterStoreFilter", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
-		if (edit.ValueKind != JsonValueKind.Object) return "error: sayfada arama paneli butonu yok";
+		if (edit.ValueKind != JsonValueKind.Object) return L("error: sayfada arama paneli butonu yok");
 		await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
 
 		async Task<JsonElement?> Under(string heading)
@@ -280,7 +280,7 @@ internal static partial class Program
 		{
 			JsonElement? list = null;
 			await Until(async () => (list = await Under(heading)) != null, seconds: 6, every: 0.4);
-			if (list == null) return await Close($"error: arama panelinde '{heading}' yok");
+			if (list == null) return await Close(L($"error: arama panelinde '{heading}' yok"));
 			var choices = list.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 			// A number typed is the choice itself (an age), not its place in the list.
 			var choice = choices.FirstOrDefault(c => string.Equals(c, typed, StringComparison.OrdinalIgnoreCase)) ?? Choose(choices, typed, what);
@@ -290,7 +290,7 @@ internal static partial class Program
 			var picked = await Fm.Get("select", ("ptr", Field(list.Value, "Pointer")), ("choice", choice), ("fire", "1"));
 			if (picked.StartsWith("error", StringComparison.Ordinal)) return await Close(picked);
 			if (!await Until(async () => await Under(heading) is { } now && Field(now, "Label") == choice, seconds: 4, every: 0.4))
-				return await Close($"error: {what}: '{choice}' seçildi ama panel tutmadı");
+				return await Close(L($"error: {what}: '{choice}' seçildi ama panel tutmadı"));
 		}
 
 		// Attribute conditions: "Add Attribute" › Attributes › group › attribute puts a row in the
@@ -311,7 +311,7 @@ internal static partial class Program
 			// another attribute's ("Hız" is Pace, and reads as Speed).
 			var name = (AttributeCodes.TryGetValue(new string(Fold(typed).Where(char.IsLetter).ToArray()), out var code) ? attributes.FirstOrDefault(a => a.Code == code).Name : null)
 				?? attributes.Select(a => a.Name).FirstOrDefault(n => Fold(n) == Fold(typed))
-				?? Choose(attributes.Select(a => a.Name).Distinct().ToList(), typed, "Nitelik");
+				?? Choose(attributes.Select(a => a.Name).Distinct().ToList(), typed, L("Nitelik"));
 			if (name == null) return await Close("");
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{attributes.First(a => a.Name == name).Group}>{name}"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
@@ -324,7 +324,7 @@ internal static partial class Program
 			}
 			(List<JsonElement> Items, int At) row = default;
 			if (!await Until(async () => (row = await Row()).At >= 0 && row.Items.Skip(row.At).Any(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Is At Least")), seconds: 5, every: 0.4))
-				return await Close($"error: {name} koşulu panele eklenmedi");
+				return await Close(L($"error: {name} koşulu panele eklenmedi"));
 
 			JsonElement Next(Func<JsonElement, bool> fits) => row.Items.Skip(row.At + 1).FirstOrDefault(fits);
 			var how = Next(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Is At Least"));
@@ -353,7 +353,7 @@ internal static partial class Program
 				await Fm.Get("click", ("ptr", Field(step, "Pointer")));
 				await Until(async () => (row = await Row()).At >= 0 && Shown() != before, seconds: 3, every: 0.3);
 			}
-			if (Shown() != value) return await Close($"error: {name} için değer {value} yapılamadı (panelde {Shown()})");
+			if (Shown() != value) return await Close(L($"error: {name} için değer {value} yapılamadı (panelde {Shown()})"));
 		}
 
 		// The position he is natural at: a condition of its own ("Add Attribute" › Position), a
@@ -381,10 +381,10 @@ internal static partial class Program
 			}
 			(JsonElement List, string Row) where = default;
 			if (!await Until(async () => (where = await Where()).Row != null, seconds: 5, every: 0.4))
-				return await Close("error: mevki koşulu panele eklenmedi");
+				return await Close(L("error: mevki koşulu panele eklenmedi"));
 			await Fm.Get("select", ("ptr", Field(where.List, "Pointer")), ("choice", where.Row), ("fire", "1"));
 			if (!await Until(async () => Field((await Where()).List, "Label") == where.Row, seconds: 4, every: 0.4))
-				return await Close($"error: mevki '{place}' seçildi ama panel tutmadı");
+				return await Close(L($"error: mevki '{place}' seçildi ama panel tutmadı"));
 		}
 
 		// What he may cost at most: "Add Attribute" › Transfer Value, a row that opens on "Is At
@@ -399,10 +399,10 @@ internal static partial class Program
 				.LastOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => Money(c.GetString() ?? "") == 7_500_000));
 			JsonElement amounts = default;
 			if (!await Until(async () => (amounts = await Amounts()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
-				return await Close("error: değer koşulu panele eklenmedi");
+				return await Close(L("error: değer koşulu panele eklenmedi"));
 			// The figure as the list writes it ("£7.5M", "7,5M £").
 			if (amounts.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").FirstOrDefault(c => Money(c) == maxValue) is not { } figure)
-				return await Close($"error: değer listesinde {MoneyFormat.Short(maxValue.Value)} yok");
+				return await Close(L($"error: değer listesinde {MoneyFormat.Short(maxValue.Value)} yok"));
 			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", figure), ("fire", "1"));
 			await Task.Delay(1200);
 		}

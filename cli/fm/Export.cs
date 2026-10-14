@@ -9,8 +9,8 @@ internal static partial class Program
 {
 	private static readonly (string Command, string Title)[] ExportDefault =
 	[
-		("status", "Durum"), ("squad", "Kadro"), ("table", "Lig tablosu"), ("fixtures", "Fikstür"),
-		("health", "Sağlık"), ("contracts", "Sözleşmeler"), ("finances", "Finans"),
+		("status", L("Durum")), ("squad", L("Kadro")), ("table", L("Lig tablosu")), ("fixtures", L("Fikstür")),
+		("health", L("Sağlık")), ("contracts", L("Sözleşmeler")), ("finances", L("Finans")),
 	];
 
 	private static async Task<int> Export(string[] args)

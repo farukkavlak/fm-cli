@@ -54,7 +54,7 @@ internal sealed class OfferScreen
 
 		// A loan clause with nothing to set ("Can be recalled") is there or not: being there is yes.
 		public string Shown => string.Join(" · ", new[] { Choice?.Value, Amount?.Value, Fixed }.Where(v => !string.IsNullOrEmpty(v))) is { Length: > 0 } shown ? shown
-			: Remove.Length > 0 && Choice == null && Amount == null ? "evet" : "—";
+			: Remove.Length > 0 && Choice == null && Amount == null ? L("evet") : "—";
 	}
 
 	/// <summary>The offer as it stands, or null when no offer screen is open.</summary>
@@ -161,7 +161,7 @@ internal sealed class OfferScreen
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
 		// The game marks its advice in the list ("Backup (Recommended)") but not in what it shows.
-		return await Settles(fm, s => after(s) is { } c && (c.Value == choice || choice.StartsWith(c.Value + " (", StringComparison.Ordinal)), route) ? null : $"'{choice}' ekranda görünmedi";
+		return await Settles(fm, s => after(s) is { } c && (c.Value == choice || choice.StartsWith(c.Value + " (", StringComparison.Ordinal)), route) ? null : L($"'{choice}' ekranda görünmedi");
 	}
 
 	/// <summary>
@@ -187,7 +187,7 @@ internal sealed class OfferScreen
 	{
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("names", string.Join(">", path)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value, route) ? null : $"'{path[^1]}' ekranda görünmedi";
+		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value, route) ? null : L($"'{path[^1]}' ekranda görünmedi");
 	}
 
 	/// <summary>Types an amount into a term's box; the game may round it, so whatever it shows is taken.</summary>
@@ -195,19 +195,19 @@ internal sealed class OfferScreen
 	{
 		var said = await fm.Get("setnumber", ("ptr", control.Pointer), ("value", amount.ToString(CultureInfo.InvariantCulture)));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value, route) || Program.Money(control.Value) == amount ? null : "tutar ekranda değişmedi";
+		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value, route) || Program.Money(control.Value) == amount ? null : L("tutar ekranda değişmedi");
 	}
 
 	/// <summary>Sets how firmly a term is held; the lock's choices are indices.</summary>
 	public static async Task<string> SetLock(Bridge fm, Term term, string lockName, string route = "offer", Func<OfferScreen, Control> after = null)
 	{
 		var index = term.Lock.Choices.IndexOf(lockName);
-		if (index < 0) return $"'{lockName}' bu şartta yok; seçenekler: {string.Join(", ", term.Lock.Choices)}";
+		if (index < 0) return L($"'{lockName}' bu şartta yok; seçenekler: {string.Join(", ", term.Lock.Choices)}");
 		// The lock on the entire contract offer only writes its choice, like the offer's deadline.
 		var said = await fm.Get("select", ("ptr", term.Lock.Pointer), ("index", index.ToString(CultureInfo.InvariantCulture)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
 		after ??= s => s.Row(term)?.Lock;
-		return await Settles(fm, s => after(s)?.Value == lockName, route) ? null : $"'{lockName}' ekranda görünmedi";
+		return await Settles(fm, s => after(s)?.Value == lockName, route) ? null : L($"'{lockName}' ekranda görünmedi");
 	}
 
 	/// <summary>Puts another term in from a heading's "Add" list.</summary>
@@ -216,7 +216,7 @@ internal sealed class OfferScreen
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
 		// "Players To Exchange" opens a section of its own rather than a row.
-		return await Settles(fm, s => s.Row(choice) != null || s.Adds.Any(a => Same(a.Section, choice)), route) ? null : $"'{choice}' eklenmedi";
+		return await Settles(fm, s => s.Row(choice) != null || s.Adds.Any(a => Same(a.Section, choice)), route) ? null : L($"'{choice}' eklenmedi");
 	}
 
 	/// <summary>
@@ -231,7 +231,7 @@ internal sealed class OfferScreen
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("names", string.Join(">", names)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return (said, null);
 		OfferScreen after = null;
-		if (!await Settles(fm, s => (after = s).Rows.Count > (before?.Rows.Count ?? 0), route)) return ($"'{names[^1]}' eklenmedi", null);
+		if (!await Settles(fm, s => (after = s).Rows.Count > (before?.Rows.Count ?? 0), route)) return (L($"'{names[^1]}' eklenmedi"), null);
 		return (null, after.Rows.FirstOrDefault(r => before?.Row(r) == null) ?? after.Rows[^1]);
 	}
 
@@ -247,7 +247,7 @@ internal sealed class OfferScreen
 		var before = (await Read(fm, route))?.Rows.Count ?? int.MaxValue;
 		var said = await fm.Get("click", ("ptr", term.Remove));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => s.Row(term) == null || s.Rows.Count < before, route) ? null : $"'{term.Label}' kaldırılmadı";
+		return await Settles(fm, s => s.Row(term) == null || s.Rows.Count < before, route) ? null : L($"'{term.Label}' kaldırılmadı");
 	}
 
 	/// <summary>A change lands a frame or so later; this waits for the screen to show it.</summary>
@@ -266,128 +266,128 @@ internal sealed class OfferScreen
 
 	private static readonly Dictionary<string, string> Turkish = new()
 	{
-		["Base Details"] = "Temel şartlar",
-		["Additional Fees"] = "Ek ödemeler",
-		["Additional Clauses"] = "Ek maddeler",
-		["Players To Exchange"] = "Takas oyuncuları",
-		["Fee"] = "Bonservis",
-		["Transfer Date"] = "Transfer tarihi",
-		["Negotiable"] = "Pazarlık",
-		["Deadline"] = "Cevap süresi",
-		["Percentage Of Next Sale"] = "Sonraki satıştan pay",
-		["Percentage Of Profit From Next Sale"] = "Sonraki satış kârından pay",
-		["After League Appearances"] = "Lig maçı sonrası",
-		["Per League Appearance"] = "Lig maçı başına",
-		["After International Appearances"] = "Milli maç sonrası",
-		["Minimum League Goals"] = "Lig golü sonrası",
-		["Instalments (6 monthly)"] = "Taksit (6 ayda bir)",
-		["Instalments (12 monthly)"] = "Taksit (12 ayda bir)",
-		["Sell Player First"] = "Önce oyuncu satması",
-		["Buy Back Price"] = "Geri alım bedeli",
-		["Selling Team Wage Contribution"] = "Satan kulübün maaş katkısı",
-		["Arrange Friendly"] = "Hazırlık maçı",
-		["Loan Back Length"] = "Geri kiralama süresi",
-		["Can Be Recalled From Loan Back"] = "Geri kiralamadan çağrılabilir",
-		["Semi-Negotiable"] = "Yarı pazarlıklı",
-		["Non-Negotiable"] = "Pazarlıksız",
-		["Remove & Exclude"] = "Çıkar ve yasakla",
+		["Base Details"] = L("Temel şartlar"),
+		["Additional Fees"] = L("Ek ödemeler"),
+		["Additional Clauses"] = L("Ek maddeler"),
+		["Players To Exchange"] = L("Takas oyuncuları"),
+		["Fee"] = L("Bonservis"),
+		["Transfer Date"] = L("Transfer tarihi"),
+		["Negotiable"] = L("Pazarlık"),
+		["Deadline"] = L("Cevap süresi"),
+		["Percentage Of Next Sale"] = L("Sonraki satıştan pay"),
+		["Percentage Of Profit From Next Sale"] = L("Sonraki satış kârından pay"),
+		["After League Appearances"] = L("Lig maçı sonrası"),
+		["Per League Appearance"] = L("Lig maçı başına"),
+		["After International Appearances"] = L("Milli maç sonrası"),
+		["Minimum League Goals"] = L("Lig golü sonrası"),
+		["Instalments (6 monthly)"] = L("Taksit (6 ayda bir)"),
+		["Instalments (12 monthly)"] = L("Taksit (12 ayda bir)"),
+		["Sell Player First"] = L("Önce oyuncu satması"),
+		["Buy Back Price"] = L("Geri alım bedeli"),
+		["Selling Team Wage Contribution"] = L("Satan kulübün maaş katkısı"),
+		["Arrange Friendly"] = L("Hazırlık maçı"),
+		["Loan Back Length"] = L("Geri kiralama süresi"),
+		["Can Be Recalled From Loan Back"] = L("Geri kiralamadan çağrılabilir"),
+		["Semi-Negotiable"] = L("Yarı pazarlıklı"),
+		["Non-Negotiable"] = L("Pazarlıksız"),
+		["Remove & Exclude"] = L("Çıkar ve yasakla"),
 
 		// A loan (FINDINGS §8.46).
-		["Loan Options"] = "Kiralık seçenekleri",
-		["Loan Clauses"] = "Kiralık maddeleri",
-		["Loan-to-buy Fees"] = "Satın alma bedelleri",
-		["Future Additional Fees"] = "Satın almada ek ödemeler",
-		["Future Additional Clauses"] = "Satın almada ek maddeler",
-		["Playing Monthly Fee"] = "Aylık ücret (oynarsa)",
-		["Unused Monthly Fee"] = "Aylık ücret (oynamazsa)",
-		["Playing Wage Percentage"] = "Maaş katkısı (oynarsa)",
-		["Unused Wage Percentage"] = "Maaş katkısı (oynamazsa)",
-		["Duration"] = "Süre",
-		["Agreed Playing Time"] = "Söz verilen forma süresi",
-		["Preferred Position"] = "Tercih edilen mevki",
-		["Preferred Role"] = "Tercih edilen rol",
-		["Can play in cup matches"] = "Kupa maçlarında oynayabilir",
-		["Can play against own team"] = "Kendi kulübüne karşı oynayabilir",
-		["Can be recalled"] = "Geri çağrılabilir",
-		["Loan cannot be terminated"] = "Kiralık feshedilemez",
-		["Can play against parent club's B team"] = "Kulübün B takımına karşı oynayabilir",
-		["Can play for parent club"] = "Kendi kulübünde de oynayabilir",
-		["Can play for parent club reserves"] = "Kulübün yedeklerinde oynayabilir",
-		["Can play for parent club in cup matches"] = "Kupada kendi kulübünde oynayabilir",
-		["Increased playing time second season"] = "İkinci sezon daha çok forma",
-		["Loan To Buy Fee"] = "Satın alma opsiyonu",
-		["Optional Future Fee"] = "Opsiyonlu satın alma bedeli",
-		["Mandatory Future Fee"] = "Zorunlu satın alma bedeli",
-		["Future Fee After Matches Played"] = "Maç sayısına bağlı satın alma",
-		["Future Fee After Competition Achievement"] = "Başarıya bağlı satın alma",
+		["Loan Options"] = L("Kiralık seçenekleri"),
+		["Loan Clauses"] = L("Kiralık maddeleri"),
+		["Loan-to-buy Fees"] = L("Satın alma bedelleri"),
+		["Future Additional Fees"] = L("Satın almada ek ödemeler"),
+		["Future Additional Clauses"] = L("Satın almada ek maddeler"),
+		["Playing Monthly Fee"] = L("Aylık ücret (oynarsa)"),
+		["Unused Monthly Fee"] = L("Aylık ücret (oynamazsa)"),
+		["Playing Wage Percentage"] = L("Maaş katkısı (oynarsa)"),
+		["Unused Wage Percentage"] = L("Maaş katkısı (oynamazsa)"),
+		["Duration"] = L("Süre"),
+		["Agreed Playing Time"] = L("Söz verilen forma süresi"),
+		["Preferred Position"] = L("Tercih edilen mevki"),
+		["Preferred Role"] = L("Tercih edilen rol"),
+		["Can play in cup matches"] = L("Kupa maçlarında oynayabilir"),
+		["Can play against own team"] = L("Kendi kulübüne karşı oynayabilir"),
+		["Can be recalled"] = L("Geri çağrılabilir"),
+		["Loan cannot be terminated"] = L("Kiralık feshedilemez"),
+		["Can play against parent club's B team"] = L("Kulübün B takımına karşı oynayabilir"),
+		["Can play for parent club"] = L("Kendi kulübünde de oynayabilir"),
+		["Can play for parent club reserves"] = L("Kulübün yedeklerinde oynayabilir"),
+		["Can play for parent club in cup matches"] = L("Kupada kendi kulübünde oynayabilir"),
+		["Increased playing time second season"] = L("İkinci sezon daha çok forma"),
+		["Loan To Buy Fee"] = L("Satın alma opsiyonu"),
+		["Optional Future Fee"] = L("Opsiyonlu satın alma bedeli"),
+		["Mandatory Future Fee"] = L("Zorunlu satın alma bedeli"),
+		["Future Fee After Matches Played"] = L("Maç sayısına bağlı satın alma"),
+		["Future Fee After Competition Achievement"] = L("Başarıya bağlı satın alma"),
 
 		// The contract talks (FINDINGS §8.44).
-		["Promises"] = "Vaatler",
-		["Terms"] = "Şartlar",
-		["Additional Promises"] = "Ek vaatler",
-		["Bonuses & Clauses"] = "Primler ve maddeler",
-		["Entire offer"] = "Tüm teklif",
-		["Playing Time"] = "Kadro statüsü",
-		["Contract Start Date"] = "Başlangıç",
-		["Wage"] = "Ücret",
-		["Loyalty Bonus"] = "Sadakat primi",
-		["Agent Fee"] = "Menajer ücreti",
-		["Signing On Fee"] = "İmza parası",
-		["Contract Length"] = "Süre",
-		["Contract Type"] = "Sözleşme türü",
-		["Appearance Fee"] = "Maç başı ücret",
-		["Unused Substitute Fee"] = "Oynamayan yedek ücreti",
-		["Clean Sheet Bonus"] = "Gol yememe primi",
-		["International Cap Bonus"] = "Milli maç primi",
-		["Goal Bonus"] = "Gol primi",
-		["Assist Bonus"] = "Asist primi",
-		["Promotion Wage Rise"] = "Lig atlarsa zam",
-		["Yearly Wage Rise"] = "Yıllık zam",
-		["Top Division Relegation Wage Drop"] = "Küme düşerse maaş indirimi",
-		["One-Year Extension After League Games (Final Season)"] = "Lig maçı sayısıyla 1 yıl uzatma (son sezon)",
-		["One-Year Extension After League Games (Avoid Relegation Final Season)"] = "Lig maçı sayısıyla 1 yıl uzatma (kümede kalınırsa)",
-		["Optional Contract Extension By Club"] = "Kulüp opsiyonu",
-		["Minimum Fee Release Clause"] = "Serbest kalma bedeli",
-		["Minimum Fee Release Clause (Foreign Clubs)"] = "Serbest kalma bedeli (yabancı kulüpler)",
-		["Minimum Fee Release Clause (Domestic Clubs)"] = "Serbest kalma bedeli (yerli kulüpler)",
-		["Relegation Release Clause"] = "Küme düşerse serbest kalma",
-		["Sell On Fee Percentage"] = "Satıştan oyuncuya pay",
-		["Match Highest Earner Clause"] = "En yüksek maaşa eşitleme",
-		["Injury Release Clause"] = "Uzun sakatlıkta fesih",
-		["Bonus After Competition Achievement"] = "Turnuva başarısı primi",
-		["Bonus After Player Award Achievement"] = "Oyuncu ödülü primi",
-		["Competition Bonuses"] = "Turnuva primleri",
-		["Award Bonuses"] = "Ödül primleri",
-		["Other Player From Squad"] = "Kadrodan bir oyuncu",
-		["Senior Squad"] = "A takım",
-		["U19 Squad"] = "U19 takımı",
+		["Promises"] = L("Vaatler"),
+		["Terms"] = L("Şartlar"),
+		["Additional Promises"] = L("Ek vaatler"),
+		["Bonuses & Clauses"] = L("Primler ve maddeler"),
+		["Entire offer"] = L("Tüm teklif"),
+		["Playing Time"] = L("Kadro statüsü"),
+		["Contract Start Date"] = L("Başlangıç"),
+		["Wage"] = L("Ücret"),
+		["Loyalty Bonus"] = L("Sadakat primi"),
+		["Agent Fee"] = L("Menajer ücreti"),
+		["Signing On Fee"] = L("İmza parası"),
+		["Contract Length"] = L("Süre"),
+		["Contract Type"] = L("Sözleşme türü"),
+		["Appearance Fee"] = L("Maç başı ücret"),
+		["Unused Substitute Fee"] = L("Oynamayan yedek ücreti"),
+		["Clean Sheet Bonus"] = L("Gol yememe primi"),
+		["International Cap Bonus"] = L("Milli maç primi"),
+		["Goal Bonus"] = L("Gol primi"),
+		["Assist Bonus"] = L("Asist primi"),
+		["Promotion Wage Rise"] = L("Lig atlarsa zam"),
+		["Yearly Wage Rise"] = L("Yıllık zam"),
+		["Top Division Relegation Wage Drop"] = L("Küme düşerse maaş indirimi"),
+		["One-Year Extension After League Games (Final Season)"] = L("Lig maçı sayısıyla 1 yıl uzatma (son sezon)"),
+		["One-Year Extension After League Games (Avoid Relegation Final Season)"] = L("Lig maçı sayısıyla 1 yıl uzatma (kümede kalınırsa)"),
+		["Optional Contract Extension By Club"] = L("Kulüp opsiyonu"),
+		["Minimum Fee Release Clause"] = L("Serbest kalma bedeli"),
+		["Minimum Fee Release Clause (Foreign Clubs)"] = L("Serbest kalma bedeli (yabancı kulüpler)"),
+		["Minimum Fee Release Clause (Domestic Clubs)"] = L("Serbest kalma bedeli (yerli kulüpler)"),
+		["Relegation Release Clause"] = L("Küme düşerse serbest kalma"),
+		["Sell On Fee Percentage"] = L("Satıştan oyuncuya pay"),
+		["Match Highest Earner Clause"] = L("En yüksek maaşa eşitleme"),
+		["Injury Release Clause"] = L("Uzun sakatlıkta fesih"),
+		["Bonus After Competition Achievement"] = L("Turnuva başarısı primi"),
+		["Bonus After Player Award Achievement"] = L("Oyuncu ödülü primi"),
+		["Competition Bonuses"] = L("Turnuva primleri"),
+		["Award Bonuses"] = L("Ödül primleri"),
+		["Other Player From Squad"] = L("Kadrodan bir oyuncu"),
+		["Senior Squad"] = L("A takım"),
+		["U19 Squad"] = L("U19 takımı"),
 		// Why the game will not take a term.
-		["Above max allowed %"] = "izin verilen oranın üstünde",
-		["Contract too short"] = "sözleşme bunun için fazla kısa",
-		["Not allowed to exceed appearance bonus"] = "maç başı ücreti aşamaz",
-		["Clause offers no wage increase"] = "madde ücreti artırmıyor",
-		["Wage After Reaching International Appearances"] = "Milli maç sayısına ulaşınca ücret",
-		["Wage After Reaching Club League Games"] = "Lig maçı sayısına ulaşınca ücret",
-		["The long-term aims for the club are:"] = "Kulübün uzun vadeli hedefi",
-		["The aims for the league this season are:"] = "Bu sezon ligdeki hedef",
-		["The aims for cup competitions this season are:"] = "Bu sezon kupalardaki hedef",
-		["Will look to strengthen the following area of the first team squad:"] = "Kadroda şu bölge güçlendirilecek",
-		["Will appoint player as captain"] = "Kaptan yapılacak",
-		["Will appoint player as vice-captain"] = "Kaptan yardımcısı yapılacak",
-		["Will assign player as free kick taker"] = "Serbest vuruşları o kullanacak",
-		["Will assign player as penalty taker"] = "Penaltıları o kullanacak",
-		["Will allow the player to treat the club as a stepping stone"] = "Kulübü basamak olarak görebilecek",
-		["Will improve training facilities"] = "Antrenman tesisleri iyileştirilecek",
-		["Will improve first team coaching staff"] = "A takım çalıştırıcıları güçlendirilecek",
-		["Will play player in preferred position and role"] = "Sevdiği mevki ve rolde oynayacak",
-		["Will look to bring in a suitable signing to help player settle"] = "Uyumu için uygun bir transfer yapılacak",
+		["Above max allowed %"] = L("izin verilen oranın üstünde"),
+		["Contract too short"] = L("sözleşme bunun için fazla kısa"),
+		["Not allowed to exceed appearance bonus"] = L("maç başı ücreti aşamaz"),
+		["Clause offers no wage increase"] = L("madde ücreti artırmıyor"),
+		["Wage After Reaching International Appearances"] = L("Milli maç sayısına ulaşınca ücret"),
+		["Wage After Reaching Club League Games"] = L("Lig maçı sayısına ulaşınca ücret"),
+		["The long-term aims for the club are:"] = L("Kulübün uzun vadeli hedefi"),
+		["The aims for the league this season are:"] = L("Bu sezon ligdeki hedef"),
+		["The aims for cup competitions this season are:"] = L("Bu sezon kupalardaki hedef"),
+		["Will look to strengthen the following area of the first team squad:"] = L("Kadroda şu bölge güçlendirilecek"),
+		["Will appoint player as captain"] = L("Kaptan yapılacak"),
+		["Will appoint player as vice-captain"] = L("Kaptan yardımcısı yapılacak"),
+		["Will assign player as free kick taker"] = L("Serbest vuruşları o kullanacak"),
+		["Will assign player as penalty taker"] = L("Penaltıları o kullanacak"),
+		["Will allow the player to treat the club as a stepping stone"] = L("Kulübü basamak olarak görebilecek"),
+		["Will improve training facilities"] = L("Antrenman tesisleri iyileştirilecek"),
+		["Will improve first team coaching staff"] = L("A takım çalıştırıcıları güçlendirilecek"),
+		["Will play player in preferred position and role"] = L("Sevdiği mevki ve rolde oynayacak"),
+		["Will look to bring in a suitable signing to help player settle"] = L("Uyumu için uygun bir transfer yapılacak"),
 	};
 
 	/// <summary>A term as one line of the edit menu: its value, and its lock when it is not the usual.</summary>
 	public static string MenuLine(Term row) =>
 		$"{Say(row.Label)}: {row.Shown}" + (row.Lock is { Value: not "Negotiable" and not "" } l ? $" ({SayLock(l.Value)})" : "");
 
-	public static string SayLock(string lockName) => lockName == "Negotiable" ? "Pazarlığa açık" : Say(lockName);
+	public static string SayLock(string lockName) => lockName == "Negotiable" ? L("Pazarlığa açık") : Say(lockName);
 
 	/// <summary>A term's notes, each in Turkish where it is known.</summary>
 	public static string SayDetail(string detail) => string.Join(" · ", detail.Split(" · ").Select(Say));
@@ -406,11 +406,11 @@ internal sealed class OfferScreen
 	private static string Bonus(string label)
 	{
 		var reaching = System.Text.RegularExpressions.Regex.Match(label, @"^Bonus upon reaching the (.+) of the (.+)$");
-		if (reaching.Success) return $"{reaching.Groups[2].Value}: {reaching.Groups[1].Value} primi";
+		if (reaching.Success) return L($"{reaching.Groups[2].Value}: {reaching.Groups[1].Value} primi");
 		var winning = System.Text.RegularExpressions.Regex.Match(label, @"^(?:Bonus upon winning|Winning) (?:the )?(.+)$");
-		if (winning.Success) return $"{winning.Groups[1].Value} kazanılırsa prim";
+		if (winning.Success) return L($"{winning.Groups[1].Value} kazanılırsa prim");
 		var qualifying = System.Text.RegularExpressions.Regex.Match(label, @"^Qualifying for the (.+)$");
-		if (qualifying.Success) return $"{qualifying.Groups[1].Value}'e katılım primi";
+		if (qualifying.Success) return L($"{qualifying.Groups[1].Value}'e katılım primi");
 		return null;
 	}
 
@@ -427,7 +427,7 @@ internal sealed class OfferScreen
 	public static string OptionName(Term option) => OptionKey(option) switch
 	{
 		// On the other club's answer: theirs, or the one we sent before it.
-		"Shown" => "Gösterilen",
+		"Shown" => L("Gösterilen"),
 		var key => Say(key),
 	};
 
@@ -455,7 +455,7 @@ internal sealed class OfferScreen
 				Console.WriteLine($"{SectionName(group.Key)}:");
 				foreach (var row in group) Console.WriteLine($"  {Say(row.Label)}: {row.Shown}{(row.Lock is { Value: not "Negotiable" and not "" } l ? $"  [{SayLock(l.Value)}]" : "")}");
 			}
-			var costs = new[] { BudgetCost.Length > 0 ? $"Bütçeden çıkacak: {BudgetCost}" : "", TotalCost.Length > 0 ? $"{TotalName}: {TotalCost}" : "" }.Where(c => c.Length > 0).ToList();
+			var costs = new[] { BudgetCost.Length > 0 ? L($"Bütçeden çıkacak: {BudgetCost}") : "", TotalCost.Length > 0 ? $"{TotalName}: {TotalCost}" : "" }.Where(c => c.Length > 0).ToList();
 			if (costs.Count > 0) Console.WriteLine(string.Join(" · ", costs));
 			return;
 		}
@@ -470,9 +470,9 @@ internal sealed class OfferScreen
 					+ LockMark(row.Lock)));
 		}
 		grid.AddRow(new Text(""), new Text(""));
-		if (BudgetCost.Length > 0) grid.AddRow(new Markup("[dim]Bütçeden çıkacak[/]"), new Markup($"[bold]{Ui.Safe(BudgetCost)}[/]"));
+		if (BudgetCost.Length > 0) grid.AddRow(new Markup(L("[dim]Bütçeden çıkacak[/]")), new Markup($"[bold]{Ui.Safe(BudgetCost)}[/]"));
 		if (TotalCost.Length > 0) grid.AddRow(new Markup($"[dim]{Ui.Safe(TotalName)}[/]"), new Markup($"{Ui.Safe(TotalCost)}"));
-		grid.AddRow(new Markup("[dim]Teklif[/]"), new Markup(Ui.Safe(string.Join(" · ", Options.Select(o => o.Choice.Value)))));
+		grid.AddRow(new Markup(L("[dim]Teklif[/]")), new Markup(Ui.Safe(string.Join(" · ", Options.Select(o => o.Choice.Value)))));
 
 		Ui.Out.Write(new Panel(grid)
 		{
@@ -484,9 +484,9 @@ internal sealed class OfferScreen
 	}
 
 	/// <summary>The first block has no heading on a loan; the others are the game's.</summary>
-	private string SectionName(string section) => section.Length > 0 ? Say(section) : IsLoan ? "Kiralık şartları" : "Temel şartlar";
+	private string SectionName(string section) => section.Length > 0 ? Say(section) : IsLoan ? L("Kiralık şartları") : L("Temel şartlar");
 
-	private string TotalName => TotalCostTitle.Contains("permanent", StringComparison.OrdinalIgnoreCase) ? "Kalıcı olursa toplam" : "Olası toplam";
+	private string TotalName => TotalCostTitle.Contains("permanent", StringComparison.OrdinalIgnoreCase) ? L("Kalıcı olursa toplam") : L("Olası toplam");
 
 	/// <summary>The contract talks: the stage's terms, the offer-wide lock, what it costs.</summary>
 	private void DrawContract()
@@ -495,10 +495,10 @@ internal sealed class OfferScreen
 		var lockLine = Options.Where(o => o.Lock != null).Select(o => $"{Say(o.Label)}: {SayLock(o.Lock.Value)}").ToList();
 		var shown = Options.Where(o => o.Choice != null && o.Choice.Value is not "" and not "Current Offer").Select(o => o.Choice.Value).ToList();
 		var costs = new List<string>();
-		if (Facts.TryGetValue("Cost", out var cost)) costs.Add($"maaş bütçesine etkisi {cost}");
-		if (Facts.TryGetValue("Remaining", out var left) && left != "N/A") costs.Add($"kalan {left}");
+		if (Facts.TryGetValue("Cost", out var cost)) costs.Add(L($"maaş bütçesine etkisi {cost}"));
+		if (Facts.TryGetValue("Remaining", out var left) && left != "N/A") costs.Add(L($"kalan {left}"));
 		var now = Facts.TryGetValue("Wage", out var wage)
-			? $"şu an {wage}" + (Facts.TryGetValue("Contract Expires", out var ends) ? $", {ends}'e kadar" : "")
+			? L($"şu an {wage}") + (Facts.TryGetValue("Contract Expires", out var ends) ? L($", {ends}'e kadar") : "")
 			: "";
 
 		if (!Ui.Rich)
@@ -526,13 +526,13 @@ internal sealed class OfferScreen
 				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(row.Shown)}[/]"
 					+ (row.Detail.Length > 0 ? Stage == "Terms" ? $"  [red]{Ui.Safe(SayDetail(row.Detail))}[/]" : $" [dim]{Ui.Safe(row.Detail)}[/]" : "")
 					+ LockMark(row.Lock)
-					+ (row.Warning ? "  [red]kurala uymuyor[/]" : "")));
+					+ (row.Warning ? L("  [red]kurala uymuyor[/]") : "")));
 		}
 		grid.AddRow(new Text(""), new Text(""));
-		foreach (var line in lockLine) grid.AddRow(new Markup("[dim]Teklif[/]"), new Markup(Ui.Safe(line)));
-		if (shown.Count > 0) grid.AddRow(new Markup("[dim]Gösterilen[/]"), new Markup(Ui.Safe(string.Join(" · ", shown))));
-		if (costs.Count > 0) grid.AddRow(new Markup("[dim]Bütçe[/]"), new Markup(Ui.Safe(string.Join(" · ", costs))));
-		if (now.Length > 0) grid.AddRow(new Markup("[dim]Mevcut sözleşme[/]"), new Markup(Ui.Safe(now)));
+		foreach (var line in lockLine) grid.AddRow(new Markup(L("[dim]Teklif[/]")), new Markup(Ui.Safe(line)));
+		if (shown.Count > 0) grid.AddRow(new Markup(L("[dim]Gösterilen[/]")), new Markup(Ui.Safe(string.Join(" · ", shown))));
+		if (costs.Count > 0) grid.AddRow(new Markup(L("[dim]Bütçe[/]")), new Markup(Ui.Safe(string.Join(" · ", costs))));
+		if (now.Length > 0) grid.AddRow(new Markup(L("[dim]Mevcut sözleşme[/]")), new Markup(Ui.Safe(now)));
 
 		Ui.Out.Write(new Panel(grid)
 		{

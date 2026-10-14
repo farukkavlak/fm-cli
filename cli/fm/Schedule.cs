@@ -60,11 +60,11 @@ internal static partial class Program
 
 		static string Session(string s) => s switch
 		{
-			"H" => "MAÇ (iç saha)",
-			"A" => "MAÇ (deplasman)",
-			"N" => "MAÇ (tarafsız)",
-			"Rest" => "dinlenme",
-			"Travel" => "yolculuk",
+			"H" => L("MAÇ (iç saha)"),
+			"A" => L("MAÇ (deplasman)"),
+			"N" => L("MAÇ (tarafsız)"),
+			"Rest" => L("dinlenme"),
+			"Travel" => L("yolculuk"),
 			_ => s,
 		};
 		static string Day(DateTime x) => $"{ShortDays[(int)x.DayOfWeek]} {x.Day} {Months[x.Month - 1]}";
@@ -78,8 +78,8 @@ internal static partial class Program
 		}
 
 		var table = new Spectre.Console.Table().Border(TableBorder.Rounded).BorderColor(Color.Grey)
-			.Title("[bold]Antrenman programı[/]")
-			.AddColumn("Gün").AddColumn("1. seans").AddColumn("2. seans").AddColumn("3. seans");
+			.Title(L("[bold]Antrenman programı[/]"))
+			.AddColumn(L("Gün")).AddColumn("1. seans").AddColumn("2. seans").AddColumn("3. seans");
 		foreach (var x in days)
 		{
 			// A new week starts on Monday; the weeks are kept apart.
@@ -94,7 +94,7 @@ internal static partial class Program
 			var label = x.Day == today ? $"[bold]▶ {Ui.Safe(Day(x.Day))}[/]" : past ? $"[dim]  {Ui.Safe(Day(x.Day))}[/]" : $"  {Ui.Safe(Day(x.Day))}";
 			table.AddRow([label, .. x.Sessions.Select(Cell)]);
 		}
-		table.Caption("[dim]▶ bugün · soluk: geçmiş günler ve dinlenme[/]");
+		table.Caption(L("[dim]▶ bugün · soluk: geçmiş günler ve dinlenme[/]"));
 		Ui.Out.Write(table);
 		return 0;
 	}

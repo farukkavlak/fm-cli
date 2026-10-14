@@ -12,10 +12,10 @@ internal static partial class Program
 {
 	private static readonly Dictionary<string, string> PlayerStatusTurkish = new()
 	{
-		["Star Player"] = "Yıldız", ["Important Player"] = "Önemli", ["Regular Starter"] = "Düzenli ilk 11",
-		["Squad Player"] = "Rotasyon", ["Impact Sub"] = "Etkili yedek", ["Fringe Player"] = "Kenarda",
-		["Emergency Backup"] = "Acil durum yedeği", ["Youngster"] = "Genç", ["Not Needed"] = "İhtiyaç yok",
-		["Backup"] = "Yedek", ["Breakthrough Prospect"] = "Çıkış yapan genç", ["Future Prospect"] = "Geleceğin oyuncusu",
+		["Star Player"] = L("Yıldız"), ["Important Player"] = L("Önemli"), ["Regular Starter"] = L("Düzenli ilk 11"),
+		["Squad Player"] = L("Rotasyon"), ["Impact Sub"] = L("Etkili yedek"), ["Fringe Player"] = L("Kenarda"),
+		["Emergency Backup"] = L("Acil durum yedeği"), ["Youngster"] = L("Genç"), ["Not Needed"] = L("İhtiyaç yok"),
+		["Backup"] = L("Yedek"), ["Breakthrough Prospect"] = L("Çıkış yapan genç"), ["Future Prospect"] = L("Geleceğin oyuncusu"),
 	};
 
 	private static async Task<int> Finances(bool json, string[] args)
@@ -120,34 +120,34 @@ internal static partial class Program
 		}
 
 		Heading("Kasa");
-		Row("Bakiye", finances.Balance);
-		Row("Bu ay gelir", income);
-		Row("Bu ay gider", spent);
-		foreach (var (month, balance) in months) Row($"{month} bakiyesi", balance);
-		Row("Borç", $"{finances.Debt.Remaining} kaldı (başta {finances.Debt.Original})");
-		Row("Finansal fair play", $"{(ffp.Status == "Compliant" ? "uyumlu" : ffp.Status)} ({ffp.Competition})");
+		Row(L("Bakiye"), finances.Balance);
+		Row(L("Bu ay gelir"), income);
+		Row(L("Bu ay gider"), spent);
+		foreach (var (month, balance) in months) Row(L($"{month} bakiyesi"), balance);
+		Row(L("Borç"), L($"{finances.Debt.Remaining} kaldı (başta {finances.Debt.Original})"));
+		Row(L("Finansal fair play"), $"{(ffp.Status == "Compliant" ? L("uyumlu") : ffp.Status)} ({ffp.Competition})");
 
-		Heading("Maaş bordrosu");
-		Row("Haftalık toplam", $"{finances.Wages.Total} / {finances.Wages.Budget} ({finances.Wages.Share})");
+		Heading(L("Maaş bordrosu"));
+		Row(L("Haftalık toplam"), $"{finances.Wages.Total} / {finances.Wages.Budget} ({finances.Wages.Share})");
 		foreach (var (status, players, wage) in statuses.Where(s => s.Players > 0))
 			// The card writes these in the period the game is set to show (a week, a month, a year).
-			Row($"{PlayerStatusTurkish[status]} ({players})", wage);
+			Row($"{status} ({players})", wage);
 
-		Heading("Bilet");
-		Row("Maç bileti", finances.Tickets.Match);
-		Row("Kombine", int.TryParse(finances.Tickets.Holders, out var holders) ? $"{finances.Tickets.Season} · {holders:N0} kombine sahibi" : finances.Tickets.Season);
+		Heading(L("Bilet"));
+		Row(L("Maç bileti"), finances.Tickets.Match);
+		Row(L("Kombine"), int.TryParse(finances.Tickets.Holders, out var holders) ? L($"{finances.Tickets.Season} · {holders:N0} kombine sahibi") : finances.Tickets.Season);
 
-		Heading("Sponsorluk");
-		Row("Toplam gelir", $"{finances.Sponsorship.Total} ({finances.Sponsorship.Sources} kaynak)");
+		Heading(L("Sponsorluk"));
+		Row(L("Toplam gelir"), L($"{finances.Sponsorship.Total} ({finances.Sponsorship.Sources} kaynak)"));
 		foreach (var d in sponsors)
 		{
-			var type = Regex.IsMatch(d[0], @"additional club partner") ? "Diğer ortaklar" : d[0];
-			var term = d[2] == "-" ? "" : $" · bitiş {d[2]} ({Regex.Replace(d[3], @"Years?", "yıl")})";
-			Row(Ui.Fit(type, 22), $"{d[1]} sezonluk{term}");
+			var type = Regex.IsMatch(d[0], @"additional club partner") ? L("Diğer ortaklar") : d[0];
+			var term = d[2] == "-" ? "" : L($" · bitiş {d[2]} ({Regex.Replace(d[3], @"Years?", L("yıl"))})");
+			Row(Ui.Fit(type, 22), L($"{d[1]} sezonluk{term}"));
 		}
 
-		Heading("Yönetimin projeksiyonu");
-		foreach (var (season, balance, turnover) in projections) Row(season, $"bakiye {balance} · ciro {turnover}");
+		Heading(L("Yönetimin projeksiyonu"));
+		foreach (var (season, balance, turnover) in projections) Row(season, L($"bakiye {balance} · ciro {turnover}"));
 		if (Ui.Rich) Ui.Line(L("\n[dim]Kalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon][/]"));
 		else Console.WriteLine(L("\nKalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]"));
 		return 0;
@@ -198,9 +198,9 @@ internal static partial class Program
 		var (tab, label) = Fold(period) switch
 		{
 			"" or "ay" or "bu ay" or "month" => ("This Month", "bu ay"),
-			"gecen ay" or "last month" => ("Last Month", "geçen ay"),
-			"sezon" or "bu sezon" or "season" => ("This Season", "bu sezon"),
-			"gecen sezon" or "last season" => ("Last Season", "geçen sezon"),
+			"gecen ay" or "last month" => ("Last Month", L("geçen ay")),
+			"sezon" or "bu sezon" or "season" => ("This Season", L("bu sezon")),
+			"gecen sezon" or "last season" => ("Last Season", L("geçen sezon")),
 			_ => (null, null),
 		};
 		if (tab == null)
@@ -256,7 +256,7 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new { Kind = kind, Period = tab, Total = total, Turnover = turnover, Items = all.Select(a => new { a.Item, a.Amount }) }));
 			return 0;
 		}
-		var title = $"{(kind == "Income" ? "Gelir" : "Gider")} — {label}: {total}" + (turnover != null && turnover != total ? $" (ciro {turnover})" : "");
+		var title = $"{(kind == "Income" ? L("Gelir") : L("Gider"))} — {label}: {total}" + (turnover != null && turnover != total ? L($" (ciro {turnover})") : "");
 		if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(title)}[/]");
 		else Console.WriteLine(title);
 		var width = all.Select(a => a.Item.Length).DefaultIfEmpty(10).Max();

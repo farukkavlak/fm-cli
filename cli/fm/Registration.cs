@@ -65,7 +65,7 @@ internal static partial class Program
 		ShowRegistration(rules, players);
 		// The competition's exemptions (goalkeepers, the young) explain the unticked rows.
 		foreach (var note in await RegistrationNotes()) Console.WriteLine($"  {note}");
-		if (args.Contains("--send")) return await SendList("Confirm", "Kadro listesi");
+		if (args.Contains("--send")) return await SendList("Confirm", L("Kadro listesi"));
 
 		Console.WriteLine(rules.All(r => r.Meets)
 			? L("Kurallar tutuyor. Göndermek için: register --send")
@@ -83,8 +83,8 @@ internal static partial class Program
 		while (true)
 		{
 			var actions = new List<string>();
-			if (rules.All(r => r.Meets)) actions.Add("Listeyi gönder");
-			actions.Add("Yardımcı seçsin");
+			if (rules.All(r => r.Meets)) actions.Add(L("Listeyi gönder"));
+			actions.Add(L("Yardımcı seçsin"));
 			var choosable = players.Where(p => p.CanChange).ToList();
 			var choices = actions.Concat(choosable.Select(p =>
 				$"{(p.On ? "✓" : "·")} {Ui.Fit(p.Name, 24),-24} {p.Age,2}  {Ui.Fit(p.Position, 18),-18} {string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(FlagName))}")).ToList();
@@ -107,7 +107,7 @@ internal static partial class Program
 				Ui.Line(L($"Liste: [bold]{now.Count}[/] oyuncu")
 				        + (came.Count > 0 ? $"  [green]+ {Ui.Safe(string.Join(", ", came))}[/]" : "")
 				        + (gone.Count > 0 ? $"  [red]− {Ui.Safe(string.Join(", ", gone))}[/]" : ""));
-				return await SendList("Confirm", "Kadro listesi");
+				return await SendList("Confirm", L("Kadro listesi"));
 			}
 			if (action == "Yardımcı seçsin")
 			{
@@ -130,12 +130,12 @@ internal static partial class Program
 
 	private static string RuleName(string title) => title switch
 	{
-		"Maximum squad size" => "en fazla",
+		"Maximum squad size" => L("en fazla"),
 		"Minimum squad size" => "en az",
-		"Homegrown in Nation" => "ülkede yetişmiş (HGN+HGC)",
-		"Homegrown at Club" => "kulüpte yetişmiş (HGC)",
-		"Goalkeepers in the squad" => "kaleci",
-		"Replacements" => "değişiklik",
+		"Homegrown in Nation" => L("ülkede yetişmiş (HGN+HGC)"),
+		"Homegrown at Club" => L("kulüpte yetişmiş (HGC)"),
+		"Goalkeepers in the squad" => L("kaleci"),
+		"Replacements" => L("değişiklik"),
 		_ => title,
 	};
 
@@ -157,12 +157,12 @@ internal static partial class Program
 			return block.Split('\n').Select(l => l.Trim()).Where(l => l != "").Select(l =>
 			{
 				var young = System.Text.RegularExpressions.Regex.Match(l, @"^Players of the age of (\d+) or younger on (\S+) do not have to be registered\.$");
-				if (young.Success) return $"Kayıt gerekmez: {young.Groups[2].Value} tarihinde {young.Groups[1].Value} yaş ve altı olanlar";
-				if (l == "Goalkeepers do not have to be registered.") return "Kayıt gerekmez: kaleciler";
+				if (young.Success) return L($"Kayıt gerekmez: {young.Groups[2].Value} tarihinde {young.Groups[1].Value} yaş ve altı olanlar");
+				if (l == "Goalkeepers do not have to be registered.") return L("Kayıt gerekmez: kaleciler");
 				var spaces = System.Text.RegularExpressions.Regex.Match(l, @"^You have (\d+) spaces? available in the squad selection\.$");
-				if (spaces.Success) return $"Listede {spaces.Groups[1].Value} boş yer var";
+				if (spaces.Success) return L($"Listede {spaces.Groups[1].Value} boş yer var");
 				if (l == "If minimum rules cannot be reached, spaces must be left in the squad selection.")
-					return "Bir alt sınır tutmuyorsa listede onun için yer bırakılmalı";
+					return L("Bir alt sınır tutmuyorsa listede onun için yer bırakılmalı");
 				return l;
 			}).ToList();
 		}
@@ -180,11 +180,11 @@ internal static partial class Program
 
 		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn(""))
-			.AddColumn(new TableColumn("[dim]OYUNCU[/]"))
-			.AddColumn(new TableColumn("[dim]YAŞ[/]").RightAligned())
-			.AddColumn(new TableColumn("[dim]MEVKİ[/]"))
-			.AddColumn(new TableColumn("[dim]YETİŞME[/]"))
-			.AddColumn(new TableColumn("[dim]DURUM[/]"));
+			.AddColumn(new TableColumn(L("[dim]OYUNCU[/]")))
+			.AddColumn(new TableColumn(L("[dim]YAŞ[/]")).RightAligned())
+			.AddColumn(new TableColumn(L("[dim]MEVKİ[/]")))
+			.AddColumn(new TableColumn(L("[dim]YETİŞME[/]")))
+			.AddColumn(new TableColumn(L("[dim]DURUM[/]")));
 
 		foreach (var p in players)
 		{
@@ -192,13 +192,13 @@ internal static partial class Program
 			var name = !p.CanChange ? $"[dim]{Ui.Safe(p.Name)}[/]" : p.On ? $"[bold]{Ui.Safe(p.Name)}[/]" : Ui.Safe(p.Name);
 			var flags = string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(f => f switch
 			{
-				"HGC" => "[green]kulüpte[/]",
-				"HGN" => "[aqua]ülkede[/]",
-				"Inj" => "[red]sakat[/]",
-				"Wnt" => "[yellow]ayrılmak istiyor[/]",
+				"HGC" => L("[green]kulüpte[/]"),
+				"HGN" => L("[aqua]ülkede[/]"),
+				"Inj" => L("[red]sakat[/]"),
+				"Wnt" => L("[yellow]ayrılmak istiyor[/]"),
 				_ => $"[dim]{Ui.Safe(f)}[/]",
 			}));
-			table.AddRow(mark, name, p.Age, Ui.Safe(p.Position), flags, p.CanChange ? $"[dim]{Ui.Safe(p.Status)}[/]" : $"[dim]{Ui.Safe(p.Status)} · değiştirilemez[/]");
+			table.AddRow(mark, name, p.Age, Ui.Safe(p.Position), flags, p.CanChange ? $"[dim]{Ui.Safe(p.Status)}[/]" : L($"[dim]{Ui.Safe(p.Status)} · değiştirilemez[/]"));
 		}
 		Ui.Out.Write(table);
 
@@ -207,7 +207,7 @@ internal static partial class Program
 			// A homegrown minimum the list falls short of can still be met: each missing
 			// homegrown player is one fewer place for the rest, and the game counts it so.
 			var shortBy = Short(r);
-			var note = r.Meets && shortBy > 0 ? $"  [dim]({shortBy} eksik: listede o kadar yer az)[/]" : "";
+			var note = r.Meets && shortBy > 0 ? L($"  [dim]({shortBy} eksik: listede o kadar yer az)[/]") : "";
 			Ui.Line($"  {(r.Meets ? "[green]✓[/]" : "[red]✗[/]")} {Ui.Safe(r.Value.Split(' ')[0]),-6} {Ui.Safe(RuleName(r.Title))}{note}");
 		}
 	}
@@ -221,10 +221,10 @@ internal static partial class Program
 
 	private static string FlagName(string flag) => flag switch
 	{
-		"HGC" => "kulüpte",
-		"HGN" => "ülkede",
-		"Inj" => "sakat",
-		"Wnt" => "ayrılmak istiyor",
+		"HGC" => L("kulüpte"),
+		"HGN" => L("ülkede"),
+		"Inj" => L("sakat"),
+		"Wnt" => L("ayrılmak istiyor"),
 		_ => flag,
 	};
 

@@ -11,7 +11,7 @@ internal static partial class Program
 {
 	// Headings spelled out: the CLI runs without culture data, so Turkish upper case is not computed.
 	private static readonly (string Key, string Say, string Head)[] OppositionColumns =
-		[("Marking", "Sıkı markaj", "SIKI MARKAJ"), ("Pressing", "Pres", "PRES"), ("Tackling", "Sert giriş", "SERT GİRİŞ"), ("Foot", "Ayağa yönlendir", "AYAĞA YÖNLENDİR")];
+		[("Marking", L("Sıkı markaj"), L("SIKI MARKAJ")), ("Pressing", L("Pres"), L("PRES")), ("Tackling", L("Sert giriş"), L("SERT GİRİŞ")), ("Foot", L("Ayağa yönlendir"), L("AYAĞA YÖNLENDİR"))];
 
 	private static async Task<int> Opposition(string[] args)
 	{
@@ -101,7 +101,7 @@ internal static partial class Program
 		if (Ui.Rich)
 		{
 			var table = new Spectre.Console.Table { Border = Spectre.Console.TableBorder.Rounded, BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey) };
-			table.AddColumn(new Spectre.Console.TableColumn("[dim]OYUNCU[/]"));
+			table.AddColumn(new Spectre.Console.TableColumn(L("[dim]OYUNCU[/]")));
 			foreach (var c in OppositionColumns) table.AddColumn(new Spectre.Console.TableColumn($"[dim]{c.Head}[/]"));
 			foreach (var r in rows)
 				Spectre.Console.TableExtensions.AddRow(table, [Ui.Safe(Field(r, "Name")), .. OppositionColumns.Select(c => Value(r, c.Key) is var v && v != "-" ? $"[yellow]{Ui.Safe(v)}[/]" : "[dim]-[/]")]);

@@ -47,24 +47,24 @@ internal static partial class Program
 			var means = slot.Choices.FirstOrDefault(c => c.Name == slot.Now)?.Means;
 			if (Ui.Rich) Ui.Line($"  [dim]{slot.Title,-12}[/] [bold]{Ui.Safe(slot.Now)}[/]{(means is { Length: > 0 } ? $" — {Ui.Safe(means)}" : "")}");
 			else Console.WriteLine($"  {slot.Title}: {slot.Now}{(means is { Length: > 0 } ? $" — {means}" : "")}");
-			var others = slot.Choices.Where(c => c.Name != slot.Now && !c.Taken).Select(c => c.Name + (c.Suggested ? " (öneri)" : "")).ToList();
+			var others = slot.Choices.Where(c => c.Name != slot.Now && !c.Taken).Select(c => c.Name + (c.Suggested ? L(" (öneri)") : "")).ToList();
 			if (others.Count > 0)
 			{
 				if (Ui.Rich) Ui.Line(L($"  {"",-12} [dim]başka: {Ui.Safe(string.Join(" · ", others))}[/]"));
 				else Console.WriteLine(L($"    başka: {string.Join(" · ", others)}"));
 			}
 		}
-		Console.WriteLine(L($"\nDeğiştir: prep <{string.Join(" | ", slots.Select(s => s.Key))}> [odak]"));
+		Console.WriteLine(L($"\nDeğiştir: prep <{string.Join(" | ", slots.Select(s => L(s.Key)))}> [odak]"));
 		return 0;
 	}
 
 	/// <summary>Changes one focus: `prep topla progression`; with no focus named, the choices are offered.</summary>
 	private static async Task<int> SetFocus(bool json, List<FocusSlot> slots, List<string> words)
 	{
-		var slot = slots.FirstOrDefault(s => Fold(s.Key) == Fold(words[0]));
+		var slot = slots.FirstOrDefault(s => Fold(s.Key) == Fold(words[0]) || Fold(L(s.Key)) == Fold(words[0]));
 		if (slot == null)
 		{
-			Console.Error.WriteLine(L($"'{words[0]}' diye bir hazırlık yok. Olanlar: {string.Join(", ", slots.Select(s => s.Key))}"));
+			Console.Error.WriteLine(L($"'{words[0]}' diye bir hazırlık yok. Olanlar: {string.Join(", ", slots.Select(s => L(s.Key)))}"));
 			return 64;
 		}
 
@@ -90,7 +90,7 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.Error.WriteLine(L($"Hangisi? prep {slot.Key} <{string.Join(" | ", open.Select(c => c.Name))}>"));
+			Console.Error.WriteLine(L($"Hangisi? prep {L(slot.Key)} <{string.Join(" | ", open.Select(c => c.Name))}>"));
 			return 64;
 		}
 
@@ -145,10 +145,10 @@ internal static partial class Program
 
 		return
 		[
-			new("topla", "Topla", "EventFmxMatchFocusSelectInPossessionType", Field(now, "MatchFocusInPossessionType.MatchFocusSessionName"), with),
-			new("topsuz", "Topsuz", "EventFmxMatchFocusSelectOutOfPossessionType", Field(now, "MatchFocusOutOfPossessionType.MatchFocusSessionName"), without),
-			new("duran1", "Duran top 1", "EventFmxMatchFocusSelectFirstSetPiece", Field(now, "MatchFocusFirstSetPiece.MatchFocusSessionName"), setPieces),
-			new("duran2", "Duran top 2", "EventFmxMatchFocusSelectSecondSetPiece", Field(now, "MatchFocusSecondSetPiece.MatchFocusSessionName"), setPieces),
+			new("topla", L("Topla"), "EventFmxMatchFocusSelectInPossessionType", Field(now, "MatchFocusInPossessionType.MatchFocusSessionName"), with),
+			new("topsuz", L("Topsuz"), "EventFmxMatchFocusSelectOutOfPossessionType", Field(now, "MatchFocusOutOfPossessionType.MatchFocusSessionName"), without),
+			new("duran1", L("Duran top 1"), "EventFmxMatchFocusSelectFirstSetPiece", Field(now, "MatchFocusFirstSetPiece.MatchFocusSessionName"), setPieces),
+			new("duran2", L("Duran top 2"), "EventFmxMatchFocusSelectSecondSetPiece", Field(now, "MatchFocusSecondSetPiece.MatchFocusSessionName"), setPieces),
 		];
 	}
 }

@@ -97,8 +97,8 @@ internal static partial class Program
 		Console.WriteLine(thin.Count == 0 ? L("\nKadroda ince mevki yok: her mevkide en az iki sağlam oyuncu var.") : L("\nKadroda ince mevkiler (sağlam oyuncu bir ya da hiç):"));
 		foreach (var (slot, fit, injured) in thin)
 		{
-			var who = fit.Count == 0 ? "kimse yok" : $"yalnızca {fit[0]}";
-			var out_ = injured.Count > 0 ? $"  (sakat: {string.Join(", ", injured)})" : "";
+			var who = fit.Count == 0 ? L("kimse yok") : L($"yalnızca {fit[0]}");
+			var out_ = injured.Count > 0 ? L($"  (sakat: {string.Join(", ", injured)})") : "";
 			if (Ui.Rich) Ui.Line($"  [bold]{slot,-4}[/] [red]{Ui.Safe(who)}[/][dim]{Ui.Safe(out_)}[/]");
 			else Console.WriteLine($"  {slot,-4} {who}{out_}");
 		}

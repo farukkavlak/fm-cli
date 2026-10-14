@@ -14,12 +14,6 @@ internal static partial class Program
 	private static readonly string[] HappinessLevels =
 		["Very Unhappy", "Unhappy", "Slightly Unhappy", "Content", "Slightly Happy", "Happy", "Very Happy", "Delighted"];
 
-	private static readonly Dictionary<string, string> HappinessTurkish = new()
-	{
-		["Very Unhappy"] = "Çok mutsuz", ["Unhappy"] = "Mutsuz", ["Slightly Unhappy"] = "Biraz mutsuz", ["Content"] = "Memnun",
-		["Slightly Happy"] = "Biraz mutlu", ["Happy"] = "Mutlu", ["Very Happy"] = "Çok mutlu", ["Delighted"] = "Keyfi yerinde",
-	};
-
 	/// <summary>A row of the page; Description ("27 year-old winger") is what tells the row from the same name on the page behind.</summary>
 	private sealed record HappyRow(string Name, string Description, string Level, List<string> Flags);
 
@@ -85,7 +79,7 @@ internal static partial class Program
 		}
 		foreach (var player in players)
 		{
-			var say = HappinessTurkish.GetValueOrDefault(player.Level, player.Level);
+			var say = player.Level;
 			var flag = player.Flags.Count > 0 ? $"  {string.Join(" ", player.Flags)}" : "";
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(player.Name),-24} [{LevelColour(player.Level)}]{Ui.Safe(say)}[/][dim]{Ui.Safe(flag)}[/]");
 			else Console.WriteLine($"  {player.Name,-24} {say}{flag}");
@@ -99,7 +93,7 @@ internal static partial class Program
 
 	private static void WriteWhy(HappyWhy why, List<string> flags, bool positives)
 	{
-		var say = HappinessTurkish.GetValueOrDefault(why.Level, why.Level);
+		var say = why.Level;
 		var rest = $" · moral {why.Morale} · {why.Hierarchy}{(flags.Count > 0 ? $" · {string.Join(" ", flags)}" : "")}";
 		if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(why.Name)}[/]  [{LevelColour(why.Level)}]{Ui.Safe(say)}[/][dim]{Ui.Safe(rest)}[/]");
 		else Console.WriteLine($"{why.Name}  {say}{rest}");

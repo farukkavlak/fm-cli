@@ -10,11 +10,11 @@ internal static partial class Program
 	private static async Task<string> EditTerm(string route, OfferScreen.Term row)
 	{
 		var ways = new List<string>();
-		if (row.Choice != null && row.Choice.Choices.Count > 1) ways.Add($"Seçimi değiştir ({row.Choice.Value})");
-		if (row.Amount != null) ways.Add($"Tutarı değiştir ({row.Amount.Value})");
-		if (row.Lock != null && row.Lock.Choices.Count > 1) ways.Add($"Pazarlık durumu ({OfferScreen.SayLock(row.Lock.Value)})");
-		if (row.Remove.Length > 0) ways.Add("Kaldır");
-		if (ways.Count == 0) return "Bu şart değiştirilemiyor.";
+		if (row.Choice != null && row.Choice.Choices.Count > 1) ways.Add(L($"Seçimi değiştir ({row.Choice.Value})"));
+		if (row.Amount != null) ways.Add(L($"Tutarı değiştir ({row.Amount.Value})"));
+		if (row.Lock != null && row.Lock.Choices.Count > 1) ways.Add(L($"Pazarlık durumu ({OfferScreen.SayLock(row.Lock.Value)})"));
+		if (row.Remove.Length > 0) ways.Add(L("Kaldır"));
+		if (ways.Count == 0) return L("Bu şart değiştirilemiyor.");
 
 		var way = ways.Count == 1 ? 0 : Ui.Ask(OfferScreen.Say(row.Label), ways, cancel: "Geri");
 		if (way == null) return null;
@@ -23,8 +23,8 @@ internal static partial class Program
 			return await PickTermChoice(route, OfferScreen.Say(row.Label), row.Choice, s => s.Row(row)?.Choice);
 		if (chosen.StartsWith("Tutarı", StringComparison.Ordinal))
 		{
-			if (Ui.Text($"{OfferScreen.Say(row.Label)} tutarı (ör. 7.5M, 250K, 12000; boş: vazgeç)") is not { } typed) return null;
-			if (Money(typed) is not { } amount) return $"'{typed}' bir tutar değil.";
+			if (Ui.Text(L($"{OfferScreen.Say(row.Label)} tutarı (ör. 7.5M, 250K, 12000; boş: vazgeç)")) is not { } typed) return null;
+			if (Money(typed) is not { } amount) return L($"'{typed}' bir tutar değil.");
 			return await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row)?.Amount, route);
 		}
 		if (chosen.StartsWith("Pazarlık", StringComparison.Ordinal))
@@ -49,23 +49,23 @@ internal static partial class Program
 	/// <summary>The menu line for one of the "Add" lists.</summary>
 	private static string AddLine(OfferScreen.Term add) => add.Section switch
 	{
-		"Additional Fees" => "+ Ek ödeme ekle",
-		"Players To Exchange" => "+ Takasa oyuncu ekle",
-		"Add Bonus" => "+ Prim ekle",
-		"Add Promise" => "+ Vaat ekle",
-		"Additional Clauses" or "Add Clause" => "+ Madde ekle",
-		var other => $"+ Ekle: {OfferScreen.Say(other)}",
+		"Additional Fees" => L("+ Ek ödeme ekle"),
+		"Players To Exchange" => L("+ Takasa oyuncu ekle"),
+		"Add Bonus" => L("+ Prim ekle"),
+		"Add Promise" => L("+ Vaat ekle"),
+		"Additional Clauses" or "Add Clause" => L("+ Madde ekle"),
+		var other => L($"+ Ekle: {OfferScreen.Say(other)}"),
 	};
 
 	private static async Task<string> AddTerm(string route, OfferScreen.Term add)
 	{
 		var question = add.Section switch
 		{
-			"Additional Fees" => "Hangi ödeme?",
-			"Players To Exchange" => "Hangi oyuncu?",
-			"Add Bonus" => "Hangi prim?",
-			"Add Promise" => "Hangi vaat?",
-			_ => "Hangi madde?",
+			"Additional Fees" => L("Hangi ödeme?"),
+			"Players To Exchange" => L("Hangi oyuncu?"),
+			"Add Bonus" => L("Hangi prim?"),
+			"Add Promise" => L("Hangi vaat?"),
+			_ => L("Hangi madde?"),
 		};
 
 		// A choice ending in › opens a submenu (a trophy, an award, a player of the squad): the
@@ -74,7 +74,7 @@ internal static partial class Program
 		var choices = add.Choice.Open;
 		while (true)
 		{
-			if (choices.Count == 0) return "Bu menü boş.";
+			if (choices.Count == 0) return L("Bu menü boş.");
 			var title = path.Count == 0 ? question : string.Join(" › ", path.Select(OfferScreen.Say));
 			if (Ui.Ask(title, choices.Select(OfferScreen.Say).ToList(), cancel: path.Count == 0 ? L("Geri") : L("Bir üst menü")) is not { } picked)
 			{
@@ -104,26 +104,26 @@ internal static partial class Program
 	{
 		// A name alone adds the term as it comes ("Will appoint player as captain").
 		var eq = asked.IndexOf('=');
-		if (eq == 0) return "biçim: \"Şart=değer\", ör. \"Percentage Of Next Sale=20%\"";
+		if (eq == 0) return L("biçim: \"Şart=değer\", ör. \"Percentage Of Next Sale=20%\"");
 		var label = (eq < 0 ? asked : asked[..eq]).Trim();
 		var values = eq < 0 ? [] : asked[(eq + 1)..].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		bool Named(string l) => Fold(l.TrimEnd(':')) == Fold(label.TrimEnd(':')) || Fold(OfferScreen.Say(l)) == Fold(label);
 		string LockNamed(OfferScreen.Control control, string value) =>
 			control?.Choices.FirstOrDefault(l => Fold(l) == Fold(value) || Fold(OfferScreen.SayLock(l)) == Fold(value));
 
-		if (await OfferScreen.Read(Fm, route) is not { } now) return "ekran açık değil";
+		if (await OfferScreen.Read(Fm, route) is not { } now) return L("ekran açık değil");
 		if (now.Options.FirstOrDefault(o => (o.Choice != null && Named(OfferScreen.OptionKey(o))) || Named(o.Label)) is { } option)
 		{
 			if (option.Lock != null)
 			{
 				return values.Length == 1 && LockNamed(option.Lock, values[0]) is { } lockName
 					? await OfferScreen.SetLock(Fm, option, lockName, route, s => s.Options.FirstOrDefault(o => o.Lock?.Pointer == option.Lock.Pointer)?.Lock)
-					: $"seçenekler: {string.Join(", ", option.Lock.Choices)}";
+					: L($"seçenekler: {string.Join(", ", option.Lock.Choices)}");
 			}
 			var picked = values.Length == 1 ? option.Choice.Choices.FirstOrDefault(c => Fold(c) == Fold(values[0])) : null;
 			return picked != null
 				? await OfferScreen.Choose(Fm, option.Choice, picked, s => s.Options.FirstOrDefault(o => o.Choice?.Pointer == option.Choice.Pointer)?.Choice, route)
-				: $"seçenekler: {string.Join(", ", option.Choice.Choices)}";
+				: L($"seçenekler: {string.Join(", ", option.Choice.Choices)}");
 		}
 
 		var row = now.Rows.FirstOrDefault(r => Named(r.Label));
@@ -132,7 +132,7 @@ internal static partial class Program
 			// A submenu's leaf: "Bonus After Competition Achievement>Turkish Cup>Bonus upon winning…".
 			var names = label.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 			var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(c => Fold(c.Replace(" ›", "")) == Fold(names[0]) || Fold(OfferScreen.Say(c.Replace(" ›", ""))) == Fold(names[0])));
-			if (add == null) return $"'{names[0]}' hiçbir ekleme listesinde yok";
+			if (add == null) return L($"'{names[0]}' hiçbir ekleme listesinde yok");
 			names[0] = add.Choice.Choices.First(c => Fold(c.Replace(" ›", "")) == Fold(names[0]) || Fold(OfferScreen.Say(c.Replace(" ›", ""))) == Fold(names[0])).Replace(" ›", "");
 			var (failed, added) = await OfferScreen.AddPath(Fm, add, names, route);
 			if (failed != null) return failed;
@@ -141,14 +141,14 @@ internal static partial class Program
 		if (row == null)
 		{
 			var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(Named));
-			if (add == null) return $"böyle bir şart yok. Eklenebilenler: {string.Join(", ", now.Adds.SelectMany(a => a.Choice.Open))}";
-			if (add.Choice.Disabled.Any(Named)) return $"oyun '{label}' maddesini bu teklifte vermiyor (listede kapalı)";
+			if (add == null) return L($"böyle bir şart yok. Eklenebilenler: {string.Join(", ", now.Adds.SelectMany(a => a.Choice.Open))}");
+			if (add.Choice.Disabled.Any(Named)) return L($"oyun '{label}' maddesini bu teklifte vermiyor (listede kapalı)");
 			var full = add.Choice.Choices.First(Named);
 			if (await OfferScreen.Add(Fm, add, full, route) is { } failed) return failed;
 			var after = await OfferScreen.Read(Fm, route);
 			if (after?.Adds.Any(a => Fold(a.Section) == Fold(full)) == true && values.Length == 0) return null;
 			row = after?.Row(full);
-			if (row == null) return "eklendi ama ekranda bulunamadı";
+			if (row == null) return L("eklendi ama ekranda bulunamadı");
 		}
 
 		// A choice can carry figures that change with the offer ("2 Instalments (£500 each)"),
@@ -167,7 +167,7 @@ internal static partial class Program
 		{
 			string failed;
 			if (Fold(value) is "remove" or "kaldir")
-				return row.Remove.Length > 0 ? await OfferScreen.Remove(Fm, row, route) : $"{row.Label} kaldırılamıyor";
+				return row.Remove.Length > 0 ? await OfferScreen.Remove(Fm, row, route) : L($"{row.Label} kaldırılamıyor");
 			if (LockNamed(row.Lock, value) is { } lockName)
 				failed = await OfferScreen.SetLock(Fm, row, lockName, route);
 			else if (ChoiceFor(row.Choice, value) is { } picked)
@@ -177,7 +177,7 @@ internal static partial class Program
 			else if (row.Choice != null && await OfferScreen.SubChoice(Fm, row.Choice, value) is { } path)
 				failed = await OfferScreen.ChoosePath(Fm, row.Choice, path, s => s.Row(row)?.Choice, route);
 			else
-				failed = row.Choice != null ? $"'{value}' yok; seçenekler: {string.Join(", ", row.Choice.Choices)}" : $"'{value}' bir tutar değil";
+				failed = row.Choice != null ? L($"'{value}' yok; seçenekler: {string.Join(", ", row.Choice.Choices)}") : L($"'{value}' bir tutar değil");
 			if (failed != null) return failed;
 			row = (await OfferScreen.Read(Fm, route))?.Row(row) ?? row;
 		}

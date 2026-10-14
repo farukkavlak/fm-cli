@@ -412,11 +412,11 @@ internal static partial class Program
 			if (i + 1 < attributes.Count && Level(attributes[i + 1])) break;
 			names.Add(attributes[i]);
 		}
-		if (names.Count > 0) lines.Add($"Özellikler: {string.Join(", ", names)}");
+		if (names.Count > 0) lines.Add(L($"Özellikler: {string.Join(", ", names)}"));
 		List<string> effects = [];
 		for (var i = 1; i < own.Count; i++)
 			if (Level(own[i])) effects.Add($"{own[i - 1]} {Effect(own[i])}");
-		if (effects.Count > 0) lines.Add($"Etkiler: {string.Join(" · ", effects)}");
+		if (effects.Count > 0) lines.Add(L($"Etkiler: {string.Join(" · ", effects)}"));
 		return lines;
 
 		static string Effect(string level) => level switch
@@ -596,6 +596,6 @@ internal static partial class Program
 	private static string WeekName(DateTime d)
 	{
 		var monday = d.AddDays(-(((int)d.DayOfWeek + 6) % 7));
-		return $"{monday.Day} {Months[monday.Month - 1]} haftası";
+		return L($"{monday.Day} {Months[monday.Month - 1]} haftası");
 	}
 }

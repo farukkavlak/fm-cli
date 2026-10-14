@@ -12,15 +12,15 @@ internal static partial class Program
 {
 	private static readonly (string Heading, string Turkish, string[] Words)[] CoachAreas =
 	[
-		("Att Tact", "Hücum taktik", ["hücum taktik", "hucum taktik", "att tact", "attacking tactical"]),
-		("Att Tech", "Hücum teknik", ["hücum teknik", "hucum teknik", "att tech", "attacking technical"]),
-		("Def Tact", "Savunma taktik", ["savunma taktik", "def tact", "defending tactical"]),
-		("Def Tech", "Savunma teknik", ["savunma teknik", "def tech", "defending technical"]),
-		("Poss Tact", "Topla taktik", ["topla taktik", "poss tact", "possession tactical"]),
-		("Poss Tech", "Topla teknik", ["topla teknik", "poss tech", "possession technical"]),
-		("Glk", "Kaleci", ["kaleci", "glk", "goalkeeping"]),
-		("Fit", "Kondisyon", ["kondisyon", "fit", "fitness"]),
-		("SPC", "Duran top", ["duran top", "spc", "set pieces"]),
+		("Att Tact", L("Hücum taktik"), ["hücum taktik", "hucum taktik", "att tact", "attacking tactical"]),
+		("Att Tech", L("Hücum teknik"), ["hücum teknik", "hucum teknik", "att tech", "attacking technical"]),
+		("Def Tact", L("Savunma taktik"), ["savunma taktik", "def tact", "defending tactical"]),
+		("Def Tech", L("Savunma teknik"), ["savunma teknik", "def tech", "defending technical"]),
+		("Poss Tact", L("Topla taktik"), ["topla taktik", "poss tact", "possession tactical"]),
+		("Poss Tech", L("Topla teknik"), ["topla teknik", "poss tech", "possession technical"]),
+		("Glk", L("Kaleci"), ["kaleci", "glk", "goalkeeping"]),
+		("Fit", L("Kondisyon"), ["kondisyon", "fit", "fitness"]),
+		("SPC", L("Duran top"), ["duran top", "spc", "set pieces"]),
 	];
 
 	private sealed record CoachCell(bool On, bool Enabled, string Pointer, int HalfStars);
@@ -112,12 +112,12 @@ internal static partial class Program
 
 		// A coach to a row and an area to a column, as on the page: ✓ and his stars where he leads it,
 		// · where he could, nothing where his job does not allow it.
-		string[] shortNames = ["HÜC-TAK", "HÜC-TEK", "SAV-TAK", "SAV-TEK", "TOP-TAK", "TOP-TEK", "KALECİ", "KOND", "DURAN"];
-		var headers = new[] { "ANTRENÖR" }.Concat(shortNames).ToArray();
+		string[] shortNames = [L("HÜC-TAK"), L("HÜC-TEK"), L("SAV-TAK"), L("SAV-TEK"), L("TOP-TAK"), L("TOP-TEK"), L("KALECİ"), L("KOND"), L("DURAN")];
+		var headers = new[] { L("ANTRENÖR") }.Concat(shortNames).ToArray();
 		var table = rows.Select(r => new[] { r.Name }
 			.Concat(r.Cells.Select(c => c.On ? $"✓ {Stars(c.HalfStars)}".Trim() : c.Enabled ? "·" : "")).ToArray()).ToList();
-		table.Add(new[] { "iş yükü" }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? areas[i].Load : "")).ToArray());
-		table.Add(new[] { "baş antrenör" }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? Stars(areas[i].HalfStars) is { Length: > 0 } st ? st : "yok" : "")).ToArray());
+		table.Add(new[] { L("iş yükü") }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? areas[i].Load : "")).ToArray());
+		table.Add(new[] { L("baş antrenör") }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? Stars(areas[i].HalfStars) is { Length: > 0 } st ? st : "yok" : "")).ToArray());
 		Table.Write(headers, table);
 		Console.WriteLine(L("HÜC hücum · SAV savunma · TOP topla oynama · TAK taktik · TEK teknik · KOND kondisyon · DURAN duran top"));
 

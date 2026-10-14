@@ -10,7 +10,7 @@ namespace FmCli;
 internal static partial class Program
 {
 	private const string TrainingList = "dropdown-base-regular-leading-icon-label";
-	private static readonly string[] TrainingParts = ["Mevki/rol", "Topsuz rol", "Odak"];
+	private static readonly string[] TrainingParts = [L("Mevki/rol"), L("Topsuz rol"), L("Odak")];
 
 	private static async Task<int> IndividualTraining(string[] args)
 	{

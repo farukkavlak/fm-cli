@@ -214,13 +214,13 @@ internal static partial class Program
 			return 1;
 		}
 
-		var what = label == "Apply For Job" ? "başvurulacak" : "ilgi bildirilecek";
+		var what = label == "Apply For Job" ? L("başvurulacak") : L("ilgi bildirilecek");
 		Console.WriteLine(L($"{job.Club} ({job.League}) işine {what}."));
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine(L($"Göndermek için: jobs \"{job.Club}\" {(label == "Apply For Job" ? L("apply") : L("interest"))} --yes"));
+				Console.WriteLine(L($"Göndermek için: jobs \"{job.Club}\" {(label == "Apply For Job" ? "apply" : "interest")} --yes"));
 				return 0;
 			}
 			if (Ui.Ask(L("Gönderelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
@@ -243,11 +243,11 @@ internal static partial class Program
 
 	private static string ReputationTurkish(string r) => r switch
 	{
-		"Worldwide" => "Dünya çapında", "Continental" => "Kıtasal", "National" => "Ulusal", "Regional" => "Bölgesel", "Local" => "Yerel", _ => r,
+		"Worldwide" => L("Dünya çapında"), "Continental" => L("Kıtasal"), "National" => L("Ulusal"), "Regional" => L("Bölgesel"), "Local" => L("Yerel"), _ => r,
 	};
 
 	private static string FinancesTurkish(string f) => f switch
 	{
-		"Rich" => "Zengin", "Secure" => "Sağlam", "Okay" => "İdare eder", "Insecure" => "Kırılgan", "Precarious" => "Çok riskli", _ => f,
+		"Rich" => L("Zengin"), "Secure" => L("Sağlam"), "Okay" => L("İdare eder"), "Insecure" => L("Kırılgan"), "Precarious" => L("Çok riskli"), _ => f,
 	};
 }

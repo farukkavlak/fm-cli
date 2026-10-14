@@ -39,7 +39,7 @@ internal static partial class Program
 		var files = TacticFiles();
 		if (words.Count > 1 && words[0] is "delete" or "sil")
 		{
-			if (Choose(files.Select(f => Composed(Path.GetFileNameWithoutExtension(f.Name))).ToList(), string.Join(" ", words.Skip(1)), "Taktik") is not { } gone) return 64;
+			if (Choose(files.Select(f => Composed(Path.GetFileNameWithoutExtension(f.Name))).ToList(), string.Join(" ", words.Skip(1)), L("Taktik")) is not { } gone) return 64;
 			if (!yes)
 			{
 				Console.Error.WriteLine(L($"'{gone}' diskten silinir. Onaylamak için: tactic saved delete \"{gone}\" --yes"));
@@ -161,7 +161,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Kaydedilmiş taktik yok. Kaydetmek için: tactic save \"<ad>\""));
 			return 1;
 		}
-		if (Choose(names, string.Join(" ", words), "Taktik") is not { } name) return 64;
+		if (Choose(names, string.Join(" ", words), L("Taktik")) is not { } name) return 64;
 
 		if (await TacticMenu(SlotMenu) is not { } menu)
 		{

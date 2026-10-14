@@ -99,10 +99,10 @@ internal static partial class Program
 		}
 
 		var table = new Spectre.Console.Table().Border(TableBorder.Rounded).BorderColor(Color.Grey)
-			.Title($"[bold]{Ui.Safe(name)}[/] — kariyer")
-			.AddColumn("Sezon").AddColumn("Takım").AddColumn("Geliş").AddColumn("Lig")
-			.AddColumn(new TableColumn("Maç").RightAligned()).AddColumn(new TableColumn(keeper ? "Gol yemedi" : "Gol").RightAligned())
-			.AddColumn(new TableColumn("Asist").RightAligned()).AddColumn(new TableColumn("Puan").RightAligned());
+			.Title(L($"[bold]{Ui.Safe(name)}[/] — kariyer"))
+			.AddColumn(L("Sezon")).AddColumn(L("Takım")).AddColumn(L("Geliş")).AddColumn(L("Lig"))
+			.AddColumn(new TableColumn(L("Maç")).RightAligned()).AddColumn(new TableColumn(keeper ? L("Gol yemedi") : "Gol").RightAligned())
+			.AddColumn(new TableColumn(L("Asist")).RightAligned()).AddColumn(new TableColumn("Puan").RightAligned());
 		string lastYear = null;
 		foreach (var r in rows)
 		{
@@ -115,10 +115,10 @@ internal static partial class Program
 				Dim(r.Apps), Dim(r.Goals), Dim(r.Assists), Dim(r.Rating));
 		}
 		if (numbers.Count >= 2)
-			table.Caption($"Toplam {numbers[0]} maç · {numbers[1]} {(keeper ? "gol yemeden maç" : "gol")}{(numbers.Count > 2 ? $" · {numbers[2]} asist" : "")}{(spent.Length > 0 ? $" · ödenen bonservisler {spent}" : "")}");
+			table.Caption(L($"Toplam {numbers[0]} maç · {numbers[1]} {(keeper ? L("gol yemeden maç") : "gol")}{(numbers.Count > 2 ? L($" · {numbers[2]} asist") : "")}{(spent.Length > 0 ? L($" · ödenen bonservisler {spent}") : "")}"));
 		Ui.Out.Write(table);
 		return 0;
 
-		static string How(string how) => how switch { "Loan" => "kiralık", "Free" => "bedelsiz", "Undisc." => "açıklanmadı", "" => "", _ => how };
+		static string How(string how) => how switch { "Loan" => L("kiralık"), "Free" => L("bedelsiz"), "Undisc." => L("açıklanmadı"), "" => "", _ => how };
 	}
 }

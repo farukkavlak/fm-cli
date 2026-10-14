@@ -51,7 +51,7 @@ internal static partial class Program
 				return 0;
 			}
 			Table.Write(["#", L("OYUNCU"), L("KULÜP"), L("TÜR"), L("DURUM"), L("BEDEL"), L("ŞARTLAR")],
-				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, o.Kind switch { "Loan" => "Kiralık", "Transfer" => "Satış", "Free Transfer" => "Bedelsiz", "Swap" or "Part Exchange" => "Takas", var other => other }, o.Status, o.Fee, o.Terms]).ToList());
+				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, o.Kind switch { "Loan" => L("Kiralık"), "Transfer" => L("Satış"), "Free Transfer" => L("Bedelsiz"), "Swap" or "Part Exchange" => L("Takas"), var other => other }, o.Status, o.Fee, o.Terms]).ToList());
 			Console.WriteLine(L("\nCevap: offers <# | oyuncu> view | accept | stall | reject   (view teklifi kart olarak gösterir)"));
 			return 0;
 		}

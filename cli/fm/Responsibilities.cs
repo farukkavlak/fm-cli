@@ -47,7 +47,7 @@ internal static partial class Program
 			{
 				// An area of one group repeats its name; the heading is said once.
 				if (group.Key != inArea.Key) Console.WriteLine($"\n{group.Key}");
-				Table.Write([L("GÖREV"), L("KİMDE"), ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? "sende" : d.CanTake ? "devredildi" : "devredildi (kilitli)" }).ToList());
+				Table.Write([L("GÖREV"), L("KİMDE"), ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? L("sende") : d.CanTake ? L("devredildi") : L("devredildi (kilitli)") }).ToList());
 			}
 		}
 		if (area == null && typed.Length == 0) Console.WriteLine(L("\nYalnızca bir alan: responsibilities medya | antrenman | taktik | maç | duran top | transfer | scout | personel | yönetim"));
@@ -372,7 +372,7 @@ internal static partial class Program
 	{
 		if (typed.Length == 0)
 		{
-			Console.Error.WriteLine(L($"Hangi görev?  responsibilities {(take ? L("take") : L("delegate"))} \"<görev>\""));
+			Console.Error.WriteLine(L($"Hangi görev?  responsibilities {(take ? "take" : "delegate")} \"<görev>\""));
 			return 64;
 		}
 		if (await FindDuty(typed) is not { } duty) return 64;

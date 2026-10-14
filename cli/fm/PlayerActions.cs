@@ -149,7 +149,7 @@ internal static partial class Program
 			}
 			folder = "Report>Assign Scout>" + scout;
 		}
-		if (await EntryUnder(name, entries, folder, MenuLength(Option(args, "--for")), "Ne kadar izlensin", "--for \"1 hafta\"") is not { } entry) return 64;
+		if (await EntryUnder(name, entries, folder, MenuLength(Option(args, "--for")), L("Ne kadar izlensin"), L("--for \"1 hafta\"")) is not { } entry) return 64;
 		return await ChooseAction(name, entry);
 	}
 
@@ -207,7 +207,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{name} zaten kısa listede."));
 			return 1;
 		}
-		if (await EntryUnder(name, entries, "Add To Shortlist", MenuLength(Option(args, "--for")), "Listede ne kadar kalsın", "--for \"3 ay\"") is not { } add) return 64;
+		if (await EntryUnder(name, entries, "Add To Shortlist", MenuLength(Option(args, "--for")), L("Listede ne kadar kalsın"), "--for \"3 ay\"") is not { } add) return 64;
 		return await ChooseAction(name, add);
 	}
 
@@ -244,11 +244,11 @@ internal static partial class Program
 			}
 		}
 		else if (command == "trial")
-			entry = await EntryUnder(name, entries, "Transfer>Offer Trial", MenuLength(Option(args, "--for")), "Deneme kaç hafta sürsün", "--for \"2 hafta\"");
+			entry = await EntryUnder(name, entries, "Transfer>Offer Trial", MenuLength(Option(args, "--for")), L("Deneme kaç hafta sürsün"), L("--for \"2 hafta\""));
 		else
 		{
 			var how = args.Contains("--top") ? "top" : args.Contains("--transfer") ? "for transfer" : args.Contains("--loan") ? "for loan" : null;
-			entry = await EntryUnder(name, entries, "Transfer>Declare Interest", how, "Nasıl bir ilgi", "--top | --transfer | --loan");
+			entry = await EntryUnder(name, entries, "Transfer>Declare Interest", how, L("Nasıl bir ilgi"), "--top | --transfer | --loan");
 		}
 		if (entry is not { } chosen) return 64;
 		return await ChooseAndAnswer(name, chosen, args);

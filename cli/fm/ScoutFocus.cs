@@ -65,7 +65,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<string>> AssignFocusScouts(string typed, bool analysts = false)
 	{
-		var (plural, one, who) = analysts ? ("Analysts", "analyst", "Analist") : ("Scouts", "scout", "Scout");
+		var (plural, one, who) = analysts ? ("Analysts", "analyst", L("Analist")) : ("Scouts", "scout", "Scout");
 		// The window's own box: "Assign Any Scouts", but "Assign Any Analyst".
 		var box = analysts ? "Assign Any Analyst" : "Assign Any Scouts";
 		var form = await FocusForm("Back");
@@ -174,7 +174,7 @@ internal static partial class Program
 			var level = new List<string> { "Competition", "Nation", "Region", "Continent", "Recently Selected" };
 			foreach (var part in parts)
 			{
-				if (Choose(level, part, "Bölge") is not { } step) return null;
+				if (Choose(level, part, L("Bölge")) is not { } step) return null;
 				path = path.Length == 0 ? step : path + ">" + step;
 				level = await Under(path);
 			}
@@ -457,7 +457,7 @@ internal static partial class Program
 		if (edit)
 		{
 			if (int.TryParse(which, out var number) && number >= 1 && number <= existing.Count) editing = existing[number - 1];
-			else if (Choose(existing.Select(f => f.Name).Distinct().ToList(), which, "Odak") is { } wanted) editing = existing.First(f => f.Name == wanted);
+			else if (Choose(existing.Select(f => f.Name).Distinct().ToList(), which, L("Odak")) is { } wanted) editing = existing.First(f => f.Name == wanted);
 			else return 64;
 			if (await FocusAt(editing.Index) is not { } shown || shown.Name != editing.Name
 				|| (await Fm.Get("click", ("text", "Edit Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal)
@@ -491,7 +491,7 @@ internal static partial class Program
 			{
 				var roles = FormAfter(form, "Role (In Possession)", "dropdown");
 				var choices = roles?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList() ?? [];
-				if (Choose(choices, role, "Rol") is not { } picked)
+				if (Choose(choices, role, L("Rol")) is not { } picked)
 				{
 					await AbandonFocus();
 					return 64;
@@ -566,7 +566,7 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"{heading}: {typed} yıldıza getirilemedi."));
 				return 1;
 			}
-			chosen.Add($"{(heading.Contains("Current") ? "yetenek" : "potansiyel")} ≥ {StarSteps(typed).Value / 2.0:0.#}★");
+			chosen.Add($"{(heading.Contains("Current") ? L("yetenek") : L("potansiyel"))} ≥ {StarSteps(typed).Value / 2.0:0.#}★");
 		}
 		var tab = priority == null ? null : tabs[Fold(priority)];
 		if (tab != null)
@@ -592,7 +592,7 @@ internal static partial class Program
 				await AbandonFocus();
 				return 64;
 			}
-			chosen.Add($"analist: {string.Join(" + ", picked)}");
+			chosen.Add(L($"analist: {string.Join(" + ", picked)}"));
 		}
 
 		await Fm.Get("click", ("text", "Confirm"));
@@ -603,7 +603,7 @@ internal static partial class Program
 				Console.Error.WriteLine(L("Form kapanmadı; değişiklik işlenmemiş olabilir. Bak: scout"));
 				return 1;
 			}
-			if (ages != null) chosen.Add($"{ages.Groups[1].Value}–{ages.Groups[2].Value} yaş");
+			if (ages != null) chosen.Add(L($"{ages.Groups[1].Value}–{ages.Groups[2].Value} yaş"));
 			Console.WriteLine(L($"Odak güncellendi: {name ?? editing.Name} · {string.Join(" · ", chosen)}\n(oyun eski halini listede 'Complete' olarak bırakır)"));
 			return 0;
 		}
@@ -661,7 +661,7 @@ internal static partial class Program
 		{
 			// Of two with a name (a stopped one and its restart) the one this can be done to is meant.
 			var able = focuses.Where(f => f.Running != restart).ToList();
-			if (Choose((able.Count > 0 ? able : focuses).Select(f => f.Name).Distinct().ToList(), string.Join(" ", words), "Odak") is not { } name) return 64;
+			if (Choose((able.Count > 0 ? able : focuses).Select(f => f.Name).Distinct().ToList(), string.Join(" ", words), L("Odak")) is not { } name) return 64;
 			wanted = (able.Count > 0 ? able : focuses).First(f => f.Name == name);
 		}
 		if (await FocusAt(wanted.Index) is not { } shown || shown.Name != wanted.Name)

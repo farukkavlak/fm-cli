@@ -36,11 +36,11 @@ internal static partial class Program
 		{
 			Console.WriteLine(withoutBall ? L("Topsuz roller:") : L("Roller:"));
 			foreach (var menu in menus) Console.WriteLine($"  {Rows(menu)[0]}: {Current(menu)}");
-			Console.WriteLine(L($"\nDeğiştirmek: tactic role <oyuncu> <rol>{(withoutBall ? L(" --oop") : "")}"));
+			Console.WriteLine(L($"\nDeğiştirmek: tactic role <oyuncu> <rol>{(withoutBall ? " --oop" : "")}"));
 			return 0;
 		}
 
-		if (Choose(names, words[0], "Oyuncu") is not { } player) return 1;
+		if (Choose(names, words[0], L("Oyuncu")) is not { } player) return 1;
 		var chosen = menus[names.IndexOf(player)];
 		var roleRow = RoleRow(chosen, withoutBall);
 		var roles = roleRow >= 0 ? Submenu(chosen, roleRow) : [];
@@ -58,7 +58,7 @@ internal static partial class Program
 			Console.WriteLine(L($"{player}: {Current(chosen)}\nRoller: {string.Join(" · ", roles)}"));
 			return 0;
 		}
-		if (Choose(roles, wanted, "Rol") is not { } role) return 1;
+		if (Choose(roles, wanted, L("Rol")) is not { } role) return 1;
 		if (role == Current(chosen))
 		{
 			Console.WriteLine(L($"{player} zaten {role}."));
@@ -169,8 +169,8 @@ internal static partial class Program
 
 		var (event_, verb) = action switch
 		{
-			"uygula" or "apply" or "do" or "evet" or "yes" => ("MatchDugoutConfirm", "uygulandı"),
-			"kaldir" or "sil" or "dismiss" or "hayir" or "no" => ("MatchDugoutDismiss", "kaldırıldı"),
+			"uygula" or "apply" or "do" or "evet" or "yes" => ("MatchDugoutConfirm", L("uygulandı")),
+			"kaldir" or "sil" or "dismiss" or "hayir" or "no" => ("MatchDugoutDismiss", L("kaldırıldı")),
 			_ => (null, null),
 		};
 		if (event_ == null)
@@ -285,13 +285,13 @@ internal static partial class Program
 	private static string Advice(string text)
 	{
 		var card = ScoreCard.Match(text);
-		if (card.Success) return $"Skor {card.Groups[1].Value} {card.Groups[2].Value} {card.Groups[3].Value}{(card.Groups[4].Success ? $" — {card.Groups[4].Value}" : "")}";
+		if (card.Success) return L($"Skor {card.Groups[1].Value} {card.Groups[2].Value} {card.Groups[3].Value}{(card.Groups[4].Success ? $" — {card.Groups[4].Value}" : "")}");
 		var team = Regex.Match(text, @"^Add team instruction: (.+)$");
-		if (team.Success) return $"Takım talimatı: {team.Groups[1].Value}";
+		if (team.Success) return L($"Takım talimatı: {team.Groups[1].Value}");
 		var opposition = Regex.Match(text, @"^Add opposition instruction for (.+?): (.+)$");
-		if (opposition.Success) return $"Rakip talimatı ({opposition.Groups[1].Value}): {opposition.Groups[2].Value}";
+		if (opposition.Success) return L($"Rakip talimatı ({opposition.Groups[1].Value}): {opposition.Groups[2].Value}");
 		var tell = Regex.Match(text, @"^Tell (.+?): (.+)$");
-		if (tell.Success) return $"Oyuncu talimatı ({tell.Groups[1].Value}): {tell.Groups[2].Value}";
+		if (tell.Success) return L($"Oyuncu talimatı ({tell.Groups[1].Value}): {tell.Groups[2].Value}");
 		return text;
 	}
 
@@ -356,7 +356,7 @@ internal static partial class Program
 		}
 		Ui.Out.Write(new Spectre.Console.Panel(grid)
 		{
-			Header = new Spectre.Console.PanelHeader(" [bold]SAHADA[/] "),
+			Header = new Spectre.Console.PanelHeader(L(" [bold]SAHADA[/] ")),
 			Border = Spectre.Console.BoxBorder.Rounded,
 			BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Green),
 		});

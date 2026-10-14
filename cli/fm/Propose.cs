@@ -89,7 +89,7 @@ internal static partial class Program
 			if (!Ui.Interactive)
 			{
 				await OpenPage(Screen.Home);
-				Console.WriteLine(L($"Göndermek için: propose \"{name}\"{(fee != null ? " " + fee : "")}{(loan ? L(" --loan") : "")} --yes"));
+				Console.WriteLine(L($"Göndermek için: propose \"{name}\"{(fee != null ? " " + fee : "")}{(loan ? " --loan" : "")} --yes"));
 				return 0;
 			}
 			if (Ui.Ask(L("Önerelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;

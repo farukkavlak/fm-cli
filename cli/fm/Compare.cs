@@ -48,11 +48,11 @@ internal static partial class Program
 		var keepers = Field(a, "IsGoalkeeper") == "True" && Field(b, "IsGoalkeeper") == "True";
 		(string Title, List<string> Names)[] blocks =
 		[
-			(keepers ? "KALECİLİK" : "TEKNİK", rest), ("ZİHİNSEL", [.. mental]), ("FİZİKSEL", [.. physical]), ("DURAN TOP", [.. setPieces]),
+			(keepers ? L("KALECİLİK") : L("TEKNİK"), rest), (L("ZİHİNSEL"), [.. mental]), (L("FİZİKSEL"), [.. physical]), (L("DURAN TOP"), [.. setPieces]),
 		];
 
 		string[] facts = ["Age", "PositionCombinedString", "Value", "Wage", "ContractEnds", "Personality", "Height", "RightFootednessString", "LeftFootednessString"];
-		string[] factNames = ["Yaş", "Mevki", "Değer", "Maaş", "Sözleşme", "Kişilik", "Boy", "Sağ ayak", "Sol ayak"];
+		string[] factNames = [L("Yaş"), L("Mevki"), L("Değer"), L("Maaş"), L("Sözleşme"), L("Kişilik"), "Boy", L("Sağ ayak"), L("Sol ayak")];
 
 		if (json)
 		{

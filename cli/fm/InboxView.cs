@@ -13,9 +13,9 @@ internal static class InboxView
 	{
 		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn("[dim]#[/]").RightAligned())
-			.AddColumn(new TableColumn("[dim]SAAT[/]"))
-			.AddColumn(new TableColumn("[dim]GÖNDEREN[/]"))
-			.AddColumn(new TableColumn("[dim]KONU[/]"))
+			.AddColumn(new TableColumn(L("[dim]SAAT[/]")))
+			.AddColumn(new TableColumn(L("[dim]GÖNDEREN[/]")))
+			.AddColumn(new TableColumn(L("[dim]KONU[/]")))
 			.AddColumn(new TableColumn(""));
 
 		var number = 0;
@@ -28,8 +28,8 @@ internal static class InboxView
 			var subject = (unread ? $"[bold]{title}[/]" : title)
 			              + (preview.Length > 0 ? $"\n[dim]{Ui.Safe(Ui.Fit(preview.Replace('\n', ' '), 90))}[/]" : "");
 
-			var state = Program.Blocking(message) ? "[red bold]cevap bekliyor[/]"
-				: Program.Answerable(message) ? "[yellow]cevaplanabilir[/]"
+			var state = Program.Blocking(message) ? L("[red bold]cevap bekliyor[/]")
+				: Program.Answerable(message) ? L("[yellow]cevaplanabilir[/]")
 				: unread ? "[deepskyblue1]●[/]" : "";
 
 			table.AddRow($"[dim]{number}[/]", Field(message, "NewsItemTimeSent"), Ui.Safe(Field(message, "Sender")), subject, state);

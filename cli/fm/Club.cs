@@ -19,13 +19,13 @@ internal static partial class Program
 
 	private static readonly Dictionary<string, string> ClubWords = new()
 	{
-		["Required"] = "zorunlu", ["Desired"] = "istenen", ["Preferred"] = "tercih",
-		["On Course"] = "yolunda", ["Satisfied"] = "memnun", ["Reserving Judgement"] = "henüz yargılamıyor",
-		["Not Judging"] = "değerlendirmiyor", ["Unsatisfied"] = "memnun değil", ["Failed"] = "başarısız",
-		["Very Satisfied"] = "çok memnun", ["Disappointed"] = "hayal kırıklığı",
-		["High"] = "yüksek", ["Medium"] = "orta", ["Low"] = "düşük",
-		["Good"] = "iyi", ["Average"] = "orta", ["Great"] = "çok iyi", ["Excellent"] = "mükemmel", ["Poor"] = "zayıf",
-		["Continental"] = "kıtasal", ["National"] = "ulusal", ["World Class"] = "dünya çapında", ["Regional"] = "bölgesel",
+		["Required"] = L("zorunlu"), ["Desired"] = L("istenen"), ["Preferred"] = L("tercih"),
+		["On Course"] = L("yolunda"), ["Satisfied"] = L("memnun"), ["Reserving Judgement"] = L("henüz yargılamıyor"),
+		["Not Judging"] = L("değerlendirmiyor"), ["Unsatisfied"] = L("memnun değil"), ["Failed"] = L("başarısız"),
+		["Very Satisfied"] = L("çok memnun"), ["Disappointed"] = L("hayal kırıklığı"),
+		["High"] = L("yüksek"), ["Medium"] = L("orta"), ["Low"] = L("düşük"),
+		["Good"] = L("iyi"), ["Average"] = L("orta"), ["Great"] = L("çok iyi"), ["Excellent"] = L("mükemmel"), ["Poor"] = L("zayıf"),
+		["Continental"] = L("kıtasal"), ["National"] = L("ulusal"), ["World Class"] = L("dünya çapında"), ["Regional"] = L("bölgesel"),
 	};
 
 	private static string ClubSay(string word) => ClubWords.TryGetValue(word, out var t) ? t : word;
@@ -149,37 +149,37 @@ internal static partial class Program
 			else Console.WriteLine($"  {label,-22} {value}");
 		}
 
-		Heading("Yönetim");
+		Heading(L("Yönetim"));
 		Row("Not", $"{club.Board.Grade} · {Mood(club.Board.Mood)}");
-		Row("Taraftar", $"{Mood(supporters)} · yönetime etkisi {Ui.Safe(ClubSay(club.Supporters.Influence))}");
-		Row("Bekleyen talep", Ui.Safe(Regex.Replace(club.Board.Requests, @"(\d+) requests?", "$1")));
+		Row(L("Taraftar"), L($"{Mood(supporters)} · yönetime etkisi {Ui.Safe(ClubSay(club.Supporters.Influence))}"));
+		Row(L("Bekleyen talep"), Ui.Safe(Regex.Replace(club.Board.Requests, @"(\d+) requests?", "$1")));
 
-		Heading("Hedefler");
+		Heading(L("Hedefler"));
 		foreach (var o in objectives)
 		{
-			var tag = o.Group == "Current Season Objective" ? "bu sezon" : ClubSay(o.Importance);
+			var tag = o.Group == "Current Season Objective" ? L("bu sezon") : ClubSay(o.Importance);
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(o.Text)} [dim]({Ui.Safe(tag)})[/] — {Mood(o.Status)}");
 			else Console.WriteLine($"  {o.Text} ({tag}) — {ClubSay(o.Status)}");
 		}
 
-		Heading("Finans");
+		Heading(L("Finans"));
 		Row("Kasa", Ui.Safe(club.Finances.Balance));
-		Row("Geçen ay gelir", Ui.Safe(club.Finances.IncomeLastMonth));
-		Row("Geçen ay gider", Ui.Safe(club.Finances.ExpenditureLastMonth));
-		Row("Haftalık maaş", Ui.Safe($"{club.Finances.Wages} / {club.Finances.WageBudget} ({club.Finances.WageShare})"));
+		Row(L("Geçen ay gelir"), Ui.Safe(club.Finances.IncomeLastMonth));
+		Row(L("Geçen ay gider"), Ui.Safe(club.Finances.ExpenditureLastMonth));
+		Row(L("Haftalık maaş"), Ui.Safe($"{club.Finances.Wages} / {club.Finances.WageBudget} ({club.Finances.WageShare})"));
 
-		Heading("Kulüp");
-		Row("İtibar", Ui.Safe(ClubSay(club.Reputation)));
-		Row("Stadyum", Ui.Safe($"{club.Stadium} · {ClubSay(club.Facilities.Stadium)}"));
-		Row("Antrenman tesisi", Ui.Safe(club.Facilities.Training));
-		Row("Altyapı tesisi", Ui.Safe(club.Facilities.Youth));
-		Row("Ticari", Ui.Safe(club.Facilities.Corporate));
+		Heading(L("Kulüp"));
+		Row(L("İtibar"), Ui.Safe(ClubSay(club.Reputation)));
+		Row(L("Stadyum"), Ui.Safe($"{club.Stadium} · {ClubSay(club.Facilities.Stadium)}"));
+		Row(L("Antrenman tesisi"), Ui.Safe(club.Facilities.Training));
+		Row(L("Altyapı tesisi"), Ui.Safe(club.Facilities.Youth));
+		Row(L("Ticari"), Ui.Safe(club.Facilities.Corporate));
 
-		Heading("Ekip");
+		Heading(L("Ekip"));
 		foreach (var t in teams)
 		{
-			var name = t.Team switch { "Coaching Team" => "Antrenörler", "Recruitment Team" => "Scouting / transfer", _ => "Sağlık" };
-			var open = Regex.Match(GameWords.Of(t.Vacant), @"\((.*)\)") is { Success: true } m ? $" — boş: {m.Groups[1].Value}" : "";
+			var name = t.Team switch { "Coaching Team" => L("Antrenörler"), "Recruitment Team" => "Scouting / transfer", _ => L("Sağlık") };
+			var open = Regex.Match(GameWords.Of(t.Vacant), @"\((.*)\)") is { Success: true } m ? L($" — boş: {m.Groups[1].Value}") : "";
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(name),-22} {Ui.Safe(t.Filled)}/{Ui.Safe(t.Places)}[dim]{Ui.Safe(open)}[/]");
 			else Console.WriteLine($"  {name,-22} {t.Filled}/{t.Places}{open}");
 		}

@@ -109,7 +109,7 @@ internal static partial class Program
 			if (team.Length > 0) today.Notes.Add($"{team} {(timeOrScore.Length > 0 ? timeOrScore : "v")} {opponent}");
 			// One of our youth sides' is written with the competition's short code.
 			else if (!fields.ContainsKey("Competition.Name") && fields.ContainsKey("Competition.ShortName"))
-				today.Youth.Add($"Altyapı {Get("Competition.ShortName")}: {opponent} ({venue}) {timeOrScore}");
+				today.Youth.Add(L($"Altyapı {Get("Competition.ShortName")}: {opponent} ({venue}) {timeOrScore}"));
 			else today.Matches.Add(new(today.Day, Get("Competition."), timeOrScore, opponent, Get("LeaguePosition"), venue));
 		}
 	}
@@ -223,7 +223,7 @@ internal static partial class Program
 
 		string MatchLine(CalendarMatch m)
 		{
-			var venue = m.Venue switch { "H" => "iç saha", "A" => "deplasman", "N" => "tarafsız", _ => "" };
+			var venue = m.Venue switch { "H" => L("iç saha"), "A" => L("deplasman"), "N" => L("tarafsız"), _ => "" };
 			var score = Regex.Match(m.TimeOrScore, @"^(\d+)-(\d+)(p|e)?$");
 			var text = $"{m.Opponent}{(m.Place.Length > 0 ? $" ({m.Place})" : "")} · {venue} · {m.Competition} · {(score.Success ? Ours(m) : m.TimeOrScore)}";
 			if (!Ui.Rich) return text;
@@ -238,7 +238,7 @@ internal static partial class Program
 		var s = Regex.Match(m.TimeOrScore, @"^(\d+)-(\d+)(p|e)?$");
 		if (!s.Success) return m.TimeOrScore;
 		// "p": settled on penalties, "e": after extra time; the mark stays with the score.
-		var mark = s.Groups[3].Success ? $" ({(s.Groups[3].Value == "p" ? "pen." : "uzt.")})" : "";
+		var mark = s.Groups[3].Success ? $" ({(s.Groups[3].Value == "p" ? "pen." : L("uzt."))})" : "";
 		return (m.Venue == "A" ? $"{s.Groups[2].Value}-{s.Groups[1].Value}" : $"{s.Groups[1].Value}-{s.Groups[2].Value}") + mark;
 	}
 

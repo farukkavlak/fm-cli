@@ -20,10 +20,7 @@ internal static partial class Program
 		public List<string> AimChoices => AimButtons.Count > 0 ? AimButtons.Select(b => Field(b, "Label")).ToList() : AimMenu is { } m ? Choices(m) : [];
 	}
 
-	private const string RoutineUsage =
-		"kullanım: setpieces <tür>   ·   setpieces <tür> vurus <in|out> | hedef <seçenek> | <yer> <görev> [<olmazsa>]\n" +
-		"          setpieces new [<no> …]   (düzen hiç kurulmamışsa)\n" +
-		"türler: korner, frikik (şut mesafesi), kanat, derin (serbest vuruşlar), tac (hücum bölgesi)";
+	private static string RoutineUsage => L("kullanım: setpieces <tür>   ·   setpieces <tür> vurus <in|out> | hedef <seçenek> | <yer> <görev> [<olmazsa>]\n          setpieces new [<no> …]   (düzen hiç kurulmamışsa)\ntürler: korner, frikik (şut mesafesi), kanat, derin (serbest vuruşlar), tac (hücum bölgesi)");
 
 	private static async Task<int> SetPieceRoutine(bool json, List<string> words)
 	{
@@ -88,7 +85,7 @@ internal static partial class Program
 			else if (what is "hedef" or "aim")
 			{
 				if (routine.AimChoices.Count == 0) { Console.Error.WriteLine(L($"{kind.Say}: bu türde hedef seçilmiyor.")); return 1; }
-				if (Choose(routine.AimChoices, string.Join(" ", words.Skip(1)), "Hedef") is not { } choice) return 64;
+				if (Choose(routine.AimChoices, string.Join(" ", words.Skip(1)), L("Hedef")) is not { } choice) return 64;
 				if (routine.Aim != choice)
 				{
 					// Throw-ins choose between two buttons, the others from a menu.
@@ -113,7 +110,7 @@ internal static partial class Program
 				}
 				var slot = routine.Slots[at];
 				if (slot.Menu is not { } menu) { Console.Error.WriteLine(L($"{slot.Slot}: görev listesi bulunamadı.")); return 1; }
-				if (Choose(Choices(menu), words[1], $"{slot.Slot} görevi") is not { } choice) return 64;
+				if (Choose(Choices(menu), words[1], L($"{slot.Slot} görevi")) is not { } choice) return 64;
 				if (slot.Task != choice)
 				{
 					if (await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("choice", choice), ("fire", "1")) is var said && said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
@@ -128,7 +125,7 @@ internal static partial class Program
 					await Drawn();
 					slot = routine.Slots[at];
 					if (slot.OtherwiseMenu is not { } second) { Console.Error.WriteLine(L($"{slot.Slot}: '{slot.Task}' görevinde ikinci seçim yok.")); return 1; }
-					if (Choose(Choices(second), words[2], $"{slot.Slot} olmazsa") is not { } other) return 64;
+					if (Choose(Choices(second), words[2], L($"{slot.Slot} olmazsa")) is not { } other) return 64;
 					if (slot.Otherwise != other)
 					{
 						if (await Fm.Get("select", ("ptr", Field(second, "Pointer")), ("choice", other), ("fire", "1")) is var said && said.StartsWith("error", StringComparison.Ordinal)) return Report(said);

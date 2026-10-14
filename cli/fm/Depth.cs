@@ -61,7 +61,7 @@ internal static partial class Program
 			foreach (var slot in row)
 			{
 				var names = depth[slot];
-				var mark = names.Count == 0 ? "YOK" : names.Count == 1 ? "tek" : $"{names.Count}";
+				var mark = names.Count == 0 ? "YOK" : names.Count == 1 ? L("tek") : $"{names.Count}";
 				if (Ui.Rich)
 					Ui.Line($"[bold]{slot,-4}[/] {(names.Count <= 1 ? "[red]" : names.Count == 2 ? "[yellow]" : "[green]")}{mark,3}[/]  {Ui.Safe(string.Join(", ", names))}");
 				else Console.WriteLine($"{slot,-4} {mark,3}  {string.Join(", ", names)}");

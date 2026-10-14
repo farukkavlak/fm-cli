@@ -71,7 +71,7 @@ internal static partial class Program
 		}
 		await Fm.Get("setcontrol", ("ptr", pointer), ("value", start.ToString()));
 
-		var labels = steps.Select(s => $"Transfer {s.Transfer.TrimEnd('*'),-14} · Maaş {s.Wage.TrimEnd('*')}").ToList();
+		var labels = steps.Select(s => L($"Transfer {s.Transfer.TrimEnd('*'),-14} · Maaş {s.Wage.TrimEnd('*')}")).ToList();
 		if (board != null) Console.WriteLine(board);
 
 		int? target = null;
@@ -140,9 +140,9 @@ internal static partial class Program
 		var scoutAt = scouting.IndexOf("Scouting");
 		return
 		[
-			new("Transfer bütçesi", $"{left} (bu sezon harcanan {After(transfer, "Spent this season")}, başta {After(transfer, "Original Budget")})"),
-			new("Maaş bütçesi", $"{(free is < 0 ? $"{MoneyFormat.Exact(-free.Value)} aşılmış" : free is { } f ? $"{MoneyFormat.Exact(f)} boşta" : "-")} (haftalık) · ödenen {Amount("CurrentWageSpending")} / {Amount("WageBudget")}"),
-			new("Scouting bütçesi", scouting.Skip(scoutAt + 1).FirstOrDefault(MoneyFormat.IsMoney) ?? "-"),
+			new(L("Transfer bütçesi"), L($"{left} (bu sezon harcanan {After(transfer, "Spent this season")}, başta {After(transfer, "Original Budget")})")),
+			new(L("Maaş bütçesi"), L($"{(free is < 0 ? L($"{MoneyFormat.Exact(-free.Value)} aşılmış") : free is { } f ? L($"{MoneyFormat.Exact(f)} boşta") : "-")} (haftalık) · ödenen {Amount("CurrentWageSpending")} / {Amount("WageBudget")}")),
+			new(L("Scouting bütçesi"), scouting.Skip(scoutAt + 1).FirstOrDefault(MoneyFormat.IsMoney) ?? "-"),
 		];
 	}
 

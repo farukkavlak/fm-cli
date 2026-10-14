@@ -14,9 +14,9 @@ internal static partial class Program
 	/// <summary>The three rules, by the data path each switch writes (the same in every language).</summary>
 	private static readonly (string Label, string Binds, string Say, string[] Words)[] PenaltyRules =
 	[
-		("Allow player who has scored 2 goals to take penalty", "setpiece.PenaltyAllowTwoGoalsScorers", "İki gol atan da atabilir", ["iki", "2", "two"]),
-		("Change taker if player has already taken a penalty", "setpiece.PenaltyChangeAlreadyTaken", "Bir penaltı atan bir sonrakini bırakır", ["atan", "taken", "atti"]),
-		("Change taker if player has already missed a penalty", "setpiece.PenaltyChangeIfMissed", "Penaltı kaçıran bir sonrakini bırakır", ["kaciran", "missed", "kacirdi"]),
+		("Allow player who has scored 2 goals to take penalty", "setpiece.PenaltyAllowTwoGoalsScorers", L("İki gol atan da atabilir"), ["iki", "2", "two"]),
+		("Change taker if player has already taken a penalty", "setpiece.PenaltyChangeAlreadyTaken", L("Bir penaltı atan bir sonrakini bırakır"), ["atan", "taken", "atti"]),
+		("Change taker if player has already missed a penalty", "setpiece.PenaltyChangeIfMissed", L("Penaltı kaçıran bir sonrakini bırakır"), ["kaciran", "missed", "kacirdi"]),
 	];
 
 	private static async Task<int> Penalties(bool json, string[] args)
@@ -52,7 +52,7 @@ internal static partial class Program
 				Console.Error.WriteLine(L("Penaltıcılar tablosu sayfada bulunamadı."));
 				return 1;
 			}
-			var order = new DraggedList("penalties", "Penaltıcı", "penaltıcılar", "Penaltıcılara", Field(table, "Pointer"),
+			var order = new DraggedList("penalties", L("Penaltıcı"), L("penaltıcılar"), L("Penaltıcılara"), Field(table, "Pointer"),
 				async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d.Value, "Label") == "Add Player"),
 				async () =>
 				{
@@ -117,7 +117,7 @@ internal static partial class Program
 	}
 
 	private static string Starting(string where) =>
-		where.StartsWith("Starting at ", StringComparison.Ordinal) ? $"ilk 11 · {where[12..]}" : where == "On Subs bench" ? "yedek" : where;
+		where.StartsWith("Starting at ", StringComparison.Ordinal) ? $"ilk 11 · {where[12..]}" : where == "On Subs bench" ? L("yedek") : where;
 
 	private sealed record PenaltyTaker(int Order, string Number, string Name, string Where, string Composure, string Penalties);
 
@@ -249,7 +249,7 @@ internal static partial class Program
 					Console.Error.WriteLine(L($"'{who}' zaten {list.All} arasında; yerini değiştirmek için: {list.Command} move \"{who}\" <sıra>"));
 					return 1;
 				}
-				picked = Choose(candidates.Select(c => c.Name).ToList(), who, "Eklenecek oyuncu");
+				picked = Choose(candidates.Select(c => c.Name).ToList(), who, L("Eklenecek oyuncu"));
 				if (picked == null) return 1;
 			}
 			var said = await Fm.Get("select", ("ptr", Field(adds, "Pointer")), ("choice", candidates.First(c => c.Name == picked).Choice), ("fire", "1"));
@@ -296,7 +296,7 @@ internal static partial class Program
 
 		if (place == null && Ui.Interactive)
 		{
-			var places = takers.Select(t => $"{t.Order}. sıra (şimdi {t.Name})").ToList();
+			var places = takers.Select(t => L($"{t.Order}. sıra (şimdi {t.Name})")).ToList();
 			if (Ui.Ask(L($"{taker.Name} kaçıncı sırada atsın?"), places, taker.Order - 1) is not { } asked) return 0;
 			place = asked + 1;
 		}

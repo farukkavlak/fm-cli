@@ -65,5 +65,5 @@ internal static partial class Program
 	/// game has no flag of its own for that.
 	/// </summary>
 	internal static string FlagWords(IEnumerable<Flag> flags) =>
-		string.Join(", ", flags.Select(f => f.Full.Length > 0 ? f.Full : f.Short).Distinct().Select(t => t == "Free Agent" ? "Free Agent (denemede)" : t));
+		string.Join(", ", flags.Select(f => f.Full.Length > 0 ? f.Full : f.Short).Distinct().Select(t => t == "Free Agent" ? L("Free Agent (denemede)") : t));
 }

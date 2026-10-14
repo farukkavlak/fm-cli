@@ -252,7 +252,7 @@ internal static partial class Program
 				if (talk != 0) return talk;
 
 				var recommended = await Recommended();
-				var labels = options.Select(o => o.Label + (recommended.Contains(o.Label) ? "  (önerilen)" : "")).ToList();
+				var labels = options.Select(o => o.Label + (recommended.Contains(o.Label) ? L("  (önerilen)") : "")).ToList();
 				Console.WriteLine();
 				if (Ui.Ask(L("Ne diyorsun?"), labels, cancel: "Şimdilik bir şey deme") is not { } asked)
 				{
@@ -293,7 +293,7 @@ internal static partial class Program
 		}
 
 		var offered = options.Select(o => o.Label).ToList();
-		if (Choose(offered, words[0], "Cevap") is not { } pick) return 1;
+		if (Choose(offered, words[0], L("Cevap")) is not { } pick) return 1;
 
 		// A number means whatever conversation is open now, which may not be the one it was read
 		// from; letting a player go is never done on a number alone (FINDINGS §8.76).
@@ -406,7 +406,7 @@ internal static partial class Program
 				if (group != heading && group.Length > 0) Console.WriteLine($"[{group}]");
 				heading = group;
 
-				var recommended = known && Field(detail, "Recommended") == "True" ? "  (önerilen)" : "";
+				var recommended = known && Field(detail, "Recommended") == "True" ? L("  (önerilen)") : "";
 				Console.WriteLine($"  {i + 1,2}  {offered[i].Label}{recommended}");
 			}
 
@@ -485,7 +485,7 @@ internal static partial class Program
 
 			var current = int.TryParse(Field(list.Value, "Selected"), out var index) && index >= 0 && index < choices.Count ? choices[index] : null;
 			var pick = current;
-			if (step < picks.Count && Choose(choices, picks[step], $"{step + 1}. soru") is var asked)
+			if (step < picks.Count && Choose(choices, picks[step], L($"{step + 1}. soru")) is var asked)
 			{
 				if (asked == null) return 1;
 				pick = asked;
@@ -572,7 +572,7 @@ internal static partial class Program
 
 		// During a match the planner's pages are gone; the match screen has its own list.
 		if (words.Count > 0 && words[0] == "mentality" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
-			return await MatchList("Mentalite", d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Very Attacking"), wanted, dry, events: false);
+			return await MatchList(L("Mentalite"), d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Very Attacking"), wanted, dry, events: false);
 		if (words.Count > 0 && words[0] == "role" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
 			return await MatchRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 
@@ -580,8 +580,8 @@ internal static partial class Program
 		{
 			case "": break;
 			// Each setting is a dropdown on the planner, known by something only it offers.
-			case "mentality": return await TacticSetting("Mentalite", "MentalityString", "Very Defensive", wanted, dry);
-			case "style": return await TacticSetting("Stil", "Style", "Gegenpress", wanted, dry);
+			case "mentality": return await TacticSetting(L("Mentalite"), "MentalityString", "Very Defensive", wanted, dry);
+			case "style": return await TacticSetting(L("Stil"), "Style", "Gegenpress", wanted, dry);
 			case "pick": return await TacticPick(dry);
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
@@ -725,7 +725,7 @@ internal static partial class Program
 			return 64;
 		}
 
-		if (Choose(spots, words[0], "Mevki") is not { } spot) return 1;
+		if (Choose(spots, words[0], L("Mevki")) is not { } spot) return 1;
 		var at = spots.IndexOf(spot);
 
 		var names = squad.Select(e => Field(e, "Name")).ToList();
@@ -734,7 +734,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Maç kadrosu boş; önce: tactic pick"));
 			return 1;
 		}
-		if (Choose(names, words[1], "Oyuncu") is not { } name) return 1;
+		if (Choose(names, words[1], L("Oyuncu")) is not { } name) return 1;
 
 		var player = Field(squad[names.IndexOf(name)], "PlayerIndex");
 		var slot = Field(slots[at], "TeamSelectionIndex");
@@ -899,7 +899,7 @@ internal static partial class Program
 			return 64;
 		}
 
-		if (Choose(spots, words[0], "Mevki") is not { } spot) return 1;
+		if (Choose(spots, words[0], L("Mevki")) is not { } spot) return 1;
 		var at = spots.IndexOf(spot);
 
 		List<JsonElement> lists = [];
@@ -963,7 +963,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		if (Choose(roles, words[1], "Rol") is not { } pick) return 1;
+		if (Choose(roles, words[1], L("Rol")) is not { } pick) return 1;
 		if (pick == current)
 		{
 			Console.WriteLine(L($"{spot} ({phase}) zaten {pick}."));
@@ -1234,7 +1234,7 @@ internal static partial class Program
 			return 1;
 		}
 		var words = Words(args).ToList();
-		return await MatchList("Bağırış", d => Field(d, "Name") == "shouts-dropdown", words.Count > 0 ? string.Join(" ", words) : null, args.Contains("--dry"), events: true);
+		return await MatchList(L("Bağırış"), d => Field(d, "Name") == "shouts-dropdown", words.Count > 0 ? string.Join(" ", words) : null, args.Contains("--dry"), events: true);
 	}
 
 	/// <summary>The active tactic's fields; empty while the planner is between tactics.</summary>
@@ -1263,9 +1263,9 @@ internal static partial class Program
 		// One row per stage: what is chosen, the list it is chosen from, the button that moves on.
 		(string What, string List, string Onward)[] stages =
 		[
-			("Stil", "tac-styles-options", "Formation (In Possession)"),
-			("Topla oynarken diziliş", "all-options-list", "Formation (Out of Possession)"),
-			("Topsuz diziliş", "all-options-list", "Confirm"),
+			(L("Stil"), "tac-styles-options", "Formation (In Possession)"),
+			(L("Topla oynarken diziliş"), "all-options-list", "Formation (Out of Possession)"),
+			(L("Topsuz diziliş"), "all-options-list", "Confirm"),
 		];
 
 		if (!await Fm.InGame())

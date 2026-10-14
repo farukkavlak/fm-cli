@@ -17,7 +17,7 @@ internal static partial class Program
 	/// </summary>
 	private sealed record Focus(int Index, string Name, string Status, string Assigned, int Matched, int Near, int InProgress, bool Running = true)
 	{
-		public string State => Status == "In Progress" && !Running ? "Durduruldu" : Status;
+		public string State => Status == "In Progress" && !Running ? L("Durduruldu") : Status;
 	}
 
 	private static async Task<int> Scout(bool json, string[] args)
@@ -59,7 +59,7 @@ internal static partial class Program
 		if (int.TryParse(words[0], out var number) && number >= 1 && number <= focuses.Count) wanted = focuses[number - 1];
 		else
 		{
-			if (Choose(focuses.Select(f => f.Name).Distinct().ToList(), string.Join(" ", words), "Odak") is not { } name) return 64;
+			if (Choose(focuses.Select(f => f.Name).Distinct().ToList(), string.Join(" ", words), L("Odak")) is not { } name) return 64;
 			wanted = focuses.First(f => f.Name == name);
 		}
 		if (await FocusAt(wanted.Index) is not { } shown)
@@ -71,7 +71,7 @@ internal static partial class Program
 		// Which results: those that fit, unless asked otherwise — or unless none fits yet.
 		var tab = args.Contains("--near") ? "nearly-matched-tab" : args.Contains("--progress") ? "in-progress-tab"
 			: args.Contains("--matched") || shown.Matched > 0 ? "matched-tab" : shown.Near > 0 ? "nearly-matched-tab" : "in-progress-tab";
-		var title = tab switch { "matched-tab" => "eşleşenler", "nearly-matched-tab" => "yakın eşleşenler", _ => "incelenenler" };
+		var title = tab switch { "matched-tab" => L("eşleşenler"), "nearly-matched-tab" => L("yakın eşleşenler"), _ => L("incelenenler") };
 		var expected = tab switch { "matched-tab" => shown.Matched, "nearly-matched-tab" => shown.Near, _ => shown.InProgress };
 
 		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == tab);
@@ -150,7 +150,7 @@ internal static partial class Program
 		static int Count(JsonElement e, string name) => int.TryParse(Field(e, name), out var n) ? n : 0;
 		var scouts = Count(data, "ScoutCount");
 		var analysts = Count(data, "AnalystCount");
-		var assigned = string.Join(" · ", new[] { scouts > 0 ? $"{scouts} gözlemci" : "", analysts > 0 ? $"{analysts} analist" : "" }.Where(x => x.Length > 0));
+		var assigned = string.Join(" · ", new[] { scouts > 0 ? L($"{scouts} gözlemci") : "", analysts > 0 ? L($"{analysts} analist") : "" }.Where(x => x.Length > 0));
 
 		Focus read = null;
 		var previous = "?";

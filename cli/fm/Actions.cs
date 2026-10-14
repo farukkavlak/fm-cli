@@ -207,10 +207,10 @@ internal static partial class Program
 			var line = new string(' ', 2 + depth * 2) + Field(entry, "Name");
 			if (IsFolder(entry))
 			{
-				if (!all && under > 12 && depth > 0) { folded = path; line += $" ›  ({under} seçenek; hepsi: --all)"; }
+				if (!all && under > 12 && depth > 0) { folded = path; line += L($" ›  ({under} seçenek; hepsi: --all)"); }
 				else line += " ›";
 			}
-			if (!IsEnabled(entry)) line += "  (kapalı)";
+			if (!IsEnabled(entry)) line += L("  (kapalı)");
 			Console.WriteLine(line);
 		}
 		Console.WriteLine(L($"\nYapmak için: actions \"{name}\" \"<seçenek>\"   ör. actions \"{name}\" \"{Field(entries.First(e => !IsFolder(e)), "Path").Replace(">", " > ")}\""));

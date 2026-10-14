@@ -11,15 +11,6 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly Dictionary<string, string> LeaderTurkish = new()
-	{
-		["Most Goals"] = "En çok gol", ["Most Possession"] = "Topa en çok sahip olan", ["Most Yellow Cards"] = "En çok sarı kart",
-		["Most Clean Sheets"] = "En çok gol yemeden maç", ["Highest Average Rating"] = "En yüksek ortalama puan", ["Most Assists"] = "En çok asist",
-		["Most Shots For"] = "En çok şut çeken", ["Fewest Shots Against"] = "En az şut yiyen", ["Most Dribbles Made"] = "En çok çalım",
-		["Best Pass Completion"] = "En iyi pas yüzdesi", ["Most Tackles Won"] = "En çok top kapma", ["Fewest Conceded"] = "En az gol yiyen",
-		["Most Shots"] = "En çok şut", ["Most Key Passes"] = "En çok kilit pas", ["Most Player of the Match"] = "En çok maçın oyuncusu",
-	};
-
 	/// <summary>The statistics the game's own Stats card leads with, by number: ten of teams, ten of players.</summary>
 	private static readonly int[] TeamLeaderTypes = [15, 28, 24, 53, 41, 51, 50, 30, 32, 16];
 	private static readonly int[] PlayerLeaderTypes = [27, 2, 5, 20, 46, 23, 63, 12, 13, 62];
@@ -65,7 +56,7 @@ internal static partial class Program
 		var division = await LeagueName();
 		var competition = wanted.Length == 0
 			? names.FirstOrDefault(c => c == division) ?? names[0]
-			: Choose(names, wanted, "Turnuva");
+			: Choose(names, wanted, L("Turnuva"));
 		if (competition == null) return 1;
 		var at = competitions.First(c => c.Name == competition).Path;
 
@@ -112,13 +103,13 @@ internal static partial class Program
 			Console.WriteLine(title);
 			foreach (var (label, name, figure) in rows)
 			{
-				var said = LeaderTurkish.GetValueOrDefault(label, label);
+				var said = label;
 				if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(said),-26}[/] [bold]{Ui.Safe(name)}[/] [yellow]{Ui.Safe(figure)}[/]");
 				else Console.WriteLine($"  {said}: {name} ({figure})");
 			}
 		}
-		Block("Takımlar", teams);
-		Block("Oyuncular", players);
+		Block(L("Takımlar"), teams);
+		Block(L("Oyuncular"), players);
 		Console.WriteLine(L("\nTam sıralama: league --stat <gol | asist | puan | …>  (hepsi: league --stats)"));
 		if (competitions.Count > 1) Console.WriteLine(L($"Başka turnuva: league <{string.Join(" | ", names)}>"));
 		return 0;
@@ -139,7 +130,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"İstatistik: '{stat}' diye bir {(ofTeams ? L("takım") : L("oyuncu"))} istatistiği yok. Hepsi: league --stats"));
 			return 64;
 		}
-		var name = Choose(catalogue.Keys.ToList(), asked, "İstatistik");
+		var name = Choose(catalogue.Keys.ToList(), asked, L("İstatistik"));
 		if (name == null) return 64;
 
 		var scope = await StatScope(at, catalogue[name]);

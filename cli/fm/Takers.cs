@@ -17,22 +17,22 @@ internal static partial class Program
 	/// </summary>
 	private static readonly (string Say, int Value, bool ThrowIn, string[] Words)[] SetPieceKinds =
 	[
-		("Korner", 0, false, ["korner", "corner", "corners", "kose"]),
-		("Serbest vuruş · şut mesafesi", 1, false, ["frikik", "serbest", "freekick", "sut"]),
-		("Serbest vuruş · kanat", 3, false, ["kanat", "frikik-kanat", "wide"]),
-		("Serbest vuruş · derin", 4, false, ["derin", "frikik-derin", "deep"]),
+		(L("Korner"), 0, false, ["korner", "corner", "corners", "kose"]),
+		(L("Serbest vuruş · şut mesafesi"), 1, false, ["frikik", "serbest", "freekick", "sut"]),
+		(L("Serbest vuruş · kanat"), 3, false, ["kanat", "frikik-kanat", "wide"]),
+		(L("Serbest vuruş · derin"), 4, false, ["derin", "frikik-derin", "deep"]),
 		// Throw-ins in the other two thirds (6, 5) have no taker to choose.
-		("Taç · hücum bölgesi", 2, true, ["tac", "throw", "throwin", "throw-in"]),
+		(L("Taç · hücum bölgesi"), 2, true, ["tac", "throw", "throwin", "throw-in"]),
 	];
 
 	private static readonly Dictionary<string, string> TakerHeadings = new()
 	{
-		["Right Footers"] = "sağ ayaklılar", ["Left Footers"] = "sol ayaklılar", ["Right Side"] = "sağ taraf", ["Left Side"] = "sol taraf",
+		["Right Footers"] = L("sağ ayaklılar"), ["Left Footers"] = L("sol ayaklılar"), ["Right Side"] = L("sağ taraf"), ["Left Side"] = "sol taraf",
 	};
 
 	private static readonly Dictionary<string, string> TakerColumns = new()
 	{
-		["Tec"] = "TEKNİK", ["Tech"] = "TEKNİK", ["Cro"] = "ORTA", ["Cor"] = "KORNER", ["Fre"] = "FRİKİK", ["Long Sh."] = "UZAK ŞUT", ["Shots"] = "UZAK ŞUT", ["L Th"] = "UZUN TAÇ", ["Position"] = "MEVKİ",
+		["Tec"] = L("TEKNİK"), ["Tech"] = L("TEKNİK"), ["Cro"] = L("ORTA"), ["Cor"] = L("KORNER"), ["Fre"] = L("FRİKİK"), ["Long Sh."] = L("UZAK ŞUT"), ["Shots"] = L("UZAK ŞUT"), ["L Th"] = L("UZUN TAÇ"), ["Position"] = L("MEVKİ"),
 	};
 
 	private sealed record SetPieceTaker(int Order, string Number, string Name, string Where, List<string> Stats);
@@ -40,9 +40,7 @@ internal static partial class Program
 	/// <summary>One of a kind's two lists: its heading on the page, its columns after the name, and its takers.</summary>
 	private sealed record TakerList(string Heading, List<string> Columns, List<SetPieceTaker> Takers, string Key, bool Whole);
 
-	private const string TakersUsage =
-		"kullanım: takers [<tür>]   ·   takers <tür> <sağ|sol> move <oyuncu|sıra> <yeni sıra> | add <oyuncu> [<sıra>] | remove <oyuncu|sıra>\n" +
-		"türler: korner, frikik (şut mesafesi), kanat, derin (serbest vuruşlar), tac (hücum bölgesi)";
+	private static string TakersUsage => L("kullanım: takers [<tür>]   ·   takers <tür> <sağ|sol> move <oyuncu|sıra> <yeni sıra> | add <oyuncu> [<sıra>] | remove <oyuncu|sıra>\ntürler: korner, frikik (şut mesafesi), kanat, derin (serbest vuruşlar), tac (hücum bölgesi)");
 
 	private static async Task<int> Takers(bool json, string[] args)
 	{
@@ -112,7 +110,7 @@ internal static partial class Program
 			{
 				var at = side.Value;
 				var heading = lists[at].Heading;
-				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? "sağ" : "sol")}", "Atıcı", "atıcılar", "Atıcılara", tables[at],
+				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? L("sağ") : "sol")}", L("Atıcı"), L("atıcılar"), L("Atıcılara"), tables[at],
 					async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Where(d => Field(d, "Label") == "Add Player").ToList() is { Count: 2 } adds ? adds[at] : null,
 					async () => await TakerLists() is { Count: 2 } now && now[at].Heading == heading
 						? (now[at].Takers.Select(t => new Placed(t.Order, t.Name)).ToList(), now[at].Key, now[at].Whole)
@@ -143,7 +141,7 @@ internal static partial class Program
 			[
 				k.Say, .. Enumerable.Range(0, 2).Select(i => i < k.Lists.Count ? string.Join(", ", k.Lists[i].Takers.Select(t => $"{t.Order}. {t.Name}")) : ""),
 			]).ToList());
-			Console.WriteLine(L($"\nAyrıntı ve değiştirmek: takers <tür>   ({string.Join(", ", SetPieceKinds.Select(k => k.Words[0]))})"));
+			Console.WriteLine(L($"\nAyrıntı ve değiştirmek: takers <tür>   ({string.Join(", ", SetPieceKinds.Select(k => L(k.Words[0])))})"));
 			return 0;
 		}
 

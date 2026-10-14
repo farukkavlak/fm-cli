@@ -84,7 +84,7 @@ internal static partial class Program
 
 		return results.Select((r, i) => string.Join(" · ", new[]
 		{
-			read[i]?.GetValueOrDefault("Age") is { Length: > 0 } age ? $"{age} yaş" : "",
+			read[i]?.GetValueOrDefault("Age") is { Length: > 0 } age ? L($"{age} yaş") : "",
 			// A coach's positions are from his playing days and would read as his job.
 			Field(r, "Kind") == "Player" ? read[i]?.GetValueOrDefault("Positions") ?? "" : read[i]?.GetValueOrDefault("Job") ?? "",
 			read[i]?.GetValueOrDefault("Nation") ?? "",
@@ -231,7 +231,7 @@ internal static partial class Program
 		var fromSquad = false;
 		if (own.Count > 0)
 		{
-			if (Choose(own, wanted, "Oyuncu") is not { } mine) return null;
+			if (Choose(own, wanted, L("Oyuncu")) is not { } mine) return null;
 			full = mine;
 			if (!(await SearchFor(full)).Any(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)))
 			{
@@ -357,12 +357,12 @@ internal static partial class Program
 
 		void PlainHeader()
 		{
-		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Field(player, "SquadNumber")), Suffixed(Field(player, "Age"), " yaş"),
+		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Field(player, "SquadNumber")), Suffixed(Field(player, "Age"), L(" yaş")),
 			Field(player, "Nation"), Field(player, "PositionCombinedStringLong")));
-		Console.WriteLine(Line(" · ", Prefixed("Değer ", Field(player, "Value")), Prefixed("Maaş ", Field(player, "Wage")),
-			Prefixed("Sözleşme ", Field(player, "ContractEnds")), Field(player, "PlayingTime")));
-		Console.WriteLine(Line(" · ", Prefixed("Kondisyon ", Field(player, "ConditionString")), Prefixed("Kişilik ", Field(player, "Personality")),
-			Prefixed("Sağ ayak ", Field(player, "RightFootednessString")), Prefixed("Sol ayak ", Field(player, "LeftFootednessString")),
+		Console.WriteLine(Line(" · ", Prefixed(L("Değer "), Field(player, "Value")), Prefixed(L("Maaş "), Field(player, "Wage")),
+			Prefixed(L("Sözleşme "), Field(player, "ContractEnds")), Field(player, "PlayingTime")));
+		Console.WriteLine(Line(" · ", Prefixed(L("Kondisyon "), Field(player, "ConditionString")), Prefixed(L("Kişilik "), Field(player, "Personality")),
+			Prefixed(L("Sağ ayak "), Field(player, "RightFootednessString")), Prefixed(L("Sol ayak "), Field(player, "LeftFootednessString")),
 			Suffixed(Field(player, "Height"), " cm"), Field(player, "InternationalCapsAndGoalsString")));
 
 		if (ability.Count > 0) Console.WriteLine(L($"Yetenek (son dört ay): {string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))} /200"));
@@ -393,8 +393,8 @@ internal static partial class Program
 			return 0;
 		}
 
-		var first = Field(player, "IsGoalkeeper") == "True" ? "KALECİLİK" : "TEKNİK";
-		string[] titles = [first, "ZİHİNSEL", "FİZİKSEL", "DURAN TOP"];
+		var first = Field(player, "IsGoalkeeper") == "True" ? L("KALECİLİK") : L("TEKNİK");
+		string[] titles = [first, L("ZİHİNSEL"), L("FİZİKSEL"), L("DURAN TOP")];
 		List<List<JsonElement>> blocks =
 		[
 			all.Where(a => !mental.Contains(Field(a, "Name")) && !physical.Contains(Field(a, "Name")) && !setPieces.Contains(Field(a, "Name"))).ToList(),
@@ -414,7 +414,7 @@ internal static partial class Program
 		var headers = new List<string>();
 		for (var b = 0; b < blocks.Count; b++)
 		{
-			headers.Add(b < titles.Length ? titles[b] : $"GRUP {b + 1}");
+			headers.Add(b < titles.Length ? titles[b] : L($"GRUP {b + 1}"));
 			headers.Add("");
 		}
 
@@ -456,7 +456,7 @@ internal static partial class Program
 			.OrderByDescending(p => p.Rating)
 			.ToList();
 		if (positions.Count > 0)
-			lines.Add($"Mevkiler (20 doğal, 15+ usta, 10+ yeterli): {string.Join(" · ", positions.Select(p => $"{p.Name} {p.Rating}"))}");
+			lines.Add(L($"Mevkiler (20 doğal, 15+ usta, 10+ yeterli): {string.Join(" · ", positions.Select(p => $"{p.Name} {p.Rating}"))}"));
 
 		var summary = await Fm.Pull(path, "InjuriesThisSeason,InjuriesLastSeason,InjuriesPercentageMissedString");
 		var injuries = (await Fm.Pull(path + ".InjuriesHistory", "InjuryDescription,InjuryDate,InjuryDurationDays,IsActive", list: true)).EnumerateArray()
@@ -466,15 +466,15 @@ internal static partial class Program
 			.ToList();
 		if (injuries.Count == 0)
 		{
-			lines.Add("Sakatlık geçmişi: yok");
+			lines.Add(L("Sakatlık geçmişi: yok"));
 			return lines;
 		}
 
-		lines.Add($"Sakatlık geçmişi: {injuries.Count} sakatlık · bu sezon {Field(summary, "InjuriesThisSeason")}, geçen sezon {Field(summary, "InjuriesLastSeason")}"
-		          + (Field(summary, "InjuriesPercentageMissedString") is { Length: > 0 } missed ? $" · kaçırdığı maç: {missed.Replace(" missed", "")}" : ""));
+		lines.Add(L($"Sakatlık geçmişi: {injuries.Count} sakatlık · bu sezon {Field(summary, "InjuriesThisSeason")}, geçen sezon {Field(summary, "InjuriesLastSeason")}")
+		          + (Field(summary, "InjuriesPercentageMissedString") is { Length: > 0 } missed ? L($" · kaçırdığı maç: {missed.Replace(" missed", "")}") : ""));
 		foreach (var injury in injuries.Take(5))
-			lines.Add($"  {(injury.When is { } on ? $"{Months[on.Month - 1]} {on.Year}" : "?"),-9}  {injury.What}, {injury.Days} gün{(injury.Now ? " (sürüyor)" : "")}");
-		if (injuries.Count > 5) lines.Add($"  … ve {injuries.Count - 5} eski sakatlık daha");
+			lines.Add(L($"  {(injury.When is { } on ? $"{Months[on.Month - 1]} {on.Year}" : "?"),-9}  {injury.What}, {injury.Days} gün{(injury.Now ? L(" (sürüyor)") : "")}"));
+		if (injuries.Count > 5) lines.Add(L($"  … ve {injuries.Count - 5} eski sakatlık daha"));
 		return lines;
 	}
 
@@ -538,7 +538,7 @@ internal static partial class Program
 		}
 
 		// A view marked with › is a menu of further views, which this cannot reach into yet.
-		if (Choose(views, wanted, "Görünüm") is not { } view) return 1;
+		if (Choose(views, wanted, L("Görünüm")) is not { } view) return 1;
 		if (view.EndsWith("›", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine(L($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor."));
@@ -595,7 +595,7 @@ internal static partial class Program
 		var ordered = rows.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase).ToList();
 		if (!Ui.Rich)
 		{
-			Table.Write([who, .. columns.Select(Heading)], ordered
+			Table.Write([L(who), .. columns.Select(Heading)], ordered
 				.Select(p => new[] { Field(p, "Name") }.Concat(columns.Select(c => Field(p, c))).ToArray())
 				.ToList());
 			return;
@@ -616,7 +616,7 @@ internal static partial class Program
 		var dropped = columns.Count - shown.Count;
 
 		var table = new Spectre.Console.Table { Border = Spectre.Console.TableBorder.Rounded, BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey) };
-		table.AddColumn(new Spectre.Console.TableColumn($"[dim]{who}[/]") { NoWrap = true });
+		table.AddColumn(new Spectre.Console.TableColumn($"[dim]{L(who)}[/]") { NoWrap = true });
 		foreach (var c in shown) table.AddColumn(new Spectre.Console.TableColumn($"[dim]{Ui.Safe(Heading(c.Field))}[/]") { NoWrap = true });
 		for (var i = 0; i < ordered.Count; i++)
 		{
@@ -632,7 +632,7 @@ internal static partial class Program
 	private static string Readable(string field, string value) => (field, value) switch
 	{
 		(_, "-1" or "-" or "None" or "False") => "",
-		(_, "True") => "evet",
+		(_, "True") => L("evet"),
 		("ShortGradeString", "Scouting Required") => "",
 		_ => value,
 	};
@@ -656,16 +656,16 @@ internal static partial class Program
 	/// <summary>The columns' names as a reader knows them; anything else spelled out from the game's own field name.</summary>
 	private static readonly Dictionary<string, string> Headings = new()
 	{
-		["PositionCombinedString"] = "POZİSYON", ["Age"] = "YAŞ", ["Wage"] = "MAAŞ", ["SquadNumber"] = "NO",
-		["TransferValueRangeString"] = "DEĞER", ["AskingPrice"] = "İSTENEN", ["TransferOptions"] = "TRANSFER DURUMU",
-		["AgreedPlayingTime"] = "STATÜ", ["FutureAgreedPlayingTime"] = "GELECEK STATÜ", ["ActualPlayingTime"] = "GERÇEK SÜRE",
-		["PlayingTimeHappinessLevel"] = "SÜRE MEMNUNİYETİ", ["ContractStatus"] = "SÖZLEŞME", ["Condition"] = "KONDİSYON",
-		["Sharpness"] = "MAÇ FORMU", ["InjuriesTimeMissed"] = "KAÇIRACAĞI SÜRE", ["InjurySeverity"] = "SAKATLIK DERECESİ",
-		["InjuryDescription"] = "SAKATLIK", ["TrainingRating"] = "ANTRENMAN NOTU", ["MoraleString"] = "MORAL",
-		["StatusTitleShort"] = "DURUM", ["Nation"] = "ÜLKE", ["Club"] = "KULÜP", ["Personality"] = "KİŞİLİK",
-		["HierarchyInfluenceCategoryString"] = "HİYERARŞİ", ["SocialGroupString"] = "GRUP", ["Height"] = "BOY",
-		["ShortName"] = "KULÜP", ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = "SCOUT MASRAFI",
-		["DaysSinceLastScouted"] = "SON SCOUT", ["ScoutedMinWage"] = "MAAŞ (EN AZ)", ["ScoutedMaxWage"] = "MAAŞ (EN ÇOK)",
+		["PositionCombinedString"] = L("POZİSYON"), ["Age"] = L("YAŞ"), ["Wage"] = L("MAAŞ"), ["SquadNumber"] = "NO",
+		["TransferValueRangeString"] = L("DEĞER"), ["AskingPrice"] = L("İSTENEN"), ["TransferOptions"] = L("TRANSFER DURUMU"),
+		["AgreedPlayingTime"] = L("STATÜ"), ["FutureAgreedPlayingTime"] = L("GELECEK STATÜ"), ["ActualPlayingTime"] = L("GERÇEK SÜRE"),
+		["PlayingTimeHappinessLevel"] = L("SÜRE MEMNUNİYETİ"), ["ContractStatus"] = L("SÖZLEŞME"), ["Condition"] = L("KONDİSYON"),
+		["Sharpness"] = L("MAÇ FORMU"), ["InjuriesTimeMissed"] = L("KAÇIRACAĞI SÜRE"), ["InjurySeverity"] = L("SAKATLIK DERECESİ"),
+		["InjuryDescription"] = L("SAKATLIK"), ["TrainingRating"] = L("ANTRENMAN NOTU"), ["MoraleString"] = "MORAL",
+		["StatusTitleShort"] = L("DURUM"), ["Nation"] = L("ÜLKE"), ["Club"] = L("KULÜP"), ["Personality"] = L("KİŞİLİK"),
+		["HierarchyInfluenceCategoryString"] = L("HİYERARŞİ"), ["SocialGroupString"] = L("GRUP"), ["Height"] = "BOY",
+		["ShortName"] = L("KULÜP"), ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = L("SCOUT MASRAFI"),
+		["DaysSinceLastScouted"] = L("SON SCOUT"), ["ScoutedMinWage"] = L("MAAŞ (EN AZ)"), ["ScoutedMaxWage"] = L("MAAŞ (EN ÇOK)"),
 	};
 
 	private static string Heading(string field)
@@ -738,7 +738,7 @@ internal static partial class Program
 		// The page's search panel: the role he can play, his age, the scouts' grade, his
 		// contract and whether he is listed. A search stays on in the game until the next one or --clear.
 		var search = new List<(string Heading, string Choice, string What)>();
-		if (Option(args, "--role") is { } searchRole) search.Add(("Role (In Possession)", searchRole, "Rol"));
+		if (Option(args, "--role") is { } searchRole) search.Add(("Role (In Possession)", searchRole, L("Rol")));
 		if (Option(args, "--age") is { } ages)
 		{
 			var ends = ages.Split('-', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
@@ -747,13 +747,13 @@ internal static partial class Program
 				Console.Error.WriteLine(L("Yaş aralığı iki sayıyla:  --age 18-23"));
 				return 64;
 			}
-			search.Add(("Aged Between (Years)", ends[0], "En küçük yaş"));
-			search.Add(("and", ends[1], "En büyük yaş"));
+			search.Add(("Aged Between (Years)", ends[0], L("En küçük yaş")));
+			search.Add(("and", ends[1], L("En büyük yaş")));
 		}
-		if (Option(args, "--grade") is { } grade) search.Add(("Minimum Scouting Grade", grade, "Scout notu"));
-		if (Option(args, "--contract") is { } contract) search.Add(("Contract Status", contract, "Sözleşme durumu"));
-		if (args.Contains("--listed")) search.Add(("Transfer Status", "Listed", "Transfer durumu"));
-		if (args.Contains("--loan-listed")) search.Add(("Loan Status", "Listed", "Kiralık durumu"));
+		if (Option(args, "--grade") is { } grade) search.Add(("Minimum Scouting Grade", grade, L("Scout notu")));
+		if (Option(args, "--contract") is { } contract) search.Add(("Contract Status", contract, L("Sözleşme durumu")));
+		if (args.Contains("--listed")) search.Add(("Transfer Status", "Listed", L("Transfer durumu")));
+		if (args.Contains("--loan-listed")) search.Add(("Loan Status", "Listed", L("Kiralık durumu")));
 		// --attr "pace>=15" (also <=, >, <), as many as wanted.
 		var conditions = new List<(string Attribute, bool AtLeast, int Value)>();
 		for (var i = 0; i + 1 < args.Length; i++)
@@ -805,7 +805,7 @@ internal static partial class Program
 		// Free agents are the players whose contract has run out.
 		if ((Option(args, "--filter") ?? (args.Contains("--free") ? "Contract Expired" : null)) is { } wantedFilter)
 		{
-			if (Choose(filterNames, wantedFilter, "Süzgeç") is not { } filter) return 1;
+			if (Choose(filterNames, wantedFilter, L("Süzgeç")) is not { } filter) return 1;
 
 			// The filter is sent to the search by the list's own event, not just written.
 			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("choice", filter), ("fire", "1"));
@@ -814,7 +814,7 @@ internal static partial class Program
 
 		if (Option(args, "--view") is { } wantedView)
 		{
-			if (Choose(viewNames, wantedView, "Görünüm") is not { } view) return 1;
+			if (Choose(viewNames, wantedView, L("Görünüm")) is not { } view) return 1;
 			if (view.EndsWith("›", StringComparison.Ordinal))
 			{
 				Console.Error.WriteLine(L($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor."));
@@ -855,7 +855,7 @@ internal static partial class Program
 		return 0;
 	}
 
-	private static readonly string[] ShortDays = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+	private static readonly string[] ShortDays = [L("Paz"), L("Pzt"), L("Sal"), L("Çar"), L("Per"), L("Cum"), L("Cmt")];
 
 	private static async Task<int> LeagueTable(bool json, string[] args)
 	{
@@ -874,7 +874,7 @@ internal static partial class Program
 			// A competition that is not ours has no button to open it from; the Stages page
 			// reaches all of them.
 			if (!ours.Any(o => Fold(o).Contains(Fold(typed))) && !int.TryParse(typed, out _)) return await Stages(json, ["stages", typed]);
-			if (Choose(ours, typed, "Turnuva") is not { } chosen) return 64;
+			if (Choose(ours, typed, L("Turnuva")) is not { } chosen) return 64;
 			wanted = chosen;
 		}
 
@@ -978,7 +978,7 @@ internal static partial class Program
 		// A place already settled is said beside the team, as the page does with its "C" and "Pl".
 		static string Team(JsonElement row) => Field(row, "Name") + (Field(row, "Settled") switch
 		{
-			"" => "", "C" => " (şampiyon)", "Pl" => " (play-off kesin)", "P" => " (yükseldi)", "R" => " (düştü)", var mark => $" ({mark})",
+			"" => "", "C" => L(" (şampiyon)"), "Pl" => L(" (play-off kesin)"), "P" => L(" (yükseldi)"), "R" => L(" (düştü)"), var mark => $" ({mark})",
 		});
 		var rows = table.EnumerateArray().Select(row => full
 			? new[]
@@ -987,7 +987,7 @@ internal static partial class Program
 				Field(row, "LeagueGamesDrawn"), Field(row, "LeagueGamesLost"), Field(row, "LeagueGoalDifference"), Field(row, "LeaguePoints"),
 			}
 			: [Field(row, "TablePosition"), Team(row), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
-		string[] headers = full ? ["#", "TAKIM", "O", "G", "B", "M", "AV", "P"] : ["#", "TAKIM", "O", "P"];
+		string[] headers = full ? ["#", L("TAKIM"), L("O"), L("G"), L("B"), L("M"), L("AV"), L("P")] : ["#", L("TAKIM"), L("O"), L("P")];
 
 		// The last five league results, oldest first, where the page binds them.
 		var forms = table.EnumerateArray().Select(row => Standings.Form(Field(row, "RecentFormValues"))).ToList();
@@ -1078,7 +1078,7 @@ internal static partial class Program
 		{
 			Short(Field(fixture, "Date")),
 			Field(fixture, "KickoffTime"),
-			Field(fixture, "MatchVenueShort") switch { "H" => "İç saha", "A" => "Deplasman", "N" => "Tarafsız", var other => other },
+			Field(fixture, "MatchVenueShort") switch { "H" => L("İç saha"), "A" => L("Deplasman"), "N" => L("Tarafsız"), var other => other },
 			Field(fixture, "ShortName"),
 			Field(fixture, "Name"),
 			Field(fixture, "Result"),
@@ -1089,7 +1089,7 @@ internal static partial class Program
 			// The game marks each result by what it was for us: 1 a win, 3 a win on penalties,
 			// 9 a draw, 10 a defeat; anything else is left uncoloured.
 			var kinds = fixtures.EnumerateArray().Where(fixture => Field(fixture, "Date") != "").Select(f => Field(f, "ResultType")).ToList();
-			Standings.Fixtures(["TARİH", "SAAT", "YER", "RAKİP", "TURNUVA", "SONUÇ"], rows, kinds);
+			Standings.Fixtures([L("TARİH"), L("SAAT"), "YER", L("RAKİP"), L("TURNUVA"), L("SONUÇ")], rows, kinds);
 			return 0;
 		}
 
@@ -1136,7 +1136,7 @@ internal static partial class Program
 		{
 			$"{m.Day.Day} {Months[m.Day.Month - 1][..3]} {ShortDays[(int)m.Day.DayOfWeek]}",
 			played.IsMatch(m.TimeOrScore) ? "" : m.TimeOrScore,
-			m.Venue switch { "H" => "İç saha", "A" => "Deplasman", "N" => "Tarafsız", _ => "" },
+			m.Venue switch { "H" => L("İç saha"), "A" => L("Deplasman"), "N" => L("Tarafsız"), _ => "" },
 			m.Opponent + (m.Place.Length > 0 ? $" ({m.Place})" : ""),
 			m.Competition,
 			played.IsMatch(m.TimeOrScore) ? Ours(m).Replace("-", " - ") : "",
@@ -1145,7 +1145,7 @@ internal static partial class Program
 		// defeat. Level after penalties or extra time is not called a draw.
 		var kinds = matches.Select(m => !played.IsMatch(m.TimeOrScore) ? ""
 			: MatchOutcome(m) switch { > 0 => "1", < 0 => "10", _ => char.IsDigit(m.TimeOrScore[^1]) ? "9" : "" }).ToList();
-		string[] headers = ["TARİH", "SAAT", "YER", "RAKİP", "TURNUVA", "SONUÇ"];
+		string[] headers = [L("TARİH"), L("SAAT"), "YER", L("RAKİP"), L("TURNUVA"), L("SONUÇ")];
 		if (Ui.Rich) Standings.Fixtures(headers, rows, kinds);
 		else Table.Write(headers, rows);
 		return 0;

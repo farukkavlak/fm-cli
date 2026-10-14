@@ -113,16 +113,16 @@ internal static partial class Program
 			else Console.WriteLine(L($"puan  {string.Concat(bars.Select(b => b.Bar))}  eski → yeni"));
 		}
 		// The page gives the score home side first and does not say which side he was on.
-		var heads = new List<string> { "#", "TARİH", "RAKİP", "SKOR (EV-DEP)", "MEVKİ" };
-		if (subs) heads.Add(rich ? "" : "GİRDİ/ÇIKTI");
-		heads.AddRange(keeper ? ["xGA", "YEDİĞİ"] : ["xG", "GOL", "AS"]);
+		var heads = new List<string> { "#", L("TARİH"), L("RAKİP"), L("SKOR (EV-DEP)"), L("MEVKİ") };
+		if (subs) heads.Add(rich ? "" : L("GİRDİ/ÇIKTI"));
+		heads.AddRange(keeper ? ["xGA", L("YEDİĞİ")] : ["xG", "GOL", "AS"]);
 		heads.Add("PUAN");
 		List<string> Cells(MatchRow r)
 		{
 			var cells = new List<string>
 			{
 				rich ? $"[dim]{r.Number}[/]" : r.Number.ToString(CultureInfo.InvariantCulture), rich ? Short(r.Date) : r.Date,
-				rich ? Ui.Safe(r.Opponent) : r.Opponent, r.Score, r.Position == "-" ? (rich ? "[dim]oynamadı[/]" : "oynamadı") : rich ? $"{r.Position} [dim]{r.Role}[/]" : $"{r.Position} {r.Role}",
+				rich ? Ui.Safe(r.Opponent) : r.Opponent, r.Score, r.Position == "-" ? (rich ? L("[dim]oynamadı[/]") : L("oynamadı")) : rich ? $"{r.Position} [dim]{r.Role}[/]" : $"{r.Position} {r.Role}",
 			};
 			if (subs) cells.Add(rich ? $"[dim]{OnOff(r.OnOff)}[/]" : OnOff(r.OnOff));
 			if (keeper) cells.AddRange([r.Xg, rich && r.Conceded == "0" ? "[green bold]0[/]" : r.Conceded]);
@@ -144,7 +144,7 @@ internal static partial class Program
 		static string Short(string date) => DateTime.TryParseExact(date, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d)
 			? $"{d.Day} {Months[d.Month - 1][..3]}" : date;
 		// "on 75" is a substitute's minute on, "off 60" the minute he went off.
-		static string OnOff(string text) => Regex.Replace(text, @"^(on|off) (\d+)$", m => $"{m.Groups[2].Value}' {(m.Groups[1].Value == "on" ? "girdi" : "çıktı")}");
+		static string OnOff(string text) => Regex.Replace(text, @"^(on|off) (\d+)$", m => $"{m.Groups[2].Value}' {(m.Groups[1].Value == "on" ? L("girdi") : L("çıktı"))}");
 		static string Count(string n, string colour) => n is "" or "0" ? "[dim]0[/]" : $"[{colour} bold]{n}[/]";
 		static string Colour(string rating) => double.TryParse(rating, NumberStyles.Float, CultureInfo.InvariantCulture, out var r)
 			? r >= 7.5 ? $"[green bold]{rating}[/]" : r < 6.5 ? $"[red]{rating}[/]" : rating : rating;

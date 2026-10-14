@@ -17,16 +17,16 @@ internal static class Card
 		var who = new List<string>
 		{
 			$"[bold]{Ui.Safe(F(player, "Name"))}[/]" + Prefixed("  [dim]#[/]", F(player, "SquadNumber"))
-			+ Prefixed("  ", Suffixed(F(player, "Age"), " yaş")) + Prefixed("  ", Ui.Safe(F(player, "Nation"))),
+			+ Prefixed("  ", Suffixed(F(player, "Age"), L(" yaş"))) + Prefixed("  ", Ui.Safe(F(player, "Nation"))),
 			$"[dim]{Ui.Safe(F(player, "PositionCombinedStringLong"))}[/]",
 			"",
-			Pair("Değer", F(player, "Value")) + Pair("Maaş", F(player, "Wage")),
-			Pair("Sözleşme", F(player, "ContractEnds")) + Pair("Rol", F(player, "PlayingTime")),
-			Pair("Kondisyon", F(player, "ConditionString")) + Pair("Kişilik", F(player, "Personality")),
-			Pair("Ayak", Feet(player)) + Pair("Boy", Suffixed(F(player, "Height"), " cm")),
-			Pair("Milli", F(player, "InternationalCapsAndGoalsString"))
-			+ Pair("Lig kariyeri", F(player, "TotalCareerLeagueAppearances") is { Length: > 0 } apps
-				? $"{apps} maç" + Prefixed(", ", Suffixed(F(player, "TotalCareerLeagueGoals"), " gol"))
+			Pair(L("Değer"), F(player, "Value")) + Pair(L("Maaş"), F(player, "Wage")),
+			Pair(L("Sözleşme"), F(player, "ContractEnds")) + Pair(L("Rol"), F(player, "PlayingTime")),
+			Pair(L("Kondisyon"), F(player, "ConditionString")) + Pair(L("Kişilik"), F(player, "Personality")),
+			Pair(L("Ayak"), Feet(player)) + Pair("Boy", Suffixed(F(player, "Height"), " cm")),
+			Pair(L("Milli"), F(player, "InternationalCapsAndGoalsString"))
+			+ Pair(L("Lig kariyeri"), F(player, "TotalCareerLeagueAppearances") is { Length: > 0 } apps
+				? L($"{apps} maç") + Prefixed(", ", Suffixed(F(player, "TotalCareerLeagueGoals"), " gol"))
 				: ""),
 		};
 
@@ -34,12 +34,12 @@ internal static class Card
 		{
 			var change = ability[^1] - ability[0];
 			var colour = change > 0.5 ? "green" : change < -0.5 ? "red" : "white";
-			who.Add($"[dim]Yetenek[/] [{colour}]{string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))}[/][dim]/200, son dört ay[/]");
+			who.Add(L($"[dim]Yetenek[/] [{colour}]{string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))}[/][dim]/200, son dört ay[/]"));
 		}
-		if (potential > 0) who.Add($"[dim]Potansiyel[/] [yellow]{potential}[/][dim]/200, kulübün gözünden[/]");
+		if (potential > 0) who.Add(L($"[dim]Potansiyel[/] [yellow]{potential}[/][dim]/200, kulübün gözünden[/]"));
 		var injury = F(player, "InjuryDescription");
-		if (injury.Length > 0) who.Add($"[red]Sakatlık:[/] {Ui.Safe(injury)}");
-		if (traits.Count > 0) who.Add($"[dim]Alışkanlıklar:[/] {Ui.Safe(string.Join(" · ", traits))}");
+		if (injury.Length > 0) who.Add(L($"[red]Sakatlık:[/] {Ui.Safe(injury)}"));
+		if (traits.Count > 0) who.Add(L($"[dim]Alışkanlıklar:[/] {Ui.Safe(string.Join(" · ", traits))}"));
 
 		var top = new Grid().AddColumn(new GridColumn().NoWrap()).AddColumn();
 		top.AddRow(Positions(F(player, "PositionCombinedString")), new Markup(string.Join("\n", who)));
@@ -158,7 +158,7 @@ internal static class Card
 		var right = F(player, "RightFootednessString");
 		var left = F(player, "LeftFootednessString");
 		if (right.Length == 0 && left.Length == 0) return "";
-		return $"sağ {right} · sol {left}";
+		return L($"sağ {right} · sol {left}");
 	}
 
 	private static string Pair(string label, string value) =>

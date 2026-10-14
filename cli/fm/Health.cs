@@ -40,7 +40,7 @@ internal static partial class Program
 		// 2026, when five injured men read as "Sakat: yok").
 		var injuredNow = team.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToHashSet();
 		bool Hurt(JsonElement p) => Field(p, "IsInjured") == "True" || injuredNow.Contains(Field(p, "Name"));
-		string Left(JsonElement p) => returns.TryGetValue(Field(p, "Name"), out var days) && int.TryParse(days, out var n) && n > 0 ? $"{n} gün daha" : "";
+		string Left(JsonElement p) => returns.TryGetValue(Field(p, "Name"), out var days) && int.TryParse(days, out var n) && n > 0 ? L($"{n} gün daha") : "";
 
 		var all = injuries.EnumerateArray().Where(Here).ToList();
 		var hurt = all.Where(p => Hurt(p)).ToList();
@@ -70,10 +70,10 @@ internal static partial class Program
 			foreach (var line in list) Console.WriteLine($"  {line}");
 		}
 
-		Section("Sakat", hurt.Select(p => $"{Field(p, "Name")} — {string.Join(", ", new[] { Injury(p), Left(p) }.Where(x => x.Length > 0))}"));
-		Section("Yorgun (kondisyon %85 altı)", tired.Select(p => $"{Field(p, "Name")} {Number(p, "Condition")}%"));
-		Section("Maç formu düşük (%60 altı)", rusty.Select(p => $"{Field(p, "Name")} {Number(p, "Sharpness")}%"));
-		Section($"Sakatlık riski en yüksek (oyunun puanı {top})", atRisk.Select(p => $"{Field(p, "Name")}"));
+		Section(L("Sakat"), hurt.Select(p => $"{Field(p, "Name")} — {string.Join(", ", new[] { Injury(p), Left(p) }.Where(x => x.Length > 0))}"));
+		Section(L("Yorgun (kondisyon %85 altı)"), tired.Select(p => $"{Field(p, "Name")} {Number(p, "Condition")}%"));
+		Section(L("Maç formu düşük (%60 altı)"), rusty.Select(p => $"{Field(p, "Name")} {Number(p, "Sharpness")}%"));
+		Section(L($"Sakatlık riski en yüksek (oyunun puanı {top})"), atRisk.Select(p => $"{Field(p, "Name")}"));
 		if (tired.Count + atRisk.Count > 0) Console.WriteLine(L("\nDinlendirmek için: intensity <oyuncu> \"dinlen 1\""));
 		return 0;
 

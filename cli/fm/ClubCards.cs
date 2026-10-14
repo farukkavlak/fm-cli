@@ -11,13 +11,13 @@ internal static partial class Program
 {
 	private static readonly Dictionary<string, string> CardWords = new()
 	{
-		["Pleased"] = "hoşnut", ["Concerned"] = "endişeli", ["Angry"] = "öfkeli", ["Delighted"] = "çok mutlu",
-		["Playing style"] = "oyun tarzı", ["Reputation"] = "itibar", ["Signing"] = "transfer", ["Rivalry"] = "rekabet",
-		["Competition"] = "turnuva", ["Youth"] = "altyapı", ["Finance"] = "finans",
-		["Core"] = "çekirdek", ["Family"] = "aile", ["Fair Weather"] = "iyi gün dostu", ["Casual"] = "ara sıra gelen",
-		["Hardcore"] = "fanatik", ["Corporate"] = "kurumsal",
-		["Very Good"] = "çok iyi", ["Adequate"] = "yeterli", ["Basic"] = "temel", ["Superb"] = "harika",
-		["State Of The Art"] = "son teknoloji", ["Fair"] = "idare eder", ["Yes"] = "var", ["No"] = "yok", ["Club"] = "kulüp",
+		["Pleased"] = L("hoşnut"), ["Concerned"] = L("endişeli"), ["Angry"] = L("öfkeli"), ["Delighted"] = L("çok mutlu"),
+		["Playing style"] = L("oyun tarzı"), ["Reputation"] = L("itibar"), ["Signing"] = "transfer", ["Rivalry"] = L("rekabet"),
+		["Competition"] = L("turnuva"), ["Youth"] = L("altyapı"), ["Finance"] = L("finans"),
+		["Core"] = L("çekirdek"), ["Family"] = "aile", ["Fair Weather"] = L("iyi gün dostu"), ["Casual"] = L("ara sıra gelen"),
+		["Hardcore"] = L("fanatik"), ["Corporate"] = L("kurumsal"),
+		["Very Good"] = L("çok iyi"), ["Adequate"] = L("yeterli"), ["Basic"] = L("temel"), ["Superb"] = L("harika"),
+		["State Of The Art"] = L("son teknoloji"), ["Fair"] = L("idare eder"), ["Yes"] = L("var"), ["No"] = "yok", ["Club"] = L("kulüp"),
 	};
 
 	private static string CardSay(string word) => CardWords.TryGetValue(word, out var t) ? t : ClubSay(word);
@@ -107,13 +107,13 @@ internal static partial class Program
 
 		if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(fans.Mood)}[/]");
 		else Console.WriteLine(fans.Mood);
-		CardRow("Yönetime etkisi", CardSay(fans.Influence));
-		CardRow("Ortalama seyirci", fans.AverageAttendance);
-		CardRow("Kombine sahibi", $"{fans.SeasonTicketHolders} (bekleme listesi {fans.SeasonTicketWaitingList})");
-		CardRow("Sosyal medya takipçisi", fans.SocialMediaFollowers);
-		CardRow("Ezeli rakip", $"{fans.FierceRivals} · diğer rakip {fans.OtherRivals}");
+		CardRow(L("Yönetime etkisi"), CardSay(fans.Influence));
+		CardRow(L("Ortalama seyirci"), fans.AverageAttendance);
+		CardRow(L("Kombine sahibi"), L($"{fans.SeasonTicketHolders} (bekleme listesi {fans.SeasonTicketWaitingList})"));
+		CardRow(L("Sosyal medya takipçisi"), fans.SocialMediaFollowers);
+		CardRow(L("Ezeli rakip"), L($"{fans.FierceRivals} · diğer rakip {fans.OtherRivals}"));
 
-		CardHeading("Beklentiler");
+		CardHeading(L("Beklentiler"));
 		foreach (var e in expectations)
 		{
 			var tag = $"({CardSay(e[1])}, {CardSay(e[2])})";
@@ -125,7 +125,7 @@ internal static partial class Program
 			else Console.WriteLine($"  {e[0]} {tag} — {CardSay(e[3])}");
 		}
 
-		CardHeading("Taraftar profili");
+		CardHeading(L("Taraftar profili"));
 		foreach (var (share, group) in profile.OrderByDescending(p => int.TryParse(p.Share, out var n) ? n : 0))
 			CardRow(CardSay(group), $"{share}%");
 		if (fans.About is { Length: > 1 } about)
@@ -166,7 +166,7 @@ internal static partial class Program
 		var youthGround = await Place("Human.Team.Club.YouthStadium");
 
 		// The pitch surface is a number: the game's PitchSurface (1 grass, 2–3 synthetic).
-		var surface = Field(stadium, "Surface") switch { "1" => "çim", "2" or "3" => "sentetik", "" => "", var other => other };
+		var surface = Field(stadium, "Surface") switch { "1" => L("çim"), "2" or "3" => L("sentetik"), "" => "", var other => other };
 		var facilities = new
 		{
 			Founded = Field(club, "YearFounded"),
@@ -193,35 +193,35 @@ internal static partial class Program
 		}
 
 		static string Rated(string rating, string description) =>
-			rating.Length == 0 ? description : description.Length > 0 ? $"{description} (seviye {rating})" : $"seviye {rating}";
+			rating.Length == 0 ? description : description.Length > 0 ? L($"{description} (seviye {rating})") : L($"seviye {rating}");
 		void Row(string label, string value)
 		{
 			if (value.Length > 0 && value is not ("Unknown" or "N/A")) CardRow(label, CardSay(value));
 		}
 
-		CardHeading($"Stadyum — {facilities.Stadium.Name}");
-		Row("Şehir", facilities.Stadium.City);
-		Row("Kapasite", facilities.Stadium.Capacity);
-		Row("Yapım yılı", facilities.Stadium.YearBuilt);
-		Row("Yenilenme", facilities.Stadium.YearRebuilt);
-		Row("Sahibi", facilities.Stadium.OwnedBy);
-		Row("Kira", facilities.Stadium.Rent);
-		Row("Zemin ısıtma", facilities.Stadium.UnderSoilHeating);
-		Row("Çatı", facilities.Stadium.Roof);
-		Row("Zemin", facilities.Stadium.Surface);
-		Row("Saha ölçüsü", facilities.Stadium.PitchDimensions);
-		Row("En büyük ölçü", facilities.Stadium.MaxPitchDimensions);
-		CardHeading("Antrenman tesisi");
-		Row("Tesis", facilities.Training.Name);
-		Row("Seviye", Rated(facilities.Training.Rating, facilities.Training.Description));
-		CardHeading("Altyapı");
-		Row("Tesisler", Rated(facilities.Youth.Rating, facilities.Youth.Description));
-		Row("Akademi antrenmanı", Rated(facilities.Youth.AcademyCoaching, ""));
-		Row("Genç oyuncu bulma", Rated(facilities.Youth.YouthRecruitment, ""));
-		Row("Akademi seviyesi", facilities.Youth.Level);
-		Row("Altyapı stadı", facilities.Youth.Stadium);
-		CardHeading("Ticari");
-		Row("Kurumsal tesisler", Rated(facilities.Corporate.Rating, facilities.Corporate.Description));
+		CardHeading(L($"Stadyum — {facilities.Stadium.Name}"));
+		Row(L("Şehir"), facilities.Stadium.City);
+		Row(L("Kapasite"), facilities.Stadium.Capacity);
+		Row(L("Yapım yılı"), facilities.Stadium.YearBuilt);
+		Row(L("Yenilenme"), facilities.Stadium.YearRebuilt);
+		Row(L("Sahibi"), facilities.Stadium.OwnedBy);
+		Row(L("Kira"), facilities.Stadium.Rent);
+		Row(L("Zemin ısıtma"), facilities.Stadium.UnderSoilHeating);
+		Row(L("Çatı"), facilities.Stadium.Roof);
+		Row(L("Zemin"), facilities.Stadium.Surface);
+		Row(L("Saha ölçüsü"), facilities.Stadium.PitchDimensions);
+		Row(L("En büyük ölçü"), facilities.Stadium.MaxPitchDimensions);
+		CardHeading(L("Antrenman tesisi"));
+		Row(L("Tesis"), facilities.Training.Name);
+		Row(L("Seviye"), Rated(facilities.Training.Rating, facilities.Training.Description));
+		CardHeading(L("Altyapı"));
+		Row(L("Tesisler"), Rated(facilities.Youth.Rating, facilities.Youth.Description));
+		Row(L("Akademi antrenmanı"), Rated(facilities.Youth.AcademyCoaching, ""));
+		Row(L("Genç oyuncu bulma"), Rated(facilities.Youth.YouthRecruitment, ""));
+		Row(L("Akademi seviyesi"), facilities.Youth.Level);
+		Row(L("Altyapı stadı"), facilities.Youth.Stadium);
+		CardHeading(L("Ticari"));
+		Row(L("Kurumsal tesisler"), Rated(facilities.Corporate.Rating, facilities.Corporate.Description));
 		return 0;
 	}
 }

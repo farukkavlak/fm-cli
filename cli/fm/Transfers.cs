@@ -153,7 +153,7 @@ internal static partial class Program
 			}
 		}
 
-		var what = loan ? "kiralık teklif" : "transfer teklifi";
+		var what = loan ? L("kiralık teklif") : L("transfer teklifi");
 		if (await OfferScreen.Read(Fm) is { } offer) offer.Draw();
 		else Console.WriteLine($"{name}: {what}{(await FeeLabel() is { } shown ? L($", bonservis {shown}") : "")}");
 
@@ -208,7 +208,7 @@ internal static partial class Program
 
 				var items = new List<string>();
 				var actions = new List<Func<Task<string>>>();
-				items.Add("Teklifi gönder"); actions.Add(null);
+				items.Add(L("Teklifi gönder")); actions.Add(null);
 				foreach (var option in now.Options.Where(o => o.Choice.Choices.Count > 1))
 				{
 					items.Add($"{OfferScreen.OptionName(option)}: {option.Choice.Value}");

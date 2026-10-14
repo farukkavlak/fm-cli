@@ -14,8 +14,8 @@ internal static partial class Program
 
 	private static readonly Dictionary<string, string> IntensityTurkish = new()
 	{
-		["Automatic"] = "Otomatik", ["Half Intensity"] = "Yarım", ["Normal Intensity"] = "Normal",
-		["Double Intensity"] = "Çift", ["No pitch or gym work"] = "Dinleniyor", ["Send On Holiday"] = "Tatilde",
+		["Automatic"] = L("Otomatik"), ["Half Intensity"] = L("Yarım"), ["Normal Intensity"] = "Normal",
+		["Double Intensity"] = L("Çift"), ["No pitch or gym work"] = L("Dinleniyor"), ["Send On Holiday"] = L("Tatilde"),
 	};
 
 	private static async Task<int> Intensity(string[] args)
@@ -134,8 +134,7 @@ internal static partial class Program
 		Console.WriteLine(L("\nDeğiştirmek: intensity <oyuncu> <otomatik|yarım|normal|çift|\"dinlen 3\"|\"tatil 1\">  ·  hepsini antrenöre bırak: intensity --auto"));
 		return 0;
 
-		// A rest shows as its length: "3 Days", "1 Week".
-		static string Say(string value) => IntensityTurkish.TryGetValue(value, out var t) ? t
-			: System.Text.RegularExpressions.Regex.Replace(value, @"^(\d+) (Days?|Weeks?)$", m => $"{m.Groups[1].Value} {(m.Groups[2].Value.StartsWith("Day") ? "gün" : "hafta")} dinlenme");
+		// As the game writes it, in its own language (GameWords): "Double Intensity", a rest "3 Days".
+		static string Say(string value) => value;
 	}
 }

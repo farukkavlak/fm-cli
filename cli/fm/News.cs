@@ -147,6 +147,6 @@ internal static partial class Program
 	private static string NewsAgeTurkish(string age)
 	{
 		var minutes = NewsAge(age);
-		return minutes == 0 ? (age == "Just Now" ? "az önce" : age) : minutes >= 1440 ? $"{minutes / 1440} gün önce" : minutes >= 60 ? $"{minutes / 60} saat önce" : $"{minutes} dk önce";
+		return minutes == 0 ? (age == "Just Now" ? L("az önce") : age) : minutes >= 1440 ? L($"{minutes / 1440} gün önce") : minutes >= 60 ? L($"{minutes / 60} saat önce") : L($"{minutes} dk önce");
 	}
 }

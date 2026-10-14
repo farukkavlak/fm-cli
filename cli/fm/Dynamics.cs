@@ -12,19 +12,6 @@ internal static partial class Program
 {
 	private static readonly string[] HierarchyOrder = ["Team Leader", "Highly Influential", "Influential", "Other"];
 
-	private static readonly Dictionary<string, string> HierarchyTurkish = new()
-	{
-		["Team Leader"] = "Takım lideri", ["Highly Influential Player"] = "Çok etkili", ["Influential Player"] = "Etkili", ["Other"] = "Diğer", ["Others"] = "Diğer",
-		// A Turkish game's words are each the translation of the singular and the plural; the reverse table gives the plural.
-		["Team Leaders"] = "Takım lideri", ["Highly Influential Players"] = "Çok etkili", ["Influential Players"] = "Etkili",
-	};
-
-	private static readonly Dictionary<string, string> SocialGroupTurkish = new()
-	{
-		["Core Social Group"] = "Çekirdek grup", ["Secondary Social Group A"] = "İkincil grup A", ["Secondary Social Group B"] = "İkincil grup B",
-		["Secondary Social Group C"] = "İkincil grup C", ["Other Players"] = "Diğerleri", ["Others"] = "Gruba girmeyenler",
-	};
-
 	private static async Task<int> Dynamics(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
@@ -112,10 +99,10 @@ internal static partial class Program
 		{
 			var members = players.Where(p => p.Group == group.Name).OrderBy(p => Rank(p.Hierarchy)).ToList();
 			if (members.Count == 0) continue;
-			Console.WriteLine($"{SocialGroupTurkish.GetValueOrDefault(group.Name, group.Name)} ({members.Count})");
+			Console.WriteLine($"{group.Name} ({members.Count})");
 			if (group.Why.Length > 0) Console.WriteLine($"  {group.Why}");
 			Table.Write([L("OYUNCU"), L("HİYERARŞİ"), L("KİŞİLİK")],
-				members.Select(p => (string[])[p.Name, HierarchyTurkish.GetValueOrDefault(p.Hierarchy, p.Hierarchy), p.Personality]).ToList());
+				members.Select(p => (string[])[p.Name, p.Hierarchy, p.Personality]).ToList());
 			Console.WriteLine();
 		}
 		return 0;

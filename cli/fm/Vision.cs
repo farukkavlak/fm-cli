@@ -70,15 +70,15 @@ internal static partial class Program
 					if (!Ui.Interactive) Console.Error.WriteLine(L("Vizyonu kabul etmek geri alınmaz. Onaylamak için: vision confirm --yes"));
 					return 1;
 				}
-				return await Press("Confirm", "Vizyon onaylandı. Toplantıyı bitirmek için: vision end");
+				return await Press("Confirm", L("Vizyon onaylandı. Toplantıyı bitirmek için: vision end"));
 			case "suggest" or "oner":
-				return await Press("Suggest", "Değişiklik yönetime önerildi; cevabı için: vision");
+				return await Press("Suggest", L("Değişiklik yönetime önerildi; cevabı için: vision"));
 			case "undo" or "geri":
-				return await Press("Undo", "Son değişiklik geri alındı.");
+				return await Press("Undo", L("Son değişiklik geri alındı."));
 			case "reset" or "sifirla":
-				return await Press("Reset", "Hedefler toplantının başındaki haline döndü.");
+				return await Press("Reset", L("Hedefler toplantının başındaki haline döndü."));
 			case "end" or "bitir":
-				return await Press("End Meeting", "Toplantı bitti.");
+				return await Press("End Meeting", L("Toplantı bitti."));
 			case "remove" or "cikar":
 			{
 				// The bins come in the rows' order, one for each objective that is not required.

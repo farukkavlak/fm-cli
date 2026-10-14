@@ -14,19 +14,19 @@ internal static partial class Program
 	/// <summary>What a contract can carry besides the wage, by the name of its field (FINDINGS §8.96).</summary>
 	private static readonly (string Field, string Say)[] ContractTerms =
 	[
-		("Wage", "Ücret"), ("WageAfterTax", "Vergi sonrası"), ("AgreedPlayingTime", "Kadro statüsü"), ("ContractType", "Tür"),
-		("LoyaltyBonus", "Sadakat primi"), ("AppearanceBonus", "Maç başı ücret"), ("GoalBonus", "Gol primi"), ("AssistBonus", "Asist primi"),
-		("CleanSheetBonus", "Gol yememe primi"), ("UnusedSubBonus", "Oynamayan yedek ücreti"), ("InternationalCapBonus", "Milli maç primi"),
-		("SeasonalLandmarkGoalsBonus", "Sezon gol hedefi primi"), ("SeasonalLandmarkAssistsBonus", "Sezon asist hedefi primi"),
-		("SeasonalLandmarkGoalsAndAssistsBonus", "Sezon gol + asist hedefi primi"),
-		("MinimumFeeReleaseClauseValue", "Serbest kalma bedeli"), ("DomesticMinimumFeeReleaseClauseValue", "Serbest kalma bedeli (yurt içi)"),
-		("ForeignMinimumFeeReleaseClauseValue", "Serbest kalma bedeli (yurt dışı)"),
-		("MajorContinentalCompetitionMinimumFeeReleaseClauseValue", "Serbest kalma bedeli (Avrupa'da oynayan kulüp)"),
-		("RelegationMinimumFeeReleaseClauseValue", "Serbest kalma bedeli (küme düşersek)"),
-		("SellingOnFeePercentage", "Sonraki satıştan pay"), ("SellingOnFeeProfitPercentage", "Sonraki satış kârından pay"),
-		("PromotionWageIncrease", "Yükselirsek zam"), ("RelegationWageDecrease", "Düşersek indirim"),
-		("MatchHighestEarnerClause", "En yüksek ücretliye eşitleme"), ("InjuryReleaseClause", "Sakatlıkta fesih"),
-		("WageNextSeason", "Gelecek sezon ücreti"),
+		("Wage", L("Ücret")), ("WageAfterTax", L("Vergi sonrası")), ("AgreedPlayingTime", L("Kadro statüsü")), ("ContractType", L("Tür")),
+		("LoyaltyBonus", L("Sadakat primi")), ("AppearanceBonus", L("Maç başı ücret")), ("GoalBonus", L("Gol primi")), ("AssistBonus", L("Asist primi")),
+		("CleanSheetBonus", L("Gol yememe primi")), ("UnusedSubBonus", L("Oynamayan yedek ücreti")), ("InternationalCapBonus", L("Milli maç primi")),
+		("SeasonalLandmarkGoalsBonus", L("Sezon gol hedefi primi")), ("SeasonalLandmarkAssistsBonus", L("Sezon asist hedefi primi")),
+		("SeasonalLandmarkGoalsAndAssistsBonus", L("Sezon gol + asist hedefi primi")),
+		("MinimumFeeReleaseClauseValue", L("Serbest kalma bedeli")), ("DomesticMinimumFeeReleaseClauseValue", L("Serbest kalma bedeli (yurt içi)")),
+		("ForeignMinimumFeeReleaseClauseValue", L("Serbest kalma bedeli (yurt dışı)")),
+		("MajorContinentalCompetitionMinimumFeeReleaseClauseValue", L("Serbest kalma bedeli (Avrupa'da oynayan kulüp)")),
+		("RelegationMinimumFeeReleaseClauseValue", L("Serbest kalma bedeli (küme düşersek)")),
+		("SellingOnFeePercentage", L("Sonraki satıştan pay")), ("SellingOnFeeProfitPercentage", L("Sonraki satış kârından pay")),
+		("PromotionWageIncrease", L("Yükselirsek zam")), ("RelegationWageDecrease", L("Düşersek indirim")),
+		("MatchHighestEarnerClause", L("En yüksek ücretliye eşitleme")), ("InjuryReleaseClause", L("Sakatlıkta fesih")),
+		("WageNextSeason", L("Gelecek sezon ücreti")),
 	];
 
 	/// <summary>
@@ -119,7 +119,7 @@ internal static partial class Program
 		{
 			if (ends is not { } e) return "";
 			var months = (e.Year - today.Year) * 12 + e.Month - today.Month;
-			return months < 12 ? $"{Math.Max(months, 0)} ay" : $"{months / 12} yıl {months % 12} ay";
+			return months < 12 ? $"{Math.Max(months, 0)} ay" : L($"{months / 12} yıl {months % 12} ay");
 		}
 
 		if (!Ui.Rich)
@@ -129,7 +129,7 @@ internal static partial class Program
 		}
 
 		var table = new Spectre.Console.Table().Border(Spectre.Console.TableBorder.Rounded).BorderColor(Spectre.Console.Color.Grey)
-			.AddColumn("Oyuncu").AddColumn("Yaş").AddColumn("Mevki").AddColumn("Bitiş").AddColumn("Kalan");
+			.AddColumn(L("Oyuncu")).AddColumn(L("Yaş")).AddColumn(L("Mevki")).AddColumn(L("Bitiş")).AddColumn(L("Kalan"));
 		foreach (var r in rows)
 		{
 			// Inside a year a contract is the manager's business now; inside two, soon.

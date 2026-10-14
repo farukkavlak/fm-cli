@@ -122,7 +122,7 @@ internal static partial class Program
 			await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0
 			                        || (said = await Answer("Ask For Trait Training Suggestion")).Length > 0, seconds: 6, every: 0.5);
 			if (said.Length > 0) return await Done(said);
-			return await Confirmed() ? await Done($"{name}: önerilen alışkanlığın eğitimi başladı.") : 0;
+			return await Confirmed() ? await Done(L($"{name}: önerilen alışkanlığın eğitimi başladı.")) : 0;
 		}
 
 		if (args.Contains("--trait-cancel"))
@@ -131,17 +131,17 @@ internal static partial class Program
 			var cancelled = await Arriving("press", [("text", "Cancel Current Trait Training"), ("any", "1")]);
 			if (cancelled.StartsWith("error", StringComparison.Ordinal)) return Report(cancelled);
 			if (!await Confirmed()) return 0;
-			return await Done($"{name}: alışkanlık eğitimi iptal edildi.");
+			return await Done(L($"{name}: alışkanlık eğitimi iptal edildi."));
 		}
 
 		if (Option(args, "--trait-remove") is { } unlearn)
 		{
 			if (busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışıyor; önce iptal: --trait-cancel")); return 0; }
-			if (Choose(has, unlearn, "Alışkanlık") is not { } trait) return 1;
+			if (Choose(has, unlearn, L("Alışkanlık")) is not { } trait) return 1;
 			var sent = await Fm.Get("select", ("ptr", Field(removing, "Pointer")), ("choice", trait), ("fire", "1"));
 			if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 			if (!await Confirmed()) return 0;
-			return await Done($"{name}: \"{trait}\" bırakılmaya çalışılacak.");
+			return await Done(L($"{name}: \"{trait}\" bırakılmaya çalışılacak."));
 		}
 
 		var learn = Option(args, "--trait") is { } v && !v.StartsWith("--", StringComparison.Ordinal) ? v : null;
@@ -189,6 +189,6 @@ internal static partial class Program
 			: await Fm.Get("select", ("ptr", Field(adding, "Pointer")), ("choice", path), ("fire", "1"));
 		if (started.StartsWith("error", StringComparison.Ordinal)) return Report(started);
 		if (!await Confirmed()) return 0;
-		return await Done($"{name}: \"{path.Split('>')[^1]}\" eğitimi başladı.");
+		return await Done(L($"{name}: \"{path.Split('>')[^1]}\" eğitimi başladı."));
 	}
 }

@@ -1242,3 +1242,911 @@ Alım adayları     henüz yok (her yıl Mart'ta bir maçla belli oluyor)	Intake
 Alım adayları     GELDİ — liste: youth candidates	Intake candidates ARRIVED — the list: youth candidates
 \nA takıma aday görülenler	\nSeen as first-team prospects
 \nGençlerin antrenman haftası: youth --training	\nThe young players' training week: youth --training
+ ›  ({0} seçenek; hepsi: --all)	 ›  ({0} options; all of them: --all)
+  (kapalı)	  (closed)
+Genel	Overall
+Maçlar	Matches
+Kadro	Squad
+Kültür	Culture
+Turnuvalar	Competitions
+Taktik	Tactics
+{0} aşılmış	{0} over
+{0} boşta	{0} free
+iç saha	home
+deplasman	away
+tarafsız	neutral
+sağ {0} · sol {1}	right {0} · left {1}
+ · {0} asist	 · {0} assists
+kiralık	loan
+bedelsiz	free
+açıklanmadı	undisclosed
+Pazar	Sunday
+Pazartesi	Monday
+Salı	Tuesday
+Çarşamba	Wednesday
+Perşembe	Thursday
+Cuma	Friday
+Cumartesi	Saturday
+Maç günü. Oynamak için: match	Match day. To play: match
+Kulüp vizyonu toplantısı açık. Hedefler ve pazarlık: vision   ·   bitirmek: vision end	The club vision meeting is open. Objectives and bargaining: vision   ·   to finish: vision end
+Oyun bir mesajın yeniden cevaplanmasını bekliyor olabilir:	The game may be waiting for a message to be answered again:
+Bakmak için: reply "{0}"	To look: reply "{0}"
+Bakmak için: reply <#>   (numaralar için: inbox)	To look: reply <#>   (for the numbers: inbox)
+İlerle butonu: {0}	Continue button: {0}
+Oyuncularımızdan birine gelen bir teklif cevap bekliyor. Görmek: offers   ·   cevap: offers <#> view | accept | stall | reject	An offer for one of our players awaits an answer. To see it: offers   ·   to answer: offers <#> view | accept | stall | reject
+Oyun bir adım bekliyor: "{0}". Cevabı yarım kalmış bir mesaj (inbox, sonra reply <#>) ya da bekleyen bir teklif (offers) olabilir; değilse bu adım henüz komutla yapılamıyor ve `next` onu atlayabilir (ör. transferi geri çeker).	The game is waiting on a step: "{0}". It may be a message whose answer was left half-way (inbox, then reply <#>) or a pending offer (offers); otherwise this step cannot be done by command yet, and `next` may skip it (e.g. withdraw the transfer).
+Oyun bir adım bekliyor ama ne olduğunu söylemiyor. Ekrandakiler için: buttons	The game is waiting on a step but does not say what. For what is on screen: buttons
+Açık bir tanıtım turu var; yürütmek için: tour	A guided tour is open; to run it: tour
+Cevaplamak için: reply "{0}"	To answer: reply "{0}"
+Cevaplamak için: reply <#>   (numaralar için: inbox)	To answer: reply <#>   (for the numbers: inbox)
+Oyun basın toplantısı bekliyor: {0}\nKatılmak ya da geçmek için: reply "{1}"	The game is waiting for a press conference: {0}\nTo attend or skip it: reply "{1}"
+Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>	The game is waiting for a press conference. To attend or skip it, answer the press message: inbox, reply <#>
+Dikkat: seçili kadroda sakat var ({0}); maç onlarla başlamaz. Yardımcıya seçtirmek: tactic pick · kendin: tactic player <mevki> <oyuncu>	Note: the chosen squad has injured players ({0}); the match does not start with them. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>
+Oyun maç öncesi takım haberlerini bekliyor.	The game is waiting for the pre-match team news.
+Oyun takım konuşması bekliyor.	The game is waiting for a team talk.
+Oyun tünel röportajı bekliyor.	The game is waiting for a tunnel interview.
+Maç var.	There is a match.
+Oyun meşgul (işliyor ya da kaydediyor).	The game is busy (processing or saving).
+ (ev sahibiyiz)	 (we are at home)
+ (deplasmandayız)	 (we are away)
+  (izlediğimiz maç, A takımın değil)	  (a match we are watching, not the first team's)
+dönem kapalı	window closed
+dönem açık, {0} gün kaldı	window open, {0} days left
+dönem açık	window open
+tarafsız saha	neutral ground
+bugün	today
+yarın	tomorrow
+{0} gün sonra	in {0} days
+Antrenörler	Coaches
+ — boş: {0}	 — vacant: {0}
+çim	grass
+sentetik	synthetic
+Hücum taktik	Attacking tactical
+Hücum teknik	Attacking technical
+HÜC-TAK	ATT-TAC
+HÜC-TEK	ATT-TEC
+SAV-TAK	DEF-TAC
+SAV-TEK	DEF-TEC
+TOP-TAK	POS-TAC
+TOP-TEK	POS-TEC
+KALECİ	GK
+KOND	FIT
+DURAN	SPC
+'{0}' birden çok komuta uyuyor: {1}	'{0}' matches more than one command: {1}
+kullanım: completion zsh | completion bash	usage: completion zsh | completion bash
+KALECİLİK	GOALKEEPING
+TEKNİK	TECHNICAL
+ZİHİNSEL	MENTAL
+FİZİKSEL	PHYSICAL
+Yaş	Age
+Mevki	Position
+Değer	Value
+Maaş	Wage
+Sözleşme	Contract
+Kişilik	Personality
+Sağ ayak	Right foot
+Sol ayak	Left foot
+Bazı --term'ler bu aşamada yok; kartta elle değiştir.	Some --terms are not at this step; change them on the card by hand.
+Şartlara geçilemedi; menajer başka bir şey bekliyor olabilir (talk ile bak).	Could not go on to the terms; the agent may be waiting for something else (look with talk).
+Görüşmede iptal butonu yok.	There is no cancel button in the negotiation.
+İptal denildi ama görüşme ekranı hâlâ açık (talk ile bak).	Told to cancel, but the negotiation screen is still open (look with talk).
+Ücret	Wage
+Vergi sonrası	After tax
+Kadro statüsü	Squad status
+Tür	Type
+Sadakat primi	Loyalty bonus
+Maç başı ücret	Appearance fee
+Gol primi	Goal bonus
+Asist primi	Assist bonus
+Gol yememe primi	Clean sheet bonus
+Oynamayan yedek ücreti	Unused substitute fee
+Milli maç primi	International cap bonus
+Serbest kalma bedeli	Release clause
+Serbest kalma bedeli (yurt içi)	Release clause (domestic)
+Serbest kalma bedeli (yurt dışı)	Release clause (foreign)
+Serbest kalma bedeli (Avrupa'da oynayan kulüp)	Release clause (club in continental competition)
+Serbest kalma bedeli (küme düşersek)	Release clause (if we are relegated)
+Sonraki satıştan pay	Sell-on fee
+Sonraki satış kârından pay	Sell-on fee from profit
+Yükselirsek zam	Rise on promotion
+Düşersek indirim	Cut on relegation
+En yüksek ücretliye eşitleme	Match highest earner
+Sakatlıkta fesih	Release on injury
+Gelecek sezon ücreti	Next season's wage
+{0} yıl {1} ay	{0} yrs {1} mths
+Lig	League
+{0}. → {1}. sıra · {2} → {3} puan	position {0} → {1} · {2} → {3} points
+ ({0} maçta {1})	 ({1} in {0} matches)
+Transfer bütçesi	Transfer budget
+Sakatlanan	Injured
+, {0} gün	, {0} days
+İyileşen	Recovered
+Kiralık	Loan
+{0} {1}'dan döndü	{0} returned from {1}
+, {0} gün daha	, {0} more days
+kimse yok	nobody
+yalnızca {0}	only {0}
+Durum	Status
+Lig tablosu	League table
+Fikstür	Fixtures
+Sağlık	Medical
+Sözleşmeler	Contracts
+Finans	Finances
+Diğer ortaklar	Other partners
+ · bitiş {0} ({1})	 · ends {0} ({1})
+geçen ay	last month
+geçen sezon	last season
+  (önerilen)	  (recommended)
+Topla oynarken diziliş	Formation in possession
+Topsuz diziliş	Formation out of possession
+{0} gün daha	{0} more days
+gün	days
+hafta	weeks
+başvurulacak	application
+ilgi bildirilecek	declaration of interest
+Dünya çapında	Worldwide
+Kıtasal	Continental
+Ulusal	National
+Bölgesel	Regional
+Yerel	Local
+Zengin	Rich
+Sağlam	Secure
+İdare eder	Okay
+Kırılgan	Insecure
+Çok riskli	Precarious
+uygulandı	applied
+kaldırıldı	dismissed
+Takım talimatı: {0}	Team instruction: {0}
+Rakip talimatı ({0}): {1}	Opposition instruction ({0}): {1}
+Oyuncu talimatı ({0}): {1}	Player instruction ({0}): {1}
+Maç sonu: {0}	Full time: {0}
+Maç başladı	Kick-off
+Devre arası: {0}{1}	Half time: {0}{1}
+İkinci yarı başladı	Second half under way
+Maç sonu: {0}{1}	Full time: {0}{1}
+GOL İPTAL	GOAL DISALLOWED
+ (kırmızı)	 (red)
+SAKAT	INJURED
+kırmızı kart	red card
+sarı kart	yellow card
+Şut	Shots
+İsabetli şut	Shots on target
+SKOR (EV-DEP)	SCORE (H-A)
+YEDİĞİ	CONCEDED
+[dim]oynamadı[/]	[dim]did not play[/]
+oynamadı	did not play
+girdi	on
+çıktı	off
+az önce	just now
+{0} gün önce	{0} days ago
+{0} saat önce	{0} hours ago
+{0} dk önce	{0} min ago
+'{0}' ekranda görünmedi	'{0}' did not appear on screen
+tutar ekranda değişmedi	the amount did not change on screen
+'{0}' bu şartta yok; seçenekler: {1}	'{0}' is not in this term; options: {1}
+'{0}' kaldırılmadı	'{0}' was not removed
+Pazarlığa açık	Negotiable
+{0} kazanılırsa prim	Bonus if {0} is won
+{0}'e katılım primi	Bonus for taking part in {0}
+Gösterilen	Shown
+Bütçeden çıkacak: {0}	From the budget: {0}
+Kiralık şartları	Loan terms
+Temel şartlar	Basic terms
+Kalıcı olursa toplam	Total if made permanent
+Olası toplam	Possible total
+şu an {0}	now {0}
+, {0}'e kadar	, until {0}
+Satış	Sale
+Bedelsiz	Free transfer
+Takas	Swap
+Diziliş	Formation
+Gol kralı	Top scorer
+Asist kralı	Top assists
+En yüksek ortalama	Highest average rating
+maç başı gol	goals per game
+penaltısız xG/90	non-penalty xG/90
+maç başı yenen	conceded per game
+maç başı xGA	xGA per game
+maç başı şut	shots per game
+isabet %	shots on target %
+top kapma %	tackles won %
+İki gol atan da atabilir	A player who has scored twice may take one
+Bir penaltı atan bir sonrakini bırakır	A player who has taken a penalty leaves the next one
+Penaltı kaçıran bir sonrakini bırakır	A player who has missed a penalty leaves the next one
+ (öneri)	 (suggested)
+  Mesajdaki soruya cevap:	  Answer to the question in the message:
+  Mesajın kendisine cevap (soru cevapsız kalırsa ardından talk ile sorulur):	  Answer to the message itself (if the question is left unanswered, it is asked next with talk):
+Yönetim	Board
+Taraftar	Supporters
+Güçlü yanları	Strengths
+Zayıf yanları	Weaknesses
+Pzt	Mon
+Çar	Wed
+Cmt	Sat
+Paz	Sun
+dinlenme	rest
+yolculuk	travel
+MAÇ (iç saha)	MATCH (home)
+MAÇ (deplasman)	MATCH (away)
+MAÇ (tarafsız)	MATCH (neutral)
+Gol beklentisi	Expected goals
+Korner	Corners
+Topla oynama	Possession
+Faul	Fouls
+vergi sonrası {0}	{0} after tax
+maaş bütçesindeki payı %{0}	{0}% of the wage budget
+maaş	wage
+{0} boş yer	{0} places free
+error: {0}, ama sayfa beklenen içeriği göstermedi	error: {0}, but the page did not show what was expected
+error: oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next	error: the game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next
+yaş	age
+ülke	nation
+sözleşme	contract
+statü	status
+maç	apps
+bitti	expired
+{0} yıl	{0} yrs
+{0} yaş	aged {0}
+ · kaçırdığı maç: {0}	 · matches missed: {0}
+ (sürüyor)	 (ongoing)
+En küçük yaş	Youngest age
+En büyük yaş	Oldest age
+Sözleşme durumu	Contract status
+Kiralık durumu	Loan status
+ (şampiyon)	 (champions)
+ (play-off kesin)	 (play-offs certain)
+ (yükseldi)	 (promoted)
+ (düştü)	 (relegated)
+ülkede yetişmiş (HGN+HGC)	trained in nation (HGN+HGC)
+kulüpte yetişmiş (HGC)	trained at club (HGC)
+değişiklik	replacements
+kulüpte	at club
+ülkede	in nation
+ayrılmak istiyor	wants to leave
+eşleşenler	matching
+yakın eşleşenler	near matches
+{0} gözlemci	{0} scouts
+{0} analist	{0} analysts
+kullanım: setpieces <tür>   ·   setpieces <tür> vurus <in|out> | hedef <seçenek> | <yer> <görev> [<olmazsa>]\n          setpieces new [<no> …]   (düzen hiç kurulmamışsa)\ntürler: korner, frikik (şut mesafesi), kanat, derin (serbest vuruşlar), tac (hücum bölgesi)	usage: setpieces <kind>   ·   setpieces <kind> delivery <in|out> | aim <option> | <place> <duty> [<otherwise>]\n          setpieces new [<no> …]   (if set pieces have never been set up)\nkinds: corner, freekick (shooting range), wide, deep (free kicks), throw (attacking third)
+Kapalı	Off
+Açık	On
+Oyunun FM menüsü bulunamadı.	The game's FM menu was not found.
+Sıradaki tur {0}: kura {1}	Next round {0}: draw {1}
+error: Stages sayfasının listeleri bulunamadı	error: the lists of the Stages page were not found
+Serbest vuruş · şut mesafesi	Free kick · shooting range
+Serbest vuruş · kanat	Free kick · wide
+Serbest vuruş · derin	Free kick · deep
+Taç · hücum bölgesi	Throw-in · attacking third
+kullanım: takers [<tür>]   ·   takers <tür> <sağ|sol> move <oyuncu|sıra> <yeni sıra> | add <oyuncu> [<sıra>] | remove <oyuncu|sıra>\ntürler: korner, frikik (şut mesafesi), kanat, derin (serbest vuruşlar), tac (hücum bölgesi)	usage: takers [<kind>]   ·   takers <kind> <right|left> move <player|place> <new place> | add <player> [<place>] | remove <player|place>\nkinds: corner, freekick (shooting range), wide, deep (free kicks), throw (attacking third)
+Son üçte bir	Final third
+İlerleme	Progression
+   (maçta: ilk ölü topta uygulanır; takımın kayıtlı taktiği değişmez)	   (in a match: applied at the first dead ball; the team's saved tactic does not change)
+Bu şart değiştirilemiyor.	This term cannot be changed.
+'{0}' bir tutar değil.	'{0}' is not an amount.
++ Ek ödeme ekle	+ Add an extra payment
+Hangi ödeme?	Which payment?
+Bu menü boş.	This menu is empty.
+biçim: "Şart=değer", ör. "Percentage Of Next Sale=20%"	format: "Term=value", e.g. "Percentage Of Next Sale=20%"
+ekran açık değil	the screen is not open
+seçenekler: {0}	options: {0}
+'{0}' hiçbir ekleme listesinde yok	'{0}' is in none of the lists to add from
+böyle bir şart yok. Eklenebilenler: {0}	there is no such term. Those that can be added: {0}
+oyun '{0}' maddesini bu teklifte vermiyor (listede kapalı)	the game does not give the '{0}' clause in this offer (closed in the list)
+eklendi ama ekranda bulunamadı	added, but not found on screen
+{0} kaldırılamıyor	{0} cannot be removed
+'{0}' yok; seçenekler: {1}	no '{0}'; options: {1}
+'{0}' bir tutar değil	'{0}' is not an amount
+{0} {1} haftası	week of {0} {1}
+kiralık teklif	loan offer
+transfer teklifi	transfer offer
+ [dim]← şu an[/]	 [dim]← now[/]
+Korner	Corner
+Memnun oldukları	Pleased with
+Endişeleri	Concerns
+Transfer {0,-14} · Maaş {1}	Transfers {0,-14} · Wages {1}
+Altyapı {0}: {1} ({2}) {3}	Youth {0}: {1} ({2}) {3}
+ yaş	 years old
+Rol	Role
+Kondisyon	Condition
+{0} maç	{0} apps
+[dim]Yetenek[/] [{0}]{1}[/][dim]/200, son dört ay[/]	[dim]Ability[/] [{0}]{1}[/][dim]/200, last four months[/]
+[dim]Potansiyel[/] [yellow]{0}[/][dim]/200, kulübün gözünden[/]	[dim]Potential[/] [yellow]{0}[/][dim]/200, as the club sees it[/]
+[red]Sakatlık:[/] {0}	[red]Injury:[/] {0}
+[dim]Alışkanlıklar:[/] {0}	[dim]Traits:[/] {0}
+Sezon	Season
+Takım	Team
+Geliş	Joined
+Maç	Apps
+Gol yemedi	Clean sheets
+Toplam {0} maç · {1} {2}{3}{4}	Total {0} apps · {1} {2}{3}{4}
+[dim]Sıradaki maç:[/] {0}	[dim]Next match:[/] {0}
+{0} · yönetime etkisi {1}	{0} · influence on the board {1}
+Geçen ay gelir	Income last month
+Geçen ay gider	Expenditure last month
+Haftalık maaş	Weekly wages
+Kulüp	Club
+İtibar	Reputation
+Altyapı tesisi	Youth facilities
+Yönetime etkisi	Influence on the board
+Sosyal medya takipçisi	Social media followers
+Ezeli rakip	Fierce rival
+{0} · diğer rakip {1}	{0} · other rivals {1}
+Şehir	City
+Yapım yılı	Built
+Zemin ısıtma	Undersoil heating
+Çatı	Roof
+Saha ölçüsü	Pitch size
+En büyük ölçü	Largest size
+Altyapı	Youth
+Akademi antrenmanı	Youth coaching
+Genç oyuncu bulma	Youth recruitment
+Altyapı stadı	Youth stadium
+Vaatleri onayla, şartlara geç	Confirm the promises, go on to the terms
+Vaatleri menajere öner	Put the promises to the agent
+Öneri gönderilemedi.	The proposal could not be sent.
+Vaatler gönderilemiyor: kırmızı satırları düzelt	The promises cannot be sent: fix the red rows
+Bu şartlarla imzala	Sign on these terms
+Şartları menajere öner	Put the terms to the agent
+Öneri gönderilemiyor: kırmızı satırları düzelt	The proposal cannot be sent: fix the red rows
+Sıfırla (menajerin istediklerine dön)	Reset (back to what the agent asked for)
+Sıfırlanamadı.	Could not reset.
+Görüşmeyi iptal et	Cancel the negotiation
+Görüşme kapandı.	The negotiation closed.
+Görüşme kapandı: sözleşme ya imzalandı ya da kararı birkaç gün içinde gelen kutusuna düşer (contracts).	The negotiation closed: the contract was either signed, or the decision will come to the inbox in a few days (contracts).
+Teklif karşı tarafta; kararı birkaç gün içinde gelen kutusuna düşer.	The offer is with the other side; the decision will come to the inbox in a few days.
+Sözleşme imzalandı; görüşme kapandı.	Contract signed; the negotiation is closed.
+{0}: çıkarıldı	{0}: removed
+Menajerin istediği: {0}	The agent wants: {0}
+Menajer bu şartları kabul ediyor.	The agent accepts these terms.
+Menajer bu vaatleri kabul ediyor. Onaylayıp şartlara geçmek için: contract --next	The agent accepts these promises. To confirm them and go on to the terms: contract --next
+Bunları kabul edip şartlara geçmek için: contract --next · pazarlığa devam: --term	To accept these and go on to the terms: contract --next · to keep bargaining: --term
+Menajer bu şartları kabul ediyor. İmzalamak için: contract --sign --yes	The agent accepts these terms. To sign: contract --sign --yes
+Bunları kabul edip imzalamak için: contract --sign --yes · pazarlığa devam: --wage / --term	To accept these and sign: contract --sign --yes · to keep bargaining: --wage / --term
+Sırada: {0}	Next: {0}
+Oyuncu	Player
+Bitiş	Expires
+Kalan	Left
+Yorgun (kondisyon %85 altı): {0}	Tired (condition under 85%): {0}
+intensity <oyuncu> "dinlen 1"	intensity <player> "rest 1"
+Maç formu düşük (%60 altı): {0}	Low match sharpness (under 60%): {0}
+Sözleşmesi bir yıl içinde bitiyor: {0}	Contract ends within a year: {0}
+contract <oyuncu>	contract <player>
+İnce mevkiler (sağlam oyuncu bir ya da hiç)	Thin positions (one fit player or none)
+Yönetimin endişeleri: {0}	The board's concerns: {0}
+Borç	Debt
+{0} kaldı (başta {1})	{0} left (at the start {1})
+Maaş bordrosu	Payroll
+Haftalık toplam	Weekly total
+Maç bileti	Match ticket
+Yönetimin projeksiyonu	The board's projection
+Bağırış	Shout
+Yorgun (kondisyon %85 altı)	Tired (condition under 85%)
+Maç formu düşük (%60 altı)	Low match sharpness (under 60%)
+Sakatlık riski en yüksek (oyunun puanı {0})	Highest injury risk (the game's rating {0})
+[dim]GÖNDEREN[/]	[dim]FROM[/]
+Takımlar	Teams
+İstatistik	Stat
+Çıkan	Off
+[dim]Penaltılarla kazanan:[/] {0}	[dim]Won on penalties:[/] {0}
+[dim]Maçın oyuncusu:[/] {0}	[dim]Player of the match:[/] {0}
+ [bold]MAÇ RAPORU[/] 	 [bold]MATCH REPORT[/]
+GİRDİ/ÇIKTI	ON/OFF
+[dim]Bütçeden çıkacak[/]	[dim]From the budget[/]
+maaş bütçesine etkisi {0}	effect on the wage budget {0}
+[dim]Gösterilen[/]	[dim]Shown[/]
+[dim]Bütçe[/]	[dim]Budget[/]
+[dim]Mevcut sözleşme[/]	[dim]Current contract[/]
+Penaltıcı	Penalty taker
+penaltıcılar	penalty takers
+Penaltıcılara	the penalty takers
+{0}. sıra (şimdi {1})	place {0} (now {1})
+Listede ne kadar kalsın	How long should they stay on the list
+Deneme kaç hafta sürsün	How many weeks should the trial last
+--for "2 hafta"	--for "2 weeks"
+Nasıl bir ilgi	What kind of interest
+{0} sarı	{0} yellow
+{0} kırmızı	{0} red
+'First Team' sayfası açılamadı.	The 'First Team' page could not be opened.
+İşsizsin: yönetecek bir kadro yok. İş ilanları: jobs	You are unemployed: there is no squad to manage. Job vacancies: jobs
+Kadro tablosunda '{0}' görünümü bulunamadı.	The '{0}' view was not found in the squad table.
+'{0}' görünümü seçildi ama '{1}' verisi gelmedi.	The '{0}' view was chosen, but the '{1}' data did not come.
+Statü kazananlar	Gaining status
+Yaklaşan değişiklikler (statü · tarih)	Coming changes (status · date)
+{0} gelişen	{0} improving
+öne çıkanlar: {0}	highlights: {0}
+{0} {1} (aşılmış)	{0} {1} (over)
+{0} {1} kişi, {2}	{0} {1} people, {2}
+okunmadı	unread
+Değer 	Value
+Maaş 	Wage
+Sözleşme 	Contract
+Kondisyon 	Condition
+Kişilik 	Personality
+Sağ ayak 	Right foot
+Sol ayak 	Left foot
+Mevkiler (20 doğal, 15+ usta, 10+ yeterli): {0}	Positions (20 natural, 15+ accomplished, 10+ competent): {0}
+Sakatlık geçmişi: yok	Injury history: none
+Sakatlık geçmişi: {0} sakatlık · bu sezon {1}, geçen sezon {2}	Injury history: {0} injuries · this season {1}, last season {2}
+  {0,-9}  {1}, {2} gün{3}	  {0,-9}  {1}, {2} days{3}
+  … ve {0} eski sakatlık daha	  … and {0} more past injuries
+Görünüm	View
+Süzgeç	Filter
+İç saha	Home
+Deplasman	Away
+Tarafsız	Neutral
+Listeyi gönder	Send the list
+Yardımcı seçsin	Let the assistant choose
+Kayıt gerekmez: {0} tarihinde {1} yaş ve altı olanlar	No registration needed: those aged {1} and under on {0}
+Kayıt gerekmez: kaleciler	No registration needed: goalkeepers
+Listede {0} boş yer var	There are {0} free places in the list
+Bir alt sınır tutmuyorsa listede onun için yer bırakılmalı	If a minimum is not met, a place must be left for it in the list
+[dim]YAŞ[/]	[dim]AGE[/]
+[dim]MEVKİ[/]	[dim]POSITION[/]
+[dim]YETİŞME[/]	[dim]TRAINED[/]
+[green]kulüpte[/]	[green]at club[/]
+[aqua]ülkede[/]	[aqua]in nation[/]
+[yellow]ayrılmak istiyor[/]	[yellow]wants to leave[/]
+[dim]{0} · değiştirilemez[/]	[dim]{0} · cannot be changed[/]
+devredildi	delegated
+[bold]Antrenman programı[/]	[bold]Training schedule[/]
+Gün	Day
+[dim]▶ bugün · soluk: geçmiş günler ve dinlenme[/]	[dim]▶ today · faded: past days and rest[/]
+Bölge	Area
+{0}–{1} yaş	aged {0}–{1}
+{0} görevi	{0} duty
+ayar	setting
+değer	value
+[dim]KONDİSYON[/]	[dim]CONDITION[/]
+[dim]MAÇ FORMU[/]	[dim]MATCH SHARPNESS[/]
+Görev	Job
+Çalışma durumu	Working status
+KİŞİ	PERSON
+error: {0}: '{1}' seçildi ama panel tutmadı	error: {0}: '{1}' was chosen, but the panel did not keep it
+error: {0} koşulu panele eklenmedi	error: the {0} condition was not added to the panel
+error: {0} için değer {1} yapılamadı (panelde {2})	error: the value for {0} could not be set to {1} (the panel has {2})
+error: mevki koşulu panele eklenmedi	error: the position condition was not added to the panel
+error: mevki '{0}' seçildi ama panel tutmadı	error: position '{0}' was chosen, but the panel did not keep it
+error: değer koşulu panele eklenmedi	error: the value condition was not added to the panel
+error: değer listesinde {0} yok	error: {0} is not in the value list
+Atıcı	Taker
+atıcılar	takers
+Atıcılara	the takers
+Seçimi değiştir ({0})	Change the choice ({0})
+Tutarı değiştir ({0})	Change the amount ({0})
+Pazarlık durumu ({0})	Negotiation status ({0})
+{0} tutarı (ör. 7.5M, 250K, 12000; boş: vazgeç)	{0} amount (e.g. 7.5M, 250K, 12000; empty: cancel)
+Özellikler: {0}	Attributes: {0}
+{0}: önerilen alışkanlığın eğitimi başladı.	{0}: training on the suggested trait has begun.
+{0}: alışkanlık eğitimi iptal edildi.	{0}: trait training cancelled.
+Alışkanlık	Trait
+{0}: "{1}" bırakılmaya çalışılacak.	{0}: will try to drop "{1}".
+{0}: "{1}" eğitimi başladı.	{0}: training on "{1}" has begun.
+Teklifi gönder	Send the offer
+[dim](aşağıda daha fazlası)[/]	[dim](more below)[/]
+Vizyon onaylandı. Toplantıyı bitirmek için: vision end	Vision confirmed. To finish the meeting: vision end
+Değişiklik yönetime önerildi; cevabı için: vision	The change was put to the board; for its answer: vision
+Son değişiklik geri alındı.	The last change was undone.
+Hedefler toplantının başındaki haline döndü.	The objectives are back as they were at the start of the meeting.
+Toplantı bitti.	The meeting is over.
+Ocak	January
+Şubat	February
+Mart	March
+Nisan	April
+Mayıs	May
+Haziran	June
+Temmuz	July
+Ağustos	August
+Eylül	September
+Ekim	October
+Kasım	November
+Aralık	December
+Sal	Tue
+Per	Thu
+Cum	Fri
+yolunda	On Course
+memnun	Satisfied
+henüz yargılamıyor	Reserving Judgement
+değerlendirmiyor	Not Judging
+memnun değil	Unsatisfied
+başarısız	Failed
+çok memnun	Very Satisfied
+hayal kırıklığı	Disappointed
+yüksek	High
+orta	Medium
+düşük	Low
+iyi	Good
+çok iyi	Great
+mükemmel	Excellent
+zayıf	Poor
+kıtasal	Continental
+ulusal	National
+dünya çapında	World Class
+bölgesel	Regional
+hoşnut	Pleased
+endişeli	Concerned
+öfkeli	Angry
+çok mutlu	Delighted
+oyun tarzı	Playing style
+itibar	Reputation
+rekabet	Rivalry
+turnuva	Competition
+altyapı	Youth
+finans	Finance
+çekirdek	Core
+iyi gün dostu	Fair Weather
+ara sıra gelen	Casual
+fanatik	Hardcore
+kurumsal	Corporate
+yeterli	Adequate
+temel	Basic
+harika	Superb
+son teknoloji	State Of The Art
+idare eder	Fair
+var	Yes
+kulüp	Club
+Yıldız	Star Player
+Önemli	Important Player
+Düzenli ilk 11	Regular Starter
+Rotasyon	Squad Player
+Etkili yedek	Impact Sub
+Kenarda	Fringe Player
+Acil durum yedeği	Emergency Backup
+Genç	Youngster
+İhtiyaç yok	Not Needed
+Yedek	Backup
+Çıkış yapan genç	Breakthrough Prospect
+Geleceğin oyuncusu	Future Prospect
+Otomatik	Automatic
+Yarım	Half Intensity
+Çift	Double Intensity
+Dinleniyor	No pitch or gym work
+Tatilde	Send On Holiday
+Kadro kontrolü	Tactics
+Penaltılar	Penalties
+Ek ödemeler	Additional Fees
+Ek maddeler	Additional Clauses
+Takas oyuncuları	Players To Exchange
+Bonservis	Fee
+Transfer tarihi	Transfer Date
+Pazarlık	Negotiable
+Cevap süresi	Deadline
+Lig maçı sonrası	After League Appearances
+Lig maçı başına	Per League Appearance
+Milli maç sonrası	After International Appearances
+Lig golü sonrası	Minimum League Goals
+Taksit (6 ayda bir)	Instalments (6 monthly)
+Taksit (12 ayda bir)	Instalments (12 monthly)
+Önce oyuncu satması	Sell Player First
+Geri alım bedeli	Buy Back Price
+Satan kulübün maaş katkısı	Selling Team Wage Contribution
+Hazırlık maçı	Arrange Friendly
+Geri kiralama süresi	Loan Back Length
+Geri kiralamadan çağrılabilir	Can Be Recalled From Loan Back
+Yarı pazarlıklı	Semi-Negotiable
+Pazarlıksız	Non-Negotiable
+Çıkar ve yasakla	Remove & Exclude
+Kiralık seçenekleri	Loan Options
+Kiralık maddeleri	Loan Clauses
+Satın alma bedelleri	Loan-to-buy Fees
+Satın almada ek ödemeler	Future Additional Fees
+Satın almada ek maddeler	Future Additional Clauses
+Aylık ücret (oynarsa)	Playing Monthly Fee
+Aylık ücret (oynamazsa)	Unused Monthly Fee
+Maaş katkısı (oynarsa)	Playing Wage Percentage
+Maaş katkısı (oynamazsa)	Unused Wage Percentage
+Süre	Duration
+Söz verilen forma süresi	Agreed Playing Time
+Tercih edilen mevki	Preferred Position
+Tercih edilen rol	Preferred Role
+Kupa maçlarında oynayabilir	Can play in cup matches
+Kendi kulübüne karşı oynayabilir	Can play against own team
+Geri çağrılabilir	Can be recalled
+Kiralık feshedilemez	Loan cannot be terminated
+Kulübün B takımına karşı oynayabilir	Can play against parent club's B team
+Kendi kulübünde de oynayabilir	Can play for parent club
+Kulübün yedeklerinde oynayabilir	Can play for parent club reserves
+Kupada kendi kulübünde oynayabilir	Can play for parent club in cup matches
+İkinci sezon daha çok forma	Increased playing time second season
+Satın alma opsiyonu	Loan To Buy Fee
+Opsiyonlu satın alma bedeli	Optional Future Fee
+Zorunlu satın alma bedeli	Mandatory Future Fee
+Maç sayısına bağlı satın alma	Future Fee After Matches Played
+Başarıya bağlı satın alma	Future Fee After Competition Achievement
+Vaatler	Promises
+Şartlar	Terms
+Ek vaatler	Additional Promises
+Primler ve maddeler	Bonuses & Clauses
+Tüm teklif	Entire offer
+Başlangıç	Contract Start Date
+Menajer ücreti	Agent Fee
+İmza parası	Signing On Fee
+Sözleşme türü	Contract Type
+Lig atlarsa zam	Promotion Wage Rise
+Yıllık zam	Yearly Wage Rise
+Küme düşerse maaş indirimi	Top Division Relegation Wage Drop
+Lig maçı sayısıyla 1 yıl uzatma (son sezon)	One-Year Extension After League Games (Final Season)
+Lig maçı sayısıyla 1 yıl uzatma (kümede kalınırsa)	One-Year Extension After League Games (Avoid Relegation Final Season)
+Kulüp opsiyonu	Optional Contract Extension By Club
+Serbest kalma bedeli (yabancı kulüpler)	Minimum Fee Release Clause (Foreign Clubs)
+Serbest kalma bedeli (yerli kulüpler)	Minimum Fee Release Clause (Domestic Clubs)
+Küme düşerse serbest kalma	Relegation Release Clause
+Satıştan oyuncuya pay	Sell On Fee Percentage
+En yüksek maaşa eşitleme	Match Highest Earner Clause
+Uzun sakatlıkta fesih	Injury Release Clause
+Turnuva başarısı primi	Bonus After Competition Achievement
+Oyuncu ödülü primi	Bonus After Player Award Achievement
+Turnuva primleri	Competition Bonuses
+Ödül primleri	Award Bonuses
+Kadrodan bir oyuncu	Other Player From Squad
+A takım	Senior Squad
+U19 takımı	U19 Squad
+izin verilen oranın üstünde	Above max allowed %
+sözleşme bunun için fazla kısa	Contract too short
+maç başı ücreti aşamaz	Not allowed to exceed appearance bonus
+madde ücreti artırmıyor	Clause offers no wage increase
+Milli maç sayısına ulaşınca ücret	Wage After Reaching International Appearances
+Lig maçı sayısına ulaşınca ücret	Wage After Reaching Club League Games
+Kulübün uzun vadeli hedefi	The long-term aims for the club are:
+Bu sezon ligdeki hedef	The aims for the league this season are:
+Bu sezon kupalardaki hedef	The aims for cup competitions this season are:
+Kadroda şu bölge güçlendirilecek	Will look to strengthen the following area of the first team squad:
+Kaptan yapılacak	Will appoint player as captain
+Kaptan yardımcısı yapılacak	Will appoint player as vice-captain
+Serbest vuruşları o kullanacak	Will assign player as free kick taker
+Penaltıları o kullanacak	Will assign player as penalty taker
+Kulübü basamak olarak görebilecek	Will allow the player to treat the club as a stepping stone
+Antrenman tesisleri iyileştirilecek	Will improve training facilities
+A takım çalıştırıcıları güçlendirilecek	Will improve first team coaching staff
+Sevdiği mevki ve rolde oynayacak	Will play player in preferred position and role
+Uyumu için uygun bir transfer yapılacak	Will look to bring in a suitable signing to help player settle
+Tam maç	Full Match
+Kapsamlı	Comprehensive
+Geniş	Extended
+Önemli anlar	Key
+Yalnızca anlatım	Only Commentary
+Her gün	Day
+Her hafta	Week
+İki haftada bir	Fortnight
+Üç ayda bir	Three Months
+Yılda bir	Year
+Beş yılda bir	Five Years
+Maçlardan sonra	After Matches
+Gerçek 30 dakikada bir	30 Minutes (Real Time)
+Gerçek 60 dakikada bir	60 Minutes (Real Time)
+Tek dosya	Single File
+Her seferinde yeni dosya	Incremental Auto Save
+3 dosya, sırayla	3 File Rolling Auto Save
+5 dosya, sırayla	5 File Rolling Auto Save
+10 dosya, sırayla	10 File Rolling Auto Save
+Haftalık	Weekly
+Aylık	Monthly
+Yıllık	Yearly
+Santigrat	Celsius
+Fahrenhayt	Fahrenheit
+Santimetre	Centimetres
+Metre	Metres
+Yarda	Yards
+Kilometre	Kilometres
+Defender (Centre)	DC
+Defensive Midfielder	DM
+Midfielder (Right)	MR
+Midfielder (Left)	ML
+Midfielder (Centre)	MC
+Attacking Midfielder (Right)	AMR
+Attacking Midfielder (Left)	AML
+Attacking Midfielder (Centre)	AMC
+Striker (Centre)	ST
+sağ ayaklılar	Right Footers
+sol ayaklılar	Left Footers
+sağ taraf	Right Side
+ORTA	CRO
+KORNER	COR
+FRİKİK	FRE
+UZAK ŞUT	LONG SH.
+UZUN TAÇ	L TH
+Kadro gönderiliyor	Submitting the team
+Takım konuşması	Team talk
+Sahaya çıkış	Walking out
+Isınma	Warm-up
+İkinci yarı öncesi	Before the second half
+Uzatmalar	Extra time
+Maç sonu konuşması	Full-time team talk
+Maç sonu tepkileri	Post-match reactions
+Maçtan çıkış	Leaving the match
+İSTENEN	ASKING PRICE
+TRANSFER DURUMU	TRANSFER STATUS
+GELECEK STATÜ	FUTURE STATUS
+GERÇEK SÜRE	ACTUAL TIME
+SÜRE MEMNUNİYETİ	PLAYING TIME HAPPINESS
+SÖZLEŞME	CONTRACT
+KAÇIRACAĞI SÜRE	TIME OUT
+SAKATLIK DERECESİ	SEVERITY
+SAKATLIK	INJURY
+ANTRENMAN NOTU	TRAINING RATING
+SCOUT MASRAFI	SCOUTING COST
+MAAŞ (EN AZ)	WAGE (MIN)
+MAAŞ (EN ÇOK)	WAGE (MAX)
+Vizyon	Vision
+Taraftarlar	Supporters
+uzt.	e.t.
+Ayak	Foot
+Milli	International
+Lig kariyeri	League career
+[bold]{0}[/] — kariyer	[bold]{0}[/] — career
+Asist	Assists
+Bloke: {0} mesaj cevap bekliyor.	Blocked: {0} messages await an answer.
+Menajer tatilde.	The manager is on holiday.
+Oyun ilerlemiyor: {0}	The game does not move on: {0}
+Bekleyen talep	Pending requests
+Hedefler	Objectives
+bu sezon	this season
+Stadyum	Stadium
+Antrenman tesisi	Training facilities
+Ticari	Commercial
+Ekip	Staff
+Ortalama seyirci	Average attendance
+Kombine sahibi	Season ticket holders
+{0} (bekleme listesi {1})	{0} (waiting list {1})
+Beklentiler	Expectations
+Taraftar profili	Supporter profile
+{0} (seviye {1})	{0} (level {1})
+seviye {0}	level {0}
+Stadyum — {0}	Stadium — {0}
+Kapasite	Capacity
+Yenilenme	Renovated
+Sahibi	Owner
+Kira	Rent
+Zemin	Pitch
+Tesis	Facility
+Seviye	Level
+Tesisler	Facilities
+Akademi seviyesi	Academy level
+Kurumsal tesisler	Corporate facilities
+Savunma taktik	Defending tactical
+Savunma teknik	Defending technical
+Topla taktik	Possession tactical
+Topla teknik	Possession technical
+Kaleci	Goalkeeping
+Duran top	Set pieces
+ANTRENÖR	COACH
+iş yükü	workload
+baş antrenör	lead coach
+Sezon gol hedefi primi	Season goals target bonus
+Sezon asist hedefi primi	Season assists target bonus
+Sezon gol + asist hedefi primi	Season goals + assists target bonus
+tek	one
+Gelen	In
+Giden	Out
+Sakat: {0}	Injured: {0}
+Bakiye	Balance
+Bu ay gelir	Income this month
+Bu ay gider	Expenditure this month
+{0} bakiyesi	balance on {0}
+Finansal fair play	Financial fair play
+uyumlu	compliant
+Bilet	Tickets
+Kombine	Season ticket
+{0} · {1:N0} kombine sahibi	{0} · {1:N0} season ticket holders
+Sponsorluk	Sponsorship
+Toplam gelir	Total income
+{0} ({1} kaynak)	{0} ({1} sources)
+{0} sezonluk{1}	{0} a season{1}
+bakiye {0} · ciro {1}	balance {0} · turnover {1}
+Gelir	Income
+Gider	Expenditure
+ (ciro {0})	 (turnover {0})
+Mentalite	Mentality
+Stil	Style
+Sakat	Injured
+[dim]SAAT[/]	[dim]TIME[/]
+[dim]KONU[/]	[dim]SUBJECT[/]
+[red bold]cevap bekliyor[/]	[red bold]awaiting an answer[/]
+[yellow]cevaplanabilir[/]	[yellow]can be answered[/]
+Topsuz rol	Out-of-possession role
+Odak	Focus
+Turnuva	Competition
+Oyuncular	Players
+Skor {0} {1} {2}{3}	Score {0} {1} {2}{3}
+ [bold]SAHADA[/] 	 [bold]ON THE PITCH[/]
+Giren	On
+rakip: {0}	opponent: {0}
+Tamam	OK
+Pencere	Window
+ · {0} seyirci	 · {0} attendance
+[dim]Goller:[/] {0}	[dim]Goals:[/] {0}
+(kendi kalesine) 	(own goal)
+Grup	Group
+evet	yes
+'{0}' eklenmedi	'{0}' was not added
+{0}: {1} primi	{0}: {1} bonus
+[dim]Teklif[/]	[dim]Offer[/]
+kalan {0}	{0} left
+  [red]kurala uymuyor[/]	  [red]breaks a rule[/]
+Menajer	Agent
+Sıkı markaj	Tight marking
+SIKI MARKAJ	TIGHT MARKING
+Pres	Pressing
+PRES	PRESSING
+Sert giriş	Tackling
+SERT GİRİŞ	TACKLING
+Ayağa yönlendir	Show onto foot
+AYAĞA YÖNLENDİR	SHOW ONTO FOOT
+[dim]OYUNCU[/]	[dim]PLAYER[/]
+yedek	sub
+Eklenecek oyuncu	Player to add
+Ne kadar izlensin	How long should they be scouted
+--for "1 hafta"	--for "1 week"
+KART	CARD
+{0} gerileyen	{0} declining
+dolu	taken
+NE GÖNDERİR	WHAT IT SENDS
+SAYFA	PAGE
+SEÇENEKLER	OPTIONS
+cevap bekliyor	awaiting an answer
+cevaplanabilir	can be answered
+sakat	injured
+{0}/hafta	{0}/week
+GRUP {0}	GROUP {0}
+Scout notu	Scout's note
+Transfer durumu	Transfer status
+Kadro listesi	Squad list
+en fazla	at most
+kaleci	goalkeepers
+[dim]DURUM[/]	[dim]STATUS[/]
+[red]sakat[/]	[red]injured[/]
+  [dim]({0} eksik: listede o kadar yer az)[/]	  [dim]({0} short: that many fewer places in the list)[/]
+devredildi (kilitli)	delegated (locked)
+Analist	Analyst
+yetenek	ability
+potansiyel	potential
+analist: {0}	analyst: {0}
+Durduruldu	Stopped
+incelenenler	being looked at
+Hedef	Target
+{0} olmazsa	otherwise {0}
+error: arama panelinde '{0}' yok	error: no '{0}' in the search panel
+Nitelik	Attribute
+[dim]TAKIM[/]	[dim]TEAM[/]
+Free Agent (denemede)	Free Agent (on trial)
+  (sakat: {0})	  (injured: {0})
+Oyun kurma	Playmaking
+Talimat	Instruction
+{0} · {1} / topsuz {2}	{0} · {1} / out of possession {2}
++ Takasa oyuncu ekle	+ Add a player to the swap
++ Prim ekle	+ Add a bonus
++ Vaat ekle	+ Add a promise
++ Madde ekle	+ Add a clause
++ Ekle: {0}	+ Add: {0}
+Hangi oyuncu?	Which player?
+Hangi prim?	Which bonus?
+Hangi vaat?	Which promise?
+Hangi madde?	Which clause?
+Etkiler: {0}	Effects: {0}
+Transfer bütçesi	Transfer budget
+{0} (bu sezon harcanan {1}, başta {2})	{0} (spent this season {1}, at the start {2})
+Maaş bütçesi	Wage budget
+{0} (haftalık) · ödenen {1} / {2}	{0} (weekly) · paid {1} / {2}
+Scouting bütçesi	Scouting budget
+yıl	yrs
+{0} maç	{0} apps
+SON SCOUT	LAST SCOUTED
+O	P
+G	W
+B	D
+M	L
+AV	GD
+P	PTS
+Mevki/rol	Position/role
+Topla	In possession
+Topsuz	Out of possession
+Duran top 1	Set piece 1
+Duran top 2	Set piece 2
+topla	in
+topsuz	out
+duran1	sp1
+duran2	sp2
+korner	corner
+frikik	freekick
+kanat	wide
+derin	deep
+tac	throw

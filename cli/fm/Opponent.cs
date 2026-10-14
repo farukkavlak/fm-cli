@@ -33,16 +33,16 @@ internal static partial class Program
 		}
 		var manager = Field(await Fm.Pull($"{them}.Manager", "Name"), "Name");
 		var form = string.Join(" ", Standings.Form(Field(team, "RecentFormValues")));
-		var venue = Field(fixture, "MatchVenueShort") switch { "H" => "iç saha", "A" => "deplasman", "N" => "tarafsız saha", var other => other };
+		var venue = Field(fixture, "MatchVenueShort") switch { "H" => L("iç saha"), "A" => L("deplasman"), "N" => L("tarafsız saha"), var other => other };
 		var days = Field(fixture, "FixtureDateDistanceInDays");
 		var rows = new List<(string Label, string Value)>
 		{
 			("Form", form),
-			("Diziliş", Field(team, "MostUsedFormation")),
-			("Gol kralı", await Standout("TopGoalscorerPlayer")),
-			("Asist kralı", await Standout("MostAssistsPlayer")),
-			("En yüksek ortalama", await Standout("HighestAverageRatingPlayer")),
-			("Menajer", manager),
+			(L("Diziliş"), Field(team, "MostUsedFormation")),
+			(L("Gol kralı"), await Standout("TopGoalscorerPlayer")),
+			(L("Asist kralı"), await Standout("MostAssistsPlayer")),
+			(L("En yüksek ortalama"), await Standout("HighestAverageRatingPlayer")),
+			(L("Menajer"), manager),
 		};
 
 		// The portal's report page, read by each text's data path.
@@ -97,8 +97,8 @@ internal static partial class Program
 
 		static string Turkish(string label) => label switch
 		{
-			"Gl/Gm" => "maç başı gol", "Np-xG/90" => "penaltısız xG/90", "Conc/Gm" => "maç başı yenen", "xGA/Gm" => "maç başı xGA",
-			"Sh/Gm" => "maç başı şut", "Shot %" => "isabet %", "Pas %" => "pas %", "Tck %" => "top kapma %", _ => label,
+			"Gl/Gm" => L("maç başı gol"), "Np-xG/90" => L("penaltısız xG/90"), "Conc/Gm" => L("maç başı yenen"), "xGA/Gm" => L("maç başı xGA"),
+			"Sh/Gm" => L("maç başı şut"), "Shot %" => L("isabet %"), "Pas %" => "pas %", "Tck %" => L("top kapma %"), _ => label,
 		};
 
 		if (json)

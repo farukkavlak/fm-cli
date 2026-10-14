@@ -14,17 +14,17 @@ internal static partial class Program
 {
 	private static readonly Dictionary<string, string> Stops = new()
 	{
-		["Tactics"] = "Kadro kontrolü",
-		["SubmitTeam"] = "Kadro gönderiliyor",
-		["TeamTalk"] = "Takım konuşması",
-		["StepOntoThePitch"] = "Sahaya çıkış",
-		["WarmUp"] = "Isınma",
-		["SecondHalf"] = "İkinci yarı öncesi",
-		["ExtraTime"] = "Uzatmalar",
-		["Penalties"] = "Penaltılar",
-		["FullTimeTeamTalk"] = "Maç sonu konuşması",
-		["PostMatchReaction"] = "Maç sonu tepkileri",
-		["LeaveMatch"] = "Maçtan çıkış",
+		["Tactics"] = L("Kadro kontrolü"),
+		["SubmitTeam"] = L("Kadro gönderiliyor"),
+		["TeamTalk"] = L("Takım konuşması"),
+		["StepOntoThePitch"] = L("Sahaya çıkış"),
+		["WarmUp"] = L("Isınma"),
+		["SecondHalf"] = L("İkinci yarı öncesi"),
+		["ExtraTime"] = L("Uzatmalar"),
+		["Penalties"] = L("Penaltılar"),
+		["FullTimeTeamTalk"] = L("Maç sonu konuşması"),
+		["PostMatchReaction"] = L("Maç sonu tepkileri"),
+		["LeaveMatch"] = L("Maçtan çıkış"),
 	};
 
 	private static async Task<int> PlayMatch(string[] args)
@@ -540,7 +540,7 @@ internal static partial class Program
 		    && period is not ("" or "FullTime") && score != null)
 		{
 			if (LastWhistle != $"Maç sonu: {score}") Console.WriteLine(L($"  Maç sonu: {score}"));
-			LastWhistle = $"Maç sonu: {score}";
+			LastWhistle = L($"Maç sonu: {score}");
 			period = "FullTime";
 			return;
 		}
@@ -552,7 +552,7 @@ internal static partial class Program
 		var now = $"{home}-{away}";
 		if (watchedMatch && names is { } watched) now = $"{watched.Own} {now} {watched.Opponent}";
 		// With the sides named the board says who is home; without, which side we are.
-		var side = watchedMatch ? "" : names != null && Field(state, "HumanIsHome") is "True" or "False" ? "" : Field(state, "HumanIsHome") switch { "True" => " (ev sahibiyiz)", "False" => " (deplasmandayız)", _ => "" };
+		var side = watchedMatch ? "" : names != null && Field(state, "HumanIsHome") is "True" or "False" ? "" : Field(state, "HumanIsHome") switch { "True" => L(" (ev sahibiyiz)"), "False" => L(" (deplasmandayız)"), _ => "" };
 		if (!watchedMatch && names is { } n && Field(state, "HumanIsHome") is "True" or "False")
 			now = Field(state, "HumanIsHome") == "True" ? $"{n.Own} {now} {n.Opponent}" : $"{n.Opponent} {now} {n.Own}";
 
@@ -561,10 +561,10 @@ internal static partial class Program
 		{
 			var whistle = current switch
 			{
-				"FirstHalf" => "Maç başladı",
-				"HalfTime" => $"Devre arası: {now}{side}",
-				"SecondHalf" => "İkinci yarı başladı",
-				"FullTime" => $"Maç sonu: {now}{side}",
+				"FirstHalf" => L("Maç başladı"),
+				"HalfTime" => L($"Devre arası: {now}{side}"),
+				"SecondHalf" => L("İkinci yarı başladı"),
+				"FullTime" => L($"Maç sonu: {now}{side}"),
 				_ => null,
 			};
 			// The period can drop out for a moment at a break and come back; the whistle is once.
@@ -579,7 +579,7 @@ internal static partial class Program
 		{
 			// The total going down is a goal taken back: offside flagged late, or the video referee.
 			static int Total(string board) => board.Split('-').Sum(x => int.TryParse(x, out var g) ? g : 0);
-			var word = Total(Numbers(now)) < Total(Numbers(score)) ? "GOL İPTAL" : "GOL";
+			var word = Total(Numbers(now)) < Total(Numbers(score)) ? L("GOL İPTAL") : "GOL";
 			if (Ui.Rich) Ui.Line($"  [bold yellow]{Ui.Safe(Field(state, "MatchTime")),6}  {word}  {Ui.Safe(now)}{side}[/]");
 			else Console.WriteLine($"  {Field(state, "MatchTime")}  {word}  {now}{side}");
 		}
@@ -651,7 +651,7 @@ internal static partial class Program
 				words.Add(onPitch[goingOff]);
 			}
 
-			if (Choose(onPitch, words[0], "Çıkan") is not { } named) return 1;
+			if (Choose(onPitch, words[0], L("Çıkan")) is not { } named) return 1;
 			var allowed = Bench(menus[onPitch.IndexOf(named)]);
 			if (Ui.Ask(L($"{named} yerine kim girsin?"), allowed) is not { } comingOn) return 0;
 			words.Add(allowed[comingOn]);
@@ -695,12 +695,12 @@ internal static partial class Program
 			}
 		}
 
-		if (Choose(onPitch, words[0], "Çıkan") is not { } leaving) return 1;
+		if (Choose(onPitch, words[0], L("Çıkan")) is not { } leaving) return 1;
 		var from = menus[onPitch.IndexOf(leaving)];
 
 		// The bench is listed per player, since who may replace whom can differ.
 		var choices = Bench(from);
-		if (Choose(choices, words[1], "Giren") is not { } coming) return 1;
+		if (Choose(choices, words[1], L("Giren")) is not { } coming) return 1;
 
 		var row = from.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList().FindIndex(c => c.StartsWith(off, StringComparison.Ordinal));
 		var entry = from.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Select(c => c.GetString()).ToList().IndexOf(coming);
@@ -780,9 +780,9 @@ internal static partial class Program
 			if (watchedMatch || ourNames is not { Count: > 0 }) return string.Join(", ", hits.Select(said));
 			var ours = hits.Where(m => ourNames.Contains(m.Key)).Select(said).ToList();
 			var theirs = hits.Where(m => !ourNames.Contains(m.Key)).Select(said).ToList();
-			return string.Join(" · ", new[] { ours.Count > 0 ? $"biz: {string.Join(", ", ours)}" : "", theirs.Count > 0 ? $"rakip: {string.Join(", ", theirs)}" : "" }.Where(x => x.Length > 0));
+			return string.Join(" · ", new[] { ours.Count > 0 ? $"biz: {string.Join(", ", ours)}" : "", theirs.Count > 0 ? L($"rakip: {string.Join(", ", theirs)}") : "" }.Where(x => x.Length > 0));
 		}
-		var booked = Sides(m => m.Value.Yellow || m.Value.Red, m => m.Key + (m.Value.Red ? " (kırmızı)" : ""));
+		var booked = Sides(m => m.Value.Yellow || m.Value.Red, m => m.Key + (m.Value.Red ? L(" (kırmızı)") : ""));
 		var hurt = Sides(m => m.Value.Injury != 0, m => m.Key);
 		if (booked.Length > 0) Console.WriteLine(L($"Kartlar: {booked}"));
 		if (hurt.Length > 0) Console.WriteLine(L($"Sakatlanan: {hurt}"));
@@ -803,7 +803,7 @@ internal static partial class Program
 		/// <summary>"SAKAT · sarı kart · 6.6": what the match has done to him so far.</summary>
 		public string Marks => string.Join(" · ", new[]
 		{
-			Injury != 0 ? "SAKAT" : "", Red ? "kırmızı kart" : Yellow ? "sarı kart" : "",
+			Injury != 0 ? L("SAKAT") : "", Red ? L("kırmızı kart") : Yellow ? L("sarı kart") : "",
 			double.TryParse(Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) && r > 0 ? $"puan {r:0.0}" : "",
 		}.Where(s => s.Length > 0));
 	}
@@ -893,7 +893,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 
 		// A dialog that only wants acknowledging has one button and no words on it.
-		var labels = buttons.Select(b => Field(b, "Label") is { Length: > 0 } label ? label : "Tamam").ToList();
+		var labels = buttons.Select(b => Field(b, "Label") is { Length: > 0 } label ? label : L("Tamam")).ToList();
 
 		if (words.Count == 0 && Ui.Interactive)
 		{
@@ -911,7 +911,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		if (Choose(labels, words[0], "Pencere") is not { } pick) return 1;
+		if (Choose(labels, words[0], L("Pencere")) is not { } pick) return 1;
 
 		if (args.Contains("--dry"))
 		{

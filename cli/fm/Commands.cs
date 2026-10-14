@@ -54,8 +54,8 @@ internal static partial class Program
 		if (folded.Length >= 2 && starting.Count == 1) return starting[0];
 
 		Console.Error.WriteLine(starting.Count > 1 && folded.Length >= 2
-			? $"'{typed}' birden çok komuta uyuyor: {string.Join(", ", starting)}"
-			: $"bilinmeyen komut: {typed} — komutlar için `help`");
+			? L($"'{typed}' birden çok komuta uyuyor: {string.Join(", ", starting)}")
+			: L($"bilinmeyen komut: {typed} — komutlar için `help`"));
 		return null;
 	}
 
@@ -162,7 +162,7 @@ internal static partial class Program
 
 		if (shell != "zsh")
 		{
-			Console.Error.WriteLine("kullanım: completion zsh | completion bash");
+			Console.Error.WriteLine(L("kullanım: completion zsh | completion bash"));
 			return 64;
 		}
 

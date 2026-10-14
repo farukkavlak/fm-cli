@@ -11,12 +11,12 @@ internal static class MatchReport
 {
 	private static readonly (string Label, string Field)[] Numbers =
 	[
-		("Topla oynama", "Possession"),
-		("Şut", "Shots"),
-		("İsabetli şut", "ShotsOnTarget"),
-		("Gol beklentisi", "ExpectedGoals"),
-		("Korner", "Corners"),
-		("Faul", "Fouls"),
+		(L("Topla oynama"), "Possession"),
+		(L("Şut"), "Shots"),
+		(L("İsabetli şut"), "ShotsOnTarget"),
+		(L("Gol beklentisi"), "ExpectedGoals"),
+		(L("Korner"), "Corners"),
+		(L("Faul"), "Fouls"),
 	];
 
 	public static async Task<int> Show(Bridge fm, bool json, string expected = null)
@@ -108,14 +108,14 @@ internal static class MatchReport
 		var (own, _) = await fm.OwnTeam();
 		string Side(string team) => team == own ? $"[yellow]{Ui.Safe(team)}[/]" : Ui.Safe(team);
 		var lines = new List<string> { $"[bold]{Side(home)}  {score}  {Side(away)}[/]" };
-		if (competition.Length > 0) lines.Add($"[dim]{Ui.Safe(competition)}" + (F(fixture, "Attendance") is { Length: > 0 } crowd ? $" · {Ui.Safe(crowd)} seyirci" : "") + "[/]");
-		if (shootout != null) lines.Add($"[dim]Penaltılarla kazanan:[/] {Side(shootout)}");
-		if (scorers.Length > 0) lines.Add($"[dim]Goller:[/] {Ui.Safe(scorers.Replace("\n", " · "))}");
-		if (star.Length > 0) lines.Add($"[dim]Maçın oyuncusu:[/] {Ui.Safe(star)}" + (rating.Length > 0 ? $" [green1]{Ui.Safe(rating)}[/]" : ""));
+		if (competition.Length > 0) lines.Add($"[dim]{Ui.Safe(competition)}" + (F(fixture, "Attendance") is { Length: > 0 } crowd ? L($" · {Ui.Safe(crowd)} seyirci") : "") + "[/]");
+		if (shootout != null) lines.Add(L($"[dim]Penaltılarla kazanan:[/] {Side(shootout)}"));
+		if (scorers.Length > 0) lines.Add(L($"[dim]Goller:[/] {Ui.Safe(scorers.Replace("\n", " · "))}"));
+		if (star.Length > 0) lines.Add(L($"[dim]Maçın oyuncusu:[/] {Ui.Safe(star)}") + (rating.Length > 0 ? $" [green1]{Ui.Safe(rating)}[/]" : ""));
 
 		Ui.Out.Write(new Panel(new Rows(new Markup(string.Join("\n", lines)), new Text(""), grid))
 		{
-			Header = new PanelHeader(" [bold]MAÇ RAPORU[/] "),
+			Header = new PanelHeader(L(" [bold]MAÇ RAPORU[/] ")),
 			Border = BoxBorder.Rounded,
 			BorderStyle = new Style(Color.Grey),
 			Padding = new Padding(1, 0, 1, 0),
@@ -138,7 +138,7 @@ internal static class MatchReport
 				var type = F(entry, "EventType");
 				if (type is not ("0" or "1" or "2")) continue;
 				var time = string.Join(' ', F(entry, "TimeString").Split(' ', StringSplitOptions.RemoveEmptyEntries));
-				if (type == "1") time = "(kendi kalesine) " + time.Replace("o.g.", "").Trim();
+				if (type == "1") time = L("(kendi kalesine) ") + time.Replace("o.g.", "").Trim();
 				var row = (F(entry, "Row") is { Length: > 0 } at ? at : $"fmcli.{list.Replace('.', '_')}.{F(entry, "Index")}") + ".Player";
 				var name = F(await fm.Pull(row, "Name"), "Name");
 				goals.Add($"{name} {time}".Trim());

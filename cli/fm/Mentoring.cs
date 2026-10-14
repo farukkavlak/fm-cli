@@ -261,7 +261,7 @@ internal static partial class Program
 		var chosen = new List<string>();
 		foreach (var pick in picks)
 		{
-			var player = Choose(candidates.Select(c => c[0]).ToList(), pick, "Oyuncu");
+			var player = Choose(candidates.Select(c => c[0]).ToList(), pick, L("Oyuncu"));
 			if (player == null || chosen.Contains(player))
 			{
 				if (player != null) Console.Error.WriteLine(L($"{player} iki kez yazıldı."));
@@ -357,7 +357,7 @@ internal static partial class Program
 			foreach (var n in names) Console.Error.WriteLine($"  {n}");
 			return 64;
 		}
-		if (Choose(names, typed, "Grup") is not { } group) return 64;
+		if (Choose(names, typed, L("Grup")) is not { } group) return 64;
 
 		if (!args.Contains("--yes"))
 		{

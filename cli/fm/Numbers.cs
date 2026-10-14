@@ -24,7 +24,7 @@ internal static partial class Program
 			return 1;
 		}
 
-		if (args.Contains("--send")) return await SendList(NumbersConfirm, "Forma numaraları");
+		if (args.Contains("--send")) return await SendList(NumbersConfirm, L("Forma numaraları"));
 		if (args.Contains("--auto"))
 		{
 			if (await Labelled(NumbersAssist) is not { } assist)
@@ -33,7 +33,7 @@ internal static partial class Program
 				return 1;
 			}
 			await Fm.Get("press", ("ptr", Field(assist, "Pointer")));
-			return await SendList(NumbersConfirm, "Forma numaraları");
+			return await SendList(NumbersConfirm, L("Forma numaraları"));
 		}
 
 		var words = Words(args).ToList();
@@ -61,7 +61,7 @@ internal static partial class Program
 		}
 
 		Table.Write([L("NO"), L("İSTEDİĞİ"), L("OYUNCU"), L("MEVKİ"), L("STATÜ")], Ordered(rows).Select(r => (string[])
-			[r.Number, r.Preferred, r.Name, r.Position, r.Status == "Out On Loan" ? "Kiralıkta" : PlayerStatusTurkish.GetValueOrDefault(r.Status, r.Status)]).ToList());
+			[r.Number, r.Preferred, r.Name, r.Position, r.Status]).ToList());
 		Console.WriteLine(L($"\nBoş numaralar: {string.Join(" ", free)}"));
 		if (!open)
 		{
@@ -77,7 +77,7 @@ internal static partial class Program
 		    && Ui.Ask(L("Forma numaraları"), [L("Yardımcı dağıtsın ve gönder")], cancel: "Şimdilik bırak") != null)
 		{
 			await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
-			return await SendList(NumbersConfirm, "Forma numaraları");
+			return await SendList(NumbersConfirm, L("Forma numaraları"));
 		}
 		return 0;
 	}

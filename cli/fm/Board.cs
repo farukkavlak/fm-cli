@@ -12,15 +12,15 @@ internal static partial class Program
 {
 	private static readonly (string Label, string Field)[] BoardAreas =
 	[
-		("Genel", "BoardConfidenceOverallString"), ("Maçlar", "BoardMatchString"), ("Kadro", "BoardSquadConfidenceString"),
-		("Taktik", "BoardTacticsString"), ("Transfer", "BoardTransferConfidenceOverallSummaryText"), ("Vizyon", "BoardVisionString"),
-		("Kültür", "BoardCultureProgressString"), ("Turnuvalar", "InternationalCompConfidenceStringLong"),
+		(L("Genel"), "BoardConfidenceOverallString"), (L("Maçlar"), "BoardMatchString"), (L("Kadro"), "BoardSquadConfidenceString"),
+		(L("Taktik"), "BoardTacticsString"), ("Transfer", "BoardTransferConfidenceOverallSummaryText"), (L("Vizyon"), "BoardVisionString"),
+		(L("Kültür"), "BoardCultureProgressString"), (L("Turnuvalar"), "InternationalCompConfidenceStringLong"),
 	];
 
 	private static readonly (string Label, string Field)[] SupporterAreas =
 	[
-		("Genel", "SupporterConfidenceOverallString"), ("Maçlar", "SupporterMatchString"), ("Taktik", "SupporterTacticsString"),
-		("Transfer", "SupporterTransferConfidenceOverallSummaryText"), ("Vizyon", "SupporterVisionString"),
+		(L("Genel"), "SupporterConfidenceOverallString"), (L("Maçlar"), "SupporterMatchString"), (L("Taktik"), "SupporterTacticsString"),
+		("Transfer", "SupporterTransferConfidenceOverallSummaryText"), (L("Vizyon"), "SupporterVisionString"),
 	];
 
 	private static async Task<int> Board(bool json)
@@ -48,9 +48,9 @@ internal static partial class Program
 			return 1;
 		}
 
-		Block("Yönetim", BoardAreas, praise, worries);
+		Block(L("Yönetim"), BoardAreas, praise, worries);
 		Console.WriteLine();
-		Block("Taraftarlar", SupporterAreas, fansPraise, fansWorries);
+		Block(L("Taraftarlar"), SupporterAreas, fansPraise, fansWorries);
 		return 0;
 
 		void Block(string title, (string Label, string Field)[] areas, List<string> good, List<string> bad)
@@ -67,8 +67,8 @@ internal static partial class Program
 				else Console.WriteLine($"  {label,-11} {text}");
 			}
 
-			Points("Memnun oldukları", good, "green", "+");
-			Points("Endişeleri", bad, "red", "-");
+			Points(L("Memnun oldukları"), good, "green", "+");
+			Points(L("Endişeleri"), bad, "red", "-");
 		}
 
 		static void Points(string heading, List<string> points, string colour, string mark)

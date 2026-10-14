@@ -6,9 +6,9 @@ namespace FmCli;
 internal static partial class Program
 {
 	private static readonly string[] Months =
-		["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+		[L("Ocak"), L("Şubat"), L("Mart"), L("Nisan"), L("Mayıs"), L("Haziran"), L("Temmuz"), L("Ağustos"), L("Eylül"), L("Ekim"), L("Kasım"), L("Aralık")];
 
-	private static readonly string[] Days = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+	private static readonly string[] Days = [L("Pazar"), L("Pazartesi"), L("Salı"), L("Çarşamba"), L("Perşembe"), L("Cuma"), L("Cumartesi")];
 
 	/// <summary>
 	/// Presses Continue and waits for the game to come to rest, then says what changed: the
@@ -37,7 +37,7 @@ internal static partial class Program
 			// inbox from inside the match would mean opening the portal over it.
 			if (Field(state, "DuringMatch") == "True" || Field(state, "State") is "Tactics" or "SubmitTeam")
 			{
-				(taken == 0 ? Console.Error : Console.Out).WriteLine("Maç günü. Oynamak için: match");
+				(taken == 0 ? Console.Error : Console.Out).WriteLine(L("Maç günü. Oynamak için: match"));
 				return taken == 0 ? 1 : 0;
 			}
 
@@ -191,7 +191,7 @@ internal static partial class Program
 		{
 			case "NeedAction":
 				// A meeting with the board left open is what the game waits on, whatever else is unanswered.
-				if (await VisionControls() != null) output.WriteLine("Kulüp vizyonu toplantısı açık. Hedefler ve pazarlık: vision   ·   bitirmek: vision end");
+				if (await VisionControls() != null) output.WriteLine(L("Kulüp vizyonu toplantısı açık. Hedefler ve pazarlık: vision   ·   bitirmek: vision end"));
 				var blocking = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
 				// The game says a message waits and the inbox read shows none: it may be an old one.
 				if (blocking.Count == 0) blocking = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
@@ -205,40 +205,40 @@ internal static partial class Program
 						.Select(m => Field(m, "NewsTitleString")).Where(t => t is { Length: > 0 }).ToList();
 					if (again.Count > 0)
 					{
-						output.WriteLine("Oyun bir mesajın yeniden cevaplanmasını bekliyor olabilir:");
+						output.WriteLine(L("Oyun bir mesajın yeniden cevaplanmasını bekliyor olabilir:"));
 						foreach (var title in again) output.WriteLine($"  {title}");
 						output.WriteLine(again.Count == 1 && !again[0].Contains('"')
-							? $"Bakmak için: reply \"{again[0]}\""
-							: "Bakmak için: reply <#>   (numaralar için: inbox)");
-						if (button is { Length: > 0 } and not ("Continue" or "Response Required")) output.WriteLine($"İlerle butonu: {button}");
+							? L($"Bakmak için: reply \"{again[0]}\"")
+							: L("Bakmak için: reply <#>   (numaralar için: inbox)"));
+						if (button is { Length: > 0 } and not ("Continue" or "Response Required")) output.WriteLine(L($"İlerle butonu: {button}"));
 						return;
 					}
 					// The kind of thing waiting, by the game's number (3: an offer for one of ours, 16 Temmuz
 					// 2026); the button's words are another language's in another game.
 					if (Field(state, "Respond") == "3")
 					{
-						output.WriteLine("Oyuncularımızdan birine gelen bir teklif cevap bekliyor. Görmek: offers   ·   cevap: offers <#> view | accept | stall | reject");
+						output.WriteLine(L("Oyuncularımızdan birine gelen bir teklif cevap bekliyor. Görmek: offers   ·   cevap: offers <#> view | accept | stall | reject"));
 						return;
 					}
 					// Something to do that no message holds: a deal to go on with, a screen to finish.
 					// Not a button to press blind: Continue with "Negotiate Contract" showing moved
 					// time on and the deal was withdrawn (FINDINGS §8.42).
 					output.WriteLine(button is { Length: > 0 }
-						? $"Oyun bir adım bekliyor: \"{button}\". Cevabı yarım kalmış bir mesaj (inbox, sonra reply <#>) ya da bekleyen bir teklif (offers) olabilir; değilse bu adım henüz komutla yapılamıyor ve `next` onu atlayabilir (ör. transferi geri çeker)."
-						: "Oyun bir adım bekliyor ama ne olduğunu söylemiyor. Ekrandakiler için: buttons");
+						? L($"Oyun bir adım bekliyor: \"{button}\". Cevabı yarım kalmış bir mesaj (inbox, sonra reply <#>) ya da bekleyen bir teklif (offers) olabilir; değilse bu adım henüz komutla yapılamıyor ve `next` onu atlayabilir (ör. transferi geri çeker).")
+						: L("Oyun bir adım bekliyor ama ne olduğunu söylemiyor. Ekrandakiler için: buttons"));
 					return;
 				}
-				output.WriteLine($"Bloke: {blocking.Count} mesaj cevap bekliyor.");
+				output.WriteLine(L($"Bloke: {blocking.Count} mesaj cevap bekliyor."));
 				foreach (var message in blocking)
 					output.WriteLine($"  {Field(message, "NewsItemTimeSent")}  {Field(message, "NewsTitleString")}");
 				// One message waiting: name it by its subject, which `reply` takes as well as a number
 				// and which does not go stale the way the numbers of the last `inbox` do.
 				var only = blocking.Count == 1 ? Field(blocking[0], "NewsTitleString") : null;
 				output.WriteLine(await TourOpen()
-					? "Açık bir tanıtım turu var; yürütmek için: tour"
+					? L("Açık bir tanıtım turu var; yürütmek için: tour")
 					: only is { Length: > 0 } && !only.Contains('"')
-						? $"Cevaplamak için: reply \"{only}\""
-						: "Cevaplamak için: reply <#>   (numaralar için: inbox)");
+						? L($"Cevaplamak için: reply \"{only}\"")
+						: L("Cevaplamak için: reply <#>   (numaralar için: inbox)"));
 				break;
 
 			case "PressConference":
@@ -247,24 +247,24 @@ internal static partial class Program
 				if (press.Count == 0) press = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
 				var pressTitle = press.Count == 1 ? Field(press[0], "NewsTitleString") : "";
 				output.WriteLine(pressTitle.Length > 0 && !pressTitle.Contains('"')
-					? $"Oyun basın toplantısı bekliyor: {pressTitle}\nKatılmak ya da geçmek için: reply \"{pressTitle}\""
-					: "Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>");
+					? L($"Oyun basın toplantısı bekliyor: {pressTitle}\nKatılmak ya da geçmek için: reply \"{pressTitle}\"")
+					: L("Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>"));
 				break;
 			case "Tactics" or "SubmitTeam":
-				output.WriteLine("Maç günü. Oynamak için: match");
+				output.WriteLine(L("Maç günü. Oynamak için: match"));
 				if (await HurtInSide() is { Count: > 0 } hurt)
-					output.WriteLine($"Dikkat: seçili kadroda sakat var ({string.Join(", ", hurt)}); maç onlarla başlamaz. Yardımcıya seçtirmek: tactic pick · kendin: tactic player <mevki> <oyuncu>");
+					output.WriteLine(L($"Dikkat: seçili kadroda sakat var ({string.Join(", ", hurt)}); maç onlarla başlamaz. Yardımcıya seçtirmek: tactic pick · kendin: tactic player <mevki> <oyuncu>"));
 				break;
-			case "TeamNews": output.WriteLine("Oyun maç öncesi takım haberlerini bekliyor."); break;
-			case "TeamTalk": output.WriteLine("Oyun takım konuşması bekliyor."); break;
-			case "TunnelInterview": output.WriteLine("Oyun tünel röportajı bekliyor."); break;
-			case "Match": output.WriteLine("Maç var."); break;
-			case "Processing" or "Saving" or "Waiting": output.WriteLine("Oyun meşgul (işliyor ya da kaydediyor)."); break;
-			case "OnHoliday": output.WriteLine("Menajer tatilde."); break;
-			default: output.WriteLine($"Oyun ilerlemiyor: {flow}"); break;
+			case "TeamNews": output.WriteLine(L("Oyun maç öncesi takım haberlerini bekliyor.")); break;
+			case "TeamTalk": output.WriteLine(L("Oyun takım konuşması bekliyor.")); break;
+			case "TunnelInterview": output.WriteLine(L("Oyun tünel röportajı bekliyor.")); break;
+			case "Match": output.WriteLine(L("Maç var.")); break;
+			case "Processing" or "Saving" or "Waiting": output.WriteLine(L("Oyun meşgul (işliyor ya da kaydediyor).")); break;
+			case "OnHoliday": output.WriteLine(L("Menajer tatilde.")); break;
+			default: output.WriteLine(L($"Oyun ilerlemiyor: {flow}")); break;
 		}
 
-		if (!string.IsNullOrEmpty(button) && button is not ("Continue" or "Response Required")) output.WriteLine($"İlerle butonu: {button}");
+		if (!string.IsNullOrEmpty(button) && button is not ("Continue" or "Response Required")) output.WriteLine(L($"İlerle butonu: {button}"));
 	}
 
 	/// <summary>
@@ -363,9 +363,9 @@ internal static partial class Program
 			var named = await MatchNames();
 			var board = named is { } sides
 				? home || watchedMatch ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
-				: score + (home ? " (ev sahibiyiz)" : " (deplasmandayız)");
+				: score + (home ? L(" (ev sahibiyiz)") : L(" (deplasmandayız)"));
 			var minute = Field(state, "MatchTime");
-			if (watchedMatch) board += "  (izlediğimiz maç, A takımın değil)";
+			if (watchedMatch) board += L("  (izlediğimiz maç, A takımın değil)");
 			Console.WriteLine(minute == "" ? L($"Maçtayız, başlamadı.  {board}") : L($"Maçtayız. {minute}  {board}"));
 			// A team talk holds the match until something is said.
 			Console.WriteLine((await TalkOptions()).Count > 0
@@ -382,7 +382,7 @@ internal static partial class Program
 			var (team, _) = await Fm.OwnTeam();
 			var manager = Field(await Fm.Pull("Human", "Name"), "Name");
 			var lines = new List<string> { $"[bold]{Ui.Safe(Pretty(Field(state, "Date")))}[/] {Time(state)}" };
-			if (next != null) lines.Add($"[dim]Sıradaki maç:[/] {Ui.Safe(next)}");
+			if (next != null) lines.Add(L($"[dim]Sıradaki maç:[/] {Ui.Safe(next)}"));
 			if (await Form() is { Length: > 0 } form) lines.Add($"[dim]Form:[/] {form}");
 			if (window != null) lines.Add($"[dim]Transfer:[/] {Ui.Safe(window)}");
 			Ui.Out.Write(new Spectre.Console.Panel(new Spectre.Console.Markup(string.Join("\n", lines)))
@@ -425,8 +425,8 @@ internal static partial class Program
 			var window = await Fm.Pull("Human.Team.Division.TransferWindowData", "TransferWindowStatus,TransferWindowDaysRemaining");
 			var status = Field(window, "TransferWindowStatus");
 			if (status.Length == 0) return null;
-			if (status != "1") return "dönem kapalı";
-			return int.TryParse(Field(window, "TransferWindowDaysRemaining"), out var days) ? $"dönem açık, {days} gün kaldı" : "dönem açık";
+			if (status != "1") return L("dönem kapalı");
+			return int.TryParse(Field(window, "TransferWindowDaysRemaining"), out var days) ? L($"dönem açık, {days} gün kaldı") : L("dönem açık");
 		}
 		catch (FmError) { return null; }
 	}
@@ -451,10 +451,10 @@ internal static partial class Program
 
 			var opponent = Field(await Fm.Pull("Human.Team.NextFixture.TeamOpponent", "Name"), "Name");
 			var competition = Field(await Fm.Pull("Human.Team.NextFixture.Competition", "Name"), "Name");
-			var venue = Field(fixture, "MatchVenueShort") switch { "H" => "iç saha", "A" => "deplasman", "N" => "tarafsız saha", var other => other };
+			var venue = Field(fixture, "MatchVenueShort") switch { "H" => L("iç saha"), "A" => L("deplasman"), "N" => L("tarafsız saha"), var other => other };
 
 			var days = int.TryParse(Field(fixture, "FixtureDateDistanceInDays"), out var d) ? d : -1;
-			var when = days switch { 0 => "bugün", 1 => "yarın", > 1 => $"{days} gün sonra", _ => "" };
+			var when = days switch { 0 => L("bugün"), 1 => L("yarın"), > 1 => L($"{days} gün sonra"), _ => "" };
 			var day = DateTime.TryParseExact(today, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var now) && days >= 0
 				? $"{now.AddDays(days).Day} {Months[now.AddDays(days).Month - 1]} {Days[(int)now.AddDays(days).DayOfWeek]} "
 				: "";

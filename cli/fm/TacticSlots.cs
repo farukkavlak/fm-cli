@@ -47,7 +47,7 @@ internal static partial class Program
 		string tactic;
 		if (wanted != null)
 		{
-			if (Choose(tactics, wanted, "Taktik") is not { } named) return 1;
+			if (Choose(tactics, wanted, L("Taktik")) is not { } named) return 1;
 			tactic = named;
 		}
 		else if (tactics.Count == 1) tactic = tactics[0];

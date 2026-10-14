@@ -24,11 +24,11 @@ internal static partial class Program
 	/// </summary>
 	private static readonly (string Group, bool WithBall, int[] Ids)[] TeamInstructionGroups =
 	[
-		("Genel", true, [1, 21, 4, 3, 5, 7, 6]),
-		("Son üçte bir", true, [19, 18, 27, 26]),
-		("İlerleme", true, [28, 30, 20]),
-		("Oyun kurma", true, [24, 29, 17, 16]),
-		("Topsuz", false, [8, 9, 15, 10, 25, 11, 12, 22, 23]),
+		(L("Genel"), true, [1, 21, 4, 3, 5, 7, 6]),
+		(L("Son üçte bir"), true, [19, 18, 27, 26]),
+		(L("İlerleme"), true, [28, 30, 20]),
+		(L("Oyun kurma"), true, [24, 29, 17, 16]),
+		(L("Topsuz"), false, [8, 9, 15, 10, 25, 11, 12, 22, 23]),
 	];
 
 	private static async Task<int> TacticInstructions(List<string> words, bool oop, bool dry, bool refresh)
@@ -87,7 +87,7 @@ internal static partial class Program
 		var asked = words[0];
 		if (asked.IndexOf('/') is var slash and > 0) asked = asked[(slash + 1)..];
 		var names = catalogue.Select(i => i.Name).ToList();
-		if (Choose(names, asked.Trim(), "Talimat") is not { } named) return 1;
+		if (Choose(names, asked.Trim(), L("Talimat")) is not { } named) return 1;
 		var target = catalogue.First(i => i.Name == named);
 		var current = Setting(target);
 		var choices = target.Options.Select(o => o.Name).ToList();
@@ -146,7 +146,7 @@ internal static partial class Program
 
 	private static string TacticAt(string scope) => matchTactic != null ? $"{scope}.tac" : $"{scope}.team.Tactic";
 
-	private static string Stoppage() => matchTactic != null ? "   (maçta: ilk ölü topta uygulanır; takımın kayıtlı taktiği değişmez)" : "";
+	private static string Stoppage() => matchTactic != null ? L("   (maçta: ilk ölü topta uygulanır; takımın kayıtlı taktiği değişmez)") : "";
 
 	private static (string To, string From, string Number)[] TacticVariables() =>
 		matchTactic != null ? [("tac", matchTactic, "")] : [("Boolean", "const.True", ""), ("team", "Human.Team", "")];
@@ -298,7 +298,7 @@ internal static partial class Program
 		}
 		string Setting(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) ? g.Options.FirstOrDefault(o => o.Id == n.Option).Name ?? n.Option.ToString() : "?";
 		bool Fixed(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) && n.Locked;
-		var roles = slot.Role.Length > 0 ? $"{slot.Player} · {slot.Role} / topsuz {slot.RoleWithoutBall}" : slot.Player;
+		var roles = slot.Role.Length > 0 ? L($"{slot.Player} · {slot.Role} / topsuz {slot.RoleWithoutBall}") : slot.Player;
 
 		if (words.Count == 1)
 		{
@@ -329,7 +329,7 @@ internal static partial class Program
 		var current = Setting(group);
 		if (Fixed(group))
 		{
-			Console.Error.WriteLine(L($"{name}: {current} — rolün{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")} parçası, değiştirilemiyor. Rolü değiştirmek için: tactic role {spot}{(group.WithBall ? "" : L(" --oop"))}"));
+			Console.Error.WriteLine(L($"{name}: {current} — rolün{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")} parçası, değiştirilemiyor. Rolü değiştirmek için: tactic role {spot}{(group.WithBall ? "" : " --oop")}"));
 			return 1;
 		}
 		// Some settings are not on offer to every role ("Cut Inside" for a centre-back), as on the card.

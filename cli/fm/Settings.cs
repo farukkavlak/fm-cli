@@ -24,31 +24,31 @@ internal static partial class Program
 
 	private static readonly Dictionary<string, string> HighlightTurkish = new()
 	{
-		["Full Match"] = "Tam maç", ["Comprehensive"] = "Kapsamlı", ["Extended"] = "Geniş", ["Key"] = "Önemli anlar",
-		["Only Commentary"] = "Yalnızca anlatım",
+		["Full Match"] = L("Tam maç"), ["Comprehensive"] = L("Kapsamlı"), ["Extended"] = L("Geniş"), ["Key"] = L("Önemli anlar"),
+		["Only Commentary"] = L("Yalnızca anlatım"),
 	};
 
 	private static readonly Dictionary<string, string> IntervalTurkish = new()
 	{
-		["Day"] = "Her gün", ["Week"] = "Her hafta", ["Fortnight"] = "İki haftada bir", ["Month"] = "Her ay",
-		["Three Months"] = "Üç ayda bir", ["Year"] = "Yılda bir", ["Five Years"] = "Beş yılda bir",
-		["After Matches"] = "Maçlardan sonra", ["30 Minutes (Real Time)"] = "Gerçek 30 dakikada bir",
-		["60 Minutes (Real Time)"] = "Gerçek 60 dakikada bir",
+		["Day"] = L("Her gün"), ["Week"] = L("Her hafta"), ["Fortnight"] = L("İki haftada bir"), ["Month"] = "Her ay",
+		["Three Months"] = L("Üç ayda bir"), ["Year"] = L("Yılda bir"), ["Five Years"] = L("Beş yılda bir"),
+		["After Matches"] = L("Maçlardan sonra"), ["30 Minutes (Real Time)"] = L("Gerçek 30 dakikada bir"),
+		["60 Minutes (Real Time)"] = L("Gerçek 60 dakikada bir"),
 	};
 
 	private static readonly Dictionary<string, string> SaveTypeTurkish = new()
 	{
-		["Single File"] = "Tek dosya", ["Incremental Auto Save"] = "Her seferinde yeni dosya",
-		["3 File Rolling Auto Save"] = "3 dosya, sırayla", ["5 File Rolling Auto Save"] = "5 dosya, sırayla",
-		["10 File Rolling Auto Save"] = "10 dosya, sırayla",
+		["Single File"] = L("Tek dosya"), ["Incremental Auto Save"] = L("Her seferinde yeni dosya"),
+		["3 File Rolling Auto Save"] = L("3 dosya, sırayla"), ["5 File Rolling Auto Save"] = L("5 dosya, sırayla"),
+		["10 File Rolling Auto Save"] = L("10 dosya, sırayla"),
 	};
 
 	private static readonly Dictionary<string, string> UnitTurkish = new()
 	{
-		["Weekly"] = "Haftalık", ["Monthly"] = "Aylık", ["Yearly"] = "Yıllık",
-		["Celsius"] = "Santigrat", ["Fahrenheit"] = "Fahrenhayt", ["Kelvin"] = "Kelvin",
-		["Centimetres"] = "Santimetre", ["Metres"] = "Metre", ["Feet"] = "Fit",
-		["Yards"] = "Yarda", ["Miles"] = "Mil", ["Kilometres"] = "Kilometre",
+		["Weekly"] = L("Haftalık"), ["Monthly"] = L("Aylık"), ["Yearly"] = L("Yıllık"),
+		["Celsius"] = L("Santigrat"), ["Fahrenheit"] = L("Fahrenhayt"), ["Kelvin"] = "Kelvin",
+		["Centimetres"] = L("Santimetre"), ["Metres"] = L("Metre"), ["Feet"] = "Fit",
+		["Yards"] = L("Yarda"), ["Miles"] = "Mil", ["Kilometres"] = L("Kilometre"),
 	};
 
 	private static readonly Setting[] Settings =
@@ -335,7 +335,7 @@ internal static partial class Program
 				var choices = steps != null && steps.Length == high + 1 ? steps.ToList() : Enumerable.Range(0, high + 1).Select(i => i.ToString()).ToList();
 				return new(setting, Field(control, "Pointer"), choices, (int)double.Parse(Field(control, "Value"), System.Globalization.CultureInfo.InvariantCulture), enabled);
 			case SettingKind.Checkbox:
-				return new(setting, Field(control, "Pointer"), ["Kapalı", "Açık"], Field(control, "Value") == "True" ? 1 : 0, enabled);
+				return new(setting, Field(control, "Pointer"), [L("Kapalı"), L("Açık")], Field(control, "Value") == "True" ? 1 : 0, enabled);
 			default:
 				var list = control.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				// Some lists leave their index unset; the label still says what is in force.
@@ -383,7 +383,7 @@ internal static partial class Program
 		}
 
 		var table = new Spectre.Console.Table().Border(TableBorder.Rounded).BorderColor(Color.Grey).HideHeaders()
-			.AddColumn("ayar").AddColumn("değer").AddColumn("not");
+			.AddColumn(L("ayar")).AddColumn(L("değer")).AddColumn("not");
 		var first = true;
 		foreach (var group in found.GroupBy(f => f.Setting.Group))
 		{
@@ -400,5 +400,5 @@ internal static partial class Program
 	private static async Task<string> FmMenuMissing() =>
 		(await Fm.GetJson("pages")).GetArrayLength() == 0
 			? $"Oyun menüsüz bir ekranda ({Field(await Fm.GetJson("state"), "State")}); FM menüsü açılamıyor. Geçmek için: next"
-			: "Oyunun FM menüsü bulunamadı.";
+			: L("Oyunun FM menüsü bulunamadı.");
 }
