@@ -1654,8 +1654,8 @@ Sağlık 6 kişi — eksik: Head of Sports Science 0/1, Physio 1/5, Sports Scien
 
 ![fm finances](img/finances.png)
 
-Kasa ve aylara göre bakiyesi, bu ayın geliri ve gideri, kalan borç, finansal fair play durumu,
-haftalık maaş bordrosu (oyuncu statüsüne göre: yıldız, düzenli ilk 11, rotasyon…), maç bileti ve
+Kasa ve son üç ayın başındaki bakiye, bu ayın geliri ve gideri, kalan borç, finansal fair play durumu,
+haftalık maaş bordrosu (oyuncu statüsüne göre: yıldız, ilk 11, rotasyon… hepsi), maç bileti ve
 kombine fiyatı, sponsorluk
 anlaşmaları tek tek (tür, sezonluk değer, bitiş) ve yönetimin önümüzdeki sezonlar için bakiye/ciro tahmini. Zarar parantezle ve kırmızı yazılır.
 Transfer ve maaş bütçesi için `budget`.
@@ -1671,7 +1671,8 @@ Yönetimin projeksiyonu
 ```
 
 Kalem kalem gelir ya da gider: `finances gelir` / `finances gider`, dönemi arkasına yaz — `ay`
-(varsayılan), `geçen ay`, `sezon`, `geçen sezon`. Büyükten küçüğe sıralı; sıfır olan kalemler soluk.
+(varsayılan), `geçen ay`, `sezon`, `geçen sezon`. Bütün kalemler, büyükten küçüğe; sıfır olanlar soluk.
+Hepsi kulübün verisinden okunur, oyunda hiçbir sayfa açılmaz.
 
 ![fm finances gider sezon](img/finances-expenditure.png)
 

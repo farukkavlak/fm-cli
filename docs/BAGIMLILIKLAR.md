@@ -25,7 +25,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
 
 - [ ] **`Task.Delay` — 89 yer.** Her biri sınıflanacak: döngüde yoklama aralığı (sorun yok) mı, "bekle sonra yap" mı.
   Dosya: satırlar —
-  Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · Finances 247 · Guided 161 174 1035 ·
+  Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 1035 ·
   Happiness 148 195 · IndividualTraining 40 50 · Intensity 43 54 106 · Jobs 231 · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · Matches 82 · Mentoring 45 188 205 217 246 285 297 331 · Numbers 158 177 ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
@@ -43,12 +43,16 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.
+  - [x] Finances 247 (+ kısa `Until` Finances 238): `finances` ve dökümü artık hiç sayfa açmıyor, hepsi kulübün
+    verisinden (`/pull`); bekleme, kaydırma, yazı çapası kalmadı. Türkçe döküm daha önce hiç çalışmıyordu ("Madde" →
+    "Clause"); 8 bileşim doğru, kalem toplamları toplamı tutuyor, art arda 10/10, kart açıkken / başka sayfada doğru
+    (§8.183). İngilizcede denenmedi (veri yolu dilden bağımsız; kalem adları `GameWords` ile gösteriliyor).
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
     (değişmezse 3 sn; eskiden sabit 1,5); 20 atama + 2 `--auto` üç durumda doğru (§8.180). İngilizcede denenmedi.
   - [x] `coaches` 3/10: okuma yalnız tam ızgarayı ("ad, görev, dokuz kutu+yıldız", iş yüküne kadar) kabul ediyor; 12
     açılışta 17 ara hal reddedildi, 12/12 tam (§8.180). Kural yapıdan, dilden bağımsız.
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
-  Calendar 157 · ContractTalks 364 · Finances 238 · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
+  Calendar 157 · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
   TrainingSchedule 491 506 · TraitTraining 89
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
@@ -157,7 +161,7 @@ Division.Name` (eski iki ad tahmini `League.cs:66`, `Reads.cs:1057` kalktı); al
 - `…String` alanları (`PositionCombinedString`, `MoraleString`, `JobString`, `TransferValueRangeString`,
   `FullContract.EndDateDescription`…) değer olarak çevrilir; mevki artık `PositionCombined` maskesinden.
 - Ayarlar: tarih biçimi `d/M/yyyy` varsayımı (`Contracts.cs:90`, `Doctor.cs:39`, `Matches.cs:144`; ABD biçiminde yanlış
-  okur), maaş dönemi "p/w" (`Club.cs:159`, `Finances.cs:92`), ondalık ayırıcı `InvariantCulture`, boy/mesafe birimi
+  okur), maaş dönemi "p/w" (`Club.cs:159`; Finances artık veriden), ondalık ayırıcı `InvariantCulture`, boy/mesafe birimi
   (`Compare.cs:54`).
 - Ekran yapısı: 119 yerde kontrol adı (`SecondaryTabDropdownButton` 9, `layout-tile-interaction-button` 10…; en yoğun
   `Guided.cs`, `Program.cs`, `Reads.cs`, `Scouting.cs`), 76 yerde `up=N` (N 0…18), sanal tablolarda çizilen satır sayısı

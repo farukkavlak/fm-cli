@@ -1654,3 +1654,32 @@ sonraki okumada (ilk sorudan 0,4–0,9 sn sonra, araya bekleme koymadan) 26 alan
 "No" ya da "N/A" — hiçbiri `{}` kalmıyor. Yani `{}` yalnızca "henüz gelmedi". Sabit 300 ms kaldırıldı; `{}` dönen alan
 0,1 sn arayla 5 sn'ye kadar yeniden okunuyor. 27 oyuncu iki kez okundu (ilki çoğunda ilk okuma): iki çıktı aynı, 27/27 tam.
 İngilizcede denenmedi (işaret yazıdan bağımsız).
+
+### 8.183 Finans: kart değil kulübün verisi (14 Ekim, Türkçe)
+`finances` ekrandan yazıyla okunuyordu ("Overall Balance" kutusu, "Remaining Debt"ten 16 üst, "Item" başlığından sonrası,
+"Total"in yanı). Türkçede döküm hiç çalışmıyordu: sütun başlığı "Madde" eklentiden "Clause" diye dönüyor (§8.167'nin
+kopya çevirisi), "Item" bulunamıyor. Döküm kartı açık kalınca sonraki çalıştırma da düşüyordu (sayfa yeniden açılınca kart
+kapanıyor, "Genel Durum" kutusuna tıklama kapanan kartın altına gidiyordu; kartın varlığı `#Card` katmanının `#Body`'si
+dolu/boş diye görülür). Kartın her kutusu kulüp verisine bağlı; hepsi `/pull` ile, sayfa açmadan geliyor:
+- Bakiye `Human.Club.OverallBalance`; bu ay `TotalIncomeThisMonth`, `TotalExpenditureThisMonth`; borç `TotalDebt` /
+  `OriginalLoanDebt`; sponsor toplamı `TotalSponsorshipIncomeThisSeason`; FFP `FfpData.IsPassingFfp`,
+  `FfpData.Competition.Name` (`FFPDetailsReference`, 30 alan; `/schema?filter=FFPDetails`).
+- Döküm `{Income|Expenditure}Breakdown{ThisMonth|LastMonth|ThisSeason|LastSeason}` (liste; `Name`, `PropertyValue`
+  sterlin, `DisplayValue` kısaltılmış), toplam `Total{Income|Expenditure}{dönem}`, ciro `TotalIncome{dönem}Turnover`.
+  Gider 21, gelir 17 kalem; 6 bileşimde kalemlerin toplamı toplamı birebir tutuyor. Ekrandan okuma kaydırmada kalem
+  atlıyordu (geçen sezonun en büyük kalemi Oyuncu Maaşları 3,9M yoktu).
+- Maaş türleri `WagesData.PlayerTypeWageData` (`Name`, `Quantity`, `TotalBasicWage` oyunun gösterim döneminde); son satır
+  bütün kadro (sayısı ötekilerin toplamı). Sponsorlar `SponsorshipsData` (`Name`, `SponsorshipValuePerSeason`, `DateString`,
+  `Duration`, `PropertyValue` = toplam). Aylık bakiye `FinanceBalanceHistory` (`GraphPointX` ISO tarih, `GraphPointY`).
+  Projeksiyon `ProjectionBalance` / `ProjectionTurnover` `.ProjectionEndOfSeason{One|Two|Three}` (`ThisSeason`,
+  `PropertyValue`); kart Two ve Three'yi gösteriyor. `Title` oyunun dilinde ("2027/28 sezon sonu"), kullanılmıyor.
+- Listeler tembel bağlanıyor: ilk soru "is not a list", sonra alanları boş satırlar, sonra tam (`Fm.Pull` bunu bekliyor).
+
+Kaydırma ölçümü (artık kullanılmıyor, Happiness/Numbers/Matches/Staff'ın 400–500 ms'leri için): `/scroll` `to` verilmezse
+yalnızca konumu söyler ("0 of 586.2"); kaydırınca görünen satırlar tek adımda, ara durum olmadan yenileniyor (7 denemede
+50–130 ms). Doğru işaret: konum zaten hedefteyse bekleme yok, değilse görünen satırlar değişene kadar. Eklentiye
+`texts?within=<öğe adı>` eklendi (adlı bir panelin içindeki yazılar, `paths=1` ile). Kulüp sayfasındaki kutular
+`BindingRemapper #Finances`; kartın kutuları `#FinancesIncome`, `#FinancesExpenditure`, `#FinancesDebtsAndLoans`,
+`#FinancesFfp`, `#FinancesProjections`, `#FinancesSponsorshipsTile`; döküm kartında sekmeler `#ThisMonthTab`…, seçili olanın
+`#Selected`'ı dolu, toplam `#TotalExpenditure`.
+

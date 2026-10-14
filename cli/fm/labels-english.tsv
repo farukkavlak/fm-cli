@@ -186,11 +186,10 @@ CSV tek komutun tablosu: export <dosya.csv> <komut>   (ör. export kadro.csv "sq
 Okunamayan: {0}	Could not read: {0}
 Finans kartı okunamadı.	The finances card could not be read.
 '{0}' anlaşılmadı: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]	'{0}' not understood: finances income|expenditure [month|last month|season|last season]
-\n[dim]Kalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon][/]	\n[dim]Item by item: finances income|expenditure [month|last month|season|last season][/]
 \nKalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]	\nItem by item: finances income|expenditure [month|last month|season|last season]
 '{0}' bir dönem değil: ay, geçen ay, sezon, geçen sezon	'{0}' is not a period: month, last month, season, last season
-Gelir dökümü açılmadı.	The income breakdown did not open.
-Gider dökümü açılmadı.	The expenditure breakdown did not open.
+Gelir dökümü okunamadı.	The income breakdown could not be read.
+Gider dökümü okunamadı.	The expenditure breakdown could not be read.
 Açık bir tanıtım turu yok. Başlatmak için: reply <#> Begin	No guided tour is open. To start one: reply <#> Begin
 Bu tur atlanamıyor: atlama seçeneği sunmuyor.	This tour cannot be skipped: it offers no skip option.
 Tur atlandı.	Tour skipped.
@@ -2021,6 +2020,7 @@ Bu ay gider	Expenditure this month
 {0} bakiyesi	balance on {0}
 Finansal fair play	Financial fair play
 uyumlu	compliant
+uyumsuz	failing
 Bilet	Tickets
 Kombine	Season ticket
 {0} · {1:N0} kombine sahibi	{0} · {1:N0} season ticket holders

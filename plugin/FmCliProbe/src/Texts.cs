@@ -20,8 +20,11 @@ internal static class Texts
 		// ?anchorname= by the element's own name ("MessageBodyText"), for a text bound to nothing
 		// that tells it apart.
 		var anchorName = q["anchorname"];
-		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && string.IsNullOrEmpty(anchorName))
-			return "error: ?anchor=<text>, ?anchorpath=<data path> or ?anchorname=<element name> required";
+		// ?within= reads everything inside the first shown element of that name, of any kind (a tile's
+		// panel, "FinancesIncome"), with nothing to climb.
+		var within = q["within"];
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && string.IsNullOrEmpty(anchorName) && string.IsNullOrEmpty(within))
+			return "error: ?anchor=<text>, ?anchorpath=<data path>, ?anchorname=<element name> or ?within=<element name> required";
 		var up = int.TryParse(q["up"], out var n) ? n : 8;
 		// With ?paths=1 each text comes with the data path it is bound to, which says what it is
 		// whatever language it reads in ("Date", "Fixture.Opponent"…); empty when it is drawn another way.
@@ -36,6 +39,11 @@ internal static class Texts
 			try
 			{
 				if (element.panel == null || element.worldBound.width <= 0) continue;
+				if (!string.IsNullOrEmpty(within))
+				{
+					if (element.name != within || element.resolvedStyle.display == DisplayStyle.None) continue;
+					return "[" + string.Join(", ", Under(element, paths)) + "]\n";
+				}
 				var text = element.TryCast<TextElement>();
 				if (text == null) continue;
 				if (!string.IsNullOrEmpty(anchorName) ? element.name != anchorName
