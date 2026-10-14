@@ -33,7 +33,7 @@ internal static partial class Program
 		new("POTANSİYEL", "PerceivedPotentialAbility", QueryKind.Number, "kulübün gördüğü potansiyel, 200 üzerinden", ["potansiyel", "potential", "pa"]),
 		// The wage's sort value is the weekly wage in pounds, whatever period and currency the game shows.
 		new("MAAŞ", "FullContract.Wage.SortValue", QueryKind.Money, "haftalık maaşı, sterlin (50K, 1.2M)", ["maas", "wage"]),
-		new("SÖZLEŞME", "FullContract.EndDateDescription", QueryKind.Months, "sözleşmesinin kalan süresi (1yıl, 18ay)", ["sozlesme", "contract", "kalan"]),
+		new("SÖZLEŞME", "FullContract.EndDate", QueryKind.Months, "sözleşmesinin kalan süresi (1yıl, 18ay)", ["sozlesme", "contract", "kalan"]),
 		new("STATÜ", "FullContract.AgreedPlayingTime.DisplayValue", QueryKind.Text, "söz verilen oynama süresi (Star Player, Squad Player…)", ["statu", "status", "sure"]),
 		new("MAÇ", "ClubAppearancesThisSeason", QueryKind.Number, "bu sezon maç", ["mac", "apps", "matches"]),
 		new("GOL", "ClubGoalsThisSeason", QueryKind.Number, "bu sezon gol", ["gol", "goals"]),
@@ -135,7 +135,7 @@ internal static partial class Program
 					return wage.Success && Money(wage.Groups[1].Value) is { } money
 						? money / (wage.Groups[2].Value switch { "m" => 52 / 12.0, "a" => 52, _ => 1 }) : null;
 				case QueryKind.Months:
-					return DateTime.TryParseExact(text, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var ends)
+					return GameDay(text) is { } ends
 						? (ends.Year - today.Year) * 12 + ends.Month - today.Month + (ends.Day >= today.Day ? 0 : -1) : null;
 				case QueryKind.Flag:
 					return text == "True" ? 1 : 0;
@@ -169,7 +169,8 @@ internal static partial class Program
 			return f.Kind switch
 			{
 				QueryKind.Flag => text == "True" ? "sakat" : "",
-				QueryKind.Months => Value(p, f) is { } months ? $"{text} · {Left((int)months)}" : text,
+				QueryKind.Months => Value(p, f) is { } months && GameDay(text) is { } ends
+					? $"{ends.Day} {Months[ends.Month - 1]} {ends.Year} · {Left((int)months)}" : text,
 				QueryKind.Money => Value(p, f) is { } money ? $"{MoneyFormat.Exact((long)money)}/hafta" : text,
 				_ when f.Property == "ClubAverageRatingThisSeason" => Value(p, f) is { } r and > 0 ? r.ToString("0.00", CultureInfo.InvariantCulture) : "-",
 				_ => text,

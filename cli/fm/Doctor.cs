@@ -22,7 +22,7 @@ internal static partial class Program
 		var (team, _) = await Fm.OwnTeam();
 		var everyone = (await Fm.Pull("Human.Team.Players",
 			"Name,Age,PositionCombined,Condition,Sharpness,IsInjured,CurrentInjury.InjuryDescription,CurrentInjury.InjuryReturnDays,"
-			+ "FullContract.EndDateDescription,LoanClub.Name", list: true)).EnumerateArray()
+			+ "FullContract.EndDate,FullContract.EndDateDescription,LoanClub.Name", list: true)).EnumerateArray()
 			.Where(p => Field(p, "Name").Length > 0).ToList();
 		// Players out on loan are someone else's to look after; one loaned to us has us as his loan club.
 		var squad = everyone.Where(p => Field(p, "LoanClub.Name") is not { Length: > 0 } club || club == team).ToList();
@@ -36,7 +36,7 @@ internal static partial class Program
 		var tired = squad.Where(p => !Injured(p) && Number(p, "Condition") is >= 0 and < 85).OrderBy(p => Number(p, "Condition")).ToList();
 		var rusty = squad.Where(p => !Injured(p) && Number(p, "Sharpness") is >= 0 and < 60).OrderBy(p => Number(p, "Sharpness")).ToList();
 		var expiring = squad
-			.Select(p => (Player: p, Ends: DateTime.TryParseExact(Field(p, "FullContract.EndDateDescription"), "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var e) ? e : (DateTime?)null))
+			.Select(p => (Player: p, Ends: GameDay(Field(p, "FullContract.EndDate"))))
 			.Where(x => x.Ends is { } end && end < today.AddYears(1))
 			.OrderBy(x => x.Ends)
 			.ToList();

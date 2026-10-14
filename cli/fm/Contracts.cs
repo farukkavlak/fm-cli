@@ -29,6 +29,13 @@ internal static partial class Program
 		("WageNextSeason", "Gelecek sezon ücreti"),
 	];
 
+	/// <summary>
+	/// A day from the game's data ("2027-06-30"); null for none, which the game writes as a day in 1900
+	/// (a player with no end to his contract shows "N/A").
+	/// </summary>
+	internal static DateTime? GameDay(string iso) =>
+		DateTime.TryParseExact(iso, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day) && day.Year > 1900 ? day : null;
+
 	/// <summary>One of our players' contract in full: `contracts <oyuncu>`.</summary>
 	private static async Task<int> ContractOf(bool json, string wanted)
 	{
@@ -87,15 +94,17 @@ internal static partial class Program
 		if (string.Join(" ", Words(args)) is { Length: > 0 } wanted) return await ContractOf(json, wanted);
 
 		var players = (await Fm.Pull("Human.Team.Players", "Name,Age,PositionCombinedString", list: true)).EnumerateArray().ToList();
-		const string props = "EndDateDescription";
+		// The day as data (the shown text follows the game's date format: day or month first).
+		const string props = "EndDate,EndDateDescription";
 		foreach (var p in players) await Fm.GetJson("pull", ("path", Field(p, "Row") + ".FullContract"), ("props", props));
 
 		var today = DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var d) ? d : DateTime.Today;
 		var rows = new List<(string Name, string Age, string Position, DateTime? Ends, string Text)>();
 		foreach (var p in players)
 		{
-			var ends = Field(await Fm.Pull(Field(p, "Row") + ".FullContract", props), "EndDateDescription");
-			DateTime? date = DateTime.TryParseExact(ends, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var e) ? e : null;
+			var read = await Fm.Pull(Field(p, "Row") + ".FullContract", props);
+			var ends = Field(read, "EndDateDescription");
+			var date = GameDay(Field(read, "EndDate"));
 			rows.Add((Field(p, "Name"), Field(p, "Age"), Field(p, "PositionCombinedString"), date, ends));
 		}
 		rows = rows.OrderBy(r => r.Ends ?? DateTime.MaxValue).ThenBy(r => r.Name).ToList();
