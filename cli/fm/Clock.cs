@@ -186,6 +186,9 @@ internal static partial class Program
 	{
 		flow ??= Field(state, "State");
 		var button = Field(state, "Button");
+		// The state is read apart from any request, so the button's words come without the game's own;
+		// they are asked for.
+		await GameWords.Ask(Fm, button);
 
 		switch (flow)
 		{
@@ -210,7 +213,7 @@ internal static partial class Program
 						output.WriteLine(again.Count == 1 && !again[0].Contains('"')
 							? L($"Bakmak için: reply \"{again[0]}\"")
 							: L("Bakmak için: reply <#>   (numaralar için: inbox)"));
-						if (button is { Length: > 0 } and not ("Continue" or "Response Required")) output.WriteLine(L($"İlerle butonu: {button}"));
+						if (button is { Length: > 0 } and not ("Continue" or "Response Required")) output.WriteLine(L($"İlerle butonu: {GameWords.Of(button)}"));
 						return;
 					}
 					// The kind of thing waiting, by the game's number (3: an offer for one of ours, 16 Temmuz
@@ -264,7 +267,7 @@ internal static partial class Program
 			default: output.WriteLine(L($"Oyun ilerlemiyor: {flow}")); break;
 		}
 
-		if (!string.IsNullOrEmpty(button) && button is not ("Continue" or "Response Required")) output.WriteLine(L($"İlerle butonu: {button}"));
+		if (!string.IsNullOrEmpty(button) && button is not ("Continue" or "Response Required")) output.WriteLine(L($"İlerle butonu: {GameWords.Of(button)}"));
 	}
 
 	/// <summary>

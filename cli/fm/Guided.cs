@@ -329,7 +329,7 @@ internal static partial class Program
 				: await Fm.Get("select", ("ptr", said.Pointer), ("choice", said.Choice), ("fire", "1"));
 			if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
-			Console.WriteLine($"» {line}\n");
+			Console.WriteLine($"» {GameWords.Of(line)}\n");
 
 			// The reply and the next set of answers arrive together, a moment later. In between the
 			// panel is briefly empty, so an empty one is only believed after it has stayed empty.
