@@ -48,6 +48,8 @@ internal static class Labels
 	}
 
 	/// <summary>Whether the CLI's words are shown as they are written: a Turkish game, or no game seen yet.</summary>
+	public static bool Turkish => AsWritten;
+
 	private static bool AsWritten => Language.Length == 0 || Language.StartsWith("turkish", StringComparison.OrdinalIgnoreCase);
 
 	/// <summary>A text the CLI prints, in the game's language.</summary>

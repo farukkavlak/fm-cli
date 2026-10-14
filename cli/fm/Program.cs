@@ -2010,8 +2010,10 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>Also where tab completion takes each command's description from.</summary>
-	private const string HelpText = """
+	/// <summary>Also where tab completion takes each command's description from; in the game's language.</summary>
+	private static string HelpText => Labels.Turkish ? HelpTurkish : HelpEnglish;
+
+	private const string HelpTurkish = """
 			fm — Football Manager 26'yı terminalden yönet
 
 			  fm start        oyunu başlat, kaydı yükle, oturuma gir   (--menu: kayıt yüklemeden ana menüde bırak)
