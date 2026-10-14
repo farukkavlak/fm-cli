@@ -1402,7 +1402,42 @@ internal static partial class Program
 		if (article.Count > 0)
 			foreach (var paragraph in article.SelectMany(t => t.Split('\n')).Where(l => l.Trim() != ""))
 				Console.WriteLine("  " + paragraph.Trim());
-		else if (rest.Count > 0) Console.WriteLine("  " + string.Join(" · ", rest));
+		else if (rest.Count > 0) Console.WriteLine("  " + string.Join(" · ", await LabelledAttachment(rest)));
+	}
+
+	/// <summary>
+	/// An attachment no reader here knows, laid out by its data paths (FINDINGS §8.169): a value bound
+	/// to the game's data with the label drawn before it ("Fee: £0"), labels with nothing bound after
+	/// them as they are. The same in any language; without paths (an older plugin) the texts as they come.
+	/// </summary>
+	private static async Task<List<string>> LabelledAttachment(List<string> shown)
+	{
+		List<(string Text, string Path)> texts;
+		try
+		{
+			texts = (await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "8"), ("paths", "1"))).EnumerateArray()
+				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+		}
+		catch (FmError) { return shown; }
+		var start = texts.FindIndex(t => t.Text == "Attachments");
+		if (start < 0 || !texts.Any(t => t.Path.Length > 0)) return shown;
+		// Only what the reader was given: the attachment, not the panels beside it.
+		var wanted = shown.ToHashSet();
+		var items = new List<string>();
+		string label = null;
+		foreach (var (text, path) in texts.Skip(start + 1).Where(t => wanted.Contains(t.Text)))
+		{
+			if (path.Length == 0)
+			{
+				if (label != null) items.Add(label);
+				label = text;
+				continue;
+			}
+			items.Add(label != null ? $"{label}: {text}" : text);
+			label = null;
+		}
+		if (label != null) items.Add(label);
+		return items.Count > 0 ? items : shown;
 	}
 
 	/// <summary>

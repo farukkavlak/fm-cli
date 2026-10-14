@@ -214,7 +214,8 @@ değiştirebilir. Skin'in gerçekten değiştirip değiştirmediği **[ölçüle
 
 ## 5. Kariyere / kulübe / lige özel varsayımlar
 
-- **Lig hangisi?** İki ayrı tahmin, ikisi de ada bakıyor **[kesin]**:
+- **Lig hangisi?** ✅ 14 Ekim: takımın ligi verisinden (`Human.Team.Division.Name`), iki tahmin de kalktı. Eski hali:
+  İki ayrı tahmin, ikisi de ada bakıyor **[kesin]**:
   - `League.cs:66` — adında `"League"` geçen ve `"UEFA"` ile başlamayan ilk turnuva. Almanya'da "Bundesliga" bunu
     sağlamaz; ilk turnuvaya düşer (lig ilk sıradaysa şans eseri tutar).
   - `Reads.cs:1057` — adında `"UEFA"`, `"Cup"`, `"Friendly"`, `"Champions"` geçmeyen ilk turnuva. "DFB-Pokal" bunlardan
@@ -226,12 +227,14 @@ değiştirebilir. Skin'in gerçekten değiştirip değiştirmediği **[ölçüle
   Kalanlar: `( U\d\ds| Yth Cands)$` (`Calendar.cs:89`, rakibin altyapısı — takvim veriden okununca kalkar),
   `"Senior Squad"` / `"U19 Squad"` (`OfferScreen.cs:362-363`), "Under 19s / Under 21s Training Review" (§8.155). Almanya'da
   "U19" / "II" (ikinci takım) / "U23" düzeni farklı.
-- **Kadro kaydı kuralları** **[kesin]**: `Registration.cs:133-162` kural adlarını ve açıklama cümlelerini İngiltere /
+- **Kadro kaydı kuralları** (14 Ekim: not bloğu `squadreg.ExtraSquadRules` yolundan, tanınmayan cümle oyunun dilinde
+  gösteriliyor) **[kesin]**: `Registration.cs:133-162` kural adlarını ve açıklama cümlelerini İngiltere /
   Türkiye'deki hallerine göre tanıyor ("Homegrown in Nation", "Homegrown at Club"…). Başka federasyonun kuralı adsız kalır.
 - **Personel görevleri listesi sabit** **[kesin]**: `Staff.cs:20-23`. Başka ülkede "President" yerine başka unvan,
   ya da listede olmayan görev olabilir.
 - **Turnuva ağacı** **[kesin]**: `Stages.cs:431`, `Reads.cs:892` "Men's" / "Under" klasör adlarına bakıyor.
-- **Önbellekler kayda ve dile bağlı değil** **[kesin]**: `~/.config/fm-cli/` altında `competitions.json`,
+- **Önbellekler kayda ve dile bağlı değil** ✅ 14 Ekim: `~/.config/fm-cli/cache/<dil>/<menajer - kulüp>/` (eklentinin
+  `/state`'i oyunun dilini veriyor; `CacheFile`). `snapshot.json` ve `diff-<takım>.json` yerinde kaldı. Eski hali **[kesin]**: `~/.config/fm-cli/` altında `competitions.json`,
   `duty-areas.json`, `team-instructions.json`, `player-instructions.json`, `training-sessions.json`,
   `league-stats.json`, `snapshot.json`; `$TMPDIR/fm-cli-inbox-numbers.json`. Hepsi İngilizce ad taşıyor ve hangi
   kayıttan / dilden çıktığını bilmiyor. Yeni kariyerde (başka veritabanı, başka lig seçimi) ya da dil değişince eski

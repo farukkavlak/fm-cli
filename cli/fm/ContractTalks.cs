@@ -305,8 +305,12 @@ internal static partial class Program
 		{
 			await LeaveTalks();
 			// A renewal is not signed there and then: the agent takes it away and answers in a few days.
+			// That is in the agent's words, which only an English game's are known here; in another
+			// language which it was is not guessed.
+			var english = Field(await Fm.GetJson("state"), "Language") is "" or "english";
 			var later = said.Contains("final decision", StringComparison.OrdinalIgnoreCase) || said.Contains("be in touch", StringComparison.OrdinalIgnoreCase);
 			Tell(!finalising ? "Görüşme kapandı."
+				: !english ? "Görüşme kapandı: sözleşme ya imzalandı ya da kararı birkaç gün içinde gelen kutusuna düşer (contracts)."
 				: later ? "Teklif karşı tarafta; kararı birkaç gün içinde gelen kutusuna düşer."
 				: "Sözleşme imzalandı; görüşme kapandı.");
 			return finalising ? Outcome.Signed : Outcome.Answered;

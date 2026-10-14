@@ -18,15 +18,14 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.Board);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		// The card is behind the tile that counts the board's members.
+		// The card is behind the board's tile, known by the panel it is laid out in (BindingRemapper
+		// #Board): its words count the members in the game's language.
 		List<BoardRequest> requests = [];
 		for (var attempt = 0; attempt < 3 && requests.Count == 0; attempt++)
 		{
-			JsonElement tile = default;
-			await Until(async () => (tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.FirstOrDefault(b => Field(b, "Label").Contains("board member", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
-			if (tile.ValueKind != JsonValueKind.Object) break;
-			await Fm.Get("click", ("ptr", Field(tile, "Pointer")));
+			var clicked = "";
+			await Until(async () => !(clicked = await Fm.Get("click", ("within", "Board"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.4);
+			if (clicked.StartsWith("error", StringComparison.Ordinal)) break;
 			await Until(async () => (requests = await BoardRequestList()).Count > 0, seconds: 5, every: 0.5);
 		}
 		if (requests.Count == 0)

@@ -488,14 +488,11 @@ internal static partial class Program
 	private static string TeamProblem(JsonElement dialog)
 	{
 		if (Field(dialog, "Title") != "Team Selection") return null;
-		var said = Field(dialog, "Description");
-		if (said.Contains("not selected any", StringComparison.Ordinal)) return "İlk 11 seçilmemiş.";
-		// "cannot be registered": one sold but not yet gone, picked among the substitutes (Defrel,
-		// 30 Kasım 2025 — agreed to Angers, leaving on 1 January).
-		if (said.Contains("unavailable", StringComparison.Ordinal) || said.Contains("injured", StringComparison.Ordinal) || said.Contains("suspended", StringComparison.Ordinal)
-		    || said.Contains("cannot be registered", StringComparison.Ordinal))
-			return said.Split('\n')[0].Trim();
-		return null;
+		// A notice with only "Ok" on it says the eleven cannot go out as it is — none picked, ten picked,
+		// one injured, suspended or sold but not yet gone ("cannot be registered", Defrel, 30 Kasım
+		// 2025). Its words are the engine's, in the game's language, so it is known by having one answer.
+		var answers = dialog.TryGetProperty("Buttons", out var buttons) ? buttons.GetArrayLength() : 0;
+		return answers == 1 ? Field(dialog, "Description").Split('\n')[0].Trim() : null;
 	}
 
 	/// <summary>
