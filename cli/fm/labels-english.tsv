@@ -2244,7 +2244,7 @@ NEDEN	WHY
     Değer {0} · ücret {1}{2}	    Value {0} · wage {1}{2}
  · sözleşme {0}'e kadar	 · contract until {0}
     Değer {0} · ücret {1} {2}	    Value {0} · wage {1} {2}
-    Kondisyon: {0} · mutluluk: {1} · ortalama puan {2}	    Fitness: {0} · happiness: {1} · average rating {2}
+    Kondisyon: {0} · moral: {1} · ortalama puan {2}	    Fitness: {0} · morale: {1} · average rating {2}
     Transfer durumu: {0} · kiralık: {1}	    Transfer status: {0} · loan: {1}
     Teklifler: {0} · ilgilenen kulüp {1}	    Offers: {0} · clubs interested {1}
 \n  Ek: oyuncu tavsiyeleri — {0}	\n  Attached: player recommendations — {0}
@@ -2263,3 +2263,6 @@ NEDEN	WHY
 \n  Ek: sözleşmesi bitecekler — {0}{1}	\n  Attached: contracts running out — {0}{1}
 , ekranda görünen {0}	, {0} shown
     Hepsi ve sözleşme teklifi: contracts	    All of them, and offering a contract: contracts
+    Antrenman: {0} · puan {1}{2}	    Training: {0} · rating {1}{2}
+    Mutluluk: {0} ({1} artı, {2} eksi)	    Happiness: {0} ({1} good, {2} bad)
+    Mevkide yeteneği: {0}	    Positional ability: {0}

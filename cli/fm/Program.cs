@@ -1696,22 +1696,37 @@ internal static partial class Program
 			return;
 		}
 
-		// Our player's card on a bid for him: who he is, his terms, how he is, his transfer and loan status and
-		// the offers made, by data path; the age, the contract's end and the counts are drawn without one.
-		if (rest[0] == "Report" && One("Person.Name") is { Length: > 0 } bidFor && page.Any(t => t.Path == "row.TransferOfferType"))
+		// Our player's card (on a bid for him, in a coach's word on his training): who he is, his terms, how
+		// he is, then what the card holds of his transfer and loan status and the offers made, or his
+		// training; by data path, the age, the contract's end, the rating and the counts drawn without one.
+		if (rest[0] == "Report" && One("Person.Name") is { Length: > 0 } bidFor)
 		{
 			string Plain(string label) => page.FindIndex(t => t.Path.Length == 0 && t.Text == label) is >= 0 and var i && i + 1 < page.Count && page[i + 1].Path.Length == 0 ? page[i + 1].Text : "";
 			var age = page.FindIndex(t => t.Path == "Nation.Name") is >= 0 and var n && n + 1 < page.Count && page[n + 1].Path.Length == 0 ? page[n + 1].Text : "";
 			var until = page.FirstOrDefault(t => t.Path.Length == 0 && t.Text.StartsWith('(') && t.Text.Any(char.IsDigit) && t.Text.Contains('/')).Text ?? "";
 			Console.WriteLine(L("\n  Ek: ") + string.Join(" · ", new[] { bidFor, One("Person.PositionCombinedString"), One("Nation.Name"), age }.Where(x => x.Length > 0)));
 			Console.WriteLine(L($"    Değer {One("binding.TransferValueRangeString")} · ücret {One("Person.FullContract.Wage.DisplayValue")} {until}").TrimEnd());
-			Console.WriteLine(L($"    Kondisyon: {One("Person.ConditionCommentTypeString")} · mutluluk: {One("Person.MoraleString")} · ortalama puan {Plain("Average Rating")}"));
+			Console.WriteLine(L($"    Kondisyon: {One("Person.ConditionCommentTypeString")} · moral: {One("Person.MoraleString")} · ortalama puan {Plain("Average Rating")}"));
+			if (rest.Contains("T.Rat"))
+			{
+				// The training card: how he is doing, the rating before its label, the workload and the unit after it.
+				var at = rest.IndexOf("T.Rat");
+				var how = rest.IndexOf("Training") is > 0 and var tr && tr + 1 < at ? rest[tr + 1] : "";
+				var rating = at > 0 && rest[at - 1].Any(char.IsDigit) ? rest[at - 1] : "-";
+				var after = rest.Skip(at + 1).TakeWhile(t => t != "Happiness" && t != "Positional Ability").ToList();
+				Console.WriteLine(L($"    Antrenman: {how} · puan {rating}{(after.Count > 0 ? " · " + string.Join(" · ", after) : "")}"));
+			}
+			if (One("HappinessPositivesCount") is { Length: > 0 } plus)
+				Console.WriteLine(L($"    Mutluluk: {(rest.LastIndexOf("Happiness") is > 0 and var h && h + 1 < rest.Count ? rest[h + 1] : "-")} ({plus} artı, {One("HappinessNegativesCount")} eksi)"));
+			if (rest.IndexOf("Positional Ability") is > 0 and var pa && pa + 1 < rest.Count && !rest[pa + 1].StartsWith("Action", StringComparison.Ordinal))
+				Console.WriteLine(L($"    Mevkide yeteneği: {string.Join(" · ", rest.Skip(pa + 1).TakeWhile(t => t != "Action message"))}"));
+			if (!page.Any(t => t.Path == "Player.TransferStatusDetails.TransferStatusDescription.Text")) return;
 			Console.WriteLine(L($"    Transfer durumu: {One("Player.TransferStatusDetails.TransferStatusDescription.Text")} · kiralık: {One("Player.LoanStatusDetails.TransferStatusDescription.Text")}"));
 			var offers = new List<string>();
 			for (var i = 1; i + 1 < page.Count; i++)
 				if (page[i].Path == "row.TransferOfferType")
 					offers.Add($"{page[i - 1].Text} ({page[i].Text}{(page[i + 1].Path == "row.TotalTransferCost" ? $", {page[i + 1].Text}" : "")})");
-			Console.WriteLine(L($"    Teklifler: {string.Join(" · ", offers)} · ilgilenen kulüp {Plain("Interested Clubs").Trim('(', ')')}"));
+			if (offers.Count > 0) Console.WriteLine(L($"    Teklifler: {string.Join(" · ", offers)} · ilgilenen kulüp {Plain("Interested Clubs").Trim('(', ')')}"));
 			return;
 		}
 
