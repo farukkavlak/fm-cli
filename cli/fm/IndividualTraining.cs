@@ -18,9 +18,9 @@ internal static partial class Program
 		if (args.Any(a => a.StartsWith("--trait", StringComparison.Ordinal))) return await TraitTraining(args);
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage(Screen.Training);
+		var opened = await OpenSubpage(Screen.Training, Screen.IndividualTraining,
+			async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == "ViewDropdown"));
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Individual Training"), ("fire", "1"));
 		// The list view has every player's lists in a row; the detailed one is a card per player.
 		await Until(async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == "ViewDropdown"), seconds: 8, every: 0.5);
 		await Fm.Get("select", ("name", "ViewDropdown"), ("choice", "List"));

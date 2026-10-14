@@ -22,12 +22,9 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage(Screen.Training);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Training Intensity"), ("fire", "1"));
-
 		async Task<List<JsonElement>> Visible() => (await Fm.GetJson("namedrows", ("dropdown", IntensityList))).EnumerateArray().ToList();
-		if (!await Until(async () => (await Visible()).Count > 0, seconds: 10, every: 0.5))
+		var opened = await OpenSubpage(Screen.Training, Screen.TrainingIntensity, async () => (await Visible()).Count > 0);
+		if (opened.StartsWith("error", StringComparison.Ordinal) || !await Until(async () => (await Visible()).Count > 0, seconds: 10, every: 0.5))
 		{
 			Console.Error.WriteLine("Antrenman yoğunluğu sayfası açılmadı.");
 			return 1;

@@ -35,9 +35,8 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenPage(Screen.Training);
+		var opened = await OpenSubpage(Screen.Training, Screen.CoachAssignments, async () => await ReadCoaches() is { Rows.Count: > 0 });
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Coach Assignments"), ("fire", "1"));
 
 		(List<CoachRow> Rows, List<(string Load, int HalfStars)> Areas)? page = null;
 		if (!await Until(async () => (page = await ReadCoaches()) is { Rows.Count: > 0 }, seconds: 10, every: 0.5))
