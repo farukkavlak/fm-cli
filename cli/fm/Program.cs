@@ -1597,6 +1597,26 @@ internal static partial class Program
 			return;
 		}
 
+		// The contracts running out: a row from the player's name ("binding.Name") to the action recommended
+		// ("row.DisplayValue"), his positions and wage between; the abilities are stars, not text. Only the
+		// rows drawn are bound; the heading counts them all.
+		if (page.Any(t => t.Path == "binding.Name") && page.Any(t => t.Path == "row.DisplayValue") && rest.Contains("Recommended Action"))
+		{
+			var rows = new List<string[]>();
+			for (var i = 0; i < page.Count; i++)
+			{
+				if (page[i].Path != "binding.Name") continue;
+				var row = page.Skip(i + 1).TakeWhile(t => t.Path is "binding" or "row.DisplayValue" or "").ToList();
+				var cells = row.Where(t => t.Path == "binding").Select(t => t.Text).ToList();
+				var action = row.FirstOrDefault(t => t.Path == "row.DisplayValue").Text ?? "";
+				rows.Add([page[i].Text, cells.ElementAtOrDefault(0) ?? "", cells.ElementAtOrDefault(1) ?? "", action]);
+			}
+			Console.WriteLine(L($"\n  Ek: sözleşmesi bitecekler — {rest[0]}{(rows.Count > 0 ? L($", ekranda görünen {rows.Count}") : "")}"));
+			Table.Write([L("OYUNCU"), L("MEVKİ"), L("MAAŞ"), L("ÖNERİLEN")], rows);
+			Console.WriteLine(L("    Hepsi ve sözleşme teklifi: contracts"));
+			return;
+		}
+
 		// The squad's win bonuses for the season: for the league and for the cups, low, normal or high, by
 		// data path; the one chosen is the button whose row style is the active one (#low-, #middle-,
 		// #high-button), each row found by its own figure.

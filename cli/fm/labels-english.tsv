@@ -2259,3 +2259,7 @@ NEDEN	WHY
 \n  Ek: maç hazırlığı — {0} ({1}, {2})	\n  Attached: match preparation — {0} ({1}, {2})
     Değiştirmek: prep	    To change: prep
 \n  Ek: kadronun galibiyet primleri (artış ya da düşüş transfer bütçesine yansır)	\n  Attached: the squad's win bonuses (a rise or a cut comes out of the transfer budget)
+ÖNERİLEN	RECOMMENDED
+\n  Ek: sözleşmesi bitecekler — {0}{1}	\n  Attached: contracts running out — {0}{1}
+, ekranda görünen {0}	, {0} shown
+    Hepsi ve sözleşme teklifi: contracts	    All of them, and offering a contract: contracts
