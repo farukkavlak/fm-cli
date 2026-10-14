@@ -86,7 +86,8 @@ internal static class EngineTexts
 		{
 			if (!english.TryGetValue(key, out var en) || text == en) continue;
 			// A text built from parts ("[%male#1] left") is never shown as it is; only plain ones are kept.
-			if (text.Contains("[%", StringComparison.Ordinal) || text.Contains('\t') || text.Contains('\n') || en.Contains('\n')) continue;
+			if (text.Contains("[%", StringComparison.Ordinal) || en.Contains("[%", StringComparison.Ordinal)
+			    || text.Contains('\t') || text.Contains('\n') || en.Contains('\n')) continue;
 			// A code of a few letters ("D", "M", "OOS") stands for different things in different places
 			// ("D" is a defender and a draw); going back from it guesses.
 			if (text.Length < 4) continue;
