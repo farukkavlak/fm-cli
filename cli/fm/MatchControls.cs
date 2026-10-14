@@ -126,7 +126,9 @@ internal static partial class Program
 		if (entries.Count == 0 && !await DugoutShowing())
 		{
 			Console.Error.WriteLine(L("Dugout paneli pozisyon oynatılırken gizleniyor; bekliyorum…"));
-			if (await Until(DugoutShowing, seconds: 30, every: 0.5)) entries = await DugoutEntries();
+			// Its entries are drawn a moment after it shows.
+			if (await Until(DugoutShowing, seconds: 30, every: 0.5))
+				await Until(async () => (entries = await DugoutEntries()).Count > 0, seconds: 3, every: 0.25);
 		}
 		if (entries.Count == 0)
 		{
