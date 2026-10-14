@@ -24,6 +24,8 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 		var players = await HappinessRows();
+		// A level the page writes without its translation ("Content") is shown in the game's words.
+		await GameWords.Ask(Fm, HappinessLevels);
 		if (players.Count == 0)
 		{
 			Console.Error.WriteLine(L("Mutluluk sayfası okunamadı."));

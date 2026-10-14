@@ -67,10 +67,14 @@ internal static class GameWords
 		{
 			if (i % 2 == 1)
 			{
-				// Spaces after a part that changed length take up the difference, leaving at least two.
+				// Spaces after a part that changed length take up the difference, leaving at least two;
+				// the difference carries over what stands between ("Star Player (1)   £18,819").
 				if (carry != 0 && parts[i].Length >= 2 && parts[i].Trim().Length == 0)
+				{
 					parts[i] = new string(' ', Math.Max(2, parts[i].Length - carry));
-				carry = 0;
+					carry = 0;
+				}
+				else if (parts[i] is "\t" or "\n" or "\r\n") carry = 0;
 				continue;
 			}
 			var part = parts[i];
