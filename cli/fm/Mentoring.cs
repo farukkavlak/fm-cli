@@ -271,17 +271,29 @@ internal static partial class Program
 			chosen.Add(player);
 		}
 
+		// The editor's list keeps where it was scrolled to last time. It is moved by a workload shown in
+		// it ("Heavy", "Medium": only this list has them; a name is in the squad list behind it too), and
+		// whichever of them is in view at the time will do.
+		var workloads = candidates.Select(c => c[2]).Where(w => w.Length > 0).Distinct().ToList();
+		async Task<bool> ScrollTo(string share)
+		{
+			foreach (var load in workloads)
+				if (!(await Fm.Get("scroll", ("anchor", load), ("to", share))).StartsWith("error", StringComparison.Ordinal)) return true;
+			return false;
+		}
+		await ScrollTo("0");
+		await Task.Delay(400);
 		foreach (var player in chosen)
 		{
 			// The editor's list is drawn a moment after it opens.
 			var ticked = "";
-			await Until(async () => !(ticked = await Fm.Get("rowselect", ("text", player), ("check", "1"))).StartsWith("error", StringComparison.Ordinal), seconds: 3, every: 0.5);
+			await Until(async () => !(ticked = await Fm.Get("rowselect", ("text", player), ("check", "1"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 			if (ticked.StartsWith("error", StringComparison.Ordinal))
 			{
 				// Out of view: the list is moved until the row is laid out.
 				foreach (var share in new[] { "0", "0.5", "1" })
 				{
-					await Fm.Get("scroll", ("anchor", candidates[0][2]), ("to", share));
+					await ScrollTo(share);
 					await Task.Delay(500);
 					ticked = await Fm.Get("rowselect", ("text", player), ("check", "1"));
 					if (!ticked.StartsWith("error", StringComparison.Ordinal)) break;

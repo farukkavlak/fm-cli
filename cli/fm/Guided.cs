@@ -1217,8 +1217,11 @@ internal static partial class Program
 			return 69;
 		}
 
-		hadTactic = int.TryParse(Field(await TacticInfo(), "TacticCount"), out var tactics) && tactics >= 1;
 		var stage = await CreatorStage();
+		// The team's tactics are read on the tactics page, before the wizard covers it.
+		hadTactic = false;
+		if (stage == null && !(await OpenPage(Screen.Tactics)).StartsWith("error", StringComparison.Ordinal))
+			hadTactic = await Until(async () => int.TryParse(Field(await TacticInfo(), "TacticCount"), out var tactics) && tactics >= 1, seconds: 4, every: 0.4);
 		if (stage == null)
 		{
 			// A team without a tactic shows a tile saying so, and that tile opens the wizard. A
