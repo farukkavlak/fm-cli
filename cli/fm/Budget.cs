@@ -55,7 +55,8 @@ internal static partial class Program
 		var pointer = Field(slider, "Pointer");
 		var start = (int)double.Parse(Field(slider, "Value"), System.Globalization.CultureInfo.InvariantCulture);
 		var high = (int)double.Parse(Field(slider, "High"), System.Globalization.CultureInfo.InvariantCulture);
-		var board = (await BudgetCard()).Select(i => Field(i, "Text")).FirstOrDefault(t => t.StartsWith("The board", StringComparison.Ordinal));
+		// The board's word on it, a sentence in the game's language, by its data path.
+		var board = (await BudgetCard()).Where(i => Field(i, "Path") == "budget.BudgetAdjustmentBoardString").Select(i => Field(i, "Text")).FirstOrDefault();
 
 		var steps = new List<(string Wage, string Transfer)>();
 		for (var step = 0; step <= high; step++)
@@ -147,7 +148,7 @@ internal static partial class Program
 	}
 
 	private static async Task<List<JsonElement>> BudgetCard() =>
-		(await Fm.GetJson("form", ("anchor", "Budget Adjustment"), ("up", "6"))).EnumerateArray().ToList();
+		(await Fm.GetJson("form", ("anchor", "Budget Adjustment"), ("up", "6"), ("paths", "1"))).EnumerateArray().ToList();
 
 	/// <summary>The wage and transfer budgets the card shows for where the slider stands.</summary>
 	private static (string Wage, string Transfer) BudgetFigures(List<JsonElement> card)
