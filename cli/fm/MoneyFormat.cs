@@ -67,6 +67,10 @@ internal static class MoneyFormat
 		return (amount < 0 ? "-" : "") + string.Format(CultureInfo.InvariantCulture, templates[0], figure);
 	}
 
+	/// <summary>Whether a text is an amount of money: a currency's symbol on either side of a figure ("£2.5M", "673B £").</summary>
+	public static bool IsMoney(string text) =>
+		!string.IsNullOrEmpty(text) && text.Any(c => char.GetUnicodeCategory(c) == UnicodeCategory.CurrencySymbol) && text.Any(char.IsDigit);
+
 	public static long? Parse(string text)
 	{
 		if (string.IsNullOrWhiteSpace(text)) return null;

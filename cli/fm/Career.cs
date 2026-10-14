@@ -51,7 +51,7 @@ internal static partial class Program
 		if (!labelled)
 		{
 			totalAt = Math.Max(start, texts.Count - 5);
-			if (totalAt > start && Regex.IsMatch(texts[totalAt - 1], @"^[£€$]")) totalAt--;
+			if (totalAt > start && MoneyFormat.IsMoney(texts[totalAt - 1])) totalAt--;
 		}
 		var marks = Enumerable.Range(start, Math.Max(0, totalAt - start)).Where(i => SeasonMark.IsMatch(texts[i])).ToList();
 		if (start <= 0 || marks.Count == 0)
@@ -79,7 +79,7 @@ internal static partial class Program
 
 		// After "Total": the fees paid for him in all, then the career's own numbers.
 		var totals = texts.Skip(labelled ? totalAt + 1 : totalAt).ToList();
-		var spent = totals.FirstOrDefault(t => t.StartsWith('£') || t.StartsWith('€') || t.StartsWith('$')) ?? "";
+		var spent = totals.FirstOrDefault(MoneyFormat.IsMoney) ?? "";
 		var numbers = totals.Where(t => Regex.IsMatch(t, @"^[\d.]+$")).ToList();
 
 		if (json)

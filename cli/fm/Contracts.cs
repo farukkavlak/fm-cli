@@ -54,7 +54,7 @@ internal static partial class Program
 			try { read = await Fm.GetJson("pull", ("path", contract), ("props", $"{field}.DisplayValue")); }
 			catch (FmError) { continue; }
 			var value = Field(read, $"{field}.DisplayValue");
-			if (value.Length > 0 && value is not ("-" or "N/A" or "None" or "No" or "£0" or "0%")) terms.Add((say, value.Replace(" after tax", "")));
+			if (value.Length > 0 && value is not ("-" or "N/A" or "None" or "No" or "0%") && !(MoneyFormat.IsMoney(value) && Money(value) == 0)) terms.Add((say, value.Replace(" after tax", "")));
 		}
 
 		var name = Field(hits[0], "Name");
