@@ -119,7 +119,8 @@ tablodan çevrilemiyor.
 ### D. Lig / takım / kayıt
 
 - [x] Kodda lig, takım, kulüp ya da kayıt adı yok (tarama: yalnızca para biçiminin öğrenilene kadarki varsayılanı "£").
-- [ ] Kariyer başka ülkede (Almanya, kupa adları, kayıt kuralları, Avrupa kupası) hiç denenmedi — Faruk'un kararı bekliyor.
+- [ ] Kariyer başka ülkede (Almanya, kupa adları, kayıt kuralları, Avrupa kupası) ve sıfırdan başlayan bir kayıt hiç
+  denenmedi — yayın hedefi için şart (H).
 - [ ] `~/.config/fm-cli/` önbellekleri hangi kayda/dile ait olduğunu biliyor mu (rol adları dile göre ayrıldı; diğerleri?).
 
 ### E. Ekran / tema / çözünürlük
@@ -142,6 +143,28 @@ tablodan çevrilemiyor.
 - [x] Kayıt/taktik klasörü oyuna soruluyor (`/folders`, `GameFolders.cs`); platform varsayılanı macOS'a göre (`GameFolders` 31).
 - [ ] BepInEx arm64 yamalı paket; Windows x64 resmi paketle denenmedi.
 - [~] `~/.config/fm-cli/` (UserProfile altında) her platformda geçerli bir yer.
+
+### H. Kurulum / yayın (hedef: macOS + Steam, başkaları kolayca kurup oynasın)
+
+15 Ekim'de eklendi. Faruk'un "live" tanımı: macOS + Steam'de başkasının kolayca kurup oynayabildiği hal. Bugün yalnızca
+geliştiricinin makinesinde çalışıyor. Bu hedef için D (başka lig / sıfırdan kayıt) şart; E (skin) ve G'nin Windows / Epic
+kısmı sonraya kalabilir. Tahmin (15 Ekim): A+B+C 5–7 gün, D 1–2, H 4–6, polish 3–5 → ~3–4 hafta.
+
+- [ ] **BepInEx lisansı:** DadMych/fm26-player-export-macos paketini yeniden dağıtmaya izin var mı; yoksa kullanıcı ayrıca
+  indirir, kurulum ona göre.
+- [ ] **Oyun kopyası:** `~/fm26_bep/fm.app` nasıl kuruluyor (Steam'deki kopyadan, Info.plist yaması), adım adım yazılmalı ve
+  betiğe girmeli; Steam oyunu güncelleyince kopya ne oluyor.
+- [ ] **Tek komutla kurulum:** betik ya da `brew` paketi: oyun yolunu bul, BepInEx'i kur, oyun kopyasını hazırla, eklentiyi
+  koy, `fm`'i PATH'e koy, MCP ayarını yaz. Tekrar çalıştırılabilir olsun (güncelleme = aynı komut).
+- [ ] **SDK'sız `fm`:** hazır derlenmiş, kendi kendine yeten `dotnet publish` (osx-arm64); eklenti DLL'i de hazır gelir.
+- [ ] **`fm doctor` kurulumu denetlesin:** her adımı (oyun, BepInEx, eklenti, köprü, kayıt) tek tek söylesin, ne yapılacağını
+  yazsın.
+- [ ] **Sürüm koruması (F'nin bir kısmı):** eklenti oyun sürümünü bilsin; desteklenmeyen sürümde sessizce yanlış yapmak
+  yerine "bu FM sürümü desteklenmiyor" desin.
+- [ ] **Temiz makinede deneme:** yeni bir macOS kullanıcı hesabında README'yi izleyerek sıfırdan kurulum; çıkan her
+  takılma düzeltilir.
+- [ ] **Intel Mac:** ilk sürümde "yalnızca Apple Silicon" mu denecek, karar.
+- [ ] **README / kılavuz:** kurulum, ilk açılış, sık sorunlar; geliştirici bilgileri ayrı yere.
 
 ---
 
