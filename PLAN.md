@@ -579,6 +579,16 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 
 ## Günlük
 
+### 2026-10-14 (akşam, clear sonrası — konumla okuma taraması, yeni ekler)
+
+- 93 konumla okuma tarandı: etiket ardından okuma dilden bağımsız; kırılanlar İngilizce cümle parçası arayanlardı
+  (`budget ayarla` yönetim cümlesi, `training-report`). FINDINGS §8.177.
+- Gün ilerletip toplanan mesajlardan 9 yeni ek okuyucusu (gözlemci raporu, teklif/antrenman kartı, tavsiyeler, veri
+  merkezi, maç hazırlığı, sözleşmesi bitecekler, primler, ilerleme raporu).
+- stderr ve tırnak içi yazılar da oyunun dilinde; `reply "<konu>"` Türkçe konuyla.
+- Maç içi `sub` ve `tactic role` Türkçede çalışmıyordu → menüler yapıyla. Dugout denendi. Yüzde oyunun dilinde ("%70").
+- Türkçe tarama 49/50. Oyun 25 Temmuz 2026 (West Brom 1-2), Türkçe.
+
 ### 2026-10-14 (gece — mesaj ekleri kimlikle, Türkçe oynama)
 
 - Mesajın gövdesi ve eki öğe adıyla (`MessageBodyText`, eklentide `/texts?anchorname=`), başlıkla tanınıyor: cevaplanmış

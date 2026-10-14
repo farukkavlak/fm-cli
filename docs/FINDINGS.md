@@ -4865,6 +4865,30 @@ Aşama 2: Türkçe oyunda CLI yazıldığı gibi (Türkçe), başka her dilde İ
 - **Açık:** haber listesi yaşa göre sıralanamıyor (yaş yazısı "10 saat 45 dakika önce"; birimler çeviri tablosunda
   yok). Haberin verisinde `Age`/`Date` var ama sayfa bağlamıyor; Türkçede oyunun sırası kalıyor.
 
+### 8.177 Konumla okumaların taraması, yeni ek türleri, yüzde ve değişiklik (14 Ekim 2026 akşam, Türkçe)
+
+- **Konumla okuma taraması (93 yer):** etiketin ardından okuma (`After("Supporters")`) dilden bağımsız, çünkü eklenti
+  etiketleri İngilizceye çevirip veriyor; kırılan yerler yalnızca motorun kurduğu **cümleleri** İngilizce parçayla
+  arayanlar. Denendi ve doğru: club, budget, finances, takers, world, sakatlık eki ("Received in" de tablodan çevriliyor).
+  Kırık çıkanlar: `budget ayarla` yönetim cümlesi ("The board…", artık `budget.BudgetAdjustmentBoardString`),
+  `training-report` yeni raporu başlığından tanıyordu ("…training report" → oyuncunun adıyla).
+- **Gün ilerletip ek toplama:** yeni okuyucular (hepsi veri yoluyla): Progress Report (`row.Name`/`row.PropertyValue`),
+  Scout Report (`report.ScoutedGradeInfo.GradeString`, artı/eksi `row.ProConsLongString`, "Negatives" başlığından sonra
+  eksi), oyuncumuzun "Report" kartı (teklif satırları `row.TransferOfferType`; antrenman kartında "T.Rat"),
+  Player Recommendations, Data Hub (`row.AnalysisPointString`), maç hazırlığı (`row.MatchFocusSessionName`, önündeki
+  `binding` başlık), sözleşmesi bitecekler (`binding.Name` … `row.DisplayValue`), galibiyet primleri.
+- **Prim kartında seçili düğme** veride yok; `#low-/#middle-/#high-button`'ı saran `SIStyleSetter`'ın `m_addedClass`'ında
+  "-active-" geçiyor (`/elements?members=1`). Değiştirmek henüz yok (sezonda bir kez; "Onayla" oyunun varsayılanıyla).
+- **Çeviri sızıntıları:** stderr `GameWordsLines`'tan geçmiyordu (`next`'in bekleyen mesaj başlığı, hata satırları
+  İngilizce); tırnak içindeki yazı ayrıştırılmıyordu (`reply "Collective bonuses…"`). İkisi de genel olarak düzeltildi;
+  `reply "<konu>"` oyunun dilindeki konuyla da buluyor.
+- **Maç içi değişiklik Türkçede yoktu:** oyuncu menüsünde kulübeyi açan satırın yazısı Choices'a hiç gelmiyor (8 satır,
+  alt menü anahtarı 7). Menüler `Within` içinde `BindingRoot_SquadOverviewPlayerBlock` ile, kulübe ilk satırı sayaç
+  ("15/15 Değişiklik") olan alt menüyle bulunuyor; gerçek değişiklik denendi. `tactic role` de aynı yoldan.
+- **Yüzde:** Türkçe "%70". İşaretin yeri oyunun "50%" kaydının bu dildeki yazısından öğreniliyor (`/translate?words=50%`;
+  kimlik 21068 Türkçede "%50"). CLI `InvariantGlobalization` ile derlendiği için .NET kültürü kullanılamıyor.
+- Oyun haftalık otomatik kaydını aldı (25 Temmuz civarı); Wolves 16 yaşındaki Deakin'i tazminatla kendiliğinden aldı.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
