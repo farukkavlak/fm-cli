@@ -2229,3 +2229,6 @@ MAÇ ({0})	MATCH ({0})
     Primler ve maddeler: {0}	    Bonuses and clauses: {0}
 Kiralık alım	Loan in
 Alım	Purchase
+\n  Ek: oyuncu raporu — {0}	\n  Attached: player report — {0}
+    Değer {0} · ücret {1} · sözleşme {2}'e kadar	    Value {0} · wage {1} · contract until {2}
+    Mutluluk: {0} ({1} artı, {2} eksi) · takım havası: {3}	    Happiness: {0} ({1} positives, {2} negatives) · squad mood: {3}

@@ -1214,6 +1214,20 @@ internal static partial class Program
 			return;
 		}
 
+		// A player's card (one who is unhappy, say): who he is, his value and wage, how happy he is
+		// and the squad's mood. By data path; the age, the contract's end and the moods are drawn
+		// without one, each after its label.
+		if (rest[0] == "Player Report" && One("Person.Name") is { Length: > 0 } reported)
+		{
+			string Next(string label) => page.FindIndex(t => t.Path.Length == 0 && t.Text == label) is >= 0 and var at && at + 1 < page.Count && page[at + 1].Path.Length == 0 ? GameWords.Of(page[at + 1].Text) : "";
+			var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
+			Console.WriteLine(L($"\n  Ek: oyuncu raporu — {string.Join(", ", new[] { reported, One("Person.PositionCombinedString"), age, One("Nation.ThreeLetterName"), One("Club.ShortName") }.Where(x => x.Length > 0))}"));
+			Console.WriteLine(L($"    Değer {One("binding.TransferValueRangeString")} · ücret {One("Person.FullContract.Wage.DisplayValue")} · sözleşme {Next("Contract Expires")}'e kadar"));
+			Console.WriteLine(L($"    Mutluluk: {Next("Happiness")} ({One("HappinessPositivesCount")} artı, {One("HappinessNegativesCount")} eksi) · takım havası: {Next("Squad Dynamics")}"));
+			if (One("Team.ClubAtmosphereFeedback.CurrentDynamicSupportStringLong") is { Length: > 0 } mood) Console.WriteLine($"    {mood}");
+			return;
+		}
+
 		// The week's training: how many came on and how many went back, the best and the worst by
 		// their training rating. Read by data path: a player's name starts his line, his positions
 		// are on it, the rating is the figure drawn after it without a path.
