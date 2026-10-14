@@ -24,12 +24,17 @@ internal static partial class Program
 		}
 		await Fm.Get("press", ("ptr", Field(tile.Value, "Pointer")));
 
-		// The list fills a moment later; two readings alike mean it has landed.
+		// The list fills a moment later; two readings alike mean it has landed. Coming back from the
+		// list itself, the overview takes the first press while it is still arriving and stays put,
+		// every other run (14 Ekim 2026): the tile is pressed again while nothing has come.
 		JsonElement people = default;
 		var last = "";
+		var (tries, found) = (0, false);
 		await Until(async () =>
 		{
+			if (++tries % 6 == 0 && !found) await Fm.Get("press", ("ptr", Field(tile.Value, "Pointer")));
 			var now = await Fm.GetJson("people");
+			found = now.GetArrayLength() > 0;
 			var settled = now.ToString() == last && now.GetArrayLength() > 0;
 			last = now.ToString();
 			if (settled) people = now;
