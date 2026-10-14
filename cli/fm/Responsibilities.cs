@@ -127,26 +127,21 @@ internal static partial class Program
 	/// <summary>Turns the page to one area with its radio button; true once its duties are up.</summary>
 	private static async Task<bool> DutyArea(string area)
 	{
-		// The same words stand elsewhere too (the page's heading, the menu's Match Day): of all the
-		// places they are, the one under a radio button is the area's.
-		// The page draws them a moment after it opens.
-		string radio = null;
-		await Until(async () =>
-		{
-			for (var up = 4; up <= 8 && radio == null; up++)
-			{
-				var found = await Fm.Get("elements", ("text", area), ("up", up.ToString()), ("depth", "0"), ("limit", "10"));
-				radio = found.Split('\n').FirstOrDefault(l => l.StartsWith("0x", StringComparison.Ordinal) && l.EndsWith(" SIRadioButton", StringComparison.Ordinal))?.Split(' ')[0];
-			}
-			return radio != null;
-		}, seconds: 6, every: 0.3);
-		if (radio == null) return false;
+		// The areas are the page's radio group (StaffResponsibilitiesRadioGroup, bound to the team's list
+		// of responsibility tabs), in the game's fixed order; an area is chosen by its words, or, where a
+		// language words it otherwise ("Maç Günü" comes back "Matchday"), by its place in that order.
+		// The page draws it a moment after it opens.
+		const string group = "StaffResponsibilitiesRadioGroup";
+		if (!await Until(async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == group), seconds: 6, every: 0.3))
+			return false;
 		// What is up before is waited for, or the area the page opens on would pass for the one asked.
 		var before = "";
 		await Until(async () => (before = await DutyKey()).Length > 0, seconds: 6, every: 0.3);
-		var said = await Fm.Get("setcontrol", ("ptr", radio), ("value", "1"));
+		var said = await Fm.Get("select", ("name", group), ("choice", area));
+		if (said.StartsWith("error", StringComparison.Ordinal) && Array.IndexOf(DutyAreas, area) is >= 0 and var at)
+			said = await Fm.Get("select", ("name", group), ("index", at.ToString()));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return false;
-		if (said.Contains("already", StringComparison.Ordinal)) return true;
+		if (said.Contains("already", StringComparison.Ordinal) || said.Contains("was " + Array.IndexOf(DutyAreas, area) + ")", StringComparison.Ordinal)) return true;
 		return await Until(async () => await DutyKey() is var now && now.Length > 0 && now != before, seconds: 5, every: 0.25);
 
 		async Task<string> DutyKey()
