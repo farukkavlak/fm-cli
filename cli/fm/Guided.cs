@@ -1192,6 +1192,15 @@ internal static partial class Program
 	/// is left out is listed for the stage the wizard has reached, and the wizard stays there,
 	/// so the command can be repeated with one more choice each time.
 	/// </summary>
+	/// <summary>Whether the team had a tactic when the wizard was opened; with it open the tactic cannot be read.</summary>
+	private static bool hadTactic;
+
+	/// <summary>Cancels the tactic wizard, unless the team has no tactic yet and the wizard is what it is waiting on.</summary>
+	private static async Task LeaveCreator()
+	{
+		if (hadTactic) await Fm.Get("press", ("event", "EventToPlugin:EventFmxTacticCreatorCancel"));
+	}
+
 	private static async Task<int> TacticNew(List<string> picks, bool dry)
 	{
 		// One row per stage: what is chosen, the list it is chosen from, the button that moves on.
@@ -1208,6 +1217,7 @@ internal static partial class Program
 			return 69;
 		}
 
+		hadTactic = int.TryParse(Field(await TacticInfo(), "TacticCount"), out var tactics) && tactics >= 1;
 		var stage = await CreatorStage();
 		if (stage == null)
 		{
@@ -1275,7 +1285,8 @@ internal static partial class Program
 			{
 				if (Ui.Ask($"{what} seç", choices) is not { } asked)
 				{
-					Console.WriteLine("Vazgeçildi; sihirbaz bu adımda açık kaldı. Devam için: tactic new");
+					await LeaveCreator();
+					Console.WriteLine("Vazgeçildi.");
 					return 0;
 				}
 				picks.Add(choices[asked]);
@@ -1288,6 +1299,9 @@ internal static partial class Program
 
 				var soFar = string.Join(" ", picks.Take(i).Select(p => $"\"{p}\""));
 				Console.WriteLine($"\nDevam etmek için: tactic new {soFar}{(soFar.Length > 0 ? " " : "")}\"<seçim>\"");
+				// The command takes the choices from the start each time, so the wizard is not left open: on its
+				// page the team's tactics are not to be read, and other commands would find none (8 Temmuz 2026).
+				await LeaveCreator();
 				return 0;
 			}
 
