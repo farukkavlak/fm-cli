@@ -10,20 +10,26 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	/// <summary>The tactics page's menu that offers this choice, once the page is up.</summary>
-	private static async Task<JsonElement?> TacticMenu(string choice)
+	// The tactics page's two menus, known by what each writes: the slot's tactic (edit, save, load,
+	// clear) and filling a slot (create, load, copy). Their rows carry numbers the language does not change.
+	private const string SlotMenu = "modify-data";
+	private const string FillMenu = "add-data";
+	private const int SaveRow = 6, LoadRow = 7, ClearRow = 9;
+
+	/// <summary>One of the tactics page's menus, once the page is up.</summary>
+	private static async Task<JsonElement?> TacticMenu(string binds)
 	{
 		var opened = await OpenPage(Screen.Tactics);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return null; }
 		JsonElement menu = default;
 		await Until(async () => (menu = (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
-			.FirstOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == choice))).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
+			.FirstOrDefault(d => Field(d, "Binds") == binds && d.GetProperty("Choices").GetArrayLength() > 0)).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
 		return menu.ValueKind == JsonValueKind.Object ? menu : null;
 	}
 
 	private static async Task<int> TacticCopy(string wanted, bool dry)
 	{
-		if (await TacticMenu("Copy Tactic ›") is not { } menu)
+		if (await TacticMenu(FillMenu) is not { } menu || !menu.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Copy Tactic ›"))
 		{
 			Console.Error.WriteLine("Kopyalanacak yer yok: üç taktik yuvası dolu olabilir (yuvalar için: tactic slot).");
 			return 1;
@@ -92,13 +98,13 @@ internal static partial class Program
 			Console.WriteLine($"{slot}. yuva ({Field(info, "Name")}) boşaltılacak. Onay için: tactic clear {slot} --yes");
 			return 0;
 		}
-		if (await TacticMenu("Clear Slot") is not { } menu)
+		if (await TacticMenu(SlotMenu) is not { } menu)
 		{
-			Console.Error.WriteLine("Taktik menüsünde 'Clear Slot' yok.");
+			Console.Error.WriteLine("Taktik menüsü bulunamadı.");
 			return 1;
 		}
 		var before = int.TryParse(Field(info, "TacticCount"), out var c0) ? c0 : 0;
-		var sent = await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("choice", "Clear Slot"), ("fire", "1"));
+		var sent = await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("value", ClearRow.ToString()), ("fire", "1"));
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 
 		// The game may ask first; the answer that goes ahead is its primary button.

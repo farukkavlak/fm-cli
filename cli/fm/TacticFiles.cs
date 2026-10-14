@@ -22,12 +22,12 @@ internal static partial class Program
 	/// be the one of the page being replaced, and choosing in it does nothing; the choice is
 	/// made again in the menu found then.
 	/// </summary>
-	private static async Task<bool> TacticPanel(string choice, Func<Task<bool>> open)
+	private static async Task<bool> TacticPanel(int row, Func<Task<bool>> open)
 	{
 		for (var attempt = 0; attempt < 3; attempt++)
 		{
-			if (await TacticMenu("Clear Slot") is not { } menu) return false;
-			await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("choice", choice), ("fire", "1"));
+			if (await TacticMenu(SlotMenu) is not { } menu) return false;
+			await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("value", row.ToString()), ("fire", "1"));
 			if (await Until(open, seconds: 3, every: 0.3)) return true;
 		}
 		return false;
@@ -84,7 +84,7 @@ internal static partial class Program
 			return 1;
 		}
 
-		if (await TacticMenu("Clear Slot") is not { } menu)
+		if (await TacticMenu(SlotMenu) is not { } menu)
 		{
 			Console.Error.WriteLine("Taktik menüsü bulunamadı (taktik yoksa önce: tactic new).");
 			return 1;
@@ -99,7 +99,7 @@ internal static partial class Program
 		// The panel: a title box, a description box, Cancel and Save ("SaveAddon").
 		JsonElement save = default;
 		List<JsonElement> boxes = [];
-		var open = await TacticPanel("Save", async () =>
+		var open = await TacticPanel(SaveRow, async () =>
 		{
 			save = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Events") == "SaveAddon");
 			boxes = (await Fm.GetJson("textboxes")).EnumerateArray().Where(b => Field(b, "Name") == "EditBox").ToList();
@@ -163,7 +163,7 @@ internal static partial class Program
 		}
 		if (Choose(names, string.Join(" ", words), "Taktik") is not { } name) return 64;
 
-		if (await TacticMenu("Clear Slot") is not { } menu)
+		if (await TacticMenu(SlotMenu) is not { } menu)
 		{
 			Console.Error.WriteLine("Taktik menüsü bulunamadı (taktik yoksa önce: tactic new).");
 			return 1;
@@ -187,7 +187,7 @@ internal static partial class Program
 		var listed = false;
 		for (var attempt = 0; attempt < 3 && !listed; attempt++)
 		{
-			if (!await TacticPanel("Load...", async () => Load(await Fm.GetJson("buttons", ("json", "1"))).ValueKind == JsonValueKind.Object))
+			if (!await TacticPanel(LoadRow, async () => Load(await Fm.GetJson("buttons", ("json", "1"))).ValueKind == JsonValueKind.Object))
 			{
 				Console.Error.WriteLine("Taktik yükleme paneli açılmadı.");
 				return 1;
