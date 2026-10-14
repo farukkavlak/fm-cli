@@ -579,6 +579,14 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 
 ## Günlük
 
+### 2026-10-14 (öğleden sonra — CLI'ın yazıları oyunun dilinde)
+
+- CLI'ın koduna gömülü İngilizce oyun yazıları ("In Progress", ekip adları) eklentinin `/translate?words=` yoluyla oyunun
+  dilinde (`51bd6c6`); numarayla bilinen kelimeyi tablo tahmini ezmiyor; `coaches` iş yükleri her dilde.
+- CLI'ın kendi Türkçe yazıları: Türkçe oyunda Türkçe, başka dilde İngilizce. `L($"…")` şablonları + `labels-english.tsv`
+  (~2.300), `tools/labels` araçları, İngilizce yardım, ayar/sorgu adları (`0292a9b` … `f956072`). Ayrıntı FINDINGS §8.174.
+- Tarama İngilizce ve Türkçe 49/50. Açık: taktik rol adları Türkçede İngilizce (tablolarda yok).
+
 ### 2026-10-14 (gece, otonom — yazının veri yolu)
 
 - Kadro görünümleri sayıyla, listeler içinde durdukları panelle (`e88c43d`). İlk deneme oyunu iki kez düşürdü: listeyi

@@ -4778,6 +4778,34 @@ o an gösterdiği yazı çıkıyor. Geri çeviri (tahmin) yok.
 - **Sıradaki:** CLI'ın kendi etiketleri oyunun diline göre (aşama 2); `scout` odak durumu veriden; İngilizce oyunda
   tarama (değişiklik orada işlemsiz olmalı, denenmedi).
 
+### 8.174 CLI'ın kendi yazıları oyunun dilinde (14 Ekim 2026 öğleden sonra)
+
+Aşama 2: Türkçe oyunda CLI yazıldığı gibi (Türkçe), başka her dilde İngilizce.
+
+- **Dil:** eklenti her cevaba `X-Language` başlığı ekliyor (`TranslationManager.CurrentLanguage`); CLI `Labels.Heard` ile
+  tutar ve `~/.config/fm-cli/language`'a yazar (oyun cevap vermeden basılanlar için, ör. oturum karşılaması, `help`).
+- **`L($"…")`:** `Labels.Template` bir interpolated string handler: delikler `{0}`, `{1,-24}`, `{2:0.0}` olur, bu şablon
+  `cli/fm/labels-english.tsv`'de aranır, değerler yerine konur. Katalogda olmayan şablon yazıldığı gibi çıkar.
+  `await` içeren delik ref struct'a sığmıyor (CS4007): `Lf("… {0} …", değer)`.
+- **Araçlar (`tools/labels/`):** `wrap.py` çıktı çağrılarının yazılarını sarar; `--all` her yerdeki Türkçe harfli yazıyı
+  (ve sistem sözlüğünde olmayan kelimeli ASCII Türkçeyi), desen / karşılaştırma / sabit / sözlük anahtarı / eşleme
+  metodu argümanı (`Contains`, `Fold`, `Field`…) ve küçük harfli liste öğesi (girdi eşi) hariç. `dicts.py` kelime
+  tablolarının değerlerini sarar, anahtarı oyunun İngilizcesi olanların çevirisini anahtardan üretir. `keys.py --missing`
+  çevrilmemiş şablonlar; `merge.py` numaralı çevirileri ekler (delikler tutmazsa reddeder); `unwrap.py` veri yolu, tarih
+  biçimi gibi yanlışlıkla sarılanları geri açar; `rest.py` sarılmamış Türkçe kalanlar.
+- **Katalog:** ~2.300 şablon. Sabit diziler (ay/gün adları) program başında bir kez, önbellekteki dille kurulur.
+- **Oyunun kelimesi CLI'ın Türkçesinin yerine:** "Star Player → Yıldız" gibi CLI sözlükleri (mutluluk, hiyerarşi, sosyal
+  grup, yoğunluk, statü, lig liderleri) kaldırıldı; oyunun yazısı `GameWords` ile oyunun dilinde çıkıyor. Satırda oyun
+  kelimesi uzayınca sonraki sütun kaymasın diye `GameWords.InLine` farkı sekme/satır sonuna kadar taşıyor.
+- **Kendi etiketiyle karşılaştıran kod:** `t.Say == "Vergi sonrası"`, kayıt ekranı eylemleri, şart düzenleme yolları
+  İngilizce oyunda tutmazdı; şimdi `L(...)` ile ya da sırayla.
+- **Girdi:** İngilizce oyunda kullanım satırları İngilizce kelime öneriyor; CLI'ın kabul ettiği İngilizce eşler eklendi
+  (`targets "left back"`, `dugout <no> apply`, `prep in|out|sp1|sp2`, ayar adları İngilizce oyunda İngilizce).
+- **Tarama:** İngilizce 49/50, Türkçe 49/50 (`league` sezon öncesi); Türkçe çıktı önceki taramayla aynı, farklar yalnız
+  oyunun kendi kelimesi ("Yıldız Oyuncu", "Merkez Arkadaş Grubu", "Duble Yoğunluk").
+- **Açık:** taktik rol adları ("Ball Playing Goalkeeper") iki çeviri tablosunda da yok, sayfa kısaltmayı (AİK) yolsuz
+  çiziyor — Türkçede İngilizce kalıyor. MCP araç açıklamaları İngilizce (model için). Alman/Fransız oyunda denenmedi.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
