@@ -1277,6 +1277,26 @@ internal static partial class Program
 			return;
 		}
 
+		// A scout's report on a player (an agent's or a scout's pick): the grade and verdict, how well he is
+		// known, his ability now and to come, the good and the bad said of him, then who he is and his terms.
+		// By data path; the grade's letter and the contract's end are drawn without one.
+		if (rest[0] == "Scout Report" && One("report.ScoutedGradeInfo.GradeString") is { Length: > 0 } scouted)
+		{
+			var at = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
+			var grade = at > 0 && page[at - 1].Path.Length == 0 && page[at - 1].Text.Length <= 2 ? page[at - 1].Text + " · " : "";
+			Console.WriteLine(L($"\n  Ek: gözlemci raporu — {grade}{scouted}"));
+			Console.WriteLine(L($"    {One("report.ScoutingKnowledgeLevel.Text")} · şu an: {One("report.ScoutedCurrentAbilityInfo.ShortString")} · gelecek: {One("report.ScoutedPotentialAbilityInfo.ShortString")}"));
+			// The good comes first, the bad after the heading that counts it ("Negatives (3)").
+			var bad = page.FindIndex(t => t.Path.Length == 0 && t.Text.StartsWith("Negatives", StringComparison.Ordinal));
+			for (var i = 0; i < page.Count; i++)
+				if (page[i].Path == "row.ProConsLongString") Console.WriteLine($"    {(bad >= 0 && i > bad ? "-" : "+")} {page[i].Text}");
+			var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
+			Console.WriteLine("    " + string.Join(" · ", new[] { One("Person.Name"), One("Person.PositionCombinedString"), age, One("Nation.ThreeLetterName"), One("Club.ShortName") }.Where(x => x.Length > 0)));
+			var expires = page.FindIndex(t => t.Path.Length == 0 && t.Text == "Contract Expires") is >= 0 and var c && c + 1 < page.Count && page[c + 1].Path.Length == 0 ? page[c + 1].Text : "";
+			Console.WriteLine(L($"    Değer {One("binding.TransferValueRangeString")} · ücret {One("Person.FullContract.Wage.DisplayValue")}{(expires.Length > 0 ? L($" · sözleşme {expires}'e kadar") : "")}"));
+			return;
+		}
+
 		// A player's card (one who is unhappy, say): who he is, his value and wage, how happy he is
 		// and the squad's mood. By data path; the age, the contract's end and the moods are drawn
 		// without one, each after its label.
@@ -1571,6 +1591,46 @@ internal static partial class Program
 			var verdict = After("Coach Report", 2);
 			if (grade.Length > 0) Console.WriteLine(L($"    Antrenör notu: {grade}{(verdict is { Length: > 0 } and not "Current Ability" ? $" — {verdict}" : "")}"));
 			if (After("Interested Clubs") is { Length: > 0 } clubs) Console.WriteLine(L($"    İlgilenen kulüp: {clubs.Trim('(', ')')}"));
+			return;
+		}
+
+		// The scouts' latest picks: each with his description, grade and date (by data path), the focuses'
+		// counts and what is left of each budget, each figure after its own "Available".
+		if (rest[0] == "Player Recommendations" && page.Any(t => t.Path == "row.PlayerDescription"))
+		{
+			Console.WriteLine(L($"\n  Ek: oyuncu tavsiyeleri — {(rest.Count > 1 ? rest[1] : "")}"));
+			for (var i = 0; i < page.Count; i++)
+			{
+				if (page[i].Path != "row.Name") continue;
+				var row = page.Skip(i + 1).TakeWhile(t => t.Path != "row.Name" && t.Text != "Recruitment Focuses").Select(t => t.Text);
+				Console.WriteLine($"    {page[i].Text} · {string.Join(" · ", row)}");
+			}
+			var focuses = rest.IndexOf("Recruitment Focuses");
+			if (focuses > 0 && focuses + 2 < rest.Count)
+				Console.WriteLine(L($"    Transfer odakları: {rest[focuses + 1]} · {rest[focuses + 2]} ({One("Human.ScoutingInfo.RecruitmentFocuses.TopFocusesCount")} {GameWords.Of("Top")} · {One("Human.ScoutingInfo.RecruitmentFocuses.StandardFocusesCount")} {GameWords.Of("Standard")} · {One("Human.ScoutingInfo.RecruitmentFocuses.OngoingFocusesCount")} {GameWords.Of("Obscure")})"));
+			string Left(string budget) => rest.IndexOf(budget, Math.Max(0, rest.IndexOf("Recruitment Budgets"))) is > 0 and var b && b + 2 < rest.Count && rest[b + 1] == "Available" ? rest[b + 2] : "-";
+			if (rest.Contains("Recruitment Budgets"))
+				Console.WriteLine(L($"    Kalan bütçe: transfer {Left("Transfer")} · maaş {Left("Wage")} · scouting {Left("Scouting")}"));
+			Console.WriteLine(L("    Ayrıntı: scout"));
+			return;
+		}
+
+		// Our player's card on a bid for him: who he is, his terms, how he is, his transfer and loan status and
+		// the offers made, by data path; the age, the contract's end and the counts are drawn without one.
+		if (rest[0] == "Report" && One("Person.Name") is { Length: > 0 } bidFor && page.Any(t => t.Path == "row.TransferOfferType"))
+		{
+			string Plain(string label) => page.FindIndex(t => t.Path.Length == 0 && t.Text == label) is >= 0 and var i && i + 1 < page.Count && page[i + 1].Path.Length == 0 ? page[i + 1].Text : "";
+			var age = page.FindIndex(t => t.Path == "Nation.Name") is >= 0 and var n && n + 1 < page.Count && page[n + 1].Path.Length == 0 ? page[n + 1].Text : "";
+			var until = page.FirstOrDefault(t => t.Path.Length == 0 && t.Text.StartsWith('(') && t.Text.Any(char.IsDigit) && t.Text.Contains('/')).Text ?? "";
+			Console.WriteLine(L("\n  Ek: ") + string.Join(" · ", new[] { bidFor, One("Person.PositionCombinedString"), One("Nation.Name"), age }.Where(x => x.Length > 0)));
+			Console.WriteLine(L($"    Değer {One("binding.TransferValueRangeString")} · ücret {One("Person.FullContract.Wage.DisplayValue")} {until}").TrimEnd());
+			Console.WriteLine(L($"    Kondisyon: {One("Person.ConditionCommentTypeString")} · mutluluk: {One("Person.MoraleString")} · ortalama puan {Plain("Average Rating")}"));
+			Console.WriteLine(L($"    Transfer durumu: {One("Player.TransferStatusDetails.TransferStatusDescription.Text")} · kiralık: {One("Player.LoanStatusDetails.TransferStatusDescription.Text")}"));
+			var offers = new List<string>();
+			for (var i = 1; i + 1 < page.Count; i++)
+				if (page[i].Path == "row.TransferOfferType")
+					offers.Add($"{page[i - 1].Text} ({page[i].Text}{(page[i + 1].Path == "row.TotalTransferCost" ? $", {page[i + 1].Text}" : "")})");
+			Console.WriteLine(L($"    Teklifler: {string.Join(" · ", offers)} · ilgilenen kulüp {Plain("Interested Clubs").Trim('(', ')')}"));
 			return;
 		}
 

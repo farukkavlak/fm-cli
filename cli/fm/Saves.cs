@@ -36,7 +36,7 @@ internal static partial class Program
 		Table.Write([L("KAYIT"), L("SON YAZILMA"), L("BOYUT")], files.Select(f => new[]
 		{
 			Path.GetFileNameWithoutExtension(f.Name),
-			f.LastWriteTime.ToString("d MMM yyyy HH:mm", tr),
+			f.LastWriteTime.ToString("yyyy-MM-dd HH:mm", tr),
 			$"{f.Length / 1024.0 / 1024.0:0.0} MB",
 		}).ToList());
 		Console.WriteLine($"\n{SavesFolder}");

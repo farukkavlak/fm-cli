@@ -1143,7 +1143,6 @@ kullanım: training <oyuncu> --report [--coach <ad>]	usage: training <player> --
 {0} için raporu hazırlayabilecek antrenörler:	Coaches who can prepare the report on {0}:
 \nİstemek için: training "{0}" --report --coach "<ad>"	\nTo ask: training "{0}" --report --coach "<name>"
 {0} raporu hazırlayacak; gelince gelen kutusunda.	{0} will prepare the report; it will come to the inbox.
-Rapor başka bir oyuncu için istenmiş görünüyor: {0}	The report seems to have been asked for another player: {0}
 Rapor geldi ama okunamadı: reply "{0}"	The report came but could not be read: reply "{0}"
 [bold]{0}[/] — antrenman raporu [dim]({1})[/]	[bold]{0}[/] — training report [dim]({1})[/]
 \n  [bold]Gidişat:[/] {0}	\n  [bold]Progress:[/] {0}
@@ -1212,7 +1211,7 @@ Cevap birkaç gün içinde gelen kutusuna düşer.	The answer will come to the i
 Teklif — değiştirmek istediğini seç:	Offer — choose what to change:
 {0} için {1} teklif gidecek. Geri alınamaz.	An offer of {1} will go for {0}. It cannot be taken back.
 Gönder	Send
-Kulüp vizyonu toplantısı açık değil. Sezon sonunda gelen "Club vision and expectations meeting" mesajında Negotiate ile açılır; hedeflerin kendisi: club	The club vision meeting is not open. It opens with Negotiate on the "Club vision and expectations meeting" message at the end of the season; the objectives themselves: club
+Kulüp vizyonu toplantısı açık değil. Sezon sonunda gelen kulüp vizyonu mesajının cevabıyla açılır (reply); hedeflerin kendisi: club	The club vision meeting is not open. It opens by answering the club vision message at the end of the season (reply); the objectives themselves: club
 '{0}' şu an kapalı{1}.	'{0}' is closed right now{1}.
  (önce bir hedef çıkar: vision remove <no>)	 (remove an objective first: vision remove <no>)
 Yönetimin vizyonu bu haliyle kabul edilsin mi?	Accept the board's vision as it is?
@@ -2240,3 +2239,14 @@ NEDEN	WHY
 \n  Ek: takım dinamikleri	\n  Attached: squad dynamics
 \n  Ek: forma numaraları — {0} oyuncuya numara verilmiş. Ayrıntı ve değiştirmek: numbers	\n  Attached: squad numbers — {0} players have a number. More and changes: numbers
     Antrenman puanı {0}{1}	    Training rating {0}{1}
+\n  Ek: gözlemci raporu — {0}{1}	\n  Attached: scout report — {0}{1}
+    {0} · şu an: {1} · gelecek: {2}	    {0} · now: {1} · to come: {2}
+    Değer {0} · ücret {1}{2}	    Value {0} · wage {1}{2}
+ · sözleşme {0}'e kadar	 · contract until {0}
+    Değer {0} · ücret {1} {2}	    Value {0} · wage {1} {2}
+    Kondisyon: {0} · mutluluk: {1} · ortalama puan {2}	    Fitness: {0} · happiness: {1} · average rating {2}
+    Transfer durumu: {0} · kiralık: {1}	    Transfer status: {0} · loan: {1}
+    Teklifler: {0} · ilgilenen kulüp {1}	    Offers: {0} · clubs interested {1}
+\n  Ek: oyuncu tavsiyeleri — {0}	\n  Attached: player recommendations — {0}
+    Transfer odakları: {0} · {1} ({2} {3} · {4} {5} · {6} {7})	    Recruitment focuses: {0} · {1} ({2} {3} · {4} {5} · {6} {7})
+    Kalan bütçe: transfer {0} · maaş {1} · scouting {2}	    Budget left: transfer {0} · wages {1} · scouting {2}

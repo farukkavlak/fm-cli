@@ -85,21 +85,18 @@ internal static partial class Program
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 		await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
 
+		// The report is the new message that names him, the short way ("Kanté's training report", "Draper'in
+		// antrenman raporu"): its title is a sentence in the game's language, his name the same in any.
+		bool Names(string title) => Fold(name).Split(' ').Any(part => part.Length >= 3 && Fold(title).Contains(part, StringComparison.Ordinal));
 		JsonElement message = default;
 		if (!await Until(async () => (message = (await Bound("inbox", "PortalScreen")).EnumerateArray()
-			    .FirstOrDefault(m => !before.Contains(Field(m, "UniqueId")) && Field(m, "NewsTitleString").EndsWith("training report", StringComparison.OrdinalIgnoreCase)))
+			    .FirstOrDefault(m => !before.Contains(Field(m, "UniqueId")) && Names(Field(m, "NewsTitleString"))))
 			    .ValueKind == JsonValueKind.Object, seconds: 15, every: 0.5))
 		{
 			Console.WriteLine(L($"{coach} raporu hazırlayacak; gelince gelen kutusunda."));
 			return 0;
 		}
 		var title = Field(message, "NewsTitleString");
-		// The title names him the short way ("Kanté's training report"); one of his names must be in it.
-		if (!Fold(name).Split(' ').Any(part => part.Length >= 3 && Fold(title).Contains(part, StringComparison.Ordinal)))
-		{
-			Console.Error.WriteLine(L($"Rapor başka bir oyuncu için istenmiş görünüyor: {title}"));
-			return 1;
-		}
 		var pressed = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 

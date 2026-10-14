@@ -41,7 +41,7 @@ internal static partial class Program
 	{
 		if (await VisionControls() is not { } controls)
 		{
-			Console.Error.WriteLine(L("Kulüp vizyonu toplantısı açık değil. Sezon sonunda gelen \"Club vision and expectations meeting\" mesajında Negotiate ile açılır; hedeflerin kendisi: club"));
+			Console.Error.WriteLine(L("Kulüp vizyonu toplantısı açık değil. Sezon sonunda gelen kulüp vizyonu mesajının cevabıyla açılır (reply); hedeflerin kendisi: club"));
 			return 1;
 		}
 
