@@ -229,8 +229,14 @@ internal static partial class Program
 		if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
 		await Until(async () => (await Fm.GetJson("texts", ("anchor", "All Preferences"), ("up", "0"))).GetArrayLength() == 0, seconds: 5, every: 0.25);
 
-		// Read back from the page, reopened after the confirmation closed it.
+		// Read back from the page, reopened after the confirmation closed it. A new language has the
+		// game build its screens again, and the page will not open for a moment.
 		var check = await PreferencesTab(wanted.Tab);
+		for (var attempt = 0; attempt < 3 && check == null; attempt++)
+		{
+			await Task.Delay(TimeSpan.FromSeconds(3));
+			check = await PreferencesTab(wanted.Tab);
+		}
 		var after = check == null ? null : Locate(wanted, check);
 		await LeavePreferences();
 		if (after == null || after.Current != target)
