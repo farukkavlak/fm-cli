@@ -329,7 +329,7 @@ internal sealed class OfferScreen
 		["Entire offer"] = "Tüm teklif",
 		["Playing Time"] = "Kadro statüsü",
 		["Contract Start Date"] = "Başlangıç",
-		["Wage"] = "Haftalık ücret",
+		["Wage"] = "Ücret",
 		["Loyalty Bonus"] = "Sadakat primi",
 		["Agent Fee"] = "Menajer ücreti",
 		["Signing On Fee"] = "İmza parası",

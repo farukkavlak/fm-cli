@@ -14,7 +14,7 @@ internal static partial class Program
 	/// <summary>What a contract can carry besides the wage, by the name of its field (FINDINGS §8.96).</summary>
 	private static readonly (string Field, string Say)[] ContractTerms =
 	[
-		("Wage", "Haftalık ücret"), ("WageAfterTax", "Vergi sonrası"), ("AgreedPlayingTime", "Kadro statüsü"), ("ContractType", "Tür"),
+		("Wage", "Ücret"), ("WageAfterTax", "Vergi sonrası"), ("AgreedPlayingTime", "Kadro statüsü"), ("ContractType", "Tür"),
 		("LoyaltyBonus", "Sadakat primi"), ("AppearanceBonus", "Maç başı ücret"), ("GoalBonus", "Gol primi"), ("AssistBonus", "Asist primi"),
 		("CleanSheetBonus", "Gol yememe primi"), ("UnusedSubBonus", "Oynamayan yedek ücreti"), ("InternationalCapBonus", "Milli maç primi"),
 		("SeasonalLandmarkGoalsBonus", "Sezon gol hedefi primi"), ("SeasonalLandmarkAssistsBonus", "Sezon asist hedefi primi"),
