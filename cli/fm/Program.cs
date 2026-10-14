@@ -1227,6 +1227,49 @@ internal static partial class Program
 			return;
 		}
 
+		// The assistant's team for the next match: a position to a line, the man he picks, the one he
+		// would replace and why ("teamselectionadviceentry.TeamSelectionReason"); the names and the
+		// position are drawn without a path before the reason.
+		if (page.Any(t => t.Path == "teamselectionadviceentry.TeamSelectionReason"))
+		{
+			Console.WriteLine(L("\n  Ek: önerilen kadro"));
+			var rows = new List<string[]>();
+			var from = 0;
+			for (var i = 1; i < page.Count; i++)
+			{
+				if (page[i].Path != "teamselectionadviceentry.TeamSelectionReason") continue;
+				var plain = page.Skip(from).Take(i - from).Where(t => t.Path.Length == 0).Select(t => t.Text).ToList();
+				from = i + 1;
+				if (plain.Count < 2) continue;
+				rows.Add([GameWords.Of(plain[0]), plain[1], plain.Count > 2 ? plain[2] : "", page[i].Text]);
+			}
+			// The ones the assistant keeps have no reason: a position and a name between two that do.
+			Table.Write([L("MEVKİ"), L("OYUNCU"), L("YERİNE"), L("NEDEN")], rows);
+			return;
+		}
+
+		// The squad's dynamics: each heading with its grade, then its pluses and minuses
+		// ("binding.ProConsLongString", the sign drawn before it), then the issues and happiness lines.
+		if (rest[0] == "Squad Dynamics" && page.Any(t => t.Path == "binding.ProConsLongString"))
+		{
+			Console.WriteLine(L("\n  Ek: takım dinamikleri"));
+			var stop = page.FindIndex(1, t => t.Path.Length == 0 && t.Text == "Player Report");
+			var part = stop > 0 ? page.Take(stop).ToList() : page;
+			for (var i = 1; i < part.Count; i++)
+			{
+				var (text, path) = part[i];
+				if (path == "binding.ProConsLongString")
+					Console.WriteLine($"      {(part[i - 1].Text == "-" ? "-" : "+")} {GameWords.Of(text)}");
+				else if (path.Length == 0 && text is not ("+" or "-") && i + 1 < part.Count && part[i + 1].Path.Length == 0 && part[i + 1].Text is not ("+" or "-"))
+				{
+					Console.WriteLine($"    {GameWords.Of(text)}: {GameWords.Of(part[i + 1].Text)}");
+					i++;
+				}
+				else if (path.Length == 0 && text is not ("+" or "-")) Console.WriteLine($"      {GameWords.Of(text)}");
+			}
+			return;
+		}
+
 		// A player's card (one who is unhappy, say): who he is, his value and wage, how happy he is
 		// and the squad's mood. By data path; the age, the contract's end and the moods are drawn
 		// without one, each after its label.

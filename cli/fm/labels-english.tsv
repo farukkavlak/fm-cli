@@ -2234,3 +2234,7 @@ Alım	Purchase
     Mutluluk: {0} ({1} artı, {2} eksi) · takım havası: {3}	    Happiness: {0} ({1} positives, {2} negatives) · squad mood: {3}
 \n  Ek: kayıt listesi {0} · {1} · {2}, {3}	\n  Attached: registration list {0} · {1} · {2}, {3}
     Ayrıntı: register	    More: register
+\n  Ek: önerilen kadro	\n  Attached: suggested team
+YERİNE	INSTEAD OF
+NEDEN	WHY
+\n  Ek: takım dinamikleri	\n  Attached: squad dynamics
