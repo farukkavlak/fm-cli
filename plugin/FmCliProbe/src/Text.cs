@@ -157,7 +157,13 @@ internal static class Localisation
 		// English once (by number) pass through here again on their way out, and the shown-to-English
 		// map would turn them into another text ("A" for away is a Turkish word for "For").
 		if (map == null || englishTexts.Contains(shown)) return shown;
-		return map.TryGetValue(shown, out var english) ? english : shown;
+		if (map.TryGetValue(shown, out var english)) return english;
+		// A text with a note after it ("Takip Listesinden Çıkar (Varsayılan)") is two of the table's
+		// texts put together; each part is put into English on its own.
+		var note = System.Text.RegularExpressions.Regex.Match(shown, @"^(.+?) \((.+)\)$");
+		if (note.Success && map.TryGetValue(note.Groups[1].Value, out var head))
+			return $"{head} ({(map.TryGetValue(note.Groups[2].Value, out var tail) ? tail : note.Groups[2].Value)})";
+		return shown;
 	}
 
 	private static System.Collections.Generic.Dictionary<string, string> Map()

@@ -44,6 +44,7 @@ internal static partial class Program
 		var labels = under.Select(e => Field(e, "Name")).ToList();
 		if (typed != null)
 		{
+			if (ByLength(labels, typed) is { } length) return under[length];
 			if (Choose(labels, typed, what) is { } chosen) return under[labels.IndexOf(chosen)];
 			await Fm.Get("actions", ("close", "1"));
 			return null;
@@ -52,6 +53,30 @@ internal static partial class Program
 		await Fm.Get("actions", ("close", "1"));
 		if (!Ui.Interactive) Console.Error.WriteLine($"{what} söylenmedi ({flag}): {string.Join(" · ", labels)}");
 		return null;
+	}
+
+	private static readonly (string Unit, string[] Words)[] LengthUnits =
+	[
+		("week", ["week", "weeks", "wk", "wks", "hafta"]), ("month", ["month", "months", "ay"]),
+		("year", ["year", "years", "yil"]), ("match", ["match", "matches", "mac"]),
+	];
+
+	/// <summary>
+	/// A length of time among a menu's entries ("3 month" for "3 Months" or a Turkish game's "3 Ay"):
+	/// by its number, and where entries share it ("1 Ay", "1 Yıl") by its unit. The entries come in
+	/// whichever words the game's table gives them, some English and some not.
+	/// </summary>
+	private static int? ByLength(List<string> labels, string typed)
+	{
+		var number = System.Text.RegularExpressions.Regex.Match(typed, @"\d+").Value;
+		if (number.Length == 0) return null;
+		static string Number(string label) => System.Text.RegularExpressions.Regex.Match(label, @"^\d+").Value;
+		var same = labels.Select((l, i) => (Label: l, At: i)).Where(x => Number(x.Label) == number).ToList();
+		if (same.Count == 1) return same[0].At;
+		var unit = LengthUnits.FirstOrDefault(u => Fold(typed).Split(' ').Any(w => u.Words.Contains(w)));
+		if (unit.Unit == null) return null;
+		var fit = same.Where(x => Fold(x.Label).Split(' ').Any(w => unit.Words.Contains(w))).ToList();
+		return fit.Count == 1 ? fit[0].At : null;
 	}
 
 	private static JsonElement? EntryAt(List<JsonElement> entries, Func<string, bool> path) =>

@@ -82,8 +82,11 @@ internal static class ContextMenus
 			var name = Text.Plain(child.Name ?? "");
 			var at = path.Length > 0 ? $"{path}>{name}" : name;
 			var folder = child.Kind == MenuDescription.EntryKind.Folder;
+			// The entry's icon names what it does whatever language its words are in.
+			var icon = "";
+			try { icon = child.Icon?.StyleOrPath ?? ""; } catch { }
 			rows.Add("{"
-				+ $"\"Path\": \"{Report.Escape(at)}\", \"Name\": \"{Report.Escape(name)}\", "
+				+ $"\"Path\": \"{Report.Escape(at)}\", \"Name\": \"{Report.Escape(name)}\", \"Icon\": \"{Report.Escape(icon)}\", "
 				+ $"\"Folder\": {(folder ? "true" : "false")}, "
 				+ $"\"Enabled\": {((flags & MenuDescription.EntryFlags.Enabled) != 0 ? "true" : "false")}, "
 				+ $"\"Selected\": {((flags & MenuDescription.EntryFlags.Selected) != 0 ? "true" : "false")}}}");
