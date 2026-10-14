@@ -69,7 +69,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   işaret bulunamadı (bağlama adları sürümde gizli); eksiz bir mesajda `#AttachmentsTitleContainer` durumu ölçülecek.
 - [ ] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2112). Denenen çözüm (çubuğun seçili satırı) ölçülünce
   yetersiz çıktı: ana sayfa zaten açıkken çubuk eski seçimde kalıyor → geri alındı. Eklentide `open?guid=&check=1`
-  (yalnızca soru, hiçbir şey açmıyor) duruyor, commit edilmedi. Önce "ana sayfanın açılması bitti" işareti ölçülecek.
+  (yalnızca soru, hiçbir şey açmıyor) duruyor (14 Ekim commit edildi, CLI henüz kullanmıyor). Önce "ana sayfanın açılması bitti" işareti ölçülecek.
 - [ ] **Sabit üst sınırlar** (`Arriving` 8 sn, `Bound` 20 sn, maç akışında 3 sn'ler): yavaş makinede yetmeyebilir; ölçülecek.
 
 ### B. Oyun dili

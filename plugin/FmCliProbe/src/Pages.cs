@@ -63,6 +63,10 @@ internal static class Pages
 		if (string.IsNullOrEmpty(guid) && string.IsNullOrEmpty(name))
 			return "error: ?guid=<page guid>[&object=<team id>] or ?page=<name>[&tab=<tab>] required (see /pages)";
 
+		// Only a question, never an opening: is this page the one its subtab bar stands on?
+		if (q["check"] == "1")
+			return string.IsNullOrEmpty(guid) ? "error: ?check=1 needs ?guid=" : Subpage(guid, false, true);
+
 		Page page;
 		if (!string.IsNullOrEmpty(guid))
 		{
@@ -78,7 +82,7 @@ internal static class Pages
 			// A page under a subtab's menu (Squad Dynamics › Social Groups) is not in the tab menus;
 			// it is chosen from the subtab bar on screen, once its page is open.
 			if (page == null && string.IsNullOrEmpty(obj) && string.IsNullOrEmpty(under))
-				return Subpage(guid, q["dry"] == "1");
+				return Subpage(guid, q["dry"] == "1", q["check"] == "1");
 			if (page == null)
 				return $"error: no page with guid {guid}" + (string.IsNullOrEmpty(obj) ? "" : $" for object {obj}")
 				       + (string.IsNullOrEmpty(under) ? "" : $" under tab {under}");
@@ -150,8 +154,10 @@ internal static class Pages
 	/// Opens a page listed in a subtab's menu on the bar shown (FINDINGS §8.169): its row there
 	/// carries the page's GUID as the tab menus' rows do. The row is chosen and its events sent. The
 	/// page whose bar it is may still be opening and cover it; the caller checks and asks again.
+	/// With <paramref name="check"/> nothing is chosen: it only says whether the page is the one the bar
+	/// has chosen ("shown" / "not shown").
 	/// </summary>
-	private static string Subpage(string guid, bool dry)
+	private static string Subpage(string guid, bool dry, bool check = false)
 	{
 		var queue = Game.UiEvents;
 		if (queue == null) return "error: UIEventQueue unavailable";
@@ -166,6 +172,12 @@ internal static class Pages
 				{
 					var row = Read(choices[i]);
 					if (!string.Equals(row?.Guid, guid, StringComparison.OrdinalIgnoreCase)) continue;
+					if (check)
+					{
+						var on = dropdown.SelectedIndex;
+						var at = on >= 0 && on < count ? Read(choices[on]) : null;
+						return $"{(on == i ? "shown" : "not shown")} {row.Name} (bar on row {on}: {at?.Name} {at?.Guid}; first row {Read(choices[0])?.Guid})";
+					}
 					if (dry) return $"dry run, NOT opened: {row.Name} (subtab row {i})";
 					dropdown.OnSelectionChangedInternal(i);
 					var events = dropdown.SelectionEvents;
