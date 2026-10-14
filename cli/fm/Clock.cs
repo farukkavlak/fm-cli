@@ -56,10 +56,9 @@ internal static partial class Program
 
 			// A question left open after a match is the manager's to answer; Continue would
 			// walk past it. It is said once and the step left to him, unless told to skip it.
-			if (taken == 0 && !args.Contains("--skip") && (await TalkOptions()).Count > 0)
+			if (taken == 0 && !args.Contains("--skip") && await OpenQuestion() is { } asked)
 			{
-				var asked = (await Fm.GetJson("talk")).TryGetProperty("Says", out var says) ? says.EnumerateArray().Select(x => x.GetString()).LastOrDefault() : null;
-				Console.Error.WriteLine($"Açık bir soru var{(asked != null ? $": \"{asked}\"" : "")}");
+				Console.Error.WriteLine($"Açık bir soru var{(asked.Length > 0 ? $": \"{asked}\"" : "")}");
 				Console.Error.WriteLine("Cevaplamak için: talk   ·   cevaplamadan geçmek için: next --skip");
 				return 1;
 			}
@@ -397,10 +396,9 @@ internal static partial class Program
 			Console.WriteLine("İşsizsin: bir kulübün menajeri değilsin, kadro ve taktik komutları çalışmaz. İş ilanları: jobs");
 		// A question put after a match (the reaction, a tunnel interview) waits as a conversation
 		// while the game still calls itself free to go on; going on would pass it by unanswered.
-		if ((Passable(flow) || flow is "NeedAction" or "PressConference") && (await TalkOptions()).Count > 0)
+		if ((Passable(flow) || flow is "NeedAction" or "PressConference") && await OpenQuestion() is { } asked)
 		{
-			var asked = (await Fm.GetJson("talk")).TryGetProperty("Says", out var says) ? says.EnumerateArray().Select(x => x.GetString()).LastOrDefault() : null;
-			Console.WriteLine($"Açık bir soru var{(asked != null ? $": \"{asked}\"" : "")}");
+			Console.WriteLine($"Açık bir soru var{(asked.Length > 0 ? $": \"{asked}\"" : "")}");
 			Console.WriteLine("Cevaplamak için: talk   (geçmek için: next)");
 			return 0;
 		}
@@ -519,5 +517,17 @@ internal static partial class Program
 			return picked.Where(n => injured.Any(full => full == n || full.EndsWith(" " + n, StringComparison.Ordinal))).ToList();
 		}
 		catch (FmError) { return []; }
+	}
+
+	/// <summary>
+	/// What a conversation waiting for an answer last said, or null when there is none. A card that
+	/// keeps a menu of the director's beside it (a viewed offer, a player's transfer status) offers
+	/// lines too, but nobody has said anything there.
+	/// </summary>
+	private static async Task<string> OpenQuestion()
+	{
+		if ((await TalkOptions()).Count == 0) return null;
+		var said = (await Fm.GetJson("talk")).TryGetProperty("Says", out var says) ? says.EnumerateArray().Select(x => x.GetString() ?? "").Where(x => x.Length > 0).ToList() : [];
+		return said.Count > 0 ? said[^1] : null;
 	}
 }
