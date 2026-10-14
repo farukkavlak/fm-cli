@@ -236,6 +236,10 @@ internal static partial class Program
 		Console.WriteLine($"{wanted.Name}: {Shown(wanted, ValueOf(now))} → {Shown(wanted, ValueOf(after))}");
 		// A new language, or new separators for money: the next command learns them again.
 		engineChecked = false;
+		// The screens change at once; the game's own texts (a fixture's venue, a match's kind) only
+		// once it is started again, which would lose what is not saved, so it is said, not done.
+		if (wanted.Name == "dil")
+			Console.WriteLine("Ekranlar yeni dilde; oyunun kendi yazıları (maç türü, iç saha / deplasman…) oyun yeniden açılınca değişir: save, sonra stop ve start.");
 		return 0;
 	}
 
