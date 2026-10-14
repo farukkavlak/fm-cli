@@ -47,6 +47,9 @@ internal static partial class Program
 		if (args.Contains("--cancel"))
 		{
 			var failed = await CallOff();
+			// The talks were opened from a card (his transfer status with the director beside it), which
+			// comes back up and reads as a question waiting; the portal is opened over it.
+			if (failed == null) await OpenPage(Screen.Home);
 			Console.WriteLine(failed ?? "Görüşme iptal edildi.");
 			return failed == null ? 0 : 1;
 		}
@@ -242,6 +245,7 @@ internal static partial class Program
 		{
 			if (Ui.Ask("Görüşme kapanacak; menajer bundan hoşlanmayabilir.", ["İptal et"], cancel: "Geri dön") == null) return null;
 			if (await CallOff() is { } failed) return failed;
+			await OpenPage(Screen.Home);
 			Console.WriteLine("Görüşme iptal edildi.");
 			return "";
 		}
