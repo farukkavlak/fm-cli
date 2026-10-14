@@ -579,6 +579,16 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 
 ## Günlük
 
+### 2026-10-14 (gece — mesaj ekleri kimlikle, Türkçe oynama)
+
+- Mesajın gövdesi ve eki öğe adıyla (`MessageBodyText`, eklentide `/texts?anchorname=`), başlıkla tanınıyor: cevaplanmış
+  mesajda gövde yerine son cevap basılıyor, teklif/imza ekleri hiç çıkmıyordu. ~15 ek türü veri yolundan (FINDINGS §8.176).
+- Türkçede `offer` gönderemiyordu ("Teklif Yap" → "Make An Offer"): `GameWords.Same`. `offers` alımları "Alım" diye.
+- Kayıt/taktik klasörü oyuna soruluyor (`/folders`, `GameFolders.cs`) — platform bağımlılığının ilk adımı.
+- Türkçe tarama 49/50. Türkçe oynama: teklif → pazarlık → sözleşme → imza (Waine), kayıt listesi, forma numaraları,
+  kadro önerisi, konuşma (McGrandles), York maçı.
+- Kayıt bir ara 13 Temmuz'a döndü (save --yes unutuldu); kritik değil.
+
 ### 2026-10-14 (akşam — açık kalan küçük işler)
 
 - Taktik rol adları oyunun dilinde: rol listelerinden kimlik → ad, dile göre önbellek (FINDINGS §8.175).

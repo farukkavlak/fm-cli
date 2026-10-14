@@ -4847,6 +4847,21 @@ Aşama 2: Türkçe oyunda CLI yazıldığı gibi (Türkçe), başka her dilde İ
   personel satırı "Members" arıyordu, imza kartında "Süre" eklentide "Time Out"a çevriliyor ("Duration" bulunmuyordu).
 - **Aynı Türkçenin iki İngilizcesi:** "Teklif Yap" eklentide "Make An Offer" dönüyor, CLI "Make Offer" arıyordu →
   Türkçede `offer` gönderemiyordu. `Labelled` artık `GameWords.Same`: iki İngilizce oyunun dilinde aynı yazılıyorsa aynı.
+- **Sonradan eklenen ek okuyucuları (gün ilerletip toplanan türler):** teklif şartları `binding.PropertyValue` +
+  `binding.DisplayValue`; rapor başlığının üçüncü adı "Scout Report" (kayıyordu); personel imzası "Confirmation"
+  taşımıyor (imza kartına düşmüyordu), işi adın ardındaki yolsuz yazı; transfer odakları
+  (`Human.ScoutingInfo.RecruitmentFocuses.*FocusesCount`, `focusitem.Name`; "Ongoing" eklentide "Obscure" dönüyordu);
+  oyuncu raporu (`Person.*`, `binding.TransferValueRangeString`, `HappinessPositivesCount`); önerilen kadro
+  (`teamselectionadviceentry.TeamSelectionReason`, önünde yolsuz mevki / önerilen / yerine geçtiği); takım dinamikleri
+  (`binding.ProConsLongString`, önünde yolsuz +/-); kayıt kartı (`nextsquadreg.RegistrationDaysLeft`); forma numaraları
+  (`Team.SquadNumbersAssigned`).
+- **Genel okuyucu:** 80+ karakterlik yazı görünce eki "haber" sayıp gerisini atıyordu (kadro önerisinde önerilen 11
+  kayboluyordu). Artık yalnız `newsitem.NewsBodyString` varsa ya da yola bağlı yazı ≤ 3 ise.
+- **`offers`:** sayfa bizim tekliflerimizi de listeliyor; bizim olmayan oyuncu "Alım" (eskiden "Satış").
+- **Oyunun dilinde yazılmayanlar:** konuşma tepkileri ("3 Very Positive"), seçilen söz ("» End Chat"), mesaja verilen
+  cevap ("→ Confirm"), `next`'in "İlerle butonu" (state isteği dışında okunuyor, kelime soruluyor).
+- **`numbers --auto`:** mesaj açılmadan çalıştırılınca numaraları gönderiyor ama "forma numaraları isteniyor" mesajı
+  cevap bekler kalıyor; mesaj `reply … 1` ile açılınca aynı komut kapatıyor.
 - **Açık:** haber listesi yaşa göre sıralanamıyor (yaş yazısı "10 saat 45 dakika önce"; birimler çeviri tablosunda
   yok). Haberin verisinde `Age`/`Date` var ama sayfa bağlamıyor; Türkçede oyunun sırası kalıyor.
 
