@@ -115,6 +115,7 @@ internal static class Localisation
 	private static string language;
 	private static System.Collections.Generic.Dictionary<string, string> toEnglish;
 	private static System.Collections.Generic.Dictionary<int, string> byId;
+	private static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> fromEnglish = new();
 	private static System.Collections.Generic.HashSet<string> englishTexts = [];
 
 	public static int Entries => toEnglish?.Count ?? 0;
@@ -122,25 +123,59 @@ internal static class Localisation
 	/// <summary>
 	/// Every text put into English since the request began, with the words the game showed for it:
 	/// the CLI matches on the English but shows the user the game's own words (Faruk, 14 Ekim 2026).
-	/// One English text shown two ways keeps the last.
+	/// One English text shown two ways keeps the last, except that words known by the text's number
+	/// are not replaced by words found through the table: "Progression" is a match focus's
+	/// "İlerleme" by its number, and "Kaydedilen İlerleme" elsewhere on the page by the table.
 	/// </summary>
 	public static readonly System.Collections.Generic.Dictionary<string, string> Seen = new();
+	private static readonly System.Collections.Generic.HashSet<string> seenByNumber = [];
 
-	private static string Saw(string english, string shown)
+	/// <summary>Forgets the words seen: a request begins.</summary>
+	public static void Forget()
 	{
-		if (english != null && !string.IsNullOrEmpty(shown) && english != shown) Seen[english] = shown;
+		Seen.Clear();
+		seenByNumber.Clear();
+	}
+
+	private static string Saw(string english, string shown, bool byNumber = false)
+	{
+		if (english == null || string.IsNullOrEmpty(shown) || english == shown) return english;
+		if (byNumber) seenByNumber.Add(english);
+		else if (seenByNumber.Contains(english)) return english;
+		Seen[english] = shown;
 		return english;
 	}
 	public static int Clashes { get; private set; }
 
 	/// <summary>Notes a text put into English by the caller, with the words the game showed.</summary>
-	public static string Seeing(string english, string shown) => Saw(english, shown);
+	public static string Seeing(string english, string shown) => Saw(english, shown, byNumber: true);
 
 	/// <summary>The English of one of the game's texts by its number, in a game set to another language.</summary>
 	public static string EnglishOf(int id)
 	{
 		if (Map() == null) return null;
 		return byId != null && byId.TryGetValue(id, out var english) ? english : null;
+	}
+
+	private static void Translated(string english, string shown)
+	{
+		if (!fromEnglish.TryGetValue(english, out var all)) fromEnglish[english] = all = [];
+		all.Add(shown);
+	}
+
+	/// <summary>
+	/// The game's words for an English text the CLI writes itself (a scouting focus "In Progress", a
+	/// staff team): where the table holds it more than once, the translation it is given most often.
+	/// Noted as seen, so it reaches the CLI with the request's other words. Null in an English game
+	/// or for a text the game does not have.
+	/// </summary>
+	public static string ShownOf(string english)
+	{
+		if (string.IsNullOrEmpty(english) || Map() == null || !fromEnglish.TryGetValue(english, out var all)) return null;
+		var shown = System.Linq.Enumerable.First(System.Linq.Enumerable.OrderByDescending(
+			System.Linq.Enumerable.GroupBy(all, t => t), g => System.Linq.Enumerable.Count(g))).Key;
+		Saw(english, shown);
+		return shown;
 	}
 
 	/// <summary>The texts a fixture's venue is written with: H, A, N (and a second H, A).</summary>
@@ -158,7 +193,7 @@ internal static class Localisation
 			try
 			{
 				if (Text.Shown(new SI.Translation.TranslationID { GameID = id }.TranslatedString) == shown && EnglishOf(id) is { } english)
-					return Saw(english, shown);
+					return Saw(english, shown, byNumber: true);
 			}
 			catch { }
 		}
@@ -193,6 +228,7 @@ internal static class Localisation
 		language = now;
 		toEnglish = new System.Collections.Generic.Dictionary<string, string>();
 		byId = new System.Collections.Generic.Dictionary<int, string>();
+		fromEnglish = new();
 		englishTexts = [];
 		Clashes = 0;
 		try
@@ -211,7 +247,9 @@ internal static class Localisation
 				try { shown = new SI.Translation.TranslationID { GameID = id }.TranslatedString; } catch { continue; }
 				if (string.IsNullOrEmpty(shown)) continue;
 				shown = System.Text.RegularExpressions.Regex.Replace(Clean(shown), "<[^<>]+>", "").Trim();
-				if (shown.Length == 0 || shown == english) continue;
+				if (shown.Length == 0) continue;
+				Translated(english, shown);
+				if (shown == english) continue;
 				if (!toEnglish.TryAdd(shown, english) && toEnglish[shown] != english) Clashes++;
 			}
 		}
@@ -246,6 +284,7 @@ internal static class Localisation
 				var shown = line[..tab];
 				var english = line[(tab + 1)..];
 				englishTexts.Add(english);
+				if (!fromEnglish.ContainsKey(english)) Translated(english, shown);
 				if (shown != english && toEnglish.TryAdd(shown, english)) added++;
 			}
 		}

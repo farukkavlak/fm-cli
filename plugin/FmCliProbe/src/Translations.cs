@@ -32,6 +32,14 @@ internal static class Translations
 
 	public static string Open(NameValueCollection q)
 	{
+		// The game's words for English texts the CLI writes itself, one per line: "english\tshown".
+		if (q["words"] is { } words)
+		{
+			var lines = new StringBuilder();
+			foreach (var english in words.Split('\n', System.StringSplitOptions.RemoveEmptyEntries))
+				if (Localisation.ShownOf(english) is { } game) lines.Append(english).Append('\t').Append(game).Append('\n');
+			return lines.ToString();
+		}
 		// The engine's texts: where the game keeps them, and whether this language's are loaded.
 		if (q["engine"] == "1")
 		{

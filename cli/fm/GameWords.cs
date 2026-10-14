@@ -25,6 +25,19 @@ internal static class GameWords
 		}
 	}
 
+	/// <summary>
+	/// Learns the game's words for English texts the CLI writes itself rather than reads (a scouting
+	/// focus's "Complete", a staff team's name), from the game's own table; one call for the ones not
+	/// known yet. In an English game the plugin has none to give, and nothing changes.
+	/// </summary>
+	public static async Task Ask(Bridge fm, params string[] english)
+	{
+		var missing = english.Where(e => e.Length > 0 && !words.ContainsKey(e)).Distinct().ToList();
+		if (missing.Count == 0) return;
+		try { await fm.Get("translate", ("words", string.Join('\n', missing))); }
+		catch (Exception e) when (e is FmUnavailable or FmBusy) { }
+	}
+
 	/// <summary>A text from the game in the game's own words, where it was put into English.</summary>
 	public static string Of(string text)
 	{
@@ -37,8 +50,8 @@ internal static class GameWords
 
 	// What the CLI puts between the game's texts on a line: columns (a tab, or spaces to line them
 	// up), lists ("York · Preparation", "Proposal, İzleniyor"), a label before a value ("Mentalite:
-	// Balanced") and a note after one ("8-0 (Preparation)").
-	private static readonly System.Text.RegularExpressions.Regex Between = new(@"(\t| {2,}| · |, |: | ?\(|\)|\r?\n)");
+	// Balanced"), a note after one ("8-0 (Preparation)") and what it means ("Mid Block — Focus on …").
+	private static readonly System.Text.RegularExpressions.Regex Between = new(@"(\t| {2,}| · | — |, |: | ?\(|\)|\r?\n)");
 
 	/// <summary>
 	/// A line the CLI wrote with the game's texts in it, each part looked up on its own. A column

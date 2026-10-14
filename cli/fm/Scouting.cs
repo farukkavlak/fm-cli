@@ -25,6 +25,8 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		// A focus's status is read as a flag, not as the game's words (GameWords).
+		await GameWords.Ask(Fm, "In Progress", "Complete");
 
 		JsonElement? list = null;
 		if (!await Until(async () => (list = await FocusList()) != null, seconds: 10, every: 0.5))
@@ -148,7 +150,7 @@ internal static partial class Program
 		static int Count(JsonElement e, string name) => int.TryParse(Field(e, name), out var n) ? n : 0;
 		var scouts = Count(data, "ScoutCount");
 		var analysts = Count(data, "AnalystCount");
-		var assigned = string.Join(" · ", new[] { scouts > 0 ? $"{scouts} scout" : "", analysts > 0 ? $"{analysts} analist" : "" }.Where(x => x.Length > 0));
+		var assigned = string.Join(" · ", new[] { scouts > 0 ? $"{scouts} gözlemci" : "", analysts > 0 ? $"{analysts} analist" : "" }.Where(x => x.Length > 0));
 
 		Focus read = null;
 		var previous = "?";

@@ -141,7 +141,7 @@ internal sealed class HttpBridge
 	{
 		while (_jobs.TryDequeue(out var job))
 		{
-			Localisation.Seen.Clear();
+			Localisation.Forget();
 			try { job.Result = _handle(job.Route, job.Query); }
 			catch (Exception ex) { job.Result = "error: " + ex; }
 			finally

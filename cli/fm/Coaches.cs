@@ -23,11 +23,6 @@ internal static partial class Program
 		("SPC", "Duran top", ["duran top", "spc", "set pieces"]),
 	];
 
-	private static readonly Dictionary<string, string> WorkloadTurkish = new()
-	{
-		["Light"] = "hafif", ["Average"] = "orta", ["Heavy"] = "ağır", ["Very Heavy"] = "çok ağır",
-	};
-
 	private sealed record CoachCell(bool On, bool Enabled, string Pointer, int HalfStars);
 	private sealed record CoachRow(string Name, string Role, CoachCell[] Cells);
 
@@ -121,7 +116,7 @@ internal static partial class Program
 		var headers = new[] { "ANTRENÖR" }.Concat(shortNames).ToArray();
 		var table = rows.Select(r => new[] { r.Name }
 			.Concat(r.Cells.Select(c => c.On ? $"✓ {Stars(c.HalfStars)}".Trim() : c.Enabled ? "·" : "")).ToArray()).ToList();
-		table.Add(new[] { "iş yükü" }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? WorkloadTurkish.GetValueOrDefault(areas[i].Load, areas[i].Load) : "")).ToArray());
+		table.Add(new[] { "iş yükü" }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? areas[i].Load : "")).ToArray());
 		table.Add(new[] { "baş antrenör" }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? Stars(areas[i].HalfStars) is { Length: > 0 } st ? st : "yok" : "")).ToArray());
 		Table.Write(headers, table);
 		Console.WriteLine("HÜC hücum · SAV savunma · TOP topla oynama · TAK taktik · TEK teknik · KOND kondisyon · DURAN duran top");
@@ -164,10 +159,12 @@ internal static partial class Program
 		}
 
 		// Under the grid: each area's load in words, then its lead coach's stars (none for an area nobody leads).
+		// The load is one of the game's words, shown as the game writes it: in a game set to another
+		// language its English can come back as another text translated the same way ("Minor" for "Light").
 		var lead = items.FindIndex(i, x => Field(x, "Kind") == "text" && Field(x, "Text") == "Lead Coach Rating");
 		for (var j = lead + 1; lead > 0 && j < items.Count && areas.Count < CoachAreas.Length; j++)
 		{
-			if (Field(items[j], "Kind") != "text" || !WorkloadTurkish.ContainsKey(Field(items[j], "Text"))) break;
+			if (Field(items[j], "Kind") != "text") break;
 			var half = j + 1 < items.Count && Field(items[j + 1], "Kind") == "stars" && int.TryParse(Field(items[j + 1], "Shown"), out var s) ? s : 0;
 			areas.Add((Field(items[j], "Text"), half));
 			if (j + 1 < items.Count && Field(items[j + 1], "Kind") == "stars") j++;

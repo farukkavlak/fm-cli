@@ -15,6 +15,10 @@ internal static partial class Program
 {
 	private static readonly string[] StaffTeams = ["Coaching Staff", "Recruitment Staff", "Medical Staff"];
 
+	// What each team is called where the game's table has a name for it: it has no "Recruitment Staff"
+	// or "Medical Staff" of its own.
+	private static readonly string[] StaffTeamNames = ["Coaching Staff", "Recruitment", "Medical Team"];
+
 	private static readonly string[] StaffJobs =
 	[
 		"Manager", "Assistant Manager", "Director of Football", "Technical Director", "Head of Youth Development",
@@ -74,7 +78,7 @@ internal static partial class Program
 
 		// Senior squad first, then by job from the manager down, the president last.
 		static int Rank(string job) => Array.IndexOf(StaffJobs, job) is var i && i >= 0 ? i : StaffJobs.Length - 1;
-		var staff = people.Values.OrderBy(p => p[1] == "Senior Squad" ? 0 : 1).ThenBy(p => Rank(p[2])).ThenBy(p => p[2]).ThenBy(p => p[0]).ToList();
+		var staff = people.Values.OrderBy(p => p[1] == "Senior Squad" ? 0 : 1).ThenBy(p => p[1]).ThenBy(p => Rank(p[2])).ThenBy(p => p[2]).ThenBy(p => p[0]).ToList();
 
 		if (json)
 		{
@@ -86,13 +90,15 @@ internal static partial class Program
 			return 0;
 		}
 
+		// The staff teams are named by the CLI, in the game's words (GameWords).
+		await GameWords.Ask(Fm, [.. StaffTeamNames, "Senior Squad"]);
 		var lastTeam = "";
 		foreach (var p in staff)
 		{
 			if (p[1] != lastTeam)
 			{
 				lastTeam = p[1];
-				var title = p[1] == "Senior Squad" ? "A takım" : p[1].EndsWith(" Squad", StringComparison.Ordinal) ? p[1][..^" Squad".Length] : p[1];
+				var title = p[1] == "Senior Squad" ? p[1] : p[1].EndsWith(" Squad", StringComparison.Ordinal) ? p[1][..^" Squad".Length] : p[1];
 				if (Ui.Rich) Ui.Line($"\n[bold]{Ui.Safe(title)}[/]");
 				else Console.WriteLine($"\n{title}");
 			}
@@ -103,7 +109,7 @@ internal static partial class Program
 
 		foreach (var (team, roles, board) in teams)
 		{
-			var name = team switch { "Coaching Staff" => "Antrenörler", "Recruitment Staff" => "Scouting / transfer", _ => "Sağlık" };
+			var name = GameWords.Of(StaffTeamNames[Array.IndexOf(StaffTeams, team)]);
 			var gaps = roles.Where(r => r.Filled < r.Wanted).Select(r => $"{GameWords.Of(r.Role)} {r.Filled}/{r.Wanted}").ToList();
 			if (Ui.Rich) Ui.Line($"\n[bold]{Ui.Safe(name)}[/] {roles.Sum(r => r.Filled)} kişi" + (gaps.Count > 0 ? $" — [yellow]eksik: {Ui.Safe(string.Join(", ", gaps))}[/]" : ""));
 			else Console.WriteLine($"\n{name} {roles.Sum(r => r.Filled)} kişi" + (gaps.Count > 0 ? $" — eksik: {string.Join(", ", gaps)}" : ""));
