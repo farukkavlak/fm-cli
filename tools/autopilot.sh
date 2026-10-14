@@ -14,7 +14,7 @@ if ! mkdir "$LOCK" 2>/dev/null; then echo "autopilot zaten çalışıyor ($LOCK)
 trap 'rmdir "$LOCK"' EXIT INT TERM
 stuck=0
 for round in $(seq 1 $MAX); do
-	open_items=$(sed -n '/^## CHECKLIST/,/^## 0\./p' $CHECKLIST | grep -cE '^\s*- \[ \]')
+	open_items=$(sed -n '/^## CHECKLIST/,/^## Arka plan/p' $CHECKLIST | grep -cE '^\s*- \[ \]')
 	if [ "$open_items" -eq 0 ]; then echo "$(date '+%F %T') checklist bitti" | tee -a "$LOG"; break; fi
 	if [ -e "$STOP" ]; then echo "$(date '+%F %T') durduruldu (stop dosyası)" | tee -a "$LOG"; break; fi
 	before=$(git rev-parse HEAD)
