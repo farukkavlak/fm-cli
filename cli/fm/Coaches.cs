@@ -151,23 +151,30 @@ internal static partial class Program
 		var start = items.FindIndex(x => Field(x, "Kind") == "text" && Field(x, "Text") == CoachAreas[^1].Heading);
 		if (start < 0) return null;
 
+		// While the page is being built the grid comes in pieces: switches before their stars, rows before
+		// their coach's name. Every switch has its stars (none shown where he is not assigned), so the grid
+		// is whole only when it reads as name, role and nine switch-and-stars cells up to the loads.
 		var i = start + 1;
-		while (i + 1 < items.Count && Field(items[i], "Kind") == "text" && Field(items[i], "Text") != "Coach Workload")
+		while (i < items.Count && !(Field(items[i], "Kind") == "text" && Field(items[i], "Text") == "Coach Workload"))
 		{
+			if (i + 1 >= items.Count || Field(items[i], "Kind") != "text" || Field(items[i + 1], "Kind") != "text") return null;
 			var name = Field(items[i], "Text");
 			var role = Field(items[i + 1], "Text");
 			i += 2;
 			var cells = new List<CoachCell>();
-			while (cells.Count < CoachAreas.Length && i < items.Count && Field(items[i], "Kind") == "checkbox")
+			while (cells.Count < CoachAreas.Length && i + 1 < items.Count && Field(items[i], "Kind") == "checkbox")
 			{
 				var box = items[i];
-				var stars = i + 1 < items.Count && Field(items[i + 1], "Kind") == "stars" ? items[i + 1] : default;
+				var stars = items[i + 1];
+				if (Field(stars, "Kind") != "stars") return null;
 				cells.Add(new CoachCell(Field(box, "Value") == "True", Field(box, "Enabled") == "True", Field(box, "Pointer"),
-					stars.ValueKind == JsonValueKind.Object && int.TryParse(Field(stars, "Shown"), out var s) ? s : 0));
-				i += stars.ValueKind == JsonValueKind.Object ? 2 : 1;
+					int.TryParse(Field(stars, "Shown"), out var s) ? s : 0));
+				i += 2;
 			}
-			if (cells.Count == CoachAreas.Length) rows.Add(new CoachRow(name, role, cells.ToArray()));
+			if (cells.Count != CoachAreas.Length) return null;
+			rows.Add(new CoachRow(name, role, cells.ToArray()));
 		}
+		if (i >= items.Count) return null;
 
 		// Under the grid: each area's load in words, then its lead coach's stars (none for an area nobody leads).
 		// The load is one of the game's words, shown as the game writes it: in a game set to another

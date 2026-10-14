@@ -4939,3 +4939,8 @@ Coach Assignments'ta bir kutu `setcontrol` ile değişince değeri ~0,1 sn'de d�
 yıldızı var, alınanınki yok; bu, sayfanın bittiğini söylüyor. "Ask Assistant to Assign" (`EventFmxAssistantAssignCoaches`,
 hedef `currentteam.TeamTraining`) ~0,4 sn'de sayfayı değiştiriyor; yardımcının seçimi zaten oradaysa hiçbir şey
 değişmiyor, "bitti" işareti de yok. Bir kez ilk okuma 10 antrenörden 3'ünü verdi; tekrarlanmadı.
+
+Sayfa açılırken form sırayla doluyor: önce başlıklar ve iş yükü (33 öğe), sonra kutular yıldızsız (78–90 kutu, 0 yıldız),
+sonra yıldızlar, en son antrenör adları — bir süre bazı satırlarda yalnızca görev yazısı var ("U-21 Takımı …"). İlk adsız
+satırda duran okuma 1–6 antrenörlük tablo veriyordu. Her kutunun yıldız öğesi var (atanmayanda `Shown` 0), bu yüzden
+"her satır ad + görev + dokuz kutu/yıldız, iş yüküne kadar" tam formun işareti.

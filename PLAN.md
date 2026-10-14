@@ -579,6 +579,11 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 
 ## Günlük
 
+### 2026-10-14 (akşam, otomatik tur — `coaches` eksik okuma)
+
+- `coaches` yarım kurulmuş sayfayı (adsız satırlar, yıldızsız kutular) artık kabul etmiyor; ızgara tam okununca gösteriyor
+  (FINDINGS §8.180, 12/12 açılışta 10 antrenör). Clock'un beklemeleri hâlâ ertelendi (kaptan seçimi mesajı cevap bekliyor).
+
 ### 2026-10-14 (akşam, otomatik tur — `coaches` beklemeleri)
 
 - `coaches` atama ve `--auto` sonrası sabit 0,8 / 1,5 sn yerine sayfanın kendi değişimi bekleniyor (FINDINGS §8.180).

@@ -49,8 +49,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     değiştiriyor; değişince biter, yardımcının seçimi zaten oradaysa hiçbir işaret yok, 3 sn sınırında biter (eskiden
     sabit 1,5). 20 atama (ana sayfa açık / Gelen kutusu / Kadro açıkken) + 2 `--auto`, hepsinde çıktı taze okumayla aynı.
     İngilizcede denenmedi (işaret kutu değeri ve yıldız sayısı, dilden bağımsız).
-  - [ ] `coaches` ilk okumada 10 antrenörden yalnızca 3'ünü gösterdi (baş antrenör yıldızları gizli satırları ele
-    veriyordu); sonra üç durumda 10/10, tekrarlanmadı. Okuma eksik formu kabul ediyor olabilir (`Rows.Count > 0`).
+  - [x] `coaches` ilk okumada 10 antrenörden yalnızca 3'ünü gösterdi: sayfa parça parça kuruluyor (kutular yıldızsız,
+    satırlar adsız geliyor) ve okuma ilk adsız satırda durup eksik tabloyu kabul ediyordu. Artık ızgara ancak "ad, görev,
+    dokuz kutu+yıldız" diye iş yüküne kadar kesintisiz okununca kabul. 30 ms yoklamayla 12 açılış (gelen kutusu / kadro /
+    kulüp / yönetim / finans / zaten açık): 17 ara hal (33–267 öğe, 0–6 adlı satır) reddedildi, 12/12 çıktı 10 antrenör;
+    atama + geri alma ×2 değişmedi. Kural yapıdan (öğe türü), dilden bağımsız; İngilizcede denenmedi.
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   Calendar 157 · ContractTalks 364 · Finances 238 · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
