@@ -36,8 +36,9 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   Calendar 157 · ContractTalks 364 · Finances 238 · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
   TrainingSchedule 491 506 · TraitTraining 89
-- [ ] **`reply` cevapları** "1 sn arayla iki okuma aynıysa tamam" diyordu → sayfadaki `action.ActionTitle` sayısı kadar cevap
-  gelene kadar bekliyor (gövdeden 6 üst; 5 mesaj × 3 tur 15/15). **Commit edilmedi**, İngilizcede de denenecek.
+- [x] **`reply` cevapları:** sabit "1 sn arayla iki okuma" yerine sayfanın cevap başlıkları ile düğmeler aynı ve önceki
+  mesajınkilerden farklı olunca (cevapsızda `CanRespond`); ilk ölçülen "başlık sayısı kadar" hali eski cevapları
+  gösteriyordu. Türkçe 24/24, İngilizce 14/14, başka sayfa açıkken 4/4, 1–2 sn (FINDINGS §8.178).
 - [ ] **Mesaj eki için 1,5 sn** (`WriteAttachment`, Program ~986): ek gelmezse "ek yok". Ekin var olup olmadığını söyleyen
   işaret bulunamadı (bağlama adları sürümde gizli); eksiz bir mesajda `#AttachmentsTitleContainer` durumu ölçülecek.
 - [ ] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2112). Denenen çözüm (çubuğun seçili satırı) ölçülünce

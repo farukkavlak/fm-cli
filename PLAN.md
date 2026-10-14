@@ -579,6 +579,12 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 
 ## Günlük
 
+### 2026-10-14 (akşam, otomatik tur — `reply` cevapları)
+
+- `reply`'ın "1 sn arayla iki okuma aynıysa tamam" beklemesi kalktı; yerine konan "cevap başlığı sayısı kadar düğme"
+  ölçünce önceki mesajın cevaplarını gösteriyordu. Şimdi sayfa ile düğmelerin aynı cevapları söylemesi ve önceki
+  mesajınkilerden farklı olması bekleniyor (FINDINGS §8.178). Türkçe + İngilizce 42/42.
+
 ### 2026-10-14 (akşam, clear sonrası — konumla okuma taraması, yeni ekler)
 
 - 93 konumla okuma tarandı: etiket ardından okuma dilden bağımsız; kırılanlar İngilizce cümle parçası arayanlardı

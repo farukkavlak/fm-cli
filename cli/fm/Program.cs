@@ -774,31 +774,38 @@ internal static partial class Program
 		if (message is not { } chosen) return 1;
 
 		var title = Field(chosen, "NewsTitleString");
+		var id = Field(chosen, "UniqueId");
+
+		// The answers the previous message left on screen, which stay there a while after another is
+		// opened (none to tell apart when this message is the one already open).
+		string Set(IEnumerable<string> labels) => string.Join("|", labels.Select(GameWords.Of).Distinct().Order());
+		var previous = await Selected() == id ? null : Set((await Answers()).Select(a => Field(a, "Label")));
+
 		var opened = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		// The answers on screen belong to whichever message is open, so they are only read once
 		// the game reports this one as selected; until then they are the previous message's.
-		var id = Field(chosen, "UniqueId");
 		if (!await Until(async () => await Selected() == id))
 		{
 			Console.Error.WriteLine(L($"'{title}' açılamadı."));
 			return 1;
 		}
 
-		// The panel fills a moment after the selection changes, and a message without answers
-		// never fills, so two readings in a row that agree are taken as settled.
+		// The message's page lists its answers as action titles, but after its title changes both they and
+		// the buttons can still be the previous message's for a while (FINDINGS §8.178). The answers are
+		// this message's once the page under its title and the buttons name the same ones and they are no
+		// longer the previous message's, or none when the inbox says it takes none ("CanRespond"). Two messages with the same answers never tell apart; what is on
+		// screen once the wait runs out is then right as well.
 		List<JsonElement> answers = [];
-		var previous = "?";
-		for (var attempt = 0; attempt < 8; attempt++)
+		await Until(async () =>
 		{
-			await Task.Delay(TimeSpan.FromSeconds(1));
+			var page = await OpenMessage(title, t => t.Path == "newsitem.NewsTitleString", seconds: 5, up: 6);
 			answers = await Answers();
-
-			var labels = string.Join("|", answers.Select(a => Field(a, "Pointer")));
-			if (labels == previous && attempt >= 1) break;
-			previous = labels;
-		}
+			var shown = Set(answers.Select(a => Field(a, "Label")));
+			return page.Count > 0 && shown == Set(page.Where(t => t.Path == "action.ActionTitle").Select(t => t.Text))
+			       && (shown != previous || shown.Length == 0 && Field(chosen, "CanRespond") != "True");
+		}, seconds: 8, every: 0.25);
 
 		// The answers that are lists, each with what it offers.
 		var listed = new Dictionary<string, List<string>>();
@@ -1292,7 +1299,7 @@ internal static partial class Program
 			// The good comes first, the bad after the heading that counts it ("Negatives (3)").
 			var bad = page.FindIndex(t => t.Path.Length == 0 && t.Text.StartsWith("Negatives", StringComparison.Ordinal));
 			for (var i = 0; i < page.Count; i++)
-				if (page[i].Path == "row.ProConsLongString") Console.WriteLine($"    {(bad >= 0 && i > bad ? "-" : "+")} {page[i].Text}");
+				if (page[i].Path == "row.ProConsLongString") Console.WriteLine($"    {(bad >= 0 && i > bad ? "-" : "+")} {page[i].Text.Replace("\n", "\n      ")}");
 			var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
 			Console.WriteLine("    " + string.Join(" · ", new[] { One("Person.Name"), One("Person.PositionCombinedString"), age, One("Nation.ThreeLetterName"), One("Club.ShortName") }.Where(x => x.Length > 0)));
 			var expires = page.FindIndex(t => t.Path.Length == 0 && t.Text == "Contract Expires") is >= 0 and var c && c + 1 < page.Count && page[c + 1].Path.Length == 0 ? page[c + 1].Text : "";
@@ -1931,7 +1938,7 @@ internal static partial class Program
 	/// for this message by its title, since the one opened before can still be on screen. Waits a
 	/// while for what <paramref name="wanted"/> asks for; empty when the message is not there.
 	/// </summary>
-	private static async Task<List<(string Text, string Path)>> OpenMessage(string title, Func<(string Text, string Path), bool> wanted, double seconds)
+	private static async Task<List<(string Text, string Path)>> OpenMessage(string title, Func<(string Text, string Path), bool> wanted, double seconds, int up = 5)
 	{
 		List<(string Text, string Path)> page = [];
 		bool Ours() => page.Any(t => t.Path == "newsitem.NewsTitleString" && (t.Text == title || GameWords.Of(t.Text) == GameWords.Of(title)));
@@ -1939,7 +1946,7 @@ internal static partial class Program
 		{
 			await Until(async () =>
 			{
-				var found = await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", "5"), ("paths", "1"), ("most", "1"));
+				var found = await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", up.ToString()), ("paths", "1"), ("most", "1"));
 				if (found.ValueKind != JsonValueKind.Array) return false;
 				page = found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 				return Ours() && page.Any(wanted);

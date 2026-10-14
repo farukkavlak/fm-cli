@@ -4889,6 +4889,20 @@ Aşama 2: Türkçe oyunda CLI yazıldığı gibi (Türkçe), başka her dilde İ
   kimlik 21068 Türkçede "%50"). CLI `InvariantGlobalization` ile derlendiği için .NET kültürü kullanılamıyor.
 - Oyun haftalık otomatik kaydını aldı (25 Temmuz civarı); Wolves 16 yaşındaki Deakin'i tazminatla kendiliğinden aldı.
 
+### 8.178 Mesajın cevapları: önceki mesajınkiler bir süre ekranda kalıyor (14 Ekim 2026 akşam, Türkçe + İngilizce)
+
+- Mesaj açılınca sayfadaki başlık (`newsitem.NewsTitleString`) hemen yenileniyor, ama altındaki cevap başlıkları
+  (`action.ActionTitle`) ve `SpeakToAction` düğmeleri bir süre (ölçülen: ~1 sn'ye kadar, 5 yoklama) önceki mesajınki
+  kalıyor; ikisi ayrı ayrı yenileniyor. Düğme işaretçileri havuzdan (aynı adres başka mesajda yeniden kullanılıyor),
+  işaretçiyle ayırt edilemez.
+- "Sayfadaki cevap başlığı sayısı kadar düğme gelince tamam" yanlıştı: başlık sayısı da eski olabildiği için önceki
+  mesajın 4 cevabını ya da hiç cevap göstermiyordu (7 okumada 2 yanlış).
+- Tutan işaret: başlık bu mesajın + sayfadaki cevap başlıkları ile düğmeler aynı kümeyi söylüyor + bu küme önceki
+  mesajın kümesi değil; cevabı olmayan mesajda gelen kutusunun `CanRespond = False` alanı. Aynı mesaj zaten açıksa
+  karşılaştırma yok. Ölçüm: Türkçe 24/24, İngilizce 14/14, başka sayfa açıkken 4/4; her biri 1–2 sn (en fazla 4).
+- Aynı cevapları taşıyan iki mesaj art arda açılırsa ayırt edilemiyor; üst sınır (8 sn) dolunca ekrandaki alınıyor,
+  o durumda da doğru.
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de
