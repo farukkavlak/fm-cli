@@ -1055,6 +1055,19 @@ internal static partial class Program
 		}
 
 		// The registration widget: its counts are the numbered shirts of the list, read better by register.
+		// The registration card before any are registered: the window, the list's size, the rules (the
+		// sentences under it) and nothing else of note (the fixtures beside it are the calendar's).
+		if (rest[0] == "Squad Registration" && One("nextsquadreg.RegistrationDaysLeft") is { Length: > 0 } left
+		    && !rest.Any(t => t.StartsWith("Unregistered (", StringComparison.Ordinal)))
+		{
+			var sizeAt = page.FindIndex(t => t.Path.Length == 0 && System.Text.RegularExpressions.Regex.IsMatch(t.Text, @"^\d+/\d+$"));
+			Console.WriteLine(L($"\n  Ek: kayıt listesi {(sizeAt >= 0 ? page[sizeAt].Text : "")} · {One("comp.Name")} · {GameWords.Of(rest.Count > 1 ? rest[1] : "")}, {left}"));
+			foreach (var rule in page.Skip(sizeAt + 1).TakeWhile(t => t.Path.Length == 0 && t.Text.Length >= 24 && t.Text.Contains(" ")).Where(_ => sizeAt >= 0))
+				Console.WriteLine($"    · {rule.Text}");
+			Console.WriteLine(L("    Ayrıntı: register"));
+			return;
+		}
+
 		if (rest.FirstOrDefault(t => t.StartsWith("Unregistered (", StringComparison.Ordinal)) is { } unregistered)
 		{
 			var size = rest.FirstOrDefault(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d+/\d+$"));
