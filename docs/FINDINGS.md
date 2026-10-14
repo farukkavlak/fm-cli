@@ -4746,6 +4746,14 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
   İngilizcesi). Mevki listesinin satır kimlikleri mevki bitleri (GK 1, DR 4 … ST 16384), Türkçede yazıları
   "Defence (Right)", "Striker (Core)". Koşul ekleme listesi `conditiontoadd` bağlamasıyla ("Kriter Ekle" çevrilmiyor).
 - Satır kaydındaki 'RTid' bir çeviri numarası değil (UI tablosunda da motor tablosunda da yok).
+- **Oyuncu kartı nitelikleri:** `AttributeTypeInfo` kaydının `ID`'si nitelik türü numarası (0 Aerial Reach … 10 One On
+  Ones, 11–24 teknik, 25–38 zihinsel, 39–46 fiziksel; 42 Pace). Ekran yalnız adı bağlıyor; kimlik kaydın kendisinden
+  okunuyor. CLI adı bu numaradan kuruyor (Türkçede "Hız" → Speed, "Kafa" → Header geliyordu).
+- **Geri çevirinin sınırı (denendi, geri alındı):** veri değerlerinde motor tablosunu UI tablosunun önüne almak
+  "Hazırlık"ı Friendly yaptı (doğru), ama "Build Up"ı Game Setup, "Bid"i Offer yaptı (yanlış). Bir Türkçe yazının
+  birden çok İngilizcesi varken hangi tablo öne alınırsa alınsın tahmin. Doğru çözüm kimlik (çeviri numarası, kayıt ID'si)
+  ya da gösterimde oyunun kendi dilindeki yazı.
+- **Dil değişince:** ekranlar hemen değişiyor, oyunun motor yazıları (maç türü, iç saha kodu) oyun yeniden açılınca.
 
 ## 9. Sıradaki adımlar
 
