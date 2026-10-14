@@ -21,6 +21,9 @@ Görev: `docs/BAGIMLILIKLAR.md` en üstündeki CHECKLIST'ten **tek bir maddeyi**
    kanıtlanmış biçimde iyi değilse geri al, eskisi kalsın; maddeye ne ölçtüğünü yaz.
 4. Bitince: maddeyi `[x]` yap ve bir satırla ne yapıldığını yaz; FINDINGS'e gerekiyorsa kısa not; İngilizce Conventional
    Commit at (son satır `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`); hafızadaki `portability-plan`'a bir satır ekle.
+   Token: `docs/FINDINGS.md`, `PLAN.md`, `docs/manual/KILAVUZ.md` büyük; bütününü okuma. Bilgi ararken `grep -n` +
+   gereken satır aralığı. FINDINGS'e yeni bölüm ve PLAN "Günlük"e yeni gün dosyanın SONUNA `cat >> dosya <<'EOF'` ile
+   eklenir (ikisinde de en yeni en altta); kısa yaz: ne ölçüldü, sayı, sonuç — 3–6 satır.
 5. Kayıt deneme kaydı, hiçbir önemi yok (Faruk, 14 Ekim): maç oyna, zamanı ilerlet, antrenör/kaptan/taktik değiştir,
    oyundaki mesajları (kaptan seçimi dahil) kendin cevapla, kayıt al — sorma, park etme. Yalnızca kayıt silme ve oyun
    dışında para harcama gibi gerçekten Faruk'un kararı olan bir şey çıkarsa yapma: maddeyi `[?]` yap, nedenini ve sorulacak soruyu yanına yaz, commit et ve çık.
