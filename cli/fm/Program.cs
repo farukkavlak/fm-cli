@@ -43,14 +43,17 @@ internal static partial class Program
 		if (format == null)
 		{
 			// The game's texts in the game's own words, however a command prints them (GameWords).
-			var shown = Console.Out;
+			var (shown, said) = (Console.Out, Console.Error);
 			Ui.Format = format;
 			Console.SetOut(new GameWordsLines(shown));
+			Console.SetError(new GameWordsLines(said));
 			try { return await RunCommand(args); }
 			finally
 			{
 				Console.Out.Flush();
+				Console.Error.Flush();
 				Console.SetOut(shown);
+				Console.SetError(said);
 				Ui.Format = outer;
 			}
 		}
@@ -883,7 +886,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L($"Cevaplandı: {title} → {GameWords.Of(Field(wanted[0], "Label"))}{(chosenFrom != null ? $": {chosenFrom}" : "")}"));
+		Console.WriteLine(L($"Cevaplandı: {GameWords.Of(title)} → {GameWords.Of(Field(wanted[0], "Label"))}{(chosenFrom != null ? $": {chosenFrom}" : "")}"));
 
 		// An answer can open something instead of closing the message: an introduction opens a
 		// tour, "introduce yourself" a meeting. Otherwise the inbox catches up a moment later,

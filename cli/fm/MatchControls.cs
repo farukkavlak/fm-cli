@@ -271,8 +271,10 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> DugoutText()
 	{
+		// The advice's button ("Do it") can come back as another English the game writes the same way ("Apply").
+		await GameWords.Ask(Fm, "Do it");
 		var texts = (await Fm.GetJson("texts", ("anchor", "Dugout"), ("up", "12"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-		return string.Join(" ", texts.Skip(1).Where(t => t != "Do it"));
+		return string.Join(" ", texts.Skip(1).Where(t => !GameWords.Same(t, "Do it")));
 	}
 
 	// "FB 0 - 0 GÖZ", maybe with the scorers and a line on the table after it.

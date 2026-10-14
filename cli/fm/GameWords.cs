@@ -57,7 +57,9 @@ internal static class GameWords
 	// What the CLI puts between the game's texts on a line: columns (a tab, or spaces to line them
 	// up), lists ("York · Preparation", "Proposal, İzleniyor"), a label before a value ("Mentalite:
 	// Balanced"), a note after one ("8-0 (Preparation)") and what it means ("Mid Block — Focus on …").
-	private static readonly System.Text.RegularExpressions.Regex Between = new(@"(\t| {2,}| · | — |, |: | ?\(|\)|\r?\n)");
+	// A quote around a text is between too ("reply \"Collective bonuses to be decided\""), one inside a word
+	// ("Deakin'e") is not.
+	private static readonly System.Text.RegularExpressions.Regex Between = new(@"(\t| {2,}| · | — |, |: | ?\(|\)|\r?\n|""|(?<![\p{L}\d])'|'(?![\p{L}\d]))");
 
 	/// <summary>
 	/// A line the CLI wrote with the game's texts in it, each part looked up on its own. A column

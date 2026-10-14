@@ -126,6 +126,24 @@ Sent Off (Straight Red)        1/2 Wk   1 Week   1 Week   2 Wks
 …
 ```
 
+Diğer sık ekler de kısaca okunur: gözlemci raporu (not, görüş, artılar/eksiler, değer ve ücret),
+oyuncumuza gelen teklifin kartı, oyuncu tavsiyeleri, maç sonrası veri merkezi analizi, maç hazırlığı
+odakları, antrenman ilerleme raporu ve sezonluk galibiyet primleri (seçili olan köşeli parantezde):
+
+```
+  Ek: gözlemci raporu — B+ · Harika bir transfer olur.
+    Bilgi Seviyesi Yüksek · şu an: Sky Bet League One'nin önde gelen oyuncularından · gelecek: Gözlemcilik Gerekiyor
+    + Dili akıcı konuşabiliyor.
+    - Soğukkanlılığı düşük olması onun yeteneğini baltalayan bir durum.
+    Hevertton · D/KB (Sğ) · 25 yaşında · BRA · QPR
+    Değer 90B £ - 900B £ · ücret 27,5B £ - 32,5B £ aylık · sözleşme 30/6/2027'e kadar
+
+  Ek: kadronun galibiyet primleri (artış ya da düşüş transfer bütçesine yansır)
+    Sky Bet League One: Düşük (150B £) · [Normal (250B £)] · Yüksek (350B £)
+```
+
+Mesajı numara yerine konusunun bir parçasıyla da açabilirsin, oyunun dilinde: `fm reply "primlere karar"`.
+
 Basın toplantısı mesajında da olası konular ve gelecek gazeteciler (kurum, etki, sana karşı tutum) yazar.
 Toplantıya katılınca sorular `talk` ile cevaplanır. Seçenekler [Positive] / [Neutral] / [Negative] diye
 gruplanır, ama grupların sırası her soruda değişir.
