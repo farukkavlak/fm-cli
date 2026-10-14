@@ -886,6 +886,8 @@ internal static partial class Program
 		else if (talking) Console.WriteLine("Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk");
 		else if (!settled && await VisionControls() != null) Console.WriteLine("Kulüp vizyonu toplantısı açıldı; mesaj toplantı bitince kapanır. Devam için: vision");
 		else if (!settled && await RegistrationOnScreen()) Console.WriteLine("Kadro kayıt ekranı açıldı; mesaj liste gönderilince kapanır. Liste ve kurallar: register   (yardımcının seçimi: register --auto, sonra register --send)");
+		else if (!settled && (await Fm.GetJson("texts", ("anchor", "Prom."), ("up", "0"))).GetArrayLength() > 0)
+			Console.WriteLine("Forma numaraları ekranı açıldı; mesaj numaralar gönderilince kapanır. Görmek: numbers   (yardımcıya bırakmak: numbers --auto)");
 		else if (!settled) Console.WriteLine("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor.");
 		return 0;
 
