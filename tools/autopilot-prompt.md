@@ -21,9 +21,10 @@ Görev: `docs/BAGIMLILIKLAR.md` en üstündeki CHECKLIST'ten **tek bir maddeyi**
    kanıtlanmış biçimde iyi değilse geri al, eskisi kalsın; maddeye ne ölçtüğünü yaz.
 4. Bitince: maddeyi `[x]` yap ve bir satırla ne yapıldığını yaz; FINDINGS'e gerekiyorsa kısa not; İngilizce Conventional
    Commit at (son satır `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`); hafızadaki `portability-plan`'a bir satır ekle.
-5. Faruk'un kararı gereken bir şey çıkarsa (para harcama, kulüp/lig seçimi, kayıt silme, oyunda geri alınamaz bir seçim)
-   yapma: maddeyi `[?]` yap, nedenini ve sorulacak soruyu yanına yaz, commit et ve çık.
+5. Kayıt deneme kaydı, hiçbir önemi yok (Faruk, 14 Ekim): maç oyna, zamanı ilerlet, antrenör/kaptan/taktik değiştir,
+   oyundaki mesajları (kaptan seçimi dahil) kendin cevapla, kayıt al — sorma, park etme. Yalnızca kayıt silme ve oyun
+   dışında para harcama gibi gerçekten Faruk'un kararı olan bir şey çıkarsa yapma: maddeyi `[?]` yap, nedenini ve sorulacak soruyu yanına yaz, commit et ve çık.
 6. Oyun açık değilse `fm start < /dev/null` ile aç. Eklenti değiştiyse önce `fm save --yes`, sonra yeniden başlat
-   (`fm-dev-loop`). Oyunda bir mesaj cevap bekliyorsa ve cevap Faruk'un kararıysa dokunma, başka maddeye geç.
+   (`fm-dev-loop`). Oyunda bir mesaj cevap bekliyorsa kafana göre cevapla ve devam et.
 7. Tek madde, sonra dur. Son mesajın tek satır olsun: `BİTTİ: <madde>` ya da `PARK: <madde> — <neden>` ya da
    `TAKILDI: <neden>`.
