@@ -1186,19 +1186,38 @@ internal static partial class Program
 		// doubtful and how their last matches went.
 		if (rest[0] == "Next Opposition Report" && rest.Count > 3)
 		{
-			string After(string label, int by = 1) => rest.IndexOf(label) is >= 0 and var at && at + by < rest.Count ? rest[at + by] : "";
-			Console.WriteLine($"\n  Ek: rakip raporu — {rest[1]} · {rest[2]}");
-			if (After("Most Used Formation") is { Length: > 0 } shape) Console.WriteLine($"    Diziliş: {shape}");
-			var best = new[] { ("Gol kralı", "Top Goalscorer"), ("Asist", "Most Assists"), ("En yüksek ortalama", "Highest Average Rating") }
-				.Where(b => After(b.Item2, 2).Length > 0).Select(b => $"{b.Item1}: {After(b.Item2, 2)} ({After(b.Item2)})").ToList();
-			if (best.Count > 0) Console.WriteLine($"    {string.Join(" · ", best)}");
-			var newsAt = rest.IndexOf("Team News");
-			var fixturesAt = rest.IndexOf("Fixture Schedule");
-			if (newsAt > 0 && fixturesAt > newsAt + 1) Console.WriteLine($"    Takım haberleri: {string.Join(" · ", rest.Skip(newsAt + 1).Take(fixturesAt - newsAt - 1))}");
-			var played = new List<string>();
-			for (var i = fixturesAt + 1; fixturesAt > 0 && i + 4 < rest.Count && rest[i + 3] is "H" or "A" or "N"; i += 5)
-				played.Add($"{rest[i]} {rest[i + 2]} ({rest[i + 3]}) {rest[i + 4]}");
-			if (played.Count > 0) Console.WriteLine($"    Son maçları: {string.Join(" · ", played)}");
+			// Read by each text's data path (FINDINGS §8.169): the formation, the manager, the team news,
+			// the expected eleven and the strengths and weaknesses, two runs of pros and cons.
+			List<(string Text, string Path)> page = [];
+			try
+			{
+				page = (await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "8"), ("paths", "1"))).EnumerateArray()
+					.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+			}
+			catch (FmError) { }
+			page = page.SkipWhile(t => t.Text != "Next Opposition Report").ToList();
+			string One(string path) => page.FirstOrDefault(t => t.Path == path).Text ?? "";
+			Console.WriteLine($"\n  Ek: rakip raporu — {rest[1]} {rest[2]}{(One("Team.Description") is { Length: > 0 } d ? $" · {d}" : "")}");
+			if (One("Team.MostUsedFormation") is { Length: > 0 } shape) Console.WriteLine($"    Diziliş: {shape}");
+			if (One("Manager.InitialSurname") is { Length: > 0 } manager)
+				Console.WriteLine($"    Menajer: {string.Join(" · ", new[] { manager, One("Manager.PreferredFormationString"), One("Manager.PreferredMentality") }.Where(x => x.Length > 0))}");
+			var news = page.Where(t => t.Path == "row.Text").Select(t => t.Text).ToList();
+			if (news.Count > 0) Console.WriteLine($"    Takım haberleri: {string.Join(" · ", news)}");
+			var eleven = page.Where(t => t.Path == "Position.Player.Name").Select(t => t.Text).ToList();
+			if (eleven.Count > 0) Console.WriteLine($"    Muhtemel 11{(One("tactic.FormationType") is { Length: > 0 } f ? $" ({f})" : "")}: {string.Join(", ", eleven)}");
+			// Pros and cons: the strengths' run, then the weaknesses', with a heading between them.
+			var runs = new List<List<string>>();
+			var apart = true;
+			foreach (var (text, path) in page)
+			{
+				if (path.Length == 0) apart = true;
+				if (path != "procon.ProConsShortString") continue;
+				if (apart) runs.Add([]);
+				runs[^1].Add(text);
+				apart = false;
+			}
+			string[] heads = ["Güçlü yanları", "Zayıf yanları"];
+			for (var r = 0; r < runs.Count && r < heads.Length; r++) Console.WriteLine($"    {heads[r]}: {string.Join(" · ", runs[r])}");
 			Console.WriteLine("    Ayrıntı: opponent");
 			return;
 		}
