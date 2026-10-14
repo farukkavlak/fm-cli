@@ -39,6 +39,10 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
 - [x] **`reply` cevapları:** sabit "1 sn arayla iki okuma" yerine sayfanın cevap başlıkları ile düğmeler aynı ve önceki
   mesajınkilerden farklı olunca (cevapsızda `CanRespond`); ilk ölçülen "başlık sayısı kadar" hali eski cevapları
   gösteriyordu. Türkçe 24/24, İngilizce 14/14, başka sayfa açıkken 4/4, 1–2 sn (FINDINGS §8.178).
+- [ ] **`reply` ara boş an riski:** yeni kural "başlıklar = düğmeler ve öncekinden farklı"; cevaplı bir mesajdan cevaplı
+  bir mesaja geçerken eski düğmeler silinip yenileri gelmeden boş bir an varsa, "boş = boş, öncekinden farklı" o an tutar
+  ve cevaplar "yok" sayılır. Geçiş sırasında sık yoklayıp (her okuma) boş ara durum olup olmadığını ölç; varsa boş
+  sonucu yalnızca mesaj gerçekten cevapsızsa kabul et (Program.cs ~800).
 - [ ] **Mesaj eki için 1,5 sn** (`WriteAttachment`, Program ~986): ek gelmezse "ek yok". Ekin var olup olmadığını söyleyen
   işaret bulunamadı (bağlama adları sürümde gizli); eksiz bir mesajda `#AttachmentsTitleContainer` durumu ölçülecek.
 - [ ] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2112). Denenen çözüm (çubuğun seçili satırı) ölçülünce
