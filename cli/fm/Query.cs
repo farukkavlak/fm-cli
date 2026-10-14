@@ -31,7 +31,8 @@ internal static partial class Program
 		new("MAÇ FORMU", "Sharpness", QueryKind.Number, "maç formu, %", ["form", "sharpness", "macformu"]),
 		new("SAKAT", "IsInjured", QueryKind.Flag, "sakat mı (sakat / !sakat)", ["sakat", "injured"]),
 		new("POTANSİYEL", "PerceivedPotentialAbility", QueryKind.Number, "kulübün gördüğü potansiyel, 200 üzerinden", ["potansiyel", "potential", "pa"]),
-		new("MAAŞ", "FullContract.Wage.DisplayValue", QueryKind.Money, "haftalık maaşı (50K, 1.2M)", ["maas", "wage"]),
+		// The wage's sort value is the weekly wage in pounds, whatever period and currency the game shows.
+		new("MAAŞ", "FullContract.Wage.SortValue", QueryKind.Money, "haftalık maaşı, sterlin (50K, 1.2M)", ["maas", "wage"]),
 		new("SÖZLEŞME", "FullContract.EndDateDescription", QueryKind.Months, "sözleşmesinin kalan süresi (1yıl, 18ay)", ["sozlesme", "contract", "kalan"]),
 		new("STATÜ", "FullContract.AgreedPlayingTime.DisplayValue", QueryKind.Text, "söz verilen oynama süresi (Star Player, Squad Player…)", ["statu", "status", "sure"]),
 		new("MAÇ", "ClubAppearancesThisSeason", QueryKind.Number, "bu sezon maç", ["mac", "apps", "matches"]),
@@ -128,6 +129,7 @@ internal static partial class Program
 			switch (f.Kind)
 			{
 				case QueryKind.Money:
+					if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var pounds)) return pounds;
 					// "£230K p/w"; a wage shown by the month or year is brought to the week.
 					var wage = Regex.Match(text, @"^(.+?)\s*p/([wma])$");
 					return wage.Success && Money(wage.Groups[1].Value) is { } money
@@ -168,6 +170,7 @@ internal static partial class Program
 			{
 				QueryKind.Flag => text == "True" ? "sakat" : "",
 				QueryKind.Months => Value(p, f) is { } months ? $"{text} · {Left((int)months)}" : text,
+				QueryKind.Money => Value(p, f) is { } money ? $"£{money:N0}/hafta".Replace(',', '.') : text,
 				_ when f.Property == "ClubAverageRatingThisSeason" => Value(p, f) is { } r and > 0 ? r.ToString("0.00", CultureInfo.InvariantCulture) : "-",
 				_ => text,
 			};
