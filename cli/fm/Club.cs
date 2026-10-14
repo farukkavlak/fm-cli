@@ -179,7 +179,7 @@ internal static partial class Program
 		foreach (var t in teams)
 		{
 			var name = t.Team switch { "Coaching Team" => "Antrenörler", "Recruitment Team" => "Scouting / transfer", _ => "Sağlık" };
-			var open = Regex.Match(t.Vacant, @"\((.*)\)") is { Success: true } m ? $" — boş: {m.Groups[1].Value}" : "";
+			var open = Regex.Match(GameWords.Of(t.Vacant), @"\((.*)\)") is { Success: true } m ? $" — boş: {m.Groups[1].Value}" : "";
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(name),-22} {Ui.Safe(t.Filled)}/{Ui.Safe(t.Places)}[dim]{Ui.Safe(open)}[/]");
 			else Console.WriteLine($"  {name,-22} {t.Filled}/{t.Places}{open}");
 		}

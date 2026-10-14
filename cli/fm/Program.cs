@@ -34,11 +34,25 @@ internal static partial class Program
 		// A command run by another (export, diff) hands the form back when it is done; in a
 		// session the next command, and the prompt, are drawn again.
 		var outer = Ui.Format;
-		if (format is null or "json")
+		if (format == "json")
 		{
 			Ui.Format = format;
 			try { return await RunCommand(args); }
 			finally { Ui.Format = outer; }
+		}
+		if (format == null)
+		{
+			// The game's texts in the game's own words, however a command prints them (GameWords).
+			var shown = Console.Out;
+			Ui.Format = format;
+			Console.SetOut(new GameWordsLines(shown));
+			try { return await RunCommand(args); }
+			finally
+			{
+				Console.Out.Flush();
+				Console.SetOut(shown);
+				Ui.Format = outer;
+			}
 		}
 
 		// CSV is the tables alone; Markdown keeps the lines between them, each its own line.
@@ -47,7 +61,7 @@ internal static partial class Program
 		Table.Sink = output;
 		Table.Wrote = false;
 		Ui.Format = format;
-		Console.SetOut(format == "csv" ? TextWriter.Null : new MarkdownLines(output));
+		Console.SetOut(format == "csv" ? TextWriter.Null : new MarkdownLines(new GameWordsLines(output)));
 		try
 		{
 			var code = await RunCommand(args);

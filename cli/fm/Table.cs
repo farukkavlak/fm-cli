@@ -16,6 +16,7 @@ internal static class Table
 
 	public static void Write(IReadOnlyList<string> headers, IReadOnlyList<string[]> rows)
 	{
+		rows = rows.Select(row => row.Select(GameWords.Of).ToArray()).ToList();
 		if (Ui.Format is "csv" or "md")
 		{
 			var to = Sink ?? Console.Out;

@@ -396,8 +396,8 @@ internal static partial class Program
 		else
 		{
 			Console.WriteLine($"FM açık, kayıt yüklü. {Pretty(Field(state, "Date"))} {Time(state)}");
-			if (next != null) Console.WriteLine($"Sıradaki maç: {next}");
-			if (window != null) Console.WriteLine($"Transfer: {window}");
+			if (next != null) Console.WriteLine($"Sıradaki maç: {GameWords.Of(next)}");
+			if (window != null) Console.WriteLine($"Transfer: {GameWords.Of(window)}");
 		}
 		if (await Unemployed())
 			Console.WriteLine("İşsizsin: bir kulübün menajeri değilsin, kadro ve taktik komutları çalışmaz. İş ilanları: jobs");

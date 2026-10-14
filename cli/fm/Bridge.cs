@@ -19,7 +19,8 @@ internal sealed class Bridge
 		return 7777;
 	}
 
-	private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(120) };
+	// The words the game showed come back in a header (GameWords), which on a long page outgrows the usual limit.
+	private readonly HttpClient _http = new(new HttpClientHandler { MaxResponseHeadersLength = 4096 }) { Timeout = TimeSpan.FromSeconds(120) };
 
 	// FM_TRACE=1 prints every call and how long it took, to see where a command's time goes.
 	private static readonly bool Trace = Environment.GetEnvironmentVariable("FM_TRACE") == "1";
@@ -46,7 +47,10 @@ internal sealed class Bridge
 		try
 		{
 			var started = Clock.ElapsedMilliseconds;
-			var body = await _http.GetStringAsync(url);
+			using var response = await _http.GetAsync(url);
+			response.EnsureSuccessStatusCode();
+			if (response.Headers.TryGetValues("X-Shown", out var shown)) GameWords.Learn(shown.FirstOrDefault());
+			var body = await response.Content.ReadAsStringAsync();
 			if (Trace) Console.Error.WriteLine($"[{started / 1000.0,6:0.00}s +{Clock.ElapsedMilliseconds - started,5}ms] {route} {Uri.UnescapeDataString(url[(Base.Length + route.Length)..])}");
 			return body;
 		}

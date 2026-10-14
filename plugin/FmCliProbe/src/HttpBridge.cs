@@ -38,6 +38,7 @@ internal sealed class HttpBridge
 		public string Route;
 		public NameValueCollection Query;
 		public string Result;
+		public string Shown;
 		public readonly ManualResetEventSlim Done = new(false);
 	}
 
@@ -115,6 +116,7 @@ internal sealed class HttpBridge
 				? job.Result
 				: "timeout: the main thread did not run this request within 30s";
 			if (body == null) { status = 404; body = "unknown route"; }
+			if (job.Shown != null) ctx.Response.Headers["X-Shown"] = job.Shown;
 		}
 		catch (Exception ex)
 		{
@@ -139,9 +141,18 @@ internal sealed class HttpBridge
 	{
 		while (_jobs.TryDequeue(out var job))
 		{
+			Localisation.Seen.Clear();
 			try { job.Result = _handle(job.Route, job.Query); }
 			catch (Exception ex) { job.Result = "error: " + ex; }
-			finally { job.Done.Set(); }
+			finally
+			{
+				// The English texts in the answer with the words the game showed for them, one pair a
+				// line, so what is shown to the user can be in the game's own language.
+				if (Localisation.Seen.Count > 0)
+					job.Shown = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Join("\n",
+						System.Linq.Enumerable.Select(Localisation.Seen, kv => kv.Key + "\t" + kv.Value))));
+				job.Done.Set();
+			}
 		}
 	}
 }

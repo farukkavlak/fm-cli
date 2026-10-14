@@ -4755,6 +4755,29 @@ Taşınabilirliğin ilk adımı (BAGIMLILIKLAR §2.1): sayfaları İngilizce adl
   ya da gösterimde oyunun kendi dilindeki yazı.
 - **Dil değişince:** ekranlar hemen değişiyor, oyunun motor yazıları (maç türü, iç saha kodu) oyun yeniden açılınca.
 
+### 8.173 Gösterim oyunun dilinde: eklenti gördüğü yazıyı geri veriyor (14 Ekim 2026 öğleden sonra, Türkçe)
+
+Faruk'un kararı: "Adamın oyunu tr ise tr görecek." İçeride komutlar İngilizceyle eşleşmeye devam ediyor; kullanıcıya oyunun
+o an gösterdiği yazı çıkıyor. Geri çeviri (tahmin) yok.
+
+- **Eklenti:** `Localisation.Saw` her İngilizceye çevirişte (kimlikle, yazıyla, "baş (not)" biçiminde) oyunun gösterdiğini
+  istek boyunca `Seen`'e yazar; cevap `X-Shown` başlığıyla döner (base64, satır başına `ingilizce<TAB>gösterilen`).
+  İngilizce oyunda `Map()` boş, başlık hiç gelmiyor.
+- **CLI:** `GameWords` başlıkları öğrenir. `Table.Write` hücreleri, `Ui.Safe` markup yazılarını çevirir; komutların çoğu
+  oyunun yazısını doğrudan `Console.WriteLine` ile bastığından `Run` çıktıyı `GameWordsLines` ile sarar: satır sekme, 2+
+  boşluk, ` · `, `, `, `: ` ve parantezlerden bölünür, her parça ayrı aranır; boşlukla hizalanmış sütun genişliğini korur.
+  Satır içinde tek harf (konum kodu "D (M)") değişmez. `--json` dokunulmaz (veri İngilizce kalır).
+- **Kaynakta düzeltilenler:** CLI'ın oyun yazısından parça kestiği yerler (kulübün "1 vacant role (Set Piece Coach)"
+  parantez içi, personel "Rol 0/1"): kesmeden önce `GameWords.Of`.
+- **Ad çakışması:** `Program` içinde zaten `Shown(...)` metotları var; sınıf bu yüzden `GameWords`.
+- **Tarama (Türkçe):** 49/50 (`league` sezon öncesi). Kalan İngilizceler CLI'ın kendi sabitleri ("In Progress") ve
+  oyunun da İngilizce yazdığı adlar (England, AFC Wimbledon). "Technical Director" Türkçede "Antrenör Gelişim Sorumlusu":
+  dört kimliğin dördü de böyle — oyunun kendi çevirisi.
+- **Bu arada bulunan:** `shortlist` her ikinci çalıştırmada "Kısa liste boş" diyordu: listeden genel bakışa dönerken
+  döşemeye ilk basış yutuluyor. Liste gelmezse 3 sn'de bir yeniden basıyor; 6/6 doğru.
+- **Sıradaki:** CLI'ın kendi etiketleri oyunun diline göre (aşama 2); `scout` odak durumu veriden; İngilizce oyunda
+  tarama (değişiklik orada işlemsiz olmalı, denenmedi).
+
 ## 9. Sıradaki adımlar
 
 Yapılacaklar listesi artık burada tutulmuyor: sıralı iş listesi ve günlük `PLAN.md`'de

@@ -76,7 +76,7 @@ internal static class Ui
 	public static void Line(string markup) => Out.MarkupLine(markup);
 
 	/// <summary>Text from the game, made safe to put inside markup.</summary>
-	public static string Safe(string text) => Markup.Escape(text ?? "");
+	public static string Safe(string text) => Markup.Escape(GameWords.Of(text) ?? "");
 
 	/// <summary>
 	/// One bar for a value on a scale from low to high, eighths of a line tall: a row of them

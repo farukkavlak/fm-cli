@@ -104,7 +104,7 @@ internal static partial class Program
 		foreach (var (team, roles, board) in teams)
 		{
 			var name = team switch { "Coaching Staff" => "Antrenörler", "Recruitment Staff" => "Scouting / transfer", _ => "Sağlık" };
-			var gaps = roles.Where(r => r.Filled < r.Wanted).Select(r => $"{r.Role} {r.Filled}/{r.Wanted}").ToList();
+			var gaps = roles.Where(r => r.Filled < r.Wanted).Select(r => $"{GameWords.Of(r.Role)} {r.Filled}/{r.Wanted}").ToList();
 			if (Ui.Rich) Ui.Line($"\n[bold]{Ui.Safe(name)}[/] {roles.Sum(r => r.Filled)} kişi" + (gaps.Count > 0 ? $" — [yellow]eksik: {Ui.Safe(string.Join(", ", gaps))}[/]" : ""));
 			else Console.WriteLine($"\n{name} {roles.Sum(r => r.Filled)} kişi" + (gaps.Count > 0 ? $" — eksik: {string.Join(", ", gaps)}" : ""));
 			if (board.Length > 0)

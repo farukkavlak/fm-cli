@@ -34,8 +34,8 @@ internal static class Text
 		if (value == null || value.IsNull) return "";
 		try
 		{
-			if (value.DataType?.Name == "TranslationID" && Localisation.EnglishOf(value.As<SI.Translation.TranslationID>().GameID) is { } english)
-				return english;
+			if (value.DataType?.Name == "TranslationID" && value.As<SI.Translation.TranslationID>() is var tid && Localisation.EnglishOf(tid.GameID) is { } english)
+				return Localisation.Seeing(english, Shown(tid.TranslatedString));
 		}
 		catch { }
 		// A date is packed into a struct whose text is only its fields; it is given as the day.
@@ -118,7 +118,23 @@ internal static class Localisation
 	private static System.Collections.Generic.HashSet<string> englishTexts = [];
 
 	public static int Entries => toEnglish?.Count ?? 0;
+
+	/// <summary>
+	/// Every text put into English since the request began, with the words the game showed for it:
+	/// the CLI matches on the English but shows the user the game's own words (Faruk, 14 Ekim 2026).
+	/// One English text shown two ways keeps the last.
+	/// </summary>
+	public static readonly System.Collections.Generic.Dictionary<string, string> Seen = new();
+
+	private static string Saw(string english, string shown)
+	{
+		if (english != null && !string.IsNullOrEmpty(shown) && english != shown) Seen[english] = shown;
+		return english;
+	}
 	public static int Clashes { get; private set; }
+
+	/// <summary>Notes a text put into English by the caller, with the words the game showed.</summary>
+	public static string Seeing(string english, string shown) => Saw(english, shown);
 
 	/// <summary>The English of one of the game's texts by its number, in a game set to another language.</summary>
 	public static string EnglishOf(int id)
@@ -142,7 +158,7 @@ internal static class Localisation
 			try
 			{
 				if (Text.Shown(new SI.Translation.TranslationID { GameID = id }.TranslatedString) == shown && EnglishOf(id) is { } english)
-					return english;
+					return Saw(english, shown);
 			}
 			catch { }
 		}
@@ -157,13 +173,13 @@ internal static class Localisation
 		// English once (by number) pass through here again on their way out, and the shown-to-English
 		// map would turn them into another text ("A" for away is a Turkish word for "For").
 		if (map == null || englishTexts.Contains(shown)) return shown;
-		if (map.TryGetValue(shown, out var english)) return english;
+		if (map.TryGetValue(shown, out var english)) return Saw(english, shown);
 		// A text with a note after it ("Takip Listesinden Çıkar (Varsayılan)") is two of the table's
 		// texts put together; each part is put into English on its own.
 		var note = System.Text.RegularExpressions.Regex.Match(shown, @"^(.+?) \((.+)\)$");
 		// Only words, not codes: "D (M)" is a position, a defender in the centre, not "D" and "M" each.
 		if (note.Success && note.Groups[1].Value.Length >= 4 && map.TryGetValue(note.Groups[1].Value, out var head))
-			return $"{head} ({(map.TryGetValue(note.Groups[2].Value, out var tail) ? tail : note.Groups[2].Value)})";
+			return Saw($"{head} ({(map.TryGetValue(note.Groups[2].Value, out var tail) ? tail : note.Groups[2].Value)})", shown);
 		return shown;
 	}
 
