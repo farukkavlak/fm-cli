@@ -1176,9 +1176,11 @@ internal static partial class Program
 			Console.WriteLine(L($"\n  Ek: teklif — {rest[0]} ({rest[1]})"));
 			Console.WriteLine(L($"    Bedel: {rest[feeAt + 1]}"));
 			var details = rest.IndexOf("Additional Details");
-			var report = rest.IndexOf("Coach Report");
+			// Our player's carries the coach's view of him; one we bid for, the scouts'.
+			var report = rest.FindIndex(details + 1, t => t is "Coach Report" or "Scouting Report");
 			for (var i = details + 1; i + 1 < (report > details ? report : rest.Count); i += 2) Console.WriteLine($"    {rest[i]}: {rest[i + 1]}");
-			if (report > 0 && report + 2 < rest.Count) Console.WriteLine(L($"    Antrenör görüşü: {rest[report + 1]} · {rest[report + 2]}"));
+			if (report > 0 && report + 2 < rest.Count)
+				Console.WriteLine(rest[report] == "Coach Report" ? L($"    Antrenör görüşü: {rest[report + 1]} · {rest[report + 2]}") : L($"    Gözlemci görüşü: {rest[report + 1]} · {rest[report + 2]}"));
 			var listed = new[] { "Transfer Status", "Loan Status" }.Select(l => (l, at: rest.LastIndexOf(l))).Where(x => x.at > 0 && x.at + 1 < rest.Count).Select(x => $"{x.l}: {rest[x.at + 1]}").ToList();
 			if (listed.Count > 0) Console.WriteLine($"    {string.Join(" · ", listed)}");
 			if (rest.IndexOf("Interested Clubs") is > 0 and var clubs && clubs + 1 < rest.Count) Console.WriteLine(L($"    İlgilenen kulüpler: {rest[clubs + 1].Trim('(', ')')}   (hepsi: offers)"));

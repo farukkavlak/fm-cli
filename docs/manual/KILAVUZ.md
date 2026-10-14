@@ -44,6 +44,21 @@ dışında her komutun başına `fm` eklenir (`fm squad`). Bu kılavuz ikinci ya
 
 Oyun ekranda ve Dock'ta görünmez. Pencereyi görmek istersen: `fm start --debug`.
 
+### Dil
+
+Çıktı oyunun dilindedir. Oyun Türkçeyse `fm` Türkçe, İngilizceyse İngilizce yazar. Bu hem oyunun
+kendi yazıları (mevki, rol, maç türü, mesajlar) hem de `fm`'in kendi etiketleri (tablo başlıkları, yardım,
+sorular) için geçerli. Türkçe ve İngilizce dışındaki dillerde `fm`'in etiketleri İngilizce kalır, oyunun
+yazıları yine oyunun dilinde gelir. Dili değiştirmek için: `fm settings dil English --yes` (İngilizce oyunda
+`fm settings language Türkçe --yes`). `fm` bir sonraki komutta kendiliğinden uyar. Bu kılavuzdaki örnekler Türkçe oyundan.
+
+Kayda oyunun kurulduğu dilde yazılan adlar (ülke adları, eski sakatlıklar, hazırlık maçı turnuvasının adı)
+dil sonradan değişince oyunun kendi ekranında da eski dilde kalır; `fm` de oyunun gösterdiğini yazar.
+
+Komut adları ve seçenekler her dilde aynıdır. Cevap ya da seçim yazarken oyunun gösterdiği kelimeyi
+kullanırsın: İngilizce oyunda `reply 2 Reject`, `talk "worth more"`, Türkçe oyunda oyunun Türkçesi. Numara
+her dilde çalışır.
+
 ### Kısaltmalar ve tab tamamlama
 
 Komutun tamamını yazmak gerekmez:
