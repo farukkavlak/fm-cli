@@ -65,8 +65,8 @@ internal static partial class Program
 		void Section(string title, IEnumerable<string> lines)
 		{
 			var list = lines.ToList();
-			if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(title)}[/]{(list.Count == 0 ? " [dim]yok[/]" : "")}");
-			else Console.WriteLine(title + (list.Count == 0 ? ": yok" : ""));
+			if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(title)}[/]{(list.Count == 0 ? L(" [dim]yok[/]") : "")}");
+			else Console.WriteLine(title + (list.Count == 0 ? L(": yok") : ""));
 			foreach (var line in list) Console.WriteLine($"  {line}");
 		}
 
@@ -74,7 +74,7 @@ internal static partial class Program
 		Section("Yorgun (kondisyon %85 altı)", tired.Select(p => $"{Field(p, "Name")} {Number(p, "Condition")}%"));
 		Section("Maç formu düşük (%60 altı)", rusty.Select(p => $"{Field(p, "Name")} {Number(p, "Sharpness")}%"));
 		Section($"Sakatlık riski en yüksek (oyunun puanı {top})", atRisk.Select(p => $"{Field(p, "Name")}"));
-		if (tired.Count + atRisk.Count > 0) Console.WriteLine("\nDinlendirmek için: intensity <oyuncu> \"dinlen 1\"");
+		if (tired.Count + atRisk.Count > 0) Console.WriteLine(L("\nDinlendirmek için: intensity <oyuncu> \"dinlen 1\""));
 		return 0;
 
 		// The injury's name, from whichever field the view bound.

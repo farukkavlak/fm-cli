@@ -49,15 +49,15 @@ internal static partial class Program
 		var words = Words(args).Where(w => w != sortBy).ToList();
 		if (words.Count == 0)
 		{
-			Console.WriteLine("kullanım: query \"<koşul> ve <koşul> …\" [--sort <alan>] [--asc]");
-			Console.WriteLine("örnek:    query \"yaş<23 ve potansiyel>140\"     query \"sözleşme<1yıl\"     query \"mevki=ST ve gol>2\"     query \"kondisyon<70 ve !sakat\"");
-			Console.WriteLine("Karşılaştırma: <  <=  >  >=  =  !=   (yazıda = ve ~ \"içinde geçiyor\" demek)\n");
-			Table.Write(["ALAN", "NE"], QueryFields.Select(f => new[] { f.Say, f.Means }).ToList());
+			Console.WriteLine(L("kullanım: query \"<koşul> ve <koşul> …\" [--sort <alan>] [--asc]"));
+			Console.WriteLine(L("örnek:    query \"yaş<23 ve potansiyel>140\"     query \"sözleşme<1yıl\"     query \"mevki=ST ve gol>2\"     query \"kondisyon<70 ve !sakat\""));
+			Console.WriteLine(L("Karşılaştırma: <  <=  >  >=  =  !=   (yazıda = ve ~ \"içinde geçiyor\" demek)\n"));
+			Table.Write([L("ALAN"), L("NE")], QueryFields.Select(f => new[] { f.Say, f.Means }).ToList());
 			return 0;
 		}
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -70,7 +70,7 @@ internal static partial class Program
 			var field = m.Success ? Named(m.Groups[2].Value) : null;
 			if (field == null)
 			{
-				Console.Error.WriteLine($"'{part.Trim()}' anlaşılmadı. Alanlar: {string.Join(", ", QueryFields.Select(f => f.Say))}   (liste için: query)");
+				Console.Error.WriteLine(L($"'{part.Trim()}' anlaşılmadı. Alanlar: {string.Join(", ", QueryFields.Select(f => f.Say))}   (liste için: query)"));
 				return 64;
 			}
 			var op = m.Groups[3].Value;
@@ -84,7 +84,7 @@ internal static partial class Program
 			}
 			if (op.Length == 0 || raw.Length == 0 || m.Groups[1].Success)
 			{
-				Console.Error.WriteLine($"'{part.Trim()}': karşılaştırma ve değer gerek (örnek: {field.Say}{(field.Kind == QueryKind.Text ? "=…" : "<…")}).");
+				Console.Error.WriteLine(L($"'{part.Trim()}': karşılaştırma ve değer gerek (örnek: {field.Say}{(field.Kind == QueryKind.Text ? "=…" : "<…")})."));
 				return 64;
 			}
 			double number = 0;
@@ -97,13 +97,13 @@ internal static partial class Program
 			};
 			if (!understood || (field.Kind == QueryKind.Text && op is "<" or ">" or "<=" or ">="))
 			{
-				Console.Error.WriteLine($"'{part.Trim()}': {field.Say} için değer {field.Kind switch
+				Console.Error.WriteLine(L($"'{part.Trim()}': {field.Say} için değer {field.Kind switch
 				{
-					QueryKind.Text => "yazı; yalnızca =, ~ ya da != ile",
-					QueryKind.Money => "para olmalı (50K, 1.2M)",
-					QueryKind.Months => "süre olmalı (1yıl, 18ay)",
-					_ => "sayı olmalı",
-				}}.");
+					QueryKind.Text => L("yazı; yalnızca =, ~ ya da != ile"),
+					QueryKind.Money => L("para olmalı (50K, 1.2M)"),
+					QueryKind.Months => L("süre olmalı (1yıl, 18ay)"),
+					_ => L("sayı olmalı"),
+				}}."));
 				return 64;
 			}
 			terms.Add(new(field, op, raw, number));
@@ -112,7 +112,7 @@ internal static partial class Program
 		QueryField sort = terms[0].Field;
 		if (sortBy != null && (sort = Named(sortBy)) == null)
 		{
-			Console.Error.WriteLine($"'{sortBy}' diye bir alan yok. Alanlar: {string.Join(", ", QueryFields.Select(f => f.Say))}");
+			Console.Error.WriteLine(L($"'{sortBy}' diye bir alan yok. Alanlar: {string.Join(", ", QueryFields.Select(f => f.Say))}"));
 			return 64;
 		}
 
@@ -184,11 +184,11 @@ internal static partial class Program
 		}
 		if (found.Count == 0)
 		{
-			Console.WriteLine($"Koşula uyan oyuncu yok ({players.Count} oyuncuya bakıldı).");
+			Console.WriteLine(L($"Koşula uyan oyuncu yok ({players.Count} oyuncuya bakıldı)."));
 			return 0;
 		}
 		Table.Write(shown.Select(f => f.Property == "Name" ? "OYUNCU" : f.Head).ToArray(), found.Select(p => shown.Select(f => Shown(p, f)).ToArray()).ToList());
-		Console.WriteLine($"\n{found.Count} oyuncu ({players.Count} içinden)");
+		Console.WriteLine(L($"\n{found.Count} oyuncu ({players.Count} içinden)"));
 		return 0;
 
 		static string Left(int months) => months < 0 ? "bitti" : months < 12 ? $"{months} ay" : months % 12 == 0 ? $"{months / 12} yıl" : $"{months / 12} yıl {months % 12} ay";

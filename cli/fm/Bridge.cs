@@ -50,8 +50,9 @@ internal sealed class Bridge
 			using var response = await _http.GetAsync(url);
 			response.EnsureSuccessStatusCode();
 			if (response.Headers.TryGetValues("X-Shown", out var shown)) GameWords.Learn(shown.FirstOrDefault());
+			if (response.Headers.TryGetValues("X-Language", out var language)) Labels.Heard(language.FirstOrDefault());
 			var body = await response.Content.ReadAsStringAsync();
-			if (Trace) Console.Error.WriteLine($"[{started / 1000.0,6:0.00}s +{Clock.ElapsedMilliseconds - started,5}ms] {route} {Uri.UnescapeDataString(url[(Base.Length + route.Length)..])}");
+			if (Trace) Console.Error.WriteLine(L($"[{started / 1000.0,6:0.00}s +{Clock.ElapsedMilliseconds - started,5}ms] {route} {Uri.UnescapeDataString(url[(Base.Length + route.Length)..])}"));
 			return body;
 		}
 		catch (HttpRequestException)

@@ -10,7 +10,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -23,7 +23,7 @@ internal static partial class Program
 			.OrderByDescending(p => p.Games).ThenByDescending(p => Caps(p.Career)).ThenBy(p => p.Name).ToList();
 		if (players.Count == 0)
 		{
-			Console.Error.WriteLine("Kadro okunamadı.");
+			Console.Error.WriteLine(L("Kadro okunamadı."));
 			return 1;
 		}
 
@@ -32,13 +32,13 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(players.Select(p => new { p.Name, p.Nation, Caps = Caps(p.Career), Goals = CareerGoals(p.Career), GamesThisSeason = p.Games, GoalsThisSeason = p.Goals })));
 			return 0;
 		}
-		Table.Write(["OYUNCU", "ÜLKE", "MİLLİ MAÇ", "GOL", "BU SEZON"], players.Select(p => (string[])
+		Table.Write([L("OYUNCU"), L("ÜLKE"), L("MİLLİ MAÇ"), L("GOL"), L("BU SEZON")], players.Select(p => (string[])
 		[
 			p.Name, p.Nation, Caps(p.Career) is > 0 and var caps ? caps.ToString() : "-", CareerGoals(p.Career) is > 0 and var goals ? goals.ToString() : "-",
-			p.Games > 0 ? $"{p.Games} maç{(p.Goals > 0 ? $", {p.Goals} gol" : "")}" : "",
+			p.Games > 0 ? $"{p.Games} maç{(p.Goals > 0 ? L($", {p.Goals} gol") : "")}" : "",
 		]).ToList());
 		var called = players.Count(p => p.Games > 0);
-		Console.WriteLine($"\n{players.Count(p => Caps(p.Career) > 0)} oyuncu milli olmuş; {called} tanesi bu sezon milli takımda oynadı.");
+		Console.WriteLine(L($"\n{players.Count(p => Caps(p.Career) > 0)} oyuncu milli olmuş; {called} tanesi bu sezon milli takımda oynadı."));
 		return 0;
 	}
 

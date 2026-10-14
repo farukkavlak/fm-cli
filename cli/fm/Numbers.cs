@@ -20,7 +20,7 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (!await OpenNumbers())
 		{
-			Console.Error.WriteLine("'Squad Numbers' ekranı açılmadı.");
+			Console.Error.WriteLine(L("'Squad Numbers' ekranı açılmadı."));
 			return 1;
 		}
 
@@ -42,7 +42,7 @@ internal static partial class Program
 		var rows = await ReadNumbers();
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine("Forma numaraları okunamadı.");
+			Console.Error.WriteLine(L("Forma numaraları okunamadı."));
 			return 1;
 		}
 		var free = FreeNumbers(rows);
@@ -60,21 +60,21 @@ internal static partial class Program
 			return 0;
 		}
 
-		Table.Write(["NO", "İSTEDİĞİ", "OYUNCU", "MEVKİ", "STATÜ"], Ordered(rows).Select(r => (string[])
+		Table.Write([L("NO"), L("İSTEDİĞİ"), L("OYUNCU"), L("MEVKİ"), L("STATÜ")], Ordered(rows).Select(r => (string[])
 			[r.Number, r.Preferred, r.Name, r.Position, r.Status == "Out On Loan" ? "Kiralıkta" : PlayerStatusTurkish.GetValueOrDefault(r.Status, r.Status)]).ToList());
-		Console.WriteLine($"\nBoş numaralar: {string.Join(" ", free)}");
+		Console.WriteLine(L($"\nBoş numaralar: {string.Join(" ", free)}"));
 		if (!open)
 		{
 			Console.WriteLine(NumbersLocked);
 			return 0;
 		}
 
-		if (waiting.Count > 0) Console.WriteLine($"Numara bekleyen: {string.Join(", ", waiting.Select(r => r.Name))}");
-		Console.WriteLine("Vermek için: numbers <oyuncu> <no>, sonra numbers --send   (hepsini yardımcıya bırakmak için: numbers --auto)");
+		if (waiting.Count > 0) Console.WriteLine(L($"Numara bekleyen: {string.Join(", ", waiting.Select(r => r.Name))}"));
+		Console.WriteLine(L("Vermek için: numbers <oyuncu> <no>, sonra numbers --send   (hepsini yardımcıya bırakmak için: numbers --auto)"));
 
 		// Handing them all to the assistant is the manager's call; it is offered, not taken.
 		if (Ui.Interactive && await Labelled(NumbersAssist) is { } pick
-		    && Ui.Ask("Forma numaraları", ["Yardımcı dağıtsın ve gönder"], cancel: "Şimdilik bırak") != null)
+		    && Ui.Ask(L("Forma numaraları"), [L("Yardımcı dağıtsın ve gönder")], cancel: "Şimdilik bırak") != null)
 		{
 			await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
 			return await SendList(NumbersConfirm, "Forma numaraları");
@@ -90,7 +90,7 @@ internal static partial class Program
 	{
 		if (words.Count < 2 || !int.TryParse(words[^1], out var number))
 		{
-			Console.Error.WriteLine("Kullanım: numbers <oyuncu> <no>");
+			Console.Error.WriteLine(L("Kullanım: numbers <oyuncu> <no>"));
 			return 64;
 		}
 		var typed = string.Join(" ", words.Take(words.Count - 1));
@@ -99,25 +99,25 @@ internal static partial class Program
 		var matches = Matching(rows, r => r.Name, typed);
 		if (matches.Count != 1)
 		{
-			Console.Error.WriteLine(matches.Count == 0 ? $"'{typed}' kadroda yok." : $"'{typed}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(r => r.Name))}");
+			Console.Error.WriteLine(matches.Count == 0 ? L($"'{typed}' kadroda yok.") : L($"'{typed}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(r => r.Name))}"));
 			return 1;
 		}
 		var player = matches[0];
 		if (!player.Open)
 		{
-			Console.Error.WriteLine($"{player.Name} ({(player.Number == "-" ? "numarasız" : player.Number)}): {NumbersLocked}");
+			Console.Error.WriteLine($"{player.Name} ({(player.Number == "-" ? L("numarasız") : player.Number)}): {NumbersLocked}");
 			return 1;
 		}
 
 		var choice = player.Choices.FirstOrDefault(c => c == number.ToString() || c.StartsWith($"{number}. ", StringComparison.Ordinal));
 		if (choice == null)
 		{
-			Console.Error.WriteLine($"{number} verilebilen bir numara değil. Boş numaralar: {string.Join(" ", FreeNumbers(rows))}");
+			Console.Error.WriteLine(L($"{number} verilebilen bir numara değil. Boş numaralar: {string.Join(" ", FreeNumbers(rows))}"));
 			return 1;
 		}
 		if (choice.Contains(". ", StringComparison.Ordinal) && !choice.EndsWith($". {player.Name}", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine($"{number} dolu: {choice[(choice.IndexOf(". ", StringComparison.Ordinal) + 2)..]}. Boş numaralar: {string.Join(" ", FreeNumbers(rows))}");
+			Console.Error.WriteLine(L($"{number} dolu: {choice[(choice.IndexOf(". ", StringComparison.Ordinal) + 2)..]}. Boş numaralar: {string.Join(" ", FreeNumbers(rows))}"));
 			return 1;
 		}
 
@@ -125,7 +125,7 @@ internal static partial class Program
 		var shown = (await ReadNumbers(r => r.Name == player.Name)).FirstOrDefault(r => r.Name == player.Name);
 		if (shown == null)
 		{
-			Console.Error.WriteLine($"{player.Name} tabloda yeniden bulunamadı.");
+			Console.Error.WriteLine(L($"{player.Name} tabloda yeniden bulunamadı."));
 			return 1;
 		}
 		var answer = await Fm.Get("select", ("ptr", shown.Dropdown), ("choice", choice), ("fire", "1"));
@@ -137,10 +137,10 @@ internal static partial class Program
 		await Until(async () => (after = (await NumbersInView()).FirstOrDefault(r => r.Name == player.Name))?.Number == number.ToString(), seconds: 5, every: 0.5);
 		if (after?.Number != number.ToString())
 		{
-			Console.Error.WriteLine($"Seçildi ama tabloda {player.Name} hâlâ {after?.Number ?? "?"} görünüyor.");
+			Console.Error.WriteLine(L($"Seçildi ama tabloda {player.Name} hâlâ {after?.Number ?? "?"} görünüyor."));
 			return 1;
 		}
-		Console.WriteLine($"{player.Name}: {player.Number} → {number} (henüz kaydedilmedi). Kaydetmek için: numbers --send   — kaydedilince sezon sonuna kadar değişmez.");
+		Console.WriteLine(L($"{player.Name}: {player.Number} → {number} (henüz kaydedilmedi). Kaydetmek için: numbers --send   — kaydedilince sezon sonuna kadar değişmez."));
 		return 0;
 	}
 

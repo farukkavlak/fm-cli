@@ -18,7 +18,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: training <oyuncu> --report [--coach <ad>]");
+			Console.Error.WriteLine(L("kullanım: training <oyuncu> --report [--coach <ad>]"));
 			return 64;
 		}
 		// The report arrives as a new message at once; what was there before is noted to tell it
@@ -42,7 +42,7 @@ internal static partial class Program
 		}
 		if (!await Until(Listed, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine($"{name} için antrenman raporu istenecek yer açılmadı.");
+			Console.Error.WriteLine(L($"{name} için antrenman raporu istenecek yer açılmadı."));
 			return 1;
 		}
 
@@ -53,7 +53,7 @@ internal static partial class Program
 			var fits = Matching(coaches, c => c, asked);
 			if (fits.Count != 1)
 			{
-				Console.Error.WriteLine(fits.Count == 0 ? $"'{asked}' adında bir antrenör yok." : $"'{asked}' {fits.Count} antrenöre uyuyor:");
+				Console.Error.WriteLine(fits.Count == 0 ? L($"'{asked}' adında bir antrenör yok.") : L($"'{asked}' {fits.Count} antrenöre uyuyor:"));
 				foreach (var c in fits.Count == 0 ? coaches : fits) Console.Error.WriteLine($"  {c}");
 				return 1;
 			}
@@ -61,14 +61,14 @@ internal static partial class Program
 		}
 		else if (Ui.Interactive)
 		{
-			if (Ui.Ask($"{name}: raporu kim hazırlasın?", coaches) is not { } chosen) return 0;
+			if (Ui.Ask(L($"{name}: raporu kim hazırlasın?"), coaches) is not { } chosen) return 0;
 			coach = coaches[chosen];
 		}
 		else
 		{
-			Console.WriteLine($"{name} için raporu hazırlayabilecek antrenörler:");
+			Console.WriteLine(L($"{name} için raporu hazırlayabilecek antrenörler:"));
 			foreach (var c in coaches) Console.WriteLine($"  {c}");
-			Console.WriteLine($"\nİstemek için: training \"{name}\" --report --coach \"<ad>\"");
+			Console.WriteLine(L($"\nİstemek için: training \"{name}\" --report --coach \"<ad>\""));
 			return 0;
 		}
 
@@ -90,14 +90,14 @@ internal static partial class Program
 			    .FirstOrDefault(m => !before.Contains(Field(m, "UniqueId")) && Field(m, "NewsTitleString").EndsWith("training report", StringComparison.OrdinalIgnoreCase)))
 			    .ValueKind == JsonValueKind.Object, seconds: 15, every: 0.5))
 		{
-			Console.WriteLine($"{coach} raporu hazırlayacak; gelince gelen kutusunda.");
+			Console.WriteLine(L($"{coach} raporu hazırlayacak; gelince gelen kutusunda."));
 			return 0;
 		}
 		var title = Field(message, "NewsTitleString");
 		// The title names him the short way ("Kanté's training report"); one of his names must be in it.
 		if (!Fold(name).Split(' ').Any(part => part.Length >= 3 && Fold(title).Contains(part, StringComparison.Ordinal)))
 		{
-			Console.Error.WriteLine($"Rapor başka bir oyuncu için istenmiş görünüyor: {title}");
+			Console.Error.WriteLine(L($"Rapor başka bir oyuncu için istenmiş görünüyor: {title}"));
 			return 1;
 		}
 		var pressed = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
@@ -118,7 +118,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (texts.Count == 0 || !texts[0].Contains(name, StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine($"Rapor geldi ama okunamadı: reply \"{title}\"");
+			Console.Error.WriteLine(L($"Rapor geldi ama okunamadı: reply \"{title}\""));
 			return 1;
 		}
 
@@ -137,21 +137,21 @@ internal static partial class Program
 
 		if (Ui.Rich)
 		{
-			Ui.Line($"[bold]{Ui.Safe(name)}[/] — antrenman raporu [dim]({Ui.Safe(coach)})[/]");
+			Ui.Line(L($"[bold]{Ui.Safe(name)}[/] — antrenman raporu [dim]({Ui.Safe(coach)})[/]"));
 			foreach (var line in findings) Ui.Line($"  {Ui.Safe(line)}");
-			if (trend.Length > 0) Ui.Line($"\n  [bold]Gidişat:[/] {Ui.Safe(trend)}");
+			if (trend.Length > 0) Ui.Line(L($"\n  [bold]Gidişat:[/] {Ui.Safe(trend)}"));
 			if (attributes.Count > 0) Ui.Line("  " + string.Join(" · ", attributes.Select(a => $"{Ui.Safe(a.Name)} [bold]{Ui.Safe(a.Value)}[/]")));
-			if (score.Length > 0) Ui.Line($"  Antrenman puanı [bold]{Ui.Safe(score)}[/]{(after.Count > 0 ? $" · yük {Ui.Safe(after[0])}" : "")}{(after.Count > 1 ? $" · {Ui.Safe(after[1])}" : "")}");
-			Ui.Line($"\n[dim]Tavsiyeyi uygulamak ya da eleştirmek için: reply \"{Ui.Safe(title)}\"[/]");
+			if (score.Length > 0) Ui.Line(L($"  Antrenman puanı [bold]{Ui.Safe(score)}[/]{(after.Count > 0 ? L($" · yük {Ui.Safe(after[0])}") : "")}{(after.Count > 1 ? $" · {Ui.Safe(after[1])}" : "")}"));
+			Ui.Line(L($"\n[dim]Tavsiyeyi uygulamak ya da eleştirmek için: reply \"{Ui.Safe(title)}\"[/]"));
 		}
 		else
 		{
-			Console.WriteLine($"{name} — antrenman raporu ({coach})");
+			Console.WriteLine(L($"{name} — antrenman raporu ({coach})"));
 			foreach (var line in findings) Console.WriteLine($"  {line}");
-			if (trend.Length > 0) Console.WriteLine($"  Gidişat: {trend}");
+			if (trend.Length > 0) Console.WriteLine(L($"  Gidişat: {trend}"));
 			if (attributes.Count > 0) Console.WriteLine("  " + string.Join(" · ", attributes.Select(a => $"{a.Name} {a.Value}")));
-			if (score.Length > 0) Console.WriteLine($"  Antrenman puanı {score}{(after.Count > 0 ? $" · yük {after[0]}" : "")}{(after.Count > 1 ? $" · {after[1]}" : "")}");
-			Console.WriteLine($"Tavsiyeyi uygulamak ya da eleştirmek için: reply \"{title}\"");
+			if (score.Length > 0) Console.WriteLine(L($"  Antrenman puanı {score}{(after.Count > 0 ? L($" · yük {after[0]}") : "")}{(after.Count > 1 ? $" · {after[1]}" : "")}"));
+			Console.WriteLine(L($"Tavsiyeyi uygulamak ya da eleştirmek için: reply \"{title}\""));
 		}
 		return 0;
 	}

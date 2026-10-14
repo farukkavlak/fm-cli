@@ -44,9 +44,9 @@ internal static partial class Program
 			if (json) Console.WriteLine(JsonOut.Of(new { Players = playerStats.Keys, Teams = teamStats.Keys }));
 			else
 			{
-				Console.WriteLine($"Oyuncu istatistikleri ({playerStats.Count}) — league --stat <ad>");
+				Console.WriteLine(L($"Oyuncu istatistikleri ({playerStats.Count}) — league --stat <ad>"));
 				foreach (var name in playerStats.Keys) Console.WriteLine($"  {name}");
-				Console.WriteLine($"\nTakım istatistikleri ({teamStats.Count}) — league --stat <ad> --teams");
+				Console.WriteLine(L($"\nTakım istatistikleri ({teamStats.Count}) — league --stat <ad> --teams"));
 				foreach (var name in teamStats.Keys) Console.WriteLine($"  {name}");
 			}
 			return 0;
@@ -55,7 +55,7 @@ internal static partial class Program
 		var competitions = await ClubCompetitions();
 		if (competitions.Count == 0)
 		{
-			Console.Error.WriteLine("Kulübün turnuvaları okunamadı.");
+			Console.Error.WriteLine(L("Kulübün turnuvaları okunamadı."));
 			return 1;
 		}
 
@@ -91,7 +91,7 @@ internal static partial class Program
 		var players = Leaders(read.Skip(teamScopes.Count), "Player.Name", "StatValue");
 		if (teams.Count + players.Count == 0 || teams.Concat(players).All(l => l.Name == "-"))
 		{
-			Console.Error.WriteLine($"{competition}: istatistik yok (turnuva henüz başlamamış olabilir).");
+			Console.Error.WriteLine(L($"{competition}: istatistik yok (turnuva henüz başlamamış olabilir)."));
 			return 1;
 		}
 
@@ -106,7 +106,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"{competition} — liderler");
+		Console.WriteLine(L($"{competition} — liderler"));
 		void Block(string title, List<(string Label, string Name, string Figure)> rows)
 		{
 			Console.WriteLine(title);
@@ -119,8 +119,8 @@ internal static partial class Program
 		}
 		Block("Takımlar", teams);
 		Block("Oyuncular", players);
-		Console.WriteLine("\nTam sıralama: league --stat <gol | asist | puan | …>  (hepsi: league --stats)");
-		if (competitions.Count > 1) Console.WriteLine($"Başka turnuva: league <{string.Join(" | ", names)}>");
+		Console.WriteLine(L("\nTam sıralama: league --stat <gol | asist | puan | …>  (hepsi: league --stats)"));
+		if (competitions.Count > 1) Console.WriteLine(L($"Başka turnuva: league <{string.Join(" | ", names)}>"));
 		return 0;
 	}
 
@@ -136,7 +136,7 @@ internal static partial class Program
 		// Well over a hundred names: one that matches none is not answered with all of them.
 		if (!catalogue.Keys.Any(k => Fold(k) == Fold(asked)) && Matching(catalogue.Keys, k => k, asked).Count == 0)
 		{
-			Console.Error.WriteLine($"İstatistik: '{stat}' diye bir {(ofTeams ? "takım" : "oyuncu")} istatistiği yok. Hepsi: league --stats");
+			Console.Error.WriteLine(L($"İstatistik: '{stat}' diye bir {(ofTeams ? L("takım") : L("oyuncu"))} istatistiği yok. Hepsi: league --stats"));
 			return 64;
 		}
 		var name = Choose(catalogue.Keys.ToList(), asked, "İstatistik");
@@ -156,7 +156,7 @@ internal static partial class Program
 			Field(row, field) is { Length: > 0 } text || !ofTeams ? Field(row, field) : Standings.Form(Field(row, field.Replace(".DisplayValue", ".PropertyValue")));
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine($"{competition}: {name} için kayıt yok (turnuva henüz başlamamış olabilir).");
+			Console.Error.WriteLine(L($"{competition}: {name} için kayıt yok (turnuva henüz başlamamış olabilir)."));
 			return 1;
 		}
 
@@ -190,13 +190,13 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"{competition} — {name} ({(rows.Count < total ? $"ilk {rows.Count} / {total}" : $"{total}")} {(ofTeams ? "takım" : "oyuncu")})");
+		Console.WriteLine($"{competition} — {name} ({(rows.Count < total ? L($"ilk {rows.Count} / {total}") : $"{total}")} {(ofTeams ? L("takım") : L("oyuncu"))})");
 		Table.Write(
-			ofTeams ? ["#", "TAKIM", .. columns] : ["#", "OYUNCU", "TAKIM", .. columns],
+			ofTeams ? ["#", L("TAKIM"), .. columns] : ["#", L("OYUNCU"), L("TAKIM"), .. columns],
 			rows.Select(r => ofTeams
 				? new[] { Place(Field(r, "Position")), Field(r, "Team.Name"), Cell(r, value), Cell(r, first), Cell(r, second) }
 				: [Place(Field(r, "Position")), Field(r, "Player.Name"), Field(r, "Team.Name"), Cell(r, value), Cell(r, first), Cell(r, second)]).ToList());
-		if (rows.Count < total) Console.WriteLine($"Devamı: --top <n> | --all");
+		if (rows.Count < total) Console.WriteLine(L($"Devamı: --top <n> | --all"));
 		return 0;
 	}
 
@@ -273,7 +273,7 @@ internal static partial class Program
 			catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or IOException) { }
 		}
 
-		if (!Ui.Json) Console.Error.WriteLine("İstatistik türleri oyundan okunuyor (bir kez)…");
+		if (!Ui.Json) Console.Error.WriteLine(L("İstatistik türleri oyundan okunuyor (bir kez)…"));
 		var league = (await ClubCompetitions()).FirstOrDefault().Path ?? "Human.Team.Division";
 		var types = Enumerable.Range(0, 160).ToList();
 		var scopes = new List<string>();

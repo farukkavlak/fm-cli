@@ -31,7 +31,7 @@ internal static partial class Program
 		}, seconds: 12, every: 0.7);
 		if (items.Count == 0)
 		{
-			Console.Error.WriteLine("Haber sitesi okunamadı.");
+			Console.Error.WriteLine(L("Haber sitesi okunamadı."));
 			return 1;
 		}
 
@@ -45,14 +45,14 @@ internal static partial class Program
 			else if (Matching(items, i => i.Title, wanted) is { Count: 1 } hits) item = hits[0];
 			else
 			{
-				Console.Error.WriteLine($"'{wanted}' tek bir habere uymuyor; numarasıyla seç: news");
+				Console.Error.WriteLine(L($"'{wanted}' tek bir habere uymuyor; numarasıyla seç: news"));
 				return 1;
 			}
 			var tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Events").Contains("RunNewsAction", StringComparison.Ordinal) && Field(b, "Label") == item.Title);
 			if (tile.ValueKind != System.Text.Json.JsonValueKind.Object)
 			{
-				Console.Error.WriteLine("Haberin karosu sayfada bulunamadı.");
+				Console.Error.WriteLine(L("Haberin karosu sayfada bulunamadı."));
 				return 1;
 			}
 			var pressed = await Fm.Get("press", ("ptr", Field(tile, "Pointer")));
@@ -71,7 +71,7 @@ internal static partial class Program
 				return 0;
 			}
 			Console.WriteLine($"{item.Title}\n{item.About} · {NewsAgeTurkish(item.Age)}\n");
-			Console.WriteLine(body.Length > 0 ? body : "(haberin metni okunamadı)");
+			Console.WriteLine(body.Length > 0 ? body : L("(haberin metni okunamadı)"));
 			return 0;
 		}
 		if (json)
@@ -84,7 +84,7 @@ internal static partial class Program
 			Console.WriteLine($"{n + 1,2}  {items[n].Title}   · {items[n].About} · {NewsAgeTurkish(items[n].Age)}");
 			if (items[n].Body.Length > 0) Console.WriteLine($"      {items[n].Body}");
 		}
-		Console.WriteLine("\nTamamı: news <# | başlıktan bir parça>");
+		Console.WriteLine(L("\nTamamı: news <# | başlıktan bir parça>"));
 		return 0;
 	}
 

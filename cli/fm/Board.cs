@@ -44,7 +44,7 @@ internal static partial class Program
 
 		if (BoardAreas.All(a => Field(said, a.Field).Length == 0))
 		{
-			Console.Error.WriteLine("Yönetimin görüşü okunamadı.");
+			Console.Error.WriteLine(L("Yönetimin görüşü okunamadı."));
 			return 1;
 		}
 

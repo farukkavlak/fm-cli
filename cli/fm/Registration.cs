@@ -19,7 +19,7 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (!await OpenRegistration())
 		{
-			Console.Error.WriteLine("Kadro kayıt ekranı açılmadı.");
+			Console.Error.WriteLine(L("Kadro kayıt ekranı açılmadı."));
 			return 1;
 		}
 
@@ -27,7 +27,7 @@ internal static partial class Program
 
 		if (args.Contains("--auto"))
 		{
-			if (await Labelled("Ask Assistant to Pick") is not { } pick) return Report("error: 'Ask Assistant to Pick' ekranda yok");
+			if (await Labelled("Ask Assistant to Pick") is not { } pick) return Report(L("error: 'Ask Assistant to Pick' ekranda yok"));
 			await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
 			await Task.Delay(1500);
 			(rules, players) = await ReadRegistration();
@@ -40,14 +40,14 @@ internal static partial class Program
 			var matches = Matching(players, p => p.Name, wanted);
 			if (matches.Count != 1)
 			{
-				Console.Error.WriteLine(matches.Count == 0 ? $"Listede '{wanted}' yok." : $"'{wanted}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(m => m.Name))}");
+				Console.Error.WriteLine(matches.Count == 0 ? L($"Listede '{wanted}' yok.") : L($"'{wanted}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(m => m.Name))}"));
 				return 1;
 			}
 			var player = matches[0];
 			if (player.On == on) continue;
 			if (!player.CanChange)
 			{
-				Console.Error.WriteLine($"{player.Name} değiştirilemiyor ({player.Status}).");
+				Console.Error.WriteLine(L($"{player.Name} değiştirilemiyor ({player.Status})."));
 				return 1;
 			}
 			if (!await Flip(player.Name, on)) return 1;
@@ -68,8 +68,8 @@ internal static partial class Program
 		if (args.Contains("--send")) return await SendList("Confirm", "Kadro listesi");
 
 		Console.WriteLine(rules.All(r => r.Meets)
-			? "Kurallar tutuyor. Göndermek için: register --send"
-			: "Oyuncu eklemek / çıkarmak için: register --in <oyuncu> / --out <oyuncu>;  yardımcının seçimi: --auto");
+			? L("Kurallar tutuyor. Göndermek için: register --send")
+			: L("Oyuncu eklemek / çıkarmak için: register --in <oyuncu> / --out <oyuncu>;  yardımcının seçimi: --auto"));
 		return 0;
 	}
 
@@ -89,11 +89,11 @@ internal static partial class Program
 			var choices = actions.Concat(choosable.Select(p =>
 				$"{(p.On ? "✓" : "·")} {Ui.Fit(p.Name, 24),-24} {p.Age,2}  {Ui.Fit(p.Position, 18),-18} {string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(FlagName))}")).ToList();
 
-			var picked = Ui.Ask(RulesLine(rules), choices, cancel: changed ? "Çık, değişiklikleri geri al" : "Çık");
+			var picked = Ui.Ask(RulesLine(rules), choices, cancel: changed ? L("Çık, değişiklikleri geri al") : L("Çık"));
 			if (picked is not { } index)
 			{
 				if (changed && await Labelled("Undo") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
-				Console.WriteLine(changed ? "Değişiklikler geri alındı; liste gönderilmedi." : "Liste gönderilmedi.");
+				Console.WriteLine(changed ? L("Değişiklikler geri alındı; liste gönderilmedi.") : L("Liste gönderilmedi."));
 				return 0;
 			}
 
@@ -104,7 +104,7 @@ internal static partial class Program
 				var now = players.Where(p => p.On).Select(p => p.Name).ToHashSet();
 				var gone = before.Except(now).ToList();
 				var came = now.Except(before).ToList();
-				Ui.Line($"Liste: [bold]{now.Count}[/] oyuncu"
+				Ui.Line(L($"Liste: [bold]{now.Count}[/] oyuncu")
 				        + (came.Count > 0 ? $"  [green]+ {Ui.Safe(string.Join(", ", came))}[/]" : "")
 				        + (gone.Count > 0 ? $"  [red]− {Ui.Safe(string.Join(", ", gone))}[/]" : ""));
 				return await SendList("Confirm", "Kadro listesi");
@@ -174,7 +174,7 @@ internal static partial class Program
 		if (!Ui.Rich)
 		{
 			foreach (var r in rules) Console.WriteLine($"{(r.Meets ? "✓" : "✗")}\t{r.Value}\t{r.Title}");
-			foreach (var p in players) Console.WriteLine($"{(p.On ? "✓" : "·")}\t{p.Name}\t{p.Age}\t{p.Position}\t{p.Flags}\t{p.Status}{(p.CanChange ? "" : "\tdeğiştirilemez")}");
+			foreach (var p in players) Console.WriteLine($"{(p.On ? "✓" : "·")}\t{p.Name}\t{p.Age}\t{p.Position}\t{p.Flags}\t{p.Status}{(p.CanChange ? "" : L("\tdeğiştirilemez"))}");
 			return;
 		}
 
@@ -268,7 +268,7 @@ internal static partial class Program
 		{
 			if (await RowOf(name) is not { } row)
 			{
-				Console.Error.WriteLine($"{name} ekranda bulunamadı.");
+				Console.Error.WriteLine(L($"{name} ekranda bulunamadı."));
 				return false;
 			}
 			if ((Field(row, "Selected") == "True") == on) return true;
@@ -284,7 +284,7 @@ internal static partial class Program
 				    .Any(p => Field(p, "Name") == name && (Field(p, "Selected") == "True") == on), seconds: 6)) return true;
 			if (!refused) break;
 		}
-		Console.Error.WriteLine($"{name} değiştirilemedi.");
+		Console.Error.WriteLine(L($"{name} değiştirilemedi."));
 		return false;
 	}
 

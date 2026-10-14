@@ -32,7 +32,7 @@ internal static partial class Program
 		var players = await HappinessRows();
 		if (players.Count == 0)
 		{
-			Console.Error.WriteLine("Mutluluk sayfası okunamadı.");
+			Console.Error.WriteLine(L("Mutluluk sayfası okunamadı."));
 			return 1;
 		}
 		players = players.OrderBy(p => Array.IndexOf(HappinessLevels, p.Level)).ThenBy(p => p.Name).ToList();
@@ -46,12 +46,12 @@ internal static partial class Program
 			var matches = Matching(players, p => p.Name, typed);
 			if (matches.Count != 1)
 			{
-				Console.Error.WriteLine(matches.Count == 0 ? $"'{typed}' mutluluk listesinde yok." : $"'{typed}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(p => p.Name))}");
+				Console.Error.WriteLine(matches.Count == 0 ? L($"'{typed}' mutluluk listesinde yok.") : L($"'{typed}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(p => p.Name))}"));
 				return 1;
 			}
 			if (await WhyHappy(matches[0]) is not { } why)
 			{
-				Console.Error.WriteLine($"{matches[0].Name}: nedenler okunamadı.");
+				Console.Error.WriteLine(L($"{matches[0].Name}: nedenler okunamadı."));
 				return 1;
 			}
 			if (json) Console.WriteLine(JsonOut.Of(why));
@@ -72,9 +72,9 @@ internal static partial class Program
 			var upset = all.Where(a => a.Why.Negatives.Count > 0).ToList();
 			foreach (var (row, why) in upset) WriteWhy(why, row.Flags, positives: false);
 			Console.WriteLine(upset.Count == 0
-				? $"{all.Count} oyuncunun hiçbirinin bir şikâyeti yok."
-				: $"\n{all.Count} oyuncudan {upset.Count} tanesinin şikâyeti var; kalan {all.Count - upset.Count} oyuncunun yok.");
-			if (all.Count < players.Count) Console.Error.WriteLine($"{players.Count - all.Count} oyuncunun nedenleri okunamadı.");
+				? L($"{all.Count} oyuncunun hiçbirinin bir şikâyeti yok.")
+				: L($"\n{all.Count} oyuncudan {upset.Count} tanesinin şikâyeti var; kalan {all.Count - upset.Count} oyuncunun yok."));
+			if (all.Count < players.Count) Console.Error.WriteLine(L($"{players.Count - all.Count} oyuncunun nedenleri okunamadı."));
 			return 0;
 		}
 
@@ -90,7 +90,7 @@ internal static partial class Program
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(player.Name),-24} [{LevelColour(player.Level)}]{Ui.Safe(say)}[/][dim]{Ui.Safe(flag)}[/]");
 			else Console.WriteLine($"  {player.Name,-24} {say}{flag}");
 		}
-		Console.WriteLine("\nNedeni: happiness <oyuncu>   ·   herkesin şikâyetleri: happiness --why");
+		Console.WriteLine(L("\nNedeni: happiness <oyuncu>   ·   herkesin şikâyetleri: happiness --why"));
 		return 0;
 	}
 
@@ -115,7 +115,7 @@ internal static partial class Program
 			if (Ui.Rich) Ui.Line($"  [green]+[/] {Ui.Safe(positive)}");
 			else Console.WriteLine($"  + {positive}");
 		}
-		if (why.Negatives.Count == 0) Console.WriteLine("  Şikâyeti yok.");
+		if (why.Negatives.Count == 0) Console.WriteLine(L("  Şikâyeti yok."));
 	}
 
 	private static async Task<List<HappyRow>> HappinessRows()

@@ -39,6 +39,7 @@ internal sealed class HttpBridge
 		public NameValueCollection Query;
 		public string Result;
 		public string Shown;
+		public string Language;
 		public readonly ManualResetEventSlim Done = new(false);
 	}
 
@@ -117,6 +118,7 @@ internal sealed class HttpBridge
 				: "timeout: the main thread did not run this request within 30s";
 			if (body == null) { status = 404; body = "unknown route"; }
 			if (job.Shown != null) ctx.Response.Headers["X-Shown"] = job.Shown;
+			if (job.Language != null) ctx.Response.Headers["X-Language"] = job.Language;
 		}
 		catch (Exception ex)
 		{
@@ -151,6 +153,8 @@ internal sealed class HttpBridge
 				if (Localisation.Seen.Count > 0)
 					job.Shown = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Join("\n",
 						System.Linq.Enumerable.Select(Localisation.Seen, kv => kv.Key + "\t" + kv.Value))));
+				// The language the game is set to, for the CLI's own words (Labels).
+				try { job.Language = SI.Translation.TranslationManager.CurrentLanguage; } catch { }
 				job.Done.Set();
 			}
 		}

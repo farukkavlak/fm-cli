@@ -31,7 +31,7 @@ internal static partial class Program
 		JsonElement? list = null;
 		if (!await Until(async () => (list = await FocusList()) != null, seconds: 10, every: 0.5))
 		{
-			Console.WriteLine("Scout odağı yok.");
+			Console.WriteLine(L("Scout odağı yok."));
 			return 0;
 		}
 		var count = list.Value.GetProperty("Choices").GetArrayLength();
@@ -46,11 +46,11 @@ internal static partial class Program
 			if (json) Console.WriteLine(JsonOut.Of(focuses));
 			else
 			{
-				Table.Write(["#", "ODAK", "DURUM", "ATANAN", "EŞLEŞEN", "YAKIN", "SÜREN"], focuses.Select(f => new[]
+				Table.Write(["#", L("ODAK"), L("DURUM"), L("ATANAN"), L("EŞLEŞEN"), L("YAKIN"), L("SÜREN")], focuses.Select(f => new[]
 				{
 					(f.Index + 1).ToString(), f.Name, f.State, f.Assigned, f.Matched.ToString(), f.Near.ToString(), f.InProgress.ToString(),
 				}).ToList());
-				Console.WriteLine("\nBir odağın bulduğu oyuncular: scout <#|ad>   (--near: yakın eşleşenler, --progress: incelenenler)");
+				Console.WriteLine(L("\nBir odağın bulduğu oyuncular: scout <#|ad>   (--near: yakın eşleşenler, --progress: incelenenler)"));
 			}
 			return 0;
 		}
@@ -64,7 +64,7 @@ internal static partial class Program
 		}
 		if (await FocusAt(wanted.Index) is not { } shown)
 		{
-			Console.Error.WriteLine($"{wanted.Name}: odak açılmadı.");
+			Console.Error.WriteLine(L($"{wanted.Name}: odak açılmadı."));
 			return 1;
 		}
 
@@ -115,9 +115,9 @@ internal static partial class Program
 		}
 
 		Console.WriteLine($"{shown.Name} · {shown.State} · {shown.Assigned} — {title} ({expected})");
-		if (rows.Count == 0) Console.WriteLine("Bu sekmede oyuncu yok.");
-		else Table.Write(["OYUNCU", "ÜLKE", "YAŞ", "MEVKİ", "ROL", "KULÜP", "LİG", "DEĞER", "NOT", "TAVSİYE"], rows);
-		if (rows.Count < expected) Console.WriteLine($"({expected} oyuncunun {rows.Count} tanesi ekranda; liste yalnızca görünen satırları çiziyor.)");
+		if (rows.Count == 0) Console.WriteLine(L("Bu sekmede oyuncu yok."));
+		else Table.Write([L("OYUNCU"), L("ÜLKE"), L("YAŞ"), L("MEVKİ"), L("ROL"), L("KULÜP"), L("LİG"), L("DEĞER"), L("NOT"), L("TAVSİYE")], rows);
+		if (rows.Count < expected) Console.WriteLine(L($"({expected} oyuncunun {rows.Count} tanesi ekranda; liste yalnızca görünen satırları çiziyor.)"));
 		return 0;
 	}
 

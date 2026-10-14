@@ -38,7 +38,7 @@ internal static partial class Program
 		if (under.Count == 0)
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.Error.WriteLine($"{name} için oyun '{folder.Replace(">", " › ")}' sunmuyor. Menüsü: actions \"{name}\"");
+			Console.Error.WriteLine(L($"{name} için oyun '{folder.Replace(">", " › ")}' sunmuyor. Menüsü: actions \"{name}\""));
 			return null;
 		}
 		var labels = under.Select(e => Field(e, "Name")).ToList();
@@ -51,7 +51,7 @@ internal static partial class Program
 		}
 		if (Ui.Ask($"{name} — {what}?", labels) is { } picked) return under[picked];
 		await Fm.Get("actions", ("close", "1"));
-		if (!Ui.Interactive) Console.Error.WriteLine($"{what} söylenmedi ({flag}): {string.Join(" · ", labels)}");
+		if (!Ui.Interactive) Console.Error.WriteLine(L($"{what} söylenmedi ({flag}): {string.Join(" · ", labels)}"));
 		return null;
 	}
 
@@ -91,7 +91,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args).Skip(1));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: scout player <ad> [--by <scout>] [--for <süre>] [--cancel]   (süre: \"1 hafta\", \"2 ay\", \"3 maç\", \"tam\")");
+			Console.Error.WriteLine(L("kullanım: scout player <ad> [--by <scout>] [--for <süre>] [--cancel]   (süre: \"1 hafta\", \"2 ay\", \"3 maç\", \"tam\")"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -104,7 +104,7 @@ internal static partial class Program
 			if (cancel is not { } off)
 			{
 				await Fm.Get("actions", ("close", "1"));
-				Console.Error.WriteLine($"{name} için süren bir scout görevi yok.");
+				Console.Error.WriteLine(L($"{name} için süren bir scout görevi yok."));
 				return 1;
 			}
 			// The game asks whether to stop scouting him; having been told to here, the answer is yes.
@@ -119,16 +119,16 @@ internal static partial class Program
 			await Fm.Get("actions", ("close", "1"));
 			if (still)
 			{
-				Console.Error.WriteLine($"{name}: oyun onayı aldı ama görevi kaldırmadı (oyunun kendi davranışı, FINDINGS §8.124); süresi dolunca kendiliğinden biter.");
+				Console.Error.WriteLine(L($"{name}: oyun onayı aldı ama görevi kaldırmadı (oyunun kendi davranışı, FINDINGS §8.124); süresi dolunca kendiliğinden biter."));
 				return 1;
 			}
-			Console.WriteLine($"{name}: scout görevi kaldırıldı.");
+			Console.WriteLine(L($"{name}: scout görevi kaldırıldı."));
 			return 0;
 		}
 		if (cancel != null)
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.Error.WriteLine($"{name} zaten izleniyor. Görevi kaldırmak için: scout player \"{name}\" --cancel");
+			Console.Error.WriteLine(L($"{name} zaten izleniyor. Görevi kaldırmak için: scout player \"{name}\" --cancel"));
 			return 1;
 		}
 
@@ -139,7 +139,7 @@ internal static partial class Program
 			if (scouts.Count == 0)
 			{
 				await Fm.Get("actions", ("close", "1"));
-				Console.Error.WriteLine($"{name} için oyun scout atamayı sunmuyor. Menüsü: actions \"{name}\"");
+				Console.Error.WriteLine(L($"{name} için oyun scout atamayı sunmuyor. Menüsü: actions \"{name}\""));
 				return 1;
 			}
 			if (Choose(scouts.Select(e => Field(e, "Name")).ToList(), by, "Scout") is not { } scout)
@@ -159,7 +159,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args).Skip(1));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: scout who <ad>   (o oyuncuya atanabilecek scoutlar)");
+			Console.Error.WriteLine(L("kullanım: scout who <ad>   (o oyuncuya atanabilecek scoutlar)"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -167,11 +167,11 @@ internal static partial class Program
 		await Fm.Get("actions", ("close", "1"));
 		var scouts = menu.Entries.Where(e => IsFolder(e) && Field(e, "Path").StartsWith("Report>Assign Scout>", StringComparison.Ordinal)).Select(e => Field(e, "Name")).ToList();
 		if (json) Console.WriteLine(JsonOut.Of(scouts));
-		else if (scouts.Count == 0) Console.WriteLine($"{menu.Name} için atanabilecek scout yok (zaten izleniyor olabilir).");
+		else if (scouts.Count == 0) Console.WriteLine(L($"{menu.Name} için atanabilecek scout yok (zaten izleniyor olabilir)."));
 		else
 		{
 			foreach (var scout in scouts) Console.WriteLine(scout);
-			Console.WriteLine($"\nAtamak için: scout player \"{menu.Name}\" --by \"<scout>\" --for \"<süre>\"");
+			Console.WriteLine(L($"\nAtamak için: scout player \"{menu.Name}\" --by \"<scout>\" --for \"<süre>\""));
 		}
 		return 0;
 	}
@@ -183,7 +183,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args).Skip(1));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine(remove ? "kullanım: shortlist remove <ad>" : "kullanım: shortlist add <ad> [--for <süre>]   (süre: \"1 ay\", \"3 ay\", \"6 ay\", \"1 yıl\", \"süresiz\")");
+			Console.Error.WriteLine(remove ? L("kullanım: shortlist remove <ad>") : L("kullanım: shortlist add <ad> [--for <süre>]   (süre: \"1 ay\", \"3 ay\", \"6 ay\", \"1 yıl\", \"süresiz\")"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -196,7 +196,7 @@ internal static partial class Program
 			if (off is not { } entry)
 			{
 				await Fm.Get("actions", ("close", "1"));
-				Console.Error.WriteLine($"{name} kısa listede değil.");
+				Console.Error.WriteLine(L($"{name} kısa listede değil."));
 				return 1;
 			}
 			return await ChooseAction(name, entry);
@@ -204,7 +204,7 @@ internal static partial class Program
 		if (off != null)
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.Error.WriteLine($"{name} zaten kısa listede.");
+			Console.Error.WriteLine(L($"{name} zaten kısa listede."));
 			return 1;
 		}
 		if (await EntryUnder(name, entries, "Add To Shortlist", MenuLength(Option(args, "--for")), "Listede ne kadar kalsın", "--for \"3 ay\"") is not { } add) return 64;
@@ -222,9 +222,9 @@ internal static partial class Program
 		{
 			Console.Error.WriteLine(command switch
 			{
-				"interest" => "kullanım: interest <ad> [--top | --transfer | --loan]   (ilgimizi duyurur)",
-				"trial" => "kullanım: trial <ad> [--for <1-4 hafta>]   (denemeye çağırır)",
-				_ => "kullanım: enquire <ad>   (kulübüne ne isteyeceğini sorar)",
+				"interest" => L("kullanım: interest <ad> [--top | --transfer | --loan]   (ilgimizi duyurur)"),
+				"trial" => L("kullanım: trial <ad> [--for <1-4 hafta>]   (denemeye çağırır)"),
+				_ => L("kullanım: enquire <ad>   (kulübüne ne isteyeceğini sorar)"),
 			});
 			return 64;
 		}
@@ -239,7 +239,7 @@ internal static partial class Program
 			if (entry == null)
 			{
 				await Fm.Get("actions", ("close", "1"));
-				Console.Error.WriteLine($"{name} için oyun 'Make Enquiry' sunmuyor. Menüsü: actions \"{name}\"");
+				Console.Error.WriteLine(L($"{name} için oyun 'Make Enquiry' sunmuyor. Menüsü: actions \"{name}\""));
 				return 1;
 			}
 		}
@@ -269,7 +269,7 @@ internal static partial class Program
 		async Task<bool> Asked(double seconds) => await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: seconds, every: 0.4);
 		if (!await Asked(3))
 		{
-			Console.WriteLine($"{name}: {path.Replace(">", " › ")} — yapıldı.");
+			Console.WriteLine(L($"{name}: {path.Replace(">", " › ")} — yapıldı."));
 			return 0;
 		}
 		var dialog = dialogs[0];
@@ -277,24 +277,24 @@ internal static partial class Program
 		Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
 		if (buttons.Count > 1)
 		{
-			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask("Gönderelim mi?", ["Evet", "Hayır"]) == 0);
+			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Gönderelim mi?"), [L("Evet"), L("Hayır")]) == 0);
 			if (DialogAnswer(dialog, go) is not { } answer)
 			{
-				Console.WriteLine($"\nCevaplamak için: dialog <{string.Join(" | ", buttons.Select(b => Field(b, "Label")))}>");
+				Console.WriteLine(L($"\nCevaplamak için: dialog <{string.Join(" | ", buttons.Select(b => Field(b, "Label")))}>"));
 				return 0;
 			}
 			var was = Field(dialog, "Title");
 			await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
 			if (!go)
 			{
-				if (!Ui.Interactive) Console.WriteLine($"\nGönderilmedi. Göndermek için aynı komut, sonuna --yes");
+				if (!Ui.Interactive) Console.WriteLine(L($"\nGönderilmedi. Göndermek için aynı komut, sonuna --yes"));
 				return 0;
 			}
 			// What the game says once it is done, when it says anything.
 			if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() == 0 || Field(dialogs[0], "Title") != was, seconds: 4, every: 0.4)
 				|| dialogs.GetArrayLength() == 0)
 			{
-				Console.WriteLine($"\n{name}: {path.Replace(">", " › ")} — gönderildi.");
+				Console.WriteLine(L($"\n{name}: {path.Replace(">", " › ")} — gönderildi."));
 				return 0;
 			}
 			dialog = dialogs[0];
@@ -302,7 +302,7 @@ internal static partial class Program
 			Console.WriteLine($"\n{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
 		}
 		if (buttons.Count == 1) await Fm.Get("click", ("ptr", Field(buttons[0], "Pointer")));
-		else Console.WriteLine($"\nCevaplamak için: dialog <{string.Join(" | ", buttons.Select(b => Field(b, "Label")))}>");
+		else Console.WriteLine(L($"\nCevaplamak için: dialog <{string.Join(" | ", buttons.Select(b => Field(b, "Label")))}>"));
 		return 0;
 	}
 }

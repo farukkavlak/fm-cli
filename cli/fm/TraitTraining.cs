@@ -19,7 +19,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: training <oyuncu> --trait [\"<alışkanlık>\"] | --trait-remove \"<alışkanlık>\" | --trait-cancel | --trait-suggest");
+			Console.Error.WriteLine(L("kullanım: training <oyuncu> --trait [\"<alışkanlık>\"] | --trait-remove \"<alışkanlık>\" | --trait-cancel | --trait-suggest"));
 			return 64;
 		}
 		if (await OpenPlayer(wanted) is not { } card) return 1;
@@ -47,7 +47,7 @@ internal static partial class Program
 		}
 		if (!await Until(Ready, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine($"{name} için alışkanlık eğitimi açılmadı.");
+			Console.Error.WriteLine(L($"{name} için alışkanlık eğitimi açılmadı."));
 			return 1;
 		}
 
@@ -94,11 +94,11 @@ internal static partial class Program
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}");
 			bool yes;
 			if (args.Contains("--yes")) yes = true;
-			else if (Ui.Interactive) yes = Ui.Ask("Ne yapalım?", [Field(go, "Label"), Field(stop, "Label")]) == 0;
+			else if (Ui.Interactive) yes = Ui.Ask(L("Ne yapalım?"), [Field(go, "Label"), Field(stop, "Label")]) == 0;
 			else
 			{
 				yes = false;
-				Console.WriteLine("Onaylamak için aynı komutu --yes ile çalıştır.");
+				Console.WriteLine(L("Onaylamak için aynı komutu --yes ile çalıştır."));
 			}
 			var chosen = yes ? go : stop;
 			if (chosen.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(chosen, "Pointer")));
@@ -114,7 +114,7 @@ internal static partial class Program
 
 		if (args.Contains("--trait-suggest"))
 		{
-			if (busy) { Console.WriteLine($"{name} şu an bir alışkanlık üzerinde çalışıyor; öneri için önce iptal: --trait-cancel"); return 0; }
+			if (busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışıyor; öneri için önce iptal: --trait-cancel")); return 0; }
 			var asked = await Arriving("press", [("text", "Ask For Trait Training Suggestion"), ("any", "1")]);
 			if (asked.StartsWith("error", StringComparison.Ordinal)) return Report(asked);
 			// A suggestion comes as a dialog offering to start on it; no suggestion is a sentence.
@@ -127,7 +127,7 @@ internal static partial class Program
 
 		if (args.Contains("--trait-cancel"))
 		{
-			if (!busy) { Console.WriteLine($"{name} şu an bir alışkanlık üzerinde çalışmıyor."); return 0; }
+			if (!busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışmıyor.")); return 0; }
 			var cancelled = await Arriving("press", [("text", "Cancel Current Trait Training"), ("any", "1")]);
 			if (cancelled.StartsWith("error", StringComparison.Ordinal)) return Report(cancelled);
 			if (!await Confirmed()) return 0;
@@ -136,7 +136,7 @@ internal static partial class Program
 
 		if (Option(args, "--trait-remove") is { } unlearn)
 		{
-			if (busy) { Console.WriteLine($"{name} şu an bir alışkanlık üzerinde çalışıyor; önce iptal: --trait-cancel"); return 0; }
+			if (busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışıyor; önce iptal: --trait-cancel")); return 0; }
 			if (Choose(has, unlearn, "Alışkanlık") is not { } trait) return 1;
 			var sent = await Fm.Get("select", ("ptr", Field(removing, "Pointer")), ("choice", trait), ("fire", "1"));
 			if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
@@ -147,17 +147,17 @@ internal static partial class Program
 		var learn = Option(args, "--trait") is { } v && !v.StartsWith("--", StringComparison.Ordinal) ? v : null;
 		if (learn == null && (busy || !Ui.Interactive))
 		{
-			Console.WriteLine($"{name} — alışkanlıkları: {(has.Count == 0 ? "yok" : string.Join(", ", has))}");
+			Console.WriteLine(L($"{name} — alışkanlıkları: {(has.Count == 0 ? L("yok") : string.Join(", ", has))}"));
 			if (busy)
 			{
-				Console.WriteLine("Şu an bir alışkanlık üzerinde çalışıyor (oyun hangisi olduğunu bu ekranda yazmıyor).");
-				Console.WriteLine($"İptal için: training \"{name}\" --trait-cancel");
+				Console.WriteLine(L("Şu an bir alışkanlık üzerinde çalışıyor (oyun hangisi olduğunu bu ekranda yazmıyor)."));
+				Console.WriteLine(L($"İptal için: training \"{name}\" --trait-cancel"));
 				return 0;
 			}
-			Console.WriteLine("Öğretilebilecekler:");
+			Console.WriteLine(L("Öğretilebilecekler:"));
 			foreach (var group in addable.GroupBy(a => a.Category))
-				Console.WriteLine($"  {(group.Key.Length > 0 ? group.Key : "Diğer")}: {string.Join(", ", group.Select(a => a.Trait))}");
-			Console.WriteLine($"\nÖğretmek için: training \"{name}\" --trait \"<alışkanlık>\"  ·  bırakmak: --trait-remove \"<alışkanlık>\"  ·  öneri: --trait-suggest");
+				Console.WriteLine($"  {(group.Key.Length > 0 ? group.Key : L("Diğer"))}: {string.Join(", ", group.Select(a => a.Trait))}");
+			Console.WriteLine(L($"\nÖğretmek için: training \"{name}\" --trait \"<alışkanlık>\"  ·  bırakmak: --trait-remove \"<alışkanlık>\"  ·  öneri: --trait-suggest"));
 			return 0;
 		}
 
@@ -169,7 +169,7 @@ internal static partial class Program
 			if (exact.Count == 1) fits = exact;
 			if (fits.Count != 1)
 			{
-				Console.Error.WriteLine(fits.Count == 0 ? $"Öğretilebilecekler arasında '{learn}' yok." : $"'{learn}' {fits.Count} alışkanlığa uyuyor:");
+				Console.Error.WriteLine(fits.Count == 0 ? L($"Öğretilebilecekler arasında '{learn}' yok.") : L($"'{learn}' {fits.Count} alışkanlığa uyuyor:"));
 				foreach (var a in fits) Console.Error.WriteLine($"  {a.Trait}");
 				return 1;
 			}
@@ -177,9 +177,9 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine($"{name} — alışkanlıkları: {(has.Count == 0 ? "yok" : string.Join(", ", has))}");
+			Console.WriteLine(L($"{name} — alışkanlıkları: {(has.Count == 0 ? L("yok") : string.Join(", ", has))}"));
 			var labels = addable.Select(a => a.Category.Length > 0 ? $"{a.Category} › {a.Trait}" : a.Trait).ToList();
-			if (Ui.Ask($"{name}: hangi alışkanlığı öğrensin?", labels) is not { } chosen) return 0;
+			if (Ui.Ask(L($"{name}: hangi alışkanlığı öğrensin?"), labels) is not { } chosen) return 0;
 			var a = addable[chosen];
 			path = a.Category.Length > 0 ? $"{a.Category}>{a.Trait}" : a.Trait;
 		}

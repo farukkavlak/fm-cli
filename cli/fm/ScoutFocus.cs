@@ -71,7 +71,7 @@ internal static partial class Program
 		var form = await FocusForm("Back");
 		if (FormAfter(form, $"Assign {plural}", "button") is not { } edit || Field(edit, "Text") != "Edit")
 		{
-			Console.Error.WriteLine($"Formda {who.ToLowerInvariant()} seçme butonu yok.");
+			Console.Error.WriteLine(L($"Formda {who.ToLowerInvariant()} seçme butonu yok."));
 			return null;
 		}
 		await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
@@ -79,7 +79,7 @@ internal static partial class Program
 		List<JsonElement> window = [];
 		if (!await Until(async () => (window = await Window()).Any(i => Field(i, "Kind") == "checkbox"), seconds: 6, every: 0.4))
 		{
-			Console.Error.WriteLine($"{who} seçme penceresi açılmadı.");
+			Console.Error.WriteLine(L($"{who} seçme penceresi açılmadı."));
 			return null;
 		}
 		async Task Close(string button)
@@ -133,7 +133,7 @@ internal static partial class Program
 		if (!counted)
 		{
 			await Close("Cancel");
-			Console.Error.WriteLine($"{who} seçilemedi (pencere seçilen sayısını göstermedi).");
+			Console.Error.WriteLine(L($"{who} seçilemedi (pencere seçilen sayısını göstermedi)."));
 			return null;
 		}
 		await Close("Confirm");
@@ -180,7 +180,7 @@ internal static partial class Program
 			}
 			if (level.Count > 0)
 			{
-				Console.Error.WriteLine($"'{path.Replace(">", " › ")}' bir alt menü; altındakiler: {string.Join(" · ", level)}");
+				Console.Error.WriteLine(L($"'{path.Replace(">", " › ")}' bir alt menü; altındakiler: {string.Join(" · ", level)}"));
 				return null;
 			}
 			return path;
@@ -196,8 +196,8 @@ internal static partial class Program
 		}
 		if (found.Count == 1) return found[0];
 		Console.Error.WriteLine(found.Count == 0
-			? $"Bölge: '{typed}' kıta, bölge ya da ülke olarak bulunamadı. Lig için yolunu yaz: \"Competition>Türkiye>Super League\"; seçenekler: scout areas [yol]"
-			: $"Bölge: '{typed}' birden çok yere uyuyor: {string.Join(" · ", found.Select(p => p.Replace(">", " › ")))}");
+			? L($"Bölge: '{typed}' kıta, bölge ya da ülke olarak bulunamadı. Lig için yolunu yaz: \"Competition>Türkiye>Super League\"; seçenekler: scout areas [yol]")
+			: L($"Bölge: '{typed}' birden çok yere uyuyor: {string.Join(" · ", found.Select(p => p.Replace(">", " › ")))}"));
 		return null;
 	}
 
@@ -260,7 +260,7 @@ internal static partial class Program
 			.FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
 		if (open.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine("Görevler paneli bulunamadı.");
+			Console.Error.WriteLine(L("Görevler paneli bulunamadı."));
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(open, "Pointer")));
@@ -305,9 +305,9 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, r.Job, JudgingAbility = r.Ability, JudgingPotential = r.Potential, r.Regions, r.Nations, r.Focuses })));
 			return 0;
 		}
-		Table.Write(["SCOUT", "GÖREV", "YETENEĞİ GÖRME", "POTANSİYELİ GÖRME", "BÖLGE", "ÜLKE", "ODAKLARI"],
+		Table.Write([L("SCOUT"), L("GÖREV"), L("YETENEĞİ GÖRME"), L("POTANSİYELİ GÖRME"), L("BÖLGE"), L("ÜLKE"), L("ODAKLARI")],
 			rows.Select(r => new[] { r.Name, r.Job, r.Ability, r.Potential, r.Regions, r.Nations, r.Focuses.Count > 0 ? string.Join(", ", r.Focuses) : "-" }).ToList());
-		Console.WriteLine($"\n{Field(open, "Label").Replace("Assignments", "Süren görev")}. Bir oyuncuya göndermek: scout player <ad> --by <scout> --for <süre>");
+		Console.WriteLine(L($"\n{Field(open, "Label").Replace("Assignments", "Süren görev")}. Bir oyuncuya göndermek: scout player <ad> --by <scout> --for <süre>"));
 		return 0;
 	}
 
@@ -336,7 +336,7 @@ internal static partial class Program
 		}
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine("Oyun şu an yeni odak açtırmıyor: ne odak sayfasında ne görevler panelinde 'Create a New Recruitment Focus' var.");
+			Console.Error.WriteLine(L("Oyun şu an yeni odak açtırmıyor: ne odak sayfasında ne görevler panelinde 'Create a New Recruitment Focus' var."));
 			return false;
 		}
 		// A form left half-filled (a run that failed, a page opened over it) comes back as it was
@@ -349,7 +349,7 @@ internal static partial class Program
 			await Task.Delay(800);
 			return !again && await OpenFocusForm(again: true);
 		}
-		Console.Error.WriteLine("Odak formu açılmadı.");
+		Console.Error.WriteLine(L("Odak formu açılmadı."));
 		return false;
 	}
 
@@ -364,7 +364,7 @@ internal static partial class Program
 		if (FormAfter(form, "Scouting Areas", "dropdown") is not { } areas)
 		{
 			await AbandonFocus();
-			Console.Error.WriteLine("Bölge listesi bulunamadı.");
+			Console.Error.WriteLine(L("Bölge listesi bulunamadı."));
 			return 1;
 		}
 		var path = string.Join(" ", Words(args).Skip(1)).Replace(" > ", ">");
@@ -374,11 +374,11 @@ internal static partial class Program
 				? under.EnumerateArray().Select(c => c.GetString() ?? "").ToList() : [];
 		await AbandonFocus();
 		if (json) Console.WriteLine(JsonOut.Of(list));
-		else if (list.Count == 0) Console.WriteLine($"'{path}' altında bir şey yok (yolu İngilizce adlarıyla yaz: scout areas \"Nation>Europe\").");
+		else if (list.Count == 0) Console.WriteLine(L($"'{path}' altında bir şey yok (yolu İngilizce adlarıyla yaz: scout areas \"Nation>Europe\")."));
 		else
 		{
 			foreach (var item in list) Console.WriteLine(item);
-			Console.WriteLine($"\n› ile bitenlerin altı var: scout areas \"{(path.Length > 0 ? path + ">" : "")}<ad>\"");
+			Console.WriteLine(L($"\n› ile bitenlerin altı var: scout areas \"{(path.Length > 0 ? path + ">" : "")}<ad>\""));
 		}
 		return 0;
 	}
@@ -405,44 +405,44 @@ internal static partial class Program
 		var which = string.Join(" ", Words(args).Skip(1));
 		if (edit && (which.Length == 0 || (area ?? age ?? name ?? priority ?? ability ?? potential ?? by ?? analysts) == null || position != null || role != null))
 		{
-			Console.Error.WriteLine("kullanım: scout edit <#|ad> [--area \"<eklenecek bölge>, …\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>, …\"] [--analysts \"<analist>, …\"] [--name <ad>] [--priority top|standard|ongoing]\n" +
-				"  mevki ve rol buradan değişmez; onun için yeni odak kur: scout new");
+			Console.Error.WriteLine(L("kullanım: scout edit <#|ad> [--area \"<eklenecek bölge>, …\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>, …\"] [--analysts \"<analist>, …\"] [--name <ad>] [--priority top|standard|ongoing]\n") +
+				L("  mevki ve rol buradan değişmez; onun için yeni odak kur: scout new"));
 			return 64;
 		}
 		if (!edit && position == null && area == null)
 		{
-			Console.Error.WriteLine("kullanım: scout new [--position <mevki>] [--role <rol>] [--area \"<bölge>[, <bölge>…]\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>[, <scout>…]\"] [--analysts \"<analist>[, …]\"] [--name <ad>] --priority top|standard|ongoing\n" +
-				"  en az bir mevki ya da bölge gerek. Bölgeler: scout areas [yol]   ör. --area \"Türkiye, Region>Europe>Northern Europe\"");
+			Console.Error.WriteLine(L("kullanım: scout new [--position <mevki>] [--role <rol>] [--area \"<bölge>[, <bölge>…]\"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by \"<scout>[, <scout>…]\"] [--analysts \"<analist>[, …]\"] [--name <ad>] --priority top|standard|ongoing\n") +
+				L("  en az bir mevki ya da bölge gerek. Bölgeler: scout areas [yol]   ör. --area \"Türkiye, Region>Europe>Northern Europe\""));
 			return 64;
 		}
 		if (name is { Length: > 25 })
 		{
-			Console.Error.WriteLine("Odak adı en çok 25 harf olabilir.");
+			Console.Error.WriteLine(L("Odak adı en çok 25 harf olabilir."));
 			return 64;
 		}
 		var ages = age == null ? null : Regex.Match(age, @"^(\d{2})\s*-\s*(\d{2})$");
 		if (ages is { Success: false })
 		{
-			Console.Error.WriteLine("Yaş aralığı: --age 18-23");
+			Console.Error.WriteLine(L("Yaş aralığı: --age 18-23"));
 			return 64;
 		}
 		foreach (var (flag, typed) in new[] { ("--ability", ability), ("--potential", potential) })
 			if (typed != null && StarSteps(typed) == null)
 			{
-				Console.Error.WriteLine($"{flag}: yarım yıldız adımlarıyla 0.5–5 arası bir sayı (ör. {flag} 3.5).");
+				Console.Error.WriteLine(L($"{flag}: yarım yıldız adımlarıyla 0.5–5 arası bir sayı (ör. {flag} 3.5)."));
 				return 64;
 			}
 		var tabs = new Dictionary<string, string> { ["top"] = "Top", ["standard"] = "Standard", ["ongoing"] = "Ongoing", ["standart"] = "Standard", ["surekli"] = "Ongoing" };
 		if (priority != null && !tabs.ContainsKey(Fold(priority)))
 		{
-			Console.Error.WriteLine("Öncelik: --priority top | standard | ongoing");
+			Console.Error.WriteLine(L("Öncelik: --priority top | standard | ongoing"));
 			return 64;
 		}
 		if (priority == null && !edit)
 		{
-			if (Ui.Ask("Odağın önceliği?", ["Top — hemen, iki kişiyle", "Standard — tek scout, daha yavaş", "Ongoing — sürekli"]) is not { } asked)
+			if (Ui.Ask(L("Odağın önceliği?"), [L("Top — hemen, iki kişiyle"), L("Standard — tek scout, daha yavaş"), L("Ongoing — sürekli")]) is not { } asked)
 			{
-				if (!Ui.Interactive) Console.Error.WriteLine("Öncelik söylenmedi: --priority top | standard | ongoing");
+				if (!Ui.Interactive) Console.Error.WriteLine(L("Öncelik söylenmedi: --priority top | standard | ongoing"));
 				return 64;
 			}
 			priority = new[] { "top", "standard", "ongoing" }[asked];
@@ -463,7 +463,7 @@ internal static partial class Program
 				|| (await Fm.Get("click", ("text", "Edit Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal)
 				|| !await Until(async () => FormButton(await FocusForm("Next"), "Next") != null, seconds: 8, every: 0.5))
 			{
-				Console.Error.WriteLine($"Oyun '{editing.Name}' için düzenlemeyi açmadı.");
+				Console.Error.WriteLine(L($"Oyun '{editing.Name}' için düzenlemeyi açmadı."));
 				return 1;
 			}
 		}
@@ -481,7 +481,7 @@ internal static partial class Program
 			if (FocusPosition(labels, position) is not { } label)
 			{
 				await AbandonFocus();
-				Console.Error.WriteLine($"Mevki: '{position}' yok. Seçenekler: {string.Join(" · ", labels.Distinct())}");
+				Console.Error.WriteLine(L($"Mevki: '{position}' yok. Seçenekler: {string.Join(" · ", labels.Distinct())}"));
 				return 64;
 			}
 			await Fm.Get("click", ("ptr", Field(FormButton(form, label).Value, "Pointer")));
@@ -503,7 +503,7 @@ internal static partial class Program
 		else if (role != null)
 		{
 			await AbandonFocus();
-			Console.Error.WriteLine("Rol bir mevkiyle birlikte seçilir: --position <mevki> --role <rol>");
+			Console.Error.WriteLine(L("Rol bir mevkiyle birlikte seçilir: --position <mevki> --role <rol>"));
 			return 64;
 		}
 		await Fm.Get("click", ("text", "Next"));
@@ -513,7 +513,7 @@ internal static partial class Program
 		if (!await Until(async () => FormButton(second = await FocusForm("Back"), "Confirm") != null, seconds: 8, every: 0.5))
 		{
 			await AbandonFocus();
-			Console.Error.WriteLine("Formun ikinci adımı açılmadı.");
+			Console.Error.WriteLine(L("Formun ikinci adımı açılmadı."));
 			return 1;
 		}
 		if (name != null)
@@ -530,7 +530,7 @@ internal static partial class Program
 				if (FormAfter(second, "Aged Between", "dropdown", nth) is not { } list || !list.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == value))
 				{
 					await AbandonFocus();
-					Console.Error.WriteLine($"Yaş: {value} seçilemiyor (15–50 arası, alt sınır üsttekinden küçük).");
+					Console.Error.WriteLine(L($"Yaş: {value} seçilemiyor (15–50 arası, alt sınır üsttekinden küçük)."));
 					return 64;
 				}
 				await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", value), ("fire", "1"));
@@ -552,7 +552,7 @@ internal static partial class Program
 				(await FocusForm("Back")).FirstOrDefault(i => Field(i, "Text").StartsWith("Scouting Areas", StringComparison.Ordinal)) is { ValueKind: JsonValueKind.Object } now && Field(now, "Text") != before, seconds: 5, every: 0.4))
 			{
 				await AbandonFocus();
-				Console.Error.WriteLine($"Bölge eklenemedi: {path.Replace(">", " › ")}{(said.StartsWith("error", StringComparison.Ordinal) ? " — " + said : "")}");
+				Console.Error.WriteLine(L($"Bölge eklenemedi: {path.Replace(">", " › ")}{(said.StartsWith("error", StringComparison.Ordinal) ? " — " + said : "")}"));
 				return 1;
 			}
 			chosen.Add(path.Split('>')[^1]);
@@ -563,7 +563,7 @@ internal static partial class Program
 			if (!await SetStars(heading, StarSteps(typed).Value))
 			{
 				await AbandonFocus();
-				Console.Error.WriteLine($"{heading}: {typed} yıldıza getirilemedi.");
+				Console.Error.WriteLine(L($"{heading}: {typed} yıldıza getirilemedi."));
 				return 1;
 			}
 			chosen.Add($"{(heading.Contains("Current") ? "yetenek" : "potansiyel")} ≥ {StarSteps(typed).Value / 2.0:0.#}★");
@@ -600,11 +600,11 @@ internal static partial class Program
 		{
 			if (!await Until(async () => FormButton(await FocusForm("Back"), "Confirm") == null, seconds: 12, every: 0.7))
 			{
-				Console.Error.WriteLine("Form kapanmadı; değişiklik işlenmemiş olabilir. Bak: scout");
+				Console.Error.WriteLine(L("Form kapanmadı; değişiklik işlenmemiş olabilir. Bak: scout"));
 				return 1;
 			}
 			if (ages != null) chosen.Add($"{ages.Groups[1].Value}–{ages.Groups[2].Value} yaş");
-			Console.WriteLine($"Odak güncellendi: {name ?? editing.Name} · {string.Join(" · ", chosen)}\n(oyun eski halini listede 'Complete' olarak bırakır)");
+			Console.WriteLine(L($"Odak güncellendi: {name ?? editing.Name} · {string.Join(" · ", chosen)}\n(oyun eski halini listede 'Complete' olarak bırakır)"));
 			return 0;
 		}
 		// Made once the form is gone and the list of focuses is one longer.
@@ -612,13 +612,13 @@ internal static partial class Program
 		var made = await Until(async () => FormButton(await FocusForm("Back"), "Confirm") == null && (after = await ScoutFocuses()).Count > existing.Count, seconds: 12, every: 0.7);
 		if (!made)
 		{
-			Console.Error.WriteLine("Odak kurulmuş görünmüyor; bak: scout");
+			Console.Error.WriteLine(L("Odak kurulmuş görünmüyor; bak: scout"));
 			return 1;
 		}
 		// The new one: running, and of a name there is now one more of.
 		var added = after.FirstOrDefault(f => f.Running && after.Count(a => a.Name == f.Name) > existing.Count(e => e.Name == f.Name)) ?? after[^1];
-		Console.WriteLine($"Odak kuruldu: {added.Name} · {tab}{(chosen.Count > 0 ? " · " + string.Join(" · ", chosen) : "")}{(ages != null ? $" · {ages.Groups[1].Value}–{ages.Groups[2].Value} yaş" : "")} · {added.Assigned}");
-		Console.WriteLine($"Bulduklarını görmek için: scout \"{added.Name}\"");
+		Console.WriteLine(L($"Odak kuruldu: {added.Name} · {tab}{(chosen.Count > 0 ? " · " + string.Join(" · ", chosen) : "")}{(ages != null ? L($" · {ages.Groups[1].Value}–{ages.Groups[2].Value} yaş") : "")} · {added.Assigned}"));
+		Console.WriteLine(L($"Bulduklarını görmek için: scout \"{added.Name}\""));
 		return 0;
 	}
 
@@ -643,7 +643,7 @@ internal static partial class Program
 		var words = Words(args).Skip(1).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(restart ? "kullanım: scout restart <#|ad>   (durmuş ya da bitmiş odağı yeniden başlatır)" : "kullanım: scout remove <#|ad> [--yes]   (odağı durdurur)");
+			Console.Error.WriteLine(restart ? L("kullanım: scout restart <#|ad>   (durmuş ya da bitmiş odağı yeniden başlatır)") : L("kullanım: scout remove <#|ad> [--yes]   (odağı durdurur)"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -652,7 +652,7 @@ internal static partial class Program
 		var focuses = await ScoutFocuses();
 		if (focuses.Count == 0)
 		{
-			Console.WriteLine("Scout odağı yok.");
+			Console.WriteLine(L("Scout odağı yok."));
 			return 0;
 		}
 		Focus wanted;
@@ -666,14 +666,14 @@ internal static partial class Program
 		}
 		if (await FocusAt(wanted.Index) is not { } shown || shown.Name != wanted.Name)
 		{
-			Console.Error.WriteLine($"{wanted.Name}: odak açılmadı.");
+			Console.Error.WriteLine(L($"{wanted.Name}: odak açılmadı."));
 			return 1;
 		}
 		if (shown.Running == restart)
 		{
 			Console.Error.WriteLine(restart
-				? shown.Status == "In Progress" ? $"'{shown.Name}' zaten sürüyor." : $"Oyun '{shown.Name}' ({shown.Status}) için 'Restart Recruitment Focus' sunmuyor."
-				: $"'{shown.Name}' zaten durmuş ({shown.State}). Yeniden başlatmak için: scout restart {shown.Index + 1}");
+				? shown.Status == "In Progress" ? L($"'{shown.Name}' zaten sürüyor.") : L($"Oyun '{shown.Name}' ({shown.Status}) için 'Restart Recruitment Focus' sunmuyor.")
+				: L($"'{shown.Name}' zaten durmuş ({shown.State}). Yeniden başlatmak için: scout restart {shown.Index + 1}"));
 			return 1;
 		}
 
@@ -682,27 +682,27 @@ internal static partial class Program
 			var started = await Fm.Get("click", ("text", "Restart Recruitment Focus"));
 			if (started.StartsWith("error", StringComparison.Ordinal))
 			{
-				Console.Error.WriteLine($"Oyun '{shown.Name}' için 'Restart Recruitment Focus' sunmuyor (FINDINGS §8.120: buton her zaman çıkmıyor).");
+				Console.Error.WriteLine(L($"Oyun '{shown.Name}' için 'Restart Recruitment Focus' sunmuyor (FINDINGS §8.120: buton her zaman çıkmıyor)."));
 				return 1;
 			}
 			if (!await Until(async () => await FocusList() is { } list && list.GetProperty("Choices").GetArrayLength() > focuses.Count, seconds: 8, every: 0.5))
 			{
-				Console.Error.WriteLine($"'{shown.Name}' yeniden başlamış görünmüyor; bak: scout");
+				Console.Error.WriteLine(L($"'{shown.Name}' yeniden başlamış görünmüyor; bak: scout"));
 				return 1;
 			}
-			Console.WriteLine($"Odak yeniden başlatıldı: {shown.Name}  (eskisi listede durmuş olarak kalır)");
+			Console.WriteLine(L($"Odak yeniden başlatıldı: {shown.Name}  (eskisi listede durmuş olarak kalır)"));
 			return 0;
 		}
 
-		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask($"'{shown.Name}' odağını durduralım mı? ({shown.Matched} eşleşen, {shown.Near} yakın)", ["Evet", "Hayır"]) == 0);
+		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L($"'{shown.Name}' odağını durduralım mı? ({shown.Matched} eşleşen, {shown.Near} yakın)"), [L("Evet"), L("Hayır")]) == 0);
 		if (!go)
 		{
-			if (!Ui.Interactive) Console.WriteLine($"'{shown.Name}' ({shown.Matched} eşleşen, {shown.Near} yakın) scout önceliklerinden çıkarılır. Onaylamak için: scout remove {shown.Index + 1} --yes");
+			if (!Ui.Interactive) Console.WriteLine(L($"'{shown.Name}' ({shown.Matched} eşleşen, {shown.Near} yakın) scout önceliklerinden çıkarılır. Onaylamak için: scout remove {shown.Index + 1} --yes"));
 			return 0;
 		}
 		if (await Assignments() is not { } assignments)
 		{
-			Console.Error.WriteLine("Sayfada görev sayısı okunamadı; bak: scout");
+			Console.Error.WriteLine(L("Sayfada görev sayısı okunamadı; bak: scout"));
 			return 1;
 		}
 		var clicked = await Fm.Get("click", ("text", "Remove Recruitment Focus"));
@@ -710,14 +710,14 @@ internal static partial class Program
 		// each scout's focuses with a remove icon beside them.
 		if (clicked.StartsWith("error", StringComparison.Ordinal) && !await RemoveInAssignments(shown.Name))
 		{
-			Console.Error.WriteLine($"Oyun '{shown.Name}' için kaldırmayı sunmuyor: ne odak sayfasında ne görevler panelinde bir kaldır butonu var.");
+			Console.Error.WriteLine(L($"Oyun '{shown.Name}' için kaldırmayı sunmuyor: ne odak sayfasında ne görevler panelinde bir kaldır butonu var."));
 			return 1;
 		}
 		JsonElement dialogs = default;
 		if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.4)
 			|| DialogAnswer(dialogs[0], true) is not { } confirm)
 		{
-			Console.Error.WriteLine("Oyun durdurmayı sormadı; bak: scout");
+			Console.Error.WriteLine(L("Oyun durdurmayı sormadı; bak: scout"));
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
@@ -728,10 +728,10 @@ internal static partial class Program
 		var stopped = await Until(async () => await Assignments() is { } now && now < assignments, seconds: 15, every: 0.7);
 		if (!stopped)
 		{
-			Console.Error.WriteLine($"'{shown.Name}' hâlâ sürüyor görünüyor; bak: scout");
+			Console.Error.WriteLine(L($"'{shown.Name}' hâlâ sürüyor görünüyor; bak: scout"));
 			return 1;
 		}
-		Console.WriteLine($"Odak durduruldu: {shown.Name}  (listede kalır; yeniden başlatmak: scout restart)");
+		Console.WriteLine(L($"Odak durduruldu: {shown.Name}  (listede kalır; yeniden başlatmak: scout restart)"));
 		return 0;
 	}
 }

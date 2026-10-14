@@ -67,7 +67,7 @@ internal static partial class Program
 			var code = await RunCommand(args);
 			if (code == 0 && format == "csv" && !Table.Wrote)
 			{
-				Console.Error.WriteLine("Bu komutun çıktısında tablo yok; --md ya da --json dene.");
+				Console.Error.WriteLine(L("Bu komutun çıktısında tablo yok; --md ya da --json dene."));
 				return 1;
 			}
 			return code;
@@ -212,12 +212,12 @@ internal static partial class Program
 		}
 		catch (FmUnavailable)
 		{
-			Console.Error.WriteLine("FM çalışmıyor. `fm start` ile başlat.");
+			Console.Error.WriteLine(L("FM çalışmıyor. `fm start` ile başlat."));
 			return 69; // EX_UNAVAILABLE
 		}
 		catch (FmBusy)
 		{
-			Console.Error.WriteLine("FM yanıt vermedi — meşgul olabilir (yükleme, maç). Tekrar dene.");
+			Console.Error.WriteLine(L("FM yanıt vermedi — meşgul olabilir (yükleme, maç). Tekrar dene."));
 			return 75; // EX_TEMPFAIL
 		}
 		catch (FmError error)
@@ -241,7 +241,7 @@ internal static partial class Program
 	{
 		if (!await Launcher.Running(Fm))
 		{
-			Console.WriteLine("FM açık değil.");
+			Console.WriteLine(L("FM açık değil."));
 			return 0;
 		}
 
@@ -250,21 +250,21 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine("Kaydedilmemiş ilerleme oyunla birlikte gider. Hangisi:  stop --save   ya da   stop --no-save");
+				Console.Error.WriteLine(L("Kaydedilmemiş ilerleme oyunla birlikte gider. Hangisi:  stop --save   ya da   stop --no-save"));
 				return 1;
 			}
 			var date = Pretty(Field(await Fm.GetJson("state"), "Date"));
-			if (Ui.Ask($"Oyun kapanıyor ({date}). Kaydedilmemiş ilerleme kaybolur.", ["Kaydet ve kapat", "Kaydetmeden kapat"]) is not { } asked) return 0;
+			if (Ui.Ask(L($"Oyun kapanıyor ({date}). Kaydedilmemiş ilerleme kaybolur."), [L("Kaydet ve kapat"), L("Kaydetmeden kapat")]) is not { } asked) return 0;
 			save = asked == 0;
 		}
 
 		if (save == true && await SaveGame(["--yes"]) is not 0 and var failed) return failed;
 		if (!await Launcher.Stop(Fm))
 		{
-			Console.Error.WriteLine("Oyun kapanmadı.");
+			Console.Error.WriteLine(L("Oyun kapanmadı."));
 			return 1;
 		}
-		Console.WriteLine("FM kapandı.");
+		Console.WriteLine(L("FM kapandı."));
 		return 0;
 	}
 
@@ -272,7 +272,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -332,7 +332,7 @@ internal static partial class Program
 			})
 			.ToList();
 
-		Table.Write(new[] { "OYUNCU", "POZİSYON", "YAŞ", "STATÜ", "MAAŞ", "DEĞER", "DURUM" }, rows);
+		Table.Write(new[] { L("OYUNCU"), L("POZİSYON"), L("YAŞ"), L("STATÜ"), L("MAAŞ"), L("DEĞER"), "DURUM" }, rows);
 		return 0;
 	}
 
@@ -387,10 +387,10 @@ internal static partial class Program
 		}
 		if (youth.Count == 0)
 		{
-			Console.WriteLine("Altyapı kadrosu okunamadı. Altyapının haftası: youth --training");
+			Console.WriteLine(L("Altyapı kadrosu okunamadı. Altyapının haftası: youth --training"));
 			return 1;
 		}
-		Table.Write(["OYUNCU", "YAŞ", "POZİSYON", "TAKIM"], youth
+		Table.Write([L("OYUNCU"), L("YAŞ"), L("POZİSYON"), L("TAKIM")], youth
 			.Select(p => new[] { Field(p, "Name"), Field(p, "Age"), Field(p, "PositionCombinedString"), Field(p, "Team") }).ToList());
 		return 0;
 	}
@@ -420,7 +420,7 @@ internal static partial class Program
 			})
 			.ToList();
 
-		Table.Write(new[] { "OYUNCU", "POZİSYON", "KONDİSYON", "MAÇ FORMU", "DURUM" }, rows);
+		Table.Write(new[] { L("OYUNCU"), L("POZİSYON"), L("KONDİSYON"), L("MAÇ FORMU"), "DURUM" }, rows);
 		return 0;
 	}
 
@@ -446,7 +446,7 @@ internal static partial class Program
 			})
 			.ToList();
 
-		Table.Write(new[] { "OYUNCU", "MORAL", "HİYERARŞİ", "GRUP" }, rows);
+		Table.Write(new[] { L("OYUNCU"), L("MORAL"), L("HİYERARŞİ"), "GRUP" }, rows);
 		return 0;
 	}
 
@@ -489,13 +489,13 @@ internal static partial class Program
 			Cards(p),
 		}).ToList();
 
-		Table.Write(new[] { "OYUNCU", "MAÇ", "DAKİKA", "GOL", "ASİST", "PUAN", "KART" }, rows);
+		Table.Write(new[] { L("OYUNCU"), L("MAÇ"), L("DAKİKA"), L("GOL"), L("ASİST"), L("PUAN"), "KART" }, rows);
 
 		var benched = all.Except(played).Select(p => Field(p, "Name")).ToList();
-		if (benched.Count > 0) Console.WriteLine($"\nBu sezon oynamayanlar: {string.Join(", ", benched)}");
+		if (benched.Count > 0) Console.WriteLine(L($"\nBu sezon oynamayanlar: {string.Join(", ", benched)}"));
 		if (away.Count > 0)
-			Console.WriteLine($"Kiralıkta: {string.Join(", ", away.Select(p => $"{Field(p, "Name")} ({Field(p, "LoanClub.Name")}, {Field(p, "ClubAppearancesThisSeason")} maç)"))}");
-		Console.WriteLine("MAÇ: ilk on bir (+ yedekten girdiği)");
+			Console.WriteLine(L($"Kiralıkta: {string.Join(", ", away.Select(p => $"{Field(p, "Name")} ({Field(p, "LoanClub.Name")}, {Field(p, "ClubAppearancesThisSeason")} maç)"))}"));
+		Console.WriteLine(L("MAÇ: ilk on bir (+ yedekten girdiği)"));
 		return 0;
 
 		static string Cards(JsonElement p)
@@ -700,7 +700,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -708,7 +708,7 @@ internal static partial class Program
 		// opened over the match itself.
 		if (Field(await Fm.GetJson("state"), "DuringMatch") == "True")
 		{
-			Console.Error.WriteLine("Maç sırasında gelen kutusu okunmuyor. Maç için: match");
+			Console.Error.WriteLine(L("Maç sırasında gelen kutusu okunmuyor. Maç için: match"));
 			return 1;
 		}
 
@@ -734,12 +734,12 @@ internal static partial class Program
 			})
 			.ToList();
 
-		Table.Write(new[] { "#", "SAAT", "GÖNDEREN", "KONU", "" }, rows);
+		Table.Write(new[] { "#", L("SAAT"), L("GÖNDEREN"), L("KONU"), "" }, rows);
 		}
 
 		var waiting = inbox.EnumerateArray().Count(Blocking);
 		if (waiting > 0)
-			Console.WriteLine($"\n{waiting} mesaj cevap bekliyor — bunlar `fm next`'i blokluyor. Cevaplamak için: reply <#>");
+			Console.WriteLine(L($"\n{waiting} mesaj cevap bekliyor — bunlar `fm next`'i blokluyor. Cevaplamak için: reply <#>"));
 
 		return 0;
 	}
@@ -756,13 +756,13 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: reply <# | konu> [<cevap no> | \"<cevap>\"] [--dry]   (numaralar için `inbox`)");
+			Console.Error.WriteLine(L("kullanım: reply <# | konu> [<cevap no> | \"<cevap>\"] [--dry]   (numaralar için `inbox`)"));
 			return 64;
 		}
 
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -779,7 +779,7 @@ internal static partial class Program
 		var id = Field(chosen, "UniqueId");
 		if (!await Until(async () => await Selected() == id))
 		{
-			Console.Error.WriteLine($"'{title}' açılamadı.");
+			Console.Error.WriteLine(L($"'{title}' açılamadı."));
 			return 1;
 		}
 
@@ -813,7 +813,7 @@ internal static partial class Program
 			// A report or a piece of advice is mostly its attachment; with nothing to answer it was not
 			// shown at all (30 Nisan 2026).
 			await WriteAttachment(Field(chosen, "NewsFirstBubbleSpeechString"), []);
-			Console.WriteLine("\n(cevap seçeneği yok)");
+			Console.WriteLine(L("\n(cevap seçeneği yok)"));
 			return 0;
 		}
 
@@ -838,13 +838,13 @@ internal static partial class Program
 			// nothing else, since there is no one there to answer.
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine($"\nCevaplamak için: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} <numara>");
+				Console.WriteLine(L($"\nCevaplamak için: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} <numara>"));
 				return 0;
 			}
 
-			if (Ui.Ask("Cevabın", answers.Select(a => Field(a, "Label")).ToList()) is not { } asked)
+			if (Ui.Ask(L("Cevabın"), answers.Select(a => Field(a, "Label")).ToList()) is not { } asked)
 			{
-				Console.WriteLine("Vazgeçildi, mesaj cevaplanmadı.");
+				Console.WriteLine(L("Vazgeçildi, mesaj cevaplanmadı."));
 				return 0;
 			}
 			answerTo = answers[asked];
@@ -863,9 +863,9 @@ internal static partial class Program
 			else if (Ui.Interactive && Ui.Ask(Field(wanted[0], "Label"), offered) is { } which) chosenFrom = offered[which];
 			if (chosenFrom == null)
 			{
-				Console.Error.WriteLine($"'{Field(wanted[0], "Label")}' bir liste; içinden biri seçilmeli:");
+				Console.Error.WriteLine(L($"'{Field(wanted[0], "Label")}' bir liste; içinden biri seçilmeli:"));
 				for (var c = 0; c < offered.Count; c++) Console.Error.WriteLine($"  {c + 1}  {offered[c]}");
-				Console.Error.WriteLine($"Cevaplamak için: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} {words.ElementAtOrDefault(1) ?? "<numara>"} <seçenek>");
+				Console.Error.WriteLine(L($"Cevaplamak için: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} {words.ElementAtOrDefault(1) ?? "<numara>"} <seçenek>"));
 				return 1;
 			}
 		}
@@ -879,11 +879,11 @@ internal static partial class Program
 
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine($"(kuru) '{Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}' cevabı verilecekti: {title}");
+			Console.WriteLine(L($"(kuru) '{Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}' cevabı verilecekti: {title}"));
 			return 0;
 		}
 
-		Console.WriteLine($"Cevaplandı: {title} → {Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}");
+		Console.WriteLine(L($"Cevaplandı: {title} → {Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}"));
 
 		// An answer can open something instead of closing the message: an introduction opens a
 		// tour, "introduce yourself" a meeting. Otherwise the inbox catches up a moment later,
@@ -896,13 +896,13 @@ internal static partial class Program
 			|| (talking = (await TalkOptions()).Count > 0)
 			|| !StillAnswerable(await Fm.GetJson("inbox"), id), seconds: 8);
 
-		if (tour) Console.WriteLine("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour");
-		else if (talking) Console.WriteLine("Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk");
-		else if (!settled && await VisionControls() != null) Console.WriteLine("Kulüp vizyonu toplantısı açıldı; mesaj toplantı bitince kapanır. Devam için: vision");
-		else if (!settled && await RegistrationOnScreen()) Console.WriteLine("Kadro kayıt ekranı açıldı; mesaj liste gönderilince kapanır. Liste ve kurallar: register   (yardımcının seçimi: register --auto, sonra register --send)");
+		if (tour) Console.WriteLine(L("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour"));
+		else if (talking) Console.WriteLine(L("Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk"));
+		else if (!settled && await VisionControls() != null) Console.WriteLine(L("Kulüp vizyonu toplantısı açıldı; mesaj toplantı bitince kapanır. Devam için: vision"));
+		else if (!settled && await RegistrationOnScreen()) Console.WriteLine(L("Kadro kayıt ekranı açıldı; mesaj liste gönderilince kapanır. Liste ve kurallar: register   (yardımcının seçimi: register --auto, sonra register --send)"));
 		else if (!settled && (await Fm.GetJson("texts", ("anchor", "Prom."), ("up", "0"))).GetArrayLength() > 0)
-			Console.WriteLine("Forma numaraları ekranı açıldı; mesaj numaralar gönderilince kapanır. Görmek: numbers   (yardımcıya bırakmak: numbers --auto)");
-		else if (!settled) Console.WriteLine("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor.");
+			Console.WriteLine(L("Forma numaraları ekranı açıldı; mesaj numaralar gönderilince kapanır. Görmek: numbers   (yardımcıya bırakmak: numbers --auto)"));
+		else if (!settled) Console.WriteLine(L("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor."));
 		return 0;
 
 		// The squad registration screen, by its own reading: its players are there when it is up.
@@ -919,7 +919,7 @@ internal static partial class Program
 			{
 				if (number >= 1 && number <= answers.Count) return answers[number - 1];
 
-				Console.Error.WriteLine($"{number} numaralı cevap yok. Seçenekler:");
+				Console.Error.WriteLine(L($"{number} numaralı cevap yok. Seçenekler:"));
 				Options(Console.Error);
 				return null;
 			}
@@ -930,8 +930,8 @@ internal static partial class Program
 			if (matches.Count == 1) return matches[0];
 
 			Console.Error.WriteLine(matches.Count == 0
-				? $"'{pick}' diye bir cevap yok. Seçenekler:"
-				: $"'{pick}' birden çok cevaba uyuyor:");
+				? L($"'{pick}' diye bir cevap yok. Seçenekler:")
+				: L($"'{pick}' birden çok cevaba uyuyor:"));
 			Options(Console.Error);
 			return null;
 		}
@@ -1016,7 +1016,7 @@ internal static partial class Program
 		// a player's card, the club's site), which says nothing more.
 		if (rest.Count > 1 && texts.Take(start).Contains(rest[0]))
 		{
-			Console.WriteLine($"\n  Haber: {rest[1].Replace("\n", "\n  ")}");
+			Console.WriteLine(L($"\n  Haber: {rest[1].Replace("\n", "\n  ")}"));
 			return;
 		}
 
@@ -1025,7 +1025,7 @@ internal static partial class Program
 		{
 			var journalists = rest.IndexOf("Journalists in Attendance");
 			var points = rest.Skip(1).Take((journalists < 0 ? rest.Count : journalists) - 1).Where(t => !t.StartsWith('(')).ToList();
-			Console.WriteLine("\n  Olası konular:");
+			Console.WriteLine(L("\n  Olası konular:"));
 			foreach (var point in points) Console.WriteLine($"    · {point}");
 			if (journalists >= 0)
 			{
@@ -1040,8 +1040,8 @@ internal static partial class Program
 				var all = journalists + 1 < rest.Count && int.TryParse(rest[journalists + 1].Trim('(', ')'), out var n) ? n : people.Count;
 				if (people.Count > 0)
 				{
-					Console.WriteLine(all > people.Count ? $"\n  Gelecek gazeteciler ({all} kişi, ekranda görünen {people.Count}):" : $"\n  Gelecek gazeteciler ({all}):");
-					Table.Write(["GAZETECİ", "KURUM", "ETKİ", "İLİŞKİ"], people);
+					Console.WriteLine(all > people.Count ? L($"\n  Gelecek gazeteciler ({all} kişi, ekranda görünen {people.Count}):") : L($"\n  Gelecek gazeteciler ({all}):"));
+					Table.Write([L("GAZETECİ"), L("KURUM"), L("ETKİ"), L("İLİŞKİ")], people);
 				}
 			}
 			return;
@@ -1052,14 +1052,14 @@ internal static partial class Program
 		{
 			string Holder(string label) => rest.IndexOf(label) is var i and >= 0 && i + 1 < rest.Count ? rest[i + 1] : "";
 			var vice = Holder("Vice-Captain");
-			Console.WriteLine($"\n  Ek: kaptan {Holder("Captain")}, yardımcısı {(vice.Contains("to be selected", StringComparison.Ordinal) ? "seçilmedi" : vice)}. Görmek ve seçmek için: captains (--captain / --vice <oyuncu>)");
+			Console.WriteLine(L($"\n  Ek: kaptan {Holder("Captain")}, yardımcısı {(vice.Contains("to be selected", StringComparison.Ordinal) ? L("seçilmedi") : vice)}. Görmek ve seçmek için: captains (--captain / --vice <oyuncu>)"));
 			return;
 		}
 
 		// The coaching grid in miniature; the command shows it whole and changes it.
 		if (rest[0] == "Coach Assignments")
 		{
-			Console.WriteLine("\n  Ek: antrenör görevleri. Görmek ve atamak için: coaches");
+			Console.WriteLine(L("\n  Ek: antrenör görevleri. Görmek ve atamak için: coaches"));
 			return;
 		}
 
@@ -1067,7 +1067,7 @@ internal static partial class Program
 		if (rest.FirstOrDefault(t => t.StartsWith("Unregistered (", StringComparison.Ordinal)) is { } unregistered)
 		{
 			var size = rest.FirstOrDefault(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d+/\d+$"));
-			Console.WriteLine($"\n  Ek: kayıt listesi{(size != null ? $" {size}" : "")}, kayıtsız {unregistered[14..].TrimEnd(')')}. Ayrıntı: register");
+			Console.WriteLine(L($"\n  Ek: kayıt listesi{(size != null ? $" {size}" : "")}, kayıtsız {unregistered[14..].TrimEnd(')')}. Ayrıntı: register"));
 			return;
 		}
 
@@ -1086,10 +1086,10 @@ internal static partial class Program
 			var transfers = At("Transfer History");
 			var feedback = At("Performance Feedback");
 			var projections = At("Projections");
-			Console.WriteLine("\n  Ek: sezon değerlendirmesi");
+			Console.WriteLine(L("\n  Ek: sezon değerlendirmesi"));
 			var expected = new List<string>();
 			for (var i = At("Board Expectation") + 1; i + 1 < (transfers > 0 ? transfers : feedback); i += 2) expected.Add($"{rest[i]}: {rest[i + 1]}");
-			if (expected.Count > 0) Console.WriteLine($"    Yönetimin beklentisi — {string.Join(" · ", expected)}");
+			if (expected.Count > 0) Console.WriteLine(L($"    Yönetimin beklentisi — {string.Join(" · ", expected)}"));
 			if (transfers > 0 && feedback > transfers)
 			{
 				var money = rest.Skip(transfers + 1).Take(feedback - transfers - 1).ToList();
@@ -1100,7 +1100,7 @@ internal static partial class Program
 					Console.WriteLine($"    {money[into]}: {string.Join(" · ", money.Skip(into + 1).Take(outOf - into - 1).Where(t => !t.EndsWith(':')))}");
 					Console.WriteLine($"    {money[outOf]}: {string.Join(" · ", money.Skip(outOf + 1).Where(t => !t.EndsWith(':')))}");
 				}
-				else Console.WriteLine($"    Transfer: {string.Join(" · ", money)}");
+				else Console.WriteLine(L($"    Transfer: {string.Join(" · ", money)}"));
 			}
 			foreach (var (who, label) in new[] { ("Yönetim", "Board"), ("Taraftar", "Supporters") })
 			{
@@ -1119,7 +1119,7 @@ internal static partial class Program
 				if (!rest[i].StartsWith("End of", StringComparison.Ordinal)) continue;
 				var pairs = new List<string>();
 				for (var k = i + 1; k + 1 < rest.Count && !rest[k].StartsWith("End of", StringComparison.Ordinal); k += 2) pairs.Add($"{rest[k]} {rest[k + 1]}");
-				Console.WriteLine($"    Öngörü, {rest[i]}: {string.Join(" · ", pairs)}");
+				Console.WriteLine(L($"    Öngörü, {rest[i]}: {string.Join(" · ", pairs)}"));
 			}
 			return;
 		}
@@ -1127,32 +1127,32 @@ internal static partial class Program
 		// The budgets the board has set: what there is to spend and what has gone.
 		if (rest[0] == "Recruitment Budgets" && rest.Contains("Available"))
 		{
-			Console.WriteLine("\n  Ek: bütçeler");
+			Console.WriteLine(L("\n  Ek: bütçeler"));
 			foreach (var (label, name) in new[] { ("Transfer", "Transfer"), ("Wage", "Maaş"), ("Scouting", "Scouting") })
 			{
 				var at = rest.IndexOf(label);
 				if (at < 0 || at + 1 >= rest.Count) continue;
 				var note = at + 3 < rest.Count && rest[at + 2] == "Available" ? $"  ({rest[at + 3]})" : "";
-				Console.WriteLine($"    {name,-9}{rest[at + 1]} kullanılabilir{note}");
+				Console.WriteLine(L($"    {name,-9}{rest[at + 1]} kullanılabilir{note}"));
 			}
-			if (rest.IndexOf("Overall Balance") is > 0 and var balance) Console.WriteLine($"    Kasa     {rest[balance - 1]}");
-			Console.WriteLine("    Ayrıntı: budget · finances");
+			if (rest.IndexOf("Overall Balance") is > 0 and var balance) Console.WriteLine(L($"    Kasa     {rest[balance - 1]}"));
+			Console.WriteLine(L("    Ayrıntı: budget · finances"));
 			return;
 		}
 
 		// The club's vision: each objective with how much it matters and how it is going.
 		if (rest[0] == "Club Vision" && rest.Contains("Actionable Objectives"))
 		{
-			Console.WriteLine("\n  Ek: kulüp vizyonu");
+			Console.WriteLine(L("\n  Ek: kulüp vizyonu"));
 			string[] weights = ["Required", "Favoured", "Desired", "Preferred"];
 			for (var i = 1; i + 2 < rest.Count; i++)
 			{
-				if (rest[i] is "Actionable Objectives" or "Informational Objectives") { Console.WriteLine($"    {(rest[i] == "Actionable Objectives" ? "Yapılacak hedefler" : "Bilgi amaçlı hedefler")}"); continue; }
+				if (rest[i] is "Actionable Objectives" or "Informational Objectives") { Console.WriteLine($"    {(rest[i] == "Actionable Objectives" ? L("Yapılacak hedefler") : L("Bilgi amaçlı hedefler"))}"); continue; }
 				if (!weights.Contains(rest[i + 1])) continue;
-				Console.WriteLine($"      {rest[i]} — {rest[i + 1] switch { "Required" => "zorunlu", "Favoured" => "tercih", "Desired" => "istenen", var w => w }} · {rest[i + 2]}");
+				Console.WriteLine($"      {rest[i]} — {rest[i + 1] switch { "Required" => L("zorunlu"), "Favoured" => L("tercih"), "Desired" => L("istenen"), var w => w }} · {rest[i + 2]}");
 				i += 2;
 			}
-			Console.WriteLine("    Ayrıntı: club");
+			Console.WriteLine(L("    Ayrıntı: club"));
 			return;
 		}
 
@@ -1160,44 +1160,44 @@ internal static partial class Program
 		if (rest[0] == "Season Summary" && rest.Count > 2 && rest[1].Contains("injuries this season", StringComparison.Ordinal))
 		{
 			string After(string label) => rest.IndexOf(label) is >= 0 and var at && at + 1 < rest.Count ? rest[at + 1] : "";
-			Console.WriteLine($"\n  Ek: sezonun sakatlıkları — {rest[1]}");
-			Console.WriteLine($"    Beklenene göre {After("Expected injuries:")} · geçen sezona göre {After("Last Season")}");
-			Console.WriteLine($"    Ağırlık: {string.Join(" · ", new[] { "Major", "Moderate", "Minor", "Slight" }.Where(k => After(k).Length > 0).Select(k => $"{k} {After(k)}"))}");
+			Console.WriteLine(L($"\n  Ek: sezonun sakatlıkları — {rest[1]}"));
+			Console.WriteLine(L($"    Beklenene göre {After("Expected injuries:")} · geçen sezona göre {After("Last Season")}"));
+			Console.WriteLine(L($"    Ağırlık: {string.Join(" · ", new[] { L("Major"), L("Moderate"), L("Minor"), "Slight" }.Where(k => After(k).Length > 0).Select(k => $"{k} {After(k)}"))}"));
 			var worst = rest.IndexOf("Injury Table");
 			var teams = new List<string>();
 			for (var i = worst + 1; worst > 0 && i + 1 < rest.Count && int.TryParse(rest[i + 1], out _); i += 2) teams.Add($"{rest[i]} {rest[i + 1]}");
-			if (teams.Count > 0) Console.WriteLine($"    Ligde en çok sakatlık: {string.Join(" · ", teams)}");
+			if (teams.Count > 0) Console.WriteLine(L($"    Ligde en çok sakatlık: {string.Join(" · ", teams)}"));
 			return;
 		}
 
 		// An offer for one of ours: the fee, its terms as label and value, and who else is after him.
 		if (rest.Count > 4 && rest[1].Contains("year-old", StringComparison.Ordinal) && rest.IndexOf("Fee") is > 0 and var feeAt && rest.Contains("Additional Details"))
 		{
-			Console.WriteLine($"\n  Ek: teklif — {rest[0]} ({rest[1]})");
-			Console.WriteLine($"    Bedel: {rest[feeAt + 1]}");
+			Console.WriteLine(L($"\n  Ek: teklif — {rest[0]} ({rest[1]})"));
+			Console.WriteLine(L($"    Bedel: {rest[feeAt + 1]}"));
 			var details = rest.IndexOf("Additional Details");
 			var report = rest.IndexOf("Coach Report");
 			for (var i = details + 1; i + 1 < (report > details ? report : rest.Count); i += 2) Console.WriteLine($"    {rest[i]}: {rest[i + 1]}");
-			if (report > 0 && report + 2 < rest.Count) Console.WriteLine($"    Antrenör görüşü: {rest[report + 1]} · {rest[report + 2]}");
+			if (report > 0 && report + 2 < rest.Count) Console.WriteLine(L($"    Antrenör görüşü: {rest[report + 1]} · {rest[report + 2]}"));
 			var listed = new[] { "Transfer Status", "Loan Status" }.Select(l => (l, at: rest.LastIndexOf(l))).Where(x => x.at > 0 && x.at + 1 < rest.Count).Select(x => $"{x.l}: {rest[x.at + 1]}").ToList();
 			if (listed.Count > 0) Console.WriteLine($"    {string.Join(" · ", listed)}");
-			if (rest.IndexOf("Interested Clubs") is > 0 and var clubs && clubs + 1 < rest.Count) Console.WriteLine($"    İlgilenen kulüpler: {rest[clubs + 1].Trim('(', ')')}   (hepsi: offers)");
+			if (rest.IndexOf("Interested Clubs") is > 0 and var clubs && clubs + 1 < rest.Count) Console.WriteLine(L($"    İlgilenen kulüpler: {rest[clubs + 1].Trim('(', ')')}   (hepsi: offers)"));
 			return;
 		}
 
 		// The loans about to end: who, where he has been and how he has played there.
 		if (rest[0] == "Loans" && rest.IndexOf("Rating") is > 0 and var loanHead)
 		{
-			Console.WriteLine($"\n  Ek: kiralıklar — {rest[1]}");
+			Console.WriteLine(L($"\n  Ek: kiralıklar — {rest[1]}"));
 			for (var i = loanHead + 1; i + 2 < rest.Count && rest[i] != "Action message"; i += 3)
-				Console.WriteLine($"    {rest[i],-22}{rest[i + 1],-22}ortalama {rest[i + 2]}");
+				Console.WriteLine(L($"    {rest[i],-22}{rest[i + 1],-22}ortalama {rest[i + 2]}"));
 			return;
 		}
 
 		// A staff meeting's summary: what kind it was and the topics raised, each with how many items.
 		if (rest[0] == "Advice Summary" && rest.IndexOf("Advice Topics") is > 0 and var topicsAt)
 		{
-			Console.WriteLine($"\n  Ek: tavsiye özeti — {(rest.IndexOf("Meeting type") is >= 0 and var kindAt && kindAt + 1 < rest.Count ? rest[kindAt + 1] : "")}");
+			Console.WriteLine(L($"\n  Ek: tavsiye özeti — {(rest.IndexOf("Meeting type") is >= 0 and var kindAt && kindAt + 1 < rest.Count ? rest[kindAt + 1] : "")}"));
 			var topics = rest.Skip(topicsAt + 1).TakeWhile(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"\(\d+\)$")).ToList();
 			foreach (var topic in topics) Console.WriteLine($"    {topic}");
 			var others = rest.Skip(topicsAt + 1 + topics.Count).Where(t => t != "Action message").ToList();
@@ -1221,14 +1221,14 @@ internal static partial class Program
 			catch (FmError) { }
 			page = page.SkipWhile(t => t.Text != "Next Opposition Report").ToList();
 			string One(string path) => page.FirstOrDefault(t => t.Path == path).Text ?? "";
-			Console.WriteLine($"\n  Ek: rakip raporu — {rest[1]} {rest[2]}{(One("Team.Description") is { Length: > 0 } d ? $" · {d}" : "")}");
-			if (One("Team.MostUsedFormation") is { Length: > 0 } shape) Console.WriteLine($"    Diziliş: {shape}");
+			Console.WriteLine(L($"\n  Ek: rakip raporu — {rest[1]} {rest[2]}{(One("Team.Description") is { Length: > 0 } d ? $" · {d}" : "")}"));
+			if (One("Team.MostUsedFormation") is { Length: > 0 } shape) Console.WriteLine(L($"    Diziliş: {shape}"));
 			if (One("Manager.InitialSurname") is { Length: > 0 } manager)
-				Console.WriteLine($"    Menajer: {string.Join(" · ", new[] { manager, One("Manager.PreferredFormationString"), One("Manager.PreferredMentality") }.Where(x => x.Length > 0))}");
+				Console.WriteLine(L($"    Menajer: {string.Join(" · ", new[] { manager, One("Manager.PreferredFormationString"), One("Manager.PreferredMentality") }.Where(x => x.Length > 0))}"));
 			var news = page.Where(t => t.Path == "row.Text").Select(t => t.Text).ToList();
-			if (news.Count > 0) Console.WriteLine($"    Takım haberleri: {string.Join(" · ", news)}");
+			if (news.Count > 0) Console.WriteLine(L($"    Takım haberleri: {string.Join(" · ", news)}"));
 			var eleven = page.Where(t => t.Path == "Position.Player.Name").Select(t => t.Text).ToList();
-			if (eleven.Count > 0) Console.WriteLine($"    Muhtemel 11{(One("tactic.FormationType") is { Length: > 0 } f ? $" ({f})" : "")}: {string.Join(", ", eleven)}");
+			if (eleven.Count > 0) Console.WriteLine(L($"    Muhtemel 11{(One("tactic.FormationType") is { Length: > 0 } f ? $" ({f})" : "")}: {string.Join(", ", eleven)}"));
 			// Pros and cons: the strengths' run, then the weaknesses', with a heading between them.
 			var runs = new List<List<string>>();
 			var apart = true;
@@ -1242,14 +1242,14 @@ internal static partial class Program
 			}
 			string[] heads = ["Güçlü yanları", "Zayıf yanları"];
 			for (var r = 0; r < runs.Count && r < heads.Length; r++) Console.WriteLine($"    {heads[r]}: {string.Join(" · ", runs[r])}");
-			Console.WriteLine("    Ayrıntı: opponent");
+			Console.WriteLine(L("    Ayrıntı: opponent"));
 			return;
 		}
 
 		// Who has just become home-grown and who is about to, each with his age, nation and squad.
 		if (rest[0] == "Homegrown" && rest.Contains("Home-Grown Status"))
 		{
-			Console.WriteLine("\n  Ek: altyapı (home-grown) statüsü");
+			Console.WriteLine(L("\n  Ek: altyapı (home-grown) statüsü"));
 			var changes = rest.IndexOf("Upcoming Status Changes");
 			var registration = rest.IndexOf("Squad Registration");
 			var end = registration > 0 ? registration : rest.Count;
@@ -1277,22 +1277,22 @@ internal static partial class Program
 		if (rest[0] == "Responsibilities" && rest.Contains("Delegated to Staff"))
 		{
 			string Before(string label) => rest.IndexOf(label) is > 0 and var at ? rest[at - 1] : "?";
-			Console.WriteLine($"\n  Ek: sorumluluklar — {Before("Under control")} sende · {Before("Delegated to Staff")} devredilmiş");
+			Console.WriteLine(L($"\n  Ek: sorumluluklar — {Before("Under control")} sende · {Before("Delegated to Staff")} devredilmiş"));
 			var staffAt = rest.IndexOf("Staff");
 			var people = rest.Skip(staffAt + 1).TakeWhile(t => t.EndsWith("Members", StringComparison.Ordinal) || t.EndsWith("positions", StringComparison.Ordinal) || t.EndsWith("position", StringComparison.Ordinal)).ToList();
-			if (staffAt > 0 && people.Count > 0) Console.WriteLine($"    Personel: {string.Join(" · ", people)}");
+			if (staffAt > 0 && people.Count > 0) Console.WriteLine(L($"    Personel: {string.Join(" · ", people)}"));
 			var areas = new List<string>();
 			for (var i = 1; i + 1 < rest.Count; i++)
 				if (System.Text.RegularExpressions.Regex.IsMatch(rest[i + 1], @"^\(\d+\)$")) areas.Add($"{rest[i]} {rest[i + 1]}");
-			if (areas.Count > 0) Console.WriteLine($"    Bildirilen: {string.Join(" · ", areas)}");
-			Console.WriteLine("    Ayrıntı: responsibilities");
+			if (areas.Count > 0) Console.WriteLine(L($"    Bildirilen: {string.Join(" · ", areas)}"));
+			Console.WriteLine(L("    Ayrıntı: responsibilities"));
 			return;
 		}
 
 		// The coming two weeks of training, a day to a line, then who is coming on and who is not.
 		if (rest[0] == "Training" && rest.Count > 9 && rest[1] == "Mon" && rest[7] == "Sun")
 		{
-			Console.WriteLine("\n  Ek: antrenman programı");
+			Console.WriteLine(L("\n  Ek: antrenman programı"));
 			string[] days = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 			static string Session(string s) => s switch { "Rest" => "dinlenme", "Travel" => "yolculuk", "H" => "MAÇ (iç saha)", "A" => "MAÇ (deplasman)", "N" => "MAÇ (tarafsız)", _ => s };
 			var at = 8;
@@ -1310,8 +1310,8 @@ internal static partial class Program
 				for (var i = notable + 1; i + 1 < rest.Count && rest[i] != "Action message"; i += 2) names.Add(rest[i]);
 				if (names.Count > 0) parts.Add($"öne çıkanlar: {string.Join(", ", names)}");
 			}
-			if (parts.Count > 0) Console.WriteLine($"    Bireysel antrenman: {string.Join(" · ", parts)}");
-			Console.WriteLine("    Değiştirmek: schedule");
+			if (parts.Count > 0) Console.WriteLine(L($"    Bireysel antrenman: {string.Join(" · ", parts)}"));
+			Console.WriteLine(L("    Değiştirmek: schedule"));
 			return;
 		}
 
@@ -1321,21 +1321,21 @@ internal static partial class Program
 			var priorities = new List<string>();
 			foreach (var kind in new[] { "Top", "Standard", "Ongoing" })
 				if (rest.IndexOf(kind) is > 0 and var k) priorities.Add($"{rest[k - 1]} {kind}");
-			Console.WriteLine($"\n  Ek: scouting odakları — {string.Join(" · ", rest.Skip(1).TakeWhile(t => !int.TryParse(t, out _)))}  ({string.Join(" · ", priorities)})");
+			Console.WriteLine(L($"\n  Ek: scouting odakları — {string.Join(" · ", rest.Skip(1).TakeWhile(t => !int.TryParse(t, out _)))}  ({string.Join(" · ", priorities)})"));
 			for (var i = ongoing + 1; i + 2 < rest.Count && rest[i + 2].EndsWith("players", StringComparison.Ordinal); i += 3)
 				Console.WriteLine($"    {rest[i]} — {rest[i + 1]}, {rest[i + 2]}");
-			Console.WriteLine("    Ayrıntı: scout");
+			Console.WriteLine(L("    Ayrıntı: scout"));
 			return;
 		}
 
 		// A match's card: the score with who played, the scorers, the numbers and who stood out.
 		if (rest[0] == "Match Report" && rest.FindIndex(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d+ - \d+$")) is > 1 and var result && result + 1 < rest.Count)
 		{
-			Console.WriteLine($"\n  Ek: maç raporu — {rest[result - 1]} {rest[result]} {rest[result + 1]}  ({rest[1]}, {rest[2]})");
+			Console.WriteLine(L($"\n  Ek: maç raporu — {rest[result - 1]} {rest[result]} {rest[result + 1]}  ({rest[1]}, {rest[2]})"));
 			var stats = rest.IndexOf("Match Stats");
 			var scorers = new List<string>();
 			for (var i = result + 2; i + 1 < (stats > 0 ? stats : rest.Count) && rest[i + 1].EndsWith('\''); i += 2) scorers.Add($"{rest[i]} {rest[i + 1]}");
-			if (scorers.Count > 0) Console.WriteLine($"    Goller: {string.Join(", ", scorers)}");
+			if (scorers.Count > 0) Console.WriteLine(L($"    Goller: {string.Join(", ", scorers)}"));
 			var numbers = new List<string>();
 			static bool Number(string t) => t.Length > 0 && char.IsDigit(t[0]);
 			for (var i = stats + 1; stats > 0 && i + 2 < rest.Count && !Number(rest[i]) && Number(rest[i + 1]) && Number(rest[i + 2]); i += 3)
@@ -1344,18 +1344,18 @@ internal static partial class Program
 			var key = rest.IndexOf("Key Players");
 			var stood = new List<string>();
 			for (var i = key + 1; key > 0 && i + 1 < rest.Count && rest[i] != "Action message" && rest[i + 1] != "Action message"; i += 2) stood.Add($"{rest[i]} ({rest[i + 1]})");
-			if (stood.Count > 0) Console.WriteLine($"    Öne çıkanlar: {string.Join(", ", stood)}");
+			if (stood.Count > 0) Console.WriteLine(L($"    Öne çıkanlar: {string.Join(", ", stood)}"));
 			return;
 		}
 
 		// The intake's card: how many came, and the best of them with the group each is put in.
 		if (rest[0] == "Youth Candidates" && rest.IndexOf("Prospect") is > 0 and var prospect)
 		{
-			Console.WriteLine($"\n  Ek: altyapı alımı — {string.Join(" · ", rest.Skip(1).Take(prospect - 2).Reverse())}");
+			Console.WriteLine(L($"\n  Ek: altyapı alımı — {string.Join(" · ", rest.Skip(1).Take(prospect - 2).Reverse())}"));
 			var groups = new[] { "Elite", "Top", "Good", "Decent", "Poor" };
 			for (var i = prospect + 1; i + 1 < rest.Count && groups.Contains(rest[i + 1]); i += 2)
 				Console.WriteLine($"    {rest[i + 1],-7}{rest[i]}");
-			Console.WriteLine("    Hepsi: youth candidates");
+			Console.WriteLine(L("    Hepsi: youth candidates"));
 			return;
 		}
 
@@ -1365,7 +1365,7 @@ internal static partial class Program
 			var events = rest.IndexOf("Current and Recent Events");
 			var fixtures = rest.IndexOf("Fixture Schedule");
 			var end = fixtures > events ? fixtures : rest.Count;
-			Console.WriteLine("\n  Ek: milli takımdakiler");
+			Console.WriteLine(L("\n  Ek: milli takımdakiler"));
 			// An event, its dates, then everyone it takes: one man or several ("FIFA World Cup™",
 			// "11th Jun-19th Jul", "Kaide Gordon", "James Collins"). Read as threes, the second man of an
 			// event was taken for the next event's name (30 Mayıs 2026).
@@ -1386,7 +1386,7 @@ internal static partial class Program
 				for (var i = fixtures + 1; i + 4 < rest.Count && rest[i + 3] is "H" or "A"; i += 5)
 					if (rest[i + 4].Contains(':'))
 						coming.Add($"{rest[i]} {rest[i + 2]} ({(rest[i + 3] == "H" ? "iç saha" : "deplasman")}) {rest[i + 4]}");
-				if (coming.Count > 0) Console.WriteLine($"    Sıradaki maçlar: {string.Join(" · ", coming)}");
+				if (coming.Count > 0) Console.WriteLine(L($"    Sıradaki maçlar: {string.Join(" · ", coming)}"));
 			}
 			return;
 		}
@@ -1401,13 +1401,13 @@ internal static partial class Program
 			if (first < 0) first = parts.Count;
 			// Sharpness and condition stand just before the outcomes.
 			var states = first >= received + 3 ? parts.Skip(first - 2).Take(2).ToList() : [];
-			Console.WriteLine($"\n  Ek: {parts.FirstOrDefault()}{(received > 1 ? $" — {parts[1]}" : "")}");
+			Console.WriteLine(L($"\n  Ek: {parts.FirstOrDefault()}{(received > 1 ? $" — {parts[1]}" : "")}"));
 			if (received >= 0) Console.WriteLine($"    {string.Join(" ", parts.Skip(received).Take(first - states.Count - received))}");
 			if (states.Count > 0) Console.WriteLine($"    {string.Join(" · ", states)}");
 			// The set keeps the answers in the order they were put in, the order they are shown.
 			var said = answers.ToList();
 			var outcomes = parts.Skip(first).ToList();
-			for (var i = 0; i < outcomes.Count; i++) Console.WriteLine($"    {(i < said.Count ? said[i] : $"{i + 1}. seçenek")}: {outcomes[i]}");
+			for (var i = 0; i < outcomes.Count; i++) Console.WriteLine($"    {(i < said.Count ? said[i] : L($"{i + 1}. seçenek"))}: {outcomes[i]}");
 			return;
 		}
 
@@ -1416,12 +1416,12 @@ internal static partial class Program
 		{
 			string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";
 			var who = rest.Skip(1).TakeWhile(t => t != "Fitness").Where(t => t != "-").Select(t => t.Replace(" years old", " yaş")).ToList();
-			Console.WriteLine($"\n  Ek: {string.Join(" · ", who)}");
-			if (After("Fitness") is { Length: > 0 } fitness) Console.WriteLine($"    Kondisyon: {fitness}");
+			Console.WriteLine(L($"\n  Ek: {string.Join(" · ", who)}"));
+			if (After("Fitness") is { Length: > 0 } fitness) Console.WriteLine(L($"    Kondisyon: {fitness}"));
 			var grade = After("Coach Report");
 			var verdict = After("Coach Report", 2);
-			if (grade.Length > 0) Console.WriteLine($"    Antrenör notu: {grade}{(verdict is { Length: > 0 } and not "Current Ability" ? $" — {verdict}" : "")}");
-			if (After("Interested Clubs") is { Length: > 0 } clubs) Console.WriteLine($"    İlgilenen kulüp: {clubs.Trim('(', ')')}");
+			if (grade.Length > 0) Console.WriteLine(L($"    Antrenör notu: {grade}{(verdict is { Length: > 0 } and not "Current Ability" ? $" — {verdict}" : "")}"));
+			if (After("Interested Clubs") is { Length: > 0 } clubs) Console.WriteLine(L($"    İlgilenen kulüp: {clubs.Trim('(', ')')}"));
 			return;
 		}
 
@@ -1430,14 +1430,14 @@ internal static partial class Program
 		{
 			string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";
 			var who = rest.Skip(1).TakeWhile(t => t is not ("Current Ability" or "Contract")).Select(t => t.Replace(" years old", " yaş")).ToList();
-			Console.WriteLine($"\n  Ek: {string.Join(" · ", who)}");
-			Console.WriteLine($"    Sözleşme: {After("Duration")} – {After("Duration", 2)} · {After("Wage")}");
+			Console.WriteLine(L($"\n  Ek: {string.Join(" · ", who)}"));
+			Console.WriteLine(L($"    Sözleşme: {After("Duration")} – {After("Duration", 2)} · {After("Wage")}"));
 			if (After("Finances") is { Length: > 0 } balance)
-				Console.WriteLine($"    Kulübün kasası: {(balance.StartsWith('(') ? "-" + balance.Trim('(', ')') : balance)}");
+				Console.WriteLine(L($"    Kulübün kasası: {(balance.StartsWith('(') ? "-" + balance.Trim('(', ')') : balance)}"));
 			return;
 		}
 
-		Console.WriteLine("\n  Ek: " + rest[0]);
+		Console.WriteLine(L("\n  Ek: ") + rest[0]);
 		var table = rest.IndexOf("Fine Type");
 		if (table >= 0 && table + 4 < rest.Count)
 		{
@@ -1446,7 +1446,7 @@ internal static partial class Program
 			var i = table + 5;
 			for (; i + 5 < rest.Count && rest[i + 1].StartsWith("Issued", StringComparison.Ordinal); i += 6)
 				rows.Add([rest[i], rest[i + 2], rest[i + 3], rest[i + 4], rest[i + 5]]);
-			Table.Write(["CEZA (maaştan, Wk = haftalık)", "1. KEZ", "2. KEZ", "3. KEZ", "4. KEZ"], rows);
+			Table.Write([L("CEZA (maaştan, Wk = haftalık)"), L("1. KEZ"), L("2. KEZ"), L("3. KEZ"), L("4. KEZ")], rows);
 			rest = rest.Skip(i).ToList();
 		}
 		else rest = rest.Skip(1).ToList();
@@ -1548,10 +1548,10 @@ internal static partial class Program
 		string After(string label, int skip = 1) => card.IndexOf(label) is var i and >= 0 && i + skip < card.Count ? card[i + skip] : "";
 		var confirmation = card.IndexOf("Confirmation");
 		var job = confirmation > 1 ? card[confirmation - 1] : "";
-		Console.WriteLine($"\n  Ek: {card[0]}{(job.Length > 0 && job != card[0] ? $" — {job}" : "")}");
+		Console.WriteLine(L($"\n  Ek: {card[0]}{(job.Length > 0 && job != card[0] ? $" — {job}" : "")}"));
 
 		var deal = card.IndexOf("Offer made") >= 0 ? After("Fee") : "";
-		if (deal.Length > 0) Console.WriteLine($"    Bonservis: {deal}");
+		if (deal.Length > 0) Console.WriteLine(L($"    Bonservis: {deal}"));
 
 		var wages = card.IndexOf("Wages");
 		if (wages >= 0 && wages + 1 < card.Count)
@@ -1560,11 +1560,11 @@ internal static partial class Program
 			var net = more.FirstOrDefault(t => t.EndsWith("after tax", StringComparison.Ordinal));
 			var share = more.FirstOrDefault(t => t.Contains("wage budget", StringComparison.Ordinal));
 			var notes = new[] { net != null ? $"vergi sonrası {net[..^"after tax".Length].Trim()}" : null, share != null ? $"maaş bütçesindeki payı %{share.Split(' ')[0].TrimEnd('%')}" : null }.Where(n => n != null).ToList();
-			Console.WriteLine($"    Ücret: {card[wages + 1]}{(notes.Count > 0 ? $" ({string.Join(", ", notes)})" : "")}");
+			Console.WriteLine(L($"    Ücret: {card[wages + 1]}{(notes.Count > 0 ? $" ({string.Join(", ", notes)})" : "")}"));
 		}
 		var duration = card.IndexOf("Duration");
 		if (duration >= 0 && duration + 2 < card.Count)
-			Console.WriteLine($"    Süre: {card[duration + 1]} – {card[duration + 2]}{(After("Type") is { Length: > 0 } type ? $" · {type}" : "")}");
+			Console.WriteLine(L($"    Süre: {card[duration + 1]} – {card[duration + 2]}{(After("Type") is { Length: > 0 } type ? $" · {type}" : "")}"));
 
 		var clauses = card.IndexOf("Clauses");
 		var budgets = card.IndexOf("Recruitment Budgets");
@@ -1572,7 +1572,7 @@ internal static partial class Program
 		{
 			var items = card.Skip(clauses + 1).Take(budgets - clauses - 1).ToList();
 			var pairs = items.Chunk(2).Select(p => p.Length == 2 ? $"{p[0]} {p[1]}" : p[0]).ToList();
-			Console.WriteLine($"    Maddeler: {string.Join(" · ", pairs)}");
+			Console.WriteLine(L($"    Maddeler: {string.Join(" · ", pairs)}"));
 		}
 
 		if (budgets >= 0)
@@ -1585,7 +1585,7 @@ internal static partial class Program
 				var amount = card[at + 2];
 				left.Add(amount.StartsWith('(') ? $"{said} {amount.Replace("(", "-").Replace(")", "")} (aşılmış)" : $"{said} {amount}");
 			}
-			if (left.Count > 0) Console.WriteLine($"    Kalan bütçe: {string.Join(" · ", left)}");
+			if (left.Count > 0) Console.WriteLine(L($"    Kalan bütçe: {string.Join(" · ", left)}"));
 		}
 
 		var staff = card.IndexOf("Staff", Math.Max(budgets, 0));
@@ -1599,7 +1599,7 @@ internal static partial class Program
 					: System.Text.RegularExpressions.Regex.Match(vacant, @"^(\d+) vacant role") is { Success: true } m ? $"{m.Groups[1].Value} boş yer" : vacant;
 				teams.Add($"{card[i]} {card[i + 2]} kişi, {said}");
 			}
-			if (teams.Count > 0) Console.WriteLine($"    Ekipler: {string.Join(" · ", teams)}");
+			if (teams.Count > 0) Console.WriteLine(L($"    Ekipler: {string.Join(" · ", teams)}"));
 		}
 	}
 
@@ -1669,13 +1669,13 @@ internal static partial class Program
 			{
 				var (id, title) = (shown[number - 1][0], shown[number - 1][1]);
 				if (inbox.FirstOrDefault(m => Field(m, "UniqueId") == id) is { ValueKind: JsonValueKind.Object } same) return same;
-				Console.Error.WriteLine($"{number} numaralı mesaj ('{title}') artık gelen kutusunda yok. Güncel numaralar için: inbox");
+				Console.Error.WriteLine(L($"{number} numaralı mesaj ('{title}') artık gelen kutusunda yok. Güncel numaralar için: inbox"));
 				return null;
 			}
 
 			if (number >= 1 && number <= inbox.Count) return inbox[number - 1];
 
-			Console.Error.WriteLine($"{number} numaralı mesaj yok; gelen kutusunda {inbox.Count} mesaj var.");
+			Console.Error.WriteLine(L($"{number} numaralı mesaj yok; gelen kutusunda {inbox.Count} mesaj var."));
 			return null;
 		}
 
@@ -1685,8 +1685,8 @@ internal static partial class Program
 		if (matches.Count == 1) return matches[0];
 
 		Console.Error.WriteLine(matches.Count == 0
-			? $"Konusunda '{wanted}' geçen mesaj yok."
-			: $"'{wanted}' {matches.Count} mesaja uyuyor; numarasıyla seç:");
+			? L($"Konusunda '{wanted}' geçen mesaj yok.")
+			: L($"'{wanted}' {matches.Count} mesaja uyuyor; numarasıyla seç:"));
 		foreach (var match in matches) Console.Error.WriteLine("  " + Field(match, "NewsTitleString"));
 		return null;
 	}
@@ -1718,7 +1718,7 @@ internal static partial class Program
 			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 
-		Table.Write(new[] { "ETİKET", "AD", "NE GÖNDERİR" }, rows);
+		Table.Write(new[] { L("ETİKET"), L("AD"), "NE GÖNDERİR" }, rows);
 		return 0;
 	}
 
@@ -1738,7 +1738,7 @@ internal static partial class Program
 			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 
-		Table.Write(new[] { "SEKME", "SAYFA" }, rows);
+		Table.Write(new[] { L("SEKME"), "SAYFA" }, rows);
 		return 0;
 	}
 
@@ -1747,7 +1747,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: open \"<sayfa>\" [--tab <sekme>] [--dry]   (sayfalar için `pages`)");
+			Console.Error.WriteLine(L("kullanım: open \"<sayfa>\" [--tab <sekme>] [--dry]   (sayfalar için `pages`)"));
 			return 64;
 		}
 
@@ -1863,7 +1863,7 @@ internal static partial class Program
 			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 
-		Table.Write(new[] { "LİSTE", "SEÇİLİ", "SEÇENEKLER" }, rows);
+		Table.Write(new[] { L("LİSTE"), L("SEÇİLİ"), "SEÇENEKLER" }, rows);
 		return 0;
 	}
 
@@ -1872,7 +1872,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: press \"<etiket>\" [--name <ad>] [--dry]   (etiketler için `buttons`)");
+			Console.Error.WriteLine(L("kullanım: press \"<etiket>\" [--name <ad>] [--dry]   (etiketler için `buttons`)"));
 			return 64;
 		}
 
@@ -1888,7 +1888,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count < 2)
 		{
-			Console.Error.WriteLine("kullanım: select <liste> \"<seçenek>\" [--dry]   (listeler için `dropdowns`)");
+			Console.Error.WriteLine(L("kullanım: select <liste> \"<seçenek>\" [--dry]   (listeler için `dropdowns`)"));
 			return 64;
 		}
 
@@ -2006,7 +2006,7 @@ internal static partial class Program
 			Console.WriteLine(line);
 			any = true;
 		}
-		if (!any) Console.WriteLine($"{command}: yardım satırı yok; hepsi için: help");
+		if (!any) Console.WriteLine(L($"{command}: yardım satırı yok; hepsi için: help"));
 		return 0;
 	}
 
@@ -2206,7 +2206,7 @@ internal static partial class Program
 
 	private static int Unknown(string command)
 	{
-		Console.Error.WriteLine($"bilinmeyen komut: {command} — komutlar için `help`");
+		Console.Error.WriteLine(L($"bilinmeyen komut: {command} — komutlar için `help`"));
 		return 64; // EX_USAGE
 	}
 }

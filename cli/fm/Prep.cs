@@ -21,7 +21,7 @@ internal static partial class Program
 		var slots = await FocusSlots();
 		if (slots == null)
 		{
-			Console.Error.WriteLine("Maç hazırlığı okunamadı (sıradaki maç yok olabilir).");
+			Console.Error.WriteLine(L("Maç hazırlığı okunamadı (sıradaki maç yok olabilir)."));
 			return 1;
 		}
 
@@ -41,7 +41,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine("Maç hazırlığı");
+		Console.WriteLine(L("Maç hazırlığı"));
 		foreach (var slot in slots)
 		{
 			var means = slot.Choices.FirstOrDefault(c => c.Name == slot.Now)?.Means;
@@ -50,11 +50,11 @@ internal static partial class Program
 			var others = slot.Choices.Where(c => c.Name != slot.Now && !c.Taken).Select(c => c.Name + (c.Suggested ? " (öneri)" : "")).ToList();
 			if (others.Count > 0)
 			{
-				if (Ui.Rich) Ui.Line($"  {"",-12} [dim]başka: {Ui.Safe(string.Join(" · ", others))}[/]");
-				else Console.WriteLine($"    başka: {string.Join(" · ", others)}");
+				if (Ui.Rich) Ui.Line(L($"  {"",-12} [dim]başka: {Ui.Safe(string.Join(" · ", others))}[/]"));
+				else Console.WriteLine(L($"    başka: {string.Join(" · ", others)}"));
 			}
 		}
-		Console.WriteLine($"\nDeğiştir: prep <{string.Join(" | ", slots.Select(s => s.Key))}> [odak]");
+		Console.WriteLine(L($"\nDeğiştir: prep <{string.Join(" | ", slots.Select(s => s.Key))}> [odak]"));
 		return 0;
 	}
 
@@ -64,7 +64,7 @@ internal static partial class Program
 		var slot = slots.FirstOrDefault(s => Fold(s.Key) == Fold(words[0]));
 		if (slot == null)
 		{
-			Console.Error.WriteLine($"'{words[0]}' diye bir hazırlık yok. Olanlar: {string.Join(", ", slots.Select(s => s.Key))}");
+			Console.Error.WriteLine(L($"'{words[0]}' diye bir hazırlık yok. Olanlar: {string.Join(", ", slots.Select(s => s.Key))}"));
 			return 64;
 		}
 
@@ -78,19 +78,19 @@ internal static partial class Program
 			choice = slot.Choices.First(c => c.Name == named);
 			if (!open.Contains(choice))
 			{
-				Console.Error.WriteLine($"{choice.Name} öbür duran top hazırlığında seçili; ikisi aynı olamaz.");
+				Console.Error.WriteLine(L($"{choice.Name} öbür duran top hazırlığında seçili; ikisi aynı olamaz."));
 				return 1;
 			}
 		}
 		else if (Ui.Interactive)
 		{
-			var picked = Ui.Ask($"{slot.Title} hazırlığı", open.Select(c => c.Name + (c.Suggested ? "  (öneri)" : "") + (c.Means.Length > 0 ? $" — {c.Means}" : "")).ToList(), open.FindIndex(c => c.Name == slot.Now));
+			var picked = Ui.Ask(L($"{slot.Title} hazırlığı"), open.Select(c => c.Name + (c.Suggested ? L("  (öneri)") : "") + (c.Means.Length > 0 ? $" — {c.Means}" : "")).ToList(), open.FindIndex(c => c.Name == slot.Now));
 			if (picked == null) return 0;
 			choice = open[picked.Value];
 		}
 		else
 		{
-			Console.Error.WriteLine($"Hangisi? prep {slot.Key} <{string.Join(" | ", open.Select(c => c.Name))}>");
+			Console.Error.WriteLine(L($"Hangisi? prep {slot.Key} <{string.Join(" | ", open.Select(c => c.Name))}>"));
 			return 64;
 		}
 
@@ -103,13 +103,13 @@ internal static partial class Program
 			await Until(async () => (after = (await FocusSlots())?.FirstOrDefault(s => s.Key == slot.Key))?.Now == choice.Name, seconds: 5, every: 0.3);
 			if (after?.Now != choice.Name)
 			{
-				Console.Error.WriteLine($"{slot.Title}: oyun değişikliği almadı ({after?.Now ?? "okunamadı"}).");
+				Console.Error.WriteLine(L($"{slot.Title}: oyun değişikliği almadı ({after?.Now ?? "okunamadı"})."));
 				return 1;
 			}
 		}
 
 		if (json) Console.WriteLine(JsonOut.Of(new { Slot = slot.Key, Name = choice.Name, Was = slot.Now }));
-		else Console.WriteLine(choice.Name == slot.Now ? $"{slot.Title}: zaten {choice.Name}." : $"{slot.Title}: {slot.Now} → {choice.Name}");
+		else Console.WriteLine(choice.Name == slot.Now ? L($"{slot.Title}: zaten {choice.Name}.") : $"{slot.Title}: {slot.Now} → {choice.Name}");
 		return 0;
 	}
 

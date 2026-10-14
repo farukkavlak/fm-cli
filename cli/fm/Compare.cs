@@ -18,7 +18,7 @@ internal static partial class Program
 		var names = split > 0 ? [string.Join(" ", words.Take(split)), string.Join(" ", words.Skip(split + 1))] : words;
 		if (names.Count != 2 || names.Any(n => n.Length == 0))
 		{
-			Console.Error.WriteLine("kullanım: compare <oyuncu> <oyuncu>   (çok kelimeli adı tırnakla ya da araya vs koy: compare kerem aktürkoğlu vs osimhen)");
+			Console.Error.WriteLine(L("kullanım: compare <oyuncu> <oyuncu>   (çok kelimeli adı tırnakla ya da araya vs koy: compare kerem aktürkoğlu vs osimhen)"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -32,7 +32,7 @@ internal static partial class Program
 		var (a, b) = (cards[0].GetProperty("Player"), cards[1].GetProperty("Player"));
 		if (Field(a, "Name") == Field(b, "Name"))
 		{
-			Console.Error.WriteLine($"İki ad da {Field(a, "Name")}'e çıktı.");
+			Console.Error.WriteLine(L($"İki ad da {Field(a, "Name")}'e çıktı."));
 			return 1;
 		}
 
@@ -106,7 +106,7 @@ internal static partial class Program
 		else
 			Table.Write(["", nameA, nameB], rows.Select(r => new[] { r.Label, r.Better == 1 ? $"{r.A} ◂" : r.A, r.Better == 2 ? $"{r.B} ◂" : r.B }).ToList());
 
-		Console.WriteLine($"\n{nameA} {ahead[0]} özellikte, {nameB} {ahead[1]} özellikte önde.");
+		Console.WriteLine(L($"\n{nameA} {ahead[0]} özellikte, {nameB} {ahead[1]} özellikte önde."));
 		return 0;
 
 		// "15" is 15 to 15, "11-15" is 11 to 15, "-" is nothing.

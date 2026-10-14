@@ -26,7 +26,7 @@ internal static partial class Program
 		var budgets = await BudgetOverview();
 		if (budgets == null)
 		{
-			Console.Error.WriteLine("Bütçe sayfası okunamadı.");
+			Console.Error.WriteLine(L("Bütçe sayfası okunamadı."));
 			return 1;
 		}
 		// "£11.1M (bu sezon harcanan …)" and "2.123 £ boşta (haftalık) · …": the figure comes first.
@@ -40,7 +40,7 @@ internal static partial class Program
 		var slot = PositionTurkish.GetValueOrDefault(Fold(typed), typed);
 		if (!PositionNames.ContainsKey(new string(slot.Where(char.IsLetter).ToArray())))
 		{
-			Console.Error.WriteLine($"'{typed}' diye bir mevki yok. Mevkiler: {string.Join(" ", DepthRows.SelectMany(r => r))}  (ya da: {string.Join(", ", PositionTurkish.Keys)})");
+			Console.Error.WriteLine(L($"'{typed}' diye bir mevki yok. Mevkiler: {string.Join(" ", DepthRows.SelectMany(r => r))}  (ya da: {string.Join(", ", PositionTurkish.Keys)})"));
 			return 64;
 		}
 
@@ -49,16 +49,16 @@ internal static partial class Program
 		var limited = passed.Contains("--max-value");
 		if (!limited && Money(transfer) is not > 0)
 		{
-			Console.Error.WriteLine($"Transfer bütçesi okunamadı ({transfer}); sınırı kendin ver: targets {typed} --max-value <para>");
+			Console.Error.WriteLine(L($"Transfer bütçesi okunamadı ({transfer}); sınırı kendin ver: targets {typed} --max-value <para>"));
 			return 1;
 		}
 		if (!json)
 		{
-			Console.WriteLine($"{slot.ToUpperInvariant()} — değeri {(limited ? Option(args, "--max-value") : transfer)} ve altı{(limited ? "" : " (transfer bütçen; değiştirmek için --max-value <para>)")}");
-			Console.WriteLine($"Maaş bütçesi: {wage}");
+			Console.WriteLine(L($"{slot.ToUpperInvariant()} — değeri {(limited ? Option(args, "--max-value") : transfer)} ve altı{(limited ? "" : L(" (transfer bütçen; değiştirmek için --max-value <para>)"))}"));
+			Console.WriteLine(L($"Maaş bütçesi: {wage}"));
 		}
 		var found = await Players(json, ["players", "--position", slot, .. (limited ? [] : new[] { "--max-value", transfer }), .. passed]);
-		if (found == 0 && !json) Console.WriteLine("Daralt: --age 18-23 · --grade B · --listed · --loan-listed · --attr \"pace>=14\"   (arama oyunda açık kalır: players --clear)");
+		if (found == 0 && !json) Console.WriteLine(L("Daralt: --age 18-23 · --grade B · --listed · --loan-listed · --attr \"pace>=14\"   (arama oyunda açık kalır: players --clear)"));
 		return found;
 	}
 
@@ -89,8 +89,8 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"Bütçe: transfer {transfer} · maaş {wage}");
-		Console.WriteLine(thin.Count == 0 ? "\nKadroda ince mevki yok: her mevkide en az iki sağlam oyuncu var." : "\nKadroda ince mevkiler (sağlam oyuncu bir ya da hiç):");
+		Console.WriteLine(L($"Bütçe: transfer {transfer} · maaş {wage}"));
+		Console.WriteLine(thin.Count == 0 ? L("\nKadroda ince mevki yok: her mevkide en az iki sağlam oyuncu var.") : L("\nKadroda ince mevkiler (sağlam oyuncu bir ya da hiç):"));
 		foreach (var (slot, fit, injured) in thin)
 		{
 			var who = fit.Count == 0 ? "kimse yok" : $"yalnızca {fit[0]}";
@@ -98,8 +98,8 @@ internal static partial class Program
 			if (Ui.Rich) Ui.Line($"  [bold]{slot,-4}[/] [red]{Ui.Safe(who)}[/][dim]{Ui.Safe(out_)}[/]");
 			else Console.WriteLine($"  {slot,-4} {who}{out_}");
 		}
-		Console.WriteLine($"\nÖbür mevkiler: {string.Join(" · ", depth.Where(d => d.Fit.Count > 1).Select(d => $"{d.Slot} {d.Fit.Count}"))}");
-		Console.WriteLine("\nAramak için: targets <mevki>   (ör. targets DL, targets \"sol bek\")");
+		Console.WriteLine(L($"\nÖbür mevkiler: {string.Join(" · ", depth.Where(d => d.Fit.Count > 1).Select(d => $"{d.Slot} {d.Fit.Count}"))}"));
+		Console.WriteLine(L("\nAramak için: targets <mevki>   (ör. targets DL, targets \"sol bek\")"));
 		return 0;
 	}
 }

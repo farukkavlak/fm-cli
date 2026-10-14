@@ -43,7 +43,7 @@ internal static partial class Program
 		var hits = Matching(players, p => Field(p, "Name"), wanted);
 		if (hits.Count != 1)
 		{
-			Console.Error.WriteLine(hits.Count == 0 ? $"'{wanted}' kadroda yok." : $"'{wanted}' {hits.Count} oyuncuya uyuyor: {string.Join(", ", hits.Select(h => Field(h, "Name")))}");
+			Console.Error.WriteLine(hits.Count == 0 ? L($"'{wanted}' kadroda yok.") : L($"'{wanted}' {hits.Count} oyuncuya uyuyor: {string.Join(", ", hits.Select(h => Field(h, "Name")))}"));
 			return 1;
 		}
 		var contract = Field(hits[0], "Row") + ".FullContract";
@@ -78,9 +78,9 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new { Name = name, Ends = ends, Terms = terms.ToDictionary(t => t.Say, t => t.Value) }));
 			return 0;
 		}
-		Console.WriteLine($"{name} — sözleşme {(ends.Length > 0 ? ends + " tarihine kadar" : "")}");
-		Table.Write(["ŞART", "DEĞER"], terms.Select(t => (string[])[t.Say, t.Value]).ToList());
-		Console.WriteLine($"\nYenilemek için: contract \"{name}\"");
+		Console.WriteLine(L($"{name} — sözleşme {(ends.Length > 0 ? ends + L(" tarihine kadar") : "")}"));
+		Table.Write([L("ŞART"), L("DEĞER")], terms.Select(t => (string[])[t.Say, t.Value]).ToList());
+		Console.WriteLine(L($"\nYenilemek için: contract \"{name}\""));
 		return 0;
 	}
 
@@ -88,7 +88,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 		if (string.Join(" ", Words(args)) is { Length: > 0 } wanted) return await ContractOf(json, wanted);
@@ -124,7 +124,7 @@ internal static partial class Program
 
 		if (!Ui.Rich)
 		{
-			Table.Write(["OYUNCU", "YAŞ", "MEVKİ", "BİTİŞ", "KALAN"], rows.Select(r => new[] { r.Name, r.Age, r.Position, r.Text, Left(r.Ends) }).ToList());
+			Table.Write([L("OYUNCU"), L("YAŞ"), L("MEVKİ"), L("BİTİŞ"), L("KALAN")], rows.Select(r => new[] { r.Name, r.Age, r.Position, r.Text, Left(r.Ends) }).ToList());
 			return 0;
 		}
 
@@ -137,7 +137,7 @@ internal static partial class Program
 			table.AddRow(Ui.Safe(r.Name), r.Age, Ui.Safe(r.Position), $"[{colour}]{Ui.Safe(r.Text)}[/]", $"[{colour}]{Left(r.Ends)}[/]");
 		}
 		Ui.Out.Write(table);
-		Console.WriteLine("Yenilemek için: contract <oyuncu>");
+		Console.WriteLine(L("Yenilemek için: contract <oyuncu>"));
 		return 0;
 	}
 }

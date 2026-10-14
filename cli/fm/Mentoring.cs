@@ -18,7 +18,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (!await Until(async () => (await Fm.GetJson("texts", ("anchor", "Mentoring Groups"), ("up", "0"))).GetArrayLength() > 0, seconds: 8, every: 0.4))
 		{
-			Console.Error.WriteLine("Mentorluk sayfası açılmadı.");
+			Console.Error.WriteLine(L("Mentorluk sayfası açılmadı."));
 			return 1;
 		}
 
@@ -35,7 +35,7 @@ internal static partial class Program
 				.FirstOrDefault(b => Field(b, "Label").EndsWith("assign mentoring groups", StringComparison.Ordinal));
 			if (ask.ValueKind != JsonValueKind.Object)
 			{
-				Console.Error.WriteLine("Sayfada yardımcıya grup kurdurma seçeneği yok.");
+				Console.Error.WriteLine(L("Sayfada yardımcıya grup kurdurma seçeneği yok."));
 				return 1;
 			}
 			var said = await Fm.Get("press", ("ptr", Field(ask, "Pointer")));
@@ -53,13 +53,13 @@ internal static partial class Program
 		}
 		if (groups.Count == 0)
 		{
-			Console.WriteLine("Mentorluk grubu yok. Yardımcıya kurdurmak için: mentoring --auto");
+			Console.WriteLine(L("Mentorluk grubu yok. Yardımcıya kurdurmak için: mentoring --auto"));
 			return 0;
 		}
 		foreach (var group in groups)
 		{
 			Console.WriteLine($"{group.Name} ({group.Members.Count})");
-			Table.Write(["OYUNCU", "KİŞİLİK"], group.Members.Select(m => (string[])[m.Player, m.Personality]).ToList());
+			Table.Write([L("OYUNCU"), L("KİŞİLİK")], group.Members.Select(m => (string[])[m.Player, m.Personality]).ToList());
 			Console.WriteLine();
 		}
 		return 0;
@@ -231,7 +231,7 @@ internal static partial class Program
 		var picks = Words(args).Skip(1).ToList();
 		if (picks.Count is not (0 or 3))
 		{
-			Console.Error.WriteLine("Bir mentorluk grubu üç oyuncudan oluşur:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name \"<ad>\"]");
+			Console.Error.WriteLine(L("Bir mentorluk grubu üç oyuncudan oluşur:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name \"<ad>\"]"));
 			return 64;
 		}
 
@@ -240,7 +240,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (!await Until(MentoringEditorOpen, seconds: 8, every: 0.4))
 		{
-			Console.Error.WriteLine("Grup düzenleyicisi açılmadı.");
+			Console.Error.WriteLine(L("Grup düzenleyicisi açılmadı."));
 			return 1;
 		}
 		await Task.Delay(800);
@@ -252,8 +252,8 @@ internal static partial class Program
 			if (json) Console.WriteLine(JsonOut.Of(candidates.Select(c => new { Player = c[0], Age = c[1], Workload = c[2], Personality = c[3], Hierarchy = c[4] })));
 			else
 			{
-				Table.Write(["OYUNCU", "YAŞ", "YÜK", "KİŞİLİK", "HİYERARŞİ"], candidates);
-				Console.WriteLine("\nGrup kurmak için üçünü yaz:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name \"<ad>\"]");
+				Table.Write([L("OYUNCU"), L("YAŞ"), L("YÜK"), L("KİŞİLİK"), L("HİYERARŞİ")], candidates);
+				Console.WriteLine(L("\nGrup kurmak için üçünü yaz:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name \"<ad>\"]"));
 			}
 			return 0;
 		}
@@ -264,7 +264,7 @@ internal static partial class Program
 			var player = Choose(candidates.Select(c => c[0]).ToList(), pick, "Oyuncu");
 			if (player == null || chosen.Contains(player))
 			{
-				if (player != null) Console.Error.WriteLine($"{player} iki kez yazıldı.");
+				if (player != null) Console.Error.WriteLine(L($"{player} iki kez yazıldı."));
 				await AbandonMentoringGroup(before);
 				return 64;
 			}
@@ -323,7 +323,7 @@ internal static partial class Program
 		if (confirm.ValueKind != JsonValueKind.Object)
 		{
 			await AbandonMentoringGroup(before);
-			Console.Error.WriteLine("Oyun bu üçlüyü onaylatmıyor; grup kurulmadı.");
+			Console.Error.WriteLine(L("Oyun bu üçlüyü onaylatmıyor; grup kurulmadı."));
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
@@ -334,10 +334,10 @@ internal static partial class Program
 		var made = after.FirstOrDefault(n => !before.Contains(n));
 		if (made == null)
 		{
-			Console.Error.WriteLine("Onaylandı ama yeni grup listede görünmüyor.");
+			Console.Error.WriteLine(L("Onaylandı ama yeni grup listede görünmüyor."));
 			return 1;
 		}
-		Console.WriteLine($"Kuruldu: {made} — {string.Join(", ", chosen)}");
+		Console.WriteLine(L($"Kuruldu: {made} — {string.Join(", ", chosen)}"));
 		return 0;
 	}
 
@@ -348,12 +348,12 @@ internal static partial class Program
 		var names = await MentoringGroupNames();
 		if (names.Count == 0)
 		{
-			Console.WriteLine("Mentorluk grubu yok.");
+			Console.WriteLine(L("Mentorluk grubu yok."));
 			return 0;
 		}
 		if (typed.Length == 0)
 		{
-			Console.Error.WriteLine("Hangi grup?  mentoring remove \"<grup>\" --yes");
+			Console.Error.WriteLine(L("Hangi grup?  mentoring remove \"<grup>\" --yes"));
 			foreach (var n in names) Console.Error.WriteLine($"  {n}");
 			return 64;
 		}
@@ -363,18 +363,18 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine($"'{group}' dağıtılır. Onaylamak için: mentoring remove \"{group}\" --yes");
+				Console.Error.WriteLine(L($"'{group}' dağıtılır. Onaylamak için: mentoring remove \"{group}\" --yes"));
 				return 1;
 			}
-			if (Ui.Ask($"'{group}' dağıtılsın mı?", ["Dağıt"]) is null) return 0;
+			if (Ui.Ask(L($"'{group}' dağıtılsın mı?"), [L("Dağıt")]) is null) return 0;
 		}
 
 		if (!await DeleteMentoringGroup(names.IndexOf(group)))
 		{
-			Console.Error.WriteLine($"'{group}' dağıtılamadı.");
+			Console.Error.WriteLine(L($"'{group}' dağıtılamadı."));
 			return 1;
 		}
-		Console.WriteLine($"Dağıtıldı: {group}");
+		Console.WriteLine(L($"Dağıtıldı: {group}"));
 		return 0;
 	}
 }

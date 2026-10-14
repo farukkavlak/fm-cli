@@ -19,7 +19,7 @@ internal static partial class Program
 			.FirstOrDefault(b => Field(b.Value, "Label") == "Shortlists" && Field(b.Value, "Name") == "layout-tile-interaction-button")) != null, seconds: 8, every: 0.5);
 		if (tile == null)
 		{
-			Console.Error.WriteLine("Kısa liste döşemesi bulunamadı.");
+			Console.Error.WriteLine(L("Kısa liste döşemesi bulunamadı."));
 			return 1;
 		}
 		await Fm.Get("press", ("ptr", Field(tile.Value, "Pointer")));
@@ -42,7 +42,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (people.ValueKind != JsonValueKind.Array)
 		{
-			Console.WriteLine("Kısa liste boş.");
+			Console.WriteLine(L("Kısa liste boş."));
 			return 0;
 		}
 		if (json)

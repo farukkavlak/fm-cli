@@ -33,8 +33,8 @@ internal static partial class Program
 				// The page is a talk with the assistant, and a change made in it takes its list away
 				// until the next day (FINDINGS §8.134).
 				Console.Error.WriteLine(list == "Vice Captain"
-					? "Yardımcı kaptan bugün zaten değişti; oyun günde bir kez izin veriyor. Yarın (fm next sonrası) yeniden dene."
-					: $"Kaptanlar sayfasında '{list}' listesi yok.");
+					? L("Yardımcı kaptan bugün zaten değişti; oyun günde bir kez izin veriyor. Yarın (fm next sonrası) yeniden dene.")
+					: L($"Kaptanlar sayfasında '{list}' listesi yok."));
 				return 1;
 			}
 			var choices = dropdown.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
@@ -42,7 +42,7 @@ internal static partial class Program
 			var hits = Matching(names, n => n, wanted);
 			if (hits.Count != 1)
 			{
-				Console.Error.WriteLine(hits.Count == 0 ? $"'{wanted}' adaylar arasında yok." : $"'{wanted}' {hits.Count} oyuncuya uyuyor: {string.Join(", ", hits)}");
+				Console.Error.WriteLine(hits.Count == 0 ? L($"'{wanted}' adaylar arasında yok.") : L($"'{wanted}' {hits.Count} oyuncuya uyuyor: {string.Join(", ", hits)}"));
 				return 1;
 			}
 			var said = await Fm.Get("select", ("ptr", Field(dropdown.Value, "Pointer")), ("choice", choices[names.IndexOf(hits[0])]), ("fire", "1"));
@@ -66,9 +66,9 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new { Captain = captain, ViceCaptain = vice }));
 			return 0;
 		}
-		Console.WriteLine($"Kaptan: {(captain.Length > 0 ? captain : "-")}");
-		Console.WriteLine($"Yardımcı kaptan: {(vice.Length > 0 ? vice : "-")}");
-		if (changes.Count == 0) Console.WriteLine("\nDeğiştirmek: captains --captain <oyuncu> · --vice <oyuncu>   (soyunma odasının liderleri: dynamics)");
+		Console.WriteLine(L($"Kaptan: {(captain.Length > 0 ? captain : "-")}"));
+		Console.WriteLine(L($"Yardımcı kaptan: {(vice.Length > 0 ? vice : "-")}"));
+		if (changes.Count == 0) Console.WriteLine(L("\nDeğiştirmek: captains --captain <oyuncu> · --vice <oyuncu>   (soyunma odasının liderleri: dynamics)"));
 		return 0;
 	}
 }

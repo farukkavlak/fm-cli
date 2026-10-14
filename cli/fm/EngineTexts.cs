@@ -50,13 +50,13 @@ internal static class EngineTexts
 		var file = Field(engine, "File");
 		if (file.Length == 0 || !BlockNames.TryGetValue(language, out var block)) return;
 
-		Console.Error.WriteLine($"Oyunun motor yazıları ({block}) bir kez çıkarılıyor…");
+		Console.Error.WriteLine(L($"Oyunun motor yazıları ({block}) bir kez çıkarılıyor…"));
 		Dictionary<string, string> pairs;
 		try { pairs = Build(file, block); }
 		catch (Exception e)
 		{
 			// The texts are a help, never a reason for the command to fail.
-			Console.Error.WriteLine($"Motor yazıları çıkarılamadı: {e.Message}");
+			Console.Error.WriteLine(L($"Motor yazıları çıkarılamadı: {e.Message}"));
 			return;
 		}
 		if (pairs.Count == 0) return;

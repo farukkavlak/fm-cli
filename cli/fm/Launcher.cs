@@ -42,7 +42,7 @@ internal static class Launcher
 		// loading, which is the part worth doing.
 		if (await Up(fm))
 		{
-			Console.WriteLine($"FM zaten açık — ona bağlanıyorum{(debug ? "" : ", pencereyi küçültüyorum")}.");
+			Console.WriteLine(L($"FM zaten açık — ona bağlanıyorum{(debug ? "" : L(", pencereyi küçültüyorum"))}."));
 			if (!debug) Minimise();
 			return !load || await LoadSave(fm);
 		}
@@ -50,8 +50,8 @@ internal static class Launcher
 		var script = Path.Combine(GameDirectory, "run_bepinex_arm64.sh");
 		if (!File.Exists(script))
 		{
-			Console.Error.WriteLine($"BepInEx başlatıcısı bulunamadı: {script}");
-			Console.Error.WriteLine("Oyun başka yerdeyse FM_HOME ile göster.");
+			Console.Error.WriteLine(L($"BepInEx başlatıcısı bulunamadı: {script}"));
+			Console.Error.WriteLine(L("Oyun başka yerdeyse FM_HOME ile göster."));
 			return false;
 		}
 
@@ -59,11 +59,11 @@ internal static class Launcher
 
 		var log = Path.Combine(Path.GetTempPath(), "fm-cli-launch.log");
 		Spawn(script, log, debug);
-		Console.WriteLine($"FM başlatılıyor…{(debug ? $"  (log: {log})" : "")}");
+		Console.WriteLine(L($"FM başlatılıyor…{(debug ? L($"  (log: {log})") : "")}"));
 
 		if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
 		{
-			Console.Error.WriteLine($"Oyun ana menüye gelmedi. Log: {log}");
+			Console.Error.WriteLine(L($"Oyun ana menüye gelmedi. Log: {log}"));
 			return false;
 		}
 
@@ -79,21 +79,21 @@ internal static class Launcher
 	{
 		if (await fm.InGame())
 		{
-			Console.WriteLine("Kayıt zaten yüklü.");
+			Console.WriteLine(L("Kayıt zaten yüklü."));
 			return true;
 		}
 
 		if (!await Menu(fm))
 		{
-			Console.WriteLine("Ana menü bekleniyor…");
+			Console.WriteLine(L("Ana menü bekleniyor…"));
 			if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
 			{
-				Console.Error.WriteLine("Oyun ana menüye gelmedi.");
+				Console.Error.WriteLine(L("Oyun ana menüye gelmedi."));
 				return false;
 			}
 		}
 
-		Console.WriteLine("Son kayıt yükleniyor…");
+		Console.WriteLine(L("Son kayıt yükleniyor…"));
 		var answer = await fm.Get("continue");
 		if (answer.StartsWith("error", StringComparison.Ordinal))
 		{
@@ -103,11 +103,11 @@ internal static class Launcher
 
 		if (!await WaitFor(() => fm.InGame(), TimeSpan.FromMinutes(3)))
 		{
-			Console.Error.WriteLine("Kayıt yüklenmedi.");
+			Console.Error.WriteLine(L("Kayıt yüklenmedi."));
 			return false;
 		}
 
-		Console.WriteLine("Hazır.");
+		Console.WriteLine(L("Hazır."));
 		return true;
 	}
 
@@ -178,7 +178,7 @@ internal static class Launcher
 
 		var error = Osascript(script);
 		if (!string.IsNullOrEmpty(error))
-			Console.WriteLine("(pencere küçültülemedi — Sistem Ayarları › Gizlilik › Erişilebilirlik'te terminale izin ver)");
+			Console.WriteLine(L("(pencere küçültülemedi — Sistem Ayarları › Gizlilik › Erişilebilirlik'te terminale izin ver)"));
 	}
 
 	private static string Osascript(string script)

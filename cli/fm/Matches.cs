@@ -46,7 +46,7 @@ internal static partial class Program
 		await Until(async () => !(clicked = await Fm.Get("click", ("text", "Last 5 Club Games"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine($"{name} için form kutusu yok (bu sezon maçı olmayabilir).");
+			Console.Error.WriteLine(L($"{name} için form kutusu yok (bu sezon maçı olmayabilir)."));
 			return 1;
 		}
 		List<string> texts = [];
@@ -63,7 +63,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (!texts.Contains("Inf"))
 		{
-			Console.Error.WriteLine($"{name}: maç puanları sayfası açılmadı.");
+			Console.Error.WriteLine(L($"{name}: maç puanları sayfası açılmadı."));
 			return 1;
 		}
 
@@ -97,8 +97,8 @@ internal static partial class Program
 		}
 
 		var cleanSheets = all.Count(r => r.Conceded == "0" && r.Position != "-");
-		Console.WriteLine($"{name} — {summary.Apps} maç · ortalama {summary.Average} · en iyi {summary.Best} · en kötü {summary.Worst} · "
-			+ (keeper ? $"{cleanSheets} gol yemediği maç" : $"{summary.Goals} gol · {summary.Assists} asist"));
+		Console.WriteLine(L($"{name} — {summary.Apps} maç · ortalama {summary.Average} · en iyi {summary.Best} · en kötü {summary.Worst} · ")
+			+ (keeper ? L($"{cleanSheets} gol yemediği maç") : L($"{summary.Goals} gol · {summary.Assists} asist")));
 		var subs = all.Any(r => r.OnOff.Length > 0);
 		var rich = Ui.Rich;
 
@@ -109,8 +109,8 @@ internal static partial class Program
 		if (ratings.Count > 1)
 		{
 			var bars = ratings.Select(r => (Bar: Ui.Bar(r, 5.5, 9), Rating: r)).ToList();
-			if (rich) Ui.Line($"[dim]puan[/]  {string.Concat(bars.Select(b => b.Rating >= 7.5 ? $"[green]{b.Bar}[/]" : b.Rating < 6.5 ? $"[red]{b.Bar}[/]" : b.Bar.ToString()))}  [dim]eski → yeni[/]");
-			else Console.WriteLine($"puan  {string.Concat(bars.Select(b => b.Bar))}  eski → yeni");
+			if (rich) Ui.Line(L($"[dim]puan[/]  {string.Concat(bars.Select(b => b.Rating >= 7.5 ? $"[green]{b.Bar}[/]" : b.Rating < 6.5 ? $"[red]{b.Bar}[/]" : b.Bar.ToString()))}  [dim]eski → yeni[/]"));
+			else Console.WriteLine(L($"puan  {string.Concat(bars.Select(b => b.Bar))}  eski → yeni"));
 		}
 		// The page gives the score home side first and does not say which side he was on.
 		var heads = new List<string> { "#", "TARİH", "RAKİP", "SKOR (EV-DEP)", "MEVKİ" };

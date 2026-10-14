@@ -55,7 +55,7 @@ internal static partial class Program
 			var kind = SetPieceKinds.FirstOrDefault(k => k.Words.Contains(Fold(words[0])));
 			if (kind.Say == null)
 			{
-				Console.Error.WriteLine($"'{words[0]}' bir duran top türü değil.\n{TakersUsage}");
+				Console.Error.WriteLine(L($"'{words[0]}' bir duran top türü değil.\n{TakersUsage}"));
 				return 64;
 			}
 			kinds = [kind];
@@ -85,7 +85,7 @@ internal static partial class Program
 		{
 			if (await OpenTakers(kind.Value, kind.ThrowIn, seen) is not { } tables)
 			{
-				Console.Error.WriteLine($"{kind.Say}: atıcı listeleri açılmadı (duran top düzeni kurulmamış olabilir: setpieces new).");
+				Console.Error.WriteLine(L($"{kind.Say}: atıcı listeleri açılmadı (duran top düzeni kurulmamış olabilir: setpieces new)."));
 				return 1;
 			}
 			// The lists are drawn row by row; they are read once both are whole and stand still.
@@ -105,7 +105,7 @@ internal static partial class Program
 
 			if (!await Drawn())
 			{
-				Console.Error.WriteLine($"{kind.Say}: atıcı listeleri okunamadı.");
+				Console.Error.WriteLine(L($"{kind.Say}: atıcı listeleri okunamadı."));
 				return 1;
 			}
 			if (verb != null)
@@ -139,11 +139,11 @@ internal static partial class Program
 
 		if (read.Count > 1)
 		{
-			Table.Write(["DURAN TOP", "SAĞ", "SOL"], read.Select(k => (string[])
+			Table.Write([L("DURAN TOP"), L("SAĞ"), L("SOL")], read.Select(k => (string[])
 			[
 				k.Say, .. Enumerable.Range(0, 2).Select(i => i < k.Lists.Count ? string.Join(", ", k.Lists[i].Takers.Select(t => $"{t.Order}. {t.Name}")) : ""),
 			]).ToList());
-			Console.WriteLine($"\nAyrıntı ve değiştirmek: takers <tür>   ({string.Join(", ", SetPieceKinds.Select(k => k.Words[0]))})");
+			Console.WriteLine(L($"\nAyrıntı ve değiştirmek: takers <tür>   ({string.Join(", ", SetPieceKinds.Select(k => k.Words[0]))})"));
 			return 0;
 		}
 
@@ -151,15 +151,15 @@ internal static partial class Program
 		for (var i = 0; i < both.Count; i++)
 		{
 			if (i > 0) Console.WriteLine();
-			Console.WriteLine($"{say} — {TakerHeadings.GetValueOrDefault(both[i].Heading, both[i].Heading)}  ({(i == 0 ? "sağ" : "sol")})");
-			if (both[i].Takers.Count == 0) { Console.WriteLine("  (boş)"); continue; }
-			Table.Write(["SIRA", "#", "OYUNCU", "MAÇA", .. both[i].Columns.Select(c => TakerColumns.GetValueOrDefault(c, c.ToUpperInvariant()))],
+			Console.WriteLine($"{say} — {TakerHeadings.GetValueOrDefault(both[i].Heading, both[i].Heading)}  ({(i == 0 ? L("sağ") : L("sol"))})");
+			if (both[i].Takers.Count == 0) { Console.WriteLine(L("  (boş)")); continue; }
+			Table.Write([L("SIRA"), "#", L("OYUNCU"), L("MAÇA"), .. both[i].Columns.Select(c => TakerColumns.GetValueOrDefault(c, c.ToUpperInvariant()))],
 				both[i].Takers.Select(t => (string[])[t.Order.ToString(), t.Number, t.Name, Starting(t.Where), .. t.Stats]).ToList());
 		}
 		if (verb == null)
 		{
 			var name = kinds[0].Words[0];
-			Console.WriteLine($"\nSıra: takers {name} <sağ|sol> move <oyuncu> <sıra> · add <oyuncu> [<sıra>] · remove <oyuncu>");
+			Console.WriteLine(L($"\nSıra: takers {name} <sağ|sol> move <oyuncu> <sıra> · add <oyuncu> [<sıra>] · remove <oyuncu>"));
 		}
 		return 0;
 	}

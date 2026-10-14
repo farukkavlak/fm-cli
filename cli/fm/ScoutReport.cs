@@ -29,7 +29,7 @@ internal static partial class Program
 			await Until(async () => !(clicked = await Fm.Get("click", ("within", "player-recommendation-cell-remapper"), ("name", "SIButton"))).StartsWith("error", StringComparison.Ordinal), seconds: 5, every: 0.5);
 			if (clicked.StartsWith("error", StringComparison.Ordinal))
 			{
-				Console.Error.WriteLine($"{name} için scout raporu yok (kendi oyuncumuz ya da hiç izlenmemiş). İzletmek için: scout player \"{name}\" --for <süre>");
+				Console.Error.WriteLine(L($"{name} için scout raporu yok (kendi oyuncumuz ya da hiç izlenmemiş). İzletmek için: scout player \"{name}\" --for <süre>"));
 				return 1;
 			}
 		}
@@ -44,7 +44,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (!Whole(texts))
 		{
-			Console.Error.WriteLine($"{name}: scout raporu açılmadı.");
+			Console.Error.WriteLine(L($"{name}: scout raporu açılmadı."));
 			return 1;
 		}
 
@@ -87,19 +87,19 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"{name} — scout raporu{(by.Length > 0 ? $" · son izleyen {by}" : "")}");
-		Console.WriteLine($"  Not: {report.Grade} — {report.Recommendation}");
-		Console.WriteLine($"  Yetenek: {report.CurrentAbility} · Potansiyel: {report.PotentialAbility}");
-		Console.WriteLine($"  Transfere ilgisi: {report.TransferInterest} · kiralığa: {report.LoanInterest}");
-		Console.WriteLine($"  Değer: {report.Value} · tahmini maaş: {report.Wage}");
-		if (report.BestRole.Length > 0) Console.WriteLine($"  En iyi rol: {report.BestRole} · izlenen maç: {report.MatchesWatched}");
-		Console.WriteLine("Artılar:");
+		Console.WriteLine(L($"{name} — scout raporu{(by.Length > 0 ? L($" · son izleyen {by}") : "")}"));
+		Console.WriteLine(L($"  Not: {report.Grade} — {report.Recommendation}"));
+		Console.WriteLine(L($"  Yetenek: {report.CurrentAbility} · Potansiyel: {report.PotentialAbility}"));
+		Console.WriteLine(L($"  Transfere ilgisi: {report.TransferInterest} · kiralığa: {report.LoanInterest}"));
+		Console.WriteLine(L($"  Değer: {report.Value} · tahmini maaş: {report.Wage}"));
+		if (report.BestRole.Length > 0) Console.WriteLine(L($"  En iyi rol: {report.BestRole} · izlenen maç: {report.MatchesWatched}"));
+		Console.WriteLine(L("Artılar:"));
 		foreach (var line in pros) Console.WriteLine($"  + {line}");
-		Console.WriteLine("Eksiler:");
+		Console.WriteLine(L("Eksiler:"));
 		foreach (var line in cons) Console.WriteLine($"  - {line}");
 		if (ranks.Count > 0)
 		{
-			Console.WriteLine($"Kadroda sırası ({position}):");
+			Console.WriteLine(L($"Kadroda sırası ({position}):"));
 			foreach (var (rank, player) in ranks) Console.WriteLine($"  {rank,2}  {player}{(Fold(player) == Fold(name) ? "  ←" : "")}");
 		}
 		return 0;

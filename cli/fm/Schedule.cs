@@ -48,7 +48,7 @@ internal static partial class Program
 		var days = TrainingDays(texts, today);
 		if (days.Count == 0)
 		{
-			Console.Error.WriteLine("Antrenman programı okunamadı.");
+			Console.Error.WriteLine(L("Antrenman programı okunamadı."));
 			return 1;
 		}
 
@@ -71,7 +71,7 @@ internal static partial class Program
 
 		if (!Ui.Rich)
 		{
-			Console.WriteLine("GÜN\t1. SEANS\t2. SEANS\t3. SEANS");
+			Console.WriteLine(L("GÜN\t1. SEANS\t2. SEANS\t3. SEANS"));
 			foreach (var x in days)
 				Console.WriteLine($"{(x.Day == today ? "*" : "")}{Day(x.Day)}\t{string.Join("\t", x.Sessions.Select(Session))}");
 			return 0;

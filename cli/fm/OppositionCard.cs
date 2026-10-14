@@ -29,7 +29,7 @@ internal static partial class Program
 		}
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine("Rakip talimatları kartı açılmadı.");
+			Console.Error.WriteLine(L("Rakip talimatları kartı açılmadı."));
 			return 1;
 		}
 
@@ -43,7 +43,7 @@ internal static partial class Program
 				await Until(async () => (apply = await Labelled("Apply all advice", "StandardButton")) != null, seconds: 4, every: 0.25);
 				if (apply == null)
 				{
-					Console.Error.WriteLine("Yardımcının önerisi yok (ya da zaten uygulanmış).");
+					Console.Error.WriteLine(L("Yardımcının önerisi yok (ya da zaten uygulanmış)."));
 					return 1;
 				}
 				await Fm.Get("press", ("ptr", Field(apply.Value, "Pointer")));
@@ -64,7 +64,7 @@ internal static partial class Program
 			var matches = Matching(rows, r => Field(r, "Name"), who);
 			if (matches.Count != 1)
 			{
-				Console.Error.WriteLine(matches.Count == 0 ? $"Rakipte '{who}' yok." : $"'{who}' {matches.Count} oyuncuya uyuyor: {string.Join(", ", matches.Select(r => Field(r, "Name")))}");
+				Console.Error.WriteLine(matches.Count == 0 ? L($"Rakipte '{who}' yok.") : L($"'{who}' {matches.Count} oyuncuya uyuyor: {string.Join(", ", matches.Select(r => Field(r, "Name")))}"));
 				return 1;
 			}
 			foreach (var asked in words.Skip(1))
@@ -73,7 +73,7 @@ internal static partial class Program
 				var column = eq > 0 ? OppositionColumns.FirstOrDefault(c => Fold(c.Key) == Fold(asked[..eq]) || Fold(c.Say) == Fold(asked[..eq])) : default;
 				if (column.Key == null)
 				{
-					Console.Error.WriteLine($"biçim: <talimat>=<değer>; talimatlar: {string.Join(", ", OppositionColumns.Select(c => $"{c.Say} ({c.Key})"))}");
+					Console.Error.WriteLine(L($"biçim: <talimat>=<değer>; talimatlar: {string.Join(", ", OppositionColumns.Select(c => $"{c.Say} ({c.Key})"))}"));
 					return 64;
 				}
 				var control = matches[0].GetProperty(column.Key);
@@ -82,7 +82,7 @@ internal static partial class Program
 				var choice = choices.FirstOrDefault(c => Fold(c) == Fold(value)) ?? choices.FirstOrDefault(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal));
 				if (choice == null)
 				{
-					Console.Error.WriteLine($"{column.Say}: '{value}' yok. Seçenekler: {string.Join(" · ", choices)}");
+					Console.Error.WriteLine(L($"{column.Say}: '{value}' yok. Seçenekler: {string.Join(" · ", choices)}"));
 					return 1;
 				}
 				var said = await Fm.Get("select", ("ptr", Field(control, "Pointer")), ("choice", choice));
@@ -108,9 +108,9 @@ internal static partial class Program
 			Ui.Out.Write(table);
 		}
 		else
-			Table.Write(["OYUNCU", .. OppositionColumns.Select(c => c.Head)], rows.Select(r => new[] { Field(r, "Name") }.Concat(OppositionColumns.Select(c => Value(r, c.Key))).ToArray()).ToList());
+			Table.Write([L("OYUNCU"), .. OppositionColumns.Select(c => c.Head)], rows.Select(r => new[] { Field(r, "Name") }.Concat(OppositionColumns.Select(c => Value(r, c.Key))).ToArray()).ToList());
 		if (words.Count == 0 && !args.Contains("--advice") && !args.Contains("--clear"))
-			Console.WriteLine("\nYardımcının önerisi: opposition --advice · temizle: --clear · elle: opposition <oyuncu> Pres=Always Sert giriş=Hard");
+			Console.WriteLine(L("\nYardımcının önerisi: opposition --advice · temizle: --clear · elle: opposition <oyuncu> Pres=Always Sert giriş=Hard"));
 		return 0;
 
 		static string Value(JsonElement row, string key) => row.TryGetProperty(key, out var c) ? Field(c, "Value") : "";

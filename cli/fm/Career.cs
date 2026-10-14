@@ -56,7 +56,7 @@ internal static partial class Program
 		var marks = Enumerable.Range(start, Math.Max(0, totalAt - start)).Where(i => SeasonMark.IsMatch(texts[i])).ToList();
 		if (start <= 0 || marks.Count == 0)
 		{
-			Console.Error.WriteLine("Kariyer tablosu okunamadı.");
+			Console.Error.WriteLine(L("Kariyer tablosu okunamadı."));
 			return 1;
 		}
 
@@ -91,10 +91,10 @@ internal static partial class Program
 		var name = Field(player, "Name");
 		if (!Ui.Rich)
 		{
-			Console.WriteLine($"{name} — kariyer");
-			Console.WriteLine($"SEZON\tTAKIM\tGELİŞ\tLİG\tMAÇ\t{(keeper ? "GOL YEMEDİ" : "GOL")}\tASİST\tMO\tPUAN");
+			Console.WriteLine(L($"{name} — kariyer"));
+			Console.WriteLine(L($"SEZON\tTAKIM\tGELİŞ\tLİG\tMAÇ\t{(keeper ? L("GOL YEMEDİ") : L("GOL"))}\tASİST\tMO\tPUAN"));
 			foreach (var r in rows) Console.WriteLine($"{r.Year}\t{r.Team}\t{How(r.How)}\t{r.Division}\t{r.Apps}\t{r.Goals}\t{r.Assists}\t{r.PoM}\t{r.Rating}");
-			if (numbers.Count >= 2) Console.WriteLine($"Toplam: {numbers[0]} maç, {numbers[1]} {(keeper ? "gol yemeden maç" : "gol")}{(spent.Length > 0 ? $" · ödenen bonservisler {spent}" : "")}");
+			if (numbers.Count >= 2) Console.WriteLine(L($"Toplam: {numbers[0]} maç, {numbers[1]} {(keeper ? L("gol yemeden maç") : L("gol"))}{(spent.Length > 0 ? L($" · ödenen bonservisler {spent}") : "")}"));
 			return 0;
 		}
 

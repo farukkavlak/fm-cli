@@ -41,7 +41,7 @@ internal static class Table
 
 		if (rows.Count == 0)
 		{
-			Console.WriteLine("(boş)");
+			Console.WriteLine(L("(boş)"));
 			return;
 		}
 

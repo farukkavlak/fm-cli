@@ -26,7 +26,7 @@ internal static partial class Program
 		var opened = await OpenSubpage(Screen.Training, Screen.TrainingIntensity, async () => (await Visible()).Count > 0);
 		if (opened.StartsWith("error", StringComparison.Ordinal) || !await Until(async () => (await Visible()).Count > 0, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine("Antrenman yoğunluğu sayfası açılmadı.");
+			Console.Error.WriteLine(L("Antrenman yoğunluğu sayfası açılmadı."));
 			return 1;
 		}
 
@@ -36,12 +36,12 @@ internal static partial class Program
 				.FirstOrDefault(b => Field(b.Value, "Label").StartsWith("Ask ", StringComparison.Ordinal) && Field(b.Value, "Label").EndsWith("training intensities", StringComparison.Ordinal));
 			if (ask == null)
 			{
-				Console.Error.WriteLine("Yoğunlukları antrenöre bırakma seçeneği yok.");
+				Console.Error.WriteLine(L("Yoğunlukları antrenöre bırakma seçeneği yok."));
 				return 1;
 			}
 			await Fm.Get("press", ("ptr", Field(ask.Value, "Pointer")));
 			await Task.Delay(1500);
-			Console.WriteLine($"{Field(ask.Value, "Label").Replace("Ask ", "").Replace(" to set all training intensities", "")} bütün yoğunlukları ayarlıyor.");
+			Console.WriteLine(L($"{Field(ask.Value, "Label").Replace("Ask ", "").Replace(" to set all training intensities", "")} bütün yoğunlukları ayarlıyor."));
 		}
 
 		// Every row, read across the list's scroll positions and joined by name.
@@ -66,7 +66,7 @@ internal static partial class Program
 			var names = Matching(rows.Keys, n => n, who);
 			if (names.Count != 1)
 			{
-				Console.Error.WriteLine(names.Count == 0 ? $"Listede '{who}' yok." : $"'{who}' {names.Count} oyuncuya uyuyor: {string.Join(", ", names)}");
+				Console.Error.WriteLine(names.Count == 0 ? L($"Listede '{who}' yok.") : L($"'{who}' {names.Count} oyuncuya uyuyor: {string.Join(", ", names)}"));
 				return 1;
 			}
 			var name = names[0];
@@ -93,7 +93,7 @@ internal static partial class Program
 				top = choices.FirstOrDefault(c => Fold(c).StartsWith(Fold(level), StringComparison.Ordinal) || Fold(IntensityTurkish[c]).StartsWith(Fold(level), StringComparison.Ordinal));
 				if (top == null)
 				{
-					Console.Error.WriteLine($"'{level}' bir seviye değil: otomatik, yarım, normal, çift, \"dinlen <gün>\", \"tatil <hafta>\"");
+					Console.Error.WriteLine(L($"'{level}' bir seviye değil: otomatik, yarım, normal, çift, \"dinlen <gün>\", \"tatil <hafta>\""));
 					return 64;
 				}
 			}
@@ -109,7 +109,7 @@ internal static partial class Program
 			}
 			if (target == null)
 			{
-				Console.Error.WriteLine($"{name} listede kayboldu.");
+				Console.Error.WriteLine(L($"{name} listede kayboldu."));
 				return 1;
 			}
 			var said = leaf == null
@@ -129,9 +129,9 @@ internal static partial class Program
 				.Select(r => new { Name = Field(r, "Name"), Intensity = Field(r, "Value") })));
 			return 0;
 		}
-		Table.Write(["OYUNCU", "YOĞUNLUK"], list.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
+		Table.Write([L("OYUNCU"), L("YOĞUNLUK")], list.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
 			.Select(r => new[] { Field(r, "Name"), Say(Field(r, "Value")) }).ToList());
-		Console.WriteLine("\nDeğiştirmek: intensity <oyuncu> <otomatik|yarım|normal|çift|\"dinlen 3\"|\"tatil 1\">  ·  hepsini antrenöre bırak: intensity --auto");
+		Console.WriteLine(L("\nDeğiştirmek: intensity <oyuncu> <otomatik|yarım|normal|çift|\"dinlen 3\"|\"tatil 1\">  ·  hepsini antrenöre bırak: intensity --auto"));
 		return 0;
 
 		// A rest shows as its length: "3 Days", "1 Week".

@@ -22,7 +22,7 @@ internal static partial class Program
 		var team = await Fm.Pull(them, "Name,Description,MostUsedFormation,RecentFormValues,NextOppositionThreatLevelAssessment");
 		if (Field(team, "Name").Length == 0)
 		{
-			Console.Error.WriteLine("Rakip okunamadı (sıradaki maç yok olabilir).");
+			Console.Error.WriteLine(L("Rakip okunamadı (sıradaki maç yok olabilir)."));
 			return 1;
 		}
 		async Task<string> Standout(string which)
@@ -114,11 +114,11 @@ internal static partial class Program
 			return 0;
 		}
 		Console.WriteLine($"{Field(team, "Name")} · {Field(team, "Description")}");
-		Console.WriteLine($"  Maç: {venue}{(days.Length > 0 ? $" · {days} gün sonra" : "")}{(Field(fixture, "KickoffTime") is { Length: > 0 } k ? $" · {k}" : "")}");
+		Console.WriteLine(L($"  Maç: {venue}{(days.Length > 0 ? L($" · {days} gün sonra") : "")}{(Field(fixture, "KickoffTime") is { Length: > 0 } k ? $" · {k}" : "")}"));
 		foreach (var (label, value) in rows)
 			if (value.Length > 0) Console.WriteLine($"  {label}: {value}");
-		if (meetings.Count > 0) Console.WriteLine($"  Önceki maçlar: {string.Join(" · ", meetings)}");
-		if (Field(team, "NextOppositionThreatLevelAssessment") is { Length: > 0 } expected) Console.WriteLine($"  Beklenti: {expected}");
+		if (meetings.Count > 0) Console.WriteLine(L($"  Önceki maçlar: {string.Join(" · ", meetings)}"));
+		if (Field(team, "NextOppositionThreatLevelAssessment") is { Length: > 0 } expected) Console.WriteLine(L($"  Beklenti: {expected}"));
 		foreach (var t in tiles.Where(t => t.Stats.Count > 0 || t.Verdict.Length > 0))
 		{
 			Console.WriteLine($"{t.Name}{(t.Scope.Length > 0 && t.Stats.Count > 0 ? $" ({t.Scope})" : "")}: {t.Verdict}");
@@ -126,7 +126,7 @@ internal static partial class Program
 		}
 		if (news.Count > 0)
 		{
-			Console.WriteLine("Kadro haberleri:");
+			Console.WriteLine(L("Kadro haberleri:"));
 			foreach (var n in news) Console.WriteLine($"  {n}");
 		}
 		return 0;

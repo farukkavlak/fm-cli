@@ -25,22 +25,22 @@ internal static partial class Program
 		{
 			if (wanted.Length == 0)
 			{
-				Console.Error.WriteLine("Açık bir sözleşme görüşmesi yok.\n"
-					+ "  Kendi oyuncumuzla yenilemek için: contract <oyuncu>\n"
-					+ "  Transferde: teklif kabul edilince reply \"<oyuncu> offer accepted\" → Enter Contract Negotiations");
+				Console.Error.WriteLine(L("Açık bir sözleşme görüşmesi yok.\n")
+					+ L("  Kendi oyuncumuzla yenilemek için: contract <oyuncu>\n")
+					+ L("  Transferde: teklif kabul edilince reply \"<oyuncu> offer accepted\" → Enter Contract Negotiations"));
 				return 1;
 			}
 			if (await NotNow() is { } refused) return refused;
 			if (await OpenRenewal(wanted) is { } failed) return failed;
 			if ((screen = await TalksSettled()) == null)
 			{
-				Console.Error.WriteLine("Sözleşme ekranı açılmadı.");
+				Console.Error.WriteLine(L("Sözleşme ekranı açılmadı."));
 				return 1;
 			}
 		}
 		else if (wanted.Length > 0 && !Fold(screen.Player).Contains(Fold(wanted), StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine($"Açık görüşme {screen.Player} ile. Önce onu bitir ya da bırak (contract ile aç, 'Görüşmeyi iptal et').");
+			Console.Error.WriteLine(L($"Açık görüşme {screen.Player} ile. Önce onu bitir ya da bırak (contract ile aç, 'Görüşmeyi iptal et')."));
 			return 1;
 		}
 
@@ -50,7 +50,7 @@ internal static partial class Program
 			// The talks were opened from a card (his transfer status with the director beside it), which
 			// comes back up and reads as a question waiting; the portal is opened over it.
 			if (failed == null) await OpenPage(Screen.Home);
-			Console.WriteLine(failed ?? "Görüşme iptal edildi.");
+			Console.WriteLine(failed ?? L("Görüşme iptal edildi."));
 			return failed == null ? 0 : 1;
 		}
 
@@ -86,8 +86,8 @@ internal static partial class Program
 		if (left.Count > 0)
 		{
 			Console.Error.WriteLine(shown is { Stage: "Promises" }
-				? $"Vaatlerde yok, şartlarda denenecek: {string.Join(", ", left)} — vaatleri onaylayıp geçmek için --next ekle."
-				: $"Ekranda bulunamadı: {string.Join(", ", left)}");
+				? L($"Vaatlerde yok, şartlarda denenecek: {string.Join(", ", left)} — vaatleri onaylayıp geçmek için --next ekle.")
+				: L($"Ekranda bulunamadı: {string.Join(", ", left)}"));
 			return 1;
 		}
 		if (json && !args.Contains("--sign")) return 0;
@@ -97,20 +97,20 @@ internal static partial class Program
 			// a 34-year-old in his last year, FINDINGS §8.94): --next does nothing on it.
 			if (shown.Rows.Count > 0 && shown.Rows.All(r => r.Choice is { Value: "None Selected", Choices.Count: 0 }))
 			{
-				Console.WriteLine("\nOyun bu kartı kilitli açtı: vaatlerde seçilecek bir şey yok, görüşme ilerlemiyor. Çıkmak için: contract --cancel   (menajere sormak: contract <oyuncu> --agent)");
+				Console.WriteLine(L("\nOyun bu kartı kilitli açtı: vaatlerde seçilecek bir şey yok, görüşme ilerlemiyor. Çıkmak için: contract --cancel   (menajere sormak: contract <oyuncu> --agent)"));
 				return 1;
 			}
-			Console.WriteLine("\nVaatleri onaylayıp şartlara geçmek için: contract --next   (vaat değiştirmek: --term \"Vaat=değer\")");
+			Console.WriteLine(L("\nVaatleri onaylayıp şartlara geçmek için: contract --next   (vaat değiştirmek: --term \"Vaat=değer\")"));
 			return 0;
 		}
 		if (!args.Contains("--sign"))
 		{
-			Console.WriteLine("\nMenajere sunmak / imzalamak için: contract --sign --yes   (şart değiştirmek: --wage <tutar>, --term \"Şart=değer\")");
+			Console.WriteLine(L("\nMenajere sunmak / imzalamak için: contract --sign --yes   (şart değiştirmek: --wage <tutar>, --term \"Şart=değer\")"));
 			return 0;
 		}
 		if (!args.Contains("--yes"))
 		{
-			Console.Error.WriteLine("Sözleşme imzalanınca geri alınamaz. Bitirmek için --yes ekle.");
+			Console.Error.WriteLine(L("Sözleşme imzalanınca geri alınamaz. Bitirmek için --yes ekle."));
 			return 1;
 		}
 		// Terms we changed go to the agent first; taken as they stand, --yes has already said to sign them.
@@ -146,7 +146,7 @@ internal static partial class Program
 		{
 			if (await OfferScreen.Read(Fm, "contract") is not { } now)
 			{
-				Console.WriteLine("Görüşme ekranı kapandı.");
+				Console.WriteLine(L("Görüşme ekranı kapandı."));
 				return 0;
 			}
 			now = await now.WithReasons(Fm);
@@ -220,7 +220,7 @@ internal static partial class Program
 				actions.Add(CancelTalks);
 			}
 
-			if (Ui.Ask(promises ? "Vaatler — değiştirmek istediğini seç:" : "Sözleşme — değiştirmek istediğini seç:", items, cancel: "Şimdilik bırak (görüşme açık kalır)") is not { } picked)
+			if (Ui.Ask(promises ? L("Vaatler — değiştirmek istediğini seç:") : L("Sözleşme — değiştirmek istediğini seç:"), items, cancel: "Şimdilik bırak (görüşme açık kalır)") is not { } picked)
 				return 0;
 
 			var before = await AgentSays();
@@ -234,7 +234,7 @@ internal static partial class Program
 
 		async Task<Outcome> Signs(List<string> told)
 		{
-			if (Ui.Ask("Sözleşme imzalanınca geri alınamaz.", ["İmzala"], cancel: "Geri dön") == null) return Outcome.Answered;
+			if (Ui.Ask(L("Sözleşme imzalanınca geri alınamaz."), [L("İmzala")], cancel: "Geri dön") == null) return Outcome.Answered;
 			var outcome = await Propose(told);
 			// Signed: the card is gone, so what was said is said here.
 			if (outcome == Outcome.Signed) foreach (var line in told) Console.WriteLine(line);
@@ -243,10 +243,10 @@ internal static partial class Program
 
 		async Task<string> CancelTalks()
 		{
-			if (Ui.Ask("Görüşme kapanacak; menajer bundan hoşlanmayabilir.", ["İptal et"], cancel: "Geri dön") == null) return null;
+			if (Ui.Ask(L("Görüşme kapanacak; menajer bundan hoşlanmayabilir."), [L("İptal et")], cancel: "Geri dön") == null) return null;
 			if (await CallOff() is { } failed) return failed;
 			await OpenPage(Screen.Home);
-			Console.WriteLine("Görüşme iptal edildi.");
+			Console.WriteLine(L("Görüşme iptal edildi."));
 			return "";
 		}
 	}
@@ -286,7 +286,7 @@ internal static partial class Program
 		var (finalise, suggest) = promises ? ("Finalise Promises", "Suggest Promises") : ("Finalise Deal", "Suggest Terms");
 		if ((await Labelled(finalise, TalksButton) ?? await Labelled(suggest, TalksButton)) is not { } button)
 		{
-			Console.Error.WriteLine($"'{finalise}' / '{suggest}' butonu yok: ya bir şart kurala uymuyor (kartta kırmızı), ya görüşme başka bir adımda (talk ile bak).");
+			Console.Error.WriteLine(L($"'{finalise}' / '{suggest}' butonu yok: ya bir şart kurala uymuyor (kartta kırmızı), ya görüşme başka bir adımda (talk ile bak)."));
 			return Outcome.Failed;
 		}
 		var finalising = Field(button, "Label") == finalise;
@@ -437,8 +437,8 @@ internal static partial class Program
 		{
 			var ours = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Any(p => Field(p, "Name") == name);
 			Console.Error.WriteLine(ours
-				? $"{name} ile şu an sözleşme görüşmesine girilemiyor: oyun bu seçeneği vermiyor (yakın zamanda iptal edilen bir görüşme olabilir; birkaç gün sonra yeniden dene)."
-				: $"{name} bizim oyuncumuz değil. Başka kulübün oyuncusuyla görüşme, teklifi kabul edilince açılır: offer {name}");
+				? L($"{name} ile şu an sözleşme görüşmesine girilemiyor: oyun bu seçeneği vermiyor (yakın zamanda iptal edilen bir görüşme olabilir; birkaç gün sonra yeniden dene).")
+				: L($"{name} bizim oyuncumuz değil. Başka kulübün oyuncusuyla görüşme, teklifi kabul edilince açılır: offer {name}"));
 			return 1;
 		}
 
@@ -451,12 +451,12 @@ internal static partial class Program
 		// A notice with only "Ok" on it is the game saying no.
 		if (!DialogAsks(warning))
 		{
-			Console.Error.WriteLine($"Oyun diyor ki: {Field(warning, "Title")}. {Field(warning, "Description")}");
+			Console.Error.WriteLine(L($"Oyun diyor ki: {Field(warning, "Title")}. {Field(warning, "Description")}"));
 			return 1;
 		}
 		var go = !Ui.Interactive
-			|| Ui.Ask($"{name}: menajerine sormadan görüşmeye giriliyor; oyuncu ve menajer bundan hoşlanmayabilir.", ["Yine de gir"], cancel: "Vazgeç") != null;
-		if (!Ui.Interactive) Console.WriteLine("(Oyun uyardı: menajere sormadan görüşmeye girmek oyuncuyu ve menajeri üzebilir.)");
+			|| Ui.Ask(L($"{name}: menajerine sormadan görüşmeye giriliyor; oyuncu ve menajer bundan hoşlanmayabilir."), [L("Yine de gir")], cancel: "Vazgeç") != null;
+		if (!Ui.Interactive) Console.WriteLine(L("(Oyun uyardı: menajere sormadan görüşmeye girmek oyuncuyu ve menajeri üzebilir.)"));
 		await Fm.Get("click", ("ptr", Field(DialogAnswer(warning, go)!.Value, "Pointer")));
 		return go ? null : 0;
 	}

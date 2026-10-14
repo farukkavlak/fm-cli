@@ -31,7 +31,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -39,7 +39,7 @@ internal static partial class Program
 		var inMatch = Field(state, "DuringMatch") == "True";
 		if (!inMatch && Field(state, "State") is not ("Tactics" or "SubmitTeam"))
 		{
-			Console.Error.WriteLine("Şu an oynanacak maç yok. Oyun maç gününe gelince `next` haber verir.");
+			Console.Error.WriteLine(L("Şu an oynanacak maç yok. Oyun maç gününe gelince `next` haber verir."));
 			return 1;
 		}
 
@@ -48,7 +48,7 @@ internal static partial class Program
 		var instant = args.Contains("--instant");
 		if (!inMatch && !instant && !args.Contains("--play") && Ui.Interactive)
 		{
-			var how = Ui.Ask("Maçı nasıl oynayalım?", ["İzle: canlı anlatım, konuşmalarda sözü sen seç", "Anında sonuç: yardımcılar yönetsin, birkaç saniyede biter"]);
+			var how = Ui.Ask(L("Maçı nasıl oynayalım?"), [L("İzle: canlı anlatım, konuşmalarda sözü sen seç"), L("Anında sonuç: yardımcılar yönetsin, birkaç saniyede biter")]);
 			if (how == null) return 0;
 			instant = how == 1;
 		}
@@ -57,7 +57,7 @@ internal static partial class Program
 		{
 			if (inMatch)
 			{
-				Console.Error.WriteLine("Maç başladı; anında sonuç yalnızca kadro gönderilmeden önce istenebiliyor. Sürdürmek için: match");
+				Console.Error.WriteLine(L("Maç başladı; anında sonuç yalnızca kadro gönderilmeden önce istenebiliyor. Sürdürmek için: match"));
 				return 1;
 			}
 			return await InstantResult(state);
@@ -103,9 +103,9 @@ internal static partial class Program
 					if (arrivedAt != null) Console.WriteLine($"— {lastNamed = arrivedAt}");
 					arrivedAt = null;
 					Pitch.Draw(tactic);
-					if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine($"Yedekler: {string.Join(", ", benched)}");
+					if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine(L($"Yedekler: {string.Join(", ", benched)}"));
 					Console.WriteLine();
-					if (Ui.Ask("Kadro bu.", ["Maça çık"], cancel: "Değişiklik yapacağım (tactic player / role), sonra match") == null) return 0;
+					if (Ui.Ask(L("Kadro bu."), [L("Maça çık")], cancel: "Değişiklik yapacağım (tactic player / role), sonra match") == null) return 0;
 				}
 			}
 			stop = flow;
@@ -166,14 +166,14 @@ internal static partial class Program
 				{
 					await Fm.Get("dialog", ("press", "primary"));
 					var down = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList();
-					Console.Error.WriteLine($"Oyun sakat oyuncu sahadayken sürdürmüyor{(down.Count > 0 ? $": {string.Join(", ", down)}" : "")}. Değişiklik şart: sub <çıkan> <giren>   (kulübe için: sub)");
+					Console.Error.WriteLine(L($"Oyun sakat oyuncu sahadayken sürdürmüyor{(down.Count > 0 ? $": {string.Join(", ", down)}" : "")}. Değişiklik şart: sub <çıkan> <giren>   (kulübe için: sub)"));
 					return 1;
 				}
 
 				if (Field(dialog, "Title") != "Team Selection" || yes == null)
 				{
-					Console.Error.WriteLine($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}");
-					Console.Error.WriteLine("Cevaplamak için: dialog");
+					Console.Error.WriteLine(L($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}"));
+					Console.Error.WriteLine(L("Cevaplamak için: dialog"));
 					return 1;
 				}
 
@@ -194,12 +194,12 @@ internal static partial class Program
 				{
 					Console.WriteLine();
 					for (var i = 0; i < lines.Count; i++) Console.WriteLine($"  {i + 1,2}  {lines[i].Label}");
-					Console.WriteLine("\nMaç konuşmada bekliyor. Söylemek için: talk <numara>, sonra: match"
-					                  + "   (konuşmadan geçmek için: match --no-talk)");
+					Console.WriteLine(L("\nMaç konuşmada bekliyor. Söylemek için: talk <numara>, sonra: match")
+					                  + L("   (konuşmadan geçmek için: match --no-talk)"));
 					return 0;
 				}
 
-				if (Ui.Ask("Ne diyorsun?", lines.Select(l => l.Label).ToList(), cancel: "Konuşmadan geç") is not { } chosen)
+				if (Ui.Ask(L("Ne diyorsun?"), lines.Select(l => l.Label).ToList(), cancel: "Konuşmadan geç") is not { } chosen)
 				{
 					spoke = flow;
 					continue;
@@ -231,8 +231,8 @@ internal static partial class Program
 				{
 					// The newest mark can come unlabelled; the clock says when it is.
 					var minute = marks.Last() is { Length: > 0 } labelled ? labelled : Field(state, "MatchTime").Split(':')[0].TrimStart('0');
-					if (Ui.Rich) Ui.Line($"  [cyan]{Ui.Safe(minute),5}'  Yardımcı: {Ui.Safe(Advice(advice))}[/] [dim](dugout)[/]");
-					else Console.WriteLine($"  {minute,5}'  Yardımcı: {Advice(advice)}  (dugout)");
+					if (Ui.Rich) Ui.Line(L($"  [cyan]{Ui.Safe(minute),5}'  Yardımcı: {Ui.Safe(Advice(advice))}[/] [dim](dugout)[/]"));
+					else Console.WriteLine(L($"  {minute,5}'  Yardımcı: {Advice(advice)}  (dugout)"));
 					foreach (var mark in marks) advised.Add(mark);
 				}
 			}
@@ -246,7 +246,7 @@ internal static partial class Program
 				// Who is down, when it is one of ours: the planner's table says so (Moylan, 2 Mayıs 2026 — the
 				// stop was announced without a name).
 				var down = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList();
-				Console.WriteLine($"  Maç {Field(state, "MatchTime")}'da durdu{(down.Count > 0 ? $": {string.Join(", ", down)} sakatlandı" : why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}");
+				Console.WriteLine(L($"  Maç {Field(state, "MatchTime")}'da durdu{(down.Count > 0 ? L($": {string.Join(", ", down)} sakatlandı") : why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}"));
 
 				// Called again while stopped, `match` means: go on as things are.
 				if (!Ui.Interactive && firstLook)
@@ -255,14 +255,14 @@ internal static partial class Program
 					// A change given with `sub` beforehand is made by this same press. Whether play went on is
 					// the match's to say: with a hurt man still on, the game answers with a notice instead.
 					if (await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5))
-						Console.WriteLine("  Maç sürdürüldü (bekleyen değişiklik varsa onunla).");
+						Console.WriteLine(L("  Maç sürdürüldü (bekleyen değişiklik varsa onunla)."));
 					clockAt = DateTime.UtcNow;
 					firstLook = false;
 					continue;
 				}
 				if (!Ui.Interactive)
 				{
-					Console.WriteLine("  Değişiklik için: sub <çıkan> <giren> (maçı da sürdürür)   ·   değişiklik yapmadan sürdürmek: match");
+					Console.WriteLine(L("  Değişiklik için: sub <çıkan> <giren> (maçı da sürdürür)   ·   değişiklik yapmadan sürdürmek: match"));
 					return 0;
 				}
 				await Substitute(false, ["sub"]);
@@ -292,10 +292,10 @@ internal static partial class Program
 			{
 				var hurt = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0).Select(p => p.Key).ToList();
 				Console.Error.WriteLine(hurt.Count > 0
-					? $"Maç {time}'da durdu: {string.Join(", ", hurt)} sakatlandı; oyun değişiklik bekliyor."
-					: $"Maç {time}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik).");
+					? L($"Maç {time}'da durdu: {string.Join(", ", hurt)} sakatlandı; oyun değişiklik bekliyor.")
+					: L($"Maç {time}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik)."));
 				// Seen at a real injury stop (FINDINGS §8.139): `sub` then `match` carried on from there.
-				Console.Error.WriteLine("Değişiklik için: sub <çıkan> <giren>   ·   olduğu gibi sürdürmek: match   ·   ekrandakiler: buttons");
+				Console.Error.WriteLine(L("Değişiklik için: sub <çıkan> <giren>   ·   olduğu gibi sürdürmek: match   ·   ekrandakiler: buttons"));
 				return 1;
 			}
 
@@ -316,12 +316,12 @@ internal static partial class Program
 
 		if (Field(state, "DuringMatch") == "True")
 		{
-			Console.Error.WriteLine("Maç kırk dakikadır bitmedi; izlemeyi bıraktım. Durum için: status");
+			Console.Error.WriteLine(L("Maç kırk dakikadır bitmedi; izlemeyi bıraktım. Durum için: status"));
 			return 75;
 		}
 
 		// A bare score does not say who won it; the report below names the sides.
-		Console.WriteLine(score == null ? "Maçtan çıkıldı." : score.Any(char.IsLetter) ? $"Maç bitti: {score}" : "Maç bitti.");
+		Console.WriteLine(score == null ? L("Maçtan çıkıldı.") : score.Any(char.IsLetter) ? L($"Maç bitti: {score}") : L("Maç bitti."));
 		if (score != null)
 		{
 			// The full-time numbers are the first thing a manager looks at after the whistle.
@@ -389,7 +389,7 @@ internal static partial class Program
 				var button = Field(dialog, "Title") is "Instant Result" or "Team Selection" ? DialogAnswer(dialog, true) : null;
 				if (button == null)
 				{
-					Console.Error.WriteLine($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}   (cevap: dialog)");
+					Console.Error.WriteLine(L($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}   (cevap: dialog)"));
 					return 1;
 				}
 
@@ -404,7 +404,7 @@ internal static partial class Program
 
 		if (Field(state, "State") is "Tactics" or "SubmitTeam")
 		{
-			Console.Error.WriteLine("Anında sonuç istendi ama oyun hâlâ kadro ekranında.");
+			Console.Error.WriteLine(L("Anında sonuç istendi ama oyun hâlâ kadro ekranında."));
 			return 1;
 		}
 
@@ -420,16 +420,16 @@ internal static partial class Program
 				.LastOrDefault();
 		}
 		catch (FmError) { }
-		Console.WriteLine("Maç simüle edildi.");
+		Console.WriteLine(L("Maç simüle edildi."));
 		Console.WriteLine();
 		try
 		{
 			if (await MatchReport.Show(Fm, json: false) != 0 && played.ValueKind == JsonValueKind.Object)
-				Console.WriteLine($"{Field(played, "ShortName")} maçı {Field(played, "Result")}");
+				Console.WriteLine(L($"{Field(played, "ShortName")} maçı {Field(played, "Result")}"));
 		}
 		catch (FmError)
 		{
-			if (played.ValueKind == JsonValueKind.Object) Console.WriteLine($"{Field(played, "ShortName")} maçı {Field(played, "Result")}");
+			if (played.ValueKind == JsonValueKind.Object) Console.WriteLine(L($"{Field(played, "ShortName")} maçı {Field(played, "Result")}"));
 		}
 
 		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);
@@ -514,12 +514,12 @@ internal static partial class Program
 
 		if (!Ui.Interactive)
 		{
-			Console.Error.WriteLine($"{problem} Yardımcıya yeniden seçtirmek için: tactic pick   ·   kendin: tactic player <mevki> <oyuncu>   ·   sonra: match");
+			Console.Error.WriteLine(L($"{problem} Yardımcıya yeniden seçtirmek için: tactic pick   ·   kendin: tactic player <mevki> <oyuncu>   ·   sonra: match"));
 			return 1;
 		}
-		if (Ui.Ask(problem, ["Yardımcı yeniden seçsin (Quick Pick)"], cancel: "Kendim değiştireceğim, maçtan çık") == null)
+		if (Ui.Ask(problem, [L("Yardımcı yeniden seçsin (Quick Pick)")], cancel: "Kendim değiştireceğim, maçtan çık") == null)
 		{
-			Console.WriteLine("Kadro için: tactic player <mevki> <oyuncu>   ·   sonra: match");
+			Console.WriteLine(L("Kadro için: tactic player <mevki> <oyuncu>   ·   sonra: match"));
 			return 0;
 		}
 		return await TacticPick(dry: false) != 0 ? 1 : null;
@@ -539,7 +539,7 @@ internal static partial class Program
 		if (Field(state, "Period") == "" && Field(state, "State") is "FullTimeTeamTalk" or "PostMatchReaction" or "LeaveMatch"
 		    && period is not ("" or "FullTime") && score != null)
 		{
-			if (LastWhistle != $"Maç sonu: {score}") Console.WriteLine($"  Maç sonu: {score}");
+			if (LastWhistle != $"Maç sonu: {score}") Console.WriteLine(L($"  Maç sonu: {score}"));
 			LastWhistle = $"Maç sonu: {score}";
 			period = "FullTime";
 			return;
@@ -597,7 +597,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame() || Field(await Fm.GetJson("state"), "DuringMatch") != "True")
 		{
-			Console.Error.WriteLine("Değişiklik yalnızca maç sırasında yapılır.");
+			Console.Error.WriteLine(L("Değişiklik yalnızca maç sırasında yapılır."));
 			return 1;
 		}
 
@@ -608,7 +608,7 @@ internal static partial class Program
 			await Until(async () => (menus = await Menus()).Any(m => Bench(m).Count > 0), seconds: 4, every: 0.4);
 		if (menus.Count == 0)
 		{
-			Console.Error.WriteLine("Sahadaki oyuncuların menüsü ekranda yok (devre arası ya da konuşma ekranı olabilir).");
+			Console.Error.WriteLine(L("Sahadaki oyuncuların menüsü ekranda yok (devre arası ya da konuşma ekranı olabilir)."));
 			return 1;
 		}
 
@@ -627,10 +627,10 @@ internal static partial class Program
 		if (words.Count == 0 && Ui.Rich && await MatchPositions() is { Count: > 0 } positions && positions.Count == menus.Count)
 		{
 			DrawMatchPitch(positions, menus);
-			Console.WriteLine($"Kulübe: {string.Join(", ", bench.Select(b => b.Split(" - ")[0]))}");
+			Console.WriteLine(L($"Kulübe: {string.Join(", ", bench.Select(b => b.Split(" - ")[0]))}"));
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine("\nDeğiştirmek için: sub <çıkan> <giren>");
+				Console.WriteLine(L("\nDeğiştirmek için: sub <çıkan> <giren>"));
 				return 0;
 			}
 			Console.WriteLine();
@@ -647,29 +647,29 @@ internal static partial class Program
 					var rows = m.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 					return $"{rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))})";
 				}).ToList();
-				if (Ui.Ask("Kim çıksın?", described) is not { } goingOff) return 0;
+				if (Ui.Ask(L("Kim çıksın?"), described) is not { } goingOff) return 0;
 				words.Add(onPitch[goingOff]);
 			}
 
 			if (Choose(onPitch, words[0], "Çıkan") is not { } named) return 1;
 			var allowed = Bench(menus[onPitch.IndexOf(named)]);
-			if (Ui.Ask($"{named} yerine kim girsin?", allowed) is not { } comingOn) return 0;
+			if (Ui.Ask(L($"{named} yerine kim girsin?"), allowed) is not { } comingOn) return 0;
 			words.Add(allowed[comingOn]);
 		}
 
 		if (words.Count < 2)
 		{
 			var match = await MatchPlayers(atStop: true);
-			Console.WriteLine("Sahada:");
+			Console.WriteLine(L("Sahada:"));
 			foreach (var menu in menus)
 			{
 				var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 				var marks = match.TryGetValue(rows[0] ?? "", out var m) ? m.Marks : "";
 				Console.WriteLine($"  {rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))}){(marks.Length > 0 ? "  " + marks : "")}");
 			}
-			Console.WriteLine("\nKulübede:");
+			Console.WriteLine(L("\nKulübede:"));
 			foreach (var name in bench) Console.WriteLine($"  {name}");
-			Console.WriteLine("\nDeğiştirmek için: sub <çıkan> <giren>");
+			Console.WriteLine(L("\nDeğiştirmek için: sub <çıkan> <giren>"));
 			return 0;
 		}
 
@@ -689,8 +689,8 @@ internal static partial class Program
 				if (PlannerStop(await Fm.GetJson("buttons", ("json", "1"))) is { } onward) await Fm.Get("press", ("ptr", Field(onward, "Pointer")));
 				var resumed = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 				Console.WriteLine(resumed
-					? $"Değişiklik yapıldı: {going} çıktı. Maç sürüyor; izlemeye devam: match"
-					: "Değişiklik seçildi ama maç hâlâ duruyor: match");
+					? L($"Değişiklik yapıldı: {going} çıktı. Maç sürüyor; izlemeye devam: match")
+					: L("Değişiklik seçildi ama maç hâlâ duruyor: match"));
 				return resumed ? 0 : 1;
 			}
 		}
@@ -714,7 +714,7 @@ internal static partial class Program
 		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine($"(kuru) {leaving} çıkacak, {coming} girecekti.");
+			Console.WriteLine(L($"(kuru) {leaving} çıkacak, {coming} girecekti."));
 			return 0;
 		}
 
@@ -730,8 +730,8 @@ internal static partial class Program
 			await Fm.Get("press", ("ptr", Field(resumeAt, "Pointer")));
 			var going = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 			Console.WriteLine(going
-				? $"Değişiklik yapıldı: {leaving} çıktı, {coming.Split(" - ")[0]} girdi. Maç sürüyor; izlemeye devam: match"
-				: $"{coming} seçildi ve değişiklik onaylandı ama maç hâlâ duruyor: buttons");
+				? L($"Değişiklik yapıldı: {leaving} çıktı, {coming.Split(" - ")[0]} girdi. Maç sürüyor; izlemeye devam: match")
+				: L($"{coming} seçildi ve değişiklik onaylandı ama maç hâlâ duruyor: buttons"));
 			return going ? 0 : 1;
 		}
 
@@ -740,8 +740,8 @@ internal static partial class Program
 		// The bench lists a player with his positions ("Reeco Hackett - M (RL), AM (RLC)").
 		var comer = coming.Split(" - ")[0];
 		Console.WriteLine(made
-			? $"Değişiklik yapıldı: {leaving} çıktı, {comer} girdi."
-			: $"{coming} seçildi ama {leaving} hâlâ sahada görünüyor; oyun onay bekliyor olabilir (buttons).");
+			? L($"Değişiklik yapıldı: {leaving} çıktı, {comer} girdi.")
+			: L($"{coming} seçildi ama {leaving} hâlâ sahada görünüyor; oyun onay bekliyor olabilir (buttons)."));
 		return made ? 0 : 1;
 
 		// "Draper" names "Freddie Draper" and the planner's own "Draper".
@@ -784,12 +784,12 @@ internal static partial class Program
 		}
 		var booked = Sides(m => m.Value.Yellow || m.Value.Red, m => m.Key + (m.Value.Red ? " (kırmızı)" : ""));
 		var hurt = Sides(m => m.Value.Injury != 0, m => m.Key);
-		if (booked.Length > 0) Console.WriteLine($"Kartlar: {booked}");
-		if (hurt.Length > 0) Console.WriteLine($"Sakatlanan: {hurt}");
+		if (booked.Length > 0) Console.WriteLine(L($"Kartlar: {booked}"));
+		if (hurt.Length > 0) Console.WriteLine(L($"Sakatlanan: {hurt}"));
 		if (watchedMatch) return;
 		static double Rated(MatchMan m) => double.TryParse(m.Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) ? r : 0;
 		var ours = OurMen(men).Where(m => Rated(m.Value) > 0).OrderByDescending(m => Rated(m.Value)).ToList();
-		if (ours.Count > 0) Console.WriteLine($"Puanlarımız: {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}");
+		if (ours.Count > 0) Console.WriteLine(L($"Puanlarımız: {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}"));
 	}
 
 	/// <summary>Our men of a match: the squad's names, kept from the team's list.</summary>
@@ -884,7 +884,7 @@ internal static partial class Program
 
 		if (dialogs.GetArrayLength() == 0)
 		{
-			Console.Error.WriteLine("Açık bir onay penceresi yok.");
+			Console.Error.WriteLine(L("Açık bir onay penceresi yok."));
 			return 1;
 		}
 
@@ -898,7 +898,7 @@ internal static partial class Program
 		if (words.Count == 0 && Ui.Interactive)
 		{
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}\n");
-			if (Ui.Ask("Cevap", labels) is not { } answer) return 0;
+			if (Ui.Ask(L("Cevap"), labels) is not { } answer) return 0;
 			words.Add(labels[answer]);
 		}
 
@@ -906,8 +906,8 @@ internal static partial class Program
 		{
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}\n");
 			for (var i = 0; i < buttons.Count; i++) Console.WriteLine($"  {i + 1}  {labels[i]}");
-			if (dialogs.GetArrayLength() > 1) Console.WriteLine($"\n({dialogs.GetArrayLength() - 1} pencere daha bunun altında.)");
-			Console.WriteLine("\nCevaplamak için: dialog <numara | yazı>");
+			if (dialogs.GetArrayLength() > 1) Console.WriteLine(L($"\n({dialogs.GetArrayLength() - 1} pencere daha bunun altında.)"));
+			Console.WriteLine(L("\nCevaplamak için: dialog <numara | yazı>"));
 			return 0;
 		}
 
@@ -915,7 +915,7 @@ internal static partial class Program
 
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine($"(kuru) '{pick}' denecekti: {Field(dialog, "Title")}");
+			Console.WriteLine(L($"(kuru) '{pick}' denecekti: {Field(dialog, "Title")}"));
 			return 0;
 		}
 
@@ -931,11 +931,11 @@ internal static partial class Program
 			var now = await Fm.GetJson("dialog");
 			return now.GetArrayLength() < count || Field(now[0], "Title") + "|" + Field(now[0], "Description") != was;
 		}, seconds: 8);
-		Console.WriteLine(closed ? $"{Field(dialog, "Title")} → {pick}" : $"'{pick}' denildi ama pencere hâlâ açık.");
+		Console.WriteLine(closed ? $"{Field(dialog, "Title")} → {pick}" : L($"'{pick}' denildi ama pencere hâlâ açık."));
 
 		var next = await Fm.GetJson("dialog");
 		if (closed && next.GetArrayLength() > 0)
-			Console.WriteLine($"Yeni soru: {Field(next[0], "Title")} — {Field(next[0], "Description")}   (cevap: dialog)");
+			Console.WriteLine(L($"Yeni soru: {Field(next[0], "Title")} — {Field(next[0], "Description")}   (cevap: dialog)"));
 		return closed ? 0 : 1;
 	}
 

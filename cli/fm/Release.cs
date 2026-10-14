@@ -16,7 +16,7 @@ internal static partial class Program
 		var wage = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(c => Field(c, "Name") == "ContractDetails");
 		if (wage.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine($"{name} bizim oyuncumuz değil ya da sözleşmesi açılamıyor.");
+			Console.Error.WriteLine(L($"{name} bizim oyuncumuz değil ya da sözleşmesi açılamıyor."));
 			return 1;
 		}
 		var opened = await Arriving("press", [("ptr", Field(wage, "Pointer"))]);
@@ -33,7 +33,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: contract <oyuncu> --agent");
+			Console.Error.WriteLine(L("kullanım: contract <oyuncu> --agent"));
 			return 64;
 		}
 		if (await OpenPlayer(wanted) is not { } card) return 1;
@@ -49,7 +49,7 @@ internal static partial class Program
 		}
 		if (!await Until(Offered, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine($"{name} için menajerle görüşme seçeneği yok (yakın zamanda konuşulmuş olabilir).");
+			Console.Error.WriteLine(L($"{name} için menajerle görüşme seçeneği yok (yakın zamanda konuşulmuş olabilir)."));
 			return 1;
 		}
 		var pressed = await Arriving("press", [("text", ask), ("any", "1")]);
@@ -64,7 +64,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: release <oyuncu> [--free | --mutual] [--yes]");
+			Console.Error.WriteLine(L("kullanım: release <oyuncu> [--free | --mutual] [--yes]"));
 			return 64;
 		}
 		if (await OpenPlayer(wanted) is not { } card) return 1;
@@ -82,7 +82,7 @@ internal static partial class Program
 		}
 		if (!await Until(Listed, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine($"{name} için serbest bırakma seçeneği yok.");
+			Console.Error.WriteLine(L($"{name} için serbest bırakma seçeneği yok."));
 			return 1;
 		}
 
@@ -93,12 +93,12 @@ internal static partial class Program
 			if (!Ui.Interactive)
 			{
 				var ends = Field(card.GetProperty("Player"), "ContractEnds");
-				Console.WriteLine($"{name}: sözleşmesi {(ends.Length > 0 ? ends + " tarihinde bitiyor" : "sürüyor")}.");
-				Console.WriteLine($"  release \"{name}\" --free     bedelsiz serbest bırak (oyun tazminatı söyleyip onay ister)");
-				Console.WriteLine($"  release \"{name}\" --mutual   karşılıklı fesih teklif et (onay için --yes)");
+				Console.WriteLine(L($"{name}: sözleşmesi {(ends.Length > 0 ? ends + L(" tarihinde bitiyor") : L("sürüyor"))}."));
+				Console.WriteLine(L($"  release \"{name}\" --free     bedelsiz serbest bırak (oyun tazminatı söyleyip onay ister)"));
+				Console.WriteLine(L($"  release \"{name}\" --mutual   karşılıklı fesih teklif et (onay için --yes)"));
 				return 0;
 			}
-			if (Ui.Ask($"{name}: nasıl?", ["Bedelsiz serbest bırak", "Karşılıklı fesih teklif et"]) is not { } chosen) return 0;
+			if (Ui.Ask(L($"{name}: nasıl?"), [L("Bedelsiz serbest bırak"), L("Karşılıklı fesih teklif et")]) is not { } chosen) return 0;
 			way = chosen == 0 ? free : mutual;
 		}
 
@@ -107,10 +107,10 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine($"Karşılıklı fesih oyunda onaysız işliyor. Göndermek için: release \"{name}\" --mutual --yes");
+				Console.WriteLine(L($"Karşılıklı fesih oyunda onaysız işliyor. Göndermek için: release \"{name}\" --mutual --yes"));
 				return 0;
 			}
-			if (Ui.Ask($"{name} ile sözleşmeyi karşılıklı feshetmeyi teklif edelim mi?", ["Evet", "Hayır"]) != 0) return 0;
+			if (Ui.Ask(L($"{name} ile sözleşmeyi karşılıklı feshetmeyi teklif edelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
 		}
 
 		// The list is rebuilt as the page settles, so a pointer gone stale is looked up again.
@@ -130,20 +130,20 @@ internal static partial class Program
 			JsonElement dialogs = default;
 			if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.5))
 			{
-				Console.Error.WriteLine("Onay penceresi gelmedi; ne olduğunu `talk` ile gör.");
+				Console.Error.WriteLine(L("Onay penceresi gelmedi; ne olduğunu `talk` ile gör."));
 				return 1;
 			}
 			var dialog = dialogs[0];
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
-			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask("Serbest bırakalım mı?", ["Evet", "Hayır"]) == 0);
+			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Serbest bırakalım mı?"), [L("Evet"), L("Hayır")]) == 0);
 			if (DialogAnswer(dialog, go) is { } chosen) await Fm.Get("click", ("ptr", Field(chosen, "Pointer")));
 			if (!go)
 			{
-				if (!Ui.Interactive) Console.WriteLine($"Vazgeçildi. Serbest bırakmak için: release \"{name}\" --free --yes");
+				if (!Ui.Interactive) Console.WriteLine(L($"Vazgeçildi. Serbest bırakmak için: release \"{name}\" --free --yes"));
 				return 0;
 			}
 			// The game acts on it when the day moves on (FINDINGS §8.136): until then he is still in the squad.
-			Console.WriteLine($"{name} serbest bırakılıyor: oyun onayladı, gün ilerleyince (next) kadrodan çıkar ve tazminat bütçeden düşer.");
+			Console.WriteLine(L($"{name} serbest bırakılıyor: oyun onayladı, gün ilerleyince (next) kadrodan çıkar ve tazminat bütçeden düşer."));
 			return 0;
 		}
 
@@ -154,7 +154,7 @@ internal static partial class Program
 			foreach (var line in lines.EnumerateArray().Select(l => l.GetString() ?? "").Where(l => !l.StartsWith('»') && !l.StartsWith("Is there anything else", StringComparison.Ordinal)))
 				Console.WriteLine($"  {line}");
 		await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
-		Console.WriteLine($"{name}: karşılıklı fesih teklif edildi; cevabı gelen kutusuna düşer.");
+		Console.WriteLine(L($"{name}: karşılıklı fesih teklif edildi; cevabı gelen kutusuna düşer."));
 		return 0;
 	}
 }

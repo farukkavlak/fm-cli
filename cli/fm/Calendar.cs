@@ -129,7 +129,7 @@ internal static partial class Program
 			&& list.GetProperty("Choices").GetArrayLength() > 0, seconds: 8, every: 0.5);
 		if (list.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine("Takvim sayfasında ay seçici yok.");
+			Console.Error.WriteLine(L("Takvim sayfasında ay seçici yok."));
 			return null;
 		}
 
@@ -138,7 +138,7 @@ internal static partial class Program
 		// the one chosen after it is today's and the rest count from there.
 		if (!DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var today))
 		{
-			Console.Error.WriteLine("Oyunun tarihi okunamadı.");
+			Console.Error.WriteLine(L("Oyunun tarihi okunamadı."));
 			return null;
 		}
 		var todayButton = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -185,14 +185,14 @@ internal static partial class Program
 		var month = wanted.Length == 0 ? showing : PickMonth(months, wanted);
 		if (month == null)
 		{
-			Console.Error.WriteLine($"'{wanted}' takvimde yok. Aylar: {string.Join(", ", months.Select(m => $"{Months[m.Month - 1]} {m.Year}"))}");
+			Console.Error.WriteLine(L($"'{wanted}' takvimde yok. Aylar: {string.Join(", ", months.Select(m => $"{Months[m.Month - 1]} {m.Year}"))}"));
 			return 1;
 		}
 
 		var days = await CalendarMonth(month);
 		if (days == null)
 		{
-			Console.Error.WriteLine("Takvim okunamadı.");
+			Console.Error.WriteLine(L("Takvim okunamadı."));
 			return 1;
 		}
 		var busy = days.Where(d => d.Day.Month == month.Month && (d.Matches.Count > 0 || d.Notes.Count > 0 || d.Youth.Count > 0)).ToList();

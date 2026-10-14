@@ -25,7 +25,7 @@ internal static partial class Program
 		}, seconds: 12);
 		if (views == null || filters == null)
 		{
-			Console.Error.WriteLine("Personel veritabanı sayfası beklenen listeleri göstermedi.");
+			Console.Error.WriteLine(L("Personel veritabanı sayfası beklenen listeleri göstermedi."));
 			return 1;
 		}
 		var viewNames = views.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
@@ -54,7 +54,7 @@ internal static partial class Program
 			JsonElement edit = default;
 			await Until(async () => (edit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxFilterStoreFilter", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
-			if (edit.ValueKind != JsonValueKind.Object) return Report("error: sayfada arama paneli butonu yok");
+			if (edit.ValueKind != JsonValueKind.Object) return Report(L("error: sayfada arama paneli butonu yok"));
 			var panel = await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
 			if (panel.StartsWith("error", StringComparison.Ordinal)) return Report(panel);
 			List<JsonElement> lists = [];
@@ -77,7 +77,7 @@ internal static partial class Program
 			if (role != null)
 			{
 				var list = lists.FirstOrDefault(d => Has(d, "Medical ›"));
-				if (list.ValueKind != JsonValueKind.Object) return await Cancel(Report("error: arama panelinde görev listesi yok"));
+				if (list.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde görev listesi yok")));
 				// Jobs sit one level down, under the department they belong to.
 				var top = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 				var jobs = new List<(string Department, string Job)>();
@@ -102,7 +102,7 @@ internal static partial class Program
 			if (reputation != null)
 			{
 				var list = lists.FirstOrDefault(d => Has(d, "Exceptional"));
-				if (list.ValueKind != JsonValueKind.Object) return await Cancel(Report("error: arama panelinde itibar listesi yok"));
+				if (list.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde itibar listesi yok")));
 				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 				if (Choose(choices, reputation, "İtibar") is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
@@ -155,11 +155,11 @@ internal static partial class Program
 		}
 		if (rows.Count == 0)
 		{
-			Console.WriteLine("Sayfanın gösterdikleri arasında uyan yok.");
+			Console.WriteLine(L("Sayfanın gösterdikleri arasında uyan yok."));
 			return 0;
 		}
 		Columns(rows, "KİŞİ");
-		Console.WriteLine($"\n{rows.Count} kişi (sayfanın gösterdiği kadarı). Daraltmak: --role <görev> · --free · --reputation <seviye> · --view <görünüm> · sıfırlamak: --clear");
+		Console.WriteLine(L($"\n{rows.Count} kişi (sayfanın gösterdiği kadarı). Daraltmak: --role <görev> · --free · --reputation <seviye> · --view <görünüm> · sıfırlamak: --clear"));
 		return 0;
 	}
 	/// <summary>

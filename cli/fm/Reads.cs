@@ -26,14 +26,14 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
 		var state = await Fm.GetJson("state");
 		if (Field(state, "DuringMatch") == "True")
 		{
-			Console.Error.WriteLine("Maç sırasında başka sayfa açılmıyor. Maç için: match");
+			Console.Error.WriteLine(L("Maç sırasında başka sayfa açılmıyor. Maç için: match"));
 			return 1;
 		}
 		// After a match the game stands on its results and news page until it is passed. A page opened
@@ -41,7 +41,7 @@ internal static partial class Program
 		// session, and only loading the save again brought time back (Stevenage, 18 Nisan 2026).
 		if (Field(state, "State") == "Results")
 		{
-			Console.Error.WriteLine("Oyun maç sonrası sonuçlar ekranında; başka sayfa açmadan önce geç: next");
+			Console.Error.WriteLine(L("Oyun maç sonrası sonuçlar ekranında; başka sayfa açmadan önce geç: next"));
 			return 1;
 		}
 		return null;
@@ -144,7 +144,7 @@ internal static partial class Program
 		var text = string.Join(" ", Words(args));
 		if (text.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: search <metin>");
+			Console.Error.WriteLine(L("kullanım: search <metin>"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -157,7 +157,7 @@ internal static partial class Program
 		}
 
 		var who = await Who(results);
-		Table.Write(["TÜR", "AD", "KİM"], results.Select((r, i) => new[]
+		Table.Write([L("TÜR"), L("AD"), L("KİM")], results.Select((r, i) => new[]
 		{
 			Field(r, "Kind"),
 			Field(r, "Name") is { Length: > 0 } person ? person : Field(r, "Club") + Field(r, "Competition") + Field(r, "Nation"),
@@ -184,7 +184,7 @@ internal static partial class Program
 		var options = await TalkOptions();
 		if (options.Count == 0)
 		{
-			Console.Error.WriteLine($"{name} için aksiyon bulunamadı.");
+			Console.Error.WriteLine(L($"{name} için aksiyon bulunamadı."));
 			return 1;
 		}
 
@@ -192,11 +192,11 @@ internal static partial class Program
 		if (!Ui.Interactive)
 		{
 			for (var i = 0; i < labels.Count; i++) Console.WriteLine($"  {i + 1,2}  {labels[i]}");
-			Console.WriteLine("\nYapmak için: talk <numara>   (teklif için: offer <oyuncu> <bonservis>)");
+			Console.WriteLine(L("\nYapmak için: talk <numara>   (teklif için: offer <oyuncu> <bonservis>)"));
 			return 0;
 		}
 
-		if (Ui.Ask($"{name}: ne yapalım?", labels, cancel: "Hiçbir şey") is not { } chosen) return 0;
+		if (Ui.Ask(L($"{name}: ne yapalım?"), labels, cancel: "Hiçbir şey") is not { } chosen) return 0;
 
 		// The offer opens on its card, where the fee is set with the other terms.
 		if (options[chosen].Label == "Make An Offer") return await Offer(["offer", name]);
@@ -243,7 +243,7 @@ internal static partial class Program
 					: await Arriving("press", [("text", full), ("name", "NameButton"), ("any", "1")]);
 				if (pressedName.StartsWith("error", StringComparison.Ordinal))
 				{
-					Console.Error.WriteLine($"{full} kadroda ama ne aramada ne kadro tablosunda açılabildi.");
+					Console.Error.WriteLine(L($"{full} kadroda ama ne aramada ne kadro tablosunda açılabildi."));
 					return null;
 				}
 				fromSquad = true;
@@ -270,10 +270,10 @@ internal static partial class Program
 			if (close.Count != 1)
 			{
 				Console.Error.WriteLine(found.Count == 0
-					? $"'{wanted}' adında bir oyuncu kadroda da aramada da yok."
+					? L($"'{wanted}' adında bir oyuncu kadroda da aramada da yok.")
 					: close.Count == 0
-						? $"'{wanted}' aramada tam olarak çıkmadı; en yakınlar:"
-						: $"'{wanted}' aramada {close.Count} oyuncuya uyuyor; adı biraz daha yaz:");
+						? L($"'{wanted}' aramada tam olarak çıkmadı; en yakınlar:")
+						: L($"'{wanted}' aramada {close.Count} oyuncuya uyuyor; adı biraz daha yaz:"));
 				var hits = close.Count == 0 ? found : close;
 				var who = await Who(hits);
 				for (var i = 0; i < hits.Count; i++) Console.Error.WriteLine($"  {Field(hits[i], "Name")}  ({who[i]})");
@@ -293,7 +293,7 @@ internal static partial class Program
 		// Pages opened earlier stay loaded beneath, so his is asked for by name.
 		if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out _), seconds: 15, every: 0.25))
 		{
-			Console.Error.WriteLine($"{full} için oyuncu sayfası açılmadı.");
+			Console.Error.WriteLine(L($"{full} için oyuncu sayfası açılmadı."));
 			return null;
 		}
 
@@ -323,7 +323,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches] [--report]");
+			Console.Error.WriteLine(L("kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches] [--report]"));
 			return 64;
 		}
 
@@ -365,12 +365,12 @@ internal static partial class Program
 			Prefixed("Sağ ayak ", Field(player, "RightFootednessString")), Prefixed("Sol ayak ", Field(player, "LeftFootednessString")),
 			Suffixed(Field(player, "Height"), " cm"), Field(player, "InternationalCapsAndGoalsString")));
 
-		if (ability.Count > 0) Console.WriteLine($"Yetenek (son dört ay): {string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))} /200");
-		if (potential > 0) Console.WriteLine($"Potansiyel (kulübün gözünden): {potential}/200");
+		if (ability.Count > 0) Console.WriteLine(L($"Yetenek (son dört ay): {string.Join(" → ", ability.Select(v => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)))} /200"));
+		if (potential > 0) Console.WriteLine(L($"Potansiyel (kulübün gözünden): {potential}/200"));
 		var injury = Field(player, "InjuryDescription");
-		if (injury.Length > 0) Console.WriteLine($"Sakatlık: {injury}");
+		if (injury.Length > 0) Console.WriteLine(L($"Sakatlık: {injury}"));
 
-		if (traits.Count > 0) Console.WriteLine($"Alışkanlıklar: {string.Join("; ", traits)}");
+		if (traits.Count > 0) Console.WriteLine(L($"Alışkanlıklar: {string.Join("; ", traits)}"));
 		foreach (var line in history) Console.WriteLine(line);
 		}
 
@@ -407,7 +407,7 @@ internal static partial class Program
 		{
 			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList(), potential, ability);
 			foreach (var line in history) Console.WriteLine(line);
-			Ui.Line($"[dim]Teklif, kısa liste, scout…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]");
+			Ui.Line(L($"[dim]Teklif, kısa liste, scout…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]"));
 			return 0;
 		}
 
@@ -526,7 +526,7 @@ internal static partial class Program
 		var views = viewList?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList() ?? [];
 		if (views.Count == 0)
 		{
-			Console.Error.WriteLine("Kadro tablosunun görünüm listesi bulunamadı.");
+			Console.Error.WriteLine(L("Kadro tablosunun görünüm listesi bulunamadı."));
 			return 1;
 		}
 
@@ -541,7 +541,7 @@ internal static partial class Program
 		if (Choose(views, wanted, "Görünüm") is not { } view) return 1;
 		if (view.EndsWith("›", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor.");
+			Console.Error.WriteLine(L($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor."));
 			return 1;
 		}
 
@@ -625,7 +625,7 @@ internal static partial class Program
 			Spectre.Console.TableExtensions.AddRow(table, [name, .. shown.Select(c => Ui.Safe(c.Values[i]))]);
 		}
 		Ui.Out.Write(table);
-		if (dropped > 0) Ui.Line($"[dim]{dropped} kolon sığmadı; hepsi için: fm players --json ya da daha geniş terminal[/]");
+		if (dropped > 0) Ui.Line(L($"[dim]{dropped} kolon sığmadı; hepsi için: fm players --json ya da daha geniş terminal[/]"));
 	}
 
 	/// <summary>The game's raw values as a reader wants them: no "-1", no "Scouting Required", yes for True.</summary>
@@ -708,7 +708,7 @@ internal static partial class Program
 
 		if (views == null || filters == null)
 		{
-			Console.Error.WriteLine("Oyuncu veritabanı sayfası beklenen listeleri göstermedi.");
+			Console.Error.WriteLine(L("Oyuncu veritabanı sayfası beklenen listeleri göstermedi."));
 			return 1;
 		}
 
@@ -744,7 +744,7 @@ internal static partial class Program
 			var ends = ages.Split('-', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 			if (ends.Length != 2 || !int.TryParse(ends[0], out _) || !int.TryParse(ends[1], out _))
 			{
-				Console.Error.WriteLine("Yaş aralığı iki sayıyla:  --age 18-23");
+				Console.Error.WriteLine(L("Yaş aralığı iki sayıyla:  --age 18-23"));
 				return 64;
 			}
 			search.Add(("Aged Between (Years)", ends[0], "En küçük yaş"));
@@ -762,7 +762,7 @@ internal static partial class Program
 			var match = System.Text.RegularExpressions.Regex.Match(args[i + 1], @"^\s*(.+?)\s*(>=|<=|>|<)\s*(\d+)\s*$");
 			if (!match.Success || !int.TryParse(match.Groups[3].Value, out var bound))
 			{
-				Console.Error.WriteLine($"'{args[i + 1]}': nitelik koşulu \"<nitelik>>=<sayı>\" biçiminde (örnek: --attr \"pace>=15\").");
+				Console.Error.WriteLine(L($"'{args[i + 1]}': nitelik koşulu \"<nitelik>>=<sayı>\" biçiminde (örnek: --attr \"pace>=15\")."));
 				return 64;
 			}
 			var op = match.Groups[2].Value;
@@ -781,11 +781,11 @@ internal static partial class Program
 				10_000_000, 15_000_000, 20_000_000, 30_000_000, 40_000_000, 60_000_000, 80_000_000, 100_000_000];
 			if (Money(typedValue) is not { } limit || limit < 0)
 			{
-				Console.Error.WriteLine($"'{typedValue}': para olmalı (500K, 10M).");
+				Console.Error.WriteLine(L($"'{typedValue}': para olmalı (500K, 10M)."));
 				return 64;
 			}
 			maxValue = figures.LastOrDefault(f => f <= limit);
-			if (maxValue != limit) Console.WriteLine($"(değer sınırı oyunun listesindeki {MoneyFormat.Short(maxValue.Value)} olarak alındı)");
+			if (maxValue != limit) Console.WriteLine(L($"(değer sınırı oyunun listesindeki {MoneyFormat.Short(maxValue.Value)} olarak alındı)"));
 		}
 		if (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null)
 		{
@@ -817,7 +817,7 @@ internal static partial class Program
 			if (Choose(viewNames, wantedView, "Görünüm") is not { } view) return 1;
 			if (view.EndsWith("›", StringComparison.Ordinal))
 			{
-				Console.Error.WriteLine($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor.");
+				Console.Error.WriteLine(L($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor."));
 				return 1;
 			}
 
@@ -851,7 +851,7 @@ internal static partial class Program
 		Columns(people.EnumerateArray().ToList());
 
 		var count = await Found("PersonListCountString");
-		Console.WriteLine($"\n{people.GetArrayLength()} satır ekranda{(count != null ? $"; oyun: \"{count}\"" : "")}");
+		Console.WriteLine(L($"\n{people.GetArrayLength()} satır ekranda{(count != null ? L($"; oyun: \"{count}\"") : "")}"));
 		return 0;
 	}
 
@@ -949,7 +949,7 @@ internal static partial class Program
 			var pressed = await Arriving("press", [("text", wanted), ("name", "SIButton"), ("any", "1")]);
 			if (pressed.StartsWith("error", StringComparison.Ordinal) || await Settled(seen, 12) is not { } onPage)
 			{
-				Console.Error.WriteLine($"{wanted}: tablo açılmadı (kupada tablo olmaz).");
+				Console.Error.WriteLine(L($"{wanted}: tablo açılmadı (kupada tablo olmaz)."));
 				return 1;
 			}
 			table = onPage;
@@ -1026,7 +1026,7 @@ internal static partial class Program
 		}, seconds: 8, every: 0.6);
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine("Kadro okunamadı.");
+			Console.Error.WriteLine(L("Kadro okunamadı."));
 			return 1;
 		}
 		rows = rows.OrderByDescending(r => r.Ability.Count > 0 ? r.Ability[^1] - r.Ability[0] : 0).ThenByDescending(r => r.Ability.LastOrDefault()).ToList();
@@ -1037,7 +1037,7 @@ internal static partial class Program
 			return 0;
 		}
 		static string N(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
-		Table.Write(["OYUNCU", "YAŞ", "YETENEK (eski → yeni)", "DEĞİŞİM", "POTANSİYEL"], rows.Select(r =>
+		Table.Write([L("OYUNCU"), L("YAŞ"), L("YETENEK (eski → yeni)"), L("DEĞİŞİM"), L("POTANSİYEL")], rows.Select(r =>
 		{
 			var change = r.Ability.Count > 0 ? Math.Round(r.Ability[^1] - r.Ability[0], 1) : 0;
 			return new[]
@@ -1046,7 +1046,7 @@ internal static partial class Program
 				change > 0 ? "+" + N(change) : change < 0 ? N(change) : "=", r.Potential > 0 ? r.Potential.ToString() : "",
 			};
 		}).ToList());
-		Console.WriteLine("\nYetenek 200 üzerinden, son dört aylık ölçüm; potansiyel kulübün gözünden.");
+		Console.WriteLine(L("\nYetenek 200 üzerinden, son dört aylık ölçüm; potansiyel kulübün gözünden."));
 		return 0;
 	}
 
@@ -1093,7 +1093,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Table.Write(["TARİH", "SAAT", "YER", "RAKİP", "TURNUVA", "SONUÇ"], rows);
+		Table.Write([L("TARİH"), L("SAAT"), L("YER"), L("RAKİP"), L("TURNUVA"), L("SONUÇ")], rows);
 		return 0;
 
 		static string Short(string date) =>
@@ -1121,7 +1121,7 @@ internal static partial class Program
 		matches = matches.OrderBy(m => m.Day).ToList();
 		if (matches.Count == 0)
 		{
-			Console.Error.WriteLine("Takvimde maç bulunamadı.");
+			Console.Error.WriteLine(L("Takvimde maç bulunamadı."));
 			return 1;
 		}
 

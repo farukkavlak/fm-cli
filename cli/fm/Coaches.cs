@@ -36,7 +36,7 @@ internal static partial class Program
 		(List<CoachRow> Rows, List<(string Load, int HalfStars)> Areas)? page = null;
 		if (!await Until(async () => (page = await ReadCoaches()) is { Rows.Count: > 0 }, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine("Antrenör görevleri sayfası açılmadı.");
+			Console.Error.WriteLine(L("Antrenör görevleri sayfası açılmadı."));
 			return 1;
 		}
 
@@ -46,12 +46,12 @@ internal static partial class Program
 			var ask = await Labelled("Ask Assistant to Assign");
 			if (ask == null)
 			{
-				Console.Error.WriteLine("Görevleri yardımcıya bırakma düğmesi yok.");
+				Console.Error.WriteLine(L("Görevleri yardımcıya bırakma düğmesi yok."));
 				return 1;
 			}
 			await Fm.Get("press", ("ptr", Field(ask.Value, "Pointer")));
 			await Task.Delay(1500);
-			Console.WriteLine("Yardımcı görevleri dağıttı.");
+			Console.WriteLine(L("Yardımcı görevleri dağıttı."));
 			page = await ReadCoaches();
 		}
 		else if (words.Count > 0)
@@ -61,14 +61,14 @@ internal static partial class Program
 			var coach = rows.FirstOrDefault(r => words.Any(w => r.Name.Contains(w, StringComparison.OrdinalIgnoreCase)));
 			if (coach == null)
 			{
-				Console.Error.WriteLine($"Antrenör bulunamadı. Antrenörler: {string.Join(", ", rows.Select(r => r.Name))}");
+				Console.Error.WriteLine(L($"Antrenör bulunamadı. Antrenörler: {string.Join(", ", rows.Select(r => r.Name))}"));
 				return 1;
 			}
 			var rest = string.Join(" ", words.Where(w => !coach.Name.Contains(w, StringComparison.OrdinalIgnoreCase))).ToLowerInvariant();
 			var area = Array.FindIndex(CoachAreas, a => a.Words.Contains(rest) || a.Heading.Equals(rest, StringComparison.OrdinalIgnoreCase));
 			if (area < 0)
 			{
-				Console.Error.WriteLine($"Alan bilinmiyor: '{rest}'. Alanlar: {string.Join(", ", CoachAreas.Select(a => a.Turkish.ToLowerInvariant()))}");
+				Console.Error.WriteLine(L($"Alan bilinmiyor: '{rest}'. Alanlar: {string.Join(", ", CoachAreas.Select(a => a.Turkish.ToLowerInvariant()))}"));
 				return 1;
 			}
 
@@ -76,17 +76,17 @@ internal static partial class Program
 			var on = !args.Contains("--off");
 			if (!cell.Enabled)
 			{
-				Console.Error.WriteLine($"{coach.Name} ({coach.Role}) {CoachAreas[area].Turkish.ToLowerInvariant()} alanına atanamaz.");
+				Console.Error.WriteLine(L($"{coach.Name} ({coach.Role}) {CoachAreas[area].Turkish.ToLowerInvariant()} alanına atanamaz."));
 				return 1;
 			}
 			if (cell.On == on)
-				Console.WriteLine($"{coach.Name} {CoachAreas[area].Turkish.ToLowerInvariant()} alanında {(on ? "zaten görevli" : "zaten görevli değil")}.");
+				Console.WriteLine(L($"{coach.Name} {CoachAreas[area].Turkish.ToLowerInvariant()} alanında {(on ? L("zaten görevli") : L("zaten görevli değil"))}."));
 			else
 			{
 				var set = await Fm.Get("setcontrol", ("ptr", cell.Pointer), ("value", on ? "1" : "0"));
 				if (set.StartsWith("error", StringComparison.Ordinal)) return Report(set);
 				await Task.Delay(800);
-				Console.WriteLine($"{coach.Name} {CoachAreas[area].Turkish.ToLowerInvariant()} {(on ? "alanına atandı" : "görevinden alındı")}.");
+				Console.WriteLine($"{coach.Name} {CoachAreas[area].Turkish.ToLowerInvariant()} {(on ? L("alanına atandı") : L("görevinden alındı"))}.");
 				page = await ReadCoaches();
 			}
 		}
@@ -119,11 +119,11 @@ internal static partial class Program
 		table.Add(new[] { "iş yükü" }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? areas[i].Load : "")).ToArray());
 		table.Add(new[] { "baş antrenör" }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? Stars(areas[i].HalfStars) is { Length: > 0 } st ? st : "yok" : "")).ToArray());
 		Table.Write(headers, table);
-		Console.WriteLine("HÜC hücum · SAV savunma · TOP topla oynama · TAK taktik · TEK teknik · KOND kondisyon · DURAN duran top");
+		Console.WriteLine(L("HÜC hücum · SAV savunma · TOP topla oynama · TAK taktik · TEK teknik · KOND kondisyon · DURAN duran top"));
 
 		var empty = CoachAreas.Where((_, i) => !rows.Any(r => r.Cells[i].On)).Select(a => a.Turkish.ToLowerInvariant()).ToList();
-		if (empty.Count > 0) Console.WriteLine($"Antrenörü olmayan alan: {string.Join(", ", empty)}");
-		Console.WriteLine("Atamak için: coaches <antrenör> <alan>   (kaldırmak: --off;  yardımcıya bırakmak: --auto)");
+		if (empty.Count > 0) Console.WriteLine(L($"Antrenörü olmayan alan: {string.Join(", ", empty)}"));
+		Console.WriteLine(L("Atamak için: coaches <antrenör> <alan>   (kaldırmak: --off;  yardımcıya bırakmak: --auto)"));
 	}
 
 	/// <summary>The page as its form reads: the coaches with their nine switches, then each area's load and lead.</summary>

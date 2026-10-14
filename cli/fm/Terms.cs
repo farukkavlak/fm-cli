@@ -29,14 +29,14 @@ internal static partial class Program
 		}
 		if (chosen.StartsWith("Pazarlık", StringComparison.Ordinal))
 			return await PickLock(route, row, s => s.Row(row)?.Lock);
-		if (Ui.Ask($"{OfferScreen.Say(row.Label)} kaldırılsın mı?", ["Kaldır"], cancel: "Geri") == null) return null;
+		if (Ui.Ask(L($"{OfferScreen.Say(row.Label)} kaldırılsın mı?"), [L("Kaldır")], cancel: "Geri") == null) return null;
 		return await OfferScreen.Remove(Fm, row, route);
 	}
 
 	private static async Task<string> PickLock(string route, OfferScreen.Term term, Func<OfferScreen, OfferScreen.Control> after)
 	{
 		var names = term.Lock.Choices.Select(OfferScreen.SayLock).ToList();
-		if (Ui.Ask($"{OfferScreen.Say(term.Label)} — karşı taraf bunu ne kadar değiştirebilsin?", names, current: term.Lock.Choices.IndexOf(term.Lock.Value), cancel: "Geri") is not { } picked) return null;
+		if (Ui.Ask(L($"{OfferScreen.Say(term.Label)} — karşı taraf bunu ne kadar değiştirebilsin?"), names, current: term.Lock.Choices.IndexOf(term.Lock.Value), cancel: "Geri") is not { } picked) return null;
 		return term.Lock.Choices[picked] == term.Lock.Value ? null : await OfferScreen.SetLock(Fm, term, term.Lock.Choices[picked], route, after);
 	}
 
@@ -76,7 +76,7 @@ internal static partial class Program
 		{
 			if (choices.Count == 0) return "Bu menü boş.";
 			var title = path.Count == 0 ? question : string.Join(" › ", path.Select(OfferScreen.Say));
-			if (Ui.Ask(title, choices.Select(OfferScreen.Say).ToList(), cancel: path.Count == 0 ? "Geri" : "Bir üst menü") is not { } picked)
+			if (Ui.Ask(title, choices.Select(OfferScreen.Say).ToList(), cancel: path.Count == 0 ? L("Geri") : L("Bir üst menü")) is not { } picked)
 			{
 				if (path.Count == 0) return null;
 				path.RemoveAt(path.Count - 1);

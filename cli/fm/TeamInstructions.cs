@@ -35,24 +35,24 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 		if (!await FindMatchTactic())
 		{
-			Console.Error.WriteLine("Maçın taktiği bulunamadı.");
+			Console.Error.WriteLine(L("Maçın taktiği bulunamadı."));
 			return 1;
 		}
 		var catalogue = await TeamInstructionCatalogue(refresh);
 		if (catalogue.Count == 0)
 		{
-			Console.Error.WriteLine("Takım talimatları oyundan okunamadı.");
+			Console.Error.WriteLine(L("Takım talimatları oyundan okunamadı."));
 			return 1;
 		}
 		var now = await TeamInstructionsNow(catalogue);
 		if (now.Count == 0)
 		{
-			Console.Error.WriteLine("Takımın taktiği okunamadı. Taktik yoksa: tactic new");
+			Console.Error.WriteLine(L("Takımın taktiği okunamadı. Taktik yoksa: tactic new"));
 			return 1;
 		}
 		string Setting(TeamInstruction i) => now.TryGetValue(i.Id, out var o) ? i.Options.FirstOrDefault(x => x.Id == o).Name ?? o.ToString() : "?";
@@ -70,7 +70,7 @@ internal static partial class Program
 			{
 				if (!first) Console.WriteLine();
 				first = false;
-				if (Ui.Rich) Ui.Line($"[bold underline]{(group.Key ? "Topla" : "Topsuz")}[/]"); else Console.WriteLine(group.Key ? "TOPLA" : "TOPSUZ");
+				if (Ui.Rich) Ui.Line($"[bold underline]{(group.Key ? L("Topla") : L("Topsuz"))}[/]"); else Console.WriteLine(group.Key ? L("TOPLA") : L("TOPSUZ"));
 				foreach (var phase in group.GroupBy(i => i.Group))
 				{
 					if (group.Key) { if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(phase.Key)}[/]"); else Console.WriteLine(phase.Key); }
@@ -79,7 +79,7 @@ internal static partial class Program
 						else Console.WriteLine($"  {i.Name}: {Setting(i)}");
 				}
 			}
-			Console.WriteLine("\nDeğiştirmek için: tactic instructions \"<talimat>\" [<değer>]");
+			Console.WriteLine(L("\nDeğiştirmek için: tactic instructions \"<talimat>\" [<değer>]"));
 			return 0;
 		}
 
@@ -110,19 +110,19 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine($"{target.Name}: {current}\nSeçenekler: {string.Join(" · ", choices)}");
+			Console.WriteLine(L($"{target.Name}: {current}\nSeçenekler: {string.Join(" · ", choices)}"));
 			return 0;
 		}
 
 		if (dry || choice == current)
 		{
-			Console.WriteLine(dry ? $"(kuru) {target.Name}: {current} → {choice}" : $"{target.Name} zaten {choice}.");
+			Console.WriteLine(dry ? L($"(kuru) {target.Name}: {current} → {choice}") : L($"{target.Name} zaten {choice}."));
 			return 0;
 		}
 
 		var option = target.Options.First(o => o.Name == choice).Id;
 		var scope = await TacticScope(target.Id);
-		if (scope == null) return Report("error: taktik bağlanamadı");
+		if (scope == null) return Report(L("error: taktik bağlanamadı"));
 		// Written before it is bound, the setting stays a value of that place and never reaches the game.
 		await PullEach([($"{TacticAt(scope)}", "SelectedTeamInstructionOption")]);
 		var said = await Fm.Get("pathset", ("to", $"{TacticAt(scope)}.SelectedTeamInstructionOption"), ("int", option.ToString()));
@@ -132,7 +132,7 @@ internal static partial class Program
 		long? after = null;
 		var took = await Until(async () => (after = (await TeamInstructionsNow([target])).GetValueOrDefault(target.Id)) == option, seconds: 5, every: 0.3);
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Instruction = target.Name, Was = current, Value = took ? choice : Setting(target), Changed = took }));
-		else Console.WriteLine(took ? $"{target.Name}: {current} → {choice}{Stoppage()}" : $"{target.Name}: oyun değişikliği almadı.");
+		else Console.WriteLine(took ? $"{target.Name}: {current} → {choice}{Stoppage()}" : L($"{target.Name}: oyun değişikliği almadı."));
 		return took ? 0 : 1;
 	}
 
@@ -209,7 +209,7 @@ internal static partial class Program
 			catch (Exception e) when (e is JsonException or InvalidOperationException or IOException) { }
 		}
 
-		if (!Ui.Json) Console.Error.WriteLine("Takım talimatları oyundan okunuyor (bir kez)…");
+		if (!Ui.Json) Console.Error.WriteLine(L("Takım talimatları oyundan okunuyor (bir kez)…"));
 		async Task<string> Static(string tag, long id)
 		{
 			var scope = $"fmcli.{tag}{id}";
@@ -254,19 +254,19 @@ internal static partial class Program
 	{
 		if (!await FindMatchTactic())
 		{
-			Console.Error.WriteLine("Maçın taktiği bulunamadı.");
+			Console.Error.WriteLine(L("Maçın taktiği bulunamadı."));
 			return 1;
 		}
 		var slots = await PiSlots();
 		if (slots.Count == 0)
 		{
-			Console.Error.WriteLine("Takımın taktiği yok. Oluşturmak için: tactic new");
+			Console.Error.WriteLine(L("Takımın taktiği yok. Oluşturmak için: tactic new"));
 			return 1;
 		}
 		var spots = slots.Select(s => s.Spot).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine($"kullanım: tactic pi <mevki|oyuncu> [<talimat> [<değer>]]   mevkiler: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}");
+			Console.Error.WriteLine(L($"kullanım: tactic pi <mevki|oyuncu> [<talimat> [<değer>]]   mevkiler: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}"));
 			return 64;
 		}
 		// A slot by its position as the pitch shows it, or by the player in it.
@@ -276,7 +276,7 @@ internal static partial class Program
 			var byName = Matching(slots, s => s.Player, words[0]);
 			if (byName.Count != 1)
 			{
-				Console.Error.WriteLine($"'{words[0]}' bir mevkiye ya da ilk on birdeki tek bir oyuncuya uymuyor. Mevkiler: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}");
+				Console.Error.WriteLine(L($"'{words[0]}' bir mevkiye ya da ilk on birdeki tek bir oyuncuya uymuyor. Mevkiler: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}"));
 				return 1;
 			}
 			slot = byName[0];
@@ -287,13 +287,13 @@ internal static partial class Program
 		var groups = await PlayerInstructionCatalogue();
 		if (groups.Count == 0)
 		{
-			Console.Error.WriteLine("Oyuncu talimatları oyundan okunamadı.");
+			Console.Error.WriteLine(L("Oyuncu talimatları oyundan okunamadı."));
 			return 1;
 		}
 		var now = await PlayerInstructionsNow(index, groups);
 		if (now.Count == 0)
 		{
-			Console.Error.WriteLine($"{spot}: talimatlar okunamadı.");
+			Console.Error.WriteLine(L($"{spot}: talimatlar okunamadı."));
 			return 1;
 		}
 		string Setting(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) ? g.Options.FirstOrDefault(o => o.Id == n.Option).Name ?? n.Option.ToString() : "?";
@@ -314,12 +314,12 @@ internal static partial class Program
 			Console.WriteLine($"{spot} · {roles}");
 			foreach (var side in groups.GroupBy(g => g.WithBall))
 			{
-				if (Ui.Rich) Ui.Line($"[bold]{(side.Key ? "Topla" : "Topsuz")}[/]"); else Console.WriteLine(side.Key ? "Topla" : "Topsuz");
+				if (Ui.Rich) Ui.Line($"[bold]{(side.Key ? L("Topla") : L("Topsuz"))}[/]"); else Console.WriteLine(side.Key ? L("Topla") : L("Topsuz"));
 				foreach (var g in side)
-					if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(g.Name),-22}[/] [yellow]{Ui.Safe(Setting(g))}[/]{(Fixed(g) ? " [dim](rolden)[/]" : "")}");
-					else Console.WriteLine($"  {g.Name}: {Setting(g)}{(Fixed(g) ? " (rolden)" : "")}");
+					if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(g.Name),-22}[/] [yellow]{Ui.Safe(Setting(g))}[/]{(Fixed(g) ? L(" [dim](rolden)[/]") : "")}");
+					else Console.WriteLine($"  {g.Name}: {Setting(g)}{(Fixed(g) ? L(" (rolden)") : "")}");
 			}
-			Console.WriteLine($"\nDeğiştirmek: tactic pi {spot} \"<talimat>\" <değer>   (rolden gelenler rol değişince değişir)");
+			Console.WriteLine(L($"\nDeğiştirmek: tactic pi {spot} \"<talimat>\" <değer>   (rolden gelenler rol değişince değişir)"));
 			return 0;
 		}
 
@@ -329,7 +329,7 @@ internal static partial class Program
 		var current = Setting(group);
 		if (Fixed(group))
 		{
-			Console.Error.WriteLine($"{name}: {current} — rolün{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")} parçası, değiştirilemiyor. Rolü değiştirmek için: tactic role {spot}{(group.WithBall ? "" : " --oop")}");
+			Console.Error.WriteLine(L($"{name}: {current} — rolün{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")} parçası, değiştirilemiyor. Rolü değiştirmek için: tactic role {spot}{(group.WithBall ? "" : L(" --oop"))}"));
 			return 1;
 		}
 		// Some settings are not on offer to every role ("Cut Inside" for a centre-back), as on the card.
@@ -354,19 +354,19 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine($"{name}: {current}\nSeçenekler: {string.Join(" · ", choices)}");
+			Console.WriteLine(L($"{name}: {current}\nSeçenekler: {string.Join(" · ", choices)}"));
 			return 0;
 		}
 
 		if (dry || choice == current)
 		{
-			Console.WriteLine(dry ? $"(kuru) {name}: {current} → {choice}" : $"{name} zaten {choice}.");
+			Console.WriteLine(dry ? L($"(kuru) {name}: {current} → {choice}") : L($"{name} zaten {choice}."));
 			return 0;
 		}
 
 		var option = open.First(o => o.Name == choice).Id;
 		var scope = await PlayerScope(index, group);
-		if (scope == null) return Report("error: taktik bağlanamadı");
+		if (scope == null) return Report(L("error: taktik bağlanamadı"));
 		await PullEach([($"{TacticAt(scope)}", "SelectedPlayerInstruction")]);
 		var said = await Fm.Get("pathset", ("to", $"{TacticAt(scope)}.SelectedPlayerInstruction"), ("int", option.ToString()));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
@@ -374,7 +374,7 @@ internal static partial class Program
 		long? after = null;
 		var took = await Until(async () => (after = (await PlayerInstructionsNow(index, [group])).GetValueOrDefault(group.Id)?.Option) == option, seconds: 5, every: 0.3);
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, Was = current, Value = took ? choice : current, Changed = took }));
-		else Console.WriteLine(took ? $"{name}: {current} → {choice}{Stoppage()}" : $"{name}: oyun değişikliği almadı.");
+		else Console.WriteLine(took ? $"{name}: {current} → {choice}{Stoppage()}" : L($"{name}: oyun değişikliği almadı."));
 		return took ? 0 : 1;
 	}
 
@@ -473,7 +473,7 @@ internal static partial class Program
 			catch (Exception e) when (e is JsonException or InvalidOperationException or IOException) { }
 		}
 
-		if (!Ui.Json) Console.Error.WriteLine("Oyuncu talimatları oyundan okunuyor (bir kez)…");
+		if (!Ui.Json) Console.Error.WriteLine(L("Oyuncu talimatları oyundan okunuyor (bir kez)…"));
 		async Task<string> Static(string tag, int group, long? option)
 		{
 			var scope = $"fmcli.{tag}{group}{(option is { } o ? $"_{o}" : "")}";

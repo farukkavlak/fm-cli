@@ -49,7 +49,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -69,7 +69,7 @@ internal static partial class Program
 		if (before == null)
 		{
 			Console.WriteLine(json ? JsonOut.Of(new { First = true, Now = now })
-				: $"{SayDate(now.Date)} anı kaydedildi. Bir dahaki `fm diff` o günden bu yana neyin değiştiğini söyler.");
+				: L($"{SayDate(now.Date)} anı kaydedildi. Bir dahaki `fm diff` o günden bu yana neyin değiştiğini söyler."));
 			return 0;
 		}
 
@@ -108,7 +108,7 @@ internal static partial class Program
 
 		var days = DateTime.TryParse(now.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var to)
 			&& DateTime.TryParse(before.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var from) ? (to - from).Days : 0;
-		Console.WriteLine(days == 0 ? $"{SayDate(now.Date)} (aynı gün)" : $"{SayDate(before.Date)} → {SayDate(now.Date)} · {days} gün");
+		Console.WriteLine(days == 0 ? L($"{SayDate(now.Date)} (aynı gün)") : L($"{SayDate(before.Date)} → {SayDate(now.Date)} · {days} gün"));
 
 		var lines = new List<(string What, string Said)>();
 		if (now.Position > 0 && (now.Position != before.Position || now.Points != before.Points))
@@ -130,7 +130,7 @@ internal static partial class Program
 
 		if (lines.Count == 0 && played.Count == 0)
 		{
-			Console.WriteLine("Değişen bir şey yok.");
+			Console.WriteLine(L("Değişen bir şey yok."));
 			return 0;
 		}
 		var width = lines.Count > 0 ? lines.Max(l => l.What.Length) : 0;
@@ -141,13 +141,13 @@ internal static partial class Program
 		if (played.Count > 0)
 		{
 			Console.WriteLine();
-			Table.Write(["OYUNCU", "MAÇ", "GOL", "ASİST", "ORT. PUAN"], played.Select(x => new[]
+			Table.Write([L("OYUNCU"), L("MAÇ"), L("GOL"), L("ASİST"), L("ORT. PUAN")], played.Select(x => new[]
 			{
 				x.Is.Name, Plus(x.Is.Apps - x.Was.Apps), Plus(x.Is.Goals - x.Was.Goals), Plus(x.Is.Assists - x.Was.Assists),
 				x.Is.Rating == x.Was.Rating ? Rating(x.Is.Rating) : $"{Rating(x.Was.Rating)} → {Rating(x.Is.Rating)}",
 			}).ToList());
 		}
-		if (args.Contains("--keep")) Console.WriteLine($"\n(--keep: karşılaştırma yine {SayDate(before.Date)} ile yapılacak)");
+		if (args.Contains("--keep")) Console.WriteLine(L($"\n(--keep: karşılaştırma yine {SayDate(before.Date)} ile yapılacak)"));
 		return 0;
 
 		static string Or(string text) => text.Length > 0 ? text : "-";

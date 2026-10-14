@@ -24,19 +24,19 @@ internal static partial class Program
 				// Every rule holds and Confirm is still off: the game takes no changes to a list
 				// already sent until its window allows them, whatever the list.
 				var window = FoundValues(await Fm.Get("find", ("name", "RegistrationDaysLeft"), ("limit", "1"))).FirstOrDefault();
-				Console.Error.WriteLine($"{what} kuralları tutuyor ama oyun şu an değişiklik kabul etmiyor (Confirm kapalı"
-				                        + (string.IsNullOrEmpty(window) ? ")." : $", kayıt: {window}).")
-				                        + " Daha önce gönderilen liste geçerli.");
+				Console.Error.WriteLine(L($"{what} kuralları tutuyor ama oyun şu an değişiklik kabul etmiyor (Confirm kapalı")
+				                        + (string.IsNullOrEmpty(window) ? ")." : L($", kayıt: {window})."))
+				                        + L(" Daha önce gönderilen liste geçerli."));
 				if (await Labelled("Undo") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
 				return 1;
 			}
 			if (broken.Count > 0)
 			{
-				Console.Error.WriteLine($"{what} gönderilemiyor, kurallar tutmuyor:");
+				Console.Error.WriteLine(L($"{what} gönderilemiyor, kurallar tutmuyor:"));
 				foreach (var (rule, met) in broken) Console.Error.WriteLine($"  {(met ? "✓" : "✗")} {rule}");
-				Console.Error.WriteLine("Listeden oyuncu çıkarıp eklemek için: register (terminalde) ya da register --in/--out <oyuncu>");
+				Console.Error.WriteLine(L("Listeden oyuncu çıkarıp eklemek için: register (terminalde) ya da register --in/--out <oyuncu>"));
 			}
-			else Console.Error.WriteLine($"Ekranda '{confirmLabel}' açılmadı.");
+			else Console.Error.WriteLine(L($"Ekranda '{confirmLabel}' açılmadı."));
 			return 1;
 		}
 		await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
@@ -48,12 +48,12 @@ internal static partial class Program
 			: null;
 		if (yes == null)
 		{
-			Console.Error.WriteLine("Onay penceresi gelmedi; liste gönderilmemiş olabilir. Bakmak için: dialog");
+			Console.Error.WriteLine(L("Onay penceresi gelmedi; liste gönderilmemiş olabilir. Bakmak için: dialog"));
 			return 1;
 		}
 
 		await Fm.Get("click", ("ptr", Field(yes.Value, "Pointer")));
-		Console.WriteLine($"{what} gönderildi.");
+		Console.WriteLine(L($"{what} gönderildi."));
 		return 0;
 	}
 

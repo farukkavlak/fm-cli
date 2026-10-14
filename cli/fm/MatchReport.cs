@@ -43,7 +43,7 @@ internal static class MatchReport
 		}
 		if (F(fixture, "HasResult") != "True")
 		{
-			Console.Error.WriteLine("Oynanmış bir maç yok.");
+			Console.Error.WriteLine(L("Oynanmış bir maç yok."));
 			return 1;
 		}
 
@@ -73,9 +73,9 @@ internal static class MatchReport
 		if (!Ui.Rich)
 		{
 			Console.WriteLine($"{home} {score} {away}" + (competition.Length > 0 ? $"  ({competition})" : ""));
-			if (shootout != null) Console.WriteLine($"Penaltılarla kazanan: {shootout}");
-			if (scorers.Length > 0) Console.WriteLine($"Goller: {scorers.Replace("\n", "; ")}");
-			if (star.Length > 0) Console.WriteLine($"Maçın oyuncusu: {star}" + (rating.Length > 0 ? $" ({rating})" : ""));
+			if (shootout != null) Console.WriteLine(L($"Penaltılarla kazanan: {shootout}"));
+			if (scorers.Length > 0) Console.WriteLine(L($"Goller: {scorers.Replace("\n", "; ")}"));
+			if (star.Length > 0) Console.WriteLine(L($"Maçın oyuncusu: {star}") + (rating.Length > 0 ? $" ({rating})" : ""));
 			foreach (var (label, field) in Numbers)
 				if (F(fixture, "Home" + field) is { Length: > 0 } h) Console.WriteLine($"{label}: {Shown(field, h)} - {Shown(field, F(fixture, "Away" + field))}");
 			return 0;

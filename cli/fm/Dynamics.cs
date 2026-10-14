@@ -84,7 +84,7 @@ internal static partial class Program
 		}
 		if (players.Count == 0)
 		{
-			Console.Error.WriteLine("Sosyal gruplar okunamadı.");
+			Console.Error.WriteLine(L("Sosyal gruplar okunamadı."));
 			return 1;
 		}
 
@@ -106,7 +106,7 @@ internal static partial class Program
 		}
 
 		if (Count("Supportive").Length > 0)
-			Console.WriteLine($"Menajere destek: {Count("Supportive")} destekliyor · {Count("Neutral")} kararsız · {Count("Opposing")} karşı\n");
+			Console.WriteLine(L($"Menajere destek: {Count("Supportive")} destekliyor · {Count("Neutral")} kararsız · {Count("Opposing")} karşı\n"));
 		static int Rank(string hierarchy) => Array.FindIndex(HierarchyOrder, h => hierarchy.StartsWith(h, StringComparison.OrdinalIgnoreCase)) is var i and >= 0 ? i : HierarchyOrder.Length;
 		foreach (var group in groups)
 		{
@@ -114,7 +114,7 @@ internal static partial class Program
 			if (members.Count == 0) continue;
 			Console.WriteLine($"{SocialGroupTurkish.GetValueOrDefault(group.Name, group.Name)} ({members.Count})");
 			if (group.Why.Length > 0) Console.WriteLine($"  {group.Why}");
-			Table.Write(["OYUNCU", "HİYERARŞİ", "KİŞİLİK"],
+			Table.Write([L("OYUNCU"), L("HİYERARŞİ"), L("KİŞİLİK")],
 				members.Select(p => (string[])[p.Name, HierarchyTurkish.GetValueOrDefault(p.Hierarchy, p.Hierarchy), p.Personality]).ToList());
 			Console.WriteLine();
 		}

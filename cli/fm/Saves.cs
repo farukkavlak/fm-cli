@@ -17,13 +17,13 @@ internal static partial class Program
 	{
 		if (!Directory.Exists(SavesFolder))
 		{
-			Console.Error.WriteLine($"Kayıt klasörü yok: {SavesFolder}");
+			Console.Error.WriteLine(L($"Kayıt klasörü yok: {SavesFolder}"));
 			return 1;
 		}
 		var files = new DirectoryInfo(SavesFolder).GetFiles("*.fm").OrderByDescending(f => f.LastWriteTime).ToList();
 		if (files.Count == 0)
 		{
-			Console.WriteLine("Kayıt yok.");
+			Console.WriteLine(L("Kayıt yok."));
 			return 0;
 		}
 		if (json)
@@ -35,7 +35,7 @@ internal static partial class Program
 			return 0;
 		}
 		var tr = CultureInfo.InvariantCulture;
-		Table.Write(["KAYIT", "SON YAZILMA", "BOYUT"], files.Select(f => new[]
+		Table.Write([L("KAYIT"), L("SON YAZILMA"), L("BOYUT")], files.Select(f => new[]
 		{
 			Path.GetFileNameWithoutExtension(f.Name),
 			f.LastWriteTime.ToString("d MMM yyyy HH:mm", tr),
@@ -100,7 +100,7 @@ internal static partial class Program
 		var close = names.Where(n => n.Contains(wanted, StringComparison.OrdinalIgnoreCase)).ToList();
 		if (close.Count == 1) return close[0];
 
-		Console.Error.WriteLine(close.Count == 0 ? $"'{typed}' adında kayıt yok." : $"'{typed}' birden çok kayda uyuyor:");
+		Console.Error.WriteLine(close.Count == 0 ? L($"'{typed}' adında kayıt yok.") : L($"'{typed}' birden çok kayda uyuyor:"));
 		foreach (var name in close.Count == 0 ? names : close) Console.Error.WriteLine($"  {name}");
 		return null;
 	}
@@ -165,12 +165,12 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(world));
 			return 0;
 		}
-		Console.WriteLine($"Kayıt     {world.Save}");
+		Console.WriteLine(L($"Kayıt     {world.Save}"));
 		Console.WriteLine($"          {world.LastSaved}{(when.Length > 0 ? $" ({when})" : "")} · {world.Autosave}");
-		Console.WriteLine($"Oynanan   {world.Played}");
-		Console.WriteLine($"Dünya     {world.Nations} ülke · {world.Leagues} lig · yaklaşık {world.Players} oyuncu");
-		Console.WriteLine($"Detay     turnuvalar: {world.CompetitionDetail} · milli turnuvalar: {world.InternationalDetail}");
-		Console.WriteLine($"Menajer   {world.Manager} · {world.Club} · {world.Status}");
+		Console.WriteLine(L($"Oynanan   {world.Played}"));
+		Console.WriteLine(L($"Dünya     {world.Nations} ülke · {world.Leagues} lig · yaklaşık {world.Players} oyuncu"));
+		Console.WriteLine(L($"Detay     turnuvalar: {world.CompetitionDetail} · milli turnuvalar: {world.InternationalDetail}"));
+		Console.WriteLine(L($"Menajer   {world.Manager} · {world.Club} · {world.Status}"));
 		return 0;
 	}
 
@@ -193,7 +193,7 @@ internal static partial class Program
 		}, seconds: 8, every: 0.25);
 		if (!open)
 		{
-			Console.Error.WriteLine("Kayıt tarayıcısı açılmadı.");
+			Console.Error.WriteLine(L("Kayıt tarayıcısı açılmadı."));
 			return null;
 		}
 		return (Field(box, "Pointer"), Field(box, "Text"));
@@ -251,7 +251,7 @@ internal static partial class Program
 		var name = Composed((typed.EndsWith(".fm", StringComparison.OrdinalIgnoreCase) ? typed[..^3] : typed).Trim());
 		if (name.Length == 0 || name.IndexOfAny(['/', ':', '\\']) >= 0)
 		{
-			Console.Error.WriteLine("Kayıt adı boş olamaz ve / : \\ içeremez.");
+			Console.Error.WriteLine(L("Kayıt adı boş olamaz ve / : \\ içeremez."));
 			return 64;
 		}
 
@@ -260,9 +260,9 @@ internal static partial class Program
 		if (!yes)
 		{
 			Console.Error.WriteLine(exists
-				? $"'{name}' adında bir kayıt var; bu onun üzerine yazar ({Pretty(Field(state, "Date"))} durumuyla), geri alınamaz."
-				: $"Oyun '{name}' adıyla yeni bir dosyaya kaydedilir ({Pretty(Field(state, "Date"))}); sonraki kayıtlar da oraya gider.");
-			Console.Error.WriteLine($"Onaylamak için: save --as \"{name}\" --yes");
+				? L($"'{name}' adında bir kayıt var; bu onun üzerine yazar ({Pretty(Field(state, "Date"))} durumuyla), geri alınamaz.")
+				: L($"Oyun '{name}' adıyla yeni bir dosyaya kaydedilir ({Pretty(Field(state, "Date"))}); sonraki kayıtlar da oraya gider."));
+			Console.Error.WriteLine(L($"Onaylamak için: save --as \"{name}\" --yes"));
 			return 1;
 		}
 
@@ -301,10 +301,10 @@ internal static partial class Program
 		{
 			var dialogs = await Fm.GetJson("dialog");
 			if (dialogs.GetArrayLength() > 0)
-				Console.Error.WriteLine($"Oyun bir şey soruyor: {Field(dialogs[0], "Title")} — {Field(dialogs[0], "Description")}   (cevap: dialog)");
+				Console.Error.WriteLine(L($"Oyun bir şey soruyor: {Field(dialogs[0], "Title")} — {Field(dialogs[0], "Description")}   (cevap: dialog)"));
 			else
 			{
-				Console.Error.WriteLine("Kaydet denildi ama oyun kaydetmeye başlamadı.");
+				Console.Error.WriteLine(L("Kaydet denildi ama oyun kaydetmeye başlamadı."));
 				await CloseSaveBrowser();
 			}
 			return 1;
@@ -317,8 +317,8 @@ internal static partial class Program
 		}, seconds: 180);
 
 		Console.WriteLine(done
-			? $"Kaydedildi: {name} ({Pretty(Field(state, "Date"))}). Oyun bundan sonra bu dosyaya kaydediyor."
-			: "Kayıt üç dakikadır sürüyor; beklemeyi bıraktım.");
+			? L($"Kaydedildi: {name} ({Pretty(Field(state, "Date"))}). Oyun bundan sonra bu dosyaya kaydediyor.")
+			: L("Kayıt üç dakikadır sürüyor; beklemeyi bıraktım."));
 		return done ? 0 : 75;
 	}
 
@@ -332,7 +332,7 @@ internal static partial class Program
 		var typed = args.Skip(2).FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal));
 		if (typed == null)
 		{
-			Console.Error.WriteLine("Hangi kayıt?  saves delete \"<ad>\" --yes");
+			Console.Error.WriteLine(L("Hangi kayıt?  saves delete \"<ad>\" --yes"));
 			return 64;
 		}
 		if (SaveNamed(typed) is not { } name) return 1;
@@ -342,17 +342,17 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine($"'{name}' diskten silinir; geri alınamaz.");
-				Console.Error.WriteLine($"Onaylamak için: saves delete \"{name}\" --yes");
+				Console.Error.WriteLine(L($"'{name}' diskten silinir; geri alınamaz."));
+				Console.Error.WriteLine(L($"Onaylamak için: saves delete \"{name}\" --yes"));
 				return 1;
 			}
-			if (Ui.Ask($"'{name}' diskten silinsin mi? Geri alınamaz.", ["Sil"]) is null) return 0;
+			if (Ui.Ask(L($"'{name}' diskten silinsin mi? Geri alınamaz."), [L("Sil")]) is null) return 0;
 		}
 
 		if (!await Launcher.Running(Fm) || !await Fm.InGame())
 		{
 			File.Delete(file);
-			Console.WriteLine($"Silindi: {name}");
+			Console.WriteLine(L($"Silindi: {name}"));
 			return 0;
 		}
 
@@ -360,14 +360,14 @@ internal static partial class Program
 		if (string.Equals(Composed(browser.Current), name, StringComparison.OrdinalIgnoreCase))
 		{
 			await CloseSaveBrowser();
-			Console.Error.WriteLine($"'{name}' şu an yüklü olan kayıt; silinmez. Önce başka bir kaydı yükle (load) ya da başka adla kaydet (save --as).");
+			Console.Error.WriteLine(L($"'{name}' şu an yüklü olan kayıt; silinmez. Önce başka bir kaydı yükle (load) ya da başka adla kaydet (save --as)."));
 			return 1;
 		}
 
 		if (!await SaveRowInView(name) || (await Fm.Get("rowselect", ("text", name))).StartsWith("error", StringComparison.Ordinal))
 		{
 			await CloseSaveBrowser();
-			Console.Error.WriteLine($"Oyunun kayıt listesinde '{name}' yok.");
+			Console.Error.WriteLine(L($"Oyunun kayıt listesinde '{name}' yok."));
 			return 1;
 		}
 		await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -384,7 +384,7 @@ internal static partial class Program
 		await Until(async () => (yes = await DialogButton("Delete File")) != null, seconds: 6, every: 0.25);
 		if (yes == null)
 		{
-			Console.Error.WriteLine("Oyun silmeyi sormadı; kayıt silinmedi.");
+			Console.Error.WriteLine(L("Oyun silmeyi sormadı; kayıt silinmedi."));
 			await CloseSaveBrowser();
 			return 1;
 		}
@@ -396,10 +396,10 @@ internal static partial class Program
 		await CloseSaveBrowser();
 		if (!gone)
 		{
-			Console.Error.WriteLine($"Sil denildi ama dosya duruyor: {file}");
+			Console.Error.WriteLine(L($"Sil denildi ama dosya duruyor: {file}"));
 			return 1;
 		}
-		Console.WriteLine($"Silindi: {name}");
+		Console.WriteLine(L($"Silindi: {name}"));
 		return 0;
 	}
 
@@ -413,7 +413,7 @@ internal static partial class Program
 		var typed = args.Skip(1).FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal));
 		if (typed == null)
 		{
-			Console.Error.WriteLine("Hangi kayıt?  load \"<ad>\"   (kayıtlar: saves)");
+			Console.Error.WriteLine(L("Hangi kayıt?  load \"<ad>\"   (kayıtlar: saves)"));
 			return 64;
 		}
 		if (SaveNamed(typed) is not { } name) return 1;
@@ -425,19 +425,19 @@ internal static partial class Program
 			{
 				if (!Ui.Interactive)
 				{
-					Console.Error.WriteLine("Başka kaydı yüklemek için oyun kapatılıp yeniden açılır; kaydedilmemiş ilerleme gider.");
-					Console.Error.WriteLine($"Hangisi:  load \"{name}\" --save   ya da   load \"{name}\" --no-save");
+					Console.Error.WriteLine(L("Başka kaydı yüklemek için oyun kapatılıp yeniden açılır; kaydedilmemiş ilerleme gider."));
+					Console.Error.WriteLine(L($"Hangisi:  load \"{name}\" --save   ya da   load \"{name}\" --no-save"));
 					return 1;
 				}
 				var date = Pretty(Field(await Fm.GetJson("state"), "Date"));
-				if (Ui.Ask($"'{name}' yüklenecek: oyun kapanıp yeniden açılır ({date}). Kaydedilmemiş ilerleme kaybolur.", ["Önce kaydet", "Kaydetmeden yükle"]) is not { } asked) return 0;
+				if (Ui.Ask(L($"'{name}' yüklenecek: oyun kapanıp yeniden açılır ({date}). Kaydedilmemiş ilerleme kaybolur."), [L("Önce kaydet"), L("Kaydetmeden yükle")]) is not { } asked) return 0;
 				save = asked == 0;
 			}
 			if (save == true && await SaveGame(["--yes"]) is not 0 and var failed) return failed;
-			Console.WriteLine("Oyun kapatılıyor…");
+			Console.WriteLine(L("Oyun kapatılıyor…"));
 			if (!await Launcher.Stop(Fm))
 			{
-				Console.Error.WriteLine("Oyun kapanmadı.");
+				Console.Error.WriteLine(L("Oyun kapanmadı."));
 				return 1;
 			}
 		}
@@ -469,7 +469,7 @@ internal static partial class Program
 		}
 		if (!listed)
 		{
-			Console.Error.WriteLine($"Oyunun yükleme listesinde '{name}' yok.");
+			Console.Error.WriteLine(L($"Oyunun yükleme listesinde '{name}' yok."));
 			return 1;
 		}
 
@@ -477,13 +477,13 @@ internal static partial class Program
 		await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.Any(b => Field(b, "Label") == "Load" && Field(b, "Enabled") == "True"), seconds: 5, every: 0.25);
 
-		Console.WriteLine($"'{name}' yükleniyor…");
+		Console.WriteLine(L($"'{name}' yükleniyor…"));
 		var clicked = await Fm.Get("click", ("text", "Load"));
 		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 
 		if (!await Until(() => Fm.InGame(), seconds: 240, every: 3))
 		{
-			Console.Error.WriteLine("Kayıt yüklenmedi.");
+			Console.Error.WriteLine(L("Kayıt yüklenmedi."));
 			return 1;
 		}
 		await Until(async () => Field(await Fm.GetJson("state"), "Date").Length > 0, seconds: 60, every: 1);

@@ -20,7 +20,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -41,7 +41,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (jobs.Count == 0)
 		{
-			Console.WriteLine(texts.Any(t => t.StartsWith("0 ", StringComparison.Ordinal)) ? "Açık iş ilanı yok." : "İş ilanları okunamadı.");
+			Console.WriteLine(texts.Any(t => t.StartsWith("0 ", StringComparison.Ordinal)) ? L("Açık iş ilanı yok.") : L("İş ilanları okunamadı."));
 			return texts.Count > 0 ? 0 : 1;
 		}
 
@@ -51,7 +51,7 @@ internal static partial class Program
 		var job = PickJob(jobs, words[0]);
 		if (job == null)
 		{
-			Console.Error.WriteLine($"'{words[0]}' ilanlarda yok. Liste: jobs");
+			Console.Error.WriteLine(L($"'{words[0]}' ilanlarda yok. Liste: jobs"));
 			return 1;
 		}
 
@@ -67,7 +67,7 @@ internal static partial class Program
 		};
 		if (label == null)
 		{
-			Console.Error.WriteLine("Ne yapılacak: apply (başvur) ya da interest (ilgi bildir)");
+			Console.Error.WriteLine(L("Ne yapılacak: apply (başvur) ya da interest (ilgi bildir)"));
 			return 1;
 		}
 		return await JobAnswer(job, label, args);
@@ -162,11 +162,11 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"{jobs.Count} iş ilanı\n");
-		Table.Write(["#", "KULÜP", "LİG", "ÜLKE", "SIRA", "İTİBAR", "MALİ DURUM", "BAŞVURU"],
+		Console.WriteLine(L($"{jobs.Count} iş ilanı\n"));
+		Table.Write(["#", L("KULÜP"), L("LİG"), L("ÜLKE"), L("SIRA"), L("İTİBAR"), L("MALİ DURUM"), L("BAŞVURU")],
 			jobs.Select(j => (string[])[j.Number.ToString(), j.Club, j.League, j.Nation, j.Position, ReputationTurkish(j.Rating),
 				FinancesTurkish(j.Finances), j.CanApply switch { true => "açık", false => "kapalı", _ => "?" }]).ToList());
-		Console.WriteLine("\nAyrıntı: jobs <kulüp|#>   ·   başvur: jobs <kulüp> apply   ·   ilgi bildir: jobs <kulüp> interest");
+		Console.WriteLine(L("\nAyrıntı: jobs <kulüp|#>   ·   başvur: jobs <kulüp> apply   ·   ilgi bildir: jobs <kulüp> interest"));
 		return 0;
 	}
 
@@ -190,17 +190,17 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"{job.Club} — {job.League} ({job.Nation}), ligde {job.Position}");
-		if (job.Manager != "-") Console.WriteLine($"Şu anki menajer: {job.Manager}");
-		Console.WriteLine($"İtibar: {ReputationTurkish(facts.GetValueOrDefault("Reputation", job.Rating))}   Mali durum: {FinancesTurkish(facts.GetValueOrDefault("Finances", job.Finances))}");
-		if (facts.TryGetValue("Wage Bill", out var wages)) Console.WriteLine($"Maaş gideri: {wages}");
-		if (facts.TryGetValue("Training Facilities", out var training)) Console.WriteLine($"Antrenman tesisleri: {training}");
+		Console.WriteLine(L($"{job.Club} — {job.League} ({job.Nation}), ligde {job.Position}"));
+		if (job.Manager != "-") Console.WriteLine(L($"Şu anki menajer: {job.Manager}"));
+		Console.WriteLine(L($"İtibar: {ReputationTurkish(facts.GetValueOrDefault("Reputation", job.Rating))}   Mali durum: {FinancesTurkish(facts.GetValueOrDefault("Finances", job.Finances))}"));
+		if (facts.TryGetValue("Wage Bill", out var wages)) Console.WriteLine(L($"Maaş gideri: {wages}"));
+		if (facts.TryGetValue("Training Facilities", out var training)) Console.WriteLine(L($"Antrenman tesisleri: {training}"));
 		var lines = rules.SelectMany(r => r.Split('\n')).Select(r => r.Trim()).Where(r => r.Length > 0).ToList();
-		Console.WriteLine($"Menajer kuralları:{(lines.Count == 0 ? " yok" : "")}");
+		Console.WriteLine(L($"Menajer kuralları:{(lines.Count == 0 ? L(" yok") : "")}"));
 		foreach (var line in lines) Console.WriteLine($"  · {line}");
 		Console.WriteLine(job.CanApply == false
-			? "\nBaşvuru kapalı. İlgi bildirmek için: jobs \"" + job.Club + "\" interest"
-			: "\nBaşvurmak için: jobs \"" + job.Club + "\" apply   ·   ilgi bildirmek için: jobs \"" + job.Club + "\" interest");
+			? L("\nBaşvuru kapalı. İlgi bildirmek için: jobs \"") + job.Club + L("\" interest")
+			: L("\nBaşvurmak için: jobs \"") + job.Club + L("\" apply   ·   ilgi bildirmek için: jobs \"") + job.Club + L("\" interest"));
 		return 0;
 	}
 
@@ -209,21 +209,21 @@ internal static partial class Program
 		if (await ButtonEnabled(label) != true)
 		{
 			Console.Error.WriteLine(label == "Apply For Job"
-				? $"{job.Club} başvuru kabul etmiyor. İlgi bildirmek için: jobs \"{job.Club}\" interest"
-				: $"{job.Club} için ilgi bildirilemiyor (zaten bildirilmiş olabilir).");
+				? L($"{job.Club} başvuru kabul etmiyor. İlgi bildirmek için: jobs \"{job.Club}\" interest")
+				: L($"{job.Club} için ilgi bildirilemiyor (zaten bildirilmiş olabilir)."));
 			return 1;
 		}
 
 		var what = label == "Apply For Job" ? "başvurulacak" : "ilgi bildirilecek";
-		Console.WriteLine($"{job.Club} ({job.League}) işine {what}.");
+		Console.WriteLine(L($"{job.Club} ({job.League}) işine {what}."));
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine($"Göndermek için: jobs \"{job.Club}\" {(label == "Apply For Job" ? "apply" : "interest")} --yes");
+				Console.WriteLine(L($"Göndermek için: jobs \"{job.Club}\" {(label == "Apply For Job" ? L("apply") : L("interest"))} --yes"));
 				return 0;
 			}
-			if (Ui.Ask("Gönderelim mi?", ["Evet", "Hayır"]) != 0) return 0;
+			if (Ui.Ask(L("Gönderelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
 		}
 
 		var pressed = await Fm.Get("press", ("ptr", Field((await JobButton(label))!.Value, "Pointer")));
@@ -234,10 +234,10 @@ internal static partial class Program
 		var dialog = await Fm.Get("dialog");
 		if (dialog.Trim() is not ("" or "[]"))
 		{
-			Console.WriteLine("Oyun bir soru sordu: dialog");
+			Console.WriteLine(L("Oyun bir soru sordu: dialog"));
 			return 0;
 		}
-		Console.WriteLine("Gönderildi. Cevap gelen kutusuna düşer: inbox");
+		Console.WriteLine(L("Gönderildi. Cevap gelen kutusuna düşer: inbox"));
 		return 0;
 	}
 

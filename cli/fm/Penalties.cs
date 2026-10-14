@@ -34,7 +34,7 @@ internal static partial class Program
 		}
 		if (!form.Any(f => Field(f, "Kind") == "checkbox"))
 		{
-			Console.Error.WriteLine("Penaltı sayfası açılmadı.");
+			Console.Error.WriteLine(L("Penaltı sayfası açılmadı."));
 			return 1;
 		}
 
@@ -49,7 +49,7 @@ internal static partial class Program
 				.FirstOrDefault(c => Field(c, "Type") == "StreamedTable" && Field(c, "Events").Contains("PenaltyCandidatesMove", StringComparison.Ordinal));
 			if (table.ValueKind != JsonValueKind.Object)
 			{
-				Console.Error.WriteLine("Penaltıcılar tablosu sayfada bulunamadı.");
+				Console.Error.WriteLine(L("Penaltıcılar tablosu sayfada bulunamadı."));
 				return 1;
 			}
 			var order = new DraggedList("penalties", "Penaltıcı", "penaltıcılar", "Penaltıcılara", Field(table, "Pointer"),
@@ -74,12 +74,12 @@ internal static partial class Program
 			var on = words.Count > 1 ? Fold(words[1]) switch { "acik" or "on" or "evet" => true, "kapali" or "off" or "hayir" => (bool?)false, _ => null } : null;
 			if (rule.Label == null || on == null)
 			{
-				Console.Error.WriteLine("kullanım: penalties <1|2|3> açık|kapalı   (1 iki gol atan, 2 penaltı atan, 3 penaltı kaçıran)");
+				Console.Error.WriteLine(L("kullanım: penalties <1|2|3> açık|kapalı   (1 iki gol atan, 2 penaltı atan, 3 penaltı kaçıran)"));
 				return 64;
 			}
 			if (Switch(rule.Binds) is not { } box)
 			{
-				Console.Error.WriteLine($"'{rule.Say}' anahtarı sayfada yok.");
+				Console.Error.WriteLine(L($"'{rule.Say}' anahtarı sayfada yok."));
 				return 1;
 			}
 			if ((Field(box, "Value") == "True") != on)
@@ -106,12 +106,12 @@ internal static partial class Program
 			}));
 			return 0;
 		}
-		Table.Write(["SIRA", "#", "OYUNCU", "MAÇA", "SOĞUKKANLILIK", "PENALTI"],
+		Table.Write([L("SIRA"), "#", L("OYUNCU"), L("MAÇA"), L("SOĞUKKANLILIK"), L("PENALTI")],
 			takers.Select(t => new[] { t.Order.ToString(), t.Number, t.Name, Starting(t.Where), t.Composure, t.Penalties }).ToList());
 		Console.WriteLine();
-		for (var i = 0; i < rules.Count; i++) Console.WriteLine($"  {i + 1}. {rules[i].Say}: {(rules[i].On ? "açık" : "kapalı")}");
+		for (var i = 0; i < rules.Count; i++) Console.WriteLine($"  {i + 1}. {rules[i].Say}: {(rules[i].On ? L("açık") : L("kapalı"))}");
 		if (words.Count == 0)
-			Console.WriteLine("\nSıra: penalties move <oyuncu> <sıra> · add <oyuncu> [<sıra>] · remove <oyuncu>   ·   kural: penalties <1|2|3> açık|kapalı");
+			Console.WriteLine(L("\nSıra: penalties move <oyuncu> <sıra> · add <oyuncu> [<sıra>] · remove <oyuncu>   ·   kural: penalties <1|2|3> açık|kapalı"));
 		return 0;
 
 	}
@@ -222,13 +222,13 @@ internal static partial class Program
 		{
 			if (who.Length == 0 && !Ui.Interactive)
 			{
-				Console.Error.WriteLine($"kullanım: {list.Command} add <oyuncu> [<sıra>]");
+				Console.Error.WriteLine(L($"kullanım: {list.Command} add <oyuncu> [<sıra>]"));
 				return 64;
 			}
 			// The list names its players by their index; the squad says whose each is.
 			if (await list.Adds() is not { } adds)
 			{
-				Console.Error.WriteLine("Sayfada \"Add Player\" listesi yok.");
+				Console.Error.WriteLine(L("Sayfada \"Add Player\" listesi yok."));
 				return 1;
 			}
 			var squad = (await Fm.Pull("Human.Team.Players", "Name,Index", list: true)).EnumerateArray()
@@ -239,14 +239,14 @@ internal static partial class Program
 			string picked;
 			if (who.Length == 0)
 			{
-				if (Ui.Ask($"{list.To} kim eklensin?", candidates.Select(c => c.Name).ToList()) is not { } asked) return 0;
+				if (Ui.Ask(L($"{list.To} kim eklensin?"), candidates.Select(c => c.Name).ToList()) is not { } asked) return 0;
 				picked = candidates[asked].Name;
 			}
 			else
 			{
 				if (takers.Any(t => Fold(t.Name).Contains(Fold(who), StringComparison.Ordinal)))
 				{
-					Console.Error.WriteLine($"'{who}' zaten {list.All} arasında; yerini değiştirmek için: {list.Command} move \"{who}\" <sıra>");
+					Console.Error.WriteLine(L($"'{who}' zaten {list.All} arasında; yerini değiştirmek için: {list.Command} move \"{who}\" <sıra>"));
 					return 1;
 				}
 				picked = Choose(candidates.Select(c => c.Name).ToList(), who, "Eklenecek oyuncu");
@@ -256,7 +256,7 @@ internal static partial class Program
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 			if (!await Shows(now => now.Any(t => t.Name == picked)))
 			{
-				Console.Error.WriteLine($"{picked} eklendi ama listede görünmedi.");
+				Console.Error.WriteLine(L($"{picked} eklendi ama listede görünmedi."));
 				return 1;
 			}
 			takers = (await list.Read()).Rows;
@@ -271,10 +271,10 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive || takers.Count == 0)
 			{
-				Console.Error.WriteLine(verb == "move" ? $"kullanım: {list.Command} move <oyuncu|sıra> <yeni sıra>" : $"kullanım: {list.Command} remove <oyuncu|sıra>");
+				Console.Error.WriteLine(verb == "move" ? L($"kullanım: {list.Command} move <oyuncu|sıra> <yeni sıra>") : L($"kullanım: {list.Command} remove <oyuncu|sıra>"));
 				return 64;
 			}
-			if (Ui.Ask(verb == "move" ? "Kimin sırası değişsin?" : "Kim çıkarılsın?", takers.Select(t => $"{t.Order}. {t.Name}").ToList()) is not { } asked) return 0;
+			if (Ui.Ask(verb == "move" ? L("Kimin sırası değişsin?") : L("Kim çıkarılsın?"), takers.Select(t => $"{t.Order}. {t.Name}").ToList()) is not { } asked) return 0;
 			taker = takers[asked];
 		}
 		else if (int.TryParse(who, out var order) && order >= 1 && order <= takers.Count) taker = takers[order - 1];
@@ -290,19 +290,19 @@ internal static partial class Program
 			var removed = await Dragged(now => now.All(t => t.Name != taker.Name), "rowremove", ("ptr", list.Pointer), ("index", (taker.Order - 1).ToString()), ("force", "1"));
 			if (removed == null) return null;
 			if (removed.Length > 0) return Report(removed);
-			Console.Error.WriteLine($"{taker.Name} çıkarıldı ama listede hâlâ görünüyor.");
+			Console.Error.WriteLine(L($"{taker.Name} çıkarıldı ama listede hâlâ görünüyor."));
 			return 1;
 		}
 
 		if (place == null && Ui.Interactive)
 		{
 			var places = takers.Select(t => $"{t.Order}. sıra (şimdi {t.Name})").ToList();
-			if (Ui.Ask($"{taker.Name} kaçıncı sırada atsın?", places, taker.Order - 1) is not { } asked) return 0;
+			if (Ui.Ask(L($"{taker.Name} kaçıncı sırada atsın?"), places, taker.Order - 1) is not { } asked) return 0;
 			place = asked + 1;
 		}
 		if (place == null || place < 1 || place > takers.Count)
 		{
-			Console.Error.WriteLine($"Yeni sıra 1 ile {takers.Count} arasında olmalı: {list.Command} move \"{taker.Name}\" <sıra>");
+			Console.Error.WriteLine(L($"Yeni sıra 1 ile {takers.Count} arasında olmalı: {list.Command} move \"{taker.Name}\" <sıra>"));
 			return 64;
 		}
 		if (place == taker.Order) return null;
@@ -311,7 +311,7 @@ internal static partial class Program
 			("ptr", list.Pointer), ("from", (taker.Order - 1).ToString()), ("to", (place.Value - 1).ToString()), ("force", "1"));
 		if (moved == null) return null;
 		if (moved.Length > 0) return Report(moved);
-		Console.Error.WriteLine($"{taker.Name} taşındı ama {place}. sırada görünmüyor.");
+		Console.Error.WriteLine(L($"{taker.Name} taşındı ama {place}. sırada görünmüyor."));
 		return 1;
 	}
 }

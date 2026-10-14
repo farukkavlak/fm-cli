@@ -69,7 +69,7 @@ internal static partial class Program
 		catch (FmError e) { return Report(e.Message); }
 		if (t == null)
 		{
-			Console.Error.WriteLine("Taraftar kartı okunamadı.");
+			Console.Error.WriteLine(L("Taraftar kartı okunamadı."));
 			return 1;
 		}
 		string Bound(string path) => t.FirstOrDefault(x => x.Path == path).Text ?? "-";
@@ -148,7 +148,7 @@ internal static partial class Program
 		var stadium = await Fm.Pull("Human.Team.Stadium", "Name,Capacity,YearBuilt,YearRebuilt,OwnedByString,Rent,UnderSoilHeating,Roof,Surface,PitchDimensions,MaxPitchDimensions");
 		if (Field(stadium, "Name").Length == 0)
 		{
-			Console.Error.WriteLine("Stadyum verisi okunamadı.");
+			Console.Error.WriteLine(L("Stadyum verisi okunamadı."));
 			return 1;
 		}
 		var city = Field(await Fm.Pull("Human.Team.Stadium.City", "Name"), "Name");

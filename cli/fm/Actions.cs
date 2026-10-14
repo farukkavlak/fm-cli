@@ -20,7 +20,7 @@ internal static partial class Program
 		// A question already on screen would be taken for the answer to whatever is chosen here.
 		if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } waiting && waiting.GetArrayLength() > 0)
 		{
-			Console.Error.WriteLine($"Oyun bir soru bekliyor: {Field(waiting[0], "Title")} — önce onu cevapla: dialog");
+			Console.Error.WriteLine(L($"Oyun bir soru bekliyor: {Field(waiting[0], "Title")} — önce onu cevapla: dialog"));
 			return null;
 		}
 		// "Nathan Ferguson (Hartlepool)": what is in brackets tells apart people of one name, by age, position, nation or club.
@@ -37,7 +37,7 @@ internal static partial class Program
 		else if (worded.Count == 1) found = worded;
 		if (found.Count == 0)
 		{
-			Console.Error.WriteLine(kind == "Staff" ? $"'{wanted}' adında bir personel bulunamadı. Aramak için: staff find" : $"'{wanted}' bulunamadı.");
+			Console.Error.WriteLine(kind == "Staff" ? L($"'{wanted}' adında bir personel bulunamadı. Aramak için: staff find") : L($"'{wanted}' bulunamadı."));
 			return null;
 		}
 		if (found.Count > 1)
@@ -49,13 +49,13 @@ internal static partial class Program
 				var words = Fold(qualifier).Split(' ', StringSplitOptions.RemoveEmptyEntries);
 				var fits = labels.Select((l, i) => (l, i)).Where(x => words.All(w => Fold(x.l).Contains(w))).Select(x => x.i).ToList();
 				if (fits.Count == 1) { found = [found[fits[0]]]; goto chosen; }
-				if (fits.Count == 0) Console.Error.WriteLine($"'({qualifier})' hiçbirine uymuyor.");
+				if (fits.Count == 0) Console.Error.WriteLine(L($"'({qualifier})' hiçbirine uymuyor."));
 				if (fits.Count > 1) (found, labels) = (fits.Select(i => found[i]).ToList(), fits.Select(i => labels[i]).ToList());
 			}
-			if (Ui.Ask($"'{wanted}' birden çok kişiye uyuyor:", labels) is { } picked) found = [found[picked]];
+			if (Ui.Ask(L($"'{wanted}' birden çok kişiye uyuyor:"), labels) is { } picked) found = [found[picked]];
 			else
 			{
-				if (!Ui.Interactive) Console.Error.WriteLine($"'{wanted}' birden çok kişiye uyuyor; parantezle ayır (yaş, mevki ya da görev, ülke, kulüp), ör. \"{wanted} ({who[0].Split(" · ")[0]})\":\n" + string.Join("\n", labels.Select(l => "  " + l)));
+				if (!Ui.Interactive) Console.Error.WriteLine(L($"'{wanted}' birden çok kişiye uyuyor; parantezle ayır (yaş, mevki ya da görev, ülke, kulüp), ör. \"{wanted} ({who[0].Split(" · ")[0]})\":\n") + string.Join("\n", labels.Select(l => "  " + l)));
 				return null;
 			}
 		}
@@ -66,7 +66,7 @@ internal static partial class Program
 		var opened = await Arriving("actions", [("open", "1"), ("text", name)]);
 		if (opened.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine($"{name} için oyun bir aksiyon menüsü açmadı.");
+			Console.Error.WriteLine(L($"{name} için oyun bir aksiyon menüsü açmadı."));
 			return null;
 		}
 		// The game fills the menu a moment after it opens; two readings alike are taken as whole.
@@ -85,7 +85,7 @@ internal static partial class Program
 		if (entries.Count == 0)
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.Error.WriteLine($"{name} için yapılabilecek bir şey yok.");
+			Console.Error.WriteLine(L($"{name} için yapılabilecek bir şey yok."));
 			return null;
 		}
 		return (name, entries);
@@ -107,8 +107,8 @@ internal static partial class Program
 		if (holding.Count == 1) return holding[0];
 		var near = ending.Count > 1 ? ending : holding;
 		Console.Error.WriteLine(near.Count > 1
-			? $"'{typed}' birden çok seçeneğe uyuyor:\n" + string.Join("\n", near.Take(12).Select(e => "  " + Field(e, "Path").Replace(">", " › ")))
-			: $"Menüde '{typed}' yok.");
+			? L($"'{typed}' birden çok seçeneğe uyuyor:\n") + string.Join("\n", near.Take(12).Select(e => "  " + Field(e, "Path").Replace(">", " › ")))
+			: L($"Menüde '{typed}' yok."));
 		return null;
 	}
 
@@ -135,12 +135,12 @@ internal static partial class Program
 				await Fm.Get("click", ("ptr", Field(dialog.GetProperty("Buttons")[0], "Pointer")));
 				return 0;
 			}
-			Console.WriteLine($"\nCevaplamak için: dialog <{string.Join(" | ", dialog.GetProperty("Buttons").EnumerateArray().Select(b => Field(b, "Label")))}>");
+			Console.WriteLine(L($"\nCevaplamak için: dialog <{string.Join(" | ", dialog.GetProperty("Buttons").EnumerateArray().Select(b => Field(b, "Label")))}>"));
 			return 0;
 		}
 		if (talks != null) return await Contract(["contract"]);
 		if (said) return await TalkTo(false, ["talk"]);
-		Console.WriteLine($"{name}: {path.Replace(">", " › ")} — yapıldı.");
+		Console.WriteLine(L($"{name}: {path.Replace(">", " › ")} — yapıldı."));
 		return 0;
 	}
 
@@ -149,7 +149,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: actions <kişi> [\"<seçenek>\"]   (oyunun o kişi için sağ tık menüsü; seçenek yazılırsa yapılır)");
+			Console.Error.WriteLine(L("kullanım: actions <kişi> [\"<seçenek>\"]   (oyunun o kişi için sağ tık menüsü; seçenek yazılırsa yapılır)"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -181,7 +181,7 @@ internal static partial class Program
 			{
 				var level = entries.Where(e => Parent(Field(e, "Path")) == at && IsEnabled(e)).ToList();
 				var labels = level.Select(e => Field(e, "Name") + (IsFolder(e) ? " ›" : "")).ToList();
-				if (Ui.Ask(at.Length == 0 ? $"{name}: ne yapalım?" : $"{name} › {at.Replace(">", " › ")}", labels, cancel: at.Length == 0 ? "Hiçbir şey" : "Geri") is not { } picked)
+				if (Ui.Ask(at.Length == 0 ? L($"{name}: ne yapalım?") : $"{name} › {at.Replace(">", " › ")}", labels, cancel: at.Length == 0 ? L("Hiçbir şey") : L("Geri")) is not { } picked)
 				{
 					if (at.Length == 0) { await Fm.Get("actions", ("close", "1")); return 0; }
 					at = Parent(at);
@@ -213,7 +213,7 @@ internal static partial class Program
 			if (!IsEnabled(entry)) line += "  (kapalı)";
 			Console.WriteLine(line);
 		}
-		Console.WriteLine($"\nYapmak için: actions \"{name}\" \"<seçenek>\"   ör. actions \"{name}\" \"{Field(entries.First(e => !IsFolder(e)), "Path").Replace(">", " > ")}\"");
+		Console.WriteLine(L($"\nYapmak için: actions \"{name}\" \"<seçenek>\"   ör. actions \"{name}\" \"{Field(entries.First(e => !IsFolder(e)), "Path").Replace(">", " > ")}\""));
 		return 0;
 
 		static string Parent(string path) => path.LastIndexOf('>') is var cut && cut >= 0 ? path[..cut] : "";
@@ -225,7 +225,7 @@ internal static partial class Program
 		if (!IsEnabled(entry))
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.Error.WriteLine($"{name}: '{path.Replace(">", " › ")}' şu an kapalı.");
+			Console.Error.WriteLine(L($"{name}: '{path.Replace(">", " › ")}' şu an kapalı."));
 			return 1;
 		}
 		var chosen = await Fm.Get("actions", ("choose", path));
@@ -242,7 +242,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args).Skip(1));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: staff hire <ad> [--wage <tutar>] [--term \"Şart=değer\"] [--sign --yes]   (aday bulmak: staff find --role <görev> --free)");
+			Console.Error.WriteLine(L("kullanım: staff hire <ad> [--wage <tutar>] [--term \"Şart=değer\"] [--sign --yes]   (aday bulmak: staff find --role <görev> --free)"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -257,7 +257,7 @@ internal static partial class Program
 		{
 			if (!Fold(open.Player).Contains(Fold(wanted), StringComparison.Ordinal))
 			{
-				Console.Error.WriteLine($"Açık görüşme {open.Player} ile. Önce onu bitir ya da bırak: contract --cancel");
+				Console.Error.WriteLine(L($"Açık görüşme {open.Player} ile. Önce onu bitir ya da bırak: contract --cancel"));
 				return 1;
 			}
 			return await Contract([.. passed]);
@@ -270,10 +270,10 @@ internal static partial class Program
 		{
 			await Fm.Get("actions", ("close", "1"));
 			Console.Error.WriteLine(entries.Any(e => Field(e, "Path") == "Contract>Terminate Contract")
-				? $"{name} zaten bizim personelimiz."
+				? L($"{name} zaten bizim personelimiz.")
 				: entries.Any(e => Field(e, "Path") == "Contract>Withdraw Contract Offer")
-				? $"{name} için teklifimiz zaten masada; cevabı gelen kutusuna düşer. Geri çekmek: actions \"{name}\" \"Withdraw Contract Offer\" · değiştirmek: actions \"{name}\" \"Change Contract Offer\""
-				: $"{name} için oyun 'Approach To Sign' sunmuyor (görüşme sürüyor ya da gelmek istemiyor olabilir). Menüsü: actions \"{name}\"");
+				? L($"{name} için teklifimiz zaten masada; cevabı gelen kutusuna düşer. Geri çekmek: actions \"{name}\" \"Withdraw Contract Offer\" · değiştirmek: actions \"{name}\" \"Change Contract Offer\"")
+				: L($"{name} için oyun 'Approach To Sign' sunmuyor (görüşme sürüyor ya da gelmek istemiyor olabilir). Menüsü: actions \"{name}\""));
 			return 1;
 		}
 		var chosen = await Fm.Get("actions", ("choose", "Approach To Sign"));
@@ -286,10 +286,10 @@ internal static partial class Program
 		{
 			if (dialogs.ValueKind == JsonValueKind.Array && dialogs.GetArrayLength() > 0)
 			{
-				Console.Error.WriteLine($"{Field(dialogs[0], "Title")}\n  {Field(dialogs[0], "Description").Replace("\n\n", "\n  ")}\nCevaplamak için: dialog");
+				Console.Error.WriteLine(L($"{Field(dialogs[0], "Title")}\n  {Field(dialogs[0], "Description").Replace("\n\n", "\n  ")}\nCevaplamak için: dialog"));
 				return 1;
 			}
-			Console.Error.WriteLine("Sözleşme görüşmesi açılmadı.");
+			Console.Error.WriteLine(L("Sözleşme görüşmesi açılmadı."));
 			return 1;
 		}
 		return await Contract([.. passed]);
@@ -305,7 +305,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args).Skip(1));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine("kullanım: staff fire <ad> [--mutual] [--yes]");
+			Console.Error.WriteLine(L("kullanım: staff fire <ad> [--mutual] [--yes]"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -319,17 +319,17 @@ internal static partial class Program
 		{
 			await Fm.Get("actions", ("close", "1"));
 			Console.Error.WriteLine(entries.Any(e => Field(e, "Path") == "Approach To Sign")
-				? $"{name} bizim personelimiz değil."
-				: $"{name} için oyun '{way.Split('>')[1]}' sunmuyor. Menüsü: actions \"{name}\"");
+				? L($"{name} bizim personelimiz değil.")
+				: L($"{name} için oyun '{way.Split('>')[1]}' sunmuyor. Menüsü: actions \"{name}\""));
 			return 1;
 		}
 
 		if (way == mutual && !args.Contains("--yes"))
 		{
-			if (!Ui.Interactive || Ui.Ask($"{name} ile sözleşmeyi karşılıklı feshetmeyi teklif edelim mi?", ["Evet", "Hayır"]) != 0)
+			if (!Ui.Interactive || Ui.Ask(L($"{name} ile sözleşmeyi karşılıklı feshetmeyi teklif edelim mi?"), [L("Evet"), L("Hayır")]) != 0)
 			{
 				await Fm.Get("actions", ("close", "1"));
-				if (!Ui.Interactive) Console.WriteLine($"Karşılıklı fesih oyunda onaysız işliyor. Göndermek için: staff fire \"{name}\" --mutual --yes");
+				if (!Ui.Interactive) Console.WriteLine(L($"Karşılıklı fesih oyunda onaysız işliyor. Göndermek için: staff fire \"{name}\" --mutual --yes"));
 				return 0;
 			}
 		}
@@ -341,20 +341,20 @@ internal static partial class Program
 		JsonElement dialogs = default;
 		if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 6, every: 0.5))
 		{
-			Console.Error.WriteLine("Onay penceresi gelmedi; ne olduğunu `staff` ile gör.");
+			Console.Error.WriteLine(L("Onay penceresi gelmedi; ne olduğunu `staff` ile gör."));
 			return 1;
 		}
 		var dialog = dialogs[0];
 		var buttons = dialog.GetProperty("Buttons").EnumerateArray().ToList();
 		Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
-		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask("Sözleşmesini feshedelim mi?", ["Evet", "Hayır"]) == 0);
+		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Sözleşmesini feshedelim mi?"), [L("Evet"), L("Hayır")]) == 0);
 		if (DialogAnswer(dialog, go) is { } answer) await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
 		if (!go)
 		{
-			if (!Ui.Interactive) Console.WriteLine($"\nVazgeçildi. Feshetmek için: staff fire \"{name}\" --yes");
+			if (!Ui.Interactive) Console.WriteLine(L($"\nVazgeçildi. Feshetmek için: staff fire \"{name}\" --yes"));
 			return 0;
 		}
-		Console.WriteLine($"\n{name} ile yollar ayrıldı.");
+		Console.WriteLine(L($"\n{name} ile yollar ayrıldı."));
 		return 0;
 	}
 }

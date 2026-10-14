@@ -26,12 +26,12 @@ internal static partial class Program
 			: ExportDefault.Select(d => (d.Command, d.Title)).ToList();
 		if (csv && commands.Count != 1)
 		{
-			Console.Error.WriteLine("CSV tek komutun tablosu: export <dosya.csv> <komut>   (ör. export kadro.csv \"squad --stats\")");
+			Console.Error.WriteLine(L("CSV tek komutun tablosu: export <dosya.csv> <komut>   (ör. export kadro.csv \"squad --stats\")"));
 			return 64;
 		}
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -65,9 +65,9 @@ internal static partial class Program
 		else
 		{
 			File.WriteAllText(file, text);
-			Console.WriteLine($"{Path.GetFullPath(file)} yazıldı ({commands.Count - failed.Count}/{commands.Count} bölüm).");
+			Console.WriteLine(L($"{Path.GetFullPath(file)} yazıldı ({commands.Count - failed.Count}/{commands.Count} bölüm)."));
 		}
-		if (failed.Count > 0) Console.Error.WriteLine($"Okunamayan: {string.Join(", ", failed)}");
+		if (failed.Count > 0) Console.Error.WriteLine(L($"Okunamayan: {string.Join(", ", failed)}"));
 		return failed.Count == commands.Count ? 1 : 0;
 	}
 }

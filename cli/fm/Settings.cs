@@ -111,7 +111,7 @@ internal static partial class Program
 			}
 			if (wanted == null)
 			{
-				Console.Error.WriteLine($"'{string.Join(" ", words)}' diye bir ayar yok. Ayarlar: {string.Join(", ", Settings.Select(s => s.Name))}");
+				Console.Error.WriteLine(L($"'{string.Join(" ", words)}' diye bir ayar yok. Ayarlar: {string.Join(", ", Settings.Select(s => s.Name))}"));
 				return 1;
 			}
 		}
@@ -136,10 +136,10 @@ internal static partial class Program
 			DrawSettings(found);
 
 			// At the keyboard the list is also where a change starts.
-			var pick = Ui.Ask("Değiştirmek istediğin ayar", found.Select(f => $"{f.Setting.Name}: {Shown(f.Setting, ValueOf(f))}").ToList(), cancel: "Hiçbiri");
+			var pick = Ui.Ask(L("Değiştirmek istediğin ayar"), found.Select(f => $"{f.Setting.Name}: {Shown(f.Setting, ValueOf(f))}").ToList(), cancel: "Hiçbiri");
 			if (pick == null)
 			{
-				if (!Ui.Interactive) Console.WriteLine("\nDeğiştirmek: settings <ayar> [<değer>]  (ör. settings vurgu hızı 2x)");
+				if (!Ui.Interactive) Console.WriteLine(L("\nDeğiştirmek: settings <ayar> [<değer>]  (ör. settings vurgu hızı 2x)"));
 				return 0;
 			}
 			wanted = found[pick.Value].Setting;
@@ -152,7 +152,7 @@ internal static partial class Program
 		if (now == null)
 		{
 			await LeavePreferences();
-			Console.Error.WriteLine($"'{wanted.Name}' ayarı {wanted.Tab} sekmesinde bulunamadı.");
+			Console.Error.WriteLine(L($"'{wanted.Name}' ayarı {wanted.Tab} sekmesinde bulunamadı."));
 			return 1;
 		}
 
@@ -168,7 +168,7 @@ internal static partial class Program
 				else if (!Ui.Interactive)
 				{
 					Console.WriteLine($"{wanted.Name}: {Shown(wanted, ValueOf(now))}");
-					Console.WriteLine($"Seçenekler: {string.Join(" · ", shownChoices)}");
+					Console.WriteLine(L($"Seçenekler: {string.Join(" · ", shownChoices)}"));
 				}
 				return 0;
 			}
@@ -182,8 +182,8 @@ internal static partial class Program
 				await LeavePreferences();
 				var close = shownChoices.Where(c => Fold(c).Contains(Fold(value), StringComparison.Ordinal)).ToList();
 				Console.Error.WriteLine(close.Count > 1
-					? $"'{value}' birden çok seçeneğe uyuyor: {string.Join(" · ", close)}"
-					: $"'{value}' {wanted.Name} için bir seçenek değil. Seçenekler: {string.Join(" · ", shownChoices)}");
+					? L($"'{value}' birden çok seçeneğe uyuyor: {string.Join(" · ", close)}")
+					: L($"'{value}' {wanted.Name} için bir seçenek değil. Seçenekler: {string.Join(" · ", shownChoices)}"));
 				return 1;
 			}
 		}
@@ -191,13 +191,13 @@ internal static partial class Program
 		if (target == now.Current)
 		{
 			await LeavePreferences();
-			Console.WriteLine($"{wanted.Name} zaten {shownChoices[target]}.");
+			Console.WriteLine(L($"{wanted.Name} zaten {shownChoices[target]}."));
 			return 0;
 		}
 		if (!now.Enabled)
 		{
 			await LeavePreferences();
-			Console.Error.WriteLine($"{wanted.Name} şu an değiştirilemiyor (oyun kapalı gösteriyor).");
+			Console.Error.WriteLine(L($"{wanted.Name} şu an değiştirilemiyor (oyun kapalı gösteriyor)."));
 			return 1;
 		}
 
@@ -230,7 +230,7 @@ internal static partial class Program
 		await LeavePreferences();
 		if (after == null || after.Current != target)
 		{
-			Console.Error.WriteLine($"{wanted.Name} {shownChoices[target]} yapıldı ama sayfa yeniden açılınca {(after == null ? "okunamadı" : Shown(wanted, ValueOf(after)))}.");
+			Console.Error.WriteLine(L($"{wanted.Name} {shownChoices[target]} yapıldı ama sayfa yeniden açılınca {(after == null ? L("okunamadı") : Shown(wanted, ValueOf(after)))}."));
 			return 1;
 		}
 		Console.WriteLine($"{wanted.Name}: {Shown(wanted, ValueOf(now))} → {Shown(wanted, ValueOf(after))}");
@@ -239,7 +239,7 @@ internal static partial class Program
 		// The screens change at once; the game's own texts (a fixture's venue, a match's kind) only
 		// once it is started again, which would lose what is not saved, so it is said, not done.
 		if (wanted.Name == "dil")
-			Console.WriteLine("Ekranlar yeni dilde; oyunun kendi yazıları (maç türü, iç saha / deplasman…) oyun yeniden açılınca değişir: save, sonra stop ve start.");
+			Console.WriteLine(L("Ekranlar yeni dilde; oyunun kendi yazıları (maç türü, iç saha / deplasman…) oyun yeniden açılınca değişir: save, sonra stop ve start."));
 		return 0;
 	}
 
@@ -277,7 +277,7 @@ internal static partial class Program
 		}
 		if (!await Showing("All Preferences"))
 		{
-			Console.Error.WriteLine("Ayarlar sayfası açılmadı.");
+			Console.Error.WriteLine(L("Ayarlar sayfası açılmadı."));
 			return null;
 		}
 
@@ -297,7 +297,7 @@ internal static partial class Program
 			read = key;
 			return settled;
 		}, seconds: 8, every: 0.25);
-		if (form.Count == 0) Console.Error.WriteLine($"Ayarlarda {tab} sekmesi okunamadı.");
+		if (form.Count == 0) Console.Error.WriteLine(L($"Ayarlarda {tab} sekmesi okunamadı."));
 		return form.Count == 0 ? null : form;
 	}
 

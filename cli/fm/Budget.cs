@@ -19,7 +19,7 @@ internal static partial class Program
 		var overview = await BudgetOverview();
 		if (overview == null)
 		{
-			Console.Error.WriteLine("Bütçe sayfası okunamadı.");
+			Console.Error.WriteLine(L("Bütçe sayfası okunamadı."));
 			return 1;
 		}
 
@@ -32,7 +32,7 @@ internal static partial class Program
 				return 0;
 			}
 			foreach (var (name, value) in overview) Console.WriteLine($"{name}: {value}");
-			Console.WriteLine("\nTransfer ile maaş bütçesi arasında para kaydırmak: budget ayarla");
+			Console.WriteLine(L("\nTransfer ile maaş bütçesi arasında para kaydırmak: budget ayarla"));
 			return 0;
 		}
 
@@ -48,7 +48,7 @@ internal static partial class Program
 		}, seconds: 8, every: 0.5);
 		if (slider.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine("Bütçe ayarı kartı açılmadı.");
+			Console.Error.WriteLine(L("Bütçe ayarı kartı açılmadı."));
 			return 1;
 		}
 
@@ -80,22 +80,22 @@ internal static partial class Program
 			if (int.TryParse(words[1], out var n) && n >= 0 && n <= high) target = n;
 			else
 			{
-				Console.Error.WriteLine($"'{words[1]}' bir adım değil (0–{high}).");
+				Console.Error.WriteLine(L($"'{words[1]}' bir adım değil (0–{high})."));
 				await Fm.Get("click", ("text", "Cancel"));
 				return 1;
 			}
 		}
-		else if (Ui.Interactive) target = Ui.Ask("Hangi dağılım?", labels, start);
+		else if (Ui.Interactive) target = Ui.Ask(L("Hangi dağılım?"), labels, start);
 		else
 		{
-			for (var i = 0; i <= high; i++) Console.WriteLine($"  {i,2}  {labels[i]}{(i == start ? "  ← şu an" : "")}");
-			Console.WriteLine("\nSeçmek: budget ayarla <adım>");
+			for (var i = 0; i <= high; i++) Console.WriteLine($"  {i,2}  {labels[i]}{(i == start ? L("  ← şu an") : "")}");
+			Console.WriteLine(L("\nSeçmek: budget ayarla <adım>"));
 		}
 
 		if (target is not { } chosen || chosen == start)
 		{
 			await Fm.Get("click", ("text", "Cancel"));
-			if (target == start) Console.WriteLine("Bütçe zaten böyle.");
+			if (target == start) Console.WriteLine(L("Bütçe zaten böyle."));
 			return 0;
 		}
 

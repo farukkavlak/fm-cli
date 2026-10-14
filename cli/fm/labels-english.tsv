@@ -1,0 +1,4 @@
+# The CLI's own words in English (Labels): a template as written in the code, a tab, its English.
+# A hole is {n} as in string.Format; \t and \n stand for a tab and a new line.
+Kaptan: {0}	Captain: {0}
+Yardımcı kaptan: {0}	Vice captain: {0}

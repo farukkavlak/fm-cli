@@ -28,11 +28,11 @@ internal static partial class Program
 				}
 				shown.Draw();
 				var answers = await TalkOptions();
-				if (answers.Count > 0) Console.WriteLine($"\nEkrandaki seçenekler: {string.Join(" · ", answers.Select(a => a.Label))}  (talk <no>)");
-				Console.WriteLine("Gelen teklifi reddetmek ya da kabul etmek: teklifin mesajına reply <#> Reject | Accept");
+				if (answers.Count > 0) Console.WriteLine(L($"\nEkrandaki seçenekler: {string.Join(" · ", answers.Select(a => a.Label))}  (talk <no>)"));
+				Console.WriteLine(L("Gelen teklifi reddetmek ya da kabul etmek: teklifin mesajına reply <#> Reject | Accept"));
 				return 0;
 			}
-			Console.Error.WriteLine("kullanım: offer <oyuncu> [bonservis, ör. 7.5M | 750K] [--term \"Şart=değer\"]… [--loan] [--dry] [--yes]");
+			Console.Error.WriteLine(L("kullanım: offer <oyuncu> [bonservis, ör. 7.5M | 750K] [--term \"Şart=değer\"]… [--loan] [--dry] [--yes]"));
 			return 64;
 		}
 
@@ -67,7 +67,7 @@ internal static partial class Program
 
 		if (await Labelled("Make An Offer") is not { } make)
 		{
-			Console.Error.WriteLine($"{name} için teklif yapılamıyor (oyunun aksiyonlarında 'Make An Offer' yok; zaten teklif verilmiş ya da bizim oyuncumuz olabilir).");
+			Console.Error.WriteLine(L($"{name} için teklif yapılamıyor (oyunun aksiyonlarında 'Make An Offer' yok; zaten teklif verilmiş ya da bizim oyuncumuz olabilir)."));
 			return 1;
 		}
 
@@ -77,13 +77,13 @@ internal static partial class Program
 		JsonElement refusal = default;
 		if (!await Until(async () => await FeeBoxNow() != null || (refusal = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 10, every: 0.25))
 		{
-			Console.Error.WriteLine("Teklif ekranı açılmadı.");
+			Console.Error.WriteLine(L("Teklif ekranı açılmadı."));
 			return 1;
 		}
 		if (refusal.ValueKind == JsonValueKind.Array && refusal.GetArrayLength() > 0)
 		{
 			var dialog = refusal[0];
-			Console.Error.WriteLine($"{name} için teklif yapılamıyor. Oyun diyor ki: {Field(dialog, "Title")}. {Field(dialog, "Description")}".TrimEnd());
+			Console.Error.WriteLine(L($"{name} için teklif yapılamıyor. Oyun diyor ki: {Field(dialog, "Title")}. {Field(dialog, "Description")}").TrimEnd());
 			if (DialogAnswer(dialog, true) is { } ok)
 				await Fm.Get("click", ("ptr", Field(ok, "Pointer")));
 			return 1;
@@ -155,11 +155,11 @@ internal static partial class Program
 
 		var what = loan ? "kiralık teklif" : "transfer teklifi";
 		if (await OfferScreen.Read(Fm) is { } offer) offer.Draw();
-		else Console.WriteLine($"{name}: {what}{(await FeeLabel() is { } shown ? $", bonservis {shown}" : "")}");
+		else Console.WriteLine($"{name}: {what}{(await FeeLabel() is { } shown ? L($", bonservis {shown}") : "")}");
 
 		if (dry)
 		{
-			Console.WriteLine("(kuru) Gönderilmedi; teklif ekranı açık bırakıldı. Kapatmak için: talk leave");
+			Console.WriteLine(L("(kuru) Gönderilmedi; teklif ekranı açık bırakıldı. Kapatmak için: talk leave"));
 			return 0;
 		}
 
@@ -169,7 +169,7 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine("Teklif geri alınamaz. Göndermek için --yes ekle (ya da önce --dry ile bak).");
+				Console.Error.WriteLine(L("Teklif geri alınamaz. Göndermek için --yes ekle (ya da önce --dry ile bak)."));
 				return 1;
 			}
 			if (!await EditOffer()) return 0;
@@ -177,7 +177,7 @@ internal static partial class Program
 
 		if (await Labelled("Make Offer") is not { } send)
 		{
-			Console.Error.WriteLine("'Make Offer' butonu yok ya da kapalı.");
+			Console.Error.WriteLine(L("'Make Offer' butonu yok ya da kapalı."));
 			return 1;
 		}
 		// What the assistant says before the offer is there already; the answer is what
@@ -188,9 +188,9 @@ internal static partial class Program
 		var said = before;
 		JsonElement? exit = null;
 		await Until(async () => (said = await Said()) != before && (exit = await Labelled("Exit Talks")) != null, seconds: 12, every: 0.25);
-		Console.WriteLine(said != before && said.Length > 0 ? said : "Teklif gönderildi.");
+		Console.WriteLine(said != before && said.Length > 0 ? said : L("Teklif gönderildi."));
 		if (exit is { } leave) await Fm.Get("press", ("ptr", Field(leave, "Pointer")));
-		Console.WriteLine("Cevap birkaç gün içinde gelen kutusuna düşer.");
+		Console.WriteLine(L("Cevap birkaç gün içinde gelen kutusuna düşer."));
 		return 0;
 
 		async Task<string> Said()
@@ -225,10 +225,10 @@ internal static partial class Program
 					actions.Add(() => AddTerm("offer", add));
 				}
 
-				if (Ui.Ask("Teklif — değiştirmek istediğini seç:", items, cancel: "Gönderme, ekranı açık bırak") is not { } picked) return false;
+				if (Ui.Ask(L("Teklif — değiştirmek istediğini seç:"), items, cancel: "Gönderme, ekranı açık bırak") is not { } picked) return false;
 				if (actions[picked] == null)
 				{
-					if (Ui.Ask($"{now.Player} için {now.BudgetCost} teklif gidecek. Geri alınamaz.", ["Gönder"], cancel: "Geri dön") == null) continue;
+					if (Ui.Ask(L($"{now.Player} için {now.BudgetCost} teklif gidecek. Geri alınamaz."), [L("Gönder")], cancel: "Geri dön") == null) continue;
 					return true;
 				}
 

@@ -47,18 +47,18 @@ internal static partial class Program
 			}
 			if (offers.Count == 0)
 			{
-				Console.WriteLine("Bekleyen teklif yok.");
+				Console.WriteLine(L("Bekleyen teklif yok."));
 				return 0;
 			}
-			Table.Write(["#", "OYUNCU", "KULÜP", "TÜR", "DURUM", "BEDEL", "ŞARTLAR"],
+			Table.Write(["#", L("OYUNCU"), L("KULÜP"), L("TÜR"), L("DURUM"), L("BEDEL"), L("ŞARTLAR")],
 				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, o.Kind switch { "Loan" => "Kiralık", "Transfer" => "Satış", "Free Transfer" => "Bedelsiz", "Swap" or "Part Exchange" => "Takas", var other => other }, o.Status, o.Fee, o.Terms]).ToList());
-			Console.WriteLine("\nCevap: offers <# | oyuncu> view | accept | stall | reject   (view teklifi kart olarak gösterir)");
+			Console.WriteLine(L("\nCevap: offers <# | oyuncu> view | accept | stall | reject   (view teklifi kart olarak gösterir)"));
 			return 0;
 		}
 
 		if (words.Count < 2 || Fold(words[^1]) is not ("view" or "accept" or "stall" or "reject" or "goster" or "kabul" or "beklet" or "reddet"))
 		{
-			Console.Error.WriteLine("kullanım: offers   ·   offers <# | oyuncu> view | accept | stall | reject [--yes]");
+			Console.Error.WriteLine(L("kullanım: offers   ·   offers <# | oyuncu> view | accept | stall | reject [--yes]"));
 			return 64;
 		}
 		var verb = Fold(words[^1]) switch { "goster" => "view", "kabul" => "accept", "beklet" => "stall", "reddet" => "reject", var v => v };
@@ -70,7 +70,7 @@ internal static partial class Program
 			var hits = Matching(offers, o => $"{o.Player} {o.Club}", wanted);
 			if (hits.Count != 1)
 			{
-				Console.Error.WriteLine(hits.Count == 0 ? $"'{wanted}' için bekleyen teklif yok." : $"'{wanted}' {hits.Count} teklife uyuyor; numarasıyla seç: offers");
+				Console.Error.WriteLine(hits.Count == 0 ? L($"'{wanted}' için bekleyen teklif yok.") : L($"'{wanted}' {hits.Count} teklife uyuyor; numarasıyla seç: offers"));
 				return 1;
 			}
 			offer = hits[0];
@@ -95,7 +95,7 @@ internal static partial class Program
 		var button = verb switch { "accept" => offer.Accept, "stall" => offer.Stall, _ => offer.Reject };
 		if (button == null)
 		{
-			Console.Error.WriteLine($"{what}: oyun bu teklife '{verb}' cevabını vermiyor (pazarlıksız ya da süresi dolmak üzere olan teklif bekletilemez).");
+			Console.Error.WriteLine(L($"{what}: oyun bu teklife '{verb}' cevabını vermiyor (pazarlıksız ya da süresi dolmak üzere olan teklif bekletilemez)."));
 			return 1;
 		}
 		// The game sends these at once, without asking; selling a player is asked about here.
@@ -103,10 +103,10 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine($"{what}: {(verb == "accept" ? "kabul" : "ret")} oyunda onaysız işliyor. Göndermek için: offers \"{offer.Player} {offer.Club}\" {verb} --yes");
+				Console.WriteLine(L($"{what}: {(verb == "accept" ? L("kabul") : L("ret"))} oyunda onaysız işliyor. Göndermek için: offers \"{offer.Player} {offer.Club}\" {verb} --yes"));
 				return 0;
 			}
-			if (Ui.Ask($"{what}: {(verb == "accept" ? "kabul edelim mi?" : "reddedelim mi?")}", ["Evet", "Hayır"]) != 0) return 0;
+			if (Ui.Ask($"{what}: {(verb == "accept" ? L("kabul edelim mi?") : L("reddedelim mi?"))}", [L("Evet"), L("Hayır")]) != 0) return 0;
 		}
 
 		var said = await Fm.Get("press", ("ptr", button));
@@ -117,11 +117,11 @@ internal static partial class Program
 			!(after = await WaitingOffers()).Any(o => o.Player == offer.Player && o.Club == offer.Club && o.Status == offer.Status), seconds: 8, every: 0.5);
 		if (!changed)
 		{
-			Console.Error.WriteLine($"{what}: cevap gönderildi ama teklif listede aynı duruyor.");
+			Console.Error.WriteLine(L($"{what}: cevap gönderildi ama teklif listede aynı duruyor."));
 			return 1;
 		}
 		var now = after.FirstOrDefault(o => o.Player == offer.Player && o.Club == offer.Club);
-		Console.WriteLine($"{what}: {(verb == "accept" ? "kabul edildi" : verb == "stall" ? "bekletiliyor" : "reddedildi")}{(now != null ? $" — durum: {now.Status}" : "")}");
+		Console.WriteLine($"{what}: {(verb == "accept" ? L("kabul edildi") : verb == "stall" ? L("bekletiliyor") : L("reddedildi"))}{(now != null ? L($" — durum: {now.Status}") : "")}");
 		return 0;
 	}
 

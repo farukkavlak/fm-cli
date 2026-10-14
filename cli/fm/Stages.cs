@@ -24,7 +24,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (!await Until(async () => await StageLists() != null, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine("Stages sayfası açılmadı.");
+			Console.Error.WriteLine(L("Stages sayfası açılmadı."));
 			return 1;
 		}
 
@@ -32,7 +32,7 @@ internal static partial class Program
 		{
 			var every = await Competitions(refresh: args.Contains("--refresh"));
 			if (json) Console.WriteLine(JsonOut.Of(every.Select(path => new { Name = path[^1], Path = path[1..^1] })));
-			else Table.Write(["TURNUVA", "YER"], every.Select(path => new[] { path[^1], string.Join(" › ", path[1..^1]) }).ToList());
+			else Table.Write([L("TURNUVA"), L("YER")], every.Select(path => new[] { path[^1], string.Join(" › ", path[1..^1]) }).ToList());
 			return 0;
 		}
 
@@ -79,7 +79,7 @@ internal static partial class Program
 			if (hits.Count == 0) hits = stages.Where(s => Fold(string.Join(" ", s)).Contains(typed)).ToList();
 			if (hits.Count != 1)
 			{
-				Console.Error.WriteLine(hits.Count == 0 ? $"{competition}: '{string.Join(" ", words.Skip(1))}' diye bir aşama yok. Aşamalar:" : "Birden çok aşamaya uyuyor:");
+				Console.Error.WriteLine(hits.Count == 0 ? L($"{competition}: '{string.Join(" ", words.Skip(1))}' diye bir aşama yok. Aşamalar:") : L("Birden çok aşamaya uyuyor:"));
 				foreach (var s in hits.Count == 0 ? stages : hits) Console.Error.WriteLine($"  {string.Join(" › ", s)}");
 				return 64;
 			}
@@ -144,11 +144,11 @@ internal static partial class Program
 
 			if (bare && table == null) return 1;
 			if (!bare) Console.WriteLine($"\n{competition} · {name}");
-			if (note != null) Console.WriteLine($"Kura henüz çekilmedi; çekiliş {note}.");
+			if (note != null) Console.WriteLine(L($"Kura henüz çekilmedi; çekiliş {note}."));
 			else if (ties != null) WriteTies(ties.Value);
 			else if (table != null && Ui.Rich) Standings.Draw(table.Value, (await Fm.OwnTeam()).Name);
 			else if (table != null) WriteStandings(table.Value);
-			else Console.WriteLine("Bu aşamada gösterilecek bir şey yok.");
+			else Console.WriteLine(L("Bu aşamada gösterilecek bir şey yok."));
 			if (ahead != null && note == null) Console.WriteLine($"\n{ahead}");
 		}
 
@@ -160,8 +160,8 @@ internal static partial class Program
 
 		if (!all && !bare)
 		{
-			Console.WriteLine($"\nAşamalar: {string.Join(" · ", stages.Select(s => string.Join(" › ", s)))}");
-			Console.WriteLine($"Birini görmek için: stages \"{competition}\" \"<aşama>\"   ·   hepsi: --all");
+			Console.WriteLine(L($"\nAşamalar: {string.Join(" · ", stages.Select(s => string.Join(" › ", s)))}"));
+			Console.WriteLine(L($"Birini görmek için: stages \"{competition}\" \"<aşama>\"   ·   hepsi: --all"));
 		}
 		return 0;
 	}
@@ -365,7 +365,7 @@ internal static partial class Program
 			if (twoLegged) row.Add(Field(tie, "HomeExtra").Length > 0 ? $"{Field(tie, "HomeExtra")} - {Field(tie, "AwayExtra")}" : "");
 			return row.ToArray();
 		}).ToList();
-		Table.Write(twoLegged ? ["EV", "SKOR", "DEPLASMAN", "TOPLAM"] : ["EV", "SKOR", "DEPLASMAN"], rows);
+		Table.Write(twoLegged ? [L("EV"), L("SKOR"), L("DEPLASMAN"), L("TOPLAM")] : [L("EV"), L("SKOR"), L("DEPLASMAN")], rows);
 	}
 
 	/// <summary>
@@ -429,7 +429,7 @@ internal static partial class Program
 		if (hits.Count == 1) return hits[0];
 		if (quiet) return null;
 
-		Console.Error.WriteLine(hits.Count == 0 ? $"'{typed}' diye bir turnuva yok (hepsi: stages --list)." : $"'{typed}' birden çok turnuvaya uyuyor:");
+		Console.Error.WriteLine(hits.Count == 0 ? L($"'{typed}' diye bir turnuva yok (hepsi: stages --list).") : L($"'{typed}' birden çok turnuvaya uyuyor:"));
 		foreach (var hit in hits.Take(20)) Console.Error.WriteLine($"  {hit[^1]}   ({string.Join(" › ", hit[1..^1])})");
 		return null;
 

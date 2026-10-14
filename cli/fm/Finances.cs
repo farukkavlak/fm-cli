@@ -36,7 +36,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (!t.Contains("Projections"))
 		{
-			Console.Error.WriteLine("Finans kartı okunamadı.");
+			Console.Error.WriteLine(L("Finans kartı okunamadı."));
 			return 1;
 		}
 
@@ -46,7 +46,7 @@ internal static partial class Program
 			var kind = Fold(words[0]) switch { "gelir" or "income" => "Income", "gider" or "expenditure" or "harcama" => "Expenditure", _ => null };
 			if (kind == null)
 			{
-				Console.Error.WriteLine($"'{words[0]}' anlaşılmadı: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]");
+				Console.Error.WriteLine(L($"'{words[0]}' anlaşılmadı: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]"));
 				return 1;
 			}
 			return await FinanceBreakdown(json, kind, string.Join(" ", words.Skip(1)));
@@ -148,8 +148,8 @@ internal static partial class Program
 
 		Heading("Yönetimin projeksiyonu");
 		foreach (var (season, balance, turnover) in projections) Row(season, $"bakiye {balance} · ciro {turnover}");
-		if (Ui.Rich) Ui.Line("\n[dim]Kalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon][/]");
-		else Console.WriteLine("\nKalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]");
+		if (Ui.Rich) Ui.Line(L("\n[dim]Kalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon][/]"));
+		else Console.WriteLine(L("\nKalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]"));
 		return 0;
 	}
 
@@ -205,7 +205,7 @@ internal static partial class Program
 		};
 		if (tab == null)
 		{
-			Console.Error.WriteLine($"'{period}' bir dönem değil: ay, geçen ay, sezon, geçen sezon");
+			Console.Error.WriteLine(L($"'{period}' bir dönem değil: ay, geçen ay, sezon, geçen sezon"));
 			return 1;
 		}
 
@@ -227,7 +227,7 @@ internal static partial class Program
 		await Until(async () => Items(card = await Card()).Count > 0, seconds: 8, every: 0.5);
 		if (Items(card).Count == 0)
 		{
-			Console.Error.WriteLine(kind == "Income" ? "Gelir dökümü açılmadı." : "Gider dökümü açılmadı.");
+			Console.Error.WriteLine(kind == "Income" ? L("Gelir dökümü açılmadı.") : L("Gider dökümü açılmadı."));
 			return 1;
 		}
 		// The card comes back on whichever period it was last left on, so the tab is always pressed.

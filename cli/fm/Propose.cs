@@ -22,7 +22,7 @@ internal static partial class Program
 		}
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: propose <oyuncu> [ücret] [--yes]  ·  propose <oyuncu> --loan [--yes]   (kulüplere öner; ücret yazılmazsa \"belirtilmemiş\")");
+			Console.Error.WriteLine(L("kullanım: propose <oyuncu> [ücret] [--yes]  ·  propose <oyuncu> --loan [--yes]   (kulüplere öner; ücret yazılmazsa \"belirtilmemiş\")"));
 			return 64;
 		}
 		if (await OpenPlayer(string.Join(" ", words)) is not { } card) return 1;
@@ -32,7 +32,7 @@ internal static partial class Program
 		var opened = await Arriving("press", [("text", value), ("name", "SIButton"), ("any", "1")]);
 		if (value.Length == 0 || opened.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine($"{name} bizim oyuncumuz değil ya da transfer seçenekleri açılamıyor.");
+			Console.Error.WriteLine(L($"{name} bizim oyuncumuz değil ya da transfer seçenekleri açılamıyor."));
 			return 1;
 		}
 
@@ -46,7 +46,7 @@ internal static partial class Program
 		}
 		if (!await Until(Offered, seconds: 8, every: 0.5))
 		{
-			Console.Error.WriteLine($"{name} için kulüplere önerme seçeneği yok (zaten önerilmiş olabilir).");
+			Console.Error.WriteLine(L($"{name} için kulüplere önerme seçeneği yok (zaten önerilmiş olabilir)."));
 			return 1;
 		}
 		var pressed = await Arriving("press", [("text", offer), ("any", "1")]);
@@ -55,7 +55,7 @@ internal static partial class Program
 		List<JsonElement> buttons = [];
 		if (!await Until(async () => (buttons = await Buttons()).Any(b => Field(b, "Label") == send) && buttons.Any(b => Field(b, "Type") == "FMCombobox"), seconds: 8, every: 0.4))
 		{
-			Console.Error.WriteLine("Önerme ekranı açılmadı.");
+			Console.Error.WriteLine(L("Önerme ekranı açılmadı."));
 			return 1;
 		}
 
@@ -69,7 +69,7 @@ internal static partial class Program
 		// A loan has no fee of its own on this screen; its terms are clauses added one by one.
 		if (loan && fee != null)
 		{
-			Console.Error.WriteLine("Kiralık öneride ücret yazılmıyor (oyun yalnızca ek madde ekletiyor); ücretsiz dene: propose <oyuncu> --loan");
+			Console.Error.WriteLine(L("Kiralık öneride ücret yazılmıyor (oyun yalnızca ek madde ekletiyor); ücretsiz dene: propose <oyuncu> --loan"));
 			return 64;
 		}
 		if (fee != null)
@@ -82,17 +82,17 @@ internal static partial class Program
 		}
 
 		Console.WriteLine(loan
-			? $"{name} kulüplere kiralık olarak önerilecek."
-			: $"{name} kulüplere önerilecek: satış, bonservis {Field(buttons.First(b => Field(b, "Type") == "FMCombobox"), "Label")}");
+			? L($"{name} kulüplere kiralık olarak önerilecek.")
+			: L($"{name} kulüplere önerilecek: satış, bonservis {Field(buttons.First(b => Field(b, "Type") == "FMCombobox"), "Label")}"));
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
 			{
 				await OpenPage(Screen.Home);
-				Console.WriteLine($"Göndermek için: propose \"{name}\"{(fee != null ? " " + fee : "")}{(loan ? " --loan" : "")} --yes");
+				Console.WriteLine(L($"Göndermek için: propose \"{name}\"{(fee != null ? " " + fee : "")}{(loan ? L(" --loan") : "")} --yes"));
 				return 0;
 			}
-			if (Ui.Ask("Önerelim mi?", ["Evet", "Hayır"]) != 0) return 0;
+			if (Ui.Ask(L("Önerelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
 		}
 
 		pressed = await Fm.Get("press", ("ptr", Field(buttons.First(b => Field(b, "Label") == send), "Pointer")));
@@ -100,12 +100,12 @@ internal static partial class Program
 		// Once he is on offer the action is gone from his list.
 		if (!await Until(async () => (buttons = await Buttons()).All(b => Field(b, "Label") != send) && buttons.All(b => Field(b, "Label") != offer), seconds: 8, every: 0.5))
 		{
-			Console.Error.WriteLine("Öneri gönderilmedi (ekran kapanmadı).");
+			Console.Error.WriteLine(L("Öneri gönderilmedi (ekran kapanmadı)."));
 			return 1;
 		}
 		// His actions stay up on his page and would read as an open conversation to `status`.
 		await OpenPage(Screen.Home);
-		Console.WriteLine("Önerildi. İlgilenen kulüpler önümüzdeki günlerde gelen kutusuna düşer.");
+		Console.WriteLine(L("Önerildi. İlgilenen kulüpler önümüzdeki günlerde gelen kutusuna düşer."));
 		return 0;
 	}
 }

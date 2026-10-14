@@ -29,7 +29,7 @@ internal static partial class Program
 		var duties = await AllDuties(area != null ? [area] : null);
 		if (duties.Count == 0)
 		{
-			Console.Error.WriteLine("Sorumluluklar sayfası okunamadı.");
+			Console.Error.WriteLine(L("Sorumluluklar sayfası okunamadı."));
 			return 1;
 		}
 		if (area == null && typed.Length > 0) duties = duties.Where(d => Fold(d.Area + " " + d.Group + " " + d.Title + " " + d.Holder).Contains(typed)).ToList();
@@ -42,16 +42,16 @@ internal static partial class Program
 		foreach (var inArea in duties.GroupBy(d => d.Area))
 		{
 			var mine = inArea.Count(d => d.Mine);
-			Console.WriteLine($"\n== {inArea.Key}  ({mine} sende, {inArea.Count() - mine} devredilmiş)");
+			Console.WriteLine(L($"\n== {inArea.Key}  ({mine} sende, {inArea.Count() - mine} devredilmiş)"));
 			foreach (var group in inArea.GroupBy(d => d.Group))
 			{
 				// An area of one group repeats its name; the heading is said once.
 				if (group.Key != inArea.Key) Console.WriteLine($"\n{group.Key}");
-				Table.Write(["GÖREV", "KİMDE", ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? "sende" : d.CanTake ? "devredildi" : "devredildi (kilitli)" }).ToList());
+				Table.Write([L("GÖREV"), L("KİMDE"), ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? "sende" : d.CanTake ? "devredildi" : "devredildi (kilitli)" }).ToList());
 			}
 		}
-		if (area == null && typed.Length == 0) Console.WriteLine("\nYalnızca bir alan: responsibilities medya | antrenman | taktik | maç | duran top | transfer | scout | personel | yönetim");
-		Console.WriteLine("\nDevretmek: responsibilities delegate \"<görev>\"   ·   belirli birine: responsibilities give \"<görev>\" <kişi>   ·   geri almak: responsibilities take \"<görev>\"");
+		if (area == null && typed.Length == 0) Console.WriteLine(L("\nYalnızca bir alan: responsibilities medya | antrenman | taktik | maç | duran top | transfer | scout | personel | yönetim"));
+		Console.WriteLine(L("\nDevretmek: responsibilities delegate \"<görev>\"   ·   belirli birine: responsibilities give \"<görev>\" <kişi>   ·   geri almak: responsibilities take \"<görev>\""));
 		return 0;
 	}
 
@@ -259,7 +259,7 @@ internal static partial class Program
 		if (hits.Count == 0) hits = all.Where(d => Worded(d.Title)).ToList();
 		// The page is left on the duty's own area, where its buttons are.
 		if (hits.Count == 1) return await DutyArea(hits[0].Area) ? hits[0] : null;
-		Console.Error.WriteLine(hits.Count == 0 ? $"'{typed}' diye bir görev yok (hepsi: responsibilities)." : $"'{typed}' birden çok göreve uyuyor:");
+		Console.Error.WriteLine(hits.Count == 0 ? L($"'{typed}' diye bir görev yok (hepsi: responsibilities).") : L($"'{typed}' birden çok göreve uyuyor:"));
 		foreach (var hit in hits) Console.Error.WriteLine($"  {hit.Title}   ({(hit.Group == hit.Area ? hit.Area : $"{hit.Area} › {hit.Group}")})");
 		return null;
 	}
@@ -272,7 +272,7 @@ internal static partial class Program
 	{
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine("kullanım: responsibilities give \"<görev>\" [<kişi>]");
+			Console.Error.WriteLine(L("kullanım: responsibilities give \"<görev>\" [<kişi>]"));
 			return 64;
 		}
 		if (await FindDuty(words[0]) is not { } duty) return 64;
@@ -284,12 +284,12 @@ internal static partial class Program
 		var now = (await Duties(stopAt: duty.Title)).FirstOrDefault(d => d.Group == duty.Group && d.Title == duty.Title);
 		if (now == null || now.Staff.Length == 0)
 		{
-			Console.Error.WriteLine($"{duty.Title}: sayfada bulunamadı.");
+			Console.Error.WriteLine(L($"{duty.Title}: sayfada bulunamadı."));
 			return 1;
 		}
 		if (!now.CanTake && !now.CanDelegate)
 		{
-			Console.Error.WriteLine($"{duty.Title}: kilitli, oyun başkasına verdirmiyor ({now.Holder}).");
+			Console.Error.WriteLine(L($"{duty.Title}: kilitli, oyun başkasına verdirmiyor ({now.Holder})."));
 			return 1;
 		}
 
@@ -306,7 +306,7 @@ internal static partial class Program
 		var people = (await PullEach(readings)).Select(r => Field(r, "Name")).ToList();
 		if (people.Count == 0 || people.Any(p => p.Length == 0))
 		{
-			Console.Error.WriteLine($"{duty.Title}: kimlere verilebileceği okunamadı.");
+			Console.Error.WriteLine(L($"{duty.Title}: kimlere verilebileceği okunamadı."));
 			return 1;
 		}
 
@@ -323,12 +323,12 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine($"{duty.Title}: {now.Holder}\nVerilebilecekler: {string.Join(" · ", people)}");
+			Console.WriteLine(L($"{duty.Title}: {now.Holder}\nVerilebilecekler: {string.Join(" · ", people)}"));
 			return 0;
 		}
 		if (person == now.Holder)
 		{
-			Console.WriteLine($"{duty.Title}: zaten {person}.");
+			Console.WriteLine(L($"{duty.Title}: zaten {person}."));
 			return 0;
 		}
 
@@ -355,12 +355,12 @@ internal static partial class Program
 		var asked = await Fm.GetJson("dialog");
 		if (asked.GetArrayLength() > 0)
 		{
-			Console.Error.WriteLine($"Oyun soruyor: {Field(asked[0], "Title")} — {Field(asked[0], "Description")}   (cevap: dialog, ya da komutu --yes ile yinele)");
+			Console.Error.WriteLine(L($"Oyun soruyor: {Field(asked[0], "Title")} — {Field(asked[0], "Description")}   (cevap: dialog, ya da komutu --yes ile yinele)"));
 			return 1;
 		}
 		if (!changed)
 		{
-			Console.Error.WriteLine($"{duty.Title}: {person} seçildi ama görev hâlâ {after?.Holder ?? now.Holder}.");
+			Console.Error.WriteLine(L($"{duty.Title}: {person} seçildi ama görev hâlâ {after?.Holder ?? now.Holder}."));
 			return 1;
 		}
 		Console.WriteLine($"{duty.Title}: {now.Holder} → {person}");
@@ -372,13 +372,13 @@ internal static partial class Program
 	{
 		if (typed.Length == 0)
 		{
-			Console.Error.WriteLine($"Hangi görev?  responsibilities {(take ? "take" : "delegate")} \"<görev>\"");
+			Console.Error.WriteLine(L($"Hangi görev?  responsibilities {(take ? L("take") : L("delegate"))} \"<görev>\""));
 			return 64;
 		}
 		if (await FindDuty(typed) is not { } duty) return 64;
 		if (duty.Mine == take)
 		{
-			Console.WriteLine($"{duty.Title}: zaten {(take ? "sende" : $"devredilmiş ({duty.Holder})")}.");
+			Console.WriteLine(L($"{duty.Title}: zaten {(take ? L("sende") : L($"devredilmiş ({duty.Holder})"))}."));
 			return 0;
 		}
 
@@ -389,12 +389,12 @@ internal static partial class Program
 		var now = (await Duties(stopAt: duty.Title)).FirstOrDefault(d => d.Group == duty.Group && d.Title == duty.Title);
 		if (now == null)
 		{
-			Console.Error.WriteLine($"{duty.Title}: sayfada bulunamadı.");
+			Console.Error.WriteLine(L($"{duty.Title}: sayfada bulunamadı."));
 			return 1;
 		}
 		if (take ? !now.CanTake : !now.CanDelegate)
 		{
-			Console.Error.WriteLine($"{duty.Title}: oyun bunu {(take ? "geri aldırmıyor" : "devrettirmiyor")} (buton kapalı).");
+			Console.Error.WriteLine(L($"{duty.Title}: oyun bunu {(take ? L("geri aldırmıyor") : L("devrettirmiyor"))} (buton kapalı)."));
 			return 1;
 		}
 
@@ -422,15 +422,15 @@ internal static partial class Program
 		var asked = await Fm.GetJson("dialog");
 		if (asked.GetArrayLength() > 0)
 		{
-			Console.Error.WriteLine($"Oyun soruyor: {Field(asked[0], "Title")} — {Field(asked[0], "Description")}   (cevap: dialog, ya da komutu --yes ile yinele)");
+			Console.Error.WriteLine(L($"Oyun soruyor: {Field(asked[0], "Title")} — {Field(asked[0], "Description")}   (cevap: dialog, ya da komutu --yes ile yinele)"));
 			return 1;
 		}
 		if (!changed || after == null)
 		{
-			Console.Error.WriteLine($"{duty.Title}: butona basıldı ama durum değişmedi.");
+			Console.Error.WriteLine(L($"{duty.Title}: butona basıldı ama durum değişmedi."));
 			return 1;
 		}
-		Console.WriteLine(take ? $"{duty.Title}: artık sende." : $"{duty.Title}: devredildi → {after.Holder}");
+		Console.WriteLine(take ? L($"{duty.Title}: artık sende.") : L($"{duty.Title}: devredildi → {after.Holder}"));
 		return 0;
 	}
 }

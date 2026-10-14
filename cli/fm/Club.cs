@@ -44,7 +44,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (!texts.Contains("Current Season Objective"))
 		{
-			Console.Error.WriteLine("Kulüp sayfası okunamadı.");
+			Console.Error.WriteLine(L("Kulüp sayfası okunamadı."));
 			return 1;
 		}
 

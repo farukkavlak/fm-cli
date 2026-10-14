@@ -32,14 +32,14 @@ internal static partial class Program
 		if (words.Count == 0 || ScheduleDate(words, today, out var used) is not { } day)
 		{
 			Console.Error.WriteLine(style
-				? "kullanım: schedule style <gün> [<program>]   (gün: 14, \"14 ekim\", 2025-10-14, yarın, cuma)"
-				: "kullanım: schedule set <gün> <1|2|3> [<seans>]   (gün: 14, \"14 ekim\", 2025-10-14, yarın, cuma)");
+				? L("kullanım: schedule style <gün> [<program>]   (gün: 14, \"14 ekim\", 2025-10-14, yarın, cuma)")
+				: L("kullanım: schedule set <gün> <1|2|3> [<seans>]   (gün: 14, \"14 ekim\", 2025-10-14, yarın, cuma)"));
 			return 64;
 		}
 		words = words.Skip(used).ToList();
 		if (!style && (words.Count == 0 || !int.TryParse(words[0], out var slot) || slot < 1 || slot > 3))
 		{
-			Console.Error.WriteLine("Hangi seans? Günden sonra 1, 2 ya da 3 (günün sırasıyla).");
+			Console.Error.WriteLine(L("Hangi seans? Günden sonra 1, 2 ya da 3 (günün sırasıyla)."));
 			return 64;
 		}
 
@@ -48,7 +48,7 @@ internal static partial class Program
 		var found = grid.FirstOrDefault(d => d.Day == day);
 		if (found == null)
 		{
-			Console.Error.WriteLine($"{DayName(day)} takvimde bulunamadı.");
+			Console.Error.WriteLine(L($"{DayName(day)} takvimde bulunamadı."));
 			return 1;
 		}
 		return style ? await ChangeWeek(found, words, day) : await ChangeSession(found, words, day);
@@ -59,18 +59,18 @@ internal static partial class Program
 		var slot = int.Parse(words[0]);
 		if (day.Sessions.Count < slot)
 		{
-			Console.Error.WriteLine($"{DayName(date)} günü {slot}. seans okunamadı.");
+			Console.Error.WriteLine(L($"{DayName(date)} günü {slot}. seans okunamadı."));
 			return 1;
 		}
 		var session = day.Sessions[slot - 1];
 		if (session.Match)
 		{
-			Console.Error.WriteLine($"{DayName(date)}, {slot}. seans maçın kendisi ({session.Name}); değiştirilemez.");
+			Console.Error.WriteLine(L($"{DayName(date)}, {slot}. seans maçın kendisi ({session.Name}); değiştirilemez."));
 			return 1;
 		}
 		if (!session.Enabled)
 		{
-			Console.Error.WriteLine($"{DayName(date)}, {slot}. seans ({session.Name}) değiştirilemiyor: geçmiş bir gün ya da maç/yolculuk.");
+			Console.Error.WriteLine(L($"{DayName(date)}, {slot}. seans ({session.Name}) değiştirilemiyor: geçmiş bir gün ya da maç/yolculuk."));
 			return 1;
 		}
 		var wanted = string.Join(" ", words.Skip(1));
@@ -87,21 +87,21 @@ internal static partial class Program
 			if (!Ui.Interactive)
 			{
 				await ClosePicker();
-				Console.WriteLine($"{DayName(date)}, {slot}. seans: {session.Name}");
-				Console.WriteLine($"Kategoriler: {string.Join(", ", categories)}");
+				Console.WriteLine(L($"{DayName(date)}, {slot}. seans: {session.Name}"));
+				Console.WriteLine(L($"Kategoriler: {string.Join(", ", categories)}"));
 				Console.WriteLine($"{category}: {string.Join(", ", options.Select(o => o.Name))}");
 				return 0;
 			}
 			while (true)
 			{
-				if (Ui.Ask($"{DayName(date)}, {slot}. seans ({session.Name}) — kategori", categories, categories.IndexOf(category)) is not { } c)
+				if (Ui.Ask(L($"{DayName(date)}, {slot}. seans ({session.Name}) — kategori"), categories, categories.IndexOf(category)) is not { } c)
 				{
 					await ClosePicker();
 					return 0;
 				}
 				options = await PickerCategory(menu, categories[c], null) ?? [];
 				var names = options.Select(o => o.Name).ToList();
-				if (Ui.Ask($"{categories[c]} — seans", names, names.IndexOf(session.Name), cancel: "Geri") is { } s)
+				if (Ui.Ask(L($"{categories[c]} — seans"), names, names.IndexOf(session.Name), cancel: "Geri") is { } s)
 				{
 					chosen = names[s];
 					break;
@@ -131,8 +131,8 @@ internal static partial class Program
 			{
 				await ClosePicker();
 				Console.Error.WriteLine(hit.Close.Count > 1
-					? $"'{wanted}' birden çok seansa uyuyor: {string.Join(", ", hit.Close)}"
-					: $"'{wanted}' diye bir seans yok. Seçenekleri görmek için: schedule set {date:yyyy-MM-dd} {slot}");
+					? L($"'{wanted}' birden çok seansa uyuyor: {string.Join(", ", hit.Close)}")
+					: L($"'{wanted}' diye bir seans yok. Seçenekleri görmek için: schedule set {date:yyyy-MM-dd} {slot}"));
 				return 1;
 			}
 			chosen = hit.Session;
@@ -140,7 +140,7 @@ internal static partial class Program
 			if (options.All(o => o.Name != chosen))
 			{
 				await ClosePicker();
-				Console.Error.WriteLine($"'{chosen}' {hit.Category} kategorisinde görünmüyor.");
+				Console.Error.WriteLine(L($"'{chosen}' {hit.Category} kategorisinde görünmüyor."));
 				return 1;
 			}
 		}
@@ -148,7 +148,7 @@ internal static partial class Program
 		if (chosen == session.Name)
 		{
 			await ClosePicker();
-			Console.WriteLine($"{DayName(date)}, {slot}. seans zaten {chosen}.");
+			Console.WriteLine(L($"{DayName(date)}, {slot}. seans zaten {chosen}."));
 			return 0;
 		}
 		var option = options.First(o => o.Name == chosen);
@@ -157,10 +157,10 @@ internal static partial class Program
 		var after = await ReadSlot(date, d => d.Sessions.Count >= slot ? d.Sessions[slot - 1].Name : null, chosen);
 		if (after != chosen)
 		{
-			Console.Error.WriteLine($"Onaylandı ama takvimde {slot}. seans '{after ?? "?"}' görünüyor.");
+			Console.Error.WriteLine(L($"Onaylandı ama takvimde {slot}. seans '{after ?? "?"}' görünüyor."));
 			return 1;
 		}
-		Console.WriteLine($"{DayName(date)}, {slot}. seans: {session.Name} → {chosen}");
+		Console.WriteLine(L($"{DayName(date)}, {slot}. seans: {session.Name} → {chosen}"));
 		SayAbout();
 		return 0;
 	}
@@ -169,12 +169,12 @@ internal static partial class Program
 	{
 		if (day.Week == null)
 		{
-			Console.Error.WriteLine($"{DayName(date)} haftasının program kartı okunamadı.");
+			Console.Error.WriteLine(L($"{DayName(date)} haftasının program kartı okunamadı."));
 			return 1;
 		}
 		if (!day.Week.Enabled)
 		{
-			Console.Error.WriteLine($"{DayName(date)} haftası geçti; programı değiştirilemiyor.");
+			Console.Error.WriteLine(L($"{DayName(date)} haftası geçti; programı değiştirilemiyor."));
 			return 1;
 		}
 		var wanted = string.Join(" ", words);
@@ -200,20 +200,20 @@ internal static partial class Program
 			{
 				await ClosePicker();
 				Console.WriteLine($"{WeekName(date)}: {day.Week.Name}");
-				Console.WriteLine($"Türler: {string.Join(", ", kinds.Select(k => k.Label))}");
+				Console.WriteLine(L($"Türler: {string.Join(", ", kinds.Select(k => k.Label))}"));
 				Console.WriteLine($"{Field(menu, "Label")}: {string.Join(", ", options.Select(o => o.Name))}");
 				return 0;
 			}
 			while (true)
 			{
-				if (Ui.Ask($"{WeekName(date)} ({day.Week.Name}) — program türü", kinds.Select(k => k.Label).ToList(), kinds.FindIndex(k => k.Choice == Field(menu, "Label"))) is not { } k)
+				if (Ui.Ask(L($"{WeekName(date)} ({day.Week.Name}) — program türü"), kinds.Select(k => k.Label).ToList(), kinds.FindIndex(k => k.Choice == Field(menu, "Label"))) is not { } k)
 				{
 					await ClosePicker();
 					return 0;
 				}
 				options = await PickerCategory(menu, kinds[k].Choice, kinds[k].Path) ?? [];
 				var names = options.Select(o => o.Name).ToList();
-				if (Ui.Ask($"{kinds[k].Label} — program", names, names.FindIndex(n => day.Week.Name.StartsWith(n, StringComparison.Ordinal)), cancel: "Geri") is { } s)
+				if (Ui.Ask(L($"{kinds[k].Label} — program"), names, names.FindIndex(n => day.Week.Name.StartsWith(n, StringComparison.Ordinal)), cancel: "Geri") is { } s)
 				{
 					chosen = names[s];
 					break;
@@ -253,7 +253,7 @@ internal static partial class Program
 			if (chosen == null)
 			{
 				await ClosePicker();
-				Console.Error.WriteLine($"'{wanted}' diye bir program bulunamadı. Seçenekleri görmek için: schedule style {date:yyyy-MM-dd}");
+				Console.Error.WriteLine(L($"'{wanted}' diye bir program bulunamadı. Seçenekleri görmek için: schedule style {date:yyyy-MM-dd}"));
 				return 1;
 			}
 		}
@@ -265,7 +265,7 @@ internal static partial class Program
 		var after = await ReadSlot(date, d => d.Week?.Name is { } n && n.StartsWith($"{chosen} - ", StringComparison.Ordinal) ? chosen : d.Week?.Name, chosen);
 		if (after != chosen)
 		{
-			Console.Error.WriteLine($"Onaylandı ama haftanın kartında '{after ?? "?"}' görünüyor.");
+			Console.Error.WriteLine(L($"Onaylandı ama haftanın kartında '{after ?? "?"}' görünüyor."));
 			return 1;
 		}
 		Console.WriteLine($"{WeekName(date)}: {day.Week.Name} → {chosen}");
@@ -289,7 +289,7 @@ internal static partial class Program
 		await Until(async () => (picker = await ReadPicker(oneChoice)) is { Item2.Count: > 0 }, seconds: 8, every: 0.3);
 		if (picker is not { Item2.Count: > 0 })
 		{
-			Console.Error.WriteLine("Seçim penceresi açılmadı.");
+			Console.Error.WriteLine(L("Seçim penceresi açılmadı."));
 			return null;
 		}
 		return picker;
@@ -467,7 +467,7 @@ internal static partial class Program
 		var month = months.FirstOrDefault(m => m.Year == day.Year && m.Month == day.Month);
 		if (month == null)
 		{
-			Console.Error.WriteLine($"{DayName(day)} takvimin gösterdiği aylarda yok.");
+			Console.Error.WriteLine(L($"{DayName(day)} takvimin gösterdiği aylarda yok."));
 			return null;
 		}
 
@@ -506,7 +506,7 @@ internal static partial class Program
 			}, seconds: 3, every: 0.4);
 			if (drawn) return grid;
 		}
-		Console.Error.WriteLine("Takvimin antrenman sekmesi okunamadı.");
+		Console.Error.WriteLine(L("Takvimin antrenman sekmesi okunamadı."));
 		return null;
 	}
 

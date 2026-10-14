@@ -20,7 +20,7 @@ internal static partial class Program
 		var menus = await PlayerMenus();
 		if (menus.Count == 0)
 		{
-			Console.Error.WriteLine("Sahadaki oyuncuların menüsü ekranda yok (devre arası ya da konuşma ekranı olabilir).");
+			Console.Error.WriteLine(L("Sahadaki oyuncuların menüsü ekranda yok (devre arası ya da konuşma ekranı olabilir)."));
 			return 1;
 		}
 
@@ -29,14 +29,14 @@ internal static partial class Program
 
 		if (words.Count == 0 && Ui.Interactive)
 		{
-			if (Ui.Ask(withoutBall ? "Kimin topsuz rolü?" : "Kimin rolü?", menus.Select(m => $"{Rows(m)[0]}  ({Current(m)})").ToList()) is not { } asked) return 0;
+			if (Ui.Ask(withoutBall ? L("Kimin topsuz rolü?") : L("Kimin rolü?"), menus.Select(m => $"{Rows(m)[0]}  ({Current(m)})").ToList()) is not { } asked) return 0;
 			words.Add(names[asked]);
 		}
 		if (words.Count == 0)
 		{
-			Console.WriteLine(withoutBall ? "Topsuz roller:" : "Roller:");
+			Console.WriteLine(withoutBall ? L("Topsuz roller:") : L("Roller:"));
 			foreach (var menu in menus) Console.WriteLine($"  {Rows(menu)[0]}: {Current(menu)}");
-			Console.WriteLine($"\nDeğiştirmek: tactic role <oyuncu> <rol>{(withoutBall ? " --oop" : "")}");
+			Console.WriteLine(L($"\nDeğiştirmek: tactic role <oyuncu> <rol>{(withoutBall ? L(" --oop") : "")}"));
 			return 0;
 		}
 
@@ -46,27 +46,27 @@ internal static partial class Program
 		var roles = roleRow >= 0 ? Submenu(chosen, roleRow) : [];
 		if (roles.Count == 0)
 		{
-			Console.Error.WriteLine($"{player} için rol listesi yok.");
+			Console.Error.WriteLine(L($"{player} için rol listesi yok."));
 			return 1;
 		}
 
 		var wanted = words.Count > 1 ? string.Join(" ", words.Skip(1)) : null;
-		if (wanted == null && Ui.Interactive && Ui.Ask($"{player} hangi rolde oynasın?", roles, roles.IndexOf(Current(chosen))) is { } pick)
+		if (wanted == null && Ui.Interactive && Ui.Ask(L($"{player} hangi rolde oynasın?"), roles, roles.IndexOf(Current(chosen))) is { } pick)
 			wanted = roles[pick];
 		if (wanted == null)
 		{
-			Console.WriteLine($"{player}: {Current(chosen)}\nRoller: {string.Join(" · ", roles)}");
+			Console.WriteLine(L($"{player}: {Current(chosen)}\nRoller: {string.Join(" · ", roles)}"));
 			return 0;
 		}
 		if (Choose(roles, wanted, "Rol") is not { } role) return 1;
 		if (role == Current(chosen))
 		{
-			Console.WriteLine($"{player} zaten {role}.");
+			Console.WriteLine(L($"{player} zaten {role}."));
 			return 0;
 		}
 		if (dry)
 		{
-			Console.WriteLine($"(kuru) {player}: {Current(chosen)} → {role}");
+			Console.WriteLine(L($"(kuru) {player}: {Current(chosen)} → {role}"));
 			return 0;
 		}
 
@@ -76,7 +76,7 @@ internal static partial class Program
 		// The menu's own row says the role he now has.
 		var before = Current(chosen);
 		var made = await Until(async () => (await PlayerMenus()).FirstOrDefault(m => Rows(m)[0] == player) is { ValueKind: JsonValueKind.Object } m && Current(m) == role, seconds: 5, every: 0.25);
-		Console.WriteLine(made ? $"{player}: {before} → {role}" : $"{player} için {role} seçildi ama menüsü hâlâ {before} diyor.");
+		Console.WriteLine(made ? $"{player}: {before} → {role}" : L($"{player} için {role} seçildi ama menüsü hâlâ {before} diyor."));
 		return made ? 0 : 1;
 	}
 
@@ -117,7 +117,7 @@ internal static partial class Program
 	{
 		if (Field(await Fm.GetJson("state"), "DuringMatch") != "True")
 		{
-			Console.Error.WriteLine("Yardımcının maç içi tavsiyeleri yalnızca maç sırasında.");
+			Console.Error.WriteLine(L("Yardımcının maç içi tavsiyeleri yalnızca maç sırasında."));
 			return 1;
 		}
 
@@ -125,12 +125,12 @@ internal static partial class Program
 		var entries = await DugoutEntries();
 		if (entries.Count == 0 && !await DugoutShowing())
 		{
-			Console.Error.WriteLine("Dugout paneli pozisyon oynatılırken gizleniyor; bekliyorum…");
+			Console.Error.WriteLine(L("Dugout paneli pozisyon oynatılırken gizleniyor; bekliyorum…"));
 			if (await Until(DugoutShowing, seconds: 30, every: 0.5)) entries = await DugoutEntries();
 		}
 		if (entries.Count == 0)
 		{
-			Console.WriteLine("Yardımcının şu an bir tavsiyesi yok.");
+			Console.WriteLine(L("Yardımcının şu an bir tavsiyesi yok."));
 			return 0;
 		}
 
@@ -144,9 +144,9 @@ internal static partial class Program
 		if (words.Count == 0)
 		{
 			for (var i = 0; i < entries.Count; i++) Console.WriteLine($"  {i + 1}  {entries[i].Minute,3}'  {Advice(entries[i].Text)}{Mark(entries[i])}");
-			if (Ui.Ask("Hangisi?", entries.Select(e => $"{e.Minute}'  {Advice(e.Text)}{Mark(e)}").ToList()) is not { } picked)
+			if (Ui.Ask(L("Hangisi?"), entries.Select(e => $"{e.Minute}'  {Advice(e.Text)}{Mark(e)}").ToList()) is not { } picked)
 			{
-				if (!Ui.Interactive) Console.WriteLine("\nUygulamak: dugout <no> uygula   ·   kaldırmak: dugout <no> kaldır");
+				if (!Ui.Interactive) Console.WriteLine(L("\nUygulamak: dugout <no> uygula   ·   kaldırmak: dugout <no> kaldır"));
 				return 0;
 			}
 			words.Add((picked + 1).ToString());
@@ -154,7 +154,7 @@ internal static partial class Program
 
 		if (!int.TryParse(words[0], out var number) || number < 1 || number > entries.Count)
 		{
-			Console.Error.WriteLine($"'{words[0]}' bir tavsiye numarası değil (1–{entries.Count}).");
+			Console.Error.WriteLine(L($"'{words[0]}' bir tavsiye numarası değil (1–{entries.Count})."));
 			return 1;
 		}
 		var entry = entries[number - 1];
@@ -163,7 +163,7 @@ internal static partial class Program
 		if (action == null)
 		{
 			Console.WriteLine($"{entry.Minute}'  {Advice(entry.Text)}");
-			if (Ui.Ask("Ne yapalım?", ["Uygula", "Kaldır"]) is not { } asked) return 0;
+			if (Ui.Ask(L("Ne yapalım?"), [L("Uygula"), L("Kaldır")]) is not { } asked) return 0;
 			action = asked == 0 ? "uygula" : "kaldir";
 		}
 
@@ -175,27 +175,27 @@ internal static partial class Program
 		};
 		if (event_ == null)
 		{
-			Console.Error.WriteLine($"'{words[1]}' anlaşılmadı: uygula ya da kaldır.");
+			Console.Error.WriteLine(L($"'{words[1]}' anlaşılmadı: uygula ya da kaldır."));
 			return 1;
 		}
 
 		if (action is "uygula" or "do" or "evet" && !entry.Open)
 		{
-			Console.Error.WriteLine($"{entry.Minute}'  {Advice(entry.Text)} — bunun uygulanacak bir yanı yok ya da zaten uygulandı.");
+			Console.Error.WriteLine(L($"{entry.Minute}'  {Advice(entry.Text)} — bunun uygulanacak bir yanı yok ya da zaten uygulandı."));
 			return 1;
 		}
 
 		// The buttons act on whichever entry is showing, so that one is brought up first.
 		if (await ShowDugoutEntry(entry.Pointer) != entry.Text)
 		{
-			Console.Error.WriteLine("Tavsiye panelde açılamadı; liste değişmiş olabilir: dugout");
+			Console.Error.WriteLine(L("Tavsiye panelde açılamadı; liste değişmiş olabilir: dugout"));
 			return 1;
 		}
 		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.FirstOrDefault(b => Field(b, "Events").Contains(event_, StringComparison.Ordinal) && Field(b, "Enabled") == "True");
 		if (button.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine("Bu tavsiye için o buton şu an kapalı.");
+			Console.Error.WriteLine(L("Bu tavsiye için o buton şu an kapalı."));
 			return 1;
 		}
 		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
@@ -211,7 +211,7 @@ internal static partial class Program
 		}, seconds: 8, every: 1);
 		Console.WriteLine(done
 			? $"{entry.Minute}'  {Advice(entry.Text)} — {verb}."
-			: $"{entry.Minute}'  {Advice(entry.Text)} — butona basıldı ama oyun {(event_ == "MatchDugoutConfirm" ? "tavsiyeyi uygulanmış göstermiyor" : "tavsiyeyi listeden kaldırmadı")}.");
+			: L($"{entry.Minute}'  {Advice(entry.Text)} — butona basıldı ama oyun {(event_ == "MatchDugoutConfirm" ? L("tavsiyeyi uygulanmış göstermiyor") : L("tavsiyeyi listeden kaldırmadı"))}."));
 		return done ? 0 : 1;
 	}
 

@@ -15,7 +15,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine("Kayıt yüklü değil. `fm continue` ile yükle.");
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
 			return 69;
 		}
 
@@ -100,9 +100,9 @@ internal static partial class Program
 			return lines;
 		}
 
-		if (problems == 0) Console.WriteLine("Kadroda göze batan bir sorun yok.");
-		if (Ui.Rich) Ui.Line("[dim]Mutluluk ve taktiğe alışma ayrı: happiness, tactic[/]");
-		else Console.WriteLine("Mutluluk ve taktiğe alışma ayrı: happiness, tactic");
+		if (problems == 0) Console.WriteLine(L("Kadroda göze batan bir sorun yok."));
+		if (Ui.Rich) Ui.Line(L("[dim]Mutluluk ve taktiğe alışma ayrı: happiness, tactic[/]"));
+		else Console.WriteLine(L("Mutluluk ve taktiğe alışma ayrı: happiness, tactic"));
 		return 0;
 	}
 }

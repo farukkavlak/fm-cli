@@ -514,7 +514,7 @@ internal sealed class OfferScreen
 			}
 			foreach (var line in lockLine.Concat(shown)) Console.WriteLine(line);
 			if (costs.Count > 0) Console.WriteLine(string.Join(" · ", costs));
-			if (now.Length > 0) Console.WriteLine($"Mevcut sözleşme: {now}");
+			if (now.Length > 0) Console.WriteLine(L($"Mevcut sözleşme: {now}"));
 			return;
 		}
 

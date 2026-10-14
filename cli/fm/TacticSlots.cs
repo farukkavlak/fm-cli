@@ -31,7 +31,7 @@ internal static partial class Program
 	{
 		if (await TacticMenu(FillMenu) is not { } menu || !menu.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Copy Tactic ›"))
 		{
-			Console.Error.WriteLine("Kopyalanacak yer yok: üç taktik yuvası dolu olabilir (yuvalar için: tactic slot).");
+			Console.Error.WriteLine(L("Kopyalanacak yer yok: üç taktik yuvası dolu olabilir (yuvalar için: tactic slot)."));
 			return 1;
 		}
 		var at = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList().IndexOf("Copy Tactic ›");
@@ -40,7 +40,7 @@ internal static partial class Program
 			: [];
 		if (tactics.Count == 0)
 		{
-			Console.Error.WriteLine("Kopyalanacak taktik yok.");
+			Console.Error.WriteLine(L("Kopyalanacak taktik yok."));
 			return 1;
 		}
 
@@ -51,17 +51,17 @@ internal static partial class Program
 			tactic = named;
 		}
 		else if (tactics.Count == 1) tactic = tactics[0];
-		else if (Ui.Interactive && Ui.Ask("Hangi taktik kopyalansın?", tactics) is { } chosen) tactic = tactics[chosen];
+		else if (Ui.Interactive && Ui.Ask(L("Hangi taktik kopyalansın?"), tactics) is { } chosen) tactic = tactics[chosen];
 		else
 		{
 			foreach (var t in tactics) Console.WriteLine($"  {t}");
-			Console.WriteLine("\nKopyalamak için: tactic copy \"<taktik>\"");
+			Console.WriteLine(L("\nKopyalamak için: tactic copy \"<taktik>\""));
 			return 0;
 		}
 
 		if (dry)
 		{
-			Console.WriteLine($"(kuru) '{tactic}' yeni bir yuvaya kopyalanacak.");
+			Console.WriteLine(L($"(kuru) '{tactic}' yeni bir yuvaya kopyalanacak."));
 			return 0;
 		}
 		var before = int.TryParse(Field(await TacticInfo(), "TacticCount"), out var c0) ? c0 : 0;
@@ -70,8 +70,8 @@ internal static partial class Program
 		JsonElement info = default;
 		var copied = await Until(async () => int.TryParse(Field(info = await TacticInfo(), "TacticCount"), out var c) && c > before, seconds: 6, every: 0.25);
 		Console.WriteLine(copied
-			? $"Kopyalandı. Etkin: {(int.TryParse(Field(info, "CurrentTacticSlot"), out var s) ? s + 1 : 0)}. yuva, {Field(info, "Name")}. Yuvalar: tactic slot"
-			: "Kopya görünmedi; yuvalara bak: tactic slot");
+			? L($"Kopyalandı. Etkin: {(int.TryParse(Field(info, "CurrentTacticSlot"), out var s) ? s + 1 : 0)}. yuva, {Field(info, "Name")}. Yuvalar: tactic slot")
+			: L("Kopya görünmedi; yuvalara bak: tactic slot"));
 		return copied ? 0 : 1;
 	}
 
@@ -80,14 +80,14 @@ internal static partial class Program
 		var info = await TacticInfo();
 		if (Field(info, "TacticCount") == "1")
 		{
-			Console.Error.WriteLine("Tek taktik var; boşaltılmaz.");
+			Console.Error.WriteLine(L("Tek taktik var; boşaltılmaz."));
 			return 1;
 		}
 		// The menu clears the slot that is in use, so the one asked for is made so first.
 		var active = int.TryParse(Field(info, "CurrentTacticSlot"), out var a) ? (a + 1).ToString() : "";
 		if (wanted != null && wanted != active)
 		{
-			if (dry) { Console.WriteLine($"(kuru) {wanted}. yuvaya geçilip boşaltılacak."); return 0; }
+			if (dry) { Console.WriteLine(L($"(kuru) {wanted}. yuvaya geçilip boşaltılacak.")); return 0; }
 			var switched = await TacticSlot(wanted, false);
 			if (switched != 0) return switched;
 			info = await TacticInfo();
@@ -95,12 +95,12 @@ internal static partial class Program
 		var slot = int.TryParse(Field(info, "CurrentTacticSlot"), out var b) ? b + 1 : 0;
 		if (!yes || dry)
 		{
-			Console.WriteLine($"{slot}. yuva ({Field(info, "Name")}) boşaltılacak. Onay için: tactic clear {slot} --yes");
+			Console.WriteLine(L($"{slot}. yuva ({Field(info, "Name")}) boşaltılacak. Onay için: tactic clear {slot} --yes"));
 			return 0;
 		}
 		if (await TacticMenu(SlotMenu) is not { } menu)
 		{
-			Console.Error.WriteLine("Taktik menüsü bulunamadı.");
+			Console.Error.WriteLine(L("Taktik menüsü bulunamadı."));
 			return 1;
 		}
 		var before = int.TryParse(Field(info, "TacticCount"), out var c0) ? c0 : 0;
@@ -116,7 +116,7 @@ internal static partial class Program
 			if (go.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(go, "Pointer")));
 		}
 		var cleared = await Until(async () => int.TryParse(Field(info = await TacticInfo(), "TacticCount"), out var c) && c < before, seconds: 6, every: 0.25);
-		Console.WriteLine(cleared ? $"{slot}. yuva boşaltıldı. Etkin: {Field(info, "Name")}" : "Yuva boşalmadı; bak: tactic slot");
+		Console.WriteLine(cleared ? L($"{slot}. yuva boşaltıldı. Etkin: {Field(info, "Name")}") : L("Yuva boşalmadı; bak: tactic slot"));
 		return cleared ? 0 : 1;
 	}
 }

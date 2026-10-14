@@ -59,7 +59,7 @@ internal static partial class Program
 		}
 		if (!shown)
 		{
-			Console.Error.WriteLine("Personel kartı açılmadı.");
+			Console.Error.WriteLine(L("Personel kartı açılmadı."));
 			return 1;
 		}
 
@@ -111,12 +111,12 @@ internal static partial class Program
 		{
 			var name = GameWords.Of(StaffTeamNames[Array.IndexOf(StaffTeams, team)]);
 			var gaps = roles.Where(r => r.Filled < r.Wanted).Select(r => $"{GameWords.Of(r.Role)} {r.Filled}/{r.Wanted}").ToList();
-			if (Ui.Rich) Ui.Line($"\n[bold]{Ui.Safe(name)}[/] {roles.Sum(r => r.Filled)} kişi" + (gaps.Count > 0 ? $" — [yellow]eksik: {Ui.Safe(string.Join(", ", gaps))}[/]" : ""));
-			else Console.WriteLine($"\n{name} {roles.Sum(r => r.Filled)} kişi" + (gaps.Count > 0 ? $" — eksik: {string.Join(", ", gaps)}" : ""));
+			if (Ui.Rich) Ui.Line(L($"\n[bold]{Ui.Safe(name)}[/] {roles.Sum(r => r.Filled)} kişi") + (gaps.Count > 0 ? L($" — [yellow]eksik: {Ui.Safe(string.Join(", ", gaps))}[/]") : ""));
+			else Console.WriteLine(L($"\n{name} {roles.Sum(r => r.Filled)} kişi") + (gaps.Count > 0 ? L($" — eksik: {string.Join(", ", gaps)}") : ""));
 			if (board.Length > 0)
 			{
-				if (Ui.Rich) Ui.Line($"  [dim]Yönetim: {Ui.Safe(board)}[/]");
-				else Console.WriteLine($"  Yönetim: {board}");
+				if (Ui.Rich) Ui.Line(L($"  [dim]Yönetim: {Ui.Safe(board)}[/]"));
+				else Console.WriteLine(L($"  Yönetim: {board}"));
 			}
 		}
 		return 0;

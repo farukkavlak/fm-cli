@@ -28,7 +28,7 @@ internal static partial class Program
 		async Task<List<JsonElement>> Visible() => (await Fm.GetJson("namedrows", ("dropdown", TrainingList), ("count", "3"))).EnumerateArray().ToList();
 		if (!await Until(async () => (await Visible()).Count > 0, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine("Bireysel antrenman sayfası açılmadı.");
+			Console.Error.WriteLine(L("Bireysel antrenman sayfası açılmadı."));
 			return 1;
 		}
 
@@ -62,13 +62,13 @@ internal static partial class Program
 			var names = Matching(all.Keys, n => n, words[0]);
 			if (names.Count != 1)
 			{
-				Console.Error.WriteLine(names.Count == 0 ? $"Listede '{words[0]}' yok." : $"'{words[0]}' {names.Count} oyuncuya uyuyor: {string.Join(", ", names)}");
+				Console.Error.WriteLine(names.Count == 0 ? L($"Listede '{words[0]}' yok.") : L($"'{words[0]}' {names.Count} oyuncuya uyuyor: {string.Join(", ", names)}"));
 				return 1;
 			}
 			var name = names[0];
 			foreach (var (wanted, part) in changes)
 			{
-				if (await Find(name) is not { } row) { Console.Error.WriteLine($"{name} listede kayboldu."); return 1; }
+				if (await Find(name) is not { } row) { Console.Error.WriteLine(L($"{name} listede kayboldu.")); return 1; }
 				var list = row.GetProperty("Lists")[part];
 				var pointer = Field(list, "Pointer");
 				var top = list.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
@@ -78,7 +78,7 @@ internal static partial class Program
 				var first = top.FirstOrDefault(c => Fold(c) == Fold(path[0])) ?? top.FirstOrDefault(c => Fold(c).StartsWith(Fold(path[0]), StringComparison.Ordinal));
 				if (first == null)
 				{
-					Console.Error.WriteLine($"{TrainingParts[part]}: '{path[0]}' yok. Seçenekler: {string.Join(" · ", top)}");
+					Console.Error.WriteLine(L($"{TrainingParts[part]}: '{path[0]}' yok. Seçenekler: {string.Join(" · ", top)}"));
 					return 1;
 				}
 				string said;
@@ -89,7 +89,7 @@ internal static partial class Program
 					if (path.Length == 1)
 					{
 						var under = await Fm.GetJson("menu", ("ptr", pointer), ("names", first));
-						Console.Error.WriteLine($"{TrainingParts[part]}: '{first}' bir alt menü; seçenekleri: {string.Join(" · ", under.EnumerateArray().Select(x => x.GetString()))}  (ör. \"{first}>…\")");
+						Console.Error.WriteLine(L($"{TrainingParts[part]}: '{first}' bir alt menü; seçenekleri: {string.Join(" · ", under.EnumerateArray().Select(x => x.GetString()))}  (ör. \"{first}>…\")"));
 						return 1;
 					}
 					said = await Fm.Get("select", ("ptr", pointer), ("names", string.Join(">", new[] { first }.Concat(path.Skip(1)))), ("fire", "1"));
@@ -117,9 +117,9 @@ internal static partial class Program
 				.Select(r => new { Name = Field(r, "Name"), Position = Value(r, 0), OutOfPossession = Value(r, 1), Focus = Value(r, 2) })));
 			return 0;
 		}
-		Table.Write(["OYUNCU", .. TrainingParts.Select(p => p.ToUpperInvariant())], all.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
+		Table.Write([L("OYUNCU"), .. TrainingParts.Select(p => p.ToUpperInvariant())], all.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
 			.Select(r => new[] { Field(r, "Name"), Value(r, 0), Value(r, 1), Value(r, 2) }).ToList());
-		Console.WriteLine("\nDeğiştirmek: training <oyuncu> --focus \"Quickness\" · --position \"Midfielder (Centre)>Box-To-Box Midfielder\" · --role \"…\"");
+		Console.WriteLine(L("\nDeğiştirmek: training <oyuncu> --focus \"Quickness\" · --position \"Midfielder (Centre)>Box-To-Box Midfielder\" · --role \"…\""));
 		return 0;
 	}
 }
