@@ -71,6 +71,13 @@ internal static class MoneyFormat
 	public static bool IsMoney(string text) =>
 		!string.IsNullOrEmpty(text) && text.Any(c => char.GetUnicodeCategory(c) == UnicodeCategory.CurrencySymbol) && text.Any(char.IsDigit);
 
+	/// <summary>The amount within a text ("Vergi sonrası 10,5B £ aylık" → "10,5B £"), or null.</summary>
+	public static string Find(string text)
+	{
+		var match = Regex.Match(text ?? "", @"\p{Sc}\s*\d[\d.,]*\s*\p{L}{0,2}\b|\d[\d.,]*\s*\p{L}{0,2}\s*\p{Sc}");
+		return match.Success ? match.Value.Trim() : null;
+	}
+
 	public static long? Parse(string text)
 	{
 		if (string.IsNullOrWhiteSpace(text)) return null;

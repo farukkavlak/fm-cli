@@ -54,7 +54,15 @@ internal static partial class Program
 			try { read = await Fm.GetJson("pull", ("path", contract), ("props", $"{field}.DisplayValue")); }
 			catch (FmError) { continue; }
 			var value = Field(read, $"{field}.DisplayValue");
-			if (value.Length > 0 && value is not ("-" or "N/A" or "None" or "No" or "0%") && !(MoneyFormat.IsMoney(value) && Money(value) == 0)) terms.Add((say, value.Replace(" after tax", "")));
+			if (value.Length > 0 && value is not ("-" or "N/A" or "None" or "No" or "0%") && !(MoneyFormat.IsMoney(value) && Money(value) == 0)) terms.Add((say, value));
+		}
+		// The wage after tax is written in a sentence ("£10.5K p/w after tax", "Vergi sonrası 10,5B £ aylık"):
+		// its amount, by the wage's own period.
+		if (terms.FindIndex(t => t.Say == "Vergi sonrası") is var net and >= 0 && MoneyFormat.Find(terms[net].Value) is { } netAmount)
+		{
+			var wage = terms.FirstOrDefault(t => t.Say == "Ücret").Value ?? "";
+			var period = MoneyFormat.Find(wage) is { } gross ? wage[(wage.IndexOf(gross, StringComparison.Ordinal) + gross.Length)..] : "";
+			terms[net] = (terms[net].Say, netAmount + period);
 		}
 
 		var name = Field(hits[0], "Name");
