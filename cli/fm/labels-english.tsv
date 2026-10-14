@@ -2250,3 +2250,11 @@ NEDEN	WHY
 \n  Ek: oyuncu tavsiyeleri — {0}	\n  Attached: player recommendations — {0}
     Transfer odakları: {0} · {1} ({2} {3} · {4} {5} · {6} {7})	    Recruitment focuses: {0} · {1} ({2} {3} · {4} {5} · {6} {7})
     Kalan bütçe: transfer {0} · maaş {1} · scouting {2}	    Budget left: transfer {0} · wages {1} · scouting {2}
+\n  Ek: veri merkezi — {0} {1} {2}  ({3}, {4}{5})	\n  Attached: data hub — {0} {1} {2}  ({3}, {4}{5})
+    Gol beklentisi {0} - {1}	    Expected goals {0} - {1}
+    Maçın oyuncusu: {0}	    Player of the match: {0}
+    Önemli bulgular:	    Key findings:
+    Taktikler: {0}	    Tactics: {0}
+, {0} seyirci	, crowd {0}
+\n  Ek: maç hazırlığı — {0} ({1}, {2})	\n  Attached: match preparation — {0} ({1}, {2})
+    Değiştirmek: prep	    To change: prep

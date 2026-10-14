@@ -1594,6 +1594,41 @@ internal static partial class Program
 			return;
 		}
 
+		// The match preparation for the next game: each focus with the phase or slot it is for, by data path
+		// (a "binding" heading, its sentence, then the focus); the cards beside it are the opponent's and the
+		// calendar's, said elsewhere.
+		if (page.Any(t => t.Path == "row.MatchFocusSessionName"))
+		{
+			Console.WriteLine(L($"\n  Ek: maç hazırlığı — {rest[0]} ({One("fixture.NextMatchDaysText")}, {One("comp.Name")})"));
+			for (var i = 0; i < page.Count; i++)
+			{
+				if (page[i].Path != "row.MatchFocusSessionName") continue;
+				var heading = i >= 2 && page[i - 2].Path == "binding" ? page[i - 2].Text : "";
+				Console.WriteLine($"    {(heading.Length > 0 ? $"{heading}: " : "")}{page[i].Text}");
+			}
+			Console.WriteLine(L("    Değiştirmek: prep"));
+			return;
+		}
+
+		// The analysts' look at a match: the result, the goals, the expected goals, the key findings and
+		// the tactics, by data path; the xG figures are the two after their label.
+		if (rest[0] == "Data Hub" && page.Any(t => t.Path == "row.AnalysisPointString"))
+		{
+			var crowd = One("fixture.attendance");
+			Console.WriteLine(L($"\n  Ek: veri merkezi — {One("fixture.hometeam.Name")} {One("fixture.ResultLinkable")} {One("fixture.awayteam.Name")}  ({One("fixture.competition.name")}, {One("fixture.stadium.nameforcomp")}{(crowd.Length > 0 ? L($", {crowd} seyirci") : "")})"));
+			var goals = new List<string>();
+			for (var i = 0; i + 1 < page.Count; i++)
+				if (page[i].Path == "Event.Player.InitialSurname" && page[i + 1].Path == "Event.TimeString") goals.Add($"{page[i].Text} {page[i + 1].Text}");
+			if (goals.Count > 0) Console.WriteLine(L($"    Goller: {string.Join(", ", goals)}"));
+			if (rest.IndexOf("XG") is > 0 and var xg && xg + 2 < rest.Count) Console.WriteLine(L($"    Gol beklentisi {rest[xg + 1]} - {rest[xg + 2]}"));
+			if (One("Fixture.PlayerOfTheMatch.Name") is { Length: > 0 } best) Console.WriteLine(L($"    Maçın oyuncusu: {best}"));
+			Console.WriteLine(L("    Önemli bulgular:"));
+			foreach (var point in page.Where(t => t.Path == "row.AnalysisPointString")) Console.WriteLine($"      · {point.Text}");
+			var tactics = page.Where(t => t.Path is "data.TacticalStylesOption.Name" or "Tactic.FormationName").Select(t => t.Text).ToList();
+			if (tactics.Count > 0) Console.WriteLine(L($"    Taktikler: {string.Join(" · ", tactics)}"));
+			return;
+		}
+
 		// The scouts' latest picks: each with his description, grade and date (by data path), the focuses'
 		// counts and what is left of each budget, each figure after its own "Available".
 		if (rest[0] == "Player Recommendations" && page.Any(t => t.Path == "row.PlayerDescription"))
