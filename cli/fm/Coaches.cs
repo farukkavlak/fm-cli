@@ -49,8 +49,11 @@ internal static partial class Program
 				Console.Error.WriteLine(L("Görevleri yardımcıya bırakma düğmesi yok."));
 				return 1;
 			}
+			var before = Assignments(page);
 			await Fm.Get("press", ("ptr", Field(ask.Value, "Pointer")));
-			await Task.Delay(1500);
+			// The page is rebuilt with the assistant's choice (about half a second). When he would choose
+			// what is already there nothing changes and nothing says so; the wait then ends at its limit.
+			await Until(async () => (page = await ReadCoaches()) is { Rows.Count: > 0 } && Assignments(page) != before, seconds: 3, every: 0.25);
 			Console.WriteLine(L("Yardımcı görevleri dağıttı."));
 			page = await ReadCoaches();
 		}
@@ -85,7 +88,11 @@ internal static partial class Program
 			{
 				var set = await Fm.Get("setcontrol", ("ptr", cell.Pointer), ("value", on ? "1" : "0"));
 				if (set.StartsWith("error", StringComparison.Ordinal)) return Report(set);
-				await Task.Delay(800);
+				// The switch turns at once, the coach's stars and the area's load a moment later when the
+				// page is rebuilt: done once his stars show where he now leads and are gone where he left.
+				await Until(async () => await ReadCoaches() is { } after
+					&& after.Rows.FirstOrDefault(r => r.Name == coach.Name)?.Cells[area] is { } now && now.On == on && now.HalfStars > 0 == on,
+					seconds: 5, every: 0.25);
 				Console.WriteLine($"{coach.Name} {CoachAreas[area].Turkish.ToLowerInvariant()} {(on ? L("alanına atandı") : L("görevinden alındı"))}.");
 				page = await ReadCoaches();
 			}
@@ -105,6 +112,10 @@ internal static partial class Program
 		ShowCoaches(now.Rows, now.Areas);
 		return 0;
 	}
+
+	/// <summary>Who leads what and with how many stars, as one string to tell two reads of the page apart.</summary>
+	private static string Assignments((List<CoachRow> Rows, List<(string Load, int HalfStars)> Areas)? page) =>
+		page is { } p ? string.Join("|", p.Rows.Select(r => r.Name + ":" + string.Concat(r.Cells.Select(c => c.On ? $"{c.HalfStars}," : "-,")))) : "";
 
 	private static void ShowCoaches(List<CoachRow> rows, List<(string Load, int HalfStars)> areas)
 	{

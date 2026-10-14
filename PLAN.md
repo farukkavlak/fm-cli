@@ -579,6 +579,11 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 
 ## Günlük
 
+### 2026-10-14 (akşam, otomatik tur — `coaches` beklemeleri)
+
+- `coaches` atama ve `--auto` sonrası sabit 0,8 / 1,5 sn yerine sayfanın kendi değişimi bekleniyor (FINDINGS §8.180).
+  Clock'un beklemeleri ertelendi: kaptan seçimi mesajı cevap bekliyor, zaman ilerlemiyor.
+
 ### 2026-10-14 (akşam, otomatik tur — `reply` cevapları)
 
 - `reply`'ın "1 sn arayla iki okuma aynıysa tamam" beklemesi kalktı; yerine konan "cevap başlığı sayısı kadar düğme"

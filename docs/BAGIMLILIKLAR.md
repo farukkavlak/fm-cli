@@ -40,6 +40,17 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `ClubCompetitions`'ı: sekiz ad tek okumada `Human.Team`'den, iki tur aynı gelince bitiyor (3 tur); eklenti değişmedi.
     Türkçe: `table` 8,7 → 2,5–2,9 sn (ana sayfa / başka sayfa açık / art arda), `table Carabao` / `Sky Bet` / `Kupa` /
     `xyzzy` aynı sonuç. Yeni bağlanan ad 3. okumada geldi; boş turlar "aynı" sayılmıyor.
+  - [ ] Clock 148 157 179 (`next`'in `Settled`, `Unemployed`): 148/157 yoklama aralığı ama "4 sn içinde değişmezse sakin
+    say" ve "1,4 sn boşta = bitti" süreye dayanıyor; ölçmek için zaman ilerlemeli. 14 Ekim akşam ertelendi: kaptan seçimi
+    mesajı cevap bekliyor (Faruk'un kararı), `next` 0,3 sn'de NeedAction'a düşüyor. 179 için işsiz bir kayıt lazım.
+  - [x] Coaches 53 88 (`coaches --auto`, atama): ikisi de "bekle sonra oku"ydu. Ölçüm (Türkçe, 50 ms yoklama): atamada
+    kutu ~0,1 sn'de dönüyor ama yıldız/iş yükü eski, sayfa 0,3–0,55 sn'de yeniden kuruluyor (arada form eksik); şimdi
+    "kutu istenen halde ve yıldız yalnızca atandığı yerde" beklenir (üst sınır 5 sn). `--auto` sayfayı ~0,4–0,55 sn'de
+    değiştiriyor; değişince biter, yardımcının seçimi zaten oradaysa hiçbir işaret yok, 3 sn sınırında biter (eskiden
+    sabit 1,5). 20 atama (ana sayfa açık / Gelen kutusu / Kadro açıkken) + 2 `--auto`, hepsinde çıktı taze okumayla aynı.
+    İngilizcede denenmedi (işaret kutu değeri ve yıldız sayısı, dilden bağımsız).
+  - [ ] `coaches` ilk okumada 10 antrenörden yalnızca 3'ünü gösterdi (baş antrenör yıldızları gizli satırları ele
+    veriyordu); sonra üç durumda 10/10, tekrarlanmadı. Okuma eksik formu kabul ediyor olabilir (`Rows.Count > 0`).
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   Calendar 157 · ContractTalks 364 · Finances 238 · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·

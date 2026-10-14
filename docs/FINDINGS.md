@@ -4931,3 +4931,11 @@ ile henüz gelmemiş bir değer aynı cevabı veriyor (`{}`), bu yüzden `table`
 (~5,5 sn). Bağlanmış ama `IsNull` kökün bir kare sonra "yok" diye bildirilmesi denenmedi (BAGIMLILIKLAR checklist A).
 Çözüm eklentisiz: sekiz yarışma adı `Human.Team`'den tek okumada (`CurrentComp{i}.Name`) istenince olmayanlar yalnızca
 cevapta eksik kalıyor; `PullEach` iki dolu tur aynı gelince bitiyor. `table` 8,7 → ~2,6 sn.
+
+### 8.180 Antrenör ataması: kutu hemen, sayfa yarım saniye sonra (14 Ekim 2026 akşam, Türkçe)
+
+Coach Assignments'ta bir kutu `setcontrol` ile değişince değeri ~0,1 sn'de dönüyor, yıldızlar ve iş yükü eski kalıyor;
+0,3–0,55 sn'de sayfa yeniden kuruluyor (arada form eksik okunuyor: 271 yerine 231–244 öğe). Atanmış antrenörün o alanda
+yıldızı var, alınanınki yok; bu, sayfanın bittiğini söylüyor. "Ask Assistant to Assign" (`EventFmxAssistantAssignCoaches`,
+hedef `currentteam.TeamTraining`) ~0,4 sn'de sayfayı değiştiriyor; yardımcının seçimi zaten oradaysa hiçbir şey
+değişmiyor, "bitti" işareti de yok. Bir kez ilk okuma 10 antrenörden 3'ünü verdi; tekrarlanmadı.
