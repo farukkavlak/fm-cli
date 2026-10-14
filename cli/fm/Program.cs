@@ -885,8 +885,16 @@ internal static partial class Program
 		if (tour) Console.WriteLine("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour");
 		else if (talking) Console.WriteLine("Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk");
 		else if (!settled && await VisionControls() != null) Console.WriteLine("Kulüp vizyonu toplantısı açıldı; mesaj toplantı bitince kapanır. Devam için: vision");
+		else if (!settled && await RegistrationOnScreen()) Console.WriteLine("Kadro kayıt ekranı açıldı; mesaj liste gönderilince kapanır. Liste ve kurallar: register   (yardımcının seçimi: register --auto, sonra register --send)");
 		else if (!settled) Console.WriteLine("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor.");
 		return 0;
+
+		// The squad registration screen, by its own reading: its players are there when it is up.
+		static async Task<bool> RegistrationOnScreen()
+		{
+			try { return (await Fm.GetJson("registration")).TryGetProperty("Players", out var players) && players.GetArrayLength() > 0; }
+			catch (FmError) { return false; }
+		}
 
 		// An answer is named by its number in the listing or by a piece of its text.
 		JsonElement? Resolve(string pick)
