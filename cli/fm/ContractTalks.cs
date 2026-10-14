@@ -355,11 +355,16 @@ internal static partial class Program
 	{
 		if (await Labelled("Cancel Negotiations", TalksButton) is not { } cancel)
 		{
-						// The promises stage has no cancel either: nothing has been put to the agent yet, and
-			// walking off the page is the way out.
-			await Fm.Get("press", ("text", "Exit Talks"), ("any", "1"));
+			// The promises stage has no cancel either: nothing has been put to the agent yet, and
+			// walking off the page is the way out. The press is queued; opening another page before
+			// it is handled only hides the talks beneath it, so they are waited on to close first.
+			for (var attempt = 0; attempt < 3; attempt++)
+			{
+				await Fm.Get("press", ("text", "Exit Talks"), ("any", "1"));
+				if (await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 3, every: 0.25)) break;
+			}
 			await OpenPage(Screen.Home);
-			return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25)
+			return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 4, every: 0.25)
 				? null : "Görüşmede iptal butonu yok.";
 		}
 		await Fm.Get("press", ("ptr", Field(cancel, "Pointer")));
