@@ -9,6 +9,106 @@ oyunu değiştirip deneyince bilinir.
 
 ---
 
+## CHECKLIST — temizlik sırası (14 Ekim 2026 akşam, kod taraması + Türkçe oyunda denenenler)
+
+Faruk: "dile / sisteme / bu lige / bu takıma / bu kayda / bu donanıma göre tasarlanmış şeylerin hepsini checklist
+yapalım, adım adım temizleyip bitirelim." Aşağıdaki bölümler (0–8) 13 Ekim'in arka planı; iş takibi **burada**.
+
+`[x]` bitti ve denendi · `[ ]` yapılacak · `[~]` bilerek bırakıldı (neden yanında). Her maddede: nerede, neden kırılır,
+nasıl düzelir. Kural: yeni işaret en az üç durumda (ilk açılış / zaten açık / başka sayfa açık) ve iki dilde ölçülmeden
+koda girmez; kanıtlanmazsa eskisi kalır.
+
+### A. Donanım / makine hızı (zamanlama)
+
+Sabit "N ms bekle sonra yap" yavaş makinede yanlış okur, hızlıda boşa bekler. Doğrusu oyunun kendi işaretini beklemek;
+süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralığı sorun değil.
+
+- [ ] **`Task.Delay` — 89 yer.** Her biri sınıflanacak: döngüde yoklama aralığı (sorun yok) mı, "bekle sonra yap" mı.
+  Dosya: satırlar —
+  Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · Finances 247 · Guided 161 174 1035 ·
+  Happiness 148 195 · IndividualTraining 40 50 · Intensity 43 54 106 · Jobs 231 · Launcher 213 269 · League 243 ·
+  MatchDay 181 314 368 · MatchReport 35 · Matches 82 · Mentoring 45 188 205 217 246 285 297 331 · Numbers 158 177 ·
+  OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
+  Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
+  Scouting 100 · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
+  TacticFiles 181 · Takers 206 · TrainingReport 82 · TrainingSchedule 345 · TraitTraining 32 · Transfers 96 128 131 139
+- [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
+  Calendar 157 · ContractTalks 364 · Finances 238 · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
+  Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
+  TrainingSchedule 491 506 · TraitTraining 89
+- [ ] **`reply` cevapları** "1 sn arayla iki okuma aynıysa tamam" diyordu → sayfadaki `action.ActionTitle` sayısı kadar cevap
+  gelene kadar bekliyor (gövdeden 6 üst; 5 mesaj × 3 tur 15/15). **Commit edilmedi**, İngilizcede de denenecek.
+- [ ] **Mesaj eki için 1,5 sn** (`WriteAttachment`, Program ~986): ek gelmezse "ek yok". Ekin var olup olmadığını söyleyen
+  işaret bulunamadı (bağlama adları sürümde gizli); eksiz bir mesajda `#AttachmentsTitleContainer` durumu ölçülecek.
+- [ ] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2112). Denenen çözüm (çubuğun seçili satırı) ölçülünce
+  yetersiz çıktı: ana sayfa zaten açıkken çubuk eski seçimde kalıyor → geri alındı. Eklentide `open?guid=&check=1`
+  (yalnızca soru, hiçbir şey açmıyor) duruyor, commit edilmedi. Önce "ana sayfanın açılması bitti" işareti ölçülecek.
+- [ ] **Sabit üst sınırlar** (`Arriving` 8 sn, `Bound` 20 sn, maç akışında 3 sn'ler): yavaş makinede yetmeyebilir; ölçülecek.
+
+### B. Oyun dili
+
+Eklenti ekran yazılarını İngilizceye çevirip veriyor, CLI tek dil üstünden çalışıyor; gösterirken oyunun diline geri
+çevriliyor. Kırılan yerler: oyunun **kurduğu cümleleri** (isim/sayı içeren) İngilizce parçayla arayan kod, çünkü onlar
+tablodan çevrilemiyor.
+
+- [x] Etiket ardından okuma (`After("Supporters")`) — dilden bağımsız (tarama 93 yer; club/budget/finances/takers/world denendi).
+- [x] Yeni ek okuyucuları veri yoluyla (9 tür, FINDINGS §8.177); mesaj gövdesi/eki kimlikle (§8.176).
+- [x] `budget ayarla` yönetim cümlesi (yol), `training-report` (oyuncu adı), stderr + tırnak içi yazılar oyunun dilinde,
+  `reply "<konu>"` oyunun dilindeki konuyla, yüzde işaretinin yeri ("%70") oyundan.
+- [x] Maç içi `sub` / `tactic role`: kulübeyi açan satırın yazısı Türkçede hiç gelmiyor → menüler ve kulübe yapıyla.
+- [ ] **Cümle parçası arayanlar** (her biri örnek mesaj gelince yola taşınacak):
+  - [ ] Program: kaptan eki "to be selected" · yönetim beklentisi "End of" · "Transfers In/Out" · sezon özeti
+    "injuries this season" · home-grown "years old" · Coach Report / Player Report " years old" Replace
+  - [x] sakatlık eki "Received in" / "Out for" — Türkçede çalıştı (tablodan çevriliyor)
+  - [ ] Intensity "Ask … training intensities" · Mentoring "assign mentoring groups" · Jobs "Managerial Position" ·
+    Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" · Penalties "Starting at " / "On Subs bench" ·
+    Release "Is there anything else" · Matches "Match Ratings"+"Inf" · Saves "Estimated game speed:"
+  - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da
+    birkaç gün içinde" diyor.
+- [ ] **İngilizce yazıyla basma/tıklama — 44 yer** (`press/click text="Acknowledge and Move On"`, "Cancel", "Confirm",
+  "Save Game As"…): eklentinin çeviri tablosundan geçiyor; tabloda 2.376 çakışma var ("Confirm" → Onayla/Kabul). Her biri
+  öğe adı / olay adıyla basılabilir mi bakılacak.
+- [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
+  İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
+- [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
+- [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
+
+### C. Oyunun ayarları (dil dışında)
+
+- [x] Para birimi ve kısaltmalar oyunun biçimlendiricisinden (`/money`), ondalık işareti oyundan.
+- [ ] **Maaş dönemi:** Türkçe kayıtta maaşlar "aylık" gösteriliyor (ayar), CLI yardımı `--wage` için "haftalık" diyor;
+  teklif/sözleşmede girilen tutarın hangi dönem sayıldığı denenecek.
+- [ ] Boy/kilo birimleri, tarih biçimi (gün/ay sırası) — oyundan öğrenilmiyor, ölçülecek.
+
+### D. Lig / takım / kayıt
+
+- [x] Kodda lig, takım, kulüp ya da kayıt adı yok (tarama: yalnızca para biçiminin öğrenilene kadarki varsayılanı "£").
+- [ ] Kariyer başka ülkede (Almanya, kupa adları, kayıt kuralları, Avrupa kupası) hiç denenmedi — Faruk'un kararı bekliyor.
+- [ ] `~/.config/fm-cli/` önbellekleri hangi kayda/dile ait olduğunu biliyor mu (rol adları dile göre ayrıldı; diğerleri?).
+
+### E. Ekran / tema / çözünürlük
+
+- [ ] Öğe adları (`MessageBodyText`, `BindingRoot_SquadOverviewPlayerBlock`, `NavTabDropdown`, `#low-button`…) ve
+  biçim sınıfı (prim kartında seçili düğme "-active-"): skin değişince kırılır; skin ile denenmedi.
+- [ ] `up=N` (yazıdan N basamak yukarı) — 76 yer; skin/güncelleme ile kırılabilir.
+- [~] Match Day › Overview açılınca ekran görüntüsü siyah (oyunun kendi davranışı; okuma etkilenmiyor).
+
+### F. Oyun sürümü
+
+- [ ] Sayfa GUID'leri — 36 sabit (`Screen.cs`); güncellemede değişir mi ölçülecek.
+- [ ] Eklentide oyunun özel alanları (`m_choices`, `m_key`, `m_selectionIndex`… ~25 ad): güncellemede değişebilir.
+- [ ] Olay adları (`OpenSubtabEvent`, `SpeakToAction`…), `languages.fmf` yolu ve biçimi.
+
+### G. Platform / mağaza (en sonda)
+
+- [ ] Kurulum yeri: `Launcher.cs` 31–37 (`~/fm26_bep/fm.app`, Steam yolu; `FM_HOME` ile geçilebiliyor). Epic / Game Pass / Windows yok.
+- [ ] macOS araçları: `osascript` (190), `/usr/bin/pgrep` (230), `/usr/bin/pkill` (238), `PlistBuddy`, `.app`.
+- [x] Kayıt/taktik klasörü oyuna soruluyor (`/folders`, `GameFolders.cs`); platform varsayılanı macOS'a göre (`GameFolders` 31).
+- [ ] BepInEx arm64 yamalı paket; Windows x64 resmi paketle denenmedi.
+- [~] `~/.config/fm-cli/` (UserProfile altında) her platformda geçerli bir yer.
+
+---
+
 ## 0. Kısaca
 
 - fm-cli bugün **oyunun İngilizce olduğunu varsayıyor**. CLI'ın 87 kaynak dosyasının 73'ünde oyunun ekranında İngilizce yazı
