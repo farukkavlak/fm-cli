@@ -1707,6 +1707,10 @@ internal static partial class Program
 	{
 		var opened = await OpenPage(parent);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return opened;
+		// The parent finishes opening a moment after it is asked for, and covers whatever was opened from
+		// its bar in that moment (Training's overview over Mentoring, 14 Ekim 2026), while the page under
+		// it still answers the check below.
+		await Task.Delay(TimeSpan.FromSeconds(1.5));
 		var answer = "";
 		for (var attempt = 0; attempt < 4; attempt++)
 		{

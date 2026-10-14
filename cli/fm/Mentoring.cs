@@ -79,20 +79,19 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<string>> MentoringGroupNames()
 	{
+		// The page is up once its button for a new group is; the names are the group list's choices,
+		// read twice alike (the words around them are the game's, in its language).
 		var names = new List<string>();
 		var previous = "?";
 		await Until(async () =>
 		{
-			var texts = (await Fm.GetJson("texts", ("anchor", "Mentoring Groups"), ("up", "5"))).EnumerateArray()
-				.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
-			var end = texts.IndexOf("Create New Mentoring Group");
-			var shown = new List<string>();
-			for (var at = 2; at + 1 < (end < 0 ? texts.Count : end); at += 2) shown.Add(texts[at]);
-			var listed = (await MentoringGroupList())?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList() ?? [];
-			var key = string.Join("|", shown);
-			var settled = end >= 0 && key == previous && shown.SequenceEqual(listed);
+			var ready = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Any(b => Field(b, "Events").Contains("EventFmxAddMentoringGroup", StringComparison.Ordinal));
+			var listed = (await MentoringGroupList())?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList() ?? [];
+			var key = string.Join("|", listed);
+			var settled = ready && key == previous;
 			previous = key;
-			names = shown;
+			names = listed;
 			return settled;
 		}, seconds: 8, every: 0.5);
 		return names;
@@ -237,7 +236,7 @@ internal static partial class Program
 		}
 
 		var before = await MentoringGroupNames();
-		var opened = await Fm.Get("click", ("text", "Create New Mentoring Group"));
+		var opened = await Arriving("press", [("event", "EventToPlugin:EventFmxAddMentoringGroup")]);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (!await Until(MentoringEditorOpen, seconds: 8, every: 0.4))
 		{
@@ -274,7 +273,9 @@ internal static partial class Program
 
 		foreach (var player in chosen)
 		{
-			var ticked = await Fm.Get("rowselect", ("text", player), ("check", "1"));
+			// The editor's list is drawn a moment after it opens.
+			var ticked = "";
+			await Until(async () => !(ticked = await Fm.Get("rowselect", ("text", player), ("check", "1"))).StartsWith("error", StringComparison.Ordinal), seconds: 3, every: 0.5);
 			if (ticked.StartsWith("error", StringComparison.Ordinal))
 			{
 				// Out of view: the list is moved until the row is laid out.
@@ -293,13 +294,6 @@ internal static partial class Program
 			}
 		}
 
-		if (!await Until(async () => (await Fm.GetJson("texts", ("anchor", "3/3 Selected"), ("up", "0"))).GetArrayLength() > 0, seconds: 4, every: 0.3))
-		{
-			await AbandonMentoringGroup(before);
-			Console.Error.WriteLine("Üç oyuncu seçilemedi; grup kurulmadı.");
-			return 1;
-		}
-
 		if (name != null)
 		{
 			var box = (await Fm.GetJson("textboxes")).EnumerateArray().LastOrDefault(b => Field(b, "Name") == "EditBox");
@@ -310,7 +304,8 @@ internal static partial class Program
 		await Until(async () =>
 		{
 			confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.FirstOrDefault(b => Field(b, "Label") == "Confirm" && Field(b, "Events").Contains("EventFmxEditMentoringGroup", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
+				// The game takes the three once its confirming button is enabled (the count above it is the engine's words).
+				.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxEditMentoringGroup", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
 			return confirm.ValueKind == JsonValueKind.Object;
 		}, seconds: 4, every: 0.3);
 		if (confirm.ValueKind != JsonValueKind.Object)
