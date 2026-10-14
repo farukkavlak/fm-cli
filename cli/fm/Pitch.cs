@@ -39,8 +39,7 @@ internal static class Pitch
 		console.Write(console.Profile.Width >= both ? new Columns(with, without) { Expand = false } : new Rows(with, without));
 
 		var roles = slots
-			.SelectMany(s => new[] { Field(s, "IPRoleName"), Field(s, "OOPRoleName") })
-			.Select(Program.Role)
+			.SelectMany(s => new[] { Program.RoleOf(s, withoutBall: false), Program.RoleOf(s, withoutBall: true) })
 			.Distinct()
 			.OrderBy(Short)
 			.Select(r => $"[bold]{Ui.Safe(Short(r))}[/] {Ui.Safe(r)}");
@@ -61,7 +60,7 @@ internal static class Pitch
 
 			var player = Field(slots[i], "Player") is { Length: > 0 } name ? Ui.Fit(name, Cell) : "—";
 			var spot = Program.Spot(mask);
-			var role = Short(Program.Role(Field(slots[i], withoutBall ? "OOPRoleName" : "IPRoleName")));
+			var role = Short(Program.RoleOf(slots[i], withoutBall));
 			var colour = changed.Contains((i, withoutBall)) ? "yellow" : line == Lines - 1 ? "aqua" : "white";
 
 			cells[line, lane] = new Markup($"[bold {colour}]{Ui.Safe(player)}[/]\n[dim]{spot}[/] [{colour}]{Ui.Safe(role)}[/]");

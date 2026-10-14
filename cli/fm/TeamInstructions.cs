@@ -404,7 +404,7 @@ internal static partial class Program
 			foreach (var p in planned.EnumerateArray())
 			{
 				var at = slots.FindIndex(s => s.Index == Field(p, "TeamSelectionIndex"));
-				if (at >= 0) slots[at] = slots[at] with { Role = Role(Field(p, "IPRoleName")), RoleWithoutBall = Role(Field(p, "OOPRoleName")) };
+				if (at >= 0) slots[at] = slots[at] with { Role = RoleOf(p, withoutBall: false), RoleWithoutBall = RoleOf(p, withoutBall: true) };
 			}
 		return slots;
 	}

@@ -635,9 +635,9 @@ internal static partial class Program
 		var rows = tactic.GetProperty("Slots").EnumerateArray().Select(slot => new[]
 		{
 			Spot(Field(slot, "IPPosition")),
-			Role(Field(slot, "IPRoleName")),
+			RoleOf(slot, withoutBall: false),
 			Spot(Field(slot, "OOPPosition")),
-			Role(Field(slot, "OOPRoleName")),
+			RoleOf(slot, withoutBall: true),
 			Field(slot, "Player") is { Length: > 0 } player ? player : "-",
 			Field(slot, "Familiarity") is { Length: > 0 } known ? $"{known}%" : "-",
 		}).ToList();
@@ -650,7 +650,7 @@ internal static partial class Program
 
 	/// <summary>"AMR   Asensio · Inside Forward": a slot as it reads in a list to choose from.</summary>
 	private static List<string> SlotLabels(List<JsonElement> slots, string roleField) =>
-		slots.Select(s => $"{Spot(Field(s, "IPPosition")),-4}  {(Field(s, "Player") is { Length: > 0 } p ? p : "—")} · {Role(Field(s, roleField))}").ToList();
+		slots.Select(s => $"{Spot(Field(s, "IPPosition")),-4}  {(Field(s, "Player") is { Length: > 0 } p ? p : "—")} · {RoleOf(s, roleField == "OOPRoleName")}").ToList();
 
 	/// <summary>After a change, the pitch with what changed marked, for someone at a terminal.</summary>
 	private static async Task ShowChange(HashSet<(int, bool)> changed)
@@ -798,7 +798,9 @@ internal static partial class Program
 		if (tactic.TryGetProperty("Tactic", out _) && (!tactic.TryGetProperty("Slots", out var shown) || shown.GetArrayLength() == 0)
 			&& !(await Fm.Get("click", ("text", "Team Shape"), ("name", "team-shape"))).StartsWith("error", StringComparison.Ordinal))
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);
-		return tactic.TryGetProperty("Tactic", out _) ? tactic : null;
+		if (!tactic.TryGetProperty("Tactic", out _)) return null;
+		await KnowRoles(tactic);
+		return tactic;
 	}
 
 	/// <summary>
@@ -946,7 +948,7 @@ internal static partial class Program
 
 		if (IdOf(list, current) is { } currentId ? currentId != knownId : !SameRole(current, Role(known)))
 		{
-			Console.Error.WriteLine(L($"{spot} için bulunan liste taktikle uyuşmuyor (listede '{current}', taktikte '{Role(known)}'); dokunulmadı."));
+			Console.Error.WriteLine(L($"{spot} için bulunan liste taktikle uyuşmuyor (listede '{current}', taktikte '{RoleOf(slots[at], withoutBall)}'); dokunulmadı."));
 			return 1;
 		}
 
@@ -1113,6 +1115,57 @@ internal static partial class Program
 			spaced.Append(c);
 		}
 		return spaced.Length > 0 ? spaced.ToString() : "-";
+	}
+
+	/// <summary>
+	/// The roles as the game's language calls them, by phase and role bit ("ip:4096" → "Ayağı İyi Kaleci").
+	/// The tactic names a role only in the game's code; the planner's role lists say it in the game's
+	/// language, so the names are read from them and kept for the language (and a match, with no lists).
+	/// </summary>
+	private static Dictionary<string, string> roleNames;
+
+	private static Dictionary<string, string> RoleNames
+	{
+		get
+		{
+			if (roleNames != null) return roleNames;
+			try { roleNames = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(CacheFile("role-names.json"))); }
+			catch { }
+			return roleNames ??= [];
+		}
+	}
+
+	private static string RoleKey(JsonElement slot, bool withoutBall) =>
+		(withoutBall ? "oop:" : "ip:") + Field(slot, withoutBall ? "OOPRole" : "IPRole");
+
+	/// <summary>A slot's role in the game's language, or its name in the game's code when not yet seen.</summary>
+	internal static string RoleOf(JsonElement slot, bool withoutBall) =>
+		RoleNames.TryGetValue(RoleKey(slot, withoutBall), out var name) ? name : Role(Field(slot, withoutBall ? "OOPRoleName" : "IPRoleName"));
+
+	/// <summary>Reads the planner's role lists when a role of the tactic has no name kept yet.</summary>
+	private static async Task KnowRoles(JsonElement tactic)
+	{
+		if (!tactic.TryGetProperty("Slots", out var shown)) return;
+		var slots = shown.EnumerateArray().ToList();
+		if (slots.Count == 0 || slots.All(s => RoleNames.ContainsKey(RoleKey(s, false)) && RoleNames.ContainsKey(RoleKey(s, true)))) return;
+
+		try
+		{
+			// Two lists a slot, the one with the ball first; they fill a moment after the pitch.
+			List<JsonElement> lists = [];
+			if (!await Until(async () => (lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+				    .Where(d => d.TryGetProperty("Roles", out _)).ToList()).Count == slots.Count * 2, seconds: 4, every: 0.25)) return;
+			for (var i = 0; i < lists.Count; i++)
+			{
+				// A list may hold a role in English that the game puts into its language as it draws it.
+				var names = lists[i].GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+				var ids = lists[i].GetProperty("Roles").EnumerateArray().ToList();
+				for (var n = 0; n < names.Count && n < ids.Count; n++)
+					if (ids[n].ValueKind == JsonValueKind.String && names[n].Length > 0) RoleNames[(i % 2 == 1 ? "oop:" : "ip:") + ids[n].GetString()] = GameWords.Of(names[n]);
+			}
+			File.WriteAllText(CacheFile("role-names.json"), JsonSerializer.Serialize(RoleNames));
+		}
+		catch { }
 	}
 
 	/// <summary>
