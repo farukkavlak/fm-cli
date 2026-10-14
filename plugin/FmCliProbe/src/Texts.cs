@@ -17,7 +17,11 @@ internal static class Texts
 		// ?anchorpath= finds the anchor by the data path it is bound to ("day.DayOfTheWeek"), which
 		// no language changes; ?anchor= by its text.
 		var anchorPath = q["anchorpath"];
-		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath)) return "error: ?anchor=<text> or ?anchorpath=<data path> required";
+		// ?anchorname= by the element's own name ("MessageBodyText"), for a text bound to nothing
+		// that tells it apart.
+		var anchorName = q["anchorname"];
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && string.IsNullOrEmpty(anchorName))
+			return "error: ?anchor=<text>, ?anchorpath=<data path> or ?anchorname=<element name> required";
 		var up = int.TryParse(q["up"], out var n) ? n : 8;
 		// With ?paths=1 each text comes with the data path it is bound to, which says what it is
 		// whatever language it reads in ("Date", "Fixture.Opponent"…); empty when it is drawn another way.
@@ -34,7 +38,8 @@ internal static class Texts
 				if (element.panel == null || element.worldBound.width <= 0) continue;
 				var text = element.TryCast<TextElement>();
 				if (text == null) continue;
-				if (!string.IsNullOrEmpty(anchorPath) ? PathOf(text) != anchorPath : Text.Plain(text.text ?? "") != anchor) continue;
+				if (!string.IsNullOrEmpty(anchorName) ? element.name != anchorName
+				    : !string.IsNullOrEmpty(anchorPath) ? PathOf(text) != anchorPath : Text.Plain(text.text ?? "") != anchor) continue;
 			}
 			catch { continue; }
 

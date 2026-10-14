@@ -38,6 +38,12 @@ internal static class GameWords
 		catch (Exception e) when (e is FmUnavailable or FmBusy) { }
 	}
 
+	/// <summary>
+	/// Whether two English texts are the same in the game's words: the plugin gives one English for
+	/// a text the game writes for several ("Teklif Yap" for "Make Offer" and "Make An Offer").
+	/// </summary>
+	public static bool Same(string a, string b) => a == b || words.Count > 0 && Of(a) == Of(b) && Of(a) != a;
+
 	/// <summary>A text from the game in the game's own words, where it was put into English.</summary>
 	public static string Of(string text)
 	{

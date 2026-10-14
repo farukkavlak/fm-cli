@@ -2216,3 +2216,14 @@ Boy	Height
 AS	AST
 {0} ay	{0} months
     Gözlemci görüşü: {0} · {1}	    Scout's view: {0} · {1}
+    Antrenör görüşü: {0}{1}	    Coach's view: {0}{1}
+    Gözlemci görüşü: {0}{1}	    Scouts' view: {0}{1}
+    Teklif yapanlar: {0}   (hepsi: offers)	    Bids from: {0}   (all: offers)
+\n  Ek: antrenman özeti — {0} oyuncu gelişti, {1} oyuncu geriledi	\n  Attached: training recap — {0} players improved, {1} declined
+    En iyi: {0}	    Best: {0}
+    En kötü: {0}	    Worst: {0}
+\n  Ek: {0}{1}{2}	\n  Attached: {0}{1}{2}
+ · maç öncesi kondisyon testi: {0}	 · pre-match fitness test: {0}
+KONDİSYON TESTİ	FITNESS TEST
+MAÇ ({0})	MATCH ({0})
+    Primler ve maddeler: {0}	    Bonuses and clauses: {0}

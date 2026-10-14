@@ -105,9 +105,13 @@ internal static partial class Program
 
 	private static async Task<JsonElement?> Labelled(string label, string name = null)
 	{
+		// In another language the game can write two English texts the same way ("Make Offer" and
+		// "Make An Offer" are both "Teklif Yap"), and the plugin gives back only one of them: the
+		// button is the one the game labels as it would label ours.
+		await GameWords.Ask(Fm, label);
 		foreach (var control in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
 		{
-			if (Field(control, "Label") != label || Field(control, "Enabled") != "True") continue;
+			if (!GameWords.Same(Field(control, "Label"), label) || Field(control, "Enabled") != "True") continue;
 			if (name != null && Field(control, "Name") != name) continue;
 			return control;
 		}

@@ -808,11 +808,11 @@ internal static partial class Program
 		{
 			// Nothing to answer, but the message is open and can be read.
 			Console.WriteLine(title);
-			var body = await MessageBody(Field(chosen, "NewsFirstBubbleSpeechString"));
+			var body = await MessageBody(title, Field(chosen, "NewsFirstBubbleSpeechString"));
 			if (body.Length > 0) Console.WriteLine($"  {body.Replace("\n", "\n  ")}");
 			// A report or a piece of advice is mostly its attachment; with nothing to answer it was not
 			// shown at all (30 Nisan 2026).
-			await WriteAttachment(Field(chosen, "NewsFirstBubbleSpeechString"), []);
+			await WriteAttachment(title, []);
 			Console.WriteLine(L("\n(cevap seçeneği yok)"));
 			return 0;
 		}
@@ -828,9 +828,9 @@ internal static partial class Program
 			// What the message says comes before what can be said back: an answer such as
 			// "Accept" means nothing without the terms it accepts.
 			Console.WriteLine(title);
-			var says = await MessageBody(Field(chosen, "NewsFirstBubbleSpeechString"));
+			var says = await MessageBody(title, Field(chosen, "NewsFirstBubbleSpeechString"));
 			if (says.Length > 0) Console.WriteLine($"  {says.Replace("\n", "\n  ")}");
-			await WriteAttachment(Field(chosen, "NewsFirstBubbleSpeechString"), answers.Select(a => Field(a, "Label")).ToHashSet());
+			await WriteAttachment(title, answers.Select(a => Field(a, "Label")).ToHashSet());
 			Console.WriteLine();
 			if (!Ui.Interactive) Options(Console.Out);
 
@@ -980,29 +980,16 @@ internal static partial class Program
 	/// What a message carries under "Attachments" — the Code of Conduct it asks to confirm, say
 	/// (FINDINGS §8.145). An answer such as "Confirm" agrees to it, so it is shown with the message.
 	/// </summary>
-	private static async Task WriteAttachment(string opening, HashSet<string> answers)
+	private static async Task WriteAttachment(string title, HashSet<string> answers)
 	{
-		// Another message's attachment can still be on screen: this one's opens with its words. And its
+		// Another message's attachment can still be on screen: this one is known by its title. And its
 		// own comes a moment after the message: read at once, a message with nothing to answer (the ones
 		// with answers are waited on for those) showed none — the weekly recruitment update, the advice
 		// messages, 30 Nisan 2026. So it is given a little while to turn up.
-		var head = opening.Length > 40 ? opening[..40] : opening;
-		if (head.Length == 0) return;
-		List<string> texts = [];
-		var start = -1;
-		try
-		{
-			await Until(async () =>
-			{
-				var found = await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "8"));
-				if (found.ValueKind != JsonValueKind.Array) return false;
-				texts = found.EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-				start = texts.IndexOf("Attachments");
-				return start >= 0 && texts.Take(start).Any(t => t.StartsWith(head, StringComparison.Ordinal));
-			}, seconds: 1.5, every: 0.3);
-		}
-		catch (FmError) { return; }
-		if (start < 0 || !texts.Take(start).Any(t => t.StartsWith(head, StringComparison.Ordinal))) return;
+		var bound = await OpenMessage(title, t => t.Text == "Attachments", seconds: 1.5);
+		var texts = bound.Select(t => t.Text).ToList();
+		var start = texts.IndexOf("Attachments");
+		if (start < 0) return;
 		var rest = texts.Skip(start + 1)
 			.Where(t => t is not ("Reset" or "Response Required") && !answers.Contains(t))
 			.ToList();
@@ -1010,6 +997,10 @@ internal static partial class Program
 		var side = rest.FindIndex(t => t is "About Club" or "My Profile");
 		if (side >= 0) rest = rest.Take(side).ToList();
 		if (rest.Count == 0) return;
+		// The same with each text's data path (FINDINGS §8.169), for the readers that go by it.
+		var page = bound.Skip(start + 1).ToList();
+		if (page.FindIndex(t => t.Text is "About Club" or "My Profile") is >= 0 and var aside) page = page.Take(aside).ToList();
+		string One(string path) => page.FirstOrDefault(t => t.Path == path).Text ?? "";
 
 		// A news story attached to the message that reports it, under the message's own title: the
 		// story is its first paragraph; what follows is the page around it (the league, how long ago,
@@ -1074,7 +1065,7 @@ internal static partial class Program
 		// A signing waiting to be confirmed: the deal, the contract, what is left to spend and the staff teams.
 		if (rest.Contains("Confirmation") && rest.Contains("Offered Contract"))
 		{
-			Signing(rest);
+			Signing(rest, page);
 			return;
 		}
 
@@ -1171,19 +1162,32 @@ internal static partial class Program
 		}
 
 		// An offer for one of ours: the fee, its terms as label and value, and who else is after him.
-		if (rest.Count > 4 && rest[1].Contains("year-old", StringComparison.Ordinal) && rest.IndexOf("Fee") is > 0 and var feeAt && rest.Contains("Additional Details"))
+		if (One("Person.PlayerDescription") is { Length: > 0 } described && One("feestring") is { Length: > 0 } fee && rest.Contains("Additional Details"))
 		{
-			Console.WriteLine(L($"\n  Ek: teklif — {rest[0]} ({rest[1]})"));
-			Console.WriteLine(L($"    Bedel: {rest[feeAt + 1]}"));
+			// Read by data path: the player and his description, the fee, the report's verdict, his
+			// transfer and loan status, the clubs that have bid.
+			Console.WriteLine(L($"\n  Ek: teklif — {One("Person.Name")} ({described})"));
+			Console.WriteLine(L($"    Bedel: {fee}"));
+			// The terms come as label and value between the details' heading and the report's.
 			var details = rest.IndexOf("Additional Details");
-			// Our player's carries the coach's view of him; one we bid for, the scouts'.
 			var report = rest.FindIndex(details + 1, t => t is "Coach Report" or "Scouting Report");
 			for (var i = details + 1; i + 1 < (report > details ? report : rest.Count); i += 2) Console.WriteLine($"    {rest[i]}: {rest[i + 1]}");
-			if (report > 0 && report + 2 < rest.Count)
-				Console.WriteLine(rest[report] == "Coach Report" ? L($"    Antrenör görüşü: {rest[report + 1]} · {rest[report + 2]}") : L($"    Gözlemci görüşü: {rest[report + 1]} · {rest[report + 2]}"));
-			var listed = new[] { "Transfer Status", "Loan Status" }.Select(l => (l, at: rest.LastIndexOf(l))).Where(x => x.at > 0 && x.at + 1 < rest.Count).Select(x => $"{x.l}: {rest[x.at + 1]}").ToList();
+			// Our player's carries the coach's view of him; one we bid for, the scouts'. The grade's
+			// letter is drawn without a path just before the verdict.
+			var verdictAt = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
+			if (report > 0 && verdictAt > 0)
+			{
+				var grade = page[verdictAt - 1].Path.Length == 0 && page[verdictAt - 1].Text.Length <= 2 ? page[verdictAt - 1].Text + " · " : "";
+				Console.WriteLine(rest[report] == "Coach Report" ? L($"    Antrenör görüşü: {grade}{page[verdictAt].Text}") : L($"    Gözlemci görüşü: {grade}{page[verdictAt].Text}"));
+			}
+			var listed = new[] { ("Transfer Status", "Player.TransferStatusDetails.TransferStatusDescription.Text"), ("Loan Status", "Player.LoanStatusDetails.TransferStatusDescription.Text") }
+				.Where(x => One(x.Item2).Length > 0).Select(x => $"{GameWords.Of(x.Item1)}: {One(x.Item2)}").ToList();
 			if (listed.Count > 0) Console.WriteLine($"    {string.Join(" · ", listed)}");
-			if (rest.IndexOf("Interested Clubs") is > 0 and var clubs && clubs + 1 < rest.Count) Console.WriteLine(L($"    İlgilenen kulüpler: {rest[clubs + 1].Trim('(', ')')}   (hepsi: offers)"));
+			var bidders = new List<string>();
+			for (var i = 0; i < page.Count; i++)
+				if (page[i].Path == "row.TransferOfferType" && i > 0 && page[i - 1].Path == "Club.Name")
+					bidders.Add($"{page[i - 1].Text} ({page[i].Text}{(i + 1 < page.Count && page[i + 1].Path == "row.TotalTransferCost" ? $", {page[i + 1].Text}" : "")})");
+			if (bidders.Count > 0) Console.WriteLine(L($"    Teklif yapanlar: {string.Join(" · ", bidders)}   (hepsi: offers)"));
 			return;
 		}
 
@@ -1201,10 +1205,53 @@ internal static partial class Program
 		{
 			Console.WriteLine(L($"\n  Ek: tavsiye özeti — {(rest.IndexOf("Meeting type") is >= 0 and var kindAt && kindAt + 1 < rest.Count ? rest[kindAt + 1] : "")}"));
 			var topics = rest.Skip(topicsAt + 1).TakeWhile(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"\(\d+\)$")).ToList();
-			foreach (var topic in topics) Console.WriteLine($"    {topic}");
-			var others = rest.Skip(topicsAt + 1 + topics.Count).Where(t => t != "Action message").ToList();
-			if (others.Count > 0)
-				foreach (var line in await LabelledAttachment(others)) Console.WriteLine("    " + line);
+			foreach (var topic in topics) Console.WriteLine($"    {GameWords.Of(topic)}");
+			if (AttachedStaffTeams(page) is { Count: > 0 } teams) Console.WriteLine(L($"    Personel: {string.Join(" · ", teams)}"));
+			return;
+		}
+
+		// The week's training: how many came on and how many went back, the best and the worst by
+		// their training rating. Read by data path: a player's name starts his line, his positions
+		// are on it, the rating is the figure drawn after it without a path.
+		if (rest[0] == "Training Recap")
+		{
+			var best = new List<string>();
+			var worst = new List<string>();
+			var into = best;
+			foreach (var (text, path) in page)
+			{
+				if (path.Length == 0 && text == "Worst") into = worst;
+				else if (path == "Person.Name") into.Add(text);
+				else if (into.Count > 0 && (path.EndsWith("PositionCombinedString", StringComparison.Ordinal)
+				         || path.Length == 0 && System.Text.RegularExpressions.Regex.IsMatch(text, @"^\d+[.,]\d+$")))
+					into[^1] += $" {(path.Length > 0 ? $"({text})" : text)}";
+			}
+			var up = One("individualtraining.PlayerImprovementCount");
+			var down = One("individualtraining.PlayerRegressionCount");
+			Console.WriteLine(L($"\n  Ek: antrenman özeti — {(up.Length > 0 ? up : "0")} oyuncu gelişti, {(down.Length > 0 ? down : "0")} oyuncu geriledi"));
+			if (best.Count > 0) Console.WriteLine(L($"    En iyi: {string.Join(" · ", best)}"));
+			if (worst.Count > 0) Console.WriteLine(L($"    En kötü: {string.Join(" · ", worst)}"));
+			return;
+		}
+
+		// The medical centre's note: who is back from injury and how his fitness test went, a
+		// player to a line by data path ("binding.Name", the injury bound to "binding"); the
+		// test's verdict is the word drawn after them without a path.
+		if (rest.Contains("Pre-match fitness tests:") && page.Any(t => t.Path == "binding.Name"))
+		{
+			var watched = page.TakeWhile(t => t.Text != "Pre-match fitness tests:").Skip(1).FirstOrDefault(t => t.Path.Length == 0 && t.Text.Any(char.IsDigit)).Text;
+			var window = One("Team.PreMatchFitnessTestString");
+			Console.WriteLine(L($"\n  Ek: {GameWords.Of(rest[0])}{(watched is { Length: > 0 } ? $" — {watched}" : "")}{(window.Length > 0 ? L($" · maç öncesi kondisyon testi: {window}") : "")}"));
+			var rows = new List<string[]>();
+			for (var i = 0; i < page.Count; i++)
+			{
+				if (page[i].Path != "binding.Name") continue;
+				var injury = i + 1 < page.Count && page[i + 1].Path == "binding" ? page[i + 1].Text : "";
+				var at = injury.Length > 0 ? i + 2 : i + 1;
+				var test = at < page.Count && page[at].Path.Length == 0 ? GameWords.Of(page[at].Text) : "";
+				rows.Add([page[i].Text, injury, test]);
+			}
+			if (rows.Count > 0) Table.Write([L("OYUNCU"), L("SAKATLIK"), L("KONDİSYON TESTİ")], rows);
 			return;
 		}
 
@@ -1214,15 +1261,6 @@ internal static partial class Program
 		{
 			// Read by each text's data path (FINDINGS §8.169): the formation, the manager, the team news,
 			// the expected eleven and the strengths and weaknesses, two runs of pros and cons.
-			List<(string Text, string Path)> page = [];
-			try
-			{
-				page = (await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "8"), ("paths", "1"))).EnumerateArray()
-					.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
-			}
-			catch (FmError) { }
-			page = page.SkipWhile(t => t.Text != "Next Opposition Report").ToList();
-			string One(string path) => page.FirstOrDefault(t => t.Path == path).Text ?? "";
 			Console.WriteLine(L($"\n  Ek: rakip raporu — {rest[1]} {rest[2]}{(One("Team.Description") is { Length: > 0 } d ? $" · {d}" : "")}"));
 			if (One("Team.MostUsedFormation") is { Length: > 0 } shape) Console.WriteLine(L($"    Diziliş: {shape}"));
 			if (One("Manager.InitialSurname") is { Length: > 0 } manager)
@@ -1278,10 +1316,11 @@ internal static partial class Program
 		// areas with the number of items each has to report.
 		if (rest[0] == "Responsibilities" && rest.Contains("Delegated to Staff"))
 		{
-			string Before(string label) => rest.IndexOf(label) is > 0 and var at ? rest[at - 1] : "?";
-			Console.WriteLine(L($"\n  Ek: sorumluluklar — {Before("Under control")} sende · {Before("Delegated to Staff")} devredilmiş"));
+			string Count(string path) => One(path) is { Length: > 0 } n ? n : "?";
+			Console.WriteLine(L($"\n  Ek: sorumluluklar — {Count("teamsettings.ResponsibilitiesAssignedToHumanCount")} sende · {Count("teamsettings.ResponsibilitiesAssignedToStaffCount")} devredilmiş"));
+			// The staff's head count and vacancies are sentences with a figure ("49 Staff Members"), up to the first area.
 			var staffAt = rest.IndexOf("Staff");
-			var people = rest.Skip(staffAt + 1).TakeWhile(t => t.EndsWith("Members", StringComparison.Ordinal) || t.EndsWith("positions", StringComparison.Ordinal) || t.EndsWith("position", StringComparison.Ordinal)).ToList();
+			var people = rest.Skip(staffAt + 1).TakeWhile(t => t.Any(char.IsDigit) && !System.Text.RegularExpressions.Regex.IsMatch(t, @"^\(\d+\)$")).ToList();
 			if (staffAt > 0 && people.Count > 0) Console.WriteLine(L($"    Personel: {string.Join(" · ", people)}"));
 			var areas = new List<string>();
 			for (var i = 1; i + 1 < rest.Count; i++)
@@ -1292,26 +1331,25 @@ internal static partial class Program
 		}
 
 		// The coming two weeks of training, a day to a line, then who is coming on and who is not.
-		if (rest[0] == "Training" && rest.Count > 9 && rest[1] == "Mon" && rest[7] == "Sun")
+		if (rest[0] == "Training" && page.Any(t => t.Path == "day.DayOfTheMonth"))
 		{
+			// Read by data path: a day's date, then its sessions; a match is its venue's letter.
 			Console.WriteLine(L("\n  Ek: antrenman programı"));
 			string[] days = [L("Pzt"), "Sal", L("Çar"), "Per", "Cum", L("Cmt"), L("Paz")];
-			static string Session(string s) => s switch { "Rest" => L("dinlenme"), "Travel" => L("yolculuk"), "H" => L("MAÇ (iç saha)"), "A" => L("MAÇ (deplasman)"), "N" => L("MAÇ (tarafsız)"), _ => s };
-			var at = 8;
-			for (var day = 0; at + 3 < rest.Count && System.Text.RegularExpressions.Regex.IsMatch(rest[at], @"^\d{1,2}( [A-Z][a-z]{2})?$"); day++, at += 4)
-				Console.WriteLine($"    {days[day % 7]} {rest[at],-7} {string.Join(" · ", rest.Skip(at + 1).Take(3).Select(Session))}");
-			var up = rest.IndexOf("Player Improvements");
-			var down = rest.IndexOf("Player Regressions");
-			var notable = rest.IndexOf("Notable Developments");
+			var grid = new List<(string Day, List<string> Sessions)>();
+			foreach (var (text, path) in page)
+				if (path == "day.DayOfTheMonth") grid.Add((text, []));
+				else if (grid.Count > 0 && path == "Event.SessionName") grid[^1].Sessions.Add(text switch { "Rest" => L("dinlenme"), "Travel" => L("yolculuk"), _ => text });
+				else if (grid.Count > 0 && path == "Event.MatchVenueShort")
+					grid[^1].Sessions.Add(text switch { "H" => L("MAÇ (iç saha)"), "A" => L("MAÇ (deplasman)"), "N" => L("MAÇ (tarafsız)"), _ => L($"MAÇ ({text})") });
+			// The grid starts on a Monday.
+			for (var day = 0; day < grid.Count; day++)
+				Console.WriteLine($"    {days[day % 7]} {grid[day].Day,-7} {string.Join(" · ", grid[day].Sessions)}");
 			var parts = new List<string>();
-			if (up > 0) parts.Add(L($"{rest[up - 1]} gelişen"));
-			if (down > 0) parts.Add(L($"{rest[down - 1]} gerileyen"));
-			if (notable > 0)
-			{
-				var names = new List<string>();
-				for (var i = notable + 1; i + 1 < rest.Count && rest[i] != "Action message"; i += 2) names.Add(rest[i]);
-				if (names.Count > 0) parts.Add(L($"öne çıkanlar: {string.Join(", ", names)}"));
-			}
+			if (One("individualtraining.PlayerImprovementCount") is { Length: > 0 } up) parts.Add(L($"{up} gelişen"));
+			if (One("individualtraining.PlayerRegressionCount") is { Length: > 0 } down) parts.Add(L($"{down} gerileyen"));
+			var names = page.SkipWhile(t => t.Text != "Notable Developments").Where(t => t.Path == "Person.Name").Select(t => t.Text).ToList();
+			if (names.Count > 0) parts.Add(L($"öne çıkanlar: {string.Join(", ", names)}"));
 			if (parts.Count > 0) Console.WriteLine(L($"    Bireysel antrenman: {string.Join(" · ", parts)}"));
 			Console.WriteLine(L("    Değiştirmek: schedule"));
 			return;
@@ -1545,38 +1583,42 @@ internal static partial class Program
 	/// The card of a signing to confirm, laid out by its labels: "Fee", "Wages", "Duration", then the
 	/// budgets left ("(£5.25K)" in brackets is below nothing) and each staff team's vacant roles.
 	/// </summary>
-	private static void Signing(List<string> card)
+	private static void Signing(List<string> card, List<(string Text, string Path)> page)
 	{
-		string After(string label, int skip = 1) => card.IndexOf(label) is var i and >= 0 && i + skip < card.Count ? card[i + skip] : "";
-		var confirmation = card.IndexOf("Confirmation");
-		var job = confirmation > 1 ? card[confirmation - 1] : "";
-		Console.WriteLine(L($"\n  Ek: {card[0]}{(job.Length > 0 && job != card[0] ? $" — {job}" : "")}"));
+		// The deal and the contract by data path; the dates are the figures drawn without a path
+		// between the wage and the contract's type.
+		string One(string path) => page.FirstOrDefault(t => t.Path == path).Text ?? "";
+		var name = One("Person.Name") is { Length: > 0 } n ? n : card[0];
+		var job = One("Person.PlayerDescription");
+		Console.WriteLine(L($"\n  Ek: {name}{(job.Length > 0 ? $" — {job}" : "")}"));
 
-		var deal = card.IndexOf("Offer made") >= 0 ? After("Fee") : "";
-		if (deal.Length > 0) Console.WriteLine(L($"    Bonservis: {deal}"));
+		if (card.Contains("Offer made") && One("feestring") is { Length: > 0 } deal) Console.WriteLine(L($"    Bonservis: {deal}"));
 
-		var wages = card.IndexOf("Wages");
-		if (wages >= 0 && wages + 1 < card.Count)
+		var wageAt = page.FindIndex(t => t.Path == "contract.Wage.DisplayValue");
+		var typeAt = page.FindIndex(t => t.Path == "contract.ContractStatusWithType.DisplayValue");
+		if (wageAt >= 0)
 		{
-			var more = card.Skip(wages + 2).TakeWhile(t => t != "Duration").ToList();
-			var net = more.FirstOrDefault(t => t.EndsWith("after tax", StringComparison.Ordinal));
-			var share = more.FirstOrDefault(t => t.Contains("wage budget", StringComparison.Ordinal));
-			var notes = new[] { net != null ? L($"vergi sonrası {net[..^"after tax".Length].Trim()}") : null, share != null ? L($"maaş bütçesindeki payı %{share.Split(' ')[0].TrimEnd('%')}") : null }.Where(n => n != null).ToList();
-			Console.WriteLine(L($"    Ücret: {card[wages + 1]}{(notes.Count > 0 ? $" ({string.Join(", ", notes)})" : "")}"));
+			var between = page.Skip(wageAt + 1).Take((typeAt > wageAt ? typeAt : page.Count) - wageAt - 1).ToList();
+			// Beside the wage: what is left after tax and its share of the wage bill, each a sentence in the game's words.
+			var notes = between.Where(t => t.Path == "contract.WageAfterTax.DisplayValue" || t.Path.Length == 0 && t.Text.Contains('%')).Select(t => t.Text).ToList();
+			Console.WriteLine(L($"    Ücret: {page[wageAt].Text}{(notes.Count > 0 ? $" ({string.Join(", ", notes)})" : "")}"));
+			var dates = between.Where(t => t.Path.Length == 0 && t.Text.Any(char.IsDigit) && !t.Text.Contains('%')).Select(t => t.Text).ToList();
+			if (dates.Count >= 2) Console.WriteLine(L($"    Süre: {dates[0]} – {dates[1]}{(typeAt >= 0 ? $" · {page[typeAt].Text}" : "")}"));
 		}
-		var duration = card.IndexOf("Duration");
-		if (duration >= 0 && duration + 2 < card.Count)
-			Console.WriteLine(L($"    Süre: {card[duration + 1]} – {card[duration + 2]}{(After("Type") is { Length: > 0 } type ? $" · {type}" : "")}"));
 
-		var clauses = card.IndexOf("Clauses");
+		var addons = new List<string>();
+		for (var i = 0; i < page.Count; i++)
+			if (page[i].Path == "contractaddon.AddOnNameString")
+				addons.Add(i + 1 < page.Count && page[i + 1].Path == "contractaddon.AddOnValueString" ? $"{page[i].Text} {page[i + 1].Text}" : page[i].Text);
+		if (addons.Count > 0) Console.WriteLine(L($"    Primler ve maddeler: {string.Join(" · ", addons)}"));
+		var verdictAt = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
+		if (verdictAt > 0)
+		{
+			var grade = page[verdictAt - 1].Path.Length == 0 && page[verdictAt - 1].Text.Length <= 2 ? page[verdictAt - 1].Text + " · " : "";
+			Console.WriteLine(L($"    Gözlemci görüşü: {grade}{page[verdictAt].Text}"));
+		}
+
 		var budgets = card.IndexOf("Recruitment Budgets");
-		if (clauses >= 0 && budgets > clauses + 1)
-		{
-			var items = card.Skip(clauses + 1).Take(budgets - clauses - 1).ToList();
-			var pairs = items.Chunk(2).Select(p => p.Length == 2 ? $"{p[0]} {p[1]}" : p[0]).ToList();
-			Console.WriteLine(L($"    Maddeler: {string.Join(" · ", pairs)}"));
-		}
-
 		if (budgets >= 0)
 		{
 			var left = new List<string>();
@@ -1590,51 +1632,54 @@ internal static partial class Program
 			if (left.Count > 0) Console.WriteLine(L($"    Kalan bütçe: {string.Join(" · ", left)}"));
 		}
 
-		var staff = card.IndexOf("Staff", Math.Max(budgets, 0));
-		if (staff >= 0)
-		{
-			var teams = new List<string>();
-			for (var i = staff + 1; i + 2 < card.Count && card[i] != "Responsibilities"; i += 3)
-			{
-				var vacant = card[i + 1];
-				var said = vacant == "All roles filled" ? L("dolu")
-					: System.Text.RegularExpressions.Regex.Match(vacant, @"^(\d+) vacant role") is { Success: true } m ? L($"{m.Groups[1].Value} boş yer") : vacant;
-				teams.Add(L($"{card[i]} {card[i + 2]} kişi, {said}"));
-			}
-			if (teams.Count > 0) Console.WriteLine(L($"    Ekipler: {string.Join(" · ", teams)}"));
-		}
+		if (AttachedStaffTeams(page) is { Count: > 0 } teams) Console.WriteLine(L($"    Ekipler: {string.Join(" · ", teams)}"));
 	}
 
-	private static async Task<string> MessageBody(string opening)
+	/// <summary>
+	/// The staff teams an attachment lists, each with its name, head count and what is vacant
+	/// ("Team.StaffCoachingSubGroup.ShortString" beside "team.StaffCoachingCount"); the name is
+	/// the plain text just before.
+	/// </summary>
+	private static List<string> AttachedStaffTeams(List<(string Text, string Path)> page)
 	{
-		if (opening.Length == 0) return "";
+		var teams = new List<string>();
+		for (var i = 1; i < page.Count; i++)
+			if (page[i].Path is var group && group.StartsWith("Team.Staff", StringComparison.Ordinal) && group.EndsWith("SubGroup.ShortString", StringComparison.Ordinal))
+			{
+				var count = page.FirstOrDefault(t => t.Path == "team." + group["Team.".Length..^"SubGroup.ShortString".Length] + "Count").Text;
+				teams.Add($"{GameWords.Of(page[i - 1].Text)} {count} ({GameWords.Of(page[i].Text)})");
+			}
+		return teams;
+	}
+
+	private static async Task<string> MessageBody(string title, string opening)
+	{
+		var page = await OpenMessage(title, t => t.Path == "newsitem.NewsBodyString", seconds: 3);
+		return page.FirstOrDefault(t => t.Path == "newsitem.NewsBodyString").Text is { Length: > 0 } body ? body : opening;
+	}
+
+	/// <summary>
+	/// The open message as the game draws it, from its sender and title down through its attachment,
+	/// each text with its data path: found by the body's element name ("MessageBodyText") and known
+	/// for this message by its title, since the one opened before can still be on screen. Waits a
+	/// while for what <paramref name="wanted"/> asks for; empty when the message is not there.
+	/// </summary>
+	private static async Task<List<(string Text, string Path)>> OpenMessage(string title, Func<(string Text, string Path), bool> wanted, double seconds)
+	{
+		List<(string Text, string Path)> page = [];
+		bool Ours() => page.Any(t => t.Path == "newsitem.NewsTitleString" && (t.Text == title || GameWords.Of(t.Text) == GameWords.Of(title)));
 		try
 		{
-			// Matching text with letters such as "ç" in it does not find the element, so the
-			// probe is the longest stretch of the opening line in plain ASCII.
-			var probe = System.Text.RegularExpressions.Regex.Matches(opening, @"[\x20-\x7E]+")
-				.Select(m => m.Value.Trim())
-				.OrderByDescending(v => v.Length)
-				.FirstOrDefault() ?? "";
-			// Whole words only: a stretch cut beside an accented letter or mid-word did not match.
-			var words = probe.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1).Take(7).ToArray();
-			probe = string.Join(" ", words);
-			if (probe.Length < 12) return opening;
-			var found = await Fm.Get("elements", ("text", probe), ("up", "0"), ("depth", "0"));
-			const string marker = "#MessageBodyText \"";
-			var at = found.IndexOf(marker, StringComparison.Ordinal);
-			if (at < 0) return opening;
-			var start = at + marker.Length;
-			// The same words can be in another element too, listed after it: the body ends at
-			// the last quote before the next element's line.
-			var next = System.Text.RegularExpressions.Regex.Match(found[start..], @"\n0x[0-9a-f]+ ");
-			var end = found.LastIndexOf('"', next.Success ? start + next.Index : found.Length - 1);
-			return end > start ? found[start..end].Trim() : opening;
+			await Until(async () =>
+			{
+				var found = await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", "5"), ("paths", "1"), ("most", "1"));
+				if (found.ValueKind != JsonValueKind.Array) return false;
+				page = found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
+				return Ours() && page.Any(wanted);
+			}, seconds: seconds, every: 0.3);
 		}
-		catch (FmError)
-		{
-			return opening;
-		}
+		catch (FmError) { return []; }
+		return Ours() ? page : [];
 	}
 
 	/// <summary>A message by its number in the inbox listing, or by a piece of its subject.</summary>
