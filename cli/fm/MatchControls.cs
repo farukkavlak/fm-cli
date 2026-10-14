@@ -83,7 +83,7 @@ internal static partial class Program
 	/// <summary>The menus of the players on the pitch, each with its submenus spelled out.</summary>
 	private static async Task<List<JsonElement>> PlayerMenus() =>
 		(await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
-			.Where(d => Rows(d).Any(c => c.StartsWith("Substitute Off", StringComparison.Ordinal)))
+			.Where(d => d.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "BindingRoot_SquadOverviewPlayerBlock"))
 			.ToList();
 
 	private static List<string> Rows(JsonElement menu) =>

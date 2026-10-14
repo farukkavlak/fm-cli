@@ -601,7 +601,6 @@ internal static partial class Program
 			return 1;
 		}
 
-		const string off = "Substitute Off";
 		var menus = await Menus();
 		// At a stop the tactics screen comes up first and spells out the bench a moment later.
 		if (menus.Count > 0 && menus.All(m => Bench(m).Count == 0))
@@ -702,7 +701,7 @@ internal static partial class Program
 		var choices = Bench(from);
 		if (Choose(choices, words[1], L("Giren")) is not { } coming) return 1;
 
-		var row = from.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList().FindIndex(c => c.StartsWith(off, StringComparison.Ordinal));
+		var row = BenchRow(from);
 		var entry = from.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Select(c => c.GetString()).ToList().IndexOf(coming);
 
 		// A submenu row is written to the menu's bound value and the menu's own events sent
@@ -749,22 +748,25 @@ internal static partial class Program
 			&& (full.Equals(typed, StringComparison.OrdinalIgnoreCase) || full.EndsWith(" " + typed, StringComparison.OrdinalIgnoreCase)
 				|| typed.EndsWith(" " + full, StringComparison.OrdinalIgnoreCase));
 
+		// A player's menu is one in his block on the match screen, known by where it stands, not by a row's words.
 		async Task<List<JsonElement>> Menus() =>
 			(await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
-				.Where(d => d.GetProperty("Choices").EnumerateArray().Any(c => (c.GetString() ?? "").StartsWith(off, StringComparison.Ordinal)))
+				.Where(d => d.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "BindingRoot_SquadOverviewPlayerBlock"))
 				.ToList();
 
-		// The submenu's first row is a count ("3/5 Substitutes"), not a player.
-		static List<string> Bench(JsonElement menu)
+		// The bench is the submenu that starts with the count of changes ("3/5 Substitutes", "15/15
+		// Değişiklik"); the row that opens it can come without its words (a Turkish game, 25 Temmuz 2026).
+		static int BenchRow(JsonElement menu)
 		{
-			if (!menu.TryGetProperty("Submenus", out var submenus)) return [];
-
-			var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-			var at = rows.FindIndex(c => c.StartsWith("Substitute Off", StringComparison.Ordinal));
-			return at >= 0 && submenus.TryGetProperty(at.ToString(), out var list)
-				? list.EnumerateArray().Select(c => c.GetString() ?? "").Where(c => !c.EndsWith("Substitutes", StringComparison.Ordinal)).ToList()
-				: [];
+			if (!menu.TryGetProperty("Submenus", out var submenus)) return -1;
+			foreach (var sub in submenus.EnumerateObject())
+				if (sub.Value.GetArrayLength() > 0 && System.Text.RegularExpressions.Regex.IsMatch(sub.Value[0].GetString() ?? "", @"^\d+/\d+ ") && int.TryParse(sub.Name, out var row))
+					return row;
+			return -1;
 		}
+
+		static List<string> Bench(JsonElement menu) =>
+			BenchRow(menu) is >= 0 and var row ? menu.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Skip(1).Select(c => c.GetString() ?? "").ToList() : [];
 	}
 
 	/// <summary>
