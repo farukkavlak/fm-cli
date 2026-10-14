@@ -211,11 +211,6 @@ internal static partial class Program
 	private static string SayDate(string iso) =>
 		DateTime.TryParse(iso, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? $"{d.Day} {Months[d.Month - 1]} {d.Year}" : iso;
 
-	/// <summary>A sum of money the way the game writes it: £51.26M, £950K.</summary>
-	private static string Pound(long amount) => amount switch
-	{
-		>= 1_000_000 => $"£{(amount / 1_000_000.0).ToString("0.##", CultureInfo.InvariantCulture)}M",
-		>= 1_000 => $"£{(amount / 1_000.0).ToString("0.#", CultureInfo.InvariantCulture)}K",
-		_ => $"£{amount}",
-	};
+	/// <summary>A sum of money the way the game writes it: £51.26M, £950K (51,26M £ in Turkish).</summary>
+	private static string Pound(long amount) => MoneyFormat.Short(amount);
 }

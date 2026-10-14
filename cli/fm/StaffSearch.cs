@@ -178,8 +178,27 @@ internal static partial class Program
 		["ST"] = "Striker (Centre)", ["STC"] = "Striker (Centre)",
 	};
 
+	/// <summary>
+	/// The attributes by their English names (folded) and the game's own id for each, which the search
+	/// panel's rows carry in every language (FINDINGS §8.172).
+	/// </summary>
+	private static readonly Dictionary<string, string> AttributeCodes = new()
+	{
+		["finishing"] = "Pfin", ["dribbling"] = "Pdri", ["firsttouch"] = "Pfrs", ["heading"] = "Phea", ["corners"] = "Pcor",
+		["marking"] = "Pmar", ["crossing"] = "Pcro", ["passing"] = "Ppas", ["penaltytaking"] = "Ppen", ["freekicks"] = "Pfrk",
+		["freekicktaking"] = "Pfrk", ["technique"] = "Ptec", ["tackling"] = "Ptac", ["longshots"] = "Plsh", ["longthrows"] = "Plth",
+		["aggression"] = "Pagg", ["bravery"] = "Pbra", ["workrate"] = "Pwkr", ["decisions"] = "Pdec", ["determination"] = "Pdet",
+		["concentration"] = "Pcnt", ["leadership"] = "Pinf", ["anticipation"] = "Pant", ["flair"] = "Pfla", ["positioning"] = "Ppsn",
+		["composure"] = "Pcmp", ["teamwork"] = "Ptwr", ["offtheball"] = "Potb", ["vision"] = "Pcre",
+		["agility"] = "Pagi", ["stamina"] = "Psta", ["balance"] = "Pbal", ["strength"] = "Pstr", ["pace"] = "Ppac",
+		["acceleration"] = "Pacc", ["naturalfitness"] = "Pnft", ["jumpingreach"] = "Pjum",
+		["rushingout"] = "Prou", ["rushingouttendency"] = "Prou", ["oneonones"] = "Pooo", ["commandofarea"] = "Pcoa", ["kicking"] = "Pkic",
+		["eccentricity"] = "Pecc", ["handling"] = "Phan", ["throwing"] = "Pthr", ["aerialreach"] = "Paab", ["communication"] = "Pcom",
+		["reflexes"] = "Pref", ["punching"] = "Pttp", ["punchingtendency"] = "Pttp",
+	};
+
 	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted,
-		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null, string maxValue = null)
+		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null, long? maxValue = null)
 	{
 		// What can be told to be wrong from the words alone is said before the panel is opened.
 		string place = null;
@@ -219,7 +238,7 @@ internal static partial class Program
 		{
 			JsonElement found = default;
 			await Until(async () => (found = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-				.FirstOrDefault(d => Field(d, "Label") == "Add Condition")).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
+				.FirstOrDefault(d => Field(d, "Binds") == "conditiontoadd" || Field(d, "Label") == "Add Condition")).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
 			return found;
 		}
 
@@ -247,13 +266,18 @@ internal static partial class Program
 		{
 			var adder = await Adder();
 			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
-			var attributes = new List<(string Group, string Name)>();
+			var attributes = new List<(string Group, string Name, string Code)>();
 			foreach (var group in new[] { "Technical", "Mental", "Physical", "Goalkeeping" })
 			{
-				var names = await Fm.GetJson("menu", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{group}"));
-				if (names.ValueKind == JsonValueKind.Array) attributes.AddRange(names.EnumerateArray().Select(n => (group, n.GetString())));
+				var names = await Fm.GetJson("menu", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{group}"), ("ids", "1"));
+				if (names.ValueKind == JsonValueKind.Array)
+					attributes.AddRange(names.EnumerateArray().Select(n => n.ValueKind == JsonValueKind.Object ? (group, Field(n, "Text"), Field(n, "Value")) : (group, n.GetString(), "")));
 			}
-			var name = attributes.Select(a => a.Name).FirstOrDefault(n => Fold(n) == Fold(typed)) ?? Choose(attributes.Select(a => a.Name).Distinct().ToList(), typed, "Nitelik");
+			// By the attribute's own id first: in another language the row's words can come back as
+			// another attribute's ("Hız" is Pace, and reads as Speed).
+			var name = (AttributeCodes.TryGetValue(new string(Fold(typed).Where(char.IsLetter).ToArray()), out var code) ? attributes.FirstOrDefault(a => a.Code == code).Name : null)
+				?? attributes.Select(a => a.Name).FirstOrDefault(n => Fold(n) == Fold(typed))
+				?? Choose(attributes.Select(a => a.Name).Distinct().ToList(), typed, "Nitelik");
 			if (name == null) return await Close("");
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{attributes.First(a => a.Name == name).Group}>{name}"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
@@ -307,13 +331,25 @@ internal static partial class Program
 			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Position"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
-			async Task<JsonElement> Where() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-				.LastOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Defender (Right)"));
-			JsonElement where = default;
-			if (!await Until(async () => (where = await Where()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
+			// The list of positions is the one whose rows are the game's position bits (a striker is 16384);
+			// its words differ by language ("Defence (Right)" in a Turkish game's English).
+			var bit = PositionBits.First(p => PositionNames[p.Slot] == place).Bit.ToString();
+			async Task<(JsonElement List, string Row)> Where()
+			{
+				foreach (var d in (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Reverse())
+				{
+					if (d.GetProperty("Choices").GetArrayLength() != PositionBits.Length) continue;
+					var rows = await Fm.GetJson("menu", ("ptr", Field(d, "Pointer")), ("ids", "1"));
+					if (rows.ValueKind == JsonValueKind.Array && rows.EnumerateArray().FirstOrDefault(r => Field(r, "Id") == bit) is { ValueKind: JsonValueKind.Object } row)
+						return (d, Field(row, "Text"));
+				}
+				return default;
+			}
+			(JsonElement List, string Row) where = default;
+			if (!await Until(async () => (where = await Where()).Row != null, seconds: 5, every: 0.4))
 				return await Close("error: mevki koşulu panele eklenmedi");
-			await Fm.Get("select", ("ptr", Field(where, "Pointer")), ("choice", place), ("fire", "1"));
-			if (!await Until(async () => Field(await Where(), "Label") == place, seconds: 4, every: 0.4))
+			await Fm.Get("select", ("ptr", Field(where.List, "Pointer")), ("choice", where.Row), ("fire", "1"));
+			if (!await Until(async () => Field((await Where()).List, "Label") == where.Row, seconds: 4, every: 0.4))
 				return await Close($"error: mevki '{place}' seçildi ama panel tutmadı");
 		}
 
@@ -326,13 +362,14 @@ internal static partial class Program
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Transfer Value"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
 			async Task<JsonElement> Amounts() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-				.LastOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "£7.5M"));
+				.LastOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => Money(c.GetString() ?? "") == 7_500_000));
 			JsonElement amounts = default;
 			if (!await Until(async () => (amounts = await Amounts()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
 				return await Close("error: değer koşulu panele eklenmedi");
-			if (!amounts.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == maxValue))
-				return await Close($"error: değer listesinde '{maxValue}' yok");
-			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", maxValue), ("fire", "1"));
+			// The figure as the list writes it ("£7.5M", "7,5M £").
+			if (amounts.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").FirstOrDefault(c => Money(c) == maxValue) is not { } figure)
+				return await Close($"error: değer listesinde {MoneyFormat.Short(maxValue.Value)} yok");
+			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", figure), ("fire", "1"));
 			await Task.Delay(1200);
 		}
 

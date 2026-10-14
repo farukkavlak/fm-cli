@@ -77,8 +77,49 @@ internal static class Submenus
 		var names = new List<string>();
 		// A greyed-out row is left out: the game would not take it.
 		for (var i = 0; i < (level?.Count ?? 0) && i < 200; i++)
-			if (!Buttons.ChoiceDisabled(level[i])) names.Add($"\"{Report.Escape(Buttons.ChoiceText(level[i]) ?? "")}\"");
+		{
+			if (Buttons.ChoiceDisabled(level[i])) continue;
+			var text = Report.Escape(Buttons.ChoiceText(level[i]) ?? "");
+			// With ?ids=1, each row's own id and the name the game registers it under ("Agility" for
+			// 'pf20'): the same in every language, where the text is not.
+			if (q["ids"] == "1")
+			{
+				var (id, name) = RowId(level[i]);
+				var (value, _) = RowId(level[i], "PropertyValue");
+				names.Add($"{{\"Text\": \"{text}\", \"Id\": \"{Code(id)}\", \"Name\": \"{Report.Escape(name ?? "")}\", \"Value\": \"{Code(value)}\"}}");
+			}
+			else names.Add($"\"{text}\"");
+		}
 		return "[" + string.Join(", ", names) + "]\n";
+	}
+
+	/// <summary>A four-character id as its characters ("pf20"), or the number when they are not letters.</summary>
+	private static string Code(uint id)
+	{
+		if (id == 0) return "";
+		var chars = new[] { (char)(id >> 24), (char)((id >> 16) & 0xFF), (char)((id >> 8) & 0xFF), (char)(id & 0xFF) };
+		return chars.All(c => c is >= ' ' and <= '~' and not '"' and not '\\') ? new string(chars) : id.ToString();
+	}
+
+	/// <summary>
+	/// A menu row's id ('pf20') and its registered name, through the row's RowData when it has one; with
+	/// a field, the id of the record held there (an attribute's own, 'Pagi', in its PropertyValue).
+	/// </summary>
+	private static (uint Id, string Name) RowId(SI.Core.TypedValue row, string field = null)
+	{
+		try
+		{
+			var record = row?.Get()?.TryCast<DynamicReference>();
+			if (record == null) return (0, null);
+			var entries = Send.Entries(record);
+			if (entries.TryGetValue("RowData", out var inner) && inner != null && !inner.IsNull) return RowId(inner, field);
+			if (field != null)
+				return entries.TryGetValue(field, out var held) && held != null && !held.IsNull ? RowId(held) : (0, null);
+			if (!entries.TryGetValue("ID", out var value) || value == null || value.IsNull) return (0, null);
+			if (!uint.TryParse(Text.Of(value), out var id)) return (0, null);
+			return (id, Schema.PlainNameOf(new SI.Bindable.Reference.Core.PropertyID(id)));
+		}
+		catch { return (0, null); }
 	}
 
 	/// <summary>The record behind a menu row reached by a path of indices, entry by entry, one level down.</summary>

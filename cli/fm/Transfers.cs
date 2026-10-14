@@ -258,16 +258,10 @@ internal static partial class Program
 		.FirstOrDefault();
 
 	/// <summary>
-	/// "£6.75M", "750K", "€1.2m", "12,000,000" or "12000000" in whole units of money; null if it
-	/// is anything else. Strict on purpose: "25 games" is not 25M.
+	/// An amount of money in whole units, as the game writes it ("£6.75M", "6,75M £", "2.619.752 £",
+	/// "673B £" in Turkish, where B is a thousand) or as it is typed ("750K", "12000000"); null if it is
+	/// anything else. Strict on purpose: "25 games" is not 25M. The letters and the decimal mark are
+	/// the game's own (MoneyFormat); K and M are taken as well where they mean nothing else.
 	/// </summary>
-	internal static long? Money(string text)
-	{
-		var match = System.Text.RegularExpressions.Regex.Match(text.Trim(), @"^[£€$]?\s*(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?\s*([kmb])?$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-		if (!match.Success) return null;
-
-		var multiplier = match.Groups[3].Value.ToUpperInvariant() switch { "K" => 1_000L, "M" => 1_000_000L, "B" => 1_000_000_000L, _ => 1L };
-		var number = match.Groups[1].Value.Replace(",", "") + match.Groups[2].Value;
-		return double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? (long)Math.Round(value * multiplier) : null;
-	}
+	internal static long? Money(string text) => MoneyFormat.Parse(text);
 }

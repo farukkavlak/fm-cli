@@ -79,6 +79,7 @@ internal static partial class Program
 		{
 			engineChecked = true;
 			await EngineTexts.Ensure(Fm);
+			await MoneyFormat.Learn(Fm);
 		}
 
 		// Aliases and unambiguous starts stand for the command; the rest of the code sees its name.

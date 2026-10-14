@@ -57,6 +57,7 @@ internal static class FmApi
 		"save" => Save(),
 		"dialog" => Dialogs.Open(q),
 		"translate" => Translations.Open(q),
+		"money" => Translations.Money(q["values"]),
 		"shot" => Shot(q),
 		"repaint" => Repaint(q["how"]),
 		"visible" => Visible(q["text"]),

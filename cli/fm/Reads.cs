@@ -773,17 +773,19 @@ internal static partial class Program
 
 		// The most he may be worth: the page takes round figures, so the largest of them that
 		// is not above what was typed is used, and said when it differs.
-		string maxValue = null;
+		long? maxValue = null;
 		if (Option(args, "--max-value") is { } typedValue)
 		{
-			string[] figures = ["£0", "£1K", "£10K", "£20K", "£40K", "£60K", "£100K", "£250K", "£500K", "£1M", "£2.5M", "£5M", "£7.5M", "£10M", "£15M", "£20M", "£30M", "£40M", "£60M", "£80M", "£100M"];
+			// The list's figures, in any currency's symbol and any language's letters.
+			long[] figures = [0, 1_000, 10_000, 20_000, 40_000, 60_000, 100_000, 250_000, 500_000, 1_000_000, 2_500_000, 5_000_000, 7_500_000,
+				10_000_000, 15_000_000, 20_000_000, 30_000_000, 40_000_000, 60_000_000, 80_000_000, 100_000_000];
 			if (Money(typedValue) is not { } limit || limit < 0)
 			{
 				Console.Error.WriteLine($"'{typedValue}': para olmalı (500K, 10M).");
 				return 64;
 			}
-			maxValue = figures.LastOrDefault(f => Money(f) is { } amount && amount <= limit) ?? figures[0];
-			if (Money(maxValue) != limit) Console.WriteLine($"(değer sınırı oyunun listesindeki {maxValue} olarak alındı)");
+			maxValue = figures.LastOrDefault(f => f <= limit);
+			if (maxValue != limit) Console.WriteLine($"(değer sınırı oyunun listesindeki {MoneyFormat.Short(maxValue.Value)} olarak alındı)");
 		}
 		if (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null)
 		{

@@ -168,7 +168,7 @@ internal static partial class Program
 
 	private static string Pounds(string raw) =>
 		double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
-			? $"£{Math.Round(v):N0}" : "-";
+			? MoneyFormat.Exact((long)Math.Round(v)) : "-";
 
 	/// <summary>
 	/// The sponsorship card, opened from the finances card's sponsorship tile: type, value per season,

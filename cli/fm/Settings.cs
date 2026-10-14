@@ -201,18 +201,6 @@ internal static partial class Program
 			return 1;
 		}
 
-		// Every command reads the game in English; another language leaves most of them blind.
-		if (wanted.Name == "dil" && now.Choices[target] != "English" && !args.Contains("--yes"))
-		{
-			var sure = Ui.Ask($"Dil {now.Choices[target]} olursa fm-cli'ın çoğu komutu oyunu okuyamaz. Yine de değiştireyim mi?", ["Evet, değiştir"]);
-			if (sure == null)
-			{
-				await LeavePreferences();
-				if (!Ui.Interactive) Console.Error.WriteLine("Dil değişince komutların çoğu çalışmaz; yine de istiyorsan --yes ekle.");
-				return 1;
-			}
-		}
-
 		var said = wanted.Kind switch
 		{
 			SettingKind.Slider => await Fm.Get("setcontrol", ("ptr", now.Pointer), ("value", target.ToString())),
@@ -246,6 +234,8 @@ internal static partial class Program
 			return 1;
 		}
 		Console.WriteLine($"{wanted.Name}: {Shown(wanted, ValueOf(now))} → {Shown(wanted, ValueOf(after))}");
+		// A new language, or new separators for money: the next command learns them again.
+		engineChecked = false;
 		return 0;
 	}
 

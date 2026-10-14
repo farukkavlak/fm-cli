@@ -170,7 +170,7 @@ internal static partial class Program
 			{
 				QueryKind.Flag => text == "True" ? "sakat" : "",
 				QueryKind.Months => Value(p, f) is { } months ? $"{text} · {Left((int)months)}" : text,
-				QueryKind.Money => Value(p, f) is { } money ? $"£{money:N0}/hafta".Replace(',', '.') : text,
+				QueryKind.Money => Value(p, f) is { } money ? $"{MoneyFormat.Exact((long)money)}/hafta" : text,
 				_ when f.Property == "ClubAverageRatingThisSeason" => Value(p, f) is { } r and > 0 ? r.ToString("0.00", CultureInfo.InvariantCulture) : "-",
 				_ => text,
 			};

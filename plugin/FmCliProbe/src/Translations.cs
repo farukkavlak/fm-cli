@@ -11,6 +11,25 @@ namespace FmCliProbe;
 /// </summary>
 internal static class Translations
 {
+	/// <summary>
+	/// Amounts of money as the game writes them in its language and its own preferences (the symbol, its
+	/// side, the separators, the letters for thousands and millions): from these the CLI learns to read
+	/// the amounts it finds on screen. One line each, the value and its text.
+	/// </summary>
+	public static string Money(string values)
+	{
+		var sb = new StringBuilder();
+		foreach (var part in (values ?? "").Split(',', System.StringSplitOptions.RemoveEmptyEntries))
+		{
+			if (!double.TryParse(part, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var value)) continue;
+			string text;
+			try { text = FM.UI.ChartCurrencyVisualFunctionLibrary.TranslateCurrencyValue(value) ?? ""; }
+			catch (System.Exception e) { text = $"<{e.GetType().Name}: {e.Message}>"; }
+			sb.AppendLine($"{part}\t{text}");
+		}
+		return sb.ToString();
+	}
+
 	public static string Open(NameValueCollection q)
 	{
 		// The engine's texts: where the game keeps them, and whether this language's are loaded.
