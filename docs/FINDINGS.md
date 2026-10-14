@@ -1708,3 +1708,25 @@ Happy, -4/-20 Content, -40 Slightly Unhappy, -64 Very Unhappy) sırayı tutuyor 
 `morale-happiness-1..5` + bir ara simge, 8 seviyeye bire bir değil. "Biraz Mutlu"/"Biraz Mutsuz" ne UI tablosunda ne motor
 yazılarında (motor 268883224–231: Delighted, Very Happy, Happy, …, Unhappy, Very Unhappy; 227–229 İngilizce dökümde yok) →
 Türkçede bu iki seviye çevrilmeden geliyor, sıralama ve renk yanlış. Moral (`Person.MoraleString`) İngilizce gösteriliyor.
+
+### 8.186 Bireysel antrenman: veriden okuma, satır kimliğiyle değiştirme (15 Ekim, Türkçe)
+Okuma sayfasız: `Human.Team.Players` satırlarının yanına `Judge = Human` (`/pathset`; `OOPTraining`, `AdditionalFocus` ve
+seçenek listeleri bu değişkeni istiyor, `/contexts`), sonra `<oyuncu>.PlayerTraining` → `TrainingPosition.NewPositionAndRoleRow`,
+`OOPTraining.IndividualOOPTrainingRoleRow`, `AdditionalFocus.IndividualTrainingTypeRow` (`DisplayValue` + `PropertyValue`;
+mevki/rol bit maskesi 4096, 274877906944 → int'e sığmıyor). `PlayerTraining.IsVisible` = sayfadaki tabloya girenler
+(rehabdaki iki oyuncu False; tablo 25, takım 27). Eski kaydırma taraması bu iki oyuncuyu zaten göstermiyordu; 7,1 → 2,3 sn.
+Değiştirme: tablodaki listeler `EventToPlugin` gönderiyor (`m_targetHandler` "training" = oyuncunun `PlayerTraining`'i,
+`m_dataToSendBinding` "trainingposition"/"additionalfocus" = `TrainingPosition`/`AdditionalFocus` nesnesi; liste seçilen satırı
+bu nesnenin içine yazıp nesneyi gönderiyor) → sayfasız göndermek nesneyi yerinde değiştirmeyi gerektirir (kilitlenme riski),
+denenmedi. Bunun yerine eklentide `/rowcontrols?event=<id>&gen=`: o olayı gönderen her liste, satırının öğesiyle
+(`StreamedListView.m_boundElements` satır öğesi → kaynak sırası, `GetItemFromSource`; `IndexOf` satırı değil kaydırma kutusunu
+buluyor) — öğe `fmcli.rowctl.g<gen>.<k>`'ya konur, CLI `UniqueId`'yi okur. Olaylar: `EventFmxPlayerTrainingPositionChanged`,
+`EventFmxPlayerOOPTrainingRoleChanged`, `EventFmxPlayerTrainingFocusChanged`. Sonuç oyuncunun verisinden doğrulanır (değişene
+kadar; gelmezse "oyun değişikliği almadı"). Görünüm listesi `Binds == "selectedView"`, Liste = değer 1 (Ayrıntılı = 0'da tabloda
+liste yok, kart oyuncu seçilince açılıyor). Bu tablo satırları sanallaştırmıyor: sayfa 806 px kaydırılınca da 25 satır bağlı;
+kaydıran dış sayfa, tablonun `ScrollToElement`'i (`OnScrollToElementBindingValueChanged`) konumu değiştirmedi → kaydırma yazılmadı,
+satır bulunmazsa açık hata. Ölçüm: liste 3/3 aynı (eskisiyle aynı 25 satır), değiştirme 10/10 + 3'lü tek komut + alt menüler
+(mevki, topsuz rol) doğru ve yalnızca hedef oyuncuda (tam liste farkı), başka sayfadan / sayfa açıkken 3–4 sn. Girdi seçeneğin
+eklenti yazısıyla ve oyundaki karşılığıyla (`GameWords.Of`) eşleniyor ("Çabukluk", "Cabuk" → Quickness); eskiden yalnız
+eklentinin İngilizcesiyle. Türkçe oyunda İngilizce alt rol adı tutmuyor (rol adları oyunun dilinde geliyor). İngilizcede ve
+küçük ekranda denenmedi.

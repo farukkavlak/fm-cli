@@ -1,16 +1,25 @@
-using System.Globalization;
 using System.Text.Json;
 
 namespace FmCli;
 
 /// <summary>
-/// Individual training (FINDINGS §8.51): per player a position or role to train in, a role out
-/// of possession, and an extra focus. The first two are submenus (a position, then its roles).
+/// Individual training (FINDINGS §8.51, §8.186): per player a position or role to train in, a role
+/// out of possession, and an extra focus. Read from the players' own data, no page; changed with
+/// the game's own lists on the page, found by what they send and whose row they are in.
 /// </summary>
 internal static partial class Program
 {
-	private const string TrainingList = "dropdown-base-regular-leading-icon-label";
 	private static readonly string[] TrainingParts = [L("Mevki/rol"), L("Topsuz rol"), L("Odak")];
+
+	/// <summary>What each part is, under a player's PlayerTraining, and the event its list on the page sends.</summary>
+	private static readonly (string Shown, string Event)[] TrainingData =
+	[
+		("TrainingPosition.NewPositionAndRoleRow.DisplayValue", "EventFmxPlayerTrainingPositionChanged"),
+		("OOPTraining.IndividualOOPTrainingRoleRow.DisplayValue", "EventFmxPlayerOOPTrainingRoleChanged"),
+		("AdditionalFocus.IndividualTrainingTypeRow.DisplayValue", "EventFmxPlayerTrainingFocusChanged"),
+	];
+
+	private sealed record TrainingRow(string Name, string Id, string Row, string[] Parts);
 
 	private static async Task<int> IndividualTraining(string[] args)
 	{
@@ -18,108 +27,181 @@ internal static partial class Program
 		if (args.Any(a => a.StartsWith("--trait", StringComparison.Ordinal))) return await TraitTraining(args);
 		if (await NotNow() is { } refused) return refused;
 
-		var opened = await OpenSubpage(Screen.Training, Screen.IndividualTraining,
-			async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == "ViewDropdown"));
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		// The list view has every player's lists in a row; the detailed one is a card per player.
-		await Until(async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == "ViewDropdown"), seconds: 8, every: 0.5);
-		await Fm.Get("select", ("name", "ViewDropdown"), ("choice", "List"));
-
-		async Task<List<JsonElement>> Visible() => (await Fm.GetJson("namedrows", ("dropdown", TrainingList), ("count", "3"))).EnumerateArray().ToList();
-		if (!await Until(async () => (await Visible()).Count > 0, seconds: 10, every: 0.5))
+		var all = await TrainingRows();
+		if (all.Count == 0)
 		{
-			Console.Error.WriteLine(L("Bireysel antrenman sayfası açılmadı."));
+			Console.Error.WriteLine(L("Bireysel antrenman okunamadı."));
 			return 1;
 		}
-
-		async Task<JsonElement?> Find(string name)
-		{
-			foreach (var at in new[] { 0, 0.25, 0.5, 0.75, 1 })
-			{
-				await Fm.Get("namedrows", ("dropdown", TrainingList), ("to", at.ToString(CultureInfo.InvariantCulture)));
-				await Task.Delay(400);
-				if ((await Visible()).Cast<JsonElement?>().FirstOrDefault(r => Field(r.Value, "Name") == name) is { } row) return row;
-			}
-			return null;
-		}
-
-		var all = new Dictionary<string, JsonElement>();
-		foreach (var at in new[] { 0, 0.25, 0.5, 0.75, 1 })
-		{
-			await Fm.Get("namedrows", ("dropdown", TrainingList), ("to", at.ToString(CultureInfo.InvariantCulture)));
-			await Task.Delay(400);
-			foreach (var row in await Visible()) all[Field(row, "Name")] = row;
-		}
-
-		static string Value(JsonElement row, int part) =>
-			row.GetProperty("Lists").EnumerateArray().ElementAtOrDefault(part) is { ValueKind: JsonValueKind.Object } list ? Field(list, "Value") : "";
 
 		var words = Words(args).ToList();
 		var changes = new[] { ("--position", 0), ("--role", 1), ("--focus", 2) }
 			.Where(c => Option(args, c.Item1) != null).Select(c => (Option(args, c.Item1), c.Item2)).ToList();
 		if (words.Count > 0)
 		{
-			var names = Matching(all.Keys, n => n, words[0]);
-			if (names.Count != 1)
+			var players = Matching(all, r => r.Name, words[0]);
+			if (players.Count != 1)
 			{
-				Console.Error.WriteLine(names.Count == 0 ? L($"Listede '{words[0]}' yok.") : L($"'{words[0]}' {names.Count} oyuncuya uyuyor: {string.Join(", ", names)}"));
+				Console.Error.WriteLine(players.Count == 0 ? L($"Listede '{words[0]}' yok.") : L($"'{words[0]}' {players.Count} oyuncuya uyuyor: {string.Join(", ", players.Select(p => p.Name))}"));
 				return 1;
 			}
-			var name = names[0];
+			var player = players[0];
 			foreach (var (wanted, part) in changes)
-			{
-				if (await Find(name) is not { } row) { Console.Error.WriteLine(L($"{name} listede kayboldu.")); return 1; }
-				var list = row.GetProperty("Lists")[part];
-				var pointer = Field(list, "Pointer");
-				var top = list.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
-
-				// "Midfielder (Centre)>Box-To-Box Midfielder" walks a submenu; a plain name is a top choice.
-				var path = wanted.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-				var first = top.FirstOrDefault(c => Fold(c) == Fold(path[0])) ?? top.FirstOrDefault(c => Fold(c).StartsWith(Fold(path[0]), StringComparison.Ordinal));
-				if (first == null)
-				{
-					Console.Error.WriteLine(L($"{TrainingParts[part]}: '{path[0]}' yok. Seçenekler: {string.Join(" · ", top)}"));
-					return 1;
-				}
-				string said;
-				if (path.Length == 1 && !list.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == first + " ›"))
-					said = await Fm.Get("select", ("ptr", pointer), ("choice", first), ("fire", "1"));
-				else
-				{
-					if (path.Length == 1)
-					{
-						var under = await Fm.GetJson("menu", ("ptr", pointer), ("names", first));
-						Console.Error.WriteLine(L($"{TrainingParts[part]}: '{first}' bir alt menü; seçenekleri: {string.Join(" · ", under.EnumerateArray().Select(x => x.GetString()))}  (ör. \"{first}>…\")"));
-						return 1;
-					}
-					said = await Fm.Get("select", ("ptr", pointer), ("names", string.Join(">", new[] { first }.Concat(path.Skip(1)))), ("fire", "1"));
-				}
-				if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-				var before = Field(list, "Value");
-				var now = before;
-				await Until(async () => (await Find(name) is { } r && (now = Value(r, part)) != before), seconds: 6, every: 0.5);
-				Console.WriteLine($"{name} · {TrainingParts[part]}: {before} → {now}");
-			}
+				if (await ChangeTraining(player, part, wanted) is { } failed) return failed;
 			if (changes.Count > 0) return 0;
-			var shown = all[name];
 			if (args.Contains("--json"))
 			{
-				Console.WriteLine(JsonOut.Of(new { Name = name, Position = Value(shown, 0), OutOfPossession = Value(shown, 1), Focus = Value(shown, 2) }));
+				Console.WriteLine(JsonOut.Of(new { player.Name, Position = GameWords.Of(player.Parts[0]), OutOfPossession = GameWords.Of(player.Parts[1]), Focus = GameWords.Of(player.Parts[2]) }));
 				return 0;
 			}
-			for (var i = 0; i < 3; i++) Console.WriteLine($"{TrainingParts[i]}: {Value(shown, i)}");
+			for (var i = 0; i < 3; i++) Console.WriteLine($"{TrainingParts[i]}: {GameWords.Of(player.Parts[i])}");
 			return 0;
 		}
 
+		var sorted = all.OrderBy(r => r.Name, StringComparer.OrdinalIgnoreCase).ToList();
 		if (args.Contains("--json"))
 		{
-			Console.WriteLine(JsonOut.Of(all.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
-				.Select(r => new { Name = Field(r, "Name"), Position = Value(r, 0), OutOfPossession = Value(r, 1), Focus = Value(r, 2) })));
+			Console.WriteLine(JsonOut.Of(sorted.Select(r => new { r.Name, Position = GameWords.Of(r.Parts[0]), OutOfPossession = GameWords.Of(r.Parts[1]), Focus = GameWords.Of(r.Parts[2]) })));
 			return 0;
 		}
-		Table.Write([L("OYUNCU"), .. TrainingParts.Select(p => p.ToUpperInvariant())], all.Values.OrderBy(r => Field(r, "Name"), StringComparer.OrdinalIgnoreCase)
-			.Select(r => new[] { Field(r, "Name"), Value(r, 0), Value(r, 1), Value(r, 2) }).ToList());
-		Console.WriteLine(L("\nDeğiştirmek: training <oyuncu> --focus \"Quickness\" · --position \"Midfielder (Centre)>Box-To-Box Midfielder\" · --role \"…\""));
+		Table.Write([L("OYUNCU"), .. TrainingParts.Select(p => p.ToUpperInvariant())], sorted.Select(r => (string[])[r.Name, .. r.Parts.Select(GameWords.Of)]).ToList());
+		Console.WriteLine(L("\nDeğiştirmek: training <oyuncu> --focus \"<odak>\" · --role \"<rol>\" · --position \"<mevki>><rol>\"  (yanlış bir değer seçenekleri listeler)"));
 		return 0;
+	}
+
+	/// <summary>
+	/// The first team's individual training, from each player's own data. Part of it is told
+	/// only to someone looking (a variable named Judge: the manager), put beside the players'
+	/// rows; a player the game leaves off the page (one in rehab) has IsVisible false.
+	/// </summary>
+	private static async Task<List<TrainingRow>> TrainingRows()
+	{
+		JsonElement players;
+		try { players = await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true); }
+		catch (FmError) { return []; }
+		if (players.ValueKind != JsonValueKind.Array) return [];
+		var rows = players.EnumerateArray().Select(p => (Name: Field(p, "Name"), Id: Field(p, "UniqueId"), Row: Field(p, "Row")))
+			.Where(r => r.Row.Contains('.') && r.Name.Length > 0).ToList();
+		if (rows.Count == 0) return [];
+
+		var under = rows[0].Row[..rows[0].Row.LastIndexOf('.')];
+		// The manager is bound by this very call when nothing has bound him yet: then a frame later.
+		if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.Judge"), ("from", "Human"))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.2))
+			return [];
+
+		var props = "IsVisible," + string.Join(",", TrainingData.Select(d => d.Shown));
+		var read = await PullEach(rows.Select(r => (r.Row + ".PlayerTraining", props)).ToList());
+		return rows.Zip(read)
+			.Where(x => Field(x.Second, "IsVisible") == "True")
+			.Select(x => new TrainingRow(x.First.Name, x.First.Id, x.First.Row, TrainingData.Select(d => Field(x.Second, d.Shown)).ToArray()))
+			.ToList();
+	}
+
+	/// <summary>One part of a player's training, with the game's own list in his row; null when done.</summary>
+	private static async Task<int?> ChangeTraining(TrainingRow player, int part, string wanted)
+	{
+		var control = await TrainingControl(player, TrainingData[part].Event);
+		if (control is not { } list)
+		{
+			Console.Error.WriteLine(L($"{player.Name}: bireysel antrenman sayfasında satırı bulunamadı."));
+			return 1;
+		}
+		var pointer = Field(list, "Pointer");
+		var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		var top = choices.Select(c => c.Replace(" ›", "")).ToList();
+
+		// A choice is matched as the plugin gives it and as the game shows it, which is how it is listed.
+		bool Is(string choice, string typed, bool start) =>
+			new[] { choice, GameWords.Of(choice) }.Any(c => start ? Fold(c).StartsWith(Fold(typed), StringComparison.Ordinal) : Fold(c) == Fold(typed));
+
+		// "Midfielder (Centre)>Box-To-Box Midfielder" walks a submenu; a plain name is a top choice.
+		var path = wanted.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+		if (path.Length == 0) path = [""];
+		var first = top.FirstOrDefault(c => Is(c, path[0], false)) ?? top.FirstOrDefault(c => path[0].Length > 0 && Is(c, path[0], true));
+		if (first == null)
+		{
+			Console.Error.WriteLine(L($"{TrainingParts[part]}: '{path[0]}' yok. Seçenekler: {string.Join(" · ", top.Select(GameWords.Of))}"));
+			return 1;
+		}
+		var submenu = choices.Contains(first + " ›");
+		var leaf = first;
+		if (submenu)
+		{
+			var under = (await Fm.GetJson("menu", ("ptr", pointer), ("names", first))).EnumerateArray().Select(x => x.GetString() ?? "").ToList();
+			var typed = path.Length > 1 ? path[1] : "";
+			leaf = under.FirstOrDefault(c => Is(c, typed, false)) ?? under.FirstOrDefault(c => typed.Length > 0 && Is(c, typed, true));
+			if (leaf == null)
+			{
+				Console.Error.WriteLine(path.Length == 1
+					? L($"{TrainingParts[part]}: '{GameWords.Of(first)}' bir alt menü; seçenekleri: {string.Join(" · ", under)}  (ör. \"{GameWords.Of(first)}>…\")")
+					: L($"{TrainingParts[part]}: '{GameWords.Of(first)}' altında '{typed}' yok. Seçenekler: {string.Join(" · ", under)}"));
+				return 1;
+			}
+		}
+		var before = player.Parts[part];
+		if (Is(before, leaf, false))
+		{
+			Console.WriteLine(L($"{player.Name} · {TrainingParts[part]}: zaten {GameWords.Of(before)}"));
+			return null;
+		}
+
+		var said = submenu
+			? await Fm.Get("select", ("ptr", pointer), ("names", $"{first}>{leaf}"), ("fire", "1"))
+			: await Fm.Get("select", ("ptr", pointer), ("choice", first), ("fire", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+
+		// Taken when the player's own data says so.
+		var now = before;
+		await Until(async () =>
+		{
+			var read = await PullEach([(player.Row + ".PlayerTraining", TrainingData[part].Shown)]);
+			now = Field(read[0], TrainingData[part].Shown);
+			return now.Length > 0 && now != before;
+		}, seconds: 10, every: 0.25);
+		if (now == before)
+		{
+			Console.Error.WriteLine(L($"{player.Name} · {TrainingParts[part]}: oyun değişikliği almadı ({GameWords.Of(before)})."));
+			return 1;
+		}
+		Console.WriteLine($"{player.Name} · {TrainingParts[part]}: {GameWords.Of(before)} → {GameWords.Of(now)}");
+		player.Parts[part] = now;
+		return null;
+	}
+
+	/// <summary>
+	/// The list on the page that sends this event from the player's row: the page in its list
+	/// view (the view list is told by what it writes, the view by its number), then each list's
+	/// row by the player it is for.
+	/// </summary>
+	private static async Task<JsonElement?> TrainingControl(TrainingRow player, string sends)
+	{
+		async Task<List<JsonElement>> Lists() =>
+			(await Fm.GetJson("rowcontrols", ("event", sends), ("gen", Environment.TickCount64.ToString()))).EnumerateArray().ToList();
+		async Task<JsonElement?> ViewList() =>
+			(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d.Value, "Binds") == "selectedView");
+
+		if ((await Lists()).Count == 0)
+		{
+			var opened = await OpenSubpage(Screen.Training, Screen.IndividualTraining, async () => await ViewList() != null);
+			if (opened.StartsWith("error", StringComparison.Ordinal)) { Console.Error.WriteLine(opened); return null; }
+			if (await ViewList() is { } view && Field(view, "Value") != "1")
+				await Fm.Get("select", ("ptr", Field(view, "Pointer")), ("value", "1"));
+			if (!await Until(async () => (await Lists()).Count > 0, seconds: 15, every: 0.25)) return null;
+		}
+
+		// Each list's row is read for whose it is; the rows are laid out together, so one reading
+		// that has every row's player is the whole table.
+		JsonElement? found = null;
+		await Until(async () =>
+		{
+			var lists = await Lists();
+			var items = lists.Where(l => Field(l, "Item").Length > 0).ToList();
+			if (items.Count == 0) return false;
+			var ids = await PullEach(items.Select(l => (Field(l, "Item"), "UniqueId")).ToList());
+			var at = ids.FindIndex(i => Field(i, "UniqueId") == player.Id);
+			if (at >= 0) found = items[at];
+			return found != null || ids.All(i => Field(i, "UniqueId").Length > 0);
+		}, seconds: 10, every: 0.25);
+		return found;
 	}
 }

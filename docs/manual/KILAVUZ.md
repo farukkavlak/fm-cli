@@ -700,12 +700,16 @@ fm opposition --clear                        hepsini temizle
 
 ```
 fm training                                    herkesin mevki/rol, topsuz rol ve odak eğitimi
-fm training Kanté --focus Endurance            ek odak (None: kaldır)
-fm training Kanté --position "Midfielder (Centre)>Central Midfielder"
-fm training Kanté --position "Midfielder (Centre)"   o alt menüdeki rolleri listeler
+fm training Waine --focus Çabukluk             ek odak (Yok: kaldır); yanlış bir değer seçenekleri listeler
+fm training Waine --position "Striker (Core)>Pivot Santrafor"
+fm training Waine --position "Striker (Core)"  o alt menüdeki rolleri listeler
+fm training Waine --role "Forvetler>Merkez Forvet"   topsuz rol de alt menülü
 fm training Fred --report                      raporu hazırlayabilecek antrenörler (terminalde okla seçtirir)
 fm training Fred --report --coach zeki         antrenörden rapor iste ve göster
 ```
+
+Değerler oyunun dilinde, listede göründüğü gibi yazılır (baştan bir parçası yeter). Liste sayfa açmadan okunur;
+değiştirmek için komut Antrenman › Bireysel Antrenman'ı kendisi açar.
 
 Rapor bir mesaj olarak gelir; komut onu açıp basar:
 

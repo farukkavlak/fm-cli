@@ -26,7 +26,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
 - [ ] **`Task.Delay` — 89 yer.** Her biri sınıflanacak: döngüde yoklama aralığı (sorun yok) mı, "bekle sonra yap" mı.
   Dosya: satırlar —
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
-  ~~Happiness 148 195~~ · IndividualTraining 40 50 · Intensity 43 54 106 · Jobs 231 · Launcher 213 269 · League 243 ·
+  ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · Intensity 43 54 106 · Jobs 231 · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · Matches 82 · Mentoring 45 188 205 217 246 285 297 331 · Numbers 158 177 ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
@@ -54,6 +54,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     "öncekinden farklı ve art arda iki kez aynı" olunca kabul, liste takımın bütün oyuncuları (kulüp verisi) okunana kadar
     0 / 0,5 / 1 (gerekirse ara onda birler) geziliyor. Üç durumda aynı çıktı, tek oyuncu ve `--why` doğru (§8.185).
     İngilizcede denenmedi.
+  - [x] IndividualTraining 40 50 (kaydırmadan sonra 400 ms, sabit 0–1 taraması): liste artık hiç sayfa açmıyor, oyuncuların
+    verisinden (`PlayerTraining`, `Judge = Human`, sayfadakiler `IsVisible`); değiştirme oyunun kendi listesiyle ama liste
+    "List" yazısı / öğe adı / ad yazısıyla değil, gönderdiği olay + satırın oyuncusu (`UniqueId`, eklenti `/rowcontrols`) ile
+    bulunuyor, görünüm `selectedView` = 1, sonuç veriden doğrulanıyor. 7,1 → 2,3 sn; 10/10 + çoklu + alt menüler (§8.186).
+    Rehabdaki 2 oyuncu listede yok, oyunun tablosunda da yoklar (aynı 25). İngilizcede ve küçük ekranda denenmedi.
   - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel isteyen bir söz
     konuşması lazım; o an oyunda yok, ölçülmeden değiştirilmedi. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi

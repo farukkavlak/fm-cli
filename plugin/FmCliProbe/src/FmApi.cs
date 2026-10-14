@@ -86,6 +86,7 @@ internal static class FmApi
 		"scoped" => Scoped.Handle(q),
 		"opposition" => Opposition.Current(),
 		"namedrows" => NamedRows.Read(q),
+		"rowcontrols" => RowControls.Read(q),
 		"talk" => Talk.Current(),
 		"state" => State.Current(),
 		"tactic" => Tactics.Current(),

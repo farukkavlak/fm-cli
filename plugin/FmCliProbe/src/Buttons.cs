@@ -640,22 +640,22 @@ internal static class Buttons
 	/// </summary>
 	private static string Summary(EventContextBase context, string listName)
 	{
-		var typeName = context.GetIl2CppType().FullName;
-		var text = Short(typeName).Replace("EventContext", "").Replace("Context", "");
-
-		var shape = ShapeOf(typeName);
-		var id = shape.Type?.GetProperty("m_id", BindingFlags.Public | BindingFlags.Instance);
-		if (id != null)
-		{
-			try
-			{
-				var value = id.GetValue(shape.Cast.Invoke(context, null))?.ToString();
-				if (!string.IsNullOrEmpty(value) && value != "None") text += ":" + value;
-			}
-			catch { }
-		}
-
+		var text = Short(context.GetIl2CppType().FullName).Replace("EventContext", "").Replace("Context", "");
+		if (EventId(context) is { } id) text += ":" + id;
 		return listName is "Events" or "SelectionEvents" or "ShortcutEvent" ? text : $"{listName}→{text}";
+	}
+
+	/// <summary>Which simulation event a carrier of them sends (EventFmxPlayerTrainingFocusChanged…); null for any other.</summary>
+	internal static string EventId(EventContextBase context)
+	{
+		try
+		{
+			var shape = ShapeOf(context.GetIl2CppType().FullName);
+			var id = shape.Type?.GetProperty("m_id", BindingFlags.Public | BindingFlags.Instance);
+			var value = id?.GetValue(shape.Cast.Invoke(context, null))?.ToString();
+			return string.IsNullOrEmpty(value) || value == "None" ? null : value;
+		}
+		catch { return null; }
 	}
 
 	private static string DropdownsJson(bool deep)
