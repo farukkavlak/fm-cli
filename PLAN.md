@@ -12,8 +12,8 @@
 ## Şu an (14 Ekim 2026)
 
 - **İlk öncelik taşınabilirlik** (Faruk, 13 Ekim): dil / ayar / lig / kayıt / makine / sürüm / platform bağımlılıklarını
-  kaldırmak; yeni özellik yok. İş listesi `docs/BAGIMLILIKLAR.md` en üstteki CHECKLIST; `tools/autopilot.sh` turları
-  madde madde eritiyor (talimat `tools/autopilot-prompt.md`).
+  kaldırmak; yeni özellik yok. İş listesi `docs/BAGIMLILIKLAR.md` en üstteki CHECKLIST; oturumda madde madde
+  ilerleniyor, her madde bitince Faruk'a haber verilip clear atılıyor (otomatik döngü 14 Ekim'de kaldırıldı).
 - Yeni bir alan açmanın aracı: okuma için `/pull?path=&props=[&list=1]` (ekransız, §8.40; değişken isteyen özellik
   `/contexts` + `/pathset`, §8.129); tıklama için `fm open`, `fm buttons`, `fm press`, `fm dropdowns`, `fm select`.
 - Eski "Sıradaki işler (7 Ekim)" ve "Bilinen hatalar" listelerinin hepsi bitti ya da aşağıdaki bölümlere taşındı.
@@ -593,7 +593,7 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 - Öğleden sonra (Faruk: "Adamın oyunu tr ise tr görecek"): gösterim ve CLI etiketleri oyunun dilinde (§8.173–8.174);
   akşam rol adları, İngilizce oynama akışı (§8.175), mesaj gövdesi/ekleri kimlikle (§8.176), konumla okuma taraması,
   yüzde (§8.177). Türkçe ve İngilizce tarama 49/50. Kayıt bir ara 13 Temmuz'a döndü (`save --yes` unutuldu).
-- Akşam: BAGIMLILIKLAR CHECKLIST'i ve `tools/autopilot.sh`. Otomatik turlar: `reply` cevapları (§8.178), Bridge
+- Akşam: BAGIMLILIKLAR CHECKLIST'i ve otomatik tur döngüsü (aynı akşam kaldırıldı). Turlarda: `reply` cevapları (§8.178), Bridge
   beklemeleri ölçüldü (§8.179), `table` 8,7 → 2,6 sn, `coaches` beklemeleri ve yarım sayfa (§8.180). FINDINGS, PLAN ve
   hafıza dosyaları sadeleştirildi (veri korunarak).
 - Otomatik tur: `next`'in `Settled` beklemesi 16 ilerlemede ölçüldü (başlama ≤1,24 sn / 4 sn, bitiş titremesi ≤0,53 sn /
