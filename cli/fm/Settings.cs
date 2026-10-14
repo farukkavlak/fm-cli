@@ -225,7 +225,8 @@ internal static partial class Program
 			return Report(said);
 		}
 
-		var confirmed = await Fm.Get("click", ("text", "Confirm"));
+		// The preferences' own Confirm: a page left underneath (responsibilities) has one too.
+		var confirmed = await Fm.Get("click", ("text", "Confirm"), ("name", "ConfirmButton"));
 		if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
 		await Until(async () => (await Fm.GetJson("texts", ("anchor", "All Preferences"), ("up", "0"))).GetArrayLength() == 0, seconds: 5, every: 0.25);
 
@@ -306,12 +307,13 @@ internal static partial class Program
 		return form.Count == 0 ? null : form;
 	}
 
-	/// <summary>Closes the preferences with nothing changed: "Confirm" commits only what was chosen.</summary>
+	/// <summary>Closes the preferences with nothing changed.</summary>
 	private static async Task LeavePreferences()
 	{
 		async Task<bool> Open() => (await Fm.GetJson("texts", ("anchor", "All Preferences"), ("up", "0"))).GetArrayLength() > 0;
 		if (!await Open()) return;
-		await Fm.Get("click", ("text", "Confirm"));
+		// Its close button, which drops whatever was left unconfirmed (CancelPreferenceChanges).
+		await Fm.Get("press", ("event", "CancelPreferenceChanges"));
 
 		// The page fades out over a moment; a command that starts before it is gone finds a
 		// page that stops answering under it.
