@@ -1639,3 +1639,11 @@ FM'i dışarıdan bir ajana/CLI'a oynatan mevcut proje bulunamadı (Nexus, ModDB
 ## 10. Yeni bulgular (en yeni en altta)
 
 Buradan sonrası `cat >>` ile eklenir: `### 8.N Başlık (tarih, dil)` + 3–6 satır.
+
+### 8.181 `next` beklemesi ölçüldü: başlama ≤1,24 sn, bitişte ≤0,53 sn titreme (14 Ekim, Türkçe)
+`/next` sonrası `/state` ~25 ms'de bir okundu, 16 ilerleme (27 Tem → 1 Ağu, mesaj/teklif/maç günü durakları dahil). İlk
+değişiklik 0,34–1,24 sn'de (`Settled` 4 sn bekliyor). `Processing` bitince durum kısa süre oynuyor: CanContinue →
+NewsAggregator → CanContinue (0,53 sn), CanContinue → NeedAction (0,1 sn), CanContinue → Fixtures → Tactics (0,42 sn);
+"iki okuma 700 ms arayla aynı" bunu örtüyor. Bir adımda `Processing` hiç gelmedi, yalnız saat 62 → 65. Durak sonrası
+"basış yutuldu" bu 16'da görülmedi. `game.GameManagersNotContinuedCount` (1 → 0) `Processing` ile aynı anda değişiyor,
+ayrı bir işaret değil. Kod değişmedi.

@@ -596,3 +596,5 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 - Akşam: BAGIMLILIKLAR CHECKLIST'i ve `tools/autopilot.sh`. Otomatik turlar: `reply` cevapları (§8.178), Bridge
   beklemeleri ölçüldü (§8.179), `table` 8,7 → 2,6 sn, `coaches` beklemeleri ve yarım sayfa (§8.180). FINDINGS, PLAN ve
   hafıza dosyaları sadeleştirildi (veri korunarak).
+- Otomatik tur: `next`'in `Settled` beklemesi 16 ilerlemede ölçüldü (başlama ≤1,24 sn / 4 sn, bitiş titremesi ≤0,53 sn /
+  1,4 sn); pay yeterli, kod değişmedi (§8.181). Kaptanlar onaylandı, iki Salford teklifi reddedildi; oyun maç gününde.

@@ -36,9 +36,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     pay. "Yol boş" ile "henüz gelmedi" aynı cevap (`{}`) — FINDINGS §8.179.
   - [x] `table`: olmayan `CurrentComp5..8` artık beklenmiyor (`ClubCompetitions`, tek okuma); 8,7 → 2,5–2,9 sn, üç
     durumda ve dört turnuva adıyla aynı sonuç (§8.179).
-  - [ ] Clock 148 157 179 (`next`'in `Settled`, `Unemployed`): 148/157 yoklama aralığı ama "4 sn içinde değişmezse sakin
-    say" ve "1,4 sn boşta = bitti" süreye dayanıyor; ölçmek için zaman ilerlemeli. Kaptan seçimi mesajı cevap bekliyor —
-    Faruk 14 Ekim: oyun içi seçimler serbest, kaptanı kendin seç, sonra ölç. 179 için işsiz bir kayıt lazım.
+  - [x] Clock 148 157 (`next`'in `Settled`): 16 ilerlemede ölçüldü, değişiklik gerekmedi. Basıştan sonra ilk değişiklik
+    0,34–1,24 sn (sınır 4 sn, ≥3 kat pay); iş bitince durum 0,1–0,53 sn titriyor (CanContinue→NewsAggregator/NeedAction/
+    Fixtures→…), "1,4 sn sakin" bunu örtüyor (2,6 kat). Ayrı bir "bitti" işareti yok: `GameManagersNotContinuedCount`
+    `Processing`'i birebir izliyor; bir adımda `Processing` hiç görünmedi, yalnız saat değişti (§8.181).
+  - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
     (değişmezse 3 sn; eskiden sabit 1,5); 20 atama + 2 `--auto` üç durumda doğru (§8.180). İngilizcede denenmedi.
   - [x] `coaches` 3/10: okuma yalnız tam ızgarayı ("ad, görev, dokuz kutu+yıldız", iş yüküne kadar) kabul ediyor; 12
