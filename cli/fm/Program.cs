@@ -1063,7 +1063,8 @@ internal static partial class Program
 		}
 
 		// A signing waiting to be confirmed: the deal, the contract, what is left to spend and the staff teams.
-		if (rest.Contains("Confirmation") && rest.Contains("Offered Contract"))
+		// A coach's has no status line; his job is drawn without a path after his name.
+		if (rest.Contains("Offered Contract") && page.Any(t => t.Path == "contract.Wage.DisplayValue"))
 		{
 			Signing(rest, page);
 			return;
@@ -1168,17 +1169,20 @@ internal static partial class Program
 			// transfer and loan status, the clubs that have bid.
 			Console.WriteLine(L($"\n  Ek: teklif — {One("Person.Name")} ({described})"));
 			Console.WriteLine(L($"    Bedel: {fee}"));
-			// The terms come as label and value between the details' heading and the report's.
-			var details = rest.IndexOf("Additional Details");
-			var report = rest.FindIndex(details + 1, t => t is "Coach Report" or "Scouting Report");
-			for (var i = details + 1; i + 1 < (report > details ? report : rest.Count); i += 2) Console.WriteLine($"    {rest[i]}: {rest[i + 1]}");
-			// Our player's carries the coach's view of him; one we bid for, the scouts'. The grade's
-			// letter is drawn without a path just before the verdict.
+			// The terms: each a term ("binding.PropertyValue") and what it says ("binding.DisplayValue").
+			for (var i = 0; i + 1 < page.Count; i++)
+				if (page[i].Path == "binding.PropertyValue" && page[i + 1].Path == "binding.DisplayValue")
+					Console.WriteLine($"    {GameWords.Of(page[i].Text)}: {page[i + 1].Text}");
+			// Our player's carries the coach's view of him; one we bid for, the scouts' ("Scout Report",
+			// "Scouting Report"). The report's heading and the grade's letter are drawn without a path
+			// just before the verdict.
 			var verdictAt = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
-			if (report > 0 && verdictAt > 0)
+			if (verdictAt > 0)
 			{
-				var grade = page[verdictAt - 1].Path.Length == 0 && page[verdictAt - 1].Text.Length <= 2 ? page[verdictAt - 1].Text + " · " : "";
-				Console.WriteLine(rest[report] == "Coach Report" ? L($"    Antrenör görüşü: {grade}{page[verdictAt].Text}") : L($"    Gözlemci görüşü: {grade}{page[verdictAt].Text}"));
+				var lettered = page[verdictAt - 1].Path.Length == 0 && page[verdictAt - 1].Text.Length <= 2;
+				var grade = lettered ? page[verdictAt - 1].Text + " · " : "";
+				var heading = verdictAt - (lettered ? 2 : 1) is >= 0 and var h ? page[h].Text : "";
+				Console.WriteLine(heading == "Coach Report" ? L($"    Antrenör görüşü: {grade}{page[verdictAt].Text}") : L($"    Gözlemci görüşü: {grade}{page[verdictAt].Text}"));
 			}
 			var listed = new[] { ("Transfer Status", "Player.TransferStatusDetails.TransferStatusDescription.Text"), ("Loan Status", "Player.LoanStatusDetails.TransferStatusDescription.Text") }
 				.Where(x => One(x.Item2).Length > 0).Select(x => $"{GameWords.Of(x.Item1)}: {One(x.Item2)}").ToList();
@@ -1356,14 +1360,22 @@ internal static partial class Program
 		}
 
 		// The scouts' focuses: how many, by priority, and each with where it stands.
-		if (rest[0] == "Recruitment Focuses" && rest.IndexOf("Ongoing") is > 0 and var ongoing)
+		if (rest[0] == "Recruitment Focuses" && page.Any(t => t.Path == "focusitem.Name"))
 		{
+			// By data path: each priority's count with its name drawn after it ("Ongoing" can come back
+			// as another English, "Obscure"), then each focus with its state and how many it found.
 			var priorities = new List<string>();
-			foreach (var kind in new[] { "Top", "Standard", "Ongoing" })
-				if (rest.IndexOf(kind) is > 0 and var k) priorities.Add($"{rest[k - 1]} {kind}");
-			Console.WriteLine(L($"\n  Ek: scouting odakları — {string.Join(" · ", rest.Skip(1).TakeWhile(t => !int.TryParse(t, out _)))}  ({string.Join(" · ", priorities)})"));
-			for (var i = ongoing + 1; i + 2 < rest.Count && rest[i + 2].EndsWith("players", StringComparison.Ordinal); i += 3)
-				Console.WriteLine($"    {rest[i]} — {rest[i + 1]}, {rest[i + 2]}");
+			for (var i = 0; i + 1 < page.Count; i++)
+				if (page[i].Path.StartsWith("Human.ScoutingInfo.RecruitmentFocuses.", StringComparison.Ordinal) && page[i].Path.EndsWith("FocusesCount", StringComparison.Ordinal))
+					priorities.Add($"{page[i].Text} {GameWords.Of(page[i + 1].Text)}");
+			var summary = page.Skip(1).TakeWhile(t => t.Path.Length == 0).Select(t => t.Text);
+			Console.WriteLine(L($"\n  Ek: scouting odakları — {string.Join(" · ", summary)}  ({string.Join(" · ", priorities)})"));
+			for (var i = 0; i < page.Count; i++)
+			{
+				if (page[i].Path != "focusitem.Name") continue;
+				var after = page.Skip(i + 1).TakeWhile(t => t.Path.Length == 0).Take(2).Select(t => GameWords.Of(t.Text)).ToList();
+				Console.WriteLine($"    {page[i].Text}{(after.Count > 0 ? $" — {string.Join(", ", after)}" : "")}");
+			}
 			Console.WriteLine(L("    Ayrıntı: scout"));
 			return;
 		}
@@ -1589,7 +1601,8 @@ internal static partial class Program
 		// between the wage and the contract's type.
 		string One(string path) => page.FirstOrDefault(t => t.Path == path).Text ?? "";
 		var name = One("Person.Name") is { Length: > 0 } n ? n : card[0];
-		var job = One("Person.PlayerDescription");
+		var job = One("Person.PlayerDescription") is { Length: > 0 } described ? described
+			: page.FindIndex(t => t.Path == "Person.Name") is >= 0 and var named && named + 1 < page.Count && page[named + 1].Path.Length == 0 ? GameWords.Of(page[named + 1].Text) : "";
 		Console.WriteLine(L($"\n  Ek: {name}{(job.Length > 0 ? $" — {job}" : "")}"));
 
 		if (card.Contains("Offer made") && One("feestring") is { Length: > 0 } deal) Console.WriteLine(L($"    Bonservis: {deal}"));
@@ -1609,7 +1622,7 @@ internal static partial class Program
 		var addons = new List<string>();
 		for (var i = 0; i < page.Count; i++)
 			if (page[i].Path == "contractaddon.AddOnNameString")
-				addons.Add(i + 1 < page.Count && page[i + 1].Path == "contractaddon.AddOnValueString" ? $"{page[i].Text} {page[i + 1].Text}" : page[i].Text);
+				addons.Add(i + 1 < page.Count && page[i + 1].Path == "contractaddon.AddOnValueString" ? $"{GameWords.Of(page[i].Text)} {page[i + 1].Text}" : GameWords.Of(page[i].Text));
 		if (addons.Count > 0) Console.WriteLine(L($"    Primler ve maddeler: {string.Join(" · ", addons)}"));
 		var verdictAt = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
 		if (verdictAt > 0)
