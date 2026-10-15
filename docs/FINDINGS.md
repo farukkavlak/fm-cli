@@ -1805,3 +1805,17 @@ değişmiş sayıyordu (ölçüldü: `Jamie Pardington` "N/A" → "Yok"). Yol `C
 başına ayrı dosya (`cache/turkish/...`, `cache/english/...`). Ölçüm (üç durum + iki dil): ilk bakış → `First:true`,
 ikinci bakış → `Contracts:[]`, başka dilin dosyası okunmuyor (TR ilk bakış EN'in yanında yeniden `First:true`).
 Üstte kalan `diff-*.json` ve `snapshot.json` önceki sürümlerin artığı; okunmuyor, silinmedi.
+
+### 8.191 "Acknowledge and Move On" etiketle değil gönderdiği olayla basılıyor (16 Ekim, TR + EN)
+Yardımcının son sözünü geçen düğme 8 yerde `press text="Acknowledge and Move On"` ile basılıyordu; yazı oyunun
+kendi cümlesi olduğu için başka dilde çevrilebilir. Eklenti `/buttons?json=1&gen=` yardımcının kartındaki her
+`SpeakToAction` düğmesine `Action` (oyunun aksiyon düğümü) veriyor; o düğümün `Event`'i 31
+(`EventFmxClearChanges`, `ActionID` 0) ise düğme yalnızca söyleneni kapatan düğmedir — etiketten bağımsız (bu
+kimlik mentorlukta kullanılıyordu, §8.188). Ölçüldü: TR ve EN'de "Acknowledge and Move On" → `{"Event":"31",
+"ActionID":"0"}`; aynı karttaki menü düğmeleri 27/0/0/44, hiçbiri 31 değil. Yeni `Acknowledge()` yardımcısı
+(Program) bu düğmeyi bulup işaretçisiyle basıyor, yoksa hiç basmıyor (eski kod her turda boşuna deniyordu).
+Ölçüm (training raporu isteği, `FM_TRACE=1`): eski kod 3 `press ?text=Acknowledge and Move On`; yeni kod tek
+`press ?ptr=0x…`. Üç durumda (kart zaten açık / başka sayfa açıkken / sayfa ilk açılırken) ve iki dilde rc=0;
+negatif: yardımcı kartı yokken (`propose` teklif ekranı) yeni kod hiç basmıyor (0 `press ?ptr=`). `tools/sweep.sh`
+50/50. Not: `propose` "Önerme ekranı açılmadı" hatası eski koddada aynı (bu değişiklikten değil). BoardRequests'te
+aynı karşılaştırma da kimliğe bağlandı; `Release`'teki "Is there anything else" cümle süzgeci ayrı iş.

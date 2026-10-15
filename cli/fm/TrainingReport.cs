@@ -37,7 +37,7 @@ internal static partial class Program
 		{
 			list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Request Training Report");
 			if (list.ValueKind == JsonValueKind.Object) return true;
-			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+			await Acknowledge();
 			return false;
 		}
 		if (!await Until(Listed, seconds: 10, every: 0.5))
@@ -83,7 +83,7 @@ internal static partial class Program
 			await Until(Listed, seconds: 5, every: 0.5);
 		}
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
-		await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+		await Acknowledge();
 
 		// The report is the new message that names him, the short way ("Kanté's training report", "Draper'in
 		// antrenman raporu"): its title is a sentence in the game's language, his name the same in any.

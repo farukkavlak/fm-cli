@@ -41,7 +41,7 @@ internal static partial class Program
 		async Task<bool> Offered()
 		{
 			if ((await Buttons()).Any(c => Field(c, "Label") == offer)) return true;
-			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+			await Acknowledge();
 			return false;
 		}
 		if (!await Until(Offered, seconds: 8, every: 0.5))

@@ -42,7 +42,7 @@ internal static partial class Program
 			removing = lists.FirstOrDefault(d => Field(d, "Label") == "Remove Trait");
 			busy = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(c => Field(c, "Label") == "Cancel Current Trait Training");
 			if (adding.ValueKind == JsonValueKind.Object || busy) return true;
-			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+			await Acknowledge();
 			return false;
 		}
 		if (!await Until(Ready, seconds: 10, every: 0.5))
@@ -107,7 +107,7 @@ internal static partial class Program
 
 		async Task<int> Done(string said)
 		{
-			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+			await Acknowledge();
 			Console.WriteLine(said);
 			return 0;
 		}

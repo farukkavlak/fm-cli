@@ -44,7 +44,7 @@ internal static partial class Program
 		async Task<bool> Offered()
 		{
 			if ((await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(c => Field(c, "Label") == ask)) return true;
-			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+			await Acknowledge();
 			return false;
 		}
 		if (!await Until(Offered, seconds: 10, every: 0.5))
@@ -77,7 +77,7 @@ internal static partial class Program
 		{
 			list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Release");
 			if (list.ValueKind == JsonValueKind.Object) return true;
-			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+			await Acknowledge();
 			return false;
 		}
 		if (!await Until(Listed, seconds: 10, every: 0.5))
@@ -153,7 +153,7 @@ internal static partial class Program
 		if (talk.ValueKind == JsonValueKind.Object && talk.TryGetProperty("Says", out var lines))
 			foreach (var line in lines.EnumerateArray().Select(l => l.GetString() ?? "").Where(l => !l.StartsWith('»') && !l.StartsWith("Is there anything else", StringComparison.Ordinal)))
 				Console.WriteLine($"  {line}");
-		await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+		await Acknowledge();
 		Console.WriteLine(L($"{name}: karşılıklı fesih teklif edildi; cevabı gelen kutusuna düşer."));
 		return 0;
 	}

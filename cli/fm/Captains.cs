@@ -58,7 +58,7 @@ internal static partial class Program
 		}
 
 		// The assistant then asks whether there is anything else; leaving it asked would stand as an open question.
-		if (changes.Count > 0) await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+		if (changes.Count > 0) await Acknowledge();
 
 		var (captain, vice) = await Now();
 		if (args.Contains("--json"))

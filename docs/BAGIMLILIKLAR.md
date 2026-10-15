@@ -79,9 +79,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     açınca eski liste geri geliyor ve yeni grup var olan bir grubun kimliğini alıyor → `new` aynı oyun gününde bir
     `remove`'dan sonra reddediyor (§8.188). Gün ilerletilerek doğrulandı: tek/çift silme, iki kurma, kurup silme. İngilizcede
     denenmedi.
-  - [ ] "Acknowledge and Move On" yazısıyla basan 8 yer (BoardRequests 99 101, Captains 61, Propose 44, Release 47 80 156,
-    TraitTraining 45 110, TrainingReport 40 86): Türkçede de bu İngilizce geliyor ama yazı; kimliği `Event` 31
-    (`EventFmxClearChanges`, eklenti `/buttons?gen=` `Action`), mentorlukta ölçüldü (§8.188).
+  - [x] "Acknowledge and Move On" yazısıyla basan yerler (BoardRequests 99 101, Captains 61, Propose 44, Release 47 80 156,
+    TraitTraining 45 110, TrainingReport 40 86): düğme artık listedeki yazıyla değil gönderdiği olayla bulunuyor —
+    eklenti `/buttons?json=1&gen=` her `SpeakToAction` düğmesine `Action` veriyor, `Event` 31 (`EventFmxClearChanges`,
+    `ActionID` 0) olan yalnızca söyleneni kapatan düğmedir. Yardımcı `Acknowledge()` (Program) düğmeyi işaretçisiyle
+    basıyor, yoksa hiç basmıyor. Ölçüm: TR + EN'de Event 31 doğrulandı; eski kod 3 boşa basış, yeni kod tek basış;
+    üç durumda rc=0, negatifte 0 basış; `sweep.sh` 50/50 (§8.191). BoardRequests'teki karşılaştırma da kimliğe bağlandı.
   - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel isteyen bir söz
     konuşması lazım; o an oyunda yok, ölçülmeden değiştirilmedi. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi

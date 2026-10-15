@@ -96,9 +96,9 @@ internal static partial class Program
 			foreach (var line in lines) Console.WriteLine(L($"  Yönetim: {line}"));
 		}
 
-		if (answers.Count == 1 && answers[0] == "Acknowledge and Move On")
+		if (answers.Count == 1 && await AcknowledgeButton() is not null)
 		{
-			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
+			await Acknowledge();
 			return 0;
 		}
 		if (!json) Console.WriteLine(L($"Yönetim cevap bekliyor ({string.Join(" / ", answers)}) — cevap: talk"));
