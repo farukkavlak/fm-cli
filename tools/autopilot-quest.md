@@ -4,10 +4,25 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: (yok — son tur B "Mutluluk seviyesi" maddesini bitirdi, sıradaki tur seçecek)
+- Madde: (yok — son tur D "önbellekler hangi kayda/dile ait" maddesini bitirdi, sıradaki tur seçecek)
 - Durum: bitti
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 2 — D "`~/.config/fm-cli/` önbellekleri hangi kayda/dile ait" (§8.190, 15 Ekim gece)
+Ne: `diff`in baktığı hâl (`Diff.cs`) üst klasörde yalnız takım adıyla tutuluyordu; oyuna ait kelimeler/dil
+taşıdığı için `CacheFile`e (dil + yönetici–kulüp) taşındı. Dosya: `cli/fm/Diff.cs` (+ `docs/BAGIMLILIKLAR.md`,
+`docs/FINDINGS.md`). Paylaşılan koda (Bridge/CacheFile tanımı) dokunulmadı → sweep gerekmedi.
+- Sorun (önce): TR'de `fm diff` ile bakış kaydedilip `fm settings dil English` sonrası `fm diff` → her oyuncunun
+  sözleşme tarihi değişmiş sayıldı; ölçüm çıktısı: `"Contracts":[{"Name":"Jamie Pardington","Was":"N/A","Is":"Yok"}]`.
+  Dosya: `~/.config/fm-cli/diff-Lincoln.json` (üst klasör, takım adıyla).
+- Durumlar + diller (sonra):
+  - EN ilk: `fm diff --json` → `{"First":true,...}`; dosya `cache/english/Faruk Kavlak - Lincoln/diff-Lincoln.json`.
+  - EN ikinci: `fm diff --json` → `"Contracts":[]` (yanlış değişiklik yok).
+  - TR ilk: `fm settings Language "Türkçe"` → `fm diff --json` → yeniden `{"First":true,...}` (EN dosyası ve
+    eski üst dosya okunmadı); TR ikinci → `"Contracts":[]`; dosya `cache/turkish/.../diff-Lincoln.json`.
+  - Üstteki eski `diff-Lincoln.json` dokunulmadı (mtime 23:53 sabit kaldı).
+- Kayıt test kaydı; TR'ye dönüldü.
 
 ### Tur 1 — B "Mutluluk seviyesi" (§8.189, 15 Ekim gece)
 Ne: `happiness` sıra+rengi seviyenin yazısına değil oyunun puanına bağlandı; moral/konum/seviye yazıları

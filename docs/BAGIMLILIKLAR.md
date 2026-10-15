@@ -151,7 +151,7 @@ tablodan çevrilemiyor.
 - [x] Kodda lig, takım, kulüp ya da kayıt adı yok (tarama: yalnızca para biçiminin öğrenilene kadarki varsayılanı "£").
 - [ ] Kariyer başka ülkede (Almanya, kupa adları, kayıt kuralları, Avrupa kupası) ve sıfırdan başlayan bir kayıt hiç
   denenmedi — yayın hedefi için şart (H).
-- [ ] `~/.config/fm-cli/` önbellekleri hangi kayda/dile ait olduğunu biliyor mu (rol adları dile göre ayrıldı; diğerleri?).
+- [x] `~/.config/fm-cli/` önbellekleri hangi kayda/dile ait olduğunu biliyor mu: `CacheFile` hepsini `cache/<dil>/<yönetici - kulüp>/` altına koyuyor (rol adları, görev alanları, talimatlar, sezon/istatistik, gelen kutusu numaraları…). Tek istisna `diff`in baktığı hâli (`Diff.cs`) üst klasörde yalnız takım adıyla tutuyordu; o da `CacheFile`e taşındı. Ölçüldü: TR'de bakış kaydedilip İngilizceye geçilince eski kod her oyuncunun sözleşme tarihini değişmiş sayıyordu ("N/A" → "Yok"); yeni kodda dil başına ayrı dosya, geçişte değişiklik yok (§8.190). Üstte kalan eski `diff-*.json` / `snapshot.json` dosyaları önceki sürümlerin artığı, okunmuyor.
 
 ### E. Ekran / tema / çözünürlük
 

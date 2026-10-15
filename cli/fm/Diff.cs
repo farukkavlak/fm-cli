@@ -54,7 +54,10 @@ internal static partial class Program
 		}
 
 		var now = await LookNow();
-		var file = Path.Combine(DiffFolder, $"diff-{string.Concat(now.Team.Split(Path.GetInvalidFileNameChars()))}.json");
+		// The look is kept like the other caches, apart for each language and career: the game's own
+		// words and date format are what it carries, so switching the language or loading another
+		// save must not read this one's look back as a change.
+		var file = CacheFile($"diff-{string.Concat(now.Team.Split(Path.GetInvalidFileNameChars()))}.json");
 		DiffLook before = null;
 		if (File.Exists(file) && !args.Contains("--reset"))
 		{
@@ -63,7 +66,7 @@ internal static partial class Program
 		}
 		if (!args.Contains("--keep") || before == null)
 		{
-			Directory.CreateDirectory(DiffFolder);
+			Directory.CreateDirectory(Path.GetDirectoryName(file));
 			File.WriteAllText(file, JsonSerializer.Serialize(now));
 		}
 		if (before == null)

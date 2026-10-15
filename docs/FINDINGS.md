@@ -1794,3 +1794,14 @@ ile düşülüyor. Moral/konum/seviye yazıları `GameWords.Of` ile oyunun dilin
 artık Türkçede "Kötü"/"Aşıri İyi"). Ölçüm: TR Mesajlar'dan / zaten açık / Mesajlar açıkken 27/27 aynı, puan sırası
 artan (-65…80); EN'de aynı sonuç, `Very Unhappy`/`Slightly Unhappy` kırmızı, `Content`/`Slightly Happy` sarı,
 `Happy`+ yeşil. Puanın veri yolu her dilde aynı; yazı yalnız gösterimde.
+
+### 8.190 Diffin baktığı hâl önbellekleri dil ve kayda göre ayrıldı (15 Ekim, TR + EN)
+`CacheFile` bütün önbellekleri (rol adları, görev alanları, talimatlar, sezon/istatistik, gelen kutusu numaraları,
+mentorluk) `~/.config/fm-cli/cache/<dil>/<yönetici - kulüp>/` altına koyuyor; `diff`in baktığı hâl ise tek istisnaydı:
+`Diff.cs` onu üst klasörde yalnız takım adıyla (`diff-<takım>.json`) tutuyordu. İçinde oyunun kendi kelimeleri
+geçiyor (`FullContract.EndDateDescription`, `CurrentInjury.InjuryDescription`), o yüzden paylaşılan dosya dil
+değişince yanlış "değişti" üretiyor: TR'de bakış kaydedilip İngilizceye geçilince `diff` her sözleşme tarihini
+değişmiş sayıyordu (ölçüldü: `Jamie Pardington` "N/A" → "Yok"). Yol `CacheFile($"diff-{takım}.json")` oldu; dil
+başına ayrı dosya (`cache/turkish/...`, `cache/english/...`). Ölçüm (üç durum + iki dil): ilk bakış → `First:true`,
+ikinci bakış → `Contracts:[]`, başka dilin dosyası okunmuyor (TR ilk bakış EN'in yanında yeniden `First:true`).
+Üstte kalan `diff-*.json` ve `snapshot.json` önceki sürümlerin artığı; okunmuyor, silinmedi.
