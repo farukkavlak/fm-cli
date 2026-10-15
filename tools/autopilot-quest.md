@@ -4,10 +4,29 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: (yok — son tur B "Acknowledge and Move On" basışını kimliğe çevirdi, sıradaki tur seçecek)
-- Durum: bitti
+- Madde: A "Mesaj eki için 1,5 sn" — ölçüldü, işaret bulunamadı, `[?]` park (Faruk'a soru BAGIMLILIKLAR'da)
+- Durum: park edildi (kod değişmedi; churn yok)
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 4 — A "Mesaj eki için 1,5 sn" (`WriteAttachment`) — PARK (§8.192, 16 Ekim)
+Ne: Kod değiştirilmedi. Sabit 1,5 sn'nin bu makinede doğru okuduğu ölçüldü (pay ~2,5 kat), ama yerine konacak
+oyun işareti bulunamadı; eki olmayan mesaj türü kayıtta olmadığı için negatif durum ölçülemedi → `[?]`.
+- Ölçüm aracı: `/press?text=<konu>&name=NewsItemButton&any=1` sonra 30 ms aralıkla
+  `/texts?anchor=Attachments&up=8&paths=1` (geçici `python3`, ~/.config/fm-cli/port).
+- Zaman çizelgesi (mesaj değiştirilirken, TR): 0,13 sn önceki mesajın eki (Mansfield raporu, 110 metin) ·
+  0,20–0,40 sn başlık var içerik yok (boş ara durum) · 0,47–0,55 sn kısmi (9 metin, "Data Hub · No Data") ·
+  ≥0,60 sn tam (22 metin). Yani ek ~0,6 sn'de oturuyor; 1,5 sn = ~2,5 kat pay.
+- İşaret arayışı: `/elements?text=Attachments&up=2&depth=16..18&members=0|1` ile boş ve dolu durum karşılaştırıldı:
+  `#AttachmentsTitleContainer`, `#Attachments`, `FMUnbindDynamicBindingRooot`, `SIVisible`,
+  `BindingRoot #MessagesToolBindingRoot`, `BindingExpect #EventTrigger` **ikisinde birebir aynı**; tek fark her
+  kartın (`VariableSizedGridElement` › `BindingRemapper #Portal Card Template Element`) içeriğinin bağlanması
+  (`TemplateContainer` › `BindingExpect #TileBindingExpect`). Bu, "kartlar bağlandı" işareti olurdu ama eki
+  olmayan mesajda kaç kart olacağı bilinmiyor.
+- Negatif durum bulunamadı: `fm reply` ile 14 mesaj denendi, hepsinde "Ek:" ya da "Haber:" satırı var; `/inbox`
+  verisi ek ile ilgili alan taşımıyor. Bir `fm next` (09:15→10:00) yeni mesaj getirmedi; gün atlatmak gerekiyor.
+- Karar (kural 4): kanıtlanmış iyi hâl yok → eskisi kaldı, madde `[?]`, soru BAGIMLILIKLAR'da. Commit: yalnız
+  dokümanlar (BAGIMLILIKLAR, FINDINGS §8.192, bu defter). Paylaşılan koda dokunulmadı → sweep gerekmedi.
 
 ### Tur 3 — B "Acknowledge and Move On yazısıyla basan yerler" (§8.191, 16 Ekim gece)
 Ne: 10 basış (`press text="Acknowledge and Move On"`) artık düğmenin gönderdiği olayla bulunuyor. Yeni
@@ -70,7 +89,11 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Önce/sonra (aynı oyuncu, TR): `fm happiness "Ben House"` önce "moral Poor", sonra "moral Kötü".
 
 ## Park edilenler ([?] + Faruk'a soru)
-- (yok)
+- A "Mesaj eki için 1,5 sn" (`WriteAttachment`, Program ~993) — sabit 1,5 sn ölçüldü, pay ~2,5 kat; yerine konacak
+  oyun işareti (ağaç boş/dolu durumda aynı, tek fark kartların bağlanması) ve eki olmayan mesaj örneği yok.
+  Soru: (a) 1,5 sn dursun, eksiz mesaj gelince negatif durum ölçülsün mü, yoksa (b) eklentiye "seçili mesajın
+  kartları bağlandı" işareti mi eklensin, yoksa (c) "kartlar bağlandı" işareti beklenip eksiz mesajda cömert üst
+  sınırın sonuna kadar beklenip "ek yok" densin mi?
 
 ## Sabitler
 - Kapsam: **A** (zamanlama) + **B** (dil/kimlik) + **C** (ayarlar), mümkünse **D**.

@@ -1819,3 +1819,19 @@ kimlik mentorlukta kullanılıyordu, §8.188). Ölçüldü: TR ve EN'de "Acknowl
 negatif: yardımcı kartı yokken (`propose` teklif ekranı) yeni kod hiç basmıyor (0 `press ?ptr=`). `tools/sweep.sh`
 50/50. Not: `propose` "Önerme ekranı açılmadı" hatası eski koddada aynı (bu değişiklikten değil). BoardRequests'te
 aynı karşılaştırma da kimliğe bağlandı; `Release`'teki "Is there anything else" cümle süzgeci ayrı iş.
+
+### 8.192 Mesaj eki okuması: sabit 1,5 sn ölçüldü, yerine geçecek işaret bulunamadı (16 Ekim, TR)
+`WriteAttachment` (Program ~993) mesajın altındaki "Attachments" başlığından sonrasını okuyup ek gelmezse
+"ek yok" diyor; başlık her mesajda ekranda olduğu için bekleme yalnızca zamanla sınırlı. Ölçüm (butona basıp
+`/texts?anchor=Attachments&up=8&paths=1` yoklaması, 30 ms aralıkla): 0,13 sn'de hâlâ **önceki** mesajın eki
+(Mansfield raporu, 110 metin) duruyor; 0,20–0,40 sn'de başlık var, içerik yok (boş ara durum); 0,47–0,55 sn'de
+kısmi (9 metin, "Data Hub · No Data"); ≥0,60 sn'de tam (22 metin). Yani içerik ~0,6 sn'de oturuyor, sabit
+1,5 sn'nin ~2,5 kat payı var — bu makinede yanlış okumuyor, bu yüzden değişiklik kanıtlanamadı.
+İşaret arandı: `/elements` ağacında `#AttachmentsTitleContainer`, `#Attachments`, `FMUnbindDynamicBindingRooot`,
+`SIVisible`, `BindingRoot #MessagesToolBindingRoot`, `BindingExpect #EventTrigger` **hem içerikli hem boş
+durumda birebir aynı**; tek fark her kartın (`VariableSizedGridElement` › `BindingRemapper #Portal Card
+Template Element`) içeriğinin bağlanması (`TemplateContainer` › `BindingExpect #TileBindingExpect`). Eki
+olmayan mesaj türü (haftalık scout güncellemesi/öneri mesajları) bu kayıtta yok: `fm reply` ile 14 mesaj
+denendi, hepsinde "Ek:" ya da "Haber:" satırı var; gelen kutusu verisi (`/inbox`) ek ile ilgili bir alan
+taşımıyor (yalnız `CanRespond`, `NewsTitleString`, `UniqueId`…). Negatif durum ölçülmeden "kartlar bağlandı
+mı" işareti eki olmayan mesajı "ek var" sayar; madde bu yüzden `[?]` park edildi.

@@ -101,8 +101,15 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   bir mesaja geçerken eski düğmeler silinip yenileri gelmeden boş bir an varsa, "boş = boş, öncekinden farklı" o an tutar
   ve cevaplar "yok" sayılır. Geçiş sırasında sık yoklayıp (her okuma) boş ara durum olup olmadığını ölç; varsa boş
   sonucu yalnızca mesaj gerçekten cevapsızsa kabul et (Program.cs ~800).
-- [ ] **Mesaj eki için 1,5 sn** (`WriteAttachment`, Program ~986): ek gelmezse "ek yok". Ekin var olup olmadığını söyleyen
-  işaret bulunamadı (bağlama adları sürümde gizli); eksiz bir mesajda `#AttachmentsTitleContainer` durumu ölçülecek.
+- [?] **Mesaj eki için 1,5 sn** (`WriteAttachment`, Program ~986): ek gelmezse "ek yok". Ölçüldü (16 Ekim, §8.192):
+  sabit 1,5 sn'nin ~2,5 kat payı var (içerik ~0,6 sn'de oturuyor), bu makinede yanlış okumuyor. Boş ara durum
+  (~0,2–0,4 sn: başlık var, içerik yok) oyunun "henüz bağlanmadı" hâli; ağaç (başlık, `#Attachments`,
+  `FMUnbindDynamicBindingRooot`, `BindingRoot`, `BindingExpect`) içerikli ve boş durumda birebir aynı, tek fark
+  kartın içeriğinin bağlanması (`#TileBindingExpect`). Eki olmayan mesaj türü bu kayıtta yok (14 mesaj denendi,
+  hepsinde "Ek:"/"Haber:" var), gelen kutusu verisi de ek alanı taşımıyor. **Faruk'a soru:** (a) 1,5 sn dursun,
+  eki olmayan bir mesaj gelince negatif durum ölçülsün mü, (b) eklentiye "seçili mesajın kartları bağlandı"
+  işareti mi eklensin, yoksa (c) "kartlar bağlandı" işareti beklensin + eksiz mesajda cömert üst sınırın sonuna
+  kadar beklenip "ek yok" densin mi (doğru, ama eksiz mesaj yavaş)?
 - [ ] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2112). Denenen çözüm (çubuğun seçili satırı) ölçülünce
   yetersiz çıktı: ana sayfa zaten açıkken çubuk eski seçimde kalıyor → geri alındı. Eklentide `open?guid=&check=1`
   (yalnızca soru, hiçbir şey açmıyor) duruyor (14 Ekim commit edildi, CLI henüz kullanmıyor). Önce "ana sayfanın açılması bitti" işareti ölçülecek. Ayrıca `fm open X` açılış bitmeden dönüyor: hemen ardından
