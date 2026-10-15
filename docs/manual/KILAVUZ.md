@@ -305,7 +305,7 @@ olduğu şeyler (+).
 
 ```
 $ fm happiness alvarez
-Edson Álvarez  Biraz mutsuz · moral Okay · Highly Influential Player · Slt
+Edson Álvarez  Biraz mutsuz · moral Normal · Yüksek Nüfuzlu Oyuncu · Slt
   − (Minor Issue) Unhappy with his amount of playing time
   + Is enjoying playing for the club
   + Is pleased to be considered a highly influential player within the dressing room
@@ -314,7 +314,7 @@ Edson Álvarez  Biraz mutsuz · moral Okay · Highly Influential Player · Slt
 `fm happiness --why` yalnızca şikâyeti olanları, şikâyetleriyle verir (~10 sn):
 
 ```
-Anthony Musaba  Biraz mutlu · moral Fairly Good · Others
+Anthony Musaba  Biraz mutlu · moral İyi Sayılır · Diğerleri
   − (Pre-concern) Is starting to feel that his agreed playing time is not being fulfilled
 …
 21 oyuncudan 4 tanesinin şikâyeti var; kalan 17 oyuncunun yok.

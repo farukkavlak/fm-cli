@@ -133,9 +133,9 @@ tablodan çevrilemiyor.
   öğe adı / olay adıyla basılabilir mi bakılacak.
 - [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
   İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
-- [ ] **Mutluluk seviyesi:** "Biraz Mutlu" / "Biraz Mutsuz" çevrilemiyor (tabloda yok) → `happiness` sıralaması ve rengi
-  bu iki seviyede yanlış; seviyenin veri yolu yok, `HierarchyOverallHappinessLevel` sırayı tutuyor ama eşikleri bilinmiyor
-  (§8.185). Moral yazısı ("Extremely Good") İngilizce gösteriliyor.
+- [x] **Mutluluk seviyesi:** sıralama ve renk artık seviyenin yazısına değil oyunun kendi puanına (`Human.Team.Players`
+  › `HierarchyOverallHappinessLevel`; 80 Delighted … -65 Very Unhappy) bakıyor, bant sınırları ölçülen boşluklarda (-30/30);
+  seviye/moral/konum yazıları oyunun diline çevriliyor. Türkçe (3 durum) + İngilizce (2 durum) aynı sıra/renk (§8.189).
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
 - [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
 

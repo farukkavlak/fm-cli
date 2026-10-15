@@ -1782,3 +1782,15 @@ gösterdi). Tablo: eklentide `/checkrows?gen=` kutulu satırlı her tablonun (`T
 adlar ("2. Mentorluk Grubu") yeniden numaralanıyor → bir grubun kimliği üyeleri. Gün ilerletilerek doğrulandı: `--auto`, tek
 ve aynı gün iki silme, aynı gün iki kurma, kurup aynı gün silme hep kalıcı ve doğru; CLI `new`'ü aynı oyun gününde bir
 `remove`'dan sonra reddediyor (kariyer önbelleğinde `mentoring-removed` = günün tarihi). İngilizcede denenmedi.
+
+### 8.189 Mutluluk: sıra ve renk seviyenin yazısına değil oyunun puanına bakıyor (15 Ekim, TR + EN)
+`happiness` listeyi `Array.IndexOf(HappinessLevels, p.Level)` ile sıralıyordu; oyunun Türkçede kendi yazısıyla
+gösterdiği iki seviye ("Biraz Mutlu"/"Biraz Mutsuz") İngilizce dizide olmadığından indeks -1 çıkıyor, bu iki seviye
+listenin başına düşüyor ve `LevelColour` onlara kırmızı veriyordu. Sıra/renk artık kulüp verisindeki puanla:
+`Human.Team.Players` › `HierarchyOverallHappinessLevel` (ölçülen: 80 Delighted, 60 Very Happy, 40 Happy, 20 Slightly
+Happy, -14/-20 Content, -40 Slightly Unhappy, -65 Very Unhappy; `Unhappy` arada). Bant sınırları oyunun bıraktığı
+boşluklarda (`score < -30` kırmızı, `< 30` sarı, üstü yeşil); puan okunamazsa eski yazı indeksinden `LevelScores`
+ile düşülüyor. Moral/konum/seviye yazıları `GameWords.Of` ile oyunun diline çevriliyor ("Poor"/"Extremely Good"
+artık Türkçede "Kötü"/"Aşıri İyi"). Ölçüm: TR Mesajlar'dan / zaten açık / Mesajlar açıkken 27/27 aynı, puan sırası
+artan (-65…80); EN'de aynı sonuç, `Very Unhappy`/`Slightly Unhappy` kırmızı, `Content`/`Slightly Happy` sarı,
+`Happy`+ yeşil. Puanın veri yolu her dilde aynı; yazı yalnız gösterimde.

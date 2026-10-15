@@ -14,11 +14,27 @@ internal static partial class Program
 	private static readonly string[] HappinessLevels =
 		["Very Unhappy", "Unhappy", "Slightly Unhappy", "Content", "Slightly Happy", "Happy", "Very Happy", "Delighted"];
 
+	/// <summary>
+	/// The game's own score for each level, by its place in HappinessLevels, as measured (80
+	/// Delighted, 60 Very Happy, 40 Happy, 20 Slightly Happy, -20 Content, -40 Slightly Unhappy,
+	/// -65 Very Unhappy, Unhappy between): the middle of a level, for a row whose score the team's
+	/// data did not give.
+	/// </summary>
+	private static readonly int[] LevelScores = [-65, -52, -40, -20, 20, 40, 60, 80];
+
 	/// <summary>A row of the page; Description ("27 year-old winger") is what tells the row from the same name on the page behind.</summary>
-	private sealed record HappyRow(string Name, string Description, string Level, List<string> Flags);
+	private sealed record HappyRow(string Name, string Description, string Level, List<string> Flags)
+	{
+		/// <summary>The game's score for his level (HierarchyOverallHappinessLevel), which orders and colours him without the level's word.</summary>
+		public int Score { get; init; }
+	}
 
 	/// <summary>The panel of the selected player.</summary>
-	private sealed record HappyWhy(string Name, string Level, string Morale, string Hierarchy, List<string> Positives, List<string> Negatives);
+	private sealed record HappyWhy(string Name, string Level, string Morale, string Hierarchy, List<string> Positives, List<string> Negatives)
+	{
+		/// <summary>The game's score for his level, which colours him without the level's word.</summary>
+		public int Score { get; init; }
+	}
 
 	private static async Task<int> Happiness(bool json, string[] args)
 	{
@@ -31,7 +47,12 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Mutluluk sayfası okunamadı."));
 			return 1;
 		}
-		players = players.OrderBy(p => Array.IndexOf(HappinessLevels, p.Level)).ThenBy(p => p.Name).ToList();
+		// Ordered and coloured by the game's own score for a level (HierarchyOverallHappinessLevel),
+		// not by the level's word: a Turkish game leaves two levels in its own words ("Biraz Mutlu"/
+		// "Biraz Mutsuz"), which no English word matches.
+		var scores = await HappinessScores();
+		players = players.Select(p => p with { Score = scores.TryGetValue(p.Name, out var score) ? score : FallbackScore(p.Level) })
+			.OrderBy(p => p.Score).ThenBy(p => p.Name).ToList();
 		// The page has three letters for each flag; the players' own lists say them in full.
 		var flags = await SquadFlags();
 		players = players.Select(p => flags.TryGetValue(p.Name, out var f) && f.Count > 0 ? p with { Flags = [FlagWords(f)] } : p).ToList();
@@ -76,28 +97,61 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(players.Select(p => new { p.Name, p.Level, p.Flags })));
+			Console.WriteLine(JsonOut.Of(players.Select(p => new { p.Name, Level = GameWords.Of(p.Level), p.Flags })));
 			return 0;
 		}
 		foreach (var player in players)
 		{
-			var say = player.Level;
+			var say = GameWords.Of(player.Level);
 			var flag = player.Flags.Count > 0 ? $"  {string.Join(" ", player.Flags)}" : "";
-			if (Ui.Rich) Ui.Line($"  {Ui.Safe(player.Name),-24} [{LevelColour(player.Level)}]{Ui.Safe(say)}[/][dim]{Ui.Safe(flag)}[/]");
+			if (Ui.Rich) Ui.Line($"  {Ui.Safe(player.Name),-24} [{LevelColour(player.Score)}]{Ui.Safe(say)}[/][dim]{Ui.Safe(flag)}[/]");
 			else Console.WriteLine($"  {player.Name,-24} {say}{flag}");
 		}
 		Console.WriteLine(L("\nNedeni: happiness <oyuncu>   ·   herkesin şikâyetleri: happiness --why"));
 		return 0;
 	}
 
-	private static string LevelColour(string level) =>
-		Array.IndexOf(HappinessLevels, level) switch { <= 2 => "red", 3 or 4 => "yellow", _ => "green" };
+	/// <summary>
+	/// The band a level falls in, by the game's score for it: the two boundaries sit in the gaps the
+	/// game leaves (Content -20 down to Slightly Unhappy -40; Slightly Happy 20 up to Happy 40), so
+	/// the levels a Turkish game does not translate still colour aright.
+	/// </summary>
+	private static string LevelColour(int score) => score < -30 ? "red" : score < 30 ? "yellow" : "green";
+
+	/// <summary>The score of a level by its word, for a row the team's data did not give one.</summary>
+	private static int FallbackScore(string level) => Array.IndexOf(HappinessLevels, level) is var at and >= 0 ? LevelScores[at] : 0;
+
+	/// <summary>
+	/// Each player's happiness score from the team's own data, keyed by name — the game keeps it as
+	/// a number (80 Delighted … -65 Very Unhappy), the same in every language, unlike the level's word.
+	/// </summary>
+	private static async Task<Dictionary<string, int>> HappinessScores()
+	{
+		var scores = new Dictionary<string, int>(StringComparer.Ordinal);
+		try
+		{
+			foreach (var player in (await Fm.Pull("Human.Team.Players", "Name,HierarchyOverallHappinessLevel", list: true)).EnumerateArray())
+			{
+				var name = Field(player, "Name");
+				if (name.Length > 0 && int.TryParse(NumberText(player, "HierarchyOverallHappinessLevel"), out var score))
+					scores[name] = score;
+			}
+		}
+		catch (Exception e) when (e is FmError or FmUnavailable or FmBusy) { }
+		return scores;
+	}
+
+	/// <summary>A value the bridge answers as a number, or as the same number written out.</summary>
+	private static string NumberText(JsonElement element, string name) =>
+		element.TryGetProperty(name, out var value)
+			? value.ValueKind == JsonValueKind.Number ? value.GetInt32().ToString() : value.GetString() ?? ""
+			: "";
 
 	private static void WriteWhy(HappyWhy why, List<string> flags, bool positives)
 	{
 		var say = why.Level;
 		var rest = $" · moral {why.Morale} · {why.Hierarchy}{(flags.Count > 0 ? $" · {string.Join(" ", flags)}" : "")}";
-		if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(why.Name)}[/]  [{LevelColour(why.Level)}]{Ui.Safe(say)}[/][dim]{Ui.Safe(rest)}[/]");
+		if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(why.Name)}[/]  [{LevelColour(why.Score)}]{Ui.Safe(say)}[/][dim]{Ui.Safe(rest)}[/]");
 		else Console.WriteLine($"{why.Name}  {say}{rest}");
 
 		foreach (var negative in why.Negatives)
@@ -274,8 +328,10 @@ internal static partial class Program
 		string Bound(string path) => panel.FirstOrDefault(t => t.Path == path).Text ?? "";
 		var mid = panel.FindIndex(t => t.Text == "Negatives");
 		var reasons = panel.Select((t, at) => (t.Text, t.Path, At: at)).Where(t => t.Path == "Reason.Name").ToList();
-		return new HappyWhy(player.Name, player.Level, Bound("Person.MoraleString"), Bound("Person.HierarchyInfluenceCategoryString"),
+		// Morale and standing come in English (the plugin's reading language); a game reads in its own.
+		return new HappyWhy(player.Name, GameWords.Of(player.Level), GameWords.Of(Bound("Person.MoraleString")), GameWords.Of(Bound("Person.HierarchyInfluenceCategoryString")),
 			reasons.Where(r => r.At < mid).Select(r => r.Text).ToList(),
-			reasons.Where(r => r.At > mid).Select(r => r.Text).ToList());
+			reasons.Where(r => r.At > mid).Select(r => r.Text).ToList())
+		{ Score = player.Score };
 	}
 }
