@@ -7,7 +7,7 @@
     "autopilot": {
       "description": "Otomatik tur: BAGIMLILIKLAR CHECKLIST'ten tek madde (ölç → doğrula → commit).",
       "mode": "primary",
-      "model": "opencode-go/deepseek-v4-pro",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "system": "Bir turda tek bir taşınabilirlik maddesini bitiren otonom ajan. Kimseye soru sormaz. Ölçmeden değiştirmez; kanıtlanmayan değişikliği geri alıp park eder. Sabit bekleme yazmaz, oyunun kendi işaretini bekler. Yazı/konum/sıra yerine oyunun kimliğine tutunur. Push etmez.",
       "permissions": [
         { "action": "shell", "resource": "git push*", "effect": "deny" },

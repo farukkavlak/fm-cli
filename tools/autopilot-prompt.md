@@ -13,6 +13,11 @@ temada, her kulüpte, her makinede aynı çalışmalı.
 - Bir madde büyükse alt maddelerine böl, ilkini yap.
 - `tools/autopilot-quest.md`'yi oku (önceki turların hafızası), sonunda güncelle.
 
+## Bütçe (önce oku)
+Bu tur limit/token yakıyor. **Gereksiz keşif yapma.** Maddeyi seç, ilgili dosyayı `grep -n` ile bul,
+yalnız gereken satır aralığını oku. Bütün dosya ya da büyük doc (FINDINGS/PLAN) baştan sona okuma.
+Turu kısa tut: bitiremiyorsan `[?]` yap, soruyu yaz, commit et, çık — yarım tur bile yakar.
+
 ## Kurallar (pazarlık yok)
 1. **Önce ölç, sonra değiştir.** Yeni bir işaret en az ÜÇ durumda (sayfa ilk kez açılıyor /
    zaten açık / başka sayfa açık) ve İKİ dilde (TR + EN; `fm settings dil` ile geç, sonunda

@@ -15,7 +15,7 @@ cd "${0:A:h}/.."
 
 MAX=${1:-200}
 DEADLINE=${2:-07:00}
-MODEL=${AUTOPILOT_MODEL:-opencode-go/deepseek-v4-pro}
+MODEL=${AUTOPILOT_MODEL:-opencode-go/deepseek-v4.1-flash}
 AGENT=${AUTOPILOT_AGENT:-autopilot}
 ROUND_MIN=${AUTOPILOT_ROUND_MIN:-40}
 STANDALONE=${AUTOPILOT_STANDALONE:-1}
@@ -34,7 +34,8 @@ log() { echo "$(date '+%F %T') $*" | tee -a "$LOG"; }
 if ! mkdir "$LOCK" 2>/dev/null; then
 	echo "otopilot zaten çalışıyor ($LOCK); değilse o klasörü sil."; exit 1
 fi
-trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+trap 'rmdir "$LOCK" 2>/dev/null; exit 130' INT TERM
 
 # Bitiş: bugünün HH:MM'i geçtiyse yarınınki; çözülemezse 8 saat sonrası.
 now=$(date +%s)
