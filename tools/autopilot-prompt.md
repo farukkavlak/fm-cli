@@ -29,15 +29,26 @@ temada, her kulüpte, her makinede aynı çalışmalı.
    doğrula. Negatif durumu da dene.
 6. **Anlatım "kaç ms" değil "hangi işaret".** Süre yalnızca işaretin tuttuğunu kanıtlamak için ölçülür.
 
+## "Bitti" tanımı — bunlar yoksa BİTTİ deme
+Bir madde ancak ŞUNLARIN HEPSİ olunca biter:
+1. Değişiklik uygulandı (ya da park kararı verildi).
+2. En az ÜÇ durum + İKİ dil denendi; her denemenin **komutu ve çıktısı** (öncesi/sonrası) elinde.
+3. Bu kanıt `tools/autopilot-quest.md`'ye yazıldı.
+4. Commit atıldı.
+Kanıt yoksa madde bitmemiştir: ya daha ölç, ya `[?]` yap. "Yaptım galiba / muhtemelen çalışır" yok.
+Davranışı paylaşılan koda dokunduysan (Bridge, OpenPage/OpenSubpage, reply, ortak yardımcılar) regresyon için
+`tools/sweep.sh` çalıştır (oyun maç arasında olmalı) ve kırılan komut çıkarsa düzelt.
+
 ## Bitirme (tek madde, sonra dur)
 - Maddeyi `[x]` yap ve bir satırla ne yapıldığını yaz.
 - Kanıtı `tools/autopilot-quest.md`'ye yaz: hangi komut, öncesi/sonrası, üç durum, iki dil.
 - Yeni bulgu varsa `docs/FINDINGS.md` **SONUNA** §8.N olarak 3–6 satır ekle (`cat >> ...`);
   PLAN günlüğü gerekmiyorsa dokunma. Büyük dosyaları bütün okuma: `grep -n` + gereken satır aralığı.
 - Kullanıcıya görünen davranış değiştiyse `docs/manual/KILAVUZ.md`.
-- **Commit:** İngilizce Conventional Commits (`perf:` / `fix:` / `docs:` / `test:` …), son satır
-  `Co-Authored-By: OpenCode <noreply@opencode.ai>`. Yalnızca kendi değiştirdiğin dosyaları
-  `git add <dosya>` (`-A` DEĞİL). **Push YOK** — Faruk yapıyor.
+- **Commit:** İngilizce Conventional Commits; başlık deponun üslubunu taklit etsin — `perf: contracts
+  reads each term until it has arrived instead of a fixed pause` gibi: ne yaptığını şimdi vs eskisi
+  (küçük harf, davranış odaklı). Son satır `Co-Authored-By: OpenCode <noreply@opencode.ai>`. Yalnızca
+  kendi değiştirdiğin dosyaları `git add <dosya>` (`-A` DEĞİL). **Push YOK** — Faruk yapıyor.
 - Kayıt test kaydı, hiç önemi yok: maç oyna, zamanı ilerlet, antrenör/kaptan/taktik değiştir,
   oyundaki mesajları (kaptan seçimi dahil) kendin cevapla, kayıt al — sorma, park etme. Yalnızca
   kayıt silme gibi gerçekten Faruk'un kararı olan bir şey çıkarsa yapma: `[?]` yap, soruyu yaz,
