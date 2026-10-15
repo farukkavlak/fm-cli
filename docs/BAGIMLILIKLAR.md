@@ -97,10 +97,9 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   TrainingSchedule 491 506 · TraitTraining 89
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
-- [ ] **`reply` ara boş an riski:** yeni kural "başlıklar = düğmeler ve öncekinden farklı"; cevaplı bir mesajdan cevaplı
-  bir mesaja geçerken eski düğmeler silinip yenileri gelmeden boş bir an varsa, "boş = boş, öncekinden farklı" o an tutar
-  ve cevaplar "yok" sayılır. Geçiş sırasında sık yoklayıp (her okuma) boş ara durum olup olmadığını ölç; varsa boş
-  sonucu yalnızca mesaj gerçekten cevapsızsa kabul et (Program.cs ~800).
+- [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,
+  başlık önce değişiyor, düğmeler boşalmadan eskisinden yenisine geçiyor (2→2, 2→1, 1→1 TR+EN, 20 geçişte 0 boş okuma,
+  gerçekten cevapsız mesajda boş yol doğru çalışıyor). Bu yüzden koşul değişmedi (churn yok); gerekçe §8.193.
 - [?] **Mesaj eki için 1,5 sn** (`WriteAttachment`, Program ~986): ek gelmezse "ek yok". Ölçüldü (16 Ekim, §8.192):
   sabit 1,5 sn'nin ~2,5 kat payı var (içerik ~0,6 sn'de oturuyor), bu makinede yanlış okumuyor. Boş ara durum
   (~0,2–0,4 sn: başlık var, içerik yok) oyunun "henüz bağlanmadı" hâli; ağaç (başlık, `#Attachments`,

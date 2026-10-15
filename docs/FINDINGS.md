@@ -1835,3 +1835,16 @@ olmayan mesaj türü (haftalık scout güncellemesi/öneri mesajları) bu kayıt
 denendi, hepsinde "Ek:" ya da "Haber:" satırı var; gelen kutusu verisi (`/inbox`) ek ile ilgili bir alan
 taşımıyor (yalnız `CanRespond`, `NewsTitleString`, `UniqueId`…). Negatif durum ölçülmeden "kartlar bağlandı
 mı" işareti eki olmayan mesajı "ek var" sayar; madde bu yüzden `[?]` park edildi.
+
+### 8.193 `reply` mesaj geçişinde boş ara durum yok: oyun cevap kümesini yerinde değiştiriyor (16 Ekim, TR + EN)
+`Reply` (Program ~800) cevapları "sayfadaki başlıklar = düğmeler ve öncekinden farklı" olunca kabul ediyor; `shown ==
+previous` iken boş sonuç yalnızca `CanRespond != "True"` ise geçiyor. Risk: cevaplı bir mesajdan cevaplı bir mesaja
+geçerken eski düğmeler silinip yenileri gelmeden boş bir an varsa `shown=[] != previous` tutar ve cevaplar "yok" sayılır.
+Ölçüm: üç cevaplı mesaj (Monthly Performance / Lincoln fall to late defeat / Street ends goal drought, TR + EN) arasında
+tüm sıralar; `/buttons?json=1` (SpeakToAction) ~60 ms aralıkla yoklandı, ayrıca `/texts?...paths=1` ile sayfa başlıkları.
+Boş okuma: **0/80 örnek**. Geçiş, başlığın önce değişmesi (`title = B`, düğmeler hâlâ A) ve düğmelerin boşalmadan
+eskisinden yenisine geçmesiyle oluyor (2→2, 2→1, 1→1); bir kez kısmi görüldü (`ans=['View Goal']`, sayfada ikisi) ve
+o an `shown == page titles` tutmadığı için kodun kendisi reddediyor. Üretim seviyesinde `fm reply A; fm reply B`
+döngüsü (TR 10 + EN 6 geçiş, "başka sayfa açık", "mesaj zaten açık", "sayfa ilk açılıyor" durumları): her seferinde
+doğru cevap listesi (2 ve 1), hiç "(cevap seçeneği yok)". Negatif/boş yol: cevaplı mesajdan cevapsız `Fitness tests`'e
+geçişte "(cevap seçeneği yok)" doğru geliyor. Kanıtlanmış bir hata olmadığı için kod değişmedi (kural 4, churn yok).
