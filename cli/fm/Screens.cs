@@ -26,6 +26,8 @@ internal static class Screen
 	// Training's own subtabs, opened from its bar.
 	public const string IndividualTraining = "41012275212b88b46957d71fc17c5876";
 	public const string Mentoring = "d4f349f49047bdb47a53216fa71298f3";
+	/// <summary>The mentoring group editor that "Create New Mentoring Group" opens over Mentoring.</summary>
+	public const string MentoringEditor = "57590a1a52e2c334485fd4134fa6e0cc";
 	public const string TrainingIntensity = "6f6099935b22261459f76dc63f312b14";
 	public const string CoachAssignments = "b134c6823f6d1784c97dfd072102c8dc";
 	public const string YouthSetup = "fdc4ca40b0312734b9a99317f9d351d0";

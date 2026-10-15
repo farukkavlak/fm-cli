@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using SI.Bindable;
 
 namespace FmCliProbe;
@@ -42,6 +44,7 @@ internal static class TableRows
 	/// </summary>
 	public static string Select(NameValueCollection q)
 	{
+		if (!string.IsNullOrEmpty(q["table"])) return Check(q);
 		var wanted = q["text"];
 		if (string.IsNullOrEmpty(wanted)) return "error: ?text=<a cell's text> required";
 
@@ -97,6 +100,80 @@ internal static class TableRows
 			return $"selected row {row.Index}";
 		}
 		return $"error: no row shows '{wanted}'";
+	}
+
+	/// <summary>
+	/// The tables whose rows are ticked one by one (a box at each row's start), with every item in
+	/// the order the table shows them put at a path of its own (?gen=) to be read for whose it is
+	/// (a player's UniqueId), and the items ticked now. The selection counts in that order, not the
+	/// source's (a sorted table's differ): an item is ticked by its place there with
+	/// /rowselect?table=&amp;index=&amp;check=, whether or not its row is laid out (FINDINGS §8.188).
+	/// </summary>
+	public static string Checkable(NameValueCollection q)
+	{
+		var tables = new List<StreamedListView>();
+		foreach (var e in Buttons.Elements())
+		{
+			try
+			{
+				var row = e.TryCast<TableRowNavigatable>();
+				if (row == null || row.panel == null || row.worldBound.width <= 0 || Toggle(row, 0) == null) continue;
+				var table = row.TableParent;
+				if (table?.ListElement?.SelectionInternal == null || tables.Any(t => t.Pointer == table.Pointer)) continue;
+				tables.Add(table);
+			}
+			catch { }
+		}
+
+		var under = $"fmcli.checkrows.g{q["gen"] ?? "0"}";
+		var rows = new List<string>();
+		for (var t = 0; t < tables.Count; t++)
+		{
+			var list = tables[t];
+			var selection = list.ListElement?.SelectionInternal;
+			var items = new List<string>();
+			var ticked = new List<string>();
+			try
+			{
+				for (var i = 0; i < list.ItemCount; i++)
+				{
+					var path = "";
+					try
+					{
+						if (list.GetItemFromView(i)?.TryCast<SI.Core.TypedValue>() is { IsNull: false } item && RawPath.Set($"{under}.{t}.{i}", item) == null)
+							path = $"{under}.{t}.{i}";
+					}
+					catch { }
+					items.Add($"\"{path}\"");
+					if (selection?.Contains(i) == true) ticked.Add(i.ToString());
+				}
+			}
+			catch { }
+			rows.Add($"{{\"Table\": \"0x{tables[t].Pointer.ToInt64():x}\", \"Items\": [{string.Join(", ", items)}], \"Ticked\": [{string.Join(", ", ticked)}]}}");
+		}
+		return "[" + string.Join(",\n ", rows) + "]\n";
+	}
+
+	/// <summary>Ticks (check=1) or unticks (check=0) the item at ?index= of the table at ?table=.</summary>
+	private static string Check(NameValueCollection q)
+	{
+		if (!Buttons.TryPointer(q["table"], out var pointer)) return "error: ?table=<0x…> from /checkrows required";
+		if (!int.TryParse(q["index"], out var index) || index < 0) return "error: ?index=<item> required (0-based)";
+		if (q["check"] is not ("1" or "0")) return "error: ?check=1|0 required";
+		foreach (var e in Buttons.Elements())
+		{
+			if (e.Pointer != pointer) continue;
+			var list = e.TryCast<StreamedListView>();
+			var selection = list?.ListElement?.SelectionInternal;
+			if (selection == null) return "error: that element is not a table that keeps a selection";
+			if (index >= list.ItemCount) return $"error: the table has {list.ItemCount} items";
+			if (q["dry"] == "1") return $"dry run, NOT ticked: item {index}";
+			var on = q["check"] == "1";
+			var before = selection.Contains(index);
+			if (before != on) selection.SetSelected(index, on);
+			return $"item {index} {(before ? "ticked" : "unticked")} -> {(selection.Contains(index) ? "ticked" : "unticked")}";
+		}
+		return $"error: no element at {q["table"]}";
 	}
 
 	private static UnityEngine.UIElements.Toggle Toggle(UnityEngine.UIElements.VisualElement element, int depth)

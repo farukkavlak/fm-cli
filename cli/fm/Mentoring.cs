@@ -1,49 +1,46 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace FmCli;
 
 /// <summary>
-/// Mentoring groups (Squad › Training › Mentoring, FINDINGS §8.102): which players are grouped
-/// to learn from one another. Read from the data each group's graph binds — its members with
-/// their personalities — and set up by asking the assistant, as the page offers.
+/// Mentoring groups (Squad › Training › Mentoring, FINDINGS §8.102, §8.106, §8.188): which players
+/// are grouped to learn from one another. Read from the team's own data, no page; set up by asking
+/// the assistant, or made in the game's group editor, each control told by what it does and every
+/// step confirmed from the data.
 /// </summary>
 internal static partial class Program
 {
+	/// <summary>The assistant's "assign mentoring groups": the action it stands for (TeamSetRecommendedMentoringGroups).</summary>
+	private const string MentoringAskAction = "1882280514";
+	/// <summary>What the button acknowledging an assistant's answer sends (InteropEventIDs.EventFmxClearChanges).</summary>
+	private const string SpeakToAcknowledge = "31";
+	private static readonly string[] MentoringPlaces = ["MentoringGroupPlayerOne", "MentoringGroupPlayerTwo", "MentoringGroupPlayerThree"];
+
+	/// <summary>
+	/// A group as the team's data has it. What it is, over time, is who is in it: its UniqueId and a
+	/// name the game gives ("2. Mentorluk Grubu") are renumbered when a group before it is deleted.
+	/// </summary>
+	private sealed record MentoringGroup(string Name, string Row, List<(string Player, string Id, string Personality)> Members)
+	{
+		public string Who => string.Join(",", Members.Select(m => m.Id).OrderBy(i => i, StringComparer.Ordinal));
+	}
+
 	private static async Task<int> Mentoring(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenSubpage(Screen.Training, Screen.Mentoring,
-			async () => (await Fm.GetJson("texts", ("anchor", "Mentoring Groups"), ("up", "0"))).GetArrayLength() > 0);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		if (!await Until(async () => (await Fm.GetJson("texts", ("anchor", "Mentoring Groups"), ("up", "0"))).GetArrayLength() > 0, seconds: 8, every: 0.4))
-		{
-			Console.Error.WriteLine(L("Mentorluk sayfası açılmadı."));
-			return 1;
-		}
-
-		Task<List<(string Name, List<(string Player, string Personality)> Members)>> Groups() => MentoringGroupsOnPage();
-
 		if (args.Length > 1 && args[1] is "new" or "yeni") return await NewMentoringGroup(json, args);
 		if (args.Length > 1 && args[1] is "remove" or "sil") return await RemoveMentoringGroup(args);
 
-		var groups = await Groups();
-		if (args.Contains("--auto"))
+		var groups = await MentoringGroups();
+		if (groups != null && args.Contains("--auto"))
 		{
-			// "Ask <assistant> to assign mentoring groups": his answer is a line to acknowledge.
-			var ask = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.FirstOrDefault(b => Field(b, "Label").EndsWith("assign mentoring groups", StringComparison.Ordinal));
-			if (ask.ValueKind != JsonValueKind.Object)
-			{
-				Console.Error.WriteLine(L("Sayfada yardımcıya grup kurdurma seçeneği yok."));
-				return 1;
-			}
-			var said = await Fm.Get("press", ("ptr", Field(ask, "Pointer")));
-			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-			await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Label") == "Acknowledge and Move On"), seconds: 6, every: 0.4);
-			await Fm.Get("press", ("text", "Acknowledge and Move On"), ("any", "1"));
-			await Task.Delay(800);
-			groups = await Groups();
+			if (await MentoringAuto(args.Contains("--yes")) is { } stopped) return stopped;
+			groups = await MentoringGroups();
+		}
+		if (groups == null)
+		{
+			Console.Error.WriteLine(L("Mentorluk grupları okunamadı."));
+			return 1;
 		}
 
 		if (json)
@@ -65,160 +62,195 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>The list of groups on the page: a radio group whose tiles are the groups' names.</summary>
-	private static async Task<JsonElement?> MentoringGroupList()
+	/// <summary>
+	/// Every group with its members, from the team's data (the list the page's group list is bound
+	/// to, in its order), personalities in the game's words. A place in a group nobody fills is left
+	/// out. Null when the list could not be read, which is not the same as there being no groups.
+	/// </summary>
+	private static async Task<List<MentoringGroup>> MentoringGroups()
 	{
-		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Name") == "SIRadioGroup");
-		return list.ValueKind == JsonValueKind.Object ? list : null;
+		JsonElement list;
+		try { list = await Fm.Pull("Human.Team.MentoringGroups", "Name", list: true); }
+		catch (FmError) { return null; }
+		if (list.ValueKind != JsonValueKind.Array) return null;
+		var rows = list.EnumerateArray().Select(g => (Name: Field(g, "Name"), Row: Field(g, "Row"))).ToList();
+		var read = await PullEach(rows.SelectMany(g => MentoringPlaces.Select(p => ($"{g.Row}.{p}", "Name,UniqueId,Personality"))).ToList());
+		return rows.Select((g, at) => new MentoringGroup(g.Name, g.Row, read.Skip(at * MentoringPlaces.Length).Take(MentoringPlaces.Length)
+				.Where(m => Field(m, "UniqueId").Length > 0)
+				.Select(m => (Field(m, "Name"), Field(m, "UniqueId"), GameWords.Of(Field(m, "Personality"))))
+				.ToList()))
+			.ToList();
+	}
+
+	/// <summary>The assistant's buttons on the mentoring card, each with the action it stands for and what it sends.</summary>
+	private static async Task<List<(JsonElement Button, string Action, string Event)>> MentoringSpeakTo()
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Page") == Screen.Mentoring && Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
+			.ToList();
+		var actions = await PullEach(buttons.Select(b => (Field(b, "Action"), "ActionID,Event")).ToList());
+		return buttons.Zip(actions, (b, a) => (b, Field(a, "ActionID"), Field(a, "Event"))).ToList();
 	}
 
 	/// <summary>
-	/// The groups' names as the page writes them, once it has stopped changing. The radio group
-	/// arrives a moment after the page does, and a list read too early is an empty one — which
-	/// once made every group look new, and so fit to be cleared away (FINDINGS §8.106).
+	/// Asks the assistant to set the groups up, then acknowledges his answer, as the page offers: the
+	/// ask is told by its action, the answer by the acknowledging button it brings. An answer left
+	/// unacknowledged from before hides the ask, and is acknowledged first. Null when done; else what
+	/// the command ends with (the game's question answered no without --yes).
 	/// </summary>
-	private static async Task<List<string>> MentoringGroupNames()
+	private static async Task<int?> MentoringAuto(bool yes)
 	{
-		// The page is up once its button for a new group is; the names are the group list's choices,
-		// read twice alike (the words around them are the game's, in its language).
-		var names = new List<string>();
-		var previous = "?";
-		await Until(async () =>
-		{
-			var ready = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.Any(b => Field(b, "Events").Contains("EventFmxAddMentoringGroup", StringComparison.Ordinal));
-			var listed = (await MentoringGroupList())?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList() ?? [];
-			var key = string.Join("|", listed);
-			var settled = ready && key == previous;
-			previous = key;
-			names = listed;
-			return settled;
-		}, seconds: 8, every: 0.5);
-		return names;
-	}
+		async Task<JsonElement?> Find(Func<(JsonElement Button, string Action, string Event), bool> which) =>
+			(await MentoringSpeakTo()).Where(which).Select(s => (JsonElement?)s.Button).FirstOrDefault();
+		static bool Asks((JsonElement Button, string Action, string Event) s) => s.Action == MentoringAskAction;
+		static bool Acknowledges((JsonElement Button, string Action, string Event) s) => s.Event == SpeakToAcknowledge;
 
-	/// <summary>
-	/// Every group with its three members. The page draws one group's graph at a time — the
-	/// selected one's — so each is selected in turn and read once the graph is its own
-	/// (FINDINGS §8.106). A group left without players shows as one with no members.
-	/// </summary>
-	private static async Task<List<(string Name, List<(string Player, string Personality)> Members)>> MentoringGroupsOnPage()
-	{
-		var groups = new List<(string Name, List<(string Player, string Personality)> Members)>();
-		var names = await MentoringGroupNames();
-		var last = "";
-		for (var index = 0; index < names.Count; index++)
+		var opened = await OpenSubpage(Screen.Training, Screen.Mentoring, async () => (await MentoringSpeakTo()).Count > 0);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+
+		// What the button pressed brings: the other button, once the one pressed has gone.
+		async Task<bool> Press(JsonElement button, Func<(JsonElement Button, string Action, string Event), bool> then)
 		{
-			await Fm.Get("select", ("name", "SIRadioGroup"), ("index", index.ToString()));
-			(string Selected, List<(string Player, string Personality)> Members) read = default;
-			var previous = "?";
-			var polls = 0;
-			await Until(async () =>
-			{
-				read = MentoringGraph(await Fm.Get("tree", ("depth", "40")));
-				var key = string.Join(",", read.Members.Select(m => m.Player));
-				// The name changes at once and the graph a little after: the members still being
-				// the last group's is the graph not having caught up, unless it stays so.
-				var settled = read.Selected == names[index] && key == previous && (key != last || ++polls >= 4);
-				previous = key;
-				return settled;
-			}, seconds: 6, every: 0.5);
-			var members = read.Selected == names[index] ? read.Members : [];
-			if (index > 0 && string.Join(",", members.Select(m => m.Player)) == last) members = [];
-			else last = string.Join(",", members.Select(m => m.Player));
-			groups.Add((names[index], members));
+			var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+			if (said.StartsWith("error", StringComparison.Ordinal)) return false;
+			return await Until(async () => await Find(then) != null, seconds: 10, every: 0.25);
 		}
-		if (names.Count > 1) await Fm.Get("select", ("name", "SIRadioGroup"), ("index", "0"));
-		return groups;
-	}
 
-	/// <summary>
-	/// The selected group's name and the members its graph binds: each a personality followed
-	/// by a name, before the list of groups begins.
-	/// </summary>
-	private static (string Selected, List<(string Player, string Personality)> Members) MentoringGraph(string tree)
-	{
-		var members = new List<(string Player, string Personality)>();
-		string personality = null, selected = "";
-		bool graph = false, chosen = false;
-		foreach (var line in tree.Split('\n'))
+		if (await Find(Asks) is null && await Find(Acknowledges) is { } left && !await Press(left, Asks))
 		{
-			if (Regex.IsMatch(line, @"^\s*MentoringGroupRelationship\d+\b")) { graph = true; continue; }
-			if (Regex.IsMatch(line, @"^\s*MentoringGroupListSelect")) graph = false;
-			if (Regex.IsMatch(line, @"^\s*selectedmentoringgroup\b")) { chosen = true; continue; }
-
-			if (chosen && Regex.Match(line, @"^\s*Name = \(String\) (.*)$") is { Success: true } own)
+			Console.Error.WriteLine(L("Yardımcının önceki cevabı kapatılamadı."));
+			return 1;
+		}
+		if (await Find(Asks) is not { } ask)
+		{
+			Console.Error.WriteLine(L("Sayfada yardımcıya grup kurdurma seçeneği yok."));
+			return 1;
+		}
+		// With groups already made the game asks first, in a window of the action's own (every group
+		// is deleted): answered yes only with --yes.
+		var said = await Fm.Get("press", ("ptr", Field(ask, "Pointer")));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+		JsonElement dialog = default;
+		bool Asking() => dialog.ValueKind == JsonValueKind.Array && dialog.EnumerateArray().Any(d => Field(d, "Type") == "Confirm" + MentoringAskAction);
+		await Until(async () => (dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0 && Asking() || await Find(Acknowledges) != null, seconds: 10, every: 0.25);
+		if (Asking())
+		{
+			var window = dialog.EnumerateArray().First(d => Field(d, "Type") == "Confirm" + MentoringAskAction);
+			if (DialogAnswer(window, yes) is not { } reply)
 			{
-				selected = own.Groups[1].Value.Trim();
-				chosen = false;
-				continue;
+				Console.Error.WriteLine(L("Oyunun sorusu cevaplanamadı; gruplar değişmedi."));
+				return 1;
 			}
-			if (!graph) continue;
-			if (Regex.Match(line, @"^\s*Personality = \(String\) (.*)$") is { Success: true } p) { personality = p.Groups[1].Value.Trim(); continue; }
-			if (Regex.Match(line, @"^\s*Name = \(String\) (.*)$") is not { Success: true } n || personality == null) continue;
-			var name = n.Groups[1].Value.Trim();
-			if (members.All(m => m.Player != name)) members.Add((name, personality));
-			personality = null;
+			await Fm.Get("click", ("ptr", Field(reply, "Pointer")));
+			if (!yes)
+			{
+				Console.WriteLine(L($"Oyun soruyor: {Field(window, "Description")}"));
+				Console.WriteLine(L("Hayır dendi, gruplar değişmedi. Onaylamak için: mentoring --auto --yes"));
+				return 0;
+			}
+			await Until(async () => await Find(Acknowledges) != null, seconds: 10, every: 0.25);
 		}
-		return (selected, members);
-	}
-
-	/// <summary>
-	/// The players the group editor offers, read down its list: name, age, workload,
-	/// personality and standing in the squad. The list only lays out what is in view.
-	/// </summary>
-	private static async Task<List<string[]>> MentoringCandidates()
-	{
-		var seen = new HashSet<string>();
-		var rows = new List<string[]>();
-		foreach (var share in new[] { null, "0", "0.5", "1" })
+		if (await Find(Acknowledges) is not { } answer)
 		{
-			var texts = (await Fm.GetJson("texts", ("anchor", "Auto Select"), ("up", "6"))).EnumerateArray()
-				.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
-			int from = texts.IndexOf("Hierarchy"), to = texts.IndexOf("Confirm");
-			if (from < 0 || to < from) break;
-			for (var at = from + 1; at + 4 < to; at += 5)
-				if (seen.Add(texts[at])) rows.Add([texts[at], texts[at + 1], texts[at + 2], texts[at + 3], texts[at + 4]]);
-
-			if (share == "1" || rows.Count == 0) break;
-			// Scrolled by a cell that is only in this list: a workload, not a name the page
-			// behind has too.
-			var moved = await Fm.Get("scroll", ("anchor", rows[^1][2]), ("to", share ?? "0"));
-			if (moved.StartsWith("error", StringComparison.Ordinal) || moved.TrimEnd().EndsWith(" of 0", StringComparison.Ordinal)) break;
-			await Task.Delay(500);
+			Console.Error.WriteLine(L("Yardımcı cevap vermedi; gruplar değişmedi."));
+			return 1;
 		}
-		return rows;
+		await Press(answer, Asks);
+		return null;
 	}
 
-	private static async Task<bool> MentoringEditorOpen() =>
-		(await Fm.GetJson("texts", ("anchor", "Mentoring Group Name"), ("up", "0"))).GetArrayLength() > 0;
+	/// <summary>The group list on the page: the radio group bound to the group the page shows.</summary>
+	private static async Task<JsonElement?> MentoringGroupList() =>
+		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
+			.FirstOrDefault(d => Field(d.Value, "Binds") == "selectedmentoringgroup");
+
+	private static async Task<JsonElement?> MentoringEditorButton(string sends) =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
+			.FirstOrDefault(b => Field(b.Value, "Page") == Screen.MentoringEditor && Field(b.Value, "Events").Split(", ").Contains(sends));
 
 	/// <summary>
-	/// Leaves the editor without confirming. The game made the group when the editor opened, so
-	/// walking away leaves an empty one behind; it is taken out again.
+	/// The players the editor offers, in the order its table shows them, read from the table's own
+	/// items: the table's selection counts in that order (FINDINGS §8.188). Of the tables with a box
+	/// to tick, the one whose players are those the group offers. Workload, personality and standing
+	/// are put into the game's words as they are read: one English is shown two ways, and the next
+	/// page read can teach the other ("Average" is a workload's "Orta", squad dynamics' "Vasat").
 	/// </summary>
-	private static async Task AbandonMentoringGroup(List<string> before)
+	private static async Task<(string Table, List<string[]> Rows)> MentoringCandidates(string group)
 	{
-		var back = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(b => Field(b, "Name") == "BackButton" && Field(b, "Events") == "PanelHistoryBack");
-		if (back.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(back, "Pointer")));
-		await Until(async () => !await MentoringEditorOpen(), seconds: 5, every: 0.4);
-		await Task.Delay(600);
-		// Only ever the one group more than there was, and only when the rest is as it was.
-		var names = await MentoringGroupNames();
-		var added = names.Where(n => !before.Contains(n)).ToList();
-		if (names.Count != before.Count + 1 || added.Count != 1) return;
-		await DeleteMentoringGroup(names.IndexOf(added[0]));
+		JsonElement offered;
+		try { offered = await Fm.Pull($"{group}.PlayersAvailableForMentoring", "UniqueId", list: true); }
+		catch (FmError) { return (null, []); }
+		var ids = offered.ValueKind == JsonValueKind.Array ? offered.EnumerateArray().Select(p => Field(p, "UniqueId")).ToHashSet() : [];
+		if (ids.Count == 0) return (null, []);
+
+		string[] props = ["UniqueId", "Name", "Age", "PlayerTraining.Workload", "Personality", "HierarchyInfluenceCategoryString"];
+		foreach (var table in (await Fm.GetJson("checkrows", ("gen", Environment.TickCount64.ToString()))).EnumerateArray())
+		{
+			var items = table.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").ToList();
+			if (items.Count != ids.Count || items.Any(i => i.Length == 0)) continue;
+			// The standing is the player's in a team, asked for as "team" beside the items.
+			var under = items[0][..items[0].LastIndexOf('.')];
+			await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.team"), ("from", "Human.Team"))).StartsWith("error", StringComparison.Ordinal), seconds: 5, every: 0.2);
+			var read = await PullEach(items.Select(i => (i, string.Join(",", props))).ToList());
+			if (!read.All(r => ids.Contains(Field(r, "UniqueId")))) continue;
+			return (Field(table, "Table"), read.Select(r => props.Select((p, at) => at >= 3 ? GameWords.Of(Field(r, p)) : Field(r, p)).ToArray()).ToList());
+		}
+		return (null, []);
 	}
 
-	private static async Task<bool> DeleteMentoringGroup(int index)
+	/// <summary>The UniqueIds of the editor table's players, in the order the table shows them now.</summary>
+	private static async Task<List<string>> MentoringTablePlayers(string table)
 	{
-		var count = (await MentoringGroupList())?.GetProperty("Choices").GetArrayLength() ?? 0;
-		await Fm.Get("select", ("name", "SIRadioGroup"), ("index", index.ToString()));
-		await Task.Delay(700);
-		var delete = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Events").Contains("EventFmxDeleteMentoringGroup", StringComparison.Ordinal));
-		if (delete.ValueKind != JsonValueKind.Object) return false;
+		var found = (await Fm.GetJson("checkrows", ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.FirstOrDefault(t => Field(t, "Table") == table);
+		if (found.ValueKind != JsonValueKind.Object) return [];
+		var items = found.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").ToList();
+		return (await PullEach(items.Select(i => (i, "UniqueId")).ToList())).Select(r => Field(r, "UniqueId")).ToList();
+	}
+
+	/// <summary>
+	/// Leaves the editor without confirming, by its own back button. The game made the group when the
+	/// editor opened, so walking away leaves an empty one behind, the last in the list: it is taken
+	/// out again, but only while the list is the one before with that empty group more.
+	/// </summary>
+	private static async Task AbandonMentoringGroup(List<MentoringGroup> before)
+	{
+		if (await MentoringEditorButton("PanelHistoryBack") is { } back) await Fm.Get("click", ("ptr", Field(back, "Pointer")));
+		await Until(async () => await MentoringEditorButton("PanelHistoryBack") is null, seconds: 5, every: 0.25);
+		var now = await MentoringGroups();
+		if (now != null && now.Count == before.Count + 1 && now[^1].Members.Count == 0
+		    && now.Take(before.Count).Select(g => g.Who).SequenceEqual(before.Select(g => g.Who)))
+			await DeleteMentoringGroup(now.Count - 1, now);
+	}
+
+	/// <summary>
+	/// Takes apart the group at a place in the list as read: it is chosen in the page's group list
+	/// (bound to the same list, in its order), and the delete button is pressed only once what it
+	/// sends is that group (by who is in it; an empty group by its name). Done when the list has one
+	/// group fewer and none with those players.
+	/// </summary>
+	private static async Task<bool> DeleteMentoringGroup(int at, List<MentoringGroup> groups)
+	{
+		var target = groups[at];
+		if (await MentoringGroupList() is not { } list) return false;
+		await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("index", at.ToString()));
+
+		var places = string.Join(",", MentoringPlaces.Select(p => p + ".UniqueId"));
+		JsonElement delete = default;
+		var aimed = await Until(async () =>
+		{
+			delete = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Events").Split(", ").Contains("EventToPlugin:EventFmxDeleteMentoringGroup") && Field(b, "Sends").Length > 0);
+			if (delete.ValueKind != JsonValueKind.Object) return false;
+			var sent = (await PullEach([(Field(delete, "Sends"), "Name," + places)], r => Field(r, "Name").Length > 0))[0];
+			var who = string.Join(",", MentoringPlaces.Select(p => Field(sent, p + ".UniqueId")).Where(i => i.Length > 0).OrderBy(i => i, StringComparer.Ordinal));
+			return who == target.Who && (target.Members.Count > 0 || Field(sent, "Name") == target.Name);
+		}, seconds: 6, every: 0.25);
+		if (!aimed) return false;
+
 		await Fm.Get("click", ("ptr", Field(delete, "Pointer")));
-		return await Until(async () => ((await MentoringGroupList())?.GetProperty("Choices").GetArrayLength() ?? 0) < count, seconds: 5, every: 0.4);
+		return await Until(async () => await MentoringGroups() is { } now && now.Count == groups.Count - 1
+			&& (target.Members.Count == 0 || now.All(g => g.Who != target.Who)), seconds: 8, every: 0.25);
 	}
 
 	/// <summary>
@@ -227,7 +259,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> NewMentoringGroup(bool json, string[] args)
 	{
-		var name = Array.IndexOf(args, "--name") is >= 0 and var at && at + 1 < args.Length ? args[at + 1] : null;
+		var name = Option(args, "--name");
 		var picks = Words(args).Skip(1).ToList();
 		if (picks.Count is not (0 or 3))
 		{
@@ -235,109 +267,154 @@ internal static partial class Program
 			return 64;
 		}
 
-		var before = await MentoringGroupNames();
-		var opened = await Arriving("press", [("event", "EventToPlugin:EventFmxAddMentoringGroup")]);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		if (!await Until(MentoringEditorOpen, seconds: 8, every: 0.4))
+		// After a group is taken apart the game keeps the old list until the day is processed: the
+		// editor brings the group back, and the new group is given the UniqueId of one still there,
+		// which mixes the two up (FINDINGS §8.188). A group is made only on another day.
+		if (await MentoringRemovedToday())
 		{
+			Console.Error.WriteLine(L("Bugün bir mentorluk grubu dağıtıldı; oyun aynı gün yeni grup açınca eski listeyi geri yüklüyor ve grupları karıştırıyor. Önce bir gün ilerlet (next), sonra kur."));
+			return 1;
+		}
+
+		const string AddGroup = "EventToPlugin:EventFmxAddMentoringGroup";
+		async Task<bool> CanAdd() => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Any(b => Field(b, "Page") == Screen.Mentoring && Field(b, "Events").Split(", ").Contains(AddGroup));
+		var opened = await OpenSubpage(Screen.Training, Screen.Mentoring, CanAdd);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+
+		if (await MentoringGroups() is not { } before)
+		{
+			Console.Error.WriteLine(L("Mentorluk grupları okunamadı."));
+			return 1;
+		}
+		var pressed = await Arriving("press", [("event", AddGroup)]);
+		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+		// The editor is for the group the press made, last in the list and empty; it is open once
+		// its table offers that group's players.
+		string group = null;
+		(string Table, List<string[]> Rows) candidates = (null, []);
+		await Until(async () =>
+		{
+			if (await MentoringGroups() is not { } now || now.Count != before.Count + 1 || now[^1].Members.Count > 0) return false;
+			group = now[^1].Row;
+			candidates = await MentoringCandidates(group);
+			return candidates.Table != null && await MentoringEditorButton("PanelHistoryBack") != null;
+		}, seconds: 10, every: 0.25);
+		if (candidates.Table == null)
+		{
+			await AbandonMentoringGroup(before);
 			Console.Error.WriteLine(L("Grup düzenleyicisi açılmadı."));
 			return 1;
 		}
-		await Task.Delay(800);
 
-		var candidates = await MentoringCandidates();
+		var rows = candidates.Rows;
 		if (picks.Count == 0)
 		{
 			await AbandonMentoringGroup(before);
-			if (json) Console.WriteLine(JsonOut.Of(candidates.Select(c => new { Player = c[0], Age = c[1], Workload = c[2], Personality = c[3], Hierarchy = c[4] })));
+			if (json) Console.WriteLine(JsonOut.Of(rows.Select(c => new { Player = c[1], Age = c[2], Workload = c[3], Personality = c[4], Hierarchy = c[5] })));
 			else
 			{
-				Table.Write([L("OYUNCU"), L("YAŞ"), L("YÜK"), L("KİŞİLİK"), L("HİYERARŞİ")], candidates);
+				Table.Write([L("OYUNCU"), L("YAŞ"), L("YÜK"), L("KİŞİLİK"), L("HİYERARŞİ")], rows.Select(r => r[1..]).ToList());
 				Console.WriteLine(L("\nGrup kurmak için üçünü yaz:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name \"<ad>\"]"));
 			}
 			return 0;
 		}
 
-		var chosen = new List<string>();
+		var chosen = new List<string[]>();
 		foreach (var pick in picks)
 		{
-			var player = Choose(candidates.Select(c => c[0]).ToList(), pick, L("Oyuncu"));
-			if (player == null || chosen.Contains(player))
+			var player = Choose(rows.Select(r => r[1]).ToList(), pick, L("Oyuncu"));
+			var row = rows.FirstOrDefault(r => r[1] == player);
+			if (row == null || chosen.Contains(row))
 			{
-				if (player != null) Console.Error.WriteLine(L($"{player} iki kez yazıldı."));
+				if (row != null) Console.Error.WriteLine(L($"{player} iki kez yazıldı."));
 				await AbandonMentoringGroup(before);
 				return 64;
 			}
-			chosen.Add(player);
+			chosen.Add(row);
 		}
 
-		// The editor's list keeps where it was scrolled to last time. It is moved by a workload shown in
-		// it ("Heavy", "Medium": only this list has them; a name is in the squad list behind it too), and
-		// whichever of them is in view at the time will do.
-		var workloads = candidates.Select(c => c[2]).Where(w => w.Length > 0).Distinct().ToList();
-		async Task<bool> ScrollTo(string share)
+		// Each is ticked by his place in the table as it is right then: the table lays its players out
+		// in the source's order and sorts them a moment later, so a place read once can be another
+		// player's by the time of the tick. Ticked is what the group's data says is picked; a wrong
+		// one is unticked again and the place read anew.
+		var wanted = chosen.Select(c => c[0]).OrderBy(i => i, StringComparer.Ordinal).ToList();
+		async Task<List<string>> Picked()
 		{
-			foreach (var load in workloads)
-				if (!(await Fm.Get("scroll", ("anchor", load), ("to", share))).StartsWith("error", StringComparison.Ordinal)) return true;
-			return false;
+			try
+			{
+				var list = await Fm.Pull($"{group}.SelectedPlayers", "UniqueId", list: true);
+				return list.ValueKind == JsonValueKind.Array ? list.EnumerateArray().Select(p => Field(p, "UniqueId")).ToList() : [];
+			}
+			catch (FmError) { return []; }
 		}
-		await ScrollTo("0");
-		await Task.Delay(400);
 		foreach (var player in chosen)
 		{
-			// The editor's list is drawn a moment after it opens.
-			var ticked = "";
-			await Until(async () => !(ticked = await Fm.Get("rowselect", ("text", player), ("check", "1"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
-			if (ticked.StartsWith("error", StringComparison.Ordinal))
+			var done = false;
+			for (var attempt = 0; attempt < 3 && !done; attempt++)
 			{
-				// Out of view: the list is moved until the row is laid out.
-				foreach (var share in new[] { "0", "0.5", "1" })
+				var places = await MentoringTablePlayers(candidates.Table);
+				var at = places.IndexOf(player[0]);
+				if (at < 0) break;
+				var picked = await Picked();
+				var ticked = await Fm.Get("rowselect", ("table", candidates.Table), ("index", at.ToString()), ("check", "1"));
+				if (ticked.StartsWith("error", StringComparison.Ordinal))
 				{
-					await ScrollTo(share);
-					await Task.Delay(500);
-					ticked = await Fm.Get("rowselect", ("text", player), ("check", "1"));
-					if (!ticked.StartsWith("error", StringComparison.Ordinal)) break;
+					await AbandonMentoringGroup(before);
+					return Report(ticked);
 				}
+				var now = picked;
+				await Until(async () => (now = await Picked()).Count != picked.Count, seconds: 5, every: 0.25);
+				done = now.Contains(player[0]);
+				// Another player taken by mistake is let go, wherever the table has him now.
+				foreach (var wrong in now.Where(id => !wanted.Contains(id)).ToList())
+					if ((await MentoringTablePlayers(candidates.Table)).IndexOf(wrong) is var gone and >= 0)
+						await Fm.Get("rowselect", ("table", candidates.Table), ("index", gone.ToString()), ("check", "0"));
 			}
-			if (ticked.StartsWith("error", StringComparison.Ordinal))
+			if (!done)
 			{
 				await AbandonMentoringGroup(before);
-				return Report(ticked);
+				Console.Error.WriteLine(L($"{player[1]} düzenleyicinin tablosunda işaretlenemedi; grup kurulmadı."));
+				return 1;
 			}
 		}
-
-		if (name != null)
-		{
-			var box = (await Fm.GetJson("textboxes")).EnumerateArray().LastOrDefault(b => Field(b, "Name") == "EditBox");
-			if (box.ValueKind == JsonValueKind.Object) await Fm.Get("type", ("ptr", Field(box, "Pointer")), ("text", name));
-		}
-
-		JsonElement confirm = default;
-		await Until(async () =>
-		{
-			confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				// The game takes the three once its confirming button is enabled (the count above it is the engine's words).
-				.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxEditMentoringGroup", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
-			return confirm.ValueKind == JsonValueKind.Object;
-		}, seconds: 4, every: 0.3);
-		if (confirm.ValueKind != JsonValueKind.Object)
+		var valid = await Until(async () => (await Picked()).OrderBy(i => i, StringComparer.Ordinal).SequenceEqual(wanted)
+			&& Field((await PullEach([(group, "IsValid")]))[0], "IsValid") == "True", seconds: 8, every: 0.25);
+		if (!valid)
 		{
 			await AbandonMentoringGroup(before);
 			Console.Error.WriteLine(L("Oyun bu üçlüyü onaylatmıyor; grup kurulmadı."));
 			return 1;
 		}
-		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
-		await Until(async () => !await MentoringEditorOpen(), seconds: 6, every: 0.4);
-		await Task.Delay(600);
 
-		var after = await MentoringGroupNames();
-		var made = after.FirstOrDefault(n => !before.Contains(n));
-		if (made == null)
+		if (name != null)
 		{
-			Console.Error.WriteLine(L("Onaylandı ama yeni grup listede görünmüyor."));
+			// The box bound to the name the confirming button sends with the group.
+			var box = (await Fm.GetJson("textboxes")).EnumerateArray().FirstOrDefault(b => Field(b, "Binds") == "newgroupname");
+			if (box.ValueKind == JsonValueKind.Object) await Fm.Get("type", ("ptr", Field(box, "Pointer")), ("text", name));
+			else Console.Error.WriteLine(L("Grup adı kutusu bulunamadı; oyunun verdiği adla kuruluyor."));
+		}
+
+		if (await MentoringEditorButton("EventToPlugin:EventFmxEditMentoringGroup") is not { } confirm)
+		{
+			await AbandonMentoringGroup(before);
+			Console.Error.WriteLine(L("Onay düğmesi bulunamadı; grup kurulmadı."));
 			return 1;
 		}
-		Console.WriteLine(L($"Kuruldu: {made} — {string.Join(", ", chosen)}"));
+		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
+
+		// Made when the team's data has a group of the three (named so, if a name was given).
+		var who = string.Join(",", wanted);
+		MentoringGroup result = null;
+		await Until(async () => (result = (await MentoringGroups())?.FirstOrDefault(g => g.Who == who)) != null && (name == null || result.Name == name),
+			seconds: 10, every: 0.25);
+		if (result == null)
+		{
+			Console.Error.WriteLine(L("Onaylandı ama yeni grup oyunun verisinde görünmüyor."));
+			return 1;
+		}
+		if (name != null && result.Name != name) Console.Error.WriteLine(L($"Grup kuruldu ama oyun adını '{result.Name}' bıraktı."));
+		Console.WriteLine(L($"Kuruldu: {result.Name} — {string.Join(", ", result.Members.Select(m => m.Player))}"));
 		return 0;
 	}
 
@@ -345,36 +422,56 @@ internal static partial class Program
 	private static async Task<int> RemoveMentoringGroup(string[] args)
 	{
 		var typed = string.Join(" ", Words(args).Skip(1));
-		var names = await MentoringGroupNames();
-		if (names.Count == 0)
+		if (await MentoringGroups() is not { } groups)
+		{
+			Console.Error.WriteLine(L("Mentorluk grupları okunamadı."));
+			return 1;
+		}
+		if (groups.Count == 0)
 		{
 			Console.WriteLine(L("Mentorluk grubu yok."));
 			return 0;
 		}
+		var names = groups.Select(g => g.Name).ToList();
 		if (typed.Length == 0)
 		{
 			Console.Error.WriteLine(L("Hangi grup?  mentoring remove \"<grup>\" --yes"));
 			foreach (var n in names) Console.Error.WriteLine($"  {n}");
 			return 64;
 		}
-		if (Choose(names, typed, L("Grup")) is not { } group) return 64;
+		if (Choose(names, typed, L("Grup")) is not { } picked) return 64;
+		var group = groups[names.IndexOf(picked)];
 
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine(L($"'{group}' dağıtılır. Onaylamak için: mentoring remove \"{group}\" --yes"));
+				Console.Error.WriteLine(L($"'{group.Name}' dağıtılır. Onaylamak için: mentoring remove \"{group.Name}\" --yes"));
 				return 1;
 			}
-			if (Ui.Ask(L($"'{group}' dağıtılsın mı?"), [L("Dağıt")]) is null) return 0;
+			if (Ui.Ask(L($"'{group.Name}' dağıtılsın mı?"), [L("Dağıt")]) is null) return 0;
 		}
 
-		if (!await DeleteMentoringGroup(names.IndexOf(group)))
+		// The page is opened first, and the group found again in the list as it is then.
+		var opened = await OpenSubpage(Screen.Training, Screen.Mentoring, async () => await MentoringGroupList() != null);
+		var now = opened.StartsWith("error", StringComparison.Ordinal) ? null : await MentoringGroups();
+		var at = now?.FindIndex(g => group.Members.Count > 0 ? g.Who == group.Who : g.Name == group.Name) ?? -1;
+		if (at < 0 || !await DeleteMentoringGroup(at, now!))
 		{
-			Console.Error.WriteLine(L($"'{group}' dağıtılamadı."));
+			Console.Error.WriteLine(L($"'{group.Name}' dağıtılamadı."));
 			return 1;
 		}
-		Console.WriteLine(L($"Dağıtıldı: {group}"));
+		try { File.WriteAllText(CacheFile("mentoring-removed"), Field(await Fm.GetJson("state"), "Date")); }
+		catch (IOException) { }
+		Console.WriteLine(L($"Dağıtıldı: {group.Name}"));
 		return 0;
+	}
+
+	/// <summary>Whether a group was taken apart on the game's day as it is now (this career's, by <see cref="CacheFile"/>).</summary>
+	private static async Task<bool> MentoringRemovedToday()
+	{
+		var file = CacheFile("mentoring-removed");
+		try { return File.Exists(file) && File.ReadAllText(file).Trim() == Field(await Fm.GetJson("state"), "Date"); }
+		catch (IOException) { return false; }
 	}
 }

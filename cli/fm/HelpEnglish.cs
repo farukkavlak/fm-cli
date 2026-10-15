@@ -95,7 +95,7 @@ internal static partial class Program
 			    happiness <player>   why: morale, their place in the dressing room, what pleases them and what they complain about
 			    --why           everyone with a complaint, with their complaints
 			  internationals  internationals: nation, caps and goals, who played this season
-			  mentoring       mentoring groups and their members;  --auto: have the assistant build the groups
+			  mentoring       mentoring groups and their members;  --auto: have the assistant build the groups (--yes if there are groups)
 			    new [<p1> <p2> <p3>] [--name "<name>"]   build a group by hand; without players: who can be chosen
 			    remove "<group>" --yes                   break a group up
 			  dynamics        the dressing room: atmosphere, support for the manager, hierarchy and social groups

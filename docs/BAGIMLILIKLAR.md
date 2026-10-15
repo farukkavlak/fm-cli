@@ -27,7 +27,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   Dosya: satırlar —
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · Jobs 231 · Launcher 213 269 · League 243 ·
-  MatchDay 181 314 368 · MatchReport 35 · Matches 82 · Mentoring 45 188 205 217 246 285 297 331 · Numbers 158 177 ·
+  MatchDay 181 314 368 · MatchReport 35 · Matches 82 · ~~Mentoring 45 188 205 217 246 285 297 331~~ · Numbers 158 177 ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
   Scouting 100 · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
@@ -65,6 +65,23 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     (eklentide yeni `Page` alanı), oyunun onay penceresi yuvayla (`--yes` yoksa "Hayır"). Stil sınıfı
     (`dropdown-base-regular-trailing-icon`), "Ask … training intensities" ve "3 Days" yazıları kalktı (son ikisi Türkçede hiç
     çalışmıyordu). 5,9 → 2,3 sn liste, 3,8 sn değiştirme; 22/22 + `--auto` 7/7 (§8.187). İngilizcede denenmedi.
+  - [x] Mentoring 45 188 205 217 246 285 297 331 (onaylardan, kaydırmalardan, seçimden sonra 400–800 ms): gruplar takımın
+    verisinden (`Human.Team.MentoringGroups` + `MentoringGroupPlayerOne/Two/Three`), sayfa açılmıyor, `/tree` taraması yok.
+    `--auto`: yardımcı düğmeleri eylem kimliğiyle (eklenti `/buttons?gen=` → `Action`: sor = `ActionID`
+    `TeamSetRecommendedMentoringGroups`, kapat = `Event` 31 `EventFmxClearChanges`), gruplar varken oyunun onay penceresi
+    (`Confirm1882280514`, `--yes` yoksa "Hayır"). `new`: adaylar düzenleyici tablosunun öğelerinden (eklenti `/checkrows`,
+    görünüm sırası), işaret `/rowselect?table=&index=` (kaydırma yok), her işaretten önce sıra yeniden okunuyor ve seçim
+    grubun `SelectedPlayers`'ından doğrulanıyor; ad kutusu `Binds == newgroupname`, onay `IsValid` ile. `remove`: grup listesi
+    `Binds == selectedmentoringgroup`, silme düğmesine yalnızca gönderdiği grup (eklenti `Sends`) hedefin üyeleriyse basılıyor.
+    Bir grubun kimliği üyeleri (UniqueId ve oyunun verdiği ad silmeden sonra yeniden numaralanıyor). "Mentoring Groups",
+    "Auto Select"/"Hierarchy"/"Confirm", "Mentoring Group Name", "assign mentoring groups", "Acknowledge and Move On" ve
+    `EditBox` adı kalktı. Liste 8,4 → 0,7 sn; Türkçede `--auto` ilk kez çalıştı. Oyunun tuzağı: aynı gün silip yeni grup
+    açınca eski liste geri geliyor ve yeni grup var olan bir grubun kimliğini alıyor → `new` aynı oyun gününde bir
+    `remove`'dan sonra reddediyor (§8.188). Gün ilerletilerek doğrulandı: tek/çift silme, iki kurma, kurup silme. İngilizcede
+    denenmedi.
+  - [ ] "Acknowledge and Move On" yazısıyla basan 8 yer (BoardRequests 99 101, Captains 61, Propose 44, Release 47 80 156,
+    TraitTraining 45 110, TrainingReport 40 86): Türkçede de bu İngilizce geliyor ama yazı; kimliği `Event` 31
+    (`EventFmxClearChanges`, eklenti `/buttons?gen=` `Action`), mentorlukta ölçüldü (§8.188).
   - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel isteyen bir söz
     konuşması lazım; o an oyunda yok, ölçülmeden değiştirilmedi. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
@@ -105,7 +122,8 @@ tablodan çevrilemiyor.
     "injuries this season" · home-grown "years old" · Coach Report / Player Report " years old" Replace
   - [x] sakatlık eki "Received in" / "Out for" — Türkçede çalıştı (tablodan çevriliyor)
   - [x] ~~Intensity "Ask … training intensities"~~ (sayfa Guid'iyle, §8.187)
-  - [ ] Mentoring "assign mentoring groups" · Jobs "Managerial Position" ·
+  - [x] ~~Mentoring "assign mentoring groups"~~ (eylem kimliğiyle, §8.188)
+  - [ ] Jobs "Managerial Position" ·
     Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" · Penalties "Starting at " / "On Subs bench" ·
     Release "Is there anything else" · Matches "Match Ratings"+"Inf" · Saves "Estimated game speed:"
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da

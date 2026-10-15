@@ -1754,3 +1754,31 @@ kuruluyor ve önceki düğmeye basış kayboluyor → düğme her basıştan hem
 değişirse bir kez daha basılıyor (16 → 6–9 sn). Ölçüm: değiştirme 22/22 (dört seviye, dinlenme 1/2/3/6/7/14, tatil 1/2, otomatik,
 oyunun kendi kelimesi "Duble") yalnızca hedef oyuncuda; üç başlangıç durumu (başka sayfa / Bireysel Antrenman / yoğunluk
 kartı); `--auto` 7/7. İngilizcede denenmedi. Not: denemelerde Tom Hamer (1 hafta) ve Ryley Towler (2 hafta) tatile gitti.
+
+### 8.188 Mentorluk: veriden okuma, düğmeler kimlikle, oyunun aynı gün tuzağı (15 Ekim, Türkçe)
+Okuma sayfasız: `Human.Team.MentoringGroups` (liste; sayfanın grup listesi `Items = team.mentoringgroups`, aynı sıra) →
+`Name`, her satırın `MentoringGroupPlayerOne/Two/Three` → `Name`, `UniqueId`, `Personality`. Eski kod her yoklamada
+`/tree?depth=40` tarıyordu; 8,4 → 0,7 sn. `Personality`, `PlayerTraining.Workload` ve `HierarchyInfluenceCategoryString` (ister
+`team`) eklentiden İngilizce; oyunun kelimesi okunduğu anda (`GameWords.Of`) konmalı: "Average" iş yükünde "Orta", takım
+dinamiklerinde "Vasat" — düzenleyiciden çıkıp sayfa okununca ikincisi öğreniliyordu.
+Yardımcı: eklentide `/buttons?json=1&gen=<n>` her `SpeakToAction` düğmesinin eylemini (`<kaynak>`ın üstündeki en yakın
+`action` düğümü) `fmcli.speak.g<n>.<k>`'ya koyar (`Action`): sor = `ActionID` 1882280514 (`TeamSetRecommendedMentoringGroups`,
+`Event` 44 `EventFmxDoAction`), cevabı kapatan "Acknowledge and Move On" = `ActionID` 0, `Event` 31 (`EventFmxClearChanges`;
+Türkçe oyunda da etiketi İngilizce). Cevap kapatılmazsa sayfada kalır ve sor düğmesi gelmez. Gruplar varken sor →
+`Confirm1882280514` penceresi ("bütün gruplar silinecek"). Aynı istek `EventToPlugin` olaylarının gönderdiğini de koyar
+(`Sends` + `SendsProps`, `m_dataToSendBinding`'in ilk adı kaynaktan yukarı aranır): silme düğmesi
+`selectedmentoringgroup.UniqueId` gönderir, seçim değişince hemen izliyor.
+Düzenleyici (`57590a1a52e2c334485fd4134fa6e0cc`): "Create New Mentoring Group" grubu hemen listenin sonuna ekler; seçimler o
+grubun `SelectedPlayers` / `Count` / `IsValid`'inde. `TeamTraining.NewlyCreatedMentoringGroup` güvenilmez (10 sn eski grubu
+gösterdi). Tablo: eklentide `/checkrows?gen=` kutulu satırlı her tablonun (`TableRowNavigatable` + `Toggle` →
+`TableParent` `StreamedListView`) bütün öğelerini koyar; seçim (`ListElement.SelectionInternal`) GÖRÜNÜM sırasıyla sayar
+(kaynak sırası değil: 2 → Rob Street yerine Ivan Varfolomeev işaretlendi), öğeler bu yüzden `GetItemFromView(i)`.
+`/rowselect?table=&index=&check=1|0` satır çizilmemişken de işaretler (24. satır, kaydırmasız). Tablo önce kaynak sırasıyla
+çiziliyor, bir an sonra sıralanıyor → sıra her işaretten hemen önce okunuyor, sonuç `SelectedPlayers`'tan. Ad kutusu
+`BindableTextEditBox`, gönderdiği olay yok, `m_bindingKey` → `newgroupname` (eklenti `/textboxes` `Binds`); ad onayla gider.
+⚠ Sayfanın grup listesi oyunun asıl kaydının ara kopyası; değişiklik gün işlenince yerleşir. Silmeden sonra aynı gün
+"Create New" eski listeyi geri yükler (silinen grup geri görünür) ve yeni gruba var olan bir grubun `UniqueId`'sini verir;
+üstüne bir silme daha başka grupları siler (bir gecede dört grup karıştı). Ayrıca silmeden sonra `UniqueId` ve oyunun verdiği
+adlar ("2. Mentorluk Grubu") yeniden numaralanıyor → bir grubun kimliği üyeleri. Gün ilerletilerek doğrulandı: `--auto`, tek
+ve aynı gün iki silme, aynı gün iki kurma, kurup aynı gün silme hep kalıcı ve doğru; CLI `new`'ü aynı oyun gününde bir
+`remove`'dan sonra reddediyor (kariyer önbelleğinde `mentoring-removed` = günün tarihi). İngilizcede denenmedi.

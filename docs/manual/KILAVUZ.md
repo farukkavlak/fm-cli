@@ -2191,7 +2191,8 @@ Archie Brown    Balanced
 Levent Mercan   Resolute
 ```
 
-Hiç grup yoksa `fm mentoring --auto` grupları yardımcına kurdurur.
+`fm mentoring --auto` grupları yardımcına kurdurur. Zaten grup varsa oyun önce "bütün gruplar silinecek" diye sorar;
+komut bu soruyu gösterip "Hayır" der, kurdurmak için `fm mentoring --auto --yes`.
 
 Elle kurmak için önce kimlerin seçilebildiğine bak, sonra üç oyuncuyu yaz (bir grup hep üç kişi):
 
@@ -2209,4 +2210,7 @@ Kuruldu: Deneme Grubu — Talisca, Fred, Dorgéles Néné
 
 `--name` yazmazsan oyun grubu kendisi adlandırır ("Mentoring Group 2"). Bir grubu dağıtmak için
 `fm mentoring remove "<grup>" --yes`; oyun bunu sormadan yaptığı için `--yes` komutta.
+
+Bir grubu dağıttığın gün yeni grup kurulmaz: oyun o gün yeni grup açınca dağıtılanı geri getirip grupları karıştırıyor.
+Komut bunu söyler; `fm next` ile bir gün ilerletip sonra kur.
 

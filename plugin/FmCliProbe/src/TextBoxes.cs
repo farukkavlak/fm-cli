@@ -41,11 +41,54 @@ internal static class TextBoxes
 					["Type"] = Buttons.Short(box.GetIl2CppType().FullName),
 					["Text"] = box.m_textField?.value ?? "",
 					["Enabled"] = box.enabledInHierarchy ? "True" : "False",
+					["Binds"] = Binds(box) ?? "",
+					["Events"] = string.Join(", ", Sent(box)),
+					["Page"] = Page(box) ?? "",
 				}));
 			}
 			catch { }
 		}
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
+	}
+
+	/// <summary>The name of what the box's text is bound to (a mentoring group's "mentoringgroupname"…): the box by what it is for.</summary>
+	private static string Binds(BindableTextEditBox box)
+	{
+		try
+		{
+			var key = box.m_bindingKey;
+			var b = Game.Bindings;
+			if (b == null || !b.Exists(ref key)) return null;
+			var path = b.GetPathDebug(ref key) ?? "";
+			return path[(path.LastIndexOf('.') + 1)..];
+		}
+		catch { return null; }
+	}
+
+	/// <summary>What submitting the box sends, as /buttons names it (EventToPlugin:EventFmxEditMentoringGroupName).</summary>
+	private static IEnumerable<string> Sent(BindableTextEditBox box)
+	{
+		var events = box.OnSubmitEvents?.Events;
+		for (var i = 0; i < (events?.Length ?? 0); i++)
+		{
+			if (events[i] == null) continue;
+			string text;
+			try
+			{
+				text = Buttons.Short(events[i].GetIl2CppType().FullName).Replace("EventContext", "").Replace("Context", "");
+				if (Buttons.EventId(events[i]) is { } id) text += ":" + id;
+			}
+			catch { continue; }
+			yield return text;
+		}
+	}
+
+	private static string Page(BindableTextEditBox box)
+	{
+		var events = box.OnSubmitEvents?.Events;
+		for (var i = 0; i < (events?.Length ?? 0); i++)
+			if (events[i] != null && Buttons.PageOf(events[i]) is { } page) return page;
+		return null;
 	}
 
 	public static string Type(NameValueCollection q)

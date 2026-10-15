@@ -28,7 +28,7 @@ internal static class Buttons
 
 	public static string Catalog(NameValueCollection q)
 	{
-		if (q["json"] == "1") return ControlsJson();
+		if (q["json"] == "1") return ControlsJson(q["gen"]);
 
 		var typeFilter = q["type"];
 		var textFilter = q["text"];
@@ -602,13 +602,18 @@ internal static class Buttons
 
 	// ------------------------------------------------------------------ records for the CLI
 
-	private static string ControlsJson()
+	/// <param name="gen">When given, each button that speaks to someone (a SpeakToAction) has the
+	/// action it stands for put at a path of its own (Action), for its ActionID, IsExitButton…
+	/// to be read: which of an assistant's buttons asks and which acknowledges his answer, in any
+	/// language.</param>
+	private static string ControlsJson(string gen = null)
 	{
 		var rows = new List<string>();
+		var spoken = 0;
 		foreach (var control in Controls(out _))
 		{
 			var events = new List<string>();
-			string page = null;
+			string page = null, action = null, sends = null, sendsProps = null;
 			foreach (var (listName, list) in control.Lists)
 			{
 				var contexts = list.Events;
@@ -617,6 +622,13 @@ internal static class Buttons
 					if (contexts[i] == null) continue;
 					try { events.Add(Summary(contexts[i], listName)); } catch { }
 					page ??= PageOf(contexts[i]);
+					if (gen != null && action == null && ActionOf(contexts[i]) is { } value && RawPath.Set($"fmcli.speak.g{gen}.{spoken}", value) == null)
+						action = $"fmcli.speak.g{gen}.{spoken++}";
+					if (gen != null && sends == null && SentOf(contexts[i]) is { } sent && RawPath.Set($"fmcli.speak.g{gen}.{spoken}", sent.Value) == null)
+					{
+						sends = $"fmcli.speak.g{gen}.{spoken++}";
+						sendsProps = sent.Props;
+					}
 				}
 			}
 
@@ -632,9 +644,57 @@ internal static class Buttons
 				["Enabled"] = enabled ? "True" : "False",
 				["Events"] = string.Join(", ", events),
 				["Page"] = page ?? "",
+				["Action"] = action ?? "",
+				["Sends"] = sends ?? "",
+				["SendsProps"] = sendsProps ?? "",
 			}));
 		}
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
+	}
+
+	/// <summary>
+	/// The action a SpeakToAction button stands for: what its bindings ("action.ActionID") are read
+	/// from, the nearest "action" at or above its source. Null for any other event.
+	/// </summary>
+	private static SI.Core.TypedValue ActionOf(EventContextBase context)
+	{
+		try
+		{
+			return context.GetIl2CppType().FullName.EndsWith("SpeakToActionEventContext", StringComparison.Ordinal) ? Nearest(context, "action") : null;
+		}
+		catch { return null; }
+	}
+
+	/// <summary>
+	/// What a plugin event sends (its m_dataToSendBinding, "selectedmentoringgroup.UniqueId"): the
+	/// value its first name stands for at the source, and the rest of the path to read of it. Read
+	/// right before a press, it says which one the press is for (the group a delete button deletes).
+	/// </summary>
+	private static (SI.Core.TypedValue Value, string Props)? SentOf(EventContextBase context)
+	{
+		try
+		{
+			var type = context.GetIl2CppType().FullName;
+			if (!type.EndsWith("EventToPluginContext", StringComparison.Ordinal)) return null;
+			var shape = ShapeOf(type);
+			var typed = shape.Cast?.Invoke(context, null);
+			if (shape.Type?.GetProperty("m_dataToSendBinding")?.GetValue(typed) is not BindingPath path || string.IsNullOrEmpty(path.Path)) return null;
+			var parts = path.Path.Split('.', 2);
+			return Nearest(context, parts[0]) is { } value ? (value, parts.Length > 1 ? parts[1] : "") : null;
+		}
+		catch { return null; }
+	}
+
+	/// <summary>The value a name stands for at an event's source: the nearest node by that name at or above it.</summary>
+	private static SI.Core.TypedValue Nearest(EventContextBase context, string name)
+	{
+		var b = Game.Bindings;
+		var key = context.SourceKey;
+		for (var node = b?.GetNode(ref key); node != null; node = node.Parent)
+			for (var c = node.FirstChild; c != null; c = c.NextSibling)
+				if (string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase))
+					return c.Value is { IsNull: false } value ? value : null;
+		return null;
 	}
 
 	/// <summary>

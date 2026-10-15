@@ -81,6 +81,7 @@ internal static class FmApi
 		"rowmove" => TableRows.Move(q),
 		"rowremove" => TableRows.Remove(q),
 		"rowselect" => TableRows.Select(q),
+		"checkrows" => TableRows.Checkable(q),
 		"actions" => ContextMenus.Handle(q),
 		"ties" => Ties.Current(),
 		"scoped" => Scoped.Handle(q),
