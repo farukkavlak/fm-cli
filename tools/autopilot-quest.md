@@ -104,12 +104,11 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
     çıktısıyla birebir aynı.
 - Önce/sonra (aynı oyuncu, TR): `fm happiness "Ben House"` önce "moral Poor", sonra "moral Kötü".
 
-## Park edilenler ([?] + Faruk'a soru)
-- A "Mesaj eki için 1,5 sn" (`WriteAttachment`, Program ~993) — sabit 1,5 sn ölçüldü, pay ~2,5 kat; yerine konacak
-  oyun işareti (ağaç boş/dolu durumda aynı, tek fark kartların bağlanması) ve eki olmayan mesaj örneği yok.
-  Soru: (a) 1,5 sn dursun, eksiz mesaj gelince negatif durum ölçülsün mü, yoksa (b) eklentiye "seçili mesajın
-  kartları bağlandı" işareti mi eklensin, yoksa (c) "kartlar bağlandı" işareti beklenip eksiz mesajda cömert üst
-  sınırın sonuna kadar beklenip "ek yok" densin mi?
+## Park edilenler ([?], kararı verilmiş)
+- A "Mesaj eki için 1,5 sn" (`WriteAttachment`, Program ~993) — **Karar (Faruk, 16 Ekim): (a), sabit 1,5 sn kaldı**
+  (pay ~2,5 kat). İşarete çevirmek için iki ölçüm borcu var: (1) oyunun "ek hazır" işareti (aday
+  `#TileBindingExpect`), (2) eki olmayan bir mesajda ağacın/işaretin davranışı (bu kayıtta örnek yok). İkisi
+  bulununca sabit bekleme işarete çevrilecek (§8.192).
 
 ## Sabitler
 - Kapsam: **A** (zamanlama) + **B** (dil/kimlik) + **C** (ayarlar), mümkünse **D**.

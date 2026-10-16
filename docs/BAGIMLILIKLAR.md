@@ -105,10 +105,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   (~0,2–0,4 sn: başlık var, içerik yok) oyunun "henüz bağlanmadı" hâli; ağaç (başlık, `#Attachments`,
   `FMUnbindDynamicBindingRooot`, `BindingRoot`, `BindingExpect`) içerikli ve boş durumda birebir aynı, tek fark
   kartın içeriğinin bağlanması (`#TileBindingExpect`). Eki olmayan mesaj türü bu kayıtta yok (14 mesaj denendi,
-  hepsinde "Ek:"/"Haber:" var), gelen kutusu verisi de ek alanı taşımıyor. **Faruk'a soru:** (a) 1,5 sn dursun,
-  eki olmayan bir mesaj gelince negatif durum ölçülsün mü, (b) eklentiye "seçili mesajın kartları bağlandı"
-  işareti mi eklensin, yoksa (c) "kartlar bağlandı" işareti beklensin + eksiz mesajda cömert üst sınırın sonuna
-  kadar beklenip "ek yok" densin mi (doğru, ama eksiz mesaj yavaş)?
+  hepsinde "Ek:"/"Haber:" var), gelen kutusu verisi de ek alanı taşımıyor. **Karar (Faruk, 16 Ekim): (a) — sabit
+  1,5 sn şimdilik kalıyor** (pay ~2,5 kat, bu makinede doğru okunuyor). İki iş not edildi, ikisi de ekran/negatif
+  durum ölçümü ister: **(1)** oyunun "ek hazır" işareti bulunacak — en güçlü aday kartın içeriğinin bağlanması
+  (`#TileBindingExpect`); **(2)** eki olmayan bir mesaj yakalanıp o durumda ağacın/işaretin nasıl davrandığı
+  ölçülecek (bu kayıtta örnek yok). İkisi de bulununca sabit bekleme işarete çevrilir (§8.192).
 - [ ] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2112). Denenen çözüm (çubuğun seçili satırı) ölçülünce
   yetersiz çıktı: ana sayfa zaten açıkken çubuk eski seçimde kalıyor → geri alındı. Eklentide `open?guid=&check=1`
   (yalnızca soru, hiçbir şey açmıyor) duruyor (14 Ekim commit edildi, CLI henüz kullanmıyor). Önce "ana sayfanın açılması bitti" işareti ölçülecek. Ayrıca `fm open X` açılış bitmeden dönüyor: hemen ardından
