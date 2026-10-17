@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace FmCli;
 
@@ -27,21 +26,21 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.ManagerialVacancies);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		List<string> texts = [];
+		List<(string Text, string Path)> texts = [];
 		var jobs = new List<Job>();
 		var previous = "";
 		await Until(async () =>
 		{
 			texts = await JobTexts();
 			jobs = ParseJobs(texts);
-			var key = string.Join("|", texts);
+			var key = string.Join("|", texts.Select(t => t.Text));
 			var settled = key == previous && jobs.Count > 0;
 			previous = key;
 			return settled;
 		}, seconds: 10, every: 0.5);
 		if (jobs.Count == 0)
 		{
-			Console.WriteLine(texts.Any(t => t.StartsWith("0 ", StringComparison.Ordinal)) ? L("Açık iş ilanı yok.") : L("İş ilanları okunamadı."));
+			Console.WriteLine(texts.Any(t => t.Text.StartsWith("0 ", StringComparison.Ordinal)) ? L("Açık iş ilanı yok.") : L("İş ilanları okunamadı."));
 			return texts.Count > 0 ? 0 : 1;
 		}
 
@@ -74,28 +73,35 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The page's texts: the table and, under it, the selected job's panel. Climbed to from a column
-	/// heading, as "Available Jobs" is also on the Career overview behind.
+	/// The page's texts, each with its data path: the table and, under it, the selected job's panel.
+	/// Climbed to from a column heading, as "Available Jobs" is also on the Career overview behind.
 	/// </summary>
-	private static async Task<List<string>> JobTexts()
+	private static async Task<List<(string Text, string Path)>> JobTexts()
 	{
-		var found = await Fm.GetJson("texts", ("anchor", "Current Manager"), ("up", "18"));
-		return found.ValueKind == JsonValueKind.Array ? found.EnumerateArray().Select(t => t.GetString() ?? "").ToList() : [];
+		var found = await Fm.GetJson("texts", ("anchor", "Current Manager"), ("up", "18"), ("paths", "1"));
+		return found.ValueKind == JsonValueKind.Array
+			? found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList()
+			: [];
 	}
 
 	/// <summary>
-	/// Each row is eight texts after the column headings: current manager ("-" when there is
-	/// none), club, league, club rating, nation, league position, job security, finances.
+	/// Each row is told by the club's own cell — the page's data path ("team.name") — the manager's
+	/// name, or "-" when the job is vacant, in the cell before it, and then the club's league,
+	/// rating, nation, league position, job security and finances. Nothing is matched by its
+	/// wording: the position is written "3rd" in English and "7." in Turkish (FINDINGS §8.196).
 	/// </summary>
-	private static List<Job> ParseJobs(List<string> texts)
+	private static List<Job> ParseJobs(List<(string Text, string Path)> texts)
 	{
 		var jobs = new List<Job>();
-		var start = texts.IndexOf("Finances");
-		if (start < 0) return jobs;
-		for (var i = start + 1; i + 7 < texts.Count; i += 8)
+		var seen = new HashSet<string>(StringComparer.Ordinal);
+		for (var i = 1; i + 6 < texts.Count; i++)
 		{
-			if (!Regex.IsMatch(texts[i + 5], @"^\d+(st|nd|rd|th)$")) break;
-			jobs.Add(new Job(jobs.Count + 1, texts[i], texts[i + 1], texts[i + 2], texts[i + 3], texts[i + 4], texts[i + 5], texts[i + 6], texts[i + 7]));
+			if (texts[i].Path != "team.name") continue;
+			if (texts[i - 1].Path is not ("" or "Manager.Name")) continue;
+			// The Career overview's job tile behind can list the same clubs.
+			if (!seen.Add($"{texts[i].Text}|{texts[i - 1].Text}")) continue;
+			jobs.Add(new Job(jobs.Count + 1, texts[i - 1].Text, texts[i].Text, texts[i + 1].Text, texts[i + 2].Text,
+				texts[i + 3].Text, texts[i + 4].Text, texts[i + 5].Text, texts[i + 6].Text));
 		}
 		return jobs;
 	}
@@ -124,13 +130,17 @@ internal static partial class Program
 		var shown = await Until(async () =>
 		{
 			var texts = await JobTexts();
-			var title = texts.FindIndex(t => t.EndsWith("Managerial Position", StringComparison.Ordinal));
-			if (title < 0 || !texts[title].StartsWith(job.Club, StringComparison.Ordinal)) return false;
-			var end = texts.IndexOf("Declare Interest In Job", title);
-			panel = texts.GetRange(title, (end < 0 ? texts.Count : end) - title);
+			// The panel's title is a sentence in the game's language ("<club> — Managerial Position"),
+			// so only the club in it is looked for; the row's own club cell carries "team.name", and no
+			// other text without a path holds the club.
+			var end = texts.FindIndex(t => t.Path.Length == 0 && t.Text == "Declare Interest In Job");
+			if (end < 0) end = texts.Count;
+			var title = texts.FindLastIndex(end - 1, t => t.Path.Length == 0 && t.Text.Contains(job.Club, StringComparison.Ordinal));
+			if (title < 0) return false;
+			panel = texts.Skip(title).Take(end - title).Select(t => t.Text).ToList();
 			// The facts at the panel's foot come in a moment after its title.
-			var facts = panel.IndexOf("Training Facilities");
-			return facts >= 0 && facts + 1 < panel.Count;
+			var at = panel.IndexOf("Training Facilities");
+			return at >= 0 && at + 1 < panel.Count;
 		}, seconds: 5, every: 0.25);
 		// A panel still about another club would answer for that one.
 		job.CanApply = shown ? await ButtonEnabled("Apply For Job") : null;

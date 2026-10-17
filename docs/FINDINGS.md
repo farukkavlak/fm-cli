@@ -1883,3 +1883,20 @@ sütunu 80 sütunda sarıyor (10 karakter, sütun 9) — veri doğru, kozmetik.
 Yan ölçüm (aynı maddenin boy/kilo yarısı): oyuncunun `Height` alanı ayardan bağımsız, her zaman ham santimetre
 (`fm settings boy Fit` iken de `fm player --json` → `Height: 178`), yani CLI'nin " cm" yazısı veriyle tutuyor;
 oyunun birim ayarına uymak için Preferences sayfasını açmak gerekiyor (~7 sn, kural 3'e aykırı) — Faruk'a soru.
+
+### 8.196 İş ilanları satırları ve paneli konum/ağız yazısıyla değil veri yoluyla bulunuyor (18 Ekim, TR + EN)
+`fm jobs` Türkçede hiç çalışmıyordu ("İş ilanları okunamadı."): satırlar 8'li adımlarla sayılıyor ve lig sırası
+`^\d+(st|nd|rd|th)$` ile doğrulanıyordu; oyun Türkçede sırayı "7." / "20." yazıyor (İngilizce kalıntı "3rd" de var),
+ilk satırda kontrol düşüp liste boş kalıyordu. Ayrıca seçilen işin paneli `<kulüp> Managerial Position` cümlesinin
+son sözcüğüyle bulunuyordu; Türkçede başlık "Celesti Menajerlik Görevi" (birleşik cümle olduğu için çeviri tablosuna
+girmiyor). Şimdi: `/texts?…&paths=1` ile her yazı kendi veri yoluyla okunuyor, satırın kulüp hücresi `team.name`
+(yönetici hücresi "" ya da `Manager.Name`), panel başlığı da yolu olmayan yazılar arasında kulüp adını içeren son
+yazı; "Declare Interest In Job" panelin sonu. `ReputationScope.DisplayString`, `Manager.Name` gibi yollar zaten
+vardı. Ölçüm (TR): önce `fm jobs --json` → "İş ilanları okunamadı."; sonra Celesti…Norway 15 ilan doğru alanlarla
+(League `comp.Name`, Nation, Rating, Position oyunun kendi yazısı, Security `binding.Status`, CanApply düğmeden);
+üç durum (başka sayfa açık / zaten açık / başka sekmeden) ve EN'de aynı 12–15 satır (EN adları: `N.Ireland`,
+`Ivory Coast`), detay paneli (`fm jobs "York"`) iki dilde aynı: kural cümlesi, Reputation/Finances/Wage Bill/Training
+Facilities. ⚠ Yeni bulgu: liste yalnız görünen pencereyi veriyor — aynı durumda 12 ya da 15 satır (sayfa
+kaydırıldığında farklı kulüpler), yani listede olan bir ilan (`fm jobs "Celesti"` pencerede değilken) "ilanlarda
+yok" diyebiliyor; tam liste için listeyi kaydırarak gezmek ya da oyunun verisinden okumak gerekiyor (checklist'e
+madde olarak eklendi). Panel, satırı görünmeyen bir iş seçilirse boş kalabiliyor (Danimarka) — hata vermiyor.

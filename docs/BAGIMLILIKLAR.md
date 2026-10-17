@@ -133,8 +133,15 @@ tablodan çevrilemiyor.
   - [x] sakatlık eki "Received in" / "Out for" — Türkçede çalıştı (tablodan çevriliyor)
   - [x] ~~Intensity "Ask … training intensities"~~ (sayfa Guid'iyle, §8.187)
   - [x] ~~Mentoring "assign mentoring groups"~~ (eylem kimliğiyle, §8.188)
-  - [ ] Jobs "Managerial Position" ·
-    Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" · Penalties "Starting at " / "On Subs bench" ·
+  - [x] Jobs: satır ve panel artık yazıyla değil **veri yoluyla** bulunuyor — satırın kulüp hücresi `team.name`
+    (yönetici hücresi "" / `Manager.Name`), panel başlığı yolu olmayan yazılar arasında kulüp adını içeren son yazı;
+    "Managerial Position" arayışı ve lig sırasını doğrulayan `^\d+(st|nd|rd|th)$` kalktı (Türkçede sıra "7." idi,
+    bu yüzden tüm liste düşüyordu). Ölçüm: TR'de önce `fm jobs --json` → "İş ilanları okunamadı.", sonra 12–15 ilan
+    doğru alanlarla (üç durum + EN); detay (`fm jobs "York"`) iki dilde aynı (§8.196).
+  - [ ] **Jobs listesi yalnız görünen pencereyi veriyor:** aynı durumda 12–15 satır dönüyor (sayfa kaydırıldığında
+    başka kulüpler; listede olan bir ilan pencerede değilse `fm jobs "<kulüp>"` "ilanlarda yok" diyor). Liste
+    kaydırarak gezilecek ya da oyunun verisinden okunacak (§8.196).
+  - [ ] Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" · Penalties "Starting at " / "On Subs bench" ·
     Release "Is there anything else" · Matches "Match Ratings"+"Inf" · Saves "Estimated game speed:"
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da
     birkaç gün içinde" diyor.

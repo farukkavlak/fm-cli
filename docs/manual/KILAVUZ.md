@@ -1611,6 +1611,10 @@ Kovulunca ya da istifa edince yeni bir iş gerekir. `fm jobs` açık ilanları l
 "BAŞVURU kapalı" demek, o kulübün şu an başvuru kabul etmediği anlamına gelir. Yine de ilgi
 bildirebilirsin. Liste her ilanı tek tek seçtiği için 15 saniye kadar sürer.
 
+Oyun listeyi ekranda gördüğü satırlar kadar döşüyor: sayfa kaydırılmışsa ya da liste henüz
+dolmamışsa bazı ilanlar bu çıktıda görünmeyebilir (`fm jobs "<kulüp>"` "ilanlarda yok" der);
+sayfayı baştan açıp yeniden dene.
+
 `fm jobs kayseri` (ya da numarasıyla, `fm jobs 5`) ilanın ayrıntısını gösterir: maaş gideri,
 antrenman tesisleri ve menajer kuralları. Kulüp seçince:
 
