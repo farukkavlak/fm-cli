@@ -11,6 +11,8 @@
 # Ayarlar  : AUTOPILOT_MODEL, AUTOPILOT_AGENT, AUTOPILOT_ROUND_MIN (tur zaman aşımı, dk),
 #            AUTOPILOT_STANDALONE=0 (paylaşılan servisi kullan; varsayılan 1 = yalnız sunucu)
 set -u
+# launchd'nin ortamı kısırdır; aradığımız araçları (opencode, fm, git) garantiye al.
+export PATH="$HOME/.bun/bin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 cd "${0:A:h}/.."
 
 MAX=${1:-200}
