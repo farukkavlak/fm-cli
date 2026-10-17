@@ -2413,7 +2413,7 @@ internal static partial class Program
 			                  oyuncu verilirse (bizim oyuncumuz) yeni sözleşme görüşmesini açar
 			    --term "Şart=değer"  bir şartı ayarla / ekle ("Wage=20K", "Appearance Fee=kaldır",
 			                  "Will appoint player as captain", "Tüm teklif=Pazarlıksız")
-			    --wage <tutar>  haftalık ücret;  --next: vaatleri onayla, şartlara geç
+			    --wage <tutar>  ücret, oyunun maaş döneminde;  --next: vaatleri onayla, şartlara geç
 			    --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et
 			  training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role
 			  training <oyuncu> --report [--coach <ad>]  antrenörden antrenman raporu iste ve göster

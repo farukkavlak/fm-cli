@@ -1848,3 +1848,18 @@ o an `shown == page titles` tutmadığı için kodun kendisi reddediyor. Üretim
 döngüsü (TR 10 + EN 6 geçiş, "başka sayfa açık", "mesaj zaten açık", "sayfa ilk açılıyor" durumları): her seferinde
 doğru cevap listesi (2 ve 1), hiç "(cevap seçeneği yok)". Negatif/boş yol: cevaplı mesajdan cevapsız `Fitness tests`'e
 geçişte "(cevap seçeneği yok)" doğru geliyor. Kanıtlanmış bir hata olmadığı için kod değişmedi (kural 4, churn yok).
+
+### 8.194 Sözleşmede kutuya girilen ücret oyunun maaş döneminde sayılıyor; CLI'nin "haftalık" sözü yanlıştı (18 Ekim, TR + EN)
+`--wage` / `--term "Wage=…"` tutarı `OfferScreen.Type` ile `/setnumber`'a olduğu gibi gidiyor; kutunun dönemi
+oyunun kendi "Wages" ayarı (Preferences › Your World), kartın gösterdiği dönem. Ölçüm (aynı komut, aynı oyuncu,
+yalnız ayar değişiyor): TR + Aylık'ta `fm contract --term "Wage=5000"` kartı `5.000 £ aylık` (≈21,7B £/hafta),
+TR + Haftalık'ta `5.000 £ hft`, EN + Aylık'ta `5.000 £ p/m`. Yani aynı sayı ayara göre haftada ~4,3 kat farklı
+ücrete denk geliyor. Kural 3 gereği çevrim (haftalık → kartın dönemi) yapılmadı: dönemi okuyacak ucuz/sağlam bir
+yol yok, 52/12 tahmini yeni bir bağımlılık olurdu. Bunun yerine CLI'nin kendi sözü düzeltildi — help (TR + EN),
+MCP `fm_contract` / `fm_staff_hire` / `fm_staff`: tutar artık "oyunun maaş döneminde" diye anılıyor, "haftalık"
+değil; davranış değişmedi. Yan bulgular: (a) `fm finances` toplamı haftalık (96.565 £) ama oyuncu statüsü satırları
+oyunun döneminde (aylık; satırların toplamı 282.609 £) — aynı tabloda iki dönem; (b) görüşme kartındaki "Wage"
+bilgisi (oyuncunun şimdiki ücreti) terimler aylıkken haftalık çıkabiliyor ("3B £ hft"), oyuncu raporu panelinden
+okunuyor; (c) oyunun `DisplayValue` yazıları bağlandığı an donuyor: `fm settings maaş` değişince eski okumalar
+eski dönemi göstermeye devam ediyor (squad "hft" kalırken `contracts` "aylık"), bir gün ilerletmek
+(2 Ağu 09:15 → 10:00) hepsini tazeledi.

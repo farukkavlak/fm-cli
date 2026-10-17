@@ -77,7 +77,7 @@ internal static partial class Program
 			                  with a player given (one of ours) it opens a new contract negotiation
 			    --term "Term=value"  set / add a term ("Wage=20K", "Appearance Fee=remove",
 			                  "Will appoint player as captain", "Entire offer=Non-Negotiable")
-			    --wage <amount>  weekly wage;  --next: confirm the promises, go on to the terms
+			    --wage <amount>  wage, in the game's wage period;  --next: confirm the promises, go on to the terms
 			    --sign --yes  put the terms to the agent / sign;  --cancel: cancel the negotiation
 			  training [player]  individual training: position/role, out-of-possession role, focus;  --focus / --position "A>B" / --role
 			  training <player> --report [--coach <name>]  ask a coach for a training report and show it

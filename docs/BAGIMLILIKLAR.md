@@ -152,8 +152,12 @@ tablodan çevrilemiyor.
 ### C. Oyunun ayarları (dil dışında)
 
 - [x] Para birimi ve kısaltmalar oyunun biçimlendiricisinden (`/money`), ondalık işareti oyundan.
-- [ ] **Maaş dönemi:** Türkçe kayıtta maaşlar "aylık" gösteriliyor (ayar), CLI yardımı `--wage` için "haftalık" diyor;
-  teklif/sözleşmede girilen tutarın hangi dönem sayıldığı denenecek.
+- [x] **Maaş dönemi:** ölçüldü — kutuya girilen tutar oyunun "Wages" ayarının döneminde sayılıyor: TR + Aylık'ta
+  `fm contract --term "Wage=5000"` kartı `5.000 £ aylık` (≈21,7B/hafta), TR + Haftalık'ta `5.000 £ hft`,
+  EN + Aylık'ta `5.000 £ p/m` — yani aynı sayı ayara göre ~4,3 kat farklı ücret. Çevrim yapılmadı (dönemi okuyacak
+  sağlam yol yok, 52/12 tahmin olurdu); CLI'nin kendi sözü help (TR + EN) ve MCP'de "oyunun maaş döneminde" olarak
+  düzeltildi, davranışa dokunulmadı (§8.194). Yan bulgular: `finances` statü satırları aylık, toplamı haftalık;
+  görüşme kartının "şimdiki ücret"i terimlerden başka dönemde olabiliyor; oyunun yazıları bağlanınca donuyor.
 - [ ] Boy/kilo birimleri, tarih biçimi (gün/ay sırası) — oyundan öğrenilmiyor, ölçülecek.
 
 ### D. Lig / takım / kayıt
