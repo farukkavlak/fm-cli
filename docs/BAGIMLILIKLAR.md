@@ -158,7 +158,19 @@ tablodan çevrilemiyor.
   sağlam yol yok, 52/12 tahmin olurdu); CLI'nin kendi sözü help (TR + EN) ve MCP'de "oyunun maaş döneminde" olarak
   düzeltildi, davranışa dokunulmadı (§8.194). Yan bulgular: `finances` statü satırları aylık, toplamı haftalık;
   görüşme kartının "şimdiki ücret"i terimlerden başka dönemde olabiliyor; oyunun yazıları bağlanınca donuyor.
-- [ ] Boy/kilo birimleri, tarih biçimi (gün/ay sırası) — oyundan öğrenilmiyor, ölçülecek.
+- [x] **Tarih biçimi (gün/ay sırası):** ölçüldü ve düzeltildi — sıra oyunun kendi ayarından geliyor
+  (Preferences › Your World › Format; `dd/mm/yyyy` · `mm/dd/yyyy` · `yyyy/mm/dd` · `yyyy/dd/mm`), CLI ise
+  `Matches.cs`'te `^\d{2}/\d{2}/\d{4}$` arıyor ve kısa gösterimi `dd/MM/yyyy` diye çözüyordu. Aynı maç
+  (20 numaralı, Bristol Rovers, 1 Ağustos 2026) sayfada sırayla `01/08/2026` · `08/01/2026` · `2026/08/01` ·
+  `2026/01/08` yazılıyor; `fm player "Ben House" --matches --json` **önce** 19/19/**0**/**0** satır veriyordu ve
+  `mm/dd/yyyy`'de zengin tablo tarihi `8 Oca` (1 Ağustos yerine 8 Ocak) yazıyordu. Artık tarih sıraya bakmadan
+  tanınıyor (dört haneli yıl bir uçta, ayırıcı `/ . -`) ve tablo oyunun kendi tarih yazısını gösteriyor; dört
+  ayarda da 19 satır, üç durumda (kart ilk kez / zaten açık / başka sayfa açık) TR + EN aynı (§8.195).
+  Not: `fm settings` seçeneği insan çıktısında `gg/aa/yyyy` görünür ama komuta oyunun ham adı verilmeli
+  (`fm settings tarih dd/mm/yyyy`).
+- [?] **Boy/kilo birimleri:** ölçüldü, kod değişmedi — oyuncunun `Height` alanı ayardan bağımsız ham santimetre
+  (`fm settings boy Fit` iken de `Height: 178`), yani CLI'nin " cm" yazısı veriyle tutuyor; oyunun birim ayarına
+  uydurmak Preferences sayfasını açmayı gerektiriyor (~7 sn, daha ağır bağımlılık). Faruk'a soru (§8.195).
 
 ### D. Lig / takım / kayıt
 

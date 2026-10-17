@@ -122,7 +122,7 @@ internal static partial class Program
 		{
 			var cells = new List<string>
 			{
-				rich ? $"[dim]{r.Number}[/]" : r.Number.ToString(CultureInfo.InvariantCulture), rich ? Short(r.Date) : r.Date,
+				rich ? $"[dim]{r.Number}[/]" : r.Number.ToString(CultureInfo.InvariantCulture), r.Date,
 				rich ? Ui.Safe(r.Opponent) : r.Opponent, r.Score, r.Position == "-" ? (rich ? L("[dim]oynamadı[/]") : L("oynamadı")) : rich ? $"{r.Position} [dim]{r.Role}[/]" : $"{r.Position} {r.Role}",
 			};
 			if (subs) cells.Add(rich ? $"[dim]{OnOff(r.OnOff)}[/]" : OnOff(r.OnOff));
@@ -142,8 +142,6 @@ internal static partial class Program
 			Table.Write(heads, all.Select(r => Cells(r).ToArray()).ToList());
 		return 0;
 
-		static string Short(string date) => DateTime.TryParseExact(date, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d)
-			? $"{d.Day} {Months[d.Month - 1][..3]}" : date;
 		// "on 75" is a substitute's minute on, "off 60" the minute he went off.
 		static string OnOff(string text) => Regex.Replace(text, @"^(on|off) (\d+)$", m => $"{m.Groups[2].Value}' {(m.Groups[1].Value == "on" ? L("girdi") : L("çıktı"))}");
 		static string Count(string n, string colour) => n is "" or "0" ? "[dim]0[/]" : $"[{colour} bold]{n}[/]";
@@ -170,7 +168,10 @@ internal static partial class Program
 		// The headings after "Inf" come back in other words in another language ("Pts" for "Rating" in
 		// Turkish); the rows are known by their number and date, not by where the headings end.
 		var cells = texts.Skip(start + 1).ToList();
-		static bool Date(string t) => Regex.IsMatch(t, @"^\d{2}/\d{2}/\d{4}$");
+		// A date as the game writes it: the order is the game's own preference
+		// (dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, yyyy/dd/mm — BAGIMLILIKLAR §C), so only the year's four
+		// digits and the separators are taken as they are, never which end the year sits at.
+		static bool Date(string t) => Regex.IsMatch(t, @"^(?:\d{4}([./-])\d{1,2}\1\d{1,2}|\d{1,2}([./-])\d{1,2}\2\d{4})$");
 		var starts = Enumerable.Range(0, Math.Max(0, cells.Count - 1)).Where(i => Regex.IsMatch(cells[i], @"^\d+$") && Date(cells[i + 1])).ToList();
 		for (var s = 0; s < starts.Count; s++)
 		{

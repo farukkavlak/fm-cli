@@ -1863,3 +1863,23 @@ bilgisi (oyuncunun şimdiki ücreti) terimler aylıkken haftalık çıkabiliyor 
 okunuyor; (c) oyunun `DisplayValue` yazıları bağlandığı an donuyor: `fm settings maaş` değişince eski okumalar
 eski dönemi göstermeye devam ediyor (squad "hft" kalırken `contracts` "aylık"), bir gün ilerletmek
 (2 Ağu 09:15 → 10:00) hepsini tazeledi.
+
+### 8.195 Maç geçmişi tarihi oyunun kendi sırasına bırakıldı: gg/aa/yyyy varsayımı iki ayarda satırları siliyordu (18 Ekim, TR + EN)
+`Matches.cs` oyuncunun maç puanları tablosunu sayfanın yazılarından kuruyor ve satırı "oyunun numarası + tarih"
+diye tanıyordu; tarih `^\d{2}/\d{2}/\d{4}$` ile aranıyor, gösterimdeki kısa biçim `TryParseExact("dd/MM/yyyy")`
+ile çözülüyordu. Oyunun kendi ayarı (Preferences › Your World › Format, `fm settings tarih`) dört sıra sunuyor;
+aynı maç (20 numaralı, Bristol Rovers, 1 Ağustos 2026) sayfada şöyle yazılıyor: `dd/mm/yyyy` → `01/08/2026`,
+`mm/dd/yyyy` → `08/01/2026`, `yyyy/mm/dd` → `2026/08/01`, `yyyy/dd/mm` → `2026/01/08`. Yani tarihin *sırası*
+oyunun ayarından geliyor, CLI'nin varsayımından değil. Ölçüm (`fm player "Ben House" --matches --json`, aynı
+oyuncu, yalnız ayar değişiyor): **önce** 19 / 19 / **0** / **0** satır; `mm/dd/yyyy`'de satırlar geliyordu ama
+zengin tablo tarihi `8 Jan` (TR `8 Oca`) yazıyordu — oysa maç 1 Ağustos. **Sonra** dördünde de 19 satır, tarih
+oyunun kendi yazısı: `Rows` tarihi artık sıraya bakmadan tanıyor (dört haneli yıl bir uçta, ayırıcı `/ . -`),
+tablo kısa biçimi bıraktı ve oyunun yazdığı tarihi gösteriyor (kural 3: dokunulan fonksiyondaki tarih sırası
+varsayımının tamamı gitti; `GameDay` dokunulmadı, o verinin ISO alanını okuyor). Üç durum (kart ilk kez açılırken
+Mesajlar açık / kart zaten açık / Takım Dinamikleri açıkken) TR + EN'de aynı 19 satırı verdi; `mm/dd/yyyy` ve
+`yyyy/mm/dd` ile de denendi. Not: `fm settings` seçenekleri insan çıktısında oyunun kelimeleriyle (`gg/aa/yyyy`)
+ama komuta **oyunun ham adı** verilmeli (`dd/mm/yyyy`), yoksa "bir seçenek değil" diyor. Zengin tabloda tarih
+sütunu 80 sütunda sarıyor (10 karakter, sütun 9) — veri doğru, kozmetik.
+Yan ölçüm (aynı maddenin boy/kilo yarısı): oyuncunun `Height` alanı ayardan bağımsız, her zaman ham santimetre
+(`fm settings boy Fit` iken de `fm player --json` → `Height: 178`), yani CLI'nin " cm" yazısı veriyle tutuyor;
+oyunun birim ayarına uymak için Preferences sayfasını açmak gerekiyor (~7 sn, kural 3'e aykırı) — Faruk'a soru.
