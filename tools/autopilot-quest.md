@@ -3,7 +3,32 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 43)
+## Şu an (Tur 44)
+- Madde: **A "Kısa `Until`" / Calendar 157** (`fm calendar` / `CalendarMonths`: "Today" düğmesinden sonraki bekleme) —
+  **BİTTİ** (§8.233, Tur 44): bekleme "art arda iki okuma aynı ve boş değil" idi ve bu işaret basıştan **önceki** ayı da
+  kabul eder. Ölçüm (kimlik): düğme basıldıktan hemen sonraki ilk okuma hâlâ eski ayı veriyor (126 / 95 / 128 ms, üç
+  ayrı aydan), yeni ay 198 / 252 / 304 ms'de oturuyor → pay bir okuma aralığından (0,3 sn) az; yavaş makinede iki okuma
+  da eski ayı verir ve **bütün ay yanlış aydan sayılır**. Artık işaret oyunun cevabı: değer basıştan öncekinden
+  **farklı** ve sonra iki okumada aynı (üst sınır 8 sn); "Today" zaten bugünün ayındayken `Enabled=False` ve basış
+  "error: … is disabled" dönüyor → o hâlde hiç beklenmiyor (bugün+bugün yolu 1,0 sn, eskisi gibi).
+- Kanıt: TR + EN, üç durum (başka sayfa açık / zaten açık / başka sayfaya geçtikten sonra) + ay elle uzağa
+  kaydırıldığında `fm calendar --json` **önce/sonra birebir** (TR `0dd9e2647a65b730035f4f24925b8beb`, EN
+  `025897203ed1add7dc0f55748250abc5`; insan çıktısı TR `bcd02554…`, EN `2b1d76e3…`); ay 13/4 iken de aynı md5 ve
+  liste 2'ye dönüyor. Aynı yardımcıyı kullanan `fm schedule` ve `fm fixtures` çalışıyor. `sweep.sh`: 50 komut, 0 hata.
+- Not (kayıt durumu): kayıt yalnız **okundu**; 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı, hiçbir şey
+  yazılmadı; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish). Tuzak:
+  ayar adı da dile bağlı — TR'de ad "dil", EN'de "language"; değer de oyunun kendi sözlüğünden ("English"/"Türkçe").
+  Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (`calendar`, `fixtures`, `schedule`, `league`, `stages` dahil).
+- Sıradaki tur (öneri): A'da kalan kısa `Until`ler — `League 216` (`pathset` bağı, kısa sınır ve sonucu
+  denetlenmiyor), `TacticSlots 112`, `TraitTraining 89` (dialog gelmezse "yok say"), `Saves 207 220`,
+  `MatchControls 266` (1,5 sn), `Calendar`… hepsi ölçülüp ya işarete bağlanacak ya "pay yeter" diye kapanacak;
+  A'da `Task.Delay` kalanları ve `TacticFiles 181` (kapanıştan sonra 800 ms). B'de "yazıyla basma" kalanları
+  (ScoutFocus `Cancel`/`Next`/`Confirm`/`Edit-Restart-Remove Recruitment Focus`, Budget, Saves) — her biri oyunda
+  ölçülüp öğe adı/olay kimliğiyle basılabilir mi bakılacak; `contract --agent` kartın işareti; haber "Portugal".
+- Not: ağaçta yalnız bu turun dosyaları var (`Calendar.cs`, BAGIMLILIKLAR, FINDINGS, bu defter), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 43)
 - Madde: **B "İngilizce yazıyla basma/tıklama" komşusu / `fm prep`** — **BİTTİ** (§8.232, Tur 43): oyunun kendi
   sözüyle gelen odak adları gösteriliyor ama geri kabul edilmiyordu; `--json` da ham İngilizceydi.
 - Ne: `cli/fm/Prep.cs`. `SetFocus` seçeneği yalnız ham `Name` ("Progression") üzerinden arıyordu; TR'de insan çıktısı
@@ -333,6 +358,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 44 — A "Kısa `Until`" / Calendar 157: "Today" basışından sonra liste "eskisinden farklı **ve** iki okumada aynı" olana kadar okunuyor (§8.233, 19 Ekim)
+Ne: `cli/fm/Calendar.cs` `CalendarMonths()` (146–158). Takvim sayfasının ay listesi, "Today" düğmesine basıldıktan sonra
+"art arda iki okuma aynı ve boş değil" olunca kabul ediliyordu; bu işaret basıştan **önceki** ayı da kabul eder.
+- Ölçüm (kimlik, TR): ay elle 6 / 10 / 13'e kaydırıldı (o hâlde düğme `Enabled=True`), `click ptr=<Today>` sonrası:
+  basıştan hemen sonraki okuma hâlâ **eski ay** (126 / 95 / 128 ms), liste 2'ye (bugünün ayı) 198 / 252 / 304 ms'de
+  geçiyor ve orada kalıyor; ay zaten bugünün ayındayken (2) düğme `Enabled=False` ve basış `error: "Today" is disabled`.
+  Yani eski işaretin payı bir okuma aralığından (0,3 sn) az; yavaş makinede iki okuma da eski ayı verir, ay haritası
+  yanlış aydan sayılır ve **bütün ayın maçları** yanlış listelenir.
+- Sonrası (yeni derleme): `before` basıştan önce okunuyor, işaret "değer değişti **ve** sonra iki okumada aynı"
+  (üst sınır 8 sn); basış `error` dönerse (zaten bugün) hiç beklenmiyor.
+- Öncesi/sonrası (aynı komut, üç durum: `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"`
+  sonrası): TR `fm calendar --json` **birebir** `md5 0dd9e2647a65b730035f4f24925b8beb`, insan `bcd02554ce589761b74b2053a3c2c932`;
+  EN `--json` `025897203ed1add7dc0f55748250abc5`, insan `2b1d76e316a4f5cd4abecb6bf836d54d`. Ayrıca ay elle 13 / 4 / 0 / 7'ye
+  kaydırılıp `fm calendar --json` koşulduğunda da aynı md5 ve liste sonunda 2; süre: zaten açıkken 1,0 sn (yeni dal
+  beklemiyor), ay uzaktayken 2,0 sn.
+- Negatif/değişmeyen: düğme sayfada yoksa blok yine atlanıyor; aynı yardımcıyı kullanan `fm schedule` ve `fm fixtures`
+  çalışıyor (ikisi de aynı gün, aynı kayıt).
+- Regresyon: `tools/sweep.sh /private/var/folders/…/t44/sweep` → **50 komut, 0 hata** (Türkçe oyunda).
+- Dönüş/geri: kayıt yalnız okundu; 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı, hiçbir şey yazılmadı;
+  dil `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
+- Not (ölçüm tuzağı): ayarın **adı da** oyunun diline bağlı — TR'de `fm settings dil "English"`, EN'de
+  `fm settings language "Türkçe"`; değer oyunun kendi sözlüğünden ("English" / "Türkçe").
+- Dosya: `cli/fm/Calendar.cs`, `docs/BAGIMLILIKLAR.md` (A listesinde `Calendar 157` çizildi, `[x]` alt madde),
+  `docs/FINDINGS.md` §8.233, bu defter.
 
 ### Tur 42 — A "Kısa `Until`" / Stages 337: `fm stages`te turun bağları Türkçe oyunda eksik okunuyordu — menzil oyunun ondalık işaretiyle çözülmüyor; düzeltme denendi, gezinti kararsız çıktı, geri alındı (§8.231, 19 Ekim)
 Ne: `cli/fm/Stages.cs` `EveryTie()`. Turun bağları pencerede tam durmuyor, liste `to=0..1` adımlarıyla geziliyor ve

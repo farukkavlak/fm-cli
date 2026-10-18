@@ -181,7 +181,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     Kural 4 gereği kod **geri alındı**. Faruk'a soru: bu takvim/ay karışıklığı ayrı bir madde olarak düzeltilsin mi
     (o zaman bu madde ölçülüp bitirilebilir), yoksa ölçüm için ayrı bir kayıt/sekme durumu mu kullanılmalı?
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
-  Calendar 157 · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
+  ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
   TrainingSchedule 491 506 · TraitTraining 89
   - [x] Actions 126 (`AfterAction`'ın konuşma yolu): "oyun bir konuşma açtı mı" artık ekrandaki konuşan düğmelere değil,
@@ -207,6 +207,15 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     kabı — **ve** "pencereden farklı **ve** iki okumada aynı"); kanıtlanmadığı için geri alındı (§8.231). Faruk'a
     soru: çapa için eklentiye tur satırlarının işaretçisini veren bir alan mı eklensin (yazıyla çapa kaydırma
     ilerledikçe kayboluyor), yoksa gezinti listenin kabına mı çapalanmalı?
+  - [x] Calendar 157 (`fm calendar` / `CalendarMonths`: "Today" düğmesinden sonraki bekleme): işaret "art arda iki
+    okuma aynı" idi ve bu, basıştan **önceki** ayı da kabul eder — ölçüm: basıştan hemen sonraki ilk okuma hâlâ eski
+    ay (126 / 95 / 128 ms), yeni ay 198 / 252 / 304 ms'de geliyor, yani pay bir okuma aralığından (0,3 sn) az; yavaş
+    makinede iki okuma da eski ayı verir ve bütün ay yanlış aydan sayılır. Artık işaret oyunun cevabı: değer basıştan
+    öncekinden **farklı** ve sonra iki okumada aynı (üst sınır 8 sn); "Today" zaten bugünün ayındayken kapalı ve basış
+    reddediliyor (`error: … is disabled`) → o hâlde hiç beklenmiyor. TR + EN üç durumda (başka sayfa açık / zaten açık
+    / başka sayfaya geçtikten sonra) ve ay elle uzağa kaydırılıp `fm calendar` denendiğinde çıktı eski derlemeyle
+    **birebir** (`md5` TR `0dd9e264…`, EN `02589720…`); zaten açıkken 1,0 sn, ay uzaktayken 2,0 sn. Aynı yardımcıyı
+    kullanan `fm schedule` ve `fm fixtures` çalışıyor; `sweep.sh` 50 komut, 0 hata (§8.233).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,

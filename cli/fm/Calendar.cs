@@ -145,16 +145,26 @@ internal static partial class Program
 			.FirstOrDefault(b => Field(b, "Label") == "Today" && Field(b, "Events").Contains("SetDatastoreValue", StringComparison.Ordinal));
 		if (todayButton.ValueKind == JsonValueKind.Object)
 		{
-			await Fm.Get("click", ("ptr", Field(todayButton, "Pointer")));
-			var previous = "";
-			await Until(async () =>
+			// Where the list stands before the click. The game moves it a moment later (measured: the
+			// read straight after the click still gives the old month, 95–130 ms; the new one is there
+			// 198–304 ms), so two equal reads of the place it was would pass for "settled" and the whole
+			// month would be counted from the wrong one. The sign is a value that has **moved** and then
+			// held — and the button being refused means it is already on today (its "Today" is disabled
+			// there), so nothing has to be waited for.
+			var before = Field(list, "Selected");
+			var clicked = await Fm.Get("click", ("ptr", Field(todayButton, "Pointer")));
+			if (!clicked.StartsWith("error", StringComparison.Ordinal))
 			{
-				list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Name") == "MonthDropdown");
-				var now = list.ValueKind == JsonValueKind.Object ? Field(list, "Selected") : "";
-				var same = now == previous && now.Length > 0;
-				previous = now;
-				return same;
-			}, seconds: 3, every: 0.3);
+				var previous = "";
+				await Until(async () =>
+				{
+					list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Name") == "MonthDropdown");
+					var now = list.ValueKind == JsonValueKind.Object ? Field(list, "Selected") : "";
+					var settled = now.Length > 0 && now != before && now == previous;
+					previous = now;
+					return settled;
+				}, seconds: 8, every: 0.3);
+			}
 		}
 		var labels = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 		var values = list.GetProperty("Values").EnumerateArray().Select(v => v.ValueKind == JsonValueKind.Number ? v.GetInt32() : int.MinValue).ToList();

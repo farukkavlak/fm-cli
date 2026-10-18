@@ -2598,3 +2598,18 @@ Yan bulgu (aynı turun sweep'i): arka arkaya 50 komutta `health` ("Kadro tablosu
 bulunamadı", 20 sn sonra rc=1) ve `youth --training` ("Altyapı antrenman tablosu açılmadı") düştü; ikisi de tek
 başına (ve `fm offers` sonrası) rc=0 — sayfa/görünüm durumuna bağlı, `SquadView`'ın "görünüm listesi 20 sn boyunca
 gelmedi" dalı. Tekrar üretilemedi; ayrı madde açılmadı, ölçüm için sweep'in aynı sırası ve sayfa durumu gerekli.
+
+### 8.233 `fm calendar`: "Today" basıldıktan sonraki bekleme oyunun ay **değişti** cevabına bağlandı (19 Ekim, TR + EN)
+
+`CalendarMonths` (Calendar.cs 146–158) takvim sayfasının ay listesini "Today" düğmesine basıp o ayı bugünün ayı sayıyor;
+bekleme "art arda iki okuma aynı ve boş değil" idi. O işaret basıştan **önceki** ayı da kabul eder: ölçüm — düğme
+`/buttons?json=1`'de basıştan hemen sonraki ilk okumada hâlâ eski ay geliyor (üç denemede 126 / 95 / 128 ms), yeni ay
+198 / 252 / 304 ms'de oturuyor. Yani pay bir okuma aralığından (0,3 sn) az; yavaş makinede iki okuma da eski ayı verir,
+ay haritası (hangi ay hangi tarih) yanlış aydan sayılır ve **bütün ayın maçları** yanlış listelenir. Ayrıca "Today" düğmesi ay zaten
+bugünün ayındayken `Enabled=False` (ölçüldü: selected 6/10/13 iken True, 2 iken False) ve basış "error: … is disabled"
+dönüyor — o hâlde beklemeye gerek yok. Yeni işaret: okunan değer basıştan önceki değerden **farklı** ve sonra iki
+okumada aynı (üst sınır 8 sn); basış reddedilirse hiç beklenmiyor. TR + EN `fm calendar --json` üç durumda (başka sayfa
+açık / zaten açık / başka sayfaya geçtikten sonra) ve ay elle uzağa kaydırılıp denendiğinde eski derlemeyle **birebir**
+(TR `0dd9e2647a65b730035f4f24925b8beb`, EN `025897203ed1add7dc0f55748250abc5`); zaten açıkken komut 1,0 sn (yeni
+dal beklemiyor), ay uzaktayken 2,0 sn ve liste doğru aya dönüyor. `fm schedule` ve `fm fixtures` (aynı yardımcıyı
+kullanan iki komut) çalışıyor.
