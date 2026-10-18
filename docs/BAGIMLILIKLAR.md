@@ -102,6 +102,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     oyunun sorusu yerine bütçe seçeneklerini basıyor, oyunun sorusu (seçimden 0,24 sn sonra gelen) cevapsız kalıyordu.
     Sonra: TR + EN'de soru basılıyor, üç durumda aynı; gerçek konuşma (`Interaction>Praise>…`) hâlâ açılıyor; sonuçsuz
     iş (`Training>Rest Player>1 day`) "yapıldı" diyor ve veriden doğrulandı (`fm intensity` → RestDays 1); sweep 50/50 (§8.199).
+  - [x] Budget 70 (kartın slider adımları): ölçüldü, **değişiklik gerekmedi**. Okuma, oyunun kendi işaretiyle kabul
+    ediliyor: kartın `budget.BudgetAdjustmentEditedTransferValue` / `...EditedOtherValue` yazıları değişti **ve**
+    yürürlükteki adımı ayıran yıldız adıma uydu. 7 koşu × 16 adım (TR + EN; sayfa ilk kez açılıyor / zaten açık /
+    kart zaten açık): `setcontrol` bittikten sonra kabul eden okuma 20–371 ms, 112 adımın 11'inde ikinci okuma
+    gerekti; 3 sn sınırına ≥8 kat pay. TR ile EN'de rakamlar aynı (§8.200).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,
@@ -166,6 +171,13 @@ tablodan çevrilemiyor.
   seviye/moral/konum yazıları oyunun diline çevriliyor. Türkçe (3 durum) + İngilizce (2 durum) aynı sıra/renk (§8.189).
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
 - [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
+- [ ] **`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor** — tanım `Heading:
+  "Game Language"` diyor, Almanca oyunda `/form` aynı başlığı **"Language"** diye veriyor (oyunun "Sprache" yazısı
+  iki İngilizceyle eşleşiyor, eklenti ilkini döndürüyor; §8.167 çakışması). Ölçüm: `fm settings` listesinde dil
+  satırı yok, `fm settings language "Türkçe"` → "'language' ayarı Your World sekmesinde bulunamadı." Kalıcı yol
+  aranıyor: başlığı oyunun kendi numarasıyla (TranslationID; eklentiye `Id` alanı, oyunu yeniden başlatmayı
+  gerektirir) ya da öğeyi kendi adıyla (`GameLanguagePreferencesBlock`, E bölümü) bulmak — kabul edilen başlık
+  listesi yeni bir kırılgan bağımlılık olurdu (§8.201).
 
 ### C. Oyunun ayarları (dil dışında)
 

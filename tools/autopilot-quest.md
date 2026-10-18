@@ -4,20 +4,54 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: A "Kısa `Until` (≤ 3 sn) — 16 yer" — **alt maddelerine bölündü**, ilki bitti: **Actions 126
-  (`AfterAction`'ın konuşma yolu)**. "Konuşma açıldı mı" artık seçimden önceki düğme kümesinden farklı olmasına
-  bakıyor; gazete maddesinin cevap düğmeleri (bütçe kartı ekranda) konuşma sanılmıyor. Üç durum + TR/EN,
-  gerçek konuşma yolu ve sonuçsuz iş doğrulandı; sweep 50/50 (§8.199).
+- Madde: A "Kısa `Until` (≤ 3 sn) — 16 yer" — **alt maddelerine bölündü**, üçüncü bitti: **Budget 70** (kartın
+  slider adımları) — ölçüldü, **değişiklik gerekmedi** (kural 4): okuma oyunun kendi işaretiyle kabul ediliyor
+  (kartın `…EditedTransferValue` / `…EditedOtherValue` yazıları değişti **ve** yıldız adıma uydu), 7 koşu × 16
+  adımda `setcontrol` → kabul 20–371 ms, 112 adımın 11'inde ikinci okuma; 3 sn sınırına ≥8 kat pay (§8.200).
+- Tur 12 ayrıca yeni bir dil bağımlılığı buldu ve madde olarak açtı (B): **`fm settings` ayarı başlık yazısıyla
+  buluyor; Almanca oyunda dil ayarı "Language" diye geldiği için bulunamıyor** (§8.201) — kalıcı yol için üç
+  seçenek BAGIMLILIKLAR'da yazılı (TranslationID / öğe adı / başlık listesi).
 - ⚠ Tur 9'un (Tur 4 numaralı koşu) işi ağaçta **commit edilmeden** kalmıştı: koşu 40 dk zaman aşımıyla (rc=124)
   öldürülmüş, defter "commit atıldı" yazmış. Tur 10 aynı ölçümleri yeniden koştu, doğruladı ve commitledi.
-- Bir sonraki tur: A/`Kısa Until` — sıradaki adaylar: **Budget 70** (tek TR koşusunda her adımda ilk okuma
-  yetiyor: `setcontrol` → `form` arası 0,03–0,08 sn, bir adımda 0,24 sn; 3 sn sınırına ≥12 kat pay → "işaret,
-  değişiklik gerekmedi" demek için üç durum + iki dil ölçümü borç) · `Saves 207/220` (kaydırma sonrası 1,5 sn ×5,
-  "listede yok" diyebiliyor) · `TraitTraining 89` / `TacticSlots 112` (onay penceresi 3 sn içinde gelmezse
-  cevaplamadan devam). Alternatif: A/`Sabit üst sınırlar` (Arriving 8 sn, Bound 20 sn, maç akışındaki 3 sn'ler).
+- Bir sonraki tur: A/`Kısa Until` — sıradaki adaylar: `Saves 207/220` (kaydırma sonrası 1,5 sn ×5, "listede yok"
+  diyebiliyor) · `TraitTraining 89` / `TacticSlots 112` (onay penceresi 3 sn içinde gelmezse cevaplamadan devam) ·
+  `League 216` / `Prep 124` / `IndividualTraining 99` (`pathset` 3 sn içinde kabul edilmezse sessizce devam).
+  Alternatif: A/`Sabit üst sınırlar` (Arriving 8 sn, Bound 20 sn, maç akışındaki 3 sn'ler) ya da B'deki
+  Almanca `fm settings` maddesi. Kart açıkken `budget ayarla`nın düşmesi (§8.200 sonu) küçük bir aday.
 - Durum: bitti, commit atıldı
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 12 — A "Kısa `Until`" / Budget 70 (kartın slider adımları): ölçüldü, değişiklik gerekmedi (§8.200, 18 Ekim)
+Ne: `cli/fm/Budget.cs` **değişmedi**. Karar (kural 4): mevcut işaret oyunun kendi işareti — slider bir adıma
+konunca kartın `budget.BudgetAdjustmentEditedTransferValue` / `...EditedOtherValue` yazıları değişiyor **ve**
+kartın yürürlükteki adımı ayıran yıldızı adıma uyuyor. 3 sn / 0,2 sn aralıkla bu işaret bekleniyor; sabit bekleme
+yok, süre yalnız üst sınır.
+- Ölçüm aracı: `FM_TRACE=1 fm budget ayarla` (adımsız → komut 16 adımı gezip listeyi basar ve `Cancel` eder,
+  yani bütçe değişmez). İz `[ zaman +süre] route ?query` satırları veriyor; `setcontrol` satırından sonraki
+  `form ?anchor=Budget Adjustment` okumaları sayılıp `setcontrol` bitişiyle arasındaki süre ölçüldü.
+- Üç durum (her biri TR + EN, `rc=0`, 16 adım, doğru rakamlar):
+  - sayfa ilk kez açılıyor (`fm open "Messages"` sonrası): TR `37–270 ms` (2 adımda ikinci okuma) / `20–275 ms`
+    (1) · EN `30–106 ms` (0).
+  - sayfa zaten açık (hemen ikinci koşu): TR `32–278 ms` (1) · EN `23–268 ms` (1).
+  - kart zaten açık (curl ile `Adjust Transfer and Wage Budget` basılıp koşuldu): TR `27–331 ms` (2) ·
+    EN `27–371 ms` (4).
+  - Toplam 7 koşu = 112 adım, 11'inde ikinci okuma, en kötü 371 ms → 3 sn sınırına ≥8 kat pay.
+- İki dil: TR ve EN'de 16 adımın rakamları birebir aynı (yalnız "Transfers/Wages" etiketi çevrili; `diff` ile
+  doğrulandı). Dönüş: `fm settings language "Türkçe"` → "English → Turkish", `/state` → `Language: turkish`;
+  ayarlar bütçe rakamları turn başındakiyle aynı (`fm budget --json`: Transfer 626B £, maaş 2.320 £ aşılmış).
+- Ölçüm tuzağı (kayda değer): erken koşulardan ikisi "no button shows 'Adjust Transfer and Wage Budget'" ile
+  düştü — sebep zamanlama değil, **ekranda açık kalmış bir "Budget Adjustment" kartı** (Almanca/EN denemelerinden
+  bana kalmıştı); kartın kendisi modal olduğu için sayfanın düğmeleri listelenmiyor. `Cancel` ile kapatılınca aynı
+  koşu 2/2 hatasız. Yani bu kayıtta tazeyken düşen bir vaka yok; kart açıkken de çalışmak ayrı bir iyileştirme
+  olarak duruyor (§8.200).
+- Regresyon: **kod değişmedi** (yalnız ölçüm) → `sweep.sh` gerekmedi. Kayıt test kaydı: 2 Ağustos 2026 09:15;
+  zaman ilerletilmedi, maç oynanmadı, bütçe dağılımı değiştirilmedi (her koşu `Cancel` ile kapandı).
+- Yeni bulgu: B "`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor" (§8.201) —
+  madde açıldı, kalıcı yol için üç seçenek yazıldı. Ölçüm: Almanca oyunda `fm settings` listesinde dil satırı yok,
+  `fm settings language "Türkçe"` → "'language' ayarı Your World sekmesinde bulunamadı."; oysa açılır liste
+  yerinde (`Binds app.nativesettings`, 20 dil) ve `/form` başlığı "Language" diye veriyor (CLI "Game Language"
+  arıyor). Dil eklenti ucuyla (`/select?ptr=…&index=13`) Türkçeye döndürüldü.
 
 ### Tur 11 — A "Kısa `Until`" / Actions 126 (`AfterAction`): ekrandaki konuşan düğmeler konuşma sanılıyordu (§8.199, 18 Ekim)
 Ne: `cli/fm/Actions.cs`. `AfterAction` "oyun bir konuşma açtı mı" diye `TalkOptions()`a bakıyordu — o da ekranda

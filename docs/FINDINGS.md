@@ -1944,3 +1944,26 @@ Not: panel yazıları panel bağlı kaldıkça eskisini gösterebiliyor (§8.194
   (başka sayfa açık / sayfa ilk kez açılıyor / zaten açık) aynı; gerçek konuşma (`Interaction>Praise>…`) hâlâ konuşma
   olarak açılıyor (seçimden 0,29 sn sonra 6 yeni düğme, başka sayfa Guid'i); sonuçsuz bir iş ("Training>Rest Player>1 day")
   "yapıldı" diyor ve veriden doğrulandı (`fm intensity` → Ben House `RestDays: 1`). `tools/sweep.sh`: 50 komut, 0 hata.
+
+### 8.200 Bütçe ayarının slider adımları: işaret oyunun kendi yazısı, 3 sn sınırına ≥8 kat pay (18 Ekim, TR + EN)
+`fm budget ayarla` slider'ı her adıma koyar, sonra kartın rakamlarını okur; okuma ancak "rakam değişti **ve**
+yürürlükteki adımı ayıran yıldız adıma uydu" olunca kabul edilir (3 sn, 0,2 sn aralık). Bu, oyunun kendi işareti:
+adım yerleşince `budget.BudgetAdjustmentEditedTransferValue` / `...EditedOtherValue` yazıları değişiyor ve kart
+yürürlükteki adımı yıldızla ayırıyor. Ölçüm (`FM_TRACE=1 fm budget ayarla`, 7 koşu × 16 adım; sayfa ilk kez
+açılıyor / sayfa zaten açık / kart zaten açık; TR + EN): `setcontrol` bittikten sonra kabul eden okuma 20–371 ms;
+112 adımın 11'inde ikinci okuma gerekti (en çok kart zaten açıkken: 4/16). Sınır en kötü hâlin ≥8 katı → kod
+değişmedi. TR ile EN'de rakamlar birebir aynı (yalnız "Transfers/Wages" etiketleri çevrili).
+Ölçüm tuzağı: ekranda açık kalmış bir "Budget Adjustment" kartı sayfanın düğmelerini örtüyor ve `ayarla`
+"no button shows 'Adjust Transfer and Wage Budget'" ile düşüyor (kendi bıraktığım karttı; `Cancel` ile kapanınca
+aynı koşu hatasız). Kart önceden açıkken komutun yine çalışması ayrı bir iyileştirme olarak duruyor.
+
+### 8.201 `fm settings` ayarı başlık yazısıyla arıyor; Almanca oyunda dil ayarı bulunamıyor (18 Ekim, DE)
+Ayar tanımları `Heading: "Game Language"` gibi İngilizce başlıklarla eşleşiyor. Almanca oyunda `/form` bu başlığı
+**"Language"** diye verdi: oyunun Almanca yazısı ("Sprache") hem "Language" hem "Game Language" İngilizcesine
+karşılık geliyor, eklenti tablosu ilkini döndürüyor (FINDINGS §8.167'deki çakışma). Ölçüm: Almanca oyunda
+`fm settings` listesinde dil satırı yok; `fm settings language "Türkçe"` → "'language' ayarı Your World sekmesinde
+bulunamadı." Öğe yerindeydi (Your World sekmesinin ilk açılır listesi, `Binds app.nativesettings`, 20 dil seçeneği);
+dil `/select?ptr=…&index=13` ile değiştirilip Türkçeye dönüldü. Kalıcı yol başlığı oyunun kendi numarasıyla
+(TranslationID; eklentiye `Id` alanı eklemek gerekir, oyunu yeniden başlatmadan etkisi olmaz) ya da öğeyi kendi
+adıyla (`GameLanguagePreferencesBlock` — E bölümü) bulmak; kabul edilen başlık listesi yeni bir kırılgan
+bağımlılık olurdu.
