@@ -2613,3 +2613,33 @@ açık / zaten açık / başka sayfaya geçtikten sonra) ve ay elle uzağa kayd�
 (TR `0dd9e2647a65b730035f4f24925b8beb`, EN `025897203ed1add7dc0f55748250abc5`); zaten açıkken komut 1,0 sn (yeni
 dal beklemiyor), ay uzaktayken 2,0 sn ve liste doğru aya dönüyor. `fm schedule` ve `fm fixtures` (aynı yardımcıyı
 kullanan iki komut) çalışıyor.
+
+### 8.234 `scout remove`/`restart`: sayfanın düğmeleri artık gönderdikleri olayla bulunuyor; "süren odak" işareti etiketten okunduğu için yarışıyor (19 Ekim, TR + EN)
+
+Odak sayfasının iki düğmesi `press/click text="…"` ile, yani oyunun çeviri tablosundan gelen İngilizce sözle
+bulunuyordu. Ölçüm (`/buttons?gen=…&json=1` + `pull?path=<Action>&props=ActionID,Event`, TR): odak sayfasındaki
+dört düğmenin dördü de `SpeakToAction` ve eylemleri **Remove → `EventFmxRecruitmentFocusRemove` (53)**,
+**Restart → `EventFmxRecruitmentFocusRestart` (54)**, "Create Recommended Focus" → `1245866784`
+(`…CreateRecommendedFocus`) gönderiyor. Yani düğme, `Acknowledge`/§8.209/§8.217'deki yardımla (`SpeakToActionEvent`)
+olayından bulunabiliyor: artık işaretçisiyle basılıyor, etiket hiç okunmuyor (bulunamazsa `remove` eskisi gibi görevler
+panelindeki kaldır simgesine düşüyor). **"Edit Recruitment Focus" ve "Create a New Recruitment Focus" ise
+`ActionID 0` + `Event 0`** — oyun bu ikisine hiçbir kimlik vermiyor; ikisi de etiketiyle kalıyor (etiket oyunun kendi
+çeviri kaydından gelen İngilizce söz, §8.209'daki tür; TR'de ölçülen dört etiket İngilizceydi).
+Kanıt: TR üç durum (başka sayfa açık → `restart` rc=0 "Odak yeniden başlatıldı: Sky Bet League Two"; sayfa zaten açık →
+`remove 4 --yes` rc=0 "Odak durduruldu"; başka sayfaya geçtikten sonra → durmuş odağa `remove` rc=1 "zaten durmuş",
+süren odağa `restart` rc=1 "zaten sürüyor"), EN aynı koşular (`Focus restarted` / `Focus stopped` rc=0, negatifler rc=1);
+sonuç `fm scout --json`ten doğrulandı (durdurulan odak `Stopped/False`, yeniden başlayan `In Progress/True`).
+
+Yan bulgu (düzeltilmedi, ayrı iş): `FocusAt` (`Scouting.cs` 153) bir odağın **süren** olup olmadığını
+`buttons` listesinde `Label != "Restart Recruitment Focus"` ile anlıyor — yani yine bir etiket ve **sayfa değişiminden
+sonra okunan** bir liste. Bir `restart`tan sonraki ilk `fm scout` iki kez yanlış okudu: 1 numaralı odak ("England",
+gerçekte sürüyor) "Durduruldu" göründü; bir sonraki koşuda yine "Devam Ediyor" oldu ve `--json` `Running:true` dedi.
+Sebep §8.231/§8.233'ünkiyle aynı: liste seçim değiştikten sonra **eski odakların** düğmelerini bir süre taşıyor ve
+"art arda iki okuma aynı" işareti bu eski hâlde oturuyor (etiketle okuyan işaret yalnız kendini doğruluyor). Doğru
+işaret "düğme kümesi önceki seçimin kümesinden **farklı** ve sonra iki okumada aynı" ya da `Remove`/`Restart`
+varlığının 53/54 olayından okunması + aynı "değişti" koşulu; ölçülüp ayrı bir turda yapılmalı (§8.120 bu düğmelerin
+her zaman çıkmadığını zaten söylüyor).
+Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (Türkçe oyunda). Değişiklik yalnız `ScoutFocus.cs` içinde;
+`SpeakToActionEvent` ve `Fm.Get` dokunulmadı. Not (ölçümün kayda etkisi): remove/restart çalıştığı için odak listesi
+4 → 7 oldu (üç yinelenen "Sky Bet League Two": biri sürüyor, ikisi durmuş; `restart` eskisini listede "durmuş"
+bırakıyor), aynı bölgeyi süren bir odak durduğu için tarama kapsamı bozulmadı; silme yolu olmadığından temizlenmedi.

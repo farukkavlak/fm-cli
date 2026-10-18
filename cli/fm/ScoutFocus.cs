@@ -700,6 +700,23 @@ internal static partial class Program
 		return focuses;
 	}
 
+	/// <summary>What the page's two buttons' actions send (InteropEventIDs): the game names them,
+	/// so the button is found by that and not by what it says. The label is the game's own string
+	/// and this language's table may not carry its English (§8.209).</summary>
+	private const string RemoveEvent = "53";  // EventFmxRecruitmentFocusRemove
+
+	private const string RestartEvent = "54"; // EventFmxRecruitmentFocusRestart
+
+	/// <summary>
+	/// The button on the recruitment-focus page whose action sends the given event, pressed by its
+	/// pointer; an error line when this page does not offer it (a focus that is running has no
+	/// Restart, one already stopped no Remove).
+	/// </summary>
+	private static async Task<string> PressPageButton(string sent) =>
+		await SpeakToActionEvent(sent) is { } button
+			? await Fm.Get("click", ("ptr", Field(button, "Pointer")))
+			: $"error: no button on the loaded screens sends the recruitment-focus event {sent}";
+
 	/// <summary>
 	/// Stopping a focus ("Remove Recruitment Focus": it leaves the scouting priorities but stays
 	/// listed), or setting a stopped or finished one going again ("Restart": a new focus is made
@@ -747,7 +764,7 @@ internal static partial class Program
 
 		if (restart)
 		{
-			var started = await Fm.Get("click", ("text", "Restart Recruitment Focus"));
+			var started = await PressPageButton(RestartEvent);
 			if (started.StartsWith("error", StringComparison.Ordinal))
 			{
 				Console.Error.WriteLine(L($"Oyun '{shown.Name}' için 'Restart Recruitment Focus' sunmuyor (FINDINGS §8.120: buton her zaman çıkmıyor)."));
@@ -773,7 +790,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Sayfada görev sayısı okunamadı; bak: scout"));
 			return 1;
 		}
-		var clicked = await Fm.Get("click", ("text", "Remove Recruitment Focus"));
+		var clicked = await PressPageButton(RemoveEvent);
 		// The page does not always have the button (FINDINGS §8.120); the assignments panel lists
 		// each scout's focuses with a remove icon beside them.
 		if (clicked.StartsWith("error", StringComparison.Ordinal) && !await RemoveInAssignments(shown.Name))

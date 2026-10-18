@@ -3,7 +3,38 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 44)
+## Şu an (Tur 45)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `scout remove` · `scout restart`** — **BİTTİ** (§8.234, Tur 45):
+  odak sayfasının iki düğmesi oyunun çeviri tablosundan gelen İngilizce etiketle bulunuyordu. Ölçüm: ikisi de
+  `SpeakToAction` ve eylemleri olay gönderiyor — **Remove = `EventFmxRecruitmentFocusRemove` (53)**,
+  **Restart = `EventFmxRecruitmentFocusRestart` (54)** ("Create Recommended Focus" = `1245866784`). Artık düğme
+  `SpeakToActionEvent` ile olayından bulunup işaretçisiyle basılıyor (bulunamazsa `remove` eskisi gibi görevler
+  panelindeki kaldır simgesine düşüyor). **"Edit Recruitment Focus" ve "Create a New Recruitment Focus" ise
+  `ActionID 0` + `Event 0`**: oyun bu ikisine kimlik vermiyor → etiketle kalıyorlar (dil değişse de aynı İngilizce).
+- Kanıt: TR üç durum (başka sayfa açık → `fm scout restart 5` rc=0 "Odak yeniden başlatıldı"; sayfa zaten açık →
+  `fm scout remove 4 --yes` rc=0 "Odak durduruldu"; başka sayfaya geçtikten sonra → durmuş odağa `remove` rc=1
+  "zaten durmuş" + süren odağa `restart` rc=1 "zaten sürüyor"), EN aynı koşular (`Focus restarted` / `Focus stopped`
+  rc=0, negatifler rc=1); sonuç `fm scout --json`ten doğrulandı (durdurulan `Stopped/False`, yeni `In Progress/True`).
+  `sweep.sh` → **50 komut, 0 hata** (Türkçe oyunda; `scout` satırı rc=0).
+- Not (kayıt durumu): ölçüm **kaydı değiştirdi** — odak listesi 4 → 7 oldu: ölçümün doğal sonucu, 3 yinelenen
+  "Sky Bet League Two" kaydı eklendi (biri sürüyor, ikisi durmuş; `restart` eski kaydı "durmuş" olarak listede
+  bırakıyor). Aynı bölgeyi süren bir odak (#4) duruyor, yani tarama kapsamı bozulmadı; silme yolu olmadığı için
+  (silme Faruk'un kararı) temizlenmedi. Tarih 2 Ağustos 2026 14:00 (`/state` → Clock 14), maç oynanmadı, saat
+  ilerletilmedi; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
+- Yan bulgu (yeni, düzeltilmedi — §8.234 sonu): `FocusAt` "süren odak" kararını `Label != "Restart Recruitment
+  Focus"` ile veriyor ve bir `restart`tan sonraki ilk `fm scout` iki kez yanlış okudu (1 numaralı "England", gerçekte
+  sürerken, "Durduruldu" göründü; sonraki koşuda düzeldi). İşaret "düğme kümesi önceki seçiminkinden **farklı** ve
+  sonra iki okumada aynı" olmalı (ya da 53/54 varlığı) — ayrı madde.
+- Sıradaki tur (öneri): aynı sınıfın kalan yerleri — `ScoutFocus` `Edit`/`Create a New` (kimlik yok, ölçüldü),
+  `Saves` `Save Game As`/`Cancel` (FM menü satırı `FMMenuOptionFromID`; satırın kendi numarası — `SaveGameAs`=2 —
+  eklentide `Events` özetine eklenmeden basılamıyor: **eklenti değişikliği + oyun restartı ister**, ya da kabı
+  `SaveGameFrame` ama o kap iki düğme taşıyor), `Budget` `Cancel`/`Got It`, `Saves` kayıt tarayıcısı `Cancel`/`Save`.
+  A'da kısa `Until`ler (League 216 · MatchControls 131 266 · Reads 892 · Saves 207 220 · TacticFiles 29 ·
+  TraitTraining 89) ve `FocusAt`in yarışı. Park: Stages 337 (çapa), TrainingSchedule 345 (ay karışıklığı).
+- Not: ağaçta yalnız bu turun dosyaları var (`cli/fm/ScoutFocus.cs`, BAGIMLILIKLAR, FINDINGS, bu defter), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 44)
 - Madde: **A "Kısa `Until`" / Calendar 157** (`fm calendar` / `CalendarMonths`: "Today" düğmesinden sonraki bekleme) —
   **BİTTİ** (§8.233, Tur 44): bekleme "art arda iki okuma aynı ve boş değil" idi ve bu işaret basıştan **önceki** ayı da
   kabul eder. Ölçüm (kimlik): düğme basıldıktan hemen sonraki ilk okuma hâlâ eski ayı veriyor (126 / 95 / 128 ms, üç

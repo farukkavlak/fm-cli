@@ -377,6 +377,19 @@ tablodan çevrilemiyor.
     Bırak" onunla bitiyor; `Mutual Termination` iki dilde de İngilizce geliyor. TR + EN üç durumda `--free`
     tazminat penceresini gösteriyor ("Vazgeçildi", hiçbir şey değişmiyor), negatif ve listesi olmayan oyuncu
     (Oscar Thorn) aynı (§8.222).
+  - [x] `scout remove` / `scout restart` düğmeleri: artık oyunun **olayıyla** bulunuyor — odak sayfasının
+    "Remove Recruitment Focus" düğmesinin eylemi `EventFmxRecruitmentFocusRemove` (53) gönderiyor, "Restart
+    Recruitment Focus" `…Restart` (54); ikisi de dilden bağımsız, oyunun kendi numarası (aynı yardım
+    `Acknowledge`/§8.209'ta kullanılan `SpeakToActionEvent`). Ölçüm (TR): `/buttons?gen=…` → odak sayfasındaki
+    dört düğmenin hepsi `SpeakToAction`;
+    `pull?props=ActionID,Event` → Remove `53`, Restart `54`, "Create Recommended Focus" `1245866784`
+    (`…CreateRecommendedFocus`), ama **"Edit Recruitment Focus" ve "Create a New Recruitment Focus"** ikisi de
+    `ActionID 0` + `Event 0` — yani oyun bu iki düğmeye hiçbir kimlik vermiyor (etiket, oyunun çeviri
+    tablosundan gelen İngilizce söz — §8.209'daki tür) → o ikisi etiketle kalıyor. Buton bulunamazsa
+    eskisi gibi görevler panelindeki kaldır simgesine düşülüyor. TR üç durum (başka sayfa açık / sayfa zaten
+    açık / başka sayfaya geçtikten sonra) + negatifler ve EN üç durum: `restart` rc=0 "Odak yeniden başlatıldı",
+    `remove --yes` rc=0 "Odak durduruldu", durmuş odağa `remove`/süren odağa `restart` rc=1 ("zaten durmuş" /
+    "zaten sürüyor"); sonuç `fm scout --json`ten doğrulandı (§8.234).
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri
