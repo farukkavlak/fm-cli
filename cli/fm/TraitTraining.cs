@@ -25,11 +25,20 @@ internal static partial class Program
 		if (await OpenPlayer(wanted) is not { } card) return 1;
 		var name = Field(card.GetProperty("Player"), "Name");
 
+		// Each tile sits on the panel the one before it opens, so it is only there once that panel
+		// is built. The tile is waited for by asking for it without pressing (a dry run), so the
+		// press that follows goes to a control that is on screen; no machine speed is assumed.
 		foreach (var tile in new[] { "Training Rating", "Traits" })
 		{
-			var opened = await Arriving("press", [("text", tile), ("name", "layout-tile-interaction-button"), ("any", "1")]);
+			(string, string)[] query = [("text", tile), ("name", "layout-tile-interaction-button"), ("any", "1")];
+			async Task<bool> There() => !(await Fm.Get("press", [.. query, ("dry", "1")])).StartsWith("error", StringComparison.Ordinal);
+			if (!await Until(There, seconds: 8, every: 0.25))
+			{
+				Console.Error.WriteLine(L($"{name}: alışkanlık eğitimi sayfası açılmadı ('{tile}' döşemesi yok)."));
+				return 1;
+			}
+			var opened = await Fm.Get("press", query);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Task.Delay(500);
 		}
 
 		// The last answer stays up until it is moved past; then the choices come back.

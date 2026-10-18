@@ -4,21 +4,44 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **A "`Task.Delay`" / `Staff 74` (Staff.cs, All Staff tablosunu kaydırdıktan sonra sabit 400 ms)** — **PARK**
-  (§8.205, Tur 16): sabit duraklamayı oyunun işaretiyle ("pencere kaydırmadan öncekinden farklı **ve** art arda iki
-  okumada aynı") değiştirmek denendi, hızlıydı (TR ~4,5–5,0 → ~2,8–3,2 sn) ama **18 koşunun 2'sinde pencere kaybetti**
-  (34 ve 42 satır; 400 ms'lik duraklama 12/12 ve iki dilde üçer durumda 48 satır). Nedenleri ölçüldü: oyun ara
-  yerleşimi sakin gösteriyor (aynı 20 satır iki okumada), kaydırma çapası bir an bulunamıyor, 50 ms'lik yoklama köprüyü
-  sıkıştırıyor. Kod `git restore` edildi; soru BAGIMLILIKLAR'da.
-- Bir sonraki tur: A/`Task.Delay` sıradaki adaylar: `TraitTraining 32` · `Responsibilities 283/388` · `Matches 82` /
-  `OppositionCard 55 91` · `TrainingSchedule 345` · `Scouting 100` · `TacticFiles 181` — **`Staff 74` park edildi, tekrar
-  denemeyin**; ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`,
-  `Prep 124`). Alternatif B: İşlem sekmesinin üç listesi hâlâ başlıkla bulunuyor (oyun blok adı vermiyor); `fm settings`
-  "Manage settings for this game" / "See all" yazılarıyla menüyü açıyor. Not: köprü 60 çağrılık sık bir döngüde
-  kilitlendi; oyun `pkill` + `fm start` ile yeniden açıldı (test kaydı son kayıttan yüklendi).
-- Durum: park edildi, commit atılıyor
+- Madde: **A "`Task.Delay`" / `TraitTraining 32`** — **BİTTİ** (§8.206, Tur 17): alışkanlık eğitimi sayfasını açan iki
+  döşemenin ardındaki sabit 500 ms, döşemeyi **basılmadan** sormaya (`press ?…&dry=1`, 0,25 sn aralıkla, en çok 8 sn)
+  çevrildi; çıktı TR + EN'de üç durumda öncesiyle birebir aynı, döşeme arası 0,57–0,60 → 0,43–0,53 sn.
+- Bir sonraki tur: A/`Task.Delay` sıradaki adaylar: `Responsibilities 283/388` · `Matches 82` · `OppositionCard 55 91` ·
+  `Scouting 100` · `TrainingSchedule 345` · `TacticFiles 181` — **`Staff 74` park edildi, tekrar denemeyin**;
+  `TraitTraining 32` bitti. Ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`,
+  `League 216`, `Prep 124`). Ölçülen bir B işi: TR'de `--trait-suggest` düğmesi bulunamıyor (İngilizce yazı tabloda
+  yok, §8.206); `fm settings` hâlâ "Manage settings for this game" / "See all" yazılarıyla menüyü açıyor. Not:
+  kaydırmadan sonra okumak isteyen maddelerde (Responsibilities/Matches/Scouting) `Staff 74`'ün tuzağı var — oyun tam
+  olmayan pencereyi de "sakin" gösterebiliyor, önce işaret bulunmalı. Köprü 60 çağrılık sık bir döngüde kilitleniyor.
+- Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 17 — A "`Task.Delay`" / TraitTraining 32: döşemeleri açan iki sabit 500 ms işarete bağlandı (§8.206, 18 Ekim)
+Ne: `cli/fm/TraitTraining.cs`. Alışkanlık eğitimi sayfası iki döşemeyle açılıyor ("Training Rating" oyuncu kartından,
+"Traits" onun açtığı sayfadan) ve `foreach` her basıştan sonra sabit 500 ms bekliyordu. Yeni: basılacak döşeme
+**basılmadan** soruluyor (`press ?text=…&name=layout-tile-interaction-button&any=1&dry=1`, `Until` ile 0,25 sn
+aralıkla, en çok 8 sn), ancak ekranda görününce basılıyor; gelmezse adıyla hata yazılıyor. Döşemeden sonraki liste
+beklemesi zaten oyunun işaretiydi (`Ready`: "Start New Trait Training" açılır listesi ya da "Cancel Current Trait
+Training" düğmesi), o yüzden ikinci 500 ms de kalktı.
+- Ölçüm komutu (okuma yolu; hiçbir şey öğretmiyor): `fm training "Ben House" --trait`.
+- Öncesi (eski derleme): TR üç durum (sayfa ilk kez `fm open "Messages"` sonrası / zaten açık / başka sayfa
+  `fm open "Squad Dynamics"`) 10 satır, `md5 8a43caeda16d227f818785976e7fa906`, 8,8 / 8,2 / 7,7 sn; EN üç durum 10
+  satır, `md5 9e92fe93ca38f07f0d9f2d20a30c8b56`, 10,7 / 7,5 / 7,6 sn. Döşeme→döşeme aralığı (izden) 0,57 / 0,60 /
+  0,59 sn.
+- Sonrası: TR üç durum 10 satır, **aynı** `md5 8a43caed…`, 9,5 / 8,6 / 9,5 sn; EN üç durum 10 satır, **aynı**
+  `md5 9e92fe93…`, 9,5 / 8,8 / 8,5 sn; döşeme→döşeme 0,43 / 0,53 / 0,52 sn. Dönüş: `fm settings language "Türkçe"` →
+  `English → Turkish`; `/state` → `Language: turkish`, saat 2 Ağustos 14:00 (ilerletilmedi).
+- Denemeler: (1) yalnız sabit bekleme silinip `Arriving`e bırakıldı — çıktı aynı, ama "Traits" basışı 1 sn'lik
+  yoklamaya takıldı (izde 6,09 boşa → 7,15 tuttu); (2) döşemeyi `dry=1` ile 0,25 sn aralıkla sormak seçildi
+  (kazanç: 0,43–0,53 sn). Negatif (aynı yoldan): TR `fm training "Ben House" --trait-remove "ZZZ yok"` → rc=1,
+  seçenekler karttan; EN `… "ZZZ nope"` → rc=1.
+- Yan bulgu (B, yeni iş): TR'de `--trait-suggest` düğmeyi bulamıyor ("Oyun Karakteristiği İdmanı Önerisi İste" olarak
+  geliyor, İngilizce karşılığı tabloda yok) — eski derlemede de birebir aynı; BAGIMLILIKLAR B'ye örnek olarak yazıldı.
+- Paylaşılan koda (Bridge/OpenPage/reply/ortak yardımcılar) dokunulmadı, değişiklik yalnız `TraitTraining.cs` içinde →
+  `sweep.sh` gerekmedi. Kayıt test kaydı: 2 Ağustos 2026 14:00; saat ilerletilmedi, maç oynanmadı, hiçbir alışkanlık
+  öğretilmedi/bıraktırılmadı.
 
 ### Tur 16 — A "`Task.Delay`" / `Staff 74` — PARK, kod geri alındı (§8.205, 18 Ekim)
 Ne: `cli/fm/Staff.cs`teki All Staff okuması (`foreach share { scroll; Task.Delay(400); oku }`) sabit duraklamadan

@@ -2039,3 +2039,26 @@ oynadığını `scroll` cevabını `to`suz çağrıyla karşılaştırarak anlam
   yerleşimin gerisinde kalıyor.
 - Karar (kural 4): kanıtlanmış iyi hâl yok → `git restore cli/fm/Staff.cs`, madde `[?]`, soru BAGIMLILIKLAR'da. Not:
   "Mutluluk"taki gibi çapayı **görünen son satırın kendi yazısına** taşıyıp listeyi baştan sona gezmek ayrı bir iş.
+### 8.206 `fm training <oyuncu> --trait`: döşemeleri açan iki sabit 500 ms oyunun kendi işaretine bağlandı (18 Ekim, TR + EN)
+`cli/fm/TraitTraining.cs`: alışkanlık eğitimi sayfası iki döşemeyle açılıyor ("Training Rating" oyuncu kartından,
+"Traits" onun açtığı sayfadan) ve her basıştan sonra sabit 500 ms bekleniyordu. Yeni: basılacak döşeme **basılmadan**
+soruluyor (`press ?text=…&name=layout-tile-interaction-button&any=1&dry=1`, 0,25 sn aralıkla, en çok 8 sn) ve ancak
+ekranda görününce basılıyor; sabit bekleme yok. Döşeme gelmezse adıyla birlikte hata yazılıyor.
+- Kanıt: `fm training "Ben House" --trait` (okuma yolu; hiçbir şey öğretmiyor) üç durumda — sayfa ilk kez açılıyor
+  (`fm open "Messages"` sonrası) / sayfa zaten açık (hemen ikinci koşu) / başka sayfa açık (`fm open "Squad
+  Dynamics"`) — TR'de 10 satır `md5 8a43caeda16d227f818785976e7fa906`, EN'de 10 satır
+  `md5 9e92fe93ca38f07f0d9f2d20a30c8b56`; ikisi de değişiklik **öncesiyle birebir aynı** (aynı alışkanlıklar ve
+  öğretilebilecekler listesi).
+- Süre (hedef değil, işaretin tuttuğunu gösterir): döşeme→döşeme aralığı önce 0,57 / 0,60 / 0,59 sn, sonra
+  0,43 / 0,53 / 0,52 sn (sabit 500 ms + bir istek yerine 0,25 sn'lik yoklama: ilk sorusu çoğu kez boşa, ikincisi
+  tutuyor). Toplam süre aramadan gelen gürültüyle nötr: önce TR 7,7–8,8 / EN 7,5–10,7 sn, sonra TR 8,4–9,5 / EN
+  8,5–9,7 sn.
+- Yan ölçüm: "Traits" döşemesi oyuncu kartında **yok** — kartın döşemeleri Very Unhappy, Fitness, Last 5 Club Games,
+  Discipline, Training Rating, Season Stats, Career Stats (kart sayfası `77188c7b…`, eğitim sayfası `41012275…`) —
+  yani gecikmesiz basış yanlış döşemeye gidemez; bulunamayan basış yoklamayı devreye sokar.
+- Negatif (aynı yoldan): TR `fm training "Ben House" --trait-remove "ZZZ yok"` → rc=1, seçenekler karttan listeleniyor;
+  EN `… "ZZZ nope"` → rc=1. Dönüş: `fm settings language "Türkçe"` → `English → Turkish`, `/state` → `Language: turkish`.
+- Yeni bulgu (B): TR oyunda `--trait-suggest` çalışmıyor — düğmenin yazısı bizim tabloya İngilizce karşılığıyla
+  geçmemiş ("Oyun Karakteristiği İdmanı Önerisi İste"); CLI İngilizce yazıyla bastığı için `error: no control labelled
+  'Ask For Trait Training Suggestion'`. `git stash` + eski derlemede **birebir aynı** → bu değişiklikten değil; B'nin
+  "İngilizce yazıyla basma/tıklama — 44 yer" maddesinin ölçülmüş bir örneği.
