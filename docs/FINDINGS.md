@@ -2299,3 +2299,16 @@ EN: üç durum eski derlemeyle **birebir** (`md5 f97a8688…`, kiralamada `d030b
 Gönderme yolu da denendi (`--loan --yes` → "Önerildi.", sonra seçenek listeden kalkıyor — §8.94'ün beklenen hâli).
 Yan bulgu: `fm actions` oyuncunun bu aksiyon listesini göremiyor ("No 'Remove From Loan List' in the menu" —
 oysa düğme ekranda); `fm propose` bitince Ben House önerilmiş olarak kaldı.
+
+### 8.218 `fm penalties`: "MAÇA" sütunu oyunun cümlesine bağlı — TR'de ham Türkçe, EN'de Türkçe "ilk 11" (18 Ekim, PARK)
+Tablonun yer hücresi `tactic.TeamSelectedPositionStringFromPlayer` yolundan, yani oyunun kendi cümlesinden geliyor;
+eklenti onu ancak tabloda birebir karşılığı varsa İngilizceye çeviriyor. Ölçüm (`fm penalties --json`, 2 Ağustos 2026,
+tek taker James Collins + `penalties add "Tom Bayliss"`, sonra geri alındı): TR'de kulübedeki `"On Subs bench"`,
+ilk 11'de başlayan `"İlk 11'de (DOSMSğ)"`; EN'de (`fm settings dil English`, aynı iki oyuncu) `"On Subs bench"` /
+`"Starting at DMCR"`. Yani aynı alan aynı kayıtta dil başına başka bir söz: ilk 11 vakası mevki kodu taşıdığı için
+çevrilemeyip ham kalıyor.
+`cli/fm/Penalties.cs` `Starting()` yalnız `Starting at ` önekini tanıyor ve öneki sabit Türkçe yazıyor: TR'de
+eşleşme olmadığı için insan çıktısı ham cümleyi, EN'de `ilk 11 · DMCR` (İngilizce tabloda Türkçe söz) yazıyor;
+`--json` `Where` alanı da dile bağlı. `/form` bu satır için yalnız o metni ve yolunu veriyor (dile bağsız
+"ilk 11/kulübe" alanı yok); `/tactic` Slot'ları kısaltılmış ad (`Bayliss`) ve sayısal `Position` maskesi taşıyor,
+ceza tablosundaki tam adlarla birleştirmek kırılgan. Dilden bağımsız yol bulunmadan değiştirilmedi (PARK).

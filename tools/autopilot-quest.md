@@ -4,6 +4,21 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "Cümle parçası arayanlar" / `penalties` yer sütunu** — **PARK** (§8.218, Tur 29): `fm penalties` tablosunun
+  "MAÇA" hücresi oyunun kendi cümlesini yazıyor ve o cümle dil başına değişiyor (TR'de ilk 11'de başlayan için
+  `İlk 11'de (DOSMSğ)`, EN'de `Starting at DMCR`; kulübedeki ikisinde de `On Subs bench`). CLI'nin `Starting()`i
+  yalnız İngilizce `Starting at ` önekini tanıdığı için TR'de ham cümle, EN'de Türkçe `ilk 11 · DMCR` yazıyor;
+  `--json` `Where` alanı da dile göre değişiyor. Dilden bağımsız yol bulunamadı → kod değişmedi, ölçüm+park.
+- Sıradaki tur (öneri): **A "`Task.Delay`" / TrainingSchedule 345** — önce takvim ayı karışıklığı (iki sekmenin ayrı
+  `MonthDropdown`'ı) ayrı madde olarak düzeltilmeli (Tur 27 notu). Alternatif küçük işler: A'da `TacticFiles 181`
+  (yük panelini kapattıktan sonraki sabit 800 ms; panel kapanınca düğmenin kendisi `/buttons`tan düşüyor — ölçüldü:
+  panel 0,31 sn'de yok, kaydırmalı yolda tetiklemek zor), `Jobs 408`, Guided 161 174 (bedel isteyen söz), Alt
+  sayfa/sabit üst sınırlar. B'de kalanlar: `Stages/Saves/Release/Matches` cümle parçaları, `contract --agent` TR
+  (kartın kendi işareti), haber "Portugal".
+- Not: ağaç temiz (yalnız doküman değişti), penaltı sırası ve dil tur başındaki hâlde (TR, tek taker James Collins).
+- Durum: park edildi, commit atılıyor
+
+## Önceki durum (Tur 28)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `propose` düğmeleri** — **BİTTİ** (§8.217, Tur 28): `fm propose`
   TR oyunda hiç çalışmıyordu (gönder düğmesinin sözü oyunun tablosunda başka metne bağlı); iki düğme artık
   eylem kimliğiyle (`PersonOfferToClubs` 1164992875) ve eylemin gönderdiği olayla (`EventFmxTransferOfferResponse`
@@ -40,6 +55,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 29 — B "Cümle parçası arayanlar" / `fm penalties` yer sütunu: iki dilde iki ayrı söz, dilden bağımsız yol yok → PARK (§8.218, 18 Ekim)
+Ne: `cli/fm/Penalties.cs` `Starting()` (satır 119) ve okuduğu alan
+(`PenaltyTakers`, satır 150: `tactic.TeamSelectedPositionStringFromPlayer`). **Kod değişmedi** (kural 4: kanıtlanmış
+biçimde daha iyisi bulunamadı).
+- Ölçüm komutu: `fm penalties --json` (2 Ağustos 2026 14:00 kaydı). Tek taker James Collins. Sonra
+  `fm penalties add "Tom Bayliss"` (ilk 11'de) → aynı komut → `fm penalties remove "Tom Bayliss"` (sıra tur
+  başındaki hâle döndü, doğrulandı: tek satır `1 9 James Collins yedek`).
+- TR `Where`: `"On Subs bench"` (kulübe) · `"İlk 11'de (DOSMSğ)"` (ilk 11) — ikincisi ham oyun cümlesi.
+  İnsan tablosu: kulübe `yedek`, ilk 11 `İlk 11'de (DOSMSğ)` (önek eşleşmediği için normalize edilmiyor).
+- EN (`fm settings dil English`, `/state` → `english`, aynı iki oyuncu): `"On Subs bench"` / `"Starting at DMCR"`.
+  İnsan tablosu: `sub` / **`ilk 11 · DMCR`** — İngilizce çıktıda Türkçe söz (önek `Starting()`te sabit yazılıyor).
+- Yani aynı alan aynı kayıtta dil başına başka bir söz: mevki kodu taşıyan cümleyi eklenti çeviremiyor, kodsuz
+  olanı çeviriyor.
+- Neden düzeltilemedi (ölçüm): `/form?anchor=Order&up=26` bu satır için yalnız `Path` + `Text` veriyor (dile bağsız
+  "ilk 11/kulübe" alanı yok, satırın başka hücresi de yok). `/tactic` Slot'ları (`Player`: `Bayliss`, sayısal
+  `Position` maskesi) ile birleştirmek kısaltılmış ad ↔ tam ad eşlemesi yüzünden kırılgan. Yapı kuralı da yok:
+  TR'de parantez var (`(DOSMSğ)`), EN'de yok (`DMCR`).
+- Dönüş/geri: `fm settings language "Türkçe"` → `language: English → Turkish`, `/state` → `Language: turkish`;
+  penaltı sırası ve kuralları tur başındaki hâlde (kurallar kapalı, tek taker). Saat ilerletilmedi, maç oynanmadı.
+  Kod değişmedi → `sweep.sh` gerekmedi.
+- Faruk'a soru: yer bilgisi dilden bağımsız nereden gelmeli — eklentiye slotun oyuncusunu söyleyen bir alan mı
+  eklensin (o zaman ceza satırıyla kimlik üzerinden birleşir), yoksa `/tactic` Slot `Position` maskesi CLI'nin
+  kendi slot adlarına çevrilip tabloda o mu yazılsın?
+- Doküman: `docs/BAGIMLILIKLAR.md` (B'de alt madde `[?]`), `docs/FINDINGS.md` §8.218.
 
 ### Tur 28 — B "İngilizce yazıyla basma/tıklama" / `propose`: öneri ekranının iki düğmesi eylem/kimlikle bulunuyor; TR'de hiç çalışmıyordu (§8.217, 18 Ekim)
 Ne: `cli/fm/Propose.cs` (`fm propose [--loan]`, §8.94). Akış iki düğmeyi oyunun İngilizce sözüyle arıyordu:

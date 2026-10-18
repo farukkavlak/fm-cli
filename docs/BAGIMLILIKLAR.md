@@ -236,8 +236,18 @@ tablodan çevrilemiyor.
     satırın hepsini seçmek dakikalar sürerdi; dolu ilanlar "?". Üç durum (başka sayfa / zaten açık / başka sekme) ve
     iki dil aynı 321 ilan ve aynı sıra (§8.197). Panel gelmezse artık başka kulübün ayrıntısı basılmıyor: satır
     verisinden okunan alanlar + stderr uyarısı.
-  - [ ] Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" · Penalties "Starting at " / "On Subs bench" ·
+  - [ ] Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" ·
     Release "Is there anything else" · Matches "Match Ratings"+"Inf" · Saves "Estimated game speed:"
+  - [?] Penalties "Starting at " / "On Subs bench" (`fm penalties` tablosunun "MAÇA" sütunu): ölçüldü, **kod
+    değişmedi**. Alan (`tactic.TeamSelectedPositionStringFromPlayer`) oyunun kendi cümlesi ve iki dilde iki ayrı
+    söz veriyor: TR'de kulübedeki `On Subs bench` (eklenti çeviriyor), ilk 11'de başlayan `İlk 11'de (DOSMSğ)`
+    (içinde mevki kodu olduğu için çevrilmiyor); EN'de sırayla `On Subs bench` / `Starting at DMCR`. CLI'nin
+    `Starting()`i yalnız İngilizce `Starting at ` önekini tanıyor ve öneki sabit Türkçe yazıyor → TR'de tablo ham
+    oyun cümlesini, EN'de `ilk 11 · DMCR` (Türkçe söz) yazıyor; `--json` `Where` alanı da dile göre değişiyor.
+    `/form` bu satır için dile bağsız bir "ilk 11 / kulübe" alanı vermiyor ve `/tactic` Slot adları kısaltılmış
+    (`Bayliss`), ceza tablosundaki tam adlarla birleştirmek kırılgan. Faruk'a soru: yer bilgisi nereden gelmeli —
+    eklentiye slotun oyuncusunu söyleyen bir alan mı eklensin, yoksa `Position` maskesi CLI'nin kendi slot
+    adlarına mı çevrilsin? (§8.218)
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da
     birkaç gün içinde" diyor.
 - [ ] **İngilizce yazıyla basma/tıklama — 44 yer** (`press/click text="Acknowledge and Move On"`, "Cancel", "Confirm",
