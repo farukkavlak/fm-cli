@@ -2062,3 +2062,33 @@ ekranda görününce basılıyor; sabit bekleme yok. Döşeme gelmezse adıyla b
   geçmemiş ("Oyun Karakteristiği İdmanı Önerisi İste"); CLI İngilizce yazıyla bastığı için `error: no control labelled
   'Ask For Trait Training Suggestion'`. `git stash` + eski derlemede **birebir aynı** → bu değişiklikten değil; B'nin
   "İngilizce yazıyla basma/tıklama — 44 yer" maddesinin ölçülmüş bir örneği.
+
+### 8.207 `fm opposition <oyuncu> <talimat>=<değer>`: sabit 500 ms yerine sütunun kendi değeri, ve her talimat satırın adıyla yeniden bulunuyor (18 Ekim, TR + EN)
+
+`cli/fm/OppositionCard.cs`. Bir talimat seçildikten sonraki sabit 500 ms kaldırıldı; onun yerine okuma "o sütun seçilen
+değeri gösteriyor" olana kadar (0,25 sn aralık, en çok 8 sn; gelmezse stderr'e uyarı) sürüyor. Ölçüm (`python3` +
+`/opposition`, dört sütunun bütün seçenekleri): değer seçimden sonra **301–494 ms**'de görünüyor (10 ölçüm), yani 500 ms'in
+payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (eski değer) → oturan okuma 0,77 s.
+
+- Aynı fonksiyondaki **sıra bağımlılığı** da kalktı: kart bir talimat oturunca satırı yeniden çiziyor ve denetimlere
+  **yeni işaretçi** veriyor, ama ikinci talimat hâlâ baştan okunan işaretçiyle seçiliyordu. İki kez yakalandı: eski
+  derlemede TR "başka sayfa açık" durumunda `Marking=Always Pressing=Never` istendi, kartta `Always` kaldı (yazılan tablo
+  da `Her Zaman` dedi, rc=0); EN'de `Pressing=Always Marking=-` istendi, `Marking` `Always` kaldı. Yeni kod her seçimden
+  önce satırı **adıyla** yeniden buluyor (satır ara çizimde kaybolabiliyor: `Until` ile bekleniyor) ve işaretçiyi taze
+  okumadan alıyor. Aynı iki senaryo yeni kodda kartın kendi okumasıyla doğrulandı (istenen değerler oturdu).
+- Yan bulgu (B, yeni madde): seçenek adları İngilizce geliyor (`Pres=Always` çalışır, `Pres=Her Zaman` çalışmaz) ama hata
+  mesajı ve yardım satırı seçenekleri oyunun sözleriyle yazıyor — gösterilen ad geri yazılamıyor. TR oyunda çeviri
+  tablosu sıkı giriş seçeneklerini `Normal · Minor · Gusty` diye veriyor (EN: `Normal · Easy · Hard`), yani adlar da
+  güvenilir değil. BAGIMLILIKLAR B'ye madde olarak yazıldı.
+- Ölçüm (üç durum TR + EN: sayfa ilk kez açılıyor / zaten açık / başka sayfa açık; komut `fm opposition "Kyle Knoyle"
+  "Marking=Always" "Pressing=Never"`): yazılan tablolar öncesiyle **birebir** (`md5` TR `97059da1…` / `ed1cd387…`, EN
+  `9e41298d…` / `8704a667…`) — yalnız "başka sayfa açık" durumunda tablo artık **doğru** (eskiden ikinci talimat
+  uygulanmadan `Always` yazıyordu). Her koşudan 1,5 sn sonra kartın kendisi okunup yazılan tabloyla karşılaştırıldı;
+  8/8 birebir. İki dilde 6'şar tekrar (ilk talimat gerçekten değişecek şekilde) → 12/12 iki talimat da oturdu.
+- Negatif (TR): `"ZZZ yok" "Pressing=Always"` → rc=1 "Rakipte 'ZZZ yok' yok." · `"Pressing=zzz"` → rc=1, seçenekler ·
+  `"Pressing"` / `"Yok=Always"` → rc=64, biçim satırı · kısmi ad (`"Knoyle"`) → rc=0, satır tam adla bulunuyor.
+- `--advice` / `--clear` yolundaki 500 ms **kaldı** (satır 55): "Apply all advice" bastıktan sonra kart ara yerleşimde iki
+  okumada **aynı** görünüyor (192–281 ms aynı satırlar, gerçek sonuç 384 ms), yani "iki okuma aynı" işareti erken kabul
+  ederdi (Staff 74'ün tuzağı, §8.205); düğmenin etkin/olay durumu uygulama boyunca değişmiyor. İşaret bulunamadı →
+  madde `[?]`. Regresyon: `tools/sweep.sh` → 50 komut, 0 hata. Kayıt test kaydı: talimatlar `--clear` ile başlangıçtaki
+  boş hâline döndürüldü, saat ilerletilmedi, maç oynanmadı.

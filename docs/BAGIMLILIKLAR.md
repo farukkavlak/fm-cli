@@ -105,6 +105,19 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     kaybetti (34/42 satır), 400 ms'lik duraklama 12/12 tam (48). Sabit duraklama şimdilik kalıyor (§8.205). Faruk'a
     soru: 400 ms bu listeye yetiyor mu, yoksa kaydırma "görünen son satırın kendi yazısına" çapalanıp (Mutluluk'taki
     gibi) liste baştan sona gezilsin mi — ikincisi ayrı ve daha büyük bir değişiklik.
+  - [x] OppositionCard 91 (`opposition <oyuncu> <talimat>=<değer>`): seçimden sonraki sabit 500 ms kaldırıldı. Her talimat
+    artık **satırın kendi adıyla yeniden bulunduğu** güncel karttan seçiliyor (kart bir talimat oturunca yeniden çiziliyor
+    ve denetimlere yeni işaretçi veriyor; eskiden ikinci talimat bayat işaretçiye gidiyor, oyun "seçildi" deyip hiçbir şey
+    yapmıyordu — iki kez yakalandı: TR 3. durumda istenen `Never` yerine `Always`, EN'de istenen `-` yerine `Always`, rc=0)
+    ve okuma "sütun seçileni gösterene kadar" (0,25 sn aralık, en çok 8 sn; gelmezse stderr'e uyarı). Değerin oturma
+    zamanı seçimden sonra 301–494 ms (10 ölçüm, dört sütunun bütün seçenekleri) → 500 ms'in payı neredeyse yoktu.
+    Çıktı TR + EN'de üç durumda (sayfa ilk kez açılıyor / zaten açık / başka sayfa açıkken) eskisiyle birebir (`md5`
+    97059da1…, ed1cd387…); yalnız "başka sayfa açık" durumunda yazılan tablo artık doğru (§8.207). `md5`ler dört koşuda
+    kartın kendisiyle de karşılaştırıldı (bağımsız okuma) ve birebir.
+  - [?] OppositionCard 55 (`--advice` / `--clear` sonrası 500 ms): **kaldı**. Kartın ara yerleşimi iki okumada aynı
+    görünebiliyor (192–281 ms arası aynı satırlar, gerçek sonuç 384 ms'de) — "iki okuma aynı" işareti erken kabul ederdi
+    (Staff 74'ün tuzağı); "Apply all advice" düğmesinin durumu (etkin/olay) uygulama boyunca değişmiyor. Ölçüldü, işaret
+    bulunamadan değiştirilmedi. Faruk'a soru gerekmiyor: madde ölçüldü ve park edildi.
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   Calendar 157 · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
@@ -182,6 +195,12 @@ tablodan çevrilemiyor.
   "Ask For Trait Training Suggestion" ile eşleşmiyor (eski derlemede de aynı).
 - [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
   İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
+- [ ] **`opposition` seçenek adları:** seçenekler eklentiden İngilizce geliyor, kullanıcı da onları yazmak zorunda
+  (`Pres=Always` çalışır, `Pres=Her Zaman` çalışmaz), ama hata mesajı ve yardım satırı seçenekleri oyunun sözleriyle
+  yazıyor ("Seçenekler: - · Hiçbir Zaman · Her Zaman", "opposition <oyuncu> Pres=Always Sert giriş=Hard") — yani
+  gösterilen ad geri yazılamıyor (§8.207). Çevirisi bozuk olanlar da var: TR oyunda sıkı giriş `Normal · Minor · Gusty`,
+  İngilizcede `Normal · Easy · Hard` (çeviri tablosu "Easy"→"Minor", "Hard"→"Gusty" veriyor). Bakılacak: seçenek
+  eşleşmesi gösterilen sözü de kabul etsin mi (ters sözlük `GameWords`te yok), yoksa yardım/mesaj İngilizce adı mı yazsın.
 - [x] **Mutluluk seviyesi:** sıralama ve renk artık seviyenin yazısına değil oyunun kendi puanına (`Human.Team.Players`
   › `HierarchyOverallHappinessLevel`; 80 Delighted … -65 Very Unhappy) bakıyor, bant sınırları ölçülen boşluklarda (-30/30);
   seviye/moral/konum yazıları oyunun diline çevriliyor. Türkçe (3 durum) + İngilizce (2 durum) aynı sıra/renk (§8.189).

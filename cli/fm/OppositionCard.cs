@@ -67,6 +67,22 @@ internal static partial class Program
 				Console.Error.WriteLine(matches.Count == 0 ? L($"Rakipte '{who}' yok.") : L($"'{who}' {matches.Count} oyuncuya uyuyor: {string.Join(", ", matches.Select(r => Field(r, "Name")))}"));
 				return 1;
 			}
+			// The row is found by its own name each time an instruction is picked: the card is redrawn
+			// as an instruction lands and hands the row new controls, so a pointer read before that
+			// points at one the card has already thrown away.
+			var name = Field(matches[0], "Name");
+			async Task<JsonElement> RowNow()
+			{
+				JsonElement found = default;
+				await Until(async () =>
+				{
+					rows = await Rows();
+					found = rows.FirstOrDefault(r => Field(r, "Name") == name);
+					return found.ValueKind == JsonValueKind.Object;
+				}, seconds: 8, every: 0.25);
+				return found;
+			}
+
 			foreach (var asked in words.Skip(1))
 			{
 				var eq = asked.IndexOf('=');
@@ -76,7 +92,12 @@ internal static partial class Program
 					Console.Error.WriteLine(L($"biçim: <talimat>=<değer>; talimatlar: {string.Join(", ", OppositionColumns.Select(c => $"{c.Say} ({c.Key})"))}"));
 					return 64;
 				}
-				var control = matches[0].GetProperty(column.Key);
+				var row = await RowNow();
+				if (row.ValueKind != JsonValueKind.Object || !row.TryGetProperty(column.Key, out var control))
+				{
+					Console.Error.WriteLine(L($"Rakipte '{who}' yok."));
+					return 1;
+				}
 				var choices = control.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				var value = asked[(eq + 1)..].Trim();
 				var choice = choices.FirstOrDefault(c => Fold(c) == Fold(value)) ?? choices.FirstOrDefault(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal));
@@ -87,9 +108,17 @@ internal static partial class Program
 				}
 				var said = await Fm.Get("select", ("ptr", Field(control, "Pointer")), ("choice", choice));
 				if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+				// The column shows the picked value a moment later, and the card is redrawn while it
+				// lands: read until it shows, rather than pausing a fixed time that a slower machine
+				// outruns. The next instruction is then picked against the redrawn row.
+				var landed = await Until(async () =>
+				{
+					rows = await Rows();
+					var shown = rows.FirstOrDefault(r => Field(r, "Name") == name);
+					return shown.ValueKind == JsonValueKind.Object && Value(shown, column.Key) == choice;
+				}, seconds: 8, every: 0.25);
+				if (!landed) Console.Error.WriteLine(L($"'{name}': {column.Say} kartta görünmedi."));
 			}
-			await Task.Delay(500);
-			rows = await Rows();
 		}
 
 		if (args.Contains("--json"))

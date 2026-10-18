@@ -4,19 +4,59 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **A "`Task.Delay`" / `TraitTraining 32`** — **BİTTİ** (§8.206, Tur 17): alışkanlık eğitimi sayfasını açan iki
-  döşemenin ardındaki sabit 500 ms, döşemeyi **basılmadan** sormaya (`press ?…&dry=1`, 0,25 sn aralıkla, en çok 8 sn)
-  çevrildi; çıktı TR + EN'de üç durumda öncesiyle birebir aynı, döşeme arası 0,57–0,60 → 0,43–0,53 sn.
-- Bir sonraki tur: A/`Task.Delay` sıradaki adaylar: `Responsibilities 283/388` · `Matches 82` · `OppositionCard 55 91` ·
-  `Scouting 100` · `TrainingSchedule 345` · `TacticFiles 181` — **`Staff 74` park edildi, tekrar denemeyin**;
-  `TraitTraining 32` bitti. Ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`,
-  `League 216`, `Prep 124`). Ölçülen bir B işi: TR'de `--trait-suggest` düğmesi bulunamıyor (İngilizce yazı tabloda
-  yok, §8.206); `fm settings` hâlâ "Manage settings for this game" / "See all" yazılarıyla menüyü açıyor. Not:
-  kaydırmadan sonra okumak isteyen maddelerde (Responsibilities/Matches/Scouting) `Staff 74`'ün tuzağı var — oyun tam
-  olmayan pencereyi de "sakin" gösterebiliyor, önce işaret bulunmalı. Köprü 60 çağrılık sık bir döngüde kilitleniyor.
+- Madde: **A "`Task.Delay`" / `OppositionCard 91`** — **BİTTİ** (§8.207, Tur 18): seçimden sonraki sabit 500 ms kalktı;
+  her talimat artık satırın **adıyla yeniden bulunduğu** karttan seçiliyor (kart yeniden çizilince denetimlere yeni
+  işaretçi veriyor; eskiden ikinci talimat bayat işaretçiye gidip sessizce uygulanmıyordu — iki kez yakalandı) ve okuma
+  "sütun seçileni gösterene kadar" (0,25 sn, en çok 8 sn). Değer seçimden sonra 301–494 ms'de geliyordu. Çıktı TR + EN'de
+  üç durumda birebir. `--advice`/`--clear` yolundaki 500 ms (satır 55) **kaldı** ve `[?]` yapıldı: kart ara yerleşimi iki
+  okumada aynı görünüyor, düğmenin durumu değişmiyor → işaret yok.
+- Bir sonraki tur: A/`Task.Delay` sıradaki adaylar: `Responsibilities 283/388` · `Matches 82` · `Scouting 100` ·
+  `TrainingSchedule 345` · `TacticFiles 181` (OppositionCard bitti; `Staff 74` + `TraitTraining 32` park/bitti).
+  Ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`).
+  Ölçülmüş B işi: `opposition` seçenek adları gösterildiği gibi yazılamıyor (TR'de `Pres=Her Zaman` olmuyor, çeviri
+  tablosu sıkı giriş seçeneklerini `Normal · Minor · Gusty` veriyor) — BAGIMLILIKLAR B'ye madde olarak yazıldı.
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 18 — A "`Task.Delay`" / OppositionCard 91: sabit 500 ms yerine sütunun kendi değeri, her talimat taze satırdan (§8.207, 18 Ekim)
+Ne: `cli/fm/OppositionCard.cs` (`opposition <oyuncu> <talimat>=<değer>`). Seçimden sonraki `Task.Delay(500)` + okuma,
+"o sütun seçilen değeri gösteriyor" işaretine çevrildi (0,25 sn aralık, en çok 8 sn; gelmezse stderr'e uyarı). Aynı
+fonksiyondaki **sıra bağımlılığı** da kaldı: satır her seçimden önce **adıyla** yeniden bulunuyor (`RowNow`, ara çizimde
+satır kaybolursa bekliyor) ve işaretçi taze okumadan alınıyor.
+- Ölçüm (okuma yolu, hiçbir şey öğretmiyor): `python3` + `/opposition`; dört sütunun bütün seçenekleri tek tek seçilip
+  değerin görünmesi ölçüldü → **301 · 321 · 329 · 363 · 365 · 376 · 379 · 400 · 429 · 494 ms** (10 ölçüm) — 500 ms'in
+  payı neredeyse yoktu. `FM_TRACE=1 fm opposition "Kyle Knoyle" "Pressing=Always"`: `select` 0,38 s → okuma 0,45 (eski
+  değer) → oturan okuma 0,77 s.
+- Sıra bağımlılığı (eski derleme iki kez yanlış sonuç verdi): TR "başka sayfa açık" durumunda `Marking=Always
+  Pressing=Never` → yazılan tablo `Her Zaman` dedi ve kartın kendisi (1,5 sn sonra bağımsız okuma) `Always` gösterdi
+  (`md5 ee3c73ba…`); EN'de `Pressing=Always Marking=-` → `Marking` `Always` kaldı (`md5 9ea2312e…`). İkisinde de rc=0.
+- Komut (üç durum, her biri TR + EN): `fm open "Messages"` → `fm opposition "Kyle Knoyle" "Marking=Always"
+  "Pressing=Never"` (sayfa ilk kez açılıyor) · hemen ikinci koşu (sayfa açık) · `fm open "Squad Dynamics"` sonrası
+  (başka sayfa açık).
+- Öncesi (eski derleme, `git stash` + derle): TR `md5 97059da1 / ed1cd387 / ee3c73ba / ed1cd387`, süre 2,60 / 1,10 /
+  1,77 / 1,15 sn; EN `md5 9e41298d / 8704a667 / 9e41298d / 9ea2312e`, 2,14 / 1,02 / 1,09 / 1,09 sn.
+- Sonrası (yeni derleme): TR `97059da1 / ed1cd387 / 97059da1 / ed1cd387`, 2,25 / 1,61 / 2,09 / 1,59 sn; EN
+  `9e41298d / 8704a667 / 9e41298d / 8704a667`, 2,35 / 1,55 / 1,53 / 1,50 sn — yani **1, 2 ve 4. koşular birebir**;
+  yalnız "başka sayfa açık" koşusu değişti (eskiden ikinci talimat uygulanmadan yazılıyordu, şimdi 1. koşunun aynısı).
+  Her koşudan 1,5 sn sonra kartın kendisi okunup yazılan tabloyla karşılaştırıldı → 8/8 birebir (TR'de sözler oyunun
+  diliyle: `Always→Her Zaman`, `Never→Hiçbir Zaman`; eşleme tablosu tutarlı).
+- Tekrar (ilk talimat gerçekten değişecek biçimde, 6'şar koşu): eski 6/6, yeni 6/6 → bu dizide fark yok; sıra
+  bağımlılığının kanıtı yukarıdaki iki yakalanmış koşu (nadir; ama sessizce yanlış talimatla bırakıyordu).
+- Negatif (TR): `"ZZZ yok" "Pressing=Always"` → rc=1 "Rakipte 'ZZZ yok' yok." · `"Pressing=zzz"` → rc=1 "Pres: 'zzz'
+  yok. Seçenekler: …" · `"Pressing"` / `"Yok=Always"` → rc=64 biçim satırı · kısmi ad (`"Knoyle"`) → rc=0, satır tam
+  adla bulunup uygulandı (karttan doğrulandı). Satır hiç görünmezse ("RowNow" zaman aşımı, geçici bozuk kodla denendi):
+  "Rakipte 'Kyle Knoyle' yok.", rc=1 — çökme yok.
+- `--advice` / `--clear` yolu (satır 55) **değişmedi**: "Apply all advice" bastıktan sonra kart 192 ms'de bir ara
+  yerleşime geçiyor ve **281 ms'deki okuma onunla aynı** (gerçek sonuç 384 ms) → "iki okuma aynı" işareti erken kabul
+  ederdi; düğmenin etkin/olay alanları uygulama boyunca değişmiyor (`/buttons?json=1` 12 okuma). İşaret bulunamadı,
+  madde `[?]`.
+- Dönüş/geri alma: kart `fm opposition --clear` ile tur başındaki boş hâline döndürüldü (11 satır, hepsi "-"),
+  `/state` → `Language: turkish`, 2 Ağustos 2026 14:00 (saat ilerletilmedi, maç oynanmadı).
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (`/tmp/sweep_t18`). Paylaşılan koda (Bridge/OpenPage/reply)
+  dokunulmadı, değişiklik yalnız `OppositionCard.cs` içinde.
+- Yan bulgu (B, yeni madde): seçenek adları İngilizce geliyor, hata mesajı ve yardım satırı onları oyunun sözleriyle
+  yazıyor → yazılan ad geri yazılamıyor; TR'de çeviri tablosu sıkı giriş seçeneklerini `Normal · Minor · Gusty` veriyor.
 
 ### Tur 17 — A "`Task.Delay`" / TraitTraining 32: döşemeleri açan iki sabit 500 ms işarete bağlandı (§8.206, 18 Ekim)
 Ne: `cli/fm/TraitTraining.cs`. Alışkanlık eğitimi sayfası iki döşemeyle açılıyor ("Training Rating" oyuncu kartından,
@@ -409,6 +449,12 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Önce/sonra (aynı oyuncu, TR): `fm happiness "Ben House"` önce "moral Poor", sonra "moral Kötü".
 
 ## Park edilenler ([?], kararı verilmiş)
+- A "`Task.Delay`" / `OppositionCard 55` (`--advice` / `--clear` sonrası 500 ms; 18 Ekim, Tur 18): işaret bulunamadı —
+  "Apply all advice" bastıktan sonra kart 192 ms'de ara yerleşime geçiyor ve 281 ms'deki okuma **onunla aynı** (gerçek
+  sonuç 384 ms), yani "iki okuma aynı" işareti erken kabul ederdi (Staff 74'ün tuzağı, §8.205); düğmenin etkin/olay
+  alanları uygulama boyunca değişmiyor. 500 ms kaldı (pay ~1,2 kat → yavaş makinede ölçülmeli). Ölçüm §8.207.
+  Faruk'a soru yok; aynı yol yine denenmek istenirse: oyunun kendi verisindeki talimat listesi (kart yerine veri)
+  bulunursa oradan doğrulanabilir.
 - A "`Task.Delay`" / `Staff 74` (18 Ekim, Tur 16): kaydırmadan sonraki sabit 400 ms işarete çevrilemedi — oyun ara
   yerleşimi sakin gösterebiliyor (aynı 20 satır iki okumada) ve kaydırma çapası bir an bulunamıyor; işarete bağlı sürüm
   18 koşunun 2'sinde pencere kaybetti, 400 ms 12/12 tam. **Karar bekleniyor:** (a) 400 ms kalsın (bu makinede pay
