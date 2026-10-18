@@ -30,12 +30,14 @@ internal static partial class Program
 
 		if (json)
 		{
+			// The focuses are the game's own words, and it has a word for each in its language
+			// ("Kaydedilen İlerleme" for "Progression"); the data carries the English.
 			object Shown(FocusSlot s) => new
 			{
 				Slot = s.Key,
-				Name = s.Now,
-				Means = s.Choices.FirstOrDefault(c => c.Name == s.Now)?.Means ?? "",
-				Options = s.Choices.Select(c => new { c.Name, c.Suggested }),
+				Name = GameWords.Of(s.Now),
+				Means = GameWords.Of(s.Choices.FirstOrDefault(c => c.Name == s.Now)?.Means ?? ""),
+				Options = s.Choices.Select(c => new { Name = GameWords.Of(c.Name), c.Suggested }),
 			};
 			Console.WriteLine(JsonOut.Of(new { Tactical = slots.Take(2).Select(Shown), SetPieces = slots.Skip(2).Select(Shown) }));
 			return 0;
@@ -73,24 +75,39 @@ internal static partial class Program
 		FocusChoice choice;
 		if (words.Count > 1)
 		{
-			var named = Choose(slot.Choices.Select(c => c.Name).ToList(), string.Join(" ", words.Skip(1)), slot.Title);
-			if (named == null) return 64;
-			choice = slot.Choices.First(c => c.Name == named);
+			var typed = string.Join(" ", words.Skip(1));
+			// The list shows the game's word for a focus ("Kaydedilen İlerleme" for "Progression")
+			// and that is what someone reads and types back; the data carries the English. Both are
+			// taken, as with the opposition card's values (§8.211).
+			FocusChoice Found() => Matching(slot.Choices, c => GameWords.Of(c.Name), typed) is { Count: 1 } seen ? seen[0]
+				: Matching(slot.Choices, c => c.Name, typed) is { Count: 1 } english ? english[0] : null;
+			var named = int.TryParse(typed, out var at) && at >= 1 && at <= slot.Choices.Count ? slot.Choices[at - 1] : Found();
+			if (named == null)
+			{
+				var near = Matching(slot.Choices, c => GameWords.Of(c.Name), typed);
+				if (near.Count == 0) near = Matching(slot.Choices, c => c.Name, typed);
+				Console.Error.WriteLine(near.Count == 0
+					? L($"{slot.Title}: '{typed}' diye bir seçenek yok. Seçenekler:")
+					: L($"{slot.Title}: '{typed}' birden çok seçeneğe uyuyor:"));
+				foreach (var option in near.Count == 0 ? slot.Choices : near) Console.Error.WriteLine($"  {GameWords.Of(option.Name)}");
+				return 64;
+			}
+			choice = named;
 			if (!open.Contains(choice))
 			{
-				Console.Error.WriteLine(L($"{choice.Name} öbür duran top hazırlığında seçili; ikisi aynı olamaz."));
+				Console.Error.WriteLine(L($"{GameWords.Of(choice.Name)} öbür duran top hazırlığında seçili; ikisi aynı olamaz."));
 				return 1;
 			}
 		}
 		else if (Ui.Interactive)
 		{
-			var picked = Ui.Ask(L($"{slot.Title} hazırlığı"), open.Select(c => c.Name + (c.Suggested ? L("  (öneri)") : "") + (c.Means.Length > 0 ? $" — {c.Means}" : "")).ToList(), open.FindIndex(c => c.Name == slot.Now));
+			var picked = Ui.Ask(L($"{slot.Title} hazırlığı"), open.Select(c => GameWords.Of(c.Name) + (c.Suggested ? L("  (öneri)") : "") + (c.Means.Length > 0 ? $" — {GameWords.Of(c.Means)}" : "")).ToList(), open.FindIndex(c => c.Name == slot.Now));
 			if (picked == null) return 0;
 			choice = open[picked.Value];
 		}
 		else
 		{
-			Console.Error.WriteLine(L($"Hangisi? prep {L(slot.Key)} <{string.Join(" | ", open.Select(c => c.Name))}>"));
+			Console.Error.WriteLine(L($"Hangisi? prep {L(slot.Key)} <{string.Join(" | ", open.Select(c => GameWords.Of(c.Name)))}>"));
 			return 64;
 		}
 
@@ -103,13 +120,14 @@ internal static partial class Program
 			await Until(async () => (after = (await FocusSlots())?.FirstOrDefault(s => s.Key == slot.Key))?.Now == choice.Name, seconds: 5, every: 0.3);
 			if (after?.Now != choice.Name)
 			{
-				Console.Error.WriteLine(L($"{slot.Title}: oyun değişikliği almadı ({after?.Now ?? "okunamadı"})."));
+				Console.Error.WriteLine(L($"{slot.Title}: oyun değişikliği almadı ({GameWords.Of(after?.Now) ?? "okunamadı"})."));
 				return 1;
 			}
 		}
 
-		if (json) Console.WriteLine(JsonOut.Of(new { Slot = slot.Key, Name = choice.Name, Was = slot.Now }));
-		else Console.WriteLine(choice.Name == slot.Now ? L($"{slot.Title}: zaten {choice.Name}.") : $"{slot.Title}: {slot.Now} → {choice.Name}");
+		// The answer is in the game's words, as everywhere else: the list the CLI showed.
+		if (json) Console.WriteLine(JsonOut.Of(new { Slot = slot.Key, Name = GameWords.Of(choice.Name), Was = GameWords.Of(slot.Now) }));
+		else Console.WriteLine(choice.Name == slot.Now ? L($"{slot.Title}: zaten {GameWords.Of(choice.Name)}.") : L($"{slot.Title}: {GameWords.Of(slot.Now)} → {GameWords.Of(choice.Name)}."));
 		return 0;
 	}
 

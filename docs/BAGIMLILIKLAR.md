@@ -403,6 +403,15 @@ tablodan çevrilemiyor.
   `fm settings --json` 15 → **19** satır (maç gösterimi/dinamik mod/vurgu hızı/ara hızı artık okunuyor), EN çıktısı
   eski derlemeyle birebir; yazma yolu da çalışıyor (§8.204).
 
+- [x] **`fm prep` gösterdiği odağı geri kabul etmiyordu; `--json` oyunun sözünü İngilizce bırakıyordu** — odaklar
+  oyunun kendi sözleri (TR "Kaydedilen İlerleme"), veri ise İngilizcesini taşıyor ("Progression"). İnsan çıktısı
+  `GameWords` ile çevriliyordu, ama `prep <yuva> <odak>` yalnız İngilizceyi kabul ediyordu: TR'de ekranda görünen ad
+  yazılınca "diye bir seçenek yok" (rc=64), `--json` ise `Name`/`Means`/seçenek adlarını ham İngilizce veriyordu.
+  Artık seçenek hem gösterilen sözle hem verinin İngilizcesiyle bulunuyor (§8.211'in kuralı), mesajlar/seçim
+  listesi/`--json` oyunun sözüyle yazılıyor; sayıyla seçme duruyor. Kanıt: TR üç durumda `md5 e9a22f16…` (önce
+  `50611761…`, İngilizce), `fm prep topla "Kaydedilen İlerleme"` → "zaten Kaydedilen İlerleme" (önce rc=64),
+  negatif `zzz` → Türkçe liste rc=64; EN üç durum eski derlemeyle **birebir** (§8.232).
+
 ### C. Oyunun ayarları (dil dışında)
 
 - [x] Para birimi ve kısaltmalar oyunun biçimlendiricisinden (`/money`), ondalık işareti oyundan.

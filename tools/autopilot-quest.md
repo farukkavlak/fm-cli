@@ -3,7 +3,42 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 42)
+## Şu an (Tur 43)
+- Madde: **B "İngilizce yazıyla basma/tıklama" komşusu / `fm prep`** — **BİTTİ** (§8.232, Tur 43): oyunun kendi
+  sözüyle gelen odak adları gösteriliyor ama geri kabul edilmiyordu; `--json` da ham İngilizceydi.
+- Ne: `cli/fm/Prep.cs`. `SetFocus` seçeneği yalnız ham `Name` ("Progression") üzerinden arıyordu; TR'de insan çıktısı
+  "Kaydedilen İlerleme" gösterdiği için yazılan ad "diye bir seçenek yok" (rc=64) alıyordu. Artık `Matching` önce
+  gösterilen sözde (`GameWords.Of(c.Name)`), sonra ham İngilizcede arıyor (sayıyla seçme duruyor); hata listesi,
+  interaktif liste, "zaten/→" satırı ve `--json` (`Name`/`Means`/`Options`) oyunun sözüyle yazılıyor. EN'de değişen
+  satır (`→`) `L()`ya alındı.
+- Kanıt (TR, üç durum: `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` sonrası):
+  `fm prep --json` **önce** `md5 50611761b5f34661f55fc4722c919043` (adlar İngilizce: "Progression"), **sonra**
+  `e9a22f165f7aaf41c3150d1e3861dc61` (Türkçe: "Kaydedilen İlerleme", "Topa sahipken topu ileri taşımaya odaklanılır."),
+  üç koşuda da aynı. `fm prep topla "Kaydedilen İlerleme"` → önce rc=64 ("… diye bir seçenek yok"), sonra rc=0
+  "Topla: zaten Kaydedilen İlerleme."; `fm prep topla 2` aynı sonuç (sayı yolu korundu); negatif `fm prep topla zzz`
+  → Türkçe seçenek listesi, rc=64. İnsan listesi önce/sonra birebir ("başka: Oyun Kurulumu (öneri) · Üçüncü Bölge").
+- İki dil: EN'de `git stash` + eski derleme ile yeni derleme **birebir** (`md5 e9a22f16…`, üç durum). ⚠ Bu kayıtta
+  dil değiştikten sonra oyunun bağlı sözleri eski dilde kalıyor (`fm training --position` EN'de "İkinci Forvet"),
+  yani EN çıktısı zaten Türkçe geliyordu; yeni kod onu değiştirmiyor (eski derleme de aynı). Temiz EN ölçümü için
+  oyunun yeniden açılması gerekir — bu turda yapılmadı, §8.232 sonuna not düşüldü.
+- Dönüş: `fm settings language "Türkçe"` → `English → Turkish`, `/state` → `Language: turkish`, final TR koşusu
+  aynı `md5`; saat 2 Ağustos 2026 14:00 (ilerletilmedi), maç oynanmadı, hiçbir odak değiştirilmedi (yalnız "zaten"
+  yolu ve okuma).
+- Regresyon: değişiklik yalnız `Prep.cs` içinde (paylaşılan Bridge/OpenPage/reply yok) → `sweep.sh` gerekmedi;
+  yine de tur içinde sweep koşuldu (`/tmp/sweep_t43`): **50 komut, 2 hata** — `health` ("Kadro tablosunda
+  'GeneralInfo' görünümü bulunamadı") ve `youth --training` ("Altyapı antrenman tablosu açılmadı"). İkisi de tek
+  başına tekrarlandığında **rc=0** veriyor (`fm health`, `fm offers` sonrası da) → arka arkaya koşuda sayfa/görünüm
+  durumuna bağlı, bu turun değişikliğiyle ilgisiz; yeni bulgu olarak not edildi (ayrı madde açılmadı: tekrar
+  üretilemedi).
+- Sıradaki tur (öneri): B'de "haber Portugal/Defence (Core)" (bu turda TR `fm news` ve 15 haber gövdesi tarandı,
+  İngilizce sızıntı **görülmedi** — örnek mesaj gerekiyor); `fm prep` gibi "gösterilen ad geri yazılamıyor" başka
+  komutlar (aday: `fm training --position` alt menü adları); A'da `TacticFiles 181` (kapanıştan sonra 800 ms),
+  diğer kısa `Until`ler; `health`/`youth --training`'in arka arkaya koşudaki görünüm kaybı (ölçüm: sweep'i
+  tekrarla, arada sayfa durumunu kaydet).
+- Not: ağaçta yalnız bu turun dosyaları var (`Prep.cs`, BAGIMLILIKLAR, FINDINGS, bu defter), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 42)
 - Madde: **A "Kısa `Until`" / Stages 337** (`fm stages` kupa turu: her kaydırmadan sonra "iki okuma aynı") — **PARK**
   (§8.231, Tur 42): turun bağları pencerede tam durmuyor (Carabao Cup 1. Tur'da **35 bağ**; pencere 18–25 satır) ve
   liste `to=0..1` ile geziliyor. Gezintinin menzili `"0 of 1401,8"` yazısından okunuyor; o sayı oyunun **kendi dilinin**

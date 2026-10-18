@@ -2576,3 +2576,25 @@ Yan bulgu: aynı menzil okuması `Responsibilities.cs` 109'da da var (`parts[1].
 çözülemeyince `hidden = 6000` yedeği devreye girip **en çok** adım (12) gezildiği için sonucu bozmuyor, yalnız
 gereksiz turlar atıyor (TR'de her `fm responsibilities` 12 adım). `Jobs.cs` 177 aynı sayıyı `Replace(',', '.')` ile
 doğru okuyor; üçünün de `GameNumbers.Read`e geçmesi ayrı ve küçük bir iş.
+
+### 8.232 `fm prep`: gösterilen odak adı geri yazılamıyordu, `--json` İngilizce kalıyordu (19 Ekim, TR + EN)
+
+Odakların adı ve açıklaması oyunun kendi sözleri (`MatchFocusSessionName`/`...Description`); veri İngilizceyi
+taşıyor ("Progression", "Focus on ball progression up the pitch in possession."), oyunun tablosunda Türkçesi var
+(`/translate` → "Kaydedilen İlerleme"). İnsan çıktısı `Ui.Safe`/`GameWords` ile çevriliyordu, ama
+`fm prep <yuva> <odak>` seçeneği ham `Name` üzerinden arıyordu → TR'de **ekranda görünen ad** yazılınca
+"'Kaydedilen İlerleme' diye bir seçenek yok", rc=64; yalnız İngilizcesi ("Progression") çalışıyordu. `--json` da
+`Name`/`Means`/`Options` alanlarını ham İngilizce veriyordu (TR insan çıktısı Türkçe olduğu hâlde).
+Yeni: seçenek `Matching` ile önce gösterilen sözde, sonra verinin İngilizcesinde aranıyor (sayıyla seçme duruyor);
+hata listesi, interaktif liste, "zaten/→" satırları ve `--json` alanları `GameWords.Of` ile yazılıyor; EN için
+değişen satır `L()`ya alındı. Kanıt: TR `fm prep --json` önce `md5 50611761b5f34661f55fc4722c919043` (İngilizce
+adlar), sonra `e9a22f165f7aaf41c3150d1e3861dc61` (Türkçe) — üç durumda (başka sayfa açık / zaten açık / başka
+sayfadan) aynı; `prep topla "Kaydedilen İlerleme"` rc=64 → rc=0 "zaten Kaydedilen İlerleme"; `prep topla 2`
+sayıyla aynı sonuç; negatif `zzz` Türkçe seçenek listesiyle rc=64. EN: `git stash` + eski derleme ile üç durum
+**birebir** (aynı md5). ⚠ Dil değiştirildikten sonra bu kayıtta oyunun bazı bağlı sözleri eski dilde kalıyor
+(`fm training --position` EN'de "İkinci Forvet", `prep` odakları Türkçe) — yeni kodun değil, oyunun bağlı
+değerleri tazelememesinin sonucu; temiz EN ölçümü için oyun yeniden açılmalı (§8.194'ün devamı).
+Yan bulgu (aynı turun sweep'i): arka arkaya 50 komutta `health` ("Kadro tablosunda 'GeneralInfo' görünümü
+bulunamadı", 20 sn sonra rc=1) ve `youth --training` ("Altyapı antrenman tablosu açılmadı") düştü; ikisi de tek
+başına (ve `fm offers` sonrası) rc=0 — sayfa/görünüm durumuna bağlı, `SquadView`'ın "görünüm listesi 20 sn boyunca
+gelmedi" dalı. Tekrar üretilemedi; ayrı madde açılmadı, ölçüm için sweep'in aynı sırası ve sayfa durumu gerekli.
