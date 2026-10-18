@@ -43,7 +43,10 @@ internal static partial class Program
 			return settled;
 		}, seconds: 10, every: 0.6);
 
-		var start = texts.IndexOf("Avg Rat") + 1;
+		// The rows are found by their own first cell, a season ("2026/27"); the header above them is
+		// the game's words and differs by language (an English game's "Avg Rat" comes back
+		// "Avg. Rating" through a Turkish one), so nothing above is read.
+		var start = texts.FindIndex(SeasonMark.IsMatch);
 		// The totals follow a "Total" label, which some pages draw with no width; then they are
 		// the last five numbers, after the fees paid when there were any.
 		var totalAt = texts.IndexOf("Total", Math.Max(start, 0));
@@ -54,7 +57,7 @@ internal static partial class Program
 			if (totalAt > start && MoneyFormat.IsMoney(texts[totalAt - 1])) totalAt--;
 		}
 		var marks = Enumerable.Range(start, Math.Max(0, totalAt - start)).Where(i => SeasonMark.IsMatch(texts[i])).ToList();
-		if (start <= 0 || marks.Count == 0)
+		if (start < 0 || marks.Count == 0)
 		{
 			Console.Error.WriteLine(L("Kariyer tablosu okunamadı."));
 			return 1;

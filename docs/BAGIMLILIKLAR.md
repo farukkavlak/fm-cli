@@ -197,6 +197,11 @@ tablodan çevrilemiyor.
 - [ ] **Cümle parçası arayanlar** (her biri örnek mesaj gelince yola taşınacak):
   - [ ] Program: kaptan eki "to be selected" · yönetim beklentisi "End of" · "Transfers In/Out" · sezon özeti
     "injuries this season" · home-grown "years old" · Coach Report / Player Report " years old" Replace
+  - [x] `player --career` tablosunun satırları başlık yazısıyla değil satırın kendi ilk hücresiyle (sezon,
+    `2026/27`) bulunuyor: `start` `IndexOf("Avg Rat")` ile aranıyordu, ama başlık iki dilde iki ayrı İngilizce
+    geliyor (`Info`/`Avg Rat` ↔ `Information`/`Avg. Rating`), Türkçede `start` 0'a düşüp komut
+    `Kariyer tablosu okunamadı.` ile rc=1 veriyordu. TR üç durum + kaleci rc=0 (tek `md5`), EN çıktısı eski
+    derlemeyle birebir; negatif oyuncu rc=1 (§8.214).
   - [x] sakatlık eki "Received in" / "Out for" — Türkçede çalıştı (tablodan çevriliyor)
   - [x] ~~Intensity "Ask … training intensities"~~ (sayfa Guid'iyle, §8.187)
   - [x] ~~Mentoring "assign mentoring groups"~~ (eylem kimliğiyle, §8.188)

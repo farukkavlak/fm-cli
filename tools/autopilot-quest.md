@@ -4,18 +4,44 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **A "`Task.Delay`" / Scouting 100** — **BİTTİ** (§8.213, Tur 24): odak tablosunu kaydırdıktan sonraki
-  sabit 700 ms yerine pencere "öncekinden farklı **ve** iki okumada aynı" olunca kabul; `fm scout "England" --json`
-  TR üç durum `md5 6915efcb…` + EN üç durum `md5 86ccb87b…` eski derlemeyle birebir, 20/20 satır tam.
-- Bir sonraki tur (öneri): **`cli/fm/Responsibilities.cs`** — ağaçta commit edilmemiş bir değişiklik **ve** bir `stash`
-  duruyor (ikisi de aynı maddeyi, `283 388` sabit 500 ms'lerini hedefliyor; stash `Read()`'i de değiştiriyor).
-  Bu tur dokunulmadı; önce hangisinin geçerli olduğuna karar verilip ölçülmeli (bkz. "Park / dikkat").
+- Madde: **B "Cümle parçası arayanlar" / `player --career`** — **BİTTİ** (§8.214, Tur 25): `start`
+  `IndexOf("Avg Rat")` yerine satırın kendi ilk hücresi (sezon); TR'de rc=1 → rc=0 (tek `md5`), EN çıktısı eski
+  derlemeyle birebir, kaleci + negatif ölçüldü.
+- Bir sonraki tur (öneri): **`cli/fm/Responsibilities.cs`** (`283 388` sabit 500 ms) — ağaçta commit edilmemiş bir
+  değişiklik **ve** bir `stash@{0}` duruyor; ikisi de aynı maddeyi hedefliyor. Bu tur dokunulmadı (benim değil);
+  önce hangisinin geçerli olduğuna karar verilip ölçülmeli (`git stash show -p stash@{0}` ile bakılabilir).
   Sonraki A adayları: `TacticFiles 181` (panel kapanışından sonra 800 ms) · `TrainingSchedule 345` (seçenek
-  basışından sonra 500 ms) · `Jobs 408` (başvurudan sonra 1 sn).
+  basışından sonra 500 ms) · `Jobs 408` (başvurudan sonra 1 sn). B'de yeni ölçüm bekleyenler: JSON `How` alanı
+  (§8.214 sonu), `next`'in "İlerle" düğmesi, haber sitesindeki "Portugal".
 - Not: ağaçta yalnız `cli/fm/Responsibilities.cs` commit edilmemiş duruyor (bu turun işi değil) + `stash@{0}`.
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 25 — B "Cümle parçası arayanlar" / `player --career`: satırlar başlık yazısıyla değil satırın kendi hücresiyle bulunuyor; komut Türkçede hiç çalışmıyordu (§8.214, 18 Ekim)
+Ne: `cli/fm/Career.cs` (`fm player <oyuncu> --career`). Satırların başladığı yer `texts.IndexOf("Avg Rat") + 1` ile
+bulunuyordu; başlık oyunun sözü ve eklenti her dilde başka bir İngilizce veriyor (EN `Info`/`Avg Rat`, TR
+`Information`/`Avg. Rating`). Türkçede `IndexOf` -1 → `start = 0` → `start <= 0` koruması → hata. Yeni:
+`start = texts.FindIndex(SeasonMark.IsMatch)` (satırın kendi ilk hücresi sezon), koruma `start < 0`. Başka dosyaya
+dokunulmadı; kalecinin `Cln Sh` sütunu iki dilde de aynı geldiği için dokunulmadı → `sweep.sh` gerekmedi
+(sweep zaten `player --career` koşmuyor, paylaşılan koda dokunulmadı).
+- Öncesi (eski derleme): TR üç durum (kart ilk kez açılıyor `fm open "Messages"` sonrası / zaten açık / başka sayfa
+  açık `fm open "Squad Dynamics"`) + kaleci `Zach Jeacock` → **rc=1**, `md5 a797f52cb11838fd711552e432048867`,
+  "Kariyer tablosu okunamadı.". EN aynı üç durum → rc=0, `md5 0dfdaa7473271f10f0e28766a6d1d2e7`.
+- Sonrası: TR üç durum + kaleci → rc=0, `md5 505029b89e88f455a296737967297581` (hepsi aynı), 15 sezon,
+  `Fees 30B £`, `Totals ["206","43","2","2"]`; insan çıktısı `Toplam: 206 maç, 43 gol · ödenen bonservisler
+  30B £`, "GELİŞ" sütunu `kiralık`/`bedelsiz`. EN üç durum → rc=0, `md5 0dfdaa74…` — eski derlemeyle **birebir**.
+- Ölçüm (okuma yolu, `python3` + `/texts?anchor=Total Apps&up=16`): EN'de başlık `[...,'Info',...,'Avg Rat']`,
+  TR'de `[...,'Information',...,'Avg. Rating']`; kaleci sayfasında ikisi de `Cln Sh`. Yani kırılan tek şey başlık
+  yazısına çapalanan `start`.
+- Negatif: `fm player "ZZZ yok" --career` → rc=1 "…adında bir oyuncu kadroda da aramada da yok."; `Zane Okoro`
+  (4 sezon), `Jenson Jones` (5 sezon, `How 165B £`), `Gael Mande`, `Cody Tomlinson` rc=0. Bu kayıtta kariyeri boş
+  oyuncu yok → `marks.Count == 0` yolu ölçülemedi (eski derlemede de aynı).
+- Dönüş/geri: `fm settings language "Türkçe"` → `English → Turkish`, `/state` → `Language: turkish`, 2 Ağustos 2026
+  14:00 (saat ilerletilmedi, maç oynanmadı).
+- Not (bu maddenin dışı): JSON `How` alanı hâlâ oyunun ham sözü (`Loan`/`Free` TR'de, `loan`/`free` EN'de; insan
+  çıktısı `How()` ile CLI'nin sözünü yazıyor); dil değişiminden sonra sayfa yenilenmezse bağlı yazılar eski dilde
+  kalıyor (`Nation: İngiltere` İngilizce oyunda — §8.194).
 
 ### Tur 24 — A "`Task.Delay`" / Scouting 100: kaydırmadan sonraki sabit 700 ms pencerenin işaretine bağlandı (§8.213, 18 Ekim)
 Ne: `cli/fm/Scouting.cs` (`fm scout <#|ad>`), + yeni dosya-içi yardımcı `Window(rows)`. Başka dosyaya dokunulmadı;

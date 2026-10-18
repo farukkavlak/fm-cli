@@ -2225,3 +2225,27 @@ kabul ederdi (Staff 74'ün tuzağı).
   "Türkçe"` → `English → Turkish`. Kayıt test kaydı: saat ilerletilmedi, maç oynanmadı.
 - Not (bu maddenin dışı, eski davranış): `fm open "Messages"` hemen ardından odak listesi bir kez boş
   okunabiliyor (`Odak: 'England' diye bir seçenek yok`, rc=64) — §8.185'teki "sayfa açılmadan dönüyor" hâli.
+
+### 8.214 `fm player <oyuncu> --career`: tablonun satırları başlık yazısıyla değil, satırın kendi ilk hücresiyle bulunuyor; Türkçede hiç çalışmıyordu (18 Ekim, TR + EN)
+`cli/fm/Career.cs` satırların başladığı yeri (`start`) tablonun **başlık yazısıyla** buluyordu: `texts.IndexOf("Avg Rat") + 1`.
+Ama başlık oyunun sözü ve eklenti onu her dilde başka bir İngilizceye çeviriyor — İngilizce oyunda `Info` / `Avg Rat`,
+Türkçe oyunda aynı sütunlar `Information` / `Avg. Rating` (ölçüldü, hem kaleci hem normal oyuncu sayfasında). Türkçede
+`IndexOf` -1 dönüyor, `start` 0 kalıyor ve `start <= 0` koruması devreye giriyordu: `fm player "Ben House" --career` →
+`Kariyer tablosu okunamadı.`, rc=1. Yeni: `start = texts.FindIndex(SeasonMark.IsMatch)` — satırın kendi ilk hücresi
+sezon (`2026/27`), başlık hiç okunmuyor; koruma `start < 0`. Kalecinin sütununu ayıran `Cln Sh` iki dilde de aynı
+geldiği için dokunulmadı.
+- Öncesi (eski derleme, `git checkout cli/fm/Career.cs` + derle; `fm player "Ben House" --career --json`):
+  TR üç durum (kart ilk kez açılıyor `fm open "Messages"` sonrası / zaten açık / başka sayfa açık `fm open
+  "Squad Dynamics"`) + kaleci (`Zach Jeacock`) → hepsi `rc=1`, `md5 a797f52cb11838fd711552e432048867`,
+  "Kariyer tablosu okunamadı.". EN aynı üç durum → `rc=0`, `md5 0dfdaa7473271f10f0e28766a6d1d2e7`.
+- Sonrası: TR üç durum + kaleci → `rc=0`, `md5 505029b89e88f455a296737967297581` (hepsi aynı); EN üç durum →
+  `rc=0`, `md5 0dfdaa7473271f10f0e28766a6d1d2e7` — **eski derlemeyle birebir** (İngilizce çıktı hiç değişmedi).
+- İçerik doğrulaması (TR): 15 sezon, `Name/Seasons/Fees/Totals` dolu; `Fees 30B £`, `Totals ["206","43","2","2"]`
+  (EN koşusuyla aynı sayılar). İnsan çıktısı artık tam: `Toplam: 206 maç, 43 gol · ödenen bonservisler 30B £`,
+  "GELİŞ" sütununda `kiralık`/`bedelsiz` (satırlar `Loan`/`Free` geliyor, `How()` eşliyor — iki dilde de doğru).
+- Negatif: `fm player "ZZZ yok" --career` → rc=1, "'ZZZ yok' adında bir oyuncu kadroda da aramada da yok.";
+  kariyeri olan diğer oyuncular (`Zane Okoro` 4 sezon, `Jenson Jones` 5 sezon, `Gael Mande`, `Cody Tomlinson`)
+  rc=0 ve alanlar dolu. (Bu kayıtta kariyeri boş bir oyuncu yok, `marks.Count == 0` yolu ölçülemedi.)
+- Not (bu maddenin dışı): JSON'da `How` hâlâ oyunun ham sözü (`Loan`/`Free` Türkçede, `loan`/`free` İngilizcede);
+  insan çıktısı `How()` ile CLI'nin kendi sözünü yazıyor. Ayrıca dil değiştirildikten sonra sayfa yenilenmezse
+  bağlı yazılar eski dilde kalıyor (`Nation: İngiltere` İngilizce oyunda) — §8.194'ün bilinen hâli.
