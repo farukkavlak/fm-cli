@@ -27,7 +27,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   Dosya: satırlar —
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · Jobs 231 · Launcher 213 269 · League 243 ·
-  MatchDay 181 314 368 · MatchReport 35 · Matches 82 · ~~Mentoring 45 188 205 217 246 285 297 331~~ · Numbers 158 177 ·
+  MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · Numbers 158 177 ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
   Scouting 100 · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
@@ -114,6 +114,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     Çıktı TR + EN'de üç durumda (sayfa ilk kez açılıyor / zaten açık / başka sayfa açıkken) eskisiyle birebir (`md5`
     97059da1…, ed1cd387…); yalnız "başka sayfa açık" durumunda yazılan tablo artık doğru (§8.207). `md5`ler dört koşuda
     kartın kendisiyle de karşılaştırıldı (bağımsız okuma) ve birebir.
+  - [x] Matches 82 (`fm player <oyuncu> --matches`'te kaydırmadan sonraki sabit 500 ms): liste artık görünen pencereye
+    göre değil, sayfanın kendi kaydırmasıyla **baştan sona** okunuyor. Girişin işareti oyunun kendisi: `scroll`
+    cevabı "0 of 211,2" (" of 0" ise pencere bütün listeyi tutuyor — sayı tablosundaki okuma); kaydırmadan sonra
+    pencere "değişti **ve** iki okumada aynı" olunca kabul (kaydırılan satırlar ~30 ms'de geliyor, sabit 500 ms
+    yalnız makine hızını tahmin ediyordu). Eski koşul (`rows.Count < apps`) yüzünden dal **hiç çalışmıyordu**: her
+    oyuncunun en eski maçı (#1) sessizce düşüyordu ve sayfa başka bir bakıştan kaydırılmış kalmışsa düşen satır
+    değişiyordu (okuma nereden bakıldığına bağlıydı). Ölçüm: **19 → 20 satır**, dört oyuncuda da tam; üç durumda
+    TR `md5 d4b4b0ea…` (5 koşu) / EN `md5 d9ddd02b…` (4 koşu); süre soğuk 8,8–9,9 / sıcak 3,5–3,8 sn (§8.208).
   - [?] OppositionCard 55 (`--advice` / `--clear` sonrası 500 ms): **kaldı**. Kartın ara yerleşimi iki okumada aynı
     görünebiliyor (192–281 ms arası aynı satırlar, gerçek sonuç 384 ms'de) — "iki okuma aynı" işareti erken kabul ederdi
     (Staff 74'ün tuzağı); "Apply all advice" düğmesinin durumu (etkin/olay) uygulama boyunca değişmiyor. Ölçüldü, işaret

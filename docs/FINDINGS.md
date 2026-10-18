@@ -2092,3 +2092,23 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   ederdi (Staff 74'ün tuzağı, §8.205); düğmenin etkin/olay durumu uygulama boyunca değişmiyor. İşaret bulunamadı →
   madde `[?]`. Regresyon: `tools/sweep.sh` → 50 komut, 0 hata. Kayıt test kaydı: talimatlar `--clear` ile başlangıçtaki
   boş hâline döndürüldü, saat ilerletilmedi, maç oynanmadı.
+
+### 8.208 `fm player <oyuncu> --matches`: sabit 500 ms kalktı, dal ilk kez çalıştı — en eski maç artık düşmüyor (18 Ekim, TR + EN)
+
+- Sayfadaki maç listesi yalnız görünen pencereyi döşüyor (19 satır); `if (rows.Count < apps)` koşulu oyun
+  sayısını beklediği için bu dal **hiç çalışmıyordu** (`Apps` 12, satır 19) → her oyuncunun en eski maçı (#1,
+  Ben House: Plymouth 07/02/2026) sessizce eksik kalıyordu: 19 satır, `2..20`. Sayfa başka bir bakıştan
+  kaydırılmış kaldığında eksik satır da değişiyordu (`19..1`), yani okuma **nereden bakıldığına** bağlıydı.
+- Yeni giriş: oyunun kendi cevabı. `scroll?anchor=<ilk satır>&to=0` cevabı "0 of 211,2" (" of 0" ise pencere
+  bütün listeyi tutuyor — sayı tablosundaki okuma, `Numbers.cs`), pencere kaydırmadan sonra "değişti **ve** iki
+  okumada aynı" olunca kabul (kaydırılan satırlar 30 ms'de geliyor; ölçüm `python3` + `/texts`, 30 ms aralık).
+- Öncesi: `fm player "Ben House" --matches --json` → **19** satır (`2..20`), üç durumda TR `md5 d2186ce9…`,
+  EN `5934f197…`, süre 8,5–8,9 / 1,9–2,5 sn; `git stash` ile eski derlemede aynı. Dört oyuncuda da 19 satır
+  (Jeacock, Bradley, Hamer, Draper).
+- Sonrası: **20** satır (`1..20`), üç durumda TR `md5 d4b4b0ea…` (5 koşu), EN `md5 d9ddd02b…` (4 koşu); dört
+  oyuncuda da 20 satır. Süre soğuk 8,8–9,9 sn, sıcak 3,5–3,8 sn (yeni iş ~1,6 sn: bir `scroll` + iki pencere
+  okuma turu + başa dönüş). İnsan çıktısı artık son satır olarak `1 07/02/2026 Plymouth 4 - 1` yazıyor.
+- Negatif/tuhaç: maçı olmayan oyuncuda davranış aynı (Cody Tomlinson → "form kutusu yok", rc=1; Gael Mande →
+  `Matches: []`, `Apps: 9`) — **eski derlemede de birebir aynı**, bu değişiklikten değil. Gael'de kart açıldıktan
+  sonra `/texts` bir an **önceki oyuncunun** tablosunu (Ben House, Apps 12) döndürüyor; FM'in bağlı kalan
+  panelleri (§8.194, §8.197) — ayrı madde olarak duruyor.

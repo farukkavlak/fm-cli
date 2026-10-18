@@ -4,20 +4,52 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **A "`Task.Delay`" / `OppositionCard 91`** — **BİTTİ** (§8.207, Tur 18): seçimden sonraki sabit 500 ms kalktı;
-  her talimat artık satırın **adıyla yeniden bulunduğu** karttan seçiliyor (kart yeniden çizilince denetimlere yeni
-  işaretçi veriyor; eskiden ikinci talimat bayat işaretçiye gidip sessizce uygulanmıyordu — iki kez yakalandı) ve okuma
-  "sütun seçileni gösterene kadar" (0,25 sn, en çok 8 sn). Değer seçimden sonra 301–494 ms'de geliyordu. Çıktı TR + EN'de
-  üç durumda birebir. `--advice`/`--clear` yolundaki 500 ms (satır 55) **kaldı** ve `[?]` yapıldı: kart ara yerleşimi iki
-  okumada aynı görünüyor, düğmenin durumu değişmiyor → işaret yok.
-- Bir sonraki tur: A/`Task.Delay` sıradaki adaylar: `Responsibilities 283/388` · `Matches 82` · `Scouting 100` ·
-  `TrainingSchedule 345` · `TacticFiles 181` (OppositionCard bitti; `Staff 74` + `TraitTraining 32` park/bitti).
+- Madde: **A "`Task.Delay`" / `Matches 82`** — **BİTTİ** (§8.208, Tur 19): sabit 500 ms kalktı **ve dal ilk kez
+  çalıştı**. Giriş artık oyunun kendi cevabı (`scroll … "0 of 211,2"`; " of 0" ise pencere bütün listeyi tutuyor),
+  kaydırmadan sonra pencere "değişti **ve** iki okumada aynı" olunca kabul. Eski koşul (`rows.Count < apps`) yüzünden
+  dal hiç çalışmıyordu: her oyuncunun en eski maçı (#1) düşüyordu → **19 → 20 satır**, dört oyuncuda da tam, TR + EN
+  üç durumda aynı `md5`; süre soğuk 8,8–9,9 / sıcak 3,5–3,8 sn (yeni iş ~1,6 sn).
+- Bir sonraki tur: A/`Task.Delay` kalan adaylar: `Responsibilities 283/388` · `Scouting 100` · `TrainingSchedule 345` ·
+  `TacticFiles 181` · `Jobs 231` · `League 243` · `ScoutFocus …` (`Matches 82` bitti; `Staff 74` + `TraitTraining 32`
+  park/bitti, `OppositionCard 55` park).
   Ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`).
   Ölçülmüş B işi: `opposition` seçenek adları gösterildiği gibi yazılamıyor (TR'de `Pres=Her Zaman` olmuyor, çeviri
   tablosu sıkı giriş seçeneklerini `Normal · Minor · Gusty` veriyor) — BAGIMLILIKLAR B'ye madde olarak yazıldı.
+  Yeni yan bulgu (ayrı madde): `fm player <oyuncu> --matches` ikinci/başka oyuncuda bir an **önceki** oyuncunun
+  tablosunu (ya da boş satır) okuyabiliyor — FM'in bağlı kalan panelleri (§8.194, §8.197, §8.208 sonu).
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 19 — A "`Task.Delay`" / Matches 82: sabit 500 ms kalktı ve ölü dal ilk kez çalıştı — en eski maç artık düşmüyor (§8.208, 18 Ekim)
+Ne: `cli/fm/Matches.cs` (`fm player <oyuncu> --matches`). Liste yalnız görünen pencereyi döşüyor (19 satır) ve giriş
+koşulu `rows.Count < apps` (oyun sayısı) olduğu için kaydırma dalı **hiç çalışmıyordu**: her oyuncunun en eski maçı
+(#1) sessizce eksik kalıyordu. Yeni: giriş oyunun kendi cevabı (`scroll?anchor=<ilk satır>&to=0` → "0 of 211,2";
+" of 0" ise pencere bütün listeyi tutuyor, `Numbers.cs` ile aynı okuma), pencere kaydırmadan sonra "değişti **ve** iki
+okumada aynı" olunca kabul ediliyor (kaydırılan satırlar ~30 ms'de geliyor → sabit 500 ms makine hızı tahminiydi);
+iki uç da geziliyor, liste başına alınıyor, sonunda başa dönülüyor.
+- Ölçüm (okuma yolu, hiçbir şey öğretmiyor): `python3` + `/texts?anchor=All Competitions&up=10` 30 ms aralıkla:
+  `scroll … to=0.5` → pencere 30 ms içinde 20 satıra çıkıyor (ara yerleşim görülmedi).
+- Öncesi (eski derleme `git stash` + derle): `fm player "Ben House" --matches --json` → **19** satır (`2..20`); TR üç
+  durum `md5 d2186ce9…`, 8,91 / 2,01 / 8,23 sn; EN üç durum `md5 5934f197…`, 8,99 / 1,91 / 2,11 sn. Dört oyuncuda da
+  19 satır (Jeacock, Bradley, Hamer, Draper). Sayfa başka bakıştan kaydırılmış kalırsa düşen satır değişiyordu
+  (python'da `19..1`) → okuma **nereden bakıldığına** bağlıydı.
+- Sonrası: **20** satır (`1..20`), dört oyuncuda da tam. TR üç durum + iki tekrar (5 koşu) `md5 d4b4b0ea…`
+  (8,82 / 3,49 / 9,88 / 3,72 / 3,75 sn); EN üç durum + tekrar (4 koşu) `md5 d9ddd02b…` (10,26 / 3,63 / 3,47 / 3,47 sn);
+  dönüş `fm settings language "Türkçe"` → final TR koşusu aynı `md5` (3,39 sn). İnsan çıktısının son satırı artık
+  `1  07/02/2026  Plymouth  4 - 1  oynamadı …`.
+- Üç durum (her biri TR + EN): `fm open "Messages"` sonrası (sayfa ilk kez açılıyor) · hemen ikinci koşu (zaten açık) ·
+  `fm open "Squad Dynamics"` sonrası (başka sayfa açık) → hepsinde 20 satır, aynı `md5`.
+- Negatif: maçı olmayan oyuncuda davranış aynı — `fm player "Cody Tomlinson" --matches` → "form kutusu yok", rc=1;
+  `fm player "Gael Mande" --matches` → `Matches: []`, `Apps: 9` (**eski derlemede de birebir aynı**). Gael'de kart
+  açıldıktan sonra `/texts` bir an önceki oyuncunun (Ben House, Apps 12) tablosunu veriyor: FM'in bağlı kalan
+  panelleri — §8.208 sonuna yan bulgu olarak yazıldı.
+- Regresyon: paylaşılan koda (Bridge/OpenPage/reply/ortak yardımcılar) dokunulmadı, değişiklik yalnız `Matches.cs`
+  içinde → `sweep.sh` gerekmedi (sweep zaten `player --matches` koşmuyor). Kayıt test kaydı: 2 Ağustos 2026 14:00;
+  saat ilerletilmedi, maç oynanmadı (oyun bir ara yanıtsız kaldı, `fm start </dev/null` ile aynı kayıt açıldı).
+- Not (maliyet): dal hiç çalışmadığı için bu okuma +~1,6 sn (bir `scroll` + iki pencere turu + başa dönüş); karşılığı
+  sessizce düşen en eski maçın geri gelmesi. Kazanç/kayıp kabul edildi; daha ucuz yol aranırsa: pencerenin bütün
+  listeyi tutup tutmadığını söyleyen cevabın birimini (satır sayısı mı, yükseklik mi) çözmek gerekir.
 
 ### Tur 18 — A "`Task.Delay`" / OppositionCard 91: sabit 500 ms yerine sütunun kendi değeri, her talimat taze satırdan (§8.207, 18 Ekim)
 Ne: `cli/fm/OppositionCard.cs` (`opposition <oyuncu> <talimat>=<değer>`). Seçimden sonraki `Task.Delay(500)` + okuma,

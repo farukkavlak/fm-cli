@@ -70,19 +70,47 @@ internal static partial class Program
 		string After(string label) => texts.IndexOf(label) is var i && i >= 0 && i + 1 < texts.Count ? texts[i + 1] : "";
 		var summary = new { Apps = After("Apps"), Best = After("Max. Rating"), Worst = After("Min. Rating"), Average = After("Average Rating"), Goals = After("Goals Scored"), Assists = After("Assists") };
 
-		// The list lays out only the rows in view; the rest come in as it is scrolled.
+		// The list lays out only the rows in view; the rest come in as it is scrolled. Whether it goes on
+		// says the game itself: the view holds the whole list when the scroll answers " of 0" (as the
+		// numbers table is read), otherwise the window is asked for from the top and from further down.
+		// A scrolled window is taken once it has changed and held for two readings — the scrolled rows
+		// were measured to land in ~30 ms, so the fixed half second that used to be here only guessed the
+		// machine's speed; the game may also have been left scrolled from a look before this one.
 		var rows = new Dictionary<int, MatchRow>();
 		var goalkeeper = await Keeper(texts);
 		foreach (var row in Rows(texts, goalkeeper)) rows[row.Number] = row;
-		if (int.TryParse(summary.Apps, out var apps) && rows.Count < apps && rows.Count > 0)
+		if (rows.Count > 0)
 		{
-			foreach (var at in new[] { "0.5", "1" })
+			static string Key(IEnumerable<MatchRow> inView) => string.Join(",", inView.Select(r => r.Number));
+			var window = Key(Rows(texts, goalkeeper));
+			var anchor = rows.Values.First().Date;
+			if (!(await Fm.Get("scroll", ("anchor", anchor), ("to", "0"))).Trim().EndsWith(" of 0", StringComparison.Ordinal))
 			{
-				await Fm.Get("scroll", ("anchor", rows.Values.First().Date), ("to", at));
-				await Task.Delay(500);
-				foreach (var row in Rows(await Texts(), goalkeeper)) rows.TryAdd(row.Number, row);
+				foreach (var at in new[] { "0.5", "1" })
+				{
+					var scrolled = await Fm.Get("scroll", ("anchor", anchor), ("to", at));
+					if (scrolled.StartsWith("error", StringComparison.Ordinal)) break;
+					var held = window;
+					var moved = false;
+					List<MatchRow> inView = [];
+					await Until(async () =>
+					{
+						inView = Rows(await Texts(), goalkeeper).ToList();
+						var now = Key(inView);
+						moved |= now != window;
+						var settled = moved && now == held;
+						held = now;
+						return settled;
+					}, seconds: 4, every: 0.25);
+					foreach (var row in inView) rows.TryAdd(row.Number, row);
+					if (inView.Count > 0)
+					{
+						window = Key(inView);
+						anchor = inView[0].Date;
+					}
+				}
+				await Fm.Get("scroll", ("anchor", anchor), ("to", "0"));
 			}
-			await Fm.Get("scroll", ("anchor", rows.Values.First().Date), ("to", "0"));
 		}
 		// A match he sat out, or came on too late to be rated in, is given as 0.00; the page's own lowest
 		// rating then reads 11.00 (Collins, 11 Nisan 2026). Neither is a rating.
