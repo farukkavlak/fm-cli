@@ -304,6 +304,15 @@ tablodan çevrilemiyor.
     `Events` alanı bu iki düğmede `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob` (`/buttons?json=1`; TR + EN'de
     aynı, etiketler ise tablonun sözü). Basış işaretçiyle; negatifte (düğme kapalıyken) hiç basılmıyor, uyarı
     yazılıyor. TR + EN üç durumda aynı çıktı, rc=0 (§8.219).
+  - [x] `release <oyuncu>` listesi: artık ekran yazısıyla değil **kabıyla** bulunuyor — liste, oyuncunun sözleşme
+    kartının kendi listesi (`dropdowns` → `Binds == selectedaction`, `Within` zincirinde `PlayerContractCard`;
+    şablonun adı, dilden bağımsız), etiket eşleşmesi yedek. Eskiden `Label == "Release"` aranıyordu; oyunun etiketi
+    **"Set For Release"** (TR'de de) olduğu için liste hiç bulunmuyordu ve komut her oyuncuda "serbest bırakma
+    seçeneği yok." diyordu (`--free`/`--mutual` yolu hiç açılmıyordu). Satırlar da artık İngilizce sözle değil
+    oyunun sözüyle seçiliyor: `Release On A Free` → `/translate` "Serbest Bırak", oyunun satırı "Bedelsiz Serbest
+    Bırak" onunla bitiyor; `Mutual Termination` iki dilde de İngilizce geliyor. TR + EN üç durumda `--free`
+    tazminat penceresini gösteriyor ("Vazgeçildi", hiçbir şey değişmiyor), negatif ve listesi olmayan oyuncu
+    (Oscar Thorn) aynı (§8.222).
 - [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
   İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
 - [ ] `contract <oyuncu> --agent`: TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka koşuda

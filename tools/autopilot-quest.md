@@ -4,6 +4,30 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm release` listesi** — **BİTTİ** (§8.222, Tur 33): liste
+  `Label == "Release"` ile aranıyordu, oyunun etiketi **"Set For Release"** (TR'de de) → liste hiç bulunmuyordu ve
+  `fm release <oyuncu>` her oyuncuda "serbest bırakma seçeneği yok." diyordu; `--free`/`--mutual` yolu hiç
+  açılmıyordu. Artık liste **kabıyla** bulunuyor (`Binds == selectedaction` **ve** `Within` zincirinde
+  `PlayerContractCard`; şablonun adı, dilden bağımsız), etiket eşleşmesi yedek kaldı. Aynı fonksiyondaki ikinci
+  borç da temizlendi (kural 3): satırlar `select choice=` ile İngilizce sözle seçiliyordu, oysa TR'de oyunun
+  satırı "Bedelsiz Serbest Bırak" geliyor (`--free` → "no choice 'Release On A Free'"); satır artık oyunun
+  `/translate` ile öğrenilen sözüyle (`Release On A Free` → "Serbest Bırak", satır onunla bitiyor) ya da
+  İngilizcesiyle bulunuyor. Kanıt: TR + EN, üç durum (başka sayfa açık / kart zaten açık / başka sayfaya
+  geçtikten sonra) → `--free` onaysız her koşuda tazminat penceresi + "Vazgeçildi" (TR "£350B"=350 bin, EN
+  "£350K"); izde `select ?choice=Bedelsiz Serbest Bırak&fire=1`; negatif `release "ZZZ yok"` ve listesi olmayan
+  oyuncu (Oscar Thorn) değişmedi. `Release.cs` dışına dokunulmadı, `sweep` `release` koşmuyor.
+- Not (kayıt durumu): **hiçbir oyuncu serbest bırakılmadı/teklif edilmedi** (`--free`ler onaysız → "Vazgeçildi",
+  `--mutual` onaysız → yalnız onay istemi); saat ilerletilmedi (2 Ağustos 2026 14:00), maç oynanmadı; dil
+  Türkçeye döndü (`/state` → `turkish`).
+- Sıradaki tur (öneri): B'de kalan cümle parçaları — `Stages "This round will be drawn"` (kupa kurası; sayfada
+  yolu yok, draw tarihi veriden gelebilir mi bakılacak), `Release "Is there anything else"` (karşılıklı fesih
+  konuşması; artık `release ... --mutual --yes` ile ölçülebilir — dikkat: gerçekten teklif eder, sonra kaydı
+  yeniden yükle), `Matches "Match Ratings"+"Inf"` (ölçüldü: TR oyunda eklenti bu iki etiketi İngilizce veriyor).
+  A'da kalan küçük iş: `TacticFiles 181` (panel kapanışından sonra sabit 800 ms). Ağır: TrainingSchedule 345.
+- Not: ağaç temiz (yalnız bu turun dosyası `cli/fm/Release.cs`), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 32)
 - Madde: **B "Cümle parçası arayanlar" / `Saves "Saves automatically" / "Autosave"` · `Saves "Estimated game speed:"`**
   (`fm world`) — **BİTTİ** (§8.221, Tur 32): FM menüsü artık `anchorpath=game.GameTime` ile bulunuyor ve bütün
   değerler veri yoluyla okunuyor (`game.RealTimeSinceLastSave`, `game.GameTimeSinceLastSave`,
@@ -82,6 +106,50 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 33 — B "İngilizce yazıyla basma/tıklama" / `fm release`: liste ve satırlar oyunun kimliğiyle bulunuyor; komut hiç çalışmıyordu (§8.222, 18 Ekim)
+Ne: `cli/fm/Release.cs` `Release()`. Liste `dropdowns?json=1` içinde `Field(d,"Label") == "Release"` ile
+aranıyordu; oyunda o listenin etiketi **"Set For Release"** → hiç bulunamıyor, komut her oyuncuda
+"serbest bırakma seçeneği yok." (rc=1) diyor, `--free`/`--mutual` yolu hiç açılmıyordu. Yeni: liste
+**kabıyla** bulunuyor — `Field(d,"Binds") == "selectedaction"` **ve** `Within` zincirinde
+`PlayerContractCard` (şablonun adı, dilden bağımsız); etiket eşleşmesi yedek. Aynı fonksiyondaki ikinci
+borç (kural 3): satırlar `select choice=` ile İngilizce sözle seçiliyordu, oysa oyunun satır yazısı
+dile göre geliyor — TR'de `--free` "no choice 'Release On A Free'" veriyordu; yeni `Row()` satırı
+oyunun `/translate` ile öğrenilen sözüyle (ya da İngilizcesiyle) bulup `select`e **seçilen satırın
+kendi yazısını** veriyor.
+- Ölçüm (kart açıkken, `/dropdowns?json=1`): `{"Name":"GenericDropdown","Binds":"selectedaction",
+  "Label":"Set For Release","Selected":"-1","Choices":["Bedelsiz Serbest Bırak","Mutual Termination"],
+  "Values":[null,null],"Within":[…,"PlayerContractCard","Body"]}`. `/translate?words=Release On A
+  Free\nMutual Termination\nSet For Release` → `Serbest Bırak` · `Karşılıklı Fesih` · `Serbest Bırak`.
+  Yani satırların yazısı ile tablo sözü ayrı: oyunun satırı "Bedelsiz Serbest Bırak" (tablo sözü onun
+  sonu), `Mutual Termination` ise İngilizce geliyor — bu yüzden eşleşme hem İngilizce hem oyunun
+  sözüyle, ikincisinde "onunla bitiyor" ölçüsüyle yapılıyor.
+- Öncesi (bu turun başındaki derleme, TR): `fm release "Ben House"` → "Ben House için serbest bırakma
+  seçeneği yok." rc=1; aynı şey Cody Tomlinson, Gael Mande, Jenson Jones, Oscar Thorn'da (yani hata
+  oyuncuya değil koda bağlı). Liste gerçekten ekranda duruyordu (yukarıdaki `/dropdowns` kaydı).
+- Sonrası, üç durum × iki dil (başka sayfa açık `fm open "Messages"` / kart zaten açık, ikinci koşu /
+  başka sayfaya geçtikten sonra `fm open "Squad Dynamics"`):
+  - TR: `fm release "Ben House"` → "sözleşmesi 30/6/2028 tarihinde bitiyor." + iki seçenek satırı;
+    `fm release "Ben House" --free` (onaysız) → "Serbest Bırak - House?" + "Lincoln, House'ye £350B
+    tazminat ödeyecek." + "Vazgeçildi. Serbest bırakmak için: … --free --yes" (üç durumda aynı).
+  - EN (`fm settings dil English`, `/state` → `english`): `fm release "Ben House"` → "their contract
+    ends on 30/6/2028." + iki seçenek; `--free` → "Release House?" + "Lincoln will have to pay £350K
+    in compensation to House." + "Cancelled. To release them: … --free --yes" (üç durumda aynı).
+  - İz (`FM_TRACE=1 fm release "Ben House" --free`, TR): `dropdowns` 0,53 → `translate ?words=Release
+    On A Free` 0,64 → `select ?ptr=0x502f36800&choice=Bedelsiz Serbest Bırak&fire=1` 0,66 → `dialog`
+    0,72/1,27 → `click` 1,42 ("Hayır"). Yani altı basışın hepsi oyunun kendi satırına gidiyor.
+- Negatif / değişmeyen: TR+EN `release "ZZZ yok"` → "… adında bir oyuncu kadroda da aramada da yok."
+  (rc=1); listesi olmayan oyuncu (Oscar Thorn) iki dilde de "serbest bırakma seçeneği yok." / "There
+  is no option to release Oscar Thorn." — yeni eşleşme yanlış liste uydurmuyor. `--mutual` onaysız:
+  "Karşılıklı fesih oyunda onaysız işliyor. Göndermek için: … --mutual --yes" (değişmedi).
+- Dönüş/geri: **hiçbir oyuncu serbest bırakılmadı, hiçbir teklif gönderilmedi** — `--free`ler onaysız
+  koştu (oyun "Hayır" seçildi), `--mutual` onaysız yalnız onay istemini yazdı; dil `fm settings
+  language "Türkçe"` ile geri alındı (`/state` → `turkish`), kayıt 2 Ağustos 2026 14:00, saat
+  ilerletilmedi, maç oynanmadı.
+- Regresyon: `Release.cs` dışına dokunulmadı (`GameWords.Ask`/`Fold` var olan yardımcılar, kendileri
+  değişmedi), `release` zaten `sweep.sh` komutları arasında değil → sweep gerekmedi.
+- Dosya: `cli/fm/Release.cs`, `docs/BAGIMLILIKLAR.md` (B alt maddesi `[x]`), `docs/FINDINGS.md` §8.222,
+  bu defter.
 
 ### Tur 32 — B "Cümle parçası arayanlar" / `fm world`: menü ve değerleri artık yazıyla değil veri yoluyla okunuyor (§8.221, 18 Ekim)
 Ne: `cli/fm/Saves.cs` `World()` (`fm world`). Değerler etiketlerin yanına/öncesine bakarak alınıyordu:

@@ -2368,3 +2368,19 @@ değil — o, kulüp değerinin (`Person.ManagedTeamsString`) hemen ardındaki y
 alınıyor (JSON'daki İngilizcesi TR'de "Game Information" geliyor; bu eklentinin ters tablosunun işi, okuma değil).
 Ölçüm: TR + EN, üç durum (başka sayfa açık / menü zaten açık / başka sayfadan) → alan alan ve insan çıktısı
 `md5` (TR `899c9313…`, EN `b4399afa…`) **eski derlemeyle birebir**; `sweep.sh` 50 komut, 0 hata (`world` 2 sn, 6 satır).
+
+### 8.222 `fm release`: liste etiketle aranıyordu, oyunun etiketi artık "Set For Release" — komut hiç çalışmıyordu (18 Ekim, TR + EN)
+`Release()` listeyi `dropdowns?json=1` içinde `Label == "Release"` ile arıyordu; oyunda o listenin etiketi
+**"Set For Release"** (TR'de de aynı, eklentinin çevirdiği söz) → liste hiç bulunamıyor, komut her oyuncuda
+"serbest bırakma seçeneği yok." (rc=1) diyordu ve `--free`/`--mutual` yolu hiç açılmıyordu. Ölçüm (kart
+açıkken `/dropdowns?json=1`): `{"Name":"GenericDropdown","Binds":"selectedaction","Label":"Set For Release",
+"Choices":["Bedelsiz Serbest Bırak","Mutual Termination"],"Within":[…,"PlayerContractCard",…]}`. Yeni: liste,
+`Within` zincirinde **PlayerContractCard** (şablonun adı, dilden bağımsız) geçen `Binds == selectedaction`
+listesidir; etiket eşleşmesi yedek kaldı. İkinci borç (kural 3): `select choice=` İngilizce sözle yapılıyordu
+ama satırlar oyunun kendi sözüyle geliyor — TR'de `--free` "no choice 'Release On A Free'" veriyordu; artık
+satır, oyunun `/translate` ile öğrenilen sözüyle (`Release On A Free` → "Serbest Bırak", oyunun satırı
+"Bedelsiz Serbest Bırak" onunla **bitiyor**) ya da İngilizcesiyle bulunuyor ve `select` seçilen satırın kendi
+yazısıyla yapılıyor (`Mutual Termination` iki dilde de İngilizce geliyor, o yüzden değişmedi).
+Kanıt: TR `release "Ben House"` → iki seçenek; `--free` (onaysız) üç durumda tazminat penceresi ("£350B" = 350
+bin) + "Vazgeçildi" (hiçbir şey değişmedi); EN aynı ("£350K"); izde `select ?choice=Bedelsiz Serbest Bırak&fire=1`
+(eskiden `no choice`); negatif `release "ZZZ yok"` değişmedi, listesi olmayan oyuncuda (Oscar Thorn) yine "seçenek yok".

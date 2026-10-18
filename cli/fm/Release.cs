@@ -90,10 +90,19 @@ internal static partial class Program
 
 		if (await OpenContractSection(name) is { } failed) return failed;
 
+		// The list is the player's contract card's own dropdown, whatever the game calls it: its
+		// label read "Release" when this was written and "Set For Release" in the current build, so
+		// looking it up by the words beside it found nothing and the command said there was no
+		// release option at all (FINDINGS §8.222).
+		static bool IsReleaseList(JsonElement d) => Field(d, "Label") == "Release"
+			|| Field(d, "Binds") == "selectedaction"
+			   && d.TryGetProperty("Within", out var within) && within.ValueKind == JsonValueKind.Array
+			   && within.EnumerateArray().Any(w => w.GetString() == "PlayerContractCard");
+
 		JsonElement list = default;
 		async Task<bool> Listed()
 		{
-			list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Release");
+			list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(IsReleaseList);
 			if (list.ValueKind == JsonValueKind.Object) return true;
 			await Acknowledge();
 			return false;
@@ -105,6 +114,20 @@ internal static partial class Program
 		}
 
 		const string free = "Release On A Free", mutual = "Mutual Termination";
+		// The list's rows come back in the game's own words ("Bedelsiz Serbest Bırak") or in English
+		// ("Mutual Termination"), so the row meant is found by the words that fit it rather than by
+		// one fixed spelling: asking for "Release On A Free" by name found nothing in a Turkish game
+		// (FINDINGS §8.222).
+		await GameWords.Ask(Fm, free, mutual);
+		string Row(string english)
+		{
+			if (list.ValueKind != JsonValueKind.Object || !list.TryGetProperty("Choices", out var rows)) return english;
+			var shown = rows.EnumerateArray().Select(r => r.GetString() ?? "").ToList();
+			var own = GameWords.Of(english);
+			return shown.FirstOrDefault(r => Fold(r) == Fold(english) || Fold(r) == Fold(own))
+				?? shown.FirstOrDefault(r => Fold(own).Length > 1 && Fold(r).EndsWith(Fold(own), StringComparison.Ordinal))
+				?? english;
+		}
 		string way = args.Contains("--free") ? free : args.Contains("--mutual") ? mutual : null;
 		if (way == null)
 		{
@@ -136,7 +159,7 @@ internal static partial class Program
 		for (var attempt = 0; attempt < 6; attempt++)
 		{
 			if (list.ValueKind != JsonValueKind.Object) sent = "error: no dropdown at the release list";
-			else sent = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", way), ("fire", "1"));
+			else sent = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", Row(way)), ("fire", "1"));
 			if (!sent.StartsWith("error: no dropdown at", StringComparison.Ordinal)) break;
 			await Task.Delay(500);
 			await Until(Listed, seconds: 5, every: 0.5);
