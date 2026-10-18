@@ -103,6 +103,20 @@ internal static partial class Program
 			: [];
 	}
 
+	/// <summary>
+	/// The selected job's own panel — the game's "job-advert-container" — with the paths its texts
+	/// are bound to. Read by the container rather than by a text of it: the club's name in its title
+	/// is the game's own word ("Danimarka" for the row's "Denmark") and the rows under it depend on
+	/// the job (a nation's panel has no "Training Facilities"), so neither can say what is up.
+	/// </summary>
+	private static async Task<List<(string Text, string Path)>> JobPanel()
+	{
+		var found = await Fm.GetJson("texts", ("within", "job-advert-container"), ("paths", "1"));
+		return found.ValueKind == JsonValueKind.Array
+			? found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList()
+			: [];
+	}
+
 	/// <summary>A key of what the window shows, to tell one window from the next.</summary>
 	private static string WindowKey(List<(string Text, string Path)> texts) => string.Join("|", texts.Select(t => t.Text));
 
@@ -298,20 +312,18 @@ internal static partial class Program
 		// has no job security column: asking for it lands on the list's own row.
 		await Fm.Get("rowselect", ("text", job.Club), ("and", job.Security));
 		List<string> panel = [];
+		// Picking a row empties the panel's bound values for a moment — its title and answers stay,
+		// and one of those answers is on screen before the new job's facts are. So the panel is taken
+		// once it carries bound values of its own again and two looks agree (FINDINGS §8.220).
+		var key = "";
 		var shown = await Until(async () =>
 		{
-			var texts = await JobTexts();
-			// The panel's title is a sentence in the game's language ("<club> — Managerial Position"),
-			// so only the club in it is looked for; the row's own club cell carries "team.name", and no
-			// other text without a path holds the club.
-			var end = texts.FindIndex(t => t.Path.Length == 0 && t.Text == "Declare Interest In Job");
-			if (end < 0) end = texts.Count;
-			var title = texts.FindLastIndex(end - 1, t => t.Path.Length == 0 && t.Text.Contains(job.Club, StringComparison.Ordinal));
-			if (title < 0) return false;
-			panel = texts.Skip(title).Take(end - title).Select(t => t.Text).ToList();
-			// The facts at the panel's foot come in a moment after its title.
-			var at = panel.IndexOf("Training Facilities");
-			return at >= 0 && at + 1 < panel.Count;
+			var texts = await JobPanel();
+			var now = WindowKey(texts);
+			var settled = texts.Count > 0 && now == key && texts.Any(t => t.Path.Length > 0);
+			key = now;
+			if (settled) panel = texts.Select(t => t.Text).ToList();
+			return settled;
 		}, seconds: 5, every: 0.25);
 		// A panel still about another club would answer for that one.
 		if (!shown && warn)

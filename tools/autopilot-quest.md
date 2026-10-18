@@ -4,26 +4,25 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **A "`Task.Delay`" / `jobs apply|interest`** (+ B "yazıyla basma" yanı) — **BİTTİ** (§8.219, Tur 30): `JobAnswer`
-  basıştan sonra **sabit 1 sn** bekleyip `dialog` okuyordu; artık oyunun kendi cevabını bekliyor ("`dialog` doldu
-  **veya** düğme artık sunulmuyor", 0,25 sn aralık, en çok 6 sn) ve panelin iki cevabı (B: "yazıyla basma") etiketle
-  değil **olayla** bulunuyor (`EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`). Ölçüm: düğmenin `Enabled`'i
-  basıştan 0,467 / 0,629 sn sonra düşüyor, `dialog` 13,5 sn boş; eski derleme izi `press` 3,32 → tek `dialog` 4,43
-  (sabit 1 sn), yeni kodda aynı satır 0,56 sn'de. Üç durum × TR + EN altı basış rc=0, çıktı eskisiyle aynı; negatif
-  TR `Villarreal apply` → "başvuru kabul etmiyor", rc=1. `Jobs.cs`'te `Task.Delay` kalmadı.
-- Not (kayıt durumu): kayıt **dosyaya yazılmadı** — ölçüm basışları yalnız bellekteydi; tur sonunda
-  `fm load "Faruk Kavlak - Fenerbahçe" --no-save` + `fm continue` ile kayıt baştan yüklendi (2 Ağustos 2026,
-  09:15/14:00) ve **York'un başvurusu geri geldi** (`fm jobs "York"` → "Başvurmak için…"). Dil Türkçeye döndü
-  (`/state` → `turkish`).
-- Not (yan gözlem, bu maddenin işi değil): ulus işlerinde (`Denmark`, `Brazil`) panel "Training Facilities" satırı
-  taşımadığı için `CanApply` bilinmiyor; `fm jobs "<ulus>"` yine "To apply: …" yazıyor ama `apply` "does not take
-  applications" diyor — eski kodda da aynı (etiketle aranan düğme panel yokken bulunmuyor), ayrı bir iş olabilir.
+- Madde: **B "İş paneli ekran yazısıyla bulunuyordu"** (Tur 30'un yan gözlemi: ulus ilanlarında `CanApply`
+  bilinmiyordu) — **BİTTİ** (§8.220, Tur 31): panel başlıkta kulüp adı (`Contains(job.Club)`) **ve** "Training
+  Facilities" satırıyla tanınıyordu; ikisi de dile/kayda bağlı (ulus başlığı oyunun sözüyle: TR "Danimarka
+  Menajerlik Görevi", satırın hücresi `team.name` = "Denmark"; ulus panelinde "Training Facilities" yok) →
+  `CanApply` `null` kalıyor, `fm jobs "Denmark"` "Başvurmak için: … apply" diyordu ama `apply` haklı olarak
+  reddediyordu (düğme `Enabled=False`). Artık panel oyunun kendi kabından: `/texts?within=job-advert-container&paths=1`
+  (şablonun adı; kapalıyken `[]`) ve bekleme oyunun kendi işareti — kap **veri yolu taşıyan** metin taşıyor **ve**
+  art arda iki okuma aynı (satır seçilince bir an yalnız başlık+iki cevap: 0,259 sn'de 3 metin/0 yol, 0,466 sn'de
+  hazır). TR + EN üç durumda `Denmark`/`Fildişi Sahilleri` `CanApply:false` + "Başvuru kapalı…", `United States`
+  `CanApply:true`; kulüp ilanı `York` eski derlemeyle birebir (`md5 34c583c8…` TR / `1ee49ee3…` EN); 8–9 → 3–5 sn;
+  negatif `jobs "ZZZ yok"` değişmedi.
+- Not (kayıt durumu): **hiçbir başvuru/ilgi gönderilmedi** (yalnız okuma), saat ilerletilmedi, maç oynanmadı;
+  2 Ağustos 2026, dil Türkçeye döndü (`/state` → `turkish`).
 - Sıradaki tur (öneri): **A "`Task.Delay`" / TrainingSchedule 345** — hâlâ takvim ayı karışıklığına takılı (Tur 27
   notu; `General`/`Training` sekmelerinin ayrı `MonthDropdown`'ı). Alternatif küçük işler: A'da `TacticFiles 181`
   (ölçüldü: panel 0,31 sn'de yok, kaydırmalı yolda tetiklemek zor), Guided 161 174 (bedel isteyen söz), Alt
-  sayfa/sabit üst sınırlar, ulus işi paneli (yukarıdaki not). B'de kalanlar: `Stages/Saves/Release/Matches` cümle
-  parçaları, `contract --agent` TR (kartın kendi işareti), haber "Portugal", "veri merkezi İngilizce çıktı".
-- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok, penaltı sırası ve dil tur başındaki hâlde (TR).
+  sayfa/sabit üst sınırlar. B'de kalanlar: `Stages/Saves/Release/Matches` cümle parçaları, `contract --agent` TR
+  (kartın kendi işareti), haber "Portugal", "veri merkezi İngilizce çıktı", "yazıyla basma"nın kalan 37 yeri.
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
 - Durum: bitti, commit atılıyor
 
 ## Önceki durum (Tur 28)
@@ -63,6 +62,44 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 31 — B "İş paneli ekran yazısıyla bulunuyordu" / `fm jobs <ilan>`: panel oyunun kendi kabından okunuyor, ulus ilanlarında başvuru durumu yanlış söyleniyordu (§8.220, 18 Ekim)
+Ne: `cli/fm/Jobs.cs` (`SelectJob` + yeni dosya-içi yardımcı `JobPanel`). Panel iki ekran yazısıyla tanınıyordu:
+başlıkta `Contains(job.Club)` **ve** panelde `"Training Facilities"`. İkisi de kırılgan — ulus ilanlarında başlık
+oyunun kendi sözü (TR "Danimarka Menajerlik Görevi", satırın hücresi `team.name` = "Denmark") ve ulus panelinde
+"Training Facilities" satırı yok → `shown=false`, `CanApply=null` → ayrıntı satırı "Başvurmak için: … apply"
+diyordu, oysa `apply` reddediyordu. Yeni: `JobPanel()` = `/texts?within=job-advert-container&paths=1` (şablonun
+adı, dilden bağımsız; panel kapalıyken `[]`) ve bekleme oyunun kendi işareti: kap **veri yolu taşıyan** metin
+taşıyor **ve** art arda iki okuma aynı (0,25 sn aralık, en çok 5 sn). `JobDetail`/`ButtonEnabled` değişmedi.
+- Ölçüm (40 ms aralıkla, `rowselect`ten sonra): 0,259 sn'de panel 3 metin/0 yol (eski başlık + iki cevap duruyor),
+  0,466 sn'de yeni ilanın 9 metni (Denmark). Yani "Training Facilities" yerine gereken işaret "kap doldu **ve**
+  bağlı değerleri geldi"; düğmenin kendisi (satır 0,259'da da var) tek başına yetmiyor.
+- Düğme kimliği (`/buttons?json=1`): `EventToPlugin:EventFmxApplyForJob` `Enabled=False` (Denmark, Fildişi
+  Sahilleri), `Enabled=True` (United States); `EventFmxDeclareInterestInJob` her ikisinde `True`. Yani "başvuru
+  kapalı" cevabı oyunun kendi düğmesinden.
+- Öncesi (eski derleme, `git stash` + `dotnet build cli/fm -c Release`): TR `jobs "Denmark" --json` →
+  `{"…","Facts":{},"CanApply":null}` + stderr `"Danimarka" iş paneli açılmadı…`, 8–9 sn, üç durumda aynı
+  (`md5 05f9b554…`); TR insan çıktısı `md5 3bd51675…`, son satır "Başvurmak için: jobs "Danimarka" apply";
+  `jobs "Fildişi Sahilleri" --json` → `CanApply:null` + aynı uyarı (`md5 b1bf9395…`); EN `jobs "Denmark" --json`
+  → `CanApply:null` (`md5 e66ccdda…`). Kulüp ilanı `jobs "York" --json` TR `md5 34c583c8…`, EN `md5 1ee49ee3…`.
+- Sonrası: TR `jobs "Denmark" --json` → `"Facts":{"Reputation":"Worldwide"},"CanApply":false`, uyarı yok, 3–5 sn,
+  üç durumda aynı `md5 99e67921…`; TR insan → son satır "Başvuru kapalı. İlgilenmek için: jobs "Danimarka"
+  interest" (`md5 67aceaf8…`); `jobs "Fildişi Sahilleri" --json` → `CanApply:false` (`md5 404a2258…`); EN `jobs
+  "Denmark" --json` → `CanApply:false` (`md5 3fe372d8…`), EN insan "Applications are closed. To declare
+  interest: …" (`md5 dd853491…`); `jobs "United States" --json` → `CanApply:true` + "Başvurmak için: jobs
+  "A.B.D." apply" (düğme `Enabled=True`) — yani pozitif yol da doğru.
+- Üç durum (her biri TR + EN): başka sayfa açık (`fm open "Squad Dynamics"` sonrası, panel ilk kez açılıyor) /
+  panel zaten açık (hemen ikinci koşu) / başka sayfaya geçtikten sonra (`fm open "Messages"`) → her komut üç
+  durumda aynı `md5`; kulüp ilanı `York` iki dilde eski derlemeyle **birebir** (değişen tek şey ulus ilanları).
+- Negatif: `fm jobs "ZZZ yok"` → `'ZZZ yok' ilanlarda yok. Liste: jobs`, rc=1 (değişmedi). EN'de
+  `jobs "Fildişi Sahilleri"` → "is not among the vacancies" (oyun İngilizceyken satırın `team.name`'i başka adla
+  geliyor; bu komutun kendi argüman eşlemesi, bu değişiklikten değil — öncesi de aynı, rc=1).
+- Dönüş/geri: hiçbir başvuru/ilgi gönderilmedi (yalnız okuma), saat ilerletilmedi, maç oynanmadı; dil
+  `fm settings language "Türkçe"` ile geri alındı (`/state` → `Language: turkish`), kayıt 2 Ağustos 2026.
+- Regresyon: paylaşılan koda (Bridge/OpenPage/reply/ortak yardımcılar) dokunulmadı, `JobPanel` yalnız `Jobs.cs`
+  içinde çağrılıyor → `sweep.sh` gerekmedi (sweep zaten `jobs` koşmuyor).
+- Dosya: `cli/fm/Jobs.cs`, `docs/BAGIMLILIKLAR.md` (B'ye yeni alt madde `[x]`), `docs/FINDINGS.md` §8.220,
+  `docs/manual/KILAVUZ.md` (başvuru durumu notu), bu defter.
 
 ### Tur 30 — A "`Task.Delay`" / `jobs apply|interest` (+ B "yazıyla basma"): basıştan sonraki sabit 1 sn yerine oyunun cevabı, iki düğme olay kimliğiyle (§8.219, 18 Ekim)
 Ne: `cli/fm/Jobs.cs` (`fm jobs "<kulüp>" apply|interest`). İki şey birlikte temizlendi (kural 3):

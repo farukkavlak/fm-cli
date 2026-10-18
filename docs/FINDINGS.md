@@ -2332,3 +2332,21 @@ artık "Başvuru kapalı…" (başvuru gerçekten gitmiş). Negatif: TR `fm jobs
 olmadığı için `CanApply` zaten bilinmiyor, komut eskisi gibi "does not take applications" diyor (bu değişiklikten
 değil; eski kodda da etiketle aranan düğme panel yokken bulunmuyordu). Ölçüm basışları test kaydında; kayıt
 `fm load … --no-save` ile baştan yüklendi (dosyaya yazılmadı), dil Türkçeye döndü.
+
+### 8.220 `fm jobs <ilan>`: iş paneli artık oyunun kendi kabından okunuyor; ulus ilanlarında başvuru durumu yanlış söyleniyordu (18 Ekim, TR + EN)
+Panel, ekran yazılarıyla bulunuyordu: başlıkta kulübün adı (`Contains(job.Club)`) **ve** panelde "Training Facilities"
+satırı olması gerekiyordu. İkisi de dile/kayda bağlı: ulus ilanlarının başlığı oyunun kendi sözüyle geliyor
+(TR "Danimarka Menajerlik Görevi", satırın hücresi `team.name` = "Denmark") ve ulus panelinde "Training Facilities"
+satırı yok — bu yüzden `shown` hiç true olmuyor, `CanApply` `null` kalıyordu. Sonuç: `fm jobs "Denmark"` "Başvurmak
+için: jobs "Danimarka" apply" diyordu, oysa `apply` doğru biçimde "başvuru kabul etmiyor" (rc=1) diyordu; ölçüm:
+panelde `Apply For Job` düğmesi `Enabled=False` (`/buttons?json=1`, olay `EventToPlugin:EventFmxApplyForJob`).
+Yeni: panel oyunun kendi kabıyla okunuyor — `/texts?within=job-advert-container&paths=1` (şablonun adı, dilden
+bağımsız; panel kapalıyken `[]`). Kap doluyor ama değerleri sonra geliyor: satır seçilince panel bir an yalnız
+başlık + iki cevabı tutuyor (3 metin, **0 veri yolu**), sonra o ilanın satırları geliyor (York 16, Denmark 9 metin).
+Bekleme oyunun kendi işareti: kap **veri yolu taşıyan** bir metin taşıyor **ve** art arda iki okuma aynı (0,25 sn
+aralık, en çok 5 sn). Ölçüm (40 ms aralıkla): satır seçildikten 0,259 sn sonra 3 metin/0 yol (eski başlık duruyor),
+0,466 sn'de yeni ilanın 9 metni hazır. Öncesi/sonrası: TR `jobs "Denmark" --json` `CanApply:null` + "panel açılmadı"
+uyarısı, 8–9 sn → `CanApply:false`, uyarı yok, 3–5 sn; `jobs "Fildişi Sahilleri"` aynı; `jobs "United States"`
+`CanApply:true` ("Başvurmak için…", düğme `Enabled=True`); menajersiz ulus ilanlarının liste sütunu artık "?" değil
+"açık"/"kapalı" (menajeri olanlarda değişen yok: sütun yine "?", çünkü onlar hiç sorulmuyor). Kulüp ilanı (`jobs "York" --json`, `md5 34c583c8…` TR / `1ee49ee3…` EN) üç durumda **eskisiyle
+birebir**; her komut üç durumda (başka sayfa açık / panel zaten açık / başka sayfaya geçtikten sonra) aynı `md5`.

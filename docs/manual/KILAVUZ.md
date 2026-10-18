@@ -1622,7 +1622,10 @@ gösterdiği bütün işler (bu kayıtta 321) aynı sırayla gelir.
 "BAŞVURU" sütunu yalnız **boş** (menajersiz) ilanlar için sorulur; menajeri olan ilanlar "?" der,
 çünkü o düğmenin açık olup olmadığı ancak satır seçilince belli olur ve yüzlerce satırı tek tek
 seçmek dakikalar alırdı. Bir ilanı sorduğunda (`fm jobs "<kulüp>"`) başvuru durumu yine gelir;
-satır görünüme kaydırılarak seçildiği için pencerede olmayan ilanlarda da doğrudur.
+satır görünüme kaydırılarak seçildiği için pencerede olmayan ilanlarda da doğrudur. Başvuru
+durumu oyunun kendi panelinden okunur, yazıdan değil: ulus ilanlarının (ör. A.B.D., Danimarka)
+paneli başka satırlar taşısa da "başvuru kapalı" doğru söylenir ve ayrıntı satırı "Başvuru kapalı.
+İlgi bildirmek için: … interest" der.
 
 `fm jobs kayseri` (ya da numarasıyla, `fm jobs 5`) ilanın ayrıntısını gösterir: maaş gideri,
 antrenman tesisleri ve menajer kuralları. Kulüp seçince:

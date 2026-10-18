@@ -246,6 +246,17 @@ tablodan çevrilemiyor.
     satırın hepsini seçmek dakikalar sürerdi; dolu ilanlar "?". Üç durum (başka sayfa / zaten açık / başka sekme) ve
     iki dil aynı 321 ilan ve aynı sıra (§8.197). Panel gelmezse artık başka kulübün ayrıntısı basılmıyor: satır
     verisinden okunan alanlar + stderr uyarısı.
+  - [x] **İş paneli ekran yazısıyla bulunuyordu** (`fm jobs "<ilan>"` ayrıntısı): panel başlıkta kulüp adıyla
+    (`Contains(job.Club)`) **ve** "Training Facilities" satırıyla tanınıyordu; ikisi de dile/kayda bağlı — ulus
+    ilanlarının başlığı oyunun kendi sözüyle geliyor (TR "Danimarka Menajerlik Görevi", satırın hücresi
+    `team.name` = "Denmark") ve ulus panelinde "Training Facilities" satırı yok, bu yüzden `CanApply` `null`
+    kalıyordu: `fm jobs "Denmark"` "Başvurmak için: … apply" diyordu ama `apply` "başvuru kabul etmiyor" diyordu.
+    Artık panel oyunun kendi kabından okunuyor (`/texts?within=job-advert-container&paths=1`; şablonun adı, dilden
+    bağımsız) ve bekleme oyunun kendi işareti: kap **veri yolu taşıyan** bir metin taşıyor **ve** art arda iki okuma
+    aynı (satır seçilince panel bir an yalnız başlık + iki cevabı tutuyor: 0,259 sn'de 3 metin/0 yol, 0,466 sn'de
+    hazır). TR + EN üç durumda: `Denmark`/`Fildişi Sahilleri` `CanApply:false` + "Başvuru kapalı…", `United States`
+    `CanApply:true` + "Başvurmak için…"; kulüp ilanı `York` eski derlemeyle **birebir**; 8–9 → 3–5 sn; negatif
+    `jobs "ZZZ yok"` değişmedi (§8.220).
   - [ ] Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" ·
     Release "Is there anything else" · Matches "Match Ratings"+"Inf" · Saves "Estimated game speed:"
   - [?] Penalties "Starting at " / "On Subs bench" (`fm penalties` tablosunun "MAÇA" sütunu): ölçüldü, **kod
