@@ -334,8 +334,12 @@ tablodan çevrilemiyor.
     Bırak" onunla bitiyor; `Mutual Termination` iki dilde de İngilizce geliyor. TR + EN üç durumda `--free`
     tazminat penceresini gösteriyor ("Vazgeçildi", hiçbir şey değişmiyor), negatif ve listesi olmayan oyuncu
     (Oscar Thorn) aynı (§8.222).
-- [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
-  İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
+- [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
+  kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
+  pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri
+  merkezi bulgularını yazmadan önce o cümleler için oyunun kendi tablosuna bir kez soruyor ve satırı oyunun sözüyle
+  yazıyor; tabloda olmayan (sayı/isim taşıyan) cümleler zaten oyunun dilinde geliyor. TR üç durumda satır Türkçe,
+  EN üç durumda eskisiyle **birebir** (§8.226).
 - [ ] `contract <oyuncu> --agent`: TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka koşuda
   `seçenek yok`; aynı oyuncular EN'de hep bulunuyor). Ekranda kalan bir sözleşme görüşmesi kartı (`Finalise
   Promises` / `Cancel Negotiations`, `Action` alanı boş) görüldü — kartın kendi işareti ölçülecek (§8.210 sonu).

@@ -1675,8 +1675,14 @@ internal static partial class Program
 			if (goals.Count > 0) Console.WriteLine(L($"    Goller: {string.Join(", ", goals)}"));
 			if (rest.IndexOf("XG") is > 0 and var xg && xg + 2 < rest.Count) Console.WriteLine(L($"    Gol beklentisi {rest[xg + 1]} - {rest[xg + 2]}"));
 			if (One("Fixture.PlayerOfTheMatch.Name") is { Length: > 0 } best) Console.WriteLine(L($"    Maçın oyuncusu: {best}"));
+			// The analysts' sentences are the game's own, which the plugin answers with in English where its
+			// table knows the sentence (one with a figure in it comes through as the game wrote it). The words
+			// the game showed are asked for once, so a finding is said in the game's language too — a sentence
+			// the table does not know is left as it came.
+			var points = page.Where(t => t.Path == "row.AnalysisPointString").Select(t => t.Text).ToList();
+			await GameWords.Ask(Fm, [.. points]);
 			Console.WriteLine(L("    Önemli bulgular:"));
-			foreach (var point in page.Where(t => t.Path == "row.AnalysisPointString")) Console.WriteLine($"      · {point.Text}");
+			foreach (var point in points) Console.WriteLine($"      · {GameWords.Of(point)}");
 			var tactics = page.Where(t => t.Path is "data.TacticalStylesOption.Name" or "Tactic.FormationName").Select(t => t.Text).ToList();
 			if (tactics.Count > 0) Console.WriteLine(L($"    Taktikler: {string.Join(" · ", tactics)}"));
 			return;

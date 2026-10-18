@@ -2438,3 +2438,23 @@ Dönüş/geri: kayıt `fm load … --no-save` ile iki kez baştan yüklendi; ver
 alındı, dil `fm settings language "Türkçe"` (`/state` → `turkish`), saat 2 Ağustos 2026 14:00, maç oynanmadı.
 Dosya: `cli/fm/Release.cs` (yalnız karşılıklı fesih çıktısı); `AcknowledgeButton` yalnız okundu, `sweep.sh`
 `release` koşmuyor.
+
+### 8.226 `reply`: veri merkezi bulgularından tabloda olan cümle TR oyunda İngilizce kalıyordu (18 Ekim, TR + EN)
+Bir mesajın eki "veri merkezi" (`row.AnalysisPointString`, Program.cs) analist cümlelerini yazıyor. Cümleler oyunun
+kendi sözü: içinde sayı/isim taşıyanları eklenti çeviremiyor ve oyunun dilinde geliyor (TR'de dördü Türkçe), ama
+**tabloda birebir duran** cümleyi eklenti İngilizceye çeviriyor ve geri eşini göndermiyor → TR oyunda o satır
+İngilizce kalıyordu. Ölçüm (TR, `fm reply "Lincoln 1-2"`): bulguların dördü Türkçe, sonuncusu
+"We've regained possession well in central areas of our own third of the pitch."; aynı cümle EN oyunda da aynı.
+`/translate?words=…` yanıtı (X-Shown başlığı): `We've regained possession well in central areas of our own third of
+the pitch.\tYarı sahamızın orta kısmında çok top kazandık.` — yani oyunun tablosunda eş var, CLI yalnız sormuyordu.
+Yeni: bulgular yazılmadan önce `GameWords.Ask(Fm, points)` ile (bir kez) soruluyor ve satır `GameWords.Of(point)` ile
+yazılıyor; `GameWordsLines`'ın satır bölmesi "· " ile yapıştığı için cümle oradan geçmiyordu, bu yüzden tam eş
+`Of` ile alınıyor. Tabloda olmayan cümle (`Ask` boş yanıt) olduğu gibi kalıyor.
+Kanıt (üç durum: başka sayfa açık `Squad Dynamics` / mesaj zaten açık / `Messages` sonrası): TR'de tam dosya farkı
+yalnız o satır — `· We've regained possession…` → `· Yarı sahamızın orta kısmında çok top kazandık.`; EN'de bulgular
+üç durumda da eskisiyle **birebir**. Türkçe cümleler için tablo boş yanıt veriyor (yanlış eş yazılmıyor).
+Yan bulgu (bu değişiklikten değil): ekin okunuşu duruma göre eksik gelebiliyor — ilk koşuda "Goller / Maçın oyuncusu /
+Taktikler" satırları varken ikinci koşuda yok, bir EN koşusunda takım adları boş geldi ("data hub —  1 - 2  "). Yani
+`WriteAttachment`'ın 1,5 sn'si (§8.192) yarım bağlanmış sayfayı okuyabiliyor; sabit bekleme maddesi aynı kalıyor.
+Dosya: `cli/fm/Program.cs` (yalnız veri merkezi eki dalı); `GameWords.Ask/Of` var olan yardımcılar, değişmedi.
+`sweep.sh` **50 komut, 0 hata** (İngilizce oyunda koşuldu; `inbox` 1 sn/16 satır).

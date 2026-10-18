@@ -128,7 +128,9 @@ Sent Off (Straight Red)        1/2 Wk   1 Week   1 Week   2 Wks
 
 Diğer sık ekler de kısaca okunur: gözlemci raporu (not, görüş, artılar/eksiler, değer ve ücret),
 oyuncumuza gelen teklifin kartı, oyuncu tavsiyeleri, maç sonrası veri merkezi analizi, maç hazırlığı
-odakları, antrenman ilerleme raporu ve sezonluk galibiyet primleri (seçili olan köşeli parantezde):
+odakları, antrenman ilerleme raporu ve sezonluk galibiyet primleri (seçili olan köşeli parantezde).
+Veri merkezi bulguları oyunun kendi dilinde yazılır (Türkçe oyunda Türkçe; sayı/isim taşıyan cümleler
+nasıl geldiyse öyle):
 
 ```
   Ek: gözlemci raporu — B+ · Harika bir transfer olur.

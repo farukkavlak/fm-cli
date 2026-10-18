@@ -4,6 +4,29 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "Veri merkezi bulguları İngilizce çıktı"** — **BİTTİ** (§8.226, Tur 37): `reply` mesaj ekinin
+  veri merkezi dalında `row.AnalysisPointString` cümleleri olduğu gibi yazılıyordu; TR oyunda dört bulgu Türkçe
+  (içlerinde sayı var, eklenti çeviremiyor) ama **tabloda birebir duran** cümle İngilizce kalıyordu
+  ("We've regained possession well in central areas of our own third of the pitch."). Oysa oyunun tablosunda eş var:
+  `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık." (X-Shown başlığı). Artık bulgular
+  yazılmadan önce `GameWords.Ask(Fm, points)` ile bir kez soruluyor ve satır `GameWords.Of(point)` ile yazılıyor
+  (`GameWordsLines`'ın satır bölmesi "· " yüzünden cümleyi çevirmiyordu). Kanıt: TR üç durumda tam dosya farkı
+  yalnız o satır (Türkçe), EN üç durumda bulgular eskisiyle birebir; Türkçe cümleler için tablo boş yanıt veriyor.
+- Not (kayıt durumu): kayıt yalnız okundu (2 Ağustos 2026 14:00), saat ilerletilmedi, maç oynanmadı, hiçbir
+  ayar/oyuncu değişmedi; dil Türkçeye döndü (`/state` → `turkish`).
+- Yan bulgu (§8.226 sonu): mesaj eki okunuşu duruma göre eksik gelebiliyor (ilk koşuda "Goller/Maçın oyuncusu/
+  Taktikler" var, ikinci koşuda yok; bir EN koşusunda takım adları boş) — `WriteAttachment` 1,5 sn sabiti yarım
+  bağlanmış sayfayı okuyabiliyor; o madde Faruk'un kararıyla sabit kalıyor (§8.192).
+- Sıradaki tur (öneri): B'de kalanlar — haber "Portugal" / "Defence (Core)" (haber başlığındaki ülke adı; ölçüm:
+  haber yolu eşi öğrenmiyor, `/translate` ile bakılacak), Program cümle parçaları (kaptan eki "to be selected",
+  "Transfers In/Out", sezon özeti — örnek mesaj lazım), "yazıyla basma"nın kalan yerleri (Budget/ScoutFocus/
+  Saves/Settings `click text=…`), `contract <oyuncu> --agent` (kartın kendi işareti). A'da kalan küçük iş:
+  kısa `Until` listesi (League 216 · Prep 124 · Calendar 157 · Stages 349 · StaffSearch 354 · TacticSlots 112 …),
+  TacticFiles 181 (panel kapanışından sonra 800 ms), sabit üst sınırlar. Ağır: TrainingSchedule 345 (takvim ayı).
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 36)
 - Madde: **B "Cümle parçası arayanlar" / `Release "Is there anything else"`** — **BİTTİ** (§8.225, Tur 36):
   `fm release <oyuncu> --mutual --yes` sonrası konuşmanın asistan cevabından sonra oyun kendi kapanış sorusunu
   ekliyor ve o soru **oyunun dilinde kuruluyor** (TR "Sizin için yapabileceğim başka bir şey var mı hocam?"),
@@ -165,6 +188,41 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 37 — B "Veri merkezi bulguları İngilizce çıktı": tabloda olan bulgu cümlesi artık oyunun dilinde (§8.226, 18 Ekim)
+Ne: `cli/fm/Program.cs`, `WriteAttachment`'ın veri merkezi dalı (satır ~1676–1681). Bulgular
+(`row.AnalysisPointString`) olduğu gibi yazılıyordu. Cümleler oyunun kendi sözü: içinde sayı/isim taşıyanları
+eklenti çeviremiyor ve oyunun dilinde geliyor (TR'de beş bulgunun dördü Türkçe), ama **tabloda birebir duran**
+cümleyi eklenti İngilizceye çeviriyor ve geri eşini göndermiyor → TR oyunda o satır İngilizce kalıyordu.
+Yeni: bulgular yazılmadan önce `GameWords.Ask(Fm, [.. points])` (cümle başına eksik olanlar için tek `translate`
+çağrısı) ve satır `GameWords.Of(point)` ile yazılıyor — `GameWordsLines`'ın satır bölmesi `· ` yüzünden cümleyi
+bölüp eşleştiremediği için tam eş `Of` ile alınıyor. Tabloda olmayan cümle (boş yanıt) nasıl geldiyse öyle kalıyor.
+- Ölçüm (kimlik): TR `/translate?words=We've regained possession well in central areas of our own third of the
+  pitch.` → gövde aynı cümle + `Yarı sahamızın orta kısmında çok top kazandık.`, X-Shown başlığı da bu çifti
+  taşıyor (base64 çözüldü). Aynı çağrı dört **Türkçe** bulgu için boş gövde + X-Shown yok → yanlış eş yazılmıyor.
+- Öncesi (eski derleme `git stash push -m t37 -- cli/fm/Program.cs` + `dotnet build cli/fm -c Release`):
+  TR `fm reply "Lincoln 1-2"` (mesaj: "(L1) Lincoln 1-2 Bristol Rovers: Dikkat Çekenler") → beş bulgunun sonuncusu
+  `· We've regained possession well in central areas of our own third of the pitch.` (diğer dördü Türkçe);
+  dosya `md5` TR `4f53cf96…` (durum 1, 16 satır) / `a334a5b1…` (durum 2 ve 3, 13 satır). EN aynı üç durum →
+  `69d0a7fb…` (1 ve 2) / `594b687e…` (3).
+- Sonrası (yeni derleme): TR üç durumda **tam dosya farkı yalnız o satır**:
+  `· We've regained possession…` → `· Yarı sahamızın orta kısmında çok top kazandık.` (üç durumda da);
+  TR `md5` `d433b084…` (1) / `f5dd5953…` (2 ve 3). EN üç durumda bulgular blokları öncesiyle **birebir**
+  (`diff` boş), yani İngilizce oyunda hiçbir şey değişmiyor.
+- Üç durum (her biri TR + EN): başka sayfa açık (`fm open "Squad Dynamics"` sonrası, ek ilk kez okunuyor) /
+  mesaj zaten açık (hemen ikinci koşu) / başka sayfaya geçtikten sonra (`fm open "Messages"`).
+- Negatif / değişmeyen: aynı mesajın Türkçe bulguları, "Gol beklentisi", "Maçın oyuncusu", "Taktikler" satırları
+  ve ekin başlığı değişmedi; komut rc=0 ve satır sayısı aynı. `Record("row.AnalysisPointString")` başka yerde
+  okunmuyor (`grep`: yalnız bu dal), `GameWords.Ask/Of` var olan yardımcılar (değişmedi).
+- Yan bulgu (bu değişiklikten değil, eski derlemede de var): ekin okunuşu duruma göre eksik geliyor — birinci
+  durumda "Goller / Maçın oyuncusu / Taktikler" satırları varken ikinci/üçüncü durumda gelmiyor, bir EN koşusunda
+  takım adları boş (`Attached: data hub —  1 - 2  `). `WriteAttachment`'ın 1,5 sn sabiti (§8.192) yarım bağlanmış
+  sayfayı okuyabiliyor; o madde Faruk'un kararıyla sabit kalıyor, bu turda dokunulmadı.
+- Regresyon: `tools/sweep.sh /private/var/folders/…/T/opencode/t37/sweep` → **50 komut, 0 hata** (İngilizce oyunda koşuldu: sweep başlarken dil EN'de kalmıştı; `inbox` 1 sn/16 satır). Değişen dal yalnız mesaj eki okuması, paylaşılan yardımcılara dokunulmadı.
+- Dönüş/geri: kayıt yalnız okundu (2 Ağustos 2026 14:00), saat ilerletilmedi, maç oynanmadı, hiçbir ayar/oyuncu
+  değişmedi; dil `fm settings language "Türkçe"` ile geri alındı (`/state` → `Language: turkish`).
+- Dosya: `cli/fm/Program.cs` (yalnız bu dal), `docs/BAGIMLILIKLAR.md` (B maddesi `[x]`), `docs/FINDINGS.md` §8.226,
+  `docs/manual/KILAVUZ.md` (bulguların dili notu), bu defter.
 
 ### Tur 36 — B "Cümle parçası arayanlar" / `Release "Is there anything else"`: kapanış sorusu artık kapatma düğmesinin bitirdiği satır (dil değil, olay) (§8.225, 18 Ekim)
 Ne: `cli/fm/Release.cs`, karşılıklı fesih dalının çıktısı (satır 191–198). Tekliften sonra `/talk` üç satır
