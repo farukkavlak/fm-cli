@@ -4,22 +4,40 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: A "`Task.Delay` — 89 yer" — **alt maddelerine bölündü**, bir bitti: **Takers 206** (duran top türü
-  seçildikten sonraki sabit 500 ms) — kaldırıldı; doğru atıcı düğmesini bekleyen işaret zaten vardı (`Still`:
-  menü bu türü gösteriyor **ve** düğme iki okumada aynı duruyor). Ölçüm nötr: üç durum + TR/EN aynı çıktı,
-  3+3 koşuda ~19,2 ↔ ~19,3 sn (§8.202).
-- A/`Kısa Until` (≤ 3 sn) da sürüyor; üçüncü alt maddesi **Budget 70** ölçüldü, değişiklik gerekmedi (§8.200).
-- ⚠ Tur 9'un (Tur 4 numaralı koşu) işi ağaçta **commit edilmeden** kalmıştı: koşu 40 dk zaman aşımıyla (rc=124)
-  öldürülmüş, defter "commit atıldı" yazmış. Tur 10 aynı ölçümleri yeniden koştu, doğruladı ve commitledi.
-- Bir sonraki tur: A/`Task.Delay` — sıradaki adaylar: `TraitTraining 32` (iki karo basışı arasında 500 ms; `Arriving`
-  zaten karoyu bekliyor) · `Responsibilities 283/388` (kaydırmadan sonra 500 ms, sonra oku → yavaşta "sayfada
-  bulunamadı" diyebilir) · `Matches 82` / `OppositionCard 55 91` (kaydırma/uygulamadan sonra 500 ms) ·
-  `TrainingSchedule 345` (basıştan sonra 500 ms, sonra onay penceresi). Alternatif: A/`Kısa Until` adayları
-  (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`) ya da B'deki Almanca
-  `fm settings` maddesi (§8.201).
+- Madde: **B "`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor"** — bitti ve
+  düzeltildi (§8.203, Tur 14): ayar artık öğenin bulunduğu **blok adıyla** (`Within`: `GameLanguagePreferencesBlock`,
+  `WagesPreferencesBlock`, `AutoSaveIntervalSetting`…) bulunuyor, bulamazsa başlığa düşüyor; 11 açılır listeye
+  `Block` yazıldı. Almanca oyunda 15 satır + `language`, `fm settings language "Türkçe"` → `German → Turkish`.
+  TR çıktısı değişiklik öncesiyle birebir, EN'de eski derlemeyle birebir. İşlem sekmesinin üç listesi, slider,
+  onay kutusu ve radio hâlâ başlıkla (oyun onlar için blok adı vermiyor).
+- Yeni madde açıldı: **B "`fm settings` 'Match Day' sekmesini yazıyla açıyor; TR/DE oyunda sekme 'Matchday' yazıyor"**
+  → maç gösterimi / dinamik mod / vurgu hızı / ara hızı TR ve DE'de hiç okunmuyor (TR/DE 15, EN 19 satır).
+- Bir sonraki tur: bu yeni B maddesi (sekmenin dilden bağımsız kimliği) ya da A/`Task.Delay` sıradaki adaylar:
+  `TraitTraining 32` · `Responsibilities 283/388` · `Matches 82` / `OppositionCard 55 91` · `TrainingSchedule 345`.
+  Alternatif: A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`).
 - Durum: bitti, commit atıldı
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 14 — B "`fm settings` ayarı başlık yazısıyla buluyor" (Almanca dil ayarı): blok adıyla bulunuyor (§8.203, 18 Ekim)
+Ne: `cli/fm/Settings.cs`. `Locate` ayarın denetimini `/form`daki başlık yazısıyla (`Heading: "Game Language"`)
+arıyordu; Almanca oyunda başlık "Language" geldiği için dil satırı bulunamıyordu. Yeni: `Setting`e `Block` alanı
+eklendi (11 açılır liste), `Locate` önce `Within` zincirinde blok adını arıyor, bulamazsa başlığa düşüyor.
+- Öncesi (DE, eski derleme): `fm settings --json` → **14** satır (`language` yok); `fm settings dil Deutsch` →
+  "was set to Deutsch, but when the page was opened again could not be read", rc=1; `/state` → `Language: german`.
+- Sonrası (DE): `fm settings --json` → **15** satır, `language` = `German` (20 seçenek); `fm settings language
+  "Türkçe"` → `language: German → Turkish`, rc=0, `/state` → `Language: turkish`.
+- TR, üç durum (başka sayfa açık `fm open "Messages"` / sayfalar zaten açık / başka sayfadan `fm open "Squad
+  Dynamics"`): üçünde de 15 satır, `md5 e5eb7a89c1678a1181292bc240263388` — **değişiklik öncesi çıktıyla birebir
+  aynı** (`python3` karşılaştırması `True`). Yazma yolu: `fm settings maaş Haftalık` → `Aylık → Haftalık`, sonra
+  `Aylık` → `Haftalık → Aylık`, `fm settings maaş --json` → `Monthly` (eski değer).
+- TR negatif: `fm settings dil Klingon` ve `fm settings "para birimi" Klingon` → seçenek listesiyle red, rc=1.
+- EN, üç durum: 19 satır, üçü de aynı md5 `cb604c52…`; `git stash` + eski derleme ile yeni derleme çıktısı
+  **birebir aynı**. Dönüş: `fm settings language "Türkçe"` → `English → Turkish`; final TR koşusu 15 satır.
+- Yeni bulgu (§8.203 sonu): sekme yazısı — TR/DE oyunda "Matchday", EN'de "Match Day" → TR/DE'de dört maç günü
+  ayarı hiç okunmuyor; madde açıldı.
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (`/tmp/sweep_t14`). Kayıt test kaydı (2 Ağustos 2026):
+  saat ilerletilmedi, maç oynanmadı; maaş ayarı Haftalık yapılıp Aylık'a geri alındı, dil TR'ye döndü.
 
 ### Tur 13 — A "`Task.Delay`" / Takers 206: tür seçildikten sonraki 500 ms gereksizdi (§8.202, 18 Ekim)
 Ne: `cli/fm/Takers.cs` `ShowSetPieceKind`. Set Piece Type menüsünden türü seçtikten sonra sabit 500 ms bekleniyor,

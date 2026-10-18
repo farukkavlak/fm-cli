@@ -16,11 +16,13 @@ internal static partial class Program
 	/// <summary>
 	/// One preference: what it is called here, which tab holds it and the heading above it.
 	/// Two lists on the saves block share one heading row, so those are told apart by a choice
-	/// only they offer.
+	/// only they offer. A list is found by the block the template puts it in (<see cref="Block"/>)
+	/// rather than by its heading, which is the game's own words and changes with the language.
 	/// </summary>
 	private sealed record Setting(
 		string Name, string Group, string Tab, string Heading, SettingKind Kind,
-		Dictionary<string, string> Turkish = null, string[] Steps = null, string Offers = null, string Hint = null);
+		Dictionary<string, string> Turkish = null, string[] Steps = null, string Offers = null, string Hint = null,
+		string Block = null);
 
 	private static readonly Dictionary<string, string> HighlightTurkish = new()
 	{
@@ -65,18 +67,33 @@ internal static partial class Program
 			Steps: ["4x", "8x", "10x", "20x", "30x", "40x"],
 			Hint: L("pozisyonlar arası")),
 		new(L("otomatik kayıt"), L("Kayıt"), "Your World", "Use Auto Saves", SettingKind.Checkbox),
-		new(L("kayıt sıklığı"), L("Kayıt"), "Your World", "Every", SettingKind.Dropdown, IntervalTurkish, Offers: "Fortnight"),
-		new(L("kayıt türü"), L("Kayıt"), "Your World", "Auto save type", SettingKind.Dropdown, SaveTypeTurkish, Offers: "Single File"),
+		// The name of the block a list sits in, which the template gives it and no translation
+		// touches; the game's own words for a list can differ from the English one (FINDINGS §8.203).
+		new(L("kayıt sıklığı"), L("Kayıt"), "Your World", "Every", SettingKind.Dropdown, IntervalTurkish, Offers: "Fortnight",
+			Block: "AutoSaveIntervalSetting"),
+		new(L("kayıt türü"), L("Kayıt"), "Your World", "Auto save type", SettingKind.Dropdown, SaveTypeTurkish, Offers: "Single File",
+			Block: "AutoSaveTypeSetting"),
 		new(L("dil"), L("Bölge ve birimler"), "Your World", "Game Language", SettingKind.Dropdown,
-			Hint: L("oyunun ve fm'in yazıları bu dilde")),
-		new(L("para birimi"), L("Bölge ve birimler"), "Your World", "Currency", SettingKind.Dropdown),
-		new(L("maaş"), L("Bölge ve birimler"), "Your World", "Wages", SettingKind.Dropdown, UnitTurkish),
-		new(L("tarih"), L("Bölge ve birimler"), "Your World", "Format", SettingKind.Dropdown),
-		new(L("sıcaklık"), L("Bölge ve birimler"), "Your World", "Temperature", SettingKind.Dropdown, UnitTurkish),
-		new(L("boy"), L("Bölge ve birimler"), "Your World", "Height", SettingKind.Dropdown, UnitTurkish),
-		new(L("kısa mesafe"), L("Bölge ve birimler"), "Your World", "Short Distance", SettingKind.Dropdown, UnitTurkish),
-		new(L("uzun mesafe"), L("Bölge ve birimler"), "Your World", "Long Distance", SettingKind.Dropdown, UnitTurkish),
-		new(L("oran biçimi"), L("Bölge ve birimler"), "Your World", "Match Odds", SettingKind.Dropdown),
+			Hint: L("oyunun ve fm'in yazıları bu dilde"), Block: "GameLanguagePreferencesBlock"),
+		new(L("para birimi"), L("Bölge ve birimler"), "Your World", "Currency", SettingKind.Dropdown,
+			Block: "CurrencyPreferencesBlock"),
+		new(L("maaş"), L("Bölge ve birimler"), "Your World", "Wages", SettingKind.Dropdown, UnitTurkish,
+			Block: "WagesPreferencesBlock"),
+		new(L("tarih"), L("Bölge ve birimler"), "Your World", "Format", SettingKind.Dropdown,
+			Block: "FormatPreferencesBlock"),
+		new(L("sıcaklık"), L("Bölge ve birimler"), "Your World", "Temperature", SettingKind.Dropdown, UnitTurkish,
+			Block: "TemperaturePreferencesBlock"),
+		new(L("boy"), L("Bölge ve birimler"), "Your World", "Height", SettingKind.Dropdown, UnitTurkish,
+			Block: "HeightPreferencesBlock"),
+		new(L("kısa mesafe"), L("Bölge ve birimler"), "Your World", "Short Distance", SettingKind.Dropdown, UnitTurkish,
+			Block: "ShortDistancePreferencesBlock"),
+		new(L("uzun mesafe"), L("Bölge ve birimler"), "Your World", "Long Distance", SettingKind.Dropdown, UnitTurkish,
+			Block: "LongDistancePreferencesBlock"),
+		new(L("oran biçimi"), L("Bölge ve birimler"), "Your World", "Match Odds", SettingKind.Dropdown,
+			Block: "MatchOddsPreferencesBlock"),
+		// The Processing tab puts every one of its lists in the same block, so those keep to their
+		// headings; so does a slider, a checkbox and the radio group, which the game does not report
+		// a block for.
 		new(L("diğer maçların hızı"), L("İşlem"), "Processing", "Speed to Process Other Teams' Matches", SettingKind.Dropdown,
 			Hint: L("Fast: gün ilerletme daha çabuk")),
 		new(L("maç takvimi"), L("İşlem"), "Processing", "Match Scheduling Options", SettingKind.Dropdown,
@@ -318,12 +335,20 @@ internal static partial class Program
 	private static SettingNow Locate(Setting setting, List<JsonElement> form)
 	{
 		var kind = setting.Kind.ToString().ToLowerInvariant();
-		var at = form.FindIndex(i => Field(i, "Kind") == "text" && Field(i, "Text") == setting.Heading);
-		if (at < 0) return null;
 
-		var control = form.Skip(at + 1).FirstOrDefault(i => Field(i, "Kind") == kind
-			&& (setting.Offers == null || i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == setting.Offers)));
-		if (control.ValueKind != JsonValueKind.Object) return null;
+		// A list is taken by the block it sits in — the template's own name, the same in every
+		// language — and only failing that by the heading above it, which is the game's words.
+		var control = setting.Block != null
+			? form.FirstOrDefault(i => Field(i, "Kind") == kind && Inside(i, setting.Block))
+			: default;
+		if (control.ValueKind != JsonValueKind.Object)
+		{
+			var at = form.FindIndex(i => Field(i, "Kind") == "text" && Field(i, "Text") == setting.Heading);
+			if (at < 0) return null;
+			control = form.Skip(at + 1).FirstOrDefault(i => Field(i, "Kind") == kind
+				&& (setting.Offers == null || i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == setting.Offers)));
+			if (control.ValueKind != JsonValueKind.Object) return null;
+		}
 
 		var enabled = Field(control, "Enabled") == "True";
 		switch (setting.Kind)
@@ -345,6 +370,15 @@ internal static partial class Program
 	}
 
 	private static string ValueOf(SettingNow now) => now.Current >= 0 && now.Current < now.Choices.Count ? now.Choices[now.Current] : "?";
+
+	/// <summary>Whether a control sits inside the named block: the chain of element names around it.</summary>
+	private static bool Inside(JsonElement item, string block)
+	{
+		if (!item.TryGetProperty("Within", out var within) || within.ValueKind != JsonValueKind.Array) return false;
+		foreach (var name in within.EnumerateArray())
+			if (name.ValueKind == JsonValueKind.String && name.GetString() == block) return true;
+		return false;
+	}
 
 	private static string Shown(Setting setting, string value) =>
 		setting.Turkish != null && setting.Turkish.TryGetValue(value, out var turkish) ? turkish : value;

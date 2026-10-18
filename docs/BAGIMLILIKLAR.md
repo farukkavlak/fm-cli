@@ -175,13 +175,20 @@ tablodan çevrilemiyor.
   seviye/moral/konum yazıları oyunun diline çevriliyor. Türkçe (3 durum) + İngilizce (2 durum) aynı sıra/renk (§8.189).
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
 - [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
-- [ ] **`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor** — tanım `Heading:
-  "Game Language"` diyor, Almanca oyunda `/form` aynı başlığı **"Language"** diye veriyor (oyunun "Sprache" yazısı
-  iki İngilizceyle eşleşiyor, eklenti ilkini döndürüyor; §8.167 çakışması). Ölçüm: `fm settings` listesinde dil
-  satırı yok, `fm settings language "Türkçe"` → "'language' ayarı Your World sekmesinde bulunamadı." Kalıcı yol
-  aranıyor: başlığı oyunun kendi numarasıyla (TranslationID; eklentiye `Id` alanı, oyunu yeniden başlatmayı
-  gerektirir) ya da öğeyi kendi adıyla (`GameLanguagePreferencesBlock`, E bölümü) bulmak — kabul edilen başlık
-  listesi yeni bir kırılgan bağımlılık olurdu (§8.201).
+- [x] **`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor** — başlık `Heading:
+  "Game Language"` diyordu, Almanca oyunda `/form` aynı başlığı **"Language"** diye veriyor (oyunun "Sprache" yazısı
+  iki İngilizceyle eşleşiyor, eklenti ilkini döndürüyor; §8.167 çakışması): dil satırı listede yok, `fm settings dil
+  Deutsch` ayarı yapıyor ama okuma dönmüyordu. Artık ayar, başlıkla değil öğenin bulunduğu **blok adıyla**
+  bulunuyor (eklentinin `/form`da verdiği üst öğe adları: `GameLanguagePreferencesBlock`, `WagesPreferencesBlock`,
+  `AutoSaveIntervalSetting`…; şablonun kendi adları, dilden bağımsız), bulamazsa eskisi gibi başlığa düşüyor.
+  Almanca oyunda 15 satır + dil satırı `German`, `fm settings language "Türkçe"` → `German → Turkish`; TR çıktısı
+  değişiklik öncesiyle birebir, EN'de eski derlemeyle birebir; maaş ayarı yazılıp geri alındı (§8.203).
+  Kalan: İşlem sekmesinin üç listesi aynı bloğu paylaştığı, slider/onay kutusu/radio için oyun blok adı vermediği
+  için onlar hâlâ başlıkla bulunuyor.
+- [ ] **`fm settings` "Match Day" sekmesini yazıyla açıyor; TR/DE oyunda sekme "Matchday" yazıyor** — o yüzden
+  maç gösterimi / dinamik mod / vurgu hızı / ara hızı Türkçe ve Almanca oyunda hiç okunmuyor (`fm settings --json`
+  TR/DE'de 15, EN'de 19 satır; `click ?text=Match Day&name=DetailedPreferencesTabButton` → "no button shows
+  'Match Day'", `Matchday` çalışıyor). Sekmenin dilden bağımsız kimliği aranacak (§8.203).
 
 ### C. Oyunun ayarları (dil dışında)
 

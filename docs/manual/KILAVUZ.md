@@ -1587,7 +1587,8 @@ $ fm settings otomatik kayıt kapalı
 Değer Türkçe ya da oyundaki İngilizce adıyla, baştan ya da içinden bir parçayla yazılabilir
 ("euro", "uk pound", "2" = 2x); birden çok seçeneğe uyarsa hangileri olduğunu söyler. Oyunda
 ayarlar ancak "Confirm" ile işlenir; `settings` bunu kendisi yapar ve sayfayı yeniden açıp yeni
-değeri okuyarak doğrular.
+değeri okuyarak doğrular. Satırlar oyunun dilinden bağımsız bulunur: Almanca (ya da başka dilli)
+bir oyunda da aynı satırlar okunur ve değiştirilir.
 
 Maçı kısaltmanın iki yolu var: **maç gösterimi** "Yalnızca anlatım" ya da "Önemli anlar"
 (daha az pozisyon) ve **hızlar** (vurgu sırasında en çok 10x, aradaki sürede en çok 40x).

@@ -1978,3 +1978,28 @@ başka sayfadan) TR ve EN'de aynı çıktı (`md5` `8eb5533…` TR, `f42fb27…`
 ~19,3 sn — yani nötr: kaldırılan şey yalnızca makine hızına dair bir varsayım, kazanç yok çünkü işaret zaten
 vardı. `Still` bir tür daha nadiren üçüncü okuma istiyor (iki okuma aynı olana kadar), o yüzden toplam süre
 değişmiyor; ama `ShowSetPieceKind` içinde sabit bekleme kalmadı.
+
+### 8.203 `fm settings` ayarı artık başlık yazısıyla değil, öğenin bulunduğu blokla buluyor (18 Ekim, DE + TR + EN)
+Önce: her ayar `/form`daki başlık yazısıyla (`Heading: "Game Language"`) bulunuyordu; Almanca oyunda o başlık
+**"Language"** geldiği için dil satırı hiç bulunamıyordu. Ölçüm (önce, DE): `fm settings --json` → **14** satır,
+`dil` yok; `fm settings dil Deutsch` → ayarı yaptı ama okuma dönmedi ("was set to Deutsch, but when the page was
+opened again could not be read", rc=1), `/state` → `Language: german`. Aynı sayfayı Almanca veren `/form`da öğe
+yerindeydi: `Within` zincirinde `GameLanguagePreferencesBlock` (eklenti `DropdownJson`'un verdiği üst öğe adları,
+şablonun kendi adları, dilden bağımsız). Yeni: `Locate` önce `Within` içinde ayarın `Block` adını arıyor, bulamazsa
+eskisi gibi başlığa düşüyor; `Block` on bir açılır listeye yazıldı (kayıt sıklığı/türü, dil, para birimi, maaş,
+tarih, sıcaklık, boy, kısa/uzun mesafe, oran biçimi). İşlem sekmesinin üç listesi aynı bloğu paylaşıyor ve
+slider/onay kutusu/radio için oyun blok adı vermiyor → onlar başlıkla kalıyor.
+- Ölçüm (sonra, DE): `fm settings --json` → **15** satır, `language` satırı `German`, 20 dil seçeneği;
+  `fm settings language "Türkçe"` → `language: German → Turkish`, rc=0, `/state` → `Language: turkish` (yani
+  Almanca oyunda hem okuma hem yazma yolu çalışıyor — eskiden okuma dönmüyordu).
+- TR (üç durum: başka sayfa açık `fm open "Messages"` / sayfalar zaten açık / başka sayfadan `fm open "Squad
+  Dynamics"`): üçünde de 15 satır ve `md5 e5eb7a89c1678a1181292bc240263388` — **değişiklik öncesi çıktıyla birebir
+  aynı**. Yazma yolu (blokla bulunan satır): `fm settings maaş Haftalık` → `Aylık → Haftalık`, sonra `Aylık` →
+  `Haftalık → Aylık`, `--json` → `Monthly` (eski değerine döndü). Negatif: `fm settings dil Klingon` ve
+  `fm settings "para birimi" Klingon` → seçenek listesiyle red, rc=1.
+- EN (üç durum): 19 satır, üçü de aynı; **eski derleme ile yeni derleme birebir aynı çıktı** (`git stash` + yeni
+  derleme karşılaştırması). Dönüş: `fm settings language "Türkçe"` → `English → Turkish`.
+- Yeni bulgu (madde açıldı): aynı komut "Match Day" sekmesini de yazısıyla açıyor; oyun Türkçe ve Almancada
+  sekmeyi **"Matchday"** yazıyor (`click ?text=Match Day&name=DetailedPreferencesTabButton` → "no button shows
+  'Match Day'", `click ?text=Matchday` → çalışıyor), İngilizcede "Match Day". Sonuç: `fm settings --json` TR/DE'de
+  15, EN'de 19 satır — maç gösterimi/dinamik mod/vurgu hızı/ara hızı TR ve DE'de hiç okunmuyor.
