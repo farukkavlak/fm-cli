@@ -4,20 +4,62 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **A "`Task.Delay`" / `Responsibilities 283 388`** — **BİTTİ** (§8.215, Tur 26): uzun görev listesini başa alan
-  sabit 500 ms, oyunun kendi `scroll` cevabına bağlandı (`0 of 728,6` — baştayken ilk sayı `0`); satırların çizilmesini
-  ardından gelen "iki okumada aynı" işareti karşılıyor. `fm responsibilities give "Assigning Scouts"` TR + EN dört
-  durumda eski derlemeyle birebir (TR `md5 570b1bd2…`, EN `md5 0030afd6…`), süre nötr (11–15 sn), negatif `rc=64`.
-- Bir sonraki tur (öneri): **A adayları** — `TacticFiles 181` (panel kapanışından sonra 800 ms) · `TrainingSchedule 345`
-  (seçenek basışından sonra 500 ms) · `Jobs 408` (başvurudan sonra 1 sn). B'de yeni ölçüm bekleyenler: JSON `How` alanı
-  (§8.214 sonu), `next`'in "İlerle" düğmesi, haber sitesindeki "Portugal".
-- Bunlar bulunduğumuz kayıtta **ölçülmeden önce** listelenmeli: bir gün `penalties`in "Starting at " / "On Subs bench"
-  eşlemesi, `Stages`in "This round will be drawn on ", `Saves`in "Saves automatically"/"Autosave" sözü de aynı ailede.
-- Not: ağaç temiz, `stash` yok — Tur 25'te bekleyen `cli/fm/Responsibilities.cs` değişikliği ve `stash@{0}` artık yok,
-  bu madde sıfırdan ölçülüp yapıldı.
-- Durum: bitti, commit atılıyor
+- Madde: **A "`Task.Delay`" / `TrainingSchedule 345`** — **PARK** (§8.216, Tur 27): `fm schedule set`'te seçenek
+  basıldıktan sonra açıklamayı okumadan önceki **sabit 500 ms** ölçüldü (yeni açıklama 107–371 ms'de oturuyor, arada
+  6 metinlik boşaltılmış bir an 312 ms'de) ve yerine oyunun kendi cevabı ("basıştan önceki hâlden farklı **ve** `About`
+  bir şey söylüyor") yazılıp derlendi; TR'de iki durumda eski derlemeyle **birebir** çıktı verdi
+  (`Physical → General` `md5 0aaf9592…`, `General → Physical` `md5 414fade6…`). Ama üçüncü durum + İngilizce
+  tamamlanamadı: `fm schedule` ara sıra `Takvimin antrenman sekmesi okunamadı.` ile düşüyor — takvim sayfası
+  `General` ve `Training` sekmeleri için **ayrı** `MonthDropdown` tutuyor, ikisi ayrı aya bakabiliyor ve
+  `CalendarMonths` etiket boş gelince yanlış aya (`value=0` = Haziran) geçiyor (eski derlemede de aynı). Kural 4
+  gereği **kod geri alındı** (`git restore cli/fm/TrainingSchedule.cs`), madde `[?]` yapıldı.
+- Bir sonraki tur (öneri): **önce takvim ayı karışıklığını düzelt** (ayrı bir madde): `General`/`Training` sekmelerinin
+  ayrı `MonthDropdown`'ları var, doğrusu sayfanın **kendi** (Training) listesinden okumak ve etiket boşken seçimin
+  tuttuğunu göstergeden doğrulamak; sonra bu madde (TrainingSchedule 345) üç durum + iki dilde kapanır.
+  A'da kalanlar: `TacticFiles 181` (panel kapanışından sonra 800 ms) · `Jobs 408` (başvurudan sonra 1 sn) ·
+  Clock 179 (işsiz kayıt) · Guided 161 174 (bedel isteyen söz) · Alt sayfa/sabit üst sınırlar.
+- Yeni bulgu (§8.216): `select?ptr=&value=` iki ay listesinde de aynı; seans adları (`General`) dil değişiminden sonra
+  sayfa yenilenmeyince oyunun o günkü sözüyle geliyor (§8.194'ün devamı) — İngilizce denemede `'General' diye bir
+  seans yok` çıktı.
+- Not: ağaç temiz, `stash` yok; bu turda kod değişikliği bırakılmadı (yalnız doküman).
+- Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 27 — A "`Task.Delay`" / TrainingSchedule 345: ölçüldü, yazıldı, üçüncü durum + İngilizce tamamlanamadı → PARK (§8.216, 18 Ekim)
+Ne: `cli/fm/TrainingSchedule.cs` `PressAndConfirm` (`fm schedule set|style`). Seçenek basıldıktan sonra açıklamayı
+okumadan önceki **sabit 500 ms** kaldırılıp oyunun kendi cevabına bağlanacaktı: "okuma, basıştan **önceki hâlden
+farklı** ve `About(texts)` bir şey söylüyor" (0,3 sn aralık, 6 sn üst sınır). Kod yazıldı, derlendi, ölçüldü; üçüncü
+durum + İngilizce tamamlanamadığı için **kural 4 gereği geri alındı** (`git restore cli/fm/TrainingSchedule.cs`,
+ağaç temiz, `dotnet build` yeniden yapıldı).
+- Ölçüm (okuma yolu, hiçbir şey öğretmiyor): `python3` + `/open?guid=…` + `/form?anchorpath=day.DayOfTheMonth` +
+  `/click?ptr=` (seans düğmesi) + `/form?anchor=Confirm&up=10&buttons=1`; basış `/press?ptr=`. Altı basışta yeni
+  açıklama **107 · 230 · 262 · 312→369 · 339 · 364 · 371 ms**'de oturdu; bir koşuda arada **6 metinlik** boşaltılmış
+  bir an (Defending, 312 ms) görüldü → eski 500 ms'in payı 1,3–2,2 kat, yani makine hızı tahmini.
+- Öncesi (eski derleme, TR): `fm schedule set 3 1 "General"` → `3 Ağustos Pazartesi, 1. seans: Physical → General` +
+  `Oyuncuların teknik, zihinsel ve fiziksel olarak çalıştırıldıkları idman. Takım halinde çalışılır.`,
+  `md5 0aaf9592c6c1f0b1ad17467e76369a00`, 10,2 sn; `… "Physical"` → `General → Physical` +
+  `Oyuncuların fiziksel olarak çalıştırıldığı idman. Takım halinde çalışılır.`,
+  `md5 414fade63ba17d568d39592753611763`, 9,6 sn.
+- Sonrası (yeni derleme, TR): aynı iki geçiş **birebir aynı md5** (`0aaf9592…`, 14,8 sn / `414fade6…`, 8,5 sn),
+  açıklama satırı seçilen seansın kendi cümlesi. Durumlar: `fm open "Messages"` sonrası (takvim ilk kez açılıyor) ve
+  hemen ardından (takvim zaten açık). Süre nötr–hafif yavaş (ek bir "basıştan önceki hâl" okuması).
+- Veriden doğrulama: `fm schedule` → `Pzt 3 Ağustos 1. seans` her koşudan sonra doğru seans (Genel ↔ Fiziksel),
+  tur sonunda **başlangıçtaki hâline** döndü (`Fiziksel`).
+- Takılma (bu maddenin işi değil): `fm schedule`/`schedule set` ara sıra `Takvimin antrenman sekmesi okunamadı.`
+  (rc=1, ~20 sn) veriyor — takvim sayfası `General` ve `Training` sekmeleri için **ayrı** `MonthDropdown` tutuyor;
+  sekmeler ayrı aya bakabiliyor (biri Ağustos, öteki Haziran) ve `CalendarMonths` etiket boş gelince yanlış aya
+  (`value=0` = Haziran) geçiyor. Ölçüm: `/dropdowns?json=1` iki `MonthDropdown` verdi (`Label` '' ve `Ağustos 2026`),
+  `select?ptr=&value=1`→`value=2` her ikisinde de yapılınca koşular geçti; **eski derlemede de aynı** (koda bağlı
+  değil) → `md5 d41d8cd98f00b204e9800998ecf8427e` (boş) ve aynı hata.
+- İngilizce deneme yarıda kaldı: `fm settings dil English` (`/state` → `english`), sonra
+  `fm schedule set 3 1 "General"` → `There is no session called 'General'. …` (seçenek adları sayfa yenilenmediği
+  için oyunun o günkü sözüyle geliyor, §8.194); ardından gelen iki koşu takvim hatasına düştü. Dil
+  `fm settings language "Türkçe"` ile geri alındı (`English → Turkish`, `/state` → `turkish`).
+- Dönüş/geri: saat ilerletilmedi (2 Ağustos 2026 14:00), maç oynanmadı, seans planı tur başındaki hâlde; kod
+  değişmedi → `sweep.sh` gerekmedi (paylaşılan koda dokunulmadı; `PressAndConfirm` yalnız bu dosyada).
+- Faruk'a soru: takvim ayı karışıklığı ayrı bir madde olarak düzeltilsin mi (o zaman bu madde üç durum + iki dilde
+  bitebilir), yoksa ölçüm için başka bir yol mu seçilsin?
 
 ### Tur 26 — A "`Task.Delay`" / Responsibilities 283 388: sabit 500 ms yerine listenin "baştayım" cevabı (§8.215, 18 Ekim)
 Ne: `cli/fm/Responsibilities.cs` (`fm responsibilities give|take|delegate`). Sayfanın görev listesi uzun; komut, görevin

@@ -2266,3 +2266,20 @@ Kayıt değişmedi (kişi verilmediği için hiçbir görev devredilmedi), saat 
 Yazma yolu da aynı yardımcıdan geçiyor: `take "Assigning Scouts" --yes` → `artık sende.` (14 sn), geri
 `give "Assigning Scouts" "Jez George" --yes` → `Faruk Kavlak → Jez George` (11 sn); `fm responsibilities scout --json`
 ile `Assigning Scouts | delegated | Jez George` doğrulandı. `tools/sweep.sh` 50 komut, 0 hata.
+
+### 8.216 `schedule set`: antrenman takvimi iki sekmenin ay listesini karıştırınca okunamıyor; seçenek açıklamasının oturması ölçüldü (18 Ekim, PARK)
+`fm schedule`/`fm schedule set` takvimi okurken ara sıra `Takvimin antrenman sekmesi okunamadı.` (rc=1) veriyor:
+takvim sayfası (`Portal › Calendar`) kendi `MonthDropdown`'ını **her sekmede ayrı** tutuyor (`General` ve `Training`),
+`/dropdowns` ikisini birden veriyor. Sekmeler ayrı aylara bakabiliyor (biri Ağustos, öteki Haziran) ve
+`CalendarMonths()` hangi ayın gösterildiğini listenin **etiketinden** okuyor; etiket boş gelince ya da öteki sekmenin
+listesi okununca `TrainingCalendar` yanlış aya (`value=0` = Haziran) geçiyor ve aranan gün ızgarada bulunamıyor.
+Aynı koşu dizisinde 3 ardışık `fm schedule set 3 1 <seans>` çağrısının 1'i geçti, 2'si düştü; eski ve yeni derlemede
+birebir aynı (koda bağlı değil). Çare: `General` sekmesinin ayı da elle Ağustos'a çekilip iki kez seçtirildiğinde
+(`value=1` → `value=2`) koşular geçiyor. Ölçüm yolu: `python3` + `/dropdowns?json=1` + `/select?ptr=&value=`.
+Aynı turda `PressAndConfirm`'in sabit 500 ms'i ölçüldü: seçenek basıldıktan sonra açıklama (`/form?anchor=Confirm&up=10`)
+birkaç karede değişiyor — yeni metin 107–371 ms'de yerine oturuyor, arada **boşaltılmış** bir an var (6 metin, 312 ms)
+→ 500 ms'in payı 1,3–2,2 kat. Değişiklik yazılıp derlendi, TR'de iki durumda eski derlemeyle **birebir** çıktı verdi
+(`Physical → General` `md5 0aaf9592…`, `General → Physical` `md5 414fade6…`), ama üçüncü durum + İngilizce
+tamamlanamadı (yukarıdaki ay karışıklığından); kural 4 gereği **kod geri alındı**, madde `[?]`.
+İngilizce denemede ayrıca `'General' diye bir seans yok` çıktı: dil değiştikten sonra sayfa yenilenmediği için
+seçenek adları hâlâ oyunun o günkü sözüyle geliyor (§8.194'ün devamı).

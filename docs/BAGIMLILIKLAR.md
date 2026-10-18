@@ -31,7 +31,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
   ~~Scouting 100~~ · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
-  TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · TrainingSchedule 345 · ~~TraitTraining 32~~ · Transfers 96 128 131 139
+  TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · Transfers 96 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
     pay. "Yol boş" ile "henüz gelmedi" aynı cevap (`{}`) — FINDINGS §8.179.
   - [x] `table`: olmayan `CurrentComp5..8` artık beklenmiyor (`ClubCompetitions`, tek okuma); 8,7 → 2,5–2,9 sn, üç
@@ -155,6 +155,16 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     sonrası / zaten açık / `fm open "Squad Dynamics"` sonrası / liste elle dibe kaydırılmış) **eskisiyle birebir**:
     TR `md5 570b1bd243e4d67a2f4800b7588ab50b`, EN `md5 0030afd6c876a5bc3197cca3da59e1b7`, süre 11–15 sn (nötr);
     negatif iki dilde `rc=64` (§8.215).
+  - [?] TrainingSchedule 345 (`fm schedule set`: seçenek basıldıktan sonra açıklamayı okumadan önceki sabit 500 ms):
+    ölçüldü — açıklama basıştan sonra birkaç karede değişiyor (yeni metin 107–371 ms'de oturuyor, arada boşaltılmış
+    bir an var: 6 metin, 312 ms) → 500 ms'in payı 1,3–2,2 kat. Yerine "açıklama basıştan önceki hâlinden farklı ve
+    `About` bir şey söylüyor" işareti yazıldı, derlendi; TR'de iki durumda eski derlemeyle **birebir** çıktı verdi
+    (`Physical → General` `md5 0aaf9592…`, `General → Physical` `md5 414fade6…`). Üçüncü durum ve İngilizce
+    tamamlanamadı: `fm schedule` ara sıra `Takvimin antrenman sekmesi okunamadı.` ile düşüyor — takvim sayfası
+    `General` ve `Training` sekmeleri için **ayrı** `MonthDropdown` tutuyor, sekmeler ayrı aya bakabiliyor ve
+    `CalendarMonths` etiket boş gelince yanlış aya geçiyor (eski derlemede de aynı, koda bağlı değil; §8.216).
+    Kural 4 gereği kod **geri alındı**. Faruk'a soru: bu takvim/ay karışıklığı ayrı bir madde olarak düzeltilsin mi
+    (o zaman bu madde ölçülüp bitirilebilir), yoksa ölçüm için ayrı bir kayıt/sekme durumu mu kullanılmalı?
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   Calendar 157 · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
