@@ -3,7 +3,32 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an
+## Şu an (Tur 42)
+- Madde: **A "Kısa `Until`" / Stages 337** (`fm stages` kupa turu: her kaydırmadan sonra "iki okuma aynı") — **PARK**
+  (§8.231, Tur 42): turun bağları pencerede tam durmuyor (Carabao Cup 1. Tur'da **35 bağ**; pencere 18–25 satır) ve
+  liste `to=0..1` ile geziliyor. Gezintinin menzili `"0 of 1401,8"` yazısından okunuyor; o sayı oyunun **kendi dilinin**
+  ondalık işaretiyle geliyor (TR virgül) ve `InvariantCulture` onu çözemiyor → TR'de `extent = 0`, yani gezinti **hiç
+  çalışmıyor** (yalnız ilk pencere okunuyor). Menzil `GameNumbers.Read` ile çözülüp denendi: gezinti çalışıyor
+  (12 `to=` adımı) ama sonuç **kararsız** (TR 35/19/19, EN 35/35/19) — çapa kaydırma ilerleyince kayboluyor
+  (elle: `to=0.4` çalıştı, `to=0.5` cevapsız kaldı ve pencere bir daha değişmedi) ve "iki okuma aynı" işareti
+  kaydırmadan önceki pencereyi de kabul edebiliyor (Scouting 100 / Matches 82 tuzağı). İkisi birlikte düzeltilmeli.
+  Kural 4 gereği kod `git restore cli/fm/Stages.cs` ile geri alındı.
+- Kanıt: TR `fm stages "Carabao Cup" "1. Tur" --json` → eski derleme 18 (`--all`) / 25 (aynı durumda 3/3), 0 kaydırma
+  adımı; EN `fm stages "Carabao Cup" "First Round" --json` → 24 (3/3); her koşu iki dilde üç durumda (başka sayfa açık
+  / hemen ikinci koşu / başka sayfaya geçtikten sonra) aynı md5. Ayrıntı: `### Tur 42` (aşağıda).
+- Not (kayıt durumu): kayıt yalnız **okundu**, hiçbir şey yazılmadı/değiştirilmedi; maç oynanmadı, saat ilerletilmedi
+  (2 Ağustos 2026 14:00); dil TR (`/state` → turkish). Tuzak: köprü bir kez "the main thread did not run this request
+  within 30s" ile sustu → `pkill -9` + `fm start </dev/null` (§8.99), kayıt aynı yerden yüklendi.
+- Sıradaki tur (öneri): gezintiyi sağlamlaştır — sabit çapa (satırın işaretçisi ya da listenin kabı) **ve**
+  "pencereden farklı **ve** iki okumada aynı" işareti; menzil de `GameNumbers.Read` ile okunsun (üçü birlikte
+  kanıtlanınca bu madde kapanır). Alternatif küçük işler: B'de "yazıyla basma"nın kalan yerleri (Budget/Saves/
+  ScoutFocus), A'da `TacticFiles 181` (kapanıştan sonra 800 ms) ve diğer kısa `Until`ler; `Reads 114 131` (300 ms'ler
+  döngüde yoklama aralığı), `Responsibilities 109` (ayrı dosyada aynı menzil hatası, fallback 6000 olduğu için
+  sonucu bozmuyor — §8.231 sonu).
+- Not: ağaç temiz (bu turda kod değişikliği bırakılmadı, yalnız doküman), `stash` yok.
+- Durum: park edildi, commit atılıyor
+
+## Önceki durum (Tur 41)
 - Madde: **A "`Task.Delay`" / Staff 74** (`fm staff`'ın kaydırmalı okuması) — **BİTTİ** (§8.230, Tur 41): her
   kaydırma konumundan sonra sabit 400 ms bekleniyordu. Ölçüm: personel tablosu kaydırıldıktan sonra satırlarını **iki
   adımda** diziyor (`to=1` 6 → 10 → 27 satır, `to=0.75` 13 → 17 → 34, `to=0.5` 21 → 25 → 36, `to=0.25` 27 → 31 → 34);
@@ -273,6 +298,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 42 — A "Kısa `Until`" / Stages 337: `fm stages`te turun bağları Türkçe oyunda eksik okunuyordu — menzil oyunun ondalık işaretiyle çözülmüyor; düzeltme denendi, gezinti kararsız çıktı, geri alındı (§8.231, 19 Ekim)
+Ne: `cli/fm/Stages.cs` `EveryTie()`. Turun bağları pencerede tam durmuyor, liste `to=0..1` adımlarıyla geziliyor ve
+önce menzil okunuyor (`Scroll(first, null)` → `"0 of 1401,8"`). O sayı oyunun kendi dilinin ondalık işaretiyle geliyor
+(TR "1401,8", EN "1636.6") ve kod onu `double.TryParse(…, InvariantCulture)` ile çözdüğü için TR'de `extent = 0` oluyor
+→ **gezinti hiç çalışmıyor**.
+- Ölçüm (kimlik): Carabao Cup **1. Tur'da 35 bağ** (Ön Tur 2, ötekiler kura bekliyor). Elle `curl`:
+  `scroll?anchor=Oldham&to=0.0` → `0 of 1401,8`, `/ties` 18 satır (Oldham..Wolves); `to=0.2` → 24 satır; `to=0.4`
+  → `560,7 of 1401,8`, 22 satır (Bristol City..Stoke); `to=0.5` → **cevapsız**, pencere bir daha değişmiyor.
+- Öncesi (eski derleme, aynı durum): TR `fm stages "Carabao Cup" "1. Tur" --json` → **25 bağ** (3/3 aynı md5
+  `64386372f51746bf2aa117c7e4802faf`), izde **0** `to=` adımı; `--all`da 1. Tur **18**; başka durumda 18. EN
+  `fm stages "Carabao Cup" "First Round" --json` → **24 bağ** (3/3, md5 `efbef27ad98bc82fb43bf42e1081f91a`), izde 12
+  adım. Yani aynı tur TR'de 18–25, EN'de 24 — üçü de eksik.
+- Sonrası (menzil `GameNumbers.Read` ile, aynı durum): TR **35 bağ** (3/3, md5 `a69ce74b163c6793678d8081186d33f4`),
+  izde 12 adım → eksik 10 bağ geldi. Ama **kararsız**: sonraki durumlarda TR 35/19/19 ve EN 35/35/19; düşen koşularda
+  gezinti ilk adımlarda kırılıyor (çapa yazısı yerleşimden çıktığı için `/scroll` cevapsız).
+- Değişmeyen/negatif: 35 bağın 35'i ayrık (kopya yok); Ön Tur 2, kurası çekilmemiş turlar (`2. Tur` 13/8/2026 …) ve
+  lig tablosu yolu değişmedi; `fm stages "Carabao Cup" "ZZZ"` aynı listeyi veriyor.
+- Karar: kod geri alındı (`git restore cli/fm/Stages.cs`) — gezinti sağlamlaşmadan (sabit çapa + "pencereden farklı
+  **ve** iki okumada aynı") menzil düzeltmesi tek başına sonucu kanıtlanmış biçimde iyileştirmiyor (bazı durumlarda
+  ilk pencereden de az toplayabiliyor). Madde `[?]`.
+- Dönüş/geri: kayıt yalnız okundu (2 Ağustos 2026 14:00), maç oynanmadı, saat ilerletilmedi, hiçbir şey yazılmadı;
+  dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish). Köprü bir kez
+  takıldı → `pkill -9` + `fm start </dev/null` (§8.99).
+- Dosya: `docs/BAGIMLILIKLAR.md` (A "Kısa `Until`" altında Stages 337 `[?]`), `docs/FINDINGS.md` §8.231, bu defter.
 
 ### Tur 41 — A "`Task.Delay`" / Staff 74: `fm staff` her kaydırmadan sonra 400 ms bekliyordu, tablo satırlarını iki adımda diziyor (§8.230, 19 Ekim)
 Ne: `cli/fm/Staff.cs` `Staff()`. Kaydırma döngüsü `scroll` → `Task.Delay(400)` → `StaffRows()` idi. Ölçüm (kimlik):
@@ -1345,6 +1395,14 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Önce/sonra (aynı oyuncu, TR): `fm happiness "Ben House"` önce "moral Poor", sonra "moral Kötü".
 
 ## Park edilenler ([?], kararı verilmiş)
+- A "Kısa `Until`" / **Stages 337** (`fm stages` kupa turu; 19 Ekim, Tur 42): menzil `"0 of 1401,8"` oyunun ondalık
+  işaretiyle geliyor, `InvariantCulture` çözemiyor → TR'de gezinti hiç çalışmıyor (yalnız ilk pencere: 18–25 bağ;
+  gerçek 35). Menzil `GameNumbers.Read` ile çözülünce gezinti çalışıyor ama **kararsız** (TR 35/19/19, EN 35/35/19):
+  çapa, okunan pencerenin ilk bağının yazısı ve kaydırma ilerleyince kayboluyor; ayrıca "iki okuma aynı" işareti
+  kaydırmadan önceki pencereyi de kabul edebiliyor. Kod `git restore` edildi, **tekrar denemeyin**; doğrusu üçü
+  birlikte: sabit çapa (satır işaretçisi ya da listenin kabı) + "pencereden farklı **ve** iki okumada aynı" işareti +
+  menzilin oyunun okuyucusuyla çözülmesi. Ölçüm §8.231. Faruk'a soru: çapa için eklentiye tur satırlarının
+  işaretçisini veren bir alan mı eklenmeli, yoksa gezinti listenin kabına mı çapalanmalı?
 - A "`Task.Delay`" / `OppositionCard 55` (`--advice` / `--clear` sonrası 500 ms; 18 Ekim, Tur 18): işaret bulunamadı —
   "Apply all advice" bastıktan sonra kart 192 ms'de ara yerleşime geçiyor ve 281 ms'deki okuma **onunla aynı** (gerçek
   sonuç 384 ms), yani "iki okuma aynı" işareti erken kabul ederdi (Staff 74'ün tuzağı, §8.205); düğmenin etkin/olay

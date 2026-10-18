@@ -196,6 +196,17 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     yürürlükteki adımı ayıran yıldız adıma uydu. 7 koşu × 16 adım (TR + EN; sayfa ilk kez açılıyor / zaten açık /
     kart zaten açık): `setcontrol` bittikten sonra kabul eden okuma 20–371 ms, 112 adımın 11'inde ikinci okuma
     gerekti; 3 sn sınırına ≥8 kat pay. TR ile EN'de rakamlar aynı (§8.200).
+  - [?] Stages 337 (`fm stages` kupa turu: her kaydırmadan sonra "iki okuma aynı"): ölçüldü, **kod değişmedi**. Turun
+    bağları pencerede tam durmuyor (Carabao Cup 1. Tur: 35 bağ, pencere 18–25 satır) ve liste `to=0..1` ile geziliyor;
+    menzil `"0 of 1401,8"` yazısından okunuyor ama o sayı oyunun **kendi dilinin** ondalık işaretiyle geliyor ve
+    `InvariantCulture` onu çözemiyor → TR'de `extent = 0`, yani gezinti **hiç çalışmıyor** (TR 18–25 bağ, EN 24;
+    `--all`da TR 18 / EN 24). Menzil oyunun okuyucusuyla (`GameNumbers.Read`) çözülüp denendiğinde gezinti çalışıyor
+    (12 adım) ama sonuç kararsız (TR 35/19/19, EN 35/35/19): çapa okunan pencerenin ilk bağının **yazısı** ve kaydırma
+    ilerleyince o satır yerleşimden çıkıp `/scroll` cevapsız kalıyor (döngü kırılıyor), ayrıca işaret kaydırmadan
+    önceki pencereyi de kabul edebiliyor. İkisi birlikte düzeltilmeli (sabit çapa — satır işaretçisi ya da listenin
+    kabı — **ve** "pencereden farklı **ve** iki okumada aynı"); kanıtlanmadığı için geri alındı (§8.231). Faruk'a
+    soru: çapa için eklentiye tur satırlarının işaretçisini veren bir alan mı eklensin (yazıyla çapa kaydırma
+    ilerledikçe kayboluyor), yoksa gezinti listenin kabına mı çapalanmalı?
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,

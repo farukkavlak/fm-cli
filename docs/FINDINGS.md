@@ -2557,3 +2557,22 @@ dört okuma (ör. 4,62 / 4,91 / 5,20 / 5,53 sn). Bedel: komut ~1,5–2 sn yavaş
 Yan not: aynı fonksiyonda kalan iki yazı bağımlılığı — kaydırma çapası `Senior Squad` ve sekme düğmesi `All Staff`
 (ikincisinde `name` de veriliyor) — bu turda dokunulmadı; ikisi de oyunun tablo sözünden geliyor ve TR + EN'de
 çalıştığı görüldü, ayrı bir madde olarak duruyor.
+
+### 8.231 `fm stages` kupa turu: kaydırma menzili oyunun ondalık işaretiyle çözülmüyordu; düzeltilince gezinti çalışıyor ama kararsız (19 Ekim, TR + EN)
+
+Carabao Cup 1. Tur'da 35 bağ var, pencerede ise 18–25 satır duruyor; liste `to=0..1` ile geziliyor ve önce menzil
+okunuyor (`Scroll(first, null)` → `"0 of 1401,8"`). Bu sayıyı oyun **kendi dilinin ondalık işaretiyle** yazıyor
+(TR "1401,8", EN "1636.6"); `Stages.cs` onu `double.TryParse(..., InvariantCulture)` ile çözdüğü için Türkçe oyunda
+`extent = 0` oluyor ve **gezinti hiç çalışmıyor** (yalnız ilk pencere okunuyor). Ölçüm (aynı durum, TR): eski
+derleme 3/3 **25** bağ, izde 0 kaydırma adımı; `--all`da 1. Tur **18** bağ (EN'de 24). `GameNumbers.Read` ile
+çözülünce gezinti çalışıyor (12 `to=` adımı) ama sonuç **kararsız**: TR 35/35/35 (aynı durumda), sonraki durumlarda
+35/19/19; EN 35/35/19. Sebep koda değil gezintinin kendisine ait: çapa, okunan pencerenin ilk bağının **yazısı**
+(`/scroll?anchor=<kulüp>`) ve kaydırma ilerleyince o satır yerleşimden çıkıyor → `/scroll` cevapsız kalıp döngü
+kırılıyor (elle ölçüm: `to=0.4` çalıştı, `to=0.5` cevapsız kaldı ve pencere bir daha değişmedi); ayrıca "iki okuma
+aynı" işareti kaydırmadan **önceki** pencereyi de kabul edebiliyor (Scouting 100 / Matches 82'deki tuzağın aynısı).
+İkisi birlikte düzeltilmeli: sabit bir çapa (satırın işaretçisi ya da listenin kabı) **ve** "pencereden farklı **ve**
+iki okumada aynı" işareti. Değişiklik kanıtlanmadığı için `git restore cli/fm/Stages.cs` ile geri alındı (§8.205 kuralı).
+Yan bulgu: aynı menzil okuması `Responsibilities.cs` 109'da da var (`parts[1].Trim()` → `InvariantCulture`); orada
+çözülemeyince `hidden = 6000` yedeği devreye girip **en çok** adım (12) gezildiği için sonucu bozmuyor, yalnız
+gereksiz turlar atıyor (TR'de her `fm responsibilities` 12 adım). `Jobs.cs` 177 aynı sayıyı `Replace(',', '.')` ile
+doğru okuyor; üçünün de `GameNumbers.Read`e geçmesi ayrı ve küçük bir iş.
