@@ -15,6 +15,12 @@ internal static partial class Program
 {
 	private sealed record MatchRow(int Number, string Date, string Position, string Role, string Opponent, string Score, string OnOff, string Xg, string Assists, string Goals, string Conceded, string Rating);
 
+	// The game names the match ratings page itself: its element lives in the card while the page is
+	// up, whatever language it reads in, and is empty once it is closed.
+	private const string FormCard = "PlayerFormCard";
+	// The summary's own binding: the page has drawn its numbers when this path has answered.
+	private const string FormStats = "formstats.GamesPlayed";
+
 	/// <summary>
 	/// The page is a card over the game, with the player's talks beside it ("Praise Recent Form"…):
 	/// left open, the game is taken to be waiting on a question and time does not move (Hackett, 11
@@ -27,7 +33,7 @@ internal static partial class Program
 		{
 			try
 			{
-				if ((await Fm.GetJson("texts", ("anchor", "Match Ratings"), ("up", "0"))).GetArrayLength() > 0
+				if ((await Fm.GetJson("texts", ("within", FormCard))).GetArrayLength() > 0
 				    && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(c => Field(c.Value, "Name") == "BackButton") is { } back)
 					await Fm.Get("press", ("ptr", Field(back, "Pointer")));
 			}
@@ -38,10 +44,13 @@ internal static partial class Program
 	private static async Task<int> ReadPlayerMatches(JsonElement card, bool json)
 	{
 		var name = Field(card.GetProperty("Player"), "Name");
-		async Task<List<string>> Texts() => (await Fm.GetJson("texts", ("anchor", "All Competitions"), ("up", "10"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
+		// The page is read out of the card the game names itself (?within=PlayerFormCard), each line
+		// with the data path it is bound to, so nothing has to be recognised by its words.
+		async Task<List<(string Text, string Path)>> Page() => (await Fm.GetJson("texts", ("within", FormCard), ("paths", "1")))
+			.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 
 		// The page stays loaded beneath once opened, so another player's can still be read.
-		var before = string.Join("|", await Texts());
+		var before = string.Join("|", (await Page()).Select(t => t.Text));
 		var clicked = "";
 		await Until(async () => !(clicked = await Fm.Get("click", ("text", "Last 5 Club Games"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
@@ -49,19 +58,22 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{name} için form kutusu yok (bu sezon maçı olmayabilir)."));
 			return 1;
 		}
-		List<string> texts = [];
+		List<(string Text, string Path)> page = [];
 		var previous = "";
 		var reads = 0;
+		// Done when the summary's own path has answered and the lines have held still — the game
+		// names the page in no words, so none are looked for.
 		await Until(async () =>
 		{
-			texts = await Texts();
+			page = await Page();
 			reads++;
-			var now = string.Join("|", texts);
-			var settled = texts.Contains("Match Ratings") && texts.Contains("Inf") && now == previous && (now != before || reads >= 6);
+			var now = string.Join("|", page.Select(t => t.Text));
+			var settled = page.Any(t => t.Path == FormStats) && now == previous && (now != before || reads >= 6);
 			previous = now;
 			return settled;
 		}, seconds: 10, every: 0.5);
-		if (!texts.Contains("Inf"))
+		var texts = page.Select(t => t.Text).ToList();
+		if (!page.Any(t => t.Path == FormStats))
 		{
 			Console.Error.WriteLine(L($"{name}: maç puanları sayfası açılmadı."));
 			return 1;
@@ -95,7 +107,7 @@ internal static partial class Program
 					List<MatchRow> inView = [];
 					await Until(async () =>
 					{
-						inView = Rows(await Texts(), goalkeeper).ToList();
+						inView = Rows((await Page()).Select(t => t.Text).ToList(), goalkeeper).ToList();
 						var now = Key(inView);
 						moved |= now != window;
 						var settled = moved && now == held;
@@ -145,7 +157,7 @@ internal static partial class Program
 		var heads = new List<string> { "#", L("TARİH"), L("RAKİP"), L("SKOR (EV-DEP)"), L("MEVKİ") };
 		if (subs) heads.Add(rich ? "" : L("GİRDİ/ÇIKTI"));
 		heads.AddRange(keeper ? ["xGA", L("YEDİĞİ")] : ["xG", L("GOL"), L("AS")]);
-		heads.Add("PUAN");
+		heads.Add(L("PUAN"));
 		List<string> Cells(MatchRow r)
 		{
 			var cells = new List<string>
@@ -187,23 +199,19 @@ internal static partial class Program
 	/// <summary>
 	/// The table's rows out of the page's texts: each starts with the game's number and its date,
 	/// and ends with xG, assists, goals and rating (a keeper's xG against, goals conceded and
-	/// rating); a substitute's minute sits before the xG.
+	/// rating); a substitute's minute sits before the xG. The headings are not needed to find them:
+	/// nothing above the table pairs a bare number with a date.
 	/// </summary>
 	private static IEnumerable<MatchRow> Rows(List<string> texts, bool keeper)
 	{
-		var start = texts.IndexOf("Inf");
-		if (start < 0) yield break;
-		// The headings after "Inf" come back in other words in another language ("Pts" for "Rating" in
-		// Turkish); the rows are known by their number and date, not by where the headings end.
-		var cells = texts.Skip(start + 1).ToList();
 		// A date as the game writes it: the order is the game's own preference
 		// (dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, yyyy/dd/mm — BAGIMLILIKLAR §C), so only the year's four
 		// digits and the separators are taken as they are, never which end the year sits at.
 		static bool Date(string t) => Regex.IsMatch(t, @"^(?:\d{4}([./-])\d{1,2}\1\d{1,2}|\d{1,2}([./-])\d{1,2}\2\d{4})$");
-		var starts = Enumerable.Range(0, Math.Max(0, cells.Count - 1)).Where(i => Regex.IsMatch(cells[i], @"^\d+$") && Date(cells[i + 1])).ToList();
+		var starts = Enumerable.Range(0, Math.Max(0, texts.Count - 1)).Where(i => Regex.IsMatch(texts[i], @"^\d+$") && Date(texts[i + 1])).ToList();
 		for (var s = 0; s < starts.Count; s++)
 		{
-			var row = cells.Skip(starts[s]).Take((s + 1 < starts.Count ? starts[s + 1] : cells.Count) - starts[s]).ToList();
+			var row = texts.Skip(starts[s]).Take((s + 1 < starts.Count ? starts[s + 1] : texts.Count) - starts[s]).ToList();
 			if (row.Count < 7) continue;
 			// Whatever the page shows after the table is not the last row's.
 			// "on 72" / "gir 72.": a substitute's minute, where another row has its xG.

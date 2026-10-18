@@ -271,7 +271,17 @@ tablodan çevrilemiyor.
     metinleri içinde dört haneli yıl + ayırıcı taşıyan sözün tarihi alınıyor (sıra oyunun tarih ayarı, §C).
     TR üç durumda `Kura henüz çekilmedi; çekiliş 13/8/2026.`, EN üç durumda eskisiyle birebir; TR'de `--all`
     8 turun 6'sının tarihini veriyor (eskiden yalnız İngilizce sözü tutanlar) (§8.223).
-  - [ ] Release "Is there anything else" · Matches "Match Ratings"+"Inf"
+  - [x] Matches "Match Ratings" + "Inf" (`player <oyuncu> --matches`): sayfa artık başlık yazısıyla değil
+    oyunun kendi kabıyla okunuyor — oyun maç puanları sayfasını `PlayerFormCard` diye adlandırıyor
+    (`/texts?within=PlayerFormCard`; sayfa kapalıyken boş), her satır da bağlı olduğu **veri yoluyla**
+    (`paths=1`), ve "sayfa yüklendi" işareti özetin kendi bağı (`formstats.GamesPlayed`) + satırların
+    oturması; satırlar zaten numara + tarih çiftiyle bulunuyordu, `Inf` başlığı hiç gerekmiyor. "Match
+    Ratings", "All Competitions" ve "Inf" arayışları kalktı. Aynı fonksiyondaki puan sütunu başlığı
+    `"PUAN"` sabit yazılıydı → `L("PUAN")` (İngilizce oyunda "RATING"; eskiden tablo başlığı Türkçe
+    kalıyordu). TR üç durum + kaleci + hiç oynamamış oyuncu (0 maç) eski derlemeyle **birebir**,
+    EN `--json` birebir, EN insan çıktısında yalnız başlık düzeldi; negatif oyuncu rc=1; `sweep.sh`
+    50/50 (§8.224).
+  - [ ] Release "Is there anything else" (karşılıklı fesih konuşması)
   - [?] Penalties "Starting at " / "On Subs bench" (`fm penalties` tablosunun "MAÇA" sütunu): ölçüldü, **kod
     değişmedi**. Alan (`tactic.TeamSelectedPositionStringFromPlayer`) oyunun kendi cümlesi ve iki dilde iki ayrı
     söz veriyor: TR'de kulübedeki `On Subs bench` (eklenti çeviriyor), ilk 11'de başlayan `İlk 11'de (DOSMSğ)`

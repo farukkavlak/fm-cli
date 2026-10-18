@@ -4,6 +4,24 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "Cümle parçası arayanlar" / `Matches "Match Ratings"+"Inf"`** — **BİTTİ** (§8.224, Tur 35):
+  `player <oyuncu> --matches` sayfayı üç İngilizce sözle tanıyordu (bekleme `"Match Ratings"`+`"Inf"`, okuma
+  `anchor=All Competitions&up=10`, satır başı `IndexOf("Inf")`). Artık oyunun kendi kabı
+  (`/texts?within=PlayerFormCard`; kapalıyken `[]`), satırlar `paths=1` ile veri yoluyla okunuyor ve "yüklendi"
+  işareti özetin kendi bağı (`formstats.GamesPlayed`) + satırların oturması; `Rows()` `Inf` aramıyor (numara +
+  tarih çifti). Aynı fonksiyonda puan başlığı `"PUAN"` sabitti → `L("PUAN")` (EN'de "RATING"). Kanıt: TR üç
+  durum × (Draper 20 maç / kaleci Jeacock / 0 maçlık Pardington) eski derlemeyle **birebir** (json md5
+  `6dd18789…`, `a11de1ed…`, `f5fba54c…`), EN `--json` birebir, EN insan çıktısında yalnız başlık düzeldi;
+  negatif `player "ZZZ yok" --matches` rc=1; `sweep.sh` **50 komut, 0 hata**.
+- Not (kayıt durumu): kayıt yalnız **okundu** (2 Ağustos 2026), saat ilerletilmedi, maç oynanmadı, hiçbir
+  ayar/oyuncu değişmedi; dil Türkçeye döndü (`/state` → `turkish`).
+- Sıradaki tur (öneri): B'de kalanlar — `Release "Is there anything else"` (karşılıklı fesih konuşması),
+  haber "Portugal" / "Defence (Core)", veri merkezi bulguları, "yazıyla basma"nın kalan yerleri. A'da kalan
+  küçük iş: `TacticFiles 181` (panel kapanışından sonra sabit 800 ms). Ağır: TrainingSchedule 345.
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 34)
 - Madde: **B "Cümle parçası arayanlar" / `Stages "This round will be drawn"`** — **BİTTİ** (§8.223, Tur 34):
   kurası çekilmemiş turun tarihi `StartsWith("This round will be drawn")` ile aranıyor ve tarih öneğin arkasından
   kesiliyordu; cümleyi oyun kurduğu için TR'de "Bu tur 13/8/2026 tarihinde oynanacak" geliyor, önek tutmuyor ve
@@ -126,6 +144,44 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 35 — B "Cümle parçası arayanlar" / `Matches "Match Ratings"+"Inf"`: maç puanları sayfası oyunun kabıyla ve veri yoluyla okunuyor; puan başlığı İngilizce oyunda Türkçe kalıyordu (§8.224, 18 Ekim)
+Ne: `cli/fm/Matches.cs` (`player <oyuncu> --matches`). Sayfa üç İngilizce sözle tanınıyordu:
+(1) bekleme `texts.Contains("Match Ratings") && texts.Contains("Inf")`, (2) okuma
+`/texts?anchor=All Competitions&up=10`, (3) satırların başı `texts.IndexOf("Inf")`; ayrıca kapanış kontrolü
+`texts?anchor=Match Ratings&up=0`. Yeni: sayfa oyunun **kendi kabıyla** okunuyor —
+`/texts?within=PlayerFormCard&paths=1` (oyunun şablon adı; sayfa kapalıyken `[]`), her satır bağlı olduğu
+**veri yoluyla** geliyor ve "yüklendi" işareti özetin kendi bağı (`formstats.GamesPlayed`) **ve** satırların
+iki okumada aynı olması; `Rows()` artık `Inf` aramıyor (satırlar zaten `^\d+$` + tarih çiftiyle bulunuyor,
+tablonun üstünde bu çifti veren başka bir şey yok). Aynı fonksiyondaki dil artığı (kural 3):
+`heads.Add("PUAN")` → `L("PUAN")`.
+- Ölçüm (kimlik): `curl '/texts?within=PlayerFormCard&paths=1'` → kart basılmadan `[]`; "Last 5 Club Games"
+  döşemesine basıldıktan sonra 40–80 ms aralıkla: 0,30 sn'de 13 metin, 0,42 sn'de 113 metin +
+  `formstats.GamesPlayed` **bağlı**, 0,59 sn'de 210 metin/19 satır, sonra sabit (226 metin). `/layers?name=Card`
+  → `#Body › #PlayerFormCard › #ElementBindingRoot` (sayfa açıkken).
+- Öncesi (eski derleme, `git stash push -- cli/fm/Matches.cs` + `dotnet build cli/fm -c Release`), üç durum
+  (`fm open "Squad Dynamics"` sonrası / hemen ikinci koşu / `fm open "Messages"` sonrası) × iki dil:
+  - TR: Draper human `md5 1a76c645…`, json `ed1fb048…`; kaleci Jeacock human `a8814295…`, json `97ba11ad…`;
+    0 maçlık Pardington human `c142b845…`, json `f5fba54c…`.
+  - EN: Draper human `52fac980…`, json `6dd18789…`; Jeacock human `36b0c5f6…`, json `a11de1ed…`;
+    Pardington human `44fec348…`, json `f5fba54c…`.
+- Sonrası: TR aynı üç durum × üç oyuncu → **birebir aynı md5'ler**; EN `--json` üçünde de **birebir**
+  (`6dd18789…`, `a11de1ed…`, `f5fba54c…`); EN insan çıktısında tek fark tablo başlığı: `…AST\tPUAN` →
+  `…AST\tRATING` (Draper) ve `…CONCEDED\tPUAN` → `…CONCEDED\tRATING` (Jeacock, Pardington).
+- Negatif / sınır: `fm player "ZZZ yok" --matches` → rc=1 "'ZZZ yok' adında bir oyuncu kadroda da aramada da
+  yok." (değişmedi); hiç oynamamış oyuncu (Pardington, `Apps:"0"`, satırlar "did not play") sayfayı yine
+  okuyor → eski md5'lerle birebir; kaleci (xGA sütunu) ve yedek (girdi/çıktı sütunu) yolları aynı.
+- Yan bulgu (eski derlemede de var): `fm open "Messages"` sonrası `player --matches` arama yolundan gidiyor ve
+  "form kutusu yok (bu sezon maçı olmayabilir)" ile düşebiliyor — eski derlemede 4 koşunun 2'si (Draper, TR),
+  yeni derlemede de ara sıra (Draper/Jeacock/Pardington); `fm open "Squad Dynamics"` (kadro tablosu yolu) her
+  koşuda geçiyor. Koda bağlı değil (aynı derlemede hem geçen hem düşen koşu var).
+- Regresyon: `tools/sweep.sh /tmp/sweep_t35` → **50 komut, 0 hata** (`matches` sweep'te yok; paylaşılan koda
+  dokunulmadı, `Rows`/`Keeper` yalnız `Matches.cs` içinde).
+- Dönüş/geri: kayıt yalnız okundu (2 Ağustos 2026), saat ilerletilmedi, maç oynanmadı, ayar/oyuncu değişmedi;
+  dil `fm settings language "Türkçe"` ile geri alındı (`/state` → `Language: turkish`).
+- Dosya: `cli/fm/Matches.cs`, `docs/BAGIMLILIKLAR.md` (B alt maddesi `[x]`, Release ayrıldı), `docs/FINDINGS.md`
+  §8.224, `docs/manual/KILAVUZ.md` (başlık dili notu), bu defter.
+
 
 ### Tur 34 — B "Cümle parçası arayanlar" / `Stages "This round will be drawn"`: kurası çekilmemiş turun tarihi artık tarihin kendi biçiminden (§8.223, 18 Ekim)
 Ne: `cli/fm/Stages.cs` `StageContent`. Kurası çekilmemiş turun tarihi

@@ -435,7 +435,8 @@ puan  ▂█▄▃▆▃▃▅▂▃▃▃▅▅▃▂▇▄▃▃▃▃  eski �
 ```
 
 Liste ekranda görünen pencere kadar değil, baştan sona okunur: sayfa kendi kaydırmasıyla gezilir, en eski
-maç da gelir (sayfa başka bir bakıştan kalmış olsa bile başa alınır).
+maç da gelir (sayfa başka bir bakıştan kalmış olsa bile başa alınır). Tablo başlıkları oyunun diline
+çevrilir (İngilizce oyunda son sütun `PUAN` değil `RATING`).
 
 ### Penaltı sırası — `penalties`
 

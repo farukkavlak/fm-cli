@@ -2398,3 +2398,21 @@ birebir ("The draw has not been made yet; the draw is 13/8/2026."); TR `--all` 8
 (3. Tur 27/8, 4. Tur 3/9, Çeyrek 30/10, Yarı 18/12, Final 3/2/2027), lig tablosu (`League Stage`) ve oynanmış
 turlar (`Ties`) değişmedi; negatif `stages "Carabao Cup" "ZZZ"` aynı "aşama yok" listesi. `StageContent` dışına
 dokunulmadı; `sweep.sh` `stages`/`table` koşuyor → 50/50.
+
+### 8.224 `fm player --matches`: maç puanları sayfası artık yazıyla değil oyunun kabıyla okunuyor (18 Ekim, TR + EN)
+Sayfa üç İngilizce sözle tanınıyordu: bekleme `texts.Contains("Match Ratings") && texts.Contains("Inf")`,
+okuma `anchor=All Competitions&up=10`, satırların başı `texts.IndexOf("Inf")`. Üçü de eklentinin çeviri
+tablosundan geçiyor (TR oyunda da İngilizce geliyor: `/texts?within=PlayerFormCard` → `"Match Ratings"`,
+`"Inf"`), ama dilden bağımsız değil. Yeni: oyun sayfayı kendi adıyla söylüyor — `/texts?within=PlayerFormCard`
+sayfa açıkken içeriği, kapalıyken `[]` veriyor (ölçüldü: karta basılmadan `[]`, basıştan 0,30 sn sonra 13
+metin, 0,42 sn sonra `formstats.GamesPlayed` bağlı, 0,59 sn sonra 19 satır oturmuş); her satır `paths=1` ile
+bağlı olduğu **veri yoluyla** okunuyor ve "yüklendi" işareti özetin kendi bağı (`formstats.GamesPlayed`) +
+satırların iki okumada aynı olması. `Rows()` artık `Inf` aramıyor: satırlar zaten numara + tarih çiftiyle
+bulunuyor (`^\d+$` ardından tarih), tablonun üstünde bu çifti veren başka bir şey yok. `--json` alanları ve
+satır çözümü değişmedi (Draper 20 maç, kaleci Jeacock 11 maç, hiç oynamamış Pardington 0 maç — üçünde de
+`--json` md5'i eski derlemeyle birebir). Aynı fonksiyondaki bir dil artığı daha: puan sütununun başlığı
+`heads.Add("PUAN")` ile sabit yazılıydı, `L("PUAN")` yapıldı — İngilizce oyunda tablo başlığı "PUAN"
+kalıyordu, artık "RATING" (insan çıktısındaki tek fark; TR md5'i birebir).
+Yan bulgu (bu maddenin dışı, eski derlemede de aynı): `fm open "Messages"` sonrası `player --matches`
+arama yolundan gidiyor ve "form kutusu yok" ile düşebiliyor — eski derlemede 4 koşunun 2'si, yeni
+derlemede de ara sıra; `fm open "Squad Dynamics"` (kadro tablosu yolu) her koşuda geçiyor.
