@@ -19,7 +19,7 @@ MAX=${1:-200}
 DEADLINE=${2:-07:00}
 MODEL=${AUTOPILOT_MODEL:-opencode-go/deepseek-v4.1-flash}
 AGENT=${AUTOPILOT_AGENT:-autopilot}
-ROUND_MIN=${AUTOPILOT_ROUND_MIN:-40}
+ROUND_MIN=${AUTOPILOT_ROUND_MIN:-60}
 STANDALONE=${AUTOPILOT_STANDALONE:-1}
 
 STOP="$HOME/.config/fm-cli/autopilot-stop"
@@ -50,6 +50,12 @@ fi
 branch=$(git rev-parse --abbrev-ref HEAD)
 if [ "$branch" != "main" ]; then log "UYARI: main'de değiliz ($branch) — çalışmıyorum."; exit 1; fi
 
+# A dirty tree at the start is the user's work, not ours: refuse, so nothing gets decided over it.
+if [ -n "$(git status --porcelain)" ]; then
+	log "UYARI: çalışma ağacı kirli (commit edilmemiş değişiklik var) — önce commit/restore et, sonra başlat."
+	exit 1
+fi
+
 log "otopilot başladı — model=$MODEL agent=$AGENT tur≤$MAX bitiş=$DEADLINE standalone=$STANDALONE"
 
 # Tek tur: telefonu kapat, işi yaptır; takılırsa ROUND_MIN sonra öldür.
@@ -68,6 +74,13 @@ run_round() {
 			kill -TERM "$pid" 2>/dev/null
 			sleep 5
 			kill -KILL "$pid" 2>/dev/null
+			# The killed turn leaves unverified edits behind; the next round must start from a clean
+			# tree or they pile up across rounds (two runs' worth did). Nothing counts until it
+			# commits, so tracked files go back to HEAD.
+			if [ -n "$(git status --porcelain)" ]; then
+				git restore --source=HEAD --staged --worktree -- . 2>/dev/null
+				log "zaman aşımı sonrası çalışma ağacı geri alındı (git restore)"
+			fi
 			return 124
 		fi
 	done
