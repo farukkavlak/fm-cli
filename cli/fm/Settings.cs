@@ -53,6 +53,18 @@ internal static partial class Program
 		["Yards"] = L("Yarda"), ["Miles"] = "Mil", ["Kilometres"] = L("Kilometre"),
 	};
 
+	/// <summary>
+	/// The container each tab's button sits in: the template's own name, which no translation
+	/// touches, so the tab is opened by it rather than by the words on it — a Turkish game
+	/// labels the tab "Matchday" where the English one says "Match Day" (FINDINGS §8.203).
+	/// </summary>
+	private static readonly Dictionary<string, string> TabButtons = new()
+	{
+		["Match Day"] = "MatchDayTabButton",
+		["Your World"] = "YourWorldTabButton",
+		["Processing"] = "ProcessingTabButton",
+	};
+
 	private static readonly Setting[] Settings =
 	[
 		new(L("maç gösterimi"), L("Maç günü"), "Match Day", "Dynamic Mode", SettingKind.Radio, HighlightTurkish,
@@ -298,7 +310,12 @@ internal static partial class Program
 			return null;
 		}
 
-		await Fm.Get("click", ("text", tab), ("name", "DetailedPreferencesTabButton"));
+		// The tab's own label is the game's words ("Matchday" through a Turkish game); its button
+		// is taken by the container it sits in, whose template name no language changes.
+		if (TabButtons.TryGetValue(tab, out var tabButton))
+			await Fm.Get("click", ("within", tabButton), ("name", "DetailedPreferencesTabButton"));
+		else
+			await Fm.Get("click", ("text", tab), ("name", "DetailedPreferencesTabButton"));
 		// The tab fills in over a few frames: its headings can be there before the lists under them.
 		List<JsonElement> form = [];
 		var read = "";

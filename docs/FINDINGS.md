@@ -2003,3 +2003,23 @@ slider/onay kutusu/radio için oyun blok adı vermiyor → onlar başlıkla kal�
   sekmeyi **"Matchday"** yazıyor (`click ?text=Match Day&name=DetailedPreferencesTabButton` → "no button shows
   'Match Day'", `click ?text=Matchday` → çalışıyor), İngilizcede "Match Day". Sonuç: `fm settings --json` TR/DE'de
   15, EN'de 19 satır — maç gösterimi/dinamik mod/vurgu hızı/ara hızı TR ve DE'de hiç okunmuyor.
+
+### 8.204 `fm settings` sekmesi artık düğmenin bulunduğu kapsayıcıyla açılıyor (18 Ekim, TR + EN + DE)
+Sekme `click ?text=<sekme>&name=DetailedPreferencesTabButton` ile açılıyordu; sekme yazısı oyunun sözü (TR/DE'de
+"Matchday", EN'de "Match Day"), bu yüzden TR/DE'de "Match Day" sekmesi hiç açılmıyor, maç gösterimi / dinamik mod /
+vurgu hızı / ara hızı okunmuyordu. Sekme düğmeleri `/buttons`ta yok; `/elements?ptr=<TabButtons>&depth=4` her
+sekmenin **kapsayıcı adını** veriyor (`#MatchDayTabButton`, `#YourWorldTabButton`, `#ProcessingTabButton`,
+`#AudioVisualTabButton`, `#ShortcutsTabButton`…; şablonun adları, dile bağlı değil; düğme adı hepsinde
+`DetailedPreferencesTabButton`). Yeni: `PreferencesTab` üç sekmeyi kapsayıcı adıyla açıyor
+(`click ?within=MatchDayTabButton&name=DetailedPreferencesTabButton` → tam bir düğme), eşleşme yoksa yazıya düşüyor.
+- Öncesi (eski derleme): TR, sayfa kapalıyken `fm settings --json` → **15** satır (dört maç günü ayarı yok, `md5
+  e5eb7a89…`); DE → **15** satır; EN → 19 satır (`md5 cb604c52…`).
+- Sonrası: TR üç durumda (başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / başka sayfadan `fm open "Squad
+  Dynamics"`) **19** satır, üçü de `md5 fa5b6948ada7f605b9f3ca5aacdd17e9`; dördüncü durum (sayfa Processing
+  sekmesinde açıkken) da aynı. EN üç durumda 19 satır, `md5 cb604c52…` — **eski derlemeyle birebir aynı**. DE → 19
+  satır, `language = German`, maç günü satırları okunuyor. Değerler doğru (`maç gösterimi = Key`, `dinamik mod =
+  Kapalı`, `vurgu hızı = 10x`, `ara hızı = 40x`).
+- Yazma yolu (aynı sekme): `fm settings "vurgu hızı" 4x` → `10x → 4x`, `4x → 10x` ile eski değerine döndü,
+  `fm settings "vurgu hızı" --json` → `10x`. Negatif: `fm settings "vurgu hızı" 7x` → "bir seçenek değil", rc=1.
+- Dönüş: `fm settings language "Türkçe"` → `German → Turkish` (`/state` → `Language: turkish`); final TR koşusu 19
+  satır, ilk koşuyla aynı `md5`.

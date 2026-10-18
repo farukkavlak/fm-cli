@@ -185,10 +185,11 @@ tablodan çevrilemiyor.
   değişiklik öncesiyle birebir, EN'de eski derlemeyle birebir; maaş ayarı yazılıp geri alındı (§8.203).
   Kalan: İşlem sekmesinin üç listesi aynı bloğu paylaştığı, slider/onay kutusu/radio için oyun blok adı vermediği
   için onlar hâlâ başlıkla bulunuyor.
-- [ ] **`fm settings` "Match Day" sekmesini yazıyla açıyor; TR/DE oyunda sekme "Matchday" yazıyor** — o yüzden
-  maç gösterimi / dinamik mod / vurgu hızı / ara hızı Türkçe ve Almanca oyunda hiç okunmuyor (`fm settings --json`
-  TR/DE'de 15, EN'de 19 satır; `click ?text=Match Day&name=DetailedPreferencesTabButton` → "no button shows
-  'Match Day'", `Matchday` çalışıyor). Sekmenin dilden bağımsız kimliği aranacak (§8.203).
+- [x] **`fm settings` sekmesi artık yazıyla değil, düğmenin bulunduğu kapsayıcıyla açılıyor** — sekme yazısı oyunun
+  sözü, TR/DE'de "Matchday", EN'de "Match Day"; artık üç sekme (`MatchDayTabButton`, `YourWorldTabButton`,
+  `ProcessingTabButton`; şablonun kendi adları) düğmesiyle açılıyor, bulunamazsa eskisi gibi yazıya düşüyor. TR/DE
+  `fm settings --json` 15 → **19** satır (maç gösterimi/dinamik mod/vurgu hızı/ara hızı artık okunuyor), EN çıktısı
+  eski derlemeyle birebir; yazma yolu da çalışıyor (§8.204).
 
 ### C. Oyunun ayarları (dil dışında)
 

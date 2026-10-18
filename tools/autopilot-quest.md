@@ -4,20 +4,39 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **B "`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor"** — bitti ve
-  düzeltildi (§8.203, Tur 14): ayar artık öğenin bulunduğu **blok adıyla** (`Within`: `GameLanguagePreferencesBlock`,
-  `WagesPreferencesBlock`, `AutoSaveIntervalSetting`…) bulunuyor, bulamazsa başlığa düşüyor; 11 açılır listeye
-  `Block` yazıldı. Almanca oyunda 15 satır + `language`, `fm settings language "Türkçe"` → `German → Turkish`.
-  TR çıktısı değişiklik öncesiyle birebir, EN'de eski derlemeyle birebir. İşlem sekmesinin üç listesi, slider,
-  onay kutusu ve radio hâlâ başlıkla (oyun onlar için blok adı vermiyor).
-- Yeni madde açıldı: **B "`fm settings` 'Match Day' sekmesini yazıyla açıyor; TR/DE oyunda sekme 'Matchday' yazıyor"**
-  → maç gösterimi / dinamik mod / vurgu hızı / ara hızı TR ve DE'de hiç okunmuyor (TR/DE 15, EN 19 satır).
-- Bir sonraki tur: bu yeni B maddesi (sekmenin dilden bağımsız kimliği) ya da A/`Task.Delay` sıradaki adaylar:
-  `TraitTraining 32` · `Responsibilities 283/388` · `Matches 82` / `OppositionCard 55 91` · `TrainingSchedule 345`.
-  Alternatif: A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`).
+- Madde: **B "`fm settings` 'Match Day' sekmesini yazıyla açıyor; TR/DE oyunda sekme 'Matchday' yazıyor"** — bitti ve
+  düzeltildi (§8.204, Tur 15): sekme artık düğmenin bulunduğu **kapsayıcı adıyla** açılıyor (`MatchDayTabButton`,
+  `YourWorldTabButton`, `ProcessingTabButton`; şablonun adları, dilden bağımsız; düğme `DetailedPreferencesTabButton`),
+  bulunamazsa eskisi gibi yazıya düşüyor. TR (4 durum) ve DE `fm settings --json` 15 → **19** satır (maç gösterimi/
+  dinamik mod/vurgu hızı/ara hızı okunuyor); EN üç durumda eski derlemeyle birebir (`md5 cb604c52…`). Yazma yolu aynı
+  sekmede çalışıyor, negatif reddediliyor.
+- Bir sonraki tur: A/`Task.Delay` sıradaki adaylar: `TraitTraining 32` · `Responsibilities 283/388` · `Matches 82` /
+  `OppositionCard 55 91` · `TrainingSchedule 345`; ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`,
+  `TacticSlots 112`, `League 216`, `Prep 124`). Alternatif B: İşlem sekmesinin üç listesi hâlâ başlıkla bulunuyor
+  (oyun blok adı vermiyor); `fm settings` "Manage settings for this game" / "See all" yazılarıyla menüyü açıyor.
 - Durum: bitti, commit atıldı
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 15 — B "`fm settings` 'Match Day' sekmesini yazıyla açıyor" (TR/DE): sekme kapsayıcıyla açılıyor (§8.204, 18 Ekim)
+Ne: `cli/fm/Settings.cs`. `PreferencesTab` sekmeyi `click ?text=<sekme>&name=DetailedPreferencesTabButton` ile
+açıyordu; sekme yazısı oyunun sözü (TR/DE "Matchday", EN "Match Day"), bu yüzden TR/DE'de "Match Day" sekmesi hiç
+açılmıyordu. Yeni: `TabButtons` eşlemesi (`Match Day`→`MatchDayTabButton`, `Your World`→`YourWorldTabButton`,
+`Processing`→`ProcessingTabButton`; `/elements`ten okunan kapsayıcı adları, şablonun, dilden bağımsız) ile
+`click ?within=<kapsayıcı>&name=DetailedPreferencesTabButton`; eşleşme yoksa yazıya düşüyor.
+- Öncesi (eski derleme): TR `fm settings --json` (sayfa kapalıyken) → **15** satır, `md5 e5eb7a89…` (dört maç günü
+  ayarı yok); DE → **15**; EN → 19 (`md5 cb604c52…`).
+- Sonrası: TR dört durum (başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / başka sayfadan `fm open "Squad
+  Dynamics"` / sayfa Processing sekmesinde açıkken) → hepsi **19** satır, aynı `md5 fa5b6948ada7f605b9f3ca5aacdd17e9`.
+  EN üç durum → 19 satır, `md5 cb604c52…`, **eski derlemeyle birebir**. DE → 19 satır, `language = German`.
+- Değerler (TR): `maç gösterimi = Key`, `dinamik mod = Kapalı`, `vurgu hızı = 10x`, `ara hızı = 40x` — EN öncesi
+  çıktıyla aynı (üçü de aynı oyun ayarı).
+- Yazma yolu (aynı sekme): `fm settings "vurgu hızı" 4x` → `10x → 4x`, sonra `10x` → `4x → 10x`; `--json` → `10x`
+  (eski değerine döndü). Negatif: `fm settings "vurgu hızı" 7x` → "bir seçenek değil", rc=1.
+- Dönüş: `fm settings language "Türkçe"` → `German → Turkish`, `/state` → `Language: turkish`; final TR koşusu 19
+  satır, ilk koşuyla aynı `md5`. Paylaşılan koda (Bridge/OpenPage/reply) dokunulmadı → `sweep.sh` gerekmedi.
+- Kayıt test kaydı (2 Ağustos 2026): saat ilerletilmedi, maç oynanmadı; vurgu hızı 4x yapılıp 10x'e geri alındı,
+  dil TR'ye döndü.
 
 ### Tur 14 — B "`fm settings` ayarı başlık yazısıyla buluyor" (Almanca dil ayarı): blok adıyla bulunuyor (§8.203, 18 Ekim)
 Ne: `cli/fm/Settings.cs`. `Locate` ayarın denetimini `/form`daki başlık yazısıyla (`Heading: "Game Language"`)
