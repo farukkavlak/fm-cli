@@ -24,6 +24,15 @@ internal static partial class Program
 		return at < 0 ? null : form.Skip(at + 1).Where(i => Field(i, "Kind") == kind).Skip(nth).Cast<JsonElement?>().FirstOrDefault();
 	}
 
+	/// <summary>
+	/// A control the form binds to a data path, whatever its heading says. A heading with a count
+	/// in it ("Scouting Areas (0)") is the game's own sentence, so in another language its English
+	/// words are not there to find; the binding is the same in every language.
+	/// </summary>
+	private static JsonElement? FormBound(List<JsonElement> form, string binds) =>
+		form.FirstOrDefault(i => Field(i, "Binds").EndsWith(binds, StringComparison.Ordinal)) is { ValueKind: JsonValueKind.Object } control
+			? control : null;
+
 	/// <summary>"DL", "d (l)", "stc", "st": a position as the form's pitch writes it.</summary>
 	private static string FocusPosition(IEnumerable<string> labels, string typed)
 	{
@@ -360,8 +369,8 @@ internal static partial class Program
 		if (!await OpenFocusForm()) return 1;
 		await Fm.Get("click", ("text", "Next"));
 		List<JsonElement> form = [];
-		await Until(async () => FormAfter(form = await FocusForm("Back"), "Scouting Areas", "dropdown") != null, seconds: 8, every: 0.5);
-		if (FormAfter(form, "Scouting Areas", "dropdown") is not { } areas)
+		await Until(async () => FormBound(form = await FocusForm("Back"), "possiblescoutingareasdropdownselectedoption") != null, seconds: 8, every: 0.5);
+		if (FormBound(form, "possiblescoutingareasdropdownselectedoption") is not { } areas)
 		{
 			await AbandonFocus();
 			Console.Error.WriteLine(L("Bölge listesi bulunamadı."));

@@ -2458,3 +2458,24 @@ Taktikler" satırları varken ikinci koşuda yok, bir EN koşusunda takım adlar
 `WriteAttachment`'ın 1,5 sn'si (§8.192) yarım bağlanmış sayfayı okuyabiliyor; sabit bekleme maddesi aynı kalıyor.
 Dosya: `cli/fm/Program.cs` (yalnız veri merkezi eki dalı); `GameWords.Ask/Of` var olan yardımcılar, değişmedi.
 `sweep.sh` **50 komut, 0 hata** (İngilizce oyunda koşuldu; `inbox` 1 sn/16 satır).
+
+### 8.227 `fm scout areas`: "Scouting Areas (0)" başlığı yazıyla aranıyordu, TR oyunda liste hiç bulunmuyordu (18 Ekim, TR + EN)
+Recruitment Focus formunun ikinci adımında bölge listesinin başlığı oyunun kurduğu bir cümle ve içinde sayı var:
+TR oyunda `Gözlemleme Yerleri (0)`, EN oyunda `Scouting Areas (0)`. Eklentinin çeviri tablosunda bu cümle birebir
+olmadığı için İngilizce sözü de yok; `ScoutAreas` listeyi `FormAfter(form, "Scouting Areas", "dropdown")` ile
+arıyordu → TR'de `fm scout areas` her durumda "Bölge listesi bulunamadı." (rc=1, ~10,5 sn; 8 sn boşa yoklama +
+formu kapatma). EN'de çalışıyordu (tabloda "Scouting Areas" var).
+Liste aslında formun kendi bağını taşıyor: `Binds = focusitem.possiblescoutingareasdropdownselectedoption`
+(`/form?anchor=Back&up=12&buttons=1`, adı dilden bağımsız). Yeni `FormBound(form, binds)` yardımcısı denetimi
+`Binds` ile buluyor; `ScoutAreas` yalnız onu kullanıyor. Başlık metni hiç okunmuyor.
+Kanıt — öncesi: TR üç durum (`fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` sonrası)
+hepsi rc=1 "Bölge listesi bulunamadı."; EN rc=0 `["Competition ›","Nation ›","Recently Selected ›"]`. Sonrası: TR üç
+durum rc=0, aynı üç seçenek, `md5 fed56895c45431dd9820725651421c2b`; EN üç durum rc=0, aynı md5 — EN çıktısı
+değişiklik öncesiyle **birebir**. İşaret ölçümü (`FM_TRACE=1`): `click ?text=Next` 2,13 sn → ilk `form?anchor=Back`
+2,20 sn'de bağlı denetimi taşıyor (ilk okumada hazır; 8 sn üst sınırın payı büyük). Negatif: `scout areas "Nation"` →
+`Europe ›` + "altı var" satırı; `scout areas "Nope"` → `error: no submenu 'Nope'` (eskisi gibi).
+Geri: her koşu formu `Cancel` + onay penceresiyle kapatıyor (izde `Confirm` yok); sonrasında `fm scout --json` yine
+**4** odak (yeni odak açılmadı), dil TR (`/state` → turkish), saat 2 Ağustos 2026 09:15, maç oynanmadı.
+Dosya: `cli/fm/ScoutFocus.cs` (`FormBound` + `ScoutAreas`; `ScoutNew`/`AddAreas` yolu bilerek dokunulmadı — orada
+aynı başlık `before/after` sayısı için okunuyor ve fonksiyonda temizlenmesi gereken başka sabit beklemeler var).
+`sweep.sh` gerekmedi (paylaşılan koda dokunulmadı; `scout areas` sweep'te yok).

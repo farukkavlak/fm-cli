@@ -297,6 +297,13 @@ tablodan çevrilemiyor.
     (`Bayliss`), ceza tablosundaki tam adlarla birleştirmek kırılgan. Faruk'a soru: yer bilgisi nereden gelmeli —
     eklentiye slotun oyuncusunu söyleyen bir alan mı eklensin, yoksa `Position` maskesi CLI'nin kendi slot
     adlarına mı çevrilsin? (§8.218)
+  - [x] Recruitment Focus formu "Scouting Areas (0)" başlığını yazıyla arıyordu: başlık sayı taşıyan oyun cümlesi
+    (TR "Gözlemleme Yerleri (0)"), İngilizce sözü tabloda yok → `fm scout areas` TR'de her durumda "Bölge listesi
+    bulunamadı." (rc=1). Artık açılır liste formun kendi bağıyla bulunuyor (`Binds` →
+    `focusitem.possiblescoutingareasdropdownselectedoption`; dilden bağımsız). TR üç durum + EN üç durum aynı üç
+    seçenek (`Competition ›`, `Nation ›`, `Recently Selected ›`), EN çıktısı eski derlemeyle birebir; `scout areas
+    "Nation"` → `Europe ›`; negatif yol aynı hatayı veriyor (§8.227). Kalan: `scout new/edit --area` aynı başlığı
+    hâlâ yazıyla arıyor (yazma yolu; ayrı iş).
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da
     birkaç gün içinde" diyor.
 - [ ] **İngilizce yazıyla basma/tıklama — 44 yer** (`press/click text="Acknowledge and Move On"`, "Cancel", "Confirm",

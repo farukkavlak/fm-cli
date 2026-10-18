@@ -4,6 +4,26 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "Cümle parçası arayanlar" / `fm scout areas`** — **BİTTİ** (§8.227, Tur 38): Recruitment Focus formunun
+  bölge listesini `FormAfter(form, "Scouting Areas", "dropdown")` başlık yazısıyla arıyordu; başlık sayı taşıyan
+  oyun cümlesi (TR "Gözlemleme Yerleri (0)") ve tabloda İngilizcesi yok → TR'de `fm scout areas` her durumda rc=1
+  "Bölge listesi bulunamadı." Artık denetim formun kendi bağıyla bulunuyor (`Binds` →
+  `focusitem.possiblescoutingareasdropdownselectedoption`; `FormBound`). TR üç durum + EN üç durum: aynı üç seçenek,
+  aynı `md5 fed56895…` (EN eski derlemeyle birebir); izde `Next` → ilk form okuması 0,07 sn'de bağlı denetimi
+  taşıyor; `scout areas "Nation"` → `Europe ›`; negatif aynı. Her koşu formu `Cancel` + onayla kapatıyor, `fm scout
+  --json` yine 4 odak (yeni odak yok). İlk TR koşusu dil değişiminden hemen sonra bir kez "Odak formu açılmadı"
+  dedi (sayfa geçişi); tekrar ve izli koşuda üç durum da geçti — kanıt o koşular.
+- Not (kayıt durumu): kayıt yalnız okundu (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı, hiçbir
+  ayar/oyuncu değişmedi; dil TR (`/state` → turkish).
+- Sıradaki tur (öneri): B'de kalanlar — `scout new/edit --area` aynı başlığı hâlâ yazıyla arıyor (yazma yolu;
+  `FormBound` + başlığı denetimin **hemen öncesindeki** yazıdan almak yeter; o fonksiyondaki 400 ms'ler ayrı iş),
+  "yazıyla basma"nın kalan yerleri, Program cümle parçaları. **Haber "Portugal"** bu kayıtta yok: ülke maçı haberi
+  gerekiyor, yeniden üretilemedi (o yüzden seçilmedi). A'da kalan küçük iş: TacticFiles 181, kısa `Until` listesi
+  (Calendar/League/Stages…). Ağır/park: TrainingSchedule 345, Clock 179 (işsiz kayıt).
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 37)
 - Madde: **B "Veri merkezi bulguları İngilizce çıktı"** — **BİTTİ** (§8.226, Tur 37): `reply` mesaj ekinin
   veri merkezi dalında `row.AnalysisPointString` cümleleri olduğu gibi yazılıyordu; TR oyunda dört bulgu Türkçe
   (içlerinde sayı var, eklenti çeviremiyor) ama **tabloda birebir duran** cümle İngilizce kalıyordu
