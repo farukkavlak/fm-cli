@@ -402,9 +402,19 @@ tablodan çevrilemiyor.
     Browse/Delete/Cancel aynı `button-base-leading-icon-label` şablonunda). Kimlik bulunamazsa yazıya düşülüyor.
     TR + EN, üç durum × iki yol (`saves delete "<yüklü kaydın adı>" --yes` → tarayıcı açılıp Cancel ile kapanıyor,
     rc=1; `save --as "<aynı ad>" --yes` → Save + "Replace Existing File" onayı, rc=0) eski derlemeyle **birebir**
-    (`md5`); izde `click ?text=Cancel`/`?text=Save` → `click ?ptr=…` (§8.236). `Delete` (silme Faruk'un kararı,
-    ölçülemedi) ve yükleme ekranının `Load`u yazıyla kalıyor — sıradaki alt madde. FM menüsünün "Save Game As"
-    satırı da yazıyla kalıyor (satırın numarası eklentinin `Events` özetinde yok; eklenti değişikliği ister).
+    (`md5`); izde `click ?text=Cancel`/`?text=Save` → `click ?ptr=…` (§8.236). Yükleme ekranının `Load`u yazıyla
+    kalıyor — sıradaki alt madde. FM menüsünün "Save Game As" satırı da yazıyla kalıyor (satırın numarası eklentinin
+    `Events` özetinde yok; eklenti değişikliği ister).
+  - [x] **Onay pencereleri başlık yazısıyla değil oyunun kendi adıyla** (`save --as`in "Replace Existing File"i,
+    `saves delete`in "Delete File"i): eklenti (`/dialog`) her pencerenin `Type`ını veriyor — ölçüldü:
+    `ConfirmSaveOverrideDialog` ve `confirmDeleteSelectedSave` (ikisinin başlığı TR oyunda bile İngilizce:
+    "Replace Existing File?", "Delete File"). `DialogButton` artık önce `Type`e bakıyor, bulamazsa başlığa
+    düşüyor. `save --as "<yüklü kaydın adı>" --yes` TR + EN, üç durumda eski derlemeyle **birebir** (`md5` TR
+    `d4d552c7…`, EN `46212f7f…`); silme yolu kendi kopyamızla uçtan uca ölçüldü (klasöre `t48 test.fm` kondu →
+    `fm saves delete "t48 test" --yes` rc=0, izde pencerenin "Yes"i `?ptr=` ile basılıyor, Faruk'un dört dosyası
+    yerinde); negatifler değişmedi (§8.237). Tarayıcının `Delete` düğmesi hâlâ `click ?text=Delete`; `MatchDay`in
+    üç penceresi de (`Instant Result`, `Team Selection`, `Injured Players`) hâlâ başlık yazısıyla aranıyor —
+    ayrı alt maddeler.
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri
@@ -543,8 +553,9 @@ Division.Name` (eski iki ad tahmini `League.cs:66`, `Reads.cs:1057` kalktı); al
 `squadreg.ExtraSquadRules`; kayıt/taktik klasörü oyuna soruluyor (`/folders`, `GameFolders.cs`, `FM_USER_DIR`).
 
 **Hâlâ açık (taramadan, CHECKLIST'e girmeyen ayrıntılar):**
-- Sayfa düğmeleri (Next, Back, Apply, sekmeler…) yazıyla; başlıkla tanınan 5 pencere (Instant Result, Team Selection,
-  Injured Players, Replace Existing File, Delete File) `Type` ile değiştirilecek.
+- Sayfa düğmeleri (Next, Back, Apply, sekmeler…) yazıyla; başlıkla tanınan 5 pencereden **ikisi** (`Replace Existing
+  File`, `Delete File`) artık `Type` ile bulunuyor (CHECKLIST B, §8.237), kalan üçü (Instant Result, Team Selection,
+  Injured Players) hâlâ başlıkla — onlar da `Type` ile değiştirilecek.
 - Cümle kalıpları: `^\d+ year-old` (`Happiness.cs`, `Dynamics.cs`, `Offers.cs`, `Youth.cs`), `Registration.cs:157-162`
   ("Players of the age of…", "You have N spaces…"), `MatchControls.cs:289-293` ("Add team instruction:", "Tell X:"),
   `OfferScreen.cs:408-412` ("Bonus upon reaching the…"), `Intensity.cs:142`, `TrainingSchedule.cs:406`, `Offers.cs:147`,

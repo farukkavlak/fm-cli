@@ -2687,3 +2687,27 @@ değişmedi; oyunun kendi "last save overwrite backup"ı her üzerine yazmada ye
 durumu, saat ilerletilmedi, maç oynanmadı; dil EN
 ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → `turkish`). Tuzak: TR oyunda ayarın adı
 da oyunun sözü — `fm settings dil "English"`, dönüş `fm settings language "Türkçe"`.
+
+### 8.237 Onay pencereleri artık başlık yazısıyla değil oyunun kendi adıyla (Type) bulunuyor (19 Ekim, TR + EN)
+`Saves.cs` `DialogButton` bir pencereyi **başlık yazısıyla** arıyordu (`Title` "Replace Existing File"/"Delete File" ile
+başlıyor mu). Oysa eklenti (`/dialog`) her pencerenin oyunun kendi adını da veriyor (`Type`, `DialogManager`'dan) ve o ad
+dile bağlı değil. Ölçüm (TR oyunda canlı, `dialog?data=1`): `save --as "<var olan ad>"` sonrası
+`Type=ConfirmSaveOverrideDialog`, `Title=Replace Existing File?`, düğmeler `Slot=primary EventID=ConfirmSaveGame` /
+`Slot=secondary EventID=close`; tarayıcıda başka bir kaydın satırını seçip `DeleteSelectedGame` düğmesine basınca
+`Type=confirmDeleteSelectedSave`, düğmeler sırayla "Yes"/"No" (`EventID` boş) — ikisi de TR'de de **İngilizce** başlık
+taşıyor, yani yazı yolu bugün bu makinede çalışıyor ama dil/skin değişince kimsenin sözü değil.
+Artık `DialogButton(type, title)` önce `Type`e bakıyor (`ConfirmSaveOverrideDialog`, `confirmDeleteSelectedSave`),
+bulunamazsa eskisi gibi başlığa düşüyor.
+Kanıt: TR + EN, üç durum (başka sayfa açık `fm open "Messages"` sonrası / hemen ikinci koşu / başka sayfaya geçtikten
+sonra `fm open "Squad Dynamics"`) × `save --as "<yüklü kaydın adı>" --yes` → altı koşu **eski derleme (git stash +
+`dotnet build`) ile birebir** (`md5` TR `d4d552c7844b8005649f054ac42d8413`, EN `46212f7f30265749e8e115da9b1f1683`,
+Tur 47'nin kaydıyla da aynı); izde `dialog` → `click ?ptr=0x…` (onay). Silme yolu **sıfırdan ölçüldü**: kayıt
+klasörüne yalnız kendi kopyamız kondu (`cp …(v03).fm "t48 test.fm"`), `fm saves delete "t48 test" --yes` → rc=0
+"Silindi: t48 test" (iz: `rowselect` → `click ?text=Delete` → `dialog` → `click ?ptr=0x…` = pencerenin "Yes"i);
+klasörde Faruk'un dört dosyası değişmeden duruyor. Negatif/değişmeyen: `save --as` onaysız rc=1, `saves delete
+"zzz yok" --yes` rc=1 — ikisi de tarayıcıyı hiç açmıyor; pencere hiç çıkmazsa `Type` boş kaldığından eşleşme yok.
+Kalan (aynı sınıf, ayrı iş): `MatchDay`in üç penceresi (`Instant Result`, `Team Selection`, `Injured Players`) hâlâ
+başlık yazısıyla aranıyor; tarayıcının `Delete` düğmesi hâlâ `click ?text=Delete` (§8.236 sonu).
+Regresyon: `tools/sweep.sh` → 50 komut, 0 hata (Türkçe oyunda). Değişiklik yalnız `Saves.cs` içinde (yerel yardımcı);
+paylaşılan koda dokunulmadı. Kayıt durumu: kayıtlar yalnız okundu + aynı adla üzerine yazıldı, t48 test kopyası
+silindi; 2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı; dil TR'ye döndü (`/state` → turkish).

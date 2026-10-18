@@ -3,7 +3,36 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 47)
+## Şu an (Tur 48)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / onay pencereleri** (`save --as`in "Replace Existing File"i,
+  `saves delete`in "Delete File"i) — **BİTTİ** (§8.237, Tur 48): `Saves.cs` `DialogButton` pencereyi **başlık yazısıyla**
+  arıyordu. Eklenti (`/dialog`) her pencerenin oyunun kendi adını (`Type`) veriyor; ölçüldü: `ConfirmSaveOverrideDialog`
+  ve `confirmDeleteSelectedSave` (DİKKAT: ikincisi küçük harfli) — ikisinin başlığı TR oyunda bile İngilizce, yani yazı
+  yolu bugün tesadüfen çalışıyor. Artık `DialogButton(type, title)` önce `Type`e bakıyor, bulamazsa başlığa düşüyor.
+- Kanıt: TR + EN, üç durum (başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / `fm open "Squad Dynamics"`
+  sonrası) × `save --as "<yüklü kaydın adı>" --yes` → altı koşu **eski derlemeyle birebir** (`md5` TR
+  `d4d552c7844b8005649f054ac42d8413`, EN `46212f7f30265749e8e115da9b1f1683`; Tur 47'nin kaydıyla da aynı); izde
+  `dialog` → `click ?ptr=0x…`. Silme yolu uçtan uca: kayıt klasörüne **yalnız kendi kopyamız** kondu
+  (`cp "…(v03).fm" "t48 test.fm"`) → `fm saves delete "t48 test" --yes` rc=0 "Silindi: t48 test" (iz: `rowselect` →
+  `click ?text=Delete` → `dialog` → `click ?ptr=0x…`); Faruk'un dört dosyası değişmeden yerinde. Negatif:
+  `save --as` onaysız rc=1, `saves delete "zzz yok" --yes` rc=1 — ikisi de tarayıcıyı açmıyor.
+- Sweep: **50 komut, 0 hata** (Türkçe oyunda). Değişiklik yalnız `Saves.cs` içinde (yerel yardımcı, iki çağrı);
+  paylaşılan koda dokunulmadı.
+- Not (yeni ölçüm yolu): "silme Faruk'un kararı" diye kapanmayan yollar için **kendi kopyanı koy, onu sil** yolu
+  işe yarıyor (oyun tarayıcısı klasördeki `.fm` dosyalarını listeliyor; ad satırın yazısı). Tarayıcının `Delete`
+  düğmesi hâlâ `click ?text=Delete` → sıradaki alt madde bu yolla ölçülebilir.
+- Not (dönüş): kayıtlar okundu + aynı adla üzerine yazıldı + kendi kopyamız silindi; 2 Ağustos 2026 **09:15**,
+  saat ilerletilmedi, maç oynanmadı; dil `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
+- Sıradaki tur (öneri): (a) tarayıcının `Delete`i — artık kendi kopyamızla uçtan uca ölçülebilir
+  (`DeleteSelectedGame`; §8.236'da kimliği ölçülmüştü); (b) `MatchDay`in üç penceresi (`Instant Result`,
+  `Team Selection`, `Injured Players`) `Type` ile — maç gününde ölçüm ister; (c) yükleme ekranının `Load`u +
+  `LoadTile`/`Back to last saves` (oyun restartı ister); (d) `ScoutFocus` formunun `Next`/`Confirm`/`Cancel`i.
+  A'da kısa `Until`ler (League 216 · MatchControls 131 266 · Reads 892 · TraitTraining 89 · TacticFiles 29).
+  Park: Stages 337 (ağır), TrainingSchedule 345, OppositionCard 55, Staff 74.
+- Not: ağaçta yalnız bu turun dosyası var (`cli/fm/Saves.cs`, BAGIMLILIKLAR, FINDINGS, bu defter), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 47)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `save --as` · `saves delete` (kayıt tarayıcısının `Cancel`/`Save`i)** —
   **BİTTİ** (§8.236, Tur 47): `SaveAs` düğmeyi `click ?text=Save`, `CloseSaveBrowser` `?text=Cancel` ile basıyordu.
   Ölçülen kimlikler (TR, tarayıcı açıkken `/buttons?json=1`, panel `008eea55…`): tarayıcının dört düğmesi **aynı
@@ -448,6 +477,44 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 48 — B "yazıyla basma" / onay pencereleri: `save --as`in ve `saves delete`in penceresi artık başlık yazısıyla değil oyunun verdiği adla (`Type`) bulunuyor (§8.237, 19 Ekim)
+Ne: `cli/fm/Saves.cs` `DialogButton` (268). Pencere `Field(dialog,"Title").StartsWith(title)` ile, yani **başlık
+yazısıyla** aranıyordu ("Replace Existing File" / "Delete File"). Eklenti (`/dialog`, `Dialogs.cs`) her pencerenin
+oyunun kendi adını da veriyor (`Type` = `DialogManager.m_currentDialog.Value.Type`), o ad dilden bağımsız. Yeni imza
+`DialogButton(string type, string title)`: önce `Field(dialog,"Type") == type`, bulunamazsa eskisi gibi başlık.
+- Ölçüm (canlı, TR oyun, `dialog?data=1`): `save --as "<var olan ad>"` → `Type=ConfirmSaveOverrideDialog`,
+  `Title=Replace Existing File?`, `primary` `Confirm`/`ConfirmSaveGame`, `secondary` `Cancel`/`close`; tarayıcıda
+  başka bir kaydın satırı seçilip `DeleteSelectedGame` düğmesine basılınca → `Type=confirmDeleteSelectedSave`,
+  `primary` "Yes", `secondary` "No" (ikisinin `EventID`i boş). **Dikkat:** silme penceresinin türü küçük harfle
+  başlıyor (`confirmDeleteSelectedSave`). İkisinin de başlığı TR oyunda **İngilizce** geliyor — yazı yolu bugün bu
+  makinede çalışıyor, ama oyunun çeviri tablosuna/skine bağlı bir söz.
+- Öncesi/sonrası: `/private/var/…/opencode/t48/run.sh` TR + EN, üç durum (s1 `fm open "Messages"` sonrası / s2 hemen
+  ikinci koşu / s3 `fm open "Squad Dynamics"` sonrası) × `fm save --as "Faruk Kavlak - Fenerbahçe" --yes`.
+  stdout `md5`: TR `d4d552c7844b8005649f054ac42d8413` (3/3), EN `46212f7f30265749e8e115da9b1f1683` (3/3) —
+  **eski derleme ile birebir** (ölçüm eski derlemeyle alındı: `before-tr`, `before-en`; Tur 47'nin kaydıyla da aynı).
+- İz (yeni derleme, TR): `click ?text=Save Game As` → `type ?ptr=…&text=…` → `click ?ptr=…` (Save) →
+  `dialog` 1,47 → `dialog` 1,82 → `click ?ptr=0x3ee05f000` (onay, artık `Type` eşleşmesiyle bulundu).
+- Silme yolu (uçtan uca, yeni derleme, TR): kayıt klasörüne **yalnız kendi kopyamız** kondu
+  (`cp "Faruk Kavlak - Fenerbahçe (v03).fm" "t48 test.fm"`; oyunun tarayıcısı klasördeki dosyaları listeliyor:
+  `texts?anchor=Last saved` → `Name, Last saved, t48 test, 19/10/26 - 02:53, …`) →
+  `FM_TRACE=1 fm saves delete "t48 test" --yes` → **rc=0 "Silindi: t48 test"** (iz: `rowselect ?text=t48 test` →
+  `click ?text=Delete` → `dialog` → `click ?ptr=0x46a57a800` = pencerenin "Yes"i → tarayıcı Cancel ile kapandı).
+  Klasörde Faruk'un dört dosyası (ana kayıt, overwrite backup, v02, v03) aynen duruyor; kopya yok.
+- Negatif/değişmeyen: `fm save --as "Faruk Kavlak - Fenerbahçe"` (onaysız) → rc=1 "… üzerine yazar … --yes",
+  tarayıcı hiç açılmıyor; `fm saves delete "zzz yok" --yes` → rc=1 + dört kaydın listesi, tarayıcı hiç açılmıyor.
+  Pencere hiç çıkmazsa `Type` alanı boş geliyor → eşleşme yok, `DialogButton` null dönüyor (eski davranış).
+- Karar/gerekçe: başlık, oyunun kendi kurduğu söz; `Type` oyunun kendi sınıf adı. Çıktı birebir olduğu için kimlik
+  öne alındı, başlık yedek olarak duruyor (kural 3: fonksiyondaki tek yazı bağımlılığı buydu).
+  Aynı sınıfta kalanlar (ayrı alt maddeler): tarayıcının `Delete` düğmesi hâlâ `click ?text=Delete`; `MatchDay`in
+  `Instant Result` / `Team Selection` / `Injured Players` pencereleri hâlâ başlık yazısıyla aranıyor.
+- Regresyon: `tools/sweep.sh /private/var/folders/…/t48/sweep` → **50 komut, 0 hata** (Türkçe oyunda; `saves` rc=0,
+  7 satır). Değişiklik yalnız `Saves.cs` içinde (yerel yardımcı + iki çağrı); paylaşılan koda dokunulmadı.
+- Dönüş/geri: kayıtlar yalnız okundu ve aynı adla üzerine yazıldı (yeni dosya açılmadı, yüklü kaydın adı
+  değişmedi), kendi kopyamız silindi; 2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı, hiçbir ayar/oyuncu
+  değişmedi; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
+- Dosya: `cli/fm/Saves.cs`, `docs/BAGIMLILIKLAR.md` (B "yazıyla basma" altında yeni `[x]` alt madde + "Hâlâ açık"
+  notundaki 5 pencere satırı), `docs/FINDINGS.md` §8.237, bu defter.
 
 ### Tur 47 — B "yazıyla basma" / `save --as` · `saves delete`: kayıt tarayıcısının Cancel/Save'i artık gönderdikleri olayla basılıyor (§8.236, 19 Ekim)
 Ne: `cli/fm/Saves.cs`. `SaveAs` (289) `click ?text=Save`, `CloseSaveBrowser` (240) `?text=Cancel`. Yerine yeni yerel

@@ -262,13 +262,16 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The answer that goes ahead on an open dialog with this title, or null when that dialog is
-	/// not up. The dialog is still told by its title (BAGIMLILIKLAR §2.2).
+	/// The answer that goes ahead on an open dialog of this kind, or null when that dialog is not
+	/// up. The kind is the game's own name for the window (the bridge reads it from the dialog
+	/// manager: ConfirmSaveOverrideDialog, confirmDeleteSelectedSave), so it does not change with
+	/// the language; the title is kept only as a fallback for a window the bridge cannot name.
 	/// </summary>
-	private static async Task<string> DialogButton(string title)
+	private static async Task<string> DialogButton(string type, string title)
 	{
 		foreach (var dialog in (await Fm.GetJson("dialog")).EnumerateArray())
-			if (Field(dialog, "Title").StartsWith(title, StringComparison.Ordinal) && DialogAnswer(dialog, true) is { } button)
+			if ((Field(dialog, "Type") == type || Field(dialog, "Title").StartsWith(title, StringComparison.Ordinal))
+			    && DialogAnswer(dialog, true) is { } button)
 				return Field(button, "Pointer");
 		return null;
 	}
@@ -320,7 +323,7 @@ internal static partial class Program
 			var now = await Fm.GetJson("state");
 			if (Field(now, "Saving") == "True" || Field(now, "State") == "Saving") return true;
 			if (File.Exists(file) && File.GetLastWriteTimeUtc(file) > before) return true;
-			if (!confirmed && await DialogButton("Replace Existing File") is { } confirm)
+			if (!confirmed && await DialogButton("ConfirmSaveOverrideDialog", "Replace Existing File") is { } confirm)
 			{
 				confirmed = true;
 				await Fm.Get("click", ("ptr", confirm));
@@ -412,7 +415,7 @@ internal static partial class Program
 		}
 
 		string yes = null;
-		await Until(async () => (yes = await DialogButton("Delete File")) != null, seconds: 6, every: 0.25);
+		await Until(async () => (yes = await DialogButton("confirmDeleteSelectedSave", "Delete File")) != null, seconds: 6, every: 0.25);
 		if (yes == null)
 		{
 			Console.Error.WriteLine(L("Oyun silmeyi sormadı; kayıt silinmedi."));
