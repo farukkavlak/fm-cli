@@ -188,13 +188,23 @@ internal static partial class Program
 			return 0;
 		}
 
-		// The answer after mutual termination is the assistant's sentence in the conversation.
+		// The assistant's answer after mutual termination is the conversation's own speech bubble;
+		// the frame then appends its closing question ("Is there anything else…"), which is written
+		// in this language's words ("Sizin için yapabileceğim başka bir şey var mı hocam?") and so
+		// cannot be told apart by the English it was guessed from. It is the line the conversation's
+		// generic close button ends, and that button's own event (EventFmxClearChanges, 31) is the
+		// same everywhere, so the button — not the text — says which line is the frame's own
+		// (FINDINGS §8.225).
 		JsonElement talk = default;
 		await Until(async () => (talk = await Fm.GetJson("talk")).TryGetProperty("Says", out var says) && says.GetArrayLength() > 1, seconds: 6, every: 0.5);
+		var closing = await AcknowledgeButton();
 		if (talk.ValueKind == JsonValueKind.Object && talk.TryGetProperty("Says", out var lines))
-			foreach (var line in lines.EnumerateArray().Select(l => l.GetString() ?? "").Where(l => !l.StartsWith('»') && !l.StartsWith("Is there anything else", StringComparison.Ordinal)))
-				Console.WriteLine($"  {line}");
-		await Acknowledge();
+		{
+			var said = lines.EnumerateArray().Select(l => l.GetString() ?? "").Where(l => !l.StartsWith('»')).ToList();
+			if (closing != null && said.Count > 1) said.RemoveAt(said.Count - 1);
+			foreach (var line in said) Console.WriteLine($"  {line}");
+		}
+		if (closing is { } button) await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		Console.WriteLine(L($"{name}: karşılıklı fesih teklif edildi; cevabı gelen kutusuna düşer."));
 		return 0;
 	}

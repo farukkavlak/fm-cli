@@ -2416,3 +2416,25 @@ kalıyordu, artık "RATING" (insan çıktısındaki tek fark; TR md5'i birebir).
 Yan bulgu (bu maddenin dışı, eski derlemede de aynı): `fm open "Messages"` sonrası `player --matches`
 arama yolundan gidiyor ve "form kutusu yok" ile düşebiliyor — eski derlemede 4 koşunun 2'si, yeni
 derlemede de ara sıra; `fm open "Squad Dynamics"` (kadro tablosu yolu) her koşuda geçiyor.
+
+### 8.225 `fm release --mutual`: asistanın cevabından sonra oyunun kendi kapanış sorusu TR'de cevap gibi yazılıyordu (18 Ekim, TR + EN)
+Karşılıklı fesih teklifinden sonra `/talk` üç satır veriyor: `» Mutual Termination` (bizim seçimimizin yankısı),
+asistanın cevabı ve oyunun kapanış sorusu. Son satır oyunun kendi sözü ve **dile göre kuruluyor** — TR
+"Sizin için yapabileceğim başka bir şey var mı hocam?", EN "Is there anything else I can do for you?" — bu yüzden
+eski `StartsWith("Is there anything else")` süzgeci TR'de tutmuyor ve o soru asistanın cevabıymış gibi yazılıyordu
+(TR'de iki satır, EN'de tek satır). Ölçüm (`/talk` Says): TR `["» Mutual Termination", "Tamamdır hocam, …",
+"Sizin için yapabileceğim başka bir şey var mı hocam?"]`; EN `["» Mutual Termination", "Alright, I'll pass on your
+decision to him…", "Is there anything else I can do for you?"]`; `/translate?words=Is there anything else` boş
+(cümleyi oyun kuruyor, tabloda yok).
+Yeni: kapanış sorusu, konuşmanın **genel kapatma düğmesinin** bitirdiği satır olarak ayıklanıyor — düğme
+`EventFmxClearChanges` (31) olayını gönderiyor (`buttons?json=1&gen=…` + `pull …&props=Event`; ölçüm: TR ve EN'de
+kapatma düğmesi `Event:31`, diğer cevaplar `Event:44`), yani düğme varsa son insan-dışı satır düşülüyor; metin
+aranmıyor. Düğme yoksa satırlar olduğu gibi yazılıyor (asistanın gerçek sorusu kaybolmasın).
+Kanıt: TR üç durum (başka sayfa açık `Squad Dynamics` / sayfa ilk kez `Messages` / kart zaten açık) → yalnız
+asistanın cevabı + "karşılıklı fesih teklif edildi" satırı; eskiden cevabın altında "Sizin için yapabileceğim
+başka bir şey var mı hocam?" vardı. EN üç durum → eskisiyle birebir (tek satır). Negatif: serbest bırakma listesi
+olmayan oyuncu (Cody Tomlinson, Gael Mande, Adam Reach) iki dilde de "seçenek yok" (değişmedi).
+Dönüş/geri: kayıt `fm load … --no-save` ile iki kez baştan yüklendi; verilen karşılıklı fesih teklifleri geri
+alındı, dil `fm settings language "Türkçe"` (`/state` → `turkish`), saat 2 Ağustos 2026 14:00, maç oynanmadı.
+Dosya: `cli/fm/Release.cs` (yalnız karşılıklı fesih çıktısı); `AcknowledgeButton` yalnız okundu, `sweep.sh`
+`release` koşmuyor.

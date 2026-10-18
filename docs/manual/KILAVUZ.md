@@ -1819,6 +1819,8 @@ Vazgeçildi. Feshetmek için: staff fire "Cabir Sevim" --yes
 ```
 
 `--mutual` tazminatsız karşılıklı fesih teklif eder; oyun bunu sormadan işlediği için o da `--yes` ister.
+Tekliften sonra yalnız asistanın cevabı yazılır; oyunun kendi kapanış sorusu ("Sizin için yapabileceğim başka
+bir şey var mı hocam?") cevap sanılıp yazılmaz.
 
 ### Bir kişi için ne yapılabilir — `actions`
 

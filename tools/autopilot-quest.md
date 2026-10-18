@@ -4,6 +4,27 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "Cümle parçası arayanlar" / `Release "Is there anything else"`** — **BİTTİ** (§8.225, Tur 36):
+  `fm release <oyuncu> --mutual --yes` sonrası konuşmanın asistan cevabından sonra oyun kendi kapanış sorusunu
+  ekliyor ve o soru **oyunun dilinde kuruluyor** (TR "Sizin için yapabileceğim başka bir şey var mı hocam?"),
+  bu yüzden eski `StartsWith("Is there anything else")` süzgeci TR'de tutmuyor ve soru asistanın cevabı gibi
+  yazılıyordu. Artık satır, konuşmanın genel kapatma düğmesinin (`EventFmxClearChanges`, 31) bitirdiği satır
+  olarak düşülüyor; metin araması kalktı. Kanıt: TR üç durumda yalnız asistan cevabı (önce iki satır, sonra
+  tek), EN üç durumda eskisiyle birebir; negatif listede olmayan oyuncu (Cody Tomlinson, Gael Mande, Adam Reach)
+  iki dilde de "seçenek yok" değişmedi (§8.225).
+- Not (kayıt durumu): verilen üç karşılıklı fesih teklifi `fm load … --no-save` ile geri alındı; saat
+  ilerletilmedi (2 Ağustos 2026 14:00), maç oynanmadı, dil Türkçeye döndü (`/state` → `turkish`).
+- Sıradaki tur (öneri): B'de kalanlar — haber "Portugal" / "Defence (Core)", veri merkezi İngilizce çıktıları,
+  "yazıyla basma"nın kalan yerleri, Program cümle parçaları; A'da kalan küçük iş `TacticFiles 181` (panel
+  kapanışından sonra sabit 800 ms). **Park (ölçüldü, kod değişmedi):** `contract <oyuncu> --agent` "aynı oyuncu
+  bir koşuda rc=0, başka koşuda seçenek yok" şikâyeti koda bağlı değil — sorma hakkı o oturumda tükeniyor
+  (aynı oyuncuya ikinci soru rc=1), farklı oyuncu açık konuşma/sözleşme kartı varken de çalışıyor
+  (Reeco konuşması açıkken Ben House rc=0; Freddie'nin vaat kartı açıkken Reeco rc=0). Yeni işaret yok,
+  eski mesaj ("yakın zamanda konuşulmuş olabilir") duruyor.
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 35)
 - Madde: **B "Cümle parçası arayanlar" / `Matches "Match Ratings"+"Inf"`** — **BİTTİ** (§8.224, Tur 35):
   `player <oyuncu> --matches` sayfayı üç İngilizce sözle tanıyordu (bekleme `"Match Ratings"`+`"Inf"`, okuma
   `anchor=All Competitions&up=10`, satır başı `IndexOf("Inf")`). Artık oyunun kendi kabı
@@ -144,6 +165,34 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 36 — B "Cümle parçası arayanlar" / `Release "Is there anything else"`: kapanış sorusu artık kapatma düğmesinin bitirdiği satır (dil değil, olay) (§8.225, 18 Ekim)
+Ne: `cli/fm/Release.cs`, karşılıklı fesih dalının çıktısı (satır 191–198). Tekliften sonra `/talk` üç satır
+veriyor ve üçüncüsü oyunun kendi kapanış sorusu; cümleyi oyun kurduğu için TR'de İngilizce değil
+("Sizin için yapabileceğim başka bir şey var mı hocam?"), eski `StartsWith("Is there anything else")` süzgeci
+tutmuyordu ve o satır asistanın cevabı sanılıp yazılıyordu. Yeni: satırlar arasından `»` yankılar atılıyor, sonra
+konuşmanın genel kapatma düğmesi (`EventFmxClearChanges`, 31) varsa **son insan-dışı satır** düşülüyor; düğme
+yoksa hepsi yazılıyor. Aynı okuma hem kapatma basışı hem süzgeç için kullanılıyor.
+- Ölçüm (kimlik): `/talk` Says TR `["» Mutual Termination", "Tamamdır hocam, ben ona bu kararımızı söylerim …
+  emin olun derim.", "Sizin için yapabileceğim başka bir şey var mı hocam?"]`, EN `["» Mutual Termination",
+  "Alright, I'll pass on your decision to him, and make sure the board are in agreement.", "Is there anything
+  else I can do for you?"]`; `/translate?words=Is there anything else` boş → cümle tablodan geçmiyor.
+  Konuşma açıkken `buttons?json=1&gen=…` + `pull …&props=Event`: kapatma "Acknowledge and Move On" `Event:31`,
+  diğer cevaplar `Event:44` (TR + EN aynı) → süzgeç metne değil olaya bağlı.
+- Öncesi (eski derleme `git stash push -- cli/fm/Release.cs` + `dotnet build`, TR): `fm release "Ben House"
+  --mutual --yes` ve `fm release "Jenson Jones" --mutual --yes` → iki satır: asistan cevabı **+ "Sizin için
+  yapabileceğim başka bir şey var mı hocam?"**. EN (eski derleme): aynı iki oyuncuda tek satır (asistan cevabı).
+- Sonrası (TR, üç durum): `fm open "Squad Dynamics"` sonrası `Tom Bayliss`, `fm open "Messages"` sonrası
+  `Ben House`, hemen ardından `Jenson Jones` → üçünde de yalnız asistan cevabı + "karşılıklı fesih teklif edildi"
+  satırı; oyunun sorusu yok. EN (üç durum, aynı düzen, oyuncular Tom Bayliss / Ben House / Jenson Jones) →
+  eskisiyle **birebir** tek satır.
+- Negatif / değişmeyen: serbest bırakma listesi olmayan oyuncular (Cody Tomlinson, Gael Mande, Adam Reach) iki
+  dilde de "serbest bırakma seçeneği yok." / "There is no option to release …" (rc=1); paylaşılan koda
+  dokunulmadı (`AcknowledgeButton` yalnız okundu), `sweep.sh` `release` koşmuyor.
+- Dönüş/geri: kayıt `fm load "Faruk Kavlak - Fenerbahçe" --no-save` ile iki kez baştan yüklendi (teklifler geri
+  alındı), dil `fm settings language "Türkçe"` (`/state` → `turkish`), saat 2 Ağustos 2026 14:00, maç oynanmadı.
+- Dosya: `cli/fm/Release.cs`, `docs/BAGIMLILIKLAR.md` (B alt maddesi `[x]`), `docs/FINDINGS.md` §8.225,
+  `docs/manual/KILAVUZ.md` (fesih çıktısı notu), bu defter.
 
 ### Tur 35 — B "Cümle parçası arayanlar" / `Matches "Match Ratings"+"Inf"`: maç puanları sayfası oyunun kabıyla ve veri yoluyla okunuyor; puan başlığı İngilizce oyunda Türkçe kalıyordu (§8.224, 18 Ekim)
 Ne: `cli/fm/Matches.cs` (`player <oyuncu> --matches`). Sayfa üç İngilizce sözle tanınıyordu:

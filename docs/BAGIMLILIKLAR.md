@@ -281,7 +281,12 @@ tablodan çevrilemiyor.
     kalıyordu). TR üç durum + kaleci + hiç oynamamış oyuncu (0 maç) eski derlemeyle **birebir**,
     EN `--json` birebir, EN insan çıktısında yalnız başlık düzeldi; negatif oyuncu rc=1; `sweep.sh`
     50/50 (§8.224).
-  - [ ] Release "Is there anything else" (karşılıklı fesih konuşması)
+  - [x] Release "Is there anything else" (karşılıklı fesih konuşması): tekliften sonra oyun asistanın cevabının
+    ardına kendi kapanış sorusunu ekliyor ve bu soru **oyunun dilinde kuruluyor** (TR "Sizin için yapabileceğim
+    başka bir şey var mı hocam?", EN "Is there anything else I can do for you?"). Eski süzgeç yalnız İngilizce
+    öneği tanıdığı için TR'de o soru asistanın cevabı gibi yazılıyordu. Artık satır, konuşmanın genel kapatma
+    düğmesinin (`EventFmxClearChanges`, 31) bitirdiği satır olarak düşülüyor; metin araması kalktı. TR üç
+    durumda yalnız asistanın cevabı, EN üç durumda eskisiyle birebir (§8.225).
   - [?] Penalties "Starting at " / "On Subs bench" (`fm penalties` tablosunun "MAÇA" sütunu): ölçüldü, **kod
     değişmedi**. Alan (`tactic.TeamSelectedPositionStringFromPlayer`) oyunun kendi cümlesi ve iki dilde iki ayrı
     söz veriyor: TR'de kulübedeki `On Subs bench` (eklenti çeviriyor), ilk 11'de başlayan `İlk 11'de (DOSMSğ)`
