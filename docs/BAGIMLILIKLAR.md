@@ -302,8 +302,15 @@ tablodan çevrilemiyor.
     bulunamadı." (rc=1). Artık açılır liste formun kendi bağıyla bulunuyor (`Binds` →
     `focusitem.possiblescoutingareasdropdownselectedoption`; dilden bağımsız). TR üç durum + EN üç durum aynı üç
     seçenek (`Competition ›`, `Nation ›`, `Recently Selected ›`), EN çıktısı eski derlemeyle birebir; `scout areas
-    "Nation"` → `Europe ›`; negatif yol aynı hatayı veriyor (§8.227). Kalan: `scout new/edit --area` aynı başlığı
-    hâlâ yazıyla arıyor (yazma yolu; ayrı iş).
+    "Nation"` → `Europe ›`; negatif yol aynı hatayı veriyor (§8.227). Yazma yolu (`scout new/edit --area`) da
+    artık aynı bağı kullanıyor: liste `FormBound` ile, "eklendi" işareti listenin **hemen önündeki** başlığın
+    değişmesi (başlık oyunun cümlesi: TR "Gözlemleme Yerleri (0)" → "(1)") — İngilizce söz aranmıyor. TR'de
+    eskiden `Nullable object must have a value` ile çöküyordu; TR üç durum + EN üç durum aynı yolu geçti,
+    hiçbir odak değişmedi (§8.228).
+  - [ ] `scout new/edit --by` / `--analysts`: seçim penceresini açan `Edit` düğmesi hâlâ başlık yazısıyla
+    bulunuyor (`FormAfter(form, "Assign Scouts", "button")`); o başlık oyunun cümlesi (TR "Gözlemci
+    Görevlendir (1)") → TR'de "Formda scout seçme butonu yok." Düğme ikiz (analistte aynı ad/yazı), ayırt
+    eden tek şey formdaki sırası; pencere başlığı (`Assign Any Scouts`) da yazıyla (§8.228 sonu).
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da
     birkaç gün içinde" diyor.
 - [ ] **İngilizce yazıyla basma/tıklama — 44 yer** (`press/click text="Acknowledge and Move On"`, "Cancel", "Confirm",

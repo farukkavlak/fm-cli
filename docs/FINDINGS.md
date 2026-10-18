@@ -2479,3 +2479,40 @@ Geri: her koşu formu `Cancel` + onay penceresiyle kapatıyor (izde `Confirm` yo
 Dosya: `cli/fm/ScoutFocus.cs` (`FormBound` + `ScoutAreas`; `ScoutNew`/`AddAreas` yolu bilerek dokunulmadı — orada
 aynı başlık `before/after` sayısı için okunuyor ve fonksiyonda temizlenmesi gereken başka sabit beklemeler var).
 `sweep.sh` gerekmedi (paylaşılan koda dokunulmadı; `scout areas` sweep'te yok).
+
+### 8.228 `fm scout new/edit --area`: bölge listesi yazma yolunda da yazıyla aranıyordu, TR'de komut çöküyordu (18 Ekim, TR + EN)
+Okuma yolu (§8.227) `FormBound`a geçmişti; yazma yolu (`ScoutNewForm`'un bölge döngüsü) hâlâ
+`FormAfter(second, "Scouting Areas", "dropdown")` ile başlık yazısını arıyordu ve `before` yazısını da
+`StartsWith("Scouting Areas")` ile buluyordu. Başlık oyunun kendi cümlesi: TR "Gözlemleme Yerleri (0)", EN
+"Scouting Areas (0)". TR'de liste `null` olunca `.Value` **yakalanmamış** `InvalidOperationException` attı:
+`scout edit 1 --area "Türkiye"` → `Unhandled exception … Nullable object must have a value` (satır 552); form
+açık kalıyordu. Yeni: liste `Binds` ile (`possiblescoutingareasdropdownselectedoption` — okuma yoluyla aynı
+denetim) ve "eklendi" işareti listenin **hemen önündeki** yazının değişmesi (`FormHeadingBefore`); hiçbir sabit
+söz aranmıyor, iki dilde de aynı öğe karşılaştırılıyor.
+- Ölçüm (kimlik): TR adım-2 formu (`/form?anchor=Back&up=12&buttons=1`) → 47 öğe; `dropdown` `Binds:
+  focusitem.possiblescoutingareasdropdownselectedoption`, hemen öncesinde `text` "Gözlemleme Yerleri (0)";
+  `select …&names=Nation>Europe>England&fire=1` sonrası aynı iki öğe: "Gözlemleme Yerleri (1)" + ardından
+  `button` "England". Yani işaret, aynı başlığın sayısı — dil değil.
+- Öncesi (eski derleme): TR `fm scout edit 1 --area "Türkiye"` → yukarıdaki çökme (rc≠0, form açık); EN aynı
+  komut `--area "Competition>England>Sky Bet Championship"` → bölge ekleniyor, komut scout adımına geçiyor
+  (`select` 6,92 sn; sonra `--by "ZZZ yok"` hatası).
+- Sonrası (yeni derleme), üç durum × iki dilde aynı komut (`--area "Competition>England>Sky Bet Championship"
+  --by "ZZZ yok"`; bölge adımından **sonra** bilerek geçersiz scout → form `Cancel` + onayla kapanır, kayıt
+  değişmez):
+  - TR, başka sayfa açık (`fm open "Squad Dynamics"`) → `select` 9,00; ilk form okuması 9,06, değişim 9,22'de
+    (0,16 sn) → komut scout adımına geçti ("Formda scout seçme butonu yok."), "Bölge eklenemedi" yok.
+  - TR, hemen ikinci koşu → aynı; TR, `fm open "Messages"` sonrası → aynı.
+  - EN, üç durum (Squad Dynamics / hemen ikinci / Messages) → üçünde de `select` sonrası komut `Assign Any
+    Scouts` penceresine geçti ("Scout: there is no option 'ZZZ yok'"), yani bölge adımı geçti. EN eski
+    derlemede de aynı yolu geçiyordu → İngilizce davranış birebir.
+- Negatif / değişmeyen: zaten seçili bölge (`Nation>Europe>England`) iki dilde de eskisi gibi eklenmiyor
+  ("Bölge eklenemedi: Nation › Europe › England" — başlık sayısı değişmiyor, oyun yinelenen bölgeyi almıyor).
+- Geri: her koşu formu `Cancel` + onay penceresiyle kapattı, hiçbir odak `Confirm` edilmedi; `fm scout --json`
+  yine **4** odak (Complete kopya yok), dil TR (`/state` → turkish), saat 2 Ağustos 2026 09:15, maç oynanmadı.
+- Yan bulgu (bu turda düzeltilmedi): `scout new/edit --by` / `--analysts` seçim penceresini açan `Edit` düğmesi
+  `FormAfter(form, "Assign Scouts", "button")` ile bulunuyor; başlık TR'de "Gözlemci Görevlendir (1)" →
+  "Formda scout seçme butonu yok." İki `Edit` düğmesi (scout/analist) ad, yazı ve olay bakımından **birebir
+  aynı** (`Name: button-base-trailing-icon-label`, `Events: OpenPanel`); pencere başlığı (`Assign Any Scouts`)
+  da yazıyla. Ayırt eden tek şey formdaki sırası ve pencere başlığı → ayrı iş.
+- Dosya: `cli/fm/ScoutFocus.cs` (`FormHeadingBefore` + bölge döngüsü), `docs/BAGIMLILIKLAR.md`, bu defter.
+  `sweep.sh` gerekmedi (paylaşılan koda dokunulmadı; `scout` sweep'te yok).

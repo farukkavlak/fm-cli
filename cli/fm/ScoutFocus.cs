@@ -33,6 +33,18 @@ internal static partial class Program
 		form.FirstOrDefault(i => Field(i, "Binds").EndsWith(binds, StringComparison.Ordinal)) is { ValueKind: JsonValueKind.Object } control
 			? control : null;
 
+	/// <summary>
+	/// The heading drawn just above a bound control, as the game writes it. The areas list's own
+	/// heading carries a count in the game's sentence ("Gözlemleme Yerleri (n)", "Scouting Areas
+	/// (n)"), so no fixed words can be looked for in it; that this same heading changed after an
+	/// area was added is the sign — the element, whatever language it is written in — that it got in.
+	/// </summary>
+	private static string FormHeadingBefore(List<JsonElement> form, string binds)
+	{
+		var at = form.FindIndex(i => Field(i, "Binds").EndsWith(binds, StringComparison.Ordinal));
+		return at > 0 && Field(form[at - 1], "Kind") == "text" ? Field(form[at - 1], "Text") : "";
+	}
+
 	/// <summary>"DL", "d (l)", "stc", "st": a position as the form's pitch writes it.</summary>
 	private static string FocusPosition(IEnumerable<string> labels, string typed)
 	{
@@ -549,16 +561,22 @@ internal static partial class Program
 		foreach (var one in (area ?? "").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
 		{
 			second = await FocusForm("Back");
-			var list = FormAfter(second, "Scouting Areas", "dropdown").Value;
-			if (await FocusArea(Field(list, "Pointer"), one) is not { } path)
+			if (FormBound(second, "possiblescoutingareasdropdownselectedoption") is not { } list)
+			{
+				await AbandonFocus();
+				Console.Error.WriteLine(L("Odak formunda bölge listesi bulunamadı."));
+				return 1;
+			}
+			var pointer = Field(list, "Pointer");
+			if (await FocusArea(pointer, one) is not { } path)
 			{
 				await AbandonFocus();
 				return 64;
 			}
-			var before = Field(second.First(i => Field(i, "Text").StartsWith("Scouting Areas", StringComparison.Ordinal)), "Text");
-			var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("names", path), ("fire", "1"));
+			var before = FormHeadingBefore(second, "possiblescoutingareasdropdownselectedoption");
+			var said = await Fm.Get("select", ("ptr", pointer), ("names", path), ("fire", "1"));
 			if (said.StartsWith("error", StringComparison.Ordinal) || !await Until(async () =>
-				(await FocusForm("Back")).FirstOrDefault(i => Field(i, "Text").StartsWith("Scouting Areas", StringComparison.Ordinal)) is { ValueKind: JsonValueKind.Object } now && Field(now, "Text") != before, seconds: 5, every: 0.4))
+				FormHeadingBefore(await FocusForm("Back"), "possiblescoutingareasdropdownselectedoption") is { Length: > 0 } now && now != before, seconds: 5, every: 0.4))
 			{
 				await AbandonFocus();
 				Console.Error.WriteLine(L($"Bölge eklenemedi: {path.Replace(">", " › ")}{(said.StartsWith("error", StringComparison.Ordinal) ? " — " + said : "")}"));

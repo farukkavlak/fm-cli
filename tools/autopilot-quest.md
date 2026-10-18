@@ -4,6 +4,27 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "Yazıyla basma" / `scout new/edit --area`** — **BİTTİ** (§8.228, Tur 39): yazma yolundaki bölge
+  döngüsü listeyi hâlâ `FormAfter(second, "Scouting Areas", "dropdown")` ile ve `before` yazısını
+  `StartsWith("Scouting Areas")` ile arıyordu; başlık oyunun cümlesi (TR "Gözlemleme Yerleri (0)") → TR'de
+  `.Value` yakalanmamış `InvalidOperationException` atıyordu (`scout edit 1 --area "Türkiye"` →
+  `Nullable object must have a value`, form açık kalıyor). Artık liste `Binds` ile
+  (`possiblescoutingareasdropdownselectedoption`, okuma yoluyla aynı denetim) ve "eklendi" işareti listenin
+  **hemen önündeki** başlığın değişmesi (`FormHeadingBefore`) — hiçbir sabit söz aranmıyor. TR üç durum
+  (`Squad Dynamics` / hemen ikinci / `Messages`) + EN üç durum: `select` sonrası ilk okumada/0,16 sn'de değişim
+  → komut bölge adımını geçti (bölge ekleme `Confirm` edilmedi, 4 odak aynı kaldı); EN eski derlemede birebir.
+- Yan bulgu (yeni alt madde açıldı): `scout new/edit --by` / `--analysts` seçim penceresini açan `Edit` düğmesi
+  hâlâ `FormAfter(form, "Assign Scouts", …)` başlığıyla bulunuyor; TR'de "Gözlemci Görevlendir (1)" →
+  "Formda scout seçme butonu yok." İki `Edit` düğmesi birebir aynı (ad/yazı/olay), ayırt eden formdaki sırası.
+- Not (kayıt durumu): kayıt yalnız okundu; hiçbir odak `Confirm` edilmedi, saat ilerletilmedi (2 Ağustos 2026
+  09:15), maç oynanmadı, ayar değişmedi; dil TR (`/state` → turkish).
+- Sıradaki tur (öneri): yeni alt madde `scout --by/--analysts` (küçük: `Edit` düğmesini formdaki sırasıyla ve
+  pencereyi kapsayıcısıyla bulmak — ölçüm gerek); B'de kalanlar `contract --agent` kartın işareti, haber
+  "Portugal", "yazıyla basma"nın kalan yerleri; A'da kısa `Until` listesi + sabit üst sınırlar.
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 38)
 - Madde: **B "Cümle parçası arayanlar" / `fm scout areas`** — **BİTTİ** (§8.227, Tur 38): Recruitment Focus formunun
   bölge listesini `FormAfter(form, "Scouting Areas", "dropdown")` başlık yazısıyla arıyordu; başlık sayı taşıyan
   oyun cümlesi (TR "Gözlemleme Yerleri (0)") ve tabloda İngilizcesi yok → TR'de `fm scout areas` her durumda rc=1
@@ -208,6 +229,50 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 39 — B `scout new/edit --area`: bölge listesi yazma yolunda da oyunun bağıyla, "eklendi" işareti başlığın kendisi (§8.228, 18 Ekim)
+Ne: `cli/fm/ScoutFocus.cs` `ScoutNewForm`'un bölge döngüsü. Liste `FormAfter(second, "Scouting Areas", "dropdown").Value`,
+`before` yazısı `StartsWith("Scouting Areas")` ile bulunuyordu; başlık oyunun kendi cümlesi (TR "Gözlemleme Yerleri (0)").
+TR'de `FormAfter` `null` dönünce `.Value` yakalanmamış `InvalidOperationException` atıyordu (satır 552), form açık
+kalıyordu. Yeni: `FormBound(second, "possiblescoutingareasdropdownselectedoption")` (okuma yoluyla aynı denetim;
+bulunamazsa `AbandonFocus` + "Odak formunda bölge listesi bulunamadı.", çökme yok) ve bekleme, listenin **hemen
+önündeki** başlığın değişmesi (`FormHeadingBefore` — aynı öğenin değeri, dilden bağımsız).
+- Ölçüm (kimlik, TR): `/form?anchor=Back&up=12&buttons=1` 47 öğe; `dropdown.Binds =
+  focusitem.possiblescoutingareasdropdownselectedoption`, `-1` komşusu `text` "Gözlemleme Yerleri (0)";
+  `/select?ptr=…&names=Nation>Europe>England&fire=1` sonrası 40 ms aralıklı okumalar: "Gözlemleme Yerleri (1)"
+  + ardından `button` "England" (satır 26/27/28) ve bu hâl sabit. `dropdown.Selected` öncesi/sonrası `-1` kalıyor →
+  işaret dropdown'ın kendisi değil, başlığı.
+- Öncesi (eski derleme `git stash push -- cli/fm/ScoutFocus.cs` + `dotnet build cli/fm -c Release`):
+  TR `fm scout edit 1 --area "Türkiye"` → iz `form …` sonra `Unhandled exception … Nullable object must have a
+  value … ScoutFocus.cs:line 552`, rc≠0, form açık (manuel `Cancel`); EN aynı komut
+  (`--area "Competition>England>Sky Bet Championship" --by "ZZZ yok"`) → `select …names=Competition>England>Sky Bet
+  Championship&fire=1` 6,92 sn, sonra scout adımı → "Scout: there is no option 'ZZZ yok'".
+- Sonrası (yeni derleme) — komut hep aynı (`… --area "Competition>England>Sky Bet Championship" --by "ZZZ yok"`;
+  `--by` bilerek geçersiz, bölge adımından **sonra** düşer → form `Cancel` + onayla kapanır, kayıt değişmez):
+  - TR: durum 1 `fm open "Squad Dynamics"` sonrası → `select` 9,00 / ilk okuma 9,06 / değişim 9,22 (**0,16 sn**)
+    → "Formda scout seçme butonu yok."; durum 2 hemen ikinci koşu ve durum 3 `fm open "Messages"` sonrası → aynı
+    ("Bölge eklenemedi" yok, çökme yok).
+  - EN (`fm settings dil English`, `/state` → english): üç durumun üçünde `select` sonrası komut `Assign Any
+    Scouts` penceresine geçti → "Scout: there is no option 'ZZZ yok'. Options: Joe Hutchinson…" (durum 3 izi:
+    `select …names=Competition>England>Sky Bet Championship&fire=1` 7,18 sn).
+  - EN eski derleme aynı komutta aynı yolu geçti → İngilizce davranış **birebir**.
+- Negatif / değişmeyen: zaten seçili bölge `Nation>Europe>England` (odak "England"/TR "İngiltere") iki dilde de
+  eklenmiyor: "Bölge eklenemedi: Nation › Europe › England" — oyun yinelenen bölgeyi almıyor, başlık sayısı
+  değişmiyor (eski kodun EN davranışı da böyleydi).
+- Yan bulgu (yeni alt madde, düzeltilmedi): `--by`/`--analysts` seçim penceresini açan `Edit` düğmesi
+  `FormAfter(form, "Assign Scouts", "button")` ile bulunuyor; TR başlığı "Gözlemci Görevlendir (1)" →
+  "Formda scout seçme butonu yok." İki `Edit` düğmesi `Name`/`Text`/`Events` bakımından **birebir aynı**
+  (`button-base-trailing-icon-label`, `OpenPanel`), ayırt eden formdaki sırası; pencere başlığı
+  (`Assign Any Scouts`, TR'de de İngilizce) da yazıyla.
+- Dönüş/geri: hiçbir odak `Confirm` edilmedi; `fm scout --json` yine **4** odak (Complete kopya yok), dil
+  `fm settings language "Türkçe"` (`/state` → turkish), saat 2 Ağustos 2026 09:15, maç oynanmadı.
+- Not (ölçüm tuzağı): EN ikinci durumda oyunun ana iş parçacığı bir kez takıldı (form okuması
+  `timeout: the main thread did not run this request within 30s`), oyun yeniden başlatılıp (`fm start` +
+  `fm continue`) koşu tekrarlandı ve geçti; kayıt değişmedi.
+- Regresyon: yalnız `ScoutFocus.cs` içi (`FormHeadingBefore` başka yerde çağrılmıyor, `FormBound` okuma yoluyla
+  ortak ve değişmedi); paylaşılan koda dokunulmadı, `scout` sweep'te yok → `sweep.sh` gerekmedi.
+- Dosya: `cli/fm/ScoutFocus.cs`, `docs/BAGIMLILIKLAR.md` (yazma yolu `[x]`, `--by` yeni alt madde),
+  `docs/FINDINGS.md` §8.228, bu defter.
 
 ### Tur 37 — B "Veri merkezi bulguları İngilizce çıktı": tabloda olan bulgu cümlesi artık oyunun dilinde (§8.226, 18 Ekim)
 Ne: `cli/fm/Program.cs`, `WriteAttachment`'ın veri merkezi dalı (satır ~1676–1681). Bulgular
