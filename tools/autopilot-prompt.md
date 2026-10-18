@@ -10,13 +10,20 @@ temada, her kulüpte, her makinede aynı çalışmalı.
 ## Bu turun sınırı
 - Yalnızca **A** (zamanlama), **B** (dil / kimlik), **C** (ayarlar) bölümlerinden ve mümkünse **D**.
 - `[?]` maddelerini atla. **§14 UX/görsel**, **G (platform)**, **H (yayın)** bölümlerine GİRME.
+- **Önce sınırlı iş:** kanıtı hızlı toplanan küçük değişiklikler (yazı→kimlik, kısa `Until`, sabit üst sınır) — B bölümü
+  ağırlıklı. Sıradaki uygun madde bu değilse bir sonrakine geç.
+- **Ağır maddeleri bu koşuda SEÇME:** bir listeyi baştan sona kaydırarak okumak/ölçmek gerektirenler. Böyle bir
+  maddeye gelirsen işaretleme; `tools/autopilot-quest.md` → "Sonraya bırakılanlar"a yaz ve başka madde seç. O
+  listedekileri bu koşuda tekrar seçme.
 - Bir madde büyükse alt maddelerine böl, ilkini yap.
 - `tools/autopilot-quest.md`'yi oku (önceki turların hafızası), sonunda güncelle.
 
 ## Bütçe (önce oku)
 Bu tur limit/token yakıyor. **Gereksiz keşif yapma.** Maddeyi seç, ilgili dosyayı `grep -n` ile bul,
 yalnız gereken satır aralığını oku. Bütün dosya ya da büyük doc (FINDINGS/PLAN) baştan sona okuma.
-Turu kısa tut: bitiremiyorsan `[?]` yap, soruyu yaz, commit et, çık — yarım tur bile yakar.
+Turu **~30 dakikada** bitir. 30 dakikayı geçtiysen ve iş hâlâ ölçüm/keşifte ise elindekiyle karar ver: bitiremediysen
+maddeyi `[?]` yap (neden + Faruk'a soru), commit et, çık. **60 dakikayı doldurup boşa yanma** — zaman aşımına takılan
+tur hiçbir şey kazandırmaz, üstelik yaptığın yarım iş geri alınır.
 
 ## Kurallar (pazarlık yok)
 1. **Önce ölç, sonra değiştir.** Yeni bir işaret en az ÜÇ durumda (sayfa ilk kez açılıyor /

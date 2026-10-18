@@ -636,6 +636,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   `#TileBindingExpect`), (2) eki olmayan bir mesajda ağacın/işaretin davranışı (bu kayıtta örnek yok). İkisi
   bulununca sabit bekleme işarete çevrilecek (§8.192).
 
+## Sonraya bırakılanlar (ağır liste/kaydırma — bu koşuda seçilmez)
+- (henüz yok)
+
 ## Sabitler
 - Kapsam: **A** (zamanlama) + **B** (dil/kimlik) + **C** (ayarlar), mümkünse **D**.
 - Girmeyeceğiz: §14 UX/görsel, **G** (platform), **H** (yayın).
