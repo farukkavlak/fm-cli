@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace FmCli;
 
@@ -277,10 +278,21 @@ internal static partial class Program
 		if (ties.GetArrayLength() > 0) return (whole ? await EveryTie(ties) : ties, null, null);
 
 		var stage = Field((await StageLists()).Value.Stage, "Label");
+		// The date of a round not drawn yet comes in a sentence the game builds for it, so the
+		// words are not English in every game ("This round will be drawn on 13/8/2026" /
+		// "Bu tur 13/8/2026 tarihinde oynanacak"); the date is taken by its own shape — the
+		// year's four digits and the separators in the game's order (BAGIMLILIKLAR §C), never
+		// which end the year sits at.
+		static string DateIn(string text)
+		{
+			var match = Regex.Match(text, @"(?:\d{4}([./-])\d{1,2}\1\d{1,2}|\d{1,2}([./-])\d{1,2}\2\d{4})");
+			return match.Success ? match.Value : null;
+		}
 		var note = (await Fm.GetJson("texts", ("anchor", stage), ("up", "12"))).EnumerateArray()
-			.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "")
-			.FirstOrDefault(t => t.StartsWith("This round will be drawn", StringComparison.Ordinal));
-		if (note != null) return (null, null, note["This round will be drawn on ".Length..]);
+			.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() ?? "" : "")
+			.Select(DateIn)
+			.FirstOrDefault(date => date != null);
+		if (note != null) return (null, null, note);
 
 		// After a match the news tiles leave tables of their own behind, three rows of places and points
 		// each, bound after the page's: "the last bound" was one of those, and the league came out three

@@ -2384,3 +2384,17 @@ yazısıyla yapılıyor (`Mutual Termination` iki dilde de İngilizce geliyor, o
 Kanıt: TR `release "Ben House"` → iki seçenek; `--free` (onaysız) üç durumda tazminat penceresi ("£350B" = 350
 bin) + "Vazgeçildi" (hiçbir şey değişmedi); EN aynı ("£350K"); izde `select ?choice=Bedelsiz Serbest Bırak&fire=1`
 (eskiden `no choice`); negatif `release "ZZZ yok"` değişmedi, listesi olmayan oyuncuda (Oscar Thorn) yine "seçenek yok".
+
+### 8.223 `fm stages`: kurası çekilmemiş turun tarihi İngilizce cümleye bağlıydı — TR'de hiç yazılmıyordu (18 Ekim, TR + EN)
+Tur açıklaması (`StageContent`) "Bu tur … çekilecek / oynanacak" cümlesini `StartsWith("This round will be drawn")`
+ile arıyor ve tarihi önekin arkasından kesiyordu. Cümleyi oyun kuruyor (içinde tarih var), eklentinin çeviri
+tablosundan geçmiyor: TR'de `/texts` → `"Bu tur 13/8/2026 tarihinde oynanacak"` (yol yok), EN'de
+`"This round will be drawn on 13/8/2026"`; aynı tur, aynı tarih. TR'de önek tutmadığı için not `null` kalıyor,
+komut boş aşamada "Bu aşamada gösterilecek bir şey yok." diyordu (`--json` → `Note:null`); EN'de doğruydu.
+Yeni: turun metinleri içinde **dört haneli yıl + ayırıcı** taşıyan ilk sözün tarihi alınıyor (`Matches.Rows`un
+tarih tanıması gibi, sıra oyunun ayarından — §C); İngilizce söz araması kalktı. Kanıt: TR üç durumda
+`Note:"13/8/2026"` / "Kura henüz çekilmedi; çekiliş 13/8/2026."; EN üç durumda ve insan çıktısında eskisiyle
+birebir ("The draw has not been made yet; the draw is 13/8/2026."); TR `--all` 8 turun 6'sına tarih veriyor
+(3. Tur 27/8, 4. Tur 3/9, Çeyrek 30/10, Yarı 18/12, Final 3/2/2027), lig tablosu (`League Stage`) ve oynanmış
+turlar (`Ties`) değişmedi; negatif `stages "Carabao Cup" "ZZZ"` aynı "aşama yok" listesi. `StageContent` dışına
+dokunulmadı; `sweep.sh` `stages`/`table` koşuyor → 50/50.

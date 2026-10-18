@@ -265,7 +265,13 @@ tablodan çevrilemiyor.
     "Saves automatically" / "Estimated game speed:" / "Selected Leagues" / "Save Game" arayışları kalktı (§8.221).
     Menajerin durumu (kartın kendi rozeti) yolu olmayan bir yazı olduğu için kulüp değerinin **yanındaki** yazı olarak
     alınıyor ("Game Status" etiketi de kalktı); TR + EN üç durumda çıktı eskisiyle birebir.
-  - [ ] Stages "This round will be drawn" · Release "Is there anything else" · Matches "Match Ratings"+"Inf"
+  - [x] Stages "This round will be drawn": kurası çekilmemiş turun tarihi artık oyunun İngilizce cümlesine değil,
+    tarihin **kendi biçimine** bağlı — cümleyi oyun kuruyor, TR'de "Bu tur 13/8/2026 tarihinde oynanacak" oluyor;
+    İngilizce önek tutmayınca tarih hiç yazılmıyordu ("Bu aşamada gösterilecek bir şey yok."). Artık turun
+    metinleri içinde dört haneli yıl + ayırıcı taşıyan sözün tarihi alınıyor (sıra oyunun tarih ayarı, §C).
+    TR üç durumda `Kura henüz çekilmedi; çekiliş 13/8/2026.`, EN üç durumda eskisiyle birebir; TR'de `--all`
+    8 turun 6'sının tarihini veriyor (eskiden yalnız İngilizce sözü tutanlar) (§8.223).
+  - [ ] Release "Is there anything else" · Matches "Match Ratings"+"Inf"
   - [?] Penalties "Starting at " / "On Subs bench" (`fm penalties` tablosunun "MAÇA" sütunu): ölçüldü, **kod
     değişmedi**. Alan (`tactic.TeamSelectedPositionStringFromPlayer`) oyunun kendi cümlesi ve iki dilde iki ayrı
     söz veriyor: TR'de kulübedeki `On Subs bench` (eklenti çeviriyor), ilk 11'de başlayan `İlk 11'de (DOSMSğ)`

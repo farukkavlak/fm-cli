@@ -4,6 +4,26 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "Cümle parçası arayanlar" / `Stages "This round will be drawn"`** — **BİTTİ** (§8.223, Tur 34):
+  kurası çekilmemiş turun tarihi `StartsWith("This round will be drawn")` ile aranıyor ve tarih öneğin arkasından
+  kesiliyordu; cümleyi oyun kurduğu için TR'de "Bu tur 13/8/2026 tarihinde oynanacak" geliyor, önek tutmuyor ve
+  not `null` kalıyordu → `fm stages "Carabao Cup" "2. Tur"` TR'de "Bu aşamada gösterilecek bir şey yok." diyordu
+  (`--json` → `Note:null`); EN'de doğruydu. Artık turun metinlerinde **dört haneli yıl + ayırıcı** taşıyan sözün
+  tarihi alınıyor (`Matches.Rows`un tarih tanıması gibi, sıra oyunun tarih ayarından — §C); İngilizce söz araması
+  kalktı. Kanıt: TR üç durumda `Note:"13/8/2026"` + "Kura henüz çekilmedi; çekiliş 13/8/2026.", EN üç durumda
+  eskisiyle birebir; TR `--all` 8 turun 6'sına tarih veriyor (3. Tur 27/8 · 4. Tur 3/9 · Çeyrek 30/10 · Yarı
+  18/12 · Final 3/2/2027); lig tablosu ve oynanmış turlar değişmedi; negatif `stages … "ZZZ"` aynı liste.
+- Not (kayıt durumu): kayıt yalnız **okundu** (2 Ağustos 2026 14:00), saat ilerletilmedi, maç oynanmadı, hiçbir
+  ayar/oyuncu değişmedi; dil Türkçeye döndü (`/state` → `turkish`).
+- Sıradaki tur (öneri): B'de kalanlar — `Release "Is there anything else"` (karşılıklı fesih konuşması),
+  `Matches "Match Ratings"+"Inf"` (§8.208 okuması bu iki söze dayanıyor; TR'de eklenti ikisini de İngilizce
+  veriyor), `contract <oyuncu> --agent` TR'de kimi koşuda satır yok (kartın kendi işareti), haber "Portugal" /
+  "Defence (Core)", veri merkezi bulguları. A'da kalan küçük iş: `TacticFiles 181` (panel kapanışından sonra
+  sabit 800 ms). Ağır: TrainingSchedule 345.
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 33)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm release` listesi** — **BİTTİ** (§8.222, Tur 33): liste
   `Label == "Release"` ile aranıyordu, oyunun etiketi **"Set For Release"** (TR'de de) → liste hiç bulunmuyordu ve
   `fm release <oyuncu>` her oyuncuda "serbest bırakma seçeneği yok." diyordu; `--free`/`--mutual` yolu hiç
@@ -106,6 +126,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 34 — B "Cümle parçası arayanlar" / `Stages "This round will be drawn"`: kurası çekilmemiş turun tarihi artık tarihin kendi biçiminden (§8.223, 18 Ekim)
+Ne: `cli/fm/Stages.cs` `StageContent`. Kurası çekilmemiş turun tarihi
+`StartsWith("This round will be drawn")` ile aranıyor, tarih `note["This round will be drawn on ".Length..]` ile
+kesiliyordu. Cümleyi oyun kuruyor (içinde tarih var), eklentinin tablosundan geçmiyor:
+TR `/texts?anchor=2.%20Tur&up=12&paths=1` → `"Bu tur 13/8/2026 tarihinde oynanacak"` (yol yok),
+EN → `"This round will be drawn on 13/8/2026"` — aynı tur, aynı tarih. TR'de önek tutmadığı için not `null`
+kalıyor, aşama boş görünüyordu. Yeni: turun metinleri içinde **dört haneli yıl + ayırıcı** taşıyan sözün tarihi
+alınıyor (`Matches.Rows`un tarih tanıması gibi; sıra oyunun tarih ayarından — §C), İngilizce söz araması kalktı.
+- Öncesi (eski derleme): TR `fm stages "Carabao Cup" "2. Tur"` üç durumda (başka sayfa açık `fm open "Squad
+  Dynamics"` / sayfa zaten açık / ilk kez `fm open "Messages"` sonrası) → `--json`: `Note:null,Ties:null,Table:null`;
+  insan: "Bu aşamada gösterilecek bir şey yok." EN aynı üç durum → `Note:"13/8/2026"` + "The draw has not been
+  made yet; the draw is 13/8/2026." (yani hata yalnız TR'de).
+- Sonrası: TR aynı üç durum → `Note:"13/8/2026"` + "Kura henüz çekilmedi; çekiliş 13/8/2026."; EN aynı üç durum
+  → eskisiyle **birebir**. TR `fm stages "Carabao Cup" --all --json` → 8 turun 6'sında tarih (3. Tur 27/8/2026 ·
+  4. Tur 3/9/2026 · Çeyrek 30/10/2026 · Yarı 18/12/2026 · Final 3/2/2027; Ön Tur/1. Tur `ties` dolu).
+- Değişmeyen / negatif: lig (`fm stages "Sky Bet League One" --json` → `Note:null`, `Table` dolu; insan tablo),
+  oynanmış tur (`"1. Tur"` → `Ties` dolu, `Note:null`), `stages "Carabao Cup" "ZZZ"` → aynı "aşama yok" listesi.
+  `Regex` yalnız tarih biçimine bakıyor; lig tablosunda tarih yok → not uydurulmuyor.
+- Regresyon: `tools/sweep.sh /tmp/sweep_t34` → **50 komut, 0 hata** (`stages` 4 sn/30 satır; `table` da geçti).
+  `StageContent` yalnız `Stages.cs` içinde çağrılıyor.
+- Dönüş/geri: kayıt yalnız okundu (2 Ağustos 2026 14:00), saat ilerletilmedi, maç oynanmadı, ayar değişmedi;
+  dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → `Language: turkish`).
+- Dosya: `cli/fm/Stages.cs` (yalnız `StageContent`), `docs/BAGIMLILIKLAR.md` (B maddesi bölündü, Stages `[x]`),
+  `docs/FINDINGS.md` §8.223, bu defter.
 
 ### Tur 33 — B "İngilizce yazıyla basma/tıklama" / `fm release`: liste ve satırlar oyunun kimliğiyle bulunuyor; komut hiç çalışmıyordu (§8.222, 18 Ekim)
 Ne: `cli/fm/Release.cs` `Release()`. Liste `dropdowns?json=1` içinde `Field(d,"Label") == "Release"` ile
