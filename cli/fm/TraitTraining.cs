@@ -216,21 +216,4 @@ internal static partial class Program
 
 	/// <summary>The assistant's "suggest a trait to train", as the action it stands for (InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining).</summary>
 	private const string TraitSuggestAction = "1263235426";
-
-	/// <summary>
-	/// The card's button standing for the given action (its ActionID), or null when the card does not
-	/// offer it. The button's label is one of the game's strings and this language's table may not
-	/// carry its English, so it cannot be asked for by words; the action is the same everywhere
-	/// (§8.209). Its action is found by the button's own event list pointing at it.
-	/// </summary>
-	private static async Task<JsonElement?> SpeakToAction(string actionID)
-	{
-		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
-			.Where(b => Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
-			.ToList();
-		if (buttons.Count == 0) return null;
-		var actions = await PullEach(buttons.Select(b => (Field(b, "Action"), "ActionID")).ToList());
-		return buttons.Zip(actions, (b, a) => (Button: b, Action: Field(a, "ActionID")))
-			.Where(t => t.Action == actionID).Select(t => (JsonElement?)t.Button).FirstOrDefault();
-	}
 }

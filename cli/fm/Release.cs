@@ -23,6 +23,9 @@ internal static partial class Program
 		return opened.StartsWith("error", StringComparison.Ordinal) ? Report(opened) : null;
 	}
 
+	/// <summary>The line that asks the agent about renewing his client's contract (InteropEventIDs.PersonAskAgentAboutClientContractRenewal).</summary>
+	private const string AskAgentAction = "1882353528";
+
 	/// <summary>
 	/// Asking his agent whether he would renew (FINDINGS §8.76): the conversation is the game's
 	/// own, carried on with `talk` — how keen we are, then the agent's answer.
@@ -40,21 +43,36 @@ internal static partial class Program
 		var name = Field(card.GetProperty("Player"), "Name");
 		if (await OpenContractSection(name) is { } failed) return failed;
 
-		const string ask = "Discuss New Contract With Agent";
-		async Task<bool> Offered()
+		// The ask is one of the manager's lines in the game's own conversation, and it is shown in
+		// this language ("Temsilci İle Yeni Sözleşme Hakkında Görüş"); its English is not in this
+		// language's table, so it cannot be asked for by words — the action it stands for is the
+		// same everywhere (FINDINGS §8.210).
+		JsonElement? offering = null;
+		await Until(async () =>
 		{
-			if ((await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(c => Field(c, "Label") == ask)) return true;
+			offering = await SpeakToAction(AskAgentAction);
+			if (offering != null) return true;
 			await Acknowledge();
 			return false;
-		}
-		if (!await Until(Offered, seconds: 10, every: 0.5))
+		}, seconds: 10, every: 0.25);
+		if (offering is not { } ask)
 		{
 			Console.Error.WriteLine(L($"{name} için menajerle görüşme seçeneği yok (yakın zamanda konuşulmuş olabilir)."));
 			return 1;
 		}
-		var pressed = await Arriving("press", [("text", ask), ("any", "1")]);
+
+		var before = await TalkButtons();
+		var pressed = await Fm.Get("press", ("ptr", Field(ask, "Pointer")));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
-		await Task.Delay(1000);
+		// The agent's conversation is the sign the ask went through: the answering lines stop being
+		// the manager's contract talk and become the agent's own. The panel is briefly empty in
+		// between, so an empty one is not a conversation — the second this used to wait guessed the
+		// machine's speed.
+		await Until(async () =>
+		{
+			var now = await TalkButtons();
+			return now.Length > 0 && now != before;
+		}, seconds: 10, every: 0.25);
 		return await TalkTo(false, ["talk"]);
 	}
 

@@ -2136,3 +2136,35 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   doğru çapa olduğu yukarıdaki ölçümle, öncesinde TR'de o satıra hiç gelinmediği için (basış düşüyordu) gerileme
   **olmadığı** kanıtıyla bırakıldı. Regresyon: `tools/sweep.sh` → 50 komut, 0 hata; kayıt test kaydı (2 Ağustos
   2026 14:00) — hiçbir alışkanlık öğretilmedi (her koşu "Don't start training" ile kapandı), saat ilerletilmedi.
+
+### 8.210 `fm contract <oyuncu> --agent`: menajeri sorma satırı artık oyunun eylem kimliğiyle, sabit 1 sn yerine konuşmanın kendi işaretiyle (18 Ekim, TR + EN)
+
+- TR oyunda `fm contract "Adam Reach" --agent` üç durumda da `menajerle görüşme seçeneği yok (yakın zamanda
+  konuşulmuş olabilir).` rc=1 veriyordu; oysa satır ekranda duruyordu: `/buttons?json=1` → `Temsilci İle Yeni
+  Sözleşme Hakkında Görüş`, `StandardButton`, `Enabled=True`, `Action` → `ActionID` **1882353528** =
+  `InteropEventIDs.PersonAskAgentAboutClientContractRenewal` (`docs/reference/enums.txt`). Eski kod
+  `press text="Discuss New Contract With Agent"` diyordu; bu söz oyunun kendi konuşma cümlesi ve bu dilin
+  tablosunda İngilizcesi yok → basış tamamen tabloya bağlıydı (§8.209'un aynısı).
+- Sabit 1 sn de bir tahmindi: basıştan sonra cevap satırları **744 ms'de boşalıp 1145 ms'de doluyor**
+  (`/buttons?json=1`, 50 ms aralık, TR; `/scroll` gibi bir işaret yok) — yani 1 sn tam boşluğa düşebiliyor.
+  EN'de bir koşuda menajerin ilk cümlesi boş geldi (`  ` sonra `[Very Interested]`), sonraki koşularda doldu.
+- Yeni: satır `SpeakToAction(1882353528)` ile bulunuyor (eklentinin `Action` düğümünün `ActionID`'si; yardımcı
+  `Acknowledge.cs`'e taşındı, `training --trait-suggest` de onu kullanıyor), işaretçisiyle basılıyor; sonra
+  "cevap satırları değişti **ve** boş değil" bekleniyor (`TalkButtons()`, 0,25 sn aralık, 10 sn üst sınır —
+  süre yalnız üst sınır, §8.199'un işareti). Bulunamazsa eski hata satırı aynen yazılıyor.
+- Öncesi/sonrası (her koşu **taze** oyuncuyla: sorma hakkı basışla o oturumda tükeniyor, satır kayboluyor):
+  TR üç durum (başka sayfa açık / kart zaten açık / başka sekme) önce `… seçeneği yok`, rc=1; sonra
+  `Merhabalar hocam. Benimle hangi konuda görüşmek istemiştiniz?` + 4 cevap, rc=0. EN üç durum önce/sonra
+  birebir aynı (`What can I do for you?` + 4 satır, rc=0). Negatif: hakkı tükenmiş oyuncuda eskisiyle birebir
+  rc=1; `"ZZZ yok"` → "kadroda da aramada da yok", rc=1. Kayıt: 2 Ağustos 2026 14:00, hiçbir şey söylenmedi
+  (her konuşma `PanelHistoryClose` ile kapatıldı), saat ilerletilmedi. `tools/sweep.sh` 50/50.
+- Kapanış (bu tur, aynı iş): değişiklik derlenip üç durumda iki dilde koşuldu. EN üç durum — başka sayfa
+  (`fm open "Squad Dynamics"`) Reeco Hackett, kart zaten açık Jack Moylan, sayfa ilk kez (`fm open "Messages"`)
+  Ryley Towler — üçünde rc=0, 12 satır (`What can I do for you?` / `Hey! What did you want to talk about?` + 4 cevap).
+  TR üç durum (Oscar Thorn, üç durumda da aynı oyuncu) rc=0, 12 satır (`Benimle mi görüşmek istediniz hocam?` + 4).
+  Her koşu `PanelHistoryClose` ile kapatıldı; hiçbir şey söylenmedi, saat 14:00'te kaldı.
+- Kalan (yeni madde): TR'de kimi oyuncu/koşuda satır bulunamıyor — Tom Hamer ve Zach Jeacock aynı oturumda önce
+  rc=0 sonra `seçenek yok`; Josh Honohan, Ben Waine, Erik Ring EN'de rc=0, TR'de `seçenek yok`. Yani tümden dile
+  bağlı değil, koşuya bağlı görünüyor; bu sırada ekranda kalan bir sözleşme görüşmesi kartı görüldü
+  (`/buttons?json=1` → `Finalise Promises` / `Cancel Negotiations`, ikisinin de `Action` alanı **boş**), yani
+  kartın hangi oyuncunun kartı olduğu/işareti ayrı ölçülmeli (§8.197/§8.208'in bağlı kalan panel tuzakları).

@@ -4,25 +4,48 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **B "İngilizce yazıyla basma/tıklama" / `training --trait-suggest`** — **BİTTİ** (§8.209, Tur 20): düğme
-  artık İngilizce yazısıyla değil oyunun eylem kimliğiyle bulunuyor (`Action` düğümünün `ActionID`'si 1263235426 =
-  `InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining`). TR'de üç durumda `error: no control labelled …`
-  (rc=1) idi, şimdi üç durumda öneri penceresi (rc=0); EN birebir aynı kaldı. Cümleli cevap yolu bu kayıtta
-  üretilemedi (bkz. §8.209 sonu).
-- Bir sonraki tur: A/`Task.Delay` kalan adaylar: `Responsibilities 283/388` · `Scouting 100` · `TrainingSchedule 345` ·
-  `TacticFiles 181` · `Jobs 231` · `League 243` · `ScoutFocus …` (`Matches 82` bitti; `Staff 74` + `TraitTraining 32`
-  park/bitti, `OppositionCard 55` park).
-  Ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`).
-  Ya da B "İngilizce yazıyla basma/tıklama — 44 yer": aynı yol (`/buttons?json=1&gen=` → `Action` → `ActionID`/`Event`,
-  adı `docs/reference/enums.txt`'te) başka yerlere de uygulanabilir. Ölçülmüş ikinci örnek: `opposition` seçenek
-  adları gösterildiği gibi yazılamıyor (TR'de `Pres=Her Zaman` olmuyor) — BAGIMLILIKLAR B'de.
-  Yeni yan bulgu (ayrı madde): `fm player <oyuncu> --matches` ikinci/başka oyuncuda bir an **önceki** oyuncunun
-  tablosunu (ya da boş satır) okuyabiliyor — FM'in bağlı kalan panelleri (§8.194, §8.197, §8.208 sonu).
-  Yeni yan bulgu (Tur 20): arka arkaya koşularda `fm training` bazen "'Training Rating' döşemesi yok" diyor
-  (sayfa yığını; tur başında `fm open "Messages"` sonrası ilk koşularda çıktı, sonra kendi kendine geçti) — ayrı madde.
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `contract <oyuncu> --agent` satırı** — **BİTTİ** (§8.210, Tur 21):
+  satır artık `SpeakToAction(1882353528)` ile bulunuyor (eklentinin `Action` düğümünün `ActionID`'si, oyunun eylem
+  kimliği), işaretçisiyle basılıyor; sabit 1 sn yerine "cevap satırları değişti ve boş değil" bekleniyor.
+  TR'de eskiden üç durumda da `menajerle görüşme seçeneği yok`, rc=1 idi. Bu turda: TR üç durum (başka sayfa /
+  kart zaten açık / sayfa ilk kez) rc=0, 12 satır; EN üç durum rc=0, 12 satır (üç ayrı oyuncuyla). Kulüp test
+  kaydı bozulmadı (hiçbir şey söylenmedi, her konuşma `PanelHistoryClose` ile kapandı, saat 14:00).
+- Bir sonraki tur: bu işin **kalanı** — TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka
+  koşuda `seçenek yok`; aynı oyuncular EN'de hep bulunuyor) ve o sırada ekranda `Action` alanı boş bir sözleşme
+  görüşmesi kartı (`Finalise Promises` / `Cancel Negotiations`) görüldü → kart/işaret ölçümü (BAGIMLILIKLAR B).
+  Öbür bekleyenler: `cli/fm/Numbers.cs`te **commit edilmemiş** bir iş var (158 açılış 1,5 sn + 177 kaydırma
+  400 ms işarete çevrilmiş, docs yok, ölçüm yok) — Tur 20'den kalmış; bir sonraki tur onu ölçüp ya commitlesin ya
+  geri alsın. Ayrıca A/`Task.Delay` adayları: `Responsibilities 283/388` · `Scouting 100` · `TrainingSchedule 345` ·
+  `TacticFiles 181` · `Jobs 231` · `League 243` · `ScoutFocus …`; kısa `Until` adayları (`Saves 207/220`,
+  `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`); B "İngilizce yazıyla basma/tıklama — 44 yer".
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 21 — B "İngilizce yazıyla basma/tıklama" / `contract <oyuncu> --agent`: satır oyunun eylem kimliğiyle, sabit 1 sn yerine konuşmanın işaretiyle (§8.210, 18 Ekim)
+Ne: `cli/fm/Release.cs` (+ `Acknowledge.cs`e taşınan `SpeakToAction` yardımcısı, `TraitTraining.cs` onu kullanıyor).
+Bu turun bir önceki koşusu kodu ve dokümanı yazmış, 40 dk sınırında commit atmadan öldürülmüştü; bu tur kodu
+derleyip üç durumda iki dilde yeniden ölçtü ve commitledi.
+- Öncesi (ölü koşunun ölçümü, §8.210): TR'de `press text="Discuss New Contract With Agent"` sözü oyunun kendi
+  konuşma cümlesi ve tabloda İngilizcesi yok → üç durumda da `… menajerle görüşme seçeneği yok`, rc=1. Sabit 1 sn
+  de tahmin: basıştan sonra cevap satırları 744 ms'de boşalıp 1145 ms'de doluyor.
+- Sonrası (bu tur, `/tmp/t22/`): EN üç durum rc=0, 12 satır — başka sayfa açık Reeco Hackett `What can I do for
+  you?`, kart zaten açık Jack Moylan `Hey! What did you want to talk about?`, sayfa ilk kez (`fm open "Messages"`)
+  Ryley Towler `What can I do for you?`. TR üç durum (Oscar Thorn) rc=0, 12 satır, üçünde de
+  `Benimle mi görüşmek istediniz hocam?` + 4 cevap. Her koşudan sonra konuşma `PanelHistoryClose` ile kapatıldı.
+- Negatif: `fm contract "ZZZ yok" --agent` → rc=1, `'ZZZ yok' adında bir oyuncu kadroda da aramada da yok.`
+- Kalan (yeni madde): TR'de kimi koşuda satır bulunamıyor — Tom Hamer ve Zach Jeacock aynı oturumda önce rc=0,
+  sonra `seçenek yok`; Josh Honohan, Ben Waine, Erik Ring EN'de rc=0, TR'de `seçenek yok`. O sırada ekranda
+  `Action` alanı boş bir sözleşme görüşmesi kartı (`Finalise Promises` / `Cancel Negotiations`) görüldü; yani iş
+  tümden dile bağlı değil, kartın hangi oyuncuda ne durduğuna bağlı görünüyor → BAGIMLILIKLAR B'ye madde yazıldı.
+- Dönüş: `fm settings language "Türkçe"` → `English → Turkish`, `/state` → `Language: turkish`; saat ilerletilmedi,
+  maç oynanmadı, hiçbir şey söylenmedi (her konuşma `PanelHistoryClose` ile kapandı).
+- Regresyon: ilk `tools/sweep.sh` koşusu **tuzağa düştü** (§8.198, Tur 9'dakinin aynısı): `scout` 30 sn'de zaman
+  aşımına uğradı, sonraki iki komut `Kayıt yüklü değil` (rc=69) → sweep 24 komutta durdu. Oyun `fm start` +
+  `fm continue` ile aynı kayda döndü (2 Ağustos 2026 09:15; saat ilerletilmedi, maç oynanmadı) ve ikinci koşu
+  **50 komut, 0 hata** (`/tmp/sweep_t22b`). İlk koşudaki hata kodun kendi hatası değil; kayıt yüklenince geçti.
+- Bilerek bırakılan: `cli/fm/Numbers.cs`teki commit edilmemiş iş (başka madde) dokunulmadı.
+
 
 ### Tur 20 — B "İngilizce yazıyla basma/tıklama" / `training --trait-suggest`: düğme artık oyunun eylem kimliğiyle (§8.209, 18 Ekim)
 Ne: `cli/fm/TraitTraining.cs`. Düğme `press text="Ask For Trait Training Suggestion"` ile aranıyordu; eklenti sorgu

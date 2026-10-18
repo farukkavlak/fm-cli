@@ -29,7 +29,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · Jobs 231 · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · Numbers 158 177 ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
-  Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
+  Registration 32 115 301 305 · Release ~~57~~ 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
   Scouting 100 · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · TrainingSchedule 345 · ~~TraitTraining 32~~ · Transfers 96 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
@@ -122,6 +122,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     oyuncunun en eski maçı (#1) sessizce düşüyordu ve sayfa başka bir bakıştan kaydırılmış kalmışsa düşen satır
     değişiyordu (okuma nereden bakıldığına bağlıydı). Ölçüm: **19 → 20 satır**, dört oyuncuda da tam; üç durumda
     TR `md5 d4b4b0ea…` (5 koşu) / EN `md5 d9ddd02b…` (4 koşu); süre soğuk 8,8–9,9 / sıcak 3,5–3,8 sn (§8.208).
+  - [x] Release 57 (`fm contract <oyuncu> --agent`'te menajeri sorma satırından sonraki sabit 1 sn): satır artık
+    oyunun **eylem kimliğiyle** (bkz. B bölümü, §8.210) bulunup basılıyor; bekleme yerine oyunun kendi işareti
+    bekleniyor — cevap satırları menajerin sözleşme konuşması olmaktan çıkıp menajerin kendi sorularına dönüyor
+    (arada panel bir an **boş** kalıyor: 744 ms'de boşalıp 1145 ms'de dolduğu ölçüldü → sabit 1 sn tam o boşluğa
+    düşüyordu; bir EN koşusunda menajerin ilk cümlesi boş geldi). TR'de üç durumda öncesi `menajerle görüşme
+    seçeneği yok`, rc=1; sonrası üç durumda menajerin konuşması + 4 cevap, rc=0 (§8.210).
   - [?] OppositionCard 55 (`--advice` / `--clear` sonrası 500 ms): **kaldı**. Kartın ara yerleşimi iki okumada aynı
     görünebiliyor (192–281 ms arası aynı satırlar, gerçek sonuç 384 ms'de) — "iki okuma aynı" işareti erken kabul ederdi
     (Staff 74'ün tuzağı); "Apply all advice" düğmesinin durumu (etkin/olay) uygulama boyunca değişmiyor. Ölçüldü, işaret
@@ -206,8 +212,17 @@ tablodan çevrilemiyor.
     işaretçisiyle basılıyor. Bu sözün İngilizcesi oyunun çeviri tablosunda hiç yok (`/translate?words=…` boş; komşu beş
     söz çevriliyor), o yüzden yazıyla basmak dilin tablosuna bağlıydı. Cevapsız (cümleli) durumdaki cevap da düğmenin
     kendi sözüyle aranıyor. TR + EN üç durumda öneri penceresi (rc=0), negatif oyuncu rc=1 (§8.209).
+  - [x] `contract <oyuncu> --agent` satırı: artık eylem kimliğiyle bulunuyor — eklentinin `Action` düğümünün
+    `ActionID`'si **1882353528** (`InteropEventIDs.PersonAskAgentAboutClientContractRenewal`), işaretçisiyle
+    basılıyor. Bu satır oyunun kendi konuşma cümlesi; TR'de "Temsilci İle Yeni Sözleşme Hakkında Görüş" olarak
+    geliyor ve tabloda İngilizcesi yok, bu yüzden `press text="Discuss New Contract With Agent"` TR'de hiç
+    bulunamıyordu (üç durumda `menajerle görüşme seçeneği yok`, rc=1 — oysa satır ekranda duruyordu). Şimdi TR
+    üç durumda menajerin konuşması + 4 cevap (rc=0), EN birebir aynı (§8.210).
 - [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
   İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
+- [ ] `contract <oyuncu> --agent`: TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka koşuda
+  `seçenek yok`; aynı oyuncular EN'de hep bulunuyor). Ekranda kalan bir sözleşme görüşmesi kartı (`Finalise
+  Promises` / `Cancel Negotiations`, `Action` alanı boş) görüldü — kartın kendi işareti ölçülecek (§8.210 sonu).
 - [ ] **`opposition` seçenek adları:** seçenekler eklentiden İngilizce geliyor, kullanıcı da onları yazmak zorunda
   (`Pres=Always` çalışır, `Pres=Her Zaman` çalışmaz), ama hata mesajı ve yardım satırı seçenekleri oyunun sözleriyle
   yazıyor ("Seçenekler: - · Hiçbir Zaman · Her Zaman", "opposition <oyuncu> Pres=Always Sert giriş=Hard") — yani
