@@ -127,31 +127,44 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (!await OpenFmMenu()) return 1;
 
-		// The menu's tiles fill in one after another; it is read once two looks agree.
-		var texts = new List<string>();
+		// The menu's tiles fill in one after another; it is read once two looks agree and the two
+		// values that say the tiles are there have arrived. The menu is found — and every value taken
+		// — by the data path it is bound to: what it is, whatever word stands beside it. The labels
+		// and sentences around them ("Saves automatically…", "Estimated game speed:", "Save Game")
+		// are the game's own and read differently in another language.
+		var menu = new List<(string Text, string Path)>();
 		var previous = "?";
 		await Until(async () =>
 		{
-			texts = (await Fm.GetJson("texts", ("anchor", "Manage settings for this game"), ("up", "12"))).EnumerateArray()
-				.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
-			var key = string.Join("|", texts);
-			var settled = key == previous && texts.Contains("Selected Leagues") && texts.Contains("Estimated game speed:") && texts.IndexOf("Save Game") > 0;
+			menu = (await Fm.GetJson("texts", ("anchorpath", "game.GameTime"), ("up", "12"), ("paths", "1"))).EnumerateArray()
+				.Select(t => (Text: Field(t, "Text"), Path: Field(t, "Path"))).ToList();
+			var key = string.Join("|", menu.Select(f => $"{f.Path}={f.Text}"));
+			var settled = key == previous && menu.Any(f => f.Path == "game.GameTime") && menu.Any(f => f.Path == "game.RealTimeSinceLastSave");
 			previous = key;
 			return settled;
 		}, seconds: 8, every: 0.5);
 
-		string After(string label, int skip = 1) => texts.IndexOf(label) is >= 0 and var at && at + skip < texts.Count ? texts[at + skip] : "";
-		string Before(string label, int back = 1) => texts.IndexOf(label) is var at && at - back >= 0 ? texts[at - back] : "";
-		var saved = After("Save Game As");
-		var when = After("Save Game As", 2) is { } w && w.StartsWith('(') ? w.Trim('(', ')') : "";
-		var auto = texts.FirstOrDefault(t => t.StartsWith("Saves automatically", StringComparison.Ordinal) || t.StartsWith("Autosave", StringComparison.Ordinal)) ?? "";
-		var played = Before("Estimated game speed:");
+		string At(string path) => menu.FirstOrDefault(f => f.Path == path).Text ?? "";
+
+		// The manager's status is the tile's own pill, bound to nothing; it is taken as the text
+		// standing right after the club the game gives — by what it sits beside, not by the label
+		// above ("Game Status") nor by where it falls in the list.
+		string Status()
+		{
+			var at = menu.FindIndex(f => f.Path == "Person.ManagedTeamsString");
+			return at >= 0 && at + 1 < menu.Count ? menu[at + 1].Text : "";
+		}
+
+		var when = At("game.GameTimeSinceLastSave");
+		when = when.StartsWith('(') ? when.Trim('(', ')') : "";
 		var world = new
 		{
-			Save = Before("Save Game"), LastSaved = saved, LastSavedAt = when, Autosave = auto, Played = played,
-			Nations = After("Selected Nations"), Leagues = After("Selected Leagues"), Players = After("Approximate player count"),
-			Manager = After("Game Status"), Club = After("Game Status", 2), Status = After("Game Status", 3),
-			InternationalDetail = After("International Competition Detail Levels"), CompetitionDetail = After("Competition Detail Levels"),
+			Save = At("app.LastSaveSummary.GameSummaryGameName"),
+			LastSaved = At("game.RealTimeSinceLastSave"), LastSavedAt = when,
+			Autosave = At("game.AutosaveModeAndIntervalString"), Played = At("game.GameTime"),
+			Nations = At("game.ActiveNationsCount"), Leagues = At("game.ActiveLeaguesCount"), Players = At("game.EstimatedPlayerCount"),
+			Manager = At("Person.Name"), Club = At("Person.ManagedTeamsString"), Status = Status(),
+			InternationalDetail = At("game.DetailLevelInternational.DisplayValue"), CompetitionDetail = At("game.DetailLevelClub.DisplayValue"),
 		};
 
 		// The menu is a layer over the page; it is closed again so the next command finds the page.

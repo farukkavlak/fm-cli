@@ -2350,3 +2350,21 @@ uyarısı, 8–9 sn → `CanApply:false`, uyarı yok, 3–5 sn; `jobs "Fildişi 
 `CanApply:true` ("Başvurmak için…", düğme `Enabled=True`); menajersiz ulus ilanlarının liste sütunu artık "?" değil
 "açık"/"kapalı" (menajeri olanlarda değişen yok: sütun yine "?", çünkü onlar hiç sorulmuyor). Kulüp ilanı (`jobs "York" --json`, `md5 34c583c8…` TR / `1ee49ee3…` EN) üç durumda **eskisiyle
 birebir**; her komut üç durumda (başka sayfa açık / panel zaten açık / başka sayfaya geçtikten sonra) aynı `md5`.
+
+### 8.221 `fm world`: dünya bilgisi artık menünün yazılarıyla değil veri yoluyla okunuyor (18 Ekim, TR + EN)
+`World()` değerleri etiketlerin yanına/öncesine bakarak alıyordu (`Before("Save Game")`, `After("Save Game As")`,
+`texts.FirstOrDefault(t => t.StartsWith("Saves automatically"))`, `Before("Estimated game speed:")`,
+`After("Game Status", 3)`) ve menüyü `anchor=Manage settings for this game` ile buluyordu — hepsi oyunun kendi
+sözü. Ölçüm (`/texts?anchorpath=game.GameTime&up=12&paths=1`): FM menüsünün bütün değerleri bağlı ve yolları
+dilden bağımsız — `game.RealTimeSinceLastSave` ("Last saved less than a minute ago"), `game.GameTimeSinceLastSave`
+(TR "Oyun içindeki süreye bakarsak 09:15 gibiydi"), `game.AutosaveModeAndIntervalString`, `game.GameTime`
+(TR "1 Gün, 10 Saat, 26 Dakika"), `game.ActiveNationsCount`/`ActiveLeaguesCount`/`EstimatedPlayerCount`,
+`game.DetailLevelClub/International.DisplayValue`, `Person.Name`/`Person.ManagedTeamsString`,
+`app.LastSaveSummary.GameSummaryGameName`; "Saves automatically…", "Estimated game speed:", "Save Game" gibi
+etiketlerin **yolu yok**, yalnız yazıları var. Yeni kod sayfayı `anchorpath=game.GameTime` ile buluyor, değerleri
+yolla alıyor; bekleme "iki okuma aynı **ve** `game.GameTime` ile `game.RealTimeSinceLastSave` geldi" (ilk okuma
+0,90 sn, işaret 1,47 sn). Tek bir yazı yolla alınamıyor: menajerin durum rozeti (TR "Oyun", EN "Playing") bağlı
+değil — o, kulüp değerinin (`Person.ManagedTeamsString`) hemen ardındaki yazı olarak, etiketle değil komşusuyla
+alınıyor (JSON'daki İngilizcesi TR'de "Game Information" geliyor; bu eklentinin ters tablosunun işi, okuma değil).
+Ölçüm: TR + EN, üç durum (başka sayfa açık / menü zaten açık / başka sayfadan) → alan alan ve insan çıktısı
+`md5` (TR `899c9313…`, EN `b4399afa…`) **eski derlemeyle birebir**; `sweep.sh` 50 komut, 0 hata (`world` 2 sn, 6 satır).

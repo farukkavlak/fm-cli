@@ -257,8 +257,15 @@ tablodan çevrilemiyor.
     hazır). TR + EN üç durumda: `Denmark`/`Fildişi Sahilleri` `CanApply:false` + "Başvuru kapalı…", `United States`
     `CanApply:true` + "Başvurmak için…"; kulüp ilanı `York` eski derlemeyle **birebir**; 8–9 → 3–5 sn; negatif
     `jobs "ZZZ yok"` değişmedi (§8.220).
-  - [ ] Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" ·
-    Release "Is there anything else" · Matches "Match Ratings"+"Inf" · Saves "Estimated game speed:"
+  - [x] Saves "Saves automatically" / "Autosave" · Saves "Estimated game speed:" (`fm world`): menü artık
+    yazıların yanındaki değerleri sayarak değil **veri yoluyla** okuyor — sayfa `anchorpath=game.GameTime` ile
+    bulunuyor, değerler `game.RealTimeSinceLastSave`, `game.GameTimeSinceLastSave`, `game.AutosaveModeAndIntervalString`,
+    `game.GameTime`, `game.ActiveNationsCount`/`ActiveLeaguesCount`/`EstimatedPlayerCount`,
+    `game.DetailLevel*`, `Person.Name`/`ManagedTeamsString`, `app.LastSaveSummary.GameSummaryGameName` ile alınıyor;
+    "Saves automatically" / "Estimated game speed:" / "Selected Leagues" / "Save Game" arayışları kalktı (§8.221).
+    Menajerin durumu (kartın kendi rozeti) yolu olmayan bir yazı olduğu için kulüp değerinin **yanındaki** yazı olarak
+    alınıyor ("Game Status" etiketi de kalktı); TR + EN üç durumda çıktı eskisiyle birebir.
+  - [ ] Stages "This round will be drawn" · Release "Is there anything else" · Matches "Match Ratings"+"Inf"
   - [?] Penalties "Starting at " / "On Subs bench" (`fm penalties` tablosunun "MAÇA" sütunu): ölçüldü, **kod
     değişmedi**. Alan (`tactic.TeamSelectedPositionStringFromPlayer`) oyunun kendi cümlesi ve iki dilde iki ayrı
     söz veriyor: TR'de kulübedeki `On Subs bench` (eklenti çeviriyor), ilk 11'de başlayan `İlk 11'de (DOSMSğ)`

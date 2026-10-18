@@ -4,6 +4,26 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "Cümle parçası arayanlar" / `Saves "Saves automatically" / "Autosave"` · `Saves "Estimated game speed:"`**
+  (`fm world`) — **BİTTİ** (§8.221, Tur 32): FM menüsü artık `anchorpath=game.GameTime` ile bulunuyor ve bütün
+  değerler veri yoluyla okunuyor (`game.RealTimeSinceLastSave`, `game.GameTimeSinceLastSave`,
+  `game.AutosaveModeAndIntervalString`, `game.GameTime`, `game.ActiveNationsCount`/`ActiveLeaguesCount`/
+  `EstimatedPlayerCount`, `game.DetailLevel*`, `Person.Name`/`ManagedTeamsString`,
+  `app.LastSaveSummary.GameSummaryGameName`); "Saves automatically…", "Estimated game speed:", "Selected Leagues",
+  "Save Game" arayışları kalktı. Bekleme "iki okuma aynı **ve** iki değer geldi" (okuma 0,90 → işaret 1,47 sn).
+  Tek istisna: menajerin durum rozeti hiçbir yola bağlı değil → etiketle değil, kulüp değerinin **yanındaki** yazı
+  olarak alınıyor. TR + EN üç durumda alan alan ve insan çıktısı eski derlemeyle **birebir** (insan `md5` TR
+  `899c9313…`, EN `b4399afa…`); `sweep.sh` 50 komut, 0 hata (`world` 2 sn, 6 satır).
+- Not (kayıt durumu): kayıt yalnız **okundu**; 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı, hiçbir
+  ayar değiştirilmedi; dil Türkçeye döndü (`/state` → `turkish`).
+- Sıradaki tur (öneri): B'de kalan cümle parçaları — `Stages "This round will be drawn"` (kura tarihi, sayfada
+  yolu var mı bakılacak), `Release "Is there anything else"` (örnek mesaj gerek), `Matches "Match Ratings"+"Inf"`
+  (§8.208 okuması bu sözlere dayanıyor). A'da kalan küçük iş: `TacticFiles 181` (panel kapanışından sonra sabit
+  800 ms), kısa `Until` üst sınırları. Ağır: TrainingSchedule 345 (takvim ayı karışıklığı).
+- Not: ağaç temiz (yalnız bu turun dosyası `cli/fm/Saves.cs`), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 31)
 - Madde: **B "İş paneli ekran yazısıyla bulunuyordu"** (Tur 30'un yan gözlemi: ulus ilanlarında `CanApply`
   bilinmiyordu) — **BİTTİ** (§8.220, Tur 31): panel başlıkta kulüp adı (`Contains(job.Club)`) **ve** "Training
   Facilities" satırıyla tanınıyordu; ikisi de dile/kayda bağlı (ulus başlığı oyunun sözüyle: TR "Danimarka
@@ -62,6 +82,47 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 32 — B "Cümle parçası arayanlar" / `fm world`: menü ve değerleri artık yazıyla değil veri yoluyla okunuyor (§8.221, 18 Ekim)
+Ne: `cli/fm/Saves.cs` `World()` (`fm world`). Değerler etiketlerin yanına/öncesine bakarak alınıyordu:
+`Before("Save Game")`, `After("Save Game As")`, `After("Save Game As", 2)`,
+`texts.FirstOrDefault(t => t.StartsWith("Saves automatically") || t.StartsWith("Autosave"))`,
+`Before("Estimated game speed:")`, `After("Selected Nations")`, `After("Selected Leagues")`,
+`After("Approximate player count")`, `After("Game Status")`/`(…, 2)`/`(…, 3)`,
+`After("International Competition Detail Levels")`/`(…)`; menü de `anchor=Manage settings for this game` ile
+bulunuyor ve "geldi mi" işareti `texts.Contains("Selected Leagues") && texts.Contains("Estimated game speed:")`
+idi — hepsi oyunun kendi sözü. Yeni: sayfa `anchorpath=game.GameTime` ile bulunuyor (veri yolu, dilden bağımsız;
+ölçüm: bu kökten `up=12` eskisiyle aynı listeyi veriyor) ve sayfa `paths=1` okunuyor; her değer bağlı olduğu
+yoldan alınıyor — `app.LastSaveSummary.GameSummaryGameName` (kayıt adı), `game.RealTimeSinceLastSave`,
+`game.GameTimeSinceLastSave` (parantezliyse ayıklanıyor), `game.AutosaveModeAndIntervalString`,
+`game.GameTime` (oynanan süre), `game.ActiveNationsCount`/`ActiveLeaguesCount`/`EstimatedPlayerCount`,
+`game.DetailLevelClub/International.DisplayValue`, `Person.Name`/`Person.ManagedTeamsString`.
+İşaret: iki okuma **aynı** ve `game.GameTime` ile `game.RealTimeSinceLastSave` **geldi** (0,5 sn aralık, en çok 8 sn).
+Tek bir yazının yolu yok: menajerin durum rozeti (ekranda TR "Oyun", EN "Playing") bağlı değil → etiket ("Game Status")
+yerine kulüp değerinin (`Person.ManagedTeamsString`) **hemen ardındaki** yazı olarak alınıyor.
+- Ölçüm (okuma yolu): `curl '/texts?anchorpath=game.GameTime&up=12&paths=1'` → 36 metin; yolu olanlar yukarıdaki
+  değerler, "Saves automatically…" / "Estimated game speed:" / "Save Game" / "Game Status" gibi etiketlerin yolu **yok**.
+  FM menüsü `/texts?...&paths=1` ile uçtan uca okunabiliyor; rozetin İngilizcesi TR oyunda "Game Information" geliyor
+  (eklentinin ters tablosu; okuma değil).
+- İz (`FM_TRACE=1 fm world --json`, TR): menü 0,54'te açılıyor → `texts ?anchorpath=game.GameTime&up=12&paths=1`
+  0,90 / 1,47 → işaret tuttu (0,57 sn), kapanış 1,64. Eskiden aynı yerde `anchor=Manage settings for this game` okumaları vardı.
+- Öncesi (eski derleme, `git stash` + `dotnet build cli/fm -c Release`), üç durum (`fm open "Messages"` sonrası /
+  menü zaten açık — curl ile `dashboard-hud-fm-button` basılıp / `fm open "Squad Dynamics"` sonrası) × iki dil:
+  alanlar her iki dilde de **doğruydu** — TR `Status=Game Information`, `Played=1 Gün, 10 Saat, 26 Dakika`,
+  `LastSavedAt=Oyun içindeki süreye bakarsak 09:15 gibiydi`; EN `Status=Playing`, `Played=1 Day, 10 Hours, 26 Minutes`,
+  `LastSavedAt=Today at 09:15 in-game time`. Yani bu madde bir **hata düzeltmesi değil**, yazı/sıra bağımlılığını
+  veri yoluna çevirme (kanıt: çıktı değişmedi, ama okuma artık etikete bağlı değil).
+- Sonrası (yeni derleme, aynı üç durum × iki dil): alan alan **birebir aynı**; insan çıktısı da birebir —
+  TR `md5 899c9313ba0cff8f0ba341033066ad3d`, EN `md5 b4399afafd450365728151ec2f896111` (eski derlemede de aynı iki `md5`).
+  `Save`/`LastSaved`/`Nations`/`Leagues`/`Players`/`Manager`/`Club`/`Detail` alanları da aynı.
+- Not (ölçüm tuzağı): `LastSaved` ("Last saved less than a minute ago" → "…1 minute ago") gerçek zamana bağlı
+  değişiyor; `md5` karşılaştırmaları arka arkaya koşularda yapıldı, kalıcı karşılaştırma alan alan.
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (`world` 2 sn, 6 satır;
+  `/private/var/folders/…/T/opencode/sweep_t32`). `World()` yalnız `fm world`'dan çağrılıyor, başka dosyaya dokunulmadı.
+- Dönüş/geri: kayıt yalnız okundu; dil `fm settings dil English` → `fm settings language "Türkçe"`
+  (`/state` → `Language: turkish`); saat 2 Ağustos 2026 14:00, ilerletilmedi; maç oynanmadı.
+- Dosya: `cli/fm/Saves.cs` (yalnız bu fonksiyon), `docs/BAGIMLILIKLAR.md` (B alt maddesi `[x]`), `docs/FINDINGS.md` §8.221,
+  bu defter.
 
 ### Tur 31 — B "İş paneli ekran yazısıyla bulunuyordu" / `fm jobs <ilan>`: panel oyunun kendi kabından okunuyor, ulus ilanlarında başvuru durumu yanlış söyleniyordu (§8.220, 18 Ekim)
 Ne: `cli/fm/Jobs.cs` (`SelectJob` + yeni dosya-içi yardımcı `JobPanel`). Panel iki ekran yazısıyla tanınıyordu:
