@@ -4,19 +4,42 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **B "`fm settings` 'Match Day' sekmesini yazıyla açıyor; TR/DE oyunda sekme 'Matchday' yazıyor"** — bitti ve
-  düzeltildi (§8.204, Tur 15): sekme artık düğmenin bulunduğu **kapsayıcı adıyla** açılıyor (`MatchDayTabButton`,
-  `YourWorldTabButton`, `ProcessingTabButton`; şablonun adları, dilden bağımsız; düğme `DetailedPreferencesTabButton`),
-  bulunamazsa eskisi gibi yazıya düşüyor. TR (4 durum) ve DE `fm settings --json` 15 → **19** satır (maç gösterimi/
-  dinamik mod/vurgu hızı/ara hızı okunuyor); EN üç durumda eski derlemeyle birebir (`md5 cb604c52…`). Yazma yolu aynı
-  sekmede çalışıyor, negatif reddediliyor.
+- Madde: **A "`Task.Delay`" / `Staff 74` (Staff.cs, All Staff tablosunu kaydırdıktan sonra sabit 400 ms)** — **PARK**
+  (§8.205, Tur 16): sabit duraklamayı oyunun işaretiyle ("pencere kaydırmadan öncekinden farklı **ve** art arda iki
+  okumada aynı") değiştirmek denendi, hızlıydı (TR ~4,5–5,0 → ~2,8–3,2 sn) ama **18 koşunun 2'sinde pencere kaybetti**
+  (34 ve 42 satır; 400 ms'lik duraklama 12/12 ve iki dilde üçer durumda 48 satır). Nedenleri ölçüldü: oyun ara
+  yerleşimi sakin gösteriyor (aynı 20 satır iki okumada), kaydırma çapası bir an bulunamıyor, 50 ms'lik yoklama köprüyü
+  sıkıştırıyor. Kod `git restore` edildi; soru BAGIMLILIKLAR'da.
 - Bir sonraki tur: A/`Task.Delay` sıradaki adaylar: `TraitTraining 32` · `Responsibilities 283/388` · `Matches 82` /
-  `OppositionCard 55 91` · `TrainingSchedule 345`; ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`,
-  `TacticSlots 112`, `League 216`, `Prep 124`). Alternatif B: İşlem sekmesinin üç listesi hâlâ başlıkla bulunuyor
-  (oyun blok adı vermiyor); `fm settings` "Manage settings for this game" / "See all" yazılarıyla menüyü açıyor.
-- Durum: bitti, commit atıldı
+  `OppositionCard 55 91` · `TrainingSchedule 345` · `Scouting 100` · `TacticFiles 181` — **`Staff 74` park edildi, tekrar
+  denemeyin**; ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`,
+  `Prep 124`). Alternatif B: İşlem sekmesinin üç listesi hâlâ başlıkla bulunuyor (oyun blok adı vermiyor); `fm settings`
+  "Manage settings for this game" / "See all" yazılarıyla menüyü açıyor. Not: köprü 60 çağrılık sık bir döngüde
+  kilitlendi; oyun `pkill` + `fm start` ile yeniden açıldı (test kaydı son kayıttan yüklendi).
+- Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 16 — A "`Task.Delay`" / `Staff 74` — PARK, kod geri alındı (§8.205, 18 Ekim)
+Ne: `cli/fm/Staff.cs`teki All Staff okuması (`foreach share { scroll; Task.Delay(400); oku }`) sabit duraklamadan
+oyunun işaretine çevrildi: `RowsLaidOut(was, moved)` — pencere kaydırmadan öncekinden **farklı** ve art arda iki
+okumada **aynı** olunca kabul; `TableScrolled(share)` kaydırmanın oynayıp oynamadığını `scroll` cevabını `?to`suz
+çağrıyla karşılaştırarak söylüyor. Derlendi, ölçüldü, **geri alındı** (`git restore cli/fm/Staff.cs`) — kural 4.
+- Öncesi (sabit 400 ms), ilk oturum: TR üç durum (başka sayfa açık / sayfa açık / başka sekmeden) 48 satır,
+  `md5 13926f52d5ba79fc9c16047fe4f0112d`, süre 7,9 / 4,5 / 4,6 sn; EN üç durum 48 satır, `md5 aa55a48b…`,
+  5,6 / 4,7 / 4,5 sn; arka arkaya **12/12 koşu 48 satır**.
+- Sonrası (işaret): EN A 48 satır ✓ / **B 34 satır ✗** / C 48 ✓, süreler 3,1 / 2,8 / 3,2 sn; 6 koşuluk seride
+  `42, 48, 48, 48, 34, 48` → 18 koşunun 2'sinde pencere kaybı.
+- Neden (FM_TRACE + ara okuma saysı): `at 0.75: agree=True differs=True` ile **20 satır** iki okumada aynı dönüp tam
+  sanıldı (ara yerleşim sakin görünüyor); bir koşuda kaydırma sorgusu hata döndü (`TableScrolled` null) ve gezinti
+  kesildi; 50 ms'lik yoklama köprüyü sıkıştırıyor.
+- Satırların oturma ölçümü (geçici `python3`, `/scroll` + `/texts?anchor=All Staff&up=12&paths=1`): beş noktada
+  93 / 272 / 125 / 93 / 213 ms → 400 ms'in payı ~1,5–4 kat.
+- Yeni oturum doğrulaması (oyun `pkill` + `fm start` sonrası, geri alınmış kod): EN üç durum 48 satır
+  `md5 5c9e418e…`, 5,6 / 4,5 / 4,4 sn; TR üç durum 48 satır `md5 2d0ad32b…`, 5,0 / 4,4 / 4,6 sn. Dönüş:
+  `fm settings language "Türkçe"` → `English → Turkish` (oyun TR bırakıldı).
+- Dokümanlar: BAGIMLILIKLAR (alt madde `[?]`), FINDINGS §8.205, bu defter. Kod değişmedi → `sweep.sh` gerekmedi;
+  paylaşılan koda (Bridge/OpenPage/reply) dokunulmadı.
 
 ### Tur 15 — B "`fm settings` 'Match Day' sekmesini yazıyla açıyor" (TR/DE): sekme kapsayıcıyla açılıyor (§8.204, 18 Ekim)
 Ne: `cli/fm/Settings.cs`. `PreferencesTab` sekmeyi `click ?text=<sekme>&name=DetailedPreferencesTabButton` ile
@@ -363,6 +386,11 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Önce/sonra (aynı oyuncu, TR): `fm happiness "Ben House"` önce "moral Poor", sonra "moral Kötü".
 
 ## Park edilenler ([?], kararı verilmiş)
+- A "`Task.Delay`" / `Staff 74` (18 Ekim, Tur 16): kaydırmadan sonraki sabit 400 ms işarete çevrilemedi — oyun ara
+  yerleşimi sakin gösterebiliyor (aynı 20 satır iki okumada) ve kaydırma çapası bir an bulunamıyor; işarete bağlı sürüm
+  18 koşunun 2'sinde pencere kaybetti, 400 ms 12/12 tam. **Karar bekleniyor:** (a) 400 ms kalsın (bu makinede pay
+  ~1,5–4 kat), (b) kaydırma "görünen son satırın kendi yazısına" çapalanıp liste baştan sona gezilsin (Mutluluk'taki
+  gibi; ayrı ve daha büyük bir iş). Ölçüm §8.205. Kod `git restore` edildi, tekrar denemeyin.
 - C "Boy birimleri" (Faruk'a soru, 18 Ekim): oyuncunun `Height` alanı ayardan bağımsız, her zaman ham santimetre
   (`fm settings boy Fit` iken de `fm player --json` → `Height: 178`); CLI'nin " cm" yazısı veriyle tutuyor, yani
   bugün yanlış okumuyor. Oyunun birim ayarına uydurmak (Fit seçiliyken fit/inç göstermek) Preferences sayfasını

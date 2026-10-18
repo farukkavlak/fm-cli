@@ -95,6 +95,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     (değişmezse 3 sn; eskiden sabit 1,5); 20 atama + 2 `--auto` üç durumda doğru (§8.180). İngilizcede denenmedi.
   - [x] `coaches` 3/10: okuma yalnız tam ızgarayı ("ad, görev, dokuz kutu+yıldız", iş yüküne kadar) kabul ediyor; 12
     açılışta 17 ara hal reddedildi, 12/12 tam (§8.180). Kural yapıdan, dilden bağımsız.
+  - [?] Staff 74 (kaydırmadan sonra sabit 400 ms): sabit duraklamayı oyunun işaretiyle değiştirmek **denendi ve geri
+    alındı** — satırlar kaydırmadan 93–272 ms sonra oturuyor, ama oyun tam olmayan bir pencereyi de "sakin" gösterebiliyor
+    (20 satır iki okumada aynı) ve kaydırma çapası bir an bulunamıyor; işarete bağlı sürüm 18 koşunun 2'sinde pencere
+    kaybetti (34/42 satır), 400 ms'lik duraklama 12/12 tam (48). Sabit duraklama şimdilik kalıyor (§8.205). Faruk'a
+    soru: 400 ms bu listeye yetiyor mu, yoksa kaydırma "görünen son satırın kendi yazısına" çapalanıp (Mutluluk'taki
+    gibi) liste baştan sona gezilsin mi — ikincisi ayrı ve daha büyük bir değişiklik.
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   Calendar 157 · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·

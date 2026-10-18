@@ -2023,3 +2023,19 @@ sekmenin **kapsayıcı adını** veriyor (`#MatchDayTabButton`, `#YourWorldTabBu
   `fm settings "vurgu hızı" --json` → `10x`. Negatif: `fm settings "vurgu hızı" 7x` → "bir seçenek değil", rc=1.
 - Dönüş: `fm settings language "Türkçe"` → `German → Turkish` (`/state` → `Language: turkish`); final TR koşusu 19
   satır, ilk koşuyla aynı `md5`.
+### 8.205 `fm staff`: kaydırmadan sonraki 400 ms sabit duraklama işarete çevrilemedi — oyun "tam olmayan pencereyi" de sakin gösteriyor (18 Ekim, TR + EN)
+Amaç: `Staff 74`deki `Task.Delay(400)`u (All Staff tablosu 5 kaydırma noktasında okunmadan önce) oyunun kendi işaretine
+çevirmek. Denenen işaret: "pencere kaydırmadan öncekinden farklı **ve** art arda iki okumada aynı" (+ kaydırmanın
+oynadığını `scroll` cevabını `to`suz çağrıyla karşılaştırarak anlamak).
+- Ölçüm (öncesi): beş noktada satırlar 93, 272, 125, 93, 213 ms'de oturuyor (iki okuma aynı olunca); 400 ms duraklamanın
+  payı yalnız ~1,5–4 kat. Sabit duraklama bu makinede hep doğru okudu: TR üç durumda (başka sayfa / sayfa açık / başka
+  sekmeden) 48 satır `md5 2d0ad32bf80a03049e0e82e6b2b6e57c`, EN üç durumda 48 satır `md5 5c9e418ec3a04046dcd4872be1357c2e`
+  (değerler 18 Ekim oturumunun; para biçimi oturuma göre değişiyor), ve arka arkaya **12/12 koşu 48 satır**.
+- Denenen sürüm hızlıydı (TR ~4,5–5,0 sn → ~2,8–3,2 sn) ama **pencere kaybetti**: 18 koşunun 2'sinde 34 ve 42 satır.
+  Nedenleri veriden: (1) oyun ara yerleşimi "sakin" gösterebiliyor — aynı **20 satır** art arda iki okumada dönüyor
+  (`agree=True differs=True`, ~17–64 ms arayla) ve pencere tam sanılıyor, (2) bir koşuda kaydırma sorgusu hata döndü
+  (çapa o an bulunamadı) ve "oynamadı" sanılıp gezinti kesildi; eski kod kaydırma cevabına hiç bakmadığı için bu anları
+  duraklamayla atlıyor, (3) 50 ms'lik sık yoklama köprüyü sıkıştırıyor (60 çağrılık bir döngü 120 sn'yi aştı) → cevaplar
+  yerleşimin gerisinde kalıyor.
+- Karar (kural 4): kanıtlanmış iyi hâl yok → `git restore cli/fm/Staff.cs`, madde `[?]`, soru BAGIMLILIKLAR'da. Not:
+  "Mutluluk"taki gibi çapayı **görünen son satırın kendi yazısına** taşıyıp listeyi baştan sona gezmek ayrı bir iş.
