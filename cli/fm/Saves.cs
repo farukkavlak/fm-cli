@@ -235,9 +235,29 @@ internal static partial class Program
 		return false;
 	}
 
+	/// <summary>
+	/// The save browser's own answers, by what they send rather than by their words: "Save" sends
+	/// the game's SaveGame, and "Cancel" is the button of that same panel that only closes it
+	/// (ClosePanel). The template name cannot tell them apart — "button-base-leading-icon-label"
+	/// is Browse's and Delete's too — and both labels are this language's strings run through the
+	/// table, so the words are kept only as a fallback for a screen this cannot recognise.
+	/// </summary>
+	private static async Task<string> BrowserButton(bool save)
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
+		var go = buttons.FirstOrDefault(b => Field(b, "Events") == "SaveGame");
+		if (go.ValueKind != JsonValueKind.Object) return await Fm.Get("click", ("text", save ? "Save" : "Cancel"));
+		if (save) return await Fm.Get("click", ("ptr", Field(go, "Pointer")));
+
+		var leave = buttons.FirstOrDefault(b => Field(b, "Page") == Field(go, "Page") && Field(b, "Events") == "ClosePanel");
+		return leave.ValueKind == JsonValueKind.Object
+			? await Fm.Get("click", ("ptr", Field(leave, "Pointer")))
+			: await Fm.Get("click", ("text", "Cancel"));
+	}
+
 	private static async Task CloseSaveBrowser()
 	{
-		await Fm.Get("click", ("text", "Cancel"));
+		await BrowserButton(save: false);
 		await Until(async () => !await OnScreen("Last saved"), seconds: 5, every: 0.25);
 	}
 
@@ -286,7 +306,7 @@ internal static partial class Program
 			await CloseSaveBrowser();
 			return Report(typedIn);
 		}
-		var clicked = await Fm.Get("click", ("text", "Save"));
+		var clicked = await BrowserButton(save: true);
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
 			await CloseSaveBrowser();

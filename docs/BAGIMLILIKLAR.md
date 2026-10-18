@@ -397,6 +397,14 @@ tablodan çevrilemiyor.
     yazıya düşülüyor. TR + EN üç durumda üç yol (`ayarla 99` / `ayarla 15` / `ayarla 14` + geri) eski derlemeyle
     **birebir**, izde `click ?ptr=…` (§8.235). Kartın **okuma** yolu (Wage/Transfer Budget, Scouting, "Budget
     Adjustment" çapaları) yazıyla kalıyor: o sayıların sayfada veri yolu yok (ölçüldü, ayrı iş).
+  - [x] `save --as` / `saves delete`: kayıt tarayıcısının "Cancel" ve "Save"i artık **gönderdikleri olayla** basılıyor —
+    Cancel `ClosePanel`, Save `SaveGame` (`SaveAs`'te `Save`, `CloseSaveBrowser`da Cancel; `Name` ayırt etmiyor:
+    Browse/Delete/Cancel aynı `button-base-leading-icon-label` şablonunda). Kimlik bulunamazsa yazıya düşülüyor.
+    TR + EN, üç durum × iki yol (`saves delete "<yüklü kaydın adı>" --yes` → tarayıcı açılıp Cancel ile kapanıyor,
+    rc=1; `save --as "<aynı ad>" --yes` → Save + "Replace Existing File" onayı, rc=0) eski derlemeyle **birebir**
+    (`md5`); izde `click ?text=Cancel`/`?text=Save` → `click ?ptr=…` (§8.236). `Delete` (silme Faruk'un kararı,
+    ölçülemedi) ve yükleme ekranının `Load`u yazıyla kalıyor — sıradaki alt madde. FM menüsünün "Save Game As"
+    satırı da yazıyla kalıyor (satırın numarası eklentinin `Events` özetinde yok; eklenti değişikliği ister).
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

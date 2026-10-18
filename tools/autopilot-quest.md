@@ -3,7 +3,36 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 46)
+## Şu an (Tur 47)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `save --as` · `saves delete` (kayıt tarayıcısının `Cancel`/`Save`i)** —
+  **BİTTİ** (§8.236, Tur 47): `SaveAs` düğmeyi `click ?text=Save`, `CloseSaveBrowser` `?text=Cancel` ile basıyordu.
+  Ölçülen kimlikler (TR, tarayıcı açıkken `/buttons?json=1`, panel `008eea55…`): tarayıcının dört düğmesi **aynı
+  şablonu** taşıyor (`Name` = `button-base-leading-icon-label`: Browse/Delete/Cancel) → `Name` ayırt etmiyor; ayırt
+  eden **gönderdikleri olay**: Cancel `ClosePanel`, Save `SaveGame` (Delete `DeleteSelectedGame`, Browse
+  `SetDatastoreValue`). Artık `BrowserButton(save)` önce `Events == SaveGame`i buluyor, Cancel için **aynı `Page`teki**
+  `ClosePanel` düğmesi alınıyor; kimlik bulunamazsa eskisi gibi yazıya düşülüyor.
+- Kanıt: TR + EN, üç durum (başka sayfa açık `fm open "Messages"` / FM menüsü zaten açık / başka sayfaya geçtikten
+  sonra `fm open "Squad Dynamics"`) × iki yol (`saves delete "<yüklü kaydın adı>" --yes` rc=1 "şu an yüklü olan kayıt;
+  silinmez" + tarayıcı Cancel ile kapanıyor; `save --as "<aynı ad>" --yes` rc=0 "Kaydedildi: …" + "Replace Existing
+  File" onayı) — koşular **eski derlemeyle birebir** (stdout `md5`: TR delete boş `d41d8cd9…`, TR save `d4d552c7…`,
+  EN save `46212f7f…`; rc dağılımı aynı); izde eski `click ?text=Cancel` / `?text=Save` → yeni `click ?ptr=0x…`.
+  Negatif: `saves delete "zzz yok" --yes` rc=1, `save --as` onaysız rc=1 — ikisi de tarayıcı açmıyor.
+  Sweep: **50 komut, 0 hata** (`saves` rc=0, 7 satır). Kayıt yalnız okundu + **aynı adla** üzerine yazıldı (yeni dosya
+  açılmadı, yüklü kaydın adı değişmedi); 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı; dil
+  `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
+- Not (ölçüm tuzağı): TR oyunda ayarın **adı** da oyunun sözü — geçiş `fm settings dil "English"`, dönüş
+  `fm settings language "Türkçe"`. Ayrıca `OpenFmMenu`/`OpenSaveBrowser` ara sıra ilk koşuda tarayıcıyı açmıyor (FM
+  menüsü tıklaması hedefi dinlemeden gidiyor; `PreferencesTab` bu yüzden yolu iki kez yürüyor) — ölçüm 4 denemeye
+  kadar tekrarladı, ilk TR koşusu 2. denemede geçti; **kod değişmedi** (ayrı iş).
+- Sıradaki tur (öneri): aynı sınıfın kalan yerleri — `saves`in `Delete`i (`DeleteSelectedGame`; silme Faruk'un kararı
+  olduğu için ölçülemedi) ve yükleme ekranının `Load`u; `ScoutFocus` formunun `Cancel`/`Next`/`Confirm`i (çok adımlı
+  form, §8.234 sonundaki `FocusAt` yarışıyla birlikte); `StaffSearch` arama panelinin `Apply`/`Cancel`i. A'da kısa
+  `Until`ler (League 216 · MatchControls 131 266 · Reads 892 · Saves 207 220 · TacticFiles 29 · TraitTraining 89).
+  Park: Stages 337, TrainingSchedule 345.
+- Not: ağaçta yalnız bu turun dosyası var (`cli/fm/Saves.cs`, BAGIMLILIKLAR, FINDINGS, bu defter), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 46)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `budget` düğmeleri** — **BİTTİ** (§8.235, Tur 46): `fm budget ayarla`
   üç basışı da oyunun İngilizce sözüyle yapıyordu (kartı açan döşeme `Adjust Transfer and Wage Budget`, kartın
   `Got It` ve `Cancel`i). Ölçülen kimlikler: döşeme bir `SpeakToAction`, eylemi **1885623898**
@@ -419,6 +448,44 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 47 — B "yazıyla basma" / `save --as` · `saves delete`: kayıt tarayıcısının Cancel/Save'i artık gönderdikleri olayla basılıyor (§8.236, 19 Ekim)
+Ne: `cli/fm/Saves.cs`. `SaveAs` (289) `click ?text=Save`, `CloseSaveBrowser` (240) `?text=Cancel`. Yerine yeni yerel
+yardımcı `BrowserButton(bool save)`: `buttons ?json=1` içinde `Events == "SaveGame"` düğmesi bulunuyor (Save için o
+basılıyor); Cancel için **aynı `Page`teki** `Events == "ClosePanel"` düğmesi alınıyor; kimlik bulunamazsa eskisi gibi
+yazı yolu. `Name` ayırt etmiyor (Browse/Delete/Cancel hepsi `button-base-leading-icon-label`).
+- Ölçüm (kimlik): tarayıcı açıkken `/buttons?json=1` → panel `008eea55baa5a3c49b3e446596ede765`:
+  `BindableTextEditBox EditBox` ("Faruk Kavlak - Fenerbahçe", `OnSubmitEvents→SaveGame`), `Browse`
+  (`SetDatastoreValue`), `Delete` (`DeleteSelectedGame`, `Enabled=False`), **`Cancel` (`ClosePanel`)**,
+  **`Save` (`SaveGame`)** — dördü de `button-base-leading-icon-label` / `button-primary-leading-icon-label`.
+  FM menüsü satırı `Save Game As` = `Name=button-base-label`, `Events=FMMenuOptionFromID` (seçenek numarası yok) →
+  satır yazıyla kalıyor.
+- Öncesi/sonrası: `/private/var/folders/…/opencode/t47/run.sh` TR + EN, üç durum (s1 `fm open "Messages"` sonrası / s2 FM menüsü zaten açık /
+  s3 `fm open "Squad Dynamics"` sonrası) × iki yol. `saves delete "Faruk Kavlak - Fenerbahçe" --yes` (tarayıcı açılır,
+  Cancel kapatır, rc=1, stderr "'…' şu an yüklü olan kayıt; silinmez…" / EN "is the save loaded now; it is not
+  deleted") ve `save --as "Faruk Kavlak - Fenerbahçe" --yes` (tarayıcı açılır, Save basılır, "Replace Existing File"
+  onaylanır, rc=0 "Kaydedildi: … (2 Ağustos 2026 Pazar)" / EN "Saved: … (2 August 2026 Sunday)").
+  stdout `md5`: TR delete boş `d41d8cd98f00b204e9800998ecf8427e` (3/3), TR save `d4d552c7844b8005649f054ac42d8413`
+  (3/3), EN save `46212f7f30265749e8e115da9b1f1683` (3/3) — **eski derleme (git stash) ile birebir**.
+- İz (aynı komutlar): eski derleme `click ?text=Save Game As` → `click ?text=Cancel` / `type …` → `click ?text=Save`
+  → `click ?ptr=<dialog onayı>`; yeni derleme `click ?text=Save Game As` → `click ?ptr=0x…` (Cancel) / `type …` →
+  `click ?ptr=0x…` (Save) → `click ?ptr=0x…` (onay). Tarayıcıyı açan satır her iki derlemede de yazıyla
+  (`?text=Save Game As`), çünkü o satırın kimliği yok.
+- Negatif/değişmeyen: `saves delete "zzz yok" --yes` rc=1 (adaylar listelenir, tarayıcı hiç açılmaz);
+  `save --as "<ad>"` onaysız rc=1 ("üzerine yazar … Onaylamak için: save --as … --yes"), tarayıcı açılmaz.
+- Karar/gerekçe: iki etiket de oyunun kendi sözleri ve bu dilin tablosundan geçiyor (§8.209/§8.234/§8.235 sınıfı);
+  tablo çakışmaları yüzünden yazı yolu dile bağlı, olay yolu değil. Çıktı birebir olduğu için kimlik öne alındı,
+  yazı yedek olarak duruyor.
+- Dönüş/geri: kayıt yalnız okundu ve **aynı adla** üzerine yazıldı (yeni dosya yok, `fm saves --json` aynı dört kayıt,
+  yüklü kaydın adı değişmedi); 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı; dil EN ölçümünden sonra
+  `fm settings language "Türkçe"` ile geri alındı (`/state` → `turkish`).
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (Türkçe oyunda; `saves` rc=0, 1 sn, 7 satır). Değişiklik yalnız
+  `Saves.cs` (yeni yerel yardımcı), paylaşılan koda dokunulmadı.
+- Not (ölçüm tuzağı): TR oyunda ayarın adı da oyunun sözü (`fm settings dil "English"` ile geçildi, dönüş
+  `fm settings language "Türkçe"`). `OpenFmMenu`/`OpenSaveBrowser` ara sıra ilk koşuda tarayıcıyı açmıyor (ilk TR
+  koşusu 2. denemede geçti; EN'de 6/6 ilk denemede) — **kod değişmedi**, ayrı iş.
+- Dosya: `cli/fm/Saves.cs`, `docs/BAGIMLILIKLAR.md` (B "yazıyla basma" altında yeni `[x]` alt madde),
+  `docs/FINDINGS.md` §8.236, bu defter.
 
 ### Tur 46 — B "yazıyla basma" / `budget`: kartı açan döşeme ve kartın "Got It"/"Cancel"i artık işaretçiyle (§8.235, 19 Ekim)
 Ne: `cli/fm/Budget.cs` `Budget()`. Üç basış oyunun İngilizce sözüne dayanıyordu: `click text="Adjust Transfer and Wage

@@ -2661,3 +2661,29 @@ alındıktan sonra 626B £ / 2.320 £ (EN: 584K/626K) — kayıt başladığı y
 (`BudgetFigures` "Wage Budget"/"Transfer Budget", `BudgetOverview` "Transfer Budget"/"Scouting" çapaları, `BudgetCard`
 "Budget Adjustment") yazıyla kalıyor — ölçüldü, o sayıların sayfada veri yolu yok (`/texts?paths=1` yalnız
 `club.RemainingWageBudgetWithText`, `club.CurrentWageSpendingWithText` veriyor), yani ayrı bir iş.
+
+### 8.236 `fm save --as` / `fm saves delete`: kayıt tarayıcısının "Cancel" ve "Save"i artık gönderdikleri olayla basılıyor (19 Ekim, TR + EN)
+`SaveAs` (Saves.cs 289) ve `CloseSaveBrowser` (240) düğmeyi İngilizce sözüyle basıyordu (`click ?text=Save`,
+`?text=Cancel`). Oysa tarayıcının dört düğmesi **aynı şablonu** taşıyor (`Name` = `button-base-leading-icon-label`:
+Browse, Delete, Cancel; `button-primary-leading-icon-label`: Save) — yani `Name` ayırt etmiyor; ayırt eden gönderdikleri
+olay. Ölçüm (TR, tarayıcı açıkken `/buttons?json=1`, panel `008eea55baa5a3c49b3e446596ede765`): **Cancel** `ClosePanel`,
+**Save** `SaveGame`, Delete `DeleteSelectedGame`, Browse `SetDatastoreValue`; hepsi `Enabled=True`. Artık yardımcı
+(`BrowserButton(save)`) önce `Events == SaveGame` düğmesini buluyor (Save onu basıyor), Cancel için **aynı `Page`teki**
+`Events == ClosePanel` düğmesi alınıyor; kimlik bulunamazsa eskisi gibi yazıya düşülüyor.
+Kanıt: TR + EN, üç durum (başka sayfa açık `fm open "Messages"` / FM menüsü zaten açık / başka sayfaya geçtikten sonra
+`fm open "Squad Dynamics"`) × iki yol: `saves delete "<yüklü kaydın adı>" --yes` (tarayıcı açılır, Cancel kapatır, rc=1
+"… şu an yüklü olan kayıt; silinmez.") ve `save --as "<aynı ad>" --yes` (tarayıcı açılır, Save basılır, "Replace Existing
+File" onaylanır, rc=0 "Kaydedildi: …"). Altı koşu iki dilde **eski derlemeyle birebir** (`md5` stdout: TR delete boş
+`d41d8cd9…`, TR save `d4d552c7…`, EN save `46212f7f…`; rc dağılımı aynı); izde eskiden `click ?text=Cancel` /
+`?text=Save`, yeni derlemede `click ?ptr=0x…`. Değişmeyen: `SaveAs` aynı adı yazınca oyun "Replace Existing File" diye
+soruyor ve onaylanıyor (yeni dosya açılmadı, yüklü kaydın adı değişmedi); negatifler (`saves delete "zzz yok"` rc=1,
+`save --as` onaysız rc=1) hiç tarayıcı açmıyor. FM menüsünün "Save Game As" satırı **yazıyla kalıyor**: satırın kimliği
+`FMMenuOptionFromID` ve seçeneğin kendi numarası eklentinin `Events` özetinde yok (Tur 45 notu, eklenti değişikliği
+ister). Aynı sınıfta kalan: tarayıcının `Delete` (silme Faruk'un kararı, ölçülemedi) ve yükleme ekranının `Load`u.
+Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (Türkçe oyunda; `saves` rc=0, 7 satır). Değişiklik yalnız
+`Saves.cs` içinde (yeni yerel yardımcı); paylaşılan koda dokunulmadı. Not (ölçümün kayda etkisi): kayıt yalnız
+**okundu** ve aynı adla üzerine yazıldı (yeni dosya yok, `fm saves --json` yine dört kayıt, yüklü kaydın adı
+değişmedi; oyunun kendi "last save overwrite backup"ı her üzerine yazmada yenileniyor — normal); 2 Ağustos 2026 14:00
+durumu, saat ilerletilmedi, maç oynanmadı; dil EN
+ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → `turkish`). Tuzak: TR oyunda ayarın adı
+da oyunun sözü — `fm settings dil "English"`, dönüş `fm settings language "Türkçe"`.
