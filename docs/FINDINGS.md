@@ -2312,3 +2312,23 @@ eşleşme olmadığı için insan çıktısı ham cümleyi, EN'de `ilk 11 · DMC
 `--json` `Where` alanı da dile bağlı. `/form` bu satır için yalnız o metni ve yolunu veriyor (dile bağsız
 "ilk 11/kulübe" alanı yok); `/tactic` Slot'ları kısaltılmış ad (`Bayliss`) ve sayısal `Position` maskesi taşıyor,
 ceza tablosundaki tam adlarla birleştirmek kırılgan. Dilden bağımsız yol bulunmadan değiştirilmedi (PARK).
+
+### 8.219 `jobs apply|interest`: iş panelinin iki cevabı olayla bulunuyor; basıştan sonraki sabit 1 sn yerine oyunun cevabı bekleniyor (18 Ekim, TR + EN)
+`fm jobs "<kulüp>" apply|interest` iki düğmeyi İngilizce etiketle (`ButtonEnabled("Apply For Job")`,
+`JobButton(label)`) arıyordu ve basıştan sonra **sabit 1 sn** bekleyip `dialog` okuyordu. Artık ikisi de oyunun
+kendi olayıyla bulunuyor: `/buttons?json=1` → `Events` içinde `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`
+(TR + EN'de aynı; pointer'lı basış), ve bekleme oyunun cevabına bağlı — "`dialog` doldu **veya** düğme artık
+sunulmuyor" (0,25 sn aralık, en çok 6 sn).
+Ölçüm (python, `/press?ptr=` + 40 ms aralıkla `/dialog` ve düğmenin `Enabled`'i): basıştan sonra düğme
+**0,467 sn** (York apply) ve **0,629 sn** (York interest) yavaşlıyor, `dialog` 13,5 sn boyunca boş kalıyor →
+eski kodun 1 sn'si makine hızına dair bir tahmindi ve tam o anda boş `dialog` okuyordu. Derleme izi (TR):
+eski kod `press` 3,32 → tek `dialog` 4,43 (1,11 sn) → "Gönderildi…"; yeni kod `press` 4,35 → okumalar
+4,41/4,45/4,79/4,84/4,91 (düğme `Enabled=False`) → aynı satır 0,56 sn'de. Üç durum (sayfa ilk kez açılıyor /
+zaten açık / başka sayfa açık) × iki dil: TR York apply + Celesti interest + Udinese interest, EN York interest +
+Celesti interest + Udinese interest → hepsi rc=0, çıktı "Gönderildi. Cevap gelen kutusuna düşer: inbox" /
+"Sent. The answer will come to the inbox: inbox" (basış → kabul 0,20–0,75 sn). Veriden doğrulama: `fm jobs "York"`
+artık "Başvuru kapalı…" (başvuru gerçekten gitmiş). Negatif: TR `fm jobs "Villarreal" apply --yes` →
+"Villarreal başvuru kabul etmiyor…" rc=1; EN'de ulus işleri (`Denmark`, `Brazil`) panelde "Training Facilities"
+olmadığı için `CanApply` zaten bilinmiyor, komut eskisi gibi "does not take applications" diyor (bu değişiklikten
+değil; eski kodda da etiketle aranan düğme panel yokken bulunmuyordu). Ölçüm basışları test kaydında; kayıt
+`fm load … --no-save` ile baştan yüklendi (dosyaya yazılmadı), dil Türkçeye döndü.

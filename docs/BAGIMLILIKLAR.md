@@ -26,7 +26,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
 - [ ] **`Task.Delay` — 89 yer.** Her biri sınıflanacak: döngüde yoklama aralığı (sorun yok) mı, "bekle sonra yap" mı.
   Dosya: satırlar —
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
-  ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · Jobs 231 · Launcher 213 269 · League 243 ·
+  ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · ~~Jobs 231~~ · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
@@ -93,6 +93,16 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     sabit 500 ms kaldırıldı; döşeme basılmadan önce soruluyor (`press ?…&dry=1`, 0,25 sn aralıkla, en çok 8 sn) ve
     ancak ekranda olunca basılıyor. `fm training "Ben House" --trait` üç durumda TR (`md5 8a43caed…`) + EN
     (`md5 9e92fe93…`) öncesiyle birebir aynı 10 satır; döşeme→döşeme aralığı 0,57–0,60 → 0,43–0,53 sn (§8.206).
+  - [x] Jobs (başvurudan sonra sabit 1 sn; satır 408): basıştan sonraki bekleme oyunun kendi cevabına bağlandı —
+    "`dialog` doldu **veya** düğme artık sunulmuyor" (0,25 sn aralık, en çok 6 sn). Ölçüm: düğmenin `Enabled`'i
+    basıştan **0,467 sn** (apply) / **0,629 sn** (interest) sonra düşüyor ve `dialog` 13,5 sn boş kalıyor → eski 1 sn
+    tam o anda boş `dialog` okuyordu (eski derleme izi: `press` 3,32 → tek `dialog` 4,43; yeni: `press` 4,35 →
+    `Enabled=False` 4,79–4,91). Üç durum × TR + EN: altı basış da rc=0, çıktı eskisiyle aynı ("Gönderildi…" /
+    "Sent…"), basış→kabul 0,20–0,75 sn; `fm jobs "York"` artık "Başvuru kapalı…" (§8.219). Dosyada `Task.Delay`
+    kalmadı.
+  - [x] `jobs apply|interest` düğmeleri: panelin iki cevabı artık etiketle değil **olayla** bulunuyor (`Events` içinde
+    `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`; TR + EN'de aynı, `docs/reference/enums.txt`), basış
+    işaretçiyle. Negatif: TR `Villarreal apply` → "başvuru kabul etmiyor", rc=1 (§8.219, B "yazıyla basma" maddesi).
   - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel isteyen bir söz
     konuşması lazım; o an oyunda yok, ölçülmeden değiştirilmedi. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
@@ -272,6 +282,10 @@ tablodan çevrilemiyor.
     başka bir metne bağlı ("Offer Player" → "Oyuncuyu Takasa Kat"), bu yüzden TR'de etiket İngilizce hiç gelmiyordu
     (`Oyuncuyu Kulüplere Öner`) ve `fm propose` TR'de her durumda `Önerme ekranı açılamadı.` ile rc=1 veriyordu.
     Şimdi TR'de iki oyuncuda üç durum aynı çıktı (rc=0), EN eski derlemeyle birebir (§8.217).
+  - [x] `jobs "<kulüp>" apply` / `interest` düğmeleri: artık eylem/olay kimliğiyle bulunuyor — eklentinin verdiği
+    `Events` alanı bu iki düğmede `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob` (`/buttons?json=1`; TR + EN'de
+    aynı, etiketler ise tablonun sözü). Basış işaretçiyle; negatifte (düğme kapalıyken) hiç basılmıyor, uyarı
+    yazılıyor. TR + EN üç durumda aynı çıktı, rc=0 (§8.219).
 - [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
   İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
 - [ ] `contract <oyuncu> --agent`: TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka koşuda

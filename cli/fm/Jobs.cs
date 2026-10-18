@@ -22,6 +22,12 @@ internal static partial class Program
 	/// <summary>The table's own column heading, climbed from to the rows below it.</summary>
 	private const string JobHeading = "Current Manager";
 
+	/// <summary>
+	/// The two answers a job's panel offers, by the event each one sends — the game's own name for
+	/// them, where the label on the button is the translation table's word for it.
+	/// </summary>
+	private const string ApplyForJob = "EventFmxApplyForJob", DeclareInterestInJob = "EventFmxDeclareInterestInJob";
+
 	private sealed record Job(int Number, string Manager, string Club, string League, string Rating, string Nation, string Position, string Security, string Finances)
 	{
 		public bool? CanApply { get; set; }
@@ -71,18 +77,18 @@ internal static partial class Program
 		var action = words.Count > 1 ? words[1].ToLowerInvariant() : null;
 		if (action == null) return await JobDetail(json, job, detail);
 
-		var label = action switch
+		var answer = action switch
 		{
-			"apply" or "basvur" or "başvur" => "Apply For Job",
-			"interest" or "ilgi" => "Declare Interest In Job",
+			"apply" or "basvur" or "başvur" => ApplyForJob,
+			"interest" or "ilgi" => DeclareInterestInJob,
 			_ => null,
 		};
-		if (label == null)
+		if (answer == null)
 		{
 			Console.Error.WriteLine(L("Ne yapılacak: apply (başvur) ya da interest (ilgi bildir)"));
 			return 1;
 		}
-		return await JobAnswer(job, label, args);
+		return await JobAnswer(job, answer, args);
 	}
 
 	/// <summary>
@@ -310,17 +316,18 @@ internal static partial class Program
 		// A panel still about another club would answer for that one.
 		if (!shown && warn)
 			Console.Error.WriteLine(L($"\"{job.Club}\" iş paneli açılmadı; ayrıntı ve başvuru durumu eksik olabilir."));
-		job.CanApply = shown ? await ButtonEnabled("Apply For Job") : null;
+		job.CanApply = shown ? await ButtonEnabled(ApplyForJob) : null;
 		return panel;
 	}
 
-	private static async Task<bool?> ButtonEnabled(string label) =>
-		await JobButton(label) is { } b ? Field(b, "Enabled") == "True" : null;
+	private static async Task<bool?> ButtonEnabled(string sent) =>
+		await JobButton(sent) is { } b ? Field(b, "Enabled") == "True" : null;
 
-	private static async Task<JsonElement?> JobButton(string label)
+	/// <summary>The panel's answer that sends this event; the label is the table's word for it.</summary>
+	private static async Task<JsonElement?> JobButton(string sent)
 	{
 		foreach (var control in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
-			if (Field(control, "Label") == label) return control;
+			if (Field(control, "Events").Contains(sent, StringComparison.Ordinal)) return control;
 		return null;
 	}
 
@@ -381,31 +388,37 @@ internal static partial class Program
 		return 0;
 	}
 
-	private static async Task<int> JobAnswer(Job job, string label, string[] args)
+	private static async Task<int> JobAnswer(Job job, string answer, string[] args)
 	{
-		if (await ButtonEnabled(label) != true)
+		var applies = answer == ApplyForJob;
+		if (await ButtonEnabled(answer) != true)
 		{
-			Console.Error.WriteLine(label == "Apply For Job"
+			Console.Error.WriteLine(applies
 				? L($"{job.Club} başvuru kabul etmiyor. İlgi bildirmek için: jobs \"{job.Club}\" interest")
 				: L($"{job.Club} için ilgi bildirilemiyor (zaten bildirilmiş olabilir)."));
 			return 1;
 		}
 
-		var what = label == "Apply For Job" ? L("başvurulacak") : L("ilgi bildirilecek");
+		var what = applies ? L("başvurulacak") : L("ilgi bildirilecek");
 		Console.WriteLine(L($"{job.Club} ({job.League}) işine {what}."));
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine(L($"Göndermek için: jobs \"{job.Club}\" {(label == "Apply For Job" ? "apply" : "interest")} --yes"));
+				Console.WriteLine(L($"Göndermek için: jobs \"{job.Club}\" {(applies ? "apply" : "interest")} --yes"));
 				return 0;
 			}
 			if (Ui.Ask(L("Gönderelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
 		}
 
-		var pressed = await Fm.Get("press", ("ptr", Field((await JobButton(label))!.Value, "Pointer")));
+		var pressed = await Fm.Get("press", ("ptr", Field((await JobButton(answer))!.Value, "Pointer")));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
-		await Task.Delay(1000);
+
+		// The game's own answer is the sign that the press went through: it either puts its question
+		// up or stops offering the button. The second this used to wait guessed the machine's speed.
+		await Until(async () =>
+			(await Fm.Get("dialog")).Trim() is not ("" or "[]") || await ButtonEnabled(answer) != true,
+			seconds: 6, every: 0.25);
 
 		// What the game says back, if it asks anything, is left on screen for dialog / talk.
 		var dialog = await Fm.Get("dialog");

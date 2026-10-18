@@ -4,19 +4,27 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **B "Cümle parçası arayanlar" / `penalties` yer sütunu** — **PARK** (§8.218, Tur 29): `fm penalties` tablosunun
-  "MAÇA" hücresi oyunun kendi cümlesini yazıyor ve o cümle dil başına değişiyor (TR'de ilk 11'de başlayan için
-  `İlk 11'de (DOSMSğ)`, EN'de `Starting at DMCR`; kulübedeki ikisinde de `On Subs bench`). CLI'nin `Starting()`i
-  yalnız İngilizce `Starting at ` önekini tanıdığı için TR'de ham cümle, EN'de Türkçe `ilk 11 · DMCR` yazıyor;
-  `--json` `Where` alanı da dile göre değişiyor. Dilden bağımsız yol bulunamadı → kod değişmedi, ölçüm+park.
-- Sıradaki tur (öneri): **A "`Task.Delay`" / TrainingSchedule 345** — önce takvim ayı karışıklığı (iki sekmenin ayrı
-  `MonthDropdown`'ı) ayrı madde olarak düzeltilmeli (Tur 27 notu). Alternatif küçük işler: A'da `TacticFiles 181`
-  (yük panelini kapattıktan sonraki sabit 800 ms; panel kapanınca düğmenin kendisi `/buttons`tan düşüyor — ölçüldü:
-  panel 0,31 sn'de yok, kaydırmalı yolda tetiklemek zor), `Jobs 408`, Guided 161 174 (bedel isteyen söz), Alt
-  sayfa/sabit üst sınırlar. B'de kalanlar: `Stages/Saves/Release/Matches` cümle parçaları, `contract --agent` TR
-  (kartın kendi işareti), haber "Portugal".
-- Not: ağaç temiz (yalnız doküman değişti), penaltı sırası ve dil tur başındaki hâlde (TR, tek taker James Collins).
-- Durum: park edildi, commit atılıyor
+- Madde: **A "`Task.Delay`" / `jobs apply|interest`** (+ B "yazıyla basma" yanı) — **BİTTİ** (§8.219, Tur 30): `JobAnswer`
+  basıştan sonra **sabit 1 sn** bekleyip `dialog` okuyordu; artık oyunun kendi cevabını bekliyor ("`dialog` doldu
+  **veya** düğme artık sunulmuyor", 0,25 sn aralık, en çok 6 sn) ve panelin iki cevabı (B: "yazıyla basma") etiketle
+  değil **olayla** bulunuyor (`EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`). Ölçüm: düğmenin `Enabled`'i
+  basıştan 0,467 / 0,629 sn sonra düşüyor, `dialog` 13,5 sn boş; eski derleme izi `press` 3,32 → tek `dialog` 4,43
+  (sabit 1 sn), yeni kodda aynı satır 0,56 sn'de. Üç durum × TR + EN altı basış rc=0, çıktı eskisiyle aynı; negatif
+  TR `Villarreal apply` → "başvuru kabul etmiyor", rc=1. `Jobs.cs`'te `Task.Delay` kalmadı.
+- Not (kayıt durumu): kayıt **dosyaya yazılmadı** — ölçüm basışları yalnız bellekteydi; tur sonunda
+  `fm load "Faruk Kavlak - Fenerbahçe" --no-save` + `fm continue` ile kayıt baştan yüklendi (2 Ağustos 2026,
+  09:15/14:00) ve **York'un başvurusu geri geldi** (`fm jobs "York"` → "Başvurmak için…"). Dil Türkçeye döndü
+  (`/state` → `turkish`).
+- Not (yan gözlem, bu maddenin işi değil): ulus işlerinde (`Denmark`, `Brazil`) panel "Training Facilities" satırı
+  taşımadığı için `CanApply` bilinmiyor; `fm jobs "<ulus>"` yine "To apply: …" yazıyor ama `apply` "does not take
+  applications" diyor — eski kodda da aynı (etiketle aranan düğme panel yokken bulunmuyor), ayrı bir iş olabilir.
+- Sıradaki tur (öneri): **A "`Task.Delay`" / TrainingSchedule 345** — hâlâ takvim ayı karışıklığına takılı (Tur 27
+  notu; `General`/`Training` sekmelerinin ayrı `MonthDropdown`'ı). Alternatif küçük işler: A'da `TacticFiles 181`
+  (ölçüldü: panel 0,31 sn'de yok, kaydırmalı yolda tetiklemek zor), Guided 161 174 (bedel isteyen söz), Alt
+  sayfa/sabit üst sınırlar, ulus işi paneli (yukarıdaki not). B'de kalanlar: `Stages/Saves/Release/Matches` cümle
+  parçaları, `contract --agent` TR (kartın kendi işareti), haber "Portugal", "veri merkezi İngilizce çıktı".
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok, penaltı sırası ve dil tur başındaki hâlde (TR).
+- Durum: bitti, commit atılıyor
 
 ## Önceki durum (Tur 28)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `propose` düğmeleri** — **BİTTİ** (§8.217, Tur 28): `fm propose`
@@ -55,6 +63,42 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 30 — A "`Task.Delay`" / `jobs apply|interest` (+ B "yazıyla basma"): basıştan sonraki sabit 1 sn yerine oyunun cevabı, iki düğme olay kimliğiyle (§8.219, 18 Ekim)
+Ne: `cli/fm/Jobs.cs` (`fm jobs "<kulüp>" apply|interest`). İki şey birlikte temizlendi (kural 3):
+(1) `JobAnswer`'daki `await Task.Delay(1000)` + `dialog` okuması → "`dialog` doldu **veya** düğme artık sunulmuyor"
+(0,25 sn aralık, en çok 6 sn); (2) düğme arayışı artık İngilizce etiketle değil oyunun olayıyla — `JobButton` /
+`ButtonEnabled`, `/buttons?json=1` içinde `Events` alanında `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`
+(TR + EN'de aynı, `docs/reference/enums.txt`) arıyor, basış işaretçiyle. `SelectJob`'un `CanApply` okuması da aynı
+olaya bağlandı. Başka dosyaya dokunulmadı; `JobButton` yalnız burada çağrılıyor → `sweep.sh` gerekmedi (sweep zaten
+`jobs` koşmuyor).
+- İşaret ölçümü (python, `/press?ptr=` + 40 ms aralıkla `/dialog` ve düğmenin `Enabled`'i): `Apply For Job`
+  (York) → düğme **0,467 sn**'de `Enabled=False`, `dialog` **13,5 sn boyunca boş**; `Declare Interest In Job`
+  (aynı kulüp) → **0,629 sn**, `dialog` yine hep boş. Yani eski sabit 1 sn tam o anda boş `dialog` okuyordu
+  (makine hızı tahmini).
+- Öncesi (eski derleme `git stash` + derle, TR): `FM_TRACE=1 fm jobs "York" apply --yes` → `press ?ptr=` 3,32 →
+  **tek** `dialog` 4,43 (1,11 sn) → `York (Sky Bet League Two) işine başvurulacak.` + `Gönderildi. Cevap gelen
+  kutusuna düşer: inbox`.
+- Sonrası (yeni derleme), üç durum (sayfa ilk kez açılıyor `fm open "Messages"` / zaten açık / başka sayfa açık
+  `fm open "Squad Dynamics"`):
+  - TR: `York apply`, `Celesti interest`, `Udinese interest` → üçü de rc=0, `… işine başvurulacak/ilgi bildirilecek.`
+    + `Gönderildi. Cevap gelen kutusuna düşer: inbox`; izde `press` → kabul **0,56 / 0,50 / 0,37 sn** (okumalar
+    `dialog`+`buttons` çiftleri, düğme `Enabled=False` olunca bitti).
+  - EN (`fm settings dil English`, aynı üç durum): `York interest`, `Celesti interest`, `Udinese interest` → üçü de
+    rc=0, `Sent. The answer will come to the inbox: inbox`; `press` → kabul **0,75 / 0,20 / 0,52 sn**.
+  - Çıktı **eskisiyle aynı** (dil başına tek satır; eski derleme basıştan 1 sn sonra boş `dialog` okuyup aynı satırı
+    yazıyordu — python ölçümü `dialog`'un 1,0 sn'de de boş olduğunu gösteriyor).
+- Veriden doğrulama: `fm jobs "York"` basıştan sonra "Başvuru kapalı. İlgi bildirmek için: …" (başvuru gerçekten
+  gitmiş; `--json` → `CanApply: false`).
+- Negatif: TR `fm jobs "Villarreal" apply --yes` → `Villarreal başvuru kabul etmiyor. İlgi bildirmek için: …`, rc=1
+  (düğme olayla bulundu, `Enabled=false` → hiç basılmadı). EN'de ulus işleri (`Denmark`, `Brazil`) panelde
+  "Training Facilities" satırı olmadığı için `CanApply` zaten bilinmiyordu (eski kodda da öyle) → `does not take
+  applications`, rc=1; bu değişiklikten değil.
+- Dönüş/geri: ölçümün altı basışı yalnız bellekteydi; kayıt `fm load "Faruk Kavlak - Fenerbahçe" --no-save` +
+  `fm continue` ile **baştan yüklendi** (2 Ağustos 2026, `fm jobs "York"` → "Başvurmak için…", yani York geri geldi).
+  Dil `fm settings language "Türkçe"` → `/state` → `turkish`. Saat ilerletilmedi, maç oynanmadı.
+- Dosya: `cli/fm/Jobs.cs` (dosyada `Task.Delay` kalmadı), `docs/BAGIMLILIKLAR.md` (A + B maddeleri `[x]`),
+  `docs/FINDINGS.md` §8.219, bu defter.
 
 ### Tur 29 — B "Cümle parçası arayanlar" / `fm penalties` yer sütunu: iki dilde iki ayrı söz, dilden bağımsız yol yok → PARK (§8.218, 18 Ekim)
 Ne: `cli/fm/Penalties.cs` `Starting()` (satır 119) ve okuduğu alan
