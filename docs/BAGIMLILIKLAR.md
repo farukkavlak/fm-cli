@@ -231,12 +231,11 @@ tablodan çevrilemiyor.
 - [ ] `contract <oyuncu> --agent`: TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka koşuda
   `seçenek yok`; aynı oyuncular EN'de hep bulunuyor). Ekranda kalan bir sözleşme görüşmesi kartı (`Finalise
   Promises` / `Cancel Negotiations`, `Action` alanı boş) görüldü — kartın kendi işareti ölçülecek (§8.210 sonu).
-- [ ] **`opposition` seçenek adları:** seçenekler eklentiden İngilizce geliyor, kullanıcı da onları yazmak zorunda
-  (`Pres=Always` çalışır, `Pres=Her Zaman` çalışmaz), ama hata mesajı ve yardım satırı seçenekleri oyunun sözleriyle
-  yazıyor ("Seçenekler: - · Hiçbir Zaman · Her Zaman", "opposition <oyuncu> Pres=Always Sert giriş=Hard") — yani
-  gösterilen ad geri yazılamıyor (§8.207). Çevirisi bozuk olanlar da var: TR oyunda sıkı giriş `Normal · Minor · Gusty`,
-  İngilizcede `Normal · Easy · Hard` (çeviri tablosu "Easy"→"Minor", "Hard"→"Gusty" veriyor). Bakılacak: seçenek
-  eşleşmesi gösterilen sözü de kabul etsin mi (ters sözlük `GameWords`te yok), yoksa yardım/mesaj İngilizce adı mı yazsın.
+- [x] **`opposition` seçenek adları:** seçenekler eklentiden İngilizce geliyor; hata/yardım satırı ise onları oyunun
+  sözleriyle yazdığı için gösterilen ad geri yazılamıyordu (`Pres=Her Zaman` → "yok"). Artık değer hem İngilizcesiyle
+  hem ekranda görünen sözüyle kabul ediliyor (kimlik listesi hâlâ eklentiden; oyunun verdiği `GameWords` eşlemesiyle
+  çevrilir, sabit söz yok). TR üç durum + EN üç durum: `Her Zaman`/`Hafif`/`Sol Ayak` ve `Always`/`Hard` aynı satıra
+  oturuyor; negatif hâlâ hata veriyor (§8.211).
 - [x] **Mutluluk seviyesi:** sıralama ve renk artık seviyenin yazısına değil oyunun kendi puanına (`Human.Team.Players`
   › `HierarchyOverallHappinessLevel`; 80 Delighted … -65 Very Unhappy) bakıyor, bant sınırları ölçülen boşluklarda (-30/30);
   seviye/moral/konum yazıları oyunun diline çevriliyor. Türkçe (3 durum) + İngilizce (2 durum) aynı sıra/renk (§8.189).

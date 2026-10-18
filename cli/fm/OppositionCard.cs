@@ -100,7 +100,7 @@ internal static partial class Program
 				}
 				var choices = control.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				var value = asked[(eq + 1)..].Trim();
-				var choice = choices.FirstOrDefault(c => Fold(c) == Fold(value)) ?? choices.FirstOrDefault(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal));
+				var choice = Pick(choices, value);
 				if (choice == null)
 				{
 					Console.Error.WriteLine(L($"{column.Say}: '{value}' yok. Seçenekler: {string.Join(" · ", choices)}"));
@@ -141,6 +141,19 @@ internal static partial class Program
 		if (words.Count == 0 && !args.Contains("--advice") && !args.Contains("--clear"))
 			Console.WriteLine(L("\nYardımcının önerisi: opposition --advice · temizle: --clear · elle: opposition <oyuncu> Pres=Always Sert giriş=Hard"));
 		return 0;
+
+		// The plugin reads the choices in English, but they are shown, and the help line names them,
+		// in the game's own words: a player typing what he sees ("Her Zaman" in Turkish) must be
+		// taken as well as the English the plugin answers to. Neither the shown words nor their
+		// count are hard-coded — GameWords only knows the pairs the game itself has answered with.
+		static string Pick(List<string> choices, string value)
+		{
+			var wanted = Fold(value);
+			return choices.FirstOrDefault(c => Fold(c) == wanted)
+				?? choices.FirstOrDefault(c => Fold(GameWords.Of(c)) == wanted)
+				?? choices.FirstOrDefault(c => Fold(c).StartsWith(wanted, StringComparison.Ordinal))
+				?? choices.FirstOrDefault(c => Fold(GameWords.Of(c)).StartsWith(wanted, StringComparison.Ordinal));
+		}
 
 		static string Value(JsonElement row, string key) => row.TryGetProperty(key, out var c) ? Field(c, "Value") : "";
 		static string Values(JsonElement row) => string.Join(",", OppositionColumns.Select(c => Value(row, c.Key)));

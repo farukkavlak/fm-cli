@@ -2186,3 +2186,23 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   rc=0, negatif `fm numbers "Nobody Here" 3` → "kadroda yok", rc=1. Süre nötr (EN "zaten açık" 4,9 ↔ 5,0 sn).
 - `tools/sweep.sh` 50 komut, 0 hata (`numbers` 6 sn, 42 satır). Kayıt geri alındı: verilen iki numara `-`e çevrildi,
   `md5` baştaki değere döndü; dil Türkçe, saat 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı.
+
+### 8.212 `fm opposition <oyuncu> <talimat>=<değer>`: değer artık hem İngilizce hem ekranda görünen sözle kabul ediliyor (18 Ekim, TR + EN)
+
+`cli/fm/OppositionCard.cs`. Eklenti seçenekleri İngilizce veriyor (`Never`/`Always`, `Normal`/`Easy`/`Hard`, `Left/Right/Weak
+Foot`), ama çıktı `GameWords` yazıcısından geçtiği için hata ve yardım satırı onları oyunun sözleriyle yazıyor
+("Seçenekler: - · Hiçbir Zaman · Her Zaman", "Pres=Always Sert giriş=Hard") — yani ekranda gösterilen ad geri yazılamıyordu
+(`Pressing=Her Zaman` → `Pres: 'Her Zaman' yok`, satır `-` kalıyordu). Çözüm: değer, seçeneklerin kendi İngilizcesiyle
+olduğu gibi `GameWords.Of(seçenek)` (oyunun o söz için verdiği karşılık) ile de eşleşiyor; sabit söz/tablo yok, liste
+hâlâ eklentiden geliyor. Ters sözlük gerekmedi (ileri eşleme yetiyor).
+
+- Öncesi (TR): `fm opposition "Kyle Knoyle" "Pressing=Her Zaman"` → `Pres: 'Her Zaman' yok. Seçenekler: - · Hiçbir Zaman · Her Zaman`,
+  kartta `Pressing` `-`. Ölçülen gösterilen adlar (TR): markaj/pres `Hiçbir Zaman`/`Her Zaman`, sıkı giriş `Normal`/`Hafif`/`Sert`,
+  ayak `Sol Ayak`/`Sağ Ayak`/`Zayıf Ayak` (İngilizce: `Normal`/`Easy`/`Hard`, `Left Foot`/`Right Foot`/`Weak Foot`).
+- Sonrası (TR), üç durum — kart zaten açık / başka sayfa açık (`fm open Messages`) / kart ilk kez (`fm open Squad` sonrası):
+  `Pressing=Her Zaman`/`Hiçbir Zaman`, `Tackling=Sert`/`Hafif`, `Foot=Sol Ayak`, `Tackling=Hard` hepsi rc=0 ve kartın kendi
+  okuması istenen değeri yazdı (`Always`/`Never`/`Gusty`/`Minor`/`Left Foot`/`Weak Foot`). Negatif `Pressing=zzz` → rc=1,
+  seçenekler satırı. `--clear` sonrası dört sütun `-`.
+- İngilizce (dil `English`), aynı üç durum: `Always`/`Never`/`Hard` rc=0, kart doğru; negatif `Pressing=zzz` → `Pressing: no 'zzz'. Options: - · Never · Always`.
+  Dönüş: `fm settings language "Türkçe"` → "English → Turkish"; son TR koşusu yine doğru. Kayıt test kaydı, saat ilerletilmedi,
+  maç oynanmadı; talimatlar `--clear` ile boşaltıldı. Paylaşılan koda dokunulmadı → sweep gerekmedi.

@@ -4,23 +4,32 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **A "`Task.Delay`" / `cli/fm/Numbers.cs` 158 177** — **BİTTİ** (§8.211, Tur 22): Tur 20'den kalan
-  **commit edilmemiş** iş bu turda derlenip üç durumda iki dilde ölçüldü. `OpenNumbers` sabit 1,5 sn yerine
-  "menü o seçeneği sunuyor mu" (`select?…choice="Squad Numbers"&dry=1`, 0,3 sn, 10 sn üst sınır) bekliyor;
-  `ReadNumbers` her kaydırmadan sonraki sabit 400 ms yerine `scroll` cevabına + "değişti ve iki okumada aynı"ya
-  bakıyor. Ayrıca bulunan gerçek hata: boş okuma artık sayfayı yeniden istiyor (eski kod EN'de 2/6
-  `Forma numaraları okunamadı.` rc=1). Üç durumda TR `md5 a7fde227…` + EN `md5 e7bf7ceb…` eskisiyle birebir;
-  `stopAt` yolu iki dilde rc=0; `sweep.sh` 50/50. Kayıt geri alındı (verilen iki numara `-`e), TR, 2 Ağu 14:00.
+- Madde: **B "`opposition` seçenek adları"** — **BİTTİ** (§8.212, Tur 23): eklenti seçenekleri İngilizce veriyor
+  ama çıktı `GameWords` yazıcısından geçtiği için ekranda/hatada oyunun sözleriyle görünüyor; `Pressing=Her Zaman`
+  bu yüzden bulunamıyordu. Artık değer seçeneğin İngilizcesiyle **ve** o seçenek için oyunun verdiği
+  `GameWords.Of(seçenek)` karşılığıyla eşleşiyor (sabit söz yok). TR üç durum + EN üç durum ölçüldü,
+  `Her Zaman`/`Hafif`/`Sol Ayak` ve `Always`/`Hard` kartta doğru değeri yazdı; negatif hâlâ hata.
 - Bir sonraki tur (öneri): A/`Task.Delay` adayları — `Responsibilities 283/388` · `Scouting 100` ·
   `TrainingSchedule 345` · `TacticFiles 181` · `Jobs 231` · `League 243` · `ScoutFocus …`; kısa `Until` adayları
   (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`); B "İngilizce yazıyla
   basma/tıklama — 44 yer". Park edilenler aşağıda ([?]): Staff 74, OppositionCard 55, ek 1,5 sn, boy birimleri,
   `contract --agent` TR koşu bağımlılığı (B).
-- Not: `cli/fm/Numbers.cs`teki commit edilmemiş iş artık **commit edildi**; ağaçta başka commit edilmemiş
-  değişiklik yok.
+- Not: ağaçta başka commit edilmemiş değişiklik yok; `opposition` talimatları `--clear` ile boşaltıldı.
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 23 — B "`opposition` seçenek adları": değer hem İngilizce hem ekranda görünen sözle kabul ediliyor (§8.212, 18 Ekim)
+Ne: `cli/fm/OppositionCard.cs` (+ `docs/BAGIMLILIKLAR.md`, `docs/FINDINGS.md`). Paylaşılan koda dokunulmadı → sweep gerekmedi.
+- Sorun (önce, TR): `fm opposition "Kyle Knoyle" "Pressing=Her Zaman"` → `Pres: 'Her Zaman' yok. Seçenekler: - · Hiçbir Zaman · Her Zaman`,
+  kartta `Pressing` `-` kaldı. Sebep: eklenti seçenekleri İngilizce (`-`,`Never`,`Always`; `Normal`,`Minor`,`Gusty`;
+  `Left/Right/Weak Foot`), ama ekrana basılan ad `GameWords` yazıcısından geçip oyunun sözü oluyor; gösterilen ad geri yazılamıyordu.
+- Çözüm: değer, seçeneğin İngilizcesiyle ve `GameWords.Of(seçenek)` ile eşleşiyor (sabit söz/tablo yok, liste hâlâ eklentiden).
+- Üç durum TR (`Her Zaman`/`Hiçbir Zaman`, `Sert`/`Hafif`, `Sol Ayak`, `Hard`): kart açık / `fm open Messages` / `fm open Squad`
+  → hepsi rc=0 ve `fm opposition --json` kartı istenen değeri yazdı (`Always`/`Never`/`Gusty`/`Minor`/`Left Foot`/`Weak Foot`).
+- Üç durum EN (`Always`/`Never`/`Hard`): hepsi rc=0, kart doğru. Negatif iki dilde rc=1 (`Pres: 'zzz' yok…` / EN `Pressing: no 'zzz'…`).
+- Dönüş: `fm settings Language "Türkçe"` → "English → Turkish"; son TR koşusu `Pressing=Her Zaman`+`Tackling=Hafif`+`Foot=Sol Ayak`
+  → `Always`/`Minor`/`Left Foot`. Sonra `fm opposition --clear` → dört sütun `-`. Kayıt test kaydı, saat ilerletilmedi, maç oynanmadı.
 
 ### Tur 22 — A "`Task.Delay`" / `cli/fm/Numbers.cs` 158 177: alt sayfa ve kaydırma sabit duraklamaları oyunun işaretine (§8.211, 18 Ekim)
 Ne: `cli/fm/Numbers.cs` (Tur 20'den kalan commit edilmemiş iş; bu turda derlenip ölçüldü, küçük eklemelerle).
