@@ -201,6 +201,11 @@ tablodan çevrilemiyor.
   öğe adı / olay adıyla basılabilir mi bakılacak. Ölçülmüş bir örnek (§8.206): TR oyunda `fm training "<oyuncu>"
   --trait-suggest` düğmeyi bulamıyor — düğme "Oyun Karakteristiği İdmanı Önerisi İste" diye geliyor, İngilizce
   "Ask For Trait Training Suggestion" ile eşleşmiyor (eski derlemede de aynı).
+  - [x] `training --trait-suggest` düğmesi: artık eylem kimliğiyle bulunuyor — eklentinin verdiği `Action` düğümünün
+    `ActionID`'si **1263235426** (`InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining`; `docs/reference/enums.txt`),
+    işaretçisiyle basılıyor. Bu sözün İngilizcesi oyunun çeviri tablosunda hiç yok (`/translate?words=…` boş; komşu beş
+    söz çevriliyor), o yüzden yazıyla basmak dilin tablosuna bağlıydı. Cevapsız (cümleli) durumdaki cevap da düğmenin
+    kendi sözüyle aranıyor. TR + EN üç durumda öneri penceresi (rc=0), negatif oyuncu rc=1 (§8.209).
 - [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
   İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
 - [ ] **`opposition` seçenek adları:** seçenekler eklentiden İngilizce geliyor, kullanıcı da onları yazmak zorunda

@@ -4,22 +4,54 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **A "`Task.Delay`" / `Matches 82`** — **BİTTİ** (§8.208, Tur 19): sabit 500 ms kalktı **ve dal ilk kez
-  çalıştı**. Giriş artık oyunun kendi cevabı (`scroll … "0 of 211,2"`; " of 0" ise pencere bütün listeyi tutuyor),
-  kaydırmadan sonra pencere "değişti **ve** iki okumada aynı" olunca kabul. Eski koşul (`rows.Count < apps`) yüzünden
-  dal hiç çalışmıyordu: her oyuncunun en eski maçı (#1) düşüyordu → **19 → 20 satır**, dört oyuncuda da tam, TR + EN
-  üç durumda aynı `md5`; süre soğuk 8,8–9,9 / sıcak 3,5–3,8 sn (yeni iş ~1,6 sn).
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `training --trait-suggest`** — **BİTTİ** (§8.209, Tur 20): düğme
+  artık İngilizce yazısıyla değil oyunun eylem kimliğiyle bulunuyor (`Action` düğümünün `ActionID`'si 1263235426 =
+  `InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining`). TR'de üç durumda `error: no control labelled …`
+  (rc=1) idi, şimdi üç durumda öneri penceresi (rc=0); EN birebir aynı kaldı. Cümleli cevap yolu bu kayıtta
+  üretilemedi (bkz. §8.209 sonu).
 - Bir sonraki tur: A/`Task.Delay` kalan adaylar: `Responsibilities 283/388` · `Scouting 100` · `TrainingSchedule 345` ·
   `TacticFiles 181` · `Jobs 231` · `League 243` · `ScoutFocus …` (`Matches 82` bitti; `Staff 74` + `TraitTraining 32`
   park/bitti, `OppositionCard 55` park).
   Ya da A/`Kısa Until` adayları (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`).
-  Ölçülmüş B işi: `opposition` seçenek adları gösterildiği gibi yazılamıyor (TR'de `Pres=Her Zaman` olmuyor, çeviri
-  tablosu sıkı giriş seçeneklerini `Normal · Minor · Gusty` veriyor) — BAGIMLILIKLAR B'ye madde olarak yazıldı.
+  Ya da B "İngilizce yazıyla basma/tıklama — 44 yer": aynı yol (`/buttons?json=1&gen=` → `Action` → `ActionID`/`Event`,
+  adı `docs/reference/enums.txt`'te) başka yerlere de uygulanabilir. Ölçülmüş ikinci örnek: `opposition` seçenek
+  adları gösterildiği gibi yazılamıyor (TR'de `Pres=Her Zaman` olmuyor) — BAGIMLILIKLAR B'de.
   Yeni yan bulgu (ayrı madde): `fm player <oyuncu> --matches` ikinci/başka oyuncuda bir an **önceki** oyuncunun
   tablosunu (ya da boş satır) okuyabiliyor — FM'in bağlı kalan panelleri (§8.194, §8.197, §8.208 sonu).
+  Yeni yan bulgu (Tur 20): arka arkaya koşularda `fm training` bazen "'Training Rating' döşemesi yok" diyor
+  (sayfa yığını; tur başında `fm open "Messages"` sonrası ilk koşularda çıktı, sonra kendi kendine geçti) — ayrı madde.
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 20 — B "İngilizce yazıyla basma/tıklama" / `training --trait-suggest`: düğme artık oyunun eylem kimliğiyle (§8.209, 18 Ekim)
+Ne: `cli/fm/TraitTraining.cs`. Düğme `press text="Ask For Trait Training Suggestion"` ile aranıyordu; eklenti sorgu
+metnini oyunun tablosundan o dile çevirdiği için bu yol dilin tablosuna bağlıydı ve o sözün İngilizcesi tabloda
+**yok** (`/translate?words=…` boş döndürüyor; komşu beş söz — "Start New Trait Training", "Remove Trait",
+"Training Rating", "Traits", "Cancel Current Trait Training" — çevriliyor). Yeni: `SpeakToAction(actionID)` yardımcısı
+(Acknowledge/Mentoring'in kullandığı yol) `buttons?json=1&gen=` ile `SpeakToAction` düğmelerini alıp `Action`
+düğümünün `ActionID`'sini okuyor; düğme 0,25 sn aralıkla en çok 8 sn aranıyor, bulunamazsa stderr'e yazılıp rc=1.
+Kimlik: **1263235426** = `FM.GamePlugin.InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining`
+(`docs/reference/enums.txt`); aynı oyunda açılan onay penceresinin `Type`'ı da `Confirm1263235426`. Cümleli cevaptaki
+`Answer` çapası da İngilizce sabit yerine düğmenin kendi sözü (`Field(button,"Label")`).
+- Ölçüm (kimlik, ekran): TR oyunda `Shaw'dan bireysel antrenmanlarla ilgilenmesini iste` — hem `StandardButton`
+  yazısı hem `action.ActionTitle` metni **birebir aynı**; yani tablonun çeviremediği bir sözde ekranın gösterdiği
+  şey düğmenin kendi yazısı, dolayısıyla `Answer` için doğru çapa.
+- Öncesi (eski derleme, HEAD'den geri yüklenip derlendi): TR üç durum (sayfa ilk kez `fm open "Messages"` sonrası /
+  hemen ikinci koşu / `fm open "Squad Dynamics"` sonrası) → üçünde de `error: no control labelled 'Ask For Trait
+  Training Suggestion' on the loaded screens`, rc=1. EN üç durum → üçünde de öneri penceresi, rc=0.
+- Sonrası: TR üç durum → `Oyuncu Karakteristiği Hakkında Öneri / … öneriyorum. / Onaylamak için aynı komutu --yes ile
+  çalıştır.`, rc=0; EN üç durum → `Player Trait Suggestion / … / To confirm, run the same command with --yes.`, rc=0.
+  (Öneri metni soruşlar arasında değişebiliyor — TR üç koşuda aynı, EN 1. koşuda farklı — o yüzden biçim karşılaştırıldı.)
+- Negatif: `fm training "ZZZ yok" --trait-suggest` → rc=1, "'ZZZ yok' adında bir oyuncu kadroda da aramada da yok."
+  Sekiz oyuncuda `--trait-suggest` denendi, hepsinde öneri penceresi çıktı ve her koşu "Don't start training" ile
+  kapandı (hiçbir alışkanlık öğretilmedi; `fm training "Jenson Jones" --trait` → "alışkanlıkları: yok", çalışan yok).
+- Dönüş: `fm settings language "Türkçe"` → `/state` → `Language: turkish`; 2 Ağustos 2026 14:00, saat
+  ilerletilmedi, maç oynanmadı.
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (`/tmp/sweep_t20`). Paylaşılan koda (Bridge/OpenPage/reply)
+  dokunulmadı; yeni yardımcı `TraitTraining.cs` içinde (yalnız oradan çağrılıyor), `Arriving` başka yerlerde kaldı.
+- Bilerek bırakılan: cümleli cevap yolu (öneri yok) bu kayıtta üretilemedi — TR'de eskiden o satıra hiç gelinmiyordu
+  (basış düşüyordu), yani gerileme yok; çapa ölçümü yukarıda. Bir dahaki "öneri yok" vakasında doğrulanacak.
 
 ### Tur 19 — A "`Task.Delay`" / Matches 82: sabit 500 ms kalktı ve ölü dal ilk kez çalıştı — en eski maç artık düşmüyor (§8.208, 18 Ekim)
 Ne: `cli/fm/Matches.cs` (`fm player <oyuncu> --matches`). Liste yalnız görünen pencereyi döşüyor (19 satır) ve giriş

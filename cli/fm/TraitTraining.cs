@@ -124,12 +124,25 @@ internal static partial class Program
 		if (args.Contains("--trait-suggest"))
 		{
 			if (busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışıyor; öneri için önce iptal: --trait-cancel")); return 0; }
-			var asked = await Arriving("press", [("text", "Ask For Trait Training Suggestion"), ("any", "1")]);
+			// The button is found by the action it stands for, not by its words: its label is the
+			// game's own string, and the table this language is read through has no English for it,
+			// so it cannot be asked for by name in another language (FINDINGS §8.209).
+			JsonElement? asking = null;
+			await Until(async () => (asking = await SpeakToAction(TraitSuggestAction)) != null, seconds: 8, every: 0.25);
+			if (asking is not { } button)
+			{
+				Console.Error.WriteLine(L($"{name}: alışkanlık önerisi düğmesi bulunamadı."));
+				return 1;
+			}
+			var asked = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 			if (asked.StartsWith("error", StringComparison.Ordinal)) return Report(asked);
-			// A suggestion comes as a dialog offering to start on it; no suggestion is a sentence.
+			// A suggestion comes as a dialog offering to start on it; no suggestion is a sentence
+			// in the conversation, under the question the button asks — its own words, whatever
+			// language they are in.
 			string said = "";
+			var question = Field(button, "Label");
 			await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0
-			                        || (said = await Answer("Ask For Trait Training Suggestion")).Length > 0, seconds: 6, every: 0.5);
+			                        || (question.Length > 0 && (said = await Answer(question)).Length > 0), seconds: 6, every: 0.5);
 			if (said.Length > 0) return await Done(said);
 			return await Confirmed() ? await Done(L($"{name}: önerilen alışkanlığın eğitimi başladı.")) : 0;
 		}
@@ -199,5 +212,25 @@ internal static partial class Program
 		if (started.StartsWith("error", StringComparison.Ordinal)) return Report(started);
 		if (!await Confirmed()) return 0;
 		return await Done(L($"{name}: \"{path.Split('>')[^1]}\" eğitimi başladı."));
+	}
+
+	/// <summary>The assistant's "suggest a trait to train", as the action it stands for (InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining).</summary>
+	private const string TraitSuggestAction = "1263235426";
+
+	/// <summary>
+	/// The card's button standing for the given action (its ActionID), or null when the card does not
+	/// offer it. The button's label is one of the game's strings and this language's table may not
+	/// carry its English, so it cannot be asked for by words; the action is the same everywhere
+	/// (§8.209). Its action is found by the button's own event list pointing at it.
+	/// </summary>
+	private static async Task<JsonElement?> SpeakToAction(string actionID)
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
+			.ToList();
+		if (buttons.Count == 0) return null;
+		var actions = await PullEach(buttons.Select(b => (Field(b, "Action"), "ActionID")).ToList());
+		return buttons.Zip(actions, (b, a) => (Button: b, Action: Field(a, "ActionID")))
+			.Where(t => t.Action == actionID).Select(t => (JsonElement?)t.Button).FirstOrDefault();
 	}
 }

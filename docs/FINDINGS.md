@@ -2112,3 +2112,27 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   `Matches: []`, `Apps: 9`) — **eski derlemede de birebir aynı**, bu değişiklikten değil. Gael'de kart açıldıktan
   sonra `/texts` bir an **önceki oyuncunun** tablosunu (Ben House, Apps 12) döndürüyor; FM'in bağlı kalan
   panelleri (§8.194, §8.197) — ayrı madde olarak duruyor.
+
+### 8.209 `fm training <oyuncu> --trait-suggest`: düğme artık İngilizce yazısıyla değil, oyunun eylem kimliğiyle bulunuyor (18 Ekim, TR + EN)
+
+- TR oyunda düğmenin yazısı `Oyun Karakteristiği İdmanı Önerisi İste`; CLI `press text="Ask For Trait Training
+  Suggestion"` diyordu ve eklenti sorgu metnini tablodan o dile çeviriyor — ama bu sözün İngilizcesi tabloda
+  **hiç yok** (`/translate?words=…` onu boş bırakıyor; beş komşusu — "Start New Trait Training", "Remove Trait",
+  "Training Rating", "Traits", "Cancel Current Trait Training" — çevriliyor). Sonuç: TR'de üç durumda da
+  `error: no control labelled 'Ask For Trait Training Suggestion' on the loaded screens`, rc=1; EN'de çalışıyordu.
+- Düğmenin kimliği eklentinin `Action` düğümü: `ActionID` = **1263235426** =
+  `FM.GamePlugin.InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining` (`docs/reference/enums.txt`),
+  `Event` 44; aynı oyunda açılan onay penceresinin `Type`'ı da `Confirm1263235426`. Eklenti `/buttons?json=1&gen=`
+  ile her `SpeakToAction` düğmesine bu yolu veriyor (Acknowledge/Mentoring'in kullandığı yol).
+- Yeni: düğme `Action` → `ActionID` ile bulunuyor (0,25 sn aralıkla, en çok 8 sn) ve işaretçisiyle basılıyor;
+  cevapsız (konuşmada cümle) durumdaki cevap da yazı yerine **düğmenin kendi sözüyle** aranıyor. Ölçüm: TR'de
+  `Shaw'dan bireysel antrenmanlarla ilgilenmesini iste` hem `StandardButton` yazısı hem `action.ActionTitle`
+  metni olarak **birebir aynı** — tablonun çeviremediği bir söz için ekranın gösterdiği şey düğmenin yazısı.
+- Öncesi (eski derleme): TR üç durum `error: no control labelled …`, rc=1; EN üç durum öneri penceresi, rc=0.
+  Sonrası: TR üç durum `Oyuncu Karakteristiği Hakkında Öneri … Onaylamak için aynı komutu --yes ile çalıştır.`,
+  rc=0; EN üç durum `Player Trait Suggestion …`, rc=0 (öneri metni her soruşta değişebiliyor, bu yüzden biçim
+  karşılaştırıldı). Negatif: `fm training "ZZZ yok" --trait-suggest` → rc=1, "kadroda da aramada da yok".
+- Cümleli cevap yolu bu kayıtta üretilemedi (kadrodaki her oyuncuya öneri geldi, pencere çıktı) → düğme sözünün
+  doğru çapa olduğu yukarıdaki ölçümle, öncesinde TR'de o satıra hiç gelinmediği için (basış düşüyordu) gerileme
+  **olmadığı** kanıtıyla bırakıldı. Regresyon: `tools/sweep.sh` → 50 komut, 0 hata; kayıt test kaydı (2 Ağustos
+  2026 14:00) — hiçbir alışkanlık öğretilmedi (her koşu "Don't start training" ile kapandı), saat ilerletilmedi.
