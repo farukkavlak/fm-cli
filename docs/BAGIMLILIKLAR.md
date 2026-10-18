@@ -256,6 +256,12 @@ tablodan çevrilemiyor.
     geliyor ve tabloda İngilizcesi yok, bu yüzden `press text="Discuss New Contract With Agent"` TR'de hiç
     bulunamıyordu (üç durumda `menajerle görüşme seçeneği yok`, rc=1 — oysa satır ekranda duruyordu). Şimdi TR
     üç durumda menajerin konuşması + 4 cevap (rc=0), EN birebir aynı (§8.210).
+  - [x] `propose <oyuncu>` öneri ekranının iki düğmesi ("Offer via TransferRoom" ve gönder düğmesi): artık
+    eylem/kimlikle bulunuyor — birincisi eylemin `ActionID`'si **1164992875** (`PersonOfferToClubs`), ikincisi
+    eylemin gönderdiği olay **32** (`EventFmxTransferOfferResponse`). Gönder düğmesinin sözü oyunun tablosunda
+    başka bir metne bağlı ("Offer Player" → "Oyuncuyu Takasa Kat"), bu yüzden TR'de etiket İngilizce hiç gelmiyordu
+    (`Oyuncuyu Kulüplere Öner`) ve `fm propose` TR'de her durumda `Önerme ekranı açılamadı.` ile rc=1 veriyordu.
+    Şimdi TR'de iki oyuncuda üç durum aynı çıktı (rc=0), EN eski derlemeyle birebir (§8.217).
 - [ ] Veri merkezi bulgularından ikisi İngilizce çıktı ("We're showing a good touches-to-shots ratio…"): oyun da mı
   İngilizce gösteriyor, yoksa eş öğrenilmiyor mu — ekranla bakılacak.
 - [ ] `contract <oyuncu> --agent`: TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka koşuda

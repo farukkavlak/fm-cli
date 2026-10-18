@@ -36,11 +36,17 @@ internal static partial class Program
 			return 1;
 		}
 
-		const string offer = "Offer via TransferRoom", send = "Offer Player";
+		// Both of this screen's own controls carry the game's words ("Offer via TransferRoom",
+		// "Offer Player"), and a language's table may not carry the second one at all — in a Turkish
+		// game it comes back as the game's own "Oyuncuyu Kulüplere Öner", so asking for it by words
+		// never found it (§8.217). What each stands for does not change with the language: the
+		// action the first sends (PersonOfferToClubs) and the event the second sends
+		// (EventFmxTransferOfferResponse).
+		const string offerAction = "1164992875", offerResponse = "32";
 		async Task<List<JsonElement>> Buttons() => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
 		async Task<bool> Offered()
 		{
-			if ((await Buttons()).Any(c => Field(c, "Label") == offer)) return true;
+			if (await SpeakToAction(offerAction) is not null) return true;
 			await Acknowledge();
 			return false;
 		}
@@ -49,11 +55,16 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{name} için kulüplere önerme seçeneği yok (zaten önerilmiş olabilir)."));
 			return 1;
 		}
-		var pressed = await Arriving("press", [("text", offer), ("any", "1")]);
+		if (await SpeakToAction(offerAction) is not { } offer)
+		{
+			Console.Error.WriteLine(L($"{name} için kulüplere önerme seçeneği yok (zaten önerilmiş olabilir)."));
+			return 1;
+		}
+		var pressed = await Fm.Get("press", ("ptr", Field(offer, "Pointer")));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
 		List<JsonElement> buttons = [];
-		if (!await Until(async () => (buttons = await Buttons()).Any(b => Field(b, "Label") == send) && buttons.Any(b => Field(b, "Type") == "FMCombobox"), seconds: 8, every: 0.4))
+		if (!await Until(async () => (buttons = await Buttons()).Any(b => Field(b, "Type") == "FMCombobox") && await SpeakToActionEvent(offerResponse) is not null, seconds: 8, every: 0.4))
 		{
 			Console.Error.WriteLine(L("Önerme ekranı açılmadı."));
 			return 1;
@@ -95,10 +106,15 @@ internal static partial class Program
 			if (Ui.Ask(L("Önerelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
 		}
 
-		pressed = await Fm.Get("press", ("ptr", Field(buttons.First(b => Field(b, "Label") == send), "Pointer")));
+		if (await SpeakToActionEvent(offerResponse) is not { } send)
+		{
+			Console.Error.WriteLine(L("Öneriyi gönderecek düğme yok."));
+			return 1;
+		}
+		pressed = await Fm.Get("press", ("ptr", Field(send, "Pointer")));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
-		// Once he is on offer the action is gone from his list.
-		if (!await Until(async () => (buttons = await Buttons()).All(b => Field(b, "Label") != send) && buttons.All(b => Field(b, "Label") != offer), seconds: 8, every: 0.5))
+		// Once he is on offer both actions are gone from his list.
+		if (!await Until(async () => await SpeakToAction(offerAction) is null && await SpeakToActionEvent(offerResponse) is null, seconds: 8, every: 0.5))
 		{
 			Console.Error.WriteLine(L("Öneri gönderilmedi (ekran kapanmadı)."));
 			return 1;

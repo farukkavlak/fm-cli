@@ -4,6 +4,21 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `propose` düğmeleri** — **BİTTİ** (§8.217, Tur 28): `fm propose`
+  TR oyunda hiç çalışmıyordu (gönder düğmesinin sözü oyunun tablosunda başka metne bağlı); iki düğme artık
+  eylem kimliğiyle (`PersonOfferToClubs` 1164992875) ve eylemin gönderdiği olayla (`EventFmxTransferOfferResponse`
+  32) bulunuyor. TR üç durum + iki oyuncu aynı çıktı (öncesi rc=1), EN eski derlemeyle birebir; sweep 50/50.
+- Not (kayıt durumu): Ben House artık **önerilmiş** (gönderme yolu denendi, §8.94'ün beklenen hâli) — `propose`
+  ölçümü bir sonraki turda **başka bir oyuncuyla** yapılmalı (Freddie Draper çalışıyor).
+- Bir sonraki tur (öneri): **A "`Task.Delay`" / `TrainingSchedule 345`** (park) — önce takvim ayı karışıklığı ayrı
+  madde olarak düzeltilmeli (aşağıda, Tur 27 notu). A'da kalanlar: `TacticFiles 181` · `Jobs 408` · Clock 179
+  (işsiz kayıt) · Guided 161 174 (bedel isteyen söz) · Alt sayfa/sabit üst sınırlar.
+- B'de kalan (bu turda açılan yan iş): `fm actions` oyuncunun transfer aksiyon listesini göremiyor
+  ("No 'Remove From Loan List' in the menu" — oysa düğme ekranda ve `SpeakToAction` listesinde duruyor; §8.217).
+- Not: ağaç temiz, `stash` yok; commit atılıyor.
+- Durum: bitti
+
+## Önceki durum (Tur 27)
 - Madde: **A "`Task.Delay`" / `TrainingSchedule 345`** — **PARK** (§8.216, Tur 27): `fm schedule set`'te seçenek
   basıldıktan sonra açıklamayı okumadan önceki **sabit 500 ms** ölçüldü (yeni açıklama 107–371 ms'de oturuyor, arada
   6 metinlik boşaltılmış bir an 312 ms'de) ve yerine oyunun kendi cevabı ("basıştan önceki hâlden farklı **ve** `About`
@@ -25,6 +40,42 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 28 — B "İngilizce yazıyla basma/tıklama" / `propose`: öneri ekranının iki düğmesi eylem/kimlikle bulunuyor; TR'de hiç çalışmıyordu (§8.217, 18 Ekim)
+Ne: `cli/fm/Propose.cs` (`fm propose [--loan]`, §8.94). Akış iki düğmeyi oyunun İngilizce sözüyle arıyordu:
+listedeki "Offer via TransferRoom" (`Arriving("press", text=…)`) ve teklif ekranının gönder düğmesi "Offer Player".
+İkincisi TR oyunda **hiç İngilizce gelmiyor** (etiket ekranda `Oyuncuyu Kulüplere Öner`) → `propose` 8 sn bekleyip
+`Önerme ekranı açılamadı.` ile rc=1. Yeni: ikisi de eylemle bulunuyor — `SpeakToAction("1164992875")`
+(`InteropEventIDs.PersonOfferToClubs`) ve yeni yardımcı `SpeakToActionEvent("32")`
+(`EventFmxTransferOfferResponse`, eklentinin `Action` düğümünün `Event`'i; `IsExitButton=True`). Yazı aranmıyor;
+dördüncü sırada kalan "artık yazıyla basma" borcu bu fonksiyonda kalmadı (`Offered()` işareti ve gönder sonrası
+bekleme de kimliğe çevrildi).
+- Kimlik ölçümü (`/buttons?json=1&gen=<taze>` + `/pull?path=…&props=ActionID,Event,IsExitButton`; her okuma için
+  ayrı `gen`, yoksa `{}` dönüyor): TR 'Offer via TransferRoom' → `ActionID 1164992875`, `Event 0`;
+  TR `Oyuncuyu Kulüplere Öner` → `ActionID 0`, `Event 32`, `IsExitButton True`; EN 'Offer Player' → aynı
+  `Event 32`. `docs/reference/enums.txt`: 1164992875 = `PersonOfferToClubs`, 32 = `EventFmxTransferOfferResponse`.
+  `/translate?words=Offer Player` (TR) → 'Oyuncuyu Takasa Kat' (başka metin) — tablo çakışması, yazı yolu kapalı.
+- Öncesi (eski derleme, TR): `fm propose "Ben House"` ve `--loan`, üç durumda (`fm open "Messages"` sonrası /
+  hemen ikinci koşu / `fm open "Squad Dynamics"` sonrası) → beş koşunun hepsi `Önerme ekranı açılamadı.`, rc=1.
+  EN (eski derleme, üç durum): fee `md5 f97a868853f2cf6a8767a9f03a3292ef`, kiralık `md5 d030b63f27837cb2cf54b920a2b841aa`.
+- Sonrası: TR `fm propose "Ben House"` üç durumda aynı (`md5 eb6329d8488790acaeb03ec6e08f0a2c`), `--loan` üç
+  durumda aynı (`md5 adad8e6fa5c9ae0f8b33cac14f576db1`); ikinci oyuncu TR `Freddie Draper` üç durumda aynı
+  (`md5 55976f65ae9efdea71bf1c425f73fa95`, kiralık `3faf6e004d84c9a45212c700a1fc6fcc`) → **TR'de ilk kez çalıştı**.
+  EN (yeni derleme, üç durum): fee `f97a8688…`, kiralık `d030b63f…` → **eski derlemeyle birebir**; `Freddie Draper`
+  EN üç durum aynı (`md5 e615cfa23d74fbc7d1684716d0a06f1`). Süre: EN 10,5 → 9,4–10,7 sn (bekleme işaret gelince
+  bitiyor), TR 9,4–11,8 sn.
+- Gönderme yolu (aynı fonksiyon, kimliğe çevrilen son basış): `fm propose "Ben House" --loan --yes` → "Önerildi.
+  İlgilenen kulüpler önümüzdeki günlerde gelen kutusuna düşer." (rc=0); hemen sonra `fm propose "Ben House"`
+  → "There is no option to offer…" (iki seçenek listeden kalktı, §8.94'ün beklenen hâli). Geri almak için
+  "Remove From Loan List" ekranda basıldı + onay penceresi (`/dialog`, Yes) cevaplandı → kiralık listesi temizlendi;
+  **TransferRoom önerisi kalkmadı** (oyunun kendi geri alma yolu yok, `--yes` zaten onay istiyordu).
+- Negatif: `fm propose "ZZZ yok"` → öncesi/sonrası aynı ("Oyuncu bulunamadı" yolu, rc=1); `--loan` + ücret →
+  rc=64 mesajı değişmedi; benimsenmeyen oyuncu yolu (kart değeri boş) değişmedi.
+- Yan bulgu (§8.217 sonu): `fm actions "<oyuncu>" "Remove From Loan List"` / `"Remove From Transfer List"` →
+  "No '…' in the menu." — oysa iki düğme de ekranda ve `SpeakToAction` listesinde; `fm actions` oyuncunun bu
+  aksiyon listesini göremiyor (ayrı iş; bu turda `propose` dışına dokunulmadı).
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (paylaşılan `Acknowledge.cs`'e yardımcı eklendi).
+  Kayıt test kaydı: 2 Ağustos 2026 14:00; saat ilerletilmedi, maç oynanmadı; Ben House önerilmiş kaldı (yukarıda).
 
 ### Tur 27 — A "`Task.Delay`" / TrainingSchedule 345: ölçüldü, yazıldı, üçüncü durum + İngilizce tamamlanamadı → PARK (§8.216, 18 Ekim)
 Ne: `cli/fm/TrainingSchedule.cs` `PressAndConfirm` (`fm schedule set|style`). Seçenek basıldıktan sonra açıklamayı

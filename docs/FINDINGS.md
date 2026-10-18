@@ -2283,3 +2283,19 @@ birkaç karede değişiyor — yeni metin 107–371 ms'de yerine oturuyor, arada
 tamamlanamadı (yukarıdaki ay karışıklığından); kural 4 gereği **kod geri alındı**, madde `[?]`.
 İngilizce denemede ayrıca `'General' diye bir seans yok` çıktı: dil değiştikten sonra sayfa yenilenmediği için
 seçenek adları hâlâ oyunun o günkü sözüyle geliyor (§8.194'ün devamı).
+
+### 8.217 `fm propose`: öneri ekranının iki düğmesi artık eylem/kimlikle bulunuyor; Türkçe oyunda hiç çalışmıyordu (18 Ekim, TR + EN)
+Kulüplere önerme akışı iki düğmeyi **oyunun İngilizce sözüyle** arıyordu: listedeki "Offer via TransferRoom"
+(`press ?text=…`) ve teklif ekranının gönder düğmesi "Offer Player". İkincisinin sözü oyunun çeviri tablosunda
+başka bir metne bağlı ("Offer Player" → "Oyuncuyu Takasa Kat"), bu yüzden Türkçe oyunda etiketi hiç İngilizce
+gelmiyor: düğme ekranda `Oyuncuyu Kulüplere Öner` olarak duruyor ve `/translate?words=Offer Player` yanlış sözü
+veriyor (`Propose` 8 sn bekleyip `Önerme ekranı açılamadı.` diyordu; üç durumda da rc=1). Kimlik ölçümü (ikisi de
+dilden bağımsız, `docs/reference/enums.txt`): "Offer via TransferRoom" → eylemin `ActionID`'si **1164992875**
+(`PersonOfferToClubs`), gönder düğmesi → eylemin gönderdiği olay **32** (`EventFmxTransferOfferResponse`,
+`IsExitButton: True`); ikisi de TR ve EN oyunda aynı (`/buttons?json=1&gen=` + `/pull?path=…`).
+Yeni: `cli/fm/Propose.cs` düğmeleri `SpeakToAction` / yeni `SpeakToActionEvent` (Acknowledge.cs) ile buluyor,
+yazı aranmıyor. TR: üç durum + iki oyuncu aynı çıktı (`md5 55976f65…`, kiralamada `3faf6e00…`), öncesi rc=1;
+EN: üç durum eski derlemeyle **birebir** (`md5 f97a8688…`, kiralamada `d030b63f…`), süre 10,5 → 9,4–10,7 sn.
+Gönderme yolu da denendi (`--loan --yes` → "Önerildi.", sonra seçenek listeden kalkıyor — §8.94'ün beklenen hâli).
+Yan bulgu: `fm actions` oyuncunun bu aksiyon listesini göremiyor ("No 'Remove From Loan List' in the menu" —
+oysa düğme ekranda); `fm propose` bitince Ben House önerilmiş olarak kaldı.

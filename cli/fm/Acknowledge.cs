@@ -59,4 +59,21 @@ internal static partial class Program
 		return buttons.Zip(actions, (b, a) => (Button: b, Action: Field(a, "ActionID")))
 			.Where(t => t.Action == actionID).Select(t => (JsonElement?)t.Button).FirstOrDefault();
 	}
+
+	/// <summary>
+	/// The button standing for the speak-to action that <b>sends</b> the given event, or null. Some
+	/// actions carry no id of their own and are named by the event they send instead (the offer
+	/// card's own send, EventFmxTransferOfferResponse, §8.217); like the action id above, the event
+	/// is the same in every language where the label is the game's own string.
+	/// </summary>
+	private static async Task<JsonElement?> SpeakToActionEvent(string sent)
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
+			.ToList();
+		if (buttons.Count == 0) return null;
+		var events = await PullEach(buttons.Select(b => (Field(b, "Action"), "Event")).ToList());
+		return buttons.Zip(events, (b, e) => (Button: b, Event: Field(e, "Event")))
+			.Where(t => t.Event == sent).Select(t => (JsonElement?)t.Button).FirstOrDefault();
+	}
 }
