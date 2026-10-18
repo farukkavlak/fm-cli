@@ -1,18 +1,33 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace FmCli;
 
 /// <summary>
-/// Managerial vacancies (FINDINGS §8.144): Career › Managerial Vacancies lists every open job;
-/// selecting a row fills the panel below it with the job and its two answers, "Declare Interest
-/// In Job" and "Apply For Job". Applying is closed for some clubs, which only shows once the row
-/// is selected, so the list selects each in turn to say which ones take an application.
+/// Managerial vacancies (FINDINGS §8.144, §8.197): Career › Managerial Vacancies lists every job
+/// in the world; selecting a row fills the panel below it with the job and its two answers,
+/// "Declare Interest In Job" and "Apply For Job".
+///
+/// The table lays out only the rows in view, so the whole list is read by walking it along its
+/// own scroll (<see cref="AllJobs"/>); a job is remembered along with the place it was seen at,
+/// which is where its row is scrolled back to before it is selected (<see cref="SelectJob"/>).
+///
+/// Whether a club takes an application shows only on its selected row, so it is asked of the
+/// jobs that are open — the ones with no manager — while their window is up. A job with a
+/// manager is left unknown ("?"): its row cannot say, and asking each one costs a selection
+/// apiece (the list is hundreds of rows long).
 /// </summary>
 internal static partial class Program
 {
+	/// <summary>The table's own column heading, climbed from to the rows below it.</summary>
+	private const string JobHeading = "Current Manager";
+
 	private sealed record Job(int Number, string Manager, string Club, string League, string Rating, string Nation, string Position, string Security, string Finances)
 	{
 		public bool? CanApply { get; set; }
+
+		/// <summary>Where in the list's own scroll the row was seen, 0 at the top to 1 at the foot.</summary>
+		public double Share { get; set; }
 	}
 
 	private static async Task<int> Jobs(bool json, string[] args)
@@ -26,25 +41,23 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.ManagerialVacancies);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		List<(string Text, string Path)> texts = [];
-		var jobs = new List<Job>();
-		var previous = "";
-		await Until(async () =>
-		{
-			texts = await JobTexts();
-			jobs = ParseJobs(texts);
-			var key = string.Join("|", texts.Select(t => t.Text));
-			var settled = key == previous && jobs.Count > 0;
-			previous = key;
-			return settled;
-		}, seconds: 10, every: 0.5);
+		var words = args.Where(a => !a.StartsWith("--", StringComparison.Ordinal)).ToList();
+		// The whole list is walked only for the list itself; a job asked for by name or by its
+		// place is there as soon as its window has been read (an exact name stops the walk, a
+		// loose one could match a club further up and is left to the whole list).
+		Func<List<Job>, bool> enough = found =>
+			words.Count == 0 ? false
+			: int.TryParse(words[0], out var number) ? found.Count >= number
+			: found.Any(j => j.Club.Equals(words[0], StringComparison.OrdinalIgnoreCase));
+
+		var jobs = await AllJobs(enough, askOpen: words.Count == 0);
 		if (jobs.Count == 0)
 		{
-			Console.WriteLine(texts.Any(t => t.Text.StartsWith("0 ", StringComparison.Ordinal)) ? L("Açık iş ilanı yok.") : L("İş ilanları okunamadı."));
-			return texts.Count > 0 ? 0 : 1;
+			var page = await JobTexts();
+			Console.WriteLine(page.Any(t => t.Text.StartsWith("0 ", StringComparison.Ordinal)) ? L("Açık iş ilanı yok.") : L("İş ilanları okunamadı."));
+			return page.Count > 0 ? 0 : 1;
 		}
 
-		var words = args.Where(a => !a.StartsWith("--", StringComparison.Ordinal)).ToList();
 		if (words.Count == 0) return await JobList(json, jobs);
 
 		var job = PickJob(jobs, words[0]);
@@ -54,7 +67,7 @@ internal static partial class Program
 			return 1;
 		}
 
-		var detail = await SelectJob(job);
+		var detail = await SelectJob(job, warn: true);
 		var action = words.Count > 1 ? words[1].ToLowerInvariant() : null;
 		if (action == null) return await JobDetail(json, job, detail);
 
@@ -78,10 +91,140 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<(string Text, string Path)>> JobTexts()
 	{
-		var found = await Fm.GetJson("texts", ("anchor", "Current Manager"), ("up", "18"), ("paths", "1"));
+		var found = await Fm.GetJson("texts", ("anchor", JobHeading), ("up", "18"), ("paths", "1"));
 		return found.ValueKind == JsonValueKind.Array
 			? found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList()
 			: [];
+	}
+
+	/// <summary>A key of what the window shows, to tell one window from the next.</summary>
+	private static string WindowKey(List<(string Text, string Path)> texts) => string.Join("|", texts.Select(t => t.Text));
+
+	/// <summary>The rows in view now, once they have stopped changing.</summary>
+	private static async Task<(List<Job> Jobs, string Key)> ReadWindow()
+	{
+		var texts = new List<(string Text, string Path)>();
+		var key = "";
+		var last = "";
+		await Until(async () =>
+		{
+			texts = await JobTexts();
+			key = WindowKey(texts);
+			var settled = key == last;
+			last = key;
+			return settled && key.Length > 0;
+		}, seconds: 5, every: 0.15);
+		return (ParseJobs(texts), key);
+	}
+
+	/// <summary>
+	/// Scrolls the list to a place of its own length and waits until the rows in view are the ones
+	/// that place shows and have stopped changing. The game lays the rows out a frame or two after
+	/// the scroll, and a read taken in that moment is still the window from before, so a window
+	/// counts as the new one only when it differs from <paramref name="before"/> and has repeated
+	/// once. The wait watches the list's own state; the seconds are only its upper bound.
+	/// </summary>
+	/// <param name="at">Where the list's scroll stood before, in pixels, or <c>NaN</c> when unknown;
+	/// a scroll that cannot move leaves the same rows up and is read once instead of waited for.</param>
+	private static async Task<(List<Job> Jobs, string Key, double At)> WindowAt(double share, string before, double at, double seconds = 5)
+	{
+		var answer = await Fm.Get("scroll", ("anchor", JobHeading), ("to", share.ToString("0.###", CultureInfo.InvariantCulture)));
+		var here = Offset(answer);
+		if (before != null && !double.IsNaN(at) && !double.IsNaN(here) && Math.Abs(here - at) < 0.5)
+		{
+			var stayed = await JobTexts();
+			return (ParseJobs(stayed), WindowKey(stayed), here);
+		}
+
+		var texts = new List<(string Text, string Path)>();
+		var key = "";
+		var last = before;
+		await Until(async () =>
+		{
+			texts = await JobTexts();
+			key = WindowKey(texts);
+			var moved = before == null || key != before;
+			var settled = key == last;
+			last = key;
+			return moved && settled;
+		}, seconds: seconds, every: 0.15);
+		return (ParseJobs(texts), key, here);
+	}
+
+	/// <summary>The scroll's own answer ("4046,8 of 16184") — how far it stands and how long it is.</summary>
+	private static double Offset(string answer)
+	{
+		var head = answer.Split(" of ")[0].Replace(',', '.').Trim();
+		return double.TryParse(head, NumberStyles.Float, CultureInfo.InvariantCulture, out var px) ? px : double.NaN;
+	}
+
+	/// <summary>
+	/// The whole list, from the top down: the table lays out only the rows in view, so the list is
+	/// walked along its own scroll a window at a time and the windows merged in order.
+	///
+	/// How far to step is worked out from the walk itself: a window that brings nearly as many
+	/// rows as the last one showed has barely met it, so the step is halved and taken again, while
+	/// one that brings few has overlapped it well and the step can grow again. So the window a
+	/// screen fits — which is not ours to know — decides the step (FINDINGS §8.197).
+	///
+	/// A job is kept with the place it was seen at, and the open ones (no manager) are asked
+	/// whether they take an application while their row is up; see the note on the class.
+	/// </summary>
+	/// <param name="enough">Asked after each window with the jobs read so far; the walk ends
+	/// there and then when it says so.</param>
+	/// <param name="askOpen">Whether the open jobs are asked about applications as the walk passes
+	/// their rows (the list needs it; a job asked for by name is asked by <see cref="SelectJob"/>).</param>
+	private static async Task<List<Job>> AllJobs(Func<List<Job>, bool> enough = null, bool askOpen = true)
+	{
+		var jobs = new List<Job>();
+		var seen = new HashSet<string>(StringComparer.Ordinal);
+
+		// The rows of one window that are new, kept in the order the game lists them, each with the
+		// place it was seen at; an open job is asked whether it takes an application while its row
+		// is up (the panel below answers for the selected row only).
+		async Task Merge(List<Job> window, double at)
+		{
+			var fresh = new List<Job>();
+			foreach (var job in window)
+			{
+				if (!seen.Add($"{job.Club}|{job.Manager}")) continue;
+				job.Share = at;
+				fresh.Add(job);
+			}
+			jobs.AddRange(fresh);
+			if (askOpen)
+				foreach (var job in fresh.Where(j => j.Manager == "-")) await SelectJob(job);
+		}
+
+		var step = 0.05;
+		var share = 0.0;
+		// Where the list stands now, so that the first window can be told from it: the walk starts
+		// at the top, and a list already there has nothing to show for the scroll.
+		var (was, wasKey) = await ReadWindow();
+		var (window, key, at) = await WindowAt(share, wasKey, double.NaN, seconds: 2);
+		await Merge(window, share);
+
+		while (share < 1.0 && !(enough?.Invoke(jobs) ?? false))
+		{
+			var next = Math.Min(1.0, share + step);
+			var (moved, newKey, here) = await WindowAt(next, key, at);
+			var fresh = moved.Count == 0 || window.Count == 0 ? 0 : moved.Count(j => !window.Any(w => w.Club == j.Club));
+			// The window met almost no row of the last one: the step went over some. (A share small
+			// enough not to matter, or a read that came up empty, is taken as it is.)
+			if (moved.Count > 0 && window.Count > 0 && next - share > 0.004 && fresh >= window.Count - 1)
+			{
+				step /= 2;
+				continue;
+			}
+			await Merge(moved, next);
+			// It met the last window well; a longer step is safe again.
+			if (fresh <= window.Count / 2) step = Math.Min(step * 2, 0.05);
+			(window, key, share, at) = (moved, newKey, next, here);
+		}
+		// The rows of one window are numbered inside it; the list's own order is the order they
+		// were walked in.
+		for (var i = 0; i < jobs.Count; i++) jobs[i] = jobs[i] with { Number = i + 1 };
+		return jobs;
 	}
 
 	/// <summary>
@@ -118,11 +261,33 @@ internal static partial class Program
 		.ToArray()).ToLowerInvariant();
 
 	/// <summary>
-	/// Selects the job's row and waits for the panel to be about it. What comes back is the
-	/// panel's texts, from its title to the two answers.
+	/// Whether the job's row is laid out now, asked without selecting anything (?dry=1): the table
+	/// lays out only the rows in view, and a row that is not there cannot be selected.
 	/// </summary>
-	private static async Task<List<string>> SelectJob(Job job)
+	private static async Task<bool> JobRowShows(Job job) =>
+		!(await Fm.Get("rowselect", ("text", job.Club), ("and", job.Security), ("dry", "1")))
+		.StartsWith("error", StringComparison.Ordinal);
+
+	/// <summary>Scrolls the list to where the job's row was seen, a step either way if it sits on the edge.</summary>
+	private static async Task BringIntoView(Job job)
 	{
+		if (await JobRowShows(job)) return;
+		foreach (var share in new[] { job.Share, job.Share - 0.05, job.Share + 0.05 }.Where(s => s is >= 0 and <= 1))
+		{
+			await WindowAt(share, null, double.NaN);
+			if (await JobRowShows(job)) return;
+		}
+	}
+
+	/// <summary>
+	/// Selects the job's row and waits for the panel to be about it. What comes back is the
+	/// panel's texts, from its title to the two answers. The row is scrolled to first: the list
+	/// lays out only the rows in view, so a row far from where the page was left cannot be
+	/// selected at all and the panel would answer for whatever row is up (FINDINGS §8.197).
+	/// </summary>
+	private static async Task<List<string>> SelectJob(Job job, bool warn = false)
+	{
+		await BringIntoView(job);
 		// The first few clubs are rows of the Career overview's job tile behind as well, which
 		// has no job security column: asking for it lands on the list's own row.
 		await Fm.Get("rowselect", ("text", job.Club), ("and", job.Security));
@@ -143,6 +308,8 @@ internal static partial class Program
 			return at >= 0 && at + 1 < panel.Count;
 		}, seconds: 5, every: 0.25);
 		// A panel still about another club would answer for that one.
+		if (!shown && warn)
+			Console.Error.WriteLine(L($"\"{job.Club}\" iş paneli açılmadı; ayrıntı ve başvuru durumu eksik olabilir."));
 		job.CanApply = shown ? await ButtonEnabled("Apply For Job") : null;
 		return panel;
 	}
@@ -159,8 +326,8 @@ internal static partial class Program
 
 	private static async Task<int> JobList(bool json, List<Job> jobs)
 	{
-		// Whether a club takes an application shows only on its selected row.
-		foreach (var job in jobs) await SelectJob(job);
+		// Whether a club takes an application was asked of the open jobs while the list was read
+		// (AllJobs); a job with a manager is left unknown, so the column says "?".
 
 		if (json)
 		{

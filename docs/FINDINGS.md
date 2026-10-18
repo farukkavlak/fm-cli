@@ -1900,3 +1900,32 @@ Facilities. ⚠ Yeni bulgu: liste yalnız görünen pencereyi veriyor — aynı 
 kaydırıldığında farklı kulüpler), yani listede olan bir ilan (`fm jobs "Celesti"` pencerede değilken) "ilanlarda
 yok" diyebiliyor; tam liste için listeyi kaydırarak gezmek ya da oyunun verisinden okumak gerekiyor (checklist'e
 madde olarak eklendi). Panel, satırı görünmeyen bir iş seçilirse boş kalabiliyor (Danimarka) — hata vermiyor.
+
+### 8.197 İş listesi kendi kaydırması boyunca geziliyor: 15 değil 321 ilan (18 Ekim, TR + EN)
+Tablo yalnız görünen pencereyi (12–20 satır) döşüyor; `fm jobs` bu yüzden listenin başını okuyordu. Artık liste
+kendi kaydırması boyunca geziliyor: `scroll?anchor=Current Manager&to=<0..1>` ile pencere pencere iniliyor ve
+pencereler sırayla birleştiriliyor. Kaydırmadan sonra ilk okuma **boş** geliyor (satırlar bir-iki kare sonra
+döşeniyor), o yüzden bir pencere ancak bir öncekinden farklı ve iki okumada aynı olunca kabul ediliyor. Adım sabit
+değil: bir pencere, önceki pencerenin gösterdiği satır sayısına yakın sayıda *yeni* satır getirdiyse (yani pencereyi
+neredeyse hiç kesmediyse — küçük ekranda satır sayısı az) adım yarıya iniyor, iyi kesiştiyse geri büyüyor; böylece
+adımı ekranın kaç satır sığdırdığı belirliyor (ölçüm: bu makinede 20 pencere, ~0,05 pay).
+Satır seçmek için de satır önce görünüme kaydırılıyor (`rowselect text=…&and=…&dry=1` ile soruluyor, sonra seçiliyor):
+pencerede olmayan satır hiç seçilemiyordu ve panel başka kulübün cevabını veriyordu.
+Ölçüm (TR): önce `fm jobs --json` → 15 ilan, 32 sn, hepsi penceredeki kulüpler; sonra **321 ilan** (Celesti…
+New Zealand, oyunun kendi sırası), 22–29 sn; `fm jobs "Barcelona"` (61. sıra, pencerede değil) doğru panel.
+EN'de aynı 321 ilan ve aynı sıra; üç durumda (başka sayfa açık / zaten açık / başka sekmeden) aynı liste.
+Negatif: `fm jobs "ZZZ yok"` → "ilanlarda yok", `fm jobs 400` → "ilanlarda yok"; ayrıca başka sayfa açıkken
+(İletiler) liste yine 321 (kaydırma yanlış listeye gitmiyor). Panel gelmediğinde (Danimarka, ABD: ulus işlerinde
+panelde "Training Facilities" satırı yok) artık uyarı stderr'e yazılıyor, başka kulübün ayrıntısı basılmıyor.
+Not: panel yazıları panel bağlı kaldıkça eskisini gösterebiliyor (§8.194) — York'un ayrıntısında bir kez Celesti'nin
+"Wage Bill/Training Facilities" satırları okundu; düğme durumu (CanApply) seçili satırı izliyor, o doğruydu.
+
+### 8.198 İki tuzak: uzun oturumda kayıt kendiliğinden boşalabiliyor; EN'de ulus takımı adları çevriliyor (18 Ekim)
+- Sweep'in 39. komutundan sonra oyun ana menüye döndü ve kayıt boşaldı: `fm status` "kayıt yüklü değil", sweep'in
+  kalan 10 komutu `rc=69 "Kayıt yüklü değil"` verdi (`numbers` tam o anda 30 sn'de yanıt vermedi). Kod hatası değil:
+  aynı sweep kayıt yeniden yüklenince **50/50 temiz** (`fm start` ile "Son kayıt yükleniyor… / Hazır."). Uzun bir
+  turda (jobs tam listeyi geziyor, ~27 sn × birkaç koşu) bu olabiliyor; sweep'te üst üste `rc=69` görülürse önce
+  `fm status`, sonra `fm start`.
+- `fm jobs --json` EN'de de 321 ilan ve **aynı sıra**, aynı BAŞVURU değerleri; yalnız 15 ulus takımının adı oyunun
+  dilinde yazılıyor (`United States`/`U.S.A.`, `Fildişi Sahilleri`/`Ivory Coast`, `S. Arabistan`/`Saudi Arabia`).
+  Yani iki dilin çıktısı kulüp adına göre karşılaştırılamaz; sıra ve sayı karşılaştırılmalı.

@@ -138,9 +138,13 @@ tablodan çevrilemiyor.
     "Managerial Position" arayışı ve lig sırasını doğrulayan `^\d+(st|nd|rd|th)$` kalktı (Türkçede sıra "7." idi,
     bu yüzden tüm liste düşüyordu). Ölçüm: TR'de önce `fm jobs --json` → "İş ilanları okunamadı.", sonra 12–15 ilan
     doğru alanlarla (üç durum + EN); detay (`fm jobs "York"`) iki dilde aynı (§8.196).
-  - [ ] **Jobs listesi yalnız görünen pencereyi veriyor:** aynı durumda 12–15 satır dönüyor (sayfa kaydırıldığında
-    başka kulüpler; listede olan bir ilan pencerede değilse `fm jobs "<kulüp>"` "ilanlarda yok" diyor). Liste
-    kaydırarak gezilecek ya da oyunun verisinden okunacak (§8.196).
+  - [x] **Jobs listesi yalnız görünen pencereyi veriyor:** liste artık kendi kaydırması boyunca baştan sona geziliyor
+    (pencere pencere; adım, okunan pencerenin kaç satır getirdiğinden hesaplanıyor) → 15 satır yerine **321 ilan**,
+    oyunun kendi sırasıyla; `fm jobs "<kulüp>"` satırı önce görünüme kaydırıyor (ilk penceredeki iş 1,3 sn). BAŞVURU
+    sütunu artık yalnız menajersiz (boş) ilanlar için soruluyor — düğme yalnız seçili satırda belli oluyor ve 321
+    satırın hepsini seçmek dakikalar sürerdi; dolu ilanlar "?". Üç durum (başka sayfa / zaten açık / başka sekme) ve
+    iki dil aynı 321 ilan ve aynı sıra (§8.197). Panel gelmezse artık başka kulübün ayrıntısı basılmıyor: satır
+    verisinden okunan alanlar + stderr uyarısı.
   - [ ] Stages "This round will be drawn" · Saves "Saves automatically" / "Autosave" · Penalties "Starting at " / "On Subs bench" ·
     Release "Is there anything else" · Matches "Match Ratings"+"Inf" · Saves "Estimated game speed:"
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da

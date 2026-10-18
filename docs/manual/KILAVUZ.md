@@ -1599,21 +1599,26 @@ hale gelir; `settings` bunu sorar, script'te `--yes` ister.
 Kovulunca ya da istifa edince yeni bir iş gerekir. `fm jobs` açık ilanları listeler:
 
 ```
-12 iş ilanı
+321 iş ilanı
 
-#   KULÜP           LİG             ÜLKE  SIRA  İTİBAR   MALİ DURUM  BAŞVURU
-1   Crystal Palace  Premier League  ENG   19th  Ulusal   Sağlam      kapalı
-4   Fenerbahçe      Super League    TUR   8th   Kıtasal  Sağlam      açık
-5   Kayserispor     Super League    TUR   18th  Ulusal   Sağlam      açık
+#   KULÜP         LİG                ÜLKE  SIRA  İTİBAR    MALİ DURUM   BAŞVURU
+1   Celesti       Serie A            ITA   7.    Kıtasal   Sağlam       kapalı
+4   York          Sky Bet League Two ENG   3.    Bölgesel  İdare eder   açık
+6   FC Augsburg   Bundesliga 2       GER   3.    Ulusal    Sağlam       ?
 …
 ```
 
 "BAŞVURU kapalı" demek, o kulübün şu an başvuru kabul etmediği anlamına gelir. Yine de ilgi
-bildirebilirsin. Liste her ilanı tek tek seçtiği için 15 saniye kadar sürer.
+bildirebilirsin. Liste bütün sayfayı gezdiği için 20-30 saniye kadar sürer.
 
-Oyun listeyi ekranda gördüğü satırlar kadar döşüyor: sayfa kaydırılmışsa ya da liste henüz
-dolmamışsa bazı ilanlar bu çıktıda görünmeyebilir (`fm jobs "<kulüp>"` "ilanlarda yok" der);
-sayfayı baştan açıp yeniden dene.
+Oyun listeyi ekranda yalnız gördüğü satırlar kadar döşüyor; `fm jobs` listeyi kendi kaydırması
+boyunca baştan sona gezerek okur, yani liste tamdır: ilanları kaydırmak gerekmez, oyunun
+gösterdiği bütün işler (bu kayıtta 321) aynı sırayla gelir.
+
+"BAŞVURU" sütunu yalnız **boş** (menajersiz) ilanlar için sorulur; menajeri olan ilanlar "?" der,
+çünkü o düğmenin açık olup olmadığı ancak satır seçilince belli olur ve yüzlerce satırı tek tek
+seçmek dakikalar alırdı. Bir ilanı sorduğunda (`fm jobs "<kulüp>"`) başvuru durumu yine gelir;
+satır görünüme kaydırılarak seçildiği için pencerede olmayan ilanlarda da doğrudur.
 
 `fm jobs kayseri` (ya da numarasıyla, `fm jobs 5`) ilanın ayrıntısını gösterir: maaş gideri,
 antrenman tesisleri ve menajer kuralları. Kulüp seçince:
