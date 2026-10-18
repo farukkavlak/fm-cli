@@ -2249,3 +2249,20 @@ geldiği için dokunulmadı.
 - Not (bu maddenin dışı): JSON'da `How` hâlâ oyunun ham sözü (`Loan`/`Free` Türkçede, `loan`/`free` İngilizcede);
   insan çıktısı `How()` ile CLI'nin kendi sözünü yazıyor. Ayrıca dil değiştirildikten sonra sayfa yenilenmezse
   bağlı yazılar eski dilde kalıyor (`Nation: İngiltere` İngilizce oyunda) — §8.194'ün bilinen hâli.
+
+### 8.215 `fm responsibilities give`: listeyi başa alma sabit 500 ms yerine listenin kendi cevabıyla (18 Ekim, TR + EN)
+`cli/fm/Responsibilities.cs`. `GiveDuty`/`SetDuty` uzun görev listesini `scroll ?anchor=<TakeControlAll|DelegateAll>&to=0`
+ile başa alıp **sabit 500 ms** bekliyor, sonra okuyordu. Ölçüm (python3, 40 ms aralıkla `/form?anchor=Take Control of All&up=12`):
+kaydırmadan sonra satırlar ~0,35 sn'de oturuyor (iki ardışık okuma aynı) — yani 500 ms yalnız satırların ne zaman
+çizildiğine dair bir tahmindi. Oyunun kendi cevabı da bu işi görüyor: `scroll` listenin **nereye oturduğunu** söylüyor —
+`to=1` → `728,6 of 728,6`, `to=0` → `0 of 728,6`, `to=0.5` → `322 of 644`; yani baştayken ilk sayı `0` (virgül oyunun
+ondalık işareti, dile bağlı değil). Yeni `ToTop()`: `scroll …&to=0` gönderiliyor ve **cevabın ilk sayısı `0` olana kadar**
+(`Until`, 0,3 sn aralık, 6 sn üst sınır) bekleniyor; satırların çizilmesini hemen ardından gelen "iki okumada aynı"
+işareti (`Duties`'in kendi okuması) karşılıyor. `fm responsibilities give "Assigning Scouts"` dört durumda (ilk açılış /
+zaten açık / başka sayfa açık / liste elle dibe kaydırılmış) TR + EN **eski derlemeyle birebir**: TR
+`md5 570b1bd243e4d67a2f4800b7588ab50b` (11–15 sn), EN `md5 0030afd6c876a5bc3197cca3da59e1b7` (11–12 sn); negatif
+`fm responsibilities give "ZZZ yok"` → rc=64, `'ZZZ yok' diye bir görev yok` (EN: `There is no duty called 'ZZZ nope'`).
+Kayıt değişmedi (kişi verilmediği için hiçbir görev devredilmedi), saat ilerletilmedi, dil Türkçeye döndü.
+Yazma yolu da aynı yardımcıdan geçiyor: `take "Assigning Scouts" --yes` → `artık sende.` (14 sn), geri
+`give "Assigning Scouts" "Jez George" --yes` → `Faruk Kavlak → Jez George` (11 sn); `fm responsibilities scout --json`
+ile `Assigning Scouts | delegated | Jez George` doğrulandı. `tools/sweep.sh` 50 komut, 0 hata.

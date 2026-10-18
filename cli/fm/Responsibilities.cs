@@ -56,6 +56,24 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// Takes the page back to the top of its long list, waited for on the list's own answer: the
+	/// scroll says where it came to rest ("0 of 728,6"), so nothing is guessed about how long the
+	/// move takes. The rows are painted a moment later, which the settled read that follows takes in.
+	/// </summary>
+	private static async Task ToTop()
+	{
+		var anchor = "";
+		await Until(async () =>
+		{
+			if (anchor.Length == 0)
+				anchor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault() ?? "";
+			if (anchor.Length == 0) return false;
+			return (await Fm.Get("scroll", ("anchor", anchor), ("to", "0"))).Split(" of ")[0].Trim() == "0";
+		}, seconds: 6, every: 0.3);
+	}
+
+	/// <summary>
 	/// The duties, gathered down the list — it lays out only what is in view. With a title to
 	/// stop at, the walk ends with that duty on screen, so its buttons can be pressed.
 	/// </summary>
@@ -278,9 +296,7 @@ internal static partial class Program
 		if (await FindDuty(words[0]) is not { } duty) return 64;
 
 		// Back up the list to where the duty is laid out, its list with it.
-		var first = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault();
-		if (first != null) await Fm.Get("scroll", ("anchor", first), ("to", "0"));
-		await Task.Delay(500);
+		await ToTop();
 		var now = (await Duties(stopAt: duty.Title)).FirstOrDefault(d => d.Group == duty.Group && d.Title == duty.Title);
 		if (now == null || now.Staff.Length == 0)
 		{
@@ -383,9 +399,7 @@ internal static partial class Program
 		}
 
 		// Back up the list to where the duty is laid out, its buttons with it.
-		var first = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault();
-		if (first != null) await Fm.Get("scroll", ("anchor", first), ("to", "0"));
-		await Task.Delay(500);
+		await ToTop();
 		var now = (await Duties(stopAt: duty.Title)).FirstOrDefault(d => d.Group == duty.Group && d.Title == duty.Title);
 		if (now == null)
 		{

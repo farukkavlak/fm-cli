@@ -29,7 +29,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · Jobs 231 · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
-  Registration 32 115 301 305 · Release ~~57~~ 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
+  Registration 32 115 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
   ~~Scouting 100~~ · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · TrainingSchedule 345 · ~~TraitTraining 32~~ · Transfers 96 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
@@ -146,6 +146,15 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     görünebiliyor (192–281 ms arası aynı satırlar, gerçek sonuç 384 ms'de) — "iki okuma aynı" işareti erken kabul ederdi
     (Staff 74'ün tuzağı); "Apply all advice" düğmesinin durumu (etkin/olay) uygulama boyunca değişmiyor. Ölçüldü, işaret
     bulunamadan değiştirilmedi. Faruk'a soru gerekmiyor: madde ölçüldü ve park edildi.
+  - [x] Responsibilities 283 388 (listeyi başa alma + sabit 500 ms): uzun görev listesi `scroll …&to=0` ile başa
+    alınıyor ve ardından okumadan önce sabit 500 ms bekleniyordu — bu süre yalnız satırların ne zaman çizildiğine dair
+    bir tahmindi (ölçüm: kaydırmadan ~0,35 sn sonra iki ardışık okuma aynı). Yeni yardımcı `ToTop()`: sayfa başa
+    alınıyor **ve** bekleme oyunun kendi cevabına bağlı — `scroll` listenin nerede durduğunu söylüyor (`0 of 728,6`;
+    baştayken ilk sayı `0`). Satırların çizilmesini de hemen ardından gelen "iki okumada aynı" işareti (`Duties`'in
+    kendi okuması) karşılıyor. `fm responsibilities give "Assigning Scouts"` TR + EN dört durumda (`fm open "Messages"`
+    sonrası / zaten açık / `fm open "Squad Dynamics"` sonrası / liste elle dibe kaydırılmış) **eskisiyle birebir**:
+    TR `md5 570b1bd243e4d67a2f4800b7588ab50b`, EN `md5 0030afd6c876a5bc3197cca3da59e1b7`, süre 11–15 sn (nötr);
+    negatif iki dilde `rc=64` (§8.215).
 - [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   Calendar 157 · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·

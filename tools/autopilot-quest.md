@@ -4,19 +4,52 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **B "Cümle parçası arayanlar" / `player --career`** — **BİTTİ** (§8.214, Tur 25): `start`
-  `IndexOf("Avg Rat")` yerine satırın kendi ilk hücresi (sezon); TR'de rc=1 → rc=0 (tek `md5`), EN çıktısı eski
-  derlemeyle birebir, kaleci + negatif ölçüldü.
-- Bir sonraki tur (öneri): **`cli/fm/Responsibilities.cs`** (`283 388` sabit 500 ms) — ağaçta commit edilmemiş bir
-  değişiklik **ve** bir `stash@{0}` duruyor; ikisi de aynı maddeyi hedefliyor. Bu tur dokunulmadı (benim değil);
-  önce hangisinin geçerli olduğuna karar verilip ölçülmeli (`git stash show -p stash@{0}` ile bakılabilir).
-  Sonraki A adayları: `TacticFiles 181` (panel kapanışından sonra 800 ms) · `TrainingSchedule 345` (seçenek
-  basışından sonra 500 ms) · `Jobs 408` (başvurudan sonra 1 sn). B'de yeni ölçüm bekleyenler: JSON `How` alanı
+- Madde: **A "`Task.Delay`" / `Responsibilities 283 388`** — **BİTTİ** (§8.215, Tur 26): uzun görev listesini başa alan
+  sabit 500 ms, oyunun kendi `scroll` cevabına bağlandı (`0 of 728,6` — baştayken ilk sayı `0`); satırların çizilmesini
+  ardından gelen "iki okumada aynı" işareti karşılıyor. `fm responsibilities give "Assigning Scouts"` TR + EN dört
+  durumda eski derlemeyle birebir (TR `md5 570b1bd2…`, EN `md5 0030afd6…`), süre nötr (11–15 sn), negatif `rc=64`.
+- Bir sonraki tur (öneri): **A adayları** — `TacticFiles 181` (panel kapanışından sonra 800 ms) · `TrainingSchedule 345`
+  (seçenek basışından sonra 500 ms) · `Jobs 408` (başvurudan sonra 1 sn). B'de yeni ölçüm bekleyenler: JSON `How` alanı
   (§8.214 sonu), `next`'in "İlerle" düğmesi, haber sitesindeki "Portugal".
-- Not: ağaçta yalnız `cli/fm/Responsibilities.cs` commit edilmemiş duruyor (bu turun işi değil) + `stash@{0}`.
+- Bunlar bulunduğumuz kayıtta **ölçülmeden önce** listelenmeli: bir gün `penalties`in "Starting at " / "On Subs bench"
+  eşlemesi, `Stages`in "This round will be drawn on ", `Saves`in "Saves automatically"/"Autosave" sözü de aynı ailede.
+- Not: ağaç temiz, `stash` yok — Tur 25'te bekleyen `cli/fm/Responsibilities.cs` değişikliği ve `stash@{0}` artık yok,
+  bu madde sıfırdan ölçülüp yapıldı.
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 26 — A "`Task.Delay`" / Responsibilities 283 388: sabit 500 ms yerine listenin "baştayım" cevabı (§8.215, 18 Ekim)
+Ne: `cli/fm/Responsibilities.cs` (`fm responsibilities give|take|delegate`). Sayfanın görev listesi uzun; komut, görevin
+satırına inmeden önce listeyi `scroll ?anchor=Take Control of All|Delegate All to Recommended&to=0` ile başa alıp
+**sabit 500 ms** bekliyordu (`GiveDuty` 283, `SetDuty` 388). Bekleme yalnız satırların ne zaman çizildiğine dair bir
+tahmindi. Yeni yardımcı `ToTop()`: aynı kaydırma gönderiliyor ve **listenin kendi cevabı** bekleniyor — `scroll` nereye
+oturduğunu söylüyor (`to=0` → `0 of 728,6`; baştayken ilk sayı `0`), `Until` 0,3 sn aralıkla en çok 6 sn. Satırların
+çizilmesini hemen ardından gelen `Duties()` okuması karşılıyor ("içerik değişti **ve** iki okumada aynı").
+- Ölçüm (okuma yolu, hiçbir şeyi değiştirmiyor): python3, `scroll?anchor=Take Control of All` → `to=1` `728,6 of 728,6`,
+  `to=0` `0 of 728,6` (iki kez aynı), `to=0.5` `322 of 644`. `to=1` sonra `to=0`: `/form?anchor=Take Control of All&up=12`
+  40 ms aralıkla okundu → satırlar **0,35 sn**'de oturdu → 500 ms makine hızı tahminiydi.
+- Öncesi (eski derleme): `fm responsibilities give "Assigning Scouts"` TR dört durum (sayfa ilk kez `fm open "Messages"`
+  sonrası / zaten açık / `fm open "Squad Dynamics"` sonrası / liste curl ile dibe kaydırılmış) → **hepsi `rc=0`,
+  `md5 570b1bd243e4d67a2f4800b7588ab50b`**, 11–14 sn; çıktı `Gözlemcilik Görevlendirmelerini Yapar: Jez George` +
+  `Verilebilecekler: Jez George · Joe Hutchinson · Faruk Kavlak`. EN dört durum → `md5 0030afd6c876a5bc3197cca3da59e1b7`,
+  11–12 sn (`Assigning Scouts: Jez George` / `Can be given to: …`).
+- Sonrası: aynı sekiz koşu → **birebir aynı md5'ler** (TR 570b1bd2…, EN 0030afd6…), süre 11–15 sn (nötr); negatif
+  `fm responsibilities give "ZZZ yok"` → rc=64 `'ZZZ yok' diye bir görev yok` (EN `There is no duty called 'ZZZ nope'`),
+  md5 eskiyle aynı. İz (`FM_TRACE=1`): `select …choice=Scouting Responsibility` (10,20) → `scroll …to=0` (10,27, ToTop)
+  → `buttons`/`form` (10,35 / 10,40, okuma) → `form` (10,90, iki okuma aynı) → `scroll …to=0` (10,97, `Duties`in kendi
+  taraması) → `dropdowns` (11,00): sabit beklemenin yerinde artık listenin cevabı var.
+- Yazma yolu (aynı yardımcının ikinci çağrı yeri, `SetDuty`): liste elle dibe kaydırılıp `fm responsibilities take
+  "Assigning Scouts" --yes` → `Gözlemcilik Görevlendirmelerini Yapar: artık sende.` (rc=0, 14 sn); geri: `fm
+  responsibilities give "Assigning Scouts" "Jez George" --yes` → `Gözlemcilik Görevlendirmelerini Yapar: Faruk Kavlak
+  → Jez George` (rc=0, 11 sn). Veriden doğrulandı: `fm responsibilities scout --json` → `Assigning Scouts | delegated |
+  Jez George` (tur başındaki hâli).
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (`/tmp/sweep_t26`). Paylaşılan koda (Bridge/OpenPage/reply)
+  dokunulmadı, `ToTop` yalnız bu dosyada çağrılıyor.
+- Dönüş/geri: dil `fm settings dil English` → `fm settings language "Türkçe"` (`/state` → `Language: turkish`),
+  2 Ağustos 2026 14:00; kişi verilmediği için **hiçbir görev devredilmedi**, saat ilerletilmedi, maç oynanmadı.
+- Dosya: `cli/fm/Responsibilities.cs` (yalnız; dosyada `Task.Delay` kalmadı), `docs/BAGIMLILIKLAR.md` (madde `[x]`),
+  `docs/FINDINGS.md` §8.215.
 
 ### Tur 25 — B "Cümle parçası arayanlar" / `player --career`: satırlar başlık yazısıyla değil satırın kendi hücresiyle bulunuyor; komut Türkçede hiç çalışmıyordu (§8.214, 18 Ekim)
 Ne: `cli/fm/Career.cs` (`fm player <oyuncu> --career`). Satırların başladığı yer `texts.IndexOf("Avg Rat") + 1` ile
