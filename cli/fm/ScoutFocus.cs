@@ -17,6 +17,12 @@ internal static partial class Program
 	private static JsonElement? FormButton(List<JsonElement> form, string text) =>
 		form.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == text).Cast<JsonElement?>().FirstOrDefault();
 
+	/// <summary>The texts drawn in a control, as the form gives them ("(Gözlemci)" with a name).</summary>
+	private static List<string> FormTexts(JsonElement item) =>
+		item.ValueKind == JsonValueKind.Object && item.TryGetProperty("Texts", out var texts) && texts.ValueKind == JsonValueKind.Array
+			? texts.EnumerateArray().Select(t => t.GetString() ?? "").Where(t => t.Length > 0).ToList()
+			: [];
+
 	/// <summary>The control that follows a heading in reading order.</summary>
 	private static JsonElement? FormAfter(List<JsonElement> form, string heading, string kind, int nth = 0)
 	{
@@ -86,19 +92,43 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<string>> AssignFocusScouts(string typed, bool analysts = false)
 	{
-		var (plural, one, who) = analysts ? ("Analysts", "analyst", L("Analist")) : ("Scouts", "scout", "Scout");
-		// The window's own box: "Assign Any Scouts", but "Assign Any Analyst".
+		var who = analysts ? L("Analist") : "Scout";
+		// The window's own box: "Assign Any Scouts", but "Assign Any Analyst". In a Turkish game
+		// the game leaves these two labels in English (measured), so the box is the same words in
+		// every language; what it is bound to (focusitem.anyscout / focusitem.anyanalyst) is
+		// checked below, so a window for the wrong list is caught rather than ticked.
 		var box = analysts ? "Assign Any Analyst" : "Assign Any Scouts";
 		var form = await FocusForm("Back");
-		if (FormAfter(form, $"Assign {plural}", "button") is not { } edit || Field(edit, "Text") != "Edit")
+		// The scouts and analysts rows carry the same button template, and the heading above them
+		// is the game's own sentence ("Gözlemci Görevlendir (1)", "Analist Görevlendir (1)"), so
+		// neither can be looked for in English. The row is the one whose heading or people carry
+		// the role's own word ("(Gözlemci)", "(Oyuncu Analisti)"), asked from the game's table; a
+		// form that says neither keeps its order (scouts first, analysts second).
+		await GameWords.Ask(Fm, "Scout", "Analyst");
+		var role = GameWords.Of(analysts ? "Analyst" : "Scout");
+		string RowAt(int at)
+		{
+			var said = at > 0 && Field(form[at - 1], "Kind") == "text" ? Field(form[at - 1], "Text") : "";
+			for (var next = at + 1; next < form.Count && Field(form[next], "Kind") != "text"; next++)
+				said += " " + string.Join(" ", FormTexts(form[next]));
+			return said;
+		}
+		var rows = Enumerable.Range(0, form.Count)
+			.Where(at => Field(form[at], "Kind") == "button" && Field(form[at], "Name") == "button-base-trailing-icon-label")
+			.ToList();
+		var pick = rows.FirstOrDefault(at => RowAt(at).Contains(role, StringComparison.OrdinalIgnoreCase), -1);
+		if (pick < 0 && rows.Count > 0) pick = analysts ? rows[^1] : rows[0];
+		if (pick < 0)
 		{
 			Console.Error.WriteLine(L($"Formda {who.ToLowerInvariant()} seçme butonu yok."));
 			return null;
 		}
-		await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
+		await Fm.Get("click", ("ptr", Field(form[pick], "Pointer")));
 		async Task<List<JsonElement>> Window() => (await Fm.GetJson("form", ("anchor", box), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
+		// The list the window is for: a box bound to the focus' own field for it.
+		var bind = analysts ? "focusitem.anyanalyst" : "focusitem.anyscout";
 		List<JsonElement> window = [];
-		if (!await Until(async () => (window = await Window()).Any(i => Field(i, "Kind") == "checkbox"), seconds: 6, every: 0.4))
+		if (!await Until(async () => (window = await Window()).Any(i => Field(i, "Kind") == "checkbox" && Field(i, "Binds") == bind), seconds: 6, every: 0.4))
 		{
 			Console.Error.WriteLine(L($"{who} seçme penceresi açılmadı."));
 			return null;
@@ -150,8 +180,19 @@ internal static partial class Program
 			await Show(depth[name]);
 			await Fm.Get("rowselect", ("text", name), ("check", picked.Contains(name) ? "1" : "0"));
 		}
-		var counted = await Until(async () => (await Window()).Any(i => Field(i, "Text") == $"{picked.Count} {one}(s) selected"), seconds: 4, every: 0.3);
-		if (!counted)
+		// How many are ticked is the game's own sentence ("1 gözlemci seçildi", "1 scout(s)
+		// selected"), so it is not written out and looked for; the place it is drawn in
+		// (SIVisible-selected-scouts-number / …-analysts-number, the template's own names) is the
+		// same in every language, and the number inside it is what is checked.
+		var countBox = analysts ? "SIVisible-selected-analysts-number" : "SIVisible-selected-scouts-number";
+		async Task<int?> Ticked()
+		{
+			var said = (await Fm.GetJson("texts", ("within", countBox))).EnumerateArray()
+				.Select(t => t.GetString() ?? "")
+				.FirstOrDefault(t => Regex.IsMatch(t, @"\d"));
+			return said != null && int.TryParse(Regex.Match(said, @"\d+").Value, out var n) ? n : null;
+		}
+		if (!await Until(async () => await Ticked() == picked.Count, seconds: 4, every: 0.3))
 		{
 			await Close("Cancel");
 			Console.Error.WriteLine(L($"{who} seçilemedi (pencere seçilen sayısını göstermedi)."));

@@ -307,10 +307,14 @@ tablodan çevrilemiyor.
     değişmesi (başlık oyunun cümlesi: TR "Gözlemleme Yerleri (0)" → "(1)") — İngilizce söz aranmıyor. TR'de
     eskiden `Nullable object must have a value` ile çöküyordu; TR üç durum + EN üç durum aynı yolu geçti,
     hiçbir odak değişmedi (§8.228).
-  - [ ] `scout new/edit --by` / `--analysts`: seçim penceresini açan `Edit` düğmesi hâlâ başlık yazısıyla
-    bulunuyor (`FormAfter(form, "Assign Scouts", "button")`); o başlık oyunun cümlesi (TR "Gözlemci
-    Görevlendir (1)") → TR'de "Formda scout seçme butonu yok." Düğme ikiz (analistte aynı ad/yazı), ayırt
-    eden tek şey formdaki sırası; pencere başlığı (`Assign Any Scouts`) da yazıyla (§8.228 sonu).
+  - [x] `scout new/edit --by` / `--analysts`: seçim penceresini açan `Edit` düğmesi artık başlık yazısıyla değil,
+    satırın kendi rolüyle bulunuyor — iki satırın düğmesi aynı şablon (`button-base-trailing-icon-label`), başlık
+    da oyunun cümlesi ("Gözlemci Görevlendir (1)"), o yüzden satır, yanındaki insanın rozetindeki rol sözünden
+    ("(Gözlemci)", "(Oyuncu Analisti)"; söz oyunun kendi tablosundan) seçiliyor, bulunamazsa form sırası (gözlemci
+    önce). Pencerenin hangi liste olduğu yazıyla değil kutusunun bağlı olduğu alanla (`focusitem.anyscout` /
+    `focusitem.anyanalyst`) doğrulanıyor; kaç kişinin seçildiği de oyunun cümlesinden değil, kendi kabından
+    (`SIVisible-selected-scouts-number` / `…-analysts-number`) okunan sayıdan. TR üç durum + `--analysts`, EN üç
+    durum + `--analysts` rc=0; negatif TR rc=64 (§8.229).
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da
     birkaç gün içinde" diyor.
 - [ ] **İngilizce yazıyla basma/tıklama — 44 yer** (`press/click text="Acknowledge and Move On"`, "Cancel", "Confirm",

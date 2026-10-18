@@ -2516,3 +2516,26 @@ söz aranmıyor, iki dilde de aynı öğe karşılaştırılıyor.
   da yazıyla. Ayırt eden tek şey formdaki sırası ve pencere başlığı → ayrı iş.
 - Dosya: `cli/fm/ScoutFocus.cs` (`FormHeadingBefore` + bölge döngüsü), `docs/BAGIMLILIKLAR.md`, bu defter.
   `sweep.sh` gerekmedi (paylaşılan koda dokunulmadı; `scout` sweep'te yok).
+
+### 8.229 `fm scout new/edit --by` / `--analysts`: satır ve pencere yazıyla değil, rol ve bağla bulunuyor (18 Ekim, TR + EN)
+`AssignFocusScouts` düğmeyi `FormAfter(form, "Assign Scouts", "button")` + `Text == "Edit"` ile, pencereyi de
+`anchor="Assign Any Scouts"` ile arıyordu; başlık oyunun cümlesi (TR "Gözlemci Görevlendir (1)") → TR'de "Formda scout
+seçme butonu yok." Ölçüm (TR, `/form?anchor=Back&up=12&buttons=1`): iki satırın `Edit` düğmesi **birebir aynı** (`Name:
+button-base-trailing-icon-label`, `Events: OpenPanel`, `Action` boş, `Binds` yok, satır kapsayıcıları da aynı adlar);
+ayırt eden tek şey yanındaki insanın rozeti — `Texts: ["George Herbert", "(Gözlemci)"]` / `["Jack Coles", "(Oyuncu
+Analisti)"]`. Yeni: rol sözü oyunun kendi tablosundan (`/translate?words=Scout` → "Gözlemci", `Analyst` → "Analist"),
+satır rozetten (yoksa form sırası: gözlemci önce). Pencere artık kutusunun **bağıyla** doğrulanıyor
+(`/form?anchor=Assign Any Scouts` → `Binds: focusitem.anyscout`; analistte `focusitem.anyanalyst`) — yanlış satıra
+basılırsa liste taranmadan hata veriyor. "Kaç seçildi" cümlesi de yazıyla aranmıyor: sayı, oyunun kendi kabından
+(`/texts?within=SIVisible-selected-scouts-number` → "1 gözlemci seçildi"; analistte `…-analysts-number`) okunuyor.
+Pencere başlıkları TR oyunda da İngilizce ("Assign Any Scouts", "World Knowledge", "Assigned Scout") — oyun bu
+etiketleri çevirmiyor, yani yazı orada da aynı; asıl kırılan başlık `Assign Scouts` cümlesiydi.
+Kanıt (hepsi `rc=0`): TR üç durum (`fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"`
+sonrası) `fm scout edit "England" --by "Kenny Morrison, Simon Rowley"` → "Odak güncellendi: İngiltere · Kenny Morrison
++ Simon Rowley", odak "2 gözlemci"; `--analysts "Jack Coles"` → "analist: Jack Coles". EN aynı üç durum → "Focus
+updated: England · Kenny Morrison + Simon Rowley"; `--analysts` → "analyst: Jack Coles". Negatif TR `--by "ZZZ yok"` →
+rc=64 "Gözlemci: 'ZZZ yok' diye bir seçenek yok. Seçenekler: …". Süre 17,7–27,9 sn (eskiden TR'de hiç çalışmıyordu).
+Dönüş: odak eski hâline (`--by "George Herbert"` → "1 gözlemci · 1 analist"), dil `fm settings language "Türkçe"`,
+saat 2 Ağustos 14:00, maç yok. ⚠ Uzun oturumda köprü iki kez "the main thread did not run this request within 30s"
+ile sustu (aynı komut yeniden başlatmadan sonra çalıştı; §8.99'daki gibi); EN negatif koşusu bu yüzden rc=1 kaldı,
+TR negatifi rc=64.

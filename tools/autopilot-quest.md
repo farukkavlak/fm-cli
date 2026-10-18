@@ -4,6 +4,31 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
+- Madde: **B "`scout new/edit --by` / `--analysts`"** — **BİTTİ** (§8.229, Tur 40): seçim penceresini açan `Edit`
+  düğmesi `FormAfter(form, "Assign Scouts", …)` başlığıyla aranıyordu; başlık oyunun cümlesi (TR "Gözlemci
+  Görevlendir (1)") → TR'de "Formda scout seçme butonu yok." Artık satır, yanındaki insanın rozetindeki rol
+  sözünden bulunuyor (`/translate?words=Scout|Analyst` → "Gözlemci"/"Analist"; aynı şablonlu iki düğme böyle
+  ayrılıyor, bulunamazsa form sırası: gözlemci önce). Pencere, kutusunun bağıyla doğrulanıyor
+  (`focusitem.anyscout` / `focusitem.anyanalyst`); "kaç seçildi" cümlesi yerine oyunun kabından
+  (`/texts?within=SIVisible-selected-scouts-number`) okunan sayı kontrol ediliyor.
+- Kanıt: TR üç durum (**sayfa ilk kez açılıyor** `fm open "Messages"` sonrası 18,7 sn / **zaten açık** 19,8 sn /
+  **başka sayfa açık** `fm open "Squad Dynamics"` sonrası 25,0 sn) `fm scout edit "England" --by "Kenny Morrison,
+  Simon Rowley"` → "Odak güncellendi: İngiltere · Kenny Morrison + Simon Rowley", odak "2 gözlemci";
+  `--analysts "Jack Coles"` → "analist: Jack Coles" (24,6 sn). EN aynı üç durum (26,4 / 26,0 / 27,9 sn) →
+  "Focus updated: England · …"; EN `--analysts` → "analyst: Jack Coles". Negatif TR `--by "ZZZ yok"` → **rc=64**,
+  "Gözlemci: 'ZZZ yok' diye bir seçenek yok. Seçenekler: …". EN negatifi köprü sustuğu için rc=1 kaldı.
+- Geri alma: odak eski hâline (`--by "George Herbert"` → "1 gözlemci · 1 analist"), dil `fm settings language
+  "Türkçe"` (`/state` → turkish), saat 2 Ağustos 2026 14:00, maç oynanmadı, saat ilerletilmedi.
+- Not (tuzak): uzun oturumda köprü iki kez "the main thread did not run this request within 30s" ile sustu; aynı
+  komut `pkill -9` + `fm start` sonrası çalıştı (§8.99'daki gibi). `pkill` sonrası `fm stop` "FM açık değil" der.
+- Regresyon: paylaşılan koda (Bridge/OpenPage/reply) dokunulmadı, değişiklik yalnız `cli/fm/ScoutFocus.cs`
+  içinde (yeni `FormTexts` yardımcısı yalnız oradan) → `sweep.sh` gerekmedi (`scout` sweep'te yok).
+- Sıradaki tur (öneri): B'de `contract <oyuncu> --agent` kartın işareti, haber "Portugal", "yazıyla basma"nın
+  kalan yerleri; A'da kısa `Until` listesi + sabit üst sınırlar (`Arriving`, `Bound`). Ağır listeler: yok.
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 39)
 - Madde: **B "Yazıyla basma" / `scout new/edit --area`** — **BİTTİ** (§8.228, Tur 39): yazma yolundaki bölge
   döngüsü listeyi hâlâ `FormAfter(second, "Scouting Areas", "dropdown")` ile ve `before` yazısını
   `StartsWith("Scouting Areas")` ile arıyordu; başlık oyunun cümlesi (TR "Gözlemleme Yerleri (0)") → TR'de
