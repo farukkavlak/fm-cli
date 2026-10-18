@@ -42,6 +42,14 @@ internal static partial class Program
 		var rows = await ReadNumbers();
 		if (rows.Count == 0)
 		{
+			// The table can still be drawn while another page is coming up over it ("open Messages"
+			// then numbers: the page is there for the check, gone by the reading), so an empty
+			// reading asks for the page again instead of saying it cannot be read.
+			if (!await OpenNumbers()) rows = [];
+			else rows = await ReadNumbers();
+		}
+		if (rows.Count == 0)
+		{
 			Console.Error.WriteLine(L("Forma numaraları okunamadı."));
 			return 1;
 		}
@@ -155,7 +163,11 @@ internal static partial class Program
 		{
 			var opened = await OpenPage(Screen.Squad);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return false;
-			await Task.Delay(1500);
+			// The subtab menu is drawn a moment after the page itself, and the game draws every
+			// screen again when the language changes: the row is asked for without choosing it
+			// until the menu offers it, where a fixed 1.5 s used to guess how long that takes (a
+			// language rebuild ran past it and the tab was never chosen).
+			await Until(async () => !(await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Squad Numbers"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.3);
 			await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Squad Numbers"), ("fire", "1"));
 			if (await Until(async () => (await NumbersInView()).Count > 0, seconds: 10)) return true;
 		}
@@ -165,22 +177,48 @@ internal static partial class Program
 	/// <summary>
 	/// Every row, read a screenful at a time (the table lays out only the rows in view). With
 	/// stopAt it stops at the first view that holds such a row, whose control is then live.
+	///
+	/// Once a scroll has been asked for, the rows of the new place come over the following frames,
+	/// and until the last of them is in a reading answers with the rows held before (a language
+	/// rebuild once left the table away from the top reading as 24 rows instead of 37). So a
+	/// window counts once it has changed and held for two readings — the fixed 400 ms that used to
+	/// be here guessed the machine's speed — and the scroll says whether it moved at all, so a
+	/// scroll that was already where it was asked to be is read once. Seconds are a ceiling only.
 	/// </summary>
 	private static async Task<List<NumberRow>> ReadNumbers(Func<NumberRow, bool> stopAt = null)
 	{
+		static string Key(IEnumerable<NumberRow> rows) => string.Join(",", rows.Select(r => r.Name));
 		var all = new List<NumberRow>();
+		var view = await NumbersInView();
 		foreach (var share in new[] { "0", "0.25", "0.5", "0.75", "1" })
 		{
-			var anchor = (await NumbersInView()).FirstOrDefault()?.Dropdown;
+			var anchor = view.FirstOrDefault()?.Dropdown;
 			if (anchor == null) break;
+			var here = (await Fm.Get("scroll", ("ptr", anchor))).Trim();
 			var scrolled = await Fm.Get("scroll", ("ptr", anchor), ("to", share));
-			await Task.Delay(400);
+			if (scrolled.StartsWith("error", StringComparison.Ordinal)) break;
 
-			var view = await NumbersInView();
+			if (scrolled.Trim() == here) view = await NumbersInView();
+			else
+			{
+				var before = Key(view);
+				var held = before;
+				var moved = false;
+				await Until(async () =>
+				{
+					view = await NumbersInView();
+					var now = Key(view);
+					moved |= now != before;
+					var settled = moved && now == held;
+					held = now;
+					return settled;
+				}, seconds: 5, every: 0.1);
+			}
+
 			if (stopAt != null && view.Any(stopAt)) return view;
 			all.AddRange(view.Where(r => all.All(known => known.Name != r.Name)));
 			// Nothing to scroll: one view is the whole table.
-			if (scrolled.StartsWith("error", StringComparison.Ordinal) || scrolled.Contains(" of 0", StringComparison.Ordinal)) break;
+			if (scrolled.Contains(" of 0", StringComparison.Ordinal)) break;
 		}
 		return stopAt != null ? [] : all;
 	}

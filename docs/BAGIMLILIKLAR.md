@@ -27,7 +27,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   Dosya: satırlar —
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · Jobs 231 · Launcher 213 269 · League 243 ·
-  MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · Numbers 158 177 ·
+  MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release ~~57~~ 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
   Scouting 100 · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
@@ -128,6 +128,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     (arada panel bir an **boş** kalıyor: 744 ms'de boşalıp 1145 ms'de dolduğu ölçüldü → sabit 1 sn tam o boşluğa
     düşüyordu; bir EN koşusunda menajerin ilk cümlesi boş geldi). TR'de üç durumda öncesi `menajerle görüşme
     seçeneği yok`, rc=1; sonrası üç durumda menajerin konuşması + 4 cevap, rc=0 (§8.210).
+  - [x] Numbers 158 177 (alt sayfa düğmesinden sonra sabit 1,5 sn + her kaydırma adımından sonra sabit 400 ms): ikisi de
+    oyunun kendi işaretine bağlandı. Düğme (`SecondaryTabDropdownButton`) seçilmeden önce menünün o seçeneği sunduğu
+    soruluyor (`select … choice="Squad Numbers" dry=1`, 0,3 sn aralık, en çok 10 sn); kaydırmada `scroll` cevabı istenen
+    yer zaten oradaysa tek okuma, değilse pencere "değişti ve iki okumada aynı" olunca kabul. Ayrıca okuma anında sayfa
+    boş gelirse komut sayfayı yeniden isteyip okuyor — eskiden `fm open Messages` sonra `fm numbers`, EN'de 6 koşunun
+    2'sinde `Forma numaraları okunamadı.` rc=1 idi (tablo bir an duruyor, okuma gelince gitmiş); yeni kod 6/6 rc=0,
+    37 oyuncu. Üç durumda TR `md5 a7fde227…` + EN `md5 e7bf7ceb…` eskisiyle birebir; numarayı elle verme yolu
+    (`fm numbers "Adam Reach" 44` TR, `"Oscar Thorn" 45` EN) rc=0; `sweep.sh` 50/50 (§8.211).
   - [?] OppositionCard 55 (`--advice` / `--clear` sonrası 500 ms): **kaldı**. Kartın ara yerleşimi iki okumada aynı
     görünebiliyor (192–281 ms arası aynı satırlar, gerçek sonuç 384 ms'de) — "iki okuma aynı" işareti erken kabul ederdi
     (Staff 74'ün tuzağı); "Apply all advice" düğmesinin durumu (etkin/olay) uygulama boyunca değişmiyor. Ölçüldü, işaret

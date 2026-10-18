@@ -2168,3 +2168,21 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   bağlı değil, koşuya bağlı görünüyor; bu sırada ekranda kalan bir sözleşme görüşmesi kartı görüldü
   (`/buttons?json=1` → `Finalise Promises` / `Cancel Negotiations`, ikisinin de `Action` alanı **boş**), yani
   kartın hangi oyuncunun kartı olduğu/işareti ayrı ölçülmeli (§8.197/§8.208'in bağlı kalan panel tuzakları).
+
+### 8.211 `fm numbers`: alt sayfa ve kaydırma sabit duraklamaları oyunun işaretine bağlandı; boş okuma sayfayı yeniden istiyor (18 Ekim, TR + EN)
+
+- Öncesi: `OpenNumbers` alt sayfa düğmesinden (`SecondaryTabDropdownButton`) önce sabit 1,5 sn bekliyor, `ReadNumbers`
+  her kaydırmadan sonra sabit 400 ms. İkisi de makine hızını tahmin ediyordu; bir dil değişimi ekranı yeniden çizerken
+  1,5 sn yetmeyip sekme hiç seçilmemişti (kod yorumu, ölçülmemiş), kaydırma sonrası okuma da bayat pencereyi 24 satır
+  sanabiliyordu.
+- Bulunan gerçek hata (işareti vardı, kod yoktu): okuma anında sayfa boş gelebiliyor — `fm open Messages` sonra
+  `fm numbers --json`, EN'de eski kodda 6 koşunun **2'sinde** `Forma numaraları okunamadı.` rc=1 (0,94 sn'de); tablo
+  bir an duruyor, okuma gelince gitmiş oluyor. Yeni kod boş okumada sayfayı yeniden açıp okuyor → 6/6 rc=0, 37 oyuncu.
+- Yeni: düğme seçilmeden önce menünün o seçeneği sunduğu soruluyor (0,3 sn aralık, 10 sn üst sınır); kaydırmada
+  `scroll` zaten istenen yerdeyse tek okuma, değilse pencere "değişti **ve** iki okumada aynı" olunca kabul (0,1 sn
+  aralık, 5 sn üst sınır). Süreler yalnız üst sınır (§8.199'un işareti).
+- Ölçüm: üç durum (başka sayfa açık / sayfa zaten açık / sayfa ilk kez) TR `md5 a7fde227…` + EN `md5 e7bf7ceb…`
+  eskisiyle **birebir**; TR'de `fm numbers "Adam Reach" 44` (`stopAt` yolu) rc=0, EN'de `fm numbers "Oscar Thorn" 45`
+  rc=0, negatif `fm numbers "Nobody Here" 3` → "kadroda yok", rc=1. Süre nötr (EN "zaten açık" 4,9 ↔ 5,0 sn).
+- `tools/sweep.sh` 50 komut, 0 hata (`numbers` 6 sn, 42 satır). Kayıt geri alındı: verilen iki numara `-`e çevrildi,
+  `md5` baştaki değere döndü; dil Türkçe, saat 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı.

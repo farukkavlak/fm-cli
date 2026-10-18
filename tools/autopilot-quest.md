@@ -4,25 +4,43 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **B "İngilizce yazıyla basma/tıklama" / `contract <oyuncu> --agent` satırı** — **BİTTİ** (§8.210, Tur 21):
-  satır artık `SpeakToAction(1882353528)` ile bulunuyor (eklentinin `Action` düğümünün `ActionID`'si, oyunun eylem
-  kimliği), işaretçisiyle basılıyor; sabit 1 sn yerine "cevap satırları değişti ve boş değil" bekleniyor.
-  TR'de eskiden üç durumda da `menajerle görüşme seçeneği yok`, rc=1 idi. Bu turda: TR üç durum (başka sayfa /
-  kart zaten açık / sayfa ilk kez) rc=0, 12 satır; EN üç durum rc=0, 12 satır (üç ayrı oyuncuyla). Kulüp test
-  kaydı bozulmadı (hiçbir şey söylenmedi, her konuşma `PanelHistoryClose` ile kapandı, saat 14:00).
-- Bir sonraki tur: bu işin **kalanı** — TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka
-  koşuda `seçenek yok`; aynı oyuncular EN'de hep bulunuyor) ve o sırada ekranda `Action` alanı boş bir sözleşme
-  görüşmesi kartı (`Finalise Promises` / `Cancel Negotiations`) görüldü → kart/işaret ölçümü (BAGIMLILIKLAR B).
-  Öbür bekleyenler: `cli/fm/Numbers.cs`te **commit edilmemiş** bir iş var (158 açılış 1,5 sn + 177 kaydırma
-  400 ms işarete çevrilmiş, docs yok, ölçüm yok) — Tur 20'den kalmış; bir sonraki tur onu ölçüp ya commitlesin ya
-  geri alsın. Ayrıca A/`Task.Delay` adayları: `Responsibilities 283/388` · `Scouting 100` · `TrainingSchedule 345` ·
-  `TacticFiles 181` · `Jobs 231` · `League 243` · `ScoutFocus …`; kısa `Until` adayları (`Saves 207/220`,
-  `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`); B "İngilizce yazıyla basma/tıklama — 44 yer".
+- Madde: **A "`Task.Delay`" / `cli/fm/Numbers.cs` 158 177** — **BİTTİ** (§8.211, Tur 22): Tur 20'den kalan
+  **commit edilmemiş** iş bu turda derlenip üç durumda iki dilde ölçüldü. `OpenNumbers` sabit 1,5 sn yerine
+  "menü o seçeneği sunuyor mu" (`select?…choice="Squad Numbers"&dry=1`, 0,3 sn, 10 sn üst sınır) bekliyor;
+  `ReadNumbers` her kaydırmadan sonraki sabit 400 ms yerine `scroll` cevabına + "değişti ve iki okumada aynı"ya
+  bakıyor. Ayrıca bulunan gerçek hata: boş okuma artık sayfayı yeniden istiyor (eski kod EN'de 2/6
+  `Forma numaraları okunamadı.` rc=1). Üç durumda TR `md5 a7fde227…` + EN `md5 e7bf7ceb…` eskisiyle birebir;
+  `stopAt` yolu iki dilde rc=0; `sweep.sh` 50/50. Kayıt geri alındı (verilen iki numara `-`e), TR, 2 Ağu 14:00.
+- Bir sonraki tur (öneri): A/`Task.Delay` adayları — `Responsibilities 283/388` · `Scouting 100` ·
+  `TrainingSchedule 345` · `TacticFiles 181` · `Jobs 231` · `League 243` · `ScoutFocus …`; kısa `Until` adayları
+  (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`); B "İngilizce yazıyla
+  basma/tıklama — 44 yer". Park edilenler aşağıda ([?]): Staff 74, OppositionCard 55, ek 1,5 sn, boy birimleri,
+  `contract --agent` TR koşu bağımlılığı (B).
+- Not: `cli/fm/Numbers.cs`teki commit edilmemiş iş artık **commit edildi**; ağaçta başka commit edilmemiş
+  değişiklik yok.
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
 
-### Tur 21 — B "İngilizce yazıyla basma/tıklama" / `contract <oyuncu> --agent`: satır oyunun eylem kimliğiyle, sabit 1 sn yerine konuşmanın işaretiyle (§8.210, 18 Ekim)
+### Tur 22 — A "`Task.Delay`" / `cli/fm/Numbers.cs` 158 177: alt sayfa ve kaydırma sabit duraklamaları oyunun işaretine (§8.211, 18 Ekim)
+Ne: `cli/fm/Numbers.cs` (Tur 20'den kalan commit edilmemiş iş; bu turda derlenip ölçüldü, küçük eklemelerle).
+- Öncesi (eski derleme, `git stash` + build): `OpenNumbers` alt sayfa düğmesinden önce sabit 1,5 sn;
+  `ReadNumbers` her kaydırmadan sonra sabit 400 ms. Gerçek hata: `fm open Messages` sonra `fm numbers --json`
+  EN'de 6 koşunun **2'sinde** `Forma numaraları okunamadı.` rc=1 (0,94 sn); tablo bir an durup okuma gelince gidiyor.
+  TR'de aynı desende 6/6 geçti (yarış dile bağlı değil, zamana bağlı).
+- Sonrası: boş okumada sayfa yeniden isteniyor → EN 6/6 rc=0, 37 oyuncu; TR 5/5 rc=0, 37 oyuncu.
+- Üç durum × iki dil (başka sayfa açık / sayfa zaten açık / sayfa ilk kez `fm open Messages`):
+  TR `md5 a7fde227c69469540409cb405b5a14de` (eskisiyle aynı), EN `md5 e7bf7cebfdb3a855d06cb1b3fecad5dc`
+  (eskisiyle aynı), her dilde üç koşu da birbirinin aynı.
+- `stopAt` yolu (numarayı elle verme): TR `fm numbers "Adam Reach" 44` → `- → 44 (henüz kaydedilmedi)`, rc=0;
+  EN `fm numbers "Oscar Thorn" 45` → `- → 45 (not saved yet)`, rc=0; negatif `fm numbers "Nobody Here" 3` →
+  "kadroda yok", rc=1. Kayıt geri alındı: iki numara `-`e çevrildi, `md5` baştaki değere döndü.
+- Dil dönüşü: `fm settings language "Türkçe"` → `/state` → `Language: turkish`. Saat 2 Ağustos 2026 14:00,
+  ilerletilmedi; maç oynanmadı.
+- Regresyon: `tools/sweep.sh /tmp/sweep_t23` → **50 komut, 0 hata** (`numbers` 6 sn, 42 satır).
+- Süre: nötr (EN "zaten açık" 4,9 → 5,0 sn); kaldırılan yalnızca makine hızına dair varsayım.
+
+### Tur 21 — B "İngilizce yazıyla basma/tıklama" / `contract <oyuncu> --agent` satırı: satır oyunun eylem kimliğiyle, sabit 1 sn yerine konuşmanın işaretiyle (§8.210, 18 Ekim)
 Ne: `cli/fm/Release.cs` (+ `Acknowledge.cs`e taşınan `SpeakToAction` yardımcısı, `TraitTraining.cs` onu kullanıyor).
 Bu turun bir önceki koşusu kodu ve dokümanı yazmış, 40 dk sınırında commit atmadan öldürülmüştü; bu tur kodu
 derleyip üç durumda iki dilde yeniden ölçtü ve commitledi.
