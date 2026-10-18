@@ -2206,3 +2206,22 @@ hâlâ eklentiden geliyor. Ters sözlük gerekmedi (ileri eşleme yetiyor).
 - İngilizce (dil `English`), aynı üç durum: `Always`/`Never`/`Hard` rc=0, kart doğru; negatif `Pressing=zzz` → `Pressing: no 'zzz'. Options: - · Never · Always`.
   Dönüş: `fm settings language "Türkçe"` → "English → Turkish"; son TR koşusu yine doğru. Kayıt test kaydı, saat ilerletilmedi,
   maç oynanmadı; talimatlar `--clear` ile boşaltıldı. Paylaşılan koda dokunulmadı → sweep gerekmedi.
+
+### 8.213 `fm scout <odak>`: sonuç tablosunu kaydırdıktan sonraki sabit 700 ms, pencerenin kendi işaretine bağlandı (18 Ekim, TR + EN)
+Oyuncu listesi gibi odak tablosu da yalnız görünen pencereyi çiziyor; `rows.Count < expected` olunca `scroll` ile
+0.5/1 payına iniliyordu ve her kaydırmadan sonra sabit 700 ms bekleniyordu. Yeni: kaydırmadan sonra pencere
+"öncekinden **farklı** ve art arda iki okumada **aynı**" olunca kabul ediliyor (0,25 sn aralık, en çok 5 sn).
+Fark şartı şart: kaydırma sonrası ilk okuma bir an **eski** pencereyi veriyor, "iki okuma aynı" tek başına onu
+kabul ederdi (Staff 74'ün tuzağı).
+- Ölçüm (okuma yolu, `python3` + `/scroll` + `/texts?anchorpath=selectedfocus.Name&paths=1`, 30 ms aralık):
+  kaydırmadan sonra pencerenin satır adları 207–485 ms'de değişiyor, tam içerik (ad + değer) iki okumada
+  690–1080 ms'de oturuyor. Yani eski 700 ms tam sınırdaydı — makine hızına dair bir varsayım.
+- `FM_TRACE=1 fm scout "England" --json` (yeni): `scroll` 8,27 sn → okumalar 8,33 (eski pencere, red) / 8,64
+  (yeni pencere, bekle) / 9,06 (aynı, kabul). Kaydırmadan kabule 0,79 sn; eski 0,70 sn + tek okuma → nötr.
+- Üç durum × iki dil, `fm scout "England" --json` (20 satır, tablo penceresi 18 satır olduğu için dal çalışıyor):
+  TR (başka sayfa açık / sayfa açık / başka sayfadan) `md5 6915efcb…`; EN aynı üç durum `md5 86ccb87b…` —
+  ikisi de eski derlemeyle **birebir** (`diff` boş). Satırların tamamında değer ve derece dolu.
+- Negatif: `fm scout "ZZZ yok"` ve `fm scout 999` → rc=64, odak listesi; Türkçe dönüş `fm settings language
+  "Türkçe"` → `English → Turkish`. Kayıt test kaydı: saat ilerletilmedi, maç oynanmadı.
+- Not (bu maddenin dışı, eski davranış): `fm open "Messages"` hemen ardından odak listesi bir kez boş
+  okunabiliyor (`Odak: 'England' diye bir seçenek yok`, rc=64) — §8.185'teki "sayfa açılmadan dönüyor" hâli.

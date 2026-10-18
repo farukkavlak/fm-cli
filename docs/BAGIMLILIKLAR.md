@@ -30,7 +30,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release ~~57~~ 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
-  Scouting 100 · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
+  ~~Scouting 100~~ · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · TrainingSchedule 345 · ~~TraitTraining 32~~ · Transfers 96 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
     pay. "Yol boş" ile "henüz gelmedi" aynı cevap (`{}`) — FINDINGS §8.179.
@@ -122,6 +122,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     oyuncunun en eski maçı (#1) sessizce düşüyordu ve sayfa başka bir bakıştan kaydırılmış kalmışsa düşen satır
     değişiyordu (okuma nereden bakıldığına bağlıydı). Ölçüm: **19 → 20 satır**, dört oyuncuda da tam; üç durumda
     TR `md5 d4b4b0ea…` (5 koşu) / EN `md5 d9ddd02b…` (4 koşu); süre soğuk 8,8–9,9 / sıcak 3,5–3,8 sn (§8.208).
+  - [x] Scouting 100 (odak tablosunu kaydırdıktan sonraki sabit 700 ms): kaydırmadan sonra pencere "öncekinden
+    **farklı** ve iki okumada **aynı**" olunca kabul ediliyor (fark şart: kaydırma sonrası ilk okuma bir an eski
+    pencereyi veriyor). Ölçüm: satır adları 207–485 ms'de değişiyor, tam içerik 690–1080 ms'de oturuyor → eski
+    700 ms tam sınırdaydı. `fm scout "England" --json` TR üç durum `md5 6915efcb…`, EN üç durum `md5 86ccb87b…`,
+    ikisi de eski derlemeyle birebir (`diff` boş), 20/20 satır tam; `--near`/`--progress` (kaydırma yok) 6/10
+    satır; negatif rc=64 (§8.213).
   - [x] Release 57 (`fm contract <oyuncu> --agent`'te menajeri sorma satırından sonraki sabit 1 sn): satır artık
     oyunun **eylem kimliğiyle** (bkz. B bölümü, §8.210) bulunup basılıyor; bekleme yerine oyunun kendi işareti
     bekleniyor — cevap satırları menajerin sözleşme konuşması olmaktan çıkıp menajerin kendi sorularına dönüyor

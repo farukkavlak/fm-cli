@@ -89,18 +89,34 @@ internal static partial class Program
 			return settled;
 		}, seconds: 8, every: 0.6);
 
-		// A long table only lays out the rows in view; the rest come as it is scrolled.
+		// A long table only lays out the rows in view; the rest come as it is scrolled. The
+		// window that was up before the scroll is still there for a moment, so the new one is
+		// taken only once it is not the one before it and holds still in two reads — the pause
+		// that used to be here was a guess at how fast the machine renders.
 		if (rows.Count > 0 && rows.Count < expected)
 		{
 			var seen = rows.Select(r => r[0]).ToHashSet();
+			var before = Window(rows);
 			foreach (var share in new[] { "0.5", "1" })
 			{
 				var moved = await Fm.Get("scroll", ("anchor", rows[^1][7]), ("to", share));
 				if (moved.StartsWith("error", StringComparison.Ordinal)) break;
-				await Task.Delay(700);
-				foreach (var row in await FocusRows())
+				List<string[]> window = [];
+				var hold = "?";
+				var came = await Until(async () =>
+				{
+					window = await FocusRows();
+					var key = Window(window);
+					var settled = key.Length > 0 && key != before && key == hold;
+					hold = key;
+					return settled;
+				}, seconds: 5, every: 0.25);
+				// The window did not move: another scroll would not move it either.
+				if (!came) break;
+				foreach (var row in window)
 					if (seen.Add(row[0])) rows.Add(row);
 				if (rows.Count >= expected) break;
+				before = Window(window);
 			}
 		}
 
@@ -213,4 +229,7 @@ internal static partial class Program
 		}
 		return rows;
 	}
+
+	/// <summary>Everything a laid-out window holds, so it can be told from the one before it.</summary>
+	private static string Window(List<string[]> rows) => string.Join("|", rows.Select(r => string.Join(",", r)));
 }

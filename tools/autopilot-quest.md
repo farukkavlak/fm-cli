@@ -4,20 +4,45 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **B "`opposition` seçenek adları"** — **BİTTİ** (§8.212, Tur 23): eklenti seçenekleri İngilizce veriyor
-  ama çıktı `GameWords` yazıcısından geçtiği için ekranda/hatada oyunun sözleriyle görünüyor; `Pressing=Her Zaman`
-  bu yüzden bulunamıyordu. Artık değer seçeneğin İngilizcesiyle **ve** o seçenek için oyunun verdiği
-  `GameWords.Of(seçenek)` karşılığıyla eşleşiyor (sabit söz yok). TR üç durum + EN üç durum ölçüldü,
-  `Her Zaman`/`Hafif`/`Sol Ayak` ve `Always`/`Hard` kartta doğru değeri yazdı; negatif hâlâ hata.
-- Bir sonraki tur (öneri): A/`Task.Delay` adayları — `Responsibilities 283/388` · `Scouting 100` ·
-  `TrainingSchedule 345` · `TacticFiles 181` · `Jobs 231` · `League 243` · `ScoutFocus …`; kısa `Until` adayları
-  (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`); B "İngilizce yazıyla
-  basma/tıklama — 44 yer". Park edilenler aşağıda ([?]): Staff 74, OppositionCard 55, ek 1,5 sn, boy birimleri,
-  `contract --agent` TR koşu bağımlılığı (B).
-- Not: ağaçta başka commit edilmemiş değişiklik yok; `opposition` talimatları `--clear` ile boşaltıldı.
+- Madde: **A "`Task.Delay`" / Scouting 100** — **BİTTİ** (§8.213, Tur 24): odak tablosunu kaydırdıktan sonraki
+  sabit 700 ms yerine pencere "öncekinden farklı **ve** iki okumada aynı" olunca kabul; `fm scout "England" --json`
+  TR üç durum `md5 6915efcb…` + EN üç durum `md5 86ccb87b…` eski derlemeyle birebir, 20/20 satır tam.
+- Bir sonraki tur (öneri): **`cli/fm/Responsibilities.cs`** — ağaçta commit edilmemiş bir değişiklik **ve** bir `stash`
+  duruyor (ikisi de aynı maddeyi, `283 388` sabit 500 ms'lerini hedefliyor; stash `Read()`'i de değiştiriyor).
+  Bu tur dokunulmadı; önce hangisinin geçerli olduğuna karar verilip ölçülmeli (bkz. "Park / dikkat").
+  Sonraki A adayları: `TacticFiles 181` (panel kapanışından sonra 800 ms) · `TrainingSchedule 345` (seçenek
+  basışından sonra 500 ms) · `Jobs 408` (başvurudan sonra 1 sn).
+- Not: ağaçta yalnız `cli/fm/Responsibilities.cs` commit edilmemiş duruyor (bu turun işi değil) + `stash@{0}`.
 - Durum: bitti, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 24 — A "`Task.Delay`" / Scouting 100: kaydırmadan sonraki sabit 700 ms pencerenin işaretine bağlandı (§8.213, 18 Ekim)
+Ne: `cli/fm/Scouting.cs` (`fm scout <#|ad>`), + yeni dosya-içi yardımcı `Window(rows)`. Başka dosyaya dokunulmadı;
+`Window` yalnız burada çağrılıyor → `sweep.sh` gerekmedi (paylaşılan koda dokunulmadı).
+- Öncesi (eski derleme, `git show HEAD:cli/fm/Scouting.cs`): `fm scout "England" --json` TR üç durum
+  (başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / `fm open "Squad Dynamics"`) **20 satır**,
+  `md5 6915efcbaa79fecda145857e4769ccc0`, 8 / 8 / 9 sn. EN üç durum aynı komutlar **20 satır**,
+  `md5 86ccb87b46c3e3ed34d7f419e91e4362`, 8 / 8 / 7 sn.
+- Ölçüm (okuma yolu, geçici `python3`: `/scroll?anchor=<son satırın değeri>&to=0.5` + 30 ms aralıkla
+  `/texts?anchorpath=selectedfocus.Name&paths=1`): tablo penceresi 18 satır, `Matched` 20 → kaydırma dalı
+  gerçekten çalışıyor. Kaydırmadan sonra satır adları 207–485 ms'de değişiyor; tam içerik (ad + değer) art arda
+  iki okumada 690–1080 ms'de oturuyor → eski 700 ms tam sınırdaydı (makine hızı tahmini).
+- Sonrası: aynı üç durum × iki dil → TR `md5 6915efcb…` (20 satır), EN `md5 86ccb87b…` (20 satır); `diff` boş,
+  yani **birebir**. Satırların hepsinde değer + derece dolu (`Value`/`Grade` boş yok). Süre 7–10 sn (nötr).
+- İşaretin tuttuğu (`FM_TRACE=1 fm scout "England" --json`): `scroll` 8,27 sn → okumalar 8,33 (eski pencere,
+  `key == before` → red) / 8,64 (yeni pencere, `key != hold` → bekle) / 9,06 (aynı → kabul, 20 satır). Kaydırmadan
+  kabule 0,79 sn; eski 0,70 sn + tek okuma. Yani kaldırılan yalnızca makine hızına dair varsayım.
+- Negatif: `fm scout "ZZZ yok" --json` → rc=64, odak listesi; `fm scout 999 --json` → rc=64. Kaydırmasız yollar:
+  `fm scout "England" --near` 6 satır, `--progress --json` 10 satır, ikisi de rc=0.
+- Bilinen (bu maddenin dışı, eski davranış): `fm open "Messages"` hemen ardından odak listesi bir kez boş
+  okunabiliyor (`Odak: 'England' diye bir seçenek yok`, rc=64) — hem eski hem yeni derlemede görüldü; §8.185 hâli.
+- Dönüş: `fm settings dil English` → `dil: Turkish → English` (EN ölçümü), sonra `fm settings language "Türkçe"`
+  → `English → Turkish`, `/state` → `Language: turkish`. Kayıt test kaydı: 2 Ağustos 2026, saat ilerletilmedi,
+  maç oynanmadı.
+- Park / dikkat: `cli/fm/Responsibilities.cs` ağaçta commit edilmemiş duruyor **ve** `stash@{0}` aynı maddenin
+  (283/388 sabit 500 ms) daha büyük bir sürümünü tutuyor; ikisi de bu turun işi değil, **dokunulmadı**. Bir
+  sonraki tur önce hangisinin geçerli olduğunu seçmeli.
 
 ### Tur 23 — B "`opposition` seçenek adları": değer hem İngilizce hem ekranda görünen sözle kabul ediliyor (§8.212, 18 Ekim)
 Ne: `cli/fm/OppositionCard.cs` (+ `docs/BAGIMLILIKLAR.md`, `docs/FINDINGS.md`). Paylaşılan koda dokunulmadı → sweep gerekmedi.
