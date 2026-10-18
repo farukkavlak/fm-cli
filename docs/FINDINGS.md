@@ -1929,3 +1929,18 @@ Not: panel yazıları panel bağlı kaldıkça eskisini gösterebiliyor (§8.194
 - `fm jobs --json` EN'de de 321 ilan ve **aynı sıra**, aynı BAŞVURU değerleri; yalnız 15 ulus takımının adı oyunun
   dilinde yazılıyor (`United States`/`U.S.A.`, `Fildişi Sahilleri`/`Ivory Coast`, `S. Arabistan`/`Saudi Arabia`).
   Yani iki dilin çıktısı kulüp adına göre karşılaştırılamaz; sıra ve sayı karşılaştırılmalı.
+
+### 8.199 `fm actions`: ekrandaki konuşan düğmeler konuşma sanılıyordu (18 Ekim)
+- `AfterAction` "oyun bir konuşma açtı mı" diye `TalkOptions()`a bakıyordu; o da ekranda `SpeakToAction` olayı taşıyan
+  her `StandardButton`ı sayıyor. Oyuncu menüsü herhangi bir ekranın üstünde açılabildiği için, gazete maddesinin
+  isteğe bağlı cevapları (ör. "Adjust Scouting Budget"/"Adjust Transfer and Wage Budget", bütçe kartı ekrandayken)
+  da konuşma sayılıyordu.
+- Ölçüm (önce, TR): o ekranda `fm actions "Ben House" "Contract>Enter Contract Negotiations"` oyunun sorusu yerine
+  bütçe seçeneklerini "konuşma" olarak bastı; oysa oyunun onay penceresi ("Enter contract negotiations?") seçimden
+  **0,24 sn** sonra geliyordu (`/dialog`) ve cevapsız kalıyordu. Aynı ekranda `/buttons?json=1` seçimden önce ve
+  sonra birebir aynı iki düğmeyi veriyor (aynı işaretçi, aynı yazı) — yani seçim onları değiştirmiyor.
+- Düzeltme: konuşma, seçimden önceki düğme kümesinden **farklı** bir kümeyle anlaşılıyor (`TalkButtons()` = işaretçi|yazı).
+  Ölçüm (sonra, aynı ekran): TR + EN'de oyunun sorusu basılıyor (`Cevaplamak için: dialog <No | Yes>`), üç durumda
+  (başka sayfa açık / sayfa ilk kez açılıyor / zaten açık) aynı; gerçek konuşma (`Interaction>Praise>…`) hâlâ konuşma
+  olarak açılıyor (seçimden 0,29 sn sonra 6 yeni düğme, başka sayfa Guid'i); sonuçsuz bir iş ("Training>Rest Player>1 day")
+  "yapıldı" diyor ve veriden doğrulandı (`fm intensity` → Ben House `RestDays: 1`). `tools/sweep.sh`: 50 komut, 0 hata.

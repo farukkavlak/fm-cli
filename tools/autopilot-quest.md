@@ -4,17 +4,53 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: B "Jobs listesi yalnız görünen pencereyi veriyor" — BİTTİ (kod Tur 9'da yazıldı, **bu turda doğrulanıp
-  commit edildi**): liste artık oyunun kendi kaydırması boyunca gezilerek okunuyor; 15 satır yerine **321 ilan**
-  (oyunun sırası), satır seçmeden önce görünüme kaydırılıyor. BAŞVURU sütunu yalnız boş (menajersiz) ilanlar için
-  soruluyor (dolu ilanlar "?"). Üç durum + iki dil aynı (§8.197); sweep 50/50 temiz.
+- Madde: A "Kısa `Until` (≤ 3 sn) — 16 yer" — **alt maddelerine bölündü**, ilki bitti: **Actions 126
+  (`AfterAction`'ın konuşma yolu)**. "Konuşma açıldı mı" artık seçimden önceki düğme kümesinden farklı olmasına
+  bakıyor; gazete maddesinin cevap düğmeleri (bütçe kartı ekranda) konuşma sanılmıyor. Üç durum + TR/EN,
+  gerçek konuşma yolu ve sonuçsuz iş doğrulandı; sweep 50/50 (§8.199).
 - ⚠ Tur 9'un (Tur 4 numaralı koşu) işi ağaçta **commit edilmeden** kalmıştı: koşu 40 dk zaman aşımıyla (rc=124)
-  öldürülmüş, defter "commit atıldı" yazmış. Bu tur aynı ölçümleri yeniden koştu, doğruladı ve commitledi.
-- Bir sonraki tur: A/`Kısa Until` (16 yer) ya da `Sabit üst sınırlar`; aday yeni bulgu: `SelectJob`'un panel işareti
-  (§8.194: panel yazıları bağlı kaldıkça eskisini gösterebiliyor).
+  öldürülmüş, defter "commit atıldı" yazmış. Tur 10 aynı ölçümleri yeniden koştu, doğruladı ve commitledi.
+- Bir sonraki tur: A/`Kısa Until` — sıradaki adaylar: **Budget 70** (tek TR koşusunda her adımda ilk okuma
+  yetiyor: `setcontrol` → `form` arası 0,03–0,08 sn, bir adımda 0,24 sn; 3 sn sınırına ≥12 kat pay → "işaret,
+  değişiklik gerekmedi" demek için üç durum + iki dil ölçümü borç) · `Saves 207/220` (kaydırma sonrası 1,5 sn ×5,
+  "listede yok" diyebiliyor) · `TraitTraining 89` / `TacticSlots 112` (onay penceresi 3 sn içinde gelmezse
+  cevaplamadan devam). Alternatif: A/`Sabit üst sınırlar` (Arriving 8 sn, Bound 20 sn, maç akışındaki 3 sn'ler).
 - Durum: bitti, commit atıldı
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 11 — A "Kısa `Until`" / Actions 126 (`AfterAction`): ekrandaki konuşan düğmeler konuşma sanılıyordu (§8.199, 18 Ekim)
+Ne: `cli/fm/Actions.cs`. `AfterAction` "oyun bir konuşma açtı mı" diye `TalkOptions()`a bakıyordu — o da ekranda
+`SpeakToAction` taşıyan her `StandardButton`ı sayıyor, dolayısıyla **gazete maddesinin isteğe bağlı cevapları**
+(ör. "Adjust Scouting Budget"/"Adjust Transfer and Wage Budget") konuşma sanılıyordu. Yeni: `TalkButtons()`
+(düğmenin işaretçisi + yazısı) seçimden **önce** alınıyor, `AfterAction(name, path, talkBefore)` konuşmayı yalnız
+bu küme **değiştiyse** kabul ediyor (`ChooseAction` ve `staff fire --mutual` yolu güncellendi).
+- Öncesi (TR, bütçe kartı ekranda, eski derleme): `FM_TRACE=1 fm actions "Ben House" "Contract>Enter Contract
+  Negotiations"` → `actions ?choose=` (6,05 sn), sonra `dialog`/`contract`/`buttons`/`dropdowns`/`talk` → çıktı
+  **bütçe seçenekleri "konuşma" olarak** ("1 Gözlemcilik Bütçesini Düzenle … Söylemek için: talk <numara>");
+  oysa oyunun onay penceresi seçimden 0,24 sn sonra geliyordu (`/dialog`: "Enter contract negotiations?") ve
+  **cevapsız kaldı** (sonraki komut "Oyun bir soru bekliyor" der).
+- İşaret ölçümü (aynı ekran, `python3` 30 ms aralıkla `/buttons?json=1`): seçimden önce **ve** sonra birebir aynı
+  iki düğme (aynı işaretçi/yazı, sayfa `9bef185e…`); `dialog` 0,24 sn'de. Gerçek konuşmada
+  (`Interaction>Praise>Praise Training/Development`) seçimden **0,29 sn** sonra düğme kümesi değişiyor
+  (6 yeni düğme, sayfa `9c5015031b…`) → "değiştiyse konuşma" işareti ayırıyor.
+- Sonrası (TR, aynı ekran): aynı komut oyunun sorusunu basıyor ("Sözleşme görüşmeleri başlasın mı? … Cevaplamak
+  için: dialog <No | Yes>"); izde `choose` (6,16) → `dialog`(boş) → `contract` → `buttons`/`dropdowns` (küme aynı,
+  konuşma değil) → 6,83'te `dialog` bulundu. Üç durum: sayfa ilk kez açılıyor (`fm open "Messages"` sonrası) /
+  zaten açık (ikinci koşu) / başka sayfa açık (`fm open "Squad Dynamics"`) → üçünde de soru basıldı, hepsi
+  `dialog "No"` ile kapatıldı.
+- İki dil: `fm settings dil English` → bütçe kartı ekranda aynı komut İngilizce soruyu bastı ("You are about to
+  enter contract negotiations with the player… To answer: dialog <No | Yes>"); gerçek konuşma İngilizcede de
+  açıldı (`Interaction>Praise>Praise Conduct` → "I heard you wanted to talk…", 3 cevap). Dönüş:
+  `fm settings language "Türkçe"` → "English → Turkish" (`/state` → `Language: turkish`).
+- Negatif (sonuçsuz iş, aynı ekran): `fm actions "Ben House" "Training>Rest Player>1 day"` → konuşma yoluna
+  girmeden "yapıldı" (3 sn sınırı doldu), veriden doğrulandı: `fm intensity --json` → Ben House
+  `Intensity: "1 Gün"`, `Value: 10`, `RestDays: 1`.
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (`/tmp/sweep_t11`). Kayıt test kaydı (2 Ağustos 2026): saat
+  ilerletilmedi, maç oynanmadı; övgü konuşması ve sözleşme sorusu kapatıldı, oyuncu 1 gün dinlendirildi.
+- Yan ölçüm (aynı maddenin başka yeri, kod değişmedi): `FM_TRACE=1 fm budget ayarla` → her adımda `setcontrol`
+  sonrası **ilk** `form` okuması yetiyor (0,03–0,08 sn; 15. adımda bir kez 0,24 sn) → 3 sn sınırına ≥12 kat pay;
+  Budget 70 için "işaret, değişiklik gerekmedi" demek üzere üç durum + iki dil ölçümü borç.
 
 ### Tur 10 — B "Jobs listesi yalnız görünen pencereyi veriyor": Tur 9'un işi doğrulandı ve commitlendi (18 Ekim)
 Tur 9'un koşusu (autopilot log: "tur 4 bitti — rc=124 (commit yok)") 40 dk'da öldürülmüş; `cli/fm/Jobs.cs`, `Mcp.cs`,

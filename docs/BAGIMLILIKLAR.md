@@ -95,6 +95,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   Calendar 157 · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
   TrainingSchedule 491 506 · TraitTraining 89
+  - [x] Actions 126 (`AfterAction`'ın konuşma yolu): "oyun bir konuşma açtı mı" artık ekrandaki konuşan düğmelere değil,
+    seçimden **önceki** düğme kümesinden farklı olmasına bakıyor (`TalkButtons()`: düğmenin işaretçisi + yazısı).
+    Gazete maddesinin isteğe bağlı cevapları (ör. "Adjust Scouting Budget", bütçe kartı ekranda) da `SpeakToAction`
+    taşıdığı için konuşma sanılıyordu: o ekranda `fm actions "Ben House" "Contract>Enter Contract Negotiations"`
+    oyunun sorusu yerine bütçe seçeneklerini basıyor, oyunun sorusu (seçimden 0,24 sn sonra gelen) cevapsız kalıyordu.
+    Sonra: TR + EN'de soru basılıyor, üç durumda aynı; gerçek konuşma (`Interaction>Praise>…`) hâlâ açılıyor; sonuçsuz
+    iş (`Training>Rest Player>1 day`) "yapıldı" diyor ve veriden doğrulandı (`fm intensity` → RestDays 1); sweep 50/50 (§8.199).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,

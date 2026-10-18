@@ -112,8 +112,20 @@ internal static partial class Program
 		return null;
 	}
 
+	/// <summary>
+	/// The talk buttons on screen now, by their place and their words: a news item's answers or a
+	/// card's own buttons speak to someone too, so a conversation is told by the buttons a choice
+	/// brought, not by any that happen to be showing (FINDINGS §8.199).
+	/// </summary>
+	private static async Task<string> TalkButtons()
+	{
+		var options = await TalkOptions();
+		return string.Join("\n", options.Select(l => $"{l.Pointer}|{l.Label}"));
+	}
+
 	/// <summary>What came of a choice: the game's question, a conversation, contract talks — or nothing to see.</summary>
-	private static async Task<int> AfterAction(string name, string path)
+	/// <param name="talkBefore">The talk buttons that were showing before the choice (see <see cref="TalkButtons"/>).</param>
+	private static async Task<int> AfterAction(string name, string path, string talkBefore)
 	{
 		JsonElement dialogs = default;
 		OfferScreen talks = null;
@@ -122,7 +134,8 @@ internal static partial class Program
 		{
 			if ((dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0) return true;
 			if ((talks = await OfferScreen.Read(Fm, "contract")) != null) return true;
-			return said = (await TalkOptions()).Count > 0;
+			var now = await TalkButtons();
+			return said = now.Length > 0 && now != talkBefore;
 		}, seconds: 3, every: 0.5);
 
 		if (dialogs.ValueKind == JsonValueKind.Array && dialogs.GetArrayLength() > 0)
@@ -228,9 +241,10 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{name}: '{path.Replace(">", " › ")}' şu an kapalı."));
 			return 1;
 		}
+		var before = await TalkButtons();
 		var chosen = await Fm.Get("actions", ("choose", path));
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
-		return await AfterAction(name, path);
+		return await AfterAction(name, path, before);
 	}
 
 	/// <summary>
@@ -334,9 +348,10 @@ internal static partial class Program
 			}
 		}
 
+		var before = way == mutual ? await TalkButtons() : null;
 		var chosen = await Fm.Get("actions", ("choose", way));
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
-		if (way == mutual) return await AfterAction(name, way);
+		if (way == mutual) return await AfterAction(name, way, before);
 
 		JsonElement dialogs = default;
 		if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 6, every: 0.5))
