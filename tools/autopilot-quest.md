@@ -4,29 +4,48 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: **B "`scout new/edit --by` / `--analysts`"** — **BİTTİ** (§8.229, Tur 40): seçim penceresini açan `Edit`
-  düğmesi `FormAfter(form, "Assign Scouts", …)` başlığıyla aranıyordu; başlık oyunun cümlesi (TR "Gözlemci
-  Görevlendir (1)") → TR'de "Formda scout seçme butonu yok." Artık satır, yanındaki insanın rozetindeki rol
-  sözünden bulunuyor (`/translate?words=Scout|Analyst` → "Gözlemci"/"Analist"; aynı şablonlu iki düğme böyle
-  ayrılıyor, bulunamazsa form sırası: gözlemci önce). Pencere, kutusunun bağıyla doğrulanıyor
-  (`focusitem.anyscout` / `focusitem.anyanalyst`); "kaç seçildi" cümlesi yerine oyunun kabından
-  (`/texts?within=SIVisible-selected-scouts-number`) okunan sayı kontrol ediliyor.
-- Kanıt: TR üç durum (**sayfa ilk kez açılıyor** `fm open "Messages"` sonrası 18,7 sn / **zaten açık** 19,8 sn /
-  **başka sayfa açık** `fm open "Squad Dynamics"` sonrası 25,0 sn) `fm scout edit "England" --by "Kenny Morrison,
-  Simon Rowley"` → "Odak güncellendi: İngiltere · Kenny Morrison + Simon Rowley", odak "2 gözlemci";
-  `--analysts "Jack Coles"` → "analist: Jack Coles" (24,6 sn). EN aynı üç durum (26,4 / 26,0 / 27,9 sn) →
-  "Focus updated: England · …"; EN `--analysts` → "analyst: Jack Coles". Negatif TR `--by "ZZZ yok"` → **rc=64**,
-  "Gözlemci: 'ZZZ yok' diye bir seçenek yok. Seçenekler: …". EN negatifi köprü sustuğu için rc=1 kaldı.
-- Geri alma: odak eski hâline (`--by "George Herbert"` → "1 gözlemci · 1 analist"), dil `fm settings language
-  "Türkçe"` (`/state` → turkish), saat 2 Ağustos 2026 14:00, maç oynanmadı, saat ilerletilmedi.
-- Not (tuzak): uzun oturumda köprü iki kez "the main thread did not run this request within 30s" ile sustu; aynı
-  komut `pkill -9` + `fm start` sonrası çalıştı (§8.99'daki gibi). `pkill` sonrası `fm stop` "FM açık değil" der.
-- Regresyon: paylaşılan koda (Bridge/OpenPage/reply) dokunulmadı, değişiklik yalnız `cli/fm/ScoutFocus.cs`
-  içinde (yeni `FormTexts` yardımcısı yalnız oradan) → `sweep.sh` gerekmedi (`scout` sweep'te yok).
-- Sıradaki tur (öneri): B'de `contract <oyuncu> --agent` kartın işareti, haber "Portugal", "yazıyla basma"nın
-  kalan yerleri; A'da kısa `Until` listesi + sabit üst sınırlar (`Arriving`, `Bound`). Ağır listeler: yok.
+- Madde: **A "`Task.Delay`" / Staff 74** (`fm staff`'ın kaydırmalı okuması) — **BİTTİ** (§8.230, Tur 41): her
+  kaydırma konumundan sonra sabit 400 ms bekleniyordu. Ölçüm: personel tablosu kaydırıldıktan sonra satırlarını **iki
+  adımda** diziyor (`to=1` 6 → 10 → 27 satır, `to=0.75` 13 → 17 → 34, `to=0.5` 21 → 25 → 36, `to=0.25` 27 → 31 → 34);
+  yarım hâller 0,1–0,2 sn duruyor ve `/scroll`un bildirdiği konum ilk okumada bile hedefte (`455,9 of 911,8`) → geciken
+  şey konum değil diziliş, yani 400 ms'in payı yalnız ~2 kat ve yavaş makinede 6/13/17 satır okunup personel sessizce
+  eksiliyordu. Artık her konum, satırlar **0,25 sn arayla üç okumada aynı** olana kadar okunuyor (oyunun kendi
+  "diziliş bitti" işareti; `Until`, üst sınır 4 sn). Ölçüm komutu: `/texts?anchor=All Staff&up=12&paths=1` +
+  `binding.Name` satırları, `/scroll` sonrası 40–70 ms aralıklı okumalarla.
+- Kanıt: TR üç durum (`fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` sonrası) insan
+  `md5 4df8a2aa85db8c96b94348fd3a41cd1c`, `--json` `0d24d6ceeaba9cf15553bb4421613e42`; EN üç durum
+  `8b2e842f7efbd5ac7dbce534a5ce5ef2` / `50d543a83c2259ce25b069d6fd1a7c8f` — hepsi **eski derlemeyle birebir**,
+  48 personel eksiksiz. İzde konum başına dört okuma (4,62 / 4,91 / 5,20 / 5,53 sn). Bedel: komut ~1,5–2 sn yavaş
+  (TR 5–8 → 6–8 sn, EN 4–5 → 6–7 sn). `sweep.sh` **50 komut, 0 hata** (Türkçe oyunda; `staff` sweep'te var).
+- Geri alma: hiçbir şey değiştirilmedi (komut yalnız okur); dil TR (`/state` → turkish), saat 2 Ağustos 2026 14:00,
+  maç oynanmadı, saat ilerletilmedi.
+- Not (tuzak): TR ölçümünden önce `fm settings dil "Türkçe"` yanlış komut ("There is no setting called 'dil
+  Türkçe'") → ilk "TR" koşuları aslında İngilizceydi; doğrusu `fm settings language "Türkçe"`.
+- Regresyon: paylaşılan koda (Bridge/`Until`/OpenPage) dokunulmadı, değişiklik yalnız `cli/fm/Staff.cs` içinde
+  (`Staff()`'a yerel `Settled()`); yine de `sweep.sh` koşuldu → 50/50.
+- Sıradaki tur (öneri): A'da kalan küçük işler — kısa `Until` listesi (Calendar 157 · League 216 · Prep 124 ·
+  Stages 337 · StaffSearch 354 · TacticFiles 29 · TacticSlots 112 · TraitTraining 89 · Program · Reads · Saves) ve
+  diğer `Task.Delay`'ler (Clock 179 işsiz kayıt, Coaches 53 88, MatchDay 181 314 368, Transfers 96 128 131 139 …);
+  B'de `contract <oyuncu> --agent` kartın işareti, "yazıyla basma"nın kalan yerleri (Budget 4 · Saves 3 · ScoutFocus
+  `click text="Create a New Recruitment Focus"`). Ağır listeler: yok.
 - Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
 - Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 40)
+- Madde: **B "`scout new/edit --by` / `--analysts`"** — **BİTTİ** (§8.229): seçim penceresini açan `Edit` düğmesi
+  `FormAfter(form, "Assign Scouts", …)` başlığıyla aranıyordu (başlık oyunun cümlesi, TR "Gözlemci Görevlendir (1)")
+  → TR'de "Formda scout seçme butonu yok." Artık satır, yanındaki insanın rozetindeki rol sözünden bulunuyor
+  (`/translate?words=Scout|Analyst` → "Gözlemci"/"Analist"; bulunamazsa form sırası: gözlemci önce); pencere kutusunun
+  bağıyla (`focusitem.anyscout` / `focusitem.anyanalyst`), "kaç seçildi" sayısı oyunun kabından
+  (`/texts?within=SIVisible-selected-scouts-number`) doğrulanıyor.
+- Kanıt: TR üç durum (18,7 / 19,8 / 25,0 sn) `--by "Kenny Morrison, Simon Rowley"` → "Odak güncellendi: İngiltere · …",
+  odak "2 gözlemci"; `--analysts "Jack Coles"` rc=0. EN üç durum (26,4 / 26,0 / 27,9 sn) aynı; negatif TR `--by "ZZZ
+  yok"` → rc=64 (EN negatifi köprü sustuğu için rc=1 kaldı). Odak eski hâline döndürüldü, dil TR, saat 2 Ağustos
+  14:00, maç yok. `sweep.sh` gerekmedi (`scout` sweep'te yok) — paylaşılan koda dokunulmadı.
+- Not (tuzak): uzun oturumda köprü iki kez "the main thread did not run this request within 30s" ile sustu;
+  `pkill -9` + `fm start` sonrası aynı komut çalıştı (§8.99).
+- Not: ağaç temiz (yalnız bu turun dosyaları), `stash` yok.
+- Durum: bitti, commit atılmıştı
 
 ## Önceki durum (Tur 39)
 - Madde: **B "Yazıyla basma" / `scout new/edit --area`** — **BİTTİ** (§8.228, Tur 39): yazma yolundaki bölge
@@ -254,6 +273,24 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 41 — A "`Task.Delay`" / Staff 74: `fm staff` her kaydırmadan sonra 400 ms bekliyordu, tablo satırlarını iki adımda diziyor (§8.230, 19 Ekim)
+Ne: `cli/fm/Staff.cs` `Staff()`. Kaydırma döngüsü `scroll` → `Task.Delay(400)` → `StaffRows()` idi. Ölçüm (kimlik):
+`to=1` 6 → 10 → 27 satır, `to=0.75` 13 → 17 → 34, `to=0.5` 21 → 25 → 36, `to=0.25` 27 → 31 → 34; yarım hâller
+0,1–0,2 sn duruyor (en uzunu `to=0.75`'te 13 satır: 0,03 → 0,23 sn), `/scroll` konumu ilk okumada doğru
+(`455,9 of 911,8`) → geciken **diziliş**. Yeni: yerel `Settled()` — satırlar 0,25 sn arayla **üç okumada aynı** olana
+kadar okunuyor (üst sınır 4 sn, boş okuma kabul değil).
+- Öncesi (eski derleme, TR): üç durumda (başka sayfa açık / tablo zaten açık / başka sayfaya geçtikten sonra) insan
+  `md5 4df8a2aa85db8c96b94348fd3a41cd1c`, `--json` `0d24d6ceeaba9cf15553bb4421613e42`; EN aynı üç durum
+  `8b2e842f7efbd5ac7dbce534a5ce5ef2` / `50d543a83c2259ce25b069d6fd1a7c8f`. Süre TR 5–8 sn, EN 4–5 sn.
+- Sonrası (yeni derleme): TR ve EN üçer durumda **birebir aynı md5'ler**, 48 personel; izde konum başına dört okuma
+  (4,62 / 4,91 / 5,20 / 5,53 sn) → süre +1,5–2 sn.
+- Negatif/değişmeyen: `fm staff` salt okuma (hiçbir şey açmıyor/değiştirmiyor), hata yolu (`Personel kartı açılmadı.`)
+  aynı kaldı; sweep `staff` satırı rc=0.
+- Regresyon: `tools/sweep.sh /tmp/sweep_t41` → **50 komut, 0 hata** (Türkçe oyunda).
+- Dönüş/geri: kayıt yalnız okundu; dil TR (`/state` → turkish), saat 2 Ağustos 2026 14:00, maç oynanmadı.
+- Dosya: `cli/fm/Staff.cs`, `docs/BAGIMLILIKLAR.md` (A listesinde `Staff 74` çizildi, `[x]` alt madde), `docs/FINDINGS.md`
+  §8.230, bu defter.
 
 ### Tur 39 — B `scout new/edit --area`: bölge listesi yazma yolunda da oyunun bağıyla, "eklendi" işareti başlığın kendisi (§8.228, 18 Ekim)
 Ne: `cli/fm/ScoutFocus.cs` `ScoutNewForm`'un bölge döngüsü. Liste `FormAfter(second, "Scouting Areas", "dropdown").Value`,

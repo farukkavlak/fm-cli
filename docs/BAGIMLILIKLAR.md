@@ -30,7 +30,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
-  ~~Scouting 100~~ · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
+  ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · Transfers 96 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
     pay. "Yol boş" ile "henüz gelmedi" aynı cevap (`{}`) — FINDINGS §8.179.
@@ -40,6 +40,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     0,34–1,24 sn (sınır 4 sn, ≥3 kat pay); iş bitince durum 0,1–0,53 sn titriyor (CanContinue→NewsAggregator/NeedAction/
     Fixtures→…), "1,4 sn sakin" bunu örtüyor (2,6 kat). Ayrı bir "bitti" işareti yok: `GameManagersNotContinuedCount`
     `Processing`'i birebir izliyor; bir adımda `Processing` hiç görünmedi, yalnız saat değişti (§8.181).
+  - [x] Staff 74 (`fm staff`): kaydırmadan sonra sabit 400 ms yerine oyunun kendi "diziliş bitti" işareti — tablo
+    kaydırılınca satırlarını iki adımda diziyor (ölçüm: `to=1` 6 → 10 → 27, `to=0.75` 13 → 17 → 34 satır; yarım hâller
+    0,1–0,2 sn duruyor, `/scroll` konumu ilk okumada doğru → geciken **diziliş**), yani 400 ms'in payı yalnız ~2 kat ve
+    yavaş makinede yarım tablo okunup personel eksiliyordu. Artık 0,25 sn arayla üç okuma aynı olana kadar okunuyor.
+    TR + EN üç durumda çıktı eski derlemeyle **birebir** (48 personel); bedel ~1,5–2 sn (§8.230).
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.

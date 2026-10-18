@@ -68,11 +68,32 @@ internal static partial class Program
 
 		var people = new Dictionary<string, string[]>();
 		await Until(async () => (await StaffRows()).Count > 0, seconds: 8, every: 0.5);
+
+		// A scroll's rows are laid out in steps — the ones at the top of the table first, the rest a
+		// frame or two later (measured: 6 rows, then 10, then 27; the half states hold for up to
+		// 0,2 sn) — so each position is read until what it holds stands still, which is the game's own
+		// sign that the layout is over. A fixed pause of 400 ms read the half state when the machine
+		// (or the table) was slower, and the staff in it were lost.
+		async Task<List<string[]>> Settled()
+		{
+			var rows = new List<string[]>();
+			var last = "";
+			var still = 0;
+			await Until(async () =>
+			{
+				rows = await StaffRows();
+				var now = string.Join("\u0001", rows.Select(r => string.Join("\u0002", r)));
+				still = now == last ? still + 1 : 0;
+				last = now;
+				return rows.Count > 0 && still >= 2;
+			}, seconds: 4, every: 0.25);
+			return rows;
+		}
+
 		foreach (var at in new[] { 0, 0.25, 0.5, 0.75, 1 })
 		{
 			await Fm.Get("scroll", ("anchor", "Senior Squad"), ("to", at.ToString(CultureInfo.InvariantCulture)));
-			await Task.Delay(400);
-			foreach (var row in await StaffRows()) people[row[0]] = row;
+			foreach (var row in await Settled()) people[row[0]] = row;
 		}
 		await Fm.Get("scroll", ("anchor", "Senior Squad"), ("to", "0"));
 

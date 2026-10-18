@@ -2539,3 +2539,21 @@ Dönüş: odak eski hâline (`--by "George Herbert"` → "1 gözlemci · 1 anali
 saat 2 Ağustos 14:00, maç yok. ⚠ Uzun oturumda köprü iki kez "the main thread did not run this request within 30s"
 ile sustu (aynı komut yeniden başlatmadan sonra çalıştı; §8.99'daki gibi); EN negatif koşusu bu yüzden rc=1 kaldı,
 TR negatifi rc=64.
+
+### 8.230 `fm staff`: kaydırmadan sonraki sabit 400 ms yarım tabloyu okuyabiliyordu — artık satırlar "oturdu" işaretiyle (19 Ekim, TR + EN)
+Personel tablosu kaydırıldıktan sonra satırlarını **iki adımda** diziyor: önce tablonun tepesindeki takım, bir-iki
+kare sonra gerisi. Ölçüm (`/texts?anchor=All Staff&up=12&paths=1`, 40–70 ms aralıklı okumalar, `/scroll` sonrası):
+`to=1` **6 → 10 → 27** satır, `to=0.75` **13 → 17 → 34**, `to=0.5` **21 → 25 → 36**, `to=0.25` **27 → 31 → 34**;
+yarım hâller 0,1–0,2 sn duruyor (en uzunu `to=0.75`'te 13 satır, 0,03→0,23 sn) ve `/scroll`un bildirdiği konum ilk
+okumada bile hedefte (`455,9 of 911,8`), yani konum değil **diziliş** gecikiyor. Sabit 400 ms'in payı bu yüzden yalnız
+~2 kat; yavaş bir makinede (ya da daha kalabalık bir kulüpte) 6/13/17 satır okunup oyuncular sessizce eksiliyordu.
+Yeni: her konum, satırlar **0,25 sn arayla üç okumada aynı** olana kadar okunuyor (oyunun kendi "diziliş bitti"
+işareti; `Until`, üst sınır 4 sn).
+Kanıt: TR (insan `md5 4df8a2aa85db8c96b94348fd3a41cd1c`, `--json` `0d24d6ceeaba9cf15553bb4421613e42`) ve EN
+(`8b2e842f7efbd5ac7dbce534a5ce5ef2` / `50d543a83c2259ce25b069d6fd1a7c8f`) üç durumda (başka sayfa açık / tablo
+zaten açık / başka sayfaya geçtikten sonra) **eski derlemeyle birebir**, 48 personel eksiksiz; izde konum başına
+dört okuma (ör. 4,62 / 4,91 / 5,20 / 5,53 sn). Bedel: komut ~1,5–2 sn yavaş (TR 5–8 → 6–8 sn; EN 4–5 → 6–7 sn).
+`sweep.sh` **50 komut, 0 hata** (Türkçe oyunda). Dosya: `cli/fm/Staff.cs` (`Staff()` içindeki `Settled()`).
+Yan not: aynı fonksiyonda kalan iki yazı bağımlılığı — kaydırma çapası `Senior Squad` ve sekme düğmesi `All Staff`
+(ikincisinde `name` de veriliyor) — bu turda dokunulmadı; ikisi de oyunun tablo sözünden geliyor ve TR + EN'de
+çalıştığı görüldü, ayrı bir madde olarak duruyor.
