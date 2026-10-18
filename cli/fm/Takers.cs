@@ -203,7 +203,8 @@ internal static partial class Program
 		}
 		var said = await Fm.Get("select", ("ptr", Field(menu.Value, "Pointer")), ("value", kind.ToString()), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return null;
-		await Task.Delay(500);
+		// Still waits for the menu to show this kind and the button to stand still, so no pause is
+		// needed for the choice to land.
 		if (!await Still(throwIn ? "taker-picker-button" : "taker-button", kind)) return null;
 		return button;
 	}

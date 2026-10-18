@@ -1967,3 +1967,14 @@ dil `/select?ptr=…&index=13` ile değiştirilip Türkçeye dönüldü. Kalıc�
 (TranslationID; eklentiye `Id` alanı eklemek gerekir, oyunu yeniden başlatmadan etkisi olmaz) ya da öğeyi kendi
 adıyla (`GameLanguagePreferencesBlock` — E bölümü) bulmak; kabul edilen başlık listesi yeni bir kırılgan
 bağımlılık olurdu.
+
+### 8.202 `takers`: duran top türü seçildikten sonraki 500 ms gereksizdi (18 Ekim, TR + EN)
+`Takers.cs` `ShowSetPieceKind`, Set Piece Type menüsünden türü seçtikten sonra sabit 500 ms bekliyor, sonra
+`Still(...)` ile oyunun kendi işaretini arıyordu: menü bu türü gösteriyor **ve** atıcı düğmesi iki okumada aynı
+duruyor. Bekleme, bu işaretin zaten kapsadığı bir şeydi; kaldırıldı (kural 2: sabit bekleme yerine oyunun işareti).
+Ölçüm (`FM_TRACE=1 fm takers --json`, beş tür): `select ?value=<tür>` ile doğru atıcı düğmesine basma arası önce
+~1,50 sn, sonra ~1,50 sn (seçim→ilk yoklama artık beklemesiz). Üç durum (başka sayfa açık / sayfa zaten açık /
+başka sayfadan) TR ve EN'de aynı çıktı (`md5` `8eb5533…` TR, `f42fb27…` EN); süre 3+3 koşuda önce ~19,2 sn, sonra
+~19,3 sn — yani nötr: kaldırılan şey yalnızca makine hızına dair bir varsayım, kazanç yok çünkü işaret zaten
+vardı. `Still` bir tür daha nadiren üçüncü okuma istiyor (iki okuma aynı olana kadar), o yüzden toplam süre
+değişmiyor; ama `ShowSetPieceKind` içinde sabit bekleme kalmadı.

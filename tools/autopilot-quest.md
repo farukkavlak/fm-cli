@@ -4,23 +4,44 @@ Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan al�
 iki kez yapmaz, park edileni tekrar denemez.
 
 ## Şu an
-- Madde: A "Kısa `Until` (≤ 3 sn) — 16 yer" — **alt maddelerine bölündü**, üçüncü bitti: **Budget 70** (kartın
-  slider adımları) — ölçüldü, **değişiklik gerekmedi** (kural 4): okuma oyunun kendi işaretiyle kabul ediliyor
-  (kartın `…EditedTransferValue` / `…EditedOtherValue` yazıları değişti **ve** yıldız adıma uydu), 7 koşu × 16
-  adımda `setcontrol` → kabul 20–371 ms, 112 adımın 11'inde ikinci okuma; 3 sn sınırına ≥8 kat pay (§8.200).
-- Tur 12 ayrıca yeni bir dil bağımlılığı buldu ve madde olarak açtı (B): **`fm settings` ayarı başlık yazısıyla
-  buluyor; Almanca oyunda dil ayarı "Language" diye geldiği için bulunamıyor** (§8.201) — kalıcı yol için üç
-  seçenek BAGIMLILIKLAR'da yazılı (TranslationID / öğe adı / başlık listesi).
+- Madde: A "`Task.Delay` — 89 yer" — **alt maddelerine bölündü**, bir bitti: **Takers 206** (duran top türü
+  seçildikten sonraki sabit 500 ms) — kaldırıldı; doğru atıcı düğmesini bekleyen işaret zaten vardı (`Still`:
+  menü bu türü gösteriyor **ve** düğme iki okumada aynı duruyor). Ölçüm nötr: üç durum + TR/EN aynı çıktı,
+  3+3 koşuda ~19,2 ↔ ~19,3 sn (§8.202).
+- A/`Kısa Until` (≤ 3 sn) da sürüyor; üçüncü alt maddesi **Budget 70** ölçüldü, değişiklik gerekmedi (§8.200).
 - ⚠ Tur 9'un (Tur 4 numaralı koşu) işi ağaçta **commit edilmeden** kalmıştı: koşu 40 dk zaman aşımıyla (rc=124)
   öldürülmüş, defter "commit atıldı" yazmış. Tur 10 aynı ölçümleri yeniden koştu, doğruladı ve commitledi.
-- Bir sonraki tur: A/`Kısa Until` — sıradaki adaylar: `Saves 207/220` (kaydırma sonrası 1,5 sn ×5, "listede yok"
-  diyebiliyor) · `TraitTraining 89` / `TacticSlots 112` (onay penceresi 3 sn içinde gelmezse cevaplamadan devam) ·
-  `League 216` / `Prep 124` / `IndividualTraining 99` (`pathset` 3 sn içinde kabul edilmezse sessizce devam).
-  Alternatif: A/`Sabit üst sınırlar` (Arriving 8 sn, Bound 20 sn, maç akışındaki 3 sn'ler) ya da B'deki
-  Almanca `fm settings` maddesi. Kart açıkken `budget ayarla`nın düşmesi (§8.200 sonu) küçük bir aday.
+- Bir sonraki tur: A/`Task.Delay` — sıradaki adaylar: `TraitTraining 32` (iki karo basışı arasında 500 ms; `Arriving`
+  zaten karoyu bekliyor) · `Responsibilities 283/388` (kaydırmadan sonra 500 ms, sonra oku → yavaşta "sayfada
+  bulunamadı" diyebilir) · `Matches 82` / `OppositionCard 55 91` (kaydırma/uygulamadan sonra 500 ms) ·
+  `TrainingSchedule 345` (basıştan sonra 500 ms, sonra onay penceresi). Alternatif: A/`Kısa Until` adayları
+  (`Saves 207/220`, `TraitTraining 89`, `TacticSlots 112`, `League 216`, `Prep 124`) ya da B'deki Almanca
+  `fm settings` maddesi (§8.201).
 - Durum: bitti, commit atıldı
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 13 — A "`Task.Delay`" / Takers 206: tür seçildikten sonraki 500 ms gereksizdi (§8.202, 18 Ekim)
+Ne: `cli/fm/Takers.cs` `ShowSetPieceKind`. Set Piece Type menüsünden türü seçtikten sonra sabit 500 ms bekleniyor,
+sonra `Still(...)` ile "menü bu türü gösteriyor **ve** atıcı düğmesi iki okumada aynı" işareti aranıyordu. Bekleme
+bu işaretin kapsadığı bir şey → kaldırıldı (`Task.Delay(500)` silindi, yerine açıklama).
+- Öncesi/sonrası çıktı (beş tür): `fm takers --json` TR'de `md5 8eb553398145f8d263e7f19a7d428c04` (önce **ve**
+  sonra), EN'de `f42fb27412440ca4961b07d58885e920`; türler ve atıcı sıraları birebir aynı (Korner sağ: Bayliss,
+  Varfolomeev, Moylan … Taç: Hamer, Collins, Bradley).
+- Üç durum (her biri TR + EN, `rc=0`): başka sayfa açık (`fm open "Squad Dynamics"`) / sayfa zaten açık (hemen
+  ikinci koşu) / başka sayfadan (`fm open "Messages"`) → üçünde de aynı md5.
+- Zamanlama (işaretin tuttuğunu kanıtlar, hedef değil): `FM_TRACE=1 fm takers --json`; `select ?value=<tür>` ile
+  doğru düğmeye basma arası önce ~1,47–1,60 sn, sonra ~1,50–1,60 sn (seçimden sonraki ilk yoklama artık beklemesiz:
+  0,03–0,06 sn). Toplam süre 3 koşu ortalaması: önce ~19,2 sn (19,55/18,99/19,10), sonra ~19,3 sn
+  (19,36/19,23/19,39) → **nötr**; `Still` kimi türde üçüncü okuma isteyebiliyor, kazanç yok. Karar: kaldırma kalır
+  (kural 2), çünkü kalan sabit bekleme makine hızına dair bir varsayımdı; işaret zaten vardı.
+- Mutasyon yolu (aynı fonksiyon): `fm takers korner sag move "Ivan Varfolomeev" 1` → sağ liste
+  `1. Ivan Varfolomeev, 2. Tom Bayliss, 3. Jack Moylan` (veriden doğrulandı), sonra `… 2` ile eski sıraya alındı
+  (`1. Tom Bayliss, 2. Ivan Varfolomeev`); rc=0.
+- Dönüş: `fm settings language "Türkçe"` → "English → Turkish", `/state` → `Language: turkish`.
+- Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (`/tmp/sweep_t13`). Paylaşılan koda (Bridge/OpenPage/reply)
+  dokunulmadı, değişiklik yalnız `Takers.cs` içinde. Kayıt test kaydı: 2 Ağustos 2026 14:00; saat ilerletilmedi,
+  maç oynanmadı, atıcı sırası denendi ve geri alındı.
 
 ### Tur 12 — A "Kısa `Until`" / Budget 70 (kartın slider adımları): ölçüldü, değişiklik gerekmedi (§8.200, 18 Ekim)
 Ne: `cli/fm/Budget.cs` **değişmedi**. Karar (kural 4): mevcut işaret oyunun kendi işareti — slider bir adıma

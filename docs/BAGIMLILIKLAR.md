@@ -31,7 +31,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release 57 123 · Responsibilities 283 388 · ScoutFocus 107 237 349 537 576 724 ·
   Scouting 100 · Settings 226 · Staff 74 · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
-  TacticFiles 181 · Takers 206 · TrainingReport 82 · TrainingSchedule 345 · TraitTraining 32 · Transfers 96 128 131 139
+  TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · TrainingSchedule 345 · TraitTraining 32 · Transfers 96 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
     pay. "Yol boş" ile "henüz gelmedi" aynı cevap (`{}`) — FINDINGS §8.179.
   - [x] `table`: olmayan `CurrentComp5..8` artık beklenmiyor (`ClubCompetitions`, tek okuma); 8,7 → 2,5–2,9 sn, üç
@@ -85,6 +85,10 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `ActionID` 0) olan yalnızca söyleneni kapatan düğmedir. Yardımcı `Acknowledge()` (Program) düğmeyi işaretçisiyle
     basıyor, yoksa hiç basmıyor. Ölçüm: TR + EN'de Event 31 doğrulandı; eski kod 3 boşa basış, yeni kod tek basış;
     üç durumda rc=0, negatifte 0 basış; `sweep.sh` 50/50 (§8.191). BoardRequests'teki karşılaştırma da kimliğe bağlandı.
+  - [x] Takers 206: duran top türü seçildikten sonraki sabit 500 ms kaldırıldı; doğru atıcı düğmesini bekleyen işaret
+    zaten vardı (`Still`: menü bu türü gösteriyor **ve** düğme iki okumada aynı duruyor). `fm takers --json` beş türle
+    üç durumda (başka sayfa açık / sayfa zaten açık / başka sayfadan) TR + EN'de aynı çıktı (`md5`), süre nötr
+    (3+3 koşuda ~19,2 ↔ ~19,3 sn): kaldırılan yalnızca makine hızına dair bir varsayım (§8.202).
   - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel isteyen bir söz
     konuşması lazım; o an oyunda yok, ölçülmeden değiştirilmedi. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
