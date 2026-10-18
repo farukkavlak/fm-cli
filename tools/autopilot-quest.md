@@ -3,7 +3,37 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 45)
+## Şu an (Tur 46)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `budget` düğmeleri** — **BİTTİ** (§8.235, Tur 46): `fm budget ayarla`
+  üç basışı da oyunun İngilizce sözüyle yapıyordu (kartı açan döşeme `Adjust Transfer and Wage Budget`, kartın
+  `Got It` ve `Cancel`i). Ölçülen kimlikler: döşeme bir `SpeakToAction`, eylemi **1885623898**
+  (`ClubBudgetAdjustmentTransfersAndWages`; yanındaki "Adjust Scouting Budget" 1332374646 → `/buttons?json=1&gen=` +
+  `/pull?props=ActionID`); kartın "Got It"i `Events` içinde **EventFmxBudgetAdjustmentConfirm** olayını gönderiyor
+  (enum 146), "Cancel" aynı panelin (`Page` = kartın paneli, kapatıp açınca da aynı: `c16a10db…`) yalnız kapatın
+  (`ClosePanel`) düğmesi. Artık üçü `click ?ptr=` ile basılıyor; kimlik bulunamazsa eskisi gibi yazıya düşülüyor.
+- Kanıt: TR + EN, üç durum (başka sayfa açık / sayfa zaten açık / başka sayfaya geçtikten sonra) × üç yol
+  (`ayarla 99` rc=1 hata+Cancel, `ayarla 15` "Bütçe zaten böyle."+Cancel, `ayarla 14` gerçek değişim+Got It, sonra
+  `ayarla 15` ile geri) — iki dilde on beşer koşu, çıktılar **eski derlemeyle birebir** (`md5`: TR 99
+  `bd1073cf…`, same `29db1cb4…`, 14 `93cbe81d…`, json-after `d0b08a70…`, json-back `2b1645ca…`; EN 99 `c26273fb…`,
+  same `f03d9d91…`, 14 `cd196064…`, json-after `f8f717b2…`, json-back `5ffe45d1…`), izde eski `click ?text=…` →
+  yeni `buttons` + `click ?ptr=…`, rc dağılımı aynı (15×0, 3×1). Bütçe değişti ve geri alındı: 626B £ / 2.320 £
+  aşılmış → 584B £ / 1.517 £ → geri 626B £ / 2.320 £ (EN 626K/584K); saat 2 Ağustos 2026 14:00, maç oynanmadı,
+  dil `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish). Sweep: 50 komut, 13 hata — hepsi
+  sayfa açılmayan ailede ve tur sonunda oyunun ana iş parçacığı sustu (§8.99); `pkill -9` + `fm start </dev/null`
+  sonrası her biri tek başına rc=0, `budget` satırı zaten rc=0.
+- Not (ölçüm tuzağı/engel): kartın **okuma** yolu (Wage/Transfer Budget, Scouting, "Budget Adjustment" çapaları)
+  yazıyla kalıyor — ölçüldü, o sayıların sayfada veri yolu yok (`/texts?paths=1` yalnız
+  `club.RemainingWageBudgetWithText` / `club.CurrentWageSpendingWithText` veriyor); ayrı madde olarak not düşüldü.
+- Sıradaki tur (öneri): B'de aynı sınıfın kalan yerleri — `scout` odak formunun `Cancel`/`Next`/`Confirm`i ve
+  `saves`in `Cancel`/`Save`i (kimlikleri ölçülüp basılabilir mi), `Edit`/`Create a New Recruitment Focus`
+  (kimlik yok, ölçüldü → etiketle kalıyor); **`FocusAt`in yarışı** (etiket + "art arda iki okuma aynı" işareti eski
+  odağın düğmelerinde oturuyor: §8.234 sonu, §8.235 sonu değil — ayrı tur). A'da kısa `Until`ler (League 216 ·
+  MatchControls 131 266 · Reads 892 · Saves 207 220 · TacticFiles 29 · TraitTraining 89). Park: Stages 337,
+  TrainingSchedule 345.
+- Not: ağaçta yalnız bu turun dosyaları var (`cli/fm/Budget.cs`, BAGIMLILIKLAR, FINDINGS, bu defter), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 45)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `scout remove` · `scout restart`** — **BİTTİ** (§8.234, Tur 45):
   odak sayfasının iki düğmesi oyunun çeviri tablosundan gelen İngilizce etiketle bulunuyordu. Ölçüm: ikisi de
   `SpeakToAction` ve eylemleri olay gönderiyor — **Remove = `EventFmxRecruitmentFocusRemove` (53)**,
@@ -389,6 +419,50 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Durum: park edildi, commit atılıyor
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 46 — B "yazıyla basma" / `budget`: kartı açan döşeme ve kartın "Got It"/"Cancel"i artık işaretçiyle (§8.235, 19 Ekim)
+Ne: `cli/fm/Budget.cs` `Budget()`. Üç basış oyunun İngilizce sözüne dayanıyordu: `click text="Adjust Transfer and Wage
+Budget"`, `click text="Got It"`, `click text="Cancel"`. Yerine: döşeme eylemiyle (`SpeakToAction`, ölçülen ActionID
+1885623898 = `ClubBudgetAdjustmentTransfersAndWages`), "Got It" gönderdiği olayla (`Events` içinde
+`EventFmxBudgetAdjustmentConfirm`, enum 146), "Cancel" aynı panelin kapatın düğmesi olarak (`Page` eşit + `ClosePanel`
++ onay olayını taşımayan). Üçü `click ?ptr=`; kimlik bulunamazsa eski yazı yolu yedek.
+- Ölçüm (kimlik): kart açıkken `/buttons?json=1` → panel `c16a10db7d53a244c8862e289a5dc7ca` dört düğme:
+  `AdjustDownButton`/`AdjustUpButon` `EventToPlugin:EventFmxBudgetAdjustmentAdjust`,
+  `button-secondary-label` "Cancel" `ClosePanel`, `button-primary-leading-icon-label` "Got It"
+  `EventToPlugin:EventFmxBudgetAdjustmentConfirm, ClosePanel`. Kart `Cancel` ile kapatılıp yeniden açıldığında panel
+  Guid'i **aynı**. Döşemeler: `/buttons?json=1&gen=77` → `Action=fmcli.speak.g77.9`;
+  `/pull?path=…&props=ActionID,Event` → `1885623898` / `1332374646` (`ClubBudgetAdjustmentScouting`).
+- Öncesi/sonrası: `run.sh` ile TR ve EN, üç durum (s1: `fm open "Messages"` sonrası / s2: sayfa zaten açıkken hemen
+  ikinci koşu / s3: `fm open "Squad Dynamics"` sonrası), her durumda `ayarla 99` (rc=1), `ayarla 15` ("zaten",
+  rc=0), `ayarla 14` (Gerçek değişim, rc=0) + `fm budget --json` + `ayarla 15` (geri) + `--json`. Çıktı md5'leri:
+  TR old = new: 99 `bd1073cf828803b6268041bf40344aa9`, same `29db1cb45edc4780a6c11408e513fd94`, 14
+  `93cbe81d1119355a12e19422fb40936a`, json-after `d0b08a7072a6e67dd70f4f74e34c5572`, json-back
+  `2b1645ca04aff15e0d53133299653545`; EN old = new: 99 `c26273fbacd0e788066fcd03844b30b8`, same
+  `f03d9d91b76ea9720ed674c9e7a5c51f`, 14 `cd196064cdc715cce5e676ab3e579650`, json-after
+  `f8f717b2ae5ea03374246b35506b215c`, json-back `5ffe45d1bb119d2537246f3acf2b5401`.
+- İz (aynı komutlar): eski derleme `click ?text=Adjust Transfer and Wage Budget` → `click ?text=Got It` /
+  `click ?text=Cancel`; yeni derleme `buttons ?json=1&gen=…` + `click ?ptr=0x…` (döşeme) ve `buttons ?json=1` +
+  `click ?ptr=0x…` (kart) — üç durumda da döşeme ve kart basışları böyle. rc: yeni TR 15×0 / 3×1 (üç `ayarla 99`),
+  EN aynı; eski de aynı.
+- Negatif/değişmeyen: `ayarla 99` → "… bir adım değil (0–15)." rc=1, kart kapanıyor; `ayarla 15` (şu anki adım) →
+  "Bütçe zaten böyle." rc=0, kart kapanıyor; `ayarla 14` gerçekten uygulanıyor (`Transfer bütçesi: 584B £`, `Maaş:
+  1.517 £ aşılmış`), `ayarla 15` ile **başladığı yere dönüyor** (626B £ / 2.320 £; EN 584K/626K).
+- Karar/gerekçe: etiketler oyunun kendi sözleri ve bu dilin tablosundan geçiyor (§8.209/§8.234'ün sınıfı); üç
+  düğmenin kimliği ölçüldü, çıktı birebir → yazı bırakıldı, kimlik öne alındı (yedek yazı yolu duruyor). Kartın
+  **okuma** yolu (Wage/Transfer Budget, Scouting, "Budget Adjustment" çapaları) bilerek dokunulmadı: ölçüldü, o
+  sayıların sayfada veri yolu yok.
+- Dönüş/geri: kayıt yalnız okundu + iki adım arasında gerçekten değişti ve geri alındı (bütçe başladığı yerde);
+  saat 2 Ağustos 2026 14:00, maç oynanmadı, saat ilerletilmedi; dil EN ölçümünden sonra
+  `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
+- Regresyon: `tools/sweep.sh` → **50 komut, 13 hata**, hepsi sayfa/görünüm açılmayan ailede (`depth`, `opposition`,
+  `world`, `numbers`, `register`, `responsibilities`, `youth`, `youth --training`, `inbox` …) ve tur sonunda oyunun
+  ana iş parçacığı 30 sn'den uzun sustu (`inbox`: "the main thread did not run this request within 30s") + kayıt
+  boşaldı ("Kayıt yüklü değil") — §8.99'daki bilinen tuzak; `pkill -9` + `fm start </dev/null` ile oyun **aynı
+  yerden** döndü (2 Ağustos 2026 14:00, bütçe 626B £ / 2.320 £) ve o hâlde her biri tek başına **rc=0** (`world`,
+  `numbers`, `opposition`, `health`, `register`, `youth --training`). Sweep'in `budget` satırı **rc=0**; değişiklik
+  yalnız `fm budget ayarla` yolunda (`cli/fm/Budget.cs`), paylaşılan koda dokunulmadı.
+- Dosya: `cli/fm/Budget.cs`, `docs/BAGIMLILIKLAR.md` (B "yazıyla basma" altında yeni `[x]` alt madde),
+  `docs/FINDINGS.md` §8.235, bu defter.
 
 ### Tur 44 — A "Kısa `Until`" / Calendar 157: "Today" basışından sonra liste "eskisinden farklı **ve** iki okumada aynı" olana kadar okunuyor (§8.233, 19 Ekim)
 Ne: `cli/fm/Calendar.cs` `CalendarMonths()` (146–158). Takvim sayfasının ay listesi, "Today" düğmesine basıldıktan sonra

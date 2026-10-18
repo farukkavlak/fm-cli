@@ -2643,3 +2643,21 @@ Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (Türkçe oyunda). Değişi
 `SpeakToActionEvent` ve `Fm.Get` dokunulmadı. Not (ölçümün kayda etkisi): remove/restart çalıştığı için odak listesi
 4 → 7 oldu (üç yinelenen "Sky Bet League Two": biri sürüyor, ikisi durmuş; `restart` eskisini listede "durmuş"
 bırakıyor), aynı bölgeyi süren bir odak durduğu için tarama kapsamı bozulmadı; silme yolu olmadığından temizlenmedi.
+
+### 8.235 `fm budget ayarla`: kartı açan döşeme ve kartın iki düğmesi artık yazıyla değil kimliğiyle basılıyor (19 Ekim, TR + EN)
+Ne: `cli/fm/Budget.cs`. Üç basış da oyunun **İngilizce** sözüne dayanıyordu: kartı açan döşeme
+`click text="Adjust Transfer and Wage Budget"`, adımı tutan düğme `click text="Got It"`, karttan çıkış
+`click text="Cancel"` — üçü de oyunun kendi sözü, bu dilin tablosundan geçiyor. Ölçüm: döşeme bir
+`SpeakToAction`, eylemi **1885623898** (`ClubBudgetAdjustmentTransfersAndWages`; yanındaki "Adjust Scouting Budget"
+1332374646 `…Scouting` — `docs/reference/enums.txt`); kartın "Got It"i `Events` içinde oyunun
+**EventFmxBudgetAdjustmentConfirm** olayını gönderiyor (enum 146), "Cancel" ise **aynı panelin** yalnız kapatın
+düğmesi (`ClosePanel`; kart açıkken `/buttons?json=1` panel `c16a10db…`te dört düğme veriyor ve panel Guid'i kapatıp
+yeniden açınca da aynı). Artık üçü işaretçisiyle basılıyor, kimlik bulunamazsa eskisi gibi yazıya düşülüyor.
+Öncesi/sonrası: TR + EN, üç durum (başka sayfa açık / sayfa zaten açık / başka sayfaya geçtikten sonra) × üç yol
+(`ayarla 99` rc=1 hata+Cancel, `ayarla 15` "zaten" +Cancel, `ayarla 14` gerçek değişim+Got It, sonra `ayarla 15` ile
+geri) — on beşer koşu iki dilde **eski derlemeyle birebir** (`md5`), izde eskiden `click ?text=…`, yeni derlemede
+`buttons` + `click ?ptr=…`, rc dağılımı aynı; `fm budget --json` değişimden sonra 584B £ / 1.517 £ aşılmış, geri
+alındıktan sonra 626B £ / 2.320 £ (EN: 584K/626K) — kayıt başladığı yere döndü. Değişmeyen: kartın **okuma** yolu
+(`BudgetFigures` "Wage Budget"/"Transfer Budget", `BudgetOverview` "Transfer Budget"/"Scouting" çapaları, `BudgetCard`
+"Budget Adjustment") yazıyla kalıyor — ölçüldü, o sayıların sayfada veri yolu yok (`/texts?paths=1` yalnız
+`club.RemainingWageBudgetWithText`, `club.CurrentWageSpendingWithText` veriyor), yani ayrı bir iş.

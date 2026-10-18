@@ -390,6 +390,13 @@ tablodan çevrilemiyor.
     açık / başka sayfaya geçtikten sonra) + negatifler ve EN üç durum: `restart` rc=0 "Odak yeniden başlatıldı",
     `remove --yes` rc=0 "Odak durduruldu", durmuş odağa `remove`/süren odağa `restart` rc=1 ("zaten durmuş" /
     "zaten sürüyor"); sonuç `fm scout --json`ten doğrulandı (§8.234).
+  - [x] `budget` düğmeleri (kartı açan döşeme + "Got It"/"Cancel"): üçü de oyunun İngilizce sözüyle basılıyordu.
+    Kimlikleri ölçüldü: döşeme eylemi **1885623898** (`ClubBudgetAdjustmentTransfersAndWages`; yanındaki
+    "Adjust Scouting Budget" 1332374646), "Got It" gönderdiği olay **EventFmxBudgetAdjustmentConfirm** (enum 146),
+    "Cancel" aynı panelin yalnız kapatın (`ClosePanel`) düğmesi. Artık üçü işaretçisiyle basılıyor, bulunamazsa
+    yazıya düşülüyor. TR + EN üç durumda üç yol (`ayarla 99` / `ayarla 15` / `ayarla 14` + geri) eski derlemeyle
+    **birebir**, izde `click ?ptr=…` (§8.235). Kartın **okuma** yolu (Wage/Transfer Budget, Scouting, "Budget
+    Adjustment" çapaları) yazıyla kalıyor: o sayıların sayfada veri yolu yok (ölçüldü, ayrı iş).
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

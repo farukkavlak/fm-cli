@@ -36,8 +36,14 @@ internal static partial class Program
 			return 0;
 		}
 
-		// The card offers the slider's steps; every one is read by standing on it.
-		var clicked = await Fm.Get("click", ("text", "Adjust Transfer and Wage Budget"));
+		// The card offers the slider's steps; every one is read by standing on it. The tile that
+		// opens it is found by the action it stands for, not by its words: the label is the game's
+		// own string, put into English by this language's table (§8.209).
+		JsonElement? tile = null;
+		await Until(async () => (tile = await SpeakToAction(BudgetAdjustAction)) != null, seconds: 8, every: 0.25);
+		var clicked = tile is { } opening
+			? await Fm.Get("click", ("ptr", Field(opening, "Pointer")))
+			: await Fm.Get("click", ("text", "Adjust Transfer and Wage Budget"));
 		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 		JsonElement slider = default;
 		await Until(async () =>
@@ -82,7 +88,7 @@ internal static partial class Program
 			else
 			{
 				Console.Error.WriteLine(L($"'{words[1]}' bir adım değil (0–{high})."));
-				await Fm.Get("click", ("text", "Cancel"));
+				await PressCardButton(keep: false);
 				return 1;
 			}
 		}
@@ -95,13 +101,13 @@ internal static partial class Program
 
 		if (target is not { } chosen || chosen == start)
 		{
-			await Fm.Get("click", ("text", "Cancel"));
+			await PressCardButton(keep: false);
 			if (target == start) Console.WriteLine(L("Bütçe zaten böyle."));
 			return 0;
 		}
 
 		await Fm.Get("setcontrol", ("ptr", pointer), ("value", chosen.ToString()));
-		var kept = await Fm.Get("click", ("text", "Got It"));
+		var kept = await PressCardButton(keep: true);
 		if (kept.StartsWith("error", StringComparison.Ordinal)) return Report(kept);
 
 		// The page's own figures say whether the board took it.
@@ -157,5 +163,36 @@ internal static partial class Program
 		var w = texts.IndexOf("Wage Budget");
 		var t = texts.IndexOf("Transfer Budget");
 		return w >= 0 && t >= 0 && w + 1 < texts.Count && t + 1 < texts.Count ? (texts[w + 1], texts[t + 1]) : (null, null);
+	}
+
+	/// <summary>The tile that opens the card, by the action it stands for
+	/// (InteropEventIDs.ClubBudgetAdjustmentTransfersAndWages). The tiles beside it carry
+	/// actions of their own (ClubBudgetAdjustmentScouting, 1332374646), so the action tells them
+	/// apart where their words — the game's own strings — are only English when the table says so.</summary>
+	private const string BudgetAdjustAction = "1885623898";
+
+	/// <summary>What the card's answer that keeps the step sends (InteropEventIDs.EventFmxBudgetAdjustmentConfirm).</summary>
+	private const string BudgetConfirmEvent = "EventFmxBudgetAdjustmentConfirm";
+
+	/// <summary>
+	/// The card's own two buttons: the answer that keeps the step sends the game's
+	/// EventFmxBudgetAdjustmentConfirm, and the one that drops it is the other button of that same
+	/// panel (the one that only closes it). Both labels ("Got It", "Cancel") are the game's own
+	/// strings run through this language's table, so they are pressed by their pointer; the words
+	/// are kept only as a fallback for a screen this cannot recognise.
+	/// </summary>
+	private static async Task<string> PressCardButton(bool keep)
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
+		var kept = buttons.FirstOrDefault(b => Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
+		if (kept.ValueKind != JsonValueKind.Object) return await Fm.Get("click", ("text", keep ? "Got It" : "Cancel"));
+		if (keep) return await Fm.Get("click", ("ptr", Field(kept, "Pointer")));
+
+		var leave = buttons.FirstOrDefault(b => Field(b, "Page") == Field(kept, "Page")
+		                                        && Field(b, "Events").Contains("ClosePanel", StringComparison.Ordinal)
+		                                        && !Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
+		return leave.ValueKind == JsonValueKind.Object
+			? await Fm.Get("click", ("ptr", Field(leave, "Pointer")))
+			: await Fm.Get("click", ("text", "Cancel"));
 	}
 }
