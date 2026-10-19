@@ -2873,3 +2873,34 @@ derlemeyle **birebir** (`md5` TR `241ea50f…`, EN `f7af385e…`), süre TR 3,83
 `fm intensity --json` TR + EN üç durumda 25 satır ve `md5` birebir (`1a826717…` / `013460b4…`); `sweep.sh` 50/50.
 Aynı madde içinde kalan: `fm open X` (OpenPage) hâlâ açılış bitmeden dönüyor; çağıran, sayfanın hazır olduğunu
 kendi işaretiyle beklemeli (Mesajlar › Mutluluk'ta 1/10 düşme, §8.185) — bu ayrı iş.
+
+### 8.247 Gözlemci seçme penceresinin okuması: sabit 400 ms yerine satırların oturması, başlık sözü yerine satırın kendi sayısı (19 Ekim, TR + EN)
+`cli/fm/ScoutFocus.cs` (`AssignFocusScouts`). İki bağımlılık vardı: (1) `Show()` her kaydırmadan sonra sabit
+`Task.Delay(400)` bekliyordu; (2) `Rows()` satır bölgesini oyunun başlık sözüyle buluyordu
+(`SkipWhile(t => t != "World Knowledge").Skip(1)`).
+- Ölçüm (canlı, pencere açık): pencere (`/form?anchor=Assign Any Scouts&up=8&buttons=1`) 58 öğe; hücrelerin hiçbiri
+  veri yolu taşımıyor — yalnız "Assign Any Scouts" onay kutusu `focusitem.anyscout`a bağlı. Başlık hücresi
+  `/elements` ile: `Button` › `TemplateContainer #TIFO-TableHeaderTemplate` › `#data_display-table-heading-default-default`;
+  gövde satırları `StreamedTable #scouts-table` › `DropTarget #View` altındaki `TableRowNavigatable`lar (satır başına
+  bağ yok). Yani satırlar için CLI düzeyinde hazır bir veri yolu yok.
+- Satırın kendisi zaten işaretli: 3. hücresi "Active Focuses" **sayısı** (tamsayı); başlık bloğunda o hücre sayı değil
+  (Name/Role/Active Focuses/Jud A/Jud P/Ada/World Knowledge → tarama hiç eşleşmiyor), bu yüzden `SkipWhile` kaldırıldı
+  ve `Rows()` doğrudan `texts[i+2]` tamsayı olan `i`leri satır adı sayıyor (satır işareti zaten buydu). "World Knowledge"
+  bugün eklentinin tablo sözü çevirisinden geldiği için her dilde İngilizce; ama artık hiçbir söze bakılmıyor.
+- Kaydırma: `/scroll` satırların kabına gidiyor; üç kaydırma konumunda da satır kümesi ilk okumada aynı
+  (78 / 73 / 87 ms) → 400 ms kör duraklamaydı. Yerine oyunun kendi işareti: satırlar **art arda iki okumada aynı**
+  (boş değil), üst sınır 2 sn (`Until`).
+- Kanıt (üç durum: `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` [EN `Dynamics`]
+  sonrası; iki dil; `fm scout edit 1 --by "ZZZ yok"` = iptal yolu okunan gözlemcileri listeliyor): rc hep 64, stdout
+  boş (`d41d8cd98f00b204e9800998ecf8427e`), stderr **eski derlemeyle birebir** — TR `fc708400b832c3d94035af82890c387f`,
+  EN `b11015ec53078666c1abe1499cce0271`; liste 6 isim (Joe Hutchinson · Kenny Morrison · James Sanderson ·
+  Finlay McKenna · George Herbert · Simon Rowley). `fm scout --json` her koşunun öncesi/sonrası aynı (TR
+  `a62e4f7fd029311158d73cc2bae94f62`, EN `86fe1bcc76180061e6b35cee1def2ac4`) → hiçbir odak kurulmadı/değişmedi.
+- Eski derleme `git stash push -- cli/fm/ScoutFocus.cs` + `dotnet build -c Release`; klasörler
+  `/private/var/…/opencode/t58/{new-tr,new-tr2,old-tr,new-en,new-en2,old-en2}`. Kayıt yalnız okundu; saat 2 Ağustos
+  2026 **09:15**, ilerletilmedi, maç oynanmadı; dil TR'ye döndü (`fm settings dil` → `Türkçe`).
+- Not (tuzak): tur ortasında FM menüsü açılmaz oldu (`texts?anchor=Manage settings for this game` boş; dil ayarı/
+  `fm world` de düştü) — `pkill -9` + `fm start </dev/null` + `fm continue` sonrası kayıt aynı yerden (09:15) yüklendi,
+  aynı çıktılar alındı (§8.236/§8.99).
+- Dokunulmayanlar (aynı pencerede): satırların seçilmesi (`rowselect ?text=<ad>`, ad oyunun sözü), pencereyi açan
+  `Edit Recruitment Focus` ve formu açan `Create a New Recruitment Focus` basışları (kimlik yok, §8.234).

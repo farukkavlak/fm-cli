@@ -45,6 +45,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     0,1–0,2 sn duruyor, `/scroll` konumu ilk okumada doğru → geciken **diziliş**), yani 400 ms'in payı yalnız ~2 kat ve
     yavaş makinede yarım tablo okunup personel eksiliyordu. Artık 0,25 sn arayla üç okuma aynı olana kadar okunuyor.
     TR + EN üç durumda çıktı eski derlemeyle **birebir** (48 personel); bedel ~1,5–2 sn (§8.230).
+  - [x] ScoutFocus (`Show`, gözlemci seçme penceresinin okuması): tablo kaydırıldıktan sonra sabit **400 ms**
+    bekleniyordu; oysa satırlar kaydırmadan hemen sonra yerleşmiş oluyor (ölçüm: üç kaydırma konumunda da satır kümesi
+    ilk okumada — 78/73/87 ms — aynı), yani bekleme kör bir duraklamaydı. Artık satırlar **art arda iki okumada aynı**
+    olana kadar okunuyor (oyunun kendi "yerleşti" işareti, üst sınır 2 sn). Aynı okumadaki **başlık sözü** de kalktı:
+    `Rows()` satırları `SkipWhile(t != "World Knowledge")` ile buluyordu — satırın kendisi zaten 3. hücresindeki
+    "Active Focuses" **sayısıyla** işaretli (başlıklarda o hücre sayı değil); TR 3 + EN 3 durumda okuma eski
+    derlemeyle birebir (`md5` TR `fc708400…`, EN `b11015ec…`), `fm scout --json` koşu öncesi/sonrası aynı (§8.247).
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.
@@ -257,6 +264,12 @@ tablodan çevrilemiyor.
 - [ ] **Cümle parçası arayanlar** (her biri örnek mesaj gelince yola taşınacak):
   - [ ] Program: kaptan eki "to be selected" · yönetim beklentisi "End of" · "Transfers In/Out" · sezon özeti
     "injuries this season" · Coach Report / Player Report " years old" Replace
+  - [x] **Gözlemci/analist seçme penceresinin satırları** (`Rows`, ScoutFocus): satır bölgesi oyunun başlık sözü
+    "World Knowledge" ile bulunuyordu (`SkipWhile(t => t != "World Knowledge").Skip(1)`); pencerenin hücreleri hiçbir
+    veri yolu taşımıyor (ölçüldü: yalnız "Assign Any Scouts" onay kutusu `focusitem.anyscout`a bağlı; gövde satırları
+    `StreamedTable #scouts-table` › `DropTarget #View` altındaki `TableRowNavigatable`lar). Satırın kendisi zaten
+    3. hücresindeki "Active Focuses" sayısıyla belli olduğundan başlık sözü araması kalktı; okuma TR 3 + EN 3 durumda
+    eski derlemeyle birebir (§8.247).
   - [x] **Home-grown (altyapı) kartı:** özet dalı kendini `rest[0] == "Homegrown"` + "Home-Grown Status" ile
     tanıyordu, ama kartın ilk sözü oyunun cümlesi ("Upcoming Status Changes") ve sütun başlığı "Homegrown Status"
     (tiresiz) → dal **iki dilde de** hiç çalışmıyordu, Türkçe ve İngilizce ham döküm veriyordu; satırlar da

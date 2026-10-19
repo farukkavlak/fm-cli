@@ -3,7 +3,29 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 57)
+## Şu an (Tur 58)
+- Madde: **A "`Task.Delay`" / ScoutFocus `Show` (gözlemci seçme penceresinin okuması)** — **BİTTİ** (§8.247):
+  pencerenin satırları okunurken her kaydırmadan sonra sabit **400 ms** bekleniyordu ve satır bölgesi oyunun başlık
+  sözü **"World Knowledge"** ile bulunuyordu (`SkipWhile`). Ölçüm (canlı, pencere açık): satır kümesi kaydırmadan
+  hemen sonra oturmuş (üç konumda ilk okumada aynı, 78/73/87 ms) → bekleme kör duraklamaydı; pencerenin hücreleri
+  hiçbir veri yolu taşımıyor (yalnız "Assign Any Scouts" onay kutusu `focusitem.anyscout`a bağlı; başlık hücresi
+  `#TIFO-TableHeaderTemplate`/`#data_display-table-heading-default-default`, gövde `StreamedTable #scouts-table` ›
+  `DropTarget #View` › `TableRowNavigatable`), ama satırın kendisi 3. hücresindeki "Active Focuses" **sayısıyla**
+  işaretli → `Rows()` artık yalnız `texts[i+2]` tamsayı olan yerleri satır sayıyor, hiçbir söz aramıyor.
+- Kanıt (üç durum = başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / başka sayfaya geçtikten sonra;
+  TR + EN; `fm scout edit 1 --by "ZZZ yok"` iptal yolu okunanları listeliyor): rc hep 64, stdout boş
+  (`d41d8cd9…`), stderr **eski derlemeyle birebir** — TR `fc708400b832c3d94035af82890c387f`, EN
+  `b11015ec53078666c1abe1499cce0271` (6 isim: Joe Hutchinson · Kenny Morrison · James Sanderson · Finlay McKenna ·
+  George Herbert · Simon Rowley). `fm scout --json` koşu öncesi/sonrası aynı (TR `a62e4f7f…`, EN `86fe1bcc…`) →
+  odak kurulmadı. Eski derleme `git stash push -- cli/fm/ScoutFocus.cs` + `dotnet build -c Release`; klasörler
+  `$TMPDIR/opencode/t58/{new-tr,new-tr2,old-tr,new-en,new-en2,old-en2}`.
+- Dönüş/yan etki: kayıt yalnız okundu; 2 Ağustos 2026 **09:15**, saat ilerletilmedi, maç oynanmadı; dil TR'ye döndü
+  (`fm settings dil` → `Türkçe`). Tur ortasında FM menüsü açılmaz oldu (§8.236) → `pkill -9` + `fm start` +
+  `fm continue` ile kayıt aynı yerden yüklendi, ölçümler tekrarlandı. Paylaşılan koda (Bridge/`Until`/OpenPage)
+  dokunulmadı; değişiklik yalnız `cli/fm/ScoutFocus.cs` (yerel `Rows`/`Show`).
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 57)
 - Madde: **A "Alt sayfa açmada sabit 1,5 sn"** (`OpenSubpage`, `cli/fm/Program.cs`) — **BİTTİ** (§8.246):
   ana sayfa açıldıktan sonraki `Task.Delay(1.5s)` yerine oyunun kendi işaretleri. Ölçüm (canlı, eklenti, 4 durum):
   ana sayfa istendikten sonra çubuk **0,16–0,46 sn**'de cevap veriyor (`open?guid=<sayfa>&check=1` hata değil
@@ -811,6 +833,28 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
   (`fm reply` boş/eksik) — Faruk'un 16 Ekim kararıyla park; çözülürse §8.245'in kalan oynaklığı da kapanır (§8.192).
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 58 — A "Task.Delay" / ScoutFocus `Show`: gözlemci penceresinin okuması sabit 400 ms yerine satırların oturması, başlık sözü yerine satırın kendi sayısı (§8.247, 19 Ekim)
+Ne: `cli/fm/ScoutFocus.cs`. `Show()` her kaydırmadan sonra `await Task.Delay(400)` yapıyordu; `Rows()` satır bölgesini
+`view...SkipWhile(t => t != "World Knowledge").Skip(1)` ile buluyordu. Ölçüm (canlı, pencere açık): 58 öğe, hücrelerin
+hiçbiri veri yolu taşımıyor (yalnız `focusitem.anyscout` onay kutusu bağlı); başlık hücresi `Button` ›
+`TemplateContainer #TIFO-TableHeaderTemplate` › `#data_display-table-heading-default-default`, gövde satırları
+`StreamedTable #scouts-table` › `DropTarget #View` › `TableRowNavigatable`. Satırın 3. hücresi "Active Focuses"
+sayısı olduğundan söz araması gereksizdi; kaydırma sonrası satır kümesi ilk okumada oturuyor (78/73/87 ms) → bekleme
+kör duraklamaydı. Yeni: satırlar art arda iki okumada aynı olana kadar okunuyor (`Until`, üst sınır 2 sn), `Rows()`
+tüm sözleri tarayıp `texts[i+2]` tamsayı olan yerleri satır sayıyor.
+- Ölçüm yolu: `/private/var/…/opencode/t58/run.sh <etiket> TR|EN` → s1 `fm open "Messages"` sonrası, s2 hemen ikinci
+  koşu, s3 `fm open "Squad Dynamics"` (EN `Dynamics`) sonrası × `fm scout edit 1 --by "ZZZ yok"` (iptal; okunan
+  gözlemcileri stderr'e yazıyor), her koşunun öncesi/sonrası `fm scout --json`. Ek betikler: `probe*.py` (pencere
+  DOM'u ve kaydırma ölçümü), `cleanup.py` (pencereyi kapatma).
+- Sonuç: **eski derleme** (`git stash push -- cli/fm/ScoutFocus.cs` + `dotnet build -c Release`) ile **birebir** —
+  rc hep 64, stdout boş `d41d8cd98f00b204e9800998ecf8427e`, stderr md5 TR `fc708400b832c3d94035af82890c387f`
+  (new-tr 3/3, old-tr 3/3, new-tr2 3/3), EN `b11015ec53078666c1abe1499cce0271` (new-en 3/3, new-en2 3/3,
+  old-en2 3/3); liste 6 isim. `scout --json` koşu öncesi/sonrası aynı (TR `a62e4f7f…`, EN `86fe1bcc…`).
+- Kayıt/tuzak: kayıt yalnız okundu, 2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı; FM menüsü tur ortasında
+  açılmaz oldu (§8.236) → `pkill -9` + `fm start </dev/null` + `fm continue` (kayıt aynı yerden yüklendi), ölçümler
+  o durumda tekrarlandı; dil TR (`fm settings dil` → `Türkçe`). `sweep.sh` gerekmedi: değişiklik yalnız
+  `ScoutFocus.cs` içinde (yerel `Rows`/`Show`), paylaşılan koda dokunulmadı.
 
 ### Tur 54 — B "yazıyla basma" / recruitment focus formunun "form kapandı" işareti: artık Confirm/Cancel yazısı ve `?anchor=Back` çapası değil, adım düğmelerinin olayı (§8.243, 19 Ekim)
 Ne: `cli/fm/ScoutFocus.cs` — üç yer. `ScoutNew`in `catch` dalı: `FormButton(FocusForm("Next"), "Next") != null ||

@@ -193,10 +193,13 @@ internal static partial class Program
 
 		var any = window.First(i => Field(i, "Kind") == "checkbox");
 		if (Field(any, "Value") == "True") await Fm.Get("setcontrol", ("ptr", Field(any, "Pointer")), ("value", "false"));
-		// A row is a name, a job and how many focuses he is on; the count is what marks it.
+		// A row is a name, a job and how many focuses he is on; the count is what marks it — the
+		// column headings above carry no number in the cell the count sits in — so a row is found
+		// by its own shape and not by the game's word for a heading ("World Knowledge", which the
+		// window only writes in this language).
 		static List<string> Rows(List<JsonElement> view)
 		{
-			var texts = view.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).SkipWhile(t => t != "World Knowledge").Skip(1).ToList();
+			var texts = view.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).ToList();
 			return Enumerable.Range(0, Math.Max(0, texts.Count - 2)).Where(i => int.TryParse(texts[i + 2], out _)).Select(i => texts[i]).ToList();
 		}
 		// The table lays out only the rows in view — at times a single one (FINDINGS §8.128) — so it
@@ -212,7 +215,16 @@ internal static partial class Program
 			var inRow = (await Window()).FirstOrDefault(i => Field(i, "Kind") == "button" && !own.Contains(Field(i, "Pointer")));
 			if (inRow.ValueKind != JsonValueKind.Object) return;
 			await Fm.Get("scroll", ("ptr", Field(inRow, "Pointer")), ("to", share));
-			await Task.Delay(400);
+			// The rows are laid out again after the scroll (FINDINGS §8.128), so the same rows
+			// twice in a row is the game's own sign the layout has stopped moving; no fixed pause.
+			List<string> before = null;
+			await Until(async () =>
+			{
+				var now = Rows(await Window());
+				var done = now.Count > 0 && before != null && now.SequenceEqual(before);
+				before = now;
+				return done;
+			}, seconds: 2, every: 0.2);
 		}
 		var depth = new Dictionary<string, string>();
 		foreach (var share in new[] { "0", "0.5", "1" })
