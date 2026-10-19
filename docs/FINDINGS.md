@@ -2943,3 +2943,30 @@ kendi işaretiyle beklemeli (Mesajlar › Mutluluk'ta 1/10 düşme, §8.185) —
   hepsi aynı, yalnız **Nick Adkins**'in `StatusTitleShort`/`StatusType` alanları henüz bağlanmamıştı; sonraki 3 koşu
   `278f3c93…`. Kalan (aynı ailede): `ApplySearch` 438 (`fm players --max-value`'dan sonra sabit 1200 ms) ve
   `PanelButton("Apply"/"Cancel")`in yazı yedeği.
+
+### 8.249 `fm players --max-value`: figür seçildikten sonraki sabit 1200 ms yerine listenin tuttuğu ham sayı (19 Ekim, TR + EN)
+`ApplySearch` (StaffSearch.cs 407) `--max-value` figürünü listeden seçtikten sonra `await Task.Delay(1200)` yapıyordu.
+Ölçüm (canlı, panel açık): figürü taşıyan liste kendi `Value` alanını (`/dropdowns?json=1`, ham sayı dizesi: `"500000"`)
+seçimden sonra **bir yoklamada** gösteriyor (`select` dönüşü 37–132 ms; `Value` hedefe ulaşma 61–131 ms) — yani 1200 ms
+tamamen kör bir duraklamaydı. İz (`FM_TRACE=1`): eski derlemede `select ?ptr=…&choice=500B £` 7,42 sn'de bitiyor,
+sıradaki çağrı 8,63 sn → **1,21 sn boşluk**; yeni derlemede `select` 7,36 sn, `dropdowns ?json=1` hemen ardından,
+`buttons ?json=1&gen=1` 7,61 sn.
+- Artık bekleme oyunun kendi işareti: liste seçilen figürü **tutuyor** (`Value == maxValue`), üst sınır 4 sn / 0,25 sn
+  aralık; oturmazsa `error: <figür> değeri panele oturmadı` + panel kapanır. Seçim komutunun kendisi "no events to
+  send" diyor (bu liste olaysız), eskisi gibi yok sayılıyor. Liste, başka bir dile/para biçimine bağlı olmayan bir
+  kuralla bulunuyor: seçenekleri arasında 7.500.000 ham değeri olan liste.
+- Kanıt (üç durum: `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` [EN `Dynamics`]
+  sonrası; iki dil; eski derleme `git stash push -- cli/fm/StaffSearch.cs` + `dotnet build -c Release`):
+  `fm players --max-value 500K --json` **oturmuş durumda TR'de eski ve yeni derleme üç durumda da birebir**
+  (`md5 b8ffd0a52a89f7e3f706c9a98ec78d97`, 70 satır; EN oturmuş `83aed8ac1c686dbdf185050f5780638f`).
+  Dil geçişinden hemen sonraki ilk koşularda tablo geçici olarak kısa geliyor (22 satır) — aynı kısalık **eski
+  derlemede de** var (§8.239/§8.194); bu yüzden karşılaştırma hem oturmuş md5'lerle hem de **veri** karşılaştırmasıyla
+  yapıldı: satır kümesi ve bütün alanlar iki dilde, altı durumda **özdeş** (ham metin md5'i yalnız bağlanma sırası
+  değiştiği için oynuyor; aynı isimli satırların JSON'u birebir). `--max-value 20K` yeni derlemede 22 satır ve hepsi
+  20B £ sınırının altında → değer Apply'dan önce gerçekten panele oturuyor; `--max-value "abc"` rc=64 ("para olmalı").
+- Not: değişiklik `StaffSearch.cs` içindeki `ApplySearch`in yalnız `--max-value` dalında; `ApplySearch`i yalnız
+  `fm players` çağırıyor (`Reads.cs:804`), paylaşılan koda dokunulmadı. `sweep.sh` 50 komut, 0 hata. Regresyon:
+  `fm players "Aaron" --attr "Pace>=15"`, `--max-value 500K --role "Goalkeeper"`, `--age 18-23` rc=0.
+  Bir kerelik aksaklık (bu turun işiyle ilgisiz): `fm players --max-value 300K` bir kez `error: no control labelled
+  'Clear' on the loaded screens` ile rc=1 verdi (Clear basışı `ApplySearch`ten **önce**, §8.236 ailesi); tekrarında
+  rc=0. Aynı panelde kalan: `PanelButton("Apply"/"Cancel")`in yazı yedeği (asıl yol `PanelSent`, §8.239) — ayrı alt madde.

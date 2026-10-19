@@ -3,7 +3,31 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 59)
+## Şu an (Tur 60)
+- Madde: **A "`Task.Delay`" / StaffSearch 407** (`ApplySearch`: `fm players --max-value` figürü listeden seçildikten
+  sonraki sabit **1200 ms**) — **BİTTİ** (§8.249). Bekleme oyunun kendi işaretine bağlandı: figürü taşıyan liste
+  (choices'ında 7,5M olan, dil/biçim bağımsız bulunan liste) kendi **ham değerini** (`Value`) seçilen figür gösterene
+  kadar `Until` (üst sınır 4 sn / 0,25 sn aralık); oturmazsa "… değeri panele oturmadı" + panel kapanır. Seçimin
+  kendisi "no events to send" diyor (liste olaysız) — eskisi gibi yok sayılıyor.
+- Ölçüm (canlı): `select` dönüşü 37–132 ms ve liste `Value`'yu hedefe **61–131 ms**'de getiriyor → 1200 ms kör
+  duraklama. İz (FM_TRACE=1): eski `select ?ptr=…&choice=500B £` 7,42 sn → sıradaki çağrı 8,63 sn (1,21 sn boşluk);
+  yeni `select` 7,36 sn → `dropdowns ?json=1` hemen → `buttons ?json=1&gen=1` 7,61 sn.
+- Kanıt: `fm players --max-value 500K --json`, üç durum (başka sayfa açık `fm open "Messages"` sonrası / hemen
+  ikinci koşu / `fm open "Squad Dynamics"` [EN `Dynamics`] sonrası) × iki dil, eski derleme
+  (`git stash push -- cli/fm/StaffSearch.cs` + `dotnet build -c Release`): **oturmuş TR üç durumda da birebir**
+  (`md5 b8ffd0a5…`, 70 satır; EN oturmuş `83aed8ac…`). Dil geçişinden hemen sonraki ilk koşular geçici kısa tablo
+  veriyor (22 satır) — **eski derlemede de aynı** (§8.239/§8.194); bu yüzden karşılaştırma hem oturmuş md5'lerle hem
+  **veri** karşılaştırmasıyla (satır kümesi + bütün alanlar) yapıldı: altı durumda özdeş. `--max-value 20K` yeni
+  derlemede 22 satır, hepsi 20B £ sınırının altında. Betik: `…/t60/run.sh`, `checks.py`, klasörler `before-tr`,
+  `before2-tr`, `after-tr`, `after2-tr`, `before-en`, `after-en`; izler `/tmp/tr_old.txt`, `/tmp/tr_new.txt`.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı); oyuncu arama
+  sayfası `fm players --clear` ile süzgeçsiz bırakıldı; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile
+  geri alındı (`fm settings dil` → `dil`). `ApplySearch`i yalnız `fm players` çağırıyor (`Reads.cs:804`); yine de
+  `sweep.sh` koşuldu.
+- Kalan (aynı panelde): `PanelButton("Apply"/"Cancel")`in yazı yedeği (asıl yol `PanelSent`, §8.239) — ayrı alt madde.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 59)
 - Madde: **A "`Task.Delay`" / StaffSearch 91 100 110** (`fm staff find --role/--free/--reputation` panelinin listeleri)
   — **BİTTİ** (§8.248). Panelin üç kuralı **seçenek sözüyle** bulunuyordu (`Has(d, "Medical ›")`, `"By Nation"`,
   `"Exceptional"`) ve her seçimden sonra sabit **500 ms** bekleniyordu. Türkçe oyunda çalışma durumu listesinin

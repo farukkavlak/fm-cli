@@ -64,8 +64,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     (üç kural birlikte `dc9c9659…`), TR'de `--role`/`--reputation` birebir (`278f3c93…` = eski s3, `8830aae3…`),
     `--free` ve üç kural birlikte eskiden rc=134 → **rc=0** (70 satır, EN'le aynı küme; `Aramayı Düzenle (1)`),
     negatifler rc=64 (§8.248).
-  - [ ] StaffSearch 407 (`ApplySearch`: `fm players --max-value` seçildikten sonra sabit 1200 ms) ve
-    `PanelButton("Apply"/"Cancel")`in yazı yedeği — ayrı alt madde.
+  - [x] StaffSearch 407 (`ApplySearch`: `fm players --max-value` seçildikten sonra sabit 1200 ms): süre oyunun kendi
+    işaretine bağlandı — figürü taşıyan listenin **tuttuğu ham sayı** (`Value`) seçilen olana kadar (üst sınır 4 sn,
+    0,25 sn aralık), oturmazsa dürüst hata + panel kapanır. Ölçüm: seçim dönüşünde liste kendi `Value`'sunu bir
+    yoklamada (61–131 ms) zaten gösteriyor → 1200 ms kör duraklamaydı (iz: eski `select` → 1,21 sn boşluk → `buttons`;
+    yeni `select` → `dropdowns` → `buttons`). TR + EN, üç durumda `fm players --max-value 500K --json` eski derlemeyle
+    **birebir** (oturmuş TR `md5 b8ffd0a5…` üç durumda da; satır kümesi + alanlar özdeş, ham metin md5'i bağlanma
+    sırasına göre oynuyor; EN oturmuş `83aed8ac…`), `--max-value 20K` 22 satır ve hepsi sınırın altında (§8.249).
+    Kalan: `PanelButton("Apply"/"Cancel")`in yazı yedeği (asıl yol `PanelSent`, §8.239) — ayrı alt madde.
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.

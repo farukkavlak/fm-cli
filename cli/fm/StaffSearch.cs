@@ -450,7 +450,10 @@ internal static partial class Program
 			if (amounts.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").FirstOrDefault(c => Money(c) == maxValue) is not { } figure)
 				return await Close(L($"error: değer listesinde {MoneyFormat.Short(maxValue.Value)} yok"));
 			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", figure), ("fire", "1"));
-			await Task.Delay(1200);
+			// Not a fixed pause: the list says what it now holds. Its bound figure is the raw
+			// number, whatever the money is written like, so it is read there.
+			if (!await Until(async () => (await Amounts()) is { ValueKind: JsonValueKind.Object } now && Field(now, "Value") == maxValue.Value.ToString(), seconds: 4, every: 0.25))
+				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} değeri panele oturmadı"));
 		}
 
 		if (await PanelButton("Apply") is not { } apply) return await Close("error: arama panelinde Apply yok");
