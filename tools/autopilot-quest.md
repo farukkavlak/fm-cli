@@ -3,7 +3,36 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 55)
+## Şu an (Tur 56)
+- Madde: **B "Cümle parçası arayanlar" / home-grown (altyapı) kartı** (Program.cs `WriteAttachment`) — **BİTTİ**
+  (§8.245): özet dalı kendini `rest[0] == "Homegrown" && rest.Contains("Home-Grown Status")` ile tanıyordu; ama
+  kartın ilk sözü **oyunun kendi cümlesi** ("Upcoming Status Changes") ve sütun başlığı canlıda "Homegrown Status"
+  (tiresiz) → dal **TR'de de EN'de de** hiç çalışmıyordu, mesaj ham döküm veriyordu; satırlar ayrıca
+  `rest[i+1].EndsWith("years old")` ile bulunuyordu (TR "19 yaşında" → hiç eşleşmez).
+- Ne yapıldı: kart artık oyunun **kendi bölüm başlığıyla** (`Upcoming Status Changes`) tanınıyor; satırlar oyunun
+  bağladığı **veri yolundan** okunuyor — satır `binding.Name` ile başlar, ardından yaş, ülke, kadro, statü, tarih
+  gelir; satır **3. `binding` hücresinde kesilir** (kartın yanındaki panel de yazı taşıyor: son satırda o panel
+  satıra sızıyordu). Sütunlar sırayla bağlandığı için okuma oyunun kendi işaretiyle yineleniyor: bütün satırlar beş
+  hücreli olana kadar (`OpenMessage` ile yeniden okuma, 12 × 250 ms üst sınır) — sabit süre yok.
+- Kanıt (canlı, `fm open "Squad Dynamics"` sonrası `fm reply "<konu>"`): **yeni derleme** TR 4 koşunun 3'ünde
+  birebir `md5 aa45275675be3b9694c33e268e53631a`, 12/12 satır (`Zane Okoro (19, USA, As Takım) — 30/6/2027 (kulüp 15-21)` …
+  `John Blair-Henry (16, ENG, U-18) — …`); EN 3 koşunun 2'sinde birebir `md5 424f3646599cf300e81ad7fedabdce5f`, 12/12
+  (`Zane Okoro (19, USA, Senior) — 30/6/2027 (club 15-21)`). **Eski derleme** (`git stash push cli/fm/Program.cs` +
+  `dotnet build -c Release`) aynı durumda **hiç satır vermiyor**, başlığı ve yan paneli tek satıra yayıyordu
+  (`md5 be2c6235235c02eb0c367f67a27ac1cf` / `00d691986fbc38e117a0ae9ff4ad7d39`).
+- Üç durum / dil notu: ölçüm "başka sayfa açık → `reply`" durumunda yapıldı (üç dil-durum eşdeğeri: `fm open` ile
+  sayfa değiştirilip mesaj yeniden açılıyor). Kalan oynaklık **paylaşılan** okumadan: `WriteAttachment`ın 1,5 sn'si
+  bazen eki hiç yakalamıyor (`Konusunda 'Yetiştirilmiş' geçen mesaj yok` ya da yalnız başlık) — §8.192'nin Faruk
+  kararıyla park ettiği iş; bu değişiklik onu iyileştirmiyor, yalnızca **yakalanan** okumada doğru satırları veriyor
+  (eski kod yakalanan okumada bile ham döküm veriyordu, yani her hâlde daha iyi).
+- Negatif: `fm reply "Kondisyon"` ve veri merkezi mesajları eski derlemeyle **birebir**; `fm settings dil English`
+  ile EN ölçüldü, sonunda `fm settings language "Türkçe"` ile dil geri alındı (`fm settings dil` → `Türkçe`).
+  Oyunda saat ilerletilmedi (2 Ağustos 2026 14:00), maç oynanmadı, mesajlar yalnız okundu; `sweep.sh` 50/50 (§8.245).
+- Not: değişiklik yalnız `cli/fm/Program.cs` içinde; `reply`in ortak ek okuyucusuna dokunulduğu için `sweep.sh`
+  koşuldu (oyun maç arasında).
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 55)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / gözlemci seçme penceresinin `Cancel`/`Confirm`i**
   (`AssignFocusScouts` → `Close`) — **BİTTİ** (§8.244): pencere TR oyununda İngilizce gelen "Cancel"/"Confirm"
   yazısıyla bulunuyordu (`FormButton(await Window(), "Cancel"/"Confirm")`), satır düğmelerini seçen `Show` de
@@ -757,6 +786,8 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
 - B haber "Portugal" / "Defence (Core)": elde örnek mesaj yok, yeniden üretilemedi (§8.226 öncesi).
 - D `up=N` (76 yer) ve sayfa GUID'leri (36 sabit): skin/güncelleme bağımlılığı, baştan sona tarama işi.
 - D `Penalties` "MAÇA" sütunu: eklenti alanı ya da maske çevirisi kararı Faruk'un (§8.218).
+- B mesaj eki okumasının 1,5 sn'si (`WriteAttachment`): home-grown kartı dahil eki kimi koşuda hiç yakalamıyor
+  (`fm reply` boş/eksik) — Faruk'un 16 Ekim kararıyla park; çözülürse §8.245'in kalan oynaklığı da kapanır (§8.192).
 
 ## Ölçülen kanıt (tur tur)
 

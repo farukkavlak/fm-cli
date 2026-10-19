@@ -250,7 +250,16 @@ tablodan çevrilemiyor.
 - [x] Maç içi `sub` / `tactic role`: kulübeyi açan satırın yazısı Türkçede hiç gelmiyor → menüler ve kulübe yapıyla.
 - [ ] **Cümle parçası arayanlar** (her biri örnek mesaj gelince yola taşınacak):
   - [ ] Program: kaptan eki "to be selected" · yönetim beklentisi "End of" · "Transfers In/Out" · sezon özeti
-    "injuries this season" · home-grown "years old" · Coach Report / Player Report " years old" Replace
+    "injuries this season" · Coach Report / Player Report " years old" Replace
+  - [x] **Home-grown (altyapı) kartı:** özet dalı kendini `rest[0] == "Homegrown"` + "Home-Grown Status" ile
+    tanıyordu, ama kartın ilk sözü oyunun cümlesi ("Upcoming Status Changes") ve sütun başlığı "Homegrown Status"
+    (tiresiz) → dal **iki dilde de** hiç çalışmıyordu, Türkçe ve İngilizce ham döküm veriyordu; satırlar da
+    `EndsWith("years old")` ile bulunuyordu (TR "19 yaşında" → eşleşmez). Artık kart oyunun kendi bölüm başlığıyla
+    tanınıyor, satırlar oyunun bağladığı **veri yolundan** (`binding.Name`; ardından yaş, ülke, kadro, statü, tarih —
+    satır 3. `binding` hücresinde kesiliyor, yan panel dışarıda) okunuyor ve sütunlar bağlandıkça okuma oyunun
+    kendi işaretiyle yineleniyor. TR 3/4 koşuda birebir `md5 aa452756…` (12/12 satır), EN 2/3 koşuda
+    `md5 424f3646…` (12/12); eski derleme hiç satır vermiyordu (§8.245). Kalan oynaklık §8.192'nin park ettiği
+    1,5 sn'lik ek okumasından; negatif komşu mesajlar birebir, `sweep.sh` 50/50.
   - [x] `player --career` tablosunun satırları başlık yazısıyla değil satırın kendi ilk hücresiyle (sezon,
     `2026/27`) bulunuyor: `start` `IndexOf("Avg Rat")` ile aranıyordu, ama başlık iki dilde iki ayrı İngilizce
     geliyor (`Info`/`Avg Rat` ↔ `Information`/`Avg. Rating`), Türkçede `start` 0'a düşüp komut

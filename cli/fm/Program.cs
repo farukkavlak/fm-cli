@@ -1418,28 +1418,42 @@ internal static partial class Program
 		}
 
 		// Who has just become home-grown and who is about to, each with his age, nation and squad.
-		if (rest[0] == "Homegrown" && rest.Contains("Home-Grown Status"))
+		// The card names itself by the game's own section heading; its rows are the players the game
+		// binds ("binding.Name"), each followed by his age, nation, squad, status and date — so neither
+		// the heading nor the age's sentence ("19 years old" / "19 yaşında") is read. The columns bind
+		// one after another, so the read is taken again until every row has its five cells.
+		if (rest.Contains("Upcoming Status Changes"))
 		{
-			Console.WriteLine(L("\n  Ek: altyapı (home-grown) statüsü"));
-			var changes = rest.IndexOf("Upcoming Status Changes");
-			var registration = rest.IndexOf("Squad Registration");
-			var end = registration > 0 ? registration : rest.Count;
-			void Rows(int from, int to, int width, string title)
+			List<(string Name, List<string> Cells)> Rows() 
 			{
-				var lines = new List<string>();
-				for (var i = from; i + width - 1 < to; i++)
+				var rows = new List<(string, List<string>)>();
+				for (var i = 0; i < page.Count; i++)
 				{
-					if (!rest[i + 1].EndsWith("years old", StringComparison.Ordinal)) continue;
-					var said = string.Join(" · ", rest.Skip(i + 4).Take(width - 4).Where(t => t != "-"));
-					lines.Add($"      {rest[i]} ({rest[i + 1].Split(' ')[0]}, {rest[i + 2]}, {rest[i + 3]}){(said.Length > 0 ? $" — {said}" : "")}");
-					i += width - 1;
+					if (page[i].Path != "binding.Name") continue;
+					var cells = new List<(string Text, string Path)>();
+					for (var j = i + 1; j < page.Count && page[j].Path != "binding.Name"; j++) cells.Add(page[j]);
+					// The panel beside the card (the squad's own lines) follows the last row; a row is
+					// cut at its third bound cell (its squad, status and date are the bound ones).
+					var ended = cells.FindIndex(c => c.Path == "binding") is var first && first >= 0
+						&& cells.FindIndex(first + 1, c => c.Path == "binding") is var second && second >= 0
+						? cells.FindIndex(second + 1, c => c.Path == "binding") + 1 : 0;
+					rows.Add((page[i].Text, ended > 0 ? cells.Take(ended).Select(c => c.Text).ToList() : []));
 				}
-				if (lines.Count == 0) return;
-				Console.WriteLine($"    {title}");
-				foreach (var line in lines) Console.WriteLine(line);
+				return rows;
 			}
-			Rows(1, changes > 0 ? changes : end, 5, L("Statü kazananlar"));
-			if (changes > 0) Rows(changes + 1, end, 6, L("Yaklaşan değişiklikler (statü · tarih)"));
+			var rows = Rows();
+			for (var attempt = 0; attempt < 12 && (rows.Count == 0 || rows.Any(r => r.Cells.Count != 5)); attempt++)
+			{
+				await Task.Delay(250);
+				if (await OpenMessage(title, t => t.Path == "binding.Name", seconds: 3) is { Count: > 0 } filled) page = filled;
+				rows = Rows();
+			}
+			Console.WriteLine(L("\n  Ek: altyapı (home-grown) statüsü"));
+			foreach (var (who, cells) in rows.Where(r => r.Cells.Count == 5))
+			{
+				var said = string.Join(" · ", cells.Skip(3).Where(t => t != "-"));
+				Console.WriteLine($"      {who} ({cells[0].Split(' ')[0]}, {cells[1]}, {cells[2]}){(said.Length > 0 ? $" — {said}" : "")}");
+			}
 			return;
 		}
 

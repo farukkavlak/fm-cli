@@ -2841,3 +2841,21 @@ karşılaştırılamıyor — birebir karşılaştırma EN'de yapıldı). İz: e
 buttons=1` (yazı) → yeni `buttons ?json=1&gen=1` (olay); basış iki derlemede de `click ?ptr=`. Yan not:
 `scout edit <#>` her onayda oyunun eski kaydı listede 'Complete' bırakması yüzünden liste kayıyor, o yüzden
 aynı numara başka bir odağı gösterebiliyor (ölçümün doğal sonucu: birkaç odak kaydı daha kuruldu).
+
+### 8.245 Home-grown (altyapı) kartı: satırlar artık yol + oyunun işaretiyle okunuyor, başlık/yazı araması kalktı (19 Ekim, TR + EN)
+"Yetiştirilmiş oyuncular güncellemesi" mesajının eki (`reply`) Türkçede ve İngilizcede ham bir dökümdü: özet dalı
+`rest[0] == "Homegrown" && rest.Contains("Home-Grown Status")` ile kendini tanıyordu ama kartın ilk sözü oyunun kendi
+cümlesi ("Upcoming Status Changes") ve sütun başlığı da "Homegrown Status" (tire yok) — yani dal **her iki dilde de**
+hiç çalışmıyordu; ayrıca satırlar `rest[i+1].EndsWith("years old")` ile bulunuyordu (TR'de "19 yaşında" → hiç eşleşmez).
+Artık kart oyunun kendi bölüm başlığıyla (`Upcoming Status Changes`) tanınıyor ve satırlar oyunun bağladığı veri
+yolundan okunuyor (`binding.Name` ile başlar; ardından yaş, ülke, kadro, statü, tarih gelir — satırın sonu 3. `binding`
+hücresinde kesilir, çünkü kartın yanındaki panel de yazı taşır). Bu, hem başlığı hem yaş cümlesini dilden bağımsız kılar.
+Sütunlar sırayla bağlandığı için okuma oyunun kendi işaretiyle (satırların beşi de dolana kadar) yineleniyor; sabit süre yok.
+Ölçüm (canlı, TR + EN, `fm open "Squad Dynamics"` sonrası `fm reply "<konu>"`): **yeni derleme** TR'de 4 koşunun 3'ünde
+birebir `md5 aa45275675be3b9694c33e268e53631a` (12/12 satır: `Zane Okoro (19, USA, As Takım) — 30/6/2027 (kulüp 15-21)` …),
+EN'de 3 koşunun 2'sinde birebir `md5 424f3646599cf300e81ad7fedabdce5f` (12/12 satır); **eski derleme** (git stash +
+`dotnet build`) aynı durumda hiç satır vermiyor, başlığı ve yan paneli tek satıra yayıyordu
+(`md5 be2c6235235c02eb0c367f67a27ac1cf` / `00d691986fbc38e117a0ae9ff4ad7d39`). Kalan oynaklık paylaşılan okumadan
+geliyor: `WriteAttachment`ın 1,5 sn'si bazen eki hiç yakalamıyor (mesaj bulunamadı / ek gelmedi) — §8.192'nin park
+ettiği iş; bu değişiklik onu iyileştirmiyor, yalnızca yakalanan okumada doğru satırları veriyor. Negatif: komşu mesajlar
+(`Kondisyon testleri`, veri merkezi) eski derlemeyle birebir; `sweep.sh` 50/50.
