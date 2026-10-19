@@ -2754,3 +2754,17 @@ Kayıt durumu: kayıt yalnız **okundu**, hiçbir şey yazılmadı; sayfanın ar
 `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish). Regresyon: `tools/sweep.sh` → 50 komut, 0 hata;
 aynı `ApplySearch`i kullanan `fm players "Aaron" --attr "Pace>=15"` (Reads.cs 802) iki derlemede **birebir**
 (`md5 d8cd16daa30d08417f6a34d9007d3e6e`, rc=0).
+
+### 8.240 `fm players` arama paneli artık yazıyla değil oyunun bağladığı yollarla okunuyor (19 Ekim, TR + EN)
+Panel `form ?anchor=Apply&up=8` ile, yani **düğmenin İngilizce sözüyle** bulunuyordu; `/form?anchorpath=` ile
+oyunun bağladığı başlık (`filter.FilterRulePlayerPosition.Name`) **birebir aynı 55 öğeyi** veriyor (ölçüldü), yani
+kelimeye gerek yoktu. Kurallar da kendi denetimlerinin yazdığı yoldan bulunuyor (`filter.filterruleage.minvalue`,
+`Filter.FilterRuleScoutingGrade.MinValue`, `filter.filterrulecontract.filtervalue`,
+`filter.filterruletransferstatus.filtervalue`, `filter.filterruleloanstatus.filtervalue`, `filter.FilterRuleIpRole.filtervalue`)
+ve satırın iki denetimi `rule.selectedcompareflag` / `rule.minvalue`: "Is At Least", "20" gibi İngilizce seçenek sözleri
+kalktı. Bunun **gerçek** sonucu: TR oyunda başlık "Aged Between (Yıl Olarak)" geldiği için `fm players --age 18-23`
+üç durumda da rc=1 `error: arama panelinde 'Aged Between (Years)' yok` veriyordu (eski derleme), şimdi rc=0.
+Aynı kayıtta ölçüldü: `--attr`/`--grade`/`--role`/`--max-value` iki derlemede birebir (md5'ler §8.239'un arkasında,
+quest defteri Tur 51). Dil geçişinden hemen sonraki koşularda tablo yine kısa geliyor (22/25 satır; eski derlemede
+de aynı — §8.239 yan bulgusu), ölçüm oturmuş durumlar karşılaştırıldı. Panelde kalan: `PanelButton`in yedeği hâlâ
+yazıyla (asıl yol `PanelSent`, §8.239) ve `Row()`in satır adı, niteliğin oyunun menüsünden gelen kendi sözü.

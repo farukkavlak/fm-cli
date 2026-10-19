@@ -426,7 +426,23 @@ tablodan çevrilemiyor.
     `Text == "Cancel"` yerine `PanelSent(apply)` geçti (iki çağrı yeri), kimlik yoksa eskisi gibi yazıya düşülüyor.
     TR + EN, üç durum × iki yol (`--role "Coach"` / `--role "zzz yok"`) eski derlemeyle **birebir** (`md5`), izde
     `click ?ptr=…` (§8.239). Panelin **okuma** yolu (`Under`/`Row`) hâlâ `form ?anchor=Apply` ile kelimeyle çapalı —
-    sıradaki alt madde.
+    sıradaki alt madde. **→ Tur 51'de yapıldı (aşağıda).**
+  - [x] `fm players` arama panelinin **okuma** yolu artık yazıyla çapalı değil: panel `form ?anchorpath=` ile oyunun
+    bağladığı başlıktan (`filter.FilterRulePlayerPosition.Name`, eski `?anchor=Apply` ile **birebir** aynı 55 öğe),
+    her kural kendi denetiminin yazdığı veri yolundan (`filter.filterruleage.minvalue`,
+    `filter.FilterRuleScoutingGrade.MinValue`…) ve satırın iki denetimi (`rule.selectedcompareflag`, `rule.minvalue`)
+    kendi yollarından bulunuyor; "Is At Least"/"20" gibi İngilizce seçenek sözleri kalktı. `Under` artık kuralın
+    **yolunu** alıyor (`Reads.cs`), yazı yalnız kullanıcının gördüğü ad olarak kaldı. Kanıt (TR, üç durum, eski
+    derleme `git stash` + `dotnet build -c Release`): `fm players "Aaron" --age 18-23` **eskiden** rc=1
+    `error: arama panelinde 'Aged Between (Years)' yok` (TR'de başlık "Aged Between **(Yıl Olarak)**" geliyor, üç
+    durumda da boş çıktı `md5 d41d8cd9…`) → **şimdi** rc=0, 70 satır (`e810bfd7…` / `931742e6…`); `--attr "Pace>=15"`
+    (`a5e61246…`/`93f620f1…`), `--grade "B+"` (`718b654d…`, üç durumda da), `--role "Goalkeeper"` (`5c72cb45…`),
+    `--max-value 500K` (`de8b428c…`) iki derlemede **birebir** (s1/s3), hepsi rc=0. EN: oturmuş durumda `--attr`
+    `6f67b7f5…`, `--age` `51c9d225…`, `--grade` `db9d5183…` — yeni derlemenin s1/s3'ü eski derlemenin s3'üyle
+    birebir (§8.240). Dil geçişinden hemen sonraki koşular yine kısa tablo veriyor (22/25 satır; eski derlemede de
+    aynı, §8.239 yan bulgusu) — ölçüm zinciri bu yüzden oturmuş durumlar karşılaştırıldı.
+    Aynı panelde kalan: `PanelButton("Apply"/"Cancel")`in **yedeği** hâlâ yazıyla (asıl yol `PanelSent`, §8.239) ve
+    `Row()`in satır adı eşleşmesi niteliğin oyunun menüsünden gelen **kendi sözüyle** (sabit İngilizce değil).
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

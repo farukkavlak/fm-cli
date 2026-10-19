@@ -249,7 +249,15 @@ internal static partial class Program
 		return sent.ValueKind == JsonValueKind.Object ? Field(sent, "Pointer") : null;
 	}
 
-	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted,
+	// The player search panel, read by the data paths the game binds its controls to instead of by
+	// the words on it, which another language changes: the panel itself by a heading it binds
+	// ("Position"), each rule by the path its own control writes, and an attribute row's name and
+	// its two controls ("rule.…") among the panel's items.
+	private const string SearchPanel = "filter.FilterRulePlayerPosition.Name";
+	private const string SearchCompare = "rule.selectedcompareflag";
+	private const string SearchValue = "rule.minvalue";
+
+	private static async Task<string> ApplySearch(List<(string Rule, string Choice, string What)> wanted,
 		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null, long? maxValue = null)
 	{
 		// What can be told to be wrong from the words alone is said before the panel is opened.
@@ -267,11 +275,11 @@ internal static partial class Program
 		if (edit.ValueKind != JsonValueKind.Object) return L("error: sayfada arama paneli butonu yok");
 		await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
 
-		async Task<JsonElement?> Under(string heading)
+		async Task<JsonElement?> Under(string rule)
 		{
-			var items = (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"))).EnumerateArray().ToList();
-			for (var at = 0; at + 1 < items.Count; at++)
-				if (Field(items[at], "Kind") == "text" && Field(items[at], "Text") == heading && Field(items[at + 1], "Kind") == "dropdown") return items[at + 1];
+			var items = (await Fm.GetJson("form", ("anchorpath", SearchPanel), ("up", "8"))).EnumerateArray().ToList();
+			foreach (var item in items)
+				if (Field(item, "Kind") == "dropdown" && string.Equals(Field(item, "Binds"), rule, StringComparison.OrdinalIgnoreCase)) return item;
 			return null;
 		}
 		// The panel's own Apply and Cancel stand for the same event; the one that keeps what was set
@@ -280,7 +288,7 @@ internal static partial class Program
 		// beside each other, by the words on them, as before.
 		async Task<string> PanelButton(string label) =>
 			await PanelSent(label == "Apply")
-			?? (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray()
+			?? (await Fm.GetJson("form", ("anchorpath", SearchPanel), ("up", "8"), ("buttons", "1"))).EnumerateArray()
 				.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == label).Select(i => Field(i, "Pointer")).LastOrDefault();
 		async Task<string> Close(string error)
 		{
@@ -297,11 +305,11 @@ internal static partial class Program
 			return found;
 		}
 
-		foreach (var (heading, typed, what) in wanted)
+		foreach (var (rule, typed, what) in wanted)
 		{
 			JsonElement? list = null;
-			await Until(async () => (list = await Under(heading)) != null, seconds: 6, every: 0.4);
-			if (list == null) return await Close(L($"error: arama panelinde '{heading}' yok"));
+			await Until(async () => (list = await Under(rule)) != null, seconds: 6, every: 0.4);
+			if (list == null) return await Close(L($"error: arama panelinde '{what}' yok"));
 			var choices = list.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 			// A number typed is the choice itself (an age), not its place in the list.
 			var choice = choices.FirstOrDefault(c => string.Equals(c, typed, StringComparison.OrdinalIgnoreCase)) ?? Choose(choices, typed, what);
@@ -310,7 +318,7 @@ internal static partial class Program
 
 			var picked = await Fm.Get("select", ("ptr", Field(list.Value, "Pointer")), ("choice", choice), ("fire", "1"));
 			if (picked.StartsWith("error", StringComparison.Ordinal)) return await Close(picked);
-			if (!await Until(async () => await Under(heading) is { } now && Field(now, "Label") == choice, seconds: 4, every: 0.4))
+			if (!await Until(async () => await Under(rule) is { } now && Field(now, "Label") == choice, seconds: 4, every: 0.4))
 				return await Close(L($"error: {what}: '{choice}' seçildi ama panel tutmadı"));
 		}
 
@@ -337,29 +345,31 @@ internal static partial class Program
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{attributes.First(a => a.Name == name).Group}>{name}"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
 
-			// The row just added is the last one that names the attribute.
+			// The row just added is the last one that names the attribute; its two controls are the
+			// dropdowns of that row, told by the paths they write, not by the words in them.
 			async Task<(List<JsonElement> Items, int At)> Row()
 			{
-				var items = (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
+				var items = (await Fm.GetJson("form", ("anchorpath", SearchPanel), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
 				return (items, items.FindLastIndex(i => Field(i, "Kind") == "text" && Field(i, "Text") == name));
 			}
+			bool Compare(JsonElement i) => Field(i, "Kind") == "dropdown" && string.Equals(Field(i, "Binds"), SearchCompare, StringComparison.OrdinalIgnoreCase);
 			(List<JsonElement> Items, int At) row = default;
-			if (!await Until(async () => (row = await Row()).At >= 0 && row.Items.Skip(row.At).Any(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Is At Least")), seconds: 5, every: 0.4))
+			if (!await Until(async () => (row = await Row()).At >= 0 && row.Items.Skip(row.At).Any(Compare), seconds: 5, every: 0.4))
 				return await Close(L($"error: {name} koşulu panele eklenmedi"));
 
 			JsonElement Next(Func<JsonElement, bool> fits) => row.Items.Skip(row.At + 1).FirstOrDefault(fits);
-			var how = Next(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Is At Least"));
+			var how = Next(Compare);
 			var wantedHow = atLeast ? "Is At Least" : "Is At Most";
 			if (Field(how, "Label") != wantedHow)
 			{
 				await Fm.Get("select", ("ptr", Field(how, "Pointer")), ("choice", wantedHow), ("fire", "1"));
-				await Until(async () => (row = await Row()).At >= 0 && Field(Next(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Is At Least")), "Label") == wantedHow, seconds: 4, every: 0.4);
+				await Until(async () => (row = await Row()).At >= 0 && Field(Next(Compare), "Label") == wantedHow, seconds: 4, every: 0.4);
 			}
 
 			// The value: the nearest of the list's, then one step at a time.
 			// The value shows on a button of its own, between the comparison and the - and +.
 			int Shown() => row.Items.Skip(row.At + 1).Where(i => Field(i, "Kind") is "text" or "button").Select(i => int.TryParse(Field(i, "Text"), out var n) ? n : -1).FirstOrDefault(n => n >= 0, -1);
-			var presets = Next(i => Field(i, "Kind") == "dropdown" && i.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "20"));
+			var presets = Next(i => Field(i, "Kind") == "dropdown" && string.Equals(Field(i, "Binds"), SearchValue, StringComparison.OrdinalIgnoreCase));
 			var nearest = new[] { 1, 5, 10, 15, 20 }.OrderBy(preset => Math.Abs(preset - value)).First();
 			if (Shown() != nearest && presets.ValueKind == JsonValueKind.Object)
 			{

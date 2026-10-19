@@ -3,7 +3,53 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 50)
+## Şu an (Tur 51)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm players` arama panelinin OKUMA yolu** (`Under`/`Row`,
+  StaffSearch.cs 270/349) — **BİTTİ** (§8.240, Tur 51): panel `form ?anchor=Apply&up=8` ile, yani Apply düğmesinin
+  **sözüyle** bulunuyordu; kural başlıkları da ekrandaki İngilizce sözle eşleşiyordu. Ölçüm (TR oyun, panel açık):
+  `/form?anchorpath=filter.FilterRulePlayerPosition.Name&up=8&buttons=1` ile `/form?anchor=Apply&up=8&buttons=1`
+  **birebir aynı 55 öğe**; her kuralın denetimi kendi veri yolunu taşıyor (`Binds`): rol
+  `filter.FilterRuleIpRole.filtervalue`, yaş `filter.filterruleage.minvalue`/`.maxvalue`, scout notu
+  `filter.FilterRuleScoutingGrade.MinValue`, sözleşme `filter.filterrulecontract.filtervalue`, transfer
+  `filter.filterruletransferstatus.filtervalue`, kiralık `filter.filterruleloanstatus.filtervalue`; satırın iki
+  denetimi `rule.selectedcompareflag` / `rule.minvalue`. Artık `Under(rule)` **yolu** (`Binds`) eşliyor, çapa
+  `anchorpath`, satırın karşılaştırma/kademe denetimi de `Binds` ile; `Reads.cs` `search` listesi yolu taşıyor
+  (yazı yalnız kullanıcıya görünen ad olarak kaldı). "Is At Least"/"20" arayışları kalktı.
+- Kanıt: TR + EN, üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `fm open "Squad Dynamics"`
+  [EN `Dynamics`] sonrası), önce = eski derleme (`git stash` + `dotnet build -c Release`), sonra = yeni:
+  **`fm players --age 18-23` eskiden rc=1** `error: arama panelinde 'Aged Between (Years)' yok` (üç durumda da boş
+  çıktı `d41d8cd9…`) — TR'de başlık "Aged Between **(Yıl Olarak)**" geliyor; **yeni derlemede rc=0**, 73 satır
+  (`e810bfd7dfeff0cdfcd63524209a9d8e` s1/s3, `931742e61551b6f85a4992d17f11e265` s2). Birebir kalanlar (md5 iki
+  derlemede aynı): TR `--attr "Pace>=15"` `a5e61246cdd29aee99333f1c1325980c` (s1/s3) /
+  `93f620f143f5d22f669d09e9cb020c76` (s2), `--grade "B+"` `718b654db8e050583aeb72e67baf7c79` (3/3),
+  `--role "Goalkeeper"` `5c72cb45c5355e257ac12ef7da904e4a` (s1/s3), `--max-value 500K`
+  `de8b428cd1bb36169092b230fab9882d` (3/3); EN oturmuş `--attr` `6f67b7f5cccc12705268ca33e263b797`, `--age`
+  `51c9d225443a12f233df25844fb60c5c`, `--grade` `db9d5183fdfebeef45ba5c98732fba68` — yeni derlemenin s1/s3'ü eski
+  derlemenin s3'üyle birebir (zincir: after-en s1 = before-en s3, after-en s3 = before-en s3). rc hep 0.
+  İz: eski `form ?anchor=Apply&up=8` → yeni `form ?anchorpath=filter.FilterRulePlayerPosition.Name&up=8`;
+  betikler `/private/var/…/opencode/t51/run.sh` (attr/age/grade) ve `run2.sh` (role/max/attr), klasörler
+  `before-tr`, `after-tr`, `before-tr2`, `after-tr2`, `before-en`, `after-en`.
+- Ölçüm notu: **dil geçişinden hemen sonraki** ilk koşularda tablo yine kısa geliyor (22/25 satır; iki derlemede de
+  aynı — Tur 50'nin yan bulgusu, §8.239/§8.194), o yüzden karşılaştırma **oturmuş** durumlarla yapıldı
+  (`after-en s1/s3 = before-en s3`). Ayrıca s2'deki farklar tablonun kendi durum sütunu (İzl/Lst) ve hangi süzgecin
+  kaldığına bağlı; iki derlemede aynı yerde aynı.
+- Kalan (sıradaki tur önerisi): aynı panelde `PanelButton`in **yedeği** hâlâ `Text == "Apply"/"Cancel"` (asıl yol
+  `PanelSent`, §8.239) ve `Row()`in satır adı eşleşmesi niteliğin oyunun menüsünden gelen **kendi sözüyle** (sabit
+  İngilizce değil) — ikisi de "yazı" sayılırsa ayrı alt madde. B'de kalanlar: `ScoutFocus` formunun
+  `Next`/`Confirm`/`Cancel`i (`click ?text=…`), `MatchDay`in üç penceresi (maç günü ister), `contract --agent`
+  kartın işareti, haber "Portugal"/"Defence (Core)", `Edit`/`Create a New Recruitment Focus` (kimlik yok),
+  `FocusAt`in yarışı (§8.234 sonu). A'da kısa `Until`ler (League 216 · MatchControls 131 266 · Reads 892 ·
+  TraitTraining 89 · TacticFiles 29 · StaffSearch 354). Park: Stages 337, TrainingSchedule 345, Clock 179.
+- Not (kayıt durumu): kayıt yalnız **okundu**, hiçbir şey yazılmadı/değiştirilmedi; sayfa oyuncu arama süzgeciyle
+  bırakıldı (komutların doğal sonucu: son süzgeç duruyor, `--clear` ile temizlenebilir); 2 Ağustos 2026 14:00,
+  saat ilerletilmedi, maç oynanmadı; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı
+  (`/state` → turkish). Sweep koşulmadı: değişiklik yalnız `StaffSearch.cs` + `Reads.cs` içinde (`ApplySearch`i
+  `fm staff find`in panel yolu ve paylaşılan Bridge/OpenPage **kullanmıyor**); `fm players` sweep'te yok.
+- Not: ağaçta yalnız bu turun dosyaları var (`cli/fm/StaffSearch.cs`, `cli/fm/Reads.cs`, BAGIMLILIKLAR, FINDINGS,
+  bu defter), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 50)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `staff find` arama panelinin `Apply`/`Cancel`i** — **BİTTİ** (§8.239,
   Tur 50): `StaffFind` (112) gönderi `click ?text=Apply` ile, `ApplySearch`in `PanelButton`ı ve `StaffFind`in kendi
   `Cancel`i panelin form okumasından (`Text == "Apply"/"Cancel"`) basıyordu. Ölçüm (TR oyun, panel açık,

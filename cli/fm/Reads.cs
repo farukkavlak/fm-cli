@@ -737,9 +737,11 @@ internal static partial class Program
 		}
 
 		// The page's search panel: the role he can play, his age, the scouts' grade, his
-		// contract and whether he is listed. A search stays on in the game until the next one or --clear.
-		var search = new List<(string Heading, string Choice, string What)>();
-		if (Option(args, "--role") is { } searchRole) search.Add(("Role (In Possession)", searchRole, L("Rol")));
+		// contract and whether he is listed. Each rule is named by the data path the game binds
+		// its control to, which no language changes; the heading word is not used. A search stays
+		// on in the game until the next one or --clear.
+		var search = new List<(string Rule, string Choice, string What)>();
+		if (Option(args, "--role") is { } searchRole) search.Add(("filter.FilterRuleIpRole.filtervalue", searchRole, L("Rol")));
 		if (Option(args, "--age") is { } ages)
 		{
 			var ends = ages.Split('-', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
@@ -748,13 +750,13 @@ internal static partial class Program
 				Console.Error.WriteLine(L("Yaş aralığı iki sayıyla:  --age 18-23"));
 				return 64;
 			}
-			search.Add(("Aged Between (Years)", ends[0], L("En küçük yaş")));
-			search.Add(("and", ends[1], L("En büyük yaş")));
+			search.Add(("filter.filterruleage.minvalue", ends[0], L("En küçük yaş")));
+			search.Add(("filter.filterruleage.maxvalue", ends[1], L("En büyük yaş")));
 		}
-		if (Option(args, "--grade") is { } grade) search.Add(("Minimum Scouting Grade", grade, L("Scout notu")));
-		if (Option(args, "--contract") is { } contract) search.Add(("Contract Status", contract, L("Sözleşme durumu")));
-		if (args.Contains("--listed")) search.Add(("Transfer Status", "Listed", L("Transfer durumu")));
-		if (args.Contains("--loan-listed")) search.Add(("Loan Status", "Listed", L("Kiralık durumu")));
+		if (Option(args, "--grade") is { } grade) search.Add(("filter.FilterRuleScoutingGrade.MinValue", grade, L("Scout notu")));
+		if (Option(args, "--contract") is { } contract) search.Add(("filter.filterrulecontract.filtervalue", contract, L("Sözleşme durumu")));
+		if (args.Contains("--listed")) search.Add(("filter.filterruletransferstatus.filtervalue", "Listed", L("Transfer durumu")));
+		if (args.Contains("--loan-listed")) search.Add(("filter.filterruleloanstatus.filtervalue", "Listed", L("Kiralık durumu")));
 		// --attr "pace>=15" (also <=, >, <), as many as wanted.
 		var conditions = new List<(string Attribute, bool AtLeast, int Value)>();
 		for (var i = 0; i + 1 < args.Length; i++)
