@@ -484,7 +484,7 @@ internal static partial class Program
 		catch (FmError)
 		{
 			// Whatever went wrong, the form is not left open behind the next command.
-			if (FormButton(await FocusForm("Next"), "Next") != null || FormButton(await FocusForm("Back"), "Confirm") != null) await AbandonFocus();
+			if (await FormStep() != null) await AbandonFocus();
 			throw;
 		}
 	}
@@ -704,9 +704,12 @@ internal static partial class Program
 		}
 
 		await Fm.Get("click", ("text", "Confirm"));
+		// The form is gone once neither step button is there any more (FormStep) — the game takes
+		// the whole form down in the same instant it commits (measured: both the buttons and the
+		// form read go empty 0.04–0.27s after Confirm, as the list grows by one).
 		if (edit)
 		{
-			if (!await Until(async () => FormButton(await FocusForm("Back"), "Confirm") == null, seconds: 12, every: 0.7))
+			if (!await Until(async () => await FormStep() == null, seconds: 12, every: 0.7))
 			{
 				Console.Error.WriteLine(L("Form kapanmadı; değişiklik işlenmemiş olabilir. Bak: scout"));
 				return 1;
@@ -717,7 +720,7 @@ internal static partial class Program
 		}
 		// Made once the form is gone and the list of focuses is one longer.
 		List<Focus> after = [];
-		var made = await Until(async () => FormButton(await FocusForm("Back"), "Confirm") == null && (after = await ScoutFocuses()).Count > existing.Count, seconds: 12, every: 0.7);
+		var made = await Until(async () => await FormStep() == null && (after = await ScoutFocuses()).Count > existing.Count, seconds: 12, every: 0.7);
 		if (!made)
 		{
 			Console.Error.WriteLine(L("Odak kurulmuş görünmüyor; bak: scout"));

@@ -2798,3 +2798,21 @@ stderr md5 TR `3e18cfaa…` / EN `f66c35f8…`); izde eski `click ?text=Next` �
 (ayrı iş): `scout edit <#>` sayfa **yeni açıldığında** odak listesini ara sıra boş okuyor ("Odak: '1' diye bir
 seçenek yok"; eski derlemede 8 koşunun 4'ü, yeni derlemede 4'ün 1'i) — `ScoutFocuses()`/`FocusList()` sayfa
 oturmadan dönüyor, bu turun değişikliğiyle ilgisiz.
+
+### 8.243 `scout new/edit`in "form kapandı" işareti de düğmelerin olayına bağlandı (19 Ekim, TR + EN)
+§8.242 formun *adım* işaretlerini `FormStep()`e taşımıştı; Confirm akışı hâlâ yazıyla yürüyordu: `ScoutNew`in
+`catch` dalındaki "form açık mı" (`FormButton(FocusForm("Next"), "Next") != null || FormButton(FocusForm("Back"),
+"Confirm") != null`) ve Confirm sonrası "form kapandı mı" (`FormButton(await FocusForm("Back"), "Confirm") == null`)
+— yani **hem** `form ?anchor=Next`/`Back` yazı çapası **hem** "Next"/"Confirm" etiketi (ikisi de oyunun sözü; bugün
+iki dilde de İngilizce geldiği için tesadüfen çalışıyordu). Üçü de artık `FormStep() != null` (açık) / `== null`
+(kapandı): işaret, adım düğmelerinin gönderdiği olay + yük (`EventFmxRecruitmentFocusMoveToStep`, `One`/`MinusOne`,
+yalnız açık düğme). Ölçüm (canlı, `python3` + eklenti): Confirm'e basmadan önce düğmeler `[Back, Confirm]`,
+`/form?anchor=Back` **47** öğe, odak listesi **5**; tık 0,04 sn'de döndü ve **0,271 sn**'deki ilk yoklamada üçü de
+dönmüş (düğmeler boş, form **0** öğe, liste **6**) → eski ve yeni işaret aynı anda dönüyor. Kanıt: `fm scout edit
+"<odak>" --name "<yeni>"` (Confirm'e basan yol) TR üç durum × 2 + EN üç durum = 9/9 rc=0, çıktı aynı; izde
+Confirm'den sonraki iki yoklama eski derlemede `form ?anchor=Back&up=12&buttons=1`, yenide `buttons ?json=1&gen=1`;
+hata yolu (`scout edit 1 --area "ZZZ yok"`, değişen satırlara girmiyor) TR + EN üç durumda rc=64, stdout
+`d41d8cd9…`, stderr md5 TR `3e18cfaa…` / EN `f66c35f8…` = §8.242 ile birebir. Kalan yazı çapaları: Confirm
+basışı (`click ?text=Confirm`) ve `AbandonFocus`in `click ?text=Cancel`i — ikisi de `m_cancelEdit` taşır ve bu alan
+`/buttons?json=1` özetinde yok (eklenti + oyun restartı ister); ayrıca okuma çapası `form ?anchor=Next`/`Back`.
+Yan not: bu ölçüm gerçekten odak kurdu; kayıtta 12 `t54 …` artığı kaldı (Complete odakları CLI silemiyor).

@@ -462,6 +462,18 @@ tablodan çevrilemiyor.
     mevki oturdu" işareti `FormStep() == "next"`, ileri basışı `click ?ptr=…`; üç durum × iki dilde eski derlemeyle
     birebir (rc=64, aynı stderr). Kalan: Confirm basışı, Confirm akışındaki "form kapandı" işareti ve okuma çapası
     `form ?anchor=Next`/`Back` (ölçüldü: adım 1'de `/form?anchor=Next` 52 öğe / `anchor=Back` 0, adım 2'de tersi).**
+  - [x] `scout new/edit`in **"form kapandı" işareti** artık yazıyla değil, adım düğmelerinin olayıyla: `ScoutNew`in
+    `catch` dalındaki "form açık mı" ve Confirm akışındaki "form kapandı mı" `FormStep() != null` / `== null`
+    (`EventFmxRecruitmentFocusMoveToStep` + `One`/`MinusOne`, yalnız açık düğme). Eskiden ikisi de **hem** yazı
+    çapasıydı (`form ?anchor=Next`/`Back`) **hem** düğme etiketi ("Next"/"Confirm") — etiket bugün iki dilde de
+    İngilizce geldiği için tesadüfen çalışıyordu. Ölçüm (canlı, Confirm'e basınca): adım düğmeleri, form okuması ve
+    odak listesi **aynı anda** dönüyor (tık 0,04 sn'de; ilk yoklamada 0,271 sn'de düğmeler boş, form 0 öğe, liste
+    5→6) → iki işaret eşdeğer. Kanıt: `fm scout edit "<odak>" --name "<yeni>"` TR üç durum + EN üç durum rc=0 ve
+    çıktı aynı; izde Confirm'den sonraki yoklamalar `form ?anchor=Back` → `buttons ?json=1&gen=1`; hata yolu
+    (`scout edit 1 --area "ZZZ yok"`) TR + EN üç durumda rc=64 ve stderr md5 §8.242 ile birebir (§8.243). Kalan:
+    `click ?text=Confirm` / `AbandonFocus`in `click ?text=Cancel`i (ikisi de `m_cancelEdit`; `/buttons?json=1`
+    özetinde yok → eklenti + oyun restartı ister), gözlemci seçme penceresinin `Cancel`/`Confirm`i ve okuma çapası
+    `form ?anchor=Next`/`Back`.
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

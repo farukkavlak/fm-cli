@@ -3,7 +3,38 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 53)
+## Şu an (Tur 54)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / recruitment focus formunun "form kapandı" işareti** (§8.243) —
+  **BİTTİ**: Tur 53 kalan işi şöyle bırakmıştı: `ScoutNew`in `catch` dalındaki "form açık mı" ve Confirm akışındaki
+  "form kapandı mı" işaretleri hâlâ `FormButton(FocusForm("Next"/"Back"), "Next"/"Confirm")`, yani **hem** yazı
+  çapası (`form ?anchor=Back`) **hem** düğme etiketi. İkisi de artık `FormStep()`: `!= null` (form açık) /
+  `== null` (kapandı) — düğmelerin gönderdiği olay (`EventFmxRecruitmentFocusMoveToStep`) ve yük (`One`/`MinusOne`).
+  Değişen 3 yer: `ScoutNew` catch, `edit` sonrası "Form kapanmadı" kontrolü, `made` kontrolü.
+- Ölçüm (canlı, eklenti + `python3`, **eski derleme**): Confirm'e basmadan önce adım düğmeleri `[Back, Confirm]`,
+  `/form?anchor=Back` **47** öğe, odak listesi **5**; tık 0,04 sn'de döndü; ilk yoklamada (0,271 sn) adım düğmeleri
+  **boş**, `/form?anchor=Back` **0** öğe ve odak listesi **6** — üçü **aynı anda**; yani iki işaret eşdeğer (eski
+  işaret yazıya bakıyordu, yenisi düğmelerin olayına). İkisi de bir yoklama aralığında dönüyor.
+- Kanıt: `fm scout edit "<odak>" --name "<yeni>"` (Confirm'e basan yol) **TR 3 durum × 2 koşu + EN 3 durum** → 9/9
+  rc=0, çıktı aynı (`Odak güncellendi: …` / `Focus updated: …`); İZDE: Confirm'den sonraki iki yoklama eski
+  derlemede `form ?anchor=Back&up=12&buttons=1` (eski derleme izi: 2 kez) → yeni derlemede `buttons ?json=1&gen=1`
+  (2 kez); aynı sayıda tur, aynı sonuç. Hata yolu (`fm scout edit 1 --area "ZZZ yok"`) **TR + EN üç durumda**
+  rc=64, stdout `d41d8cd9…`, stderr md5 TR `3e18cfaa…` / EN `f66c35f8…` — §8.242'nin kaydıyla **birebir** (o yol
+  değişen satırlara girmiyor; dile/çapa regresyon yok). TR s1 bir kez "Odak: '1' diye bir seçenek yok" verdi
+  (§8.242'nin yan bulgusu: sayfa yeni açılınca liste boş okunuyor; eski derlemede de var).
+- Kalanlar (sıradaki tur): aynı formda hâlâ yazıyla — okuma çapası `form ?anchor=Next`/`Back` (ayrı iş, ölçüldü:
+  adım 1/2 ile birebir), `click ?text=Confirm` basışı ve `AbandonFocus`in `click ?text=Cancel`i (ikisi de
+  `m_cancelEdit`; `/buttons?json=1` özetinde yok → eklenti değişikliği + oyun restartı ister, park), gözlemci seçme
+  penceresinin `Cancel`/`Confirm`i (`Close`, ölçülmedi), `click ?text=Edit Recruitment Focus` (oyun bu düğmeye
+  kimlik vermiyor, §8.234).
+- **Kayıt uyarısı:** bu turun ölçümü gerçekten odak kurdu/değiştirdi; tarama sayfasında **12 adet** `t54 …`
+  artığı kaldı (11 `t54 e*`/`t54 old tr` **Complete**, 1 `t54 e11` **durdurulmuş**). Oyun Complete odakları
+  CLI'den silmiyor (`scout remove` → "zaten durmuş"); istenirse oyunun kendi sayfasından silinmeli. Saat
+  ilerletilmedi (2 Ağustos 2026 14:00), maç oynanmadı, dil Türkçe bırakıldı (`/state` → turkish).
+- Not: değişiklik yalnız `cli/fm/ScoutFocus.cs` içinde; paylaşılan koda (Bridge/`Until`/OpenPage) dokunulmadı →
+  `sweep.sh` gerekmedi (Tur 53'te aynı dosya için 50/50 koşulmuştu).
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 53)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / recruitment focus formunun adım geçişi ve adım işaretleri**
   (`scout new`/`scout edit`) — **BİTTİ** (§8.242, Tur 53): Tur 52 `scout areas`in yolunu kimliğe çevirmişti
   (`FocusSteps`); aynı formun `scout new`/`edit` yolu hâlâ yazıyla yürüyordu — "ikinci adım açıldı mı" işareti
@@ -690,6 +721,26 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
 - D `Penalties` "MAÇA" sütunu: eklenti alanı ya da maske çevirisi kararı Faruk'un (§8.218).
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 54 — B "yazıyla basma" / recruitment focus formunun "form kapandı" işareti: artık Confirm/Cancel yazısı ve `?anchor=Back` çapası değil, adım düğmelerinin olayı (§8.243, 19 Ekim)
+Ne: `cli/fm/ScoutFocus.cs` — üç yer. `ScoutNew`in `catch` dalı: `FormButton(FocusForm("Next"), "Next") != null ||
+FormButton(FocusForm("Back"), "Confirm") != null` → `await FormStep() != null`. `edit` akışı ve `made` kontrolü:
+`FormButton(await FocusForm("Back"), "Confirm") == null` → `await FormStep() == null`. Böylece "form açık mı"
+işareti **hem** yazı çapasından (`form ?anchor=Next`/`Back`) **hem** düğme etiketinden ("Next"/"Back"/"Confirm")
+kurtuldu; düğmelerin gönderdiği olay + yük söylüyor (`EventFmxRecruitmentFocusMoveToStep`, `One`/`MinusOne`).
+- Ölçüm (canlı, `python3` + eklenti, eski derleme): Confirm'e basmadan önce `[Back, Confirm]`, `/form?anchor=Back`
+  **47** öğe, odak listesi **5**; tık 0,04 sn'de döndü; **0,271 sn**'deki ilk yoklamada üçü de boş/sıfır/artmış
+  (düğmeler `[]`, form **0**, liste **6**) → iki işaret aynı anda dönüyor, eşdeğer.
+- Doğrulama (sonra, `fm scout edit "<odak>" --name "<yeni>"`, Confirm'e basan yol): TR 3 durum × 2 koşu + EN 3
+  durum = 9 koşu, hepsi rc=0 ve çıktı aynı (`Odak güncellendi: …` / `Focus updated: …`); izde Confirm'den sonraki
+  iki yoklama eski derlemede `form ?anchor=Back&up=12&buttons=1`, yenide `buttons ?json=1&gen=1` (ikisi de 2 tur).
+- Hata yolu (dokunulmayan satırlar, regresyon kontrolü): `fm scout edit 1 --area "ZZZ yok"` TR + EN üç durumda
+  rc=64, stdout `d41d8cd9…`, stderr md5 TR `3e18cfaa…` / EN `f66c35f8…` = §8.242 ile birebir. TR s1 bir kez
+  "Odak: '1' diye bir seçenek yok" (§8.242 yan bulgusu, sayfa yeni açılınca liste boş okunuyor).
+- Kayıt: 12 `t54 …` artığı (Complete/durdurulmuş) oyunun odak listesinde kaldı; CLI Complete odağı silmiyor.
+  Saat ilerletilmedi, maç oynanmadı, dil Türkçe (`fm settings language "Türkçe"`; not: EN'e geçerken ayar adı
+  Türkçe oyunda `dil`: `fm settings dil English`).
+- Betikler/izler: `/tmp/t54/` (`rename.sh`, `neg.sh`, `*.out`, `*.err`).
 
 ### Tur 53 — B "yazıyla basma" / recruitment focus formunun adım geçişi + adım işaretleri (`scout new/edit`) (§8.242, 19 Ekim)
 Ne: `cli/fm/ScoutFocus.cs`. Tur 52 `scout areas`in ileri basışını `FocusSteps`e (olay + yük) taşımıştı; aynı formun
