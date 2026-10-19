@@ -57,13 +57,27 @@ internal static partial class Program
 			if (edit.ValueKind != JsonValueKind.Object) return Report(L("error: sayfada arama paneli butonu yok"));
 			var panel = await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
 			if (panel.StartsWith("error", StringComparison.Ordinal)) return Report(panel);
+			// The panel's rules write to the club's own fields, whatever the language calls them,
+			// so each is found by the path it binds to — not by a word among its choices
+			// ("By Nation", "Medical ›": the game's lists are its own to rename).
+			const string RoleRule = "filter.filterrulestaffrole.filtervalue";
+			const string EmployedRule = "filter.filterruleemployed.filtervalue";
+			const string ReputationRule = "Filter.FilterRuleWorldReputation.FilterValue";
 			List<JsonElement> lists = [];
 			await Until(async () =>
 			{
 				lists = (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray().ToList();
-				return lists.Any(d => Has(d, "By Nation")) && lists.Any(d => Has(d, "Medical ›"));
+				return lists.Any(d => Field(d, "Binds") == RoleRule)
+					&& lists.Any(d => Field(d, "Binds") == EmployedRule)
+					&& lists.Any(d => Field(d, "Binds") == ReputationRule);
 			}, seconds: 8, every: 0.4);
-			static bool Has(JsonElement list, string choice) => list.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == choice);
+
+			// A choice is in the rule once the rule's own list stands on it. Measured, the game
+			// writes the choice as the select returns, so this waits only on a machine that lags;
+			// the bound says when a choice has been lost rather than sleeping through it.
+			async Task<bool> Landed(string binds, string choice) => await Until(async () =>
+				Field((await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+					.FirstOrDefault(d => Field(d, "Binds") == binds), "Label") == choice, seconds: 6, every: 0.25);
 
 			async Task<int> Cancel(int code)
 			{
@@ -78,7 +92,7 @@ internal static partial class Program
 
 			if (role != null)
 			{
-				var list = lists.FirstOrDefault(d => Has(d, "Medical ›"));
+				var list = lists.FirstOrDefault(d => Field(d, "Binds") == RoleRule);
 				if (list.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde görev listesi yok")));
 				// Jobs sit one level down, under the department they belong to.
 				var top = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
@@ -90,26 +104,27 @@ internal static partial class Program
 				if (Choose(jobs.Select(j => j.Job).ToList(), role, L("Görev")) is not { } job) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("names", $"{jobs.First(j => j.Job == job).Department}>{job}"), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
-				await Task.Delay(500);
+				if (!await Landed(RoleRule, job)) return await Cancel(Report(L($"error: '{job}' görev listesine oturmadı")));
 			}
 			if (employed != null)
 			{
-				var list = lists.FirstOrDefault(d => Has(d, "By Nation"));
+				var list = lists.FirstOrDefault(d => Field(d, "Binds") == EmployedRule);
+				if (list.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde çalışma durumu listesi yok")));
 				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 				if (Choose(choices, employed, L("Çalışma durumu")) is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
-				await Task.Delay(500);
+				if (!await Landed(EmployedRule, choice)) return await Cancel(Report(L($"error: '{choice}' çalışma durumu listesine oturmadı")));
 			}
 			if (reputation != null)
 			{
-				var list = lists.FirstOrDefault(d => Has(d, "Exceptional"));
+				var list = lists.FirstOrDefault(d => Field(d, "Binds") == ReputationRule);
 				if (list.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde itibar listesi yok")));
 				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 				if (Choose(choices, reputation, L("İtibar")) is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
-				await Task.Delay(500);
+				if (!await Landed(ReputationRule, choice)) return await Cancel(Report(L($"error: '{choice}' itibar listesine oturmadı")));
 			}
 			var applied = await PanelSent(true) is { } apply
 				? await Fm.Get("click", ("ptr", apply))

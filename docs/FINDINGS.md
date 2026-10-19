@@ -2904,3 +2904,42 @@ kendi işaretiyle beklemeli (Mesajlar › Mutluluk'ta 1/10 düşme, §8.185) —
   aynı çıktılar alındı (§8.236/§8.99).
 - Dokunulmayanlar (aynı pencerede): satırların seçilmesi (`rowselect ?text=<ad>`, ad oyunun sözü), pencereyi açan
   `Edit Recruitment Focus` ve formu açan `Create a New Recruitment Focus` basışları (kimlik yok, §8.234).
+
+### 8.248 Personel arama panelinin kuralları artık veri yolundan bulunuyor; seçimler sabit 500 ms yerine oyunun kendi hâliyle (`--free` TR'de çöküyordu) (19 Ekim, TR + EN)
+
+`cli/fm/StaffSearch.cs` (`StaffFind`). Panelin üç kuralı (`--role`, `--free`/`--employed`, `--reputation`) o güne kadar
+**seçenek sözleri** ile bulunuyordu — `Has(d, "Medical ›")` (görev), `Has(d, "By Nation")` (çalışma durumu),
+`Has(d, "Exceptional")` (itibar) — ve her seçimden sonra sabit `Task.Delay(500)` bekleniyordu.
+
+- Ölçüm (canlı, sayfa açık, TR + EN): paneldeki her kural oyunun **kendi alanına bağlı** ve yol dilden bağımsız:
+  `filter.filterrulestaffrole.filtervalue`, `filter.filterruleemployed.filtervalue`,
+  `Filter.FilterRuleWorldReputation.FilterValue`. Liste, o alanın seçeneklerini ve **o an durduğu** seçeneği kendi
+  `Label`ında taşıyor (TR: Any→"All", By Club→"At the club", By Nation→"Milli Takım'da"; EN: "Any"/"By Club"/"By Nation").
+- Bug (ölçüldü): Türkçe oyunda çalışma durumu listesinin seçenekleri eklentinin çeviri tablosundan geçtiği için
+  "By Nation" diye bir söz kalmıyor → `lists.FirstOrDefault(...)` eşleşmiyor, ardından `list.GetProperty("Choices")`
+  **yakalanmamış** `InvalidOperationException` veriyor: `fm staff find --free --json` → **rc=134**, stdout boş
+  (`StaffSearch.cs:98`). `--role "Coach" --free --reputation "Nominal"` de aynı satırda düşüyordu. Aynı yollar
+  İngilizce oyunda çalışıyordu (EN'de söz "By Nation" olarak geliyor) — kırılma tamamen dile bağlıydı.
+- Bu yüzden üç kural artık **bağlı olduğu yoldan** bulunuyor, `--employed` dalına listenin yokluğu denetimi eklendi
+  (çökme yerine dürüst hata) ve seçim sonrası beklenen şey oyunun kendi cevabı: **kuralın listesi seçilen sözde
+  duruyor** (`Until`, üst sınır 6 sn; olmazsa "… listesine oturmadı" deyip panel kapanıyor).
+- Sabit beklemeler gerçekten gereksizdi (ölçüm): `select ?ptr=…&fire=1` dönerken liste **zaten** seçilen sözü
+  gösteriyor (rol "All" 186 ms'de, "Coach" 284 ms'de; yazının kendisi 125/154 ms) ve art arda **0 ms arayla**
+  yapılan iki seçim de oturuyor (4 tur: 178/348/280/693 ms), ikinci listenin işaretçisi de değişmiyor.
+- Kanıt (üç durum: `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` [EN `Dynamics`]
+  sonrası; iki dil; eski derleme `git stash push -- cli/fm/StaffSearch.cs` + `dotnet build -c Release`):
+  **EN'de her yol eski derlemeyle birebir** — `--role "Coach"` yeni 3/3 `44f56f55d7197eeafb0ed19e1caa2098` = eski s3
+  (eski s1/s2 `5b380c79ecdd5f8c20579f44aadde061`, tablonun bilinen geçici hâli §8.239/§8.194), `--free`
+  `ebb9ec51337cd439270314e9307432d2` (3 durumda da), `--reputation "Nominal"` `816e0cb7a5742c6eb0ba468f58be665e`,
+  **üç kural birlikte** `dc9c9659d32e80f1cd8852dfa4b51aa6` (eski derlemede de rc=0: sabit beklemelerin kalktığı yer
+  birebir aynı sonucu veriyor). **TR'de** `--role` yeni 3/3 `278f3c93afe416f0d6c62353a517cd67` = eski **s3** (eski
+  s1/s2 yine geçici 21 satır: `7f4956affc9d5a0989739834069849c8`), `--reputation` `8830aae3909ba502b537e3bcfd91b98c`
+  iki derlemede de; `--free` ve üç kural birlikte **eskiden rc=134, şimdi rc=0** (70 satır) ve `--free` üç durumda da
+  aynı; TR'nin 70 kişisi EN'nin 70 kişisiyle **aynı küme**, üç kural birlikte ise aynı küme **aynı sırada**.
+  Sayfanın kendi sayacı seçimin uygulandığını söylüyor: `Aramayı Düzenle (1)` / `Edit Search (1)`.
+  Negatifler: `--role "ZZZ yok"` ve `--reputation "ZZZ yok"` iki dilde rc=64; `--views`, `--filters`, `--clear`,
+  `--view`, ad süzmesi ve `fm players "Aaron" --attr "Pace>=15"` (aynı dosyadaki dokunulmayan `ApplySearch`) çalışıyor.
+- Bir kerelik oynaklık (bu turun işiyle ilgisiz): yeni derlemenin bir TR s3 koşusu `6f1bef2e…` verdi — 69 satırın
+  hepsi aynı, yalnız **Nick Adkins**'in `StatusTitleShort`/`StatusType` alanları henüz bağlanmamıştı; sonraki 3 koşu
+  `278f3c93…`. Kalan (aynı ailede): `ApplySearch` 438 (`fm players --max-value`'dan sonra sabit 1200 ms) ve
+  `PanelButton("Apply"/"Cancel")`in yazı yedeği.

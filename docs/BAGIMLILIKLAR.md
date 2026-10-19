@@ -30,7 +30,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
   OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
-  ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · StaffSearch 91 100 110 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
+  ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · ~~StaffSearch 91 100 110~~ 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · Transfers 96 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
     pay. "Yol boş" ile "henüz gelmedi" aynı cevap (`{}`) — FINDINGS §8.179.
@@ -52,6 +52,20 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `Rows()` satırları `SkipWhile(t != "World Knowledge")` ile buluyordu — satırın kendisi zaten 3. hücresindeki
     "Active Focuses" **sayısıyla** işaretli (başlıklarda o hücre sayı değil); TR 3 + EN 3 durumda okuma eski
     derlemeyle birebir (`md5` TR `fc708400…`, EN `b11015ec…`), `fm scout --json` koşu öncesi/sonrası aynı (§8.247).
+  - [x] StaffSearch 91 100 110 (`fm staff find --role/--free/--reputation`): panelin üç kuralı seçenek **sözüyle**
+    bulunuyordu (`"Medical ›"`, `"By Nation"`, `"Exceptional"`) ve her seçimden sonra sabit 500 ms bekleniyordu.
+    Türkçe oyunda çalışma durumu listesinin sözleri eklentinin çevirisinden geldiği için "By Nation" hiç yok →
+    `fm staff find --free` **yakalanmamış çökme** veriyordu (rc=134, `StaffSearch.cs:98`; üç kural birlikte de öyle).
+    Artık her kural oyunun **bağladığı alandan** bulunuyor (`filter.filterrulestaffrole.filtervalue`,
+    `filter.filterruleemployed.filtervalue`, `Filter.FilterRuleWorldReputation.FilterValue`) ve seçim sonrası beklenen
+    şey oyunun kendi cevabı: **kuralın listesi seçilen sözde duruyor** (`Until`, üst sınır 6 sn). Ölçüm: `select`in
+    dönüşünde liste zaten seçileni gösteriyor (186/284 ms okumalar, yazı 125/154 ms) ve **0 ms arayla** yapılan iki
+    seçim de oturuyor (4 tur: 178/348/280/693 ms) → 500 ms kör duraklamaydı. EN'de her yol eski derlemeyle **birebir**
+    (üç kural birlikte `dc9c9659…`), TR'de `--role`/`--reputation` birebir (`278f3c93…` = eski s3, `8830aae3…`),
+    `--free` ve üç kural birlikte eskiden rc=134 → **rc=0** (70 satır, EN'le aynı küme; `Aramayı Düzenle (1)`),
+    negatifler rc=64 (§8.248).
+  - [ ] StaffSearch 407 (`ApplySearch`: `fm players --max-value` seçildikten sonra sabit 1200 ms) ve
+    `PanelButton("Apply"/"Cancel")`in yazı yedeği — ayrı alt madde.
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.
@@ -418,6 +432,11 @@ tablodan çevrilemiyor.
     açık / başka sayfaya geçtikten sonra) + negatifler ve EN üç durum: `restart` rc=0 "Odak yeniden başlatıldı",
     `remove --yes` rc=0 "Odak durduruldu", durmuş odağa `remove`/süren odağa `restart` rc=1 ("zaten durmuş" /
     "zaten sürüyor"); sonuç `fm scout --json`ten doğrulandı (§8.234).
+  - [x] `fm staff find` arama panelinin üç kuralı (`--role` / `--free`·`--employed` / `--reputation`) artık seçenek
+    sözüyle değil oyunun bağladığı **yoldan** bulunuyor ve seçim, kuralın listesi o sözde durana kadar bekleniyor —
+    sabit 500 ms'ler kalktı. Türkçe oyunda çalışma durumu listesinin sözleri çeviriden geldiği için `"By Nation"`
+    hiç yoktu: `fm staff find --free` yakalanmamış çökmeyle düşüyordu (rc=134). TR + EN üç durumda birebir; EN'de
+    çökme yoktu, çıktısı aynı kaldı (§8.248).
   - [x] `budget` düğmeleri (kartı açan döşeme + "Got It"/"Cancel"): üçü de oyunun İngilizce sözüyle basılıyordu.
     Kimlikleri ölçüldü: döşeme eylemi **1885623898** (`ClubBudgetAdjustmentTransfersAndWages`; yanındaki
     "Adjust Scouting Budget" 1332374646), "Got It" gönderdiği olay **EventFmxBudgetAdjustmentConfirm** (enum 146),

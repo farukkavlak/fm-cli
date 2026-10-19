@@ -3,7 +3,39 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 58)
+## Şu an (Tur 59)
+- Madde: **A "`Task.Delay`" / StaffSearch 91 100 110** (`fm staff find --role/--free/--reputation` panelinin listeleri)
+  — **BİTTİ** (§8.248). Panelin üç kuralı **seçenek sözüyle** bulunuyordu (`Has(d, "Medical ›")`, `"By Nation"`,
+  `"Exceptional"`) ve her seçimden sonra sabit **500 ms** bekleniyordu. Türkçe oyunda çalışma durumu listesinin
+  sözleri eklentinin çevirisinden geldiği için "By Nation" diye bir seçenek yok (TR: All/No/At the club/Milli Takım'da)
+  → `--free` ve üç kural birlikte **yakalanmamış çökmeyle** düşüyordu (rc=134, `StaffSearch.cs:98`; EN'de çalışıyordu).
+- Ne yapıldı: her kural artık oyunun **bağladığı alandan** bulunuyor (`filter.filterrulestaffrole.filtervalue`,
+  `filter.filterruleemployed.filtervalue`, `Filter.FilterRuleWorldReputation.FilterValue`), `--employed` dalına
+  listenin yokluğu denetimi eklendi (çökme yerine dürüst hata) ve seçimden sonra beklenen şey oyunun kendi cevabı:
+  **kuralın listesi seçilen sözde duruyor** (`Until`, üst sınır 6 sn; olmazsa "… listesine oturmadı" + panel kapanır).
+- Kanıt (üç durum = `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` [EN `Dynamics`]
+  sonrası; TR + EN; eski derleme `git stash push -- cli/fm/StaffSearch.cs` + `dotnet build -c Release`):
+  **EN'de her yol birebir** — `--role "Coach"` 3/3 `44f56f55d7197eeafb0ed19e1caa2098` = eski s3 (eski s1/s2
+  `5b380c79…`, tablonun bilinen geçici hâli), `--free` `ebb9ec51337cd439270314e9307432d2` (üç durumda da),
+  `--reputation "Nominal"` `816e0cb7a5742c6eb0ba468f58be665e`, **üç kural birlikte** `dc9c9659d32e80f1cd8852dfa4b51aa6`
+  (sabit beklemelerin kalktığı yer: eski derlemede de rc=0 ve aynı md5). **TR'de** `--role` 3/3
+  `278f3c93afe416f0d6c62353a517cd67` = eski **s3** (eski s1/s2 geçici 21 satır `7f4956af…`), `--reputation` `8830aae3…`
+  iki derlemede de; `--free` ve üç kural birlikte **eskiden rc=134 → şimdi rc=0** (70 satır; `--free` üç durumda da
+  aynı, TR'nin 70 kişisi EN'ninkiyle aynı küme, üç kural birlikte aynı sırada). Sayfanın kendi sayacı:
+  `Aramayı Düzenle (1)` / `Edit Search (1)`. Negatifler iki dilde rc=64; `--views`, `--filters`, `--clear`, `--view`,
+  ad süzmesi ve `fm players "Aaron" --attr "Pace>=15"` (aynı dosyadaki dokunulmayan `ApplySearch`) çalışıyor.
+- İşaretin ölçümü (canlı, `/dropdowns?json=1`): `select ?ptr=…&fire=1` dönerken liste **zaten** seçileni gösteriyor
+  (okuma 186/284 ms, yazı 125/154 ms) ve **0 ms arayla** yapılan iki seçim de oturuyor (4 tur: 178/348/280/693 ms),
+  ikinci listenin işaretçisi değişmiyor → 500 ms kör duraklamaydı. Betikler `…/opencode/t59/`
+  (`run.sh`, `run2.sh`, `checks.sh`, `probe5/6/8/10.py`); klasörler `before-tr`, `after-tr`, `after-tr-free`,
+  `after-tr-free-m`, `before-en`, `after-en`, `after-en-free`, `checks-tr`.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı); sayfa süzgeci
+  tur sonunda **temizlendi** (`Clear all`); dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı
+  (`fm settings dil` → `Türkçe`). Paylaşılan koda (Bridge/`Until`/OpenPage/`ApplySearch`) dokunulmadı → `sweep.sh`
+  gerekmedi; aynı dosyadaki `fm players` yolu ayrıca denendi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 58)
 - Madde: **A "`Task.Delay`" / ScoutFocus `Show` (gözlemci seçme penceresinin okuması)** — **BİTTİ** (§8.247):
   pencerenin satırları okunurken her kaydırmadan sonra sabit **400 ms** bekleniyordu ve satır bölgesi oyunun başlık
   sözü **"World Knowledge"** ile bulunuyordu (`SkipWhile`). Ölçüm (canlı, pencere açık): satır kümesi kaydırmadan
@@ -833,6 +865,31 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
   (`fm reply` boş/eksik) — Faruk'un 16 Ekim kararıyla park; çözülürse §8.245'in kalan oynaklığı da kapanır (§8.192).
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 59 — A "`Task.Delay`" / StaffSearch 91 100 110: personel arama panelinin kuralları veri yolundan bulunuyor, seçimler sabit 500 ms yerine oyunun kendi hâliyle (§8.248, 19 Ekim)
+Ne: `cli/fm/StaffSearch.cs` (`StaffFind`). Kural listeleri seçenek sözüyle bulunuyordu (`"Medical ›"`, `"By Nation"`,
+`"Exceptional"`) ve her `select`ten sonra `await Task.Delay(500)` vardı. TR oyununda çalışma durumu listesinin
+sözleri çeviriden geldiği için ("All/No/At the club/Milli Takım'da") `"By Nation"` hiç yoktu → `--free` (ve üç kural
+birlikte) yakalanmamış `InvalidOperationException` ile düşüyordu: rc=134, `StaffSearch.cs:98`; EN'de çalışıyordu.
+Yeni: kural `Binds` yolundan bulunuyor, seçim sonrası `Landed(binds, choice)` kuralın listesi o sözde durana kadar
+bekliyor (`Until`, üst sınır 6 sn), `--employed` dalına listenin yokluğu denetimi eklendi.
+- Ölçüm yolu: `…/opencode/t59/run.sh <etiket> tr|en` (s1 `fm open "Messages"` sonrası, s2 hemen ikinci koşu,
+  s3 `fm open "Squad Dynamics"`/EN `Dynamics` sonrası × `--role "Coach"` / `--free` / `--reputation "Nominal"` /
+  üçü birlikte / negatifler), `run2.sh` (`--free` üç durumda + sayfanın kendi `Edit Search (n)` sayacı), `checks.sh`.
+  Canlı işaret ölçümü: `probe5/6/8.py` (`/dropdowns?json=1`, `/select`), `probe10.py` (EN panelinin yolları/sözleri).
+- Sonuç: **EN'de her yol eski derlemeyle birebir** — `--role` yeni 3/3 `44f56f55d7197eeafb0ed19e1caa2098` = eski s3
+  (eski s1/s2 `5b380c79…` = bilinen geçici tablo), `--free` `ebb9ec51…` (3 durumda da), `--reputation` `816e0cb7…`,
+  üçü birlikte `dc9c9659…`. **TR'de** `--role` 3/3 `278f3c93…` = eski s3 (eski s1/s2 geçici 21 satır `7f4956af…`),
+  `--reputation` `8830aae3…` iki derlemede de, `--free` + üçü birlikte **rc=134 → rc=0** (70 satır; TR kümesi = EN
+  kümesi, üç kural birlikte aynı sırada). Negatifler rc=64.
+- Ölçüm notu: md5 ham JSON metni üzerinden (anahtar sırası oynayabiliyor): `after-tr/free` ile `after-tr-free/f1`
+  (aynı süzgeç) md5'leri farklı ama **bütün alanlar birebir** (python ile karşılaştırıldı). Bir TR s3 koşusu
+  `6f1bef2e…` verdi: 69 satır aynı, yalnız Nick Adkins'in `StatusTitleShort`/`StatusType` alanları bağlanmamıştı
+  (sonraki 3 koşu `278f3c93…`).
+- Kayıt/tuzak: kayıt yalnız okundu, sayfa süzgeci sonunda `Clear all` ile temizlendi; saat 2 Ağustos 2026 09:15,
+  ilerletilmedi, maç oynanmadı; dil TR'ye döndü (`fm settings dil` → `Türkçe`). Paylaşılan koda dokunulmadı.
+- Kalan (aynı ailede, sıradaki tur): `ApplySearch` 438 (`fm players --max-value` seçiminden sonra sabit 1200 ms) ve
+  `PanelButton("Apply"/"Cancel")`in yazı yedeği; `StaffSearch.cs` yalnız bu dosyada değişti.
 
 ### Tur 58 — A "Task.Delay" / ScoutFocus `Show`: gözlemci penceresinin okuması sabit 400 ms yerine satırların oturması, başlık sözü yerine satırın kendi sayısı (§8.247, 19 Ekim)
 Ne: `cli/fm/ScoutFocus.cs`. `Show()` her kaydırmadan sonra `await Task.Delay(400)` yapıyordu; `Rows()` satır bölgesini
