@@ -542,6 +542,12 @@ tablodan çevrilemiyor.
     `buttons ?json=1&gen=1` (olay); basış iki derlemede de `click ?ptr=` (§8.244). Aynı pencerede kalan: okuma
     çapası `form ?anchor=Assign Any Scouts` (ölçüldü: `anchorpath=focusitem.anyscout` **0 öğe** döndürüyor, yol
     çapası tutmuyor) ve `Rows()`in başlık sözü ("World Knowledge") — ikisi ayrı iş.
+  - [x] **`fm settings` yazma yolunun onayı** (`ConfirmButton`) artık **gönderdiği olayla** basılıyor: düğme
+    `PreferencesConfirmChanges` (+ `PrivacyPolicyConfirmSelections`, `ClosePanel`) taşıyor; TR + EN'de aynı.
+    Etiket iki dilde de "Confirm" gelse de oyunun kendi sözü (başka dilde çevrilebilir), `Name` ise şablon adı;
+    olay dilden ve bitten bağımsız. Üç durum (başka sayfa açık / hemen ikinci koşu / preferences zaten açık) ×
+    iki dilde `fm settings tarih` / `"date format"` yazma yolu eski derlemeyle **birebir** (rc=0, aynı çıktı);
+    izde `click ?text=Confirm&name=ConfirmButton` → `click ?ptr=…` (§8.251).
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

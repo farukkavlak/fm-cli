@@ -1574,6 +1574,21 @@ sırayla dolar: başlıklar + iş yükü (33 öğe) → yıldızsız kutular →
 görev yazısı). Her kutunun yıldız öğesi var (atanmayanda `Shown` 0) → tam formun işareti "her satır ad + görev + dokuz kutu/yıldız,
 iş yüküne kadar".
 
+### 8.251 `fm settings` onayı artık olayla (`PreferencesConfirmChanges`) basılıyor (19 Ekim, TR + EN)
+
+- Nerede: `Settings.cs` yazma yolu, ayar değiştikten sonra `click ?text=Confirm&name=ConfirmButton`. Etiket oyunun
+  kendi sözü (TR'de bugün "Confirm" geliyor, başka dilde çevrilebilir); `Name` şablon adı. Preferences sayfasında
+  `/buttons?json=1`: `ConfirmButton` → `Events = PreferencesConfirmChanges, PrivacyPolicyConfirmSelections,
+  ClosePanel`, `Enabled=True`; TR + EN'de birebir. Yeni kod bu olayı taşıyan açık düğmeyi işaretçisiyle basıyor
+  (`click ?ptr=0x425b90800`), bulamazsa eskisi gibi yazıya düşüyor.
+- Kanıt: `fm settings tarih` (TR) / `fm settings "date format"` (EN) ile `mm/dd/yyyy` ↔ `dd/mm/yyyy`, üç durum
+  (başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / preferences elle açık bırakılmış) × iki dil; eski
+  derleme (`git stash push -- cli/fm/Settings.cs` + build): altı koşu iki dilde de **birebir**, rc=0, çıktılar
+  `dd/mm/yyyy → mm/dd/yyyy` / tersi. İz (eski → yeni): `click ?text=Confirm&name=ConfirmButton` →
+  `buttons ?json=1&gen=…` + `click ?ptr=…`; onaydan sonraki "All Preferences kapandı mı" beklemesi aynı.
+- Not: değişiklik yalnız yazma yolunda; okuma yolu (`PreferencesTab`) ve diğer ayarlar dokunulmadı. Bu turda
+  paylaşılan koda (Bridge/OpenPage/reply/ortak yardımcı) dokunulmadı; dil TR'ye döndü, tarih biçimi `dd/mm/yyyy`.
+
 ## 8.x Ek: kısaltırken metinden düşen adlar (bölümüyle)
 
 - §4–5: `Bindings.s_pathComparer` (yol karşılaştırıcısı, büyük/küçük harf duyarsız), `EmbeddedDataHandler`,

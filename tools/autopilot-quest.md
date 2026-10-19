@@ -3,7 +3,27 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 61)
+## Şu an (Tur 62)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm settings` yazma yolunun onayı** (`Settings.cs`,
+  `click ?text=Confirm&name=ConfirmButton`) — **BİTTİ** (§8.251). Preferences'in kendi `ConfirmButton`ı
+  `PreferencesConfirmChanges` (+ `PrivacyPolicyConfirmSelections`, `ClosePanel`) gönderiyor; TR + EN'de etiket
+  "Confirm" olsa da bu oyunun kendi sözü, başka dilde çevrilebilir. Artık olayı taşıyan açık düğme işaretçisiyle
+  basılıyor, bulunamazsa yazıya düşülüyor.
+- Kanıt: `fm settings tarih` (TR) / `fm settings "date format"` (EN) ile `mm/dd/yyyy` ↔ `dd/mm/yyyy`; üç durum
+  (başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / preferences elle açık bırakılmış) × iki dil.
+  Eski derleme (`git stash push -- cli/fm/Settings.cs` + `dotnet build -c Release cli/fm`): altı koşu iki dilde de
+  **birebir**, hepsi rc=0 (`dd/mm/yyyy → mm/dd/yyyy` ve tersi). İz: eski `click ?text=Confirm&name=ConfirmButton`
+  → yeni `buttons ?json=1&gen=…` + `click ?ptr=0x425b90800`. Dosyalar: `/tmp/t62/{before,after}-{tr,en}/`,
+  eski iz `/tmp/t62/before-tr/trace-old.txt`, yeni iz `/tmp/t62/after-tr/s1a.txt`.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı); tarih biçimi
+  `dd/mm/yyyy`de bırakıldı; dil `fm settings dil "Türkçe"` ile geri alındı (`fm settings --json` → `Turkish`), EN
+  ölçümü için `English`e geçişte bir kez `fm settings language "English"` denendi ve TR'de ad "dil" olduğu için
+  rc=1 aldı (beklenen: yerelleşmiş ad), sonra `dil` ile geçildi. Paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
+- Not: `fm settings` okuma yolu (`PreferencesTab`) ve diğer ayarlar dokunulmadı; yazma yolunun kalan yazı
+  bağımlılıkları (FM menüsü "Manage settings for this game"/"See all", sekme yedeği) ayrı iş.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 61)
 - Madde: **B "`contract <oyuncu> --agent`"** (CHECKLIST B, §8.250) — **PARK** (`[?]`): eski not "TR'de kimi koşuda
   seçenek yok, EN'de hep var" diyordu; ölçüm bunu **çürüttü**. Hata dil değil, **açık kalan konuşma / yenileme kartı**
   durumu: aynı oyuncuya arka arkaya ikinci soru ve açık kart varken soru **iki dilde de rc=1**; temiz sayfada ilk

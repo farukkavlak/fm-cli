@@ -243,7 +243,15 @@ internal static partial class Program
 		}
 
 		// The preferences' own Confirm: a page left underneath (responsibilities) has one too.
-		var confirmed = await Fm.Get("click", ("text", "Confirm"), ("name", "ConfirmButton"));
+		// Its label is the game's own string, and this language's table is free to translate it;
+		// what tells it apart is the event it sends, PreferencesConfirmChanges (the page left
+		// underneath sends another). Pressed by its pointer, by the label if the game names none.
+		JsonElement preferencesConfirm = default;
+		await Until(async () => (preferencesConfirm = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Events").Contains("PreferencesConfirmChanges", StringComparison.Ordinal) && Field(b, "Enabled") == "True")) is { ValueKind: JsonValueKind.Object }, seconds: 5, every: 0.25);
+		var confirmed = preferencesConfirm.ValueKind == JsonValueKind.Object
+			? await Fm.Get("click", ("ptr", Field(preferencesConfirm, "Pointer")))
+			: await Fm.Get("click", ("text", "Confirm"), ("name", "ConfirmButton"));
 		if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
 		await Until(async () => (await Fm.GetJson("texts", ("anchor", "All Preferences"), ("up", "0"))).GetArrayLength() == 0, seconds: 5, every: 0.25);
 
