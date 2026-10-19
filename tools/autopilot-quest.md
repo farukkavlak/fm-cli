@@ -3,7 +3,45 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 54)
+## Şu an (Tur 55)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / gözlemci seçme penceresinin `Cancel`/`Confirm`i**
+  (`AssignFocusScouts` → `Close`) — **BİTTİ** (§8.244): pencere TR oyununda İngilizce gelen "Cancel"/"Confirm"
+  yazısıyla bulunuyordu (`FormButton(await Window(), "Cancel"/"Confirm")`), satır düğmelerini seçen `Show` de
+  aynı iki yazıyı dışlıyordu. Ölçüm (canlı, TR + EN, `/buttons?json=1&gen=1`, pencere açık): pencerenin iki
+  düğmesi kendi olayını gönderiyor — `EventToPlugin:EventFmxRecruitmentFocusScoutAnalystEditCancel, ClosePanel`
+  ve `…EditConfirm, ClosePanel` (`Enabled=True`; şablon adı `button-secondary-label` / `button-primary-label`);
+  **formun** Cancel/Confirm'i başka olay (`RecruitmentFocusEditConfirmationDialog`) taşıdığı için karışmıyor.
+  Artık `EventButton(sent)` olayı taşıyan açık düğmeyi `?ptr=` ile basıyor (kimlik yoksa yazıya düşülüyor) ve
+  `Show` satır düğmesini bu iki düğmenin **işaretçisinden** dışlıyor.
+- Kanıt: `scout edit 1 --by "ZZZ yok"` (iptal) ve `--by "Kenny Morrison"` (onay), üç durum (`fm open
+  "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` [`Dynamics`] sonrası) × iki dil. **EN**:
+  eski derleme (`git stash push -- cli/fm/ScoutFocus.cs` + `dotnet build`) ile **birebir** — aynı başlangıç
+  durumu (`before-scout` `86fe1bcc76180061e6b35cee1def2ac4`), iptal üç durumda rc=64 + boş stdout
+  `d41d8cd98f00b204e9800998ecf8427e`, onay rc=0 ve `190cf72a…` / `00e361e1…` / `82814c43…` (eski derlemenin
+  aynısı; yeni derlemenin bir koşusu köprü sustuğu için rc=1 düştü, §8.99). **TR**: iptal üç durumda rc=64 +
+  boş stdout (iki derlemede de), onay rc=0 `537180b3b4689595e3dab1cf05232288` (yeni derlemede üç durumda da
+  aynı; eski derlemede de rc=0 ama koşular arası hedef odak kaydığı için md5'ler karşılaştırılamaz). İz: eski
+  `form ?anchor=Assign Any Scouts&up=8&buttons=1` (yazı) → yeni `buttons ?json=1&gen=1` (olay); basış iki
+  derlemede de `click ?ptr=`. Betik: `…/t55/run2.sh` + `…/t55/watch.py` (canlı olay ölçümü); klasörler
+  `new-tr`, `new-en3`, `old-en2`, `old-tr`.
+- Ölçüm notu (karşılaştırma): iptal yolu durumdan bağımsız (rc=64 + boş stdout), onay yolu ise `scout edit <#>`
+  her onayda oyunun eski kaydı listede 'Complete' bırakması yüzünden **listeyi kaydırıyor** — bu yüzden koşular
+  arasında aynı numara başka odağı gösteriyor; birebir karşılaştırma EN'de oyun yeniden başlatılıp **aynı
+  başlangıç durumundan** koşulduğu için yapıldı. Yan bulgu: sayfa yeni açılınca `ScoutFocuses()` ara sıra listeyi
+  boş okuyor (TR'de `scout edit 6` "Odak: '6' diye bir seçenek yok" — §8.242'nin yan bulgusu, iki derlemede de).
+- **Kayıt uyarısı:** ölçüm gerçekten odak kurdu/değiştirdi (`England`, `Sky Bet League One`, … Kenny Morrison'a
+  atandı; onayların doğal sonucu birkaç 'Complete' odak kaydı daha eklendi; CLI Complete odakları silemiyor).
+  Saat ilerletilmedi (2 Ağustos 2026 14:00), maç oynanmadı; dil EN ölçümünden sonra `fm settings language
+  "Türkçe"` ile geri alındı (`/state` → turkish). Oyun bir kez köprü yüzünden sustu (§8.99) → `pkill -9` +
+  `fm start </dev/null`, kayıt aynı yerden yüklendi.
+- Kalanlar (aynı pencerede): okuma çapası `form ?anchor=Assign Any Scouts` (ölçüldü:
+  `anchorpath=focusitem.anyscout&up=8&buttons=1` **0 öğe** döndürüyor, yol çapası tutmuyor) ve `Rows()`in
+  başlık sözü ("World Knowledge", bugün TR'de de İngilizce geliyor) — ikisi ayrı iş.
+- Not: değişiklik yalnız `cli/fm/ScoutFocus.cs` içinde (yerel `EventButton` + iki çağrı + `Show`); paylaşılan
+  koda (Bridge/`Until`/OpenPage) dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 54)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / recruitment focus formunun "form kapandı" işareti** (§8.243) —
   **BİTTİ**: Tur 53 kalan işi şöyle bırakmıştı: `ScoutNew`in `catch` dalındaki "form açık mı" ve Confirm akışındaki
   "form kapandı mı" işaretleri hâlâ `FormButton(FocusForm("Next"/"Back"), "Next"/"Confirm")`, yani **hem** yazı

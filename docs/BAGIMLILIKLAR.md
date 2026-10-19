@@ -473,7 +473,22 @@ tablodan çevrilemiyor.
     (`scout edit 1 --area "ZZZ yok"`) TR + EN üç durumda rc=64 ve stderr md5 §8.242 ile birebir (§8.243). Kalan:
     `click ?text=Confirm` / `AbandonFocus`in `click ?text=Cancel`i (ikisi de `m_cancelEdit`; `/buttons?json=1`
     özetinde yok → eklenti + oyun restartı ister), gözlemci seçme penceresinin `Cancel`/`Confirm`i ve okuma çapası
-    `form ?anchor=Next`/`Back`.
+    `form ?anchor=Next`/`Back`. **→ Tur 55'te gözlemci seçme penceresinin `Cancel`/`Confirm`i olaya bağlandı
+    (aşağıda, §8.244).**
+  - [x] **Gözlemci seçme penceresinin `Cancel`/`Confirm`i** (`AssignFocusScouts` → `Close`) artık yazıyla değil
+    **gönderdikleri olayla** bulunuyor: ikisi de `EventFmxRecruitmentFocusScoutAnalystEditCancel` /
+    `…EditConfirm` (+ `ClosePanel`) gönderiyor ve açık; **formun** kendi Cancel/Confirm'i başka bir olay
+    (`RecruitmentFocusEditConfirmationDialog`) taşıdığı için karışmıyor. Satır düğmesini seçen `Show` de artık
+    "Cancel"/"Confirm" yazısına değil bu iki düğmenin **işaretçisine** bakıyor — yani aynı fonksiyonun pencereyle
+    ilgili bütün yazı bağımlılığı kalktı. Olay adları TR + EN'de birebir (canlı ölçüm, 13 yoklama). Kanıt
+    (`scout edit 1 --by "ZZZ yok"` iptal / `--by "Kenny Morrison"` onay; üç durum: `fm open "Messages"` sonrası /
+    hemen ikinci koşu / başka sayfaya geçtikten sonra): EN'de **eski derlemeyle birebir** (aynı başlangıç durumu;
+    iptal üç durumda rc=64, stdout boş `d41d8cd9…`; onay `190cf72a…` / `00e361e1…` / `82814c43…` = eski
+    derlemenin aynısı; yalnız bir koşu köprü sustuğu için düştü), TR'de iptal üç durumda rc=64 + boş stdout, onay
+    rc=0 (`537180b3…`). İz: eski `form ?anchor=Assign Any Scouts&up=8&buttons=1` (yazı) → yeni
+    `buttons ?json=1&gen=1` (olay); basış iki derlemede de `click ?ptr=` (§8.244). Aynı pencerede kalan: okuma
+    çapası `form ?anchor=Assign Any Scouts` (ölçüldü: `anchorpath=focusitem.anyscout` **0 öğe** döndürüyor, yol
+    çapası tutmuyor) ve `Rows()`in başlık sözü ("World Knowledge") — ikisi ayrı iş.
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

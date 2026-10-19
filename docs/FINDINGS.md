@@ -2816,3 +2816,28 @@ hata yolu (`scout edit 1 --area "ZZZ yok"`, değişen satırlara girmiyor) TR + 
 basışı (`click ?text=Confirm`) ve `AbandonFocus`in `click ?text=Cancel`i — ikisi de `m_cancelEdit` taşır ve bu alan
 `/buttons?json=1` özetinde yok (eklenti + oyun restartı ister); ayrıca okuma çapası `form ?anchor=Next`/`Back`.
 Yan not: bu ölçüm gerçekten odak kurdu; kayıtta 12 `t54 …` artığı kaldı (Complete odakları CLI silemiyor).
+
+### 8.244 Gözlemci seçme penceresinin Cancel/Confirm'i artık gönderdiği olayla bulunuyor (19 Ekim, TR + EN)
+`AssignFocusScouts`in penceresindeki iki düğme (`Close`) pencere formunda **yazıyla** aranıyordu
+(`FormButton(await Window(), "Cancel"/"Confirm")`); aynı fonksiyonun `Show`u satır düğmesini de onlar
+"Cancel"/"Confirm" yazmadığından seçiyordu. Ölçüm (TR oyun, pencere açık, `/buttons?json=1&gen=1`): pencerenin
+kendi iki düğmesi `EventToPlugin:EventFmxRecruitmentFocusScoutAnalystEditCancel, ClosePanel` ve
+`…EditConfirm, ClosePanel` gönderiyor (`Enabled=True`; şablon adları `button-secondary-label` /
+`button-primary-label`, kural 3 gereği olaya/yüke öncelik), **formun** kendi Cancel/Confirm'i başka bir olay
+taşıyor (`RecruitmentFocusEditConfirmationDialog`) — karışmıyorlar. Aynı iki olay adı **İngilizce oyunda
+birebir** (canlı ölçüm: pencere 13 yoklamada aynı iki satırı verdi). Artık yerel `EventButton(sent)` bu olayı
+taşıyan açık düğmeyi bulup `?ptr=` ile basıyor (kimlik yoksa eskisi gibi yazıya düşülüyor) ve `Show` satır
+düğmesini aynı iki düğmenin **işaretçisinden** dışlıyor. Pencerenin okuma çapası (`form ?anchor=Assign Any
+Scouts&up=8`, yazı) kalıyor: `anchorpath=focusitem.anyscout&up=8&buttons=1` ölçüldü, **0 öğe** döndürüyor
+(yol çapası bu denetimde tutmuyor). `Rows()`in başlık sözü ("World Knowledge") da kalıyor — ayrı iş.
+Kanıt (`scout edit 1 --by "ZZZ yok"` = iptal, `--by "Kenny Morrison"` = onay; üç durum: `fm open "Messages"`
+sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` [`Dynamics`] sonrası): İngilizce'de **eski derlemeyle
+birebir** (aynı başlangıç durumu `86fe1bcc…`; iptal üç durumda rc=64, stdout boş `d41d8cd9…`; onay rc=0 ve
+`190cf72a…` / `00e361e1…` / `82814c43…` — eski derlemenin aynı koşuları `190cf72a…` / `00e361e1…` /
+`82814c43…`; yalnız yeni derlemenin s3-onay koşusu köprü sustuğu için (rc=1) düştü, §8.99). Türkçe'de iptal
+yolu üç durumda rc=64 + boş stdout (`d41d8cd9…`, iki derlemede de), onay yolu rc=0 ve yeni derlemede üç
+durumda da `537180b3…` (eski derlemede de rc=0; koşular arasında hedef odak kaydığı için md5'ler orada
+karşılaştırılamıyor — birebir karşılaştırma EN'de yapıldı). İz: eski `form ?anchor=Assign Any Scouts&up=8&
+buttons=1` (yazı) → yeni `buttons ?json=1&gen=1` (olay); basış iki derlemede de `click ?ptr=`. Yan not:
+`scout edit <#>` her onayda oyunun eski kaydı listede 'Complete' bırakması yüzünden liste kayıyor, o yüzden
+aynı numara başka bir odağı gösterebiliyor (ölçümün doğal sonucu: birkaç odak kaydı daha kuruldu).

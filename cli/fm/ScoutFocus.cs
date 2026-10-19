@@ -46,6 +46,26 @@ internal static partial class Program
 		return next != null ? "next" : back != null ? "back" : null;
 	}
 
+	/// <summary>
+	/// The observer window's own two buttons as the game names them (InteropEventIDs): each sends
+	/// its own event and closes the window.
+	/// </summary>
+	private const string ScoutEditCancel = "EventFmxRecruitmentFocusScoutAnalystEditCancel";
+
+	private const string ScoutEditConfirm = "EventFmxRecruitmentFocusScoutAnalystEditConfirm";
+
+	/// <summary>
+	/// A button the game itself names by the event it sends, pressed by its pointer. The observer
+	/// window's two buttons ("Cancel" / "Confirm") both send their own event and close the window,
+	/// and what this language's table writes on them is not what tells them apart (FINDINGS
+	/// §8.244); the form's own Cancel/Confirm carry a different event
+	/// (RecruitmentFocusEditConfirmationDialog), so they are never caught here.
+	/// </summary>
+	private static async Task<JsonElement?> EventButton(string sent) =>
+		(await Fm.GetJson("buttons", ("json", "1"), ("gen", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal) && Field(b, "Enabled") == "True")
+			.Cast<JsonElement?>().FirstOrDefault();
+
 	/// <summary>The texts drawn in a control, as the form gives them ("(Gözlemci)" with a name).</summary>
 	private static List<string> FormTexts(JsonElement item) =>
 		item.ValueKind == JsonValueKind.Object && item.TryGetProperty("Texts", out var texts) && texts.ValueKind == JsonValueKind.Array
@@ -162,9 +182,12 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{who} seçme penceresi açılmadı."));
 			return null;
 		}
-		async Task Close(string button)
+		async Task Close(string sent, string word)
 		{
-			if (FormButton(await Window(), button) is { } close) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
+			// The window's own two buttons, by the event each sends; the word on them is the game's
+			// and is only fallen back to if the identity is not there.
+			if (await EventButton(sent) is { } close) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
+			else await Fm.Get("click", ("text", word));
 			await Until(async () => (await Window()).Count == 0, seconds: 4, every: 0.3);
 		}
 
@@ -181,7 +204,12 @@ internal static partial class Program
 		// button says which list to scroll.
 		async Task Show(string share)
 		{
-			var inRow = (await Window()).FirstOrDefault(i => Field(i, "Kind") == "button" && Field(i, "Text") is not ("Cancel" or "Confirm"));
+			// The row buttons are whatever is left once the window's own two are taken out, by the
+			// event each of those sends (they say Cancel/Confirm, and that is the game's word).
+			var own = new List<string>();
+			foreach (var sent in new[] { ScoutEditCancel, ScoutEditConfirm })
+				if (await EventButton(sent) is { } button) own.Add(Field(button, "Pointer"));
+			var inRow = (await Window()).FirstOrDefault(i => Field(i, "Kind") == "button" && !own.Contains(Field(i, "Pointer")));
 			if (inRow.ValueKind != JsonValueKind.Object) return;
 			await Fm.Get("scroll", ("ptr", Field(inRow, "Pointer")), ("to", share));
 			await Task.Delay(400);
@@ -198,7 +226,7 @@ internal static partial class Program
 		{
 			if (Choose(names, wanted, who) is not { } name)
 			{
-				await Close("Cancel");
+				await Close(ScoutEditCancel, "Cancel");
 				return null;
 			}
 			if (!picked.Contains(name)) picked.Add(name);
@@ -223,11 +251,11 @@ internal static partial class Program
 		}
 		if (!await Until(async () => await Ticked() == picked.Count, seconds: 4, every: 0.3))
 		{
-			await Close("Cancel");
+			await Close(ScoutEditCancel, "Cancel");
 			Console.Error.WriteLine(L($"{who} seçilemedi (pencere seçilen sayısını göstermedi)."));
 			return null;
 		}
-		await Close("Confirm");
+		await Close(ScoutEditConfirm, "Confirm");
 		return picked;
 	}
 
