@@ -231,10 +231,16 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   durum ölçümü ister: **(1)** oyunun "ek hazır" işareti bulunacak — en güçlü aday kartın içeriğinin bağlanması
   (`#TileBindingExpect`); **(2)** eki olmayan bir mesaj yakalanıp o durumda ağacın/işaretin nasıl davrandığı
   ölçülecek (bu kayıtta örnek yok). İkisi de bulununca sabit bekleme işarete çevrilir (§8.192).
-- [ ] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2112). Denenen çözüm (çubuğun seçili satırı) ölçülünce
-  yetersiz çıktı: ana sayfa zaten açıkken çubuk eski seçimde kalıyor → geri alındı. Eklentide `open?guid=&check=1`
-  (yalnızca soru, hiçbir şey açmıyor) duruyor (14 Ekim commit edildi, CLI henüz kullanmıyor). Önce "ana sayfanın açılması bitti" işareti ölçülecek. Ayrıca `fm open X` açılış bitmeden dönüyor: hemen ardından
-  açılan sayfanın üstüne gelebiliyor (Mesajlar › Mutluluk'ta 1/10, §8.185).
+- [x] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2138): sabit bekleme kalktı, işaret oyunun kendi
+  cevabı oldu. Ölçüm (canlı, eklenti): ana sayfa istendikten sonra çubuk **0,16–0,46 sn**'de cevap veriyor
+  (`open?guid=<sayfa>&check=1` artık hata değil "not shown" diyor); ondan **önce** basılan satır kayboluyor
+  ("no page with guid … (a subtab's page: …)") ve kendiliğinden gelmiyor — bu yüzden çubuk cevap verene kadar
+  bekleniyor (0,25 sn aralık), sonra satır seçiliyor ve sayfa ancak **çubuk o satırda dururken** (`check=1`:
+  "shown") **ve** içerik görünürken, üst üste iki okumada alınıyor; olmazsa dört kez yineleniyor (`fm coaches`
+  TR + EN üç durumda eski derlemeyle birebir, süre 3,83/2,3/2,3 → 2,56/1,28/1,82 sn; `fm intensity --json`
+  TR + EN üç durumda 25 satır ve aynı `md5`; `sweep.sh` 50/50; §8.246). Kalan: `fm open X` (OpenPage) hâlâ
+  açılış bitmeden dönüyor — hemen ardından açılan sayfanın üstüne gelebiliyor (Mesajlar › Mutluluk'ta 1/10,
+  §8.185); çağıranın kendi işaretiyle beklemesi ayrı iş.
 - [ ] **Sabit üst sınırlar** (`Arriving` 8 sn, `Bound` 20 sn, maç akışında 3 sn'ler): yavaş makinede yetmeyebilir; ölçülecek.
 
 ### B. Oyun dili

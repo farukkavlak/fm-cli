@@ -2859,3 +2859,17 @@ EN'de 3 koşunun 2'sinde birebir `md5 424f3646599cf300e81ad7fedabdce5f` (12/12 s
 geliyor: `WriteAttachment`ın 1,5 sn'si bazen eki hiç yakalamıyor (mesaj bulunamadı / ek gelmedi) — §8.192'nin park
 ettiği iş; bu değişiklik onu iyileştirmiyor, yalnızca yakalanan okumada doğru satırları veriyor. Negatif: komşu mesajlar
 (`Kondisyon testleri`, veri merkezi) eski derlemeyle birebir; `sweep.sh` 50/50.
+
+### 8.246 Alt sayfa açmada sabit 1,5 sn yerine oyunun kendi işaretleri (19 Ekim, TR + EN)
+`OpenSubpage` (Program.cs) ana sayfayı açtıktan sonra **sabit 1,5 sn** bekliyordu; sebebi, ana sayfanın biraz sonra
+açılıp çubuğundan açılan sayfanın üstüne binmesiydi (Training › Mentoring, 14 Ekim). Ölçüm (canlı, eklenti, 4 durum):
+ana sayfa istendikten sonra çubuk **0,16–0,46 sn**'de cevap veriyor (`open?guid=<sayfa>&check=1` artık hata değil
+"not shown" diyor), ondan **önce** basılan satır kayboluyor (cevap: "no page with guid … (a subtab's page: open the
+page whose bar lists it first)") ve o basış bir daha kendiliğinden gelmiyor. Yeni: çubuk cevap verene kadar bekleniyor
+(0,25 sn aralık, üst sınır 6 sn), sonra satır seçiliyor ve sayfa ancak **çubuk o satırda dururken** (`check=1`:
+"shown") **ve** içerik görünürken, üst üste iki okumada alınıyor; olmazsa dört kez yineleniyor (kural 2, 3).
+`fm coaches` TR + EN, üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra): çıktı eski
+derlemeyle **birebir** (`md5` TR `241ea50f…`, EN `f7af385e…`), süre TR 3,83/2,3/2,3 → **2,56/1,28/1,82 sn**;
+`fm intensity --json` TR + EN üç durumda 25 satır ve `md5` birebir (`1a826717…` / `013460b4…`); `sweep.sh` 50/50.
+Aynı madde içinde kalan: `fm open X` (OpenPage) hâlâ açılış bitmeden dönüyor; çağıran, sayfanın hazır olduğunu
+kendi işaretiyle beklemeli (Mesajlar › Mutluluk'ta 1/10 düşme, §8.185) — bu ayrı iş.

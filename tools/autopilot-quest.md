@@ -3,7 +3,28 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 56)
+## Şu an (Tur 57)
+- Madde: **A "Alt sayfa açmada sabit 1,5 sn"** (`OpenSubpage`, `cli/fm/Program.cs`) — **BİTTİ** (§8.246):
+  ana sayfa açıldıktan sonraki `Task.Delay(1.5s)` yerine oyunun kendi işaretleri. Ölçüm (canlı, eklenti, 4 durum):
+  ana sayfa istendikten sonra çubuk **0,16–0,46 sn**'de cevap veriyor (`open?guid=<sayfa>&check=1` hata değil
+  "not shown" diyor); ondan **önce** basılan satır kaybediliyor (cevap "no page with guid … (a subtab's page: open
+  the page whose bar lists it first)") ve kendiliğinden gelmiyor → yeni akış: çubuk cevap verene kadar bekle
+  (0,25 sn aralık, üst sınır 6 sn), satırı seç, sayfayı ancak **çubuk o satırda dururken** (`check=1`: "shown")
+  **ve** içerik görünürken üst üste iki okumada kabul et; olmazsa 4 kez yinele.
+- Kanıt (üç durum = başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / başka sayfaya geçtikten sonra
+  `fm open "Squad Dynamics"`; her biri TR + EN): `fm coaches` çıktısı eski derlemeyle **birebir**
+  (`md5` TR `241ea50f14b238505fc9df267b725966`, EN `f7af385e323701f2c118b57bb1a62ebc`), süre TR 3,83/2,3/2,3 →
+  **2,56/1,28/1,82 sn**, EN 3,83/2,12/2,15 → **3,08/1,27/2,17 sn**; `fm intensity --json` TR + EN üç durumda
+  25 satır, `md5` birebir (`1a826717ef5f972ee3b4829327ae7423` / `013460b4dfdb0a41d754d0e332aac2a4`).
+  Eski derleme `git stash push -- cli/fm/Program.cs` + `dotnet build -c Release` ile; iz (`FM_TRACE=1`):
+  eski `open ?guid=<alt sayfa>` 2,87 sn'de (1,5 sn beklemeden sonra) ve içerik 3,88 sn'de → yeni basış 1,52 sn,
+  içerik 2,96 sn. Klasörler: `$TMPDIR/opencode/t57/{new,old}` (`/var/folders/.../T/opencode/t57`).
+- Dönüş/yan etki: dil TR'ye döndü (`fm settings language "Türkçe"` → `English → Turkish`, `/state` →
+  `Language: turkish`, 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı). Paylaşılan koda
+  (OpenSubpage) dokunulduğu için `sweep.sh`: **50 komut, 0 hata** (`…/t57/sweep`).
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 56)
 - Madde: **B "Cümle parçası arayanlar" / home-grown (altyapı) kartı** (Program.cs `WriteAttachment`) — **BİTTİ**
   (§8.245): özet dalı kendini `rest[0] == "Homegrown" && rest.Contains("Home-Grown Status")` ile tanıyordu; ama
   kartın ilk sözü **oyunun kendi cümlesi** ("Upcoming Status Changes") ve sütun başlığı canlıda "Homegrown Status"

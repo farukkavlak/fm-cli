@@ -2132,26 +2132,44 @@ internal static partial class Program
 	/// <summary>
 	/// A page listed in another page's subtab menu (Squad Dynamics › Happiness), by its GUID: the
 	/// page whose bar lists it is opened, then the row chosen on that bar. The first page can finish
-	/// opening after the second and cover it, so the row is chosen again until the page shows what
-	/// <paramref name="shown"/> looks for.
+	/// opening after the second and cover it, so the row is chosen again until the bar itself stands
+	/// on the page and the page shows what <paramref name="shown"/> looks for.
+	///
+	/// The bar answers for the page only once the parent is built: a row chosen before that is lost
+	/// (the press comes back "no page with guid …"), so the bar is waited on rather than paused on
+	/// (measured: the bar answers 0.16–0.46 s after the parent is asked for; §8.246). What the bar
+	/// stands on is the game's own word for the page being the one shown (?check=1).
 	/// </summary>
 	internal static async Task<string> OpenSubpage(string parent, string screen, Func<Task<bool>> shown)
 	{
 		var opened = await OpenPage(parent);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return opened;
-		// The parent finishes opening a moment after it is asked for, and covers whatever was opened from
-		// its bar in that moment (Training's overview over Mentoring, 14 Ekim 2026), while the page under
-		// it still answers the check below.
-		await Task.Delay(TimeSpan.FromSeconds(1.5));
 		var answer = "";
 		for (var attempt = 0; attempt < 4; attempt++)
 		{
+			// "shown"/"not shown" once the bar is there, an error while the parent is still coming up.
+			await Until(async () => !(await OnBar(screen)).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.25);
 			await Until(async () => !(answer = await Fm.Get("open", ("guid", screen))).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.5);
 			if (answer.StartsWith("error", StringComparison.Ordinal)) return answer;
-			if (await Until(shown, seconds: 3, every: 0.3)) return answer;
+			// The page under this one answers even while the parent draws over it, so it is taken only
+			// when the bar stands on it and the content is there, held over two readings in a row.
+			var standing = false;
+			if (await Until(async () =>
+			{
+				var on = (await OnBar(screen)).StartsWith("shown", StringComparison.Ordinal) && await shown();
+				var settled = on && standing;
+				standing = on;
+				return settled;
+			}, seconds: 3, every: 0.3)) return answer;
 		}
 		return L($"error: {answer}, ama sayfa beklenen içeriği göstermedi");
 	}
+
+	/// <summary>
+	/// The row the subtab bar on screen stands on: "shown" when it is the given page, "not shown"
+	/// otherwise, and an error while the page whose bar lists it is not up yet. Nothing is chosen.
+	/// </summary>
+	private static Task<string> OnBar(string screen) => Fm.Get("open", ("guid", screen), ("check", "1"));
 
 	/// <summary>A page as the game's own menus name it, in the game's language: what someone types after `fm open`.</summary>
 	private static Task<string> OpenNamed(string page, string tab = null) =>
