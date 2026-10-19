@@ -75,6 +75,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.
+  - [x] Propose 91 (`fm propose <oyuncu> <ücret>`: ücret kutusuna yazdıktan sonraki sabit 600 ms): artık oyunun kendi
+    cevabı bekleniyor — kutunun etiketi (`FMCombobox.Label`) **para yazısına dönüşüp öncekinden farklı** olana kadar
+    (`Until`, üst sınır 4 sn, 0,2 sn aralık); ekranda önceki ücret duruyorsa ve aynı sayı yazıldıysa hiç beklenmiyor.
+    Ölçüm: etiket `setnumber`dan 188–216 ms sonra para oluyor; 33 ms'teki ilk okuma hâlâ "Unspecified". TR + EN,
+    üç durum (başka sayfa / hemen ikinci koşu / başka sayfaya geçtikten sonra) + `0`, `1`, `250000`, `30000000`:
+    çıktı ve rc eski derlemeyle **birebir** (`£100B` / `£100K`, `£5M`, `£250B` / `£250K`). Aynı fonksiyonda kalan:
+    `Propose 77` (kiralık düğmesi sonrası 1200 ms) — düğmeye basınca dışa vurulan hiçbir alan değişmiyor
+    (buttons/combobox'lar 2,6 sn aynı), işaret bulunamadı; ölçüm §8.252.
   - [x] Finances 247 (+ kısa `Until` Finances 238): `finances` ve dökümü artık hiç sayfa açmıyor, hepsi kulübün
     verisinden (`/pull`); bekleme, kaydırma, yazı çapası kalmadı. Türkçe döküm daha önce hiç çalışmıyordu ("Madde" →
     "Clause"); 8 bileşim doğru, kalem toplamları toplamı tutuyor, art arda 10/10, kart açıkken / başka sayfada doğru

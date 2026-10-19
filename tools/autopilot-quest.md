@@ -3,7 +3,22 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 63)
+## Şu an (Tur 64)
+- Madde: **A "`Task.Delay`" / Propose 91** (`fm propose <oyuncu> <ücret>`: ücret kutusuna yazdıktan sonraki sabit 600 ms)
+  — **BİTTİ** (§8.252). `setnumber`dan sonra `FMCombobox.Label` oyunun para yazısına dönüşüp öncekinden farklı olana
+  kadar okunuyor (`Until`, 4 sn üst sınır, 0,2 sn); ekranda aynı ücret duruyorsa hiç beklenmiyor.
+- Kanıt: etiket `setnumber`dan 188–216 ms sonra para oluyor; 33 ms'teki ilk okuma hâlâ "Unspecified". TR + EN × üç
+  durum (başka sayfa / hemen ikinci koşu / başka sayfaya geçtikten sonra) + `0`, `1`, `250000`, `30000000`: çıktı ve
+  rc eski derlemeyle **birebir** (`£100B`/`£100K`, `£5M`, `£250B`/`£250K`). Dosyalar:
+  `/private/var/folders/22/ltdvnwm95m52zlkknwhg4lzw0000gn/T/opencode/t60/{old,new}-{tr,en}/`, iz `t60/trace-{tr,en}.err`.
+- Dönüş/yan etki: kayıt test kaydı; hiçbir teklif gönderilmedi (`--yes` yok), saat ilerletilmedi, maç oynanmadı; dil
+  TR'ye döndü (`fm settings language "Türkçe"` → `dil: Türkçe`). Yalnız `cli/fm/Propose.cs` değişti → paylaşılan kod
+  yok, `sweep.sh` gerekmedi.
+- Kalan (aynı fonksiyon): `Propose 77` (kiralık düğmesi sonrası 1200 ms) — basış dışa vurulan buttons/combobox kümesini
+  2,6 sn boyunca hiç değiştirmiyor; işaret için başka bir alan/eklenti bilgisi gerekir.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 63)
 - Madde: **A "Kısa `Until`" / TacticSlots 112** (`tactic clear --yes`: silme onayı için sabit 3 sn) — **BİTTİ** (§8.251).
   Eski kod 3 sn boyunca yalnız pencereyi yokluyor, süre dolunca "soru yok" sayıyordu. Artık bekleme oyunun kendi
   cevabı: pencere doldu **veya** yuvanın `TacticCount`'u düştü (`Until`, 8 sn üst sınır, 0,25 sn); pencere geldiyse
@@ -942,6 +957,22 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
   (`fm reply` boş/eksik) — Faruk'un 16 Ekim kararıyla park; çözülürse §8.245'in kalan oynaklığı da kapanır (§8.192).
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 64 — A "`Task.Delay`" / Propose 91: ücret kutusu sabit 600 ms yerine kendi para yazısını bekliyor (§8.252, 19 Ekim)
+Ne: `cli/fm/Propose.cs`. Ücret `setnumber` ile yazıldıktan sonra 600 ms beklenip `FMCombobox.Label` okunuyordu. Artık
+okuma oyunun kendi cevabına bağlı: etiket **para yazısına dönüşüp öncekinden farklı** olana kadar (`Until`, 4 sn üst
+sınır, 0,2 sn aralık); ekranda önceki ücret duruyorsa ve aynı sayı yazıldıysa hiç beklenmiyor.
+- Ölçüm (canlı, yeni derleme): `setnumber` +45 ms; ilk `buttons` 33–50 ms sonra hâlâ "Unspecified"; etiket 188–216 ms'de
+  `£100B` / `£100K` oluyor, sonra değişmiyor. İz: `t60/trace-tr.err` `10.81s setnumber` → `10.86s buttons` (Unspecified)
+  → `11.09s buttons` (para); `t60/trace-en.err` aynı desen.
+- Sonuç: TR + EN × üç durum (s1 `fm open Messages` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics`/`Dynamics`
+  sonrası) ve `0`, `1`, `250000`, `30000000`: hepsi rc=0, çıktı eski derlemeyle **birebir** (`£100B`/`£100K`, `£100B`,
+  `£250B`/`£250K`, `£5M`). Negatif oyuncu iki dilde rc=1; `--loan` iki derlemede aynı.
+- Eski derleme: `git stash push -- cli/fm/Propose.cs` + `dotnet build -c Release`, çıktı `/tmp` yerine
+  `.../opencode/t60/fm-old-dir` (apphost `fm.dll` yanında olmalı; tek dosya kopyası `fm.dll` arıyor).
+- Kayıt/tuzak: kayıt yalnız okundu, hiçbir teklif gönderilmedi (`--yes` yok), saat ilerletilmedi, maç oynanmadı;
+  dil TR'ye döndü. Yalnız `Propose.cs` değişti → `sweep.sh` gerekmedi. Kalan: `Propose 77` kiralık düğmesi sonrası
+  1200 ms; basış buttons/combobox kümesini 2,6 sn boyunca değiştirmiyor, işaret yok.
 
 ### Tur 59 — A "`Task.Delay`" / StaffSearch 91 100 110: personel arama panelinin kuralları veri yolundan bulunuyor, seçimler sabit 500 ms yerine oyunun kendi hâliyle (§8.248, 19 Ekim)
 Ne: `cli/fm/StaffSearch.cs` (`StaffFind`). Kural listeleri seçenek sözüyle bulunuyordu (`"Medical ›"`, `"By Nation"`,

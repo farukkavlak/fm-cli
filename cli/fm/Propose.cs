@@ -86,9 +86,18 @@ internal static partial class Program
 		if (fee != null)
 		{
 			var box = buttons.First(b => Field(b, "Type") == "FMCombobox");
+			var before = Field(box, "Label");
 			var said = await Fm.Get("setnumber", ("ptr", Field(box, "Pointer")), ("value", fee.Value.ToString()));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-			await Task.Delay(600);
+			// The box writes the amount back as the game's own money text; until it does, the
+			// label is what it showed before. Not a fixed pause: the game's own answer is the
+			// label becoming money (an earlier offer's amount is left alone).
+			if (!(MoneyFormat.IsMoney(before) && MoneyFormat.Parse(before) == fee))
+				await Until(async () =>
+				{
+					var now = Field((await Buttons()).FirstOrDefault(b => Field(b, "Type") == "FMCombobox"), "Label");
+					return MoneyFormat.IsMoney(now) && now != before;
+				}, seconds: 4, every: 0.2);
 			buttons = await Buttons();
 		}
 

@@ -3017,3 +3017,10 @@ açık / `Messages` açık / `Messages`+`Squad` sonrası) ve EN üç durum rc=0,
 EN'in bir durumunda "Slot 3 is already active" satırı bir kez çıktı, üç tekrarda 2/3 çıkmadı — o satır dokunulmayan
 ilk okumadan (sayfa örtülüyken `CurrentTacticSlot`) geliyor, değişikliğe bağlı değil. İz: eski `dialog` yoklamaları
 0,5 sn aralıkla, yeni `dialog` + `tactic` 0,25 sn. Kayıt test kaydı; dil TR'ye döndü (`fm settings language "Türkçe"`).
+
+### 8.252 `fm propose`: ücret kutusunun okuması sabit 600 ms yerine kutunun kendi para yazısı (19 Ekim, TR + EN)
+`Propose` ücreti `setnumber` ile yazdıktan sonra 600 ms bekleyip `FMCombobox.Label`ı okuyordu. Ölçüm (canlı): ilk okuma
+(33 ms) hâlâ "Unspecified"; etiket 188/216 ms'de `£100B`/`£100K` oluyor, sonra değişmiyor. Artık etiket para yazısına
+dönüşüp öncekinden farklı olana kadar okunuyor (üst sınır 4 sn, 0,2 sn aralık; ekranda aynı ücret duruyorsa bekleme yok).
+TR + EN, üç durum + `0`/`1`/`250000`/`30000000`: çıktı ve rc eski derlemeyle birebir. Kiralık düğmesi (`Propose 77`)
+sonrası 1200 ms kaldı: basış dışa vurulan buttons/combobox kümesini 2,6 sn boyunca hiç değiştirmiyor, yani işaret yok.
