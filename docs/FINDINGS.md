@@ -2768,3 +2768,17 @@ Aynı kayıtta ölçüldü: `--attr`/`--grade`/`--role`/`--max-value` iki derlem
 quest defteri Tur 51). Dil geçişinden hemen sonraki koşularda tablo yine kısa geliyor (22/25 satır; eski derlemede
 de aynı — §8.239 yan bulgusu), ölçüm oturmuş durumlar karşılaştırıldı. Panelde kalan: `PanelButton`in yedeği hâlâ
 yazıyla (asıl yol `PanelSent`, §8.239) ve `Row()`in satır adı, niteliğin oyunun menüsünden gelen kendi sözü.
+
+### 8.241 Recruitment focus formunun adım düğmeleri (Next/Back) artık gönderdikleri yükle bulunuyor (19 Ekim, TR + EN)
+`ScoutFocus` formunun "açıldı / yarım kalmış" işareti ve `fm scout areas`in bölge adımına geçişi düğmenin yazısına
+bağlıydı (`FormButton(FocusForm("Next"), "Next")`, `click ?text=Next`). Ölçüm (`/buttons?json=1&gen=1`, form açık):
+adım düğmeleri **aynı olayı** gönderiyor (`EventToPlugin:EventFmxRecruitmentFocusMoveToStep`, enum 1227976013);
+ayırt eden **yük** — ileri `SendsProps One`, geri `MinusOne` — ve göstermeyen adımın kendi düğmesi `Enabled=False`.
+Artık `FocusSteps()` olayı + yükü taşıyan açık düğmeyi arıyor (kimlik yoksa yazıya düşülüyor): TR + EN dört durum
+(başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra / form ikinci adımda bırakılmış) `fm scout
+areas --json` eski derlemeyle birebir (`md5 fed56895c45431dd9820725651421c2b`, rc=0); odağı kurmayan `scout new`
+yolunda rc=64 ve odak sayısı değişmiyor. Aynı formda **Cancel ve Confirm** hâlâ yazıyla: ikisi de
+`RecruitmentFocusEditConfirmationDialog` gönderiyor ve ayırt eden alan (`m_cancelEdit` = True/False) yalnız
+`/buttons?text=` bloğunda var, `/buttons?json=1` özetinde **yok** — oraya eklemek eklenti değişikliği + oyun
+restartı ister. Confirm'e basmak pencere açmıyor, formu kapatıp odağı **kuruyor** (ölçümün doğal sonucu bir "All"
+odağı bıraktı).

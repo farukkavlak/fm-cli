@@ -443,6 +443,21 @@ tablodan çevrilemiyor.
     aynı, §8.239 yan bulgusu) — ölçüm zinciri bu yüzden oturmuş durumlar karşılaştırıldı.
     Aynı panelde kalan: `PanelButton("Apply"/"Cancel")`in **yedeği** hâlâ yazıyla (asıl yol `PanelSent`, §8.239) ve
     `Row()`in satır adı eşleşmesi niteliğin oyunun menüsünden gelen **kendi sözüyle** (sabit İngilizce değil).
+  - [x] Recruitment focus formunun **adım düğmeleri** (`Next`/`Back`): formun "açıldı / yarım kalmış" işareti
+    (`OpenFocusForm`) ve `fm scout areas`in bölge adımına geçişi yazıyla konuyordu (`FormButton(FocusForm("Next"),
+    "Next")`, `click ?text=Next`). Ölçüldü: ikisi de **aynı olayı** gönderiyor
+    (`EventToPlugin:EventFmxRecruitmentFocusMoveToStep`, enum 1227976013), ayırt eden **yük** — ileri `SendsProps One`,
+    geri `MinusOne` — ve göstermeyen adımın kendi düğmesi `Enabled=False` (adım 2'de ileri düğmesi ekranda duruyor
+    ama kapalı). Artık `FocusSteps()` bu olayı + yükü taşıyan açık düğmeyi arıyor, kimlik yoksa eskisi gibi yazıya
+    düşülüyor. Kanıt: TR + EN, dört durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra /
+    form ikinci adımda bırakılmış → kalıntı dalı) `fm scout areas --json` eski derlemeyle **birebir**
+    (`md5 fed56895…`, rc=0); izde eski `form ?anchor=Next` + `click ?text=Next` → yeni `buttons ?json=1&gen=1` +
+    `click ?ptr=…`; odağı kurmayan `scout new` yolunda (`--area "ZZZ yok"`) iki derleme de rc=64, odak sayısı
+    değişmiyor (§8.241). Aynı formda kalan: **`Cancel`/`Confirm`** hâlâ yazıyla — ölçüldü, ikisi de
+    `RecruitmentFocusEditConfirmationDialog` taşıyor ve ayırt eden alan (`m_cancelEdit`) `/buttons?json=1` özetinde
+    **yok** (eklenti değişikliği + oyun restartı ister, Sonraya bırakıldı); ayrıca `AbandonFocus`in
+    `click ?text=Cancel`i, gözlemci seçme penceresinin `Cancel`/`Confirm`i, okuma çapası (`form ?anchor=Next`) ve
+    `scout new/edit`in kalan `Next`/`Confirm` basışları.
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

@@ -3,7 +3,46 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 51)
+## Şu an (Tur 52)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / recruitment focus formunun ADIM düğmeleri (`Next`/`Back`)** —
+  **BİTTİ** (§8.241, Tur 52): formun "açıldı / yarım kalmış" işareti (`OpenFocusForm`) ve `fm scout areas`in bölge
+  adımına geçişi düğmenin **yazısıyla** konuyordu (`FormButton(FocusForm("Next"), "Next")`, `click ?text=Next`).
+  Ölçüm (`/buttons?json=1&gen=1`, TR): iki adım düğmesi **aynı olayı** gönderiyor
+  (`EventToPlugin:EventFmxRecruitmentFocusMoveToStep`, enum 1227976013); ayırt eden **yük** — ileri `SendsProps One`,
+  geri `MinusOne` — ve göstermeyen adımın kendi düğmesi `Enabled=False` (adım 2'de ileri düğmesi ekranda duruyor
+  ama kapalı). Artık `FocusSteps()` bu olayı + yükü taşıyan **açık** düğmeyi arıyor; bulunamazsa eskisi gibi yazıya
+  düşülüyor.
+- Kanıt: TR + EN, dört durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `fm open "Squad Dynamics"`
+  [EN `Dynamics`] sonrası / s4 **form ikinci adımda bırakılmış** → kalıntı dalı) × `fm scout areas --json`:
+  **dört durumda da md5 `fed56895c45431dd9820725651421c2b`**, rc=0, çıktı
+  `["Competition ›","Nation ›","Recently Selected ›"]` — **eski derleme (git stash + `dotnet build`) ile birebir**
+  (aynı md5, aynı dört durum; `before-tr`/`before-en`). İz: eski `form ?anchor=Next&up=12` + `form ?anchor=Back…` +
+  `click ?text=Next` → yeni `buttons ?json=1&gen=1` + `click ?ptr=0x…`; s4'te iki derleme de kalıntıyı görüp
+  `click ?text=Cancel` + pencerenin cevabıyla formu atıyor, sonra temizini açıyor. Ek koşu (odağı kurmadan bölge
+  adımında düşen yol): `fm scout new --priority top --area "ZZZ yok"` iki derlemede de **rc=64**, aynı mesaj,
+  `fm scout --json` md5'i koşudan önce/sonra **aynı** (`9142427a9d97a87532c05ebd8367bf92`, 5 odak) → yeni odak yok.
+  Betik: `/private/var/…/opencode/t52/run.sh`; klasörler `before-tr`, `after-tr`, `before-en`, `after-en`,
+  `before-en-new`, `after-en-new`.
+- Sweep: **50 komut, 0 hata** (Türkçe oyunda, `scout` satırı rc=0); son TR koşusu `fm scout areas --json` aynı md5.
+- Kalan (sıradaki tur önerisi): aynı formda **Cancel** ve **Confirm** hâlâ yazıyla — ölçüldü, ikisi de
+  `RecruitmentFocusEditConfirmationDialog` olayını taşıyor ve ayırt eden alan (`m_cancelEdit` True/False,
+  `/buttons?text=` bloğunda) `/buttons?json=1` özetinde **yok**: JSON'a eklemek **eklenti değişikliği + oyun
+  restartı** ister → "Sonraya bırakılanlar"a yazıldı. Ayrıca aynı dosyada kalanlar: `AbandonFocus`in
+  `click ?text=Cancel`i, gözlemci seçme penceresinin `Cancel`/`Confirm`i (`Close`), okuma çapası (`form ?anchor=Next`),
+  `scout new/edit`in kalan `Next`/`Confirm` basışları (L550/571/575/666/669/680) ve `FormButton(form, "Next"/"Confirm")`
+  işaretleri. B'de kalanlar: `row()`in satır adı (oyunun kendi sözü), `contract --agent` kartın işareti, haber
+  "Portugal". A'da kısa `Until`ler (League 216 · MatchControls 131 266 · Reads 892 · TraitTraining 89 · TacticFiles 29 ·
+  TacticSlots 112 · Saves 207 220 · StaffSearch 354 · Prep 124 · ScoutFocus 55 · Program 986 1918 2118).
+- Kayıt durumu: kayıt yalnız **okundu**; ölçüm sırasında Confirm basışının doğal sonucu olarak **1 odak kuruldu**
+  (bölge seçilmeden, adı bölge adı "All"/"Hepsi" → listede 5. sırada; düğmenin işaretini ölçerken basıldı, pencere
+  açılmadı, form kapandı) — silme yolu olmadığı için (silme Faruk'un kararı) temizlenmedi. Tur 45'in 3 yinelenen
+  "Sky Bet League Two" kaydı artık listede **yok** (liste 7 → 5 + bu odak; oyun kendisi temizlemiş görünüyor, bu
+  turda ölçülmedi). Saat ilerletilmedi (2 Ağustos 2026 14:00), maç oynanmadı; dil EN ölçümünden sonra
+  `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
+- Not: ağaçta yalnız bu turun dosyası var (`cli/fm/ScoutFocus.cs`) + dokümanlar; `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 51)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm players` arama panelinin OKUMA yolu** (`Under`/`Row`,
   StaffSearch.cs 270/349) — **BİTTİ** (§8.240, Tur 51): panel `form ?anchor=Apply&up=8` ile, yani Apply düğmesinin
   **sözüyle** bulunuyordu; kural başlıkları da ekrandaki İngilizce sözle eşleşiyordu. Ölçüm (TR oyun, panel açık):
@@ -605,11 +644,51 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
 - B yükleme ekranının `Load`u / `LoadTile` / `Back to last saves`: oyun restartı istiyor.
 - B `MatchDay`in üç penceresi (`Instant Result`, `Team Selection`, `Injured Players`): maç gününde ölçüm ister.
 - B `contract <oyuncu> --agent` TR'de kimi koşuda satır yok: ekranda kalan sözleşme kartının kendi işareti (§8.210 sonu).
+- B recruitment focus formunun `Cancel`/`Confirm`i: ikisi de `RecruitmentFocusEditConfirmationDialog` gönderiyor,
+  ayırt eden alan `m_cancelEdit` (True/False) yalnız `/buttons?text=` bloğunda, `/buttons?json=1` özetinde yok →
+  JSON'a eklemek eklenti değişikliği + oyun restartı ister (§8.241).
 - B haber "Portugal" / "Defence (Core)": elde örnek mesaj yok, yeniden üretilemedi (§8.226 öncesi).
 - D `up=N` (76 yer) ve sayfa GUID'leri (36 sabit): skin/güncelleme bağımlılığı, baştan sona tarama işi.
 - D `Penalties` "MAÇA" sütunu: eklenti alanı ya da maske çevirisi kararı Faruk'un (§8.218).
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 52 — B "yazıyla basma" / recruitment focus formunun adım düğmeleri: `Next`/`Back` artık gönderdikleri yükle (`One`/`MinusOne`) bulunuyor (§8.241, 19 Ekim)
+Ne: `cli/fm/ScoutFocus.cs`. `OpenFocusForm`in "form açıldı / yarım kalmış" işareti
+`FormButton(await FocusForm("Next"), "Next") != null || FormButton(await FocusForm("Back"), "Confirm") != null` idi ve
+`ScoutAreas` adımı `click ?text=Next` ile geçiyordu. Ölçüm (form açıkken `/buttons?json=1&gen=1`): adım 1'in `Next`i ve
+adım 2'nin `Back`i **aynı olayı** gönderiyor (`EventToPlugin:EventFmxRecruitmentFocusMoveToStep`, enum 1227976013),
+ayırt eden **yük**: ileri `SendsProps One`, geri `MinusOne`; göstermeyen adımın kendi düğmesi ekranda duruyor ama
+`Enabled=False`. Yeni `FocusSteps()` olayı + yükü taşıyan **açık** düğmeyi bulup işaretçisini veriyor; kimlik yoksa
+eskisi gibi yazıya düşülüyor.
+- Ölçüm yolu: `/private/var/…/opencode/t52/run.sh <etiket> TR|EN` → her koşuda s1 `fm open "Messages"` sonrası,
+  s2 hemen ikinci koşu, s3 `fm open "Squad Dynamics"` (EN: `Dynamics`) sonrası, s4 form **ikinci adımda bırakılmış**
+  (kalıntı dalı; sayfa + `Create a New Recruitment Focus` + `Next` curl ile basılıyor) → `fm scout areas --json`.
+- Sonuç: **dört durumda da** stdout `md5 fed56895c45431dd9820725651421c2b`, rc=0,
+  `["Competition ›","Nation ›","Recently Selected ›"]` — **eski derleme** (`git stash push -- cli/fm/ScoutFocus.cs` +
+  `dotnet build -c Release`) ile **birebir**: `before-tr` (4/4) ve `before-en` (4/4) aynı md5; `after-tr`/`after-en`
+  de aynı md5 (yorum: hiçbir durumda davranış değişmedi).
+- İz (s1, TR): eski `click ?text=Create a New Recruitment Focus` (bazen 2-3 deneme) → `form ?anchor=Next&up=12` →
+  `form ?anchor=Back&up=12` → `click ?text=Next`; yeni `click ?text=Create…` → **`buttons ?json=1&gen=1`** →
+  **`click ?ptr=0x…`** → `form ?anchor=Back&up=12` → `click ?text=Cancel` (iptal yolu bu turda değişmedi). s4 (TR):
+  yeni derlemede ilk `buttons` işareti adım 2'yi (MinusOne açık, One yok) görüyor → `click ?text=Cancel` + `dialog`
+  cevabı → sayfa yeniden açılıp temiz form; iki derlemede de aynı akış, aynı çıktı.
+- Ek (regresyon, odağı kurmayan yol): `fm scout new --priority top --area "ZZZ yok"` → iki derlemede de **rc=64**,
+  stdout boş, stderr aynı satır (`Area: 'ZZZ yok' was not found…`); `fm scout --json` md5 koşudan önce/sonra
+  `9142427a9d97a87532c05ebd8367bf92` (5 odak) → **yeni odak yok**. İz farkı yalnız yeni `buttons ?json=1&gen=1`
+  işareti (eski `form ?anchor=Next`).
+- Aynı formda ölçülen ama **değiştirilmeyen** (kural 4): `Cancel` (0x435301800) ve `Confirm` (0x426ea2800) ikisi de
+  `RecruitmentFocusEditConfirmationDialog` olayını taşıyor; ayırt eden alan `/buttons?text=Confirm` bloğunda
+  görünüyor — `m_cancelEdit = False` (Confirm) / `True` (Cancel) — ama bu alan `/buttons?json=1` özetinde yok;
+  JSON'a eklemek **eklenti değişikliği + oyun restartı** ister (Sonraya bırakıldı). Confirm'e basışın doğal sonucu
+  ölçüldü: pencere açılmıyor, form kapanıyor, **odak kuruluyor** (bölge seçilmeden adı bölge adı olan "All"/"Hepsi"
+  kaydı eklendi — kayıt durumu notu Tur 52 başlığında).
+- Kayıt durumu: kayıt yalnız okundu; turun tek yazımı yukarıdaki odak (Confirm ölçümü); saat 2 Ağustos 2026 14:00,
+  ilerletilmedi, maç oynanmadı; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı
+  (`/state` → turkish).
+- Regresyon: `tools/sweep.sh /private/var/…/opencode/t52/sweep` → **50 komut, 0 hata** (Türkçe oyunda; `scout`
+  satırı rc=0). Değişiklik yalnız `ScoutFocus.cs` içinde (`FocusSteps()` + iki çağrı yeri); paylaşılan koda
+  (Bridge/OpenPage/`Until`) dokunulmadı. Son TR koşusu: `fm scout areas --json` → `md5 fed56895…`, rc=0.
 
 ### Tur 50 — B "yazıyla basma" / `staff find` arama paneli: `Apply` ve `Cancel` artık gönderdikleri yükle (`True`/`False`) basılıyor (§8.239, 19 Ekim)
 Ne: `cli/fm/StaffSearch.cs`. Gönder yolu `StaffFind` 112'de `click ?text=Apply`; `ApplySearch`in `PanelButton`ı (262) ve

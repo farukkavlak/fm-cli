@@ -17,6 +17,23 @@ internal static partial class Program
 	private static JsonElement? FormButton(List<JsonElement> form, string text) =>
 		form.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == text).Cast<JsonElement?>().FirstOrDefault();
 
+	/// <summary>
+	/// The form's two step buttons, as the game itself tells them apart: both send
+	/// EventFmxRecruitmentFocusMoveToStep, and what differs is the payload each sends — "One" for
+	/// going on, "MinusOne" for coming back — which no language changes. The step that is not
+	/// showing leaves its own instance behind, disabled, so an open one is what is looked for; the
+	/// word on the button ("Next", "Back") is only what the game's translation table calls it.
+	/// </summary>
+	private static async Task<(string Next, string Back)> FocusSteps()
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", "1"))).EnumerateArray().ToList();
+		string Step(string sent) => buttons
+			.Where(b => Field(b, "Events").Contains("EventFmxRecruitmentFocusMoveToStep", StringComparison.Ordinal)
+				&& Field(b, "Enabled") == "True" && Field(b, "SendsProps") == sent)
+			.Select(b => Field(b, "Pointer")).FirstOrDefault();
+		return (Step("One"), Step("MinusOne"));
+	}
+
 	/// <summary>The texts drawn in a control, as the form gives them ("(Gözlemci)" with a name).</summary>
 	private static List<string> FormTexts(JsonElement item) =>
 		item.ValueKind == JsonValueKind.Object && item.TryGetProperty("Texts", out var texts) && texts.ValueKind == JsonValueKind.Array
@@ -404,7 +421,8 @@ internal static partial class Program
 		// A form left half-filled (a run that failed, a page opened over it) comes back as it was
 		// left, on its second step: it is thrown away and a clean one opened.
 		var leftover = false;
-		if (await Until(async () => FormButton(await FocusForm("Next"), "Next") != null || (leftover = FormButton(await FocusForm("Back"), "Confirm") != null), seconds: 8, every: 0.5))
+		(string Next, string Back) steps = default;
+		if (await Until(async () => (steps = await FocusSteps()) is { Next: not null } || (leftover = steps.Back != null), seconds: 8, every: 0.5))
 		{
 			if (!leftover) return true;
 			await AbandonFocus();
@@ -420,7 +438,10 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 		if (!await OpenFocusForm()) return 1;
-		await Fm.Get("click", ("text", "Next"));
+		var (nextStep, _) = await FocusSteps();
+		await (nextStep != null
+			? Fm.Get("click", ("ptr", nextStep))
+			: Fm.Get("click", ("text", "Next")));
 		List<JsonElement> form = [];
 		await Until(async () => FormBound(form = await FocusForm("Back"), "possiblescoutingareasdropdownselectedoption") != null, seconds: 8, every: 0.5);
 		if (FormBound(form, "possiblescoutingareasdropdownselectedoption") is not { } areas)
