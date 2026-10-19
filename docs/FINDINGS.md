@@ -2731,3 +2731,26 @@ yardımcı + tek çağrı); paylaşılan koda dokunulmadı. Tuzak: ölçümde bi
 "no page named" diyor, doğrusu `fm open "Dynamics"` (sayfa adı o dilin sözü — ayrı iş).
 Kayıt durumu: yalnız kendi kopyalarımız silindi, kayıt okunmadı/yazılmadı; 2 Ağustos 2026 09:15, saat ilerletilmedi,
 maç oynanmadı; dil `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
+
+### 8.239 `fm staff find` arama panelinin `Apply`/`Cancel`i artık gönderdikleri yükle basılıyor (19 Ekim, TR + EN)
+`StaffFind`/`ApplySearch` (StaffSearch.cs) panelin iki düğmesini de yazıyla basıyordu: gönder yolu `click ?text=Apply`,
+iptal yolu panelin form okumasından (`Text == "Cancel"`). Ölçüm (TR oyun, panel açık, `/buttons?json=1&gen=1`): ikisi
+de **aynı olayı** gönderiyor (`PanelHistoryClose, EventToPlugin:EventFmxFilterRestoreFilter`) — ayırt eden gönderilen
+**yük**: Apply `SendsProps True`, Cancel `False` (dile ve skine bağlı değil; `Name` de farklı — `button-primary-…` /
+`button-base-label` — ama o şablon sınıfı, kural 3 gereği yüke öncelik verildi). Artık `PanelSent(apply)` bu olayı ve
+yükü taşıyan düğmeyi `?ptr=` ile basıyor (iki çağrı yeri: `StaffFind`in kendi iptali + `ApplySearch`in `PanelButton`ı);
+kimlik yoksa eskisi gibi panelin form okuması + yazı.
+Kanıt: TR + EN × üç durum (başka sayfa açık `fm open "Messages"` / hemen ikinci koşu / başka sayfaya geçtikten sonra)
+× iki yol (`staff find --role "Coach" --json` = Apply, `staff find --role "zzz yok"` = Cancel) → **eski derlemeyle
+(git stash + `dotnet build`) birebir**: stdout `md5` TR `278f3c93afe416f0d6c62353a517cd67`, EN oturmuş
+`2ba97887d7c948522efd6e8436749986`; rc 0 / 64, stderr `md5` TR `323377898b24fb0011935d1f72ddaf29` / EN
+`52c49a4e6158ce3d2d73b48d1f300ccf`. İzde eski `click ?text=Apply` → yeni `buttons ?json=1&gen=1` + `click ?ptr=0x…`
+(altı koşunun altısında da; iptal yolu da form okumasından yüke geçti, `form ?anchor=Apply&…&buttons=1` yalnız yedek).
+Yan bulgu (yeni, düzeltilmedi): **dil değişiminden hemen sonraki** ilk koşularda personel tablosu yalnız süzülmüş
+satırları veriyor (21 satır), sayfa oturduktan sonra 69 (48 satırın `JobString`i boş) — **eski derlemede de aynı**
+(§8.194/§8.232'nin devamı); panelin *okuma* yolu (`Under`/`Row`) hâlâ `form ?anchor=Apply` ile kelimeyle çapalı.
+Kayıt durumu: kayıt yalnız **okundu**, hiçbir şey yazılmadı; sayfanın arama süzgeci (tur başında 1 kural duruyordu)
+`--clear` ile boşaltıldı, sayfa artık süzgeçsiz; 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı; dil
+`fm settings language "Türkçe"` ile geri alındı (`/state` → turkish). Regresyon: `tools/sweep.sh` → 50 komut, 0 hata;
+aynı `ApplySearch`i kullanan `fm players "Aaron" --attr "Pace>=15"` (Reads.cs 802) iki derlemede **birebir**
+(`md5 d8cd16daa30d08417f6a34d9007d3e6e`, rc=0).

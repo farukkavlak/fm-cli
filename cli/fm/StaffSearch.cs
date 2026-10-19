@@ -67,9 +67,11 @@ internal static partial class Program
 
 			async Task<int> Cancel(int code)
 			{
-				// The panel's own Cancel carries no event; it is found in the panel, beside Apply.
-				var cancel = (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray()
-					.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == "Cancel").Select(i => Field(i, "Pointer")).LastOrDefault();
+				// The panel's own Cancel sends the same event as Apply with "false"; if the game does
+				// not say so, it is found in the panel, beside Apply, by the word on it.
+				var cancel = await PanelSent(false)
+					?? (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray()
+						.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == "Cancel").Select(i => Field(i, "Pointer")).LastOrDefault();
 				if (cancel != null) await Fm.Get("click", ("ptr", cancel));
 				return code;
 			}
@@ -109,7 +111,9 @@ internal static partial class Program
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
 				await Task.Delay(500);
 			}
-			var applied = await Fm.Get("click", ("text", "Apply"));
+			var applied = await PanelSent(true) is { } apply
+				? await Fm.Get("click", ("ptr", apply))
+				: await Fm.Get("click", ("text", "Apply"));
 			if (applied.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(applied));
 			asked = true;
 		}
@@ -231,6 +235,20 @@ internal static partial class Program
 		return JsonDocument.Parse(node.ToJsonString()).RootElement;
 	}
 
+	/// <summary>
+	/// The search panel's Apply (true) and Cancel (false) as the game itself tells them apart: the
+	/// panel's two buttons stand for the same event, and what differs is the payload each sends —
+	/// true for keeping what was set, false for dropping it — which does not change with the
+	/// language. Null when the panel is not open.
+	/// </summary>
+	private static async Task<string> PanelSent(bool apply)
+	{
+		var sent = (await Fm.GetJson("buttons", ("json", "1"), ("gen", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxFilterRestoreFilter", StringComparison.Ordinal)
+				&& Field(b, "SendsProps") == (apply ? "True" : "False"));
+		return sent.ValueKind == JsonValueKind.Object ? Field(sent, "Pointer") : null;
+	}
+
 	private static async Task<string> ApplySearch(List<(string Heading, string Choice, string What)> wanted,
 		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null, long? maxValue = null)
 	{
@@ -256,10 +274,13 @@ internal static partial class Program
 				if (Field(items[at], "Kind") == "text" && Field(items[at], "Text") == heading && Field(items[at + 1], "Kind") == "dropdown") return items[at + 1];
 			return null;
 		}
-		// The panel's own Cancel and Apply carry no events, so they are not among the page's
-		// controls; they are found in the panel, beside each other.
+		// The panel's own Apply and Cancel stand for the same event; the one that keeps what was set
+		// sends "true", the one that drops it "false" — the payload the game itself sends, the same
+		// in every language. If the game does not say which is which, they are found in the panel
+		// beside each other, by the words on them, as before.
 		async Task<string> PanelButton(string label) =>
-			(await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray()
+			await PanelSent(label == "Apply")
+			?? (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray()
 				.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == label).Select(i => Field(i, "Pointer")).LastOrDefault();
 		async Task<string> Close(string error)
 		{

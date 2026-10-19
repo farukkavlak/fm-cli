@@ -3,7 +3,49 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 49)
+## Şu an (Tur 50)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `staff find` arama panelinin `Apply`/`Cancel`i** — **BİTTİ** (§8.239,
+  Tur 50): `StaffFind` (112) gönderi `click ?text=Apply` ile, `ApplySearch`in `PanelButton`ı ve `StaffFind`in kendi
+  `Cancel`i panelin form okumasından (`Text == "Apply"/"Cancel"`) basıyordu. Ölçüm (TR oyun, panel açık,
+  `/buttons?json=1&gen=1`): panelin iki düğmesi **aynı olayı** gönderiyor (`PanelHistoryClose,
+  EventToPlugin:EventFmxFilterRestoreFilter`); ayırt eden **gönderilen yük** — Apply `SendsProps True`, Cancel
+  `False` (dile/skine bağlı değil; `Name` de farklı, `button-primary-leading-icon-label` / `button-base-label`, ama o
+  şablon sınıfı → kural 3 gereği yüke öncelik). Artık `PanelSent(apply)` (StaffSearch.cs) bu olayı ve yükü taşıyan
+  düğmeyi `?ptr=` ile basıyor; kimlik yoksa eskisi gibi form okuması + yazı.
+- Kanıt: TR + EN, üç durum (başka sayfa açık `fm open "Messages"` sonrası / hemen ikinci koşu / başka sayfaya
+  geçtikten sonra) × iki yol (`fm staff find --role "Coach" --json` = Apply, `fm staff find --role "zzz yok"` =
+  Cancel), her koşu öncesi `--clear` (aynı süzgeç durumu) → **eski derlemeyle (git stash + `dotnet build`) birebir**:
+  stdout `md5` TR `278f3c93afe416f0d6c62353a517cd67` (3/3), EN oturmuş `2ba97887d7c948522efd6e8436749986` (3/3);
+  rc 0 / 64, stderr `md5` TR `323377898b24fb0011935d1f72ddaf29` / EN `52c49a4e6158ce3d2d73b48d1f300ccf`. İz:
+  eski `click ?text=Apply` → yeni `buttons ?json=1&gen=1` + `click ?ptr=0x…` (altı koşunun altısında; iptal yolu da
+  form okumasından yüke geçti — `form ?anchor=Apply&up=8&buttons=1` artık yalnız yedek, bu turda hiç çağrılmadı).
+  Betik: `/private/var/…/opencode/t50/run.sh`; ölçüm klasörleri `t50/before-tr`, `before-en`, `before-en2`,
+  `after-en`, `after-tr`, `after-tr2`, `after-tr3`, `after-en3`.
+- Paylaşılan yol (regresyon): aynı `ApplySearch`i `fm players` de kullanıyor (Reads.cs 802) — `fm players "Aaron"
+  --attr "Pace>=15"` iki derlemede **birebir** (`md5 d8cd16daa30d08417f6a34d9007d3e6e`, rc=0); izde eski
+  `form ?anchor=Apply&up=8&buttons=1` → yeni `buttons ?json=1&gen=1` + `click ?ptr=…`.
+- Ölçüm notu: TR'de dil geçişinden hemen sonraki geçici durum (yukarıdaki yan bulgu) yalnız **yeni** derlemede
+  ölçüldü (`7f4956af…`); aynı durumun iki derlemedeki eşliği EN'de kanıtlandı (`5b380c79…` iki derlemede de,
+  before-en s1/s2 = after-en3 s1/s2).
+- Yan bulgu (yeni, düzeltilmedi — §8.239 sonu): **dil değişiminden hemen sonraki** ilk koşularda personel tablosu
+  yalnız süzülmüş satırları veriyor (21), sayfa oturduktan sonra 69 (48 satırın `JobString`i boş) — **eski derlemede
+  de aynı** (before-en s1/s2 = `5b380c79…`, after-tr s1/s2 = `7f4956af…`, sonra oturuyor) → bu turun değişikliğiyle
+  ilgisi yok. Ayrı iş: süzgeçli tablonun neden 69 satır verdiği ve 48 boş `JobString` (okuma mı, görünüm mü?).
+- Kalan (sıradaki tur önerisi): aynı panelin **okuma** yolu (`Under`/`Row`, StaffSearch.cs 262/332) hâlâ
+  `form ?anchor=Apply` ile **kelimeyle** çapalı — panel artık `Page`i/yüküyle bulunabildiğine göre çapa da kimlikten
+  türetilebilir mi bakılacak. B'de aynı sınıfın kalanları: `ScoutFocus` formunun `Next`/`Confirm`/`Cancel`i
+  (`click ?text=…`), `Edit`/`Create a New Recruitment Focus` (kimlik yok, ölçüldü), `FocusAt`in yarışı (§8.234 sonu),
+  `contract <oyuncu> --agent` TR aksaklığı (ekranda kalan kart), haber "Portugal"/"Defence (Core)" (örnek yok).
+  A'da kısa `Until`ler (League 216 · MatchControls 131 266 · Reads 892 · TraitTraining 89 · TacticFiles 29).
+  Park: Stages 337, TrainingSchedule 345, Clock 179.
+- Not (kayıt durumu): kayıt yalnız okundu, hiçbir şey yazılmadı; personel sayfasının arama süzgeci (tur başında 1
+  kural duruyordu) `--clear` ile boşaltıldı → sayfa artık süzgeçsiz ("Aramayı Düzenle", Clear kapalı); 2 Ağustos 2026
+  14:00, saat ilerletilmedi, maç oynanmadı; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı
+  (`/state` → turkish).
+- Not: ağaçta yalnız bu turun dosyaları var (`cli/fm/StaffSearch.cs`, BAGIMLILIKLAR, FINDINGS, bu defter), `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 49)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / kayıt tarayıcısının `Delete`i** (`saves delete`) — **BİTTİ** (§8.238,
   Tur 49): `DeleteSave` düğmeyi `click ?text=Delete` ile basıyor ve öncesinde `Label == "Delete"` + `Type == "SIButton"`
   + `Enabled` ile bekliyordu. Tarayıcının dört düğmesi aynı şablon ailesinden, etiketler o dilin sözü (§8.236); ayırt
@@ -522,6 +564,48 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
 - D `Penalties` "MAÇA" sütunu: eklenti alanı ya da maske çevirisi kararı Faruk'un (§8.218).
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 50 — B "yazıyla basma" / `staff find` arama paneli: `Apply` ve `Cancel` artık gönderdikleri yükle (`True`/`False`) basılıyor (§8.239, 19 Ekim)
+Ne: `cli/fm/StaffSearch.cs`. Gönder yolu `StaffFind` 112'de `click ?text=Apply`; `ApplySearch`in `PanelButton`ı (262) ve
+`StaffFind`in kendi `Cancel`i (69) paneli `form ?anchor=Apply&up=8&buttons=1` ile okuyup `Text == "Apply"/"Cancel"`
+ile buluyordu. Ölçüm (TR oyun, panel açık, `/buttons?json=1&gen=1`): panelin iki düğmesi **aynı olayı** gönderiyor
+(`PanelHistoryClose, EventToPlugin:EventFmxFilterRestoreFilter`), ayırt eden **yük**: Apply `SendsProps True`, Cancel
+`False` (yükle gelen yük bindingsiz değil; `Name` de farklı — `button-primary-leading-icon-label` /
+`button-base-label` — ama o şablon sınıfı, kural 3 gereği yüke öncelik verildi). Yeni `PanelSent(bool apply)` bu olayı
+ve yükü taşıyan düğmeyi bulup `?ptr=` ile basıyor; bulamazsa eskisi gibi form okuması + yazı.
+- Ölçüm yolu: `/private/var/…/opencode/t50/run.sh <out> TR|EN` — her koşudan önce `fm staff find --clear` (aynı süzgeç
+  durumu), sonra iki yol; üç durum s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 başka sayfaya
+  geçtikten sonra (EN'de `fm open "Dynamics"`). Yanıt bozuksa (`no element at` / `screen may have changed`) bir kez
+  tekrar; bu turda hiç gerekmedi.
+- Üç durum × iki dil × iki yol, önce = eski derleme (`git stash push -- cli/fm/StaffSearch.cs` + `dotnet build`),
+  sonra = yeni derleme; kullanılan klasörler: `before-tr` (oturmuş), `before-en` (dil geçişinden hemen sonra),
+  `before-en2` (oturmuş, eski derlemeyle son karşılaştırma), `after-en` (v1), `after-tr`/`after-tr2`, `after-tr3`,
+  `after-en3` (son derleme).
+  stdout `md5` **birebir**: TR `278f3c93afe416f0d6c62353a517cd67` (before-tr 3/3, after-tr2 3/3, after-tr3 3/3),
+  EN oturmuş `2ba97887d7c948522efd6e8436749986` (before-en s3 + before-en2 3/3 + after-en 3/3 + after-en3 s3);
+  dil geçişinden hemen sonraki koşular iki derlemede de aynı: EN `5b380c79ecdd5f8c20579f44aadde061` (before-en s1/s2 =
+  after-en3 s1/s2), TR `7f4956affc9d5a0989739834069849c8` (after-tr s1/s2; sonra oturuyor).
+  rc hep 0 (Apply) / 64 (Cancel); iptal yolunun insan mesajı `md5` TR `323377898b24fb0011935d1f72ddaf29` /
+  EN `52c49a4e6158ce3d2d73b48d1f300ccf` (iki derlemede aynı).
+- İz: eski derleme `… select ?ptr=…&names=Coaching>Coach&fire=1` → `click ?text=Apply`; yeni derleme `… buttons
+  ?json=1&gen=1` → `click ?ptr=0x…`. İptal yolu eski derlemede `form ?anchor=Apply&up=8&buttons=1` + `click ?ptr=…`,
+  yeni derlemede `buttons ?json=1&gen=1` + `click ?ptr=0x…` (yedek form okuması **hiç çağrılmadı**: altı koşunun
+  altısında `form ?anchor=Apply&up=8&buttons=1` sayısı 0).
+- Yan bulgu (yeni, düzeltilmedi): **dil değişiminden hemen sonraki** ilk koşularda tablo yalnız süzülmüş satırları
+  veriyor (21: 17 Coach + 4 Assistant Manager), sayfa oturduktan sonra 69 (48 satırın `JobString`i boş) — eski
+  derlemede de aynı (before-en s1/s2 vs s3), yani bu turun değişikliğiyle ilgisi yok (§8.194/§8.232 devamı).
+- Kalan: panelin *okuma* yolu (`Under` 262, `Row` 332) hâlâ `form ?anchor=Apply` ile kelimeyle çapalı.
+- Paylaşılan yol: aynı `ApplySearch`i `fm players` de kullanıyor (Reads.cs 802) — `fm players "Aaron" --attr
+  "Pace>=15"` eski ve yeni derlemede **birebir** (`md5 d8cd16daa30d08417f6a34d9007d3e6e`, rc=0); izde eski
+  `form ?anchor=Apply&up=8&buttons=1` → yeni `buttons ?json=1&gen=1` + `click ?ptr=…` (o yolda da basış zaten
+  `?ptr=` ile oluyordu, değişen kimliğin kaynağı).
+- Kayıt durumu: kayıt yalnız **okundu**, hiçbir şey yazılmadı/değiştirilmedi; personel sayfasının arama süzgeci (tur
+  başında 1 kural duruyordu) `--clear` ile boşaltıldı, sayfa süzgeçsiz kaldı ("Aramayı Düzenle" + Clear kapalı);
+  2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı; dil `fm settings language "Türkçe"` ile geri alındı
+  (`/state` → turkish, `Language: turkish`).
+- Regresyon: `tools/sweep.sh /private/var/…/opencode/t50/sweep` → **50 komut, 0 hata** (Türkçe oyunda; `staff` rc=0,
+  7 sn, 63 satır). Değişiklik yalnız `StaffSearch.cs` içinde (yeni `PanelSent` + üç çağrı yeri); paylaşılan koda
+  (Bridge/OpenPage) dokunulmadı.
 
 ### Tur 49 — B "yazıyla basma" / `saves delete`: kayıt tarayıcısının Delete'i artık gönderdiği olayla (`DeleteSelectedGame`) basılıyor (§8.238, 19 Ekim)
 Ne: `cli/fm/Saves.cs` `DeleteSave` (407) önce `Label == "Delete" && Type == "SIButton" && Enabled == "True"` bekliyor,

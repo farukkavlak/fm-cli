@@ -420,6 +420,13 @@ tablodan çevrilemiyor.
     uca: TR + EN, üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) `md5` eski
     derlemeyle **birebir** (isim dışında tek satır "Silindi/Deleted"), izde `click ?text=Delete` → `click ?ptr=…`;
     negatifler (`zzz yok` rc=1, yüklü kayıt rc=1) değişmedi; Faruk'un dört dosyası yerinde (§8.238).
+  - [x] `staff find` arama panelinin `Apply`i ve `Cancel`i artık **gönderdikleri yükle** basılıyor: ikisi de aynı olayı
+    (`EventFmxFilterRestoreFilter`) gönderiyor; ayırt eden yük — Apply `SendsProps True`, Cancel `False` — dile ve
+    skine bağlı değil (`Name` de farklı ama o şablon sınıfı; kural 3). `click ?text=Apply` ve panel form okumasındaki
+    `Text == "Cancel"` yerine `PanelSent(apply)` geçti (iki çağrı yeri), kimlik yoksa eskisi gibi yazıya düşülüyor.
+    TR + EN, üç durum × iki yol (`--role "Coach"` / `--role "zzz yok"`) eski derlemeyle **birebir** (`md5`), izde
+    `click ?ptr=…` (§8.239). Panelin **okuma** yolu (`Under`/`Row`) hâlâ `form ?anchor=Apply` ile kelimeyle çapalı —
+    sıradaki alt madde.
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri
