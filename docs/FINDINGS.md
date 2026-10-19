@@ -3024,3 +3024,12 @@ ilk okumadan (sayfa örtülüyken `CurrentTacticSlot`) geliyor, değişikliğe b
 dönüşüp öncekinden farklı olana kadar okunuyor (üst sınır 4 sn, 0,2 sn aralık; ekranda aynı ücret duruyorsa bekleme yok).
 TR + EN, üç durum + `0`/`1`/`250000`/`30000000`: çıktı ve rc eski derlemeyle birebir. Kiralık düğmesi (`Propose 77`)
 sonrası 1200 ms kaldı: basış dışa vurulan buttons/combobox kümesini 2,6 sn boyunca hiç değiştirmiyor, yani işaret yok.
+
+### 8.253 `staff find`in Apply/Cancel yedeği kaldırıldı: düğme yalnız olayı ve yüküyle bulunuyor (19 Ekim, TR + EN)
+`StaffFind` paneli kapatırken ve uygularken önce `PanelSent`i deniyor, olmazsa İngilizce söze düşüyordu (`?text=Apply`,
+`form ?anchor=Apply` + `Text == "Cancel"`). Ölçüm: `buttons ?json=1&gen=1` iki düğmeyi de `EventFmxFilterRestoreFilter`
+ile veriyor, ayırt eden `SendsProps` (`True` Apply, `False` Cancel) — söz hiç gerekmiyor. Yedek yol silindi; event yoksa
+Apply "arama panelinin Apply düğmesi bulunamadı" diyor, Cancel yalnız panel açıksa basıyor. TR + EN, üç durum (başka
+sayfa / hemen ikinci koşu / başka sayfaya geçtikten sonra) × iki yol (`--role "Coach"`, `--role "zzz yok"`): rc ve
+stdout/stderr md5 eski derlemeyle **birebir** (TR `7f4956af…`/`447a8d36…`, EN `5b380c79…`/`44f56f55…`; iptal TR
+`32337789…`, EN `52c49a4e…`). İz: yalnız `buttons ?json=1&gen=1` → `click ?ptr=…`; hiçbir koşuda `text=` yok.

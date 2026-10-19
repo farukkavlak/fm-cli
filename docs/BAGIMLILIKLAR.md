@@ -491,10 +491,14 @@ tablodan çevrilemiyor.
   - [x] `staff find` arama panelinin `Apply`i ve `Cancel`i artık **gönderdikleri yükle** basılıyor: ikisi de aynı olayı
     (`EventFmxFilterRestoreFilter`) gönderiyor; ayırt eden yük — Apply `SendsProps True`, Cancel `False` — dile ve
     skine bağlı değil (`Name` de farklı ama o şablon sınıfı; kural 3). `click ?text=Apply` ve panel form okumasındaki
-    `Text == "Cancel"` yerine `PanelSent(apply)` geçti (iki çağrı yeri), kimlik yoksa eskisi gibi yazıya düşülüyor.
+    `Text == "Cancel"` yerine `PanelSent(apply)` geçti (iki çağrı yeri); o zaman kimlik yoksa yazıya düşülüyordu.
     TR + EN, üç durum × iki yol (`--role "Coach"` / `--role "zzz yok"`) eski derlemeyle **birebir** (`md5`), izde
     `click ?ptr=…` (§8.239). Panelin **okuma** yolu (`Under`/`Row`) hâlâ `form ?anchor=Apply` ile kelimeyle çapalı —
-    sıradaki alt madde. **→ Tur 51'de yapıldı (aşağıda).**
+    sıradaki alt madde. **→ Tur 51'de yapıldı (aşağıda).** **→ Tur 65: yedek yazı yolu kaldırıldı** — `StaffFind`in
+    Apply/Cancel'i artık yalnız `EventFmxFilterRestoreFilter` + `SendsProps` ile bulunuyor; olay yoksa `?text=Apply`
+    ya da `form ?anchor=Apply`deki `Text == "Cancel"` denenmiyor, Apply için dürüst hata veriliyor. TR + EN, üç durum ×
+    iki yolda çıktı/rc eski derlemeyle birebir; izde yalnız `buttons ?json=1&gen=1` + `click ?ptr=…`, hiç `text=`
+    yok (§8.253).
   - [x] `fm players` arama panelinin **okuma** yolu artık yazıyla çapalı değil: panel `form ?anchorpath=` ile oyunun
     bağladığı başlıktan (`filter.FilterRulePlayerPosition.Name`, eski `?anchor=Apply` ile **birebir** aynı 55 öğe),
     her kural kendi denetiminin yazdığı veri yolundan (`filter.filterruleage.minvalue`,

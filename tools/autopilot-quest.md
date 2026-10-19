@@ -3,7 +3,26 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 64)
+## Şu an (Tur 65)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm staff find`in `Apply`/`Cancel` yedeği** — **BİTTİ** (§8.253).
+  Tur 50'de birincil yol (`PanelSent`: `EventFmxFilterRestoreFilter` + `SendsProps True/False`) yazıdan önceye geçmişti,
+  ama kimlik bulunamazsa `?text=Apply` ve `form ?anchor=Apply`deki `Text == "Cancel"` hâlâ yedekti. Yedek silindi:
+  Apply event yoksa dürüst hata veriyor, Cancel yalnız `SendsProps=False` düğmesini basıyor. Böylece `StaffFind`te
+  yazıyla basma kalmadı (okuma yolu zaten Tur 51'de veri yoluna geçmişti).
+- Kanıt: TR + EN, üç durum (`fm open "Messages"` sonrası / hemen ikinci koşu / `Squad Dynamics` [`Dynamics`] sonrası)
+  × iki yol (`fm staff find --role Coach --json`, `fm staff find --role "zzz yok"`); her koşu öncesi `--clear`.
+  Eski derleme (değişiklik öncesi kurulu Release) ile **birebir**: apply TR `7f4956af…`/`7f4956af…`/`447a8d36…`,
+  EN `5b380c79…`/`5b380c79…`/`44f56f55…`; iptal TR `32337789…`, EN `52c49a4e…`, rc 0 / 64. İz (`FM_TRACE=1`):
+  yalnız `buttons ?json=1&gen=1` → `click ?ptr=…`; `text=` sayısı 0. Dosyalar `/tmp/t65/{before,after}-{tr,en}/`,
+  betik `/tmp/t65/run.sh`. Değişiklik yalnız `cli/fm/StaffSearch.cs` (yerel `Cancel` + Apply), paylaşılan `PanelSent`
+  aynı → `sweep.sh` gerekmedi.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı); personel arama
+  süzgeci tur sonunda temizlendi (`--clear`); dil TR'ye döndü (`fm settings dil` → `Türkçe`).
+- Not (ölçüm tuzağı): dil değişimi İngilizce'den dönerken `fm settings dil` değil `fm settings language "Türkçe"`;
+  ilk `after-tr` koşusu bu yüzden EN çıktısı verdi, tekrarlandı.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 64)
 - Madde: **A "`Task.Delay`" / Propose 91** (`fm propose <oyuncu> <ücret>`: ücret kutusuna yazdıktan sonraki sabit 600 ms)
   — **BİTTİ** (§8.252). `setnumber`dan sonra `FMCombobox.Label` oyunun para yazısına dönüşüp öncekinden farklı olana
   kadar okunuyor (`Until`, 4 sn üst sınır, 0,2 sn); ekranda aynı ücret duruyorsa hiç beklenmiyor.

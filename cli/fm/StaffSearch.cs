@@ -81,12 +81,9 @@ internal static partial class Program
 
 			async Task<int> Cancel(int code)
 			{
-				// The panel's own Cancel sends the same event as Apply with "false"; if the game does
-				// not say so, it is found in the panel, beside Apply, by the word on it.
-				var cancel = await PanelSent(false)
-					?? (await Fm.GetJson("form", ("anchor", "Apply"), ("up", "8"), ("buttons", "1"))).EnumerateArray()
-						.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == "Cancel").Select(i => Field(i, "Pointer")).LastOrDefault();
-				if (cancel != null) await Fm.Get("click", ("ptr", cancel));
+				// The panel's own Cancel sends the same event as Apply with "false"; the word on it
+				// is this language's, so the payload decides and no word is ever pressed.
+				if (await PanelSent(false) is { } cancel) await Fm.Get("click", ("ptr", cancel));
 				return code;
 			}
 
@@ -126,9 +123,9 @@ internal static partial class Program
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
 				if (!await Landed(ReputationRule, choice)) return await Cancel(Report(L($"error: '{choice}' itibar listesine oturmadı")));
 			}
-			var applied = await PanelSent(true) is { } apply
-				? await Fm.Get("click", ("ptr", apply))
-				: await Fm.Get("click", ("text", "Apply"));
+			var apply = await PanelSent(true);
+			if (apply == null) return await Cancel(Report(L("error: arama panelinin Apply düğmesi bulunamadı")));
+			var applied = await Fm.Get("click", ("ptr", apply));
 			if (applied.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(applied));
 			asked = true;
 		}
