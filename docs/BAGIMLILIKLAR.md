@@ -457,7 +457,11 @@ tablodan çevrilemiyor.
     `RecruitmentFocusEditConfirmationDialog` taşıyor ve ayırt eden alan (`m_cancelEdit`) `/buttons?json=1` özetinde
     **yok** (eklenti değişikliği + oyun restartı ister, Sonraya bırakıldı); ayrıca `AbandonFocus`in
     `click ?text=Cancel`i, gözlemci seçme penceresinin `Cancel`/`Confirm`i, okuma çapası (`form ?anchor=Next`) ve
-    `scout new/edit`in kalan `Next`/`Confirm` basışları.
+    `scout new/edit`in kalan `Confirm` basışı. **→ Tur 53'te `scout new`/`edit`in adım geçişi ve adım işaretleri de
+    `FormStep()`e taşındı (§8.242): "ikinci adım açıldı" işareti artık `FormStep() == "back"`, "birinci adım açık /
+    mevki oturdu" işareti `FormStep() == "next"`, ileri basışı `click ?ptr=…`; üç durum × iki dilde eski derlemeyle
+    birebir (rc=64, aynı stderr). Kalan: Confirm basışı, Confirm akışındaki "form kapandı" işareti ve okuma çapası
+    `form ?anchor=Next`/`Back` (ölçüldü: adım 1'de `/form?anchor=Next` 52 öğe / `anchor=Back` 0, adım 2'de tersi).**
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

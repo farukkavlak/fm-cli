@@ -34,6 +34,18 @@ internal static partial class Program
 		return (Step("One"), Step("MinusOne"));
 	}
 
+	/// <summary>
+	/// Which step of the form is on screen, as the step buttons themselves show it: "next" while
+	/// the form is on its first step, "back" once it is on its second, null when the form is gone.
+	/// The words on those buttons are the game's own ("Next", "Back"); the event and the payload
+	/// they carry are not (FocusSteps), so nothing here is read by language.
+	/// </summary>
+	private static async Task<string> FormStep()
+	{
+		var (next, back) = await FocusSteps();
+		return next != null ? "next" : back != null ? "back" : null;
+	}
+
 	/// <summary>The texts drawn in a control, as the form gives them ("(Gözlemci)" with a name).</summary>
 	private static List<string> FormTexts(JsonElement item) =>
 		item.ValueKind == JsonValueKind.Object && item.TryGetProperty("Texts", out var texts) && texts.ValueKind == JsonValueKind.Array
@@ -544,7 +556,7 @@ internal static partial class Program
 			else return 64;
 			if (await FocusAt(editing.Index) is not { } shown || shown.Name != editing.Name
 				|| (await Fm.Get("click", ("text", "Edit Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal)
-				|| !await Until(async () => FormButton(await FocusForm("Next"), "Next") != null, seconds: 8, every: 0.5))
+				|| !await Until(async () => await FormStep() == "next", seconds: 8, every: 0.5))
 			{
 				Console.Error.WriteLine(L($"Oyun '{editing.Name}' için düzenlemeyi açmadı."));
 				return 1;
@@ -568,7 +580,9 @@ internal static partial class Program
 				return 64;
 			}
 			await Fm.Get("click", ("ptr", Field(FormButton(form, label).Value, "Pointer")));
-			await Until(async () => FormButton(form = await FocusForm("Next"), "Next") is { } next && Field(next, "Enabled") == "True", seconds: 5, every: 0.4);
+			// Step one is still on screen and the game has taken the position: the step's own
+			// button, which was offering nothing, is open (FocusSteps + the form read).
+			await Until(async () => (form = await FocusForm("Next")).Count > 0 && await FormStep() == "next", seconds: 5, every: 0.4);
 			chosen.Add(label);
 			if (role != null)
 			{
@@ -589,11 +603,16 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Rol bir mevkiyle birlikte seçilir: --position <mevki> --role <rol>"));
 			return 64;
 		}
-		await Fm.Get("click", ("text", "Next"));
+		// Onto the second step: the step's own button going forward — the event and the payload it
+		// sends say which way it goes, the word on it does not (FocusSteps).
+		var (stepOn, _) = await FocusSteps();
+		await (stepOn != null ? Fm.Get("click", ("ptr", stepOn)) : Fm.Get("click", ("text", "Next")));
 
-		// Step two: name, ages, areas, priority.
+		// Step two: name, ages, areas, priority. That it is on screen is the step buttons' own
+		// answer — the one going back is there, the one going on is not (FocusSteps) — with the
+		// form read taken in the same breath so it is never read half drawn.
 		List<JsonElement> second = [];
-		if (!await Until(async () => FormButton(second = await FocusForm("Back"), "Confirm") != null, seconds: 8, every: 0.5))
+		if (!await Until(async () => (second = await FocusForm("Back")).Count > 0 && await FormStep() == "back", seconds: 8, every: 0.5))
 		{
 			await AbandonFocus();
 			Console.Error.WriteLine(L("Formun ikinci adımı açılmadı."));

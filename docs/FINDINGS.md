@@ -2782,3 +2782,19 @@ yolunda rc=64 ve odak sayısı değişmiyor. Aynı formda **Cancel ve Confirm** 
 `/buttons?text=` bloğunda var, `/buttons?json=1` özetinde **yok** — oraya eklemek eklenti değişikliği + oyun
 restartı ister. Confirm'e basmak pencere açmıyor, formu kapatıp odağı **kuruyor** (ölçümün doğal sonucu bir "All"
 odağı bıraktı).
+
+### 8.242 `scout new/edit`in adım geçişi ve adım işaretleri de düğmelerin olayına bağlandı (19 Ekim, TR + EN)
+§8.241 `scout areas`in yolunu kimliğe çevirmişti; aynı formun `scout new`/`scout edit` yolu hâlâ yazıyla
+yürüyordu: "ikinci adım açıldı mı" işareti `FormButton(FocusForm("Back"), "Confirm")`, "birinci adım açık mı /
+mevki oturdu mu" işareti `FormButton(FocusForm("Next"), "Next")` + `Enabled`, ileri basışı `click ?text=Next`.
+Ölçüm (TR, form açıkken `/form` + `/buttons?json=1&gen=1`): adım düğmeleri **iki dilde de İngilizce** yazıyor
+("Next"/"Back"/"Cancel"/"Confirm"), yani yazı yolu bugün tesadüfen çalışıyor — ama okuma çapası da yazı:
+`/form?anchor=Next` adım 1'de **52 öğe**, adım 2'de **0**; `/form?anchor=Back` tersi (adım 2'de 47, adım 1'de 0).
+Yeni `FormStep()` bunu adım düğmelerinin olayından okuyor (`FocusSteps`: `EventFmxRecruitmentFocusMoveToStep` +
+`One`/`MinusOne`, yalnız **açık** olan): "next" / "back" / null (form yok); ileri basışı da `?ptr=`. Kanıt: TR +
+EN, üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) × iki yol (`scout edit 1
+--area "ZZZ yok"`, `scout new --position GK --priority top --area "ZZZ yok"`) eski derlemeyle **birebir** (rc=64,
+stderr md5 TR `3e18cfaa…` / EN `f66c35f8…`); izde eski `click ?text=Next` → yeni `click ?ptr=0x…`. Yan bulgu
+(ayrı iş): `scout edit <#>` sayfa **yeni açıldığında** odak listesini ara sıra boş okuyor ("Odak: '1' diye bir
+seçenek yok"; eski derlemede 8 koşunun 4'ü, yeni derlemede 4'ün 1'i) — `ScoutFocuses()`/`FocusList()` sayfa
+oturmadan dönüyor, bu turun değişikliğiyle ilgisiz.

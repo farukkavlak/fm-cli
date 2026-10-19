@@ -3,7 +3,45 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 52)
+## Şu an (Tur 53)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / recruitment focus formunun adım geçişi ve adım işaretleri**
+  (`scout new`/`scout edit`) — **BİTTİ** (§8.242, Tur 53): Tur 52 `scout areas`in yolunu kimliğe çevirmişti
+  (`FocusSteps`); aynı formun `scout new`/`edit` yolu hâlâ yazıyla yürüyordu — "ikinci adım açıldı mı" işareti
+  `FormButton(FocusForm("Back"), "Confirm")`, "birinci adım açık mı / mevki oturdu mu" işareti
+  `FormButton(FocusForm("Next"), "Next")` + `Enabled`, ileri basışı `click ?text=Next`. Ölçüm: adım düğmeleri iki
+  dilde de İngilizce yazıyor ("Next"/"Back") ama okuma çapası da yazı — `/form?anchor=Next` adım 1'de **52 öğe**,
+  adım 2'de **0**; `/form?anchor=Back` tersi (adım 2'de 47, adım 1'de 0). Yeni `FormStep()` bunu adım düğmelerinin
+  olayından (`FocusSteps`: `EventFmxRecruitmentFocusMoveToStep` + `One`/`MinusOne`, yalnız **açık** olan) okuyor:
+  "next" (adım 1) / "back" (adım 2) / null (form yok); ileri basışı da `?ptr=`.
+- Kanıt: TR + EN, üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `fm open "Squad Dynamics"`
+  [EN `Dynamics`] sonrası) × iki yol (`fm scout edit 1 --area "ZZZ yok"`, `fm scout new --position GK --priority top
+  --area "ZZZ yok"`) → **eski derleme** (`git stash push -- cli/fm/ScoutFocus.cs` + `dotnet build -c Release`) ile
+  **birebir**: hepsi rc=64, stdout boş (`d41d8cd9…`), stderr md5 TR `3e18cfaa…` / EN `f66c35f8…` (s1-new, s2-edit,
+  s2-new, s3-edit, s3-new = 5/6 koşu; TR iki kez: `after-tr`, `after-tr2`). İz: eski `click ?text=Next` → yeni
+  `click ?ptr=0x…`; adım işaretleri artık `buttons ?json=1&gen=1`den (iki dilde de). Betik:
+  `/private/var/…/opencode/t53/run.sh`; klasörler `before-tr`, `after-tr`, `after-tr2`, `before-en`, `after-en`.
+- Tek fark (bu turun değişikliğiyle ilgisiz, yan bulgu): s1-edit (`fm open "Messages"` **hemen ardından**
+  `scout edit 1`) odak listesini ara sıra **boş** okuyor ("Odak: '1' diye bir seçenek yok") — eski derlemede
+  8 koşunun 4'ü, yeni derlemede 4'ün 1'i; `ScoutFocuses()`/`FocusList()` sayfa oturmadan dönüyor (ölçüm bu yüzden
+  s2/s3 ile karşılaştırıldı; `probe-before`/`probe-before2`/`probe-after` klasörleri).
+- Kalanlar (sıradaki tur önerisi): aynı formda `FormStep()`e taşınmayan işaretler — `ScoutNew`in `catch` dalındaki
+  "form açık mı" ve Confirm akışındaki "form kapandı mı" (L~475/690/701; ikisi de Confirm/Cancel'ın park edilmiş
+  maddesine bağlı, ölçülmesi Confirm basışı ister); **okuma çapası** `form ?anchor=Next`/`Back` (yazı; ölçüldü:
+  adım 1/2 ile birebir — ayrı iş); `AbandonFocus`in `click ?text=Cancel`i ve `click ?text=Confirm` (park:
+  `m_cancelEdit`, eklenti + oyun restartı); gözlemci seçme penceresinin `Cancel`/`Confirm`i (`Close`, ölçülmedi).
+  A'da kısa `Until`ler (League 216 · MatchControls 131 266 · Reads 892 · TraitTraining 89 · TacticFiles 29 ·
+  TacticSlots 112 · Saves 207 220 · StaffSearch 354 · Prep 124 · ScoutFocus 55 · Program 986 1918 2118).
+- Sweep: **50 komut, 0 hata** (Türkçe oyunda, `scout` satırı rc=0). Değişiklik yalnız `cli/fm/ScoutFocus.cs`
+  içinde; paylaşılan koda (Bridge/`Until`/OpenPage) dokunulmadı.
+- Kayıt durumu: kayıt yalnız **okundu**; koşuların hiçbiri Confirm'e basmadı → **odak kurulmadı/değişmedi**
+  (`fm scout --json` md5 koşudan önce/sonra aynı: TR `1779d9ad4e9c34f47166fd91e4db0008`, EN
+  `9142427a9d97a87532c05ebd8367bf92`); saat ilerletilmedi (2 Ağustos 2026 14:00), maç oynanmadı; dil EN ölçümünden
+  sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish; ilk denemede "The settings page did
+  not open." → tekrarlandı, §8.236).
+- Not: ağaçta yalnız bu turun dosyası var (`cli/fm/ScoutFocus.cs`) + dokümanlar; `stash` yok.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 52)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / recruitment focus formunun ADIM düğmeleri (`Next`/`Back`)** —
   **BİTTİ** (§8.241, Tur 52): formun "açıldı / yarım kalmış" işareti (`OpenFocusForm`) ve `fm scout areas`in bölge
   adımına geçişi düğmenin **yazısıyla** konuyordu (`FormButton(FocusForm("Next"), "Next")`, `click ?text=Next`).
@@ -652,6 +690,29 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
 - D `Penalties` "MAÇA" sütunu: eklenti alanı ya da maske çevirisi kararı Faruk'un (§8.218).
 
 ## Ölçülen kanıt (tur tur)
+
+### Tur 53 — B "yazıyla basma" / recruitment focus formunun adım geçişi + adım işaretleri (`scout new/edit`) (§8.242, 19 Ekim)
+Ne: `cli/fm/ScoutFocus.cs`. Tur 52 `scout areas`in ileri basışını `FocusSteps`e (olay + yük) taşımıştı; aynı formun
+`scout new`/`scout edit` yolu yazıyla yürüyordu — `FormButton(FocusForm("Back"), "Confirm")` (adım 2 açıldı),
+`FormButton(FocusForm("Next"), "Next")` + `Enabled` (adım 1 açık / mevki oturdu), `click ?text=Next` (ileri).
+Ölçüm (TR): `/form?anchor=Next` **adım 1'de 52 öğe**, adım 2'de **0**; `/form?anchor=Back` tersi (47 / 0) → çapa da
+yazı. Yeni `FormStep()` adım düğmelerinin olayından (`EventFmxRecruitmentFocusMoveToStep` + `One`/`MinusOne`, yalnız
+açık olan) "next"/"back"/null okuyor; dört çağrı yeri + ileri basışı `?ptr=` (kimlik yoksa yazıya düşülüyor).
+- Ölçüm yolu: `/private/var/…/opencode/t53/run.sh <etiket> TR|EN` → s1 `fm open "Messages"` sonrası, s2 hemen ikinci
+  koşu, s3 `fm open "Squad Dynamics"` (EN `Dynamics`) sonrası × iki yol (`scout edit 1 --area "ZZZ yok"`,
+  `scout new --position GK --priority top --area "ZZZ yok"`), artı iz için `FM_TRACE=1` iki koşu.
+- Sonuç: **eski derleme** (`git stash push -- cli/fm/ScoutFocus.cs` + `dotnet build -c Release`) ile **birebir** —
+  hepsi rc=64, stdout boş (`d41d8cd98f00b204e9800998ecf8427e`), stderr md5 TR `3e18cfaa975961217a55fda58612fb7e`,
+  EN `f66c35f888ad4351f12861c34e6f6950` (5/6 koşu: s1-new, s2-edit, s2-new, s3-edit, s3-new; TR iki tam koşu
+  `after-tr` + `after-tr2`). Fark yalnız `s1-edit`te: `fm open "Messages"` hemen ardından `scout edit 1` odak
+  listesini ara sıra boş okuyor ("Odak: '1' diye bir seçenek yok") — ayrı ölçüm: eski derleme 8 koşunun 4'ü
+  (`probe-before2`), yeni derleme 4'ün 1'i (`probe-after`) → sayfa oturma yarışı, değişiklikle ilgisiz.
+- İz (TR, `trace-new`): eski `click ?text=Next` → yeni `buttons ?json=1&gen=1` + `click ?ptr=0x51f02d800`; EN aynı
+  (eski `click ?text=Next` → yeni `click ?ptr=0x521894800`). Odak listesi koşudan önce/sonra aynı md5
+  (TR `1779d9ad4e9c34f47166fd91e4db0008`, EN `9142427a9d97a87532c05ebd8367bf92`) → **yeni odak kurulmadı**.
+- `sweep.sh`: 50 komut, 0 hata (Türkçe oyunda). Kayıt yalnız okundu; saat 2 Ağustos 2026 14:00, maç oynanmadı;
+  dil geri Türkçeye alındı (`/state` → turkish). Kalan: Confirm basışı + Confirm akışındaki "form kapandı" işareti
+  (park: `m_cancelEdit`), okuma çapası `form ?anchor=Next`/`Back`.
 
 ### Tur 52 — B "yazıyla basma" / recruitment focus formunun adım düğmeleri: `Next`/`Back` artık gönderdikleri yükle (`One`/`MinusOne`) bulunuyor (§8.241, 19 Ekim)
 Ne: `cli/fm/ScoutFocus.cs`. `OpenFocusForm`in "form açıldı / yarım kalmış" işareti
