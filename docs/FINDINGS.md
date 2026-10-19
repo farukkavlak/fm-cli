@@ -2970,3 +2970,23 @@ sıradaki çağrı 8,63 sn → **1,21 sn boşluk**; yeni derlemede `select` 7,36
   Bir kerelik aksaklık (bu turun işiyle ilgisiz): `fm players --max-value 300K` bir kez `error: no control labelled
   'Clear' on the loaded screens` ile rc=1 verdi (Clear basışı `ApplySearch`ten **önce**, §8.236 ailesi); tekrarında
   rc=0. Aynı panelde kalan: `PanelButton("Apply"/"Cancel")`in yazı yedeği (asıl yol `PanelSent`, §8.239) — ayrı alt madde.
+
+### 8.250 `contract <oyuncu> --agent` "seçenek yok": dil değil, açık kalan konuşma/kart durumu (19 Ekim, TR + EN)
+
+- Ölçüm (komutlar ve rc; çıktı dosyaları `/tmp/t61-*.txt`): TR temiz sayfada `fm contract "Adam Reach" --agent` /
+  `"Dom Jefferies"` / `"Erik Ring"` / `"Freddie Draper"` → **rc=0**, menajerin konuşması ve dört cevap basılıyor.
+  Aynı oyuncuya hemen ikinci kez (`"Conor McGrandles"` ilk koşu rc=0 → ikinci koşu **rc=1** "menajerle görüşme
+  seçeneği yok") ve açık yenileme kartı varken (`fm contract "George Wickens"` rc=0 → `--agent` **rc=1**) aynı hata.
+- EN aynı: `"Jack Moylan"` **ilk koşu rc=0**; hemen ikinci ve `fm open "Dynamics"` sonrası üçüncü **rc=1**
+  ("There is no option to talk …"); `"George Wickens"` kartı açıkken rc=1, `contract --cancel` sonrası da rc=1.
+  Yani eski notun "EN'de hep bulunuyor" gözlemi tek koşuya dayanıyor; iki dilde davranış aynı.
+- Kart açıkken `/buttons?json=1` oyuncu sayfasının üç `SpeakToAction` satırını `Action=""` (bağlanmamış) veriyor;
+  `SpeakToAction` bu satırları eliyor. `fm contract "George Wickens" --cancel` kartı kapatıp rc=0 diyor ama
+  `--agent` yine bulamıyor → oyun aynı oyuncuyla yakın zamanda konuşmayı da kapatıyor olabilir; ikisi ayrıştırılamadı.
+- Yan bulgu: `fm open "Messages"` sonrası bir EN koşusu ("George Wickens") "not our player, or their contract cannot
+  be opened" verdi — oyuncu sayfası örtülüyken `ContractDetails` düğmesi düğme listesinde yok; `OpenPlayer`
+  önbellekteki kartı isim eşleşmesiyle kabul ediyor. Aynı durum TR'de ("Adam Reach") "seçenek yok" verdi, yani
+  hangi dala düştüğü sayfanın o anki hâline bağlı.
+- Karar: kod değişmedi (kural 4). Düzeltme iki davranış kararı istiyor: (a) CLI açık konuşmayı kendiliğinden kapatsın mı
+  (menajer/oyuncu bundan hoşlanmayabilir), (b) `OpenPlayer` örtülü sayfayı öne getirsin mi? Faruk'a soruldu;
+  kayıt test kaydı, saat 2 Ağustos 2026 14:00'te kaldı, dil TR'ye döndü.

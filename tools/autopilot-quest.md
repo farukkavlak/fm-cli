@@ -3,7 +3,25 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 60)
+## Şu an (Tur 61)
+- Madde: **B "`contract <oyuncu> --agent`"** (CHECKLIST B, §8.250) — **PARK** (`[?]`): eski not "TR'de kimi koşuda
+  seçenek yok, EN'de hep var" diyordu; ölçüm bunu **çürüttü**. Hata dil değil, **açık kalan konuşma / yenileme kartı**
+  durumu: aynı oyuncuya arka arkaya ikinci soru ve açık kart varken soru **iki dilde de rc=1**; temiz sayfada ilk
+  soru **iki dilde de rc=0**. Kart açıkken oyuncu sayfasının üç `SpeakToAction` satırı `Action=""` (bağlanmamış)
+  geliyor ve `SpeakToAction` onları eliyor; `contract --cancel` sonrası da soru bulunmuyor (oyunun yakın-zaman
+  kuralı olabilir, karttan ayrıştırılamadı). Yan bulgu: sayfa örtülüyken bir EN koşusu "not our player" verdi
+  (`ContractDetails` düğmesi listede yok; `OpenPlayer` önbellekteki kartı isimle kabul ediyor).
+- Kanıt (komut + rc, dosyalar `/tmp/t61-*.txt`): TR temiz `"Adam Reach"`, `"Dom Jefferies"`, `"Erik Ring"`,
+  `"Freddie Draper"` → rc=0; `"Conor McGrandles"` 1. rc=0 / hemen 2. **rc=1**; `fm contract "George Wickens"`
+  rc=0 → `--agent` **rc=1**. EN `"Jack Moylan"` 1. **rc=0**, hemen 2. ve `fm open "Dynamics"` sonrası 3. **rc=1**;
+  George kart açıkken rc=1, `contract --cancel` sonrası rc=1. Üç durum: (1) temiz sayfa, (2) hemen ikinci koşu,
+  (3) başka sayfa / kart açık. Dil: TR + EN. Dil dönüşü `fm settings language "Türkçe"` (`/state` → turkish).
+- Kod değişmedi (kural 4: yeni hâl kanıtlanmış biçimde iyi değil; iki davranış kararı Faruk'un): (a) CLI açık
+  konuşmayı kendiliğinden kapatsın mı (menajer/oyuncu üzülebilir), (b) `OpenPlayer` örtülü oyuncu sayfasını öne
+  getirsin mi? Kayıt test kaydı; saat 2 Ağustos 2026 14:00, maç yok, kayıt silinmedi.
+- Durum: park, commit atılıyor
+
+## Önceki durum (Tur 60)
 - Madde: **A "`Task.Delay`" / StaffSearch 407** (`ApplySearch`: `fm players --max-value` figürü listeden seçildikten
   sonraki sabit **1200 ms**) — **BİTTİ** (§8.249). Bekleme oyunun kendi işaretine bağlandı: figürü taşıyan liste
   (choices'ında 7,5M olan, dil/biçim bağımsız bulunan liste) kendi **ham değerini** (`Value`) seçilen figür gösterene

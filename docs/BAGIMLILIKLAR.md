@@ -548,9 +548,12 @@ tablodan çevrilemiyor.
   merkezi bulgularını yazmadan önce o cümleler için oyunun kendi tablosuna bir kez soruyor ve satırı oyunun sözüyle
   yazıyor; tabloda olmayan (sayı/isim taşıyan) cümleler zaten oyunun dilinde geliyor. TR üç durumda satır Türkçe,
   EN üç durumda eskisiyle **birebir** (§8.226).
-- [ ] `contract <oyuncu> --agent`: TR'de kimi koşuda satır bulunamıyor (aynı oyuncu bir koşuda rc=0, başka koşuda
-  `seçenek yok`; aynı oyuncular EN'de hep bulunuyor). Ekranda kalan bir sözleşme görüşmesi kartı (`Finalise
-  Promises` / `Cancel Negotiations`, `Action` alanı boş) görüldü — kartın kendi işareti ölçülecek (§8.210 sonu).
+- [?] `contract <oyuncu> --agent`: **ölçüldü, dil bağımlılığı değil** — TR ve EN aynı davranıyor; hata oyuncunun
+  sayfası/kartı durumundan geliyor. Aynı oyuncuya arka arkaya ikinci kez sormak (oyun konuşmayı açık bırakıyor) ve
+  açık bir yenileme kartı varken sormak iki dilde de rc=1; temiz sayfada ilk soru iki dilde de rc=0 (§8.250).
+  `Action` alanı boş kalan üç `SpeakToAction` satırı (oyuncunun sayfasındaki aksiyon listesi) kart açıkken görülüyor.
+  Kod değişmedi: düzeltmek için ya CLI'nin açık konuşmayı kendiliğinden kapatması (menajeri/oyuncuyu üzebilir) ya da
+  `OpenPlayer`ın örtülü oyuncu sayfasını öne getirmesi gerekir — Faruk'a soru: hangisi?
 - [x] **`opposition` seçenek adları:** seçenekler eklentiden İngilizce geliyor; hata/yardım satırı ise onları oyunun
   sözleriyle yazdığı için gösterilen ad geri yazılamıyordu (`Pres=Her Zaman` → "yok"). Artık değer hem İngilizcesiyle
   hem ekranda görünen sözüyle kabul ediliyor (kimlik listesi hâlâ eklentiden; oyunun verdiği `GameWords` eşlemesiyle
