@@ -412,9 +412,14 @@ tablodan çevrilemiyor.
     düşüyor. `save --as "<yüklü kaydın adı>" --yes` TR + EN, üç durumda eski derlemeyle **birebir** (`md5` TR
     `d4d552c7…`, EN `46212f7f…`); silme yolu kendi kopyamızla uçtan uca ölçüldü (klasöre `t48 test.fm` kondu →
     `fm saves delete "t48 test" --yes` rc=0, izde pencerenin "Yes"i `?ptr=` ile basılıyor, Faruk'un dört dosyası
-    yerinde); negatifler değişmedi (§8.237). Tarayıcının `Delete` düğmesi hâlâ `click ?text=Delete`; `MatchDay`in
-    üç penceresi de (`Instant Result`, `Team Selection`, `Injured Players`) hâlâ başlık yazısıyla aranıyor —
-    ayrı alt maddeler.
+    yerinde); negatifler değişmedi (§8.237). `MatchDay`in üç penceresi de (`Instant Result`, `Team Selection`,
+    `Injured Players`) hâlâ başlık yazısıyla aranıyor — ayrı alt maddeler.
+  - [x] Kayıt tarayıcısının `Delete`i artık **gönderdiği olayla** bulunuyor: düğme `DeleteSelectedGame` gönderiyor ve
+    satır seçilene kadar kapalı (`Enabled=False`), o yüzden işaret "bu olayı gönderen **ve** açık düğme" (eskisi
+    `Label == "Delete"` + `Type == "SIButton"` + `Enabled`); kimlik yoksa yazıya düşülüyor. Kendi kopyamızla uçtan
+    uca: TR + EN, üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) `md5` eski
+    derlemeyle **birebir** (isim dışında tek satır "Silindi/Deleted"), izde `click ?text=Delete` → `click ?ptr=…`;
+    negatifler (`zzz yok` rc=1, yüklü kayıt rc=1) değişmedi; Faruk'un dört dosyası yerinde (§8.238).
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

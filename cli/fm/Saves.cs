@@ -262,6 +262,28 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// The save browser's Delete, by what it sends rather than by its word: it sends the game's
+	/// DeleteSelectedGame, and it stays disabled until a row is selected, which is the row it acts
+	/// on. Browse, Save and Cancel share its template and every one of those labels is this
+	/// language's string run through the table, so the word is kept only as a fallback for a
+	/// screen this cannot recognise.
+	/// </summary>
+	private static async Task<string> DeleteButton()
+	{
+		JsonElement delete = default;
+		await Until(async () =>
+		{
+			delete = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Events") == "DeleteSelectedGame" && Field(b, "Enabled") == "True");
+			return delete.ValueKind == JsonValueKind.Object;
+		}, seconds: 4, every: 0.25);
+
+		return delete.ValueKind == JsonValueKind.Object
+			? await Fm.Get("click", ("ptr", Field(delete, "Pointer")))
+			: await Fm.Get("click", ("text", "Delete"));
+	}
+
+	/// <summary>
 	/// The answer that goes ahead on an open dialog of this kind, or null when that dialog is not
 	/// up. The kind is the game's own name for the window (the bridge reads it from the dialog
 	/// manager: ConfirmSaveOverrideDialog, confirmDeleteSelectedSave), so it does not change with
@@ -404,10 +426,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"Oyunun kayıt listesinde '{name}' yok."));
 			return 1;
 		}
-		await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Any(b => Field(b, "Label") == "Delete" && Field(b, "Type") == "SIButton" && Field(b, "Enabled") == "True"), seconds: 4, every: 0.25);
-
-		var clicked = await Fm.Get("click", ("text", "Delete"));
+		var clicked = await DeleteButton();
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
 			await CloseSaveBrowser();

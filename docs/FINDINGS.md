@@ -2711,3 +2711,23 @@ başlık yazısıyla aranıyor; tarayıcının `Delete` düğmesi hâlâ `click 
 Regresyon: `tools/sweep.sh` → 50 komut, 0 hata (Türkçe oyunda). Değişiklik yalnız `Saves.cs` içinde (yerel yardımcı);
 paylaşılan koda dokunulmadı. Kayıt durumu: kayıtlar yalnız okundu + aynı adla üzerine yazıldı, t48 test kopyası
 silindi; 2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı; dil TR'ye döndü (`/state` → turkish).
+
+### 8.238 `fm saves delete`: kayıt tarayıcısının `Delete`i artık gönderdiği olayla basılıyor (19 Ekim, TR + EN)
+`DeleteSave` (Saves.cs 407) düğmeyi İngilizce sözüyle basıyordu (`click ?text=Delete`) ve ondan önce `Label == "Delete"`
++ `Type == "SIButton"` + `Enabled` ile bekliyordu. Oysa tarayıcının dört düğmesi aynı şablon ailesinden ve hepsinin
+etiketi o dilin sözü (§8.236) — ayırt eden gönderdikleri olay: **Delete `DeleteSelectedGame`** (satır seçilene kadar
+`Enabled=False`, yani "olay + açık" işareti hem bekleme hem seçim işi). Artık `DeleteButton()` bu olayı gönderen açık
+düğmeyi bulup `?ptr=` ile basıyor; kimlik yoksa eskisi gibi yazıya düşülüyor.
+Kanıt: kayıt klasörüne **yalnız kendi kopyamız** kondu (`cp "…(v03).fm" "t49 s1.fm"` … `s3`/`e1`…`e3`), TR + EN × üç
+durum (başka sayfa açık `fm open "Messages"` sonrası / hemen ikinci koşu / başka sayfaya geçtikten sonra) → altı koşu
+**eski derlemeyle (git stash + `dotnet build`) birebir** (`md5` TR `efb3dc45…` / `fd3c4108…` / `feb30e74…`, EN
+`ff8c9d93…` / `da1d75f0…` / `6d5b52d6…`; stdout yalnız adı taşıyor), izde eski `click ?text=Delete` → yeni
+`buttons ?json=1` + `click ?ptr=0x…`; silme uçtan uca (dosya yok oldu, rc=0 "Silindi/Deleted"). Negatif: `saves delete
+"zzz yok" --yes` rc=1 (tarayıcı hiç açılmıyor), yüklü kaydı silme rc=1 ("şu an yüklü olan kayıt", tarayıcı Cancel'la
+kapanıyor). Faruk'un dört dosyası (ana kayıt, overwrite backup, v02, v03) değişmeden yerinde.
+Regresyon: `tools/sweep.sh` → 50 komut, 0 hata (Türkçe oyunda). Değişiklik yalnız `Saves.cs` içinde (yeni yerel
+yardımcı + tek çağrı); paylaşılan koda dokunulmadı. Tuzak: ölçümde bir EN koşusu tarayıcıyı açamadı (bilinen
+`OpenFmMenu`/`OpenSaveBrowser` aksaklığı, §8.236) — tekrar edildi; ayrıca İngilizce oyunda `fm open "Squad Dynamics"`
+"no page named" diyor, doğrusu `fm open "Dynamics"` (sayfa adı o dilin sözü — ayrı iş).
+Kayıt durumu: yalnız kendi kopyalarımız silindi, kayıt okunmadı/yazılmadı; 2 Ağustos 2026 09:15, saat ilerletilmedi,
+maç oynanmadı; dil `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
