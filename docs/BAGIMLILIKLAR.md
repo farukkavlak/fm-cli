@@ -207,10 +207,17 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `CalendarMonths` etiket boş gelince yanlış aya geçiyor (eski derlemede de aynı, koda bağlı değil; §8.216).
     Kural 4 gereği kod **geri alındı**. Faruk'a soru: bu takvim/ay karışıklığı ayrı bir madde olarak düzeltilsin mi
     (o zaman bu madde ölçülüp bitirilebilir), yoksa ölçüm için ayrı bir kayıt/sekme durumu mu kullanılmalı?
-- [ ] **Kısa `Until` (≤ 3 sn) — 16 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
+- [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
-  Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · TacticSlots 112 ·
+  Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · ~~TacticSlots 112~~ ·
   TrainingSchedule 491 506 · TraitTraining 89
+  - [x] TacticSlots 112 (`tactic clear --yes`: silme onayı için sabit 3 sn): onay penceresi artık kendi başına bir
+    süreyle beklenmiyor — yuvanın **sayısı düştüyse** soru yok demektir, pencere gelirse birincil düğmesi basılıyor
+    (`Until`, üst sınır 8 sn, 0,25 sn aralık). Ölçüm: TR'de pencere 0,74–2,39 sn'de geldi (üç durumda da), yani
+    3 sn'lik sınır bir koşuda yalnız ~0,6 sn pay bırakıyordu. TR üç durum (yuva zaten açık / `Messages` açık /
+    `Messages`+`Squad` sonrası) + EN üç durum: hepsi rc=0, çıktı eski derlemeyle **birebir** (TR `md5 3851a52a…`,
+    `9b2bb072…`; EN `cc748d6e…`, `b92f07e1…`); negatif yuva 9 rc=1. Numara sırası: yeni bekleme `dialog` + yuvanın
+    sayısı, sabit sınır yok (§8.251).
   - [x] Actions 126 (`AfterAction`'ın konuşma yolu): "oyun bir konuşma açtı mı" artık ekrandaki konuşan düğmelere değil,
     seçimden **önceki** düğme kümesinden farklı olmasına bakıyor (`TalkButtons()`: düğmenin işaretçisi + yazısı).
     Gazete maddesinin isteğe bağlı cevapları (ör. "Adjust Scouting Budget", bütçe kartı ekranda) da `SpeakToAction`

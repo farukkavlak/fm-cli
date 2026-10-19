@@ -107,9 +107,17 @@ internal static partial class Program
 		var sent = await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("value", ClearRow.ToString()), ("fire", "1"));
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 
-		// The game may ask first; the answer that goes ahead is its primary button.
+		// The game may ask first; the answer that goes ahead is its primary button. The question is
+		// not given a fixed while of its own: the slot's count dropping is the same answer, so a
+		// machine that brings the question late gets it answered instead of counted as "no question".
 		JsonElement dialogs = default;
-		if (await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 3, every: 0.5))
+		var asked = await Until(async () =>
+		{
+			dialogs = await Fm.GetJson("dialog");
+			return dialogs.GetArrayLength() > 0
+				|| int.TryParse(Field(info = await TacticInfo(), "TacticCount"), out var c) && c < before;
+		}, seconds: 8, every: 0.25);
+		if (asked && dialogs.GetArrayLength() > 0)
 		{
 			var go = dialogs[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(x => Field(x, "Name").Contains("primary", StringComparison.Ordinal));
 			Console.WriteLine($"{Field(dialogs[0], "Title")} → {Field(go, "Label")}");

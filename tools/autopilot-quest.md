@@ -3,7 +3,22 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 62)
+## Şu an (Tur 63)
+- Madde: **A "Kısa `Until`" / TacticSlots 112** (`tactic clear --yes`: silme onayı için sabit 3 sn) — **BİTTİ** (§8.251).
+  Eski kod 3 sn boyunca yalnız pencereyi yokluyor, süre dolunca "soru yok" sayıyordu. Artık bekleme oyunun kendi
+  cevabı: pencere doldu **veya** yuvanın `TacticCount`'u düştü (`Until`, 8 sn üst sınır, 0,25 sn); pencere geldiyse
+  birincil düğmesi basılıyor. Ölçüm: pencere basıştan 0,74–2,39 sn'de geliyordu, yani 3 sn'lik sınır bir koşuda
+  ~0,6 sn pay bırakıyordu.
+- Kanıt: TR üç durum (yuva zaten açık / `Messages` açık / `Messages`+`Squad` sonrası) + EN üç durum, hepsi rc=0;
+  çıktı eski derlemeyle **birebir** (TR `3851a52a…`, `9b2bb072…`; EN `cc748d6e…`, `b92f07e1…`), negatif yuva 9
+  rc=1. Dosyalar: `/tmp/t53/{base,after}/{tr,en}-s{1,2,3}-clear.{out,err}`. EN'in bir durumunda "already active"
+  satırı koşular arasında oynuyor (3 tekrarda 2/3 yok) — dokunulmayan ilk okumadan, değişikliğe bağlı değil.
+- Dönüş/yan etki: kayıt test kaydı; taktik yuvası 3 kopyalanıp boşaltıldı (yuvalar: 1 boş, 2 `fmcli en`, 3 boş),
+  saat ilerletilmedi, maç oynanmadı; dil `fm settings language "Türkçe"` ile geri alındı. Paylaşılan koda
+  dokunulmadı (yalnız `TacticClear`), `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 62)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm settings` yazma yolunun onayı** (`Settings.cs`,
   `click ?text=Confirm&name=ConfirmButton`) — **BİTTİ** (§8.251). Preferences'in kendi `ConfirmButton`ı
   `PreferencesConfirmChanges` (+ `PrivacyPolicyConfirmSelections`, `ClosePanel`) gönderiyor; TR + EN'de etiket

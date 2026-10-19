@@ -3005,3 +3005,15 @@ sıradaki çağrı 8,63 sn → **1,21 sn boşluk**; yeni derlemede `select` 7,36
 - Karar: kod değişmedi (kural 4). Düzeltme iki davranış kararı istiyor: (a) CLI açık konuşmayı kendiliğinden kapatsın mı
   (menajer/oyuncu bundan hoşlanmayabilir), (b) `OpenPlayer` örtülü sayfayı öne getirsin mi? Faruk'a soruldu;
   kayıt test kaydı, saat 2 Ağustos 2026 14:00'te kaldı, dil TR'ye döndü.
+
+### 8.251 `tactic clear --yes`: silme onayı sabit 3 sn yerine "pencere **veya** yuva sayısı düştü" (19 Ekim, TR + EN)
+Seçimden sonra oyun silme onayını soruyor; eski kod 3 sn boyunca yalnız `dialog` yokluyor ve süre dolunca "soru yok"
+sayıyordu. Ölçüm (TR, üç durum): pencere basıştan sonra **0,74 / 1,14 / 2,39 sn**de geldi — bir koşuda 3 sn'lik sınıra
+0,6 sn kalıyordu; yavaş makinede pencere geç gelirse hiç cevaplanmıyor ve komut "yuva boşalmadı" ile düşecekti. Artık
+bekleme oyunun kendi cevabı: `dialog` doldu **veya** yuvanın `TacticCount`'u düştü (`Until`, 8 sn üst sınır, 0,25 sn);
+pencere geldiyse birincil düğmesi basılıyor, sonra sayı düşene kadar yine bekleniyor. Kanıt: TR üç durum (yuva zaten
+açık / `Messages` açık / `Messages`+`Squad` sonrası) ve EN üç durum rc=0, çıktı eski derlemeyle **birebir**
+(`md5` TR `3851a52a…` ×2, `9b2bb072…`; EN `cc748d6e…` ×2, `b92f07e1…`); negatif `tactic clear 9 --yes` rc=1.
+EN'in bir durumunda "Slot 3 is already active" satırı bir kez çıktı, üç tekrarda 2/3 çıkmadı — o satır dokunulmayan
+ilk okumadan (sayfa örtülüyken `CurrentTacticSlot`) geliyor, değişikliğe bağlı değil. İz: eski `dialog` yoklamaları
+0,5 sn aralıkla, yeni `dialog` + `tactic` 0,25 sn. Kayıt test kaydı; dil TR'ye döndü (`fm settings language "Türkçe"`).
