@@ -182,13 +182,13 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{who} seçme penceresi açılmadı."));
 			return null;
 		}
-		async Task Close(string sent, string word)
+		async Task<bool> Close(string sent)
 		{
-			// The window's own two buttons, by the event each sends; the word on them is the game's
-			// and is only fallen back to if the identity is not there.
-			if (await EventButton(sent) is { } close) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
-			else await Fm.Get("click", ("text", word));
-			await Until(async () => (await Window()).Count == 0, seconds: 4, every: 0.3);
+			// The window's own two buttons, by the event each sends. The word on them is the game's
+			// and is not used: a window this cannot recognise is reported rather than guessed at.
+			if (await EventButton(sent) is not { } close) return false;
+			await Fm.Get("click", ("ptr", Field(close, "Pointer")));
+			return await Until(async () => (await Window()).Count == 0, seconds: 4, every: 0.3);
 		}
 
 		var any = window.First(i => Field(i, "Kind") == "checkbox");
@@ -238,7 +238,7 @@ internal static partial class Program
 		{
 			if (Choose(names, wanted, who) is not { } name)
 			{
-				await Close(ScoutEditCancel, "Cancel");
+				if (!await Close(ScoutEditCancel)) Console.Error.WriteLine(L($"{who} seçme penceresi kapanmadı."));
 				return null;
 			}
 			if (!picked.Contains(name)) picked.Add(name);
@@ -263,11 +263,15 @@ internal static partial class Program
 		}
 		if (!await Until(async () => await Ticked() == picked.Count, seconds: 4, every: 0.3))
 		{
-			await Close(ScoutEditCancel, "Cancel");
+			if (!await Close(ScoutEditCancel)) Console.Error.WriteLine(L($"{who} seçme penceresi kapanmadı."));
 			Console.Error.WriteLine(L($"{who} seçilemedi (pencere seçilen sayısını göstermedi)."));
 			return null;
 		}
-		await Close(ScoutEditConfirm, "Confirm");
+		if (!await Close(ScoutEditConfirm))
+		{
+			Console.Error.WriteLine(L($"{who} seçme penceresi kapanmadı."));
+			return null;
+		}
 		return picked;
 	}
 
@@ -491,9 +495,13 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (!await OpenFocusForm()) return 1;
 		var (nextStep, _) = await FocusSteps();
-		await (nextStep != null
-			? Fm.Get("click", ("ptr", nextStep))
-			: Fm.Get("click", ("text", "Next")));
+		if (nextStep == null)
+		{
+			await AbandonFocus();
+			Console.Error.WriteLine(L("Formun ileri adımı bulunamadı."));
+			return 1;
+		}
+		await Fm.Get("click", ("ptr", nextStep));
 		List<JsonElement> form = [];
 		await Until(async () => FormBound(form = await FocusForm("Back"), "possiblescoutingareasdropdownselectedoption") != null, seconds: 8, every: 0.5);
 		if (FormBound(form, "possiblescoutingareasdropdownselectedoption") is not { } areas)
@@ -646,7 +654,13 @@ internal static partial class Program
 		// Onto the second step: the step's own button going forward — the event and the payload it
 		// sends say which way it goes, the word on it does not (FocusSteps).
 		var (stepOn, _) = await FocusSteps();
-		await (stepOn != null ? Fm.Get("click", ("ptr", stepOn)) : Fm.Get("click", ("text", "Next")));
+		if (stepOn == null)
+		{
+			await AbandonFocus();
+			Console.Error.WriteLine(L("Formun ileri adımı bulunamadı."));
+			return 1;
+		}
+		await Fm.Get("click", ("ptr", stepOn));
 
 		// Step two: name, ages, areas, priority. That it is on screen is the step buttons' own
 		// answer — the one going back is there, the one going on is not (FocusSteps) — with the

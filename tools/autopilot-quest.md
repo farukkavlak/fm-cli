@@ -3,7 +3,24 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 66)
+## Şu an (Tur 67)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / recruitment focus formunun `Next`i ve gözlemci penceresinin
+  `Close`u** — **BİTTİ** (§8.255). `ScoutAreas` ve `scout new/edit`in ikinci adıma geçişi `FocusSteps` düğmesini
+  bulamazsa `click ?text=Next`e, `AssignFocusScouts`in `Close`u pencere olayını bulamazsa "Cancel"/"Confirm"
+  sözüne düşüyordu. Üç yedek de silindi: düğme yoksa form kapatılıp "Formun ileri adımı bulunamadı." / pencere
+  kapanmadıysa "… seçme penceresi kapanmadı." deniyor.
+- Kanıt: TR + EN × üç durum (`fm open "Messages"` sonrası / hemen ikinci koşu / başka sayfaya geçtikten sonra)
+  `fm scout areas --json` → aynı üç seçenek (`["Competition ›","Nation ›","Recently Selected ›"]`), rc=0; izde
+  `click ?ptr=…` (Next), `text=Next` yok. `fm scout edit 1 --by "ZZZ yok"` iki dilde rc=64, stdout boş; izde
+  `buttons ?json=1&gen=1` → `click ?ptr=…` (pencere Cancel), sonra formun kendi `click ?text=Cancel`i
+  (dokunulmayan `AbandonFocus`). `fm scout --json` koşu öncesi/sonrası aynı (TR `a62e4f7f…`, EN `86fe1bcc…`)
+  → odak kurulmadı/değişmedi. Dosyalar `…/opencode/t67/{before,after}-{tr,en}`, kapanış `after-*-close`.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı); dil EN
+  ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`dil` → `Türkçe`). Değişiklik yalnız
+  `cli/fm/ScoutFocus.cs`; paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 66)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm players` arama panelinin Apply/Cancel yedeği** — **BİTTİ** (§8.254).
   Tur 50'de birincil yol (`PanelSent`: `EventFmxFilterRestoreFilter` + `SendsProps True/False`) yazmıştı; ama
   `ApplySearch`in `PanelButton`ı kimlik yoksa `form ?anchorpath=…&buttons=1` içindeki `Text == "Apply"/"Cancel"`e

@@ -3042,3 +3042,11 @@ stdout/stderr md5 eski derlemeyle **birebir** (TR `7f4956af…`/`447a8d36…`, E
 TR + EN, üç durum × `players "Aaron" --age 18-23 --json` / `players --age 120-130`: Apply satırları (durum sütunu
 dışında) eski derlemeyle birebir, EN s1/s2 bayt bayt aynı; Cancel iki dilde rc=64 + boş stdout + aynı stderr; izde
 `click ?ptr=…`, `text=` yok. Kalan tek yazı yolu `Row()`in nitelik adı (oyunun kendi sözü) — ayrı iş.
+
+### 8.255 Recruitment focus formunun ileri adımı ve gözlemci penceresinin kapanışı yazıyla değil kimlikle (20 Ekim, TR + EN)
+`ScoutAreas`in ileri basışı ve `ScoutNew`/`ScoutEdit`in ikinci adıma geçişi `FocusSteps` düğmesini bulamazsa
+`click ?text=Next`e düşüyordu; `AssignFocusScouts` içindeki `Close` de pencerenin `EventFmxRecruitmentFocusScoutAnalystEditCancel/Confirm`
+olayını bulamazsa "Cancel"/"Confirm" sözüne düşüyordu. Üç yedek de silindi: düğme yoksa form kapatılıp dürüst hata
+veriliyor, pencere kapanmadıysa söyleniyor. TR + EN × üç durumda `fm scout areas --json` aynı üç seçeneği verdi
+(`["Competition ›","Nation ›","Recently Selected ›"]`), izde ileri basışı `click ?ptr=…` (yazı yok); `scout edit 1
+--by "ZZZ yok"` iki dilde rc=64 ve `fm scout --json` md5 koşu öncesi/sonrası aynı (TR `a62e4f7f…`, EN `86fe1bcc…`).

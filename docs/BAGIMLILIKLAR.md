@@ -570,6 +570,16 @@ tablodan çevrilemiyor.
     `buttons ?json=1&gen=1` (olay); basış iki derlemede de `click ?ptr=` (§8.244). Aynı pencerede kalan: okuma
     çapası `form ?anchor=Assign Any Scouts` (ölçüldü: `anchorpath=focusitem.anyscout` **0 öğe** döndürüyor, yol
     çapası tutmuyor) ve `Rows()`in başlık sözü ("World Knowledge") — ikisi ayrı iş.
+  - [x] **Recruitment focus formunun ileri adımı ve gözlemci penceresinin kapanışı yazıyla basılmıyor**
+    (`scout areas`, `scout new/edit`, `AssignFocusScouts` → `Close`): formun ileri düğmesi `FocusSteps` ile
+    bulunuyordu ama bulunamazsa eski kod `click ?text=Next`e düşüyordu; gözlemci penceresinin `Close`i de olayı
+    bulamazsa "Cancel"/"Confirm" sözüne düşüyordu. İkisi de silindi: form ileri düğmesi yoksa form kapatılıp
+    "Formun ileri adımı bulunamadı." deniyor, pencere düğmesi yoksa "… seçme penceresi kapanmadı." deniyor.
+    TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra)
+    `fm scout areas --json` aynı üç seçeneği veriyor (`["Competition ›","Nation ›","Recently Selected ›"]`);
+    izde `click ?ptr=` (Next), yazı yok. `scout edit 1 --by "ZZZ yok"` iki dilde rc=64, `fm scout --json` koşu
+    öncesi/sonrası aynı (TR `a62e4f7f…`, EN `86fe1bcc…`) → odak kurulmadı/değişmedi; pencerenin kapanışı da
+    `buttons ?json=1&gen=1` → `click ?ptr=…` (§8.255).
   - [x] **`fm settings` yazma yolunun onayı** (`ConfirmButton`) artık **gönderdiği olayla** basılıyor: düğme
     `PreferencesConfirmChanges` (+ `PrivacyPolicyConfirmSelections`, `ClosePanel`) taşıyor; TR + EN'de aynı.
     Etiket iki dilde de "Confirm" gelse de oyunun kendi sözü (başka dilde çevrilebilir), `Name` ise şablon adı;
