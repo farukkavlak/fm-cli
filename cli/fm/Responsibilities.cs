@@ -248,8 +248,14 @@ internal static partial class Program
 				}
 				else about = Field(item, "Text");
 			}
-			else if (kind == "button" && Field(item, "Text") == "Take Control") take = item;
-			else if (kind == "button" && Field(item, "Text") == "Delegate") hand = item;
+			// A duty's pair, in the order the page draws it: "Take Control" then "Delegate". Their
+			// labels are the game's own words — German's delegate comes back "Delegation", which no
+			// English sentence matches — so the pair is found by its own template class instead.
+			else if (kind == "button" && Field(item, "Name").StartsWith("buttons-segmented-button-row", StringComparison.Ordinal))
+			{
+				if (take.ValueKind != JsonValueKind.Object) take = item;
+				else if (hand.ValueKind != JsonValueKind.Object) hand = item;
+			}
 			else if (kind == "dropdown" && Field(item, "Name") == "AssignableStaff")
 			{
 				holders.Add(Field(item, "Label"));

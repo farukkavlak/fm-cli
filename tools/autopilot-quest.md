@@ -3,7 +3,22 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 79)
+## Şu an (Tur 80)
+- Madde: **B "`fm responsibilities` görev çiftini 'Take Control'/'Delegate' sözüyle buluyordu"** — **BİTTİ**
+  (§8.268). Almanca oyunda delegate düğmesi **"Delegation"** geliyor (çeviri tablosunda İngilizcesi yok);
+  `ParseDuties` çifti tanımıyor, sayfa hiç okunamıyordu (rc=1). Artık çift, sayfanın çizdiği sıradaki iki
+  `buttons-segmented-button-row-*` düğmesi olarak bulunuyor (önce Take Control, sonra Delegate).
+- Kanıt — TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics`
+  sonrası): `fm responsibilities --json` **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `fa0ac05b…`,
+  EN `55e8337f…`, 105 görev). DE: eski derleme rc=1 (stdout boş `d41d8cd9…`), yeni üç durum rc=0 ve aynı
+  `57c24ed4…` (105 görev; 54 sende / 51 devredilmiş); görevli kümesi üç dilde aynı (Clive Nates, Faruk Kavlak,
+  Tom Clayton…). Görev adları oyunun dilinde kalıyor.
+- Dönüş/yan etki: dil EN/DE ölçümlerinden sonra `fm settings language "Türkçe"` → `/state` `Language: turkish`;
+  final TR koşusu aynı `fa0ac05b…`. Kayıt yalnız okundu, saat ilerletilmedi, maç oynanmadı. Yalnız
+  `cli/fm/Responsibilities.cs` değişti; paylaşılan koda (Bridge/OpenPage/reply) dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 79)
 - Madde: **A "`Task.Delay`" / Registration 32 115** (`register --auto` ve terminaldeki "Yardımcı seçsin":
   yardımcının seçiminden sonra sabit **1500 ms**) — **BİTTİ** (§8.267). Aynı fonksiyondaki yazı bağımlılığı da
   gitti: `Ask Assistant to Pick` artık `EventFmxAutoSelect` olayıyla, `Undo` da `EventFmxRevertChanges` ile

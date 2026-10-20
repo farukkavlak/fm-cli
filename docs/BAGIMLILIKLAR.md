@@ -431,6 +431,12 @@ tablodan çevrilemiyor.
     durum + `--analysts` rc=0; negatif TR rc=64 (§8.229).
   - [~] ContractTalks "final decision" / "be in touch": İngilizce dışında tahmin etmiyor, dürüstçe "ya imzalandı ya da
     birkaç gün içinde" diyor.
+- [x] **`fm responsibilities` görev çiftini "Take Control"/"Delegate" sözüyle buluyordu** — Almanca oyunda
+  "Delegate" düğmesi "Delegation" olarak geliyor (çeviri tablosunda İngilizcesi yok); `ParseDuties` çifti
+  tanımıyor, sayfa hiç okunamıyordu (`rc=1`, "Sorumluluklar sayfası okunamadı."). Artık çift, sayfanın çizdiği
+  sıradaki iki `buttons-segmented-button-row-*` düğmesi olarak bulunuyor (önce Take Control, sonra Delegate);
+  söz araması kalktı. TR + EN üç durumda çıktı eski derlemeyle **birebir** (`md5 fa0ac05b…` / `55e8337f…`,
+  105 görev); DE üç durumda **rc=0**, 105 görev (54 sende / 51 devredilmiş), üç dilde aynı görevli kümesi (§8.268).
 - [ ] **İngilizce yazıyla basma/tıklama — 44 yer** (`press/click text="Acknowledge and Move On"`, "Cancel", "Confirm",
   "Save Game As"…): eklentinin çeviri tablosundan geçiyor; tabloda 2.376 çakışma var ("Confirm" → Onayla/Kabul). Her biri
   öğe adı / olay adıyla basılabilir mi bakılacak. Ölçülmüş bir örnek (§8.206): TR oyunda `fm training "<oyuncu>"

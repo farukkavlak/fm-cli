@@ -3207,3 +3207,13 @@ kod aynı yerde 1,5 sn kör bekliyordu. TR + EN × üç durum (başka sayfa aç�
 sonra) `register --auto --json` eski derlemeyle isim/açık-kapalı/kural **birebir** (27 oyuncu, 20 açık); hiç
 değişiklik yokken ikinci koşu da aynı listeyi veriyor. `Flags` sütunu bilinen geç bağlanma yüzünden koşular
 arasında oynuyor (iki derlemede de); karşılaştırma isim/açık-kapalı/kural üzerinden yapıldı.
+
+### 8.268 `fm responsibilities` görev çiftini sözle değil sayfanın sırasıyla buluyor (21 Ekim, TR + EN + DE)
+`ParseDuties` bir görevin iki düğmesini ("Take Control" / "Delegate") metinleriyle arıyordu. Almanca oyunda
+delegate düğmesi **"Delegation"** olarak geliyor (eklentinin çeviri tablosunda İngilizcesi yok), hiçbir çift
+kurulmuyor ve `fm responsibilities --json` **rc=1** "Sorumluluklar sayfası okunamadı." veriyordu. Artık çift,
+sayfanın çizdiği sıradaki iki `buttons-segmented-button-row-*` düğmesi olarak bulunuyor (önce Take Control,
+sonra Delegate); söz araması kalktı. Ölçüm: TR eski/yeni üç durumda (başka sayfa açık / hemen ikinci koşu /
+başka sayfaya geçtikten sonra) **birebir** `fa0ac05b…` (105 görev), EN `55e8337f…` (105); DE eski rc=1,
+yeni üç durumda rc=0 ve aynı `57c24ed4…` (105 görev; 54 sende / 51 devredilmiş). Üç dilde görevli kümesi
+(Clive Nates, Faruk Kavlak, Tom Clayton…) aynı; görev adları oyunun dilinde kalıyor.
