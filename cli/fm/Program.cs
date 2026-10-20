@@ -2425,7 +2425,7 @@ internal static partial class Program
 			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
 			  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
 			  inbox           gelen kutusu
-			  news [#]        basının yazdıkları: haber sitesindeki başlıklar, en yeni önce; numarayla haberin tamamı
+			  news [#]        basının yazdıkları: haber sitesindeki başlıklar, sayfanın dizdiği sırayla; numarayla haberin tamamı
 			  reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 			  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle

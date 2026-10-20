@@ -3,7 +3,31 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 71)
+## Şu an (Tur 72)
+- Madde: **B "Haber yaşları İngilizce birimlerle çözülüyor"** (`NewsAge`, `News.cs`) — **BİTTİ** (§8.260).
+  `NewsItemAgeString` oyunun kendi dilinde bir cümle ("16 saat 30 dakika önce", "16 hours 30 minutes ago"); kod
+  yaşı `(\d+) (day|hour|minute)` ile çözüyordu → TR'de her yaş 0 (sıralama hiçbir şey yapmıyor), EN'de liste yeniden
+  diziliyordu, yani `news <#>` numarası dile göre başka haberi gösteriyordu (2 günlük haber TR #2, EN #16).
+  Yaş çözümleyicisi ve `NewsAgeTurkish` silindi: sıra oyunun kendi bağlama sırası, yaş oyunun cümlesi.
+  `NewsItemReference.Date` şemada var ama ağaçta bağlı değil (`bindprop` UI düğümünde değer vermiyor); istenirse
+  `/pathset` + `/pull` ile "2026-08-01" geliyor — haber başına iki çağrı gerektirdiği için seçilmedi, §8.260'ta not.
+- Kanıt (üç durum = `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` [`Dynamics`]
+  sonrası; TR + EN; dosyalar `…/opencode/t72/{old,new}-{tr,en}-s*`, `new-*-human.txt`, `new-*-one.txt`,
+  `new-*-neg.txt`): önce = eski derleme (değişiklik öncesi kurulu Release). **TR eski = yeni bayt bayt**
+  (`md5 79129dc319fad5b302e65af709aa1edb` s1/s2, `1c6bbfce6c5b1c3395f114bd6e70310f` s3). **EN**: eski sıralı liste
+  (`Sky Bet…` #1, 2 günlük Lincoln haberi #16) → yeni liste TR'nin bağlama sırasıyla aynı; ortak kümede `About`
+  dizisi birebir (EN'de bir fazla Stoke karosu var, eski derlemede de vardı). İnsan çıktısı: TR
+  `news 2` = "Yeni yönetim Peterborough… · Lincoln · 2 gün önce" (eski json'daki #2 ile aynı), EN `news 4` =
+  "White makes Stockport County debut · 16 hours 30 minutes ago"; negatif `news 99` iki dilde rc=1.
+- Yan bulgu (kod değişmedi): `NewsAgeTurkish` EN'de "16 hours 30 minutes ago"u "16 hours ago" diye kısaltıyordu;
+  artık oyunun cümlesi olduğu gibi basılıyor. `news` yardımı MCP/EN/TR ve KILAVUZ'da "en yeni önce" → "sayfanın
+  dizdiği sırayla" oldu (kullanıcıya görünen sıra sözü).
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; news sayfası
+  açık bırakıldı; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`fm settings --json` →
+  `Turkish`). Değişiklik yalnız `cli/fm/News.cs` + üç yardım metni → paylaşılan kod yok, `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 71)
 - Madde: **B "Cümle parçası arayanlar" / `fm news <#>` haber gövdesi** — **BİTTİ** (§8.259). Açık haberin tam metni
   `elements ?text=<gövdeden seçilen ASCII parça>&up=0&depth=0` ile ekranda aranıyor, `BodyText "` işaretinden
   kesiliyordu; arama sözcüğü gövdenin kendisinden ve yalnız ASCII harflerden türetiliyordu (dile/gövdeye bağlı ekran

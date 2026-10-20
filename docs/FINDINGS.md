@@ -3104,3 +3104,16 @@ EN `0b4e206c…`/`215cf311…`/`a2bd57ff…`, 9/9 aynı md5); iz: eski `elements
 → yeni hiç `elements` çağrısı yok. Negatif `news 99` iki dilde rc=1. Yan bulgu: yaş çözümleyicisi İngilizce birim
 arıyor (`(\d+) (day|hour|minute)`), TR'de her yaş 0'a düşüyor → liste sıralaması ve `news <#>` numaraları dile göre
 değişiyor (TR'de 2 numara 2 günlük, EN'de başka haber); ayrı iş olarak CHECKLIST B'ye yazıldı.
+
+### 8.260 Haber listesi yaş cümlesiyle sıralanmıyor; sıra oyunun kendi bağlama sırası (20 Ekim, TR + EN)
+`NewsAge` yaşı `(\d+) (day|hour|minute)` ile okuyordu: `NewsItemAgeString` oyunun **kendi dilinde** bir cümle
+(TR "16 saat 30 dakika önce"), yani TR'de her yaş 0'a düşüp sıralama hiçbir şey yapmıyor, EN'de ise listeyi
+yeniden diziyordu — aynı `news <#>` numarası iki dilde başka haberi gösteriyordu (2 günlük haber TR'de #2, EN'de #16).
+`NewsItemReference` şemasında dil-bağımsız `Date`/`UniqueId` **var** (`/schema?filter=NewsItemReference`) ama ağaçta
+bağlı değil; `bindprop` UI düğümünde değer vermiyor. `/pathset?to=fmcli.news&from=<NewsItem düğümü>` + `/pull` ile
+`Date` geliyor ("2026-08-01", `UniqueId 189184`) — ileride yaş sıralaması gerekirse yol bu, ama haber başına iki çağrı
+ve yeniden kullanılan düğümün eski değeri tutması riski var. Şimdilik sıralama kaldırıldı: liste tarama sırasında geliyor, yaş
+oyunun cümlesi olarak basılıyor (TR "16 saat 30 dakika önce", EN "16 hours 30 minutes ago"). TR çıktısı eski
+derlemeyle bayt bayt aynı; EN'de ortak haberlerin sırası TR'yle birebir. Ayrı yan bulgu: EN karo listesinde bir
+haber fazla ("Hadžiahmetović makes Stoke City debut"); TR ağacında o karo yok — eski derlemede de öyleydi, bu
+değişiklikle ilgisiz.

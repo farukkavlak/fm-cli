@@ -35,7 +35,8 @@ internal static partial class Program
 			return 1;
 		}
 
-		items = items.OrderBy(i => NewsAge(i.Age)).ToList();
+		// The page's own order stands: the age is the game's sentence in the game's language,
+		// so reading a duration out of it would only order the list correctly in English.
 
 		// One item in full: its tile opens it the way a message opens, and its text is read there.
 		if (string.Join(" ", Words(args)) is { Length: > 0 } wanted)
@@ -72,7 +73,7 @@ internal static partial class Program
 				Console.WriteLine(JsonOut.Of(new { item.Title, item.About, item.Age, Body = body }));
 				return 0;
 			}
-			Console.WriteLine($"{item.Title}\n{item.About} · {NewsAgeTurkish(item.Age)}\n");
+			Console.WriteLine($"{item.Title}\n{item.About} · {item.Age}\n");
 			Console.WriteLine(body.Length > 0 ? body : L("(haberin metni okunamadı)"));
 			return 0;
 		}
@@ -83,7 +84,7 @@ internal static partial class Program
 		}
 		for (var n = 0; n < items.Count; n++)
 		{
-			Console.WriteLine($"{n + 1,2}  {items[n].Title}   · {items[n].About} · {NewsAgeTurkish(items[n].Age)}");
+			Console.WriteLine($"{n + 1,2}  {items[n].Title}   · {items[n].About} · {items[n].Age}");
 			if (items[n].Body.Length > 0) Console.WriteLine($"      {items[n].Body}");
 		}
 		Console.WriteLine(L("\nTamamı: news <# | başlıktan bir parça>"));
@@ -121,15 +122,5 @@ internal static partial class Program
 			else if (items[at].Body.Length == 0 && body.Length > 0) items[at] = (title, about, age, body);
 		}
 		return items;
-	}
-
-	/// <summary>"1 day 10 hours 15 minutes ago" in minutes.</summary>
-	private static int NewsAge(string age) =>
-		Regex.Matches(age, @"(\d+) (day|hour|minute)").Sum(m => int.Parse(m.Groups[1].Value) * m.Groups[2].Value switch { "day" => 1440, "hour" => 60, _ => 1 });
-
-	private static string NewsAgeTurkish(string age)
-	{
-		var minutes = NewsAge(age);
-		return minutes == 0 ? (age == "Just Now" ? L("az önce") : age) : minutes >= 1440 ? L($"{minutes / 1440} gün önce") : minutes >= 60 ? L($"{minutes / 60} saat önce") : L($"{minutes} dk önce");
 	}
 }

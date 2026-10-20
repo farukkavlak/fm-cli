@@ -2155,7 +2155,7 @@ tutuyor); yenileme kartında (`contract <oyuncu>`) görürsün.
 
 ### Basın ne yazıyor — `news`
 
-Gelen kutusu değil; oyunun haber sitesindeki başlıklar, en yeni önce. Rakipler, transfer söylentileri, lig.
+Gelen kutusu değil; oyunun haber sitesindeki başlıklar, sayfanın dizdiği sırayla. Rakipler, transfer söylentileri, lig.
 
 ```
 $ fm news

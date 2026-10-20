@@ -642,8 +642,13 @@ tablodan çevrilemiyor.
   altında paragraf paragraf bağlıyor (açık haberde 4 paragraf tek blok; listedeki karoda çoğu zaman yalnız açılış
   cümlesi). Artık gövde bağdan, satır devamlarıyla okunuyor; `NewsBody` ve `elements ?text=` yolu silindi. `news
   1/2/9` × üç durum × TR + EN eski derlemeyle **birebir** (9/9 aynı md5), negatif `news 99` iki dilde rc=1 (§8.259).
-- [ ] Haber yaşları İngilizce birimlerle çözülüyor (`(\d+) (day|hour|minute)`); TR'de hepsi 0'a düşüyor → liste
-  sıralaması ve `news <#>` numaraları dile göre değişiyor (§8.259 yan bulgusu).
+- [x] **Haber yaşları artık çözülmüyor; liste oyunun kendi dizdiği sırada** — `NewsAge` yaşı İngilizce birimlerle
+  (`(\d+) (day|hour|minute)`) çözüyordu; TR'de ("16 saat 30 dakika önce") hepsi 0'a düşüyor, EN'de liste yeniden
+  sıralanıyordu → `news <#>` numaraları dile göre başka haberi gösteriyordu (2 günlük haber TR'de 2, EN'de 16).
+  Sıralama ve `NewsAgeTurkish` kaldırıldı: liste bağlanma sırasında (oyunun sayfaya dizdiği sıra) geliyor, yaş da
+  oyunun kendi cümlesi olarak gösteriliyor. Kanıt: TR üç durumda çıktı eski derlemeyle **bayt bayt aynı**
+  (`79129dc3…`, `1c6bbfce…`); EN'de eski sıralı liste (`Sky Bet…` 1, 2 günlük haber 16) → yeni liste TR'nin
+  sırasıyla aynı (ortak kümede `About` dizisi birebir), negatif `news 99` iki dilde rc=1 (§8.260).
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
 - [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
 - [x] **`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor** — başlık `Heading:
