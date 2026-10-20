@@ -3,7 +3,34 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 69)
+## Şu an (Tur 70)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm players` hızlı süzgecinin `Clear`i** (`Players`, `Reads.cs`) —
+  **BİTTİ** (§8.258). İki yerde (`--clear` ve her aramanın başındaki temizleme) düğme
+  `?text=Clear&event=EventToPlugin` ile, yani "Clear" sözüyle basılıyordu. Sayfadaki tek Clear düğmesi
+  `EventToPlugin:EventFmxResetFilter` (id 515611) gönderiyor; artık basış yalnız o olayla, yazı yok.
+- Kanıt (`FM_TRACE=1`, TR + EN × üç durum: `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open
+  "Dynamics"`·`"Squad Dynamics"` sonrası × iki yol `players --clear` ve `players "Aaron" --age 18-23`):
+  izde eski `press ?text=Clear&event=EventToPlugin` → yeni `press ?event=EventToPlugin:EventFmxResetFilter`.
+  TR isim/sıra/alanlar eski derlemeyle **birebir** (s1/s2 apply `fce5bc8c…`, clear `79aceda6…`; s3 apply
+  `22ba2e6c…`, clear `5c775573…`; yeni s1/s3 apply md5'i yalnız oyunun oynak `StatusTitleShort`/`StatusType`
+  sütunu yüzünden değişiyor — o sütun iki derlemede de koşular arasında oynuyor). EN oturmuş s3 bayt bayt aynı
+  (`491c409d…` / `40784872…`, 70 satır); dil geçişinden sonraki kısa tabloda yeni derleme daha çok satır okudu,
+  ilk 22 satır isim/alan olarak eskiyle aynı. Eski derleme `git stash push -- cli/fm/Reads.cs` + `dotnet build
+  -c Release`; dosyalar `…/opencode/t70/{old,new,ref,refnew}-*.{out,err}`.
+- Aynı fonksiyondaki ikinci yazı bağımlılığı: temizlemeden sonraki bekleme `Label == "Edit Search"` idi; TR'de
+  düğme "Aramayı Düzenle (1)" dediği için hiç tutmuyor, her aramada 4 sn boşa bekliyordu. Artık
+  `EventFmxFilterStoreFilter` gönderen düğme aranıyor. TR üç koşu: `players --age 18-23 --json` **12,67 / 12,50 /
+  12,58 → 9,27 / 8,34 / 9,07 sn**, çıktı birebir.
+- Negatif: `players --age 120-130` iki dilde rc=64 + aynı seçenek listesi; Player Database açıkken sayfada tek
+  `EventFmxResetFilter` düğmesi var, başka sayfaya geçince `DISABLED` görünüyor.
+- Dönüş/yan etki: kayıt test kaydı (2 Ağustos 2026 09:15; saat ilerletilmedi, maç oynanmadı, kayıt değişmedi);
+  dil `fm settings language "Türkçe"` ile geri alındı. Değişiklik yalnız `cli/fm/Reads.cs` içindeki `Players` →
+  paylaşılan yardımcıya dokunulmadı, `sweep.sh` gerekmedi.
+- Kalan (aynı ana madde, yazıyla basanlar): `TrainingSchedule.cs:349` `press ?text=Confirm`; `AbandonFocus`in
+  `click ?text=Cancel`i ve formun Confirm'i (`m_cancelEdit` eklentide yok → eklenti + oyun restartı); FM menüsünün
+  "Save Game As" satırı (satırın olayı eklentinin `Events` özetinde yok).
+
+## Önceki durum (Tur 69)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / arama düğmesi** (`SearchFor`, `Reads.cs`) — **BİTTİ** (§8.257).
   Arama kutusu kapalıyken düğme `?text=Search&name=dashboard-hud-search-button` ile, yani oyunun kendi sözüyle
   basılıyordu. Artık `?event=OpenPanel&name=dashboard-hud-search-button`: düğmenin açtığı panel + şablon adı,

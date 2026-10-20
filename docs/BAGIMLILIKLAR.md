@@ -603,6 +603,19 @@ tablodan çevrilemiyor.
     s1/s2/s3 rc=0, sonuçlar (isim/kulüp/tür) eski derlemeyle **birebir** (md5'ler yalnız arama sayfasının
     GUID'inde oynuyor); ilk durumda eski `press ?text=Search&…` → yeni `press ?event=OpenPanel&…`,
     ikinci koşuda hiç basış yok. `sweep.sh` 50/50 (§8.257).
+  - [x] **`fm players` hızlı süzgeci "Clear" sözüyle temizleniyordu** (`Players`, `--clear` ve her aramanın
+    başındaki temizleme): `?text=Clear&event=EventToPlugin` — "Clear" oyunun kendi sözü. Düğme artık gönderdiği
+    olayla bulunuyor: `?event=EventToPlugin:EventFmxResetFilter` (şablon adı `button-secondary-label`, sayfada tek).
+    Temizlemenin oturduğu işaret de yazıyla değil: eski `Label == "Edit Search"` TR'de hiç tutmuyordu (düğme
+    "Aramayı Düzenle (1)") → her aramada 4 sn boşa bekleniyordu; artık `EventFmxFilterStoreFilter` gönderen düğme
+    aranıyor. Ölçüm (TR, üç koşu): `players --age 18-23 --json` **12,67 / 12,50 / 12,58 → 9,27 / 8,34 / 9,07 sn**,
+    çıktı birebir.
+    TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) × iki yol
+    (`players --clear` / `players "Aaron" --age 18-23`): isim/sıra/alanlar eski derlemeyle **birebir** — TR
+    s1/s2 apply `fce5bc8c…` (yeni s1'de yalnız oynak `StatusTitleShort`/`StatusType` yüzünden `6fdbbb…`), clear
+    `79aceda6…`; s3 apply `22ba2e6c…` (yeni `61e55f…`, aynı oynak sütun), clear `5c775573…` bayt bayt. EN oturmuş
+    s3 `491c409d…`/`40784872…` bayt bayt, kısa-tablo koşularında ilk 22 satır aynı. İzde eski
+    `press ?text=Clear&event=EventToPlugin` → yeni `press ?event=EventToPlugin:EventFmxResetFilter` (§8.258).
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

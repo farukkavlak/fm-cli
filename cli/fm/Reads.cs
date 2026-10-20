@@ -731,10 +731,11 @@ internal static partial class Program
 
 		var before = (await Fm.GetJson("people")).ToString();
 
-		// A quick filter stays on until the page's own Clear is pressed.
+		// A quick filter stays on until the page's own Clear is pressed; the button is found by
+		// the event it sends, which no language changes.
 		if (args.Contains("--clear"))
 		{
-			var cleared = await Arriving("press", [("text", "Clear"), ("event", "EventToPlugin")]);
+			var cleared = await Arriving("press", [("event", "EventToPlugin:EventFmxResetFilter")]);
 			if (cleared.StartsWith("error", StringComparison.Ordinal)) return Report(cleared);
 		}
 
@@ -798,10 +799,12 @@ internal static partial class Program
 			// required find almost no one (FINDINGS §8.131): each search starts from a clean one.
 			if (!args.Contains("--clear"))
 			{
-				var cleared = await Arriving("press", [("text", "Clear"), ("event", "EventToPlugin")]);
+				var cleared = await Arriving("press", [("event", "EventToPlugin:EventFmxResetFilter")]);
 				if (cleared.StartsWith("error", StringComparison.Ordinal)) return Report(cleared);
+				// The filter is gone when the button that opens its panel is back; it says how many
+				// rules are on it in the game's own words, so it is found by what it sends.
 				await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-					.Any(b => Field(b, "Label") == "Edit Search"), seconds: 4, every: 0.3);
+					.Any(b => Field(b, "Events").Contains("EventToPlugin:EventFmxFilterStoreFilter", StringComparison.Ordinal)), seconds: 4, every: 0.3);
 			}
 			if (await ApplySearch(search, conditions, position, maxValue) is { } failed) return failed.Length == 0 ? 64 : Report(failed);
 			searched = true;

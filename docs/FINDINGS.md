@@ -3072,3 +3072,22 @@ sayfaya geçtikten sonra) `fm search "Ben House" --json` rc=0, dört sonuç (Moi
 Ben House) eski derlemeyle **birebir** (isim/kulüp/tür; ham md5 yalnız arama sayfasının GUID'inde oynuyor, iki
 derlemede de). İz: eski `press ?text=Search&name=…` → yeni `press ?event=OpenPanel&name=…`; kutu zaten açıkken
 hiç basış yok. `sweep.sh` 50 komut, 0 hata.
+
+### 8.258 `fm players` hızlı süzgeci "Clear" sözüyle değil, düğmenin olayıyla temizleniyor (20 Ekim, TR + EN)
+`Players` (Reads.cs) iki yerde — `--clear` ve her aramanın başındaki temizleme — düğmeyi
+`?text=Clear&event=EventToPlugin` ile basıyordu; "Clear" oyunun kendi sözü. Sayfadaki tek Clear düğmesi
+`EventToPlugin:EventFmxResetFilter` (id 515611) gönderiyor ve şablon adı `button-secondary-label`. Artık basış yalnız
+bu olayla: `press ?event=EventToPlugin:EventFmxResetFilter`; düğme yoksa `Arriving` dürüst hata veriyor. Temizlemenin
+oturduğu işaret de yazıyla değil: eski `Label == "Edit Search"` TR'de hiç tutmuyordu (düğme "Aramayı Düzenle (1)"
+diyor), yani her aramada 4 saniyelik `Until` boşa doluyordu; artık `EventFmxFilterStoreFilter` gönderen düğme
+aranıyor. TR'de üç koşu `players --age 18-23 --json`: **12,67 / 12,50 / 12,58 → 9,27 / 8,34 / 9,07 sn**, çıktı
+birebir (isim/sıra/alanlar). Ölçüm
+(`FM_TRACE=1`, TR + EN × üç durum: başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra × iki yol
+`players --clear` ve `players "Aaron" --age 18-23`): TR çıktıları eski derlemeyle **birebir** (22/22, 70/70 satır;
+`md5` s1/s2 apply `fce5bc8c…`, clear `79aceda6…`, s3 apply `22ba2e6c…`, clear `5c775573…`; s1/s3 apply'ın
+yeni `md5`'i yalnız oyunun oynak `StatusTitleShort`/`StatusType` sütunu yüzünden değişiyor — o sütun iki derlemede
+de koşular arasında oynuyor). EN'de oturmuş durum bayt bayt aynı
+(`491c409d…` / `40784872…`, 70 satır); dil geçişinden sonraki kısa tabloda yeni derleme daha çok satır okudu, ilk 22
+satır isim/alan olarak eskiyle aynı. Negatif: `players --age 120-130` iki dilde rc=64 ve aynı seçenek listesi;
+Player Database'in arkasında kalan Clear düğmesi başka sayfadayken `DISABLED` görünüyor, olay yine tek. Kayıt test
+kaydı; saat ilerletilmedi, maç oynanmadı, dil TR'ye döndü.
