@@ -225,6 +225,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `CalendarMonths` etiket boş gelince yanlış aya geçiyor (eski derlemede de aynı, koda bağlı değil; §8.216).
     Kural 4 gereği kod **geri alındı**. Faruk'a soru: bu takvim/ay karışıklığı ayrı bir madde olarak düzeltilsin mi
     (o zaman bu madde ölçülüp bitirilebilir), yoksa ölçüm için ayrı bir kayıt/sekme durumu mu kullanılmalı?
+  - [x] ScoutFocus 485 (`OpenFocusForm`: yarım kalmış form `AbandonFocus` ile atıldıktan sonra sabit **800 ms** beklenip
+    yeniden açılıyordu): bekleme oyunun kendi cevabına bağlandı — formun adım düğmeleri kalmayana kadar
+    (`FormStep() == null`, üst sınır 6 sn, 0,2 sn aralık). Ölçüm: onay düğmesine basıldıktan sonra form 0,03–0,10 sn'de
+    kalkıyor; yeniden açılış eski kodda ~0,87–0,90 sn, yenisinde 0,12–0,44 sn sonra. TR + EN × üç durumda (başka sayfa
+    açık / form zaten yarım / başka sayfaya geçtikten sonra) her koşuda yarım form gerçekten bırakıldı: `fm scout areas
+    --json` **6/6 rc=0**, aynı üç seçenek (`md5 fed56895c45431dd9820725651421c2b`); yeni derleme eskisiyle **birebir**
+    (§8.263).
 - [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · ~~TacticSlots 112~~ ·

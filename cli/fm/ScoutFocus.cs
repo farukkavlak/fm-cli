@@ -482,7 +482,9 @@ internal static partial class Program
 		{
 			if (!leftover) return true;
 			await AbandonFocus();
-			await Task.Delay(800);
+			// The form is gone once its step buttons are: the game takes it down with the
+			// confirmation, so the reopening waits on that rather than on a pause.
+			await Until(async () => await FormStep() == null, seconds: 6, every: 0.2);
 			return !again && await OpenFocusForm(again: true);
 		}
 		Console.Error.WriteLine(L("Odak formu açılmadı."));

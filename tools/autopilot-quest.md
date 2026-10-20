@@ -3,7 +3,29 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 74)
+## Şu an (Tur 75)
+- Madde: **A "`Task.Delay`" / ScoutFocus 485** (`OpenFocusForm`: yarım kalmış form `AbandonFocus` ile atıldıktan sonraki
+  sabit **800 ms**) — **BİTTİ** (§8.263). Bekleme oyunun kendi cevabına bağlandı: formun adım düğmeleri kalmayana
+  kadar (`FormStep() == null`, üst sınır 6 sn, 0,2 sn). Ölçüm (canlı): onay düğmesinden sonra form 0,03–0,10 sn'de
+  kalkıyor; yeniden açılış eski kodda ~0,87–0,90 sn, yenisinde 0,12–0,44 sn sonra.
+- Kanıt — `fm scout areas --json`, TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci kez / s3
+  `fm open "Squad Dynamics"` [`Dynamics`] sonrası). Her koşuda yarım form gerçekten bırakıldı: `fm scout areas` bir
+  önceki koşu form ikinci adımdayken `kill -9` ile kesilerek; izde iki `Create a New Recruitment Focus` + arada
+  `click ?text=Cancel` görülüyor. **6/6 rc=0**, çıktı aynı: `["Competition ›","Nation ›","Recently Selected ›"]`,
+  `md5 fed56895c45431dd9820725651421c2b`. İz (eski → yeni): s1 onay 0,50 → `pages` 1,40 / 1,09 → 1,24; s2 1,08 →
+  1,95 / 1,08 → 1,20; s3 1,22 → 2,10 / 1,11 → 1,55. Yeni kodda onaydan sonra bir `buttons ?json=1&gen=1` (form yok)
+  ve hemen `pages`; sabit duraklama yok. Normal (yarım form yok) TR koşusu da rc=0 ve aynı üç seçenek. Eski derleme =
+  değişiklik öncesi kurulu Release; izler `…/opencode/t74/{old,new}-{tr,en}-s{1,2,3}.{out,err}`, betik `t74/run.sh`.
+- Dönüş/yan etki: kayıt test kaydı; hiçbir odak kurulmadı/değişmedi (form onaylanmadan atıldı), saat 2 Ağustos 2026
+  09:15, ilerletilmedi, maç oynanmadı. Dil EN ölçümünden sonra `fm settings language "Türkçe"` ile TR'ye döndü
+  (`fm settings dil` → `Türkçe`). Tur ortasında oyun kayıtsız kaldı
+  (`fm status` → "kayıt yüklü değil", `fm continue` yanıt vermedi): `pkill -9 -f "Football Manager 26"` + `fm start
+  </dev/null` + `fm continue` ile **aynı kayıt** (2 Ağustos 09:15) geri yüklendi; ölçümler tekrarlandı (eski s1/s2/s3
+  + yeni s1/s2/s3). Değişiklik yalnız `cli/fm/ScoutFocus.cs` yerel `OpenFocusForm`; paylaşılan koda dokunulmadı →
+  `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 74)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / antrenman programı seçicisinin `About()`u** (`TrainingSchedule.cs`)
   — **BİTTİ** (§8.262). `About()` birincil odağı `"Primary Focus"` yazısıyla arıyordu; o metin EN'de "Primary Focus",
   TR'de **"Priority"** (oyunun sözünün eklentideki İngilizcesi) → TR'de odak bulunamıyor, hafta programı dalına düşüp

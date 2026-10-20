@@ -3154,3 +3154,11 @@ Takım Uyumu ↑ az · Sakatlık Riski ↑ az · Kondisyon ↓ az); EN üç duru
 ↔ `Tiki-Taka` denendi, cümle basıldı ve program geri alındı. Negatif `set 2026-08-04 1 "ZZZ yok"` rc=1.
 Ölçüm sırasında takvim sekmesi ara sıra `Takvimin antrenman sekmesi okunamadı.` ile düştü (§8.216), aynı
 derlemede tekrar denemede geçti.
+
+### 8.263 Yarım kalmış odak formu kapanışını beklemeden yeniden açılıyordu (21 Ekim, TR + EN)
+`OpenFocusForm` bir önceki koşudan kalan yarım formu `AbandonFocus` ile attıktan sonra sabit 800 ms bekliyordu.
+Ölçüm (canlı): onay düğmesine basıldıktan sonra formun adım düğmeleri 0,03–0,10 sn'de kalkıyor; yeni kod
+`FormStep() == null` olana kadar (üst sınır 6 sn, 0,2 sn aralık) bekliyor ve yeniden açılış 0,87–0,90 sn yerine
+0,12–0,44 sn sonra oluyor. TR + EN × üç durum (başka sayfa açık / form zaten yarım / başka sayfaya geçtikten sonra)
+6/6 rc=0 ve `fm scout areas --json` aynı üç seçenek; eski derlemeyle birebir. Form hiç kapanmazsa eski davranış gibi
+yeniden açma deneniyor, bu kez `again` dalı döngüye girmiyor.
