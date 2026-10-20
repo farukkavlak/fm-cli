@@ -596,6 +596,13 @@ tablodan çevrilemiyor.
     olay dilden ve bitten bağımsız. Üç durum (başka sayfa açık / hemen ikinci koşu / preferences zaten açık) ×
     iki dilde `fm settings tarih` / `"date format"` yazma yolu eski derlemeyle **birebir** (rc=0, aynı çıktı);
     izde `click ?text=Confirm&name=ConfirmButton` → `click ?ptr=…` (§8.251).
+  - [x] **Arama düğmesi** (`SearchFor`, `fm search` / `fm actions` / `fm player` fallback'i): düğme
+    `?text=Search&name=dashboard-hud-search-button` ile etiketiyle basılıyordu; etiket oyunun kendi sözü.
+    Artık `?event=OpenPanel&name=dashboard-hud-search-button` — paneli açan olay + şablon adı, yazı yok.
+    TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / `Squad Dynamics`/`Dynamics` sonrası):
+    s1/s2/s3 rc=0, sonuçlar (isim/kulüp/tür) eski derlemeyle **birebir** (md5'ler yalnız arama sayfasının
+    GUID'inde oynuyor); ilk durumda eski `press ?text=Search&…` → yeni `press ?event=OpenPanel&…`,
+    ikinci koşuda hiç basış yok. `sweep.sh` 50/50 (§8.257).
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

@@ -100,7 +100,9 @@ internal static partial class Program
 	{
 		if (!(await Fm.GetJson("textboxes")).EnumerateArray().Any(b => Field(b, "Type") == "SearchBox"))
 		{
-			var opened = await Arriving("press", [("text", "Search"), ("name", "dashboard-hud-search-button")]);
+			// The button is addressed by the panel it opens and its template name, not by the
+			// word it shows: the label is the game's own string and differs by language.
+			var opened = await Arriving("press", [("event", "OpenPanel"), ("name", "dashboard-hud-search-button")]);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
 			await Until(async () => (await Fm.GetJson("textboxes")).EnumerateArray().Any(b => Field(b, "Type") == "SearchBox"), seconds: 10, every: 0.25);
 		}

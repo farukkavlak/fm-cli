@@ -3063,3 +3063,12 @@ sınır, 0,25 sn); temizleme yolu da "Clear Instructions" sözü yerine düğmen
 `--advice` + `--clear` çıktısı eski derlemeyle **birebir** (TR `05bb4f30…` / `63635b68…`, EN `2c162b6c…` /
 `659a220b…`, 11 oyuncu, 5 değer); "zaten temiz" hâli rc=0 ve 11 satır `-`. Kayıt test kaydı; rakip talimatları tur
 sonunda `--clear` ile boş bırakıldı, saat ilerletilmedi, maç oynanmadı.
+
+### 8.257 Arama düğmesi etiketiyle değil, açtığı panel ve şablon adıyla basılıyor (20 Ekim, TR + EN)
+`SearchFor` (Reads.cs) arama kutusu kapalıyken düğmeyi `?text=Search&name=dashboard-hud-search-button` ile
+basıyordu; "Search" oyunun kendi sözü. Artık `?event=OpenPanel&name=dashboard-hud-search-button` — olay + şablon
+adı, dil/skin yazısı yok. Ölçüm (`FM_TRACE=1`): TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka
+sayfaya geçtikten sonra) `fm search "Ben House" --json` rc=0, dört sonuç (Moisés Del Hoyo, Moise Kean, Louie Rea,
+Ben House) eski derlemeyle **birebir** (isim/kulüp/tür; ham md5 yalnız arama sayfasının GUID'inde oynuyor, iki
+derlemede de). İz: eski `press ?text=Search&name=…` → yeni `press ?event=OpenPanel&name=…`; kutu zaten açıkken
+hiç basış yok. `sweep.sh` 50 komut, 0 hata.

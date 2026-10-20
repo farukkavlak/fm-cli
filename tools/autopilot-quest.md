@@ -3,7 +3,25 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 68)
+## Şu an (Tur 69)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / arama düğmesi** (`SearchFor`, `Reads.cs`) — **BİTTİ** (§8.257).
+  Arama kutusu kapalıyken düğme `?text=Search&name=dashboard-hud-search-button` ile, yani oyunun kendi sözüyle
+  basılıyordu. Artık `?event=OpenPanel&name=dashboard-hud-search-button`: düğmenin açtığı panel + şablon adı,
+  yazı yok. Aynı yardımcıyı `fm search`, `fm actions` ve `fm player`ın arama fallback'i kullanıyor.
+- Kanıt: TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics`/`Dynamics`
+  sonrası) `fm search "Ben House" --json`: rc=0, dört sonuç (Moisés Del Hoyo · Moise Kean · Louie Rea · Ben House)
+  eski derlemeyle **birebir** (isim/kulüp/tür; ham md5 yalnız arama sayfasının GUID'inde oynuyor, iki derlemede de).
+  İz (`FM_TRACE=1`): eski `press ?text=Search&name=…` → yeni `press ?event=OpenPanel&name=…`; s2'de hiç basış yok.
+  Eski derleme `git stash push -- cli/fm/Reads.cs` + `dotnet build -c Release`. Dosyalar
+  `…/opencode/t69/{old,new}-{tr,en}-s{1,2,3}.{out,err}` (+ `new-en-s1b`; dil geçişinden hemen sonraki s1 bir kez
+  iki kez bastı, tekrarında tek basış ve aynı veri).
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı), arama paneli
+  `fm open "Messages"` ile kapatıldı; dil `fm settings language "Türkçe"` ile geri alındı (`fm settings` → `dil`).
+  `SearchFor` ortak yardımcı olduğu için `sweep.sh`: **50 komut, 0 hata** (`…/t69/sweep`).
+- Kalan (aynı yardımcıda): `Reads.cs`teki iki "Clear" basışı hâlâ `?text=Clear&event=EventToPlugin` (olay penceresi
+  başka düğmelerle ortak; şablon adı ölçülmedi).
+
+## Önceki durum (Tur 68)
 - Madde: **A "`Task.Delay`" / OppositionCard 55** (`fm opposition --advice` / `--clear`: kart yeniden dizilirken
   sabit 500 ms beklenip bir kez daha okunuyordu) — **BİTTİ** (§8.256). Bekleme kalktı: tablo **öncekinden farklı
   ve art arda iki okumada aynı** olana kadar okunuyor (`Until`, üst sınır 6 sn, 0,25 sn). Aynı blokta "Clear
