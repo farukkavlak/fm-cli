@@ -3,7 +3,32 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 72)
+## Şu an (Tur 73)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / antrenman programı seçicisi** (`schedule set` / `schedule style`,
+  `TrainingSchedule.cs`) — **BİTTİ** (§8.261). Seçici onayı `press ?text=Confirm&event=EventToPlugin`, iptali
+  `press ?text=Cancel&event=ClosePanel`, okuması `form ?anchor=Confirm`, seçenek sonrası açıklama da sabit **500 ms**
+  üzerine kuruluydu. Artık seçici kendi veri yoluyla (`binding.Description` — oturum, `currentschedule.Description` —
+  hafta programı), onay olayla (`EventFmxConfirmTrainingSession` / `EventFmxConfirmTrainingSchedule`), iptal
+  `ClosePanel` + `name=button-base-label` ile basılıyor; açıklama basıştan önceki metinden farklı ve iki okumada aynı
+  olana kadar okunuyor (üst sınır 2 sn, 0,2 sn). Ölçüm (canlı, TR): açıklama metinleri basıştan **276 ms** sonra
+  23 → 64 satıra çıkıyor; eski 500 ms kör duraklamaydı. İz (EN s1): eski `press ?ptr` 5,40 → `text=Confirm` 6,11 sn;
+  yeni `press ?ptr` 5,48 → açıklama 5,78/6,05/6,29 → `press ?event=…` 6,38 sn.
+- Kanıt: TR + EN × üç durum (başka sayfa açık `fm open "Messages"` / sayfa zaten açık [`fm schedule` ile] / başka
+  sayfaya geçtikten sonra [`Squad Dynamics` / EN `Dynamics`]) × iki yol (seans `Physical ↔ Defending`, program
+  `Defence ↔ Possession`): **24/24 rc=0**, çıktı eski derlemeyle **birebir** (TR seans `9d26b11c…`/`98475996…`,
+  program `e6ad2d3a…`/`292bf40a…`; EN seans `43db8c57…`/`29e9b88f…`, program `ee65a3cb…`/`9c236d3f…`). İzde
+  `text=Confirm`/`text=Cancel` **0**; onay `press ?event=…`, iptal `press ?event=ClosePanel&name=button-base-label`.
+  Negatif `set 3 1 "ZZZ yok"` rc=1, program değişmedi. Eski derleme `git stash push -- cli/fm/TrainingSchedule.cs` +
+  `dotnet build -c Release`; dosyalar `…/opencode/t73/{new,old}-{tr,en}/`.
+- Dönüş/yan etki: kayıt test kaydı (2 Ağustos 2026 09:15); seans/program tur sonunda geri alındı (`Fiziksel`,
+  `Savunma`), saat ilerletilmedi, maç oynanmadı; dil EN'den `fm settings language "Türkçe"` ile geri alındı.
+  Değişiklik yalnız `cli/fm/TrainingSchedule.cs` yerel yardımcıları → paylaşılan koda (Bridge/`Until`/OpenPage)
+  dokunulmadı, `sweep.sh` gerekmedi.
+- Yan bulgu (kod değişmedi, CHECKLIST B'ye yazıldı): aynı seçicinin `About()` çözümleyicisi hâlâ İngilizce başlıkları
+  ("Primary Focus", "Attributes", "Slightly Increased") arıyor → TR'de yalnız cümle, EN'de özellik/etki satırları.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 72)
 - Madde: **B "Haber yaşları İngilizce birimlerle çözülüyor"** (`NewsAge`, `News.cs`) — **BİTTİ** (§8.260).
   `NewsItemAgeString` oyunun kendi dilinde bir cümle ("16 saat 30 dakika önce", "16 hours 30 minutes ago"); kod
   yaşı `(\d+) (day|hour|minute)` ile çözüyordu → TR'de her yaş 0 (sıralama hiçbir şey yapmıyor), EN'de liste yeniden

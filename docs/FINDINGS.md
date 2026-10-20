@@ -3117,3 +3117,26 @@ oyunun cümlesi olarak basılıyor (TR "16 saat 30 dakika önce", EN "16 hours 3
 derlemeyle bayt bayt aynı; EN'de ortak haberlerin sırası TR'yle birebir. Ayrı yan bulgu: EN karo listesinde bir
 haber fazla ("Hadžiahmetović makes Stoke City debut"); TR ağacında o karo yok — eski derlemede de öyleydi, bu
 değişiklikle ilgisiz.
+
+### 8.261 Antrenman programı seçicisi olayıyla onaylanıyor; açıklama sabit 500 ms yerine kendi değişimini bekliyor (20 Ekim, TR + EN)
+`schedule set/style` seçicisi `press ?text=Confirm&event=EventToPlugin` ve `press ?text=Cancel&event=ClosePanel`
+ile, okuması da `form ?anchor=Confirm` ile oyunun sözüne bağlıydı; seçenek basıldıktan sonra açıklama sabit
+**500 ms** beklenip bir kez okunuyordu. Ölçüm (canlı, TR): seçenek basıldıktan **276 ms** sonra açıklama metinleri
+23 → 64 satıra çıkıyor ve bir daha değişmiyor; 500 ms'lik duraklama yavaş karede eski seçeneğin açıklamasını
+okuyabilirdi. Seçici artık kendi **veri yoluyla** okunuyor (`binding.Description` — oturum seçici,
+`currentschedule.Description` — hafta programı; ikisi de çevrilen bir etiket değil), onay düğmesinin gönderdiği
+olayla (`EventFmxConfirmTrainingSession` / `EventFmxConfirmTrainingSchedule`), iptal `ClosePanel` + şablon adıyla
+(`button-base-label`) basılıyor. Açıklama, basıştan **önceki** metin listesinden farklı olup art arda iki okumada
+aynı olana kadar okunuyor (üst sınır 2 sn, 0,2 sn aralık); böylece "hangi işaret" sorusunun cevabı süre değil,
+seçicinin kendi yeniden çizimi. İz (EN, s1): eski `press ?ptr=…` 5,40 sn → `press ?text=Confirm…` 6,11 sn (710 ms,
+500 ms'i kör); yeni `press ?ptr=…` 5,48 sn → açıklama okumaları 5,78/6,05/6,29 sn → `press ?event=…` 6,38 sn.
+Kanıt: TR + EN × üç durum (başka sayfa açık / sayfa zaten açık / başka sayfaya geçtikten sonra) × iki yol
+(seans `Physical ↔ Defending`, program `Defence ↔ Possession`) → 24/24 rc=0, çıktı eski derlemeyle **birebir**
+(TR seans `9d26b11c…`/`98475996…`, program `e6ad2d3a…`/`292bf40a…`; EN seans `43db8c57…`/`29e9b88f…`, program
+`ee65a3cb…`/`9c236d3f…`); izde `text=Confirm`/`text=Cancel` **0**, onay `press ?event=…`, iptal
+`press ?event=ClosePanel&name=button-base-label`. Negatif `schedule set 3 1 "ZZZ yok"` rc=1, program değişmedi.
+Yan bulgu (kod değişmedi): aynı seçicinin `About()` çözümleyicisi hâlâ İngilizce başlıkları arıyor
+("Primary Focus", "Attributes", "Slightly Increased") → TR'de yalnız açıklama cümlesi, EN'de özellik/etki satırları
+basılıyor; bu okuma yolu ayrı iş. Kayıt test kaydı (2 Ağustos 2026 09:15); seans/program değişiklikleri tur sonunda
+geri alındı (`Fiziksel`, `Savunma`), saat ilerletilmedi, maç oynanmadı; dil EN ölçümünden sonra
+`fm settings language "Türkçe"` ile geri alındı.

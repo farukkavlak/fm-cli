@@ -295,9 +295,25 @@ internal static partial class Program
 		return picker;
 	}
 
+	/// <summary>
+	/// The open picker read by its description's data path, not by the word "Confirm": a
+	/// session's description is bound under <c>binding.Description</c>, a week schedule's under
+	/// <c>currentschedule.Description</c>; neither is a label the game translates.
+	/// </summary>
+	private static async Task<List<JsonElement>> PickerForm()
+	{
+		foreach (var path in new[] { "binding.Description", "currentschedule.Description" })
+		{
+			var form = (await Fm.GetJson("form", ("anchorpath", path), ("up", "18"), ("buttons", "1")))
+				.EnumerateArray().ToList();
+			if (form.Count > 0) return form;
+		}
+		return [];
+	}
+
 	private static async Task<(JsonElement, List<ScheduleSlot>)?> ReadPicker(string oneChoice)
 	{
-		var form = (await Fm.GetJson("form", ("anchor", "Confirm"), ("up", "10"), ("buttons", "1"))).EnumerateArray().ToList();
+		var form = await PickerForm();
 		var at = form.FindIndex(f => Field(f, "Kind") == "dropdown" && f.TryGetProperty("Choices", out var c)
 			&& c.EnumerateArray().Any(x => x.GetString() == oneChoice));
 		if (at < 0) return null;
@@ -340,13 +356,33 @@ internal static partial class Program
 	private static async Task<bool> PressAndConfirm(string pointer)
 	{
 		PickedAbout = [];
+		var before = string.Join("\0", (await PickerForm()).Where(f => Field(f, "Kind") == "text")
+			.Select(f => Field(f, "Text")));
 		var pressed = await Fm.Get("press", ("ptr", pointer));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed) == 0;
-		await Task.Delay(500);
-		var texts = (await Fm.GetJson("form", ("anchor", "Confirm"), ("up", "10"), ("buttons", "1"))).EnumerateArray()
-			.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text")).ToList();
-		PickedAbout = About(texts);
-		var confirmed = await Fm.Get("press", ("text", "Confirm"), ("event", "EventToPlugin"));
+		// The picker redraws its description for the pressed option. It is read once that
+		// description has changed from what was there before the press and two readings agree —
+		// a fixed pause could read the previous option's description on a slow frame.
+		List<JsonElement> form = [];
+		var previous = before;
+		var changed = false;
+		await Until(async () =>
+		{
+			form = await PickerForm();
+			var now = string.Join("\0", form.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text")));
+			changed = now != before;
+			var settled = changed && now == previous;
+			previous = now;
+			return settled;
+		}, seconds: 2, every: 0.2);
+		PickedAbout = About(form.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text")).ToList());
+		// The picker's own confirm button sends these; its label ("Confirm") is the game's word.
+		var confirmed = "error: the picker's confirm button was not found";
+		foreach (var sent in new[] { "EventToPlugin:EventFmxConfirmTrainingSession", "EventToPlugin:EventFmxConfirmTrainingSchedule" })
+		{
+			confirmed = await Fm.Get("press", ("event", sent));
+			if (!confirmed.StartsWith("error", StringComparison.Ordinal)) break;
+		}
 		if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed) == 0;
 		return true;
 	}
@@ -443,8 +479,10 @@ internal static partial class Program
 	/// <summary>Cancels the picker and waits for it to go, so what is read next is the calendar again.</summary>
 	private static async Task ClosePicker()
 	{
-		await Fm.Get("press", ("text", "Cancel"), ("event", "ClosePanel"), ("any", "1"));
-		await Until(async () => (await Fm.GetJson("form", ("anchor", "Confirm"), ("up", "10"), ("buttons", "1"))).GetArrayLength() == 0, seconds: 4, every: 0.3);
+		// The picker's Cancel is the control that sends ClosePanel under this template name; the
+		// word "Cancel" is the game's, not the control's.
+		await Fm.Get("press", ("event", "ClosePanel"), ("name", "button-base-label"));
+		await Until(async () => (await PickerForm()).Count == 0, seconds: 4, every: 0.3);
 	}
 
 	/// <summary>Reads the calendar again until a day's slot shows what was chosen, or a few seconds pass.</summary>

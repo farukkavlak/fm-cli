@@ -616,6 +616,19 @@ tablodan çevrilemiyor.
     `79aceda6…`; s3 apply `22ba2e6c…` (yeni `61e55f…`, aynı oynak sütun), clear `5c775573…` bayt bayt. EN oturmuş
     s3 `491c409d…`/`40784872…` bayt bayt, kısa-tablo koşularında ilk 22 satır aynı. İzde eski
     `press ?text=Clear&event=EventToPlugin` → yeni `press ?event=EventToPlugin:EventFmxResetFilter` (§8.258).
+  - [x] **Antrenman programı seçicisinin `Confirm`/`Cancel`i ve okuması** (`schedule set` / `schedule style`): seçici
+    `press ?text=Confirm&event=EventToPlugin` ve `press ?text=Cancel&event=ClosePanel` ile, okuması da `form
+    ?anchor=Confirm` ile **oyunun sözüyle** yapılıyordu; seçenek basıldıktan sonraki açıklama sabit **500 ms**
+    beklenip bir kez okunuyordu. Artık seçici kendi **veri yoluyla** okunuyor (`binding.Description` — oturum;
+    `currentschedule.Description` — hafta programı), onay `EventFmxConfirmTrainingSession` /
+    `EventFmxConfirmTrainingSchedule` olayıyla, iptal `ClosePanel` + şablon adıyla (`button-base-label`) basılıyor;
+    açıklama, basıştan **önceki** metinden farklı olup iki okuma aynı olana kadar okunuyor (üst sınır 2 sn). TR + EN,
+    üç durum × iki yol (seans `Physical ↔ Defending`, program `Defence ↔ Possession`): 24/24 koşu rc=0 ve çıktı eski
+    derlemeyle **birebir** (TR seans `9d26b11c…`/`98475996…`, program `e6ad2d3a…`/`292bf40a…`; EN
+    `43db8c57…`/`29e9b88f…`, `ee65a3cb…`/`9c236d3f…`); izde `text=Confirm`/`text=Cancel` **0**, onay `press ?event=…`;
+    negatif `set 3 1 "ZZZ yok"` rc=1 ve `press ?event=ClosePanel&name=button-base-label` (§8.261). Kalan (aynı
+    seçicide): `About()` hâlâ İngilizce başlıkları ("Primary Focus", "Attributes", "Slightly Increased") arıyor →
+    TR'de yalnız cümle, EN'de özellik/etki satırları basılıyor; ayrı iş.
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri
