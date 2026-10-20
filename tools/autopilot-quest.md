@@ -3,7 +3,27 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 76)
+## Şu an (Tur 77)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm load` yükleme ekranı** (döşeme + `Load`) — **BİTTİ**
+  (§8.265). Yeniden başlatılan oyunun "kariyer yükle" döşemesi `?text=Load an FM26 career …` ile, yükleme düğmesi
+  `?text=Load` ile ve beklenmesi `Label == "Load"` ile yapılıyordu. TR oyunda döşemenin yazısı Türkçe olduğu için
+  ilk basış hiçbir yere denk gelmiyor (`error: no button shows …`), hata yok sayılıyor, liste açılmadan `rowselect`
+  deneniyordu → **eski derleme TR soğuk açılış rc=1**, 2:02, 28 başarısız `rowselect`. Artık ikisi de oyunun
+  kendi kimliğiyle: döşeme `Events` içinde `LoadGameTileSelection`, düğme `LoadSelectedGame` + `Enabled=True`;
+  basış `?ptr=`, kimlik yoksa dürüst hata. Sabit bekleme eklenmedi; satır `dry=1` ile oyunun kendi cevabından
+  okunuyor.
+- Kanıt — `fm load "Faruk Kavlak - Fenerbahçe"`, üç durum (s1 başka sayfa açık `Messages`/`Squad` sonrası soğuk
+  açılış / s2 oyun yükleme ekranında [liste zaten açık] / s3 `Squad Dynamics` sonrası soğuk) × TR + EN:
+  **6/6 rc=0**, çıktı "Hazır/Ready: Faruk Kavlak - Fenerbahçe (2 Ağustos 2026)"; soğuk 1:16–1:17, liste açıkken
+  11 s. İz: `click ?ptr=…` (döşeme) → `rowselect ?text=…&dry=1` (0,04–0,6 sn'de bulundu) → `click ?ptr=…` (Load);
+  `text=` yok. Dosyalar `…/opencode/t77/` (`old-tr-s1.err`, `new-tr-s1b/s2b/s3`, `new-en-s1/s2/s3`).
+- Dönüş/yan etki: kayıt test kaydı, her koşuda **kendisi kaydedilip aynı kayıt geri yüklendi** (2 Ağustos 2026
+  09:15), saat ilerletilmedi, maç oynanmadı; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile TR
+  (`fm settings --json` → `Turkish`). Değişiklik yalnız `cli/fm/Saves.cs` (`LoadNamed` + `LoadTile` sabiti);
+  paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 76)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `budget` kartının yazma yolu** (`Budget`, `PressCardButton` ve
   döşeme basışı) — **BİTTİ** (§8.264). Üç yedek yazı yolu kaldırıldı: kartı açan döşeme zaten eylem kimliğiyle
   (1885623898) bulunuyordu, kimlik yoksa `click ?text="Adjust Transfer and Wage Budget"`e düşüyordu; "Got It" ve

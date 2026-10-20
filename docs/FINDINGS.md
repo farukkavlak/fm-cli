@@ -3172,3 +3172,16 @@ hemen ikinci koşu / başka sayfaya geçtikten sonra) × iki yol (iptal; `14`'ü
 çıktı eski derlemeyle **bayt bayt aynı** (TR iptal `3bcdc7a1…`, tut `93cbe81d…`; EN `6f04af3c…` /
 `cd196064…`). İzlerde eski ve yeni hep `click ?ptr=…`, `text=` sayısı **0** — yedek hiç kullanılmıyordu;
 negatif `ayarla 99` rc=1, kart yine `?ptr=` ile kapanıyor, bütçe 15. adımda kalıyor.
+
+### 8.265 `fm load` soğuk açılışta yükleme listesini hiç açamıyordu (21 Ekim, TR + EN)
+Oyun kapalıyken/kayıttayken `fm load "<ad>"` yeniden başlatıp yükleme ekranındaki "kariyer yükle" döşemesini
+**İngilizce cümlesiyle** (`?text=Load an FM26 career …`) basıyordu; TR oyunda o döşemenin yazısı Türkçe olduğu
+için basış hiçbir şeye denk gelmiyor (`error: no button shows …`), hata yok sayılıyor ve liste hiç açılmadan
+`rowselect` deneniyordu → dört denemede rc=1, "Oyunun yükleme listesinde … yok" (iz: 2 dk, 28 başarısız
+`rowselect`, `click ?text=…`). Aynı ekrandaki `Load` düğmesi de yazıyla aranıyordu. Artık ikisi de oyunun
+kendi kimliğiyle: döşeme `Events` içinde **`LoadGameTileSelection`** taşıyan düğme, yükleme düğmesi
+**`LoadSelectedGame`** + `Enabled=True` olan düğme; basış `?ptr=`, kimlik yoksa dürüst hata. Ölçüm: eski
+derleme TR soğuk açılış rc=1 (2:02) → yeni TR/EN × üç durum (başka sayfa açık / liste zaten açık / başka
+sayfadan sonra) **6/6 rc=0**, soğuk açılış 1:16–1:17, liste açıkken 11 s; çıktı iki dilde "Hazır/Ready:
+2 Ağustos 2026", saat ilerletilmedi, maç oynanmadı. Kalan: `Last saved`/`Back to last saves` çapaları ve
+satırın kendi adı hâlâ yazıyla (satır adı kullanıcının verdiği ad; başlık/bağlantı ayrı iş).

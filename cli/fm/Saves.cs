@@ -43,8 +43,6 @@ internal static partial class Program
 		return 0;
 	}
 
-	private const string LoadTile = "Load an FM26 career or import and continue your FM23/FM24 save.";
-
 	private static async Task<bool> OnScreen(string text) =>
 		(await Fm.GetJson("texts", ("anchor", text), ("up", "0"))).GetArrayLength() > 0;
 
@@ -504,8 +502,21 @@ internal static partial class Program
 		{
 			if (!await OnScreen("Last saved"))
 			{
-				await Fm.Get("click", ("text", LoadTile));
-				await Until(() => OnScreen("Last saved"), seconds: 10, every: 0.25);
+				// The tile that opens the save list, by the event it sends (its own words are this
+				// language's, so the English sentence it used to be clicked by matched nothing).
+				var tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.FirstOrDefault(b => Field(b, "Events").Contains("LoadGameTileSelection", StringComparison.Ordinal));
+				if (tile.ValueKind != JsonValueKind.Object)
+				{
+					Console.Error.WriteLine(L("Yükleme ekranında kayıt listesini açan döşeme bulunamadı."));
+					return 1;
+				}
+				await Fm.Get("click", ("ptr", Field(tile, "Pointer")));
+				if (!await Until(() => OnScreen("Last saved"), seconds: 20, every: 0.25))
+				{
+					Console.Error.WriteLine(L("Kayıt listesi açılmadı."));
+					return 1;
+				}
 			}
 			// Left in its file-browser form, the screen names files rather than saves.
 			if (await OnScreen("Back to last saves"))
@@ -527,11 +538,22 @@ internal static partial class Program
 		}
 
 		await Fm.Get("rowselect", ("text", name));
-		await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Any(b => Field(b, "Label") == "Load" && Field(b, "Enabled") == "True"), seconds: 5, every: 0.25);
+		// The screen's own "load this one" button: it sends the game's LoadSelectedGame, and is
+		// shut until a row is picked. Its label is this language's word, not the button (FINDINGS §8.265).
+		JsonElement load = default;
+		if (!await Until(async () =>
+		    {
+			    load = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				    .FirstOrDefault(b => Field(b, "Events").Contains("LoadSelectedGame", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
+			    return load.ValueKind == JsonValueKind.Object;
+		    }, seconds: 8, every: 0.25))
+		{
+			Console.Error.WriteLine(L("Kayıt seçildi ama yükleme düğmesi açılmadı."));
+			return 1;
+		}
 
 		Console.WriteLine(L($"'{name}' yükleniyor…"));
-		var clicked = await Fm.Get("click", ("text", "Load"));
+		var clicked = await Fm.Get("click", ("ptr", Field(load, "Pointer")));
 		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 
 		if (!await Until(() => Fm.InGame(), seconds: 240, every: 3))

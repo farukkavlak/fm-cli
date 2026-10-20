@@ -641,6 +641,14 @@ tablodan çevrilemiyor.
     yoluyla bulunuyor (TR'de metin "Priority" geliyordu) → TR'de yalnız cümle basılırken artık özellikler ve etkiler
     de basılıyor, etki başlıkları oyunun sözüyle (`Mutluluk`, `Takım Uyumu`, `Sakatlık Riski`, `Kondisyon`); EN
     çıktısı değişmedi; hafta programı yolu (`currentschedule.Description`) aynı kaldı.
+- [x] **`fm load` soğuk açılışta yükleme listesini hiç açamıyordu** — yeniden başlatılan oyunun "kariyer yükle"
+  döşemesi İngilizce cümlesiyle (`?text=Load an FM26 career …`) basılıyordu; TR oyunda döşemenin yazısı Türkçe
+  olduğu için basış hiçbir yere denk gelmiyor, hata yok sayılıyor ve liste açılmadan satır aranıyordu → `fm load`
+  TR'de soğuk açılışta **rc=1** ("listede yok", dört deneme, 2 dk). Aynı ekrandaki `Load` düğmesi de yazıyla
+  aranıyordu. İkisi artık oyunun kimliğiyle: döşeme `LoadGameTileSelection`, düğme `LoadSelectedGame` +
+  `Enabled=True`; basış `?ptr=`, kimlik yoksa dürüst hata. TR + EN × üç durum **6/6 rc=0** (soğuk 1:16–1:17,
+  liste açıkken 11 s), çıktı iki dilde "Hazır/Ready", saat ilerletilmedi (§8.265). Kalan: `Last saved` /
+  `Back to last saves` çapaları ve satırın kullanıcıya ait adı.
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri
