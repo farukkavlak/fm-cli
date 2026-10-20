@@ -27,9 +27,7 @@ internal static partial class Program
 
 		if (args.Contains("--auto"))
 		{
-			if (await Labelled("Ask Assistant to Pick") is not { } pick) return Report(L("error: 'Ask Assistant to Pick' ekranda yok"));
-			await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
-			await Task.Delay(1500);
+			if (!await AssistantPick()) return Report(L("error: yardımcının seçim düğmesi ekranda yok"));
 			(rules, players) = await ReadRegistration();
 		}
 
@@ -92,7 +90,7 @@ internal static partial class Program
 			var picked = Ui.Ask(RulesLine(rules), choices, cancel: changed ? L("Çık, değişiklikleri geri al") : L("Çık"));
 			if (picked is not { } index)
 			{
-				if (changed && await Labelled("Undo") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
+				if (changed && await EventButton("EventFmxRevertChanges") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
 				Console.WriteLine(changed ? L("Değişiklikler geri alındı; liste gönderilmedi.") : L("Liste gönderilmedi."));
 				return 0;
 			}
@@ -109,11 +107,7 @@ internal static partial class Program
 				        + (gone.Count > 0 ? $"  [red]− {Ui.Safe(string.Join(", ", gone))}[/]" : ""));
 				return await SendList("Confirm", L("Kadro listesi"));
 			}
-			if (action == L("Yardımcı seçsin"))
-			{
-				if (await Labelled("Ask Assistant to Pick") is { } pick) await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
-				await Task.Delay(1500);
-			}
+			if (action == L("Yardımcı seçsin")) await AssistantPick();
 			else if (choosable[index - actions.Count] is var player && !await Flip(player.Name, !player.On)) return 1;
 
 			changed = true;
@@ -126,6 +120,23 @@ internal static partial class Program
 		var parts = rules.Where(r => r.Title != "Replacements").Select(r =>
 			$"{(r.Meets ? "✓" : "✗")} {RuleName(r.Title)} {r.Value.Split(' ')[0]}");
 		return string.Join("   ", parts);
+	}
+
+	/// <summary>
+	/// The assistant's pick, pressed by the event it sends rather than by the words the game
+	/// writes on it. The game shows it has taken the pick by lighting its undo, so that is the
+	/// signal the list is read after; the wait is only an upper bound for a game that never does.
+	/// </summary>
+	private static async Task<bool> AssistantPick()
+	{
+		JsonElement? pick = null;
+		await Until(async () => (pick = await EventButton("EventFmxAutoSelect")) != null, seconds: 8, every: 0.25);
+		if (pick is not { } button) return false;
+		await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		await Until(async () => (await Fm.GetJson("buttons", ("json", "1"), ("gen", "1"))).EnumerateArray()
+			.Any(b => Field(b, "Events").Contains("EventFmxRevertChanges", StringComparison.Ordinal) && Field(b, "Enabled") == "True"),
+			seconds: 6, every: 0.15);
+		return true;
 	}
 
 	private static string RuleName(string title) => title switch

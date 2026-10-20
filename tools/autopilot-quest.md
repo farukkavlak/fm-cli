@@ -3,7 +3,28 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 78)
+## Şu an (Tur 79)
+- Madde: **A "`Task.Delay`" / Registration 32 115** (`register --auto` ve terminaldeki "Yardımcı seçsin":
+  yardımcının seçiminden sonra sabit **1500 ms**) — **BİTTİ** (§8.267). Aynı fonksiyondaki yazı bağımlılığı da
+  gitti: `Ask Assistant to Pick` artık `EventFmxAutoSelect` olayıyla, `Undo` da `EventFmxRevertChanges` ile
+  bulunuyor/basılıyor. Bekleme oyunun kendi işareti: basıştan sonra `Undo Changes` düğmesi **`Enabled=True`**
+  olana kadar (`Until`, üst sınır 6 sn, 0,15 sn). Ölçüm (EN, liste `--out` ile değiştirilmişken, `FM_TRACE=1`):
+  basış 5,39 → işaret 5,52 sn (**0,13 sn**); eski kod 1,5 sn kör bekliyordu.
+- Kanıt — TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics` ·
+  EN `Dynamics` sonrası) `fm register --auto --json`: **6/6 rc=0**, çıktı eski derlemeyle isim/açık-kapalı/kural
+  **birebir** (27 oyuncu, 20 açık; s1/s2/s3 aynı). Eski derleme = değişiklik öncesi kurulu Release kopyası
+  (`t79/old/fm`): TR `269fb938…` (yeni üç durumda da), EN `f24e76e4…` (yeni s3; s1/s2 ham md5 yalnız `Flags`
+  sütunundaki bilinen geç bağlanma yüzünden değişiyor — iki derlemede de aynı oynaklık, karşılaştırma
+  isim/açık-kapalı/kural üzerinden). Değişiklik yokken ikinci koşu aynı listeyi veriyor; `--out "Sonny Bradley"`
+  sonrası `--auto` onu geri açıp okuyor (On=True, 20 açık). Dosyalar `…/opencode/t79/` (`old-*`, `new-*`,
+  `trace-auto.*`, `probe*.py`).
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; liste
+  gönderilmedi, son durum tur başındaki 20 açık oyuncu. Dil EN ölçümünden sonra `fm settings language "Türkçe"`
+  ile TR (`dil` → `Türkçe`). Değişiklik yalnız `cli/fm/Registration.cs` (yerel `AssistantPick` + iki düğme);
+  paylaşılan koda (Bridge/`Until`/OpenPage) dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 78)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / kayıt tarayıcısının `Save`/`Cancel`/`Delete` yedekleri** — **BİTTİ**
   (§8.266). `BrowserButton`/`DeleteButton` birincil kimliği bulamazsa `?text=Save`/`Cancel`/`Delete`e düşüyordu;
   bu sözler oyunun dilindeki etiketin çeviri tablosundan geçmiş hâli. Üç yedek silindi: kimlik yoksa dürüst hata

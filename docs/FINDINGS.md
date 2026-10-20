@@ -3196,3 +3196,14 @@ sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra), eski derle
 yalnız FM menüsünün `Save Game As` satırı (eklentinin `Events` özetinde yok, ayrı iş). Silme yolu kendi
 kopyamızla uçtan uca: `t78 test.fm` → rc=0 "Silindi/Deleted", iki derlemede de `click ?ptr=…`; Faruk'un
 dört kaydı yerinde, yüklü kayıt `save --as` ile aynı adla yenilendi.
+
+### 8.267 `register --auto` sabit 1500 ms yerine oyunun "değişiklik aldım" işaretini bekliyor (21 Ekim, TR + EN)
+Yardımcının seçimi (`Ask Assistant to Pick`) İngilizce yazısıyla aranıyor ve basıldıktan sonra sabit **1500 ms**
+bekleniyordu. Düğme kendi olayını taşıyor: **`EventToPlugin:EventFmxAutoSelect`** (ölçüm: `/buttons?json=1&gen=1`),
+yanındaki `Undo Changes` de **`EventFmxRevertChanges`**; ikisi de artık olayla basılıyor/aranıyor. Bekleme, oyunun
+kendi işareti oldu: basıştan sonra `Undo Changes` **`Enabled=True`** olana kadar (`Until`, üst sınır 6 sn, 0,15 sn).
+Ölçüm (EN, liste `--out` ile değiştirilmişken, `FM_TRACE=1`): basış 5,39 → ilk yoklama 5,52 sn (**0,13 sn**), eski
+kod aynı yerde 1,5 sn kör bekliyordu. TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfadan
+sonra) `register --auto --json` eski derlemeyle isim/açık-kapalı/kural **birebir** (27 oyuncu, 20 açık); hiç
+değişiklik yokken ikinci koşu da aynı listeyi veriyor. `Flags` sütunu bilinen geç bağlanma yüzünden koşular
+arasında oynuyor (iki derlemede de); karşılaştırma isim/açık-kapalı/kural üzerinden yapıldı.

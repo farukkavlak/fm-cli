@@ -29,7 +29,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · ~~Jobs 231~~ · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
   OfferScreen 259 · Offers 99 · ~~OppositionCard 55~~ · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
-  Registration 32 115 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
+  Registration ~~32 115~~ 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
   ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · ~~StaffSearch 91 100 110~~ 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · Transfers 96 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
@@ -93,6 +93,15 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     çıktı ve rc eski derlemeyle **birebir** (`£100B` / `£100K`, `£5M`, `£250B` / `£250K`). Aynı fonksiyonda kalan:
     `Propose 77` (kiralık düğmesi sonrası 1200 ms) — düğmeye basınca dışa vurulan hiçbir alan değişmiyor
     (buttons/combobox'lar 2,6 sn aynı), işaret bulunamadı; ölçüm §8.252.
+  - [x] Registration 32 115 (`register --auto` ve terminaldeki "Yardımcı seçsin": yardımcının seçiminden
+    sonra sabit **1500 ms**): bekleme kalktı; düğme artık `EventFmxAutoSelect` olayıyla basılıyor (yazıyla
+    değil) ve liste, oyunun **"değişiklik aldım" işareti** olan `Undo Changes` düğmesi (`EventFmxRevertChanges`)
+    yanana kadar okunuyor (`Until`, üst sınır 6 sn, 0,15 sn). Ölçüm (EN, liste değiştirilmişken): basış 5,39 →
+    işaret 5,52 sn (**0,13 sn**), eski kod 1,5 sn kör bekliyordu. TR + EN × üç durumda `register --auto --json`
+    eski derlemeyle isim/açık-kapalı/kural olarak **birebir** (27 oyuncu, 20 açık; s1/s2/s3 aynı; satır
+    `Flags` sütunu bilinen geç bağlanma yüzünden koşular arasında oynuyor, iki derlemede de). Negatif/tekrar:
+    hiç değişiklik yokken ikinci koşu aynı listeyi veriyor, `--out "Sonny Bradley"` sonrası `--auto` onu geri
+    açıp okuyor; `Undo Changes` de yazıyla değil aynı olayla (§8.267).
   - [x] Finances 247 (+ kısa `Until` Finances 238): `finances` ve dökümü artık hiç sayfa açmıyor, hepsi kulübün
     verisinden (`/pull`); bekleme, kaydırma, yazı çapası kalmadı. Türkçe döküm daha önce hiç çalışmıyordu ("Madde" →
     "Clause"); 8 bileşim doğru, kalem toplamları toplamı tutuyor, art arda 10/10, kart açıkken / başka sayfada doğru
