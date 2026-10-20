@@ -238,19 +238,20 @@ internal static partial class Program
 	/// the game's SaveGame, and "Cancel" is the button of that same panel that only closes it
 	/// (ClosePanel). The template name cannot tell them apart — "button-base-leading-icon-label"
 	/// is Browse's and Delete's too — and both labels are this language's strings run through the
-	/// table, so the words are kept only as a fallback for a screen this cannot recognise.
+	/// table. A browser whose answers cannot be named is reported, not guessed at by its words.
 	/// </summary>
 	private static async Task<string> BrowserButton(bool save)
 	{
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
 		var go = buttons.FirstOrDefault(b => Field(b, "Events") == "SaveGame");
-		if (go.ValueKind != JsonValueKind.Object) return await Fm.Get("click", ("text", save ? "Save" : "Cancel"));
+		if (go.ValueKind != JsonValueKind.Object)
+			return L("error: kayıt tarayıcısının düğmesi tanınmadı (SaveGame yok).");
 		if (save) return await Fm.Get("click", ("ptr", Field(go, "Pointer")));
 
 		var leave = buttons.FirstOrDefault(b => Field(b, "Page") == Field(go, "Page") && Field(b, "Events") == "ClosePanel");
 		return leave.ValueKind == JsonValueKind.Object
 			? await Fm.Get("click", ("ptr", Field(leave, "Pointer")))
-			: await Fm.Get("click", ("text", "Cancel"));
+			: L("error: kayıt tarayıcısının kapatma düğmesi bulunamadı.");
 	}
 
 	private static async Task CloseSaveBrowser()
@@ -263,8 +264,8 @@ internal static partial class Program
 	/// The save browser's Delete, by what it sends rather than by its word: it sends the game's
 	/// DeleteSelectedGame, and it stays disabled until a row is selected, which is the row it acts
 	/// on. Browse, Save and Cancel share its template and every one of those labels is this
-	/// language's string run through the table, so the word is kept only as a fallback for a
-	/// screen this cannot recognise.
+	/// language's string run through the table. A button that cannot be named is reported rather
+	/// than guessed at by its word.
 	/// </summary>
 	private static async Task<string> DeleteButton()
 	{
@@ -278,7 +279,7 @@ internal static partial class Program
 
 		return delete.ValueKind == JsonValueKind.Object
 			? await Fm.Get("click", ("ptr", Field(delete, "Pointer")))
-			: await Fm.Get("click", ("text", "Delete"));
+			: L("error: kayıt tarayıcısının silme düğmesi bulunamadı (DeleteSelectedGame yok).");
 	}
 
 	/// <summary>

@@ -3185,3 +3185,14 @@ derleme TR soğuk açılış rc=1 (2:02) → yeni TR/EN × üç durum (başka sa
 sayfadan sonra) **6/6 rc=0**, soğuk açılış 1:16–1:17, liste açıkken 11 s; çıktı iki dilde "Hazır/Ready:
 2 Ağustos 2026", saat ilerletilmedi, maç oynanmadı. Kalan: `Last saved`/`Back to last saves` çapaları ve
 satırın kendi adı hâlâ yazıyla (satır adı kullanıcının verdiği ad; başlık/bağlantı ayrı iş).
+
+### 8.266 Kayıt tarayıcısının Save/Cancel/Delete'i yedek yazıya düşmüyor (21 Ekim, TR + EN)
+`BrowserButton`/`DeleteButton` birincil kimliği (`SaveGame`, aynı panelin `ClosePanel`i, `DeleteSelectedGame`
++ `Enabled=True`) bulamazsa `?text=Save`/`Cancel`/`Delete`e düşüyordu; bu sözler oyunun dilindeki etiketin
+çeviri tablosundan geçmiş hâli. Üç yedek silindi: kimlik yoksa dürüst hata veriliyor, yazıya düşülmüyor.
+Ölçüm: `save --as "<yüklü kayıt>" --yes` ve `saves delete "<yüklü kayıt>" --yes`, TR + EN × üç durum (başka
+sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra), eski derlemeyle çıktı **birebir** (TR
+`23f3ca56…`/`a299b2d4…`, EN `46212f7f…`/`a299b2d4…`); izlerde tarayıcı basışları hep `click ?ptr=…`, `text=`
+yalnız FM menüsünün `Save Game As` satırı (eklentinin `Events` özetinde yok, ayrı iş). Silme yolu kendi
+kopyamızla uçtan uca: `t78 test.fm` → rc=0 "Silindi/Deleted", iki derlemede de `click ?ptr=…`; Faruk'un
+dört kaydı yerinde, yüklü kayıt `save --as` ile aynı adla yenilendi.

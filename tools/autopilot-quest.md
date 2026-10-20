@@ -3,7 +3,26 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 77)
+## Şu an (Tur 78)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / kayıt tarayıcısının `Save`/`Cancel`/`Delete` yedekleri** — **BİTTİ**
+  (§8.266). `BrowserButton`/`DeleteButton` birincil kimliği bulamazsa `?text=Save`/`Cancel`/`Delete`e düşüyordu;
+  bu sözler oyunun dilindeki etiketin çeviri tablosundan geçmiş hâli. Üç yedek silindi: kimlik yoksa dürüst hata
+  (`SaveGame yok` / `kapatma düğmesi bulunamadı` / `DeleteSelectedGame yok`), yazıya düşülmüyor.
+- Kanıt — `save --as "<yüklü kayıt>" --yes` + `saves delete "<yüklü kayıt>" --yes` (ikincisi tarayıcıyı Cancel ile
+  kapatır), TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics` /
+  `Dynamics` sonrası), eski derleme (`git stash push -- cli/fm/Saves.cs` + `dotnet build -c Release`) ile çıktı
+  **birebir**: TR save `23f3ca565cb0de0f47f85da32147ed5d` (3/3), delete `a299b2d4844b68ec817c179096b1eb79` (3/3);
+  EN save satırı `46212f7f30265749e8e115da9b1f1683` (3/3), delete aynı. İzlerde tarayıcı basışları hep
+  `click ?ptr=…`; `text=` yalnız FM menüsünün `Save Game As` satırı (bilinen, eklenti ister). Silme yolu kendi
+  kopyamızla uçtan uca: `t78 test.fm` → rc=0 "Silindi/Deleted", eski ve yeni derlemede de `?ptr=`; kopya silindi,
+  Faruk'un dört kaydı yerinde. Negatifler: `saves delete "zzz yok" --yes` rc=1, `save --as` onaysız rc=1.
+  Dosyalar `…/opencode/t78/{old,new}-{tr,en}/` + `delete-copy.*`.
+- Dönüş/yan etki: yüklü kayıt `save --as` ile **aynı adla** yenilendi (2 Ağustos 2026 09:15, saat ilerletilmedi,
+  maç oynanmadı); dil EN ölçümünden sonra `fm settings language "Türkçe"` ile TR (`fm settings dil` → `Türkçe`).
+  Yalnız `cli/fm/Saves.cs` (yerel iki yardımcı) değişti → paylaşılan koda dokunulmadı, `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 77)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm load` yükleme ekranı** (döşeme + `Load`) — **BİTTİ**
   (§8.265). Yeniden başlatılan oyunun "kariyer yükle" döşemesi `?text=Load an FM26 career …` ile, yükleme düğmesi
   `?text=Load` ile ve beklenmesi `Label == "Load"` ile yapılıyordu. TR oyunda döşemenin yazısı Türkçe olduğu için

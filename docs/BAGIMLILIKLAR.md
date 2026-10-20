@@ -487,7 +487,12 @@ tablodan çevrilemiyor.
     eski derlemeyle **bayt bayt aynı**; izlerde `text=` **0** (§8.264).
   - [x] `save --as` / `saves delete`: kayıt tarayıcısının "Cancel" ve "Save"i artık **gönderdikleri olayla** basılıyor —
     Cancel `ClosePanel`, Save `SaveGame` (`SaveAs`'te `Save`, `CloseSaveBrowser`da Cancel; `Name` ayırt etmiyor:
-    Browse/Delete/Cancel aynı `button-base-leading-icon-label` şablonunda). Kimlik bulunamazsa yazıya düşülüyor.
+    Browse/Delete/Cancel aynı `button-base-leading-icon-label` şablonunda). **Tur 78:** yedek yazı yolu kaldırıldı —
+    kimlik yoksa `?text=Save`/`Cancel`/`Delete` denenmiyor, dürüst hata veriliyor; `Delete` de artık yalnız
+    `DeleteSelectedGame` + `Enabled=True` ile bulunuyor. Ölçüm: TR + EN, üç durum × iki yol, çıktı eski derlemeyle
+    **birebir** (TR `23f3ca56…`/`a299b2d4…`, EN `46212f7f…`/`a299b2d4…`); izde tarayıcı basışları hep
+    `click ?ptr=…`, `text=` yalnız FM menüsünün `Save Game As` satırı. Kendi kopyamız (`t78 test.fm`) iki
+    derlemede de `?ptr=` ile silindi, Faruk'un dört kaydı yerinde (§8.266).
     TR + EN, üç durum × iki yol (`saves delete "<yüklü kaydın adı>" --yes` → tarayıcı açılıp Cancel ile kapanıyor,
     rc=1; `save --as "<aynı ad>" --yes` → Save + "Replace Existing File" onayı, rc=0) eski derlemeyle **birebir**
     (`md5`); izde `click ?text=Cancel`/`?text=Save` → `click ?ptr=…` (§8.236). Yükleme ekranının `Load`u yazıyla
