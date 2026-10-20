@@ -3140,3 +3140,17 @@ Yan bulgu (kod değişmedi): aynı seçicinin `About()` çözümleyicisi hâlâ 
 basılıyor; bu okuma yolu ayrı iş. Kayıt test kaydı (2 Ağustos 2026 09:15); seans/program değişiklikleri tur sonunda
 geri alındı (`Fiziksel`, `Savunma`), saat ilerletilmedi, maç oynanmadı; dil EN ölçümünden sonra
 `fm settings language "Türkçe"` ile geri alındı.
+
+### 8.262 Antrenman seçicisinin açıklaması birincil odağı yazıyla değil bağlandığı yolla buluyor (20 Ekim, TR + EN)
+Seçicide birincil odak `binding.SessionGroupFocusName` ile başlıyor; metni EN'de "Primary Focus", TR'de
+"Priority" (oyunun kendi sözünün eklentideki İngilizcesi). `About()` "Primary Focus" aradığı için TR'de hiç
+bulamıyor, hafta programı dalına düşüp yalnız açıklama cümlesini basıyordu. Artık odaklar yol ile ayrılıyor,
+açıklama `binding.Description`dan; özellikler satır sayısı en çok olan başlıktan (Attributes) ilk seviyeye kadar;
+etkiler `binding.Name` + `row` çiftlerinden okunuyor. Etki başlıkları çizilen metin olmadığı için eşleri gelmiyor →
+`GameWords.Ask` ile oyunun tablosundan bir kez soruluyor (Mutluluk, Takım Uyumu, Sakatlık Riski, Kondisyon).
+Ölçüm: TR üç durumda eski derleme yalnız cümle, yeni derleme cümle + `Özellikler` + `Etkiler` (Mutluluk ↑ ·
+Takım Uyumu ↑ az · Sakatlık Riski ↑ az · Kondisyon ↓ az); EN üç durumda çıktı eski derlemeyle **birebir**
+(Attacking 14 özellik, Defending Engaged 6). Hafta programı (`schedule style`) yolu değişmedi: `Retain Possession`
+↔ `Tiki-Taka` denendi, cümle basıldı ve program geri alındı. Negatif `set 2026-08-04 1 "ZZZ yok"` rc=1.
+Ölçüm sırasında takvim sekmesi ara sıra `Takvimin antrenman sekmesi okunamadı.` ile düştü (§8.216), aynı
+derlemede tekrar denemede geçti.

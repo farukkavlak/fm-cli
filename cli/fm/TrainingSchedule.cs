@@ -375,7 +375,11 @@ internal static partial class Program
 			previous = now;
 			return settled;
 		}, seconds: 2, every: 0.2);
-		PickedAbout = About(form.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text")).ToList());
+		// The headings ("Happiness", "Injury Risk") are bound as paths, not drawn, so the pairs
+		// that come with the page do not carry them; ask the game's own table for their words.
+		await GameWords.Ask(Fm, form.Where(f => Field(f, "Kind") == "text" && Field(f, "Path") == "binding.Name")
+			.Select(f => Field(f, "Text")).Distinct().ToArray());
+		PickedAbout = About(form);
 		// The picker's own confirm button sends these; its label ("Confirm") is the game's word.
 		var confirmed = "error: the picker's confirm button was not found";
 		foreach (var sent in new[] { "EventToPlugin:EventFmxConfirmTrainingSession", "EventToPlugin:EventFmxConfirmTrainingSchedule" })
@@ -419,39 +423,56 @@ internal static partial class Program
 	private static List<string> PickedAbout = [];
 
 	/// <summary>
-	/// A session's texts are, for each focus (primary, secondary, tertiary): who it is for, a
-	/// sentence, "Impacts", "Priority" and its share, then headings with what is under them —
-	/// "Attributes" and their names, and effects as a pair ("Condition", "Slightly Reduced").
-	/// A schedule's are its title and a sentence. Only the primary focus is told.
+	/// A session is described in the picker as its focuses (primary, secondary, tertiary), each
+	/// with who it is for, a sentence, "Impacts", its priority and share, then headings with what
+	/// is under them — the attributes and their names, and effects as a pair (a heading and a
+	/// level). The focuses and their descriptions are taken by the data paths they bind to: the
+	/// first focus is "Primary Focus" in English but "Priority" in Turkish, so looking for one
+	/// text left a Turkish game with only the sentence. The attributes are the heading under
+	/// which the most rows are listed; the level words are the bridge's English, the same in
+	/// both games. A week's schedule has no focus: its title and a sentence.
 	/// </summary>
-	private static List<string> About(List<string> texts)
+	private static List<string> About(List<JsonElement> form)
 	{
+		var items = form.Where(f => Field(f, "Kind") == "text")
+			.Select(f => (Path: Field(f, "Path"), Text: Field(f, "Text"))).ToList();
 		List<string> lines = [];
-		var focus = texts.IndexOf("Primary Focus");
+		var focus = items.FindIndex(i => i.Path == "binding.SessionGroupFocusName");
 		if (focus < 0)
 		{
 			// A week's schedule: "Tactical - No matches", then its sentence.
-			var sentence = texts.FirstOrDefault(t => t.EndsWith('.') && t.Contains(' '));
+			var sentence = items.Select(i => i.Text).FirstOrDefault(t => t.EndsWith('.') && t.Contains(' '));
 			if (sentence != null) lines.Add(sentence);
 			return lines;
 		}
-		var end = texts.IndexOf("Secondary Focus") is var next && next > focus ? next : texts.Count;
-		var own = texts.Skip(focus + 1).Take(end - focus - 1).ToList();
-		if (own.FirstOrDefault(t => t.EndsWith('.') && t.Contains(' ')) is { } about) lines.Add(about);
+		var end = items.FindIndex(focus + 1, i => i.Path == "binding.SessionGroupFocusName") is var next and > 0 ? next : items.Count;
+		var own = items.Skip(focus + 1).Take(end - focus - 1).ToList();
+		if (own.FirstOrDefault(i => i.Path == "binding.Description").Text is { Length: > 0 } about) lines.Add(about);
 
 		static bool Level(string t) => Regex.IsMatch(t, @"^(Slightly |Greatly )?(Increased|Reduced)$");
-		var attributes = own.SkipWhile(t => t != "Attributes").Skip(1).ToList();
-		// The attribute names run until the first effect's heading: the text before a level.
-		List<string> names = [];
-		for (var i = 0; i < attributes.Count; i++)
+		// Each heading is followed by its rows; the attributes are the longest of them, and the
+		// ones named under it run on until the first heading followed by a level.
+		var start = -1;
+		var longest = 0;
+		for (var i = 0; i < own.Count; i++)
 		{
-			if (i + 1 < attributes.Count && Level(attributes[i + 1])) break;
-			names.Add(attributes[i]);
+			if (own[i].Path != "binding.Name") continue;
+			var rows = own.Skip(i + 1).TakeWhile(x => x.Path == "row").Count();
+			if (rows <= longest) continue;
+			longest = rows;
+			start = i;
+		}
+		List<string> names = [];
+		for (var i = start + 1; start >= 0 && i < own.Count; i++)
+		{
+			if (i + 1 < own.Count && Level(own[i + 1].Text)) break;
+			names.Add(own[i].Text);
 		}
 		if (names.Count > 0) lines.Add(L($"Özellikler: {string.Join(", ", names)}"));
 		List<string> effects = [];
-		for (var i = 1; i < own.Count; i++)
-			if (Level(own[i])) effects.Add($"{own[i - 1]} {Effect(own[i])}");
+		for (var i = 0; i + 1 < own.Count; i++)
+			if (own[i].Path == "binding.Name" && own[i + 1].Path == "row" && Level(own[i + 1].Text))
+				effects.Add($"{GameWords.Of(own[i].Text)} {Effect(own[i + 1].Text)}");
 		if (effects.Count > 0) lines.Add(L($"Etkiler: {string.Join(" · ", effects)}"));
 		return lines;
 

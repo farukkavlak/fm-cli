@@ -626,9 +626,11 @@ tablodan çevrilemiyor.
     üç durum × iki yol (seans `Physical ↔ Defending`, program `Defence ↔ Possession`): 24/24 koşu rc=0 ve çıktı eski
     derlemeyle **birebir** (TR seans `9d26b11c…`/`98475996…`, program `e6ad2d3a…`/`292bf40a…`; EN
     `43db8c57…`/`29e9b88f…`, `ee65a3cb…`/`9c236d3f…`); izde `text=Confirm`/`text=Cancel` **0**, onay `press ?event=…`;
-    negatif `set 3 1 "ZZZ yok"` rc=1 ve `press ?event=ClosePanel&name=button-base-label` (§8.261). Kalan (aynı
-    seçicide): `About()` hâlâ İngilizce başlıkları ("Primary Focus", "Attributes", "Slightly Increased") arıyor →
-    TR'de yalnız cümle, EN'de özellik/etki satırları basılıyor; ayrı iş.
+    negatif `set 3 1 "ZZZ yok"` rc=1 ve `press ?event=ClosePanel&name=button-base-label` (§8.261). Aynı seçicinin
+    `About()`u da (`[x]`, §8.262): birincil odak artık "Primary Focus" yazısıyla değil `binding.SessionGroupFocusName`
+    yoluyla bulunuyor (TR'de metin "Priority" geliyordu) → TR'de yalnız cümle basılırken artık özellikler ve etkiler
+    de basılıyor, etki başlıkları oyunun sözüyle (`Mutluluk`, `Takım Uyumu`, `Sakatlık Riski`, `Kondisyon`); EN
+    çıktısı değişmedi; hafta programı yolu (`currentschedule.Description`) aynı kaldı.
 - [x] Veri merkezi bulgularından İngilizce çıkan satırlar: ölçüldü — **tabloda olan** cümle İngilizce geliyordu, oyunun
   kendi sözü öğrenilmiyordu (TR oyunda "We've regained possession well in central areas of our own third of the
   pitch."; `/translate?words=…` → "Yarı sahamızın orta kısmında çok top kazandık."). Artık `reply` bir ekte veri

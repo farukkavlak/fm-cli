@@ -3,7 +3,36 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 73)
+## Şu an (Tur 74)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / antrenman programı seçicisinin `About()`u** (`TrainingSchedule.cs`)
+  — **BİTTİ** (§8.262). `About()` birincil odağı `"Primary Focus"` yazısıyla arıyordu; o metin EN'de "Primary Focus",
+  TR'de **"Priority"** (oyunun sözünün eklentideki İngilizcesi) → TR'de odak bulunamıyor, hafta programı dalına düşüp
+  yalnız açıklama cümlesi basılıyordu. Artık odak `binding.SessionGroupFocusName` yoluyla, açıklama
+  `binding.Description`dan; özellikler satırı en çok olan başlıktan (Attributes) ilk seviyeye kadar; etkiler
+  `binding.Name` + `row` çiftlerinden. Etki başlıkları çizilen metin olmadığı için eşleri gelmiyordu →
+  `GameWords.Ask` ile oyunun tablosundan bir kez soruluyor (Mutluluk, Takım Uyumu, Sakatlık Riski, Kondisyon).
+- Kanıt — seans: 4 Ağustos 1. seans, `Attacking` ↔ `Defending Engaged`, üç durum (sayfa ilk kez: `fm open "Messages"`
+  sonrası / zaten açık: hemen ikinci koşu / başka sayfa: `fm open "Squad Dynamics"` sonrası).
+  - Öncesi (eski derleme, `git` dışından `/tmp/fm-old-t74/fm`): TR üç durum **yalnız cümle** ("Top karşı takımdayken,
+    rakibe yakından savunma yapmaya odaklı idman. Gruplar halinde çalışılır."); EN üç durum tam (Attacking
+    `Attributes: Crossing, Dribbling, Finishing, First Touch, Heading, Long Shots, Passing, Technique, Composure,
+    Flair, Off The Ball, Vision, Tactical Familiarity, Creative Freedom`, `Effects: Happiness ↑ · Team Cohesion ↑ az ·
+    Injury Risk ↑ az · Condition ↓ az`; Defending 6 özellik).
+  - Sonrası: TR üç durum cümle + `Özellikler: Markaj, Top Kapma, Agresiflik, Önsezi, Karar Alma, Pozisyon Alma` /
+    `Etkiler: Mutluluk ↑ az · Takım Uyumu ↑ az · Sakatlık Riski ↑ az · Kondisyon ↓ az` (Attacking'te 14 özellik,
+    `Mutluluk ↑`); EN üç durum eski derlemeyle **birebir** (ilk denemede `s2` takvim okuması düştü, aynı derlemede
+    tekrar geçti — §8.216).
+  - Hafta programı yolu: `fm schedule style 2026-08-10 "Tiki-Taka"` → cümle, sonra `"Retain Possession"` ile geri
+    (`Topa Sahip Ol`); `About()` bu yolda `currentschedule.Description` cümlesini basmaya devam ediyor.
+  - Negatif: `fm schedule set 2026-08-04 1 "ZZZ yok"` → `'ZZZ yok' diye bir seans yok…`, rc=1.
+- Dönüş: 4 Ağustos 1. seans **Defending Engaged** (tur başındaki hâli), hafta programı **Topa Sahip Ol**, dil
+  `fm settings language "Türkçe"` ile TR (`/state` → `turkish`, 2 Ağustos 14:00); saat ilerletilmedi, maç oynanmadı.
+- Değişiklik yalnız `cli/fm/TrainingSchedule.cs` yerel yardımcıları; paylaşılan koda (Bridge/Until/OpenPage) ve
+  `ScheduleChange` akışına dokunulmadı → `sweep.sh` gerekmedi. Dosyalar: `TrainingSchedule.cs`, BAGIMLILIKLAR,
+  FINDINGS §8.262, bu defter.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 73)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / antrenman programı seçicisi** (`schedule set` / `schedule style`,
   `TrainingSchedule.cs`) — **BİTTİ** (§8.261). Seçici onayı `press ?text=Confirm&event=EventToPlugin`, iptali
   `press ?text=Cancel&event=ClosePanel`, okuması `form ?anchor=Confirm`, seçenek sonrası açıklama da sabit **500 ms**
