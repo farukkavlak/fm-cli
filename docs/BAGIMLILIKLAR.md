@@ -661,6 +661,16 @@ tablodan çevrilemiyor.
     yoluyla bulunuyor (TR'de metin "Priority" geliyordu) → TR'de yalnız cümle basılırken artık özellikler ve etkiler
     de basılıyor, etki başlıkları oyunun sözüyle (`Mutluluk`, `Takım Uyumu`, `Sakatlık Riski`, `Kondisyon`); EN
     çıktısı değişmedi; hafta programı yolu (`currentschedule.Description`) aynı kaldı.
+  - [x] **Gözlemci odağı formunun `Cancel`i** (`scout new` / `scout areas` / yarım kalan form): `AbandonFocus`
+    düğmeyi `click ?text=Cancel` ile basıyordu — oyunun dilindeki etiketin çeviri tablosundan geçmiş hâli. Artık
+    düğme kimliğiyle bulunuyor: gönderdiği olay **`RecruitmentFocusEditConfirmationDialog`** + şablonu
+    `button-base-label` (ikinci adımda `Confirm` aynı olayı gönderdiği için şablon ayırt ediyor), basış `?ptr=`.
+    Ölçüm: TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra)
+    `scout new "t81 test" --area "Competition>England>Sky Bet League One" --priority top --by "ZZZ yok"` →
+    **6/6 eski ve 6/6 yeni rc=64**, çıktı/stderr birebir (TR `fc708400…`, EN `b11015ec…`); izde eski
+    `click ?text=Cancel` → yeni `buttons ?json=1&gen=1` + `click ?ptr=…`, ardından aynı `dialog`/onay.
+    `fm scout areas` çıktısı iki derlemede de aynı üç seçenek; hiç odak oluşmadı (`fm scout --json` 4 odak,
+    `t81 test` yok), form kapanmış kaldı (§8.269).
 - [x] **`fm load` soğuk açılışta yükleme listesini hiç açamıyordu** — yeniden başlatılan oyunun "kariyer yükle"
   döşemesi İngilizce cümlesiyle (`?text=Load an FM26 career …`) basılıyordu; TR oyunda döşemenin yazısı Türkçe
   olduğu için basış hiçbir yere denk gelmiyor, hata yok sayılıyor ve liste açılmadan satır aranıyordu → `fm load`

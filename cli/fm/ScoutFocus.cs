@@ -278,7 +278,15 @@ internal static partial class Program
 	/// <summary>Leaves the form without making anything of it.</summary>
 	private static async Task AbandonFocus()
 	{
-		await Fm.Get("click", ("text", "Cancel"));
+		// The form's Cancel asks the game's confirmation dialog; its word is the game's, the
+		// template it is drawn with is not. On the second step the Confirm is drawn with the
+		// same event, so the form's trailing Cancel template tells them apart.
+		var cancel = (await Fm.GetJson("buttons", ("json", "1"), ("gen", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Name") == "button-base-label"
+				&& Field(b, "Events").Contains("RecruitmentFocusEditConfirmationDialog", StringComparison.Ordinal)
+				&& Field(b, "Enabled") == "True");
+		if (cancel.ValueKind != JsonValueKind.Object) return;
+		await Fm.Get("click", ("ptr", Field(cancel, "Pointer")));
 		JsonElement dialogs = default;
 		if (await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 4, every: 0.4)
 			&& DialogAnswer(dialogs[0], true) is { } confirm)

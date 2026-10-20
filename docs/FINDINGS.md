@@ -3217,3 +3217,13 @@ sonra Delegate); söz araması kalktı. Ölçüm: TR eski/yeni üç durumda (ba�
 başka sayfaya geçtikten sonra) **birebir** `fa0ac05b…` (105 görev), EN `55e8337f…` (105); DE eski rc=1,
 yeni üç durumda rc=0 ve aynı `57c24ed4…` (105 görev; 54 sende / 51 devredilmiş). Üç dilde görevli kümesi
 (Clive Nates, Faruk Kavlak, Tom Clayton…) aynı; görev adları oyunun dilinde kalıyor.
+
+### 8.269 Gözlemci odağı formunun Cancel'i sözle değil olay + şablonla basılıyor (21 Ekim, TR + EN)
+`AbandonFocus` formu `click ?text=Cancel` ile kapatıyordu; "Cancel" oyunun dilindeki etiketin eklentinin çeviri
+tablosundan geçmiş hâli. Düğme kendi olayını gönderiyor: `/buttons?json=1&gen=1` → `RecruitmentFocusEditConfirmationDialog`
+(formun ikinci adımında `Confirm` de aynı olayı gönderiyor), şablonu `button-base-label`; artık ikisi birlikte
+aranıp `?ptr=` ile basılıyor. Kanıt: `scout new "t81 test" --area "Competition>England>Sky Bet League One"
+--priority top --by "ZZZ yok"` TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten
+sonra) eski ve yeni derlemede **12/12 rc=64**, stdout boş (`d41d8cd9…`), stderr birebir (TR `fc708400…`, EN
+`b11015ec…`); izde eski `click ?text=Cancel` → yeni `buttons ?json=1&gen=1` + `click ?ptr=…`, sonrası aynı
+`dialog`/onay. `scout areas` çıktısı iki derlemede de aynı; hiç odak oluşmadı, form açık kalmadı.

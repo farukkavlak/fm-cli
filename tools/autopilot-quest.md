@@ -3,7 +3,23 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 80)
+## Şu an (Tur 81)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / gözlemci odağı formunun `Cancel`i** — **BİTTİ** (§8.269).
+  `AbandonFocus` `click ?text=Cancel` ile kapatıyordu; "Cancel" oyunun dilindeki etiketin çeviri tablosundan
+  geçmiş hâli. Artık düğme kimliğiyle: olay **`RecruitmentFocusEditConfirmationDialog`** + şablon
+  `button-base-label` (ikinci adımda `Confirm` aynı olayı gönderiyor), basış `?ptr=`.
+- Kanıt — `scout new "t81 test" --area "Competition>England>Sky Bet League One" --priority top --by "ZZZ yok"`
+  (negatif; hiç odak oluşturmaz), TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu /
+  s3 `Squad Dynamics` sonrası): eski ve yeni derlemede **12/12 rc=64**, stdout boş (`d41d8cd9…`), stderr birebir
+  (TR `fc708400…`, EN `b11015ec…`). İz (TR): eski `click ?text=Cancel`, yeni `buttons ?json=1&gen=1` +
+  `click ?ptr=…`, ardından aynı `dialog`/onay. `fm scout areas` çıktısı iki derlemede de aynı üç seçenek.
+- Dönüş/yan etki: hiç odak oluşmadı (`fm scout --json` 4 odak, `t81 test` yok), form açık kalmadı (adım
+  düğmeleri yok), kayıt yalnız okundu (2 Ağustos 2026 14:00), saat ilerletilmedi, maç oynanmadı. Dil EN/DE
+  ölçümlerinden sonra `fm settings language "Türkçe"` → `/state` `Language: turkish`. Yalnız `cli/fm/ScoutFocus.cs`
+  (yerel `AbandonFocus`) değişti; paylaşılan koda (Bridge/OpenPage/reply) dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 80)
 - Madde: **B "`fm responsibilities` görev çiftini 'Take Control'/'Delegate' sözüyle buluyordu"** — **BİTTİ**
   (§8.268). Almanca oyunda delegate düğmesi **"Delegation"** geliyor (çeviri tablosunda İngilizcesi yok);
   `ParseDuties` çifti tanımıyor, sayfa hiç okunamıyordu (rc=1). Artık çift, sayfanın çizdiği sıradaki iki
