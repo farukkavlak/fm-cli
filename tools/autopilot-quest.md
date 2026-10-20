@@ -3,7 +3,29 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 70)
+## Şu an (Tur 71)
+- Madde: **B "Cümle parçası arayanlar" / `fm news <#>` haber gövdesi** — **BİTTİ** (§8.259). Açık haberin tam metni
+  `elements ?text=<gövdeden seçilen ASCII parça>&up=0&depth=0` ile ekranda aranıyor, `BodyText "` işaretinden
+  kesiliyordu; arama sözcüğü gövdenin kendisinden ve yalnız ASCII harflerden türetiliyordu (dile/gövdeye bağlı ekran
+  araması). Ağaç gövdeyi zaten `NewsBodyString` altında paragraf paragraf bağlıyor (açık haberde başlıktan 7 satır
+  sonra 4 paragraf tek blok; listedeki karoda çoğu zaman yalnız açılış cümlesi) → `NewsItems` artık blok devam
+  satırlarını topluyor, `NewsBody` ve `elements ?text=` yolu silindi.
+- Kanıt: `news 1/2/9` × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `fm open "Squad
+  Dynamics"` sonrası) × TR + EN: eski derleme (`git stash push -- cli/fm/News.cs` + `dotnet build -c Release`) ile
+  **9/9 aynı md5** — TR `77730c9b…`/`4959a60b…`/`5e7cf08e…`, EN `0b4e206c…`/`215cf311…`/`a2bd57ff…`, hepsi rc=0.
+  İz (`FM_TRACE=1`): eski `elements ?text=has promised to put an end&up=0&depth=0` → yeni **0** `elements` çağrısı.
+  Negatif `news 99` iki dilde rc=1 ("tek bir habere uymuyor"). Dosyalar `…/opencode/t71/{old,new}-{tr,en}*` +
+  `trace-{old,new}.err`, betik `t71/run.sh`.
+- Yan bulgu (kod değişmedi, CHECKLIST B'ye yazıldı): `NewsAge` İngilizce birim arıyor (`(\d+) (day|hour|minute)`);
+  TR'de her yaş 0 → liste sıralaması ve `news <#>` numaraları dile göre değişiyor (TR'de 2 numara 2 günlük, EN'de
+  başka bir haber). Ayrı iş.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; haber sayfası
+  açık bırakıldı; dil EN ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`fm settings dil` →
+  `Türkçe`). Değişiklik yalnız `cli/fm/News.cs` (yerel `NewsItems` + tek çağrı) → paylaşılan kod yok, `sweep.sh`
+  gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 70)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm players` hızlı süzgecinin `Clear`i** (`Players`, `Reads.cs`) —
   **BİTTİ** (§8.258). İki yerde (`--clear` ve her aramanın başındaki temizleme) düğme
   `?text=Clear&event=EventToPlugin` ile, yani "Clear" sözüyle basılıyordu. Sayfadaki tek Clear düğmesi

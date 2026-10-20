@@ -3091,3 +3091,16 @@ de koşular arasında oynuyor). EN'de oturmuş durum bayt bayt aynı
 satır isim/alan olarak eskiyle aynı. Negatif: `players --age 120-130` iki dilde rc=64 ve aynı seçenek listesi;
 Player Database'in arkasında kalan Clear düğmesi başka sayfadayken `DISABLED` görünüyor, olay yine tek. Kayıt test
 kaydı; saat ilerletilmedi, maç oynanmadı, dil TR'ye döndü.
+
+### 8.259 Haber gövdesi ekrandan yazı aramasıyla değil, bağlanan metinle okunuyor (20 Ekim, TR + EN)
+`fm news <#>` açık haberin tam metnini `elements ?text=<gövdeden seçilen ASCII parça>&up=0&depth=0` ile arıyor, sonra
+`BodyText "` işaretinden kesiyordu: arama sözcüğü gövdenin kendisinden türetiliyor ve yalnız ASCII harflerle
+(`[\x20-\x7E]+`) seçiliyordu — yani gövde hangi dilde yazılmışsa ona göre değişen bir ekran araması. Oysa ağaç haberi
+zaten `NewsBodyString` altında **paragraf paragraf** bağlıyor (açık haberde başlıktan 7 satır sonra, 4 paragraf tek
+blok; listedeki karoda çoğu zaman yalnız açılış cümlesi). Artık gövde bu bağdan, satır devamlarıyla birlikte okunuyor;
+`NewsBody` ve `elements ?text=` yolu silindi. Kanıt: `news 1/2/9` × üç durum (başka sayfa açık / hemen ikinci koşu /
+başka sayfaya geçtikten sonra) × TR + EN, eski derlemeyle **birebir** (TR `77730c9b…`/`4959a60b…`/`5e7cf08e…`,
+EN `0b4e206c…`/`215cf311…`/`a2bd57ff…`, 9/9 aynı md5); iz: eski `elements ?text=has promised to put an end&up=0&depth=0`
+→ yeni hiç `elements` çağrısı yok. Negatif `news 99` iki dilde rc=1. Yan bulgu: yaş çözümleyicisi İngilizce birim
+arıyor (`(\d+) (day|hour|minute)`), TR'de her yaş 0'a düşüyor → liste sıralaması ve `news <#>` numaraları dile göre
+değişiyor (TR'de 2 numara 2 günlük, EN'de başka haber); ayrı iş olarak CHECKLIST B'ye yazıldı.

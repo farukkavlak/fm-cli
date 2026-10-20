@@ -636,6 +636,14 @@ tablodan çevrilemiyor.
 - [x] **Mutluluk seviyesi:** sıralama ve renk artık seviyenin yazısına değil oyunun kendi puanına (`Human.Team.Players`
   › `HierarchyOverallHappinessLevel`; 80 Delighted … -65 Very Unhappy) bakıyor, bant sınırları ölçülen boşluklarda (-30/30);
   seviye/moral/konum yazıları oyunun diline çevriliyor. Türkçe (3 durum) + İngilizce (2 durum) aynı sıra/renk (§8.189).
+- [x] **Haber gövdesi** (`fm news <#>`): açık haberin tam metni `elements ?text=<gövdeden seçilen ASCII parça>` ile
+  ekranda aranıyor, `BodyText "` işaretinden kesiliyordu — arama sözcüğü gövdenin kendisinden ve yalnız ASCII
+  harflerden türetiliyordu, yani dile/gövdeye bağlı bir ekran araması. Oysa ağaç gövdeyi zaten `NewsBodyString`
+  altında paragraf paragraf bağlıyor (açık haberde 4 paragraf tek blok; listedeki karoda çoğu zaman yalnız açılış
+  cümlesi). Artık gövde bağdan, satır devamlarıyla okunuyor; `NewsBody` ve `elements ?text=` yolu silindi. `news
+  1/2/9` × üç durum × TR + EN eski derlemeyle **birebir** (9/9 aynı md5), negatif `news 99` iki dilde rc=1 (§8.259).
+- [ ] Haber yaşları İngilizce birimlerle çözülüyor (`(\d+) (day|hour|minute)`); TR'de hepsi 0'a düşüyor → liste
+  sıralaması ve `news <#>` numaraları dile göre değişiyor (§8.259 yan bulgusu).
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
 - [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
 - [x] **`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor** — başlık `Heading:

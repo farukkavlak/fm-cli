@@ -57,14 +57,16 @@ internal static partial class Program
 			}
 			var pressed = await Fm.Get("press", ("ptr", Field(tile, "Pointer")));
 			if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+			// The page binds the article's whole text — paragraph after paragraph — the tile in
+			// the list often only its opening sentence; the longer reading is the one to keep.
 			var opening = item.Body;
 			await Until(async () =>
 			{
 				var now = NewsItems(await Fm.Get("tree", ("depth", "40"))).FirstOrDefault(i => i.Title == item.Title);
-				if (now.Body is { Length: > 0 }) opening = now.Body;
+				if (now.Body is { Length: > 0 } read && read.Length > opening.Length) opening = read;
 				return opening.Length > 0 && (await Fm.GetJson("texts", ("anchor", item.Title), ("up", "0"))).GetArrayLength() > 0;
 			}, seconds: 6, every: 0.5);
-			var body = opening.Length > 0 ? await NewsBody(opening) : "";
+			var body = opening;
 			if (json)
 			{
 				Console.WriteLine(JsonOut.Of(new { item.Title, item.About, item.Age, Body = body }));
@@ -105,7 +107,12 @@ internal static partial class Program
 			{
 				about = about.Length > 0 ? about : Value(lines[j], "HeadlineSubTitle") ?? "";
 				age = age.Length > 0 ? age : Value(lines[j], "NewsItemAgeString") ?? "";
-				body = body.Length > 0 ? body : Value(lines[j], "NewsBodyString") ?? "";
+				if (body.Length > 0 || Value(lines[j], "NewsBodyString") is not { Length: > 0 } first) continue;
+				// An open article's body runs on over the lines that follow, one per paragraph,
+				// until the next bound property. A tile's body is that one line alone.
+				var more = new List<string> { first };
+				for (var k = j + 1; k < lines.Length && !Regex.IsMatch(lines[k], @"^\s*[A-Za-z_0-9]+ = \("); k++) more.Add(lines[k]);
+				body = string.Join("\n", more).TrimEnd();
 			}
 			// The inbox's messages are bound on the same page; they carry no age.
 			if (age.Length == 0) continue;
@@ -114,30 +121,6 @@ internal static partial class Program
 			else if (items[at].Body.Length == 0 && body.Length > 0) items[at] = (title, about, age, body);
 		}
 		return items;
-	}
-
-	/// <summary>
-	/// The whole text of the item that is open: an element named newsBodyText or BodyText, which starts with
-	/// the opening sentence the tile shows and goes on for as many paragraphs as there are.
-	/// </summary>
-	private static async Task<string> NewsBody(string opening)
-	{
-		// Plain words only: text with letters such as "ş" in it does not find the element.
-		var probe = string.Join(" ", Regex.Matches(opening, @"[\x20-\x7E]+").Select(m => m.Value.Trim()).OrderByDescending(v => v.Length)
-			.FirstOrDefault()?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1).Take(6) ?? []);
-		if (probe.Length < 10) return opening;
-		try
-		{
-			var found = await Fm.Get("elements", ("text", probe), ("up", "0"), ("depth", "0"));
-			const string marker = "BodyText \"";
-			var at = found.IndexOf(marker, StringComparison.Ordinal);
-			if (at < 0) return opening;
-			var start = at + marker.Length;
-			// The text ends at the quote that closes its line; another element may follow.
-			var end = Regex.Match(found[start..], "\"\\s*(\n\\s*0x|\n--|$)");
-			return end.Success ? found[start..(start + end.Index)].Trim() : opening;
-		}
-		catch (FmError) { return opening; }
 	}
 
 	/// <summary>"1 day 10 hours 15 minutes ago" in minutes.</summary>
