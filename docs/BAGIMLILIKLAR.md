@@ -28,7 +28,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · ~~Jobs 231~~ · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
-  OfferScreen 259 · Offers 99 · OppositionCard 55 91 · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
+  OfferScreen 259 · Offers 99 · ~~OppositionCard 55~~ · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration 32 115 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
   ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · ~~StaffSearch 91 100 110~~ 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   TacticFiles 181 · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · Transfers 96 128 131 139
@@ -72,6 +72,16 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     **birebir** (oturmuş TR `md5 b8ffd0a5…` üç durumda da; satır kümesi + alanlar özdeş, ham metin md5'i bağlanma
     sırasına göre oynuyor; EN oturmuş `83aed8ac…`), `--max-value 20K` 22 satır ve hepsi sınırın altında (§8.249).
     Kalan: `PanelButton("Apply"/"Cancel")`in yazı yedeği (asıl yol `PanelSent`, §8.239) — ayrı alt madde.
+  - [x] OppositionCard 55 (`fm opposition --advice` / `--clear`: kart yeniden dizilirken sabit 500 ms beklenip
+    bir kez daha okunuyordu): bekleme kalktı, tablo artık **öncekinden farklı ve iki okumada aynı** olana kadar
+    okunuyor (`Until`, üst sınır 6 sn, 0,25 sn). Ölçüm (canlı, TR): öneri basıldıktan sonra satırlar 77 ms'de
+    değerlerle geliyor, **519 ms'de 8 satıra düşüyor**, 612 ms'de yine 11 — sabit 500 ms'lik duraklama tam bu yarım
+    hâlin içine düşebiliyordu. Aynı bloktaki "Clear Instructions" da yazıyla (`/translate?words=`) değil, düğmenin
+    gönderdiği **`EventFmxOppositionInstructionsClear`** olayıyla bulunuyor (düğme yoksa dürüst hata). Kanıt: TR + EN
+    × üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) `--advice` + `--clear`: çıktı
+    eski derlemeyle **birebir** (TR `05bb4f30…` / `63635b68…`, EN `2c162b6c…` / `659a220b…`, 11 oyuncu, altı koşuda
+    da aynı); izde eski `translate ?words=Clear Instructions` → yeni `buttons ?json=1` + `press ?ptr=…`, eski sabit
+    duraklama yerine üç okuma (0,52 / 0,83 / 1,16 sn) ve süre 1,48 → 1,16 sn (§8.256).
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.

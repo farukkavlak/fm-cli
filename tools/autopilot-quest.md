@@ -3,7 +3,30 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 67)
+## Şu an (Tur 68)
+- Madde: **A "`Task.Delay`" / OppositionCard 55** (`fm opposition --advice` / `--clear`: kart yeniden dizilirken
+  sabit 500 ms beklenip bir kez daha okunuyordu) — **BİTTİ** (§8.256). Bekleme kalktı: tablo **öncekinden farklı
+  ve art arda iki okumada aynı** olana kadar okunuyor (`Until`, üst sınır 6 sn, 0,25 sn). Aynı blokta "Clear
+  Instructions" da yazıyla (`/translate?words=`) değil, düğmenin gönderdiği
+  **`EventFmxOppositionInstructionsClear`** olayıyla basılıyor; düğme yoksa dürüst hata.
+- Ölçüm (canlı, TR, 40 ms yoklama): öneri basışından 77 ms sonra 11 satır değerlerle, **519 ms'de 8 satır**, 612 ms'de
+  yine 11 — sabit duraklama yarım hâlin içine düşebiliyordu (üç oyuncu kaybolur). Temizlemede değerler 287/366 ms'de
+  iki adımda oturuyor. İz: eski öneri 1,48 sn / temizleme 1,37 sn → yeni 1,16 / 1,03 sn; eski `translate ?words=Clear
+  Instructions` → yeni `buttons ?json=1` + `press ?ptr=…`.
+- Kanıt: TR + EN × üç durum (s1 `fm open "Messages"`/`Mesajlar` sonrası / s2 hemen ikinci koşu / s3 `Squad
+  Dynamics`/`Takım Dinamikleri` sonrası) × iki yol (`--advice`, `--clear`): çıktı eski derlemeyle **birebir** (TR
+  `05bb4f30…` / `63635b68…`, EN `2c162b6c…` / `659a220b…`, 11 oyuncu, 5 değer; altı koşunun altısında aynı). Eski
+  derleme `git stash push -- cli/fm/OppositionCard.cs` + `dotnet build -c Release`; `old2-tr` ikinci koşu da aynı
+  md5. "Zaten temiz" `--clear` rc=0, 11 satır `-`; `--advice` iki kez rc=0. Dosyalar `…/opencode/t68/{old,old2,new}-{tr,en}`
+  + `trace-*.{out,err}`, betik `t68/run.sh`, ölçüm `t68/probe.py`, `probe-clear.py`.
+- Dönüş/yan etki: kayıt test kaydı; rakip talimatları tur sonunda `--clear` ile boş bırakıldı, saat ilerletilmedi
+  (2 Ağustos 2026 09:15), maç oynanmadı; dil `fm settings language "Türkçe"` ile geri alındı (`fm settings --json`
+  → `Turkish`). Değişiklik yalnız `cli/fm/OppositionCard.cs`; paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
+- Kalan (aynı blok): "Apply all advice" hâlâ yazıyla bulunuyor — `/buttons?json=1&gen=1` bu düğme için `Action`
+  vermiyor (boş), yani `ActionID` okunamıyor → eklenti değişikliği + oyun restartı ister ("Sonraya bırakılanlar"a
+  yazıldı).
+
+## Önceki durum (Tur 67)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / recruitment focus formunun `Next`i ve gözlemci penceresinin
   `Close`u** — **BİTTİ** (§8.255). `ScoutAreas` ve `scout new/edit`in ikinci adıma geçişi `FocusSteps` düğmesini
   bulamazsa `click ?text=Next`e, `AssignFocusScouts`in `Close`u pencere olayını bulamazsa "Cancel"/"Confirm"
@@ -1009,6 +1032,8 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
   ayırt eden alan `m_cancelEdit` (True/False) yalnız `/buttons?text=` bloğunda, `/buttons?json=1` özetinde yok →
   JSON'a eklemek eklenti değişikliği + oyun restartı ister (§8.241).
 - B haber "Portugal" / "Defence (Core)": elde örnek mesaj yok, yeniden üretilemedi (§8.226 öncesi).
+- B `opposition` "Apply all advice": `/buttons?json=1&gen=1` bu düğme için `Action` yolu vermiyor (boş), yani
+  `ActionID` okunamıyor → eklenti değişikliği + oyun restartı ister; düğme şimdilik yazıyla (çeviri tablosu).
 - D `up=N` (76 yer) ve sayfa GUID'leri (36 sabit): skin/güncelleme bağımlılığı, baştan sona tarama işi.
 - D `Penalties` "MAÇA" sütunu: eklenti alanı ya da maske çevirisi kararı Faruk'un (§8.218).
 - B mesaj eki okumasının 1,5 sn'si (`WriteAttachment`): home-grown kartı dahil eki kimi koşuda hiç yakalamıyor

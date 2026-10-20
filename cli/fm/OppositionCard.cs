@@ -48,12 +48,33 @@ internal static partial class Program
 				}
 				await Fm.Get("press", ("ptr", Field(apply.Value, "Pointer")));
 			}
-			else if (await Labelled("Clear Instructions") is { } clear) await Fm.Get("press", ("ptr", Field(clear, "Pointer")));
-			// The table is laid out again while the advice lands: rows go missing for a moment.
+			else
+			{
+				// The card's own Clear: its label is the game's word, but the button sends a plugin
+				// event of its own (EventFmxOppositionInstructionsClear) in any language.
+				var clear = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxOppositionInstructionsClear", StringComparison.Ordinal));
+				if (clear.ValueKind != JsonValueKind.Object)
+				{
+					Console.Error.WriteLine(L("Talimatları temizle düğmesi bulunamadı."));
+					return 1;
+				}
+				await Fm.Get("press", ("ptr", Field(clear, "Pointer")));
+			}
+			// The table is laid out again while the advice lands: rows go missing for a moment
+			// (measured: 11 rows with the advice → 8 → 11, all within 0,6 sn), so it is read when
+			// what it holds stands still rather than after a fixed pause, which could land in the
+			// half state and lose three players.
 			var count = rows.Count;
-			await Until(async () => (rows = await Rows()).Count >= count && string.Join("|", rows.Select(Values)) != before, seconds: 5, every: 0.25);
-			await Task.Delay(500);
-			rows = await Rows();
+			var held = "";
+			await Until(async () =>
+			{
+				rows = await Rows();
+				var now = string.Join("|", rows.Select(Values));
+				var settled = now == held && now != before && rows.Count >= count;
+				held = now;
+				return settled;
+			}, seconds: 6, every: 0.25);
 		}
 
 		var words = Words(args).ToList();

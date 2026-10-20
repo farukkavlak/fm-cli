@@ -3050,3 +3050,16 @@ olayını bulamazsa "Cancel"/"Confirm" sözüne düşüyordu. Üç yedek de sili
 veriliyor, pencere kapanmadıysa söyleniyor. TR + EN × üç durumda `fm scout areas --json` aynı üç seçeneği verdi
 (`["Competition ›","Nation ›","Recently Selected ›"]`), izde ileri basışı `click ?ptr=…` (yazı yok); `scout edit 1
 --by "ZZZ yok"` iki dilde rc=64 ve `fm scout --json` md5 koşu öncesi/sonrası aynı (TR `a62e4f7f…`, EN `86fe1bcc…`).
+
+### 8.256 Opposition card: the advice/clear path reads the table when it stands still, and presses Clear by its event (20 Ekim, TR + EN)
+`fm opposition --advice` / `--clear` basıştan sonra tabloyu bir kez "öncekinden farklı" diye okuyor, sonra **sabit
+500 ms** bekleyip bir kez daha okuyordu. Ölçüm (canlı, TR, 40 ms yoklama): öneri basışından 77 ms sonra 11 satır
+değerlerle geliyor, **519 ms'de 8 satır**, 612 ms'de yine 11 → duraklama yarım dizilişin içine düşebiliyor (üç oyuncu
+kaybolur). Artık tablo **öncekinden farklı ve art arda iki okumada aynı** olana kadar okunuyor (`Until`, 6 sn üst
+sınır, 0,25 sn); temizleme yolu da "Clear Instructions" sözü yerine düğmenin gönderdiği
+`EventFmxOppositionInstructionsClear` olayıyla basılıyor, düğme yoksa dürüst hata veriyor. İz: eski
+`translate ?words=Clear Instructions` → yeni `buttons ?json=1` + `press ?ptr=…`; öneri yolu 1,48 → 1,16 sn, temizleme
+1,37 → 1,03 sn. TR + EN × üç durum (başka sayfa açık `Messages` / hemen ikinci koşu / `Squad Dynamics` sonrası)
+`--advice` + `--clear` çıktısı eski derlemeyle **birebir** (TR `05bb4f30…` / `63635b68…`, EN `2c162b6c…` /
+`659a220b…`, 11 oyuncu, 5 değer); "zaten temiz" hâli rc=0 ve 11 satır `-`. Kayıt test kaydı; rakip talimatları tur
+sonunda `--clear` ile boş bırakıldı, saat ilerletilmedi, maç oynanmadı.
