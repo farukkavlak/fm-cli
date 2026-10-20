@@ -41,9 +41,12 @@ internal static partial class Program
 		// own string, put into English by this language's table (§8.209).
 		JsonElement? tile = null;
 		await Until(async () => (tile = await SpeakToAction(BudgetAdjustAction)) != null, seconds: 8, every: 0.25);
-		var clicked = tile is { } opening
-			? await Fm.Get("click", ("ptr", Field(opening, "Pointer")))
-			: await Fm.Get("click", ("text", "Adjust Transfer and Wage Budget"));
+		if (tile is not { } opening)
+		{
+			Console.Error.WriteLine(L("Bütçe ayarı kartını açan döşeme bulunamadı."));
+			return 1;
+		}
+		var clicked = await Fm.Get("click", ("ptr", Field(opening, "Pointer")));
 		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 		JsonElement slider = default;
 		await Until(async () =>
@@ -88,7 +91,8 @@ internal static partial class Program
 			else
 			{
 				Console.Error.WriteLine(L($"'{words[1]}' bir adım değil (0–{high})."));
-				await PressCardButton(keep: false);
+				var left = await PressCardButton(keep: false);
+				if (left.StartsWith("error", StringComparison.Ordinal)) Report(left);
 				return 1;
 			}
 		}
@@ -101,7 +105,8 @@ internal static partial class Program
 
 		if (target is not { } chosen || chosen == start)
 		{
-			await PressCardButton(keep: false);
+			var closed = await PressCardButton(keep: false);
+			if (closed.StartsWith("error", StringComparison.Ordinal)) return Report(closed);
 			if (target == start) Console.WriteLine(L("Bütçe zaten böyle."));
 			return 0;
 		}
@@ -178,14 +183,15 @@ internal static partial class Program
 	/// The card's own two buttons: the answer that keeps the step sends the game's
 	/// EventFmxBudgetAdjustmentConfirm, and the one that drops it is the other button of that same
 	/// panel (the one that only closes it). Both labels ("Got It", "Cancel") are the game's own
-	/// strings run through this language's table, so they are pressed by their pointer; the words
-	/// are kept only as a fallback for a screen this cannot recognise.
+	/// strings run through this language's table, so they are pressed by their pointer; when the
+	/// card is not recognised the command says so rather than guessing at its words.
 	/// </summary>
 	private static async Task<string> PressCardButton(bool keep)
 	{
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
 		var kept = buttons.FirstOrDefault(b => Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
-		if (kept.ValueKind != JsonValueKind.Object) return await Fm.Get("click", ("text", keep ? "Got It" : "Cancel"));
+		if (kept.ValueKind != JsonValueKind.Object)
+			return "error: " + L(keep ? "Bütçe kartını onaylayan düğme bulunamadı." : "Bütçe kartını kapatan düğme bulunamadı.");
 		if (keep) return await Fm.Get("click", ("ptr", Field(kept, "Pointer")));
 
 		var leave = buttons.FirstOrDefault(b => Field(b, "Page") == Field(kept, "Page")
@@ -193,6 +199,6 @@ internal static partial class Program
 		                                        && !Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
 		return leave.ValueKind == JsonValueKind.Object
 			? await Fm.Get("click", ("ptr", Field(leave, "Pointer")))
-			: await Fm.Get("click", ("text", "Cancel"));
+			: "error: " + L("Bütçe kartını kapatan düğme bulunamadı.");
 	}
 }

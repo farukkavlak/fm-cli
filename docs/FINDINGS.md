@@ -3162,3 +3162,13 @@ derlemede tekrar denemede geçti.
 0,12–0,44 sn sonra oluyor. TR + EN × üç durum (başka sayfa açık / form zaten yarım / başka sayfaya geçtikten sonra)
 6/6 rc=0 ve `fm scout areas --json` aynı üç seçenek; eski derlemeyle birebir. Form hiç kapanmazsa eski davranış gibi
 yeniden açma deneniyor, bu kez `again` dalı döngüye girmiyor.
+
+### 8.264 Bütçe kartının yazma yolunda yedek yazı kalmadı (21 Ekim, TR + EN)
+`budget ayarla` kartı açan döşemeyi eylem kimliğiyle (1885623898) buluyordu, ama kimlik yoksa
+`click ?text="Adjust Transfer and Wage Budget"`e; kartın "Got It"/"Cancel"i de olay/düğme bulunamazsa
+İngilizce söze düşüyordu. Üç yedek de silindi: döşeme yoksa "Bütçe ayarı kartını açan döşeme bulunamadı.",
+onay/iptal düğmesi yoksa "… düğme bulunamadı." deniyor. Ölçüm: TR + EN × üç durum (başka sayfa açık /
+hemen ikinci koşu / başka sayfaya geçtikten sonra) × iki yol (iptal; `14`'ü tut + `15`'e geri) 18/18 rc=0,
+çıktı eski derlemeyle **bayt bayt aynı** (TR iptal `3bcdc7a1…`, tut `93cbe81d…`; EN `6f04af3c…` /
+`cd196064…`). İzlerde eski ve yeni hep `click ?ptr=…`, `text=` sayısı **0** — yedek hiç kullanılmıyordu;
+negatif `ayarla 99` rc=1, kart yine `?ptr=` ile kapanıyor, bütçe 15. adımda kalıyor.

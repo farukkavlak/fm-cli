@@ -478,10 +478,13 @@ tablodan çevrilemiyor.
   - [x] `budget` düğmeleri (kartı açan döşeme + "Got It"/"Cancel"): üçü de oyunun İngilizce sözüyle basılıyordu.
     Kimlikleri ölçüldü: döşeme eylemi **1885623898** (`ClubBudgetAdjustmentTransfersAndWages`; yanındaki
     "Adjust Scouting Budget" 1332374646), "Got It" gönderdiği olay **EventFmxBudgetAdjustmentConfirm** (enum 146),
-    "Cancel" aynı panelin yalnız kapatın (`ClosePanel`) düğmesi. Artık üçü işaretçisiyle basılıyor, bulunamazsa
-    yazıya düşülüyor. TR + EN üç durumda üç yol (`ayarla 99` / `ayarla 15` / `ayarla 14` + geri) eski derlemeyle
+    "Cancel" aynı panelin yalnız kapatın (`ClosePanel`) düğmesi. Artık üçü işaretçisiyle basılıyor. TR + EN üç
+    durumda üç yol (`ayarla 99` / `ayarla 15` / `ayarla 14` + geri) eski derlemeyle
     **birebir**, izde `click ?ptr=…` (§8.235). Kartın **okuma** yolu (Wage/Transfer Budget, Scouting, "Budget
-    Adjustment" çapaları) yazıyla kalıyor: o sayıların sayfada veri yolu yok (ölçüldü, ayrı iş).
+    Adjustment" çapaları) yazıyla kalıyor: o sayıların sayfada veri yolu yok (ölçüldü, ayrı iş). **Tur 76:** yedek
+    yazı yolu kaldırıldı — döşeme, onay ve iptal artık yalnız eylem/olay + işaretçiyle basılıyor; kart tanınmazsa
+    yazıya düşülmüyor, dürüst hata veriliyor. TR + EN, üç durum × iki yol (iptal / `14`'ü tut + `15`'e geri) çıktı
+    eski derlemeyle **bayt bayt aynı**; izlerde `text=` **0** (§8.264).
   - [x] `save --as` / `saves delete`: kayıt tarayıcısının "Cancel" ve "Save"i artık **gönderdikleri olayla** basılıyor —
     Cancel `ClosePanel`, Save `SaveGame` (`SaveAs`'te `Save`, `CloseSaveBrowser`da Cancel; `Name` ayırt etmiyor:
     Browse/Delete/Cancel aynı `button-base-leading-icon-label` şablonunda). Kimlik bulunamazsa yazıya düşülüyor.

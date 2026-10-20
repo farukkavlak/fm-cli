@@ -3,7 +3,27 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 75)
+## Şu an (Tur 76)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `budget` kartının yazma yolu** (`Budget`, `PressCardButton` ve
+  döşeme basışı) — **BİTTİ** (§8.264). Üç yedek yazı yolu kaldırıldı: kartı açan döşeme zaten eylem kimliğiyle
+  (1885623898) bulunuyordu, kimlik yoksa `click ?text="Adjust Transfer and Wage Budget"`e düşüyordu; "Got It" ve
+  "Cancel" de olay/düğme bulunamazsa İngilizce söze düşüyordu. Artık üçü de yalnız eylem/olay + işaretçiyle;
+  tanınmayan kartta dürüst hata ("Bütçe ayarı kartını açan döşeme bulunamadı." / "… düğme bulunamadı.").
+- Kanıt — `fm budget ayarla` (TR) / `fm budget adjust` (EN), başlangıç adımı **15**, üç durum (s1 `fm open "Messages"`
+  sonrası / s2 hemen ikinci koşu / s3 `fm open "Squad Dynamics"` [`Dynamics`] sonrası) × iki yol (iptal; `14`'ü tut +
+  `15`'e geri). Eski derleme = değişiklik öncesi kurulu Release: **TR 9/9, EN 9/9 rc=0 ve çıktı bayt bayt aynı** —
+  iptal TR `md5 3bcdc7a1ff451f875afb942c4ed8b741`, tut TR `93cbe81d1119355a12e19422fb40936a`; EN iptal
+  `6f04af3c991a90700d1418088bd0e103`, tut `cd196064cdc715cce5e676ab3e579650`. İz (`FM_TRACE=1`): döşeme ve kart
+  düğmeleri hep `click ?ptr=…`; eski derlemede de `text=` **0**, yani yedek hiç kullanılmıyordu. Negatif
+  `ayarla 99` rc=1 (`'99' bir adım değil (0–15).`), kart `?ptr=` ile kapanıyor, bütçe 15. adımda kalıyor
+  (`626B £` / `2.320 £ aşılmış`). Dosyalar `…/opencode/t76/{old,new}-{tr,en}-{c,k,r}*`, negatif `new-tr-neg`.
+- Dönüş/yan etki: kayıt test kaydı; bütçe tur sonunda **15. adımda** (başlangıçtaki hâli), saat 2 Ağustos 2026
+  09:15, ilerletilmedi, maç oynanmadı. Dil EN ölçümünden sonra `fm settings language "Türkçe"` ile TR'ye döndü
+  (`fm settings dil` → `Türkçe`). Değişiklik yalnız `cli/fm/Budget.cs` (yerel döşeme + `PressCardButton`); paylaşılan
+  koda (Bridge/Until/OpenPage) dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 75)
 - Madde: **A "`Task.Delay`" / ScoutFocus 485** (`OpenFocusForm`: yarım kalmış form `AbandonFocus` ile atıldıktan sonraki
   sabit **800 ms**) — **BİTTİ** (§8.263). Bekleme oyunun kendi cevabına bağlandı: formun adım düğmeleri kalmayana
   kadar (`FormStep() == null`, üst sınır 6 sn, 0,2 sn). Ölçüm (canlı): onay düğmesinden sonra form 0,03–0,10 sn'de
