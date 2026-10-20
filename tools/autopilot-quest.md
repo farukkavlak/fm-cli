@@ -3,7 +3,29 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 65)
+## Şu an (Tur 66)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm players` arama panelinin Apply/Cancel yedeği** — **BİTTİ** (§8.254).
+  Tur 50'de birincil yol (`PanelSent`: `EventFmxFilterRestoreFilter` + `SendsProps True/False`) yazmıştı; ama
+  `ApplySearch`in `PanelButton`ı kimlik yoksa `form ?anchorpath=…&buttons=1` içindeki `Text == "Apply"/"Cancel"`e
+  düşüyordu. Yedek silindi: Apply `PanelSent(true)`, Cancel `PanelSent(false)`; kimlik yoksa yazıya düşülmüyor,
+  Apply dürüst hata veriyor. Böylece `fm players` panelinde basış yolu tamamen sözsüz.
+- Kanıt: TR + EN, üç durum (`fm open "Messages"` sonrası / hemen ikinci koşu / `Squad Dynamics` [`Dynamics`] sonrası)
+  × iki yol (`fm players "Aaron" --age 18-23 --json` = Apply, `fm players --age 120-130` = Cancel). Apply: TR s3 70
+  satır `md5 f85f8ff2…` iki derlemede de aynı; TR s1/s2 22 satır (bilinen kısa tablo, §8.239) isim/sıra/alanlar
+  (durum sütunu dışında) **birebir** — yalnız `StatusTitleShort`/`StatusType` koşular arasında oynuyor, iki derlemede
+  de. EN s1/s2 **bayt bayt aynı** (`b92e2c6b…`, `253b0c5c…`), s3 70 satır canon aynı (tek fark satır 8'de
+  `StatusTitleShort Wnt→Loa`). Cancel: iki dilde üç durumda rc=64, stdout boş `d41d8cd9…`, stderr aynı
+  ("En küçük yaş: '120' diye bir seçenek yok…" / "Youngest age: …"), sonraki koşu panelin kapandığını gösteriyor.
+  İz (`FM_TRACE=1`): Apply `click ?ptr=0x407e63800`, Cancel `click ?ptr=0x4a9081000`; `text=` yalnız sayfanın kendi
+  `press ?text=Clear&event=EventToPlugin`i (dokunulmayan, ayrı iş). Dosyalar `…/opencode/t66/{before-tr,after-tr,
+  after-tr2,before-en,after-en}`, betik `t66/run.sh`, iz `t66/trace-{apply,cancel}.err`.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı), oyuncu araması
+  tur sonunda `--clear` ile süzgeçsiz; dil `fm settings language "Türkçe"` ile geri alındı (`fm settings --json` →
+  `Turkish`). `ApplySearch` yalnız `fm players` kullanıyor (`Reads.cs:804`); paylaşılan koda dokunulmadı → `sweep.sh`
+  gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 65)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm staff find`in `Apply`/`Cancel` yedeği** — **BİTTİ** (§8.253).
   Tur 50'de birincil yol (`PanelSent`: `EventFmxFilterRestoreFilter` + `SendsProps True/False`) yazıdan önceye geçmişti,
   ama kimlik bulunamazsa `?text=Apply` ve `form ?anchor=Apply`deki `Text == "Cancel"` hâlâ yedekti. Yedek silindi:

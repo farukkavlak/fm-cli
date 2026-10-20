@@ -513,8 +513,17 @@ tablodan çevrilemiyor.
     `6f67b7f5…`, `--age` `51c9d225…`, `--grade` `db9d5183…` — yeni derlemenin s1/s3'ü eski derlemenin s3'üyle
     birebir (§8.240). Dil geçişinden hemen sonraki koşular yine kısa tablo veriyor (22/25 satır; eski derlemede de
     aynı, §8.239 yan bulgusu) — ölçüm zinciri bu yüzden oturmuş durumlar karşılaştırıldı.
-    Aynı panelde kalan: `PanelButton("Apply"/"Cancel")`in **yedeği** hâlâ yazıyla (asıl yol `PanelSent`, §8.239) ve
-    `Row()`in satır adı eşleşmesi niteliğin oyunun menüsünden gelen **kendi sözüyle** (sabit İngilizce değil).
+    Aynı panelde kalan: `Row()`in satır adı eşleşmesi niteliğin oyunun menüsünden gelen **kendi sözüyle**
+    (sabit İngilizce değil). Apply/Cancel'in yazı yedeği Tur 66'da kaldırıldı (aşağıda).
+  - [x] `fm players` arama panelinin **Apply/Cancel basışı** artık yalnız oyunun kendi yüküyle: `ApplySearch`in
+    `PanelButton` yedeği (`Text == "Apply"/"Cancel"` + `form ?anchorpath=…&buttons=1`) kaldırıldı. Apply
+    `PanelSent(true)`, Cancel `PanelSent(false)` — ikisi de `EventFmxFilterRestoreFilter` gönderiyor, ayırt eden
+    `SendsProps` (`True`/`False`). Kimlik yoksa yazıya düşülmüyor: Apply "arama panelinde Apply düğmesi bulunamadı"
+    diyor, Cancel yalnız panel açıkken basıyor. Kanıt: TR + EN, üç durum (başka sayfa / hemen ikinci koşu / başka
+    sayfaya geçtikten sonra) × iki yol (`players "Aaron" --age 18-23 --json` = Apply, `players --age 120-130` =
+    Cancel): Apply satırları (isim/sıra/alanlar, durum sütunu dışında) eski derlemeyle **birebir**, Cancel iki dilde
+    rc=64 + boş stdout `d41d8cd9…` + aynı stderr; izde `click ?ptr=…`, hiç `text=Apply`/`Cancel` yok (§8.254).
+
   - [x] Recruitment focus formunun **adım düğmeleri** (`Next`/`Back`): formun "açıldı / yarım kalmış" işareti
     (`OpenFocusForm`) ve `fm scout areas`in bölge adımına geçişi yazıyla konuyordu (`FormButton(FocusForm("Next"),
     "Next")`, `click ?text=Next`). Ölçüldü: ikisi de **aynı olayı** gönderiyor

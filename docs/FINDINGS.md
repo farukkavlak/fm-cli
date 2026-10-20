@@ -3033,3 +3033,12 @@ Apply "arama panelinin Apply düğmesi bulunamadı" diyor, Cancel yalnız panel 
 sayfa / hemen ikinci koşu / başka sayfaya geçtikten sonra) × iki yol (`--role "Coach"`, `--role "zzz yok"`): rc ve
 stdout/stderr md5 eski derlemeyle **birebir** (TR `7f4956af…`/`447a8d36…`, EN `5b380c79…`/`44f56f55…`; iptal TR
 `32337789…`, EN `52c49a4e…`). İz: yalnız `buttons ?json=1&gen=1` → `click ?ptr=…`; hiçbir koşuda `text=` yok.
+
+### 8.254 `fm players` arama panelinin Apply/Cancel yedeği kaldırıldı: basış yalnız oyunun yüküyle (20 Ekim, TR + EN)
+`ApplySearch`in `PanelButton`ı `PanelSent`i deniyor, olmazsa `form ?anchorpath=…&buttons=1` içindeki `Text ==
+"Apply"/"Cancel"`e düşüyordu; panelin iki düğmesi aynı olayı (`EventFmxFilterRestoreFilter`) gönderiyor, ayırt eden
+`SendsProps` (`True` Apply, `False` Cancel) — söz hiç gerekmiyor. Yedek silindi: Apply `PanelSent(true)`, Cancel
+`PanelSent(false)`, kimlik yoksa Apply "arama panelinde Apply düğmesi bulunamadı" diyor ve panel kapatılmıyor.
+TR + EN, üç durum × `players "Aaron" --age 18-23 --json` / `players --age 120-130`: Apply satırları (durum sütunu
+dışında) eski derlemeyle birebir, EN s1/s2 bayt bayt aynı; Cancel iki dilde rc=64 + boş stdout + aynı stderr; izde
+`click ?ptr=…`, `text=` yok. Kalan tek yazı yolu `Row()`in nitelik adı (oyunun kendi sözü) — ayrı iş.

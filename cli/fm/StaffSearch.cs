@@ -296,15 +296,11 @@ internal static partial class Program
 		}
 		// The panel's own Apply and Cancel stand for the same event; the one that keeps what was set
 		// sends "true", the one that drops it "false" — the payload the game itself sends, the same
-		// in every language. If the game does not say which is which, they are found in the panel
-		// beside each other, by the words on them, as before.
-		async Task<string> PanelButton(string label) =>
-			await PanelSent(label == "Apply")
-			?? (await Fm.GetJson("form", ("anchorpath", SearchPanel), ("up", "8"), ("buttons", "1"))).EnumerateArray()
-				.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == label).Select(i => Field(i, "Pointer")).LastOrDefault();
+		// in every language. No word on either button is ever pressed; if the game does not say
+		// which is which the panel is left as it is rather than guessed at from its language.
 		async Task<string> Close(string error)
 		{
-			if (await PanelButton("Cancel") is { } cancel) await Fm.Get("click", ("ptr", cancel));
+			if (await PanelSent(false) is { } cancel) await Fm.Get("click", ("ptr", cancel));
 			return error;
 		}
 
@@ -453,10 +449,10 @@ internal static partial class Program
 				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} değeri panele oturmadı"));
 		}
 
-		if (await PanelButton("Apply") is not { } apply) return await Close("error: arama panelinde Apply yok");
+		if (await PanelSent(true) is not { } apply) return await Close(L("error: arama panelinde Apply düğmesi bulunamadı"));
 		var applied = await Fm.Get("click", ("ptr", apply));
 		if (applied.StartsWith("error", StringComparison.Ordinal)) return await Close(applied);
-		await Until(async () => await PanelButton("Apply") == null, seconds: 5, every: 0.4);
+		await Until(async () => await PanelSent(true) == null, seconds: 5, every: 0.4);
 		return null;
 	}
 }
