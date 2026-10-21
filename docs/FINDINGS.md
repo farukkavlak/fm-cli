@@ -3376,3 +3376,18 @@ sonrası / oyuncu kartı açıkken) TR 4/4 + EN 4/4 rc=0, çıktı dil içinde a
 kiralık hâldeydi (ücret kutusu yok). Negatif: `"ZZZ yok"` rc=1; transfer yolu (`500K`) iki dilde değişmedi.
 Dosyalar `…/opencode/t95/`. Aynı desen `Transfers.cs` 96'da (teklif verirken loan sekmesi, sabit 2 sn) hâlâ duruyor;
 ayrı madde.
+
+### 8.284 `fm offer --loan`: kiralık sekmesinden sonraki 2 sn yerine kiralık panelinin çizilmesi bekleniyor (21 Ekim, TR + EN)
+`cli/fm/Transfers.cs`: `--loan` yolunda "Loan Offer" sekmesine basıldıktan sonra kart okunmadan önce sabit **2 sn**
+bekleniyordu. Sekme paneli iki adımda yeniden çiziyor: önce transferin satırları boşalıyor (`Rows` 0, `TotalCostTitle`
+değişiyor), ~0,44 sn'de kiralığın 12 satırı geliyor. Oyunun kendi cevabı bu: `OfferScreen.Read` kiralık satır kümesini
+(`IsLoan`, `Playing Monthly Fee`) gösterene kadar bekleniyor (`Until`, 0,1 sn aralık, üst sınır 8 sn = ~18 kat pay);
+gelmezse "Kiralık teklif sekmesi açılmadı." rc=1. Sekmenin yazısı oyunun sözü, satır kümesi eklentinin kendi şeması.
+Ölçüm (canlı, TR): basış→satırlar 0 (167–268 ms) → kiralık 12 satır **439 ms**. İz: eski derlemede basış→sonraki istek
+TR **2,09 sn**, EN **2,18–2,33 sn**; yenide TR **0,40–0,46 sn**, EN **0,49–0,60 sn** (arada `offer` yoklamaları).
+TR + EN × üç durum (s1 `Messages` sonrası / s2 hemen ikinci koşu [teklif açık] / s3 `Squad Dynamics`·EN `Dynamics`
+sonrası) **12/12 rc=0**; çıktı dil içinde eski derlemeyle bayt bayt aynı (TR `981f3974…` 6/6, EN `cd76ddc5…` 6/6).
+Transfer yolu (`--loan` yok) değişmedi; kiralıkta ücret kutusu yine "Playing Monthly Fee"ye yazılıyor (500K, çıktı
+aynı). Dosyalar `…/opencode/t96/` (`old/` = değişiklik öncesi Release kopyası, `run2.sh`, `probe4.py`).
+Aynı fonksiyonda kalan `Task.Delay`ler (128/131/139) `+`/`−` ile ücret yürütme döngüsünün okuma aralıkları; bu yolda
+ölçülmedi, ayrı alt madde.

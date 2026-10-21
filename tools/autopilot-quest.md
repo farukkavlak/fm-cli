@@ -3,7 +3,25 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 93)
+## Şu an (Tur 94)
+- Madde: **A "`Task.Delay`" / Transfers 96** (`fm offer <oyuncu> <ücret> --loan`: "Loan Offer" sekmesine bastıktan
+  sonra sabit **2 sn**) — **BİTTİ** (§8.284). Bekleme oyunun kendi cevabına bağlandı: sekme paneli önce transferin
+  satırlarını boşaltıyor, ~0,44 sn'de kiralığın 12 satırı geliyor; `OfferScreen.Read` o kümeyi (`IsLoan`) gösterene
+  kadar (`Until`, 0,1 sn, üst sınır 8 sn ≈ 18 kat pay); gelmezse "Kiralık teklif sekmesi açılmadı." rc=1.
+- Kanıt — `FM_TRACE=1 fm offer "Alfie May" 500K --loan --dry`: eski derlemede basış→sonraki istek TR **2,09 sn**,
+  EN **2,18–2,33 sn**; yenide TR **0,40–0,46 sn**, EN **0,49–0,60 sn** (arada `offer` yoklamaları). TR + EN × üç
+  durum (s1 `Messages` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics`·EN `Dynamics` sonrası) **12/12 rc=0**,
+  çıktı dil içinde eski derlemeyle bayt bayt aynı (TR `981f3974…` 6/6, EN `cd76ddc5…` 6/6). Ölçüm için teklif türü
+  hafızası "transfer"e alındı (`run2.sh`), böylece sekme gerçekten değişti. Canlı ölçüm: satırlar 0 (167–268 ms) →
+  kiralık 12 satır **439 ms**. Dosyalar `…/opencode/t96/` (`old/` eski Release, `probe4.py`). Transfer yolu değişmedi.
+- Dönüş/yan etki: dil EN ölçümünden sonra `fm settings language "Türkçe"` → `dil=Turkish`; kayıt yalnız okundu
+  (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı, teklif gönderilmedi (yalnız `--dry`). Değişiklik yalnız
+  `cli/fm/Transfers.cs` → paylaşılan kod yok, `sweep.sh` gerekmedi. Kalan: aynı fonksiyondaki 128/131/139
+  (`+`/`−` ücret yürütme döngüsü) bu yolda ölçülmedi; ayrı alt madde. Sıradaki uygun A maddesi: `ScoutFocus 107` ya da
+  `Settings 226` (küçük, tek blok).
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 93)
 - Madde: **A "`Task.Delay`" / Propose 66 80** (`fm propose <oyuncu> --loan`: "Loan Offer" sekmesine bastıktan sonra
   sabit **1,2 sn**) — **BİTTİ** (§8.283). Bekleme oyunun kendi cevabına bağlandı: kiralık sekmesi transferin ücret
   kutusunu (`Type: FMCombobox`) kaldırıyor; kutu kalkana kadar (`Until`, 0,1 sn aralık, üst sınır 8 sn); gelmezse

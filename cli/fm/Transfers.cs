@@ -93,7 +93,14 @@ internal static partial class Program
 		if (!resumed && loan && await Named("loan-offer-button") is { } loanTab)
 		{
 			await Fm.Get("press", ("ptr", Field(loanTab, "Pointer")));
-			await Task.Delay(TimeSpan.FromSeconds(2));
+			// The loan tab redraws the panel in two steps: the transfer's terms go, then the
+			// loan's own terms are drawn. The screen showing a loan is the game's answer that
+			// the switch has landed; the tab's label is the game's word, the row set is not.
+			if (!await Until(async () => await OfferScreen.Read(Fm) is { IsLoan: true }, seconds: 8, every: 0.1))
+			{
+				Console.Error.WriteLine(L("Kiralık teklif sekmesi açılmadı."));
+				return 1;
+			}
 		}
 
 		// The amount is typed into the fee box, which takes it when it loses focus (FINDINGS

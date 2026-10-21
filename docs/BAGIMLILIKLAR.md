@@ -31,7 +31,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   OfferScreen 259 · ~~Offers 99~~ · ~~OppositionCard 55~~ · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration ~~32 115~~ 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
   ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · ~~StaffSearch 91 100 110~~ 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
-  ~~TacticFiles 181~~ · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · Transfers 96 128 131 139
+  ~~TacticFiles 181~~ · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · ~~Transfers 96~~ 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
     pay. "Yol boş" ile "henüz gelmedi" aynı cevap (`{}`) — FINDINGS §8.179.
   - [x] `table`: olmayan `CurrentComp5..8` artık beklenmiyor (`ClubCompetitions`, tek okuma); 8,7 → 2,5–2,9 sn, üç
@@ -264,6 +264,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     gerçekten denendi (`--loan --yes`, EN): "Offered.", sonra aynı oyuncuda seçenek yok (rc=1) → gönderim işledi;
     gönderim anında panel kiralık hâldeydi (ücret kutusu yok). Negatif: `"ZZZ yok"` rc=1; transfer yolu
     (`500K`, iki dil) değişmedi. Dosyalar `…/opencode/t95/` (§8.283).
+  - [x] Transfers 96 (`fm offer <oyuncu> <ücret> --loan`: kiralık sekmesine bastıktan sonra sabit **2 sn**): bekleme
+    oyunun kendi cevabına bağlandı — sekme paneli iki adımda çiziyor, `OfferScreen.Read` kiralık satır kümesini
+    (`IsLoan`) gösterene kadar (`Until`, 0,1 sn aralık, üst sınır 8 sn = ~18 kat pay); gelmezse rc=1. Ölçüm (TR):
+    basış→satırlar 0 (167–268 ms) → kiralık 12 satır **439 ms**. Eski derleme basış→sonraki istek TR **2,09 sn**,
+    EN **2,18–2,33 sn**; yeni TR **0,40–0,46 sn**, EN **0,49–0,60 sn**. TR + EN × üç durum **12/12 rc=0**, çıktı dil
+    içinde bayt bayt aynı (TR `981f3974…`, EN `cd76ddc5…`) (§8.284). Kalan: 128/131/139 `+`/`−` yürütme döngüsünün
+    okuma aralıkları — bu yolda ölçülmedi, ayrı alt madde.
 - [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·
