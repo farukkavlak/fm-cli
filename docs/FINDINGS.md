@@ -4015,3 +4015,17 @@ ve basış yine İngilizce etiketle (kimlik değişmedi). Kanıt — üç konuş
 toplantısı / oyuncu sohbeti) × TR + EN: TR'de başlıklar `[Olumlu] [Nötr] [Olumsuz]`, kapanış "Herkese
 teşekkürler…"; EN'de metinler eskisiyle aynı (`[Positive] [Neutral] [Negative]`); önce TR'de yukarıdaki
 üç İngilizce söz, sonra hiçbiri. `sweep.sh` **50 komut, 0 hata**.
+
+### 8.341 kadro kayıt ekranı ilk okumayı sabit 250 ms bekleyip alıyordu (22 Ekim, TR + EN)
+
+`Registration.cs` `Settled()` her kaydırma sonrası sayfayı okumadan önce sabit **250 ms** uyuyordu; bir
+`ReadRegistration` beş kaydırma yaptığı için her okuma en az 1,25 sn bekliyordu. Oysa "durmuş sayfa" işareti
+zaten var: iki okuma üst üste aynı `Name + Selected` listesini verirse sayfa oturmuş sayılıyor. İlk bekleme
+kaldırıldı, ilk okuma hemen alınıyor; oynayan bir sayfayı ikinci okuma yakalıyor, aradaki 250 ms yalnız
+yoklama aralığı. Kanıt — üç durum (kayıt sayfası yeni açıldı / sayfa zaten açık / Portal › Messages açık)
+× TR + EN, 14 koşu: bayrak (`Flags`) hücreleri oyun kendi içinde değiştiği için onlar dışında kalan
+`Rules + oyuncu satırları` her koşuda **birebir aynı** (TR `6900401db0`, EN `ac38b62d66`; önce ve sonra);
+süre aynı üç durumda **5,21 → 4,30 / 5,28 → 4,46 / 6,67 → 5,77 sn** (beş kaydırma × 250 ms).
+Ölçüm (3 tur × 5 kaydırma, ham `/regscroll` + `/registration`, 0/250/500/750 ms): ilk okuma 4/15 kez
+henüz eski sayfayı görüyor (satır 21↔24), ama 15/15'te ilk **anlaşan** çift oturmuş sayfaydı — yanlış
+anlaşma 0; yani uyaran ikinci okuma eski sayfayı her zaman yakalıyor.

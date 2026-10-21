@@ -5,10 +5,38 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **17**: `Task.Delay` **14 borç** (29 çağrının 13'ü
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **16**: `Task.Delay` **13 borç** (28 çağrının 13'ü
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **0** + kısa `Until` **3**.
 
-## Şu an (Tur 147)
+## Şu an (Tur 148)
+- Seçilen madde: **A1 `Task.Delay` / `Registration.cs:312`** — kadro kayıt ekranının `Settled()` okuması
+  her kaydırmadan sonra sabit **250 ms** uyuyup ilk okumayı öyle alıyordu. Bir `ReadRegistration` beş
+  kaydırma yapıyor, yani her okuma en az **1,25 sn** boşa bekliyordu. **BİTTİ** (§8.341): ilk bekleme
+  kalktı, ilk okuma hemen alınıyor; sayfanın oturduğunu zaten iki okumanın aynı `Name + Selected` listesini
+  vermesi söylüyor. Kalan 250 ms yalnız yoklama aralığı (`[~]`, tıpkı `League.cs:253`).
+- Kanıt — üç durum (kayıt sayfası yeni açıldı / sayfa zaten açık / Portal › Messages açık) × TR + EN:
+  aynı üç durumda eski derleme 5,21 / 5,28 / 6,67 sn → yeni derleme 4,30 / 4,46 / 5,77 sn. 6 yeni + 6 eski
+  + 8 önceki koşunun hepsi, oyunun kendi içinde değişen `Flags` hücreleri dışında **aynı veriyi** veriyor:
+  TR `6900401db0`, EN `ac38b62d66`, 27 oyuncu, 3 kural. Boş `Flags` sayısı eski/yeni 2–3 (aynı dağılım).
+  Ayrı ölçüm (3 tur × 5 kaydırma, ham `/regscroll` + `/registration`, 0/250/500/750 ms): ilk okuma 4/15
+  kez eski sayfayı görüyor, ama 15/15'te ilk **anlaşan** çift oturmuş sayfaydı (yanlış anlaşma 0).
+  Dosyalar `/tmp/opencode/t148/{before,after,old,new}-*/`, `probe2.py`.
+- `python3 tools/remaining.py --write`: açık kutu **17 → 16**, `Task.Delay` borcu **14 → 13**
+  (`Registration.cs:318` yoklama aralığı olarak kaldı).
+- Dönüş: yalnız okuma + dil gidiş-dönüşü; `fm save` **yok**. `/state` `Language: turkish`,
+  `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm status` 9 Ağustos 2026 05:45.
+- Sıradaki uygun maddeler: canlı blokta yine seçilebilir kutu **yok** — kalan 16 kutunun 2'si `[?]`
+  (Guided 161/174), gerisi "Sonraya bırakılanlar". Sonraki tur `tools/sweep.sh` + menajer akışında hata
+  avına devam etsin. **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (318) ·
+  Stages 63/120/136 · MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 ·
+  `Program.cs:589/694/1452/2210`, `Launcher 213/269`.
+- Not (kod değişikliği değil): ilk TR ölçümünde `fm register` rc=1 "ekran açılmadı" verdi; aynı anda
+  `fm settings` de çalışıyordu — iki komut aynı UI'yi sürükledi. Tek başına tekrarlarda 6/6 rc=0.
+- Not (yeni bulgu değil, iş değil): `Registration.cs:350` hâlâ `^\d+ assigned$` **yazısıyla** düğme arıyor
+  ve `controls[assigned - 1]` ile **konumuna** basıyor (yedek yol). Bu koşuda tetiklenip tetiklenmediği
+  izlenmedi; TR'de tutmayacağı aşikâr. Günün birinde o ekran bu yola düşerse TR'de açılmayacak. Ölçülmedi.
+
+## Önceki durum (Tur 147)
 - Seçilen madde: **yok** — canlı bloktaki 17 kutunun hepsi `[?]` (Guided 161/174) ya da "Sonraya bırakılanlar"
   listesinde (Launcher 213/269 · MatchDay 181/314/370 · Program 589/694/1452/2210 · Registration 312/316 ·
   Stages 63/120/136 · MatchControls 131/266 · Saves 258). Talimatın "boşta kalırsan" yolu: `sweep.sh` +

@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **17** · `Task.Delay` 29 çağrı (14 borç, 13 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **16** · `Task.Delay` 28 çağrı (13 borç, 13 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 14 borç / 29 çağrı
+#### A1. `Task.Delay` — 13 borç / 28 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -52,8 +52,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `Program.cs:694` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
 - [ ] `Program.cs:1452` `await Task.Delay(250);`
 - [ ] `Program.cs:2210` `await Task.Delay(500);`
-- [ ] `Registration.cs:312` `await Task.Delay(250);`
-- [ ] `Registration.cs:316` `await Task.Delay(250);`
+- [ ] `Registration.cs:318` `await Task.Delay(250);`
 - [~] `Release.cs:164` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
 - [ ] `Stages.cs:63` `await Task.Delay(1200);`
 - [ ] `Stages.cs:120` `await Task.Delay(1200);`

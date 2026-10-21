@@ -302,17 +302,19 @@ internal static partial class Program
 	/// <summary>
 	/// The page once it has stopped changing. A scroll hands rows built for other players to
 	/// new ones, and for a frame or two a row can show the new name with the old player's tick;
-	/// two reads in a row that agree are taken as settled.
+	/// two reads in a row that agree are taken as settled. The first read is taken at once: a
+	/// page still on the move is caught by the second, so there is nothing to sleep for first.
 	/// </summary>
 	private static async Task<JsonElement> Settled()
 	{
 		static string Ticks(JsonElement page) => string.Join(",", page.GetProperty("Players").EnumerateArray()
 			.Select(p => Field(p, "Name") + "=" + Field(p, "Selected")));
 
-		await Task.Delay(250);
 		var page = await Fm.GetJson("registration");
 		for (var i = 0; i < 6; i++)
 		{
+			// The gap between the two reads is the poll interval: a page that has moved on is
+			// told apart from the one before it, and only two that agree are taken as settled.
 			await Task.Delay(250);
 			var again = await Fm.GetJson("registration");
 			if (Ticks(again) == Ticks(page)) return again;
