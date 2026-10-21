@@ -5,10 +5,38 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **22**: `Task.Delay` **16 borç** (30 çağrının 12'si
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **21**: `Task.Delay` **15 borç** (29 çağrının 12'si
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **3** + kısa `Until` **3**.
 
-## Şu an (Tur 139)
+## Şu an (Tur 140)
+- Madde: **A1 `Task.Delay` / `ScoutFocus.cs:395`** — `scout remove --yes` sayfadaki kaldırma düğmesini
+  bulamayınca görevler panelinde her gözlemciyi seçtikten sonra sabit **700 ms** uyuyordu. **BİTTİ** (§8.333):
+  işaret seçilen gözlemcinin kendi adı — panelin sağ tarafı `Scout.Name` ile başlıklandığı an odakları da
+  geliyor. Yeni hal `Until(Scout.Name == scout, 5 sn, 0,2 sn)`; 700 ms kalktı.
+- Kanıt — önce/sonra: üç durum (`Messages` sonrası / panel zaten açık / `squad` sonrası) × iki dil, 6/6;
+  `rowselect` → `Scout.Name` **TR 0,132 / 0,199 / 0,132 sn**, **EN 0,162 / 0,401 / 0,170 sn**; odak satırları
+  (`focusitem.Name`) **0,05–0,24 sn**. Panel sorguları `/tmp/panel_measure.py`; çıktılar
+  `/tmp/opencode/t141/{tr,en}_{A2,B2,C4}.json`. Panelden gerçek kaldırma simülasyonu (`/tmp/simulate_remove.py`):
+  onay penceresi `RecruitmentFocusRemove`, atama **3 → 2**, `rc=0`.
+- Yan bulgu (yeni iş, §8.333 sonu): panelin başlığı çevriliyor — eski `anchor="Active Assignments (n)"` TR'de
+  hiç tutmuyordu, yani `RemoveInAssignments` yolu TR'de ölüydü. Yeni sorgu `anchorpath=Scout.Name` (up 13),
+  gözlemci listesi `binding.Name`, odaklar `focusitem.Name`; yazıya bağlı değil. **`fm scout staff` hâlâ aynı
+  çevrili başlığı arıyor → TR'de boş dönüyor** (rc=0, "(boş)"); aynı düzeltme ona da gerekiyor.
+- Regresyon: sayfa yolundan `scout remove --yes` TR ve EN'de rc=0, odak gerçekten durdu (`Assignments` azaldı);
+  `tools/sweep.sh` **50 komut, 0 hata**. `remaining.py --write`: açık kutu **22 → 21**, `Task.Delay` borcu
+  **16 → 15**. Dosyalar `/tmp/opencode/t141/`.
+- Dönüş: `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → `/state` `Language: turkish`, `Date: 2026-08-09`,
+  `Clock: 0`, `DuringMatch: False`; `fm save` **yok**, ana kayıt damgası 21 Ekim 10:40 (değişmedi). Deney
+  sırasında `restart`/`remove` odak listesini değiştirdi; yükleme ana kaydı geri getirdi.
+- Sıradaki uygun maddeler: B1 `ScoutFocus.cs:483/492/638` (`MenuIconID` 929682755 / 464150106 ile ayırt
+  edilebilir mi) · A1 `Program.cs:2206`, `Launcher 213/269` (park) · A2 `Saves.cs:258`. **Yeni:** `scout staff`i
+  panel kimliğine çevirmek (TR'de boş) — bu turda bulundu, ayrı madde.
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): `Saves.cs:258` · Registration `Settled` (312/316) · Stages 337 ·
+  MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 · mesaj eki 1,5 sn · `opposition` · boy birimleri ·
+  `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`,
+  `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister).
+
+## Önceki durum (Tur 139)
 - Madde: **A1 `Task.Delay` / `MatchReport.cs:35`** — `fm match`, düdükten sonra son maçı `expected` skorla
   okurken her başarısız turdan önce **sabit 500 ms** uyuyordu. **BİTTİ** (§8.332): ölçüldü, **borç değil** —
   iki gerçek maçta (TR Lincoln 0-0 Preston, EN Lincoln 3-1 Sheffield Wednesday) `LastFixture`in **ilk `pull`u**

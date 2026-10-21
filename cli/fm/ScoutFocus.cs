@@ -375,27 +375,28 @@ internal static partial class Program
 			List<JsonElement> items = [];
 			await Until(async () =>
 			{
-				// The panel's heading carries the same count as the button that opened it.
-				var heading = "Active " + Field(open, "Label");
-				items = (await Fm.GetJson("form", ("anchor", heading), ("up", "4"), ("buttons", "1"))).EnumerateArray().ToList();
-				return items.Any(i => Field(i, "Text") == "Recruitment Focuses");
+				// The panel's title is the game's own word ("Aktif Görevler (4)"), translated with
+				// the rest of the UI; the scout it heads is bound as Scout.Name in every language.
+				items = (await Fm.GetJson("form", ("anchorpath", "Scout.Name"), ("up", "13"), ("buttons", "1"))).EnumerateArray().ToList();
+				return items.Count(i => Field(i, "Path") == "binding.Name") >= 1 && items.Any(i => Field(i, "Path") == "Scout.Name");
 			}, seconds: 6, every: 0.5);
 			return items;
 		}
 
 		var panel = await Panel();
-		// The staff list: name and job in pairs, up to where the selected one's own heading repeats a name.
-		var texts = panel.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).Skip(2).ToList();
-		var staff = new List<string>();
-		for (var i = 0; i + 1 < texts.Count && !staff.Contains(texts[i]); i += 2) staff.Add(texts[i]);
+		// The staff list: the panel's own names, not its words (the heading is translated).
+		var staff = panel.Where(i => Field(i, "Path") == "binding.Name").Select(i => Field(i, "Text")).Distinct().ToList();
 
 		foreach (var scout in staff)
 		{
 			await Fm.Get("rowselect", ("text", scout));
-			await Task.Delay(700);
-			panel = await Panel();
-			var from = panel.FindIndex(i => Field(i, "Text") == "Recruitment Focuses");
-			var at = from < 0 ? -1 : panel.FindIndex(from, i => Field(i, "Kind") == "text" && Field(i, "Text") == focus);
+			// The right-hand side is his once it is headed with his name; the focuses follow it.
+			await Until(async () =>
+			{
+				panel = (await Fm.GetJson("form", ("anchorpath", "Scout.Name"), ("up", "13"), ("buttons", "1"))).EnumerateArray().ToList();
+				return panel.Any(i => Field(i, "Path") == "Scout.Name" && Field(i, "Text") == scout);
+			}, seconds: 5, every: 0.2);
+			var at = panel.FindIndex(i => Field(i, "Path") == "focusitem.Name" && Field(i, "Text") == focus);
 			if (at < 0) continue;
 			var icons = panel.Skip(at + 1).TakeWhile(i => Field(i, "Kind") == "button" && Field(i, "Name") == "button-base-leading-icon").ToList();
 			if (icons.Count < 2) return false;

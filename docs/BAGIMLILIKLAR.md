@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **22** · `Task.Delay` 30 çağrı (16 borç, 12 borç değil) · yazıyla basış 3 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **21** · `Task.Delay` 29 çağrı (15 borç, 12 borç değil) · yazıyla basış 3 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 16 borç / 30 çağrı
+#### A1. `Task.Delay` — 15 borç / 29 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -55,7 +55,6 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `Registration.cs:312` `await Task.Delay(250);`
 - [ ] `Registration.cs:316` `await Task.Delay(250);`
 - [~] `Release.cs:164` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
-- [ ] `ScoutFocus.cs:395` `await Task.Delay(700);`
 - [ ] `Stages.cs:63` `await Task.Delay(1200);`
 - [ ] `Stages.cs:120` `await Task.Delay(1200);`
 - [ ] `Stages.cs:136` `await Task.Delay(1200);`
@@ -65,9 +64,9 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 
 #### B1. Yazıyla basma/tıklama — 3 yer
 
-- [ ] `ScoutFocus.cs:483` "Create a New Recruitment Focus"
-- [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
-- [ ] `ScoutFocus.cs:638` "Edit Recruitment Focus"
+- [ ] `ScoutFocus.cs:484` "Create a New Recruitment Focus"
+- [ ] `ScoutFocus.cs:493` "Create a New Recruitment Focus"
+- [ ] `ScoutFocus.cs:639` "Edit Recruitment Focus"
 
 #### A2. Kısa `Until` (≤3 sn) — 3 yer
 

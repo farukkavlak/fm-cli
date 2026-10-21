@@ -3909,3 +3909,17 @@ tek `LastFixture` isteği). Alanlar (`HasResult`, skor, `Result`) oyunun kendi i
 henüz gelmedi" hâlinde turlar arası tempo. `fm report` iki dilde üç durumda (düdük sonrası / hemen ikinci koşu /
 `Messages` açıkken) **6/6** rc=0, çıktı dil içinde bayt bayt aynı (TR `c801a46c…`, EN `c53d0691…`).
 `tools/remaining.py` `SETTLED`'a eklendi.
+
+### 8.333 görevler panelindeki 700 ms yerine seçilen gözlemcinin adı; panel başlığı dile bağlıydı (21 Ekim, TR + EN)
+
+`scout remove --yes` sayfadaki kaldırma düğmesini bulamazsa görevler paneline düşüyor; her gözlemciyi
+`rowselect` ile seçtikten sonra sabit **700 ms** uyuyup paneli okuyordu. Panelin sağ tarafı seçilen gözlemcinin
+adıyla başlıklandığı için işaret o: `Scout.Name` alanı seçilen ad olana kadar `Until` (0,2 sn tempo, 5 sn üst
+sınır). Ölçüm (üç durum: `Messages` sonrası / panel zaten açık / `squad` sonrası) × TR + EN **6/6**: ad
+**0,13–0,20 sn** (TR), **0,16–0,40 sn** (EN); odak satırları (`focusitem.Name`) **0,05–0,24 sn**'de geliyor.
+Panelin kendi başlığı çevriliyor ("Aktif Görevler (4)" / "Active Assignments (4)"), bu yüzden eski
+`anchor="Active …"` TR'de hiç tutmuyordu; panel artık `anchorpath=Scout.Name` (up 13) ile, gözlemci listesi
+`binding.Name`, odaklar `focusitem.Name` ile okunuyor. Aynı sorgularla panelden gerçek kaldırma denendi: onay
+penceresi (`RecruitmentFocusRemove`) açıldı, atama sayısı 3 → 2 düştü. **Kalan hata (ayrı iş):** `fm scout staff`
+hâlâ aynı çevrili başlığı aradığı için TR'de boş dönüyor (rc=0, "(boş)"); odakları da "Recruitment Focuses"
+sözüyle kesiyor. `ScoutFocus.cs` yalnız bu iki fonksiyonda değişti; `sweep.sh` 50/50.
