@@ -98,46 +98,61 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<JsonElement>> SearchFor(string text)
 	{
-		if (!(await Fm.GetJson("textboxes")).EnumerateArray().Any(b => Field(b, "Type") == "SearchBox"))
+		var boxes = (await Fm.GetJson("textboxes")).EnumerateArray().ToList();
+		if (!boxes.Any(b => Field(b, "Type") == "SearchBox"))
 		{
 			// The button is addressed by the panel it opens and its template name, not by the
 			// word it shows: the label is the game's own string and differs by language.
 			var opened = await Arriving("press", [("event", "OpenPanel"), ("name", "dashboard-hud-search-button")]);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
-			await Until(async () => (await Fm.GetJson("textboxes")).EnumerateArray().Any(b => Field(b, "Type") == "SearchBox"), seconds: 10, every: 0.25);
+			if (!await Until(async () => (boxes = (await Fm.GetJson("textboxes")).EnumerateArray().ToList())
+				    .Any(b => Field(b, "Type") == "SearchBox"), seconds: 10, every: 0.25))
+				boxes = [];
 		}
+		// The words the box already holds are what the results on screen answer. The game searches
+		// as they are typed, so asking for the same words again needs no new answer.
+		var words = Field(boxes.FirstOrDefault(b => Field(b, "Type") == "SearchBox"), "Text");
 
-		// What the box showed before is remembered: an earlier search's results stay up, marked
-		// finished, until the game starts on the new text.
-		// A box just opened shows the earlier results a moment late, so it is let settle first.
-		var before = (await Fm.GetJson("search")).ToString();
-		for (var look = 0; look < 6; look++)
+		// An earlier search's results stay up, marked finished, until the game starts on the new
+		// text. A box just opened binds them a moment late, so the list is read until two readings
+		// agree — the game's answer rather than a pause. A box with no search yet answers nothing
+		// and has no flag: the two equal readings are enough then.
+		var before = "?";
+		await Until(async () =>
 		{
-			await Task.Delay(300);
 			var now = (await Fm.GetJson("search")).ToString();
-			if (now == before && look > 0) break;
+			var settled = now == before;
 			before = now;
-		}
+			return settled && await Found("SearchIsFinished") != "False";
+		}, seconds: 10, every: 0.25);
+
 		var typed = await Fm.Get("type", ("name", "SearchBox"), ("text", text));
 		if (typed.StartsWith("error", StringComparison.Ordinal)) throw new FmError(typed);
 
-		// Results for the text before can still be showing; two readings alike after the game
-		// says the search is finished are taken as this one's.
-		// An empty answer, or the one from before, is only believed after a while: right after
-		// typing, the search has not started and the list is still what it was.
+		// Results for the words before can still be showing: the game says a new search has started
+		// by clearing the list and dropping "finished", and says it is done when the flag returns
+		// with the list no longer changing. Searching for the words the box already had means the
+		// list is already their answer, so no new search is waited on.
+		var sameWords = Fold(words) == Fold(text);
 		List<JsonElement> results = [];
 		var last = "?";
+		var started = false;
 		var typedAt = DateTime.UtcNow;
 		await Until(async () =>
 		{
-			await Task.Delay(300);
 			var found = await Fm.GetJson("search");
-			var same = found.ToString() == last && await Found("SearchIsFinished") == "True"
-			           && ((found.GetArrayLength() > 0 && found.ToString() != before) || DateTime.UtcNow - typedAt > TimeSpan.FromSeconds(3));
-			last = found.ToString();
+			var now = found.ToString();
+			var finished = await Found("SearchIsFinished") != "False";
+			if (!finished || found.GetArrayLength() == 0) started = true;
+			// The flag returns before the rows are drawn, so an empty list says nothing: only a
+			// list with rows is an answer, and an empty one is believed after a generous while.
+			var answer = finished && now == last
+			             && (found.GetArrayLength() > 0 && (sameWords || started || now != before)
+			                 || DateTime.UtcNow - typedAt > TimeSpan.FromSeconds(3));
+			last = now;
 			results = found.EnumerateArray().ToList();
-			return same;
-		}, seconds: 12, every: 0.25);
+			return answer;
+		}, seconds: 12, every: 0.15);
 		return results;
 	}
 

@@ -3727,3 +3727,18 @@ eski derleme TR `click ?text=Back to last saves` (34 ms), yeni TR `click ?within
 TR + EN × üç durum (`browse ilk kez` / `geri dönüp Browse ikinci kez` / `liste hâli — düğme yok`): ilk ikisinde
 tek eşleşme + basış, üçüncüsünde "no button … inside" ve `fm load` izinde **0** basış → **6/6 rc=0**, kayıt yüklendi.
 Dosyalar `/tmp/opencode/t127/`.
+
+### 8.316 arama kutusu kendi cevabını söylüyor: aynı sözü aramak 3 saniye beklemiyor (21 Ekim, TR + EN)
+`fm search` (ve `player`/`targets`ın arama yolu) `SearchFor`'da iki sabit beklemeyle çalışıyordu: yazmadan önce
+kutunun eski sonuçlarını oturtmak için 300 ms'lik okumalar, yazdıktan sonra da "oyun bitti demeden" 3 saniyelik
+bir yedek. Kutu **aynı sözü** zaten taşıyorsa yeni sonuç eskiyle aynı oluyor, `found != before` hiç tutmuyor ve
+komut her seferinde 3 saniyeyi dolduruyordu (TR 3,50 sn, EN 3,43 sn; tip→çıkış).
+Artık yazmadan önceki oturma oyunun `SearchIsFinished` işareti + iki eşit okuma; yazdıktan sonra cevap, işaret
+"bitti" derken listenin iki okumada aynı kalması ve **satırların dolu olması** (bayrak satırlardan önce dönüyor, bu yüzden
+boş liste cevap sayılmıyor; boş liste yine 3 sn üst sınırından sonra inanılıyor). Kutunun kendi `Text`i aranan
+sözle aynıysa liste zaten o sözün cevabı; yeni arama beklenmiyor.
+Kanıt (`FM_TRACE=1`, üç durum: `inbox` sonrası kutu kapalı→açılıyor / kutu açık başka söz / kutu açık aynı söz):
+eski→yeni tip→çıkış TR **3,50→1,08** · **1,56→0,95** · **3,49→0,25** sn, EN **1,50→0,65** · **1,51→0,65** ·
+**3,43→0,25** sn; TR + EN × üç durum **6/6 rc=0** ve çıktı eski derlemeyle bayt bayt aynı (TR `4488265d…`,
+`b5d65871…`; EN `228809ae…`, `c1c82e07…`). Negatif: sonuçsuz söz (`zzzzqqq`) rc=0, `(boş)`, 3,8 sn — eskisiyle
+aynı. Dosyalar `/tmp/opencode/t128/`.

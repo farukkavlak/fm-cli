@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **41** · `Task.Delay` 34 çağrı (25 borç, 7 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 10
+**Canlı sayaç:** açık kutu **39** · `Task.Delay` 32 çağrı (23 borç, 7 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 10
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 25 borç / 34 çağrı
+#### A1. `Task.Delay` — 23 borç / 32 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -53,8 +53,6 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `Program.cs:1448` `await Task.Delay(250);`
 - [ ] `Program.cs:2206` `await Task.Delay(500);`
 - [ ] `Program.cs:2285` `await Task.Delay(TimeSpan.FromSeconds(1));`
-- [ ] `Reads.cs:116` `await Task.Delay(300);`
-- [ ] `Reads.cs:133` `await Task.Delay(300);`
 - [ ] `Registration.cs:312` `await Task.Delay(250);`
 - [ ] `Registration.cs:316` `await Task.Delay(250);`
 - [ ] `Release.cs:164` `await Task.Delay(500);`
@@ -84,7 +82,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `MatchControls.cs:131` 3 sn
 - [ ] `MatchControls.cs:266` 1.5 sn
 - [ ] `Prep.cs:142` 3 sn
-- [ ] `Reads.cs:895` 3 sn
+- [ ] `Reads.cs:910` 3 sn
 - [ ] `Saves.cs:245` 3 sn
 - [ ] `Saves.cs:258` 1.5 sn
 - [ ] `TraitTraining.cs:98` 3 sn

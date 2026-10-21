@@ -5,10 +5,38 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **41**: `Task.Delay` **25 borç** (34 çağrının 7'si
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **39**: `Task.Delay` **23 borç** (32 çağrının 7'si
   yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **10**.
 
-## Şu an (Tur 127)
+## Şu an (Tur 128)
+- Madde: **A1 `Task.Delay` / `Reads.cs:116` + `:133`** — `SearchFor` (fm search, player/targets'ın arama yolu)
+  yazmadan önce kutunun eski sonuçlarını **300 ms'lik sabit okumalarla** oturtuyor, yazdıktan sonra da oyunun
+  "bitti" işaretine rağmen **3 saniyelik sabit yedek** olmadan cevabı kabul etmiyordu. Kutu **aynı sözü** zaten
+  taşıyorsa yeni sonuç eskiyle aynı olduğu için `found != before` hiç tutmuyor; komut her tekrarda 3 saniyeyi
+  dolduruyordu. **BİTTİ** (§8.316): oturma artık `SearchIsFinished` + iki eşit okuma; cevap, bayrak "bitti"
+  derken listenin iki okumada aynı kalması ve **satırların dolu olması**; kutunun kendi `Text`i aranan sözle
+  aynıysa liste zaten o sözün cevabı (yeni arama beklenmiyor). Boş liste yine 3 sn üst sınırından sonra inanılıyor
+  (bayrak satırlardan önce dönüyor; sonuçsuz aramada oyunun "boş" işareti yok).
+- Kanıt (`FM_TRACE=1`; üç durum: `fm inbox` sonrası kutu kapalı→açılıyor / kutu açık başka söz / kutu açık aynı
+  söz): tip→çıkış eski→yeni TR **3,50→1,08** · **1,56→0,95** · **3,49→0,25** sn, EN **1,50→0,65** · **1,51→0,65** ·
+  **3,43→0,25** sn. TR + EN × üç durum **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `4488265d…` s1,
+  `b5d65871…` s2/s3; EN `228809ae…` s1, `c1c82e07…` s2/s3). Negatif: sonuçsuz söz (`zzzzqqq`) rc=0, `(boş)`,
+  **3,8 sn** (eskisiyle aynı). Dosyalar `/tmp/opencode/t128/`.
+- Dönüş/kayıt: EN ölçümünden sonra `fm settings language "Türkçe"` → `/state` `Language: turkish`, `Date:
+  2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm save` **yok**, ana kayıt damgası **21 Ekim 10:40** (değişmedi).
+  Yalnız `cli/fm/Reads.cs` + dokümanlar değişti; paylaşılan yardımcı (`SearchFor`) değişti → `sweep.sh` **50/50**.
+  Dönüş `fm load "Faruk Kavlak - Fenerbahçe" --no-save` (81 sn) → `/state` `Language: turkish`, `Date: 2026-08-09`,
+  `Clock: 0`; kayıt damgası **21 Ekim 10:40** (değişmedi).
+- Sıradaki uygun maddeler: A2 kısa `Until`in kalanları (Coaches 56, ContractTalks 388, League 223, Prep 142,
+  Reads 895, Saves 245/258, TraitTraining 98) · A1 küçük `Task.Delay`ler (StatusFlags 54, MatchReport 35,
+  Release 164, ScoutFocus 395, TrainingReport 93, Registration 312/316, League 253) · B1 `MatchDay.cs:355/361/383`
+  "Instant Result" (maç günü ister) · `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction` kimliği boş).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç pencere · `MatchControls` 131/266
+  (maç günü) · mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) ·
+  Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`,
+  `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister).
+
+## Önceki durum (Tur 127)
 - Madde: **B1 yazıyla basma / `Saves.cs:552` "Back to last saves"** — `fm load`, yükleme ekranı dosya tarayıcısı
   hâlinde bırakıldıysa listeye dönüş düğmesini `click ?text="Back to last saves"` ile basıyordu. **BİTTİ** (§8.315):
   düğme artık kendi kabından — `click ?within=back-to-last-saves-SIVisible&name=button-base-leading-icon-label`;
