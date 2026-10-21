@@ -742,6 +742,8 @@ fm training "Archie Brown" --trait-suggest             yardımcıya sor
 fm training "Archie Brown" --trait-cancel              süren eğitimi durdur
 ```
 
+Alışkanlığın adı, listede oyunun dilinde göründüğü gibi de yazılabilir; komut iki adı da kabul eder.
+
 Yardımcı karşıysa ("Really Unsuitable To Add", yaşlı oyuncuda "Too Old To Change Game") komut
 itirazı gösterir ve durur; terminalde okla sorar, yine de yapmak için `--yes`.
 

@@ -3295,3 +3295,13 @@ ve yeniden açılışa kadar eski dilde kalıyor: `fm settings dil "English"` so
 `--stat "Gol"` de rc=64 ("no player stat called …"). `--refresh` kataloğu yeniden okuyor (TR'de 50 sn) ama
 yeniden açılış öncesi adlar değişmiyor. Çözüm: katalog adlarının dilini saklamak ya da açılıştan sonra bir kez
 tazelemek. Ölçüm sırasında görüldü, bu turda kapsam dışı (CHECKLIST B'ye yazıldı).
+
+### 8.276 Seçenek eşlemesi gösterilen sözü de kabul ediyor: `training --trait` Türkçe adda çalışmıyordu (21 Ekim, TR + EN)
+`Matching` (`Guided.cs`) bir seçeneğin adını yalnız verideki İngilizcesiyle karşılaştırıyordu; komutun bastığı
+liste ise `GameWords` ile oyunun sözüne çevriliyor. Bu yüzden `fm training "Ben House" --trait "Toplara Plase
+Vurur"` (ekranda görünen ad) TR'de rc=1 "Öğretilebilecekler arasında … yok." verirken İngilizce "Places Shots"
+aynı oyuncuda koçun itirazını (rc=0) gösteriyordu. Artık `Matching` hem veri adını hem `GameWords.Of(...)` sözünü
+karşılaştırıyor (yazım payı da ikisi üzerinden); EN'de gösterilen söz İngilizce olduğu için davranış değişmiyor.
+TR üç durum (Mesajlar açık / hemen ikinci koşu / Squad Dynamics sonrası): önce rc=1 `d41d8cd9…`, sonra rc=0
+`89ae67bb…` 3/3. EN üç durum: eski ve yeni derleme `e968358e…` 3/3. Kısmi ad ("Sol Kanattan") iki seçeneği
+listeliyor (rc=1), eğitim başlamıyor (`fm training` hâlâ "çalışmıyor"). `sweep.sh` 50/50.

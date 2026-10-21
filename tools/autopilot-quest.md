@@ -3,7 +3,25 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 86)
+## Şu an (Tur 87)
+- Madde: **B "Seçenek eşlemesi yalnız İngilizce adı arıyordu"** — **BİTTİ** (§8.276). `Matching` (`Guided.cs`)
+  seçeneğin adını yalnız verideki İngilizcesiyle karşılaştırıyordu; ekranda liste `GameWords` ile oyunun sözüne
+  çevrildiği için TR'de görünen adla seçim yapılamıyordu. `fm training "Ben House" --trait "Toplara Plase Vurur"`
+  (ekranda görünen ad) önce rc=1 "Öğretilebilecekler arasında … yok.", İngilizce "Places Shots" ise rc=0 (koçun
+  itirazı). Artık `Matching` hem veri adını hem gösterilen sözü kabul ediyor; yazım payı da ikisi üzerinden.
+- Kanıt — TR üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics` sonrası):
+  önce (eski derleme, `t87/old-bin`) **3/3 rc=1**, stdout boş `d41d8cd9…`, stderr `6b83fb43…`; sonra **3/3 rc=0**,
+  stdout `89ae67bb…`, stderr boş. EN aynı üç durum, `Places Shots`: eski ve yeni derleme **3/3 `e968358e…`**
+  (birebir); kısmi ad `Sol Kanattan` TR'de iki seçeneği listeliyor (rc=1), `fm training` hâlâ "çalışmıyor"
+  (eğitim başlamadı). Dosyalar `…/opencode/t87/{old-tr,tr,en}-s{1,2,3}.*`, `after-tr-full.*`,
+  `after-tr-partial2.*`, `en-old.out`, `old-bin/`.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15); hiçbir alışkanlık eğitimi başlamadı
+  (`--yes` yok, itiraz penceresi "stop" ile kapandı). Sweep sırasında oyun bir kez yanıt vermez oldu (saat/gün
+  ilerlemedi, kayıt yüklenmemiş göründü); süreç kapatılıp `fm start </dev/null` ile son kayıt yeniden yüklendi
+  (09:15, TR). Ardından `sweep.sh` **50 komut, 0 hata**. Dil TR (`fm settings --json` → Turkish).
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 86)
 - Madde: **A "Kısa `Until`" / League 216** (`StatScope`in `.comp` bağlama beklemesi: istatistik kapsamı kurulurken
   `pathset … .comp` 3 sn'ye kadar bekleniyordu, "gelmezse yok say" riski) — **BİTTİ**, ölçüldü, kod değişmedi
   (§8.274). İşaret zaten oyunun kendi cevabı: `pathset` hatasız dönüyor ve ardından gelen `pull` satırlarla

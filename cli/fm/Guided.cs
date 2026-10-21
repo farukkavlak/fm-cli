@@ -1533,7 +1533,11 @@ internal static partial class Program
 	{
 		var all = items.ToList();
 		var wanted = Fold(typed).Trim();
-		var holding = all.Where(i => Fold(name(i)).Contains(wanted, StringComparison.Ordinal)).ToList();
+		// A name comes from the game's data in English where its table can say, while the user
+		// reads it in the game's words: both are accepted, as the rest of the CLI does (§8.211).
+		string Shown(T item) => Fold(GameWords.Of(name(item)));
+		var holding = all.Where(i => Fold(name(i)).Contains(wanted, StringComparison.Ordinal)
+		                          || Shown(i).Contains(wanted, StringComparison.Ordinal)).ToList();
 		if (holding.Count > 0 || wanted.Length < 4) return holding;
 
 		var leeway = wanted.Length >= 7 ? 2 : 1;
@@ -1541,7 +1545,7 @@ internal static partial class Program
 		{
 			var folded = Fold(name(item));
 			// The whole name, and each word in it, as typed and as far as it was typed.
-			var against = new[] { folded }.Concat(wanted.Contains(' ') ? [] : folded.Split(' ', '-', '\''));
+			var against = new[] { folded, Shown(item) }.Concat(wanted.Contains(' ') ? [] : folded.Split(' ', '-', '\''));
 			return against.Where(w => w.Length > 0).DefaultIfEmpty(folded)
 				.Min(w => Math.Min(Typos(wanted, w), w.Length > wanted.Length ? Typos(wanted, w[..wanted.Length]) : int.MaxValue));
 		}

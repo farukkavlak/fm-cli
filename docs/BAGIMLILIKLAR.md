@@ -786,6 +786,13 @@ tablodan çevrilemiyor.
   listesi/`--json` oyunun sözüyle yazılıyor; sayıyla seçme duruyor. Kanıt: TR üç durumda `md5 e9a22f16…` (önce
   `50611761…`, İngilizce), `fm prep topla "Kaydedilen İlerleme"` → "zaten Kaydedilen İlerleme" (önce rc=64),
   negatif `zzz` → Türkçe liste rc=64; EN üç durum eski derlemeyle **birebir** (§8.232).
+- [x] **Seçenek eşlemesi yalnız İngilizce adı arıyordu; oyunda görünen söz kabul edilmiyordu** — `Matching`
+  (`Guided.cs`) bir seçeneğin adını yalnız verideki İngilizcesiyle karşılaştırıyordu, komutun bastığı liste ise
+  `GameWords` ile oyunun sözüne çevriliyor. `fm training "Ben House" --trait "Toplara Plase Vurur"` (ekranda
+  görünen ad) TR'de "Öğretilebilecekler arasında … yok." (rc=1) derken İngilizce "Places Shots" aynı oyuncuda
+  koçun itirazını gösteriyordu (rc=0). Artık `Matching` hem veri adını hem gösterilen sözü kabul ediyor; yazım
+  payı da ikisi üzerinden hesaplanıyor. TR üç durumda önce rc=1 / sonra rc=0 (aynı çıktı), EN eski derlemeyle
+  **bayt bayt aynı**; kısmi ad iki seçeneği listeliyor, eğitim başlamıyor. `sweep.sh` 50/50 (§8.276).
 
 ### C. Oyunun ayarları (dil dışında)
 
