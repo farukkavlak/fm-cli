@@ -3227,3 +3227,16 @@ aranıp `?ptr=` ile basılıyor. Kanıt: `scout new "t81 test" --area "Competiti
 sonra) eski ve yeni derlemede **12/12 rc=64**, stdout boş (`d41d8cd9…`), stderr birebir (TR `fc708400…`, EN
 `b11015ec…`); izde eski `click ?text=Cancel` → yeni `buttons ?json=1&gen=1` + `click ?ptr=…`, sonrası aynı
 `dialog`/onay. `scout areas` çıktısı iki derlemede de aynı; hiç odak oluşmadı, form açık kalmadı.
+
+### 8.270 Gözlemci odağı formunun öncelik sekmesi ve yaşları oyunun adlarıyla; TR'de ongoing hiç kurulmuyordu (21 Ekim, TR + EN)
+Üçüncü öncelik sekmesi `FormButton(second, "Ongoing")` ile çeviri tablosundan geçmiş İngilizce sözüyle aranıyordu;
+form TR'de o sekmeyi **`Obscure`** diye veriyor (oyunun "Belirsiz" sözünün tablodaki İngilizcesi), düğme null
+kalıyor ve `scout new --priority ongoing` **rc=134** ile çöküyordu (`ScoutFocus.cs:747`, hiç odak kurulmadan).
+Sekmeler artık oyunun kendi adlarıyla (`Priority-Tab` / `Standard-Tab` / `Ongoing-Tab`); yaş listeleri başlık
+sırasıyla değil yazdıkları yolla (`focusitem.minagevalue` / `maxagevalue`) bulunuyor ve seçim, listenin kendi
+`Selected` indeksi istenen yaşı gösterene kadar bekleniyor (60–70 ms); `Confirm` de sözle değil şablonu
+(`button-primary-leading-icon-label`) + `RecruitmentFocusEditConfirmationDialog` olayıyla basılıyor. İki sabit
+400 ms kalktı (yaş: listenin seçimi; öncelik: oyunun olay kuyruğu, sekme→Confirm 190 ms, eskiden 450 ms).
+Kanıt: TR üç durum + son koşu, EN üç durum `--priority ongoing --age 18-23` **7/7 rc=0**; odak verisinde
+`Priority=2`; eski derleme EN'de aynı çıktı (`click ?text=Confirm`), TR'de rc=134. Test odakları durduruldu,
+kayıt yeniden yüklendi (dört gerçek odak yerinde), dil Türkçe.

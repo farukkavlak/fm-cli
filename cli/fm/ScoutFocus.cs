@@ -18,6 +18,19 @@ internal static partial class Program
 		form.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == text).Cast<JsonElement?>().FirstOrDefault();
 
 	/// <summary>
+	/// A control the form binds to a data path, whatever its heading says. The form's own names
+	/// ("minagevalue", an "Ongoing-Tab") come from the game, so no language changes them.
+	/// </summary>
+	private static JsonElement? FormControl(List<JsonElement> form, string kind, string binds) =>
+		form.FirstOrDefault(i => Field(i, "Kind") == kind && Field(i, "Binds").EndsWith($".{binds}", StringComparison.Ordinal)) is { ValueKind: JsonValueKind.Object } control ? control : null;
+
+	/// <summary>What a dropdown shows as chosen: the choice at its own Selected index.</summary>
+	private static string FormShown(JsonElement dropdown) =>
+		Field(dropdown, "Selected") is var at && int.TryParse(at, out var index)
+		&& dropdown.TryGetProperty("Choices", out var choices) && index >= 0 && index < choices.GetArrayLength()
+			? choices[index].GetString() ?? "" : "";
+
+	/// <summary>
 	/// The form's two step buttons, as the game itself tells them apart: both send
 	/// EventFmxRecruitmentFocusMoveToStep, and what differs is the payload each sends — "One" for
 	/// going on, "MinusOne" for coming back — which no language changes. The step that is not
@@ -585,7 +598,14 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"{flag}: yarım yıldız adımlarıyla 0.5–5 arası bir sayı (ör. {flag} 3.5)."));
 				return 64;
 			}
-		var tabs = new Dictionary<string, string> { ["top"] = "Top", ["standard"] = "Standard", ["ongoing"] = "Ongoing", ["standart"] = "Standard", ["surekli"] = "Ongoing" };
+		// The priority tabs as the game names them; what is written on them is the game's word
+		// ("Obscure" for the ongoing one), so it is only ever shown, never matched.
+		var tabs = new Dictionary<string, (string Tab, string Word)>
+		{
+			["top"] = ("Priority-Tab", "Top"), ["standard"] = ("Standard-Tab", "Standard"),
+			["ongoing"] = ("Ongoing-Tab", "Ongoing"), ["standart"] = ("Standard-Tab", "Standard"),
+			["surekli"] = ("Ongoing-Tab", "Ongoing"),
+		};
 		if (priority != null && !tabs.ContainsKey(Fold(priority)))
 		{
 			Console.Error.WriteLine(L("Öncelik: --priority top | standard | ongoing"));
@@ -689,18 +709,26 @@ internal static partial class Program
 		}
 		if (ages != null)
 		{
-			// The upper list is narrowed by the lower one, so it is read again after the first is set.
-			foreach (var (nth, value) in new[] { (0, ages.Groups[1].Value), (1, ages.Groups[2].Value) })
+			// The lists are told by the paths they write (the lower one narrows the upper's
+			// choices), and each answer is the list showing the age just chosen — the game's own
+			// confirmation that the click landed, not a pause long enough for it.
+			foreach (var (binds, value) in new[] { ("minagevalue", ages.Groups[1].Value), ("maxagevalue", ages.Groups[2].Value) })
 			{
 				second = await FocusForm("Back");
-				if (FormAfter(second, "Aged Between", "dropdown", nth) is not { } list || !list.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == value))
+				var list = FormControl(second, "dropdown", binds);
+				if (list is not { } control || !control.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == value))
 				{
 					await AbandonFocus();
 					Console.Error.WriteLine(L($"Yaş: {value} seçilemiyor (15–50 arası, alt sınır üsttekinden küçük)."));
 					return 64;
 				}
-				await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", value), ("fire", "1"));
-				await Task.Delay(400);
+				await Fm.Get("select", ("ptr", Field(control, "Pointer")), ("choice", value), ("fire", "1"));
+				if (!await Until(async () => FormControl(await FocusForm("Back"), "dropdown", binds) is { } now && FormShown(now) == value, seconds: 4, every: 0.2))
+				{
+					await AbandonFocus();
+					Console.Error.WriteLine(L($"Yaş: {value} seçildi ama liste onu göstermiyor."));
+					return 1;
+				}
 			}
 		}
 		foreach (var one in (area ?? "").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
@@ -740,13 +768,20 @@ internal static partial class Program
 			}
 			chosen.Add($"{(heading.Contains("Current") ? L("yetenek") : L("potansiyel"))} ≥ {StarSteps(typed).Value / 2.0:0.#}★");
 		}
-		var tab = priority == null ? null : tabs[Fold(priority)];
-		if (tab != null)
+		var (tabName, tabWord) = priority == null ? (null, null) : tabs[Fold(priority)];
+		if (tabName != null)
 		{
 			second = await FocusForm("Back");
-			await Fm.Get("click", ("ptr", Field(FormButton(second, tab).Value, "Pointer")));
-			await Task.Delay(400);
-			if (edit) chosen.Add(tab);
+			// The button itself: the click is queued in the game's own order, and Confirm is
+			// queued after it, so nothing has to be waited out between the two.
+			if (second.FirstOrDefault(i => Field(i, "Kind") == "button" && Field(i, "Name") == tabName) is not { ValueKind: JsonValueKind.Object } tabButton)
+			{
+				await AbandonFocus();
+				Console.Error.WriteLine(L($"Odak formunda {tabWord} öncelik sekmesi yok."));
+				return 1;
+			}
+			await Fm.Get("click", ("ptr", Field(tabButton, "Pointer")));
+			if (edit) chosen.Add(tabWord);
 		}
 		if (by != null)
 		{
@@ -767,7 +802,21 @@ internal static partial class Program
 			chosen.Add(L($"analist: {string.Join(" + ", picked)}"));
 		}
 
-		await Fm.Get("click", ("text", "Confirm"));
+		// The form's Confirm, as the game draws it and the event it sends: its word is the game's,
+		// and "Confirm" is a word this language's table also puts on other buttons (the dialog that
+		// follows draws its own primary differently). Pressed by its pointer, once it is enabled;
+		// there is nothing honest to press if it is not there.
+		var formConfirm = (await Fm.GetJson("buttons", ("json", "1"), ("gen", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Name") == "button-primary-leading-icon-label"
+				&& Field(b, "Events").Contains("RecruitmentFocusEditConfirmationDialog", StringComparison.Ordinal)
+				&& Field(b, "Enabled") == "True");
+		if (formConfirm.ValueKind != JsonValueKind.Object)
+		{
+			await AbandonFocus();
+			Console.Error.WriteLine(L("Odak formunun onay düğmesi bulunamadı."));
+			return 1;
+		}
+		await Fm.Get("click", ("ptr", Field(formConfirm, "Pointer")));
 		// The form is gone once neither step button is there any more (FormStep) — the game takes
 		// the whole form down in the same instant it commits (measured: both the buttons and the
 		// form read go empty 0.04–0.27s after Confirm, as the list grows by one).
@@ -792,7 +841,7 @@ internal static partial class Program
 		}
 		// The new one: running, and of a name there is now one more of.
 		var added = after.FirstOrDefault(f => f.Running && after.Count(a => a.Name == f.Name) > existing.Count(e => e.Name == f.Name)) ?? after[^1];
-		Console.WriteLine(L($"Odak kuruldu: {added.Name} · {tab}{(chosen.Count > 0 ? " · " + string.Join(" · ", chosen) : "")}{(ages != null ? L($" · {ages.Groups[1].Value}–{ages.Groups[2].Value} yaş") : "")} · {added.Assigned}"));
+		Console.WriteLine(L($"Odak kuruldu: {added.Name} · {tabWord}{(chosen.Count > 0 ? " · " + string.Join(" · ", chosen) : "")}{(ages != null ? L($" · {ages.Groups[1].Value}–{ages.Groups[2].Value} yaş") : "")} · {added.Assigned}"));
 		Console.WriteLine(L($"Bulduklarını görmek için: scout \"{added.Name}\""));
 		return 0;
 	}

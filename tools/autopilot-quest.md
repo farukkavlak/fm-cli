@@ -3,7 +3,28 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 81)
+## Şu an (Tur 82)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / gözlemci odağı formunun ikinci adımı** — **BİTTİ** (§8.270).
+  Öncelik sekmesi "Ongoing" İngilizce sözüyle aranıyordu; form TR'de üçüncü sekmeyi **`Obscure`** diye veriyor
+  (tablodaki "Belirsiz" karşılığı) → `scout new --priority ongoing` TR'de **rc=134**, hiç odak kurulmuyordu.
+  Artık sekme oyunun adıyla (`Priority-Tab`/`Standard-Tab`/`Ongoing-Tab`), yaş listeleri yazdıkları yolla
+  (`focusitem.minagevalue`/`maxagevalue`) ve seçim listenin kendi `Selected`'ı gösterene kadar, `Confirm` de
+  şablon (`button-primary-leading-icon-label`) + `RecruitmentFocusEditConfirmationDialog` olayıyla basılıyor;
+  iki sabit 400 ms kalktı (yaş işareti 60–70 ms, sekme→Confirm 190 ms; eskiden 450 ms).
+- Kanıt — TR üç durum (başka sayfa `Messages` / hemen ikinci koşu / `Squad Dynamics` sonrası) + son koşu, EN üç
+  durum aynı sırayla: `scout new --area "Nation>Europe>England" --age 18-23 --priority ongoing --name …`
+  **7/7 rc=0**, çıktı "Odak kuruldu/Focus set up: … · Ongoing · … · 18–23 yaş/aged 18–23"; odak verisinde
+  `Priority=2` (ongoing). Eski derleme: EN rc=0 (`click ?text=Confirm`, iki 400 ms), TR **rc=134**
+  (`Nullable object must have a value`, `ScoutFocus.cs:747`). İz (EN yeni): `select …choice=18` → 70 ms'de form
+  seçimi gösteriyor; `choice=23` → 60 ms; sekme `click ?ptr=…` 16,00 → `buttons?json=1&gen=1` 16,05 →
+  `click ?ptr=…` 16,19. Dosyalar `…/opencode/t82/` (`run1-3.*`, `en1-3.*`, `old-en-ongoing.*`, `tr-final.*`).
+- Dönüş/yan etki: test odakları `scout remove --yes` ile durduruldu, kayıt `fm load … --no-save` ile yeniden
+  yüklendi → `fm scout --json` yeniden **4 gerçek odak**, dil `turkish`, saat 2 Ağustos 2026 14:00, maç yok.
+  Yalnız `cli/fm/ScoutFocus.cs` (yerel `FormControl`/`FormShown` + `ScoutNewForm`) değişti; paylaşılan koda
+  (Bridge/OpenPage/reply) dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 81)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / gözlemci odağı formunun `Cancel`i** — **BİTTİ** (§8.269).
   `AbandonFocus` `click ?text=Cancel` ile kapatıyordu; "Cancel" oyunun dilindeki etiketin çeviri tablosundan
   geçmiş hâli. Artık düğme kimliğiyle: olay **`RecruitmentFocusEditConfirmationDialog`** + şablon

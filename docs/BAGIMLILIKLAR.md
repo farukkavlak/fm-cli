@@ -671,6 +671,19 @@ tablodan çevrilemiyor.
     `click ?text=Cancel` → yeni `buttons ?json=1&gen=1` + `click ?ptr=…`, ardından aynı `dialog`/onay.
     `fm scout areas` çıktısı iki derlemede de aynı üç seçenek; hiç odak oluşmadı (`fm scout --json` 4 odak,
     `t81 test` yok), form kapanmış kaldı (§8.269).
+  - [x] **Gözlemci odağı formunun ikinci adımı** (`scout new/edit --priority/--age`): üç yazı/süre bağımlılığı
+    vardı. Öncelik sekmesi `FormButton(second, "Ongoing")` ile **İngilizce sözüyle** bulunuyordu; oysa formun
+    üçüncü sekmesi TR'de `Obscure` geliyor (çeviri tablosunun "Belirsiz" karşılığı) → `--priority ongoing`
+    TR'de **rc=134** (`Nullable object must have a value`, `ScoutFocus.cs:747`), hiç odak kurulmuyordu. Artık
+    sekme oyunun kendi adıyla (`Priority-Tab` / `Standard-Tab` / `Ongoing-Tab`), yaş listeleri başlık sırasıyla
+    değil yazdıkları yolla (`focusitem.minagevalue` / `maxagevalue`) bulunuyor ve seçim, listenin **kendi
+    gösterdiği** yaş olana kadar bekleniyor; `Confirm` de "Confirm" sözüyle değil şablonu
+    (`button-primary-leading-icon-label`) + gönderdiği olayla basılıyor. İki sabit **400 ms** kalktı: yaşta işaret
+    listenin seçimi (60–70 ms), öncelik sekmesinde sıra oyunun kendi olay kuyruğu (sekme → Confirm 190 ms;
+    eskiden 450 ms). Kanıt: TR üç durum + son koşu ve EN üç durum `--priority ongoing --age 18-23` ile **7/7
+    rc=0**, odak verisinde `Priority=2` (ongoing); eski derleme EN'de rc=0 (`click ?text=Confirm`, iki 400 ms),
+    TR'de rc=134. Koşular `scout remove --yes` ile durduruldu, kayıt yeniden yüklendi (test odakları gitti,
+    dört gerçek odak yerinde), dil Türkçe (§8.270).
 - [x] **`fm load` soğuk açılışta yükleme listesini hiç açamıyordu** — yeniden başlatılan oyunun "kariyer yükle"
   döşemesi İngilizce cümlesiyle (`?text=Load an FM26 career …`) basılıyordu; TR oyunda döşemenin yazısı Türkçe
   olduğu için basış hiçbir yere denk gelmiyor, hata yok sayılıyor ve liste açılmadan satır aranıyordu → `fm load`
