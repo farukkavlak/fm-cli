@@ -3487,3 +3487,13 @@ değişmemişse bir kez daha `Task.Delay(300)` ve tek okuma; ikisi de tutmazsa d
 çıktı eski derlemeyle birebir (TR `md5 2e2a0e1b…`, EN `150a0009…`); `--dry` göndermiyor. Canlı dil
 değişiminden hemen sonra EN'de taze açılışta eski derleme 2/2 kez ekranı okuyamadı (motor yazıları henüz
 oturmamış, §8.275); dil oturduktan sonra yeni derleme taze yolda da kartı çizdi. Dosyalar `/tmp/opencode/t104/`.
+
+### 8.293 `fm training --trait`in itiraz penceresi 3 sn'ye kadar bekleniyor; ölçüldü, pay 20–75 kat (21 Ekim, TR + EN)
+
+`cli/fm/TraitTraining.cs` `Confirmed()`: seçimden sonra asistanın itiraz penceresi (`/dialog`) 3 sn'ye kadar
+1 sn aralıkla soruluyor; gelmezse "itiraz yok" sayılıp devam ediliyor. Ölçüm (`FM_TRACE=1`,
+`fm training "Ben House" --trait "Places Shots"`; pencere çıkıyor, `--yes` yok): pencere `select …&fire=1`
+isteğinden **TR 0,15 / 0,09 / 0,05 sn**, **EN 0,06 / 0,08 / 0,04 sn** sonra geliyor, yani 3 sn ≈ 20–75 kat
+pay; kod değişmedi. Üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN
+`Dynamics` sonrası) × iki dil **6/6 rc=0**, çıktı dil içinde aynı; pencere "stop" ile kapandı, antrenman
+başlamadı (`fm training "Ben House"` odak: Şut), saat ilerletilmedi. Dosyalar `/tmp/opencode/t105/`.

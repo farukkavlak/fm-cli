@@ -14,7 +14,29 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 101)
+## Şu an (Tur 102)
+- Madde: **A "Kısa `Until`" / TraitTraining 89** (`fm training <oyuncu> --trait`: asistanın itiraz penceresi
+  3 sn'ye kadar bekleniyor, gelmezse "itiraz yok" sayılıyordu) — **BİTTİ**, ölçüldü, **kod değişmedi** (§8.293).
+  İşaret zaten oyunun kendi cevabı: pencere, seçimden (`select …&fire=1`) sonra TR 0,15 / 0,09 / 0,05 sn,
+  EN 0,06 / 0,08 / 0,04 sn'de geliyor → 3 sn ≈ **20–75 kat** pay; "gelmezse devam" dalı yanlış okumuyor.
+- Kanıt — TR + EN × üç durum (s1 başka sayfa `Messages` açık / s2 hemen ikinci koşu / s3 `Squad Dynamics`·EN
+  `Dynamics` sonrası) `fm training "Ben House" --trait "Places Shots"`: **6/6 rc=0**, çıktı dil içinde aynı
+  (TR "Eklemek İçin Hiç Uygun Değil", EN "Very Unsuitable To Add"); `--yes` yok, itiraz penceresi "stop" ile
+  kapandı, hiçbir alışkanlık eğitimi başlamadı. İz `FM_TRACE=1`, dosyalar `/tmp/opencode/t105/`
+  (`tr-s{1,2,3}.err`, `en-s{1,2,3}.err`, `.out`). Negatif pencere yok: `--yes` olmadan "stop" yolu.
+- Dönüş: `fm settings language "Türkçe"` (dil `English → Turkish`); `/state` → `Language: turkish`,
+  `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; saat ilerletilmedi, maç oynanmadı, `fm save` yok.
+  Kod değişmedi → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) · A Guided 161/174 (bedel sözü) ·
+  B Program cümle parçaları (kaptan eki / "End of" / "Transfers In/Out" / sezon özeti — bugünkü kayıtta bu
+  kartları taşıyan mesaj yok; örnek üretmek gerek) · B 44 yazıyla basmanın kalanları (çoğu `layout-tile` /
+  `ActionID 0` → eklenti ister) · A `ScoutFocus` 700 ms (kaldırma düğmesi varken yol çalışmıyor) · D/E
+  `up=N` taraması. **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 ·
+  Clock 179 işsizlik · MatchDay üç pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn · `opposition`
+  "Apply all advice" · boy birimleri.
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 101)
 - Madde: **A "`Task.Delay` — Transfers 128 131 139"** (`fm offer`in bedeli hedefe yürüten `+`/`−` döngüsü) — **BİTTİ** (§8.292).
   Döngü her basıştan sonra sabit 150 ms bekleyip ücret kutusunu bir kez okuyor, değişmemişse bir kez 300 ms sonra
   tekrar okuyor, yine değişmemişse sessizce yanlış bedelle çıkıyordu. Artık işaret kutunun kendi yazısı: basıştan

@@ -307,7 +307,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
 - [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·
-  TrainingSchedule 491 506 · TraitTraining 89
+  TrainingSchedule 491 506 · ~~TraitTraining 89~~
   - [x] League 216 (`StatScope`in `.comp` bağlama beklemesi: 3 sn "gelmezse yok say"): ölçüldü, **değişiklik
     gerekmedi**. İşaret zaten oyunun kendi cevabı — `pathset … .comp` hatasız dönüyor; her koşuda 20 bağlama
     **ilk denemede** geçti (TR 29–34 ms, EN 29–40 ms; 20/20 benzersiz, tekrar yok), yani 3 sn ~75–100 kat pay;
@@ -387,6 +387,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     80366a35…` 3/3; EN settled `7c75bb3c…` 3/3, TR'nin bilinen kısa tablosu §8.239). Panelde kural
     "Finishing · Is At Most · 7" okundu; `finishing>=8` ile kesişim boş, `>=` yolu değişmedi. Dosyalar
     `…/opencode/t102/` (§8.290).
+  - [x] TraitTraining 89 (`Confirmed()`: asistanın itiraz penceresi 3 sn'ye kadar bekleniyor, gelmezse "itiraz
+    yok" sayılıyordu): ölçüldü, **değişiklik gerekmedi**. Pencere, seçimden (`select …&fire=1`) sonra TR
+    0,15 / 0,09 / 0,05 sn, EN 0,06 / 0,08 / 0,04 sn'de geliyor → 3 sn ≈ 20–75 kat pay. Üç durum (başka sayfa
+    `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics` sonrası) × iki dil
+    `fm training "Ben House" --trait "Places Shots"`: **6/6 rc=0**, çıktı dil içinde aynı ("Eklemek İçin Hiç
+    Uygun Değil" / "Very Unsuitable To Add"); `--yes` yok, pencere "stop" ile kapandı, antrenman başlamadı.
+    İz `FM_TRACE=1`, dosyalar `/tmp/opencode/t105/` (§8.293).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,
