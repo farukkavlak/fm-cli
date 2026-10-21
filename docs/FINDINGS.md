@@ -3425,3 +3425,18 @@ ve gözlemcileri yeniden dağıttığı için başka bir odağı durdurabiliyor;
 Aynı turda İngilizce oyunda `reply` (konuşma + cevaplar), yeni ekler (altyapı kartı, rakip raporu), yüzde (`67%`)
 ve `sub` (oyuncu değişti, sahadaki liste doğruladı) çalışıyor; dil canlı değişince motor yazıları (sakatlık adı,
 diziliş, rol) yeniden açılışa kadar eski dilde kalıyor — §8.275'le aynı sınır.
+
+### 8.288 İstatistik kataloğu artık oyunun İngilizce adlarıyla: dil değişince `fm league --stat` iki dilde de çalışıyor (21 Ekim, TR + EN)
+
+Katalog `cache/<dil>/…/league-stats.json`a oyunun **gösterdiği** adlarla yazılıyordu; `fm settings dil` ile
+`/state` hemen yeni dili söylerken oyunun motor sözleri (istatistik adları) geciktiği için katalog yeni dilin
+klasörüne eski dilin adlarıyla düşüyordu. Ölçüm (önce): EN'de `fm league --stats` "Gol/Asist" listeliyor,
+`--stat "Goals"` ve `--stat "Gol"` ikisi de rc=64. Artık katalog ada göre değil oyunun kendi tablosundan çevrilen
+**İngilizce** adla tutuluyor (`translate?english=<ad>`, kurulumda ad başına bir kez), gösterirken tek toplu
+`translate?words=` çağrısıyla o dilin sözüne çevriliyor; `--stat` hem İngilizceyi hem ekranda görünen sözü kabul
+ediyor. (Oyunun tablosu istatistik adları için yalnız gösterilen→İngilizce yönünü veriyor; İngilizce→gösterilen
+karşılığı olmayan ad "Goals" gibi İngilizce kalıyor — `--stat` yine iki adda da çalışıyor.) Ölçüm (sonra): TR'de `--stat "Gol"`/`"Goals"`/`"Sarı Kart"` rc=0, EN'de `Goals`/`Gol` rc=0; ilk kurulum
+57 sn (160×2 okuma), sonraki koşular **0,35–0,39 sn** ve iki dilde de yeniden kurulum yok; `--stats` TR üç durumda
+(başka sayfa açık / hemen ikinci koşu / Squad Dynamics sonrası) aynı `md5 0696aea7…`; `--json` 127 oyuncu/106 takım;
+negatif `zzz` rc=64. Motor sözlerinin yeniden açılışa kadar eski dilde kalması (§8.287) sürüyor; katalog artık ona
+bağlı değil.

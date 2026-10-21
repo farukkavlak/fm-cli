@@ -3103,6 +3103,27 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   `#TileBindingExpect`), (2) eki olmayan bir mesajda ağacın/işaretin davranışı (bu kayıtta örnek yok). İkisi
   bulununca sabit bekleme işarete çevrilecek (§8.192).
 
+## Tur 90 (21 Ekim) — B: `fm league --stat` dil değişince iki dilde de çalışıyor
+- Seçilen madde: B "Dil değişince `fm league --stat` eski dilin istatistik adlarıyla kalıyor" (CHECKLIST).
+- Önce (EN, `fm settings dil English`): `fm league --stats` → "Gol/Asist"; `--stat "Goals"` ve `--stat "Gol"`
+  ikisi de rc=64 ("there is no player stat called …"). Sebep: katalog ekranda görünen adlarla yazılıyordu ve
+  dil değişiminde yeni klasöre eski dilin adları düşüyordu.
+- Değişiklik (`cli/fm/League.cs`): katalog ada göre değil oyunun kendi tablosundan çevrilen **İngilizce** adla
+  tutuluyor (`translate?english=<ad>`, kurulumda ad başına bir kez; dosyada `Names:"english"`), gösterirken tek
+  toplu `translate?words=` + `GameWords.Of`; `--stat` girdisi de `EnglishOf` ile İngilizceye çevriliyor.
+- Sonra, TR: `--stat "Gol"` rc=0, `--stat "Goals"` rc=0, `--stat "Sarı Kart"` rc=0; `--stats` üç durumda
+  (başka sayfa `Messages` / hemen ikinci koşu / `Squad Dynamics` sonrası) aynı `md5 0696aea7…`; `--json` 127/106;
+  negatif `zzz` rc=64. EN: `Goals` ve `Gol` rc=0, `--stats` ikinci koşu **0,35 sn** ve `md5 abbbd321…` sabit.
+- Dil geçişleri: TR→EN ve EN→TR sonrası `--stats` **yeniden kurulum yapmadı** (0,37–0,39 sn); ilk kurulum
+  57 sn (160×2 okuma) yalnız eski biçimli dosyada bir kez. Motor sözlerinin yeniden açılışa kadar eski dilde
+  kalması (§8.287) sürüyor, ama katalog artık ona bağlı değil. `--refresh` hâlâ tam yeniden okuma.
+- Ana kayda dönüş: `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → 9 Ağustos 2026 05:45, `Language: turkish`;
+  sonra TR'de `--stats` 0,91 sn / `--stat Gol` ve `--stat Goals` rc=0. Oyunun tablosu istatistik adı için
+  İngilizce→gösterilen yönünü vermediğinden "Goals" gibi adlar listede İngilizce kalıyor (önceden hepsi öyleydi);
+  komut iki adda da çalışıyor, bu ayrı bir sınır.
+- Dosyalar: `/tmp/{tr2,tr4,tr-page,tr-page3,en4,en5}.out`, `/tmp/tr3g.out`, `/tmp/gol.json`, `/tmp/neg.out`.
+  Paylaşılan koda dokunulmadı (yalnız League.cs) → sweep gerekmedi.
+
 ## Sonraya bırakılanlar (ağır liste/kaydırma — bu koşuda seçilmez)
 - (henüz yok)
 

@@ -821,13 +821,11 @@ tablodan çevrilemiyor.
   oyunun kendi cümlesi olarak gösteriliyor. Kanıt: TR üç durumda çıktı eski derlemeyle **bayt bayt aynı**
   (`79129dc3…`, `1c6bbfce…`); EN'de eski sıralı liste (`Sky Bet…` 1, 2 günlük haber 16) → yeni liste TR'nin
   sırasıyla aynı (ortak kümede `About` dizisi birebir), negatif `news 99` iki dilde rc=1 (§8.260).
-- [ ] **Dil değişince `fm league --stat` eski dilin istatistik adlarıyla kalıyor:** katalog
-  `cache/<Language>/…/league-stats.json`a yazılıyor ama adlar oyunun **kendi sözleri** ve yeniden açılışa kadar
-  eski dilde kalıyor; `fm settings dil "English"` sonrası `fm league --stats` hâlâ "Gol/Asist" listeliyor,
-  `--stat "Goals"` ve `--stat "Gol"` ikisi de rc=64 (İngilizce klasördeki katalog Türkçe adlarla yazılmış).
-  Katalog `--refresh` ile yeniden okunuyor (TR'de denendi, 50 sn) ama yeniden açılış öncesi adlar değişmiyor;
-  çözüm katalog adlarının dilini kaydetmek ya da açılıştan sonra bir kez tazelemek. Bu turda ölçüm sırasında
-  görüldü, kapsam dışı bırakıldı (§8.275).
+- [x] **Dil değişince `fm league --stat` eski dilin istatistik adlarıyla kalıyordu:** katalog artık oyunun
+  gösterdiği adla değil kendi tablosundan çevrilen **İngilizce** adla tutuluyor (kurulumda `translate?english=`,
+  gösterirken tek toplu `translate?words=`); dil değişince yeniden kurulum yok, `--stat` hem İngilizceyi hem
+  ekrandaki sözü kabul ediyor (tabloda İngilizce→gösterilen karşılığı olmayan ad, ör. "Goals", listede İngilizce kalır). TR `Gol`/`Goals`/`Sarı Kart`, EN `Goals`/`Gol` rc=0; ilk kurulum 57 sn, sonrası
+  0,35–0,39 sn; üç durum + iki dil aynı çıktı (§8.288).
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
 - [x] **İngilizce oyunda bugünkü değişiklikler** (yeni ekler, yüzde, sub, reply) — yeniden başlatılmış İngilizce
   oyunda denendi: altyapı kartı ve rakip raporu İngilizce, yüzde `67%`, `reply` konuşması ve cevapları İngilizce,

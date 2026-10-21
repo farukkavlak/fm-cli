@@ -32,13 +32,16 @@ internal static partial class Program
 		if (args.Contains("--stats"))
 		{
 			var (playerStats, teamStats) = await LeagueStats(refresh: args.Contains("--refresh"));
-			if (json) Console.WriteLine(JsonOut.Of(new { Players = playerStats.Keys, Teams = teamStats.Keys }));
+			// The catalogue holds the game's English names; the game's table turns each into the word
+			// this language shows, one call for all of them.
+			await GameWords.Ask(Fm, [..playerStats.Keys, ..teamStats.Keys]);
+			if (json) Console.WriteLine(JsonOut.Of(new { Players = playerStats.Keys.Select(GameWords.Of), Teams = teamStats.Keys.Select(GameWords.Of) }));
 			else
 			{
 				Console.WriteLine(L($"Oyuncu istatistikleri ({playerStats.Count}) — league --stat <ad>"));
-				foreach (var name in playerStats.Keys) Console.WriteLine($"  {name}");
+				foreach (var name in playerStats.Keys) Console.WriteLine($"  {GameWords.Of(name)}");
 				Console.WriteLine(L($"\nTakım istatistikleri ({teamStats.Count}) — league --stat <ad> --teams"));
-				foreach (var name in teamStats.Keys) Console.WriteLine($"  {name}");
+				foreach (var name in teamStats.Keys) Console.WriteLine($"  {GameWords.Of(name)}");
 			}
 			return 0;
 		}
@@ -121,6 +124,8 @@ internal static partial class Program
 		var ofTeams = args.Contains("--teams");
 		var (playerStats, teamStats) = await LeagueStats(refresh: false);
 		var asked = StatTurkish.GetValueOrDefault(Fold(stat), stat);
+		// What the game shows ("Gol") is turned back into the English the catalogue keeps.
+		asked = await EnglishOf(asked);
 		// A name only teams are ranked by ("Form") is a team ranking without being told so.
 		if (!ofTeams && !playerStats.Keys.Any(k => Fold(k) == Fold(asked)) && teamStats.Keys.Any(k => Fold(k) == Fold(asked))) ofTeams = true;
 		var catalogue = ofTeams ? teamStats : playerStats;
@@ -132,6 +137,8 @@ internal static partial class Program
 		}
 		var name = Choose(catalogue.Keys.ToList(), asked, L("İstatistik"));
 		if (name == null) return 64;
+		await GameWords.Ask(Fm, name);
+		var shown = GameWords.Of(name);
 
 		var scope = await StatScope(at, catalogue[name]);
 		var list = $"{scope}.comp.{(ofTeams ? "TeamStats" : "PlayerStats")}";
@@ -147,7 +154,7 @@ internal static partial class Program
 			Field(row, field) is { Length: > 0 } text || !ofTeams ? Field(row, field) : Standings.Form(Field(row, field.Replace(".DisplayValue", ".PropertyValue")));
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine(L($"{competition}: {name} için kayıt yok (turnuva henüz başlamamış olabilir)."));
+			Console.Error.WriteLine(L($"{competition}: {shown} için kayıt yok (turnuva henüz başlamamış olabilir)."));
 			return 1;
 		}
 
@@ -157,14 +164,14 @@ internal static partial class Program
 
 		// "1st", "2nd", then "=" for whoever shares the place above.
 		static string Place(string position) => position.TrimEnd('s', 't', 'n', 'd', 'r', 'h');
-		string[] columns = [Field(headers, "StatValueHeader") is { Length: > 0 } h ? h : name, Field(headers, "ContextStatValueHeader1"), Field(headers, "ContextStatValueHeader2")];
+		string[] columns = [Field(headers, "StatValueHeader") is { Length: > 0 } h ? h : shown, Field(headers, "ContextStatValueHeader1"), Field(headers, "ContextStatValueHeader2")];
 
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
 				Competition = competition,
-				Stat = name,
+				Stat = shown,
 				Of = ofTeams ? "teams" : "players",
 				Total = total,
 				Columns = columns,
@@ -181,7 +188,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"{competition} — {name} ({(rows.Count < total ? L($"ilk {rows.Count} / {total}") : $"{total}")} {(ofTeams ? L("takım") : L("oyuncu"))})");
+		Console.WriteLine($"{competition} — {shown} ({(rows.Count < total ? L($"ilk {rows.Count} / {total}") : $"{total}")} {(ofTeams ? L("takım") : L("oyuncu"))})");
 		Table.Write(
 			ofTeams ? ["#", L("TAKIM"), .. columns] : ["#", L("OYUNCU"), L("TAKIM"), .. columns],
 			rows.Select(r => ofTeams
@@ -255,6 +262,10 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<(Dictionary<string, int> Players, Dictionary<string, int> Teams)> LeagueStats(bool refresh)
 	{
+		// The catalogue keeps the names the game's English pages use, not the words it happened to show
+		// when it was read: the shown words follow the game's language, so a switch would leave the
+		// numbers under names no command could ask for (FINDINGS §8.275). The game's own table turns a
+		// shown word back into its English, one call each while the catalogue is built (once).
 		if (!refresh && File.Exists(LeagueStatsFile))
 		{
 			try
@@ -262,7 +273,8 @@ internal static partial class Program
 				var kept = JsonDocument.Parse(File.ReadAllText(LeagueStatsFile)).RootElement;
 				Dictionary<string, int> Of(string side) => kept.GetProperty(side).EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetInt32());
 				var (p, t) = (Of("Players"), Of("Teams"));
-				if (p.Count > 0 && t.Count > 0) return (p, t);
+				var names = kept.TryGetProperty("Names", out var keptNames) ? keptNames.GetString() : null;
+				if (p.Count > 0 && t.Count > 0 && names == "english") return (p, t);
 			}
 			catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or IOException) { }
 		}
@@ -286,13 +298,43 @@ internal static partial class Program
 				if (Field(record, "ShortString").Trim() is { Length: > 0 } name) named.TryAdd(name, type);
 			return named;
 		}
-		var players = Named(read.Take(types.Count));
-		var teams = Named(read.Skip(types.Count));
+		var players = await EnglishNames(Named(read.Take(types.Count)));
+		var teams = await EnglishNames(Named(read.Skip(types.Count)));
 		if (players.Count > 0 && teams.Count > 0)
 		{
 			Directory.CreateDirectory(DiffFolder);
-			File.WriteAllText(LeagueStatsFile, JsonOut.Of(new { Players = players, Teams = teams }));
+			File.WriteAllText(LeagueStatsFile, JsonOut.Of(new { Names = "english", Players = players, Teams = teams }));
 		}
 		return (players, teams);
+
+		// Two numbers can answer to one name ("Goals"); the lower is the one the game's pages use, so
+		// the English name is kept for the first.
+		async Task<Dictionary<string, int>> EnglishNames(Dictionary<string, int> named)
+		{
+			var english = new Dictionary<string, int>();
+			foreach (var (shown, type) in named) english.TryAdd(await EnglishOf(shown), type);
+			return english;
+		}
+	}
+
+	/// <summary>
+	/// The game's English for a word it shows: "Gol" -> "Goals" from its own table. A word already in
+	/// English comes back as itself; a bridge that cannot answer leaves it alone.
+	/// </summary>
+	private static async Task<string> EnglishOf(string shown)
+	{
+		if (shown.Length == 0) return shown;
+		try
+		{
+			foreach (var line in (await Fm.Get("translate", ("english", shown))).Split('\n'))
+			{
+				var arrow = line.IndexOf(" -> ", StringComparison.Ordinal);
+				if (!line.StartsWith('"') || arrow < 0) continue;
+				var english = line[(arrow + 4)..].Trim().Trim('"');
+				if (english.Length > 0) return english;
+			}
+		}
+		catch (Exception e) when (e is FmUnavailable or FmBusy) { }
+		return shown;
 	}
 }
