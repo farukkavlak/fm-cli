@@ -3876,3 +3876,16 @@ bir döngü var; her hata turunda 500 ms uyuyup listeyi `Listed` ile yeniden oku
 hiç çalışmadı. Yani bu bekleme oyunun herhangi bir işaretini kaçırmak için değil, yalnızca oyun "no dropdown at"
 dedikten sonraki tur aralığı; turun kendisi oyunun `dropdowns` cevabıyla tazelenen işaretçiyi kullanıyor.
 Borç değil: normal yolda maliyeti 0, hata yolunda cömert üst sınır (6 tur).
+
+### 8.330 `stages` aşama seçtikten sonra 1,2 sn'yi değil, listenin kendi etiketini bekliyor (21 Ekim, TR + EN)
+
+Aşama listesine bir tur seçildikten sonra kod sabit **1,2 sn** uyuyup tabloları öyle okuyordu. Oysa aynı sayfanın
+aşama listesi, seçilen turu kendi `Label`ında taşıyor (`Final`, `Şampiyona Yolu 2. Eleme Turu`) ve seçim
+oturduğunda değişiyor; altındaki tablolar da onunla birlikte yeniden kuruluyor. Artık seçimden sonra
+`StageLists().Stage.Label` istenen tur olana kadar (0,2 sn tempo, 8 sn üst sınır) okunuyor; `StageContent`
+zaten iki okuma aynı olana kadar bekliyor. Ölçüm (üç durum × TR/EN, `select` → ilk `ties`): TR 1,25 →
+**0,32–0,39 sn**, EN 1,25 → **0,17–0,42 sn**; çıktı eski derlemeyle **6/6 bayt bayt aynı** (`fm stages
+"Carabao Cup" "Yarı Final"/"Semi Final"`, `"Final"`, `"3. Tur"/"Third Round"`; md5 TR `83b0f6e5…`, `78ef55af…`,
+`b9a16b91…`, EN `ca4f72f9…`, `106a8a04…`, `48f787c4…`). İç içe tur (`Şampiyona Yolu 2. Eleme Turu`) etiketi
+boşlukla birleşik adla eşleşiyor; aynı turu tekrar seçmek beklemesiz (0,69 → 0,76 sn). Olmayan tur rc=64.
+`tools/sweep.sh` 50/50.

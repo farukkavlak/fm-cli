@@ -4057,3 +4057,25 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   Dosyalar: `/tmp/open_before.txt`, `/tmp/open_after.txt`, `/tmp/inbox_{tr,en}_{a,b,c}.{json,trace}`.
 - Not (yeni iş değil): `fm open` sayfa adlarını **İngilizce** istiyor; `fm pages` Türkçe gösteriyor
   (`As Takım`/`Menfez` reddediliyor, `Messages` kabul). Bu ayrı bir kimlik/dil sınırı, ölçülmedi.
+
+## Tur 96 (21 Ekim) — A: `stages`aşama seçiminden sonraki 1,2 sn sabit bekleme, listenin kendi etiketine bağlandı (§8.330)
+- Seçilen madde: A1 `Stages.cs:98` `await Task.Delay(1200);` — `fm stages "<turnuva>" "<aşama>"` turu seçtikten
+  sonra tabloları okumadan önce sabit 1,2 sn uyuyordu. B maddeleri parkta (ScoutFocus düğmeleri kimliksiz),
+  A2'nin kalan ikisi maç/save tarayıcısı kurulumu istiyor; bu yüzden A1'den alındı.
+- İşaret: aynı sayfanın aşama listesi, seçilen turu kendi `Label`ında taşıyor (`Final`,
+  `Şampiyona Yolu 2. Eleme Turu`) ve seçim oturunca değişiyor; tablolar onunla birlikte kuruluyor.
+  `StageContent` zaten iki okuma aynı olana kadar bekliyor. Yeni hal: `StageLists().Stage.Label` istenen
+  tur olana kadar `Until` (0,2 sn tempo, 8 sn üst sınır).
+- Önce (üç durum × iki dil; `select` → ilk `ties`): TR 1,24–1,26 sn, EN 1,25–1,26 sn. `select` → tablo
+  arasındaki tek şey 1,2 sn'lik boşluktu (iz: `tr_*.trace`, `en_*.trace`).
+- Sonra: TR **0,32 / 0,39 / 0,31 sn**, EN **0,36 / 0,42 / 0,17 sn**; çıktı eski derlemeyle **6/6 bayt bayt
+  aynı** (`cmp`, md5 TR `83b0f6e5…` `78ef55af…` `b9a16b91…`, EN `ca4f72f9…` `106a8a04…` `48f787c4…`), rc=0.
+  Üç durum: (a) `fm open Messages` sonrası, (b) Stages zaten açıkken hemen ikinci koşu, (c) `fm squad` sonrası.
+- Ek: iç içe tur (`UEFA Champions League` / `Şampiyona Yolu 2. Eleme Turu`) etiketi boşlukla birleşik adla
+  eşleşti, rc=0; aynı turu tekrar seçmek beklemesiz (0,69 → 0,76 sn); olmayan tur `"ZZZ yok"` rc=64 + liste.
+- Paylaşılan koda dokunulmadı (yalnız `Stages.cs`); yine de `tools/sweep.sh` **50 komut, 0 hata**.
+- `python3 tools/remaining.py --write`: açık kutu **25 → 24**, `Task.Delay` borcu **19 → 18**.
+- Kayıt: yalnız okuma + sayfa gezinme; `fm save` yok. Dil `turkish`, tarih 9 Ağustos 2026 (ana kayıt).
+  Dosyalar: `/tmp/st/{tr,en,tr2,en2}_{A,B,C}.{out,trace}`, `/tmp/st/tr_{same1,same2,nested,neg}.*`.
+- Not: `Stages.cs`te üç kardeş 1,2 sn daha var (63, 120, 136 — yarışma seçimi ve çizilmemiş tur ikili araması);
+  aynı işaretle sıradaki turlarda tek tek alınabilir.

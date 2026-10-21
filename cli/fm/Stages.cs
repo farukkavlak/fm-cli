@@ -95,7 +95,10 @@ internal static partial class Program
 			{
 				var picked = await PickIn(true, stage.Count == 1 ? ("choice", stage[0]) : ("names", string.Join(">", stage)));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
-				await Task.Delay(1200);
+				// The stage list's own label names the round on show, and it changes with the pick;
+				// until it does, the lists and tables are still the old round's.
+				await Until(async () => await StageLists() is { } now
+					&& Field(now.Stage, "Label") == string.Join(" ", stage), seconds: 8, every: 0.2);
 			}
 			var name = stage != null ? string.Join(" › ", stage) : showing != null ? string.Join(" › ", showing) : Field((await StageLists()).Value.Stage, "Label");
 			var (ties, table, note) = await StageContent();
