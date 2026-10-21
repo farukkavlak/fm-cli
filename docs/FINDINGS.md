@@ -3343,3 +3343,11 @@ açıklamaları (`Kaydedilen İlerleme`, `Orta Bölgede Pres`…) hâlâ Türkç
 `MatchFocusSessionDescription` verisi ve oyun onları yeniden açılışa kadar eski dilde tutuyor. CLI'nin kendi sözleri
 dile uyuyor; §8.275'teki `league --stat` kataloğuyla aynı sınıf, kod tarafında düzeltilecek bir şey yok. TR'ye dönüş
 `fm settings language "Türkçe"` ile yapıldı; çıktı tur başındaki `511c845d…` ile aynı.
+
+### 8.281 Taktik yükleme panelinin kapanışı sabit 800 ms değil kendi `Load` düğmesini bekliyor (21 Ekim, TR + EN)
+`TacticLoad`ın `close`u paneli `PanelHistoryClose` ile kapattıktan sonra sabit 800 ms bekliyordu; artık panelin kendi
+`Load` düğmesi (`Events` içinde `EventLoadAddOn`) ekrandan kalkana kadar bekleniyor (`Until`, 0,15 sn, üst sınır 8 sn).
+Ölçüm (geçersiz `t93 bogus.fmf`, üç deneme = iki kapanış): kapanış→sayfa eski kodda **0,83–0,88 sn**, yenisinde
+**0,39–0,50 sn**; TR + EN × üç durum (başka sayfa / panel zaten açık / başka sayfaya geçtikten sonra) **6/6 rc=1**,
+stderr birebir, her denemede panel kapanıp yeniden açıldı. Geçerli `t93 good` ile yükleme TR + EN **rc=0**, çıktı
+eskisiyle aynı; kopya silindi, etkin taktik `t179 test`. Dosyalar `…/opencode/t93/` (`{tr,en}-{old,new}-s{1,2,3}.*`, `old/`).

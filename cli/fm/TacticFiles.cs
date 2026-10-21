@@ -182,8 +182,11 @@ internal static partial class Program
 		var close = async () =>
 		{
 			var x = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(b => Field(b, "Events") == "PanelHistoryClose");
-			if (x.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(x, "Pointer")));
-			await Task.Delay(800);
+			if (x.ValueKind != JsonValueKind.Object) return;
+			await Fm.Get("click", ("ptr", Field(x, "Pointer")));
+			// The panel is gone once its own Load button is: the page behind is ready to be asked
+			// again. The ceiling is only for a panel that never goes.
+			await Until(async () => Load(await Fm.GetJson("buttons", ("json", "1"))).ValueKind != JsonValueKind.Object, seconds: 8, every: 0.15);
 		};
 
 		// The list can open without a file written a moment ago; opened again it has it.

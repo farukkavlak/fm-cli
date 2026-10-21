@@ -3,7 +3,26 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 90)
+## Şu an (Tur 91)
+- Madde: **A "`Task.Delay`" / TacticFiles 181** (`TacticLoad`ın `close`u: yükleme paneli `PanelHistoryClose` ile
+  kapatıldıktan sonra sabit **800 ms**) — **BİTTİ** (§8.281). Bekleme oyunun kendi cevabına bağlandı: panelin kendi
+  `Load` düğmesi (`Events` içinde `EventLoadAddOn`) ekrandan kalkana kadar (`Until`, 0,15 sn aralık, üst sınır 8 sn).
+  Aynı blokta yazı/sıra bağımlılığı yok; `Load` zaten olayla bulunuyor.
+- Kanıt — geçersiz `t93 bogus.fmf` dosyasıyla listenin dosyayı bulamadığı yol (üç deneme = iki kapanış), TR + EN ×
+  üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics`·EN `Dynamics` sonrası):
+  **6/6 rc=1**, stdout boş, stderr birebir (`Oyunun listesinde 't93 bogus' yok.` / `'t93 bogus' is not in the game's
+  list.`). Kapanış→sonraki sayfa: eski **0,83–0,88 sn**, yeni **0,39–0,50 sn** (iki kapanışlık toplam ~1,72 → ~0,86 sn);
+  izde eski `click ?ptr` → 800 ms sessizlik → `pages`, yeni `click ?ptr` → iki `buttons ?json=1` → `pages`. Her
+  denemede panel kapanıp yeniden açıldı. Geçerli `t93 good` kopyasıyla yükleme yolu TR + EN **rc=0**, çıktı eskisiyle
+  aynı; kopyalar silindi, etkin taktik `t179 test`. Dosyalar `…/opencode/t93/` (`{tr,en}-{old,new}-s{1,2,3}.*`,
+  `tr-{old,new}-good.*`, `en-{old,new}-good.*`, `old/` = değişiklik öncesi Release derlemesi, `run.sh`).
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; dil EN
+  ölçümünden sonra `fm settings language "Türkçe"` → `dil=Turkish`; etkin taktik `t179 test`, taktik klasöründe
+  yalnız `t179 test.fmf`. Değişiklik yalnız `cli/fm/TacticFiles.cs` (yerel `close`) → paylaşılan kod yok,
+  `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 90)
 - Madde: **A "Kısa `Until`" / Prep 124** (`FocusSlots`in iki `pathset`i — `FixtureHasResult`, `training` — en çok 3 sn
   bekleniyordu) — **BİTTİ**, ölçüldü, **kod değişmedi** (§8.279). İşaret isteğin kendi cevabı: `pathset` hatasız
   dönüyor; altı koşuda da iki bağlama **ilk yoklamada** geçti (TR 13–36 ms, EN 13–32 ms) → 3 sn ≈ **83–230 kat** pay.
