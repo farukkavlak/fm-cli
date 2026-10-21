@@ -3427,8 +3427,35 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Dosyalar: `/tmp/{tr2,tr4,tr-page,tr-page3,en4,en5}.out`, `/tmp/tr3g.out`, `/tmp/gol.json`, `/tmp/neg.out`.
   Paylaşılan koda dokunulmadı (yalnız League.cs) → sweep gerekmedi.
 
+## Tur 91 — A "Kısa `Until`" / Program 1918 (`MessageBody`): ölçüldü, değişiklik gerekmedi (§8.303, 21 Ekim)
+- Seçilen madde: A "Kısa `Until` (≤ 3 sn)" listesindeki **Program 1918** — `MessageBody`in haber gövdesini
+  `newsitem.NewsBodyString` bağıyla en çok 3 sn beklemesi ("gelmezse açılış cümlesine düş").
+- Ölçüm aracı: `python3` (30 ms aralıkla `/texts?anchorname=MessageBodyText&up=5&paths=1&most=1`; yalnız
+  başlığı hedef mesajla eşleşen **ve** gövdesi dolu cevap sayıldı), `FM_TRACE=1 fm reply "<konu>"`.
+- Üç durum × iki dil, basış → gövdenin bağlandığı an:
+  - TR (`fm reply "Lincoln son dakikalarda gelen golle yıkıldı"`): mesaj ilk kez **0,31 sn** (basış 0,54 →
+    gövde 0,85), mesaj açıkken **0** (gövde basıştan önce bağlı), başka sayfa `Squad Dynamics` sonrası
+    **0,43 sn** (2,76 → 3,19). rc=0, çıktı `md5 d222f967…` (3/3 aynı).
+  - EN (`fm reply "Lincoln denied by late goal"`): ilk kez **0,29 sn** (0,58 → 0,87), açıkken **0**, başka
+    sayfa sonrası **0,29 sn** (0,47 → 0,76). rc=0, çıktı `md5 525d3aa5…` (3/3 aynı; TR çıktısıyla aynı
+    gövde, yalnız dil).
+- Karar (kural 4): işaret zaten oyunun kendi bağı; 3 sn ≈ **7–10 kat** pay. `seconds: 3` → `8` denendi ve
+  derlendi, çıktı birebir aynı kaldı, kanıtlanmış bir iyileşme yok → `git restore cli/fm/Program.cs`
+  (kural 4). Kod değişmedi.
+- Yan bulgu (§8.304): `fm match --instant`in "Instant Result" ve "Team Selection" pencereleri oyunun
+  `DialogManager`ında **değil** — `/dialog` `Type` vermiyor, `?data=1` `visible=False`; bu üç pencereyi
+  `Type` ile bulma yolu kapalı, kimlik düğme olayı/ActionID ya da sayfa kabı olmalı. Bu yüzden maç günü
+  pencereleri maddesi `[?]` kalıyor; "Sonraya bırakılanlar"a yazıldı.
+- Kayıt: test kaydı (ana kayıt değil); maç `fm match --instant` ile oynandı (Lincoln 3-2 Preston), sonra
+  `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → 9 Ağustos 2026 05:45, `Language: turkish`; `fm save`
+  yapılmadı. Paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
+- Dosyalar: `/tmp/measure_body.py`, `/tmp/mb_out`, `/tmp/mb_err`, `/tmp/fm_dialogs.log`,
+  `/tmp/fm_dialogdata.log`.
+
 ## Sonraya bırakılanlar (ağır liste/kaydırma — bu koşuda seçilmez)
-- (henüz yok)
+- Maç günü pencereleri (`Instant Result` / `Team Selection` / `Injured Players`): `Type` yolu yok (§8.304);
+  kimlik için düğmenin olayı/ActionID'si ya da sayfanın kabı ölçülmeli — tek turda üç pencere × iki dil
+  kurulumu gerektirdiği için bu koşuda seçilmedi.
 
 ## Sabitler
 - Kapsam: **A** (zamanlama) + **B** (dil/kimlik) + **C** (ayarlar), mümkünse **D**.

@@ -308,6 +308,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 ~~2118~~ ·
   Reads 892 · Saves 207 220 · ~~ScoutFocus 55~~ · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·
   TrainingSchedule 491 506 · ~~TraitTraining 89~~
+  - [x] Program 1918 (`MessageBody`: haber gövdesi en çok **3 sn** bekleniyordu): ölçüldü, **değişiklik
+    gerekmedi**. İşaret oyunun kendi bağı (`newsitem.NewsBodyString`; mesajın başlığı da eşleşiyor). Gövde
+    basıştan TR **0,31 / 0,43 sn**, EN **0,29 / 0,29 sn** sonra bağlanıyor (üç durum: mesaj ilk kez açılıyor /
+    mesaj açıkken / başka sayfa açıkken), yani 3 sn ~7–10 kat pay; "gelmezse" dalı yalnız açılış cümlesine
+    düşüyor, yanlış okuma yok. TR + EN insan çıktısı değişmedi (`d222f967…` / `525d3aa5…`); kod `git restore`
+    edildi (kural 4). `Program 986` (ek için 1,5 sn) ayrı park maddesinde duruyor.
   - [x] League 216 (`StatScope`in `.comp` bağlama beklemesi: 3 sn "gelmezse yok say"): ölçüldü, **değişiklik
     gerekmedi**. İşaret zaten oyunun kendi cevabı — `pathset … .comp` hatasız dönüyor; her koşuda 20 bağlama
     **ilk denemede** geçti (TR 29–34 ms, EN 29–40 ms; 20/20 benzersiz, tekrar yok), yani 3 sn ~75–100 kat pay;

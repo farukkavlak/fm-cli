@@ -3581,3 +3581,20 @@ Kod değişmedi; dosyalar `/tmp/opencode/t113/`.
 **8 sn** (~5–9 kat); işaret değişmedi (çubuk `check=1` "shown" + içerik, üst üste iki okuma, olmazsa dört tur).
 TR + EN × üç durum (`Messages` açık / hemen ikinci koşu / `Messages`'a dönüp) **6/6 rc=0**, çıktı eski
 derlemeyle bayt bayt aynı (TR `60e1e6fe…`, EN `bd3dc6a1…`); `sweep.sh` **50/50**. Dosyalar `/tmp/t114/`.
+
+### 8.303 Mesaj gövdesi 3 sn'lik sınırı hak ediyor (21 Ekim, TR + EN)
+`MessageBody` (Program.cs) haber gövdesini `newsitem.NewsBodyString` bağıyla okuyor, en çok **3 sn**
+bekliyor. Ölçüm (mesaj basışından gövdenin bağlandığı ilk ana kadar, 30 ms'lik dış yoklama; TR + EN ×
+üç durum — mesaj ilk kez / açıkken / `Squad Dynamics` sonrası): TR **0,31 / 0,43 sn**, EN **0,29 / 0,29 sn**;
+mesaj açıkken gövde basıştan önce de bağlı. Yani 3 sn ≈ **7–10 kat** pay, "gelmezse" dalı yalnız açılış
+cümlesine düşüyor → **kod değişmedi** (3 sn'nin 8 sn'ye çıkarılması denendi, kanıt iyileşme göstermedi;
+`git restore`). Çıktı iki dilde de aynı (`d222f967…` / `525d3aa5…`).
+
+### 8.304 Maç günü pencereleri oyunun DialogManager'ında değil (21 Ekim, TR)
+`fm match --instant`in "Instant Result" ve "Team Selection" (dört yedek) pencerelerinde `/dialog` yalnız
+`Title` veriyor; `Type` **boş** ve `?data=1` `visible=False` diyor — yani bu pencereler `SI.Bindable.
+DialogManager` üzerinden geçmiyor. Bu yüzden B "yazıyla basma" maddesindeki üç pencereyi (Instant Result /
+Team Selection / Injured Players) `Saves.DialogButton` gibi **Type** ile bulmak mümkün değil; kimlik
+düğmenin kendi olayı/ActionID'si ya da sayfanın kabı olmalı. Ölçüm: `/dialog` 30 ms'lik yoklamada başlık +
+düğme işaretçilerini verdi, `Type` alanı hiç gelmedi; `fm match --instant` 3,1–5,0 sn'de iki pencereyi de
+başlıkla geçti. Dosyalar `/tmp/fm_dialogs.log`, `/tmp/fm_dialogdata.log`.
