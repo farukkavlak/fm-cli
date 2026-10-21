@@ -715,8 +715,15 @@ tablodan çevrilemiyor.
     TR + EN, üç durum × iki yol (`saves delete "<yüklü kaydın adı>" --yes` → tarayıcı açılıp Cancel ile kapanıyor,
     rc=1; `save --as "<aynı ad>" --yes` → Save + "Replace Existing File" onayı, rc=0) eski derlemeyle **birebir**
     (`md5`); izde `click ?text=Cancel`/`?text=Save` → `click ?ptr=…` (§8.236). Yükleme ekranının `Load`u yazıyla
-    kalıyor — sıradaki alt madde. FM menüsünün "Save Game As" satırı da yazıyla kalıyor (satırın numarası eklentinin
-    `Events` özetinde yok; eklenti değişikliği ister).
+    kalıyor — sıradaki alt madde.
+  - [x] FM menüsünün **`Save Game As` satırı** (ve menünün açık olup olmadığı) artık yazıyla değil, oyunun kendi
+    seçeneğiyle bulunuyor: düğmenin olayı `FMMenuOptionFromID` ve taşıdığı seçenek olayın kendi alanında
+    (`m_selectedOption = SaveGameAs`; `FM.UI.FMMenuOption`). Eklentinin JSON `Events` özeti bu alanı vermiyor
+    ama metin kataloğu (`/buttons?type=FMMenuOptionFromIDEventContext`) veriyor — yani eklenti değişikliği
+    gerekmedi. Artık `texts ?anchor="Save Game As"` ve `click ?text="Save Game As"` yok; menü bu seçenekle
+    tanınıyor ve satır işaretçisiyle basılıyor. TR + EN × üç durum (menü kapalı / menü zaten açık / `Messages`
+    açık) `saves delete ".t117 yok" --yes`: altı koşuda aynı çıktı ve rc=1, izde `buttons ?type=…` +
+    `press ?ptr=…`; `fm world` TR + EN rc=0 ve çıktısı eskisiyle aynı; `sweep.sh` 50/50 (§8.307).
   - [x] **Onay pencereleri başlık yazısıyla değil oyunun kendi adıyla** (`save --as`in "Replace Existing File"i,
     `saves delete`in "Delete File"i): eklenti (`/dialog`) her pencerenin `Type`ını veriyor — ölçüldü:
     `ConfirmSaveOverrideDialog` ve `confirmDeleteSelectedSave` (ikisinin başlığı TR oyunda bile İngilizce:

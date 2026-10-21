@@ -101,10 +101,27 @@ internal static partial class Program
 		return null;
 	}
 
+	/// <summary>
+	/// The pointer of an option on the FM menu, by the option it is rather than by the word on it:
+	/// the game names each one in the event's own field (`m_selectedOption = SaveGameAs`, the
+	/// `FM.UI.FMMenuOption`) while the label is the language's word. Empty while the menu is away.
+	/// </summary>
+	private static async Task<string> MenuOption(string option)
+	{
+		var listed = await Fm.Get("buttons", ("type", "FMMenuOptionFromIDEventContext"), ("limit", "1000"));
+		string pointer = null;
+		foreach (var line in listed.Split('\n'))
+		{
+			if (line.StartsWith("0x", StringComparison.Ordinal)) pointer = line.Split(' ')[0];
+			else if (pointer != null && line.Trim() == $"m_selectedOption = {option}") return pointer;
+		}
+		return null;
+	}
+
 	/// <summary>The FM menu behind the unlabelled button on the top bar: the save, the world, preferences.</summary>
 	private static async Task<bool> OpenFmMenu()
 	{
-		if (await OnScreen("Save Game As")) return true;
+		if (await MenuOption("SaveGameAs") is not null) return true;
 		var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
 		if (menu.ValueKind != JsonValueKind.Object)
 		{
@@ -112,7 +129,7 @@ internal static partial class Program
 			return false;
 		}
 		await Fm.Get("click", ("ptr", Field(menu, "Pointer")));
-		return await Until(() => OnScreen("Save Game As"), seconds: 8, every: 0.25);
+		return await Until(async () => await MenuOption("SaveGameAs") is not null, seconds: 8, every: 0.25);
 	}
 
 	/// <summary>
@@ -191,7 +208,17 @@ internal static partial class Program
 	private static async Task<(string Box, string Current)?> OpenSaveBrowser()
 	{
 		if (!await OpenFmMenu()) return null;
-		await Fm.Get("click", ("text", "Save Game As"));
+		if (await MenuOption("SaveGameAs") is not { } saveAs)
+		{
+			Console.Error.WriteLine(L("Kayıt tarayıcısı açılmadı."));
+			return null;
+		}
+		var asked = await Fm.Get("press", ("ptr", saveAs));
+		if (asked.StartsWith("error", StringComparison.Ordinal))
+		{
+			Console.Error.WriteLine(asked);
+			return null;
+		}
 
 		JsonElement box = default;
 		var open = await Until(async () =>

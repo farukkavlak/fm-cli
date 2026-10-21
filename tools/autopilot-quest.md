@@ -14,7 +14,25 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 116)
+## Şu an (Tur 117)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / FM menüsünün `Save Game As` satırı** — **BİTTİ** (§8.307).
+  `OpenFmMenu` menüyü `texts anchor="Save Game As"` ile tanıyor, `OpenSaveBrowser` satırı `click text=` ile
+  basıyordu; ikisi de çeviri tablosunun İngilizce sözüne bağlıydı. Artık seçenek oyunun kendi alanından
+  (`m_selectedOption = SaveGameAs`, `FMMenuOptionFromID` olayı) bulunuyor; eklenti değişikliği gerekmedi
+  (metin kataloğu `/buttons?type=FMMenuOptionFromIDEventContext` alanı veriyor, JSON `Events` vermiyor).
+- Kanıt (`FM_TRACE=1`, `saves delete ".t117 yok" --yes`; klasöre boş `.t117 yok.fm` kondu, sonra silindi):
+  TR + EN × üç durum (menü kapalı / menü zaten açık / `Messages` açık) **6/6 rc=1**, çıktı eski derlemeyle
+  birebir; izde `texts ?anchor=Save Game As` + `click ?text=` → `buttons ?type=…` + `press ?ptr=…`.
+  `fm world` TR + EN rc=0, çıktı eskisiyle aynı. `sweep.sh` **50/50**. Dosyalar `/tmp/opencode/t117/`.
+- Dönüş/kayıt: `fm settings language "Türkçe"` (EN'de ayar adı `language`, TR'de `dil`) → `/state` dili ve
+  tarihi ana kayıtla aynı (9 Ağustos 2026 05:45, Clock 0); `fm save` yok. Test dosyası silindi, `fm saves`
+  dört kayıt, ana kayıt **21 Ekim 10:40** (değişmedi). Dil iki kez gidip geldi; oyun yeniden başlatılmadı.
+- Sıradaki uygun maddeler: A Guided 161/174 (bedel sözü) · A `Bound` + maç akışı 3 sn'ler (maç günü) ·
+  B Program cümle parçaları (örnek mesaj üretmek gerek) · B haber "Portugal"/"Defence (Core)" · B 44'ün kalanları.
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · Clock 179 işsizlik · MatchDay üç pencere ·
+  mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986.
+
+## Önceki durum (Tur 116)
 - Madde: **A "Kısa `Until`" / Saves 207 220** (`SaveRowInView`: satırın listede olması 3 sn, kaydırmadan sonra
   1,5 sn bekleniyordu) — **BİTTİ**, ölçüldü, **kod değişmedi** (§8.306). İşaret zaten oyunun kendi cevabı:
   `/rowselect?text=…&dry=1` hatasız dönünce satır seçilebilir.

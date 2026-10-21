@@ -3617,3 +3617,15 @@ olsa da (gizli pencerede 3 satır) `/rowselect` bütün satırları buluyor: en 
 alt sıra) hem oyun içi panelde hem bekleme ekranında kaydırma yapmadan seçildi (`scroll` izde 0). Satır
 gerçekten yoksa komut sessizce devam etmiyor: kaydırma denemelerinden sonra "listede yok" deyip rc=1
 veriyor. Bu yüzden sınırlar değişmedi (churn yok).
+
+### 8.307 FM menüsünün `Save Game As` satırı oyunun kendi seçeneğiyle bulunuyor (21 Ekim, TR + EN)
+`OpenFmMenu` menünün açık olup olmadığını `texts ?anchor="Save Game As"` ile, `OpenSaveBrowser` satırı
+`click ?text="Save Game As"` ile buluyordu; ikisi de eklentinin çeviri tablosundan gelen İngilizce söze bağlıydı.
+Oysa düğmenin olayı `FMMenuOptionFromID` ve seçenek olayın kendi alanında: `/buttons?type=FMMenuOptionFromIDEventContext`
+kataloğu `m_selectedOption = SaveGameAs` diyor (`FM.UI.FMMenuOption`, dilden bağımsız). JSON `Events` özeti bu
+alanı taşımıyor, metin kataloğu taşıyor; yani eklenti değişikliği gerekmedi. Ölçüm (`FM_TRACE=1`,
+`saves delete ".t117 yok" --yes`; boş bir `.t117 yok.fm` dosyası konup silindi): TR + EN × üç durum (menü kapalı /
+menü zaten açık / `Messages` açık) **6/6 rc=1**, çıktı eski derlemeyle birebir ("… listesinde '.t117 yok' yok." /
+"'…' is not in the game's list of saves."); izde `texts ?anchor=Save Game As` + `click ?text=Save Game As` →
+`buttons ?type=…` + `press ?ptr=…`. Menü zaten açıkken tarayıcı 0,33–0,50 sn'de açılıyor; `fm world` TR + EN
+rc=0, çıktı eskisiyle aynı; `sweep.sh` 50/50. Dosyalar `/tmp/opencode/t117/`.
