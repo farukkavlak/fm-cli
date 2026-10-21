@@ -245,13 +245,13 @@ internal static partial class Program
 		// The preferences' own Confirm: a page left underneath (responsibilities) has one too.
 		// Its label is the game's own string, and this language's table is free to translate it;
 		// what tells it apart is the event it sends, PreferencesConfirmChanges (the page left
-		// underneath sends another). Pressed by its pointer, by the label if the game names none.
+		// underneath sends another). Pressed by its pointer; without that event there is no
+		// button this code can be sure of, and a label would be the game's words.
 		JsonElement preferencesConfirm = default;
 		await Until(async () => (preferencesConfirm = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
 			.FirstOrDefault(b => Field(b, "Events").Contains("PreferencesConfirmChanges", StringComparison.Ordinal) && Field(b, "Enabled") == "True")) is { ValueKind: JsonValueKind.Object }, seconds: 5, every: 0.25);
-		var confirmed = preferencesConfirm.ValueKind == JsonValueKind.Object
-			? await Fm.Get("click", ("ptr", Field(preferencesConfirm, "Pointer")))
-			: await Fm.Get("click", ("text", "Confirm"), ("name", "ConfirmButton"));
+		if (preferencesConfirm.ValueKind != JsonValueKind.Object) return Report(L("error: ayarların onay düğmesi bulunamadı"));
+		var confirmed = await Fm.Get("click", ("ptr", Field(preferencesConfirm, "Pointer")));
 		if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
 		await Until(async () => (await Fm.GetJson("texts", ("anchor", "All Preferences"), ("up", "0"))).GetArrayLength() == 0, seconds: 5, every: 0.25);
 
@@ -320,10 +320,12 @@ internal static partial class Program
 
 		// The tab's own label is the game's words ("Matchday" through a Turkish game); its button
 		// is taken by the container it sits in, whose template name no language changes.
-		if (TabButtons.TryGetValue(tab, out var tabButton))
-			await Fm.Get("click", ("within", tabButton), ("name", "DetailedPreferencesTabButton"));
-		else
-			await Fm.Get("click", ("text", tab), ("name", "DetailedPreferencesTabButton"));
+		if (!TabButtons.TryGetValue(tab, out var tabButton))
+		{
+			Console.Error.WriteLine(Lf("Ayarlarda {0} sekmesi okunamadı.", tab));
+			return null;
+		}
+		await Fm.Get("click", ("within", tabButton), ("name", "DetailedPreferencesTabButton"));
 		// The tab fills in over a few frames: its headings can be there before the lists under them.
 		List<JsonElement> form = [];
 		var read = "";

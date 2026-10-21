@@ -3262,3 +3262,18 @@ atlanıyor, portal yolunda tablo `NextFixture.Competition` adıyla karşılaşt�
 açılıyor. Üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) × TR + EN: `fm table`
 çıktısı dil içinde bayt bayt aynı (TR `07136d20…`, EN `986b328b…`); kod değişmedi.
 Dosyalar `…/opencode/t84/tr-s{1,2,3}.{out,err}`, `en-s{1,2,3}.{out,err}`.
+
+### 8.273 `fm settings` yazma yolunda iki yazı yedeği kaldırıldı: onay olayla, sekme kapsayıcıyla (21 Ekim, TR + EN)
+
+Preferences'in yazma yolu iki yerde oyunun sözüne düşebiliyordu: `PreferencesConfirmChanges` olayını taşıyan açık
+düğme bulunamazsa `click ?text=Confirm&name=ConfirmButton`, sekme `TabButtons` eşlemesinde yoksa
+`click ?text=<sekme>&name=DetailedPreferencesTabButton`. İkisi de bu dilin çeviri tablosundan geçen etiketlerdi
+("Confirm" → Onayla/Kabul; sekme TR/DE'de "Matchday"). Kapsayıcı adları ve olay adı dilden bağımsız olduğundan
+yedekler silindi: onay olayı yoksa `error: ayarların onay düğmesi bulunamadı`, sekme eşlemede yoksa
+"Ayarlarda {0} sekmesi okunamadı." (rc=1). Ölçüm (üç durum: `fm open Messages` sonrası / hemen ikinci koşu /
+`fm open Squad Dynamics`·`Dynamics` sonrası; TR + EN; `dd/mm/yyyy ↔ mm/dd/yyyy`): eski ve yeni derlemede **6/6 rc=0**
+ve aynı çıktı (TR s1 `dd/mm/yyyy → mm/dd/yyyy`, s2 tersi, s3 s1; EN aynı sıra). İzde sekme
+`click ?within=YourWorldTabButton&name=DetailedPreferencesTabButton`, onay `click ?ptr=…`; `text=Confirm` **0**.
+Yedekler hiç ateşlenmiyordu (eski izde de onay `?ptr=`), yani davranış değişmedi; FM menüsünün
+"Manage settings for this game" / "See all" satırları hâlâ yazıyla (ayrı iş, düğme kimliği yok).
+Dosyalar `…/opencode/t85/{base,new}-{tr,en}-s{1,2,3}.{out,err}`.

@@ -631,7 +631,13 @@ tablodan çevrilemiyor.
     Etiket iki dilde de "Confirm" gelse de oyunun kendi sözü (başka dilde çevrilebilir), `Name` ise şablon adı;
     olay dilden ve bitten bağımsız. Üç durum (başka sayfa açık / hemen ikinci koşu / preferences zaten açık) ×
     iki dilde `fm settings tarih` / `"date format"` yazma yolu eski derlemeyle **birebir** (rc=0, aynı çıktı);
-    izde `click ?text=Confirm&name=ConfirmButton` → `click ?ptr=…` (§8.251).
+    izde `click ?text=Confirm&name=ConfirmButton` → `click ?ptr=…` (§8.251). **→ Tur 85: kalan iki yazı yedeği de
+    silindi** — onay düğmesini `PreferencesConfirmChanges` olayı vermezse artık "ayarların onay düğmesi bulunamadı"
+    (rc=1), `?text=Confirm`e düşmüyor; `PreferencesTab`in sekme düğmesi üç sekmenin de kapsayıcı adıyla bulunduğu için
+    eşlemede olmayan sekmede yazıya (`?text=<sekme>`) düşen dal da dürüst hataya döndü. TR + EN × üç durum
+    (`fm settings tarih` / `"date format"`, `dd/mm/yyyy ↔ mm/dd/yyyy`) davranış eski derlemeyle **birebir** (3/3 aynı
+    çıktı, 6/6 rc=0); izde sekme `click ?within=YourWorldTabButton&name=…`, onay `click ?ptr=…`, hiç `text=Confirm`
+    yok (§8.273).
   - [x] **Arama düğmesi** (`SearchFor`, `fm search` / `fm actions` / `fm player` fallback'i): düğme
     `?text=Search&name=dashboard-hud-search-button` ile etiketiyle basılıyordu; etiket oyunun kendi sözü.
     Artık `?event=OpenPanel&name=dashboard-hud-search-button` — paneli açan olay + şablon adı, yazı yok.
@@ -752,9 +758,10 @@ tablodan çevrilemiyor.
   için onlar hâlâ başlıkla bulunuyor.
 - [x] **`fm settings` sekmesi artık yazıyla değil, düğmenin bulunduğu kapsayıcıyla açılıyor** — sekme yazısı oyunun
   sözü, TR/DE'de "Matchday", EN'de "Match Day"; artık üç sekme (`MatchDayTabButton`, `YourWorldTabButton`,
-  `ProcessingTabButton`; şablonun kendi adları) düğmesiyle açılıyor, bulunamazsa eskisi gibi yazıya düşüyor. TR/DE
-  `fm settings --json` 15 → **19** satır (maç gösterimi/dinamik mod/vurgu hızı/ara hızı artık okunuyor), EN çıktısı
-  eski derlemeyle birebir; yazma yolu da çalışıyor (§8.204).
+  `ProcessingTabButton`; şablonun kendi adları) düğmesiyle açılıyor. TR/DE `fm settings --json` 15 → **19** satır
+  (maç gösterimi/dinamik mod/vurgu hızı/ara hızı artık okunuyor), EN çıktısı eski derlemeyle birebir; yazma yolu da
+  çalışıyor (§8.204). Tur 85'te yazıya düşen yedek silindi: eşlemede olmayan sekme artık okunamadı hatası veriyor
+  (§8.273).
 
 - [x] **`fm prep` gösterdiği odağı geri kabul etmiyordu; `--json` oyunun sözünü İngilizce bırakıyordu** — odaklar
   oyunun kendi sözleri (TR "Kaydedilen İlerleme"), veri ise İngilizcesini taşıyor ("Progression"). İnsan çıktısı

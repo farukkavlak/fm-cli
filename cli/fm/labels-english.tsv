@@ -1031,6 +1031,7 @@ okunamadı	could not be read
 Ekranlar yeni dilde; oyunun kendi yazıları (maç türü, iç saha / deplasman…) oyun yeniden açılınca değişir: save, sonra stop ve start.	The screens are in the new language; the game's own texts (match type, home / away…) change when the game is opened again: save, then stop and start.
 Ayarlar sayfası açılmadı.	The settings page did not open.
 Ayarlarda {0} sekmesi okunamadı.	The {0} tab in the settings could not be read.
+error: ayarların onay düğmesi bulunamadı	error: the preferences' confirm button was not found
 Kısa liste döşemesi bulunamadı.	The shortlist tile was not found.
 Kısa liste boş.	The shortlist is empty.
 Personel kartı açılmadı.	The staff card did not open.

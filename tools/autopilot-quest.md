@@ -3,7 +3,23 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 84)
+## Şu an (Tur 85)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm settings` yazma yolunun iki ölü yedek yolu** — **BİTTİ** (§8.273).
+  Onay düğmesi `PreferencesConfirmChanges` olayını taşımıyorsa `click ?text=Confirm&name=ConfirmButton`e, sekme
+  `TabButtons` eşlemesinde yoksa `click ?text=<sekme>&name=DetailedPreferencesTabButton`a düşüyordu; ikisi de oyunun
+  çeviri tablosundan geçen etiket. Yedekler silindi: olay yoksa `error: ayarların onay düğmesi bulunamadı`, sekme
+  eşlemede yoksa "Ayarlarda {0} sekmesi okunamadı." (rc=1). Etiketler yalnız `labels-english.tsv`e eklendi.
+- Kanıt — `fm settings tarih` (TR) / `"date format"` (EN), `dd/mm/yyyy ↔ mm/dd/yyyy`, üç durum (s1 başka sayfa
+  `Messages` açık / s2 hemen ikinci koşu / s3 `Squad Dynamics`·`Dynamics` sonrası): **6/6 rc=0**, çıktı eski
+  derlemeyle **birebir** (TR s1 `dd/mm/yyyy → mm/dd/yyyy`, s2 tersi, s3 s1; EN aynı sıra). İz: sekme
+  `click ?within=YourWorldTabButton&name=DetailedPreferencesTabButton`, onay `click ?ptr=…`, `text=Confirm` **0**
+  (eski izde de 0 — yedek hiç ateşlenmiyordu). Dosyalar `…/opencode/t85/{base,new}-{tr,en}-s{1,2,3}.{out,err}`.
+- Dönüş/yan etki: tarih biçimi **dd/mm/yyyy** (tur başındaki hâli), dil `fm settings language "Türkçe"` → TR
+  (`fm settings --json` → Turkish, dd/mm/yyyy); kayıt yalnız okundu, saat ilerletilmedi, maç oynanmadı. Yalnız
+  `cli/fm/Settings.cs` iki yerel dal + etiket tablosu → paylaşılan koda dokunulmadı, `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 84)
 - Madde: **A "Kısa `Until`" / Reads 892** (`fm table`in ülke eşi: `Human.Team.Nation.Name` en çok 3 sn bekleniyordu)
   — **BİTTİ**, ölçüldü, kod değişmedi (§8.272). İşaret değerin kendisi: istek üç durumda da **26–30 ms**'de dolu
   dönüyor, 3 sn sınırı ~100 kat pay. Değer hiç gelmezse kod yanlış tablo basmıyor: ülke eşleşmesi atlanıyor, portal
