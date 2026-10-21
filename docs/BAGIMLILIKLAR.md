@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **31** · `Task.Delay` 32 çağrı (21 borç, 9 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 4
+**Canlı sayaç:** açık kutu **30** · `Task.Delay` 32 çağrı (21 borç, 9 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -74,10 +74,10 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:638` "Edit Recruitment Focus"
 
-#### A2. Kısa `Until` (≤3 sn) — 4 yer
+#### A2. Kısa `Until` (≤3 sn) — 3 yer
 
 - [~] `Coaches.cs:56` — yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318
-- [ ] `ContractTalks.cs:388` 3 sn
+- [~] `ContractTalks.cs:388` — çıkış basışından sonra görüşme ekranı 0,41–0,45 sn'de kapanıyor; 3 sn yalnız üst sınır, §8.326
 - [~] `League.cs:223` — yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319
 - [ ] `MatchControls.cs:131` 3 sn
 - [ ] `MatchControls.cs:266` 1.5 sn

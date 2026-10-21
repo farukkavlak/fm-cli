@@ -5,10 +5,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **33**: `Task.Delay` **21 borç** (32 çağrının 9'u
-  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **6**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **30**: `Task.Delay` **21 borç** (32 çağrının 9'u
+  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **3**.
 
-## Şu an (Tur 134)
+## Şu an (Tur 135)
+- Madde: **A2 kısa `Until` / `ContractTalks.cs:388`** — vaatler aşamasında görüşmeden çıkarken oyunun kendi
+  Exit Negotiations düğmesine basılıyor ve görüşme ekranının kapanması 3 sn üst sınırla bekleniyordu.
+  **BİTTİ** (§8.326): ölçüldü, **borç değil** — ekran basıştan **0,41–0,45 sn** sonra kapanıyor, 6/6 koşuda
+  ikinci yoklamada; 3 sn yalnız üst sınır. `tools/remaining.py` `SETTLED_SHORT`'a eklendi (açık kutu 31 → **30**).
+- Kanıt (`FM_TRACE=1`, `fm contract "Ben House"` + `--cancel`; üç durum: `Mesajlar` açıkken / hemen ikinci koşu /
+  `Kadro` sonrası) × iki dil **6/6 rc=0**, "Görüşme iptal edildi." / "Negotiation cancelled."; basış→ilk okuma
+  TR 56–76 ms, EN 118–149 ms. Dosyalar `/tmp/opencode/t135/`.
+- Dönüş: EN ölçümünden sonra `fm settings dil "Türkçe"` → yükleme ile ana kayıt; `fm save` **yok**.
+  Maç (11 Ağustos, `match --instant` Lincoln 2-0 Preston) yalnız test kaydında oynandı; saat ilerletildi,
+  sözleşme görüşmesi iptal edildi; tur sonunda `fm load "Faruk Kavlak - Fenerbahçe" --no-save` ile
+  9 Ağustos 2026 05:45'e dönüldü. `sweep.sh` gerekmedi (kod değişmedi; yalnız `remaining.py` + dokümanlar).
+- Sıradaki uygun maddeler: A1 küçük `Task.Delay`ler (MatchReport 35 — maç günü, Release 164, TrainingReport 93,
+  ScoutFocus 395) · B1 `MatchDay.cs:355/361/383` (maç günü) · A2 `MatchControls 131/266` (maç günü),
+  `Saves.cs:258` (kaydırma dalı).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): `Saves.cs:258` · Registration `Settled` (312/316) · Stages 337 ·
+  MatchDay üç pencere · `MatchControls` 131/266 · mesaj eki 1,5 sn · `opposition` · boy birimleri ·
+  `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`,
+  `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister) ·
+  `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`).
+
+## Önceki durum (Tur 134)
 - Madde: **A2 kısa `Until` / `Reads.cs:910`** — lig tablosu, yarışma adını ülkeyle eşleştirmek için
   `Human.Team.Nation.Name`i 3 sn üst sınırla bekliyordu. **BİTTİ** (§8.322): ölçüldü, **borç değil** — izde her
   koşuda tek `pull` (TR 33/27/28 ms, EN 27/26/26 ms) ve hemen ardından `state`, yani `Until` hiç tur atmıyor;

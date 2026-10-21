@@ -3835,3 +3835,13 @@ geldi. Aynı komut tekrarlandığında rc=0; elle `/press?event=OpenPanel&name=d
 kuyruğa takılıyor; `SearchFor` (`Reads.cs:99`) basışı bir kez yapıp 10 sn bekliyor, basışı yinelemiyor. Ayrı
 madde: basışı "kutu görünene kadar" yinelemek. (Aynı akışta bir kez `fm search --json` "Unhandled exception:
 System.InvalidOperationException" ile düştü; tek örnek, kök neden ölçülmedi.)
+
+### 8.326 sözleşme görüşmesinden çıkışta ekran 0,4 sn'de kapanıyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+`ContractTalks.CallOff` vaatler aşamasında iptal düğmesi bulamayınca oyunun kendi Exit Negotiations düğmesine
+basıyor (`ContractTalks.cs:388`) ve görüşme ekranının kapanmasını `Until(OfferScreen.Read == null, 3 sn, 0,25 sn)`
+ile bekliyor. Ölçüm (`FM_TRACE=1`, `fm contract "Ben House"` → `fm contract "Ben House" --cancel`; üç durum:
+`Messages`/`Mesajlar` açıkken açılan görüşme / hemen ikinci koşu / `Squad`/`Kadro` sonrası): basıştan ilk okumaya
+TR 56–76 ms, EN 118–149 ms; ekranın kapandığını söyleyen okuma basıştan **0,41–0,45 sn** sonra (TR 0,42/0,42/0,41,
+EN 0,43/0,41/0,45) ve 6/6 koşuda **ikinci yoklamada** geliyor. Yani 3 sn, en kötü ölçümün ~7 katı ve sabit
+duraklama değil; işaret oyunun kendi "ekran kapandı" hâli, **borç değil**, listede `[~]`. TR + EN × üç durum
+**6/6 rc=0**, çıktı "Görüşme iptal edildi." / "Negotiation cancelled.". Dosyalar `/tmp/opencode/t135/`.
