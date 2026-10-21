@@ -21,10 +21,11 @@ internal static partial class Program
 		var player = card.GetProperty("Player");
 		// The player's page remembers the tab it was left on; on the career tab there is no
 		// tile to press, the table is already there.
-		// The tile arrives a moment after the page itself.
+		// The tile arrives a moment after the page itself. It is found by the panel it is laid
+		// out in ("CareerStats"), whose name no language changes, not by its title.
 		var opened = "";
 		await Until(async () =>
-			!(opened = await Fm.Get("press", ("text", "Career Stats"))).StartsWith("error", StringComparison.Ordinal)
+			!(opened = await Fm.Get("click", ("within", "CareerStats"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal)
 			|| (await Fm.GetJson("texts", ("anchor", "Total Apps"), ("up", "0"))).GetArrayLength() > 0, seconds: 8, every: 0.5);
 		if (opened.StartsWith("error", StringComparison.Ordinal)
 		    && (await Fm.GetJson("texts", ("anchor", "Total Apps"), ("up", "0"))).GetArrayLength() == 0)

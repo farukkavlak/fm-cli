@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **49** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 13 · kısa `Until` (≤3 sn) 10
+**Canlı sayaç:** açık kutu **48** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 12 · kısa `Until` (≤3 sn) 10
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -68,9 +68,8 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `StatusFlags.cs:54` `if (waiting.Count > 0) await Task.Delay(250);`
 - [ ] `TrainingReport.cs:82` `await Task.Delay(500);`
 
-#### B1. Yazıyla basma/tıklama — 13 yer
+#### B1. Yazıyla basma/tıklama — 12 yer
 
-- [ ] `Career.cs:27` "Career Stats"
 - [ ] `Guided.cs:803` "Team Shape"
 - [ ] `MatchDay.cs:355` "Instant Result"
 - [ ] `MatchDay.cs:361` "Instant Result"
@@ -614,6 +613,8 @@ tablodan çevrilemiyor.
     geliyor (`Info`/`Avg Rat` ↔ `Information`/`Avg. Rating`), Türkçede `start` 0'a düşüp komut
     `Kariyer tablosu okunamadı.` ile rc=1 veriyordu. TR üç durum + kaleci rc=0 (tek `md5`), EN çıktısı eski
     derlemeyle birebir; negatif oyuncu rc=1 (§8.214).
+  - [x] `player --career` kariyer döşemesi: `press text="Career Stats"` yerine döşemenin dilden bağımsız paneli
+    (`within=CareerStats` › `layout-tile-interaction-button`); TR + EN × üç durum çıktısı eski derlemeyle birebir (§8.308).
   - [x] sakatlık eki "Received in" / "Out for" — Türkçede çalıştı (tablodan çevriliyor)
   - [x] ~~Intensity "Ask … training intensities"~~ (sayfa Guid'iyle, §8.187)
   - [x] ~~Mentoring "assign mentoring groups"~~ (eylem kimliğiyle, §8.188)

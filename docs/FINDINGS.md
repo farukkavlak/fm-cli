@@ -3629,3 +3629,12 @@ menü zaten açık / `Messages` açık) **6/6 rc=1**, çıktı eski derlemeyle b
 "'…' is not in the game's list of saves."); izde `texts ?anchor=Save Game As` + `click ?text=Save Game As` →
 `buttons ?type=…` + `press ?ptr=…`. Menü zaten açıkken tarayıcı 0,33–0,50 sn'de açılıyor; `fm world` TR + EN
 rc=0, çıktı eskisiyle aynı; `sweep.sh` 50/50. Dosyalar `/tmp/opencode/t117/`.
+
+### 8.308 `player --career` kariyer sekmesini döşemenin panel adıyla açıyor (21 Ekim, TR + EN)
+`Career.cs` kariyer döşemesini `press ?text="Career Stats"` ile buluyordu; söz eklentinin çeviri tablosundan
+geliyor, yani düğme dile bağlıydı. Döşemenin dilden bağımsız tutamağı, içinde dizildiği panel:
+`#CareerStats` (BindingRemapper) › `layout-tile-interaction-button`. Artık `/click?within=CareerStats&name=…`;
+izde `press ?text=Career Stats` → `click ?within=CareerStats&name=layout-tile-interaction-button`.
+Kanıt: TR + EN × üç durum (oyuncu sayfası ilk kez açılıyor / kariyer sekmesi zaten açık / başka sayfadan
+oyuncuya dönüş) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 3724a170…`, EN `205f72cb…`).
+Okuma dışı iş yok: `fm save` yok, tarih 9 Ağustos 2026 05:45, kayıt damgası 10:40. Dosyalar `/tmp/opencode/t121/`.

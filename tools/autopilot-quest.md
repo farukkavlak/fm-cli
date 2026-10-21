@@ -5,8 +5,8 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **49**: `Task.Delay` **26 borç** (35 çağrının 7'si
-  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **13** + kısa `Until` **10**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **48**: `Task.Delay` **26 borç** (35 çağrının 7'si
+  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **12** + kısa `Until` **10**.
 - Eski şemsiye satırlar ("89 yer", "44 yer", "15 yer") **arşiv**: kanıt metinleri duruyor, kutu değiller.
 - Tur sonunda `python3 tools/remaining.py --write` çalıştırılır; biten yerin kutusu koddan düşer.
 
@@ -21,7 +21,25 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 118)
+## Şu an (Tur 119)
+- Madde: **B1 yazıyla basma / `Career.cs:27`** — `player --career` kariyer döşemesini `press ?text="Career Stats"`
+  ile buluyordu (söz çeviri tablosundan). **BİTTİ** (§8.308): döşeme artık dilden bağımsız paneliyle bulunuyor —
+  `click ?within=CareerStats&name=layout-tile-interaction-button` (panel `BindingRemapper #CareerStats`, tutamak
+  `layout-tile-interaction-button`). İzde `press ?text=Career Stats` → `click ?within=CareerStats&name=…`.
+- Kanıt: TR + EN × üç durum (oyuncu sayfası ilk kez açılıyor / kariyer sekmesi zaten açık / başka sayfadan
+  oyuncuya dönüş) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı — hash aynı (TR `3724a170…`, EN `205f72cb…`).
+  `/buttons`/kuru koşu `CareerStats` içinde tek döşeme diyor; `fm save` yok, tarih 9 Ağustos 2026 05:45, saat 0,
+  kayıt damgası **10:40** (değişmedi), dil sonda `türkçe`. Dosyalar `/tmp/opencode/t121/`.
+- Aynı fonksiyonda kalan (ayrı iş): tablo okuması hâlâ `texts ?anchor="Total Apps"` çapasına bağlı; döşeme düzeldi,
+  çapa bu turda ele alınmadı. Not (regresyon değil): oyuncu sayfası kariyer sekmesinde bırakılıp `Messages`
+  açıldığında `fm player --career` eski derlemede de yenide de rc=1 veriyor (oyuncu komutu sayfayı öne getirmiyor);
+  ayrı bakılmalı.
+- Sıradaki uygun maddeler: B1 `TrainingReport.cs:30` · `Matches.cs:55` · `Saves.cs:552` · `Settings.cs:304` ·
+  `TraitTraining.cs:153` · B Program cümle parçaları (örnek mesaj üretmek gerek) · A kısa `Until`in kalanları.
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç pencere · mesaj eki 1,5 sn · `opposition` ·
+  boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 (Faruk'un cevabı bekleniyor).
+
+## Önceki durum (Tur 118)
 - Madde: **A "`Task.Delay`" / Guided 161 174** (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms
   bekleme) — **PARK**, `[?]` yapıldı, kod değişmedi. Pencere bu kayıtta açılamadı: `FeeAsked`in aradığı
   `notifications-modal-dialog-default-default` içindeki `Binds=value` dropdown + `EventFmxConfirmChanges`
