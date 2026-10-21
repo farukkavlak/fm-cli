@@ -798,6 +798,13 @@ tablodan çevrilemiyor.
     sayfaya geçtikten sonra) `fm tactic pick` **6/6 rc=0** ve çıktı eski derlemeyle **birebir** (TR
     `md5 15786eb3…`, EN `43a4a177…`, ilk 11 aynı); izde `text=Quick Pick` **0** → `press ?event=…`; `--dry` da
     aynı olayı soruyor ve hiç basmıyor (§8.271).
+  - [x] **`fm staff`ın "All Staff" sekmesi ve tablosu** yazıyla değil oyunun kendi kaplarıyla: sekme
+    `AllStaffTabGridCompositionSet` içindeki `navigation-tab-default-default`, tablo da kendi paneli
+    (`StaffContractsTable`) okunuyor; satırlar yine `binding.Name` ile. Sekmenin yazısı oyunun sözü ("Tüm
+    Personel"), tablo okuması da `anchor="All Staff"` + `up=12` ile o yazıya bağlıydı. TR + EN, üç durumda
+    (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) çıktı eski derlemeyle **birebir**
+    (TR `md5 a3d8f866…` 3/3, EN `ec69a3e1…` 3/3; 63 satır, 27 personel); izde `click ?text=All Staff` **0** →
+    `click ?within=AllStaffTabGridCompositionSet&name=…`, okuma `texts ?within=StaffContractsTable` (§8.291).
 - [x] **`fm load` soğuk açılışta yükleme listesini hiç açamıyordu** — yeniden başlatılan oyunun "kariyer yükle"
   döşemesi İngilizce cümlesiyle (`?text=Load an FM26 career …`) basılıyordu; TR oyunda döşemenin yazısı Türkçe
   olduğu için basış hiçbir yere denk gelmiyor, hata yok sayılıyor ve liste açılmadan satır aranıyordu → `fm load`

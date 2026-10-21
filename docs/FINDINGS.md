@@ -3463,3 +3463,15 @@ passing ≤12: 3/3). Artık satır, değer düğmesi/listesi çizilene kadar bek
 bulunuyor; `finishing<=7` TR + EN × üç durum 6/6 rc=0. Ölçüm: değer 0,25–0,30 sn'de geliyor, hazır değer
 0,02–0,05 sn, adım 0,02–0,04 sn; `>=` yolu değişmedi (rc=0, `finishing>=8` ile kesişim boş). Dosyalar
 `/tmp/opencode/t102/`.
+
+### 8.291 `fm staff`ın "All Staff" sekmesi ve tablosu yazıyla değil oyunun kendi kaplarıyla (21 Ekim, TR + EN)
+
+Sekme `click ?text=All Staff&name=navigation-tab-default-default` ile basılıyor, tablo da `texts ?anchor=All
+Staff&up=12` ile okunuyordu; ikisi de oyunun sözü ("Tüm Personel") üzerinden. Eklenti etiketi İngilizceye
+çevirdiği için bugün çalışıyordu, ama çeviri tablosunda karşılığı olmayan bir sözde sekme hiç açılmazdı. Artık
+sekme, düğmenin durduğu **kabın** adıyla (`AllStaffTabGridCompositionSet`) bulunuyor (şablonun adı, dilden
+bağımsız; aynı desen `fm settings` sekmelerinde, §8.204), tablo da kendi panelinden (`StaffContractsTable`)
+okunuyor; satırlar yine `binding.Name` ile başlıyor. Üç durum (başka sayfa açık / hemen ikinci koşu / başka
+sayfaya geçtikten sonra) × TR + EN: **6/6 rc=0**, çıktı eski derlemeyle birebir (TR `md5 a3d8f866…`, EN
+`ec69a3e1…`, 63 satır / 27 personel); izde `click ?text=All Staff` **0**, `click ?within=AllStaffTabGridCompositionSet`
+ve `texts ?within=StaffContractsTable`. Süre 6,5–6,6 sn (eskisiyle aynı). Dosyalar `/tmp/t103/`.

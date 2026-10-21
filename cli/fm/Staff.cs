@@ -15,6 +15,13 @@ internal static partial class Program
 {
 	private static readonly string[] StaffTeams = ["Coaching Staff", "Recruitment Staff", "Medical Staff"];
 
+	// The All Staff tab's own container: the tab's button is found by the panel it sits in, whose
+	// name no language changes, where its title is the game's word ("Tüm Personel").
+	private const string AllStaffTab = "AllStaffTabGridCompositionSet";
+
+	// The staff table itself: the rows are read inside the table, whose name no language changes.
+	private const string StaffTable = "StaffContractsTable";
+
 	// What each team is called where the game's table has a name for it: it has no "Recruitment Staff"
 	// or "Medical Staff" of its own.
 	private static readonly string[] StaffTeamNames = ["Coaching Staff", "Recruitment", "Medical Team"];
@@ -54,7 +61,7 @@ internal static partial class Program
 		{
 			await Until(async () => !(clicked = await Fm.Get("click", ("within", "ClubAllStaff"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 			if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
-			shown = await Until(async () => !(await Fm.Get("click", ("text", "All Staff"), ("name", "navigation-tab-default-default"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal),
+			shown = await Until(async () => !(await Fm.Get("click", ("within", AllStaffTab), ("name", "navigation-tab-default-default"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal),
 				seconds: attempt < 2 ? 3 : 10, every: 0.5);
 		}
 		if (!shown)
@@ -63,7 +70,7 @@ internal static partial class Program
 			return 1;
 		}
 
-		var tab = await Fm.Get("click", ("text", "All Staff"), ("name", "navigation-tab-default-default"));
+		var tab = await Fm.Get("click", ("within", AllStaffTab), ("name", "navigation-tab-default-default"));
 		if (tab.StartsWith("error", StringComparison.Ordinal)) return Report(tab);
 
 		var people = new Dictionary<string, string[]>();
@@ -145,11 +152,12 @@ internal static partial class Program
 
 	/// <summary>
 	/// The All Staff table's rows in view: a row begins at a name (binding.Name) and holds the eight
-	/// cells after it — team, job, age, nation, time, contract, wage, expiry.
+	/// cells after it — team, job, age, nation, time, contract, wage, expiry. The table is the game's
+	/// own panel (StaffContractsTable), so neither its tab's title nor any heading is read.
 	/// </summary>
 	private static async Task<List<string[]>> StaffRows()
 	{
-		var texts = (await Fm.GetJson("texts", ("anchor", "All Staff"), ("up", "12"), ("paths", "1"))).EnumerateArray()
+		var texts = (await Fm.GetJson("texts", ("within", StaffTable), ("paths", "1"))).EnumerateArray()
 			.Select(t => (Text: Field(t, "Text"), Path: Field(t, "Path"))).ToList();
 		var rows = new List<string[]>();
 		for (var i = 0; i < texts.Count; i++)

@@ -14,7 +14,27 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 99)
+## Şu an (Tur 100)
+- Madde: **B "İngilizce yazıyla basma/tıklama — 44 yer" / `fm staff`ın "All Staff" sekmesi ve tablosu** — **BİTTİ**
+  (§8.291). Sekme `click ?text=All Staff&name=navigation-tab-default-default` ile, tablo da
+  `texts ?anchor=All Staff&up=12` ile oyunun sözüne bağlıydı. Artık sekme kendi kabından
+  (`AllStaffTabGridCompositionSet` › `navigation-tab-default-default`), tablo da kendi panelinden
+  (`StaffContractsTable`) okunuyor; satırlar yine `binding.Name` ile.
+- Kanıt — önce (eski derleme, `git stash` + build): TR üç durum (başka sayfa açık `fm open "Messages"` / hemen
+  ikinci koşu / `fm open "Squad Dynamics"` sonrası) 63 satır, `md5 a3d8f866…` (3/3); EN aynı üç durum 63 satır,
+  `md5 ec69a3e1…` (3/3). Sonra (yeni derleme): TR 3/3 `a3d8f866…`, EN 3/3 `ec69a3e1…` — **birebir**; 27 personel.
+  İz: `click ?text=All Staff` **0** → `click ?within=AllStaffTabGridCompositionSet&name=…`; okuma
+  `texts ?within=StaffContractsTable`. Süre 6,5–6,6 sn (eskisi 6,6 sn). Dosyalar `/tmp/t103/`.
+- Dönüş: dil `fm settings language "Türkçe"` → `turkish`; `/state` 9 Ağustos 2026, saat 0; kayıt yalnız okundu,
+  `fm save` yok. Değişiklik yalnız `cli/fm/Staff.cs`; paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) · A Guided 161/174 (bedel sözü) ·
+  B Program cümle parçaları · B haber "Portugal" · B `Create/Edit Recruitment Focus` (ActionID 0 → eklenti) ·
+  D `up=N` / GUID taraması. **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 ·
+  Clock 179 işsizlik · MatchDay üç pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn · `opposition`
+  "Apply all advice" · boy birimleri.
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 99)
 - Madde: **A "Kısa `Until`" / StaffSearch 354** — `fm players --attr "<nitelik><=N"` ("Is At Most" yolu) —
   **BİTTİ** (§8.290). Ölçerken gerçek hata çıktı: karşılaştırma sözü değişir değişmez satır hazır sayılıyor,
   değer düğmesi (`Shown() = -1`) ve `rule.minvalue` yerine `rule.maxvalue`ya geçen değer listesi okunmuyordu.
