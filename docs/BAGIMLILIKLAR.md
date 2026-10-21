@@ -337,6 +337,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     oyunun sorusu yerine bütçe seçeneklerini basıyor, oyunun sorusu (seçimden 0,24 sn sonra gelen) cevapsız kalıyordu.
     Sonra: TR + EN'de soru basılıyor, üç durumda aynı; gerçek konuşma (`Interaction>Praise>…`) hâlâ açılıyor; sonuçsuz
     iş (`Training>Rest Player>1 day`) "yapıldı" diyor ve veriden doğrulandı (`fm intensity` → RestDays 1); sweep 50/50 (§8.199).
+  - [x] Prep 124 (`FocusSlots`: maç hazırlığı okunmadan önce iki `pathset`, her biri 3 sn): ölçüldü,
+    **değişiklik gerekmedi**. İşaret oyunun kendi cevabı — `pathset` hatasız dönüyor; TR + EN × üç durumda
+    (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics` sonrası) **6/6 ilk denemede**,
+    yanıt **31–33 ms**, yani 3 sn ≈ **90–95 kat** pay; üç TR ve üç EN çıktısı bayt bayt aynı (`md5 262424c7…`).
+    `pathset` düşerse komut zaten "hazırlık okunamadı" ile rc=1 veriyor, sessiz "oldu" yok (§8.299).
   - [x] Budget 70 (kartın slider adımları): ölçüldü, **değişiklik gerekmedi**. Okuma, oyunun kendi işaretiyle kabul
     ediliyor: kartın `budget.BudgetAdjustmentEditedTransferValue` / `...EditedOtherValue` yazıları değişti **ve**
     yürürlükteki adımı ayıran yıldız adıma uydu. 7 koşu × 16 adım (TR + EN; sayfa ilk kez açılıyor / zaten açık /

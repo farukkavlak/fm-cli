@@ -14,7 +14,24 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 110)
+## Şu an (Tur 111)
+- Madde: **A "Kısa `Until`" / Prep 124 — iki `pathset`in 3 sn sınırı** — **BİTTİ** (§8.299); ölçüldü,
+  **değişiklik gerekmedi**. İşaret zaten oyunun kendi cevabı (`pathset` hatasız dönüyor); sınır darda değil.
+- Kanıt (`FM_TRACE=1`, `fm prep --json`): TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci
+  koşu / s3 `Squad Dynamics`·EN `Dynamics` sonrası) **6/6 rc=0**; `FixtureHasResult` + `training` pathset'leri
+  **her koşuda ilk denemede 31–33 ms** → 3 sn ≈ **90–95 kat** pay. Üç TR ve üç EN çıktısı bayt bayt aynı
+  (`md5 262424c7…`; `--json` adları kayıttaki dilde, veri yolu dilden bağımsız). `pathset` düşerse `Prep`
+  "Maç hazırlığı okunamadı" ile rc=1 veriyor (sessiz "oldu" yok). Dosyalar `/tmp/t111/`.
+- Dönüş/kayıt: dil `fm settings language "Türkçe"` → `/state` `Language: turkish`, `Date: 2026-08-09`,
+  `Clock: 0`, `DuringMatch: False`; `fm save` yok, saat ilerletilmedi, maç oynanmadı; kayıt zaman damgası
+  **10:40** (değişmedi). Yalnız dokümanlar değişti; kod değişmedi → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A Guided 161/174 (bedel sözü) · A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) ·
+  A kısa `Until`in kalanları (Saves 207/220, MatchControls 131 266, ScoutFocus 55, Program 986/1918/2118) ·
+  B Program cümle parçaları (örnek mesaj) · B 44'ün kalanları · D/E `up=N` taraması. **Sonraya bırakılanlar**
+  (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 · Clock 179 işsizlik · MatchDay üç pencere · yükleme
+  ekranı `Load` · mesaj eki 1,5 sn · `opposition` "Apply all advice" · boy birimleri.
+
+## Önceki durum (Tur 110)
 - Madde: **A "Kısa `Until`" / StaffSearch 354 — arama panelinde nitelik değerinin `+`/`-` adımı** — **BİTTİ**
   (§8.298). İşaret zaten oyunun kendi cevabıydı ("değer değişti"), yalnız üst sınır **3 sn** dardı. Ölçüm
   (`FM_TRACE=1`; `select 20` → iki `-` adımı, basış → değişmiş `form ?anchorpath=filter.…`): TR **0,34–0,51 sn**,

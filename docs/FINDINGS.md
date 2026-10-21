@@ -3547,3 +3547,10 @@ TR + EN × üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Sq
 Değişiklik hata yolunda: guard bitince değer yine değişmezse "değer … yapılamadı" (rc=1), sessiz "oldu" yok.
 `fm players --attr "Pace>=18" --json` iki dilde 6/6 rc=0 ve aynı boş çıktı; `Pace>=15` satır kümesi eski
 derlemeyle birebir (TR 17 ad, aynı sıra). `sweep.sh` 50/50. Dosyalar `/tmp/opencode/t110/`.
+
+### 8.299 `fm prep`in iki `pathset`i 3 sn'de "gelmedi" saymıyor (21 Ekim, TR + EN)
+`FocusSlots` sıradaki maçın hazırlığını okumadan önce `FixtureHasResult` ve `training` için iki `pathset` kuruyor
+(üst sınır 3 sn, 0,2 sn aralık); düşerlerse komut "Maç hazırlığı okunamadı" ile rc=1 veriyor. Ölçüm (`FM_TRACE=1`,
+`fm prep --json`): TR + EN × üç durum (başka sayfa `Messages` / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics`
+sonrası) **6/6 ilk denemede**, yanıt **31–33 ms** → 3 sn ≈ **90–95 kat** pay; değişiklik gerekmedi. Üç TR ve üç EN
+çıktısı bayt bayt aynı (`md5 262424c7…`; `--json` adları oyunun kayıttaki dili, veri yolu dilden bağımsız).
