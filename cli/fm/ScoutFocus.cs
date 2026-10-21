@@ -475,27 +475,63 @@ internal static partial class Program
 		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Select(b => Regex.Match(Field(b, "Label"), @"^Assignments \((\d+)\)$"))
 			.FirstOrDefault(m => m.Success) is { } found ? int.Parse(found.Groups[1].Value) : null;
 
+	/// <summary>
+	/// The menu icon the focus page's "open a new focus" action is drawn with. Its label is the
+	/// game's words, and every one of these buttons carries ActionID 0, so the action reference's
+	/// own menu icon is what tells it from the recommended, edit and remove buttons (§8.334).
+	/// </summary>
+	private const string CreateFocusIcon = "929682755";
+
+	/// <summary>The menu icon of the action that opens the selected focus for editing.</summary>
+	private const string EditFocusIcon = "464150106";
+
+	/// <summary>
+	/// The optional button whose action is drawn with this menu icon: the label is translated,
+	/// the icon is not. These are the buttons of the messages panel; the same action is offered
+	/// there from the focus page and from the assignments panel.
+	/// </summary>
+	private static async Task<JsonElement?> OptionalButton(string icon)
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Type") == "SIButton" && Field(b, "Name") == "StandardButton"
+			            && Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
+			.ToList();
+		if (buttons.Count == 0) return null;
+		var icons = await PullEach(buttons.Select(b => (Field(b, "Action"), "MenuIconID")).ToList());
+		return buttons.Zip(icons, (b, i) => (Button: b, Icon: Field(i, "MenuIconID")))
+			.Where(t => t.Icon == icon).Select(t => (JsonElement?)t.Button).LastOrDefault();
+	}
+
+	/// <summary>Presses that optional button until it answers; a redrawn list leaves its pointer stale.</summary>
+	private static async Task<string> ClickOptional(string icon, double seconds = 8)
+	{
+		var answer = "";
+		await Until(async () => !(answer = await OptionalButton(icon) is { } button
+			? await Fm.Get("click", ("ptr", Field(button, "Pointer")))
+			: $"error: no optional button carries the menu icon {icon}").StartsWith("error", StringComparison.Ordinal), seconds: seconds, every: 0.5);
+		return answer;
+	}
+
 	private static async Task<bool> OpenFocusForm(bool again = false)
 	{
 		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return false; }
-		var clicked = "";
 		// The button is drawn a moment after the page; clicked, not queued — its action is code.
-		await Until(async () => !(clicked = await Fm.Get("click", ("text", "Create a New Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+		var clicked = await ClickOptional(CreateFocusIcon);
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
 			// The page does not always offer it (FINDINGS §8.120); the assignments panel behind
-			// "Assignments (n)" has a button of the same name that opens the same form.
+			// "Assignments (n)" has the same create action and opens the same form.
 			var assignments = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal));
 			if (assignments.ValueKind == JsonValueKind.Object)
 			{
 				await Fm.Get("click", ("ptr", Field(assignments, "Pointer")));
-				await Until(async () => !(clicked = await Fm.Get("click", ("text", "Create a New Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+				clicked = await ClickOptional(CreateFocusIcon);
 			}
 		}
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L("Oyun şu an yeni odak açtırmıyor: ne odak sayfasında ne görevler panelinde 'Create a New Recruitment Focus' var."));
+			Console.Error.WriteLine(L("Oyun şu an yeni odak açtırmıyor: ne odak sayfasında ne görevler panelinde yeni odak düğmesi var."));
 			return false;
 		}
 		// A form left half-filled (a run that failed, a page opened over it) comes back as it was
@@ -636,7 +672,7 @@ internal static partial class Program
 			else if (Choose(existing.Select(f => f.Name).Distinct().ToList(), which, L("Odak")) is { } wanted) editing = existing.First(f => f.Name == wanted);
 			else return 64;
 			if (await FocusAt(editing.Index) is not { } shown || shown.Name != editing.Name
-				|| (await Fm.Get("click", ("text", "Edit Recruitment Focus"))).StartsWith("error", StringComparison.Ordinal)
+				|| (await ClickOptional(EditFocusIcon, seconds: 5)).StartsWith("error", StringComparison.Ordinal)
 				|| !await Until(async () => await FormStep() == "next", seconds: 8, every: 0.5))
 			{
 				Console.Error.WriteLine(L($"Oyun '{editing.Name}' için düzenlemeyi açmadı."));

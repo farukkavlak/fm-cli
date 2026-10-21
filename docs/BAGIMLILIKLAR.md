@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **21** · `Task.Delay` 29 çağrı (15 borç, 12 borç değil) · yazıyla basış 3 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **18** · `Task.Delay` 29 çağrı (15 borç, 12 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -62,11 +62,8 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `StatusFlags.cs:54` — döngüde yoklama aralığı (250 ms), §8.317
 - [~] `TrainingReport.cs:93` — seçim taze liste üzerinden ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.329
 
-#### B1. Yazıyla basma/tıklama — 3 yer
+#### B1. Yazıyla basma/tıklama — 0 yer
 
-- [ ] `ScoutFocus.cs:484` "Create a New Recruitment Focus"
-- [ ] `ScoutFocus.cs:493` "Create a New Recruitment Focus"
-- [ ] `ScoutFocus.cs:639` "Edit Recruitment Focus"
 
 #### A2. Kısa `Until` (≤3 sn) — 3 yer
 
@@ -781,6 +778,10 @@ tablodan çevrilemiyor.
     açık / başka sayfaya geçtikten sonra) + negatifler ve EN üç durum: `restart` rc=0 "Odak yeniden başlatıldı",
     `remove --yes` rc=0 "Odak durduruldu", durmuş odağa `remove`/süren odağa `restart` rc=1 ("zaten durmuş" /
     "zaten sürüyor"); sonuç `fm scout --json`ten doğrulandı (§8.234).
+  - [x] **"Create a New / Edit Recruitment Focus"** artık etiketle değil, eylemin kendi menü ikonuyla bulunuyor:
+    `ActionID` ikisinde de 0 ama `MenuIconID` yeni **929682755**, düzenle **464150106** (§8.334). TR + EN ×
+    üç durumda ikon yolu eski yazı yoluyla aynı düğmeyi seçti; gerçek `scout areas` / `scout edit` koşularında
+    form açıldı. Yazıyla basış sayacı 3 → 0.
   - [x] `fm staff find` arama panelinin üç kuralı (`--role` / `--free`·`--employed` / `--reputation`) artık seçenek
     sözüyle değil oyunun bağladığı **yoldan** bulunuyor ve seçim, kuralın listesi o sözde durana kadar bekleniyor —
     sabit 500 ms'ler kalktı. Türkçe oyunda çalışma durumu listesinin sözleri çeviriden geldiği için `"By Nation"`

@@ -5,10 +5,36 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **21**: `Task.Delay` **15 borç** (29 çağrının 12'si
-  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **3** + kısa `Until` **3**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **18**: `Task.Delay` **15 borç** (29 çağrının 12'si
+  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **0** + kısa `Until` **3**.
 
-## Şu an (Tur 140)
+## Şu an (Tur 142)
+- Madde: **B1 yazıyla basma / `ScoutFocus.cs:484/493/639`** — odak formunun "Create a New Recruitment Focus"
+  (iki çağrı) ve "Edit Recruitment Focus" düğmeleri oyunun çevrilen sözüyle basılıyordu. **BİTTİ** (§8.334):
+  dört `SpeakToOptionalActionButton` aynı `Page`/`Name`/`SpeakToAction` ve hepsinde `ActionID=0`; ayırt eden
+  eylem nesnesinin `MenuIconID`'si — yeni **929682755**, düzenle **464150106** (`pull ?props=MenuIconID`).
+  Yeni yardımcı `OptionalButton` + `ClickOptional`; yazı hiç okunmuyor. Üç kutu birlikte düştü (21 → 18;
+  yazıyla basış 3 → 0).
+- Kanıt — altı durum (`Messages` sonrası ilk açılış / sayfa zaten açık / `Squad` sonrası × TR + EN):
+  ikon yolu ile eski yazı yolu **aynı pointer** (TR 0x3fe51b800 / 0x41a53d000, EN 0x478ae9000 / 0x479b26800…),
+  dört ikon iki dilde de aynı (`-1 / 464150106 / 733813578 / 929682755`). Gerçek koşular: `scout areas`
+  TR 3/3, EN 3/3 (rc=0, bölge listesi); `scout edit` EN 3/3 (odak güncellendi), TR 3/3 (`--area Atlantis`
+  ile form açılıp rc=64, kasıtlı değişiklik yok). İzlerde `click ?text=` **0**, `pull ?path=fmcli.speak…`
+  + `click ?ptr=` her koşuda var. Görevler paneli (`Assignments (n)`) yedeği aynı dört düğmeyi gösteriyor.
+  Dosyalar `/tmp/opencode/t142/`.
+- Not (bu değişiklikten bağımsız): TR `scout edit` tekrarlarında bir kez oyunun ana iş parçacığı 30 sn
+  yanıt vermedi, oyun ana menüye düştü; süreç öldürülüp `fm start </dev/null` ile ana kayıt yeniden açıldı.
+  Aynı izde hata `MenuIconID` aramasından **önce** (`FocusAt` → `texts`) oluştu, yeni koda girmeden.
+- Dönüş: `fm save` **yok**; oyun yeniden ana kayıttan açıldı → `/state` `Language: turkish`, `Date: 2026-08-09`,
+  `Clock: 0`, `DuringMatch: False`; ana kayıt damgası **21 Ekim 10:40** (değişmedi), dört kayıt yerinde.
+  `python3 tools/remaining.py --write` → açık kutu **18**.
+- Sıradaki uygun maddeler: **yok** — kalan 18 kutunun hepsi `[?]` (Guided 161/174) ya da "Sonraya bırakılanlar"
+  listesinde. Bir sonraki tur `tools/sweep.sh` + gerçek menajer akışıyla hata avına geçsin.
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): `Saves.cs:258` · Registration `Settled` (312/316) · Stages
+  63/120/136/213 · MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 · `Program.cs:589/694/1448/2206`,
+  `Launcher 213/269` (oyunu kapatıp açmayı / baştan sona gezinmeyi ister).
+
+## Önceki durum (Tur 140)
 - Madde: **A1 `Task.Delay` / `ScoutFocus.cs:395`** — `scout remove --yes` sayfadaki kaldırma düğmesini
   bulamayınca görevler panelinde her gözlemciyi seçtikten sonra sabit **700 ms** uyuyordu. **BİTTİ** (§8.333):
   işaret seçilen gözlemcinin kendi adı — panelin sağ tarafı `Scout.Name` ile başlıklandığı an odakları da

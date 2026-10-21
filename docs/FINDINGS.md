@@ -3923,3 +3923,17 @@ Panelin kendi başlığı çevriliyor ("Aktif Görevler (4)" / "Active Assignmen
 penceresi (`RecruitmentFocusRemove`) açıldı, atama sayısı 3 → 2 düştü. **Kalan hata (ayrı iş):** `fm scout staff`
 hâlâ aynı çevrili başlığı aradığı için TR'de boş dönüyor (rc=0, "(boş)"); odakları da "Recruitment Focuses"
 sözüyle kesiyor. `ScoutFocus.cs` yalnız bu iki fonksiyonda değişti; `sweep.sh` 50/50.
+
+### 8.334 odak formunun "yeni / düzenle" düğmeleri yazıyla değil, eylemin kendi menü ikonuyla bulunuyor (21 Ekim, TR + EN)
+
+`OpenFocusForm` yeni odağı `click ?text="Create a New Recruitment Focus"` ile, `scout edit` de aynı yolla
+"Edit Recruitment Focus" ile açıyordu; ikisi de oyunun çevrilen sözü. Dört `SpeakToOptionalActionButton`
+(create recommended / edit / remove / create new) aynı `Page`, aynı `Name=StandardButton`, aynı
+`Events=SpeakToAction` ve hepsinde `ActionID=0`; ayırt eden, eylem nesnesinin kendi `MenuIconID`'si:
+yeni **929682755**, düzenle **464150106**, kaldır 733813578, önerilen -1. Değer `buttons?json=1&gen=…`ın
+verdiği `Action` yolundan `pull ?props=MenuIconID` ile okunuyor (ilk tur bağlar, ikinci tur değeri verir).
+Üç durum (`Messages` sonrası ilk açılış / sayfa zaten açık / `Squad` sonrası) × TR + EN **6/6**: ikon yolu
+ile eski yazı yolu **aynı düğme pointer'ını** seçti; dört gerçek `scout areas` ve altı gerçek `scout edit`
+koşusunda form açıldı, ikonlar iki dilde de aynı kaldı. Görevler panelinden (`Assignments (n)`) açılan
+yedek yol da aynı düğmeleri gösteriyor. `tools/remaining.py --write`: açık kutu 21 → **18**, yazıyla basış
+**3 → 0**.
