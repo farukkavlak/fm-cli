@@ -18,6 +18,9 @@ internal static partial class Program
 	// The game names the match ratings page itself: its element lives in the card while the page is
 	// up, whatever language it reads in, and is empty once it is closed.
 	private const string FormCard = "PlayerFormCard";
+	// The form tile sits in the card's own "PlayerForm" binding; its title is the game's words,
+	// so it is addressed by the part of the game's data it lives in, not by what it says.
+	private const string FormTile = "PlayerForm";
 	// The summary's own binding: the page has drawn its numbers when this path has answered.
 	private const string FormStats = "formstats.GamesPlayed";
 
@@ -52,7 +55,7 @@ internal static partial class Program
 		// The page stays loaded beneath once opened, so another player's can still be read.
 		var before = string.Join("|", (await Page()).Select(t => t.Text));
 		var clicked = "";
-		await Until(async () => !(clicked = await Fm.Get("click", ("text", "Last 5 Club Games"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+		await Until(async () => !(clicked = await Fm.Get("click", ("within", FormTile), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine(L($"{name} için form kutusu yok (bu sezon maçı olmayabilir)."));

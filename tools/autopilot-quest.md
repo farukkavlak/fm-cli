@@ -2005,6 +2005,24 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Not: ağaç temiz, `stash` yok; bu turda kod değişikliği bırakılmadı (yalnız doküman).
 - Durum: park edildi, commit atılıyor
 
+## Tur 92 (21 Ekim) — B: `player --matches` form döşemesi artık yazıyla değil `PlayerForm` bağıyla açılıyor
+- Seçilen madde: B "Yazıyla basma/tıklama" / **`Matches.cs:55` "Last 5 Club Games"**.
+- Önce: döşeme `click ?text="Last 5 Club Games"&name=layout-tile-interaction-button` ile bulunuyordu; söz oyunun
+  metni, yani dil değişince kırılabilir. Döşemenin dilden bağımsız tutamağı `BindingRemapper #PlayerForm`
+  (iz: `…B.PlayerForm9.TileVariables0`); `within=PlayerForm` + `name` tek eşleşiyor.
+- Değişiklik (`cli/fm/Matches.cs`): `FormTile = "PlayerForm"` sabiti; tıklama
+  `click ?within=PlayerForm&name=layout-tile-interaction-button`. `name` gerekli: form sayfası açıkken aynı
+  `PlayerForm` içinde 58 düğme var, `within` tek başına belirsiz (denendi: 58 eşleşme hatası).
+- Sonra, TR (üç durum, hepsi rc=0, `md5 43c6f1a5b24819d426f2ed160bfd2cf1`, 20 maç):
+  (a) `Messages` açık + oyuncu sayfası kapalı → ilk açılış; (b) hemen ikinci koşu (oyuncu sayfası zaten açık);
+  (c) form sayfası elle açıkken (226 metin) → üçü de aynı; sonra `finally` formu kapatıyor.
+- EN (`fm settings dil English`): (a),(b),(c) hepsi rc=0, `md5 015706500a648bc5857195855e025413`; eski derleme
+  (`git stash push -- cli/fm/Matches.cs` + `dotnet build -c Release`) TR `43c6…`, EN `0157…` ile **birebir aynı**.
+- Dönüş: `fm settings language "Türkçe"` → `Language: turkish`; tarih 9 Ağustos 2026 05:45 (değişmedi); `fm save` yok.
+- `python3 tools/remaining.py --write`: yazıyla basış 12 → 11, açık kutu 48 → 47. Paylaşılan koda dokunulmadı
+  (yalnız Matches.cs) → `sweep.sh` gerekmedi.
+- Dosyalar: `/tmp/{trA,trB,trC,enA,enB,enC,trOld,enOld}.json`, `/tmp/m1.*`, `/tmp/m2.*`.
+
 ## Sonraya bırakılanlar (ağır / ölçümü pahalı — bu koşularda yeniden seçilmez)
 Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden başlatmayı isteyen veya elde
 örneği olmayan maddeler. Seçilirse önce buraya bakılır; kanıt toplanabilirse çıkarılır.
@@ -3559,6 +3577,24 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   yapılmadı. Paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
 - Dosyalar: `/tmp/measure_body.py`, `/tmp/mb_out`, `/tmp/mb_err`, `/tmp/fm_dialogs.log`,
   `/tmp/fm_dialogdata.log`.
+
+## Tur 92 (21 Ekim) — B: `player --matches` form döşemesi artık yazıyla değil `PlayerForm` bağıyla açılıyor
+- Seçilen madde: B "Yazıyla basma/tıklama" / **`Matches.cs:55` "Last 5 Club Games"**.
+- Önce: döşeme `click ?text="Last 5 Club Games"&name=layout-tile-interaction-button` ile bulunuyordu; söz oyunun
+  metni, yani dil değişince kırılabilir. Döşemenin dilden bağımsız tutamağı `BindingRemapper #PlayerForm`
+  (iz: `…B.PlayerForm9.TileVariables0`); `within=PlayerForm` + `name` tek eşleşiyor.
+- Değişiklik (`cli/fm/Matches.cs`): `FormTile = "PlayerForm"` sabiti; tıklama
+  `click ?within=PlayerForm&name=layout-tile-interaction-button`. `name` gerekli: form sayfası açıkken aynı
+  `PlayerForm` içinde 58 düğme var, `within` tek başına belirsiz (denendi: 58 eşleşme hatası).
+- Sonra, TR (üç durum, hepsi rc=0, `md5 43c6f1a5b24819d426f2ed160bfd2cf1`, 20 maç):
+  (a) `Messages` açık + oyuncu sayfası kapalı → ilk açılış; (b) hemen ikinci koşu (oyuncu sayfası zaten açık);
+  (c) form sayfası elle açıkken (226 metin) → üçü de aynı; sonra `finally` formu kapatıyor.
+- EN (`fm settings dil English`): (a),(b),(c) hepsi rc=0, `md5 015706500a648bc5857195855e025413`; eski derleme
+  (`git stash push -- cli/fm/Matches.cs` + `dotnet build -c Release`) TR `43c6…`, EN `0157…` ile **birebir aynı**.
+- Dönüş: `fm settings language "Türkçe"` → `Language: turkish`; tarih 9 Ağustos 2026 05:45 (değişmedi); `fm save` yok.
+- `python3 tools/remaining.py --write`: yazıyla basış 12 → 11, açık kutu 48 → 47. Paylaşılan koda dokunulmadı
+  (yalnız Matches.cs) → `sweep.sh` gerekmedi.
+- Dosyalar: `/tmp/{trA,trB,trC,enA,enB,enC,trOld,enOld}.json`, `/tmp/m1.*`, `/tmp/m2.*`.
 
 ## Sonraya bırakılanlar (ağır liste/kaydırma — bu koşuda seçilmez)
 - Maç günü pencereleri (`Instant Result` / `Team Selection` / `Injured Players`): `Type` yolu yok (§8.304);

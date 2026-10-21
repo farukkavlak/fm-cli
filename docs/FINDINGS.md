@@ -3638,3 +3638,12 @@ izde `press ?text=Career Stats` → `click ?within=CareerStats&name=layout-tile-
 Kanıt: TR + EN × üç durum (oyuncu sayfası ilk kez açılıyor / kariyer sekmesi zaten açık / başka sayfadan
 oyuncuya dönüş) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 3724a170…`, EN `205f72cb…`).
 Okuma dışı iş yok: `fm save` yok, tarih 9 Ağustos 2026 05:45, kayıt damgası 10:40. Dosyalar `/tmp/opencode/t121/`.
+
+### 8.309 `player --matches` form döşemesini `PlayerForm` bağıyla açıyor (21 Ekim, TR + EN)
+`Matches.cs` form döşemesini `click ?text="Last 5 Club Games"&name=layout-tile-interaction-button` ile buluyordu;
+söz oyunun kendi metni, yani düğme dile bağlıydı. Döşemenin dilden bağımsız tutamağı, içinde dizildiği bağ:
+`BindingRemapper #PlayerForm` (kaynak izinde `…B.PlayerForm9.TileVariables0`). Artık
+`click ?within=PlayerForm&name=layout-tile-interaction-button`; `name` gerekli, çünkü form sayfası açıkken aynı
+`PlayerForm` içinde 58 düğme var, `within` tek başına belirsiz. Kanıt: TR + EN × üç durum (oyuncu sayfası ilk kez
+açılıyor / oyuncu sayfası zaten açık / form sayfası zaten açık) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
+(TR `md5 43c6f1a5…`, EN `md5 01570650…`). Dosyalar `/tmp/{trA,trB,trC,enA,enB,enC,trOld,enOld}.json`.

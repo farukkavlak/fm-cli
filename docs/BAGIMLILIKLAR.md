@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **48** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 12 · kısa `Until` (≤3 sn) 10
+**Canlı sayaç:** açık kutu **47** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 11 · kısa `Until` (≤3 sn) 10
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -68,13 +68,12 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `StatusFlags.cs:54` `if (waiting.Count > 0) await Task.Delay(250);`
 - [ ] `TrainingReport.cs:82` `await Task.Delay(500);`
 
-#### B1. Yazıyla basma/tıklama — 12 yer
+#### B1. Yazıyla basma/tıklama — 11 yer
 
 - [ ] `Guided.cs:803` "Team Shape"
 - [ ] `MatchDay.cs:355` "Instant Result"
 - [ ] `MatchDay.cs:361` "Instant Result"
 - [ ] `MatchDay.cs:383` "Instant Result"
-- [ ] `Matches.cs:55` "Last 5 Club Games"
 - [ ] `Saves.cs:552` "Back to last saves"
 - [ ] `ScoutFocus.cs:483` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
