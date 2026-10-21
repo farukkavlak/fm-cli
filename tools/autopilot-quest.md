@@ -5,10 +5,36 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **43**: `Task.Delay` **26 borç** (35 çağrının 7'si
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **42**: `Task.Delay` **25 borç** (34 çağrının 7'si
   yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **7** + kısa `Until` **10**.
 
-## Şu an (Tur 125)
+## Şu an (Tur 126)
+- Madde: **A1 `Task.Delay` / `OfferScreen.cs:259`** — `Settles` (teklif şartının ekranda görünmesini bekleme) her
+  değişiklikten sonra **200 ms uyuyup** tek okuma yapıyordu; değişiklik çoğu zaman o süre içinde gelmiş oluyordu,
+  yani bekleme boştu. **BİTTİ** (§8.314): değişiklik gönderilir gönderilmez ekran okunuyor (şartın kendi değeri
+  işaret), sonra paylaşılan `Program.Until` temposuyla (0,2 sn) aynı 4 sn üst sınıra kadar yoklanıyor. `Until`
+  `private` → `internal` (davranışı aynı; `OfferScreen` `Program`'ın partial sınıfı değil).
+- Kanıt (`FM_TRACE=1`, `fm offer "Joe Bennett" 22001 --dry --term "Bonservis=22001"` / EN `Fee=22001`): basış→ilk
+  okuma eski derlemede TR 9,48→9,71, EN 4,83→5,06 (**~200 ms**), yenide TR 9,68→9,71, EN 9,10→9,12 (**~0–10 ms**).
+  TR + EN × üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamics`·`Dynamics` sonrası) **6/6 rc=0**,
+  çıktı eski derlemeyle bayt bayt aynı (TR `md5 a5b86f950c18148bff7fbe2a727d089e`, EN `9757dfedf9c93c5b4935cf0a93c1fdb4`,
+  her biri 3/3). İkinci tüketici (ekleme yolu): `--term "Sonraki Satıştan Yüzde=%5"` rc=0, satır kartta.
+  Kaldırma yolu (`Sonraki Satıştan Yüzde=remove`) ilk okumada 25 ms'de "oldu" — eski kod 200 ms uyuyordu; kutu
+  yolunda 236 ms (eski 200 + okuma ≈ 240 ms), yani gerileme yok. `sweep.sh` **50/50**. Dosyalar `/tmp/opencode/t126/`.
+- Not (bu değişiklikten bağımsız): ilk EN koşusunda kart kapalıyken bir kez "ekran açık değil" (rc=1) alındı, hemen
+  aynı komut rc=0 — `Settles`'tan önce, sayfa durumu.
+- Dönüş/kayıt: teklif kartı yalnız okundu/kuru düzenlendi, `fm save` **yok**; `fm load "Faruk Kavlak - Fenerbahçe"
+  --no-save` → `/state` 9 Ağustos 2026 05:45, dil **türkçe**, kayıt damgası **10:40** (değişmedi); maç oynanmadı.
+- Sıradaki uygun maddeler: B1 `Saves.cs:552` ("Back to last saves") · A2 kısa `Until`in kalanları (Coaches 56,
+  ContractTalks 388, League 223, Prep 142, Reads 895, Saves 245/258, TraitTraining 98) · A1 küçük `Task.Delay`ler
+  (Reads 116/133, StatusFlags 54, MatchReport 35, Release 164, ScoutFocus 395, TrainingReport 93).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç pencere · `MatchControls` 131/266 (maç
+  günü) · mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 ·
+  Guided 161 174 · ScoutFocus 483/492/638 (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`) ·
+  `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun
+  akış ölçümü ister).
+
+## Önceki durum (Tur 125)
 - Madde: **B1 yazıyla basma / `Guided.cs:803` "Team Shape"** — `fm tactic`in planlayıcısı, talimat görünümünden
   sahaya dönüş düğmesini `click ?text="Team Shape"` ile basıyordu. **BİTTİ** (§8.313): düğme artık oyunun kendi
   düğme grubuyla — `click ?within=FMShapeAndInstructionsButtons&name=team-shape` (grupta `team-shape` +

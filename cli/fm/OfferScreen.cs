@@ -250,17 +250,13 @@ internal sealed class OfferScreen
 		return await Settles(fm, s => s.Row(term) == null || s.Rows.Count < before, route) ? null : L($"'{term.Label}' kaldırılmadı");
 	}
 
-	/// <summary>A change lands a frame or so later; this waits for the screen to show it.</summary>
-	private static async Task<bool> Settles(Bridge fm, Func<OfferScreen, bool> done, string route)
-	{
-		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(4);
-		while (DateTime.UtcNow < deadline)
-		{
-			await Task.Delay(200);
-			if (await Read(fm, route) is { } now && done(now)) return true;
-		}
-		return false;
-	}
+	/// <summary>
+	/// A change lands a frame or so later; this waits for the screen to show it. The screen is
+	/// asked as soon as the change is sent (a term's own value moving is the mark), then at the
+	/// shared polling pace until the generous limit.
+	/// </summary>
+	private static async Task<bool> Settles(Bridge fm, Func<OfferScreen, bool> done, string route) =>
+		await Program.Until(async () => await Read(fm, route) is { } now && done(now), seconds: 4, every: 0.2);
 
 	// ------------------------------------------------------------------ drawing it
 

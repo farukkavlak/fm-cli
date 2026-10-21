@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **43** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 7 · kısa `Until` (≤3 sn) 10
+**Canlı sayaç:** açık kutu **42** · `Task.Delay` 34 çağrı (25 borç, 7 borç değil) · yazıyla basış 7 · kısa `Until` (≤3 sn) 10
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 26 borç / 35 çağrı
+#### A1. `Task.Delay` — 25 borç / 34 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -48,7 +48,6 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:368` `await Task.Delay(TimeSpan.FromSeconds(1.5));`
 - [ ] `MatchReport.cs:35` `if (attempt > 0) await Task.Delay(500);`
-- [ ] `OfferScreen.cs:259` `await Task.Delay(200);`
 - [ ] `Program.cs:589` `await Task.Delay(TimeSpan.FromSeconds(every));`
 - [ ] `Program.cs:694` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
 - [ ] `Program.cs:1448` `await Task.Delay(250);`
@@ -114,6 +113,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     0,34–1,24 sn (sınır 4 sn, ≥3 kat pay); iş bitince durum 0,1–0,53 sn titriyor (CanContinue→NewsAggregator/NeedAction/
     Fixtures→…), "1,4 sn sakin" bunu örtüyor (2,6 kat). Ayrı bir "bitti" işareti yok: `GameManagersNotContinuedCount`
     `Processing`'i birebir izliyor; bir adımda `Processing` hiç görünmedi, yalnız saat değişti (§8.181).
+  - [x] OfferScreen 259 (`Settles`): her şart değişikliğinden sonra sabit **200 ms** uyuyup tek okuma yapıyordu;
+    değişiklik o süre içinde zaten gelmiş oluyordu. Artık değişiklik gönderilir gönderilmez ekran okunuyor (şartın
+    kendi değeri işaret), sonra paylaşılan `Program.Until` temposuyla (0,2 sn) aynı 4 sn üst sınıra kadar yoklanıyor;
+    iz: basış→ilk okuma TR 9,48→9,71 / EN 4,83→5,06 iken yenide ~0–10 ms. Çıktı TR + EN × üç durumda eski
+    derlemeyle bayt bayt aynı (TR `a5b86f95…`, EN `9757dfed…`); `sweep.sh` 50/50 (§8.314).
   - [x] Staff 74 (`fm staff`): kaydırmadan sonra sabit 400 ms yerine oyunun kendi "diziliş bitti" işareti — tablo
     kaydırılınca satırlarını iki adımda diziyor (ölçüm: `to=1` 6 → 10 → 27, `to=0.75` 13 → 17 → 34 satır; yarım hâller
     0,1–0,2 sn duruyor, `/scroll` konumu ilk okumada doğru → geciken **diziliş**), yani 400 ms'in payı yalnız ~2 kat ve

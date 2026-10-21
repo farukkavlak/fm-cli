@@ -3695,3 +3695,23 @@ bayt aynı (TR `md5 45360944d45966ddf152cc66231fd6fe`, EN `60570f71a42385ac711f7
 `click ?text=Team Shape` **0**, `click ?within=FMShapeAndInstructionsButtons&name=team-shape` her koşuda 1, `Slots`
 0 → 11. `sweep.sh` **50/50**. Ayrı not (bu değişiklikten bağımsız): sayfa talimat görünümünde bırakılıp `Messages`
 açıldığında `fm tactic` eski derlemede de `(boş)` veriyor — `Planner` sayfayı öne getirmiyor, ayrı iş.
+
+### 8.314 teklif şartının ekranda görünmesi sabit 200 ms beklemeden sonra değil, hemen okunuyor (21 Ekim, TR + EN)
+`OfferScreen.Settles` her şart değişikliğinden (kutu, seçim, ekleme, kaldırma) sonra **200 ms uyuyup** ekranı bir kez
+okuyordu; değişiklik çoğu zaman o 200 ms içinde zaten gelmiş oluyordu, yani bekleme boşa gidiyordu. Artık değişiklik
+gönderilir gönderilmez ekran okunuyor (şartın kendi değeri işaret), sonra paylaşılan `Program.Until` temposuyla
+(0,2 sn) üst sınıra (4 sn, aynı) kadar yoklanıyor. `Until` `internal` yapıldı: `OfferScreen` `Program`'ın partial
+sınıfı değil, yardımcı ona da açıldı; davranışı değişmedi.
+Kanıt (`FM_TRACE=1`, `fm offer "Joe Bennett" 22001 --dry --term "Bonservis=22001"` / EN `Fee=22001`): `setnumber`
+ile ilk `offer` okuması arası eski derlemede **~200 ms** (TR 9,48→9,71; EN 4,83→5,06), yenide **~0–10 ms** (TR
+9,68→9,71; EN 9,10→9,12). Çıktı eski derlemeyle bayt bayt aynı: TR `md5 a5b86f950c18148bff7fbe2a727d089e` 3/3,
+EN `9757dfedf9c93c5b4935cf0a93c1fdb4` 3/3; üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamics` ·
+`Dynamics` sonrası) **6/6 rc=0**. İkinci tüketici (ekleme yolu) `--term "Sonraki Satıştan Yüzde=%5"` rc=0, satır
+kartta. `sweep.sh` **50/50**. Not: ilk EN koşusunda kart kapalıyken bir kez "ekran açık değil" (rc=1) alındı; hemen
+aynı komut rc=0 — sayfa durumu, `Settles` ile ilgisi yok (hata şart değişikliğinden önce).
+
+Ölçüm ayrıntısı (geçici iz, sonra kaldırıldı): `Settles`'a sayaç kondu. Kaldırma yolu
+(`--term "Sonraki Satıştan Yüzde=remove"`) **ilk okumada 25 ms'de** "oldu" (satır ekrandan hemen kalkıyor; eski kod
+her hâlükârda 200 ms uyuyordu → ~225 ms). Kutu yolunda (`Bonservis=22001`) ilk okuma 22 ms'de eski değeri görüyor,
+ikinci okuma **236 ms**'de yeni değeri — eski kodun 200 ms + okuma süresiyle (~240 ms) aynı, yani kutu yolunda
+gerileme yok. Bu yüzden değişiklik yalnız hızlı cevaplanan yollarda kazanç; üst sınır ve tempo aynı (4 sn / 0,2 sn).
