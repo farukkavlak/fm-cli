@@ -546,10 +546,12 @@ internal static partial class Program
 					return 1;
 				}
 			}
-			// Left in its file-browser form, the screen names files rather than saves.
+			// Left in its file-browser form, the screen names files rather than saves. The way back
+			// is the button laid out in its own panel: its label is a translated word, its panel a
+			// name the language never changes.
 			if (await OnScreen("Back to last saves"))
 			{
-				await Fm.Get("click", ("text", "Back to last saves"));
+				await Fm.Get("click", ("within", "back-to-last-saves-SIVisible"), ("name", "button-base-leading-icon-label"));
 				await Until(async () => !await OnScreen("Back to last saves"), seconds: 5, every: 0.25);
 			}
 			listed = await SaveRowInView(name);

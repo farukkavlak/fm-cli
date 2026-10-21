@@ -5,10 +5,35 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **42**: `Task.Delay` **25 borç** (34 çağrının 7'si
-  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **7** + kısa `Until` **10**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **41**: `Task.Delay` **25 borç** (34 çağrının 7'si
+  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **10**.
 
-## Şu an (Tur 126)
+## Şu an (Tur 127)
+- Madde: **B1 yazıyla basma / `Saves.cs:552` "Back to last saves"** — `fm load`, yükleme ekranı dosya tarayıcısı
+  hâlinde bırakıldıysa listeye dönüş düğmesini `click ?text="Back to last saves"` ile basıyordu. **BİTTİ** (§8.315):
+  düğme artık kendi kabından — `click ?within=back-to-last-saves-SIVisible&name=button-base-leading-icon-label`;
+  söz hiç okunmuyor (kabın adı dille değişmiyor).
+- Kanıt (`FM_TRACE=1`; oyun ana menüde, yükleme ekranı Browse ile dosya tarayıcısında bırakılmış): eski TR
+  `click ?text=Back to last saves` **34 ms**, yeni TR `click ?within=…` **38 ms**, EN **34 ms**; ekran basıştan
+  **27–34 ms** sonra liste hâline dönüyor. TR + EN × üç durum (Browse ilk kez / geri dönüp Browse ikinci kez /
+  liste hâli — düğme yok) **6/6 rc=0**; üçüncüde sorgu "no button … inside" veriyor ve `fm load` izinde basış **0**.
+  Dört uçtan uca `fm load … --no-save` rc=0, kayıt yüklendi; kayıt dosyasına yazılmadı. Dosyalar `/tmp/opencode/t127/`.
+- Not: dal yalnız oyun ana menüde ve panel **açık + dosya tarayıcısı hâlinde** bırakılmışken çalışıyor; panel
+  kapanınca oyun liste hâline dönüyor (`load` sırasında taze açılışta dal hiç çalışmıyor, bkz. Tur 127 izi).
+- Dönüş/kayıt: EN ölçümünden sonra `fm settings language "Türkçe"` → `/state` `Language: turkish`, `Date:
+  2026-08-09`, `Clock: 0`; `fm save` yok, ana kayıt damgası **21 Ekim 10:40** (değişmedi). Yalnız
+  `cli/fm/Saves.cs` (bir çağrı) + dokümanlar değişti; paylaşılan yardımcıya dokunulmadı → `sweep.sh` gerekmedi
+  (`fm saves` okundu, dört kayıt yerinde).
+- Sıradaki uygun maddeler: B1 `MatchDay.cs:355/361/383` "Instant Result" (maç günü ister) · B1
+  `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`) · A2 kısa
+  `Until`in kalanları (Coaches 56, ContractTalks 388, League 223, Prep 142, Reads 895, Saves 245/258,
+  TraitTraining 98) · A1 küçük `Task.Delay`ler (Reads 116/133, StatusFlags 54, MatchReport 35, Release 164,
+  ScoutFocus 395, TrainingReport 93). **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç
+  pencere · `MatchControls` 131/266 (maç günü) · mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table`
+  sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`,
+  `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister).
+
+## Önceki durum (Tur 126)
 - Madde: **A1 `Task.Delay` / `OfferScreen.cs:259`** — `Settles` (teklif şartının ekranda görünmesini bekleme) her
   değişiklikten sonra **200 ms uyuyup** tek okuma yapıyordu; değişiklik çoğu zaman o süre içinde gelmiş oluyordu,
   yani bekleme boştu. **BİTTİ** (§8.314): değişiklik gönderilir gönderilmez ekran okunuyor (şartın kendi değeri

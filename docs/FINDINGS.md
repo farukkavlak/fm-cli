@@ -3715,3 +3715,15 @@ aynı komut rc=0 — sayfa durumu, `Settles` ile ilgisi yok (hata şart değişi
 her hâlükârda 200 ms uyuyordu → ~225 ms). Kutu yolunda (`Bonservis=22001`) ilk okuma 22 ms'de eski değeri görüyor,
 ikinci okuma **236 ms**'de yeni değeri — eski kodun 200 ms + okuma süresiyle (~240 ms) aynı, yani kutu yolunda
 gerileme yok. Bu yüzden değişiklik yalnız hızlı cevaplanan yollarda kazanç; üst sınır ve tempo aynı (4 sn / 0,2 sn).
+
+### 8.315 yükleme ekranının dosya tarayıcısından dönüş, düğmenin kendi panelinden bulunuyor (21 Ekim, TR + EN)
+`fm load`, yükleme ekranı dosya tarayıcısı hâlinde bırakıldıysa listenin başına dönmek için düğmeyi
+`click ?text="Back to last saves"` ile basıyordu — düğmenin sözü dilin sözü. Düğme artık kendi kabından
+bulunuyor: `click ?within=back-to-last-saves-SIVisible&name=button-base-leading-icon-label` (kabın adı
+`back-to-last-saves-SIVisible`, kimlik dil değişince aynı kalıyor). Söz hiç okunmuyor.
+Kanıt (`FM_TRACE=1`, oyun ana menüde, yükleme ekranı Browse ile dosya tarayıcısında bırakılmış):
+eski derleme TR `click ?text=Back to last saves` (34 ms), yeni TR `click ?within=back-to-last-saves-SIVisible&name=…`
+(38 ms), EN 34 ms; ekran basıştan **27–34 ms** sonra liste hâline dönüyor (`texts Back to last saves` boşalıyor).
+TR + EN × üç durum (`browse ilk kez` / `geri dönüp Browse ikinci kez` / `liste hâli — düğme yok`): ilk ikisinde
+tek eşleşme + basış, üçüncüsünde "no button … inside" ve `fm load` izinde **0** basış → **6/6 rc=0**, kayıt yüklendi.
+Dosyalar `/tmp/opencode/t127/`.
