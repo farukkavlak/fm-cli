@@ -3937,3 +3937,18 @@ ile eski yazı yolu **aynı düğme pointer'ını** seçti; dört gerçek `scout
 koşusunda form açıldı, ikonlar iki dilde de aynı kaldı. Görevler panelinden (`Assignments (n)`) açılan
 yedek yol da aynı düğmeleri gösteriyor. `tools/remaining.py --write`: açık kutu 21 → **18**, yazıyla basış
 **3 → 0**.
+
+### 8.335 `scout staff` görevler panelini başlığın çevrilen sözüyle değil, `Scout.Name` veri yoluyla buluyor (21 Ekim, TR + EN)
+
+`ScoutStaff` paneli `texts ?anchor="Active Assignments (4)"` ile arıyordu; TR başlık "Aktif Görevler (4)"
+olduğu için panel hiç bulunmuyor, komut **rc=0 ile boş tablo** dönüyordu (EN'de çalışıyordu). Ayrıca alt
+satırda İngilizce çıktıya sabit "Süren görev" yazılıyordu. Panel artık `form`/`texts ?anchorpath=Scout.Name&up=13
+&paths=1` ile okunuyor: gözlemci listesi `binding.Name`/`binding.JobString`, odaklar `focusitem.Name`; başlık
+yalnız panelin kendi yazdığı metinden alınıyor. Liste bir-iki karede dolduğu için iki okuma aynı adları verene
+kadar, seçilen gözlemcinin adı+odakları da iki okumada oturunca okunuyor. Üç durum (`Messages` sonrası ilk
+açılış / panel açıkken hemen ikinci koşu / `squad` sonrası) × TR + EN **6/6 rc=0**, TR çıktısı üç durumda da
+bayt bayt aynı (md5 `abd373de…`), EN de öyle (`93959a55…`); TR ve EN `--json` **birebir aynı** (Nations 13;
+odaklar Joe League One, Kenny League Two, James One+Championship, Finlay Championship, George England+Two,
+Simon One). "Nation (13)" TR'de tekil olduğu için sayaç yalnız ortak kökle (`Nation`/`Region`) eşleşiyor.
+Önce: TR `[]`/"(boş)", EN 6 satır ama alt satır "Süren görev (4)". Sonra: iki dilde 6 satır, alt satır kendi
+dilinde. `sweep.sh` **50 komut, 0 hata**.

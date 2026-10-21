@@ -423,40 +423,62 @@ internal static partial class Program
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(open, "Pointer")));
-		var heading = "Active " + Field(open, "Label");
 
-		async Task<List<string>> Texts()
+		async Task<List<JsonElement>> Panel()
 		{
-			List<string> texts = [];
+			List<JsonElement> items = [];
 			var last = "";
 			await Until(async () =>
 			{
-				texts = (await Fm.GetJson("texts", ("anchor", heading), ("up", "4"))).EnumerateArray().Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
-				var key = string.Join("|", texts);
-				var settled = key == last && texts.Contains("Recruitment Focuses");
-				last = key;
+				// The panel's heading is the game's word ("Aktif Görevler (4)"), translated with
+				// the rest of the UI; the scouts it lists and the focuses it shows are bound by
+				// their data paths in every language (§8.335). The staff list fills in over a
+				// frame or two, so it is read until two reads name the same men.
+				items = (await Fm.GetJson("texts", ("anchorpath", "Scout.Name"), ("up", "13"), ("paths", "1"))).EnumerateArray().ToList();
+				var staff = string.Join("|", items.Where(i => Field(i, "Path") == "binding.Name").Select(Shown));
+				var settled = staff.Length > 0 && staff == last && items.Any(i => Field(i, "Path") == "Scout.Name");
+				last = staff;
 				return settled;
 			}, seconds: 6, every: 0.4);
-			return texts;
+			return items;
 		}
 
-		var first = await Texts();
+		static string Shown(JsonElement item) => Field(item, "Text");
+		var first = await Panel();
 		var staff = new List<(string Name, string Job)>();
-		for (var i = 2; i + 1 < first.Count && staff.All(m => m.Name != first[i]); i += 2) staff.Add((first[i], first[i + 1]));
+		for (var i = 0; i + 1 < first.Count; i++)
+			if (Field(first[i], "Path") == "binding.Name" && Field(first[i + 1], "Path") == "binding.JobString"
+				&& staff.All(m => m.Name != Shown(first[i])))
+				staff.Add((Shown(first[i]), Shown(first[i + 1])));
 
 		var rows = new List<(string Name, string Job, string Ability, string Potential, string Regions, string Nations, List<string> Focuses)>();
 		foreach (var (name, job) in staff)
 		{
 			await Fm.Get("rowselect", ("text", name));
-			List<string> texts = [];
-			// The right-hand side is his once its own heading names him.
-			await Until(async () => (texts = await Texts()).Skip(2 + staff.Count * 2).FirstOrDefault() == name, seconds: 5, every: 0.4);
-			var own = texts.Skip(2 + staff.Count * 2).ToList();
-			string After(string label) => own.IndexOf(label) is var at && at >= 0 && at + 1 < own.Count ? own[at + 1] : "";
+			List<JsonElement> panel = [];
+			var last = "";
+			// The right-hand side is his once the panel names him there and the focuses under
+			// him have stopped changing: the name arrives a frame before the list does.
+			await Until(async () =>
+			{
+				panel = await Panel();
+				var at = panel.FindIndex(i => Field(i, "Path") == "Scout.Name" && Shown(i) == name);
+				if (at < 0) { last = ""; return false; }
+				var own = string.Join("|", panel.Skip(at).Where(i => Field(i, "Path") is "Scout.Name" or "focusitem.Name").Select(Shown));
+				var settled = own == last;
+				last = own;
+				return settled;
+			}, seconds: 5, every: 0.4);
+			var at = panel.FindIndex(i => Field(i, "Path") == "Scout.Name" && Shown(i) == name);
+			var ownItems = at >= 0 ? panel.Skip(at + 1).ToList() : [];
+			var own = ownItems.Select(Shown).ToList();
+			string After(string label) => own.IndexOf(label) is var i && i >= 0 && i + 1 < own.Count ? own[i + 1] : "";
+			// "Regions (7)" and "Nations (13)" are the game's own words; Turkish shortens the
+			// second to "Nation (13)", so only the part both languages share is matched.
 			static string Count(string label) => Regex.Match(label ?? "", @"\((\d+)\)") is { Success: true } m ? m.Groups[1].Value : "-";
-			var focuses = own.SkipWhile(t => t != "Recruitment Focuses").Skip(1).Where(t => t != "Create a New Recruitment Focus").ToList();
+			var focuses = ownItems.Where(i => Field(i, "Path") == "focusitem.Name").Select(Shown).ToList();
 			rows.Add((name, job, After("Judging Player Ability"), After("Judging Player Potential"),
-				Count(own.FirstOrDefault(t => t.StartsWith("Regions (", StringComparison.Ordinal))), Count(own.FirstOrDefault(t => t.StartsWith("Nations (", StringComparison.Ordinal))), focuses));
+				Count(own.FirstOrDefault(t => t.StartsWith("Region", StringComparison.Ordinal))), Count(own.FirstOrDefault(t => t.StartsWith("Nation", StringComparison.Ordinal))), focuses));
 		}
 
 		if (json)
@@ -466,7 +488,7 @@ internal static partial class Program
 		}
 		Table.Write([L("SCOUT"), L("GÖREV"), L("YETENEĞİ GÖRME"), L("POTANSİYELİ GÖRME"), L("BÖLGE"), L("ÜLKE"), L("ODAKLARI")],
 			rows.Select(r => new[] { r.Name, r.Job, r.Ability, r.Potential, r.Regions, r.Nations, r.Focuses.Count > 0 ? string.Join(", ", r.Focuses) : "-" }).ToList());
-		Console.WriteLine(L($"\n{Field(open, "Label").Replace("Assignments", "Süren görev")}. Bir oyuncuya göndermek: scout player <ad> --by <scout> --for <süre>"));
+		Console.WriteLine(L($"\n{(first.Count > 0 ? Shown(first[0]) : Field(open, "Label"))}. Bir oyuncuya göndermek: scout player <ad> --by <scout> --for <süre>"));
 		return 0;
 	}
 

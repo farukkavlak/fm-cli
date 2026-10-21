@@ -8,7 +8,31 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **18**: `Task.Delay` **15 borç** (29 çağrının 12'si
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **0** + kısa `Until` **3**.
 
-## Şu an (Tur 142)
+## Şu an (Tur 143)
+- Seçilen madde: **yok** — canlı blokta seçilebilir kutu kalmamıştı (kalan 18: Guided `[?]`, gerisi "Sonraya
+  bırakılanlar"). Bu yüzden talimatın "boşta kalırsan" yolu: `tools/sweep.sh` + gerçek komut avı.
+- Bulunan hata (**B / dil-kimlik**, §8.335): `fm scout staff` TR'de **rc=0 ile boş** dönüyordu. Panel
+  `texts ?anchor="Active Assignments (4)"` ile aranıyordu; TR başlık "Aktif Görevler (4)" olduğu için hiç
+  tutmuyordu. Alt satır da EN çıktıya sabit "Süren görev" yazıyordu. Panel artık `?anchorpath=Scout.Name&up=13
+  &paths=1`: gözlemci listesi `binding.Name`/`binding.JobString`, odaklar `focusitem.Name`; liste ve seçili
+  gözlemcinin adı+odakları iki okumada oturunca okunuyor. "Nations (13)" TR'de "Nation (13)" olduğu için sayaç
+  ortak kökle (`Nation`/`Region`) eşleşiyor.
+- Kanıt — üç durum (`Messages` sonrası ilk açılış / panel açıkken hemen ikinci koşu / `squad` sonrası) × iki
+  dil **6/6 rc=0**: TR üç çıktı bayt bayt aynı (md5 `abd373de2cc59d1f7aa3b93b360ed398`), EN
+  (`93959a55dbf368fc587740240f27d999`); TR ve EN `--json` **birebir aynı** (6 gözlemci, Nations 13, odaklar
+  Joe One / Kenny Two / James One+Championship / Finlay Championship / George England+Two / Simon One).
+  Önce: TR `[]` + "(boş)"; EN verisi doğruydu ama alt satır "Süren görev (4). To send…" karışıktı.
+  EN veri satırları eski derlemeyle `diff`te aynı; yalnız alt satır düzeldi.
+- `tools/sweep.sh`: **50 komut, 0 hata**. Paylaşılan koda dokunulmadı; yalnız `ScoutFocus.cs` `ScoutStaff`.
+- Dönüş: yalnız gezinme + dil değişimi; `fm save` **yok**. Dil `turkish`'e döndü (`/state` `Language:
+  turkish`), tarih 9 Ağustos 2026 05:45, ana kayıt damgası 21 Ekim 10:40 (değişmedi).
+  Dosyalar `/tmp/opencode/t143/`.
+- Sıradaki uygun maddeler: yine **yok**; bir sonraki tur `sweep.sh` + gerçek menajer akışında hata avına
+  devam etsin. **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (312/316) · Stages
+  63/120/136/213 · MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 · `Program.cs:589/694/1448/2206`,
+  `Launcher 213/269`.
+
+## Önceki durum (Tur 142)
 - Madde: **B1 yazıyla basma / `ScoutFocus.cs:484/493/639`** — odak formunun "Create a New Recruitment Focus"
   (iki çağrı) ve "Edit Recruitment Focus" düğmeleri oyunun çevrilen sözüyle basılıyordu. **BİTTİ** (§8.334):
   dört `SpeakToOptionalActionButton` aynı `Page`/`Name`/`SpeakToAction` ve hepsinde `ActionID=0`; ayırt eden
