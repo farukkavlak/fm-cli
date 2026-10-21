@@ -3889,3 +3889,12 @@ zaten iki okuma aynı olana kadar bekliyor. Ölçüm (üç durum × TR/EN, `sele
 `b9a16b91…`, EN `ca4f72f9…`, `106a8a04…`, `48f787c4…`). İç içe tur (`Şampiyona Yolu 2. Eleme Turu`) etiketi
 boşlukla birleşik adla eşleşiyor; aynı turu tekrar seçmek beklemesiz (0,69 → 0,76 sn). Olmayan tur rc=64.
 `tools/sweep.sh` 50/50.
+
+### 8.331 serbest bırakma listesindeki 500 ms'lik yeniden deneme hiç çalışmıyor; seçim ilk denemede (21 Ekim, TR + EN)
+
+`release` serbest bırakma satırını `select` ile seçmeden önce, ilk `select` "no dropdown at" derse sabit
+**500 ms** uyuyup listeyi tazeliyordu. Ölçüm (üç durum — `Messages` açık / hemen ikinci koşu / `Squad` sonrası —
+× TR/EN, `fm release "Ben House" --free`; onay penceresi "Vazgeçildi"/"Cancelled" ile kapatıldı): **6/6** koşuda
+tek `select`, ilk denemede, `select` → ilk `dialog` **40–80 ms**; dönüş rc=0 ve çıktı dil içinde bayt bayt aynı
+(md5 TR `e44eb830…`, EN `23732b12…`). Yani 500 ms hiç çalışmıyor; yalnız hata yolunda turlar arası tempo
+(`Until(Listed, every: 0.5)` zaten aynı beklemeyi yapıyor). `tools/remaining.py` `SETTLED`'a eklendi.

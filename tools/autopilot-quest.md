@@ -4079,3 +4079,22 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   Dosyalar: `/tmp/st/{tr,en,tr2,en2}_{A,B,C}.{out,trace}`, `/tmp/st/tr_{same1,same2,nested,neg}.*`.
 - Not: `Stages.cs`te üç kardeş 1,2 sn daha var (63, 120, 136 — yarışma seçimi ve çizilmemiş tur ikili araması);
   aynı işaretle sıradaki turlarda tek tek alınabilir.
+
+## Tur 97 (21 Ekim) — A: `release`in 500 ms'lik yeniden denemesi hiç çalışmıyor; seçim ilk denemede (§8.331)
+- Seçilen madde: A1 `Release.cs:164` `await Task.Delay(500);` — serbest bırakma satırını `select` ile seçen
+  altı denemelik döngü, ilk deneme "no dropdown at" derse sabit 500 ms uyuyup listeyi tazeliyordu. B maddeleri
+  parkta (ScoutFocus düğmeleri kimliksiz), Stages kardeşleri ve MatchDay/MatchControls "Sonraya bırakılanlar"da;
+  bu yüzden A1'den alındı.
+- Kanıt (`FM_TRACE=1 fm release "Ben House" --free`; üç durum: (a) `fm open Messages` sonrası, (b) hemen ikinci
+  koşu, (c) `fm squad` sonrası) × iki dil **6/6 rc=0**. Her izde **tek `select`**, ilk denemede; `select` → ilk
+  `dialog` **TR 50/40/60 ms, EN 80/50/50 ms**. Onay penceresi `--yes` olmadan "Vazgeçildi." / "Cancelled." ile
+  kapatıldı; çıktı dil içinde bayt bayt aynı (md5 TR `e44eb830…`, EN `23732b12…`).
+- Verdict: 500 ms **borç değil** — hata yolunda turlar arası tempo; `Until(Listed, every: 0.5)` aynı beklemeyi
+  zaten yapıyor, ve altı koşuda hiç çalışmadı. `tools/remaining.py` `SETTLED`'a eklendi; açık kutu **24 → 23**,
+  `Task.Delay` borcu **18 → 17**.
+- Kayıt: yalnız gezinme + iptal edilen onay penceresi; `fm save` **yok**. Ana kayıt damgası **21 Ekim 10:40**
+  (değişmedi); dil `turkish`'e döndü, `fm status` **9 Ağustos 2026 Pazar 05:45**; Ben House kadroda.
+  Dosyalar `/tmp/opencode/t140/{tr,en}{A,B,C}.{out,trace}`.
+- Sıradaki uygun maddeler: A1 `MatchReport.cs:35` (yalnız izlenen maç yolunda; `--instant` bu dalı atlıyor),
+  `ScoutFocus.cs:395` (atanmış odak panelinde kâğıt seçiminden sonra 700 ms), Stages kardeşleri 63/120/136/213
+  (aynı `StageLists` işaretiyle tek tek). **Sonraya bırakılanlar** değişmedi.
