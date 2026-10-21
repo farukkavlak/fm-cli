@@ -5,10 +5,33 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **38**: `Task.Delay` **22 borç** (32 çağrının 8'i
-  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **10**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **36**: `Task.Delay` **22 borç** (32 çağrının 8'i
+  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **8**.
 
-## Şu an (Tur 130)
+## Şu an (Tur 131)
+- Madde: **A2 kısa `Until` / `League.cs:223`** — `StatScope`, yarışma bağının (`comp` `pathset`i) tutmasını 3 sn
+  üst sınıra kadar bekliyordu. **BİTTİ** (§8.319): ölçüldü, **borç değil** — `comp` her koşuda **ilk denemede**
+  dönüyor (izde koşu başına tek `pathset`), yani `Until` hiç tur atmıyor; okuma basıştan hemen sonra başlıyor,
+  3 sn yalnız üst sınır. `tools/remaining.py` `SETTLED_SHORT`'a eklendi (sayaç 37 → **36**).
+- Kanıt (`FM_TRACE=1`, `fm league --stat gol` / EN `--stat goals`): `comp` TR **34 / 31 / 23 ms**,
+  EN **30 / 30 / 31 ms**; üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamics`·`Dynamics` sonrası)
+  × iki dil **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `ce3771458e…`, EN `3b93f5b9df…`, her biri 3/3).
+  Dosyalar `/tmp/opencode/t131/`.
+- Dönüş: EN ölçümünden sonra `fm settings language "Türkçe"` → `settings --json` `dil = Turkish`; `/state`
+  `Date: 2026-08-09`, `Clock: 0` (ana kayıt 05:45); `fm save` **yok**, kayıt damgası değişmedi, maç oynanmadı.
+  Kodda davranış değişikliği yok (yalnız araç sayımı + dokümanlar) → `sweep.sh` gerekmedi.
+- Not (ayrı iş): EN çıktıda başlık satırı karışık — `# PLAYER TEAM Gol Maç Dk/Gl`; istatistik sütunları
+  oyunun kendi sözcüğünü (Türkçe) taşıyor. Dil bağımlılığı değil, çeviri eksiği; ayrı madde.
+- Sıradaki uygun maddeler: A2 kalanları (ContractTalks 388, League 223 kapandı, Prep 142, Reads 910,
+  Saves 245/258, TraitTraining 98) · A1 küçük `Task.Delay`ler (Registration 312/316, MatchReport 35, Release 164,
+  TrainingReport 93, ScoutFocus 395, League 253) · B1 `MatchDay.cs:355/361/383` (maç günü).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç pencere · `MatchControls` 131/266 ·
+  mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 ·
+  Guided 161 174 · `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`, `Stages 63/98/117/133/210`
+  (baştan sona gezinme/uzun akış ölçümü ister) · `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction`
+  kimliği boş: dördü de `m_actionId = 0`).
+
+## Önceki durum (Tur 130)
 - Madde: **A2 kısa `Until` / `Coaches.cs:56`** — `fm coaches --auto`, yardımcının atamasını beklerken 3 sn üst
   sınır kullanıyor. **BİTTİ** (§8.318): ölçüldü, **borç değil** — işaret oyunun kendi cevabı (atamalar değişti),
   okuma basıştan hemen sonra başlıyor; 3 sn yalnız üst sınır. Sınır **bilinçli kısa**: yardımcı zaten doğru olanı

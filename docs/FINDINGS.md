@@ -3763,3 +3763,14 @@ Yardımcı zaten doğru olanı seçtiğinde sayfada hiçbir şey değişmiyor ve
 haklı olarak üst sınırda bitiyor (TR 2,90–3,00 / EN 2,85–2,87 sn) — bu yüzden sınırı büyütmek yaygın "değişiklik
 yok" hâlini yavaşlatırdı. Sabit "bekle sonra oku" yok: okuma basıştan hemen sonra başlıyor, süre yalnız üst sınır.
 **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t130/`.
+
+### 8.319 lig istatistiğinin yarışma bağı ilk `pathset`te tutuyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+
+`fm league --stat <istatistik>` her koşuda günün kendi yerinde (`fmcli.lg<gün>.<yarışma>.t<tür>`) yeni bir
+bağ kuruyor ve `comp` bağının tutmasını `Until` ile **3 sn** üst sınıra kadar (0,2 sn aralık) bekliyor — yorumdaki
+"bu çağrının bağladığı referans bir sonraki kareye kadar boştur" durumu için. Ölçüm (`FM_TRACE=1`; `pathset`
+`Type`→`Stage`→`comp`): `comp` her koşuda **ilk denemede** döndü, TR **34 / 31 / 23 ms**, EN **30 / 30 / 31 ms**;
+izde koşu başına tek `comp` çağrısı var, yani `Until` hiç tur atmadı. 3 sn, işaretin **~90–130 katı**.
+TR + EN × üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamics`·`Dynamics` sonrası) **6/6 rc=0**,
+çıktı dil içinde bayt bayt aynı (TR `ce3771458e…`, EN `3b93f5b9df…`, her biri 3/3). Sabit "bekle sonra oku" yok:
+ilk okuma komutun kendi çağrısı. **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t131/`.

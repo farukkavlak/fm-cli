@@ -44,6 +44,7 @@ SETTLED = {
 # Kısa `Until`ler için aynısı: işaret oyunun kendi cevabı, süre yalnız üst sınır.
 SETTLED_SHORT = {
     ("Coaches.cs", 56): "yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318",
+    ("League.cs", 223): "yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319",
 }
 
 # Denendi, ölçülemedi / karar bekliyor: açık kutuya girmez, tekrar denenmez.
