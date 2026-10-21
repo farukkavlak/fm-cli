@@ -35,6 +35,20 @@ Kayıt bir **test kaydı**; ona yazık etmek diye bir şey yok. Bir madde "işsi
 İşin sonunda `fm load "<ana kayıt>" --no-save` ile ana kayda dön (adını `fm saves` ilk satırından al) ve `/state` ile
 dil `turkish`, tarih ana kayıtla aynı olduğunu doğrula. Sadece okuma yaptıysan yükleme gerekmez.
 
+## Boşta kalırsan: aracı kariyerde dene (hata avı)
+CHECKLIST'te seçilebilecek madde kalmadıysa (kalanlar `[?]`, park edilmiş ya da Faruk'un kararını bekliyor), turu boş
+kapatma — **aracı gerçek bir menajer gibi çalıştır ve hatasını ara**:
+1. Önce toplu kontrol: `tools/sweep.sh` (oyun maç arasında olmalı). Kırılan komut varsa onu düzelt — bu turun işi o.
+2. Sonra oyunun akışını yaşa: `fm next` ile günleri ilerlet, maç günü `fm match` ile maçı oyna, gelen mesajları
+   `fm inbox` / `fm reply` / `fm talk` ile cevapla; `fm tactic`, `fm training`/`fm schedule`, `fm offer`,
+   `fm contract`, `fm scout`, `fm staff`, `fm squad`, `fm table`, `fm finances`, `fm board`, `fm youth` komutlarını
+   sırayla dene. Her komutta `rc`, insan çıktısı ve `--json` hâli makul mü, boş/yanlış/İngilizce kalan bir şey var mı?
+3. Hata bulursan (çökme, `rc≠0`, boş tablo, yanlış sayı, yanlış dil): en küçük kanıtı topla (komut + öncesi/sonrası +
+   `rc` + stderr), düzelt, `docs/FINDINGS.md`'ye §8.N olarak yaz, commit at. **Bir turda en fazla bir hata.**
+4. Hata yoksa: ne denediğini ve çıktıların sağlam olduğunu `tools/autopilot-quest.md`'ye yaz,
+   `PARK: boşta — hata çıkmadı` ile çık.
+5. Kayıt: test için oynadıysan **`fm save` YOK**; tur sonunda `fm load "<ana kayıt>" --no-save` ile ana kayda dön.
+
 ## Bütçe (önce oku)
 Bu tur limit/token yakıyor. **Gereksiz keşif yapma.** Maddeyi seç, ilgili dosyayı `grep -n` ile bul,
 yalnız gereken satır aralığını oku. Bütün dosya ya da büyük doc (FINDINGS/PLAN) baştan sona okuma.
