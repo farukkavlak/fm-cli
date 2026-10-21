@@ -8,7 +8,31 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **30**: `Task.Delay` **21 borç** (32 çağrının 9'u
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **3**.
 
-## Şu an (Tur 137)
+## Şu an (Tur 138)
+- Madde: **A1 `Task.Delay` / `TrainingReport.cs:93`** — `training --report`, koç listesinden seçim yapan altı
+  denemelik döngüde her hata turundan önce **sabit 500 ms** uyuyordu. **BİTTİ** (§8.329): ölçüldü, **borç değil** —
+  altı koşuda (üç durum × TR/EN) `select` **ilk denemede** geçti, her izde tek `select`; `Task.Delay` hiç çalışmadı.
+  Hata yolunda tur, oyunun `dropdowns` cevabıyla tazelenen işaretçiyi `Listed` üzerinden okuyor; 500 ms yalnızca
+  turlar arası tempo (Bridge/League tempo deseni). `tools/remaining.py` `SETTLED`'a eklendi (açık kutu 26 → **25**).
+- Kanıt (`FM_TRACE=1`, `fm training "Ben House" --report --coach "Tom Shaw"`; üç durum: `Mesajlar`/`Messages`
+  açıkken / hemen ikinci koşu (oyuncunun eğitim sekmesi açık) / `Kadro`·`Squad` sonrası) × iki dil **6/6 rc=0**;
+  her izde bir `select`, dönüşü hatasız, rapor okundu (TR "Antrenman puanı 5,90", EN "training rating" satırı aynı
+  küme). İşaretçiler her koşuda taze (`0x417da6800`, `0x41bb60000`, `0x3eb128000`, `0x420dcf800`, `0x4141b7800`).
+  Dosyalar `/tmp/opencode/t138/`.
+- Dönüş: ölçüm sırasında `release "Ben House" --free --yes` denendi (oyun onayladı; gün ilerlemediği için kadro
+  değişmedi) → `fm save` **yok**; `fm load "Faruk Kavlak - Fenerbahçe" --no-save` (1:44) → `/state` dili EN'e
+  dönmüştü, `fm settings language "Türkçe"` → `dil = Turkish`, `fm status` **9 Ağustos 2026 Pazar 05:45**,
+  ana kayıt damgası **21 Ekim 10:40** (değişmedi). Kod davranışı değişmedi (yalnız `remaining.py` + dokümanlar) →
+  `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A1 küçük `Task.Delay`ler (Release 164 — aynı retry deseni; MatchReport 35 — yalnız
+  izlenen maç yolunda, `--instant` bu dalı atlıyor) · A2 `MatchControls 131/266` (maç günü).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): `Saves.cs:258` · Registration `Settled` (312/316) · Stages 337 ·
+  MatchDay üç pencere · `MatchControls` 131/266 · mesaj eki 1,5 sn · `opposition` · boy birimleri ·
+  `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`,
+  `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister) ·
+  `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`).
+
+## Önceki durum (Tur 137)
 - Madde: **B1 yazıyla basma / `MatchDay.cs:355/361/383` "Instant Result"** — `InstantResult`, düğmeyi üç yerde
   `press ?text="Instant Result"` ile arıyordu (bekleme, ilk basış, takım sorunu sonrası tekrar). **BİTTİ** (§8.328):
   düğme artık kabıyla — `press ?event=OpenPanel&within=InstantResultEnabled`; yazı hiç okunmuyor. Üç kutu birlikte

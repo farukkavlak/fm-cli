@@ -3867,3 +3867,12 @@ within=InstantResultEnabled`) TR ve EN'de aynı düğmeyi (aynı `0x…`) veriyo
 Değişiklik sonrası gerçek basış TR'de Lincoln 2-2 (pen.) Preston, EN'de Lincoln 1-1 (pen.) Preston sonucunu
 verdi; izde `press ?text=` **0**, `press ?event=OpenPanel&within=InstantResultEnabled` **1**. Dosyalar
 `/tmp/opencode/t137/`; `fm save` yok, ana kayıt damgası **21 Ekim 10:40**.
+
+### 8.329 antrenman raporunun 500 ms'lik yeniden denemesi hiç çalışmıyor; seçim taze liste üzerinden ilk denemede (21 Ekim, TR + EN)
+
+`training --report` koç listesinden seçim yaparken, "liste yeniden kuruldu, işaretçi eskidi" diye altı denemelik
+bir döngü var; her hata turunda 500 ms uyuyup listeyi `Listed` ile yeniden okuyor. Ölçüm: altı koşunun
+(üç durum × TR/EN) **altısında da `select` ilk denemede** geçti, ize tek `select` düştü — `Task.Delay(500)`
+hiç çalışmadı. Yani bu bekleme oyunun herhangi bir işaretini kaçırmak için değil, yalnızca oyun "no dropdown at"
+dedikten sonraki tur aralığı; turun kendisi oyunun `dropdowns` cevabıyla tazelenen işaretçiyi kullanıyor.
+Borç değil: normal yolda maliyeti 0, hata yolunda cömert üst sınır (6 tur).

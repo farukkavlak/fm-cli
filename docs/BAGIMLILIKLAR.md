@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **26** · `Task.Delay` 31 çağrı (20 borç, 9 borç değil) · yazıyla basış 3 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **25** · `Task.Delay` 31 çağrı (19 borç, 10 borç değil) · yazıyla basış 3 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 20 borç / 31 çağrı
+#### A1. `Task.Delay` — 19 borç / 31 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -62,7 +62,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `Stages.cs:133` `await Task.Delay(1200);`
 - [ ] `Stages.cs:210` `await Task.Delay(700);`
 - [~] `StatusFlags.cs:54` — döngüde yoklama aralığı (250 ms), §8.317
-- [ ] `TrainingReport.cs:93` `await Task.Delay(500);`
+- [~] `TrainingReport.cs:93` — seçim taze liste üzerinden ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.329
 
 #### B1. Yazıyla basma/tıklama — 3 yer
 
@@ -130,6 +130,10 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     açık / odak sayfası zaten açık / `Squad Dynamics`·EN `Dynamics` sonrası) **6/6 rc=0**, her koşuda odak gerçekten
     durdu (`fm scout --json` → `Running=false`) ve `scout restart` ile geri alındı; negatif `"ZZZ yok"` rc=64 +
     seçenek listesi (§8.286).
+  - [x] TrainingReport 93 (`training --report`: koç listesinden seçim yapan altı denemelik döngü, her hata turundan
+    önce sabit 500 ms uyuyordu): ölçüldü, **borç değil** — altı koşuda (üç durum × TR/EN) `select` **ilk denemede**
+    geçti, her izde tek `select` var; bekleme hiç çalışmadı. Hata yolunda tur, oyunun `dropdowns` cevabıyla
+    tazelenen işaretçiyi `Listed` üzerinden okuyor; 500 ms yalnızca turlar arası tempo (§8.329).
   - [x] StaffSearch 91 100 110 (`fm staff find --role/--free/--reputation`): panelin üç kuralı seçenek **sözüyle**
     bulunuyordu (`"Medical ›"`, `"By Nation"`, `"Exceptional"`) ve her seçimden sonra sabit 500 ms bekleniyordu.
     Türkçe oyunda çalışma durumu listesinin sözleri eklentinin çevirisinden geldiği için "By Nation" hiç yok →

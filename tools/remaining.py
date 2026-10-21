@@ -40,6 +40,7 @@ SETTLED = {
     ("Clock.cs", 187): "işsizlik yolu oyunun cevabına bağlandı §8.289",
     ("League.cs", 253): "tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320",
     ("StatusFlags.cs", 54): "döngüde yoklama aralığı (250 ms), §8.317",
+    ("TrainingReport.cs", 93): "seçim taze liste üzerinden ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.329",
 }
 
 # Kısa `Until`ler için aynısı: işaret oyunun kendi cevabı, süre yalnız üst sınır.
