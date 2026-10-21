@@ -3361,3 +3361,18 @@ kendi işareti bekleniyor: oyuncu ve kulüp satırdakiyle aynı, ilk terimi dolu
 iki dilde eski derlemeyle birebir (TR `e6d9188d…` 3/3, EN `1fdfda8d…` 3/3). Kart ilk yoklamada satırlarını boş
 veriyor (0,1 sn sonra doluyor), bu yüzden "ilk terim dolu + iki okuma aynı"; kiralık teklifin olmayan maddeleri
 ("—") beklenmiyor. Dosyalar `…/opencode/t94/`, `old-bin/` eski derleme.
+
+### 8.283 `fm propose --loan`: kiralık sekmesinden sonraki 1,2 sn yerine ücret kutusunun kalkması bekleniyor (21 Ekim, TR + EN)
+`cli/fm/Propose.cs`. `--loan` yolunda "Loan Offer" sekmesine basıldıktan sonra kart okunmadan önce sabit **1,2 sn**
+bekleniyordu; sonra liste bir kez daha okunuyordu. Sekmenin oyun içindeki cevabı, transferin ücret kutusunun
+(`Type: FMCombobox`) panelden kalkması: ölçümde basıştan **0,14 sn** sonra düğme sayısı 185 → 179 oluyor ve kutu yok
+(ara boş kare değil, kiralık panelinin kendisi). Artık kutu kalkana kadar (`Until`, 0,1 sn aralık, üst sınır 8 sn)
+bekleniyor; gelmezse "Kiralık teklif sekmesi açılmadı." rc=1. Kullanılmayan yeniden okuma da kalktı (loan + ücret
+zaten rc=64).
+Ölçüm: `FM_TRACE=1 fm propose "Adam Reach" --loan` — eski derlemede basış→sonraki istek **1,33 sn**, yenide
+**0,14–0,16 sn** (TR), **0,05–0,15 sn** (EN). Dört durum (başka sayfa `Messages` / hemen ikinci koşu / `Squad Dynamics`
+sonrası / oyuncu kartı açıkken) TR 4/4 + EN 4/4 rc=0, çıktı dil içinde aynı. Gönderme yolu bir kez gerçekten denendi
+(EN, "Oscar Thorn", `--loan --yes`): "Offered.", sonra aynı oyuncuda seçenek yok (rc=1); gönderim anında panel
+kiralık hâldeydi (ücret kutusu yok). Negatif: `"ZZZ yok"` rc=1; transfer yolu (`500K`) iki dilde değişmedi.
+Dosyalar `…/opencode/t95/`. Aynı desen `Transfers.cs` 96'da (teklif verirken loan sekmesi, sabit 2 sn) hâlâ duruyor;
+ayrı madde.

@@ -255,6 +255,15 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     **6/6 rc=0**, çıktı iki dilde eski derlemeyle **birebir** (TR `e6d9188d…` 3/3, EN `1fdfda8d…` 3/3). Kart ilk
     yoklamada satırları boş veriyor (0,1 sn sonra doluyor), bu yüzden "ilk terim dolu + iki okuma aynı"; kiralık
     teklifin olmayan maddeleri ("—") beklenmiyor (§8.282). Dosyalar `…/opencode/t94/`.
+  - [x] Propose 66 80 (`fm propose <oyuncu> --loan`: kiralık sekmesine bastıktan sonra kart okunmadan önce sabit
+    **1,2 sn**): bekleme oyunun kendi cevabına bağlandı — loan sekmesi transferin **ücret kutusunu** kaldırıyor;
+    kutu (tip `FMCombobox`) ekrandan kalkana kadar (`Until`, 0,1 sn aralık, üst sınır 8 sn) bekleniyor. Sekme yazısı
+    oyunun sözü, kutunun tipi değil. Ölçüm: TR'de basış→ilk yoklama **0,14–0,16 sn** (eski derlemede aynı yerde
+    1,33 sn sessizlik); EN **0,05–0,15 sn**; dört durumda (başka sayfa `Messages` / hemen ikinci koşu / `Squad
+    Dynamics` sonrası / oyuncu kartı açıkken) TR 4/4 + EN 4/4 rc=0, çıktı iki dilde aynı. Gönderme yolu bir kez
+    gerçekten denendi (`--loan --yes`, EN): "Offered.", sonra aynı oyuncuda seçenek yok (rc=1) → gönderim işledi;
+    gönderim anında panel kiralık hâldeydi (ücret kutusu yok). Negatif: `"ZZZ yok"` rc=1; transfer yolu
+    (`500K`, iki dil) değişmedi. Dosyalar `…/opencode/t95/` (§8.283).
 - [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·

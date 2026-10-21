@@ -74,8 +74,14 @@ internal static partial class Program
 		if (loan)
 		{
 			await Fm.Get("press", ("ptr", Field(buttons.First(b => Field(b, "Name") == "loan-offer-button"), "Pointer")));
-			await Task.Delay(1200);
-			buttons = await Buttons();
+			// The loan tab replaces the transfer fee box. The box being gone is the game's own
+			// answer that the switch has landed; the tab's label is the game's word, the box's
+			// control type is not. Nothing after this reads the old list.
+			if (!await Until(async () => !(await Buttons()).Any(b => Field(b, "Type") == "FMCombobox"), seconds: 8, every: 0.1))
+			{
+				Console.Error.WriteLine(L("Kiralık teklif sekmesi açılmadı."));
+				return 1;
+			}
 		}
 		// A loan has no fee of its own on this screen; its terms are clauses added one by one.
 		if (loan && fee != null)

@@ -3,7 +3,23 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 92)
+## Şu an (Tur 93)
+- Madde: **A "`Task.Delay`" / Propose 66 80** (`fm propose <oyuncu> --loan`: "Loan Offer" sekmesine bastıktan sonra
+  sabit **1,2 sn**) — **BİTTİ** (§8.283). Bekleme oyunun kendi cevabına bağlandı: kiralık sekmesi transferin ücret
+  kutusunu (`Type: FMCombobox`) kaldırıyor; kutu kalkana kadar (`Until`, 0,1 sn aralık, üst sınır 8 sn); gelmezse
+  "Kiralık teklif sekmesi açılmadı." rc=1. Kullanılmayan liste yeniden okuması kalktı.
+- Kanıt — `FM_TRACE=1 fm propose "Adam Reach" --loan`: eski derlemede basış→sonraki istek **1,33 sn**; yenide TR
+  **0,14–0,16 sn**, EN **0,05–0,15 sn**. Dört durum (s1 `Messages` sonrası / s2 hemen ikinci koşu / s3 `Squad
+  Dynamics` sonrası / s4 oyuncu kartı açıkken) TR 4/4 + EN 4/4 rc=0. Gönderme bir kez gerçekten denendi (EN,
+  "Oscar Thorn", `--loan --yes`) → "Offered.", sonra aynı oyuncuda seçenek yok (rc=1). Negatif `"ZZZ yok"` rc=1;
+  transfer yolu (`500K`) iki dilde değişmedi. Dosyalar `…/opencode/t95/`.
+- Dönüş/yan etki: dil EN ölçümünden sonra `fm settings language "Türkçe"` → `dil=Turkish`; kayıt yalnız okundu
+  (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı. Test için Oscar Thorn **kiralık önerildi** (test
+  kaydı; `offers` listesine birkaç gün içinde düşer). Değişiklik yalnız `cli/fm/Propose.cs` → paylaşılan kod yok,
+  `sweep.sh` gerekmedi. Aynı desen `Transfers.cs` 96'da (sabit 2 sn) duruyor → sıradaki uygun A maddesi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 92)
 - Madde: **A "`Task.Delay`" / Offers 99** (`fm offers <#> view`: teklif satırının bağlantısına bastıktan sonra kart
   okunmadan önce sabit **1,5 sn**) — **BİTTİ** (§8.282). Bekleme kartın kendi verisine bağlandı: oyuncu ve kulüp
   satırdakiyle aynı, ilk terimi dolu ve kart iki okumada aynı (`Until`, 0,25 sn, üst sınır 8 sn); gelmezse
