@@ -18,12 +18,92 @@ yapalım, adım adım temizleyip bitirelim." Aşağıdaki bölümler (0–8) 13 
 nasıl düzelir. Kural: yeni işaret en az üç durumda (ilk açılış / zaten açık / başka sayfa açık) ve iki dilde ölçülmeden
 koda girmez; kanıtlanmazsa eskisi kalır.
 
+### Canlı kalanlar — koddan üretilir (asıl iş listesi)
+
+Elle sayılan "89 yer", "44 yer" gibi listeler hızla eskiyor. Aşağıdaki blok **koddan** üretilir
+(`python3 tools/remaining.py --write`) ve her turun sonunda yenilenir: bir kutu = koddaki bir çağrı yeri.
+Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil kodu gösterir. Üstteki bölümler
+kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
+
+<!-- auto:remaining -->
+**Canlı sayaç:** açık kutu **49** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 13 · kısa `Until` (≤3 sn) 10
+
+Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
+
+#### A1. `Task.Delay` — 26 borç / 35 çağrı
+
+- [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
+- [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
+- [~] `Bridge.cs:127` — döngüde yoklama aralığı (250 ms), §8.179
+- [~] `Bridge.cs:147` — döngüde yoklama aralığı (250 ms), §8.179
+- [~] `Clock.cs:148` — `next`in Settled beklemesi ölçüldü, değişiklik gerekmedi §8.181
+- [~] `Clock.cs:157` — `next`in Settled beklemesi ölçüldü, değişiklik gerekmedi §8.181
+- [~] `Clock.cs:187` — işsizlik yolu oyunun cevabına bağlandı §8.289
+- [?] `Guided.cs:161` — bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)
+- [?] `Guided.cs:174` — bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)
+- [ ] `Launcher.cs:213` `await Task.Delay(500);`
+- [ ] `Launcher.cs:269` `await Task.Delay(TimeSpan.FromSeconds(3));`
+- [ ] `League.cs:253` `await Task.Delay(250);`
+- [ ] `MatchDay.cs:181` `await Task.Delay(TimeSpan.FromSeconds(3));`
+- [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
+- [ ] `MatchDay.cs:368` `await Task.Delay(TimeSpan.FromSeconds(1.5));`
+- [ ] `MatchReport.cs:35` `if (attempt > 0) await Task.Delay(500);`
+- [ ] `OfferScreen.cs:259` `await Task.Delay(200);`
+- [ ] `Program.cs:589` `await Task.Delay(TimeSpan.FromSeconds(every));`
+- [ ] `Program.cs:694` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
+- [ ] `Program.cs:1448` `await Task.Delay(250);`
+- [ ] `Program.cs:2206` `await Task.Delay(500);`
+- [ ] `Program.cs:2285` `await Task.Delay(TimeSpan.FromSeconds(1));`
+- [ ] `Reads.cs:116` `await Task.Delay(300);`
+- [ ] `Reads.cs:133` `await Task.Delay(300);`
+- [ ] `Registration.cs:312` `await Task.Delay(250);`
+- [ ] `Registration.cs:316` `await Task.Delay(250);`
+- [ ] `Release.cs:164` `await Task.Delay(500);`
+- [ ] `ScoutFocus.cs:395` `await Task.Delay(700);`
+- [ ] `Stages.cs:63` `await Task.Delay(1200);`
+- [ ] `Stages.cs:98` `await Task.Delay(1200);`
+- [ ] `Stages.cs:117` `await Task.Delay(1200);`
+- [ ] `Stages.cs:133` `await Task.Delay(1200);`
+- [ ] `Stages.cs:210` `await Task.Delay(700);`
+- [ ] `StatusFlags.cs:54` `if (waiting.Count > 0) await Task.Delay(250);`
+- [ ] `TrainingReport.cs:82` `await Task.Delay(500);`
+
+#### B1. Yazıyla basma/tıklama — 13 yer
+
+- [ ] `Career.cs:27` "Career Stats"
+- [ ] `Guided.cs:803` "Team Shape"
+- [ ] `MatchDay.cs:355` "Instant Result"
+- [ ] `MatchDay.cs:361` "Instant Result"
+- [ ] `MatchDay.cs:383` "Instant Result"
+- [ ] `Matches.cs:55` "Last 5 Club Games"
+- [ ] `Saves.cs:552` "Back to last saves"
+- [ ] `ScoutFocus.cs:483` "Create a New Recruitment Focus"
+- [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
+- [ ] `ScoutFocus.cs:638` "Edit Recruitment Focus"
+- [ ] `Settings.cs:304` "Manage settings for this game"
+- [ ] `TrainingReport.cs:30` "Training Rating"
+- [ ] `TraitTraining.cs:153` "Cancel Current Trait Training"
+
+#### A2. Kısa `Until` (≤3 sn) — 10 yer
+
+- [ ] `Coaches.cs:56` 3 sn
+- [ ] `ContractTalks.cs:388` 3 sn
+- [ ] `League.cs:223` 3 sn
+- [ ] `MatchControls.cs:131` 3 sn
+- [ ] `MatchControls.cs:266` 1.5 sn
+- [ ] `Prep.cs:142` 3 sn
+- [ ] `Reads.cs:895` 3 sn
+- [ ] `Saves.cs:245` 3 sn
+- [ ] `Saves.cs:258` 1.5 sn
+- [ ] `TraitTraining.cs:98` 3 sn
+<!-- /auto:remaining -->
+
 ### A. Donanım / makine hızı (zamanlama)
 
 Sabit "N ms bekle sonra yap" yavaş makinede yanlış okur, hızlıda boşa bekler. Doğrusu oyunun kendi işaretini beklemek;
 süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralığı sorun değil.
 
-- [ ] **`Task.Delay` — 89 yer.** Her biri sınıflanacak: döngüde yoklama aralığı (sorun yok) mı, "bekle sonra yap" mı.
+- **`Task.Delay` — 89 yer (arşiv; canlı liste yukarıda, "A1").** Her biri sınıflanacak: döngüde yoklama aralığı (sorun yok) mı, "bekle sonra yap" mı.
   Dosya: satırlar —
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · ~~Jobs 231~~ · Launcher 213 269 · League 243 ·
@@ -309,7 +389,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     hiçbir şey göndermiyor, ekran `fm load … --no-save` ile kapatıldı. Not: EN'de canlı dil değişiminden hemen
     sonra taze açılışta eski derleme 2/2 kez ekranı okuyamadı ("Joe Bennett: transfer offer"; motor yazıları henüz
     oturmamış, §8.275); dil oturduktan sonra yeni derleme taze yolda da kartı çizdi. Dosyalar `/tmp/opencode/t104/`.
-- [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
+- **Kısa `Until` (≤ 3 sn) — 15 yer (arşiv; canlı liste yukarıda, "A2").** "Gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 ~~2118~~ ·
   Reads 892 · Saves 207 220 · ~~ScoutFocus 55~~ · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·
   TrainingSchedule 491 506 · ~~TraitTraining 89~~
@@ -626,7 +706,7 @@ tablodan çevrilemiyor.
   sıradaki iki `buttons-segmented-button-row-*` düğmesi olarak bulunuyor (önce Take Control, sonra Delegate);
   söz araması kalktı. TR + EN üç durumda çıktı eski derlemeyle **birebir** (`md5 fa0ac05b…` / `55e8337f…`,
   105 görev); DE üç durumda **rc=0**, 105 görev (54 sende / 51 devredilmiş), üç dilde aynı görevli kümesi (§8.268).
-- [ ] **İngilizce yazıyla basma/tıklama — 44 yer** (`press/click text="Acknowledge and Move On"`, "Cancel", "Confirm",
+- **İngilizce yazıyla basma/tıklama — 44 yer (arşiv; canlı liste yukarıda, "B1").** (`press/click text="Acknowledge and Move On"`, "Cancel", "Confirm",
   "Save Game As"…): eklentinin çeviri tablosundan geçiyor; tabloda 2.376 çakışma var ("Confirm" → Onayla/Kabul). Her biri
   öğe adı / olay adıyla basılabilir mi bakılacak. Ölçülmüş bir örnek (§8.206): TR oyunda `fm training "<oyuncu>"
   --trait-suggest` düğmeyi bulamıyor — düğme "Oyun Karakteristiği İdmanı Önerisi İste" diye geliyor, İngilizce

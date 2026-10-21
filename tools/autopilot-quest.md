@@ -3,6 +3,13 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Canlı liste (21 Ekim akşam, Faruk'un isteği)
+- İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **49**: `Task.Delay` **26 borç** (35 çağrının 7'si
+  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **13** + kısa `Until` **10**.
+- Eski şemsiye satırlar ("89 yer", "44 yer", "15 yer") **arşiv**: kanıt metinleri duruyor, kutu değiller.
+- Tur sonunda `python3 tools/remaining.py --write` çalıştırılır; biten yerin kutusu koddan düşer.
+
 ## Bloklar kalktı (21 Ekim, Faruk'un kararı)
 - "Kayıtta yok" artık park sebebi değil: kayıt test kaydı. İşsizlik (Career'dan **istifa**), maç günü
   (`fm next` + `fm match`), örnek mesaj (günleri/sezonu ilerlet, `fm inbox`/`fm news`), bedel sözü (`fm talk`)

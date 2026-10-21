@@ -1,6 +1,8 @@
 Bu, otomatik bir tur. Faruk ekranda değil (gece yatıyor); kimseye soru sorma, cevap bekleme.
 
-Görev: `docs/BAGIMLILIKLAR.md` en üstündeki CHECKLIST'ten **tek bir maddeyi** bitir, sonra çık.
+Görev: `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bölümündeki kutulardan **tek birini** bitir, sonra çık.
+O bölüm koddan üretilir (`python3 tools/remaining.py`); bir kutu = koddaki bir çağrı yeri. Üstteki uzun
+bölümler kanıt/geçmiştir, oradan madde seçme.
 
 Amacın: projenin taşınabilirlik borcunu kapatmak — donanım bağımlılığı (sabit bekleme) ve
 dil/tema bağımlılığı (yazı / konum / sıra ile tutunma) kalıntılarını, oyunun **kimliğine**
@@ -10,6 +12,7 @@ temada, her kulüpte, her makinede aynı çalışmalı.
 ## Bu turun sınırı
 - Yalnızca **A** (zamanlama), **B** (dil / kimlik), **C** (ayarlar) bölümlerinden ve mümkünse **D**.
 - `[?]` maddelerini atla. **§14 UX/görsel**, **G (platform)**, **H (yayın)** bölümlerine GİRME.
+- Canlı listede bir kutu = bir çağrı yeri (`Dosya:satır`). Bir turda **bir kutu**; kutu koddan kalkınca düşer.
 - **Önce sınırlı iş:** kanıtı hızlı toplanan küçük değişiklikler (yazı→kimlik, kısa `Until`, sabit üst sınır) — B bölümü
   ağırlıklı. Sıradaki uygun madde bu değilse bir sonrakine geç.
 - **Ağır maddeleri bu koşuda SEÇME:** bir listeyi baştan sona kaydırarak okumak/ölçmek gerektirenler. Böyle bir
@@ -83,7 +86,9 @@ Davranışı paylaşılan koda dokunduysan (Bridge, OpenPage/OpenSubpage, reply,
 `tools/sweep.sh` çalıştır (oyun maç arasında olmalı) ve kırılan komut çıkarsa düzelt.
 
 ## Bitirme (tek madde, sonra dur)
-- Maddeyi `[x]` yap ve bir satırla ne yapıldığını yaz.
+- Maddeyi `[x]` yap ve bir satırla ne yapıldığını yaz. Sonra `python3 tools/remaining.py --write` çalıştır:
+  canlı blok koddan yenilenir, biten yerin kutusu düşer (`--count` üç sayıyı verir: borç `Task.Delay` · yazıyla
+  basış · kısa `Until`).
 - Kanıtı `tools/autopilot-quest.md`'ye yaz: hangi komut, öncesi/sonrası, üç durum, iki dil.
 - Yeni bulgu varsa `docs/FINDINGS.md` **SONUNA** §8.N olarak 3–6 satır ekle (`cat >> ...`);
   PLAN günlüğü gerekmiyorsa dokunma. Büyük dosyaları bütün okuma: `grep -n` + gereken satır aralığı.
