@@ -3277,3 +3277,21 @@ ve aynı çıktı (TR s1 `dd/mm/yyyy → mm/dd/yyyy`, s2 tersi, s3 s1; EN aynı 
 Yedekler hiç ateşlenmiyordu (eski izde de onay `?ptr=`), yani davranış değişmedi; FM menüsünün
 "Manage settings for this game" / "See all" satırları hâlâ yazıyla (ayrı iş, düğme kimliği yok).
 Dosyalar `…/opencode/t85/{base,new}-{tr,en}-s{1,2,3}.{out,err}`.
+
+### 8.274 `fm league`in istatistik kapsamı beklemesi 3 sn'lik sınırın çok altında (21 Ekim, TR + EN)
+
+`StatScope` her istatistik için `pathset … .comp`in hatasız dönmesini 3 sn'ye kadar bekliyordu ("gelmezse yok
+say" riski). Ölçüm: her `fm league` koşusunda 20 bağlamanın 20'si de **ilk denemede** geçti (TR 29–34 ms, EN
+29–40 ms; hepsi benzersiz, tekrar yok) → 3 sn ~75–100 kat pay; hemen ardından gelen `pull` satırlarla dönüyor.
+Üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·`Dynamics` sonrası) × TR + EN:
+6/6 rc=0, çıktı dil içinde bayt bayt aynı (TR `fab0d284…`, EN `725bbf7e…`; TR `--stat Gol` `43f684e8…`).
+Kod değişmedi. Dosyalar `…/opencode/t86/`.
+
+### 8.275 Dil değişince `fm league --stat` eski dilin istatistik adlarıyla kalıyor (21 Ekim, TR → EN)
+
+İstatistik kataloğu `cache/<state.Language>/…/league-stats.json`a yazılıyor, ama adlar oyunun **kendi sözleri**
+ve yeniden açılışa kadar eski dilde kalıyor: `fm settings dil "English"` sonrası `fm league --stats` hâlâ
+"Gol/Asist" listeliyor; İngilizce klasördeki katalog Türkçe adlarla yazıldığı için `--stat "Goals"` da
+`--stat "Gol"` de rc=64 ("no player stat called …"). `--refresh` kataloğu yeniden okuyor (TR'de 50 sn) ama
+yeniden açılış öncesi adlar değişmiyor. Çözüm: katalog adlarının dilini saklamak ya da açılıştan sonra bir kez
+tazelemek. Ölçüm sırasında görüldü, bu turda kapsam dışı (CHECKLIST B'ye yazıldı).

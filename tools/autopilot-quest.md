@@ -3,7 +3,27 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 85)
+## Şu an (Tur 86)
+- Madde: **A "Kısa `Until`" / League 216** (`StatScope`in `.comp` bağlama beklemesi: istatistik kapsamı kurulurken
+  `pathset … .comp` 3 sn'ye kadar bekleniyordu, "gelmezse yok say" riski) — **BİTTİ**, ölçüldü, kod değişmedi
+  (§8.274). İşaret zaten oyunun kendi cevabı: `pathset` hatasız dönüyor ve ardından gelen `pull` satırlarla
+  dönüyor. Her `fm league` koşusunda **20/20 bağlama ilk denemede** geçti (TR 29–34 ms, EN 29–40 ms; hepsi
+  benzersiz, tekrar yok) → 3 sn ~75–100 kat pay.
+- Kanıt — TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `fm open "Squad
+  Dynamics"` [`Dynamics`] sonrası) `fm league`: **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR
+  `md5 fab0d284…` 3/3, EN `725bbf7e…` 3/3); TR `league --stat "Gol"` ayrıca `43f684e8…`. İz (`FM_TRACE=1`)
+  her koşuda 20 `pathset …comp&from=…`, tekrar yok. Dosyalar `…/opencode/t86/{tr-lg,en-league}-s{1,2,3}.{out,err}`,
+  ilk TR `--stat` koşuları `tr-s{1,2,3}.*`.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; dil
+  `fm settings dil "English"` ile EN, sonra `fm settings language "Türkçe"` ile TR (`fm settings --json` →
+  Turkish). TR katalog önbelleği `fm league --stats --refresh` ile bir kez yenilendi (50 sn); `league --stat
+  "Gol"` yine rc=0. Kod değişmedi → `sweep.sh` gerekmedi.
+- Yan bulgu (kod değişmedi, CHECKLIST B'ye yazıldı): dil değişince `fm league --stat` eski dilin istatistik
+  adlarıyla kalıyor — katalog `cache/<Language>/…` altına yazılıyor ama adlar yeniden açılışa kadar eski dilde;
+  EN'de `--stats` hâlâ "Gol/Asist", `--stat Goals`/`Gol` rc=64 (§8.275).
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 85)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm settings` yazma yolunun iki ölü yedek yolu** — **BİTTİ** (§8.273).
   Onay düğmesi `PreferencesConfirmChanges` olayını taşımıyorsa `click ?text=Confirm&name=ConfirmButton`e, sekme
   `TabButtons` eşlemesinde yoksa `click ?text=<sekme>&name=DetailedPreferencesTabButton`a düşüyordu; ikisi de oyunun

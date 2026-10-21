@@ -245,6 +245,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · ~~TacticSlots 112~~ ·
   TrainingSchedule 491 506 · TraitTraining 89
+  - [x] League 216 (`StatScope`in `.comp` bağlama beklemesi: 3 sn "gelmezse yok say"): ölçüldü, **değişiklik
+    gerekmedi**. İşaret zaten oyunun kendi cevabı — `pathset … .comp` hatasız dönüyor; her koşuda 20 bağlama
+    **ilk denemede** geçti (TR 29–34 ms, EN 29–40 ms; 20/20 benzersiz, tekrar yok), yani 3 sn ~75–100 kat pay;
+    hemen ardından gelen `pull` satırlarla dönüyor. TR + EN × üç durum (başka sayfa `Messages` açık / hemen
+    ikinci koşu / `Squad Dynamics`·EN `Dynamics` sonrası) `fm league`: **6/6 rc=0**, çıktı dil içinde bayt bayt
+    aynı (TR `fab0d284…`, EN `725bbf7e…`; TR `--stat Gol` ayrıca `43f684e8…`). EN'de oyunun kendi istatistik
+    sözleri yeniden açılışa kadar TR geliyor (bilinen, `Settings.cs`te yazılı) — ölçülen işaret dil değişmiyor
+    (§8.274). Dosyalar `…/opencode/t86/`.
   - [x] TacticSlots 112 (`tactic clear --yes`: silme onayı için sabit 3 sn): onay penceresi artık kendi başına bir
     süreyle beklenmiyor — yuvanın **sayısı düştüyse** soru yok demektir, pencere gelirse birincil düğmesi basılıyor
     (`Until`, üst sınır 8 sn, 0,25 sn aralık). Ölçüm: TR'de pencere 0,74–2,39 sn'de geldi (üç durumda da), yani
@@ -744,6 +752,13 @@ tablodan çevrilemiyor.
   oyunun kendi cümlesi olarak gösteriliyor. Kanıt: TR üç durumda çıktı eski derlemeyle **bayt bayt aynı**
   (`79129dc3…`, `1c6bbfce…`); EN'de eski sıralı liste (`Sky Bet…` 1, 2 günlük haber 16) → yeni liste TR'nin
   sırasıyla aynı (ortak kümede `About` dizisi birebir), negatif `news 99` iki dilde rc=1 (§8.260).
+- [ ] **Dil değişince `fm league --stat` eski dilin istatistik adlarıyla kalıyor:** katalog
+  `cache/<Language>/…/league-stats.json`a yazılıyor ama adlar oyunun **kendi sözleri** ve yeniden açılışa kadar
+  eski dilde kalıyor; `fm settings dil "English"` sonrası `fm league --stats` hâlâ "Gol/Asist" listeliyor,
+  `--stat "Goals"` ve `--stat "Gol"` ikisi de rc=64 (İngilizce klasördeki katalog Türkçe adlarla yazılmış).
+  Katalog `--refresh` ile yeniden okunuyor (TR'de denendi, 50 sn) ama yeniden açılış öncesi adlar değişmiyor;
+  çözüm katalog adlarının dilini kaydetmek ya da açılıştan sonra bir kez tazelemek. Bu turda ölçüm sırasında
+  görüldü, kapsam dışı bırakıldı (§8.275).
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
 - [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
 - [x] **`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor** — başlık `Heading:
