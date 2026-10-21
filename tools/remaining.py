@@ -43,6 +43,7 @@ SETTLED = {
     ("TrainingReport.cs", 93): "seçim taze liste üzerinden ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.329",
     ("Release.cs", 164): "serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331",
     ("MatchReport.cs", 35): "son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332",
+    ("Stages.cs", 213): "liste seçimi ilk denemede geçiyor; 700 ms hiç çalışmıyor, §8.337",
 }
 
 # Kısa `Until`ler için aynısı: işaret oyunun kendi cevabı, süre yalnız üst sınır.

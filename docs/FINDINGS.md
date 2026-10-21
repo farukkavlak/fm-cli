@@ -3962,3 +3962,16 @@ Maç raporundaki analiz cümleleriyle aynı yol izleniyor: `GameWords.Ask(Fm, po
 soruluyor, sonra `GameWords.Of(point)` basılıyor. Üç durum (başka mesaj açıkken / hemen ikinci koşu / `news`
 sonrası) × TR + EN **6/6 rc=0**: TR'de dört konu da Türkçe ("Takım Seçimi"), EN'de dördü de İngilizce
 ("Team Selection"); önce TR'de yalnız üçüncü konu İngilizceydi. Değişiklik yalnız `Program.cs` `WriteAttachment`.
+
+### 8.337 `Stages` seçim döngüsünün 700 ms'si hiç çalışmıyor; `EveryTie` listeyi kaldığı yerden okuyor (22 Ekim, TR + EN)
+
+`PickIn` listeyi dört kez bulmayı deniyor, her hatadan önce 700 ms uyuyor. Üç durum (`Messages` sonrası ilk
+açılış / hemen ikinci koşu / `Squad Dynamics` sonrası) × TR + EN **6/6 rc=0**: her seçim **tek `select`**, hiç
+`no dropdown` yok; `--all` yedi aşamanın yedisinde de tek `select`. Yani 700 ms yalnız hata yolunda tur temposu,
+hiç çalışmadı (`Release.cs:164` gibi). Olmayan aşama/turnuva rc=64, hiç `select` yok.
+
+Aynı ölçümde gerçek bir konum bağımlılığı çıktı: aynı aşama (`Lig Yolu › 2. Eleme Turu`) `Squad Dynamics`
+sonrası **3 bağ** döndürdü, oysa ilk koşuda **9**; üç bağ, dokuzun son üçü (Brann 3-2 Rangers, Raków 0-1
+Austria Vienna, AEK 2-0 Göztepe). Liste önceki koşudan dipte kalmış, `EveryTie` kaldığı yerden aşağı yürümüş
+ve `StageContent` iki okuma aynı olduğu için eksik pencereyi kabul etmiş. Düzeltme ayrı iş: yürüyüşten önce
+liste görünen ilk bağın adıyla `scroll ?to=0` ile başa alınmalı, sonra pencereler birleştirilmeli.

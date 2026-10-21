@@ -4225,3 +4225,24 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Sıradaki uygun maddeler: A1 `MatchReport.cs:35` (yalnız izlenen maç yolunda; `--instant` bu dalı atlıyor),
   `ScoutFocus.cs:395` (atanmış odak panelinde kâğıt seçiminden sonra 700 ms), Stages kardeşleri 63/120/136/213
   (aynı `StageLists` işaretiyle tek tek). **Sonraya bırakılanlar** değişmedi.
+
+## Tur 98 (22 Ekim) — A: `Stages` `PickIn`in 700 ms yeniden denemesi hiç çalışmıyor; listeyi dipte bırakan ayrı hata bulundu (§8.337)
+- Seçilen madde: A1 `Stages.cs:213` `await Task.Delay(700);` — liste seçimini dört kez deneyen döngünün hata
+  turundan önceki sabit 700 ms. B1 sıfır (yazıyla basış 0), MatchDay/MatchControls "Sonraya bırakılanlar"da,
+  Guided `[?]`; bu yüzden A1'den alındı.
+- Kanıt (`FM_TRACE=1 fm stages "UEFA Champions League" "<aşama>" --json`, üç durum: `fm open Messages` sonrası /
+  hemen ikinci koşu / `fm open "Squad Dynamics"` sonrası) × iki dil **6/6 rc=0**, her seçimde **tek `select`**:
+  TR `select=2/1/2`, EN `select=2/1/1` (ilk koşuda turnuva + aşama, sonra yalnız aşama). Hiç `no dropdown` yok.
+  `fm stages "UEFA Champions League" --all --json` → 7 aşama, **7 `select`**, her biri tek denemede.
+  Negatif: olmayan aşama `"ZZZ yok"` rc=64 / 0 `select`; olmayan turnuva rc=64 + `(hepsi: stages --list)`.
+  Yani 700 ms yalnız hata yolunda tur temposu, altı koşuda hiç çalışmadı. `tools/remaining.py` SETTLED'a eklendi;
+  `--write`: açık kutu **18 → 17**, `Task.Delay` borcu **15 → 14**.
+- Aynı ölçümde **gerçek konum hatası** (düzeltilmedi, sıradaki tur): `Squad Dynamics` sonrası aynı aşama 3 bağ
+  döndürdü, ilk koşuda 9; üçü dokuzun son üçü. Liste dipte kalmış, `EveryTie` oradan aşağı yürümüş,
+  `StageContent` iki okuma aynı diye eksik pencereyi kabul etmiş. Düzeltme: yürüyüşten önce görünen ilk bağın
+  adıyla `scroll ?to=0`. §8.337.
+- Kayıt: yalnız sayfa gezinme + dil geçişi; `fm save` yok. Dil `turkish`'e döndü (`English → Turkish`),
+  `/state` → `Language: turkish`, tarih **9 Ağustos 2026 05:45** (ana kayıt damgası). Paylaşılan koda
+  dokunulmadı (kod değişmedi) → `sweep.sh` gerekmedi.
+- Dosyalar: `/tmp/stg/{tr_a,tr_b,tr_c,en_a,en_b,en_c,tr_all,tr_neg,tr_neg2}.{out,trace}`, `/tmp/probe_stage.py`,
+  `/tmp/probe1.txt`.
