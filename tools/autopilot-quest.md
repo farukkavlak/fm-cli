@@ -8,7 +8,42 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **17**: `Task.Delay` **14 borç** (29 çağrının 13'ü
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **0** + kısa `Until` **3**.
 
-## Şu an (Tur 146)
+## Şu an (Tur 147)
+- Seçilen madde: **yok** — canlı bloktaki 17 kutunun hepsi `[?]` (Guided 161/174) ya da "Sonraya bırakılanlar"
+  listesinde (Launcher 213/269 · MatchDay 181/314/370 · Program 589/694/1452/2210 · Registration 312/316 ·
+  Stages 63/120/136 · MatchControls 131/266 · Saves 258). Talimatın "boşta kalırsan" yolu: `sweep.sh` +
+  gerçek menajer akışı.
+- Sweep: **50 komut, 0 hata** (`/tmp/opencode/t147/sweep1.txt`), sonunda yeni derlemeyle **50/50**
+  (`/tmp/opencode/t147/sweep2.txt`).
+- Menajer akışı: `next` ×3 (10 Ağustos 12:15) → takım liderleri toplantısı (`reply` + `talk` + `talk leave`) →
+  maç öncesi basın toplantısı (`reply 15 1`, `talk` ile 5 soru, `talk 1` ile cevaplar) → sakatlık konuşması
+  (`reply` + `talk` + `talk leave`). Hepsi rc=0.
+- Bulunan hata (**B / dil-kimlik**, §8.340): `fm talk` konuşma ekranı `Says` satırlarını, cevap **grup
+  başlıklarını** ve cevap **etiketlerini** oyunun ham (eklentinin İngilizceye çevirdiği) metniyle basıyordu.
+  Türkçe oyunda basın toplantısında `[Positive]`/`[Negative]`, "Like any relationship, there are ups and
+  downs…", "One player, no matter how talented, doesn't a victory make" ve kapanış "Thank you everyone,
+  that's all the questions we have the time for today." çıkıyordu. Oysa `/translate` aynı sözler için
+  "Pozitif", "Her ilişki gibi bunun da inişleri ve çıkışları var; …", "Herkese teşekkürler. Bugünlük daha
+  fazla soru almayacağız artık." veriyor. Artık `Show`/`Say` üçünü de `GameWords.Ask` + `GameWords.Of` ile
+  basıyor; eşleşme/basış hâlâ İngilizce etiketle (kimlik değişmedi).
+- Kanıt — üç konuşma (maç öncesi basın toplantısı / takım liderleri toplantısı / sakatlık sohbeti) × TR + EN,
+  hepsi rc=0: TR'de grup başlıkları `[Olumlu] [Nötr] [Olumsuz]` ve kapanış "Herkese teşekkürler…" (önce
+  `[Positive] [Negative]` + iki İngilizce cevap + İngilizce kapanış); EN'de metinler eskisiyle aynı
+  (`[Positive] [Neutral] [Negative]`, kapanış İngilizce), yani İngilizce oyunda hiçbir şey değişmedi.
+  Dosyalar `/tmp/opencode/t147/` (`before-*` / `after-*` / `en-*`).
+- Paylaşılan `Guided.TalkTo` değişti → `sweep.sh` **50 komut, 0 hata**.
+- Dönüş: testte maç oynanmadı, `fm save` **yok**; EN ölçümünden sonra `fm settings language "Türkçe"`
+  → `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → `/state` `Language: turkish`, `Date: 2026-08-09`,
+  `Clock: 0`, `DuringMatch: False`; `fm status` **9 Ağustos 2026 05:45**, ana kayıt damgası **21 Ekim 10:40**
+  (değişmedi), dört kayıt yerinde.
+- `remaining.py --write`: kutu sayısı değişmedi (14 borç / 0 yazı / 3 kısa `Until`; bu bir kutu değil,
+  konuşma gösterimi bulgusu).
+- Sıradaki uygun maddeler: yine **yok**; sonraki tur `sweep.sh` + menajer akışında hata avına devam etsin.
+  **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (312/316) · Stages 63/120/136 ·
+  MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 · `Program.cs:589/694/1452/2210`,
+  `Launcher 213/269`.
+
+## Önceki durum (Tur 146)
 - Seçilen madde: **yok** — canlı bloktaki 17 kutunun hepsi `[?]` (Guided 161/174) ya da "Sonraya bırakılanlar"
   listesinde (Launcher 213/269 · MatchDay 181/314/370 · Program 589/694/1452/2210 · Registration 312/316 ·
   Stages 63/120/136 · MatchControls 131/266 · Saves 258). Talimatın "boşta kalırsan" yolu: `sweep.sh` + gerçek

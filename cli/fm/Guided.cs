@@ -345,6 +345,7 @@ internal static partial class Program
 				: await Fm.Get("select", ("ptr", said.Pointer), ("choice", said.Choice), ("fire", "1"));
 			if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
+			await GameWords.Ask(Fm, line);
 			Console.WriteLine($"» {GameWords.Of(line)}\n");
 
 			// The reply and the next set of answers arrive together, a moment later. In between the
@@ -395,7 +396,11 @@ internal static partial class Program
 			}
 
 			foreach (var line in talk.GetProperty("Says").EnumerateArray())
-				Console.WriteLine("  " + line.GetString()?.Replace("\n", "\n  "));
+			{
+				var said = line.GetString() ?? "";
+				await GameWords.Ask(Fm, said);
+				Console.WriteLine("  " + GameWords.Of(said).Replace("\n", "\n  "));
+			}
 
 			// How the room took the last line: each reaction with how many it moved by.
 			var counts = talk.GetProperty("Mood").EnumerateObject()
@@ -418,16 +423,19 @@ internal static partial class Program
 			var heading = "";
 			if (!footer) return 0;
 			Console.WriteLine();
+			await GameWords.Ask(Fm, [.. offered.Select(o => o.Label), .. offered.Select(o => o.Heading ?? "")]);
 			for (var i = 0; i < offered.Count; i++)
 			{
 				var known = details.TryGetValue(offered[i].Label, out var detail);
 
 				var group = offered[i].Heading ?? (known ? Field(detail, "Group") : "");
+				await GameWords.Ask(Fm, group);
+				group = GameWords.Of(group);
 				if (group != heading && group.Length > 0) Console.WriteLine($"[{group}]");
 				heading = group;
 
 				var recommended = known && Field(detail, "Recommended") == "True" ? L("  (önerilen)") : "";
-				Console.WriteLine($"  {i + 1,2}  {offered[i].Label}{recommended}");
+				Console.WriteLine($"  {i + 1,2}  {GameWords.Of(offered[i].Label)}{recommended}");
 			}
 
 			Console.WriteLine(L("\nSöylemek için: talk <numara>"));

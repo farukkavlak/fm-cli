@@ -4000,3 +4000,18 @@ seçiliyor. Üç durum (`inbox` / `squad` / `table` sonrası) × TR + EN: TR ü�
 iki satır değişti (`Goals` → `Goller`, oyuncu + takım listeleri); EN üç çıktı eski derlemeyle bayt bayt
 aynı (`abbbd321…`, İngilizce oyunda tablo yok, hiçbir şey değişmiyor). `sweep.sh` **50 komut, 0 hata**.
 Kalan (bu iş değil): katalogdaki "Goals/90 Minutes" gibi bileşik adları oyunun kendisi Türkçe göstermiyor.
+
+### 8.340 konuşmada cevap seçenekleri, grup başlıkları ve kapanış cümlesi çevrilmeden basılıyordu (22 Ekim, TR + EN)
+
+`fm talk`/`fm match` konuşmasında (`Guided.TalkTo`) `Says` satırları, cevap başlıkları ve cevap etiketleri
+oyunun metni olarak **ham** basılıyordu. Eklenti bu metinleri İngilizceye çevirdiği için Türkçe oyunda
+karışık dil çıkıyordu: basın toplantısında `[Positive]`/`[Negative]` başlıkları, "Like any relationship,
+there are ups and downs…" ve "One player, no matter how talented, doesn't a victory make" seçenekleri,
+kapanışta "Thank you everyone, that's all the questions we have the time for today." Aynı sözlerin
+Türkçesi oyunun tablosunda var (`/translate` → "Pozitif", "Her ilişki gibi bunun da inişleri ve çıkışları
+var; …", "Herkese teşekkürler. Bugünlük daha fazla soru almayacağız artık."), yani eksik çeviri değil,
+gösterim yolu eksikti. Artık `Show`/`Say` üçünü de `GameWords.Ask` + `GameWords.Of` ile basıyor; eşleşme
+ve basış yine İngilizce etiketle (kimlik değişmedi). Kanıt — üç konuşma (basın toplantısı / takım liderleri
+toplantısı / oyuncu sohbeti) × TR + EN: TR'de başlıklar `[Olumlu] [Nötr] [Olumsuz]`, kapanış "Herkese
+teşekkürler…"; EN'de metinler eskisiyle aynı (`[Positive] [Neutral] [Negative]`); önce TR'de yukarıdaki
+üç İngilizce söz, sonra hiçbiri. `sweep.sh` **50 komut, 0 hata**.
