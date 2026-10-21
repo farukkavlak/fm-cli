@@ -27,15 +27,26 @@ internal static partial class Program
 		if (await OpenPlayer(wanted) is not { } card) return 1;
 		var name = Field(card.GetProperty("Player"), "Name");
 
-		var opened = await Arriving("press", [("text", "Training Rating"), ("name", "layout-tile-interaction-button"), ("any", "1")]);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		// The tile is found by the panel it is laid out in ("PlayerTrainingOverview"), whose name no
+		// language changes, not by its title. The player's page remembers the tab it was left on:
+		// on the training page the tile is covered by that page and the coaches' list is already up,
+		// which is the same place reached either way.
+		static bool Coaches(JsonElement d) => Field(d, "Label") == "Request Training Report";
+		async Task<JsonElement> CoachList() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(Coaches);
+		var opened = "";
+		await Until(async () =>
+			!(opened = await Fm.Get("click", ("within", "PlayerTrainingOverview"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal)
+			|| (await CoachList()).ValueKind == JsonValueKind.Object,
+			seconds: 8, every: 0.5);
+		if (opened.StartsWith("error", StringComparison.Ordinal) && (await CoachList()).ValueKind != JsonValueKind.Object)
+			return Report(opened);
 
 		// After a request the coach's answer stays up ("Okay, I'll sort that out for you now.") and
 		// the list only comes back once that is moved past; the page is reused from player to player.
 		JsonElement list = default;
 		async Task<bool> Listed()
 		{
-			list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Label") == "Request Training Report");
+			list = await CoachList();
 			if (list.ValueKind == JsonValueKind.Object) return true;
 			await Acknowledge();
 			return false;

@@ -21,7 +21,32 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 119)
+## Şu an (Tur 122)
+- Madde: **B1 yazıyla basma / `TrainingReport.cs:30`** — `training --report` antrenman döşemesini
+  `press ?text="Training Rating"` ile buluyordu (söz çeviri tablosundan). **BİTTİ** (§8.310): döşeme artık paneliyle —
+  `click ?within=PlayerTrainingOverview&name=layout-tile-interaction-button`. Oyuncu sayfası eğitim sekmesinde
+  bırakılmışsa döşeme o sekmenin altında kalır (`click` hata verir); o durumda antrenör listesi zaten ekrandadır ve
+  bu başarı sayılır (Career döşemesindeki desen).
+- Kanıt (`FM_TRACE=1`, `fm training "Ben House" --report`): TR + EN × üç durum (s1 `Messages` sonrası / s2 hemen
+  ikinci koşu, eğitim sekmesi açık / s3 `Squad Dynamics` sonrası) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
+  (TR `md5 a287fa00…` 3/3, EN `85a396a7…` 3/3). İz: `press ?text=Training Rating&…` → `click ?within=PlayerTrainingOverview&…`.
+  s2/s3'te `/click` canlıda "no button named 'layout-tile-interaction-button' inside 'PlayerTrainingOverview'"
+  veriyor, liste 1 adet → yedek dal gerçekten kullanıldı. Uçtan uca `--coach "Tom Shaw"` TR + EN raporu okudu
+  (tarih ilerlemedi). Negatif `"ZZZ yok"` rc=1. Dosyalar `/tmp/opencode/t122/`.
+- Dönüş/kayıt: `fm settings language "Türkçe"` → `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → `/state`
+  `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm save` yok, kayıt damgası **10:40**
+  (değişmedi). Yalnız `cli/fm/TrainingReport.cs` + dokümanlar değişti; paylaşılan yardımcı yok → `sweep.sh` gerekmedi.
+- Aynı fonksiyonda kalan (ayrı iş, bu turda ele alınmadı): liste hâlâ `Label == "Request Training Report"`, rapor eki
+  `texts anchor="Attachments"` + `T.Rat` ile bulunuyor — ikisi de dile bağlı.
+- Sıradaki uygun maddeler: B1 `Saves.cs:552` · `Settings.cs:304` · `TraitTraining.cs:153` · `Guided.cs:803`
+  (`MatchDay` "Instant Result" maç günü ister) · A2 kısa `Until`in kalanları (Coaches 56, ContractTalks 388,
+  League 223, Saves 245/258) · A1 küçük `Task.Delay`ler (OfferScreen 259, Reads 116/133, StatusFlags 54,
+  MatchReport 35, Release 164). **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 ·
+  MatchDay üç pencere · mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) ·
+  Program 986 · Guided 161 174 (Faruk'un cevabı bekleniyor) · `Program.cs:589/694/1448/2206/2285`,
+  `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister).
+
+## Önceki durum (Tur 119)
 - Madde: **B1 yazıyla basma / `Career.cs:27`** — `player --career` kariyer döşemesini `press ?text="Career Stats"`
   ile buluyordu (söz çeviri tablosundan). **BİTTİ** (§8.308): döşeme artık dilden bağımsız paneliyle bulunuyor —
   `click ?within=CareerStats&name=layout-tile-interaction-button` (panel `BindingRemapper #CareerStats`, tutamak

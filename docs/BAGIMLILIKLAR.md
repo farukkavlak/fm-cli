@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **47** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 11 · kısa `Until` (≤3 sn) 10
+**Canlı sayaç:** açık kutu **46** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 10 · kısa `Until` (≤3 sn) 10
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -66,9 +66,9 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `Stages.cs:133` `await Task.Delay(1200);`
 - [ ] `Stages.cs:210` `await Task.Delay(700);`
 - [ ] `StatusFlags.cs:54` `if (waiting.Count > 0) await Task.Delay(250);`
-- [ ] `TrainingReport.cs:82` `await Task.Delay(500);`
+- [ ] `TrainingReport.cs:92` `await Task.Delay(500);`
 
-#### B1. Yazıyla basma/tıklama — 11 yer
+#### B1. Yazıyla basma/tıklama — 10 yer
 
 - [ ] `Guided.cs:803` "Team Shape"
 - [ ] `MatchDay.cs:355` "Instant Result"
@@ -79,7 +79,6 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:638` "Edit Recruitment Focus"
 - [ ] `Settings.cs:304` "Manage settings for this game"
-- [ ] `TrainingReport.cs:30` "Training Rating"
 - [ ] `TraitTraining.cs:153` "Cancel Current Trait Training"
 
 #### A2. Kısa `Until` (≤3 sn) — 10 yer
@@ -614,6 +613,10 @@ tablodan çevrilemiyor.
     derlemeyle birebir; negatif oyuncu rc=1 (§8.214).
   - [x] `player --career` kariyer döşemesi: `press text="Career Stats"` yerine döşemenin dilden bağımsız paneli
     (`within=CareerStats` › `layout-tile-interaction-button`); TR + EN × üç durum çıktısı eski derlemeyle birebir (§8.308).
+  - [x] `training --report` antrenman döşemesi: `press text="Training Rating"` yerine `within=PlayerTrainingOverview`
+    › `layout-tile-interaction-button`; eğitim sekmesi zaten açıksa döşeme kapalıdır, listede olması başarı sayılır.
+    TR + EN × üç durum çıktısı eski derlemeyle birebir; uçtan uca rapor iki dilde okundu (§8.310). Kalan (ayrı iş):
+    liste ve rapor eki hâlâ İngilizce başlık/sütun sözleriyle bulunuyor.
   - [x] sakatlık eki "Received in" / "Out for" — Türkçede çalıştı (tablodan çevriliyor)
   - [x] ~~Intensity "Ask … training intensities"~~ (sayfa Guid'iyle, §8.187)
   - [x] ~~Mentoring "assign mentoring groups"~~ (eylem kimliğiyle, §8.188)

@@ -3647,3 +3647,14 @@ söz oyunun kendi metni, yani düğme dile bağlıydı. Döşemenin dilden bağ�
 `PlayerForm` içinde 58 düğme var, `within` tek başına belirsiz. Kanıt: TR + EN × üç durum (oyuncu sayfası ilk kez
 açılıyor / oyuncu sayfası zaten açık / form sayfası zaten açık) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
 (TR `md5 43c6f1a5…`, EN `md5 01570650…`). Dosyalar `/tmp/{trA,trB,trC,enA,enB,enC,trOld,enOld}.json`.
+
+### 8.310 `training --report` antrenman döşemesini `PlayerTrainingOverview` paneliyle açıyor (21 Ekim, TR + EN)
+`TrainingReport.cs` "Training Rating" döşemesini `press ?text="Training Rating"` ile buluyordu; söz çeviri
+tablosundan, yani döşeme dile bağlıydı. Dilden bağımsız tutamak, döşemenin içinde dizildiği
+`BindingRemapper #PlayerTrainingOverview`. Artık `click ?within=PlayerTrainingOverview&name=layout-tile-interaction-button`;
+oyuncu sayfası eğitim sekmesinde bırakılmışsa döşeme o sekmenin altında kalıyor (`click` "no button … inside" der),
+o hâlde koşullar aynı yere varır: antrenör listesi (`Request Training Report`) zaten ekrandadır ve bu başarı sayılır.
+Kanıt: TR + EN × üç durum (başka sayfa `Messages` / hemen ikinci koşu, eğitim sekmesi açık / `Squad Dynamics`
+sonrası) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 a287fa00…`, EN `85a396a7…`); uçtan uca
+`--coach "Tom Shaw"` TR + EN raporu okudu. Aynı fonksiyonda kalan (ayrı iş): liste `Label == "Request Training Report"`
+ile, rapor eki `texts anchor="Attachments"` + `T.Rat` ile bulunuyor — bunlar dile bağlı, bu turda ele alınmadı.
