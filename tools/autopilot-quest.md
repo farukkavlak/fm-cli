@@ -3,7 +3,20 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 83)
+## Şu an (Tur 84)
+- Madde: **A "Kısa `Until`" / Reads 892** (`fm table`in ülke eşi: `Human.Team.Nation.Name` en çok 3 sn bekleniyordu)
+  — **BİTTİ**, ölçüldü, kod değişmedi (§8.272). İşaret değerin kendisi: istek üç durumda da **26–30 ms**'de dolu
+  dönüyor, 3 sn sınırı ~100 kat pay. Değer hiç gelmezse kod yanlış tablo basmıyor: ülke eşleşmesi atlanıyor, portal
+  yolunda tablo `NextFixture.Competition` adı istenenle karşılaştırılarak seçiliyor, eşleşmezse yarışma adıyla
+  açılıyor. Kanıt — TR + EN × üç durum (s1 başka sayfa `Messages` açık / s2 hemen ikinci koşu / s3 `Squad Dynamics`
+  · EN `Dynamics` sonrası) `fm table`: **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `md5 07136d20…` 3/3,
+  EN `986b328b…` 3/3, 24 satır); ülke isteği `FM_TRACE=1` izinde TR 26/28/28 ms, EN 30/28/28 ms.
+  Dosyalar `…/opencode/t84/tr-s{1,2,3}.{out,err}`, `en-s{1,2,3}.{out,err}`.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; dil EN
+  ölçümünden sonra `fm settings language "Türkçe"` ile TR (`dil` → `Turkish`). Kod değişmedi → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 83)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / `fm tactic pick`in "Quick Pick" düğmesi** — **BİTTİ** (§8.271).
   Düğme `?text=Quick Pick&name=button` ile basılıyordu; "Quick Pick" oyunun "Hızlı Seçim" sözünün eklentinin çeviri
   tablosundan geçmiş İngilizcesi. Düğmenin kendi olayı `EventToPlugin:EventFmxQuickPick`; basış artık yalnız o

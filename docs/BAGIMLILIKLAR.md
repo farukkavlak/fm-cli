@@ -284,6 +284,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     / başka sayfaya geçtikten sonra) ve ay elle uzağa kaydırılıp `fm calendar` denendiğinde çıktı eski derlemeyle
     **birebir** (`md5` TR `0dd9e264…`, EN `02589720…`); zaten açıkken 1,0 sn, ay uzaktayken 2,0 sn. Aynı yardımcıyı
     kullanan `fm schedule` ve `fm fixtures` çalışıyor; `sweep.sh` 50 komut, 0 hata (§8.233).
+  - [x] Reads 892 (`fm table`in ülke eşi: yarışma adını ülkeyle eşleştirmek için `Human.Team.Nation.Name` en çok
+    3 sn bekleniyordu): ölçüldü, **değişiklik gerekmedi**. İşaret değerin kendisi (`Nation.Name` boş olmaktan çıkıyor);
+    istek üç durumda da **26–30 ms**'de değerle dönüyor, yani 3 sn sınırı ~100 kat pay. Değer hiç gelmezse kod yanlış
+    tablo basmıyor: ülke eşleşmesi atlanıyor, portal yolunda tablo `NextFixture.Competition` adı istenenle
+    karşılaştırılarak seçiliyor, eşleşmezse yarışma adıyla açılıyor. TR üç durum + EN üç durum: `fm table` çıktısı
+    dil içinde bayt bayt aynı (TR `md5 07136d20…` 3/3, EN `986b328b…` 3/3) (§8.272).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,

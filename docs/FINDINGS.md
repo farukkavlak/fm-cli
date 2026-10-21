@@ -3253,3 +3253,12 @@ yineler) → yeni `press ?event=EventToPlugin:EventFmxQuickPick`; `text=Quick Pi
 İlk durumda düğme sayfada olmadığı için `dry` "error: no" dönüyor, `Planner` sayfayı açıyor, sonra basılıyor
 (yani "sayfa ilk kez açılıyor" yolu da aynı). Kayıt test kaydı; saat 2 Ağustos 2026 09:15, ilerletilmedi,
 maç oynanmadı; dil Türkçe'ye döndü. Dosyalar `…/opencode/t82/{base,new}-{tr,en}-s{1,2,3}.{out,err}`.
+
+### 8.272 `fm table`in ülke eşi ölçüldü: 3 sn sınırı ~100 kat pay (21 Ekim, TR + EN)
+Lig tablosunun adı ülkeyle eşleştirilirken `Human.Team.Nation.Name` en çok 3 sn (0,5 sn aralık) bekleniyordu.
+Ölçüm (`FM_TRACE=1`): istek üç durumda da **26–30 ms**'de dolu değerle dönüyor (TR 26/28/28, EN 30/28/28) — yani
+sınır bir yoklama aralığından çok uzak, pay ~100 kat. Değer hiç gelmezse yanlış tablo riski yok: ülke eşleşmesi
+atlanıyor, portal yolunda tablo `NextFixture.Competition` adıyla karşılaştırılıyor, eşleşmezse yarışma adıyla
+açılıyor. Üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) × TR + EN: `fm table`
+çıktısı dil içinde bayt bayt aynı (TR `07136d20…`, EN `986b328b…`); kod değişmedi.
+Dosyalar `…/opencode/t84/tr-s{1,2,3}.{out,err}`, `en-s{1,2,3}.{out,err}`.
