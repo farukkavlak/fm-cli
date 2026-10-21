@@ -3573,3 +3573,11 @@ tutmayınca portal karosunun dört sütunlu tablosuna (`# TAKIM O P`) sessizce d
 aşamasında kalıyor, `ties` + altı `scroll ?anchor=<takım>` sonrası Stages vazgeçiyor. Sütunlar eksik geldiği
 için "oldu" demek yanıltıcı; yarışma seçimi oyunun kendi işaretiyle (tablonun/aşamanın başlığı) doğrulanmalı.
 Kod değişmedi; dosyalar `/tmp/opencode/t113/`.
+
+### 8.302 Alt sayfanın içeriği 3 sn'de "gelmedi" sayılıyordu (21 Ekim, TR + EN)
+`OpenSubpage` (Program.cs) çubuğun o sayfada durmasını bekledikten sonra içeriği en çok **3 sn** bekliyordu.
+Ölçüm (`FM_TRACE=1`, `fm happiness --json`; çubuğun ilk cevabından sayfanın okunduğu ana kadar): TR
+**1,07–1,55 sn**, EN **0,90–1,10 sn** (sekiz koşu) → 3 sn en yavaş koşuda yalnız **~1,9 kat** pay. Üst sınır
+**8 sn** (~5–9 kat); işaret değişmedi (çubuk `check=1` "shown" + içerik, üst üste iki okuma, olmazsa dört tur).
+TR + EN × üç durum (`Messages` açık / hemen ikinci koşu / `Messages`'a dönüp) **6/6 rc=0**, çıktı eski
+derlemeyle bayt bayt aynı (TR `60e1e6fe…`, EN `bd3dc6a1…`); `sweep.sh` **50/50**. Dosyalar `/tmp/t114/`.

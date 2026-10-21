@@ -305,7 +305,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     sonra taze açılışta eski derleme 2/2 kez ekranı okuyamadı ("Joe Bennett: transfer offer"; motor yazıları henüz
     oturmamış, §8.275); dil oturduktan sonra yeni derleme taze yolda da kartı çizdi. Dosyalar `/tmp/opencode/t104/`.
 - [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
-  ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
+  ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 ~~2118~~ ·
   Reads 892 · Saves 207 220 · ~~ScoutFocus 55~~ · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·
   TrainingSchedule 491 506 · ~~TraitTraining 89~~
   - [x] League 216 (`StatScope`in `.comp` bağlama beklemesi: 3 sn "gelmezse yok say"): ölçüldü, **değişiklik
@@ -436,6 +436,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics` sonrası) **6/6 rc=0**,
     çıktı "Odak güncellendi…" / "Focus updated…", odak gerçekten değişti (ölçüm sonrası ana kayıt `--no-save`
     ile yüklendi: 4 odak, TR) (§8.300).
+  - [x] Program 2118 (`OpenSubpage`in içerik beklemesi: çubuk o sayfada durunca içerik en çok 3 sn bekleniyordu):
+    işaret oyunun kendi cevabıydı (çubuk + içerik, üst üste iki okuma), yalnız üst sınır dardı. Ölçüm
+    (`FM_TRACE=1`, `fm happiness --json`, çubuk ilk cevabından sayfanın okunduğu ana kadar): TR
+    **1,07–1,55 sn**, EN **0,90–1,10 sn** (sekiz koşu), yani 3 sn en yavaş koşuda yalnız **~1,9 kat**;
+    üst sınır **8 sn** (~5,2–8,9 kat). TR + EN × üç durum (`Messages` açıkken / hemen ikinci koşu / `Messages`'a
+    dönüp) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 60e1e6fe…`, EN `bd3dc6a1…`);
+    `sweep.sh` **50/50** (§8.302).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,

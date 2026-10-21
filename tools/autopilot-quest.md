@@ -14,7 +14,26 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 113)
+## Şu an (Tur 114)
+- Madde: **A "Kısa `Until`" / Program 2118 — `OpenSubpage`in içerik beklemesi** — **BİTTİ** (§8.302).
+  İşaret zaten oyunun kendi cevabıydı (çubuk `check=1` "shown" + içerik, üst üste iki okuma); yalnız üst sınır
+  **3 → 8 sn**.
+- Kanıt (`FM_TRACE=1`, `fm happiness --json`; çubuğun ilk cevabından sayfanın okunduğu ana kadar): TR
+  **1,07–1,55 sn** (4 koşu), EN **0,90–1,10 sn** (4 koşu) → 3 sn yalnız ~1,9 kat, 8 sn ~5,2–8,9 kat.
+  TR + EN × üç durum (`Messages` açık / hemen ikinci koşu / `Messages`'a dönüp) **6/6 rc=0**, çıktı eski
+  derlemeyle bayt bayt aynı (TR `md5 60e1e6fe…`, EN `bd3dc6a1…`); `sweep.sh` **50/50**.
+- Dönüş/kayıt: `fm settings language "Türkçe"` (ara koşularda `dil Türkçe` çalışmadı; doğru ad `language`) →
+  `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`; `fm load "Faruk Kavlak - Fenerbahçe" --no-save`
+  → tarih **9 Ağustos 2026**, kayıt zaman damgası **10:40** (değişmedi). `fm save` yok, saat ilerletilmedi.
+- Not: aynı turda `training --trait` denendi — komut "eğitimi başladı" diyor ama ekranda `Start New Trait
+  Training` duruyor (veriden doğrulanmadı); `--trait` işi bu turda ele alınmadı, ayrı bakılmalı.
+- Dosyalar `/tmp/t114/`. Sıradaki uygun maddeler: A Guided 161/174 · A `Bound` 20 sn + maç akışı 3 sn'ler
+  (maç günü) · A kısa `Until`in kalanları (Saves 207/220, MatchControls 131 266, Program 986/1918) ·
+  B Program cümle parçaları · B 44'ün kalanları. **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 ·
+  TrainingSchedule 345 · Clock 179 işsizlik · MatchDay üç pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn ·
+  `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301).
+
+## Önceki durum (Tur 113)
 - Madde: **A "Kısa `Until`" / Reads 892 — lig tablosunun ülke beklemesi** — **BİTTİ**; ölçüldü, **değişiklik
   gerekmedi** (kod değişmedi). Aynı eşik §8.272'de ölçülmüş ama checklist'te işaretlenmemişti; bugün yedi TR +
   üç EN koşusuyla yeniden doğrulandı ve madde kapandı.
