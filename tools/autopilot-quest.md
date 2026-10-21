@@ -14,7 +14,33 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 107)
+## Şu an (Tur 108)
+- Madde: **B "İngilizce yazıyla basma — 44 yer" / `contract --cancel`in "Cancel Negotiations" satırı** (terimler
+  aşamasının iptal düğmesi `Labelled` ile aranıyordu; iptal + onaydan sonra `LeaveTalks()` var olmayan
+  "Exit Talks"ı 6 sn arıyordu) — **BİTTİ** (§8.296). Düğmenin `SpeakToAction` eylemi
+  **EventFmxWithdrawContractNegotiationProcess** (**811955833**, `docs/reference/enums.txt:859`) gönderiyor;
+  artık `?ptr=` ile basılıyor. Terimler aşaması bu kayıtta `contract --next` ile açılıyor (kilitli kart `--next`
+  vermiyor). `LeaveTalks()` çağrısı kalktı: görüşmeyi iptal kendisi kapatıyor, işaret ekranın kapanması.
+- Kanıt — eski derleme (`git` öncesi hâliyle kurulu `fm`): TR `contract --cancel` **7,13 sn**, izde iptal
+  basışı 0,24 sn, onay 0,60 sn, sonra `translate?words=Exit Talks` + 22 boş `buttons` yoklaması 6,95 sn'ye kadar.
+  Yeni: TR **1,59 / 1,73 / 1,74 sn**, EN **1,65 / 1,57 / 1,77 sn**; `translate Exit Talks` yok, `buttons?gen=`
+  → `pull?props=Event` → `press ?ptr=`. TR + EN × üç durum (s1 görüşme doğrudan açıldı / s2 hemen ikinci koşu /
+  s3 `Squad Dynamics`·EN `Messages` sonrası) **6/6 rc=0**, çıktı dil içinde aynı ("Görüşme iptal edildi." /
+  "Negotiation cancelled."), sonrasında `contract` rc=1 ("açık görüşme yok"). Negatif: kilitli vaatler kartı
+  (`Ben Waine`) `--cancel` → olay-42 çıkışıyla rc=0. Dosyalar `/tmp/opencode/t108/`.
+- Dönüş/kayıt: EN ölçümünden sonra `fm settings language "Türkçe"` → `turkish`; `fm load "Faruk Kavlak -
+  Fenerbahçe" --no-save` → `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`;
+  kayıt zaman damgası **10:40** (değişmedi), `fm save` yok, saat ilerletilmedi, maç oynanmadı.
+- Yalnız `cli/fm/ContractTalks.cs` değişti (`WithdrawNegotiation` + `CallOff`); paylaşılan yardımcı
+  (`SpeakToActionEvent`) zaten vardı ve imzası değişmedi → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A Guided 161/174 (bedel sözü) · A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) ·
+  B Program cümle parçaları (kaptan eki / "End of" / "Transfers In/Out" / sezon özeti) · B `LeaveTalks` etiketi
+  (personel görüşmesi çıkışı; bugün `talk` → "Exit Talks" ile açıldı) · D/E `up=N` taraması. **Sonraya
+  bırakılanlar** (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 · Clock 179 işsizlik · MatchDay üç
+  pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn · `opposition` "Apply all advice" · boy birimleri.
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 107)
 - Madde: **A "Kısa `Until`" / TrainingSchedule 491 506** (`fm schedule`ın antrenman sekmesi ve ızgarası "art arda
   iki okuma aynı" olana kadar en çok **3 sn** bekleniyordu) — **BİTTİ** (§8.295). İşaret zaten oyunun kendi
   "ızgara oturdu" hâliydi; üst sınır dardı: ölçüm (`select` → son ızgara okuması) TR **1,92 / 0,61 / 1,31 sn**,

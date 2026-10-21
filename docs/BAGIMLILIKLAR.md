@@ -584,8 +584,13 @@ tablodan çevrilemiyor.
   - [x] **Sözleşme görüşmesinden çıkış** (`contract --cancel`, vaatler aşaması): `Exit Talks` düğmesi yazıyla
     basılıyordu; düğmenin `SpeakToAction` eylemi **Event 42** (`EventFmxExitNegotiations`) + `IsExitButton=True`
     taşıyor, basış artık `?ptr=` ile. TR + EN × üç durum 6/6 rc=0, görüşme basıştan ~0,3–0,5 sn sonra kapanıyor
-    (§8.294). Kalan: `Cancel Negotiations` satırı ve `LeaveTalks` hâlâ etiketle (vaatler dışındaki aşamalar bu
-    kayıtta açılamadı).
+    (§8.294). Kalan: `LeaveTalks` hâlâ etiketle; terimler aşaması `contract --next` ile bu kayıtta açılıyor.
+  - [x] **Sözleşme görüşmesini iptal etme** (`contract --cancel`, terimler aşaması): "Cancel Negotiations"
+    düğmesi `Labelled` ile aranıyordu; düğmenin `SpeakToAction` eylemi
+    **EventFmxWithdrawContractNegotiationProcess** (**811955833**) gönderiyor, artık olayla bulunuyor. Aynı
+    bloktaki kör bekleme de gitti: iptal + onaydan sonra `LeaveTalks()` var olmayan "Exit Talks"ı 6 sn arıyordu;
+    ekranın kapanması oyunun kendi işareti. TR + EN × üç durumda 6/6 rc=0, çıktı dil içinde aynı ve sonrasında
+    `contract` rc=1; süre **7,13 → 1,57–1,77 sn** (§8.296).
   - [x] `contract <oyuncu> --agent` satırı: artık eylem kimliğiyle bulunuyor — eklentinin `Action` düğümünün
     `ActionID`'si **1882353528** (`InteropEventIDs.PersonAskAgentAboutClientContractRenewal`), işaretçisiyle
     basılıyor. Bu satır oyunun kendi konuşma cümlesi; TR'de "Temsilci İle Yeni Sözleşme Hakkında Görüş" olarak

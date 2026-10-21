@@ -17,6 +17,14 @@ internal static partial class Program
 	/// <summary>What the way out of the talks sends (InteropEventIDs.EventFmxExitNegotiations).</summary>
 	private const string ExitNegotiations = "42";
 
+	/// <summary>
+	/// What walking away from the terms sends (InteropEventIDs.EventFmxWithdrawContractNegotiationProcess):
+	/// the button the game labels "Cancel Negotiations". Its label is one of the game's own strings and
+	/// this language's table may give several English texts the same word, so the event is what tells it
+	/// apart (FINDINGS §8.296).
+	/// </summary>
+	private const string WithdrawNegotiation = "811955833";
+
 	private static async Task<int> Contract(string[] args)
 	{
 		if (args.Contains("--agent")) return await AskAgent(args);
@@ -217,7 +225,7 @@ internal static partial class Program
 				items.Add(L("Sıfırla (menajerin istediklerine dön)"));
 				actions.Add(async () => await Labelled("Reset") is { } reset ? (await Fm.Get("press", ("ptr", Field(reset, "Pointer")))).StartsWith("error", StringComparison.Ordinal) ? L("Sıfırlanamadı.") : null : null);
 			}
-			if (await Labelled("Cancel Negotiations", TalksButton) != null)
+			if (await SpeakToActionEvent(WithdrawNegotiation) != null)
 			{
 				items.Add(L("Görüşmeyi iptal et"));
 				actions.Add(CancelTalks);
@@ -356,7 +364,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> CallOff()
 	{
-		if (await Labelled("Cancel Negotiations", TalksButton) is not { } cancel)
+		if (await SpeakToActionEvent(WithdrawNegotiation) is not { } cancel)
 		{
 			// The promises stage has no cancel either: nothing has been put to the agent yet, and
 			// walking off the page is the way out. That button stands for the game's own Exit
@@ -382,7 +390,9 @@ internal static partial class Program
 			&& DialogAnswer(dialog[0], true) is { } confirm)
 			await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
 
-		await LeaveTalks();
+		// Withdrawing closes the talks itself: no "Exit Talks" step follows it, so waiting for that
+		// button only burned its whole 6 s ceiling before the screen was read (FINDINGS §8.296).
+		// The screen closing is the game's own signal.
 		return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25)
 			? null : L("İptal denildi ama görüşme ekranı hâlâ açık (talk ile bak).");
 	}

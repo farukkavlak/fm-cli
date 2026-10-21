@@ -3516,3 +3516,13 @@ okuma aynı") en çok **3 sn** bekleniyordu; ikisi de oyunun kendi işareti, yal
 `Dynamics` sonrası) → 3 sn en yavaş koşuda yalnız **1,6 kat** pay. Üst sınır sekme için **8 sn**, ızgara için
 **12 sn** (≥6,3 kat). TR + EN × üç durum `fm schedule --json`: **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
 (TR `md5 288ca6d1…` 3/3, EN `bba27efa…` 3/3). Dosyalar `/tmp/opencode/t107/sched/`.
+
+### 8.296 Sözleşme görüşmesini iptal eden düğme artık olayıyla; iptalden sonra boşuna 6 sn beklenmiyordu (21 Ekim, TR + EN)
+`ContractTalks.CallOff`: terimler aşamasındaki "Cancel Negotiations" düğmesi yazıyla (`Labelled`) bulunuyordu ve
+iptal + onaydan sonra `LeaveTalks()` o düğme sanılan "Exit Talks"ı 6 sn arıyordu; oysa oyun görüşmeyi zaten
+kapatıyor. İz: eski `contract --cancel` **7,13 sn**, sonunda 22 boş `buttons` yoklaması + `translate?words=Exit Talks`;
+yeni aynı akış **1,57–1,77 sn**, `translate` yok. Düğmenin kimliği `EventFmxWithdrawContractNegotiationProcess`
+(**811955833**; `docs/reference/enums.txt:859`), basış `?ptr=`. TR + EN × üç durum (doğrudan açılan görüşme /
+hemen ikinci koşu / başka sayfa sonrası) **6/6 rc=0**, çıktı dil içinde aynı ("Görüşme iptal edildi." /
+"Negotiation cancelled."), sonrasında `contract` rc=1 ("açık görüşme yok"); vaatler aşamasındaki olay-42 çıkışı
+negatifte hâlâ çalışıyor (kilitli kart, rc=0). Dosyalar `/tmp/opencode/t108/`.
