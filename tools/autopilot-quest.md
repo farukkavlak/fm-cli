@@ -14,7 +14,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 98)
+## Şu an (Tur 99)
+- Madde: **A "Kısa `Until`" / StaffSearch 354** — `fm players --attr "<nitelik><=N"` ("Is At Most" yolu) —
+  **BİTTİ** (§8.290). Ölçerken gerçek hata çıktı: karşılaştırma sözü değişir değişmez satır hazır sayılıyor,
+  değer düğmesi (`Shown() = -1`) ve `rule.minvalue` yerine `rule.maxvalue`ya geçen değer listesi okunmuyordu.
+  `<=` üç denemede de "değer N yapılamadı (panelde -1)" ile rc=1 veriyordu. Artık satır, değer düğmesi **veya**
+  listesi çizilene kadar (0,2 sn, üst sınır 6 sn) bekleniyor; liste iki bağlamadan da bulunuyor.
+- Kanıt — önce: TR `finishing<=7` / `finishing<=20` / `pace<=10` / `passing<=12` → **3/3 rc=1** (dördüncü de
+  aynı); sonra TR + EN × üç durum (`fm open "Messages"` sonrası / hemen ikinci koşu / `Dynamics` sonrası)
+  `fm players --attr "finishing<=7" --json`: **6/6 rc=0**, ilk 22 satır aynı (TR `md5 80366a35…` 3/3; EN settled
+  `7c75bb3c…` 3/3; TR'nin 22 satırı bilinen kısa tablo, §8.239). Panelde kural "Finishing · Is At Most · 7"
+  okundu (değer listesi `rule.maxvalue`); `finishing>=8` ile kesişim boş, `>=` yolu değişmedi. `FM_TRACE`:
+  değer 0,25–0,30 sn (6 sn ≈ 20–24 kat), hazır değer 0,02–0,05 sn, adım 0,02–0,04 sn (3 sn), satır 0,45–0,61 sn
+  (5 sn ≈ 8–11 kat). Dosyalar `/tmp/opencode/t102/`.
+- Dönüş/yan etki: dil EN ölçümünden sonra `fm settings language "Türkçe"` → `Turkish`; arama süzgeci
+  `fm players --clear` ile kaldırıldı; kayıt yalnız **okundu**, saat ilerletilmedi, maç oynanmadı, `fm save` yok;
+  tarih 9 Ağustos 2026 05:45 (ana kayıt), sıradaki maç Preston 11 Ağustos. Değişiklik `cli/fm/StaffSearch.cs`
+  (paylaşılan `ApplySearch`, `targets` da kullanıyor) → `sweep.sh` çalıştırıldı.
+- Sıradaki uygun maddeler: A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) · A Guided 161/174 (bedel sözü;
+  `fm talk` ile kurulacak) · B Program cümle parçaları (örnek mesaj üretmek gerek) · B haber "Portugal"
+  (yeniden üretilemedi) · B `Create/Edit Recruitment Focus` (ActionID 0 → eklenti) · D `up=N` / GUID taraması.
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 · Clock 179 işsizlik ·
+  MatchDay üç pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn · `opposition` "Apply all advice" · boy birimleri.
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 98)
 - Madde: **A "`Task.Delay`" / Clock 179** (`Unemployed`, 2×400 ms) — **BİTTİ** (§8.289). Sabit ikinci okuma
   kalktı; işsizlik menajerin kendi kaydından: çalışanda `Human.Team` = `FM.UI.TeamReference`, işsizde `Team`
   özelliği yok + `Human.Club` = `SI.Bindable.NullReference`. İki değer de boşsa 0,2 sn arayla en çok 5 kez

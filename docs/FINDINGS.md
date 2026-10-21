@@ -3452,3 +3452,14 @@ ardından `Human.Name` 7,48 sn → tespit **~4,0 sn**. Artık menajerin kendi ka
 0,2 sn arayla en çok 5 kez soruluyor. Ölçüm: işsiz TR + EN × üç durum (Messages sonrası / hemen ikinci /
 Squad Dynamics sonrası) ve çalışan TR + EN × aynı üç durum **12/12 rc=0**, her koşuda tek `Human` okuması,
 işsiz satırı iki dilde doğru; işsiz tespiti ~10–20 ms. `sweep.sh` 50/50. Dosyalar `/tmp/t101/`.
+
+### 8.290 `fm players --attr "<nitelik><=N"` "Is At Most" yolunda hep düşüyordu: satır yarı çizilmişken okunuyordu (21 Ekim, TR + EN)
+
+Karşılaştırma "Is At Most"a çevrildiğinde panel satırı iki adımda çiziyor: önce söz değişiyor, değer düğmesi
+birkaç yüz ms sonra geliyor; ayrıca değer listesinin veri yolu `rule.minvalue` yerine `rule.maxvalue` oluyor.
+Kod sözü görür görmez satırı hazır sayıp değeri okuyor (`Shown() = -1`), sonra listeyi eski yolda aradığı için
+`<=` her zaman "değer N yapılamadı (panelde -1)" ile rc=1 veriyordu (TR'de finishing ≤7/≤20, pace ≤10,
+passing ≤12: 3/3). Artık satır, değer düğmesi/listesi çizilene kadar bekleniyor ve liste iki bağlamadan da
+bulunuyor; `finishing<=7` TR + EN × üç durum 6/6 rc=0. Ölçüm: değer 0,25–0,30 sn'de geliyor, hazır değer
+0,02–0,05 sn, adım 0,02–0,04 sn; `>=` yolu değişmedi (rc=0, `finishing>=8` ile kesişim boş). Dosyalar
+`/tmp/opencode/t102/`.

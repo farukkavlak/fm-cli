@@ -268,6 +268,7 @@ internal static partial class Program
 	private const string SearchPanel = "filter.FilterRulePlayerPosition.Name";
 	private const string SearchCompare = "rule.selectedcompareflag";
 	private const string SearchValue = "rule.minvalue";
+	private const string SearchMaxValue = "rule.maxvalue";
 
 	private static async Task<string> ApplySearch(List<(string Rule, string Choice, string What)> wanted,
 		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null, long? maxValue = null)
@@ -366,18 +367,32 @@ internal static partial class Program
 				return await Close(L($"error: {name} koşulu panele eklenmedi"));
 
 			JsonElement Next(Func<JsonElement, bool> fits) => row.Items.Skip(row.At + 1).FirstOrDefault(fits);
+			// The value shows on a button of its own, between the comparison and the - and +.
+			int Shown() => row.Items.Skip(row.At + 1).Where(i => Field(i, "Kind") is "text" or "button").Select(i => int.TryParse(Field(i, "Text"), out var n) ? n : -1).FirstOrDefault(n => n >= 0, -1);
+			// Switching the comparison swaps the path the value's list writes: "Is At Least" keeps
+			// rule.minvalue, "Is At Most" rule.maxvalue.
+			bool Presets(JsonElement i) => Field(i, "Kind") == "dropdown"
+				&& (string.Equals(Field(i, "Binds"), SearchValue, StringComparison.OrdinalIgnoreCase)
+				    || string.Equals(Field(i, "Binds"), SearchMaxValue, StringComparison.OrdinalIgnoreCase));
 			var how = Next(Compare);
 			var wantedHow = atLeast ? "Is At Least" : "Is At Most";
 			if (Field(how, "Label") != wantedHow)
 			{
-				await Fm.Get("select", ("ptr", Field(how, "Pointer")), ("choice", wantedHow), ("fire", "1"));
-				await Until(async () => (row = await Row()).At >= 0 && Field(Next(Compare), "Label") == wantedHow, seconds: 4, every: 0.4);
+				var switched = await Fm.Get("select", ("ptr", Field(how, "Pointer")), ("choice", wantedHow), ("fire", "1"));
+				if (switched.StartsWith("error", StringComparison.Ordinal)) return await Close(switched);
+				// The comparison's word changes before the value under it is drawn: the row is taken
+				// only once both are there, or the value reads as missing (FINDINGS §8.290).
+				if (!await Until(async () =>
+				    {
+					    row = await Row();
+					    return row.At >= 0 && Field(Next(Compare), "Label") == wantedHow
+					           && (Shown() >= 0 || Next(Presets).ValueKind == JsonValueKind.Object);
+				    }, seconds: 6, every: 0.2))
+					return await Close(L($"error: {name}: '{wantedHow}' seçildi ama satır tamamlanmadı"));
 			}
 
 			// The value: the nearest of the list's, then one step at a time.
-			// The value shows on a button of its own, between the comparison and the - and +.
-			int Shown() => row.Items.Skip(row.At + 1).Where(i => Field(i, "Kind") is "text" or "button").Select(i => int.TryParse(Field(i, "Text"), out var n) ? n : -1).FirstOrDefault(n => n >= 0, -1);
-			var presets = Next(i => Field(i, "Kind") == "dropdown" && string.Equals(Field(i, "Binds"), SearchValue, StringComparison.OrdinalIgnoreCase));
+			var presets = Next(Presets);
 			var nearest = new[] { 1, 5, 10, 15, 20 }.OrderBy(preset => Math.Abs(preset - value)).First();
 			if (Shown() != nearest && presets.ValueKind == JsonValueKind.Object)
 			{

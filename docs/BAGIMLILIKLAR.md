@@ -364,6 +364,18 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     Kanıt — TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics` sonrası)
     `fm prep`: **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `md5 511c845d…` 3/3, EN `9f6e4f59…` 3/3), dönüşte
     TR aynı (§8.279). Dosyalar `…/opencode/t90/`.
+  - [x] StaffSearch 354 (`fm players --attr "<nitelik><=N"` — "Is At Most" yolunun değeri): satır, karşılaştırma
+    sözü değişir değişmez "hazır" sayılıyordu; oysa değer düğmesi birkaç yüz ms sonra çiziliyor (`Shown() = -1`) ve
+    değer listesinin yolu da `rule.minvalue` → `rule.maxvalue` oluyor. Bu yüzden `<=` her zaman "değer N yapılamadı
+    (panelde -1)" ile düşüyordu (TR: finishing ≤7/≤20, pace ≤10, passing ≤12 → 3/3 rc=1). Artık karşılaştırma
+    değiştikten sonra satır, değer düğmesi **veya** listesi çizilene kadar (0,2 sn aralık, üst sınır 6 sn)
+    bekleniyor; değer listesi iki bağlamadan hangisi olursa bulunuyor. Ölçüm (`FM_TRACE=1`): satırdaki değer
+    0,25–0,30 sn'de geliyor (6 sn ≈ 20–24 kat), hazır değer 0,02–0,05 sn (4 sn), adım 0,02–0,04 sn (3 sn);
+    satırın kendisi 0,45–0,61 sn (5 sn ≈ 8–11 kat). TR + EN × üç durum (`Messages` sonrası / hemen ikinci koşu /
+    `Dynamics` sonrası) `fm players --attr "finishing<=7" --json` **6/6 rc=0**; ilk 22 satır aynı (TR `md5
+    80366a35…` 3/3; EN settled `7c75bb3c…` 3/3, TR'nin bilinen kısa tablosu §8.239). Panelde kural
+    "Finishing · Is At Most · 7" okundu; `finishing>=8` ile kesişim boş, `>=` yolu değişmedi. Dosyalar
+    `…/opencode/t102/` (§8.290).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,
