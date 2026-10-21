@@ -3563,3 +3563,13 @@ form açıldıktan sonraki ilk adım **0,52–0,65 sn**, sonraki adımlar **0,22
 yalnız **~4,6 kat** pay bırakıyordu. Üst sınır **8 sn** (~12 kat). 6/6 rc=0, çıktı "Odak güncellendi … /
 Focus updated …", odak gerçekten değişti; ölçüm sonrası ana kayıt `--no-save` ile yüklendi (4 odak, dil TR).
 Dosyalar `/tmp/t112/`.
+
+### 8.301 `fm table`in sütunları önce açık olan sayfaya göre değişiyor (21 Ekim, TR + EN)
+`LeagueTable` önce Stages sayfasında yarışmayı seçip tam tabloyu (O G B M AV P FORM) okumayı deniyor; o yol
+tutmayınca portal karosunun dört sütunlu tablosuna (`# TAKIM O P`) sessizce düşüyor. Ölçüm (TR, `FM_TRACE=1`,
+`fm open "Messages"` / `"Squad Dynamics"` sonrası `fm table`): `Messages` açıkken altı koşunun beşinde portal
+(`md5 3f7d685f…`), `Squad Dynamics` sonrası 2/2 tam tablo (`387cc3c4…`); EN'de üç durumda da portal
+(`7d4a7441…`), rc hep 0. İz: `select ?names=Competitions>…>Sky Bet League One` dönüyor ama sayfa kupa
+aşamasında kalıyor, `ties` + altı `scroll ?anchor=<takım>` sonrası Stages vazgeçiyor. Sütunlar eksik geldiği
+için "oldu" demek yanıltıcı; yarışma seçimi oyunun kendi işaretiyle (tablonun/aşamanın başlığı) doğrulanmalı.
+Kod değişmedi; dosyalar `/tmp/opencode/t113/`.

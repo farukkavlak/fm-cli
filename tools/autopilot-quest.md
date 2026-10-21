@@ -14,7 +14,29 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 112)
+## Şu an (Tur 113)
+- Madde: **A "Kısa `Until`" / Reads 892 — lig tablosunun ülke beklemesi** — **BİTTİ**; ölçüldü, **değişiklik
+  gerekmedi** (kod değişmedi). Aynı eşik §8.272'de ölçülmüş ama checklist'te işaretlenmemişti; bugün yedi TR +
+  üç EN koşusuyla yeniden doğrulandı ve madde kapandı.
+- Kanıt (`FM_TRACE=1`): `Human.Team.Nation.Name` her koşuda **ilk okumada 27–30 ms** (TR 30/28/28/30/30,
+  EN 29/29/29) ve koşu başına tek okuma; 3 sn ≈ **100 kat**. TR + EN × üç durum (başka sayfa `Messages` açık /
+  hemen ikinci koşu / `Squad Dynamics` sonrası) **6/6 rc=0**. Ülke gelmezse eşleşme atlanıp portal yoluna
+  düşülüyor, yanlış tablo yok (§8.272).
+- Yeni bulgu (§8.301): aynı koşularda `fm table` çıktısı **sayfaya göre** değişti — `Messages` açıkken genelde
+  portalın dört sütunlu tablosu (`# TAKIM O P`, TR `md5 3f7d685f…`), `Squad Dynamics` sonrası Stages'in tam
+  tablosu (`# TAKIM O G B M AV P FORM`, `387cc3c4…`); EN'de üç koşuda da portal (`7d4a7441…`). İz: yarışma
+  `select`i sessizce uygulanmıyor, Stages kupa bağlarını (`ties`) gezip vazgeçiyor, portal yolu devreye giriyor;
+  rc=0 ama sütunlar eksik. Ayrı iş (Stages).
+- Dönüş/kayıt: `fm settings language "Türkçe"` → `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`;
+  `fm save` yok, saat ilerletilmedi, maç oynanmadı. Yalnız dokümanlar değişti; kod değişmedi → sweep gerekmedi.
+- Dosyalar `/tmp/opencode/t113/`.
+- Sıradaki uygun maddeler: A Guided 161/174 · A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) · A kısa
+  `Until`in kalanları (Saves 207/220, MatchControls 131 266, Program 986/1918/2118) · B Program cümle parçaları ·
+  B 44'ün kalanları · D/E `up=N`. **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 ·
+  Clock 179 işsizlik · MatchDay üç pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn · `opposition` · boy
+  birimleri · **`fm table` sayfa bağımlılığı (§8.301)**.
+
+## Önceki durum (Tur 112)
 - Madde: **A "Kısa `Until`" / ScoutFocus 55 — gözlem odağının yıldız adımı** — **BİTTİ** (§8.300). İşaret
   doğruydu (oyunun kendi "değer değişti" hâli), üst sınır **3 → 8 sn**.
 - Kanıt (`FM_TRACE=1`, `fm scout edit "<odak>" --ability …`): form açıldıktan sonraki ilk adım TR 0,52–0,57 /

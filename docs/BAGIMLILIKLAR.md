@@ -347,6 +347,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     yürürlükteki adımı ayıran yıldız adıma uydu. 7 koşu × 16 adım (TR + EN; sayfa ilk kez açılıyor / zaten açık /
     kart zaten açık): `setcontrol` bittikten sonra kabul eden okuma 20–371 ms, 112 adımın 11'inde ikinci okuma
     gerekti; 3 sn sınırına ≥8 kat pay. TR ile EN'de rakamlar aynı (§8.200).
+  - [x] Reads 892 (`LeagueTable`in insan çıktısında `Human.Team.Nation.Name` beklemesi, 3 sn): ölçüldü,
+    **değişiklik gerekmedi** — işaret oyunun kendi cevabı, `pull` her koşuda ilk okumada **27–30 ms** dönüyor
+    (TR 30/28/28/30/30, EN 29/29/29) → 3 sn ≈ 100 kat pay; koşu başına tek `Human.Team.Nation` okuması.
+    TR + EN × üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics` sonrası)
+    **6/6 rc=0**. Ülke gelmezse eşleşme atlanıp portal yoluna düşülüyor, yanlış tablo yok (§8.272).
+    Bugünkü koşuda `fm table`in sütunları sayfaya göre değişti (portal 4 sütun ↔ Stages tam tablo) — bu
+    beklemeden bağımsız, ayrı bulgu §8.301.
   - [?] Stages 337 (`fm stages` kupa turu: her kaydırmadan sonra "iki okuma aynı"): ölçüldü, **kod değişmedi**. Turun
     bağları pencerede tam durmuyor (Carabao Cup 1. Tur: 35 bağ, pencere 18–25 satır) ve liste `to=0..1` ile geziliyor;
     menzil `"0 of 1401,8"` yazısından okunuyor ama o sayı oyunun **kendi dilinin** ondalık işaretiyle geliyor ve
