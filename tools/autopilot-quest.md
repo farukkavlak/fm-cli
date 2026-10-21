@@ -14,7 +14,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 117)
+## Şu an (Tur 118)
+- Madde: **A "`Task.Delay`" / Guided 161 174** (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms
+  bekleme) — **PARK**, `[?]` yapıldı, kod değişmedi. Pencere bu kayıtta açılamadı: `FeeAsked`in aradığı
+  `notifications-modal-dialog-default-default` içindeki `Binds=value` dropdown + `EventFmxConfirmChanges`
+  düğmesi hiç görünmedi.
+- Denenenler (hepsi test kaydında, `fm save` yok): `fm release "Ben House" --mutual --yes` → rc=0, cevap gelen
+  kutusuna düştü; `fm next` → "House sözleşmesine son verilmesini kabul ediyor"; `fm reply …` → **mesaj** +
+  "Onayla / İptal" (dropdown'lı bedel penceresi değil); `fm contract "Ben House"` → kart kilitli (vaatte seçenek
+  yok); `fm talk` → "Açık bir konuşma yok"; `fm player "Ben House" --actions` → konuşma açan eylem yok.
+  Ayrıca transfer listesine alma (`fm actions … "Transfer Status > Transfer listed"`, rc=0) + iki `fm next`
+  (09:15, 13:15) denendi: konuşma/`reply` mesajı gelmedi. `/buttons` ile de bakıldı: o ekranda yalnız
+  `StandardButton` "New Contract" var, `Action` alanı boş.
+- Dönüş: testte saat 13:15'e kadar ilerletildi, `fm save` yok; `fm load "Faruk Kavlak - Fenerbahçe" --no-save`
+  ile 9 Ağustos 2026 05:45'e dönüldü; dil `turkish`, kayıt zaman damgası **10:40:55** (değişmedi), maç
+  oynanmadı. Not: `fm load` bu kez 120 sn'de bitmedi (komut zaman aşımına düşünce oyun kapandı); `fm start
+  </dev/null` ile yeniden açıldı, kayıt yüklendi — bilinen tuzak. Kod değişmedi → `sweep.sh` gerekmedi.
+  Dosyalar `/tmp/opencode/t118/`.
+- Faruk'a soru (checklist maddesinde de yazılı): bedel sözü penceresi hangi konuşmada açılıyor — satış vaadi mi,
+  kulüple bonservis pazarlığı mı, başka bir kart mı? Örnek ekran/adım gelince 800 ms + 1 sn işarete çevrilecek.
+- Sıradaki uygun maddeler: A `Bound` + maç akışı 3 sn'ler (maç günü, `MatchControls` 131 266) · B Program cümle
+  parçaları (örnek mesaj) · B haber "Portugal"/"Defence (Core)". **Sonraya bırakılanlar** (bu koşuda seçilmez):
+  Stages 337 · MatchDay üç pencere · mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa
+  bağımlılığı (§8.301) · Program 986 · **Guided 161 174 (Faruk'un cevabı bekleniyor)**.
+
+## Önceki durum (Tur 117)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / FM menüsünün `Save Game As` satırı** — **BİTTİ** (§8.307).
   `OpenFmMenu` menüyü `texts anchor="Save Game As"` ile tanıyor, `OpenSaveBrowser` satırı `click text=` ile
   basıyordu; ikisi de çeviri tablosunun İngilizce sözüne bağlıydı. Artık seçenek oyunun kendi alanından

@@ -189,9 +189,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   - [x] `jobs apply|interest` düğmeleri: panelin iki cevabı artık etiketle değil **olayla** bulunuyor (`Events` içinde
     `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`; TR + EN'de aynı, `docs/reference/enums.txt`), basış
     işaretçiyle. Negatif: TR `Villarreal apply` → "başvuru kabul etmiyor", rc=1 (§8.219, B "yazıyla basma" maddesi).
-  - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel sözünü
-    **kendin çıkar** — `fm next` ile sözleşme/transfer görüşmesine ilerle ya da `fm talk` ile bedel iste; ölç,
-    kaydetme, ana kayda `--no-save` ile dön. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
+  - [?] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): **ölçülemedi —
+    pencere bu kayıtta açılamıyor.** `release "Ben House" --mutual --yes` karşılıklı fesih mesajı + Onayla/İptal
+    penceresi veriyor (dropdown yok), `contract "Ben House"` kartı kilitli açılıyor (vaatte seçenek yok), oyuncu
+    kartının eylemlerinde konuşma yok, açık konuşma da yok. Yani `FeeAsked`in aradığı pencere
+    (`notifications-modal-dialog-default-default` içinde `Binds=value` dropdown + `EventFmxConfirmChanges`) hiç
+    görünmedi; sabit 800 ms / 1 sn ölçülmeden koda girmez. Faruk'a soru: bu pencere hangi konuşmada açılıyor
+    (satış vaadi mi, kulüple bonservis pazarlığı mı, başka bir kart mı)? Bir ekran/kayıt adımı verilirse aynı
+    gün ölçülüp işarete çevrilecek.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
     (değişmezse 3 sn; eskiden sabit 1,5); 20 atama + 2 `--auto` üç durumda doğru (§8.180). İngilizcede denenmedi.
   - [x] `coaches` 3/10: okuma yalnız tam ızgarayı ("ad, görev, dokuz kutu+yıldız", iş yüküne kadar) kabul ediyor; 12
