@@ -256,13 +256,10 @@ internal static partial class Program
 		await Until(async () => (await Fm.GetJson("texts", ("anchor", "All Preferences"), ("up", "0"))).GetArrayLength() == 0, seconds: 5, every: 0.25);
 
 		// Read back from the page, reopened after the confirmation closed it. A new language has the
-		// game build its screens again, and the page will not open for a moment.
+		// game build its screens again, and the page may not open for a moment: it is asked again
+		// until it does, rather than after a fixed pause (12 sn is only the generous ceiling).
 		var check = await PreferencesTab(wanted.Tab);
-		for (var attempt = 0; attempt < 3 && check == null; attempt++)
-		{
-			await Task.Delay(TimeSpan.FromSeconds(3));
-			check = await PreferencesTab(wanted.Tab);
-		}
+		if (check == null) await Until(async () => (check = await PreferencesTab(wanted.Tab)) != null, seconds: 12, every: 0.3);
 		var after = check == null ? null : Locate(wanted, check);
 		await LeavePreferences();
 		if (after == null || after.Current != target)

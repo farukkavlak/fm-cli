@@ -82,6 +82,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     eski derlemeyle **birebir** (TR `05bb4f30…` / `63635b68…`, EN `2c162b6c…` / `659a220b…`, 11 oyuncu, altı koşuda
     da aynı); izde eski `translate ?words=Clear Instructions` → yeni `buttons ?json=1` + `press ?ptr=…`, eski sabit
     duraklama yerine üç okuma (0,52 / 0,83 / 1,16 sn) ve süre 1,48 → 1,16 sn (§8.256).
+  - [x] Settings 226 (`PreferencesTab` sonrası sabit 3 sn): dil değiştirildikten sonra tercihler sayfası yeniden
+    açılamazsa 3 sn beklenip yeniden deneniyordu (üç kez). Ölçüm: sayfa onaydan **0,37–0,41 sn** sonra açılıyor,
+    dört normal koşuda ilk deneme yetiyor; ilk okuma zorla boş bırakıldığında yeniden sorma aralığı eski derlemede
+    **3,08 sn**, yeni derlemede **0,67 sn**. Artık sayfa açılana kadar 0,3 sn aralıkla soruluyor (üst sınır 12 sn =
+    eskisinin 3×3 sn'sine eşit); TR + EN × üç durum (başka sayfa açık / tercihler Match Day sekmesinde açık /
+    Your World sekmesinde açık) **6/6 rc=0**, her koşuda `dil`/`language` satırı doğru değeri okudu ve `/state`
+    altı kez doğru dili gösterdi (§8.285).
   - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.

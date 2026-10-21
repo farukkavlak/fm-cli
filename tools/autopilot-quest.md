@@ -3,7 +3,20 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 94)
+## Şu an (Tur 95)
+- Madde: **A "`Task.Delay`" / Settings 226** (`fm settings` dil/ayar değişiminden sonra tercihler sayfası
+  yeniden açılamazsa sabit **3 sn** bekleyip üç kez deneme) — **BİTTİ** (§8.285). Bekleme oyunun kendi cevabına
+  bağlandı: sayfa açılana kadar 0,3 sn aralıkla soruluyor (`Until`, üst sınır 12 sn = eski 3×3 sn'ye eşit).
+- Kanıt: normalde sayfa onaydan **0,37–0,41 sn** sonra açılıyor (4 koşu, ilk deneme yetiyor). İlk okuma zorla boş
+  bırakılınca yeniden sorma aralığı eski derlemede **3,08 sn**, yenide **0,67 sn**; aynı iş 43,0 → 24,7 sn.
+  TR + EN × üç durum (başka sayfa `Messages` / tercihler Match Day sekmesinde / Your World sekmesinde) **6/6 rc=0**,
+  altı koşuda da değer doğru okundu ve `/state` doğru dil; kayıt 2 Ağustos 2026 14:00 (saat ilerletilmedi, maç yok).
+- Dönüş/yan etki: TR'de bırakıldı (`/state` turkish, `fm settings --json` 19 satır). Değişiklik yalnız
+  `cli/fm/Settings.cs` → paylaşılan kod yok, `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor. Sıradaki küçük A adayları: `ScoutFocus` remove yolu (800 ms, odak durdurma/restart
+  gerektiriyor) · `Guided 161 174` (bedel sözü konuşması kayıtta yok) · `Clock 179` (işsiz kayıt yok).
+
+## Önceki durum (Tur 94)
 - Madde: **A "`Task.Delay`" / Transfers 96** (`fm offer <oyuncu> <ücret> --loan`: "Loan Offer" sekmesine bastıktan
   sonra sabit **2 sn**) — **BİTTİ** (§8.284). Bekleme oyunun kendi cevabına bağlandı: sekme paneli önce transferin
   satırlarını boşaltıyor, ~0,44 sn'de kiralığın 12 satırı geliyor; `OfferScreen.Read` o kümeyi (`IsLoan`) gösterene

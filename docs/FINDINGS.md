@@ -3391,3 +3391,15 @@ Transfer yolu (`--loan` yok) değişmedi; kiralıkta ücret kutusu yine "Playing
 aynı). Dosyalar `…/opencode/t96/` (`old/` = değişiklik öncesi Release kopyası, `run2.sh`, `probe4.py`).
 Aynı fonksiyonda kalan `Task.Delay`ler (128/131/139) `+`/`−` ile ücret yürütme döngüsünün okuma aralıkları; bu yolda
 ölçülmedi, ayrı alt madde.
+
+### 8.285 `fm settings` dil değişiminden sonra sayfayı sabit 3 sn bekleyip yeniden deniyordu (21 Ekim, TR + EN)
+`cli/fm/Settings.cs`: ayar değişip onaylandıktan sonra tercihler sayfası kapanıyor ve değeri doğrulamak için yeniden
+açılıyordu; açılamazsa `Task.Delay(3)` ile üç kez (9 sn) yeniden deniyordu. Oysa ilk açılış zaten onaydan
+**0,37–0,41 sn** sonra oluyor (iz: `click ?ptr` → `texts All Preferences` → `texts Manage settings`), yani 3 sn
+makine hızına dair kör bir varsayımdı. Artık sayfa açılana kadar 0,3 sn aralıkla soruluyor (`Until`, üst sınır 12 sn;
+eskisinin 9 sn'sinden cömert). İlk okuma zorla boş bırakılan denemede yeniden sorma aralığı eski derlemede **3,08 sn**,
+yeni derlemede **0,67 sn** (0,3 sn bekleme + okuma); toplam 43,0 → 24,7 sn (aynı iş). Normal koşullarda retry hiç
+kullanılmıyor: TR→EN ve EN→TR × üç durum (başka sayfa `Messages` açık / tercihler Match Day sekmesinde açık /
+Your World sekmesinde açık) **6/6 rc=0**, her koşuda değer doğru okundu ("dil: Turkish → English" /
+"language: English → Turkish"), `/state` altı koşuda da doğru dil, kayıt 2 Ağustos 2026 14:00 (saat ilerlemedi,
+maç oynanmadı). Değişiklik yalnız `Settings.cs` içinde → paylaşılan kod yok, `sweep.sh` gerekmedi.
