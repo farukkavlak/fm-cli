@@ -141,7 +141,9 @@ internal static partial class Program
 			if (now == steps) return true;
 			if (FormAfter(form, heading, "button", now < steps ? 1 : 0) is not { } step || Field(step, "Enabled") != "True") return false;
 			await Fm.Get("click", ("ptr", Field(step, "Pointer")));
-			await Until(async () => FormAfter(await FocusForm("Back"), heading, "stars") is { } after && Field(after, "Value") != now.ToString(), seconds: 3, every: 0.2);
+			// The rating turns 0.23–0.26 s after a step, but the first step after the form opens takes
+			// 0.53–0.65 s (measured in both languages), so 3 s was only ~4.6×; 8 s leaves ~12×.
+			await Until(async () => FormAfter(await FocusForm("Back"), heading, "stars") is { } after && Field(after, "Value") != now.ToString(), seconds: 8, every: 0.2);
 		}
 		return false;
 	}

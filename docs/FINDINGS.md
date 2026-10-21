@@ -3554,3 +3554,12 @@ derlemeyle birebir (TR 17 ad, aynı sıra). `sweep.sh` 50/50. Dosyalar `/tmp/ope
 `fm prep --json`): TR + EN × üç durum (başka sayfa `Messages` / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics`
 sonrası) **6/6 ilk denemede**, yanıt **31–33 ms** → 3 sn ≈ **90–95 kat** pay; değişiklik gerekmedi. Üç TR ve üç EN
 çıktısı bayt bayt aynı (`md5 262424c7…`; `--json` adları oyunun kayıttaki dili, veri yolu dilden bağımsız).
+
+### 8.300 Gözlem odağının yıldız adımı 3 sn'de "olmadı" sayılıyordu (21 Ekim, TR + EN)
+`SetStars` (`ScoutFocus.cs`, `fm scout new/edit --ability/--potential`): `+`/`-` basışından sonra yıldızın
+değeri değişene kadar en çok **3 sn** bekleniyordu. Ölçüm (`FM_TRACE=1`; `fm scout edit "<odak>" --ability …`,
+TR + EN × üç durum: başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics` sonrası):
+form açıldıktan sonraki ilk adım **0,52–0,65 sn**, sonraki adımlar **0,22–0,31 sn** → 3 sn en yavaş koşuda
+yalnız **~4,6 kat** pay bırakıyordu. Üst sınır **8 sn** (~12 kat). 6/6 rc=0, çıktı "Odak güncellendi … /
+Focus updated …", odak gerçekten değişti; ölçüm sonrası ana kayıt `--no-save` ile yüklendi (4 odak, dil TR).
+Dosyalar `/tmp/t112/`.

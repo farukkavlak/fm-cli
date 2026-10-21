@@ -14,7 +14,28 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 111)
+## Şu an (Tur 112)
+- Madde: **A "Kısa `Until`" / ScoutFocus 55 — gözlem odağının yıldız adımı** — **BİTTİ** (§8.300). İşaret
+  doğruydu (oyunun kendi "değer değişti" hâli), üst sınır **3 → 8 sn**.
+- Kanıt (`FM_TRACE=1`, `fm scout edit "<odak>" --ability …`): form açıldıktan sonraki ilk adım TR 0,52–0,57 /
+  EN 0,52–0,55 sn, sonraki adımlar TR 0,22–0,31 / EN 0,22–0,25 sn → 3 sn en yavaş koşuda yalnız ~4,6 kat;
+  8 sn ~12 kat. TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3
+  `Squad Dynamics`·EN `Dynamics` sonrası) **6/6 rc=0**, çıktı "Odak güncellendi…" / "Focus updated…", odak
+  gerçekten değişti; eski derleme de aynı 6 durumda 6/6 (aynı gecikmeler) → değişiklik yalnız üst sınır.
+  Dosyalar `/tmp/t112/`. Not: aynı odağı art arda 8+ kez düzenleyen stres koşusunda oyun bir kez ana menüye
+  düştü (main thread 30 sn yanıtsız); farklı odaklarla yinelenen 6/6 temiz kaldı — test artefaktı, ürüne dair
+  kanıt yok; `fm continue` ile kurtarıldı, `fm save` yok.
+- Dönüş/kayıt: `fm settings language "Türkçe"` → `settings --json` `dil = Turkish`; `fm load "Faruk Kavlak -
+  Fenerbahçe" --no-save` → tarih **9 Ağustos 2026 05:45**, 4 odak (ana kayıt), kayıt zaman damgası **10:40**
+  (değişmedi), `fm save` yok, saat ilerletilmedi, maç oynanmadı. Yalnız `ScoutFocus.cs` (bir `seconds:`) +
+  dokümanlar değişti; paylaşılan kod değil → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A Guided 161/174 (bedel sözü) · A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) ·
+  A kısa `Until`in kalanları (Saves 207/220, MatchControls 131 266, Program 986/1918/2118) ·
+  B Program cümle parçaları (örnek mesaj) · B 44'ün kalanları · D/E `up=N` taraması. **Sonraya bırakılanlar**
+  (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 · Clock 179 işsizlik · MatchDay üç pencere · yükleme
+  ekranı `Load` · mesaj eki 1,5 sn · `opposition` "Apply all advice" · boy birimleri.
+
+## Önceki durum (Tur 111)
 - Madde: **A "Kısa `Until`" / Prep 124 — iki `pathset`in 3 sn sınırı** — **BİTTİ** (§8.299); ölçüldü,
   **değişiklik gerekmedi**. İşaret zaten oyunun kendi cevabı (`pathset` hatasız dönüyor); sınır darda değil.
 - Kanıt (`FM_TRACE=1`, `fm prep --json`): TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci
