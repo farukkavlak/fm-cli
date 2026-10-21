@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **44** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 8 · kısa `Until` (≤3 sn) 10
+**Canlı sayaç:** açık kutu **43** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 7 · kısa `Until` (≤3 sn) 10
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -68,9 +68,8 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `StatusFlags.cs:54` `if (waiting.Count > 0) await Task.Delay(250);`
 - [ ] `TrainingReport.cs:93` `await Task.Delay(500);`
 
-#### B1. Yazıyla basma/tıklama — 8 yer
+#### B1. Yazıyla basma/tıklama — 7 yer
 
-- [ ] `Guided.cs:803` "Team Shape"
 - [ ] `MatchDay.cs:355` "Instant Result"
 - [ ] `MatchDay.cs:361` "Instant Result"
 - [ ] `MatchDay.cs:383` "Instant Result"
@@ -721,6 +720,10 @@ tablodan çevrilemiyor.
     işaretçisiyle basılıyor. Bu sözün İngilizcesi oyunun çeviri tablosunda hiç yok (`/translate?words=…` boş; komşu beş
     söz çevriliyor), o yüzden yazıyla basmak dilin tablosuna bağlıydı. Cevapsız (cümleli) durumdaki cevap da düğmenin
     kendi sözüyle aranıyor. TR + EN üç durumda öneri penceresi (rc=0), negatif oyuncu rc=1 (§8.209).
+  - [x] **Taktik planlayıcısının "Team Shape" düğmesi** (`fm tactic`, talimat görünümünden sahaya dönüş): düğme
+    `click ?text="Team Shape"` ile yazıyla basılıyordu; artık kendi düğme grubuyla
+    (`click ?within=FMShapeAndInstructionsButtons&name=team-shape`). TR + EN × üç durum **6/6 rc=0**, çıktı eski
+    derlemeyle birebir (TR `md5 45360944…`, EN `60570f71…`), `Slots` 0 → 11, izde `text=` basışı 0 (§8.313).
   - [x] **Sözleşme görüşmesinden çıkış** (`contract --cancel`, vaatler aşaması): `Exit Talks` düğmesi yazıyla
     basılıyordu; düğmenin `SpeakToAction` eylemi **Event 42** (`EventFmxExitNegotiations`) + `IsExitButton=True`
     taşıyor, basış artık `?ptr=` ile. TR + EN × üç durum 6/6 rc=0, görüşme basıştan ~0,3–0,5 sn sonra kapanıyor

@@ -797,10 +797,11 @@ internal static partial class Program
 			await Fm.Get("press", ("ptr", Field(combined, "Pointer")));
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);
 		}
-		// The team instructions take the pitch's place; "Team Shape" beside their button puts it
-		// back, and it answers only a real click.
+		// The team instructions take the pitch's place; the "Team Shape" button in their group puts
+		// it back, and it answers only a real click. It is found by the group the game lays it out
+		// in rather than by its translated label (FINDINGS §8.313).
 		if (tactic.TryGetProperty("Tactic", out _) && (!tactic.TryGetProperty("Slots", out var shown) || shown.GetArrayLength() == 0)
-			&& !(await Fm.Get("click", ("text", "Team Shape"), ("name", "team-shape"))).StartsWith("error", StringComparison.Ordinal))
+			&& !(await Fm.Get("click", ("within", "FMShapeAndInstructionsButtons"), ("name", "team-shape"))).StartsWith("error", StringComparison.Ordinal))
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);
 		if (!tactic.TryGetProperty("Tactic", out _)) return null;
 		await KnowRoles(tactic);

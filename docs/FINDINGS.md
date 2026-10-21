@@ -3684,3 +3684,14 @@ Kanıt (`FM_TRACE=1`, `fm settings --json`): TR + EN × üç durum (menü kapal�
 menü zaten açık) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 fa5b6948…`, EN `cb604c52…`); izde
 `texts ?anchor=Manage settings` + `click ?text=` **0**, `click ?ptr=` döşeme için **1**. Aynı fonksiyonda kalan
 (ayrı iş): "See all" ve "All Preferences" hâlâ oyunun sözüyle aranıyor; onlar basış kutusu değil, çapa.
+
+### 8.313 taktik planlayıcısı "Team Shape" düğmesini kendi düğme grubuyla basıyor (21 Ekim, TR + EN)
+`Guided.cs` (`Planner`) talimat görünümünden sahayı geri getiren düğmeyi `click ?text="Team Shape"&name=team-shape`
+ile basıyordu; etiket o dilin sözü. Düğmenin kendi yeri oyunun düğme grubu: `#FMShapeAndInstructionsButtons` içinde
+iki düğme var (`#team-shape`, `#team-instructions`); basış artık `click ?within=FMShapeAndInstructionsButtons&name=team-shape`,
+yazı hiç okunmuyor. Kanıt (`FM_TRACE=1`, `fm tactic`, talimat görünümünde `Slots=0`): TR + EN × üç durum (talimat
+görünümü / hemen ikinci koşu / `Messages`'tan sonra sayfa yeniden açılıp) **6/6 rc=0**, çıktı eski derlemeyle bayt
+bayt aynı (TR `md5 45360944d45966ddf152cc66231fd6fe`, EN `60570f71a42385ac711f736e0db2bc59`); izde
+`click ?text=Team Shape` **0**, `click ?within=FMShapeAndInstructionsButtons&name=team-shape` her koşuda 1, `Slots`
+0 → 11. `sweep.sh` **50/50**. Ayrı not (bu değişiklikten bağımsız): sayfa talimat görünümünde bırakılıp `Messages`
+açıldığında `fm tactic` eski derlemede de `(boş)` veriyor — `Planner` sayfayı öne getirmiyor, ayrı iş.

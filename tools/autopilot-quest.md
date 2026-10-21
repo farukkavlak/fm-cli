@@ -5,8 +5,32 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **48**: `Task.Delay` **26 borç** (35 çağrının 7'si
-  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **12** + kısa `Until` **10**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **43**: `Task.Delay` **26 borç** (35 çağrının 7'si
+  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **7** + kısa `Until` **10**.
+
+## Şu an (Tur 125)
+- Madde: **B1 yazıyla basma / `Guided.cs:803` "Team Shape"** — `fm tactic`in planlayıcısı, talimat görünümünden
+  sahaya dönüş düğmesini `click ?text="Team Shape"` ile basıyordu. **BİTTİ** (§8.313): düğme artık oyunun kendi
+  düğme grubuyla — `click ?within=FMShapeAndInstructionsButtons&name=team-shape` (grupta `team-shape` +
+  `team-instructions`; adlar dilden bağımsız). Yazı hiç okunmuyor.
+- Kanıt (`FM_TRACE=1`, `fm tactic`, talimat görünümünde `Slots=0`): TR + EN × üç durum (talimat görünümü / hemen
+  ikinci koşu / `Messages`'tan sonra sayfa yeniden açılıp) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
+  (TR `md5 45360944d45966ddf152cc66231fd6fe`, EN `60570f71a42385ac711f736e0db2bc59`); izde `click ?text=Team Shape`
+  **0**, `click ?within=…&name=team-shape` her koşuda 1, `Slots` 0 → 11. `sweep.sh` **50/50**. Dosyalar `/tmp/opencode/t125/`.
+- Ayrı not (bu değişiklikten bağımsız, kanıt tek koşu): sayfa talimat görünümünde bırakılıp `Messages` açılırsa
+  `fm tactic` eski derlemede de `(boş)` veriyor (rc=0) — `Planner` sayfayı öne getirmiyor; ayrı iş.
+- Dönüş/kayıt: yalnız sayfa açıldı ve görünüm değiştirildi; `fm save` **yok**, tarih **2026-08-09**, saat 0,
+  `DuringMatch: False`, dil **turkish**, kayıt damgası **10:40** (değişmedi). Yalnız `cli/fm/Guided.cs` + dokümanlar
+  değişti; paylaşılan yardımcıya dokunulmadı → `sweep.sh` yine de koşuldu, 50/50.
+- Sıradaki uygun maddeler: B1 `Saves.cs:552` ("Back to last saves"; yükleme ekranının dosya tarayıcı hâli) ·
+  B1 `MatchDay.cs:355/361/383` "Instant Result" (maç günü ister) · A2 kısa `Until`in kalanları (Coaches 56,
+  ContractTalks 388, League 223, Prep 142, Reads 895, Saves 245/258, TraitTraining 98) · A1 küçük `Task.Delay`ler
+  (OfferScreen 259, Reads 116/133, StatusFlags 54, MatchReport 35, Release 164, ScoutFocus 395, TrainingReport 93).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç pencere · `MatchControls` 131/266 (maç
+  günü) · mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 ·
+  Guided 161 174 · ScoutFocus 483/492/638 (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`) ·
+  `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun
+  akış ölçümü ister).
 - Eski şemsiye satırlar ("89 yer", "44 yer", "15 yer") **arşiv**: kanıt metinleri duruyor, kutu değiller.
 - Tur sonunda `python3 tools/remaining.py --write` çalıştırılır; biten yerin kutusu koddan düşer.
 
