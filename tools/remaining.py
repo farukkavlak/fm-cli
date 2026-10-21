@@ -46,6 +46,7 @@ SETTLED = {
 SETTLED_SHORT = {
     ("Coaches.cs", 56): "yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318",
     ("League.cs", 223): "yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319",
+    ("Reads.cs", 910): "takımın ülkesi ilk `pull`da geliyor (26–33 ms); 3 sn yalnız üst sınır, §8.322",
     ("Saves.cs", 245): "kayıt satırı `rowselect dry`nin kendi cevabıyla bulunuyor (24–40 ms); 3 sn yalnız üst sınır, §8.321",
 }
 

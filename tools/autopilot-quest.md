@@ -5,10 +5,34 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **35**: `Task.Delay` **21 borç** (32 çağrının 9'u
-  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **8**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **33**: `Task.Delay` **21 borç** (32 çağrının 9'u
+  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **6**.
 
-## Şu an (Tur 133)
+## Şu an (Tur 134)
+- Madde: **A2 kısa `Until` / `Reads.cs:910`** — lig tablosu, yarışma adını ülkeyle eşleştirmek için
+  `Human.Team.Nation.Name`i 3 sn üst sınırla bekliyordu. **BİTTİ** (§8.322): ölçüldü, **borç değil** — izde her
+  koşuda tek `pull` (TR 33/27/28 ms, EN 27/26/26 ms) ve hemen ardından `state`, yani `Until` hiç tur atmıyor;
+  3 sn yalnız üst sınır. `tools/remaining.py` `SETTLED_SHORT`'a eklendi (açık kutu 34 → **33**).
+- Kanıt (`FM_TRACE=1`, `fm table`; üç durum: `Messages` sonrası / hemen ikinci koşu / `Squad Dynamics` sonrası) ×
+  iki dil **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `2d8cb6279f…`, EN `ccf41acd08…`, her biri 3/3).
+  Dosyalar `/tmp/opencode/t134/`.
+- Denendi, yapılmadı: **`Saves.cs:258`** — kaydırma sonrası 1,5 sn'lik `Until`. 2020 damgalı boş bir `.fm`
+  (`zz t134 probe`, listenin en altı) ile silme yolu açıldı: `rowselect dry` ekran dışındaki satırı da **ilk
+  denemede** buldu (1,30 sn'de, izde `scroll` 0), yani kaydırma dalı hiç çalışmadı. Dalı açmak için listeyi
+  onlarca sahte dosyayla doldurup uçtan uca taramak gerekir → **sonraya**. Probe silindi, dört kayıt yerinde.
+- Dönüş: EN ölçümünden sonra `fm settings language "Türkçe"` → `settings --json` `dil = Turkish`; `fm status`
+  `9 Ağustos 2026 Pazar 05:45` (ana kayıtla aynı); `fm save` **yok**, ana kayıt damgası **21 Ekim 10:40**
+  (değişmedi); maç oynanmadı, yükleme gerekmedi (yalnız okuma + ayar). Kod davranışı değişmedi → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A2 kalanları (ContractTalks 388, Prep 142, TraitTraining 98) · A1 küçük `Task.Delay`ler
+  (MatchReport 35, Release 164, TrainingReport 93, ScoutFocus 395) · B1 `MatchDay.cs:355/361/383` (maç günü).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): `Saves.cs:258` (kaydırma dalı; ~30 sahte dosyayla uçtan uca
+  tarama ister) · Registration `Settled` (312/316) · Stages 337 · MatchDay üç pencere · `MatchControls` 131/266 ·
+  mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 ·
+  Guided 161 174 · `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`, `Stages 63/98/117/133/210`
+  (baştan sona gezinme/uzun akış ölçümü ister) · `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction`
+  kimliği boş: dördü de `m_actionId = 0`).
+
+## Önceki durum (Tur 133)
 - Madde: **A2 kısa `Until` / `Saves.cs:245`** — `SaveRowInView`, kayıt listesindeki satırı `rowselect dry` ile
   arıyor. **BİTTİ** (§8.321): ölçüldü, **borç değil** — `dry` oyunun kendi "satır seçilebilir" cevabı, her koşuda
   ilk denemede dönüyor; 3 sn yalnız üst sınır. `tools/remaining.py` `SETTLED_SHORT`'a eklendi (açık kutu 35 → **34**).

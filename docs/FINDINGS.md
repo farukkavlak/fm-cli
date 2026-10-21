@@ -3792,3 +3792,12 @@ ilk `dry` TR **40 / 32 / 37 ms**, EN **32 / 32 / 24 ms** ve her koşuda **ilk de
 yani 3 sn, işaretin **~80–125 katı**. TR + EN × üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad
 Dynamics` sonrası) **6/6 rc=0**, "Silindi"/"Deleted", dosya gerçekten gitti. **Borç değil**, canlı listede `[~]`.
 Dosyalar `/tmp/opencode/t133/`.
+
+### 8.322 lig tablosunun ülke okuması ilk `pull`da geliyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+`Reads.LeagueTable` (json olmayan yol) yarışma adını ülkeyle eşleştirmek için `Human.Team.Nation.Name`i
+`Until` ile 3 sn'ye kadar bekliyor. Ölçüm (`FM_TRACE=1 fm table`; üç durum: `Messages` sonrası / hemen ikinci
+koşu / `Squad Dynamics` sonrası): izde her koşuda **tek** `pull` var — TR **33 / 27 / 28 ms**, EN **27 / 26 / 26
+ms** — ve hemen ardından 30 ms sonra `state` geliyor, yani `Until` hiç tur atmıyor, 0,5 sn'lik tempo hiç
+çalışmıyor; 3 sn yalnız üst sınır. TR + EN × üç durum **6/6 rc=0**, çıktı dil içinde bayt bayt aynı
+(TR `2d8cb6279f…`, EN `ccf41acd08…`, her biri 3/3). **Borç değil**, canlı listede `[~]`. Dosyalar
+`/tmp/opencode/t134/`.
