@@ -5,10 +5,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **39**: `Task.Delay` **23 borç** (32 çağrının 7'si
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **38**: `Task.Delay` **22 borç** (32 çağrının 8'i
   yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **10**.
 
-## Şu an (Tur 128)
+## Şu an (Tur 129)
+- Madde: **A1 `Task.Delay` / `StatusFlags.cs:54`** — takım bayraklarını okurken turlar arasındaki 250 ms.
+  **BİTTİ** (§8.317): ölçüldü, **borç değil** — bekleme ilk okumadan önce değil, yalnızca cevap bekleyen satır
+  kaldığında iki tur arasında çalışıyor; `tools/remaining.py` `SETTLED`'a eklendi, kutu `[~]` oldu.
+- Kanıt (`FM_TRACE=1`, `fm squad`; üç durum: `inbox` sonrası sayfa kapalı / hemen ikinci koşu / `table` sonrası):
+  27 satır her koşuda üç turda doldu (27+27+15 bayrak okuması), iki aralık **0,28–0,29 sn** tam tur
+  sınırlarında (#26 ve #53'ten sonra), ilk okuma 1,80. sn'de beklemesiz. TR + EN × üç durum **6/6 rc=0**, çıktı
+  dil içinde bayt bayt aynı (TR `1916a8c5…`, EN `d6c3e0a3…`, her biri 3/3). Dosyalar `/tmp/opencode/t129/`.
+- Dönüş: EN ölçümünden sonra `fm settings language "Türkçe"` → `/state` `Language: turkish`, `Date: 2026-08-09`,
+  `Clock: 0`; `fm save` **yok**, oyun durumu yalnız sayfa gezinmesi (kayıt damgası değişmedi). Kodda değişiklik
+  yok (yalnız `tools/remaining.py` + dokümanlar) → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A1 küçük `Task.Delay`ler (Registration 312/316, MatchReport 35, Release 164,
+  TrainingReport 93, ScoutFocus 395, League 253) · B1 `MatchDay.cs:355/361/383` "Instant Result" (maç günü
+  ister) · B1 `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`,
+  `Name=StandardButton`, `Page` GUID ortak) · A2 kısa `Until`in kalanları (Coaches 56, ContractTalks 388,
+  League 223, Prep 142, Reads 910, Saves 245/258, TraitTraining 98). **Sonraya bırakılanlar** (bu koşuda
+  seçilmez): Stages 337 · MatchDay üç pencere · `MatchControls` 131/266 (maç günü) · mesaj eki 1,5 sn ·
+  `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 ·
+  `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona
+  gezinme/uzun akış ölçümü ister).
+
+## Önceki durum (Tur 128)
 - Madde: **A1 `Task.Delay` / `Reads.cs:116` + `:133`** — `SearchFor` (fm search, player/targets'ın arama yolu)
   yazmadan önce kutunun eski sonuçlarını **300 ms'lik sabit okumalarla** oturtuyor, yazdıktan sonra da oyunun
   "bitti" işaretine rağmen **3 saniyelik sabit yedek** olmadan cevabı kabul etmiyordu. Kutu **aynı sözü** zaten

@@ -3742,3 +3742,13 @@ eski→yeni tip→çıkış TR **3,50→1,08** · **1,56→0,95** · **3,49→0,
 **3,43→0,25** sn; TR + EN × üç durum **6/6 rc=0** ve çıktı eski derlemeyle bayt bayt aynı (TR `4488265d…`,
 `b5d65871…`; EN `228809ae…`, `c1c82e07…`). Negatif: sonuçsuz söz (`zzzzqqq`) rc=0, `(boş)`, 3,8 sn — eskisiyle
 aynı. Dosyalar `/tmp/opencode/t128/`.
+
+### 8.317 `squad`ın durum bayrakları yoklamasındaki 250 ms aralık borç değil (21 Ekim, TR + EN)
+`StatusFlags` bir oyuncunun bayraklarını okurken liste ilk okumada bağlanıp sonraki turlarda doluyor;
+`Task.Delay(250)` her turun **sonunda**, yalnızca hâlâ cevap bekleyen satır varsa çalışıyor — ilk okumadan
+önce hiç beklemiyor. Ölçüm (`FM_TRACE=1`, `fm squad`): 27 satır her koşuda üç turda doldu (27+27+15 bayrak
+okuması), iki aralık **0,28–0,29 sn** (250 ms + istek payı) tam olarak tur sınırlarında (#26 ve #53'ten sonra);
+ilk okuma komutun 1,80. saniyesinde, beklemesiz. TR + EN × üç durum (`inbox` sonrası sayfa kapalı / hemen
+ikinci koşu / `table` sonrası): **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `1916a8c5…`, EN `d6c3e0a3…`,
+her biri 3/3). Aralık kaldırılırsa döngü boşa döner, uzatılırsa bayraklar geç gelir: **borç değil**, canlı
+listede `[~]`. Dosyalar `/tmp/opencode/t129/`.
