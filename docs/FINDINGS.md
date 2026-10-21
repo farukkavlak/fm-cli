@@ -3497,3 +3497,13 @@ isteğinden **TR 0,15 / 0,09 / 0,05 sn**, **EN 0,06 / 0,08 / 0,04 sn** sonra gel
 pay; kod değişmedi. Üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN
 `Dynamics` sonrası) × iki dil **6/6 rc=0**, çıktı dil içinde aynı; pencere "stop" ile kapandı, antrenman
 başlamadı (`fm training "Ben House"` odak: Şut), saat ilerletilmedi. Dosyalar `/tmp/opencode/t105/`.
+
+### 8.294 Sözleşme görüşmesinden çıkış düğmesi yazıyla değil oyunun çıkış olayıyla bulunuyor (21 Ekim, TR + EN)
+`CallOff`un vaatler aşamasındaki çıkışı `press ?text=Exit Talks` ile basılıyordu; bu söz eklentinin çeviri
+tablosundan geçen İngilizce etiket. Düğmenin kimliği ölçüldü: `SpeakToAction` eylemi **Event 42**
+(`EventFmxExitNegotiations`) + `IsExitButton=True`; basış artık `?ptr=`, düğme yoksa yazıya düşülmüyor.
+Ölçüm: vaatler kartı kilitliyken (`contract "Ben House"` rc=1 → `contract --cancel`) TR + EN × üç durum
+(başka sayfa `Squad Dynamics` açık / `Messages` sonrası / hemen ikinci koşu) **6/6 rc=0**, çıktı dil içinde aynı
+("Görüşme iptal edildi."/"Negotiation cancelled."). İz: eski `press ?text=Exit Talks` 0,42 sn; yeni `press ?ptr=…`
+0,64–0,78 sn, görüşme ekranı basıştan **~0,3–0,5 sn** sonra kapanıyor (3 sn ≈ 6–8 kat). Negatif: açık görüşme
+yokken `contract --cancel` rc=1. Dosyalar `/tmp/opencode/t106/`.

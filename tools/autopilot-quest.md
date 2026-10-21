@@ -14,7 +14,33 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 102)
+## Şu an (Tur 103)
+- Madde: **B "İngilizce yazıyla basma" / sözleşme görüşmesinin çıkış düğmesi** (`ContractTalks.CallOff`, vaatler
+  aşaması) — **BİTTİ** (§8.294). Çıkış `press ?text=Exit Talks` ile basılıyordu (eklentinin çeviri tablosundan
+  geçen etiket). Düğmenin kimliği ölçüldü: `SpeakToAction` eylemi **Event 42** (`EventFmxExitNegotiations`) +
+  `IsExitButton=True` → basış artık `?ptr=`, düğme yoksa dürüst hata. Aynı bloktaki 3 sn'lik bekleme de ölçüldü:
+  görüşme ekranı basıştan **~0,3–0,5 sn** sonra kapanıyor (6–8 kat pay), kod değişmedi.
+- Kanıt — vaatler kartı kilitliyken (`contract "Ben House"` rc=1, sonra `contract --cancel`) TR + EN × üç durum
+  (s1 başka sayfa `Squad Dynamics` açık / s2 `Messages` sonrası / s3 hemen ikinci koşu) **6/6 rc=0**, çıktı dil
+  içinde aynı ("Görüşme iptal edildi." / "Negotiation cancelled."). Eski iz TR: `press ?text=Exit Talks` 0,42 sn,
+  sonraki `contract` 0,55 / 0,84 / 1,01 sn; yeni iz: `press ?ptr=…` 0,64–0,78 sn, ekran 0,3–0,5 sn'de kapanıyor.
+  Negatif: açık görüşme yokken `contract --cancel` rc=1. Dosyalar `/tmp/opencode/t106/`.
+- Dönüş: `fm settings language "Türkçe"` → `language: English → Turkish`; `fm load "Faruk Kavlak - Fenerbahçe"
+  --no-save` → `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; kayıt dosyası
+  **10:40** (değişmedi), saat ilerletilmedi, maç oynanmadı, `fm save` yok.
+- Yalnız `cli/fm/ContractTalks.cs` (`CallOff` + `ExitNegotiations` sabiti) değişti; paylaşılan koda (Bridge/
+  `Until`/OpenPage/`SpeakToActionEvent`) dokunulmadı → `sweep.sh` gerekmedi. Not: `LeaveTalks` de aynı yazıyı
+  arıyor; kimliğe çevrilip ölçüldü ama vaatler dışındaki aşama bu kayıtta açılamadığı için **geri alındı**
+  (kanıtsız değişiklik yok).
+- Sıradaki uygun maddeler: A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) · A Guided 161/174 (bedel sözü) ·
+  B Program cümle parçaları (kaptan eki / "End of" / "Transfers In/Out" / sezon özeti — örnek mesaj üretmek gerek) ·
+  B `LeaveTalks` / `Press`teki "Exit Talks"/"Adjust Budgets" etiketleri (sözleşme aşamaları açılınca) · D/E
+  `up=N` taraması. **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 ·
+  Clock 179 işsizlik · MatchDay üç pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn · `opposition`
+  "Apply all advice" · boy birimleri.
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 102)
 - Madde: **A "Kısa `Until`" / TraitTraining 89** (`fm training <oyuncu> --trait`: asistanın itiraz penceresi
   3 sn'ye kadar bekleniyor, gelmezse "itiraz yok" sayılıyordu) — **BİTTİ**, ölçüldü, **kod değişmedi** (§8.293).
   İşaret zaten oyunun kendi cevabı: pencere, seçimden (`select …&fire=1`) sonra TR 0,15 / 0,09 / 0,05 sn,

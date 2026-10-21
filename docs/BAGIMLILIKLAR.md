@@ -394,6 +394,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `fm training "Ben House" --trait "Places Shots"`: **6/6 rc=0**, çıktı dil içinde aynı ("Eklemek İçin Hiç
     Uygun Değil" / "Very Unsuitable To Add"); `--yes` yok, pencere "stop" ile kapandı, antrenman başlamadı.
     İz `FM_TRACE=1`, dosyalar `/tmp/opencode/t105/` (§8.293).
+  - [x] ContractTalks 364 (`CallOff`un vaatler aşamasındaki çıkışı): `press ?text=Exit Talks` yazıyla basılıyordu;
+    düğmenin kimliği ölçüldü — `SpeakToAction` eylemi **Event 42** (`EventFmxExitNegotiations`) + `IsExitButton=True`.
+    Basış artık `?ptr=`; düğme yoksa yazıya düşülmüyor, dürüst hata veriliyor. Ölçüm: vaatler kartı kilitliyken
+    (`contract "Ben House"` rc=1 → `contract --cancel`) TR + EN × üç durum (başka sayfa `Squad Dynamics` açık /
+    `Messages` sonrası / hemen ikinci koşu) **6/6 rc=0**, çıktı dil içinde aynı. İz: eski basış 0,42 sn'de
+    `press ?text=Exit Talks`; yeni 0,64–0,78 sn'de `press ?ptr=…`, görüşme ekranı basıştan **~0,3–0,5 sn** sonra
+    kapanıyor, 3 sn ≈ 6–8 kat pay. Negatif: açık görüşme yokken rc=1. Dosyalar `/tmp/opencode/t106/` (§8.294).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,
@@ -566,6 +573,11 @@ tablodan çevrilemiyor.
     işaretçisiyle basılıyor. Bu sözün İngilizcesi oyunun çeviri tablosunda hiç yok (`/translate?words=…` boş; komşu beş
     söz çevriliyor), o yüzden yazıyla basmak dilin tablosuna bağlıydı. Cevapsız (cümleli) durumdaki cevap da düğmenin
     kendi sözüyle aranıyor. TR + EN üç durumda öneri penceresi (rc=0), negatif oyuncu rc=1 (§8.209).
+  - [x] **Sözleşme görüşmesinden çıkış** (`contract --cancel`, vaatler aşaması): `Exit Talks` düğmesi yazıyla
+    basılıyordu; düğmenin `SpeakToAction` eylemi **Event 42** (`EventFmxExitNegotiations`) + `IsExitButton=True`
+    taşıyor, basış artık `?ptr=` ile. TR + EN × üç durum 6/6 rc=0, görüşme basıştan ~0,3–0,5 sn sonra kapanıyor
+    (§8.294). Kalan: `Cancel Negotiations` satırı ve `LeaveTalks` hâlâ etiketle (vaatler dışındaki aşamalar bu
+    kayıtta açılamadı).
   - [x] `contract <oyuncu> --agent` satırı: artık eylem kimliğiyle bulunuyor — eklentinin `Action` düğümünün
     `ActionID`'si **1882353528** (`InteropEventIDs.PersonAskAgentAboutClientContractRenewal`), işaretçisiyle
     basılıyor. Bu satır oyunun kendi konuşma cümlesi; TR'de "Temsilci İle Yeni Sözleşme Hakkında Görüş" olarak

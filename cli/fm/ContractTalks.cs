@@ -14,6 +14,9 @@ internal static partial class Program
 	// during the talks, and pressing it walks away from the deal (FINDINGS §8.42).
 	private const string TalksButton = "StandardButton";
 
+	/// <summary>What the way out of the talks sends (InteropEventIDs.EventFmxExitNegotiations).</summary>
+	private const string ExitNegotiations = "42";
+
 	private static async Task<int> Contract(string[] args)
 	{
 		if (args.Contains("--agent")) return await AskAgent(args);
@@ -356,16 +359,21 @@ internal static partial class Program
 		if (await Labelled("Cancel Negotiations", TalksButton) is not { } cancel)
 		{
 			// The promises stage has no cancel either: nothing has been put to the agent yet, and
-			// walking off the page is the way out. The press is queued; opening another page before
-			// it is handled only hides the talks beneath it, so they are waited on to close first.
+			// walking off the page is the way out. That button stands for the game's own Exit
+			// Negotiations event (42); its label is this language's string and is not asked for
+			// (FINDINGS §8.209). The press is queued; opening another page before it is handled
+			// only hides the talks beneath it, so they are waited on to close first.
+			var exit = false;
 			for (var attempt = 0; attempt < 3; attempt++)
 			{
-				await Fm.Get("press", ("text", "Exit Talks"), ("any", "1"));
+				if (await SpeakToActionEvent(ExitNegotiations) is not { } way) break;
+				exit = true;
+				await Fm.Get("press", ("ptr", Field(way, "Pointer")));
 				if (await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 3, every: 0.25)) break;
 			}
 			await OpenPage(Screen.Home);
-			return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 4, every: 0.25)
-				? null : L("Görüşmede iptal butonu yok.");
+			if (await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 4, every: 0.25)) return null;
+			return exit ? L("Çıkış denendi ama sözleşme görüşmesi hâlâ açık.") : L("Görüşmede çıkış düğmesi bulunamadı.");
 		}
 		await Fm.Get("press", ("ptr", Field(cancel, "Pointer")));
 
