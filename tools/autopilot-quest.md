@@ -3,7 +3,24 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 88)
+## Şu an (Tur 89)
+- Madde: **A "Sabit üst sınırlar" / `Arriving` 8 sn** (denetim gelene kadar 1 sn'lik yoklama) — **BİTTİ**, ölçüldü,
+  kod değişmedi (§8.278). TR + EN × üç durum (s1 `fm open "Mesajlar"` / `"Messages"` sonrası / s2 hemen ikinci koşu /
+  s3 `Takım Dinamikleri` / `Dynamics` sonrası) `fm scout areas --json` + `fm players "Aaron" --age 18-23 --json`:
+  **12/12 rc=0**, en uzun tek bekleme **1,12 sn** (oyuncu panelinde ilk yoklama 1,05–1,11 sn, alanlarda ≤0,97 sn) →
+  8 sn = 7,1 kat pay, projenin 7–10 kat ölçütünde. `scout areas` altı koşuda da `md5 fed56895c45431dd9820725651421c2b`;
+  `players` TR 3/3 `f3ea131252238f19db70e89a28745425`, EN s1/s2 `253b0c5ce490c7c5d545cfc83157cf57` (s3'te bilinen
+  kısa tablo 22/70, ilk 22 satır aynı, §8.239). Dosyalar `…/opencode/t89/` (`{tr,en}-s{1,2,3}-{areas,players}.{out,err}`,
+  `rc.txt`, betik `run.sh`).
+- Ölçüm tuzağı: TR oyunda ayarın adı `dil`; `fm settings language "English"` "diye bir ayar yok" diyor →
+  `fm settings dil English`; dönüş `fm settings language "Türkçe"` (EN'de adı `language`).
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15); saat ilerletilmedi, maç oynanmadı; dil TR'ye
+  döndü (`dil` → `Turkish`). Kod değişmedi → `sweep.sh` gerekmedi.
+- Kalan (aynı madde): `Bound` 20 sn (portal bağlanması 0,30–0,50 sn, ~40 kat; değişmedi) ve **maç akışındaki 3 sn'ler**
+  — maç günü olmadığı için ölçülmedi; CHECKLIST'te açık.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 88)
 - Madde: **A "Kısa `Until`" / TacticFiles 29** (`TacticPanel`: seçimden sonra kaydetme/yükleme paneli 3 sn'ye kadar
   bekleniyordu) — **BİTTİ** (§8.277). İşaret zaten panelin kendisi (kaydetmede `SaveAddon` + iki kutu, yüklemede
   `Load` etkin); sabit bekleme yok. Ölçüm (seçimden sonra): panel **0,76–1,17 sn**de çiziliyor, yani 3 sn yalnız

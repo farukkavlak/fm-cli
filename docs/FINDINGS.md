@@ -3317,3 +3317,14 @@ bekleniyor. TR + EN × üç durum `tactic save "t88b/t88c test" --yes`: **6/6 rc
 panel ilk denemede, çıktı eskisiyle aynı; test dosyaları silindi. Dosyalar `…/opencode/t88/`.
 Not: `tactic save "<ad>"` etkin taktiğin adını da o ada çeviriyor (kaydetme kutusu taktiğin adı); ölçüm
 sırasında ad değişti, aynı taktik `tactic save "t179 test" --yes` ile eski adına döndürüldü.
+
+### 8.278 Denetim bekleme sınırı (`Arriving` 8 sn) 7,1 kat pay bırakıyor; kod değişmedi (21 Ekim, TR + EN)
+`Arriving` bir denetim gelene kadar 1 sn arayla yokluyor ve en çok 8 sn bekliyor. TR + EN × üç durumda
+(s1 başka sayfa `Mesajlar`/`Messages` açık / s2 hemen ikinci koşu / s3 `Takım Dinamikleri`/`Dynamics` sonrası)
+`fm scout areas --json` + `fm players "Aaron" --age 18-23 --json`: **12/12 rc=0**, en uzun tek bekleme **1,12 sn**
+(oyuncu panelinin ilk yoklaması 1,05–1,11 sn, alanlarda ≤0,97 sn) → 8 sn ≈ 7,1 kat pay, projenin 7–10 kat ölçütünde.
+Çıktı: `scout areas` altı koşuda da `fed56895…`; `players` TR 3/3 `f3ea1312…`, EN s1/s2 `253b0c5c…` (s3'te bilinen
+kısa tablo 22/70 satır, ilk 22 satır aynı, §8.239). `Bound`un 20 sn'si portal bağlanması 0,30–0,50 sn'ye karşılık
+geliyor (~40 kat); maç akışındaki 3 sn'ler maç günü olmadığı için ölçülmedi ve CHECKLIST'te açık kaldı.
+Dosyalar `…/opencode/t89/`. Ölçüm tuzağı: TR oyunda ayarın adı `dil` — `fm settings language "English"` "diye bir
+ayar yok" diyor; EN'e `fm settings dil English`, geri `fm settings language "Türkçe"` ile dönülüyor.

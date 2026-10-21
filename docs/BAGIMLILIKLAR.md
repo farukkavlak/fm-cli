@@ -331,6 +331,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   açılış bitmeden dönüyor — hemen ardından açılan sayfanın üstüne gelebiliyor (Mesajlar › Mutluluk'ta 1/10,
   §8.185); çağıranın kendi işaretiyle beklemesi ayrı iş.
 - [ ] **Sabit üst sınırlar** (`Arriving` 8 sn, `Bound` 20 sn, maç akışında 3 sn'ler): yavaş makinede yetmeyebilir; ölçülecek.
+  - [x] `Arriving` 8 sn (denetim gelene kadar 1 sn'lik yoklama): ölçüldü, **değişiklik gerekmedi**. TR + EN × üç durum
+    (s1 `fm open "Mesajlar"`/`"Messages"` sonrası / s2 hemen ikinci koşu / s3 `Takım Dinamikleri`/`Dynamics` sonrası)
+    `fm scout areas --json` + `fm players "Aaron" --age 18-23 --json`: **12/12 rc=0**, en uzun tek bekleme **1,12 sn**
+    (oyuncu panelinde ilk yoklama 1,05–1,11 sn, alanlarda ≤0,97 sn), yani 8 sn ≈ **7,1 kat** pay — projenin kendi
+    7–10 kat ölçütünde. `scout areas` altı koşuda da `md5 fed56895…`; `players` TR 3/3 `f3ea1312…`, EN s1/s2
+    `253b0c5c…` (s3'te bilinen kısa tablo, ilk 22 satır aynı; §8.239). Dosyalar `…/opencode/t89/` (§8.278).
+  - [ ] `Bound` 20 sn + maç akışındaki 3 sn'ler: portal bağlanması 0,30–0,50 sn (20 sn ≈ 40 kat) ama **maç günü
+    olmadığı için** maç akışı ölçülmedi; sınırlar değişmedi.
 
 ### B. Oyun dili
 
