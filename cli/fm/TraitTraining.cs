@@ -49,7 +49,7 @@ internal static partial class Program
 			var lists = (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray().ToList();
 			adding = lists.FirstOrDefault(d => Field(d, "Label") == "Start New Trait Training");
 			removing = lists.FirstOrDefault(d => Field(d, "Label") == "Remove Trait");
-			busy = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(c => Field(c, "Label") == "Cancel Current Trait Training");
+			busy = await TraitCancelButton() != null;
 			if (adding.ValueKind == JsonValueKind.Object || busy) return true;
 			await Acknowledge();
 			return false;
@@ -150,7 +150,7 @@ internal static partial class Program
 		if (args.Contains("--trait-cancel"))
 		{
 			if (!busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışmıyor.")); return 0; }
-			var cancelled = await Arriving("press", [("text", "Cancel Current Trait Training"), ("any", "1")]);
+			var cancelled = await CancelTraitTraining();
 			if (cancelled.StartsWith("error", StringComparison.Ordinal)) return Report(cancelled);
 			if (!await Confirmed()) return 0;
 			return await Done(L($"{name}: alışkanlık eğitimi iptal edildi."));
@@ -214,6 +214,48 @@ internal static partial class Program
 		return await Done(L($"{name}: \"{path.Split('>')[^1]}\" eğitimi başladı."));
 	}
 
-	/// <summary>The assistant's "suggest a trait to train", as the action it stands for (InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining).</summary>
+	/// <summary>
+	/// The assistant's "suggest a trait to train", as the action it stands for (InteropEventIDs.PlayerAskStaffToSuggestPlayerTraitTraining).
+	/// </summary>
 	private const string TraitSuggestAction = "1263235426";
+
+	/// <summary>
+	/// "Stop current training", the action the card's cancel button stands for. Its words are the
+	/// game's own and change with the language, but its action — and the confirmation dialog it
+	/// opens (<c>Confirm911493462</c>) — is the same everywhere (§8.209).
+	/// </summary>
+	private const string TraitCancelAction = "911493462";
+
+	/// <summary>
+	/// The button that stops the trait being worked on, or null when none is. Its label is the
+	/// game's own words; the action it stands for and the confirmation it opens
+	/// (<c>Confirm911493462</c>) are the same in every language. The same card's start and remove
+	/// menus stand for that action too, so the control's own type tells the button apart.
+	/// </summary>
+	private static async Task<JsonElement?> TraitCancelButton()
+	{
+		// The card's start and remove menus stand for the same "preferred move training" action as
+		// its cancel button; they are dropdowns, and it is the card's one standard button.
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Type") == "SIButton" && Field(b, "Name") == "StandardButton"
+			            && Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
+			.ToList();
+		if (buttons.Count == 0) return null;
+		var ids = await PullEach(buttons.Select(b => (Field(b, "Action"), "ActionID")).ToList());
+		return buttons.Zip(ids, (b, id) => (Button: b, Id: Field(id, "ActionID")))
+			.Where(t => t.Id == TraitCancelAction).Select(t => (JsonElement?)t.Button).FirstOrDefault();
+	}
+
+	/// <summary>Presses that button; a pointer gone stale with a redrawn card is looked up again.</summary>
+	private static async Task<string> CancelTraitTraining()
+	{
+		var answer = "error: the card that stops the trait training is gone";
+		for (var attempt = 0; attempt < 6; attempt++)
+		{
+			if (await TraitCancelButton() is not { } button) break;
+			answer = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+			if (!answer.StartsWith("error", StringComparison.Ordinal)) break;
+		}
+		return answer;
+	}
 }

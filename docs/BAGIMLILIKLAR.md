@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **46** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 10 · kısa `Until` (≤3 sn) 10
+**Canlı sayaç:** açık kutu **45** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 9 · kısa `Until` (≤3 sn) 10
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -66,9 +66,9 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `Stages.cs:133` `await Task.Delay(1200);`
 - [ ] `Stages.cs:210` `await Task.Delay(700);`
 - [ ] `StatusFlags.cs:54` `if (waiting.Count > 0) await Task.Delay(250);`
-- [ ] `TrainingReport.cs:92` `await Task.Delay(500);`
+- [ ] `TrainingReport.cs:93` `await Task.Delay(500);`
 
-#### B1. Yazıyla basma/tıklama — 10 yer
+#### B1. Yazıyla basma/tıklama — 9 yer
 
 - [ ] `Guided.cs:803` "Team Shape"
 - [ ] `MatchDay.cs:355` "Instant Result"
@@ -79,7 +79,6 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:638` "Edit Recruitment Focus"
 - [ ] `Settings.cs:304` "Manage settings for this game"
-- [ ] `TraitTraining.cs:153` "Cancel Current Trait Training"
 
 #### A2. Kısa `Until` (≤3 sn) — 10 yer
 

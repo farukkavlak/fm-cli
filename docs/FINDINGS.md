@@ -3658,3 +3658,19 @@ Kanıt: TR + EN × üç durum (başka sayfa `Messages` / hemen ikinci koşu, eğ
 sonrası) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 a287fa00…`, EN `85a396a7…`); uçtan uca
 `--coach "Tom Shaw"` TR + EN raporu okudu. Aynı fonksiyonda kalan (ayrı iş): liste `Label == "Request Training Report"`
 ile, rapor eki `texts anchor="Attachments"` + `T.Rat` ile bulunuyor — bunlar dile bağlı, bu turda ele alınmadı.
+
+### 8.311 `training --trait-cancel` düğmesi oyunun kendi eylemiyle bulunuyor (21 Ekim, TR + EN)
+
+- "Cancel Current Trait Training" düğmesi `press ?text=` ile basılıyordu; yazı oyunun kendi sözlüğünden gelir.
+  Düğmenin `Action` düğümü **ActionID 911493462** (`PersonTrainingNewPreferredMove`) taşıyor ve bastığı onay
+  penceresi de `Confirm911493462`; ikisi de dilden bağımsız. Aynı karttaki "Start New Trait Training" / "Remove
+  Trait" **SIDropdown**'ları da aynı ActionID'yi taşıdığı için düğme `Type == SIButton && Name == StandardButton`
+  ile ayrılıyor (öneri düğmesi 1263235426, §8.209).
+- Kanıt (`FM_TRACE=1`, altı koşu): TR + EN × üç durum (başka sayfa `Messages` / hemen ikinci koşu, sayfa açık /
+  `Squad` sonrası) **6/6 rc=0**, çıktı eskisiyle aynı; izde `press ?text=Cancel Current Trait Training` **0**,
+  `press ?ptr=` **1** (TR `tr-s1..3`, EN `en-s1..3`). Negatif: eğitim yokken `--trait-cancel` "çalışmıyor",
+  rc=0, düğmeye basmıyor. Oyun "iptal edildi" dedikten sonra `--trait` listesi eğitimi bitmiş gösteriyor.
+- Aynı fonksiyonda kalan (ayrı iş): "Training Rating"/"Traits" döşemeleri ve "Start New Trait Training"/"Remove
+  Trait" listeleri hâlâ yazıyla bulunuyor; ayrıca `--trait` başlatınca kalan "Acknowledge and Move On" kartı
+  `Acknowledge()`'in aradığı Event 31'e sahip değil, bu yüzden `--trait-cancel` öncesinde kartın kapanması
+  gerekiyor (testte kart kullanıcı gibi basıldı; eski derlemede de aynı).

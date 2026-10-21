@@ -21,7 +21,29 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 122)
+## Şu an (Tur 123)
+- Madde: **B1 yazıyla basma / `TraitTraining.cs:153`** — `training <oyuncu> --trait-cancel` düğmeyi
+  `press ?text="Cancel Current Trait Training"` ile basıyordu. **BİTTİ** (§8.311): düğme artık oyunun eylemiyle —
+  `SpeakToAction` kimliği **ActionID 911493462** (`PersonTrainingNewPreferredMove`), `Type == SIButton &&
+  Name == StandardButton` ile aynı karttaki Start/Remove dropdown'larından ayrılıyor.
+- Kanıt (`FM_TRACE=1`): TR + EN × üç durum (başka sayfa `Messages` / hemen ikinci koşu, sayfa açık / `Squad`
+  sonrası) **6/6 rc=0**, çıktı eskisiyle aynı; izde `press ?text=Cancel…` **0**, `press ?ptr=` **1**. Negatif:
+  eğitim yokken "çalışmıyor" rc=0, düğmeye basmıyor. Dosyalar `/tmp/opencode/t123/`.
+- Dönüş/kayıt: `fm settings language "Türkçe"` → `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → `/state`
+  `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`; `fm save` yok, kayıt damgası **10:40** (değişmedi).
+  Yalnız `cli/fm/TraitTraining.cs` + dokümanlar değişti; paylaşılan yardımcı yok → `sweep.sh` gerekmedi.
+- Aynı fonksiyonda kalan (ayrı iş): "Training Rating"/"Traits" döşemeleri + "Start New Trait Training"/"Remove
+  Trait" listeleri hâlâ yazıyla; ayrıca başlatma sonrası kalan "Acknowledge and Move On" kartı Event 31 taşımıyor,
+  `--trait-cancel` öncesi kartın kapanması gerekiyor (testte kullanıcı gibi basıldı; eski derlemede de aynı).
+- Sıradaki uygun maddeler: B1 `Saves.cs:552` · `Settings.cs:304` · `ScoutFocus.cs:483/492/638` ·
+  `Guided.cs:803` · A2 kalanları (Coaches 56, ContractTalks 388, League 223, Saves 245/258) · A1 küçük
+  `Task.Delay`ler (OfferScreen 259, Reads 116/133, StatusFlags 54, MatchReport 35, Release 164).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç pencere · mesaj eki 1,5 sn ·
+  `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 ·
+  `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`, `Stages 63/98/117/133/210`
+  (baştan sona gezinme/uzun akış ölçümü ister).
+
+## Önceki durum (Tur 122)
 - Madde: **B1 yazıyla basma / `TrainingReport.cs:30`** — `training --report` antrenman döşemesini
   `press ?text="Training Rating"` ile buluyordu (söz çeviri tablosundan). **BİTTİ** (§8.310): döşeme artık paneliyle —
   `click ?within=PlayerTrainingOverview&name=layout-tile-interaction-button`. Oyuncu sayfası eğitim sekmesinde
