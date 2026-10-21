@@ -449,6 +449,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     üst sınır **8 sn** (~5,2–8,9 kat). TR + EN × üç durum (`Messages` açıkken / hemen ikinci koşu / `Messages`'a
     dönüp) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 60e1e6fe…`, EN `bd3dc6a1…`);
     `sweep.sh` **50/50** (§8.302).
+  - [x] Saves 207 220 (`SaveRowInView`: satırın listede olması 3 sn, kaydırmadan sonra 1,5 sn bekleniyordu):
+    ölçüldü, **değişiklik gerekmedi**. İşaret oyunun kendi cevabı (`/rowselect?text=…&dry=1` hatasız dönüyor):
+    liste çizildikten sonra satır **0,04–0,11 sn**de seçilebilir (oyun içi panel TR 3/3 + EN 3/3; bekleme
+    ekranı TR + EN), yani 3 sn ≈ 27–75 kat. Liste sanal olsa da `/rowselect` bütün satırları buluyor — en eski
+    kayıt kaydırmasız seçildi (`scroll` 0). Satır yoksa "listede yok" + rc=1 (§8.306).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,

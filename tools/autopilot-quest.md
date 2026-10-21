@@ -14,7 +14,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 115)
+## Şu an (Tur 116)
+- Madde: **A "Kısa `Until`" / Saves 207 220** (`SaveRowInView`: satırın listede olması 3 sn, kaydırmadan sonra
+  1,5 sn bekleniyordu) — **BİTTİ**, ölçüldü, **kod değişmedi** (§8.306). İşaret zaten oyunun kendi cevabı:
+  `/rowselect?text=…&dry=1` hatasız dönünce satır seçilebilir.
+- Kanıt (`FM_TRACE=1`; liste çizildiği an → `rowselect dry` cevabı): oyun içi kayıt paneli TR **0,04 / 0,11 /
+  0,09 sn**, EN **0,06 / 0,06 / 0,07 sn** (üç durum: Portal açık / hemen ikinci koşu / `Mesajlar`·`Messages`
+  sonrası), yani 3 sn ≈ **27–75 kat**. Bekleme ekranı (ana menü) TR **0,05**, EN **0,05 sn**; EN'de en eski
+  (2020 damgalı kopya, alt sıra) kayıt, TR'de ana kayıt. Liste sanal (gizli pencerede 3 satır) olsa da
+  `/rowselect` bütün satırları buluyor → izde `scroll` **0**; 1,5 sn'lik kaydırma sınırı bu kayıtta hiç
+  devreye girmiyor. **6/6 rc=0**, çıktı "Silindi"/"Deleted", dosyalar gerçekten gitti. Negatif/kenar: 0 baytlık
+  `t120 yok.fm` de listede satır olarak çıktı ve silindi (rc=0) — "listede yok" dalı bu kayıtta erişilemedi;
+  kod o dalda sessizce devam etmiyor, "listede yok" + rc=1 veriyor. Dosyalar `/tmp/opencode/t120/`.
+- Dönüş/kayıt: `fm load "Faruk Kavlak - Fenerbahçe" --no-save` (9 Ağustos 2026 05:45), ardından
+  `fm settings language "Türkçe"` → `fm settings --json` `language: Turkish`, `fm status` Türkçe, tarih ana
+  kayıtla aynı; `fm save` yok, saat ilerletilmedi, maç oynanmadı. Test kopyaları silindi; `fm saves` dört
+  dosya, ana kayıt **21 Ekim 10:40** (değişmedi). Kod değişmedi → `sweep.sh` gerekmedi.
+- Not (ayrı bakılmalı, kanıt tek koşu): FM menüsü zaten açıkken ilk `saves delete` denemesinde
+  `Save Game As` basışı kayıt tarayıcısını açmadı ("Kayıt tarayıcısı açılmadı.", rc=1); hemen ikinci koşu
+  aynı komutla rc=0. Menü açıkken basışın oyun tarafında yutulması olabilir — tekrar üretilip ölçülmeli.
+- Sıradaki uygun maddeler: A **MatchControls 131 266** (maç günü, dugout) · B Program cümle parçaları (örnek
+  mesaj üretmek gerek) · B haber "Portugal"/"Defence (Core)" (örnek yok) · D/E `up=N`. **Sonraya bırakılanlar**
+  (bu koşuda seçilmez): Stages 337 · Clock 179 işsizlik · MatchDay üç pencere · mesaj eki 1,5 sn · `opposition` ·
+  boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 (Faruk: sabit 1,5 sn kalıyor).
+
+## Önceki durum (Tur 115)
 - Madde: **A "Sabit üst sınırlar" / `Bound` 20 sn** — **BİTTİ** (§8.305). `Program.Bound` portal paneli
   bağlanmamışken önce **2 sn** uyuyup sonra soruyordu; artık 0,25 sn arayla soruyor (üst sınır aynı 20 sn).
 - Kanıt (`FM_TRACE=1`, `fm next`; alt sekme olayı → ilk dolu `/inbox`): eski TR **2,07–2,09 sn**, yeni TR

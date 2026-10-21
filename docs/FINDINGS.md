@@ -3607,3 +3607,13 @@ iki TR koşusu). Panel zaten bağlıyken (`Messages` açık ya da taze yükleme)
 (0 ms); EN'de bu koşullarda yeniden bağlama hiç tetiklenmedi, 20 sn sınırı 0,30–0,50 sn'lik bağlanmaya
 **40–60 kat** pay bırakıyor. Değişen tek şey yoklama aralığı (2 sn → 0,25 sn); `sweep.sh` **50/50**.
 Dosyalar `/tmp/opencode/t115/`.
+
+### 8.306 Kayıt listesinde satır hazır işareti oyunun kendi cevabı (21 Ekim, TR + EN)
+`SaveRowInView` (Saves.cs ~218, ~231) satırın listede olup olmadığını `/rowselect?text=…&dry=1`in hatasız
+dönmesiyle anlıyor; 3 sn ve kaydırmadan sonraki 1,5 sn yalnız üst sınır. Ölçüm: liste çizildikten sonra
+satır **0,04–0,11 sn**de seçilebilir oluyor (oyun içi kayıt paneli TR s1/s2/s3 0,04 / 0,11 / 0,09 sn,
+EN 0,06 / 0,06 / 0,07 sn; bekleme ekranında TR 0,05, EN 0,05 sn), yani 3 sn ≈ 27–75 kat pay. Liste sanal
+olsa da (gizli pencerede 3 satır) `/rowselect` bütün satırları buluyor: en eski kayıt (2020 damgalı kopya,
+alt sıra) hem oyun içi panelde hem bekleme ekranında kaydırma yapmadan seçildi (`scroll` izde 0). Satır
+gerçekten yoksa komut sessizce devam etmiyor: kaydırma denemelerinden sonra "listede yok" deyip rc=1
+veriyor. Bu yüzden sınırlar değişmedi (churn yok).
