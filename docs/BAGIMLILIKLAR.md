@@ -29,7 +29,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · ~~Jobs 231~~ · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
   OfferScreen 259 · ~~Offers 99~~ · ~~OppositionCard 55~~ · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
-  Registration ~~32 115~~ 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
+  Registration ~~32 115~~ 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 ~~724~~ ·
   ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · ~~StaffSearch 91 100 110~~ 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   ~~TacticFiles 181~~ · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · ~~Transfers 96~~ 128 131 139
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
@@ -52,6 +52,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `Rows()` satırları `SkipWhile(t != "World Knowledge")` ile buluyordu — satırın kendisi zaten 3. hücresindeki
     "Active Focuses" **sayısıyla** işaretli (başlıklarda o hücre sayı değil); TR 3 + EN 3 durumda okuma eski
     derlemeyle birebir (`md5` TR `fc708400…`, EN `b11015ec…`), `fm scout --json` koşu öncesi/sonrası aynı (§8.247).
+  - [x] ScoutFocus remove (`fm scout remove --yes`: durdurma onayından sonra sayfayı açmadan önce sabit **800 ms**):
+    bekleme oyunun kendi cevabına bağlandı — onay penceresi (`dialog`) kalkana kadar (`Until`, üst sınır 5 sn, 0,2 sn).
+    Ölçüm: onay basışından sonra pencere TR 0,26 / 0,08 / 0,09 sn, EN 0,07 / 0,08 / 0,08 sn'de boşalıyor; eski kod
+    basış→sonraki istek arasında TR 0,84, EN 0,85 sn sessiz kalıyordu. TR + EN × üç durum (başka sayfa `Messages`
+    açık / odak sayfası zaten açık / `Squad Dynamics`·EN `Dynamics` sonrası) **6/6 rc=0**, her koşuda odak gerçekten
+    durdu (`fm scout --json` → `Running=false`) ve `scout restart` ile geri alındı; negatif `"ZZZ yok"` rc=64 +
+    seçenek listesi (§8.286).
   - [x] StaffSearch 91 100 110 (`fm staff find --role/--free/--reputation`): panelin üç kuralı seçenek **sözüyle**
     bulunuyordu (`"Medical ›"`, `"By Nation"`, `"Exceptional"`) ve her seçimden sonra sabit 500 ms bekleniyordu.
     Türkçe oyunda çalışma durumu listesinin sözleri eklentinin çevirisinden geldiği için "By Nation" hiç yok →

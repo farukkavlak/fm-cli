@@ -3,7 +3,31 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 95)
+## Şu an (Tur 96)
+- Madde: **A "`Task.Delay`" / ScoutFocus remove** (`fm scout remove --yes`: durdurma onayı basıldıktan sonra odak
+  sayfası açılmadan önceki sabit **800 ms**) — **BİTTİ** (§8.286). Bekleme oyunun kendi cevabına bağlandı: onay
+  penceresi (`/dialog`) kalkana kadar (`Until`, 0,2 sn, üst sınır 5 sn = ~19 kat pay); sonra sayfa açılıyor,
+  atama sayısının düşmesi zaten bekleniyordu. Aynı fonksiyonda yazı/sıra bağımlılığı yok (kaldırma düğmesi olayla,
+  görevler panelindeki simge adıyla).
+- Kanıt: onay basışı→sonraki istek eski derlemede TR **0,84 sn**, EN **0,85 sn** (tam 800 ms sessizlik); yenide
+  TR **0,08 / 0,08 / 0,09 sn** (s1'de bir yoklama gecikti: 0,26), EN **0,07 / 0,08 / 0,08 sn**. TR + EN × üç durum
+  (s1 `fm open "Messages"` sonrası / s2 odak sayfası zaten açık / s3 `Squad Dynamics`·EN `Dynamics` sonrası)
+  `fm scout remove … --yes`: **6/6 rc=0**, her koşudan sonra `fm scout --json` → o odak `Running=false`; `scout
+  restart` ile geri alındı. Negatif `"ZZZ yok"` rc=64 + seçenek listesi. Dosyalar `/tmp/opencode/t97/`
+  (`old2/` = değişiklik öncesi Release kopyası, `new-{tr,en}-s{1,2,3}.{out,err}`, `new-tr-neg.*`).
+- Dönüş/yan etki: test sonrası `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → 2 Ağustos 2026 09:15, TR,
+  **4 odak (hepsi sürüyor)**, saat ilerletilmedi, maç oynanmadı. Not (§8.286): `scout restart` eskisini listede
+  durmuş bırakıp yeni odak ekliyor ve gözlemcileri yeniden dağıtınca başka bir odak durabiliyor — bu yüzden her
+  dil grubundan sonra kayıt yeniden yüklendi. Değişiklik yalnız `ScoutFocus.cs` → paylaşılan kod yok,
+  `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A **Clock 179** (işsiz kayıt yok) ve **Guided 161 174** (bedel sözü kayıtta yok)
+  hâlâ bloklu. B'de kalan yazıyla basmalar incelendi: oyuncu kartı/FM menüsü döşemeleri `OpenPanel` + **Page GUID**
+  taşıyor ama aynı ad+olayı paylaşıyorlar ve `press` Page'e göre filtrelemiyor → kimliğe çevirmek eklentiye
+  (`/buttons`da `Page`, `press`te `&page=`) + oyun restartına bağlı. Kalan B adayları: `league --stat` katalog
+  dili (tasarım + oyun restartı), Program cümle parçaları (örnek mesaj bekliyor).
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 95)
 - Madde: **A "`Task.Delay`" / Settings 226** (`fm settings` dil/ayar değişiminden sonra tercihler sayfası
   yeniden açılamazsa sabit **3 sn** bekleyip üç kez deneme) — **BİTTİ** (§8.285). Bekleme oyunun kendi cevabına
   bağlandı: sayfa açılana kadar 0,3 sn aralıkla soruluyor (`Until`, üst sınır 12 sn = eski 3×3 sn'ye eşit).

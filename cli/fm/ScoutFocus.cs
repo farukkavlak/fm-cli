@@ -962,7 +962,9 @@ internal static partial class Program
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
-		await Task.Delay(800);
+		// The page cannot be brought forward again while the confirmation is still up; it goes
+		// as soon as the answer is taken.
+		await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.2);
 		await OpenPage(Screen.RecruitmentFocuses);
 		// Stopped once the page counts one assignment fewer: the entry itself stays listed, and
 		// until the day turns nothing on it says it has stopped.

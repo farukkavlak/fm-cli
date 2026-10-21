@@ -3403,3 +3403,13 @@ kullanılmıyor: TR→EN ve EN→TR × üç durum (başka sayfa `Messages` açı
 Your World sekmesinde açık) **6/6 rc=0**, her koşuda değer doğru okundu ("dil: Turkish → English" /
 "language: English → Turkish"), `/state` altı koşuda da doğru dil, kayıt 2 Ağustos 2026 14:00 (saat ilerlemedi,
 maç oynanmadı). Değişiklik yalnız `Settings.cs` içinde → paylaşılan kod yok, `sweep.sh` gerekmedi.
+
+### 8.286 `scout remove` onaydan sonra sayfayı sabit 800 ms bekliyordu (21 Ekim, TR + EN)
+`cli/fm/ScoutFocus.cs`: odak durdurma onayı basıldıktan sonra `Task.Delay(800)` ile beklenip odak sayfası yeniden
+açılıyordu; sonra atama sayısının düşmesi zaten bekleniyordu. Oysa onay penceresi (`/dialog`) basıştan **0,07–0,09 sn**
+sonra boşalıyor (en geç 0,26 sn), sayfa hemen açılabiliyor. Artık pencere kalkana kadar `Until` (üst sınır 5 sn,
+0,2 sn); basış→sonraki istek TR 0,84 → 0,08–0,27 sn, EN 0,85 → 0,07–0,08 sn. TR + EN × üç durum (başka sayfa açık / odak sayfası açık /
+başka sayfaya geçtikten sonra) **6/6 rc=0**, her koşuda odak durdu (`Running=false`), `scout restart` geri aldı;
+negatif odak adı rc=64 + seçenek listesi. Not: `scout restart` eskisini listede durmuş bırakıp yeni bir odak ekliyor
+ve gözlemcileri yeniden dağıttığı için başka bir odağı durdurabiliyor; test sonrası kayıt yeniden yüklendi
+(`fm load … --no-save`, 4 odak, 2 Ağustos 2026 09:15, TR).
