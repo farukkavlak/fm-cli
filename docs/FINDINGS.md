@@ -3328,3 +3328,18 @@ kısa tablo 22/70 satır, ilk 22 satır aynı, §8.239). `Bound`un 20 sn'si port
 geliyor (~40 kat); maç akışındaki 3 sn'ler maç günü olmadığı için ölçülmedi ve CHECKLIST'te açık kaldı.
 Dosyalar `…/opencode/t89/`. Ölçüm tuzağı: TR oyunda ayarın adı `dil` — `fm settings language "English"` "diye bir
 ayar yok" diyor; EN'e `fm settings dil English`, geri `fm settings language "Türkçe"` ile dönülüyor.
+
+### 8.279 `fm prep`in iki `pathset`i ilk denemede geçiyor: 3 sn sınırı 83–230 kat pay (21 Ekim, TR + EN)
+`FocusSlots` hazırlık okuması için iki bağlama yapıyor (`fmcli.mf<gün>.FixtureHasResult`, `.training`) ve her biri
+`pathset` hatasız dönene kadar en çok 3 sn bekleniyordu. TR + EN × üç durumda (s1 `fm open "Messages"` sonrası /
+s2 hemen ikinci koşu / s3 `Squad Dynamics` sonrası) `FM_TRACE=1 fm prep`: **6/6 rc=0** ve her koşuda iki `pathset`
+de ilk yoklamada döndü (TR 13–36 ms, EN 13–32 ms) → 3 sn ≈ 83–230 kat pay. Kod değişmedi; gelmezse `set` false
+dönüp `FocusSlots` null oluyor ve hazırlık hiç basılmıyor, yani "gelmezse yok say" yanlış veri üretmiyor. Çıktı dil
+içinde bayt bayt aynı (TR `511c845d…` 3/3, EN `9f6e4f59…` 3/3); TR'ye dönüşte aynı. Dosyalar `…/opencode/t90/`.
+
+### 8.280 Dil değişince `fm prep`in odak adları yeniden açılışa kadar eski dilde kalıyor (21 Ekim, TR → EN)
+`fm settings dil English` sonrası `fm prep` başlıkları ("In possession", "To change") İngilizce, ama odak adları ve
+açıklamaları (`Kaydedilen İlerleme`, `Orta Bölgede Pres`…) hâlâ Türkçe: bunlar oyunun `MatchFocusSessionName` /
+`MatchFocusSessionDescription` verisi ve oyun onları yeniden açılışa kadar eski dilde tutuyor. CLI'nin kendi sözleri
+dile uyuyor; §8.275'teki `league --stat` kataloğuyla aynı sınıf, kod tarafında düzeltilecek bir şey yok. TR'ye dönüş
+`fm settings language "Türkçe"` ile yapıldı; çıktı tur başındaki `511c845d…` ile aynı.

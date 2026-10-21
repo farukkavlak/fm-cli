@@ -3,7 +3,23 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 89)
+## Şu an (Tur 90)
+- Madde: **A "Kısa `Until`" / Prep 124** (`FocusSlots`in iki `pathset`i — `FixtureHasResult`, `training` — en çok 3 sn
+  bekleniyordu) — **BİTTİ**, ölçüldü, **kod değişmedi** (§8.279). İşaret isteğin kendi cevabı: `pathset` hatasız
+  dönüyor; altı koşuda da iki bağlama **ilk yoklamada** geçti (TR 13–36 ms, EN 13–32 ms) → 3 sn ≈ **83–230 kat** pay.
+  Gelmezse `set` false dönüp `FocusSlots` null oluyor, hazırlık hiç basılmıyor (yanlış veri yok).
+- Kanıt — TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics` sonrası)
+  `FM_TRACE=1 fm prep`: **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `md5 511c845d…` 3/3, EN `9f6e4f59…` 3/3),
+  dönüşte TR aynı. Dosyalar `…/opencode/t90/` (`tr-s{1,2,3}.{out,err,rc}`, `en-s{1,2,3}.*`, `tr-back.out`).
+- Yan bulgu (§8.280): dil değişince `fm prep` başlıkları İngilizce ama odak adları yeniden açılışa kadar Türkçe —
+  oyunun kendi verisi (`MatchFocusSessionName/Description`), §8.275 ile aynı sınıf; CLI'nin sözleri dile uyuyor.
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; dil TR'ye
+  döndü (`dil` → `Turkish`). Kod değişmedi → `sweep.sh` gerekmedi.
+- Not: `fm open "Mesajlar"` bu turda "no page named" verdi; sayfa adları TR oyunda da İngilizce (`Messages`,
+  `Squad Dynamics`) — ölçüm bunlarla yapıldı.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 89)
 - Madde: **A "Sabit üst sınırlar" / `Arriving` 8 sn** (denetim gelene kadar 1 sn'lik yoklama) — **BİTTİ**, ölçüldü,
   kod değişmedi (§8.278). TR + EN × üç durum (s1 `fm open "Mesajlar"` / `"Messages"` sonrası / s2 hemen ikinci koşu /
   s3 `Takım Dinamikleri` / `Dynamics` sonrası) `fm scout areas --json` + `fm players "Aaron" --age 18-23 --json`:

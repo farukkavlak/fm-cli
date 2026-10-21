@@ -305,6 +305,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     tablo basmıyor: ülke eşleşmesi atlanıyor, portal yolunda tablo `NextFixture.Competition` adı istenenle
     karşılaştırılarak seçiliyor, eşleşmezse yarışma adıyla açılıyor. TR üç durum + EN üç durum: `fm table` çıktısı
     dil içinde bayt bayt aynı (TR `md5 07136d20…` 3/3, EN `986b328b…` 3/3) (§8.272).
+  - [x] Prep 124 (`FocusSlots`in iki `pathset`i — `FixtureHasResult`, `training` — en çok 3 sn bekleniyordu):
+    ölçüldü, **değişiklik gerekmedi**. İşaret isteğin kendi cevabı: her `pathset` hatasız dönüyor ve iki bağlama
+    ilk denemede geçiyor (TR 13–36 ms, EN 13–32 ms; altı durumda da 2/2), yani 3 sn ≈ 83–230 kat pay. Gelmezse
+    kod yanlış okumuyor: `set` false dönünce `FocusSlots` null oluyor, `fm prep` hazırlığı hiç basmıyor.
+    Kanıt — TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `Squad Dynamics` sonrası)
+    `fm prep`: **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `md5 511c845d…` 3/3, EN `9f6e4f59…` 3/3), dönüşte
+    TR aynı (§8.279). Dosyalar `…/opencode/t90/`.
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,
