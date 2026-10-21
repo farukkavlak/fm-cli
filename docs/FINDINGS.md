@@ -3774,3 +3774,12 @@ izde koşu başına tek `comp` çağrısı var, yani `Until` hiç tur atmadı. 3
 TR + EN × üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamics`·`Dynamics` sonrası) **6/6 rc=0**,
 çıktı dil içinde bayt bayt aynı (TR `ce3771458e…`, EN `3b93f5b9df…`, her biri 3/3). Sabit "bekle sonra oku" yok:
 ilk okuma komutun kendi çağrısı. **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t131/`.
+
+### 8.320 `PullEach`in 250 ms'i okumalar arasında tempo; ilk okuma beklemesiz (21 Ekim, TR + EN)
+`League.PullEach` (tek okuma birden çok yol) tur arasında 250 ms uyuyor. `FM_TRACE=1 fm table` izinde ilk `pull`
+komutun kendi çağrısıyla **0,16 s**de başlıyor; 250 ms yalnızca **tamamlanmamış** bir turdan sonra, iki okuma
+eşitlenene kadar (yani oyunun kendi "değişmiyor" işareti) sürüyor: tur aralıkları TR 0,27–0,29 / EN 0,26–0,28 sn.
+`ClubCompetitions` 8 property sorup kulüpte 6 yarışma olduğu için "hepsi geldi" hiç tutmuyor; bu yüzden her koşuda
+3 tur (≈0,5 sn) atılıyor — bu bir sabit bekleme değil, iki-eşit-okuma işaretinin bedeli. TR + EN × üç durum
+(`Messages` sonrası / hemen ikinci koşu / `Squad` sonrası) **6/6 rc=0**, çıktı dil içinde bayt bayt aynı
+(TR `3f7d685f…`, EN `7d4a7441…`, her biri 3/3). **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t132/`.

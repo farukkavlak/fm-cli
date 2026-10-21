@@ -38,6 +38,7 @@ SETTLED = {
     ("Clock.cs", 148): "`next`in Settled beklemesi ölçüldü, değişiklik gerekmedi §8.181",
     ("Clock.cs", 157): "`next`in Settled beklemesi ölçüldü, değişiklik gerekmedi §8.181",
     ("Clock.cs", 187): "işsizlik yolu oyunun cevabına bağlandı §8.289",
+    ("League.cs", 253): "tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320",
     ("StatusFlags.cs", 54): "döngüde yoklama aralığı (250 ms), §8.317",
 }
 

@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **36** · `Task.Delay` 32 çağrı (22 borç, 8 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 8
+**Canlı sayaç:** açık kutu **35** · `Task.Delay` 32 çağrı (21 borç, 9 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 8
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 22 borç / 32 çağrı
+#### A1. `Task.Delay` — 21 borç / 32 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -43,7 +43,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [?] `Guided.cs:174` — bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)
 - [ ] `Launcher.cs:213` `await Task.Delay(500);`
 - [ ] `Launcher.cs:269` `await Task.Delay(TimeSpan.FromSeconds(3));`
-- [ ] `League.cs:253` `await Task.Delay(250);`
+- [~] `League.cs:253` — tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320
 - [ ] `MatchDay.cs:181` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:368` `await Task.Delay(TimeSpan.FromSeconds(1.5));`

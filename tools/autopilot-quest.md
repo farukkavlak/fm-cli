@@ -5,10 +5,34 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **36**: `Task.Delay` **22 borç** (32 çağrının 8'i
-  yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **8**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **35**: `Task.Delay` **21 borç** (32 çağrının 9'u
+  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **8**.
 
-## Şu an (Tur 131)
+## Şu an (Tur 132)
+- Madde: **A1 `Task.Delay` / `League.cs:253`** — `PullEach` (tek çağrıda çok okuma) turlar arasında 250 ms uyuyor.
+  **BİTTİ** (§8.320): ölçüldü, **borç değil** — 250 ms yalnızca tamamlanmamış bir turdan sonra, iki okuma
+  eşitlenene kadar (oyunun kendi "değişmiyor" işareti) çalışıyor; ilk `pull` komutun kendi çağrısıyla başlıyor.
+- Kanıt (`FM_TRACE=1`, `fm table`; üç durum: `Messages` sonrası / hemen ikinci koşu / `Squad` sonrası):
+  `ClubCompetitions` turları TR 0,16 → 0,44 → 0,71 (aralık **0,27–0,29**), EN 0,19 → 0,48 → 0,74 (**0,26–0,28**);
+  TR + EN × üç durum **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `3f7d685f…`, EN `7d4a7441…`, her biri 3/3).
+  Dosyalar `/tmp/opencode/t132/`.
+- Not (ayrı iş, bu turda dokunulmadı): `ClubCompetitions` 8 property soruyor ama kulüpte 6 yarışma var, yani
+  "hepsi geldi" işareti hiç tutmuyor ve her `fm table`/`fm league` koşusunda 3 tur (≈0,5 sn) atılıyor. Sabit
+  bekleme değil; iki-eşit-okuma işaretinin bedeli — kısaltmak isteyen "kaç property döndü" işaretini kurmalı.
+- Dönüş: EN ölçümünden sonra `fm settings language "Türkçe"` → `settings --json` `dil = Turkish`; `/state`
+  `Date: 2026-08-09`, `Clock: 0`; `fm save` **yok**, ana kayıt damgası **21 Ekim 10:40** (değişmedi); maç
+  oynanmadı, yükleme gerekmedi (yalnız okuma). Kodda davranış değişikliği yok → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A1 küçük `Task.Delay`ler (Registration 312/316 — **ağır: listeyi baştan sona
+  kaydırmak gerekir**, MatchReport 35, Release 164, TrainingReport 93, ScoutFocus 395) · A2 kalanları
+  (ContractTalks 388, Prep 142, Reads 910, Saves 245/258, TraitTraining 98) · B1 `MatchDay.cs:355/361/383`
+  (maç günü). **Sonraya bırakılanlar** (bu koşuda seçilmez): Registration `Settled` (312/316; her kaydırma
+  durağında liste yeniden diziliyor, işaret ancak uçtan uca taramayla bulunur) · Stages 337 ·
+  MatchDay üç pencere · `MatchControls` 131/266 · mesaj eki 1,5 sn · `opposition` · boy birimleri ·
+  `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`,
+  `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister) ·
+  `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`).
+
+## Önceki durum (Tur 131)
 - Madde: **A2 kısa `Until` / `League.cs:223`** — `StatScope`, yarışma bağının (`comp` `pathset`i) tutmasını 3 sn
   üst sınıra kadar bekliyordu. **BİTTİ** (§8.319): ölçüldü, **borç değil** — `comp` her koşuda **ilk denemede**
   dönüyor (izde koşu başına tek `pathset`), yani `Until` hiç tur atmıyor; okuma basıştan hemen sonra başlıyor,
