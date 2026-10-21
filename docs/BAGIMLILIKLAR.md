@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **45** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 9 · kısa `Until` (≤3 sn) 10
+**Canlı sayaç:** açık kutu **44** · `Task.Delay` 35 çağrı (26 borç, 7 borç değil) · yazıyla basış 8 · kısa `Until` (≤3 sn) 10
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -68,7 +68,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `StatusFlags.cs:54` `if (waiting.Count > 0) await Task.Delay(250);`
 - [ ] `TrainingReport.cs:93` `await Task.Delay(500);`
 
-#### B1. Yazıyla basma/tıklama — 9 yer
+#### B1. Yazıyla basma/tıklama — 8 yer
 
 - [ ] `Guided.cs:803` "Team Shape"
 - [ ] `MatchDay.cs:355` "Instant Result"
@@ -78,7 +78,6 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `ScoutFocus.cs:483` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:638` "Edit Recruitment Focus"
-- [ ] `Settings.cs:304` "Manage settings for this game"
 
 #### A2. Kısa `Until` (≤3 sn) — 10 yer
 
@@ -616,6 +615,10 @@ tablodan çevrilemiyor.
     › `layout-tile-interaction-button`; eğitim sekmesi zaten açıksa döşeme kapalıdır, listede olması başarı sayılır.
     TR + EN × üç durum çıktısı eski derlemeyle birebir; uçtan uca rapor iki dilde okundu (§8.310). Kalan (ayrı iş):
     liste ve rapor eki hâlâ İngilizce başlık/sütun sözleriyle bulunuyor.
+  - [x] `settings` FM menüsündeki "Manage settings for this game" döşemesi: `click text=` yerine olayın
+    `source` yolundaki `PreferencesFMMenu` kimliğiyle (`buttons?type=OpenPanelEventContext` → `click ?ptr=`);
+    TR + EN × üç durum çıktısı eski derlemeyle birebir (§8.312). Kalan (ayrı iş): "See all"/"All Preferences"
+    hâlâ oyunun sözüyle aranan çapalar.
   - [x] sakatlık eki "Received in" / "Out for" — Türkçede çalıştı (tablodan çevriliyor)
   - [x] ~~Intensity "Ask … training intensities"~~ (sayfa Guid'iyle, §8.187)
   - [x] ~~Mentoring "assign mentoring groups"~~ (eylem kimliğiyle, §8.188)

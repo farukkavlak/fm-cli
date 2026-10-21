@@ -3674,3 +3674,13 @@ ile, rapor eki `texts anchor="Attachments"` + `T.Rat` ile bulunuyor — bunlar d
   Trait" listeleri hâlâ yazıyla bulunuyor; ayrıca `--trait` başlatınca kalan "Acknowledge and Move On" kartı
   `Acknowledge()`'in aradığı Event 31'e sahip değil, bu yüzden `--trait-cancel` öncesinde kartın kapanması
   gerekiyor (testte kart kullanıcı gibi basıldı; eski derlemede de aynı).
+
+### 8.312 `settings` FM menüsündeki ayarlar döşemesini `PreferencesFMMenu` bağıyla buluyor (21 Ekim, TR + EN)
+`Settings.cs` döşemeyi `click ?text="Manage settings for this game"` ile basıyordu; etiket o dilin sözü.
+Döşemenin kendi kimliği, `OpenPanelEventContext` olayının `source` yolundaki **`PreferencesFMMenu`** (menü öğesinin
+oyun tarafındaki adı); düğme artık `buttons?type=OpenPanelEventContext` listesinden bu adla bulunup `click ?ptr=` ile
+basılıyor. Menü kapalıyken önce FM düğmesi (`dashboard-hud-fm-button`) basılıyor, döşeme görünene kadar yoklanıyor.
+Kanıt (`FM_TRACE=1`, `fm settings --json`): TR + EN × üç durum (menü kapalı + başka sayfa / hemen ikinci koşu /
+menü zaten açık) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 fa5b6948…`, EN `cb604c52…`); izde
+`texts ?anchor=Manage settings` + `click ?text=` **0**, `click ?ptr=` döşeme için **1**. Aynı fonksiyonda kalan
+(ayrı iş): "See all" ve "All Preferences" hâlâ oyunun sözüyle aranıyor; onlar basış kutusu değil, çapa.

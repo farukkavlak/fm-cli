@@ -21,7 +21,28 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 123)
+## Şu an (Tur 124)
+- Madde: **B1 yazıyla basma / `Settings.cs` "Manage settings for this game"** — `settings` FM menüsündeki ayarlar
+  döşemesini `click ?text=` ile basıyordu. **BİTTİ** (§8.312): döşeme artık oyunun kendi menü öğesi kimliğiyle —
+  `buttons?type=OpenPanelEventContext` listesinde `source` yolunda **`PreferencesFMMenu`** geçen blok → `click ?ptr=`.
+  Menü kapalıysa önce `dashboard-hud-fm-button` basılıyor, döşeme görünene kadar yoklanıyor (sabit bekleme yok).
+- Kanıt (`FM_TRACE=1`, `fm settings --json`): TR + EN × üç durum (menü kapalı + başka sayfa / hemen ikinci koşu /
+  menü zaten açık) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 fa5b6948…`, EN `cb604c52…`). İzde
+  `texts ?anchor=Manage settings…` + `click ?text=` **0**; yerine `buttons ?type=OpenPanelEventContext` + `click ?ptr=`.
+  Dosyalar `/tmp/opencode/t124/`. Aynı fonksiyonda kalan (ayrı iş): "See all" / "All Preferences" çapaları hâlâ
+  oyunun sözü (basış kutusu değil).
+- Dönüş/kayıt: `fm settings language "Türkçe"` → `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`,
+  `DuringMatch: False`; `fm save` yok, kayıt damgası **10:40** (değişmedi). Yalnız `cli/fm/Settings.cs` + dokümanlar
+  değişti; paylaşılan yardımcı yok → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: B1 `Saves.cs:552` ("Back to last saves") · B1 `Guided.cs:803` ("Team Shape"; adı zaten
+  `team-shape`) · A2 kısa `Until`in kalanları (Coaches 56, ContractTalks 388, League 223, Prep 142, Reads 895,
+  Saves 245/258, TraitTraining 98) · A1 küçük `Task.Delay`ler (OfferScreen 259, Reads 116/133, StatusFlags 54,
+  MatchReport 35, Release 164). **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç pencere ·
+  mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided
+  161 174 · ScoutFocus 483/492/638 (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`; ayırt edici
+  kimlik yok) · `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`, `Stages 63/98/117/133/210`.
+
+## Önceki durum (Tur 123)
 - Madde: **B1 yazıyla basma / `TraitTraining.cs:153`** — `training <oyuncu> --trait-cancel` düğmeyi
   `press ?text="Cancel Current Trait Training"` ile basıyordu. **BİTTİ** (§8.311): düğme artık oyunun eylemiyle —
   `SpeakToAction` kimliği **ActionID 911493462** (`PersonTrainingNewPreferredMove`), `Type == SIButton &&

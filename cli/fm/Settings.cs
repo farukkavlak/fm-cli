@@ -278,6 +278,23 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// The FM menu's settings tile, by the entry the game files it under (`PreferencesFMMenu` in
+	/// the event's source) rather than by the words on it, which are this language's. Empty while
+	/// the menu is away.
+	/// </summary>
+	private static async Task<string> PreferencesTile()
+	{
+		var listed = await Fm.Get("buttons", ("type", "OpenPanelEventContext"), ("limit", "1000"));
+		string pointer = null;
+		foreach (var line in listed.Split('\n'))
+		{
+			if (line.StartsWith("0x", StringComparison.Ordinal)) pointer = line.Split(' ')[0];
+			else if (pointer != null && line.Contains("PreferencesFMMenu", StringComparison.Ordinal)) return pointer;
+		}
+		return null;
+	}
+
+	/// <summary>
 	/// Opens one tab of the full preferences and returns what it shows, in reading order: from
 	/// wherever the game is, through the FM menu, its Preferences tile and "See all".
 	/// </summary>
@@ -290,7 +307,7 @@ internal static partial class Program
 		// again once before giving up.
 		for (var attempt = 0; attempt < 2 && !await Showing("All Preferences"); attempt++)
 		{
-			if (!await Showing("Manage settings for this game"))
+			if (await PreferencesTile() is not { } tile)
 			{
 				var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
 				if (menu.ValueKind != JsonValueKind.Object)
@@ -299,9 +316,15 @@ internal static partial class Program
 					return null;
 				}
 				await Fm.Get("click", ("ptr", Field(menu, "Pointer")));
-				await Until(() => Showing("Manage settings for this game"), seconds: 8, every: 0.25);
+				await Until(async () => await PreferencesTile() != null, seconds: 8, every: 0.25);
+				tile = await PreferencesTile();
 			}
-			await Fm.Get("click", ("text", "Manage settings for this game"));
+			if (tile == null)
+			{
+				Console.Error.WriteLine(L("Ayarlar döşemesi FM menüsünde bulunamadı."));
+				return null;
+			}
+			await Fm.Get("click", ("ptr", tile));
 			// The link reads "See all"; through a Turkish game's table it comes back "See All", whose
 			// translation is the same.
 			var seeAll = "See all";
