@@ -14,7 +14,26 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 97)
+## Şu an (Tur 98)
+- Madde: **A "`Task.Delay`" / Clock 179** (`Unemployed`, 2×400 ms) — **BİTTİ** (§8.289). Sabit ikinci okuma
+  kalktı; işsizlik menajerin kendi kaydından: çalışanda `Human.Team` = `FM.UI.TeamReference`, işsizde `Team`
+  özelliği yok + `Human.Club` = `SI.Bindable.NullReference`. İki değer de boşsa 0,2 sn arayla en çok 5 kez
+  soruluyor (üst sınır 1 sn). Kritik bulgu: eski kodun 400 ms'i asıl maliyeti gizliyordu — boş `{}` cevabını
+  "tamamlanmadı" sanan `Bridge.Pull` işsizken her okumada 6×250 ms yineliyordu.
+- Kanıt: istifa (Career › My Contract, "İstifa Et" → onay) sonrası eski `fm status` TR: `Human.Team` okumaları
+  3,49–6,81 sn (12 okuma + 400 ms), `Human.Name` 7,48 sn → **~4,0 sn** tespit; EN aynı desen (6,77 → 7,44).
+  Yeni kod: **tek `Human&props=Name,Team,Club` okuması**, sonraki istek 85 ms sonra. TR + EN × üç durum
+  (işsiz: `Messages` sonrası / hemen ikinci / `Squad Dynamics` sonrası; çalışan: aynı üç durum) **12/12 rc=0**,
+  işsiz satırı doğru dilde, çalışanda yok; `sweep.sh` 50/50. Dosyalar `/tmp/t101/`.
+- Dönüş: `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → 9 Ağustos 2026 05:45, `/state` `turkish`; saat
+  ilerletilmedi, maç oynanmadı; `fm save` yok, kayıt dosyası zaman damgası değişmedi (10:40). Yalnız
+  `cli/fm/Clock.cs` değişti (paylaşılan yardımcı iki komutta kullanılıyor) → `sweep.sh` çalıştırıldı.
+- Sıradaki uygun maddeler: A **Guided 161/174** (bedel sözü penceresi; `fm talk` ile kurulacak) · B Program
+  cümle parçaları (örnek mesaj üretmek gerek) · A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) · A ScoutFocus
+  700 ms (kaldırma düğmesi sayfada yokken görevler paneli yolu; ana düğme varsa yol hiç çalışmıyor).
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 97)
 - Madde: **B "İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi"** — **BİTTİ**
   (§8.287). Önce canlı dil değişimiyle denendi; motor yazıları (sakatlık adı, diziliş, rol) yeniden açılışa kadar
   Türkçe kaldığı için (§8.275 ile aynı sınır) `fm load … --no-save` ile oyun İngilizce **yeniden açıldı** ve ölçüm

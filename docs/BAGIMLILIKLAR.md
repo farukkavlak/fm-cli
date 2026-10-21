@@ -96,8 +96,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     eskisinin 3×3 sn'sine eşit); TR + EN × üç durum (başka sayfa açık / tercihler Match Day sekmesinde açık /
     Your World sekmesinde açık) **6/6 rc=0**, her koşuda `dil`/`language` satırı doğru değeri okudu ve `/state`
     altı kez doğru dili gösterdi (§8.285).
-  - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz durumu **kendin kur** — Career sayfasından istifa et
-    (düğmeyi olayıyla bul), ölç, **kaydetme**, `fm load "<ana kayıt>" --no-save` ile geri dön.
+  - [x] Clock 179 (`Unemployed`, 2×400 ms): sabit ikinci okuma kalktı; işsizlik oyunun kendi cevabından okunuyor —
+    çalışan menajerde `Human.Team` bir takım referansı (`FM.UI.TeamReference`), işsizde özellik hiç yok ve
+    `Human.Club` oyunun **`SI.Bindable.NullReference`** değeri. Cevap gelmemişse 0,2 sn arayla yeniden soruluyor
+    (üst sınır 1 sn). Ölçüm (istifa Career › My Contract, "İstifa Et"): eski `fm status` işsizken takım adını iki kez
+    soruyor, boş cevabı "tamamlanmadı" sanan okuma 6×250 ms yineliyordu → tespit **~4,0 sn** (iz: 3,49→7,48 sn,
+    12 takım okuması + 400 ms); yeni kodda **tek `Human` okuması**, sonraki istek 85 ms sonra. TR + EN × üç durum
+    (işsiz: `Messages` sonrası / hemen ikinci / `Squad Dynamics` sonrası; çalışan: aynı üç durum) **12/12 rc=0**,
+    işsiz satırı doğru dilde, çalışanda hiç çıkmıyor; `sweep.sh` 50/50 (§8.289).
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.
   - [x] Propose 91 (`fm propose <oyuncu> <ücret>`: ücret kutusuna yazdıktan sonraki sabit 600 ms): artık oyunun kendi

@@ -169,16 +169,24 @@ internal static partial class Program
 
 	/// <summary>
 	/// No club to manage: the manager has a name but `Human.Team` gives none (after the sack,
-	/// 10 Ocak 2026, FINDINGS §8.142). A read can come back empty the first time, so it is read twice.
+	/// 10 Ocak 2026, FINDINGS §8.142). The manager's own record says so without a timed second
+	/// look: a working manager's `Team` names a team reference, and an unemployed one's `Club`
+	/// is the game's null reference. Until either has answered the record is still binding, so
+	/// it is asked again rather than nodded through.
 	/// </summary>
 	internal static async Task<bool> Unemployed()
 	{
-		for (var look = 0; look < 2; look++)
+		for (var look = 0; look < 5; look++)
 		{
-			if ((await Fm.OwnTeam()).Name.Length > 0) return false;
-			await Task.Delay(400);
+			// Asked raw: a manager with no club simply has no `Team` property, and the ordinary
+			// read would take that for an unfinished answer and keep asking.
+			var human = await Fm.GetJson("pull", ("path", "Human"), ("props", "Name,Team,Club"), ("list", "0"), ("gen", ""));
+			if (Field(human, "Name").Length == 0) return false;
+			if (Field(human, "Team").Length > 0) return false;
+			if (Field(human, "Club") is { Length: > 0 } club) return club.Contains("NullReference", StringComparison.Ordinal);
+			await Task.Delay(200);
 		}
-		return Field(await Fm.Pull("Human", "Name"), "Name").Length > 0;
+		return false;
 	}
 
 	/// <summary>Why the game will not continue, in the terms of what to do about it.</summary>

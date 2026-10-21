@@ -3440,3 +3440,15 @@ karşılığı olmayan ad "Goals" gibi İngilizce kalıyor — `--stat` yine iki
 (başka sayfa açık / hemen ikinci koşu / Squad Dynamics sonrası) aynı `md5 0696aea7…`; `--json` 127 oyuncu/106 takım;
 negatif `zzz` rc=64. Motor sözlerinin yeniden açılışa kadar eski dilde kalması (§8.287) sürüyor; katalog artık ona
 bağlı değil.
+
+### 8.289 İşsizlik iki kör okumayla değil menajerin kendi kaydıyla anlaşılıyor (21 Ekim, TR + EN)
+
+`Unemployed()` takım adını iki kez okuyup arada sabit 400 ms bekliyordu; işsizken `Human.Team.Name` boş döndüğü
+için `Bridge.Pull` cevabı "iki özellik de gelmedi" sayıp her okumada 6×250 ms yineliyordu (`{}` ile "henüz
+bağlanmadı" aynı). İstifa edilmiş kayıtta eski `fm status`: 3,49–6,81 sn arasında 12 takım okuması + 400 ms,
+ardından `Human.Name` 7,48 sn → tespit **~4,0 sn**. Artık menajerin kendi kaydı ham okunuyor: çalışan menajerde
+`Human.Team` = `FM.UI.TeamReference` (tek okuma, hemen "değil"), işsizde `Team` özelliği yok ve
+`Human.Club` = `SI.Bindable.NullReference` (tek okuma, hemen "işsiz"); ikisi de boşsa kayıt hâlâ bağlanıyordur,
+0,2 sn arayla en çok 5 kez soruluyor. Ölçüm: işsiz TR + EN × üç durum (Messages sonrası / hemen ikinci /
+Squad Dynamics sonrası) ve çalışan TR + EN × aynı üç durum **12/12 rc=0**, her koşuda tek `Human` okuması,
+işsiz satırı iki dilde doğru; işsiz tespiti ~10–20 ms. `sweep.sh` 50/50. Dosyalar `/tmp/t101/`.
