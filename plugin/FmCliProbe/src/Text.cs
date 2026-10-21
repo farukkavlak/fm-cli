@@ -166,14 +166,19 @@ internal static class Localisation
 	/// <summary>
 	/// The game's words for an English text the CLI writes itself (a scouting focus "In Progress", a
 	/// staff team): where the table holds it more than once, the translation it is given most often.
+	/// An entry that shows the English text itself is a text this language has not translated; it
+	/// answers nothing, so a real translation is preferred however few entries carry it ("Goals" is
+	/// both untranslated somewhere and "Gol" elsewhere in a Turkish game).
 	/// Noted as seen, so it reaches the CLI with the request's other words. Null in an English game
 	/// or for a text the game does not have.
 	/// </summary>
 	public static string ShownOf(string english)
 	{
 		if (string.IsNullOrEmpty(english) || Map() == null || !fromEnglish.TryGetValue(english, out var all)) return null;
+		var groups = System.Linq.Enumerable.ToList(System.Linq.Enumerable.GroupBy(all, t => t));
+		var translated = System.Linq.Enumerable.ToList(System.Linq.Enumerable.Where(groups, g => g.Key != english));
 		var shown = System.Linq.Enumerable.First(System.Linq.Enumerable.OrderByDescending(
-			System.Linq.Enumerable.GroupBy(all, t => t), g => System.Linq.Enumerable.Count(g))).Key;
+			translated.Count > 0 ? translated : groups, g => System.Linq.Enumerable.Count(g))).Key;
 		Saw(english, shown);
 		return shown;
 	}

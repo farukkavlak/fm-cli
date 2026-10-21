@@ -3986,3 +3986,17 @@ yazı hiç okunmuyor. Üç durum (mesajdan açılan toplantı / oyuncu sohbeti a
 TR + EN **6/6 rc=0**, süre 1,6–2,3 sn; `talk leave` sonrası `status` "İlerlemeye hazır" ve `buttons`ta
 `SpeakToAction` kalmıyor. Negatif: son soruya gelmeden (cevap seçenekleri varken) ve konuşma yokken rc=1. Toplantı
 yolunda eski `continue-button` yolu aynen kullanılıyor. `sweep.sh` **50 komut, 0 hata**.
+
+### 8.339 oyunun çevirmediği bir söz, çevrilmiş bir söz varken seçiliyordu: `league --stats` TR'de "Goals" (22 Ekim, TR + EN)
+
+`GameWords.Ask` (CLI'nin kendi yazdığı İngilizce sözler için) eklentinin `/translate` ucunu kullanıyor;
+`Localisation.ShownOf` o İngilizce sözün tablodaki **en sık** karşılığını seçiyordu. Tabloda bir sözün
+karşılığı olarak İngilizce metnin kendisi de var (o dilde çevrilmemiş bir numara). Türkçe oyunda
+`fromEnglish["Goals"]` hem "Goals" (çevrilmemiş, çok sayıda numara) hem "Gol"/"Goller" içeriyor; en sık
+olan İngilizce olduğu için `fm league --stats` iki satırda **"Goals"** basıyordu, oysa aynı istatistiğin
+oyunun kendi sütun başlığı **"Gol"** (`league --stat gol --teams` başlığı) ve tablo "Gol" → "Goals" diyor.
+Artık İngilizce metnin kendisiyle aynı olan karşılık **yok sayılıyor**, gerçek çeviri en sık olsun olmasın
+seçiliyor. Üç durum (`inbox` / `squad` / `table` sonrası) × TR + EN: TR üç çıktı bayt bayt aynı ve yalnız
+iki satır değişti (`Goals` → `Goller`, oyuncu + takım listeleri); EN üç çıktı eski derlemeyle bayt bayt
+aynı (`abbbd321…`, İngilizce oyunda tablo yok, hiçbir şey değişmiyor). `sweep.sh` **50 komut, 0 hata**.
+Kalan (bu iş değil): katalogdaki "Goals/90 Minutes" gibi bileşik adları oyunun kendisi Türkçe göstermiyor.

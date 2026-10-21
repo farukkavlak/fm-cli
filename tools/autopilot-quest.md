@@ -8,7 +8,40 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **17**: `Task.Delay` **14 borç** (29 çağrının 13'ü
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **0** + kısa `Until` **3**.
 
-## Şu an (Tur 145)
+## Şu an (Tur 146)
+- Seçilen madde: **yok** — canlı bloktaki 17 kutunun hepsi `[?]` (Guided 161/174) ya da "Sonraya bırakılanlar"
+  listesinde (Launcher 213/269 · MatchDay 181/314/370 · Program 589/694/1452/2210 · Registration 312/316 ·
+  Stages 63/120/136 · MatchControls 131/266 · Saves 258). Talimatın "boşta kalırsan" yolu: `sweep.sh` + gerçek
+  menajer akışı.
+- Sweep: **50 komut, 0 hata** (`/tmp/opencode/t145b/sweep1.txt`). Akış: `next` ×3 (10 Ağustos'a kadar),
+  `inbox`, `reply 15` (takım liderleri toplantısı) → `talk 5` (grup konuşması), `reply 9`, `board`, `finances`,
+  `health`, `youth`, `internationals`, `league --stats`, `league --stat gol --teams`, `table carabao`,
+  `stages carabao`, `squad --views`, `settings dil` TR↔EN gidiş-dönüş.
+- Bulunan hata (**B / dil-kimlik**, §8.339): eklentinin `Localisation.ShownOf`'u bir İngilizce sözün tablodaki
+  **en sık** karşılığını seçiyordu; tablo o sözün karşılığı olarak İngilizce metnin kendisini de tutuyor
+  (çevrilmemiş numaralar). Türkçe oyunda `fm league --stats` bu yüzden iki satırda **"Goals"** basıyordu;
+  oysa tablo "Gol" → "Goals" diyor ve aynı istatistiğin sütun başlığı "Gol". Artık İngilizceyle aynı olan
+  karşılık yok sayılıyor; gerçek çeviri seçiliyor ("Goller").
+- Kanıt — üç durum (`inbox` / `squad` / `table` sonrası) × TR + EN: TR üç çıktı bayt bayt aynı
+  (`d326828535426542eb875ce3ac1f739d`) ve `diff` yalnız iki satır: oyuncu + takım listesinde `Goals` → `Goller`
+  (öncesi `0696aea7b7ccf70d56c1560e31c5fd13`); EN üç çıktı eski derlemeyle bayt bayt aynı
+  (`abbbd321b950fb0d96e73811b40c713b`, İngilizce oyunda tablo yok). `/translate?words=Goals` önce
+  `Goals\tGoals` → sonra `Goals\tGoller`; `Form` değişmedi. Dosyalar `/tmp/opencode/t146/`.
+- Plugin değişti → yeniden derlendi, iki `plugins/FmCliProbe/` klasörüne kopyalandı, oyun yeniden açıldı
+  (`fm stop --no-save` + `fm start </dev/null`). Bu arada dil geçişi sırasında `status`'un "Preston · E"
+  basması geçici: oyun kendi yazılarını yeniden açılışa kadar eski dilde tutuyor; açılıştan sonra "home".
+  Ayrı iş değil, geçiş hâli.
+- Regresyon: `sweep.sh` **50 komut, 0 hata** (yeni plugin ile, `/tmp/opencode/t146/sweep`). `scout`, `staff`,
+  `happiness` TR çıktıları sağlam (paylaşılan `translate` yolunun diğer tüketicileri).
+- Dönüş: testte maç oynanmadı, `fm save` **yok**; oyun ana kayıttan yeniden açıldı → `/state` dil `turkish`,
+  tarih **9 Ağustos 2026 05:45**, saat 0, `DuringMatch: False`; ana kayıt damgası **21 Ekim 10:40** (değişmedi).
+- `remaining.py --write`: kutu sayısı değişmedi (bu bir kutu değil, eklenti bulgusu).
+- Sıradaki uygun maddeler: yine **yok**; sonraki tur `sweep.sh` + menajer akışında hata avına devam etsin.
+  **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (312/316) · Stages 63/120/136 ·
+  MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 · `Program.cs:589/694/1452/2210`,
+  `Launcher 213/269`.
+
+## Önceki durum (Tur 145)
 - Seçilen madde: **yok** — canlı blokta seçilebilir kutu kalmamıştı (17 kutunun 2'si Guided `[?]`, gerisi
   "Sonraya bırakılanlar"). Talimatın "boşta kalırsan" yolu: `tools/sweep.sh` + gerçek menajer akışı.
 - Sweep: **50 komut, 0 hata** (`/tmp/opencode/t144/sweep2`). Menajer akışı: `next`, `inbox`, `reply 11`,
