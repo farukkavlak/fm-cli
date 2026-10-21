@@ -41,6 +41,11 @@ SETTLED = {
     ("StatusFlags.cs", 54): "döngüde yoklama aralığı (250 ms), §8.317",
 }
 
+# Kısa `Until`ler için aynısı: işaret oyunun kendi cevabı, süre yalnız üst sınır.
+SETTLED_SHORT = {
+    ("Coaches.cs", 56): "yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318",
+}
+
 # Denendi, ölçülemedi / karar bekliyor: açık kutuya girmez, tekrar denenmez.
 PARKED = {
     ("Guided.cs", 161): "bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)",
@@ -83,11 +88,12 @@ def render() -> str:
     short = scan_short_until()
 
     open_delays = [d for d in delays if (d[0], d[1]) not in SETTLED and (d[0], d[1]) not in PARKED]
+    open_short = [u for u in short if (u[0], u[1]) not in SETTLED_SHORT]
     lines: list[str] = []
     lines.append(
-        f"**Canlı sayaç:** açık kutu **{len(open_delays) + len(texts) + len(short)}** · "
+        f"**Canlı sayaç:** açık kutu **{len(open_delays) + len(texts) + len(open_short)}** · "
         f"`Task.Delay` {len(delays)} çağrı ({len(open_delays)} borç, {len(SETTLED)} borç değil) · "
-        f"yazıyla basış {len(texts)} · kısa `Until` (≤3 sn) {len(short)}"
+        f"yazıyla basış {len(texts)} · kısa `Until` (≤3 sn) {len(open_short)}"
     )
     lines.append("")
     lines.append(
@@ -114,10 +120,13 @@ def render() -> str:
         lines.append(f'- [ ] `{name}:{lineno}` "{label}"')
     lines.append("")
 
-    lines.append(f"#### A2. Kısa `Until` (≤3 sn) — {len(short)} yer")
+    lines.append(f"#### A2. Kısa `Until` (≤3 sn) — {len(open_short)} yer")
     lines.append("")
     for name, lineno, secs in short:
-        lines.append(f"- [ ] `{name}:{lineno}` {secs:g} sn")
+        if (name, lineno) in SETTLED_SHORT:
+            lines.append(f"- [~] `{name}:{lineno}` — {SETTLED_SHORT[(name, lineno)]}")
+        else:
+            lines.append(f"- [ ] `{name}:{lineno}` {secs:g} sn")
     lines.append("")
     return "\n".join(lines)
 
@@ -142,7 +151,8 @@ def main() -> None:
         open_delays = [
             d for d in delays if (d[0], d[1]) not in SETTLED and (d[0], d[1]) not in PARKED
         ]
-        print(f"{len(open_delays)} {len(texts)} {len(short)}")
+        open_short = [u for u in short if (u[0], u[1]) not in SETTLED_SHORT]
+        print(f"{len(open_delays)} {len(texts)} {len(open_short)}")
         return
 
     block = render()

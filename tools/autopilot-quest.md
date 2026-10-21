@@ -8,7 +8,31 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **38**: `Task.Delay` **22 borç** (32 çağrının 8'i
   yoklama aralığı → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **10**.
 
-## Şu an (Tur 129)
+## Şu an (Tur 130)
+- Madde: **A2 kısa `Until` / `Coaches.cs:56`** — `fm coaches --auto`, yardımcının atamasını beklerken 3 sn üst
+  sınır kullanıyor. **BİTTİ** (§8.318): ölçüldü, **borç değil** — işaret oyunun kendi cevabı (atamalar değişti),
+  okuma basıştan hemen sonra başlıyor; 3 sn yalnız üst sınır. Sınır **bilinçli kısa**: yardımcı zaten doğru olanı
+  seçtiğinde sayfada hiçbir şey değişmiyor, o hâlde bekleme üst sınırda bitiyor (3 sn'ye çıkarmak yaygın
+  "değişiklik yok" hâlini yavaşlatırdı).
+- Kanıt (`FM_TRACE=1`, basış → değişmiş atama okuması): TR **0,45 / 0,52** sn, EN **0,40 / 0,42** sn; üç durum
+  (`Messages`·`Dynamics` sonrası sayfa ilk kez açılıyor / hemen ikinci koşu, sayfa açık / `Dynamics` sonrası) × iki
+  dil **8/8 rc=0**, çıktı dil içinde aynı; "değişiklik yok" hâli TR 2,90–3,00 / EN 2,85–2,87 sn (üst sınır).
+  Dosyalar `/tmp/opencode/t130/`. Değişikliği zorlamak için `Chris Cohen` `savunma teknik`/`Def Tech` kapatılıp
+  `--auto` ile geri açıldı.
+- Araç: `tools/remaining.py` artık kısa `Until`ler için de `SETTLED_SHORT` tutuyor (aynı `[~]` deseni; sayaç
+  38 → **37**). Dönüş: `fm settings language "Türkçe"` → `fm load "Faruk Kavlak - Fenerbahçe" --no-save` →
+  `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm save` **yok**, kayıt
+  damgası **21 Ekim 10:40** (değişmedi). Kodda davranış değişikliği yok → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A1 küçük `Task.Delay`ler (Registration 312/316, MatchReport 35, Release 164,
+  TrainingReport 93, ScoutFocus 395, League 253) · A2 kalanları (ContractTalks 388, League 223, Prep 142,
+  Reads 910, Saves 245/258, TraitTraining 98; Coaches 56 kapandı) · B1 `MatchDay.cs:355/361/383` (maç günü) ·
+  B1 `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · MatchDay üç pencere · `MatchControls` 131/266 ·
+  mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa bağımlılığı (§8.301) · Program 986 ·
+  Guided 161 174 · `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`, `Stages 63/98/117/133/210`
+  (baştan sona gezinme/uzun akış ölçümü ister).
+
+## Önceki durum (Tur 129)
 - Madde: **A1 `Task.Delay` / `StatusFlags.cs:54`** — takım bayraklarını okurken turlar arasındaki 250 ms.
   **BİTTİ** (§8.317): ölçüldü, **borç değil** — bekleme ilk okumadan önce değil, yalnızca cevap bekleyen satır
   kaldığında iki tur arasında çalışıyor; `tools/remaining.py` `SETTLED`'a eklendi, kutu `[~]` oldu.

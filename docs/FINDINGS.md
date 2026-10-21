@@ -3752,3 +3752,14 @@ ilk okuma komutun 1,80. saniyesinde, beklemesiz. TR + EN × üç durum (`inbox` 
 ikinci koşu / `table` sonrası): **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `1916a8c5…`, EN `d6c3e0a3…`,
 her biri 3/3). Aralık kaldırılırsa döngü boşa döner, uzatılırsa bayraklar geç gelir: **borç değil**, canlı
 listede `[~]`. Dosyalar `/tmp/opencode/t129/`.
+
+### 8.318 koç görevlerini yardımcıya bırakma, oyunun "atama değişti" işaretini bekliyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+
+`fm coaches --auto` düğmeye bastıktan sonra sayfanın yeniden kurulmasını **atamaların değişmesi** işaretiyle
+bekliyor (`Until`, 3 sn, 0,25 sn aralık). Ölçüm (`FM_TRACE=1`; basış → değişmiş atama okuması): TR **0,45 / 0,52**,
+EN **0,40 / 0,42** sn; üç durum (sayfa başka sayfadan ilk kez açılıyor / hemen ikinci koşu / `Dynamics`·`Squad
+Dynamics` sonrası) ve iki dilde **8/8 rc=0**, çıktı dil içinde aynı. Yani 3 sn, işaretin **5,8–7,5 katı**.
+Yardımcı zaten doğru olanı seçtiğinde sayfada hiçbir şey değişmiyor ve oyun "bitti" demiyor: o durumda bekleme
+haklı olarak üst sınırda bitiyor (TR 2,90–3,00 / EN 2,85–2,87 sn) — bu yüzden sınırı büyütmek yaygın "değişiklik
+yok" hâlini yavaşlatırdı. Sabit "bekle sonra oku" yok: okuma basıştan hemen sonra başlıyor, süre yalnız üst sınır.
+**Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t130/`.
