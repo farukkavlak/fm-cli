@@ -3986,3 +3986,23 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   / "no text box like that"), aynı komut tekrarında çalışıyor; bir kez de `fm search --json` çöküşü görüldü.
   Bu tur ölçümü zorlaştırdı, düzeltilmedi (turda tek madde).
 - Dosyalar: `/tmp/measure_trait.py`, `/tmp/tt_{tr,en}_*.{out,err}`, `/tmp/tt_en_a.json`.
+
+## Tur 95 (21 Ekim) — A: `fm open` bilinmeyen sayfa adını 9 sn yeniden sormuyor (§8.327)
+- Seçilen madde: A1 `Program.cs:2285` `await Task.Delay(TimeSpan.FromSeconds(1));` — `Arriving`in "sayfa
+  gelmedi / kuyruk bloke" cevabını 1 sn arayla 8 sn boyunca yeniden sorması. B maddeleri parkta (ScoutFocus
+  düğmeleri kimliksiz, MatchDay pencereleri "Sonraya bırakılanlar"da), bu yüzden A1'den alındı.
+- Önce (üç durum × iki dil): geçerli sayfa `fm open "Messages"` **0,28 / 0,26 / 0,28 sn** (TR) ve
+  **0,26 / 0,30 / 0,33 sn** (EN), rc=0, çıktı `opened Portal › Messages (panel 3199626752)`. Kalıcı hata
+  `fm open "Menfez"` **8,88 s** (TR) / **9,08 s** (EN), izde dokuz `open ?page=…` isteği, rc=1,
+  `error: no page named 'Menfez'` → yoklama yalnız hiç gelemeyecek cevapta tur atıyordu.
+- Değişiklik (`cli/fm/Program.cs`): elle `while` + `Task.Delay(1s)` yerine paylaşılan
+  `Until(..., seconds: 8, every: 1)`; "error: no page named" **kalıcı** sayılıyor (`Unanswered`), diğer
+  "error: no …" ve "event queue is blocked" cevapları eskisi gibi bekleniyor.
+- Sonra, aynı üç durum × iki dil: geçerli sayfa **0,23 / 0,24 / 0,23 sn** (TR), **0,25 / 0,20 / 0,27 sn**
+  (EN), çıktı birebir aynı, rc=0. Kalıcı hata **0,23 s** (TR) / **0,19 s** (EN), tek istek, aynı hata, rc=1.
+- Paylaşılan kod (`Arriving`) değişti → `tools/sweep.sh`: **50 komut, 0 hata**.
+- `python3 tools/remaining.py --write`: açık kutu **30 → 29**, `Task.Delay` borcu **21 → 20**, çağrı 32 → 31.
+- Kayıt: durum yaratılmadı, `fm save` yok; dil `turkish`, tarih 9 Ağustos 2026 05:45 (ana kayıt).
+  Dosyalar: `/tmp/open_before.txt`, `/tmp/open_after.txt`, `/tmp/inbox_{tr,en}_{a,b,c}.{json,trace}`.
+- Not (yeni iş değil): `fm open` sayfa adlarını **İngilizce** istiyor; `fm pages` Türkçe gösteriyor
+  (`As Takım`/`Menfez` reddediliyor, `Messages` kabul). Bu ayrı bir kimlik/dil sınırı, ölçülmedi.

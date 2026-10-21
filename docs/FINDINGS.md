@@ -3845,3 +3845,14 @@ TR 56–76 ms, EN 118–149 ms; ekranın kapandığını söyleyen okuma basış
 EN 0,43/0,41/0,45) ve 6/6 koşuda **ikinci yoklamada** geliyor. Yani 3 sn, en kötü ölçümün ~7 katı ve sabit
 duraklama değil; işaret oyunun kendi "ekran kapandı" hâli, **borç değil**, listede `[~]`. TR + EN × üç durum
 **6/6 rc=0**, çıktı "Görüşme iptal edildi." / "Negotiation cancelled.". Dosyalar `/tmp/opencode/t135/`.
+
+### 8.327 `open` bilinmeyen sayfa adını dokuz saniye boyunca yeniden soruyordu; artık ad hiç gelmeyecekse hemen söylüyor (21 Ekim, TR + EN)
+
+`Arriving` her "error: no …" cevabını geçici sayıp 1 sn arayla 8 sn boyunca soruyordu. Oysa köprünün
+"error: no page named 'X'" cevabı kalıcı: ad, oyunun kendi sayfa listesinde yok (liste boşken `OpenWith`
+zaten önce bekliyor). Ölçüm: `fm open "Menfez"` önce **8,88 s (TR) / 9,08 s (EN)**, izde dokuz `open`
+isteği, sonunda aynı hata ve rc=1; değişiklikten sonra **0,23 s / 0,19 s**, tek istek, aynı hata, rc=1.
+Geçerli sayfa üç durumda × iki dilde aynı: `opened Portal › Messages (panel 3199626752)`, rc=0,
+0,26–0,33 s → 0,20–0,27 s (gecikme yok, çünkü yoklama hiç tur atmıyordu). `Arriving` artık döngü yerine
+paylaşılan `Until`i kullanıyor; "error: no page named" kalıcı sayılıyor, "event queue is blocked" ve
+diğer "no …" cevapları eskisi gibi beklenmeye devam ediyor. `tools/sweep.sh`: 50 komut, 0 hata.

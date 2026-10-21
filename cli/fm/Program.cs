@@ -2271,20 +2271,21 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> Arriving(string route, (string, string)[] query)
 	{
-		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
-		while (true)
-		{
-			var answer = await Fm.Get(route, query);
-			// Not there yet, or the game is still sending what the last press queued: a page
-			// that is opening holds the queue for a moment. Either clears by itself or is
-			// reported once the wait is up.
-			var missing = answer.StartsWith("error: no ", StringComparison.Ordinal)
-			              || answer.StartsWith("error: the event queue is blocked", StringComparison.Ordinal);
-			if (!missing || DateTime.UtcNow >= deadline) return answer;
-
-			await Task.Delay(TimeSpan.FromSeconds(1));
-		}
+		var answer = "";
+		// Not there yet, or the game is still sending what the last press queued: a page that is
+		// opening holds the queue for a moment. Either clears by itself or is reported once the
+		// wait is up; a name the game's own page list does not have never will, and asking again
+		// for it only spends the whole wait (measured: nine requests and nine seconds to the same
+		// answer, FINDINGS §8.327).
+		await Until(async () => !Unanswered(answer = await Fm.Get(route, query)), seconds: 8, every: 1);
+		return answer;
 	}
+
+	/// <summary>An answer the game has yet to give: the thing asked for is not drawn yet, or the press that would draw it is still queued.</summary>
+	private static bool Unanswered(string answer) =>
+		(answer.StartsWith("error: no ", StringComparison.Ordinal)
+		 && !answer.StartsWith("error: no page named", StringComparison.Ordinal))
+		|| answer.StartsWith("error: the event queue is blocked", StringComparison.Ordinal);
 
 	/// <summary>The bridge answers in plain text and marks a refusal by how the line starts.</summary>
 	private static int Report(string answer)
