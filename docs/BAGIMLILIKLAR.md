@@ -401,6 +401,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `Messages` sonrası / hemen ikinci koşu) **6/6 rc=0**, çıktı dil içinde aynı. İz: eski basış 0,42 sn'de
     `press ?text=Exit Talks`; yeni 0,64–0,78 sn'de `press ?ptr=…`, görüşme ekranı basıştan **~0,3–0,5 sn** sonra
     kapanıyor, 3 sn ≈ 6–8 kat pay. Negatif: açık görüşme yokken rc=1. Dosyalar `/tmp/opencode/t106/` (§8.294).
+  - [x] TrainingSchedule 491 506 (`TrainingCalendar`: antrenman sekmesi ve ızgarası "iki okuma aynı" olana kadar
+    en çok **3 sn** bekleniyordu): işaret doğruydu (oyunun kendi "ızgara oturdu" hâli), üst sınır dardı. Ölçüm
+    (`FM_TRACE=1`; `select` → son `texts anchorpath=day…`): TR **1,92 / 0,61 / 1,31 sn**, EN **1,37 / 0,78 /
+    1,19 sn** → 3 sn en yavaş koşuda yalnız **1,6 kat** pay; yavaş makinede "Takvimin antrenman sekmesi
+    okunamadı." diyordu. Üst sınır sekme **8 sn**, ızgara **12 sn** (≥6,3 kat). TR + EN × üç durum (başka sayfa
+    `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics` sonrası) `fm schedule --json`: **6/6
+    rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 288ca6d1…` 3/3, EN `bba27efa…` 3/3) (§8.295).
+    Dosyalar `/tmp/opencode/t107/sched/`.
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,

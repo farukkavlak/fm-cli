@@ -547,7 +547,7 @@ internal static partial class Program
 			{
 				var tab = page.FirstOrDefault(f => Field(f, "Name") == "navigation-tab-default-default" && Field(f, "Text") == "Training");
 				if (tab.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(tab, "Pointer")));
-				await Until(async () => (await Page()).Any(f => Field(f, "Name") == "TrainingFocusCard"), seconds: 3, every: 0.4);
+				await Until(async () => (await Page()).Any(f => Field(f, "Name") == "TrainingFocusCard"), seconds: 8, every: 0.4);
 				continue;
 			}
 			var list = page.FirstOrDefault(f => Field(f, "Name") == "MonthDropdown");
@@ -562,7 +562,7 @@ internal static partial class Program
 				var settled = now.Length > 0 && now == previous && grid.Any(d => d.Day == day) && grid.Any(d => d.Week != null);
 				previous = now;
 				return settled;
-			}, seconds: 3, every: 0.4);
+			}, seconds: 12, every: 0.4);
 			if (drawn) return grid;
 		}
 		Console.Error.WriteLine(L("Takvimin antrenman sekmesi okunamadı."));

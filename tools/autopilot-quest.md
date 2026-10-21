@@ -14,7 +14,29 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 103)
+## Şu an (Tur 107)
+- Madde: **A "Kısa `Until`" / TrainingSchedule 491 506** (`fm schedule`ın antrenman sekmesi ve ızgarası "art arda
+  iki okuma aynı" olana kadar en çok **3 sn** bekleniyordu) — **BİTTİ** (§8.295). İşaret zaten oyunun kendi
+  "ızgara oturdu" hâliydi; üst sınır dardı: ölçüm (`select` → son ızgara okuması) TR **1,92 / 0,61 / 1,31 sn**,
+  EN **1,37 / 0,78 / 1,19 sn** → 3 sn en yavaş koşuda yalnız **1,6 kat** pay. Sekme **8 sn**, ızgara **12 sn**
+  (≥6,3 kat).
+- Kanıt — TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu / s3 `fm open "Squad
+  Dynamics"`·EN `Dynamics` sonrası) `fm schedule --json`: **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
+  (TR `md5 288ca6d1…` 3/3, EN `bba27efa…` 3/3). Eski derleme izleri `tr-old-*`/`en-old-*`, yeni `*-fin-*`;
+  dosyalar `/tmp/opencode/t107/sched/`. Yalnız `cli/fm/TrainingSchedule.cs` iki sabit değişti; paylaşılan koda
+  dokunulmadı → `sweep.sh` gerekmedi.
+- Dönüş/kayıt: dil EN ölçümünden sonra `fm settings language "Türkçe"` → `/state` `Language: turkish`; test için
+  başlatılan Ben House alışkanlık eğitimi `fm load "Faruk Kavlak - Fenerbahçe" --no-save` ile geri alındı →
+  `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm save` yok, kayıt zaman damgası **10:40** (değişmedi).
+- Sıradaki uygun maddeler: A `Bound` 20 sn (boş gelen kutusu gerek; maç akışı 3 sn'ler maç günü) · A Guided
+  161/174 (bedel sözü; `release --mutual --yes` → ertesi gün `talk` ile kurulabilir) · B Program cümle parçaları
+  (kaptan eki / "End of" / "Transfers In/Out" / sezon özeti — örnek mesaj üretmek gerek) · B `LeaveTalks` etiketi
+  (personel görüşmesiyle açılabilir) · D/E `up=N` taraması. **Sonraya bırakılanlar** (bu koşuda seçilmez):
+  Stages 337 · TrainingSchedule 345 · Clock 179 işsizlik · MatchDay üç pencere · yükleme ekranı `Load` · mesaj
+  eki 1,5 sn · `opposition` "Apply all advice" · boy birimleri.
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 103)
 - Madde: **B "İngilizce yazıyla basma" / sözleşme görüşmesinin çıkış düğmesi** (`ContractTalks.CallOff`, vaatler
   aşaması) — **BİTTİ** (§8.294). Çıkış `press ?text=Exit Talks` ile basılıyordu (eklentinin çeviri tablosundan
   geçen etiket). Düğmenin kimliği ölçüldü: `SpeakToAction` eylemi **Event 42** (`EventFmxExitNegotiations`) +

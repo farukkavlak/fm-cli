@@ -3507,3 +3507,12 @@ tablosundan geçen İngilizce etiket. Düğmenin kimliği ölçüldü: `SpeakToA
 ("Görüşme iptal edildi."/"Negotiation cancelled."). İz: eski `press ?text=Exit Talks` 0,42 sn; yeni `press ?ptr=…`
 0,64–0,78 sn, görüşme ekranı basıştan **~0,3–0,5 sn** sonra kapanıyor (3 sn ≈ 6–8 kat). Negatif: açık görüşme
 yokken `contract --cancel` rc=1. Dosyalar `/tmp/opencode/t106/`.
+
+### 8.295 `fm schedule`ın antrenman sekmesi ve ızgarası 3 sn'de "gelmedi" sayılıyordu (21 Ekim, TR + EN)
+`TrainingSchedule.TrainingCalendar`: takvimin antrenman sekmesi (`TrainingFocusCard`) ve ızgarası ("art arda iki
+okuma aynı") en çok **3 sn** bekleniyordu; ikisi de oyunun kendi işareti, yalnız üst sınır dardı. Ölçüm
+(`FM_TRACE=1`; `select` → son `texts ?anchorpath=day.DayOfTheMonth`): TR **1,92 / 0,61 / 1,31 sn**, EN
+**1,37 / 0,78 / 1,19 sn** (üç durum: başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN
+`Dynamics` sonrası) → 3 sn en yavaş koşuda yalnız **1,6 kat** pay. Üst sınır sekme için **8 sn**, ızgara için
+**12 sn** (≥6,3 kat). TR + EN × üç durum `fm schedule --json`: **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
+(TR `md5 288ca6d1…` 3/3, EN `bba27efa…` 3/3). Dosyalar `/tmp/opencode/t107/sched/`.
