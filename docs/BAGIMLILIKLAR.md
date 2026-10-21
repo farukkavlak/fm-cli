@@ -475,6 +475,11 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   açılış bitmeden dönüyor — hemen ardından açılan sayfanın üstüne gelebiliyor (Mesajlar › Mutluluk'ta 1/10,
   §8.185); çağıranın kendi işaretiyle beklemesi ayrı iş.
 - [ ] **Sabit üst sınırlar** (`Arriving` 8 sn, `Bound` 20 sn, maç akışında 3 sn'ler): yavaş makinede yetmeyebilir; ölçülecek.
+  - [x] `Bound` 20 sn (`Program.Bound`: portal paneli bağlanmamışken `next`/durum yolunun ortak okuması):
+    sabit **2 sn** uyku kalktı; veri 0,25 sn arayla soruluyor (üst sınır aynı 20 sn). Ölçüm: panel gönderimi
+    0,17 sn → ilk cevap eski kodda **2,24 sn**, yenide **0,47–0,53 sn** (0,30 / 0,34 sn); panel zaten bağlıyken
+    (Messages açık / taze yükleme) hiç bekleme yok. 20 sn, 0,30–0,50 sn'lik bağlanmaya **40–60 kat** pay.
+    TR üç durum + EN bağlı durum; dönüşte tarih 9 Ağustos 2026, dil TR, `sweep.sh` 50/50 (§8.305).
   - [x] `Arriving` 8 sn (denetim gelene kadar 1 sn'lik yoklama): ölçüldü, **değişiklik gerekmedi**. TR + EN × üç durum
     (s1 `fm open "Mesajlar"`/`"Messages"` sonrası / s2 hemen ikinci koşu / s3 `Takım Dinamikleri`/`Dynamics` sonrası)
     `fm scout areas --json` + `fm players "Aaron" --age 18-23 --json`: **12/12 rc=0**, en uzun tek bekleme **1,12 sn**

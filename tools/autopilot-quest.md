@@ -14,7 +14,24 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 114)
+## Şu an (Tur 115)
+- Madde: **A "Sabit üst sınırlar" / `Bound` 20 sn** — **BİTTİ** (§8.305). `Program.Bound` portal paneli
+  bağlanmamışken önce **2 sn** uyuyup sonra soruyordu; artık 0,25 sn arayla soruyor (üst sınır aynı 20 sn).
+- Kanıt (`FM_TRACE=1`, `fm next`; alt sekme olayı → ilk dolu `/inbox`): eski TR **2,07–2,09 sn**, yeni TR
+  **0,30 / 0,34 sn**; panel zaten bağlıyken (`fm open "Messages"` ya da taze yükleme) iki kodda da **0 ms**
+  (TR + EN). Üçüncü durum: aynı boş-panel yolunun ikinci koşusu (0,34). EN'de yeniden bağlama bu koşullarda
+  tetiklenmedi (gönderim 0); komutlar rc=0, çıktılar olağan. Dönüş: `fm settings language "Türkçe"` →
+  `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm load "Faruk Kavlak -
+  Fenerbahçe" --no-save`, kayıt zaman damgası **10:40** (değişmedi), `fm save` yok. `sweep.sh` **50/50**.
+  Dosyalar `/tmp/opencode/t115/`.
+- Kalan: aynı maddede **maç akışındaki 3 sn'ler** (maç günü ölçülecek) — `[ ]` duruyor. Sıradaki uygun
+  maddeler: A Guided 161/174 (bedel sözü) · A maç akışı 3 sn'ler · A kısa `Until`in kalanları (Saves 207/220,
+  MatchControls 131 266, ContractTalks 364, Program 986/1918) · B 44'ün kalanları · D/E `up=N`.
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 · Clock 179 işsizlik ·
+  MatchDay üç pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table`
+  sayfa bağımlılığı (§8.301).
+
+## Önceki durum (Tur 114)
 - Madde: **A "Kısa `Until`" / Program 2118 — `OpenSubpage`in içerik beklemesi** — **BİTTİ** (§8.302).
   İşaret zaten oyunun kendi cevabıydı (çubuk `check=1` "shown" + içerik, üst üste iki okuma); yalnız üst sınır
   **3 → 8 sn**.

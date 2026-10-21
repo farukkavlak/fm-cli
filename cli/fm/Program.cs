@@ -685,12 +685,13 @@ internal static partial class Program
 			("ObjectUniqueID", "0"),
 			("SecondaryTab", "false"));
 
-		// Binding lands a few seconds later, and how many depends on what the game is doing, so
-		// this waits for the data rather than for a fixed delay.
+		// Binding lands a moment later when the panel has to be built, and the game says so by
+		// answering with rows: it is asked until it does rather than after a fixed wait (measured
+		// 0.3–0.5 s after the subtab event; the first request was two seconds late).
 		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
 		while (DateTime.UtcNow < deadline)
 		{
-			await Task.Delay(TimeSpan.FromSeconds(2));
+			await Task.Delay(TimeSpan.FromMilliseconds(250));
 
 			data = await Fm.GetJson(route);
 			if (data.GetArrayLength() > 0) return data;

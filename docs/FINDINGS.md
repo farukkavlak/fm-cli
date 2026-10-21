@@ -3598,3 +3598,12 @@ Team Selection / Injured Players) `Saves.DialogButton` gibi **Type** ile bulmak 
 düğmenin kendi olayı/ActionID'si ya da sayfanın kabı olmalı. Ölçüm: `/dialog` 30 ms'lik yoklamada başlık +
 düğme işaretçilerini verdi, `Type` alanı hiç gelmedi; `fm match --instant` 3,1–5,0 sn'de iki pencereyi de
 başlıkla geçti. Dosyalar `/tmp/fm_dialogs.log`, `/tmp/fm_dialogdata.log`.
+
+### 8.305 `Bound` veriyi 2 sn'lik sabit uykudan sonra soruyordu (21 Ekim, TR + EN)
+`Program.Bound` (portal paneli bağlanmamışken `next`/durum yolunun kullandığı ortak okuma) önce 2 sn
+uyuyup sonra `/inbox`ı soruyordu. Ölçüm (`FM_TRACE=1`, `fm next`): alt sekme gönderimi 0,17 sn → ilk cevap
+**2,24 sn** (eski, TR); yeni kodda gönderim 0,19–0,23 sn → cevap **0,47–0,53 sn** (bekleme **0,30 / 0,34 sn**,
+iki TR koşusu). Panel zaten bağlıyken (`Messages` açık ya da taze yükleme) ne eski ne yeni kodda bekleme var
+(0 ms); EN'de bu koşullarda yeniden bağlama hiç tetiklenmedi, 20 sn sınırı 0,30–0,50 sn'lik bağlanmaya
+**40–60 kat** pay bırakıyor. Değişen tek şey yoklama aralığı (2 sn → 0,25 sn); `sweep.sh` **50/50**.
+Dosyalar `/tmp/opencode/t115/`.
