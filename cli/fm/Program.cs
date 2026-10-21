@@ -1027,8 +1027,12 @@ internal static partial class Program
 		{
 			var journalists = rest.IndexOf("Journalists in Attendance");
 			var points = rest.Skip(1).Take((journalists < 0 ? rest.Count : journalists) - 1).Where(t => !t.StartsWith('(')).ToList();
+			// The plugin answers a topic it knows in English; the game's own words for it are asked
+			// for and put back, as with the analysts' points (a topic the table does not know is
+			// left as the game wrote it).
+			await GameWords.Ask(Fm, [.. points]);
 			Console.WriteLine(L("\n  Olası konular:"));
-			foreach (var point in points) Console.WriteLine($"    · {point}");
+			foreach (var point in points) Console.WriteLine($"    · {GameWords.Of(point)}");
 			if (journalists >= 0)
 			{
 				var row = rest.IndexOf("Relationship", journalists);

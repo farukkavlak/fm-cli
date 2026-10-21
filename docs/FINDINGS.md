@@ -3952,3 +3952,13 @@ odaklar Joe League One, Kenny League Two, James One+Championship, Finlay Champio
 Simon One). "Nation (13)" TR'de tekil olduğu için sayaç yalnız ortak kökle (`Nation`/`Region`) eşleşiyor.
 Önce: TR `[]`/"(boş)", EN 6 satır ama alt satır "Süren görev (4)". Sonra: iki dilde 6 satır, alt satır kendi
 dilinde. `sweep.sh` **50 komut, 0 hata**.
+
+### 8.336 basın toplantısının "olası konular"ı eklentinin İngilizcesinden oyunun sözüne çevriliyor (22 Ekim, TR + EN)
+
+`reply <basın toplantısı>` eki konuları sayfanın metniyle olduğu gibi basıyordu. Eklenti, kendi tablosunda
+bildiği konuyu İngilizceye çevirdiği için TR oyunda "Fikstür Yoğunluğu · Clive Nates İle İlişkiniz ·
+**Team Selection** · İşi Hakkındaki Baskılar" karışık geliyordu (bilinmeyen konular oyunun yazdığı gibi kalır).
+Maç raporundaki analiz cümleleriyle aynı yol izleniyor: `GameWords.Ask(Fm, points)` ile oyunun sözleri bir kez
+soruluyor, sonra `GameWords.Of(point)` basılıyor. Üç durum (başka mesaj açıkken / hemen ikinci koşu / `news`
+sonrası) × TR + EN **6/6 rc=0**: TR'de dört konu da Türkçe ("Takım Seçimi"), EN'de dördü de İngilizce
+("Team Selection"); önce TR'de yalnız üçüncü konu İngilizceydi. Değişiklik yalnız `Program.cs` `WriteAttachment`.

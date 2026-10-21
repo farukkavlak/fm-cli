@@ -8,7 +8,33 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **18**: `Task.Delay` **15 borç** (29 çağrının 12'si
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **0** + kısa `Until` **3**.
 
-## Şu an (Tur 143)
+## Şu an (Tur 144)
+- Seçilen madde: **yok** — canlı blokta seçilebilir kutu kalmamıştı (kalan 18: Guided `[?]`, gerisi "Sonraya
+  bırakılanlar"). Talimatın "boşta kalırsan" yolu: `tools/sweep.sh` + gerçek menajer akışı.
+- Önemli ortam bulgusu: sweep ilk koşuda **10 hata** verdi (`shortlist`, `takers`, `penalties`, `tactic`,
+  `depth`, `supporters`, `register`, `youth`, `youth --training`, `targets`) ama hatalar komuttan komuta
+  değişiyordu ve tek tek tekrarlandığında çoğu rc=0'ydı. İkinci sweep'te oyun `opponent` sırasında ana iş
+  parçacığını 30 sn yanıtlamadı ve süreç öldü; sonrasında komutlar "Kayıt yüklü değil" dönmeye başladı.
+  `fm stop --no-save` + `fm start` sonrası **50 komut, 0 hata** (`/tmp/opencode/t144/sweep3.txt`). Yani uzun
+  oturumda oyunun UI'si çöküyor; sweep hatası görülünce önce oyunu yeniden başlatmak gerekiyor (yeni bulgu,
+  kod değişikliği değil).
+- Bulunan hata (**B / dil-kimlik**, §8.336): `reply <basın toplantısı>` "Olası konular" listesini ham basıyordu;
+  eklenti bildiği konuyu İngilizceye çevirdiği için TR oyunda "Team Selection" sızıyordu. Artık maç raporundaki
+  analiz cümleleriyle aynı yol: `GameWords.Ask` + `GameWords.Of`.
+- Kanıt — üç durum (başka mesaj açıkken / hemen ikinci koşu / `news` sonrası) × TR + EN **6/6 rc=0**:
+  TR dört konu da Türkçe ("Fikstür Yoğunluğu · Clive Nates İle İlişkiniz · Takım Seçimi · İşi Hakkındaki
+  Baskılar"), EN dördü de İngilizce ("Fixture Congestion · … · Team Selection · Job Pressures"). Önce TR'de
+  yalnız üçüncü konu İngilizceydi; EN'de değişen bir şey yok.
+- Dönüş: maç gününe kadar ilerlenmişti (10 Ağustos 12:15) → `fm load "Faruk Kavlak - Fenerbahçe" --no-save`;
+  `/state` dil `turkish`, tarih **9 Ağustos 2026 05:45**, ana kayıt damgası **21 Ekim 10:40** (değişmedi).
+  `fm save` yok. Dosyalar `/tmp/opencode/t144/`.
+- Paylaşılan koda dokunulmadı (yalnız `Program.cs` `WriteAttachment`); yine de yeni derlemeyle sweep **50/50**.
+- Sıradaki uygun maddeler: yine **yok**; sonraki tur önce oyunu tazeleyip sweep, sonra menajer akışında hata
+  avına devam etsin. **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (312/316) ·
+  Stages 63/120/136/213 · MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 ·
+  `Program.cs:589/694/1448/2206`, `Launcher 213/269`.
+
+## Önceki durum (Tur 143)
 - Seçilen madde: **yok** — canlı blokta seçilebilir kutu kalmamıştı (kalan 18: Guided `[?]`, gerisi "Sonraya
   bırakılanlar"). Bu yüzden talimatın "boşta kalırsan" yolu: `tools/sweep.sh` + gerçek komut avı.
 - Bulunan hata (**B / dil-kimlik**, §8.335): `fm scout staff` TR'de **rc=0 ile boş** dönüyordu. Panel
