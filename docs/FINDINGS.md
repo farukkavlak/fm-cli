@@ -4029,3 +4029,17 @@ süre aynı üç durumda **5,21 → 4,30 / 5,28 → 4,46 / 6,67 → 5,77 sn** (b
 Ölçüm (3 tur × 5 kaydırma, ham `/regscroll` + `/registration`, 0/250/500/750 ms): ilk okuma 4/15 kez
 henüz eski sayfayı görüyor (satır 21↔24), ama 15/15'te ilk **anlaşan** çift oturmuş sayfaydı — yanlış
 anlaşma 0; yani uyaran ikinci okuma eski sayfayı her zaman yakalıyor.
+
+### 8.342 oyuncu sayfası bazı nitelik adlarını ve alışkanlıkları İngilizce basıyordu (22 Ekim, TR + EN)
+
+Oyuncu sayfasının nitelikleri oyunun **numarasıyla** adlandırılıyor (`AttributeNames`, 42 = Pace), yani
+kimlik doğru; ama oyunun kendi sözlüğüne sorulmadığı için Türkçe oyunda `Heading`, `Pace`, `Marking`,
+`Passing`, `Technique` ve üç alışkanlık ("Likes To Try To Beat Offside Trap"…) İngilizce kalıyordu; oysa
+`/translate?words=…` aynı sözler için "Kafa Vuruşu", "Hız", "Markaj", "Pas", "Teknik" ve "Ofsayt
+Taktiğine Yakalanmamaya Çalışır" veriyor; aynı tabloda "Finishing"→"Bitiricilik" zaten çalışıyordu.
+Artık `OpenPlayer` kartın nitelik adlarını, `Player` de alışkanlıkları `GameWords.Ask` ile oyunun
+sözlüğünden öğreniyor ve gösterim `GameWords.Of` ile yapılıyor (JSON kimliği değişmedi: adlar İngilizce).
+Kanıt — üç durum (kadrodan yeni açıldı / sayfa zaten açık / tablo açıkken) × TR + EN, eski/yeni derleme:
+TR'de diff yalnız altı nitelik + üç alışkanlık satırı, değerler ve diğer adlar birebir aynı; EN'de üç çıktı
+**bayt bayt aynı**; `compare` de aynı adları çeviriyor, `--json` hâlâ `Heading`/`Finishing`. `sweep.sh`
+**50 komut, 0 hata**.

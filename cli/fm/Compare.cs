@@ -81,7 +81,7 @@ internal static partial class Program
 				var (x, y) = (va.GetValueOrDefault(n, ""), vb.GetValueOrDefault(n, ""));
 				var better = Span(x) is { } p && Span(y) is { } q ? (p.Low > q.High ? 1 : q.Low > p.High ? 2 : 0) : 0;
 				if (better > 0) ahead[better - 1]++;
-				rows.Add((n, x, y, better, false));
+				rows.Add((GameWords.Of(n), x, y, better, false));
 			}
 		}
 

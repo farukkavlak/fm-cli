@@ -72,7 +72,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `MatchControls.cs:131` 3 sn
 - [ ] `MatchControls.cs:266` 1.5 sn
 - [~] `Prep.cs:142` — günün kapsamı `pathset`in kendi cevabıyla ilk denemede bağlanıyor (21–32 ms); 3 sn yalnız üst sınır, §8.323
-- [~] `Reads.cs:910` — takımın ülkesi ilk `pull`da geliyor (26–33 ms); 3 sn yalnız üst sınır, §8.322
+- [~] `Reads.cs:924` — takımın ülkesi ilk `pull`da geliyor (26–33 ms); 3 sn yalnız üst sınır, §8.322
 - [~] `Saves.cs:245` — kayıt satırı `rowselect dry`nin kendi cevabıyla bulunuyor (24–40 ms); 3 sn yalnız üst sınır, §8.321
 - [ ] `Saves.cs:258` 1.5 sn
 - [~] `TraitTraining.cs:98` — yardımcının itiraz penceresi `dialog` bağıyla 70–230 ms'de geliyor; 3 sn yalnız üst sınır, §8.324

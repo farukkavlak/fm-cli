@@ -233,7 +233,7 @@ internal static partial class Program
 	{
 		var card = await Fm.GetJson("player");
 		if (card.TryGetProperty("Player", out var open) && Fold(Field(open, "Name")).Contains(Fold(wanted), StringComparison.Ordinal))
-			return WithAttributeNames(card);
+			return await Named(card);
 
 		var folded = Fold(wanted);
 		var squad = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray()
@@ -326,7 +326,18 @@ internal static partial class Program
 			counted = count;
 			return count > 0 && still && Field(card.GetProperty("Player"), "TotalCareerLeagueAppearances").Length > 0;
 		}, seconds: 5, every: 0.25);
-		return WithAttributeNames(card);
+		return await Named(card);
+
+		// The names are the game's English ones, picked by the attribute's number rather than by the
+		// word the page happens to bind (a Turkish page can bind another attribute's word); the game
+		// also has its own words for them, and those are what it shows. Learn them once per run.
+		static async Task<JsonElement> Named(JsonElement card)
+		{
+			card = WithAttributeNames(card);
+			if (card.TryGetProperty("Attributes", out var attributes))
+				await GameWords.Ask(Fm, [.. attributes.EnumerateArray().Select(a => Field(a, "Name")).Where(n => n.Length > 0).Distinct()]);
+			return card;
+		}
 	}
 
 	/// <summary>
@@ -369,6 +380,9 @@ internal static partial class Program
 
 		var player = card.GetProperty("Player");
 		var traits = card.GetProperty("Traits").EnumerateArray().Select(t => t.GetString()).ToList();
+		// The traits come back in the game's English; show them in the words the game uses.
+		await GameWords.Ask(Fm, [.. traits.Where(t => !string.IsNullOrEmpty(t))]);
+		traits = [.. traits.Select(t => GameWords.Of(t))];
 		var history = await PlayerHistory(Field(player, "Path"));
 		if (!Ui.Rich) PlainHeader();
 
@@ -442,7 +456,7 @@ internal static partial class Program
 			var row = new List<string>();
 			foreach (var block in blocks)
 			{
-				row.Add(r < block.Count ? Field(block[r], "Name") : "");
+				row.Add(r < block.Count ? GameWords.Of(Field(block[r], "Name")) : "");
 				row.Add(r < block.Count ? Field(block[r], "Value") : "");
 			}
 			rows.Add(row.ToArray());

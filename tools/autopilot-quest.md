@@ -8,7 +8,38 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **16**: `Task.Delay` **13 borç** (28 çağrının 13'ü
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **0** + kısa `Until` **3**.
 
-## Şu an (Tur 148)
+## Şu an (Tur 149)
+- Seçilen madde: **yok** — canlı blokta seçilebilir kutu kalmamıştı (16 kutunun 2'si Guided `[?]`, gerisi
+  "Sonraya bırakılanlar"). Talimatın "boşta kalırsan" yolu: `sweep.sh` + gerçek menajer akışı.
+- Sweep: **50 komut, 0 hata** (`/tmp/opencode/t149/sweep1.txt`), sonunda yeni derlemeyle yine **50/50**
+  (`sweep2.txt`).
+- Menajer akışı: `next` ×5 (11 Ağustos 19:45) → sakatlık konuşması (`reply` + `talk` ×2 + `talk leave`) →
+  Lincoln 1-1 Mansfield haberi (`reply 9 1` + `reply 9 1 2`) → takım liderleri toplantısı (`reply` + `talk`
+  ×2 + `talk leave`) → maç öncesi basın toplantısı (6 soru, `talk 1` ile) → **Preston maçı** (`fm match`:
+  kadro, takım konuşması, devre arası, maç sonu; izleme sorusu gelmedi) → maç sonu basın toplantısı (6 soru).
+  Hepsi rc=0; `report` skoru, `board`/`table`/`finances`/`youth` TR çıktıları sağlam.
+- Bulunan hata (**B / dil-kimlik**, §8.342): `fm player` nitelik adlarını oyunun numarasından İngilizce
+  kuruyor (`Heading`, `Pace`, `Marking`, `Passing`, `Technique`) ve alışkanlıkları İngilizce basıyordu;
+  oysa oyunun sözlüğü "Kafa Vuruşu / Hız / Markaj / Pas / Teknik" ve "Ofsayt Taktiğine Yakalanmamaya
+  Çalışır" diyor. `OpenPlayer`/`Player` artık `GameWords.Ask` + `GameWords.Of` kullanıyor; `Card` ve
+  `Compare` de aynı adları çeviriyor; JSON kimliği değişmedi.
+- Kanıt — üç durum (kadrodan yeni açıldı / sayfa zaten açık / tablo açıkken) × TR + EN, eski/yeni derleme:
+  TR diff yalnız altı nitelik + üç alışkanlık (değerler aynı); EN üç durumda **bayt bayt aynı**;
+  `compare` çevriliyor; `player --json` `Heading`/`Finishing` veriyor. Dosyalar `/tmp/opencode/t149/`
+  (`before-tr`, `after-tr`, `before-en`, `after-en`).
+- Dönüş: maç oynandı ama `fm save` **yok**; dil TR↔EN gidiş-dönüşünden sonra oyun yeniden açıldı ve ana
+  kayıt yüklendi. `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`;
+  ana kayıt damgası **21 Ekim 10:40** (değişmedi).
+- `remaining.py --write`: kutu sayısı değişmedi (16 / 13 borç / 0 yazı / 3 kısa `Until`; bu bir kutu değil,
+  gösterim bulgusu). Not: `Reads.cs`e üç satır eklenince `SETTLED_SHORT` anahtarı (910) kaydı ve araç aynı
+  çağrı yerini **yeni kutu** sandı (17 / 4). Anahtar aynı çağrı yerine (924) taşındı; kanıt §8.322 hâlâ
+  geçerli. Araç satır numarasına bağlı — sıradaki turlar `Reads.cs`i kaydırırsa aynı yanlış sayım olur.
+- Sıradaki uygun maddeler: yine **yok**; sonraki tur `sweep.sh` + menajer akışında hata avına devam etsin.
+  **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (318) · Stages 63/120/136 ·
+  MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 · `Program.cs:589/694/1452/2210`,
+  `Launcher 213/269`.
+
+## Önceki durum (Tur 148)
 - Seçilen madde: **A1 `Task.Delay` / `Registration.cs:312`** — kadro kayıt ekranının `Settled()` okuması
   her kaydırmadan sonra sabit **250 ms** uyuyup ilk okumayı öyle alıyordu. Bir `ReadRegistration` beş
   kaydırma yapıyor, yani her okuma en az **1,25 sn** boşa bekliyordu. **BİTTİ** (§8.341): ilk bekleme
