@@ -405,7 +405,10 @@ internal static partial class Program
 				var step = Next(i => Field(i, "Kind") == "button" && Field(i, "Text") == (before < value ? "+" : "-"));
 				if (step.ValueKind != JsonValueKind.Object) break;
 				await Fm.Get("click", ("ptr", Field(step, "Pointer")));
-				await Until(async () => (row = await Row()).At >= 0 && Shown() != before, seconds: 3, every: 0.3);
+				// The value under the step turns a little later than the click: measured 0.34–0.51 s in
+				// both languages, so 3 s was only 6×; 8 s leaves ~16× on a slower machine. An empty
+				// step is not taken as done — the guard runs out and the change is reported as failed.
+				await Until(async () => (row = await Row()).At >= 0 && Shown() != before, seconds: 8, every: 0.3);
 			}
 			if (Shown() != value) return await Close(L($"error: {name} için değer {value} yapılamadı (panelde {Shown()})"));
 		}

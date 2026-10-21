@@ -3537,3 +3537,13 @@ Artık çıkış düğmesi eylemin kendi `IsExitButton=True` işaretiyle, "deği
 TR + EN × üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics` sonrası): **6/6 rc=0**,
 `/contract` boş, çıkış basışı öneriden 0,55–0,96 sn sonra, ekran basıştan 0,06–0,10 sn sonra kapanıyor; çıktı
 "Görüşme kapandı…" / "The offer is with the other side…". Dosyalar `/tmp/opencode/t109/`.
+
+### 8.298 Arama panelinde nitelik değerinin adımı 3 sn'de "olmadı" sayılıyordu (21 Ekim, TR + EN)
+`ApplySearch` (`StaffSearch.cs`, `fm players --attr`): `+`/`-` basışından sonra değerin satırda görünmesi en çok
+**3 sn** bekleniyordu; işaret doğruydu (oyunun kendi "değer değişti" hâli), yalnız üst sınır dardı. Ölçüm
+(`FM_TRACE=1`; `select …choice=20` → iki `-` adımı, basış → değişmiş `form ?anchorpath=filter.…`): TR
+**0,34–0,51 sn**, EN **0,34–0,39 sn** (üç durum: başka sayfa `Messages` açık / hemen ikinci koşu /
+`Squad Dynamics`·EN `Dynamics` sonrası) → 3 sn en yavaş koşuda yalnız **~6 kat** pay. Üst sınır **8 sn** (~16 kat).
+Değişiklik hata yolunda: guard bitince değer yine değişmezse "değer … yapılamadı" (rc=1), sessiz "oldu" yok.
+`fm players --attr "Pace>=18" --json` iki dilde 6/6 rc=0 ve aynı boş çıktı; `Pace>=15` satır kümesi eski
+derlemeyle birebir (TR 17 ad, aynı sıra). `sweep.sh` 50/50. Dosyalar `/tmp/opencode/t110/`.

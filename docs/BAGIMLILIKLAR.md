@@ -409,6 +409,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics` sonrası) `fm schedule --json`: **6/6
     rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 288ca6d1…` 3/3, EN `bba27efa…` 3/3) (§8.295).
     Dosyalar `/tmp/opencode/t107/sched/`.
+  - [x] StaffSearch 354 (`ApplySearch`in nitelik değeri adımı; bugünkü `StaffSearch.cs` ~408): `+`/`-` basışından
+    sonra değerin satırda görünmesi en çok **3 sn** bekleniyordu. İşaret zaten oyunun kendi cevabı (değer
+    değişti), yalnız üst sınır dardı: `select 20` → iki `-` adımı ölçümü (`FM_TRACE=1`, basış → değişmiş
+    `form ?anchorpath=…`) TR **0,34–0,51 sn**, EN **0,34–0,39 sn**; 3 sn en yavaş koşuda yalnız **~6 kat** pay.
+    Üst sınır **8 sn** (~16 kat); değişiklik bir hata yolunda, "gelmezse yok say" değil (guard bitince dürüst
+    hata). TR + EN × üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics`
+    sonrası) `fm players --attr "Pace>=18" --json`: **6/6 rc=0**, çıktı `[]` (aynı); `Pace>=15` satır kümesi
+    eski derlemeyle birebir (TR 17 ad, aynı sıra). `sweep.sh` 50/50 (§8.298).
 - [x] **`reply` cevapları:** başlıklar = düğmeler ve önceki mesajınkinden farklı (cevapsızda `CanRespond`); Türkçe 24/24,
   İngilizce 14/14, başka sayfa açıkken 4/4 (§8.178).
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,

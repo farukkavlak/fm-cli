@@ -14,7 +14,27 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 109)
+## Şu an (Tur 110)
+- Madde: **A "Kısa `Until`" / StaffSearch 354 — arama panelinde nitelik değerinin `+`/`-` adımı** — **BİTTİ**
+  (§8.298). İşaret zaten oyunun kendi cevabıydı ("değer değişti"), yalnız üst sınır **3 sn** dardı. Ölçüm
+  (`FM_TRACE=1`; `select 20` → iki `-` adımı, basış → değişmiş `form ?anchorpath=filter.…`): TR **0,34–0,51 sn**,
+  EN **0,34–0,39 sn** → 3 sn en yavaş koşuda yalnız **~6 kat** pay; üst sınır **8 sn** (~16 kat). Hata yolunda,
+  "gelmezse yok say" değil: guard biterse "değer … yapılamadı" (rc=1).
+- Kanıt — TR + EN × üç durum (s1 `fm open "Messages"`/`"Mesajlar"` sonrası / s2 hemen ikinci koşu /
+  s3 `Squad Dynamics`·EN `Dynamics` sonrası) `fm players --attr "Pace>=18" --json`: **6/6 rc=0**, çıktı `[]`
+  (aynı); `Pace>=15` satır kümesi eski derlemeyle birebir (TR 17 ad, aynı sıra). `sweep.sh` **50/50**.
+  Dosyalar `/tmp/opencode/t110/` (eski izler `*-s1..3`, yeni `tr-new-s1`, `en-new-s2`).
+- Dönüş/kayıt: dil `fm settings language "Türkçe"` → TR; `fm save` yok, saat ilerletilmedi, maç oynanmadı;
+  `fm status` **9 Ağustos 2026 05:45**, kayıt zaman damgası **10:40** (değişmedi).
+- Yalnız `cli/fm/StaffSearch.cs` (bir `seconds:`) + dokümanlar değişti; paylaşılan `ApplySearch`in hata yolu
+  olduğu için regresyon `sweep.sh` ile koşuldu.
+- Sıradaki uygun maddeler: A Guided 161/174 (bedel sözü) · A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) ·
+  A kısa `Until`in kalanları (Saves 207/220, MatchControls 131 266, ScoutFocus 55, Program 986/1918/2118) ·
+  B Program cümle parçaları (örnek mesaj) · B 44'ün kalanları · D/E `up=N` taraması. **Sonraya bırakılanlar**
+  (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 · Clock 179 işsizlik · MatchDay üç pencere · yükleme
+  ekranı `Load` · mesaj eki 1,5 sn · `opposition` "Apply all advice" · boy birimleri.
+
+## Önceki durum (Tur 109)
 - Madde: **B "İngilizce yazıyla basma — 44 yer" / `LeaveTalks` — teklif menajerde kaldığında görüşmeyi kapatma** —
   **BİTTİ** (§8.297). İki dil bağımlılığı vardı: (1) dal `"Adjust Budgets"` (çoğul) arıyordu, ham söz
   **"Adjust Budget"** (tekil) → TR'de dal hiç açılmıyor, komut görüşmeyi açık bırakıp "Sırada: Görüşmeyi Bitir ·
