@@ -14,7 +14,28 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 100)
+## Şu an (Tur 101)
+- Madde: **A "`Task.Delay` — Transfers 128 131 139"** (`fm offer`in bedeli hedefe yürüten `+`/`−` döngüsü) — **BİTTİ** (§8.292).
+  Döngü her basıştan sonra sabit 150 ms bekleyip ücret kutusunu bir kez okuyor, değişmemişse bir kez 300 ms sonra
+  tekrar okuyor, yine değişmemişse sessizce yanlış bedelle çıkıyordu. Artık işaret kutunun kendi yazısı: basıştan
+  öncekinden **farklı** olana kadar `Until` (0,1 sn aralık, üst sınır 4 sn); "bir üst adıma geç" düzeltmesi de aynı.
+- Kanıt — iz (`FM_TRACE`): kutu basıştan **~0,25 sn** sonra yeni bedeli gösteriyor (ilk yoklama 0,10 sn'de eski,
+  ikinci 0,26 sn'de yeni) → 4 sn ≈ 16 kat. TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka
+  sayfaya geçtikten sonra) `fm offer "Joe Bennett" 20001 --dry`: **6/6 rc=0**, çıktı eski derlemeyle birebir
+  (TR `md5 2e2a0e1b…`, EN `150a0009…`); hiçbir şey gönderilmedi. Not: EN'de canlı dil değişiminden hemen
+  sonra taze açılışta **eski** derleme 2/2 kez ekranı okuyamadı ("Joe Bennett: transfer offer"; §8.275'in motor
+  yazısı gecikmesi); dil oturduktan sonra yeni derleme taze yolda kartı çizdi. Dosyalar `/tmp/opencode/t104/`.
+- Dönüş: `fm settings language "Türkçe"` → `turkish`; `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → 9 Ağustos
+  2026, `/state` turkish; saat ilerletilmedi, maç oynanmadı, `fm save` yok. Değişiklik yalnız `Transfers.cs`
+  (paylaşılan yardımcı yok) → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) · A Guided 161/174 (bedel sözü) ·
+  B Program cümle parçaları (örnek mesaj üretmek gerek) · B 44 yazıyla basmanın kalanları (çoğu eklenti/Page
+  kimliği ister) · D/E `up=N` taraması. **Sonraya bırakılanlar** (bu koşuda seçilmez): Stages 337 ·
+  TrainingSchedule 345 · Clock 179 işsizlik · MatchDay üç pencere · yükleme ekranı `Load` · mesaj eki 1,5 sn ·
+  `opposition` "Apply all advice" · boy birimleri.
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 100)
 - Madde: **B "İngilizce yazıyla basma/tıklama — 44 yer" / `fm staff`ın "All Staff" sekmesi ve tablosu** — **BİTTİ**
   (§8.291). Sekme `click ?text=All Staff&name=navigation-tab-default-default` ile, tablo da
   `texts ?anchor=All Staff&up=12` ile oyunun sözüne bağlıydı. Artık sekme kendi kabından

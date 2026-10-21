@@ -3475,3 +3475,15 @@ okunuyor; satırlar yine `binding.Name` ile başlıyor. Üç durum (başka sayfa
 sayfaya geçtikten sonra) × TR + EN: **6/6 rc=0**, çıktı eski derlemeyle birebir (TR `md5 a3d8f866…`, EN
 `ec69a3e1…`, 63 satır / 27 personel); izde `click ?text=All Staff` **0**, `click ?within=AllStaffTabGridCompositionSet`
 ve `texts ?within=StaffContractsTable`. Süre 6,5–6,6 sn (eskisiyle aynı). Dosyalar `/tmp/t103/`.
+
+### 8.292 `fm offer`in `+`/`−` yürütme döngüsü ücreti sabit 150 + 300 ms sonra okuyordu (21 Ekim, TR + EN)
+
+`cli/fm/Transfers.cs` (teklif bedelini hedefe yürüten döngü): her basıştan sonra `Task.Delay(150)`, kutu
+değişmemişse bir kez daha `Task.Delay(300)` ve tek okuma; ikisi de tutmazsa döngü sessizce yanlış bedelle
+çıkıyordu. Artık işaret oyunun kendi cevabı: ücret kutusunun **yazısı basıştan öncekinden farklı** olana kadar
+(`Until`, 0,1 sn aralık, üst sınır 4 sn); "bir üst adıma geç" düzeltmesi de aynı işareti bekliyor. İz
+(`FM_TRACE`): kutu basıştan **~0,25 sn** sonra yeni bedeli gösteriyor (ilk yoklama 0,10 sn'de eski, ikinci
+0,26 sn'de yeni) → 4 sn ≈ 16 kat pay. TR + EN × üç durum (`fm offer "Joe Bennett" 20001 --dry`) **6/6 rc=0**,
+çıktı eski derlemeyle birebir (TR `md5 2e2a0e1b…`, EN `150a0009…`); `--dry` göndermiyor. Canlı dil
+değişiminden hemen sonra EN'de taze açılışta eski derleme 2/2 kez ekranı okuyamadı (motor yazıları henüz
+oturmamış, §8.275); dil oturduktan sonra yeni derleme taze yolda da kartı çizdi. Dosyalar `/tmp/opencode/t104/`.

@@ -31,7 +31,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   OfferScreen 259 · ~~Offers 99~~ · ~~OppositionCard 55~~ · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration ~~32 115~~ 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 ~~724~~ ·
   ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · ~~StaffSearch 91 100 110~~ 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
-  ~~TacticFiles 181~~ · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · ~~Transfers 96~~ 128 131 139
+  ~~TacticFiles 181~~ · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · ~~Transfers 96 128 131 139~~
   - [x] Bridge 103 109 127 147: dördü döngüde yoklama aralığı (250 ms), değişiklik gerekmedi; değer 2. okumada, ~5 kat
     pay. "Yol boş" ile "henüz gelmedi" aynı cevap (`{}`) — FINDINGS §8.179.
   - [x] `table`: olmayan `CurrentComp5..8` artık beklenmiyor (`ClubCompetitions`, tek okuma); 8,7 → 2,5–2,9 sn, üç
@@ -293,6 +293,17 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     EN **2,18–2,33 sn**; yeni TR **0,40–0,46 sn**, EN **0,49–0,60 sn**. TR + EN × üç durum **12/12 rc=0**, çıktı dil
     içinde bayt bayt aynı (TR `981f3974…`, EN `cd76ddc5…`) (§8.284). Kalan: 128/131/139 `+`/`−` yürütme döngüsünün
     okuma aralıkları — bu yolda ölçülmedi, ayrı alt madde.
+  - [x] Transfers 128 131 139 (`fm offer … --dry`in `+`/`−` yürütme döngüsü): her basıştan sonra sabit **150 ms**
+    beklenip ücret kutusu bir kez okunuyor, değişmemişse bir kez **300 ms** sonra; ikisi de tutmazsa döngü sessizce
+    yanlış bedelle çıkıyordu (yavaş makinede kutu 450 ms'den sonra çizilirse). Artık beklenen şey oyunun kendi cevabı:
+    kutunun **yazısı basıştan öncekinden farklı** olana kadar (0,1 sn aralık, üst sınır 4 sn); "bir üst adıma geç"
+    düzeltmesi de aynı işareti bekliyor. Ölçüm (iz, `FM_TRACE`): kutu basıştan **~0,25 sn** sonra yeni bedeli
+    gösteriyor (ilk yoklama 0,10 sn'de hâlâ eski, ikinci 0,26 sn'de yeni) → 4 sn ≈ 16 kat. TR + EN × üç durum
+    (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) `fm offer "Joe Bennett" 20001 --dry`:
+    **6/6 rc=0**, çıktı eski derlemeyle birebir (TR `md5 2e2a0e1b…`, EN `150a0009…`, bedel `20,5B £`); `--dry`
+    hiçbir şey göndermiyor, ekran `fm load … --no-save` ile kapatıldı. Not: EN'de canlı dil değişiminden hemen
+    sonra taze açılışta eski derleme 2/2 kez ekranı okuyamadı ("Joe Bennett: transfer offer"; motor yazıları henüz
+    oturmamış, §8.275); dil oturduktan sonra yeni derleme taze yolda da kartı çizdi. Dosyalar `/tmp/opencode/t104/`.
 - [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·

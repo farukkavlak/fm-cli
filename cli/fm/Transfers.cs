@@ -132,10 +132,11 @@ internal static partial class Program
 				var up = now < goal;
 				if ((up ? plus : minus) is not { } button) break;
 				await Fm.Get("press", ("ptr", button));
-				await Task.Delay(150);
 
-				var after = await Fee();
-				if (after == null || after == now) { await Task.Delay(300); after = await Fee(); }
+				// The box shows the new fee a frame or so after the press; that change is the
+				// game's own answer, so it is waited for rather than guessed with a pause.
+				long? after = now;
+				await Until(async () => (after = await Fee()) is { } changed && changed != now, seconds: 4, every: 0.1);
 				if (after == null || after == now) break;
 				fee = after;
 
@@ -143,7 +144,12 @@ internal static partial class Program
 				if (up && after >= goal) break;
 				if (!up && after < goal)
 				{
-					if (plus != null) { await Fm.Get("press", ("ptr", plus)); await Task.Delay(300); fee = await Fee(); }
+					if (plus != null)
+					{
+						var below = after;
+						await Fm.Get("press", ("ptr", plus));
+						await Until(async () => (fee = await Fee()) is { } changed && changed != below, seconds: 4, every: 0.1);
+					}
 					break;
 				}
 			}
