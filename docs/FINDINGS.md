@@ -3413,3 +3413,15 @@ başka sayfaya geçtikten sonra) **6/6 rc=0**, her koşuda odak durdu (`Running=
 negatif odak adı rc=64 + seçenek listesi. Not: `scout restart` eskisini listede durmuş bırakıp yeni bir odak ekliyor
 ve gözlemcileri yeniden dağıttığı için başka bir odağı durdurabiliyor; test sonrası kayıt yeniden yüklendi
 (`fm load … --no-save`, 4 odak, 2 Ağustos 2026 09:15, TR).
+
+### 8.287 Maç ekranının iki etiketi sabit Türkçeydi ("puan", "biz:") — İngilizce oyunda da Türkçe kalıyordu (21 Ekim, TR + EN)
+`cli/fm/MatchDay.cs` (21 Ekim'de İngilizce oyunda denenmemiş değişiklikler): `sub` listesindeki oyuncu puanı
+`$"puan {r:0.0}"` diye doğrudan yazılıyordu ve satır sonundaki kart özeti `$"biz: …"` ile kuruluyordu; ikisi de
+`L(...)`den geçmediği için katalog devreye girmiyordu — İngilizce oyunda `puan 7.0` ve `Cards: biz: … · opponent: …`
+(aynı satırın `rakip:`i çevriliyken). Artık ikisi de `L("puan")` / `L($"biz: {0}")` ile yazılıyor; `labels-english.tsv`e
+`puan→rating`, `biz: {0}→ours: {0}` eklendi. Kanıt (canlı maç, aynı derleme öncesi/sonrası): önce EN `puan 7.0` /
+`Cards: biz: Oisin Gallagher, Dom Jefferies · opponent: Louis Reed`; sonra EN `rating 6.8` ve
+`Cards: ours: Ryley Towler` / `Our ratings: …`; TR `puan 6,8` ve `Kartlar: biz: Oisin Gallagher, Tom Hamer` (değişmedi).
+Aynı turda İngilizce oyunda `reply` (konuşma + cevaplar), yeni ekler (altyapı kartı, rakip raporu), yüzde (`67%`)
+ve `sub` (oyuncu değişti, sahadaki liste doğruladı) çalışıyor; dil canlı değişince motor yazıları (sakatlık adı,
+diziliş, rol) yeniden açılışa kadar eski dilde kalıyor — §8.275'le aynı sınır.

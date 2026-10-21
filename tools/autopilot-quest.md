@@ -14,7 +14,28 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 96)
+## Şu an (Tur 97)
+- Madde: **B "İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi"** — **BİTTİ**
+  (§8.287). Önce canlı dil değişimiyle denendi; motor yazıları (sakatlık adı, diziliş, rol) yeniden açılışa kadar
+  Türkçe kaldığı için (§8.275 ile aynı sınır) `fm load … --no-save` ile oyun İngilizce **yeniden açıldı** ve ölçüm
+  orada yapıldı: altyapı kartı + rakip raporu İngilizce, `fm health` `67%`, `fm reply 8 2` → konuşma/cevaplar
+  İngilizce, `fm sub` → `rating 6.8`, `sub "Rob Street" "James Collins"` sonrası sahadaki liste değişti (rc=0).
+  Aranan hata bulundu: `sub` listesinde **`puan 6,8`** ve maç sonu **`Cards: biz: …`** İngilizce oyunda da Türkçe
+  kalıyordu (ikisi de `L(...)`siz). `MatchDay.cs` + `labels-english.tsv` düzeltildi: EN `rating 6.8` /
+  `Cards: ours: Ryley Towler` / `Our ratings: …`; TR `puan 6,8` / `Kartlar: biz: …` (değişmedi).
+- Ölçüm dosyaları `/tmp/opencode/t97-en/` (`en-*` = canlı dil değişimi, `en2-*`/`en3-*` = yeniden açılmış EN,
+  `tr3-match.txt` = TR maç). Üç durum: maç başı (`sub` listesi), değişiklik sonrası (sahadaki liste), maç sonu özeti.
+- **Yan etki/kayıt:** oyunun kendi otomatik kaydı (`auto save: On`, 3 dosya döngüsel) test sırasında ana kaydı
+  **2 Ağustos 09:15 → 9 Ağustos 05:45**'e taşıdı; `--no-save` yalnız elle kaydı engelliyor. Eski hâl
+  **"last save overwrite backup"** dosyasında duruyor (2 Ağustos, 93,3 MB). Dönüş: `fm load "Faruk Kavlak -
+  Fenerbahçe" --no-save` → 9 Ağustos 2026 05:45, **TR** (`language` = turkish), sıradaki maç 11 Ağustos Carabao.
+  Gelecek turlar maç oynayacaksa otomatik kaydı test sırasında kapatmayı düşün (Faruk'un ayarı, kapatılmadı).
+- Sıradaki uygun maddeler: B Program cümle parçaları (kaptan eki / sezon özeti — örnek mesaj üretmek gerek),
+  B "Haberde Portugal" (yeniden üretilemedi: `fm news --json` güncel listede İngilizce artık bırakmıyor),
+  B `league --stat` katalog dili (oyun restartı), A Clock 179 (işsizlik), A Guided 161/174 (bedel sözü).
+- Durum: bitti, commit atılıyor.
+
+## Önceki durum (Tur 96)
 - Madde: **A "`Task.Delay`" / ScoutFocus remove** (`fm scout remove --yes`: durdurma onayı basıldıktan sonra odak
   sayfası açılmadan önceki sabit **800 ms**) — **BİTTİ** (§8.286). Bekleme oyunun kendi cevabına bağlandı: onay
   penceresi (`/dialog`) kalkana kadar (`Until`, 0,2 sn, üst sınır 5 sn = ~19 kat pay); sonra sayfa açılıyor,

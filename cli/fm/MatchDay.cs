@@ -782,7 +782,7 @@ internal static partial class Program
 			if (watchedMatch || ourNames is not { Count: > 0 }) return string.Join(", ", hits.Select(said));
 			var ours = hits.Where(m => ourNames.Contains(m.Key)).Select(said).ToList();
 			var theirs = hits.Where(m => !ourNames.Contains(m.Key)).Select(said).ToList();
-			return string.Join(" · ", new[] { ours.Count > 0 ? $"biz: {string.Join(", ", ours)}" : "", theirs.Count > 0 ? L($"rakip: {string.Join(", ", theirs)}") : "" }.Where(x => x.Length > 0));
+			return string.Join(" · ", new[] { ours.Count > 0 ? L($"biz: {string.Join(", ", ours)}") : "", theirs.Count > 0 ? L($"rakip: {string.Join(", ", theirs)}") : "" }.Where(x => x.Length > 0));
 		}
 		var booked = Sides(m => m.Value.Yellow || m.Value.Red, m => m.Key + (m.Value.Red ? L(" (kırmızı)") : ""));
 		var hurt = Sides(m => m.Value.Injury != 0, m => m.Key);
@@ -806,7 +806,7 @@ internal static partial class Program
 		public string Marks => string.Join(" · ", new[]
 		{
 			Injury != 0 ? L("SAKAT") : "", Red ? L("kırmızı kart") : Yellow ? L("sarı kart") : "",
-			double.TryParse(Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) && r > 0 ? $"puan {r:0.0}" : "",
+			double.TryParse(Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) && r > 0 ? $"{L("puan")} {r:0.0}" : "",
 		}.Where(s => s.Length > 0));
 	}
 

@@ -1482,6 +1482,7 @@ yaş	age
 sözleşme	contract
 statü	status
 maç	apps
+puan	rating
 bitti	expired
 {0} yıl	{0} yrs
 {0} yaş	aged {0}
@@ -2048,6 +2049,7 @@ Skor {0} {1} {2}{3}	Score {0} {1} {2}{3}
  [bold]SAHADA[/] 	 [bold]ON THE PITCH[/] 
 Giren	On
 rakip: {0}	opponent: {0}
+biz: {0}	ours: {0}
 Tamam	OK
 Pencere	Window
  · {0} seyirci	 · {0} attendance

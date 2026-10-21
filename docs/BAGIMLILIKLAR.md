@@ -829,7 +829,12 @@ tablodan çevrilemiyor.
   çözüm katalog adlarının dilini kaydetmek ya da açılıştan sonra bir kez tazelemek. Bu turda ölçüm sırasında
   görüldü, kapsam dışı bırakıldı (§8.275).
 - [ ] Haberde "Portugal" çevrilmedi (news yolu eşi öğrenmiyor); "Defence (Core)" birim adı İngilizce kaldı.
-- [ ] İngilizce oyunda bugünkü değişiklikler (yeni ekler, yüzde, sub, reply) denenmedi.
+- [x] **İngilizce oyunda bugünkü değişiklikler** (yeni ekler, yüzde, sub, reply) — yeniden başlatılmış İngilizce
+  oyunda denendi: altyapı kartı ve rakip raporu İngilizce, yüzde `67%`, `reply` konuşması ve cevapları İngilizce,
+  `sub` oyuncuyu gerçekten değiştirdi. Bu sırada iki etiketin sabit Türkçe kaldığı görüldü: `sub` listesinde
+  `puan 7.0` ve maç sonu `Cards: biz: …`; ikisi de artık `L(...)`den geçiyor (`rating`, `ours:`); TR çıktısı
+  değişmedi (`puan 6,8`, `Kartlar: biz: …`). Dil canlı değişince motor yazıları yeniden açılışa kadar eski dilde
+  kalıyor (§8.287, §8.275 ile aynı sınır).
 - [x] **`fm settings` ayarı başlık yazısıyla buluyor; Almanca oyunda dil ayarı bulunamıyor** — başlık `Heading:
   "Game Language"` diyordu, Almanca oyunda `/form` aynı başlığı **"Language"** diye veriyor (oyunun "Sprache" yazısı
   iki İngilizceyle eşleşiyor, eklenti ilkini döndürüyor; §8.167 çakışması): dil satırı listede yok, `fm settings dil
