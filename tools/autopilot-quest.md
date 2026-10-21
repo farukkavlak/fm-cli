@@ -3,6 +3,17 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Bloklar kalktı (21 Ekim, Faruk'un kararı)
+- "Kayıtta yok" artık park sebebi değil: kayıt test kaydı. İşsizlik (Career'dan **istifa**), maç günü
+  (`fm next` + `fm match`), örnek mesaj (günleri/sezonu ilerlet, `fm inbox`/`fm news`), bedel sözü (`fm talk`)
+  **kendin kurulur**. Kural: test için **`fm save` YOK**; sonunda `fm load "<ana kayıt>" --no-save` + `/state` (dil TR,
+  tarih ana kayıtla aynı).
+- Açılan maddeler: **Clock 179** · **Guided 161 174** · **`Bound` 20 sn + maç akışı 3 sn'ler** ·
+  **Program cümle parçaları** (kaptan eki "to be selected", yönetim beklentisi "End of", "Transfers In/Out",
+  sezon özeti "injuries this season", yaş cümlesi).
+- Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
+  mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
+
 ## Şu an (Tur 96)
 - Madde: **A "`Task.Delay`" / ScoutFocus remove** (`fm scout remove --yes`: durdurma onayı basıldıktan sonra odak
   sayfası açılmadan önceki sabit **800 ms**) — **BİTTİ** (§8.286). Bekleme oyunun kendi cevabına bağlandı: onay

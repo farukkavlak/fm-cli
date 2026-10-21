@@ -18,6 +18,23 @@ temada, her kulüpte, her makinede aynı çalışmalı.
 - Bir madde büyükse alt maddelerine böl, ilkini yap.
 - `tools/autopilot-quest.md`'yi oku (önceki turların hafızası), sonunda güncelle.
 
+## Durumu kendin kur — "kayıtta yok" park sebebi DEĞİL
+Kayıt bir **test kaydı**; ona yazık etmek diye bir şey yok. Bir madde "işsiz kayıt lazım", "maç günü değil",
+"örnek mesaj yok", "bedel sözü o an yok" diye duruyorsa **o durumu kendin yarat**, ölç, sonra geri yükle:
+- **İşsizlik / istifa** (Clock 179): `fm open` ile Career/Kariyer sayfasını aç, İstifa/Resign düğmesini **olayıyla**
+  bul ve bas, onay penceresini geç. İşsiz kal, `fm clock`/`fm next` yolundaki 2×400 ms'i ölç.
+- **Maç akışı / 3 sn'ler** (`Bound` 20 sn maddesi): `fm next` ile maç gününe gel; `fm match` ile maçı oyna
+  (terminalde izleme sorusu gelirse anında sonuç seç). Maç gününde ölçülecek ne varsa ölç.
+- **Örnek mesaj** (Program cümle parçaları: kaptan eki "to be selected", yönetim beklentisi "End of",
+  "Transfers In/Out", sezon özeti "injuries this season", yaş cümlesi): `fm next` ile günleri/sezonu ilerlet,
+  `fm inbox` + `fm news` ile mesajı bul; kaptan seçimi gibi soruları **kendin cevapla**. Mesaj gelene kadar ilerlet.
+- **Bedel sözü** (Guided 161 174): `fm next` ile sözleşme/transfer görüşmesi çıkana kadar ilerle ya da açık
+  konuşmada `fm talk` ile bedel iste; pencere açılınca ölç.
+
+**Geri dönüş kuralı (pazarlık yok):** bu testler için durumu değiştirdiysen **`fm save` YOK** — diske yazma.
+İşin sonunda `fm load "<ana kayıt>" --no-save` ile ana kayda dön (adını `fm saves` ilk satırından al) ve `/state` ile
+dil `turkish`, tarih ana kayıtla aynı olduğunu doğrula. Sadece okuma yaptıysan yükleme gerekmez.
+
 ## Bütçe (önce oku)
 Bu tur limit/token yakıyor. **Gereksiz keşif yapma.** Maddeyi seç, ilgili dosyayı `grep -n` ile bul,
 yalnız gereken satır aralığını oku. Bütün dosya ya da büyük doc (FINDINGS/PLAN) baştan sona okuma.

@@ -96,7 +96,8 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     eskisinin 3×3 sn'sine eşit); TR + EN × üç durum (başka sayfa açık / tercihler Match Day sekmesinde açık /
     Your World sekmesinde açık) **6/6 rc=0**, her koşuda `dil`/`language` satırı doğru değeri okudu ve `/state`
     altı kez doğru dili gösterdi (§8.285).
-  - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz bir kayıt lazım.
+  - [ ] Clock 179 (`Unemployed`, 2×400 ms): işsiz durumu **kendin kur** — Career sayfasından istifa et
+    (düğmeyi olayıyla bul), ölç, **kaydetme**, `fm load "<ana kayıt>" --no-save` ile geri dön.
   - [x] Contracts 57: sabit 300 ms yerine `{}` (bağlanmamış) dönen alanlar gelene kadar okunuyor; boş şart "-" geliyor,
     `{}` kalmıyor. 27 oyuncu iki kez, aynı ve tam (§8.182). İngilizcede denenmedi.
   - [x] Propose 91 (`fm propose <oyuncu> <ücret>`: ücret kutusuna yazdıktan sonraki sabit 600 ms): artık oyunun kendi
@@ -182,8 +183,9 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   - [x] `jobs apply|interest` düğmeleri: panelin iki cevabı artık etiketle değil **olayla** bulunuyor (`Events` içinde
     `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`; TR + EN'de aynı, `docs/reference/enums.txt`), basış
     işaretçiyle. Negatif: TR `Villarreal apply` → "başvuru kabul etmiyor", rc=1 (§8.219, B "yazıyla basma" maddesi).
-  - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel isteyen bir söz
-    konuşması lazım; o an oyunda yok, ölçülmeden değiştirilmedi. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
+  - [ ] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): bedel sözünü
+    **kendin çıkar** — `fm next` ile sözleşme/transfer görüşmesine ilerle ya da `fm talk` ile bedel iste; ölç,
+    kaydetme, ana kayda `--no-save` ile dön. Not: etkileşimli `talk` her cevaptan sonra 800 ms bekliyor.
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
     (değişmezse 3 sn; eskiden sabit 1,5); 20 atama + 2 `--auto` üç durumda doğru (§8.180). İngilizcede denenmedi.
   - [x] `coaches` 3/10: okuma yalnız tam ızgarayı ("ad, görev, dokuz kutu+yıldız", iş yüküne kadar) kabul ediyor; 12
@@ -388,8 +390,9 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     (oyuncu panelinde ilk yoklama 1,05–1,11 sn, alanlarda ≤0,97 sn), yani 8 sn ≈ **7,1 kat** pay — projenin kendi
     7–10 kat ölçütünde. `scout areas` altı koşuda da `md5 fed56895…`; `players` TR 3/3 `f3ea1312…`, EN s1/s2
     `253b0c5c…` (s3'te bilinen kısa tablo, ilk 22 satır aynı; §8.239). Dosyalar `…/opencode/t89/` (§8.278).
-  - [ ] `Bound` 20 sn + maç akışındaki 3 sn'ler: portal bağlanması 0,30–0,50 sn (20 sn ≈ 40 kat) ama **maç günü
-    olmadığı için** maç akışı ölçülmedi; sınırlar değişmedi.
+  - [ ] `Bound` 20 sn + maç akışındaki 3 sn'ler: portal bağlanması 0,30–0,50 sn (20 sn ≈ 40 kat). Maç akışı
+    ölçülmedi — **maç gününü kendin kur**: `fm next` ile maç gününe gel, `fm match` ile oyna, 3 sn'leri orada ölç;
+    kaydetme, ana kayda `--no-save` ile dön.
 
 ### B. Oyun dili
 
@@ -402,7 +405,7 @@ tablodan çevrilemiyor.
 - [x] `budget ayarla` yönetim cümlesi (yol), `training-report` (oyuncu adı), stderr + tırnak içi yazılar oyunun dilinde,
   `reply "<konu>"` oyunun dilindeki konuyla, yüzde işaretinin yeri ("%70") oyundan.
 - [x] Maç içi `sub` / `tactic role`: kulübeyi açan satırın yazısı Türkçede hiç gelmiyor → menüler ve kulübe yapıyla.
-- [ ] **Cümle parçası arayanlar** (her biri örnek mesaj gelince yola taşınacak):
+- [ ] **Cümle parçası arayanlar** (örnek mesajı **kendin üret** — `fm next` ile ilerlet, `fm inbox`/`fm news` ile bul):
   - [ ] Program: kaptan eki "to be selected" · yönetim beklentisi "End of" · "Transfers In/Out" · sezon özeti
     "injuries this season" · Coach Report / Player Report " years old" Replace
   - [x] **Gözlemci/analist seçme penceresinin satırları** (`Rows`, ScoutFocus): satır bölgesi oyunun başlık sözü
