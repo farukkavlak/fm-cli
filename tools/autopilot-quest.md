@@ -3,7 +3,26 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 91)
+## Şu an (Tur 92)
+- Madde: **A "`Task.Delay`" / Offers 99** (`fm offers <#> view`: teklif satırının bağlantısına bastıktan sonra kart
+  okunmadan önce sabit **1,5 sn**) — **BİTTİ** (§8.282). Bekleme kartın kendi verisine bağlandı: oyuncu ve kulüp
+  satırdakiyle aynı, ilk terimi dolu ve kart iki okumada aynı (`Until`, 0,25 sn, üst sınır 8 sn); gelmezse
+  "teklif kartı açılmadı" rc=1. Kartın ilk yoklamada satırları boş geliyor (0,1 sn sonra doluyor); kiralık teklifin
+  olmayan maddeleri ("—") beklenmiyor.
+- Kanıt — TR + EN × üç durum (s1 `Messages` / s2 `Transfer Activity` açıkken / s3 `Squad Dynamics`), her biri iki
+  derleme: **6/6 rc=0** (yeni), çıktı eski derlemeyle **birebir** (TR `e6d9188d…` 3/3, EN `1fdfda8d…` 3/3).
+  Basış→okuma izi: eski TR 1,61–1,74 sn sessizlik, yeni TR 0,85–1,22 sn; yeni izde `press` → 0,25 sn aralıkla
+  `offer` yoklamaları. Dosyalar `…/opencode/t94/` (`{tr,en}-{old,new}-s{1,2,3}.{out,err}`, `old-bin/` eski derleme,
+  `run.sh`, `poll.py`, `dumpempty.py`, `empty.json`).
+- Dönüş/yan etki: kayıt yalnız **okundu** (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; dil EN
+  ölçümünden sonra `fm settings language "Türkçe"` → `dil=Turkish`. Ölçüm için Cardiff'e **Kion Etete kiralık
+  teklifi gönderildi** (test kaydı; `offers` listesinde "Offer Made" olarak duruyor, cevap günler içinde gelir).
+  Değişiklik yalnız `cli/fm/Offers.cs` → paylaşılan kod yok, `sweep.sh` gerekmedi. Sırada bakılan ama seçilmeyen
+  ağır madde: B "dil değişince `league --stat` kataloğu eski dilde" (160 istatistik kapsamı + oyun yeniden açılışı
+  gerektiriyor).
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 91)
 - Madde: **A "`Task.Delay`" / TacticFiles 181** (`TacticLoad`ın `close`u: yükleme paneli `PanelHistoryClose` ile
   kapatıldıktan sonra sabit **800 ms**) — **BİTTİ** (§8.281). Bekleme oyunun kendi cevabına bağlandı: panelin kendi
   `Load` düğmesi (`Events` içinde `EventLoadAddOn`) ekrandan kalkana kadar (`Until`, 0,15 sn aralık, üst sınır 8 sn).

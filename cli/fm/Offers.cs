@@ -96,7 +96,29 @@ internal static partial class Program
 		{
 			var shown = await Arriving("press", [("ptr", offer.Link)]);
 			if (shown.StartsWith("error", StringComparison.Ordinal)) return Report(shown);
-			await Task.Delay(1500);
+			// The card is the game's own answer that the offer has opened: the player and the club
+			// the row named, its first term filled in, and the whole card the same on two reads. A
+			// card still there from an earlier look names someone else, and one drawn a frame ago
+			// carries its rows empty.
+			var was = "";
+			if (!await Until(async () =>
+				{
+					if (await OfferScreen.Read(Fm) is not { } seen || seen.Player != offer.Player || seen.Club != offer.Club
+					    || seen.Rows.Count == 0 || seen.Rows[0].Shown == "—")
+					{
+						was = "";
+						return false;
+					}
+					var now = string.Join("|", seen.Rows.Select(r => $"{r.Label}={r.Shown}"));
+					var settled = was.Length > 0 && now == was;
+					was = now;
+					return settled;
+				}, seconds: 8, every: 0.25))
+			{
+				await OpenPage(Screen.Home);
+				Console.Error.WriteLine(L($"{what}: teklif kartı açılmadı."));
+				return 1;
+			}
 			var card = await Offer(["offer"]);
 			// The card stays up in the game with the director's conversation beside it, which reads as a
 			// question waiting (status, next) though there is nothing to answer there. The offers list is

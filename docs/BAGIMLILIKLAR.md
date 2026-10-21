@@ -28,7 +28,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   Bridge 103 109 127 147 · Clock 148 157 179 · Coaches 53 88 · Contracts 57 · ~~Finances 247~~ · Guided 161 174 ~~1035~~ ·
   ~~Happiness 148 195~~ · ~~IndividualTraining 40 50~~ · ~~Intensity 43 54 106~~ · ~~Jobs 231~~ · Launcher 213 269 · League 243 ·
   MatchDay 181 314 368 · MatchReport 35 · ~~Matches 82~~ · ~~Mentoring 45 188 205 217 246 285 297 331~~ · ~~Numbers 158 177~~ ·
-  OfferScreen 259 · Offers 99 · ~~OppositionCard 55~~ · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
+  OfferScreen 259 · ~~Offers 99~~ · ~~OppositionCard 55~~ · Program 589 693 2112 2153 2232 · Propose 66 80 · Reads 114 131 ·
   Registration ~~32 115~~ 301 305 · Release ~~57~~ 123 · ~~Responsibilities 283 388~~ · ScoutFocus 107 237 349 537 576 724 ·
   ~~Scouting 100~~ · Settings 226 · ~~Staff 74~~ · ~~StaffSearch 91 100 110~~ 407 · Stages 62 97 116 132 209 · StatusFlags 54 ·
   ~~TacticFiles 181~~ · ~~Takers 206~~ · TrainingReport 82 · ~~TrainingSchedule 345~~ · ~~TraitTraining 32~~ · Transfers 96 128 131 139
@@ -247,6 +247,14 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     açık / form zaten yarım / başka sayfaya geçtikten sonra) her koşuda yarım form gerçekten bırakıldı: `fm scout areas
     --json` **6/6 rc=0**, aynı üç seçenek (`md5 fed56895c45431dd9820725651421c2b`); yeni derleme eskisiyle **birebir**
     (§8.263).
+  - [x] Offers 99 (`fm offers <#> view`: teklif satırına basıldıktan sonra kart okunmadan önce sabit **1,5 sn**):
+    bekleme oyunun kendi cevabına bağlandı — kartın oyuncusu ve kulübü satırdakiyle aynı, ilk terimi dolu ve kart iki
+    okumada aynı olana kadar (`Until`, 0,25 sn aralık, üst sınır 8 sn); gelmezse "teklif kartı açılmadı" rc=1.
+    Ölçüm: TR'de basış→okuma eski derlemede 1,61–1,74 sn sessizlik, yenide 0,85–1,22 sn (izde `press` → 0,25 sn
+    aralıkla `offer` yoklamaları). TR + EN × üç durum (s1 `Messages` / s2 `Transfer Activity` / s3 `Squad Dynamics`):
+    **6/6 rc=0**, çıktı iki dilde eski derlemeyle **birebir** (TR `e6d9188d…` 3/3, EN `1fdfda8d…` 3/3). Kart ilk
+    yoklamada satırları boş veriyor (0,1 sn sonra doluyor), bu yüzden "ilk terim dolu + iki okuma aynı"; kiralık
+    teklifin olmayan maddeleri ("—") beklenmiyor (§8.282). Dosyalar `…/opencode/t94/`.
 - [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
   Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·

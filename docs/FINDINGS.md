@@ -3351,3 +3351,13 @@ dile uyuyor; §8.275'teki `league --stat` kataloğuyla aynı sınıf, kod taraf�
 **0,39–0,50 sn**; TR + EN × üç durum (başka sayfa / panel zaten açık / başka sayfaya geçtikten sonra) **6/6 rc=1**,
 stderr birebir, her denemede panel kapanıp yeniden açıldı. Geçerli `t93 good` ile yükleme TR + EN **rc=0**, çıktı
 eskisiyle aynı; kopya silindi, etkin taktik `t179 test`. Dosyalar `…/opencode/t93/` (`{tr,en}-{old,new}-s{1,2,3}.*`, `old/`).
+
+### 8.282 Teklif kartı sabit 1,5 sn yerine kendi verisini bekliyor (21 Ekim, TR + EN)
+`fm offers <#> view` satırın bağlantısına bastıktan sonra kartı okumak için sabit 1,5 sn bekliyordu. Artık kartın
+kendi işareti bekleniyor: oyuncu ve kulüp satırdakiyle aynı, ilk terimi dolu ve kart iki okumada aynı (`Until`,
+0,25 sn aralık, üst sınır 8 sn); gelmezse "teklif kartı açılmadı" rc=1. Ölçüm: TR'de basış→okuma eski kodda
+**1,61–1,74 sn** sessizlik, yenide **0,85–1,22 sn**; izde `press` → 0,25 sn aralıkla `offer` yoklamaları. TR + EN ×
+üç durum (s1 `Messages` sonrası / s2 `Transfer Activity` açıkken / s3 `Squad Dynamics` sonrası) **6/6 rc=0**, çıktı
+iki dilde eski derlemeyle birebir (TR `e6d9188d…` 3/3, EN `1fdfda8d…` 3/3). Kart ilk yoklamada satırlarını boş
+veriyor (0,1 sn sonra doluyor), bu yüzden "ilk terim dolu + iki okuma aynı"; kiralık teklifin olmayan maddeleri
+("—") beklenmiyor. Dosyalar `…/opencode/t94/`, `old-bin/` eski derleme.
