@@ -3813,3 +3813,25 @@ işaretin ~100–140 katı. Değer değişimini doğrulayan ikinci bekleme zaten
 **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/{tr_a,tr_b,tr_c,en2_a,en2_b,en2_c}.err`.
 Yan gözlem: arayüz EN iken `prep`e eski dilin (TR) adı verilince değer değişiyor ama komut "oyun değişikliği
 almadı" diyor (`en_a`, rc=1) — ham `Name` ile gösterilen sözün eşleşmemesi; ayrı bir dil sınırı, bu tur ölçülmedi.
+
+### 8.324 yardımcının itiraz penceresi seçimden 70–230 ms'de geliyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+`TraitTraining.Confirmed` (`TraitTraining.cs:98`) alışkanlık eğitimi başlatılırken/silinirken/iptal edilirken
+oyunun itiraz penceresini `Until(dialog dolu, 3 sn, 0,5 sn)` ile bekliyor; işaret oyunun kendi `dialog` bağı.
+Ölçüm (`FM_TRACE=1`, `fm training "Ben House" --trait "<alışkanlık>"`; pencereyi dışarıdan 20 ms'de bir `/dialog`
+yoklayan geçici `python3`): TR `Topa Falso Verir` (oyun yolu `Technique Training>Curls Ball`) ve EN `Curls Ball`
+× üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamics` sonrası) **6/6 rc=0**, çıktı dil içinde
+birebir aynı (TR "Eklemek İçin Hiç Uygun Değil", EN "Very Unsuitable To Add"); pencere seçimden **70–230 ms**
+sonra ekranda, izde 6/6 koşuda ilk okuma boş kalıp **ikinci yoklamada** (≤0,55 sn) doluyor, 7 koşunun 1'inde
+ilk okuma zaten doluydu. Yani 3 sn, en kötü ölçümün (230 ms) **~13 katı** ve sabit duraklama değil; **borç
+değil**, listede `[~]`.
+Dosyalar `/tmp/measure_trait.py`, `/tmp/tt_{tr,en}_*`.
+
+### 8.325 bir portal sayfası açıldıktan hemen sonra arama kutusunu açan basış düşebiliyor (21 Ekim, EN)
+`fm open "Messages"` sonrası `fm training "Ben House" --trait` (oyuncuyu oyunun aramasıyla açan her komut) iki kez
+`error: no text box like that on the loaded screens` ile döndü; bir koşuda stderr
+`error: the event queue is blocked by 1 event(s) that never resolved … head: OpenPanelEventContext status=Sending`
+geldi. Aynı komut tekrarlandığında rc=0; elle `/press?event=OpenPanel&name=dashboard-hud-search-button` sonrası
+`/textboxes` `SearchBox`ı gösteriyor (kutu "Ben House" yazısıyla duruyor). Yani ilk basış sayfa yeniden kurulurken
+kuyruğa takılıyor; `SearchFor` (`Reads.cs:99`) basışı bir kez yapıp 10 sn bekliyor, basışı yinelemiyor. Ayrı
+madde: basışı "kutu görünene kadar" yinelemek. (Aynı akışta bir kez `fm search --json` "Unhandled exception:
+System.InvalidOperationException" ile düştü; tek örnek, kök neden ölçülmedi.)

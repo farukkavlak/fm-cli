@@ -3942,3 +3942,26 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   `Event`i **"0"** (dördünde de). Yani `Acknowledge.SpeakToAction` tarzı kimlik kurulamıyor; geriye yalnız
   metin ya da kart üstündeki sıra kalıyor (kural 3 gereği sıra da yasak). Faruk'a soru: plugin, SpeakToAction
   düğmelerine sayfa-içi **kararlı bir anahtar** (ör. event context'in binding adı ya da düğüm adı) verebilir mi?
+
+## Tur 94 (21 Ekim) — A2 kısa `Until` / `TraitTraining.cs:98`: itiraz penceresi oyunun işareti, 3 sn borç değil (§8.324)
+- Seçilen madde: A2 kısa `Until` — `TraitTraining.cs:98`, alışkanlık eğitimi başlatırken/bıraktırırken yardımcının
+  itiraz penceresini (`/dialog`) 3 sn'ye kadar beklemesi. B maddeleri parkta (ScoutFocus düğmeleri kimliksiz,
+  MatchDay "Instant Result" maç günü pencereleri "Sonraya bırakılanlar"da), bu yüzden A2'den seçildi.
+- Ölçüm aracı: `/tmp/measure_trait.py` — komutu `FM_TRACE=1` ile koşup `/dialog`u 20 ms aralıkla yokluyor;
+  `select …&fire=1` bitişiyle pencerenin ekranda olduğu an arasındaki süreyi veriyor.
+- Üç durum × iki dil (hepsi **rc=0**, aynı çıktı; pencere "Eklemek İçin Hiç Uygun Değil" / "Very Unsuitable To Add",
+  ardından "Onaylamak için … --yes"; `--yes` verilmediği için pencere "Don't start" ile kapanıyor, eğitim başlamıyor):
+  - TR ("Topa Falso Verir"): `Messages` sonrası **0,073 sn**; hemen ikinci koşu **0,084**; `Squad Dynamics`
+    sonrası **0,071**. Üçünde de izde iki `dialog` çağrısı (ilk okuma boş, 0,5 sn sonraki tur dolu).
+  - EN ("Curls Ball"): aynı üç durum **0,179 / 0,136 / 0,231 sn**, hepsi iki `dialog`; bir ara koşuda ilk okuma
+    yetti (tek `dialog`, 0,177 sn). Çıktı iki dilde de aynı satırlar.
+- Karar (kural 4): 3 sn işaretin ≥13 katı; bekleme sabit duraklama değil, oyunun kendi penceresini yoklayan
+  döngü (0,5 sn tempo). **Kod değişmedi**; `tools/remaining.py` SETTLED_SHORT'a eklendi, `--write` sonrası açık
+  kutu **32 → 31**, kısa `Until` 5 → 4.
+- Dil dönüşü: `fm settings language "Türkçe"` → `language: English → Turkish`; `/state` → `Language: turkish`,
+  tarih 9 Ağustos 2026 (değişmedi). `fm save` yok. Paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
+- Yan gözlem (yeni iş, §8.324 sonu): bir portal sayfası (`fm open "Messages"`) açıldıktan hemen sonra oyuncu
+  araması yapan komut ilk denemede düşebiliyor — `OpenPanel` olayı `Sending`de kalıyor ("event queue is blocked"
+  / "no text box like that"), aynı komut tekrarında çalışıyor; bir kez de `fm search --json` çöküşü görüldü.
+  Bu tur ölçümü zorlaştırdı, düzeltilmedi (turda tek madde).
+- Dosyalar: `/tmp/measure_trait.py`, `/tmp/tt_{tr,en}_*.{out,err}`, `/tmp/tt_en_a.json`.
