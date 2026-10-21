@@ -3914,3 +3914,31 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Girmeyeceğiz: §14 UX/görsel, **G** (platform), **H** (yayın).
 - Model: opencode-go/deepseek-v4.1-flash · sürücü: tools/autopilot.sh
 - Commit: main'e, push yok. Conventional Commits, son satır `Co-Authored-By: OpenCode`.
+
+## Tur 93 (21 Ekim) — A: `prep`in 3 sn'lik `pathset` beklemesi ölçüldü, borç değil (§8.323)
+- Seçilen madde: A2 kısa `Until` / `Prep.cs:142` — maç hazırlığı günün kapsamını `pathset` ile 3 sn'ye kadar
+  bağlamaya çalışıyor.
+- Sebep: sıradaki B maddeleri (ScoutFocus "Create a New/Edit Recruitment Focus") kimliksiz çıktı — dört düğme de
+  `Events: SpeakToAction`, `Action` yolunun `ActionID`si **0**, `Name: StandardButton`, sayfa GUID'i ortak; yani
+  metinden başka ayırt edici yok (ölçüldü: `/buttons?json=1&gen=…` + `/pull?path=fmcli.speak.g….N&props=ActionID`).
+  Bu yüzden B bu turda `[?]` duruyor, aşağıda.
+- Ölçüm (`FM_TRACE=1`, `fm prep duran1 …`; a=(`fm inbox` sonrası), b=(hemen ikinci koşu), c=(`fm squad` sonrası)):
+  - TR: a `Attacking→Defending` rc=0, pathset'ler 0,22/0,25 sn; b `Defending→Attacking` rc=0, 0,22/0,26; c 0,21/0,24.
+  - EN: a rc=0 0,22/0,25; b rc=0 0,22/0,25; c rc=0 0,21/0,23. **6/6 rc=0**, her koşuda dört `pathset`, hepsi
+    ilk denemede; iki `set` arası **21–32 ms**, `Until` hiç tur atmadı. 3 sn ≈ 100–140 kat.
+- Karar (kural 4): kod değişmedi; işaret zaten oyunun kendi cevabı (`pathset` error değil). `tools/remaining.py`
+  SETTLED_SHORT'a eklendi, `--write` sonrası açık kutu **33 → 32** (kısa `Until` 6 → 5).
+- Durum geri yükleme: duran1 `Attacking Corners`, topsuz `Orta Bölgede Pres` — tur başındaki değerler; `fm save`
+  yok, dil `turkish`, tarih 9 Ağustos 2026 05:45.
+- Yan gözlem (yeni, `[?]` adayı): arayüz EN iken `prep`e TR ad verilince değer değişiyor ama komut "oyun
+  değişikliği almadı" diyor (`en_a`, rc=1) — ham `Name` ile gösterilen söz eşleşmiyor; ayrı dil sınırı, ölçülmedi.
+- Dosyalar: `/tmp/{tr_a,tr_b,tr_c,en2_a,en2_b,en2_c}.{out,err}`, `/tmp/prep_measure.py`, `/tmp/watch_prep.py`.
+  Paylaşılan koda dokunulmadı → `sweep.sh` gerekmedi.
+
+## B maddeleri için yeni park (Tur 93)
+- `ScoutFocus.cs:483/492` ("Create a New Recruitment Focus") ve `ScoutFocus.cs:638` ("Edit Recruitment Focus"):
+  bu düğmelerin dilden bağımsız tutamağı yok. Ölçüm: `/buttons?json=1&gen=N` dört kardeş düğmeyi de
+  `Events=SpeakToAction`, `Name=StandardButton`, `Page=c914d186…` veriyor; `Action` yolunun `ActionID`si ve
+  `Event`i **"0"** (dördünde de). Yani `Acknowledge.SpeakToAction` tarzı kimlik kurulamıyor; geriye yalnız
+  metin ya da kart üstündeki sıra kalıyor (kural 3 gereği sıra da yasak). Faruk'a soru: plugin, SpeakToAction
+  düğmelerine sayfa-içi **kararlı bir anahtar** (ör. event context'in binding adı ya da düğüm adı) verebilir mi?

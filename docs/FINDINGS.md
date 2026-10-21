@@ -3801,3 +3801,15 @@ ms** — ve hemen ardından 30 ms sonra `state` geliyor, yani `Until` hiç tur a
 çalışmıyor; 3 sn yalnız üst sınır. TR + EN × üç durum **6/6 rc=0**, çıktı dil içinde bayt bayt aynı
 (TR `2d8cb6279f…`, EN `ccf41acd08…`, her biri 3/3). **Borç değil**, canlı listede `[~]`. Dosyalar
 `/tmp/opencode/t134/`.
+
+### 8.323 maç hazırlığının `pathset`i ilk denemede bağlanıyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+`Prep.FocusSlots`in `set()`i (`Prep.cs:142`) günün kapsamını (`fmcli.mf20260809.FixtureHasResult`,
+`.training`) `Until` içinde `pathset` ile bağlıyor; işaret oyunun kendi cevabı — `pathset` "error" ile
+başlamıyorsa bağ kurulmuştur, sabit duraklama yok. Ölçüm (`FM_TRACE=1`, `fm prep duran1 …`; üç durum:
+`fm inbox` sonrası / hemen ikinci koşu / `fm squad` sonrası; TR + EN **6/6 rc=0**): her koşuda dört `pathset`
+çağrısı var (ikisi `FocusSlots` iki kez okunduğu için) ve **hepsi ilk denemede** döndü — iki `set` arası
+**21–32 ms**, ilk `set` 0,21–0,22 sn'de bitti; `Until` hiç tur atmadı (tempo 0,2 sn hiç çalışmadı), yani 3 sn
+işaretin ~100–140 katı. Değer değişimini doğrulayan ikinci bekleme zaten ayrı ve 5 sn (`Prep.cs:120`).
+**Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/{tr_a,tr_b,tr_c,en2_a,en2_b,en2_c}.err`.
+Yan gözlem: arayüz EN iken `prep`e eski dilin (TR) adı verilince değer değişiyor ama komut "oyun değişikliği
+almadı" diyor (`en_a`, rc=1) — ham `Name` ile gösterilen sözün eşleşmemesi; ayrı bir dil sınırı, bu tur ölçülmedi.
