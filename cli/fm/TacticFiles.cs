@@ -19,6 +19,11 @@ internal static partial class Program
 	/// Opens one of the tactic menu's panels. Right after the page is opened the menu found can
 	/// be the one of the page being replaced, and choosing in it does nothing; the choice is
 	/// made again in the menu found then.
+	///
+	/// The panel is its own answer: the save panel is there once its Save button and two boxes
+	/// are drawn, the load one once its Load button is enabled. Measured after the choice in
+	/// three states (another page open, page already open, page switched away and back), the
+	/// panel took 0.76–1.17 s; the ceiling is 8 s (7–10 times that), not a pause.
 	/// </summary>
 	private static async Task<bool> TacticPanel(int row, Func<Task<bool>> open)
 	{
@@ -26,7 +31,7 @@ internal static partial class Program
 		{
 			if (await TacticMenu(SlotMenu) is not { } menu) return false;
 			await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("value", row.ToString()), ("fire", "1"));
-			if (await Until(open, seconds: 3, every: 0.3)) return true;
+			if (await Until(open, seconds: 8, every: 0.3)) return true;
 		}
 		return false;
 	}

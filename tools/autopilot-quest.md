@@ -3,7 +3,25 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 87)
+## Şu an (Tur 88)
+- Madde: **A "Kısa `Until`" / TacticFiles 29** (`TacticPanel`: seçimden sonra kaydetme/yükleme paneli 3 sn'ye kadar
+  bekleniyordu) — **BİTTİ** (§8.277). İşaret zaten panelin kendisi (kaydetmede `SaveAddon` + iki kutu, yüklemede
+  `Load` etkin); sabit bekleme yok. Ölçüm (seçimden sonra): panel **0,76–1,17 sn**de çiziliyor, yani 3 sn yalnız
+  ~2,6 kat paydı → üst sınır **8 sn** (7–10 kat). Kod değişikliği tek satır: `seconds: 3` → `8`.
+- Kanıt — `tactic save "t88b test" --yes` (TR) / `"t88c test"` (EN), üç durum (s1 `fm open "Messages"` sonrası /
+  s2 hemen ikinci koşu / s3 `fm open "Squad Dynamics"` sonrası) × iki dil: **6/6 rc=0**, her koşuda tek `select`,
+  panel ilk denemede (iz: TR s1 select 1,26 → type 2,49; s2 1,09 → 1,90; s3 1,34 → 2,54; EN s1 1,02 → 2,05).
+  Öncesi (eski 3 sn'lik derleme): TR aynı üç durum 3/3 rc=0 (panel 0,60–1,06 sn), EN 3/3 rc=0 (toplam 2,54/2,04/
+  1,69 sn). Çıktı iki derlemede de "Kaydedildi/Saved"; test dosyası her koşudan sonra silindi. Dosyalar
+  `…/opencode/t88/` (`tr-s{1,2,3}`, `old-en-s{1,2,3}`, `new-{tr,en}-s{1,2,3}`, `probe*.py`).
+- Dönüş/yan etki: kayıt yalnız okundu (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; aktif taktik
+  tur başındaki **t179 test**, taktik dosyası yerinde. Dil EN ölçümünden sonra `fm settings language "Türkçe"`
+  (`dil` → `Turkish`). Not: `tactic save "<ad>"` etkin taktiğin adını da değiştiriyor (kaydetme kutusu taktiğin
+  adı); ölçüm adları `t88 test/t88b/t88c` ile yapıldı, sonunda `t179 test`e geri kaydedildi. Yalnız
+  `cli/fm/TacticFiles.cs` → paylaşılan koda dokunulmadı, `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 87)
 - Madde: **B "Seçenek eşlemesi yalnız İngilizce adı arıyordu"** — **BİTTİ** (§8.276). `Matching` (`Guided.cs`)
   seçeneğin adını yalnız verideki İngilizcesiyle karşılaştırıyordu; ekranda liste `GameWords` ile oyunun sözüne
   çevrildiği için TR'de görünen adla seçim yapılamıyordu. `fm training "Ben House" --trait "Toplara Plase Vurur"`

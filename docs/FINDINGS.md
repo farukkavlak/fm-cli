@@ -3305,3 +3305,15 @@ karşılaştırıyor (yazım payı da ikisi üzerinden); EN'de gösterilen söz 
 TR üç durum (Mesajlar açık / hemen ikinci koşu / Squad Dynamics sonrası): önce rc=1 `d41d8cd9…`, sonra rc=0
 `89ae67bb…` 3/3. EN üç durum: eski ve yeni derleme `e968358e…` 3/3. Kısmi ad ("Sol Kanattan") iki seçeneği
 listeliyor (rc=1), eğitim başlamıyor (`fm training` hâlâ "çalışmıyor"). `sweep.sh` 50/50.
+
+### 8.277 Taktik paneli kendi çizilişini bildiriyor: 3 sn'lik sınır 2,6 kat paydaydı (21 Ekim, TR + EN)
+
+`TacticPanel` kaydetme/yükleme panelini seçimden sonra 3 sn'ye kadar bekliyordu; panelin hazır olması "kaydetme
+panelinde `SaveAddon` düğmesi + iki kutu, yüklemede `Load` düğmesi etkin" işaretiyle okunuyordu. Üç durumda
+(`fm open "Messages"` sonrası / hemen ikinci koşu / `fm open "Squad Dynamics"` sonrası) ölçüm: panel seçimden
+**0,76–1,17 sn** sonra çiziliyor, yani eski 3 sn yalnız ~2,6 kat pay bırakıyordu (TR: 1,17 / 0,76 / 1,15 sn;
+EN: 1,00 sn ve altı). Üst sınır 8 sn'ye çıkarıldı; sabit bekleme eklenmedi, panel yine kendi çizilişiyle
+bekleniyor. TR + EN × üç durum `tactic save "t88b/t88c test" --yes`: **6/6 rc=0**, her koşuda tek `select`,
+panel ilk denemede, çıktı eskisiyle aynı; test dosyaları silindi. Dosyalar `…/opencode/t88/`.
+Not: `tactic save "<ad>"` etkin taktiğin adını da o ada çeviriyor (kaydetme kutusu taktiğin adı); ölçüm
+sırasında ad değişti, aynı taktik `tactic save "t179 test" --yes` ile eski adına döndürüldü.

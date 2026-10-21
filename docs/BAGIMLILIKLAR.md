@@ -243,7 +243,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     (§8.263).
 - [ ] **Kısa `Until` (≤ 3 sn) — 15 yer;** "gelmezse yok say" anlamına gelenler tehlikeli: Actions 126 · Budget 70 ·
   ~~Calendar 157~~ · ContractTalks 364 · ~~Finances 238~~ · League 216 · MatchControls 131 266 · Prep 124 · Program 986 1918 2118 ·
-  Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · TacticFiles 29 · ~~TacticSlots 112~~ ·
+  Reads 892 · Saves 207 220 · ScoutFocus 55 · StaffSearch 354 · Stages 337 · ~~TacticFiles 29~~ · ~~TacticSlots 112~~ ·
   TrainingSchedule 491 506 · TraitTraining 89
   - [x] League 216 (`StatScope`in `.comp` bağlama beklemesi: 3 sn "gelmezse yok say"): ölçüldü, **değişiklik
     gerekmedi**. İşaret zaten oyunun kendi cevabı — `pathset … .comp` hatasız dönüyor; her koşuda 20 bağlama
@@ -260,6 +260,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     `Messages`+`Squad` sonrası) + EN üç durum: hepsi rc=0, çıktı eski derlemeyle **birebir** (TR `md5 3851a52a…`,
     `9b2bb072…`; EN `cc748d6e…`, `b92f07e1…`); negatif yuva 9 rc=1. Numara sırası: yeni bekleme `dialog` + yuvanın
     sayısı, sabit sınır yok (§8.251).
+  - [x] TacticFiles 29 (`TacticPanel`: kaydetme/yükleme paneli seçimden sonra 3 sn'ye kadar bekleniyordu):
+    işaret zaten panelin kendisi — kaydetme panelinde `SaveAddon` düğmesi + iki kutu, yüklemede `Load` düğmesi
+    etkin. Ölçüm: panel seçimden **0,76–1,17 sn** sonra çizildi (TR üç durum: `Messages` sonrası / hemen ikinci
+    koşu / `Squad Dynamics` sonrası; EN aynı üç durum), yani 3 sn yalnız ~2,6 kat pay bırakıyordu → üst sınır
+    **8 sn** (7–10 kat). TR + EN altı koşuda **6/6 rc=0**, her koşuda tek `select` ve panel ilk denemede;
+    `tactic save` çıktısı eskisiyle aynı ("Kaydedildi"/"Saved"), dosya yazıldı ve test dosyası silindi.
+    Sabit bekleme yok (§8.277).
   - [x] Actions 126 (`AfterAction`'ın konuşma yolu): "oyun bir konuşma açtı mı" artık ekrandaki konuşan düğmelere değil,
     seçimden **önceki** düğme kümesinden farklı olmasına bakıyor (`TalkButtons()`: düğmenin işaretçisi + yazısı).
     Gazete maddesinin isteğe bağlı cevapları (ör. "Adjust Scouting Budget", bütçe kartı ekranda) da `SpeakToAction`
