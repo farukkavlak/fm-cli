@@ -8,7 +8,28 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **35**: `Task.Delay` **21 borç** (32 çağrının 9'u
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **8**.
 
-## Şu an (Tur 132)
+## Şu an (Tur 133)
+- Madde: **A2 kısa `Until` / `Saves.cs:245`** — `SaveRowInView`, kayıt listesindeki satırı `rowselect dry` ile
+  arıyor. **BİTTİ** (§8.321): ölçüldü, **borç değil** — `dry` oyunun kendi "satır seçilebilir" cevabı, her koşuda
+  ilk denemede dönüyor; 3 sn yalnız üst sınır. `tools/remaining.py` `SETTLED_SHORT`'a eklendi (açık kutu 35 → **34**).
+- Kanıt (`FM_TRACE=1`, `fm saves delete "t133 probe" --yes`; boş bir `.fm` dosyası listeye konup silindi, sonra
+  dosya kalktı): tarayıcı açıldıktan sonraki ilk `dry` TR **40 / 32 / 37 ms**, EN **32 / 32 / 24 ms**, hepsi ilk
+  denemede (izde `scroll` 0). Üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamics` sonrası) × iki
+  dil **6/6 rc=0**, "Silindi"/"Deleted". Dosyalar `/tmp/opencode/t133/`.
+- Dönüş: EN ölçümünden sonra `fm settings language "Türkçe"` (TR'de ayar adı `dil`) → `settings --json`
+  `dil = Turkish`; `/state` `Date: 2026-08-09`, `Clock: 0`; `fm save` **yok**, ana kayıt damgası **21 Ekim 10:40**
+  (değişmedi); maç oynanmadı, yükleme gerekmedi (yalnız menü/browser gezintisi). Kod davranışı değişmedi →
+  `sweep.sh` gerekmedi. Test dosyası silindi; `fm saves` dört kayıt yerinde.
+- Sıradaki uygun maddeler: A2 `Saves.cs:258` (aynı fonksiyonun kaydırma sonrası 1,5 sn'si; aynı işaret, ayrı kutu) ·
+  A2 kalanları (ContractTalks 388, Prep 142, Reads 910, TraitTraining 98) · A1 küçük `Task.Delay`ler
+  (MatchReport 35, Release 164, TrainingReport 93, ScoutFocus 395) · B1 `MatchDay.cs:355/361/383` (maç günü).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): Registration `Settled` (312/316) · Stages 337 · MatchDay üç
+  pencere · `MatchControls` 131/266 · mesaj eki 1,5 sn · `opposition` · boy birimleri · `fm table` sayfa
+  bağımlılığı (§8.301) · Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`, `Launcher 213/269`,
+  `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister) · `ScoutFocus.cs:483/492/638` (düğmelerin
+  `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`).
+
+## Önceki durum (Tur 132)
 - Madde: **A1 `Task.Delay` / `League.cs:253`** — `PullEach` (tek çağrıda çok okuma) turlar arasında 250 ms uyuyor.
   **BİTTİ** (§8.320): ölçüldü, **borç değil** — 250 ms yalnızca tamamlanmamış bir turdan sonra, iki okuma
   eşitlenene kadar (oyunun kendi "değişmiyor" işareti) çalışıyor; ilk `pull` komutun kendi çağrısıyla başlıyor.

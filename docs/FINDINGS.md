@@ -3783,3 +3783,12 @@ eşitlenene kadar (yani oyunun kendi "değişmiyor" işareti) sürüyor: tur ara
 3 tur (≈0,5 sn) atılıyor — bu bir sabit bekleme değil, iki-eşit-okuma işaretinin bedeli. TR + EN × üç durum
 (`Messages` sonrası / hemen ikinci koşu / `Squad` sonrası) **6/6 rc=0**, çıktı dil içinde bayt bayt aynı
 (TR `3f7d685f…`, EN `7d4a7441…`, her biri 3/3). **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t132/`.
+
+### 8.321 kayıt listesindeki satır `rowselect dry`nin kendi cevabıyla bulunuyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+`SaveRowInView` (silme ve yükleme yolları) satırın listede olmasını `/rowselect?text=…&dry=1` hatasız dönmesiyle
+bekliyor; o çağrı oyunun kendi "satır seçilebilir" cevabı, sabit bir duraklama değil. Ölçüm (`FM_TRACE=1`,
+`fm saves delete "t133 probe" --yes`, boş bir `.fm` dosyası listeye konup silindi): tarayıcı açıldıktan sonraki
+ilk `dry` TR **40 / 32 / 37 ms**, EN **32 / 32 / 24 ms** ve her koşuda **ilk denemede** döndü (izde `scroll` 0),
+yani 3 sn, işaretin **~80–125 katı**. TR + EN × üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad
+Dynamics` sonrası) **6/6 rc=0**, "Silindi"/"Deleted", dosya gerçekten gitti. **Borç değil**, canlı listede `[~]`.
+Dosyalar `/tmp/opencode/t133/`.

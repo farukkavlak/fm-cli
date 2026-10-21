@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **35** · `Task.Delay` 32 çağrı (21 borç, 9 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 8
+**Canlı sayaç:** açık kutu **34** · `Task.Delay` 32 çağrı (21 borç, 9 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 7
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -74,7 +74,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:638` "Edit Recruitment Focus"
 
-#### A2. Kısa `Until` (≤3 sn) — 8 yer
+#### A2. Kısa `Until` (≤3 sn) — 7 yer
 
 - [~] `Coaches.cs:56` — yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318
 - [ ] `ContractTalks.cs:388` 3 sn
@@ -83,7 +83,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `MatchControls.cs:266` 1.5 sn
 - [ ] `Prep.cs:142` 3 sn
 - [ ] `Reads.cs:910` 3 sn
-- [ ] `Saves.cs:245` 3 sn
+- [~] `Saves.cs:245` — kayıt satırı `rowselect dry`nin kendi cevabıyla bulunuyor (24–40 ms); 3 sn yalnız üst sınır, §8.321
 - [ ] `Saves.cs:258` 1.5 sn
 - [ ] `TraitTraining.cs:98` 3 sn
 <!-- /auto:remaining -->
