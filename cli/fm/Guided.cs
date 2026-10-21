@@ -1015,7 +1015,10 @@ internal static partial class Program
 			return 1;
 		}
 
-		var query = new List<(string, string)> { ("text", "Quick Pick"), ("name", "button") };
+		// The button is found by the event it sends, not by its words: "Quick Pick" is the game's
+		// own phrase read through the plugin's table ("Hızlı Seçim"), so another language's table
+		// could leave it untranslated and the button unfound.
+		var query = new List<(string, string)> { ("event", "EventToPlugin:EventFmxQuickPick") };
 		// The tactic stays bound after another page has been opened over it, so having read it
 		// does not mean its page, and the button, are up.
 		if ((await Fm.Get("press", [.. query, ("dry", "1")])).StartsWith("error: no ", StringComparison.Ordinal)

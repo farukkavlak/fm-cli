@@ -684,6 +684,13 @@ tablodan çevrilemiyor.
     rc=0**, odak verisinde `Priority=2` (ongoing); eski derleme EN'de rc=0 (`click ?text=Confirm`, iki 400 ms),
     TR'de rc=134. Koşular `scout remove --yes` ile durduruldu, kayıt yeniden yüklendi (test odakları gitti,
     dört gerçek odak yerinde), dil Türkçe (§8.270).
+  - [x] **`fm tactic pick`in "Quick Pick"i** (`TacticPick`, `Guided.cs`): düğme `?text=Quick Pick&name=button` ile,
+    yani oyunun "Hızlı Seçim" sözünün eklentinin çeviri tablosundan geçmiş İngilizcesiyle basılıyordu. Düğme kendi
+    olayını gönderiyor: `EventToPlugin:EventFmxQuickPick` (`/translate?words=Quick Pick` → "Hızlı Seçim"; düğmenin
+    `Events` alanı), basış artık yalnız o olayla. TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka
+    sayfaya geçtikten sonra) `fm tactic pick` **6/6 rc=0** ve çıktı eski derlemeyle **birebir** (TR
+    `md5 15786eb3…`, EN `43a4a177…`, ilk 11 aynı); izde `text=Quick Pick` **0** → `press ?event=…`; `--dry` da
+    aynı olayı soruyor ve hiç basmıyor (§8.271).
 - [x] **`fm load` soğuk açılışta yükleme listesini hiç açamıyordu** — yeniden başlatılan oyunun "kariyer yükle"
   döşemesi İngilizce cümlesiyle (`?text=Load an FM26 career …`) basılıyordu; TR oyunda döşemenin yazısı Türkçe
   olduğu için basış hiçbir yere denk gelmiyor, hata yok sayılıyor ve liste açılmadan satır aranıyordu → `fm load`

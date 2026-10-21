@@ -3,7 +3,25 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 82)
+## Şu an (Tur 83)
+- Madde: **B "İngilizce yazıyla basma/tıklama" / `fm tactic pick`in "Quick Pick" düğmesi** — **BİTTİ** (§8.271).
+  Düğme `?text=Quick Pick&name=button` ile basılıyordu; "Quick Pick" oyunun "Hızlı Seçim" sözünün eklentinin çeviri
+  tablosundan geçmiş İngilizcesi. Düğmenin kendi olayı `EventToPlugin:EventFmxQuickPick`; basış artık yalnız o
+  olayla, `--dry` de aynı olayı soruyor. Düğmenin başka kimliği yok (`Action` boş, `Page` yalnız taktik sayfası).
+- Kanıt — `fm tactic pick`, TR + EN × üç durum (s1 başka sayfa `Messages`/`Mesajlar` açık → düğme yok, `dry`
+  "error: no" → `Planner` sayfayı açıyor / s2 hemen ikinci koşu / s3 `Squad Dynamics`/`Takım Dinamikleri` sonrası):
+  **6/6 rc=0**, çıktı eski derlemeyle **birebir** (TR `md5 15786eb3…`, EN `43a4a177…`; ilk 11 aynı: Wickens,
+  Darikwa, Elerewe, Towler, Honohan, House, Varfolomeev, McGrandles, Hackett, Moylan, Draper). İz:
+  eski `press ?text=Quick Pick&name=button` (1–2 kez; olay kuyruğu tıkanınca `Arriving` 1 sn sonra yineler) →
+  yeni `press ?event=EventToPlugin:EventFmxQuickPick`, `text=Quick Pick` **0**. `fm tactic pick --dry` rc=0,
+  yalnız `?event=…&dry=1`, hiç basmıyor. Dosyalar `…/opencode/t82/{base,new}-{tr,en}-s{1,2,3}.{out,err}`,
+  `new-tr-dry.*`; dil ölçümlerinden sonra `fm settings language "Türkçe"` → `dil: Türkçe`.
+- Dönüş/yan etki: kayıt test kaydı (2 Ağustos 2026 09:15), saat ilerletilmedi, maç oynanmadı; taktik `t179 test`
+  aynı 11 ile duruyor. Yalnız `cli/fm/Guided.cs` yerel `TacticPick` sorgusu değişti; paylaşılan koda
+  (Bridge/`Until`/OpenPage/reply) dokunulmadı → `sweep.sh` gerekmedi.
+- Durum: bitti, commit atılıyor
+
+## Önceki durum (Tur 82)
 - Madde: **B "İngilizce yazıyla basma/tıklama" / gözlemci odağı formunun ikinci adımı** — **BİTTİ** (§8.270).
   Öncelik sekmesi "Ongoing" İngilizce sözüyle aranıyordu; form TR'de üçüncü sekmeyi **`Obscure`** diye veriyor
   (tablodaki "Belirsiz" karşılığı) → `scout new --priority ongoing` TR'de **rc=134**, hiç odak kurulmuyordu.

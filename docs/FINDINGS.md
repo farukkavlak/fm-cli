@@ -3240,3 +3240,16 @@ sırasıyla değil yazdıkları yolla (`focusitem.minagevalue` / `maxagevalue`) 
 Kanıt: TR üç durum + son koşu, EN üç durum `--priority ongoing --age 18-23` **7/7 rc=0**; odak verisinde
 `Priority=2`; eski derleme EN'de aynı çıktı (`click ?text=Confirm`), TR'de rc=134. Test odakları durduruldu,
 kayıt yeniden yüklendi (dört gerçek odak yerinde), dil Türkçe.
+
+### 8.271 `fm tactic pick`in "Quick Pick"i düğmenin olayıyla basılıyor (21 Ekim, TR + EN)
+Düğme `?text=Quick Pick&name=button` ile basılıyordu; "Quick Pick" oyunun kendi sözünün ("Hızlı Seçim")
+eklentinin çeviri tablosundan geçmiş hâli, yani basış tabloya bağlıydı. Düğme kendi olayını gönderiyor:
+`EventToPlugin:EventFmxQuickPick`; artık basış yalnız o olayla, `--dry` de aynı olayı soruyor.
+Kanıt: `fm tactic pick` TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten
+sonra) **6/6 rc=0**; çıktı eski derlemeyle birebir (TR `md5 15786eb3…`, EN `43a4a177…`, ilk 11 aynı:
+Wickens, Darikwa, Elerewe, Towler, Honohan, House, Varfolomeev, McGrandles, Hackett, Moylan, Draper).
+İzde eski `press ?text=Quick Pick&name=button` (koşu başına 1–2 kez, olay kuyruğu tıkanınca `Arriving`
+yineler) → yeni `press ?event=EventToPlugin:EventFmxQuickPick`; `text=Quick Pick` sayısı **0**.
+İlk durumda düğme sayfada olmadığı için `dry` "error: no" dönüyor, `Planner` sayfayı açıyor, sonra basılıyor
+(yani "sayfa ilk kez açılıyor" yolu da aynı). Kayıt test kaydı; saat 2 Ağustos 2026 09:15, ilerletilmedi,
+maç oynanmadı; dil Türkçe'ye döndü. Dosyalar `…/opencode/t82/{base,new}-{tr,en}-s{1,2,3}.{out,err}`.
