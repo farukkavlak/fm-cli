@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **29** · `Task.Delay` 31 çağrı (20 borç, 9 borç değil) · yazıyla basış 6 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **26** · `Task.Delay` 31 çağrı (20 borç, 9 borç değil) · yazıyla basış 3 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -46,7 +46,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `League.cs:253` — tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320
 - [ ] `MatchDay.cs:181` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
-- [ ] `MatchDay.cs:368` `await Task.Delay(TimeSpan.FromSeconds(1.5));`
+- [ ] `MatchDay.cs:370` `await Task.Delay(TimeSpan.FromSeconds(1.5));`
 - [ ] `MatchReport.cs:35` `if (attempt > 0) await Task.Delay(500);`
 - [ ] `Program.cs:589` `await Task.Delay(TimeSpan.FromSeconds(every));`
 - [ ] `Program.cs:694` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
@@ -64,11 +64,8 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `StatusFlags.cs:54` — döngüde yoklama aralığı (250 ms), §8.317
 - [ ] `TrainingReport.cs:93` `await Task.Delay(500);`
 
-#### B1. Yazıyla basma/tıklama — 6 yer
+#### B1. Yazıyla basma/tıklama — 3 yer
 
-- [ ] `MatchDay.cs:355` "Instant Result"
-- [ ] `MatchDay.cs:361` "Instant Result"
-- [ ] `MatchDay.cs:383` "Instant Result"
 - [ ] `ScoutFocus.cs:483` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:492` "Create a New Recruitment Focus"
 - [ ] `ScoutFocus.cs:638` "Edit Recruitment Focus"

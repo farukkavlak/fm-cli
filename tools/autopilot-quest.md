@@ -8,7 +8,34 @@ iki kez yapmaz, park edileni tekrar denemez.
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **30**: `Task.Delay` **21 borç** (32 çağrının 9'u
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **3**.
 
-## Şu an (Tur 135)
+## Şu an (Tur 137)
+- Madde: **B1 yazıyla basma / `MatchDay.cs:355/361/383` "Instant Result"** — `InstantResult`, düğmeyi üç yerde
+  `press ?text="Instant Result"` ile arıyordu (bekleme, ilk basış, takım sorunu sonrası tekrar). **BİTTİ** (§8.328):
+  düğme artık kabıyla — `press ?event=OpenPanel&within=InstantResultEnabled`; yazı hiç okunmuyor. Üç kutu birlikte
+  düştü (açık kutu **29 → 26**); aynı düğmenin üç çağrısı, fonksiyonun tamamı temizlendi.
+- Kanıt (`/elements?text=Instant Result&up=6`: `SIEnabled #InstantResultEnabled › SIButton
+  #button-base-leading-icon-label`; kuru eski/yeni sorgu aynı `0x…`): TR + EN × üç durum (`Tactics` — düğme yok,
+  ikisi de hata / `SubmitTeam` ilk kez / hemen ikinci koşu / FM menüsü açıkken) **12/12** aynı düğme; negatif
+  `Tactics` TR'de eski "no control labelled", yeni "no control sends OpenPanel". Gerçek basış `FM_TRACE=1
+  fm match --instant`: TR **Lincoln 2-2 (pen.) Preston**, EN **Lincoln 1-1 (pen.) Preston**; izde `press ?text=`
+  **0**, `press ?event=…&within=…` **1**. Dosyalar `/tmp/opencode/t137/`.
+- Dönüş: iki maçlık testten sonra `fm load "Faruk Kavlak - Fenerbahçe" --no-save`; yükleme dil ayarını
+  **global** bıraktığı için EN'den sonra `fm settings language "Türkçe"` → `/state` `Language: turkish`,
+  `Date: 2026-08-09`, `Clock: 0`; `fm save` **yok**, ana kayıt damgası **21 Ekim 10:40** (değişmedi).
+  Yalnız `cli/fm/MatchDay.cs` + dokümanlar; paylaşılan yardımcı yok → `sweep.sh` gerekmedi (maç yolu iki dilde
+  gerçek basışla denendi).
+- Not: düğmenin yazısı TR oyunda da "Instant Result" kalıyor; düğmenin kendi `Name`i genel olduğu için kimlik
+  gerçekten kap (`InstantResultEnabled`). Aynı fonksiyonda kalan (ayrı iş): `dialog.Title is "Instant Result" or
+  "Team Selection"` (metin, basış kutusu değil; §2.2 gereği bilinçli).
+- Sıradaki uygun maddeler: A1 küçük `Task.Delay`ler (MatchReport 35 — maç günü, Release 164, TrainingReport 93,
+  ScoutFocus 395) · A2 `MatchControls 131/266` (maç günü), `Saves.cs:258` (kaydırma dalı).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): `Saves.cs:258` · Registration `Settled` (312/316) · Stages 337 ·
+  MatchDay üç pencere · `MatchControls` 131/266 · mesaj eki 1,5 sn · `opposition` · boy birimleri ·
+  `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`,
+  `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister) ·
+  `ScoutFocus.cs:483/492/638` (düğmelerin `SpeakToAction` kimliği boş: dördü de `m_actionId = 0`).
+
+## Önceki durum (Tur 135)
 - Madde: **A2 kısa `Until` / `ContractTalks.cs:388`** — vaatler aşamasında görüşmeden çıkarken oyunun kendi
   Exit Negotiations düğmesine basılıyor ve görüşme ekranının kapanması 3 sn üst sınırla bekleniyordu.
   **BİTTİ** (§8.326): ölçüldü, **borç değil** — ekran basıştan **0,41–0,45 sn** sonra kapanıyor, 6/6 koşuda

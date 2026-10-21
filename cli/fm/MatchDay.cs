@@ -352,13 +352,15 @@ internal static partial class Program
 
 		// The submission screen can take longer to draw than a press is usually given; its button is waited
 		// for. At SubmitTeam the screen itself may not be up yet: Go To Match (ContinueGame) brings it.
-		async Task<bool> Offered() => !(await Fm.Get("press", ("text", "Instant Result"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal);
+		// The button's own name is generic and its label is a game word (English even in the Turkish
+		// build), so the container it is laid out in is the identity (FINDINGS §8.328).
+		async Task<bool> Offered() => !(await Fm.Get("press", ("event", "OpenPanel"), ("within", "InstantResultEnabled"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal);
 		if (!await Until(Offered, seconds: 4, every: 0.5))
 		{
 			await Fm.Get("next");
 			await Until(Offered, seconds: 20, every: 0.5);
 		}
-		var asked = await Arriving("press", [("text", "Instant Result")]);
+		var asked = await Arriving("press", [("event", "OpenPanel"), ("within", "InstantResultEnabled")]);
 		if (asked.StartsWith("error", StringComparison.Ordinal)) return Report(asked);
 
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(2);
@@ -380,7 +382,7 @@ internal static partial class Program
 					if (await SettleTeam(dialog, problem) is { } stop) return stop;
 
 					// The team changed, so the instant result is asked for again.
-					var again = await Arriving("press", [("text", "Instant Result")]);
+					var again = await Arriving("press", [("event", "OpenPanel"), ("within", "InstantResultEnabled")]);
 					if (again.StartsWith("error", StringComparison.Ordinal)) return Report(again);
 					continue;
 				}

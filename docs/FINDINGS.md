@@ -3856,3 +3856,14 @@ Geçerli sayfa üç durumda × iki dilde aynı: `opened Portal › Messages (pan
 0,26–0,33 s → 0,20–0,27 s (gecikme yok, çünkü yoklama hiç tur atmıyordu). `Arriving` artık döngü yerine
 paylaşılan `Until`i kullanıyor; "error: no page named" kalıcı sayılıyor, "event queue is blocked" ve
 diğer "no …" cevapları eskisi gibi beklenmeye devam ediyor. `tools/sweep.sh`: 50 komut, 0 hata.
+
+### 8.328 "Instant Result" düğmesinin yazısı dille değişmiyor ama kendi adı genel: kimlik kabı (21 Ekim, TR + EN)
+`MatchDay.InstantResult` düğmeyi `press ?text="Instant Result"` ile buluyordu (üç çağrı: bekleme, ilk basış,
+takım sorunu sonrası tekrar). Düğmenin kendi `Name`i her yerde `button-base-leading-icon-label` (genel), yazısı
+ise TR oyunda da EN'de de "Instant Result" görünüyor; asıl kimlik onu taşıyan `SIEnabled #InstantResultEnabled`.
+`/elements?text=Instant Result&up=6` zinciri: `Header › RightCorner › SIVisible › SIEnabled #InstantResultEnabled
+› TemplateContainer › SIButton #button-base-leading-icon-label`. Eski sorgu ile yeni sorgu (`event=OpenPanel&
+within=InstantResultEnabled`) TR ve EN'de aynı düğmeyi (aynı `0x…`) veriyor; düğme yokken ikisi de hata veriyor.
+Değişiklik sonrası gerçek basış TR'de Lincoln 2-2 (pen.) Preston, EN'de Lincoln 1-1 (pen.) Preston sonucunu
+verdi; izde `press ?text=` **0**, `press ?event=OpenPanel&within=InstantResultEnabled` **1**. Dosyalar
+`/tmp/opencode/t137/`; `fm save` yok, ana kayıt damgası **21 Ekim 10:40**.
