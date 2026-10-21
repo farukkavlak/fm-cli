@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **23** · `Task.Delay` 30 çağrı (17 borç, 11 borç değil) · yazıyla basış 3 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **22** · `Task.Delay` 30 çağrı (16 borç, 12 borç değil) · yazıyla basış 3 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 17 borç / 30 çağrı
+#### A1. `Task.Delay` — 16 borç / 30 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -47,7 +47,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `MatchDay.cs:181` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:370` `await Task.Delay(TimeSpan.FromSeconds(1.5));`
-- [ ] `MatchReport.cs:35` `if (attempt > 0) await Task.Delay(500);`
+- [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
 - [ ] `Program.cs:589` `await Task.Delay(TimeSpan.FromSeconds(every));`
 - [ ] `Program.cs:694` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
 - [ ] `Program.cs:1448` `await Task.Delay(250);`

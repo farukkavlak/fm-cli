@@ -3898,3 +3898,14 @@ boşlukla birleşik adla eşleşiyor; aynı turu tekrar seçmek beklemesiz (0,69
 tek `select`, ilk denemede, `select` → ilk `dialog` **40–80 ms**; dönüş rc=0 ve çıktı dil içinde bayt bayt aynı
 (md5 TR `e44eb830…`, EN `23732b12…`). Yani 500 ms hiç çalışmıyor; yalnız hata yolunda turlar arası tempo
 (`Until(Listed, every: 0.5)` zaten aynı beklemeyi yapıyor). `tools/remaining.py` `SETTLED`'a eklendi.
+
+### 8.332 maç sonu raporunun 500 ms'lik yeniden denemesi hiç çalışmıyor; son fikstür ilk okumada yeni sonucu taşıyor (21 Ekim, TR + EN)
+
+`fm match`, düdükten sonra `MatchReport.Show(..., expected: score)` ile son maçı okuyor; ilk okuma eski maçı
+getirirse 24 tura kadar her turdan önce sabit **500 ms** uyuyordu. İki gerçek maçta (TR: Lincoln 0-0 Preston,
+11 Ağustos; EN: Lincoln 3-1 Sheffield Wednesday, 15 Ağustos) `HomeScore/AwayScore` okuyan **ilk `pull`** yeni
+sonucu taşıdı: TR düdük sonrası `state` 303,47 → `pull` 303,50 sn, EN 383,37 → 383,40 sn (arada 500 ms yok,
+tek `LastFixture` isteği). Alanlar (`HasResult`, skor, `Result`) oyunun kendi işareti; 500 ms yalnızca "sonuç
+henüz gelmedi" hâlinde turlar arası tempo. `fm report` iki dilde üç durumda (düdük sonrası / hemen ikinci koşu /
+`Messages` açıkken) **6/6** rc=0, çıktı dil içinde bayt bayt aynı (TR `c801a46c…`, EN `c53d0691…`).
+`tools/remaining.py` `SETTLED`'a eklendi.

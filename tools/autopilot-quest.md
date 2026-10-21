@@ -5,10 +5,33 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **30**: `Task.Delay` **21 borç** (32 çağrının 9'u
-  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **6** + kısa `Until` **3**.
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **22**: `Task.Delay` **16 borç** (30 çağrının 12'si
+  yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **3** + kısa `Until` **3**.
 
-## Şu an (Tur 138)
+## Şu an (Tur 139)
+- Madde: **A1 `Task.Delay` / `MatchReport.cs:35`** — `fm match`, düdükten sonra son maçı `expected` skorla
+  okurken her başarısız turdan önce **sabit 500 ms** uyuyordu. **BİTTİ** (§8.332): ölçüldü, **borç değil** —
+  iki gerçek maçta (TR Lincoln 0-0 Preston, EN Lincoln 3-1 Sheffield Wednesday) `LastFixture`in **ilk `pull`u**
+  yeni sonucu taşıdı (TR düdük sonrası `state` 303,47 → `pull` 303,50 sn; EN 383,37 → 383,40 sn; tek istek,
+  arada 500 ms yok). 500 ms yalnız "sonuç henüz gelmedi" hâlinde turlar arası tempo; işaret oyunun kendi
+  `HasResult`/skor alanları. `tools/remaining.py` `SETTLED`'a eklendi (açık kutu 23 → **22**).
+- Kanıt (`FM_TRACE=1`, `fm match --play --no-talk` + `fm report`; üç durum: düdük sonrası / hemen ikinci koşu /
+  `Messages` açıkken) × TR + EN **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `c801a46c…`, EN `c53d0691…`).
+  Dosyalar `/tmp/opencode/t139/`.
+- Dönüş: iki test maçından sonra `fm settings language "Türkçe"` (yükleme dil ayarını EN bıraktı) →
+  `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`,
+  `DuringMatch: False`; `fm save` **yok**, ana kayıt damgası **21 Ekim 10:40** (değişmedi). Yalnız
+  `tools/remaining.py` + dokümanlar değişti (kod davranışı aynı) → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A1 küçük `Task.Delay`ler (Launcher 213/269 — oyunu kapatıp açmayı ister, Program
+  2206 — "active visual tree" reddi, ScoutFocus 395 — gözlemci görevi) · B1 `ScoutFocus.cs:483/492/638`
+  ("Create a New / Edit Recruitment Focus": `SpeakToAction` `ActionID=0`, aynı `SpeakToOptionalActionButton`
+  kabı; ayırt edici alan `MenuIconID` — 929682755 / 464150106; kimlik olarak kullanılabilir mi bakılmalı).
+  **Sonraya bırakılanlar** (bu koşuda seçilmez): `Saves.cs:258` · Registration `Settled` (312/316) · Stages 337 ·
+  MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 · mesaj eki 1,5 sn · `opposition` · boy birimleri ·
+  `fm table` sayfa bağımlılığı (§8.301) · Program 986 · Guided 161 174 · `Program.cs:589/694/1448/2206/2285`,
+  `Launcher 213/269`, `Stages 63/98/117/133/210` (baştan sona gezinme/uzun akış ölçümü ister).
+
+## Önceki durum (Tur 138)
 - Madde: **A1 `Task.Delay` / `TrainingReport.cs:93`** — `training --report`, koç listesinden seçim yapan altı
   denemelik döngüde her hata turundan önce **sabit 500 ms** uyuyordu. **BİTTİ** (§8.329): ölçüldü, **borç değil** —
   altı koşuda (üç durum × TR/EN) `select` **ilk denemede** geçti, her izde tek `select`; `Task.Delay` hiç çalışmadı.
