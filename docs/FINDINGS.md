@@ -3526,3 +3526,14 @@ yeni aynı akış **1,57–1,77 sn**, `translate` yok. Düğmenin kimliği `Even
 hemen ikinci koşu / başka sayfa sonrası) **6/6 rc=0**, çıktı dil içinde aynı ("Görüşme iptal edildi." /
 "Negotiation cancelled."), sonrasında `contract` rc=1 ("açık görüşme yok"); vaatler aşamasındaki olay-42 çıkışı
 negatifte hâlâ çalışıyor (kilitli kart, rc=0). Dosyalar `/tmp/opencode/t108/`.
+
+### 8.297 Teklif menajerde kaldığında görüşmeyi kapatma iki dilde de yanlıştı (21 Ekim, TR + EN)
+`ContractTalks.Propose`ın "yalnız çıkış kaldı" dalı `"Adjust Budgets"` (çoğul) sözünü arıyordu; ekrandaki ham söz
+**"Adjust Budget"** (tekil). TR'de dal hiç açılmıyor, `contract --sign --yes` "Sırada: Görüşmeyi Bitir · Bütçeyi
+Ayarla" deyip görüşmeyi açık bırakıyordu (izde çıkış basışı **0**). EN'de dal açılıyordu ama `LeaveTalks` yazıyla
+bulduğu düğmeye basmasına rağmen ekran kapanmıyor, komut yine de "görüşme kapandı" diyordu — yanlış "oldu".
+Artık çıkış düğmesi eylemin kendi `IsExitButton=True` işaretiyle, "değiştiren" düğme kendi olayını göndermesiyle
+(bütçe ayarı `Event 0`) bulunuyor; basış `?ptr=`, kapanma `contract` boşalana kadar bekleniyor (üst sınır 6 sn).
+TR + EN × üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics` sonrası): **6/6 rc=0**,
+`/contract` boş, çıkış basışı öneriden 0,55–0,96 sn sonra, ekran basıştan 0,06–0,10 sn sonra kapanıyor; çıktı
+"Görüşme kapandı…" / "The offer is with the other side…". Dosyalar `/tmp/opencode/t109/`.

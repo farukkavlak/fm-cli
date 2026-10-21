@@ -315,10 +315,18 @@ internal static partial class Program
 		if (said != before && said.Length > 0) Tell(said);
 
 		var next = await TalkOptions();
-		// Adjusting the budgets stays on offer to the end of a talk with staff; it is no step of the talks.
-		if (next.Any(l => l.Label == "Exit Talks") && next.All(l => l.Label is "Exit Talks" or "Adjust Budgets"))
+		// What is left to say is the way out and the budget adjustment, which changes no term: the
+		// agent has taken the offer away. Both are told apart by the game's own action, not by what
+		// this language calls them (the way out carries IsExitButton; see TalkEnds).
+		var (exit, changing) = await TalkEnds();
+		if (exit is { } way && changing == 0)
 		{
-			await LeaveTalks();
+			await LeaveTalks(way);
+			if (!await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25))
+			{
+				Tell(L("Çıkış denendi ama sözleşme görüşmesi hâlâ açık (talk ile bak)."));
+				return Outcome.Answered;
+			}
 			// A renewal is not signed there and then: the agent takes it away and answers in a few days.
 			// That is in the agent's words, which only an English game's are known here; in another
 			// language which it was is not guessed.
@@ -419,12 +427,32 @@ internal static partial class Program
 		return screen;
 	}
 
-	private static async Task LeaveTalks()
+	/// <summary>
+	/// The way out of the talks and how many of their other buttons still change the deal. The way
+	/// out is the button whose action is the game's exit (<c>IsExitButton</c>), and a button that
+	/// changes a term is one whose action sends an event of its own; the budget adjustment sends
+	/// none. Neither is asked for by its label, which is this language's string (FINDINGS §8.209).
+	/// </summary>
+	private static async Task<(JsonElement? Exit, int Changing)> TalkEnds()
 	{
-		if (await Until(async () => await Labelled("Exit Talks", TalksButton) != null, seconds: 6, every: 0.25)
-			&& await Labelled("Exit Talks", TalksButton) is { } exit)
-			await Fm.Get("press", ("ptr", Field(exit, "Pointer")));
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Events") == "SpeakToAction" && Field(b, "Name") == TalksButton && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
+			.ToList();
+		if (buttons.Count == 0) return (null, 0);
+		var actions = await PullEach(buttons.Select(b => (Field(b, "Action"), "Event,IsExitButton")).ToList());
+		JsonElement? exit = null;
+		var changing = 0;
+		foreach (var (button, action) in buttons.Zip(actions))
+		{
+			if (Field(action, "IsExitButton") == "True") exit ??= button;
+			else if (Field(action, "Event") is not ("" or "0")) changing++;
+		}
+		return (exit, changing);
 	}
+
+	/// <summary>Walking out of the talks by the game's own way out: the talks close themselves.</summary>
+	private static async Task LeaveTalks(JsonElement exit) =>
+		await Fm.Get("press", ("ptr", Field(exit, "Pointer")));
 
 	/// <summary>What the agent said last, as one line; the echo of our own line ("» …") left out.</summary>
 	private static async Task<string> AgentSays()

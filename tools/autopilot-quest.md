@@ -14,7 +14,31 @@ iki kez yapmaz, park edileni tekrar denemez.
 - Hâlâ karar/başka iş bekleyen: Stages 337 (çapa sorusu), Staff 74 (400 ms mi, baştan sona gezinti mi), boy birimleri,
   mesaj eki 1,5 sn, `league --stat` katalog dili (oyun restartı), oyuncu kartı/FM menüsü döşemeleri (eklentiye `Page`).
 
-## Şu an (Tur 108)
+## Şu an (Tur 109)
+- Madde: **B "İngilizce yazıyla basma — 44 yer" / `LeaveTalks` — teklif menajerde kaldığında görüşmeyi kapatma** —
+  **BİTTİ** (§8.297). İki dil bağımlılığı vardı: (1) dal `"Adjust Budgets"` (çoğul) arıyordu, ham söz
+  **"Adjust Budget"** (tekil) → TR'de dal hiç açılmıyor, komut görüşmeyi açık bırakıp "Sırada: Görüşmeyi Bitir ·
+  Bütçeyi Ayarla" diyordu (izde çıkış basışı 0). (2) EN'de dal açılıyordu ama `LeaveTalks` yazıyla bulduğu düğmeye
+  basınca ekran kapanmıyor, komut yine de "görüşme kapandı" diyordu. Artık çıkış eylemin `IsExitButton=True`
+  işaretiyle, "değiştiren" düğme kendi olayını göndermesiyle (bütçe ayarı `Event 0`) bulunuyor; basış `?ptr=`,
+  kapanma `contract` boşalana kadar (üst sınır 6 sn).
+- Kanıt — TR + EN × üç durum (s1 `fm open "Messages"` sonrası / s2 hemen ikinci koşu, başka oyuncuyla /
+  s3 `Squad Dynamics` sonrası) `fm contract "<oyuncu>"` → `--next` → `--sign --yes`: **6/6 rc=0**, `/contract`
+  boş, çıkış basışı öneriden 0,55–0,96 sn sonra, ekran basıştan 0,06–0,10 sn sonra kapanıyor. Eski derleme TR:
+  çıkış basışı **0**, "Sırada…", görüşme açık; eski EN: basış var ama görüşme **açık** kalırken "kapandı" diyor.
+  Oyuncular: Oisin Gallagher / Zane Okoro / Reeco Hackett (TR), Conor McGrandles / Jenson Jones / Dom Jefferies
+  (EN). Dosyalar `/tmp/opencode/t109/`.
+- Dönüş/kayıt: `fm contract --cancel` ile açık görüşme kapatıldı; dil `fm settings language "Türkçe"` → TR;
+  `fm load "Faruk Kavlak - Fenerbahçe" --no-save` → `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`,
+  `DuringMatch: False`; kayıt zaman damgası **10:40** (değişmedi), `fm save` yok, saat ilerletilmedi, maç oynanmadı.
+- Yalnız `cli/fm/ContractTalks.cs` değişti (yeni yerel `TalkEnds`, `LeaveTalks(exit)`, `Propose` dalı); paylaşılan
+  yardımcı (`SpeakToActionEvent`, `PullEach`, `TalkOptions`) imzası değişmedi → `sweep.sh` gerekmedi.
+- Sıradaki uygun maddeler: A Guided 161/174 (bedel sözü) · A `Bound` 20 sn + maç akışı 3 sn'ler (maç günü) ·
+  B Program cümle parçaları (örnek mesaj) · B 44'ün kalanları · D/E `up=N` taraması. **Sonraya bırakılanlar**
+  (bu koşuda seçilmez): Stages 337 · TrainingSchedule 345 · Clock 179 işsizlik · MatchDay üç pencere · yükleme
+  ekranı `Load` · mesaj eki 1,5 sn · `opposition` "Apply all advice" · boy birimleri.
+
+## Önceki durum (Tur 108)
 - Madde: **B "İngilizce yazıyla basma — 44 yer" / `contract --cancel`in "Cancel Negotiations" satırı** (terimler
   aşamasının iptal düğmesi `Labelled` ile aranıyordu; iptal + onaydan sonra `LeaveTalks()` var olmayan
   "Exit Talks"ı 6 sn arıyordu) — **BİTTİ** (§8.296). Düğmenin `SpeakToAction` eylemi

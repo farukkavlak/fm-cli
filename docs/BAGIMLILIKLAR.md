@@ -584,7 +584,17 @@ tablodan çevrilemiyor.
   - [x] **Sözleşme görüşmesinden çıkış** (`contract --cancel`, vaatler aşaması): `Exit Talks` düğmesi yazıyla
     basılıyordu; düğmenin `SpeakToAction` eylemi **Event 42** (`EventFmxExitNegotiations`) + `IsExitButton=True`
     taşıyor, basış artık `?ptr=` ile. TR + EN × üç durum 6/6 rc=0, görüşme basıştan ~0,3–0,5 sn sonra kapanıyor
-    (§8.294). Kalan: `LeaveTalks` hâlâ etiketle; terimler aşaması `contract --next` ile bu kayıtta açılıyor.
+    (§8.294). Terimler aşaması bu kayıtta `contract --next` ile açılıyor.
+  - [x] **Teklif menajerde kaldığında görüşmeyi kapatma** (`LeaveTalks`, `contract --sign --yes` sonrası):
+    iki dil bağımlılığı vardı ve ikisi de sessizce yanlış çalışıyordu. (1) "Yalnız çıkış kaldı" dalı
+    `"Adjust Budgets"` (çoğul) sözünü arıyordu, oysa ekrandaki ham söz **"Adjust Budget"** (tekil) → TR'de dal hiç
+    açılmıyor, komut "Sırada: Görüşmeyi Bitir · Bütçeyi Ayarla" deyip görüşmeyi **açık bırakıyordu**. (2) Dal EN'de
+    açılıyordu ama `LeaveTalks` yazıyla bulduğu düğmeye basınca ekran kapanmıyor, komut yine de "görüşme kapandı"
+    diyordu (yanlış "oldu"). Artık dal ve çıkış oyunun kendi eylemiyle: çıkış düğmesi `IsExitButton=True` olan
+    eylem, "değiştiren" düğme kendi olayını gönderen (bütçe ayarı `Event 0`), basış `?ptr=`; kapanma da oyunun
+    işareti (`contract` boşalana kadar, üst sınır 6 sn). TR + EN × üç durum **6/6 rc=0**, kapanma basıştan
+    0,06–0,10 sn sonra, `/contract` boş, çıktı "Görüşme kapandı…" / "The offer is with the other side…";
+    eski derleme TR'de hiç kapatmıyor, EN'de kapatmadan kapatmış diyordu (§8.297).
   - [x] **Sözleşme görüşmesini iptal etme** (`contract --cancel`, terimler aşaması): "Cancel Negotiations"
     düğmesi `Labelled` ile aranıyordu; düğmenin `SpeakToAction` eylemi
     **EventFmxWithdrawContractNegotiationProcess** (**811955833**) gönderiyor, artık olayla bulunuyor. Aynı
