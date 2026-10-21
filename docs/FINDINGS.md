@@ -3975,3 +3975,14 @@ sonrası **3 bağ** döndürdü, oysa ilk koşuda **9**; üç bağ, dokuzun son 
 Austria Vienna, AEK 2-0 Göztepe). Liste önceki koşudan dipte kalmış, `EveryTie` kaldığı yerden aşağı yürümüş
 ve `StageContent` iki okuma aynı olduğu için eksik pencereyi kabul etmiş. Düzeltme ayrı iş: yürüyüşten önce
 liste görünen ilk bağın adıyla `scroll ?to=0` ile başa alınmalı, sonra pencereler birleştirilmeli.
+
+### 8.338 `talk leave` oyuncu sohbetinin son sorusunda çıkamıyordu; çıkış artık `IsExitButton` (22 Ekim, TR + EN)
+
+Bir oyuncuya övgü/şikâyet söylenip son soruya gelindiğinde tek cevap "Görüşmeyi Sonlandır" oluyor ve o
+cevap `SpeakToAction` bir `StandardButton`; `talk leave` ise yalnız `continue-button` + `ClosePanel`
+arıyordu, bulamayınca **"Çıkılacak bir konuşma yok."** deyip rc=1 veriyordu — oysa konuşma açık ve
+`next`i kilitliyordu. Oyunun kendi işareti `IsExitButton=true` (`pull ?path=fmcli.speak…&props=IsExitButton`);
+yazı hiç okunmuyor. Üç durum (mesajdan açılan toplantı / oyuncu sohbeti açıkken / başka sayfa sonrası) ×
+TR + EN **6/6 rc=0**, süre 1,6–2,3 sn; `talk leave` sonrası `status` "İlerlemeye hazır" ve `buttons`ta
+`SpeakToAction` kalmıyor. Negatif: son soruya gelmeden (cevap seçenekleri varken) ve konuşma yokken rc=1. Toplantı
+yolunda eski `continue-button` yolu aynen kullanılıyor. `sweep.sh` **50 komut, 0 hata**.

@@ -5,10 +5,34 @@ iki kez yapmaz, park edileni tekrar denemez.
 
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
-  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **18**: `Task.Delay` **15 borç** (29 çağrının 12'si
+  kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **17**: `Task.Delay` **14 borç** (29 çağrının 13'ü
   yoklama/tempo → `[~]`, 2'si park → `[?]`) + yazıyla basış **0** + kısa `Until` **3**.
 
-## Şu an (Tur 144)
+## Şu an (Tur 145)
+- Seçilen madde: **yok** — canlı blokta seçilebilir kutu kalmamıştı (17 kutunun 2'si Guided `[?]`, gerisi
+  "Sonraya bırakılanlar"). Talimatın "boşta kalırsan" yolu: `tools/sweep.sh` + gerçek menajer akışı.
+- Sweep: **50 komut, 0 hata** (`/tmp/opencode/t144/sweep2`). Menajer akışı: `next`, `inbox`, `reply 11`,
+  `talk`, `actions` (övgü), takım lideri toplantısı, `settings` dili gidiş-dönüş.
+- Bulunan hata (**B / dil-kimlik**, §8.338): oyuncu sohbetinin son sorusunda tek cevap "Görüşmeyi Sonlandır"
+  oluyor; `talk leave` yalnız `continue-button` + `ClosePanel` aradığı için **"Çıkılacak bir konuşma yok."**
+  deyip rc=1 veriyordu, konuşma açık kalıp `next`i kilitliyordu. Çıkış artık oyunun kendi işareti:
+  `SpeakToAction` düğmelerinin eylemi `IsExitButton=true` (`pull ?props=IsExitButton`), yazı okunmuyor.
+- Kanıt — üç durum (mesajdan açılan toplantı / oyuncu sohbeti açıkken / `Dynamics` sonrası) × TR + EN:
+  toplantı yolu eski `continue-button` ile, oyuncu sohbetleri yeni `IsExitButton` yolu ile **6/6 rc=0**,
+  süre 1,6–2,3 sn; sonrasında `status` "İlerlemeye hazır", `buttons`ta `SpeakToAction` kalmıyor.
+  Negatif: son soruya gelmeden (cevap seçenekleri varken) ve konuşma yokken rc=1.
+- Dönüş: konuşmalar/övgüler/zaman ilerletildi → `fm load "Faruk Kavlak - Fenerbahçe" --no-save`; `/state`
+  dil `turkish`, tarih **9 Ağustos 2026 05:45**, ana kayıt damgası **21 Ekim 10:40** (değişmedi).
+  `fm save` yok. Dosyalar `/tmp/opencode/t144/`.
+- Paylaşılan kod (`TalkTo` / `talk leave`) değişti → `sweep.sh` **50/50**.
+- Sıradaki uygun maddeler: yine **yok**; sonraki tur `sweep.sh` + menajer akışında hata avına devam etsin.
+  **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (312/316) · Stages
+  63/120/136 · MatchDay üç pencere (181/314/370) · `MatchControls` 131/266 ·
+  `Program.cs:589/694/1452/2210`, `Launcher 213/269`.
+- Not (yeni iş değil): `fm search "Ben House"` Portal/Messages açıkken `(boş)` dönüyor, "House" dönüyor;
+  `actions` ise `First Team` açıkken çalışıyor. Ayrı bir arama-kimlik sınırı, ölçülmedi.
+
+## Önceki durum (Tur 144)
 - Seçilen madde: **yok** — canlı blokta seçilebilir kutu kalmamıştı (kalan 18: Guided `[?]`, gerisi "Sonraya
   bırakılanlar"). Talimatın "boşta kalırsan" yolu: `tools/sweep.sh` + gerçek menajer akışı.
 - Önemli ortam bulgusu: sweep ilk koşuda **10 hata** verdi (`shortlist`, `takers`, `penalties`, `tactic`,

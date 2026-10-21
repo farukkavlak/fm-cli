@@ -278,6 +278,22 @@ internal static partial class Program
 			var exit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.Where(c => Field(c, "Name") == "continue-button" && Field(c, "Events").Contains("ClosePanel", StringComparison.Ordinal))
 				.Cast<JsonElement?>().FirstOrDefault();
+			// A chat with a player has no Continue button: its way out is one of its own answers,
+			// the one the game marks as the exit (IsExitButton — "End Chat"). What this language
+			// calls it is not read; the action alone says which one it is.
+			if (exit is not { })
+			{
+				var answers = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+					.Where(c => Field(c, "Events") == "SpeakToAction" && Field(c, "Name") == "StandardButton"
+						&& Field(c, "Enabled") == "True" && Field(c, "Action").Length > 0)
+					.ToList();
+				if (answers.Count > 0)
+				{
+					var actions = await PullEach(answers.Select(c => (Field(c, "Action"), "IsExitButton")).ToList());
+					exit = answers.Zip(actions).Where(p => Field(p.Second, "IsExitButton") == "True")
+						.Select(p => (JsonElement?)p.First).FirstOrDefault();
+				}
+			}
 			if (exit is not { } leave)
 			{
 				Console.Error.WriteLine(L("Çıkılacak bir konuşma yok."));
