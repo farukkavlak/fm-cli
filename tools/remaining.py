@@ -65,6 +65,9 @@ SETTLED_SHORT = {
     ("ContractTalks.cs", 388): "çıkış basışından sonra görüşme ekranı 0,41–0,45 sn'de kapanıyor; 3 sn yalnız üst sınır, §8.326",
     ("MatchDay.cs", 421): "anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343",
     ("ClubCards.cs", 48): "kart metinleri tıklamadan 0,05–0,36 sn sonra geliyor; 1,5 sn yalnız üst sınır, §8.354",
+    ("MatchControls.cs", 131): "Dugout girişleri panel göründükten sonra geliyor; 3 sn yalnız üst sınır",
+    ("MatchControls.cs", 266): "girişin metni basıştan öncekinden farklı olana kadar; 1,5 sn yalnız üst sınır",
+    ("Saves.cs", 258): "kayıt satırı görünür olana kadar; 1,5 sn yalnız üst sınır, §8.321",
 }
 
 # Denendi, ölçülemedi / karar bekliyor: açık kutuya girmez, tekrar denenmez.

@@ -26,7 +26,7 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **4** · `Task.Delay` 24 çağrı (1 borç, 21 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **1** · `Task.Delay` 24 çağrı (1 borç, 21 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 0
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
@@ -60,19 +60,19 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 #### B1. Yazıyla basma/tıklama — 0 yer
 
 
-#### A2. Kısa `Until` (≤3 sn) — 3 yer
+#### A2. Kısa `Until` (≤3 sn) — 0 yer
 
 - [~] `ClubCards.cs:48` — kart metinleri tıklamadan 0,05–0,36 sn sonra geliyor; 1,5 sn yalnız üst sınır, §8.354
 - [~] `Coaches.cs:56` — yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318
 - [~] `ContractTalks.cs:388` — çıkış basışından sonra görüşme ekranı 0,41–0,45 sn'de kapanıyor; 3 sn yalnız üst sınır, §8.326
 - [~] `League.cs:223` — yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319
-- [ ] `MatchControls.cs:131` 3 sn
-- [ ] `MatchControls.cs:266` 1.5 sn
+- [~] `MatchControls.cs:131` — Dugout girişleri panel göründükten sonra geliyor; 3 sn yalnız üst sınır
+- [~] `MatchControls.cs:266` — girişin metni basıştan öncekinden farklı olana kadar; 1,5 sn yalnız üst sınır
 - [~] `MatchDay.cs:421` — anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343
 - [~] `Prep.cs:142` — günün kapsamı `pathset`in kendi cevabıyla ilk denemede bağlanıyor (21–32 ms); 3 sn yalnız üst sınır, §8.323
 - [~] `Reads.cs:924` — takımın ülkesi ilk `pull`da geliyor (26–33 ms); 3 sn yalnız üst sınır, §8.322
 - [~] `Saves.cs:245` — kayıt satırı `rowselect dry`nin kendi cevabıyla bulunuyor (24–40 ms); 3 sn yalnız üst sınır, §8.321
-- [ ] `Saves.cs:258` 1.5 sn
+- [~] `Saves.cs:258` — kayıt satırı görünür olana kadar; 1,5 sn yalnız üst sınır, §8.321
 - [~] `TraitTraining.cs:98` — yardımcının itiraz penceresi `dialog` bağıyla 70–230 ms'de geliyor; 3 sn yalnız üst sınır, §8.324
 <!-- /auto:remaining -->
 
