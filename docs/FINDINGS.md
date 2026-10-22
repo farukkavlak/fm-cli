@@ -4140,3 +4140,10 @@ bu yüzden `[?]` (sabit beklemeyi kaldırmak yanlış okumayı gizler). Dosyalar
 Aynı ölçümde `Registration.cs:318`: `Settled`ın iki okuma arası 250 ms'i TR ve EN'de birer kez ilk çiftte ayrıştı
 (üç okuma: TR a 3,03 → 3,55 → 4,07; EN a 2,09 → 2,52 → 2,93), üst sınır 6 turun en çok 3'ünde bitti →
 örnekleme aralığı, borç değil.
+
+### 8.351 ortak `Until`ın aralığı sabit bekleme değil, tur temposu (22 Ekim, TR + EN)
+`fm stages --json` sayfayı açarken ortak `Until`ın (`Program.cs:609`) ilk koşulu `open` isteğinden **19–34 ms**
+sonra soruluyor; koşul ilk turda tutmazsa sonraki kontrol **+0,53–0,55 s** sonra (`every: 0.5`). Üç durum × iki
+dil, hepsi rc=0: sayfa kapalı (TR 0,20 → 0,74; EN 0,19 → 0,72), sayfa zaten açık (ilk kontrol TR 0,24 / EN 0,27'de
+tuttu), başka sayfa açık (TR 0,20 → 0,75; EN 0,29'da ilk turda tuttu). Gecikme yalnız başarısız turdan sonra
+giriyor; sabit uyku değil, bu yüzden `[~]`.

@@ -4569,3 +4569,23 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   dokunulmadı (kod değişmedi) → `sweep.sh` gerekmedi.
 - Dosyalar: `/tmp/stg/{tr_a,tr_b,tr_c,en_a,en_b,en_c,tr_all,tr_neg,tr_neg2}.{out,trace}`, `/tmp/probe_stage.py`,
   `/tmp/probe1.txt`.
+
+## Tur 99 (22 Ekim) — A: ortak `Until`ın tur temposu ölçüldü, borç değil (§8.351)
+- Seçilen madde: A1 `Program.cs:609` `await Task.Delay(TimeSpan.FromSeconds(every));` — ortak `Until` yardımcısının
+  denemeler arası aralığı. B1 sıfır, A2'nin kalanları maç günü/save tarayıcısı, A1'in diğerleri Launcher/MatchDay;
+  bu yüzden ölçülebilir en küçük kutu buydu.
+- Ölçüm (`FM_TRACE=1 fm stages --json`, üç durum: `fm open "Messages"` sonrası / hemen ikinci koşu / `fm open
+  "Squad Dynamics"` sonrası) × iki dil, **6/6 rc=0**:
+  - TR: (a) ilk `dropdowns` `open`tan **0,20 s** sonra, koşul tutmadı → sonraki **0,74** (+0,54); (b) ilk kontrol
+    **0,24**'te tuttu (arada `Task.Delay` yok); (c) 0,20 → 0,75.
+  - EN: (a) 0,19 → 0,72 (b) 0,27'de ilk turda (c) 0,29'da ilk turda.
+  - Yani bekleme yalnız başarısız koşuldan sonra; ilk kontrol her zaman beklemesiz. Çıktılar `--json` geçerli,
+    `Competition`/`Stages` dolu; dil dönüşü `fm settings language "Türkçe"` → `Language: turkish`.
+- Karar (kural 4): kod değişmedi; `Program.cs:609` `SETTLED`'a eklendi. `--write`: açık kutu **13 → 12**,
+  `Task.Delay` borcu **10 → 9**.
+- Yan not (yanlış seçim, geri alındı): tur içinde önce `Stages.cs:63` (parktaki 1,2 sn) sanılıp denendi; 6 koşuda
+  çıktı birebir aynıydı ve ~1,2 sn kazanç vardı, ama madde PARKED ve asıl neden eklentide `Ties` taramasının
+  sayfaya daraltılmaması (§8.350) — kod `git restore` edildi, bu koşuda tekrar seçilmedi.
+- Kayıt: yalnız sayfa gezinme + dil geçişi; `fm save` yok, ana kayıt 9 Ağustos 2026 05:45, dil `turkish`.
+  Paylaşılan kod değişmedi → `sweep.sh` gerekmedi.
+- Dosyalar: `/tmp/u609/{tr,en}_{a,b,c}.{json,trace}`; `/tmp/st120_*` (geri alınan deneme).

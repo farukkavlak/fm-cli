@@ -45,6 +45,7 @@ SETTLED = {
     ("MatchReport.cs", 35): "son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332",
     ("Stages.cs", 213): "liste seçimi ilk denemede geçiyor; 700 ms hiç çalışmıyor, §8.337",
     ("Registration.cs", 318): "iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350",
+    ("Program.cs", 609): "ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351",
 }
 
 # Kısa `Until`ler için aynısı: işaret oyunun kendi cevabı, süre yalnız üst sınır.
