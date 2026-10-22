@@ -178,7 +178,9 @@ internal static partial class Program
 				}
 
 				await Fm.Get("click", ("ptr", Field(yes.Value, "Pointer")));
-				await Task.Delay(TimeSpan.FromSeconds(3));
+				// The click closes the dialog and the match starts on its own (measured: gone
+				// within ~0.2 s), so what is waited for is the dialog, not a fixed pause.
+				await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 8, every: 0.2);
 				continue;
 			}
 

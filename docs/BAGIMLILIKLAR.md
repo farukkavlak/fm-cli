@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **1** · `Task.Delay` 24 çağrı (1 borç, 21 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 0
+**Canlı sayaç:** açık kutu **0** · `Task.Delay` 23 çağrı (0 borç, 21 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 0
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 1 borç / 24 çağrı
+#### A1. `Task.Delay` — 0 borç / 23 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -44,8 +44,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `Launcher.cs:213` — oyun kapanırken çıkış penceresini 500 ms aralıkla yoklama; pencere gelince basılıyor, §8.143
 - [~] `Launcher.cs:269` — süreç canlılığını 3 sn aralıkla yoklama; koşul süreç, gecikme yalnız tur temposu
 - [~] `League.cs:253` — tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320
-- [ ] `MatchDay.cs:181` `await Task.Delay(TimeSpan.FromSeconds(3));`
-- [~] `MatchDay.cs:314` — maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151
+- [~] `MatchDay.cs:316` — maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151
 - [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
 - [~] `Program.cs:618` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
 - [~] `Program.cs:723` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
@@ -68,7 +67,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `League.cs:223` — yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319
 - [~] `MatchControls.cs:131` — Dugout girişleri panel göründükten sonra geliyor; 3 sn yalnız üst sınır
 - [~] `MatchControls.cs:266` — girişin metni basıştan öncekinden farklı olana kadar; 1,5 sn yalnız üst sınır
-- [~] `MatchDay.cs:421` — anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343
+- [~] `MatchDay.cs:423` — anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343
 - [~] `Prep.cs:142` — günün kapsamı `pathset`in kendi cevabıyla ilk denemede bağlanıyor (21–32 ms); 3 sn yalnız üst sınır, §8.323
 - [~] `Reads.cs:924` — takımın ülkesi ilk `pull`da geliyor (26–33 ms); 3 sn yalnız üst sınır, §8.322
 - [~] `Saves.cs:245` — kayıt satırı `rowselect dry`nin kendi cevabıyla bulunuyor (24–40 ms); 3 sn yalnız üst sınır, §8.321

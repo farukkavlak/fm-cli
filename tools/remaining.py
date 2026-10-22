@@ -51,7 +51,7 @@ SETTLED = {
     ("Launcher.cs", 269): "süreç canlılığını 3 sn aralıkla yoklama; koşul süreç, gecikme yalnız tur temposu",
     ("Program.cs", 1516): "satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı",
     ("Program.cs", 2274): "oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama",
-    ("MatchDay.cs", 314): "maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151",
+    ("MatchDay.cs", 316): "maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151",
 }
 
 # Kısa `Until`ler için aynısı: işaret oyunun kendi cevabı, süre yalnız üst sınır.
@@ -63,7 +63,7 @@ SETTLED_SHORT = {
     ("Prep.cs", 142): "günün kapsamı `pathset`in kendi cevabıyla ilk denemede bağlanıyor (21–32 ms); 3 sn yalnız üst sınır, §8.323",
     ("TraitTraining.cs", 98): "yardımcının itiraz penceresi `dialog` bağıyla 70–230 ms'de geliyor; 3 sn yalnız üst sınır, §8.324",
     ("ContractTalks.cs", 388): "çıkış basışından sonra görüşme ekranı 0,41–0,45 sn'de kapanıyor; 3 sn yalnız üst sınır, §8.326",
-    ("MatchDay.cs", 421): "anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343",
+    ("MatchDay.cs", 423): "anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343",
     ("ClubCards.cs", 48): "kart metinleri tıklamadan 0,05–0,36 sn sonra geliyor; 1,5 sn yalnız üst sınır, §8.354",
     ("MatchControls.cs", 131): "Dugout girişleri panel göründükten sonra geliyor; 3 sn yalnız üst sınır",
     ("MatchControls.cs", 266): "girişin metni basıştan öncekinden farklı olana kadar; 1,5 sn yalnız üst sınır",

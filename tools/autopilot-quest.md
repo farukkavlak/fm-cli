@@ -4958,3 +4958,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   Stages, MatchDay 314) → `SETTLED`. Kalan tek borç `MatchDay.cs:181` (takım seçimi penceresinden sonra 3 sn;
   maç izleme yolunda ölçüm istiyor).
 - Dosyalar: `tools/remaining.py`, `docs/BAGIMLILIKLAR.md`, `docs/FINDINGS.md` §8.371.
+
+## Tur 109 (22 Ekim) — A: takım seçimi penceresinden sonraki 3 sn işarete bağlandı; borç 0 (§8.372)
+- Ölçüm (100 ms, `match --play`): pencere 2,39 sn'de göründü, 5,33 sn'de kapandı, maç 5,97 sn'de başladı;
+  tıklamadan sonraki örnekte pencere yok. 3 sn yerine "dialog boşalana kadar" (0,2 sn, 8 sn üst sınır).
+- Maç: Lincoln 4-1 Tranmere (Vertu Trophy). Çift pencere yok. `remaining.py`: **0 / 0 / 0**.
+- Dosyalar: `cli/fm/MatchDay.cs`, `tools/remaining.py` (satır kaymaları), `docs/FINDINGS.md` §8.372.

@@ -4394,3 +4394,12 @@ seçimini 700 ms arayla yeniden deneme; ilk denemede geçiyor), `MatchDay.cs:314
 canlı anlatımın temposu). Bunlar `SETTLED`a taşındı; borç **1**'e indi. Kalan tek borç `MatchDay.cs:181`: takım
 seçimi penceresine "evet" basıldıktan sonraki 3 sn; yerine "pencere kapandı" işareti yazılabilir, ama maç izleme
 yolunda ölçüm istiyor (sıradaki maçta denenecek).
+
+### 8.372 Takım seçimi penceresinden sonraki 3 sn kalktı; pencere kapanışı bekleniyor (22 Ekim, TR)
+
+`MatchDay`ın maç izleme döngüsü, "Team Selection" penceresine evet bastıktan sonra sabit **3 sn** uyuyordu.
+Ölçüm (`fm match --play`, 100 ms'lik `/dialog` + `/state`, Vertu Trophy Tranmere maçı): pencere **2,39 sn**de
+göründü, **5,33 sn**de kapandı (döngünün 3 sn'lik turu tıklamayı geciktiriyor), maç **5,97 sn**de başladı;
+tıklamadan sonra pencere bir sonraki örnekte yok. Artık tıklamadan sonra "dialog boşalana kadar" bekleniyor
+(0,2 sn aralık, 8 sn üst sınır), sabit süre yok. Maç tam oynandı (Lincoln 4-1 Tranmere), çift pencere/çift
+tıklama görülmedi; `sweep.sh` temiz. Bu, envanterdeki son `Task.Delay` borcuydu: borç **0**.
