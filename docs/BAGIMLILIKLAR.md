@@ -311,10 +311,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     2'sinde `Forma numaraları okunamadı.` rc=1 idi (tablo bir an duruyor, okuma gelince gitmiş); yeni kod 6/6 rc=0,
     37 oyuncu. Üç durumda TR `md5 a7fde227…` + EN `md5 e7bf7ceb…` eskisiyle birebir; numarayı elle verme yolu
     (`fm numbers "Adam Reach" 44` TR, `"Oscar Thorn" 45` EN) rc=0; `sweep.sh` 50/50 (§8.211).
-  - [?] OppositionCard 55 (`--advice` / `--clear` sonrası 500 ms): **kaldı**. Kartın ara yerleşimi iki okumada aynı
-    görünebiliyor (192–281 ms arası aynı satırlar, gerçek sonuç 384 ms'de) — "iki okuma aynı" işareti erken kabul ederdi
-    (Staff 74'ün tuzağı); "Apply all advice" düğmesinin durumu (etkin/olay) uygulama boyunca değişmiyor. Ölçüldü, işaret
-    bulunamadan değiştirilmedi. Faruk'a soru gerekmiyor: madde ölçüldü ve park edildi.
+  - [x] OppositionCard 55 (`--advice` / `--clear` sonrası 500 ms): sabit süre yok — kart, satır sayısı düşmeden
+    ve **içerik değiştikten sonra** iki okumada aynı kalana kadar bekleniyor (6 sn üst sınır). Ölçüm (20 ms, 22 Ekim,
+    Sheffield maçı önerisi): TR `--clear` 0 değişik satır → 845 ms'de 10 satır (yerleşim düşüşü, sayaç koruması
+    reddediyor) → 930 ms'de 11 satır/1 değişik; EN aynı 682–762 ms'de 1 değişik. Üç durum (başka sayfa açık /
+    kart zaten açık / ikinci koşu) 11 satır + 1 değişik, eksik satır yok. Düğmenin durumu değişmiyor; işaret
+    içerikte. §8.369
   - [x] Responsibilities 283 388 (listeyi başa alma + sabit 500 ms): uzun görev listesi `scroll …&to=0` ile başa
     alınıyor ve ardından okumadan önce sabit 500 ms bekleniyordu — bu süre yalnız satırların ne zaman çizildiğine dair
     bir tahmindi (ölçüm: kaydırmadan ~0,35 sn sonra iki ardışık okuma aynı). Yeni yardımcı `ToTop()`: sayfa başa

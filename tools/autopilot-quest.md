@@ -4941,3 +4941,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   `reply 2` konu satırlarını kaçırıyordu.
 - Düzeltme: başlıktan sonraki metinler üç okumada değişmeyene kadar bekle (0,3 sn, 4 sn üst sınır), sonra oku.
 - Kanıt: `reply 2` altı konu + personel, `reply 1` tablo, `reply 4` haber; EN ekli mesaj. Dosya: `cli/fm/Program.cs`.
+
+## Tur 106 (22 Ekim) — A: `opposition --advice` işareti ölçüldü; kart içeriği bekleniyor (§8.369)
+- Kariyer ilerletildi: Preston (0-1) oynandı; Sheffield Wednesday maçında yardımcı önerisi gerçekten uygulandı.
+- Ölçüm (20 ms): TR clear → 845 ms 10 satır (düşüş, sayaç koruması reddediyor) → 930 ms 11 satır/1 değişik; EN
+  682–762 ms. Üç durumda 11 satır + 1 değişik, eksik yok. Düğme durumu değişmiyor; işaret içerikte.
+- Kod değişmedi; `[?]` kanıtla kapandı. Dosya: `docs/FINDINGS.md` §8.369, `docs/BAGIMLILIKLAR.md`.

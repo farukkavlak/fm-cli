@@ -4363,3 +4363,15 @@ bir kez daha okunuyor; içerik hiç gelmezse üst sınır sonunda "ek yok" deniy
 yok — Eylül'deki 14 mesajın hepsinde ek vardı). Kanıt: `reply 2` altı konu + personel özeti, `reply 1` antrenman
 tablosu (Pzt 3 Ağu …), `reply 4` haber gövdesi; hepsi eskisiyle aynı içerikte ve tam. EN'de ekli mesaj
 ("Attached: Fitness") aynı yolla basıldı. Komut ~1–2 sn uzadı (içerik oturma süresi), yanlış/eksik ek yok.
+
+### 8.369 `opposition --advice`: kartın ara yerleşimi değil, satır sayısı korunan içerik bekleniyor (22 Ekim, TR + EN)
+
+§8.49'daki 500 ms, daha önce "satır sayısı düşmeden ve içerik değiştikten sonra iki okuma aynı" işaretine çevrilmişti,
+ama öneri o maçta boş geldiği için ölçülememişti (`[?]`). Sheffield Wednesday maçında öneri gerçekten uygulandı:
+`--clear` sonrası 0 değişik satır; `Apply all advice` basışından sonra 20 ms aralıkla — TR: **845 ms'de 10 satır**
+(yerleşim düşüşü; `rows.Count >= count` koruması bunu reddediyor), **930 ms'de 11 satır ve 1 değişik satır**; orada
+duruyor. EN: 682 ms'de 1 değişik, 762 ms'de değer oturuyor; satır düşüşü yok. Yani işaret içerikte: satır sayısı
+korunacak **ve** değerler değişecek **ve** iki okuma aynı olacak. Üç durum (başka sayfa açık / kart zaten açık /
+ikinci koşu) 11 satır + 1 değişik; eksik satır yok, dialog yok. "Apply all advice" düğmesinin etkinliği/olayı
+uygulama boyunca değişmiyor, o yüzden düğme işaret değil. Kod değişmedi; madde kanıtla kapandı. Dil TR'ye döndü,
+maç oynanmadı (11 Ağustos Preston maçı bu turdan önce oynandı, 15 Ağustos Sheffield sırada).
