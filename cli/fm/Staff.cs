@@ -108,18 +108,37 @@ internal static partial class Program
 		static int Rank(string job) => Array.IndexOf(StaffJobs, job) is var i && i >= 0 ? i : StaffJobs.Length - 1;
 		var staff = people.Values.OrderBy(p => p[1] == "Senior Squad" ? 0 : 1).ThenBy(p => p[1]).ThenBy(p => Rank(p[2])).ThenBy(p => p[2]).ThenBy(p => p[0]).ToList();
 
+		// The staff teams are named by the CLI, in the game's words (GameWords).
+		await GameWords.Ask(Fm, [.. StaffTeamNames, "Senior Squad"]);
+
 		if (json)
 		{
+			// A json output is written past the GameWordsLines the line output goes through, so the
+			// game's own texts are put back here, field by field, as the line path would (a Turkish
+			// game read English teams, jobs, contracts and one board sentence, 22 Ekim 2026).
+			// A team whose name the game has not given back keeps the CLI's own English name.
+			string TeamName(string team)
+			{
+				var wanted = StaffTeamNames[Array.IndexOf(StaffTeams, team)];
+				var shown = GameWords.Of(wanted);
+				return shown.Length > 0 && shown != wanted ? shown : team;
+			}
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Teams = teams.Select(t => new { t.Team, Roles = t.Roles.Select(r => new { r.Role, r.Filled, r.Wanted }), t.Board }),
-				Staff = staff.Select(p => new { Name = p[0], Team = p[1], Job = p[2], Age = p[3], Nation = p[4], Time = p[5], Contract = p[6], Wage = p[7], Expires = p[8] }),
+				Teams = teams.Select(t => new
+				{
+					Team = TeamName(t.Team),
+					Roles = t.Roles.Select(r => new { Role = GameWords.Of(r.Role), r.Filled, r.Wanted }),
+					Board = GameWords.Of(t.Board),
+				}),
+				Staff = staff.Select(p => new
+				{
+					Name = p[0], Team = GameWords.Of(p[1]), Job = GameWords.Of(p[2]), Age = p[3], Nation = p[4],
+					Time = GameWords.Of(p[5]), Contract = GameWords.Of(p[6]), Wage = GameWords.Of(p[7]), Expires = p[8],
+				}),
 			}));
 			return 0;
 		}
-
-		// The staff teams are named by the CLI, in the game's words (GameWords).
-		await GameWords.Ask(Fm, [.. StaffTeamNames, "Senior Squad"]);
 		var lastTeam = "";
 		foreach (var p in staff)
 		{

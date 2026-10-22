@@ -4157,3 +4157,16 @@ aynı cümleleri Türkçe basıyordu. Artık JSON değerleri de `GameWords.Of`ta
 Kanıt: üç durum (Messages açık / Squad Dynamics açık / Board açık) × TR + EN, `rc=0`, JSON insan çıktısıyla
 birebir aynı; TR'de İngilizce cümle 5 → 0, EN'de (oyun yeniden açılıp dil English yapıldıktan sonra) değerler
 İngilizce kalıyor, Türkçe karakter yok. Dosyalar `/tmp/opencode/t157/`.
+
+### 8.353 `staff --json` Türkçe oyunda ekip adlarını, görevleri, sözleşme türlerini ve bir yönetim cümlesini İngilizce bırakıyordu (22 Ekim, TR + EN)
+
+`--json` çıktısı yazarken `GameWordsLines` sarmalayıcısından geçmiyor (JSON anahtarları bozulmasın diye), o
+yüzden satır yolunda yazarken çevrilen oyun metinleri JSON'da ham İngilizce kalıyordu: `Teams[].Team`
+("Coaching Staff"), `Teams[].Roles[].Role` ("Coach"), `Staff[].Team` ("Senior Squad"), `Staff[].Job`
+("Manager"), `Time`/`Contract` ("Full Time", "Month To Month") ve bir `Board` cümlesi. Aynı kayıtta insan
+çıktısı bunların hepsini Türkçe basıyordu. JSON dalı artık her alanı `GameWords.Of`tan geçiriyor; oyunun
+kendi adı bilinmiyorsa (İngilizce oyun) değer olduğu gibi kalıyor.
+Kanıt: üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık) × TR + EN, `rc=0`, geçerli JSON.
+TR'de İngilizce metin **189 → 0** (teams "Teknik Heyet, Transfer, Sağlık Ekibi", jobs "Antrenör", time
+"Tam Zamanlı"), insan çıktısıyla aynı; EN'de (oyun `stop --no-save` + `start` + v03 `--no-save`, dil English)
+JSON eski derlemeyle **3/3 bayt bayt aynı**. Dosyalar `/tmp/opencode/t158/`.

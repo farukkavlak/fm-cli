@@ -3,6 +3,34 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Tur 158 (22 Ekim) — boşta: seçilebilir kutu yok; hata bulundu ve düzeltildi (`staff --json` dil sızıntısı, §8.353)
+- **Seçim:** canlı bloktaki 12 açık kutu da "Sonraya bırakılanlar"da (Saves 258 · Stages 120/136 ·
+  MatchDay 181/314 · MatchControls 131/266 · Program 714/1484/2242 · Launcher 213/269) → talimatın
+  "ağır madde seçme" kuralı; seçilebilir kutu yok → boşta yolu.
+- `tools/sweep.sh`: **51 komut, 0 hata** (`/tmp/opencode/t158/sweep1`).
+- **Bulunan hata (B / dil, §8.353):** `fm staff --json` Türkçe oyunda `Teams[].Team` ("Coaching Staff"),
+  rolleri ("Coach"), `Staff[].Team` ("Senior Squad"), `Job` ("Manager"), `Time`/`Contract` ("Full Time",
+  "Month To Month") ve bir `Board` cümlesini İngilizce bırakıyordu; insan çıktısı hepsini Türkçe basıyordu.
+  Sebep Tur 157 ile aynı sınıf: `--json` `GameWordsLines`tan geçmiyor, satır yolu geçiyor. JSON dalı artık
+  her alanı `GameWords.Of`tan geçiriyor; oyunun adı bilinmiyorsa değer olduğu gibi kalıyor. Ekip adı için
+  `StaffTeamNames` çevirisi yoksa özgün İngilizce ad korunuyor (EN çıktısı değişmesin diye).
+- Kanıt — üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık) × TR + EN, **6/6 rc=0**,
+  geçerli JSON. TR: İngilizce metin **189 → 0**; teams "Teknik Heyet, Transfer, Sağlık Ekibi", jobs
+  "Antrenör", time "Tam Zamanlı", board cümlesi insan çıktısıyla aynı. EN: oyun `stop --no-save` +
+  `start` + `fm load "Faruk Kavlak - Fenerbahçe (v03)" --no-save` (dil English) ile temiz durumda eski
+  derlemeyle **3/3 bayt bayt aynı** (`cmp`). Not: dil canlı değiştirilince veri bir süre eski dilde
+  kalıyor (rollar karışık geldi); temiz EN ölçümü için oyunu yeniden açmak gerekti.
+- `tools/sweep.sh` yeni derlemeyle: **51 komut, 0 hata** (`/tmp/opencode/t158/sweep2`).
+  `python3 tools/remaining.py --count`: **9 / 0 / 3** (değişmedi; bu bir kutu değil).
+- Dönüş: dil Türkçe'ye alındı (`fm settings language "Türkçe"`), ana kayıt `--no-save` yüklendi; `fm status`
+  → 9 Ağustos 2026 05:45, v03 damgası **21 Ekim 10:40** (değişmedi). `fm save` **yok**.
+- Dosyalar: `/tmp/opencode/t158/` (`before/`, `beforeEN/`, `en_old_clean/`, `en_new2/`, `tr_new_clean/`,
+  `json/`, `sweep1/`, `sweep2/`). Aynı sınıfın diğer adayları (ölçülmedi, sıradaki turlar): `responsibilities
+  --json` (130 İngilizce metin), `league --json` (13), `penalties --json` (3), `opponent --json` (1),
+  `finances --json` (1), `schedule --json` (1), `supporters --json` (1), `saves --json` (1).
+- Sıradaki tur: aynı liste; seçilebilir yeni kutu yoksa yukarıdaki JSON sızıntılarından biri (en küçüğü
+  `opponent`/`finances`/`supporters`) veya yine sweep + menajer akışı.
+
 ## Tur 157 (22 Ekim) — boşta: seçilebilir kutu yok; hata bulundu ve düzeltildi (`board --json` dil sızıntısı)
 - **Seçim:** canlı bloktaki 12 açık kutunun tamamı "Sonraya bırakılanlar"da (Saves 258 · Stages 120/136 ·
   MatchDay 181/314 · MatchControls 131/266 · Program 714/1484/2242 · Launcher 213/269), yani talimatın
