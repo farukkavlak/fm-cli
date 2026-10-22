@@ -1,5 +1,25 @@
 # Otopilot görev defteri — turlar arası hafıza
 
+## Tur 164 (22 Ekim) — boşta: seçilebilir kutu yok; `league --json` dil sızıntısı düzeltildi (§8.361)
+- **Seçim:** canlı bloktaki 11 kutu (Launcher 213/269 · MatchDay 181/314 · Program 1484/2242 · Stages 120/136 ·
+  MatchControls 131/266 · Saves 258) "Sonraya bırakılanlar"da; talimatın "ağır madde seçme" kuralı → boşta yolu.
+  `tools/sweep.sh`: **51 komut, 0 hata** (`/tmp/opencode/t164` yerine sweep çıktısı tmp dizini).
+- **Bulunan hata (B / dil, §8.361):** TR `fm league --json` 20 istatistik adının 16'sını İngilizce yazıyordu
+  (`Most Goals`, `Fewest Shots Against`); `league --stat gol --json` `Stat` "Goller" ama
+  `Columns` `["Goals","Apps","Mins/Gl"]`. İnsan yolu `GameWordsLines` ile çeviriyordu, JSON ham `LongString`i.
+- Düzeltme (`League.cs`, yalnız iki JSON dalı): `Stat` ve `Columns` `GameWords.Of`tan geçiyor; alan adları,
+  sıra, `Figure`/`Place` değişmedi.
+- Kanıt — TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık): **3/3 rc=0**, üç çıktı bayt bayt
+  aynı (`4414af23…`), 10+10 ad insan çıktısıyla aynı; `--stat gol` → `["Gol","Maç","Dk/Gl"]`. EN (dil English +
+  `stop --no-save` + `start`; canlı `settings dil English` oyunu çevirmedi ve `open "Squad Dynamics"` rc=1 verdi)
+  üç durum **3/3 rc=0**, `48ee3d52…`, adlar insan çıktısıyla birebir; `["Gls","Apps","Mins/Gl"]`. İnsan çıktısı
+  TR'de önce/sonra **diff boş**.
+- `python3 tools/remaining.py --write`: açık kutu **11** (değişmedi; bu bir kutu değil), borç **8 · 0 · 3**.
+- Dönüş: dil `Türkçe` + `stop --no-save` + `start` (canlı geçiş oyunu çevirmedi); `/state` yerine `fm settings`
+  `dil: Türkçe`, `fm status` **9 Ağustos 2026 Pazar 05:45**; `fm saves` ilk satır damgası **22 Ekim 03:05**
+  (değişmedi), `fm save` **yok**. Dosyalar `/tmp/opencode/t164/`.
+- Sıradaki adaylar (aynı sınıf): `schedule --json`, `table --json`, `fixtures --json`, `squad --json`.
+
 ## Tur 163 (22 Ekim) — boşta: seçilebilir kutu yok; `penalties --json` dil sızıntısı düzeltildi (§8.359)
 - **Seçim:** canlı bloktaki 12 kutunun tamamı "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay 181/314 ·
   Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır madde seçme"

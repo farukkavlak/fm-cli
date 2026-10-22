@@ -94,8 +94,8 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new
 			{
 				Competition = competition,
-				Teams = teams.Select(t => new { Stat = t.Label, Team = t.Name, t.Figure }),
-				Players = players.Select(p => new { Stat = p.Label, Player = p.Name, p.Figure }),
+				Teams = teams.Select(t => new { Stat = GameWords.Of(t.Label), Team = t.Name, t.Figure }),
+				Players = players.Select(p => new { Stat = GameWords.Of(p.Label), Player = p.Name, p.Figure }),
 			}));
 			return 0;
 		}
@@ -174,7 +174,7 @@ internal static partial class Program
 				Stat = shown,
 				Of = ofTeams ? "teams" : "players",
 				Total = total,
-				Columns = columns,
+				Columns = columns.Select(GameWords.Of),
 				Rows = rows.Select(r => new
 				{
 					Place = Place(Field(r, "Position")),

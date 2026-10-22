@@ -4248,3 +4248,15 @@ değilken `send`ten **bir** `inbox` okuması sonra satırlar geliyor (TR 0,47 ·
 Yan gözlem (bu maddenin dışı): EN'de `Squad Dynamics` sonrası aynı mesajın eki ("Attached: advice summary — Advice
 Topics") satırsız geldi; `Finances` sonrası aynı koşuda tam. §8.194'ün (bağlanan yazılar eskisini gösterebiliyor)
 devamı gibi, ayrı ölçülmeli.
+
+### 8.361 `league --json` Türkçe oyunda istatistik adlarını İngilizce bırakıyordu (22 Ekim, TR + EN)
+TR oyunda `fm league` insan çıktısı "En Fazla Gol Atan / Kalesine En Az Şut Çekilen" derken `--json`
+`Most Goals / Fewest Shots Against` yazıyordu (10 takım + 10 oyuncu liderinin 8'eri); `league --stat gol --json`
+`Stat` "Goller" ama `Columns` `["Goals","Apps","Mins/Gl"]` idi. İnsan yolu `GameWordsLines`tan geçip oyunun
+kendi sözlüğüyle çeviriyordu; JSON dalı ham `LongString`/`StatValueHeader` yazıyordu — önceki turlarla aynı sınıf.
+Düzeltme (`League.cs`, yalnız JSON dalları): `Stat` ve `Columns` `GameWords.Of`tan geçiyor; alan adları, sıra,
+`Figure`/`Place` değerleri değişmedi. Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık)
+3/3 rc=0, bayt bayt aynı (`4414af23…`), 20/20 ad insan satırıyla aynı; `league --stat gol --json`
+`["Gol","Maç","Dk/Gl"]`. EN (dil English + `stop --no-save` + `start`) 3/3 rc=0, `48ee3d52…`, adlar insan
+çıktısıyla birebir ("Most Dribbles Made", "Fewest Conceded"…), `["Gls","Apps","Mins/Gl"]`; TR'ye dönüşte
+`4414af23…` aynı. İnsan çıktısı önce/sonra `diff` boş, rc=0. Dosyalar `/tmp/opencode/t164/`.
