@@ -3,6 +3,34 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Şu an (Tur 151)
+- Seçilen madde: **yok** — canlı bloktaki 15 kutunun 2'si Guided `[?]`, gerisi "Sonraya bırakılanlar"
+  (Saves 258 · Registration 318 · Stages 63/120/136 · MatchDay 181/314 · MatchControls 131/266 ·
+  Program 589/694/1452/2210 · Launcher 213/269). Talimatın "boşta kalırsan" yolu: `sweep.sh` + gerçek
+  menajer akışı / hata avı.
+- Sweep ilk denemede `15-happiness`te oyunun ana iş parçacığı 30 sn yanıt vermedi, sonra "kayıt yüklü
+  değil" (Tur 144'teki ortam çökmesi; dil gidiş-dönüşünden sonra oyunun yeniden başlatılması gerekiyordu).
+  Oyun kapatılıp `fm start` ile yeniden açıldı; aynı kayıt (9 Ağustos, Türkçe) geldi. Yeni derlemeyle
+  sweep **50 komut, 0 hata** (`/tmp/opencode/t151/sweep3`), `responsibilities` 38 sn / 227 satır.
+- Bulunan hata (**B / dil-kimlik**, §8.345): `fm responsibilities` sayfanın alan başlıklarını kendi
+  İngilizce kimliğiyle basıyordu ("Board", "Staff Responsibilities", "Scouting Responsibility"…); oysa
+  Türkçe oyunda sol liste "Yönetim Kurulu", "Teknik Ekip Sorumlulukları", "Gözlemcilik Sorumlulukları"…
+  diyor. Artık gösterim `GameWords.Ask` + `GameWords.Of` kullanıyor; seçim/eşleşme ve `--json` `Area`
+  kimliği İngilizce kaldı.
+- Kanıt — üç durum (inbox açıkken / sayfa zaten açık / squad sonrası) × TR + EN, eski/yeni derleme:
+  TR'de her durumda yalnız **9 başlık** değişiyor (18 diff satırı = 9 çift; başka fark yok), EN üç
+  durumda **bayt bayt aynı**. `responsibilities medya` → "Medya"; `--json` `"Area":"Board"`.
+  Dosyalar `/tmp/opencode/t151/{before,after}-{tr,en}/`, ekran görüntüsü `resp-tr.png` (oyunun kendi
+  listesi). `sweep3` **50/50**.
+- Dönüş: testte maç oynanmadı, `fm save` **yok**. `fm status --json`: `Language: turkish`,
+  `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm saves` ana kayıt damgası değişmedi (v03
+  21 Ekim 10:40). Oyun yeniden başlatıldığı için dil ve kayıt doğrulandı.
+- `remaining.py --write`: kutu sayısı değişmedi (12 borç / 0 yazı / 3 kısa `Until`; bu bir kutu değil,
+  gösterim bulgusu).
+- **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (318) · Stages 63/120/136 ·
+  MatchDay 181/314 · `MatchControls` 131/266 · `Program.cs:589/694/1452/2210`, `Launcher 213/269`
+  (baştan sona gezinme / oyunu kapatıp açma ister). Sıradaki tur yine sweep + menajer akışında hata arasın.
+
 ## Şu an (Tur 150)
 - Seçilen madde: **A1 `Task.Delay` / `MatchDay.cs:370` (anında sonuç döngüsü)** — BİTTİ (§8.343).
   Döngü her turda, ilk turda da, sabit **1,5 sn** uyuyup pencereyi öyle okuyordu; pencere basıştan

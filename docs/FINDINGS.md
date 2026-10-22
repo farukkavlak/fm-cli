@@ -4061,3 +4061,15 @@ Aynı klasörde "Faruk Kavlak - Fenerbahçe" ve "Faruk Kavlak - Fenerbahçe (v03
 `fm load "Faruk Kavlak - Fenerbahçe (v03)" --no-save` **v03'ü değil** diğerini yükledi (tarih 23 Ağustos).
 Diğer dosya geçici olarak klasörden çıkarılınca aynı komut v03'ü **9 Ağustos 05:45** olarak yükledi; yani
 kayıt sağlam, seçim yanlış. Muhtemel neden `rowselect ?text=`in ada **önek** olarak eşleşmesi; düzeltilmedi.
+
+### 8.345 sorumluluk alanlarının başlıkları Türkçe oyunda İngilizceydi (22 Ekim, TR + EN)
+
+`fm responsibilities`, sayfanın alan adlarını ("Board", "Staff Responsibilities", "Scouting Responsibility"…)
+kendi İngilizce kimliğiyle basıyordu; oysa Türkçe oyunda sayfanın sol listesi "Yönetim Kurulu", "Teknik Ekip
+Sorumlulukları", "Gözlemcilik Sorumlulukları"… diyor (`/visible` "Staff Responsibilities" için eşleşme
+vermiyor, "Yönetim Kurulu" sayfada görünüyor). Artık yalnız gösterim `GameWords.Ask` + `GameWords.Of` ile
+oyunun kendi sözlerine çevriliyor; eşleşme/seçim ve `--json` `Area` kimliği İngilizce kaldı. Kanıt — üç
+durum (inbox açıkken / sayfa zaten açık / squad sonrası) × TR + EN: TR'de yalnız dokuz başlık satırı
+değişiyor (18 diff satırı = 9 çift, başka fark yok), diğer satırlar bayt bayt aynı; EN üç durumda eski
+derlemeyle bayt bayt aynı. `responsibilities medya` başlığı "Medya", `--json` hâlâ `"Area":"Board"`.
+Dosyalar `/tmp/opencode/t151/{before,after}-{tr,en}/`, ekran görüntüsü `resp-tr.png`; `sweep.sh` 50/50.

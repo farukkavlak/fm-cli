@@ -39,10 +39,13 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(duties.Select(d => new { d.Area, d.Group, Duty = d.Title, d.About, By = d.Mine ? "manager" : "delegated", d.Holder })));
 			return 0;
 		}
+		// The areas are named here in the English the page matches on; the game shows its own words
+		// for them, so the heading is put into those (a Turkish game's "Yönetim Kurulu", not "Board").
+		await GameWords.Ask(Fm, DutyAreas);
 		foreach (var inArea in duties.GroupBy(d => d.Area))
 		{
 			var mine = inArea.Count(d => d.Mine);
-			Console.WriteLine(L($"\n== {inArea.Key}  ({mine} sende, {inArea.Count() - mine} devredilmiş)"));
+			Console.WriteLine(L($"\n== {GameWords.Of(inArea.Key)}  ({mine} sende, {inArea.Count() - mine} devredilmiş)"));
 			foreach (var group in inArea.GroupBy(d => d.Group))
 			{
 				// An area of one group repeats its name; the heading is said once.
