@@ -4383,3 +4383,14 @@ kalana kadar okunuyor ve beş konumun satırları adla birleştiriliyor. 17 koş
 "Personel kartı açılmadı" hatasıyla düştü (sayfa geç açıldı; satır kaybı değil). Eski gözlemdeki 34/42 kaybı
 görülmedi, yani "tam olmayan pencereyi sakin gösterme" tuzağı bu kodda yakalanmıyor; Mutluluk'taki 11 duraklı
 tam gezme şimdilik gerekmiyor. Karar: sabit duraklama yok, mevcut işaret yeterli.
+
+### 8.371 `Task.Delay` borcu 7 → 1: yoklama temposu olan yerler ayrıldı (22 Ekim)
+
+Envanterdeki yedi açık `Task.Delay`, tek tek okundu; beşi sabit bekleme değil, bir koşulu yoklayan döngünün
+temposu: `Launcher.cs:213` (çıkış penceresini 500 ms aralıkla sorma), `Launcher.cs:269` (`WaitFor`ın 3 sn'lik
+süreç yoklaması), `Program.cs:1516` (satırların beş hücresi dolana kadar 250 ms arayla yeniden okuma),
+`Program.cs:2274` (oyun "active visual tree" derken 500 ms arayla yeniden deneme), `Stages.cs:242` (liste
+seçimini 700 ms arayla yeniden deneme; ilk denemede geçiyor), `MatchDay.cs:314` (maç akışını 3 sn'de bir yoklama;
+canlı anlatımın temposu). Bunlar `SETTLED`a taşındı; borç **1**'e indi. Kalan tek borç `MatchDay.cs:181`: takım
+seçimi penceresine "evet" basıldıktan sonraki 3 sn; yerine "pencere kapandı" işareti yazılabilir, ama maç izleme
+yolunda ölçüm istiyor (sıradaki maçta denenecek).

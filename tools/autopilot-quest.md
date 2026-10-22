@@ -4952,3 +4952,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Güncel kod beş kaydırma konumunu "iki okuma aynı" ile okuyup adla birleştiriyor; 17 koşuda 16 tam 48, biri
   sayfa açılmadı hatası. Eski 34/42 kaybı yok. Kod değişmedi; `[?]` kapandı.
 - Dosya: `docs/FINDINGS.md` §8.370, `docs/BAGIMLILIKLAR.md`.
+
+## Tur 108 (22 Ekim) — A: `Task.Delay` borcu sınıflandırıldı; 7 → 1 (§8.371)
+- Yedi açık `Task.Delay` tek tek okundu; altısı koşul yoklayan döngünün temposu (Launcher ×2, Program ×2,
+  Stages, MatchDay 314) → `SETTLED`. Kalan tek borç `MatchDay.cs:181` (takım seçimi penceresinden sonra 3 sn;
+  maç izleme yolunda ölçüm istiyor).
+- Dosyalar: `tools/remaining.py`, `docs/BAGIMLILIKLAR.md`, `docs/FINDINGS.md` §8.371.
