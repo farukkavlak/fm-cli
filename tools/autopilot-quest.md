@@ -1,5 +1,32 @@
 # Otopilot görev defteri — turlar arası hafıza
 
+## Tur 160 (22 Ekim) — boşta: seçilebilir kutu yok; `supporters --json` dil sızıntısı düzeltildi (§8.355)
+- **Seçim:** canlı bloktaki 12 kutu da "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay 181/314 ·
+  Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır madde seçme"
+  kuralı; seçilebilir kutu yok → boşta yolu. Tur 159'un bıraktığı ilk aday (`supporters --json`) alındı.
+- **Sweep (kısmi, olaylı):** `tools/sweep.sh /tmp/opencode/t160/sweep1` 21 komuta kadar temiz; `22-staff`ta CLI
+  30 sn yanıt alamadı, oyun FM'nin "Uygulama Hatası" penceresini gösterdi. `bt-breadcrumbs-0` son kaydı
+  `Panel Opened ClubAllStaffTool` (§8.356). Oyun yeniden açıldı, ana kayıt `--no-save` yüklendi; `fm staff`
+  tek başına ve `coaches` sonrası **2/2 rc=0** → tekrarlamadı, kod değişmedi.
+- **Bulunan hata (B / dil, §8.355):** TR `fm supporters --json` 30 değeri İngilizce bırakıyordu
+  (`Influence: "High"`, `Profile[].Group`, ilk beklenti cümlesi, `Importance/Type/Reaction`); insan çıktısı
+  Türkçeydi. `ClubCards.cs` JSON dalı artık insan yolunun sözlüklerinden geçiyor
+  (`GameWords.Of(CardSay(...))`, metinler `GameWords.Of`).
+- Kanıt — önce TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık): `fm supporters --json`
+  3/3 rc=0, İngilizce değerler görünür (`/tmp/opencode/t160/before/`). Sonra aynı üç durum TR: 3/3 rc=0,
+  bayt bayt aynı (`md5 2931296d…`), JSON insan çıktısıyla aynı sözcüklerde (yüksek / çekirdek / orta /
+  Geliştirme / rekabet / henüz yargılamıyor); `fm facilities --json` rc=0. EN (dil canlı değişti): üç durum
+  3/3 rc=0, `859f7fec…`, değerler İngilizce. Not: EN'de `aile` etiketi Türkçe kalıyor — `CardWords["Family"]`
+  çeviri kataloğunda yok, insan yolunda da aynı (ayrı iş).
+- `python3 tools/remaining.py --count`: **12 / 0 / 3** (değişmedi; bu bir kutu değil). Paylaşılan koda
+  dokunulmadı (yalnız `ClubCards.cs` yerel yardımcıları) → tam `sweep.sh` gerekmedi.
+- Dönüş: dil `fm settings language "Türkçe"` → `turkish`; `/state` `Language: turkish`, `Date: 2026-08-09`,
+  `Clock: 0`, `DuringMatch: False`; v03 damgası **21 Ekim 10:40** (değişmedi), fazladan kayıt yok, `fm save` **yok**.
+  Test için konan kendi kayıt kopyaları (`t150 * test.fm`) silindi.
+- Dosyalar: `/tmp/opencode/t160/{sweep1,before,after,screen.png}`, `staff1.*`, `staff2.*`.
+- Sıradaki adaylar: `opponent --json` (1), `finances --json` (1), `saves --json` (1), `penalties --json` (3),
+  `league --json` (13), `responsibilities --json` (130) — aynı sınıf; ya da yine sweep + menajer akışı.
+
 ## Tur 159 (22 Ekim) — boşta: seçilebilir kutu yok; hata bulundu ve düzeltildi (`supporters` kartı erken tıklanıyordu, §8.354)
 - **Seçim:** canlı bloktaki 12 açık kutunun tamamı "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay
   181/314 · Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır

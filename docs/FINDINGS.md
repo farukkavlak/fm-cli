@@ -4185,3 +4185,20 @@ Kanıt: düzeltmeden önce TR `fm open Messages` + `supporters` **3/3 rc=1**; so
 hemen ikinci koşu / Squad Dynamics açık) × TR + EN, soğuk açılış dahil **6/6 + 6/6 rc=0**, TR çıktısı eski
 sağlam çıktıyla bayt bayt aynı (`408bea7b…`), EN 6/6 aynı (`6e2ef9f7…`) ve beklentiler 3/3 dolu. Dosyalar
 `/tmp/opencode/t159/`.
+
+### 8.355 `supporters --json` Türkçe oyunda 30 değeri İngilizce bırakıyordu (22 Ekim, TR + EN)
+Kanıt: TR `fm supporters --json` → `Influence: "High"`, `Profile[].Group` ("Core", "Fair Weather"…),
+`Expectations[].Text` ("Develop players using the club's youth system"), `Importance/Type/Reaction`
+("Average", "Development", "Reserving Judgement"); insan çıktısı hepsini Türkçe basıyordu. Sebep Tur 157/158 ile aynı:
+satır yolu `Ui.Safe`/`CardSay`tan geçiyor, JSON dalı ham değerleri yazıyordu.
+Düzeltme (`ClubCards.cs`): JSON alanları insan yolunun sözlükleriyle (`GameWords.Of(CardSay(...))`, metinler
+`GameWords.Of`) üretiliyor; TR üç durumda JSON insan çıktısıyla aynı sözcüklerde (yüksek / çekirdek / orta /
+Geliştirme / henüz yargılamıyor), üç koşu bayt bayt aynı (`2931296d…`), EN üç koşu `859f7fec…`. EN'de `aile`
+etiketi Türkçe kalıyor: `CardWords["Family"]` çeviri kataloğunda yok — ayrı, insan yolunu da etkileyen boşluk.
+
+### 8.356 `tools/sweep.sh` sırasında oyun `ClubAllStaffTool` açılırken ölümcül hata verdi (22 Ekim, bir kez)
+`22-staff` adımında CLI 30 sn'de yanıt alamadı ("the main thread did not run this request within 30s"); ekranda FM'nin
+"Uygulama Hatası — ciddi bir hata oluştu" penceresi vardı. `backtrace/bt-breadcrumbs-0` son kaydı
+`Panel Opened ClubAllStaffTool`. Oyun yeniden açılıp ana kayıt yüklenince aynı komut (`fm staff`, sonra `coaches` →
+`staff`) **2/2 rc=0**, hata tekrarlamadı; sweep öncesi yapılan kendi kayıt kopyalarını silme denemeleriyle ilişkisi
+ölçülmedi. Tekrarlanmadığı için kod değişmedi; yeniden görülürse aynı adımda breadcrumb ve `.ips` toplanmalı.

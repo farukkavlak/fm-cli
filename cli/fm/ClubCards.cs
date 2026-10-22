@@ -121,7 +121,23 @@ internal static partial class Program
 		};
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(fans));
+			// The same words the rows below print: the card's texts are the game's own, and a
+			// JSON answer is no reason to hand them over untranslated (FINDINGS §8.353, §8.355).
+			var said = new
+			{
+				Mood = GameWords.Of(fans.Mood),
+				Influence = GameWords.Of(CardSay(fans.Influence)),
+				fans.SeasonTicketHolders, fans.SeasonTicketWaitingList, fans.AverageAttendance, fans.SocialMediaFollowers,
+				Profile = profile.Select(p => new { Group = CardSay(p.Group), Share = GameNumbers.Percent(p.Share) }),
+				Expectations = expectations.Select(e => new
+				{
+					Text = GameWords.Of(e[0]),
+					Importance = GameWords.Of(CardSay(e[1])), Type = GameWords.Of(CardSay(e[2])), Reaction = GameWords.Of(CardSay(e[3])),
+				}),
+				About = GameWords.Of(fans.About),
+				fans.FierceRivals, fans.OtherRivals,
+			};
+			Console.WriteLine(JsonOut.Of(said));
 			return 0;
 		}
 
