@@ -4236,3 +4236,15 @@ Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics aç
 `3e51e37b…`, "sub / A player who has scored twice may take one" — insan İngiliz satırıyla aynı. TR kural aç/kapa
 (`penalties 1 açık` → `On:true` → `kapalı` → `On:false`) JSON'a yansıyor. İnsan çıktısı değişmedi (yalnız JSON dalı).
 Dosyalar `/tmp/opencode/t163/`.
+
+### 8.360 `Bound`ın panel bağlama yoklaması döngü temposu; 250 ms borç değil (22 Ekim, TR + EN)
+`reply`/`inbox`/`clock` yollarındaki `Bound` (Program.cs, `OpenSubtabEvent` sonrası) panel bağlanana kadar
+`/inbox`ı 250 ms arayla soruyor (20 sn üst sınır). Ölçüm: eklentiye doğrudan `send` atıp 20 ms aralıkla `/inbox`
+okundu — satırlar olaydan **0,26 / 0,39 sn** sonra geliyor (iki koşu; 15 ve 20 satır), yani 250 ms yalnız tempo.
+Komut tarafı (`FM_TRACE=1 fm reply "Staffing Advice" --dry`; üç durum: `Finances` açık = panel bağlı değil /
+hemen ikinci koşu / `Squad Dynamics` açık) 6/6 rc=0: panel bağlıyken `send` hiç atılmıyor (0,43–0,56 sn), bağlı
+değilken `send`ten **bir** `inbox` okuması sonra satırlar geliyor (TR 0,47 · EN 0,48 sn; aynı çıktı `9070560d…` /
+`a7b8dcf7…`). Yani ilk okuma zaten veri gelince dönüyor, sabit bir duraklama yok → canlı listede `[~]`, borç değil.
+Yan gözlem (bu maddenin dışı): EN'de `Squad Dynamics` sonrası aynı mesajın eki ("Attached: advice summary — Advice
+Topics") satırsız geldi; `Finances` sonrası aynı koşuda tam. §8.194'ün (bağlanan yazılar eskisini gösterebiliyor)
+devamı gibi, ayrı ölçülmeli.

@@ -4801,3 +4801,23 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Kayıt: yalnız sayfa gezinme + dil geçişi; `fm save` yok, ana kayıt 9 Ağustos 2026 05:45, dil `turkish`.
   Paylaşılan kod değişmedi → `sweep.sh` gerekmedi.
 - Dosyalar: `/tmp/u609/{tr,en}_{a,b,c}.{json,trace}`; `/tmp/st120_*` (geri alınan deneme).
+
+## Tur 100 (22 Ekim) — A: `Bound`ın 250 ms'lik panel yoklaması ölçüldü, borç değil (§8.360)
+- Seçilen madde: A1 `Program.cs:714` — `reply`/`inbox`/`clock` yollarında `OpenSubtabEvent` sonrası panel
+  bağlanana kadar `/inbox`ı 250 ms arayla soran döngü (20 sn üst sınır). B1 sıfır; B'nin kalanları parkta
+  (ScoutFocus düğmeleri kimliksiz), MatchDay/MatchControls maç günü "Sonraya bırakılanlar"da, Stages 120/136
+  §8.350'nin park bölgesinde; bu yüzden A1'den alındı.
+- İşaret ölçümü (eklentiye doğrudan `send`, 20 ms aralıkla `/inbox`): satırlar olaydan **0,26 / 0,39 sn** sonra
+  geliyor (iki koşu, 15 ve 20 satır) → 250 ms tempo, sabit duraklama değil; ilk okuma veri gelince dönüyor.
+- Üç durum × iki dil (`FM_TRACE=1 fm reply "Staffing Advice" --dry`): (a) `Finances` açık (panel bağlı değil) →
+  `send` + **tek** `inbox` okuması, TR 0,47 · EN 0,48 sn, satırlar geldi; (b) hemen ikinci koşu → `send` yok,
+  TR 0,56 · EN 0,43 sn; (c) `Squad Dynamics` açık → TR'de yine `send` (0,46) · EN'de panel bağlı (0,49).
+  **6/6 rc=0**, çıktı dil içinde bayt bayt aynı (TR `9070560d…`, EN `a7b8dcf7…`), "(cevap seçeneği yok)" /
+  "(no answer options)" doğru.
+- Karar (kural 4): kod değişmedi — ilk okumayı öne almak ölçümde 0–40 ms kazandırıyordu (satırlar 0,26–0,39'da
+  geldiği için), churn'e değmez. `SETTLED`a eklendi; `--write`: açık kutu **12 → 11**, `Task.Delay` borcu **9 → 8**.
+- Kayıt: yalnız sayfa gezinme + `--dry` (mesaj açıldı, cevap verilmedi); `fm save` **yok**. Dil TR'ye döndü
+  (`language: English → Turkish`). Paylaşılan kod değişmedi → `sweep.sh` gerekmedi.
+- Yan gözlem (§8.360 sonu): EN'de `Squad Dynamics` sonrası aynı mesajın eki satırsız geldi ("Attached: advice
+  summary — Advice Topics"), `Finances` sonrası tamdı — §8.194 devamı, ayrı madde.
+- Dosyalar: `/tmp/s714/{tr,en}_{a,b,c}.{out,trace}`, `/tmp/b714r/probe.py`, `/tmp/st120/probe.py`.

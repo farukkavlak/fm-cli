@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **12** · `Task.Delay` 27 çağrı (9 borç, 15 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **11** · `Task.Delay` 27 çağrı (8 borç, 16 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 9 borç / 27 çağrı
+#### A1. `Task.Delay` — 8 borç / 27 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -48,7 +48,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
 - [~] `Program.cs:609` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
-- [ ] `Program.cs:714` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
+- [~] `Program.cs:714` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
 - [ ] `Program.cs:1484` `await Task.Delay(250);`
 - [ ] `Program.cs:2242` `await Task.Delay(500);`
 - [~] `Registration.cs:318` — iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350
