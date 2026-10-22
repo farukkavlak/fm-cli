@@ -3,6 +3,34 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Tur 156 (22 Ekim) — boşta: seçilebilir kutu yok (hepsi park/heavy), sweep + menajer akışı temiz
+- **Hata (benim):** canlı bloktaki `[?] Stages.cs:63`i "sıradaki kardeş" sanıp ölçtüm; oysa Tur 155'te
+  park edilmiş maddeydi. Ölçüm yine de kayda değer: yarışma seçiminden sonraki `Task.Delay(1200)` yerine
+  sayfanın kendi yarışma etiketi (`Competition.Label`, menü yolunun sonuna `EndsWith`) + liste imzası
+  beklenince **select→ilk okuma 1,81–1,91 s → 0,45–0,61 s**; toplam `fm stages` TR 4,25/4,29/3,95 →
+  2,69/2,63/3,35 s, EN 4,27/4,09/3,60 → 2,57/2,65/3,70 s. Üç durum (`Messages` sonrası / hemen ikinci /
+  `Squad Dynamics` sonrası) × iki dil **6/6 rc=0**; çıktı JSON semantiği eski derlemeyle **6/6 aynı**
+  (tablo satırlarında anahtar sırası değişiyor, `cmp` bu yüzden yanıltıcı). Carabao Kupası çapraz kontrolü
+  eski derlemeyle **birebir aynı**, select→ties 1,61 → 0,61 s; `--all` 7 aşama, rc=0.
+- **Karar (kural 4 + park):** kod **geri alındı** (`git restore cli/fm/Stages.cs`, yeniden derlendi,
+  `remaining.py --write` blok eski haline döndü: 12 kutu / 9 borç). Park sebebi aynen duruyor: benim
+  ölçtüğüm çiftlerde yanlış okuma çıkmadı ama §8.350'nin asıl repro'su (Carabao→`Sky Bet League Two`,
+  soğuk koşu) denenmedi; kök neden eklentide `Ties.Current()`. `Stages.cs:120/136` de aynı düzeltmeye bağlı.
+- Canlı bloktaki 9 açık kutunun tamamı "Sonraya bırakılanlar"da (Saves 258 · Registration 318 · Stages
+  63/120/136 · MatchDay 181/314 · MatchControls 131/266 · Program 714/1484/2242 · Launcher 213/269);
+  `[?]` Guided 161/174. Bu tur seçilebilir kutu yok → talimatın boşta yolu.
+- `tools/sweep.sh`: **51 komut, 0 hata**. Ardından gerçek menajer akışı: 4× `next` + basın (reply/talk 1,
+  6 soru) → Carabao Cup **Lincoln 3-0 Preston** (`match --instant`) → maç sonu basın (5 soru) → 11 Ağustos
+  22:00. Ek olarak `board/finances/staff/table/youth/training/tactic/schedule/offer/contract/scout/targets`
+  ve 7 komutun `--json` hâli: hepsi rc=0, geçerli JSON, Türkçe çıktıda İngilizce cümle kalıntısı yok
+  (`offer` yalnız kullanım, `contract` açık görüşme yok diyor — beklendiği gibi).
+- **Bulgu yok.** Kayıt test kaydı: maç oynandı, `fm save` **yok**; ana kayıt
+  `fm load "Faruk Kavlak - Fenerbahçe (v03)" --no-save` ile geri yüklendi → `/state`:
+  `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`.
+- Dosyalar: `/tmp/st120b/` (before/after 6+6, Carabao çapraz, `--all`, negatif), `/tmp/opencode/t156/`.
+- Sıradaki tur: aynı liste; seçilebilir yeni kutu yoksa yine sweep + hata avı. `Stages` üçlüsü Faruk'un
+  eklenti kararına bağlı.
+
 ## Şu an (Tur 155)
 - Seçilen madde: **A1 `Registration.cs:318`** — `Settled`ın iki okuma arası `Task.Delay(250)`. **BİTTİ, kod
   değişmedi**: bu bir sabit duraklama değil, "iki okuma aynı mı" işaretinin **örnekleme aralığı**. Ölçüm
@@ -109,6 +137,8 @@ iki kez yapmaz, park edileni tekrar denemez.
 - `Registration.cs:318` — `Settled()` yoklama aralığı; kayıt listesini her durağında yeniden okuyan
   uçtan uca tarama ister.
 - `Stages.cs:63/120/136` — aşama listesi/ikili arama; turnuva→aşama gezintisinin tamamını ölçmek gerekir.
+  (Tur 156: 63'ün yerine yarışma etiketi işareti 6/6 + Carabao'da doğru çıktı verdi ve ~1,2 sn kazandırdı,
+  ama §8.350'nin asıl repro'su denenmedi; kök neden eklenti `Ties.Current()` → park sürüyor.)
 - `MatchDay.cs:181/314` — maç günü pencereleri; maç akışının baştan sona oynanması gerekir.
 - `MatchControls.cs:131/266` — maç günü kontrolleri; aynı şekilde tam maç akışı.
 - `Program.cs:589/694/1452/2210` — uzun/yayın akışları; baştan sona gezinme ister.
