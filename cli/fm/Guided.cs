@@ -134,13 +134,18 @@ internal static partial class Program
 	/// neither a dialog nor a line of the talk. Each time the line is chosen another is laid over the
 	/// last, so the last one is the one showing. Null when there is no such window.
 	/// </summary>
-	private static async Task<int?> FeeAsked(List<string> words)
+	private static async Task<JsonElement?> FeeList()
 	{
 		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			.Where(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var w)
 				&& w.EnumerateArray().Any(x => x.GetString() == "notifications-modal-dialog-default-default"))
 			.LastOrDefault();
-		if (list.ValueKind != JsonValueKind.Object) return null;
+		return list.ValueKind == JsonValueKind.Object ? list : null;
+	}
+
+	private static async Task<int?> FeeAsked(List<string> words)
+	{
+		if (await FeeList() is not { } list) return null;
 		var confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.LastOrDefault(b => Field(b, "Events").Contains("EventFmxConfirmChanges", StringComparison.Ordinal));
 		var fees = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
@@ -158,7 +163,9 @@ internal static partial class Program
 			if (confirm.ValueKind != JsonValueKind.Object) { Console.Error.WriteLine(L("Onay düğmesi yok.")); return 1; }
 			var said = await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-			await Task.Delay(1000);
+			// The window closes on the game's own frame, not at a guessed moment: measured, it
+			// was still up 0.4 s after a fixed 1 s had passed (FINDINGS §8.373).
+			await Until(async () => await FeeList() == null, seconds: 3, every: 0.15);
 			Console.WriteLine(L("Bedel önerildi. Devam için: talk"));
 			return 0;
 		}
@@ -171,12 +178,9 @@ internal static partial class Program
 	/// <summary>At a terminal: the fee a promise asks for, picked with the arrows and sent.</summary>
 	private static async Task AskFee()
 	{
-		await Task.Delay(800);
-		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.Where(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var w)
-				&& w.EnumerateArray().Any(x => x.GetString() == "notifications-modal-dialog-default-default"))
-			.LastOrDefault();
-		if (list.ValueKind != JsonValueKind.Object) return;
+		// The window comes with the line, a frame or two later; it is waited for, not slept on.
+		await Until(async () => await FeeList() != null, seconds: 3, every: 0.15);
+		if (await FeeList() is not { } list) return;
 		var fees = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 		if (Ui.Ask(L("Hangi bedel?"), fees) is not { } at) return;
 		await FeeAsked(["bedel", fees[at]]);

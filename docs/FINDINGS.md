@@ -4403,3 +4403,16 @@ göründü, **5,33 sn**de kapandı (döngünün 3 sn'lik turu tıklamayı gecikt
 tıklamadan sonra pencere bir sonraki örnekte yok. Artık tıklamadan sonra "dialog boşalana kadar" bekleniyor
 (0,2 sn aralık, 8 sn üst sınır), sabit süre yok. Maç tam oynandı (Lincoln 4-1 Tranmere), çift pencere/çift
 tıklama görülmedi; `sweep.sh` temiz. Bu, envanterdeki son `Task.Delay` borcuydu: borç **0**.
+
+### 8.373 Bedel sözü penceresi bulundu: oyuncunun "geleceği" konuşmasındaki bonservis vaadi (22 Ekim, TR)
+
+§8.192/§8.218'de ölçülemeyen `FeeAsked` penceresinin tetiği bulundu: transfer listesindeki bir oyuncu
+"geleceği hakkında konuşmak istiyor" mesajı gönderiyor (Erik Ring; üç teklif reddedildikten sonra), mesaja
+"Ring ile Bu Sorun Hakkında Görüş" cevabı verilince konuşma açılıyor ve **Söz Ver** başlığı altındaki
+"Kafamızdaki bonservise uygun bir teklif yapmadılar…" satırı seçilince pencere geliyor. Pencere tam olarak
+`notifications-modal-dialog-default-default` içinde `Binds=value` bir dropdown (23 bedel: 0 £ … 300M £) ve
+`EventFmxConfirmChanges` taşıyan "Confirm" düğmesi; oyuncu "en azından bir fiyat belirlenmiş olmasından memnunum"
+diyor. Ölçüm (20 ms'lik `/dropdowns` + `/buttons`): onaydan sonra pencere **1731 ms**de kapandı; eski kod
+1000 ms uyuyup devam ediyordu, yani pencere ~0,4 sn daha açık kalıyordu. Artık (1) satır seçildikten sonra
+"bedel listesi görünene kadar" (0,15 sn, 3 sn üst sınır), (2) onaydan sonra "bedel listesi kaybolana kadar"
+aynı aralıkla bekleniyor; sabit 800 ms ve 1 sn kaldı. `talk bedel <x>` / `talk onayla` yolları aynı.

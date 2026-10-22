@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **0** · `Task.Delay` 23 çağrı (0 borç, 21 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 0
+**Canlı sayaç:** açık kutu **0** · `Task.Delay` 21 çağrı (0 borç, 21 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 0
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 0 borç / 23 çağrı
+#### A1. `Task.Delay` — 0 borç / 21 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -39,8 +39,6 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `Clock.cs:148` — `next`in Settled beklemesi ölçüldü, değişiklik gerekmedi §8.181
 - [~] `Clock.cs:157` — `next`in Settled beklemesi ölçüldü, değişiklik gerekmedi §8.181
 - [~] `Clock.cs:187` — işsizlik yolu oyunun cevabına bağlandı §8.289
-- [?] `Guided.cs:161` — bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)
-- [?] `Guided.cs:174` — bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)
 - [~] `Launcher.cs:213` — oyun kapanırken çıkış penceresini 500 ms aralıkla yoklama; pencere gelince basılıyor, §8.143
 - [~] `Launcher.cs:269` — süreç canlılığını 3 sn aralıkla yoklama; koşul süreç, gecikme yalnız tur temposu
 - [~] `League.cs:253` — tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320
@@ -64,6 +62,8 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `ClubCards.cs:48` — kart metinleri tıklamadan 0,05–0,36 sn sonra geliyor; 1,5 sn yalnız üst sınır, §8.354
 - [~] `Coaches.cs:56` — yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318
 - [~] `ContractTalks.cs:388` — çıkış basışından sonra görüşme ekranı 0,41–0,45 sn'de kapanıyor; 3 sn yalnız üst sınır, §8.326
+- [~] `Guided.cs:168` — bedel penceresi kapandı mı diye bekleme; 3 sn yalnız üst sınır, §8.373
+- [~] `Guided.cs:182` — bedel penceresi açıldı mı diye bekleme; 3 sn yalnız üst sınır, §8.373
 - [~] `League.cs:223` — yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319
 - [~] `MatchControls.cs:131` — Dugout girişleri panel göründükten sonra geliyor; 3 sn yalnız üst sınır
 - [~] `MatchControls.cs:266` — girişin metni basıştan öncekinden farklı olana kadar; 1,5 sn yalnız üst sınır
@@ -255,14 +255,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
   - [x] `jobs apply|interest` düğmeleri: panelin iki cevabı artık etiketle değil **olayla** bulunuyor (`Events` içinde
     `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`; TR + EN'de aynı, `docs/reference/enums.txt`), basış
     işaretçiyle. Negatif: TR `Villarreal apply` → "başvuru kabul etmiyor", rc=1 (§8.219, B "yazıyla basma" maddesi).
-  - [?] Guided 161 174 (bedel sözü penceresi: onaydan sonra 1 sn, açılmasını 800 ms bekleme): **ölçülemedi —
-    pencere bu kayıtta açılamıyor.** `release "Ben House" --mutual --yes` karşılıklı fesih mesajı + Onayla/İptal
-    penceresi veriyor (dropdown yok), `contract "Ben House"` kartı kilitli açılıyor (vaatte seçenek yok), oyuncu
-    kartının eylemlerinde konuşma yok, açık konuşma da yok. Yani `FeeAsked`in aradığı pencere
-    (`notifications-modal-dialog-default-default` içinde `Binds=value` dropdown + `EventFmxConfirmChanges`) hiç
-    görünmedi; sabit 800 ms / 1 sn ölçülmeden koda girmez. Faruk'a soru: bu pencere hangi konuşmada açılıyor
-    (satış vaadi mi, kulüple bonservis pazarlığı mı, başka bir kart mı)? Bir ekran/kayıt adımı verilirse aynı
-    gün ölçülüp işarete çevrilecek.
+  - [x] Guided 161 174 (bedel sözü penceresi): **açıldı ve ölçüldü.** Tetik: transfer listesindeki oyuncunun
+    "geleceği hakkında konuşmak istiyor" mesajı → "Ring ile Bu Sorun Hakkında Görüş" → konuşmada **Söz Ver ›
+    "Kafamızdaki bonservise uygun bir teklif yapmadılar…"** satırı. Pencere `notifications-modal-dialog-default-default`
+    içinde `Binds=value` bir bedel listesi (23 seçenek) + `EventFmxConfirmChanges` "Confirm" düğmesi olarak geldi.
+    Ölçüm (20 ms): onaydan sonra pencere **1731 ms**de kapandı; eski sabit **1000 ms** yetmiyordu (pencere ~0,4 sn
+    daha açık kalıyordu). Artık onaydan sonra "bedel listesi kaybolana kadar", satır seçildikten sonra "liste
+    görünene kadar" bekleniyor (0,15 sn aralık, 3 sn üst sınır); sabit 1 sn / 800 ms kaldı. §8.373
   - [x] Coaches 53 88: atamada "kutu istenen halde ve yıldız yalnız atandığı yerde" (≤5 sn), `--auto`'da sayfa değişimi
     (değişmezse 3 sn; eskiden sabit 1,5); 20 atama + 2 `--auto` üç durumda doğru (§8.180). İngilizcede denenmedi.
   - [x] `coaches` 3/10: okuma yalnız tam ızgarayı ("ad, görev, dokuz kutu+yıldız", iş yüküne kadar) kabul ediyor; 12

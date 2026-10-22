@@ -68,12 +68,12 @@ SETTLED_SHORT = {
     ("MatchControls.cs", 131): "Dugout girişleri panel göründükten sonra geliyor; 3 sn yalnız üst sınır",
     ("MatchControls.cs", 266): "girişin metni basıştan öncekinden farklı olana kadar; 1,5 sn yalnız üst sınır",
     ("Saves.cs", 258): "kayıt satırı görünür olana kadar; 1,5 sn yalnız üst sınır, §8.321",
+    ("Guided.cs", 168): "bedel penceresi kapandı mı diye bekleme; 3 sn yalnız üst sınır, §8.373",
+    ("Guided.cs", 182): "bedel penceresi açıldı mı diye bekleme; 3 sn yalnız üst sınır, §8.373",
 }
 
 # Denendi, ölçülemedi / karar bekliyor: açık kutuya girmez, tekrar denenmez.
 PARKED = {
-    ("Guided.cs", 161): "bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)",
-    ("Guided.cs", 174): "bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)",
     ("Stages.cs", 63): "sabit 1,2 sn yanlış içerik okumasını gizliyor: yarışma seçilirken sayfanın eski turu"
         " (başka sayfanın bağları) tablo sanılabiliyor; asıl düzeltme eklentide `Ties` taramasını sayfaya"
         " daraltmak — oyun restartı ister. §8.350, Faruk'a soru (autopilot-quest, Tur 155)",

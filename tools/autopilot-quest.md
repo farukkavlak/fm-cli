@@ -4964,3 +4964,10 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   tıklamadan sonraki örnekte pencere yok. 3 sn yerine "dialog boşalana kadar" (0,2 sn, 8 sn üst sınır).
 - Maç: Lincoln 4-1 Tranmere (Vertu Trophy). Çift pencere yok. `remaining.py`: **0 / 0 / 0**.
 - Dosyalar: `cli/fm/MatchDay.cs`, `tools/remaining.py` (satır kaymaları), `docs/FINDINGS.md` §8.372.
+
+## Tur 110 (22 Ekim) — B: bedel sözü penceresi bulundu ve işarete bağlandı (§8.373)
+- Tetik: transfer listesindeki oyuncunun "geleceği hakkında konuşmak istiyor" mesajı → "Görüş" → konuşmada
+  **Söz Ver › bonservis** satırı. Pencere: `notifications-modal` içinde `Binds=value` bedel listesi + Confirm.
+- Ölçüm (20 ms): onaydan sonra pencere 1731 ms'de kapandı; eski 1000 ms yetmiyordu (~0,4 sn açık kalıyordu).
+  Sabit 1 sn / 800 ms yerine "liste kaybolana/görünene kadar" (0,15 sn, 3 sn üst sınır).
+- Dosyalar: `cli/fm/Guided.cs`, `tools/remaining.py`, `docs/FINDINGS.md` §8.373, `docs/BAGIMLILIKLAR.md`.
