@@ -4934,3 +4934,10 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   görüşme açılınca eylemi kaldırıyor. (a) riskli olduğu için seçilmedi; (c) uygulandı: mesaj iki durumu da söylüyor.
 - Kanıt: TR + EN aynı cümle, rc=1; temiz sayfada ilk soru rc=0. Dil TR'ye döndü, kayıt test kaydı.
 - Dosyalar: `cli/fm/Release.cs`, `cli/fm/labels-english.tsv`, `docs/FINDINGS.md` §8.367, `docs/BAGIMLILIKLAR.md`.
+
+## Tur 105 (22 Ekim) — A: mesaj eki başlık yerine içeriğin oturmasıyla okunuyor (§8.368)
+- Seçilen madde: Faruk'un "8: best practice çözüm" dediği mesaj eki maddesi.
+- Ölçüm (30 ms): başlık ~0,09 sn, ilk metin ~0,16 sn, altı ~0,43 sn, tamamı ~0,7 sn. Eski kod başlıkta okuyordu;
+  `reply 2` konu satırlarını kaçırıyordu.
+- Düzeltme: başlıktan sonraki metinler üç okumada değişmeyene kadar bekle (0,3 sn, 4 sn üst sınır), sonra oku.
+- Kanıt: `reply 2` altı konu + personel, `reply 1` tablo, `reply 4` haber; EN ekli mesaj. Dosya: `cli/fm/Program.cs`.

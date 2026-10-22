@@ -1037,11 +1037,34 @@ internal static partial class Program
 		// Another message's attachment can still be on screen: this one is known by its title. And its
 		// own comes a moment after the message: read at once, a message with nothing to answer (the ones
 		// with answers are waited on for those) showed none — the weekly recruitment update, the advice
-		// messages, 30 Nisan 2026. So it is given a little while to turn up.
-		var bound = await OpenMessage(title, t => t.Text == "Attachments", seconds: 1.5);
+		// messages, 30 Nisan 2026. The heading arrives first and the card binds its content in steps
+		// (measured: heading ~0.09 s, first text ~0.16 s, more up to ~0.7 s), so what follows it is
+		// waited for rather than read the moment the heading is there.
+		var bound = await OpenMessage(title, t => t.Text == "Attachments", seconds: 3);
 		var texts = bound.Select(t => t.Text).ToList();
 		var start = texts.IndexOf("Attachments");
 		if (start < 0) return;
+		{
+			// The card streams its content: its title can be the first thing to arrive and the rest
+			// follows (measured: heading ~0.09 s, first text ~0.16 s, six by ~0.43 s). It is read
+			// once what follows the heading has not changed for three polls in a row; a message
+			// with nothing after the heading waits the cap and then shows none.
+			var last = "";
+			var same = 0;
+			await Until(async () =>
+			{
+				var page = await OpenMessage(title, t => t.Text == "Attachments", seconds: 1);
+				var at = page.FindIndex(t => t.Text == "Attachments");
+				var now = at >= 0 ? string.Join("|", page.Skip(at + 1).Select(t => t.Text)) : "";
+				same = now.Length > 0 && now == last ? same + 1 : 0;
+				last = now;
+				return now.Length > 0 && same >= 2;
+			}, seconds: 4, every: 0.3);
+			bound = await OpenMessage(title, t => t.Text == "Attachments", seconds: 1);
+			texts = bound.Select(t => t.Text).ToList();
+			start = texts.IndexOf("Attachments");
+			if (start < 0) return;
+		}
 		var rest = texts.Skip(start + 1)
 			.Where(t => t is not ("Reset" or "Response Required") && !answers.Contains(t))
 			.ToList();

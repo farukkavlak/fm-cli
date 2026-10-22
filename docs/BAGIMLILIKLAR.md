@@ -49,8 +49,8 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
 - [~] `Program.cs:618` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
 - [~] `Program.cs:723` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
-- [ ] `Program.cs:1493` `await Task.Delay(250);`
-- [ ] `Program.cs:2251` `await Task.Delay(500);`
+- [ ] `Program.cs:1516` `await Task.Delay(250);`
+- [ ] `Program.cs:2274` `await Task.Delay(500);`
 - [~] `Registration.cs:318` — iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350
 - [~] `Release.cs:167` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
 - [ ] `Stages.cs:242` `await Task.Delay(700);`
@@ -527,16 +527,13 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
 - [x] **`reply` ara boş an riski:** ölçüldü, boş ara durum **yok** — oyun cevap kümesini silip yeniden kurmuyor,
   başlık önce değişiyor, düğmeler boşalmadan eskisinden yenisine geçiyor (2→2, 2→1, 1→1 TR+EN, 20 geçişte 0 boş okuma,
   gerçekten cevapsız mesajda boş yol doğru çalışıyor). Bu yüzden koşul değişmedi (churn yok); gerekçe §8.193.
-- [?] **Mesaj eki için 1,5 sn** (`WriteAttachment`, Program ~986): ek gelmezse "ek yok". Ölçüldü (16 Ekim, §8.192):
-  sabit 1,5 sn'nin ~2,5 kat payı var (içerik ~0,6 sn'de oturuyor), bu makinede yanlış okumuyor. Boş ara durum
-  (~0,2–0,4 sn: başlık var, içerik yok) oyunun "henüz bağlanmadı" hâli; ağaç (başlık, `#Attachments`,
-  `FMUnbindDynamicBindingRooot`, `BindingRoot`, `BindingExpect`) içerikli ve boş durumda birebir aynı, tek fark
-  kartın içeriğinin bağlanması (`#TileBindingExpect`). Eki olmayan mesaj türü bu kayıtta yok (14 mesaj denendi,
-  hepsinde "Ek:"/"Haber:" var), gelen kutusu verisi de ek alanı taşımıyor. **Karar (Faruk, 16 Ekim): (a) — sabit
-  1,5 sn şimdilik kalıyor** (pay ~2,5 kat, bu makinede doğru okunuyor). İki iş not edildi, ikisi de ekran/negatif
-  durum ölçümü ister: **(1)** oyunun "ek hazır" işareti bulunacak — en güçlü aday kartın içeriğinin bağlanması
-  (`#TileBindingExpect`); **(2)** eki olmayan bir mesaj yakalanıp o durumda ağacın/işaretin nasıl davrandığı
-  ölçülecek (bu kayıtta örnek yok). İkisi de bulununca sabit bekleme işarete çevrilir (§8.192).
+- [x] **Mesaj eki için 1,5 sn** (`WriteAttachment`, Program ~1035): başlık gelir gelmez okumak eki kaçırıyordu —
+  ölçüm (30 ms aralık): "Attachments" başlığı ~0,09 sn'de, ilk içerik ~0,16 sn'de, altı ~0,43 sn'de, tamamı
+  ~0,7 sn'ye kadar; başlıkla içerik arasında kartın kendi bağlanma anı var. Artık başlıktan sonraki metinler
+  **üç okumada değişmeyene** kadar bekleniyor (0,3 sn aralık, 4 sn üst sınır), sonra sayfa bir kez daha okunuyor;
+  içerik hiç gelmezse üst sınır sonunda "ek yok". Ölçüm: `reply 2` önce yalnız "tavsiye özeti" başlığını, şimdi
+  altı konu satırını + personel özetini basıyor; `reply 1` antrenman tablosu, `reply 4` haber gövdesi tam.
+  TR + EN, ekran/negatif durum: eki olmayan mesaj türü bu kayıtta yok (§8.192, §8.368).
 - [x] **Alt sayfa açmada sabit 1,5 sn** (`OpenSubpage`, Program ~2138): sabit bekleme kalktı, işaret oyunun kendi
   cevabı oldu. Ölçüm (canlı, eklenti): ana sayfa istendikten sonra çubuk **0,16–0,46 sn**'de cevap veriyor
   (`open?guid=<sayfa>&check=1` artık hata değil "not shown" diyor); ondan **önce** basılan satır kayboluyor

@@ -4351,3 +4351,15 @@ söylüyor — açık görüşme varsa `contract --cancel`, yoksa birkaç gün s
 ile güvenilir seçilemediği için mesaj dallanmıyor; tek cümle ikisini de kapsıyor.)
 Kanıt: TR ve EN aynı cümle (`There is no option to talk to …`), rc=1; temiz sayfada ilk soru rc=0 (önceki ölçüm).
 Dil TR'ye döndü; kayıt test kaydı. `sweep.sh` aşağıda.
+
+### 8.368 Mesaj eki başlıkla değil, içeriği üç okumada oturunca okunuyor (22 Ekim, TR + EN)
+
+§8.192'nin ölçümü yenilendi (30 ms aralıkla `/texts`, `reply 1`): "Attachments" başlığı ~0,09 sn'de geliyor, ilk
+metin ~0,16 sn'de, altı metin ~0,43 sn'de, kartın tamamı ~0,7 sn'ye kadar sürüyor. Eski kod başlık görünür
+görünmez sayfayı okuyordu: `reply 2` yalnız "Ek: tavsiye özeti" başlığını basıyor, altı konu satırını ve personel
+özetini atlıyordu; `WriteAttachment`ın 1,5 sn'si yalnız **başlığı** bekliyordu, içeriği değil.
+Artık başlıktan sonraki metinler üç okumada (0,3 sn aralık, 4 sn üst sınır) değişmeyene kadar bekleniyor ve sayfa
+bir kez daha okunuyor; içerik hiç gelmezse üst sınır sonunda "ek yok" deniyor (eki olmayan mesaj türü bu kayıtta
+yok — Eylül'deki 14 mesajın hepsinde ek vardı). Kanıt: `reply 2` altı konu + personel özeti, `reply 1` antrenman
+tablosu (Pzt 3 Ağu …), `reply 4` haber gövdesi; hepsi eskisiyle aynı içerikte ve tam. EN'de ekli mesaj
+("Attached: Fitness") aynı yolla basıldı. Komut ~1–2 sn uzadı (içerik oturma süresi), yanlış/eksik ek yok.
