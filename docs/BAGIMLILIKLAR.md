@@ -430,17 +430,9 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     **6/6 rc=0**. Ülke gelmezse eşleşme atlanıp portal yoluna düşülüyor, yanlış tablo yok (§8.272).
     Bugünkü koşuda `fm table`in sütunları sayfaya göre değişti (portal 4 sütun ↔ Stages tam tablo) — bu
     beklemeden bağımsız, ayrı bulgu §8.301.
-  - [?] Stages 337 (`fm stages` kupa turu: her kaydırmadan sonra "iki okuma aynı"): ölçüldü, **kod değişmedi**. Turun
-    bağları pencerede tam durmuyor (Carabao Cup 1. Tur: 35 bağ, pencere 18–25 satır) ve liste `to=0..1` ile geziliyor;
-    menzil `"0 of 1401,8"` yazısından okunuyor ama o sayı oyunun **kendi dilinin** ondalık işaretiyle geliyor ve
-    `InvariantCulture` onu çözemiyor → TR'de `extent = 0`, yani gezinti **hiç çalışmıyor** (TR 18–25 bağ, EN 24;
-    `--all`da TR 18 / EN 24). Menzil oyunun okuyucusuyla (`GameNumbers.Read`) çözülüp denendiğinde gezinti çalışıyor
-    (12 adım) ama sonuç kararsız (TR 35/19/19, EN 35/35/19): çapa okunan pencerenin ilk bağının **yazısı** ve kaydırma
-    ilerleyince o satır yerleşimden çıkıp `/scroll` cevapsız kalıyor (döngü kırılıyor), ayrıca işaret kaydırmadan
-    önceki pencereyi de kabul edebiliyor. İkisi birlikte düzeltilmeli (sabit çapa — satır işaretçisi ya da listenin
-    kabı — **ve** "pencereden farklı **ve** iki okumada aynı"); kanıtlanmadığı için geri alındı (§8.231). Faruk'a
-    soru: çapa için eklentiye tur satırlarının işaretçisini veren bir alan mı eklensin (yazıyla çapa kaydırma
-    ilerledikçe kayboluyor), yoksa gezinti listenin kabına mı çapalanmalı?
+  - [~] Stages 337 (`fm stages` kupa turu: her kaydırmadan sonra "iki okuma aynı"): menzil artık oyunun kendi
+    okuyucusuyla (`GameNumbers.Read`) çözülüyor; `--all` TR'de 35 bağ (eskiden 18), 2. Tur kurası çekilince 23 bağ,
+    EN'de aynı. Çapa hâlâ pencerenin ilk bağının yazısı; iki koşuda tam geldi, kayıp görülmedi (§8.364).
   - [x] Calendar 157 (`fm calendar` / `CalendarMonths`: "Today" düğmesinden sonraki bekleme): işaret "art arda iki
     okuma aynı" idi ve bu, basıştan **önceki** ayı da kabul eder — ölçüm: basıştan hemen sonraki ilk okuma hâlâ eski
     ay (126 / 95 / 128 ms), yeni ay 198 / 252 / 304 ms'de geliyor, yani pay bir okuma aralığından (0,3 sn) az; yavaş
@@ -1099,9 +1091,10 @@ tablodan çevrilemiyor.
   ayarda da 19 satır, üç durumda (kart ilk kez / zaten açık / başka sayfa açık) TR + EN aynı (§8.195).
   Not: `fm settings` seçeneği insan çıktısında `gg/aa/yyyy` görünür ama komuta oyunun ham adı verilmeli
   (`fm settings tarih dd/mm/yyyy`).
-- [?] **Boy/kilo birimleri:** ölçüldü, kod değişmedi — oyuncunun `Height` alanı ayardan bağımsız ham santimetre
+- [~] **Boy/kilo birimleri:** ölçüldü, kod değişmedi — oyuncunun `Height` alanı ayardan bağımsız ham santimetre
   (`fm settings boy Fit` iken de `Height: 178`), yani CLI'nin " cm" yazısı veriyle tutuyor; oyunun birim ayarına
-  uydurmak Preferences sayfasını açmayı gerektiriyor (~7 sn, daha ağır bağımlılık). Faruk'a soru (§8.195).
+  uydurmak Preferences sayfasını açmayı gerektiriyor (~7 sn, daha ağır bağımlılık). **Karar (Faruk, 22 Ekim): cm
+  kalsın**, kılavuza ham cm notu (§8.195).
 
 ### D. Lig / takım / kayıt
 
