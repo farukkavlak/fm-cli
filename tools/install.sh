@@ -14,6 +14,10 @@ if [ ! -d "$GAME" ]; then
 	echo "Steam'den kur ya da FM_HOME ile göster."
 	exit 1
 fi
+if [ ! -d "${FM_APP:-$HOME/fm26_bep/fm.app}" ]; then
+	echo "gölge paket hazırlanıyor…"
+	tools/make-shadow.sh
+fi
 if [ ! -f "$GAME/run_bepinex_arm64.sh" ]; then
 	echo "BepInEx başlatıcısı yok: $GAME/run_bepinex_arm64.sh"
 	echo "BepInEx 6 IL2CPP arm64 paketini oyun klasörüne aç (docs/FINDINGS.md §3); sonra bunu yeniden çalıştır."

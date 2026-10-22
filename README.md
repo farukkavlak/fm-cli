@@ -221,8 +221,9 @@ Tek komut (BepInEx ve gölge paket zaten hazırsa):
 tools/install.sh
 ```
 
-Yaptıkları: eklentiyi derleyip BepInEx'in plugin klasörüne kopyalar, `fm`yi tek dosya
-olarak yayınlar (`dist/fm/fm`, SDK'sız), `~/.local/bin/fm` bağlar ve kurulumu denetler.
+Yaptıkları: gölge paket yoksa oluşturur (`tools/make-shadow.sh`), eklentiyi derleyip
+BepInEx'in plugin klasörüne kopyalar, `fm`yi tek dosya olarak yayınlar (`dist/fm/fm`,
+SDK'sız), `~/.local/bin/fm` bağlar ve kurulumu denetler.
 BepInEx ve gölge paket **dağıtılmıyor** (lisans); eksikse script nerede olduğunu söyler.
 
 Elle:

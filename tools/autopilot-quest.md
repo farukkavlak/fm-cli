@@ -4979,3 +4979,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - `fm doctor --install`: yedi adım (oyun, BepInEx çekirdeği, başlatıcı, gölge paket, eklenti, fm, kayıt) + `--json`.
 - README: gereksinimler, tek komut/elle kurulum, SDK'sız yayın, doctor. `dist/` .gitignore'da.
 - Kalan H: BepInEx lisansı, oyun kopyası betiği, sürüm koruması, temiz makine, Intel Mac kararı.
+
+## Tur 112 (22 Ekim) — H: gölge paket betiği (Info.plist + symlink + ad-hoc imza)
+- `tools/make-shadow.sh`: Steam `fm.app`'inden çalıştırılabilir + Info.plist kopyası, Frameworks/PlugIns/Resources
+  symlink, `LSUIElement=1`, `codesign --force --sign -`. `--force` ile yenilenir (Steam güncellemesi sonrası).
+- `install.sh` gölge paket yoksa oluşturuyor; README ve BAGIMLILIKLAR H güncellendi. Geçici FM_APP ile denendi:
+  yapı, LSUIElement, ad-hoc imza ve doctor ✓.

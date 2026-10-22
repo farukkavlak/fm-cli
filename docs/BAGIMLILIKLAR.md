@@ -1128,8 +1128,10 @@ kısmı sonraya kalabilir. Tahmin (15 Ekim): A+B+C 5–7 gün, D 1–2, H 4–6,
 
 - [ ] **BepInEx lisansı:** DadMych/fm26-player-export-macos paketini yeniden dağıtmaya izin var mı; yoksa kullanıcı ayrıca
   indirir, kurulum ona göre.
-- [ ] **Oyun kopyası:** `~/fm26_bep/fm.app` nasıl kuruluyor (Steam'deki kopyadan, Info.plist yaması), adım adım yazılmalı ve
-  betiğe girmeli; Steam oyunu güncelleyince kopya ne oluyor.
+- [x] **Oyun kopyası:** `tools/make-shadow.sh` — Steam'in `fm.app`'inden yalnız çalıştırılabilir dosyayı ve Info.plist'i
+  kopyalar, `Frameworks/PlugIns/Resources`'ı Steam'e **symlink** eder, `LSUIElement=1` yazar (Dock ikonu yok) ve ad-hoc
+  imzalar (`codesign --force --sign -`). `install.sh` gölge paket yoksa çağırır. Steam güncellemesinden sonra
+  `tools/make-shadow.sh --force` ile yenilenir (çalıştırılabilir kopya tazelenir; veri zaten symlink).
 - [x] **Tek komutla kurulum:** `tools/install.sh` — eklentiyi derleyip BepInEx'in plugin klasörüne kopyalıyor, `fm`yi
   tek dosya olarak yayınlıyor, `~/.local/bin/fm` bağlıyor, sonunda `fm doctor --install` çalıştırıyor. BepInEx ve gölge
   paket lisans gerektirdiği için **dağıtılmıyor**; eksikse script nerede olduğunu söylüyor. Tekrar çalıştırılabilir.
