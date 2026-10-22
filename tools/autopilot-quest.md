@@ -3,6 +3,27 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Şu an (Tur 154)
+- Seçilen madde: **yok** — canlı bloktaki 15 kutunun 2'si Guided `[?]`, gerisi "Sonraya bırakılanlar"
+  listesinde; seçilebilir kutu kalmadı. Talimatın boşta kalma yolu: `tools/sweep.sh` + gerçek menajer akışı.
+- Sweep: **51 komut, 0 hata** (`/tmp/opencode/t154/sweep2.txt`) — `squad --u19` listeye eklendi.
+- Menajer akışı: `next` ×4 (9 → 11 Ağustos) → Takım Liderleri toplantısı (`reply 15 1`, `talk` 4/1/1) →
+  maç öncesi basın (6 soru, hepsi `talk 1`) → Carabao Cup **Lincoln 3-1 Preston** (`match --instant`) →
+  maç sonu basın (6 soru) → `next` ile 11 Ağustos 22:15. Kayıt `fm save` **yok**.
+- Bulunan hata (**altyapı okuma / görünüm durumu**, §8.349): `fm squad --u19` kadro tablosunun son seçili
+  görünümünü miras alıyordu. "Takım Dinamikleri" seçiliyken yaş/mevki boş, 26 oyuncunun yalnız 10'u
+  okunuyordu (U21 5 + U18 5). Artık sayfa o takımın satırlarını gösterene kadar bekleniyor, görünüm
+  listedeki **numarasıyla** (1 = Genel Bilgi, ad dile göre değişiyor) seçiliyor, satırlar yaşı taşıyıp
+  sayı oturana kadar okunuyor.
+- Kanıt — üç durum (başka sayfa açıkken / sayfa zaten açık / başka görünüm seçiliyken) × TR + EN:
+  hepsinde **26 satır** (10 U21 + 16 U18), yaş ve mevki dolu, isim kümesi aynı; TR `squad --u19`
+  27 satır / 4,3 sn. Dosyalar `/tmp/opencode/t154/youth/{before,fix}-*`. `sweep.sh` **51/51**.
+- Dönüş: dil EN'e çevrilip **Türkçe'ye döndü**; ana kayıt `fm load "Faruk Kavlak - Fenerbahçe (v03)" --no-save`
+  ile yüklendi. `fm status --json`: `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`; v03 damgası
+  **21 Ekim 10:40** (değişmedi).
+- `remaining.py --count`: **12 borç / 0 yazı / 3 kısa `Until`** (değişmedi; bu bir kutu değil, okuma hatası).
+- Sonraki tur: yine seçilebilir kutu yok; sweep (artık 51 komut) + menajer akışında hata avı.
+
 ## Şu an (Tur 153)
 - Seçilen madde: **yok** — canlı bloktaki 15 kutunun 2'si Guided `[?]`, gerisi aşağıdaki
   **"Sonraya bırakılanlar"** listesinde. Talimatın boşta kalma yolu: `tools/sweep.sh` + menajer akışı / hata avı.

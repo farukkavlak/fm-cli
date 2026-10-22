@@ -371,12 +371,32 @@ internal static partial class Program
 		foreach (var (name, id) in await YouthSides())
 		{
 			if ((await OpenPage(Screen.Squad, team: id)).StartsWith("error", StringComparison.Ordinal)) continue;
-			// The rows come in over a moment: the count is taken once two readings agree.
+			// The page is asked for but built a moment later, and the table before it still answers:
+			// until every row it binds names this side, what is read is the wrong team.
+			var shown = false;
+			await Until(async () =>
+			{
+				var now = (await Fm.GetJson("squad")).EnumerateArray().ToList();
+				return shown = now.Count > 0 && now.All(p => Field(p, "Team") == name);
+			}, seconds: 10, every: 0.4);
+			if (!shown) continue;
+			// The table keeps whichever view was last chosen, and the first team's dynamics view
+			// carries neither age nor position — and binds only the rows it draws. The general
+			// view is picked by its number in the list (the names are each language's) before
+			// the rows are read, so this table knows the fields it is about to print.
+			await Until(async () => await ViewList(SquadViews) is { } list
+				&& !(await Fm.Get("select", ("ptr", Field(list, "Pointer")),
+					("value", ((int)SquadTable.GeneralInfo).ToString()))).StartsWith("error", StringComparison.Ordinal),
+				seconds: 8, every: 0.3);
+			// The rows come in over a moment: the count is taken once two readings agree and the
+			// rows carry the age the chosen view is read for.
 			List<JsonElement> rows = [];
 			var last = -1;
 			await Until(async () =>
 			{
-				rows = (await Fm.GetJson("squad")).EnumerateArray().Where(p => Field(p, "Team") == name).ToList();
+				rows = (await Fm.GetJson("squad")).EnumerateArray()
+					.Where(p => Field(p, "Team") == name && Field(p, "Age") != "")
+					.ToList();
 				var settled = rows.Count > 0 && rows.Count == last;
 				last = rows.Count;
 				return settled;

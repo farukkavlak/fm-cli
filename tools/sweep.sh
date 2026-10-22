@@ -7,7 +7,7 @@ set -uo pipefail
 OUT="${1:-$(mktemp -d)}"
 mkdir -p "$OUT"
 COMMANDS=(
-	"status" "squad" "squad --fitness" "squad --morale" "squad --stats" "table" "fixtures" "calendar" "news"
+	"status" "squad" "squad --fitness" "squad --morale" "squad --stats" "squad --u19" "table" "fixtures" "calendar" "news"
 	"finances" "budget" "board" "club" "facilities" "happiness" "dynamics" "training" "schedule" "intensity"
 	"coaches" "staff" "scout" "shortlist" "contracts" "offers" "health" "internationals" "mentoring" "captains"
 	"takers" "penalties" "tactic" "depth" "opponent" "opposition" "progress" "world" "league" "supporters"

@@ -4115,3 +4115,13 @@ de "Ayarlar döşemesi FM menüsünde bulunamadı." verdi; `dashboard-hud-fm-but
 menü hiç açılmadı (`PreferencesFMMenu` düğümü ve "Preferences" metni yok). Oyun `fm stop --no-save` + `fm start`
 ile yeniden açılınca aynı komut ilk denemede çalıştı (dil Türkçe'ye döndü). Yani dil değişikliği oturum içinde
 menüyü kullanılamaz bırakıyor; kök neden ölçülmedi, düzeltilmedi.
+
+### 8.349 altyapı kadrosu son seçilen görünümü miras alıyordu; yaş ve mevki boş, oyuncuların bir kısmı eksikti (22 Ekim, TR + EN)
+
+`fm squad --u19` her altyapı takımının sayfasını açıyor ama kadro tablosunun **son seçili görünümünü** seçmiyordu:
+ilk takımda "Takım Dinamikleri" kalmışsa yaş ve mevki kolonları boş basılıyordu. O görünüm tablonun yalnız çizdiği
+satırları bağladığı için 26 oyuncunun 10'u okunuyordu (U21 5 + U18 5). Artık sayfa açıldıktan sonra bütün satırlar
+o takımı gösterene kadar bekleniyor, sonra görünüm listedeki numarasıyla (1 = Genel Bilgi; adlar dile göre değişiyor)
+seçiliyor ve satırlar yaşı taşıyıp sayı iki okumada oturana kadar okunuyor. Kanıt — üç durum (başka sayfa açıkken /
+sayfa zaten açık / başka görünüm seçiliyken) × TR + EN: hepsinde 26 satır (10 U21 + 16 U18), yaş ve mevki dolu,
+isim kümesi aynı; TR `squad --u19` 27 satır / ~4,3 sn. `sweep.sh` 51/51 (u19 eklendi). Dosyalar `/tmp/opencode/t154/youth/`.
