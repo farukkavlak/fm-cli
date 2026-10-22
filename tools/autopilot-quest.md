@@ -3,6 +3,35 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Şu an (Tur 150)
+- Seçilen madde: **A1 `Task.Delay` / `MatchDay.cs:370` (anında sonuç döngüsü)** — BİTTİ (§8.343).
+  Döngü her turda, ilk turda da, sabit **1,5 sn** uyuyup pencereyi öyle okuyordu; pencere basıştan
+  **0,08–0,17 sn** sonra geliyor, yani ilk cevap ~1,3 sn gecikiyordu. Artık tur hemen okuyor ve bir
+  pencere ancak kimliği (başlık + açıklama + düğme sayısı) son cevaplanandan farklıysa cevaplanıyor;
+  1,5 sn yalnız üst sınır. Aynı pencerenin iki kez cevaplanması engellendi.
+- Kanıt — üç durum (kayıt yeni yüklendi / `table` sonrası / mesaj-teklif akışı sonrası) × TR + EN,
+  `rc=0`, özetler doğru: TR Barnsley 1-3 Lincoln (basış 1,33 → pencere 1,50 → tık 1,84; sonraki yeni
+  pencere 2,28); EN Lincoln 1-1 Blackpool (1,39 → 1,47 → tık 1,75 / 2,13). Eski derlemede ilk tık
+  basıştan 1,64 sn sonraydı. İzler `/tmp/opencode/t150/final2-{tr,en}.trace`.
+- `remaining.py --write`: açık kutu **16 → 15**, `Task.Delay` borcu **13 → 12**; yeni kısa `Until`
+  (satır 421) `SETTLED_SHORT`'ta `[~]` (pencere 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor).
+- **Önemli kayıt olayı:** test sırasında oyunun otomatik kaydı, klasördeki en yeni "Faruk Kavlak -
+  Fenerbahçe" dosyasını 23 Ağustos'a taşıdı; **asıl 9 Ağustos kaydı `Faruk Kavlak - Fenerbahçe (v03)`
+  olarak sağlam** (damga 21 Ekim 10:40, 94,5 MB). Bu tur `fm load "(v03)"` ile 9 Ağustos'a dönüldü —
+  ama yukarıdaki §8.344 hatası yüzünden önce yanlış kayıt geldi; dosya adı çakışması giderilince doğru
+  yüklendi. **Sıradaki turlar ana kaydı `(v03)` adıyla ve `--no-save` ile açsın**; klasördeki adsız
+  "Faruk Kavlak - Fenerbahçe" artık 23 Ağustos'luk test kaydıdır, silinmedi (Faruk'un kararı).
+- Dönüş: `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`;
+  `fm save` **yok**; v03 damgası değişmedi.
+- `sweep.sh` denendi: `numbers`ta oyunun ana iş parçacığı 30 sn yanıt vermedi, sonra "kayıt yüklü değil"
+  (Tur 144'te görülen ortam çökmesi); oyun yeniden başlatıldı, sweep tamamlanamadı. Değişiklik yalnız
+  `MatchDay.InstantResult`; paylaşılan yardımcı değişmedi.
+- Yeni bulgu (**B / kayıt yükleme**, §8.344): `fm load`, ada göre seçerken ada önek olan kardeş kaydı
+  yükleyebiliyor. Ayrı iş; bu turda düzeltilmedi.
+- **Sonraya bırakılanlar** değişmedi: `Saves.cs:258` · Registration `Settled` (318) · Stages 63/120/136 ·
+  MatchDay 181/314 · `MatchControls` 131/266 · `Program.cs:589/694/1452/2210`, `Launcher 213/269`
+  (baştan sona gezinme / oyunu kapatıp açma ister).
+
 ## Canlı liste (21 Ekim akşam, Faruk'un isteği)
 - İş artık `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bloğundan seçilir: `python3 tools/remaining.py --write`
   kodu tarayıp her çağrı yerine bir kutu üretir. Açık kutu **16**: `Task.Delay` **13 borç** (28 çağrının 13'ü

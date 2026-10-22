@@ -365,17 +365,28 @@ internal static partial class Program
 
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(2);
 		var quiet = 0;
+		var answered = "";
+		string Key(JsonElement d) =>
+			Field(d, "Title") + "\n" + Field(d, "Description") + "\n" + d.GetProperty("Buttons").GetArrayLength();
+		async Task<bool> NextDialog()
+		{
+			var now = await Fm.GetJson("dialog");
+			return now.GetArrayLength() > 0 && Key(now[0]) != answered;
+		}
 		while (DateTime.UtcNow < deadline)
 		{
-			await Task.Delay(TimeSpan.FromSeconds(1.5));
-
 			var dialogs = await Fm.GetJson("dialog");
-			if (dialogs.GetArrayLength() > 0)
+			if (dialogs.GetArrayLength() > 0 && Key(dialogs[0]) != answered)
 			{
 				quiet = 0;
 				var dialog = dialogs[0];
+				var key = Key(dialog);
 				// While it simulates, the game shows a notice with nothing to press.
-				if (dialog.GetProperty("Buttons").GetArrayLength() == 0) continue;
+				if (dialog.GetProperty("Buttons").GetArrayLength() == 0)
+				{
+					answered = key;
+					continue;
+				}
 
 				if (TeamProblem(dialog) is { } problem)
 				{
@@ -384,6 +395,7 @@ internal static partial class Program
 					// The team changed, so the instant result is asked for again.
 					var again = await Arriving("press", [("event", "OpenPanel"), ("within", "InstantResultEnabled")]);
 					if (again.StartsWith("error", StringComparison.Ordinal)) return Report(again);
+					answered = key;
 					continue;
 				}
 
@@ -396,12 +408,17 @@ internal static partial class Program
 				}
 
 				await Fm.Get("click", ("ptr", Field(button.Value, "Pointer")));
+				answered = key;
 				continue;
 			}
 
 			state = await Fm.GetJson("state");
 			var over = Field(state, "DuringMatch") != "True" && Field(state, "State") is not ("Tactics" or "SubmitTeam" or "Match" or "Processing");
 			if (over && ++quiet >= 2) break;
+
+			// A dialog already answered is not answered twice: the next look waits for one whose
+			// identity has changed, and 1.5 s is only the upper bound.
+			await Until(NextDialog, seconds: 1.5, every: 0.1);
 		}
 
 		if (Field(state, "State") is "Tactics" or "SubmitTeam")

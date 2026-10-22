@@ -4043,3 +4043,21 @@ Kanıt — üç durum (kadrodan yeni açıldı / sayfa zaten açık / tablo aç�
 TR'de diff yalnız altı nitelik + üç alışkanlık satırı, değerler ve diğer adlar birebir aynı; EN'de üç çıktı
 **bayt bayt aynı**; `compare` de aynı adları çeviriyor, `--json` hâlâ `Heading`/`Finishing`. `sweep.sh`
 **50 komut, 0 hata**.
+
+### 8.343 anında sonuç ilk pencereyi sabit 1,5 sn bekliyordu (22 Ekim, TR + EN)
+
+`fm match --instant`, oyunun onay penceresini okumadan önce her turda sabit **1,5 sn** uyuyordu; ilk turda
+bu bekleme pencerenin gelmesini değil, sadece komutu geciktiriyordu: düğme basışından **0,08 sn** (EN) /
+**0,17 sn** (TR) sonra pencere ekrandaydı. Artık tur hemen okuyor; bir pencere ancak **kimliği** (başlık +
+açıklama + düğme sayısı) son cevaplanandan farklıysa cevaplanıyor, 1,5 sn yalnız üst sınır. Kanıt —
+üç durum (kayıt yeni yüklendi / `table` sonrası / mesaj-teklif akışı sonrası) × TR + EN, `rc=0`, özetler
+doğru: TR 25 Ağustos Barnsley 1-3 Lincoln, basış 1,33 → ilk pencere 1,50 (0,17 sn) → ilk tık 1,84, sonraki
+yeni pencere 2,28 (0,44 sn); EN 29 Ağustos Lincoln 1-1 Blackpool, 1,39 → 1,47 (0,08 sn) → tık 1,75 / 2,13.
+Eski derlemede ilk tık basıştan **1,64 sn** sonraydı (3,04 − 1,40). İzler `/tmp/opencode/t150/`.
+
+### 8.344 `fm load` ada göre seçerken kardeş kaydı yükleyebiliyor (22 Ekim)
+
+Aynı klasörde "Faruk Kavlak - Fenerbahçe" ve "Faruk Kavlak - Fenerbahçe (v03)" varken
+`fm load "Faruk Kavlak - Fenerbahçe (v03)" --no-save` **v03'ü değil** diğerini yükledi (tarih 23 Ağustos).
+Diğer dosya geçici olarak klasörden çıkarılınca aynı komut v03'ü **9 Ağustos 05:45** olarak yükledi; yani
+kayıt sağlam, seçim yanlış. Muhtemel neden `rowselect ?text=`in ada **önek** olarak eşleşmesi; düzeltilmedi.

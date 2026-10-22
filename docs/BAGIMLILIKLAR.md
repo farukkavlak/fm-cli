@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **16** · `Task.Delay` 28 çağrı (13 borç, 13 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **15** · `Task.Delay` 27 çağrı (12 borç, 13 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 13 borç / 28 çağrı
+#### A1. `Task.Delay` — 12 borç / 27 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -46,7 +46,6 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `League.cs:253` — tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320
 - [ ] `MatchDay.cs:181` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
-- [ ] `MatchDay.cs:370` `await Task.Delay(TimeSpan.FromSeconds(1.5));`
 - [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
 - [ ] `Program.cs:589` `await Task.Delay(TimeSpan.FromSeconds(every));`
 - [ ] `Program.cs:694` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
@@ -71,6 +70,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `League.cs:223` — yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319
 - [ ] `MatchControls.cs:131` 3 sn
 - [ ] `MatchControls.cs:266` 1.5 sn
+- [~] `MatchDay.cs:421` — anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343
 - [~] `Prep.cs:142` — günün kapsamı `pathset`in kendi cevabıyla ilk denemede bağlanıyor (21–32 ms); 3 sn yalnız üst sınır, §8.323
 - [~] `Reads.cs:924` — takımın ülkesi ilk `pull`da geliyor (26–33 ms); 3 sn yalnız üst sınır, §8.322
 - [~] `Saves.cs:245` — kayıt satırı `rowselect dry`nin kendi cevabıyla bulunuyor (24–40 ms); 3 sn yalnız üst sınır, §8.321

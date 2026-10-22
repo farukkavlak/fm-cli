@@ -55,6 +55,7 @@ SETTLED_SHORT = {
     ("Prep.cs", 142): "günün kapsamı `pathset`in kendi cevabıyla ilk denemede bağlanıyor (21–32 ms); 3 sn yalnız üst sınır, §8.323",
     ("TraitTraining.cs", 98): "yardımcının itiraz penceresi `dialog` bağıyla 70–230 ms'de geliyor; 3 sn yalnız üst sınır, §8.324",
     ("ContractTalks.cs", 388): "çıkış basışından sonra görüşme ekranı 0,41–0,45 sn'de kapanıyor; 3 sn yalnız üst sınır, §8.326",
+    ("MatchDay.cs", 421): "anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343",
 }
 
 # Denendi, ölçülemedi / karar bekliyor: açık kutuya girmez, tekrar denenmez.
