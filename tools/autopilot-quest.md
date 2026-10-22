@@ -3,6 +3,31 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Şu an (Tur 153)
+- Seçilen madde: **yok** — canlı bloktaki 15 kutunun 2'si Guided `[?]`, gerisi aşağıdaki
+  **"Sonraya bırakılanlar"** listesinde. Talimatın boşta kalma yolu: `tools/sweep.sh` + menajer akışı / hata avı.
+- Sweep: **50 komut, 0 hata** (`/tmp/opencode/t153/sweep1.txt`), yeni derlemeyle yine **50/50**
+  (`sweep2.txt`). `--json` taraması: 44 okuma komutu, hepsi geçerli JSON + rc=0 (`/tmp/opencode/t153/json/`).
+- Menajer akışı: `next` ×9 → maç öncesi basın (6 soru, `talk 1`) → **Lincoln 2-1 Preston** (Carabao Cup,
+  `match --instant`) → maç sonu basın → `next` ile 12 Ağustos'a. Yol boyunca mutasyon yok; kayıt `fm save`
+  **yok**, test kaydı kullanıldı (ana kayıt v03).
+- Bulunan hata (**dil/kimlik + yarış**, §8.347): `fm reply` açık mesajı yalnız `HumanPortalLastSelectedMessage`
+  numarasıyla tanıyordu; mesaj sayfası açılınca o düğüm kayboluyor ve komut "'…' açılamadı." rc=1 veriyordu.
+  Ayrıca boş cevap kümesi boş `action.ActionTitle` kümesiyle eşleşip `CanRespond=True` mesajda
+  "(cevap seçeneği yok)" basılıyordu. Artık açıklık işareti mesajın kendi sayfası; boş cevap yalnız
+  `CanRespond` "hayır" diyorsa kabul.
+- Kanıt — eski derleme TR rc=1; yeni derleme TR üç durum (mesaj açık / `table` sonrası / başka mesaj açık) ve
+  EN üç durum: üç seçenek listeleniyor, rc=0. Cevaplı mesaj `reply 11` 1,2 sn, cevapsız `reply 1/7` 0,8–1,0 sn.
+  Dosyalar `/tmp/opencode/t153/{before,after,after-en}/`. Paylaşılan `Reply` değişti → `sweep.sh` 50/50.
+- Dönüş: dil EN'e çevrildi ve **geri Türkçe'ye döndü**; ana kayıt `fm load "… (v03)" --no-save` ile yüklendi.
+  `fm status --json`: `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; v03 damgası
+  **21 Ekim 10:40** (değişmedi).
+- Yeni bulgu (**§8.348**, düzeltilmedi): dil oturum içinde değiştirilince FM menüsünün ayarlar döşemesi
+  bulunamıyor; oyun yeniden açılınca düzeliyor. Sonraki turlar dil gidiş-dönüşünden sonra gerekirse
+  `fm stop --no-save` + `fm start` + `fm load … (v03) --no-save` yapsın.
+- `remaining.py --count`: **12 borç / 0 yazı / 3 kısa `Until`** (değişmedi; bu tur bir kutu değil, hata avı).
+- Sonraki tur: aynı durum — aşağıdaki liste dışında seçilebilir kutu yok; yine sweep + menajer akışında hata avı.
+
 ## Şu an (Tur 152)
 - Seçilen madde: **yok** — canlı bloktaki 15 kutunun 2'si Guided `[?]`, gerisi aşağıdaki
   **"Sonraya bırakılanlar"** listesinde. Talimatın boşta kalma yolu: `tools/sweep.sh` + menajer akışı / hata avı.

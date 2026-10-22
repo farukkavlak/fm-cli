@@ -4093,3 +4093,25 @@ Renewals (U21)" → "Teknik Heyet Personeli Sözleşme Görüşmeleri (U21)"); E
 bayt bayt aynı (`32c8daa1…`). TR `--json` eski çıktıyla **birebir aynı**; `responsibilities medya` /
 `personel` başlıkları Türkçe. Ek maliyet: 5 `/translate` isteği, tur başına ~0,2 sn (40,42 → 41,10 sn).
 Dosyalar `/tmp/opencode/t152/`.
+
+### 8.347 açık mesaj yalnız seçili satır numarasıyla tanınıyordu; cevaplar boş okunabiliyordu (22 Ekim, TR + EN)
+
+`fm reply` bir mesajı açtıktan sonra açıklığını yalnız `HumanPortalLastSelectedMessage` numarasıyla anlıyordu;
+oysa mesajın kendi sayfası açılınca gelen kutusu listesi (ve o numara) çözülüyor. Maç sonu basın toplantısı ekranda
+dururken komut "'Maç sonu basın toplantısı' açılamadı." deyip rc=1 veriyordu. Ayrıca cevaplar sayfa çizilmeden
+okunduğunda boş cevap kümesi boş `action.ActionTitle` kümesiyle "anlaşmış" sayılıyor, `CanRespond=True` olmasına
+rağmen "(cevap seçeneği yok)" basılıyordu; oysa sayfada üç `SpeakToAction` (`Attend Press Conference`, `Send
+Assistant`, delege) vardı. Artık açıklık işareti mesajın **kendi sayfası** (`MessageBodyText` altındaki başlık);
+satır numarası yalnız ilk basışı izliyor, basış sayfayı çizmediyse sayfa bekleniyor. Boş cevap yalnız gelen kutusu
+"cevap almıyor" (`CanRespond`) diyorsa kabul ediliyor. Kanıt — eski derleme TR `reply "Maç sonu basın toplantısı"`
+rc=1 / açılamadı; yeni derleme TR üç durumda (mesaj zaten açık / `table` sonrası / başka mesaj açıkken) ve EN üç
+durumda üç seçeneği listeliyor, rc=0; cevapsız mesajlar yine <1 sn'de "(cevap seçeneği yok)". Dosyalar
+`/tmp/opencode/t153/{before,after,after-en}/`; `sweep.sh` 50/50.
+
+### 8.348 dil değiştirildikten sonra FM menüsünün ayarlar döşemesi bulunamıyor (22 Ekim)
+
+`fm settings language English` ile dil değiştikten sonra aynı oturumda `fm settings language "Türkçe"` üç denemede
+de "Ayarlar döşemesi FM menüsünde bulunamadı." verdi; `dashboard-hud-fm-button` `/click` ve `/press` ile basıldığında
+menü hiç açılmadı (`PreferencesFMMenu` düğümü ve "Preferences" metni yok). Oyun `fm stop --no-save` + `fm start`
+ile yeniden açılınca aynı komut ilk denemede çalıştı (dil Türkçe'ye döndü). Yani dil değişikliği oturum içinde
+menüyü kullanılamaz bırakıyor; kök neden ölçülmedi, düzeltilmedi.

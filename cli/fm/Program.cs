@@ -777,20 +777,32 @@ internal static partial class Program
 		var title = Field(chosen, "NewsTitleString");
 		var id = Field(chosen, "UniqueId");
 
+		// A message is open when its own page is on screen, not only when the inbox still reports it
+		// as the selected row: opening one unbinds the list that carries that number, so the page is
+		// the mark that holds either way (the post-match conference kept it, 22 Ekim 2026).
+		async Task<bool> OnScreen() =>
+			await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", "6"), ("paths", "1"), ("most", "1")) is { ValueKind: JsonValueKind.Array } page
+			&& page.EnumerateArray().Any(t => Field(t, "Path") == "newsitem.NewsTitleString"
+			                                   && (Field(t, "Text") == title || GameWords.Of(Field(t, "Text")) == GameWords.Of(title)));
+
 		// The answers the previous message left on screen, which stay there a while after another is
 		// opened (none to tell apart when this message is the one already open).
 		string Set(IEnumerable<string> labels) => string.Join("|", labels.Select(GameWords.Of).Distinct().Order());
-		var previous = await Selected() == id ? null : Set((await Answers()).Select(a => Field(a, "Label")));
+		var open = await OnScreen();
+		var previous = open || await Selected() == id ? null : Set((await Answers()).Select(a => Field(a, "Label")));
 
-		var opened = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-
-		// The answers on screen belong to whichever message is open, so they are only read once
-		// the game reports this one as selected; until then they are the previous message's.
-		if (!await Until(async () => await Selected() == id))
+		if (!open)
 		{
-			Console.Error.WriteLine(L($"'{title}' açılamadı."));
-			return 1;
+			var opened = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
+			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+
+			// The row can be pressed before its page has drawn: the press is queued, does nothing and
+			// the game reports nothing, so the page itself is waited for rather than the number.
+			if (!await Until(async () => await Selected() == id || await OnScreen(), seconds: 8, every: 0.25))
+			{
+				Console.Error.WriteLine(L($"'{title}' açılamadı."));
+				return 1;
+			}
 		}
 
 		// The message's page lists its answers as action titles, but after its title changes both they and
@@ -805,7 +817,7 @@ internal static partial class Program
 			answers = await Answers();
 			var shown = Set(answers.Select(a => Field(a, "Label")));
 			return page.Count > 0 && shown == Set(page.Where(t => t.Path == "action.ActionTitle").Select(t => t.Text))
-			       && (shown != previous || shown.Length == 0 && Field(chosen, "CanRespond") != "True");
+			       && (shown.Length > 0 ? shown != previous : Field(chosen, "CanRespond") != "True");
 		}, seconds: 8, every: 0.25);
 
 		// The answers that are lists, each with what it offers.
