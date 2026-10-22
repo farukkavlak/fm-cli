@@ -268,12 +268,10 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     (değişmezse 3 sn; eskiden sabit 1,5); 20 atama + 2 `--auto` üç durumda doğru (§8.180). İngilizcede denenmedi.
   - [x] `coaches` 3/10: okuma yalnız tam ızgarayı ("ad, görev, dokuz kutu+yıldız", iş yüküne kadar) kabul ediyor; 12
     açılışta 17 ara hal reddedildi, 12/12 tam (§8.180). Kural yapıdan, dilden bağımsız.
-  - [?] Staff 74 (kaydırmadan sonra sabit 400 ms): sabit duraklamayı oyunun işaretiyle değiştirmek **denendi ve geri
-    alındı** — satırlar kaydırmadan 93–272 ms sonra oturuyor, ama oyun tam olmayan bir pencereyi de "sakin" gösterebiliyor
-    (20 satır iki okumada aynı) ve kaydırma çapası bir an bulunamıyor; işarete bağlı sürüm 18 koşunun 2'sinde pencere
-    kaybetti (34/42 satır), 400 ms'lik duraklama 12/12 tam (48). Sabit duraklama şimdilik kalıyor (§8.205). Faruk'a
-    soru: 400 ms bu listeye yetiyor mu, yoksa kaydırma "görünen son satırın kendi yazısına" çapalanıp (Mutluluk'taki
-    gibi) liste baştan sona gezilsin mi — ikincisi ayrı ve daha büyük bir değişiklik.
+  - [x] Staff 74 (kaydırmadan sonra sabit 400 ms): sabit duraklama kalktı; her kaydırma konumu, satırlar iki
+    okumada aynı kalana kadar okunuyor (0,25 sn aralık, 4 sn üst sınır) ve beş konumun satırları adla birleştiriliyor.
+    Ölçüm (22 Ekim, 17 koşu): **16/17 tam 48 satır**, biri sayfa açılmadı hatası; 34/42 kaybı görülmedi. Mutluluk'taki
+    gibi baştan sona gezme (11 durak) artık gerekmiyor; gerekirse ayrı bir iş (§8.205).
   - [x] OppositionCard 91 (`opposition <oyuncu> <talimat>=<değer>`): seçimden sonraki sabit 500 ms kaldırıldı. Her talimat
     artık **satırın kendi adıyla yeniden bulunduğu** güncel karttan seçiliyor (kart bir talimat oturunca yeniden çiziliyor
     ve denetimlere yeni işaretçi veriyor; eskiden ikinci talimat bayat işaretçiye gidiyor, oyun "seçildi" deyip hiçbir şey

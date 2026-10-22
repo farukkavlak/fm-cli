@@ -4375,3 +4375,11 @@ korunacak **ve** değerler değişecek **ve** iki okuma aynı olacak. Üç durum
 ikinci koşu) 11 satır + 1 değişik; eksik satır yok, dialog yok. "Apply all advice" düğmesinin etkinliği/olayı
 uygulama boyunca değişmiyor, o yüzden düğme işaret değil. Kod değişmedi; madde kanıtla kapandı. Dil TR'ye döndü,
 maç oynanmadı (11 Ağustos Preston maçı bu turdan önce oynandı, 15 Ağustos Sheffield sırada).
+
+### 8.370 `staff` kaydırması: sabit 400 ms yok, beş konumun oturmuş satırları birleşiyor (22 Ekim, TR)
+
+§8.205'in `[?]`i yeniden ölçüldü: güncel kod 400 ms kullanmıyor; her kaydırma konumu satırlar iki okumada aynı
+kalana kadar okunuyor ve beş konumun satırları adla birleştiriliyor. 17 koşunun **16'sı tam 48 satır**, biri
+"Personel kartı açılmadı" hatasıyla düştü (sayfa geç açıldı; satır kaybı değil). Eski gözlemdeki 34/42 kaybı
+görülmedi, yani "tam olmayan pencereyi sakin gösterme" tuzağı bu kodda yakalanmıyor; Mutluluk'taki 11 duraklı
+tam gezme şimdilik gerekmiyor. Karar: sabit duraklama yok, mevcut işaret yeterli.

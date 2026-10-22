@@ -4947,3 +4947,8 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Ölçüm (20 ms): TR clear → 845 ms 10 satır (düşüş, sayaç koruması reddediyor) → 930 ms 11 satır/1 değişik; EN
   682–762 ms. Üç durumda 11 satır + 1 değişik, eksik yok. Düğme durumu değişmiyor; işaret içerikte.
 - Kod değişmedi; `[?]` kanıtla kapandı. Dosya: `docs/FINDINGS.md` §8.369, `docs/BAGIMLILIKLAR.md`.
+
+## Tur 107 (22 Ekim) — A: `staff` kaydırması ölçüldü; sabit 400 ms yok, 16/17 tam 48 satır (§8.370)
+- Güncel kod beş kaydırma konumunu "iki okuma aynı" ile okuyup adla birleştiriyor; 17 koşuda 16 tam 48, biri
+  sayfa açılmadı hatası. Eski 34/42 kaybı yok. Kod değişmedi; `[?]` kapandı.
+- Dosya: `docs/FINDINGS.md` §8.370, `docs/BAGIMLILIKLAR.md`.
