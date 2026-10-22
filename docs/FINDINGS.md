@@ -4212,3 +4212,15 @@ ve istatistik etiketleri insan yolunun sözlüklerinden (`GameWords.Of`, `Turkis
 Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık) 3/3 rc=0, üç koşu bayt bayt aynı
 (`75ecfb81…`), İngilizce metin 0; EN temiz açılış (dil English + v03 `--no-save`) 3/3 rc=0, `967cfef6…`, insan
 çıktısıyla aynı sözcükler. Dosyalar `/tmp/opencode/t161/`.
+
+### 8.358 `finances --json` Türkçe oyunda 25 değeri (maaş durumları, sponsorluk türleri, FFP) İngilizce bırakıyordu (22 Ekim, TR + EN)
+TR oyunda `fm finances` insan çıktısı "Yıldız Oyuncu / Önemli Oyuncu / Genel / Ana Forma / Şort / uyumlu" derken
+`--json` aynı yerlerde `Star Player / Important Player / General / Main Kit / Shorts / Compliant` yazıyordu (25/25).
+Sebep önceki turlarla aynı sınıf: satır yolu `GameWords.Of`/`L` ile çeviriyor, JSON dalı ham değeri yazıyordu.
+Düzeltme (`Finances.cs`): `WagesByStatus[].Status` ve `Sponsorship.Deals[].Type` insan yolunun kullandığı
+`GameWords.Of`tan, `Ffp.Status` insan yolunun `L("uyumlu"/"uyumsuz")` eşlemesinden geçiyor; başka alan değişmedi.
+Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık) 3/3 rc=0, üç koşu bayt bayt aynı
+(`360dfb28…` → `42bf0b05…`), yapısal fark yalnız bu 25 değer, insan çıktısı önce/sonra **birebir aynı**. EN temiz
+açılış (dil English + start) 3/3 rc=0, `c7deaca7…`, değerler İngilizce ve insan satırıyla aynı; tek EN farkı
+`Ffp.Status` "Compliant" → "compliant" (insan satırı zaten "compliant" diyor). `tools/sweep.sh` değişiklik öncesi
+**51/51**; `finances` TR+EN elle rc=0. Dosyalar `/tmp/opencode/t162/`.

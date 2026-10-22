@@ -1,5 +1,31 @@
 # Otopilot görev defteri — turlar arası hafıza
 
+## Tur 162 (22 Ekim) — boşta: seçilebilir kutu yok; `finances --json` dil sızıntısı düzeltildi (§8.358)
+- **Seçim:** canlı bloktaki 12 kutunun tamamı "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay 181/314 ·
+  Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır madde seçme"
+  kuralı; seçilebilir kutu yok → boşta yolu. Tur 161'in bıraktığı adaylardan `finances --json` alındı.
+- `tools/sweep.sh` (`/tmp/opencode/t162/sweep1`): **51 komut, 0 hata**.
+- **Bulunan hata (B / dil, §8.358):** TR `fm finances --json` 25 değeri İngilizce bırakıyordu: `Ffp.Status`
+  "Compliant" (insan "uyumlu"), `WagesByStatus[].Status` ("Star Player", "Important Player", "Emergency Backup"…),
+  `Sponsorship.Deals[].Type` ("General", "Main Kit", "Back of Shirt", "Shorts"…). İnsan yolu bu değerleri
+  `GameWords.Of` + `L("uyumlu"/"uyumsuz")` ile basıyordu; JSON dalı ham değeri yazıyordu.
+- Düzeltme (`Finances.cs`, yalnız JSON dalı): durum ve sponsorluk türü insan yolunun `GameWords.Of`undan, FFP
+  kararı `L("uyumlu"/"uyumsuz")` eşlemesinden geçiyor; başka alan/şekil değişmedi.
+- Kanıt — TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık): **3/3 rc=0**, üç çıktı bayt bayt
+  aynı (`360dfb28…` → `42bf0b05…`), değişen **25/25** değer, yapısal kalan birebir aynı, `fm finances` insan
+  çıktısı önce/sonra **diff boş**. EN (dil English + `stop --no-save` + `start`, start son kaydı 9 Ağustos'a
+  yükledi): üç durum **3/3 rc=0**, `c7deaca7…`, değerler İngilizce ve insan satırıyla aynı; tek EN farkı
+  `Ffp.Status` "Compliant" → "compliant" (insan satırı zaten küçük harf). Dosyalar `/tmp/opencode/t162/`.
+- `python3 tools/remaining.py --write --count`: **9 / 0 / 3** (açık kutu 12; bu bir kutu değil). Paylaşılan koda
+  dokunulmadı (yalnız `Finances.cs` JSON dalı) → tam sweep gerekmedi.
+- Dönüş: dil `fm settings Language "Türkçe"` → `turkish`; oyun yeniden açıldı (`start` son kaydı yükledi);
+  `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm finances --json`
+  ölçüm anındaki çıktıyla **birebir aynı**; `fm status` **9 Ağustos 2026 05:45**; `fm save` **yok**, kayıt
+  damgaları değişmedi (ilk satır 22 Ekim 03:05, v03 21 Ekim 10:40). Not: `fm load "…" --no-save` 120 sn'de
+  zaman aşımına uğradı ve oyunu kapattı; `start` aynı kaydı (9 Ağustos) yükledi.
+- Sıradaki adaylar (aynı sınıf, ölçülmedi): `penalties --json` (kural cümleleri + "On Subs bench"), `league --json`
+  (13), `saves --json` (1), `schedule --json` — ya da yine sweep + menajer akışı.
+
 ## Tur 161 (22 Ekim) — boşta: seçilebilir kutu yok; `opponent --json` dil sızıntısı düzeltildi (§8.357)
 - **Seçim:** canlı bloktaki 12 kutu da "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay 181/314 ·
   Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır madde seçme"

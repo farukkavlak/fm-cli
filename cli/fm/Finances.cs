@@ -73,14 +73,16 @@ internal static partial class Program
 		{
 			Balance = Pounds(Field(club, "OverallBalance")),
 			IncomeThisMonth = income, ExpenditureThisMonth = spent,
-			Ffp = new { ffp.Competition, ffp.Status },
+			// The words are the ones the human lines print: the game's own for the status and the
+			// deal type, the CLI's for the fair play verdict (which is derived here, not read).
+			Ffp = new { ffp.Competition, Status = ffp.Status switch { "Compliant" => L("uyumlu"), "Failing" => L("uyumsuz"), _ => ffp.Status } },
 			Debt = new { Remaining = Pounds(Field(club, "TotalDebt")), Original = Pounds(Field(club, "OriginalLoanDebt")) },
 			Wages = new { wages.Total, wages.Budget, wages.Share },
-			WagesByStatus = statuses.Select(s => new { s.Status, s.Players, s.Wage }),
+			WagesByStatus = statuses.Select(s => new { Status = GameWords.Of(s.Status), s.Players, s.Wage }),
 			Sponsorship = new
 			{
 				Total = Pounds(Field(club, "TotalSponsorshipIncomeThisSeason")), Sources = sponsors.Count.ToString(),
-				Deals = sponsors.Select(d => new { Type = d[0], PerSeason = d[1], Until = d[2], Duration = d[3], TotalValue = d[4] }),
+				Deals = sponsors.Select(d => new { Type = GameWords.Of(d[0]), PerSeason = d[1], Until = d[2], Duration = d[3], TotalValue = d[4] }),
 			},
 			Tickets = new { Match = Pounds(Field(tickets, "MatchTicketPrice")), Season = Pounds(Field(tickets, "SeasonTicketPrice")), Holders = Field(tickets, "SeasonTicketHolders") },
 			Projections = projections.Select(p => new { p.Season, p.Balance, p.Turnover }),
