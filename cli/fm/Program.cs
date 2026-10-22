@@ -173,7 +173,7 @@ internal static partial class Program
 				"finances" => await Finances(json, args),
 				"supporters" => await Supporters(json),
 				"board" => args.Length > 1 && args[1] is "request" or "talep" ? await BoardRequests(json, args) : await Board(json),
-				"doctor" => await Doctor(json),
+				"doctor" => await Doctor(json, args),
 				"completion" => Completion(args),
 				"export" => await Export(args),
 				"diff" => await Diff(json, args),
@@ -2561,6 +2561,7 @@ internal static partial class Program
 			  board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri
 			    request ["<talep>" --yes]   yönetimden istenebilecekler; adıyla birini iste
 			  doctor          kadroda ne yanlış: sakatlar, yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri
+			    --install     kurulumu denetle: oyun, BepInEx, gölge paket, eklenti, fm komutu, kayıt klasörü
 			  facilities      tesisler: stadyum (kapasite, zemin, ölçüler), antrenman tesisi, altyapı, ticari
 			  query "<koşullar>"   kadroda sorgu: "yaş<23 ve potansiyel>140", "sözleşme<1yıl", "mevki=ST ve gol>2";  çıplak hali alanları listeler
 			    --sort <alan> / --asc      sıralama (varsayılan: ilk koşulun alanı)

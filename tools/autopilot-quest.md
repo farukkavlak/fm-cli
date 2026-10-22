@@ -4971,3 +4971,11 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Ölçüm (20 ms): onaydan sonra pencere 1731 ms'de kapandı; eski 1000 ms yetmiyordu (~0,4 sn açık kalıyordu).
   Sabit 1 sn / 800 ms yerine "liste kaybolana/görünene kadar" (0,15 sn, 3 sn üst sınır).
 - Dosyalar: `cli/fm/Guided.cs`, `tools/remaining.py`, `docs/FINDINGS.md` §8.373, `docs/BAGIMLILIKLAR.md`.
+
+## Tur 111 (22 Ekim) — H: tek komut kurulum, SDK'sız fm, `fm doctor --install`, README
+- `tools/install.sh`: eklentiyi derleyip BepInEx'e kopyalar, `fm`yi tek dosya yayınlar, `~/.local/bin/fm` bağlar,
+  `fm doctor --install` çalıştırır. BepInEx/gölge paket lisans yüzünden dağıtılmaz; eksikse yolunu söyler.
+- `tools/publish.sh`: osx-arm64 tek dosya `dist/fm/fm` (~81 MB) + `dist/FmCliProbe.dll`; yayınlanan ikili denendi.
+- `fm doctor --install`: yedi adım (oyun, BepInEx çekirdeği, başlatıcı, gölge paket, eklenti, fm, kayıt) + `--json`.
+- README: gereksinimler, tek komut/elle kurulum, SDK'sız yayın, doctor. `dist/` .gitignore'da.
+- Kalan H: BepInEx lisansı, oyun kopyası betiği, sürüm koruması, temiz makine, Intel Mac kararı.

@@ -207,23 +207,44 @@ Gerçekten headless (`-nographics`) çalışmıyor — UI olmadan binding ağac�
 
 ## Gereksinimler
 
-- macOS, Apple Silicon
+- macOS, **Apple Silicon** (Intel kararı henüz verilmedi)
 - Football Manager 26 (Steam)
-- BepInEx 6 IL2CPP arm64 — kurulum `docs/FINDINGS.md` §3'te
-- .NET SDK
+- BepInEx 6 IL2CPP arm64 — oyun klasörüne bir kez kurulur: `docs/FINDINGS.md` §3
+- `~/fm26_bep/fm.app` — Steam kopyasından hazırlanan gölge paket (Info.plist yaması; `fm doctor --install` nerede eksik olduğunu söyler)
+- Derlemek için .NET SDK; **hazır `dist/fm/fm` için SDK gerekmez**
 
-## Derle ve kur
+## Kur
+
+Tek komut (BepInEx ve gölge paket zaten hazırsa):
 
 ```bash
-# plugin
+tools/install.sh
+```
+
+Yaptıkları: eklentiyi derleyip BepInEx'in plugin klasörüne kopyalar, `fm`yi tek dosya
+olarak yayınlar (`dist/fm/fm`, SDK'sız), `~/.local/bin/fm` bağlar ve kurulumu denetler.
+BepInEx ve gölge paket **dağıtılmıyor** (lisans); eksikse script nerede olduğunu söyler.
+
+Elle:
+
+```bash
+# eklenti
 dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release
 cp plugin/FmCliProbe/bin/Release/net6.0/FmCliProbe.dll \
    "$HOME/Library/Application Support/Steam/steamapps/common/Football Manager 26/BepInEx/plugins/FmCliProbe/"
 
-# cli
+# cli: ya bağla ya da SDK'sız tek dosya üret
 dotnet build cli/fm -c Release
-ln -sf "$PWD/cli/fm/bin/Release/net10.0/fm" /usr/local/bin/fm
+ln -sf "$PWD/cli/fm/bin/Release/net10.0/fm" ~/.local/bin/fm
+# veya: tools/publish.sh  → dist/fm/fm (osx-arm64, kendi kendine yeter)
+
+# denetle
+fm doctor --install
 ```
+
+`fm doctor --install` yedi adımı tek tek söyler: oyun, BepInEx çekirdeği, başlatıcı,
+gölge paket, eklenti, `fm` komutu, kayıt klasörü. Eksik olanın yanına ne yapılacağını yazar;
+`--json` ile makine okunur hâli de var.
 
 ## Referans dosyaları
 

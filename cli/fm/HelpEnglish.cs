@@ -116,6 +116,7 @@ internal static partial class Program
 			  board           the board's and supporters' view: matches, squad, tactics, transfers, vision; what pleases them, their concerns
 			    request ["<request>" --yes]   what can be asked of the board; ask for one by name
 			  doctor          what is wrong in the squad: injured, tired, low sharpness, ending contracts, thin positions, the board's concerns
+			    --install     check the installation: game, BepInEx, shadow bundle, plugin, fm command, save folder
 			  facilities      facilities: stadium (capacity, pitch, size), training facilities, youth, commercial
 			  query "<conditions>"   query the squad: "age<23 and potential>140", "contract<1year", "position=ST and goals>2";  on its own it lists the fields
 			    --sort <field> / --asc     ordering (default: the first condition's field)

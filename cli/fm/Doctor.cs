@@ -11,8 +11,10 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static async Task<int> Doctor(bool json)
+	private static async Task<int> Doctor(bool json, string[] args)
 	{
+		if (args.Contains("--install")) return InstallDoctor(json);
+
 		if (!await Fm.InGame())
 		{
 			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));

@@ -1130,17 +1130,20 @@ kısmı sonraya kalabilir. Tahmin (15 Ekim): A+B+C 5–7 gün, D 1–2, H 4–6,
   indirir, kurulum ona göre.
 - [ ] **Oyun kopyası:** `~/fm26_bep/fm.app` nasıl kuruluyor (Steam'deki kopyadan, Info.plist yaması), adım adım yazılmalı ve
   betiğe girmeli; Steam oyunu güncelleyince kopya ne oluyor.
-- [ ] **Tek komutla kurulum:** betik ya da `brew` paketi: oyun yolunu bul, BepInEx'i kur, oyun kopyasını hazırla, eklentiyi
-  koy, `fm`'i PATH'e koy, MCP ayarını yaz. Tekrar çalıştırılabilir olsun (güncelleme = aynı komut).
-- [ ] **SDK'sız `fm`:** hazır derlenmiş, kendi kendine yeten `dotnet publish` (osx-arm64); eklenti DLL'i de hazır gelir.
-- [ ] **`fm doctor` kurulumu denetlesin:** her adımı (oyun, BepInEx, eklenti, köprü, kayıt) tek tek söylesin, ne yapılacağını
-  yazsın.
+- [x] **Tek komutla kurulum:** `tools/install.sh` — eklentiyi derleyip BepInEx'in plugin klasörüne kopyalıyor, `fm`yi
+  tek dosya olarak yayınlıyor, `~/.local/bin/fm` bağlıyor, sonunda `fm doctor --install` çalıştırıyor. BepInEx ve gölge
+  paket lisans gerektirdiği için **dağıtılmıyor**; eksikse script nerede olduğunu söylüyor. Tekrar çalıştırılabilir.
+- [x] **SDK'sız `fm`:** `tools/publish.sh` → `dist/fm/fm` (osx-arm64, tek dosya, ~81 MB, SDK gerekmez) + `dist/FmCliProbe.dll`.
+  Yayınlanan ikiliyle `doctor --install` ve komutlar denendi.
+- [x] **`fm doctor` kurulumu denetlesin:** `fm doctor --install` yedi adımı (oyun, BepInEx çekirdeği, başlatıcı, gölge
+  paket, eklenti, `fm` komutu, kayıt klasörü) tek tek söylüyor; eksik adımın yanına ne yapılacağını yazıyor, `--json` var.
 - [ ] **Sürüm koruması (F'nin bir kısmı):** eklenti oyun sürümünü bilsin; desteklenmeyen sürümde sessizce yanlış yapmak
   yerine "bu FM sürümü desteklenmiyor" desin.
 - [ ] **Temiz makinede deneme:** yeni bir macOS kullanıcı hesabında README'yi izleyerek sıfırdan kurulum; çıkan her
   takılma düzeltilir.
 - [ ] **Intel Mac:** ilk sürümde "yalnızca Apple Silicon" mu denecek, karar.
-- [ ] **README / kılavuz:** kurulum, ilk açılış, sık sorunlar; geliştirici bilgileri ayrı yere.
+- [x] **README / kılavuz:** README'ye gereksinimler, tek komut kurulum, elle kurulum, `fm doctor --install` ve SDK'sız
+  yayın eklendi; geliştirici bilgileri ayrı bölümde. (`docs/manual/KILAVUZ.md` kullanıcı kılavuzu ayrı duruyor.)
 
 ---
 

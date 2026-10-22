@@ -9,3 +9,5 @@ fm-cli-probe.txt
 cli/fm/bin/
 cli/fm/obj/
 __pycache__/
+
+dist/
