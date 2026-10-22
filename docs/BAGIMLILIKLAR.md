@@ -52,7 +52,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `Program.cs:1493` `await Task.Delay(250);`
 - [ ] `Program.cs:2251` `await Task.Delay(500);`
 - [~] `Registration.cs:318` — iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350
-- [~] `Release.cs:164` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
+- [~] `Release.cs:167` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
 - [ ] `Stages.cs:242` `await Task.Delay(700);`
 - [~] `StatusFlags.cs:54` — döngüde yoklama aralığı (250 ms), §8.317
 - [~] `TrainingReport.cs:93` — seçim taze liste üzerinden ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.329
@@ -1010,12 +1010,11 @@ tablodan çevrilemiyor.
   merkezi bulgularını yazmadan önce o cümleler için oyunun kendi tablosuna bir kez soruyor ve satırı oyunun sözüyle
   yazıyor; tabloda olmayan (sayı/isim taşıyan) cümleler zaten oyunun dilinde geliyor. TR üç durumda satır Türkçe,
   EN üç durumda eskisiyle **birebir** (§8.226).
-- [?] `contract <oyuncu> --agent`: **ölçüldü, dil bağımlılığı değil** — TR ve EN aynı davranıyor; hata oyuncunun
-  sayfası/kartı durumundan geliyor. Aynı oyuncuya arka arkaya ikinci kez sormak (oyun konuşmayı açık bırakıyor) ve
-  açık bir yenileme kartı varken sormak iki dilde de rc=1; temiz sayfada ilk soru iki dilde de rc=0 (§8.250).
-  `Action` alanı boş kalan üç `SpeakToAction` satırı (oyuncunun sayfasındaki aksiyon listesi) kart açıkken görülüyor.
-  Kod değişmedi: düzeltmek için ya CLI'nin açık konuşmayı kendiliğinden kapatması (menajeri/oyuncuyu üzebilir) ya da
-  `OpenPlayer`ın örtülü oyuncu sayfasını öne getirmesi gerekir — Faruk'a soru: hangisi?
+- [x] `contract <oyuncu> --agent`: **dil bağımlılığı değil**; oyun, sözleşme görüşmesi açıldıktan sonra "menajere
+  sor" eylemini kaldırıyor. Aynı oyuncuya arka arkaya ikinci kez sormak ve açık görüşme varken sormak iki dilde de
+  rc=1; temiz sayfada ilk soru rc=0 (§8.250, §8.367). Örtülü sayfayı öne getirmek denendi (kadro tablosundan taze
+  sayfa): eylem geri gelmiyor. Karar (Faruk): CLI görüşmeyi kendiliğinden kapatmasın; mesaj artık iki durumu da
+  söylüyor — "açık görüşme varsa `contract --cancel`; yoksa birkaç gün sonra yeniden dene" (TR + EN).
 - [x] **`opposition` seçenek adları:** seçenekler eklentiden İngilizce geliyor; hata/yardım satırı ise onları oyunun
   sözleriyle yazdığı için gösterilen ad geri yazılamıyordu (`Pres=Her Zaman` → "yok"). Artık değer hem İngilizcesiyle
   hem ekranda görünen sözüyle kabul ediliyor (kimlik listesi hâlâ eklentiden; oyunun verdiği `GameWords` eşlemesiyle

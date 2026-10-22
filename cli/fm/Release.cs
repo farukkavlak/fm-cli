@@ -57,7 +57,10 @@ internal static partial class Program
 		}, seconds: 10, every: 0.25);
 		if (offering is not { } ask)
 		{
-			Console.Error.WriteLine(L($"{name} için menajerle görüşme seçeneği yok (yakın zamanda konuşulmuş olabilir)."));
+			// The game takes the ask away once talks are open (FINDINGS §8.250): the page cannot be
+			// brought back with it, and cancelling talks to get it is a decision the manager makes,
+			// not one made here.
+			Console.Error.WriteLine(L($"{name} için menajerle görüşme seçeneği yok. Açık bir sözleşme görüşmesi varsa önce onu bitir ya da iptal et (contract --cancel); yoksa yakın zamanda konuşulmuş olabilir, birkaç gün sonra yeniden dene."));
 			return 1;
 		}
 

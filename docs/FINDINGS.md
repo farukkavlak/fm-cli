@@ -4338,3 +4338,16 @@ Kanıt (TR): Collins `yedek` (oyun "On Subs bench" diyordu), Hamer `ilk 11` (oyu
 `Where` da aynı. EN: `sub` / `first XI`, `--json` aynı; `labels-english.tsv`e `ilk 11 → first XI` eklendi.
 Eklenti değişikliği gerekmedi — `PlayerIndex` zaten vardı, eksik olan onu kişi numarasıyla birleştirmekti.
 Kayıt test kaydı; eklenen penaltıcı geri alındı, dil TR'ye döndü. `sweep.sh` aşağıda.
+
+### 8.367 `contract --agent`: oyun görüşme açılınca "menajere sor" eylemini kaldırıyor; öne getirmek çözmüyor (22 Ekim, TR + EN)
+
+§8.250'nin yeniden üretimi: `fm contract "George Wickens"` rc=0 (görüşme Vaatler'de açık kalıyor), hemen ardından
+`fm contract "George Wickens" --agent` rc=1 "menajerle görüşme seçeneği yok". Faruk'un seçtiği (b) denendi: taktik
+sayfasından kadro tablosuna gidilip oyuncunun adına basıldı, yani **taze** oyuncu sayfası öne getirildi; `SpeakToAction`
+listesinde "Ask Agent About New Contract" (ActionID 1882353528) yine yok — eylem sayfa örtülü olduğu için değil,
+**görüşme açıldığı için** oyundan kalkmış. (a) yani CLI'nin görüşmeyi kendiliğinden iptal etmesi, oyunun kendi uyarısı
+("oyuncu ve menajer bundan hoşlanmayabilir") yüzünden seçilmedi. Karar (c): davranış değişmiyor, mesaj iki durumu da
+söylüyor — açık görüşme varsa `contract --cancel`, yoksa birkaç gün sonra yeniden deneme. (Açık görüşme `OfferScreen`
+ile güvenilir seçilemediği için mesaj dallanmıyor; tek cümle ikisini de kapsıyor.)
+Kanıt: TR ve EN aynı cümle (`There is no option to talk to …`), rc=1; temiz sayfada ilk soru rc=0 (önceki ölçüm).
+Dil TR'ye döndü; kayıt test kaydı. `sweep.sh` aşağıda.

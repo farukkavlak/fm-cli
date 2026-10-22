@@ -834,7 +834,7 @@ Liste: [bold]{0}[/] oyuncu	List: [bold]{0}[/] players
 {0} değiştirilemedi.	{0} could not be changed.
 {0} bizim oyuncumuz değil ya da sözleşmesi açılamıyor.	{0} is not our player, or their contract cannot be opened.
 kullanım: contract <oyuncu> --agent	usage: contract <player> --agent
-{0} için menajerle görüşme seçeneği yok (yakın zamanda konuşulmuş olabilir).	There is no option to talk to {0}'s agent (they may have been spoken to recently).
+{0} için menajerle görüşme seçeneği yok. Açık bir sözleşme görüşmesi varsa önce onu bitir ya da iptal et (contract --cancel); yoksa yakın zamanda konuşulmuş olabilir, birkaç gün sonra yeniden dene.	There is no option to talk to {0}'s agent. If a contract talk is open, finish or cancel it first (contract --cancel); otherwise they may have been spoken to recently, so try again in a few days.
 kullanım: release <oyuncu> [--free | --mutual] [--yes]	usage: release <player> [--free | --mutual] [--yes]
 {0} için serbest bırakma seçeneği yok.	There is no option to release {0}.
   release "{0}" --free     bedelsiz serbest bırak (oyun tazminatı söyleyip onay ister)	  release "{0}" --free     release on a free (the game names the compensation and asks to confirm)
@@ -2271,3 +2271,4 @@ NEDEN	WHY
     Mevkide yeteneği: {0}	    Positional ability: {0}
 error: maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role; sürdürmek: match	error: pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role; to go on: match
 ilk 11	first XI
+{0} ile açık bir sözleşme görüşmesi var. Önce onu bitir ya da iptal et: contract --cancel   (sonra: contract {0} --agent)	There is an open contract talk with {0}. Finish or cancel it first: contract --cancel   (then: contract {0} --agent)

@@ -4928,3 +4928,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Kanıt: TR Collins `yedek`, Hamer `ilk 11`; EN `sub` / `first XI`; `--json` `Where` aynı; `ilk 11` İngilizce
   etiketi eklendi. Test için eklenen penaltıcı geri alındı, dil TR'ye döndü.
 - Dosyalar: `cli/fm/Penalties.cs`, `cli/fm/labels-english.tsv`, `docs/FINDINGS.md` §8.366, `docs/BAGIMLILIKLAR.md`.
+
+## Tur 104 (22 Ekim) — C: `contract --agent` kararı: görüşme açıkken eylem yok, CLI kendiliğinden kapatmıyor (§8.367)
+- Faruk'un seçimi (b) denendi: kadro tablosundan taze oyuncu sayfası açıldı; "menajere sor" eylemi gelmedi — oyun
+  görüşme açılınca eylemi kaldırıyor. (a) riskli olduğu için seçilmedi; (c) uygulandı: mesaj iki durumu da söylüyor.
+- Kanıt: TR + EN aynı cümle, rc=1; temiz sayfada ilk soru rc=0. Dil TR'ye döndü, kayıt test kaydı.
+- Dosyalar: `cli/fm/Release.cs`, `cli/fm/labels-english.tsv`, `docs/FINDINGS.md` §8.367, `docs/BAGIMLILIKLAR.md`.
