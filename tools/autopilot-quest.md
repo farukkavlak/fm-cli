@@ -4907,3 +4907,16 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Kanıt (TR): lig tablosu 24 satır; 1. Tur 35 bağ; 2. Tur "kura 13/8/2026"; `--all` 8/35/0/0/0/0/0/0. EN: aynı
   (League Stage, First Round 35, Second Round not). Üç durum × iki dil rc=0. Dil TR'ye döndü, maç yok.
 - `tools/sweep.sh` 51/51. Dosya: `cli/fm/Stages.cs`, `docs/FINDINGS.md` §8.364, `docs/BAGIMLILIKLAR.md`.
+
+## Tur 102 (22 Ekim) — A: `schedule` antrenman takviminin ayını kendi sekmesinden okuyor; `set`in 500 ms'i işarete bağlandı (§8.365)
+- Seçilen madde: Faruk'un "4 evet" dediği takvim/ay karışıklığı + `TrainingSchedule 345` `[?]`.
+- Kök: takvim `General` ve `Training` sekmeleri için ayrı `MonthDropdown` tutuyor; arkada kalan sekmenin listesi
+  boş gelebiliyor (etiket "", `Selected -1`) ve `CalendarMonths` ilk listeyi kullandığı için hedef ay yanlış
+  sayılıyordu. `set` bazen sessizce rc=1 dönüyordu.
+- Düzeltme: `ActiveMonthList` (ayını bilen son liste), çıpa sekmenin kendi listesinde — önce başka aya çek,
+  sonra Today'e bas (`Enabled=True` bekle, reddedilirse bir kez daha), değerleri etiketsiz aya çevir, hedefi
+  **değerle** seç. 500 ms'lik açıklama beklemesi zaten "farklı + iki okuma aynı" işaretine bağlıydı; artık
+  engelleyen ay sorunu olmadığı için üç durum + iki dilde doğrulandı.
+- Kanıt: sekmeler kasten ayrıştırıldı (General Temmuz 2027, Training Haziran 2026) → `schedule` 3 Ağustos,
+  `set 12 3` ve `"2 Eylül" 1` doğru; bozuk durumda 5/5 rc=0 (önce 2/5). EN `Overall` ↔ `Physical` üç durum.
+- `sweep.sh` 51/51. Dosyalar: `cli/fm/TrainingSchedule.cs`, `docs/FINDINGS.md` §8.365, `docs/BAGIMLILIKLAR.md`.

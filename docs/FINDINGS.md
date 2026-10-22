@@ -4304,3 +4304,22 @@ açık / sayfa zaten açık / ikinci koşu) rc=0. Dil TR'ye döndü (`language: 
 2026 05:45, maç oynanmadı. `tools/sweep.sh` **51/51**.
 Not: eklentide `Ties` taramasını daraltmak bu vaka için gerekmedi — sayfadaki bağlar gerçekten çizili; yanlış olan
 onları "bu aşamanın içeriği" sanmaktı.
+
+### 8.365 `schedule`: antrenman takvimi ayını kendi sekmesinin listesinden okuyor; "Today" ile çıpalanıyor (22 Ekim, TR + EN)
+
+`fm schedule set` ara sıra `Takvimin antrenman sekmesi okunamadı.` (rc=1) veriyordu; bazen de sessizce rc=1
+dönüyordu. Takvim sayfası `General` ve `Training` sekmeleri için **ayrı** `MonthDropdown` tutuyor ve ikisi ayrı aya
+bakabiliyor; `/dropdowns` ikisini birden veriyor, **arka planda kalan sekmenin listesi boş gelebiliyor** (etiket "",
+`Selected -1`). `TrainingCalendar` `CalendarMonths()`in ilk bulduğu listeyi kullanıyordu — yani Çoğu kez General'in
+listesini — ve ay haritasını ondan kuruyordu; hedef ay yanlış sayılıp ızgara hiç bulunamıyordu (§8.216'nın kökü).
+Düzeltme: (1) `ActiveMonthList` artık **ayını bilen son listeyi** seçiyor (öndeki sekmenin listesi); (2) çıpa
+sekmenin kendi listesinde: liste önce başka bir aya çekiliyor, sonra o sekmenin **Today** düğmesine basılıyor —
+düğme aylar arasında devre dışı kalabildiği için `Enabled=True` olana kadar bekleniyor, reddedilirse bir kez daha
+deneniyor; (3) bugünün ayı bilinince bütün değerler etiket okunmadan aya çevriliyor; (4) hedef ay **değerle**
+seçiliyor (`Selected` bekleniyor), etiketle değil. `CalendarMonths` yalnız `fm calendar`/`fixtures` için kaldı.
+Kanıt (TR, kasten ayrıştırılmış sekmeler: General = Temmuz 2027, Training = Haziran 2026): `fm schedule` 3 Ağustos
+haftasını doğru bastı (eskiden yanlış aya gidiyordu); `fm schedule set 12 3 "Fiziksel"` ve `"2 Eylül" 1 "Fiziksel"`
+doğru günü değiştirdi; bozuk durumda 5/5 rc=0 (önce 2/5 düşüyordu), ikinci koşu "zaten Physical".
+EN'de aynı üç durum (`Overall` ↔ `Physical`), açıklama metinleri seçilen seansın kendisi. `fm schedule set`in
+500 ms'lik açıklama beklemesi de artık işaretle: "açıklama basıştan öncekinden farklı ve iki okumada aynı"
+(§8.216'da engelleyen ay karışıklığı kalktı; TR + EN üç durumda doğru açıklama). Dil TR'ye döndü, `sweep.sh` **51/51**.

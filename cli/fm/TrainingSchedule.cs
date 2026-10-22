@@ -522,11 +522,10 @@ internal static partial class Program
 	/// <summary>Opens Portal › Calendar on the month of a day, on its Training tab, and reads the grid.</summary>
 	private static async Task<List<ScheduleDay>> TrainingCalendar(DateTime day)
 	{
-		if (await CalendarMonths() is not var (months, _)) return null;
-		var month = months.FirstOrDefault(m => m.Year == day.Year && m.Month == day.Month);
-		if (month == null)
+		var opened = await OpenPage(Screen.Calendar);
+		if (opened.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L($"{DayName(day)} takvimin gösterdiği aylarda yok."));
+			Report(opened);
 			return null;
 		}
 
@@ -535,6 +534,14 @@ internal static partial class Program
 		// month list — each tab has its own — and the grid.
 		async Task<List<JsonElement>> Page() =>
 			(await Fm.GetJson("form", ("anchor", "Monday"), ("up", "18"), ("buttons", "1"))).EnumerateArray().ToList();
+
+		// Each tab keeps a month list of its own, and the general tab's is read too: the month the
+		// training tab shows is known from the training tab's own list, anchored on the game's
+		// "Today", never from whichever list came first (FINDINGS §8.216).
+		var today = await GameDate();
+		var anchored = false;
+		int todayValue = int.MinValue;
+		List<int> values = [];
 
 		// Straight after the page opens the tab can be clicked, or the month chosen, before it
 		// listens, so each is done again until the grid shows it. The grid is drawn over a few
@@ -550,9 +557,33 @@ internal static partial class Program
 				await Until(async () => (await Page()).Any(f => Field(f, "Name") == "TrainingFocusCard"), seconds: 8, every: 0.4);
 				continue;
 			}
-			var list = page.FirstOrDefault(f => Field(f, "Name") == "MonthDropdown");
-			if (list.ValueKind == JsonValueKind.Object && Field(list, "Label") != month.Label)
-				await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("value", month.Value.ToString()));
+
+			var list = ActiveMonthList(page);
+			if (list.ValueKind != JsonValueKind.Object)
+			{
+				Console.Error.WriteLine(L("Takvim sayfasında ay seçici yok."));
+				return null;
+			}
+
+			if (!anchored)
+			{
+				if (await TrainingMonthAnchor(Page, list) is not { } anchor) return null;
+				(list, todayValue, values) = (anchor.List, anchor.TodayValue, anchor.Values);
+				anchored = true;
+			}
+
+			// The list's values count months from the season's first; today's is the one "Today"
+			// chose, so the month wanted is that many months away.
+			var wanted = todayValue + (day.Year - today.Year) * 12 + (day.Month - today.Month);
+			if (!values.Contains(wanted))
+			{
+				Console.Error.WriteLine(L($"{DayName(day)} takvimin gösterdiği aylarda yok."));
+				return null;
+			}
+			if (MonthValue(list) != wanted)
+				await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("value", wanted.ToString()));
+			await Until(async () => ActiveMonthList(await Page()) is { ValueKind: JsonValueKind.Object } now
+				&& MonthValue(now) == wanted, seconds: 6, every: 0.25);
 
 			var previous = "";
 			var drawn = await Until(async () =>
@@ -567,6 +598,105 @@ internal static partial class Program
 		}
 		Console.Error.WriteLine(L("Takvimin antrenman sekmesi okunamadı."));
 		return null;
+	}
+
+	/// <summary>The month values a list offers, and the value it is on.</summary>
+	private static List<int> MonthValues(JsonElement list) =>
+		list.TryGetProperty("Values", out var values)
+			? values.EnumerateArray().Select(v => v.ValueKind == JsonValueKind.Number ? v.GetInt32() : int.MinValue).Where(v => v != int.MinValue).ToList()
+			: [];
+
+	private static int MonthValue(JsonElement list)
+	{
+		var values = MonthValues(list);
+		return int.TryParse(Field(list, "Selected"), out var at) && at >= 0 && at < values.Count ? values[at] : int.MinValue;
+	}
+
+	/// <summary>
+	/// The month list of the tab in front: the tabs keep theirs side by side, and the one a tab is
+	/// not on can be left empty (label and selection gone), so the last one that knows its month
+	/// is the one showing it.
+	/// </summary>
+	private static JsonElement ActiveMonthList(List<JsonElement> page)
+	{
+		var shown = page.Where(f => Field(f, "Name") == "MonthDropdown" && MonthValue(f) != int.MinValue).ToList();
+		return shown.Count > 0 ? shown[^1] : page.FirstOrDefault(f => Field(f, "Name") == "MonthDropdown");
+	}
+
+	/// <summary>
+	/// Anchors the month on show to the game's "Today", from the training tab's own list: the list
+	/// is moved off the month it shows first, so that "Today" is a change and its answer can be
+	/// told apart from the month it was already on. With the list's value for today's month known,
+	/// every value in it names its month, without reading any label.
+	/// </summary>
+	private static async Task<(JsonElement List, int TodayValue, List<int> Values)?> TrainingMonthAnchor(
+		Func<Task<List<JsonElement>>> page, JsonElement list)
+	{
+		var values = MonthValues(list);
+		if (values.Count == 0) return null;
+
+		var showing = MonthValue(list);
+		var probe = values.FirstOrDefault(v => v != showing, values[0]);
+		if (probe != showing)
+		{
+			await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("value", probe.ToString()));
+			await Until(async () => ActiveMonthList(await page()) is { ValueKind: JsonValueKind.Object } now
+				&& MonthValue(now) == probe, seconds: 4, every: 0.2);
+		}
+
+		// The catalogue's "Today" is enabled only when the month on show is not today's; a click
+		// straight after a month change can still find the old, disabled button, so it is waited
+		// for rather than taken on the first look.
+		static bool IsTodayButton(JsonElement b) =>
+			Field(b, "Label") == "Today" && Field(b, "Events").Contains("SetDatastoreValue", StringComparison.Ordinal);
+		if (probe != showing)
+			await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(IsTodayButton) is { ValueKind: JsonValueKind.Object } b && Field(b, "Enabled") == "True",
+				seconds: 4, every: 0.2);
+
+		// The calendar's own "Today" button: the one in the tab's form when it is there, and the
+		// toolbar's when the form was read before it was drawn (the catalogue holds it by the
+		// event it sends, not by its words).
+		var todayButton = (await page()).FirstOrDefault(f => Field(f, "Kind") == "button" && Field(f, "Text") == "Today");
+		if (todayButton.ValueKind != JsonValueKind.Object)
+			todayButton = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Label") == "Today" && Field(b, "Events").Contains("SetDatastoreValue", StringComparison.Ordinal));
+		if (todayButton.ValueKind == JsonValueKind.Object)
+		{
+			var clicked = await Fm.Get("click", ("ptr", Field(todayButton, "Pointer")));
+			// A click can land on the button of a tab just left; finding it once more costs little.
+			if (clicked.StartsWith("error", StringComparison.Ordinal))
+			{
+				await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.FirstOrDefault(IsTodayButton) is { ValueKind: JsonValueKind.Object } b && Field(b, "Enabled") == "True",
+					seconds: 2, every: 0.15);
+				var again = (await page()).FirstOrDefault(f => Field(f, "Kind") == "button" && Field(f, "Text") == "Today");
+				if (again.ValueKind != JsonValueKind.Object)
+					again = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(IsTodayButton);
+				if (again.ValueKind == JsonValueKind.Object)
+					clicked = await Fm.Get("click", ("ptr", Field(again, "Pointer")));
+			}
+			if (!clicked.StartsWith("error", StringComparison.Ordinal))
+			{
+				var previous = int.MinValue;
+				await Until(async () =>
+				{
+					var now = ActiveMonthList(await page());
+					var at = now.ValueKind == JsonValueKind.Object ? MonthValue(now) : int.MinValue;
+					var settled = at != int.MinValue && at != probe && at == previous;
+					previous = at;
+					return settled;
+				}, seconds: 8, every: 0.3);
+			}
+		}
+
+		var anchor = ActiveMonthList(await page());
+		if (anchor.ValueKind != JsonValueKind.Object) return null;
+		var todayValue = MonthValue(anchor);
+		// "Today" was asked to move the list off the month it was put on; if it did not, the
+		// list's value for today is not known and the month is not guessed.
+		if (todayValue == int.MinValue || (probe != showing && todayValue == probe)) return null;
+		return (anchor, todayValue, MonthValues(anchor));
 	}
 
 	/// <summary>

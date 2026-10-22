@@ -324,16 +324,12 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     sonrası / zaten açık / `fm open "Squad Dynamics"` sonrası / liste elle dibe kaydırılmış) **eskisiyle birebir**:
     TR `md5 570b1bd243e4d67a2f4800b7588ab50b`, EN `md5 0030afd6c876a5bc3197cca3da59e1b7`, süre 11–15 sn (nötr);
     negatif iki dilde `rc=64` (§8.215).
-  - [?] TrainingSchedule 345 (`fm schedule set`: seçenek basıldıktan sonra açıklamayı okumadan önceki sabit 500 ms):
-    ölçüldü — açıklama basıştan sonra birkaç karede değişiyor (yeni metin 107–371 ms'de oturuyor, arada boşaltılmış
-    bir an var: 6 metin, 312 ms) → 500 ms'in payı 1,3–2,2 kat. Yerine "açıklama basıştan önceki hâlinden farklı ve
-    `About` bir şey söylüyor" işareti yazıldı, derlendi; TR'de iki durumda eski derlemeyle **birebir** çıktı verdi
-    (`Physical → General` `md5 0aaf9592…`, `General → Physical` `md5 414fade6…`). Üçüncü durum ve İngilizce
-    tamamlanamadı: `fm schedule` ara sıra `Takvimin antrenman sekmesi okunamadı.` ile düşüyor — takvim sayfası
-    `General` ve `Training` sekmeleri için **ayrı** `MonthDropdown` tutuyor, sekmeler ayrı aya bakabiliyor ve
-    `CalendarMonths` etiket boş gelince yanlış aya geçiyor (eski derlemede de aynı, koda bağlı değil; §8.216).
-    Kural 4 gereği kod **geri alındı**. Faruk'a soru: bu takvim/ay karışıklığı ayrı bir madde olarak düzeltilsin mi
-    (o zaman bu madde ölçülüp bitirilebilir), yoksa ölçüm için ayrı bir kayıt/sekme durumu mu kullanılmalı?
+  - [x] TrainingSchedule 345 (`fm schedule set`: seçenek basıldıktan sonra açıklamayı okumadan önceki sabit 500 ms):
+    açıklama artık basıştan önceki hâlinden **farklı ve iki okumada aynı** olunca okunuyor (500 ms kalktı). Ölçüm:
+    yeni metin 107–371 ms'de oturuyor, arada 312 ms'lik boş bir an var; işaret o boş anı kabul etmiyor.
+    TR + EN × üç durum (`Messages` açık / takvim zaten açık / ikinci koşu): açıklama seçilen seansın kendisi
+    (`Genel` ↔ `Fiziksel`, EN `Overall` ↔ `Physical`), hepsi rc=0. Bunu engelleyen takvim/ay karışıklığı da
+    düzeltildi — antrenman sekmesi kendi `MonthDropdown`'ını ve kendi "Today"ini kullanıyor (§8.365).
   - [x] ScoutFocus 485 (`OpenFocusForm`: yarım kalmış form `AbandonFocus` ile atıldıktan sonra sabit **800 ms** beklenip
     yeniden açılıyordu): bekleme oyunun kendi cevabına bağlandı — formun adım düğmeleri kalmayana kadar
     (`FormStep() == null`, üst sınır 6 sn, 0,2 sn aralık). Ölçüm: onay düğmesine basıldıktan sonra form 0,03–0,10 sn'de
