@@ -40,14 +40,14 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `Clock.cs:157` — `next`in Settled beklemesi ölçüldü, değişiklik gerekmedi §8.181
 - [~] `Clock.cs:187` — işsizlik yolu oyunun cevabına bağlandı §8.289
 - [~] `Launcher.cs:213` — oyun kapanırken çıkış penceresini 500 ms aralıkla yoklama; pencere gelince basılıyor, §8.143
-- [~] `Launcher.cs:269` — süreç canlılığını 3 sn aralıkla yoklama; koşul süreç, gecikme yalnız tur temposu
+- [~] `Launcher.cs:272` — süreç canlılığını 3 sn aralıkla yoklama; koşul süreç, gecikme yalnız tur temposu
 - [~] `League.cs:253` — tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320
 - [~] `MatchDay.cs:316` — maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151
 - [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
-- [~] `Program.cs:618` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
-- [~] `Program.cs:723` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
-- [~] `Program.cs:1516` — satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı
-- [~] `Program.cs:2274` — oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama
+- [~] `Program.cs:652` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
+- [~] `Program.cs:757` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
+- [~] `Program.cs:1550` — satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı
+- [~] `Program.cs:2308` — oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama
 - [~] `Registration.cs:318` — iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350
 - [~] `Release.cs:167` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
 - [~] `Stages.cs:242` — liste seçimi ilk denemede geçiyor; 700 ms hiç çalışmıyor, §8.337
