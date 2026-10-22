@@ -3,7 +3,36 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
-## Şu an (Tur 154)
+## Şu an (Tur 155)
+- Seçilen madde: **A1 `Registration.cs:318`** — `Settled`ın iki okuma arası `Task.Delay(250)`. **BİTTİ, kod
+  değişmedi**: bu bir sabit duraklama değil, "iki okuma aynı mı" işaretinin **örnekleme aralığı**. Ölçüm
+  (`FM_TRACE=1 fm register --json`, üç durum: (a) `fm open Messages` sonrası, (b) hemen ikinci koşu,
+  (c) `fm open "Squad Dynamics"` sonrası) × iki dil **6/6 rc=0**; çıktı dil içinde bayt bayt aynı
+  (TR `md5 14766ebd…` 3/3, EN `d01588f6…` 3/3). Her kaydırmadan sonra 2 okuma; TR a'da 0.5 durağında **3 okuma**
+  (3,03 → 3,55 → 4,07), EN a'da 0.25 durağında 3 okuma (2,09 → 2,52 → 2,93) → ilk çift ayrıştı, aralık iş
+  yapıyor. `Settled` üst sınırı 6 tur, en çok 3 turda bitti (≈2 kat pay). `remaining.py` SETTLED'a eklendi, §8.350.
+- Aynı turda önce **`Stages.cs:63`** denendi (yarışma seçiminden sonraki 1,2 sn). Sabit beklemeyi kaldırmak
+  yanlış okumayı düzeltmiyor, **gizliyor**: sayfa Carabao Kupası turundayken (6 bağ) `fm stages "Sky Bet League Two"`
+  TR'de 3 koşunun 2'sinde **kupanın 6 bağını** döndürdü (md5 `497fcd40…`), EN'de soğuk koşuda da aynı (`d62d1832…`);
+  doğrusu 24 satırlık tablo (`1da1a030…`). Sayfadan çıkıp dönmek de temizlemedi. Kök neden eklentide:
+  `Ties.Current()` bütün canlı ekranlarda `MainPart` arıyor (`plugin/FmCliProbe/src/Ties.cs`).
+  Aynı soğuk dizide **yeni çökme**: `Stages.cs:56` `Nullable object must have a value` (liste null iken `.Value`).
+  İkisi de eklenti/sayfa kimliği işi → `[?]` (PARKED), "Sonraya bırakılanlar"a yazıldı; `Stages.cs:120/136`
+  aynı düzeltmeye bağlı. §8.350.
+- `python3 tools/remaining.py --write`: açık kutu **15 → 13**, `Task.Delay` borcu **12 → 10** (biri `[~]`,
+  biri `[?]`). Kod değişmedi (yalnız `tools/remaining.py` + dokümanlar) → `sweep.sh` gerekmedi.
+- Kayıt: yalnız sayfa gezinme + okuma; `fm save` yok. Dil `Türkçe`'ye döndü, ana kayıt `--no-save` yüklendi;
+  tarih 9 Ağustos 2026 05:45. Dosyalar `/tmp/t150/` (`before-tr-league/*`, `reg-tr/*`, `reg2-en/*`,
+  `reg2-en/`, `stage-en-cold{1,2,3}.*`).
+- Not: ilk EN denemeleri yanlış komutla (`fm settings language "English"`) yapılmıştı, oysa ayarın adı Türkçe
+  arayüzde **`dil`**; o koşular TR sayılır. Ölçüm `fm settings dil English` ile yenilendi (EN md5'leri farklı).
+- Sıradaki uygun maddeler: `Program.cs:609` (yoklama temposu), `Program.cs:714`, `Program.cs:1484`,
+  `Program.cs:2242` (3×500 ms "active visual tree" yeniden sorması) — aynı kanıt yoluyla tek tek;
+  `Launcher 213/269` oyun açılışı ister. `Stages 63/120/136` eklenti düzeltmesine kadar kapalı.
+- Önceki turun "seçilebilir kutu yok" hükmü düzeltildi: `Registration.cs:318` gibi kutular "Sonraya
+  bırakılanlar"da değildi; canlı blok yeniden okununca seçilebilir kutu **var**.
+
+## Önceki durum (Tur 154)
 - Seçilen madde: **yok** — canlı bloktaki 15 kutunun 2'si Guided `[?]`, gerisi "Sonraya bırakılanlar"
   listesinde; seçilebilir kutu kalmadı. Talimatın boşta kalma yolu: `tools/sweep.sh` + gerçek menajer akışı.
 - Sweep: **51 komut, 0 hata** (`/tmp/opencode/t154/sweep2.txt`) — `squad --u19` listeye eklendi.
@@ -2839,6 +2868,9 @@ Bir listeyi baştan sona kaydırmayı ya da ölçmeyi gerektiren, oyunu yeniden 
   `ActionID` okunamıyor → eklenti değişikliği + oyun restartı ister; düğme şimdilik yazıyla (çeviri tablosu).
 - D `up=N` (76 yer) ve sayfa GUID'leri (36 sabit): skin/güncelleme bağımlılığı, baştan sona tarama işi.
 - D `Penalties` "MAÇA" sütunu: eklenti alanı ya da maske çevirisi kararı Faruk'un (§8.218).
+- A `Stages.cs:63/120/136` (yarışma/tur seçiminden sonraki 1,2 sn): sabit beklemeyi kaldırmak yetmiyor —
+  eklentide `Ties.Current()` bütün canlı ekranları tarıyor ve başka sayfada kalmış bağları döndürüyor (§8.350);
+  düzeltme eklenti + oyun restartı ister. `[?]`.
 - B mesaj eki okumasının 1,5 sn'si (`WriteAttachment`): home-grown kartı dahil eki kimi koşuda hiç yakalamıyor
   (`fm reply` boş/eksik) — Faruk'un 16 Ekim kararıyla park; çözülürse §8.245'in kalan oynaklığı da kapanır (§8.192).
 

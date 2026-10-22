@@ -44,6 +44,7 @@ SETTLED = {
     ("Release.cs", 164): "serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331",
     ("MatchReport.cs", 35): "son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332",
     ("Stages.cs", 213): "liste seçimi ilk denemede geçiyor; 700 ms hiç çalışmıyor, §8.337",
+    ("Registration.cs", 318): "iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350",
 }
 
 # Kısa `Until`ler için aynısı: işaret oyunun kendi cevabı, süre yalnız üst sınır.
@@ -62,6 +63,9 @@ SETTLED_SHORT = {
 PARKED = {
     ("Guided.cs", 161): "bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)",
     ("Guided.cs", 174): "bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru (autopilot-quest, Tur 21)",
+    ("Stages.cs", 63): "sabit 1,2 sn yanlış içerik okumasını gizliyor: yarışma seçilirken sayfanın eski turu"
+        " (başka sayfanın bağları) tablo sanılabiliyor; asıl düzeltme eklentide `Ties` taramasını sayfaya"
+        " daraltmak — oyun restartı ister. §8.350, Faruk'a soru (autopilot-quest, Tur 155)",
 }
 
 

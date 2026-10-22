@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **15** · `Task.Delay` 27 çağrı (12 borç, 13 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **13** · `Task.Delay` 27 çağrı (10 borç, 14 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 12 borç / 27 çağrı
+#### A1. `Task.Delay` — 10 borç / 27 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -47,13 +47,13 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `MatchDay.cs:181` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
-- [ ] `Program.cs:589` `await Task.Delay(TimeSpan.FromSeconds(every));`
-- [ ] `Program.cs:694` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
-- [ ] `Program.cs:1452` `await Task.Delay(250);`
-- [ ] `Program.cs:2210` `await Task.Delay(500);`
-- [ ] `Registration.cs:318` `await Task.Delay(250);`
+- [ ] `Program.cs:609` `await Task.Delay(TimeSpan.FromSeconds(every));`
+- [ ] `Program.cs:714` `await Task.Delay(TimeSpan.FromMilliseconds(250));`
+- [ ] `Program.cs:1484` `await Task.Delay(250);`
+- [ ] `Program.cs:2242` `await Task.Delay(500);`
+- [~] `Registration.cs:318` — iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350
 - [~] `Release.cs:164` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
-- [ ] `Stages.cs:63` `await Task.Delay(1200);`
+- [?] `Stages.cs:63` — sabit 1,2 sn yanlış içerik okumasını gizliyor: yarışma seçilirken sayfanın eski turu (başka sayfanın bağları) tablo sanılabiliyor; asıl düzeltme eklentide `Ties` taramasını sayfaya daraltmak — oyun restartı ister. §8.350, Faruk'a soru (autopilot-quest, Tur 155)
 - [ ] `Stages.cs:120` `await Task.Delay(1200);`
 - [ ] `Stages.cs:136` `await Task.Delay(1200);`
 - [~] `Stages.cs:213` — liste seçimi ilk denemede geçiyor; 700 ms hiç çalışmıyor, §8.337

@@ -4125,3 +4125,18 @@ o takımı gösterene kadar bekleniyor, sonra görünüm listedeki numarasıyla 
 seçiliyor ve satırlar yaşı taşıyıp sayı iki okumada oturana kadar okunuyor. Kanıt — üç durum (başka sayfa açıkken /
 sayfa zaten açık / başka görünüm seçiliyken) × TR + EN: hepsinde 26 satır (10 U21 + 16 U18), yaş ve mevki dolu,
 isim kümesi aynı; TR `squad --u19` 27 satır / ~4,3 sn. `sweep.sh` 51/51 (u19 eklendi). Dosyalar `/tmp/opencode/t154/youth/`.
+
+### 8.350 `stages` yarışma seçerken başka turun bağlarını o lig tablosu sanabiliyor; soğuk açılışta çöküyor (22 Ekim, TR + EN)
+`fm stages "Sky Bet League Two"`, sayfa Carabao Kupası turundayken (6 bağ) lig tablosu yerine **kupanın 6 bağını**
+döndürdü — TR'de üç koşunun ikisinde (md5 `497fcd40…`), EN'de soğuk koşuda (md5 `d62d1832…`); doğrusu 24 satırlık
+tablo (`1da1a030…`). Çıktı "Competition: Sky Bet League Two / Stage: League Stage" diyor ama `Ties` kupanın
+Oldham–Huddersfield … satırları; sayfadan çıkıp dönmek de temizlemedi (aynı md5). Suçlu `Stages.cs`teki 1,2 sn
+değil: eklentide `Ties.Current()` bütün canlı ekranlarda `MainPart` arıyor (`plugin/FmCliProbe/src/Ties.cs`), yani
+başka bir kompozisyonda kalmış bağ listesi "bu turun bağları" sayılıyor. Aynı soğuk dizide `Stages.cs:56`
+(`(await StageLists()).Value`) **`Nullable object must have a value`** ile çöküyor: `Until` bir kez listeyi görüyor,
+sayfa yeniden kurulunca liste null oluyor ve guard'sız `.Value` patlıyor. İkisi de eklenti/sayfa kimliği işi:
+`Ties` taramasını gösterilen kompozisyona daraltmak ve `StageLists()` null iken beklemek gerekir; `Stages.cs:63`
+bu yüzden `[?]` (sabit beklemeyi kaldırmak yanlış okumayı gizler). Dosyalar `/tmp/t150/`.
+Aynı ölçümde `Registration.cs:318`: `Settled`ın iki okuma arası 250 ms'i TR ve EN'de birer kez ilk çiftte ayrıştı
+(üç okuma: TR a 3,03 → 3,55 → 4,07; EN a 2,09 → 2,52 → 2,93), üst sınır 6 turun en çok 3'ünde bitti →
+örnekleme aralığı, borç değil.
