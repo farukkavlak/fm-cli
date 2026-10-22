@@ -4920,3 +4920,11 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Kanıt: sekmeler kasten ayrıştırıldı (General Temmuz 2027, Training Haziran 2026) → `schedule` 3 Ağustos,
   `set 12 3` ve `"2 Eylül" 1` doğru; bozuk durumda 5/5 rc=0 (önce 2/5). EN `Overall` ↔ `Physical` üç durum.
 - `sweep.sh` 51/51. Dosyalar: `cli/fm/TrainingSchedule.cs`, `docs/FINDINGS.md` §8.365, `docs/BAGIMLILIKLAR.md`.
+
+## Tur 103 (22 Ekim) — B: `penalties`un ilk 11 / yedek bilgisi taktiğin kimliğinden (§8.366)
+- Seçilen madde: Faruk'un "6a" dediği `Penalties "Starting at"` maddesi. Eklentiye alan eklemek gerekmedi:
+  `/tactic` `Slots[].PlayerIndex` ile `Human.Team.Players` çekimindeki `Index` aynı kişi numarası; ilk 11 kümesi
+  oradan kuruluyor. Sayfa bağlı değilse komut taktik sayfasını açıp bir kez daha okuyor, sonra eski cümleye düşüyor.
+- Kanıt: TR Collins `yedek`, Hamer `ilk 11`; EN `sub` / `first XI`; `--json` `Where` aynı; `ilk 11` İngilizce
+  etiketi eklendi. Test için eklenen penaltıcı geri alındı, dil TR'ye döndü.
+- Dosyalar: `cli/fm/Penalties.cs`, `cli/fm/labels-english.tsv`, `docs/FINDINGS.md` §8.366, `docs/BAGIMLILIKLAR.md`.

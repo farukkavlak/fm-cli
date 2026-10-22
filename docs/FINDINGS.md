@@ -4323,3 +4323,18 @@ doğru günü değiştirdi; bozuk durumda 5/5 rc=0 (önce 2/5 düşüyordu), iki
 EN'de aynı üç durum (`Overall` ↔ `Physical`), açıklama metinleri seçilen seansın kendisi. `fm schedule set`in
 500 ms'lik açıklama beklemesi de artık işaretle: "açıklama basıştan öncekinden farklı ve iki okumada aynı"
 (§8.216'da engelleyen ay karışıklığı kalktı; TR + EN üç durumda doğru açıklama). Dil TR'ye döndü, `sweep.sh` **51/51**.
+
+### 8.366 `penalties`un "MAÇA" sütunu taktiğin kendi yuvalarından okunuyor; ilk 11 / yedek dile bağlı değil (22 Ekim, TR + EN)
+
+Satırın yeri `tactic.TeamSelectedPositionStringFromPlayer`ten geliyordu; oyunun bu cümlesi iki dilde iki ayrı şey
+söylüyor: TR'de kulübe `On Subs bench` (eklenti çeviriyor), ilk 11 `İlk 11'de (DOSMSğ)` (mevki kodu yüzünden
+çevrilmiyor); EN'de `On Subs bench` / `Starting at DMCR`. CLI yalnız İngilizce `Starting at ` önekini tanıyıp
+öneki sabit Türkçe yazdığı için TR'de ham oyun cümlesi, EN'de Türkçe "ilk 11 · DMCR" çıkıyordu (§8.218).
+Artık yer, oyunun kimliğinden: `/tactic` `Slots[].PlayerIndex` (oyuncunun kişi numarası) ile
+`pull?path=Human.Team.Players&props=Name,Index` çekimindeki `Index` aynı numaradır (Hamer 12519, Jeacock 12636);
+ilk 11'deki `PlayerIndex` kümesinde olan `ilk 11`, olmayan `yedek` yazıyor. Taktik sayfası açık değilse (veri bağlı
+değil) komut sayfayı bir kez açıp yeniden okuyor; o da olmazsa eski cümle yoluna düşüyor.
+Kanıt (TR): Collins `yedek` (oyun "On Subs bench" diyordu), Hamer `ilk 11` (oyun "İlk 11'de (DSğ)"); `--json`
+`Where` da aynı. EN: `sub` / `first XI`, `--json` aynı; `labels-english.tsv`e `ilk 11 → first XI` eklendi.
+Eklenti değişikliği gerekmedi — `PlayerIndex` zaten vardı, eksik olan onu kişi numarasıyla birleştirmekti.
+Kayıt test kaydı; eklenen penaltıcı geri alındı, dil TR'ye döndü. `sweep.sh` aşağıda.

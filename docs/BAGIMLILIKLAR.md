@@ -663,16 +663,11 @@ tablodan çevrilemiyor.
     öneği tanıdığı için TR'de o soru asistanın cevabı gibi yazılıyordu. Artık satır, konuşmanın genel kapatma
     düğmesinin (`EventFmxClearChanges`, 31) bitirdiği satır olarak düşülüyor; metin araması kalktı. TR üç
     durumda yalnız asistanın cevabı, EN üç durumda eskisiyle birebir (§8.225).
-  - [?] Penalties "Starting at " / "On Subs bench" (`fm penalties` tablosunun "MAÇA" sütunu): ölçüldü, **kod
-    değişmedi**. Alan (`tactic.TeamSelectedPositionStringFromPlayer`) oyunun kendi cümlesi ve iki dilde iki ayrı
-    söz veriyor: TR'de kulübedeki `On Subs bench` (eklenti çeviriyor), ilk 11'de başlayan `İlk 11'de (DOSMSğ)`
-    (içinde mevki kodu olduğu için çevrilmiyor); EN'de sırayla `On Subs bench` / `Starting at DMCR`. CLI'nin
-    `Starting()`i yalnız İngilizce `Starting at ` önekini tanıyor ve öneki sabit Türkçe yazıyor → TR'de tablo ham
-    oyun cümlesini, EN'de `ilk 11 · DMCR` (Türkçe söz) yazıyor; `--json` `Where` alanı da dile göre değişiyor.
-    `/form` bu satır için dile bağsız bir "ilk 11 / kulübe" alanı vermiyor ve `/tactic` Slot adları kısaltılmış
-    (`Bayliss`), ceza tablosundaki tam adlarla birleştirmek kırılgan. Faruk'a soru: yer bilgisi nereden gelmeli —
-    eklentiye slotun oyuncusunu söyleyen bir alan mı eklensin, yoksa `Position` maskesi CLI'nin kendi slot
-    adlarına mı çevrilsin? (§8.218)
+  - [x] Penalties "Starting at " / "On Subs bench" (`fm penalties` tablosunun "MAÇA" sütunu): artık oyunun
+    cümlesinden değil, taktiğin kendi yuvalarından okunuyor — `Slots[].PlayerIndex` (oyuncunun kişi numarası)
+    ile `Human.Team.Players` çekimindeki `Index` eşleşiyor; ilk 11'de olan `ilk 11`, olmayan `yedek` yazıyor.
+    Sayfa açık değilse komut taktik sayfasını açıp bir kez daha okuyor; veri yoksa eski cümle yoluna düşüyor.
+    TR: Collins `yedek` / Hamer `ilk 11`; EN: `sub` / `first XI`, `--json` `Where` da aynı. §8.366
   - [x] Recruitment Focus formu "Scouting Areas (0)" başlığını yazıyla arıyordu: başlık sayı taşıyan oyun cümlesi
     (TR "Gözlemleme Yerleri (0)"), İngilizce sözü tabloda yok → `fm scout areas` TR'de her durumda "Bölge listesi
     bulunamadı." (rc=1). Artık açılır liste formun kendi bağıyla bulunuyor (`Binds` →

@@ -95,19 +95,29 @@ internal static partial class Program
 		}
 
 		var takers = PenaltyTakers(form);
+		var lineup = await Lineup();
+		// The tactic is not bound until its page has been up; the page's own line for a taker then
+		// stays the only source, and on a Turkish page it is the game's sentence with its position
+		// code. Opening the tactic page here reads the eleven from the game's own slots instead.
+		if (lineup == null && takers.Count > 0
+		    && !(await OpenPage(Screen.Tactics)).StartsWith("error", StringComparison.Ordinal))
+		{
+			await Until(async () => (await Fm.GetJson("tactic")).TryGetProperty("Slots", out _), seconds: 8, every: 0.25);
+			lineup = await Lineup();
+		}
 		var rules = PenaltyRules.Select(r => (r.Say, On: Switch(r.Binds) is { } b && Field(b, "Value") == "True")).ToList();
 
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Takers = takers.Select(t => new { t.Order, t.Number, t.Name, Where = Starting(t.Where), t.Composure, t.Penalties }),
+				Takers = takers.Select(t => new { t.Order, t.Number, t.Name, Where = LineupWhere(t, lineup), t.Composure, t.Penalties }),
 				Rules = rules.Select(r => new { Rule = r.Say, r.On }),
 			}));
 			return 0;
 		}
 		Table.Write([L("SIRA"), "#", L("OYUNCU"), L("MAÇA"), L("SOĞUKKANLILIK"), L("PENALTI")],
-			takers.Select(t => new[] { t.Order.ToString(), t.Number, t.Name, Starting(t.Where), t.Composure, t.Penalties }).ToList());
+			takers.Select(t => new[] { t.Order.ToString(), t.Number, t.Name, LineupWhere(t, lineup), t.Composure, t.Penalties }).ToList());
 		Console.WriteLine();
 		for (var i = 0; i < rules.Count; i++) Console.WriteLine($"  {i + 1}. {rules[i].Say}: {(rules[i].On ? L("açık") : L("kapalı"))}");
 		if (words.Count == 0)
@@ -118,6 +128,36 @@ internal static partial class Program
 
 	private static string Starting(string where) =>
 		where.StartsWith("Starting at ", StringComparison.Ordinal) ? $"ilk 11 · {where[12..]}" : where == "On Subs bench" ? L("yedek") : where;
+
+	/// <summary>
+	/// Whether each of our players is in the eleven on the pitch, by his full name, from the
+	/// tactic's own slots (their <c>PlayerIndex</c>) and the squad's people (whose <c>Index</c> is
+	/// the same person). The page's own line for a taker names the place in English only
+	/// ("Starting at DMCR") or carries the position code into the game's language; this reads the
+	/// place from the game's data instead (FINDINGS §8.218). Null when no tactic is loaded, and the
+	/// caller falls back to the page's line.
+	/// </summary>
+	private static async Task<Dictionary<string, bool>?> Lineup()
+	{
+		var tactic = await Fm.GetJson("tactic");
+		if (!tactic.TryGetProperty("Slots", out var slots)) return null;
+		var starters = slots.EnumerateArray().Select(s => Field(s, "PlayerIndex")).Where(id => id.Length > 0).ToHashSet();
+		if (starters.Count == 0) return null;
+
+		var squad = await Fm.Pull("Human.Team.Players", "Name,Index", list: true);
+		var lineup = new Dictionary<string, bool>();
+		foreach (var player in squad.EnumerateArray())
+		{
+			var name = Field(player, "Name");
+			var id = Field(player, "Index");
+			if (name.Length > 0 && id.Length > 0) lineup[name] = starters.Contains(id);
+		}
+		return lineup.Count > 0 ? lineup : null;
+	}
+
+	/// <summary>Where a taker starts, from the lineup when it is known and the page's own line otherwise.</summary>
+	private static string LineupWhere(PenaltyTaker taker, Dictionary<string, bool>? lineup) =>
+		lineup != null && lineup.TryGetValue(taker.Name, out var starter) ? (starter ? L("ilk 11") : L("yedek")) : Starting(taker.Where);
 
 	private sealed record PenaltyTaker(int Order, string Number, string Name, string Where, string Composure, string Penalties);
 
