@@ -1,5 +1,33 @@
 # Otopilot görev defteri — turlar arası hafıza
 
+## Tur 165 (22 Ekim) — boşta: seçilebilir kutu yok; `schedule --json` dil sızıntısı düzeltildi (§8.362)
+- **Seçim:** canlı blokta kalan 11 kutu (`Launcher 213/269` · `MatchDay 181/314` · `Program 1484/2242` ·
+  `Stages 120/136` · `MatchControls 131/266` · `Saves 258`) "Sonraya bırakılanlar"da; talimatın "ağır madde
+  seçme" kuralı → boşta yolu. Tur 164'ün bıraktığı adaylardan en küçüğü (`schedule --json`) alındı.
+- **Bulunan hata (B / dil, §8.362):** TR oyunda `fm schedule` insan çıktısı "Fiziksel / Savunma / Maç Odağı /
+  Rejenerasyon" derken `--json` 42 seansta **15 İngilizce ad** yazıyordu ("Physical", "Defending Engaged",
+  "Set Piece Routines"…; yalnız "Dinlenme"/"Yolculuk" Türkçeydi). İnsan yolu `GameWordsLines`tan geçiyordu,
+  JSON dalı ham `Event.SessionName` yazıyordu — Tur 157–164 ile aynı sınıf.
+- Düzeltme (`Schedule.cs`, yalnız JSON dalı): seans adları `GameWords.Of`tan geçiyor; maç gününün yeri
+  "H"/"A"/"N" **harf olarak** kalıyor (JSON'un her yerindeki `MatchVenueShort` gibi dil-bağımsız kimlik;
+  `translate` bu harfleri TR'de "E/D/T" veriyor, o yüzden eşlemeden geçirilmiyor). Alan adları, gün sayısı,
+  sıra değişmedi.
+- Kanıt — TR üç durum (`open Messages` / hemen ikinci koşu / `open "Squad Dynamics"`): **3/3 rc=0**, üç çıktı
+  bayt bayt aynı (`288ca6d1…` → `202dba37…`), 14 gün/42 seans, **21 değer** değişti (hepsi çeviri), yapı ve
+  tarihler birebir; insan çıktısı önce/sonra **aynı**. EN (`settings language Turkish → English` + `stop
+  --no-save` + `start`): eski derleme (`/tmp/opencode/t165/oldbin`, stash'ten) ve yeni derleme üç durumda
+  **6/6 rc=0 ve bayt bayt aynı** (`bba27efa…`) — İngilizce oyunda hiçbir şey değişmedi. Not: EN'de sayfa adı
+  "Dynamics" (TR "Squad Dynamics" ≠), `open "Squad Dynamics"` EN'de rc=1 veriyor — ölçüm "Dynamics" ile yapıldı.
+- `python3 tools/remaining.py --write --count`: **8 / 0 / 3** (açık kutu 11; bu bir kutu değil). Paylaşılan
+  yardımcı değişmedi (yalnız `Schedule.cs` JSON dalı) → tam `sweep.sh` gerekmedi; `schedule` iki dilde 6+6 kez
+  uçtan uca koştu.
+- Dönüş: dil `settings language "Türkçe"` → `turkish`; `stop --no-save` + `start` son kaydı yükledi; `fm status`
+  **9 Ağustos 2026 Pazar 05:45**, `/state` `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; `fm saves`
+  damgaları **değişmedi** (ilk satır 22 Ekim 03:05, v03 21 Ekim 10:40); **`fm save` yok**, gün ilerletilmedi.
+  Dosyalar `/tmp/opencode/t165/{before,after,en-before,en-after}`.
+- Sıradaki adaylar (aynı sınıf): `table --json`, `fixtures --json`, `squad --json`, `health --json` — ya da yine
+  sweep + menajer akışı.
+
 ## Tur 164 (22 Ekim) — boşta: seçilebilir kutu yok; `league --json` dil sızıntısı düzeltildi (§8.361)
 - **Seçim:** canlı bloktaki 11 kutu (Launcher 213/269 · MatchDay 181/314 · Program 1484/2242 · Stages 120/136 ·
   MatchControls 131/266 · Saves 258) "Sonraya bırakılanlar"da; talimatın "ağır madde seçme" kuralı → boşta yolu.

@@ -54,7 +54,14 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(days.Select(x => new { Date = x.Day.ToString("yyyy-MM-dd"), x.Sessions })));
+			// The plugin puts a session's name into English; the game's own word for it is put back
+			// (GameWords) so `--json` says what the line output says. A match day's venue stays its
+			// letter ("H"/"A"/"N", the same in every language), as everywhere else in the JSON.
+			Console.WriteLine(JsonOut.Of(days.Select(x => new
+			{
+				Date = x.Day.ToString("yyyy-MM-dd"),
+				Sessions = x.Sessions.Select(s => s is "H" or "A" or "N" ? s : GameWords.Of(s)).ToList(),
+			})));
 			return 0;
 		}
 

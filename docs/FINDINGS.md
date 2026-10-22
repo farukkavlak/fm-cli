@@ -4260,3 +4260,13 @@ Düzeltme (`League.cs`, yalnız JSON dalları): `Stat` ve `Columns` `GameWords.O
 `["Gol","Maç","Dk/Gl"]`. EN (dil English + `stop --no-save` + `start`) 3/3 rc=0, `48ee3d52…`, adlar insan
 çıktısıyla birebir ("Most Dribbles Made", "Fewest Conceded"…), `["Gls","Apps","Mins/Gl"]`; TR'ye dönüşte
 `4414af23…` aynı. İnsan çıktısı önce/sonra `diff` boş, rc=0. Dosyalar `/tmp/opencode/t164/`.
+
+### 8.362 `schedule --json` Türkçe oyunda seans adlarını İngilizce bırakıyordu (22 Ekim, TR + EN)
+TR oyunda `fm schedule` "Fiziksel / Savunma / Duran Top Organizasyonları / Rejenerasyon" derken `--json`
+42 seansta 15 adı İngilizce yazıyordu ("Physical", "Defending Engaged", "Set Piece Routines"…); yalnız
+"Dinlenme"/"Yolculuk" Türkçeydi. Sebep yine aynı: insan yolu `GameWordsLines`tan geçiyor, JSON dalı ham
+`Event.SessionName` değerini yazıyordu. Düzeltme (`Schedule.cs`, yalnız JSON dalı): adlar `GameWords.Of`tan
+geçiyor; maç gününün yeri "H"/"A"/"N" harf olarak kalıyor (dil-bağımsız `MatchVenueShort` kimliği — `translate`
+bu harfleri TR'de "E/D/T" verdiği için eşlenmiyor). Kanıt: TR üç durum 3/3 rc=0, bayt bayt aynı, 21 değer
+çevrildi, gün/tarih/yapı aynı, insan çıktısı değişmedi; EN eski ve yeni derleme üç durumda **6/6 bayt bayt
+aynı**. Dosyalar `/tmp/opencode/t165/`.
