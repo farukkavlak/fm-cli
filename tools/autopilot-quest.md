@@ -4896,3 +4896,14 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Yan gözlem (§8.360 sonu): EN'de `Squad Dynamics` sonrası aynı mesajın eki satırsız geldi ("Attached: advice
   summary — Advice Topics"), `Finances` sonrası tamdı — §8.194 devamı, ayrı madde.
 - Dosyalar: `/tmp/s714/{tr,en}_{a,b,c}.{out,trace}`, `/tmp/b714r/probe.py`, `/tmp/st120/probe.py`.
+
+## Tur 101 (22 Ekim) — A: `stages` lig aşamasında eski turun bağlarını okuyordu; içerik artık aşamanın şeklinden seçiliyor (§8.364)
+- Seçilen madde: `Stages.cs:63` `[?]` + `Stages 337` + kısa `Until`/menzil. Otopilotun "eklentide `Ties` daraltılsın"
+  teşhisi bu vaka için eksikti: sayfadaki kupa bağları gerçekten çizili ve bağlı; yanlış olan onları bu aşamanın
+  içeriği sanmaktı.
+- Düzeltme: (1) tek aşamalı yarışma = lig → tablo, çok turlu = kupa → bağlar; (2) çekilmemiş turun kura cümlesi
+  bağlardan önce okunuyor; (3) `PickStage` aşama etiketi + sayfa içeriği (bağlar/tablolar/aşama sözleri) değişene
+  kadar bekliyor, üç 1,2 sn kalktı; (4) menzil `GameNumbers.Read` (TR "1401,8"); (5) `StageLists()` null guard'ı.
+- Kanıt (TR): lig tablosu 24 satır; 1. Tur 35 bağ; 2. Tur "kura 13/8/2026"; `--all` 8/35/0/0/0/0/0/0. EN: aynı
+  (League Stage, First Round 35, Second Round not). Üç durum × iki dil rc=0. Dil TR'ye döndü, maç yok.
+- `tools/sweep.sh` 51/51. Dosya: `cli/fm/Stages.cs`, `docs/FINDINGS.md` §8.364, `docs/BAGIMLILIKLAR.md`.

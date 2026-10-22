@@ -53,14 +53,23 @@ internal static partial class Program
 			// The page's own name for it can be shorter than the menu's ("FA Cup" for "English FA
 			// Cup"), so that the choice took is told by the page being rebuilt: its lists are
 			// new ones.
-			var before = (await StageLists()).Value.Competition;
-			if (!path[^1].EndsWith(Field(before, "Label"), StringComparison.Ordinal))
+			var before = await StageLists();
+			if (before == null)
 			{
-				var was = Signature((await StageLists()).Value);
+				Console.Error.WriteLine(L("Stages sayfasının listeleri bulunamadı."));
+				return 1;
+			}
+			if (!path[^1].EndsWith(Field(before.Value.Competition, "Label"), StringComparison.Ordinal))
+			{
+				// The page is rebuilt when its competition changes: its lists are new ones, and
+				// so is what they hold. Both are waited for — the old round's ties can stay
+				// drawn and bound for as long as the page is up (FINDINGS §8.350).
+				var was = Signature(before.Value);
+				var wasShown = await ContentSignature();
 				var picked = await PickIn(false, ("names", string.Join(">", path)));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
-				await Until(async () => await StageLists() is { } now && Signature(now) != was, seconds: 10, every: 0.4);
-				await Task.Delay(1200);
+				await Until(async () => await StageLists() is { } now && Signature(now) != was
+					&& await ContentSignature() != wasShown, seconds: 10, every: 0.2);
 			}
 		}
 
@@ -93,12 +102,8 @@ internal static partial class Program
 		{
 			if (stage != null)
 			{
-				var picked = await PickIn(true, stage.Count == 1 ? ("choice", stage[0]) : ("names", string.Join(">", stage)));
+				var picked = await PickStage(stage);
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
-				// The stage list's own label names the round on show, and it changes with the pick;
-				// until it does, the lists and tables are still the old round's.
-				await Until(async () => await StageLists() is { } now
-					&& Field(now.Stage, "Label") == string.Join(" ", stage), seconds: 8, every: 0.2);
 			}
 			var name = stage != null ? string.Join(" › ", stage) : showing != null ? string.Join(" › ", showing) : Field((await StageLists()).Value.Stage, "Label");
 			var (ties, table, note) = await StageContent();
@@ -115,9 +120,8 @@ internal static partial class Program
 				for (int low = 0, high = stages.IndexOf(showing) - 1; low <= high;)
 				{
 					var middle = (low + high) / 2;
-					var stepped = await PickIn(true, stages[middle].Count == 1 ? ("choice", stages[middle][0]) : ("names", string.Join(">", stages[middle])));
+					var stepped = await PickStage(stages[middle]);
 					if (stepped.StartsWith("error", StringComparison.Ordinal)) break;
-					await Task.Delay(1200);
 					var (t, tb, n) = await StageContent(whole: false);
 					if (n == null)
 					{
@@ -132,8 +136,7 @@ internal static partial class Program
 				if (best >= 0)
 				{
 					// The looks took only what was in view; the round is now read whole.
-					await PickIn(true, stages[best].Count == 1 ? ("choice", stages[best][0]) : ("names", string.Join(">", stages[best])));
-					await Task.Delay(1200);
+					await PickStage(stages[best]);
 					(ties, table, note) = await StageContent();
 					name = string.Join(" › ", stages[best]);
 					if (dates.TryGetValue(best + 1, out var draw)) ahead = L($"Sıradaki tur {string.Join(" › ", stages[best + 1])}: kura {draw}");
@@ -194,6 +197,32 @@ internal static partial class Program
 
 	private static string Signature((JsonElement Competition, JsonElement Stage) lists) =>
 		Field(lists.Competition, "Label") + "|" + Field(lists.Competition, "Pointer") + "|" + Field(lists.Stage, "Pointer") + "|" + lists.Stage.GetProperty("Choices").GetRawText();
+
+	/// <summary>What the page holds now — its ties, its tables and the words over the selected stage — as one string to tell a change by.</summary>
+	private static async Task<string> ContentSignature()
+	{
+		var lists = await StageLists();
+		var anchor = lists is { } l ? Field(l.Stage, "Label") : "";
+		var texts = anchor.Length > 0 ? (await Fm.GetJson("texts", ("anchor", anchor), ("up", "12"))).GetRawText() : "";
+		return (await Fm.GetJson("ties")).GetRawText() + (await Fm.GetJson("table", ("groups", "1"))).GetRawText() + texts;
+	}
+
+	/// <summary>
+	/// Chooses a round and waits for the page to show it: the stage list's label names the round
+	/// on show, and what the page holds is then no longer what it held before. The old round's
+	/// ties stay drawn and bound while the new one is built (FINDINGS §8.350), so the label alone
+	/// is not enough, and a fixed pause made the wrong round readable.
+	/// </summary>
+	private static async Task<string> PickStage(List<string> stage)
+	{
+		var was = await ContentSignature();
+		var picked = await PickIn(true, stage.Count == 1 ? ("choice", stage[0]) : ("names", string.Join(">", stage)));
+		if (picked.StartsWith("error", StringComparison.Ordinal)) return picked;
+		await Until(async () => await StageLists() is { } now
+			&& Field(now.Stage, "Label") == string.Join(" ", stage)
+			&& await ContentSignature() != was, seconds: 8, every: 0.2);
+		return picked;
+	}
 
 	/// <summary>
 	/// Chooses in the competition list or the stage list. The page is rebuilt when it is opened
@@ -263,6 +292,11 @@ internal static partial class Program
 	/// What the stage on screen holds, once it has stopped changing: the date of its draw (a round
 	/// not drawn yet), its ties, or its table — the longest of the tables bound, the page's own being fuller
 	/// than any tile's.
+	///
+	/// A competition with one stage is a league (its other choice is the xG table), and what it
+	/// holds is a table; a cup's rounds hold ties. The page can bind both at once — the ties of a
+	/// round read before a league was chosen stay drawn and bound (FINDINGS §8.350) — so the
+	/// stage's own shape says which one is the answer, and the other is not read.
 	/// </summary>
 	private static async Task<(JsonElement? Ties, JsonElement? Table, string Note)> StageContent(bool whole = true)
 	{
@@ -278,9 +312,18 @@ internal static partial class Program
 			return settled;
 		}, seconds: 8, every: 0.6);
 
-		if (ties.GetArrayLength() > 0) return (whole ? await EveryTie(ties) : ties, null, null);
+		// After a match the news tiles leave tables of their own behind, three rows of places and points
+		// each, bound after the page's: "the last bound" was one of those, and the league came out three
+		// teams long (18 Nisan 2026). The page's table is the longest, and of equals the one with its
+		// columns; only then the latest.
+		var table = tables.EnumerateArray().Where(t => t.GetArrayLength() >= 2).Reverse()
+			.OrderByDescending(t => t.GetArrayLength())
+			.ThenByDescending(t => t.EnumerateArray().Count(r => Field(r, "LeagueGamesWon").Length > 0)).FirstOrDefault();
+		if (table.ValueKind == JsonValueKind.Array) table = NamedStandings(table, tables);
 
-		var stage = Field((await StageLists()).Value.Stage, "Label");
+		var lists = await StageLists();
+		if (lists == null) return (null, null, null);
+		var stage = Field(lists.Value.Stage, "Label");
 		// The date of a round not drawn yet comes in a sentence the game builds for it, so the
 		// words are not English in every game ("This round will be drawn on 13/8/2026" /
 		// "Bu tur 13/8/2026 tarihinde oynanacak"); the date is taken by its own shape — the
@@ -295,16 +338,17 @@ internal static partial class Program
 			.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() ?? "" : "")
 			.Select(DateIn)
 			.FirstOrDefault(date => date != null);
+		// A round not drawn yet keeps the ties of the round read before it drawn and bound
+		// (FINDINGS §8.350), so its own sentence is checked before them.
 		if (note != null) return (null, null, note);
 
-		// After a match the news tiles leave tables of their own behind, three rows of places and points
-		// each, bound after the page's: "the last bound" was one of those, and the league came out three
-		// teams long (18 Nisan 2026). The page's table is the longest, and of equals the one with its
-		// columns; only then the latest.
-		var table = tables.EnumerateArray().Where(t => t.GetArrayLength() >= 2).Reverse()
-			.OrderByDescending(t => t.GetArrayLength())
-			.ThenByDescending(t => t.EnumerateArray().Count(r => Field(r, "LeagueGamesWon").Length > 0)).FirstOrDefault();
-		if (table.ValueKind == JsonValueKind.Array) table = NamedStandings(table, tables);
+		var stagesInList = lists.Value.Stage.GetProperty("Choices").EnumerateArray().Count(c => c.GetString() != "xG Table");
+		var league = stagesInList <= 1;
+
+		if (!league && ties.GetArrayLength() > 0) return (whole ? await EveryTie(ties) : ties, null, null);
+		if (league && table.ValueKind == JsonValueKind.Array) return (null, table, null);
+		if (ties.GetArrayLength() > 0) return (whole ? await EveryTie(ties) : ties, null, null);
+
 		return table.ValueKind == JsonValueKind.Array ? (null, table, null) : (null, null, null);
 	}
 
@@ -330,9 +374,10 @@ internal static partial class Program
 			return null;
 		}
 
-		// "0 of 1636.6": how far down, of how far there is to go.
+		// "0 of 1636.6": how far down, of how far there is to go. The game writes the mark its
+		// language uses ("1401,8" in Turkish), so its own reader parses it (BAGIMLILIKLAR §C).
 		var where = await Scroll(first, null);
-		var extent = where?.Split(" of ") is { Length: 2 } parts && double.TryParse(parts[1].Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var e) ? e : 0;
+		var extent = where?.Split(" of ") is { Length: 2 } parts ? GameNumbers.Read(parts[1].Trim()) ?? 0 : 0;
 		if (extent <= 0) return first;
 
 		var seen = new HashSet<string>();

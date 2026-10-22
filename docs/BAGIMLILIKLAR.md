@@ -26,11 +26,11 @@ Yer koddan kalkınca kutu kendiliğinden düşer, yani sayaç iddiayı değil ko
 kanıt ve geçmiş olarak durur; seçilecek madde buradan alınır.
 
 <!-- auto:remaining -->
-**Canlı sayaç:** açık kutu **11** · `Task.Delay` 27 çağrı (8 borç, 16 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
+**Canlı sayaç:** açık kutu **10** · `Task.Delay` 24 çağrı (7 borç, 16 borç değil) · yazıyla basış 0 · kısa `Until` (≤3 sn) 3
 
 Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düzenlenmez. Bir kutu = koddaki bir çağrı yeri; yer kalkınca kutu kendiliğinden düşer. `[~]` ölçülüp borç olmadığı kanıtlanmış yerdir.
 
-#### A1. `Task.Delay` — 8 borç / 27 çağrı
+#### A1. `Task.Delay` — 7 borç / 24 çağrı
 
 - [~] `Bridge.cs:103` — döngüde yoklama aralığı (250 ms), §8.179
 - [~] `Bridge.cs:109` — döngüde yoklama aralığı (250 ms), §8.179
@@ -53,10 +53,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `Program.cs:2251` `await Task.Delay(500);`
 - [~] `Registration.cs:318` — iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350
 - [~] `Release.cs:164` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
-- [?] `Stages.cs:63` — sabit 1,2 sn yanlış içerik okumasını gizliyor: yarışma seçilirken sayfanın eski turu (başka sayfanın bağları) tablo sanılabiliyor; asıl düzeltme eklentide `Ties` taramasını sayfaya daraltmak — oyun restartı ister. §8.350, Faruk'a soru (autopilot-quest, Tur 155)
-- [ ] `Stages.cs:120` `await Task.Delay(1200);`
-- [ ] `Stages.cs:136` `await Task.Delay(1200);`
-- [~] `Stages.cs:213` — liste seçimi ilk denemede geçiyor; 700 ms hiç çalışmıyor, §8.337
+- [ ] `Stages.cs:242` `await Task.Delay(700);`
 - [~] `StatusFlags.cs:54` — döngüde yoklama aralığı (250 ms), §8.317
 - [~] `TrainingReport.cs:93` — seçim taze liste üzerinden ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.329
 

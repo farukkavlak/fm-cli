@@ -4282,3 +4282,25 @@ başka alan değişmedi, insan çıktısı `diff` boş; EN üç durum 3/3 rc=0 v
 değerler insan satırıyla aynı ("Out On Loan", "Emergency Backup"). Çıktı artık öteki `--json` komutları
 gibi tek satır (eskiden plugin'in girintili metniydi); alan adları, sıra ve değerler aynı. Dosyalar
 `/tmp/opencode/t166/`.
+
+### 8.364 `stages` lig aşamasında eski turun bağlarını okuyordu; TR menzili ve soğuk açılış çökmesi (22 Ekim, TR + EN)
+
+`fm stages "Sky Bet League Two"` sayfayı doğru açıyor ("Sky Bet League Two · Lig Bölümü") ama **Carabao Kupası'nın
+bağlarını** basıyordu; aynı anda League Two tablosu da bağlıydı. Sebep `Stages.cs`te 1,2 sn değil, içerik seçimiydi:
+`StageContent` önce `ties`e bakıp boş değilse onu döndürüyordu, oysa oyun bir önceki turun bağlarını sayfada
+**çizili ve bağlı** bırakıyor (FINDINGS §8.350) — lig seçildiğinde kupa bağları aynen duruyor.
+Aynı turda üç ayrı hata daha: (a) `EveryTie` menzili `"0 of 1401,8"`yi `InvariantCulture` ile çözüyordu → TR'de
+`extent = 0`, `--all` gezinmiyordu (1. Tur 18–25 bağ); (b) `Stages.cs:56` listeler yeniden kurulurken guard'sız
+`.Value` ile `Nullable object must have a value` veriyordu; (c) üç yerde 1,2 sn sabit bekleme vardı.
+Düzeltme: (1) içerik, aşamanın kendi şeklinden seçiliyor — tek aşamalı yarışma ligdir (öteki seçenek `xG Table`),
+tablo okunur; çok turlu kupada bağlar okunur. (2) Çekilmemiş turun "kura 13/8/2026" cümlesi bağlardan **önce**
+okunuyor, böylece eski tur bağları "kura yok" sanılmıyor. (3) `PickStage` seçimden sonra aşama etiketini **ve**
+sayfanın içeriğini (bağlar + tablolar + aşama sözleri) bekliyor; 1,2 sn'ler kalktı. (4) Menzil `GameNumbers.Read`
+ile iki ondalık işaretini de çözüyor; (5) `StageLists()` null iken komut dürüst hata veriyor.
+Kanıt (TR): lig → 24 satırlık tablo (York 6, Crawley 6…); kupa 1. Tur → 35 bağ; 2. Tur → "Kura henüz çekilmedi;
+çekiliş 13/8/2026."; `--all` → 8/35/0/0/0/0/0/0 bağ + notlar (eskiden TR 1. Tur 18). EN'de aynısı
+("League Stage", "First Round" 35, "Second Round" not, `--all` aynı sayılar), iki dilde üç durum (başka sayfa
+açık / sayfa zaten açık / ikinci koşu) rc=0. Dil TR'ye döndü (`language: English → Turkish`), kayıt 9 Ağustos
+2026 05:45, maç oynanmadı. `tools/sweep.sh` **51/51**.
+Not: eklentide `Ties` taramasını daraltmak bu vaka için gerekmedi — sayfadaki bağlar gerçekten çizili; yanlış olan
+onları "bu aşamanın içeriği" sanmaktı.
