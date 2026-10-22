@@ -4224,3 +4224,15 @@ Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics aç
 açılış (dil English + start) 3/3 rc=0, `c7deaca7…`, değerler İngilizce ve insan satırıyla aynı; tek EN farkı
 `Ffp.Status` "Compliant" → "compliant" (insan satırı zaten "compliant" diyor). `tools/sweep.sh` değişiklik öncesi
 **51/51**; `finances` TR+EN elle rc=0. Dosyalar `/tmp/opencode/t162/`.
+
+### 8.359 `penalties --json` Türkçe oyunda kural cümlelerini ve yedek konumunu İngilizce bırakıyordu (22 Ekim, TR + EN)
+TR oyunda `fm penalties` insan çıktısı "yedek / İki gol atan da atabilir / Bir penaltı atan bir sonrakini bırakır /
+Penaltı kaçıran bir sonrakini bırakır" derken `--json` `On Subs bench / Allow player who has scored 2 goals to take
+penalty / …` yazıyordu; `Rules[].Rule` eklentinin İngilizce kimliğiydi. Sebep önceki turlarla aynı sınıf.
+Düzeltme (`Penalties.cs`, yalnız JSON dalı): `Takers[].Where` insan yolunun `Starting(...)` eşlemesinden, `Rules[].Rule`
+insan satırının zaten kullandığı `L(...)` çevirisinden geçiyor; anahtar sırası ve `On` değişmedi.
+Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık) 3/3 rc=0, bayt bayt aynı
+(`29d878bc…`), JSON insan çıktısıyla aynı sözcüklerde; EN (canlı `language Turkish → English`) üç durum 3/3 rc=0,
+`3e51e37b…`, "sub / A player who has scored twice may take one" — insan İngiliz satırıyla aynı. TR kural aç/kapa
+(`penalties 1 açık` → `On:true` → `kapalı` → `On:false`) JSON'a yansıyor. İnsan çıktısı değişmedi (yalnız JSON dalı).
+Dosyalar `/tmp/opencode/t163/`.

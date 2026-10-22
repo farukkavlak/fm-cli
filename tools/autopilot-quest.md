@@ -1,5 +1,29 @@
 # Otopilot görev defteri — turlar arası hafıza
 
+## Tur 163 (22 Ekim) — boşta: seçilebilir kutu yok; `penalties --json` dil sızıntısı düzeltildi (§8.359)
+- **Seçim:** canlı bloktaki 12 kutunun tamamı "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay 181/314 ·
+  Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır madde seçme"
+  kuralı; seçilebilir kutu yok → boşta yolu. Tur 162'nin bıraktığı adaylardan en küçüğü (`penalties --json`, 3 değer) alındı.
+- **Bulunan hata (B / dil, §8.359):** TR `fm penalties --json` `Takers[].Where` "On Subs bench" ve `Rules[].Rule`
+  üç cümlenin eklenti İngilizcesini yazıyordu; insan çıktısı "yedek / İki gol atan da atabilir / Bir penaltı atan
+  bir sonrakini bırakır / Penaltı kaçıran bir sonrakini bırakır" diyordu. `Rules[].Rule` insan yolunun hiç
+  kullanmadığı `Label` alanıydı.
+- Düzeltme (`Penalties.cs`, yalnız JSON dalı): `Where = Starting(t.Where)` (insan satırıyla aynı eşleme),
+  `Rules = rules.Select(r => new { Rule = r.Say, r.On })` (insan satırının `L(...)` çevirisi). Anahtar sırası,
+  `On`, sayı/oran alanları değişmedi.
+- Kanıt — TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık): **3/3 rc=0**, üç çıktı bayt bayt
+  aynı (`29d878bc…`), JSON insan çıktısıyla aynı sözcüklerde (`yedek`, üç Türkçe kural). EN (canlı
+  `fm settings language Turkish → English`): üç durum **3/3 rc=0**, `3e51e37b…`, "sub / A player who has scored
+  twice may take one …" — insan İngiliz satırıyla aynı. Kural aç/kapa (`penalties 1 açık` → JSON `On:true`;
+  `kapalı` → `On:false`) iki dilde çalışıyor. İnsan çıktısı değişmedi (yalnız JSON dalı). Dosyalar `/tmp/opencode/t163/`.
+- `python3 tools/remaining.py --count`: **9 / 0 / 3** (değişmedi; bu bir kutu değil). Paylaşılan koda dokunulmadı
+  (yalnız `Penalties.cs` JSON dalı) → tam `sweep.sh` gerekmedi; `penalties` TR+EN elle rc=0.
+- Dönüş: dil `Türkçe`; ana kayıt `fm load "Faruk Kavlak - Fenerbahçe (v03)" --no-save` ile yüklendi; `fm status`
+  **9 Ağustos 2026 05:45**, `/state` `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`;
+  `fm save` **yok**. (Kural aç/kapa testi geri alındı, kayıt yüklenerek temizlendi.)
+- Sıradaki adaylar (aynı sınıf, ölçülmedi): `saves --json` (1), `league --json` (13), `schedule --json`;
+  ya da yine sweep + menajer akışı.
+
 ## Tur 162 (22 Ekim) — boşta: seçilebilir kutu yok; `finances --json` dil sızıntısı düzeltildi (§8.358)
 - **Seçim:** canlı bloktaki 12 kutunun tamamı "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay 181/314 ·
   Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır madde seçme"

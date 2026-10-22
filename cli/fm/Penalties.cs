@@ -101,8 +101,8 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Takers = takers.Select(t => new { t.Order, t.Number, t.Name, t.Where, t.Composure, t.Penalties }),
-				Rules = PenaltyRules.Zip(rules).Select(x => new { Rule = x.First.Label, x.Second.On }),
+				Takers = takers.Select(t => new { t.Order, t.Number, t.Name, Where = Starting(t.Where), t.Composure, t.Penalties }),
+				Rules = rules.Select(r => new { Rule = r.Say, r.On }),
 			}));
 			return 0;
 		}
