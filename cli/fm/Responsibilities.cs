@@ -42,6 +42,14 @@ internal static partial class Program
 		// The areas are named here in the English the page matches on; the game shows its own words
 		// for them, so the heading is put into those (a Turkish game's "Yönetim Kurulu", not "Board").
 		await GameWords.Ask(Fm, DutyAreas);
+		// The page's groups and duty names come back in the English the plugin matches on, and some
+		// are a template with a suffix in brackets ("Staff Contract Renewals (U21)"); the game's words
+		// exist for the part before the bracket, which is what is asked for. The bracket stays as the
+		// page shows it (a Turkish game's "Taktikler (U21)").
+		var pageTexts = duties.SelectMany(d => new[] { d.Group, d.Title })
+			.Select(t => t.Split(" (")[0].Trim())
+			.Where(t => t.Length > 0).Distinct().ToList();
+		foreach (var part in pageTexts.Chunk(20)) await GameWords.Ask(Fm, part);
 		foreach (var inArea in duties.GroupBy(d => d.Area))
 		{
 			var mine = inArea.Count(d => d.Mine);

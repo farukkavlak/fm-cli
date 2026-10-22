@@ -4073,3 +4073,23 @@ durum (inbox açıkken / sayfa zaten açık / squad sonrası) × TR + EN: TR'de 
 değişiyor (18 diff satırı = 9 çift, başka fark yok), diğer satırlar bayt bayt aynı; EN üç durumda eski
 derlemeyle bayt bayt aynı. `responsibilities medya` başlığı "Medya", `--json` hâlâ `"Area":"Board"`.
 Dosyalar `/tmp/opencode/t151/{before,after}-{tr,en}/`, ekran görüntüsü `resp-tr.png`; `sweep.sh` 50/50.
+
+### 8.346 sorumluluk gruplarının ve görev adlarının bir kısmı Türkçe oyunda İngilizceydi (22 Ekim, TR + EN)
+
+`fm responsibilities` alan başlıklarını §8.345'te düzelttikten sonra **grup başlıkları** ve **görev adları**
+hâlâ eklentinin İngilizce kimliğiyle basılıyordu: "Recruit Staff (U21)", "Staff Contract Renewals (U18)",
+"Find and sign young players for the future (U21)", "Youth Team Training (U18)", "Providing Own Team
+Analysis Reports (Lincoln City)"… Oysa oyunun tablosu aynı sözler için "Personel Alımı", "Teknik Heyet
+Personeli Sözleşme Görüşmeleri", "Gelecek vadeden genç oyuncu arar ve transfer eder", "Genç Takım
+Antrenmanı", "Kendi Takımımız Hakkında Analiz Raporları Sunar" diyor. Sebep: bu metinler hiç
+`GameWords.Ask`e verilmiyordu (yalnız alan adları veriliyordu), üstelik bir kısmı şablon + parantez
+ekiyle geliyor ("… (U21)") ve tabloda yalnız parantezden önceki parça var.
+Artık komut, okuduğu grup/görev metinlerinin parantezden önceki parçasını `Ask`e veriyor (20'lik
+parçalar hâlinde); gösterim mevcut `GameWordsLines`/`InLine` yolundan çevriliyor, parantez eki sayfanın
+gösterdiği gibi kalıyor. Eşleşme (`Group`/`Duty`), `--json`, `give`/`take`/`delegate` kimliği değişmedi.
+Kanıt — üç durum (inbox açıkken / sayfa zaten açık / squad sonrası) × TR + EN: TR'de üç çıktı bayt bayt
+aynı (`cfe0fb93…`) ve eski derlemeye göre yalnız **12 satır** değişiyor, hepsi çeviri (ör. "Staff Contract
+Renewals (U21)" → "Teknik Heyet Personeli Sözleşme Görüşmeleri (U21)"); EN'de üç durum eski derlemeyle
+bayt bayt aynı (`32c8daa1…`). TR `--json` eski çıktıyla **birebir aynı**; `responsibilities medya` /
+`personel` başlıkları Türkçe. Ek maliyet: 5 `/translate` isteği, tur başına ~0,2 sn (40,42 → 41,10 sn).
+Dosyalar `/tmp/opencode/t152/`.

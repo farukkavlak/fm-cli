@@ -3,6 +3,43 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Şu an (Tur 152)
+- Seçilen madde: **yok** — canlı bloktaki 15 kutunun 2'si Guided `[?]`, gerisi aşağıdaki
+  **"Sonraya bırakılanlar"** listesinde. Talimatın boşta kalma yolu: `tools/sweep.sh` + menajer akışı / hata avı.
+- Sweep: **50 komut, 0 hata** (`/tmp/opencode/t152/sweep1`), `responsibilities` 38 sn / 227 satır.
+- Bulunan hata (**B / dil-kimlik**, §8.346): §8.345 alan başlıklarını düzeltmişti ama sayfanın **grup
+  başlıkları** ve **görev adları** hâlâ eklentinin İngilizcesiyle basılıyordu: "Recruit Staff (U21)",
+  "Staff Contract Renewals (U18)", "Find and sign young players for the future (U21)", "Youth Team
+  Training (U18)", "Providing Own Team Analysis Reports (Lincoln City)". Oyunun tablosu bunların hepsini
+  biliyor ("Personel Alımı", "Teknik Heyet Personeli Sözleşme Görüşmeleri", "Genç Takım Antrenmanı"…);
+  metinler hiç `GameWords.Ask`e verilmiyordu ve bir kısmı "… (U21)" gibi ekle geldiği için tabloda yalnız
+  parantezden önceki parça var. Artık grup/görev metinlerinin o parçası 20'lik parçalar hâlinde `Ask`e
+  veriliyor; gösterim mevcut `GameWordsLines`/`InLine` yolundan çevriliyor, ek olduğu gibi kalıyor.
+- Kanıt — üç durum (inbox açıkken / sayfa zaten açık / squad sonrası) × TR + EN: TR üç çıktı bayt bayt
+  aynı (`cfe0fb93e376342a3e278a8ee5b4f645`), eski derlemeye göre yalnız **12 satır** değişiyor ve hepsi
+  çeviri; EN üç durum eski derlemeyle bayt bayt aynı (`32c8daa1c3d632a75a9977f10a013a13`). TR `--json`
+  eski çıktıyla **birebir aynı**; `responsibilities medya` → "== Medya", `personel` → "Personel Alımı
+  (U21)". Ek maliyet 5 `/translate` isteği, ~0,2 sn (40,42 → 41,10 sn). Dosyalar `/tmp/opencode/t152/`.
+- Paylaşılan koda dokunulmadı (yalnız `Responsibilities.cs` gösterimi + `GameWords.Ask` çağrısı) →
+  ayrı `sweep.sh` gerekmedi; komut iki dilde 8 kez uçtan uca koştu.
+- Dönüş: yalnız okuma + dil gidiş-dönüşü, maç oynanmadı, `fm save` **yok**. `fm status --json`:
+  `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`; ana kayıt `(v03)` damgası
+  **21 Ekim 10:40** (değişmedi).
+- `remaining.py --count`: **12 borç / 0 yazı / 3 kısa `Until`** (bu bir kutu değil, gösterim bulgusu).
+- Sonraki tur: aynı durum — aşağıdaki liste dışında seçilebilir kutu yok; yine sweep + menajer akışında
+  hata avı.
+
+## Sonraya bırakılanlar (bu koşuda seçilmez)
+- `Saves.cs:258` — kaydırma dalı; listeyi onlarca sahte dosyayla doldurup uçtan uca taramak gerekir.
+- `Registration.cs:318` — `Settled()` yoklama aralığı; kayıt listesini her durağında yeniden okuyan
+  uçtan uca tarama ister.
+- `Stages.cs:63/120/136` — aşama listesi/ikili arama; turnuva→aşama gezintisinin tamamını ölçmek gerekir.
+- `MatchDay.cs:181/314` — maç günü pencereleri; maç akışının baştan sona oynanması gerekir.
+- `MatchControls.cs:131/266` — maç günü kontrolleri; aynı şekilde tam maç akışı.
+- `Program.cs:589/694/1452/2210` — uzun/yayın akışları; baştan sona gezinme ister.
+- `Launcher.cs:213/269` — oyunu kapatıp açmayı ister.
+- `Guided.cs:161/174` — `[?]`: bedel sözü penceresi bu kayıtta açılamıyor; Faruk'a soru.
+
 ## Şu an (Tur 151)
 - Seçilen madde: **yok** — canlı bloktaki 15 kutunun 2'si Guided `[?]`, gerisi "Sonraya bırakılanlar"
   (Saves 258 · Registration 318 · Stages 63/120/136 · MatchDay 181/314 · MatchControls 131/266 ·
