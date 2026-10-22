@@ -47,10 +47,10 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [ ] `MatchDay.cs:181` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [ ] `MatchDay.cs:314` `await Task.Delay(TimeSpan.FromSeconds(3));`
 - [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
-- [~] `Program.cs:609` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
-- [~] `Program.cs:714` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
-- [ ] `Program.cs:1484` `await Task.Delay(250);`
-- [ ] `Program.cs:2242` `await Task.Delay(500);`
+- [~] `Program.cs:618` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
+- [~] `Program.cs:723` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
+- [ ] `Program.cs:1493` `await Task.Delay(250);`
+- [ ] `Program.cs:2251` `await Task.Delay(500);`
 - [~] `Registration.cs:318` — iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350
 - [~] `Release.cs:164` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
 - [?] `Stages.cs:63` — sabit 1,2 sn yanlış içerik okumasını gizliyor: yarışma seçilirken sayfanın eski turu (başka sayfanın bağları) tablo sanılabiliyor; asıl düzeltme eklentide `Ties` taramasını sayfaya daraltmak — oyun restartı ister. §8.350, Faruk'a soru (autopilot-quest, Tur 155)

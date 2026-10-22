@@ -4270,3 +4270,15 @@ geçiyor; maç gününün yeri "H"/"A"/"N" harf olarak kalıyor (dil-bağımsız
 bu harfleri TR'de "E/D/T" verdiği için eşlenmiyor). Kanıt: TR üç durum 3/3 rc=0, bayt bayt aynı, 21 değer
 çevrildi, gün/tarih/yapı aynı, insan çıktısı değişmedi; EN eski ve yeni derleme üç durumda **6/6 bayt bayt
 aynı**. Dosyalar `/tmp/opencode/t165/`.
+
+### 8.363 `squad --json` Türkçe oyunda kadro statüsünü İngilizce bırakıyordu (22 Ekim, TR + EN)
+TR oyunda `fm squad` STATÜ sütunu "Kirada / Yedek Oyuncu / İlk 11 Oyuncusu / Joker Yedek…" derken
+`fm squad --json` 27/27 oyuncuda `AgreedPlayingTime`ı İngilizce yazıyordu ("On loan / Fringe Player /
+Regular Starter / Emergency Backup", 10 ayrı değer). Sebep önceki turlarla aynı sınıf: `Table.Write` her
+hücreyi `GameWords.Of`tan geçiriyor, JSON dalı ham görünüm dizisini basıyordu. Düzeltme (`Program.cs`,
+yalnız `squad --json` dalı): dizi `JsonNode`la kopyalanıp yalnız `AgreedPlayingTime` `GameWords.Of`tan
+geçiyor; alan adları, sıra ve öteki değerler ham kalıyor. Kanıt: TR üç durum 3/3 rc=0, 27/27 değer çevrildi,
+başka alan değişmedi, insan çıktısı `diff` boş; EN üç durum 3/3 rc=0 ve bayt bayt aynı (`be523b86…`),
+değerler insan satırıyla aynı ("Out On Loan", "Emergency Backup"). Çıktı artık öteki `--json` komutları
+gibi tek satır (eskiden plugin'in girintili metniydi); alan adları, sıra ve değerler aynı. Dosyalar
+`/tmp/opencode/t166/`.

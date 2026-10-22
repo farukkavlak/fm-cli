@@ -315,7 +315,16 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(squad.ToString());
+			// The plugin names the agreed playing time in English; the line output puts the game's
+			// own word back through GameWords, so `--json` says the same. Everything else stays raw.
+			var said = squad.EnumerateArray().Select(p =>
+			{
+				var row = System.Text.Json.Nodes.JsonNode.Parse(p.GetRawText())!.AsObject();
+				if (row.TryGetPropertyValue("AgreedPlayingTime", out var agreed) && agreed is System.Text.Json.Nodes.JsonValue value && value.TryGetValue<string>(out var word))
+					row["AgreedPlayingTime"] = GameWords.Of(word);
+				return row;
+			});
+			Console.WriteLine(JsonOut.Of(said));
 			return 0;
 		}
 		var flags = await SquadFlags();

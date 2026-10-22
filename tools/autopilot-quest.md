@@ -1,5 +1,32 @@
 # Otopilot görev defteri — turlar arası hafıza
 
+## Tur 166 (22 Ekim) — boşta: seçilebilir kutu yok; `squad --json` statü dil sızıntısı düzeltildi (§8.363)
+- **Seçim:** canlı bloktaki 11 kutu (`Launcher 213/269` · `MatchDay 181/314` · `Program 1484/2242` ·
+  `Stages 120/136` · `MatchControls 131/266` · `Saves 258`) "Sonraya bırakılanlar"da; talimatın "ağır madde
+  seçme" kuralı → boşta yolu. `tools/sweep.sh /tmp/opencode/t166/sweep1`: **51 komut, 0 hata**.
+- **Bulunan hata (B / dil, §8.363):** TR oyunda `fm squad` STATÜ sütunu "Kirada / Yedek Oyuncu / İlk 11
+  Oyuncusu / Joker Yedek…" derken `fm squad --json` 27/27 oyuncuda `AgreedPlayingTime`ı İngilizce yazıyordu
+  ("On loan / Fringe Player / Regular Starter / Emergency Backup", 10 ayrı değer). İnsan yolu `Table.Write`
+  üzerinden `GameWords.Of`tan geçiyordu; JSON dalı ham görünüm dizisini basıyordu.
+- Düzeltme (`cli/fm/Program.cs`, yalnız `squad --json` dalı): dizi `JsonNode`la kopyalanıp yalnız
+  `AgreedPlayingTime` `GameWords.Of`tan geçiyor; alan adları/sıra ve öteki değerler ham kalıyor.
+- Kanıt — TR önce (Messages açık / hemen ikinci koşu / Squad Dynamics açık): 3/3 rc=0, 10 İngilizce değer
+  (`f0920d06…`, `cadfb231…` ×2). Sonra aynı üç durum: 3/3 rc=0, 27/27 değer Türkçe, üç çıktı **bayt bayt
+  aynı** (`3d0b6296…`), başka hiçbir alan değişmedi (ara derlemede oyunun bir koşuda `MinValue/MaxValue`
+  bağlamaması yalnız görünümün kendi dalgalanmasıydı; son üç koşuda yok), insan çıktısı `diff` boş. EN (dil
+  `dil English`): üç durum 3/3 rc=0, **bayt bayt aynı** (`be523b86…`), değerler insan satırıyla birebir
+  ("Out On Loan", "Emergency Backup"); ham değer "On loan"dan oyunun kendi sözcüğüne geçti, insan yolu da
+  öyle diyor. Çıktı artık öteki `--json`lar gibi tek satır (eskiden plugin'in girintili metniydi), alan/sıra
+aynı. Not: `Program.cs`e 9 satır girince `remaining.py`nin satır anahtarlı `SETTLED` kayıtları
+  kaydı (`609→618`, `714→723`); sayaç yeniden **8 / 0 / 3** ve açık kutu **11**.
+- `python3 tools/remaining.py --count`: **8 / 0 / 3** (değişmedi; bu bir kutu değil). Paylaşılan yardımcı
+  değişmedi (yalnız `squad --json` dalı) → tam sweep gerekmedi; sweep zaten tur başında 51/51 temizdi.
+- Dönüş: dil `fm settings language "Türkçe"` → `Language: turkish`; `/state`-eşdeğeri `fm status --json`
+  **2026-08-09**, `Clock: 0`, `DuringMatch: False`; `fm saves` ilk satır **22 Ekim 03:05** (değişmedi);
+  **`fm save` yok**, gün ilerletilmedi. Dosyalar `/tmp/opencode/t166/{before,after,en}`.
+- Sıradaki adaylar (aynı sınıf): `health --json` (`OutSoFar` "4 weeks", `Injury` boş — insan "Kasıkta
+  zorlama" diyor; ayrı iş), `fixtures --json`, `contracts --json`, `depth --json`; ya da yine sweep + akış.
+
 ## Tur 165 (22 Ekim) — boşta: seçilebilir kutu yok; `schedule --json` dil sızıntısı düzeltildi (§8.362)
 - **Seçim:** canlı blokta kalan 11 kutu (`Launcher 213/269` · `MatchDay 181/314` · `Program 1484/2242` ·
   `Stages 120/136` · `MatchControls 131/266` · `Saves 258`) "Sonraya bırakılanlar"da; talimatın "ağır madde
