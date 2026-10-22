@@ -4147,3 +4147,13 @@ sonra soruluyor; koşul ilk turda tutmazsa sonraki kontrol **+0,53–0,55 s** so
 dil, hepsi rc=0: sayfa kapalı (TR 0,20 → 0,74; EN 0,19 → 0,72), sayfa zaten açık (ilk kontrol TR 0,24 / EN 0,27'de
 tuttu), başka sayfa açık (TR 0,20 → 0,75; EN 0,29'da ilk turda tuttu). Gecikme yalnız başarısız turdan sonra
 giriyor; sabit uyku değil, bu yüzden `[~]`.
+
+### 8.352 `board --json` Türkçe oyunda üç yönetim ve iki taraftar cümlesini İngilizce bırakıyordu (22 Ekim, TR + EN)
+Satır yolu (`GameWordsLines`) her satırı oyunun sözlüğünden geçirdiği için insan çıktısı Türkçeydi, ama `--json`
+sarmalayıcısı yok: `Board.cs` alanları `GameWords.Of` çağırmadan yazıyordu. TR'de `fm board --json` "The board are
+reserving judgement…", "The board are satisfied with the progress…", "…overall performance across the various
+competitions…", "The supporters are looking forward…" ve "The fans are satisfied…" döndürüyordu; insan çıktısı
+aynı cümleleri Türkçe basıyordu. Artık JSON değerleri de `GameWords.Of`tan geçiyor.
+Kanıt: üç durum (Messages açık / Squad Dynamics açık / Board açık) × TR + EN, `rc=0`, JSON insan çıktısıyla
+birebir aynı; TR'de İngilizce cümle 5 → 0, EN'de (oyun yeniden açılıp dil English yapıldıktan sonra) değerler
+İngilizce kalıyor, Türkçe karakter yok. Dosyalar `/tmp/opencode/t157/`.

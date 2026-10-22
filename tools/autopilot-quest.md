@@ -3,6 +3,27 @@
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 
+## Tur 157 (22 Ekim) — boşta: seçilebilir kutu yok; hata bulundu ve düzeltildi (`board --json` dil sızıntısı)
+- **Seçim:** canlı bloktaki 12 açık kutunun tamamı "Sonraya bırakılanlar"da (Saves 258 · Stages 120/136 ·
+  MatchDay 181/314 · MatchControls 131/266 · Program 714/1484/2242 · Launcher 213/269), yani talimatın
+  "ağır madde seçme" kuralı gereği seçilebilir kutu yok → boşta yolu.
+- `tools/sweep.sh`: **51 komut, 0 hata** (`/tmp/opencode/t157/sweep1/`).
+- **Bulunan hata (B / dil, §8.352):** `fm board --json` Türkçe oyunda beş cümleyi İngilizce bırakıyordu
+  ("The board are reserving judgement…", "The board are satisfied with the progress…", "…overall
+  performance across the various competitions…", "The supporters are looking forward…", "The fans are
+  satisfied…"); insan çıktısı aynı cümleleri Türkçe basıyordu. Sebep: satır yolu `GameWordsLines` ile
+  çeviriyor, `--json` sarmalayıcısı yok ve `Board.cs` alanları `GameWords.Of` çağırmıyordu. JSON dalında
+  iki sözlükteki değerler artık `GameWords.Of`tan geçiyor.
+- Kanıt: üç durum (Messages açık / Squad Dynamics açık / Board açık) × TR + EN. TR `rc=0`, JSON insan
+  çıktısıyla birebir aynı, İngilizce cümle **5 → 0**; EN (oyun `stop --no-save` + `start` + v03 `--no-save`,
+  dil English) `rc=0`, değerler İngilizce, Türkçe karakter yok. Dosyalar `/tmp/opencode/t157/`
+  (`before-tr-*`, `after-tr-*`, `en2-*`, `final-tr-json.json`).
+- Dönüş: dil Türkçe'ye alındı, oyun yeniden açıldı, ana kayıt `fm load "Faruk Kavlak - Fenerbahçe (v03)"
+  --no-save` ile yüklendi. `/state`: `Language: turkish`, `Date: 2026-08-09`, `Clock: 0`, `DuringMatch: False`.
+  `fm save` yok. Değişiklik `Board.cs`e yerel olduğu için tam sweep gerekmedi; `board` TR + EN elle doğrulandı.
+- `python3 tools/remaining.py --count`: **9 / 0 / 3** (değişmedi; bu bir kutu değil, hata).
+- Sıradaki tur: aynı liste; seçilebilir yeni kutu yoksa yine sweep + hata avı.
+
 ## Tur 156 (22 Ekim) — boşta: seçilebilir kutu yok (hepsi park/heavy), sweep + menajer akışı temiz
 - **Hata (benim):** canlı bloktaki `[?] Stages.cs:63`i "sıradaki kardeş" sanıp ölçtüm; oysa Tur 155'te
   park edilmiş maddeydi. Ölçüm yine de kayda değer: yarışma seçiminden sonraki `Task.Delay(1200)` yerine

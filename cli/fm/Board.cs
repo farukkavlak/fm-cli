@@ -36,8 +36,10 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Board = BoardAreas.ToDictionary(a => a.Label, a => Field(said, a.Field)), BoardPraise = praise, BoardWorries = worries,
-				Supporters = SupporterAreas.ToDictionary(a => a.Label, a => Field(said, a.Field)), SupporterPraise = fansPraise, SupporterWorries = fansWorries,
+				// The record answers in English where the game has no stored translation; the same
+				// words the line path puts back at write time are put back here (Board, Turkish game).
+				Board = BoardAreas.ToDictionary(a => a.Label, a => GameWords.Of(Field(said, a.Field))), BoardPraise = praise, BoardWorries = worries,
+				Supporters = SupporterAreas.ToDictionary(a => a.Label, a => GameWords.Of(Field(said, a.Field))), SupporterPraise = fansPraise, SupporterWorries = fansWorries,
 			}));
 			return 0;
 		}
