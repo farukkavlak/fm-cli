@@ -4202,3 +4202,13 @@ etiketi Türkçe kalıyor: `CardWords["Family"]` çeviri kataloğunda yok — ay
 `Panel Opened ClubAllStaffTool`. Oyun yeniden açılıp ana kayıt yüklenince aynı komut (`fm staff`, sonra `coaches` →
 `staff`) **2/2 rc=0**, hata tekrarlamadı; sweep öncesi yapılan kendi kayıt kopyalarını silme denemeleriyle ilişkisi
 ölçülmedi. Tekrarlanmadığı için kod değişmedi; yeniden görülürse aynı adımda breadcrumb ve `.ips` toplanmalı.
+
+### 8.357 `opponent --json` Türkçe oyunda analist kutularını ve kadro haberini İngilizce bırakıyordu (22 Ekim, TR + EN)
+TR oyunda `fm opponent --json` insan çıktısı "Genel Performans / Ortalamanın çok üstünde performans / Takıma dair
+haber bulunamadı" derken JSON `General Performance / Performing much better than average / No team news` yazıyordu;
+sebep önceki turlarla aynı: satır yolu `GameWordsLines`tan geçiyor, `--json` dalı ham oyun metnini yazıyor.
+Düzeltme (`Opponent.cs`): JSON'daki `Description`, `News`, `PreviousMeetings`, `Expectation`, kutu `Name/Scope/Verdict`
+ve istatistik etiketleri insan yolunun sözlüklerinden (`GameWords.Of`, `Turkish(...)`) geçiyor.
+Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık) 3/3 rc=0, üç koşu bayt bayt aynı
+(`75ecfb81…`), İngilizce metin 0; EN temiz açılış (dil English + v03 `--no-save`) 3/3 rc=0, `967cfef6…`, insan
+çıktısıyla aynı sözcükler. Dosyalar `/tmp/opencode/t161/`.

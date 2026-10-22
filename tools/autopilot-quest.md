@@ -1,5 +1,28 @@
 # Otopilot görev defteri — turlar arası hafıza
 
+## Tur 161 (22 Ekim) — boşta: seçilebilir kutu yok; `opponent --json` dil sızıntısı düzeltildi (§8.357)
+- **Seçim:** canlı bloktaki 12 kutu da "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay 181/314 ·
+  Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır madde seçme"
+  kuralı; seçilebilir kutu yok → boşta yolu. Tur 160'ın bıraktığı ilk aday (`opponent --json`) alındı.
+- **Bulunan hata (B / dil, §8.357):** TR `fm opponent --json` insan çıktısı "Genel Performans / Ortalamanın çok
+  üstünde performans / Takıma dair haber bulunamadı" derken JSON `General Performance / Performing much better
+  than average / No team news` yazıyordu (3/3 koşuda). Sebep staff/board/supporters ile aynı: satır yolu
+  `GameWordsLines`tan geçiyor, `--json` ham metni yazıyor.
+- Düzeltme (`Opponent.cs`): JSON'da `Description`, `News`, `PreviousMeetings`, `Expectation`, kutu
+  `Name/Scope/Verdict` ve istatistik etiketleri insan yolunun sözlüklerinden (`GameWords.Of`, `Turkish(...)`)
+  geçiyor. Sayfa okuma/tıklama koduna dokunulmadı.
+- Kanıt — TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık): **3/3 rc=0**, üç koşu bayt bayt
+  aynı (`75ecfb81…`), İngilizce metin **0**, insan çıktısıyla aynı sözcükler. EN (dil English + `stop` + `start`
+  + v03 `--no-save`): üç durum **3/3 rc=0**, `967cfef6…`, değerler İngilizce, insan çıktısıyla aynı. Dosyalar
+  `/tmp/opencode/t161/{before,after,en}`.
+- `python3 tools/remaining.py --write --count`: **9 / 0 / 3** (açık kutu 12; bu bir kutu değil). Paylaşılan
+  yardımcı değişmedi (yalnız çağrı) → tam `sweep.sh` gerekmedi; `fm opponent` TR/EN rc=0.
+- Dönüş: dil `Türkçe`; ana kayıt (ilk satır) `Faruk Kavlak - Fenerbahçe` `--no-save` ile yüklendi; `fm status`
+  **9 Ağustos 2026 05:45**, `dil: Türkçe`, v03 damgası **21 Ekim 10:40**, ana kayıt damgası **22 Ekim 03:05**
+  (değişmedi). `fm save` **yok**.
+- Sıradaki adaylar: `saves --json` (1), `finances --json` (1), `penalties --json` (3), `league --json` (13),
+  `responsibilities --json` (130), `schedule --json` — aynı sınıf; ya da yine sweep + menajer akışı.
+
 ## Tur 160 (22 Ekim) — boşta: seçilebilir kutu yok; `supporters --json` dil sızıntısı düzeltildi (§8.355)
 - **Seçim:** canlı bloktaki 12 kutu da "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay 181/314 ·
   Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır madde seçme"

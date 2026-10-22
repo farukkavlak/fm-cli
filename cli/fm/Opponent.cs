@@ -104,11 +104,16 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Team = Field(team, "Name"), Description = Field(team, "Description"), Venue = Field(fixture, "MatchVenueShort"),
+				Team = Field(team, "Name"), Description = GameWords.Of(Field(team, "Description")), Venue = Field(fixture, "MatchVenueShort"),
 				Kickoff = Field(fixture, "KickoffTime"), InDays = days,
-				Summary = rows.ToDictionary(r => r.Label, r => r.Value), News = news, PreviousMeetings = meetings,
-				Expectation = Field(team, "NextOppositionThreatLevelAssessment"),
-				Tiles = tiles.Select(t => new { t.Name, t.Scope, Stats = t.Stats.ToDictionary(x => x.Label, x => x.Value), t.Verdict }),
+				Summary = rows.ToDictionary(r => r.Label, r => r.Value),
+				News = news.Select(GameWords.Of).ToList(), PreviousMeetings = meetings.Select(GameWords.Of).ToList(),
+				Expectation = GameWords.Of(Field(team, "NextOppositionThreatLevelAssessment")),
+				Tiles = tiles.Select(t => new
+				{
+					Name = GameWords.Of(t.Name), Scope = GameWords.Of(t.Scope),
+					Stats = t.Stats.ToDictionary(x => Turkish(x.Label), x => x.Value), Verdict = GameWords.Of(t.Verdict),
+				}),
 			}));
 			return 0;
 		}
