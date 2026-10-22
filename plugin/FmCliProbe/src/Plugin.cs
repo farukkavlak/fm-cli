@@ -10,6 +10,9 @@ public class Plugin : BasePlugin
 {
 	internal const int Port = 7777;
 
+	/// <summary>The probe's own version, so a stale DLL is told apart from a new CLI.</summary>
+	internal const string Version = "0.2.0";
+
 	internal static new ManualLogSource Log;
 
 	private static HttpBridge _bridge;

@@ -4985,3 +4985,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   symlink, `LSUIElement=1`, `codesign --force --sign -`. `--force` ile yenilenir (Steam güncellemesi sonrası).
 - `install.sh` gölge paket yoksa oluşturuyor; README ve BAGIMLILIKLAR H güncellendi. Geçici FM_APP ile denendi:
   yapı, LSUIElement, ad-hoc imza ve doctor ✓.
+
+## Tur 113 (22 Ekim) — F/H: sürüm koruması + health rakam taşması
+- `/health`: `plugin: 0.2.0`, `game: 26.3.2.…`. CLI komuttan önce ana sürümü denetliyor; FM26 dışı / eski eklenti → 69
+  ve açıklama. `help/start/stop/continue/completion/doctor --install` muaf.
+- `Menu()`/`InGame()` artık yalnız `descendants:` rakamını okuyor (sürüm rakamları taşırıyordu).
+- Dosyalar: `plugin/FmCliProbe/src/{Plugin,FmApi}.cs`, `cli/fm/{Program,Launcher,Bridge}.cs`, `docs/*`.

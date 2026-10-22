@@ -130,7 +130,9 @@ internal static class FmApi
 		if (b == null) return "bindings: unavailable (is a game loaded?)";
 
 		var root = Bindings.RootKey;
-		return $"bindings: ok\ndescendants: {b.GetDescendantCount(ref root)}";
+		var game = "";
+		try { game = UnityEngine.Application.version ?? ""; } catch { }
+		return $"bindings: ok\nplugin: {Plugin.Version}\ngame: {game}\ndescendants: {b.GetDescendantCount(ref root)}";
 	}
 
 	/// <summary>Read a value by path, using a locally computed key rather than a span.</summary>

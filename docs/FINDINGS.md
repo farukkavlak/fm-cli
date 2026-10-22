@@ -4416,3 +4416,13 @@ diyor. Ölçüm (20 ms'lik `/dropdowns` + `/buttons`): onaydan sonra pencere **1
 1000 ms uyuyup devam ediyordu, yani pencere ~0,4 sn daha açık kalıyordu. Artık (1) satır seçildikten sonra
 "bedel listesi görünene kadar" (0,15 sn, 3 sn üst sınır), (2) onaydan sonra "bedel listesi kaybolana kadar"
 aynı aralıkla bekleniyor; sabit 800 ms ve 1 sn kaldı. `talk bedel <x>` / `talk onayla` yolları aynı.
+
+### 8.374 `/health` sürümleri taşıyor; CLI FM26 dışını ve eski eklentiyi durduruyor (22 Ekim)
+
+Eklentinin `/health`i artık kendi sürümünü (`plugin: 0.2.0`) ve oyunun sürümünü (`game: 26.3.2.2329565`,
+`Application.version`) yazıyor. CLI, oyun açıkken her komuttan önce bunları okuyor: ana sürüm 26 değilse
+"bu FM sürümü desteklenmiyor" deyip 69 ile duruyor; `plugin:` satırı yoksa (eski DLL) "eklenti eski, tools/install.sh"
+diyor. `help`, `start`, `stop`, `continue`, `completion` ve `doctor --install` muaf.
+Yan etki ve düzeltme: `health`teki bütün rakamları toplayan `Menu()`/`InGame()` artık sürüm rakamlarını da alıp
+taşırıyordu (`int.TryParse` başarısız → "oyun ana menüye gelmedi"); ikisi de yalnız `descendants:` satırını okuyor.
+Kanıt: sürüm satırlarıyla `fm continue`/`status` çalışıyor, `doctor --install` muaf, `sweep.sh` aşağıda.

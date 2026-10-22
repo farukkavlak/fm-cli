@@ -164,7 +164,9 @@ internal sealed class Bridge
 		var health = await Get("health");
 		if (!health.Contains("ok")) return false;
 
-		var digits = new string(health.Where(char.IsDigit).ToArray());
+		// The health line carries the game and plugin versions too; only the node count is read.
+		var line = health.Split('\n').FirstOrDefault(l => l.StartsWith("descendants:", StringComparison.Ordinal));
+		var digits = new string((line ?? "").Where(char.IsDigit).ToArray());
 		if (int.TryParse(digits, out var nodes) && nodes > 1000) return true;
 
 		// A match runs in a scene of its own with only a few hundred nodes bound, far fewer

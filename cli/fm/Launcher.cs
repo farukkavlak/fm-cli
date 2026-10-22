@@ -254,7 +254,10 @@ internal static class Launcher
 		try
 		{
 			var health = await fm.Get("health");
-			var digits = new string(health.Where(char.IsDigit).ToArray());
+			// Only the node count: the health line also carries the game and plugin versions now,
+			// and their digits would overflow the count.
+			var line = health.Split('\n').FirstOrDefault(l => l.StartsWith("descendants:", StringComparison.Ordinal));
+			var digits = new string((line ?? "").Where(char.IsDigit).ToArray());
 			return int.TryParse(digits, out var nodes) && nodes > 150;
 		}
 		catch (FmUnavailable) { return false; }

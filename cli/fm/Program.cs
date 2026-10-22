@@ -27,6 +27,34 @@ internal static partial class Program
 		return await Run(args);
 	}
 
+	/// <summary>
+	/// The game and probe versions the bridge reports. The CLI is written for FM26; another major
+	/// version could read the same paths into different meanings, so it stops instead of guessing.
+	/// </summary>
+	private static async Task<int?> VersionGuard()
+	{
+		if (!await Fm.Answers()) return null;
+		var health = await Fm.Get("health");
+		string Value(string name)
+		{
+			var line = health.Split('\n').FirstOrDefault(l => l.StartsWith(name + ":", StringComparison.Ordinal));
+			return line == null ? "" : line[(name.Length + 1)..].Trim();
+		}
+		var plugin = Value("plugin");
+		var game = Value("game");
+		if (plugin.Length == 0)
+		{
+			Console.Error.WriteLine(L("Eklenti sürümü okunamadı: FmCliProbe eski olabilir. Yeniden kurmak için: tools/install.sh"));
+			return 69;
+		}
+		if (game.Length > 0 && !game.StartsWith("26", StringComparison.Ordinal))
+		{
+			Console.Error.WriteLine(L($"Bu Football Manager sürümü desteklenmiyor: {game}. fm-cli FM26 için yazıldı; veri yanlış okunabilir."));
+			return 69;
+		}
+		return null;
+	}
+
 	/// <summary>Runs one command, whether it came from argv or from the session prompt.</summary>
 	public static async Task<int> Run(string[] args)
 	{
@@ -109,6 +137,12 @@ internal static partial class Program
 
 		// Asking a command about itself never runs it (`match --help` used to start the match).
 		if (command != "help" && args.Skip(1).Any(a => a is "--help" or "-h")) return HelpFor(command);
+
+		// A game version the probe was not written for can be read wrongly rather than not at
+		// all, so it is refused once, up front, with what to do about it.
+		if (command is not ("help" or "start" or "stop" or "continue" or "completion")
+		    && !(command == "doctor" && args.Contains("--install"))
+		    && await VersionGuard() is { } refused) return refused;
 
 		try
 		{

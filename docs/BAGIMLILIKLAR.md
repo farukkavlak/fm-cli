@@ -1139,8 +1139,9 @@ kısmı sonraya kalabilir. Tahmin (15 Ekim): A+B+C 5–7 gün, D 1–2, H 4–6,
   Yayınlanan ikiliyle `doctor --install` ve komutlar denendi.
 - [x] **`fm doctor` kurulumu denetlesin:** `fm doctor --install` yedi adımı (oyun, BepInEx çekirdeği, başlatıcı, gölge
   paket, eklenti, `fm` komutu, kayıt klasörü) tek tek söylüyor; eksik adımın yanına ne yapılacağını yazıyor, `--json` var.
-- [ ] **Sürüm koruması (F'nin bir kısmı):** eklenti oyun sürümünü bilsin; desteklenmeyen sürümde sessizce yanlış yapmak
-  yerine "bu FM sürümü desteklenmiyor" desin.
+- [x] **Sürüm koruması (F'nin bir kısmı):** eklenti `/health`te kendi sürümünü (`plugin: 0.2.0`) ve oyununkini
+  (`game: 26.3.2.…`, `Application.version`) veriyor; CLI, FM26 dışı bir ana sürümde ya da sürümü okunamayan eski bir
+  eklentide komutu çalıştırmadan durup ne yapılacağını söylüyor (§8.374).
 - [ ] **Temiz makinede deneme:** yeni bir macOS kullanıcı hesabında README'yi izleyerek sıfırdan kurulum; çıkan her
   takılma düzeltilir.
 - [ ] **Intel Mac:** ilk sürümde "yalnızca Apple Silicon" mu denecek, karar.
