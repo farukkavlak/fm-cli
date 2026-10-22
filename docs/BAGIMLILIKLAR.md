@@ -65,6 +65,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 
 #### A2. Kısa `Until` (≤3 sn) — 3 yer
 
+- [~] `ClubCards.cs:48` — kart metinleri tıklamadan 0,05–0,36 sn sonra geliyor; 1,5 sn yalnız üst sınır, §8.354
 - [~] `Coaches.cs:56` — yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318
 - [~] `ContractTalks.cs:388` — çıkış basışından sonra görüşme ekranı 0,41–0,45 sn'de kapanıyor; 3 sn yalnız üst sınır, §8.326
 - [~] `League.cs:223` — yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319

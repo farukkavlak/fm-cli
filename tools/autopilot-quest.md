@@ -1,5 +1,38 @@
 # Otopilot görev defteri — turlar arası hafıza
 
+## Tur 159 (22 Ekim) — boşta: seçilebilir kutu yok; hata bulundu ve düzeltildi (`supporters` kartı erken tıklanıyordu, §8.354)
+- **Seçim:** canlı bloktaki 12 açık kutunun tamamı "Sonraya bırakılanlar"da (Launcher 213/269 · MatchDay
+  181/314 · Program 714/1484/2242 · Stages 120/136 · MatchControls 131/266 · Saves 258) → talimatın "ağır
+  madde seçme" kuralı; seçilebilir kutu yok → boşta yolu.
+- `tools/sweep.sh`: **51 komut, 0 hata** (`/tmp/opencode/t159/sweep1`), sonunda yeni derlemeyle yine **51/51**
+  (`sweep2`).
+- **Bulunan hata (B/okuma durumu, §8.354):** `fm open Messages` sonrası `fm supporters` **3/3 rc=1**
+  ("Taraftar kartı okunamadı."); ikinci koşu geçiyordu. `ClubCard`, `open ClubHome` cevabını sayfanın hazır
+  olduğu sanıp kutucuğa hemen tıklıyor; oyun tıklamayı "clicked" diye kabul edip hiçbir şey açmıyordu. Ayrıca
+  soğuk sayfada `Ready` yalnız `Description`ı görünce kartı okunmuş sayıyordu: oyun yeniden açıldıktan sonraki
+  ilk EN koşusu `Expectations: []`, `FierceRivals: "-"` döndürdü (rc=0, sessiz eksik veri).
+- Düzeltme: tıklama oyunun kendi işaretine bağlandı — kartın metinleri gelene kadar (1,5 sn'lik pencereler,
+  en çok 4 tıklama) tekrarlanıyor; kart zaten açıksa tıklanmıyor (kutucuk aç/kapa). `Ready`, kartın başlığı
+  çizilmişse beklentileri ve rakip sayılarını da bekliyor.
+- Kanıt — önce TR `fm open Messages` + `supporters` **3/3 rc=1**; sonra üç durum (Messages açık / hemen ikinci
+  koşu / Squad Dynamics açık) × TR + EN, **soğuk oyun açılışı dahil 6/6 + 6/6 rc=0**. TR JSON eski sağlam
+  çıktıyla bayt bayt aynı (`408bea7b…`), EN 6/6 aynı (`6e2ef9f7…`), beklentiler 3/3 dolu, insan çıktısı
+  değişmedi. İzlerde tıklama → kart metinleri **0,05–0,36 sn**; 1,5 sn yalnız üst sınır (`remaining.py`
+  A2'ye `[~]` olarak eklendi). Dosyalar `/tmp/opencode/t159/`.
+- Dönüş: yalnız sayfa açma/okuma, **`fm save` yok**, zaman ilerletilmedi. Dil `Türkçe`'ye alındı, oyun
+  yeniden açılıp ana kayıt `fm load "Faruk Kavlak - Fenerbahçe (v03)" --no-save` ile yüklendi; `fm status`
+  **9 Ağustos 2026 05:45**. `remaining.py --count`: **9 / 0 / 3** (değişmedi; bu bir kutu değil).
+- **Sıradaki aday (ölçüldü, düzeltilmedi):** `fm supporters --json` Türkçe oyunda insan çıktısının çevirdiği
+  değerleri İngilizce bırakıyor: `Influence: "High"`, `Profile[].Group` ("Core", "Fair Weather"…),
+  `Expectations[].Importance/Type/Reaction` ("Average", "Development", "Reserving Judgement") ve ilk beklenti
+  metni ("Develop players using the club's youth system"); TR JSON'da **30** İngilizce değer, insan çıktısı
+  "yüksek / çekirdek / orta / Geliştirme / henüz yargılamıyor / Altyapıdan oyuncular yetiştirilmesi". İnsan
+  yolu `CardSay` + `Ui.Safe` (GameWords.Of) kullanıyor; JSON dalı ham değerleri yazıyor. Tur 158'in
+  `staff/board --json` düzeltmesiyle aynı sınıf.
+- Aynı sınıfın diğer adayları (Tur 158'den): `responsibilities --json` (130), `league --json` (13),
+  `penalties --json` (3: Rule cümleleri + `Where: "On Subs bench"`), `opponent --json` (1), `finances --json`
+  (1), `schedule --json` (13 seansta İngilizce ad), `saves --json` (1).
+
 Her tur başında oku, sonunda güncelle. Taze bir oturum ilerlemeyi buradan alır; aynı maddeyi
 iki kez yapmaz, park edileni tekrar denemez.
 

@@ -4170,3 +4170,18 @@ Kanıt: üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics açık
 TR'de İngilizce metin **189 → 0** (teams "Teknik Heyet, Transfer, Sağlık Ekibi", jobs "Antrenör", time
 "Tam Zamanlı"), insan çıktısıyla aynı; EN'de (oyun `stop --no-save` + `start` + v03 `--no-save`, dil English)
 JSON eski derlemeyle **3/3 bayt bayt aynı**. Dosyalar `/tmp/opencode/t158/`.
+
+### 8.354 Taraftar kartı, Kulüp sayfası yerleşmeden tıklanıyordu: başka sayfadan ilk koşu düşüyor, soğuk sayfa eksik okunuyordu (22 Ekim, TR + EN)
+
+`ClubCard`, `open ClubHome` cevabını sayfanın hazır olduğu sanıp kutucuğa hemen tıklıyordu; oyun tıklamayı
+"clicked" diye kabul ediyor ama hiçbir şey açmıyordu. `fm open Messages` sonrası `fm supporters` **3/3 rc=1**
+("Taraftar kartı okunamadı.") veriyordu; ikinci koşu geçiyordu. Ayrıca soğuk sayfada `Ready`, kartın
+`Description` alanını görünce beklemiş oluyordu: oyun yeniden açıldıktan sonraki ilk EN koşusu beklentileri
+**boş**, rakipleri **"-"** döndürdü (rc=0, sessiz eksik veri) — beklentiler ve rakip sayıları sonradan bağlanıyor.
+Artık tıklama oyunun kendi işaretine bağlı: kartın metinleri gelene kadar (1,5 sn'lik pencerelerle, en çok 4
+kez) tıklanıyor; kart zaten açıksa hiç tıklanmıyor (kutucuk aç/kapa). `Ready` de kartın başlığı çizilmişse
+beklentileri ve rakip sayılarını bekliyor.
+Kanıt: düzeltmeden önce TR `fm open Messages` + `supporters` **3/3 rc=1**; sonra üç durum (Messages açık /
+hemen ikinci koşu / Squad Dynamics açık) × TR + EN, soğuk açılış dahil **6/6 + 6/6 rc=0**, TR çıktısı eski
+sağlam çıktıyla bayt bayt aynı (`408bea7b…`), EN 6/6 aynı (`6e2ef9f7…`) ve beklentiler 3/3 dolu. Dosyalar
+`/tmp/opencode/t159/`.

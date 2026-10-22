@@ -31,15 +31,28 @@ internal static partial class Program
 	{
 		var opened = await OpenPage(Screen.ClubHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
-		var clicked = "";
-		await Until(async () => !(clicked = await Fm.Get("click", ("within", panel), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
-		if (clicked.StartsWith("error", StringComparison.Ordinal)) throw new FmError(clicked);
 
 		List<(string Text, string Path)> texts = [];
-		var done = await Until(async () => ready(texts = (await Fm.GetJson("texts", ("anchorpath", anchorPath), ("up", up.ToString()), ("paths", "1"))).EnumerateArray()
-			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList()), seconds: 10, every: 0.5);
-		return done ? texts : null;
+		// A card left open by an earlier run is what is asked for already; its tile toggles, so
+		// clicking it again would close it.
+		if (ready(texts = await CardTexts(anchorPath, up))) return texts;
+
+		// The page answers as opened before its tiles are laid out: a click on one is taken
+		// ("clicked") but opens nothing, and the card's own texts are the sign that it did. So the
+		// click is repeated until they come, rather than trusted.
+		for (var attempt = 0; attempt < 4; attempt++)
+		{
+			var clicked = "";
+			await Until(async () => !(clicked = await Fm.Get("click", ("within", panel), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+			if (clicked.StartsWith("error", StringComparison.Ordinal)) throw new FmError(clicked);
+			if (await Until(async () => ready(texts = await CardTexts(anchorPath, up)), seconds: 1.5, every: 0.25)) return texts;
+		}
+		return null;
 	}
+
+	private static async Task<List<(string Text, string Path)>> CardTexts(string anchorPath, int up) =>
+		(await Fm.GetJson("texts", ("anchorpath", anchorPath), ("up", up.ToString()), ("paths", "1")))
+			.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 
 	private static void CardHeading(string title)
 	{
@@ -58,11 +71,18 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		// The card read by each text's data path (FINDINGS §8.169), from its spokesman's report line; an
 		// expectation is its objective (binding.VisionObjectiveName) and then, drawn without a path,
-		// its importance, type and the fans' reaction, which come a moment after the rest.
+		// its importance, type and the fans' reaction, which come a moment after the rest. A fresh
+		// page once answered with neither the expectations nor the rival counts while the rest was
+		// already there, so the card is taken only once those have bound too.
 		static bool Ready(List<(string Text, string Path)> t)
 		{
 			var at = t.FindIndex(x => x.Path == "binding.VisionObjectiveName");
-			return t.Any(x => x.Path == "Club.SupporterProfile.Description") && (at < 0 || at + 3 < t.Count && t.Skip(at + 1).Take(3).All(x => x.Path.Length == 0));
+			// The expectations bind after the rest: once the card's own heading is drawn they are
+			// waited for, so a card caught mid-binding is not read as one without any.
+			var heading = t.FindIndex(x => x.Text == "Supporter Culture & Expectations");
+			return t.Any(x => x.Path == "Club.SupporterProfile.Description")
+				&& t.Any(x => x.Path == "Club.FierceRivalCount") && t.Any(x => x.Path == "Club.OtherRivalCount")
+				&& (heading < 0 || at >= 0 && at + 3 < t.Count && t.Skip(at + 1).Take(3).All(x => x.Path.Length == 0));
 		}
 		List<(string Text, string Path)> t;
 		try { t = await ClubCard("Supporters", "Club.SupporterProfile.SupporterReportCompliedBy", 12, Ready); }
