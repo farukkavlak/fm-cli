@@ -1339,7 +1339,7 @@ internal static class Buttons
 			// MakeGenericMethod over an il2cpp wrapper has crashed the game in the coreclr's
 			// method-name lookup (EXC_BAD_ACCESS in StringObject::NewString, 23 Oct); an open
 			// generic or a type whose cast cannot be built is left without one.
-			if (!type.IsGenericTypeDefinition && !type.ContainsGenericParameters)
+			if (!type.IsGenericType && !type.IsGenericTypeDefinition && !type.ContainsGenericParameters)
 			{
 				try
 				{

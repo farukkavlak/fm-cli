@@ -5040,3 +5040,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - `/inboxlist` pointer; `AllInbox` `?ptr=` ile geziyor; `reply` konu yoksa tam listede arıyor; `next` NeedAction'da
   tam listeye bakıyor.
 - Kalan: maç sonu basın toplantısı NeedAction'ı kapanmıyor (reply "açılamadı", talk boş) — ayrı iş.
+
+## Tur 123 (23 Ekim) — kapalı generic cast çökmesi + teklif NeedAction
+- 12:26 çökmesi `SignatureNative::GetSignature`; `ShapeOf` kapalı genericlere de cast kurmuyor.
+- Teklif NeedAction'ı stall kapatmıyor; reject/accept kapatıyor (harness reddediyor).
+- Kanıt: teklif reddi + Blackburn maçı çökmeden, health ok, 26 Aralık.
+- Dosya: `plugin/FmCliProbe/src/Buttons.cs`, `docs/FINDINGS.md` §8.386.

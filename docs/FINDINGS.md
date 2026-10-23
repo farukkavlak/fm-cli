@@ -4529,3 +4529,13 @@ tam listede arıyor; `next`, `NeedAction`da görünen pencerede engelleyen mesaj
 Kanıt: Hull maçı sonrası `next`, açık soruyu adıyla söyledi; tam listede üç `CanRespond` mesaj göründü.
 **Kalan:** maç sonu basın toplantısı NeedAction'ı hâlâ kapanmıyor — mesaj `reply` ile açılamıyor ("açılamadı"),
 `talk` açık konuşma görmüyor. Bu ayrı iş.
+
+### 8.386 İkinci çökme de generic cast'ti; artık kapalı generic türlere de cast kurulmuyor (23 Ekim)
+
+12:26 çökmesi (teklifleri reddederken): `EXC_BAD_ACCESS` ana iş parçacığında
+`SignatureNative::GetSignature` (libcoreclr). İlki açık genericlerdi; bu kez **kapalı** bir generic wrapper'da
+`MakeGenericMethod` imza çözümüne giriyordu. `ShapeOf` artık `type.IsGenericType` olan hiçbir türe cast kurmuyor
+(açık/kapalı fark etmez); o tiplerin olay listeleri yine okunuyor.
+Kanıt: yeni eklentiyle teklif akışı (listele → reddet) ve Blackburn maçı (`--instant`) çökmeden geçti; `/health`
+"bindings: ok", oyun 26 Aralık 2027'ye ilerledi.
+Yan bulgu: teklif `NeedAction`ı **stall** ile kapanmıyor, **reject/accept** gerekiyor; test harness'i artık reddediyor.
