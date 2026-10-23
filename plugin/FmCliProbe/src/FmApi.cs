@@ -50,6 +50,7 @@ internal static class FmApi
 		"search" => Report.SearchResults(),
 		"searchopen" => Report.OpenSearchResult(q["name"], q["dry"] == "1"),
 		"inbox" => Report.Inbox(q["paths"] == "1"),
+		"inboxlist" => Report.InboxList(),
 		"tour" => Report.Tour(),
 		"player" => PlayerCard.Current(q["name"]),
 		"table" => Report.Table(q["groups"] == "1"),

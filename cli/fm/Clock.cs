@@ -204,8 +204,10 @@ internal static partial class Program
 				// A meeting with the board left open is what the game waits on, whatever else is unanswered.
 				if (await VisionControls() != null) output.WriteLine(L("Kulüp vizyonu toplantısı açık. Hedefler ve pazarlık: vision   ·   bitirmek: vision end"));
 				var blocking = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
-				// The game says a message waits and the inbox read shows none: it may be an old one.
+				// The game says a message waits and the inbox read shows none: it may be an old one,
+				// or one below the first window.
 				if (blocking.Count == 0) blocking = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
+				if (blocking.Count == 0) blocking = (await AllInbox()).Where(Blocking).ToList();
 				if (blocking.Count == 0)
 				{
 					// A message answered once that the game opens again: after a teammate asked to talk a

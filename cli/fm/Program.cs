@@ -698,6 +698,35 @@ internal static partial class Program
 		return await AtTop(data);
 	}
 
+	/// <summary>
+	/// Every message the inbox holds, read by scrolling its own streamed list with the list's
+	/// pointer (so the anchor never goes off screen). Used when the first window does not have
+	/// the message — a subject a script names, or the one the game is waiting on (FINDINGS §8.385).
+	/// </summary>
+	internal static async Task<List<JsonElement>> AllInbox()
+	{
+		var top = await FreshInbox();
+		var rows = top.EnumerateArray().Select(m => m.Clone()).ToList();
+		var seen = rows.Select(m => Field(m, "UniqueId")).Where(id => id.Length > 0).ToHashSet();
+		var list = (await Fm.Get("inboxlist")).Trim();
+		if (list.StartsWith("error", StringComparison.Ordinal)) return rows;
+		for (var step = 1; step <= 10; step++)
+		{
+			var to = (step / 10.0).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+			var moved = await Fm.Get("scroll", ("ptr", list), ("to", to));
+			if (moved.StartsWith("error", StringComparison.Ordinal)) break;
+			var before = string.Join("|", (await Fm.GetJson("inbox")).EnumerateArray().Select(m => Field(m, "UniqueId")));
+			await Until(async () => string.Join("|", (await Fm.GetJson("inbox")).EnumerateArray().Select(m => Field(m, "UniqueId"))) != before, seconds: 1, every: 0.1);
+			foreach (var m in (await Fm.GetJson("inbox")).EnumerateArray())
+			{
+				var id = Field(m, "UniqueId");
+				if (id.Length > 0 && seen.Add(id)) rows.Add(m.Clone());
+			}
+		}
+		await Fm.Get("scroll", ("ptr", list), ("to", "0"));
+		return rows;
+	}
+
 	/// <summary>The bound inbox, its list scrolled to the newest first.</summary>
 	internal static async Task<JsonElement> TopInbox() => await AtTop(await Bound("inbox", "PortalScreen"));
 
@@ -842,8 +871,12 @@ internal static partial class Program
 		}
 
 		var inbox = (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList();
-		inbox = await DeepInbox(inbox, words.FirstOrDefault());
 		var message = Pick(inbox, words[0]);
+		if (message == null && !int.TryParse(words[0], out _))
+		{
+			var all = await AllInbox();
+			message = Pick(all, words[0]);
+		}
 		if (message is not { } chosen) return 1;
 
 		var title = Field(chosen, "NewsTitleString");
@@ -2126,43 +2159,6 @@ internal static partial class Program
 			File.WriteAllText(NumbersFile, JsonSerializer.Serialize(shown));
 		}
 		catch { }
-	}
-
-	/// <summary>
-	/// The inbox rows, scrolled down until a message whose subject matches <paramref name="wanted"/>
-	/// is on screen. The list lays out a window at a time, so a message below the fold is not in
-	/// the first read; the subject is what a script asks by, and the numbers are left to `inbox`
-	/// (FINDINGS §8.377). The top is restored when nothing matches.
-	/// </summary>
-	private static async Task<List<JsonElement>> DeepInbox(List<JsonElement> inbox, string wanted)
-	{
-		if (string.IsNullOrEmpty(wanted) || int.TryParse(wanted, out _)) return inbox;
-		bool Hit(List<JsonElement> rows) => rows.Any(m => Field(m, "NewsTitleString") is var subject
-			&& (subject.Contains(wanted, StringComparison.OrdinalIgnoreCase)
-			    || GameWords.Of(subject).Contains(wanted, StringComparison.OrdinalIgnoreCase)));
-		if (Hit(inbox)) return inbox;
-
-		var current = inbox;
-		foreach (var share in new[] { "0.3", "0.6", "1.0" })
-		{
-			var anchor = current.Select(m => Field(m, "NewsTitleString")).FirstOrDefault(t => t != "");
-			if (anchor == null) break;
-			var before = string.Join("|", current.Select(m => Field(m, "UniqueId")));
-			var moved = await Fm.Get("scroll", ("anchor", anchor), ("to", share));
-			if (moved.StartsWith("error", StringComparison.Ordinal)) break;
-			await Until(async () =>
-			{
-				var now = (await Fm.GetJson("inbox")).EnumerateArray().ToList();
-				var ids = string.Join("|", now.Select(m => Field(m, "UniqueId")));
-				var changed = ids != before;
-				current = now;
-				return changed;
-			}, seconds: 2, every: 0.15);
-			if (Hit(current)) return current;
-		}
-		var back = current.Select(m => Field(m, "NewsTitleString")).FirstOrDefault(t => t != "");
-		if (back != null) await Fm.Get("scroll", ("anchor", back), ("to", "0"));
-		return inbox;
 	}
 
 	private static JsonElement? Pick(List<JsonElement> inbox, string wanted)

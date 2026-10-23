@@ -5035,3 +5035,8 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - `player` insan satırı ve `--json`: Nation/Position/PlayingTime/Personality/Condition `GameWords.Of`tan geçiyor;
   kart da aynı. Kanıt: "İskoçya · Ofansif Orta Saha … · Yedek Oyuncu · Azimli".
 - Dosyalar: `cli/fm/Reads.cs`, `cli/fm/Card.cs`, `docs/FINDINGS.md` §8.384.
+
+## Tur 122 (23 Ekim) — inbox list pointer'ı + NeedAction araması
+- `/inboxlist` pointer; `AllInbox` `?ptr=` ile geziyor; `reply` konu yoksa tam listede arıyor; `next` NeedAction'da
+  tam listeye bakıyor.
+- Kalan: maç sonu basın toplantısı NeedAction'ı kapanmıyor (reply "açılamadı", talk boş) — ayrı iş.

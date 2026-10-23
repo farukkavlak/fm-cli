@@ -46,11 +46,11 @@ SETTLED = {
     ("Stages.cs", 242): "liste seçimi ilk denemede geçiyor; 700 ms hiç çalışmıyor, §8.337",
     ("Registration.cs", 318): "iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350",
     ("Program.cs", 660): "ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351",
-    ("Program.cs", 765): "panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360",
+    ("Program.cs", 794): "panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360",
     ("Launcher.cs", 213): "oyun kapanırken çıkış penceresini 500 ms aralıkla yoklama; pencere gelince basılıyor, §8.143",
     ("Launcher.cs", 272): "süreç canlılığını 3 sn aralıkla yoklama; koşul süreç, gecikme yalnız tur temposu",
-    ("Program.cs", 1581): "satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı",
-    ("Program.cs", 2376): "oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama",
+    ("Program.cs", 1614): "satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı",
+    ("Program.cs", 2372): "oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama",
     ("MatchDay.cs", 316): "maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151",
 }
 
@@ -59,6 +59,7 @@ SETTLED_SHORT = {
     ("Coaches.cs", 56): "yardımcının ataması oyunun işaretiyle bekleniyor; 3 sn bilinçli kısa, §8.318",
     ("League.cs", 223): "yarışma bağı ilk `pathset`te tutuyor (30 ms); 3 sn yalnız üst sınır, §8.319",
     ("Reads.cs", 933): "takımın ülkesi ilk `pull`da geliyor (26–33 ms); 3 sn yalnız üst sınır, §8.322",
+    ("Program.cs", 719): "inbox listesi satırları değişene kadar; 1 sn üst sınır, §8.385",
     ("Saves.cs", 245): "kayıt satırı `rowselect dry`nin kendi cevabıyla bulunuyor (24–40 ms); 3 sn yalnız üst sınır, §8.321",
     ("Prep.cs", 142): "günün kapsamı `pathset`in kendi cevabıyla ilk denemede bağlanıyor (21–32 ms); 3 sn yalnız üst sınır, §8.323",
     ("TraitTraining.cs", 98): "yardımcının itiraz penceresi `dialog` bağıyla 70–230 ms'de geliyor; 3 sn yalnız üst sınır, §8.324",

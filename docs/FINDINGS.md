@@ -4519,3 +4519,13 @@ Gece testi: `fm player "Ben House"` başlığında "Attacking Midfielder" İngil
 `Personality`, `ConditionString` hem insan satırında hem JSON'da `GameWords.Of`tan geçiyor (değerler önce
 oyunun tablosundan soruluyor); kart (Card.cs) de aynı sözleri kullanıyor.
 Kanıt: TR'de insan satırı "İskoçya · Ofansif Orta Saha (Sağ, Sol, Merkez) · Yedek Oyuncu · Azimli", JSON da aynı.
+
+### 8.385 Inbox listesi kendi pointer'ıyla geziliyor; NeedAction'daki mesaj aşağıda olsa da aranıyor (23 Ekim)
+
+`AllInbox`, streamed listeyi metin çapasıyla kaydırıyordu; çapa ekrandan çıkınca `scroll` hata veriyor, liste
+yarım kalıyordu. Eklenti artık `MessagesStreamedObjectList` öğesinin pointer'ını (`/inboxlist`) veriyor; CLI
+listeyi `?ptr=` ile 0,1 adımlarla gezyp id'lere göre birleştiriyor. `reply "<konu>"` ilk pencerede bulamazsa bu
+tam listede arıyor; `next`, `NeedAction`da görünen pencerede engelleyen mesajı bulamazsa tam listede arıyor.
+Kanıt: Hull maçı sonrası `next`, açık soruyu adıyla söyledi; tam listede üç `CanRespond` mesaj göründü.
+**Kalan:** maç sonu basın toplantısı NeedAction'ı hâlâ kapanmıyor — mesaj `reply` ile açılamıyor ("açılamadı"),
+`talk` açık konuşma görmüyor. Bu ayrı iş.

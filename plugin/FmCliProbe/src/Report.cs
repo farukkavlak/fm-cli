@@ -122,6 +122,22 @@ internal static class Report
 		return sb.ToString();
 	}
 
+	/// <summary>The streamed list the Messages page draws, by its own element name, for scrolling it.</summary>
+	public static string InboxList()
+	{
+		foreach (var e in Buttons.Elements())
+		{
+			try
+			{
+				var name = e.name ?? "";
+				if (name.Contains("MessagesStreamedObjectList", StringComparison.Ordinal))
+					return $"0x{e.Pointer.ToInt64():x}";
+			}
+			catch { }
+		}
+		return "error: no inbox list";
+	}
+
 	/// <summary>
 	/// What the game's search found: each result's kind, and for a person the name and club.
 	/// </summary>
