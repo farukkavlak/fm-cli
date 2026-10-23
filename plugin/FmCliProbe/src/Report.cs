@@ -88,14 +88,17 @@ internal static class Report
 		return sb.ToString();
 	}
 
-	public static string Inbox()
+	public static string Inbox(bool paths = false)
 	{
 		var messages = new List<Dictionary<string, string>>();
 		var seen = new HashSet<string>();
 
-		foreach (var (_, node) in Walk())
+		foreach (var (path, node) in Walk())
 		{
 			if (node.Value?.DataType?.Name != "NewsItemReference") continue;
+			// The inbox is the streamed list on the Messages page; the news site and a message left
+			// open bind news items of their own, and they are not messages waiting here.
+			if (!path.Contains("MessagesStreamedObjectList", StringComparison.Ordinal)) continue;
 
 			var fields = Fields(node);
 			if (!fields.TryGetValue("NewsTitleString", out var title) || string.IsNullOrEmpty(title))
@@ -107,6 +110,7 @@ internal static class Report
 			var sender = Sibling(node, "Person") ?? Sibling(node, "Human");
 			if (sender != null && Fields(sender).TryGetValue("Name", out var who)) fields["Sender"] = who;
 
+			if (paths) fields["Path"] = path;
 			messages.Add(fields);
 		}
 

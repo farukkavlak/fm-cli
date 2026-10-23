@@ -5019,3 +5019,8 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - "Puanlarımız" canlı puan (9,4) resmî (9,5) değil; etiket "(canlı) · resmî: report" oldu.
 - Hayalet gol: üç gol de skor değişimli; fazladan GOL replay anlatımı. Kod değişmedi.
 - Dosyalar: `plugin/FmCliProbe/src/Buttons.cs`, `cli/fm/MatchDay.cs`, `cli/fm/labels-english.tsv`, `docs/FINDINGS.md`.
+
+## Tur 119 (23 Ekim) — playtest #3: inbox kapsamı ve konu araması
+- Eklenti `Report.Inbox` artık `MessagesStreamedObjectList` yoluna daraltıldı; haber sayfasının öğeleri girmiyor.
+- CLI `DeepInbox`: konu ilk pencerede yoksa listeyi 0,3/0,6/1,0 kaydırıp arıyor; "Erik Ring sakatlandı" bulundu.
+- Dosyalar: `plugin/FmCliProbe/src/{Report,FmApi}.cs`, `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.382.

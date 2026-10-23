@@ -4487,3 +4487,15 @@ maçında ekranın canlı puanı `Reeco Hackett 9,4`, resmî rapor `Reeco Hacket
 Hull 0-3 Lincoln `--play` izinde üç gol de skor değişimiyle geldi (`0-1`, `0-2`, `0-3`); fazladan "GOL Lincoln
 City!!" satırı aynı golün **replay** anlatımı (51:43 ve 90:30). Skor 0-0 kalırken gol veren bir satır görülmedi;
 gece testindeki örnek iptal edilen gol/replay olabilir. Skor okuması değiştirilmedi.
+
+### 8.382 Inbox okuması Mesajlar listesine daraltıldı; konu aşağıdaki mesajı da buluyor (23 Ekim)
+
+Gece testinin "inbox yalnız görünen satırları okuyor, `reply <konu>` bulamıyor" bulgusu iki parçaydı:
+(1) `Report.Inbox`, **bütün yüklü ekranlardaki** `NewsItemReference`ları topluyordu; haber sitesi ve açık bir mesaj
+da haber öğesi bağlıyor. Artık yol `MessagesStreamedObjectList` içerenlerle sınırlı (Mesajlar sayfasının kendi
+streamed listesi) — 16 satır, iki okumada aynı, haber öğeleri karışmıyor.
+(2) Liste penceresi kaydırıldıkça değişiyor; `reply "<konu>"` ilk pencerede yoksa `DeepInbox` listeyi 0,3/0,6/1,0
+oranlarında kaydırıp konuyu arıyor ve bulunca o pencereyi okuyor (birden çok eşleşmede numarayla seçtiriyor).
+Kanıt: üstte olmayan "Erik Ring sakatlandı" `reply` ile bulundu; "International Caps" üç "Milli Maçlar"a uyduğu
+için seçenekleri listeledi (doğru davranış). `inbox` hâlâ en yeni pencerenin numaralarını gösterir; numaralar
+kaymasın diye `RememberNumbers` id ile saklıyor.

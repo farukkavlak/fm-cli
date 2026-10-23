@@ -49,7 +49,7 @@ internal static class FmApi
 		"people" => Report.People(),
 		"search" => Report.SearchResults(),
 		"searchopen" => Report.OpenSearchResult(q["name"], q["dry"] == "1"),
-		"inbox" => Report.Inbox(),
+		"inbox" => Report.Inbox(q["paths"] == "1"),
 		"tour" => Report.Tour(),
 		"player" => PlayerCard.Current(q["name"]),
 		"table" => Report.Table(q["groups"] == "1"),
