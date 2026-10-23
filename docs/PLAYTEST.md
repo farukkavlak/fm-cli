@@ -149,3 +149,18 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok (9 Ekim 19:00; sonuç ekranı `f
 1. **Maç saatinde `status` ve `match` maçı görmüyor, bir `next` daha gerekiyor** — 19 Ekim 2027 20:00 (Portsmouth maç saati), `fm status` rc=0: "İlerlemeye hazır: next" / "Sıradaki maç: Portsmouth … (bugün)"; aynı dakikada `fm match --instant` rc=1: "Şu an oynanacak maç yok. Oyun maç gününe gelince `next` haber verir."; ancak `fm next` rc=1: "Maç günü. Oynamak için: match" — saat ilerlemeden (20:00) maç ancak ikinci `next` ile görünür oldu. Watford'da 15:00'te durum doğrudan "Maç günü" diyordu.
 2. **Açık konuşma durumu kayboluyor** — 15 Ekim 2027, `fm reply 10 1` rc=0: "Konuşma açıldı"; `fm talk` seçenekleri gösterdi; araya giren `fm inbox` sonrası `fm talk 1` rc=1: "Açık bir konuşma yok." (mesaj hâlâ cevaplanabilir). 16 Ekim'de de `fm reply 13 1` ile açılan Towler konuşması, `fm reply 2 1` açılınca kayboldu; `fm talk` rc=1: "Açık bir konuşma yok.", `fm inbox` 13 hâlâ "cevaplanabilir".
 3. **Türkçe oyunda İngilizce kalan metinler** — 9 Ekim 2027, `fm reply 14` rc=0: "2 Leave To Physio (Free)"; 12 Ekim 2027, `fm talk 1` rc=0: "» Finalise Promises" (menüde "Vaatleri Sonlandır"); 16 Ekim 2027, `fm reply 11` (Hackett) rc=0: "Treatment: · Club Doctor". Aynı oyun Türkçe.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 9)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet Championship
+Oyun tarihi: 20 Ekim – 7 Kasım 2027 · 4 maç: Derby 0-0 (B), Sunderland 2-1 (G), Norwich 0-1 (M), Leyton Orient 1-3 (M)
+Derby `--play --no-talk` ile izlendi; Sunderland, Norwich ve Leyton Orient `--instant`. Kadro önerileri `reply … 1` + `dialog 2` ile uygulandı; Carlisle Hampton & Richmond'a satıldı, Broughton Slough'a kiralandı, Bedford ve Bath City teklifleri reddedildi, Honohan fizyoterapiste bırakıldı, Varfolomeev ile görüşme `talk` ile bitirildi. Basın toplantıları asistan Tom Shaw'a geçmişti. `fm save` çağrılmadı.
+Komut bataryası: 23/23 rc=0, boş çıktı yok, metinler Türkçe (JSON anahtarları hariç) (20 Ekim 09:15).
+
+## Bulgular
+
+1. **`fm reply` "Cevaplandı" diyor ama onay penceresi açık kalıyor, sıradaki `fm match` rc=1** — 23 Ekim 2027 15:00, `fm reply "Kadro Seçim Önerisi: Derby" 1` rc=0: "Cevaplandı: … → Tavsiye Edilen Kadroyla Sahaya Çık" ve "Ama oyun mesajı hâlâ cevap bekliyor gösteriyor."; hemen ardından `fm match --play --no-talk` rc=1: "Oyun bir şey soruyor: Tavsiye Edilen Kadroyla Sahaya Çık … Cevaplamak için: dialog". `fm dialog 2` verilmeden maç başlamıyor; aynı şey 30 Ekim (Sunderland) ve 6 Kasım (Leyton Orient) kadro önerilerinde de oldu.
+2. **Canlı anlatım gol veriyor, maç 0-0 bitiyor** — 23 Ekim 2027, `fm match --play --no-talk` rc=0: "13:31 GOL Lincoln City!!"; aynı çıktıda "Devre arası: Derby 0-0 Lincoln" ve "Maç bitti: Derby 0-0 Lincoln"; `fm report` rc=0 "Derby 0-0 Lincoln" diyor ve gol listesi boş. Gol iptali/ofsayt açıklaması yok.
+3. **Türkçe metinde stadyum adına ikinci kez "Stadı" ekleniyor** — 23 Ekim 2027 16:37, `fm inbox` rc=0: "Pride Park Stadium Stadı'nda taraflar yenişemedi"; 30 Ekim 2027 00:00, `fm inbox` rc=0: "LNER Stadium Stadı'nın büyütülmesi tamamlandı". "Stadium" adının üzerine Türkçe tamlama eki getirilince "Stadium Stadı" oluyor.
