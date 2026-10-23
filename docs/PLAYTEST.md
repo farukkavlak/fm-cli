@@ -203,3 +203,23 @@ Komut bataryası: 23/23 rc=0 (31 Tem 21:45). Yeniden başlatma sonrası `news 1`
 ## Köprü
 
 Sunucu yeniden başladığında köprü kilitlendi: `fm status` rc=69 "FM çalışmıyor"; `fm start </dev/null` + son kayıt yüklendi (9 Oca 2028). Dönüşte oyun 8 Oca 2028'deydi (önceki tur notundaki sıçrama). Bu turda `fm next` 9 Oca → 17 Oca arasında Watford 1-2 maçını, 17 Oca → 25 Oca arasında da Derby 3-0 maçını `fm match` çağrılmadan oynattı; 8 Oca Leeds 2-3 de aynı şekilde oynanmıştı. Yeniden başlatma sonrası `fm news 1` rc=1 ("oyun menüsüz bir ekranda (CanContinue)"), `fm inbox` boş döndü, `fm finances` 300 sn'de yanıt vermedi.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 4)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet Championship (League One'dan yükseldi)
+Oyun tarihi: 1 May 2027 – 23 Oca 2028 · 4 maç: Young Boys 5-4 (Hazırlık, `--play --no-talk`), Leeds 2-3 (FF Kupası, köprü kilidi sırasında), Watford 1-2 (G, `--instant`), Derby 3-0 (G, `--instant`)
+`fm save` çağrılmadı; oyunun otomatik kaydı kullanıldı. Basın soruları asistanla, sakatlıklar fizyoterapist (2) ile geçildi; tekliflerde düşük teklifler reddedildi, Thorn Exeter'e kiralandı.
+
+Komut bataryası: 23/23 rc=0, boş çıktı yok (4 Mayıs 2027 09:00).
+
+## Bulgular
+
+1. **`fm match --instant` önceki maçın sonucunu basıyor** — 22 Oca 2028 15:00, `fm match --instant` rc=0: "Maç simüle edildi. Watford 1-2 Lincoln ..."; aynı dakikada `fm report` rc=0: "Lincoln 3-0 Derby". Komut yeni maçın sonucunu değil 15 Oca'daki Watford maçının birebir aynısını yazdı; oysa oyun Derby'yi oynamıştı.
+2. **Maç gününde `fm next` maç ekranına giriyor, `--instant` artık çalışmıyor** — 6 Tem 2027 18:00, `fm next 10` "Maç günü. Oynamak için: match" dedikten sonra `fm status` rc=0: "Maçtayız, başlamadı. Crewe – Lincoln"; `fm match --instant` rc=1: "Maç başladı; anında sonuç yalnızca kadro gönderilmeden önce istenebiliyor." Maçı `--play` ile izlemek zorunda kaldım.
+3. **Yönetim ekranında İngilizce cümle** — 15 Oca 2028 19:00, `fm board` rc=0: "Vizyon      The board are delighted with the progress towards our overall vision, and also recognise the improvements made to the club's stature." Aynı çıktının diğer satırları Türkçe.
+
+## Köprü
+
+6 Tem 2027 ~18:00'de `fm match --play` çağrısı sunucu yeniden başlamasıyla kesildi; ardından `fm status` rc=69 "FM çalışmıyor" döndü. `pkill -9 -f "Football Manager 26"`, `fm start </dev/null` (kayıt zaten yüklü) ile dönüldü; oyun 9 Oca 2028'e ilerlemişti ve Leeds (FF Kupası) maçı oynanmıştı. Köprü kilitlendi.
