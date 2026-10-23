@@ -44,6 +44,19 @@ internal static class GameWords
 	/// </summary>
 	public static bool Same(string a, string b) => a == b || words.Count > 0 && Of(a) == Of(b) && Of(a) != a;
 
+	/// <summary>
+	/// The English the game's table holds for a text shown in this language, or the text itself.
+	/// It is what a command typed in the game's words needs when the control's own label is the
+	/// English one (a button read as "Son Sonuçlar" is labelled "Recent Results").
+	/// </summary>
+	public static string English(string shown)
+	{
+		if (string.IsNullOrEmpty(shown) || words.Count == 0) return shown;
+		foreach (var (english, local) in words)
+			if (local == shown) return english;
+		return shown;
+	}
+
 	/// <summary>A text from the game in the game's own words, where it was put into English.</summary>
 	public static string Of(string text)
 	{

@@ -4997,3 +4997,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   "Use Suggested Team" penceresi artık `match`ten önce kapanıyor; TR'de başlık "Tavsiye Edilen Kadroyla Sahaya Çık".
 - Kanıt: West Brom maçında "Cevaplandı" + "Onaylandı", `/dialog` boş, `/queue` 0, `match --instant` penceresiz.
 - Dosya: `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.375.
+
+## Tur 115 (23 Ekim) — playtest #2: `press` çevrilmiş etiketle de basıyor (§8.376)
+- `press "Son Sonuçlar"` (ekranda görünen söz) düğmenin İngilizce `Label`ı "Recent Results" olduğu için
+  bulunamıyordu. `GameWords.English` ile geri çeviri + tekrar deneme eklendi.
+- Kanıt: sonuç ekranında rc=1 → rc=0, `/state` Results → CanContinue. `opponent`/`table` rc=1 (playtest notu hatalı).
+- Dosyalar: `cli/fm/GameWords.cs`, `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.376.

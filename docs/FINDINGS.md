@@ -4439,3 +4439,13 @@ Kanıt (27 Kasım 2027, West Brom): `reply "Kadro Seçim Önerisi: West Brom" 1`
 "Onaylandı: Tavsiye Edilen Kadroyla Sahaya Çık", `/dialog` boş, `/queue` 0; ardından `match --instant` penceresiz
 oynadı. (Aynı cevabı üst üste basmak olay kuyruğunda 2–3 `Sending` bırakabiliyor; `queue?clear=1` sonrası akıyor —
 ayrı bulgu.)
+
+### 8.376 `press` oyunun gösterdiği sözle de basıyor; sonuç ekranının "Son Sonuçlar"ı (23 Ekim, TR)
+
+Gece testinin "`press \"Son Sonuçlar\"` butonu listede ama bulunamıyor" bulgusu doğrulandı: düğmenin kendi
+`Label`ı oyunun İngilizcesi **"Recent Results"**, ekranda görünen sözü ise çeviri tablosundan **"Son Sonuçlar"**;
+`press` yalnız `Label`la eşleştiği için "no control labelled" diyordu. Artık `press`, etiketi bulamazsa
+`GameWords.English` ile oyunun İngilizcesine çevirip bir kez daha deniyor. Kanıt (1 Aralık 2027, maç sonrası
+`Results` ekranı): önce rc=1 "no control labelled 'Son Sonuçlar'", sonra rc=0 ve `/state` `Results` → `CanContinue`.
+Aynı turda `opponent`/`table`nın sonuç ekranında **rc=1** döndüğü de görüldü (playtest'in "rc=0" notu ölçüm
+hatasıydı; `NotNow` doğru çalışıyor).

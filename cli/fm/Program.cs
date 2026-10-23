@@ -2370,7 +2370,19 @@ internal static partial class Program
 		if (Option(args, "--name") is { } name) query.Add(("name", name));
 		if (args.Contains("--dry")) query.Add(("dry", "1"));
 
-		return Report(await Arriving("press", query.ToArray()));
+		var answer = await Arriving("press", query.ToArray());
+		// A control's own label is the game's English ("Recent Results") while the screen shows
+		// this language's word for it ("Son Sonuçlar"); a command typed in the shown words is
+		// looked up again in the table (FINDINGS §8.376).
+		if (answer.Contains("no control labelled", StringComparison.Ordinal)
+		    && GameWords.English(words[0]) is { } english && english != words[0])
+		{
+			var again = new List<(string, string)> { ("text", english) };
+			if (Option(args, "--name") is { } n) again.Add(("name", n));
+			if (args.Contains("--dry")) again.Add(("dry", "1"));
+			answer = await Arriving("press", again.ToArray());
+		}
+		return Report(answer);
 	}
 
 	private static async Task<int> Select(string[] args)
