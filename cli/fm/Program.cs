@@ -1075,7 +1075,8 @@ internal static partial class Program
 			}
 
 			var matches = answers
-				.Where(a => Field(a, "Label").Contains(pick, StringComparison.OrdinalIgnoreCase))
+				.Where(a => Field(a, "Label").Contains(pick, StringComparison.OrdinalIgnoreCase)
+				            || GameWords.Of(Field(a, "Label")).Contains(pick, StringComparison.OrdinalIgnoreCase))
 				.ToList();
 			if (matches.Count == 1) return matches[0];
 
@@ -1097,7 +1098,7 @@ internal static partial class Program
 			{
 				if (mixed && (i == 0 || Asked(answers[i]) != Asked(answers[i - 1])))
 					output.WriteLine(Asked(answers[i]) ? L("  Mesajdaki soruya cevap:") : L("  Mesajın kendisine cevap (soru cevapsız kalırsa ardından talk ile sorulur):"));
-				output.WriteLine($"  {i + 1}  {Field(answers[i], "Label")}");
+				output.WriteLine($"  {i + 1}  {GameWords.Of(Field(answers[i], "Label"))}");
 				// An answer that is a list: what it offers is the answer ("Confirm pre-season dates" holds
 				// the dates to choose from, 4 Mayıs 2026).
 				if (listed.TryGetValue(Field(answers[i], "Pointer"), out var choices))

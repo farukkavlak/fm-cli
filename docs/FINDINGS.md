@@ -4539,3 +4539,10 @@ Kanıt: Hull maçı sonrası `next`, açık soruyu adıyla söyledi; tam listede
 Kanıt: yeni eklentiyle teklif akışı (listele → reddet) ve Blackburn maçı (`--instant`) çökmeden geçti; `/health`
 "bindings: ok", oyun 26 Aralık 2027'ye ilerledi.
 Yan bulgu: teklif `NeedAction`ı **stall** ile kapanmıyor, **reject/accept** gerekiyor; test harness'i artık reddediyor.
+
+### 8.387 Mesaj cevapları oyunun sözleriyle listeleniyor (23 Ekim, TR)
+
+Gece testi: sakatlık mesajının seçenekleri `reply` listesinde "1 İğneyle Oynat / 2 **Leave To Physio (Free)**" diye
+karışık geliyordu; aynı seçenek seçildikten sonra "Fizyoterapist Gözetimine Bırak" olarak çevriliyordu. `Options`
+artık her cevabı `GameWords.Of`tan geçiriyor; metinle seçim de hem ham hem çevrilmiş ada bakıyor (Türkçe adla
+`reply "<mesaj>" "Fizyoterapist..."` de bulunuyor). Sayıyla seçim değişmedi.

@@ -5046,3 +5046,7 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Teklif NeedAction'ı stall kapatmıyor; reject/accept kapatıyor (harness reddediyor).
 - Kanıt: teklif reddi + Blackburn maçı çökmeden, health ok, 26 Aralık.
 - Dosya: `plugin/FmCliProbe/src/Buttons.cs`, `docs/FINDINGS.md` §8.386.
+
+## Tur 124 (23 Ekim) — mesaj cevapları TR'de
+- `Options` cevapları `GameWords.Of`tan geçiriyor; `Resolve` ham ve çevrilmiş adı eşliyor. "Leave To Physio" artık
+  listede Türkçe. Dosya: `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.387.

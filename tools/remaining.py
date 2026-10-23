@@ -49,8 +49,8 @@ SETTLED = {
     ("Program.cs", 794): "panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360",
     ("Launcher.cs", 213): "oyun kapanırken çıkış penceresini 500 ms aralıkla yoklama; pencere gelince basılıyor, §8.143",
     ("Launcher.cs", 272): "süreç canlılığını 3 sn aralıkla yoklama; koşul süreç, gecikme yalnız tur temposu",
-    ("Program.cs", 1614): "satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı",
-    ("Program.cs", 2372): "oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama",
+    ("Program.cs", 1615): "satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı",
+    ("Program.cs", 2373): "oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama",
     ("MatchDay.cs", 316): "maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151",
 }
 
