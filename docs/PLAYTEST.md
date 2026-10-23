@@ -119,3 +119,18 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok (15 Ağustos 09:15).
 1. **`fm match --instant` yeni maçta önceki maçın raporunu basıyor** — 1 Eyl 2027 20:00, `fm match --instant` rc=0: "Maç simüle edildi. Sheffield United 1-2 Lincoln … Maçın oyuncusu: Reeco Hackett (8,0)" — 28 Ağustos'taki maçın birebir aynı skoru, golleri ve istatistikleri; aynı dakikada `fm status` 20:30'da hâlâ "Sıradaki maç: Cardiff … (bugün)" diyor ve `fm table` Lincoln'ü 4 maçta bırakıyor. Ancak sonraki `fm next` "yeni: Lincoln ile Cardiff puanları paylaştı" diyor; `fm report` gerçek sonucu "Lincoln 1-1 Cardiff" (Moylan 27', Ashford 60') olarak veriyor. Maç simüle edilmiş ama rapor bir önceki fikstürden gelmiş.
 2. **`fm match --play` "Puanlarımız" satırı resmî maç puanlarını yanlış eşliyor** — 25 Ağu 2027 21:45, `fm match --play --no-talk` rc=0: "Puanlarımız: Reeco Hackett 7,2 · Ryley Towler 6,9 · … · George Wickens 6,6 · Jack Moylan 6,4"; aynı maç için `fm player "Reeco Hackett" --matches` 7,40, `fm player "Ryley Towler" --matches` 6,60, `fm player "George Wickens" --matches` 6,90; `fm report` "Maçın oyuncusu: Reeco Hackett (7,4)". Aynı oyuncuya üç ayrı puan.
 3. **`fm finances` maaş kategorileri aylık, toplam haftalık** — 1 Eyl 2027 21:45, `fm finances` rc=0: "Haftalık toplam 114.848 £ / 166.824 £ (%68,8)" ama altındaki 9 kategori satırının toplamı 427.719 £; `fm finances --json` Wages.Total=114.848, WagesByStatus toplamı=427.719. "Yıldız Oyuncu (1) 53.499 £" satırı Wickens'in `squad --json` değeriyle aynı (53,5B £ **aylık**), yani satırlar aylık, başlık haftalık.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 7)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet Championship
+Oyun tarihi: 1–18 Eylül 2027 · 4 maç: Preston 2-0 (G), Coventry 1-0 (G), Birmingham 0-1 (M), Blackburn 1-2 (M)
+Preston ve Blackburn `--instant`; Coventry `--play --no-talk` ile izlendi, 75. dakikada sakatlanan Jefferies yerine `fm sub` ile McKiernan girdi; Birmingham `--play` ile oynandı. Basın toplantıları asistanla geçildi, Elerewe'nin kiralık teklifi reddedildi, transfer dönemi kapatıldı, Hackett ile konuşma `fm talk` ile bitirildi. `fm save` çağrılmadı.
+Komut bataryası: 23/23 rc=0, boş çıktı yok (1 Eylül 21:45).
+
+## Bulgular
+
+1. **`fm tactic pick` doğal orta sahayı yedeğe atıp %47/%55'lik oyuncuları ilk 11'e koyuyor** — 18 Eyl 2027 17:00, `fm tactic pick` rc=0: "İlk 11 seçildi: … Gallagher, Bayliss …"; hemen ardından `fm tactic` rc=0: "DMR … Gallagher %47", "DML … Bayliss %55", yedeklerde Varfolomeev. Oysa aynı gün 15:00'te `fm tactic` "DML … Varfolomeev %92" diyordu (8 Eylül'de DMR %100). Otomatik seçim, sağlam ve doğal rol oyuncusunu bench'te bırakıyor.
+2. **Maç bittikten sonra "Maç şu an oynanıyor" diyen mesaj** — 18 Eyl 2027 17:00, `fm status` rc=0: "Sıradaki maç: QPR … 9 Ekim Cumartesi (21 gün sonra)"; aynı dakikada `fm reply 1` ("Kadro Seçim Önerisi: Blackburn") rc=0: "Cumartesi günü Blackburn'a karşı oynayacağımız … Maç şu an oynanıyor." Maç 2 saat önce 1-2 bitmişti; mesaj gövdesi maç durumuna göre canlı üretilip bayatlıyor.
+3. **`fm offers` liste satırı ile `view` kartı aynı teklif için farklı bedel veriyor** — 1 Eyl 2027 21:45, `fm offers` rc=0: "… 25,5B £ (25,5B £) aylık … 25 maç sonra 625B £"; aynı teklif için `fm offers 1 view` rc=0: "Aylık ücret 9B £ · Maaş katkısı %100 (16.250 £ aylık)", "25 maç · 350B £", "Kalıcı olursa toplam: 725B £". Gelecek bonservis 625B ile 350B, toplam 625B ile 725B; aylık da 25,5B ile 25,25B tutmuyor.
