@@ -53,3 +53,24 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok (3 Nisan 14:45).
 1. **`fixtures --all` deplasman sonuçlarını ters yazıyor** — 21 Nis 2027 22:15, `fm fixtures` rc=0: "21 Nis Çar Deplasman Oxford United Sky Bet League One 2 - 1"; aynı maç `fm fixtures --all` rc=0: "… Oxford United (5.) … 1 - 2". Aynı çelişki 13 Mar Bristol Rovers için de var: `--all` "8 - 2", `fm player "Ben House" --matches` "Bristol Rovers 2 - 8" (House 4 gol, 10,00). Ev sahibi/deplasman skor sırası iki görünümde farklı.
 2. **Geçersiz bayrak ve bilinmeyen komut rc=0 ile yutuluyor** — 21 Nis 2027 22:22, `fm status --nobayrak` rc=0 (normal durum çıktısı, hata yok), `fm table --nobayrak` rc=0 (normal tablo); 22:20 `fm bukomut` rc=0: "bilinmeyen komut: bukomut — komutlar için `help`". Script yazım hatasını göremiyor; bilinmeyen bayrak komutu sessizce normal çalıştırıyor.
 3. **Altyapı alımı durumu kendi içinde çelişiyor** — 21 Nis 2027 22:15, `fm youth` rc=0: "Altyapı alımı 2 Nisan 2028 (347 gün sonra)" ve "Alım adayları GELDİ — liste: youth candidates"; aynı dakikada `fm youth candidates` rc=0: "Alım adayları okunamadı (henüz gelmemiş olabilir: youth)." 3 Nis 14:45'te de tarih geçmişte olduğu hâlde `fm youth` "2 Nisan 2027 (-1 gün sonra)" yazıyordu.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 3)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet League One
+Oyun tarihi: 21 Nisan – 1 Mayıs 2027 · 2 maç (kayıtta): Huddersfield 3-1 (G), Peterborough 0-2 (M)
+Huddersfield `--instant`, Peterborough `--play --no-talk`; maç içi sakatlıkta `fm sub` ile değişiklik yapıldı, maç sonu konuşması `fm talk 6` ile geçildi. `fm save` çağrılmadı.
+Not: 1 Mayıs'taki ilk Peterborough maçı 0-1 (G) oynandı; köprü kilidi sonrası otomatik kayıt 25 Nisan 05:45'e döndüğü için maç yeniden oynandı (0-2).
+
+Komut bataryası: 22/23 rc=0 (21 Nisan 22:15); `fm player "Lucas" --json` belirsiz ada rc=1 (beklenen).
+
+## Bulgular
+
+1. **Sezon bittiğinde `fm table --json` tabloyu "kupada tablo olmaz" diye reddediyor** — 1 May 2027 14:00, `fm table --json` rc=1: "Sky Bet League One: tablo açılmadı (kupada tablo olmaz)." Aynı dakikada `fm table` rc=0 46 maçlık tabloyu, `fm table --csv` rc=0 CSV'yi basıyor. Bayrak yüzünden komut yanlış bağlam seçiyor.
+2. **Sıradaki maç yokken `fm opposition` kendi oyuncumuzu rakip sanıyor** — 1 May 2027 14:00 (sezon bitti, `status` "Sıradaki maç" satırı yok), `fm opposition` rc=0: "James Collins - - - -" ve "Yardımcının önerisi..." — James Collins Lincoln oyuncusu; rakip listesi boş olmalı ya da "maç yok" demeli. Huddersfield maçı öncesi aynı komut doğru şekilde Huddersfield oyuncularını listeliyordu.
+3. **Sakatlık mesajında fizyoterapist seçeneği yok; geçersiz seçenek rc=0 ile yutuluyor** — 1 May 2027 13:33, `fm reply 9` ("Ben House sakatlandı") rc=0: gövdeden sonra "(cevap seçeneği yok)"; `fm reply 9 2` rc=0: aynı metin, "cevaplandı" yok, sakatlık durumu değişmiyor. Görevdeki "sakatlıkta fizyoterapist (2)" akışı bu mesajda çalışmıyor.
+
+## Köprü
+
+1 May 2027 14:00'te `fm reply 9` → `fm health` → `fm buttons` dizisinden sonra `fm status` ve `fm dialog` 120 sn'de yanıt vermedi. `pkill -9 -f "Football Manager 26"`, `fm start </dev/null`, `fm continue` ile dönüldü; otomatik kayıt 25 Nisan 05:45'e döndüğü için 1 Mayıs maçı yeniden oynandı.
