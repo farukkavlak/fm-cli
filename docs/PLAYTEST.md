@@ -134,3 +134,18 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok (1 Eylül 21:45).
 1. **`fm tactic pick` doğal orta sahayı yedeğe atıp %47/%55'lik oyuncuları ilk 11'e koyuyor** — 18 Eyl 2027 17:00, `fm tactic pick` rc=0: "İlk 11 seçildi: … Gallagher, Bayliss …"; hemen ardından `fm tactic` rc=0: "DMR … Gallagher %47", "DML … Bayliss %55", yedeklerde Varfolomeev. Oysa aynı gün 15:00'te `fm tactic` "DML … Varfolomeev %92" diyordu (8 Eylül'de DMR %100). Otomatik seçim, sağlam ve doğal rol oyuncusunu bench'te bırakıyor.
 2. **Maç bittikten sonra "Maç şu an oynanıyor" diyen mesaj** — 18 Eyl 2027 17:00, `fm status` rc=0: "Sıradaki maç: QPR … 9 Ekim Cumartesi (21 gün sonra)"; aynı dakikada `fm reply 1` ("Kadro Seçim Önerisi: Blackburn") rc=0: "Cumartesi günü Blackburn'a karşı oynayacağımız … Maç şu an oynanıyor." Maç 2 saat önce 1-2 bitmişti; mesaj gövdesi maç durumuna göre canlı üretilip bayatlıyor.
 3. **`fm offers` liste satırı ile `view` kartı aynı teklif için farklı bedel veriyor** — 1 Eyl 2027 21:45, `fm offers` rc=0: "… 25,5B £ (25,5B £) aylık … 25 maç sonra 625B £"; aynı teklif için `fm offers 1 view` rc=0: "Aylık ücret 9B £ · Maaş katkısı %100 (16.250 £ aylık)", "25 maç · 350B £", "Kalıcı olursa toplam: 725B £". Gelecek bonservis 625B ile 350B, toplam 625B ile 725B; aylık da 25,5B ile 25,25B tutmuyor.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 8)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet Championship
+Oyun tarihi: 9–20 Ekim 2027 · 3 maç: QPR 1-3 (M), Watford 1-0 (M), Portsmouth 1-1 (D)
+QPR, açık kalan maçtan `fm match --no-talk` ile bitirildi; Watford `fm match --play --no-talk` ile izlendi; Portsmouth `fm match --instant`. Ben House fizyoterapiste bırakıldı, Hackett'in sakatlık mesajı okundu, Hamer'in sakatlık konuşması denendi (konuşma durumu kayboldu), Fairlamb ve Broughton profesyonel sözleşme görüşmeleri yapıldı, Carlisle Hampton & Richmond'a satıldı, Fairlamb Oxford City'ye kiralandı. `fm save` çağrılmadı.
+Komut bataryası: 23/23 rc=0, boş çıktı yok (9 Ekim 19:00; sonuç ekranı `fm next` ile geçildikten sonra). İlk denemede 13 komut "Oyun maç sonrası sonuçlar ekranında" diyerek rc=1 verdi; `next` sonrası hepsi geçti.
+
+## Bulgular
+
+1. **Maç saatinde `status` ve `match` maçı görmüyor, bir `next` daha gerekiyor** — 19 Ekim 2027 20:00 (Portsmouth maç saati), `fm status` rc=0: "İlerlemeye hazır: next" / "Sıradaki maç: Portsmouth … (bugün)"; aynı dakikada `fm match --instant` rc=1: "Şu an oynanacak maç yok. Oyun maç gününe gelince `next` haber verir."; ancak `fm next` rc=1: "Maç günü. Oynamak için: match" — saat ilerlemeden (20:00) maç ancak ikinci `next` ile görünür oldu. Watford'da 15:00'te durum doğrudan "Maç günü" diyordu.
+2. **Açık konuşma durumu kayboluyor** — 15 Ekim 2027, `fm reply 10 1` rc=0: "Konuşma açıldı"; `fm talk` seçenekleri gösterdi; araya giren `fm inbox` sonrası `fm talk 1` rc=1: "Açık bir konuşma yok." (mesaj hâlâ cevaplanabilir). 16 Ekim'de de `fm reply 13 1` ile açılan Towler konuşması, `fm reply 2 1` açılınca kayboldu; `fm talk` rc=1: "Açık bir konuşma yok.", `fm inbox` 13 hâlâ "cevaplanabilir".
+3. **Türkçe oyunda İngilizce kalan metinler** — 9 Ekim 2027, `fm reply 14` rc=0: "2 Leave To Physio (Free)"; 12 Ekim 2027, `fm talk 1` rc=0: "» Finalise Promises" (menüde "Vaatleri Sonlandır"); 16 Ekim 2027, `fm reply 11` (Hackett) rc=0: "Treatment: · Club Doctor". Aynı oyun Türkçe.
