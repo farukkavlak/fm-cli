@@ -4465,3 +4465,25 @@ Gece testi: `match --instant` bazen yeni maçın raporu yerine **önceki maçın
 süre dolunca elindeki **eski** fikstürü yazıyordu. Artık eşleşme olmazsa rapor basılmıyor; "Maç raporu henüz hazır
 değil; oyunun son fikstürü hâlâ X-Y Z" uyarısı verilip 0 dönülüyor (maç oynandı, rapor sonra `fm report` ile alınır).
 `expected` yoksa davranış aynı. Kanıt: normal `fm report` son maçı (Lincoln 1-2 West Brom) doğru basıyor.
+
+### 8.379 Eklentinin tip dökümü coreclr'de çöktü; açık generic türlere cast kurulmuyor (23 Ekim)
+
+Gece testi sırasında oyun bir kez `EXC_BAD_ACCESS` ile öldü (crash raporu 23 Ekim 09:42): ana iş parçacığında
+`_platform_strlen` ← `StringObject::NewString` ← **`RuntimeMethodHandle::GetName`** (libcoreclr). Bu, eklentinin
+`Buttons.ShapeOf` içinde her il2cpp tipi için `Il2CppObjectBase.TryCast`in `MakeGenericMethod` ile kurulmasından
+geçiyor; açık generic/çözülemeyen bir türde .NET'in yöntem adı çözümü null'a düşüyor. Artık açık generic türlere
+(`IsGenericTypeDefinition` / `ContainsGenericParameters`) cast kurulmuyor, `MakeGenericMethod` try/catch içinde
+(başarısızsa tipin olay listeleri yine okunuyor, cast yok) ve cast'siz çağrı yerleri korumalı. Kanıt: yeni eklentiyle
+tam bir `match --play` maçı (Hull 0-3 Lincoln) çökmeden oynandı, `/health` sonrasında da yanıt veriyor.
+
+### 8.380 "Puanlarımız" maç içi puanlar; resmî puan `report`ta (23 Ekim)
+
+Gece testinin "puanlar yanlış eşleniyor" bulgusu yeniden üretildi ama **eşleme değil, kaynak** farkı: Hull 0-3
+maçında ekranın canlı puanı `Reeco Hackett 9,4`, resmî rapor `Reeco Hackett (9,5)`; isimler doğru sırada. Satır artık
+**"Puanlarımız (canlı)"** diyor ve resmî için `report`a yönlendiriyor; böylece canlı puan resmî sanılmıyor.
+
+### 8.381 "Hayalet gol" yeniden üretilmedi: GOL satırı golün tekrarı (23 Ekim)
+
+Hull 0-3 Lincoln `--play` izinde üç gol de skor değişimiyle geldi (`0-1`, `0-2`, `0-3`); fazladan "GOL Lincoln
+City!!" satırı aynı golün **replay** anlatımı (51:43 ve 90:30). Skor 0-0 kalırken gol veren bir satır görülmedi;
+gece testindeki örnek iptal edilen gol/replay olabilir. Skor okuması değiştirilmedi.

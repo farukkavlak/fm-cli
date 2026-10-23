@@ -812,7 +812,10 @@ internal static partial class Program
 		if (watchedMatch) return;
 		static double Rated(MatchMan m) => double.TryParse(m.Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) ? r : 0;
 		var ours = OurMen(men).Where(m => Rated(m.Value) > 0).OrderByDescending(m => Rated(m.Value)).ToList();
-		if (ours.Count > 0) Console.WriteLine(L($"Puanlarımız: {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}"));
+		// The screen's ratings are the live ones; the official mark comes with the report and can
+		// differ by a tenth or more (Hackett 9,4 here, 9,5 there, 23 Oct). Saying which is which
+		// keeps a summary from passing for the record.
+		if (ours.Count > 0) Console.WriteLine(L($"Puanlarımız (canlı): {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}   ·   resmî: report"));
 	}
 
 	/// <summary>Our men of a match: the squad's names, kept from the team's list.</summary>

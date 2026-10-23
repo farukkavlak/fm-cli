@@ -2272,3 +2272,4 @@ NEDEN	WHY
 error: maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role; sürdürmek: match	error: pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role; to go on: match
 ilk 11	first XI
 {0} ile açık bir sözleşme görüşmesi var. Önce onu bitir ya da iptal et: contract --cancel   (sonra: contract {0} --agent)	There is an open contract talk with {0}. Finish or cancel it first: contract --cancel   (then: contract {0} --agent)
+Puanlarımız (canlı): {0}   ·   resmî: report	Our ratings (live): {0}   ·   official: report

@@ -735,7 +735,7 @@ internal static class Buttons
 		{
 			var shape = ShapeOf(context.GetIl2CppType().FullName);
 			var id = shape.Type?.GetProperty("m_id", BindingFlags.Public | BindingFlags.Instance);
-			var value = id?.GetValue(shape.Cast.Invoke(context, null))?.ToString();
+			var value = shape.Cast == null ? null : id?.GetValue(shape.Cast.Invoke(context, null))?.ToString();
 			return string.IsNullOrEmpty(value) || value == "None" ? null : value;
 		}
 		catch { return null; }
@@ -1187,6 +1187,7 @@ internal static class Buttons
 		var shape = ShapeOf(typeName);
 		if (shape.Lists.Length == 0) return null;
 
+		if (shape.Cast == null) return null;
 		var typed = shape.Cast.Invoke(element, null);
 		if (typed == null) return null;
 
@@ -1335,7 +1336,21 @@ internal static class Buttons
 		if (Wrappers().TryGetValue(il2cppName, out var type))
 		{
 			shape.Type = type;
-			shape.Cast = typeof(Il2CppObjectBase).GetMethod(nameof(Il2CppObjectBase.TryCast))!.MakeGenericMethod(type);
+			// MakeGenericMethod over an il2cpp wrapper has crashed the game in the coreclr's
+			// method-name lookup (EXC_BAD_ACCESS in StringObject::NewString, 23 Oct); an open
+			// generic or a type whose cast cannot be built is left without one.
+			if (!type.IsGenericTypeDefinition && !type.ContainsGenericParameters)
+			{
+				try
+				{
+					shape.Cast = typeof(Il2CppObjectBase).GetMethod(nameof(Il2CppObjectBase.TryCast))!.MakeGenericMethod(type);
+				}
+				catch (Exception e)
+				{
+					Plugin.Log?.LogWarning($"[fm-cli] no cast for {il2cppName}: {e.GetType().Name}");
+					shape.Cast = null;
+				}
+			}
 			shape.Lists = type
 				.GetProperties(BindingFlags.Public | BindingFlags.Instance)
 				.Where(p => p.PropertyType == typeof(EventList) && !p.Name.Contains("k__BackingField"))

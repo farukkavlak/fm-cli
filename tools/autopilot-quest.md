@@ -5012,3 +5012,10 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - `MatchReport.Show` `expected` eşleşmezse eski fikstürü yazıyordu; artık uyarı verip rapor basmıyor (0 dönüyor).
 - Kanıt: normal `fm report` doğru; kupa gecikmesi yolunda eski maç gösterilmiyor.
 - Dosya: `cli/fm/MatchReport.cs`, `docs/FINDINGS.md` §8.378.
+
+## Tur 118 (23 Ekim) — çökme koruması + puan kaynağı + hayalet gol ölçümü
+- Crash (09:42): `RuntimeMethodHandle::GetName` coreclr çökmesi; `ShapeOf` açık generic türlere cast kurmuyor,
+  `MakeGenericMethod` korumalı. Tam `--play` maçı (Hull 0-3) çökmeden oynandı.
+- "Puanlarımız" canlı puan (9,4) resmî (9,5) değil; etiket "(canlı) · resmî: report" oldu.
+- Hayalet gol: üç gol de skor değişimli; fazladan GOL replay anlatımı. Kod değişmedi.
+- Dosyalar: `plugin/FmCliProbe/src/Buttons.cs`, `cli/fm/MatchDay.cs`, `cli/fm/labels-english.tsv`, `docs/FINDINGS.md`.
