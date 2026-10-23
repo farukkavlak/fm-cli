@@ -104,3 +104,18 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok (31 Temmuz 21:45).
 1. **Türkçe arayüzde kaptan komutları çalışmıyor; yardımcı kaptan seçimi yanlış onaya düşüyor** — 15 Ağu 2027 09:15, `fm captains --captain "Tendayi Darikwa"` rc=1: "Kaptanlar sayfasında 'Captain' listesi yok."; aynı dakikada `fm captains --vice "Tom Hamer"` rc=1: "Yardımcı kaptan bugün zaten değişti…" — oysa `fm captains` "Yardımcı kaptan: Ben House" diyor ve değişiklik 1 Ağustos'ta yapılmıştı. Sayfadaki listeler `Replace as Captain` / `İkinci Kaptanı Seç`; `fm talk` menüsünde "[İkinci Kaptanı Seç]" altındaki Ben House seçilince "Kaptan Değişikliğini Onayla" açılıyor. 2 Ağu 09:00'da kaptan mesajı bu yüzden `fm reply ... 2` ile kapanmadı.
 2. **`fm offers` kiralık teklifini görmüyor** — 14 Ağu 2027 09:00, `fm reply "Bristol Rovers, Jefferies için kiralama teklifi yaptı"` rc=0: "Bristol Rovers … kiralamak için teklif yaptı", ekte "Bedel: 22B £ · Süre: Sezon sonu"; aynı dakikada `fm offers` rc=0: "Bekleyen teklif yok."; `fm offers "Dom Jefferies" view` rc=1: "'Dom Jefferies' için bekleyen teklif yok." Mesajda yalnız "Yetkiyi Al" seçeneği var, kabul/red yok.
 3. **Türkçe adlarla sayfa açılamıyor; bazı metinler İngilizce kalıyor** — 15 Ağu 2027 09:15, `fm pages` "Portal Mesajlar" / "Kadro As Takım" basıyor; `fm open "Mesajlar" --tab "Portal"` rc=1: "no page named 'Mesajlar' under 'Portal'", `fm open "Messages" --tab "Portal"` rc=0: "opened Portal › Messages". Aynı gün `fm board` rc=0: "Vizyon      The board are pleased with the progress towards our overall vision…" — Türkçe arayüzde tek İngilizce satır.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 6)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet Championship
+Oyun tarihi: 15 Ağustos – 1 Eylül 2027 · 4 maç: Swansea 0-2 (M), Wrexham 1-1 pen. (M), Sheffield United 1-2 (G), Cardiff 1-1 (B)
+Swansea, Sheffield United ve Cardiff `--instant`; Wrexham `--play --no-talk` ile izlendi. Basın sorumluluğu Tom Shaw'a devredildi, Okoro'nun sözleşmesi yenilendi, Ring'e gelen üç teklif reddedildi, Elerewe'nin kiralık teklifi kabul edildi. `fm save` çağrılmadı.
+Komut bataryası: 23/23 rc=0, boş çıktı yok (15 Ağustos 09:15).
+
+## Bulgular
+
+1. **`fm match --instant` yeni maçta önceki maçın raporunu basıyor** — 1 Eyl 2027 20:00, `fm match --instant` rc=0: "Maç simüle edildi. Sheffield United 1-2 Lincoln … Maçın oyuncusu: Reeco Hackett (8,0)" — 28 Ağustos'taki maçın birebir aynı skoru, golleri ve istatistikleri; aynı dakikada `fm status` 20:30'da hâlâ "Sıradaki maç: Cardiff … (bugün)" diyor ve `fm table` Lincoln'ü 4 maçta bırakıyor. Ancak sonraki `fm next` "yeni: Lincoln ile Cardiff puanları paylaştı" diyor; `fm report` gerçek sonucu "Lincoln 1-1 Cardiff" (Moylan 27', Ashford 60') olarak veriyor. Maç simüle edilmiş ama rapor bir önceki fikstürden gelmiş.
+2. **`fm match --play` "Puanlarımız" satırı resmî maç puanlarını yanlış eşliyor** — 25 Ağu 2027 21:45, `fm match --play --no-talk` rc=0: "Puanlarımız: Reeco Hackett 7,2 · Ryley Towler 6,9 · … · George Wickens 6,6 · Jack Moylan 6,4"; aynı maç için `fm player "Reeco Hackett" --matches` 7,40, `fm player "Ryley Towler" --matches` 6,60, `fm player "George Wickens" --matches` 6,90; `fm report` "Maçın oyuncusu: Reeco Hackett (7,4)". Aynı oyuncuya üç ayrı puan.
+3. **`fm finances` maaş kategorileri aylık, toplam haftalık** — 1 Eyl 2027 21:45, `fm finances` rc=0: "Haftalık toplam 114.848 £ / 166.824 £ (%68,8)" ama altındaki 9 kategori satırının toplamı 427.719 £; `fm finances --json` Wages.Total=114.848, WagesByStatus toplamı=427.719. "Yıldız Oyuncu (1) 53.499 £" satırı Wickens'in `squad --json` değeriyle aynı (53,5B £ **aylık**), yani satırlar aylık, başlık haftalık.
