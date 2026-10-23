@@ -54,6 +54,8 @@ internal static class Screen
 	// Match Day
 	public const string MatchDayHome = "5fca83a7c7c29c14ab624fcb3ef707f9";
 	public const string Tactics = "a69d2d19d0ea8054b82d191ecfea01be";
+	/// <summary>Career › My Contract: Resign, Retire and Request New Contract live here.</summary>
+	public const string MyContract = "00f51e1cd2f1bfd46806c90cabb6da7f";
 	public const string SetPieces = "f222c8c1e9d78bd4e88e70cc14affc4d";
 	public const string Penalties = "5a5e958112d5df14792774bdd0a43e1e";
 	public const string OppositionInstructions = "f3a5a1da7cb15294e8f54828aad36c42";

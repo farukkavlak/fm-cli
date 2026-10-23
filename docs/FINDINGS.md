@@ -4566,3 +4566,13 @@ başlıkları yazılıyor ve tek mesaj varsa **açmak/cevaplamak için** gereken
 `offers <#> reject --yes`; **stall bu adımı kapatmaz**" satırı var.
 Kanıt: sakatlık bildirimi `reply` ile açılıp `next` ilerledi; teklifler `reject` ile NeedAction kapandı (stall
 kapatmıyor). Otomasyon için harness bu iki kuralı uyguluyor.
+
+### 8.390 `fm resign`: My Contract'taki istifa akışı (23 Ekim)
+
+`fm resign`, Career › My Contract sayfasındaki **"İstifa Et"** düğmesini `HumanClubResign` (1196634484) ile
+buluyor. Düğme bir `SIDropdown`tur: seçenekleri **Immediate** / **End of Club Season**; seçim yapıldıktan sonra
+düğmenin `SpeakToAction` olayları gönderiliyor ve "Resign as manager" onay penceresi **primary** ile cevaplanıyor.
+Yönetim bir kez daha "kalmayı düşünür müsünüz?" diye soruyor; komut "gitmek/niyetim yok/leave" içeren cevabı
+seçiyor. Kanıt (test kaydı): istifa sonrası `fm status` "İşsizsin" dedi, iş ilanları sayfası açıldı.
+**Yeni bulgu:** işsizken `fm jobs` "İş ilanları okunamadı" veriyor; Managerial Vacancies iki kayıt (aynı GUID,
+OpensCard=True) ve kart açıldığında "Current Manager" tablosu gelmiyor. Ayrı iş.

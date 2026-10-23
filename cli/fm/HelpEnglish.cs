@@ -64,6 +64,7 @@ internal static partial class Program
 			  shout [<x>]     shout from the touchline during a match (Encourage, Fire Up, Calm Down…)
 			  sub             during a match: on the pitch and on the bench;  sub <off> <on>: make a substitution
 			  dugout          during a match, the assistant's advice;  dugout <no> apply | dismiss
+			  resign [--yes]  resign from the club (test career; then look at jobs)
 			  dialog [answer] show or answer the open confirmation window
 			  talk            show the open conversation: what was said, reactions, what you can say
 			  talk <no>       say it (a number or part of the sentence);  talk leave: leave the conversation

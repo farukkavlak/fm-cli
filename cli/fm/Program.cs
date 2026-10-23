@@ -239,6 +239,7 @@ internal static partial class Program
 				"sub" => await Substitute(json, args),
 				"save" => await SaveGame(args),
 				"dialog" => await Dialog(json, args),
+				"resign" => await Resign(json, args),
 				"setpieces" => await SetPieces(args),
 				"tactic" => await Tactic(json, args),
 				"pages" => await PageList(json, args),
@@ -2620,6 +2621,7 @@ internal static partial class Program
 			  shout [<x>]     maç sırasında kenardan bağır (Encourage, Fire Up, Calm Down…)
 			  sub             maç sırasında: sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir
 			  dugout          maç sırasında yardımcının tavsiyeleri;  dugout <no> uygula | kaldır
+			  resign [--yes]  menajerlikten istifa et (test kariyeri; sonra iş ilanları: jobs)
 			  dialog [cevap]  açık onay penceresini göster ya da cevapla
 			  talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin
 			  talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık

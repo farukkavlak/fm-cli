@@ -44,10 +44,10 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `League.cs:253` — tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320
 - [~] `MatchDay.cs:316` — maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151
 - [~] `MatchReport.cs:36` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
-- [~] `Program.cs:660` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
-- [~] `Program.cs:794` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
-- [~] `Program.cs:1615` — satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı
-- [~] `Program.cs:2373` — oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama
+- [~] `Program.cs:661` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
+- [~] `Program.cs:795` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
+- [~] `Program.cs:1616` — satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı
+- [~] `Program.cs:2374` — oyun 'active visual tree' derken 500 ms arayla yeniden deneme; deneme kendisi yoklama
 - [~] `Registration.cs:318` — iki okuma arası örnekleme aralığı; işaret iki okumanın aynı olması, bir turda ayrıştı, §8.350
 - [~] `Release.cs:167` — serbest bırakma seçimi ilk denemede geçiyor; 500 ms hiç çalışmıyor, §8.331
 - [~] `Stages.cs:242` — liste seçimi ilk denemede geçiyor; 700 ms hiç çalışmıyor, §8.337
@@ -69,7 +69,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `MatchControls.cs:266` — girişin metni basıştan öncekinden farklı olana kadar; 1,5 sn yalnız üst sınır
 - [~] `MatchDay.cs:432` — anında sonuç penceresi 0,17 sn'de, sonraki değişen pencere 0,4 sn'de geliyor; 1,5 sn yalnız üst sınır, §8.343
 - [~] `Prep.cs:142` — günün kapsamı `pathset`in kendi cevabıyla ilk denemede bağlanıyor (21–32 ms); 3 sn yalnız üst sınır, §8.323
-- [~] `Program.cs:719` — inbox listesi satırları değişene kadar; 1 sn üst sınır, §8.385
+- [~] `Program.cs:720` — inbox listesi satırları değişene kadar; 1 sn üst sınır, §8.385
 - [~] `Reads.cs:933` — takımın ülkesi ilk `pull`da geliyor (26–33 ms); 3 sn yalnız üst sınır, §8.322
 - [~] `Saves.cs:245` — kayıt satırı `rowselect dry`nin kendi cevabıyla bulunuyor (24–40 ms); 3 sn yalnız üst sınır, §8.321
 - [~] `Saves.cs:258` — kayıt satırı görünür olana kadar; 1,5 sn yalnız üst sınır, §8.321

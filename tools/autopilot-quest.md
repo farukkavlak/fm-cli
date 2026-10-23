@@ -5059,3 +5059,8 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 ## Tur 126 (23 Ekim) — NeedAction açıklaması
 - Engelleyen mesaj başlıkları + aç/cevapla komutu; seçeneksiz bildirim açıp kapatınca geçiyor.
 - Transfer teklifi: reject/accept kapatır, stall kapatmaz; satır eklendi. Dosya: `cli/fm/Clock.cs`, §8.389.
+
+## Tur 127 (23 Ekim) — `fm resign`
+- My Contract → "İstifa Et" (HumanClubResign), dropdown Immediate/End of Season, onay primary, yönetimin
+  "kal" sorusuna gitme cevabı. Test kaydında işsiz kaldı.
+- Yeni bulgu: işsizken `fm jobs` tabloyu okuyamıyor (Managerial Vacancies kart olarak açılıyor).
