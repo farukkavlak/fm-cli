@@ -30,6 +30,7 @@ internal static class MatchReport
 		// waits for it to show.
 		JsonElement fixture = default;
 		string home = "", away = "", star = "", competition = "";
+		var matched = expected == null;
 		for (var attempt = 0; attempt < (expected == null ? 1 : 24); attempt++)
 		{
 			if (attempt > 0) await Task.Delay(500);
@@ -39,12 +40,20 @@ internal static class MatchReport
 			away = F(await fm.Pull(at + ".AwayTeam", "Name"), "Name");
 			star = F(await fm.Pull(at + ".PlayerOfTheMatch", "Name"), "Name");
 			competition = F(await fm.Pull(at + ".Competition", "Name"), "Name");
-			if (expected == null || $"{home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}" == expected) break;
+			if (expected == null || $"{home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}" == expected) { matched = true; break; }
 		}
 		if (F(fixture, "HasResult") != "True")
 		{
 			Console.Error.WriteLine(L("Oynanmış bir maç yok."));
 			return 1;
+		}
+		if (!matched)
+		{
+			// The caller knows the result it just watched and the game has not moved its last
+			// fixture on (a cup tie lagging, FINDINGS §8.330): saying nothing beats printing the
+			// previous match as if it were this one.
+			Console.Error.WriteLine(L($"Maç raporu henüz hazır değil; oyunun son fikstürü hâlâ {home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}."));
+			return 0;
 		}
 
 		if (json)

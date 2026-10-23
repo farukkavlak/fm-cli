@@ -5007,3 +5007,8 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 ## Tur 116 (23 Ekim) — playtest #4: çelişen biçim bayrakları reddediliyor (§8.377)
 - `--json --csv` birlikte verilince sessizce JSON seçiliyordu; artık 64 + "yalnız biri verilmeli".
 - Bilinmeyen komut zaten 64 (playtest notu hatalı). Dosya: `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.377.
+
+## Tur 117 (23 Ekim) — playtest #6: instant raporu eski maçı basmıyor (§8.378)
+- `MatchReport.Show` `expected` eşleşmezse eski fikstürü yazıyordu; artık uyarı verip rapor basmıyor (0 dönüyor).
+- Kanıt: normal `fm report` doğru; kupa gecikmesi yolunda eski maç gösterilmiyor.
+- Dosya: `cli/fm/MatchReport.cs`, `docs/FINDINGS.md` §8.378.

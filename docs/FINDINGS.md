@@ -4457,3 +4457,11 @@ birini seçmek, script'in yanlış biçimi ayrıştırmasına yol açar. `Run` a
 birden fazlasını görürse kullanım hatası (64) ve "yalnız biri verilmeli" diyor. Kanıt: `fm table --json --csv`
 rc=64 + mesaj; `fm table --json` rc=0. (Playtest'in "bilinmeyen komut rc=0" notu yanlıştı; `Unknown` zaten 64
 dönüyor.)
+
+### 8.378 Maç raporu beklenen sonucu bulamazsa önceki maçı basmıyor (23 Ekim)
+
+Gece testi: `match --instant` bazen yeni maçın raporu yerine **önceki maçın raporunu** basıyordu (kupa maçlarında
+`LastFixture` gecikince; §8.330). `MatchReport.Show`, çağıranın bildiği sonucu (`expected`) 24×0,5 sn bekliyor, ama
+süre dolunca elindeki **eski** fikstürü yazıyordu. Artık eşleşme olmazsa rapor basılmıyor; "Maç raporu henüz hazır
+değil; oyunun son fikstürü hâlâ X-Y Z" uyarısı verilip 0 dönülüyor (maç oynandı, rapor sonra `fm report` ile alınır).
+`expected` yoksa davranış aynı. Kanıt: normal `fm report` son maçı (Lincoln 1-2 West Brom) doğru basıyor.

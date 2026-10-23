@@ -43,7 +43,7 @@ Bu blok `python3 tools/remaining.py --write` ile **koddan** üretilir, elle düz
 - [~] `Launcher.cs:272` — süreç canlılığını 3 sn aralıkla yoklama; koşul süreç, gecikme yalnız tur temposu
 - [~] `League.cs:253` — tur arasında tempo (250 ms); ilk okuma beklemesiz, §8.320
 - [~] `MatchDay.cs:316` — maç akışını 3 sn'de bir yoklama; canlı anlatımın temposu, sabit bekleme değil, §8.151
-- [~] `MatchReport.cs:35` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
+- [~] `MatchReport.cs:36` — son fikstür ilk okumada yeni sonucu taşıyor; 500 ms yalnız sonuç gelmediğinde tur temposu, §8.332
 - [~] `Program.cs:658` — ortak `Until`ın tur temposu; ilk kontrol beklemesiz, gecikme yalnız denemeler arasında, §8.351
 - [~] `Program.cs:763` — panel bağlanınca satırlar 0,26–0,39 sn'de geliyor; 250 ms döngü temposu, 20 sn yalnız üst sınır, §8.360
 - [~] `Program.cs:1578` — satırların beş hücresi dolana kadar okumayı 250 ms arayla yenileme; koşul hücre sayısı
