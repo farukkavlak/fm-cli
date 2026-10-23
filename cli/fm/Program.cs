@@ -58,7 +58,13 @@ internal static partial class Program
 	/// <summary>Runs one command, whether it came from argv or from the session prompt.</summary>
 	public static async Task<int> Run(string[] args)
 	{
-		var format = args.Contains("--json") ? "json" : args.Contains("--csv") ? "csv" : args.Contains("--md") ? "md" : null;
+		var formats = new[] { "--json", "--csv", "--md" }.Where(args.Contains).ToList();
+		if (formats.Count > 1)
+		{
+			Console.Error.WriteLine(L($"Biçim bayraklarından yalnız biri verilmeli: {string.Join(", ", formats)}"));
+			return 64;
+		}
+		var format = formats.FirstOrDefault() is { } only ? only[2..] : null;
 		// A command run by another (export, diff) hands the form back when it is done; in a
 		// session the next command, and the prompt, are drawn again.
 		var outer = Ui.Format;

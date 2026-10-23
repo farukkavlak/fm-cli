@@ -5003,3 +5003,7 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   bulunamıyordu. `GameWords.English` ile geri çeviri + tekrar deneme eklendi.
 - Kanıt: sonuç ekranında rc=1 → rc=0, `/state` Results → CanContinue. `opponent`/`table` rc=1 (playtest notu hatalı).
 - Dosyalar: `cli/fm/GameWords.cs`, `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.376.
+
+## Tur 116 (23 Ekim) — playtest #4: çelişen biçim bayrakları reddediliyor (§8.377)
+- `--json --csv` birlikte verilince sessizce JSON seçiliyordu; artık 64 + "yalnız biri verilmeli".
+- Bilinmeyen komut zaten 64 (playtest notu hatalı). Dosya: `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.377.

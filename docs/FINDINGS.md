@@ -4449,3 +4449,11 @@ Gece testinin "`press \"Son Sonuçlar\"` butonu listede ama bulunamıyor" bulgus
 `Results` ekranı): önce rc=1 "no control labelled 'Son Sonuçlar'", sonra rc=0 ve `/state` `Results` → `CanContinue`.
 Aynı turda `opponent`/`table`nın sonuç ekranında **rc=1** döndüğü de görüldü (playtest'in "rc=0" notu ölçüm
 hatasıydı; `NotNow` doğru çalışıyor).
+
+### 8.377 Çelişen biçim bayrakları artık reddediliyor (23 Ekim)
+
+Gece testi: `fm table --json --csv` rc=0 ve yalnız JSON basıyordu; hangi biçimin istendiği belirsizken sessizce
+birini seçmek, script'in yanlış biçimi ayrıştırmasına yol açar. `Run` artık `--json`/`--csv`/`--md` bayraklarından
+birden fazlasını görürse kullanım hatası (64) ve "yalnız biri verilmeli" diyor. Kanıt: `fm table --json --csv`
+rc=64 + mesaj; `fm table --json` rc=0. (Playtest'in "bilinmeyen komut rc=0" notu yanlıştı; `Unknown` zaten 64
+dönüyor.)
