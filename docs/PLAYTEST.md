@@ -223,3 +223,22 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok (4 Mayıs 2027 09:00).
 ## Köprü
 
 6 Tem 2027 ~18:00'de `fm match --play` çağrısı sunucu yeniden başlamasıyla kesildi; ardından `fm status` rc=69 "FM çalışmıyor" döndü. `pkill -9 -f "Football Manager 26"`, `fm start </dev/null` (kayıt zaten yüklü) ile dönüldü; oyun 9 Oca 2028'e ilerlemişti ve Leeds (FF Kupası) maçı oynanmıştı. Köprü kilitlendi.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 11)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet Championship
+Oyun tarihi: 9–23 Ocak 2028 · 3 maç: Leeds 2-3 (G, FF Kupası), Watford 1-2 (G), Derby 3-0 (G)
+Leeds kayıt yüklenirken oynanmış geldi; Watford `--play --no-talk`, Derby `--instant` denendi ama iki maçı da oyun `fm match` beklemeden arka planda oynattı. QPR maçı iki kez denendi; sonuç ekranı kilidi ve oturum sıçraması yüzünden kayıt 3 Ekim 2027'ye döndü, maç tamamlanamadı. `fm save` çağrılmadı.
+Komut bataryası: 23/23 rc=0, boş çıktı yok (18 Eylül 2027 17:00).
+
+## Bulgular
+
+1. **Kadro Seçim Önerisi 10 oyuncu veriyor, kalecisini sağ bek yerine koyuyor** — 8 Ekim 2027 08:15, `fm reply 12` rc=0: "önerilen kadro" tablosunda 10 satır var (KL + 3 defans + 1 OOS + 2 DOS + 2 kanat + 1 ST); sağ bek yok. Üstelik "KL George Wickens — D (Sğ) — Kondisyonu sebebiyle Jenson Jones'in yerine oynar" diyor; `fm player "George Wickens" --json` onu `Goalkeeper` olarak, `fm player "Jenson Jones"` ise `D (SğSl)` olarak veriyor.
+2. **`fm offers`, `--json` ve `view` aynı teklif için üç ayrı cevap veriyor** — 17 Ocak 2028 05:45, `fm status` "bir teklif cevap bekliyor" derken `fm offers` rc=0 "Bekleyen teklif yok." dedi; aynı dakikada `fm offers --json` rc=0 `[{"No":1,"Player":"Salifu Sanneh","Club":"Birmingham","Kind":"Transfer","Status":"Offer Made","Fee":"150B £ (350B £)"}]` döndü ve `fm offers 1 view` rc=1 "'1' için bekleyen teklif yok." dedi. 26 Ocak'ta tersi oldu: `fm offers` #1'de Jimmy Chick'i gösterirken `--json` `[]` döndü; iki çağrı sonra #1 Tom Hamer oldu ve ancak `fm offers "Tom Hamer" view` kartı açtı.
+3. **Maç raporu mesajının ilk paragrafı boş geliyor, cümle ortadan başlıyor** — 15 Ocak 2028 16:38, `fm reply 9` (Watford 1-2) rc=0: çıktı boş satırla başlıyor, ardından "Egil Selvik'in hatasında ayağı iyi stoper Deji Elerewe tarafından kısa mesafeden yaptığı kafa vuruşuyla kaydedilen gole engel olamayan Watford..." geliyor; skor ve açılış cümlesi yok. Aynı boş başlangıç 9 Ekim 2027'deki QPR 2-2 raporunda da vardı ("... Lincoln kaptanı Tendayi Darikwa...").
+
+## Köprü
+
+9 Ekim 2027 19:00'da maç sonrası Results ekranı `next` ile geçmedi; `fm buttons` "Son Sonuçlar / continue-button" gösterirken `fm press "Son Sonuçlar"` rc=1 "no control labelled" dedi. `pkill -9 -f "Football Manager 26"` + `fm start </dev/null` + `fm continue` sonrası kayıt 3 Ekim 2027'ye döndü. Aynı gün QPR `--play --no-talk` 83:33'te sakat oyuncu yüzünden durdu; oturum koptuğunda oyun 8 Ocak 2028'e sıçramıştı, `fm start` 9 Ocak 05:45 kaydını yükledi. Köprü kilitlendi.
