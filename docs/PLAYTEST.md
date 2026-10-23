@@ -89,3 +89,18 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok (6 Temmuz 21:00).
 1. **Kaldığı yerden devam eden maçta hayalet fikstür/skor** — 6 Tem 2027 21:00, `fm status` rc=0: "Maçtayız. 66:04 Crewe 0-1 Lincoln"; `fm match --play --no-talk` rc=0 aynı maçı "Maç bitti: Crewe 0-1 Lincoln" diye bitirip hemen ardından "Lincoln 5-4 Young Boys (Hazırlık)" raporunu bastı; sonraki `fm status` yine 6 Tem 21:00 / "Sıradaki maç: Crewe" dedi ve Crewe 7 Tem'de yeniden oynanıp 0-3 bitti.
 2. **Haber gövdesi okunamıyor** — 6 Tem 2027 21:00, `fm news 1` rc=0: "Sezon Öncesi Raporu: Peterborough ... (haberin metni okunamadı)"; başlık ve kaynak var, gövde yok. Aynı gün `news 2`–`4` tam metin bastı.
 3. **Türkçe teklif kartında İngilizce başlık** — 6 Tem 2027 21:05, `fm offers 1 view` rc=0: "Main Details:" ile "Ek ödemeler:", "Bütçeden çıkacak:" aynı kartta karışık; Türkçe arayüzde başlık çevrilmemiş.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 5)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet Championship
+Oyun tarihi: 31 Tem – 15 Ağu 2027 · 3 maç: Middlesbrough 2-3 (D), Sheffield United 1-0 (G, Carabao Cup), Ipswich 2-3 (M)
+Middlesbrough `--play --no-talk` ile izlendi, diğer ikisi `--instant`; 2 Ağustos'ta kaptan mesajı CLI ile kapanmayınca kayıt yeniden yüklendi. `fm save` çağrılmadı.
+Komut bataryası: 23/23 rc=0, boş çıktı yok (31 Temmuz 21:45).
+
+## Bulgular
+
+1. **Türkçe arayüzde kaptan komutları çalışmıyor; yardımcı kaptan seçimi yanlış onaya düşüyor** — 15 Ağu 2027 09:15, `fm captains --captain "Tendayi Darikwa"` rc=1: "Kaptanlar sayfasında 'Captain' listesi yok."; aynı dakikada `fm captains --vice "Tom Hamer"` rc=1: "Yardımcı kaptan bugün zaten değişti…" — oysa `fm captains` "Yardımcı kaptan: Ben House" diyor ve değişiklik 1 Ağustos'ta yapılmıştı. Sayfadaki listeler `Replace as Captain` / `İkinci Kaptanı Seç`; `fm talk` menüsünde "[İkinci Kaptanı Seç]" altındaki Ben House seçilince "Kaptan Değişikliğini Onayla" açılıyor. 2 Ağu 09:00'da kaptan mesajı bu yüzden `fm reply ... 2` ile kapanmadı.
+2. **`fm offers` kiralık teklifini görmüyor** — 14 Ağu 2027 09:00, `fm reply "Bristol Rovers, Jefferies için kiralama teklifi yaptı"` rc=0: "Bristol Rovers … kiralamak için teklif yaptı", ekte "Bedel: 22B £ · Süre: Sezon sonu"; aynı dakikada `fm offers` rc=0: "Bekleyen teklif yok."; `fm offers "Dom Jefferies" view` rc=1: "'Dom Jefferies' için bekleyen teklif yok." Mesajda yalnız "Yetkiyi Al" seçeneği var, kabul/red yok.
+3. **Türkçe adlarla sayfa açılamıyor; bazı metinler İngilizce kalıyor** — 15 Ağu 2027 09:15, `fm pages` "Portal Mesajlar" / "Kadro As Takım" basıyor; `fm open "Mesajlar" --tab "Portal"` rc=1: "no page named 'Mesajlar' under 'Portal'", `fm open "Messages" --tab "Portal"` rc=0: "opened Portal › Messages". Aynı gün `fm board` rc=0: "Vizyon      The board are pleased with the progress towards our overall vision…" — Türkçe arayüzde tek İngilizce satır.
