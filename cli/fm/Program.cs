@@ -35,6 +35,8 @@ internal static partial class Program
 	{
 		if (!await Fm.Answers()) return null;
 		var health = await Fm.Get("health");
+		// At the main menu there is no save and no bindings; the commands say so themselves.
+		if (!health.Contains("bindings: ok", StringComparison.Ordinal)) return null;
 		string Value(string name)
 		{
 			var line = health.Split('\n').FirstOrDefault(l => l.StartsWith(name + ":", StringComparison.Ordinal));

@@ -5024,3 +5024,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - Eklenti `Report.Inbox` artık `MessagesStreamedObjectList` yoluna daraltıldı; haber sayfasının öğeleri girmiyor.
 - CLI `DeepInbox`: konu ilk pencerede yoksa listeyi 0,3/0,6/1,0 kaydırıp arıyor; "Erik Ring sakatlandı" bulundu.
 - Dosyalar: `plugin/FmCliProbe/src/{Report,FmApi}.cs`, `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.382.
+
+## Tur 120 (23 Ekim) — maç sonu modalı köprüyü kilitliyordu
+- `--play` sonrası `FullTimeTeamTalk` açık kalınca ana iş parçacığı istekleri işlemiyor, `/health` 30 sn yanıtsız
+  kalıyordu; otomasyon oyunu öldürüyordu. Maç sonunda etkin `continue-button` basılıyor.
+- Kanıt: Hull maçı rc=0, ardından health ok, status 21:45/Wrexham. Ana menüde sürüm kapısı da atlanıyor.
+- Dosyalar: `cli/fm/MatchDay.cs`, `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.383.

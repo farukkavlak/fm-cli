@@ -336,6 +336,15 @@ internal static partial class Program
 		var after = await Fm.GetJson("state");
 		var flowAfter = Field(after, "State");
 		if (flowAfter == "CanContinue" && (await Bound("inbox", "PortalScreen")).EnumerateArray().Any(Blocking)) flowAfter = "NeedAction";
+		// A full-time team talk or a reaction is a modal the game waits behind; leaving it open
+		// also leaves the bridge unable to answer (the main thread serves the requests). The
+		// game's own continue is pressed so the next command finds a free screen.
+		if (flowAfter is "FullTimeTeamTalk" or "PostMatchReaction")
+		{
+			var cont = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Name") == "continue-button" && Field(b, "Enabled") == "True");
+			if (cont.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(cont, "Pointer")));
+		}
 		if (flowAfter.Length > 0 && !Passable(flowAfter)) await Explain(after, Console.Out, flowAfter);
 		return 0;
 	}

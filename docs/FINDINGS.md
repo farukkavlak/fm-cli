@@ -4499,3 +4499,14 @@ oranlarında kaydırıp konuyu arıyor ve bulunca o pencereyi okuyor (birden ço
 Kanıt: üstte olmayan "Erik Ring sakatlandı" `reply` ile bulundu; "International Caps" üç "Milli Maçlar"a uyduğu
 için seçenekleri listeledi (doğru davranış). `inbox` hâlâ en yeni pencerenin numaralarını gösterir; numaralar
 kaymasın diye `RememberNumbers` id ile saklıyor.
+
+### 8.383 Maç sonu takım konuşması açık bırakılınca köprü yanıt vermiyordu (23 Ekim)
+
+Gece testinde `--play` maçından sonra `/health` ve `/state` 30 sn yanıtsız kalıyor, otomasyon oyunu "kilitlendi"
+sanıp öldürüyordu (iki kez; kayıt 28 Kasım autosave'ine döndü). Sebep: maç döngüsü `FullTimeTeamTalk` /
+`PostMatchReaction` ekranında çıkıyor, oyun o modalı bekliyor; eklentinin istekleri ana iş parçacığında
+işlendiği için sonraki komutlar (health dahil) zaman aşımına düşüyordu. Maç bitince artık oyunun kendi
+`continue-button`u basılıyor (etkinse), sonra dönülüyor.
+Kanıt (1 Aralık 2027, Hull): `match --play --no-talk` rc=0, hemen ardından `/health` "bindings: ok", `fm status`
+21:45 ve sıradaki maç Wrexham — kilitlenme yok. Aynı turda ana menüde `bindings` yokken sürüm kapısının
+"eklenti eski" demesi de düzeltildi (bağ yoksa kapı atlanıyor).
