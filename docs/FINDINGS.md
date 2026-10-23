@@ -4510,3 +4510,12 @@ işlendiği için sonraki komutlar (health dahil) zaman aşımına düşüyordu.
 Kanıt (1 Aralık 2027, Hull): `match --play --no-talk` rc=0, hemen ardından `/health` "bindings: ok", `fm status`
 21:45 ve sıradaki maç Wrexham — kilitlenme yok. Aynı turda ana menüde `bindings` yokken sürüm kapısının
 "eklenti eski" demesi de düzeltildi (bağ yoksa kapı atlanıyor).
+
+### 8.384 Oyuncu kartı ve `--json` alanları oyunun sözleriyle (23 Ekim, TR)
+
+Gece testi: `fm player "Ben House"` başlığında "Attacking Midfielder" İngilizce kalıyordu; `--json` ise
+`PlayingTime: "Fringe Player"`, `Personality: "Ambitious"`, `Nation: "Scotland"` verirken insan çıktısı
+"Yedek Oyuncu / Azimli / İskoçya" diyordu. Artık `Nation`, `PositionCombinedStringLong`, `PlayingTime`,
+`Personality`, `ConditionString` hem insan satırında hem JSON'da `GameWords.Of`tan geçiyor (değerler önce
+oyunun tablosundan soruluyor); kart (Card.cs) de aynı sözleri kullanıyor.
+Kanıt: TR'de insan satırı "İskoçya · Ofansif Orta Saha (Sağ, Sol, Merkez) · Yedek Oyuncu · Azimli", JSON da aynı.

@@ -372,6 +372,15 @@ internal static partial class Program
 		if (json)
 		{
 			var node = System.Text.Json.Nodes.JsonNode.Parse(card.ToString())!;
+			// The page binds these in the game's English; the human lines have always gone through
+			// the game's own words, so the JSON does too (FINDINGS §8.384).
+			var said = new[] { "Nation", "PositionCombinedStringLong", "PlayingTime", "Personality", "ConditionString" }
+				.Select(k => node["Player"]?[k] is System.Text.Json.Nodes.JsonValue v && v.TryGetValue<string>(out var s) ? s : "")
+				.Where(v => v.Length > 0).Distinct().ToArray();
+			await GameWords.Ask(Fm, said);
+			foreach (var key in new[] { "Nation", "PositionCombinedStringLong", "PlayingTime", "Personality", "ConditionString" })
+				if (node["Player"]?[key] is System.Text.Json.Nodes.JsonValue value && value.TryGetValue<string>(out var shown))
+					node["Player"]![key] = GameWords.Of(shown);
 			if (potential > 0) node["Player"]!["PerceivedPotentialAbility"] = potential;
 			if (ability.Count > 0) node["Player"]!["AbilityHistory"] = new System.Text.Json.Nodes.JsonArray(ability.Select(v => (System.Text.Json.Nodes.JsonNode)v).ToArray());
 			Console.WriteLine(node.ToJsonString());
@@ -389,9 +398,9 @@ internal static partial class Program
 		void PlainHeader()
 		{
 		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Field(player, "SquadNumber")), Suffixed(Field(player, "Age"), L(" yaş")),
-			Field(player, "Nation"), Field(player, "PositionCombinedStringLong")));
+			GameWords.Of(Field(player, "Nation")), GameWords.Of(Field(player, "PositionCombinedStringLong"))));
 		Console.WriteLine(Line(" · ", Prefixed(L("Değer "), Field(player, "Value")), Prefixed(L("Maaş "), Field(player, "Wage")),
-			Prefixed(L("Sözleşme "), Field(player, "ContractEnds")), Field(player, "PlayingTime")));
+			Prefixed(L("Sözleşme "), Field(player, "ContractEnds")), GameWords.Of(Field(player, "PlayingTime"))));
 		// A game word stuck to its label with one space is not told apart from it on the way out: put in the game's words here.
 		Console.WriteLine(Line(" · ", Prefixed(L("Kondisyon "), GameWords.Of(Field(player, "ConditionString"))), Prefixed(L("Kişilik "), GameWords.Of(Field(player, "Personality"))),
 			Prefixed(L("Sağ ayak "), GameWords.Of(Field(player, "RightFootednessString"))), Prefixed(L("Sol ayak "), GameWords.Of(Field(player, "LeftFootednessString"))),

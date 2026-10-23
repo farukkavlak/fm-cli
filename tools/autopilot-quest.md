@@ -5030,3 +5030,8 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   kalıyordu; otomasyon oyunu öldürüyordu. Maç sonunda etkin `continue-button` basılıyor.
 - Kanıt: Hull maçı rc=0, ardından health ok, status 21:45/Wrexham. Ana menüde sürüm kapısı da atlanıyor.
 - Dosyalar: `cli/fm/MatchDay.cs`, `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.383.
+
+## Tur 121 (23 Ekim) — oyuncu alanları TR'de oyunun sözleriyle
+- `player` insan satırı ve `--json`: Nation/Position/PlayingTime/Personality/Condition `GameWords.Of`tan geçiyor;
+  kart da aynı. Kanıt: "İskoçya · Ofansif Orta Saha … · Yedek Oyuncu · Azimli".
+- Dosyalar: `cli/fm/Reads.cs`, `cli/fm/Card.cs`, `docs/FINDINGS.md` §8.384.
