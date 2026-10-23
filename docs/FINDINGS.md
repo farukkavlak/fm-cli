@@ -4585,3 +4585,10 @@ eklentiyi, kendi kendine yeten `fm`yi ve `install.sh`i `dist/fm-cli-osx-arm64.zi
 `~/.local/bin`e bağlar, gölge paket yoksa `make-shadow.sh` ile kurar ve `fm doctor --install` çalıştırır.
 `NOTICE.txt` BepInEx'in LGPL-2.1 atfını taşır. Temiz makinede denemek için: yeni macOS kullanıcısı aç, zip'i aç,
 `./install.sh`.
+
+### 8.392 İşsizken `jobs`: sayfa kart açılıyor, tablo "Available Jobs" ile geliyor (23 Ekim)
+
+İstifa sonrası `fm jobs` "İş ilanları okunamadı" diyordu: Career › Managerial Vacancies işsizken bir **kart**
+olarak açılıyor ve "Current Manager" tablosu gelmiyor. Karttaki **"Available Jobs"** düğmesi (OpenPanel) tabloyu
+açıyor. `Jobs` artık tablo yoksa bu düğmeye basıp bekliyor. Kanıt: işsizken `fm jobs` **321 iş ilanı** listeledi
+(Parma, Lincoln, …), `fm jobs "<kulüp>" apply` yolu açık.

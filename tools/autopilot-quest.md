@@ -5068,3 +5068,7 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 ## Tur 128 (23 Ekim) — dağıtım paketi (BepInEx dahil)
 - `tools/package.sh` → `dist/fm-cli-osx-arm64.zip` (53 MB): BepInEx + eklenti + fm + install.sh + NOTICE.
 - install.sh: BepInEx, plugin, fm, gölge paket, doctor. Temiz makine testi için hazır.
+
+## Tur 129 (23 Ekim) — işsizken jobs
+- Managerial Vacancies kartında "Available Jobs" düğmesi tabloyu açıyor; Jobs tablo yoksa basıyor.
+- Kanıt: işsizken 321 ilan. Dosya: `cli/fm/Jobs.cs`, §8.392.

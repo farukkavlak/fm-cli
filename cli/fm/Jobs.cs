@@ -47,6 +47,18 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.ManagerialVacancies);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
+		// The page opens as a card; its "Available Jobs" button opens the table itself.
+		if ((await JobTexts()).Count == 0)
+		{
+			var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Label") == "Available Jobs");
+			if (button.ValueKind == JsonValueKind.Object)
+			{
+				await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+				await Until(async () => (await JobTexts()).Count > 0, seconds: 8, every: 0.5);
+			}
+		}
+
 		var words = args.Where(a => !a.StartsWith("--", StringComparison.Ordinal)).ToList();
 		// The whole list is walked only for the list itself; a job asked for by name or by its
 		// place is there as soon as its window has been read (an exact name stops the walk, a
