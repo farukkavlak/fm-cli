@@ -4426,3 +4426,16 @@ diyor. `help`, `start`, `stop`, `continue`, `completion` ve `doctor --install` m
 Yan etki ve düzeltme: `health`teki bütün rakamları toplayan `Menu()`/`InGame()` artık sürüm rakamlarını da alıp
 taşırıyordu (`int.TryParse` başarısız → "oyun ana menüye gelmedi"); ikisi de yalnız `descendants:` satırını okuyor.
 Kanıt: sürüm satırlarıyla `fm continue`/`status` çalışıyor, `doctor --install` muaf, `sweep.sh` aşağıda.
+
+### 8.375 `reply` cevabın onay penceresini kendisi kapatıyor (23 Ekim, TR)
+
+Gece testinin bir numaralı bulgusu: `fm reply "Kadro Seçim Önerisi: …" 1` "Cevaplandı" diyor, ama oyun
+"Use Suggested Team / Tavsiye Edilen Kadroyla Sahaya Çık" onay penceresini açık bırakıyor; hemen ardından
+`fm match` rc=1 "Oyun bir şey soruyor…" veriyor ve ancak `fm dialog 2` ile devam ediliyordu (Derby, Sunderland,
+Leyton Orient, Exeter, Norwich…). Pencere `Buttons[].Slot` ile `primary`/`secondary` taşıyor; onay **primary**.
+`reply` artık cevabı bastıktan sonra açılan pencereyi görüyor ve `primary`yi basıyor (`dialog?press=primary`),
+pencere kapanana kadar bekliyor ve "Onaylandı: …" yazıyor; dili ne olursa olsun slot aynı.
+Kanıt (27 Kasım 2027, West Brom): `reply "Kadro Seçim Önerisi: West Brom" 1` → "Cevaplandı …" +
+"Onaylandı: Tavsiye Edilen Kadroyla Sahaya Çık", `/dialog` boş, `/queue` 0; ardından `match --instant` penceresiz
+oynadı. (Aynı cevabı üst üste basmak olay kuyruğunda 2–3 `Sending` bırakabiliyor; `queue?clear=1` sonrası akıyor —
+ayrı bulgu.)

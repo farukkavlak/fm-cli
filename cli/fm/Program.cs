@@ -977,12 +977,34 @@ internal static partial class Program
 		// command holds on until one of the three has happened.
 		var tour = false;
 		var talking = false;
+		JsonElement dialog = default;
 		var settled = await Until(async () =>
-			(tour = await TourOpen())
+			(dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0
+			|| (tour = await TourOpen())
 			|| (talking = (await TalkOptions()).Count > 0)
 			|| !StillAnswerable(await Fm.GetJson("inbox"), id), seconds: 8);
 
-		if (tour) Console.WriteLine(L("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour"));
+		// The game often asks "are you sure" for the answer just chosen (the suggested team,
+		// a release, a bid). The answer is the intent; its confirmation is the primary button,
+		// which is the same slot in every language (FINDINGS §8.375).
+		if (dialog.GetArrayLength() > 0)
+		{
+			var title2 = Field(dialog[0], "Title");
+			var primary = dialog[0].GetProperty("Buttons").EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Slot") == "primary");
+			if (primary.ValueKind == JsonValueKind.Object)
+			{
+				var confirmed = await Fm.Get("dialog", ("press", "primary"));
+				if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
+				await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.2);
+				Console.WriteLine(L($"Onaylandı: {GameWords.Of(title2)}"));
+			}
+			else
+			{
+				Console.WriteLine(L($"Oyun bir onay penceresi açtı: {title2}   (cevap: dialog)"));
+			}
+		}
+		else if (tour) Console.WriteLine(L("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour"));
 		else if (talking) Console.WriteLine(L("Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk"));
 		else if (!settled && await VisionControls() != null) Console.WriteLine(L("Kulüp vizyonu toplantısı açıldı; mesaj toplantı bitince kapanır. Devam için: vision"));
 		else if (!settled && await RegistrationOnScreen()) Console.WriteLine(L("Kadro kayıt ekranı açıldı; mesaj liste gönderilince kapanır. Liste ve kurallar: register   (yardımcının seçimi: register --auto, sonra register --send)"));

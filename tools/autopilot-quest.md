@@ -4991,3 +4991,9 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
   ve açıklama. `help/start/stop/continue/completion/doctor --install` muaf.
 - `Menu()`/`InGame()` artık yalnız `descendants:` rakamını okuyor (sürüm rakamları taşırıyordu).
 - Dosyalar: `plugin/FmCliProbe/src/{Plugin,FmApi}.cs`, `cli/fm/{Program,Launcher,Bridge}.cs`, `docs/*`.
+
+## Tur 114 (23 Ekim) — playtest #1: `reply` onay penceresini kendisi kapatıyor (§8.375)
+- `reply` cevabı bastıktan sonra açılan `dialog`u görüyor, `Slot=primary` düğmesini basıyor, kapanmasını bekliyor.
+  "Use Suggested Team" penceresi artık `match`ten önce kapanıyor; TR'de başlık "Tavsiye Edilen Kadroyla Sahaya Çık".
+- Kanıt: West Brom maçında "Cevaplandı" + "Onaylandı", `/dialog` boş, `/queue` 0, `match --instant` penceresiz.
+- Dosya: `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.375.
