@@ -4557,3 +4557,12 @@ yetmedi; çünkü yansıma **generic olmayan** wrapper'larda da imza çözümün
 Kanıt: yeni eklentiyle `status`, `inbox`, `buttons`, `offers`, `tactic`, `schedule`, `responsibilities`, `numbers`,
 `register`, `youth` rc=0; ardından Blackburn maçı (`--instant`) oynandı, `/health` "bindings: ok", oyun 26 Aralık
 21:30'a ilerledi. (Önceki iki çökme raporu da bu yığını gösteriyordu.)
+
+### 8.389 `NeedAction` ne istediğini söylüyor: bildirim, teklif, soru (23 Ekim)
+
+Gece testinde `next` "Response Required" deyip yalnız `offers`/`inbox`a yolluyordu. Artık engelleyen mesajların
+başlıkları yazılıyor ve tek mesaj varsa **açmak/cevaplamak için** gereken komut veriliyor; seçeneksiz bir bildirim
+(sakatlık mesajı) açılıp kapatılınca geçiyor. `Respond=3` / "Review Transfer Offer" durumunda ayrıca "teklif:
+`offers <#> reject --yes`; **stall bu adımı kapatmaz**" satırı var.
+Kanıt: sakatlık bildirimi `reply` ile açılıp `next` ilerledi; teklifler `reject` ile NeedAction kapandı (stall
+kapatmıyor). Otomasyon için harness bu iki kuralı uyguluyor.

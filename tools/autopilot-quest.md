@@ -5055,3 +5055,7 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - `Shape.Wrap(IntPtr)` + `Activator.CreateInstance`; `MakeGenericMethod` hiç kullanılmıyor.
 - Kanıt: UI komut bataryası + Blackburn maçı, health ok, 26 Aralık 21:30.
 - Dosyalar: `plugin/FmCliProbe/src/{Buttons,Elements}.cs`, `docs/FINDINGS.md` §8.388.
+
+## Tur 126 (23 Ekim) — NeedAction açıklaması
+- Engelleyen mesaj başlıkları + aç/cevapla komutu; seçeneksiz bildirim açıp kapatınca geçiyor.
+- Transfer teklifi: reject/accept kapatır, stall kapatmaz; satır eklendi. Dosya: `cli/fm/Clock.cs`, §8.389.

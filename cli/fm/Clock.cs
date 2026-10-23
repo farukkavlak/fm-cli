@@ -201,6 +201,10 @@ internal static partial class Program
 		switch (flow)
 		{
 			case "NeedAction":
+				// A transfer offer blocks the clock until it is accepted or rejected; stalling it
+				// leaves the game waiting (measured, 23 Oct).
+				if (Field(state, "Respond") == "3" || button.Contains("Transfer Offer", StringComparison.Ordinal))
+					output.WriteLine(L("Bekleyen transfer teklifi: offers   ·   reddet: offers <#> reject --yes   (stall bu adımı kapatmaz)"));
 				// A meeting with the board left open is what the game waits on, whatever else is unanswered.
 				if (await VisionControls() != null) output.WriteLine(L("Kulüp vizyonu toplantısı açık. Hedefler ve pazarlık: vision   ·   bitirmek: vision end"));
 				var blocking = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
@@ -208,6 +212,18 @@ internal static partial class Program
 				// or one below the first window.
 				if (blocking.Count == 0) blocking = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
 				if (blocking.Count == 0) blocking = (await AllInbox()).Where(Blocking).ToList();
+				if (blocking.Count > 0)
+				{
+					// Say what each waiting message needs: a notice only has to be opened, a question
+					// has answers; a transfer offer is cleared by accept or reject, not by stall.
+					foreach (var m in blocking)
+						output.WriteLine($"  {GameWords.Of(Field(m, "NewsTitleString"))}");
+					var one = blocking.Count == 1 ? Field(blocking[0], "NewsTitleString") : "";
+					output.WriteLine(one.Length > 0 && !one.Contains('"')
+						? L($"Açmak/cevaplamak için: reply \"{one}\"   (seçenek yoksa açıp kapatmak yeter)")
+						: L("Açmak/cevaplamak için: reply <#>   (numaralar için: inbox)"));
+					return;
+				}
 				if (blocking.Count == 0)
 				{
 					// A message answered once that the game opens again: after a teammate asked to talk a
