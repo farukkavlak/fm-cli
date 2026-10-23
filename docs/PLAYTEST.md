@@ -184,3 +184,22 @@ Komut bataryası: 22/23 rc=0; `fm jobs` 45 sn'de bitmedi (rc=142), 90 sn'lik iki
 ## Tur notu
 
 - 3 Nis 2027 12:30 Newcastle maçı `--play --no-talk` ile 4-0'a kadar izlendi; 89:52'de Moylan kırmızı kart görünce maç durdu ("Değişiklik için: sub ..."). O sırada oturum sunucusu yeniden başladı; dönüşte tarih 8 Oca 2028, lig Sky Bet Championship, transfer dönemi açıktı. Bu, CLI hatasından çok oturum/oyun durumu sıçraması gibi görünüyor; sonraki tur bu kayıttan devam etmeli.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 10)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet Championship
+Oyun tarihi: 17 Temmuz 2027 – 17 Ocak 2028 · 3 maç CLI ile: Lincoln Utd 1-8 (G, hazırlık, `--play --no-talk`), Sheffield Wednesday 0-0 (B, hazırlık, `--instant`), Heracles Almelo 0-1 (M, hazırlık, `--instant`); 4. maç Leeds 2-3 (G, FF Kupası 3. Tur) oturum sıçraması sırasında oyun tarafından oynandı.
+Wickens sözleşmesi 3 yıl uzatıldı (53,5B £ aylık); Thorn Swindon'a kiralandı; Okoro ve Carlisle teklifleri reddedildi. `fm save` çağrılmadı.
+Komut bataryası: 23/23 rc=0 (31 Tem 21:45). Yeniden başlatma sonrası `news 1` rc=1, `inbox` boş, `finances` 300 sn zaman aşımı.
+
+## Bulgular
+
+1. **Sakatlık kartındaki süre ile ekteki süre çelişiyor** — 13 Tem 2027 13:48, `fm reply 1` rc=0: gövde "5 - 6 gün boyunca sahalardan uzak kalacak", Ek: "Diz dönmesi — 1 - 3 gün içinde dönmesi bekleniyor"; 20 Tem 13:55, `fm reply 12` rc=0: gövde "6 - 7 hafta boyunca sahalardan uzak kalacak", Ek: "Diz burkulması — 4 - 7 hafta içinde dönmesi bekleniyor".
+2. **`fm tactic pick` sakat oyuncuyu yedekte bırakıyor, maç uyarıyla duruyor** — 8 Oca 2028 15:00, `fm doctor` rc=0: "Tom Hamer — İç uyluk kasında kopma, 1 gün daha"; `fm tactic pick` rc=0: "İlk 11 seçildi: …"; hemen ardından `fm tactic` rc=0 yedeklerde "Hamer"; `fm status` rc=0: "Dikkat: seçili kadroda sakat var (Hamer); maç onlarla başlamaz."
+3. **Var olan oyuncunun sayfası açılmıyor** — 17 Oca 2028, `fm search Aldridge` rc=0: "Oyuncu Orin Aldridge 19 yaş · D (SğSl), KB (Sğ) · ENG · Lincoln"; aynı dakikada `fm player "Orin Aldridge"` rc=1: "Orin Aldridge için oyuncu sayfası açılmadı." (iki denemede de aynı).
+
+## Köprü
+
+Sunucu yeniden başladığında köprü kilitlendi: `fm status` rc=69 "FM çalışmıyor"; `fm start </dev/null` + son kayıt yüklendi (9 Oca 2028). Dönüşte oyun 8 Oca 2028'deydi (önceki tur notundaki sıçrama). Bu turda `fm next` 9 Oca → 17 Oca arasında Watford 1-2 maçını, 17 Oca → 25 Oca arasında da Derby 3-0 maçını `fm match` çağrılmadan oynattı; 8 Oca Leeds 2-3 de aynı şekilde oynanmıştı. Yeniden başlatma sonrası `fm news 1` rc=1 ("oyun menüsüz bir ekranda (CanContinue)"), `fm inbox` boş döndü, `fm finances` 300 sn'de yanıt vermedi.
