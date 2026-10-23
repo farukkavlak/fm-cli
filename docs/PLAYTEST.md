@@ -74,3 +74,18 @@ Komut bataryası: 22/23 rc=0 (21 Nisan 22:15); `fm player "Lucas" --json` belirs
 ## Köprü
 
 1 May 2027 14:00'te `fm reply 9` → `fm health` → `fm buttons` dizisinden sonra `fm status` ve `fm dialog` 120 sn'de yanıt vermedi. `pkill -9 -f "Football Manager 26"`, `fm start </dev/null`, `fm continue` ile dönüldü; otomatik kayıt 25 Nisan 05:45'e döndüğü için 1 Mayıs maçı yeniden oynandı.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · devam 4)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet League One
+Oyun tarihi: 6–11 Temmuz 2027 · 4 maç: Young Boys 5-4 (G, hazırlık), Crewe 0-3 (D, hazırlık), Vyškov 3-0 (G, Dostluk Kupası), Kayserispor 0-3 (D, Dostluk Kupası)
+Young Boys maçı kaldığı yerden `--play --no-talk`, Crewe ve Vyškov `--instant`, Kayserispor `--play --no-talk`; basın sorularında asistan görevlendirildi, Draper/Thorn teklifleri reddedildi, sakat/cezalı kadro `tactic pick` ile düzeltildi. `fm save` çağrılmadı.
+Komut bataryası: 23/23 rc=0, boş çıktı yok (6 Temmuz 21:00).
+
+## Bulgular
+
+1. **Kaldığı yerden devam eden maçta hayalet fikstür/skor** — 6 Tem 2027 21:00, `fm status` rc=0: "Maçtayız. 66:04 Crewe 0-1 Lincoln"; `fm match --play --no-talk` rc=0 aynı maçı "Maç bitti: Crewe 0-1 Lincoln" diye bitirip hemen ardından "Lincoln 5-4 Young Boys (Hazırlık)" raporunu bastı; sonraki `fm status` yine 6 Tem 21:00 / "Sıradaki maç: Crewe" dedi ve Crewe 7 Tem'de yeniden oynanıp 0-3 bitti.
+2. **Haber gövdesi okunamıyor** — 6 Tem 2027 21:00, `fm news 1` rc=0: "Sezon Öncesi Raporu: Peterborough ... (haberin metni okunamadı)"; başlık ve kaynak var, gövde yok. Aynı gün `news 2`–`4` tam metin bastı.
+3. **Türkçe teklif kartında İngilizce başlık** — 6 Tem 2027 21:05, `fm offers 1 view` rc=0: "Main Details:" ile "Ek ödemeler:", "Bütçeden çıkacak:" aynı kartta karışık; Türkçe arayüzde başlık çevrilmemiş.
