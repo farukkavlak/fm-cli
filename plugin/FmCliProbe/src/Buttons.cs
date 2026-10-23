@@ -677,7 +677,7 @@ internal static class Buttons
 			var type = context.GetIl2CppType().FullName;
 			if (!type.EndsWith("EventToPluginContext", StringComparison.Ordinal)) return null;
 			var shape = ShapeOf(type);
-			var typed = shape.Cast?.Invoke(context, null);
+			var typed = shape.Wrap(context.Pointer);
 			if (shape.Type?.GetProperty("m_dataToSendBinding")?.GetValue(typed) is not BindingPath path || string.IsNullOrEmpty(path.Path)) return null;
 			var parts = path.Path.Split('.', 2);
 			return Nearest(context, parts[0]) is { } value ? (value, parts.Length > 1 ? parts[1] : "") : null;
@@ -735,7 +735,7 @@ internal static class Buttons
 		{
 			var shape = ShapeOf(context.GetIl2CppType().FullName);
 			var id = shape.Type?.GetProperty("m_id", BindingFlags.Public | BindingFlags.Instance);
-			var value = shape.Cast == null ? null : id?.GetValue(shape.Cast.Invoke(context, null))?.ToString();
+			var value = shape.Type == null ? null : id?.GetValue(shape.Wrap(context.Pointer))?.ToString();
 			return string.IsNullOrEmpty(value) || value == "None" ? null : value;
 		}
 		catch { return null; }
@@ -1187,8 +1187,7 @@ internal static class Buttons
 		var shape = ShapeOf(typeName);
 		if (shape.Lists.Length == 0) return null;
 
-		if (shape.Cast == null) return null;
-		var typed = shape.Cast.Invoke(element, null);
+		var typed = shape.Wrap(element.Pointer);
 		if (typed == null) return null;
 
 		var lists = new List<(string, EventList)>();
@@ -1275,7 +1274,7 @@ internal static class Buttons
 		if (shape.Type == null) return;
 
 		object typed;
-		try { typed = shape.Cast.Invoke(context, null); }
+		try { typed = shape.Wrap(context.Pointer); }
 		catch { return; }
 		if (typed == null) return;
 
@@ -1316,8 +1315,19 @@ internal static class Buttons
 	internal sealed class Shape
 	{
 		public Type Type;
-		public MethodInfo Cast;
 		public PropertyInfo[] Lists = new PropertyInfo[0];
+
+		/// <summary>
+		/// The wrapper for a pointer, built through its constructor rather than a reflected
+		/// generic TryCast: the coreclr has crashed in method-name/signature lookup over il2cpp
+		/// wrappers (23 Oct), and a constructor needs neither.
+		/// </summary>
+		public object Wrap(IntPtr pointer)
+		{
+			if (Type == null) return null;
+			try { return Activator.CreateInstance(Type, pointer); }
+			catch { return null; }
+		}
 	}
 
 	private static readonly Dictionary<string, Shape> Shapes = new();
@@ -1336,21 +1346,6 @@ internal static class Buttons
 		if (Wrappers().TryGetValue(il2cppName, out var type))
 		{
 			shape.Type = type;
-			// MakeGenericMethod over an il2cpp wrapper has crashed the game in the coreclr's
-			// method-name lookup (EXC_BAD_ACCESS in StringObject::NewString, 23 Oct); an open
-			// generic or a type whose cast cannot be built is left without one.
-			if (!type.IsGenericType && !type.IsGenericTypeDefinition && !type.ContainsGenericParameters)
-			{
-				try
-				{
-					shape.Cast = typeof(Il2CppObjectBase).GetMethod(nameof(Il2CppObjectBase.TryCast))!.MakeGenericMethod(type);
-				}
-				catch (Exception e)
-				{
-					Plugin.Log?.LogWarning($"[fm-cli] no cast for {il2cppName}: {e.GetType().Name}");
-					shape.Cast = null;
-				}
-			}
 			shape.Lists = type
 				.GetProperties(BindingFlags.Public | BindingFlags.Instance)
 				.Where(p => p.PropertyType == typeof(EventList) && !p.Name.Contains("k__BackingField"))

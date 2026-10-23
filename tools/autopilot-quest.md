@@ -5050,3 +5050,8 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 ## Tur 124 (23 Ekim) — mesaj cevapları TR'de
 - `Options` cevapları `GameWords.Of`tan geçiriyor; `Resolve` ham ve çevrilmiş adı eşliyor. "Leave To Physio" artık
   listede Türkçe. Dosya: `cli/fm/Program.cs`, `docs/FINDINGS.md` §8.387.
+
+## Tur 125 (23 Ekim) — çökmelerin kökü: yansımalı TryCast kaldırıldı
+- `Shape.Wrap(IntPtr)` + `Activator.CreateInstance`; `MakeGenericMethod` hiç kullanılmıyor.
+- Kanıt: UI komut bataryası + Blackburn maçı, health ok, 26 Aralık 21:30.
+- Dosyalar: `plugin/FmCliProbe/src/{Buttons,Elements}.cs`, `docs/FINDINGS.md` §8.388.

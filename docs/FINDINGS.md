@@ -4546,3 +4546,14 @@ Gece testi: sakatlık mesajının seçenekleri `reply` listesinde "1 İğneyle O
 karışık geliyordu; aynı seçenek seçildikten sonra "Fizyoterapist Gözetimine Bırak" olarak çevriliyordu. `Options`
 artık her cevabı `GameWords.Of`tan geçiriyor; metinle seçim de hem ham hem çevrilmiş ada bakıyor (Türkçe adla
 `reply "<mesaj>" "Fizyoterapist..."` de bulunuyor). Sayıyla seçim değişmedi.
+
+### 8.388 Wrapper'lar yansımalı `TryCast` yerine kuruluyor; çökmelerin kökü kapandı (23 Ekim)
+
+İki çökme de (09:42 ve 17:21) aynı yerdeydi: `RuntimeMethodHandle::GetName` / `SignatureNative::GetSignature`
+(libcoreclr), yani `Il2CppObjectBase.TryCast<T>`in `MakeGenericMethod` ile kurulması. Generic türleri atlamak
+yetmedi; çünkü yansıma **generic olmayan** wrapper'larda da imza çözümüne giriyordu. Artık cast hiç kurulmuyor:
+`Shape.Wrap(IntPtr)`, wrapper'ı kendi `(IntPtr)` yapıcısıyla `Activator.CreateInstance` ile oluşturuyor. Tüm
+çağrı yerleri (`Describe`/`AsControl`/`Fields`/`Elements`) buna geçti.
+Kanıt: yeni eklentiyle `status`, `inbox`, `buttons`, `offers`, `tactic`, `schedule`, `responsibilities`, `numbers`,
+`register`, `youth` rc=0; ardından Blackburn maçı (`--instant`) oynandı, `/health` "bindings: ok", oyun 26 Aralık
+21:30'a ilerledi. (Önceki iki çökme raporu da bu yığını gösteriyordu.)

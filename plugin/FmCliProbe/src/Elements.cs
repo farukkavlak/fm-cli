@@ -117,7 +117,7 @@ internal static class Elements
 		if (shape.Type == null || shape.Type.Namespace == null || shape.Type.Namespace.StartsWith("UnityEngine")) return;
 
 		object typed;
-		try { typed = shape.Cast.Invoke(element, null); } catch { return; }
+		try { typed = shape.Wrap(element.Pointer); } catch { return; }
 		if (typed == null) return;
 
 		for (var type = shape.Type; type != null && type.Namespace != null && !type.Namespace.StartsWith("UnityEngine"); type = type.BaseType)
