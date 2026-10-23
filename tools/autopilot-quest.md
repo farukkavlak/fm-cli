@@ -5072,3 +5072,7 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 ## Tur 129 (23 Ekim) — işsizken jobs
 - Managerial Vacancies kartında "Available Jobs" düğmesi tabloyu açıyor; Jobs tablo yoksa basıyor.
 - Kanıt: işsizken 321 ilan. Dosya: `cli/fm/Jobs.cs`, §8.392.
+
+## Tur 130 (23 Ekim) — temiz kullanıcı testi: kurulum 7/7, oyun Steam'siz açılmıyor
+- `fmtest` + `/Users/Shared/FM26` klonu + paket: install/doctor 7/7 ✓.
+- `fm start` oyunu açmadı (Steam yok). Park; VM/ikinci Mac veya Steam oturumu gerekir.

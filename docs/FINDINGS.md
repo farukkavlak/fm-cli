@@ -4592,3 +4592,12 @@ eklentiyi, kendi kendine yeten `fm`yi ve `install.sh`i `dist/fm-cli-osx-arm64.zi
 olarak açılıyor ve "Current Manager" tablosu gelmiyor. Karttaki **"Available Jobs"** düğmesi (OpenPanel) tabloyu
 açıyor. `Jobs` artık tablo yoksa bu düğmeye basıp bekliyor. Kanıt: işsizken `fm jobs` **321 iş ilanı** listeledi
 (Parma, Lincoln, …), `fm jobs "<kulüp>" apply` yolu açık.
+
+### 8.393 Temiz kullanıcı kurulumu 7/7 geçti; oyun ikinci kullanıcıda Steam'siz açılmıyor (23 Ekim)
+
+Yeni bir macOS kullanıcısında (`fmtest`) paket denendi: oyunun APFS klonu `/Users/Shared/FM26` (BepInEx'siz),
+paket `/Users/Shared/fm-cli-osx-arm64.zip`. `install.sh` + `doctor --install` **7/7 ✓** verdi (oyun, BepInEx,
+başlatıcı, gölge paket, eklenti, `fm`, kayıt klasörü). Ancak `fm start` oyunu açamadı: süreç bekledi, oyun
+süreci hiç doğmadı; ikinci kullanıcıda **Steam çalışmıyor** (SteamAPI_Init başarısız) ve oyun başlamıyor.
+Yani kurulum tarafı temiz kullanıcıda çalışıyor; **oyun başlatma** Steam oturumu istiyor. Gerçek "temiz makine"
+testi için VM/ikinci Mac ya da o kullanıcıda Steam kurulumu gerekiyor. Park edildi.

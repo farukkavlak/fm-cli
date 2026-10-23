@@ -1145,8 +1145,10 @@ kısmı sonraya kalabilir. Tahmin (15 Ekim): A+B+C 5–7 gün, D 1–2, H 4–6,
 - [x] **Sürüm koruması (F'nin bir kısmı):** eklenti `/health`te kendi sürümünü (`plugin: 0.2.0`) ve oyununkini
   (`game: 26.3.2.…`, `Application.version`) veriyor; CLI, FM26 dışı bir ana sürümde ya da sürümü okunamayan eski bir
   eklentide komutu çalıştırmadan durup ne yapılacağını söylüyor (§8.374).
-- [ ] **Temiz makinede deneme:** yeni bir macOS kullanıcı hesabında README'yi izleyerek sıfırdan kurulum; çıkan her
-  takılma düzeltilir.
+- [~] **Temiz makinede deneme:** yeni macOS kullanıcısında (`fmtest`) paket denendi; kurulum ve `doctor --install`
+  **7/7 ✓** (oyun klonu `/Users/Shared/FM26`, paket zip). `fm start` oyunu açmadı: ikinci kullanıcıda Steam yok
+  (`SteamAPI_Init` başarısız). Kurulum tarafı doğrulandı; oyun başlatma için VM/ikinci Mac ya da o kullanıcıda Steam
+  oturumu gerekiyor (§8.393).
 - [ ] **Intel Mac:** ilk sürümde "yalnızca Apple Silicon" mu denecek, karar.
 - [x] **README / kılavuz:** README'ye gereksinimler, tek komut kurulum, elle kurulum, `fm doctor --install` ve SDK'sız
   yayın eklendi; geliştirici bilgileri ayrı bölümde. (`docs/manual/KILAVUZ.md` kullanıcı kılavuzu ayrı duruyor.)
