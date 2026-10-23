@@ -164,3 +164,23 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok, metinler Türkçe (JSON anahtar
 1. **`fm reply` "Cevaplandı" diyor ama onay penceresi açık kalıyor, sıradaki `fm match` rc=1** — 23 Ekim 2027 15:00, `fm reply "Kadro Seçim Önerisi: Derby" 1` rc=0: "Cevaplandı: … → Tavsiye Edilen Kadroyla Sahaya Çık" ve "Ama oyun mesajı hâlâ cevap bekliyor gösteriyor."; hemen ardından `fm match --play --no-talk` rc=1: "Oyun bir şey soruyor: Tavsiye Edilen Kadroyla Sahaya Çık … Cevaplamak için: dialog". `fm dialog 2` verilmeden maç başlamıyor; aynı şey 30 Ekim (Sunderland) ve 6 Kasım (Leyton Orient) kadro önerilerinde de oldu.
 2. **Canlı anlatım gol veriyor, maç 0-0 bitiyor** — 23 Ekim 2027, `fm match --play --no-talk` rc=0: "13:31 GOL Lincoln City!!"; aynı çıktıda "Devre arası: Derby 0-0 Lincoln" ve "Maç bitti: Derby 0-0 Lincoln"; `fm report` rc=0 "Derby 0-0 Lincoln" diyor ve gol listesi boş. Gol iptali/ofsayt açıklaması yok.
 3. **Türkçe metinde stadyum adına ikinci kez "Stadı" ekleniyor** — 23 Ekim 2027 16:37, `fm inbox` rc=0: "Pride Park Stadium Stadı'nda taraflar yenişemedi"; 30 Ekim 2027 00:00, `fm inbox` rc=0: "LNER Stadium Stadı'nın büyütülmesi tamamlandı". "Stadium" adının üzerine Türkçe tamlama eki getirilince "Stadium Stadı" oluyor.
+
+---
+
+# Playtest — 2026-10-23 (gece turu · kariyer devam)
+
+Kayıt: `Faruk Kavlak - Fenerbahçe (v03)` · Lincoln City · Sky Bet League One → Championship
+Oyun tarihi: 11 Mar – 3 Nis 2027 · 3 maç: Bristol Rovers 2-8 (D, izlendi), Port Vale 1-0 (G, instant), Sheffield Wednesday 1-2 (G, instant)
+Newcastle (FF Kupası) maçı 89:52'de Moylan'ın kırmızı kartıyla durdu; oturum sunucusu yeniden başladı ve dönüşte oyun 8 Oca 2028'e ilerlemişti (aşağıda tur notu).
+`fm save` çağrılmadı; oyunun otomatik kaydı kullanıldı. Basın toplantısı asistanla geçildi, sakatlıklarda fizyoterapist seçildi, Curtis ve Hackett sözleşmeleri yenilendi.
+Komut bataryası: 22/23 rc=0; `fm jobs` 45 sn'de bitmedi (rc=142), 90 sn'lik ikinci koşuda 318 ilanla rc=0.
+
+## Bulgular
+
+1. **`fm match --instant` eski maçın sonucunu basıyor, `status` oynanan maçı hâlâ "sıradaki" gösteriyor** — 26 Mar 2027 21:15, `fm match --instant` rc=0: "Maç simüle edildi. / Bristol Rovers 2-8 Lincoln ... Ben House (10,0)" — oysa oynanan maç Port Vale'di; aynı dakikada `fm status` hâlâ "Sıradaki maç: Port Vale · iç saha ... (bugün)" dedi; `fm next` sonrası `fm report` "Lincoln 1-0 Port Vale" gösterdi.
+2. **`fm tactic` milli maçta olan oyuncuyu ilk 11'de gösteriyor, uyarı vermiyor** — 26 Mar 2027 20:00, `fm tactic` rc=0: "DML ... Varfolomeev %91"; `fm match --instant` rc=1: "Ivan Varfolomeev ve Ben Waine milli maç görevleri sebebiyle yoklar ve bu maçta kullanılamazlar."; `fm tactic pick` sonrası aynı maç rc=0 oynandı.
+3. **Tek seçenekli haber cevabından sonra "Konuşma açıldı" deniyor ama konuşma yok** — 13 Mar 2027 16:45, `fm reply 15 1` rc=0: "Cevaplandı ... → House'nin Performansını Öv / Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk"; hemen ardından `fm talk` rc=1: "Açık bir konuşma yok." Aynı şey 11 Mar 09:15'te `fm reply 16 1` sonrası da oldu.
+
+## Tur notu
+
+- 3 Nis 2027 12:30 Newcastle maçı `--play --no-talk` ile 4-0'a kadar izlendi; 89:52'de Moylan kırmızı kart görünce maç durdu ("Değişiklik için: sub ..."). O sırada oturum sunucusu yeniden başladı; dönüşte tarih 8 Oca 2028, lig Sky Bet Championship, transfer dönemi açıktı. Bu, CLI hatasından çok oturum/oyun durumu sıçraması gibi görünüyor; sonraki tur bu kayıttan devam etmeli.
