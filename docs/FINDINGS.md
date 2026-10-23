@@ -4576,3 +4576,12 @@ Yönetim bir kez daha "kalmayı düşünür müsünüz?" diye soruyor; komut "gi
 seçiyor. Kanıt (test kaydı): istifa sonrası `fm status` "İşsizsin" dedi, iş ilanları sayfası açıldı.
 **Yeni bulgu:** işsizken `fm jobs` "İş ilanları okunamadı" veriyor; Managerial Vacancies iki kayıt (aynı GUID,
 OpensCard=True) ve kart açıldığında "Current Manager" tablosu gelmiyor. Ayrı iş.
+
+### 8.391 Dağıtım paketi: BepInEx, eklenti, fm ve kurulum tek zip'te (23 Ekim)
+
+`tools/package.sh`, bu makinedeki BepInEx 6 IL2CPP arm64 kurulumunu (klasör + kök başlatıcı dosyaları),
+eklentiyi, kendi kendine yeten `fm`yi ve `install.sh`i `dist/fm-cli-osx-arm64.zip` içinde topluyor (53 MB).
+`install.sh`: BepInEx'i oyun klasörüne açar, eklentiyi `BepInEx/plugins/FmCliProbe/`e koyar, `fm`yi
+`~/.local/bin`e bağlar, gölge paket yoksa `make-shadow.sh` ile kurar ve `fm doctor --install` çalıştırır.
+`NOTICE.txt` BepInEx'in LGPL-2.1 atfını taşır. Temiz makinede denemek için: yeni macOS kullanıcısı aç, zip'i aç,
+`./install.sh`.

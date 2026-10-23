@@ -5064,3 +5064,7 @@ oyunun diline çevrildi. Dosya: `cli/fm/Happiness.cs` (+ `docs/BAGIMLIKLAR.md`, 
 - My Contract → "İstifa Et" (HumanClubResign), dropdown Immediate/End of Season, onay primary, yönetimin
   "kal" sorusuna gitme cevabı. Test kaydında işsiz kaldı.
 - Yeni bulgu: işsizken `fm jobs` tabloyu okuyamıyor (Managerial Vacancies kart olarak açılıyor).
+
+## Tur 128 (23 Ekim) — dağıtım paketi (BepInEx dahil)
+- `tools/package.sh` → `dist/fm-cli-osx-arm64.zip` (53 MB): BepInEx + eklenti + fm + install.sh + NOTICE.
+- install.sh: BepInEx, plugin, fm, gölge paket, doctor. Temiz makine testi için hazır.
