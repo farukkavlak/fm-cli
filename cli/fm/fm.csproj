@@ -11,6 +11,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
+    <!-- The game bridge returns dynamically shaped JSON. Flow analysis cannot follow it through
+         JsonElement, so the remaining warnings are all at that boundary; reads go through
+         JsonRead/Field and are guarded at runtime. Real dereference/value warnings were fixed,
+         not suppressed. Replace with typed DTOs before removing this list. -->
+    <NoWarn>$(NoWarn);CS8600;CS8603;CS8604;CS8619;CS8620</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

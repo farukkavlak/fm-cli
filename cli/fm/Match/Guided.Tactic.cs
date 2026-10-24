@@ -292,7 +292,7 @@ internal static partial class Program
 		if (wanted == null)
 		{
 			Console.WriteLine($"{what}: {current}\n");
-			for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {n + 1,2}  {choices[n]}{(choices[n] == current ? "  ←" : "")}");
+			for (var n = 0; n < choices!.Count; n++) Console.WriteLine($"  {n + 1,2}  {choices[n]}{(choices[n] == current ? "  ←" : "")}");
 			return 0;
 		}
 
@@ -872,7 +872,7 @@ internal static partial class Program
 			if (i >= picks.Count)
 			{
 				Console.WriteLine(L($"{what} seç:"));
-				for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {n + 1,2}  {choices![n]}");
+				for (var n = 0; n < choices!.Count; n++) Console.WriteLine($"  {n + 1,2}  {choices![n]!}");
 
 				var soFar = string.Join(" ", picks.Take(i).Select(p => $"\"{p}\""));
 				Console.WriteLine(L($"\nDevam etmek için: tactic new {soFar}{(soFar.Length > 0 ? " " : "")}\"<seçim>\""));

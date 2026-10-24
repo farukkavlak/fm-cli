@@ -266,7 +266,7 @@ internal static partial class Program
 	private sealed class RowSame : IEqualityComparer<HappyRow>
 	{
 		public static readonly RowSame Instance = new();
-		public bool Equals(HappyRow a, HappyRow b) => a?.Name == b?.Name && a?.Description == b?.Description && a?.Level == b?.Level;
+		public bool Equals(HappyRow? a, HappyRow? b) => a?.Name == b?.Name && a?.Description == b?.Description && a?.Level == b?.Level;
 		public int GetHashCode(HappyRow r) => r.Name.GetHashCode();
 	}
 

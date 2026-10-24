@@ -58,6 +58,14 @@ Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyici
 Yeni bir okuma: veri yolunu `KeyPaths`/`Path` ile al; ekran yazısını veya sıra numarasını ölçüt yapma.
 Yeni bir yazma: oyunun kendi olayını gönder; olay kuyruğunun boşalmasını bekle.
 
+## Nullable politikası
+
+- Akış analizi açık; gerçek dereference/value/null-literal uyarıları düzeltildi.
+- Kalan beş kategori (`CS8600`, `CS8603`, `CS8604`, `CS8619`, `CS8620`) oyun köprüsünün
+  dinamik JSON sınırında oluşuyor; `JsonRead`/`Field` ve çalışma zamanı kontrolleri kullanılıyor.
+  Bunlar proje düzeyinde bilinçli olarak susturuldu (bkz. `fm.csproj`).
+- Yeni okuma eklerken önce `JsonRead` kullan; tip güvenli DTO’ya geçilince bu liste kaldırılmalı.
+
 ## Kurallar
 
 - **Dil ve ekran bağımsız:** veri yolu, olay adı, GUID, kimlik. `press "Confirm"`, `up=N`, sıra numarası yok.

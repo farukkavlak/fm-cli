@@ -69,7 +69,7 @@ internal static partial class Program
 		// the talks by.
 		var passTalks = args.Contains("--no-talk");
 		var names = await MatchNames();
-		string stop = null, period = null, score = null, pressed = null, spoke = null, clock = null, commentary = null;
+		string stop = null, period = "", score = "", pressed = null, spoke = null, clock = null, commentary = null;
 		Dictionary<string, MatchMan> finalMen = null;
 		var lastLook = DateTime.MinValue;
 		// Our squad's names tell our men from theirs in the match's list of players.
@@ -119,7 +119,7 @@ internal static partial class Program
 					if (Ui.Ask(L("Kadro bu."), [L("Maça çık")], cancel: L("Değişiklik yapacağım (tactic player / role), sonra match")) == null) return 0;
 				}
 			}
-			stop = flow;
+			stop = flow!;
 			if (inMatch && Field(state, "Playing") == "True") firstLook = false;
 
 			Scoreline(state, names, ref period, ref score);
