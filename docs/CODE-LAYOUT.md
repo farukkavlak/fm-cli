@@ -53,6 +53,10 @@ Ek bölünmeler:
   yeni odak formu ve kalan komutlar.
 - `Squad/TrainingSchedule.cs` — değiştirme akışı; `TrainingSchedule.Catalogue.cs` — seans kataloğu ve
   “hakkında”; `TrainingSchedule.Calendar.cs` — takvim, ay ve grid okuma.
+- `Core/Saves.cs` — kayıt listesi/tarayıcı; `Saves.SaveAs.cs` — yeni adla kaydetme;
+  `Saves.Files.cs` — silme/yükleme.
+- `Core/Clock.cs` — `next`/açıklama; `Clock.Status.cs` — kaydetme ve durum;
+  `Clock.Fixtures.cs` — fikstür, form, sakatlar ve açık soru.
 
 Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
 Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
