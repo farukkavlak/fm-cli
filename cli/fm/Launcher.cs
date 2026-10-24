@@ -36,6 +36,13 @@ internal static class Launcher
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
 			"Library/Application Support/Steam/steamapps/common", AppName);
 
+	/// <summary>
+	/// Brings the game forward. FM only handles some Continue and UI events while it is the
+	/// active app: a `next` or `press` sent while the terminal is front can queue and wait
+	/// for a frame that never comes (FINDINGS §8.400).
+	/// </summary>
+	public static void Activate() => Osascript($"tell application \"{AppName}\" to activate");
+
 	public static async Task<bool> Start(Bridge fm, bool debug, bool load = true)
 	{
 		// An already-running game is attached to rather than refused: the save may still need

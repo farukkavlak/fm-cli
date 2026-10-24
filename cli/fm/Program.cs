@@ -2428,6 +2428,7 @@ internal static partial class Program
 			return 64;
 		}
 
+		Launcher.Activate();
 		var query = new List<(string, string)> { ("text", words[0]) };
 		if (Option(args, "--name") is { } name) query.Add(("name", name));
 		if (args.Contains("--dry")) query.Add(("dry", "1"));

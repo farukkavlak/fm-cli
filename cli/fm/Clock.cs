@@ -25,6 +25,10 @@ internal static partial class Program
 			return 69;
 		}
 
+		// FM can sit on a Continue press while another app is front; bring it forward first
+		// (FINDINGS §8.400).
+		Launcher.Activate();
+
 		var times = Words(args).Select(w => int.TryParse(w, out var n) ? n : 0).FirstOrDefault(n => n > 0);
 		if (times == 0) times = 1;
 

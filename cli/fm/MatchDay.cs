@@ -35,6 +35,7 @@ internal static partial class Program
 			return 69;
 		}
 
+		Launcher.Activate();
 		var state = await Fm.GetJson("state");
 		var inMatch = Field(state, "DuringMatch") == "True";
 		if (!inMatch && Field(state, "State") is not ("Tactics" or "SubmitTeam" or "SquadNumbers"))

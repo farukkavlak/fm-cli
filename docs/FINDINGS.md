@@ -4666,3 +4666,13 @@ mesajıydı: varsayılan `inbox` (Hepsi) bunu göstermiyordu. Portaldaki **Göre
 açıldı. Yani teklif mesajları Görevler filtresinde saklanabiliyor; `offers` kartı ise cevapsız bir satır
 gösterip bloklayabiliyor. Geçici yol: Görevler sekmesine bas, mesajı `reply` ile reddet. `inbox --all` (arşivdeki mesajlar)
 ve `inbox --tasks` (Görevler filtresini açıp listeler) eklendi.
+
+### 8.400 `next`/`press` oyun ön planda değilken asılı kalabiliyor (2–6 Ekim)
+
+Serie B sezonunda `fm next 8` iki kez **5 dakikadan fazla** çıktı vermeden bekledi; hemen ardından
+`fm status` "İlerlemeye hazır" diyordu ve `fm next 1` çalışıyordu. Aynı anda oyun Terminal'in arkasındaydı.
+`osascript -e 'tell application "Football Manager 26" to activate'` + `fm next 3` ise saniyeler içinde
+döndü. Yani FM, Continue/UI olaylarını yalnız ön plandayken işliyor; `Application.runInBackground`
+yeterli değil. Düzeltme: `Launcher.Activate()` eklendi ve `next`, `press`, `match` başında çağrılıyor.
+`fm next 3` artık elle `osascript` olmadan dönüyor. (Her komutta oyunu öne getirir; CLI zaten oyunu
+yönetmek için kullanılıyor.)
