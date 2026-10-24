@@ -817,6 +817,20 @@ internal static partial class Program
 			return 1;
 		}
 
+		// Offer messages can sit behind the inbox's own Tasks filter, where the default list
+		// does not show them and `offers` has no button to answer (FINDINGS §8.399). Pressing
+		// that filter by its stable element name brings them up.
+		if (args.Contains("--tasks"))
+		{
+			var controls = await Fm.GetJson("buttons", ("json", "1"));
+			var task = controls.EnumerateArray().FirstOrDefault(c => Field(c, "Name") == "TaskMessagesTutorial");
+			if (task.ValueKind == JsonValueKind.Object)
+			{
+				await Fm.Get("press", ("ptr", Field(task, "Pointer")));
+				await Task.Delay(500);
+			}
+		}
+
 		// `--all` reads every message the inbox holds, scrolling its streamed list; the bound
 		// inbox only carries the ones the current page has loaded (ARCHIVED offers, for one).
 		var inbox = args.Contains("--all")
@@ -2611,7 +2625,7 @@ internal static partial class Program
 			  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
 			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
 			  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
-			  inbox [--all]   gelen kutusu (--all: arşivdekiler dahil)
+			  inbox [--all|--tasks]   gelen kutusu (--all: arşiv; --tasks: görevler)
 			  news [#]        basının yazdıkları: haber sitesindeki başlıklar, sayfanın dizdiği sırayla; numarayla haberin tamamı
 			  reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)

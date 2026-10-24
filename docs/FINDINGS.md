@@ -4664,5 +4664,5 @@ süresi dolmak üzere"). Asıl blok, **Görevler** sekmesindeki `Frosinone, Igna
 mesajıydı: varsayılan `inbox` (Hepsi) bunu göstermiyordu. Portaldaki **Görevler (2)** düğmesine basınca
 (`TaskMessagesTutorial`) gelen kutusu o iki göreve indi; mesaj `reply ... 2` ile **reddedildi** ve `next`
 açıldı. Yani teklif mesajları Görevler filtresinde saklanabiliyor; `offers` kartı ise cevapsız bir satır
-gösterip bloklayabiliyor. Geçici yol: Görevler sekmesine bas, mesajı `reply` ile reddet. `inbox --all`
-eklendi (arşivdeki mesajlar için), ama bu Görevler datastore'unu kapsamıyor; ayrı bir `--tasks` gerekir.
+gösterip bloklayabiliyor. Geçici yol: Görevler sekmesine bas, mesajı `reply` ile reddet. `inbox --all` (arşivdeki mesajlar)
+ve `inbox --tasks` (Görevler filtresini açıp listeler) eklendi.
