@@ -30,6 +30,8 @@
 - **Eski rapor:** anında sonuçta son fikstür değişmeden rapor okunmamalı.
 - **Forma numaraları:** sezon başında `SquadNumbers` ekranı `match`i bloklamamalı.
 - **Sakatlık:** tedavi düğmeleri `reply` seçeneklerinde yoksa `buttons` + tam etiketli `press` kullanılmalı.
+- **Eklenti sürümü:** eklenti değişikliği açık oyuna yüklenmez. `/press` "unknown route" (404) dönüyorsa
+  oyun eski eklentiyi taşıyor: `save --yes`, `stop --no-save`, `start`.
 
 ## Bilinen açık uçlar
 
