@@ -155,7 +155,7 @@ internal sealed class OfferScreen
 	// ------------------------------------------------------------------ changing it
 
 	/// <summary>Picks a choice on a term's dropdown; true once the screen shows it.</summary>
-	public static async Task<string> Choose(Bridge fm, Control control, string choice, Func<OfferScreen, Control> after, string route = "offer")
+	public static async Task<string?> Choose(Bridge fm, Control control, string choice, Func<OfferScreen, Control> after, string route = "offer")
 	{
 		// Most of these send their choice on as events; a few (the deadline) only write it.
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("choice", choice), ("fire", "1"));
@@ -183,7 +183,7 @@ internal sealed class OfferScreen
 		return found.Count == 1 ? found[0] : null;
 	}
 
-	public static async Task<string> ChoosePath(Bridge fm, Control control, List<string> path, Func<OfferScreen, Control> after, string route = "offer")
+	public static async Task<string?> ChoosePath(Bridge fm, Control control, List<string> path, Func<OfferScreen, Control> after, string route = "offer")
 	{
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("names", string.Join(">", path)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
@@ -191,7 +191,7 @@ internal sealed class OfferScreen
 	}
 
 	/// <summary>Types an amount into a term's box; the game may round it, so whatever it shows is taken.</summary>
-	public static async Task<string> Type(Bridge fm, Control control, long amount, Func<OfferScreen, Control> after, string route = "offer")
+	public static async Task<string?> Type(Bridge fm, Control control, long amount, Func<OfferScreen, Control> after, string route = "offer")
 	{
 		var said = await fm.Get("setnumber", ("ptr", control.Pointer), ("value", amount.ToString(CultureInfo.InvariantCulture)));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
@@ -199,7 +199,7 @@ internal sealed class OfferScreen
 	}
 
 	/// <summary>Sets how firmly a term is held; the lock's choices are indices.</summary>
-	public static async Task<string> SetLock(Bridge fm, Term term, string lockName, string route = "offer", Func<OfferScreen, Control> after = null)
+	public static async Task<string?> SetLock(Bridge fm, Term term, string lockName, string route = "offer", Func<OfferScreen, Control> after = null)
 	{
 		var index = term.Lock.Choices.IndexOf(lockName);
 		if (index < 0) return L($"'{lockName}' bu şartta yok; seçenekler: {string.Join(", ", term.Lock.Choices)}");
@@ -211,7 +211,7 @@ internal sealed class OfferScreen
 	}
 
 	/// <summary>Puts another term in from a heading's "Add" list.</summary>
-	public static async Task<string> Add(Bridge fm, Term add, string choice, string route = "offer")
+	public static async Task<string?> Add(Bridge fm, Term add, string choice, string route = "offer")
 	{
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
@@ -242,7 +242,7 @@ internal sealed class OfferScreen
 		return data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [];
 	}
 
-	public static async Task<string> Remove(Bridge fm, Term term, string route = "offer")
+	public static async Task<string?> Remove(Bridge fm, Term term, string route = "offer")
 	{
 		var before = (await Read(fm, route))?.Rows.Count ?? int.MaxValue;
 		var said = await fm.Get("click", ("ptr", term.Remove));

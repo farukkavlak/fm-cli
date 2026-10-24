@@ -507,7 +507,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Reads the calendar again until a day's slot shows what was chosen, or a few seconds pass.</summary>
-	private static async Task<string?> ReadSlot(DateTime date, Func<ScheduleDay, string> slot, string expected)
+	private static async Task<string?> ReadSlot(DateTime date, Func<ScheduleDay, string?> slot, string expected)
 	{
 		string? now = null;
 		await Until(async () =>
@@ -520,7 +520,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Opens Portal › Calendar on the month of a day, on its Training tab, and reads the grid.</summary>
-	private static async Task<List<ScheduleDay>> TrainingCalendar(DateTime day)
+	private static async Task<List<ScheduleDay>?> TrainingCalendar(DateTime day)
 	{
 		var opened = await OpenPage(Screen.Calendar);
 		if (opened.StartsWith("error", StringComparison.Ordinal))
@@ -705,7 +705,7 @@ internal static partial class Program
 	/// buttons. A match day's middle button is the competition ("SL", "UEL"). The grid starts on the
 	/// Monday on or before the month's first day; a day out of step ends the reading.
 	/// </summary>
-	private static async Task<List<ScheduleDay>> ReadTrainingGrid(DateTime shown)
+	private static async Task<List<ScheduleDay>?> ReadTrainingGrid(DateTime shown)
 	{
 		var form = (await Fm.GetJson("form", ("anchorpath", "day.DayOfTheMonth"), ("up", "14"), ("buttons", "1"), ("most", "1"))).EnumerateArray().ToList();
 		if (!form.Any(f => Field(f, "Name") == "TrainingFocusCard")) return null;

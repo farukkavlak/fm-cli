@@ -171,7 +171,7 @@ internal static partial class Program
 
 			var promises = now.Stage == "Promises";
 			var items = new List<string>();
-			var actions = new List<Func<Task<string>>>();
+			var actions = new List<Func<Task<string?>>>();
 
 			if (promises && await Labelled("Finalise Promises", TalksButton) != null)
 			{
@@ -252,7 +252,7 @@ internal static partial class Program
 			return outcome;
 		}
 
-		async Task<string> CancelTalks()
+		async Task<string?> CancelTalks()
 		{
 			if (Ui.Ask(L("Görüşme kapanacak; menajer bundan hoşlanmayabilir."), [L("İptal et")], cancel: L("Geri dön")) == null) return null;
 			if (await CallOff() is { } failed) return failed;
@@ -409,7 +409,7 @@ internal static partial class Program
 	/// The talks once their terms are filled in: the screen opens with its rows empty and fills
 	/// them a moment later.
 	/// </summary>
-	private static async Task<OfferScreen> TalksSettled(string? stage = null)
+	private static async Task<OfferScreen?> TalksSettled(string? stage = null)
 	{
 		OfferScreen? screen = null;
 		string? last = null;
