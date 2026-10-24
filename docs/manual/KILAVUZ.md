@@ -9,6 +9,8 @@ sen her şeyi `fm` komutlarıyla yaparsın.
 > `uv run --with pyte tools/manual/drive.py docs/manual/img <sahne>` — sahneler `drive.py`'nin
 > başında, hangi tuşa basılacağı ve ne zaman fotoğraf çekileceğiyle. Bunlar oyunu ilerletir.
 > Bir komut eklenince ya da değişince: görüntüsünü ilgili listeye ekle, buraya bölümünü yaz.
+> Genel ekranlar güncel Empoli kaydından; oyuncu, sözleşme ve teklif örnekleri eski Fenerbahçe
+> kaydından alınmıştır. Sayılar ve isimler temsilîdir; komutların çıktısı aynıdır.
 
 **İçindekiler**
 1. [Başlarken](#1-başlarken)
