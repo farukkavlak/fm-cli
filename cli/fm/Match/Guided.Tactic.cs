@@ -275,7 +275,7 @@ internal static partial class Program
 			return 1;
 		}
 
-		var choices = dropdown.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+		var choices = dropdown.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 		var current = Field(tactic.GetProperty("Tactic"), field);
 
 		if (wanted == null && Ui.Interactive)
@@ -944,7 +944,7 @@ internal static partial class Program
 			.ToList();
 		if (open.Count != 1) return null;
 
-		return open[0].GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+		return open[0].GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 	}
 
 	/// <summary>

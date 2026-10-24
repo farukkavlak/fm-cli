@@ -34,7 +34,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Kopyalanacak yer yok: üç taktik yuvası dolu olabilir (yuvalar için: tactic slot)."));
 			return 1;
 		}
-		var at = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList().IndexOf("Copy Tactic ›");
+		var at = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList().IndexOf("Copy Tactic ›");
 		var tactics = menu.TryGetProperty("Submenus", out var subs) && subs.TryGetProperty(at.ToString(), out var list)
 			? list.EnumerateArray().Select(t => t.GetString() ?? "").ToList()
 			: [];

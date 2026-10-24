@@ -209,7 +209,7 @@ internal static partial class Program
 		async Task<string> Said()
 		{
 			var talk = await Fm.GetJson("talk");
-			return talk.TryGetProperty("Says", out var says) ? string.Join(" ", says.EnumerateArray().Select(l => l.GetString())) : "";
+			return talk.TryGetProperty("Says", out var says) ? string.Join(" ", says.EnumerateArray().Select(l => l.GetString() ?? "")) : "";
 		}
 
 		// Walks the terms with the arrows until the offer is sent (true) or left (false).

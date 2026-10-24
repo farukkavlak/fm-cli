@@ -240,7 +240,7 @@ internal static partial class Program
 			if (picker is { } p && name != null && after.Count >= 3)
 				rows.Add(new NumberRow(name, Field(p, "Label"), before.FirstOrDefault() ?? "", after.ElementAtOrDefault(0) ?? "", after.ElementAtOrDefault(1) ?? "",
 					after.ElementAtOrDefault(2) ?? "", Field(p, "Pointer"), Field(p, "Enabled") == "True",
-					p.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList()));
+					p.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList()));
 			picker = null;
 			name = null;
 			before.Clear();

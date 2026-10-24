@@ -194,7 +194,7 @@ internal static partial class Program
 			{
 				Field(d, "Name"),
 				Field(d, "Label"),
-				string.Join(" · ", d.GetProperty("Choices").EnumerateArray().Select(c => c.GetString())),
+				string.Join(" · ", d.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "")),
 			})
 			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
 			.ToList();

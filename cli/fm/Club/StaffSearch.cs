@@ -92,7 +92,7 @@ internal static partial class Program
 				var list = lists.FirstOrDefault(d => Field(d, "Binds") == RoleRule);
 				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde görev listesi yok")));
 				// Jobs sit one level down, under the department they belong to.
-				var top = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+				var top = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				var jobs = new List<(string Department, string Job)>();
 				if (list.TryGetProperty("Submenus", out var subs) && subs.ValueKind == JsonValueKind.Object)
 					foreach (var sub in subs.EnumerateObject())
@@ -107,7 +107,7 @@ internal static partial class Program
 			{
 				var list = lists.FirstOrDefault(d => Field(d, "Binds") == EmployedRule);
 				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde çalışma durumu listesi yok")));
-				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				if (Choose(choices, employed, L("Çalışma durumu")) is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
@@ -117,7 +117,7 @@ internal static partial class Program
 			{
 				var list = lists.FirstOrDefault(d => Field(d, "Binds") == ReputationRule);
 				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde itibar listesi yok")));
-				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				if (Choose(choices, reputation, L("İtibar")) is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
@@ -319,7 +319,7 @@ internal static partial class Program
 			JsonElement? list = null;
 			await Until(async () => (list = await Under(rule)) != null, seconds: 6, every: 0.4);
 			if (list == null) return await Close(L($"error: arama panelinde '{what}' yok"));
-			var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+			var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 			// A number typed is the choice itself (an age), not its place in the list.
 			var choice = choices.FirstOrDefault(c => string.Equals(c, typed, StringComparison.OrdinalIgnoreCase)) ?? Choose(choices, typed, what);
 			if (choice == null) return await Close("");

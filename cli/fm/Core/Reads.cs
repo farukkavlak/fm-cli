@@ -388,7 +388,7 @@ internal static partial class Program
 		}
 
 		var player = card.GetProperty("Player");
-		var traits = card.GetProperty("Traits").EnumerateArray().Select(t => t.GetString()).ToList();
+		var traits = card.GetProperty("Traits").EnumerateArray().Select(t => t.GetString() ?? "").ToList();
 		// The traits come back in the game's English; show them in the words the game uses.
 		await GameWords.Ask(Fm, [.. traits.Where(t => !string.IsNullOrEmpty(t))]);
 		traits = [.. traits.Select(t => GameWords.Of(t))];

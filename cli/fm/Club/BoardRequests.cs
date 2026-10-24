@@ -112,7 +112,7 @@ internal static partial class Program
 		foreach (var list in (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray().Where(d => Field(d, "Name") == "GenericDropdown"))
 		{
 			var kind = Field(list, "Label");
-			var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+			var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 			var submenus = list.TryGetProperty("Submenus", out var subs) && subs.ValueKind == JsonValueKind.Object ? subs : default;
 			for (var i = 0; i < choices.Count; i++)
 			{

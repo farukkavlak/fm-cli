@@ -61,7 +61,7 @@ internal static partial class Program
 			{
 				var described = menus.Select(m =>
 				{
-					var rows = m.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+					var rows = m.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 					return $"{rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))})";
 				}).ToList();
 				if (Ui.Ask(L("Kim çıksın?"), described) is not { } goingOff) return 0;
@@ -80,7 +80,7 @@ internal static partial class Program
 			Console.WriteLine(L("Sahada:"));
 			foreach (var menu in menus)
 			{
-				var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+				var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				var marks = match.TryGetValue(rows[0] ?? "", out var m) ? m.Marks : "";
 				Console.WriteLine($"  {rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))}){(marks.Length > 0 ? "  " + marks : "")}");
 			}
@@ -120,7 +120,7 @@ internal static partial class Program
 		if (Choose(choices, words[1], L("Giren")) is not { } coming) return 1;
 
 		var row = BenchRow(from);
-		var entry = from.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Select(c => c.GetString()).ToList().IndexOf(coming);
+		var entry = from.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Select(c => c.GetString() ?? "").ToList().IndexOf(coming);
 
 		// A submenu row is written to the menu's bound value and the menu's own events sent
 		// after it, which is what choosing it by hand comes to.
@@ -287,7 +287,7 @@ internal static partial class Program
 				var shown = space > 0 ? $"{name[0]}. {name[(space + 1)..]}" : name;
 				try
 				{
-					var row = (await Fm.GetJson("texts", ("anchor", shown), ("up", "11"))).EnumerateArray().Select(t => t.GetString()).ToList();
+					var row = (await Fm.GetJson("texts", ("anchor", shown), ("up", "11"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
 					if (row.Contains("Inj")) men[name] = man with { Injury = -1 };
 				}
 				catch (FmError) { }

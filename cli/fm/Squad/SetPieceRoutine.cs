@@ -169,7 +169,7 @@ internal static partial class Program
 	}
 
 	private static List<string> Choices(JsonElement menu) =>
-		menu.TryGetProperty("Choices", out var c) ? c.EnumerateArray().Select(x => x.GetString()).ToList() : [];
+		menu.TryGetProperty("Choices", out var c) ? c.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [];
 
 	/// <summary>
 	/// The routine on the page. The texts carry the taker, the aim and each place with its task;
@@ -179,7 +179,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<Routine> ReadRoutine()
 	{
-		var texts = (await Fm.GetJson("texts", ("anchor", "Set Piece Type"), ("up", "10"))).EnumerateArray().Select(t => t.GetString()).ToList();
+		var texts = (await Fm.GetJson("texts", ("anchor", "Set Piece Type"), ("up", "10"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
 		var from = texts.IndexOf("Instructions");
 		if (from < 0) return null;
 		string After(string label) => texts.IndexOf(label) is var i and >= 0 && i + 1 < texts.Count ? texts[i + 1] : null;

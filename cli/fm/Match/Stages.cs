@@ -77,7 +77,7 @@ internal static partial class Program
 		var competition = Field(page.Competition, "Label");
 		var stages = await StageNames(page.Stage);
 		var current = int.TryParse(Field(page.Stage, "Selected"), out var at) ? at : -1;
-		var top = page.Stage.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+		var top = page.Stage.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 		var showing = current >= 0 && current < top.Count ? stages.FirstOrDefault(s => s[0] == top[current]!.TrimEnd(' ', '›')) : null;
 
 		List<List<string>?> wanted;
@@ -248,7 +248,7 @@ internal static partial class Program
 	private static async Task<List<List<string>>> StageNames(JsonElement list)
 	{
 		var stages = new List<List<string>>();
-		foreach (var choice in list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()))
+		foreach (var choice in list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? ""))
 		{
 			if (choice == "xG Table") continue;
 			if (!choice!.EndsWith(" ›", StringComparison.Ordinal))

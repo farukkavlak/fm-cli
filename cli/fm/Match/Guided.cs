@@ -98,7 +98,7 @@ internal static partial class Program
 	}
 
 	private static string Says(JsonElement tour) =>
-		tour.TryGetProperty("Says", out var says) ? string.Join("\n", says.EnumerateArray().Select(l => l.GetString())) : "";
+		tour.TryGetProperty("Says", out var says) ? string.Join("\n", says.EnumerateArray().Select(l => l.GetString() ?? "")) : "";
 
 	/// <summary>The tour's own buttons share labels with the game's, and differ by name.</summary>
 	private static async Task<JsonElement?> TourButton(string label) => await Labelled(label, "StandardButton");
