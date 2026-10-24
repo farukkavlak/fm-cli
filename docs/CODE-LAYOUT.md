@@ -29,7 +29,12 @@
 `Program.cs` yalnız giriş ve yönlendirme taşır. Büyük bloklar sorumluluklarına göre ayrıldı:
 
 - `Program/Program.Squad.cs` — kadro okuma ve görünümleri.
-- `Program/Program.Inbox.cs` — gelen kutusu, cevap, mesaj seçimi.
+- `Program/Program.Inbox.cs` — gelen kutusu ve mesaj seçimi; `Program/Program.Reply.cs` — cevap
+  komutu ve cevap düğmeleri.
+- `Squad/Mentoring.cs` — gruplar, adaylar ve otomatik atama; `Squad/Mentoring.New.cs` — yeni grup
+  akışı, silme ve günlük sınır.
+- `Club/StaffSearch.cs` — personel arama komutu; `StaffSearch.Catalog.cs` — mevki/öznitelik adları;
+  `StaffSearch.Rules.cs` — arama kurallarını gönderme ve sonuç okuma.
 - `Program/Program.Messages.cs` — mesaj gövdesi, ekler, sözleşme/teklif kartı.
 - `Program/Program.Ui.cs` — buton, sayfa, dropdown, terminal yardımcıları.
 
