@@ -268,7 +268,7 @@ internal static partial class Program
 		await Until(async () => (list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			.Where(d => Field(d, "Name") == "dropdown-base-no-background")
 			.Cast<JsonElement?>()
-			.FirstOrDefault(d => d.Value.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == marker))) != null, seconds: 8);
+			.FirstOrDefault(d => d!.Value.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == marker))) != null, seconds: 8);
 		if (list is not { } dropdown)
 		{
 			Console.Error.WriteLine(L($"{what} listesi taktik ekranında bulunamadı."));
@@ -693,17 +693,17 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> MatchList(string what, Func<JsonElement, bool> which, string wanted, bool dry, bool events)
 	{
-		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => which(d.Value));
+		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => which(d!.Value));
 		if (list == null)
 		{
 			Console.Error.WriteLine(L($"Maç ekranında {what.ToLowerInvariant()} listesi yok."));
 			return 1;
 		}
-		var choices = list.Value.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
-		var current = Field(list.Value, "Label");
+		var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
+		var current = Field(list!.Value, "Label");
 
 		// After a shout the game shuts the list for a while; choosing from it then does nothing.
-		if (Field(list.Value, "Enabled") != "True")
+		if (Field(list!.Value, "Enabled") != "True")
 		{
 			Console.Error.WriteLine(events
 				? L("Oyuncular az önce bir bağırış duydu; oyun yeni bağırışa bir süre izin vermiyor.")
@@ -729,7 +729,7 @@ internal static partial class Program
 			Console.WriteLine(L($"(kuru) {what}: {hit[0]}"));
 			return 0;
 		}
-		var said = await Fm.Get("select", ("ptr", Field(list.Value, "Pointer")), ("path", choices.IndexOf(hit[0]).ToString()), ("fire", events ? "1" : "0"));
+		var said = await Fm.Get("select", ("ptr", Field(list!.Value, "Pointer")), ("path", choices.IndexOf(hit[0]).ToString()), ("fire", events ? "1" : "0"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
 		// A shout that reached the players closes the list behind it: the one sign of it on screen.
@@ -810,7 +810,7 @@ internal static partial class Program
 
 			if (tile != null)
 			{
-				await Fm.Get("press", ("ptr", Field(tile.Value, "Pointer")));
+				await Fm.Get("press", ("ptr", Field(tile!.Value, "Pointer")));
 				await Until(async () => (stage = await CreatorStage()) != null, seconds: 12);
 			}
 			else
@@ -822,7 +822,7 @@ internal static partial class Program
 				JsonElement? create = null;
 				await Until(async () => (create = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 					.Cast<JsonElement?>()
-					.FirstOrDefault(d => d.Value.TryGetProperty("Choices", out var cs) && cs.ValueKind == JsonValueKind.Array && cs.EnumerateArray().Any(c => c.ValueKind == JsonValueKind.String && c.GetString() == "Create New Tactic"))) != null, seconds: 10);
+					.FirstOrDefault(d => d!.Value.TryGetProperty("Choices", out var cs) && cs.ValueKind == JsonValueKind.Array && cs.EnumerateArray().Any(c => c!.ValueKind == JsonValueKind.String && c.GetString() == "Create New Tactic"))) != null, seconds: 10);
 				if (create == null)
 				{
 					Console.Error.WriteLine(L("Yeni taktik kurulamıyor: üç taktik yuvası dolu (oyun 'Create New Tactic' vermiyor). Bir yuvaya geçip oyunda boşaltmak gerek; yuvalar için: tactic slot"));
@@ -872,7 +872,7 @@ internal static partial class Program
 			if (i >= picks.Count)
 			{
 				Console.WriteLine(L($"{what} seç:"));
-				for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {n + 1,2}  {choices[n]}");
+				for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {n + 1,2}  {choices![n]}");
 
 				var soFar = string.Join(" ", picks.Take(i).Select(p => $"\"{p}\""));
 				Console.WriteLine(L($"\nDevam etmek için: tactic new {soFar}{(soFar.Length > 0 ? " " : "")}\"<seçim>\""));
@@ -901,7 +901,7 @@ internal static partial class Program
 				return 1;
 			}
 
-			await Fm.Get("press", ("ptr", Field(button.Value, "Pointer")));
+			await Fm.Get("press", ("ptr", Field(button!.Value, "Pointer")));
 
 			// A press can be swallowed — during the tactics tour the first Confirm went nowhere
 			// and a second one went through — so the button is pressed once more before giving up.

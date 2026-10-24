@@ -63,16 +63,16 @@ internal static partial class Program
 			JsonElement? list = null;
 			// A list's choices fill one by one as the question comes in: it is read once none is blank.
 			if (!await Until(async () => (list = await Question(previous)) != null
-			                             && list.Value.GetProperty("Choices").EnumerateArray().All(c => c.GetString() is { Length: > 0 }), seconds: 10, every: 0.25))
+			                             && list!.Value.GetProperty("Choices").EnumerateArray().All(c => c.GetString() is { Length: > 0 }), seconds: 10, every: 0.25))
 			{
 				Console.Error.WriteLine(L($"{step + 1}. sorunun seçenekleri gelmedi."));
 				return 1;
 			}
 
-			var choices = list.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
+			var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
 			previous = string.Join("|", choices);
 
-			var current = int.TryParse(Field(list.Value, "Selected"), out var index) && index >= 0 && index < choices.Count ? choices[index] : null;
+			var current = int.TryParse(Field(list!.Value, "Selected"), out var index) && index >= 0 && index < choices.Count ? choices[index] : null;
 			var pick = current;
 			if (step < picks.Count && Choose(choices, picks[step], L($"{step + 1}. soru")) is var asked)
 			{
@@ -106,7 +106,7 @@ internal static partial class Program
 
 			if (pick != null && pick != current)
 			{
-				var selected = await Fm.Get("select", ("ptr", Field(list.Value, "Pointer")), ("choice", pick));
+				var selected = await Fm.Get("select", ("ptr", Field(list!.Value, "Pointer")), ("choice", pick));
 				if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
 			}
 
@@ -135,7 +135,7 @@ internal static partial class Program
 			(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 				.Where(d => Field(d, "Name") == "Option" && d.GetProperty("Choices").GetArrayLength() > 0)
 				.Cast<JsonElement?>()
-				.FirstOrDefault(d => string.Join("|", d.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString())) != answered);
+				.FirstOrDefault(d => string.Join("|", d!.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString())) != answered);
 	}
 
 	private static async Task<JsonElement?> Named(string name)

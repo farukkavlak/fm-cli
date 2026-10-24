@@ -540,7 +540,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return false; }
 		// The button is drawn a moment after the page; clicked, not queued — its action is code.
 		var clicked = await ClickOptional(CreateFocusIcon);
-		if (clicked.StartsWith("error", StringComparison.Ordinal))
+		if ((clicked ?? "").StartsWith("error", StringComparison.Ordinal))
 		{
 			// The page does not always offer it (FINDINGS §8.120); the assignments panel behind
 			// "Assignments (n)" has the same create action and opens the same form.
@@ -551,7 +551,7 @@ internal static partial class Program
 				clicked = await ClickOptional(CreateFocusIcon);
 			}
 		}
-		if (clicked.StartsWith("error", StringComparison.Ordinal))
+		if ((clicked ?? "").StartsWith("error", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine(L("Oyun şu an yeni odak açtırmıyor: ne odak sayfasında ne görevler panelinde yeni odak düğmesi var."));
 			return false;
@@ -694,7 +694,7 @@ internal static partial class Program
 			else if (Choose(existing.Select(f => f.Name).Distinct().ToList(), which, L("Odak")) is { } wanted) editing = existing.First(f => f.Name == wanted);
 			else return 64;
 			if (await FocusAt(editing.Index) is not { } shown || shown.Name != editing.Name
-				|| (await ClickOptional(EditFocusIcon, seconds: 5)).StartsWith("error", StringComparison.Ordinal)
+				|| ((await ClickOptional(EditFocusIcon, seconds: 5)) ?? "").StartsWith("error", StringComparison.Ordinal)
 				|| !await Until(async () => await FormStep() == "next", seconds: 8, every: 0.5))
 			{
 				Console.Error.WriteLine(L($"Oyun '{editing.Name}' için düzenlemeyi açmadı."));
@@ -718,7 +718,7 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"Mevki: '{position}' yok. Seçenekler: {string.Join(" · ", labels.Distinct())}"));
 				return 64;
 			}
-			await Fm.Get("click", ("ptr", Field(FormButton(form, label).Value, "Pointer")));
+			await Fm.Get("click", ("ptr", Field(FormButton(form, label)!.Value, "Pointer")));
 			// Step one is still on screen and the game has taken the position: the step's own
 			// button, which was offering nothing, is open (FocusSteps + the form read).
 			await Until(async () => (form = await FocusForm("Next")).Count > 0 && await FormStep() == "next", seconds: 5, every: 0.4);
@@ -732,7 +732,7 @@ internal static partial class Program
 					await AbandonFocus();
 					return 64;
 				}
-				await Fm.Get("select", ("ptr", Field(roles.Value, "Pointer")), ("choice", picked), ("fire", "1"));
+				await Fm.Get("select", ("ptr", Field(roles!.Value, "Pointer")), ("choice", picked), ("fire", "1"));
 				chosen.Add(picked);
 			}
 		}
@@ -821,13 +821,13 @@ internal static partial class Program
 		foreach (var (heading, typed) in new[] { ("Minimum Current Ability", ability), ("Minimum Potential Ability", potential) })
 		{
 			if (typed == null) continue;
-			if (!await SetStars(heading, StarSteps(typed).Value))
+			if (!await SetStars(heading, StarSteps(typed)!.Value))
 			{
 				await AbandonFocus();
 				Console.Error.WriteLine(L($"{heading}: {typed} yıldıza getirilemedi."));
 				return 1;
 			}
-			chosen.Add($"{(heading.Contains("Current") ? L("yetenek") : L("potansiyel"))} ≥ {StarSteps(typed).Value / 2.0:0.#}★");
+			chosen.Add($"{(heading.Contains("Current") ? L("yetenek") : L("potansiyel"))} ≥ {StarSteps(typed)!.Value / 2.0:0.#}★");
 		}
 		var (tabName, tabWord) = priority == null ? (null, null) : tabs[Fold(priority)];
 		if (tabName != null)
@@ -889,7 +889,7 @@ internal static partial class Program
 				return 1;
 			}
 			if (ages != null) chosen.Add(L($"{ages.Groups[1].Value}–{ages.Groups[2].Value} yaş"));
-			Console.WriteLine(L($"Odak güncellendi: {name ?? editing.Name} · {string.Join(" · ", chosen)}\n(oyun eski halini listede 'Complete' olarak bırakır)"));
+			Console.WriteLine(L($"Odak güncellendi: {name ?? editing!.Name} · {string.Join(" · ", chosen)}\n(oyun eski halini listede 'Complete' olarak bırakır)"));
 			return 0;
 		}
 		// Made once the form is gone and the list of focuses is one longer.
@@ -912,7 +912,7 @@ internal static partial class Program
 		var focuses = new List<Focus>();
 		JsonElement? list = null;
 		if (!await Until(async () => (list = await FocusList()) != null, seconds: 8, every: 0.5)) return focuses;
-		for (var index = 0; index < list.Value.GetProperty("Choices").GetArrayLength(); index++)
+		for (var index = 0; index < list!.Value.GetProperty("Choices").GetArrayLength(); index++)
 			if (await FocusAt(index) is { } focus) focuses.Add(focus);
 		return focuses;
 	}
@@ -982,7 +982,7 @@ internal static partial class Program
 		if (restart)
 		{
 			var started = await PressPageButton(RestartEvent);
-			if (started.StartsWith("error", StringComparison.Ordinal))
+			if ((started ?? "").StartsWith("error", StringComparison.Ordinal))
 			{
 				Console.Error.WriteLine(L($"Oyun '{shown.Name}' için 'Restart Recruitment Focus' sunmuyor (FINDINGS §8.120: buton her zaman çıkmıyor)."));
 				return 1;
@@ -1010,7 +1010,7 @@ internal static partial class Program
 		var clicked = await PressPageButton(RemoveEvent);
 		// The page does not always have the button (FINDINGS §8.120); the assignments panel lists
 		// each scout's focuses with a remove icon beside them.
-		if (clicked.StartsWith("error", StringComparison.Ordinal) && !await RemoveInAssignments(shown.Name))
+		if ((clicked ?? "").StartsWith("error", StringComparison.Ordinal) && !await RemoveInAssignments(shown.Name))
 		{
 			Console.Error.WriteLine(L($"Oyun '{shown.Name}' için kaldırmayı sunmuyor: ne odak sayfasında ne görevler panelinde bir kaldır butonu var."));
 			return 1;

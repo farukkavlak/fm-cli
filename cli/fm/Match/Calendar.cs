@@ -127,7 +127,7 @@ internal static partial class Program
 		await Until(async () => (list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			.FirstOrDefault(d => Field(d, "Name") == "MonthDropdown")).ValueKind == JsonValueKind.Object
 			&& list.GetProperty("Choices").GetArrayLength() > 0, seconds: 8, every: 0.5);
-		if (list.ValueKind != JsonValueKind.Object)
+		if (list!.ValueKind != JsonValueKind.Object)
 		{
 			Console.Error.WriteLine(L("Takvim sayfasında ay seçici yok."));
 			return null;
@@ -159,7 +159,7 @@ internal static partial class Program
 				await Until(async () =>
 				{
 					list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Name") == "MonthDropdown");
-					var now = list.ValueKind == JsonValueKind.Object ? Field(list, "Selected") : "";
+					var now = list!.ValueKind == JsonValueKind.Object ? Field(list, "Selected") : "";
 					var settled = now.Length > 0 && now != before && now == previous;
 					previous = now;
 					return settled;

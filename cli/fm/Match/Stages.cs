@@ -73,14 +73,14 @@ internal static partial class Program
 			}
 		}
 
-		var page = (await StageLists()).Value;
+		var page = (await StageLists())!.Value;
 		var competition = Field(page.Competition, "Label");
 		var stages = await StageNames(page.Stage);
 		var current = int.TryParse(Field(page.Stage, "Selected"), out var at) ? at : -1;
 		var top = page.Stage.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()).ToList();
-		var showing = current >= 0 && current < top.Count ? stages.FirstOrDefault(s => s[0] == top[current].TrimEnd(' ', '›')) : null;
+		var showing = current >= 0 && current < top.Count ? stages.FirstOrDefault(s => s[0] == top[current]!.TrimEnd(' ', '›')) : null;
 
-		List<List<string>> wanted;
+		List<List<string>?> wanted;
 		if (all) wanted = stages;
 		else if (words.Count > 1)
 		{
@@ -105,7 +105,7 @@ internal static partial class Program
 				var picked = await PickStage(stage);
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
 			}
-			var name = stage != null ? string.Join(" › ", stage) : showing != null ? string.Join(" › ", showing) : Field((await StageLists()).Value.Stage, "Label");
+			var name = stage != null ? string.Join(" › ", stage) : showing != null ? string.Join(" › ", showing) : Field((await StageLists())!.Value.Stage, "Label");
 			var (ties, table, note) = await StageContent();
 
 			// With no stage named, a cup opens on a round that is yet to be drawn; the last one
@@ -189,7 +189,7 @@ internal static partial class Program
 			// The stage list is the one that ends in the xG table; until it is there the page
 			// is still being built, and the list after the competition's is the season's.
 			var stage = lists.Skip(i + 1).FirstOrDefault(l => l.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "xG Table"));
-			if (stage.ValueKind != JsonValueKind.Object) return null;
+			if (stage!.ValueKind != JsonValueKind.Object) return null;
 			return (lists[i], stage);
 		}
 		return null;
@@ -251,14 +251,14 @@ internal static partial class Program
 		foreach (var choice in list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString()))
 		{
 			if (choice == "xG Table") continue;
-			if (!choice.EndsWith(" ›", StringComparison.Ordinal))
+			if (!choice!.EndsWith(" ›", StringComparison.Ordinal))
 			{
 				stages.Add([choice]);
 				continue;
 			}
 			var parent = choice[..^2];
 			foreach (var child in (await Fm.GetJson("menu", ("ptr", Field(list, "Pointer")), ("names", parent))).EnumerateArray())
-				stages.Add([parent, child.GetString().TrimEnd(' ', '›')]);
+				stages.Add([parent, (child.GetString() ?? "").TrimEnd(' ', '›')]);
 		}
 		return stages;
 	}
@@ -276,7 +276,7 @@ internal static partial class Program
 			if (Field(row, "ShortName") is { Length: > 0 } code && Field(row, "Name") is { Length: > 3 } name) names.TryAdd(code, name);
 		var rows = table.EnumerateArray().Select(row =>
 		{
-			var fields = row.EnumerateObject().ToDictionary(f => f.Name, f => f.Value.ToString());
+			var fields = row.EnumerateObject().ToDictionary(f => f.Name, f => f!.Value.ToString());
 			var name = fields.GetValueOrDefault("Name", "");
 			if (name.Length is > 0 and <= 3 && fields.GetValueOrDefault("ShortName", "") is { Length: > 0 } code && code != name)
 			{
@@ -335,7 +335,7 @@ internal static partial class Program
 			return match.Success ? match.Value : null;
 		}
 		var note = (await Fm.GetJson("texts", ("anchor", stage), ("up", "12"))).EnumerateArray()
-			.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() ?? "" : "")
+			.Select(t => t!.ValueKind == JsonValueKind.String ? t.GetString() ?? "" : "")
 			.Select(DateIn)
 			.FirstOrDefault(date => date != null);
 		// A round not drawn yet keeps the ties of the round read before it drawn and bound
@@ -359,7 +359,7 @@ internal static partial class Program
 	private static async Task<JsonElement> EveryTie(JsonElement first)
 	{
 		static string Key(JsonElement tie) => Field(tie, "Home") + "|" + Field(tie, "Away");
-		async Task<string> Scroll(JsonElement shown, string to)
+		async Task<string?> Scroll(JsonElement shown, string? to)
 		{
 			// The list is moved by a text that is in it; a club's name can also be elsewhere on
 			// the screen, so the first one that answers as a list is used.
@@ -450,7 +450,7 @@ internal static partial class Program
 			await OpenPage(Screen.Stages);
 			if (!await Until(async () => await StageLists() != null, seconds: 10, every: 0.5)) return [];
 		}
-		var list = Field((await StageLists()).Value.Competition, "Pointer");
+		var list = Field((await StageLists())!.Value.Competition, "Pointer");
 		var found = new List<string[]>();
 		async Task Walk(List<string> path, int depth)
 		{
@@ -459,7 +459,7 @@ internal static partial class Program
 			try { children = await Fm.GetJson("menu", ("ptr", list), ("names", string.Join(">", path))); }
 			catch (Exception e) when (e is FmError or JsonException) { return; }
 			if (children.ValueKind != JsonValueKind.Array) return;
-			foreach (var child in children.EnumerateArray().Select(c => c.GetString()))
+			foreach (var child in children.EnumerateArray().Select(c => c.GetString() ?? ""))
 			{
 				if (child.EndsWith(" ›", StringComparison.Ordinal)) await Walk([.. path, child[..^2]], depth + 1);
 				else found.Add([.. path, child]);

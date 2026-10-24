@@ -10,7 +10,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record BoardRequest(string Kind, string Name, string List, string Parent);
+	private sealed record BoardRequest(string Kind, string Name, string? List, string? Parent);
 
 	private static async Task<int> BoardRequests(bool json, string[] args)
 	{
@@ -87,7 +87,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{shown}: istendi ama yönetimden bir cevap gelmedi."));
 			return 1;
 		}
-		var lines = talk.GetProperty("Says").EnumerateArray().Select(s => s.GetString()).Where(s => !s.StartsWith("»", StringComparison.Ordinal)).ToList();
+		var lines = talk.GetProperty("Says").EnumerateArray().Select(s => s.GetString() ?? "").Where(s => !s.StartsWith("»", StringComparison.Ordinal)).ToList();
 		var answers = talk.GetProperty("Answers").EnumerateArray().Select(a => Field(a, "Label")).ToList();
 		if (json) Console.WriteLine(JsonOut.Of(new { Request = shown, Says = lines, Answers = answers }));
 		else
@@ -116,14 +116,14 @@ internal static partial class Program
 			var submenus = list.TryGetProperty("Submenus", out var subs) && subs.ValueKind == JsonValueKind.Object ? subs : default;
 			for (var i = 0; i < choices.Count; i++)
 			{
-				if (!choices[i].EndsWith(" ›", StringComparison.Ordinal))
+				if (!choices[i]!.EndsWith(" ›", StringComparison.Ordinal))
 				{
 					requests.Add(new(kind, choices[i], Field(list, "Pointer"), null));
 					continue;
 				}
 				if (submenus.ValueKind != JsonValueKind.Object || !submenus.TryGetProperty(i.ToString(), out var children)) continue;
 				foreach (var child in children.EnumerateArray())
-					requests.Add(new(kind, child.GetString(), Field(list, "Pointer"), choices[i][..^2]));
+					requests.Add(new(kind, child.GetString() ?? "", Field(list, "Pointer"), choices[i]![..^2]));
 			}
 		}
 		if (requests.Count == 0) return requests;

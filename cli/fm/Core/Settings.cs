@@ -201,7 +201,7 @@ internal static partial class Program
 				}
 				return 0;
 			}
-			target = asked.Value;
+			target = asked!.Value;
 		}
 		else
 		{
@@ -310,7 +310,7 @@ internal static partial class Program
 			if (await PreferencesTile() is not { } tile)
 			{
 				var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
-				if (menu.ValueKind != JsonValueKind.Object)
+				if (menu!.ValueKind != JsonValueKind.Object)
 				{
 					Console.Error.WriteLine(await FmMenuMissing());
 					return null;

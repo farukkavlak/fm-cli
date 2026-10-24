@@ -1012,7 +1012,7 @@ internal static partial class Program
 			await Until(async () =>
 			{
 				var found = await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", up.ToString()), ("paths", "1"), ("most", "1"));
-				if (found.ValueKind != JsonValueKind.Array) return false;
+				if (found!.ValueKind != JsonValueKind.Array) return false;
 				page = found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 				return Ours() && page.Any(wanted);
 			}, seconds: seconds, every: 0.3);

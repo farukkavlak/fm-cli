@@ -92,7 +92,7 @@ internal static partial class Program
 					return 1;
 				}
 
-				await Fm.Get("click", ("ptr", Field(button.Value, "Pointer")));
+				await Fm.Get("click", ("ptr", Field(button!.Value, "Pointer")));
 				answered = key;
 				continue;
 			}
@@ -141,12 +141,12 @@ internal static partial class Program
 		Console.WriteLine();
 		try
 		{
-			if (await MatchReport.Show(Fm, json: false, expected: afterScore) != 0 && played.ValueKind == JsonValueKind.Object)
+			if (await MatchReport.Show(Fm, json: false, expected: afterScore) != 0 && played!.ValueKind == JsonValueKind.Object)
 				Console.WriteLine(L($"{Field(played, "ShortName")} maçı {Field(played, "Result")}"));
 		}
 		catch (FmError)
 		{
-			if (played.ValueKind == JsonValueKind.Object) Console.WriteLine(L($"{Field(played, "ShortName")} maçı {Field(played, "Result")}"));
+			if (played!.ValueKind == JsonValueKind.Object) Console.WriteLine(L($"{Field(played, "ShortName")} maçı {Field(played, "Result")}"));
 		}
 
 		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);

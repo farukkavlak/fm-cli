@@ -190,7 +190,7 @@ internal static partial class Program
 	{
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
 		var kept = buttons.FirstOrDefault(b => Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
-		if (kept.ValueKind != JsonValueKind.Object)
+		if (kept!.ValueKind != JsonValueKind.Object)
 			return "error: " + L(keep ? "Bütçe kartını onaylayan düğme bulunamadı." : "Bütçe kartını kapatan düğme bulunamadı.");
 		if (keep) return await Fm.Get("click", ("ptr", Field(kept, "Pointer")));
 

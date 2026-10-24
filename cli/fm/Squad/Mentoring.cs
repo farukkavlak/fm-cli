@@ -72,7 +72,7 @@ internal static partial class Program
 		JsonElement list;
 		try { list = await Fm.Pull("Human.Team.MentoringGroups", "Name", list: true); }
 		catch (FmError) { return null; }
-		if (list.ValueKind != JsonValueKind.Array) return null;
+		if (list!.ValueKind != JsonValueKind.Array) return null;
 		var rows = list.EnumerateArray().Select(g => (Name: Field(g, "Name"), Row: Field(g, "Row"))).ToList();
 		var read = await PullEach(rows.SelectMany(g => MentoringPlaces.Select(p => ($"{g.Row}.{p}", "Name,UniqueId,Personality"))).ToList());
 		return rows.Select((g, at) => new MentoringGroup(g.Name, g.Row, read.Skip(at * MentoringPlaces.Length).Take(MentoringPlaces.Length)
@@ -162,11 +162,11 @@ internal static partial class Program
 	/// <summary>The group list on the page: the radio group bound to the group the page shows.</summary>
 	private static async Task<JsonElement?> MentoringGroupList() =>
 		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-			.FirstOrDefault(d => Field(d.Value, "Binds") == "selectedmentoringgroup");
+			.FirstOrDefault(d => Field(d!.Value, "Binds") == "selectedmentoringgroup");
 
 	private static async Task<JsonElement?> MentoringEditorButton(string sends) =>
 		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-			.FirstOrDefault(b => Field(b.Value, "Page") == Screen.MentoringEditor && Field(b.Value, "Events").Split(", ").Contains(sends));
+			.FirstOrDefault(b => Field(b!.Value, "Page") == Screen.MentoringEditor && Field(b!.Value, "Events").Split(", ").Contains(sends));
 
 	/// <summary>
 	/// The players the editor offers, in the order its table shows them, read from the table's own
@@ -180,7 +180,7 @@ internal static partial class Program
 		JsonElement offered;
 		try { offered = await Fm.Pull($"{group}.PlayersAvailableForMentoring", "UniqueId", list: true); }
 		catch (FmError) { return (null, []); }
-		var ids = offered.ValueKind == JsonValueKind.Array ? offered.EnumerateArray().Select(p => Field(p, "UniqueId")).ToHashSet() : [];
+		var ids = offered!.ValueKind == JsonValueKind.Array ? offered.EnumerateArray().Select(p => Field(p, "UniqueId")).ToHashSet() : [];
 		if (ids.Count == 0) return (null, []);
 
 		string[] props = ["UniqueId", "Name", "Age", "PlayerTraining.Workload", "Personality", "HierarchyInfluenceCategoryString"];
@@ -203,7 +203,7 @@ internal static partial class Program
 	{
 		var found = (await Fm.GetJson("checkrows", ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
 			.FirstOrDefault(t => Field(t, "Table") == table);
-		if (found.ValueKind != JsonValueKind.Object) return [];
+		if (found!.ValueKind != JsonValueKind.Object) return [];
 		var items = found.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").ToList();
 		return (await PullEach(items.Select(i => (i, "UniqueId")).ToList())).Select(r => Field(r, "UniqueId")).ToList();
 	}
@@ -344,7 +344,7 @@ internal static partial class Program
 			try
 			{
 				var list = await Fm.Pull($"{group}.SelectedPlayers", "UniqueId", list: true);
-				return list.ValueKind == JsonValueKind.Array ? list.EnumerateArray().Select(p => Field(p, "UniqueId")).ToList() : [];
+				return list!.ValueKind == JsonValueKind.Array ? list.EnumerateArray().Select(p => Field(p, "UniqueId")).ToList() : [];
 			}
 			catch (FmError) { return []; }
 		}

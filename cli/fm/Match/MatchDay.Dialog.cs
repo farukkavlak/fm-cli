@@ -74,7 +74,7 @@ internal static partial class Program
 	/// <summary>The "Confirm Changes" button the match screen shows while it waits at a stop, if it does.</summary>
 	private static JsonElement? ConfirmChanges(JsonElement controls) =>
 		controls.EnumerateArray().Cast<JsonElement?>()
-			.FirstOrDefault(c => Field(c.Value, "Label") == "Confirm Changes" && Field(c.Value, "Enabled") == "True");
+			.FirstOrDefault(c => Field(c!.Value, "Label") == "Confirm Changes" && Field(c!.Value, "Enabled") == "True");
 
 	/// <summary>
 	/// The button that takes the match on from a stop: "Confirm Changes". It is greyed out until the
@@ -87,8 +87,8 @@ internal static partial class Program
 	{
 		if (ConfirmChanges(controls) is { } confirm) return confirm;
 		var all = controls.EnumerateArray().Cast<JsonElement?>().ToList();
-		return all.FirstOrDefault(c => Field(c.Value, "Label") == "Confirm Changes")
-			?? all.FirstOrDefault(c => Field(c.Value, "Label") == "Cancel" && Field(c.Value, "Enabled") == "True"
-				&& Field(c.Value, "Events").Contains("MatchOpenTactics", StringComparison.Ordinal));
+		return all.FirstOrDefault(c => Field(c!.Value, "Label") == "Confirm Changes")
+			?? all.FirstOrDefault(c => Field(c!.Value, "Label") == "Cancel" && Field(c!.Value, "Enabled") == "True"
+				&& Field(c!.Value, "Events").Contains("MatchOpenTactics", StringComparison.Ordinal));
 	}
 }

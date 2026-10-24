@@ -56,7 +56,7 @@ internal static partial class Program
 		var months = (await Fm.Pull("Human.Club.FinanceBalanceHistory", "GraphPointX,GraphPointY", list: true)).EnumerateArray()
 			.Select(r => (Day: DateTime.TryParse(Field(r, "GraphPointX"), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var d) ? d : (DateTime?)null, Balance: Field(r, "GraphPointY")))
 			.Where(r => r.Day != null).OrderBy(r => r.Day).TakeLast(3)
-			.Select(r => (Month: $"{Months[r.Day.Value.Month - 1]} {r.Day.Value.Year}", Balance: Pounds(r.Balance))).ToList();
+			.Select(r => (Month: $"{Months[r.Day!.Value.Month - 1]} {r.Day!.Value.Year}", Balance: Pounds(r.Balance))).ToList();
 
 		var income = PoundsShort(Field(club, "TotalIncomeThisMonth"));
 		var spent = PoundsShort(Field(club, "TotalExpenditureThisMonth"));

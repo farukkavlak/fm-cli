@@ -36,20 +36,20 @@ internal static partial class Program
 
 		var opened = await OpenPage(Screen.SetPieces);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		if (await ShowSetPieceKind(kind.Value, kind.ThrowIn) == null)
+		if (await ShowSetPieceKind(kind!.Value, kind.ThrowIn) == null)
 		{
 			Console.Error.WriteLine(L($"{kind.Say}: sayfa açılmadı (duran top düzeni kurulmamış olabilir: setpieces new)."));
 			return 1;
 		}
 
 		// The routine is drawn in steps like the rest of the page: read once two readings agree.
-		Routine routine = null;
+		Routine routine = null!;
 		async Task<bool> Drawn()
 		{
 			var previous = "";
 			return await Until(async () =>
 			{
-				routine = await ReadRoutine();
+				routine = (await ReadRoutine())!;
 				var settled = routine != null && routine.Key == previous;
 				previous = routine?.Key ?? "";
 				return settled;
@@ -91,7 +91,7 @@ internal static partial class Program
 					// Throw-ins choose between two buttons, the others from a menu.
 					var said = routine.AimButtons.Count > 0
 						? await Fm.Get("press", ("ptr", Field(routine.AimButtons.First(b => Field(b, "Label") == choice), "Pointer")))
-						: await Fm.Get("select", ("ptr", Field(routine.AimMenu.Value, "Pointer")), ("choice", choice), ("fire", "1"));
+						: await Fm.Get("select", ("ptr", Field(routine.AimMenu!.Value, "Pointer")), ("choice", choice), ("fire", "1"));
 					if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 					if (!await Until(async () => (routine = await ReadRoutine())?.Aim == choice, seconds: 6, every: 0.4))
 					{

@@ -88,7 +88,7 @@ internal static partial class Program
 	/// The duties, gathered down the list — it lays out only what is in view. With a title to
 	/// stop at, the walk ends with that duty on screen, so its buttons can be pressed.
 	/// </summary>
-	private static async Task<List<Duty>> Duties(string stopAt)
+	private static async Task<List<Duty>> Duties(string? stopAt)
 	{
 		var duties = new List<Duty>();
 		var seen = new HashSet<string>();
@@ -227,7 +227,7 @@ internal static partial class Program
 
 		void Close()
 		{
-			if (group != null && title != null && take.ValueKind == JsonValueKind.Object && hand.ValueKind == JsonValueKind.Object && holders.Count > 0)
+			if (group != null && title != null && take.ValueKind == JsonValueKind.Object && hand!.ValueKind == JsonValueKind.Object && holders.Count > 0)
 				// Which of the pair is in force is told by the other being the one that can be
 				// pressed: "Take Control" is dead while the duty is the manager's own.
 				duties.Add(new Duty(group, title, about, Field(take, "Enabled") != "True" && Field(hand, "Enabled") == "True", string.Join(", ", holders.Distinct()),
@@ -247,7 +247,7 @@ internal static partial class Program
 			{
 				// A text right before the group's own pair of buttons names the group.
 				var next = at + 1 < items.Count ? items[at + 1] : default;
-				if (next.ValueKind == JsonValueKind.Object && Field(next, "Name") == "TakeControlAll")
+				if (next!.ValueKind == JsonValueKind.Object && Field(next, "Name") == "TakeControlAll")
 				{
 					Close();
 					group = Field(item, "Text");
@@ -265,7 +265,7 @@ internal static partial class Program
 			else if (kind == "button" && Field(item, "Name").StartsWith("buttons-segmented-button-row", StringComparison.Ordinal))
 			{
 				if (take.ValueKind != JsonValueKind.Object) take = item;
-				else if (hand.ValueKind != JsonValueKind.Object) hand = item;
+				else if (hand!.ValueKind != JsonValueKind.Object) hand = item;
 			}
 			else if (kind == "dropdown" && Field(item, "Name") == "AssignableStaff")
 			{
@@ -327,7 +327,7 @@ internal static partial class Program
 		}
 
 		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Pointer") == now.Staff);
-		var count = list.ValueKind == JsonValueKind.Object ? list.GetProperty("Choices").GetArrayLength() : 0;
+		var count = list!.ValueKind == JsonValueKind.Object ? list.GetProperty("Choices").GetArrayLength() : 0;
 		var scope = $"fmcli.duty{DateTime.UtcNow.Ticks % 100000000}";
 		var readings = new List<(string Path, string Props)>();
 		for (var i = 0; i < count; i++)

@@ -81,7 +81,7 @@ internal static partial class Program
 		var read = new List<(string Say, List<TakerList> Lists)>();
 		foreach (var kind in kinds)
 		{
-			if (await OpenTakers(kind.Value, kind.ThrowIn, seen) is not { } tables)
+			if (await OpenTakers(kind!.Value, kind.ThrowIn, seen) is not { } tables)
 			{
 				Console.Error.WriteLine(L($"{kind.Say}: atıcı listeleri açılmadı (duran top düzeni kurulmamış olabilir: setpieces new)."));
 				return 1;
@@ -108,7 +108,7 @@ internal static partial class Program
 			}
 			if (verb != null)
 			{
-				var at = side.Value;
+				var at = side!.Value;
 				var heading = lists[at].Heading;
 				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? L("sağ") : L("sol"))}", L("Atıcı"), L("atıcılar"), L("Atıcılara"), tables[at],
 					async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Where(d => Field(d, "Label") == "Add Player").ToList() is { Count: 2 } adds ? adds[at] : null,
@@ -170,7 +170,7 @@ internal static partial class Program
 	{
 		// The routine's menu of kinds is the list that writes the set piece's type; its Value is the kind it shows.
 		JsonElement? Menu(JsonElement dropdowns) => dropdowns.EnumerateArray().Cast<JsonElement?>()
-			.FirstOrDefault(d => Field(d.Value, "Binds").EndsWith("SetPieceTypeDropdownListSelectedValue", StringComparison.Ordinal));
+			.FirstOrDefault(d => Field(d!.Value, "Binds").EndsWith("SetPieceTypeDropdownListSelectedValue", StringComparison.Ordinal));
 
 		// The page is drawn in steps — a choice made before the routine is up is lost, though
 		// the menu goes on naming it — and after a choice the taker button of the kind shown
@@ -185,9 +185,9 @@ internal static partial class Program
 			{
 				menu = Menu(await Fm.GetJson("dropdowns", ("json", "1")));
 				button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-					.FirstOrDefault(b => (name == null ? Field(b.Value, "Name") is "taker-button" or "taker-picker-button" : Field(b.Value, "Name") == name) && Field(b.Value, "Label").Length > 0);
-				if (menu == null || button == null || (shown != null && Field(menu.Value, "Value") != shown.ToString())) { previous = ""; return false; }
-				var key = $"{Field(menu.Value, "Pointer")}|{Field(menu.Value, "Value")}|{Field(button.Value, "Pointer")}|{Field(button.Value, "Label")}";
+					.FirstOrDefault(b => (name == null ? Field(b!.Value, "Name") is "taker-button" or "taker-picker-button" : Field(b!.Value, "Name") == name) && Field(b!.Value, "Label").Length > 0);
+				if (menu == null || button == null || (shown != null && Field(menu!.Value, "Value") != shown.ToString())) { previous = ""; return false; }
+				var key = $"{Field(menu!.Value, "Pointer")}|{Field(menu!.Value, "Value")}|{Field(button!.Value, "Pointer")}|{Field(button!.Value, "Label")}";
 				var still = key == previous;
 				previous = key;
 				return still;
@@ -201,7 +201,7 @@ internal static partial class Program
 			await OpenPage(Screen.SetPieces);
 			if (!await Still(null, null)) return null;
 		}
-		var said = await Fm.Get("select", ("ptr", Field(menu.Value, "Pointer")), ("value", kind.ToString()), ("fire", "1"));
+		var said = await Fm.Get("select", ("ptr", Field(menu!.Value, "Pointer")), ("value", kind.ToString()), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return null;
 		// Still waits for the menu to show this kind and the button to stand still, so no pause is
 		// needed for the choice to land.

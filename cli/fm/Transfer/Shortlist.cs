@@ -16,13 +16,13 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		JsonElement? tile = null;
 		await Until(async () => (tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-			.FirstOrDefault(b => Field(b.Value, "Label") == "Shortlists" && Field(b.Value, "Name") == "layout-tile-interaction-button")) != null, seconds: 8, every: 0.5);
+			.FirstOrDefault(b => Field(b!.Value, "Label") == "Shortlists" && Field(b!.Value, "Name") == "layout-tile-interaction-button")) != null, seconds: 8, every: 0.5);
 		if (tile == null)
 		{
 			Console.Error.WriteLine(L("Kısa liste döşemesi bulunamadı."));
 			return 1;
 		}
-		await Fm.Get("press", ("ptr", Field(tile.Value, "Pointer")));
+		await Fm.Get("press", ("ptr", Field(tile!.Value, "Pointer")));
 
 		// The list fills a moment later; two readings alike mean it has landed. Coming back from the
 		// list itself, the overview takes the first press while it is still arriving and stays put,
@@ -32,7 +32,7 @@ internal static partial class Program
 		var (tries, found) = (0, false);
 		await Until(async () =>
 		{
-			if (++tries % 6 == 0 && !found) await Fm.Get("press", ("ptr", Field(tile.Value, "Pointer")));
+			if (++tries % 6 == 0 && !found) await Fm.Get("press", ("ptr", Field(tile!.Value, "Pointer")));
 			var now = await Fm.GetJson("people");
 			found = now.GetArrayLength() > 0;
 			var settled = now.ToString() == last && now.GetArrayLength() > 0;

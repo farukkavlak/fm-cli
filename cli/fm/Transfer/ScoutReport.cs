@@ -80,7 +80,7 @@ internal static partial class Program
 			{
 				Name = name, LastScoutedBy = by, report.Grade, report.Recommendation,
 				report.CurrentAbility, report.PotentialAbility,
-				report.TransferInterest, report.LoanInterest, report.Value, report.Wage,
+				report.TransferInterest, report.LoanInterest, report!.Value, report.Wage,
 				Pros = pros, Cons = cons, report.MatchesWatched, report.BestRole,
 				SquadComparison = new { Position = position, Ranks = ranks.Select(r => new { r.Rank, r.Player }) },
 			}));
@@ -91,7 +91,7 @@ internal static partial class Program
 		Console.WriteLine(L($"  Not: {report.Grade} — {report.Recommendation}"));
 		Console.WriteLine(L($"  Yetenek: {report.CurrentAbility} · Potansiyel: {report.PotentialAbility}"));
 		Console.WriteLine(L($"  Transfere ilgisi: {report.TransferInterest} · kiralığa: {report.LoanInterest}"));
-		Console.WriteLine(L($"  Değer: {report.Value} · tahmini maaş: {report.Wage}"));
+		Console.WriteLine(L($"  Değer: {report!.Value} · tahmini maaş: {report.Wage}"));
 		if (report.BestRole.Length > 0) Console.WriteLine(L($"  En iyi rol: {report.BestRole} · izlenen maç: {report.MatchesWatched}"));
 		Console.WriteLine(L("Artılar:"));
 		foreach (var line in pros) Console.WriteLine($"  + {line}");

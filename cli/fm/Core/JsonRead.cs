@@ -10,18 +10,18 @@ namespace FmCli;
 internal static class JsonRead
 {
 	public static string Text(JsonElement element, string name) =>
-		element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value)
+		element!.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value)
 			&& value.ValueKind == JsonValueKind.String
 			? value.GetString() ?? ""
 			: "";
 
 	public static string RawText(JsonElement element, string name) =>
-		element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value)
+		element!.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value)
 			? value.ToString()
 			: "";
 
 	public static string? NullableText(JsonElement element, string name) =>
-		element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value)
+		element!.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value)
 			&& value.ValueKind == JsonValueKind.String
 			? value.GetString()
 			: null;

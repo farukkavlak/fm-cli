@@ -191,7 +191,7 @@ internal static partial class Program
 			(await Fm.GetJson("rowcontrols", ("event", sends), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
 				.Where(l => Field(l, "Page") == Screen.IndividualTraining).ToList();
 		async Task<JsonElement?> ViewList() =>
-			(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d.Value, "Binds") == "selectedView");
+			(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d!.Value, "Binds") == "selectedView");
 
 		if ((await Lists()).Count == 0)
 		{

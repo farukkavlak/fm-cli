@@ -177,7 +177,7 @@ internal static partial class Program
 	{
 		async Task<JsonElement?> Ask() =>
 			(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-				.FirstOrDefault(b => Field(b.Value, "Page") == Screen.TrainingIntensity && Field(b.Value, "Events") == "SpeakToAction" && Field(b.Value, "Enabled") == "True");
+				.FirstOrDefault(b => Field(b!.Value, "Page") == Screen.TrainingIntensity && Field(b!.Value, "Events") == "SpeakToAction" && Field(b!.Value, "Enabled") == "True");
 
 		var before = await IntensityRows();
 		var opened = await OpenSubpage(Screen.Training, Screen.TrainingIntensity, async () => await Ask() != null);

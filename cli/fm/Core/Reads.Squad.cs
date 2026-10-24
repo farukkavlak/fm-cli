@@ -42,7 +42,7 @@ internal static partial class Program
 		}
 
 		var before = Keys(await Fm.GetJson("squad"));
-		var selected = await Fm.Get("select", ("ptr", Field(viewList.Value, "Pointer")), ("choice", view));
+		var selected = await Fm.Get("select", ("ptr", Field(viewList!.Value, "Pointer")), ("choice", view));
 		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
 
 		// The rows refill a moment after the view changes; two readings alike, and unlike the
@@ -101,12 +101,12 @@ internal static partial class Program
 		// are left out, least wanted first; the name never wraps.
 		var shown = columns
 			.Select(c => (Field: c, Values: ordered.Select(p => Readable(c, Field(p, c))).ToList()))
-			.Where(c => c.Values.Any(v => v.Length > 0))
+			.Where(c => c!.Values.Any(v => v.Length > 0))
 			.OrderBy(c => Wanted(c.Field))
 			.ToList();
 		var names = ordered.Select(p => Field(p, "Name")).ToList();
 		int Width(IEnumerable<(string Field, List<string> Values)> cols) =>
-			names.Max(n => n.Length) + 4 + cols.Sum(c => Math.Max(Heading(c.Field).Length, c.Values.Max(v => v.Length)) + 3);
+			names.Max(n => n.Length) + 4 + cols.Sum(c => Math.Max(Heading(c.Field).Length, c!.Values.Max(v => v.Length)) + 3);
 		var room = Ui.Out.Profile.Width;
 		while (shown.Count > 1 && Width(shown) > room) shown.RemoveAt(shown.Count - 1);
 		var dropped = columns.Count - shown.Count;
@@ -118,7 +118,7 @@ internal static partial class Program
 		{
 			var injured = Field(ordered[i], "StatusTitleShort").Contains("Inj", StringComparison.Ordinal) || Field(ordered[i], "IsInjured") == "True";
 			var name = injured ? $"[red]{Ui.Safe(names[i])}[/]" : Ui.Safe(names[i]);
-			Spectre.Console.TableExtensions.AddRow(table, [name, .. shown.Select(c => Ui.Safe(c.Values[i]))]);
+			Spectre.Console.TableExtensions.AddRow(table, [name, .. shown.Select(c => Ui.Safe(c!.Values[i]))]);
 		}
 		Ui.Out.Write(table);
 		if (dropped > 0) Ui.Line(L($"[dim]{dropped} kolon sığmadı; hepsi için: fm players --json ya da daha geniş terminal[/]"));

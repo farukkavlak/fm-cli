@@ -195,7 +195,7 @@ internal static partial class Program
 		}
 		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.FirstOrDefault(b => Field(b, "Events").Contains(event_, StringComparison.Ordinal) && Field(b, "Enabled") == "True");
-		if (button.ValueKind != JsonValueKind.Object)
+		if (button!.ValueKind != JsonValueKind.Object)
 		{
 			Console.Error.WriteLine(L("Bu tavsiye için o buton şu an kapalı."));
 			return 1;

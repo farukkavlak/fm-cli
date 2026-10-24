@@ -178,7 +178,7 @@ internal static partial class Program
 		{
 			if (!menu.TryGetProperty("Submenus", out var submenus)) return -1;
 			foreach (var sub in submenus.EnumerateObject())
-				if (sub.Value.GetArrayLength() > 0 && System.Text.RegularExpressions.Regex.IsMatch(sub.Value[0].GetString() ?? "", @"^\d+/\d+ ") && int.TryParse(sub.Name, out var row))
+				if (sub!.Value.GetArrayLength() > 0 && System.Text.RegularExpressions.Regex.IsMatch(sub!.Value[0].GetString() ?? "", @"^\d+/\d+ ") && int.TryParse(sub.Name, out var row))
 					return row;
 			return -1;
 		}

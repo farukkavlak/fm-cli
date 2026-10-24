@@ -40,7 +40,7 @@ internal static partial class Program
 
 		// Each rule's switch is known by the data path it writes.
 		JsonElement? Switch(string binds) =>
-			form.Cast<JsonElement?>().FirstOrDefault(f => Field(f.Value, "Kind") == "checkbox" && Field(f.Value, "Binds") == binds);
+			form.Cast<JsonElement?>().FirstOrDefault(f => Field(f!.Value, "Kind") == "checkbox" && Field(f!.Value, "Binds") == binds);
 
 		var words = Words(args).ToList();
 		if (words.Count > 0 && PenaltyVerb(words[0]) is { } verb)
@@ -53,7 +53,7 @@ internal static partial class Program
 				return 1;
 			}
 			var order = new DraggedList("penalties", L("Penaltıcı"), L("penaltıcılar"), L("Penaltıcılara"), Field(table, "Pointer"),
-				async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d.Value, "Label") == "Add Player"),
+				async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d!.Value, "Label") == "Add Player"),
 				async () =>
 				{
 					// A row half drawn has a number where he starts.

@@ -183,7 +183,7 @@ internal static partial class Program
 		var finances = await Captured(["finances", "--json"]);
 		var budget = await Captured(["budget", "--json"]);
 		var transfer = budget?.ValueKind == JsonValueKind.Array
-			? budget.Value.EnumerateArray().Select(b => Field(b, "Value")).FirstOrDefault(MoneyFormat.IsMoney) ?? "" : "";
+			? budget!.Value.EnumerateArray().Select(b => Field(b, "Value")).FirstOrDefault(MoneyFormat.IsMoney) ?? "" : "";
 
 		return new DiffLook(Field(state, "Date"), team,
 			row.ValueKind == JsonValueKind.Object ? Int(row, "TablePosition") : 0,

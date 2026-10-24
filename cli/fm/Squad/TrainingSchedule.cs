@@ -324,7 +324,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Chooses a category in the picker and reads its options once they change.</summary>
-	private static async Task<List<ScheduleSlot>> PickerCategory(JsonElement menu, string choice, string path)
+	private static async Task<List<ScheduleSlot>> PickerCategory(JsonElement menu, string choice, string? path)
 	{
 		var oneChoice = menu.GetProperty("Choices")[0].GetString() ?? "";
 		var said = path != null
@@ -339,9 +339,9 @@ internal static partial class Program
 		{
 			var read = await ReadPicker(oneChoice);
 			if (read == null) return false;
-			options = read.Value.Item2;
+			options = read!.Value.Item2;
 			var now = string.Join("|", options.Select(o => o.Name));
-			var settled = Field(read.Value.Item1, "Label") == wantedLabel && now == previous && options.Count > 0;
+			var settled = Field(read!.Value.Item1, "Label") == wantedLabel && now == previous && options.Count > 0;
 			previous = now;
 			return settled;
 		}, seconds: 6, every: 0.3);
@@ -410,7 +410,7 @@ internal static partial class Program
 		var wanted = slash > 0 ? typed[(slash + 1)..].Trim() : typed;
 		var all = catalogue
 			.Where(c => inCategory == null || Fold(c.Key).StartsWith(inCategory, StringComparison.Ordinal))
-			.SelectMany(c => c.Value.Select(s => (Category: c.Key, Session: s))).ToList();
+			.SelectMany(c => c!.Value.Select(s => (Category: c.Key, Session: s))).ToList();
 
 		var exact = all.Where(x => Fold(x.Session) == Fold(wanted)).ToList();
 		// The same session listed under two categories is one session: the first will do.
@@ -553,13 +553,13 @@ internal static partial class Program
 			if (!page.Any(f => Field(f, "Name") == "TrainingFocusCard"))
 			{
 				var tab = page.FirstOrDefault(f => Field(f, "Name") == "navigation-tab-default-default" && Field(f, "Text") == "Training");
-				if (tab.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(tab, "Pointer")));
+				if (tab!.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(tab, "Pointer")));
 				await Until(async () => (await Page()).Any(f => Field(f, "Name") == "TrainingFocusCard"), seconds: 8, every: 0.4);
 				continue;
 			}
 
 			var list = ActiveMonthList(page);
-			if (list.ValueKind != JsonValueKind.Object)
+			if (list!.ValueKind != JsonValueKind.Object)
 			{
 				Console.Error.WriteLine(L("Takvim sayfasında ay seçici yok."));
 				return null;

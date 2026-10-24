@@ -47,7 +47,7 @@ internal static partial class Program
 		async Task<bool> Listed()
 		{
 			list = await CoachList();
-			if (list.ValueKind == JsonValueKind.Object) return true;
+			if (list!.ValueKind == JsonValueKind.Object) return true;
 			await Acknowledge();
 			return false;
 		}
@@ -87,7 +87,7 @@ internal static partial class Program
 		var sent = "";
 		for (var attempt = 0; attempt < 6; attempt++)
 		{
-			if (list.ValueKind != JsonValueKind.Object) sent = "error: no dropdown at the coaches' list";
+			if (list!.ValueKind != JsonValueKind.Object) sent = "error: no dropdown at the coaches' list";
 			else sent = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", coach), ("fire", "1"));
 			if (!sent.StartsWith("error: no dropdown at", StringComparison.Ordinal)) break;
 			await Task.Delay(500);

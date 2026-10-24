@@ -123,7 +123,7 @@ internal static partial class Program
 	{
 		if (await MenuOption("SaveGameAs") is not null) return true;
 		var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
-		if (menu.ValueKind != JsonValueKind.Object)
+		if (menu!.ValueKind != JsonValueKind.Object)
 		{
 			Console.Error.WriteLine(await FmMenuMissing());
 			return false;
@@ -248,7 +248,7 @@ internal static partial class Program
 		{
 			// The list is scrolled by a text that is in it, and which rows are changes as it moves.
 			var texts = (await Fm.GetJson("texts", ("anchor", "Last saved"), ("up", "16"))).EnumerateArray()
-				.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
+				.Select(t => t!.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
 			var at = texts.IndexOf("Last saved");
 			if (at < 0 || at + 2 >= texts.Count) return false;
 			// The row's date rather than its name: the name can be on the screen behind as well.
@@ -534,7 +534,7 @@ internal static partial class Program
 				// language's, so the English sentence it used to be clicked by matched nothing).
 				var tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 					.FirstOrDefault(b => Field(b, "Events").Contains("LoadGameTileSelection", StringComparison.Ordinal));
-				if (tile.ValueKind != JsonValueKind.Object)
+				if (tile!.ValueKind != JsonValueKind.Object)
 				{
 					Console.Error.WriteLine(L("Yükleme ekranında kayıt listesini açan döşeme bulunamadı."));
 					return 1;
@@ -575,7 +575,7 @@ internal static partial class Program
 		    {
 			    load = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				    .FirstOrDefault(b => Field(b, "Events").Contains("LoadSelectedGame", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
-			    return load.ValueKind == JsonValueKind.Object;
+			    return load!.ValueKind == JsonValueKind.Object;
 		    }, seconds: 8, every: 0.25))
 		{
 			Console.Error.WriteLine(L("Kayıt seçildi ama yükleme düğmesi açılmadı."));

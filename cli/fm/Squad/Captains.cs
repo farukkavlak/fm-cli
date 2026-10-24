@@ -27,7 +27,7 @@ internal static partial class Program
 			// "Change Captain" once there is one, "Select Captain" while there is none.
 			JsonElement? dropdown = null;
 			await Until(async () => (dropdown = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-				.FirstOrDefault(d => Field(d.Value, "Name") == "GenericDropdown" && (Field(d.Value, "Label") == $"Change {list}" || Field(d.Value, "Label") == $"Select {list}"))) != null, seconds: 8, every: 0.5);
+				.FirstOrDefault(d => Field(d!.Value, "Name") == "GenericDropdown" && (Field(d!.Value, "Label") == $"Change {list}" || Field(d!.Value, "Label") == $"Select {list}"))) != null, seconds: 8, every: 0.5);
 			if (dropdown == null)
 			{
 				// The page is a talk with the assistant, and a change made in it takes its list away

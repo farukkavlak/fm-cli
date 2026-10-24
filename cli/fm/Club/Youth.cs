@@ -11,7 +11,7 @@ internal static partial class Program
 {
 	private static async Task<List<string>> YouthTexts(string anchor, string up) =>
 		(await Fm.GetJson("texts", ("anchor", anchor), ("up", up))).EnumerateArray()
-			.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
+			.Select(t => t!.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
 
 	/// <summary>
 	/// The youth team's week in training (Youth Setup › Youth Performance), by each text's data path

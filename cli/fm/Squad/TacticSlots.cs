@@ -24,7 +24,7 @@ internal static partial class Program
 		JsonElement menu = default;
 		await Until(async () => (menu = (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
 			.FirstOrDefault(d => Field(d, "Binds") == binds && d.GetProperty("Choices").GetArrayLength() > 0)).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
-		return menu.ValueKind == JsonValueKind.Object ? menu : null;
+		return menu!.ValueKind == JsonValueKind.Object ? menu : null;
 	}
 
 	private static async Task<int> TacticCopy(string wanted, bool dry)

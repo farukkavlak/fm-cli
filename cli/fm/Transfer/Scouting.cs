@@ -34,7 +34,7 @@ internal static partial class Program
 			Console.WriteLine(L("Scout odağı yok."));
 			return 0;
 		}
-		var count = list.Value.GetProperty("Choices").GetArrayLength();
+		var count = list!.Value.GetProperty("Choices").GetArrayLength();
 
 		var words = Words(args).ToList();
 		var focuses = new List<Focus>();
@@ -76,7 +76,7 @@ internal static partial class Program
 
 		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == tab);
 		// Clicked, not queued: the tab's own handler is what swaps the table.
-		if (button.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(button, "Pointer")));
+		if (button!.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(button, "Pointer")));
 
 		List<string[]> rows = [];
 		var previous = "?";

@@ -51,7 +51,7 @@ internal static partial class Program
 			}
 			var tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Events").Contains("RunNewsAction", StringComparison.Ordinal) && Field(b, "Label") == item.Title);
-			if (tile.ValueKind != System.Text.Json.JsonValueKind.Object)
+			if (tile!.ValueKind != System.Text.Json.JsonValueKind.Object)
 			{
 				Console.Error.WriteLine(L("Haberin karosu sayfada bulunamadı."));
 				return 1;

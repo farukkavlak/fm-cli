@@ -41,7 +41,7 @@ internal static partial class Program
 		var pointer = Field(resign, "Pointer");
 		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			.FirstOrDefault(d => Field(d, "Pointer") == pointer);
-		if (list.ValueKind == JsonValueKind.Object)
+		if (list!.ValueKind == JsonValueKind.Object)
 		{
 			var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 			var choice = args.Contains("--end-of-season")

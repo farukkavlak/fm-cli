@@ -49,7 +49,7 @@ internal static partial class Program
 		var resumed = open != null && Fold(open.Player).Contains(Fold(wanted), StringComparison.Ordinal);
 
 		string name;
-		if (resumed) name = open.Player;
+		if (resumed) name = open!.Player;
 		else
 		{
 			if (await OpenPlayer(wanted) is not { } card) return 1;
@@ -246,7 +246,7 @@ internal static partial class Program
 				}
 
 				// The card is drawn again in place of the old one, so the terminal holds one offer.
-				var failed = await actions[picked]();
+				var failed = await actions[picked]!();
 				Ui.Out.Clear(true);
 				if (await OfferScreen.Read(Fm) is { } redrawn) redrawn.Draw();
 				if (failed != null) Ui.Line($"[red]{Ui.Safe(failed)}[/]");

@@ -106,7 +106,7 @@ internal static partial class Program
 		async Task<bool> Listed()
 		{
 			list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(IsReleaseList);
-			if (list.ValueKind == JsonValueKind.Object) return true;
+			if (list!.ValueKind == JsonValueKind.Object) return true;
 			await Acknowledge();
 			return false;
 		}
@@ -124,7 +124,7 @@ internal static partial class Program
 		await GameWords.Ask(Fm, free, mutual);
 		string Row(string english)
 		{
-			if (list.ValueKind != JsonValueKind.Object || !list.TryGetProperty("Choices", out var rows)) return english;
+			if (list!.ValueKind != JsonValueKind.Object || !list.TryGetProperty("Choices", out var rows)) return english;
 			var shown = rows.EnumerateArray().Select(r => r.GetString() ?? "").ToList();
 			var own = GameWords.Of(english);
 			return shown.FirstOrDefault(r => Fold(r) == Fold(english) || Fold(r) == Fold(own))
@@ -161,7 +161,7 @@ internal static partial class Program
 		var sent = "";
 		for (var attempt = 0; attempt < 6; attempt++)
 		{
-			if (list.ValueKind != JsonValueKind.Object) sent = "error: no dropdown at the release list";
+			if (list!.ValueKind != JsonValueKind.Object) sent = "error: no dropdown at the release list";
 			else sent = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", Row(way)), ("fire", "1"));
 			if (!sent.StartsWith("error: no dropdown at", StringComparison.Ordinal)) break;
 			await Task.Delay(500);

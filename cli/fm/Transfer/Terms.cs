@@ -13,7 +13,7 @@ internal static partial class Program
 		var ways = new List<string>();
 		var kinds = new List<string>();
 		if (row.Choice != null && row.Choice.Choices.Count > 1) { ways.Add(L($"Seçimi değiştir ({row.Choice.Value})")); kinds.Add("choice"); }
-		if (row.Amount != null) { ways.Add(L($"Tutarı değiştir ({row.Amount.Value})")); kinds.Add("amount"); }
+		if (row.Amount != null) { ways.Add(L($"Tutarı değiştir ({row.Amount!.Value})")); kinds.Add("amount"); }
 		if (row.Lock != null && row.Lock.Choices.Count > 1) { ways.Add(L($"Pazarlık durumu ({OfferScreen.SayLock(row.Lock.Value)})")); kinds.Add("lock"); }
 		if (row.Remove.Length > 0) { ways.Add(L("Kaldır")); kinds.Add("remove"); }
 		if (ways.Count == 0) return L("Bu şart değiştirilemiyor.");
@@ -37,8 +37,8 @@ internal static partial class Program
 
 	private static async Task<string?> PickLock(string route, OfferScreen.Term term, Func<OfferScreen, OfferScreen.Control> after)
 	{
-		var names = term.Lock.Choices.Select(OfferScreen.SayLock).ToList();
-		if (Ui.Ask(L($"{OfferScreen.Say(term.Label)} — karşı taraf bunu ne kadar değiştirebilsin?"), names, current: term.Lock.Choices.IndexOf(term.Lock.Value), cancel: L("Geri")) is not { } picked) return null;
+		var names = term.Lock!.Choices.Select(OfferScreen.SayLock).ToList();
+		if (Ui.Ask(L($"{OfferScreen.Say(term.Label)} — karşı taraf bunu ne kadar değiştirebilsin?"), names, current: term.Lock!.Choices.IndexOf(term.Lock!.Value), cancel: L("Geri")) is not { } picked) return null;
 		return term.Lock.Choices[picked] == term.Lock.Value ? null : await OfferScreen.SetLock(Fm, term, term.Lock.Choices[picked], route, after);
 	}
 

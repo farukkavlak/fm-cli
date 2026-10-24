@@ -334,7 +334,7 @@ internal static partial class Program
 		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			.Where(d => Field(d, "Name") == "ViewDropdown")
 			.Cast<JsonElement?>()
-			.FirstOrDefault(d => d.Value.TryGetProperty("Within", out var within)
+			.FirstOrDefault(d => d!.Value.TryGetProperty("Within", out var within)
 				&& within.EnumerateArray().Any(name => name.GetString() == panel));
 
 	private static bool Carries(JsonElement rows, string field) =>

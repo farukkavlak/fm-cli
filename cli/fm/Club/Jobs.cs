@@ -52,7 +52,7 @@ internal static partial class Program
 		{
 			var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Label") == "Available Jobs");
-			if (button.ValueKind == JsonValueKind.Object)
+			if (button!.ValueKind == JsonValueKind.Object)
 			{
 				await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 				await Until(async () => (await JobTexts()).Count > 0, seconds: 8, every: 0.5);
@@ -110,7 +110,7 @@ internal static partial class Program
 	private static async Task<List<(string Text, string Path)>> JobTexts()
 	{
 		var found = await Fm.GetJson("texts", ("anchor", JobHeading), ("up", "18"), ("paths", "1"));
-		return found.ValueKind == JsonValueKind.Array
+		return found!.ValueKind == JsonValueKind.Array
 			? found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList()
 			: [];
 	}
@@ -124,7 +124,7 @@ internal static partial class Program
 	private static async Task<List<(string Text, string Path)>> JobPanel()
 	{
 		var found = await Fm.GetJson("texts", ("within", "job-advert-container"), ("paths", "1"));
-		return found.ValueKind == JsonValueKind.Array
+		return found!.ValueKind == JsonValueKind.Array
 			? found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList()
 			: [];
 	}
@@ -158,7 +158,7 @@ internal static partial class Program
 	/// </summary>
 	/// <param name="at">Where the list's scroll stood before, in pixels, or <c>NaN</c> when unknown;
 	/// a scroll that cannot move leaves the same rows up and is read once instead of waited for.</param>
-	private static async Task<(List<Job> Jobs, string Key, double At)> WindowAt(double share, string before, double at, double seconds = 5)
+	private static async Task<(List<Job> Jobs, string Key, double At)> WindowAt(double share, string? before, double at, double seconds = 5)
 	{
 		var answer = await Fm.Get("scroll", ("anchor", JobHeading), ("to", share.ToString("0.###", CultureInfo.InvariantCulture)));
 		var here = Offset(answer);

@@ -91,7 +91,7 @@ internal static partial class Program
 		return (name, entries);
 	}
 
-	private static bool IsFolder(JsonElement entry) => entry.TryGetProperty("Folder", out var f) && f.ValueKind == JsonValueKind.True;
+	private static bool IsFolder(JsonElement entry) => entry.TryGetProperty("Folder", out var f) && f!.ValueKind == JsonValueKind.True;
 	private static bool IsEnabled(JsonElement entry) => entry.TryGetProperty("Enabled", out var e) && e.ValueKind == JsonValueKind.True;
 
 	/// <summary>The entry a typed path means: the path whole, or its last words when only one entry ends so.</summary>

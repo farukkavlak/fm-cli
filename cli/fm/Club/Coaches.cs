@@ -60,7 +60,7 @@ internal static partial class Program
 		else if (words.Count > 0)
 		{
 			// The coach is the words that name one; the area is what is left.
-			var rows = page.Value.Rows;
+			var rows = page!.Value.Rows;
 			var coach = rows.FirstOrDefault(r => words.Any(w => r.Name.Contains(w, StringComparison.OrdinalIgnoreCase)));
 			if (coach == null)
 			{

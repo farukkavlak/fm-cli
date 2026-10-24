@@ -37,7 +37,7 @@ internal static partial class Program
 			try
 			{
 				if ((await Fm.GetJson("texts", ("within", FormCard))).GetArrayLength() > 0
-				    && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(c => Field(c.Value, "Name") == "BackButton") is { } back)
+				    && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(c => Field(c!.Value, "Name") == "BackButton") is { } back)
 					await Fm.Get("press", ("ptr", Field(back, "Pointer")));
 			}
 			catch (Exception) { }
@@ -149,7 +149,7 @@ internal static partial class Program
 		// His ratings as a row of bars, oldest first, on the scale ratings mostly live on.
 		var ratings = all.AsEnumerable().Reverse()
 			.Select(r => GameNumbers.Read(r.Rating))
-			.Where(r => r != null).Select(r => r.Value).ToList();
+			.Where(r => r != null).Select(r => r!.Value).ToList();
 		if (ratings.Count > 1)
 		{
 			var bars = ratings.Select(r => (Bar: Ui.Bar(r, 5.5, 9), Rating: r)).ToList();

@@ -140,7 +140,7 @@ internal static partial class Program
 			.Where(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var w)
 				&& w.EnumerateArray().Any(x => x.GetString() == "notifications-modal-dialog-default-default"))
 			.LastOrDefault();
-		return list.ValueKind == JsonValueKind.Object ? list : null;
+		return list!.ValueKind == JsonValueKind.Object ? list : null;
 	}
 
 	private static async Task<int?> FeeAsked(List<string> words)
@@ -269,7 +269,7 @@ internal static partial class Program
 				}
 
 				var result = await Say(options[asked]);
-				if (result != null) return result.Value;
+				if (result != null) return result!.Value;
 				await AskFee();
 				Console.WriteLine();
 			}

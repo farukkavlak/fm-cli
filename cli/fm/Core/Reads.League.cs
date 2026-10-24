@@ -63,11 +63,11 @@ internal static partial class Program
 		static string Key(JsonElement t) => string.Join("|", t.EnumerateArray().Select(r => Field(r, "Name") + Field(r, "LeaguePoints") + "/" + Field(r, "LeagueGamesPlayed") + "/" + Field(r, "LeagueGamesWon")));
 		async Task<JsonElement?> Biggest(HashSet<string> not) =>
 			(await Fm.GetJson("table", ("groups", "1"))).EnumerateArray().Cast<JsonElement?>()
-				.Where(t => t.Value.GetArrayLength() >= 10 && !not.Contains(Key(t.Value)))
+				.Where(t => t!.Value.GetArrayLength() >= 10 && !not.Contains(Key(t!.Value)))
 				// Two tables of the same league can be up at once, a tile with places and points only and the
 				// full one; of equals the one with the games played is the table (18 Nisan 2026).
-				.OrderByDescending(t => t.Value.GetArrayLength())
-				.ThenByDescending(t => t.Value.EnumerateArray().Count(r => Field(r, "LeagueGamesPlayed").Length > 0)).FirstOrDefault();
+				.OrderByDescending(t => t!.Value.GetArrayLength())
+				.ThenByDescending(t => t!.Value.EnumerateArray().Count(r => Field(r, "LeagueGamesPlayed").Length > 0)).FirstOrDefault();
 		async Task<JsonElement?> Settled(HashSet<string> not, double seconds)
 		{
 			JsonElement? found = null;

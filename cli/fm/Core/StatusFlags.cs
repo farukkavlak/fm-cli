@@ -43,7 +43,7 @@ internal static partial class Program
 				catch (FmError) { continue; }
 				if (answer.StartsWith("error", StringComparison.Ordinal)) continue;
 				var read = JsonDocument.Parse(answer).RootElement;
-				if (read.ValueKind != JsonValueKind.Array) continue;
+				if (read!.ValueKind != JsonValueKind.Array) continue;
 				var entries = read.EnumerateArray().ToList();
 				if (entries.Any(e => Field(e, "StatusTitleShort").Length == 0)) continue;
 				// An empty list on the first round may only not be bound yet.

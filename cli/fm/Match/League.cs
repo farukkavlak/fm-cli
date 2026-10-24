@@ -246,7 +246,7 @@ internal static partial class Program
 				catch (FmError) { read.Add(JsonDocument.Parse("{}").RootElement); }
 			}
 			var now = string.Join("|", read.Select(r => r.GetRawText()));
-			var whole = read.Zip(readings).All(pair => pair.First.ValueKind == JsonValueKind.Object
+			var whole = read.Zip(readings).All(pair => pair.First!.ValueKind == JsonValueKind.Object
 				&& (pair.First.EnumerateObject().Count() >= pair.Second.Props.Split(',').Length || complete?.Invoke(pair.First) == true));
 			if (whole || (round >= 2 && now == previous && read.Any(r => r.ValueKind == JsonValueKind.Object && r.EnumerateObject().Any()))) break;
 			previous = now;

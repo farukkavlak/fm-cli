@@ -99,7 +99,7 @@ internal static partial class Program
 				{
 					rows = await Rows();
 					found = rows.FirstOrDefault(r => Field(r, "Name") == name);
-					return found.ValueKind == JsonValueKind.Object;
+					return found!.ValueKind == JsonValueKind.Object;
 				}, seconds: 8, every: 0.25);
 				return found;
 			}

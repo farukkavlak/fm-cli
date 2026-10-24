@@ -288,7 +288,7 @@ internal static partial class Program
 			var button = controls.EnumerateArray()
 				.Where(c => Field(c, "Name") == "continue-button" && Field(c, "Enabled") == "True")
 				.Cast<JsonElement?>()
-				.FirstOrDefault(c => !Field(c.Value, "Events").Contains("ClosePanel", StringComparison.Ordinal));
+				.FirstOrDefault(c => !Field(c!.Value, "Events").Contains("ClosePanel", StringComparison.Ordinal));
 
 			// With the ball in play the clock moves. One that has stood still this long, with no
 			// Continue to press, means the game has stopped for a decision of its own accord —
@@ -354,7 +354,7 @@ internal static partial class Program
 		{
 			var cont = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Name") == "continue-button" && Field(b, "Enabled") == "True");
-			if (cont.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(cont, "Pointer")));
+			if (cont!.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(cont, "Pointer")));
 		}
 		if (flowAfter.Length > 0 && !Passable(flowAfter)) await Explain(after, Console.Out, flowAfter);
 		return 0;

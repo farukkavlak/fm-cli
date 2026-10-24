@@ -65,24 +65,24 @@ internal sealed class OfferScreen
 		return new OfferScreen
 		{
 			Stage = F(data, "Stage"),
-			Facts = data.TryGetProperty("Facts", out var facts) ? facts.EnumerateObject().ToDictionary(f => f.Name, f => f.Value.GetString() ?? "") : [],
+			Facts = data.TryGetProperty("Facts", out var facts) ? facts.EnumerateObject().ToDictionary(f => f.Name, f => f!.Value.GetString() ?? "") : [],
 			Club = F(data, "Club"),
 			Player = F(data, "Player"),
 			BudgetCost = F(data, "BudgetCost"),
 			TotalCost = F(data, "TotalCost"),
 			TotalCostTitle = F(data, "TotalCostTitle"),
 			Options = data.GetProperty("Options").EnumerateArray().Select(o => o.TryGetProperty("Lock", out var l)
-				? new Term("", F(o, "Label"), "", "", null, null, "", LockOf(l))
-				: new Term("", F(o, "Label"), "", "", ControlOf(o), null, "")).ToList(),
+				? new Term("", F(o, "Label"), "", "", null!, null!, "", LockOf(l))
+				: new Term("", F(o, "Label"), "", "", ControlOf(o), null!, "")).ToList(),
 			Rows = rows.EnumerateArray().Select(r => new Term(F(r, "Section"), F(r, "Label"), F(r, "Detail"), F(r, "Remove"),
-				r.TryGetProperty("Choice", out var c) ? ControlOf(c) : null,
-				r.TryGetProperty("Amount", out var a) ? new Control(F(a, "Pointer"), F(a, "Value"), []) : null,
+				r.TryGetProperty("Choice", out var c) ? ControlOf(c) : null!,
+				r.TryGetProperty("Amount", out var a) ? new Control(F(a, "Pointer"), F(a, "Value"), []) : null!,
 				F(r, "Fixed"),
 				r.TryGetProperty("Lock", out var l) ? LockOf(l) : null)
 				{ Warning = F(r, "Warning") == "True" }).ToList() is var read
 				? read.Select((r, i) => r with { Nth = read.Take(i).Count(o => Same(o.Label, r.Label)) }).ToList()
 				: [],
-			Adds = data.GetProperty("Adds").EnumerateArray().Select(a => new Term(F(a, "Section"), "Add", "", "", ControlOf(a), null, "")).ToList(),
+			Adds = data.GetProperty("Adds").EnumerateArray().Select(a => new Term(F(a, "Section"), "Add", "", "", ControlOf(a), null!, "")).ToList(),
 		};
 
 		// The padlock's choices are the lock values themselves: "0 · 1 · 2", or "0 · 2" where only
@@ -161,7 +161,7 @@ internal sealed class OfferScreen
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
 		// The game marks its advice in the list ("Backup (Recommended)") but not in what it shows.
-		return await Settles(fm, s => after(s) is { } c && (c.Value == choice || choice.StartsWith(c.Value + " (", StringComparison.Ordinal)), route) ? null : L($"'{choice}' ekranda görünmedi");
+		return await Settles(fm, s => after(s) is { } c && (c!.Value == choice || choice.StartsWith(c!.Value + " (", StringComparison.Ordinal)), route) ? null : L($"'{choice}' ekranda görünmedi");
 	}
 
 	/// <summary>
@@ -187,7 +187,7 @@ internal sealed class OfferScreen
 	{
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("names", string.Join(">", path)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value, route) ? null : L($"'{path[^1]}' ekranda görünmedi");
+		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) ? null : L($"'{path[^1]}' ekranda görünmedi");
 	}
 
 	/// <summary>Types an amount into a term's box; the game may round it, so whatever it shows is taken.</summary>
@@ -195,14 +195,14 @@ internal sealed class OfferScreen
 	{
 		var said = await fm.Get("setnumber", ("ptr", control.Pointer), ("value", amount.ToString(CultureInfo.InvariantCulture)));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c.Value != control.Value, route) || Program.Money(control.Value) == amount ? null : L("tutar ekranda değişmedi");
+		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) || Program.Money(control.Value) == amount ? null : L("tutar ekranda değişmedi");
 	}
 
 	/// <summary>Sets how firmly a term is held; the lock's choices are indices.</summary>
-	public static async Task<string?> SetLock(Bridge fm, Term term, string lockName, string route = "offer", Func<OfferScreen, Control> after = null)
+	public static async Task<string?> SetLock(Bridge fm, Term term, string lockName, string route = "offer", Func<OfferScreen, Control>? after = null)
 	{
-		var index = term.Lock.Choices.IndexOf(lockName);
-		if (index < 0) return L($"'{lockName}' bu şartta yok; seçenekler: {string.Join(", ", term.Lock.Choices)}");
+		var index = term.Lock!.Choices.IndexOf(lockName);
+		if (index < 0) return L($"'{lockName}' bu şartta yok; seçenekler: {string.Join(", ", term.Lock!.Choices)}");
 		// The lock on the entire contract offer only writes its choice, like the offer's deadline.
 		var said = await fm.Get("select", ("ptr", term.Lock.Pointer), ("index", index.ToString(CultureInfo.InvariantCulture)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
@@ -232,7 +232,7 @@ internal sealed class OfferScreen
 		if (said.StartsWith("error", StringComparison.Ordinal)) return (said, null);
 		OfferScreen? after = null;
 		if (!await Settles(fm, s => (after = s).Rows.Count > (before?.Rows.Count ?? 0), route)) return (L($"'{names[^1]}' eklenmedi"), null);
-		return (null, after.Rows.FirstOrDefault(r => before?.Row(r) == null) ?? after.Rows[^1]);
+		return (null, after!.Rows.FirstOrDefault(r => before?.Row(r) == null) ?? after!.Rows[^1]);
 	}
 
 	/// <summary>One level of an "Add" list's submenu: the names under the path given.</summary>
@@ -488,7 +488,7 @@ internal sealed class OfferScreen
 	private void DrawContract()
 	{
 		var title = Say(Stage);
-		var lockLine = Options.Where(o => o.Lock != null).Select(o => $"{Say(o.Label)}: {SayLock(o.Lock.Value)}").ToList();
+		var lockLine = Options.Where(o => o.Lock != null).Select(o => $"{Say(o.Label)}: {SayLock(o.Lock!.Value)}").ToList();
 		var shown = Options.Where(o => o.Choice != null && o.Choice.Value is not "" and not "Current Offer").Select(o => o.Choice.Value).ToList();
 		var costs = new List<string>();
 		if (Facts.TryGetValue("Cost", out var cost)) costs.Add(L($"maaş bütçesine etkisi {cost}"));

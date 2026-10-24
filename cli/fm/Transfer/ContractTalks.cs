@@ -164,7 +164,7 @@ internal static partial class Program
 			Ui.Out.Clear(true);
 			now.Draw();
 			if (notes.Count > 0) foreach (var note in notes) Ui.Line(Ui.Safe(note));
-			else if (said.Length > 0) Ui.Line($"[italic]{Ui.Safe(said)}[/]");
+			else if ((said ?? "").Length > 0) Ui.Line($"[italic]{Ui.Safe(said)}[/]");
 			notes.Clear();
 			if (failed != null) Ui.Line($"[red]{Ui.Safe(failed)}[/]");
 			failed = null;
@@ -186,7 +186,7 @@ internal static partial class Program
 			else if (promises)
 			{
 				items.Add(L("Vaatler gönderilemiyor: kırmızı satırları düzelt"));
-				actions.Add(() => Task.FromResult<string>(null));
+				actions.Add(() => Task.FromResult<string?>(null));
 			}
 			else if (await Labelled("Finalise Deal", TalksButton) != null)
 			{
@@ -202,7 +202,7 @@ internal static partial class Program
 			{
 				// The game takes the proposal away while a term breaks its rules; the row says which.
 				items.Add(L("Öneri gönderilemiyor: kırmızı satırları düzelt"));
-				actions.Add(() => Task.FromResult<string>(null));
+				actions.Add(() => Task.FromResult<string?>(null));
 			}
 
 			foreach (var row in now.Rows)
@@ -212,7 +212,7 @@ internal static partial class Program
 			}
 			foreach (var option in now.Options.Where(o => o.Lock is { Choices.Count: > 1 }))
 			{
-				items.Add($"{OfferScreen.Say(option.Label)}: {OfferScreen.SayLock(option.Lock.Value)}");
+				items.Add($"{OfferScreen.Say(option.Label)}: {OfferScreen.SayLock(option.Lock!.Value)}");
 				actions.Add(() => PickLock("contract", option, s => s.Options.FirstOrDefault(o => o.Lock?.Pointer == option.Lock.Pointer)?.Lock));
 			}
 			foreach (var add in now.Adds.Where(a => a.Choice.Open.Count > 0))
@@ -312,7 +312,7 @@ internal static partial class Program
 
 		var said = before;
 		await Until(async () => (said = await AgentSays()) != before, seconds: 12, every: 0.25);
-		if (said != before && said.Length > 0) Tell(said);
+		if (said != before && (said ?? "").Length > 0) Tell(said!);
 
 		var next = await TalkOptions();
 		// What is left to say is the way out and the budget adjustment, which changes no term: the
@@ -331,7 +331,7 @@ internal static partial class Program
 			// That is in the agent's words, which only an English game's are known here; in another
 			// language which it was is not guessed.
 			var english = Field(await Fm.GetJson("state"), "Language") is "" or "english";
-			var later = said.Contains("final decision", StringComparison.OrdinalIgnoreCase) || said.Contains("be in touch", StringComparison.OrdinalIgnoreCase);
+			var later = (said ?? "").Contains("final decision", StringComparison.OrdinalIgnoreCase) || (said ?? "").Contains("be in touch", StringComparison.OrdinalIgnoreCase);
 			Tell(!finalising ? L("Görüşme kapandı.")
 				: !english ? L("Görüşme kapandı: sözleşme ya imzalandı ya da kararı birkaç gün içinde gelen kutusuna düşer (contracts).")
 				: later ? L("Teklif karşı tarafta; kararı birkaç gün içinde gelen kutusuna düşer.")

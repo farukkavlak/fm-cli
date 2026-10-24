@@ -63,7 +63,7 @@ internal static partial class Program
 				try
 				{
 					var read = await Fm.GetJson("pull", ("path", contract), ("props", $"{field}.DisplayValue"));
-					if (read.ValueKind != JsonValueKind.Object || read.EnumerateObject().Any()) values[field] = Field(read, $"{field}.DisplayValue");
+					if (read!.ValueKind != JsonValueKind.Object || read.EnumerateObject().Any()) values[field] = Field(read, $"{field}.DisplayValue");
 				}
 				catch (FmError) { values[field] = ""; }
 			}
@@ -87,11 +87,11 @@ internal static partial class Program
 		var name = Field(hits[0], "Name");
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { Name = name, Ends = ends, Terms = terms.ToDictionary(t => t.Say, t => t.Value) }));
+			Console.WriteLine(JsonOut.Of(new { Name = name, Ends = ends, Terms = terms.ToDictionary(t => t.Say, t => t!.Value) }));
 			return 0;
 		}
 		Console.WriteLine(ends.Length > 0 ? L($"{name} — sözleşme {ends} tarihine kadar") : L($"{name} — sözleşme"));
-		Table.Write([L("ŞART"), L("DEĞER")], terms.Select(t => (string[])[t.Say, t.Value]).ToList());
+		Table.Write([L("ŞART"), L("DEĞER")], terms.Select(t => (string[])[t.Say, t!.Value]).ToList());
 		Console.WriteLine(L($"\nYenilemek için: contract \"{name}\""));
 		return 0;
 	}

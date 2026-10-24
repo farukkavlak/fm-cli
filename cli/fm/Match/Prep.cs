@@ -103,7 +103,7 @@ internal static partial class Program
 		{
 			var picked = Ui.Ask(L($"{slot.Title} hazırlığı"), open.Select(c => GameWords.Of(c.Name) + (c.Suggested ? L("  (öneri)") : "") + (c.Means.Length > 0 ? $" — {GameWords.Of(c.Means)}" : "")).ToList(), open.FindIndex(c => c.Name == slot.Now));
 			if (picked == null) return 0;
-			choice = open[picked.Value];
+			choice = open[picked!.Value];
 		}
 		else
 		{

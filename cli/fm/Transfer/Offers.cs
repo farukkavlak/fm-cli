@@ -201,7 +201,7 @@ internal static partial class Program
 		{
 			// Radio groups are listed with the dropdowns, by their element's name.
 			return (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-				.FirstOrDefault(c => Field(c.Value, "Name") == "transfers-list-radio-group");
+				.FirstOrDefault(c => Field(c!.Value, "Name") == "transfers-list-radio-group");
 		}
 		catch (FmError) { return null; }
 	}

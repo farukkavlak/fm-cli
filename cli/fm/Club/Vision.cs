@@ -46,7 +46,7 @@ internal static partial class Program
 		}
 
 		var words = Words(args).ToList();
-		JsonElement? Button(string label) => controls.Cast<JsonElement?>().FirstOrDefault(c => Field(c.Value, "Label") == label);
+		JsonElement? Button(string label) => controls.Cast<JsonElement?>().FirstOrDefault(c => Field(c!.Value, "Label") == label);
 		async Task<int> Press(string label, string done)
 		{
 			if (Button(label) is not { } button || Field(button, "Enabled") != "True")
