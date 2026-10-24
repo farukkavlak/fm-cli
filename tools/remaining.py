@@ -83,7 +83,7 @@ PARKED = {
 
 def scan_delays() -> list[tuple[str, int, str]]:
     out = []
-    for path in sorted(FM.glob("*.cs")):
+    for path in sorted(FM.rglob("*.cs")):
         for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             if DELAY.search(line):
                 out.append((path.name, i, " ".join(line.split())[:90]))
@@ -92,7 +92,7 @@ def scan_delays() -> list[tuple[str, int, str]]:
 
 def scan_text_presses() -> list[tuple[str, int, str]]:
     out = []
-    for path in sorted(FM.glob("*.cs")):
+    for path in sorted(FM.rglob("*.cs")):
         for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             m = TEXT_PRESS.search(line)
             if m:
@@ -102,7 +102,7 @@ def scan_text_presses() -> list[tuple[str, int, str]]:
 
 def scan_short_until(limit: float = 3.0) -> list[tuple[str, int, float]]:
     out = []
-    for path in sorted(FM.glob("*.cs")):
+    for path in sorted(FM.rglob("*.cs")):
         for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             m = UNTIL_SECONDS.search(line)
             if m and float(m.group(1)) <= limit:

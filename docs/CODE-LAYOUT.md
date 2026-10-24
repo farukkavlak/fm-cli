@@ -5,15 +5,24 @@
 | Katman | Yer | İş |
 |---|---|---|
 | CLI girişi | `cli/fm/Program.cs` | `main`, komut yönlendirme, oturum, sürüm kontrolü |
-| CLI komutları | `cli/fm/*.cs`, `cli/fm/Program/` | bir komut ya da okuma; hepsi `Program` partial'ı |
-| Oyun köprüsü | `cli/fm/Bridge.cs` | HTTP, port, hata ve zaman aşımı |
-| Oyun okuma | `cli/fm/Reads.cs`, `Guided.cs`, `Clock.cs`, `MatchDay.cs` | veri yolu, sayfa, maç akışı |
-| Biçim | `cli/fm/Table.cs`, `Ui.cs`, `MoneyFormat.cs`, `JsonOut.cs`, `InboxView.cs` | tablo, terminal, para/sayı |
-| Metin | `cli/fm/Labels.cs`, `GameWords.cs`, `EngineTexts.cs` | oyunun dili ve CLI sözlüğü |
-| Altyapı | `cli/fm/Launcher.cs`, `Session.cs`, `Screens.cs`, `GameFolders.cs`, `InstallDoctor.cs` | başlatma, klasör, kurulum |
+| CLI komutları | `cli/fm/{Core,Match,Squad,Transfer,Club}/` | bir komut ya da okuma; hepsi `Program` partial'ı |
+| Oyun köprüsü | `cli/fm/Core/Bridge.cs` | HTTP, port, hata ve zaman aşımı |
+| Oyun okuma | `cli/fm/Core/Reads.cs`, `Core/Clock.cs`, `Match/Guided.cs`, `Match/MatchDay.cs` | veri yolu, sayfa, maç akışı |
+| Biçim | `cli/fm/Core/Table.cs`, `Ui.cs`, `MoneyFormat.cs`, `JsonOut.cs`, `InboxView.cs` | tablo, terminal, para/sayı |
+| Metin | `cli/fm/Core/Labels.cs`, `GameWords.cs`, `EngineTexts.cs` | oyunun dili ve CLI sözlüğü |
+| Altyapı | `cli/fm/Core/Launcher.cs`, `Session.cs`, `Screens.cs`, `GameFolders.cs`, `InstallDoctor.cs` | başlatma, klasör, kurulum |
 | Plugin | `plugin/FmCliProbe/src/` | IL2CPP tarafı: buton, metin, sayfa, kayıt |
 | Araçlar | `tools/` | paket, yayın, test, ekran görüntüsü |
 | Doküman | `docs/` | `FINDINGS` teknik arşiv, `KILAVUZ` kullanıcı kılavuzu, `PLAYTEST` kontrol listesi |
+
+## Klasörler
+
+- `Core/` — köprü, okuma, zaman, biçim, etiket, başlatma, oturum, MCP.
+- `Match/` — maç günü, anlatım, takvim, fikstür, lig tablosu, rakip raporu.
+- `Squad/` — kadro, sağlık, moral, sözleşme, taktik, antrenman, duran top, kayıt.
+- `Transfer/` — teklifler, sözleşme görüşmeleri, scout, kısa liste, transfer hedefleri.
+- `Club/` — kulüp, yönetim, finans, personel, tesis, kariyer, iş, istifa.
+- `Program/` — `Program` partial’ları (giriş dışındaki büyük komut blokları).
 
 ## `Program` partial'ları
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Wraps the CLI's own printed texts in L(...) (cli/fm/Labels.cs).
+"""Wraps the CLI's own printed texts in L(...) (cli/fm/Core/Labels.cs).
 
 Inside the arguments of the calls that print (Console.WriteLine, Ui.Line, Table.Write ...), every
 string literal with a letter in it becomes L(literal), also the ones inside an interpolation's holes.
