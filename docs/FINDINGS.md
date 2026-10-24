@@ -4601,3 +4601,42 @@ başlatıcı, gölge paket, eklenti, `fm`, kayıt klasörü). Ancak `fm start` o
 süreci hiç doğmadı; ikinci kullanıcıda **Steam çalışmıyor** (SteamAPI_Init başarısız) ve oyun başlamıyor.
 Yani kurulum tarafı temiz kullanıcıda çalışıyor; **oyun başlatma** Steam oturumu istiyor. Gerçek "temiz makine"
 testi için VM/ikinci Mac ya da o kullanıcıda Steam kurulumu gerekiyor. Park edildi.
+
+### 8.394 Yeni taktik sonrası maç "Hiç oyuncu seçmediniz" diyor; `tactic pick` gerekiyor (27 Şubat)
+
+Empoli'de `tactic new "Topa Sahip Ol" "4-2-3-1 DOS Geniş" "4-4-1-1 2 DOS"` taktiği oluşturdu, ama ilk 11 boş
+kaldı. `fm match --play --no-talk` "Kadro gönderiliyor"dan sonra **"Hiç oyuncu seçmediniz… 11 oyuncu
+seçmeniz gerekiyor"** deyip durdu. `fm tactic pick` ilk 11'i seçti (Perisan, Ghiglione, Romagna, Garcés,
+Tosto, Biondini, Kastanos, Yepes, Elia, Campaniello, Martín). Yani `tactic new` sonrası `match`, kadroyu
+kendiliğinden doldurmuyor; ya `tactic pick` otomatik çağrılmalı ya da `match` bu durumda `tactic pick`
+önermeli. (§8.35x'teki `tactic pick` bulgusuyla aynı aile.)
+
+### 8.395 Maç, SquadNumbers ekranında takılıyor; `numbers --auto` gönderince açılıyor (27 Şubat)
+
+Kadro seçildikten sonra `fm match --play --no-talk` **10 dakikadan fazla** çıktı vermeden bekledi;
+`fm status` "Oyun ilerlemiyor: SquadNumbers" dedi, ekran forma numaralarıydı. `fm numbers --auto`
+"Forma numaraları gönderildi." dedi; ardından `numbers --send` "Ekranda 'Forma Numaralarını Onayla'
+açılmadı" dedi (çünkü auto zaten göndermiş). Sonra `fm status` "Maçtayız, başlamadı" verdi ve `match`
+sürdü. Yani sezon başında forma numarası ekranı maçı bloke ediyor; `match` bunu görüp `numbers --auto`
+önermeli (ya da otomatik göndermeli), yoksa komut sessizce asılı kalıyor.
+
+### 8.396 Sakatlık tedavi seçenekleri `reply`te yok; `buttons` + tam etiketli `press` ile seçiliyor (27 Şubat)
+
+İki sakatlık mesajı (`Samuele Righetti`, `Oliver Blini`) `next`i bloke etti. `fm reply "<ad> sakatlandı>"`
+mesajı açtı ama **"(cevap seçeneği yok)"** dedi; oysa ekranda iki tedavi düğmesi vardı:
+`İğneyle Oynat (500 £)` ve `Fizyoterapist Gözetimine Bırak (Masrafsız)`. `fm buttons` bunları `SIButton
+SpeakToAction` olarak gösterdi. `fm press "Fizyoterapist Gözetimine Bırak"` **"no control labelled"**
+verdi; tam etiket (`... (Masrafsız)`) ile basınca tedavi seçildi ve mesaj kapandı. Yani `reply`, mesaj
+gövdesindeki `SpeakToAction` düğmelerini seçenek olarak sunmuyor; `press` de etiketi tam eşleştiriyor.
+Kullanıcı için ya `reply` bu düğmeleri listelemeli ya da `press` görünen metnin bir parçasıyla eşleşmeli.
+
+### 8.397 Duran top tanıtımı 6 adımlı sihirbaz; `reply` turu açmıyor, `press` yalnız oyun öndeyken işliyor (27 Şubat)
+
+`Empoli FC Duran Top Organizasyonları Tanıtımı` mesajı `next`i bloke etti. `reply ... 1`
+"Bilgilendirmeye Başlayın" dedi ama `fm tour` **"Açık bir tanıtım turu yok"** verdi. Ekranda
+`Bilgilendirmeye Devam Et` (SpeakToAction) vardı; `press` ile açıldı, 6 adımlı **duran top sihirbazı**
+geldi. `Sonraki`/`Onayla` düğmeleri `press` ile **oyun ön planda değilken** kuyruğa giriyor ama
+ilerlemiyordu; `osascript -e 'tell application "Football Manager 26" to activate'` + `press` ile
+adımlar ilerledi (1 → 4 → 6) ve `Onayla` sihirbazı bitirdi; mesaj kapandı, `next` açıldı. Yani CLI,
+press/next öncesi oyunu öne getirmeli (veya bu durumu açıklamalı); tanıtım turu için `tour` yerine
+sihirbaz düğmeleri gerekiyor.
