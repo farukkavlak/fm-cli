@@ -365,6 +365,25 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> InstantResult(JsonElement state)
 	{
+		// The last fixture is still the previous match for a moment after the simulation ends,
+		// so its own key is kept and the report is not read until it has moved on. Otherwise
+		// an instant result printed the match before it (Cagliari, 31 Mart 2028: the Monza
+		// report came back for a match that had just been lost 1-2).
+		async Task<(string Key, string Score)> LastResult()
+		{
+			try
+			{
+				var fixture = await Fm.Pull("Human.Team.LastFixture", "HasResult,HomeScore,AwayScore,Date");
+				if (Field(fixture, "HasResult") != "True") return ("", "");
+				var home = Field(await Fm.Pull("Human.Team.LastFixture.HomeTeam", "Name"), "Name");
+				var away = Field(await Fm.Pull("Human.Team.LastFixture.AwayTeam", "Name"), "Name");
+				var score = $"{home} {Field(fixture, "HomeScore")}-{Field(fixture, "AwayScore")} {away}";
+				return ($"{Field(fixture, "Date")}|{score}", score);
+			}
+			catch (FmError) { return ("", ""); }
+		}
+		var (beforeKey, _) = await LastResult();
+
 		if (Field(state, "State") == "Tactics")
 		{
 			await Fm.Get("next");
@@ -448,6 +467,19 @@ internal static partial class Program
 			return 1;
 		}
 
+		var afterKey = beforeKey;
+		var afterScore = "";
+		await Until(async () =>
+		{
+			(afterKey, afterScore) = await LastResult();
+			return afterKey.Length > 0 && afterKey != beforeKey;
+		}, seconds: 20, every: 0.5);
+		if (afterKey.Length == 0 || afterKey == beforeKey)
+		{
+			Console.Error.WriteLine(L("Maç raporu henüz hazır değil; oyunun son fikstürü değişmedi."));
+			return 0;
+		}
+
 		// The result is on the fixture itself once played; the newest one with a result is this match.
 		// On the results screen the page list can be empty, so the fixtures may not open; the
 		// report below does not need them (FINDINGS §8.52).
@@ -464,7 +496,7 @@ internal static partial class Program
 		Console.WriteLine();
 		try
 		{
-			if (await MatchReport.Show(Fm, json: false) != 0 && played.ValueKind == JsonValueKind.Object)
+			if (await MatchReport.Show(Fm, json: false, expected: afterScore) != 0 && played.ValueKind == JsonValueKind.Object)
 				Console.WriteLine(L($"{Field(played, "ShortName")} maçı {Field(played, "Result")}"));
 		}
 		catch (FmError)

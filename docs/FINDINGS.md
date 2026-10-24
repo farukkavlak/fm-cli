@@ -4622,15 +4622,17 @@ sürdü. Yani sezon başında forma numarası ekranı maçı bloke ediyor; `matc
 `SquadNumbers` durumunu görünce `numbers --auto` yolunu çalıştırıp maça devam ediyor; durum ilk kontrolde de
 kabul ediliyor (`MatchDay.cs`).
 
-### 8.396 Sakatlık tedavi seçenekleri `reply`te yok; `buttons` + tam etiketli `press` ile seçiliyor (27 Şubat)
+### 8.396 Sakatlık tedavi seçenekleri: `reply` bazen ilk açılışta göstermiyor (27 Şubat – 7 Nisan)
 
 İki sakatlık mesajı (`Samuele Righetti`, `Oliver Blini`) `next`i bloke etti. `fm reply "<ad> sakatlandı>"`
 mesajı açtı ama **"(cevap seçeneği yok)"** dedi; oysa ekranda iki tedavi düğmesi vardı:
 `İğneyle Oynat (500 £)` ve `Fizyoterapist Gözetimine Bırak (Masrafsız)`. `fm buttons` bunları `SIButton
 SpeakToAction` olarak gösterdi. `fm press "Fizyoterapist Gözetimine Bırak"` **"no control labelled"**
-verdi; tam etiket (`... (Masrafsız)`) ile basınca tedavi seçildi ve mesaj kapandı. Yani `reply`, mesaj
-gövdesindeki `SpeakToAction` düğmelerini seçenek olarak sunmuyor; `press` de etiketi tam eşleştiriyor.
-Kullanıcı için ya `reply` bu düğmeleri listelemeli ya da `press` görünen metnin bir parçasıyla eşleşmeli.
+verdi; tam etiket (`... (Masrafsız)`) ile basınca tedavi seçildi ve mesaj kapandı. Sonraki sakatlıklarda
+(`Guarino`, `Konaté`, `Filippis`) `reply` seçenekleri **kendisi listeledi** (ör. `1 İğneyle Oynat`,
+`2 Fizyoterapist...`) ve `reply "<ad>" 2` ile seçildi. Yani sorun her mesajda değil; sayfa/butonlar
+geç yüklendiğinde ilk `reply` boş kalabiliyor, tekrar denemek ya da `buttons` + tam etiketli `press`
+kullanmak gerekiyor. `press` etiketi tam eşleştiriyor; parçayla eşleşmiyor.
 
 ### 8.397 Duran top tanıtımı 6 adımlı sihirbaz; `reply` turu açmıyor, `press` yalnız oyun öndeyken işliyor (27 Şubat)
 
@@ -4642,3 +4644,14 @@ ilerlemiyordu; `osascript -e 'tell application "Football Manager 26" to activate
 adımlar ilerledi (1 → 4 → 6) ve `Onayla` sihirbazı bitirdi; mesaj kapandı, `next` açıldı. Yani CLI,
 press/next öncesi oyunu öne getirmeli (veya bu durumu açıklamalı); tanıtım turu için `tour` yerine
 sihirbaz düğmeleri gerekiyor.
+
+
+### 8.398 Anında sonuç, bir önceki maçın raporunu basıyordu (31 Mart)
+
+Cagliari deplasmanı 1-2 kaybedildi; ama `fm match --instant` **"Empoli FC 1-0 AC Monza"** (bir önceki
+maçın raporu) bastı. Zaman 21:15'e ilerlemiş, `fm status` hâlâ "Cagliari bugün" diyordu; sonradan
+`fm report` doğru **"Cagliari 2-1 Empoli"** verdi. Sebep: `InstantResult`, state "bitti" der demez
+`Human.Team.LastFixture`ı okuyor; oyun son fikstürü henüz değiştirmemiş oluyor. Düzeltme: maç öncesi
+son fikstürün anahtarı (tarih + skor + takımlar) alınıyor; simülasyondan sonra anahtar değişene kadar
+bekleniyor ve rapor `expected` skorla okunuyor. Cremonese maçında (Empoli 1-2 Cremonese) doğru rapor
+geldi; eski Monza raporu tekrarlanmadı.
