@@ -43,7 +43,6 @@ SHOTS=(
 	"supporters|fm supporters"
 	"board|fm board"
 	"facilities|fm facilities"
-	"stages|fm stages 'turkish cup' 'second round'"
 	"scout|fm scout"
 	"scout-focus|fm scout 5"
 	"progress|fm progress"
@@ -56,7 +55,14 @@ SHOTS=(
 
 shoot() {
 	local name="$1" cmd="$2"
-	script -q "$WORK/$name.txt" sh -c "stty cols $COLS rows 60; $cmd" </dev/null >/dev/null || true
+	# A view command can select its columns and read them a frame before the game binds the
+	# data ("'Condition' verisi gelmedi"); one more run is enough, so retry rather than keep
+	# the error screenshot.
+	for attempt in 1 2 3; do
+		script -q "$WORK/$name.txt" sh -c "stty cols $COLS rows 60; $cmd" </dev/null >/dev/null || true
+		grep -q "verisi gelmedi" "$WORK/$name.txt" || break
+		sleep 1
+	done
 	{ printf '\033[2m$\033[0m %s\n' "$cmd"; cat "$WORK/$name.txt"; } >"$WORK/$name.ansi"
 	local size; size=$(python3 "$ROOT/tools/manual/ansi2html.py" "$WORK/$name.ansi" "$WORK/$name.html" "$cmd")
 	local width=${size% *} lines=${size#* }

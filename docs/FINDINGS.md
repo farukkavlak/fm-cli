@@ -4676,3 +4676,13 @@ döndü. Yani FM, Continue/UI olaylarını yalnız ön plandayken işliyor; `App
 yeterli değil. Düzeltme: `Launcher.Activate()` eklendi ve `next`, `press`, `match` başında çağrılıyor.
 `fm next 3` artık elle `osascript` olmadan dönüyor. (Her komutta oyunu öne getirir; CLI zaten oyunu
 yönetmek için kullanılıyor.)
+
+### 8.401 `fm opponent` ortalama puanı ham double basıyordu; görsel taraması iki hatalı kare yakaladı (24 Ekim)
+
+`fm opponent` çıktısı "En yüksek ortalama: Callum Styles (6.844444444444444)" diyordu; oyunun
+`StatValue` alanı yuvarlanmamış geliyor. `HighestAverageRatingPlayer` için değer artık `0.00` ile
+biçimleniyor → **(6,84)**. Aynı görsel taramasında `fm squad --fitness` ve `--morale` kareleri
+"'Condition'/'MoraleString' verisi gelmedi" hatasıyla çekilmişti: görünüm seçilip veri bir kare
+sonra bağlanıyor. `tools/manual/shots.sh` artık bu hatada birkaç kez yeniden deniyor ve iki görsel
+yeniden çekildi. `stages` örneği ise eski Fenerbahçe kaydındaki Türkiye Kupası'nı gösteriyor; güncel
+Empoli kaydında o turnuva olmadığı için otomatik çekimden çıkarıldı, geçerli eski kare korundu.

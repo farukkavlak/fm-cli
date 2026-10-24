@@ -29,6 +29,11 @@ internal static partial class Program
 		{
 			var name = Field(await Fm.Pull($"{them}.{which}.Player", "Name"), "Name");
 			var value = Field(await Fm.Pull($"{them}.{which}", "StatValue"), "StatValue");
+			// Average ratings arrive as the engine's raw double (6.844444444444444); goals and
+			// assists are counts and are left as they are.
+			if (which == "HighestAverageRatingPlayer"
+			    && double.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var rating))
+				value = GameNumbers.Of(rating, "0.00");
 			return name.Length == 0 ? "" : value.Length > 0 ? $"{name} ({value})" : name;
 		}
 		var manager = Field(await Fm.Pull($"{them}.Manager", "Name"), "Name");
