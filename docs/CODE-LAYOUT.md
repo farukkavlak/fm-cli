@@ -43,6 +43,15 @@ Büyük okuma/akış dosyaları da sorumluluklarına göre bölündü:
   `MatchDay.Team.cs` — kadro/rakip adları; `MatchDay.Substitute.cs` — değişiklikler;
   `MatchDay.Dialog.cs` — onay pencereleri.
 
+Ek bölünmeler:
+
+- `Match/Guided.Tactic.cs` — ana taktik/oyuncu/planlayıcı; `Guided.TacticSettings.cs` — ayar, rol ve
+  yuva; `Guided.TacticNew.cs` — yeni taktik, maç listesi ve yardımcılar.
+- `Program/Messages.cs` — ek gövdeleri; `Messages.Attachments.cs` — ek kartları; `Messages.Inbox.cs` —
+  mesaj okuma ve numara hatırlama.
+- `Transfer/ScoutFocus.cs` — form yardımcıları; `ScoutFocus.Team.cs` — ekip/atama; `ScoutFocus.Form.cs` —
+  yeni odak formu ve kalan komutlar.
+
 Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
 Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
 önce mevcut `Table`/`Ui` yardımcılarına bak.
