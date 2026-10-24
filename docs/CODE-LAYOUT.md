@@ -102,6 +102,7 @@ dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release
 tools/install.sh          # plugin + fm + doctor
 fm doctor --install
 fm status                 # köprü ve kayıt kontrolü
+tools/smoke.sh            # build + plugin + testler + yayınlanmış CLI
 ```
 
 Test kontrol listesi: `docs/PLAYTEST.md`. Teknik bulgular: `docs/FINDINGS.md`.
