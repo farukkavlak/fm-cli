@@ -84,7 +84,7 @@ table           lig tablosu
 fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
 calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
 report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
-inbox           gelen kutusu
+inbox [--all|--tasks]   gelen kutusu; --all arşivi, --tasks Görevler filtresini okur
 reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir
 reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
 next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle
@@ -172,6 +172,8 @@ dropdowns [metin]           ekrandaki açılır listeler ve seçenekleri
 select <liste> "<seçenek>"  listeden seç
   --dry                     press ve select için: yapma, ne yapacağını söyle
 status          tarih ve oyunun şu an neyi beklediği
+jobs [<kulüp>] [apply|interest] [--yes]   iş ilanları; işsizken de çalışır
+resign [--yes]  menajerlikten istifa et (My Contract → Resign)
 save --yes      oyunu kaydet (dosyanın üzerine yazar, geri alınamaz)
 
 --json          ham veri (script'lenebilir)
@@ -208,14 +210,28 @@ Gerçekten headless (`-nographics`) çalışmıyor — UI olmadan binding ağac�
 ## Gereksinimler
 
 - macOS, **Apple Silicon** (Intel kararı henüz verilmedi)
-- Football Manager 26 (Steam)
-- BepInEx 6 IL2CPP arm64 — oyun klasörüne bir kez kurulur: `docs/FINDINGS.md` §3
-- `~/fm26_bep/fm.app` — Steam kopyasından hazırlanan gölge paket (Info.plist yaması; `fm doctor --install` nerede eksik olduğunu söyler)
-- Derlemek için .NET SDK; **hazır `dist/fm/fm` için SDK gerekmez**
+- Football Manager 26 (Steam'de kurulu)
+- **Hazır paket** kullanılırsa başka bir şey gerekmez; paket BepInEx 6 IL2CPP arm64,
+  eklenti, `fm`, `install.sh` ve `NOTICE`ı birlikte getirir.
+- Geliştirici kurulumu için .NET SDK; **hazır `dist/fm/fm` için SDK gerekmez**.
 
-## Kur
+## Kur — hazır paket (önerilen)
 
-Tek komut (BepInEx ve gölge paket zaten hazırsa):
+`dist/fm-cli-osx-arm64.zip` (üretici: `tools/package.sh`) BepInEx'i, eklentiyi, `fm`yi,
+`install.sh`ı ve lisans bildirimini taşır. Oyun Steam'de kurulu olmalı; zip'i açıp:
+
+```bash
+./install.sh
+fm doctor --install
+```
+
+Kurulum oyun klasörünü, BepInEx'i, gölge paketi (`~/fm26_bep/fm.app`), eklentiyi, `fm`yi ve
+kayıt klasörünü denetler. Oyun başka bir yerdeyse `FM_HOME=/yol/fm26 ./install.sh` ve
+`FM_HOME=/yol/fm26 fm start` kullan.
+
+## Kur — geliştirici
+
+Tek komut (yerel BepInEx ve gölge paket zaten hazırsa):
 
 ```bash
 tools/install.sh
@@ -223,8 +239,8 @@ tools/install.sh
 
 Yaptıkları: gölge paket yoksa oluşturur (`tools/make-shadow.sh`), eklentiyi derleyip
 BepInEx'in plugin klasörüne kopyalar, `fm`yi tek dosya olarak yayınlar (`dist/fm/fm`,
-SDK'sız), `~/.local/bin/fm` bağlar ve kurulumu denetler.
-BepInEx ve gölge paket **dağıtılmıyor** (lisans); eksikse script nerede olduğunu söyler.
+SDK'sız), `~/.local/bin/fm` bağlar ve kurulumu denetler. Geliştirici kurulumu yerel
+BepInEx/gölge paket bekler; **dağıtım zip'i bunları içerir**.
 
 Elle:
 

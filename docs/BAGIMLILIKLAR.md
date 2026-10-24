@@ -1136,8 +1136,11 @@ kısmı sonraya kalabilir. Tahmin (15 Ekim): A+B+C 5–7 gün, D 1–2, H 4–6,
   imzalar (`codesign --force --sign -`). `install.sh` gölge paket yoksa çağırır. Steam güncellemesinden sonra
   `tools/make-shadow.sh --force` ile yenilenir (çalıştırılabilir kopya tazelenir; veri zaten symlink).
 - [x] **Tek komutla kurulum:** `tools/install.sh` — eklentiyi derleyip BepInEx'in plugin klasörüne kopyalıyor, `fm`yi
-  tek dosya olarak yayınlıyor, `~/.local/bin/fm` bağlıyor, sonunda `fm doctor --install` çalıştırıyor. BepInEx ve gölge
-  paket lisans gerektirdiği için **dağıtılmıyor**; eksikse script nerede olduğunu söylüyor. Tekrar çalıştırılabilir.
+  tek dosya olarak yayınlıyor, `~/.local/bin/fm` bağlıyor, sonunda `fm doctor --install` çalıştırıyor. Tekrar
+  çalıştırılabilir; geliştirici kurulumu yerel BepInEx/gölge paket bekler.
+- [x] **Dağıtım paketi:** `tools/package.sh` → `dist/fm-cli-osx-arm64.zip` (BepInEx, `FmCliProbe.dll`, `fm`,
+  `install.sh`, `NOTICE`). Paket kendi gölge paketini kurar; temiz kullanıcıda kurulum/doctor **7/7 ✓**, ancak oyun
+  ikinci kullanıcıda Steam oturumu olmadığı için açılmadı (§8.393). BepInEx lisans metni `NOTICE`ta.
 - [x] **SDK'sız `fm`:** `tools/publish.sh` → `dist/fm/fm` (osx-arm64, tek dosya, ~81 MB, SDK gerekmez) + `dist/FmCliProbe.dll`.
   Yayınlanan ikiliyle `doctor --install` ve komutlar denendi.
 - [x] **`fm doctor` kurulumu denetlesin:** `fm doctor --install` yedi adımı (oyun, BepInEx çekirdeği, başlatıcı, gölge

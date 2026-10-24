@@ -102,6 +102,12 @@ hangi komutla çözüleceğini burada yazar.
 - **cevaplanabilir**: istersen cevap verirsin, vermezsen oyun devam eder.
 - **cevap bekliyor**: cevaplamadan zaman ilerlemez.
 
+Teklif mesajları bazen **Görevler** sekmesinde saklanır ve varsayılan listede görünmez. Onları
+görmek için `fm inbox --tasks`; arşivde kalan eski mesajlar için `fm inbox --all` kullanılır.
+Görevlerdeki bir teklifi `reply` ile açıp reddedebilirsin.
+
+![fm inbox --tasks](img/inbox-tasks.png)
+
 Cevaplamak için mesajın numarasını ver. Mesajın tamamı ve cevapları çıkar, okla seçip Enter'a basarsın:
 
 ![fm reply 19](img/reply.png)
@@ -1639,6 +1645,15 @@ antrenman tesisleri ve menajer kuralları. Kulüp seçince:
 - `fm jobs kayseri interest` kulübe ilgi bildirir.
 
 İkisi de göndermeden önce sorar. Script'te `--yes` gerekir.
+
+### İstifa — `resign`
+
+`fm resign` Kariyer › Sözleşmem ekranındaki **İstifa Et** yolundan çıkar: önce `Immediate` /
+`End of Club Season` seçimini yapar, sonra `SpeakToAction`ı ve birincil onay penceresini geçer.
+Yönetim “kalmak ister misin?” diye sorarsa reddeder. Script'te onay için `--yes` gerekir.
+
+İstifa ettikten sonra işsiz kalırsın; `fm jobs` açık ilanları listeler, `fm jobs "<kulüp>" apply`
+başvurur. Yeni bir kulüple anlaşınca kariyer oradan sürer.
 
 ## 12. Kulüp — `club`, `staff`, `finances`, `supporters`, `board`, `facilities`
 

@@ -15,6 +15,7 @@ mkdir -p "$OUT"
 SHOTS=(
 	"status|fm status"
 	"inbox|fm inbox"
+	"inbox-tasks|fm inbox --tasks"
 	"squad|fm squad"
 	"squad-fitness|fm squad --fitness"
 	"squad-morale|fm squad --morale"

@@ -242,3 +242,31 @@ Komut bataryası: 23/23 rc=0, boş çıktı yok (18 Eylül 2027 17:00).
 ## Köprü
 
 9 Ekim 2027 19:00'da maç sonrası Results ekranı `next` ile geçmedi; `fm buttons` "Son Sonuçlar / continue-button" gösterirken `fm press "Son Sonuçlar"` rc=1 "no control labelled" dedi. `pkill -9 -f "Football Manager 26"` + `fm start </dev/null` + `fm continue` sonrası kayıt 3 Ekim 2027'ye döndü. Aynı gün QPR `--play --no-talk` 83:33'te sakat oyuncu yüzünden durdu; oturum koptuğunda oyun 8 Ocak 2028'e sıçramıştı, `fm start` 9 Ocak 05:45 kaydını yükledi. Köprü kilitlendi.
+
+---
+
+# Playtest — 2026-10-24 (Empoli · 2028/29 sezonu)
+
+Kayıt: `Faruk Kavlak - Empoli` · Empoli FC · Serie BKT
+Oyun tarihi: 20 Ağustos – 22 Ekim 2028 · 10 lig maçı: Catanzaro 2-0, Juve Stabia 1-1, Vicenza 4-1,
+Südtirol 3-1, Reggiana 2-0, Blu-neri U23 1-1, Salernitana 2-1, Cremonese 3-3, Sampdoria 3-3, Modena 1-1.
+**5G 5B 0M · 20 puan · 3. sıra · yenilgisiz.** Sıradaki: Spezia (ev), 29 Ekim.
+
+## Bu turda düzeltilenler
+
+1. **`next`/`press` odakta asılı kalıyordu** — oyun Terminal'in arkasındayken Continue/UI olayları
+   işlenmiyor; `fm next 8` iki kez 5 dakika timeout verdi, `status` ise “hazır” dedi. `Launcher.Activate()`
+   eklendi; `next`, `press`, `match` başında oyun öne getiriliyor (`e66c149`). `fm next 3` elle
+   `osascript` olmadan döndü.
+2. **Görevler sekmesindeki teklif mesajları görünmüyordu** — `offers` satırı cevapsız kalınca `next`
+   kilitlendi; Frosinone/Ignacchiti mesajı `Görevler`te bulunup reddedildi. `inbox --tasks` ve
+   `inbox --all` eklendi (`5760043`, `a05e608`).
+3. **Anında sonuç eski maçı basıyordu** — Cagliari maçında Monza raporu geldi; son fikstür anahtarı
+   değişene kadar bekleme eklendi (`132c8c9`).
+
+## Notlar
+
+- Yeni sezon kayıt/forma numaraları (`numbers --auto`), primler, kaptanlık, disiplin ve transfer
+  dönemi kapanışı çalıştı.
+- Sakatlık `reply` seçenekleri bu maçlarda düzenli geldi; fizyoterapist/club doctor seçildi.
+- Cagliari'nin Campaniello teklifi hâlâ “Sözleşme” durumunda ve `offers`ta cevapsız; bloklamıyor.
