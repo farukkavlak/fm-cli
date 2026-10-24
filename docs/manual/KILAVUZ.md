@@ -826,7 +826,7 @@ baş antrenörünün yıldızı. "Coaching assignments need attention" mesajı g
 ```
 $ fm coaches
 ANTRENÖR         HÜC-TAK  HÜC-TEK  SAV-TAK  SAV-TEK  TOP-TAK  TOP-TEK  KALECİ  KOND   DURAN
-Faruk Kavlak     ✓ ★★★★   ·        ·        ·        ·        ·        ·       ·      ·
+Menajer     ✓ ★★★★   ·        ·        ·        ·        ·        ·       ·      ·
 Tom Shaw         ·        ·        ·        ✓ ★★★    ·        ·        ·       ·      ✓ ★★
 David Preece                                                           ✓ ★★★½
 Chris Cohen      ✓ ★★½    ·        ·        ·        ·        ✓ ★★½    ·       ·      ·
@@ -834,12 +834,12 @@ iş yükü          orta     hafif    orta     orta     ağır     ağır     ha
 baş antrenör     ★★★★     ★★½      ★★½      ★★★      yok      ★★½      ★★★½    ★★½    ★★
 Antrenörü olmayan alan: topla taktik
 
-fm coaches Kavlak topla taktik     ata (alan Türkçe ya da oyundaki başlıkla: "Poss Tact")
-fm coaches Kavlak topla taktik --off   görevden al
+fm coaches Menajer topla taktik     ata (alan Türkçe ya da oyundaki başlıkla: "Poss Tact")
+fm coaches Menajer topla taktik --off   görevden al
 fm coaches --auto                  yardımcı hepsini dağıtsın
 ```
 
-Bir antrenöre ikinci alan verince ilk alandaki yıldızı düşebilir: Faruk Kavlak topla taktiğe de atanınca
+Bir antrenöre ikinci alan verince ilk alandaki yıldızı düşebilir: Menajer topla taktiğe de atanınca
 hücum taktikteki 4 yıldız 3'e indi. İş yükü dağıldıkça her alana ayırdığı emek azalıyor.
 
 ### Maç hazırlığı — `prep`
@@ -1536,8 +1536,8 @@ kaydedilmemiş ilerleme gider; bu yüzden önce sorar ("Önce kaydet" / "Kaydetm
 $ fm load v02 --no-save
 Oyun kapatılıyor…
 FM başlatılıyor…
-'Faruk Kavlak - Fenerbahçe (v02)' yükleniyor…
-Hazır: Faruk Kavlak - Fenerbahçe (v02) (12 Ekim 2025 Pazar).
+'Örnek Kayıt (v02)' yükleniyor…
+Hazır: Örnek Kayıt (v02).
 ```
 
 `fm saves delete "<ad>" --yes` bir kaydı siler; geri alınamaz. O an yüklü olan kayıt silinmez.
@@ -1546,12 +1546,12 @@ Hazır: Faruk Kavlak - Fenerbahçe (v02) (12 Ekim 2025 Pazar).
 
 ```
 $ fm world
-Kayıt     Faruk Kavlak - Fenerbahçe
+Kayıt     Örnek Kayıt
           Last saved over 31 minutes ago (2 days ago in-game time) · Saves automatically every week
 Oynanan   0 Days, 13 Hours, 55 Minutes
 Dünya     5 ülke · 12 lig · yaklaşık 34500 oyuncu
 Detay     turnuvalar: Default · milli turnuvalar: Default
-Menajer   Faruk Kavlak · Fenerbahçe A.Ş. · Playing
+Menajer   Menajer · Örnek Kulüp · Playing
 ```
 
 `fm stop` oyunu kapatır. Kaydedilmemiş ilerleme oyunla birlikte gittiği için önce sorar: "Kaydet ve
@@ -1690,7 +1690,7 @@ sayıya göre eksik roller ve yönetimin ekip hakkındaki görüşü.
 ```
 $ fm staff
 A takım
-  Faruk Kavlak             Manager                     25 TUR  £62K p/w · 30/6/2027
+  Menajer             Manager                     25 TUR  £62K p/w · 30/6/2027
   Zeki Murat Göle          Assistant Manager           46 TUR  £4.7K p/w · 30/6/2026
 …
 Sağlık 6 kişi — eksik: Head of Sports Science 0/1, Physio 1/5, Sports Scientist 0/3
@@ -1894,11 +1894,11 @@ $ fm responsibilities medya
 
 == Media  (4 sende, 1 devredilmiş)
 GÖREV                                      KİMDE         
-Attends New Signing Press Conferences      Faruk Kavlak  sende
+Attends New Signing Press Conferences      Menajer  sende
 Attends League Press Conferences           Tom Shaw      devredildi
-Attends Domestic Cup Press Conferences     Faruk Kavlak  sende
-Attends Continental Cup Press Conferences  Faruk Kavlak  sende
-Attends Broadcast Interviews               Faruk Kavlak  sende
+Attends Domestic Cup Press Conferences     Menajer  sende
+Attends Continental Cup Press Conferences  Menajer  sende
+Attends Broadcast Interviews               Menajer  sende
 ```
 
 Basın toplantısı mesajındaki "Delegate …" cevabı da aynı işi devreder; geri almak için
@@ -1918,10 +1918,10 @@ kimlere verilebileceğini sayar (terminalde okla seçtirir):
 
 ```
 $ fm responsibilities give "loan manager's contract"
-Renewing the Loan Manager's contract: Faruk Kavlak
-Verilebilecekler: Faruk Kavlak · Devin Özek · Şenol Çorlu · Sadettin Saran
+Renewing the Loan Manager's contract: Menajer
+Verilebilecekler: Menajer · Devin Özek · Şenol Çorlu · Sadettin Saran
 $ fm responsibilities give "loan manager's contract" Şenol
-Renewing the Loan Manager's contract: Faruk Kavlak → Şenol Çorlu
+Renewing the Loan Manager's contract: Menajer → Şenol Çorlu
 ```
 
 ### Altyapı — `youth`

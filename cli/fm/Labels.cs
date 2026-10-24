@@ -6,7 +6,7 @@ using System.Text;
 namespace FmCli;
 
 /// <summary>
-/// The CLI's own words in the game's language (Faruk, 14 Ekim 2026: a Turkish game is read in
+/// The CLI's own words in the game's language (a Turkish game is read in
 /// Turkish, an English one in English). The CLI is written in Turkish; a text it prints goes through
 /// <c>$"…"</c>, whose holes make a template ("{0} {1} kişi") that is looked up in the catalog of the
 /// language the game is set to. A language without a catalog is shown English, the one every game

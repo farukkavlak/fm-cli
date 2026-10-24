@@ -72,7 +72,7 @@ büyük ihtimalle gereksiz (gerekirse anahtar `(save_id, oyun tarihi, generation
 `Resources.FindObjectsOfTypeAll(Il2CppType.Of<FM.UI.NewGameHandlerModule>())[0]….m_bindings` (gerçek tip
 `SI.Bindable.BindingSubsystem`). `FMNavigationManager`, `PanelManager` `FindObjectOfType` ile.
 
-### 8.2 `ReadOnlySpan<char>` köprüsü ❌ (28 Eylül'de düzeltildi; önce yanlışlıkla "çalışıyor" yazılmıştı)
+### 8.2 `ReadOnlySpan<char>` köprüsü ❌
 Span alan girişler (`Get`, `Exists`, `Bind`, `MakeKey`) Il2CppInterop'tan geçmiyor: `Il2CppStructArray<char>` ve
 `fixed char*` ikisi de sessizce boş span üretir; her yol aynı key'i verir, olmayan yollar `exists=True` (boş yol = kök).
 Çalışan yollar: ağaçta gezinme (`IReadOnlyNode.Name`, `FirstChild`/`NextSibling`) ve `BindingPath.Create(string)`
@@ -568,7 +568,7 @@ Weeks), "Send On Holiday ›" (bazı oyuncularda).
 (`EventFmxPlayerOOPTrainingRoleChanged`), ek odak (`EventFmxPlayerTrainingFocusChanged`: Endurance, Quickness, Free Kick
 Taking…), yoğunluk. İlk üçü aynı eleman adı → `/namedrows?count=3`. "Ask <yardımcı> to assign all individual training" var.
 
-### 8.52 Oynanarak öğrenilenler (5–6 Ağustos 2025)
+### 8.52 Oynanarak öğrenilenler
 Anında simüle edilen maçtan sonra `State = Results` (ilerle "Response Required"), `/pages` boş (menüler kurulmamış) →
 `OpenPage` listeyi 5 sn bekler. Basın `reply <#> Attend Press Conference` + `talk`. Sezon kaptanı mesajı: "Confirm Captains"
 kaptan boşken diyalog açar; "Review Captaincy" mesajda `GenericDropdown`'lar (Select Captain / Change Vice Captain), seçim
@@ -1503,7 +1503,7 @@ kimlikleri mevki bitleri; koşul listesi `conditiontoadd`. 'RTid' çeviri numara
 Geri çevirinin sınırı: motor tablosunu öne almak "Build Up"ı Game Setup yaptı (geri alındı) → doğru çözüm kimlik ya da gösterimde
 oyunun yazısı. Dil değişince ekranlar hemen, motor yazıları oyun yeniden açılınca.
 
-### 8.173 Gösterim oyunun dilinde (Faruk: "Adamın oyunu tr ise tr görecek")
+### 8.173 Gösterim oyunun dilinde
 İçeride komutlar İngilizceyle eşleşir; kullanıcıya oyunun o an gösterdiği yazı çıkar, geri çeviri yok. Eklenti `Localisation.Saw`
 her çeviride oyunun gösterdiğini `Seen`'e yazar, cevap `X-Shown` başlığıyla döner (base64, `ingilizce<TAB>gösterilen`; İngilizce
 oyunda yok). CLI `GameWords` öğrenir; `Table.Write` hücreleri, `Ui.Safe` markup'ı çevirir; `Run` çıktıyı `GameWordsLines` ile
@@ -1574,7 +1574,7 @@ sırayla dolar: başlıklar + iş yükü (33 öğe) → yıldızsız kutular →
 görev yazısı). Her kutunun yıldız öğesi var (atanmayanda `Shown` 0) → tam formun işareti "her satır ad + görev + dokuz kutu/yıldız,
 iş yüküne kadar".
 
-### 8.251 `fm settings` onayı artık olayla (`PreferencesConfirmChanges`) basılıyor (19 Ekim, TR + EN)
+### 8.251 `fm settings` onayı artık olayla (`PreferencesConfirmChanges`) basılıyor
 
 - Nerede: `Settings.cs` yazma yolu, ayar değiştikten sonra `click ?text=Confirm&name=ConfirmButton`. Etiket oyunun
   kendi sözü (TR'de bugün "Confirm" geliyor, başka dilde çevrilebilir); `Name` şablon adı. Preferences sayfasında
@@ -1653,9 +1653,9 @@ FM'i dışarıdan bir ajana/CLI'a oynatan mevcut proje bulunamadı (Nexus, ModDB
 
 ## 10. Yeni bulgular (en yeni en altta)
 
-Buradan sonrası `cat >>` ile eklenir: `### 8.N Başlık (tarih, dil)` + 3–6 satır.
+Buradan sonrası `cat >>` ile eklenir: `### 8.N Başlık` + 3–6 satır.
 
-### 8.181 `next` beklemesi ölçüldü: başlama ≤1,24 sn, bitişte ≤0,53 sn titreme (14 Ekim, Türkçe)
+### 8.181 `next` beklemesi ölçüldü: başlama ≤1,24 sn, bitişte ≤0,53 sn titreme
 `/next` sonrası `/state` ~25 ms'de bir okundu, 16 ilerleme (27 Tem → 1 Ağu, mesaj/teklif/maç günü durakları dahil). İlk
 değişiklik 0,34–1,24 sn'de (`Settled` 4 sn bekliyor). `Processing` bitince durum kısa süre oynuyor: CanContinue →
 NewsAggregator → CanContinue (0,53 sn), CanContinue → NeedAction (0,1 sn), CanContinue → Fixtures → Tactics (0,42 sn);
@@ -1663,14 +1663,14 @@ NewsAggregator → CanContinue (0,53 sn), CanContinue → NeedAction (0,1 sn), C
 "basış yutuldu" bu 16'da görülmedi. `game.GameManagersNotContinuedCount` (1 → 0) `Processing` ile aynı anda değişiyor,
 ayrı bir işaret değil. Kod değişmedi.
 
-### 8.182 Sözleşme alanları: bağlanmamış `{}`, boş şart "-" (14 Ekim, Türkçe)
+### 8.182 Sözleşme alanları: bağlanmamış `{}`, boş şart "-"
 `contracts <oyuncu>` `FullContract`'ın 26 alanını tek tek soruyor. Hiç okunmamış bir satırda ilk soru `{}` dönüyor; bir
 sonraki okumada (ilk sorudan 0,4–0,9 sn sonra, araya bekleme koymadan) 26 alanın hepsi gelmiş: değeri olmayan şart "-",
 "No" ya da "N/A" — hiçbiri `{}` kalmıyor. Yani `{}` yalnızca "henüz gelmedi". Sabit 300 ms kaldırıldı; `{}` dönen alan
 0,1 sn arayla 5 sn'ye kadar yeniden okunuyor. 27 oyuncu iki kez okundu (ilki çoğunda ilk okuma): iki çıktı aynı, 27/27 tam.
 İngilizcede denenmedi (işaret yazıdan bağımsız).
 
-### 8.183 Finans: kart değil kulübün verisi (14 Ekim, Türkçe)
+### 8.183 Finans: kart değil kulübün verisi
 `finances` ekrandan yazıyla okunuyordu ("Overall Balance" kutusu, "Remaining Debt"ten 16 üst, "Item" başlığından sonrası,
 "Total"in yanı). Türkçede döküm hiç çalışmıyordu: sütun başlığı "Madde" eklentiden "Clause" diye dönüyor (§8.167'nin
 kopya çevirisi), "Item" bulunamıyor. Döküm kartı açık kalınca sonraki çalıştırma da düşüyordu (sayfa yeniden açılınca kart
@@ -1699,7 +1699,7 @@ yalnızca konumu söyler ("0 of 586.2"); kaydırınca görünen satırlar tek ad
 `#Selected`'ı dolu, toplam `#TotalExpenditure`.
 
 
-### 8.184 Quick Pick: seçim tek adımda ~0,45 sn'de, "bitti" işareti yok (14 Ekim, Türkçe)
+### 8.184 Quick Pick: seçim tek adımda ~0,45 sn'de, "bitti" işareti yok
 Basıştan sonra `/tactic` 0,1 sn aralıkla izlendi: yerine yedek konmuşsa on bir tek adımda, ara durum olmadan değişiyor
 (8 denemede 0,33–0,54 sn); zaten seçiliyse hiç değişmiyor. Kuyruk (`/queue`) 0,10–0,15 sn'de boşalıyor, değişiklikten
 önce; `/state` hiç değişmiyor — başka işaret yok. `tactic pick` artık 0,25 sn'de bir okuyor: değiştiyse bir sonraki aynı
@@ -1708,7 +1708,7 @@ okuma istiyordu: 3,7 → 1,2 sn (değişen) / 2,2 sn (değişmeyen); 10 çalış
 `/tactic` bağlı kaldığı için taktik sayfası açılmıyor, "no control labelled 'Quick Pick'" ile 9 sn sonra düşüyordu: önce
 düğme kuru basışla aranıyor, yoksa sayfa açılıyor (Mesajlar'dan 3/3, 2,2–2,4 sn).
 
-### 8.185 Mutluluk listesi: kaydırınca satırlar iki adımda diziliyor (14 Ekim, Türkçe)
+### 8.185 Mutluluk listesi: kaydırınca satırlar iki adımda diziliyor
 §8.183'teki "kaydırınca görünen satırlar tek adımda yenileniyor" Happiness listesinde tutmuyor: 1 → 0 ve 0 → 1 kaydırmada
 önce 15 satırlık bir ara hal (0,14–0,25 sn), sonra 21 satır (0,2–0,33 sn); 0 → 0,5'te tek adım (27 satır, liste 27 oyuncu,
 uzunluk 670,9). 0,1'lik her adım görünen satırları değiştiriyor (1–2 satır). `happiness` artık: takımın oyuncuları kulüp
@@ -1724,7 +1724,7 @@ Happy, -4/-20 Content, -40 Slightly Unhappy, -64 Very Unhappy) sırayı tutuyor 
 yazılarında (motor 268883224–231: Delighted, Very Happy, Happy, …, Unhappy, Very Unhappy; 227–229 İngilizce dökümde yok) →
 Türkçede bu iki seviye çevrilmeden geliyor, sıralama ve renk yanlış. Moral (`Person.MoraleString`) İngilizce gösteriliyor.
 
-### 8.186 Bireysel antrenman: veriden okuma, satır kimliğiyle değiştirme (15 Ekim, Türkçe)
+### 8.186 Bireysel antrenman: veriden okuma, satır kimliğiyle değiştirme
 Okuma sayfasız: `Human.Team.Players` satırlarının yanına `Judge = Human` (`/pathset`; `OOPTraining`, `AdditionalFocus` ve
 seçenek listeleri bu değişkeni istiyor, `/contexts`), sonra `<oyuncu>.PlayerTraining` → `TrainingPosition.NewPositionAndRoleRow`,
 `OOPTraining.IndividualOOPTrainingRoleRow`, `AdditionalFocus.IndividualTrainingTypeRow` (`DisplayValue` + `PropertyValue`;
@@ -1746,7 +1746,7 @@ eklenti yazısıyla ve oyundaki karşılığıyla (`GameWords.Of`) eşleniyor ("
 eklentinin İngilizcesiyle. Türkçe oyunda İngilizce alt rol adı tutmuyor (rol adları oyunun dilinde geliyor). İngilizcede ve
 küçük ekranda denenmedi.
 
-### 8.187 Antrenman yoğunluğu: veriden okuma, Bireysel Antrenman tablosundan değiştirme (15 Ekim, Türkçe)
+### 8.187 Antrenman yoğunluğu: veriden okuma, Bireysel Antrenman tablosundan değiştirme
 Okuma sayfasız: `<oyuncu>.PlayerTraining.TrainingIntensityOrRest` (`team` değişkeni ister → satırların yanına
 `team = Human.Team`): `IndividualTrainingIntensityRow.DisplayValue/PropertyValue`, `RestDaysRemaining`, `HolidaysRemaining`,
 `IntensityRecommendation`, `CanEdit`. `PropertyValue` listenin seçenek numarasıyla aynı ve dilden bağımsız: Otomatik −1,
@@ -1770,7 +1770,7 @@ değişirse bir kez daha basılıyor (16 → 6–9 sn). Ölçüm: değiştirme 2
 oyunun kendi kelimesi "Duble") yalnızca hedef oyuncuda; üç başlangıç durumu (başka sayfa / Bireysel Antrenman / yoğunluk
 kartı); `--auto` 7/7. İngilizcede denenmedi. Not: denemelerde Tom Hamer (1 hafta) ve Ryley Towler (2 hafta) tatile gitti.
 
-### 8.188 Mentorluk: veriden okuma, düğmeler kimlikle, oyunun aynı gün tuzağı (15 Ekim, Türkçe)
+### 8.188 Mentorluk: veriden okuma, düğmeler kimlikle, oyunun aynı gün tuzağı
 Okuma sayfasız: `Human.Team.MentoringGroups` (liste; sayfanın grup listesi `Items = team.mentoringgroups`, aynı sıra) →
 `Name`, her satırın `MentoringGroupPlayerOne/Two/Three` → `Name`, `UniqueId`, `Personality`. Eski kod her yoklamada
 `/tree?depth=40` tarıyordu; 8,4 → 0,7 sn. `Personality`, `PlayerTraining.Workload` ve `HierarchyInfluenceCategoryString` (ister
@@ -1798,7 +1798,7 @@ adlar ("2. Mentorluk Grubu") yeniden numaralanıyor → bir grubun kimliği üye
 ve aynı gün iki silme, aynı gün iki kurma, kurup aynı gün silme hep kalıcı ve doğru; CLI `new`'ü aynı oyun gününde bir
 `remove`'dan sonra reddediyor (kariyer önbelleğinde `mentoring-removed` = günün tarihi). İngilizcede denenmedi.
 
-### 8.189 Mutluluk: sıra ve renk seviyenin yazısına değil oyunun puanına bakıyor (15 Ekim, TR + EN)
+### 8.189 Mutluluk: sıra ve renk seviyenin yazısına değil oyunun puanına bakıyor
 `happiness` listeyi `Array.IndexOf(HappinessLevels, p.Level)` ile sıralıyordu; oyunun Türkçede kendi yazısıyla
 gösterdiği iki seviye ("Biraz Mutlu"/"Biraz Mutsuz") İngilizce dizide olmadığından indeks -1 çıkıyor, bu iki seviye
 listenin başına düşüyor ve `LevelColour` onlara kırmızı veriyordu. Sıra/renk artık kulüp verisindeki puanla:
@@ -1810,7 +1810,7 @@ artık Türkçede "Kötü"/"Aşıri İyi"). Ölçüm: TR Mesajlar'dan / zaten a�
 artan (-65…80); EN'de aynı sonuç, `Very Unhappy`/`Slightly Unhappy` kırmızı, `Content`/`Slightly Happy` sarı,
 `Happy`+ yeşil. Puanın veri yolu her dilde aynı; yazı yalnız gösterimde.
 
-### 8.190 Diffin baktığı hâl önbellekleri dil ve kayda göre ayrıldı (15 Ekim, TR + EN)
+### 8.190 Diffin baktığı hâl önbellekleri dil ve kayda göre ayrıldı
 `CacheFile` bütün önbellekleri (rol adları, görev alanları, talimatlar, sezon/istatistik, gelen kutusu numaraları,
 mentorluk) `~/.config/fm-cli/cache/<dil>/<yönetici - kulüp>/` altına koyuyor; `diff`in baktığı hâl ise tek istisnaydı:
 `Diff.cs` onu üst klasörde yalnız takım adıyla (`diff-<takım>.json`) tutuyordu. İçinde oyunun kendi kelimeleri
@@ -1821,7 +1821,7 @@ başına ayrı dosya (`cache/turkish/...`, `cache/english/...`). Ölçüm (üç 
 ikinci bakış → `Contracts:[]`, başka dilin dosyası okunmuyor (TR ilk bakış EN'in yanında yeniden `First:true`).
 Üstte kalan `diff-*.json` ve `snapshot.json` önceki sürümlerin artığı; okunmuyor, silinmedi.
 
-### 8.191 "Acknowledge and Move On" etiketle değil gönderdiği olayla basılıyor (16 Ekim, TR + EN)
+### 8.191 "Acknowledge and Move On" etiketle değil gönderdiği olayla basılıyor
 Yardımcının son sözünü geçen düğme 8 yerde `press text="Acknowledge and Move On"` ile basılıyordu; yazı oyunun
 kendi cümlesi olduğu için başka dilde çevrilebilir. Eklenti `/buttons?json=1&gen=` yardımcının kartındaki her
 `SpeakToAction` düğmesine `Action` (oyunun aksiyon düğümü) veriyor; o düğümün `Event`'i 31
@@ -1835,7 +1835,7 @@ negatif: yardımcı kartı yokken (`propose` teklif ekranı) yeni kod hiç basm�
 50/50. Not: `propose` "Önerme ekranı açılmadı" hatası eski koddada aynı (bu değişiklikten değil). BoardRequests'te
 aynı karşılaştırma da kimliğe bağlandı; `Release`'teki "Is there anything else" cümle süzgeci ayrı iş.
 
-### 8.192 Mesaj eki okuması: sabit 1,5 sn ölçüldü, yerine geçecek işaret bulunamadı (16 Ekim, TR)
+### 8.192 Mesaj eki okuması: sabit 1,5 sn ölçüldü, yerine geçecek işaret bulunamadı
 `WriteAttachment` (Program ~993) mesajın altındaki "Attachments" başlığından sonrasını okuyup ek gelmezse
 "ek yok" diyor; başlık her mesajda ekranda olduğu için bekleme yalnızca zamanla sınırlı. Ölçüm (butona basıp
 `/texts?anchor=Attachments&up=8&paths=1` yoklaması, 30 ms aralıkla): 0,13 sn'de hâlâ **önceki** mesajın eki
@@ -1851,7 +1851,7 @@ denendi, hepsinde "Ek:" ya da "Haber:" satırı var; gelen kutusu verisi (`/inbo
 taşımıyor (yalnız `CanRespond`, `NewsTitleString`, `UniqueId`…). Negatif durum ölçülmeden "kartlar bağlandı
 mı" işareti eki olmayan mesajı "ek var" sayar; madde bu yüzden `[?]` park edildi.
 
-### 8.193 `reply` mesaj geçişinde boş ara durum yok: oyun cevap kümesini yerinde değiştiriyor (16 Ekim, TR + EN)
+### 8.193 `reply` mesaj geçişinde boş ara durum yok: oyun cevap kümesini yerinde değiştiriyor
 `Reply` (Program ~800) cevapları "sayfadaki başlıklar = düğmeler ve öncekinden farklı" olunca kabul ediyor; `shown ==
 previous` iken boş sonuç yalnızca `CanRespond != "True"` ise geçiyor. Risk: cevaplı bir mesajdan cevaplı bir mesaja
 geçerken eski düğmeler silinip yenileri gelmeden boş bir an varsa `shown=[] != previous` tutar ve cevaplar "yok" sayılır.
@@ -1864,7 +1864,7 @@ döngüsü (TR 10 + EN 6 geçiş, "başka sayfa açık", "mesaj zaten açık", "
 doğru cevap listesi (2 ve 1), hiç "(cevap seçeneği yok)". Negatif/boş yol: cevaplı mesajdan cevapsız `Fitness tests`'e
 geçişte "(cevap seçeneği yok)" doğru geliyor. Kanıtlanmış bir hata olmadığı için kod değişmedi (kural 4, churn yok).
 
-### 8.194 Sözleşmede kutuya girilen ücret oyunun maaş döneminde sayılıyor; CLI'nin "haftalık" sözü yanlıştı (18 Ekim, TR + EN)
+### 8.194 Sözleşmede kutuya girilen ücret oyunun maaş döneminde sayılıyor; CLI'nin "haftalık" sözü yanlıştı
 `--wage` / `--term "Wage=…"` tutarı `OfferScreen.Type` ile `/setnumber`'a olduğu gibi gidiyor; kutunun dönemi
 oyunun kendi "Wages" ayarı (Preferences › Your World), kartın gösterdiği dönem. Ölçüm (aynı komut, aynı oyuncu,
 yalnız ayar değişiyor): TR + Aylık'ta `fm contract --term "Wage=5000"` kartı `5.000 £ aylık` (≈21,7B £/hafta),
@@ -1879,7 +1879,7 @@ okunuyor; (c) oyunun `DisplayValue` yazıları bağlandığı an donuyor: `fm se
 eski dönemi göstermeye devam ediyor (squad "hft" kalırken `contracts` "aylık"), bir gün ilerletmek
 (2 Ağu 09:15 → 10:00) hepsini tazeledi.
 
-### 8.195 Maç geçmişi tarihi oyunun kendi sırasına bırakıldı: gg/aa/yyyy varsayımı iki ayarda satırları siliyordu (18 Ekim, TR + EN)
+### 8.195 Maç geçmişi tarihi oyunun kendi sırasına bırakıldı: gg/aa/yyyy varsayımı iki ayarda satırları siliyordu
 `Matches.cs` oyuncunun maç puanları tablosunu sayfanın yazılarından kuruyor ve satırı "oyunun numarası + tarih"
 diye tanıyordu; tarih `^\d{2}/\d{2}/\d{4}$` ile aranıyor, gösterimdeki kısa biçim `TryParseExact("dd/MM/yyyy")`
 ile çözülüyordu. Oyunun kendi ayarı (Preferences › Your World › Format, `fm settings tarih`) dört sıra sunuyor;
@@ -1897,9 +1897,9 @@ ama komuta **oyunun ham adı** verilmeli (`dd/mm/yyyy`), yoksa "bir seçenek de�
 sütunu 80 sütunda sarıyor (10 karakter, sütun 9) — veri doğru, kozmetik.
 Yan ölçüm (aynı maddenin boy/kilo yarısı): oyuncunun `Height` alanı ayardan bağımsız, her zaman ham santimetre
 (`fm settings boy Fit` iken de `fm player --json` → `Height: 178`), yani CLI'nin " cm" yazısı veriyle tutuyor;
-oyunun birim ayarına uymak için Preferences sayfasını açmak gerekiyor (~7 sn, kural 3'e aykırı) — Faruk'a soru.
+oyunun birim ayarına uymak için Preferences sayfasını açmak gerekiyor (~7 sn, kural 3'e aykırı) — kullanıcıya soru.
 
-### 8.196 İş ilanları satırları ve paneli konum/ağız yazısıyla değil veri yoluyla bulunuyor (18 Ekim, TR + EN)
+### 8.196 İş ilanları satırları ve paneli konum/ağız yazısıyla değil veri yoluyla bulunuyor
 `fm jobs` Türkçede hiç çalışmıyordu ("İş ilanları okunamadı."): satırlar 8'li adımlarla sayılıyor ve lig sırası
 `^\d+(st|nd|rd|th)$` ile doğrulanıyordu; oyun Türkçede sırayı "7." / "20." yazıyor (İngilizce kalıntı "3rd" de var),
 ilk satırda kontrol düşüp liste boş kalıyordu. Ayrıca seçilen işin paneli `<kulüp> Managerial Position` cümlesinin
@@ -1916,7 +1916,7 @@ kaydırıldığında farklı kulüpler), yani listede olan bir ilan (`fm jobs "C
 yok" diyebiliyor; tam liste için listeyi kaydırarak gezmek ya da oyunun verisinden okumak gerekiyor (checklist'e
 madde olarak eklendi). Panel, satırı görünmeyen bir iş seçilirse boş kalabiliyor (Danimarka) — hata vermiyor.
 
-### 8.197 İş listesi kendi kaydırması boyunca geziliyor: 15 değil 321 ilan (18 Ekim, TR + EN)
+### 8.197 İş listesi kendi kaydırması boyunca geziliyor: 15 değil 321 ilan
 Tablo yalnız görünen pencereyi (12–20 satır) döşüyor; `fm jobs` bu yüzden listenin başını okuyordu. Artık liste
 kendi kaydırması boyunca geziliyor: `scroll?anchor=Current Manager&to=<0..1>` ile pencere pencere iniliyor ve
 pencereler sırayla birleştiriliyor. Kaydırmadan sonra ilk okuma **boş** geliyor (satırlar bir-iki kare sonra
@@ -1935,7 +1935,7 @@ panelde "Training Facilities" satırı yok) artık uyarı stderr'e yazılıyor, 
 Not: panel yazıları panel bağlı kaldıkça eskisini gösterebiliyor (§8.194) — York'un ayrıntısında bir kez Celesti'nin
 "Wage Bill/Training Facilities" satırları okundu; düğme durumu (CanApply) seçili satırı izliyor, o doğruydu.
 
-### 8.198 İki tuzak: uzun oturumda kayıt kendiliğinden boşalabiliyor; EN'de ulus takımı adları çevriliyor (18 Ekim)
+### 8.198 İki tuzak: uzun oturumda kayıt kendiliğinden boşalabiliyor; EN'de ulus takımı adları çevriliyor
 - Sweep'in 39. komutundan sonra oyun ana menüye döndü ve kayıt boşaldı: `fm status` "kayıt yüklü değil", sweep'in
   kalan 10 komutu `rc=69 "Kayıt yüklü değil"` verdi (`numbers` tam o anda 30 sn'de yanıt vermedi). Kod hatası değil:
   aynı sweep kayıt yeniden yüklenince **50/50 temiz** (`fm start` ile "Son kayıt yükleniyor… / Hazır."). Uzun bir
@@ -1945,7 +1945,7 @@ Not: panel yazıları panel bağlı kaldıkça eskisini gösterebiliyor (§8.194
   dilinde yazılıyor (`United States`/`U.S.A.`, `Fildişi Sahilleri`/`Ivory Coast`, `S. Arabistan`/`Saudi Arabia`).
   Yani iki dilin çıktısı kulüp adına göre karşılaştırılamaz; sıra ve sayı karşılaştırılmalı.
 
-### 8.199 `fm actions`: ekrandaki konuşan düğmeler konuşma sanılıyordu (18 Ekim)
+### 8.199 `fm actions`: ekrandaki konuşan düğmeler konuşma sanılıyordu
 - `AfterAction` "oyun bir konuşma açtı mı" diye `TalkOptions()`a bakıyordu; o da ekranda `SpeakToAction` olayı taşıyan
   her `StandardButton`ı sayıyor. Oyuncu menüsü herhangi bir ekranın üstünde açılabildiği için, gazete maddesinin
   isteğe bağlı cevapları (ör. "Adjust Scouting Budget"/"Adjust Transfer and Wage Budget", bütçe kartı ekrandayken)
@@ -1960,7 +1960,7 @@ Not: panel yazıları panel bağlı kaldıkça eskisini gösterebiliyor (§8.194
   olarak açılıyor (seçimden 0,29 sn sonra 6 yeni düğme, başka sayfa Guid'i); sonuçsuz bir iş ("Training>Rest Player>1 day")
   "yapıldı" diyor ve veriden doğrulandı (`fm intensity` → Ben House `RestDays: 1`). `tools/sweep.sh`: 50 komut, 0 hata.
 
-### 8.200 Bütçe ayarının slider adımları: işaret oyunun kendi yazısı, 3 sn sınırına ≥8 kat pay (18 Ekim, TR + EN)
+### 8.200 Bütçe ayarının slider adımları: işaret oyunun kendi yazısı, 3 sn sınırına ≥8 kat pay
 `fm budget ayarla` slider'ı her adıma koyar, sonra kartın rakamlarını okur; okuma ancak "rakam değişti **ve**
 yürürlükteki adımı ayıran yıldız adıma uydu" olunca kabul edilir (3 sn, 0,2 sn aralık). Bu, oyunun kendi işareti:
 adım yerleşince `budget.BudgetAdjustmentEditedTransferValue` / `...EditedOtherValue` yazıları değişiyor ve kart
@@ -1972,7 +1972,7 @@ değişmedi. TR ile EN'de rakamlar birebir aynı (yalnız "Transfers/Wages" etik
 "no button shows 'Adjust Transfer and Wage Budget'" ile düşüyor (kendi bıraktığım karttı; `Cancel` ile kapanınca
 aynı koşu hatasız). Kart önceden açıkken komutun yine çalışması ayrı bir iyileştirme olarak duruyor.
 
-### 8.201 `fm settings` ayarı başlık yazısıyla arıyor; Almanca oyunda dil ayarı bulunamıyor (18 Ekim, DE)
+### 8.201 `fm settings` ayarı başlık yazısıyla arıyor; Almanca oyunda dil ayarı bulunamıyor
 Ayar tanımları `Heading: "Game Language"` gibi İngilizce başlıklarla eşleşiyor. Almanca oyunda `/form` bu başlığı
 **"Language"** diye verdi: oyunun Almanca yazısı ("Sprache") hem "Language" hem "Game Language" İngilizcesine
 karşılık geliyor, eklenti tablosu ilkini döndürüyor (FINDINGS §8.167'deki çakışma). Ölçüm: Almanca oyunda
@@ -1983,7 +1983,7 @@ dil `/select?ptr=…&index=13` ile değiştirilip Türkçeye dönüldü. Kalıc�
 adıyla (`GameLanguagePreferencesBlock` — E bölümü) bulmak; kabul edilen başlık listesi yeni bir kırılgan
 bağımlılık olurdu.
 
-### 8.202 `takers`: duran top türü seçildikten sonraki 500 ms gereksizdi (18 Ekim, TR + EN)
+### 8.202 `takers`: duran top türü seçildikten sonraki 500 ms gereksizdi
 `Takers.cs` `ShowSetPieceKind`, Set Piece Type menüsünden türü seçtikten sonra sabit 500 ms bekliyor, sonra
 `Still(...)` ile oyunun kendi işaretini arıyordu: menü bu türü gösteriyor **ve** atıcı düğmesi iki okumada aynı
 duruyor. Bekleme, bu işaretin zaten kapsadığı bir şeydi; kaldırıldı (kural 2: sabit bekleme yerine oyunun işareti).
@@ -1994,7 +1994,7 @@ başka sayfadan) TR ve EN'de aynı çıktı (`md5` `8eb5533…` TR, `f42fb27…`
 vardı. `Still` bir tür daha nadiren üçüncü okuma istiyor (iki okuma aynı olana kadar), o yüzden toplam süre
 değişmiyor; ama `ShowSetPieceKind` içinde sabit bekleme kalmadı.
 
-### 8.203 `fm settings` ayarı artık başlık yazısıyla değil, öğenin bulunduğu blokla buluyor (18 Ekim, DE + TR + EN)
+### 8.203 `fm settings` ayarı artık başlık yazısıyla değil, öğenin bulunduğu blokla buluyor
 Önce: her ayar `/form`daki başlık yazısıyla (`Heading: "Game Language"`) bulunuyordu; Almanca oyunda o başlık
 **"Language"** geldiği için dil satırı hiç bulunamıyordu. Ölçüm (önce, DE): `fm settings --json` → **14** satır,
 `dil` yok; `fm settings dil Deutsch` → ayarı yaptı ama okuma dönmedi ("was set to Deutsch, but when the page was
@@ -2019,7 +2019,7 @@ slider/onay kutusu/radio için oyun blok adı vermiyor → onlar başlıkla kal�
   'Match Day'", `click ?text=Matchday` → çalışıyor), İngilizcede "Match Day". Sonuç: `fm settings --json` TR/DE'de
   15, EN'de 19 satır — maç gösterimi/dinamik mod/vurgu hızı/ara hızı TR ve DE'de hiç okunmuyor.
 
-### 8.204 `fm settings` sekmesi artık düğmenin bulunduğu kapsayıcıyla açılıyor (18 Ekim, TR + EN + DE)
+### 8.204 `fm settings` sekmesi artık düğmenin bulunduğu kapsayıcıyla açılıyor
 Sekme `click ?text=<sekme>&name=DetailedPreferencesTabButton` ile açılıyordu; sekme yazısı oyunun sözü (TR/DE'de
 "Matchday", EN'de "Match Day"), bu yüzden TR/DE'de "Match Day" sekmesi hiç açılmıyor, maç gösterimi / dinamik mod /
 vurgu hızı / ara hızı okunmuyordu. Sekme düğmeleri `/buttons`ta yok; `/elements?ptr=<TabButtons>&depth=4` her
@@ -2038,7 +2038,7 @@ sekmenin **kapsayıcı adını** veriyor (`#MatchDayTabButton`, `#YourWorldTabBu
   `fm settings "vurgu hızı" --json` → `10x`. Negatif: `fm settings "vurgu hızı" 7x` → "bir seçenek değil", rc=1.
 - Dönüş: `fm settings language "Türkçe"` → `German → Turkish` (`/state` → `Language: turkish`); final TR koşusu 19
   satır, ilk koşuyla aynı `md5`.
-### 8.205 `fm staff`: kaydırmadan sonraki 400 ms sabit duraklama işarete çevrilemedi — oyun "tam olmayan pencereyi" de sakin gösteriyor (18 Ekim, TR + EN)
+### 8.205 `fm staff`: kaydırmadan sonraki 400 ms sabit duraklama işarete çevrilemedi — oyun "tam olmayan pencereyi" de sakin gösteriyor
 Amaç: `Staff 74`deki `Task.Delay(400)`u (All Staff tablosu 5 kaydırma noktasında okunmadan önce) oyunun kendi işaretine
 çevirmek. Denenen işaret: "pencere kaydırmadan öncekinden farklı **ve** art arda iki okumada aynı" (+ kaydırmanın
 oynadığını `scroll` cevabını `to`suz çağrıyla karşılaştırarak anlamak).
@@ -2054,7 +2054,7 @@ oynadığını `scroll` cevabını `to`suz çağrıyla karşılaştırarak anlam
   yerleşimin gerisinde kalıyor.
 - Karar (kural 4): kanıtlanmış iyi hâl yok → `git restore cli/fm/Staff.cs`, madde `[?]`, soru BAGIMLILIKLAR'da. Not:
   "Mutluluk"taki gibi çapayı **görünen son satırın kendi yazısına** taşıyıp listeyi baştan sona gezmek ayrı bir iş.
-### 8.206 `fm training <oyuncu> --trait`: döşemeleri açan iki sabit 500 ms oyunun kendi işaretine bağlandı (18 Ekim, TR + EN)
+### 8.206 `fm training <oyuncu> --trait`: döşemeleri açan iki sabit 500 ms oyunun kendi işaretine bağlandı
 `cli/fm/TraitTraining.cs`: alışkanlık eğitimi sayfası iki döşemeyle açılıyor ("Training Rating" oyuncu kartından,
 "Traits" onun açtığı sayfadan) ve her basıştan sonra sabit 500 ms bekleniyordu. Yeni: basılacak döşeme **basılmadan**
 soruluyor (`press ?text=…&name=layout-tile-interaction-button&any=1&dry=1`, 0,25 sn aralıkla, en çok 8 sn) ve ancak
@@ -2078,7 +2078,7 @@ ekranda görününce basılıyor; sabit bekleme yok. Döşeme gelmezse adıyla b
   'Ask For Trait Training Suggestion'`. `git stash` + eski derlemede **birebir aynı** → bu değişiklikten değil; B'nin
   "İngilizce yazıyla basma/tıklama — 44 yer" maddesinin ölçülmüş bir örneği.
 
-### 8.207 `fm opposition <oyuncu> <talimat>=<değer>`: sabit 500 ms yerine sütunun kendi değeri, ve her talimat satırın adıyla yeniden bulunuyor (18 Ekim, TR + EN)
+### 8.207 `fm opposition <oyuncu> <talimat>=<değer>`: sabit 500 ms yerine sütunun kendi değeri, ve her talimat satırın adıyla yeniden bulunuyor
 
 `cli/fm/OppositionCard.cs`. Bir talimat seçildikten sonraki sabit 500 ms kaldırıldı; onun yerine okuma "o sütun seçilen
 değeri gösteriyor" olana kadar (0,25 sn aralık, en çok 8 sn; gelmezse stderr'e uyarı) sürüyor. Ölçüm (`python3` +
@@ -2108,7 +2108,7 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   madde `[?]`. Regresyon: `tools/sweep.sh` → 50 komut, 0 hata. Kayıt test kaydı: talimatlar `--clear` ile başlangıçtaki
   boş hâline döndürüldü, saat ilerletilmedi, maç oynanmadı.
 
-### 8.208 `fm player <oyuncu> --matches`: sabit 500 ms kalktı, dal ilk kez çalıştı — en eski maç artık düşmüyor (18 Ekim, TR + EN)
+### 8.208 `fm player <oyuncu> --matches`: sabit 500 ms kalktı, dal ilk kez çalıştı — en eski maç artık düşmüyor
 
 - Sayfadaki maç listesi yalnız görünen pencereyi döşüyor (19 satır); `if (rows.Count < apps)` koşulu oyun
   sayısını beklediği için bu dal **hiç çalışmıyordu** (`Apps` 12, satır 19) → her oyuncunun en eski maçı (#1,
@@ -2128,7 +2128,7 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   sonra `/texts` bir an **önceki oyuncunun** tablosunu (Ben House, Apps 12) döndürüyor; FM'in bağlı kalan
   panelleri (§8.194, §8.197) — ayrı madde olarak duruyor.
 
-### 8.209 `fm training <oyuncu> --trait-suggest`: düğme artık İngilizce yazısıyla değil, oyunun eylem kimliğiyle bulunuyor (18 Ekim, TR + EN)
+### 8.209 `fm training <oyuncu> --trait-suggest`: düğme artık İngilizce yazısıyla değil, oyunun eylem kimliğiyle bulunuyor
 
 - TR oyunda düğmenin yazısı `Oyun Karakteristiği İdmanı Önerisi İste`; CLI `press text="Ask For Trait Training
   Suggestion"` diyordu ve eklenti sorgu metnini tablodan o dile çeviriyor — ama bu sözün İngilizcesi tabloda
@@ -2152,7 +2152,7 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   **olmadığı** kanıtıyla bırakıldı. Regresyon: `tools/sweep.sh` → 50 komut, 0 hata; kayıt test kaydı (2 Ağustos
   2026 14:00) — hiçbir alışkanlık öğretilmedi (her koşu "Don't start training" ile kapandı), saat ilerletilmedi.
 
-### 8.210 `fm contract <oyuncu> --agent`: menajeri sorma satırı artık oyunun eylem kimliğiyle, sabit 1 sn yerine konuşmanın kendi işaretiyle (18 Ekim, TR + EN)
+### 8.210 `fm contract <oyuncu> --agent`: menajeri sorma satırı artık oyunun eylem kimliğiyle, sabit 1 sn yerine konuşmanın kendi işaretiyle
 
 - TR oyunda `fm contract "Adam Reach" --agent` üç durumda da `menajerle görüşme seçeneği yok (yakın zamanda
   konuşulmuş olabilir).` rc=1 veriyordu; oysa satır ekranda duruyordu: `/buttons?json=1` → `Temsilci İle Yeni
@@ -2184,7 +2184,7 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
   (`/buttons?json=1` → `Finalise Promises` / `Cancel Negotiations`, ikisinin de `Action` alanı **boş**), yani
   kartın hangi oyuncunun kartı olduğu/işareti ayrı ölçülmeli (§8.197/§8.208'in bağlı kalan panel tuzakları).
 
-### 8.211 `fm numbers`: alt sayfa ve kaydırma sabit duraklamaları oyunun işaretine bağlandı; boş okuma sayfayı yeniden istiyor (18 Ekim, TR + EN)
+### 8.211 `fm numbers`: alt sayfa ve kaydırma sabit duraklamaları oyunun işaretine bağlandı; boş okuma sayfayı yeniden istiyor
 
 - Öncesi: `OpenNumbers` alt sayfa düğmesinden (`SecondaryTabDropdownButton`) önce sabit 1,5 sn bekliyor, `ReadNumbers`
   her kaydırmadan sonra sabit 400 ms. İkisi de makine hızını tahmin ediyordu; bir dil değişimi ekranı yeniden çizerken
@@ -2202,7 +2202,7 @@ payı neredeyse yoktu. `FM_TRACE=1` izi: `select` 0,38 s → ilk okuma 0,45 (esk
 - `tools/sweep.sh` 50 komut, 0 hata (`numbers` 6 sn, 42 satır). Kayıt geri alındı: verilen iki numara `-`e çevrildi,
   `md5` baştaki değere döndü; dil Türkçe, saat 2 Ağustos 2026 14:00, saat ilerletilmedi, maç oynanmadı.
 
-### 8.212 `fm opposition <oyuncu> <talimat>=<değer>`: değer artık hem İngilizce hem ekranda görünen sözle kabul ediliyor (18 Ekim, TR + EN)
+### 8.212 `fm opposition <oyuncu> <talimat>=<değer>`: değer artık hem İngilizce hem ekranda görünen sözle kabul ediliyor
 
 `cli/fm/OppositionCard.cs`. Eklenti seçenekleri İngilizce veriyor (`Never`/`Always`, `Normal`/`Easy`/`Hard`, `Left/Right/Weak
 Foot`), ama çıktı `GameWords` yazıcısından geçtiği için hata ve yardım satırı onları oyunun sözleriyle yazıyor
@@ -2222,7 +2222,7 @@ hâlâ eklentiden geliyor. Ters sözlük gerekmedi (ileri eşleme yetiyor).
   Dönüş: `fm settings language "Türkçe"` → "English → Turkish"; son TR koşusu yine doğru. Kayıt test kaydı, saat ilerletilmedi,
   maç oynanmadı; talimatlar `--clear` ile boşaltıldı. Paylaşılan koda dokunulmadı → sweep gerekmedi.
 
-### 8.213 `fm scout <odak>`: sonuç tablosunu kaydırdıktan sonraki sabit 700 ms, pencerenin kendi işaretine bağlandı (18 Ekim, TR + EN)
+### 8.213 `fm scout <odak>`: sonuç tablosunu kaydırdıktan sonraki sabit 700 ms, pencerenin kendi işaretine bağlandı
 Oyuncu listesi gibi odak tablosu da yalnız görünen pencereyi çiziyor; `rows.Count < expected` olunca `scroll` ile
 0.5/1 payına iniliyordu ve her kaydırmadan sonra sabit 700 ms bekleniyordu. Yeni: kaydırmadan sonra pencere
 "öncekinden **farklı** ve art arda iki okumada **aynı**" olunca kabul ediliyor (0,25 sn aralık, en çok 5 sn).
@@ -2241,7 +2241,7 @@ kabul ederdi (Staff 74'ün tuzağı).
 - Not (bu maddenin dışı, eski davranış): `fm open "Messages"` hemen ardından odak listesi bir kez boş
   okunabiliyor (`Odak: 'England' diye bir seçenek yok`, rc=64) — §8.185'teki "sayfa açılmadan dönüyor" hâli.
 
-### 8.214 `fm player <oyuncu> --career`: tablonun satırları başlık yazısıyla değil, satırın kendi ilk hücresiyle bulunuyor; Türkçede hiç çalışmıyordu (18 Ekim, TR + EN)
+### 8.214 `fm player <oyuncu> --career`: tablonun satırları başlık yazısıyla değil, satırın kendi ilk hücresiyle bulunuyor; Türkçede hiç çalışmıyordu
 `cli/fm/Career.cs` satırların başladığı yeri (`start`) tablonun **başlık yazısıyla** buluyordu: `texts.IndexOf("Avg Rat") + 1`.
 Ama başlık oyunun sözü ve eklenti onu her dilde başka bir İngilizceye çeviriyor — İngilizce oyunda `Info` / `Avg Rat`,
 Türkçe oyunda aynı sütunlar `Information` / `Avg. Rating` (ölçüldü, hem kaleci hem normal oyuncu sayfasında). Türkçede
@@ -2265,7 +2265,7 @@ geldiği için dokunulmadı.
   insan çıktısı `How()` ile CLI'nin kendi sözünü yazıyor. Ayrıca dil değiştirildikten sonra sayfa yenilenmezse
   bağlı yazılar eski dilde kalıyor (`Nation: İngiltere` İngilizce oyunda) — §8.194'ün bilinen hâli.
 
-### 8.215 `fm responsibilities give`: listeyi başa alma sabit 500 ms yerine listenin kendi cevabıyla (18 Ekim, TR + EN)
+### 8.215 `fm responsibilities give`: listeyi başa alma sabit 500 ms yerine listenin kendi cevabıyla
 `cli/fm/Responsibilities.cs`. `GiveDuty`/`SetDuty` uzun görev listesini `scroll ?anchor=<TakeControlAll|DelegateAll>&to=0`
 ile başa alıp **sabit 500 ms** bekliyor, sonra okuyordu. Ölçüm (python3, 40 ms aralıkla `/form?anchor=Take Control of All&up=12`):
 kaydırmadan sonra satırlar ~0,35 sn'de oturuyor (iki ardışık okuma aynı) — yani 500 ms yalnız satırların ne zaman
@@ -2279,10 +2279,10 @@ zaten açık / başka sayfa açık / liste elle dibe kaydırılmış) TR + EN **
 `fm responsibilities give "ZZZ yok"` → rc=64, `'ZZZ yok' diye bir görev yok` (EN: `There is no duty called 'ZZZ nope'`).
 Kayıt değişmedi (kişi verilmediği için hiçbir görev devredilmedi), saat ilerletilmedi, dil Türkçeye döndü.
 Yazma yolu da aynı yardımcıdan geçiyor: `take "Assigning Scouts" --yes` → `artık sende.` (14 sn), geri
-`give "Assigning Scouts" "Jez George" --yes` → `Faruk Kavlak → Jez George` (11 sn); `fm responsibilities scout --json`
+`give "Assigning Scouts" "Jez George" --yes` → `Menajer → Jez George` (11 sn); `fm responsibilities scout --json`
 ile `Assigning Scouts | delegated | Jez George` doğrulandı. `tools/sweep.sh` 50 komut, 0 hata.
 
-### 8.216 `schedule set`: antrenman takvimi iki sekmenin ay listesini karıştırınca okunamıyor; seçenek açıklamasının oturması ölçüldü (18 Ekim, PARK)
+### 8.216 `schedule set`: antrenman takvimi iki sekmenin ay listesini karıştırınca okunamıyor; seçenek açıklamasının oturması ölçüldü
 `fm schedule`/`fm schedule set` takvimi okurken ara sıra `Takvimin antrenman sekmesi okunamadı.` (rc=1) veriyor:
 takvim sayfası (`Portal › Calendar`) kendi `MonthDropdown`'ını **her sekmede ayrı** tutuyor (`General` ve `Training`),
 `/dropdowns` ikisini birden veriyor. Sekmeler ayrı aylara bakabiliyor (biri Ağustos, öteki Haziran) ve
@@ -2299,7 +2299,7 @@ tamamlanamadı (yukarıdaki ay karışıklığından); kural 4 gereği **kod ger
 İngilizce denemede ayrıca `'General' diye bir seans yok` çıktı: dil değiştikten sonra sayfa yenilenmediği için
 seçenek adları hâlâ oyunun o günkü sözüyle geliyor (§8.194'ün devamı).
 
-### 8.217 `fm propose`: öneri ekranının iki düğmesi artık eylem/kimlikle bulunuyor; Türkçe oyunda hiç çalışmıyordu (18 Ekim, TR + EN)
+### 8.217 `fm propose`: öneri ekranının iki düğmesi artık eylem/kimlikle bulunuyor; Türkçe oyunda hiç çalışmıyordu
 Kulüplere önerme akışı iki düğmeyi **oyunun İngilizce sözüyle** arıyordu: listedeki "Offer via TransferRoom"
 (`press ?text=…`) ve teklif ekranının gönder düğmesi "Offer Player". İkincisinin sözü oyunun çeviri tablosunda
 başka bir metne bağlı ("Offer Player" → "Oyuncuyu Takasa Kat"), bu yüzden Türkçe oyunda etiketi hiç İngilizce
@@ -2315,7 +2315,7 @@ Gönderme yolu da denendi (`--loan --yes` → "Önerildi.", sonra seçenek liste
 Yan bulgu: `fm actions` oyuncunun bu aksiyon listesini göremiyor ("No 'Remove From Loan List' in the menu" —
 oysa düğme ekranda); `fm propose` bitince Ben House önerilmiş olarak kaldı.
 
-### 8.218 `fm penalties`: "MAÇA" sütunu oyunun cümlesine bağlı — TR'de ham Türkçe, EN'de Türkçe "ilk 11" (18 Ekim, PARK)
+### 8.218 `fm penalties`: "MAÇA" sütunu oyunun cümlesine bağlı — TR'de ham Türkçe, EN'de Türkçe "ilk 11"
 Tablonun yer hücresi `tactic.TeamSelectedPositionStringFromPlayer` yolundan, yani oyunun kendi cümlesinden geliyor;
 eklenti onu ancak tabloda birebir karşılığı varsa İngilizceye çeviriyor. Ölçüm (`fm penalties --json`, 2 Ağustos 2026,
 tek taker James Collins + `penalties add "Tom Bayliss"`, sonra geri alındı): TR'de kulübedeki `"On Subs bench"`,
@@ -2328,7 +2328,7 @@ eşleşme olmadığı için insan çıktısı ham cümleyi, EN'de `ilk 11 · DMC
 "ilk 11/kulübe" alanı yok); `/tactic` Slot'ları kısaltılmış ad (`Bayliss`) ve sayısal `Position` maskesi taşıyor,
 ceza tablosundaki tam adlarla birleştirmek kırılgan. Dilden bağımsız yol bulunmadan değiştirilmedi (PARK).
 
-### 8.219 `jobs apply|interest`: iş panelinin iki cevabı olayla bulunuyor; basıştan sonraki sabit 1 sn yerine oyunun cevabı bekleniyor (18 Ekim, TR + EN)
+### 8.219 `jobs apply|interest`: iş panelinin iki cevabı olayla bulunuyor; basıştan sonraki sabit 1 sn yerine oyunun cevabı bekleniyor
 `fm jobs "<kulüp>" apply|interest` iki düğmeyi İngilizce etiketle (`ButtonEnabled("Apply For Job")`,
 `JobButton(label)`) arıyordu ve basıştan sonra **sabit 1 sn** bekleyip `dialog` okuyordu. Artık ikisi de oyunun
 kendi olayıyla bulunuyor: `/buttons?json=1` → `Events` içinde `EventFmxApplyForJob` / `EventFmxDeclareInterestInJob`
@@ -2348,7 +2348,7 @@ olmadığı için `CanApply` zaten bilinmiyor, komut eskisi gibi "does not take 
 değil; eski kodda da etiketle aranan düğme panel yokken bulunmuyordu). Ölçüm basışları test kaydında; kayıt
 `fm load … --no-save` ile baştan yüklendi (dosyaya yazılmadı), dil Türkçeye döndü.
 
-### 8.220 `fm jobs <ilan>`: iş paneli artık oyunun kendi kabından okunuyor; ulus ilanlarında başvuru durumu yanlış söyleniyordu (18 Ekim, TR + EN)
+### 8.220 `fm jobs <ilan>`: iş paneli artık oyunun kendi kabından okunuyor; ulus ilanlarında başvuru durumu yanlış söyleniyordu
 Panel, ekran yazılarıyla bulunuyordu: başlıkta kulübün adı (`Contains(job.Club)`) **ve** panelde "Training Facilities"
 satırı olması gerekiyordu. İkisi de dile/kayda bağlı: ulus ilanlarının başlığı oyunun kendi sözüyle geliyor
 (TR "Danimarka Menajerlik Görevi", satırın hücresi `team.name` = "Denmark") ve ulus panelinde "Training Facilities"
@@ -2366,7 +2366,7 @@ uyarısı, 8–9 sn → `CanApply:false`, uyarı yok, 3–5 sn; `jobs "Fildişi 
 "açık"/"kapalı" (menajeri olanlarda değişen yok: sütun yine "?", çünkü onlar hiç sorulmuyor). Kulüp ilanı (`jobs "York" --json`, `md5 34c583c8…` TR / `1ee49ee3…` EN) üç durumda **eskisiyle
 birebir**; her komut üç durumda (başka sayfa açık / panel zaten açık / başka sayfaya geçtikten sonra) aynı `md5`.
 
-### 8.221 `fm world`: dünya bilgisi artık menünün yazılarıyla değil veri yoluyla okunuyor (18 Ekim, TR + EN)
+### 8.221 `fm world`: dünya bilgisi artık menünün yazılarıyla değil veri yoluyla okunuyor
 `World()` değerleri etiketlerin yanına/öncesine bakarak alıyordu (`Before("Save Game")`, `After("Save Game As")`,
 `texts.FirstOrDefault(t => t.StartsWith("Saves automatically"))`, `Before("Estimated game speed:")`,
 `After("Game Status", 3)`) ve menüyü `anchor=Manage settings for this game` ile buluyordu — hepsi oyunun kendi
@@ -2384,7 +2384,7 @@ alınıyor (JSON'daki İngilizcesi TR'de "Game Information" geliyor; bu eklentin
 Ölçüm: TR + EN, üç durum (başka sayfa açık / menü zaten açık / başka sayfadan) → alan alan ve insan çıktısı
 `md5` (TR `899c9313…`, EN `b4399afa…`) **eski derlemeyle birebir**; `sweep.sh` 50 komut, 0 hata (`world` 2 sn, 6 satır).
 
-### 8.222 `fm release`: liste etiketle aranıyordu, oyunun etiketi artık "Set For Release" — komut hiç çalışmıyordu (18 Ekim, TR + EN)
+### 8.222 `fm release`: liste etiketle aranıyordu, oyunun etiketi artık "Set For Release" — komut hiç çalışmıyordu
 `Release()` listeyi `dropdowns?json=1` içinde `Label == "Release"` ile arıyordu; oyunda o listenin etiketi
 **"Set For Release"** (TR'de de aynı, eklentinin çevirdiği söz) → liste hiç bulunamıyor, komut her oyuncuda
 "serbest bırakma seçeneği yok." (rc=1) diyordu ve `--free`/`--mutual` yolu hiç açılmıyordu. Ölçüm (kart
@@ -2400,7 +2400,7 @@ Kanıt: TR `release "Ben House"` → iki seçenek; `--free` (onaysız) üç duru
 bin) + "Vazgeçildi" (hiçbir şey değişmedi); EN aynı ("£350K"); izde `select ?choice=Bedelsiz Serbest Bırak&fire=1`
 (eskiden `no choice`); negatif `release "ZZZ yok"` değişmedi, listesi olmayan oyuncuda (Oscar Thorn) yine "seçenek yok".
 
-### 8.223 `fm stages`: kurası çekilmemiş turun tarihi İngilizce cümleye bağlıydı — TR'de hiç yazılmıyordu (18 Ekim, TR + EN)
+### 8.223 `fm stages`: kurası çekilmemiş turun tarihi İngilizce cümleye bağlıydı — TR'de hiç yazılmıyordu
 Tur açıklaması (`StageContent`) "Bu tur … çekilecek / oynanacak" cümlesini `StartsWith("This round will be drawn")`
 ile arıyor ve tarihi önekin arkasından kesiyordu. Cümleyi oyun kuruyor (içinde tarih var), eklentinin çeviri
 tablosundan geçmiyor: TR'de `/texts` → `"Bu tur 13/8/2026 tarihinde oynanacak"` (yol yok), EN'de
@@ -2414,7 +2414,7 @@ birebir ("The draw has not been made yet; the draw is 13/8/2026."); TR `--all` 8
 turlar (`Ties`) değişmedi; negatif `stages "Carabao Cup" "ZZZ"` aynı "aşama yok" listesi. `StageContent` dışına
 dokunulmadı; `sweep.sh` `stages`/`table` koşuyor → 50/50.
 
-### 8.224 `fm player --matches`: maç puanları sayfası artık yazıyla değil oyunun kabıyla okunuyor (18 Ekim, TR + EN)
+### 8.224 `fm player --matches`: maç puanları sayfası artık yazıyla değil oyunun kabıyla okunuyor
 Sayfa üç İngilizce sözle tanınıyordu: bekleme `texts.Contains("Match Ratings") && texts.Contains("Inf")`,
 okuma `anchor=All Competitions&up=10`, satırların başı `texts.IndexOf("Inf")`. Üçü de eklentinin çeviri
 tablosundan geçiyor (TR oyunda da İngilizce geliyor: `/texts?within=PlayerFormCard` → `"Match Ratings"`,
@@ -2432,7 +2432,7 @@ Yan bulgu (bu maddenin dışı, eski derlemede de aynı): `fm open "Messages"` s
 arama yolundan gidiyor ve "form kutusu yok" ile düşebiliyor — eski derlemede 4 koşunun 2'si, yeni
 derlemede de ara sıra; `fm open "Squad Dynamics"` (kadro tablosu yolu) her koşuda geçiyor.
 
-### 8.225 `fm release --mutual`: asistanın cevabından sonra oyunun kendi kapanış sorusu TR'de cevap gibi yazılıyordu (18 Ekim, TR + EN)
+### 8.225 `fm release --mutual`: asistanın cevabından sonra oyunun kendi kapanış sorusu TR'de cevap gibi yazılıyordu
 Karşılıklı fesih teklifinden sonra `/talk` üç satır veriyor: `» Mutual Termination` (bizim seçimimizin yankısı),
 asistanın cevabı ve oyunun kapanış sorusu. Son satır oyunun kendi sözü ve **dile göre kuruluyor** — TR
 "Sizin için yapabileceğim başka bir şey var mı hocam?", EN "Is there anything else I can do for you?" — bu yüzden
@@ -2454,7 +2454,7 @@ alındı, dil `fm settings language "Türkçe"` (`/state` → `turkish`), saat 2
 Dosya: `cli/fm/Release.cs` (yalnız karşılıklı fesih çıktısı); `AcknowledgeButton` yalnız okundu, `sweep.sh`
 `release` koşmuyor.
 
-### 8.226 `reply`: veri merkezi bulgularından tabloda olan cümle TR oyunda İngilizce kalıyordu (18 Ekim, TR + EN)
+### 8.226 `reply`: veri merkezi bulgularından tabloda olan cümle TR oyunda İngilizce kalıyordu
 Bir mesajın eki "veri merkezi" (`row.AnalysisPointString`, Program.cs) analist cümlelerini yazıyor. Cümleler oyunun
 kendi sözü: içinde sayı/isim taşıyanları eklenti çeviremiyor ve oyunun dilinde geliyor (TR'de dördü Türkçe), ama
 **tabloda birebir duran** cümleyi eklenti İngilizceye çeviriyor ve geri eşini göndermiyor → TR oyunda o satır
@@ -2474,7 +2474,7 @@ Taktikler" satırları varken ikinci koşuda yok, bir EN koşusunda takım adlar
 Dosya: `cli/fm/Program.cs` (yalnız veri merkezi eki dalı); `GameWords.Ask/Of` var olan yardımcılar, değişmedi.
 `sweep.sh` **50 komut, 0 hata** (İngilizce oyunda koşuldu; `inbox` 1 sn/16 satır).
 
-### 8.227 `fm scout areas`: "Scouting Areas (0)" başlığı yazıyla aranıyordu, TR oyunda liste hiç bulunmuyordu (18 Ekim, TR + EN)
+### 8.227 `fm scout areas`: "Scouting Areas (0)" başlığı yazıyla aranıyordu, TR oyunda liste hiç bulunmuyordu
 Recruitment Focus formunun ikinci adımında bölge listesinin başlığı oyunun kurduğu bir cümle ve içinde sayı var:
 TR oyunda `Gözlemleme Yerleri (0)`, EN oyunda `Scouting Areas (0)`. Eklentinin çeviri tablosunda bu cümle birebir
 olmadığı için İngilizce sözü de yok; `ScoutAreas` listeyi `FormAfter(form, "Scouting Areas", "dropdown")` ile
@@ -2495,7 +2495,7 @@ Dosya: `cli/fm/ScoutFocus.cs` (`FormBound` + `ScoutAreas`; `ScoutNew`/`AddAreas`
 aynı başlık `before/after` sayısı için okunuyor ve fonksiyonda temizlenmesi gereken başka sabit beklemeler var).
 `sweep.sh` gerekmedi (paylaşılan koda dokunulmadı; `scout areas` sweep'te yok).
 
-### 8.228 `fm scout new/edit --area`: bölge listesi yazma yolunda da yazıyla aranıyordu, TR'de komut çöküyordu (18 Ekim, TR + EN)
+### 8.228 `fm scout new/edit --area`: bölge listesi yazma yolunda da yazıyla aranıyordu, TR'de komut çöküyordu
 Okuma yolu (§8.227) `FormBound`a geçmişti; yazma yolu (`ScoutNewForm`'un bölge döngüsü) hâlâ
 `FormAfter(second, "Scouting Areas", "dropdown")` ile başlık yazısını arıyordu ve `before` yazısını da
 `StartsWith("Scouting Areas")` ile buluyordu. Başlık oyunun kendi cümlesi: TR "Gözlemleme Yerleri (0)", EN
@@ -2532,7 +2532,7 @@ söz aranmıyor, iki dilde de aynı öğe karşılaştırılıyor.
 - Dosya: `cli/fm/ScoutFocus.cs` (`FormHeadingBefore` + bölge döngüsü), `docs/BAGIMLILIKLAR.md`, bu defter.
   `sweep.sh` gerekmedi (paylaşılan koda dokunulmadı; `scout` sweep'te yok).
 
-### 8.229 `fm scout new/edit --by` / `--analysts`: satır ve pencere yazıyla değil, rol ve bağla bulunuyor (18 Ekim, TR + EN)
+### 8.229 `fm scout new/edit --by` / `--analysts`: satır ve pencere yazıyla değil, rol ve bağla bulunuyor
 `AssignFocusScouts` düğmeyi `FormAfter(form, "Assign Scouts", "button")` + `Text == "Edit"` ile, pencereyi de
 `anchor="Assign Any Scouts"` ile arıyordu; başlık oyunun cümlesi (TR "Gözlemci Görevlendir (1)") → TR'de "Formda scout
 seçme butonu yok." Ölçüm (TR, `/form?anchor=Back&up=12&buttons=1`): iki satırın `Edit` düğmesi **birebir aynı** (`Name:
@@ -2555,7 +2555,7 @@ saat 2 Ağustos 14:00, maç yok. ⚠ Uzun oturumda köprü iki kez "the main thr
 ile sustu (aynı komut yeniden başlatmadan sonra çalıştı; §8.99'daki gibi); EN negatif koşusu bu yüzden rc=1 kaldı,
 TR negatifi rc=64.
 
-### 8.230 `fm staff`: kaydırmadan sonraki sabit 400 ms yarım tabloyu okuyabiliyordu — artık satırlar "oturdu" işaretiyle (19 Ekim, TR + EN)
+### 8.230 `fm staff`: kaydırmadan sonraki sabit 400 ms yarım tabloyu okuyabiliyordu — artık satırlar "oturdu" işaretiyle
 Personel tablosu kaydırıldıktan sonra satırlarını **iki adımda** diziyor: önce tablonun tepesindeki takım, bir-iki
 kare sonra gerisi. Ölçüm (`/texts?anchor=All Staff&up=12&paths=1`, 40–70 ms aralıklı okumalar, `/scroll` sonrası):
 `to=1` **6 → 10 → 27** satır, `to=0.75` **13 → 17 → 34**, `to=0.5` **21 → 25 → 36**, `to=0.25` **27 → 31 → 34**;
@@ -2573,7 +2573,7 @@ Yan not: aynı fonksiyonda kalan iki yazı bağımlılığı — kaydırma çapa
 (ikincisinde `name` de veriliyor) — bu turda dokunulmadı; ikisi de oyunun tablo sözünden geliyor ve TR + EN'de
 çalıştığı görüldü, ayrı bir madde olarak duruyor.
 
-### 8.231 `fm stages` kupa turu: kaydırma menzili oyunun ondalık işaretiyle çözülmüyordu; düzeltilince gezinti çalışıyor ama kararsız (19 Ekim, TR + EN)
+### 8.231 `fm stages` kupa turu: kaydırma menzili oyunun ondalık işaretiyle çözülmüyordu; düzeltilince gezinti çalışıyor ama kararsız
 
 Carabao Cup 1. Tur'da 35 bağ var, pencerede ise 18–25 satır duruyor; liste `to=0..1` ile geziliyor ve önce menzil
 okunuyor (`Scroll(first, null)` → `"0 of 1401,8"`). Bu sayıyı oyun **kendi dilinin ondalık işaretiyle** yazıyor
@@ -2592,7 +2592,7 @@ Yan bulgu: aynı menzil okuması `Responsibilities.cs` 109'da da var (`parts[1].
 gereksiz turlar atıyor (TR'de her `fm responsibilities` 12 adım). `Jobs.cs` 177 aynı sayıyı `Replace(',', '.')` ile
 doğru okuyor; üçünün de `GameNumbers.Read`e geçmesi ayrı ve küçük bir iş.
 
-### 8.232 `fm prep`: gösterilen odak adı geri yazılamıyordu, `--json` İngilizce kalıyordu (19 Ekim, TR + EN)
+### 8.232 `fm prep`: gösterilen odak adı geri yazılamıyordu, `--json` İngilizce kalıyordu
 
 Odakların adı ve açıklaması oyunun kendi sözleri (`MatchFocusSessionName`/`...Description`); veri İngilizceyi
 taşıyor ("Progression", "Focus on ball progression up the pitch in possession."), oyunun tablosunda Türkçesi var
@@ -2614,7 +2614,7 @@ bulunamadı", 20 sn sonra rc=1) ve `youth --training` ("Altyapı antrenman tablo
 başına (ve `fm offers` sonrası) rc=0 — sayfa/görünüm durumuna bağlı, `SquadView`'ın "görünüm listesi 20 sn boyunca
 gelmedi" dalı. Tekrar üretilemedi; ayrı madde açılmadı, ölçüm için sweep'in aynı sırası ve sayfa durumu gerekli.
 
-### 8.233 `fm calendar`: "Today" basıldıktan sonraki bekleme oyunun ay **değişti** cevabına bağlandı (19 Ekim, TR + EN)
+### 8.233 `fm calendar`: "Today" basıldıktan sonraki bekleme oyunun ay **değişti** cevabına bağlandı
 
 `CalendarMonths` (Calendar.cs 146–158) takvim sayfasının ay listesini "Today" düğmesine basıp o ayı bugünün ayı sayıyor;
 bekleme "art arda iki okuma aynı ve boş değil" idi. O işaret basıştan **önceki** ayı da kabul eder: ölçüm — düğme
@@ -2629,7 +2629,7 @@ açık / zaten açık / başka sayfaya geçtikten sonra) ve ay elle uzağa kayd�
 dal beklemiyor), ay uzaktayken 2,0 sn ve liste doğru aya dönüyor. `fm schedule` ve `fm fixtures` (aynı yardımcıyı
 kullanan iki komut) çalışıyor.
 
-### 8.234 `scout remove`/`restart`: sayfanın düğmeleri artık gönderdikleri olayla bulunuyor; "süren odak" işareti etiketten okunduğu için yarışıyor (19 Ekim, TR + EN)
+### 8.234 `scout remove`/`restart`: sayfanın düğmeleri artık gönderdikleri olayla bulunuyor; "süren odak" işareti etiketten okunduğu için yarışıyor
 
 Odak sayfasının iki düğmesi `press/click text="…"` ile, yani oyunun çeviri tablosundan gelen İngilizce sözle
 bulunuyordu. Ölçüm (`/buttons?gen=…&json=1` + `pull?path=<Action>&props=ActionID,Event`, TR): odak sayfasındaki
@@ -2659,7 +2659,7 @@ Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (Türkçe oyunda). Değişi
 4 → 7 oldu (üç yinelenen "Sky Bet League Two": biri sürüyor, ikisi durmuş; `restart` eskisini listede "durmuş"
 bırakıyor), aynı bölgeyi süren bir odak durduğu için tarama kapsamı bozulmadı; silme yolu olmadığından temizlenmedi.
 
-### 8.235 `fm budget ayarla`: kartı açan döşeme ve kartın iki düğmesi artık yazıyla değil kimliğiyle basılıyor (19 Ekim, TR + EN)
+### 8.235 `fm budget ayarla`: kartı açan döşeme ve kartın iki düğmesi artık yazıyla değil kimliğiyle basılıyor
 Ne: `cli/fm/Budget.cs`. Üç basış da oyunun **İngilizce** sözüne dayanıyordu: kartı açan döşeme
 `click text="Adjust Transfer and Wage Budget"`, adımı tutan düğme `click text="Got It"`, karttan çıkış
 `click text="Cancel"` — üçü de oyunun kendi sözü, bu dilin tablosundan geçiyor. Ölçüm: döşeme bir
@@ -2677,7 +2677,7 @@ alındıktan sonra 626B £ / 2.320 £ (EN: 584K/626K) — kayıt başladığı y
 "Budget Adjustment") yazıyla kalıyor — ölçüldü, o sayıların sayfada veri yolu yok (`/texts?paths=1` yalnız
 `club.RemainingWageBudgetWithText`, `club.CurrentWageSpendingWithText` veriyor), yani ayrı bir iş.
 
-### 8.236 `fm save --as` / `fm saves delete`: kayıt tarayıcısının "Cancel" ve "Save"i artık gönderdikleri olayla basılıyor (19 Ekim, TR + EN)
+### 8.236 `fm save --as` / `fm saves delete`: kayıt tarayıcısının "Cancel" ve "Save"i artık gönderdikleri olayla basılıyor
 `SaveAs` (Saves.cs 289) ve `CloseSaveBrowser` (240) düğmeyi İngilizce sözüyle basıyordu (`click ?text=Save`,
 `?text=Cancel`). Oysa tarayıcının dört düğmesi **aynı şablonu** taşıyor (`Name` = `button-base-leading-icon-label`:
 Browse, Delete, Cancel; `button-primary-leading-icon-label`: Save) — yani `Name` ayırt etmiyor; ayırt eden gönderdikleri
@@ -2694,7 +2694,7 @@ File" onaylanır, rc=0 "Kaydedildi: …"). Altı koşu iki dilde **eski derlemey
 soruyor ve onaylanıyor (yeni dosya açılmadı, yüklü kaydın adı değişmedi); negatifler (`saves delete "zzz yok"` rc=1,
 `save --as` onaysız rc=1) hiç tarayıcı açmıyor. FM menüsünün "Save Game As" satırı **yazıyla kalıyor**: satırın kimliği
 `FMMenuOptionFromID` ve seçeneğin kendi numarası eklentinin `Events` özetinde yok (Tur 45 notu, eklenti değişikliği
-ister). Aynı sınıfta kalan: tarayıcının `Delete` (silme Faruk'un kararı, ölçülemedi) ve yükleme ekranının `Load`u.
+ister). Aynı sınıfta kalan: tarayıcının `Delete` (silme kullanıcının kararı, ölçülemedi) ve yükleme ekranının `Load`u.
 Regresyon: `tools/sweep.sh` → **50 komut, 0 hata** (Türkçe oyunda; `saves` rc=0, 7 satır). Değişiklik yalnız
 `Saves.cs` içinde (yeni yerel yardımcı); paylaşılan koda dokunulmadı. Not (ölçümün kayda etkisi): kayıt yalnız
 **okundu** ve aynı adla üzerine yazıldı (yeni dosya yok, `fm saves --json` yine dört kayıt, yüklü kaydın adı
@@ -2703,7 +2703,7 @@ durumu, saat ilerletilmedi, maç oynanmadı; dil EN
 ölçümünden sonra `fm settings language "Türkçe"` ile geri alındı (`/state` → `turkish`). Tuzak: TR oyunda ayarın adı
 da oyunun sözü — `fm settings dil "English"`, dönüş `fm settings language "Türkçe"`.
 
-### 8.237 Onay pencereleri artık başlık yazısıyla değil oyunun kendi adıyla (Type) bulunuyor (19 Ekim, TR + EN)
+### 8.237 Onay pencereleri artık başlık yazısıyla değil oyunun kendi adıyla (Type) bulunuyor
 `Saves.cs` `DialogButton` bir pencereyi **başlık yazısıyla** arıyordu (`Title` "Replace Existing File"/"Delete File" ile
 başlıyor mu). Oysa eklenti (`/dialog`) her pencerenin oyunun kendi adını da veriyor (`Type`, `DialogManager`'dan) ve o ad
 dile bağlı değil. Ölçüm (TR oyunda canlı, `dialog?data=1`): `save --as "<var olan ad>"` sonrası
@@ -2719,7 +2719,7 @@ sonra `fm open "Squad Dynamics"`) × `save --as "<yüklü kaydın adı>" --yes` 
 Tur 47'nin kaydıyla da aynı); izde `dialog` → `click ?ptr=0x…` (onay). Silme yolu **sıfırdan ölçüldü**: kayıt
 klasörüne yalnız kendi kopyamız kondu (`cp …(v03).fm "t48 test.fm"`), `fm saves delete "t48 test" --yes` → rc=0
 "Silindi: t48 test" (iz: `rowselect` → `click ?text=Delete` → `dialog` → `click ?ptr=0x…` = pencerenin "Yes"i);
-klasörde Faruk'un dört dosyası değişmeden duruyor. Negatif/değişmeyen: `save --as` onaysız rc=1, `saves delete
+klasörde dört kayıt dosyası değişmeden duruyor. Negatif/değişmeyen: `save --as` onaysız rc=1, `saves delete
 "zzz yok" --yes` rc=1 — ikisi de tarayıcıyı hiç açmıyor; pencere hiç çıkmazsa `Type` boş kaldığından eşleşme yok.
 Kalan (aynı sınıf, ayrı iş): `MatchDay`in üç penceresi (`Instant Result`, `Team Selection`, `Injured Players`) hâlâ
 başlık yazısıyla aranıyor; tarayıcının `Delete` düğmesi hâlâ `click ?text=Delete` (§8.236 sonu).
@@ -2727,7 +2727,7 @@ Regresyon: `tools/sweep.sh` → 50 komut, 0 hata (Türkçe oyunda). Değişiklik
 paylaşılan koda dokunulmadı. Kayıt durumu: kayıtlar yalnız okundu + aynı adla üzerine yazıldı, t48 test kopyası
 silindi; 2 Ağustos 2026 09:15, saat ilerletilmedi, maç oynanmadı; dil TR'ye döndü (`/state` → turkish).
 
-### 8.238 `fm saves delete`: kayıt tarayıcısının `Delete`i artık gönderdiği olayla basılıyor (19 Ekim, TR + EN)
+### 8.238 `fm saves delete`: kayıt tarayıcısının `Delete`i artık gönderdiği olayla basılıyor
 `DeleteSave` (Saves.cs 407) düğmeyi İngilizce sözüyle basıyordu (`click ?text=Delete`) ve ondan önce `Label == "Delete"`
 + `Type == "SIButton"` + `Enabled` ile bekliyordu. Oysa tarayıcının dört düğmesi aynı şablon ailesinden ve hepsinin
 etiketi o dilin sözü (§8.236) — ayırt eden gönderdikleri olay: **Delete `DeleteSelectedGame`** (satır seçilene kadar
@@ -2739,7 +2739,7 @@ durum (başka sayfa açık `fm open "Messages"` sonrası / hemen ikinci koşu / 
 `ff8c9d93…` / `da1d75f0…` / `6d5b52d6…`; stdout yalnız adı taşıyor), izde eski `click ?text=Delete` → yeni
 `buttons ?json=1` + `click ?ptr=0x…`; silme uçtan uca (dosya yok oldu, rc=0 "Silindi/Deleted"). Negatif: `saves delete
 "zzz yok" --yes` rc=1 (tarayıcı hiç açılmıyor), yüklü kaydı silme rc=1 ("şu an yüklü olan kayıt", tarayıcı Cancel'la
-kapanıyor). Faruk'un dört dosyası (ana kayıt, overwrite backup, v02, v03) değişmeden yerinde.
+kapanıyor). dört kayıt dosyası (ana kayıt, overwrite backup, v02, v03) değişmeden yerinde.
 Regresyon: `tools/sweep.sh` → 50 komut, 0 hata (Türkçe oyunda). Değişiklik yalnız `Saves.cs` içinde (yeni yerel
 yardımcı + tek çağrı); paylaşılan koda dokunulmadı. Tuzak: ölçümde bir EN koşusu tarayıcıyı açamadı (bilinen
 `OpenFmMenu`/`OpenSaveBrowser` aksaklığı, §8.236) — tekrar edildi; ayrıca İngilizce oyunda `fm open "Squad Dynamics"`
@@ -2747,7 +2747,7 @@ yardımcı + tek çağrı); paylaşılan koda dokunulmadı. Tuzak: ölçümde bi
 Kayıt durumu: yalnız kendi kopyalarımız silindi, kayıt okunmadı/yazılmadı; 2 Ağustos 2026 09:15, saat ilerletilmedi,
 maç oynanmadı; dil `fm settings language "Türkçe"` ile geri alındı (`/state` → turkish).
 
-### 8.239 `fm staff find` arama panelinin `Apply`/`Cancel`i artık gönderdikleri yükle basılıyor (19 Ekim, TR + EN)
+### 8.239 `fm staff find` arama panelinin `Apply`/`Cancel`i artık gönderdikleri yükle basılıyor
 `StaffFind`/`ApplySearch` (StaffSearch.cs) panelin iki düğmesini de yazıyla basıyordu: gönder yolu `click ?text=Apply`,
 iptal yolu panelin form okumasından (`Text == "Cancel"`). Ölçüm (TR oyun, panel açık, `/buttons?json=1&gen=1`): ikisi
 de **aynı olayı** gönderiyor (`PanelHistoryClose, EventToPlugin:EventFmxFilterRestoreFilter`) — ayırt eden gönderilen
@@ -2770,7 +2770,7 @@ Kayıt durumu: kayıt yalnız **okundu**, hiçbir şey yazılmadı; sayfanın ar
 aynı `ApplySearch`i kullanan `fm players "Aaron" --attr "Pace>=15"` (Reads.cs 802) iki derlemede **birebir**
 (`md5 d8cd16daa30d08417f6a34d9007d3e6e`, rc=0).
 
-### 8.240 `fm players` arama paneli artık yazıyla değil oyunun bağladığı yollarla okunuyor (19 Ekim, TR + EN)
+### 8.240 `fm players` arama paneli artık yazıyla değil oyunun bağladığı yollarla okunuyor
 Panel `form ?anchor=Apply&up=8` ile, yani **düğmenin İngilizce sözüyle** bulunuyordu; `/form?anchorpath=` ile
 oyunun bağladığı başlık (`filter.FilterRulePlayerPosition.Name`) **birebir aynı 55 öğeyi** veriyor (ölçüldü), yani
 kelimeye gerek yoktu. Kurallar da kendi denetimlerinin yazdığı yoldan bulunuyor (`filter.filterruleage.minvalue`,
@@ -2784,7 +2784,7 @@ quest defteri Tur 51). Dil geçişinden hemen sonraki koşularda tablo yine kıs
 de aynı — §8.239 yan bulgusu), ölçüm oturmuş durumlar karşılaştırıldı. Panelde kalan: `PanelButton`in yedeği hâlâ
 yazıyla (asıl yol `PanelSent`, §8.239) ve `Row()`in satır adı, niteliğin oyunun menüsünden gelen kendi sözü.
 
-### 8.241 Recruitment focus formunun adım düğmeleri (Next/Back) artık gönderdikleri yükle bulunuyor (19 Ekim, TR + EN)
+### 8.241 Recruitment focus formunun adım düğmeleri (Next/Back) artık gönderdikleri yükle bulunuyor
 `ScoutFocus` formunun "açıldı / yarım kalmış" işareti ve `fm scout areas`in bölge adımına geçişi düğmenin yazısına
 bağlıydı (`FormButton(FocusForm("Next"), "Next")`, `click ?text=Next`). Ölçüm (`/buttons?json=1&gen=1`, form açık):
 adım düğmeleri **aynı olayı** gönderiyor (`EventToPlugin:EventFmxRecruitmentFocusMoveToStep`, enum 1227976013);
@@ -2798,7 +2798,7 @@ yolunda rc=64 ve odak sayısı değişmiyor. Aynı formda **Cancel ve Confirm** 
 restartı ister. Confirm'e basmak pencere açmıyor, formu kapatıp odağı **kuruyor** (ölçümün doğal sonucu bir "All"
 odağı bıraktı).
 
-### 8.242 `scout new/edit`in adım geçişi ve adım işaretleri de düğmelerin olayına bağlandı (19 Ekim, TR + EN)
+### 8.242 `scout new/edit`in adım geçişi ve adım işaretleri de düğmelerin olayına bağlandı
 §8.241 `scout areas`in yolunu kimliğe çevirmişti; aynı formun `scout new`/`scout edit` yolu hâlâ yazıyla
 yürüyordu: "ikinci adım açıldı mı" işareti `FormButton(FocusForm("Back"), "Confirm")`, "birinci adım açık mı /
 mevki oturdu mu" işareti `FormButton(FocusForm("Next"), "Next")` + `Enabled`, ileri basışı `click ?text=Next`.
@@ -2814,7 +2814,7 @@ stderr md5 TR `3e18cfaa…` / EN `f66c35f8…`); izde eski `click ?text=Next` �
 seçenek yok"; eski derlemede 8 koşunun 4'ü, yeni derlemede 4'ün 1'i) — `ScoutFocuses()`/`FocusList()` sayfa
 oturmadan dönüyor, bu turun değişikliğiyle ilgisiz.
 
-### 8.243 `scout new/edit`in "form kapandı" işareti de düğmelerin olayına bağlandı (19 Ekim, TR + EN)
+### 8.243 `scout new/edit`in "form kapandı" işareti de düğmelerin olayına bağlandı
 §8.242 formun *adım* işaretlerini `FormStep()`e taşımıştı; Confirm akışı hâlâ yazıyla yürüyordu: `ScoutNew`in
 `catch` dalındaki "form açık mı" (`FormButton(FocusForm("Next"), "Next") != null || FormButton(FocusForm("Back"),
 "Confirm") != null`) ve Confirm sonrası "form kapandı mı" (`FormButton(await FocusForm("Back"), "Confirm") == null`)
@@ -2832,7 +2832,7 @@ basışı (`click ?text=Confirm`) ve `AbandonFocus`in `click ?text=Cancel`i — 
 `/buttons?json=1` özetinde yok (eklenti + oyun restartı ister); ayrıca okuma çapası `form ?anchor=Next`/`Back`.
 Yan not: bu ölçüm gerçekten odak kurdu; kayıtta 12 `t54 …` artığı kaldı (Complete odakları CLI silemiyor).
 
-### 8.244 Gözlemci seçme penceresinin Cancel/Confirm'i artık gönderdiği olayla bulunuyor (19 Ekim, TR + EN)
+### 8.244 Gözlemci seçme penceresinin Cancel/Confirm'i artık gönderdiği olayla bulunuyor
 `AssignFocusScouts`in penceresindeki iki düğme (`Close`) pencere formunda **yazıyla** aranıyordu
 (`FormButton(await Window(), "Cancel"/"Confirm")`); aynı fonksiyonun `Show`u satır düğmesini de onlar
 "Cancel"/"Confirm" yazmadığından seçiyordu. Ölçüm (TR oyun, pencere açık, `/buttons?json=1&gen=1`): pencerenin
@@ -2857,7 +2857,7 @@ buttons=1` (yazı) → yeni `buttons ?json=1&gen=1` (olay); basış iki derlemed
 `scout edit <#>` her onayda oyunun eski kaydı listede 'Complete' bırakması yüzünden liste kayıyor, o yüzden
 aynı numara başka bir odağı gösterebiliyor (ölçümün doğal sonucu: birkaç odak kaydı daha kuruldu).
 
-### 8.245 Home-grown (altyapı) kartı: satırlar artık yol + oyunun işaretiyle okunuyor, başlık/yazı araması kalktı (19 Ekim, TR + EN)
+### 8.245 Home-grown (altyapı) kartı: satırlar artık yol + oyunun işaretiyle okunuyor, başlık/yazı araması kalktı
 "Yetiştirilmiş oyuncular güncellemesi" mesajının eki (`reply`) Türkçede ve İngilizcede ham bir dökümdü: özet dalı
 `rest[0] == "Homegrown" && rest.Contains("Home-Grown Status")` ile kendini tanıyordu ama kartın ilk sözü oyunun kendi
 cümlesi ("Upcoming Status Changes") ve sütun başlığı da "Homegrown Status" (tire yok) — yani dal **her iki dilde de**
@@ -2875,7 +2875,7 @@ geliyor: `WriteAttachment`ın 1,5 sn'si bazen eki hiç yakalamıyor (mesaj bulun
 ettiği iş; bu değişiklik onu iyileştirmiyor, yalnızca yakalanan okumada doğru satırları veriyor. Negatif: komşu mesajlar
 (`Kondisyon testleri`, veri merkezi) eski derlemeyle birebir; `sweep.sh` 50/50.
 
-### 8.246 Alt sayfa açmada sabit 1,5 sn yerine oyunun kendi işaretleri (19 Ekim, TR + EN)
+### 8.246 Alt sayfa açmada sabit 1,5 sn yerine oyunun kendi işaretleri
 `OpenSubpage` (Program.cs) ana sayfayı açtıktan sonra **sabit 1,5 sn** bekliyordu; sebebi, ana sayfanın biraz sonra
 açılıp çubuğundan açılan sayfanın üstüne binmesiydi (Training › Mentoring, 14 Ekim). Ölçüm (canlı, eklenti, 4 durum):
 ana sayfa istendikten sonra çubuk **0,16–0,46 sn**'de cevap veriyor (`open?guid=<sayfa>&check=1` artık hata değil
@@ -2889,7 +2889,7 @@ derlemeyle **birebir** (`md5` TR `241ea50f…`, EN `f7af385e…`), süre TR 3,83
 Aynı madde içinde kalan: `fm open X` (OpenPage) hâlâ açılış bitmeden dönüyor; çağıran, sayfanın hazır olduğunu
 kendi işaretiyle beklemeli (Mesajlar › Mutluluk'ta 1/10 düşme, §8.185) — bu ayrı iş.
 
-### 8.247 Gözlemci seçme penceresinin okuması: sabit 400 ms yerine satırların oturması, başlık sözü yerine satırın kendi sayısı (19 Ekim, TR + EN)
+### 8.247 Gözlemci seçme penceresinin okuması: sabit 400 ms yerine satırların oturması, başlık sözü yerine satırın kendi sayısı
 `cli/fm/ScoutFocus.cs` (`AssignFocusScouts`). İki bağımlılık vardı: (1) `Show()` her kaydırmadan sonra sabit
 `Task.Delay(400)` bekliyordu; (2) `Rows()` satır bölgesini oyunun başlık sözüyle buluyordu
 (`SkipWhile(t => t != "World Knowledge").Skip(1)`).
@@ -2920,7 +2920,7 @@ kendi işaretiyle beklemeli (Mesajlar › Mutluluk'ta 1/10 düşme, §8.185) —
 - Dokunulmayanlar (aynı pencerede): satırların seçilmesi (`rowselect ?text=<ad>`, ad oyunun sözü), pencereyi açan
   `Edit Recruitment Focus` ve formu açan `Create a New Recruitment Focus` basışları (kimlik yok, §8.234).
 
-### 8.248 Personel arama panelinin kuralları artık veri yolundan bulunuyor; seçimler sabit 500 ms yerine oyunun kendi hâliyle (`--free` TR'de çöküyordu) (19 Ekim, TR + EN)
+### 8.248 Personel arama panelinin kuralları artık veri yolundan bulunuyor; seçimler sabit 500 ms yerine oyunun kendi hâliyle (`--free` TR'de çöküyordu)
 
 `cli/fm/StaffSearch.cs` (`StaffFind`). Panelin üç kuralı (`--role`, `--free`/`--employed`, `--reputation`) o güne kadar
 **seçenek sözleri** ile bulunuyordu — `Has(d, "Medical ›")` (görev), `Has(d, "By Nation")` (çalışma durumu),
@@ -2959,7 +2959,7 @@ kendi işaretiyle beklemeli (Mesajlar › Mutluluk'ta 1/10 düşme, §8.185) —
   `278f3c93…`. Kalan (aynı ailede): `ApplySearch` 438 (`fm players --max-value`'dan sonra sabit 1200 ms) ve
   `PanelButton("Apply"/"Cancel")`in yazı yedeği.
 
-### 8.249 `fm players --max-value`: figür seçildikten sonraki sabit 1200 ms yerine listenin tuttuğu ham sayı (19 Ekim, TR + EN)
+### 8.249 `fm players --max-value`: figür seçildikten sonraki sabit 1200 ms yerine listenin tuttuğu ham sayı
 `ApplySearch` (StaffSearch.cs 407) `--max-value` figürünü listeden seçtikten sonra `await Task.Delay(1200)` yapıyordu.
 Ölçüm (canlı, panel açık): figürü taşıyan liste kendi `Value` alanını (`/dropdowns?json=1`, ham sayı dizesi: `"500000"`)
 seçimden sonra **bir yoklamada** gösteriyor (`select` dönüşü 37–132 ms; `Value` hedefe ulaşma 61–131 ms) — yani 1200 ms
@@ -2986,7 +2986,7 @@ sıradaki çağrı 8,63 sn → **1,21 sn boşluk**; yeni derlemede `select` 7,36
   'Clear' on the loaded screens` ile rc=1 verdi (Clear basışı `ApplySearch`ten **önce**, §8.236 ailesi); tekrarında
   rc=0. Aynı panelde kalan: `PanelButton("Apply"/"Cancel")`in yazı yedeği (asıl yol `PanelSent`, §8.239) — ayrı alt madde.
 
-### 8.250 `contract <oyuncu> --agent` "seçenek yok": dil değil, açık kalan konuşma/kart durumu (19 Ekim, TR + EN)
+### 8.250 `contract <oyuncu> --agent` "seçenek yok": dil değil, açık kalan konuşma/kart durumu
 
 - Ölçüm (komutlar ve rc; çıktı dosyaları `/tmp/t61-*.txt`): TR temiz sayfada `fm contract "Adam Reach" --agent` /
   `"Dom Jefferies"` / `"Erik Ring"` / `"Freddie Draper"` → **rc=0**, menajerin konuşması ve dört cevap basılıyor.
@@ -3003,10 +3003,10 @@ sıradaki çağrı 8,63 sn → **1,21 sn boşluk**; yeni derlemede `select` 7,36
   önbellekteki kartı isim eşleşmesiyle kabul ediyor. Aynı durum TR'de ("Adam Reach") "seçenek yok" verdi, yani
   hangi dala düştüğü sayfanın o anki hâline bağlı.
 - Karar: kod değişmedi (kural 4). Düzeltme iki davranış kararı istiyor: (a) CLI açık konuşmayı kendiliğinden kapatsın mı
-  (menajer/oyuncu bundan hoşlanmayabilir), (b) `OpenPlayer` örtülü sayfayı öne getirsin mi? Faruk'a soruldu;
+  (menajer/oyuncu bundan hoşlanmayabilir), (b) `OpenPlayer` örtülü sayfayı öne getirsin mi? kullanıcıya soruldu;
   kayıt test kaydı, saat 2 Ağustos 2026 14:00'te kaldı, dil TR'ye döndü.
 
-### 8.251 `tactic clear --yes`: silme onayı sabit 3 sn yerine "pencere **veya** yuva sayısı düştü" (19 Ekim, TR + EN)
+### 8.251 `tactic clear --yes`: silme onayı sabit 3 sn yerine "pencere **veya** yuva sayısı düştü"
 Seçimden sonra oyun silme onayını soruyor; eski kod 3 sn boyunca yalnız `dialog` yokluyor ve süre dolunca "soru yok"
 sayıyordu. Ölçüm (TR, üç durum): pencere basıştan sonra **0,74 / 1,14 / 2,39 sn**de geldi — bir koşuda 3 sn'lik sınıra
 0,6 sn kalıyordu; yavaş makinede pencere geç gelirse hiç cevaplanmıyor ve komut "yuva boşalmadı" ile düşecekti. Artık
@@ -3018,14 +3018,14 @@ EN'in bir durumunda "Slot 3 is already active" satırı bir kez çıktı, üç t
 ilk okumadan (sayfa örtülüyken `CurrentTacticSlot`) geliyor, değişikliğe bağlı değil. İz: eski `dialog` yoklamaları
 0,5 sn aralıkla, yeni `dialog` + `tactic` 0,25 sn. Kayıt test kaydı; dil TR'ye döndü (`fm settings language "Türkçe"`).
 
-### 8.252 `fm propose`: ücret kutusunun okuması sabit 600 ms yerine kutunun kendi para yazısı (19 Ekim, TR + EN)
+### 8.252 `fm propose`: ücret kutusunun okuması sabit 600 ms yerine kutunun kendi para yazısı
 `Propose` ücreti `setnumber` ile yazdıktan sonra 600 ms bekleyip `FMCombobox.Label`ı okuyordu. Ölçüm (canlı): ilk okuma
 (33 ms) hâlâ "Unspecified"; etiket 188/216 ms'de `£100B`/`£100K` oluyor, sonra değişmiyor. Artık etiket para yazısına
 dönüşüp öncekinden farklı olana kadar okunuyor (üst sınır 4 sn, 0,2 sn aralık; ekranda aynı ücret duruyorsa bekleme yok).
 TR + EN, üç durum + `0`/`1`/`250000`/`30000000`: çıktı ve rc eski derlemeyle birebir. Kiralık düğmesi (`Propose 77`)
 sonrası 1200 ms kaldı: basış dışa vurulan buttons/combobox kümesini 2,6 sn boyunca hiç değiştirmiyor, yani işaret yok.
 
-### 8.253 `staff find`in Apply/Cancel yedeği kaldırıldı: düğme yalnız olayı ve yüküyle bulunuyor (19 Ekim, TR + EN)
+### 8.253 `staff find`in Apply/Cancel yedeği kaldırıldı: düğme yalnız olayı ve yüküyle bulunuyor
 `StaffFind` paneli kapatırken ve uygularken önce `PanelSent`i deniyor, olmazsa İngilizce söze düşüyordu (`?text=Apply`,
 `form ?anchor=Apply` + `Text == "Cancel"`). Ölçüm: `buttons ?json=1&gen=1` iki düğmeyi de `EventFmxFilterRestoreFilter`
 ile veriyor, ayırt eden `SendsProps` (`True` Apply, `False` Cancel) — söz hiç gerekmiyor. Yedek yol silindi; event yoksa
@@ -3034,7 +3034,7 @@ sayfa / hemen ikinci koşu / başka sayfaya geçtikten sonra) × iki yol (`--rol
 stdout/stderr md5 eski derlemeyle **birebir** (TR `7f4956af…`/`447a8d36…`, EN `5b380c79…`/`44f56f55…`; iptal TR
 `32337789…`, EN `52c49a4e…`). İz: yalnız `buttons ?json=1&gen=1` → `click ?ptr=…`; hiçbir koşuda `text=` yok.
 
-### 8.254 `fm players` arama panelinin Apply/Cancel yedeği kaldırıldı: basış yalnız oyunun yüküyle (20 Ekim, TR + EN)
+### 8.254 `fm players` arama panelinin Apply/Cancel yedeği kaldırıldı: basış yalnız oyunun yüküyle
 `ApplySearch`in `PanelButton`ı `PanelSent`i deniyor, olmazsa `form ?anchorpath=…&buttons=1` içindeki `Text ==
 "Apply"/"Cancel"`e düşüyordu; panelin iki düğmesi aynı olayı (`EventFmxFilterRestoreFilter`) gönderiyor, ayırt eden
 `SendsProps` (`True` Apply, `False` Cancel) — söz hiç gerekmiyor. Yedek silindi: Apply `PanelSent(true)`, Cancel
@@ -3043,7 +3043,7 @@ TR + EN, üç durum × `players "Aaron" --age 18-23 --json` / `players --age 120
 dışında) eski derlemeyle birebir, EN s1/s2 bayt bayt aynı; Cancel iki dilde rc=64 + boş stdout + aynı stderr; izde
 `click ?ptr=…`, `text=` yok. Kalan tek yazı yolu `Row()`in nitelik adı (oyunun kendi sözü) — ayrı iş.
 
-### 8.255 Recruitment focus formunun ileri adımı ve gözlemci penceresinin kapanışı yazıyla değil kimlikle (20 Ekim, TR + EN)
+### 8.255 Recruitment focus formunun ileri adımı ve gözlemci penceresinin kapanışı yazıyla değil kimlikle
 `ScoutAreas`in ileri basışı ve `ScoutNew`/`ScoutEdit`in ikinci adıma geçişi `FocusSteps` düğmesini bulamazsa
 `click ?text=Next`e düşüyordu; `AssignFocusScouts` içindeki `Close` de pencerenin `EventFmxRecruitmentFocusScoutAnalystEditCancel/Confirm`
 olayını bulamazsa "Cancel"/"Confirm" sözüne düşüyordu. Üç yedek de silindi: düğme yoksa form kapatılıp dürüst hata
@@ -3051,7 +3051,7 @@ veriliyor, pencere kapanmadıysa söyleniyor. TR + EN × üç durumda `fm scout 
 (`["Competition ›","Nation ›","Recently Selected ›"]`), izde ileri basışı `click ?ptr=…` (yazı yok); `scout edit 1
 --by "ZZZ yok"` iki dilde rc=64 ve `fm scout --json` md5 koşu öncesi/sonrası aynı (TR `a62e4f7f…`, EN `86fe1bcc…`).
 
-### 8.256 Opposition card: the advice/clear path reads the table when it stands still, and presses Clear by its event (20 Ekim, TR + EN)
+### 8.256 Opposition card: the advice/clear path reads the table when it stands still, and presses Clear by its event
 `fm opposition --advice` / `--clear` basıştan sonra tabloyu bir kez "öncekinden farklı" diye okuyor, sonra **sabit
 500 ms** bekleyip bir kez daha okuyordu. Ölçüm (canlı, TR, 40 ms yoklama): öneri basışından 77 ms sonra 11 satır
 değerlerle geliyor, **519 ms'de 8 satır**, 612 ms'de yine 11 → duraklama yarım dizilişin içine düşebiliyor (üç oyuncu
@@ -3064,7 +3064,7 @@ sınır, 0,25 sn); temizleme yolu da "Clear Instructions" sözü yerine düğmen
 `659a220b…`, 11 oyuncu, 5 değer); "zaten temiz" hâli rc=0 ve 11 satır `-`. Kayıt test kaydı; rakip talimatları tur
 sonunda `--clear` ile boş bırakıldı, saat ilerletilmedi, maç oynanmadı.
 
-### 8.257 Arama düğmesi etiketiyle değil, açtığı panel ve şablon adıyla basılıyor (20 Ekim, TR + EN)
+### 8.257 Arama düğmesi etiketiyle değil, açtığı panel ve şablon adıyla basılıyor
 `SearchFor` (Reads.cs) arama kutusu kapalıyken düğmeyi `?text=Search&name=dashboard-hud-search-button` ile
 basıyordu; "Search" oyunun kendi sözü. Artık `?event=OpenPanel&name=dashboard-hud-search-button` — olay + şablon
 adı, dil/skin yazısı yok. Ölçüm (`FM_TRACE=1`): TR + EN × üç durum (başka sayfa açık / hemen ikinci koşu / başka
@@ -3073,7 +3073,7 @@ Ben House) eski derlemeyle **birebir** (isim/kulüp/tür; ham md5 yalnız arama 
 derlemede de). İz: eski `press ?text=Search&name=…` → yeni `press ?event=OpenPanel&name=…`; kutu zaten açıkken
 hiç basış yok. `sweep.sh` 50 komut, 0 hata.
 
-### 8.258 `fm players` hızlı süzgeci "Clear" sözüyle değil, düğmenin olayıyla temizleniyor (20 Ekim, TR + EN)
+### 8.258 `fm players` hızlı süzgeci "Clear" sözüyle değil, düğmenin olayıyla temizleniyor
 `Players` (Reads.cs) iki yerde — `--clear` ve her aramanın başındaki temizleme — düğmeyi
 `?text=Clear&event=EventToPlugin` ile basıyordu; "Clear" oyunun kendi sözü. Sayfadaki tek Clear düğmesi
 `EventToPlugin:EventFmxResetFilter` (id 515611) gönderiyor ve şablon adı `button-secondary-label`. Artık basış yalnız
@@ -3092,7 +3092,7 @@ satır isim/alan olarak eskiyle aynı. Negatif: `players --age 120-130` iki dild
 Player Database'in arkasında kalan Clear düğmesi başka sayfadayken `DISABLED` görünüyor, olay yine tek. Kayıt test
 kaydı; saat ilerletilmedi, maç oynanmadı, dil TR'ye döndü.
 
-### 8.259 Haber gövdesi ekrandan yazı aramasıyla değil, bağlanan metinle okunuyor (20 Ekim, TR + EN)
+### 8.259 Haber gövdesi ekrandan yazı aramasıyla değil, bağlanan metinle okunuyor
 `fm news <#>` açık haberin tam metnini `elements ?text=<gövdeden seçilen ASCII parça>&up=0&depth=0` ile arıyor, sonra
 `BodyText "` işaretinden kesiyordu: arama sözcüğü gövdenin kendisinden türetiliyor ve yalnız ASCII harflerle
 (`[\x20-\x7E]+`) seçiliyordu — yani gövde hangi dilde yazılmışsa ona göre değişen bir ekran araması. Oysa ağaç haberi
@@ -3105,7 +3105,7 @@ EN `0b4e206c…`/`215cf311…`/`a2bd57ff…`, 9/9 aynı md5); iz: eski `elements
 arıyor (`(\d+) (day|hour|minute)`), TR'de her yaş 0'a düşüyor → liste sıralaması ve `news <#>` numaraları dile göre
 değişiyor (TR'de 2 numara 2 günlük, EN'de başka haber); ayrı iş olarak CHECKLIST B'ye yazıldı.
 
-### 8.260 Haber listesi yaş cümlesiyle sıralanmıyor; sıra oyunun kendi bağlama sırası (20 Ekim, TR + EN)
+### 8.260 Haber listesi yaş cümlesiyle sıralanmıyor; sıra oyunun kendi bağlama sırası
 `NewsAge` yaşı `(\d+) (day|hour|minute)` ile okuyordu: `NewsItemAgeString` oyunun **kendi dilinde** bir cümle
 (TR "16 saat 30 dakika önce"), yani TR'de her yaş 0'a düşüp sıralama hiçbir şey yapmıyor, EN'de ise listeyi
 yeniden diziyordu — aynı `news <#>` numarası iki dilde başka haberi gösteriyordu (2 günlük haber TR'de #2, EN'de #16).
@@ -3118,7 +3118,7 @@ derlemeyle bayt bayt aynı; EN'de ortak haberlerin sırası TR'yle birebir. Ayr�
 haber fazla ("Hadžiahmetović makes Stoke City debut"); TR ağacında o karo yok — eski derlemede de öyleydi, bu
 değişiklikle ilgisiz.
 
-### 8.261 Antrenman programı seçicisi olayıyla onaylanıyor; açıklama sabit 500 ms yerine kendi değişimini bekliyor (20 Ekim, TR + EN)
+### 8.261 Antrenman programı seçicisi olayıyla onaylanıyor; açıklama sabit 500 ms yerine kendi değişimini bekliyor
 `schedule set/style` seçicisi `press ?text=Confirm&event=EventToPlugin` ve `press ?text=Cancel&event=ClosePanel`
 ile, okuması da `form ?anchor=Confirm` ile oyunun sözüne bağlıydı; seçenek basıldıktan sonra açıklama sabit
 **500 ms** beklenip bir kez okunuyordu. Ölçüm (canlı, TR): seçenek basıldıktan **276 ms** sonra açıklama metinleri
@@ -3141,7 +3141,7 @@ basılıyor; bu okuma yolu ayrı iş. Kayıt test kaydı (2 Ağustos 2026 09:15)
 geri alındı (`Fiziksel`, `Savunma`), saat ilerletilmedi, maç oynanmadı; dil EN ölçümünden sonra
 `fm settings language "Türkçe"` ile geri alındı.
 
-### 8.262 Antrenman seçicisinin açıklaması birincil odağı yazıyla değil bağlandığı yolla buluyor (20 Ekim, TR + EN)
+### 8.262 Antrenman seçicisinin açıklaması birincil odağı yazıyla değil bağlandığı yolla buluyor
 Seçicide birincil odak `binding.SessionGroupFocusName` ile başlıyor; metni EN'de "Primary Focus", TR'de
 "Priority" (oyunun kendi sözünün eklentideki İngilizcesi). `About()` "Primary Focus" aradığı için TR'de hiç
 bulamıyor, hafta programı dalına düşüp yalnız açıklama cümlesini basıyordu. Artık odaklar yol ile ayrılıyor,
@@ -3155,7 +3155,7 @@ Takım Uyumu ↑ az · Sakatlık Riski ↑ az · Kondisyon ↓ az); EN üç duru
 Ölçüm sırasında takvim sekmesi ara sıra `Takvimin antrenman sekmesi okunamadı.` ile düştü (§8.216), aynı
 derlemede tekrar denemede geçti.
 
-### 8.263 Yarım kalmış odak formu kapanışını beklemeden yeniden açılıyordu (21 Ekim, TR + EN)
+### 8.263 Yarım kalmış odak formu kapanışını beklemeden yeniden açılıyordu
 `OpenFocusForm` bir önceki koşudan kalan yarım formu `AbandonFocus` ile attıktan sonra sabit 800 ms bekliyordu.
 Ölçüm (canlı): onay düğmesine basıldıktan sonra formun adım düğmeleri 0,03–0,10 sn'de kalkıyor; yeni kod
 `FormStep() == null` olana kadar (üst sınır 6 sn, 0,2 sn aralık) bekliyor ve yeniden açılış 0,87–0,90 sn yerine
@@ -3163,7 +3163,7 @@ derlemede tekrar denemede geçti.
 6/6 rc=0 ve `fm scout areas --json` aynı üç seçenek; eski derlemeyle birebir. Form hiç kapanmazsa eski davranış gibi
 yeniden açma deneniyor, bu kez `again` dalı döngüye girmiyor.
 
-### 8.264 Bütçe kartının yazma yolunda yedek yazı kalmadı (21 Ekim, TR + EN)
+### 8.264 Bütçe kartının yazma yolunda yedek yazı kalmadı
 `budget ayarla` kartı açan döşemeyi eylem kimliğiyle (1885623898) buluyordu, ama kimlik yoksa
 `click ?text="Adjust Transfer and Wage Budget"`e; kartın "Got It"/"Cancel"i de olay/düğme bulunamazsa
 İngilizce söze düşüyordu. Üç yedek de silindi: döşeme yoksa "Bütçe ayarı kartını açan döşeme bulunamadı.",
@@ -3173,7 +3173,7 @@ hemen ikinci koşu / başka sayfaya geçtikten sonra) × iki yol (iptal; `14`'ü
 `cd196064…`). İzlerde eski ve yeni hep `click ?ptr=…`, `text=` sayısı **0** — yedek hiç kullanılmıyordu;
 negatif `ayarla 99` rc=1, kart yine `?ptr=` ile kapanıyor, bütçe 15. adımda kalıyor.
 
-### 8.265 `fm load` soğuk açılışta yükleme listesini hiç açamıyordu (21 Ekim, TR + EN)
+### 8.265 `fm load` soğuk açılışta yükleme listesini hiç açamıyordu
 Oyun kapalıyken/kayıttayken `fm load "<ad>"` yeniden başlatıp yükleme ekranındaki "kariyer yükle" döşemesini
 **İngilizce cümlesiyle** (`?text=Load an FM26 career …`) basıyordu; TR oyunda o döşemenin yazısı Türkçe olduğu
 için basış hiçbir şeye denk gelmiyor (`error: no button shows …`), hata yok sayılıyor ve liste hiç açılmadan
@@ -3186,7 +3186,7 @@ sayfadan sonra) **6/6 rc=0**, soğuk açılış 1:16–1:17, liste açıkken 11 
 2 Ağustos 2026", saat ilerletilmedi, maç oynanmadı. Kalan: `Last saved`/`Back to last saves` çapaları ve
 satırın kendi adı hâlâ yazıyla (satır adı kullanıcının verdiği ad; başlık/bağlantı ayrı iş).
 
-### 8.266 Kayıt tarayıcısının Save/Cancel/Delete'i yedek yazıya düşmüyor (21 Ekim, TR + EN)
+### 8.266 Kayıt tarayıcısının Save/Cancel/Delete'i yedek yazıya düşmüyor
 `BrowserButton`/`DeleteButton` birincil kimliği (`SaveGame`, aynı panelin `ClosePanel`i, `DeleteSelectedGame`
 + `Enabled=True`) bulamazsa `?text=Save`/`Cancel`/`Delete`e düşüyordu; bu sözler oyunun dilindeki etiketin
 çeviri tablosundan geçmiş hâli. Üç yedek silindi: kimlik yoksa dürüst hata veriliyor, yazıya düşülmüyor.
@@ -3194,10 +3194,10 @@ satırın kendi adı hâlâ yazıyla (satır adı kullanıcının verdiği ad; b
 sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra), eski derlemeyle çıktı **birebir** (TR
 `23f3ca56…`/`a299b2d4…`, EN `46212f7f…`/`a299b2d4…`); izlerde tarayıcı basışları hep `click ?ptr=…`, `text=`
 yalnız FM menüsünün `Save Game As` satırı (eklentinin `Events` özetinde yok, ayrı iş). Silme yolu kendi
-kopyamızla uçtan uca: `t78 test.fm` → rc=0 "Silindi/Deleted", iki derlemede de `click ?ptr=…`; Faruk'un
+kopyamızla uçtan uca: `t78 test.fm` → rc=0 "Silindi/Deleted", iki derlemede de `click ?ptr=…`; kullanıcının
 dört kaydı yerinde, yüklü kayıt `save --as` ile aynı adla yenilendi.
 
-### 8.267 `register --auto` sabit 1500 ms yerine oyunun "değişiklik aldım" işaretini bekliyor (21 Ekim, TR + EN)
+### 8.267 `register --auto` sabit 1500 ms yerine oyunun "değişiklik aldım" işaretini bekliyor
 Yardımcının seçimi (`Ask Assistant to Pick`) İngilizce yazısıyla aranıyor ve basıldıktan sonra sabit **1500 ms**
 bekleniyordu. Düğme kendi olayını taşıyor: **`EventToPlugin:EventFmxAutoSelect`** (ölçüm: `/buttons?json=1&gen=1`),
 yanındaki `Undo Changes` de **`EventFmxRevertChanges`**; ikisi de artık olayla basılıyor/aranıyor. Bekleme, oyunun
@@ -3208,7 +3208,7 @@ sonra) `register --auto --json` eski derlemeyle isim/açık-kapalı/kural **bire
 değişiklik yokken ikinci koşu da aynı listeyi veriyor. `Flags` sütunu bilinen geç bağlanma yüzünden koşular
 arasında oynuyor (iki derlemede de); karşılaştırma isim/açık-kapalı/kural üzerinden yapıldı.
 
-### 8.268 `fm responsibilities` görev çiftini sözle değil sayfanın sırasıyla buluyor (21 Ekim, TR + EN + DE)
+### 8.268 `fm responsibilities` görev çiftini sözle değil sayfanın sırasıyla buluyor
 `ParseDuties` bir görevin iki düğmesini ("Take Control" / "Delegate") metinleriyle arıyordu. Almanca oyunda
 delegate düğmesi **"Delegation"** olarak geliyor (eklentinin çeviri tablosunda İngilizcesi yok), hiçbir çift
 kurulmuyor ve `fm responsibilities --json` **rc=1** "Sorumluluklar sayfası okunamadı." veriyordu. Artık çift,
@@ -3216,9 +3216,9 @@ sayfanın çizdiği sıradaki iki `buttons-segmented-button-row-*` düğmesi ola
 sonra Delegate); söz araması kalktı. Ölçüm: TR eski/yeni üç durumda (başka sayfa açık / hemen ikinci koşu /
 başka sayfaya geçtikten sonra) **birebir** `fa0ac05b…` (105 görev), EN `55e8337f…` (105); DE eski rc=1,
 yeni üç durumda rc=0 ve aynı `57c24ed4…` (105 görev; 54 sende / 51 devredilmiş). Üç dilde görevli kümesi
-(Clive Nates, Faruk Kavlak, Tom Clayton…) aynı; görev adları oyunun dilinde kalıyor.
+(Clive Nates, Menajer, Tom Clayton…) aynı; görev adları oyunun dilinde kalıyor.
 
-### 8.269 Gözlemci odağı formunun Cancel'i sözle değil olay + şablonla basılıyor (21 Ekim, TR + EN)
+### 8.269 Gözlemci odağı formunun Cancel'i sözle değil olay + şablonla basılıyor
 `AbandonFocus` formu `click ?text=Cancel` ile kapatıyordu; "Cancel" oyunun dilindeki etiketin eklentinin çeviri
 tablosundan geçmiş hâli. Düğme kendi olayını gönderiyor: `/buttons?json=1&gen=1` → `RecruitmentFocusEditConfirmationDialog`
 (formun ikinci adımında `Confirm` de aynı olayı gönderiyor), şablonu `button-base-label`; artık ikisi birlikte
@@ -3228,7 +3228,7 @@ sonra) eski ve yeni derlemede **12/12 rc=64**, stdout boş (`d41d8cd9…`), stde
 `b11015ec…`); izde eski `click ?text=Cancel` → yeni `buttons ?json=1&gen=1` + `click ?ptr=…`, sonrası aynı
 `dialog`/onay. `scout areas` çıktısı iki derlemede de aynı; hiç odak oluşmadı, form açık kalmadı.
 
-### 8.270 Gözlemci odağı formunun öncelik sekmesi ve yaşları oyunun adlarıyla; TR'de ongoing hiç kurulmuyordu (21 Ekim, TR + EN)
+### 8.270 Gözlemci odağı formunun öncelik sekmesi ve yaşları oyunun adlarıyla; TR'de ongoing hiç kurulmuyordu
 Üçüncü öncelik sekmesi `FormButton(second, "Ongoing")` ile çeviri tablosundan geçmiş İngilizce sözüyle aranıyordu;
 form TR'de o sekmeyi **`Obscure`** diye veriyor (oyunun "Belirsiz" sözünün tablodaki İngilizcesi), düğme null
 kalıyor ve `scout new --priority ongoing` **rc=134** ile çöküyordu (`ScoutFocus.cs:747`, hiç odak kurulmadan).
@@ -3241,7 +3241,7 @@ Kanıt: TR üç durum + son koşu, EN üç durum `--priority ongoing --age 18-23
 `Priority=2`; eski derleme EN'de aynı çıktı (`click ?text=Confirm`), TR'de rc=134. Test odakları durduruldu,
 kayıt yeniden yüklendi (dört gerçek odak yerinde), dil Türkçe.
 
-### 8.271 `fm tactic pick`in "Quick Pick"i düğmenin olayıyla basılıyor (21 Ekim, TR + EN)
+### 8.271 `fm tactic pick`in "Quick Pick"i düğmenin olayıyla basılıyor
 Düğme `?text=Quick Pick&name=button` ile basılıyordu; "Quick Pick" oyunun kendi sözünün ("Hızlı Seçim")
 eklentinin çeviri tablosundan geçmiş hâli, yani basış tabloya bağlıydı. Düğme kendi olayını gönderiyor:
 `EventToPlugin:EventFmxQuickPick`; artık basış yalnız o olayla, `--dry` de aynı olayı soruyor.
@@ -3254,7 +3254,7 @@ yineler) → yeni `press ?event=EventToPlugin:EventFmxQuickPick`; `text=Quick Pi
 (yani "sayfa ilk kez açılıyor" yolu da aynı). Kayıt test kaydı; saat 2 Ağustos 2026 09:15, ilerletilmedi,
 maç oynanmadı; dil Türkçe'ye döndü. Dosyalar `…/opencode/t82/{base,new}-{tr,en}-s{1,2,3}.{out,err}`.
 
-### 8.272 `fm table`in ülke eşi ölçüldü: 3 sn sınırı ~100 kat pay (21 Ekim, TR + EN)
+### 8.272 `fm table`in ülke eşi ölçüldü: 3 sn sınırı ~100 kat pay
 Lig tablosunun adı ülkeyle eşleştirilirken `Human.Team.Nation.Name` en çok 3 sn (0,5 sn aralık) bekleniyordu.
 Ölçüm (`FM_TRACE=1`): istek üç durumda da **26–30 ms**'de dolu değerle dönüyor (TR 26/28/28, EN 30/28/28) — yani
 sınır bir yoklama aralığından çok uzak, pay ~100 kat. Değer hiç gelmezse yanlış tablo riski yok: ülke eşleşmesi
@@ -3263,7 +3263,7 @@ açılıyor. Üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfa
 çıktısı dil içinde bayt bayt aynı (TR `07136d20…`, EN `986b328b…`); kod değişmedi.
 Dosyalar `…/opencode/t84/tr-s{1,2,3}.{out,err}`, `en-s{1,2,3}.{out,err}`.
 
-### 8.273 `fm settings` yazma yolunda iki yazı yedeği kaldırıldı: onay olayla, sekme kapsayıcıyla (21 Ekim, TR + EN)
+### 8.273 `fm settings` yazma yolunda iki yazı yedeği kaldırıldı: onay olayla, sekme kapsayıcıyla
 
 Preferences'in yazma yolu iki yerde oyunun sözüne düşebiliyordu: `PreferencesConfirmChanges` olayını taşıyan açık
 düğme bulunamazsa `click ?text=Confirm&name=ConfirmButton`, sekme `TabButtons` eşlemesinde yoksa
@@ -3278,7 +3278,7 @@ Yedekler hiç ateşlenmiyordu (eski izde de onay `?ptr=`), yani davranış deği
 "Manage settings for this game" / "See all" satırları hâlâ yazıyla (ayrı iş, düğme kimliği yok).
 Dosyalar `…/opencode/t85/{base,new}-{tr,en}-s{1,2,3}.{out,err}`.
 
-### 8.274 `fm league`in istatistik kapsamı beklemesi 3 sn'lik sınırın çok altında (21 Ekim, TR + EN)
+### 8.274 `fm league`in istatistik kapsamı beklemesi 3 sn'lik sınırın çok altında
 
 `StatScope` her istatistik için `pathset … .comp`in hatasız dönmesini 3 sn'ye kadar bekliyordu ("gelmezse yok
 say" riski). Ölçüm: her `fm league` koşusunda 20 bağlamanın 20'si de **ilk denemede** geçti (TR 29–34 ms, EN
@@ -3287,7 +3287,7 @@ say" riski). Ölçüm: her `fm league` koşusunda 20 bağlamanın 20'si de **ilk
 6/6 rc=0, çıktı dil içinde bayt bayt aynı (TR `fab0d284…`, EN `725bbf7e…`; TR `--stat Gol` `43f684e8…`).
 Kod değişmedi. Dosyalar `…/opencode/t86/`.
 
-### 8.275 Dil değişince `fm league --stat` eski dilin istatistik adlarıyla kalıyor (21 Ekim, TR → EN)
+### 8.275 Dil değişince `fm league --stat` eski dilin istatistik adlarıyla kalıyor
 
 İstatistik kataloğu `cache/<state.Language>/…/league-stats.json`a yazılıyor, ama adlar oyunun **kendi sözleri**
 ve yeniden açılışa kadar eski dilde kalıyor: `fm settings dil "English"` sonrası `fm league --stats` hâlâ
@@ -3296,7 +3296,7 @@ ve yeniden açılışa kadar eski dilde kalıyor: `fm settings dil "English"` so
 yeniden açılış öncesi adlar değişmiyor. Çözüm: katalog adlarının dilini saklamak ya da açılıştan sonra bir kez
 tazelemek. Ölçüm sırasında görüldü, bu turda kapsam dışı (CHECKLIST B'ye yazıldı).
 
-### 8.276 Seçenek eşlemesi gösterilen sözü de kabul ediyor: `training --trait` Türkçe adda çalışmıyordu (21 Ekim, TR + EN)
+### 8.276 Seçenek eşlemesi gösterilen sözü de kabul ediyor: `training --trait` Türkçe adda çalışmıyordu
 `Matching` (`Guided.cs`) bir seçeneğin adını yalnız verideki İngilizcesiyle karşılaştırıyordu; komutun bastığı
 liste ise `GameWords` ile oyunun sözüne çevriliyor. Bu yüzden `fm training "Ben House" --trait "Toplara Plase
 Vurur"` (ekranda görünen ad) TR'de rc=1 "Öğretilebilecekler arasında … yok." verirken İngilizce "Places Shots"
@@ -3306,7 +3306,7 @@ TR üç durum (Mesajlar açık / hemen ikinci koşu / Squad Dynamics sonrası): 
 `89ae67bb…` 3/3. EN üç durum: eski ve yeni derleme `e968358e…` 3/3. Kısmi ad ("Sol Kanattan") iki seçeneği
 listeliyor (rc=1), eğitim başlamıyor (`fm training` hâlâ "çalışmıyor"). `sweep.sh` 50/50.
 
-### 8.277 Taktik paneli kendi çizilişini bildiriyor: 3 sn'lik sınır 2,6 kat paydaydı (21 Ekim, TR + EN)
+### 8.277 Taktik paneli kendi çizilişini bildiriyor: 3 sn'lik sınır 2,6 kat paydaydı
 
 `TacticPanel` kaydetme/yükleme panelini seçimden sonra 3 sn'ye kadar bekliyordu; panelin hazır olması "kaydetme
 panelinde `SaveAddon` düğmesi + iki kutu, yüklemede `Load` düğmesi etkin" işaretiyle okunuyordu. Üç durumda
@@ -3318,7 +3318,7 @@ panel ilk denemede, çıktı eskisiyle aynı; test dosyaları silindi. Dosyalar 
 Not: `tactic save "<ad>"` etkin taktiğin adını da o ada çeviriyor (kaydetme kutusu taktiğin adı); ölçüm
 sırasında ad değişti, aynı taktik `tactic save "t179 test" --yes` ile eski adına döndürüldü.
 
-### 8.278 Denetim bekleme sınırı (`Arriving` 8 sn) 7,1 kat pay bırakıyor; kod değişmedi (21 Ekim, TR + EN)
+### 8.278 Denetim bekleme sınırı (`Arriving` 8 sn) 7,1 kat pay bırakıyor; kod değişmedi
 `Arriving` bir denetim gelene kadar 1 sn arayla yokluyor ve en çok 8 sn bekliyor. TR + EN × üç durumda
 (s1 başka sayfa `Mesajlar`/`Messages` açık / s2 hemen ikinci koşu / s3 `Takım Dinamikleri`/`Dynamics` sonrası)
 `fm scout areas --json` + `fm players "Aaron" --age 18-23 --json`: **12/12 rc=0**, en uzun tek bekleme **1,12 sn**
@@ -3329,7 +3329,7 @@ geliyor (~40 kat); maç akışındaki 3 sn'ler maç günü olmadığı için öl
 Dosyalar `…/opencode/t89/`. Ölçüm tuzağı: TR oyunda ayarın adı `dil` — `fm settings language "English"` "diye bir
 ayar yok" diyor; EN'e `fm settings dil English`, geri `fm settings language "Türkçe"` ile dönülüyor.
 
-### 8.279 `fm prep`in iki `pathset`i ilk denemede geçiyor: 3 sn sınırı 83–230 kat pay (21 Ekim, TR + EN)
+### 8.279 `fm prep`in iki `pathset`i ilk denemede geçiyor: 3 sn sınırı 83–230 kat pay
 `FocusSlots` hazırlık okuması için iki bağlama yapıyor (`fmcli.mf<gün>.FixtureHasResult`, `.training`) ve her biri
 `pathset` hatasız dönene kadar en çok 3 sn bekleniyordu. TR + EN × üç durumda (s1 `fm open "Messages"` sonrası /
 s2 hemen ikinci koşu / s3 `Squad Dynamics` sonrası) `FM_TRACE=1 fm prep`: **6/6 rc=0** ve her koşuda iki `pathset`
@@ -3337,14 +3337,14 @@ de ilk yoklamada döndü (TR 13–36 ms, EN 13–32 ms) → 3 sn ≈ 83–230 ka
 dönüp `FocusSlots` null oluyor ve hazırlık hiç basılmıyor, yani "gelmezse yok say" yanlış veri üretmiyor. Çıktı dil
 içinde bayt bayt aynı (TR `511c845d…` 3/3, EN `9f6e4f59…` 3/3); TR'ye dönüşte aynı. Dosyalar `…/opencode/t90/`.
 
-### 8.280 Dil değişince `fm prep`in odak adları yeniden açılışa kadar eski dilde kalıyor (21 Ekim, TR → EN)
+### 8.280 Dil değişince `fm prep`in odak adları yeniden açılışa kadar eski dilde kalıyor
 `fm settings dil English` sonrası `fm prep` başlıkları ("In possession", "To change") İngilizce, ama odak adları ve
 açıklamaları (`Kaydedilen İlerleme`, `Orta Bölgede Pres`…) hâlâ Türkçe: bunlar oyunun `MatchFocusSessionName` /
 `MatchFocusSessionDescription` verisi ve oyun onları yeniden açılışa kadar eski dilde tutuyor. CLI'nin kendi sözleri
 dile uyuyor; §8.275'teki `league --stat` kataloğuyla aynı sınıf, kod tarafında düzeltilecek bir şey yok. TR'ye dönüş
 `fm settings language "Türkçe"` ile yapıldı; çıktı tur başındaki `511c845d…` ile aynı.
 
-### 8.281 Taktik yükleme panelinin kapanışı sabit 800 ms değil kendi `Load` düğmesini bekliyor (21 Ekim, TR + EN)
+### 8.281 Taktik yükleme panelinin kapanışı sabit 800 ms değil kendi `Load` düğmesini bekliyor
 `TacticLoad`ın `close`u paneli `PanelHistoryClose` ile kapattıktan sonra sabit 800 ms bekliyordu; artık panelin kendi
 `Load` düğmesi (`Events` içinde `EventLoadAddOn`) ekrandan kalkana kadar bekleniyor (`Until`, 0,15 sn, üst sınır 8 sn).
 Ölçüm (geçersiz `t93 bogus.fmf`, üç deneme = iki kapanış): kapanış→sayfa eski kodda **0,83–0,88 sn**, yenisinde
@@ -3352,7 +3352,7 @@ dile uyuyor; §8.275'teki `league --stat` kataloğuyla aynı sınıf, kod taraf�
 stderr birebir, her denemede panel kapanıp yeniden açıldı. Geçerli `t93 good` ile yükleme TR + EN **rc=0**, çıktı
 eskisiyle aynı; kopya silindi, etkin taktik `t179 test`. Dosyalar `…/opencode/t93/` (`{tr,en}-{old,new}-s{1,2,3}.*`, `old/`).
 
-### 8.282 Teklif kartı sabit 1,5 sn yerine kendi verisini bekliyor (21 Ekim, TR + EN)
+### 8.282 Teklif kartı sabit 1,5 sn yerine kendi verisini bekliyor
 `fm offers <#> view` satırın bağlantısına bastıktan sonra kartı okumak için sabit 1,5 sn bekliyordu. Artık kartın
 kendi işareti bekleniyor: oyuncu ve kulüp satırdakiyle aynı, ilk terimi dolu ve kart iki okumada aynı (`Until`,
 0,25 sn aralık, üst sınır 8 sn); gelmezse "teklif kartı açılmadı" rc=1. Ölçüm: TR'de basış→okuma eski kodda
@@ -3362,7 +3362,7 @@ iki dilde eski derlemeyle birebir (TR `e6d9188d…` 3/3, EN `1fdfda8d…` 3/3). 
 veriyor (0,1 sn sonra doluyor), bu yüzden "ilk terim dolu + iki okuma aynı"; kiralık teklifin olmayan maddeleri
 ("—") beklenmiyor. Dosyalar `…/opencode/t94/`, `old-bin/` eski derleme.
 
-### 8.283 `fm propose --loan`: kiralık sekmesinden sonraki 1,2 sn yerine ücret kutusunun kalkması bekleniyor (21 Ekim, TR + EN)
+### 8.283 `fm propose --loan`: kiralık sekmesinden sonraki 1,2 sn yerine ücret kutusunun kalkması bekleniyor
 `cli/fm/Propose.cs`. `--loan` yolunda "Loan Offer" sekmesine basıldıktan sonra kart okunmadan önce sabit **1,2 sn**
 bekleniyordu; sonra liste bir kez daha okunuyordu. Sekmenin oyun içindeki cevabı, transferin ücret kutusunun
 (`Type: FMCombobox`) panelden kalkması: ölçümde basıştan **0,14 sn** sonra düğme sayısı 185 → 179 oluyor ve kutu yok
@@ -3377,7 +3377,7 @@ kiralık hâldeydi (ücret kutusu yok). Negatif: `"ZZZ yok"` rc=1; transfer yolu
 Dosyalar `…/opencode/t95/`. Aynı desen `Transfers.cs` 96'da (teklif verirken loan sekmesi, sabit 2 sn) hâlâ duruyor;
 ayrı madde.
 
-### 8.284 `fm offer --loan`: kiralık sekmesinden sonraki 2 sn yerine kiralık panelinin çizilmesi bekleniyor (21 Ekim, TR + EN)
+### 8.284 `fm offer --loan`: kiralık sekmesinden sonraki 2 sn yerine kiralık panelinin çizilmesi bekleniyor
 `cli/fm/Transfers.cs`: `--loan` yolunda "Loan Offer" sekmesine basıldıktan sonra kart okunmadan önce sabit **2 sn**
 bekleniyordu. Sekme paneli iki adımda yeniden çiziyor: önce transferin satırları boşalıyor (`Rows` 0, `TotalCostTitle`
 değişiyor), ~0,44 sn'de kiralığın 12 satırı geliyor. Oyunun kendi cevabı bu: `OfferScreen.Read` kiralık satır kümesini
@@ -3392,7 +3392,7 @@ aynı). Dosyalar `…/opencode/t96/` (`old/` = değişiklik öncesi Release kopy
 Aynı fonksiyonda kalan `Task.Delay`ler (128/131/139) `+`/`−` ile ücret yürütme döngüsünün okuma aralıkları; bu yolda
 ölçülmedi, ayrı alt madde.
 
-### 8.285 `fm settings` dil değişiminden sonra sayfayı sabit 3 sn bekleyip yeniden deniyordu (21 Ekim, TR + EN)
+### 8.285 `fm settings` dil değişiminden sonra sayfayı sabit 3 sn bekleyip yeniden deniyordu
 `cli/fm/Settings.cs`: ayar değişip onaylandıktan sonra tercihler sayfası kapanıyor ve değeri doğrulamak için yeniden
 açılıyordu; açılamazsa `Task.Delay(3)` ile üç kez (9 sn) yeniden deniyordu. Oysa ilk açılış zaten onaydan
 **0,37–0,41 sn** sonra oluyor (iz: `click ?ptr` → `texts All Preferences` → `texts Manage settings`), yani 3 sn
@@ -3404,7 +3404,7 @@ Your World sekmesinde açık) **6/6 rc=0**, her koşuda değer doğru okundu ("d
 "language: English → Turkish"), `/state` altı koşuda da doğru dil, kayıt 2 Ağustos 2026 14:00 (saat ilerlemedi,
 maç oynanmadı). Değişiklik yalnız `Settings.cs` içinde → paylaşılan kod yok, `sweep.sh` gerekmedi.
 
-### 8.286 `scout remove` onaydan sonra sayfayı sabit 800 ms bekliyordu (21 Ekim, TR + EN)
+### 8.286 `scout remove` onaydan sonra sayfayı sabit 800 ms bekliyordu
 `cli/fm/ScoutFocus.cs`: odak durdurma onayı basıldıktan sonra `Task.Delay(800)` ile beklenip odak sayfası yeniden
 açılıyordu; sonra atama sayısının düşmesi zaten bekleniyordu. Oysa onay penceresi (`/dialog`) basıştan **0,07–0,09 sn**
 sonra boşalıyor (en geç 0,26 sn), sayfa hemen açılabiliyor. Artık pencere kalkana kadar `Until` (üst sınır 5 sn,
@@ -3414,7 +3414,7 @@ negatif odak adı rc=64 + seçenek listesi. Not: `scout restart` eskisini listed
 ve gözlemcileri yeniden dağıttığı için başka bir odağı durdurabiliyor; test sonrası kayıt yeniden yüklendi
 (`fm load … --no-save`, 4 odak, 2 Ağustos 2026 09:15, TR).
 
-### 8.287 Maç ekranının iki etiketi sabit Türkçeydi ("puan", "biz:") — İngilizce oyunda da Türkçe kalıyordu (21 Ekim, TR + EN)
+### 8.287 Maç ekranının iki etiketi sabit Türkçeydi ("puan", "biz:") — İngilizce oyunda da Türkçe kalıyordu
 `cli/fm/MatchDay.cs` (21 Ekim'de İngilizce oyunda denenmemiş değişiklikler): `sub` listesindeki oyuncu puanı
 `$"puan {r:0.0}"` diye doğrudan yazılıyordu ve satır sonundaki kart özeti `$"biz: …"` ile kuruluyordu; ikisi de
 `L(...)`den geçmediği için katalog devreye girmiyordu — İngilizce oyunda `puan 7.0` ve `Cards: biz: … · opponent: …`
@@ -3426,7 +3426,7 @@ Aynı turda İngilizce oyunda `reply` (konuşma + cevaplar), yeni ekler (altyap�
 ve `sub` (oyuncu değişti, sahadaki liste doğruladı) çalışıyor; dil canlı değişince motor yazıları (sakatlık adı,
 diziliş, rol) yeniden açılışa kadar eski dilde kalıyor — §8.275'le aynı sınır.
 
-### 8.288 İstatistik kataloğu artık oyunun İngilizce adlarıyla: dil değişince `fm league --stat` iki dilde de çalışıyor (21 Ekim, TR + EN)
+### 8.288 İstatistik kataloğu artık oyunun İngilizce adlarıyla: dil değişince `fm league --stat` iki dilde de çalışıyor
 
 Katalog `cache/<dil>/…/league-stats.json`a oyunun **gösterdiği** adlarla yazılıyordu; `fm settings dil` ile
 `/state` hemen yeni dili söylerken oyunun motor sözleri (istatistik adları) geciktiği için katalog yeni dilin
@@ -3441,7 +3441,7 @@ karşılığı olmayan ad "Goals" gibi İngilizce kalıyor — `--stat` yine iki
 negatif `zzz` rc=64. Motor sözlerinin yeniden açılışa kadar eski dilde kalması (§8.287) sürüyor; katalog artık ona
 bağlı değil.
 
-### 8.289 İşsizlik iki kör okumayla değil menajerin kendi kaydıyla anlaşılıyor (21 Ekim, TR + EN)
+### 8.289 İşsizlik iki kör okumayla değil menajerin kendi kaydıyla anlaşılıyor
 
 `Unemployed()` takım adını iki kez okuyup arada sabit 400 ms bekliyordu; işsizken `Human.Team.Name` boş döndüğü
 için `Bridge.Pull` cevabı "iki özellik de gelmedi" sayıp her okumada 6×250 ms yineliyordu (`{}` ile "henüz
@@ -3453,7 +3453,7 @@ ardından `Human.Name` 7,48 sn → tespit **~4,0 sn**. Artık menajerin kendi ka
 Squad Dynamics sonrası) ve çalışan TR + EN × aynı üç durum **12/12 rc=0**, her koşuda tek `Human` okuması,
 işsiz satırı iki dilde doğru; işsiz tespiti ~10–20 ms. `sweep.sh` 50/50. Dosyalar `/tmp/t101/`.
 
-### 8.290 `fm players --attr "<nitelik><=N"` "Is At Most" yolunda hep düşüyordu: satır yarı çizilmişken okunuyordu (21 Ekim, TR + EN)
+### 8.290 `fm players --attr "<nitelik><=N"` "Is At Most" yolunda hep düşüyordu: satır yarı çizilmişken okunuyordu
 
 Karşılaştırma "Is At Most"a çevrildiğinde panel satırı iki adımda çiziyor: önce söz değişiyor, değer düğmesi
 birkaç yüz ms sonra geliyor; ayrıca değer listesinin veri yolu `rule.minvalue` yerine `rule.maxvalue` oluyor.
@@ -3464,7 +3464,7 @@ bulunuyor; `finishing<=7` TR + EN × üç durum 6/6 rc=0. Ölçüm: değer 0,25�
 0,02–0,05 sn, adım 0,02–0,04 sn; `>=` yolu değişmedi (rc=0, `finishing>=8` ile kesişim boş). Dosyalar
 `/tmp/opencode/t102/`.
 
-### 8.291 `fm staff`ın "All Staff" sekmesi ve tablosu yazıyla değil oyunun kendi kaplarıyla (21 Ekim, TR + EN)
+### 8.291 `fm staff`ın "All Staff" sekmesi ve tablosu yazıyla değil oyunun kendi kaplarıyla
 
 Sekme `click ?text=All Staff&name=navigation-tab-default-default` ile basılıyor, tablo da `texts ?anchor=All
 Staff&up=12` ile okunuyordu; ikisi de oyunun sözü ("Tüm Personel") üzerinden. Eklenti etiketi İngilizceye
@@ -3476,7 +3476,7 @@ sayfaya geçtikten sonra) × TR + EN: **6/6 rc=0**, çıktı eski derlemeyle bir
 `ec69a3e1…`, 63 satır / 27 personel); izde `click ?text=All Staff` **0**, `click ?within=AllStaffTabGridCompositionSet`
 ve `texts ?within=StaffContractsTable`. Süre 6,5–6,6 sn (eskisiyle aynı). Dosyalar `/tmp/t103/`.
 
-### 8.292 `fm offer`in `+`/`−` yürütme döngüsü ücreti sabit 150 + 300 ms sonra okuyordu (21 Ekim, TR + EN)
+### 8.292 `fm offer`in `+`/`−` yürütme döngüsü ücreti sabit 150 + 300 ms sonra okuyordu
 
 `cli/fm/Transfers.cs` (teklif bedelini hedefe yürüten döngü): her basıştan sonra `Task.Delay(150)`, kutu
 değişmemişse bir kez daha `Task.Delay(300)` ve tek okuma; ikisi de tutmazsa döngü sessizce yanlış bedelle
@@ -3488,7 +3488,7 @@ değişmemişse bir kez daha `Task.Delay(300)` ve tek okuma; ikisi de tutmazsa d
 değişiminden hemen sonra EN'de taze açılışta eski derleme 2/2 kez ekranı okuyamadı (motor yazıları henüz
 oturmamış, §8.275); dil oturduktan sonra yeni derleme taze yolda da kartı çizdi. Dosyalar `/tmp/opencode/t104/`.
 
-### 8.293 `fm training --trait`in itiraz penceresi 3 sn'ye kadar bekleniyor; ölçüldü, pay 20–75 kat (21 Ekim, TR + EN)
+### 8.293 `fm training --trait`in itiraz penceresi 3 sn'ye kadar bekleniyor; ölçüldü, pay 20–75 kat
 
 `cli/fm/TraitTraining.cs` `Confirmed()`: seçimden sonra asistanın itiraz penceresi (`/dialog`) 3 sn'ye kadar
 1 sn aralıkla soruluyor; gelmezse "itiraz yok" sayılıp devam ediliyor. Ölçüm (`FM_TRACE=1`,
@@ -3498,7 +3498,7 @@ pay; kod değişmedi. Üç durum (başka sayfa `Messages` açık / hemen ikinci 
 `Dynamics` sonrası) × iki dil **6/6 rc=0**, çıktı dil içinde aynı; pencere "stop" ile kapandı, antrenman
 başlamadı (`fm training "Ben House"` odak: Şut), saat ilerletilmedi. Dosyalar `/tmp/opencode/t105/`.
 
-### 8.294 Sözleşme görüşmesinden çıkış düğmesi yazıyla değil oyunun çıkış olayıyla bulunuyor (21 Ekim, TR + EN)
+### 8.294 Sözleşme görüşmesinden çıkış düğmesi yazıyla değil oyunun çıkış olayıyla bulunuyor
 `CallOff`un vaatler aşamasındaki çıkışı `press ?text=Exit Talks` ile basılıyordu; bu söz eklentinin çeviri
 tablosundan geçen İngilizce etiket. Düğmenin kimliği ölçüldü: `SpeakToAction` eylemi **Event 42**
 (`EventFmxExitNegotiations`) + `IsExitButton=True`; basış artık `?ptr=`, düğme yoksa yazıya düşülmüyor.
@@ -3508,7 +3508,7 @@ tablosundan geçen İngilizce etiket. Düğmenin kimliği ölçüldü: `SpeakToA
 0,64–0,78 sn, görüşme ekranı basıştan **~0,3–0,5 sn** sonra kapanıyor (3 sn ≈ 6–8 kat). Negatif: açık görüşme
 yokken `contract --cancel` rc=1. Dosyalar `/tmp/opencode/t106/`.
 
-### 8.295 `fm schedule`ın antrenman sekmesi ve ızgarası 3 sn'de "gelmedi" sayılıyordu (21 Ekim, TR + EN)
+### 8.295 `fm schedule`ın antrenman sekmesi ve ızgarası 3 sn'de "gelmedi" sayılıyordu
 `TrainingSchedule.TrainingCalendar`: takvimin antrenman sekmesi (`TrainingFocusCard`) ve ızgarası ("art arda iki
 okuma aynı") en çok **3 sn** bekleniyordu; ikisi de oyunun kendi işareti, yalnız üst sınır dardı. Ölçüm
 (`FM_TRACE=1`; `select` → son `texts ?anchorpath=day.DayOfTheMonth`): TR **1,92 / 0,61 / 1,31 sn**, EN
@@ -3517,7 +3517,7 @@ okuma aynı") en çok **3 sn** bekleniyordu; ikisi de oyunun kendi işareti, yal
 **12 sn** (≥6,3 kat). TR + EN × üç durum `fm schedule --json`: **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
 (TR `md5 288ca6d1…` 3/3, EN `bba27efa…` 3/3). Dosyalar `/tmp/opencode/t107/sched/`.
 
-### 8.296 Sözleşme görüşmesini iptal eden düğme artık olayıyla; iptalden sonra boşuna 6 sn beklenmiyordu (21 Ekim, TR + EN)
+### 8.296 Sözleşme görüşmesini iptal eden düğme artık olayıyla; iptalden sonra boşuna 6 sn beklenmiyordu
 `ContractTalks.CallOff`: terimler aşamasındaki "Cancel Negotiations" düğmesi yazıyla (`Labelled`) bulunuyordu ve
 iptal + onaydan sonra `LeaveTalks()` o düğme sanılan "Exit Talks"ı 6 sn arıyordu; oysa oyun görüşmeyi zaten
 kapatıyor. İz: eski `contract --cancel` **7,13 sn**, sonunda 22 boş `buttons` yoklaması + `translate?words=Exit Talks`;
@@ -3527,7 +3527,7 @@ hemen ikinci koşu / başka sayfa sonrası) **6/6 rc=0**, çıktı dil içinde a
 "Negotiation cancelled."), sonrasında `contract` rc=1 ("açık görüşme yok"); vaatler aşamasındaki olay-42 çıkışı
 negatifte hâlâ çalışıyor (kilitli kart, rc=0). Dosyalar `/tmp/opencode/t108/`.
 
-### 8.297 Teklif menajerde kaldığında görüşmeyi kapatma iki dilde de yanlıştı (21 Ekim, TR + EN)
+### 8.297 Teklif menajerde kaldığında görüşmeyi kapatma iki dilde de yanlıştı
 `ContractTalks.Propose`ın "yalnız çıkış kaldı" dalı `"Adjust Budgets"` (çoğul) sözünü arıyordu; ekrandaki ham söz
 **"Adjust Budget"** (tekil). TR'de dal hiç açılmıyor, `contract --sign --yes` "Sırada: Görüşmeyi Bitir · Bütçeyi
 Ayarla" deyip görüşmeyi açık bırakıyordu (izde çıkış basışı **0**). EN'de dal açılıyordu ama `LeaveTalks` yazıyla
@@ -3538,7 +3538,7 @@ TR + EN × üç durum (başka sayfa `Messages` açık / hemen ikinci koşu / `Sq
 `/contract` boş, çıkış basışı öneriden 0,55–0,96 sn sonra, ekran basıştan 0,06–0,10 sn sonra kapanıyor; çıktı
 "Görüşme kapandı…" / "The offer is with the other side…". Dosyalar `/tmp/opencode/t109/`.
 
-### 8.298 Arama panelinde nitelik değerinin adımı 3 sn'de "olmadı" sayılıyordu (21 Ekim, TR + EN)
+### 8.298 Arama panelinde nitelik değerinin adımı 3 sn'de "olmadı" sayılıyordu
 `ApplySearch` (`StaffSearch.cs`, `fm players --attr`): `+`/`-` basışından sonra değerin satırda görünmesi en çok
 **3 sn** bekleniyordu; işaret doğruydu (oyunun kendi "değer değişti" hâli), yalnız üst sınır dardı. Ölçüm
 (`FM_TRACE=1`; `select …choice=20` → iki `-` adımı, basış → değişmiş `form ?anchorpath=filter.…`): TR
@@ -3548,14 +3548,14 @@ Değişiklik hata yolunda: guard bitince değer yine değişmezse "değer … ya
 `fm players --attr "Pace>=18" --json` iki dilde 6/6 rc=0 ve aynı boş çıktı; `Pace>=15` satır kümesi eski
 derlemeyle birebir (TR 17 ad, aynı sıra). `sweep.sh` 50/50. Dosyalar `/tmp/opencode/t110/`.
 
-### 8.299 `fm prep`in iki `pathset`i 3 sn'de "gelmedi" saymıyor (21 Ekim, TR + EN)
+### 8.299 `fm prep`in iki `pathset`i 3 sn'de "gelmedi" saymıyor
 `FocusSlots` sıradaki maçın hazırlığını okumadan önce `FixtureHasResult` ve `training` için iki `pathset` kuruyor
 (üst sınır 3 sn, 0,2 sn aralık); düşerlerse komut "Maç hazırlığı okunamadı" ile rc=1 veriyor. Ölçüm (`FM_TRACE=1`,
 `fm prep --json`): TR + EN × üç durum (başka sayfa `Messages` / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics`
 sonrası) **6/6 ilk denemede**, yanıt **31–33 ms** → 3 sn ≈ **90–95 kat** pay; değişiklik gerekmedi. Üç TR ve üç EN
 çıktısı bayt bayt aynı (`md5 262424c7…`; `--json` adları oyunun kayıttaki dili, veri yolu dilden bağımsız).
 
-### 8.300 Gözlem odağının yıldız adımı 3 sn'de "olmadı" sayılıyordu (21 Ekim, TR + EN)
+### 8.300 Gözlem odağının yıldız adımı 3 sn'de "olmadı" sayılıyordu
 `SetStars` (`ScoutFocus.cs`, `fm scout new/edit --ability/--potential`): `+`/`-` basışından sonra yıldızın
 değeri değişene kadar en çok **3 sn** bekleniyordu. Ölçüm (`FM_TRACE=1`; `fm scout edit "<odak>" --ability …`,
 TR + EN × üç durum: başka sayfa `Messages` açık / hemen ikinci koşu / `Squad Dynamics`·EN `Dynamics` sonrası):
@@ -3564,7 +3564,7 @@ yalnız **~4,6 kat** pay bırakıyordu. Üst sınır **8 sn** (~12 kat). 6/6 rc=
 Focus updated …", odak gerçekten değişti; ölçüm sonrası ana kayıt `--no-save` ile yüklendi (4 odak, dil TR).
 Dosyalar `/tmp/t112/`.
 
-### 8.301 `fm table`in sütunları önce açık olan sayfaya göre değişiyor (21 Ekim, TR + EN)
+### 8.301 `fm table`in sütunları önce açık olan sayfaya göre değişiyor
 `LeagueTable` önce Stages sayfasında yarışmayı seçip tam tabloyu (O G B M AV P FORM) okumayı deniyor; o yol
 tutmayınca portal karosunun dört sütunlu tablosuna (`# TAKIM O P`) sessizce düşüyor. Ölçüm (TR, `FM_TRACE=1`,
 `fm open "Messages"` / `"Squad Dynamics"` sonrası `fm table`): `Messages` açıkken altı koşunun beşinde portal
@@ -3574,7 +3574,7 @@ aşamasında kalıyor, `ties` + altı `scroll ?anchor=<takım>` sonrası Stages 
 için "oldu" demek yanıltıcı; yarışma seçimi oyunun kendi işaretiyle (tablonun/aşamanın başlığı) doğrulanmalı.
 Kod değişmedi; dosyalar `/tmp/opencode/t113/`.
 
-### 8.302 Alt sayfanın içeriği 3 sn'de "gelmedi" sayılıyordu (21 Ekim, TR + EN)
+### 8.302 Alt sayfanın içeriği 3 sn'de "gelmedi" sayılıyordu
 `OpenSubpage` (Program.cs) çubuğun o sayfada durmasını bekledikten sonra içeriği en çok **3 sn** bekliyordu.
 Ölçüm (`FM_TRACE=1`, `fm happiness --json`; çubuğun ilk cevabından sayfanın okunduğu ana kadar): TR
 **1,07–1,55 sn**, EN **0,90–1,10 sn** (sekiz koşu) → 3 sn en yavaş koşuda yalnız **~1,9 kat** pay. Üst sınır
@@ -3582,7 +3582,7 @@ Kod değişmedi; dosyalar `/tmp/opencode/t113/`.
 TR + EN × üç durum (`Messages` açık / hemen ikinci koşu / `Messages`'a dönüp) **6/6 rc=0**, çıktı eski
 derlemeyle bayt bayt aynı (TR `60e1e6fe…`, EN `bd3dc6a1…`); `sweep.sh` **50/50**. Dosyalar `/tmp/t114/`.
 
-### 8.303 Mesaj gövdesi 3 sn'lik sınırı hak ediyor (21 Ekim, TR + EN)
+### 8.303 Mesaj gövdesi 3 sn'lik sınırı hak ediyor
 `MessageBody` (Program.cs) haber gövdesini `newsitem.NewsBodyString` bağıyla okuyor, en çok **3 sn**
 bekliyor. Ölçüm (mesaj basışından gövdenin bağlandığı ilk ana kadar, 30 ms'lik dış yoklama; TR + EN ×
 üç durum — mesaj ilk kez / açıkken / `Squad Dynamics` sonrası): TR **0,31 / 0,43 sn**, EN **0,29 / 0,29 sn**;
@@ -3590,7 +3590,7 @@ mesaj açıkken gövde basıştan önce de bağlı. Yani 3 sn ≈ **7–10 kat**
 cümlesine düşüyor → **kod değişmedi** (3 sn'nin 8 sn'ye çıkarılması denendi, kanıt iyileşme göstermedi;
 `git restore`). Çıktı iki dilde de aynı (`d222f967…` / `525d3aa5…`).
 
-### 8.304 Maç günü pencereleri oyunun DialogManager'ında değil (21 Ekim, TR)
+### 8.304 Maç günü pencereleri oyunun DialogManager'ında değil
 `fm match --instant`in "Instant Result" ve "Team Selection" (dört yedek) pencerelerinde `/dialog` yalnız
 `Title` veriyor; `Type` **boş** ve `?data=1` `visible=False` diyor — yani bu pencereler `SI.Bindable.
 DialogManager` üzerinden geçmiyor. Bu yüzden B "yazıyla basma" maddesindeki üç pencereyi (Instant Result /
@@ -3599,7 +3599,7 @@ düğmenin kendi olayı/ActionID'si ya da sayfanın kabı olmalı. Ölçüm: `/d
 düğme işaretçilerini verdi, `Type` alanı hiç gelmedi; `fm match --instant` 3,1–5,0 sn'de iki pencereyi de
 başlıkla geçti. Dosyalar `/tmp/fm_dialogs.log`, `/tmp/fm_dialogdata.log`.
 
-### 8.305 `Bound` veriyi 2 sn'lik sabit uykudan sonra soruyordu (21 Ekim, TR + EN)
+### 8.305 `Bound` veriyi 2 sn'lik sabit uykudan sonra soruyordu
 `Program.Bound` (portal paneli bağlanmamışken `next`/durum yolunun kullandığı ortak okuma) önce 2 sn
 uyuyup sonra `/inbox`ı soruyordu. Ölçüm (`FM_TRACE=1`, `fm next`): alt sekme gönderimi 0,17 sn → ilk cevap
 **2,24 sn** (eski, TR); yeni kodda gönderim 0,19–0,23 sn → cevap **0,47–0,53 sn** (bekleme **0,30 / 0,34 sn**,
@@ -3608,7 +3608,7 @@ iki TR koşusu). Panel zaten bağlıyken (`Messages` açık ya da taze yükleme)
 **40–60 kat** pay bırakıyor. Değişen tek şey yoklama aralığı (2 sn → 0,25 sn); `sweep.sh` **50/50**.
 Dosyalar `/tmp/opencode/t115/`.
 
-### 8.306 Kayıt listesinde satır hazır işareti oyunun kendi cevabı (21 Ekim, TR + EN)
+### 8.306 Kayıt listesinde satır hazır işareti oyunun kendi cevabı
 `SaveRowInView` (Saves.cs ~218, ~231) satırın listede olup olmadığını `/rowselect?text=…&dry=1`in hatasız
 dönmesiyle anlıyor; 3 sn ve kaydırmadan sonraki 1,5 sn yalnız üst sınır. Ölçüm: liste çizildikten sonra
 satır **0,04–0,11 sn**de seçilebilir oluyor (oyun içi kayıt paneli TR s1/s2/s3 0,04 / 0,11 / 0,09 sn,
@@ -3618,7 +3618,7 @@ alt sıra) hem oyun içi panelde hem bekleme ekranında kaydırma yapmadan seçi
 gerçekten yoksa komut sessizce devam etmiyor: kaydırma denemelerinden sonra "listede yok" deyip rc=1
 veriyor. Bu yüzden sınırlar değişmedi (churn yok).
 
-### 8.307 FM menüsünün `Save Game As` satırı oyunun kendi seçeneğiyle bulunuyor (21 Ekim, TR + EN)
+### 8.307 FM menüsünün `Save Game As` satırı oyunun kendi seçeneğiyle bulunuyor
 `OpenFmMenu` menünün açık olup olmadığını `texts ?anchor="Save Game As"` ile, `OpenSaveBrowser` satırı
 `click ?text="Save Game As"` ile buluyordu; ikisi de eklentinin çeviri tablosundan gelen İngilizce söze bağlıydı.
 Oysa düğmenin olayı `FMMenuOptionFromID` ve seçenek olayın kendi alanında: `/buttons?type=FMMenuOptionFromIDEventContext`
@@ -3630,7 +3630,7 @@ menü zaten açık / `Messages` açık) **6/6 rc=1**, çıktı eski derlemeyle b
 `buttons ?type=…` + `press ?ptr=…`. Menü zaten açıkken tarayıcı 0,33–0,50 sn'de açılıyor; `fm world` TR + EN
 rc=0, çıktı eskisiyle aynı; `sweep.sh` 50/50. Dosyalar `/tmp/opencode/t117/`.
 
-### 8.308 `player --career` kariyer sekmesini döşemenin panel adıyla açıyor (21 Ekim, TR + EN)
+### 8.308 `player --career` kariyer sekmesini döşemenin panel adıyla açıyor
 `Career.cs` kariyer döşemesini `press ?text="Career Stats"` ile buluyordu; söz eklentinin çeviri tablosundan
 geliyor, yani düğme dile bağlıydı. Döşemenin dilden bağımsız tutamağı, içinde dizildiği panel:
 `#CareerStats` (BindingRemapper) › `layout-tile-interaction-button`. Artık `/click?within=CareerStats&name=…`;
@@ -3639,7 +3639,7 @@ Kanıt: TR + EN × üç durum (oyuncu sayfası ilk kez açılıyor / kariyer sek
 oyuncuya dönüş) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 3724a170…`, EN `205f72cb…`).
 Okuma dışı iş yok: `fm save` yok, tarih 9 Ağustos 2026 05:45, kayıt damgası 10:40. Dosyalar `/tmp/opencode/t121/`.
 
-### 8.309 `player --matches` form döşemesini `PlayerForm` bağıyla açıyor (21 Ekim, TR + EN)
+### 8.309 `player --matches` form döşemesini `PlayerForm` bağıyla açıyor
 `Matches.cs` form döşemesini `click ?text="Last 5 Club Games"&name=layout-tile-interaction-button` ile buluyordu;
 söz oyunun kendi metni, yani düğme dile bağlıydı. Döşemenin dilden bağımsız tutamağı, içinde dizildiği bağ:
 `BindingRemapper #PlayerForm` (kaynak izinde `…B.PlayerForm9.TileVariables0`). Artık
@@ -3648,7 +3648,7 @@ söz oyunun kendi metni, yani düğme dile bağlıydı. Döşemenin dilden bağ�
 açılıyor / oyuncu sayfası zaten açık / form sayfası zaten açık) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı
 (TR `md5 43c6f1a5…`, EN `md5 01570650…`). Dosyalar `/tmp/{trA,trB,trC,enA,enB,enC,trOld,enOld}.json`.
 
-### 8.310 `training --report` antrenman döşemesini `PlayerTrainingOverview` paneliyle açıyor (21 Ekim, TR + EN)
+### 8.310 `training --report` antrenman döşemesini `PlayerTrainingOverview` paneliyle açıyor
 `TrainingReport.cs` "Training Rating" döşemesini `press ?text="Training Rating"` ile buluyordu; söz çeviri
 tablosundan, yani döşeme dile bağlıydı. Dilden bağımsız tutamak, döşemenin içinde dizildiği
 `BindingRemapper #PlayerTrainingOverview`. Artık `click ?within=PlayerTrainingOverview&name=layout-tile-interaction-button`;
@@ -3659,7 +3659,7 @@ sonrası) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `md5 a287fa
 `--coach "Tom Shaw"` TR + EN raporu okudu. Aynı fonksiyonda kalan (ayrı iş): liste `Label == "Request Training Report"`
 ile, rapor eki `texts anchor="Attachments"` + `T.Rat` ile bulunuyor — bunlar dile bağlı, bu turda ele alınmadı.
 
-### 8.311 `training --trait-cancel` düğmesi oyunun kendi eylemiyle bulunuyor (21 Ekim, TR + EN)
+### 8.311 `training --trait-cancel` düğmesi oyunun kendi eylemiyle bulunuyor
 
 - "Cancel Current Trait Training" düğmesi `press ?text=` ile basılıyordu; yazı oyunun kendi sözlüğünden gelir.
   Düğmenin `Action` düğümü **ActionID 911493462** (`PersonTrainingNewPreferredMove`) taşıyor ve bastığı onay
@@ -3675,7 +3675,7 @@ ile, rapor eki `texts anchor="Attachments"` + `T.Rat` ile bulunuyor — bunlar d
   `Acknowledge()`'in aradığı Event 31'e sahip değil, bu yüzden `--trait-cancel` öncesinde kartın kapanması
   gerekiyor (testte kart kullanıcı gibi basıldı; eski derlemede de aynı).
 
-### 8.312 `settings` FM menüsündeki ayarlar döşemesini `PreferencesFMMenu` bağıyla buluyor (21 Ekim, TR + EN)
+### 8.312 `settings` FM menüsündeki ayarlar döşemesini `PreferencesFMMenu` bağıyla buluyor
 `Settings.cs` döşemeyi `click ?text="Manage settings for this game"` ile basıyordu; etiket o dilin sözü.
 Döşemenin kendi kimliği, `OpenPanelEventContext` olayının `source` yolundaki **`PreferencesFMMenu`** (menü öğesinin
 oyun tarafındaki adı); düğme artık `buttons?type=OpenPanelEventContext` listesinden bu adla bulunup `click ?ptr=` ile
@@ -3685,7 +3685,7 @@ menü zaten açık) **6/6 rc=0**, çıktı eski derlemeyle bayt bayt aynı (TR `
 `texts ?anchor=Manage settings` + `click ?text=` **0**, `click ?ptr=` döşeme için **1**. Aynı fonksiyonda kalan
 (ayrı iş): "See all" ve "All Preferences" hâlâ oyunun sözüyle aranıyor; onlar basış kutusu değil, çapa.
 
-### 8.313 taktik planlayıcısı "Team Shape" düğmesini kendi düğme grubuyla basıyor (21 Ekim, TR + EN)
+### 8.313 taktik planlayıcısı "Team Shape" düğmesini kendi düğme grubuyla basıyor
 `Guided.cs` (`Planner`) talimat görünümünden sahayı geri getiren düğmeyi `click ?text="Team Shape"&name=team-shape`
 ile basıyordu; etiket o dilin sözü. Düğmenin kendi yeri oyunun düğme grubu: `#FMShapeAndInstructionsButtons` içinde
 iki düğme var (`#team-shape`, `#team-instructions`); basış artık `click ?within=FMShapeAndInstructionsButtons&name=team-shape`,
@@ -3696,7 +3696,7 @@ bayt aynı (TR `md5 45360944d45966ddf152cc66231fd6fe`, EN `60570f71a42385ac711f7
 0 → 11. `sweep.sh` **50/50**. Ayrı not (bu değişiklikten bağımsız): sayfa talimat görünümünde bırakılıp `Messages`
 açıldığında `fm tactic` eski derlemede de `(boş)` veriyor — `Planner` sayfayı öne getirmiyor, ayrı iş.
 
-### 8.314 teklif şartının ekranda görünmesi sabit 200 ms beklemeden sonra değil, hemen okunuyor (21 Ekim, TR + EN)
+### 8.314 teklif şartının ekranda görünmesi sabit 200 ms beklemeden sonra değil, hemen okunuyor
 `OfferScreen.Settles` her şart değişikliğinden (kutu, seçim, ekleme, kaldırma) sonra **200 ms uyuyup** ekranı bir kez
 okuyordu; değişiklik çoğu zaman o 200 ms içinde zaten gelmiş oluyordu, yani bekleme boşa gidiyordu. Artık değişiklik
 gönderilir gönderilmez ekran okunuyor (şartın kendi değeri işaret), sonra paylaşılan `Program.Until` temposuyla
@@ -3716,7 +3716,7 @@ her hâlükârda 200 ms uyuyordu → ~225 ms). Kutu yolunda (`Bonservis=22001`) 
 ikinci okuma **236 ms**'de yeni değeri — eski kodun 200 ms + okuma süresiyle (~240 ms) aynı, yani kutu yolunda
 gerileme yok. Bu yüzden değişiklik yalnız hızlı cevaplanan yollarda kazanç; üst sınır ve tempo aynı (4 sn / 0,2 sn).
 
-### 8.315 yükleme ekranının dosya tarayıcısından dönüş, düğmenin kendi panelinden bulunuyor (21 Ekim, TR + EN)
+### 8.315 yükleme ekranının dosya tarayıcısından dönüş, düğmenin kendi panelinden bulunuyor
 `fm load`, yükleme ekranı dosya tarayıcısı hâlinde bırakıldıysa listenin başına dönmek için düğmeyi
 `click ?text="Back to last saves"` ile basıyordu — düğmenin sözü dilin sözü. Düğme artık kendi kabından
 bulunuyor: `click ?within=back-to-last-saves-SIVisible&name=button-base-leading-icon-label` (kabın adı
@@ -3728,7 +3728,7 @@ TR + EN × üç durum (`browse ilk kez` / `geri dönüp Browse ikinci kez` / `li
 tek eşleşme + basış, üçüncüsünde "no button … inside" ve `fm load` izinde **0** basış → **6/6 rc=0**, kayıt yüklendi.
 Dosyalar `/tmp/opencode/t127/`.
 
-### 8.316 arama kutusu kendi cevabını söylüyor: aynı sözü aramak 3 saniye beklemiyor (21 Ekim, TR + EN)
+### 8.316 arama kutusu kendi cevabını söylüyor: aynı sözü aramak 3 saniye beklemiyor
 `fm search` (ve `player`/`targets`ın arama yolu) `SearchFor`'da iki sabit beklemeyle çalışıyordu: yazmadan önce
 kutunun eski sonuçlarını oturtmak için 300 ms'lik okumalar, yazdıktan sonra da "oyun bitti demeden" 3 saniyelik
 bir yedek. Kutu **aynı sözü** zaten taşıyorsa yeni sonuç eskiyle aynı oluyor, `found != before` hiç tutmuyor ve
@@ -3743,7 +3743,7 @@ eski→yeni tip→çıkış TR **3,50→1,08** · **1,56→0,95** · **3,49→0,
 `b5d65871…`; EN `228809ae…`, `c1c82e07…`). Negatif: sonuçsuz söz (`zzzzqqq`) rc=0, `(boş)`, 3,8 sn — eskisiyle
 aynı. Dosyalar `/tmp/opencode/t128/`.
 
-### 8.317 `squad`ın durum bayrakları yoklamasındaki 250 ms aralık borç değil (21 Ekim, TR + EN)
+### 8.317 `squad`ın durum bayrakları yoklamasındaki 250 ms aralık borç değil
 `StatusFlags` bir oyuncunun bayraklarını okurken liste ilk okumada bağlanıp sonraki turlarda doluyor;
 `Task.Delay(250)` her turun **sonunda**, yalnızca hâlâ cevap bekleyen satır varsa çalışıyor — ilk okumadan
 önce hiç beklemiyor. Ölçüm (`FM_TRACE=1`, `fm squad`): 27 satır her koşuda üç turda doldu (27+27+15 bayrak
@@ -3753,7 +3753,7 @@ ikinci koşu / `table` sonrası): **6/6 rc=0**, çıktı dil içinde bayt bayt a
 her biri 3/3). Aralık kaldırılırsa döngü boşa döner, uzatılırsa bayraklar geç gelir: **borç değil**, canlı
 listede `[~]`. Dosyalar `/tmp/opencode/t129/`.
 
-### 8.318 koç görevlerini yardımcıya bırakma, oyunun "atama değişti" işaretini bekliyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+### 8.318 koç görevlerini yardımcıya bırakma, oyunun "atama değişti" işaretini bekliyor; 3 sn üst sınır borç değil
 
 `fm coaches --auto` düğmeye bastıktan sonra sayfanın yeniden kurulmasını **atamaların değişmesi** işaretiyle
 bekliyor (`Until`, 3 sn, 0,25 sn aralık). Ölçüm (`FM_TRACE=1`; basış → değişmiş atama okuması): TR **0,45 / 0,52**,
@@ -3764,7 +3764,7 @@ haklı olarak üst sınırda bitiyor (TR 2,90–3,00 / EN 2,85–2,87 sn) — bu
 yok" hâlini yavaşlatırdı. Sabit "bekle sonra oku" yok: okuma basıştan hemen sonra başlıyor, süre yalnız üst sınır.
 **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t130/`.
 
-### 8.319 lig istatistiğinin yarışma bağı ilk `pathset`te tutuyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+### 8.319 lig istatistiğinin yarışma bağı ilk `pathset`te tutuyor; 3 sn üst sınır borç değil
 
 `fm league --stat <istatistik>` her koşuda günün kendi yerinde (`fmcli.lg<gün>.<yarışma>.t<tür>`) yeni bir
 bağ kuruyor ve `comp` bağının tutmasını `Until` ile **3 sn** üst sınıra kadar (0,2 sn aralık) bekliyor — yorumdaki
@@ -3775,7 +3775,7 @@ TR + EN × üç durum (`Messages` sonrası / hemen ikinci koşu / `Squad Dynamic
 çıktı dil içinde bayt bayt aynı (TR `ce3771458e…`, EN `3b93f5b9df…`, her biri 3/3). Sabit "bekle sonra oku" yok:
 ilk okuma komutun kendi çağrısı. **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t131/`.
 
-### 8.320 `PullEach`in 250 ms'i okumalar arasında tempo; ilk okuma beklemesiz (21 Ekim, TR + EN)
+### 8.320 `PullEach`in 250 ms'i okumalar arasında tempo; ilk okuma beklemesiz
 `League.PullEach` (tek okuma birden çok yol) tur arasında 250 ms uyuyor. `FM_TRACE=1 fm table` izinde ilk `pull`
 komutun kendi çağrısıyla **0,16 s**de başlıyor; 250 ms yalnızca **tamamlanmamış** bir turdan sonra, iki okuma
 eşitlenene kadar (yani oyunun kendi "değişmiyor" işareti) sürüyor: tur aralıkları TR 0,27–0,29 / EN 0,26–0,28 sn.
@@ -3784,7 +3784,7 @@ eşitlenene kadar (yani oyunun kendi "değişmiyor" işareti) sürüyor: tur ara
 (`Messages` sonrası / hemen ikinci koşu / `Squad` sonrası) **6/6 rc=0**, çıktı dil içinde bayt bayt aynı
 (TR `3f7d685f…`, EN `7d4a7441…`, her biri 3/3). **Borç değil**, canlı listede `[~]`. Dosyalar `/tmp/opencode/t132/`.
 
-### 8.321 kayıt listesindeki satır `rowselect dry`nin kendi cevabıyla bulunuyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+### 8.321 kayıt listesindeki satır `rowselect dry`nin kendi cevabıyla bulunuyor; 3 sn üst sınır borç değil
 `SaveRowInView` (silme ve yükleme yolları) satırın listede olmasını `/rowselect?text=…&dry=1` hatasız dönmesiyle
 bekliyor; o çağrı oyunun kendi "satır seçilebilir" cevabı, sabit bir duraklama değil. Ölçüm (`FM_TRACE=1`,
 `fm saves delete "t133 probe" --yes`, boş bir `.fm` dosyası listeye konup silindi): tarayıcı açıldıktan sonraki
@@ -3793,7 +3793,7 @@ yani 3 sn, işaretin **~80–125 katı**. TR + EN × üç durum (`Messages` sonr
 Dynamics` sonrası) **6/6 rc=0**, "Silindi"/"Deleted", dosya gerçekten gitti. **Borç değil**, canlı listede `[~]`.
 Dosyalar `/tmp/opencode/t133/`.
 
-### 8.322 lig tablosunun ülke okuması ilk `pull`da geliyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+### 8.322 lig tablosunun ülke okuması ilk `pull`da geliyor; 3 sn üst sınır borç değil
 `Reads.LeagueTable` (json olmayan yol) yarışma adını ülkeyle eşleştirmek için `Human.Team.Nation.Name`i
 `Until` ile 3 sn'ye kadar bekliyor. Ölçüm (`FM_TRACE=1 fm table`; üç durum: `Messages` sonrası / hemen ikinci
 koşu / `Squad Dynamics` sonrası): izde her koşuda **tek** `pull` var — TR **33 / 27 / 28 ms**, EN **27 / 26 / 26
@@ -3802,7 +3802,7 @@ ms** — ve hemen ardından 30 ms sonra `state` geliyor, yani `Until` hiç tur a
 (TR `2d8cb6279f…`, EN `ccf41acd08…`, her biri 3/3). **Borç değil**, canlı listede `[~]`. Dosyalar
 `/tmp/opencode/t134/`.
 
-### 8.323 maç hazırlığının `pathset`i ilk denemede bağlanıyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+### 8.323 maç hazırlığının `pathset`i ilk denemede bağlanıyor; 3 sn üst sınır borç değil
 `Prep.FocusSlots`in `set()`i (`Prep.cs:142`) günün kapsamını (`fmcli.mf20260809.FixtureHasResult`,
 `.training`) `Until` içinde `pathset` ile bağlıyor; işaret oyunun kendi cevabı — `pathset` "error" ile
 başlamıyorsa bağ kurulmuştur, sabit duraklama yok. Ölçüm (`FM_TRACE=1`, `fm prep duran1 …`; üç durum:
@@ -3814,7 +3814,7 @@ işaretin ~100–140 katı. Değer değişimini doğrulayan ikinci bekleme zaten
 Yan gözlem: arayüz EN iken `prep`e eski dilin (TR) adı verilince değer değişiyor ama komut "oyun değişikliği
 almadı" diyor (`en_a`, rc=1) — ham `Name` ile gösterilen sözün eşleşmemesi; ayrı bir dil sınırı, bu tur ölçülmedi.
 
-### 8.324 yardımcının itiraz penceresi seçimden 70–230 ms'de geliyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+### 8.324 yardımcının itiraz penceresi seçimden 70–230 ms'de geliyor; 3 sn üst sınır borç değil
 `TraitTraining.Confirmed` (`TraitTraining.cs:98`) alışkanlık eğitimi başlatılırken/silinirken/iptal edilirken
 oyunun itiraz penceresini `Until(dialog dolu, 3 sn, 0,5 sn)` ile bekliyor; işaret oyunun kendi `dialog` bağı.
 Ölçüm (`FM_TRACE=1`, `fm training "Ben House" --trait "<alışkanlık>"`; pencereyi dışarıdan 20 ms'de bir `/dialog`
@@ -3826,7 +3826,7 @@ ilk okuma zaten doluydu. Yani 3 sn, en kötü ölçümün (230 ms) **~13 katı**
 değil**, listede `[~]`.
 Dosyalar `/tmp/measure_trait.py`, `/tmp/tt_{tr,en}_*`.
 
-### 8.325 bir portal sayfası açıldıktan hemen sonra arama kutusunu açan basış düşebiliyor (21 Ekim, EN)
+### 8.325 bir portal sayfası açıldıktan hemen sonra arama kutusunu açan basış düşebiliyor
 `fm open "Messages"` sonrası `fm training "Ben House" --trait` (oyuncuyu oyunun aramasıyla açan her komut) iki kez
 `error: no text box like that on the loaded screens` ile döndü; bir koşuda stderr
 `error: the event queue is blocked by 1 event(s) that never resolved … head: OpenPanelEventContext status=Sending`
@@ -3836,7 +3836,7 @@ kuyruğa takılıyor; `SearchFor` (`Reads.cs:99`) basışı bir kez yapıp 10 sn
 madde: basışı "kutu görünene kadar" yinelemek. (Aynı akışta bir kez `fm search --json` "Unhandled exception:
 System.InvalidOperationException" ile düştü; tek örnek, kök neden ölçülmedi.)
 
-### 8.326 sözleşme görüşmesinden çıkışta ekran 0,4 sn'de kapanıyor; 3 sn üst sınır borç değil (21 Ekim, TR + EN)
+### 8.326 sözleşme görüşmesinden çıkışta ekran 0,4 sn'de kapanıyor; 3 sn üst sınır borç değil
 `ContractTalks.CallOff` vaatler aşamasında iptal düğmesi bulamayınca oyunun kendi Exit Negotiations düğmesine
 basıyor (`ContractTalks.cs:388`) ve görüşme ekranının kapanmasını `Until(OfferScreen.Read == null, 3 sn, 0,25 sn)`
 ile bekliyor. Ölçüm (`FM_TRACE=1`, `fm contract "Ben House"` → `fm contract "Ben House" --cancel`; üç durum:
@@ -3846,7 +3846,7 @@ EN 0,43/0,41/0,45) ve 6/6 koşuda **ikinci yoklamada** geliyor. Yani 3 sn, en k�
 duraklama değil; işaret oyunun kendi "ekran kapandı" hâli, **borç değil**, listede `[~]`. TR + EN × üç durum
 **6/6 rc=0**, çıktı "Görüşme iptal edildi." / "Negotiation cancelled.". Dosyalar `/tmp/opencode/t135/`.
 
-### 8.327 `open` bilinmeyen sayfa adını dokuz saniye boyunca yeniden soruyordu; artık ad hiç gelmeyecekse hemen söylüyor (21 Ekim, TR + EN)
+### 8.327 `open` bilinmeyen sayfa adını dokuz saniye boyunca yeniden soruyordu; artık ad hiç gelmeyecekse hemen söylüyor
 
 `Arriving` her "error: no …" cevabını geçici sayıp 1 sn arayla 8 sn boyunca soruyordu. Oysa köprünün
 "error: no page named 'X'" cevabı kalıcı: ad, oyunun kendi sayfa listesinde yok (liste boşken `OpenWith`
@@ -3857,7 +3857,7 @@ Geçerli sayfa üç durumda × iki dilde aynı: `opened Portal › Messages (pan
 paylaşılan `Until`i kullanıyor; "error: no page named" kalıcı sayılıyor, "event queue is blocked" ve
 diğer "no …" cevapları eskisi gibi beklenmeye devam ediyor. `tools/sweep.sh`: 50 komut, 0 hata.
 
-### 8.328 "Instant Result" düğmesinin yazısı dille değişmiyor ama kendi adı genel: kimlik kabı (21 Ekim, TR + EN)
+### 8.328 "Instant Result" düğmesinin yazısı dille değişmiyor ama kendi adı genel: kimlik kabı
 `MatchDay.InstantResult` düğmeyi `press ?text="Instant Result"` ile buluyordu (üç çağrı: bekleme, ilk basış,
 takım sorunu sonrası tekrar). Düğmenin kendi `Name`i her yerde `button-base-leading-icon-label` (genel), yazısı
 ise TR oyunda da EN'de de "Instant Result" görünüyor; asıl kimlik onu taşıyan `SIEnabled #InstantResultEnabled`.
@@ -3868,7 +3868,7 @@ Değişiklik sonrası gerçek basış TR'de Lincoln 2-2 (pen.) Preston, EN'de Li
 verdi; izde `press ?text=` **0**, `press ?event=OpenPanel&within=InstantResultEnabled` **1**. Dosyalar
 `/tmp/opencode/t137/`; `fm save` yok, ana kayıt damgası **21 Ekim 10:40**.
 
-### 8.329 antrenman raporunun 500 ms'lik yeniden denemesi hiç çalışmıyor; seçim taze liste üzerinden ilk denemede (21 Ekim, TR + EN)
+### 8.329 antrenman raporunun 500 ms'lik yeniden denemesi hiç çalışmıyor; seçim taze liste üzerinden ilk denemede
 
 `training --report` koç listesinden seçim yaparken, "liste yeniden kuruldu, işaretçi eskidi" diye altı denemelik
 bir döngü var; her hata turunda 500 ms uyuyup listeyi `Listed` ile yeniden okuyor. Ölçüm: altı koşunun
@@ -3877,7 +3877,7 @@ hiç çalışmadı. Yani bu bekleme oyunun herhangi bir işaretini kaçırmak i�
 dedikten sonraki tur aralığı; turun kendisi oyunun `dropdowns` cevabıyla tazelenen işaretçiyi kullanıyor.
 Borç değil: normal yolda maliyeti 0, hata yolunda cömert üst sınır (6 tur).
 
-### 8.330 `stages` aşama seçtikten sonra 1,2 sn'yi değil, listenin kendi etiketini bekliyor (21 Ekim, TR + EN)
+### 8.330 `stages` aşama seçtikten sonra 1,2 sn'yi değil, listenin kendi etiketini bekliyor
 
 Aşama listesine bir tur seçildikten sonra kod sabit **1,2 sn** uyuyup tabloları öyle okuyordu. Oysa aynı sayfanın
 aşama listesi, seçilen turu kendi `Label`ında taşıyor (`Final`, `Şampiyona Yolu 2. Eleme Turu`) ve seçim
@@ -3890,7 +3890,7 @@ zaten iki okuma aynı olana kadar bekliyor. Ölçüm (üç durum × TR/EN, `sele
 boşlukla birleşik adla eşleşiyor; aynı turu tekrar seçmek beklemesiz (0,69 → 0,76 sn). Olmayan tur rc=64.
 `tools/sweep.sh` 50/50.
 
-### 8.331 serbest bırakma listesindeki 500 ms'lik yeniden deneme hiç çalışmıyor; seçim ilk denemede (21 Ekim, TR + EN)
+### 8.331 serbest bırakma listesindeki 500 ms'lik yeniden deneme hiç çalışmıyor; seçim ilk denemede
 
 `release` serbest bırakma satırını `select` ile seçmeden önce, ilk `select` "no dropdown at" derse sabit
 **500 ms** uyuyup listeyi tazeliyordu. Ölçüm (üç durum — `Messages` açık / hemen ikinci koşu / `Squad` sonrası —
@@ -3899,7 +3899,7 @@ tek `select`, ilk denemede, `select` → ilk `dialog` **40–80 ms**; dönüş r
 (md5 TR `e44eb830…`, EN `23732b12…`). Yani 500 ms hiç çalışmıyor; yalnız hata yolunda turlar arası tempo
 (`Until(Listed, every: 0.5)` zaten aynı beklemeyi yapıyor). `tools/remaining.py` `SETTLED`'a eklendi.
 
-### 8.332 maç sonu raporunun 500 ms'lik yeniden denemesi hiç çalışmıyor; son fikstür ilk okumada yeni sonucu taşıyor (21 Ekim, TR + EN)
+### 8.332 maç sonu raporunun 500 ms'lik yeniden denemesi hiç çalışmıyor; son fikstür ilk okumada yeni sonucu taşıyor
 
 `fm match`, düdükten sonra `MatchReport.Show(..., expected: score)` ile son maçı okuyor; ilk okuma eski maçı
 getirirse 24 tura kadar her turdan önce sabit **500 ms** uyuyordu. İki gerçek maçta (TR: Lincoln 0-0 Preston,
@@ -3910,7 +3910,7 @@ henüz gelmedi" hâlinde turlar arası tempo. `fm report` iki dilde üç durumda
 `Messages` açıkken) **6/6** rc=0, çıktı dil içinde bayt bayt aynı (TR `c801a46c…`, EN `c53d0691…`).
 `tools/remaining.py` `SETTLED`'a eklendi.
 
-### 8.333 görevler panelindeki 700 ms yerine seçilen gözlemcinin adı; panel başlığı dile bağlıydı (21 Ekim, TR + EN)
+### 8.333 görevler panelindeki 700 ms yerine seçilen gözlemcinin adı; panel başlığı dile bağlıydı
 
 `scout remove --yes` sayfadaki kaldırma düğmesini bulamazsa görevler paneline düşüyor; her gözlemciyi
 `rowselect` ile seçtikten sonra sabit **700 ms** uyuyup paneli okuyordu. Panelin sağ tarafı seçilen gözlemcinin
@@ -3924,7 +3924,7 @@ penceresi (`RecruitmentFocusRemove`) açıldı, atama sayısı 3 → 2 düştü.
 hâlâ aynı çevrili başlığı aradığı için TR'de boş dönüyor (rc=0, "(boş)"); odakları da "Recruitment Focuses"
 sözüyle kesiyor. `ScoutFocus.cs` yalnız bu iki fonksiyonda değişti; `sweep.sh` 50/50.
 
-### 8.334 odak formunun "yeni / düzenle" düğmeleri yazıyla değil, eylemin kendi menü ikonuyla bulunuyor (21 Ekim, TR + EN)
+### 8.334 odak formunun "yeni / düzenle" düğmeleri yazıyla değil, eylemin kendi menü ikonuyla bulunuyor
 
 `OpenFocusForm` yeni odağı `click ?text="Create a New Recruitment Focus"` ile, `scout edit` de aynı yolla
 "Edit Recruitment Focus" ile açıyordu; ikisi de oyunun çevrilen sözü. Dört `SpeakToOptionalActionButton`
@@ -3938,7 +3938,7 @@ koşusunda form açıldı, ikonlar iki dilde de aynı kaldı. Görevler panelind
 yedek yol da aynı düğmeleri gösteriyor. `tools/remaining.py --write`: açık kutu 21 → **18**, yazıyla basış
 **3 → 0**.
 
-### 8.335 `scout staff` görevler panelini başlığın çevrilen sözüyle değil, `Scout.Name` veri yoluyla buluyor (21 Ekim, TR + EN)
+### 8.335 `scout staff` görevler panelini başlığın çevrilen sözüyle değil, `Scout.Name` veri yoluyla buluyor
 
 `ScoutStaff` paneli `texts ?anchor="Active Assignments (4)"` ile arıyordu; TR başlık "Aktif Görevler (4)"
 olduğu için panel hiç bulunmuyor, komut **rc=0 ile boş tablo** dönüyordu (EN'de çalışıyordu). Ayrıca alt
@@ -3953,7 +3953,7 @@ Simon One). "Nation (13)" TR'de tekil olduğu için sayaç yalnız ortak kökle 
 Önce: TR `[]`/"(boş)", EN 6 satır ama alt satır "Süren görev (4)". Sonra: iki dilde 6 satır, alt satır kendi
 dilinde. `sweep.sh` **50 komut, 0 hata**.
 
-### 8.336 basın toplantısının "olası konular"ı eklentinin İngilizcesinden oyunun sözüne çevriliyor (22 Ekim, TR + EN)
+### 8.336 basın toplantısının "olası konular"ı eklentinin İngilizcesinden oyunun sözüne çevriliyor
 
 `reply <basın toplantısı>` eki konuları sayfanın metniyle olduğu gibi basıyordu. Eklenti, kendi tablosunda
 bildiği konuyu İngilizceye çevirdiği için TR oyunda "Fikstür Yoğunluğu · Clive Nates İle İlişkiniz ·
@@ -3963,7 +3963,7 @@ soruluyor, sonra `GameWords.Of(point)` basılıyor. Üç durum (başka mesaj aç
 sonrası) × TR + EN **6/6 rc=0**: TR'de dört konu da Türkçe ("Takım Seçimi"), EN'de dördü de İngilizce
 ("Team Selection"); önce TR'de yalnız üçüncü konu İngilizceydi. Değişiklik yalnız `Program.cs` `WriteAttachment`.
 
-### 8.337 `Stages` seçim döngüsünün 700 ms'si hiç çalışmıyor; `EveryTie` listeyi kaldığı yerden okuyor (22 Ekim, TR + EN)
+### 8.337 `Stages` seçim döngüsünün 700 ms'si hiç çalışmıyor; `EveryTie` listeyi kaldığı yerden okuyor
 
 `PickIn` listeyi dört kez bulmayı deniyor, her hatadan önce 700 ms uyuyor. Üç durum (`Messages` sonrası ilk
 açılış / hemen ikinci koşu / `Squad Dynamics` sonrası) × TR + EN **6/6 rc=0**: her seçim **tek `select`**, hiç
@@ -3976,7 +3976,7 @@ Austria Vienna, AEK 2-0 Göztepe). Liste önceki koşudan dipte kalmış, `Every
 ve `StageContent` iki okuma aynı olduğu için eksik pencereyi kabul etmiş. Düzeltme ayrı iş: yürüyüşten önce
 liste görünen ilk bağın adıyla `scroll ?to=0` ile başa alınmalı, sonra pencereler birleştirilmeli.
 
-### 8.338 `talk leave` oyuncu sohbetinin son sorusunda çıkamıyordu; çıkış artık `IsExitButton` (22 Ekim, TR + EN)
+### 8.338 `talk leave` oyuncu sohbetinin son sorusunda çıkamıyordu; çıkış artık `IsExitButton`
 
 Bir oyuncuya övgü/şikâyet söylenip son soruya gelindiğinde tek cevap "Görüşmeyi Sonlandır" oluyor ve o
 cevap `SpeakToAction` bir `StandardButton`; `talk leave` ise yalnız `continue-button` + `ClosePanel`
@@ -3987,7 +3987,7 @@ TR + EN **6/6 rc=0**, süre 1,6–2,3 sn; `talk leave` sonrası `status` "İlerl
 `SpeakToAction` kalmıyor. Negatif: son soruya gelmeden (cevap seçenekleri varken) ve konuşma yokken rc=1. Toplantı
 yolunda eski `continue-button` yolu aynen kullanılıyor. `sweep.sh` **50 komut, 0 hata**.
 
-### 8.339 oyunun çevirmediği bir söz, çevrilmiş bir söz varken seçiliyordu: `league --stats` TR'de "Goals" (22 Ekim, TR + EN)
+### 8.339 oyunun çevirmediği bir söz, çevrilmiş bir söz varken seçiliyordu: `league --stats` TR'de "Goals"
 
 `GameWords.Ask` (CLI'nin kendi yazdığı İngilizce sözler için) eklentinin `/translate` ucunu kullanıyor;
 `Localisation.ShownOf` o İngilizce sözün tablodaki **en sık** karşılığını seçiyordu. Tabloda bir sözün
@@ -4001,7 +4001,7 @@ iki satır değişti (`Goals` → `Goller`, oyuncu + takım listeleri); EN üç 
 aynı (`abbbd321…`, İngilizce oyunda tablo yok, hiçbir şey değişmiyor). `sweep.sh` **50 komut, 0 hata**.
 Kalan (bu iş değil): katalogdaki "Goals/90 Minutes" gibi bileşik adları oyunun kendisi Türkçe göstermiyor.
 
-### 8.340 konuşmada cevap seçenekleri, grup başlıkları ve kapanış cümlesi çevrilmeden basılıyordu (22 Ekim, TR + EN)
+### 8.340 konuşmada cevap seçenekleri, grup başlıkları ve kapanış cümlesi çevrilmeden basılıyordu
 
 `fm talk`/`fm match` konuşmasında (`Guided.TalkTo`) `Says` satırları, cevap başlıkları ve cevap etiketleri
 oyunun metni olarak **ham** basılıyordu. Eklenti bu metinleri İngilizceye çevirdiği için Türkçe oyunda
@@ -4016,7 +4016,7 @@ toplantısı / oyuncu sohbeti) × TR + EN: TR'de başlıklar `[Olumlu] [Nötr] [
 teşekkürler…"; EN'de metinler eskisiyle aynı (`[Positive] [Neutral] [Negative]`); önce TR'de yukarıdaki
 üç İngilizce söz, sonra hiçbiri. `sweep.sh` **50 komut, 0 hata**.
 
-### 8.341 kadro kayıt ekranı ilk okumayı sabit 250 ms bekleyip alıyordu (22 Ekim, TR + EN)
+### 8.341 kadro kayıt ekranı ilk okumayı sabit 250 ms bekleyip alıyordu
 
 `Registration.cs` `Settled()` her kaydırma sonrası sayfayı okumadan önce sabit **250 ms** uyuyordu; bir
 `ReadRegistration` beş kaydırma yaptığı için her okuma en az 1,25 sn bekliyordu. Oysa "durmuş sayfa" işareti
@@ -4030,7 +4030,7 @@ süre aynı üç durumda **5,21 → 4,30 / 5,28 → 4,46 / 6,67 → 5,77 sn** (b
 henüz eski sayfayı görüyor (satır 21↔24), ama 15/15'te ilk **anlaşan** çift oturmuş sayfaydı — yanlış
 anlaşma 0; yani uyaran ikinci okuma eski sayfayı her zaman yakalıyor.
 
-### 8.342 oyuncu sayfası bazı nitelik adlarını ve alışkanlıkları İngilizce basıyordu (22 Ekim, TR + EN)
+### 8.342 oyuncu sayfası bazı nitelik adlarını ve alışkanlıkları İngilizce basıyordu
 
 Oyuncu sayfasının nitelikleri oyunun **numarasıyla** adlandırılıyor (`AttributeNames`, 42 = Pace), yani
 kimlik doğru; ama oyunun kendi sözlüğüne sorulmadığı için Türkçe oyunda `Heading`, `Pace`, `Marking`,
@@ -4044,7 +4044,7 @@ TR'de diff yalnız altı nitelik + üç alışkanlık satırı, değerler ve di�
 **bayt bayt aynı**; `compare` de aynı adları çeviriyor, `--json` hâlâ `Heading`/`Finishing`. `sweep.sh`
 **50 komut, 0 hata**.
 
-### 8.343 anında sonuç ilk pencereyi sabit 1,5 sn bekliyordu (22 Ekim, TR + EN)
+### 8.343 anında sonuç ilk pencereyi sabit 1,5 sn bekliyordu
 
 `fm match --instant`, oyunun onay penceresini okumadan önce her turda sabit **1,5 sn** uyuyordu; ilk turda
 bu bekleme pencerenin gelmesini değil, sadece komutu geciktiriyordu: düğme basışından **0,08 sn** (EN) /
@@ -4055,14 +4055,14 @@ doğru: TR 25 Ağustos Barnsley 1-3 Lincoln, basış 1,33 → ilk pencere 1,50 (
 yeni pencere 2,28 (0,44 sn); EN 29 Ağustos Lincoln 1-1 Blackpool, 1,39 → 1,47 (0,08 sn) → tık 1,75 / 2,13.
 Eski derlemede ilk tık basıştan **1,64 sn** sonraydı (3,04 − 1,40). İzler `/tmp/opencode/t150/`.
 
-### 8.344 `fm load` ada göre seçerken kardeş kaydı yükleyebiliyor (22 Ekim)
+### 8.344 `fm load` ada göre seçerken kardeş kaydı yükleyebiliyor
 
-Aynı klasörde "Faruk Kavlak - Fenerbahçe" ve "Faruk Kavlak - Fenerbahçe (v03)" varken
-`fm load "Faruk Kavlak - Fenerbahçe (v03)" --no-save` **v03'ü değil** diğerini yükledi (tarih 23 Ağustos).
+Aynı klasörde "Örnek Kayıt" ve "Örnek Kayıt (v03)" varken
+`fm load "Örnek Kayıt (v03)" --no-save` **v03'ü değil** diğerini yükledi (tarih 23 Ağustos).
 Diğer dosya geçici olarak klasörden çıkarılınca aynı komut v03'ü **9 Ağustos 05:45** olarak yükledi; yani
 kayıt sağlam, seçim yanlış. Muhtemel neden `rowselect ?text=`in ada **önek** olarak eşleşmesi; düzeltilmedi.
 
-### 8.345 sorumluluk alanlarının başlıkları Türkçe oyunda İngilizceydi (22 Ekim, TR + EN)
+### 8.345 sorumluluk alanlarının başlıkları Türkçe oyunda İngilizceydi
 
 `fm responsibilities`, sayfanın alan adlarını ("Board", "Staff Responsibilities", "Scouting Responsibility"…)
 kendi İngilizce kimliğiyle basıyordu; oysa Türkçe oyunda sayfanın sol listesi "Yönetim Kurulu", "Teknik Ekip
@@ -4074,7 +4074,7 @@ değişiyor (18 diff satırı = 9 çift, başka fark yok), diğer satırlar bayt
 derlemeyle bayt bayt aynı. `responsibilities medya` başlığı "Medya", `--json` hâlâ `"Area":"Board"`.
 Dosyalar `/tmp/opencode/t151/{before,after}-{tr,en}/`, ekran görüntüsü `resp-tr.png`; `sweep.sh` 50/50.
 
-### 8.346 sorumluluk gruplarının ve görev adlarının bir kısmı Türkçe oyunda İngilizceydi (22 Ekim, TR + EN)
+### 8.346 sorumluluk gruplarının ve görev adlarının bir kısmı Türkçe oyunda İngilizceydi
 
 `fm responsibilities` alan başlıklarını §8.345'te düzelttikten sonra **grup başlıkları** ve **görev adları**
 hâlâ eklentinin İngilizce kimliğiyle basılıyordu: "Recruit Staff (U21)", "Staff Contract Renewals (U18)",
@@ -4094,7 +4094,7 @@ bayt bayt aynı (`32c8daa1…`). TR `--json` eski çıktıyla **birebir aynı**;
 `personel` başlıkları Türkçe. Ek maliyet: 5 `/translate` isteği, tur başına ~0,2 sn (40,42 → 41,10 sn).
 Dosyalar `/tmp/opencode/t152/`.
 
-### 8.347 açık mesaj yalnız seçili satır numarasıyla tanınıyordu; cevaplar boş okunabiliyordu (22 Ekim, TR + EN)
+### 8.347 açık mesaj yalnız seçili satır numarasıyla tanınıyordu; cevaplar boş okunabiliyordu
 
 `fm reply` bir mesajı açtıktan sonra açıklığını yalnız `HumanPortalLastSelectedMessage` numarasıyla anlıyordu;
 oysa mesajın kendi sayfası açılınca gelen kutusu listesi (ve o numara) çözülüyor. Maç sonu basın toplantısı ekranda
@@ -4108,7 +4108,7 @@ rc=1 / açılamadı; yeni derleme TR üç durumda (mesaj zaten açık / `table` 
 durumda üç seçeneği listeliyor, rc=0; cevapsız mesajlar yine <1 sn'de "(cevap seçeneği yok)". Dosyalar
 `/tmp/opencode/t153/{before,after,after-en}/`; `sweep.sh` 50/50.
 
-### 8.348 dil değiştirildikten sonra FM menüsünün ayarlar döşemesi bulunamıyor (22 Ekim)
+### 8.348 dil değiştirildikten sonra FM menüsünün ayarlar döşemesi bulunamıyor
 
 `fm settings language English` ile dil değiştikten sonra aynı oturumda `fm settings language "Türkçe"` üç denemede
 de "Ayarlar döşemesi FM menüsünde bulunamadı." verdi; `dashboard-hud-fm-button` `/click` ve `/press` ile basıldığında
@@ -4116,7 +4116,7 @@ menü hiç açılmadı (`PreferencesFMMenu` düğümü ve "Preferences" metni yo
 ile yeniden açılınca aynı komut ilk denemede çalıştı (dil Türkçe'ye döndü). Yani dil değişikliği oturum içinde
 menüyü kullanılamaz bırakıyor; kök neden ölçülmedi, düzeltilmedi.
 
-### 8.349 altyapı kadrosu son seçilen görünümü miras alıyordu; yaş ve mevki boş, oyuncuların bir kısmı eksikti (22 Ekim, TR + EN)
+### 8.349 altyapı kadrosu son seçilen görünümü miras alıyordu; yaş ve mevki boş, oyuncuların bir kısmı eksikti
 
 `fm squad --u19` her altyapı takımının sayfasını açıyor ama kadro tablosunun **son seçili görünümünü** seçmiyordu:
 ilk takımda "Takım Dinamikleri" kalmışsa yaş ve mevki kolonları boş basılıyordu. O görünüm tablonun yalnız çizdiği
@@ -4126,7 +4126,7 @@ seçiliyor ve satırlar yaşı taşıyıp sayı iki okumada oturana kadar okunuy
 sayfa zaten açık / başka görünüm seçiliyken) × TR + EN: hepsinde 26 satır (10 U21 + 16 U18), yaş ve mevki dolu,
 isim kümesi aynı; TR `squad --u19` 27 satır / ~4,3 sn. `sweep.sh` 51/51 (u19 eklendi). Dosyalar `/tmp/opencode/t154/youth/`.
 
-### 8.350 `stages` yarışma seçerken başka turun bağlarını o lig tablosu sanabiliyor; soğuk açılışta çöküyor (22 Ekim, TR + EN)
+### 8.350 `stages` yarışma seçerken başka turun bağlarını o lig tablosu sanabiliyor; soğuk açılışta çöküyor
 `fm stages "Sky Bet League Two"`, sayfa Carabao Kupası turundayken (6 bağ) lig tablosu yerine **kupanın 6 bağını**
 döndürdü — TR'de üç koşunun ikisinde (md5 `497fcd40…`), EN'de soğuk koşuda (md5 `d62d1832…`); doğrusu 24 satırlık
 tablo (`1da1a030…`). Çıktı "Competition: Sky Bet League Two / Stage: League Stage" diyor ama `Ties` kupanın
@@ -4141,14 +4141,14 @@ Aynı ölçümde `Registration.cs:318`: `Settled`ın iki okuma arası 250 ms'i T
 (üç okuma: TR a 3,03 → 3,55 → 4,07; EN a 2,09 → 2,52 → 2,93), üst sınır 6 turun en çok 3'ünde bitti →
 örnekleme aralığı, borç değil.
 
-### 8.351 ortak `Until`ın aralığı sabit bekleme değil, tur temposu (22 Ekim, TR + EN)
+### 8.351 ortak `Until`ın aralığı sabit bekleme değil, tur temposu
 `fm stages --json` sayfayı açarken ortak `Until`ın (`Program.cs:609`) ilk koşulu `open` isteğinden **19–34 ms**
 sonra soruluyor; koşul ilk turda tutmazsa sonraki kontrol **+0,53–0,55 s** sonra (`every: 0.5`). Üç durum × iki
 dil, hepsi rc=0: sayfa kapalı (TR 0,20 → 0,74; EN 0,19 → 0,72), sayfa zaten açık (ilk kontrol TR 0,24 / EN 0,27'de
 tuttu), başka sayfa açık (TR 0,20 → 0,75; EN 0,29'da ilk turda tuttu). Gecikme yalnız başarısız turdan sonra
 giriyor; sabit uyku değil, bu yüzden `[~]`.
 
-### 8.352 `board --json` Türkçe oyunda üç yönetim ve iki taraftar cümlesini İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.352 `board --json` Türkçe oyunda üç yönetim ve iki taraftar cümlesini İngilizce bırakıyordu
 Satır yolu (`GameWordsLines`) her satırı oyunun sözlüğünden geçirdiği için insan çıktısı Türkçeydi, ama `--json`
 sarmalayıcısı yok: `Board.cs` alanları `GameWords.Of` çağırmadan yazıyordu. TR'de `fm board --json` "The board are
 reserving judgement…", "The board are satisfied with the progress…", "…overall performance across the various
@@ -4158,7 +4158,7 @@ Kanıt: üç durum (Messages açık / Squad Dynamics açık / Board açık) × T
 birebir aynı; TR'de İngilizce cümle 5 → 0, EN'de (oyun yeniden açılıp dil English yapıldıktan sonra) değerler
 İngilizce kalıyor, Türkçe karakter yok. Dosyalar `/tmp/opencode/t157/`.
 
-### 8.353 `staff --json` Türkçe oyunda ekip adlarını, görevleri, sözleşme türlerini ve bir yönetim cümlesini İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.353 `staff --json` Türkçe oyunda ekip adlarını, görevleri, sözleşme türlerini ve bir yönetim cümlesini İngilizce bırakıyordu
 
 `--json` çıktısı yazarken `GameWordsLines` sarmalayıcısından geçmiyor (JSON anahtarları bozulmasın diye), o
 yüzden satır yolunda yazarken çevrilen oyun metinleri JSON'da ham İngilizce kalıyordu: `Teams[].Team`
@@ -4171,7 +4171,7 @@ TR'de İngilizce metin **189 → 0** (teams "Teknik Heyet, Transfer, Sağlık Ek
 "Tam Zamanlı"), insan çıktısıyla aynı; EN'de (oyun `stop --no-save` + `start` + v03 `--no-save`, dil English)
 JSON eski derlemeyle **3/3 bayt bayt aynı**. Dosyalar `/tmp/opencode/t158/`.
 
-### 8.354 Taraftar kartı, Kulüp sayfası yerleşmeden tıklanıyordu: başka sayfadan ilk koşu düşüyor, soğuk sayfa eksik okunuyordu (22 Ekim, TR + EN)
+### 8.354 Taraftar kartı, Kulüp sayfası yerleşmeden tıklanıyordu: başka sayfadan ilk koşu düşüyor, soğuk sayfa eksik okunuyordu
 
 `ClubCard`, `open ClubHome` cevabını sayfanın hazır olduğu sanıp kutucuğa hemen tıklıyordu; oyun tıklamayı
 "clicked" diye kabul ediyor ama hiçbir şey açmıyordu. `fm open Messages` sonrası `fm supporters` **3/3 rc=1**
@@ -4186,7 +4186,7 @@ hemen ikinci koşu / Squad Dynamics açık) × TR + EN, soğuk açılış dahil 
 sağlam çıktıyla bayt bayt aynı (`408bea7b…`), EN 6/6 aynı (`6e2ef9f7…`) ve beklentiler 3/3 dolu. Dosyalar
 `/tmp/opencode/t159/`.
 
-### 8.355 `supporters --json` Türkçe oyunda 30 değeri İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.355 `supporters --json` Türkçe oyunda 30 değeri İngilizce bırakıyordu
 Kanıt: TR `fm supporters --json` → `Influence: "High"`, `Profile[].Group` ("Core", "Fair Weather"…),
 `Expectations[].Text` ("Develop players using the club's youth system"), `Importance/Type/Reaction`
 ("Average", "Development", "Reserving Judgement"); insan çıktısı hepsini Türkçe basıyordu. Sebep Tur 157/158 ile aynı:
@@ -4196,14 +4196,14 @@ Düzeltme (`ClubCards.cs`): JSON alanları insan yolunun sözlükleriyle (`GameW
 Geliştirme / henüz yargılamıyor), üç koşu bayt bayt aynı (`2931296d…`), EN üç koşu `859f7fec…`. EN'de `aile`
 etiketi Türkçe kalıyor: `CardWords["Family"]` çeviri kataloğunda yok — ayrı, insan yolunu da etkileyen boşluk.
 
-### 8.356 `tools/sweep.sh` sırasında oyun `ClubAllStaffTool` açılırken ölümcül hata verdi (22 Ekim, bir kez)
+### 8.356 `tools/sweep.sh` sırasında oyun `ClubAllStaffTool` açılırken ölümcül hata verdi
 `22-staff` adımında CLI 30 sn'de yanıt alamadı ("the main thread did not run this request within 30s"); ekranda FM'nin
 "Uygulama Hatası — ciddi bir hata oluştu" penceresi vardı. `backtrace/bt-breadcrumbs-0` son kaydı
 `Panel Opened ClubAllStaffTool`. Oyun yeniden açılıp ana kayıt yüklenince aynı komut (`fm staff`, sonra `coaches` →
 `staff`) **2/2 rc=0**, hata tekrarlamadı; sweep öncesi yapılan kendi kayıt kopyalarını silme denemeleriyle ilişkisi
 ölçülmedi. Tekrarlanmadığı için kod değişmedi; yeniden görülürse aynı adımda breadcrumb ve `.ips` toplanmalı.
 
-### 8.357 `opponent --json` Türkçe oyunda analist kutularını ve kadro haberini İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.357 `opponent --json` Türkçe oyunda analist kutularını ve kadro haberini İngilizce bırakıyordu
 TR oyunda `fm opponent --json` insan çıktısı "Genel Performans / Ortalamanın çok üstünde performans / Takıma dair
 haber bulunamadı" derken JSON `General Performance / Performing much better than average / No team news` yazıyordu;
 sebep önceki turlarla aynı: satır yolu `GameWordsLines`tan geçiyor, `--json` dalı ham oyun metnini yazıyor.
@@ -4213,7 +4213,7 @@ Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics aç
 (`75ecfb81…`), İngilizce metin 0; EN temiz açılış (dil English + v03 `--no-save`) 3/3 rc=0, `967cfef6…`, insan
 çıktısıyla aynı sözcükler. Dosyalar `/tmp/opencode/t161/`.
 
-### 8.358 `finances --json` Türkçe oyunda 25 değeri (maaş durumları, sponsorluk türleri, FFP) İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.358 `finances --json` Türkçe oyunda 25 değeri (maaş durumları, sponsorluk türleri, FFP) İngilizce bırakıyordu
 TR oyunda `fm finances` insan çıktısı "Yıldız Oyuncu / Önemli Oyuncu / Genel / Ana Forma / Şort / uyumlu" derken
 `--json` aynı yerlerde `Star Player / Important Player / General / Main Kit / Shorts / Compliant` yazıyordu (25/25).
 Sebep önceki turlarla aynı sınıf: satır yolu `GameWords.Of`/`L` ile çeviriyor, JSON dalı ham değeri yazıyordu.
@@ -4225,7 +4225,7 @@ açılış (dil English + start) 3/3 rc=0, `c7deaca7…`, değerler İngilizce v
 `Ffp.Status` "Compliant" → "compliant" (insan satırı zaten "compliant" diyor). `tools/sweep.sh` değişiklik öncesi
 **51/51**; `finances` TR+EN elle rc=0. Dosyalar `/tmp/opencode/t162/`.
 
-### 8.359 `penalties --json` Türkçe oyunda kural cümlelerini ve yedek konumunu İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.359 `penalties --json` Türkçe oyunda kural cümlelerini ve yedek konumunu İngilizce bırakıyordu
 TR oyunda `fm penalties` insan çıktısı "yedek / İki gol atan da atabilir / Bir penaltı atan bir sonrakini bırakır /
 Penaltı kaçıran bir sonrakini bırakır" derken `--json` `On Subs bench / Allow player who has scored 2 goals to take
 penalty / …` yazıyordu; `Rules[].Rule` eklentinin İngilizce kimliğiydi. Sebep önceki turlarla aynı sınıf.
@@ -4237,7 +4237,7 @@ Kanıt: TR üç durum (Messages açık / hemen ikinci koşu / Squad Dynamics aç
 (`penalties 1 açık` → `On:true` → `kapalı` → `On:false`) JSON'a yansıyor. İnsan çıktısı değişmedi (yalnız JSON dalı).
 Dosyalar `/tmp/opencode/t163/`.
 
-### 8.360 `Bound`ın panel bağlama yoklaması döngü temposu; 250 ms borç değil (22 Ekim, TR + EN)
+### 8.360 `Bound`ın panel bağlama yoklaması döngü temposu; 250 ms borç değil
 `reply`/`inbox`/`clock` yollarındaki `Bound` (Program.cs, `OpenSubtabEvent` sonrası) panel bağlanana kadar
 `/inbox`ı 250 ms arayla soruyor (20 sn üst sınır). Ölçüm: eklentiye doğrudan `send` atıp 20 ms aralıkla `/inbox`
 okundu — satırlar olaydan **0,26 / 0,39 sn** sonra geliyor (iki koşu; 15 ve 20 satır), yani 250 ms yalnız tempo.
@@ -4249,7 +4249,7 @@ Yan gözlem (bu maddenin dışı): EN'de `Squad Dynamics` sonrası aynı mesajı
 Topics") satırsız geldi; `Finances` sonrası aynı koşuda tam. §8.194'ün (bağlanan yazılar eskisini gösterebiliyor)
 devamı gibi, ayrı ölçülmeli.
 
-### 8.361 `league --json` Türkçe oyunda istatistik adlarını İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.361 `league --json` Türkçe oyunda istatistik adlarını İngilizce bırakıyordu
 TR oyunda `fm league` insan çıktısı "En Fazla Gol Atan / Kalesine En Az Şut Çekilen" derken `--json`
 `Most Goals / Fewest Shots Against` yazıyordu (10 takım + 10 oyuncu liderinin 8'eri); `league --stat gol --json`
 `Stat` "Goller" ama `Columns` `["Goals","Apps","Mins/Gl"]` idi. İnsan yolu `GameWordsLines`tan geçip oyunun
@@ -4261,7 +4261,7 @@ Düzeltme (`League.cs`, yalnız JSON dalları): `Stat` ve `Columns` `GameWords.O
 çıktısıyla birebir ("Most Dribbles Made", "Fewest Conceded"…), `["Gls","Apps","Mins/Gl"]`; TR'ye dönüşte
 `4414af23…` aynı. İnsan çıktısı önce/sonra `diff` boş, rc=0. Dosyalar `/tmp/opencode/t164/`.
 
-### 8.362 `schedule --json` Türkçe oyunda seans adlarını İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.362 `schedule --json` Türkçe oyunda seans adlarını İngilizce bırakıyordu
 TR oyunda `fm schedule` "Fiziksel / Savunma / Duran Top Organizasyonları / Rejenerasyon" derken `--json`
 42 seansta 15 adı İngilizce yazıyordu ("Physical", "Defending Engaged", "Set Piece Routines"…); yalnız
 "Dinlenme"/"Yolculuk" Türkçeydi. Sebep yine aynı: insan yolu `GameWordsLines`tan geçiyor, JSON dalı ham
@@ -4271,7 +4271,7 @@ bu harfleri TR'de "E/D/T" verdiği için eşlenmiyor). Kanıt: TR üç durum 3/3
 çevrildi, gün/tarih/yapı aynı, insan çıktısı değişmedi; EN eski ve yeni derleme üç durumda **6/6 bayt bayt
 aynı**. Dosyalar `/tmp/opencode/t165/`.
 
-### 8.363 `squad --json` Türkçe oyunda kadro statüsünü İngilizce bırakıyordu (22 Ekim, TR + EN)
+### 8.363 `squad --json` Türkçe oyunda kadro statüsünü İngilizce bırakıyordu
 TR oyunda `fm squad` STATÜ sütunu "Kirada / Yedek Oyuncu / İlk 11 Oyuncusu / Joker Yedek…" derken
 `fm squad --json` 27/27 oyuncuda `AgreedPlayingTime`ı İngilizce yazıyordu ("On loan / Fringe Player /
 Regular Starter / Emergency Backup", 10 ayrı değer). Sebep önceki turlarla aynı sınıf: `Table.Write` her
@@ -4283,7 +4283,7 @@ değerler insan satırıyla aynı ("Out On Loan", "Emergency Backup"). Çıktı 
 gibi tek satır (eskiden plugin'in girintili metniydi); alan adları, sıra ve değerler aynı. Dosyalar
 `/tmp/opencode/t166/`.
 
-### 8.364 `stages` lig aşamasında eski turun bağlarını okuyordu; TR menzili ve soğuk açılış çökmesi (22 Ekim, TR + EN)
+### 8.364 `stages` lig aşamasında eski turun bağlarını okuyordu; TR menzili ve soğuk açılış çökmesi
 
 `fm stages "Sky Bet League Two"` sayfayı doğru açıyor ("Sky Bet League Two · Lig Bölümü") ama **Carabao Kupası'nın
 bağlarını** basıyordu; aynı anda League Two tablosu da bağlıydı. Sebep `Stages.cs`te 1,2 sn değil, içerik seçimiydi:
@@ -4305,7 +4305,7 @@ açık / sayfa zaten açık / ikinci koşu) rc=0. Dil TR'ye döndü (`language: 
 Not: eklentide `Ties` taramasını daraltmak bu vaka için gerekmedi — sayfadaki bağlar gerçekten çizili; yanlış olan
 onları "bu aşamanın içeriği" sanmaktı.
 
-### 8.365 `schedule`: antrenman takvimi ayını kendi sekmesinin listesinden okuyor; "Today" ile çıpalanıyor (22 Ekim, TR + EN)
+### 8.365 `schedule`: antrenman takvimi ayını kendi sekmesinin listesinden okuyor; "Today" ile çıpalanıyor
 
 `fm schedule set` ara sıra `Takvimin antrenman sekmesi okunamadı.` (rc=1) veriyordu; bazen de sessizce rc=1
 dönüyordu. Takvim sayfası `General` ve `Training` sekmeleri için **ayrı** `MonthDropdown` tutuyor ve ikisi ayrı aya
@@ -4324,7 +4324,7 @@ EN'de aynı üç durum (`Overall` ↔ `Physical`), açıklama metinleri seçilen
 500 ms'lik açıklama beklemesi de artık işaretle: "açıklama basıştan öncekinden farklı ve iki okumada aynı"
 (§8.216'da engelleyen ay karışıklığı kalktı; TR + EN üç durumda doğru açıklama). Dil TR'ye döndü, `sweep.sh` **51/51**.
 
-### 8.366 `penalties`un "MAÇA" sütunu taktiğin kendi yuvalarından okunuyor; ilk 11 / yedek dile bağlı değil (22 Ekim, TR + EN)
+### 8.366 `penalties`un "MAÇA" sütunu taktiğin kendi yuvalarından okunuyor; ilk 11 / yedek dile bağlı değil
 
 Satırın yeri `tactic.TeamSelectedPositionStringFromPlayer`ten geliyordu; oyunun bu cümlesi iki dilde iki ayrı şey
 söylüyor: TR'de kulübe `On Subs bench` (eklenti çeviriyor), ilk 11 `İlk 11'de (DOSMSğ)` (mevki kodu yüzünden
@@ -4339,10 +4339,10 @@ Kanıt (TR): Collins `yedek` (oyun "On Subs bench" diyordu), Hamer `ilk 11` (oyu
 Eklenti değişikliği gerekmedi — `PlayerIndex` zaten vardı, eksik olan onu kişi numarasıyla birleştirmekti.
 Kayıt test kaydı; eklenen penaltıcı geri alındı, dil TR'ye döndü. `sweep.sh` aşağıda.
 
-### 8.367 `contract --agent`: oyun görüşme açılınca "menajere sor" eylemini kaldırıyor; öne getirmek çözmüyor (22 Ekim, TR + EN)
+### 8.367 `contract --agent`: oyun görüşme açılınca "menajere sor" eylemini kaldırıyor; öne getirmek çözmüyor
 
 §8.250'nin yeniden üretimi: `fm contract "George Wickens"` rc=0 (görüşme Vaatler'de açık kalıyor), hemen ardından
-`fm contract "George Wickens" --agent` rc=1 "menajerle görüşme seçeneği yok". Faruk'un seçtiği (b) denendi: taktik
+`fm contract "George Wickens" --agent` rc=1 "menajerle görüşme seçeneği yok". kullanıcının seçtiği (b) denendi: taktik
 sayfasından kadro tablosuna gidilip oyuncunun adına basıldı, yani **taze** oyuncu sayfası öne getirildi; `SpeakToAction`
 listesinde "Ask Agent About New Contract" (ActionID 1882353528) yine yok — eylem sayfa örtülü olduğu için değil,
 **görüşme açıldığı için** oyundan kalkmış. (a) yani CLI'nin görüşmeyi kendiliğinden iptal etmesi, oyunun kendi uyarısı
@@ -4352,7 +4352,7 @@ ile güvenilir seçilemediği için mesaj dallanmıyor; tek cümle ikisini de ka
 Kanıt: TR ve EN aynı cümle (`There is no option to talk to …`), rc=1; temiz sayfada ilk soru rc=0 (önceki ölçüm).
 Dil TR'ye döndü; kayıt test kaydı. `sweep.sh` aşağıda.
 
-### 8.368 Mesaj eki başlıkla değil, içeriği üç okumada oturunca okunuyor (22 Ekim, TR + EN)
+### 8.368 Mesaj eki başlıkla değil, içeriği üç okumada oturunca okunuyor
 
 §8.192'nin ölçümü yenilendi (30 ms aralıkla `/texts`, `reply 1`): "Attachments" başlığı ~0,09 sn'de geliyor, ilk
 metin ~0,16 sn'de, altı metin ~0,43 sn'de, kartın tamamı ~0,7 sn'ye kadar sürüyor. Eski kod başlık görünür
@@ -4364,7 +4364,7 @@ yok — Eylül'deki 14 mesajın hepsinde ek vardı). Kanıt: `reply 2` altı kon
 tablosu (Pzt 3 Ağu …), `reply 4` haber gövdesi; hepsi eskisiyle aynı içerikte ve tam. EN'de ekli mesaj
 ("Attached: Fitness") aynı yolla basıldı. Komut ~1–2 sn uzadı (içerik oturma süresi), yanlış/eksik ek yok.
 
-### 8.369 `opposition --advice`: kartın ara yerleşimi değil, satır sayısı korunan içerik bekleniyor (22 Ekim, TR + EN)
+### 8.369 `opposition --advice`: kartın ara yerleşimi değil, satır sayısı korunan içerik bekleniyor
 
 §8.49'daki 500 ms, daha önce "satır sayısı düşmeden ve içerik değiştikten sonra iki okuma aynı" işaretine çevrilmişti,
 ama öneri o maçta boş geldiği için ölçülememişti (`[?]`). Sheffield Wednesday maçında öneri gerçekten uygulandı:
@@ -4376,7 +4376,7 @@ ikinci koşu) 11 satır + 1 değişik; eksik satır yok, dialog yok. "Apply all 
 uygulama boyunca değişmiyor, o yüzden düğme işaret değil. Kod değişmedi; madde kanıtla kapandı. Dil TR'ye döndü,
 maç oynanmadı (11 Ağustos Preston maçı bu turdan önce oynandı, 15 Ağustos Sheffield sırada).
 
-### 8.370 `staff` kaydırması: sabit 400 ms yok, beş konumun oturmuş satırları birleşiyor (22 Ekim, TR)
+### 8.370 `staff` kaydırması: sabit 400 ms yok, beş konumun oturmuş satırları birleşiyor
 
 §8.205'in `[?]`i yeniden ölçüldü: güncel kod 400 ms kullanmıyor; her kaydırma konumu satırlar iki okumada aynı
 kalana kadar okunuyor ve beş konumun satırları adla birleştiriliyor. 17 koşunun **16'sı tam 48 satır**, biri
@@ -4384,7 +4384,7 @@ kalana kadar okunuyor ve beş konumun satırları adla birleştiriliyor. 17 koş
 görülmedi, yani "tam olmayan pencereyi sakin gösterme" tuzağı bu kodda yakalanmıyor; Mutluluk'taki 11 duraklı
 tam gezme şimdilik gerekmiyor. Karar: sabit duraklama yok, mevcut işaret yeterli.
 
-### 8.371 `Task.Delay` borcu 7 → 1: yoklama temposu olan yerler ayrıldı (22 Ekim)
+### 8.371 `Task.Delay` borcu 7 → 1: yoklama temposu olan yerler ayrıldı
 
 Envanterdeki yedi açık `Task.Delay`, tek tek okundu; beşi sabit bekleme değil, bir koşulu yoklayan döngünün
 temposu: `Launcher.cs:213` (çıkış penceresini 500 ms aralıkla sorma), `Launcher.cs:269` (`WaitFor`ın 3 sn'lik
@@ -4395,7 +4395,7 @@ canlı anlatımın temposu). Bunlar `SETTLED`a taşındı; borç **1**'e indi. K
 seçimi penceresine "evet" basıldıktan sonraki 3 sn; yerine "pencere kapandı" işareti yazılabilir, ama maç izleme
 yolunda ölçüm istiyor (sıradaki maçta denenecek).
 
-### 8.372 Takım seçimi penceresinden sonraki 3 sn kalktı; pencere kapanışı bekleniyor (22 Ekim, TR)
+### 8.372 Takım seçimi penceresinden sonraki 3 sn kalktı; pencere kapanışı bekleniyor
 
 `MatchDay`ın maç izleme döngüsü, "Team Selection" penceresine evet bastıktan sonra sabit **3 sn** uyuyordu.
 Ölçüm (`fm match --play`, 100 ms'lik `/dialog` + `/state`, Vertu Trophy Tranmere maçı): pencere **2,39 sn**de
@@ -4404,7 +4404,7 @@ tıklamadan sonra pencere bir sonraki örnekte yok. Artık tıklamadan sonra "di
 (0,2 sn aralık, 8 sn üst sınır), sabit süre yok. Maç tam oynandı (Lincoln 4-1 Tranmere), çift pencere/çift
 tıklama görülmedi; `sweep.sh` temiz. Bu, envanterdeki son `Task.Delay` borcuydu: borç **0**.
 
-### 8.373 Bedel sözü penceresi bulundu: oyuncunun "geleceği" konuşmasındaki bonservis vaadi (22 Ekim, TR)
+### 8.373 Bedel sözü penceresi bulundu: oyuncunun "geleceği" konuşmasındaki bonservis vaadi
 
 §8.192/§8.218'de ölçülemeyen `FeeAsked` penceresinin tetiği bulundu: transfer listesindeki bir oyuncu
 "geleceği hakkında konuşmak istiyor" mesajı gönderiyor (Erik Ring; üç teklif reddedildikten sonra), mesaja
@@ -4417,7 +4417,7 @@ diyor. Ölçüm (20 ms'lik `/dropdowns` + `/buttons`): onaydan sonra pencere **1
 "bedel listesi görünene kadar" (0,15 sn, 3 sn üst sınır), (2) onaydan sonra "bedel listesi kaybolana kadar"
 aynı aralıkla bekleniyor; sabit 800 ms ve 1 sn kaldı. `talk bedel <x>` / `talk onayla` yolları aynı.
 
-### 8.374 `/health` sürümleri taşıyor; CLI FM26 dışını ve eski eklentiyi durduruyor (22 Ekim)
+### 8.374 `/health` sürümleri taşıyor; CLI FM26 dışını ve eski eklentiyi durduruyor
 
 Eklentinin `/health`i artık kendi sürümünü (`plugin: 0.2.0`) ve oyunun sürümünü (`game: 26.3.2.2329565`,
 `Application.version`) yazıyor. CLI, oyun açıkken her komuttan önce bunları okuyor: ana sürüm 26 değilse
@@ -4427,7 +4427,7 @@ Yan etki ve düzeltme: `health`teki bütün rakamları toplayan `Menu()`/`InGame
 taşırıyordu (`int.TryParse` başarısız → "oyun ana menüye gelmedi"); ikisi de yalnız `descendants:` satırını okuyor.
 Kanıt: sürüm satırlarıyla `fm continue`/`status` çalışıyor, `doctor --install` muaf, `sweep.sh` aşağıda.
 
-### 8.375 `reply` cevabın onay penceresini kendisi kapatıyor (23 Ekim, TR)
+### 8.375 `reply` cevabın onay penceresini kendisi kapatıyor
 
 Gece testinin bir numaralı bulgusu: `fm reply "Kadro Seçim Önerisi: …" 1` "Cevaplandı" diyor, ama oyun
 "Use Suggested Team / Tavsiye Edilen Kadroyla Sahaya Çık" onay penceresini açık bırakıyor; hemen ardından
@@ -4440,7 +4440,7 @@ Kanıt (27 Kasım 2027, West Brom): `reply "Kadro Seçim Önerisi: West Brom" 1`
 oynadı. (Aynı cevabı üst üste basmak olay kuyruğunda 2–3 `Sending` bırakabiliyor; `queue?clear=1` sonrası akıyor —
 ayrı bulgu.)
 
-### 8.376 `press` oyunun gösterdiği sözle de basıyor; sonuç ekranının "Son Sonuçlar"ı (23 Ekim, TR)
+### 8.376 `press` oyunun gösterdiği sözle de basıyor; sonuç ekranının "Son Sonuçlar"ı
 
 Gece testinin "`press \"Son Sonuçlar\"` butonu listede ama bulunamıyor" bulgusu doğrulandı: düğmenin kendi
 `Label`ı oyunun İngilizcesi **"Recent Results"**, ekranda görünen sözü ise çeviri tablosundan **"Son Sonuçlar"**;
@@ -4450,7 +4450,7 @@ Gece testinin "`press \"Son Sonuçlar\"` butonu listede ama bulunamıyor" bulgus
 Aynı turda `opponent`/`table`nın sonuç ekranında **rc=1** döndüğü de görüldü (playtest'in "rc=0" notu ölçüm
 hatasıydı; `NotNow` doğru çalışıyor).
 
-### 8.377 Çelişen biçim bayrakları artık reddediliyor (23 Ekim)
+### 8.377 Çelişen biçim bayrakları artık reddediliyor
 
 Gece testi: `fm table --json --csv` rc=0 ve yalnız JSON basıyordu; hangi biçimin istendiği belirsizken sessizce
 birini seçmek, script'in yanlış biçimi ayrıştırmasına yol açar. `Run` artık `--json`/`--csv`/`--md` bayraklarından
@@ -4458,7 +4458,7 @@ birden fazlasını görürse kullanım hatası (64) ve "yalnız biri verilmeli" 
 rc=64 + mesaj; `fm table --json` rc=0. (Playtest'in "bilinmeyen komut rc=0" notu yanlıştı; `Unknown` zaten 64
 dönüyor.)
 
-### 8.378 Maç raporu beklenen sonucu bulamazsa önceki maçı basmıyor (23 Ekim)
+### 8.378 Maç raporu beklenen sonucu bulamazsa önceki maçı basmıyor
 
 Gece testi: `match --instant` bazen yeni maçın raporu yerine **önceki maçın raporunu** basıyordu (kupa maçlarında
 `LastFixture` gecikince; §8.330). `MatchReport.Show`, çağıranın bildiği sonucu (`expected`) 24×0,5 sn bekliyor, ama
@@ -4466,7 +4466,7 @@ süre dolunca elindeki **eski** fikstürü yazıyordu. Artık eşleşme olmazsa 
 değil; oyunun son fikstürü hâlâ X-Y Z" uyarısı verilip 0 dönülüyor (maç oynandı, rapor sonra `fm report` ile alınır).
 `expected` yoksa davranış aynı. Kanıt: normal `fm report` son maçı (Lincoln 1-2 West Brom) doğru basıyor.
 
-### 8.379 Eklentinin tip dökümü coreclr'de çöktü; açık generic türlere cast kurulmuyor (23 Ekim)
+### 8.379 Eklentinin tip dökümü coreclr'de çöktü; açık generic türlere cast kurulmuyor
 
 Gece testi sırasında oyun bir kez `EXC_BAD_ACCESS` ile öldü (crash raporu 23 Ekim 09:42): ana iş parçacığında
 `_platform_strlen` ← `StringObject::NewString` ← **`RuntimeMethodHandle::GetName`** (libcoreclr). Bu, eklentinin
@@ -4476,19 +4476,19 @@ geçiyor; açık generic/çözülemeyen bir türde .NET'in yöntem adı çözüm
 (başarısızsa tipin olay listeleri yine okunuyor, cast yok) ve cast'siz çağrı yerleri korumalı. Kanıt: yeni eklentiyle
 tam bir `match --play` maçı (Hull 0-3 Lincoln) çökmeden oynandı, `/health` sonrasında da yanıt veriyor.
 
-### 8.380 "Puanlarımız" maç içi puanlar; resmî puan `report`ta (23 Ekim)
+### 8.380 "Puanlarımız" maç içi puanlar; resmî puan `report`ta
 
 Gece testinin "puanlar yanlış eşleniyor" bulgusu yeniden üretildi ama **eşleme değil, kaynak** farkı: Hull 0-3
 maçında ekranın canlı puanı `Reeco Hackett 9,4`, resmî rapor `Reeco Hackett (9,5)`; isimler doğru sırada. Satır artık
 **"Puanlarımız (canlı)"** diyor ve resmî için `report`a yönlendiriyor; böylece canlı puan resmî sanılmıyor.
 
-### 8.381 "Hayalet gol" yeniden üretilmedi: GOL satırı golün tekrarı (23 Ekim)
+### 8.381 "Hayalet gol" yeniden üretilmedi: GOL satırı golün tekrarı
 
 Hull 0-3 Lincoln `--play` izinde üç gol de skor değişimiyle geldi (`0-1`, `0-2`, `0-3`); fazladan "GOL Lincoln
 City!!" satırı aynı golün **replay** anlatımı (51:43 ve 90:30). Skor 0-0 kalırken gol veren bir satır görülmedi;
 gece testindeki örnek iptal edilen gol/replay olabilir. Skor okuması değiştirilmedi.
 
-### 8.382 Inbox okuması Mesajlar listesine daraltıldı; konu aşağıdaki mesajı da buluyor (23 Ekim)
+### 8.382 Inbox okuması Mesajlar listesine daraltıldı; konu aşağıdaki mesajı da buluyor
 
 Gece testinin "inbox yalnız görünen satırları okuyor, `reply <konu>` bulamıyor" bulgusu iki parçaydı:
 (1) `Report.Inbox`, **bütün yüklü ekranlardaki** `NewsItemReference`ları topluyordu; haber sitesi ve açık bir mesaj
@@ -4500,7 +4500,7 @@ Kanıt: üstte olmayan "Erik Ring sakatlandı" `reply` ile bulundu; "Internation
 için seçenekleri listeledi (doğru davranış). `inbox` hâlâ en yeni pencerenin numaralarını gösterir; numaralar
 kaymasın diye `RememberNumbers` id ile saklıyor.
 
-### 8.383 Maç sonu takım konuşması açık bırakılınca köprü yanıt vermiyordu (23 Ekim)
+### 8.383 Maç sonu takım konuşması açık bırakılınca köprü yanıt vermiyordu
 
 Gece testinde `--play` maçından sonra `/health` ve `/state` 30 sn yanıtsız kalıyor, otomasyon oyunu "kilitlendi"
 sanıp öldürüyordu (iki kez; kayıt 28 Kasım autosave'ine döndü). Sebep: maç döngüsü `FullTimeTeamTalk` /
@@ -4511,7 +4511,7 @@ Kanıt (1 Aralık 2027, Hull): `match --play --no-talk` rc=0, hemen ardından `/
 21:45 ve sıradaki maç Wrexham — kilitlenme yok. Aynı turda ana menüde `bindings` yokken sürüm kapısının
 "eklenti eski" demesi de düzeltildi (bağ yoksa kapı atlanıyor).
 
-### 8.384 Oyuncu kartı ve `--json` alanları oyunun sözleriyle (23 Ekim, TR)
+### 8.384 Oyuncu kartı ve `--json` alanları oyunun sözleriyle
 
 Gece testi: `fm player "Ben House"` başlığında "Attacking Midfielder" İngilizce kalıyordu; `--json` ise
 `PlayingTime: "Fringe Player"`, `Personality: "Ambitious"`, `Nation: "Scotland"` verirken insan çıktısı
@@ -4520,7 +4520,7 @@ Gece testi: `fm player "Ben House"` başlığında "Attacking Midfielder" İngil
 oyunun tablosundan soruluyor); kart (Card.cs) de aynı sözleri kullanıyor.
 Kanıt: TR'de insan satırı "İskoçya · Ofansif Orta Saha (Sağ, Sol, Merkez) · Yedek Oyuncu · Azimli", JSON da aynı.
 
-### 8.385 Inbox listesi kendi pointer'ıyla geziliyor; NeedAction'daki mesaj aşağıda olsa da aranıyor (23 Ekim)
+### 8.385 Inbox listesi kendi pointer'ıyla geziliyor; NeedAction'daki mesaj aşağıda olsa da aranıyor
 
 `AllInbox`, streamed listeyi metin çapasıyla kaydırıyordu; çapa ekrandan çıkınca `scroll` hata veriyor, liste
 yarım kalıyordu. Eklenti artık `MessagesStreamedObjectList` öğesinin pointer'ını (`/inboxlist`) veriyor; CLI
@@ -4530,7 +4530,7 @@ Kanıt: Hull maçı sonrası `next`, açık soruyu adıyla söyledi; tam listede
 **Kalan:** maç sonu basın toplantısı NeedAction'ı hâlâ kapanmıyor — mesaj `reply` ile açılamıyor ("açılamadı"),
 `talk` açık konuşma görmüyor. Bu ayrı iş.
 
-### 8.386 İkinci çökme de generic cast'ti; artık kapalı generic türlere de cast kurulmuyor (23 Ekim)
+### 8.386 İkinci çökme de generic cast'ti; artık kapalı generic türlere de cast kurulmuyor
 
 12:26 çökmesi (teklifleri reddederken): `EXC_BAD_ACCESS` ana iş parçacığında
 `SignatureNative::GetSignature` (libcoreclr). İlki açık genericlerdi; bu kez **kapalı** bir generic wrapper'da
@@ -4540,14 +4540,14 @@ Kanıt: yeni eklentiyle teklif akışı (listele → reddet) ve Blackburn maçı
 "bindings: ok", oyun 26 Aralık 2027'ye ilerledi.
 Yan bulgu: teklif `NeedAction`ı **stall** ile kapanmıyor, **reject/accept** gerekiyor; test harness'i artık reddediyor.
 
-### 8.387 Mesaj cevapları oyunun sözleriyle listeleniyor (23 Ekim, TR)
+### 8.387 Mesaj cevapları oyunun sözleriyle listeleniyor
 
 Gece testi: sakatlık mesajının seçenekleri `reply` listesinde "1 İğneyle Oynat / 2 **Leave To Physio (Free)**" diye
 karışık geliyordu; aynı seçenek seçildikten sonra "Fizyoterapist Gözetimine Bırak" olarak çevriliyordu. `Options`
 artık her cevabı `GameWords.Of`tan geçiriyor; metinle seçim de hem ham hem çevrilmiş ada bakıyor (Türkçe adla
 `reply "<mesaj>" "Fizyoterapist..."` de bulunuyor). Sayıyla seçim değişmedi.
 
-### 8.388 Wrapper'lar yansımalı `TryCast` yerine kuruluyor; çökmelerin kökü kapandı (23 Ekim)
+### 8.388 Wrapper'lar yansımalı `TryCast` yerine kuruluyor; çökmelerin kökü kapandı
 
 İki çökme de (09:42 ve 17:21) aynı yerdeydi: `RuntimeMethodHandle::GetName` / `SignatureNative::GetSignature`
 (libcoreclr), yani `Il2CppObjectBase.TryCast<T>`in `MakeGenericMethod` ile kurulması. Generic türleri atlamak
@@ -4558,7 +4558,7 @@ Kanıt: yeni eklentiyle `status`, `inbox`, `buttons`, `offers`, `tactic`, `sched
 `register`, `youth` rc=0; ardından Blackburn maçı (`--instant`) oynandı, `/health` "bindings: ok", oyun 26 Aralık
 21:30'a ilerledi. (Önceki iki çökme raporu da bu yığını gösteriyordu.)
 
-### 8.389 `NeedAction` ne istediğini söylüyor: bildirim, teklif, soru (23 Ekim)
+### 8.389 `NeedAction` ne istediğini söylüyor: bildirim, teklif, soru
 
 Gece testinde `next` "Response Required" deyip yalnız `offers`/`inbox`a yolluyordu. Artık engelleyen mesajların
 başlıkları yazılıyor ve tek mesaj varsa **açmak/cevaplamak için** gereken komut veriliyor; seçeneksiz bir bildirim
@@ -4567,7 +4567,7 @@ başlıkları yazılıyor ve tek mesaj varsa **açmak/cevaplamak için** gereken
 Kanıt: sakatlık bildirimi `reply` ile açılıp `next` ilerledi; teklifler `reject` ile NeedAction kapandı (stall
 kapatmıyor). Otomasyon için harness bu iki kuralı uyguluyor.
 
-### 8.390 `fm resign`: My Contract'taki istifa akışı (23 Ekim)
+### 8.390 `fm resign`: My Contract'taki istifa akışı
 
 `fm resign`, Career › My Contract sayfasındaki **"İstifa Et"** düğmesini `HumanClubResign` (1196634484) ile
 buluyor. Düğme bir `SIDropdown`tur: seçenekleri **Immediate** / **End of Club Season**; seçim yapıldıktan sonra
@@ -4577,7 +4577,7 @@ seçiyor. Kanıt (test kaydı): istifa sonrası `fm status` "İşsizsin" dedi, i
 **Yeni bulgu:** işsizken `fm jobs` "İş ilanları okunamadı" veriyor; Managerial Vacancies iki kayıt (aynı GUID,
 OpensCard=True) ve kart açıldığında "Current Manager" tablosu gelmiyor. Ayrı iş.
 
-### 8.391 Dağıtım paketi: BepInEx, eklenti, fm ve kurulum tek zip'te (23 Ekim)
+### 8.391 Dağıtım paketi: BepInEx, eklenti, fm ve kurulum tek zip'te
 
 `tools/package.sh`, bu makinedeki BepInEx 6 IL2CPP arm64 kurulumunu (klasör + kök başlatıcı dosyaları),
 eklentiyi, kendi kendine yeten `fm`yi ve `install.sh`i `dist/fm-cli-osx-arm64.zip` içinde topluyor (53 MB).
@@ -4586,14 +4586,14 @@ eklentiyi, kendi kendine yeten `fm`yi ve `install.sh`i `dist/fm-cli-osx-arm64.zi
 `NOTICE.txt` BepInEx'in LGPL-2.1 atfını taşır. Temiz makinede denemek için: yeni macOS kullanıcısı aç, zip'i aç,
 `./install.sh`.
 
-### 8.392 İşsizken `jobs`: sayfa kart açılıyor, tablo "Available Jobs" ile geliyor (23 Ekim)
+### 8.392 İşsizken `jobs`: sayfa kart açılıyor, tablo "Available Jobs" ile geliyor
 
 İstifa sonrası `fm jobs` "İş ilanları okunamadı" diyordu: Career › Managerial Vacancies işsizken bir **kart**
 olarak açılıyor ve "Current Manager" tablosu gelmiyor. Karttaki **"Available Jobs"** düğmesi (OpenPanel) tabloyu
 açıyor. `Jobs` artık tablo yoksa bu düğmeye basıp bekliyor. Kanıt: işsizken `fm jobs` **321 iş ilanı** listeledi
 (Parma, Lincoln, …), `fm jobs "<kulüp>" apply` yolu açık.
 
-### 8.393 Temiz kullanıcı kurulumu 7/7 geçti; oyun ikinci kullanıcıda Steam'siz açılmıyor (23 Ekim)
+### 8.393 Temiz kullanıcı kurulumu 7/7 geçti; oyun ikinci kullanıcıda Steam'siz açılmıyor
 
 Yeni bir macOS kullanıcısında (`fmtest`) paket denendi: oyunun APFS klonu `/Users/Shared/FM26` (BepInEx'siz),
 paket `/Users/Shared/fm-cli-osx-arm64.zip`. `install.sh` + `doctor --install` **7/7 ✓** verdi (oyun, BepInEx,
@@ -4602,7 +4602,7 @@ süreci hiç doğmadı; ikinci kullanıcıda **Steam çalışmıyor** (SteamAPI_
 Yani kurulum tarafı temiz kullanıcıda çalışıyor; **oyun başlatma** Steam oturumu istiyor. Gerçek "temiz makine"
 testi için VM/ikinci Mac ya da o kullanıcıda Steam kurulumu gerekiyor. Park edildi.
 
-### 8.394 Yeni taktik sonrası maç "Hiç oyuncu seçmediniz" diyor; `tactic pick` gerekiyor (27 Şubat)
+### 8.394 Yeni taktik sonrası maç "Hiç oyuncu seçmediniz" diyor; `tactic pick` gerekiyor
 
 Empoli'de `tactic new "Topa Sahip Ol" "4-2-3-1 DOS Geniş" "4-4-1-1 2 DOS"` taktiği oluşturdu, ama ilk 11 boş
 kaldı. `fm match --play --no-talk` "Kadro gönderiliyor"dan sonra **"Hiç oyuncu seçmediniz… 11 oyuncu
@@ -4611,7 +4611,7 @@ Tosto, Biondini, Kastanos, Yepes, Elia, Campaniello, Martín). Yani `tactic new`
 kendiliğinden doldurmuyor; ya `tactic pick` otomatik çağrılmalı ya da `match` bu durumda `tactic pick`
 önermeli. (§8.35x'teki `tactic pick` bulgusuyla aynı aile.)
 
-### 8.395 Maç, SquadNumbers ekranında takılıyor; `numbers --auto` gönderince açılıyor (27 Şubat)
+### 8.395 Maç, SquadNumbers ekranında takılıyor; `numbers --auto` gönderince açılıyor
 
 Kadro seçildikten sonra `fm match --play --no-talk` **10 dakikadan fazla** çıktı vermeden bekledi;
 `fm status` "Oyun ilerlemiyor: SquadNumbers" dedi, ekran forma numaralarıydı. `fm numbers --auto`
@@ -4622,7 +4622,7 @@ sürdü. Yani sezon başında forma numarası ekranı maçı bloke ediyor; `matc
 `SquadNumbers` durumunu görünce `numbers --auto` yolunu çalıştırıp maça devam ediyor; durum ilk kontrolde de
 kabul ediliyor (`MatchDay.cs`).
 
-### 8.396 Sakatlık tedavi seçenekleri: `reply` bazen ilk açılışta göstermiyor (27 Şubat – 7 Nisan)
+### 8.396 Sakatlık tedavi seçenekleri: `reply` bazen ilk açılışta göstermiyor
 
 İki sakatlık mesajı (`Samuele Righetti`, `Oliver Blini`) `next`i bloke etti. `fm reply "<ad> sakatlandı>"`
 mesajı açtı ama **"(cevap seçeneği yok)"** dedi; oysa ekranda iki tedavi düğmesi vardı:
@@ -4634,7 +4634,7 @@ verdi; tam etiket (`... (Masrafsız)`) ile basınca tedavi seçildi ve mesaj kap
 geç yüklendiğinde ilk `reply` boş kalabiliyor, tekrar denemek ya da `buttons` + tam etiketli `press`
 kullanmak gerekiyor. `press` etiketi tam eşleştiriyor; parçayla eşleşmiyor.
 
-### 8.397 Duran top tanıtımı 6 adımlı sihirbaz; `reply` turu açmıyor, `press` yalnız oyun öndeyken işliyor (27 Şubat)
+### 8.397 Duran top tanıtımı 6 adımlı sihirbaz; `reply` turu açmıyor, `press` yalnız oyun öndeyken işliyor
 
 `Empoli FC Duran Top Organizasyonları Tanıtımı` mesajı `next`i bloke etti. `reply ... 1`
 "Bilgilendirmeye Başlayın" dedi ama `fm tour` **"Açık bir tanıtım turu yok"** verdi. Ekranda
@@ -4646,7 +4646,7 @@ press/next öncesi oyunu öne getirmeli (veya bu durumu açıklamalı); tanıtı
 sihirbaz düğmeleri gerekiyor.
 
 
-### 8.398 Anında sonuç, bir önceki maçın raporunu basıyordu (31 Mart)
+### 8.398 Anında sonuç, bir önceki maçın raporunu basıyordu
 
 Cagliari deplasmanı 1-2 kaybedildi; ama `fm match --instant` **"Empoli FC 1-0 AC Monza"** (bir önceki
 maçın raporu) bastı. Zaman 21:15'e ilerlemiş, `fm status` hâlâ "Cagliari bugün" diyordu; sonradan
@@ -4656,7 +4656,7 @@ son fikstürün anahtarı (tarih + skor + takımlar) alınıyor; simülasyondan 
 bekleniyor ve rapor `expected` skorla okunuyor. Cremonese maçında (Empoli 1-2 Cremonese) doğru rapor
 geldi; eski Monza raporu tekrarlanmadı.
 
-### 8.399 Transfer teklifi mesajları "Görevler" sekmesinde; `offers` kartı cevapsız kalabiliyor (20 Ağustos)
+### 8.399 Transfer teklifi mesajları "Görevler" sekmesinde; `offers` kartı cevapsız kalabiliyor
 
 Sezon başında `next` "Bekleyen transfer teklifi: offers" diyip durdu; `offers` listesinde Cagliari'nin
 Campaniello teklifi **"Sözleşme"** durumundaydı ve ne `accept` ne `reject` düğmesi vardı ("pazarlıksız ya da
@@ -4667,7 +4667,7 @@ açıldı. Yani teklif mesajları Görevler filtresinde saklanabiliyor; `offers`
 gösterip bloklayabiliyor. Geçici yol: Görevler sekmesine bas, mesajı `reply` ile reddet. `inbox --all` (arşivdeki mesajlar)
 ve `inbox --tasks` (Görevler filtresini açıp listeler) eklendi.
 
-### 8.400 `next`/`press` oyun ön planda değilken asılı kalabiliyor (2–6 Ekim)
+### 8.400 `next`/`press` oyun ön planda değilken asılı kalabiliyor
 
 Serie B sezonunda `fm next 8` iki kez **5 dakikadan fazla** çıktı vermeden bekledi; hemen ardından
 `fm status` "İlerlemeye hazır" diyordu ve `fm next 1` çalışıyordu. Aynı anda oyun Terminal'in arkasındaydı.
@@ -4677,7 +4677,7 @@ yeterli değil. Düzeltme: `Launcher.Activate()` eklendi ve `next`, `press`, `ma
 `fm next 3` artık elle `osascript` olmadan dönüyor. (Her komutta oyunu öne getirir; CLI zaten oyunu
 yönetmek için kullanılıyor.)
 
-### 8.401 `fm opponent` ortalama puanı ham double basıyordu; görsel taraması iki hatalı kare yakaladı (24 Ekim)
+### 8.401 `fm opponent` ortalama puanı ham double basıyordu; görsel taraması iki hatalı kare yakaladı
 
 `fm opponent` çıktısı "En yüksek ortalama: Callum Styles (6.844444444444444)" diyordu; oyunun
 `StatValue` alanı yuvarlanmamış geliyor. `HighestAverageRatingPlayer` için değer artık `0.00` ile

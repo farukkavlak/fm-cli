@@ -77,7 +77,7 @@ SETTLED_SHORT = {
 PARKED = {
     ("Stages.cs", 63): "sabit 1,2 sn yanlış içerik okumasını gizliyor: yarışma seçilirken sayfanın eski turu"
         " (başka sayfanın bağları) tablo sanılabiliyor; asıl düzeltme eklentide `Ties` taramasını sayfaya"
-        " daraltmak — oyun restartı ister. §8.350, Faruk'a soru (autopilot-quest, Tur 155)",
+        " daraltmak — oyun restartı ister. §8.350, kullanıcıya soru",
 }
 
 

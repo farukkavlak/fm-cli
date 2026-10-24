@@ -122,7 +122,7 @@ internal static class Localisation
 
 	/// <summary>
 	/// Every text put into English since the request began, with the words the game showed for it:
-	/// the CLI matches on the English but shows the user the game's own words (Faruk, 14 Ekim 2026).
+	/// the CLI matches on the English but shows the user the game's own words.
 	/// One English text shown two ways keeps the last, except that words known by the text's number
 	/// are not replaced by words found through the table: "Progression" is a match focus's
 	/// "İlerleme" by its number, and "Kaydedilen İlerleme" elsewhere on the page by the table.

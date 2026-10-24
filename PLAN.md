@@ -5,22 +5,22 @@
 > `[?]` yapılabilirliği belirsiz
 
 `[k]`: verisi ve olayı metadata'dan çıkarıldı (`docs/reference/COOKBOOK.md`), canlı doğrulama ve komut kaldı. İşaretsiz
-`[ ]` katalogda henüz aranmadı demek, yok demek değil. 14 Ekim 2026'da sadeleştirildi; uzun hali `git show 515eef0:PLAN.md`.
+`[ ]` katalogda henüz aranmadı demek, yok demek değil. Daha önce sadeleştirildi; uzun hali `git show 515eef0:PLAN.md`.
 
 ---
 
-## Şu an (14 Ekim 2026)
+## Şu an
 
-- **İlk öncelik taşınabilirlik** (Faruk, 13 Ekim): dil / ayar / lig / kayıt / makine / sürüm / platform bağımlılıklarını
+- **İlk öncelik taşınabilirlik** (öncelik kararı): dil / ayar / lig / kayıt / makine / sürüm / platform bağımlılıklarını
   kaldırmak; yeni özellik yok. İş listesi `docs/BAGIMLILIKLAR.md` en üstteki CHECKLIST; oturumda madde madde
-  ilerleniyor, her madde bitince Faruk'a haber verilip clear atılıyor (otomatik döngü 14 Ekim'de kaldırıldı).
+  ilerleniyor, her madde bitince işaretleniyor (otomatik döngü kaldırıldı).
 - Yeni bir alan açmanın aracı: okuma için `/pull?path=&props=[&list=1]` (ekransız, §8.40; değişken isteyen özellik
   `/contexts` + `/pathset`, §8.129); tıklama için `fm open`, `fm buttons`, `fm press`, `fm dropdowns`, `fm select`.
-- Eski "Sıradaki işler (7 Ekim)" ve "Bilinen hatalar" listelerinin hepsi bitti ya da aşağıdaki bölümlere taşındı.
+- Eski "Sıradaki işler" ve "Bilinen hatalar" listelerinin hepsi bitti ya da aşağıdaki bölümlere taşındı.
 
 ---
 
-## Ürün kararları (Faruk, 2026-10-06)
+## Ürün kararları
 
 Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 
@@ -347,7 +347,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Kolon başlıkları — `squad --view` / `players` okunur başlık basıyor
 - [~] Akış — `fm status` takım, menajer ve sıradaki maçı bir panelde veriyor; `next` gürültüsü azaldı
 - [ ] **Canlı maç ekranı — FM'in 2D / 3D / yalnız anlatım seçenekleri gibi, birkaç kaliteli görünüm ve kişiselleştirme**
-      (Faruk 11 Ekim gece: "UX'i önemli"). Bugün `match --play` aşağı akan düz anlatım: skor sabit değil, istatistik yok,
+      (kullanıcı 11 Ekim gece: "UX'i önemli"). Bugün `match --play` aşağı akan düz anlatım: skor sabit değil, istatistik yok,
       müdahale için ikinci terminal gerekiyor, anlatım çok kalabalık, sakatlık durağında ekran sessiz kalıyor.
       Hedef: gerçek terminalde tek ekranlık panel, script / MCP için bugünkü düz çıktı aynen kalsın.
       - Görünümler (3-4 tane, maç içinde tuşla geçilsin):
@@ -358,7 +358,7 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
            çubuğu; olay olunca kenarda tek satır.
         3. **Yalnız önemli anlar** — anlatım yok; gol, kart, sakatlık, tavsiye ve devre / maç sonu özeti (hızlı izleme).
         4. **Tam anlatım** — bugünkü akış, ama üstte sabit skor satırıyla.
-        5. **ASCII 3D** (Faruk 13 Ekim 2026; şimdi yapılmayacak, göz önünde dursun) — maçın 3D görüntüsü terminalde
+        5. **ASCII 3D** (kullanıcı 13 Ekim 2026; şimdi yapılmayacak, göz önünde dursun) — maçın 3D görüntüsü terminalde
            karakterlerle: sahaya eğik bakan kamera, oyuncular ve top derinlikle küçülen / parlaklığı değişen
            karakterler, üstte yarı saydam skor / durum kutuları. İlham: karakterlerle çizilmiş bir "ASCII MMORPG"
            videosu (3D sahne karakter ızgarasına dökülüyor, ~140 FPS, HP / MP çubukları üstte). İki yol var:
@@ -392,16 +392,16 @@ Geliştirme değil, yön. Sıradaki işler bunlara göre şekillenecek.
 - [x] Oyun kapalıysa otomatik başlat (`fm start`)
 - [ ] Sezon arasında `opponent` ham hata veriyor ("no page named 'Next Opposition Report' under 'Match Day'") ve `opposition` "kart açılmadı" diyor: sıradaki maç hazırlık maçıyken rakip raporu sayfası yok; "sıradaki maç hazırlık maçı, rapor yok" demeli (`tools/sweep.sh`, 29 Haziran 2026)
 - [ ] `status` kadrodaki sakatı ancak taktik ekranı açıkken görüyor: maç günü ilk `match` denemesinden önce uyarı yok, deneme "X is injured" diye durunca var (3 ve 11 Nisan 2026, McGrandles ve Ring). Seçili 11'i ekran açmadan veren bir alan bulunmalı (`PlayerReference`'ta aday çıkmadı) ya da `next` maç gününe varınca kadroyu kendisi yoklamalı
-- [ ] `fm start` açılışta pencereyi gizlemiyor — pencere tam ekran boyutunda öne geliyor ve kullanıcı başka pencereye geçene kadar ekranda kalıyor (Faruk, 13 Ekim: "dikkatim dağılıyor"). Ölçüm: pencere 5. saniyede çıkıyor, `Minimise()` ancak ana menü gelince (~60. sn) çalışıyor; `-screen-width 640 -screen-height 360` dikkate alınmıyor (ekran 2940×1840). Denenen ve işe yaramayan: açılış boyunca 0,2 sn'de bir `AXMinimized` yazan betik — pencere menü gelene kadar küçülmedi (geri alındı). Bakılacaklar: Unity `PlayerPrefs`'te çözünürlük/pencere konumu, eklentiden açılışta pencereyi küçültmek/taşımak, `open -g -j` ile başlatmak, ayrı bir Space
+- [ ] `fm start` açılışta pencereyi gizlemiyor — pencere tam ekran boyutunda öne geliyor ve kullanıcı başka pencereye geçene kadar ekranda kalıyor (kullanıcı, 13 Ekim: "dikkatim dağılıyor"). Ölçüm: pencere 5. saniyede çıkıyor, `Minimise()` ancak ana menü gelince (~60. sn) çalışıyor; `-screen-width 640 -screen-height 360` dikkate alınmıyor (ekran 2940×1840). Denenen ve işe yaramayan: açılış boyunca 0,2 sn'de bir `AXMinimized` yazan betik — pencere menü gelene kadar küçülmedi (geri alındı). Bakılacaklar: Unity `PlayerPrefs`'te çözünürlük/pencere konumu, eklentiden açılışta pencereyi küçültmek/taşımak, `open -g -j` ile başlatmak, ayrı bir Space
 
 ---
 
 ---
 
-### Taşınabilirlik: başka kulüp, tema, dil (Faruk 13 Ekim 2026)
+### Taşınabilirlik: başka kulüp, tema, dil (kullanıcı 13 Ekim 2026)
 
-Komutlar tek kayıtta yazıldı; Lincoln'de dördü kırık çıktı (§8.155). Döküm ve iş listesi `docs/BAGIMLILIKLAR.md`.
-Faruk'un kararı: bağımlılıkları kaldırmak her şeyin önünde, yeni özellik yok; adım adım, oyunda deneyerek. Dil → oyunun
+Komutlar tek kayıtta yazıldı; test kaydında dördü kırık çıktı (§8.155). Döküm ve iş listesi `docs/BAGIMLILIKLAR.md`.
+kullanıcının kararı: bağımlılıkları kaldırmak her şeyin önünde, yeni özellik yok; adım adım, oyunda deneyerek. Dil → oyunun
 kendi çeviri tablosu (§8.167); gösterim oyunun dilinde (§8.173–8.174); sıra numarasıyla okuma kalkacak; kimliği olan her
 şey kimlikle (sayfa → Guid, düğme → olay, lig → `CompetitionType`, durum → sayı/enum).
 
@@ -429,7 +429,7 @@ kendi çeviri tablosu (§8.167); gösterim oyunun dilinde (§8.173–8.174); sı
 
 ### Doğal dil katmanı — karar ve araştırma (11 Ekim gece; **henüz başlanmayacak**, normal plan önce)
 
-Faruk'un tanımı: kullanıcı doğal dilde konuşsun, sistem doğru komutu (function call) çalıştırsın — **başka bir şey değil**
+kullanıcının tanımı: kullanıcı doğal dilde konuşsun, sistem doğru komutu (function call) çalıştırsın — **başka bir şey değil**
 (yapay zekâ kendi kafasına karar vermez, oyunu yönetmez). **Yerel çalışmalı**: oyun için kimse para ödemek istemez, API
 anahtarı / hesap / internet istememeli. Değiştiren işlerde (teklif, satış, kayıt, numara…) önce ne çalışacağını gösterip onay.
 
@@ -489,115 +489,3 @@ developers.googleblog.com/on-device-function-calling-in-google-ai-edge-gallery, 
 - [x] `fm doctor` — sakatlar (kalan gün), yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri; ekransız (§8.82)
 - [ ] Zaman serisi DB'ye akıt, Grafana'da kariyer dashboard'u
 - [ ] Başka oyunlara aynı mimari (Unity + IL2CPP olan her şey)
-
----
-## Günlük
-
-> En eski üstte, yeni gün dosyanın SONUNA `cat >>` ile eklenir (3–6 satır). Ayrıntı FINDINGS'te ve `git log`'da.
-
-### 2026-09-28
-- Oyun CLI'dan kariyere sokuldu (`/continue`, ağaç 186 → 4198); `GameSubsystems` ile `Bindings`/`EventSubsystem` tek
-  yerden; kadro listesi `GameStateCache…Players`, 27 oyuncu; oyuncu 1245 özellik listeliyor; `tools/sigdump`.
-- ⚠ Span köprüsü çalışmıyor (§8.2), `Exists("Game") = true` bir hafta doğru sanıldı → ders: uydurma girdinin
-  reddedildiğini de test et. `Bind`'e null delegate oyunu çökertti.
-
-### 2026-10-04
-- Veri modeli 931 tip / 14504 özellik; canlandırma doğru olayla; `/newsaction` ile mesaj cevaplandı, saat ilerledi;
-  `fm` CLI (`start`, `continue`, `squad`, `inbox`, `next`, REPL, `--json`); oyun tamamen gizli; aksiyon kataloğu; `/send`
-  enum/`TypedValue`/`dry=1`.
-- Engeller: headless olmuyor; aynı anda tek ekran bağlı; null `ResponseActionDataReferences` oyunu çökertti; iki yanlış
-  pozitif (pencere gizleme, `inbox` bir dolu bir boş).
-
-### 2026-10-05
-- `/buttons` + `/press` (her kontrol olayını tarif ediyor), simülasyon katmanı canlı ("Unread 10 → 0"); `squad
-  --fitness/--morale` (First Team görünümleri, `/dropdowns` + `/select`); sayfalar adıyla (`OpenBookmarkEvent`); `fm
-  reply`; bloke eden mesaj `NewsItemIsPriority`. `Condition = -1` sakat.
-- Engeller: menü seçimi sayfa açmadı (sonra çözüldü), bir deneme kuyruğu tıkadı (`/queue` koruması), tanıtım turu
-  bitirilemedi. Test tıklamaları kayda yazılmadı.
-
-### 2026-10-06 (gece)
-- Tanıtım turu (`tour`), taktik sihirbazı (`tactic new`), `next` zamanı ilerletti, ilk maç (`match --talk`), basın ve
-  beklentiler toplantısı `talk` ile, `fm mcp` (29 araç), `tactic role/player`, `squad --view`, `players`, `search`, `match
-  --instant`, `sub`, `setpieces new`, `table`, `fixtures`, `next` durumu `continue.State`'ten.
-- ⚠ Oyun otomatik kayıt aldı (ana dosya üzerine; temiz hal `(v02)` ve `save-backups/`'ta). `open` bazı sayfaları verisiz
-  açıyordu (§8.31).
-- Faruk'un 6 Ekim sabahı kararları: otomatik kayıt bir ayar (kullanıcı seçer); maç oynat / geç ikisi de seçenek;
-  konuşmada cümleyi kullanıcı seçer; sırada UX ve görselleştirme.
-
-### 2026-10-07
-- Gece: Spectre.Console (çizim terminalde, pipe/MCP düz); okla seçim (reply, talk, dialog, sub, tactic…); **ekransız
-  veri** (`/pull`, §8.40); `status` paneli, `fm report`; maç günü kararlara göre (izle / anında, kadro sahada, her
-  konuşmada seçim); `fm offer`. ⚠ Demirbay: "Accept" kulübün £8.25M'ını kabul etti, genel Continue teklifi geri çekti →
-  `reply` ilk cümleyi basıyor. Defrel transferi uçtan uca (Modena £160K, imza). Oyun bir kez çöktü (açıkken DLL kopyası).
-- Faruk sabah: `fm offer` "kötüymüş" (yavaş, kırılgan, görünmez) → aynı akşam kart + okla düzenleme, ~5 sn.
-- Akşam: `fm register` listeyi elle düzenliyor (§8.43); kılavuz `docs/manual/KILAVUZ.md` + `tools/manual/`.
-
-### 2026-10-08 (gece)
-- `fm contract` kartı (§8.44), alt menüler çözüldü (§8.45), kiralık kartı (§8.46), taktik yuvaları (§8.47), takım /
-  oyuncu / rakip talimatları (§8.48, §8.53, §8.49), yoğunluk ve bireysel antrenman (§8.50–8.51), maç içi mentalite ve
-  bağırış (§8.54), `shortlist`, `saves`, `opponent`, `captains`, `depth`, `happiness`, `prep`.
-- Kararlar: Cancellieri kiralığı geri çekildi (para harcamayan seçenek); Škriniar kaptan, Kerem yardımcı kaptan. Oyun
-  bir kez kilitlendi (kaptanlar sayfası sonrası), 10 Ağustos kaydından döndü.
-
-### 2026-10-09 (gece)
-- `fm settings` (§8.61), maç ekranı: bağırış doğrulandı, maç içi rol, `fm dugout` (§8.62), oyuncu kariyeri (§8.63),
-  bütçe kaydırıcısı (§8.65), takvim ve bütün fikstür (§8.66), gelen teklif (§8.67), bayat liste satırları `?gen=`
-  (§8.68), sakatlık durağı (§8.69), turnuva liderleri (§8.70), `health` (§8.71), `contracts` (§8.72). `next` yutulan
-  basışı yeniden basıyor.
-- Kayıtta: 10 Ağustos → 20 Eylül oynandı (UCL'den elendi, Avrupa Ligi'ne düştü), 20 Eylül'de kaydedildi; yedek
-  `save-backups/…2025-08-13-feyenoord-day.fm`. Gece kararları: sakatlıklarda fizyoterapist, basına yardımcı, Mercan için
-  £1.4M teklif reddedildi.
-
-### 2026-10-10
-- Gündüz: `schedule`, antrenman raporu, alışkanlık, `release` (⚠ Mutual Termination onaysız, `talk 4` kazası →
-  yeniden başlatmayla geri alındı), `contract --agent`, `tactic copy/clear`, `club/staff/finances` (§8.78), sponsor /
-  gelir-gider / taraftar / tesis (§8.79), akıcılık / mevki puanı / sakatlık geçmişi / sezon istatistikleri (§8.80),
-  `board` ve bilet (§8.81), kısaltmalar / tamamlama / `doctor` (§8.82), `--json` her komutta (§8.83), maç maç puanlar
-  (§8.84), potansiyel (§8.85), `--csv/--md`, `export`, `diff`, `compare`, yazım hatası toleransı.
-- Akşam: penaltı sırası (§8.87, §8.90), antrenman programı (§8.88–8.89), `takers` (§8.91), `players --free` + kişi
-  listesine sızan kadro (§8.92), `stop`, `query`, `setpieces <tür>` (§8.93), `propose` (§8.94), `dynamics` (§8.95),
-  `contracts <oyuncu>` (§8.96), `news` (§8.97), `offers` (§8.98), ayarlara dört ayar + bir kilitlenme (§8.99), `table`
-  doğru turnuva (§8.100), `internationals` (§8.101), `mentoring` (§8.102). Maç sonu raporu skor `LastFixture`'da
-  görünene kadar bekliyor. Defrel'e Angers teklifi; Faruk "save önemsiz" deyince kabul edildi.
-
-### 2026-10-11
-- Gece: `load`, `save --as`, `saves delete`, `start --menu` (§8.104), `stages` (§8.105), elle mentorluk (§8.106),
-  taktik dosyaya (§8.107), `board request` (§8.108), `scout` (§8.109), `world` (§8.110), `responsibilities` (§8.111),
-  `youth` (§8.112), `progress` (§8.113), rakip sezon sayıları ve form (§8.114–8.115), `staff find` (§8.116), oyuncu
-  veritabanında gerçek arama (§8.117). Kayıt 23 Ekim 2025'te kaydedildi (Qarabağ 2-0; üç yönetim talebi; Defrel satışı).
-- Gündüz/akşam: sağ tık menüsü, personel al/kov (§8.118), scout/kısa liste/ilgi/soru/deneme (§8.119), scout odağı kur/
-  durdur/yeniden başlat (§8.120), rakip raporunun kalanı (§8.121), scout raporu (§8.123), `/shot` (§8.124), forma
-  numaraları (§8.126), mutluluğun nedeni (§8.127), analist (§8.128), tam istatistik listeleri ve `/contexts` (§8.129),
-  maç hazırlığı odağı (§8.130), `targets` (§8.131). Scout görevi iptali park.
-- Gece (yarımlar): topsuz takım/oyuncu talimatları ekransız (§8.132–8.133), yardımcı kaptan günde bir (§8.134),
-  `responsibilities give` (§8.135), `release --free` gün ilerleyince (§8.136), maç içi talimatlar (§8.137). Ocak'a kadar
-  oynandı: kovulma (§8.142); oyun 10 Ocak 2026, işsiz, kaydedildi.
-
-### 2026-10-12
-- Boş paneller ve siyah ekran Display Fix modundanmış (devre dışı), `fm stop` oyunun kendi çıkışıyla (§8.144); `fm
-  jobs`; Lincoln City'ye girildi (19 Ocak 2026, League One); ilk günler (§8.145), Bradford maçı ve gelen kutusu kaydırması
-  (§8.146), `fm coaches` (§8.147). 7 Mart 2026'da kaydedildi.
-
-### 2026-10-13
-- Gündüz (Faruk: "kariyer önemsiz, test ediyoruz"): deneme, personel alımı, karşılıklı fesih uçtan uca (§8.148–8.149),
-  sorumlulukların dokuz alanı ve basın devri (§8.150), maç içi sakatlık/kart/puan (§8.151), altyapı adayları (§8.152),
-  izlenen maç (§8.153), sakatlık durağı ikinci kez (§8.154), kulübe göre değişenler (§8.155), maç sonrası tablo (§8.156),
-  sonuç ekranında zaman durması (§8.157), cevapsız mesaj ekleri (§8.158), sezon sonu (§8.159), `vision` (§8.160), birden
-  çok oyuncuya gelen teklifler (§8.161). Sezon bitti (Lincoln 11.), oyun 29 Haziran 2026.
-- Akşam/gece (taşınabilirlik): sayfalar Guid'le (§8.162–8.163), altyapı veriden (§8.164), onay pencereleri yuvayla
-  (§8.165), düğme kataloğu (§8.166), çeviri tablosu ve katmanı; Türkçede tarama 21 → 12 (§8.167–8.168).
-
-### 2026-10-14
-- Gece: yazının veri yolu (§8.169–8.170); Türkçe tarama 13 → 1; motor yazıları `languages.fmf` (§8.171); para biçimi
-  ve menü kimlikleri (§8.172). ⚠ Kimlik bulmak için her yoklamada bütün ağacı gezmek oyunu iki kez düşürdü.
-- Öğleden sonra (Faruk: "Adamın oyunu tr ise tr görecek"): gösterim ve CLI etiketleri oyunun dilinde (§8.173–8.174);
-  akşam rol adları, İngilizce oynama akışı (§8.175), mesaj gövdesi/ekleri kimlikle (§8.176), konumla okuma taraması,
-  yüzde (§8.177). Türkçe ve İngilizce tarama 49/50. Kayıt bir ara 13 Temmuz'a döndü (`save --yes` unutuldu).
-- Akşam: BAGIMLILIKLAR CHECKLIST'i ve otomatik tur döngüsü (aynı akşam kaldırıldı). Turlarda: `reply` cevapları (§8.178), Bridge
-  beklemeleri ölçüldü (§8.179), `table` 8,7 → 2,6 sn, `coaches` beklemeleri ve yarım sayfa (§8.180). FINDINGS, PLAN ve
-  hafıza dosyaları sadeleştirildi (veri korunarak).
-- Otomatik tur: `next`'in `Settled` beklemesi 16 ilerlemede ölçüldü (başlama ≤1,24 sn / 4 sn, bitiş titremesi ≤0,53 sn /
-  1,4 sn); pay yeterli, kod değişmedi (§8.181). Kaptanlar onaylandı, iki Salford teklifi reddedildi; oyun maç gününde.
-- `contracts <oyuncu>`: sabit 300 ms yerine alanlar gelene kadar okuma (`{}` = henüz gelmedi, boş şart "-"), 27/27 aynı (§8.182).
-- `tactic pick`: Quick Pick'in seçimi tek adımda ~0,45 sn'de geliyor; sabit 1 sn'ler yerine değişiklik ya da 1,5 sn
-  sessizlik (3,7 → 1,2/2,2 sn), başka sayfadan çalışmıyordu → düzeldi (§8.184). Bedel penceresi (Guided 161 174) ayrı madde.

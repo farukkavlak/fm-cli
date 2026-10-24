@@ -1,18 +1,16 @@
 # Bağımlılık dökümü: oyun dili, ekran / tema, kariyer, gömülü sabitler
 
 Amaç: fm-cli başka dilde, temada, kulüpte / ligde, makinede, sürümde, platformda açılınca nerede kırılır. İş takibi
-aşağıdaki CHECKLIST'te; altta 13 Ekim kod taramasının kısa arka planı (çözülenler işaretli, ayrıntı FINDINGS'te).
-14 Ekim'de sadeleştirildi; uzun hali `git show 515eef0:docs/BAGIMLILIKLAR.md`.
+aşağıdaki CHECKLIST'te; altta kod taramasının kısa arka planı (çözülenler işaretli, ayrıntı FINDINGS'te). Uzun hali `git show 515eef0:docs/BAGIMLILIKLAR.md`.
 
 İşaretler: **[kesin]** kodda açıkça görülüyor · **[olası]** koddan çıkarım, oyunda ölçülmedi · **[ölçülecek]** ancak
 oyunu değiştirip deneyince bilinir.
 
 ---
 
-## CHECKLIST — temizlik sırası (14 Ekim 2026 akşam, kod taraması + Türkçe oyunda denenenler)
+## CHECKLIST — temizlik sırası (kod taraması + Türkçe oyunda denenenler)
 
-Faruk: "dile / sisteme / bu lige / bu takıma / bu kayda / bu donanıma göre tasarlanmış şeylerin hepsini checklist
-yapalım, adım adım temizleyip bitirelim." Aşağıdaki bölümler (0–8) 13 Ekim'in arka planı; iş takibi **burada**.
+Hedef: dile / sisteme / lige / takıma / kayda / donanıma göre tasarlanmış şeyleri adım adım temizlemek. Aşağıdaki bölümler arka plan; iş takibi **burada**.
 
 `[x]` bitti ve denendi · `[ ]` yapılacak · `[~]` bilerek bırakıldı (neden yanında). Her maddede: nerede, neden kırılır,
 nasıl düzelir. Kural: yeni işaret en az üç durumda (ilk açılış / zaten açık / başka sayfa açık) ve iki dilde ölçülmeden
@@ -269,7 +267,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     açılışta 17 ara hal reddedildi, 12/12 tam (§8.180). Kural yapıdan, dilden bağımsız.
   - [x] Staff 74 (kaydırmadan sonra sabit 400 ms): sabit duraklama kalktı; her kaydırma konumu, satırlar iki
     okumada aynı kalana kadar okunuyor (0,25 sn aralık, 4 sn üst sınır) ve beş konumun satırları adla birleştiriliyor.
-    Ölçüm (22 Ekim, 17 koşu): **16/17 tam 48 satır**, biri sayfa açılmadı hatası; 34/42 kaybı görülmedi. Mutluluk'taki
+    Ölçüm (17 koşu): **16/17 tam 48 satır**, biri sayfa açılmadı hatası; 34/42 kaybı görülmedi. Mutluluk'taki
     gibi baştan sona gezme (11 durak) artık gerekmiyor; gerekirse ayrı bir iş (§8.205).
   - [x] OppositionCard 91 (`opposition <oyuncu> <talimat>=<değer>`): seçimden sonraki sabit 500 ms kaldırıldı. Her talimat
     artık **satırın kendi adıyla yeniden bulunduğu** güncel karttan seçiliyor (kart bir talimat oturunca yeniden çiziliyor
@@ -309,7 +307,7 @@ süre yalnızca cömert bir üst sınır. Döngü içindeki "tekrar bak" aralı�
     37 oyuncu. Üç durumda TR `md5 a7fde227…` + EN `md5 e7bf7ceb…` eskisiyle birebir; numarayı elle verme yolu
     (`fm numbers "Adam Reach" 44` TR, `"Oscar Thorn" 45` EN) rc=0; `sweep.sh` 50/50 (§8.211).
   - [x] OppositionCard 55 (`--advice` / `--clear` sonrası 500 ms): sabit süre yok — kart, satır sayısı düşmeden
-    ve **içerik değiştikten sonra** iki okumada aynı kalana kadar bekleniyor (6 sn üst sınır). Ölçüm (20 ms, 22 Ekim,
+    ve **içerik değiştikten sonra** iki okumada aynı kalana kadar bekleniyor (6 sn üst sınır). Ölçüm (20 ms,
     Sheffield maçı önerisi): TR `--clear` 0 değişik satır → 845 ms'de 10 satır (yerleşim düşüşü, sayaç koruması
     reddediyor) → 930 ms'de 11 satır/1 değişik; EN aynı 682–762 ms'de 1 değişik. Üç durum (başka sayfa açık /
     kart zaten açık / ikinci koşu) 11 satır + 1 değişik, eksik satır yok. Düğmenin durumu değişmiyor; işaret
@@ -780,7 +778,7 @@ tablodan çevrilemiyor.
     `DeleteSelectedGame` + `Enabled=True` ile bulunuyor. Ölçüm: TR + EN, üç durum × iki yol, çıktı eski derlemeyle
     **birebir** (TR `23f3ca56…`/`a299b2d4…`, EN `46212f7f…`/`a299b2d4…`); izde tarayıcı basışları hep
     `click ?ptr=…`, `text=` yalnız FM menüsünün `Save Game As` satırı. Kendi kopyamız (`t78 test.fm`) iki
-    derlemede de `?ptr=` ile silindi, Faruk'un dört kaydı yerinde (§8.266).
+    derlemede de `?ptr=` ile silindi, dört kayıt dosyası yerinde (§8.266).
     TR + EN, üç durum × iki yol (`saves delete "<yüklü kaydın adı>" --yes` → tarayıcı açılıp Cancel ile kapanıyor,
     rc=1; `save --as "<aynı ad>" --yes` → Save + "Replace Existing File" onayı, rc=0) eski derlemeyle **birebir**
     (`md5`); izde `click ?text=Cancel`/`?text=Save` → `click ?ptr=…` (§8.236). Yükleme ekranının `Load`u yazıyla
@@ -799,7 +797,7 @@ tablodan çevrilemiyor.
     "Replace Existing File?", "Delete File"). `DialogButton` artık önce `Type`e bakıyor, bulamazsa başlığa
     düşüyor. `save --as "<yüklü kaydın adı>" --yes` TR + EN, üç durumda eski derlemeyle **birebir** (`md5` TR
     `d4d552c7…`, EN `46212f7f…`); silme yolu kendi kopyamızla uçtan uca ölçüldü (klasöre `t48 test.fm` kondu →
-    `fm saves delete "t48 test" --yes` rc=0, izde pencerenin "Yes"i `?ptr=` ile basılıyor, Faruk'un dört dosyası
+    `fm saves delete "t48 test" --yes` rc=0, izde pencerenin "Yes"i `?ptr=` ile basılıyor, dört kayıt dosyası
     yerinde); negatifler değişmedi (§8.237). `MatchDay`in üç penceresi de (`Instant Result`, `Team Selection`,
     `Injured Players`) hâlâ başlık yazısıyla aranıyor — ayrı alt maddeler.
   - [x] Kayıt tarayıcısının `Delete`i artık **gönderdiği olayla** bulunuyor: düğme `DeleteSelectedGame` gönderiyor ve
@@ -807,7 +805,7 @@ tablodan çevrilemiyor.
     `Label == "Delete"` + `Type == "SIButton"` + `Enabled`); kimlik yoksa yazıya düşülüyor. Kendi kopyamızla uçtan
     uca: TR + EN, üç durum (başka sayfa açık / hemen ikinci koşu / başka sayfaya geçtikten sonra) `md5` eski
     derlemeyle **birebir** (isim dışında tek satır "Silindi/Deleted"), izde `click ?text=Delete` → `click ?ptr=…`;
-    negatifler (`zzz yok` rc=1, yüklü kayıt rc=1) değişmedi; Faruk'un dört dosyası yerinde (§8.238).
+    negatifler (`zzz yok` rc=1, yüklü kayıt rc=1) değişmedi; dört kayıt dosyası yerinde (§8.238).
   - [x] `staff find` arama panelinin `Apply`i ve `Cancel`i artık **gönderdikleri yükle** basılıyor: ikisi de aynı olayı
     (`EventFmxFilterRestoreFilter`) gönderiyor; ayırt eden yük — Apply `SendsProps True`, Cancel `False` — dile ve
     skine bağlı değil (`Name` de farklı ama o şablon sınıfı; kural 3). `click ?text=Apply` ve panel form okumasındaki
@@ -1001,7 +999,7 @@ tablodan çevrilemiyor.
 - [x] `contract <oyuncu> --agent`: **dil bağımlılığı değil**; oyun, sözleşme görüşmesi açıldıktan sonra "menajere
   sor" eylemini kaldırıyor. Aynı oyuncuya arka arkaya ikinci kez sormak ve açık görüşme varken sormak iki dilde de
   rc=1; temiz sayfada ilk soru rc=0 (§8.250, §8.367). Örtülü sayfayı öne getirmek denendi (kadro tablosundan taze
-  sayfa): eylem geri gelmiyor. Karar (Faruk): CLI görüşmeyi kendiliğinden kapatmasın; mesaj artık iki durumu da
+  sayfa): eylem geri gelmiyor. Karar: CLI görüşmeyi kendiliğinden kapatmasın; mesaj artık iki durumu da
   söylüyor — "açık görüşme varsa `contract --cancel`; yoksa birkaç gün sonra yeniden dene" (TR + EN).
 - [x] **`opposition` seçenek adları:** seçenekler eklentiden İngilizce geliyor; hata/yardım satırı ise onları oyunun
   sözleriyle yazdığı için gösterilen ad geri yazılamıyordu (`Pres=Her Zaman` → "yok"). Artık değer hem İngilizcesiyle
@@ -1090,7 +1088,7 @@ tablodan çevrilemiyor.
   (`fm settings tarih dd/mm/yyyy`).
 - [~] **Boy/kilo birimleri:** ölçüldü, kod değişmedi — oyuncunun `Height` alanı ayardan bağımsız ham santimetre
   (`fm settings boy Fit` iken de `Height: 178`), yani CLI'nin " cm" yazısı veriyle tutuyor; oyunun birim ayarına
-  uydurmak Preferences sayfasını açmayı gerektiriyor (~7 sn, daha ağır bağımlılık). **Karar (Faruk, 22 Ekim): cm
+  uydurmak Preferences sayfasını açmayı gerektiriyor (~7 sn, daha ağır bağımlılık). **Karar: cm
   kalsın**, kılavuza ham cm notu (§8.195).
 
 ### D. Lig / takım / kayıt
@@ -1125,9 +1123,9 @@ tablodan çevrilemiyor.
 
 ### H. Kurulum / yayın (hedef: macOS + Steam, başkaları kolayca kurup oynasın)
 
-15 Ekim'de eklendi. Faruk'un "live" tanımı: macOS + Steam'de başkasının kolayca kurup oynayabildiği hal. Bugün yalnızca
+"live" tanımı: macOS + Steam'de başkasının kolayca kurup oynayabildiği hal. Bugün yalnızca
 geliştiricinin makinesinde çalışıyor. Bu hedef için D (başka lig / sıfırdan kayıt) şart; E (skin) ve G'nin Windows / Epic
-kısmı sonraya kalabilir. Tahmin (15 Ekim): A+B+C 5–7 gün, D 1–2, H 4–6, polish 3–5 → ~3–4 hafta.
+kısmı sonraya kalabilir. Tahmin: A+B+C 5–7 gün, D 1–2, H 4–6, polish 3–5 → ~3–4 hafta.
 
 - [ ] **BepInEx lisansı:** DadMych/fm26-player-export-macos paketini yeniden dağıtmaya izin var mı; yoksa kullanıcı ayrıca
   indirir, kurulum ona göre.
@@ -1154,19 +1152,19 @@ kısmı sonraya kalabilir. Tahmin (15 Ekim): A+B+C 5–7 gün, D 1–2, H 4–6,
   oturumu gerekiyor (§8.393).
 - [ ] **Intel Mac:** ilk sürümde "yalnızca Apple Silicon" mu denecek, karar.
 - [x] **README / kılavuz:** README'ye gereksinimler, tek komut kurulum, elle kurulum, `fm doctor --install` ve SDK'sız
-  yayın eklendi; geliştirici bilgileri ayrı bölümde. (`docs/manual/KILAVUZ.md` kullanıcı kılavuzu ayrı duruyor.)
+  yayın eklendi; geliştirici bilgileri ayrı bölümde. (`docs/manual/KILAVUZ.md` kullanım kılavuzu ayrı duruyor.)
 
 ---
 
-## Arka plan (13 Ekim 2026 kod taraması; durumu 14 Ekim)
+## Arka plan (kod taraması)
 
 **Neyle tutunuyoruz, sağlamdan kırılgana:** veri yolu + sayı/enum alanı · olay adı / enum · oyunun kimlik numarası ·
 panel Guid (dilde ve skin'de sağlam) → veri yolu + `…String` alanı (değer çevrilir) → kontrol / öğe adı, `up=N`, sıra
 numarasıyla okuma (skin / güncellemede kırılabilir) → ekran yazısı, cümle ayrıştırma (dilde kırılır).
 
-**Karar (Faruk, 13 Ekim):** dil → oyunun çeviri tablosu (seçenek B; A = her yazıyı kimliğe taşımak, C = oyunu İngilizce
+**Karar:** dil → oyunun çeviri tablosu (seçenek B; A = her yazıyı kimliğe taşımak, C = oyunu İngilizce
 zorunlu tutmak reddedildi); sıra numarasıyla okuma kötü uygulama, yerine yazının veri yolu (§8.169) ya da ekranı hiç
-okumamak (`/pull`); gösterim oyunun dilinde (14 Ekim).
+okumamak (`/pull`); gösterim oyunun dilinde.
 
 **Çözülenler (✅, FINDINGS'te):** sayfa açma Guid'le (`Screens.cs`, §8.162); onay pencereleri yuvayla (§8.165); çeviri
 katmanı + ters tablo (§8.167–8.168); yazının veri yolu, takvim / antrenman / mutluluk / atıcılar / penaltı / teklif /

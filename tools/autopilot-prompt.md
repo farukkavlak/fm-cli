@@ -1,4 +1,4 @@
-Bu, otomatik bir tur. Faruk ekranda değil (gece yatıyor); kimseye soru sorma, cevap bekleme.
+Bu, otomatik bir tur. Kullanıcı ekranda değil; kimseye soru sorma, cevap bekleme.
 
 Görev: `docs/BAGIMLILIKLAR.md` → **"Canlı kalanlar"** bölümündeki kutulardan **tek birini** bitir, sonra çık.
 O bölüm koddan üretilir (`python3 tools/remaining.py`); bir kutu = koddaki bir çağrı yeri. Üstteki uzun
@@ -39,7 +39,7 @@ Kayıt bir **test kaydı**; ona yazık etmek diye bir şey yok. Bir madde "işsi
 dil `turkish`, tarih ana kayıtla aynı olduğunu doğrula. Sadece okuma yaptıysan yükleme gerekmez.
 
 ## Boşta kalırsan: aracı kariyerde dene (hata avı)
-CHECKLIST'te seçilebilecek madde kalmadıysa (kalanlar `[?]`, park edilmiş ya da Faruk'un kararını bekliyor), turu boş
+CHECKLIST'te seçilebilecek madde kalmadıysa (kalanlar `[?]`, park edilmiş ya da kullanıcı kararını bekliyor), turu boş
 kapatma — **aracı gerçek bir menajer gibi çalıştır ve hatasını ara**:
 1. Önce toplu kontrol: `tools/sweep.sh` (oyun maç arasında olmalı). Kırılan komut varsa onu düzelt — bu turun işi o.
 2. Sonra oyunun akışını yaşa: `fm next` ile günleri ilerlet, maç günü `fm match` ile maçı oyna, gelen mesajları
@@ -56,7 +56,7 @@ kapatma — **aracı gerçek bir menajer gibi çalıştır ve hatasını ara**:
 Bu tur limit/token yakıyor. **Gereksiz keşif yapma.** Maddeyi seç, ilgili dosyayı `grep -n` ile bul,
 yalnız gereken satır aralığını oku. Bütün dosya ya da büyük doc (FINDINGS/PLAN) baştan sona okuma.
 Turu **~30 dakikada** bitir. 30 dakikayı geçtiysen ve iş hâlâ ölçüm/keşifte ise elindekiyle karar ver: bitiremediysen
-maddeyi `[?]` yap (neden + Faruk'a soru), commit et, çık. **60 dakikayı doldurup boşa yanma** — zaman aşımına takılan
+maddeyi `[?]` yap (neden + kullanıcıya soru), commit et, çık. **60 dakikayı doldurup boşa yanma** — zaman aşımına takılan
 tur hiçbir şey kazandırmaz, üstelik yaptığın yarım iş geri alınır.
 
 ## Kurallar (pazarlık yok)
@@ -69,7 +69,7 @@ tur hiçbir şey kazandırmaz, üstelik yaptığın yarım iş geri alınır.
    sabit beklemeyi tek seferlik davranışla değiştirmek de bağımlılıktır. Dokunduğun fonksiyondaki
    BÜTÜN süre/yazı/sıra bağımlılığını birlikte temizle.
 4. **Kanıtlanmazsa eskisi kalır (churn yok).** Yeni hal eskisinden kanıtlanmış biçimde iyi değilse
-   `git restore <dosya>` ile geri al, maddeyi `[?]` yap, nedenini ve Faruk'a sorulacak net soruyu
+   `git restore <dosya>` ile geri al, maddeyi `[?]` yap, nedenini ve kullanıcıya sorulacak net soruyu
    yanına yaz, commit et, çık.
 5. **Tek denemeye güvenme.** FM sık sık "oldu" deyip hiçbir şey yapmaz; sonucu HER ZAMAN veriden
    doğrula. Negatif durumu da dene.
@@ -96,10 +96,10 @@ Davranışı paylaşılan koda dokunduysan (Bridge, OpenPage/OpenSubpage, reply,
 - **Commit:** İngilizce Conventional Commits; başlık deponun üslubunu taklit etsin — `perf: contracts
   reads each term until it has arrived instead of a fixed pause` gibi: ne yaptığını şimdi vs eskisi
   (küçük harf, davranış odaklı). Son satır `Co-Authored-By: OpenCode <noreply@opencode.ai>`. Yalnızca
-  kendi değiştirdiğin dosyaları `git add <dosya>` (`-A` DEĞİL). **Push YOK** — Faruk yapıyor.
+  kendi değiştirdiğin dosyaları `git add <dosya>` (`-A` DEĞİL). **Push YOK** — kullanıcı yapıyor.
 - Kayıt test kaydı, hiç önemi yok: maç oyna, zamanı ilerlet, antrenör/kaptan/taktik değiştir,
   oyundaki mesajları (kaptan seçimi dahil) kendin cevapla, kayıt al — sorma, park etme. Yalnızca
-  kayıt silme gibi gerçekten Faruk'un kararı olan bir şey çıkarsa yapma: `[?]` yap, soruyu yaz,
+  kayıt silme gibi gerçekten kullanıcı kararı olan bir şey çıkarsa yapma: `[?]` yap, soruyu yaz,
   commit et, çık.
 - Oyun açık değilse `fm start </dev/null` ile aç (oyun ve eklenti kodunda tuzağı `docs/FINDINGS.md`'de).
 - Commit edilmemiş, senin olmayan bir değişiklik görürsen dokunma.

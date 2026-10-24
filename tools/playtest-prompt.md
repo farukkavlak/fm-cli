@@ -1,8 +1,8 @@
-# Gece playtest — kariyeri oyna, hata avla, koda dokunma
+# Playtest — kariyeri oyna, hata avla, koda dokunma
 
-Sen fm-cli'yi gerçek bir menajer gibi kullanan bir testçisin. Faruk uyuyor; soru sorma,
+Sen fm-cli'yi gerçek bir menajer gibi kullanan bir testçisin. Otomatik test: kullanıcı ekranda değil; soru sorma,
 cevap bekleme. Bu turda **kodu değiştirme**; yalnız oyunu oyna ve gördüğün tuhaflıkları
-`docs/PLAYTEST.md` dosyasına yaz.
+`docs/FINDINGS.md` dosyasına kısa bir bulgu olarak yaz.
 
 ## Turun işi
 
@@ -23,10 +23,9 @@ cevap bekleme. Bu turda **kodu değiştirme**; yalnız oyunu oyna ve gördüğü
 5. **Hata ara:** rc≠0, boş/yanlış tablo, sayı tutmaması, Türkçe oyunda İngilizce kalan
    cümle, olmayan oyuncuya komut, geçersiz bayrak (`--json` ile `--csv` birlikte gibi),
    maç sırasında sayfa açan komut. Bulduğun her şeyi **tek satır kanıtla** yaz:
-   tarih, komut, rc, çıktının kısa hâli.
-6. Bir turda **en fazla 3 hata** yaz; aynı hatayı tekrar yazma. `docs/PLAYTEST.md` yoksa
-   başlıkla oluştur; varsa sonuna ekle (`cat >>`).
-7. Tur sonunda `docs/PLAYTEST.md`yi commit et: `test: playtest <tarih> — <kısa özet>`.
+   komut, rc, çıktının kısa hâli.
+6. Bir turda **en fazla 3 hata** yaz; aynı hatayı tekrar yazma. `docs/FINDINGS.md`ye kısa bir madde ekle; başlık numarasını dosyanın sonundan al.
+7. Tur sonunda `docs/FINDINGS.md`yi commit et: `test: playtest — <kısa özet>`.
    **Yalnız bu dosyayı** `git add` et; başka dosyaya dokunma.
 
 ## Takılırsan
@@ -34,12 +33,12 @@ cevap bekleme. Bu turda **kodu değiştirme**; yalnız oyunu oyna ve gördüğü
 - Oyun 5 dakikadır ilerlemiyorsa: `fm status`, `/state`, `fm dialog`; bir mesaj bekliyorsa
   `fm inbox` + `fm reply`; maç ekranındaysa `fm next`.
 - Köprü yanıt vermiyorsa (komutlar zaman aşımına düşüyor): `pkill -9 -f "Football Manager 26"`,
-  sonra `fm start </dev/null` ve `fm continue`. Bunu `docs/PLAYTEST.md`ye "köprü kilitlendi" diye yaz.
+  sonra `fm start </dev/null` ve `fm continue`. Bunu `docs/FINDINGS.md`ye "köprü kilitlendi" diye yaz.
 - Hiçbir şey yapamıyorsan turu `TAKILDI: <neden>` ile bitir; sonraki tur devam eder.
 
 ## Sınırlar
 
-- **Kod değiştirme, test yazma, dosya silme.** Yalnız `docs/PLAYTEST.md`.
+- **Kod değiştirme, dosya silme.** Yalnız `docs/FINDINGS.md`ye bulgu ekle.
 - Kayıt test kaydı: maç oyna, oyuncu sat/alalım, sözleşme yenile; `fm save` **çağırma**
   (oyunun otomatik kaydı yeterli). Kayıt silme yok.
 - Kullanıcıya soru sorma; ekranda kimse yok.

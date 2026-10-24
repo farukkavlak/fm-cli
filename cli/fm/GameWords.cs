@@ -4,7 +4,7 @@ namespace FmCli;
 /// The game's own words for the English texts the plugin answers with. In a game set to another
 /// language the plugin puts what it reads into English, so commands can find buttons and rows by
 /// one set of words; what is shown to the user is then put back into the words the game showed
-/// (Faruk, 14 Ekim 2026: a Turkish game is read in Turkish). Only texts the game has answered with
+/// A Turkish game is read in Turkish. Only texts the game has answered with
 /// are known, so a word the CLI writes itself is never changed; in an English game nothing is.
 /// </summary>
 internal static class GameWords
