@@ -223,5 +223,65 @@ internal static partial class Program
 			Console.WriteLine($"      {who} ({cells[0].Split(' ')[0]}, {cells[1]}, {cells[2]}){(said.Length > 0 ? $" — {said}" : "")}");
 		}
 	}
+	private static void SeasonSummaryAttachment(List<string> rest)
+	{
+		string After(string label) => rest.IndexOf(label) is >= 0 and var at && at + 1 < rest.Count ? rest[at + 1] : "";
+		Console.WriteLine(L($"\n  Ek: sezonun sakatlıkları — {rest[1]}"));
+		Console.WriteLine(L($"    Beklenene göre {After("Expected injuries:")} · geçen sezona göre {After("Last Season")}"));
+		Console.WriteLine(L($"    Ağırlık: {string.Join(" · ", new[] { L("Major"), L("Moderate"), L("Minor"), "Slight" }.Where(k => After(k).Length > 0).Select(k => $"{k} {After(k)}"))}"));
+		var worst = rest.IndexOf("Injury Table");
+		var teams = new List<string>();
+		for (var i = worst + 1; worst > 0 && i + 1 < rest.Count && int.TryParse(rest[i + 1], out _); i += 2) teams.Add($"{rest[i]} {rest[i + 1]}");
+		if (teams.Count > 0) Console.WriteLine(L($"    Ligde en çok sakatlık: {string.Join(" · ", teams)}"));
+	}
+
+	private static void OfferAttachment(List<(string Text, string Path)> page, Func<string, string> one)
+	{
+		Console.WriteLine(L($"\n  Ek: teklif — {one("Person.Name")} ({one("Person.PlayerDescription")})"));
+		Console.WriteLine(L($"    Bedel: {one("feestring")}"));
+		for (var i = 0; i + 1 < page.Count; i++)
+			if (page[i].Path == "binding.PropertyValue" && page[i + 1].Path == "binding.DisplayValue")
+				Console.WriteLine($"    {GameWords.Of(page[i].Text)}: {page[i + 1].Text}");
+		var verdictAt = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
+		if (verdictAt > 0)
+		{
+			var lettered = page[verdictAt - 1].Path.Length == 0 && page[verdictAt - 1].Text.Length <= 2;
+			var grade = lettered ? page[verdictAt - 1].Text + " · " : "";
+			var heading = verdictAt - (lettered ? 2 : 1) is >= 0 and var h ? page[h].Text : "";
+			Console.WriteLine(heading == "Coach Report" ? L($"    Antrenör görüşü: {grade}{page[verdictAt].Text}") : L($"    Gözlemci görüşü: {grade}{page[verdictAt].Text}"));
+		}
+		var listed = new[] { ("Transfer Status", "Player.TransferStatusDetails.TransferStatusDescription.Text"), ("Loan Status", "Player.LoanStatusDetails.TransferStatusDescription.Text") }
+			.Where(x => one(x.Item2).Length > 0).Select(x => $"{GameWords.Of(x.Item1)}: {one(x.Item2)}").ToList();
+		if (listed.Count > 0) Console.WriteLine($"    {string.Join(" · ", listed)}");
+		var bidders = new List<string>();
+		for (var i = 0; i < page.Count; i++)
+			if (page[i].Path == "row.TransferOfferType" && i > 0 && page[i - 1].Path == "Club.Name")
+				bidders.Add($"{page[i - 1].Text} ({page[i].Text}{(i + 1 < page.Count && page[i + 1].Path == "row.TotalTransferCost" ? $", {page[i + 1].Text}" : "")})");
+		if (bidders.Count > 0) Console.WriteLine(L($"    Teklif yapanlar: {string.Join(" · ", bidders)}   (hepsi: offers)"));
+	}
+	private static void ScoutReportAttachment(List<(string Text, string Path)> page, Func<string, string> one)
+	{
+		var at = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
+		var grade = at > 0 && page[at - 1].Path.Length == 0 && page[at - 1].Text.Length <= 2 ? page[at - 1].Text + " · " : "";
+		Console.WriteLine(L($"\n  Ek: gözlemci raporu — {grade}{one("report.ScoutedGradeInfo.GradeString")}"));
+		Console.WriteLine(L($"    {one("report.ScoutingKnowledgeLevel.Text")} · şu an: {one("report.ScoutedCurrentAbilityInfo.ShortString")} · gelecek: {one("report.ScoutedPotentialAbilityInfo.ShortString")}"));
+		var bad = page.FindIndex(t => t.Path.Length == 0 && t.Text.StartsWith("Negatives", StringComparison.Ordinal));
+		for (var i = 0; i < page.Count; i++)
+			if (page[i].Path == "row.ProConsLongString") Console.WriteLine($"    {(bad >= 0 && i > bad ? "-" : "+")} {page[i].Text.Replace("\n", "\n      ")}");
+		var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
+		Console.WriteLine("    " + string.Join(" · ", new[] { one("Person.Name"), one("Person.PositionCombinedString"), age, one("Nation.ThreeLetterName"), one("Club.ShortName") }.Where(x => x.Length > 0)));
+		var expires = page.FindIndex(t => t.Path.Length == 0 && t.Text == "Contract Expires") is >= 0 and var c && c + 1 < page.Count && page[c + 1].Path.Length == 0 ? page[c + 1].Text : "";
+		Console.WriteLine(L($"    Değer {one("binding.TransferValueRangeString")} · ücret {one("Person.FullContract.Wage.DisplayValue")}{(expires.Length > 0 ? L($" · sözleşme {expires}'e kadar") : "")}"));
+	}
+
+	private static void PlayerReportAttachment(List<(string Text, string Path)> page, Func<string, string> one)
+	{
+		string Next(string label) => page.FindIndex(t => t.Path.Length == 0 && t.Text == label) is >= 0 and var at && at + 1 < page.Count && page[at + 1].Path.Length == 0 ? GameWords.Of(page[at + 1].Text) : "";
+		var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
+		Console.WriteLine(L($"\n  Ek: oyuncu raporu — {string.Join(", ", new[] { one("Person.Name"), one("Person.PositionCombinedString"), age, one("Nation.ThreeLetterName"), one("Club.ShortName") }.Where(x => x.Length > 0))}"));
+		Console.WriteLine(L($"    Değer {one("binding.TransferValueRangeString")} · ücret {one("Person.FullContract.Wage.DisplayValue")} · sözleşme {Next("Contract Expires")}'e kadar"));
+		Console.WriteLine(L($"    Mutluluk: {Next("Happiness")} ({one("HappinessPositivesCount")} artı, {one("HappinessNegativesCount")} eksi) · takım havası: {Next("Squad Dynamics")}"));
+		if (one("Team.ClubAtmosphereFeedback.CurrentDynamicSupportStringLong") is { Length: > 0 } mood) Console.WriteLine($"    {mood}");
+	}
 
 }

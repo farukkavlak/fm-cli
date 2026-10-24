@@ -150,47 +150,14 @@ internal static partial class Program
 		// The season's injuries: how many against what was expected, how bad, and the league's worst hit.
 		if (rest[0] == "Season Summary" && rest.Count > 2 && rest[1].Contains("injuries this season", StringComparison.Ordinal))
 		{
-			string After(string label) => rest.IndexOf(label) is >= 0 and var at && at + 1 < rest.Count ? rest[at + 1] : "";
-			Console.WriteLine(L($"\n  Ek: sezonun sakatlıkları — {rest[1]}"));
-			Console.WriteLine(L($"    Beklenene göre {After("Expected injuries:")} · geçen sezona göre {After("Last Season")}"));
-			Console.WriteLine(L($"    Ağırlık: {string.Join(" · ", new[] { L("Major"), L("Moderate"), L("Minor"), "Slight" }.Where(k => After(k).Length > 0).Select(k => $"{k} {After(k)}"))}"));
-			var worst = rest.IndexOf("Injury Table");
-			var teams = new List<string>();
-			for (var i = worst + 1; worst > 0 && i + 1 < rest.Count && int.TryParse(rest[i + 1], out _); i += 2) teams.Add($"{rest[i]} {rest[i + 1]}");
-			if (teams.Count > 0) Console.WriteLine(L($"    Ligde en çok sakatlık: {string.Join(" · ", teams)}"));
+			SeasonSummaryAttachment(rest);
 			return;
 		}
 
 		// An offer for one of ours: the fee, its terms as label and value, and who else is after him.
-		if (One("Person.PlayerDescription") is { Length: > 0 } described && One("feestring") is { Length: > 0 } fee && rest.Contains("Additional Details"))
+		if (One("Person.PlayerDescription") is { Length: > 0 } && One("feestring") is { Length: > 0 } && rest.Contains("Additional Details"))
 		{
-			// Read by data path: the player and his description, the fee, the report's verdict, his
-			// transfer and loan status, the clubs that have bid.
-			Console.WriteLine(L($"\n  Ek: teklif — {One("Person.Name")} ({described})"));
-			Console.WriteLine(L($"    Bedel: {fee}"));
-			// The terms: each a term ("binding.PropertyValue") and what it says ("binding.DisplayValue").
-			for (var i = 0; i + 1 < page.Count; i++)
-				if (page[i].Path == "binding.PropertyValue" && page[i + 1].Path == "binding.DisplayValue")
-					Console.WriteLine($"    {GameWords.Of(page[i].Text)}: {page[i + 1].Text}");
-			// Our player's carries the coach's view of him; one we bid for, the scouts' ("Scout Report",
-			// "Scouting Report"). The report's heading and the grade's letter are drawn without a path
-			// just before the verdict.
-			var verdictAt = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
-			if (verdictAt > 0)
-			{
-				var lettered = page[verdictAt - 1].Path.Length == 0 && page[verdictAt - 1].Text.Length <= 2;
-				var grade = lettered ? page[verdictAt - 1].Text + " · " : "";
-				var heading = verdictAt - (lettered ? 2 : 1) is >= 0 and var h ? page[h].Text : "";
-				Console.WriteLine(heading == "Coach Report" ? L($"    Antrenör görüşü: {grade}{page[verdictAt].Text}") : L($"    Gözlemci görüşü: {grade}{page[verdictAt].Text}"));
-			}
-			var listed = new[] { ("Transfer Status", "Player.TransferStatusDetails.TransferStatusDescription.Text"), ("Loan Status", "Player.LoanStatusDetails.TransferStatusDescription.Text") }
-				.Where(x => One(x.Item2).Length > 0).Select(x => $"{GameWords.Of(x.Item1)}: {One(x.Item2)}").ToList();
-			if (listed.Count > 0) Console.WriteLine($"    {string.Join(" · ", listed)}");
-			var bidders = new List<string>();
-			for (var i = 0; i < page.Count; i++)
-				if (page[i].Path == "row.TransferOfferType" && i > 0 && page[i - 1].Path == "Club.Name")
-					bidders.Add($"{page[i - 1].Text} ({page[i].Text}{(i + 1 < page.Count && page[i + 1].Path == "row.TotalTransferCost" ? $", {page[i + 1].Text}" : "")})");
-			if (bidders.Count > 0) Console.WriteLine(L($"    Teklif yapanlar: {string.Join(" · ", bidders)}   (hepsi: offers)"));
+			OfferAttachment(page, One);
 			return;
 		}
 
@@ -266,34 +233,18 @@ internal static partial class Program
 		// A scout's report on a player (an agent's or a scout's pick): the grade and verdict, how well he is
 		// known, his ability now and to come, the good and the bad said of him, then who he is and his terms.
 		// By data path; the grade's letter and the contract's end are drawn without one.
-		if (rest[0] == "Scout Report" && One("report.ScoutedGradeInfo.GradeString") is { Length: > 0 } scouted)
+		if (rest[0] == "Scout Report" && One("report.ScoutedGradeInfo.GradeString") is { Length: > 0 })
 		{
-			var at = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
-			var grade = at > 0 && page[at - 1].Path.Length == 0 && page[at - 1].Text.Length <= 2 ? page[at - 1].Text + " · " : "";
-			Console.WriteLine(L($"\n  Ek: gözlemci raporu — {grade}{scouted}"));
-			Console.WriteLine(L($"    {One("report.ScoutingKnowledgeLevel.Text")} · şu an: {One("report.ScoutedCurrentAbilityInfo.ShortString")} · gelecek: {One("report.ScoutedPotentialAbilityInfo.ShortString")}"));
-			// The good comes first, the bad after the heading that counts it ("Negatives (3)").
-			var bad = page.FindIndex(t => t.Path.Length == 0 && t.Text.StartsWith("Negatives", StringComparison.Ordinal));
-			for (var i = 0; i < page.Count; i++)
-				if (page[i].Path == "row.ProConsLongString") Console.WriteLine($"    {(bad >= 0 && i > bad ? "-" : "+")} {page[i].Text.Replace("\n", "\n      ")}");
-			var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
-			Console.WriteLine("    " + string.Join(" · ", new[] { One("Person.Name"), One("Person.PositionCombinedString"), age, One("Nation.ThreeLetterName"), One("Club.ShortName") }.Where(x => x.Length > 0)));
-			var expires = page.FindIndex(t => t.Path.Length == 0 && t.Text == "Contract Expires") is >= 0 and var c && c + 1 < page.Count && page[c + 1].Path.Length == 0 ? page[c + 1].Text : "";
-			Console.WriteLine(L($"    Değer {One("binding.TransferValueRangeString")} · ücret {One("Person.FullContract.Wage.DisplayValue")}{(expires.Length > 0 ? L($" · sözleşme {expires}'e kadar") : "")}"));
+			ScoutReportAttachment(page, One);
 			return;
 		}
 
 		// A player's card (one who is unhappy, say): who he is, his value and wage, how happy he is
 		// and the squad's mood. By data path; the age, the contract's end and the moods are drawn
 		// without one, each after its label.
-		if (rest[0] == "Player Report" && One("Person.Name") is { Length: > 0 } reported)
+		if (rest[0] == "Player Report" && One("Person.Name") is { Length: > 0 })
 		{
-			string Next(string label) => page.FindIndex(t => t.Path.Length == 0 && t.Text == label) is >= 0 and var at && at + 1 < page.Count && page[at + 1].Path.Length == 0 ? GameWords.Of(page[at + 1].Text) : "";
-			var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
-			Console.WriteLine(L($"\n  Ek: oyuncu raporu — {string.Join(", ", new[] { reported, One("Person.PositionCombinedString"), age, One("Nation.ThreeLetterName"), One("Club.ShortName") }.Where(x => x.Length > 0))}"));
-			Console.WriteLine(L($"    Değer {One("binding.TransferValueRangeString")} · ücret {One("Person.FullContract.Wage.DisplayValue")} · sözleşme {Next("Contract Expires")}'e kadar"));
-			Console.WriteLine(L($"    Mutluluk: {Next("Happiness")} ({One("HappinessPositivesCount")} artı, {One("HappinessNegativesCount")} eksi) · takım havası: {Next("Squad Dynamics")}"));
-			if (One("Team.ClubAtmosphereFeedback.CurrentDynamicSupportStringLong") is { Length: > 0 } mood) Console.WriteLine($"    {mood}");
+			PlayerReportAttachment(page, One);
 			return;
 		}
 
