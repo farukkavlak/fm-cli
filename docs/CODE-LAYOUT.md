@@ -57,6 +57,8 @@ Ek bölünmeler:
   `Saves.Files.cs` — silme/yükleme.
 - `Core/Clock.cs` — `next`/açıklama; `Clock.Status.cs` — kaydetme ve durum;
   `Clock.Fixtures.cs` — fikstür, form, sakatlar ve açık soru.
+- `Program/Program.Ui.cs` — buton/sayfa komutları; `Program.Ui.Helpers.cs` — press/select,
+  cevap yardımcıları ve alan okuma; `Program.Help.cs` — yardım metinleri.
 
 Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
 Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
