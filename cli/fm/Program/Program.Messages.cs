@@ -118,32 +118,14 @@ internal static partial class Program
 		// The budgets the board has set: what there is to spend and what has gone.
 		if (rest[0] == "Recruitment Budgets" && rest.Contains("Available"))
 		{
-			Console.WriteLine(L("\n  Ek: bütçeler"));
-			foreach (var (label, name) in new[] { ("Transfer", "Transfer"), ("Wage", L("Maaş")), ("Scouting", "Scouting") })
-			{
-				var at = rest.IndexOf(label);
-				if (at < 0 || at + 1 >= rest.Count) continue;
-				var note = at + 3 < rest.Count && rest[at + 2] == "Available" ? $"  ({rest[at + 3]})" : "";
-				Console.WriteLine(L($"    {name,-9}{rest[at + 1]} kullanılabilir{note}"));
-			}
-			if (rest.IndexOf("Overall Balance") is > 0 and var balance) Console.WriteLine(L($"    Kasa     {rest[balance - 1]}"));
-			Console.WriteLine(L("    Ayrıntı: budget · finances"));
+			BudgetsAttachment(rest);
 			return;
 		}
 
 		// The club's vision: each objective with how much it matters and how it is going.
 		if (rest[0] == "Club Vision" && rest.Contains("Actionable Objectives"))
 		{
-			Console.WriteLine(L("\n  Ek: kulüp vizyonu"));
-			string[] weights = ["Required", "Favoured", "Desired", "Preferred"];
-			for (var i = 1; i + 2 < rest.Count; i++)
-			{
-				if (rest[i] is "Actionable Objectives" or "Informational Objectives") { Console.WriteLine($"    {(rest[i] == "Actionable Objectives" ? L("Yapılacak hedefler") : L("Bilgi amaçlı hedefler"))}"); continue; }
-				if (!weights.Contains(rest[i + 1])) continue;
-				Console.WriteLine($"      {rest[i]} — {rest[i + 1] switch { "Required" => L("zorunlu"), "Favoured" => L("tercih"), "Desired" => L("istenen"), var w => w }} · {rest[i + 2]}");
-				i += 2;
-			}
-			Console.WriteLine(L("    Ayrıntı: club"));
+			ClubVisionAttachment(rest);
 			return;
 		}
 
@@ -266,17 +248,7 @@ internal static partial class Program
 		// areas with the number of items each has to report.
 		if (rest[0] == "Responsibilities" && rest.Contains("Delegated to Staff"))
 		{
-			string Count(string path) => One(path) is { Length: > 0 } n ? n : "?";
-			Console.WriteLine(L($"\n  Ek: sorumluluklar — {Count("teamsettings.ResponsibilitiesAssignedToHumanCount")} sende · {Count("teamsettings.ResponsibilitiesAssignedToStaffCount")} devredilmiş"));
-			// The staff's head count and vacancies are sentences with a figure ("49 Staff Members"), up to the first area.
-			var staffAt = rest.IndexOf("Staff");
-			var people = rest.Skip(staffAt + 1).TakeWhile(t => t.Any(char.IsDigit) && !System.Text.RegularExpressions.Regex.IsMatch(t, @"^\(\d+\)$")).ToList();
-			if (staffAt > 0 && people.Count > 0) Console.WriteLine(L($"    Personel: {string.Join(" · ", people)}"));
-			var areas = new List<string>();
-			for (var i = 1; i + 1 < rest.Count; i++)
-				if (System.Text.RegularExpressions.Regex.IsMatch(rest[i + 1], @"^\(\d+\)$")) areas.Add($"{rest[i]} {rest[i + 1]}");
-			if (areas.Count > 0) Console.WriteLine(L($"    Bildirilen: {string.Join(" · ", areas)}"));
-			Console.WriteLine(L("    Ayrıntı: responsibilities"));
+			ResponsibilitiesAttachment(rest, One);
 			return;
 		}
 
@@ -311,32 +283,7 @@ internal static partial class Program
 		// Who is away with his country, for what and when; then the fixtures around it.
 		if (rest[0] == "Internationals" && rest.Contains("Current and Recent Events"))
 		{
-			var events = rest.IndexOf("Current and Recent Events");
-			var fixtures = rest.IndexOf("Fixture Schedule");
-			var end = fixtures > events ? fixtures : rest.Count;
-			Console.WriteLine(L("\n  Ek: milli takımdakiler"));
-			// An event, its dates, then everyone it takes: one man or several ("FIFA World Cup™",
-			// "11th Jun-19th Jul", "Kaide Gordon", "James Collins"). Read as threes, the second man of an
-			// event was taken for the next event's name (30 Mayıs 2026).
-			static bool Dates(string t) => System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d+\w* \w+-\d+\w* \w+$");
-			for (var i = events + 1; i + 1 < end; )
-			{
-				if (!Dates(rest[i + 1])) { i++; continue; }
-				var called = new List<string>();
-				var k = i + 2;
-				for (; k < end && !(k + 1 < end && Dates(rest[k + 1])); k++) called.Add(rest[k]);
-				Console.WriteLine($"    {rest[i]} ({rest[i + 1]}): {string.Join(", ", called)}");
-				i = k;
-			}
-			if (fixtures > 0)
-			{
-				// Played ones have a score; those to come, a kick-off time.
-				var coming = new List<string>();
-				for (var i = fixtures + 1; i + 4 < rest.Count && rest[i + 3] is "H" or "A"; i += 5)
-					if (rest[i + 4].Contains(':'))
-						coming.Add($"{rest[i]} {rest[i + 2]} ({(rest[i + 3] == "H" ? L("iç saha") : L("deplasman"))}) {rest[i + 4]}");
-				if (coming.Count > 0) Console.WriteLine(L($"    Sıradaki maçlar: {string.Join(" · ", coming)}"));
-			}
+			InternationalsAttachment(rest);
 			return;
 		}
 
@@ -360,18 +307,7 @@ internal static partial class Program
 		// rows drawn are bound; the heading counts them all.
 		if (page.Any(t => t.Path == "binding.Name") && page.Any(t => t.Path == "row.DisplayValue") && rest.Contains("Recommended Action"))
 		{
-			var rows = new List<string[]>();
-			for (var i = 0; i < page.Count; i++)
-			{
-				if (page[i].Path != "binding.Name") continue;
-				var row = page.Skip(i + 1).TakeWhile(t => t.Path is "binding" or "row.DisplayValue" or "").ToList();
-				var cells = row.Where(t => t.Path == "binding").Select(t => t.Text).ToList();
-				var action = row.FirstOrDefault(t => t.Path == "row.DisplayValue").Text ?? "";
-				rows.Add([page[i].Text, cells.ElementAtOrDefault(0) ?? "", cells.ElementAtOrDefault(1) ?? "", action]);
-			}
-			Console.WriteLine(L($"\n  Ek: sözleşmesi bitecekler — {rest[0]}{(rows.Count > 0 ? L($", ekranda görünen {rows.Count}") : "")}"));
-			Table.Write([L("OYUNCU"), L("MEVKİ"), L("MAAŞ"), L("ÖNERİLEN")], rows);
-			Console.WriteLine(L("    Hepsi ve sözleşme teklifi: contracts"));
+			ContractExpiriesAttachment(rest, page);
 			return;
 		}
 
@@ -380,21 +316,7 @@ internal static partial class Program
 		// #high-button), each row found by its own figure.
 		if (page.Any(t => t.Path == "collectivewinbonus.BonusLeagueData.BonusLowAmount"))
 		{
-			Console.WriteLine(L("\n  Ek: kadronun galibiyet primleri (artış ya da düşüş transfer bütçesine yansır)"));
-			foreach (var (name, data) in new[] { (One("collectivewinbonus.BonusLeagueString"), "BonusLeagueData"), (GameWords.Of("Domestic Cups"), "BonusCupData") })
-			{
-				var levels = new[] { "BonusLowAmount", "BonusNormalAmount", "BonusHighAmount" }.Select(l => One($"collectivewinbonus.{data}.{l}")).ToList();
-				if (levels.All(l => l.Length == 0)) continue;
-				var chosen = -1;
-				try
-				{
-					var tree = await Fm.Get("elements", ("text", GameWords.Of(levels[1])), ("up", "3"), ("depth", "2"), ("members", "1"));
-					var styles = System.Text.RegularExpressions.Regex.Matches(tree, @"m_addedClass = ""([^""]*)""").Select(m => m.Groups[1].Value).ToList();
-					chosen = styles.FindIndex(s => s.Contains("-active-", StringComparison.Ordinal));
-				}
-				catch (FmError) { }
-				Console.WriteLine($"    {name}: {string.Join(" · ", levels.Select((l, i) => i == chosen ? $"[{GameWords.Of(l)}]" : GameWords.Of(l)))}");
-			}
+			await WinBonusesAttachment(page, One);
 			return;
 		}
 
@@ -403,14 +325,7 @@ internal static partial class Program
 		// calendar's, said elsewhere.
 		if (page.Any(t => t.Path == "row.MatchFocusSessionName"))
 		{
-			Console.WriteLine(L($"\n  Ek: maç hazırlığı — {rest[0]} ({One("fixture.NextMatchDaysText")}, {One("comp.Name")})"));
-			for (var i = 0; i < page.Count; i++)
-			{
-				if (page[i].Path != "row.MatchFocusSessionName") continue;
-				var heading = i >= 2 && page[i - 2].Path == "binding" ? page[i - 2].Text : "";
-				Console.WriteLine($"    {(heading.Length > 0 ? $"{heading}: " : "")}{page[i].Text}");
-			}
-			Console.WriteLine(L("    Değiştirmek: prep"));
+			MatchPreparationAttachment(rest, page, One);
 			return;
 		}
 
@@ -426,20 +341,7 @@ internal static partial class Program
 		// counts and what is left of each budget, each figure after its own "Available".
 		if (rest[0] == "Player Recommendations" && page.Any(t => t.Path == "row.PlayerDescription"))
 		{
-			Console.WriteLine(L($"\n  Ek: oyuncu tavsiyeleri — {(rest.Count > 1 ? rest[1] : "")}"));
-			for (var i = 0; i < page.Count; i++)
-			{
-				if (page[i].Path != "row.Name") continue;
-				var row = page.Skip(i + 1).TakeWhile(t => t.Path != "row.Name" && t.Text != "Recruitment Focuses").Select(t => t.Text);
-				Console.WriteLine($"    {page[i].Text} · {string.Join(" · ", row)}");
-			}
-			var focuses = rest.IndexOf("Recruitment Focuses");
-			if (focuses > 0 && focuses + 2 < rest.Count)
-				Console.WriteLine(L($"    Transfer odakları: {rest[focuses + 1]} · {rest[focuses + 2]} ({One("Human.ScoutingInfo.RecruitmentFocuses.TopFocusesCount")} {GameWords.Of("Top")} · {One("Human.ScoutingInfo.RecruitmentFocuses.StandardFocusesCount")} {GameWords.Of("Standard")} · {One("Human.ScoutingInfo.RecruitmentFocuses.OngoingFocusesCount")} {GameWords.Of("Obscure")})"));
-			string Left(string budget) => rest.IndexOf(budget, Math.Max(0, rest.IndexOf("Recruitment Budgets"))) is > 0 and var b && b + 2 < rest.Count && rest[b + 1] == "Available" ? rest[b + 2] : "-";
-			if (rest.Contains("Recruitment Budgets"))
-				Console.WriteLine(L($"    Kalan bütçe: transfer {Left("Transfer")} · maaş {Left("Wage")} · scouting {Left("Scouting")}"));
-			Console.WriteLine(L("    Ayrıntı: scout"));
+			RecommendationsAttachment(rest, page, One);
 			return;
 		}
 
@@ -448,32 +350,7 @@ internal static partial class Program
 		// training; by data path, the age, the contract's end, the rating and the counts drawn without one.
 		if (rest[0] == "Report" && One("Person.Name") is { Length: > 0 } bidFor)
 		{
-			string Plain(string label) => page.FindIndex(t => t.Path.Length == 0 && t.Text == label) is >= 0 and var i && i + 1 < page.Count && page[i + 1].Path.Length == 0 ? page[i + 1].Text : "";
-			var age = page.FindIndex(t => t.Path == "Nation.Name") is >= 0 and var n && n + 1 < page.Count && page[n + 1].Path.Length == 0 ? page[n + 1].Text : "";
-			var until = page.FirstOrDefault(t => t.Path.Length == 0 && t.Text.StartsWith('(') && t.Text.Any(char.IsDigit) && t.Text.Contains('/')).Text ?? "";
-			Console.WriteLine(L("\n  Ek: ") + string.Join(" · ", new[] { bidFor, One("Person.PositionCombinedString"), One("Nation.Name"), age }.Where(x => x.Length > 0)));
-			Console.WriteLine(L($"    Değer {One("binding.TransferValueRangeString")} · ücret {One("Person.FullContract.Wage.DisplayValue")} {until}").TrimEnd());
-			Console.WriteLine(L($"    Kondisyon: {One("Person.ConditionCommentTypeString")} · moral: {One("Person.MoraleString")} · ortalama puan {Plain("Average Rating")}"));
-			if (rest.Contains("T.Rat"))
-			{
-				// The training card: how he is doing, the rating before its label, the workload and the unit after it.
-				var at = rest.IndexOf("T.Rat");
-				var how = rest.IndexOf("Training") is > 0 and var tr && tr + 1 < at ? rest[tr + 1] : "";
-				var rating = at > 0 && rest[at - 1].Any(char.IsDigit) ? rest[at - 1] : "-";
-				var after = rest.Skip(at + 1).TakeWhile(t => t != "Happiness" && t != "Positional Ability").ToList();
-				Console.WriteLine(L($"    Antrenman: {how} · puan {rating}{(after.Count > 0 ? " · " + string.Join(" · ", after) : "")}"));
-			}
-			if (One("HappinessPositivesCount") is { Length: > 0 } plus)
-				Console.WriteLine(L($"    Mutluluk: {(rest.LastIndexOf("Happiness") is > 0 and var h && h + 1 < rest.Count ? rest[h + 1] : "-")} ({plus} artı, {One("HappinessNegativesCount")} eksi)"));
-			if (rest.IndexOf("Positional Ability") is > 0 and var pa && pa + 1 < rest.Count && !rest[pa + 1].StartsWith("Action", StringComparison.Ordinal))
-				Console.WriteLine(L($"    Mevkide yeteneği: {string.Join(" · ", rest.Skip(pa + 1).TakeWhile(t => t != "Action message"))}"));
-			if (!page.Any(t => t.Path == "Player.TransferStatusDetails.TransferStatusDescription.Text")) return;
-			Console.WriteLine(L($"    Transfer durumu: {One("Player.TransferStatusDetails.TransferStatusDescription.Text")} · kiralık: {One("Player.LoanStatusDetails.TransferStatusDescription.Text")}"));
-			var offers = new List<string>();
-			for (var i = 1; i + 1 < page.Count; i++)
-				if (page[i].Path == "row.TransferOfferType")
-					offers.Add($"{page[i - 1].Text} ({page[i].Text}{(page[i + 1].Path == "row.TotalTransferCost" ? $", {page[i + 1].Text}" : "")})");
-			if (offers.Count > 0) Console.WriteLine(L($"    Teklifler: {string.Join(" · ", offers)} · ilgilenen kulüp {Plain("Interested Clubs").Trim('(', ')')}"));
+			PlayerBidCardAttachment(rest, page, One, bidFor);
 			return;
 		}
 
