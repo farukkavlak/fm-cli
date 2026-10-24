@@ -283,5 +283,106 @@ internal static partial class Program
 		Console.WriteLine(L($"    Mutluluk: {Next("Happiness")} ({one("HappinessPositivesCount")} artı, {one("HappinessNegativesCount")} eksi) · takım havası: {Next("Squad Dynamics")}"));
 		if (one("Team.ClubAtmosphereFeedback.CurrentDynamicSupportStringLong") is { Length: > 0 } mood) Console.WriteLine($"    {mood}");
 	}
+	private static void LoansAttachment(List<string> rest, int loanHead)
+	{
+		Console.WriteLine(L($"\n  Ek: kiralıklar — {rest[1]}"));
+		for (var i = loanHead + 1; i + 2 < rest.Count && rest[i] != "Action message"; i += 3)
+			Console.WriteLine(L($"    {rest[i],-22}{rest[i + 1],-22}ortalama {rest[i + 2]}"));
+	}
+
+	private static void AdviceSummaryAttachment(List<string> rest, List<(string Text, string Path)> page, int topicsAt)
+	{
+		Console.WriteLine(L($"\n  Ek: tavsiye özeti — {(rest.IndexOf("Meeting type") is >= 0 and var kindAt && kindAt + 1 < rest.Count ? rest[kindAt + 1] : "")}"));
+		var topics = rest.Skip(topicsAt + 1).TakeWhile(t => System.Text.RegularExpressions.Regex.IsMatch(t, @"\(\d+\)$")).ToList();
+		foreach (var topic in topics) Console.WriteLine($"    {GameWords.Of(topic)}");
+		if (AttachedStaffTeams(page) is { Count: > 0 } teams) Console.WriteLine(L($"    Personel: {string.Join(" · ", teams)}"));
+	}
+
+	private static void TeamSelectionAttachment(List<(string Text, string Path)> page)
+	{
+		Console.WriteLine(L("\n  Ek: önerilen kadro"));
+		var rows = new List<string[]>();
+		var from = 0;
+		for (var i = 1; i < page.Count; i++)
+		{
+			if (page[i].Path != "teamselectionadviceentry.TeamSelectionReason") continue;
+			var plain = page.Skip(from).Take(i - from).Where(t => t.Path.Length == 0).Select(t => t.Text).ToList();
+			from = i + 1;
+			if (plain.Count < 2) continue;
+			rows.Add([GameWords.Of(plain[0]), plain[1], plain.Count > 2 ? plain[2] : "", page[i].Text]);
+		}
+		Table.Write([L("MEVKİ"), L("OYUNCU"), L("YERİNE"), L("NEDEN")], rows);
+	}
+
+	private static void DynamicsAttachment(List<(string Text, string Path)> page)
+	{
+		Console.WriteLine(L("\n  Ek: takım dinamikleri"));
+		var stop = page.FindIndex(1, t => t.Path.Length == 0 && t.Text == "Player Report");
+		var part = stop > 0 ? page.Take(stop).ToList() : page;
+		for (var i = 1; i < part.Count; i++)
+		{
+			var (text, path) = part[i];
+			if (path == "binding.ProConsLongString")
+				Console.WriteLine($"      {(part[i - 1].Text == "-" ? "-" : "+")} {GameWords.Of(text)}");
+			else if (path.Length == 0 && text is not ("+" or "-") && i + 1 < part.Count && part[i + 1].Path.Length == 0 && part[i + 1].Text is not ("+" or "-"))
+			{
+				Console.WriteLine($"    {GameWords.Of(text)}: {GameWords.Of(part[i + 1].Text)}");
+				i++;
+			}
+			else if (path.Length == 0 && text is not ("+" or "-")) Console.WriteLine($"      {GameWords.Of(text)}");
+		}
+	}
+	private static void ProgressAttachment(List<string> rest, List<(string Text, string Path)> page, Func<string, string> one)
+	{
+		var moved = new List<string>();
+		for (var i = 0; i < page.Count; i++)
+			if (page[i].Path == "row.Name")
+				moved.Add(i + 1 < page.Count && page[i + 1].Path == "row.PropertyValue" ? $"{GameWords.Of(page[i].Text)} {page[i + 1].Text}" : GameWords.Of(page[i].Text));
+		Console.WriteLine(L("\n  Ek: ") + rest[0] + (rest.Count > 1 && rest[1] != "Attribute" ? " — " + rest[1] : ""));
+		if (moved.Count > 0) Console.WriteLine("    " + string.Join(" · ", moved));
+		var rating = rest.FindIndex(t => t == "T.Rat") is > 0 and var r && rest[r - 1].Any(char.IsDigit) ? rest[r - 1] : "";
+		var unit = rest.IndexOf("Player Report") is > 0 and var card && rest[card - 1] is not ("T.Rat" or "N/A") ? rest[card - 1] : "";
+		if (rating.Length > 0 || unit.Length > 0)
+			Console.WriteLine(L($"    Antrenman puanı {(rating.Length > 0 ? rating : "-")}{(unit.Length > 0 ? $" · {unit}" : "")}"));
+		var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
+		Console.WriteLine("    " + string.Join(" · ", new[] { one("Person.Name"), one("Person.PositionCombinedString"), age, one("Nation.ThreeLetterName"), one("Club.ShortName") }.Where(x => x.Length > 0)));
+	}
+
+	private static void TrainingRecapAttachment(List<(string Text, string Path)> page, Func<string, string> one)
+	{
+		var best = new List<string>();
+		var worst = new List<string>();
+		var into = best;
+		foreach (var (text, path) in page)
+		{
+			if (path.Length == 0 && text == "Worst") into = worst;
+			else if (path == "Person.Name") into.Add(text);
+			else if (into.Count > 0 && (path.EndsWith("PositionCombinedString", StringComparison.Ordinal)
+			         || path.Length == 0 && System.Text.RegularExpressions.Regex.IsMatch(text, @"^\d+[.,]\d+$")))
+				into[^1] += $" {(path.Length > 0 ? $"({text})" : text)}";
+		}
+		var up = one("individualtraining.PlayerImprovementCount");
+		var down = one("individualtraining.PlayerRegressionCount");
+		Console.WriteLine(L($"\n  Ek: antrenman özeti — {(up.Length > 0 ? up : "0")} oyuncu gelişti, {(down.Length > 0 ? down : "0")} oyuncu geriledi"));
+		if (best.Count > 0) Console.WriteLine(L($"    En iyi: {string.Join(" · ", best)}"));
+		if (worst.Count > 0) Console.WriteLine(L($"    En kötü: {string.Join(" · ", worst)}"));
+	}
+
+	private static void FitnessAttachment(List<string> rest, List<(string Text, string Path)> page, Func<string, string> one)
+	{
+		var watched = page.TakeWhile(t => t.Text != "Pre-match fitness tests:").Skip(1).FirstOrDefault(t => t.Path.Length == 0 && t.Text.Any(char.IsDigit)).Text;
+		var window = one("Team.PreMatchFitnessTestString");
+		Console.WriteLine(L($"\n  Ek: {GameWords.Of(rest[0])}{(watched is { Length: > 0 } ? $" — {watched}" : "")}{(window.Length > 0 ? L($" · maç öncesi kondisyon testi: {window}") : "")}"));
+		var rows = new List<string[]>();
+		for (var i = 0; i < page.Count; i++)
+		{
+			if (page[i].Path != "binding.Name") continue;
+			var injury = i + 1 < page.Count && page[i + 1].Path == "binding" ? page[i + 1].Text : "";
+			var at = injury.Length > 0 ? i + 2 : i + 1;
+			var test = at < page.Count && page[at].Path.Length == 0 ? GameWords.Of(page[at].Text) : "";
+			rows.Add([page[i].Text, injury, test]);
+		}
+		if (rows.Count > 0) Table.Write([L("OYUNCU"), L("SAKATLIK"), L("KONDİSYON TESTİ")], rows);
+	}
 
 }
