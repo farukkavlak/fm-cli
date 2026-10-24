@@ -11,7 +11,7 @@
 | Biçim | `cli/fm/Core/Table.cs`, `Ui.cs`, `MoneyFormat.cs`, `JsonOut.cs`, `InboxView.cs` | tablo, terminal, para/sayı |
 | Metin | `cli/fm/Core/Labels.cs`, `GameWords.cs`, `EngineTexts.cs` | oyunun dili ve CLI sözlüğü |
 | Altyapı | `cli/fm/Core/Launcher.cs`, `Session.cs`, `Screens.cs`, `GameFolders.cs`, `InstallDoctor.cs` | başlatma, klasör, kurulum |
-| Plugin | `plugin/FmCliProbe/src/` | IL2CPP tarafı: buton, metin, sayfa, kayıt |
+| Plugin | `plugin/FmCliProbe/src/{Bridge,Controls,Reads}/` | IL2CPP tarafı: köprü, buton, metin, sayfa |
 | Araçlar | `tools/` | paket, yayın, test, ekran görüntüsü |
 | Doküman | `docs/` | `FINDINGS` teknik arşiv, `KILAVUZ` kullanıcı kılavuzu, `PLAYTEST` kontrol listesi |
 
@@ -58,11 +58,9 @@ Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyici
 
 ## Plugin
 
-- `FmApi.cs` — HTTP yolları ve yönlendirme.
-- `Buttons.cs` — kontrol kataloğu ve olay kuyruğu.
-- `Text.cs`, `Translations.cs`, `EngineTexts.cs` — oyun metni ve çeviri.
-- `Pages.cs`, `State.cs`, `Tactics.cs`, `Registration.cs`, `Offer.cs` — ekran okuma.
-- `HttpBridge.cs` — ana iş parçacığına iş atma ve yanıt.
+- `Bridge/` — `FmApi`, `HttpBridge`, `Plugin`, `Game`, `State`, `Send`, `Schema`, interop.
+- `Controls/` — `Buttons`, form/radio, satırlar, alt menüler, dialoglar.
+- `Reads/` — sayfalar, paneller, metin/çeviri, oyuncu kartı, teklif, taktik, kayıt.
 
 Yeni bir okuma: veri yolunu `KeyPaths`/`Path` ile al; ekran yazısını veya sıra numarasını ölçüt yapma.
 Yeni bir yazma: oyunun kendi olayını gönder; olay kuyruğunun boşalmasını bekle.
