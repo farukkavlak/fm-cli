@@ -103,7 +103,7 @@ internal static partial class Program
 	/// <summary>The tour's own buttons share labels with the game's, and differ by name.</summary>
 	private static async Task<JsonElement?> TourButton(string label) => await Labelled(label, "StandardButton");
 
-	private static async Task<JsonElement?> Labelled(string label, string name = null)
+	private static async Task<JsonElement?> Labelled(string label, string? name = null)
 	{
 		// In another language the game can write two English texts the same way ("Make Offer" and
 		// "Make An Offer" are both "Teklif Yap"), and the plugin gives back only one of them: the
@@ -119,7 +119,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Something that can be said: a button to press, or one choice of a dropdown answer.</summary>
-	private sealed record Line(string Label, string Pointer, string Choice, string Heading);
+	private sealed record Line(string Label, string Pointer, string? Choice, string? Heading);
 
 	/// <summary>
 	/// What can be said in the conversation on screen.

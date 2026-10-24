@@ -206,7 +206,7 @@ internal static partial class Program
 	/// there and then when it says so.</param>
 	/// <param name="askOpen">Whether the open jobs are asked about applications as the walk passes
 	/// their rows (the list needs it; a job asked for by name is asked by <see cref="SelectJob"/>).</param>
-	private static async Task<List<Job>> AllJobs(Func<List<Job>, bool> enough = null, bool askOpen = true)
+	private static async Task<List<Job>> AllJobs(Func<List<Job>, bool>? enough = null, bool askOpen = true)
 	{
 		var jobs = new List<Job>();
 		var seen = new HashSet<string>(StringComparer.Ordinal);

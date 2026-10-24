@@ -19,7 +19,7 @@ internal static class MatchReport
 		(L("Faul"), "Fouls"),
 	];
 
-	public static async Task<int> Show(Bridge fm, bool json, string expected = null)
+	public static async Task<int> Show(Bridge fm, bool json, string? expected = null)
 	{
 		const string at = "Human.Team.LastFixture";
 		var fields = string.Join(",", new[] { "HasResult", "HomeScore", "AwayScore", "GoalscorersString", "PlayerOfTheMatchRating", "Attendance", "Result", "HomeTeamWon", "AwayTeamWon" }

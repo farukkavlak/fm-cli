@@ -194,7 +194,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Why the game will not continue, in the terms of what to do about it.</summary>
-	private static async Task Explain(JsonElement state, TextWriter output, string flow = null)
+	private static async Task Explain(JsonElement state, TextWriter output, string? flow = null)
 	{
 		flow ??= Field(state, "State");
 		var button = Field(state, "Button");

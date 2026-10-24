@@ -220,7 +220,7 @@ internal static partial class Program
 				if (await OfferScreen.Read(Fm) is not { } now) return true;
 
 				var items = new List<string>();
-				var actions = new List<Func<Task<string>>>();
+				var actions = new List<Func<Task<string>>?>();
 				items.Add(L("Teklifi gönder")); actions.Add(null);
 				foreach (var option in now.Options.Where(o => o.Choice.Choices.Count > 1))
 				{

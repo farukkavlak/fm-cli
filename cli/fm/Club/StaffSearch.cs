@@ -271,7 +271,7 @@ internal static partial class Program
 	private const string SearchMaxValue = "rule.maxvalue";
 
 	private static async Task<string> ApplySearch(List<(string Rule, string Choice, string What)> wanted,
-		List<(string Attribute, bool AtLeast, int Value)> conditions = null, string position = null, long? maxValue = null)
+		List<(string Attribute, bool AtLeast, int Value)>? conditions = null, string? position = null, long? maxValue = null)
 	{
 		// What can be told to be wrong from the words alone is said before the panel is opened.
 		string place = null;

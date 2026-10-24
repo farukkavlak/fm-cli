@@ -183,7 +183,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Every duty of the areas given, or of them all, each with its area.</summary>
-	private static async Task<List<Duty>> AllDuties(IEnumerable<string> areas = null)
+	private static async Task<List<Duty>> AllDuties(IEnumerable<string>? areas = null)
 	{
 		var all = new List<Duty>();
 		foreach (var area in areas ?? DutyAreas)

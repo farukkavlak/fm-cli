@@ -287,7 +287,7 @@ internal static partial class Program
 	/// Puts the stage to the agent: his own promises or terms are taken with Finalise, changed
 	/// ones go with Suggest and he answers, either taking them or putting his own back on the card.
 	/// </summary>
-	private static async Task<Outcome> Propose(List<string> notes = null)
+	private static async Task<Outcome> Propose(List<string>? notes = null)
 	{
 		// At a terminal the card is drawn again after this, so what is said goes beneath it.
 		void Tell(string line) { if (notes != null) notes.Add(line); else Console.WriteLine(line); }
@@ -409,7 +409,7 @@ internal static partial class Program
 	/// The talks once their terms are filled in: the screen opens with its rows empty and fills
 	/// them a moment later.
 	/// </summary>
-	private static async Task<OfferScreen> TalksSettled(string stage = null)
+	private static async Task<OfferScreen> TalksSettled(string? stage = null)
 	{
 		OfferScreen screen = null;
 		string last = null;

@@ -178,7 +178,7 @@ internal static partial class Program
 		// for until its menu, the kind it shows and its taker button stand still. Throw-ins
 		// have a button of their own; the other one stays behind, empty.
 		JsonElement? menu = null, button = null;
-		async Task<bool> Still(string name, int? shown)
+		async Task<bool> Still(string? name, int? shown)
 		{
 			var previous = "";
 			return await Until(async () =>

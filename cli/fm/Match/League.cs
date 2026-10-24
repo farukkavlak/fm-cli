@@ -224,7 +224,7 @@ internal static partial class Program
 		return scope;
 	}
 
-	private static string leagueDay = "";
+	private static string? leagueDay;
 
 	/// <summary>
 	/// Several readings at once: each is bound by the first round and arrives on a later one,
@@ -233,7 +233,7 @@ internal static partial class Program
 	/// </summary>
 	/// <param name="complete">When a reading has everything it will have although some properties
 	/// are missing (a player the page leaves out answers only some); by default, all of them.</param>
-	private static async Task<List<JsonElement>> PullEach(List<(string Path, string Props)> readings, Func<JsonElement, bool> complete = null)
+	private static async Task<List<JsonElement>> PullEach(List<(string Path, string Props)> readings, Func<JsonElement, bool>? complete = null)
 	{
 		List<JsonElement> read = [];
 		var previous = "";

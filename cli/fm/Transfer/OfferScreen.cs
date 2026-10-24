@@ -44,7 +44,7 @@ internal sealed class OfferScreen
 	/// </summary>
 	public static readonly string[] Locks = ["Negotiable", "Semi-Negotiable", "Non-Negotiable", "Remove & Exclude"];
 
-	public sealed record Term(string Section, string Label, string Detail, string Remove, Control Choice, Control Amount, string Fixed, Control Lock = null)
+	public sealed record Term(string Section, string Label, string Detail, string Remove, Control Choice, Control Amount, string Fixed, Control? Lock = null)
 	{
 		/// <summary>The game marks a contract term the agent will not take as it stands.</summary>
 		public bool Warning { get; init; }
@@ -58,7 +58,7 @@ internal sealed class OfferScreen
 	}
 
 	/// <summary>The offer as it stands, or null when no offer screen is open.</summary>
-	public static async Task<OfferScreen> Read(Bridge fm, string route = "offer")
+	public static async Task<OfferScreen?> Read(Bridge fm, string route = "offer")
 	{
 		var data = await fm.GetJson(route);
 		if (!data.TryGetProperty("Rows", out var rows)) return null;
@@ -103,10 +103,10 @@ internal sealed class OfferScreen
 			};
 	}
 
-	public Term Row(string label) => Rows.FirstOrDefault(r => Same(r.Label, label));
+	public Term? Row(string label) => Rows.FirstOrDefault(r => Same(r.Label, label));
 
 	/// <summary>The same term on a later reading of the screen.</summary>
-	public Term Row(Term like) => Rows.FirstOrDefault(r => Same(r.Label, like.Label) && r.Nth == like.Nth);
+	public Term? Row(Term like) => Rows.FirstOrDefault(r => Same(r.Label, like.Label) && r.Nth == like.Nth);
 
 	/// <summary>The contract's own terms and the part of the talks' record that judges each.</summary>
 	private static readonly Dictionary<string, string> Components = new()
@@ -225,7 +225,7 @@ internal sealed class OfferScreen
 	/// Its row is named after the leaf, not the menu, so the new row is told by being new.
 	/// Returns the error, or null and the row that came.
 	/// </summary>
-	public static async Task<(string Error, Term Row)> AddPath(Bridge fm, Term add, IReadOnlyList<string> names, string route = "offer")
+	public static async Task<(string? Error, Term? Row)> AddPath(Bridge fm, Term add, IReadOnlyList<string> names, string route = "offer")
 	{
 		var before = await Read(fm, route);
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("names", string.Join(">", names)), ("fire", "1"));

@@ -10,7 +10,7 @@ namespace FmCli;
 /// </summary>
 internal static class Card
 {
-	public static void Draw(JsonElement player, IReadOnlyList<string> traits, IReadOnlyList<(string Title, List<JsonElement> Attributes)> blocks, int potential = 0, IReadOnlyList<double> ability = null)
+	public static void Draw(JsonElement player, IReadOnlyList<string> traits, IReadOnlyList<(string Title, List<JsonElement> Attributes)> blocks, int potential = 0, IReadOnlyList<double>? ability = null)
 	{
 		var console = Ui.Out;
 

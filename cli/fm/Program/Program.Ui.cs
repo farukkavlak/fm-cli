@@ -88,7 +88,7 @@ internal static partial class Program
 	/// report and never shows the next-match heading (FINDINGS §8.163). Another page is opened
 	/// first so that the panel is built anew.
 	/// </summary>
-	internal static async Task<string> OpenPage(string screen, string team = null, string under = null)
+	internal static async Task<string> OpenPage(string screen, string? team = null, string? under = null)
 	{
 		var query = new List<(string, string)> { ("guid", screen) };
 		if (team != null) query.Add(("object", team));
@@ -144,7 +144,7 @@ internal static partial class Program
 	private static Task<string> OnBar(string screen) => Fm.Get("open", ("guid", screen), ("check", "1"));
 
 	/// <summary>A page as the game's own menus name it, in the game's language: what someone types after `fm open`.</summary>
-	private static Task<string> OpenNamed(string page, string tab = null) =>
+	private static Task<string> OpenNamed(string page, string? tab = null) =>
 		OpenWith(tab == null ? [("page", page)] : [("page", page), ("tab", tab)]);
 
 	/// <summary>

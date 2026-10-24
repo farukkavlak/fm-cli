@@ -44,7 +44,7 @@ internal static class Ui
 	/// Asks for one of a list with the arrow keys. The last entry always lets the question go
 	/// unanswered, which comes back as null; so does a terminal with no one to ask.
 	/// </summary>
-	public static int? Ask(string title, IReadOnlyList<string> choices, int current = -1, string cancel = "Vazgeç")
+	public static int? Ask(string title, IReadOnlyList<string> choices, int current = -1, string? cancel = "Vazgeç")
 	{
 		if (!Interactive || choices.Count == 0) return null;
 
@@ -53,9 +53,11 @@ internal static class Ui
 			.PageSize(Math.Clamp(choices.Count + 1, 3, 20))
 			.HighlightStyle(new Style(Color.Yellow, decoration: Decoration.Bold))
 			.MoreChoicesText(L("[dim](aşağıda daha fazlası)[/]"))
-			.UseConverter(i => i < 0 ? $"[dim]{Safe(L(cancel))}[/]" : Safe(choices[i]) + (i == current ? L(" [dim]← şu an[/]") : ""))
-			.AddChoices(Enumerable.Range(0, choices.Count))
-			.AddChoices(-1);
+			.UseConverter(i => cancel != null && i < 0
+				? $"[dim]{Safe(L(cancel))}[/]"
+				: Safe(choices[i]) + (i == current ? L(" [dim]← şu an[/]") : ""))
+			.AddChoices(Enumerable.Range(0, choices.Count));
+		if (cancel != null) prompt.AddChoices(-1);
 
 		// Starting on the current choice saves the walk down to it.
 		if (current >= 0) prompt.DefaultValue(current);

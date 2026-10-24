@@ -21,8 +21,8 @@ internal static partial class Program
 	/// </summary>
 	private sealed record Setting(
 		string Name, string Group, string Tab, string Heading, SettingKind Kind,
-		Dictionary<string, string> Turkish = null, string[] Steps = null, string Offers = null, string Hint = null,
-		string Block = null);
+		Dictionary<string, string>? Turkish = null, string[]? Steps = null, string? Offers = null, string? Hint = null,
+		string? Block = null);
 
 	private static readonly Dictionary<string, string> HighlightTurkish = new()
 	{

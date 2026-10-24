@@ -185,7 +185,7 @@ internal static partial class Program
 	/// be here guessed the machine's speed — and the scroll says whether it moved at all, so a
 	/// scroll that was already where it was asked to be is read once. Seconds are a ceiling only.
 	/// </summary>
-	private static async Task<List<NumberRow>> ReadNumbers(Func<NumberRow, bool> stopAt = null)
+	private static async Task<List<NumberRow>> ReadNumbers(Func<NumberRow, bool>? stopAt = null)
 	{
 		static string Key(IEnumerable<NumberRow> rows) => string.Join(",", rows.Select(r => r.Name));
 		var all = new List<NumberRow>();

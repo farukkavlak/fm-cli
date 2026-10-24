@@ -20,7 +20,7 @@ internal static class Pitch
 	/// Draws both phases. <paramref name="changed"/> marks slots by their place in the tactic,
 	/// with the phase the change was made in, so a change is seen where it happened.
 	/// </summary>
-	public static void Draw(JsonElement tactic, ISet<(int Slot, bool WithoutBall)> changed = null)
+	public static void Draw(JsonElement tactic, ISet<(int Slot, bool WithoutBall)>? changed = null)
 	{
 		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
 		changed ??= new HashSet<(int, bool)>();

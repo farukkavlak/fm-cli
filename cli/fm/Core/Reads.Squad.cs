@@ -11,7 +11,7 @@ internal static partial class Program
 	/// view the columns are taken from the data: every field a row carries, less the handful
 	/// that are the table's own bookkeeping.
 	/// </summary>
-	private static async Task<int> SquadAnyView(bool json, string wanted)
+	private static async Task<int> SquadAnyView(bool json, string? wanted)
 	{
 		var opened = await OpenPage(Screen.Squad);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);

@@ -15,7 +15,7 @@ internal static partial class Program
 	/// <summary>
 	/// Finds the person with the game's search and raises his menu. Null having said why not.
 	/// </summary>
-	private static async Task<(string Name, List<JsonElement> Entries)?> PersonMenu(string wanted, string kind = null)
+	private static async Task<(string Name, List<JsonElement> Entries)?> PersonMenu(string wanted, string? kind = null)
 	{
 		// A question already on screen would be taken for the answer to whatever is chosen here.
 		if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } waiting && waiting.GetArrayLength() > 0)

@@ -13,7 +13,7 @@ internal static class SquadBoard
 
 	/// <summary>Draws the board; <paramref name="nations"/> gives each player's three-letter nation by name, when read;
 	/// <paramref name="flags"/> each player's status flags by name, shown after the bars.</summary>
-	public static void Draw(JsonElement players, IReadOnlyDictionary<string, string> nations = null, IReadOnlyDictionary<string, List<Program.Flag>> flags = null)
+	public static void Draw(JsonElement players, IReadOnlyDictionary<string, string>? nations = null, IReadOnlyDictionary<string, List<Program.Flag>>? flags = null)
 	{
 		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn("[dim]NO[/]").RightAligned())
