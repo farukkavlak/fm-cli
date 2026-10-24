@@ -9,7 +9,7 @@ internal static class Table
 	private static readonly bool Plain = Console.IsOutputRedirected;
 
 	/// <summary>Where a --csv or --md table goes: the real output, past the lines around it.</summary>
-	public static TextWriter Sink { get; set; }
+	public static TextWriter Sink { get; set; } = Console.Out;
 
 	/// <summary>A table was written since the command started.</summary>
 	public static bool Wrote { get; set; }

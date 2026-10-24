@@ -131,7 +131,7 @@ internal static partial class Program
 		return 0;
 	}
 
-	private static string focusScope;
+	private static string focusScope = "";
 
 	/// <summary>The four focuses as they stand, each with what it could be instead; null when the game has none to give.</summary>
 	private static async Task<List<FocusSlot>> FocusSlots()

@@ -142,7 +142,7 @@ internal static partial class Program
 	/// MatchTacticReference with the same properties), which the game applies at the next stoppage
 	/// and which leaves the team's tactic as it was (FINDINGS §8.137).
 	/// </summary>
-	private static string matchTactic;
+	private static string matchTactic = "";
 
 	private static string TacticAt(string scope) => matchTactic != null ? $"{scope}.tac" : $"{scope}.team.Tactic";
 

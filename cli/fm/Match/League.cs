@@ -224,7 +224,7 @@ internal static partial class Program
 		return scope;
 	}
 
-	private static string leagueDay;
+	private static string leagueDay = "";
 
 	/// <summary>
 	/// Several readings at once: each is bound by the first round and arrives on a later one,

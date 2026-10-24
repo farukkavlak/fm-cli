@@ -586,7 +586,7 @@ internal static partial class Program
 	/// The tactic names a role only in the game's code; the planner's role lists say it in the game's
 	/// language, so the names are read from them and kept for the language (and a match, with no lists).
 	/// </summary>
-	private static Dictionary<string, string> roleNames;
+	private static Dictionary<string, string>? roleNames;
 
 	private static Dictionary<string, string> RoleNames
 	{

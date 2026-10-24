@@ -88,7 +88,7 @@ internal static partial class Program
 	/// team, and that name is the data's own, so a comparison with it holds in any language and
 	/// whatever the club calls its youth sides.
 	/// </summary>
-	private static List<(string Name, string Id)> youthTeams;
+	private static List<(string Name, string Id)> youthTeams = [];
 
 	internal static async Task<HashSet<string>> YouthTeams() => (await YouthSides()).Select(t => t.Name).ToHashSet();
 

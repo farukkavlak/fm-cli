@@ -18,7 +18,7 @@ internal static partial class Program
 	private static readonly string DiffFolder = Path.Combine(
 		Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli");
 
-	private static string cacheFolder;
+	private static string cacheFolder = "";
 
 	/// <summary>
 	/// Where a cache of what the game showed is kept: apart for each language the game is set to and

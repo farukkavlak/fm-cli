@@ -219,7 +219,7 @@ internal static partial class Program
 	private static IEnumerable<KeyValuePair<string, MatchMan>> OurMen(Dictionary<string, MatchMan> men) =>
 		ourNames is { Count: > 0 } ? men.Where(m => ourNames.Contains(m.Key)) : [];
 
-	private static HashSet<string> ourNames;
+	private static HashSet<string> ourNames = [];
 
 	internal sealed record MatchMan(int Injury, bool Yellow, bool Red, string Rating)
 	{

@@ -93,7 +93,7 @@ internal static partial class Program
 		return await TacticPick(dry: false) != 0 ? 1 : null;
 	}
 
-	private static string LastWhistle;
+	private static string LastWhistle = "";
 
 	/// <summary>Prints the score when it changes, and the whistle when the period does.</summary>
 	private static void Scoreline(JsonElement state, (string Own, string Opponent)? names, ref string period, ref string score)
