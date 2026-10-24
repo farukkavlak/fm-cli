@@ -344,33 +344,14 @@ internal static partial class Program
 		// answer would mean, in the answers' order.
 		if (rest[0] == "Fitness" && rest.Any(t => t.Contains("Received in", StringComparison.Ordinal)))
 		{
-			var parts = rest.Skip(1).SelectMany(t => t.Split('\n')).Select(t => t.Trim()).Where(t => t.Length > 0).ToList();
-			var received = parts.FindIndex(t => t.StartsWith("Received in", StringComparison.Ordinal));
-			var first = parts.FindIndex(t => t.StartsWith("Out for", StringComparison.Ordinal) || t.StartsWith("Available for", StringComparison.Ordinal));
-			if (first < 0) first = parts.Count;
-			// Sharpness and condition stand just before the outcomes.
-			var states = first >= received + 3 ? parts.Skip(first - 2).Take(2).ToList() : [];
-			Console.WriteLine(L($"\n  Ek: {parts.FirstOrDefault()}{(received > 1 ? $" — {parts[1]}" : "")}"));
-			if (received >= 0) Console.WriteLine($"    {string.Join(" ", parts.Skip(received).Take(first - states.Count - received))}");
-			if (states.Count > 0) Console.WriteLine($"    {string.Join(" · ", states)}");
-			// The set keeps the answers in the order they were put in, the order they are shown.
-			var said = answers.ToList();
-			var outcomes = parts.Skip(first).ToList();
-			for (var i = 0; i < outcomes.Count; i++) Console.WriteLine($"    {(i < said.Count ? said[i] : L($"{i + 1}. seçenek"))}: {outcomes[i]}");
+			InjuryAttachment(rest, answers);
 			return;
 		}
 
 		// A scouting card: who he is, his fitness, the coach's grade and verdict, the clubs after him.
 		if (rest[0] == "Report" && rest.Contains("Coach Report"))
 		{
-			string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";
-			var who = rest.Skip(1).TakeWhile(t => t != "Fitness").Where(t => t != "-").Select(t => t.Replace(" years old", L(" yaş"))).ToList();
-			Console.WriteLine(L($"\n  Ek: {string.Join(" · ", who)}"));
-			if (After("Fitness") is { Length: > 0 } fitness) Console.WriteLine(L($"    Kondisyon: {fitness}"));
-			var grade = After("Coach Report");
-			var verdict = After("Coach Report", 2);
-			if (grade.Length > 0) Console.WriteLine(L($"    Antrenör notu: {grade}{(verdict is { Length: > 0 } and not "Current Ability" ? $" — {verdict}" : "")}"));
-			if (After("Interested Clubs") is { Length: > 0 } clubs) Console.WriteLine(L($"    İlgilenen kulüp: {clubs.Trim('(', ')')}"));
+			ScoutingCardAttachment(rest);
 			return;
 		}
 
@@ -499,12 +480,7 @@ internal static partial class Program
 		// A player's card: who he is, his contract and the club's balance.
 		if (rest[0] == "Player Report" && rest.Contains("Duration") && rest.Contains("Wage"))
 		{
-			string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";
-			var who = rest.Skip(1).TakeWhile(t => t is not ("Current Ability" or "Contract")).Select(t => t.Replace(" years old", L(" yaş"))).ToList();
-			Console.WriteLine(L($"\n  Ek: {string.Join(" · ", who)}"));
-			Console.WriteLine(L($"    Sözleşme: {After("Duration")} – {After("Duration", 2)} · {After("Wage")}"));
-			if (After("Finances") is { Length: > 0 } balance)
-				Console.WriteLine(L($"    Kulübün kasası: {(balance.StartsWith('(') ? "-" + balance.Trim('(', ')') : balance)}"));
+			PlayerCardAttachment(rest);
 			return;
 		}
 
