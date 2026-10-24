@@ -335,7 +335,7 @@ internal static partial class Program
 	internal static bool DialogAsks(JsonElement dialog) => DialogAnswer(dialog, true) != null && DialogAnswer(dialog, false) != null;
 
 	private static string Field(JsonElement element, string name) =>
-		element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "";
+		JsonRead.Text(element, name);
 
 	private static int Help()
 	{

@@ -26,7 +26,7 @@ internal static class EngineTexts
 	};
 
 	private static string Field(System.Text.Json.JsonElement element, string name) =>
-		element.ValueKind == System.Text.Json.JsonValueKind.Object && element.TryGetProperty(name, out var v) ? v.ToString() : "";
+		JsonRead.RawText(element, name);
 
 	public static string Folder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "engine");
 

@@ -135,5 +135,5 @@ internal static class Pitch
 	}
 
 	private static string Field(JsonElement element, string name) =>
-		element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "";
+		JsonRead.Text(element, name);
 }

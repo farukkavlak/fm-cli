@@ -155,7 +155,7 @@ internal sealed class Bridge
 		var team = await Pull("Human.Team", "Name,ShortName");
 		return (Text(team, "Name"), Text(team, "ShortName"));
 
-		static string Text(JsonElement e, string name) => e.TryGetProperty(name, out var v) ? v.GetString() ?? "" : "";
+		static string Text(JsonElement e, string name) => JsonRead.Text(e, name);
 	}
 
 	/// <summary>True once a save is loaded, rather than merely the game being up.</summary>

@@ -168,5 +168,5 @@ internal static class Card
 	private static string Suffixed(string value, string suffix) => value.Length > 0 ? value + suffix : "";
 
 	private static string F(JsonElement element, string name) =>
-		element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "";
+		JsonRead.Text(element, name);
 }
