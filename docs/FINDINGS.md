@@ -4686,3 +4686,12 @@ biçimleniyor → **(6,84)**. Aynı görsel taramasında `fm squad --fitness` ve
 sonra bağlanıyor. `tools/manual/shots.sh` artık bu hatada birkaç kez yeniden deniyor ve iki görsel
 yeniden çekildi. `stages` örneği ise eski Fenerbahçe kaydındaki Türkiye Kupası'nı gösteriyor; güncel
 Empoli kaydında o turnuva olmadığı için otomatik çekimden çıkarıldı, geçerli eski kare korundu.
+
+### 8.402 Rakip raporu başlığı lig satırını iki kez yazıyordu
+
+`fm reply <rapor>` çıktısı "rakip raporu — Spezia Calcio Serie BKT'te 17. · Serie BKT'te 17."
+diyordu. Kartın başlığı konumdan okunuyordu (`rest[1]` + `rest[2]`); ikinci raporda `rest[2]`
+zaten `Team.Description` ("Serie BKT'te 17.") olduğu için lig satırı hem addan hem açıklamadan
+geliyordu. Başlık artık yalnız takım adını (`rest[1]`) ve `Team.Description`'ı bir kez yazıyor;
+ad ile açıklama arasına çizilen rozet harfi ("(E)") de başlığa girmiyor. Aynı düzeltme gözlemci
+raporundaki "Spezia (E)" görünümünü de temizledi.

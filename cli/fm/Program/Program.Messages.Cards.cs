@@ -169,7 +169,11 @@ internal static partial class Program
 	}
 	private static void OpponentAttachment(List<string> rest, List<(string Text, string Path)> page, Func<string, string> one)
 	{
-		Console.WriteLine(L($"\n  Ek: rakip raporu — {rest[1]} {rest[2]}{(one("Team.Description") is { Length: > 0 } d ? $" · {d}" : "")}"));
+		// The card's heading ("Next Opposition Report"), then the team's name; anything else drawn
+		// between the name and the description (a badge letter) is not part of it, and the
+		// description is added once (the second report carried it as the next text too).
+		var description = one("Team.Description");
+		Console.WriteLine(L($"\n  Ek: rakip raporu — {(rest.Count > 1 ? rest[1] : "")}{(description.Length > 0 ? $" · {description}" : "")}"));
 		if (one("Team.MostUsedFormation") is { Length: > 0 } shape) Console.WriteLine(L($"    Diziliş: {shape}"));
 		if (one("Manager.InitialSurname") is { Length: > 0 } manager)
 			Console.WriteLine(L($"    Menajer: {string.Join(" · ", new[] { manager, one("Manager.PreferredFormationString"), one("Manager.PreferredMentality") }.Where(x => x.Length > 0))}"));
