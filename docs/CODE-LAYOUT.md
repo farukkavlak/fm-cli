@@ -47,9 +47,14 @@ Ek bölünmeler:
 
 - `Match/Guided.Tactic.cs` — ana taktik/oyuncu/planlayıcı; `Guided.TacticSettings.cs` — ayar, rol ve
   yuva; `Guided.TacticNew.cs` — yeni taktik, maç listesi ve yardımcılar.
-- `Program/Messages.cs` — ek gövdeleri; `Messages.Attachments.cs` — ek kartları; `Messages.Cards.cs` —
-  kaptanlık, maç raporu, sezon değerlendirmesi, rakip raporu, home-grown, antrenman, veri merkezi ve scout kartları; `Messages.Inbox.cs` — mesaj okuma
-  ve numara hatırlama.
+- `Program/Messages.cs` — ek gövdesi ve bilinmeyen ekin okunması; `Messages.Attachments.cs` — ortak ek
+  yardımcıları; `Messages.Cards.cs` — kaptanlık, maç raporu, sezon değerlendirmesi, rakip raporu,
+  antrenman, veri merkezi, scout, sakatlık ve oyuncu kartları; `Messages.FrontOffice.cs` — bütçe,
+  kulüp vizyonu, sorumluluklar ve galibiyet primleri; `Messages.SquadCards.cs` — milli takım,
+  bitecek sözleşmeler, tavsiyeler, maç hazırlığı ve teklif edilen oyuncu kartı; `Messages.Inbox.cs` —
+  mesaj okuma ve numara hatırlama.
+- `Transfer/ContractTalks.cs` — komut ve şart yazma; `ContractTalks.Terms.cs` — terminal döngüsü ve
+  menajerin cevapları; `ContractTalks.Screen.cs` — ekran okuma, çıkış ve yenileme açma.
 - `Transfer/ScoutFocus.cs` — form yardımcıları; `ScoutFocus.Team.cs` — ekip/atama; `ScoutFocus.Form.cs` —
   yeni odak formu ve kalan komutlar.
 - `Squad/TrainingSchedule.cs` — değiştirme akışı; `TrainingSchedule.Catalogue.cs` — seans kataloğu ve
@@ -67,6 +72,10 @@ Ek bölünmeler:
   `TeamInstructions.Player.cs` — oyuncu talimatları.
 - `Match/Stages.cs` — aşama komutu; `Stages.Lists.cs` — yarışma/aşama listeleri ve içerik;
   `Stages.Ties.cs` — eşleşmeler ve yarışma kataloğu.
+- `Core/Mcp.cs` — stdio protokolü, çağrı ve argüman çevirisi; `Mcp.Tools.cs` — araç kataloğu.
+- `Core/Settings.cs` — ayar komutu; `Settings.Catalog.cs` — ayar kataloğu ve çeviriler;
+  `Settings.Preferences.cs` — tercihler sayfasında gezinme; `Settings.Draw.cs` — arama, eşleştirme
+  ve çizim.
 
 Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
 Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
@@ -108,6 +117,7 @@ tools/install.sh          # plugin + fm + doctor
 fm doctor --install
 fm status                 # köprü ve kayıt kontrolü
 tools/smoke.sh            # build + plugin + testler + yayınlanmış CLI
+tools/ci.sh               # oyun gerekmeyen kontrol (CI ile aynı)
 ```
 
 Test kontrol listesi: `docs/PLAYTEST.md`. Teknik bulgular: `docs/FINDINGS.md`.
