@@ -58,8 +58,10 @@ Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyici
 
 ## Plugin
 
-- `Bridge/` — `FmApi`, `HttpBridge`, `Plugin`, `Game`, `State`, `Send`, `Schema`, interop.
-- `Controls/` — `Buttons`, form/radio, satırlar, alt menüler, dialoglar.
+- `Bridge/` — `FmApi` (HTTP yüzeyi) + `FmApi.System.cs` (quit, repaint, screenshot, path okuma),
+  `HttpBridge`, `Plugin`, `Game`, `State`, `Send`, `Schema`, interop.
+- `Controls/` — `Buttons` + `Buttons.Controls.cs` (katalog/click/queue) + `Buttons.Runtime.cs`
+  (render, shape, pointer), form/radio, satırlar, alt menüler, dialoglar.
 - `Reads/` — sayfalar, paneller, metin/çeviri, oyuncu kartı, teklif, taktik, kayıt.
 
 Yeni bir okuma: veri yolunu `KeyPaths`/`Path` ile al; ekran yazısını veya sıra numarasını ölçüt yapma.
