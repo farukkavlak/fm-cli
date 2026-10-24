@@ -25,9 +25,9 @@ internal static partial class Program
 	/// each career (manager and club), since what is cached carries the game's words and this save's
 	/// competitions. Without a game to ask, the shared folder.
 	/// </summary>
-	private static string CacheFile(string name)
+	internal static string CacheFile(string name)
 	{
-		if (cacheFolder == null)
+		if (cacheFolder.Length == 0)
 		{
 			try
 			{
@@ -35,8 +35,11 @@ internal static partial class Program
 				var manager = Field(Fm.Pull("Human", "Name").GetAwaiter().GetResult(), "Name");
 				var club = Field(Fm.Pull("Human.Club", "Name").GetAwaiter().GetResult(), "Name");
 				static string Safe(string text) => string.Concat(text.Split(Path.GetInvalidFileNameChars())).Trim();
+				// The club can still be empty while the save loads: the manager alone is the key then,
+				// rather than a folder that ends in a dash.
+				var career = club.Length > 0 ? $"{manager} - {club}" : manager;
 				cacheFolder = language.Length > 0 && manager.Length > 0
-					? Path.Combine(DiffFolder, "cache", Safe(language), Safe($"{manager} - {club}"))
+					? Path.Combine(DiffFolder, "cache", Safe(language), Safe(career))
 					: DiffFolder;
 			}
 			catch { cacheFolder = DiffFolder; }

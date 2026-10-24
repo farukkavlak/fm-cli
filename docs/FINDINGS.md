@@ -4712,3 +4712,13 @@ Değeri / 0 £ / …"). Bu biçim artık kendi okuyucusunda: oyuncunun adı, mev
 kulübü; değeri ve ücreti; transfer/kiralık durumu; teklif veren kulüpler lig, ülke, tür ve bedelle
 tablo olarak. Satırlar `binding.Name` ile bağlanıyor; "Active Interest" ve "Player Report"
 başlıkları tabloyu bitiriyor.
+
+### 8.405 Önbellek klasörü boşken `fm table` çöküyordu
+
+`CacheFile`'ın "henüz öğrenilmedi" işareti `null` idi ama alan `""` ile başlıyordu; koşul hiç doğru
+olmadığı için önbellek yolu göreli ada düşüyordu (`competitions.json`). `fm table` yarışma listesini
+yenileyince `Directory.CreateDirectory(Path.GetDirectoryName("competitions.json"))` boş dizeyle
+`ArgumentException` attı ve süreç çöktü. Yan etki: `inbox-numbers.json` ve `duty-areas.json` depo
+köküne yazılmıştı. İşaret artık boş dize; dosyalar `~/.config/fm-cli/cache/<dil>/<menajer - kulüp>/`
+altında. Kulüp henüz okunamıyorsa anahtar yalnız menajer adı (sonda tire kalmıyor). `CacheFile`
+mutlak yol döndürmesi birim testiyle korunuyor. `fm table` 11 maçta 23 puanla 3. sırayı bastı.
