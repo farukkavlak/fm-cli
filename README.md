@@ -41,6 +41,7 @@ Oyun arka planda açık kalır; ekran, fare, ekran görüntüsü yok.
 📖 Ekran görüntülü kullanım kılavuzu: **[docs/manual/KILAVUZ.md](docs/manual/KILAVUZ.md)**
 📄 Bütün teknik bulgular, API'ler ve kısıtlar: **[docs/FINDINGS.md](docs/FINDINGS.md)**
 📋 Yol haritası: **[PLAN.md](PLAN.md)**
+🧱 Kod düzeni: **[docs/CODE-LAYOUT.md](docs/CODE-LAYOUT.md)**
 
 ## Yapı
 

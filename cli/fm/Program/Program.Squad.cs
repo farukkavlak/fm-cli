@@ -1,0 +1,361 @@
+using System.Text.Json;
+
+namespace FmCli;
+
+internal static partial class Program
+{
+	private static async Task<int> Squad(bool json, string[] args)
+	{
+		if (!await Fm.InGame())
+		{
+			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			return 69;
+		}
+
+		if (args.Contains("--u19")) return await SquadYouth(json);
+		if (args.Contains("--fitness")) return await SquadFitness(json);
+		if (args.Contains("--morale")) return await SquadMorale(json);
+		if (args.Contains("--stats")) return await SquadStats(json);
+		if (args.Contains("--views")) return await SquadAnyView(json, null);
+		if (Option(args, "--view") is { } asked) return await SquadAnyView(json, asked);
+
+		// At a terminal the first team is read from its own data, which needs no screen.
+		if (Ui.Rich && !json)
+		{
+			try
+			{
+				var players = await Fm.Pull("Human.Team.Players", SquadBoard.Fields, list: true);
+				if (players.ValueKind == JsonValueKind.Array && players.GetArrayLength() > 0)
+				{
+					// Each player's nation hangs under his row: all bound first, then read.
+					var placed = players.EnumerateArray().Select(p => (Name: Field(p, "Name"), Row: Field(p, "Row"))).Where(r => r.Row.Length > 0).ToList();
+					foreach (var r in placed) await Fm.GetJson("pull", ("path", r.Row + ".Nation"), ("props", "ThreeLetterName"));
+					var nations = new Dictionary<string, string>();
+					foreach (var r in placed) nations[r.Name] = Field(await Fm.Pull(r.Row + ".Nation", "ThreeLetterName"), "ThreeLetterName");
+					SquadBoard.Draw(players, nations, await SquadFlags());
+					return 0;
+				}
+			}
+			catch (FmError)
+			{
+				// An older plugin has no /pull; the table below still works.
+			}
+		}
+
+		// The plain listing reads one named view like the others do. Reading whatever happened
+		// to be bound gave a different squad depending on the command that ran before.
+		var squad = await SquadView(SquadTable.GeneralInfo, "Wage");
+
+		if (json)
+		{
+			// The plugin names the agreed playing time in English; the line output puts the game's
+			// own word back through GameWords, so `--json` says the same. Everything else stays raw.
+			var said = squad.EnumerateArray().Select(p =>
+			{
+				var row = System.Text.Json.Nodes.JsonNode.Parse(p.GetRawText())!.AsObject();
+				if (row.TryGetPropertyValue("AgreedPlayingTime", out var agreed) && agreed is System.Text.Json.Nodes.JsonValue value && value.TryGetValue<string>(out var word))
+					row["AgreedPlayingTime"] = GameWords.Of(word);
+				return row;
+			});
+			Console.WriteLine(JsonOut.Of(said));
+			return 0;
+		}
+		var flags = await SquadFlags();
+
+		var rows = squad.EnumerateArray()
+			.Where(p => Field(p, "Wage") != "")
+			.OrderBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
+			.Select(p => new[]
+			{
+				Field(p, "Name"),
+				Field(p, "PositionCombinedString"),
+				Field(p, "Age"),
+				Field(p, "AgreedPlayingTime"),
+				Field(p, "Wage"),
+				Field(p, "TransferValueRangeString"),
+				Status(flags, p),
+			})
+			.ToList();
+
+		Table.Write(new[] { L("OYUNCU"), L("POZİSYON"), L("YAŞ"), L("STATÜ"), L("MAAŞ"), L("DEĞER"), L("DURUM") }, rows);
+		return 0;
+	}
+
+	/// <summary>
+	/// The club's sides other than the senior one, from the game's data (FINDINGS §8.162): each
+	/// team of the club has a type, 0 for the senior side (10 and 12 for the under-21s and
+	/// under-18s at Lincoln), and a unique id that opens its own squad page. A squad row names its
+	/// team, and that name is the data's own, so a comparison with it holds in any language and
+	/// whatever the club calls its youth sides.
+	/// </summary>
+	private static List<(string Name, string Id)> youthTeams;
+
+	internal static async Task<HashSet<string>> YouthTeams() => (await YouthSides()).Select(t => t.Name).ToHashSet();
+
+	private static async Task<List<(string Name, string Id)>> YouthSides()
+	{
+		if (youthTeams != null) return youthTeams;
+		var teams = await Fm.Pull("Human.Team.Club.Teams", "Name,UniqueId,TeamType", list: true);
+		return youthTeams = teams.EnumerateArray()
+			.Where(t => Field(t, "Name").Length > 0 && Field(t, "TeamType") is { Length: > 0 } type && type != "0")
+			.Select(t => (Field(t, "Name"), Field(t, "UniqueId")))
+			.ToList();
+	}
+
+	/// <summary>
+	/// The youth sides, each read off its own squad page, opened by the team's id. At some clubs
+	/// the senior table carries youth players as well; they are on their own team's page too.
+	/// </summary>
+	private static async Task<int> SquadYouth(bool json)
+	{
+		if (await NotNow() is { } refused) return refused;
+		var youth = new List<JsonElement>();
+		foreach (var (name, id) in await YouthSides())
+		{
+			if ((await OpenPage(Screen.Squad, team: id)).StartsWith("error", StringComparison.Ordinal)) continue;
+			// The page is asked for but built a moment later, and the table before it still answers:
+			// until every row it binds names this side, what is read is the wrong team.
+			var shown = false;
+			await Until(async () =>
+			{
+				var now = (await Fm.GetJson("squad")).EnumerateArray().ToList();
+				return shown = now.Count > 0 && now.All(p => Field(p, "Team") == name);
+			}, seconds: 10, every: 0.4);
+			if (!shown) continue;
+			// The table keeps whichever view was last chosen, and the first team's dynamics view
+			// carries neither age nor position — and binds only the rows it draws. The general
+			// view is picked by its number in the list (the names are each language's) before
+			// the rows are read, so this table knows the fields it is about to print.
+			await Until(async () => await ViewList(SquadViews) is { } list
+				&& !(await Fm.Get("select", ("ptr", Field(list, "Pointer")),
+					("value", ((int)SquadTable.GeneralInfo).ToString()))).StartsWith("error", StringComparison.Ordinal),
+				seconds: 8, every: 0.3);
+			// The rows come in over a moment: the count is taken once two readings agree and the
+			// rows carry the age the chosen view is read for.
+			List<JsonElement> rows = [];
+			var last = -1;
+			await Until(async () =>
+			{
+				rows = (await Fm.GetJson("squad")).EnumerateArray()
+					.Where(p => Field(p, "Team") == name && Field(p, "Age") != "")
+					.ToList();
+				var settled = rows.Count > 0 && rows.Count == last;
+				last = rows.Count;
+				return settled;
+			}, seconds: 10, every: 0.5);
+			youth.AddRange(rows);
+		}
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(youth));
+			return 0;
+		}
+		if (youth.Count == 0)
+		{
+			Console.WriteLine(L("Altyapı kadrosu okunamadı. Altyapının haftası: youth --training"));
+			return 1;
+		}
+		Table.Write([L("OYUNCU"), L("YAŞ"), L("POZİSYON"), L("TAKIM")], youth
+			.Select(p => new[] { Field(p, "Name"), Field(p, "Age"), Field(p, "PositionCombinedString"), Field(p, "Team") }).ToList());
+		return 0;
+	}
+
+	private static async Task<int> SquadFitness(bool json)
+	{
+		var squad = await SquadView(SquadTable.SelectionInfo, "Condition");
+		if (json)
+		{
+			Console.WriteLine(squad.ToString());
+			return 0;
+		}
+		var flags = await SquadFlags();
+
+		// Most tired first: that is the question the column gets looked at for.
+		var rows = squad.EnumerateArray()
+			.Where(p => Field(p, "Condition") != "")
+			.OrderBy(p => Number(p, "Condition"))
+			.ThenBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
+			.Select(p => new[]
+			{
+				Field(p, "Name"),
+				Field(p, "PositionCombinedString"),
+				Percent(p, "Condition"),
+				Percent(p, "Sharpness"),
+				Status(flags, p),
+			})
+			.ToList();
+
+		Table.Write(new[] { L("OYUNCU"), L("POZİSYON"), L("KONDİSYON"), L("MAÇ FORMU"), L("DURUM") }, rows);
+		return 0;
+	}
+
+	private static async Task<int> SquadMorale(bool json)
+	{
+		var squad = await SquadView(SquadTable.Dynamics, "MoraleString");
+		if (json)
+		{
+			Console.WriteLine(squad.ToString());
+			return 0;
+		}
+
+		var rows = squad.EnumerateArray()
+			.Where(p => Field(p, "MoraleString") != "")
+			.OrderBy(p => Number(p, "Morale"))
+			.ThenBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
+			.Select(p => new[]
+			{
+				Field(p, "Name"),
+				Field(p, "MoraleString"),
+				Field(p, "HierarchyInfluenceCategoryString"),
+				Field(p, "SocialGroupString").Trim('(', ')', ' '),
+			})
+			.ToList();
+
+		Table.Write(new[] { L("OYUNCU"), L("MORAL"), L("HİYERARŞİ"), L("GRUP") }, rows);
+		return 0;
+	}
+
+	/// <summary>
+	/// The season so far for each player, read from the squad's own data with no screen: games
+	/// (started and from the bench), minutes, goals, assists, average rating and cards. The
+	/// "club" in the game's own figures is wherever he plays now, so those out on loan are left
+	/// out of the table and named under it with their loan club.
+	/// </summary>
+	private static async Task<int> SquadStats(bool json)
+	{
+		var players = await Fm.Pull("Human.Team.Players",
+			"Name,ClubAppearancesThisSeason,ClubGoalsThisSeason,ClubAssistsThisSeason,ClubAverageRatingThisSeason,"
+			+ "StartingAppearances.PropertyValue,SubAppearances.PropertyValue,Minutes.PropertyValue,YellowCards.PropertyValue,RedCards.PropertyValue,LoanClub.Name", list: true);
+		if (json)
+		{
+			Console.WriteLine(players.ToString());
+			return 0;
+		}
+
+		// A player loaned to us carries a loan club too: ours.
+		var (team, _) = await Fm.OwnTeam();
+		var everyone = players.EnumerateArray().Where(p => Field(p, "Name").Length > 0).ToList();
+		var away = everyone.Where(p => Field(p, "LoanClub.Name") is { Length: > 0 } club && club != team).ToList();
+		var all = everyone.Except(away).ToList();
+		var played = all.Where(p => Number(p, "ClubAppearancesThisSeason") is > 0 and < int.MaxValue)
+			.OrderByDescending(p => Number(p, "Minutes.PropertyValue") is var m and < int.MaxValue ? m : 0)
+			.ToList();
+
+		var rows = played.Select(p => new[]
+		{
+			Field(p, "Name"),
+			Field(p, "SubAppearances.PropertyValue") is { Length: > 0 } sub and not "0"
+				? $"{Field(p, "StartingAppearances.PropertyValue")} (+{sub})" : Field(p, "StartingAppearances.PropertyValue"),
+			Field(p, "Minutes.PropertyValue"),
+			Field(p, "ClubGoalsThisSeason"),
+			Field(p, "ClubAssistsThisSeason"),
+			double.TryParse(Field(p, "ClubAverageRatingThisSeason"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var rating) && rating > 0
+				? GameNumbers.Of(rating, "0.00") : "-",
+			Cards(p),
+		}).ToList();
+
+		Table.Write(new[] { L("OYUNCU"), L("MAÇ"), L("DAKİKA"), L("GOL"), L("ASİST"), L("PUAN"), L("KART") }, rows);
+
+		var benched = all.Except(played).Select(p => Field(p, "Name")).ToList();
+		if (benched.Count > 0) Console.WriteLine(L($"\nBu sezon oynamayanlar: {string.Join(", ", benched)}"));
+		if (away.Count > 0)
+			Console.WriteLine(L($"Kiralıkta: {string.Join(", ", away.Select(p => $"{Field(p, "Name")} ({Field(p, "LoanClub.Name")}, {L($"{Field(p, "ClubAppearancesThisSeason")} maç")})"))}"));
+		Console.WriteLine(L("MAÇ: ilk on bir (+ yedekten girdiği)"));
+		return 0;
+
+		static string Cards(JsonElement p)
+		{
+			var yellow = Field(p, "YellowCards.PropertyValue");
+			var red = Field(p, "RedCards.PropertyValue");
+			var parts = new List<string>();
+			if (yellow is { Length: > 0 } and not "0") parts.Add(L($"{yellow} sarı"));
+			if (red is { Length: > 0 } and not "0") parts.Add(L($"{red} kırmızı"));
+			return parts.Count > 0 ? string.Join(", ", parts) : "-";
+		}
+	}
+
+	/// <summary>
+	/// The squad table's views by the number each stands for in its view list, which the game's
+	/// language does not change (the names do: "Dynamics" reads "Squad Dynamics" through a Turkish game).
+	/// </summary>
+	internal enum SquadTable { SelectionInfo = 0, GeneralInfo = 1, Dynamics = 12, Injuries = 14, RiskAssessment = 15 }
+
+	/// <summary>
+	/// The first-team table under one of its views, which is where a column like condition
+	/// lives: the table binds only the columns of the view it is showing.
+	///
+	/// Choosing the view is tried first, since the table is often already up. If it is not, the
+	/// First Team page is opened and the view chosen once the table has built.
+	/// </summary>
+	private static async Task<JsonElement> SquadView(SquadTable view, string marker)
+	{
+		// The table on screen may be a youth side's, which has the same views (FINDINGS §8.164).
+		var youth = await YouthTeams();
+		bool Senior(JsonElement rows) => rows.EnumerateArray().Any(p => !youth.Contains(Field(p, "Team")));
+		var squad = await Fm.GetJson("squad");
+		if (Carries(squad, marker) && Senior(squad)) return squad;
+
+		if (!Senior(squad) || !await Choose(view))
+		{
+			if (!await Until(async () => Sent(await OpenPage(Screen.Squad))))
+				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0
+					? Lf("Oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next", Field(await Fm.GetJson("state"), "State"))
+					: L("'First Team' sayfası açılamadı."));
+
+			if (!await Until(() => Choose(view)))
+				throw new FmError(await Unemployed()
+					? L("İşsizsin: yönetecek bir kadro yok. İş ilanları: jobs")
+					: L($"Kadro tablosunda '{view}' görünümü bulunamadı."));
+		}
+
+		await Until(async () => Carries(squad = await Fm.GetJson("squad"), marker) && Senior(squad));
+		if (!Carries(squad, marker))
+			throw new FmError(L($"'{view}' görünümü seçildi ama '{marker}' verisi gelmedi."));
+
+		return squad;
+
+		async Task<bool> Choose(SquadTable choice) =>
+			await ViewList(SquadViews) is { } list
+			&& Sent(await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("value", ((int)choice).ToString())));
+
+		static bool Sent(string answer) => !answer.StartsWith("error", StringComparison.Ordinal);
+	}
+
+	/// <summary>The element the squad table's view list sits in; the player database's is another.</summary>
+	private const string SquadViews = "FirstTeam";
+	private const string PlayerSearchViews = "PlayerSearchMainContentBlock";
+
+	/// <summary>
+	/// The table view list on screen that belongs to a panel, known by the named element it sits
+	/// in (BindingRemapper #FirstTeam): other tables of people have a view list by the same name,
+	/// and what the lists offer reads differently in every language.
+	/// </summary>
+	private static async Task<JsonElement?> ViewList(string panel) =>
+		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Name") == "ViewDropdown")
+			.Cast<JsonElement?>()
+			.FirstOrDefault(d => d.Value.TryGetProperty("Within", out var within)
+				&& within.EnumerateArray().Any(name => name.GetString() == panel));
+
+	private static bool Carries(JsonElement rows, string field) =>
+		rows.EnumerateArray().Any(row => row.TryGetProperty(field, out _));
+
+	/// <summary>Polls until a condition holds, since how long the game takes is not ours to know.</summary>
+	internal static async Task<bool> Until(Func<Task<bool>> condition, double seconds = 20, double every = 1)
+	{
+		var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(seconds);
+		while (true)
+		{
+			if (await condition()) return true;
+			if (DateTime.UtcNow >= deadline) return false;
+			await Task.Delay(TimeSpan.FromSeconds(every));
+		}
+	}
+
+	/// <summary>An injured player's condition comes back as -1, which is not a percentage.</summary>
+	private static string Percent(JsonElement element, string name) =>
+		Number(element, name) is >= 0 and <= 100 and var value ? GameNumbers.Percent(value) : "-";
+
+	private static int Number(JsonElement element, string name) =>
+		int.TryParse(Field(element, name), out var number) ? number : int.MaxValue;
+}
