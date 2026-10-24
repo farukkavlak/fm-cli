@@ -263,7 +263,7 @@ internal static partial class Program
 	}
 
 	/// <summary>The promises taken as they stand, and on to the terms. Null once the terms are open.</summary>
-	private static async Task<string> PastPromises()
+	private static async Task<string?> PastPromises()
 	{
 		async Task<bool> OnTerms() => await OfferScreen.Read(Fm, "contract") is { Stage: "Terms" };
 
@@ -370,7 +370,7 @@ internal static partial class Program
 	/// Calls the talks off. The game asks first ("you may not be able to immediately re-enter
 	/// talks"); the question has been put already by whoever asked for this. Null once closed.
 	/// </summary>
-	private static async Task<string> CallOff()
+	private static async Task<string?> CallOff()
 	{
 		if (await SpeakToActionEvent(WithdrawNegotiation) is not { } cancel)
 		{
@@ -455,7 +455,7 @@ internal static partial class Program
 		await Fm.Get("press", ("ptr", Field(exit, "Pointer")));
 
 	/// <summary>What the agent said last, as one line; the echo of our own line ("» …") left out.</summary>
-	private static async Task<string> AgentSays()
+	private static async Task<string?> AgentSays()
 	{
 		var talk = await Fm.GetJson("talk");
 		if (!talk.TryGetProperty("Says", out var says)) return "";

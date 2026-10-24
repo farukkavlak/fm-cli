@@ -282,7 +282,7 @@ internal static partial class Program
 	/// the event's source) rather than by the words on it, which are this language's. Empty while
 	/// the menu is away.
 	/// </summary>
-	private static async Task<string> PreferencesTile()
+	private static async Task<string?> PreferencesTile()
 	{
 		var listed = await Fm.Get("buttons", ("type", "OpenPanelEventContext"), ("limit", "1000"));
 		string pointer = null;
@@ -478,7 +478,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Why the game's FM menu is not there: most often a screen with no menus at all (the results after a match).</summary>
-	private static async Task<string> FmMenuMissing() =>
+	private static async Task<string?> FmMenuMissing() =>
 		(await Fm.GetJson("pages")).GetArrayLength() == 0
 			? Lf("Oyun menüsüz bir ekranda ({0}); FM menüsü açılamıyor. Geçmek için: next", Field(await Fm.GetJson("state"), "State"))
 			: L("Oyunun FM menüsü bulunamadı.");

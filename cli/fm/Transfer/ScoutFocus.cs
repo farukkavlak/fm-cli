@@ -53,7 +53,7 @@ internal static partial class Program
 	/// The words on those buttons are the game's own ("Next", "Back"); the event and the payload
 	/// they carry are not (FocusSteps), so nothing here is read by language.
 	/// </summary>
-	private static async Task<string> FormStep()
+	private static async Task<string?> FormStep()
 	{
 		var (next, back) = await FocusSteps();
 		return next != null ? "next" : back != null ? "back" : null;
@@ -312,7 +312,7 @@ internal static partial class Program
 	/// An area as the form's list nests it. A whole path ("Competition>Türkiye>Super League") is
 	/// walked as typed; a single name is looked for among the continents, regions and nations.
 	/// </summary>
-	private static async Task<string> FocusArea(string pointer, string typed)
+	private static async Task<string?> FocusArea(string pointer, string typed)
 	{
 		// A leaf has nothing under it, and the bridge says so as an error.
 		async Task<List<string>> Under(string path)
@@ -525,7 +525,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Presses that optional button until it answers; a redrawn list leaves its pointer stale.</summary>
-	private static async Task<string> ClickOptional(string icon, double seconds = 8)
+	private static async Task<string?> ClickOptional(string icon, double seconds = 8)
 	{
 		var answer = "";
 		await Until(async () => !(answer = await OptionalButton(icon) is { } button
@@ -929,7 +929,7 @@ internal static partial class Program
 	/// pointer; an error line when this page does not offer it (a focus that is running has no
 	/// Restart, one already stopped no Remove).
 	/// </summary>
-	private static async Task<string> PressPageButton(string sent) =>
+	private static async Task<string?> PressPageButton(string sent) =>
 		await SpeakToActionEvent(sent) is { } button
 			? await Fm.Get("click", ("ptr", Field(button, "Pointer")))
 			: $"error: no button on the loaded screens sends the recruitment-focus event {sent}";

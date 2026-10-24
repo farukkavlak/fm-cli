@@ -507,7 +507,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Reads the calendar again until a day's slot shows what was chosen, or a few seconds pass.</summary>
-	private static async Task<string> ReadSlot(DateTime date, Func<ScheduleDay, string> slot, string expected)
+	private static async Task<string?> ReadSlot(DateTime date, Func<ScheduleDay, string> slot, string expected)
 	{
 		string now = null;
 		await Until(async () =>

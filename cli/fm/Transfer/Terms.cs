@@ -7,7 +7,7 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>One term, at a terminal: its choice, its amount, its lock, or taking it out.</summary>
-	private static async Task<string> EditTerm(string route, OfferScreen.Term row)
+	private static async Task<string?> EditTerm(string route, OfferScreen.Term row)
 	{
 		// What each way is, by its place: the words are in the game's language.
 		var ways = new List<string>();
@@ -35,14 +35,14 @@ internal static partial class Program
 		return await OfferScreen.Remove(Fm, row, route);
 	}
 
-	private static async Task<string> PickLock(string route, OfferScreen.Term term, Func<OfferScreen, OfferScreen.Control> after)
+	private static async Task<string?> PickLock(string route, OfferScreen.Term term, Func<OfferScreen, OfferScreen.Control> after)
 	{
 		var names = term.Lock.Choices.Select(OfferScreen.SayLock).ToList();
 		if (Ui.Ask(L($"{OfferScreen.Say(term.Label)} — karşı taraf bunu ne kadar değiştirebilsin?"), names, current: term.Lock.Choices.IndexOf(term.Lock.Value), cancel: L("Geri")) is not { } picked) return null;
 		return term.Lock.Choices[picked] == term.Lock.Value ? null : await OfferScreen.SetLock(Fm, term, term.Lock.Choices[picked], route, after);
 	}
 
-	private static async Task<string> PickTermChoice(string route, string title, OfferScreen.Control control, Func<OfferScreen, OfferScreen.Control> after)
+	private static async Task<string?> PickTermChoice(string route, string title, OfferScreen.Control control, Func<OfferScreen, OfferScreen.Control> after)
 	{
 		if (Ui.Ask(title, control.Choices, current: control.Choices.IndexOf(control.Value), cancel: L("Geri")) is not { } picked) return null;
 		return control.Choices[picked] == control.Value ? null : await OfferScreen.Choose(Fm, control, control.Choices[picked], after, route);
@@ -59,7 +59,7 @@ internal static partial class Program
 		var other => L($"+ Ekle: {OfferScreen.Say(other)}"),
 	};
 
-	private static async Task<string> AddTerm(string route, OfferScreen.Term add)
+	private static async Task<string?> AddTerm(string route, OfferScreen.Term add)
 	{
 		var question = add.Section switch
 		{
@@ -102,7 +102,7 @@ internal static partial class Program
 	/// its lock when it names one, to its dropdown when it is one of its choices, and to its
 	/// amount box otherwise.
 	/// </summary>
-	private static async Task<string> SetTerm(string route, string asked)
+	private static async Task<string?> SetTerm(string route, string asked)
 	{
 		// A name alone adds the term as it comes ("Will appoint player as captain").
 		var eq = asked.IndexOf('=');
@@ -110,7 +110,7 @@ internal static partial class Program
 		var label = (eq < 0 ? asked : asked[..eq]).Trim();
 		var values = eq < 0 ? [] : asked[(eq + 1)..].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		bool Named(string l) => Fold(l.TrimEnd(':')) == Fold(label.TrimEnd(':')) || Fold(OfferScreen.Say(l)) == Fold(label);
-		string LockNamed(OfferScreen.Control control, string value) =>
+		string? LockNamed(OfferScreen.Control control, string value) =>
 			control?.Choices.FirstOrDefault(l => Fold(l) == Fold(value) || Fold(OfferScreen.SayLock(l)) == Fold(value));
 
 		if (await OfferScreen.Read(Fm, route) is not { } now) return L("ekran açık değil");
@@ -155,7 +155,7 @@ internal static partial class Program
 
 		// A choice can carry figures that change with the offer ("2 Instalments (£500 each)"),
 		// so the start of one is enough when only one starts that way.
-		string ChoiceFor(OfferScreen.Control control, string value)
+		string? ChoiceFor(OfferScreen.Control control, string value)
 		{
 			if (control == null) return null;
 			// A submenu ("Coaching ›") is not a choice of its own: what is in it is looked for apart.
@@ -167,7 +167,7 @@ internal static partial class Program
 
 		foreach (var value in values)
 		{
-			string failed;
+			string? failed;
 			if (Fold(value) is "remove" or "kaldir")
 				return row.Remove.Length > 0 ? await OfferScreen.Remove(Fm, row, route) : L($"{row.Label} kaldırılamıyor");
 			if (LockNamed(row.Lock, value) is { } lockName)
