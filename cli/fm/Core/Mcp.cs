@@ -377,8 +377,8 @@ internal static class Mcp
 			var method = message.TryGetProperty("method", out var m) ? m.GetString() : null;
 			var parameters = message.TryGetProperty("params", out var p) ? p : default;
 
-			JsonNode result = null;
-			JsonNode error = null;
+			JsonNode? result = null;
+			JsonNode? error = null;
 
 			switch (method)
 			{

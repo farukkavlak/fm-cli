@@ -200,8 +200,8 @@ internal static partial class Program
 	{
 		var rows = new List<string[]>();
 		var flags = new List<string>();
-		string[] row = null;
-		string last = null;
+		string[]? row = null;
+		string? last = null;
 		foreach (var (text, path) in await FocusTexts())
 		{
 			switch (path)

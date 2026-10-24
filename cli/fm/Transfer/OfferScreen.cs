@@ -230,7 +230,7 @@ internal sealed class OfferScreen
 		var before = await Read(fm, route);
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("names", string.Join(">", names)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return (said, null);
-		OfferScreen after = null;
+		OfferScreen? after = null;
 		if (!await Settles(fm, s => (after = s).Rows.Count > (before?.Rows.Count ?? 0), route)) return (L($"'{names[^1]}' eklenmedi"), null);
 		return (null, after.Rows.FirstOrDefault(r => before?.Row(r) == null) ?? after.Rows[^1]);
 	}

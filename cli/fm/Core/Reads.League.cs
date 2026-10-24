@@ -83,7 +83,7 @@ internal static partial class Program
 		}
 
 		var tile = await Settled([], 8);
-		string shown = null;
+		string? shown = null;
 		try { shown = Field(await Fm.Pull("Human.Team.NextFixture.Competition", "Name"), "Name"); } catch (FmError) { }
 
 		JsonElement table;

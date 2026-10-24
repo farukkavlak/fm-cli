@@ -107,7 +107,7 @@ internal static partial class Program
 			.AddColumn(L("Sezon")).AddColumn(L("Takım")).AddColumn(L("Geliş")).AddColumn(L("Lig"))
 			.AddColumn(new TableColumn(L("Maç")).RightAligned()).AddColumn(new TableColumn(keeper ? L("Gol yemedi") : "Gol").RightAligned())
 			.AddColumn(new TableColumn(L("Asist")).RightAligned()).AddColumn(new TableColumn("Puan").RightAligned());
-		string lastYear = null;
+		string? lastYear = null;
 		foreach (var r in rows)
 		{
 			// One season can hold two clubs: the year is said once.

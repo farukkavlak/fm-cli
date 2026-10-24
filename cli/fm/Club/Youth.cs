@@ -48,7 +48,7 @@ internal static partial class Program
 			.FirstOrDefault(t => t.Path.Length == 0 && double.TryParse(t.Text.Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _)).Text ?? "";
 
 		var rows = new List<string[]>();
-		string[] row = null;
+		string[]? row = null;
 		foreach (var (text, path) in texts.Skip(Math.Max(0, firstRow)))
 		{
 			if (path == "binding.Name") { row = [text, "", "", "", "-"]; rows.Add(row); continue; }

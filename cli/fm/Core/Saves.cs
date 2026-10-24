@@ -109,7 +109,7 @@ internal static partial class Program
 	private static async Task<string> MenuOption(string option)
 	{
 		var listed = await Fm.Get("buttons", ("type", "FMMenuOptionFromIDEventContext"), ("limit", "1000"));
-		string pointer = null;
+		string? pointer = null;
 		foreach (var line in listed.Split('\n'))
 		{
 			if (line.StartsWith("0x", StringComparison.Ordinal)) pointer = line.Split(' ')[0];
@@ -459,7 +459,7 @@ internal static partial class Program
 			return Report(clicked);
 		}
 
-		string yes = null;
+		string? yes = null;
 		await Until(async () => (yes = await DialogButton("confirmDeleteSelectedSave", "Delete File")) != null, seconds: 6, every: 0.25);
 		if (yes == null)
 		{

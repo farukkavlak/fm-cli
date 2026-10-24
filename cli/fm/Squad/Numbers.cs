@@ -232,7 +232,7 @@ internal static partial class Program
 
 		JsonElement? picker = null;
 		var before = new List<string>();
-		string name = null;
+		string? name = null;
 		var after = new List<string>();
 		void Close()
 		{

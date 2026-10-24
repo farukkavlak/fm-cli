@@ -274,7 +274,7 @@ internal static partial class Program
 		List<(string Attribute, bool AtLeast, int Value)>? conditions = null, string? position = null, long? maxValue = null)
 	{
 		// What can be told to be wrong from the words alone is said before the panel is opened.
-		string place = null;
+		string? place = null;
 		if (position != null)
 		{
 			var squeezed = new string(position.Where(char.IsLetter).ToArray());

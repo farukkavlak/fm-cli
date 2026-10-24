@@ -22,7 +22,7 @@ internal static partial class Program
 
 		// Each command is one word or one quoted line: export rapor.md squad "player fred" table
 		var commands = rest.Count > 0
-			? rest.Select(r => (Command: r, Title: (string)null)).ToList()
+			? rest.Select(r => (Command: r, Title: (string?)null)).ToList()
 			: ExportDefault.Select(d => (d.Command, d.Title)).ToList();
 		if (csv && commands.Count != 1)
 		{

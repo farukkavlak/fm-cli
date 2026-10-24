@@ -24,7 +24,7 @@ internal static partial class Program
 			return null;
 		}
 		// "Nathan Ferguson (Hartlepool)": what is in brackets tells apart people of one name, by age, position, nation or club.
-		string qualifier = null;
+		string? qualifier = null;
 		if (System.Text.RegularExpressions.Regex.Match(wanted, @"^(.+?)\s*\((.+)\)\s*$") is { Success: true } q)
 			(wanted, qualifier) = (q.Groups[1].Value, q.Groups[2].Value);
 		var found = (await SearchFor(wanted)).Where(r => Field(r, "Name").Length > 0 && (kind == null || Field(r, "Kind") == kind)).ToList();
@@ -128,7 +128,7 @@ internal static partial class Program
 	private static async Task<int> AfterAction(string name, string path, string talkBefore)
 	{
 		JsonElement dialogs = default;
-		OfferScreen talks = null;
+		OfferScreen? talks = null;
 		var said = false;
 		await Until(async () =>
 		{
@@ -209,7 +209,7 @@ internal static partial class Program
 		Console.WriteLine(name);
 		// A folder inside another with a long list under it (every scout, every squad player) is named with its count.
 		var all = args.Contains("--all");
-		string folded = null;
+		string? folded = null;
 		foreach (var entry in entries)
 		{
 			var path = Field(entry, "Path");
@@ -294,7 +294,7 @@ internal static partial class Program
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
 
 		JsonElement dialogs = default;
-		OfferScreen talks = null;
+		OfferScreen? talks = null;
 		await Until(async () => (talks = await OfferScreen.Read(Fm, "contract")) != null || (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 10, every: 0.5);
 		if (talks == null)
 		{

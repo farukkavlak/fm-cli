@@ -125,7 +125,7 @@ internal static partial class Program
 		var json = args.Contains("--json");
 
 		Setting wanted = null;
-		string value = null;
+		string? value = null;
 		if (words.Count > 0)
 		{
 			// The name can be several words and the value comes after it: "kayıt sıklığı her gün".
@@ -285,7 +285,7 @@ internal static partial class Program
 	private static async Task<string?> PreferencesTile()
 	{
 		var listed = await Fm.Get("buttons", ("type", "OpenPanelEventContext"), ("limit", "1000"));
-		string pointer = null;
+		string? pointer = null;
 		foreach (var line in listed.Split('\n'))
 		{
 			if (line.StartsWith("0x", StringComparison.Ordinal)) pointer = line.Split(' ')[0];

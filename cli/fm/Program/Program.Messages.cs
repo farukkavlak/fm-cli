@@ -884,7 +884,7 @@ internal static partial class Program
 		static string Root(string path) => path.Split('.')[0];
 
 		var lines = new List<string>();
-		string lastPath = null;
+		string? lastPath = null;
 		for (var k = 0; k < parts.Count; k++)
 		{
 			var (record, part) = parts[k];

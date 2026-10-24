@@ -72,7 +72,7 @@ internal static partial class Program
 				return settled;
 			}, seconds: 6, every: 0.5);
 
-			string lastPlain = null;
+			string? lastPlain = null;
 			AnalystTile tile = null;
 			foreach (var (text, path) in page)
 			{

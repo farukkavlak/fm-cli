@@ -61,7 +61,7 @@ internal static partial class Program
 		}
 
 		int? side = null;
-		string verb = null;
+		string? verb = null;
 		if (words.Count > 0)
 		{
 			side = Fold(words[0]) switch { "sag" or "right" => 0, "sol" or "left" => 1, _ => null };

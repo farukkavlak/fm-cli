@@ -291,7 +291,7 @@ internal static partial class Program
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 		// The editor is for the group the press made, last in the list and empty; it is open once
 		// its table offers that group's players.
-		string group = null;
+		string? group = null;
 		(string Table, List<string[]> Rows) candidates = (null, []);
 		await Until(async () =>
 		{

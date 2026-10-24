@@ -92,7 +92,7 @@ internal static partial class Program
 	{
 		var duties = new List<Duty>();
 		var seen = new HashSet<string>();
-		string anchor = null;
+		string? anchor = null;
 
 		async Task<List<JsonElement>> Read()
 		{

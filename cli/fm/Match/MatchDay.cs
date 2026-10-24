@@ -75,7 +75,7 @@ internal static partial class Program
 		// Our squad's names tell our men from theirs in the match's list of players.
 		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
-		string lastNamed = null;
+		string? lastNamed = null;
 		var heard = new Queue<string>();
 		var advised = new HashSet<string>();
 		var firstLook = true;

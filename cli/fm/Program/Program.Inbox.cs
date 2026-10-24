@@ -331,7 +331,7 @@ internal static partial class Program
 
 		// A list is answered by choosing from it; pressed like a button it only waits, and holds up
 		// every press after it (the event queue stayed blocked until cleared).
-		string chosenFrom = null;
+		string? chosenFrom = null;
 		if (listed.TryGetValue(Field(wanted[0], "Pointer"), out var offered) && offered.Count > 0)
 		{
 			if (words.Count > 2)

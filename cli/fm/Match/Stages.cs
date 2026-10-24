@@ -112,7 +112,7 @@ internal static partial class Program
 			// that has been is what there is to see, and the draw's date goes under it.
 			// Rounds are drawn in order, so the last drawn one is searched for by halves rather
 			// than walked back to: each look is a second or two.
-			string ahead = null;
+			string? ahead = null;
 			if (stage == null && note != null && showing != null)
 			{
 				var dates = new Dictionary<int, string> { [stages.IndexOf(showing)] = note };

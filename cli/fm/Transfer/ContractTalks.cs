@@ -411,8 +411,8 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<OfferScreen> TalksSettled(string? stage = null)
 	{
-		OfferScreen screen = null;
-		string last = null;
+		OfferScreen? screen = null;
+		string? last = null;
 		await Until(async () =>
 		{
 			if ((screen = await OfferScreen.Read(Fm, "contract")) is not { } s || !s.Rows.Any(r => r.Shown != "—") || (stage != null && s.Stage != stage)) return false;
