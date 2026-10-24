@@ -4655,3 +4655,14 @@ maçın raporu) bastı. Zaman 21:15'e ilerlemiş, `fm status` hâlâ "Cagliari b
 son fikstürün anahtarı (tarih + skor + takımlar) alınıyor; simülasyondan sonra anahtar değişene kadar
 bekleniyor ve rapor `expected` skorla okunuyor. Cremonese maçında (Empoli 1-2 Cremonese) doğru rapor
 geldi; eski Monza raporu tekrarlanmadı.
+
+### 8.399 Transfer teklifi mesajları "Görevler" sekmesinde; `offers` kartı cevapsız kalabiliyor (20 Ağustos)
+
+Sezon başında `next` "Bekleyen transfer teklifi: offers" diyip durdu; `offers` listesinde Cagliari'nin
+Campaniello teklifi **"Sözleşme"** durumundaydı ve ne `accept` ne `reject` düğmesi vardı ("pazarlıksız ya da
+süresi dolmak üzere"). Asıl blok, **Görevler** sekmesindeki `Frosinone, Ignacchiti için teklif yaptı`
+mesajıydı: varsayılan `inbox` (Hepsi) bunu göstermiyordu. Portaldaki **Görevler (2)** düğmesine basınca
+(`TaskMessagesTutorial`) gelen kutusu o iki göreve indi; mesaj `reply ... 2` ile **reddedildi** ve `next`
+açıldı. Yani teklif mesajları Görevler filtresinde saklanabiliyor; `offers` kartı ise cevapsız bir satır
+gösterip bloklayabiliyor. Geçici yol: Görevler sekmesine bas, mesajı `reply` ile reddet. `inbox --all`
+eklendi (arşivdeki mesajlar için), ama bu Görevler datastore'unu kapsamıyor; ayrı bir `--tasks` gerekir.

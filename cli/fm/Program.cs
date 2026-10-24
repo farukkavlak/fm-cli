@@ -230,7 +230,7 @@ internal static partial class Program
 				"table" => await LeagueTable(json, args),
 				"fixtures" => await Fixtures(json, args.Contains("--all")),
 				"report" => await MatchReport.Show(Fm, json),
-				"inbox" => await Inbox(json),
+				"inbox" => await Inbox(json, args),
 				"reply" => await Reply(args),
 				"next" => await Next(args),
 				"tour" => await Tour(json, args),
@@ -801,7 +801,7 @@ internal static partial class Program
 		return data;
 	}
 
-	private static async Task<int> Inbox(bool json)
+	private static async Task<int> Inbox(bool json, string[] args)
 	{
 		if (!await Fm.InGame())
 		{
@@ -817,7 +817,11 @@ internal static partial class Program
 			return 1;
 		}
 
-		var inbox = await FreshInbox();
+		// `--all` reads every message the inbox holds, scrolling its streamed list; the bound
+		// inbox only carries the ones the current page has loaded (ARCHIVED offers, for one).
+		var inbox = args.Contains("--all")
+			? System.Text.Json.JsonSerializer.SerializeToElement(await AllInbox())
+			: await FreshInbox();
 		RememberNumbers(inbox);
 		if (json)
 		{
@@ -2607,7 +2611,7 @@ internal static partial class Program
 			  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü
 			  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da
 			  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler
-			  inbox           gelen kutusu
+			  inbox [--all]   gelen kutusu (--all: arşivdekiler dahil)
 			  news [#]        basının yazdıkları: haber sitesindeki başlıklar, sayfanın dizdiği sırayla; numarayla haberin tamamı
 			  reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir
 			  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)
