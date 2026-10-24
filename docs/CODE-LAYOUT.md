@@ -77,3 +77,9 @@ fm status                 # köprü ve kayıt kontrolü
 ```
 
 Test kontrol listesi: `docs/PLAYTEST.md`. Teknik bulgular: `docs/FINDINGS.md`.
+
+Saf yardımcılar için birim testleri (oyun gerekmez):
+
+```bash
+dotnet test tests/FmCli.Tests/FmCli.Tests.csproj -c Release
+```

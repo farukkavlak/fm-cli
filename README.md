@@ -49,6 +49,7 @@ Oyun arka planda açık kalır; ekran, fare, ekran görüntüsü yok.
 plugin/FmCliProbe/        FM26 içinde çalışan plugin (C#, BepInEx 6 IL2CPP)
 cli/fm/                   `fm` komutu (.NET; Core/Match/Squad/Transfer/Club)
 tools/sigdump/            interop'un gerçekten neyi açtığını raporlayan araç
+tests/FmCli.Tests/        saf yardımcıların birim testleri (oyun gerekmez)
 docs/reference/           oyundan çıkarılmış veri modeli ve event kataloğu
 ```
 
