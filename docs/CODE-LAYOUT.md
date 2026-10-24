@@ -62,6 +62,10 @@ Ek bölünmeler:
 - `Transfer/OfferScreen.cs` — model/okuma/değiştirme; `OfferScreen.Draw.cs` — kart çizimi;
   `OfferScreen.Labels.cs` — etiket/şart çevirileri.
 - `Core/Reads.cs` — arama ve oyuncu açma; `Reads.Player.cs` — oyuncu kartı, geçmiş ve oturma.
+- `Squad/TeamInstructions.cs` — takım talimatları; `TeamInstructions.Team.cs` — takım kapsamı/okuma;
+  `TeamInstructions.Player.cs` — oyuncu talimatları.
+- `Match/Stages.cs` — aşama komutu; `Stages.Lists.cs` — yarışma/aşama listeleri ve içerik;
+  `Stages.Ties.cs` — eşleşmeler ve yarışma kataloğu.
 
 Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
 Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
