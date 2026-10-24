@@ -37,7 +37,7 @@ internal static partial class Program
 
 		var state = await Fm.GetJson("state");
 		var inMatch = Field(state, "DuringMatch") == "True";
-		if (!inMatch && Field(state, "State") is not ("Tactics" or "SubmitTeam"))
+		if (!inMatch && Field(state, "State") is not ("Tactics" or "SubmitTeam" or "SquadNumbers"))
 		{
 			Console.Error.WriteLine(L("Şu an oynanacak maç yok. Oyun maç gününe gelince `next` haber verir."));
 			return 1;
@@ -86,6 +86,16 @@ internal static partial class Program
 		{
 			state = await Fm.GetJson("state");
 			var flow = Field(state, "State");
+
+			// At the start of a season the game stops at the squad numbers before it will take
+			// the team. Left alone here the loop sat on that screen until its deadline; hand
+			// them to the assistant the way `numbers --auto` does and carry on (FINDINGS §8.395).
+			if (flow == "SquadNumbers" && !inMatch)
+			{
+				Console.WriteLine(L("Forma numaraları ekranı; yardımcıya veriliyor."));
+				if (await Numbers(false, ["--auto"]) != 0) return 1;
+				continue;
+			}
 
 			if (Field(state, "DuringMatch") == "True") inMatch = true;
 			else if (inMatch) break;

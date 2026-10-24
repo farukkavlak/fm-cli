@@ -29,13 +29,16 @@ set -eu
 cd "${0:A:h}"
 GAME="${FM_HOME:-$HOME/Library/Application Support/Steam/steamapps/common/Football Manager 26}"
 SHADOW="${FM_APP:-$HOME/fm26_bep/fm.app}"
+export FM_HOME="$GAME"
 [ -d "$GAME" ] || { echo "Oyun yok: $GAME"; exit 1; }
 echo "BepInEx kuruluyor…"
 cp -R bepinex/. "$GAME/"
 mkdir -p "$GAME/BepInEx/plugins/FmCliProbe" "$HOME/.local/bin"
 cp FmCliProbe.dll "$GAME/BepInEx/plugins/FmCliProbe/"
 cp fm "$HOME/.local/bin/fm"; chmod +x "$HOME/.local/bin/fm"
-[ -d "$SHADOW" ] || ./make-shadow.sh
+if [ ! -d "$SHADOW" ]; then
+	./make-shadow.sh
+fi
 echo "Kurulum denetleniyor…"
 "$HOME/.local/bin/fm" doctor --install
 INSTALL

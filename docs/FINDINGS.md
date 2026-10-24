@@ -4618,7 +4618,9 @@ Kadro seçildikten sonra `fm match --play --no-talk` **10 dakikadan fazla** çı
 "Forma numaraları gönderildi." dedi; ardından `numbers --send` "Ekranda 'Forma Numaralarını Onayla'
 açılmadı" dedi (çünkü auto zaten göndermiş). Sonra `fm status` "Maçtayız, başlamadı" verdi ve `match`
 sürdü. Yani sezon başında forma numarası ekranı maçı bloke ediyor; `match` bunu görüp `numbers --auto`
-önermeli (ya da otomatik göndermeli), yoksa komut sessizce asılı kalıyor.
+önermeli (ya da otomatik göndermeli), yoksa komut sessizce asılı kalıyor. **Düzeltildi:** `PlayMatch` artık
+`SquadNumbers` durumunu görünce `numbers --auto` yolunu çalıştırıp maça devam ediyor; durum ilk kontrolde de
+kabul ediliyor (`MatchDay.cs`).
 
 ### 8.396 Sakatlık tedavi seçenekleri `reply`te yok; `buttons` + tam etiketli `press` ile seçiliyor (27 Şubat)
 
