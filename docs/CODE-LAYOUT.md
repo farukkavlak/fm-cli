@@ -35,6 +35,8 @@
   akışı, silme ve günlük sınır.
 - `Club/StaffSearch.cs` — personel arama komutu; `StaffSearch.Catalog.cs` — mevki/öznitelik adları;
   `StaffSearch.Rules.cs` — arama kurallarını gönderme ve sonuç okuma.
+- `Club/Responsibilities.cs` — görev listesi ve alanlar; `Responsibilities.Delegate.cs` — devretme,
+  geri alma ve kişi seçimi.
 - `Program/Program.Messages.cs` — mesaj gövdesi, ekler, sözleşme/teklif kartı.
 - `Program/Program.Ui.cs` — buton, sayfa, dropdown, terminal yardımcıları.
 
