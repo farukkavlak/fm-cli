@@ -59,6 +59,9 @@ Ek bölünmeler:
   `Clock.Fixtures.cs` — fikstür, form, sakatlar ve açık soru.
 - `Program/Program.Ui.cs` — buton/sayfa komutları; `Program.Ui.Helpers.cs` — press/select,
   cevap yardımcıları ve alan okuma; `Program.Help.cs` — yardım metinleri.
+- `Transfer/OfferScreen.cs` — model/okuma/değiştirme; `OfferScreen.Draw.cs` — kart çizimi;
+  `OfferScreen.Labels.cs` — etiket/şart çevirileri.
+- `Core/Reads.cs` — arama ve oyuncu açma; `Reads.Player.cs` — oyuncu kartı, geçmiş ve oturma.
 
 Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
 Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
