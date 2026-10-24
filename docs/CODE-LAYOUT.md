@@ -33,6 +33,16 @@
 - `Program/Program.Messages.cs` — mesaj gövdesi, ekler, sözleşme/teklif kartı.
 - `Program/Program.Ui.cs` — buton, sayfa, dropdown, terminal yardımcıları.
 
+Büyük okuma/akış dosyaları da sorumluluklarına göre bölündü:
+
+- `Match/Guided.cs` — tur ve konuşma; `Guided.SetPieces.cs` — duran top sihirbazı;
+  `Guided.Tactic.cs` — taktik planlayıcı.
+- `Core/Reads.cs` — arama/oyuncu; `Reads.Squad.cs` — kadro görünümleri; `Reads.League.cs` — lig,
+  fikstür ve ilerleme.
+- `Match/MatchDay.cs` — maçın ana döngüsü; `MatchDay.Instant.cs` — anında sonuç;
+  `MatchDay.Team.cs` — kadro/rakip adları; `MatchDay.Substitute.cs` — değişiklikler;
+  `MatchDay.Dialog.cs` — onay pencereleri.
+
 Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
 Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
 önce mevcut `Table`/`Ui` yardımcılarına bak.
