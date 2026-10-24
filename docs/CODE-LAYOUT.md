@@ -51,6 +51,8 @@ Ek bölünmeler:
   mesaj okuma ve numara hatırlama.
 - `Transfer/ScoutFocus.cs` — form yardımcıları; `ScoutFocus.Team.cs` — ekip/atama; `ScoutFocus.Form.cs` —
   yeni odak formu ve kalan komutlar.
+- `Squad/TrainingSchedule.cs` — değiştirme akışı; `TrainingSchedule.Catalogue.cs` — seans kataloğu ve
+  “hakkında”; `TrainingSchedule.Calendar.cs` — takvim, ay ve grid okuma.
 
 Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
 Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
