@@ -126,5 +126,102 @@ internal static partial class Program
 		var tactics = page.Where(t => t.Path is "data.TacticalStylesOption.Name" or "Tactic.FormationName").Select(t => t.Text).ToList();
 		if (tactics.Count > 0) Console.WriteLine(L($"    Taktikler: {string.Join(" · ", tactics)}"));
 	}
+	private static void SeasonReviewAttachment(List<string> rest)
+	{
+		int At(string label, int from = 0) => rest.FindIndex(from, t => t == label);
+		var transfers = At("Transfer History");
+		var feedback = At("Performance Feedback");
+		var projections = At("Projections");
+		Console.WriteLine(L("\n  Ek: sezon değerlendirmesi"));
+		var expected = new List<string>();
+		for (var i = At("Board Expectation") + 1; i + 1 < (transfers > 0 ? transfers : feedback); i += 2) expected.Add($"{rest[i]}: {rest[i + 1]}");
+		if (expected.Count > 0) Console.WriteLine(L($"    Yönetimin beklentisi — {string.Join(" · ", expected)}"));
+		if (transfers > 0 && feedback > transfers)
+		{
+			var money = rest.Skip(transfers + 1).Take(feedback - transfers - 1).ToList();
+			var into = money.IndexOf(money.FirstOrDefault(t => t.StartsWith("Transfers In", StringComparison.Ordinal)) ?? "\0");
+			var outOf = money.IndexOf(money.FirstOrDefault(t => t.StartsWith("Transfers Out", StringComparison.Ordinal)) ?? "\0");
+			if (into >= 0 && outOf > into)
+			{
+				Console.WriteLine($"    {money[into]}: {string.Join(" · ", money.Skip(into + 1).Take(outOf - into - 1).Where(t => !t.EndsWith(':')))}");
+				Console.WriteLine($"    {money[outOf]}: {string.Join(" · ", money.Skip(outOf + 1).Where(t => !t.EndsWith(':')))}");
+			}
+			else Console.WriteLine(L($"    Transfer: {string.Join(" · ", money)}"));
+		}
+		foreach (var (who, label) in new[] { (L("Yönetim"), "Board"), (L("Taraftar"), "Supporters") })
+		{
+			var from = At(label, feedback + 1);
+			if (from < 0) continue;
+			var to = new[] { At("Supporters", from + 1), projections, rest.Count }.Where(x => x > from).Min();
+			var said = rest.Skip(from + 1).Take(to - from - 1).ToList();
+			var counts = string.Join(" ", said.TakeWhile(t => t is "Highlights" or "Criticisms" || t.StartsWith('('))).Replace(" (", " (").Replace(",", " ·");
+			var lines = said.SkipWhile(t => t is "Highlights" or "Criticisms" || t.StartsWith('(')).ToList();
+			Console.WriteLine($"    {who}: {(lines.Count > 0 ? lines[0] : "")}  [{counts}]");
+			foreach (var line in lines.Skip(1)) Console.WriteLine($"      {(line.StartsWith("Disappointed", StringComparison.Ordinal) || line.StartsWith("Unhappy", StringComparison.Ordinal) ? "-" : "+")} {line}");
+		}
+		for (var i = projections + 1; projections > 0 && i < rest.Count; i++)
+		{
+			if (!rest[i].StartsWith("End of", StringComparison.Ordinal)) continue;
+			var pairs = new List<string>();
+			for (var k = i + 1; k + 1 < rest.Count && !rest[k].StartsWith("End of", StringComparison.Ordinal); k += 2) pairs.Add($"{rest[k]} {rest[k + 1]}");
+			Console.WriteLine(L($"    Öngörü, {rest[i]}: {string.Join(" · ", pairs)}"));
+		}
+	}
+	private static void OpponentAttachment(List<string> rest, List<(string Text, string Path)> page, Func<string, string> one)
+	{
+		Console.WriteLine(L($"\n  Ek: rakip raporu — {rest[1]} {rest[2]}{(one("Team.Description") is { Length: > 0 } d ? $" · {d}" : "")}"));
+		if (one("Team.MostUsedFormation") is { Length: > 0 } shape) Console.WriteLine(L($"    Diziliş: {shape}"));
+		if (one("Manager.InitialSurname") is { Length: > 0 } manager)
+			Console.WriteLine(L($"    Menajer: {string.Join(" · ", new[] { manager, one("Manager.PreferredFormationString"), one("Manager.PreferredMentality") }.Where(x => x.Length > 0))}"));
+		var news = page.Where(t => t.Path == "row.Text").Select(t => t.Text).ToList();
+		if (news.Count > 0) Console.WriteLine(L($"    Takım haberleri: {string.Join(" · ", news)}"));
+		var eleven = page.Where(t => t.Path == "Position.Player.Name").Select(t => t.Text).ToList();
+		if (eleven.Count > 0) Console.WriteLine(L($"    Muhtemel 11{(one("tactic.FormationType") is { Length: > 0 } f ? $" ({f})" : "")}: {string.Join(", ", eleven)}"));
+		var runs = new List<List<string>>();
+		var apart = true;
+		foreach (var (text, path) in page)
+		{
+			if (path.Length == 0) apart = true;
+			if (path != "procon.ProConsShortString") continue;
+			if (apart) runs.Add([]);
+			runs[^1].Add(text);
+			apart = false;
+		}
+		string[] heads = [L("Güçlü yanları"), L("Zayıf yanları")];
+		for (var r = 0; r < runs.Count && r < heads.Length; r++) Console.WriteLine($"    {heads[r]}: {string.Join(" · ", runs[r])}");
+		Console.WriteLine(L("    Ayrıntı: opponent"));
+	}
+
+	private static async Task StatusChangesAttachment(string title, List<(string Text, string Path)> page)
+	{
+		List<(string Name, List<string> Cells)> Rows()
+		{
+			var rows = new List<(string, List<string>)>();
+			for (var i = 0; i < page.Count; i++)
+			{
+				if (page[i].Path != "binding.Name") continue;
+				var cells = new List<(string Text, string Path)>();
+				for (var j = i + 1; j < page.Count && page[j].Path != "binding.Name"; j++) cells.Add(page[j]);
+				var ended = cells.FindIndex(c => c.Path == "binding") is var first && first >= 0
+					&& cells.FindIndex(first + 1, c => c.Path == "binding") is var second && second >= 0
+					? cells.FindIndex(second + 1, c => c.Path == "binding") + 1 : 0;
+				rows.Add((page[i].Text, ended > 0 ? cells.Take(ended).Select(c => c.Text).ToList() : []));
+			}
+			return rows;
+		}
+		var rows = Rows();
+		for (var attempt = 0; attempt < 12 && (rows.Count == 0 || rows.Any(r => r.Cells.Count != 5)); attempt++)
+		{
+			await Task.Delay(250);
+			if (await OpenMessage(title, t => t.Path == "binding.Name", seconds: 3) is { Count: > 0 } filled) page = filled;
+			rows = Rows();
+		}
+		Console.WriteLine(L("\n  Ek: altyapı (home-grown) statüsü"));
+		foreach (var (who, cells) in rows.Where(r => r.Cells.Count == 5))
+		{
+			var said = string.Join(" · ", cells.Skip(3).Where(t => t != "-"));
+			Console.WriteLine($"      {who} ({cells[0].Split(' ')[0]}, {cells[1]}, {cells[2]}){(said.Length > 0 ? $" — {said}" : "")}");
+		}
+	}
 
 }

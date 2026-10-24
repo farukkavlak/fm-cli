@@ -48,7 +48,7 @@ Ek bölünmeler:
 - `Match/Guided.Tactic.cs` — ana taktik/oyuncu/planlayıcı; `Guided.TacticSettings.cs` — ayar, rol ve
   yuva; `Guided.TacticNew.cs` — yeni taktik, maç listesi ve yardımcılar.
 - `Program/Messages.cs` — ek gövdeleri; `Messages.Attachments.cs` — ek kartları; `Messages.Cards.cs` —
-  kaptanlık, maç raporu, antrenman, veri merkezi ve scout kartları; `Messages.Inbox.cs` — mesaj okuma
+  kaptanlık, maç raporu, sezon değerlendirmesi, rakip raporu, home-grown, antrenman, veri merkezi ve scout kartları; `Messages.Inbox.cs` — mesaj okuma
   ve numara hatırlama.
 - `Transfer/ScoutFocus.cs` — form yardımcıları; `ScoutFocus.Team.cs` — ekip/atama; `ScoutFocus.Form.cs` —
   yeni odak formu ve kalan komutlar.
