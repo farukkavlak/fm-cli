@@ -5,7 +5,7 @@ geldiğinde buradan devam edebilmek için yazıldı. Ayrıntılar başka dosyala
 
 - `docs/FINDINGS.md`: oyunun içinde ne bulduk, §8.1–§8.188, kanıtlarıyla
 - `docs/BAGIMLILIKLAR.md`: nerede neye bağlıyız, yarım kalan checklist
-- `PLAN.md`: komutlar, ürün kararları, günlük
+- `PLAN.md`: komutlar, ürün kararları, açık işler
 - `docs/manual/KILAVUZ.md`: kullanıcı kılavuzu
 
 ---
