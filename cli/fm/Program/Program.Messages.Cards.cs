@@ -415,6 +415,31 @@ internal static partial class Program
 		if (After("Interested Clubs") is { Length: > 0 } clubs) Console.WriteLine(L($"    İlgilenen kulüp: {clubs.Trim('(', ')')}"));
 	}
 
+	private static void BidListAttachment(List<(string Text, string Path)> page, Func<string, string> one, string watched)
+	{
+		var age = page.FindIndex(t => t.Path == "Person.PositionCombinedString") is >= 0 and var p && p + 1 < page.Count && page[p + 1].Path.Length == 0 ? page[p + 1].Text : "";
+		Console.WriteLine(L($"\n  Ek: teklifler — {string.Join(", ", new[] { watched, one("Person.PositionCombinedString"), age, one("Nation.ThreeLetterName"), one("Club.ShortName") }.Where(x => x.Length > 0))}"));
+		Console.WriteLine(L($"    Değer {one("binding.TransferValueRangeString")} · ücret {one("Person.FullContract.Wage.DisplayValue")}"));
+		var transfer = one("Player.TransferStatusDetails.TransferStatusDescription.Text");
+		var loan = one("Player.LoanStatusDetails.TransferStatusDescription.Text");
+		if (transfer.Length > 0 || loan.Length > 0) Console.WriteLine(L($"    Durum: {transfer} · kiralık: {loan}"));
+		var rows = new List<string[]>();
+		for (var i = 0; i < page.Count; i++)
+		{
+			if (page[i].Path.Length == 0 && page[i].Text is "Active Interest" or "Player Report") break;
+			if (page[i].Path != "binding.Name") continue;
+			var cells = new List<string>();
+			for (var j = i + 1; j < page.Count && page[j].Path != "binding.Name"; j++)
+			{
+				if (page[j].Path.Length == 0 && page[j].Text is "Active Interest" or "Player Report") break;
+				if (page[j].Text.Length > 0) cells.Add(page[j].Text);
+			}
+			rows.Add([page[i].Text, cells.ElementAtOrDefault(0) ?? "", cells.ElementAtOrDefault(1) ?? "", cells.ElementAtOrDefault(2) ?? "", cells.ElementAtOrDefault(3) ?? ""]);
+		}
+		if (rows.Count > 0) Table.Write([L("KULÜP"), L("LİG"), L("ÜLKE"), L("TÜR"), L("BEDEL")], rows);
+		Console.WriteLine(L("    Ayrıntı: offers"));
+	}
+
 	private static void PlayerCardAttachment(List<string> rest)
 	{
 		string After(string label, int skip = 1) => rest.IndexOf(label) is var i and >= 0 && i + skip < rest.Count ? rest[i + skip] : "";

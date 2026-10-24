@@ -143,6 +143,16 @@ internal static partial class Program
 			return;
 		}
 
+		// The same interest without an offer of its own: the player's card and the clubs that have
+		// bid, each row bound ("binding.Name") with its division, country, kind and money. Read by
+		// data path; the age is drawn without one.
+		if (One("Person.Name") is { Length: > 0 } watched && rest.Contains("Transfer Offers")
+		    && page.Any(t => t.Path == "binding.Name"))
+		{
+			BidListAttachment(page, One, watched);
+			return;
+		}
+
 		// The loans about to end: who, where he has been and how he has played there.
 		if (rest[0] == "Loans" && rest.IndexOf("Rating") is > 0 and var loanHead)
 		{

@@ -4695,3 +4695,20 @@ zaten `Team.Description` ("Serie BKT'te 17.") olduğu için lig satırı hem add
 geliyordu. Başlık artık yalnız takım adını (`rest[1]`) ve `Team.Description`'ı bir kez yazıyor;
 ad ile açıklama arasına çizilen rozet harfi ("(E)") de başlığa girmiyor. Aynı düzeltme gözlemci
 raporundaki "Spezia (E)" görünümünü de temizledi.
+
+### 8.403 Mesaj gövdesi bir önceki mesajdan kalabiliyordu
+
+Art arda `fm reply` çağrılarında başlık yeni mesajınki olurken gövde bir öncekinin paragrafını
+gösterdi ("Kondisyon testleri" başlığının altında taktik önerisinin metni). Gövde, başlık değiştikten
+bir kare sonra bağlanıyor. Düzeltme: mesaj açılmadan önce ekrandaki gövde okunuyor ve yeni gövde
+ondan farklı olana (ya da mesajın kendi `NewsFirstBubbleSpeechString`'ine eşit olana) kadar bekleniyor.
+Cevap düğmeleri için zaten yapılan beklemenin gövde karşılığı.
+
+### 8.404 Oyuncuya gelen tekliflerin kartı ham etiketlerle dökülüyordu
+
+"Empoli FC oyuncusu …'a teklifler yapıldı" mesajı, teklif kartının `feestring`'i olmayan biçimini
+kullanıyor; okuyucu eşleşmeyince ek genel etiket dökümüne düşüyordu ("Transfer Durumu · Transfer
+Değeri / 0 £ / …"). Bu biçim artık kendi okuyucusunda: oyuncunun adı, mevkisi, yaşı, ülkesi ve
+kulübü; değeri ve ücreti; transfer/kiralık durumu; teklif veren kulüpler lig, ülke, tür ve bedelle
+tablo olarak. Satırlar `binding.Name` ile bağlanıyor; "Active Interest" ve "Player Report"
+başlıkları tabloyu bitiriyor.

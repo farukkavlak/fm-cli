@@ -52,6 +52,21 @@ internal static partial class Program
 		var open = await OnScreen();
 		var previous = open || await Selected() == id ? null : Set((await Answers()).Select(a => Field(a, "Label")));
 
+		// The same for the body: the message before this one can keep its paragraph a moment after
+		// the title has changed, and it is not this message's.
+		async Task<string> ShownBody()
+		{
+			try
+			{
+				var found = await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", "6"), ("paths", "1"), ("most", "1"));
+				if (found.ValueKind != JsonValueKind.Array) return "";
+				var page = found.EnumerateArray().Select(t => (Text: Field(t, "Text"), Path: Field(t, "Path"))).ToList();
+				return page.FirstOrDefault(t => t.Path == "newsitem.NewsBodyString").Text ?? "";
+			}
+			catch (FmError) { return ""; }
+		}
+		var previousBody = open ? "" : await ShownBody();
+
 		if (!open)
 		{
 			var opened = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
@@ -92,7 +107,7 @@ internal static partial class Program
 		{
 			// Nothing to answer, but the message is open and can be read.
 			Console.WriteLine(title);
-			var body = await MessageBody(title, Field(chosen, "NewsFirstBubbleSpeechString"));
+			var body = await MessageBody(title, Field(chosen, "NewsFirstBubbleSpeechString"), previousBody);
 			if (body.Length > 0) Console.WriteLine($"  {body.Replace("\n", "\n  ")}");
 			// A report or a piece of advice is mostly its attachment; with nothing to answer it was not
 			// shown at all (30 Nisan 2026).
@@ -112,7 +127,7 @@ internal static partial class Program
 			// What the message says comes before what can be said back: an answer such as
 			// "Accept" means nothing without the terms it accepts.
 			Console.WriteLine(title);
-			var says = await MessageBody(title, Field(chosen, "NewsFirstBubbleSpeechString"));
+			var says = await MessageBody(title, Field(chosen, "NewsFirstBubbleSpeechString"), previousBody);
 			if (says.Length > 0) Console.WriteLine($"  {says.Replace("\n", "\n  ")}");
 			await WriteAttachment(title, answers.Select(a => Field(a, "Label")).ToHashSet());
 			Console.WriteLine();

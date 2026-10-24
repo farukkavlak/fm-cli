@@ -4,9 +4,15 @@ namespace FmCli;
 
 internal static partial class Program
 {
-	private static async Task<string> MessageBody(string title, string opening)
+	private static async Task<string> MessageBody(string title, string opening, string previous = "")
 	{
-		var page = await OpenMessage(title, t => t.Path == "newsitem.NewsBodyString", seconds: 3);
+		// The title can change a frame before the body does, so the body of the message opened
+		// before must not be taken for this one's (seen on a fitness-test message that showed the
+		// tactical advice above it). Anything but the previous body, or the message's own opening
+		// paragraph, is this message's.
+		var page = await OpenMessage(title,
+			t => t.Path == "newsitem.NewsBodyString" && (t.Text != previous || t.Text == opening || previous.Length == 0),
+			seconds: 3);
 		return page.FirstOrDefault(t => t.Path == "newsitem.NewsBodyString").Text is { Length: > 0 } body ? body : opening;
 	}
 
