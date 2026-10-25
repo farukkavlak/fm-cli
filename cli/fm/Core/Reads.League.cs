@@ -132,7 +132,7 @@ internal static partial class Program
 				Field(row, "LeagueGamesDrawn"), Field(row, "LeagueGamesLost"), Field(row, "LeagueGoalDifference"), Field(row, "LeaguePoints"),
 			}
 			: [Field(row, "TablePosition"), Team(row), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
-		string[] headers = full ? ["#", L("TEAM"), L("PTS"), L("W"), L("D"), L("L"), L("GD"), L("PTS")] : ["#", L("TEAM"), L("PTS"), L("PTS")];
+		string[] headers = full ? ["#", L("TEAM"), L("P"), L("W"), L("D"), L("L"), L("GD"), L("PTS")] : ["#", L("TEAM"), L("P"), L("PTS")];
 
 		// The last five league results, oldest first, where the page binds them.
 		var forms = table.EnumerateArray().Select(row => Standings.Form(Field(row, "RecentFormValues"))).ToList();

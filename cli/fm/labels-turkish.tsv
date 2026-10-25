@@ -2372,3 +2372,7 @@ Injured: {0}. If one is in the eleven the match stops; check: squad --fitness ·
 Note: injured ({0}); the match does not start with one in the eleven. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>	Not: sakat ({0}); on birde sakatla maç başlamaz. Yardımcı seçsin: tactic pick · kendin: tactic player <mevki> <oyuncu>
 The next match is a friendly; there are no opposition instructions.	Sıradaki maç hazırlık maçı; rakip talimatı yok.
 The next match is a friendly; there is no opposition report.	Sıradaki maç hazırlık maçı; rakip raporu yok.
+ · in {0} day	 · {0} gün sonra
+Goals	Gol
+Rating	Puan
+Grade	Not

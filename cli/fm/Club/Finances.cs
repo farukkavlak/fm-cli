@@ -106,7 +106,7 @@ internal static partial class Program
 			else Console.WriteLine($"  {label,-26} {value}");
 		}
 
-		Heading("Kasa");
+		Heading(L("Balance"));
 		Row(L("Balance"), finances.Balance);
 		Row(L("Income this month"), income);
 		Row(L("Expenditure this month"), spent);

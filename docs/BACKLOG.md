@@ -72,8 +72,8 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
   call at start, `open -g -j`, or a separate Space.
 - [~] REPL: a quoted phrase counts as one word.
 - [ ] Remaining position-based reads and fixed waits. `tools/sweep.sh` and a new save show them.
-- [ ] An English game end to end. The CLI was forced to English on a Turkish game; an English game
-  itself has not been played since the labels flip.
+- [~] An English game end to end: the sweep and one match were checked; a full season has not been
+  played in English.
 - [~] MCP: the tools answer over stdio by hand; a real MCP client has not been tested.
 
 ## Portability tests

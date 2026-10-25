@@ -123,7 +123,7 @@ internal static partial class Program
 			lines.Add((L("League"), L($"position {before.Position} → {now.Position} · {before.Points} → {now.Points} points")
 				+ (games > 0 ? L($" ({now.Points - before.Points} in {games} matches)") : "")));
 		}
-		if (now.Balance != before.Balance) lines.Add(("Kasa", $"{Pound(before.Balance)} → {Pound(now.Balance)} ({Signed(now.Balance - before.Balance)})"));
+		if (now.Balance != before.Balance) lines.Add((L("Balance"), $"{Pound(before.Balance)} → {Pound(now.Balance)} ({Signed(now.Balance - before.Balance)})"));
 		if (now.TransferBudget != before.TransferBudget)
 			lines.Add((L("Transfer budget"), $"{Pound(before.TransferBudget)} → {Pound(now.TransferBudget)} ({Signed(now.TransferBudget - before.TransferBudget)})"));
 		if (joined.Count > 0) lines.Add((L("In"), string.Join(", ", joined.Select(p => p.Name))));

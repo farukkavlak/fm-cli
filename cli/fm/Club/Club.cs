@@ -150,7 +150,7 @@ internal static partial class Program
 		}
 
 		Heading(L("Board"));
-		Row("Not", $"{club.Board.Grade} · {Mood(club.Board.Mood)}");
+		Row(L("Grade"), $"{club.Board.Grade} · {Mood(club.Board.Mood)}");
 		Row(L("Supporters"), L($"{Mood(supporters)} · influence on the board {Ui.Safe(ClubSay(club.Supporters.Influence))}"));
 		Row(L("Pending requests"), Ui.Safe(Regex.Replace(club.Board.Requests, @"(\d+) requests?", "$1")));
 
@@ -163,7 +163,7 @@ internal static partial class Program
 		}
 
 		Heading(L("Finances"));
-		Row("Kasa", Ui.Safe(club.Finances.Balance));
+		Row(L("Balance"), Ui.Safe(club.Finances.Balance));
 		Row(L("Income last month"), Ui.Safe(club.Finances.IncomeLastMonth));
 		Row(L("Expenditure last month"), Ui.Safe(club.Finances.ExpenditureLastMonth));
 		Row(L("Weekly wages"), Ui.Safe($"{club.Finances.Wages} / {club.Finances.WageBudget} ({club.Finances.WageShare})"));

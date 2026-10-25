@@ -124,7 +124,8 @@ internal static partial class Program
 			return 0;
 		}
 		Console.WriteLine($"{Field(team, "Name")} · {Field(team, "Description")}");
-		Console.WriteLine(L($"  Match: {venue}{(days.Length > 0 ? L($" · in {days} days") : "")}{(Field(fixture, "KickoffTime") is { Length: > 0 } k ? $" · {k}" : "")}"));
+		var inDays = days.Length > 0 ? Lf(days == "1" ? " · in {0} day" : " · in {0} days", days) : "";
+		Console.WriteLine(L($"  Match: {venue}{inDays}{(Field(fixture, "KickoffTime") is { Length: > 0 } k ? $" · {k}" : "")}"));
 		foreach (var (label, value) in rows)
 			if (value.Length > 0) Console.WriteLine($"  {label}: {value}");
 		if (meetings.Count > 0) Console.WriteLine(L($"  Previous matches: {string.Join(" · ", meetings)}"));

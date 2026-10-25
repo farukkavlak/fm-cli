@@ -105,8 +105,8 @@ internal static partial class Program
 		var table = new Spectre.Console.Table().Border(TableBorder.Rounded).BorderColor(Color.Grey)
 			.Title(L($"[bold]{Ui.Safe(name)}[/] — career"))
 			.AddColumn(L("Season")).AddColumn(L("Team")).AddColumn(L("Joined")).AddColumn(L("League"))
-			.AddColumn(new TableColumn(L("Apps")).RightAligned()).AddColumn(new TableColumn(keeper ? L("Clean sheets") : "Gol").RightAligned())
-			.AddColumn(new TableColumn(L("Assists")).RightAligned()).AddColumn(new TableColumn("Puan").RightAligned());
+			.AddColumn(new TableColumn(L("Apps")).RightAligned()).AddColumn(new TableColumn(keeper ? L("Clean sheets") : L("Goals")).RightAligned())
+			.AddColumn(new TableColumn(L("Assists")).RightAligned()).AddColumn(new TableColumn(L("Rating")).RightAligned());
 		string? lastYear = null;
 		foreach (var r in rows)
 		{
