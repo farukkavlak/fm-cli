@@ -71,6 +71,7 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [ ] `fm start` shows the window full size until the menu. Minimise earlier: PlayerPrefs, a plugin
   call at start, `open -g -j`, or a separate Space.
 - [~] REPL: a quoted phrase counts as one word.
+- [?] One long MCP run ended with the game quitting; the next run passed all 48 reads. Watch for it.
 - [ ] Remaining position-based reads and fixed waits. `tools/sweep.sh` and a new save show them.
 - [~] An English game end to end: the sweep and one match were checked; a full season has not been
   played in English.
