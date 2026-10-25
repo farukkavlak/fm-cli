@@ -47,16 +47,15 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [~] Match stats: possession, shots, on target, xG, corners, fouls; no passes or heat map.
 - [~] Text highlight summary; no minute-by-minute list of key events.
 - [?] Real-time in-match management (a different problem).
-- [~] Live match screen: the panel shows the score, clock, period, a shape pitch, the real radar and
-  the last eight events; the pitch refreshes after substitutions, and an injury stop names the
-  player and asks who comes on. Keys: `s` substitution, `h` shout, `t` tactic, `v` view (full / key
+- [~] Live match screen: the panel shows the score, clock, period, the real radar (which takes the
+  shape pitch's place), and the last eight events; the radar refreshes after substitutions, and an
+  injury stop names the player and asks who comes on. Keys: `s` substitution, `h` shout, `t` tactic, `v` view (full / key
   moments / score only; key moments are goals, cards, injuries, substitutions and penalties), `a`
   radar on/off, `r` radar style, `+`/`-` speed. Panel settings live in `~/.config/fm-cli/panel.json` and
   `fm settings panel` (view, pitch, event count, colour, radar and its style). The radar reads the ball and every
   player from the game's match simulation, so it shows the live shape rather than a guess.
-  Still to do: player names on the radar (the simulation gives only shirt number and player index),
-  an explicit team id (the list order and substitutes are used for now) and the optional ASCII 3D
-  view.
+  Still to do: player names on the radar (the simulation gives only shirt number and player index)
+  and an explicit team id (the list order and substitutes are used for now).
 - [~] Radar visual styles: a catalog of thirteen styles from mock data is in
   `docs/experiments/catalog-draft` (`tools/radar-catalog.py`). Four are in the CLI (pixel, braille,
   coloured and plain ASCII; `r` cycles them). Still to do: the 3D styles (isometric, raycasting,

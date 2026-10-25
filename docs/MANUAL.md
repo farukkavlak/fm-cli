@@ -161,9 +161,9 @@ fm report            # the last match: score, scorers, player of the match, stat
 fm opponent          # the next opponent: form, formation, key players, news
 ```
 
-At a terminal, `match --play` draws a live panel: score, clock, period, the chosen shape as a small
-pitch, the last events and the commands that work during the match. A redirected run or an MCP call
-keeps the plain line-by-line output. Keys during play: `s` substitution, `h` shout, `t` tactic
+At a terminal, `match --play` draws a live panel: score, clock, period, the radar (or the shape pitch
+when the radar is off), the last events and the commands that work during the match. A redirected
+run or an MCP call keeps the plain line-by-line output. Keys during play: `s` substitution, `h` shout, `t` tactic
 (mentality or role), `v` view (full, key moments, score only), `a` radar on/off, `r` radar style, `+`/`-` speed (when the match screen offers it; otherwise it points to settings). The pitch
 refreshes after a substitution; at an injury stop it names the player and asks who comes on. The
 radar draws the ball and every player from the game's own match simulation, so it shows the real

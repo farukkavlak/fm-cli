@@ -45,6 +45,9 @@ def main() -> None:
         for card in layout.CARDS:
             if args.only and card.number not in args.only:
                 continue
+            # 08-13 are inline-image styles; a cell-grid preview cannot show them.
+            if "KITTY" in card.needs or "SIXEL" in card.needs:
+                continue
             ansi.preview(card.number, m, goal, args.cols, args.mode).save(
                 out / f"{card.number}-{card.title.lower().replace(' ', '-')}.png", optimize=True)
         print(out, f"terminal previews at {args.cols} columns")

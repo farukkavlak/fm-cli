@@ -65,8 +65,8 @@ sending it. Irreversible commands ask at a terminal and need `--yes` in a script
 ## Watching a match
 
 `fm match --play` plays the match day in the terminal. At a terminal it draws a live panel with the
-score, clock, period, a small pitch of the chosen shape, the last eight events and the commands that
-work during the match (keys: `s` sub, `h` shout, `t` tactic, `v` view (full / key moments / score only), `a` radar on/off, `r` radar style, `+/-` speed). A
+score, clock, period, the radar (or the shape pitch when the radar is off), the last eight events and
+the commands that work during the match (keys: `s` sub, `h` shout, `t` tactic, `v` view (full / key moments / score only), `a` radar on/off, `r` radar style, `+/-` speed). A
 redirected run, or an MCP call, keeps the plain line-by-line output.
 
 The radar is a top-down picture of the match from the game's own simulation: the ball and every
@@ -179,7 +179,7 @@ fm — run Football Manager 26 from the terminal
   settings        game settings: match display and speed, auto save, language, currency, units
   settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x); with no value it is chosen with the arrow keys
   lang            CLI language: english, turkish or auto (follow the game); FM_LANG also works
-  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|braille|colour|ascii]   the live match panel
+  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|braille|colour|ascii|auto]   the live match panel
   happiness       the players' happiness, unhappiest first
     happiness <player>   why: morale, their place in the dressing room, what pleases them and what they complain about
     --why           everyone with a complaint, with their complaints
