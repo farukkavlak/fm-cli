@@ -41,7 +41,7 @@ internal static class MatchLive
 		lines.Add("  " + new string('─', Width));
 		var shown = view == 2
 			? []
-			: events.OrderBy(Seconds).Where(e => view == 0 || KeyMoment(e)).TakeLast(8).ToList();
+			: events.OrderBy(Seconds).Where(e => view == 0 || !KnownKeyLanguage || KeyMoment(e)).TakeLast(8).ToList();
 		if (shown.Count == 0 && view != 2)
 			lines.Add($"  \x1b[2m{(view == 1 ? L("No key moments yet.") : L("Waiting for the first event…"))}\x1b[0m");
 		foreach (var line in shown)
@@ -67,6 +67,12 @@ internal static class MatchLive
 		"gol", "goal", "sarı kart", "kirmizi kart", "kırmızı kart", "yellow card", "red card", "sent off",
 		"sakat", "injur", "değişiklik", "degisiklik", "substitut", "penaltı", "penalt", "own goal", "kendi kalesine",
 	];
+
+	// The marker words are Turkish and English. Another language gets the full commentary rather
+	// than an empty key-moments view.
+	private static bool KnownKeyLanguage =>
+		Labels.Language.StartsWith("turkish", StringComparison.OrdinalIgnoreCase)
+		|| Labels.Language.StartsWith("english", StringComparison.OrdinalIgnoreCase);
 
 	internal static bool KeyMoment(string line)
 	{

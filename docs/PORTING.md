@@ -121,6 +121,7 @@ What can still break when the language, theme, terminal, machine or game version
 - **Live panel.** It uses ANSI clear/colours and `Console.KeyAvailable`; this is a POSIX terminal
   and macOS. The width adapts to the terminal (56–86 columns), but below that the panel wraps.
   Keys are off when input is redirected, so scripts and MCP keep plain output.
+- **Key moments.** The filter looks for Turkish and English marker words; another language falls back to the full commentary. Extend `MatchLive.KeyWords` or filter by game events when adding a language.
 - **Live stats.** During a match the bindings only hold `LastFixture`/`NextFixture` and
   `IsLiveMatch` is false; no live possession/shots. The post-match report has them.
 - **Match speed.** The match screen has no speed dropdown; `+`/`-` looks for one with `1x…`
