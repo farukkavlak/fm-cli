@@ -92,6 +92,7 @@ internal static partial class Program
 			  budget          the transfer, wage and scouting budgets;  budget adjust [<step>]: the transfer ↔ wage split
 			  settings        game settings: match display and speed, auto save, language, currency, units
 			  settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x); with no value it is chosen with the arrow keys
+			  lang            CLI language: english, turkish or auto (follow the game); FM_LANG also works
 			  happiness       the players' happiness, unhappiest first
 			    happiness <player>   why: morale, their place in the dressing room, what pleases them and what they complain about
 			    --why           everyone with a complaint, with their complaints

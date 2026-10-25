@@ -12,38 +12,93 @@ namespace FmCli;
 /// </summary>
 internal static class Labels
 {
-	private static string? language;
+	private static string? learned;   // the game's language, as last seen
+	private static string? shown;     // the language the CLI prints in
+	private static string? choice;    // the user's choice; "" follows the game
 	private static Dictionary<string, string>? english;
 
 	// The language the game was last seen in, for what is printed before the game has answered.
-	private static string CacheFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "language");
+	private static string GameCacheFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "language");
 
-	/// <summary>The language the game is set to, as the plugin names it ("turkish", "english").</summary>
+	// The language the user chose; absent means follow the game.
+	private static string ChoiceFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "language-choice");
+
+	/// <summary>The language the CLI prints in ("turkish", "english", or "" before a game is seen).</summary>
 	public static string Language
 	{
 		get
 		{
-			if (language != null) return language;
-			try { language = File.Exists(CacheFile) ? File.ReadAllText(CacheFile).Trim() : ""; }
-			catch { language = ""; }
-			return language;
+			if (shown != null) return shown;
+			if (Choice is { Length: > 0 } chosen) return shown = chosen;
+			return shown = GameLanguage;
 		}
 	}
 
-	/// <summary>Notes the language a bridge answer came in.</summary>
+	/// <summary>The language the user chose ("turkish", "english"), or "" to follow the game.</summary>
+	public static string Choice
+	{
+		get
+		{
+			if (choice != null) return choice;
+			var env = Environment.GetEnvironmentVariable("FM_LANG");
+			if (!string.IsNullOrEmpty(env) && Parse(env) is { } fromEnv) return choice = fromEnv;
+			try { return choice = File.Exists(ChoiceFile) ? Parse(File.ReadAllText(ChoiceFile)) ?? "" : ""; }
+			catch { return choice = ""; }
+		}
+	}
+
+	/// <summary>The game's own language as last seen ("turkish", "english", or "").</summary>
+	public static string GameLanguage
+	{
+		get
+		{
+			if (learned != null) return learned;
+			try { learned = File.Exists(GameCacheFile) ? File.ReadAllText(GameCacheFile).Trim() : ""; }
+			catch { learned = ""; }
+			return learned;
+		}
+	}
+
+	/// <summary>Notes the language a bridge answer came in; a chosen language does not change.</summary>
 	public static void Heard(string? now)
 	{
-		if (string.IsNullOrEmpty(now) || now == language) return;
-		var before = Language;
-		language = now;
-		if (before == now) return;
+		if (string.IsNullOrEmpty(now)) return;
+		var before = learned;
+		learned = now;
+		if (before != now)
+			try { Directory.CreateDirectory(Path.GetDirectoryName(GameCacheFile)!); File.WriteAllText(GameCacheFile, now); } catch { }
+		if (Choice.Length == 0) shown = now;
+	}
+
+	/// <summary>Chooses the CLI's language, or "" to follow the game.</summary>
+	public static void SetChoice(string? chosen)
+	{
+		chosen ??= "";
 		try
 		{
-			Directory.CreateDirectory(Path.GetDirectoryName(CacheFile)!);
-			File.WriteAllText(CacheFile, now);
+			if (chosen.Length == 0)
+			{
+				if (File.Exists(ChoiceFile)) File.Delete(ChoiceFile);
+			}
+			else
+			{
+				Directory.CreateDirectory(Path.GetDirectoryName(ChoiceFile)!);
+				File.WriteAllText(ChoiceFile, chosen);
+			}
 		}
 		catch { }
+		choice = null;
+		shown = null;
 	}
+
+	/// <summary>"turkish", "english", "" for auto, or null when the word is not a language.</summary>
+	public static string? Parse(string text) => text.Trim().ToLowerInvariant() switch
+	{
+		"" or "auto" or "game" or "oyun" => "",
+		"tr" or "turkish" or "turkce" => "turkish",
+		"en" or "english" or "ingilizce" => "english",
+		_ => null,
+	};
 
 	/// <summary>Whether the CLI's words are shown in Turkish.</summary>
 	public static bool Turkish => Language.StartsWith("turkish", StringComparison.OrdinalIgnoreCase);
