@@ -488,8 +488,9 @@ internal static partial class Program
 				var sides = names is { } n
 					? new RadarSides(weAreHome ? n.Own : n.Opponent, weAreHome ? n.Opponent : n.Own, weAreHome)
 					: new RadarSides("", "", weAreHome);
-				// What is left of the terminal once the panel's other lines are counted.
-				var radarRows = MatchLive.Height - 8 - Math.Max(1, Math.Clamp(panel.Events, 0, 12));
+				// What is left of the terminal once the panel's other lines are counted, plus a
+				// few lines for the match's own status messages (half time, the second half).
+				var radarRows = MatchLive.Height - 11 - Math.Max(1, Math.Clamp(panel.Events, 0, 12));
 				var radarLines = frame == null ? null : RadarView(frame, sides, radarStyle, panel.Colour, RadarWidth, radarRows);
 				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
 					liveFormation, liveShape, liveView, panel,

@@ -35,9 +35,13 @@ public class RadarStylesTests
 	[Theory]
 	[InlineData("pixel", 100, 40)]
 	[InlineData("pixel", 160, 30)]
+	[InlineData("pixel", 84, 21)]
 	[InlineData("braille", 80, 24)]
+	[InlineData("braille", 84, 21)]
 	[InlineData("colour", 120, 20)]
+	[InlineData("colour", 84, 21)]
 	[InlineData("ascii", 70, 50)]
+	[InlineData("ascii", 84, 21)]
 	public void FitsTheRoomItIsGiven(string style, int cols, int rows)
 	{
 		var lines = Program.RadarView(Frame(), Sides, style, true, cols, rows);
