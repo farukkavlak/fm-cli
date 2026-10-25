@@ -1,7 +1,7 @@
 # Porting to FM27
 
 What carries over from the FM26 work, what must be rebuilt, and how to check the first day.
-The code and `docs/reference/` hold the details.
+The code and `docs/reference/` hold the details. Open work and ideas: `docs/BACKLOG.md`.
 
 ## Overview
 

@@ -107,6 +107,7 @@ tools/                 install, package, publish, tests, dumps
 |---|---|
 | [docs/USAGE.md](docs/USAGE.md) | every command and option, with examples |
 | [docs/PORTING.md](docs/PORTING.md) | architecture, rules, FM27 checklist, known traps |
+| [docs/BACKLOG.md](docs/BACKLOG.md) | open work, partial features and long-term ideas |
 | [docs/CODE-LAYOUT.md](docs/CODE-LAYOUT.md) | which file holds what |
 | [docs/PLAYTEST.md](docs/PLAYTEST.md) | short test checklist |
 | [docs/reference/](docs/reference/) | generated game data: model, events, actions, enums, translations |
