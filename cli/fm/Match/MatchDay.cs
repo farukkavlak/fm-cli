@@ -143,6 +143,7 @@ internal static partial class Program
 		var lastLook = DateTime.MinValue;
 		var stats = "";
 		var statsAt = DateTime.MinValue;
+		var shapeAt = DateTime.MinValue;
 		// Our squad's names tell our men from theirs in the match's list of players.
 		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
@@ -355,7 +356,9 @@ internal static partial class Program
 					Console.WriteLine(L("  For a substitution: sub <off> <on> (it carries the match on too)   ·   to carry on without one: match"));
 					return 0;
 				}
-				await Substitute(false, ["sub"]);
+				Console.WriteLine(L($"  Injury stop: {down.FirstOrDefault() ?? L("a player")} cannot continue. Who comes on?"));
+				await Substitute(false, down.Count > 0 ? ["sub", down[0]] : ["sub"]);
+				await LearnShape();
 				await Fm.Get("press", ("ptr", Field(PlannerStop(await Fm.GetJson("buttons", ("json", "1"))) ?? confirm, "Pointer")));
 				await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 				clockAt = DateTime.UtcNow;
@@ -403,6 +406,11 @@ internal static partial class Program
 
 			if (live)
 			{
+				if (DateTime.UtcNow - shapeAt > TimeSpan.FromSeconds(10))
+				{
+					shapeAt = DateTime.UtcNow;
+					await LearnShape();
+				}
 				if (DateTime.UtcNow - statsAt > TimeSpan.FromSeconds(10))
 				{
 					statsAt = DateTime.UtcNow;

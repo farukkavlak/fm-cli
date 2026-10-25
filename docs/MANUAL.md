@@ -163,8 +163,9 @@ fm opponent          # the next opponent: form, formation, key players, news
 
 At a terminal, `match --play` draws a live panel: score, clock, period, the chosen shape as a small
 pitch, the last events and the commands that work during the match. A redirected run or an MCP call
-keeps the plain line-by-line output. Live possession/shots are not in the game's bindings during a
-match, so they appear in `report` after the whistle.
+keeps the plain line-by-line output. The pitch refreshes after a substitution; at an injury stop it
+names the player and asks who comes on. Live possession/shots are not in the game's bindings during
+a match, so they appear in `report` after the whistle.
 
 ![fm match --play](manual/img/match/live-match.png)
 
