@@ -105,6 +105,7 @@ tools/                 install, package, publish, tests, dumps
 
 | File | What |
 |---|---|
+| [docs/MANUAL.md](docs/MANUAL.md) | illustrated manual: workflows and screenshots |
 | [docs/USAGE.md](docs/USAGE.md) | every command and option, with examples |
 | [docs/PORTING.md](docs/PORTING.md) | architecture, rules, FM27 checklist, known traps |
 | [docs/BACKLOG.md](docs/BACKLOG.md) | open work, partial features and long-term ideas |

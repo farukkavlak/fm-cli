@@ -1,5 +1,7 @@
 # Usage
 
+For screenshots and worked examples, see [MANUAL.md](MANUAL.md).
+
 `fm` is a terminal client for Football Manager 26. The game stays open in the background; commands
 read its data and send its events. Run `fm` with no arguments for an interactive session, or
 run one command at a time.
@@ -67,7 +69,7 @@ score, clock, period, a small pitch of the chosen shape, the last eight events a
 work during the match. A
 redirected run, or an MCP call, keeps the plain line-by-line output.
 
-![Live match panel](img/live-match.png)
+![Live match panel](manual/img/match/live-match.png)
 
 The panel follows the CLI language; the screenshot is from a Turkish game. The game's bindings do
 not carry live possession, shots or xG during a match, so the panel does not show them; `fm report`
