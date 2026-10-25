@@ -17,12 +17,12 @@ internal static class SquadBoard
 	{
 		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn("[dim]NO[/]").RightAligned())
-			.AddColumn(new TableColumn(L("[dim]OYUNCU[/]")))
-			.AddColumn(new TableColumn(L("[dim]MEVKİ[/]")))
-			.AddColumn(new TableColumn(L("[dim]YAŞ[/]")).RightAligned())
+			.AddColumn(new TableColumn(L("[dim]PLAYER[/]")))
+			.AddColumn(new TableColumn(L("[dim]POSITION[/]")))
+			.AddColumn(new TableColumn(L("[dim]AGE[/]")).RightAligned())
 			.AddColumn(new TableColumn("[dim]ULUS[/]"))
-			.AddColumn(new TableColumn(L("[dim]KONDİSYON[/]")))
-			.AddColumn(new TableColumn(L("[dim]MAÇ FORMU[/]")))
+			.AddColumn(new TableColumn(L("[dim]CONDITION[/]")))
+			.AddColumn(new TableColumn(L("[dim]MATCH SHARPNESS[/]")))
 			.AddColumn(new TableColumn(""));
 
 		foreach (var player in players.EnumerateArray())
@@ -48,7 +48,7 @@ internal static class SquadBoard
 	{
 		var rest = Program.FlagWords((mine ?? []).Where(f => f.Full != "Injured"));
 		var said = Ui.Safe(rest);
-		return injured ? L("[red]sakat[/]") + (said.Length > 0 ? $"[dim], {said}[/]" : "") : $"[dim]{said}[/]";
+		return injured ? L("[red]injured[/]") + (said.Length > 0 ? $"[dim], {said}[/]" : "") : $"[dim]{said}[/]";
 	}
 
 	/// <summary>A percentage as a short bar: green when ready, amber when not, red when it is a worry. An injured player's -1 is no reading at all.</summary>

@@ -8,19 +8,19 @@ internal static partial class Program
 	{
 		if (!await FindMatchTactic())
 		{
-			Console.Error.WriteLine(L("Maçın taktiği bulunamadı."));
+			Console.Error.WriteLine(L("The match's tactic was not found."));
 			return 1;
 		}
 		var slots = await PiSlots();
 		if (slots.Count == 0)
 		{
-			Console.Error.WriteLine(L("Takımın taktiği yok. Oluşturmak için: tactic new"));
+			Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 			return 1;
 		}
 		var spots = slots.Select(s => s.Spot).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L($"kullanım: tactic pi <mevki|oyuncu> [<talimat> [<değer>]]   mevkiler: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}"));
+			Console.Error.WriteLine(L($"usage: tactic pi <position|player> [<instruction> [<value>]]   positions: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}"));
 			return 64;
 		}
 		// A slot by its position as the pitch shows it, or by the player in it.
@@ -30,7 +30,7 @@ internal static partial class Program
 			var byName = Matching(slots, s => s.Player, words[0]);
 			if (byName.Count != 1)
 			{
-				Console.Error.WriteLine(L($"'{words[0]}' bir mevkiye ya da ilk on birdeki tek bir oyuncuya uymuyor. Mevkiler: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}"));
+				Console.Error.WriteLine(L($"'{words[0]}' matches neither a position nor a single player in the starting eleven. Positions: {string.Join(" ", slots.Select(s => $"{s.Spot} ({s.Player})"))}"));
 				return 1;
 			}
 			slot = byName[0];
@@ -41,18 +41,18 @@ internal static partial class Program
 		var groups = await PlayerInstructionCatalogue();
 		if (groups.Count == 0)
 		{
-			Console.Error.WriteLine(L("Oyuncu talimatları oyundan okunamadı."));
+			Console.Error.WriteLine(L("The player instructions could not be read from the game."));
 			return 1;
 		}
 		var now = await PlayerInstructionsNow(index, groups);
 		if (now.Count == 0)
 		{
-			Console.Error.WriteLine(L($"{spot}: talimatlar okunamadı."));
+			Console.Error.WriteLine(L($"{spot}: the instructions could not be read."));
 			return 1;
 		}
 		string Setting(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) ? g.Options.FirstOrDefault(o => o.Id == n.Option).Name ?? n.Option.ToString() : "?";
 		bool Fixed(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) && n.Locked;
-		var roles = slot.Role.Length > 0 ? L($"{slot.Player} · {slot.Role} / topsuz {slot.RoleWithoutBall}") : slot.Player;
+		var roles = slot.Role.Length > 0 ? L($"{slot.Player} · {slot.Role} / out of possession {slot.RoleWithoutBall}") : slot.Player;
 
 		if (words.Count == 1)
 		{
@@ -68,12 +68,12 @@ internal static partial class Program
 			Console.WriteLine($"{spot} · {roles}");
 			foreach (var side in groups.GroupBy(g => g.WithBall))
 			{
-				if (Ui.Rich) Ui.Line($"[bold]{(side.Key ? L("Topla") : L("Topsuz"))}[/]"); else Console.WriteLine(side.Key ? L("Topla") : L("Topsuz"));
+				if (Ui.Rich) Ui.Line($"[bold]{(side.Key ? L("In possession") : L("Out of possession"))}[/]"); else Console.WriteLine(side.Key ? L("In possession") : L("Out of possession"));
 				foreach (var g in side)
-					if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(g.Name),-22}[/] [yellow]{Ui.Safe(Setting(g))}[/]{(Fixed(g) ? L(" [dim](rolden)[/]") : "")}");
-					else Console.WriteLine($"  {g.Name}: {Setting(g)}{(Fixed(g) ? L(" (rolden)") : "")}");
+					if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(g.Name),-22}[/] [yellow]{Ui.Safe(Setting(g))}[/]{(Fixed(g) ? L(" [dim](from the role)[/]") : "")}");
+					else Console.WriteLine($"  {g.Name}: {Setting(g)}{(Fixed(g) ? L(" (from the role)") : "")}");
 			}
-			Console.WriteLine(L($"\nDeğiştirmek: tactic pi {spot} \"<talimat>\" <değer>   (rolden gelenler rol değişince değişir)"));
+			Console.WriteLine(L($"\nTo change: tactic pi {spot} \"<instruction>\" <value>   (those from the role change when the role does)"));
 			return 0;
 		}
 
@@ -83,7 +83,7 @@ internal static partial class Program
 		var current = Setting(group);
 		if (Fixed(group))
 		{
-			Console.Error.WriteLine(L($"{name}: {current} — rolün{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")} parçası, değiştirilemiyor. Rolü değiştirmek için: tactic role {spot}{(group.WithBall ? "" : " --oop")}"));
+			Console.Error.WriteLine(L($"{name}: {current} — part of the role{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")}, cannot be changed. To change the role: tactic role {spot}{(group.WithBall ? "" : " --oop")}"));
 			return 1;
 		}
 		// Some settings are not on offer to every role ("Cut Inside" for a centre-back), as on the card.
@@ -98,7 +98,7 @@ internal static partial class Program
 		}
 		else if (Ui.Interactive && !dry)
 		{
-			if (Ui.Ask(name, choices, current: choices.IndexOf(current), cancel: L("Vazgeç")) is not { } picked) return 0;
+			if (Ui.Ask(name, choices, current: choices.IndexOf(current), cancel: L("Cancel")) is not { } picked) return 0;
 			choice = choices[picked];
 		}
 		else if (Ui.Json)
@@ -108,19 +108,19 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine(L($"{name}: {current}\nSeçenekler: {string.Join(" · ", choices)}"));
+			Console.WriteLine(L($"{name}: {current}\nOptions: {string.Join(" · ", choices)}"));
 			return 0;
 		}
 
 		if (dry || choice == current)
 		{
-			Console.WriteLine(dry ? L($"(kuru) {name}: {current} → {choice}") : L($"{name} zaten {choice}."));
+			Console.WriteLine(dry ? L($"(dry run) {name}: {current} → {choice}") : L($"{name} is already {choice}."));
 			return 0;
 		}
 
 		var option = open.First(o => o.Name == choice).Id;
 		var scope = await PlayerScope(index, group);
-		if (scope == null) return Report(L("error: taktik bağlanamadı"));
+		if (scope == null) return Report(L("error: the tactic could not be bound"));
 		await PullEach([($"{TacticAt(scope)}", "SelectedPlayerInstruction")]);
 		var said = await Fm.Get("pathset", ("to", $"{TacticAt(scope)}.SelectedPlayerInstruction"), ("int", option.ToString()));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
@@ -128,14 +128,14 @@ internal static partial class Program
 		long? after = null;
 		var took = await Until(async () => (after = (await PlayerInstructionsNow(index, [group])).GetValueOrDefault(group.Id)?.Option) == option, seconds: 5, every: 0.3);
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, Was = current, Value = took ? choice : current, Changed = took }));
-		else Console.WriteLine(took ? $"{name}: {current} → {choice}{Stoppage()}" : L($"{name}: oyun değişikliği almadı."));
+		else Console.WriteLine(took ? $"{name}: {current} → {choice}{Stoppage()}" : L($"{name}: the game did not take the change."));
 		return took ? 0 : 1;
 	}
 
 	private sealed record PiSlot(string Spot, string Index, string Player, string Role, string RoleWithoutBall);
 
 	/// <summary>
-	/// The eleven slots with the player in each, read from the tactic with no page (FINDINGS §8.133),
+	/// The eleven slots with the player in each, read from the tactic with no page,
 	/// so they are found during a match too. The role names are only on the planner's pitch, so they
 	/// are taken from it when it can be opened — not during a match.
 	/// </summary>
@@ -227,7 +227,7 @@ internal static partial class Program
 			catch (Exception e) when (e is JsonException or InvalidOperationException or IOException) { }
 		}
 
-		if (!Ui.Json) Console.Error.WriteLine(L("Oyuncu talimatları oyundan okunuyor (bir kez)…"));
+		if (!Ui.Json) Console.Error.WriteLine(L("Reading the player instructions from the game (once)…"));
 		async Task<string> Static(string tag, int group, long? option)
 		{
 			var scope = $"fmcli.{tag}{group}{(option is { } o ? $"_{o}" : "")}";

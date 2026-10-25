@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace FmCliProbe;
 
 /// <summary>
-/// The team instructions on the tactics page (FINDINGS §8.48): under each phase heading
+/// The team instructions on the tactics page: under each phase heading
 /// (<c>#PhaseText</c>: Overview, Final Third, Progression, Buildup…) a cell per instruction, its
 /// name in <c>#text</c> and its setting in <c>#text-second</c>. Pressing a cell opens the
 /// setting's choices as a list named <c>options-list</c>.
@@ -47,7 +47,7 @@ internal static class Instructions
 	}
 
 	/// <summary>
-	/// The tiles of a card such as a player's instructions (FINDINGS §8.53): each a
+	/// The tiles of a card such as a player's instructions: each a
 	/// <c>layout-tile-interaction-button</c> holding its name in <c>#title-text</c> and its setting
 	/// in <c>#name</c>. Tiles with no setting (links to other pages) are left out.
 	/// </summary>

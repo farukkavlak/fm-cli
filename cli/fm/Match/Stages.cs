@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// A competition stage by stage (FINDINGS §8.105): the rounds of a cup with their ties, the table
+/// A competition stage by stage: the rounds of a cup with their ties, the table
 /// of a league stage. The page is Portal › Stages, and its first list reaches every competition
 /// in the game's world, not only the club's own — another country's league is read here too.
 /// </summary>
@@ -25,7 +25,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (!await Until(async () => await StageLists() != null, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine(L("Stages sayfası açılmadı."));
+			Console.Error.WriteLine(L("The stages page did not open."));
 			return 1;
 		}
 
@@ -33,7 +33,7 @@ internal static partial class Program
 		{
 			var every = await Competitions(refresh: args.Contains("--refresh"));
 			if (json) Console.WriteLine(JsonOut.Of(every.Select(path => new { Name = path[^1], Path = path[1..^1] })));
-			else Table.Write([L("TURNUVA"), L("YER")], every.Select(path => new[] { path[^1], string.Join(" › ", path[1..^1]) }).ToList());
+			else Table.Write([L("COMPETITION"), L("VENUE")], every.Select(path => new[] { path[^1], string.Join(" › ", path[1..^1]) }).ToList());
 			return 0;
 		}
 
@@ -56,14 +56,14 @@ internal static partial class Program
 			var before = await StageLists();
 			if (before == null)
 			{
-				Console.Error.WriteLine(L("Stages sayfasının listeleri bulunamadı."));
+				Console.Error.WriteLine(L("Lists on the Stages page not found."));
 				return 1;
 			}
 			if (!path[^1].EndsWith(Field(before.Value.Competition, "Label"), StringComparison.Ordinal))
 			{
 				// The page is rebuilt when its competition changes: its lists are new ones, and
 				// so is what they hold. Both are waited for — the old round's ties can stay
-				// drawn and bound for as long as the page is up (FINDINGS §8.350).
+				// drawn and bound for as long as the page is up.
 				var was = Signature(before.Value);
 				var wasShown = await ContentSignature();
 				var picked = await PickIn(false, ("names", string.Join(">", path)));
@@ -89,7 +89,7 @@ internal static partial class Program
 			if (hits.Count == 0) hits = stages.Where(s => Fold(string.Join(" ", s)).Contains(typed)).ToList();
 			if (hits.Count != 1)
 			{
-				Console.Error.WriteLine(hits.Count == 0 ? L($"{competition}: '{string.Join(" ", words.Skip(1))}' diye bir aşama yok. Aşamalar:") : L("Birden çok aşamaya uyuyor:"));
+				Console.Error.WriteLine(hits.Count == 0 ? L($"{competition}: there is no stage called '{string.Join(" ", words.Skip(1))}'. Stages:") : L("Matches more than one stage:"));
 				foreach (var s in hits.Count == 0 ? stages : hits) Console.Error.WriteLine($"  {string.Join(" › ", s)}");
 				return 64;
 			}
@@ -139,7 +139,7 @@ internal static partial class Program
 					await PickStage(stages[best]);
 					(ties, table, note) = await StageContent();
 					name = string.Join(" › ", stages[best]);
-					if (dates.TryGetValue(best + 1, out var draw)) ahead = L($"Sıradaki tur {string.Join(" › ", stages[best + 1])}: kura {draw}");
+					if (dates.TryGetValue(best + 1, out var draw)) ahead = L($"Next round {string.Join(" › ", stages[best + 1])}: draw {draw}");
 				}
 			}
 
@@ -151,11 +151,11 @@ internal static partial class Program
 
 			if (bare && table == null) return 1;
 			if (!bare) Console.WriteLine($"\n{competition} · {name}");
-			if (note != null) Console.WriteLine(L($"Kura henüz çekilmedi; çekiliş {note}."));
+			if (note != null) Console.WriteLine(L($"The draw has not been made yet; the draw is {note}."));
 			else if (ties != null) WriteTies(ties.Value);
 			else if (table != null && Ui.Rich) Standings.Draw(table.Value, (await Fm.OwnTeam()).Name);
 			else if (table != null) WriteStandings(table.Value);
-			else Console.WriteLine(L("Bu aşamada gösterilecek bir şey yok."));
+			else Console.WriteLine(L("Nothing to show at this stage."));
 			if (ahead != null && note == null) Console.WriteLine($"\n{ahead}");
 		}
 
@@ -167,8 +167,8 @@ internal static partial class Program
 
 		if (!all && !bare)
 		{
-			Console.WriteLine(L($"\nAşamalar: {string.Join(" · ", stages.Select(s => string.Join(" › ", s)))}"));
-			Console.WriteLine(L($"Birini görmek için: stages \"{competition}\" \"<aşama>\"   ·   hepsi: --all"));
+			Console.WriteLine(L($"\nStages: {string.Join(" · ", stages.Select(s => string.Join(" › ", s)))}"));
+			Console.WriteLine(L($"To see one: stages \"{competition}\" \"<stage>\"   ·   all of them: --all"));
 		}
 		return 0;
 	}

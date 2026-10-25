@@ -61,7 +61,7 @@ internal static partial class Program
 			foreach (var slot in row)
 			{
 				var names = depth[slot];
-				var mark = names.Count == 0 ? "YOK" : names.Count == 1 ? L("tek") : $"{names.Count}";
+				var mark = names.Count == 0 ? L("NONE") : names.Count == 1 ? L("one") : $"{names.Count}";
 				if (Ui.Rich)
 					Ui.Line($"[bold]{slot,-4}[/] {(names.Count <= 1 ? "[red]" : names.Count == 2 ? "[yellow]" : "[green]")}{mark,3}[/]  {Ui.Safe(string.Join(", ", names))}");
 				else Console.WriteLine($"{slot,-4} {mark,3}  {string.Join(", ", names)}");
@@ -69,7 +69,7 @@ internal static partial class Program
 
 		var ages = players.Select(p => p.Age).Where(a => a > 0).ToList();
 		Console.WriteLine();
-		Console.WriteLine(L($"Yaş: ortalama {ages.Average():0.0} · 21 ve altı {ages.Count(a => a <= 21)} · 22-25 {ages.Count(a => a is >= 22 and <= 25)} · 26-29 {ages.Count(a => a is >= 26 and <= 29)} · 30 ve üstü {ages.Count(a => a >= 30)}  ({players.Count} oyuncu, kiralıklar ve altyapı hariç)"));
+		Console.WriteLine(L($"Age: average {ages.Average():0.0} · 21 and under {ages.Count(a => a <= 21)} · 22-25 {ages.Count(a => a is >= 22 and <= 25)} · 26-29 {ages.Count(a => a is >= 26 and <= 29)} · 30 and over {ages.Count(a => a >= 30)}  ({players.Count} players, loans and youth left out)"));
 		return 0;
 	}
 }

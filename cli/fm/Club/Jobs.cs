@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Managerial vacancies (FINDINGS §8.144, §8.197): Career › Managerial Vacancies lists every job
+/// Managerial vacancies: Career › Managerial Vacancies lists every job
 /// in the world; selecting a row fills the panel below it with the job and its two answers,
 /// "Declare Interest In Job" and "Apply For Job".
 ///
@@ -40,7 +40,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -72,7 +72,7 @@ internal static partial class Program
 		if (jobs.Count == 0)
 		{
 			var page = await JobTexts();
-			Console.WriteLine(page.Any(t => t.Text.StartsWith("0 ", StringComparison.Ordinal)) ? L("Açık iş ilanı yok.") : L("İş ilanları okunamadı."));
+			Console.WriteLine(page.Any(t => t.Text.StartsWith("0 ", StringComparison.Ordinal)) ? L("There are no open job vacancies.") : L("The job vacancies could not be read."));
 			return page.Count > 0 ? 0 : 1;
 		}
 
@@ -81,7 +81,7 @@ internal static partial class Program
 		var job = PickJob(jobs, words[0]);
 		if (job == null)
 		{
-			Console.Error.WriteLine(L($"'{words[0]}' ilanlarda yok. Liste: jobs"));
+			Console.Error.WriteLine(L($"'{words[0]}' is not among the vacancies. The list: jobs"));
 			return 1;
 		}
 
@@ -91,13 +91,13 @@ internal static partial class Program
 
 		var answer = action switch
 		{
-			"apply" or "basvur" or "başvur" => ApplyForJob,
+			"apply" or "basvur" => ApplyForJob,
 			"interest" or "ilgi" => DeclareInterestInJob,
 			_ => null,
 		};
 		if (answer == null)
 		{
-			Console.Error.WriteLine(L("Ne yapılacak: apply (başvur) ya da interest (ilgi bildir)"));
+			Console.Error.WriteLine(L("What to do: apply or interest (declare interest)"));
 			return 1;
 		}
 		return await JobAnswer(job, answer, args);
@@ -197,7 +197,7 @@ internal static partial class Program
 	/// How far to step is worked out from the walk itself: a window that brings nearly as many
 	/// rows as the last one showed has barely met it, so the step is halved and taken again, while
 	/// one that brings few has overlapped it well and the step can grow again. So the window a
-	/// screen fits — which is not ours to know — decides the step (FINDINGS §8.197).
+	/// screen fits — which is not ours to know — decides the step.
 	///
 	/// A job is kept with the place it was seen at, and the open ones (no manager) are asked
 	/// whether they take an application while their row is up; see the note on the class.
@@ -263,7 +263,7 @@ internal static partial class Program
 	/// Each row is told by the club's own cell — the page's data path ("team.name") — the manager's
 	/// name, or "-" when the job is vacant, in the cell before it, and then the club's league,
 	/// rating, nation, league position, job security and finances. Nothing is matched by its
-	/// wording: the position is written "3rd" in English and "7." in Turkish (FINDINGS §8.196).
+	/// wording: the position is written "3rd" in English and "7." in Turkish.
 	/// </summary>
 	private static List<Job> ParseJobs(List<(string Text, string Path)> texts)
 	{
@@ -315,7 +315,7 @@ internal static partial class Program
 	/// Selects the job's row and waits for the panel to be about it. What comes back is the
 	/// panel's texts, from its title to the two answers. The row is scrolled to first: the list
 	/// lays out only the rows in view, so a row far from where the page was left cannot be
-	/// selected at all and the panel would answer for whatever row is up (FINDINGS §8.197).
+	/// selected at all and the panel would answer for whatever row is up.
 	/// </summary>
 	private static async Task<List<string>> SelectJob(Job job, bool warn = false)
 	{
@@ -326,7 +326,7 @@ internal static partial class Program
 		List<string> panel = [];
 		// Picking a row empties the panel's bound values for a moment — its title and answers stay,
 		// and one of those answers is on screen before the new job's facts are. So the panel is taken
-		// once it carries bound values of its own again and two looks agree (FINDINGS §8.220).
+		// once it carries bound values of its own again and two looks agree.
 		var key = "";
 		var shown = await Until(async () =>
 		{
@@ -339,7 +339,7 @@ internal static partial class Program
 		}, seconds: 5, every: 0.25);
 		// A panel still about another club would answer for that one.
 		if (!shown && warn)
-			Console.Error.WriteLine(L($"\"{job.Club}\" iş paneli açılmadı; ayrıntı ve başvuru durumu eksik olabilir."));
+			Console.Error.WriteLine(L($"The \"{job.Club}\" job panel did not open; details and application status may be missing."));
 		job.CanApply = shown ? await ButtonEnabled(ApplyForJob) : null;
 		return panel;
 	}
@@ -370,11 +370,11 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L($"{jobs.Count} iş ilanı\n"));
-		Table.Write(["#", L("KULÜP"), L("LİG"), L("ÜLKE"), L("SIRA"), L("İTİBAR"), L("MALİ DURUM"), L("BAŞVURU")],
+		Console.WriteLine(L($"{jobs.Count} job vacancies\n"));
+		Table.Write(["#", L("CLUB"), L("LEAGUE"), L("NATION"), L("POS"), L("REPUTATION"), L("FINANCES"), L("APPLICATION")],
 			jobs.Select(j => (string[])[j.Number.ToString(), j.Club, j.League, j.Nation, j.Position, ReputationTurkish(j.Rating),
-				FinancesTurkish(j.Finances), j.CanApply switch { true => L("açık"), false => L("kapalı"), _ => "?" }]).ToList());
-		Console.WriteLine(L("\nAyrıntı: jobs <kulüp|#>   ·   başvur: jobs <kulüp> apply   ·   ilgi bildir: jobs <kulüp> interest"));
+				FinancesTurkish(j.Finances), j.CanApply switch { true => L("on"), false => L("off"), _ => "?" }]).ToList());
+		Console.WriteLine(L("\nDetails: jobs <club|#>   ·   apply: jobs <club> apply   ·   declare interest: jobs <club> interest"));
 		return 0;
 	}
 
@@ -398,17 +398,17 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L($"{job.Club} — {job.League} ({job.Nation}), ligde {job.Position}"));
-		if (job.Manager != "-") Console.WriteLine(L($"Şu anki menajer: {job.Manager}"));
-		Console.WriteLine(L($"İtibar: {ReputationTurkish(facts.GetValueOrDefault("Reputation", job.Rating))}   Mali durum: {FinancesTurkish(facts.GetValueOrDefault("Finances", job.Finances))}"));
-		if (facts.TryGetValue("Wage Bill", out var wages)) Console.WriteLine(L($"Maaş gideri: {wages}"));
-		if (facts.TryGetValue("Training Facilities", out var training)) Console.WriteLine(L($"Antrenman tesisleri: {training}"));
+		Console.WriteLine(L($"{job.Club} — {job.League} ({job.Nation}), {job.Position} in the league"));
+		if (job.Manager != "-") Console.WriteLine(L($"Current manager: {job.Manager}"));
+		Console.WriteLine(L($"Reputation: {ReputationTurkish(facts.GetValueOrDefault("Reputation", job.Rating))}   Finances: {FinancesTurkish(facts.GetValueOrDefault("Finances", job.Finances))}"));
+		if (facts.TryGetValue("Wage Bill", out var wages)) Console.WriteLine(L($"Wage bill: {wages}"));
+		if (facts.TryGetValue("Training Facilities", out var training)) Console.WriteLine(L($"Training facilities: {training}"));
 		var lines = rules.SelectMany(r => r.Split('\n')).Select(r => r.Trim()).Where(r => r.Length > 0).ToList();
-		Console.WriteLine(L($"Menajer kuralları:{(lines.Count == 0 ? L(" yok") : "")}"));
+		Console.WriteLine(L($"Manager rules:{(lines.Count == 0 ? L(" none") : "")}"));
 		foreach (var line in lines) Console.WriteLine($"  · {line}");
 		Console.WriteLine(job.CanApply == false
-			? L("\nBaşvuru kapalı. İlgi bildirmek için: jobs \"") + job.Club + L("\" interest")
-			: L("\nBaşvurmak için: jobs \"") + job.Club + L("\" apply   ·   ilgi bildirmek için: jobs \"") + job.Club + L("\" interest"));
+			? L("\nApplications are closed. To declare interest: jobs \"") + job.Club + L("\" interest")
+			: L("\nTo apply: jobs \"") + job.Club + L("\" apply   ·   to declare interest: jobs \"") + job.Club + L("\" interest"));
 		return 0;
 	}
 
@@ -418,21 +418,21 @@ internal static partial class Program
 		if (await ButtonEnabled(answer) != true)
 		{
 			Console.Error.WriteLine(applies
-				? L($"{job.Club} başvuru kabul etmiyor. İlgi bildirmek için: jobs \"{job.Club}\" interest")
-				: L($"{job.Club} için ilgi bildirilemiyor (zaten bildirilmiş olabilir)."));
+				? L($"{job.Club} does not take applications. To declare interest: jobs \"{job.Club}\" interest")
+				: L($"Interest cannot be declared for {job.Club} (it may already have been)."));
 			return 1;
 		}
 
-		var what = applies ? L("başvurulacak") : L("ilgi bildirilecek");
-		Console.WriteLine(L($"{job.Club} ({job.League}) işine {what}."));
+		var what = applies ? L("application") : L("declaration of interest");
+		Console.WriteLine(L($"{job.Club} ({job.League}) job: {what}."));
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine(L($"Göndermek için: jobs \"{job.Club}\" {(applies ? "apply" : "interest")} --yes"));
+				Console.WriteLine(L($"To send it: jobs \"{job.Club}\" {(applies ? "apply" : "interest")} --yes"));
 				return 0;
 			}
-			if (Ui.Ask(L("Gönderelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
+			if (Ui.Ask(L("Send it?"), [L("Yes"), L("No")]) != 0) return 0;
 		}
 
 		var pressed = await Fm.Get("press", ("ptr", Field((await JobButton(answer))!.Value, "Pointer")));
@@ -448,20 +448,20 @@ internal static partial class Program
 		var dialog = await Fm.Get("dialog");
 		if (dialog.Trim() is not ("" or "[]"))
 		{
-			Console.WriteLine(L("Oyun bir soru sordu: dialog"));
+			Console.WriteLine(L("The game asked a question: dialog"));
 			return 0;
 		}
-		Console.WriteLine(L("Gönderildi. Cevap gelen kutusuna düşer: inbox"));
+		Console.WriteLine(L("Sent. The answer will come to the inbox: inbox"));
 		return 0;
 	}
 
 	private static string ReputationTurkish(string r) => r switch
 	{
-		"Worldwide" => L("Dünya çapında"), "Continental" => L("Kıtasal"), "National" => L("Ulusal"), "Regional" => L("Bölgesel"), "Local" => L("Yerel"), _ => r,
+		"Worldwide" => L("Worldwide"), "Continental" => L("Continental"), "National" => L("National"), "Regional" => L("Regional"), "Local" => L("Local"), _ => r,
 	};
 
 	private static string FinancesTurkish(string f) => f switch
 	{
-		"Rich" => L("Zengin"), "Secure" => L("Sağlam"), "Okay" => L("İdare eder"), "Insecure" => L("Kırılgan"), "Precarious" => L("Çok riskli"), _ => f,
+		"Rich" => L("Rich"), "Secure" => L("Secure"), "Okay" => L("Okay"), "Insecure" => L("Insecure"), "Precarious" => L("Precarious"), _ => f,
 	};
 }

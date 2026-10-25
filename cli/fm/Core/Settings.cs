@@ -4,7 +4,7 @@ using Spectre.Console;
 namespace FmCli;
 
 /// <summary>
-/// The game's preferences (FINDINGS §8.61): FM menu › Preferences › See all, one tab per group.
+/// The game's preferences: FM menu › Preferences › See all, one tab per group.
 /// Each setting is found on its tab as the control under its heading, changed the way a click
 /// would, and only takes effect once "Confirm" is pressed; closing the page any other way throws
 /// the changes away.
@@ -22,7 +22,7 @@ internal static partial class Program
 		string? value = null;
 		if (words.Count > 0)
 		{
-			// The name can be several words and the value comes after it: "kayıt sıklığı her gün".
+			// The name can be several words and the value comes after it: "save interval every day".
 			for (var take = words.Count; take >= 1 && wanted == null; take--)
 			{
 				var name = Fold(string.Join(" ", words.Take(take)));
@@ -34,7 +34,7 @@ internal static partial class Program
 			}
 			if (wanted == null)
 			{
-				Console.Error.WriteLine(L($"'{string.Join(" ", words)}' diye bir ayar yok. Ayarlar: {string.Join(", ", Settings.Select(s => s.Name))}"));
+				Console.Error.WriteLine(L($"There is no setting called '{string.Join(" ", words)}'. Settings: {string.Join(", ", Settings.Select(s => s.Name))}"));
 				return 1;
 			}
 		}
@@ -59,10 +59,10 @@ internal static partial class Program
 			DrawSettings(found);
 
 			// At the keyboard the list is also where a change starts.
-			var pick = Ui.Ask(L("Değiştirmek istediğin ayar"), found.Select(f => $"{f.Setting.Name}: {Shown(f.Setting, ValueOf(f))}").ToList(), cancel: L("Hiçbiri"));
+			var pick = Ui.Ask(L("The setting you want to change"), found.Select(f => $"{f.Setting.Name}: {Shown(f.Setting, ValueOf(f))}").ToList(), cancel: L("None"));
 			if (pick == null)
 			{
-				if (!Ui.Interactive) Console.WriteLine(L("\nDeğiştirmek: settings <ayar> [<değer>]  (ör. settings vurgu hızı 2x)"));
+				if (!Ui.Interactive) Console.WriteLine(L("\nTo change: settings <setting> [<value>]  (e.g. settings \"highlight speed\" 2x)"));
 				return 0;
 			}
 			wanted = found[pick.Value].Setting;
@@ -75,7 +75,7 @@ internal static partial class Program
 		if (now == null)
 		{
 			await LeavePreferences();
-			Console.Error.WriteLine(L($"'{wanted.Name}' ayarı {wanted.Tab} sekmesinde bulunamadı."));
+			Console.Error.WriteLine(L($"The '{wanted.Name}' setting was not found on the {wanted.Tab} tab."));
 			return 1;
 		}
 
@@ -91,7 +91,7 @@ internal static partial class Program
 				else if (!Ui.Interactive)
 				{
 					Console.WriteLine($"{wanted.Name}: {Shown(wanted, ValueOf(now))}");
-					Console.WriteLine(L($"Seçenekler: {string.Join(" · ", shownChoices)}"));
+					Console.WriteLine(L($"Options: {string.Join(" · ", shownChoices)}"));
 				}
 				return 0;
 			}
@@ -105,8 +105,8 @@ internal static partial class Program
 				await LeavePreferences();
 				var close = shownChoices.Where(c => Fold(c).Contains(Fold(value), StringComparison.Ordinal)).ToList();
 				Console.Error.WriteLine(close.Count > 1
-					? L($"'{value}' birden çok seçeneğe uyuyor: {string.Join(" · ", close)}")
-					: L($"'{value}' {wanted.Name} için bir seçenek değil. Seçenekler: {string.Join(" · ", shownChoices)}"));
+					? L($"'{value}' matches more than one option: {string.Join(" · ", close)}")
+					: L($"'{value}' is not an option for {wanted.Name}. Options: {string.Join(" · ", shownChoices)}"));
 				return 1;
 			}
 		}
@@ -114,13 +114,13 @@ internal static partial class Program
 		if (target == now.Current)
 		{
 			await LeavePreferences();
-			Console.WriteLine(L($"{wanted.Name} zaten {shownChoices[target]}."));
+			Console.WriteLine(L($"{wanted.Name} is already {shownChoices[target]}."));
 			return 0;
 		}
 		if (!now.Enabled)
 		{
 			await LeavePreferences();
-			Console.Error.WriteLine(L($"{wanted.Name} şu an değiştirilemiyor (oyun kapalı gösteriyor)."));
+			Console.Error.WriteLine(L($"{wanted.Name} cannot be changed right now (the game shows it closed)."));
 			return 1;
 		}
 
@@ -144,7 +144,7 @@ internal static partial class Program
 		JsonElement preferencesConfirm = default;
 		await Until(async () => (preferencesConfirm = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
 			.FirstOrDefault(b => Field(b, "Events").Contains("PreferencesConfirmChanges", StringComparison.Ordinal) && Field(b, "Enabled") == "True")) is { ValueKind: JsonValueKind.Object }, seconds: 5, every: 0.25);
-		if (preferencesConfirm.ValueKind != JsonValueKind.Object) return Report(L("error: ayarların onay düğmesi bulunamadı"));
+		if (preferencesConfirm.ValueKind != JsonValueKind.Object) return Report(L("error: the preferences' confirm button was not found"));
 		var confirmed = await Fm.Get("click", ("ptr", Field(preferencesConfirm, "Pointer")));
 		if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
 		await Until(async () => (await Fm.GetJson("texts", ("anchor", "All Preferences"), ("up", "0"))).GetArrayLength() == 0, seconds: 5, every: 0.25);
@@ -158,7 +158,7 @@ internal static partial class Program
 		await LeavePreferences();
 		if (after == null || after.Current != target)
 		{
-			Console.Error.WriteLine(L($"{wanted.Name} {shownChoices[target]} yapıldı ama sayfa yeniden açılınca {(after == null ? L("okunamadı") : Shown(wanted, ValueOf(after)))}."));
+			Console.Error.WriteLine(L($"{wanted.Name} was set to {shownChoices[target]}, but when the page was opened again {(after == null ? L("could not be read") : Shown(wanted, ValueOf(after)))}."));
 			return 1;
 		}
 		Console.WriteLine($"{wanted.Name}: {Shown(wanted, ValueOf(now))} → {Shown(wanted, ValueOf(after))}");
@@ -166,8 +166,8 @@ internal static partial class Program
 		engineChecked = false;
 		// The screens change at once; the game's own texts (a fixture's venue, a match's kind) only
 		// once it is started again, which would lose what is not saved, so it is said, not done.
-		if (wanted.Name == L("dil"))
-			Console.WriteLine(L("Ekranlar yeni dilde; oyunun kendi yazıları (maç türü, iç saha / deplasman…) oyun yeniden açılınca değişir: save, sonra stop ve start."));
+		if (wanted.Name == L("language"))
+			Console.WriteLine(L("The screens are in the new language; the game's own texts (match type, home / away…) change when the game is opened again: save, then stop and start."));
 		return 0;
 	}
 }

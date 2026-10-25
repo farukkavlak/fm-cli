@@ -4,7 +4,7 @@ namespace FmCli;
 
 /// <summary>
 /// The match preparation in training: a tactical focus with the ball and without it, and two
-/// set-piece focuses. Read and changed with no page opened (FINDINGS §8.130): the focuses are
+/// set-piece focuses. Read and changed with no page opened: the focuses are
 /// the team's `TeamTraining.TrainingMatchFocus`, which answers once a `FixtureHasResult`
 /// variable sits beside the training reference, and each has an event that takes the chosen
 /// entry of its list.
@@ -21,7 +21,7 @@ internal static partial class Program
 		var slots = await FocusSlots();
 		if (slots == null)
 		{
-			Console.Error.WriteLine(L("Maç hazırlığı okunamadı (sıradaki maç yok olabilir)."));
+			Console.Error.WriteLine(L("The match preparation could not be read (there may be no next match)."));
 			return 1;
 		}
 
@@ -31,7 +31,7 @@ internal static partial class Program
 		if (json)
 		{
 			// The focuses are the game's own words, and it has a word for each in its language
-			// ("Kaydedilen İlerleme" for "Progression"); the data carries the English.
+			// (the game's word for "Progression"); the data carries the English.
 			object Shown(FocusSlot s) => new
 			{
 				Slot = s.Key,
@@ -43,20 +43,20 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L("Maç hazırlığı"));
+		Console.WriteLine(L("Match preparation"));
 		foreach (var slot in slots)
 		{
 			var means = slot.Choices.FirstOrDefault(c => c.Name == slot.Now)?.Means;
 			if (Ui.Rich) Ui.Line($"  [dim]{slot.Title,-12}[/] [bold]{Ui.Safe(slot.Now)}[/]{(means is { Length: > 0 } ? $" — {Ui.Safe(means)}" : "")}");
 			else Console.WriteLine($"  {slot.Title}: {slot.Now}{(means is { Length: > 0 } ? $" — {means}" : "")}");
-			var others = slot.Choices.Where(c => c.Name != slot.Now && !c.Taken).Select(c => c.Name + (c.Suggested ? L(" (öneri)") : "")).ToList();
+			var others = slot.Choices.Where(c => c.Name != slot.Now && !c.Taken).Select(c => c.Name + (c.Suggested ? L(" (suggested)") : "")).ToList();
 			if (others.Count > 0)
 			{
-				if (Ui.Rich) Ui.Line(L($"  {"",-12} [dim]başka: {Ui.Safe(string.Join(" · ", others))}[/]"));
-				else Console.WriteLine(L($"    başka: {string.Join(" · ", others)}"));
+				if (Ui.Rich) Ui.Line(L($"  {"",-12} [dim]others: {Ui.Safe(string.Join(" · ", others))}[/]"));
+				else Console.WriteLine(L($"    others: {string.Join(" · ", others)}"));
 			}
 		}
-		Console.WriteLine(L($"\nDeğiştir: prep <{string.Join(" | ", slots.Select(s => L(s.Key)))}> [odak]"));
+		Console.WriteLine(L($"\nTo change: prep <{string.Join(" | ", slots.Select(s => L(s.Key)))}> [focus]"));
 		return 0;
 	}
 
@@ -66,7 +66,7 @@ internal static partial class Program
 		var slot = slots.FirstOrDefault(s => Fold(s.Key) == Fold(words[0]) || Fold(L(s.Key)) == Fold(words[0]));
 		if (slot == null)
 		{
-			Console.Error.WriteLine(L($"'{words[0]}' diye bir hazırlık yok. Olanlar: {string.Join(", ", slots.Select(s => L(s.Key)))}"));
+			Console.Error.WriteLine(L($"There is no preparation called '{words[0]}'. There are: {string.Join(", ", slots.Select(s => L(s.Key)))}"));
 			return 64;
 		}
 
@@ -76,7 +76,7 @@ internal static partial class Program
 		if (words.Count > 1)
 		{
 			var typed = string.Join(" ", words.Skip(1));
-			// The list shows the game's word for a focus ("Kaydedilen İlerleme" for "Progression")
+			// The list shows the game's word for a focus (the game's word for "Progression")
 			// and that is what someone reads and types back; the data carries the English. Both are
 			// taken, as with the opposition card's values (§8.211).
 			FocusChoice Found() => Matching(slot.Choices, c => GameWords.Of(c.Name), typed) is { Count: 1 } seen ? seen[0]
@@ -87,27 +87,27 @@ internal static partial class Program
 				var near = Matching(slot.Choices, c => GameWords.Of(c.Name), typed);
 				if (near.Count == 0) near = Matching(slot.Choices, c => c.Name, typed);
 				Console.Error.WriteLine(near.Count == 0
-					? L($"{slot.Title}: '{typed}' diye bir seçenek yok. Seçenekler:")
-					: L($"{slot.Title}: '{typed}' birden çok seçeneğe uyuyor:"));
+					? L($"{slot.Title}: there is no option '{typed}'. Options:")
+					: L($"{slot.Title}: '{typed}' matches more than one option:"));
 				foreach (var option in near.Count == 0 ? slot.Choices : near) Console.Error.WriteLine($"  {GameWords.Of(option.Name)}");
 				return 64;
 			}
 			choice = named;
 			if (!open.Contains(choice))
 			{
-				Console.Error.WriteLine(L($"{GameWords.Of(choice.Name)} öbür duran top hazırlığında seçili; ikisi aynı olamaz."));
+				Console.Error.WriteLine(L($"{GameWords.Of(choice.Name)} is chosen in the other set piece preparation; the two cannot be the same."));
 				return 1;
 			}
 		}
 		else if (Ui.Interactive)
 		{
-			var picked = Ui.Ask(L($"{slot.Title} hazırlığı"), open.Select(c => GameWords.Of(c.Name) + (c.Suggested ? L("  (öneri)") : "") + (c.Means.Length > 0 ? $" — {GameWords.Of(c.Means)}" : "")).ToList(), open.FindIndex(c => c.Name == slot.Now));
+			var picked = Ui.Ask(L($"{slot.Title} preparation"), open.Select(c => GameWords.Of(c.Name) + (c.Suggested ? L("  (suggested)") : "") + (c.Means.Length > 0 ? $" — {GameWords.Of(c.Means)}" : "")).ToList(), open.FindIndex(c => c.Name == slot.Now));
 			if (picked == null) return 0;
 			choice = open[picked!.Value];
 		}
 		else
 		{
-			Console.Error.WriteLine(L($"Hangisi? prep {L(slot.Key)} <{string.Join(" | ", open.Select(c => GameWords.Of(c.Name)))}>"));
+			Console.Error.WriteLine(L($"Which one? prep {L(slot.Key)} <{string.Join(" | ", open.Select(c => GameWords.Of(c.Name)))}>"));
 			return 64;
 		}
 
@@ -120,14 +120,14 @@ internal static partial class Program
 			await Until(async () => (after = (await FocusSlots())?.FirstOrDefault(s => s.Key == slot.Key))?.Now == choice.Name, seconds: 5, every: 0.3);
 			if (after?.Now != choice.Name)
 			{
-				Console.Error.WriteLine(L($"{slot.Title}: oyun değişikliği almadı ({GameWords.Of(after?.Now) ?? "okunamadı"})."));
+				Console.Error.WriteLine(L($"{slot.Title}: the game did not take the change ({GameWords.Of(after?.Now) ?? L("could not read")})."));
 				return 1;
 			}
 		}
 
 		// The answer is in the game's words, as everywhere else: the list the CLI showed.
 		if (json) Console.WriteLine(JsonOut.Of(new { Slot = slot.Key, Name = GameWords.Of(choice.Name), Was = GameWords.Of(slot.Now) }));
-		else Console.WriteLine(choice.Name == slot.Now ? L($"{slot.Title}: zaten {GameWords.Of(choice.Name)}.") : L($"{slot.Title}: {GameWords.Of(slot.Now)} → {GameWords.Of(choice.Name)}."));
+		else Console.WriteLine(choice.Name == slot.Now ? L($"{slot.Title}: already {GameWords.Of(choice.Name)}.") : L($"{slot.Title}: {GameWords.Of(slot.Now)} → {GameWords.Of(choice.Name)}."));
 		return 0;
 	}
 
@@ -163,10 +163,10 @@ internal static partial class Program
 
 		return
 		[
-			new("topla", L("Topla"), "EventFmxMatchFocusSelectInPossessionType", Field(now, "MatchFocusInPossessionType.MatchFocusSessionName"), with),
-			new("topsuz", L("Topsuz"), "EventFmxMatchFocusSelectOutOfPossessionType", Field(now, "MatchFocusOutOfPossessionType.MatchFocusSessionName"), without),
-			new("duran1", L("Duran top 1"), "EventFmxMatchFocusSelectFirstSetPiece", Field(now, "MatchFocusFirstSetPiece.MatchFocusSessionName"), setPieces),
-			new("duran2", L("Duran top 2"), "EventFmxMatchFocusSelectSecondSetPiece", Field(now, "MatchFocusSecondSetPiece.MatchFocusSessionName"), setPieces),
+			new("topla", L("In possession"), "EventFmxMatchFocusSelectInPossessionType", Field(now, "MatchFocusInPossessionType.MatchFocusSessionName"), with),
+			new("topsuz", L("Out of possession"), "EventFmxMatchFocusSelectOutOfPossessionType", Field(now, "MatchFocusOutOfPossessionType.MatchFocusSessionName"), without),
+			new("duran1", L("Set piece 1"), "EventFmxMatchFocusSelectFirstSetPiece", Field(now, "MatchFocusFirstSetPiece.MatchFocusSessionName"), setPieces),
+			new("duran2", L("Set piece 2"), "EventFmxMatchFocusSelectSecondSetPiece", Field(now, "MatchFocusSecondSetPiece.MatchFocusSessionName"), setPieces),
 		];
 	}
 }

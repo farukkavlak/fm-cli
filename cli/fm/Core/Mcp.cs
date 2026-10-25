@@ -123,7 +123,7 @@ internal static partial class Mcp
 		var text = printed.ToString().TrimEnd();
 		return new JsonObject
 		{
-			["content"] = new JsonArray(new JsonObject { ["type"] = "text", ["text"] = text.Length > 0 ? text : "(çıktı yok)" }),
+			["content"] = new JsonArray(new JsonObject { ["type"] = "text", ["text"] = text.Length > 0 ? text : "(no output)" }),
 			["isError"] = code != 0,
 		};
 	}

@@ -14,7 +14,7 @@ internal static partial class Program
 		var name = Composed((typed.EndsWith(".fm", StringComparison.OrdinalIgnoreCase) ? typed[..^3] : typed).Trim());
 		if (name.Length == 0 || name.IndexOfAny(['/', ':', '\\']) >= 0)
 		{
-			Console.Error.WriteLine(L("Kayıt adı boş olamaz ve / : \\ içeremez."));
+			Console.Error.WriteLine(L("A save name cannot be empty or contain / : \\"));
 			return 64;
 		}
 
@@ -23,9 +23,9 @@ internal static partial class Program
 		if (!yes)
 		{
 			Console.Error.WriteLine(exists
-				? L($"'{name}' adında bir kayıt var; bu onun üzerine yazar ({Pretty(Field(state, "Date"))} durumuyla), geri alınamaz.")
-				: L($"Oyun '{name}' adıyla yeni bir dosyaya kaydedilir ({Pretty(Field(state, "Date"))}); sonraki kayıtlar da oraya gider."));
-			Console.Error.WriteLine(L($"Onaylamak için: save --as \"{name}\" --yes"));
+				? L($"There is a save called '{name}'; this overwrites it (with the state of {Pretty(Field(state, "Date"))}), and cannot be undone.")
+				: L($"The game is saved to a new file called '{name}' ({Pretty(Field(state, "Date"))}); later saves go there too."));
+			Console.Error.WriteLine(L($"To confirm: save --as \"{name}\" --yes"));
 			return 1;
 		}
 
@@ -64,10 +64,10 @@ internal static partial class Program
 		{
 			var dialogs = await Fm.GetJson("dialog");
 			if (dialogs.GetArrayLength() > 0)
-				Console.Error.WriteLine(L($"Oyun bir şey soruyor: {Field(dialogs[0], "Title")} — {Field(dialogs[0], "Description")}   (cevap: dialog)"));
+				Console.Error.WriteLine(L($"The game is asking something: {Field(dialogs[0], "Title")} — {Field(dialogs[0], "Description")}   (to answer: dialog)"));
 			else
 			{
-				Console.Error.WriteLine(L("Kaydet denildi ama oyun kaydetmeye başlamadı."));
+				Console.Error.WriteLine(L("Told to save, but the game did not start saving."));
 				await CloseSaveBrowser();
 			}
 			return 1;
@@ -80,8 +80,8 @@ internal static partial class Program
 		}, seconds: 180);
 
 		Console.WriteLine(done
-			? L($"Kaydedildi: {name} ({Pretty(Field(state, "Date"))}). Oyun bundan sonra bu dosyaya kaydediyor.")
-			: L("Kayıt üç dakikadır sürüyor; beklemeyi bıraktım."));
+			? L($"Saved: {name} ({Pretty(Field(state, "Date"))}). From now on the game saves to this file.")
+			: L("Saving has been going on for three minutes; I stopped waiting."));
 		return done ? 0 : 75;
 	}
 }

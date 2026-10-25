@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Who does what at the club (Club › Responsibilities, FINDINGS §8.111): each duty with whether
+/// Who does what at the club (Club › Responsibilities): each duty with whether
 /// the manager has kept it or handed it on, and to whom. The page is one long list in groups;
 /// a duty is a title, a line about it, the pair "Take Control" / "Delegate" and the list of who
 /// can take it, showing who has it.
@@ -29,7 +29,7 @@ internal static partial class Program
 		var duties = await AllDuties(area != null ? [area] : null);
 		if (duties.Count == 0)
 		{
-			Console.Error.WriteLine(L("Sorumluluklar sayfası okunamadı."));
+			Console.Error.WriteLine(L("The responsibilities page could not be read."));
 			return 1;
 		}
 		if (area == null && typed.Length > 0) duties = duties.Where(d => Fold(d.Area + " " + d.Group + " " + d.Title + " " + d.Holder).Contains(typed)).ToList();
@@ -40,7 +40,7 @@ internal static partial class Program
 			return 0;
 		}
 		// The areas are named here in the English the page matches on; the game shows its own words
-		// for them, so the heading is put into those (a Turkish game's "Yönetim Kurulu", not "Board").
+		// for them, so the heading goes in those (the game's own board name, not "Board").
 		await GameWords.Ask(Fm, DutyAreas);
 		// The page's groups and duty names come back in the English the plugin matches on, and some
 		// are a template with a suffix in brackets ("Staff Contract Renewals (U21)"); the game's words
@@ -53,16 +53,16 @@ internal static partial class Program
 		foreach (var inArea in duties.GroupBy(d => d.Area))
 		{
 			var mine = inArea.Count(d => d.Mine);
-			Console.WriteLine(L($"\n== {GameWords.Of(inArea.Key)}  ({mine} sende, {inArea.Count() - mine} devredilmiş)"));
+			Console.WriteLine(L($"\n== {GameWords.Of(inArea.Key)}  ({mine} yours, {inArea.Count() - mine} delegated)"));
 			foreach (var group in inArea.GroupBy(d => d.Group))
 			{
 				// An area of one group repeats its name; the heading is said once.
 				if (group.Key != inArea.Key) Console.WriteLine($"\n{group.Key}");
-				Table.Write([L("GÖREV"), L("KİMDE"), ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? L("sende") : d.CanTake ? L("devredildi") : L("devredildi (kilitli)") }).ToList());
+				Table.Write([L("JOB"), L("WHO HAS IT"), ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? L("yours") : d.CanTake ? L("delegated") : L("delegated (locked)") }).ToList());
 			}
 		}
-		if (area == null && typed.Length == 0) Console.WriteLine(L("\nYalnızca bir alan: responsibilities medya | antrenman | taktik | maç | duran top | transfer | scout | personel | yönetim"));
-		Console.WriteLine(L("\nDevretmek: responsibilities delegate \"<görev>\"   ·   belirli birine: responsibilities give \"<görev>\" <kişi>   ·   geri almak: responsibilities take \"<görev>\""));
+		if (area == null && typed.Length == 0) Console.WriteLine(L("\nOne area only: responsibilities media | training | tactics | match day | set pieces | transfer | scouting | staff | board"));
+		Console.WriteLine(L("\nTo delegate: responsibilities delegate \"<duty>\"   ·   to someone in particular: responsibilities give \"<duty>\" <person>   ·   to take back: responsibilities take \"<duty>\""));
 		return 0;
 	}
 
@@ -158,7 +158,7 @@ internal static partial class Program
 	{
 		// The areas are the page's radio group (StaffResponsibilitiesRadioGroup, bound to the team's list
 		// of responsibility tabs), in the game's fixed order; an area is chosen by its words, or, where a
-		// language words it otherwise ("Maç Günü" comes back "Matchday"), by its place in that order.
+		// language words it otherwise (a matchday comes back as "Matchday"), by its place in that order.
 		// The page draws it a moment after it opens.
 		const string group = "StaffResponsibilitiesRadioGroup";
 		if (!await Until(async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == group), seconds: 6, every: 0.3))
@@ -294,7 +294,7 @@ internal static partial class Program
 		if (hits.Count == 0) hits = all.Where(d => Worded(d.Title)).ToList();
 		// The page is left on the duty's own area, where its buttons are.
 		if (hits.Count == 1) return await DutyArea(hits[0].Area) ? hits[0] : null;
-		Console.Error.WriteLine(hits.Count == 0 ? L($"'{typed}' diye bir görev yok (hepsi: responsibilities).") : L($"'{typed}' birden çok göreve uyuyor:"));
+		Console.Error.WriteLine(hits.Count == 0 ? L($"There is no duty called '{typed}' (all of them: responsibilities).") : L($"'{typed}' matches more than one duty:"));
 		foreach (var hit in hits) Console.Error.WriteLine($"  {hit.Title}   ({(hit.Group == hit.Area ? hit.Area : $"{hit.Area} › {hit.Group}")})");
 		return null;
 	}

@@ -5,7 +5,7 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>
-	/// A list on the match screen (FINDINGS §8.54): mentality, which only writes its bound value,
+	/// A list on the match screen: mentality, which only writes its bound value,
 	/// and touchline shouts, which send theirs. Chosen the way a submenu leaf is, by its record.
 	/// </summary>
 	private static async Task<int> MatchList(string what, Func<JsonElement, bool> which, string wanted, bool dry, bool events)
@@ -13,7 +13,7 @@ internal static partial class Program
 		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => which(d!.Value));
 		if (list == null)
 		{
-			Console.Error.WriteLine(L($"Maç ekranında {what.ToLowerInvariant()} listesi yok."));
+			Console.Error.WriteLine(L($"There is no {what.ToLowerInvariant()} list on the match screen."));
 			return 1;
 		}
 		var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
@@ -23,27 +23,27 @@ internal static partial class Program
 		if (Field(list!.Value, "Enabled") != "True")
 		{
 			Console.Error.WriteLine(events
-				? L("Oyuncular az önce bir bağırış duydu; oyun yeni bağırışa bir süre izin vermiyor.")
-				: L($"{(current.Length > 0 ? $"{what}: {current}. " : "")}Oyun az önceki değişiklikten sonra {what.ToLowerInvariant()} listesini bir süre kapattı; birazdan yeniden dene."));
+				? L("The players heard a shout a moment ago; the game does not allow a new shout for a while.")
+				: L($"{(current.Length > 0 ? $"{what}: {current}. " : "")}After the last change the game closed the {what.ToLowerInvariant()} list for a while; try again shortly."));
 			return 1;
 		}
-		if (wanted == null && Ui.Interactive && !dry && Ui.Ask(what, choices, current: choices.IndexOf(current), cancel: L("Vazgeç")) is { } asked)
+		if (wanted == null && Ui.Interactive && !dry && Ui.Ask(what, choices, current: choices.IndexOf(current), cancel: L("Cancel")) is { } asked)
 			wanted = choices[asked];
 		if (wanted == null)
 		{
-			Console.WriteLine(L($"{what}{(current.Length > 0 && current != "Shouts" ? $": {current}" : "")}\nSeçenekler: {string.Join(" · ", choices)}"));
+			Console.WriteLine(L($"{what}{(current.Length > 0 && current != "Shouts" ? $": {current}" : "")}\nOptions: {string.Join(" · ", choices)}"));
 			return 0;
 		}
 		var hit = choices.Where(c => Fold(c) == Fold(wanted)).ToList();
 		if (hit.Count == 0) hit = choices.Where(c => Fold(c).StartsWith(Fold(wanted), StringComparison.Ordinal)).ToList();
 		if (hit.Count != 1)
 		{
-			Console.Error.WriteLine(L($"{what}: '{wanted}' yok. Seçenekler: {string.Join(" · ", choices)}"));
+			Console.Error.WriteLine(L($"{what}: no '{wanted}'. Options: {string.Join(" · ", choices)}"));
 			return 1;
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(kuru) {what}: {hit[0]}"));
+			Console.WriteLine(L($"(dry run) {what}: {hit[0]}"));
 			return 0;
 		}
 		var said = await Fm.Get("select", ("ptr", Field(list!.Value, "Pointer")), ("path", choices.IndexOf(hit[0]).ToString()), ("fire", events ? "1" : "0"));
@@ -53,10 +53,10 @@ internal static partial class Program
 		if (events && !await Until(async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			    .Any(d => which(d) && Field(d, "Enabled") != "True"), seconds: 4, every: 0.25))
 		{
-			Console.Error.WriteLine(L($"{what}: {hit[0]} gönderildi ama oyun bağırış listesini kapatmadı; duyulmamış olabilir."));
+			Console.Error.WriteLine(L($"{what}: {hit[0]} sent, but the game did not close the shouts list; it may not have been heard."));
 			return 1;
 		}
-		Console.WriteLine($"{what}: {hit[0]}{(events ? L(" (oyun yeni bağırışı bir süre kapattı)") : "")}");
+		Console.WriteLine($"{what}: {hit[0]}{(events ? L(" (the game closed new shouts for a while)") : "")}");
 		return 0;
 	}
 
@@ -64,11 +64,11 @@ internal static partial class Program
 	{
 		if (Field(await Fm.GetJson("state"), "DuringMatch") != "True")
 		{
-			Console.Error.WriteLine(L("Bağırışlar yalnızca maç sırasında."));
+			Console.Error.WriteLine(L("Shouts are only during a match."));
 			return 1;
 		}
 		var words = Words(args).ToList();
-		return await MatchList(L("Bağırış"), d => Field(d, "Name") == "shouts-dropdown", words.Count > 0 ? string.Join(" ", words) : null, args.Contains("--dry"), events: true);
+		return await MatchList(L("Shout"), d => Field(d, "Name") == "shouts-dropdown", words.Count > 0 ? string.Join(" ", words) : null, args.Contains("--dry"), events: true);
 	}
 
 	/// <summary>The active tactic's fields; empty while the planner is between tactics.</summary>
@@ -97,14 +97,14 @@ internal static partial class Program
 		// One row per stage: what is chosen, the list it is chosen from, the button that moves on.
 		(string What, string List, string Onward)[] stages =
 		[
-			(L("Stil"), "tac-styles-options", "Formation (In Possession)"),
-			(L("Topla oynarken diziliş"), "all-options-list", "Formation (Out of Possession)"),
-			(L("Topsuz diziliş"), "all-options-list", "Confirm"),
+			(L("Style"), "tac-styles-options", "Formation (In Possession)"),
+			(L("Formation in possession"), "all-options-list", "Formation (Out of Possession)"),
+			(L("Formation out of possession"), "all-options-list", "Confirm"),
 		];
 
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -134,7 +134,7 @@ internal static partial class Program
 			{
 				// With a tactic in place the tactics page's own "Create New Tactic" opens the same
 				// wizard; the new tactic takes the slot and the old one stays loadable by name
-				// (FINDINGS §8.47). This is how a formation is changed.
+				//. This is how a formation is changed.
 				await OpenPage(Screen.Tactics);
 				JsonElement? create = null;
 				await Until(async () => (create = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
@@ -142,14 +142,14 @@ internal static partial class Program
 					.FirstOrDefault(d => d!.Value.TryGetProperty("Choices", out var cs) && cs.ValueKind == JsonValueKind.Array && cs.EnumerateArray().Any(c => c!.ValueKind == JsonValueKind.String && c.GetString() == "Create New Tactic"))) != null, seconds: 10);
 				if (create == null)
 				{
-					Console.Error.WriteLine(L("Yeni taktik kurulamıyor: üç taktik yuvası dolu (oyun 'Create New Tactic' vermiyor). Bir yuvaya geçip oyunda boşaltmak gerek; yuvalar için: tactic slot"));
+					Console.Error.WriteLine(L("A new tactic cannot be made: all three tactic slots are taken (the game does not give 'Create New Tactic'). Switch to a slot and empty it in the game; for the slots: tactic slot"));
 					return 1;
 				}
-				if (!dry && Ui.Interactive && Ui.Ask(Lf("Etkin taktik ({0}) yerine yenisi kurulacak; eskisi kayıtlı taktiklerde kalır.", Field(await TacticInfo(), "Name")), [L("Devam")], cancel: L("Vazgeç")) == null)
+				if (!dry && Ui.Interactive && Ui.Ask(Lf("A new tactic will be built in place of the active one ({0}); the old one stays among the saved tactics.", Field(await TacticInfo(), "Name")), [L("Continue")], cancel: L("Cancel")) == null)
 					return 0;
 				if (dry)
 				{
-					Console.WriteLine(L("(kuru) Takımın taktiği var; 'Create New Tactic' sihirbazı açacak ve etkin taktiğin yerine yenisini kuracak."));
+					Console.WriteLine(L("(dry run) The team has a tactic; 'Create New Tactic' will open the wizard and build a new one in place of the active tactic."));
 					return 0;
 				}
 				await Fm.Get("select", ("ptr", Field(create.Value, "Pointer")), ("choice", "Create New Tactic"), ("fire", "1"));
@@ -159,7 +159,7 @@ internal static partial class Program
 
 		if (stage is not { } at || at >= stages.Length)
 		{
-			Console.Error.WriteLine(L("Taktik sihirbazı açılmadı."));
+			Console.Error.WriteLine(L("The tactic wizard did not open."));
 			return 1;
 		}
 
@@ -171,16 +171,16 @@ internal static partial class Program
 			List<string> choices = null;
 			if (!await Until(async () => (choices = await Offered(list)) != null))
 			{
-				Console.Error.WriteLine(L($"{what} seçenekleri gelmedi."));
+				Console.Error.WriteLine(L($"The {what} options did not come."));
 				return 1;
 			}
 
 			if (i >= picks.Count && Ui.Interactive && !dry)
 			{
-				if (Ui.Ask(L($"{what} seç"), choices) is not { } asked)
+				if (Ui.Ask(L($"Choose {what}"), choices) is not { } asked)
 				{
 					await LeaveCreator();
-					Console.WriteLine(L("Vazgeçildi."));
+					Console.WriteLine(L("Cancelled."));
 					return 0;
 				}
 				picks.Add(choices[asked]);
@@ -188,11 +188,11 @@ internal static partial class Program
 
 			if (i >= picks.Count)
 			{
-				Console.WriteLine(L($"{what} seç:"));
+				Console.WriteLine(L($"Choose {what}:"));
 				for (var n = 0; n < choices!.Count; n++) Console.WriteLine($"  {n + 1,2}  {choices![n]!}");
 
 				var soFar = string.Join(" ", picks.Take(i).Select(p => $"\"{p}\""));
-				Console.WriteLine(L($"\nDevam etmek için: tactic new {soFar}{(soFar.Length > 0 ? " " : "")}\"<seçim>\""));
+				Console.WriteLine(L($"\nTo go on: tactic new {soFar}{(soFar.Length > 0 ? " " : "")}\"<choice>\""));
 				// The command takes the choices from the start each time, so the wizard is not left open: on its
 				// page the team's tactics are not to be read, and other commands would find none (8 Temmuz 2026).
 				await LeaveCreator();
@@ -203,7 +203,7 @@ internal static partial class Program
 
 			if (dry)
 			{
-				Console.WriteLine(L($"(kuru) {what}: {pick} seçilecekti."));
+				Console.WriteLine(L($"(dry run) {what}: {pick} would have been chosen."));
 				return 0;
 			}
 
@@ -214,7 +214,7 @@ internal static partial class Program
 			JsonElement? button = null;
 			if (!await Until(async () => (button = await Labelled(onward)) != null))
 			{
-				Console.Error.WriteLine(L($"{what} seçildi ({pick}) ama sihirbaz ilerlemeye izin vermedi."));
+				Console.Error.WriteLine(L($"{what} chosen ({pick}), but the wizard did not allow going on."));
 				return 1;
 			}
 
@@ -229,7 +229,7 @@ internal static partial class Program
 
 			if (!await Until(async () => await CreatorStage() == expected, seconds: 12))
 			{
-				Console.Error.WriteLine(L($"{what} seçildi ({pick}) ama sihirbaz aynı adımda kaldı."));
+				Console.Error.WriteLine(L($"{what} chosen ({pick}), but the wizard stayed at the same step."));
 				return 1;
 			}
 
@@ -238,8 +238,8 @@ internal static partial class Program
 
 		// Stages chosen by an earlier run are the wizard's to remember, not this command's.
 		Console.WriteLine(chosen.Count == stages.Length
-			? L($"Taktik oluşturuldu: {string.Join(" · ", chosen)}")
-			: L($"Taktik oluşturuldu (son seçim: {chosen[^1]})."));
+			? L($"Tactic created: {string.Join(" · ", chosen)}")
+			: L($"Tactic created (last choice: {chosen[^1]})."));
 		return 0;
 	}
 
@@ -280,8 +280,8 @@ internal static partial class Program
 		if (close.Count == 1) return close[0];
 
 		Console.Error.WriteLine(close.Count == 0
-			? L($"{what}: '{pick}' diye bir seçenek yok. Seçenekler:")
-			: L($"{what}: '{pick}' birden çok seçeneğe uyuyor:"));
+			? L($"{what}: there is no option '{pick}'. Options:")
+			: L($"{what}: '{pick}' matches more than one option:"));
 		foreach (var choice in close.Count == 0 ? choices : close) Console.Error.WriteLine($"  {choice}");
 		return null;
 	}

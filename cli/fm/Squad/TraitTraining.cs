@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Teaching a player a trait, or unlearning one (FINDINGS §8.75). His training page, reached from
+/// Teaching a player a trait, or unlearning one. His training page, reached from
 /// the "Training Rating" tile on his page and then its "Traits" tile, talks to the assistant:
 /// "Start New Trait Training" is a list of categories with the traits in submenus, "Remove Trait"
 /// lists the ones he has, "Ask For Trait Training Suggestion" gets a sentence back. Starting one
@@ -19,7 +19,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: training <oyuncu> --trait [\"<alışkanlık>\"] | --trait-remove \"<alışkanlık>\" | --trait-cancel | --trait-suggest"));
+			Console.Error.WriteLine(L("usage: training <player> --trait [\"<trait>\"] | --trait-remove \"<trait>\" | --trait-cancel | --trait-suggest"));
 			return 64;
 		}
 		if (await OpenPlayer(wanted) is not { } card) return 1;
@@ -34,7 +34,7 @@ internal static partial class Program
 			async Task<bool> There() => !(await Fm.Get("press", [.. query, ("dry", "1")])).StartsWith("error", StringComparison.Ordinal);
 			if (!await Until(There, seconds: 8, every: 0.25))
 			{
-				Console.Error.WriteLine(L($"{name}: alışkanlık eğitimi sayfası açılmadı ('{tile}' döşemesi yok)."));
+				Console.Error.WriteLine(L($"{name}: trait training page did not open (no '{tile}' tile)."));
 				return 1;
 			}
 			var opened = await Fm.Get("press", query);
@@ -56,7 +56,7 @@ internal static partial class Program
 		}
 		if (!await Until(Ready, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine(L($"{name} için alışkanlık eğitimi açılmadı."));
+			Console.Error.WriteLine(L($"Trait training did not open for {name}."));
 			return 1;
 		}
 
@@ -103,11 +103,11 @@ internal static partial class Program
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}");
 			bool yes;
 			if (args.Contains("--yes")) yes = true;
-			else if (Ui.Interactive) yes = Ui.Ask(L("Ne yapalım?"), [Field(go, "Label"), Field(stop, "Label")]) == 0;
+			else if (Ui.Interactive) yes = Ui.Ask(L("What shall we do?"), [Field(go, "Label"), Field(stop, "Label")]) == 0;
 			else
 			{
 				yes = false;
-				Console.WriteLine(L("Onaylamak için aynı komutu --yes ile çalıştır."));
+				Console.WriteLine(L("To confirm, run the same command with --yes."));
 			}
 			var chosen = yes ? go : stop;
 			if (chosen.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(chosen, "Pointer")));
@@ -123,15 +123,15 @@ internal static partial class Program
 
 		if (args.Contains("--trait-suggest"))
 		{
-			if (busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışıyor; öneri için önce iptal: --trait-cancel")); return 0; }
+			if (busy) { Console.WriteLine(L($"{name} is working on a trait now; for a suggestion cancel it first: --trait-cancel")); return 0; }
 			// The button is found by the action it stands for, not by its words: its label is the
 			// game's own string, and the table this language is read through has no English for it,
-			// so it cannot be asked for by name in another language (FINDINGS §8.209).
+			// so it cannot be asked for by name in another language.
 			JsonElement? asking = null;
 			await Until(async () => (asking = await SpeakToAction(TraitSuggestAction)) != null, seconds: 8, every: 0.25);
 			if (asking is not { } button)
 			{
-				Console.Error.WriteLine(L($"{name}: alışkanlık önerisi düğmesi bulunamadı."));
+				Console.Error.WriteLine(L($"{name}: trait suggestion button not found."));
 				return 1;
 			}
 			var asked = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
@@ -144,42 +144,42 @@ internal static partial class Program
 			await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0
 			                        || (question.Length > 0 && (said = await Answer(question)).Length > 0), seconds: 6, every: 0.5);
 			if (said.Length > 0) return await Done(said);
-			return await Confirmed() ? await Done(L($"{name}: önerilen alışkanlığın eğitimi başladı.")) : 0;
+			return await Confirmed() ? await Done(L($"{name}: training on the suggested trait has begun.")) : 0;
 		}
 
 		if (args.Contains("--trait-cancel"))
 		{
-			if (!busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışmıyor.")); return 0; }
+			if (!busy) { Console.WriteLine(L($"{name} is not working on a trait now.")); return 0; }
 			var cancelled = await CancelTraitTraining();
 			if (cancelled.StartsWith("error", StringComparison.Ordinal)) return Report(cancelled);
 			if (!await Confirmed()) return 0;
-			return await Done(L($"{name}: alışkanlık eğitimi iptal edildi."));
+			return await Done(L($"{name}: trait training cancelled."));
 		}
 
 		if (Option(args, "--trait-remove") is { } unlearn)
 		{
-			if (busy) { Console.WriteLine(L($"{name} şu an bir alışkanlık üzerinde çalışıyor; önce iptal: --trait-cancel")); return 0; }
-			if (Choose(has, unlearn, L("Alışkanlık")) is not { } trait) return 1;
+			if (busy) { Console.WriteLine(L($"{name} is working on a trait now; cancel it first: --trait-cancel")); return 0; }
+			if (Choose(has, unlearn, L("Trait")) is not { } trait) return 1;
 			var sent = await Fm.Get("select", ("ptr", Field(removing, "Pointer")), ("choice", trait), ("fire", "1"));
 			if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 			if (!await Confirmed()) return 0;
-			return await Done(L($"{name}: \"{trait}\" bırakılmaya çalışılacak."));
+			return await Done(L($"{name}: will try to drop \"{trait}\"."));
 		}
 
 		var learn = Option(args, "--trait") is { } v && !v.StartsWith("--", StringComparison.Ordinal) ? v : null;
 		if (learn == null && (busy || !Ui.Interactive))
 		{
-			Console.WriteLine(L($"{name} — alışkanlıkları: {(has.Count == 0 ? L("yok") : string.Join(", ", has))}"));
+			Console.WriteLine(L($"{name} — traits: {(has.Count == 0 ? L("none") : string.Join(", ", has))}"));
 			if (busy)
 			{
-				Console.WriteLine(L("Şu an bir alışkanlık üzerinde çalışıyor (oyun hangisi olduğunu bu ekranda yazmıyor)."));
-				Console.WriteLine(L($"İptal için: training \"{name}\" --trait-cancel"));
+				Console.WriteLine(L("Working on a trait now (the game does not say which on this screen)."));
+				Console.WriteLine(L($"To cancel: training \"{name}\" --trait-cancel"));
 				return 0;
 			}
-			Console.WriteLine(L("Öğretilebilecekler:"));
+			Console.WriteLine(L("Can be taught:"));
 			foreach (var group in addable.GroupBy(a => a.Category))
-				Console.WriteLine($"  {(group.Key.Length > 0 ? group.Key : L("Diğer"))}: {string.Join(", ", group.Select(a => a.Trait))}");
-			Console.WriteLine(L($"\nÖğretmek için: training \"{name}\" --trait \"<alışkanlık>\"  ·  bırakmak: --trait-remove \"<alışkanlık>\"  ·  öneri: --trait-suggest"));
+				Console.WriteLine($"  {(group.Key.Length > 0 ? group.Key : L("Other"))}: {string.Join(", ", group.Select(a => a.Trait))}");
+			Console.WriteLine(L($"\nTo teach: training \"{name}\" --trait \"<trait>\"  ·  to drop one: --trait-remove \"<trait>\"  ·  suggestion: --trait-suggest"));
 			return 0;
 		}
 
@@ -191,7 +191,7 @@ internal static partial class Program
 			if (exact.Count == 1) fits = exact;
 			if (fits.Count != 1)
 			{
-				Console.Error.WriteLine(fits.Count == 0 ? L($"Öğretilebilecekler arasında '{learn}' yok.") : L($"'{learn}' {fits.Count} alışkanlığa uyuyor:"));
+				Console.Error.WriteLine(fits.Count == 0 ? L($"'{learn}' is not among those that can be taught.") : L($"'{learn}' matches {fits.Count} traits:"));
 				foreach (var a in fits) Console.Error.WriteLine($"  {a.Trait}");
 				return 1;
 			}
@@ -199,9 +199,9 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine(L($"{name} — alışkanlıkları: {(has.Count == 0 ? L("yok") : string.Join(", ", has))}"));
+			Console.WriteLine(L($"{name} — traits: {(has.Count == 0 ? L("none") : string.Join(", ", has))}"));
 			var labels = addable.Select(a => a.Category.Length > 0 ? $"{a.Category} › {a.Trait}" : a.Trait).ToList();
-			if (Ui.Ask(L($"{name}: hangi alışkanlığı öğrensin?"), labels) is not { } chosen) return 0;
+			if (Ui.Ask(L($"{name}: which trait should they learn?"), labels) is not { } chosen) return 0;
 			var a = addable[chosen];
 			path = a.Category.Length > 0 ? $"{a.Category}>{a.Trait}" : a.Trait;
 		}
@@ -211,7 +211,7 @@ internal static partial class Program
 			: await Fm.Get("select", ("ptr", Field(adding, "Pointer")), ("choice", path), ("fire", "1"));
 		if (started.StartsWith("error", StringComparison.Ordinal)) return Report(started);
 		if (!await Confirmed()) return 0;
-		return await Done(L($"{name}: \"{path.Split('>')[^1]}\" eğitimi başladı."));
+		return await Done(L($"{name}: training on \"{path.Split('>')[^1]}\" has begun."));
 	}
 
 	/// <summary>

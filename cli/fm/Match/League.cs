@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// A competition's statistics, read with no page opened (FINDINGS §8.129). A competition answers
+/// A competition's statistics, read with no page opened. A competition answers
 /// "who leads this" (`PlayerTopStats`, `TopTeamStat`) and "everyone ranked by this"
 /// (`PlayerStats`, `TeamStats`) once two variables sit beside it in the tree: `Type`, the
 /// statistic's number, and `Stage`, -1 for the whole competition. The club's competitions are
@@ -38,9 +38,9 @@ internal static partial class Program
 			if (json) Console.WriteLine(JsonOut.Of(new { Players = playerStats.Keys.Select(GameWords.Of), Teams = teamStats.Keys.Select(GameWords.Of) }));
 			else
 			{
-				Console.WriteLine(L($"Oyuncu istatistikleri ({playerStats.Count}) — league --stat <ad>"));
+				Console.WriteLine(L($"Player stats ({playerStats.Count}) — league --stat <name>"));
 				foreach (var name in playerStats.Keys) Console.WriteLine($"  {GameWords.Of(name)}");
-				Console.WriteLine(L($"\nTakım istatistikleri ({teamStats.Count}) — league --stat <ad> --teams"));
+				Console.WriteLine(L($"\nTeam stats ({teamStats.Count}) — league --stat <name> --teams"));
 				foreach (var name in teamStats.Keys) Console.WriteLine($"  {GameWords.Of(name)}");
 			}
 			return 0;
@@ -49,7 +49,7 @@ internal static partial class Program
 		var competitions = await ClubCompetitions();
 		if (competitions.Count == 0)
 		{
-			Console.Error.WriteLine(L("Kulübün turnuvaları okunamadı."));
+			Console.Error.WriteLine(L("The club's competitions could not be read."));
 			return 1;
 		}
 
@@ -59,7 +59,7 @@ internal static partial class Program
 		var division = await LeagueName();
 		var competition = wanted.Length == 0
 			? names.FirstOrDefault(c => c == division) ?? names[0]
-			: Choose(names, wanted, L("Turnuva"));
+			: Choose(names, wanted, L("Competition"));
 		if (competition == null) return 1;
 		var at = competitions.First(c => c.Name == competition).Path;
 
@@ -85,7 +85,7 @@ internal static partial class Program
 		var players = Leaders(read.Skip(teamScopes.Count), "Player.Name", "StatValue");
 		if (teams.Count + players.Count == 0 || teams.Concat(players).All(l => l.Name == "-"))
 		{
-			Console.Error.WriteLine(L($"{competition}: istatistik yok (turnuva henüz başlamamış olabilir)."));
+			Console.Error.WriteLine(L($"{competition}: no stats (the competition may not have started yet)."));
 			return 1;
 		}
 
@@ -100,7 +100,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L($"{competition} — liderler"));
+		Console.WriteLine(L($"{competition} — leaders"));
 		void Block(string title, List<(string Label, string Name, string Figure)> rows)
 		{
 			Console.WriteLine(title);
@@ -111,10 +111,10 @@ internal static partial class Program
 				else Console.WriteLine($"  {said}: {name} ({figure})");
 			}
 		}
-		Block(L("Takımlar"), teams);
-		Block(L("Oyuncular"), players);
-		Console.WriteLine(L("\nTam sıralama: league --stat <gol | asist | puan | …>  (hepsi: league --stats)"));
-		if (competitions.Count > 1) Console.WriteLine(L($"Başka turnuva: league <{string.Join(" | ", names)}>"));
+		Block(L("Teams"), teams);
+		Block(L("Players"), players);
+		Console.WriteLine(L("\nFull ranking: league --stat <goals | assists | rating | …>  (all of them: league --stats)"));
+		if (competitions.Count > 1) Console.WriteLine(L($"Another competition: league <{string.Join(" | ", names)}>"));
 		return 0;
 	}
 
@@ -132,10 +132,10 @@ internal static partial class Program
 		// Well over a hundred names: one that matches none is not answered with all of them.
 		if (!catalogue.Keys.Any(k => Fold(k) == Fold(asked)) && Matching(catalogue.Keys, k => k, asked).Count == 0)
 		{
-			Console.Error.WriteLine(L($"İstatistik: '{stat}' diye bir {(ofTeams ? L("takım") : L("oyuncu"))} istatistiği yok. Hepsi: league --stats"));
+			Console.Error.WriteLine(L($"Stats: there is no {(ofTeams ? L("team") : L("player"))} stat called '{stat}'. All of them: league --stats"));
 			return 64;
 		}
-		var name = Choose(catalogue.Keys.ToList(), asked, L("İstatistik"));
+		var name = Choose(catalogue.Keys.ToList(), asked, L("Stat"));
 		if (name == null) return 64;
 		await GameWords.Ask(Fm, name);
 		var shown = GameWords.Of(name);
@@ -154,7 +154,7 @@ internal static partial class Program
 			Field(row, field) is { Length: > 0 } text || !ofTeams ? Field(row, field) : Standings.Form(Field(row, field.Replace(".DisplayValue", ".PropertyValue")));
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine(L($"{competition}: {shown} için kayıt yok (turnuva henüz başlamamış olabilir)."));
+			Console.Error.WriteLine(L($"{competition}: no records for {shown} (the competition may not have started yet)."));
 			return 1;
 		}
 
@@ -188,13 +188,13 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine($"{competition} — {shown} ({(rows.Count < total ? L($"ilk {rows.Count} / {total}") : $"{total}")} {(ofTeams ? L("takım") : L("oyuncu"))})");
+		Console.WriteLine($"{competition} — {shown} ({(rows.Count < total ? L($"top {rows.Count} / {total}") : $"{total}")} {(ofTeams ? L("team") : L("player"))})");
 		Table.Write(
-			ofTeams ? ["#", L("TAKIM"), .. columns] : ["#", L("OYUNCU"), L("TAKIM"), .. columns],
+			ofTeams ? ["#", L("TEAM"), .. columns] : ["#", L("PLAYER"), L("TEAM"), .. columns],
 			rows.Select(r => ofTeams
 				? new[] { Place(Field(r, "Position")), Field(r, "Team.Name"), Cell(r, value), Cell(r, first), Cell(r, second) }
 				: [Place(Field(r, "Position")), Field(r, "Player.Name"), Field(r, "Team.Name"), Cell(r, value), Cell(r, first), Cell(r, second)]).ToList());
-		if (rows.Count < total) Console.WriteLine(L($"Devamı: --top <n> | --all"));
+		if (rows.Count < total) Console.WriteLine(L($"More: --top <n> | --all"));
 		return 0;
 	}
 
@@ -264,7 +264,7 @@ internal static partial class Program
 	{
 		// The catalogue keeps the names the game's English pages use, not the words it happened to show
 		// when it was read: the shown words follow the game's language, so a switch would leave the
-		// numbers under names no command could ask for (FINDINGS §8.275). The game's own table turns a
+		// numbers under names no command could ask for. The game's own table turns a
 		// shown word back into its English, one call each while the catalogue is built (once).
 		if (!refresh && File.Exists(LeagueStatsFile))
 		{
@@ -279,7 +279,7 @@ internal static partial class Program
 			catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or IOException) { }
 		}
 
-		if (!Ui.Json) Console.Error.WriteLine(L("İstatistik türleri oyundan okunuyor (bir kez)…"));
+		if (!Ui.Json) Console.Error.WriteLine(L("Reading the stat types from the game (once)…"));
 		var league = (await ClubCompetitions()).FirstOrDefault().Path ?? "Human.Team.Division";
 		var types = Enumerable.Range(0, 160).ToList();
 		var scopes = new List<string>();

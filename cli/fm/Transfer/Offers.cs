@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The offers waiting for an answer (Recruitment › Transfer Activity, FINDINGS §8.98): who wants
+/// The offers waiting for an answer (Recruitment › Transfer Activity): who wants
 /// which of our players, for what, and the three answers each row carries — accept, stall, reject.
 /// An offer's message drops off the inbox after a few days while the offer still waits; this is
 /// where it is answered then.
@@ -47,7 +47,7 @@ internal static partial class Program
 			}
 			if (offers.Count == 0)
 			{
-				Console.WriteLine(L("Bekleyen teklif yok."));
+				Console.WriteLine(L("No offers pending."));
 				return 0;
 			}
 			// The page lists our own bids too, a player of another club's with that club beside him:
@@ -57,21 +57,21 @@ internal static partial class Program
 			catch (FmError) { }
 			string Kind(WaitingOffer o) => o.Kind switch
 			{
-				"Loan" => ours.Contains(o.Player) || ours.Count == 0 ? L("Kiralık") : L("Kiralık alım"),
-				"Transfer" => ours.Contains(o.Player) || ours.Count == 0 ? L("Satış") : L("Alım"),
-				"Free Transfer" => L("Bedelsiz"),
-				"Swap" or "Part Exchange" => L("Takas"),
+				"Loan" => ours.Contains(o.Player) || ours.Count == 0 ? L("Loan") : L("Loan in"),
+				"Transfer" => ours.Contains(o.Player) || ours.Count == 0 ? L("Sale") : L("Purchase"),
+				"Free Transfer" => L("Free transfer"),
+				"Swap" or "Part Exchange" => L("Swap"),
 				var other => other,
 			};
-			Table.Write(["#", L("OYUNCU"), L("KULÜP"), L("TÜR"), L("DURUM"), L("BEDEL"), L("ŞARTLAR")],
+			Table.Write(["#", L("PLAYER"), L("CLUB"), L("TYPE"), L("STATUS"), L("FEE"), L("TERMS")],
 				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, Kind(o), o.Status, o.Fee, o.Terms]).ToList());
-			Console.WriteLine(L("\nCevap: offers <# | oyuncu> view | accept | stall | reject   (view teklifi kart olarak gösterir)"));
+			Console.WriteLine(L("\nAnswer: offers <# | player> view | accept | stall | reject   (view shows the offer as a card)"));
 			return 0;
 		}
 
 		if (words.Count < 2 || Fold(words[^1]) is not ("view" or "accept" or "stall" or "reject" or "goster" or "kabul" or "beklet" or "reddet"))
 		{
-			Console.Error.WriteLine(L("kullanım: offers   ·   offers <# | oyuncu> view | accept | stall | reject [--yes]"));
+			Console.Error.WriteLine(L("usage: offers   ·   offers <# | player> view | accept | stall | reject [--yes]"));
 			return 64;
 		}
 		var verb = Fold(words[^1]) switch { "goster" => "view", "kabul" => "accept", "beklet" => "stall", "reddet" => "reject", var v => v };
@@ -83,7 +83,7 @@ internal static partial class Program
 			var hits = Matching(offers, o => $"{o.Player} {o.Club}", wanted);
 			if (hits.Count != 1)
 			{
-				Console.Error.WriteLine(hits.Count == 0 ? L($"'{wanted}' için bekleyen teklif yok.") : L($"'{wanted}' {hits.Count} teklife uyuyor; numarasıyla seç: offers"));
+				Console.Error.WriteLine(hits.Count == 0 ? L($"No offer pending for '{wanted}'.") : L($"'{wanted}' matches {hits.Count} offers; choose by number: offers"));
 				return 1;
 			}
 			offer = hits[0];
@@ -116,7 +116,7 @@ internal static partial class Program
 				}, seconds: 8, every: 0.25))
 			{
 				await OpenPage(Screen.Home);
-				Console.Error.WriteLine(L($"{what}: teklif kartı açılmadı."));
+				Console.Error.WriteLine(L($"{what}: offer card did not open."));
 				return 1;
 			}
 			var card = await Offer(["offer"]);
@@ -130,7 +130,7 @@ internal static partial class Program
 		var button = verb switch { "accept" => offer.Accept, "stall" => offer.Stall, _ => offer.Reject };
 		if (button == null)
 		{
-			Console.Error.WriteLine(L($"{what}: oyun bu teklife '{verb}' cevabını vermiyor (pazarlıksız ya da süresi dolmak üzere olan teklif bekletilemez)."));
+			Console.Error.WriteLine(L($"{what}: the game does not give '{verb}' as an answer to this offer (an offer with no negotiation, or one about to expire, cannot be stalled)."));
 			return 1;
 		}
 		// The game sends these at once, without asking; selling a player is asked about here.
@@ -138,10 +138,10 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine(L($"{what}: {(verb == "accept" ? L("kabul") : L("ret"))} oyunda onaysız işliyor. Göndermek için: offers \"{offer.Player} {offer.Club}\" {verb} --yes"));
+				Console.WriteLine(L($"{what}: {(verb == "accept" ? L("accepting") : L("rejecting"))} goes through in the game without asking. To send it: offers \"{offer.Player} {offer.Club}\" {verb} --yes"));
 				return 0;
 			}
-			if (Ui.Ask($"{what}: {(verb == "accept" ? L("kabul edelim mi?") : L("reddedelim mi?"))}", [L("Evet"), L("Hayır")]) != 0) return 0;
+			if (Ui.Ask($"{what}: {(verb == "accept" ? L("accept it?") : L("reject it?"))}", [L("Yes"), L("No")]) != 0) return 0;
 		}
 
 		var said = await Fm.Get("press", ("ptr", button));
@@ -152,16 +152,16 @@ internal static partial class Program
 			!(after = await WaitingOffers()).Any(o => o.Player == offer.Player && o.Club == offer.Club && o.Status == offer.Status), seconds: 8, every: 0.5);
 		if (!changed)
 		{
-			Console.Error.WriteLine(L($"{what}: cevap gönderildi ama teklif listede aynı duruyor."));
+			Console.Error.WriteLine(L($"{what}: the answer was sent, but the offer stays the same in the list."));
 			return 1;
 		}
 		var now = after.FirstOrDefault(o => o.Player == offer.Player && o.Club == offer.Club);
-		Console.WriteLine($"{what}: {(verb == "accept" ? L("kabul edildi") : verb == "stall" ? L("bekletiliyor") : L("reddedildi"))}{(now != null ? L($" — durum: {now.Status}") : "")}");
+		Console.WriteLine($"{what}: {(verb == "accept" ? L("accepted") : verb == "stall" ? L("stalled") : L("rejected"))}{(now != null ? L($" — status: {now.Status}") : "")}");
 		return 0;
 	}
 
 	/// <summary>
-	/// The offers on the page (FINDINGS §8.161). On the left the players with offers, a radio group; on the
+	/// The offers on the page. On the left the players with offers, a radio group; on the
 	/// right the offers for the one chosen there, so each is chosen in turn. A row is the club, the kind
 	/// (Transfer, Loan), any number of clauses, the status and the fee — and for a loan the wage share
 	/// after it; the buttons give each offer its link and three unlabelled answers, in the same order.
@@ -207,7 +207,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The panel of the player chosen in the list, each text with its data path (FINDINGS §8.169),
+	/// The panel of the player chosen in the list, each text with its data path,
 	/// from one of its offers' kind, which only this panel carries.
 	/// </summary>
 	private static async Task<List<(string Text, string Path)>> OfferTexts() =>

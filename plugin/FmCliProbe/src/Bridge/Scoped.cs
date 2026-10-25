@@ -7,7 +7,7 @@ namespace FmCliProbe;
 /// A page's own variables: values a BindingSetter keeps under its key for the elements inside
 /// it, such as which phase the tactics page shows (`inpossession`). Read, or written with a
 /// value copied from another path (`const.False`), the way a SetDatastoreValue event copies
-/// its source to its destination (FINDINGS §8.64).
+/// its source to its destination.
 /// </summary>
 internal static class Scoped
 {

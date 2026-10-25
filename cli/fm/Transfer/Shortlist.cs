@@ -4,7 +4,7 @@ namespace FmCli;
 
 /// <summary>
 /// The players shortlisted (an offer puts its player there too), read as the player database is
-/// (FINDINGS §8.56). The page is reached by the Shortlists tile on the recruitment overview.
+///. The page is reached by the Shortlists tile on the recruitment overview.
 /// </summary>
 internal static partial class Program
 {
@@ -19,7 +19,7 @@ internal static partial class Program
 			.FirstOrDefault(b => Field(b!.Value, "Label") == "Shortlists" && Field(b!.Value, "Name") == "layout-tile-interaction-button")) != null, seconds: 8, every: 0.5);
 		if (tile == null)
 		{
-			Console.Error.WriteLine(L("Kısa liste döşemesi bulunamadı."));
+			Console.Error.WriteLine(L("The shortlist tile was not found."));
 			return 1;
 		}
 		await Fm.Get("press", ("ptr", Field(tile!.Value, "Pointer")));
@@ -42,7 +42,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (people.ValueKind != JsonValueKind.Array)
 		{
-			Console.WriteLine(L("Kısa liste boş."));
+			Console.WriteLine(L("The shortlist is empty."));
 			return 0;
 		}
 		if (json)

@@ -4,7 +4,7 @@ using System.Text;
 namespace FmCli;
 
 /// <summary>
-/// The engine's own texts (FINDINGS §8.171): what the simulation writes — a person's menu, a training
+/// The engine's own texts: what the simulation writes — a person's menu, a training
 /// session's name, a personality, a scout's verdict — is not in the UI's translation table the plugin
 /// carries. The game keeps them in languages.fmf: zstd frames of 4 KB, and inside, for each language a
 /// block ("ctl.", its name, a pool of texts, then an index of id → place in the pool). An id is the same
@@ -17,7 +17,7 @@ internal static class EngineTexts
 	/// <summary>The game's language setting and the name its block goes by in the file.</summary>
 	private static readonly Dictionary<string, string> BlockNames = new(StringComparer.OrdinalIgnoreCase)
 	{
-		["turkish"] = "Türkçe", ["german"] = "Deutsch", ["french"] = "Français", ["spanish"] = "Español",
+		["turkish"] = "Turkish", ["german"] = "German", ["french"] = "French", ["spanish"] = "Spanish",
 		["italian"] = "Italiano", ["portuguese"] = "Português", ["dutch"] = "Nederlands", ["polish"] = "Polski",
 		["russian"] = "Русский", ["danish"] = "Dansk", ["norwegian"] = "Norsk", ["swedish"] = "Svenska",
 		["greek"] = "Ελληνικά", ["korean"] = "한국어", ["japanese"] = "日本語", ["arabic"] = "اَلْعَرَبِيَّةُ",
@@ -50,13 +50,13 @@ internal static class EngineTexts
 		var file = Field(engine, "File");
 		if (file.Length == 0 || !BlockNames.TryGetValue(language, out var block)) return;
 
-		Console.Error.WriteLine(L($"Oyunun motor yazıları ({block}) bir kez çıkarılıyor…"));
+		Console.Error.WriteLine(L($"The game engine's texts ({block}) are being extracted, once…"));
 		Dictionary<string, string> pairs;
 		try { pairs = Build(file, block); }
 		catch (Exception e)
 		{
 			// The texts are a help, never a reason for the command to fail.
-			Console.Error.WriteLine(L($"Motor yazıları çıkarılamadı: {e.Message}"));
+			Console.Error.WriteLine(L($"The engine's texts could not be extracted: {e.Message}"));
 			return;
 		}
 		if (pairs.Count == 0) return;

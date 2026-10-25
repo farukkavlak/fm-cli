@@ -8,7 +8,7 @@ internal static partial class Program
 	/// <summary>
 	/// The inbox as it is now. An inbox loaded earlier can stay bound beneath other pages and go
 	/// on answering with what it held then — after four matches it still listed the week before
-	/// while the board's meeting request waited unseen (FINDINGS §8.140). Opening the portal again
+	/// while the board's meeting request waited unseen. Opening the portal again
 	/// binds the live one.
 	/// </summary>
 	internal static async Task<JsonElement> FreshInbox()
@@ -32,7 +32,7 @@ internal static partial class Program
 	/// <summary>
 	/// Every message the inbox holds, read by scrolling its own streamed list with the list's
 	/// pointer (so the anchor never goes off screen). Used when the first window does not have
-	/// the message — a subject a script names, or the one the game is waiting on (FINDINGS §8.385).
+	/// the message — a subject a script names, or the one the game is waiting on.
 	/// </summary>
 	internal static async Task<List<JsonElement>> AllInbox()
 	{
@@ -135,7 +135,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -143,12 +143,12 @@ internal static partial class Program
 		// opened over the match itself.
 		if (Field(await Fm.GetJson("state"), "DuringMatch") == "True")
 		{
-			Console.Error.WriteLine(L("Maç sırasında gelen kutusu okunmuyor. Maç için: match"));
+			Console.Error.WriteLine(L("The inbox is not read during a match. For the match: match"));
 			return 1;
 		}
 
 		// Offer messages can sit behind the inbox's own Tasks filter, where the default list
-		// does not show them and `offers` has no button to answer (FINDINGS §8.399). Pressing
+		// does not show them and `offers` has no button to answer. Pressing
 		// that filter by its stable element name brings them up.
 		if (args.Contains("--tasks"))
 		{
@@ -187,12 +187,12 @@ internal static partial class Program
 			})
 			.ToList();
 
-		Table.Write(new[] { "#", L("SAAT"), L("GÖNDEREN"), L("KONU"), "" }, rows);
+		Table.Write(new[] { "#", L("TIME"), L("FROM"), L("SUBJECT"), "" }, rows);
 		}
 
 		var waiting = inbox.EnumerateArray().Count(Blocking);
 		if (waiting > 0)
-			Console.WriteLine(L($"\n{waiting} mesaj cevap bekliyor — bunlar `fm next`'i blokluyor. Cevaplamak için: reply <#>"));
+			Console.WriteLine(L($"\n{waiting} messages await an answer — they block `fm next`. To answer: reply <#>"));
 
 		return 0;
 	}

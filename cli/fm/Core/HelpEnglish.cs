@@ -2,7 +2,7 @@ namespace FmCli;
 
 internal static partial class Program
 {
-	/// <summary>The help in English, for a game that is not set to Turkish (<see cref="HelpTurkish"/>).</summary>
+	/// <summary>The help text, in English; the Turkish catalog holds its translation.</summary>
 	private const string HelpEnglish = """
 			fm — run Football Manager 26 from the terminal
 
@@ -192,7 +192,7 @@ internal static partial class Program
 
 			Short forms: the start of a command is enough when it fits one command (sq → squad, fix → fixtures). Short names:
 			s status · n next · i inbox · t table · fx fixtures · m match · p player · tc tactic.
-			Turkish names work too, with or without accents: kadro, taktik, maç, tablo, fikstür, gelen, ileri, sağlık, yönetim…
+			Turkish command names work too, with or without accents.
 			  fm mcp          offer the commands as MCP tools (stdio); for a model to play
 
 			In the session you give the commands without typing `fm`; to leave: `quit`.

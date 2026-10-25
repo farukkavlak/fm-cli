@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// Setting up and removing a recruitment focus (FINDINGS §8.120). "Create a New Recruitment
+/// Setting up and removing a recruitment focus. "Create a New Recruitment
 /// Focus" is a two-step form: the position and role sought, then the name, ages, the areas to
 /// scout and the priority. Each step is read as a form and its controls set one by one; what
 /// was not asked for is left as the game has it.
@@ -70,8 +70,7 @@ internal static partial class Program
 	/// <summary>
 	/// A button the game itself names by the event it sends, pressed by its pointer. The observer
 	/// window's two buttons ("Cancel" / "Confirm") both send their own event and close the window,
-	/// and what this language's table writes on them is not what tells them apart (FINDINGS
-	/// §8.244); the form's own Cancel/Confirm carry a different event
+	/// and what this language's table writes on them is not what tells them apart; the form's own Cancel/Confirm carry a different event
 	/// (RecruitmentFocusEditConfirmationDialog), so they are never caught here.
 	/// </summary>
 	private static async Task<JsonElement?> EventButton(string sent) =>
@@ -79,7 +78,7 @@ internal static partial class Program
 			.Where(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal) && Field(b, "Enabled") == "True")
 			.Cast<JsonElement?>().FirstOrDefault();
 
-	/// <summary>The texts drawn in a control, as the form gives them ("(Gözlemci)" with a name).</summary>
+	/// <summary>The texts drawn in a control, as the form gives them ("(Scout)" with a name).</summary>
 	private static List<string> FormTexts(JsonElement item) =>
 		item.ValueKind == JsonValueKind.Object && item.TryGetProperty("Texts", out var texts) && texts.ValueKind == JsonValueKind.Array
 			? texts.EnumerateArray().Select(t => t.GetString() ?? "").Where(t => t.Length > 0).ToList()
@@ -103,7 +102,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// The heading drawn just above a bound control, as the game writes it. The areas list's own
-	/// heading carries a count in the game's sentence ("Gözlemleme Yerleri (n)", "Scouting Areas
+	/// heading carries a count in the game's sentence ("Scouting Areas (n)"
 	/// (n)"), so no fixed words can be looked for in it; that this same heading changed after an
 	/// area was added is the sign — the element, whatever language it is written in — that it got in.
 	/// </summary>
@@ -130,7 +129,7 @@ internal static partial class Program
 	/// <summary>
 	/// Steps a star rating of the form to a value with the buttons on either side of it. The
 	/// game counts half stars from 1 to 10; an untouched rating sits above that (11–15, drawn as
-	/// one to five half stars — FINDINGS §8.124), so it is stepped down from there.
+	/// one to five half stars —), so it is stepped down from there.
 	/// </summary>
 	private static async Task<bool> SetStars(string heading, int steps)
 	{
@@ -156,7 +155,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<string>> AssignFocusScouts(string typed, bool analysts = false)
 	{
-		var who = analysts ? L("Analist") : "Scout";
+		var who = analysts ? L("Analyst") : "Scout";
 		// The window's own box: "Assign Any Scouts", but "Assign Any Analyst". In a Turkish game
 		// the game leaves these two labels in English (measured), so the box is the same words in
 		// every language; what it is bound to (focusitem.anyscout / focusitem.anyanalyst) is
@@ -164,9 +163,9 @@ internal static partial class Program
 		var box = analysts ? "Assign Any Analyst" : "Assign Any Scouts";
 		var form = await FocusForm("Back");
 		// The scouts and analysts rows carry the same button template, and the heading above them
-		// is the game's own sentence ("Gözlemci Görevlendir (1)", "Analist Görevlendir (1)"), so
+		// is the game's own sentence (assign a scout, assign an analyst), so
 		// neither can be looked for in English. The row is the one whose heading or people carry
-		// the role's own word ("(Gözlemci)", "(Oyuncu Analisti)"), asked from the game's table; a
+		// the role's own word ("(Scout)", "(Player Analyst)"), asked from the game's table; a
 		// form that says neither keeps its order (scouts first, analysts second).
 		await GameWords.Ask(Fm, "Scout", "Analyst");
 		var role = GameWords.Of(analysts ? "Analyst" : "Scout");
@@ -184,7 +183,7 @@ internal static partial class Program
 		if (pick < 0 && rows.Count > 0) pick = analysts ? rows[^1] : rows[0];
 		if (pick < 0)
 		{
-			Console.Error.WriteLine(L($"Formda {who.ToLowerInvariant()} seçme butonu yok."));
+			Console.Error.WriteLine(L($"The form has no button to choose {who.ToLowerInvariant()}."));
 			return null;
 		}
 		await Fm.Get("click", ("ptr", Field(form[pick], "Pointer")));
@@ -194,7 +193,7 @@ internal static partial class Program
 		List<JsonElement> window = [];
 		if (!await Until(async () => (window = await Window()).Any(i => Field(i, "Kind") == "checkbox" && Field(i, "Binds") == bind), seconds: 6, every: 0.4))
 		{
-			Console.Error.WriteLine(L($"{who} seçme penceresi açılmadı."));
+			Console.Error.WriteLine(L($"The window to choose {who} did not open."));
 			return null;
 		}
 		async Task<bool> Close(string sent)
@@ -217,7 +216,7 @@ internal static partial class Program
 			var texts = view.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).ToList();
 			return Enumerable.Range(0, Math.Max(0, texts.Count - 2)).Where(i => int.TryParse(texts[i + 2], out _)).Select(i => texts[i]).ToList();
 		}
-		// The table lays out only the rows in view — at times a single one (FINDINGS §8.128) — so it
+		// The table lays out only the rows in view — at times a single one — so it
 		// is read at three depths, and each name keeps the depth it showed at. A row's nation
 		// button says which list to scroll.
 		async Task Show(string share)
@@ -230,7 +229,7 @@ internal static partial class Program
 			var inRow = (await Window()).FirstOrDefault(i => Field(i, "Kind") == "button" && !own.Contains(Field(i, "Pointer")));
 			if (inRow.ValueKind != JsonValueKind.Object) return;
 			await Fm.Get("scroll", ("ptr", Field(inRow, "Pointer")), ("to", share));
-			// The rows are laid out again after the scroll (FINDINGS §8.128), so the same rows
+			// The rows are laid out again after the scroll, so the same rows
 			// twice in a row is the game's own sign the layout has stopped moving; no fixed pause.
 			List<string> before = null;
 			await Until(async () =>
@@ -253,7 +252,7 @@ internal static partial class Program
 		{
 			if (Choose(names, wanted, who) is not { } name)
 			{
-				if (!await Close(ScoutEditCancel)) Console.Error.WriteLine(L($"{who} seçme penceresi kapanmadı."));
+				if (!await Close(ScoutEditCancel)) Console.Error.WriteLine(L($"The {who} picker did not close."));
 				return null;
 			}
 			if (!picked.Contains(name)) picked.Add(name);
@@ -264,7 +263,7 @@ internal static partial class Program
 			await Show(depth[name]);
 			await Fm.Get("rowselect", ("text", name), ("check", picked.Contains(name) ? "1" : "0"));
 		}
-		// How many are ticked is the game's own sentence ("1 gözlemci seçildi", "1 scout(s)
+		// How many are ticked is the game's own sentence ("1 scout selected"
 		// selected"), so it is not written out and looked for; the place it is drawn in
 		// (SIVisible-selected-scouts-number / …-analysts-number, the template's own names) is the
 		// same in every language, and the number inside it is what is checked.
@@ -278,13 +277,13 @@ internal static partial class Program
 		}
 		if (!await Until(async () => await Ticked() == picked.Count, seconds: 4, every: 0.3))
 		{
-			if (!await Close(ScoutEditCancel)) Console.Error.WriteLine(L($"{who} seçme penceresi kapanmadı."));
-			Console.Error.WriteLine(L($"{who} seçilemedi (pencere seçilen sayısını göstermedi)."));
+			if (!await Close(ScoutEditCancel)) Console.Error.WriteLine(L($"The {who} picker did not close."));
+			Console.Error.WriteLine(L($"{who} could not be chosen (the window did not show how many were chosen)."));
 			return null;
 		}
 		if (!await Close(ScoutEditConfirm))
 		{
-			Console.Error.WriteLine(L($"{who} seçme penceresi kapanmadı."));
+			Console.Error.WriteLine(L($"The {who} picker did not close."));
 			return null;
 		}
 		return picked;
@@ -309,7 +308,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// An area as the form's list nests it. A whole path ("Competition>Türkiye>Super League") is
+	/// An area as the form's list nests it. A whole path ("Competition>Turkey>Super League") is
 	/// walked as typed; a single name is looked for among the continents, regions and nations.
 	/// </summary>
 	private static async Task<string?> FocusArea(string pointer, string typed)
@@ -332,13 +331,13 @@ internal static partial class Program
 			var level = new List<string> { "Competition", "Nation", "Region", "Continent", "Recently Selected" };
 			foreach (var part in parts)
 			{
-				if (Choose(level, part, L("Bölge")) is not { } step) return null;
+				if (Choose(level, part, L("Area")) is not { } step) return null;
 				path = path.Length == 0 ? step : path + ">" + step;
 				level = await Under(path);
 			}
 			if (level.Count > 0)
 			{
-				Console.Error.WriteLine(L($"'{path.Replace(">", " › ")}' bir alt menü; altındakiler: {string.Join(" · ", level)}"));
+				Console.Error.WriteLine(L($"'{path.Replace(">", " › ")}' is a submenu; under it: {string.Join(" · ", level)}"));
 				return null;
 			}
 			return path;
@@ -354,8 +353,8 @@ internal static partial class Program
 		}
 		if (found.Count == 1) return found[0];
 		Console.Error.WriteLine(found.Count == 0
-			? L($"Bölge: '{typed}' kıta, bölge ya da ülke olarak bulunamadı. Lig için yolunu yaz: \"Competition>Türkiye>Super League\"; seçenekler: scout areas [yol]")
-			: L($"Bölge: '{typed}' birden çok yere uyuyor: {string.Join(" · ", found.Select(p => p.Replace(">", " › ")))}"));
+			? L($"Area: '{typed}' was not found as a continent, region or nation. For a league write its path: \"Competition>Turkey>Super League\"; the options: scout areas [path]")
+			: L($"Area: '{typed}' matches more than one place: {string.Join(" · ", found.Select(p => p.Replace(">", " › ")))}"));
 		return null;
 	}
 
@@ -375,7 +374,7 @@ internal static partial class Program
 			List<JsonElement> items = [];
 			await Until(async () =>
 			{
-				// The panel's title is the game's own word ("Aktif Görevler (4)"), translated with
+				// The panel's title is the game's own word ("Active Assignments (4)"), translated with
 				// the rest of the UI; the scout it heads is bound as Scout.Name in every language.
 				items = (await Fm.GetJson("form", ("anchorpath", "Scout.Name"), ("up", "13"), ("buttons", "1"))).EnumerateArray().ToList();
 				return items.Count(i => Field(i, "Path") == "binding.Name") >= 1 && items.Any(i => Field(i, "Path") == "Scout.Name");

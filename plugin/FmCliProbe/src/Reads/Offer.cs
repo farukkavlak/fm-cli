@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace FmCliProbe;
 
 /// <summary>
-/// The transfer offer on screen, as its terms are laid out (FINDINGS §8.42).
+/// The transfer offer on screen, as its terms are laid out.
 ///
 /// The offer is a column of term rows (<c>#frames-contract-terms</c>) under three headings:
 /// Base Details, Additional Fees and Additional Clauses. Each row has its name in
@@ -17,7 +17,7 @@ namespace FmCliProbe;
 /// are the offer-wide choices (negotiable or not, a deadline for the answer) and below them
 /// what it costs. Each heading but the first has an "Add" dropdown that puts another row in.
 ///
-/// The contract talks are built from the same parts (FINDINGS §8.44): rows named
+/// The contract talks are built from the same parts: rows named
 /// <c>#frames-contract terms</c>, a lock beside each, "Add Promise" / "Add Bonus" / "Add Clause"
 /// lists, and a lock for the entire offer. They come in two stages, promises and then terms,
 /// each its own block.
@@ -79,7 +79,7 @@ internal static class Offer
 			}
 		}
 
-		// A wage by the week, the month or the year, in any currency: a figure with its symbol ("£4K p/w", "17,25B £ aylık").
+		// A wage by the week, the month or the year, in any currency: a figure with its symbol ("£4K p/w", "a monthly wage with a comma decimal").
 		static bool Money(string v) =>
 			v.Any(char.IsDigit) && v.Any(c => char.GetUnicodeCategory(c) == System.Globalization.UnicodeCategory.CurrencySymbol);
 
@@ -197,7 +197,7 @@ internal static class Offer
 			catch { continue; }
 
 			// The lock beside a term is a dropdown of its own, not the term's value: how firmly
-			// the term is held in the talks (FINDINGS §8.42).
+			// the term is held in the talks.
 			if (name is "lock-button-remapper" or "lock-button-enabled")
 			{
 				if (lockList == null)

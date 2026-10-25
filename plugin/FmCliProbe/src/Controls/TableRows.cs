@@ -6,7 +6,7 @@ using SI.Bindable;
 namespace FmCliProbe;
 
 /// <summary>
-/// Reordering a table whose rows are dragged on the page — the penalty takers (FINDINGS §8.90).
+/// Reordering a table whose rows are dragged on the page — the penalty takers.
 /// Dropping a row ends in the table's own OnMoveItemInternal(from, to), which writes what moved
 /// where to the table's drag binding and sends its DragEvents; taking a row out ends in
 /// OnRemoveItemInternal(index). They are called here as the drop would call them.
@@ -40,7 +40,7 @@ internal static class TableRows
 	/// <summary>
 	/// Selects the row that shows a text, as a click on it would: the row's own list is told its
 	/// index. A page's buttons that act on "the selected one" stay disabled until this is done —
-	/// the save browser's Delete (FINDINGS §8.104).
+	/// the save browser's Delete.
 	/// </summary>
 	public static string Select(NameValueCollection q)
 	{
@@ -81,7 +81,7 @@ internal static class TableRows
 			}
 
 			// A table that takes several rows ticks them one by one, with the box at the row's
-			// start — the players of a mentoring group (FINDINGS §8.106).
+			// start — the players of a mentoring group.
 			if (q["check"] is "1" or "0")
 			{
 				var box = Toggle(row, 0);
@@ -107,7 +107,7 @@ internal static class TableRows
 	/// the order the table shows them put at a path of its own (?gen=) to be read for whose it is
 	/// (a player's UniqueId), and the items ticked now. The selection counts in that order, not the
 	/// source's (a sorted table's differ): an item is ticked by its place there with
-	/// /rowselect?table=&amp;index=&amp;check=, whether or not its row is laid out (FINDINGS §8.188).
+	/// /rowselect?table=&amp;index=&amp;check=, whether or not its row is laid out.
 	/// </summary>
 	public static string Checkable(NameValueCollection q)
 	{

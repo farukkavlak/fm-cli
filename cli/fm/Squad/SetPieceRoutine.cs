@@ -5,7 +5,7 @@ namespace FmCli;
 
 /// <summary>
 /// A set piece routine (Match Day › Set Pieces): how the ball is delivered, where it is aimed and
-/// what each player in the routine is told to do (FINDINGS §8.93). The page shows one kind at a
+/// what each player in the routine is told to do. The page shows one kind at a
 /// time, the same kinds the takers are kept for (§8.91).
 /// </summary>
 internal static partial class Program
@@ -20,7 +20,7 @@ internal static partial class Program
 		public List<string> AimChoices => AimButtons.Count > 0 ? AimButtons.Select(b => Field(b, "Label")).ToList() : AimMenu is { } m ? Choices(m) : [];
 	}
 
-	private static string RoutineUsage => L("kullanım: setpieces <tür>   ·   setpieces <tür> vurus <in|out> | hedef <seçenek> | <yer> <görev> [<olmazsa>]\n          setpieces new [<no> …]   (düzen hiç kurulmamışsa)\ntürler: korner, frikik (şut mesafesi), kanat, derin (serbest vuruşlar), tac (hücum bölgesi)");
+	private static string RoutineUsage => L("usage: setpieces <kind>   ·   setpieces <kind> delivery <in|out> | aim <option> | <place> <duty> [<otherwise>]\n          setpieces new [<no> …]   (if set pieces have never been set up)\nkinds: corner, freekick (shooting range), wide, deep (free kicks), throw (attacking third)");
 
 	private static async Task<int> SetPieceRoutine(bool json, List<string> words)
 	{
@@ -29,7 +29,7 @@ internal static partial class Program
 		var kind = SetPieceKinds.FirstOrDefault(k => k.Words.Contains(Fold(words[0])));
 		if (kind.Say == null)
 		{
-			Console.Error.WriteLine(L($"'{words[0]}' bir duran top türü değil.\n{RoutineUsage}"));
+			Console.Error.WriteLine(L($"'{words[0]}' is not a set piece type.\n{RoutineUsage}"));
 			return 64;
 		}
 		words.RemoveAt(0);
@@ -38,7 +38,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (await ShowSetPieceKind(kind!.Value, kind.ThrowIn) == null)
 		{
-			Console.Error.WriteLine(L($"{kind.Say}: sayfa açılmadı (duran top düzeni kurulmamış olabilir: setpieces new)."));
+			Console.Error.WriteLine(L($"{kind.Say}: the page did not open (set pieces may not be set up: setpieces new)."));
 			return 1;
 		}
 
@@ -58,7 +58,7 @@ internal static partial class Program
 
 		if (!await Drawn())
 		{
-			Console.Error.WriteLine(L($"{kind.Say}: rutin okunamadı."));
+			Console.Error.WriteLine(L($"{kind.Say}: the routine could not be read."));
 			return 1;
 		}
 
@@ -68,24 +68,24 @@ internal static partial class Program
 			var what = Fold(words[0]);
 			if (what is "vurus" or "delivery")
 			{
-				if (routine.DeliveryButtons.Count == 0) { Console.Error.WriteLine(L($"{kind.Say}: bu türde vuruş tipi seçilmiyor.")); return 1; }
+				if (routine.DeliveryButtons.Count == 0) { Console.Error.WriteLine(L($"{kind.Say}: no delivery type is chosen for this kind.")); return 1; }
 				var wanted = Fold(words[1]) switch { "in" or "ice" or "inswinger" => 0, "out" or "disa" or "outswinger" => 1, _ => -1 };
-				if (wanted < 0) { Console.Error.WriteLine(L("vuruş tipi: in (içe kıvrılan) ya da out (dışa kıvrılan)")); return 64; }
+				if (wanted < 0) { Console.Error.WriteLine(L("delivery: in (inswinging) or out (outswinging)")); return 64; }
 				if (routine.Delivery != Deliveries[wanted])
 				{
 					var button = routine.DeliveryButtons.First(b => Field(b, "Label") == Deliveries[wanted]);
 					if (await Fm.Get("press", ("ptr", Field(button, "Pointer"))) is var said && said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 					if (!await Until(async () => (routine = await ReadRoutine())?.Delivery == Deliveries[wanted], seconds: 6, every: 0.4))
 					{
-						Console.Error.WriteLine(L("Vuruş tipi değişmedi."));
+						Console.Error.WriteLine(L("The delivery did not change."));
 						return 1;
 					}
 				}
 			}
 			else if (what is "hedef" or "aim")
 			{
-				if (routine.AimChoices.Count == 0) { Console.Error.WriteLine(L($"{kind.Say}: bu türde hedef seçilmiyor.")); return 1; }
-				if (Choose(routine.AimChoices, string.Join(" ", words.Skip(1)), L("Hedef")) is not { } choice) return 64;
+				if (routine.AimChoices.Count == 0) { Console.Error.WriteLine(L($"{kind.Say}: no target is chosen for this kind.")); return 1; }
+				if (Choose(routine.AimChoices, string.Join(" ", words.Skip(1)), L("Target")) is not { } choice) return 64;
 				if (routine.Aim != choice)
 				{
 					// Throw-ins choose between two buttons, the others from a menu.
@@ -95,7 +95,7 @@ internal static partial class Program
 					if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 					if (!await Until(async () => (routine = await ReadRoutine())?.Aim == choice, seconds: 6, every: 0.4))
 					{
-						Console.Error.WriteLine(L("Hedef değişmedi."));
+						Console.Error.WriteLine(L("The target did not change."));
 						return 1;
 					}
 				}
@@ -105,18 +105,18 @@ internal static partial class Program
 				var at = routine.Slots.FindIndex(s => Fold(s.Slot) == what);
 				if (at < 0)
 				{
-					Console.Error.WriteLine(L($"'{words[0]}' bu rutinde bir yer değil. Yerler: {string.Join(", ", routine.Slots.Select(s => s.Slot))}"));
+					Console.Error.WriteLine(L($"'{words[0]}' is not a place in this routine. Places: {string.Join(", ", routine.Slots.Select(s => s.Slot))}"));
 					return 64;
 				}
 				var slot = routine.Slots[at];
-				if (slot.Menu is not { } menu) { Console.Error.WriteLine(L($"{slot.Slot}: görev listesi bulunamadı.")); return 1; }
-				if (Choose(Choices(menu), words[1], L($"{slot.Slot} görevi")) is not { } choice) return 64;
+				if (slot.Menu is not { } menu) { Console.Error.WriteLine(L($"{slot.Slot}: the duty list was not found.")); return 1; }
+				if (Choose(Choices(menu), words[1], L($"{slot.Slot} duty")) is not { } choice) return 64;
 				if (slot.Task != choice)
 				{
 					if (await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("choice", choice), ("fire", "1")) is var said && said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 					if (!await Until(async () => (routine = await ReadRoutine()) is { } now && now.Slots.Count > at && now.Slots[at].Task == choice, seconds: 6, every: 0.4))
 					{
-						Console.Error.WriteLine(L($"{slot.Slot} değişmedi."));
+						Console.Error.WriteLine(L($"{slot.Slot} did not change."));
 						return 1;
 					}
 				}
@@ -124,14 +124,14 @@ internal static partial class Program
 				{
 					await Drawn();
 					slot = routine.Slots[at];
-					if (slot.OtherwiseMenu is not { } second) { Console.Error.WriteLine(L($"{slot.Slot}: '{slot.Task}' görevinde ikinci seçim yok.")); return 1; }
-					if (Choose(Choices(second), words[2], L($"{slot.Slot} olmazsa")) is not { } other) return 64;
+					if (slot.OtherwiseMenu is not { } second) { Console.Error.WriteLine(L($"{slot.Slot}: the '{slot.Task}' duty has no second choice.")); return 1; }
+					if (Choose(Choices(second), words[2], L($"otherwise {slot.Slot}")) is not { } other) return 64;
 					if (slot.Otherwise != other)
 					{
 						if (await Fm.Get("select", ("ptr", Field(second, "Pointer")), ("choice", other), ("fire", "1")) is var said && said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 						if (!await Until(async () => (routine = await ReadRoutine()) is { } now && now.Slots.Count > at && now.Slots[at].Otherwise == other, seconds: 6, every: 0.4))
 						{
-							Console.Error.WriteLine(L($"{slot.Slot} ikinci seçimi değişmedi."));
+							Console.Error.WriteLine(L($"{slot.Slot}'s second choice did not change."));
 							return 1;
 						}
 					}
@@ -152,18 +152,18 @@ internal static partial class Program
 		}
 
 		Console.WriteLine(kind.Say);
-		if (routine.Delivery != null) Console.WriteLine(L($"  Vuruş tipi  {routine.Delivery}   ({string.Join(" · ", Deliveries)})"));
-		if (routine.Taker != null) Console.WriteLine(L($"  Atıcı       {routine.Taker}   (sıra: takers {kind.Words[0]})"));
-		if (routine.Aim != null) Console.WriteLine(L($"  Hedef       {routine.Aim}   ({string.Join(" · ", routine.AimChoices)})"));
+		if (routine.Delivery != null) Console.WriteLine(L($"  Delivery    {routine.Delivery}   ({string.Join(" · ", Deliveries)})"));
+		if (routine.Taker != null) Console.WriteLine(L($"  Taker       {routine.Taker}   (order: takers {kind.Words[0]})"));
+		if (routine.Aim != null) Console.WriteLine(L($"  Target      {routine.Aim}   ({string.Join(" · ", routine.AimChoices)})"));
 		if (routine.Slots.Count > 0)
 		{
 			Console.WriteLine();
-			Table.Write([L("YER"), L("GRUP"), L("GÖREV"), L("OLMAZSA")], routine.Slots.Select(s => (string[])[s.Slot, s.Group, s.Task, s.Otherwise ?? ""]).ToList());
+			Table.Write([L("VENUE"), L("GROUP"), L("JOB"), L("OTHERWISE")], routine.Slots.Select(s => (string[])[s.Slot, s.Group, s.Task, s.Otherwise ?? ""]).ToList());
 		}
 		if (words.Count == 0)
 		{
 			var name = kind.Words[0];
-			Console.WriteLine(L($"\nDeğiştirmek: setpieces {name} vurus <in|out> · hedef <seçenek> · <yer> <görev>   (görevler: setpieces {name} <yer> ?)"));
+			Console.WriteLine(L($"\nTo change: setpieces {name} delivery <in|out> · aim <option> · <place> <duty>   (duties: setpieces {name} <place> ?)"));
 		}
 		return 0;
 	}

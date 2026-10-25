@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Mentoring groups (Squad › Training › Mentoring, FINDINGS §8.102, §8.106, §8.188): which players
+/// Mentoring groups (Squad › Training › Mentoring, §8.106, §8.188): which players
 /// are grouped to learn from one another. Read from the team's own data, no page; set up by asking
 /// the assistant, or made in the game's group editor, each control told by what it does and every
 /// step confirmed from the data.
@@ -39,7 +39,7 @@ internal static partial class Program
 		}
 		if (groups == null)
 		{
-			Console.Error.WriteLine(L("Mentorluk grupları okunamadı."));
+			Console.Error.WriteLine(L("Could not read mentoring groups."));
 			return 1;
 		}
 
@@ -50,13 +50,13 @@ internal static partial class Program
 		}
 		if (groups.Count == 0)
 		{
-			Console.WriteLine(L("Mentorluk grubu yok. Yardımcıya kurdurmak için: mentoring --auto"));
+			Console.WriteLine(L("No mentoring groups. To have the assistant build them: mentoring --auto"));
 			return 0;
 		}
 		foreach (var group in groups)
 		{
 			Console.WriteLine($"{group.Name} ({group.Members.Count})");
-			Table.Write([L("OYUNCU"), L("KİŞİLİK")], group.Members.Select(m => (string[])[m.Player, m.Personality]).ToList());
+			Table.Write([L("PLAYER"), L("PERSONALITY")], group.Members.Select(m => (string[])[m.Player, m.Personality]).ToList());
 			Console.WriteLine();
 		}
 		return 0;
@@ -118,12 +118,12 @@ internal static partial class Program
 
 		if (await Find(Asks) is null && await Find(Acknowledges) is { } left && !await Press(left, Asks))
 		{
-			Console.Error.WriteLine(L("Yardımcının önceki cevabı kapatılamadı."));
+			Console.Error.WriteLine(L("Could not close the assistant's previous answer."));
 			return 1;
 		}
 		if (await Find(Asks) is not { } ask)
 		{
-			Console.Error.WriteLine(L("Sayfada yardımcıya grup kurdurma seçeneği yok."));
+			Console.Error.WriteLine(L("The page has no option to have the assistant build groups."));
 			return 1;
 		}
 		// With groups already made the game asks first, in a window of the action's own (every group
@@ -138,21 +138,21 @@ internal static partial class Program
 			var window = dialog.EnumerateArray().First(d => Field(d, "Type") == "Confirm" + MentoringAskAction);
 			if (DialogAnswer(window, yes) is not { } reply)
 			{
-				Console.Error.WriteLine(L("Oyunun sorusu cevaplanamadı; gruplar değişmedi."));
+				Console.Error.WriteLine(L("Could not answer the game's question; groups unchanged."));
 				return 1;
 			}
 			await Fm.Get("click", ("ptr", Field(reply, "Pointer")));
 			if (!yes)
 			{
-				Console.WriteLine(L($"Oyun soruyor: {Field(window, "Description")}"));
-				Console.WriteLine(L("Hayır dendi, gruplar değişmedi. Onaylamak için: mentoring --auto --yes"));
+				Console.WriteLine(L($"The game asks: {Field(window, "Description")}"));
+				Console.WriteLine(L("Said no; groups unchanged. To confirm: mentoring --auto --yes"));
 				return 0;
 			}
 			await Until(async () => await Find(Acknowledges) != null, seconds: 10, every: 0.25);
 		}
 		if (await Find(Acknowledges) is not { } answer)
 		{
-			Console.Error.WriteLine(L("Yardımcı cevap vermedi; gruplar değişmedi."));
+			Console.Error.WriteLine(L("The assistant did not answer; groups unchanged."));
 			return 1;
 		}
 		await Press(answer, Asks);
@@ -170,7 +170,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// The players the editor offers, in the order its table shows them, read from the table's own
-	/// items: the table's selection counts in that order (FINDINGS §8.188). Of the tables with a box
+	/// items: the table's selection counts in that order. Of the tables with a box
 	/// to tick, the one whose players are those the group offers. Workload, personality and standing
 	/// are put into the game's words as they are read: one English is shown two ways, and the next
 	/// page read can teach the other ("Average" is a workload's "Orta", squad dynamics' "Vasat").

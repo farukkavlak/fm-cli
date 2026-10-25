@@ -6,11 +6,9 @@ using System.Text;
 namespace FmCli;
 
 /// <summary>
-/// The CLI's own words in the game's language (a Turkish game is read in
-/// Turkish, an English one in English). The CLI is written in Turkish; a text it prints goes through
-/// <c>$"…"</c>, whose holes make a template ("{0} {1} kişi") that is looked up in the catalog of the
-/// language the game is set to. A language without a catalog is shown English, the one every game
-/// has. A template the catalog does not hold is shown as written.
+/// The CLI's own words in the game's language. The CLI is written in English; a text it prints goes
+/// through <c>L()</c>, whose holes make a template ("{0} {1} players") that is looked up in the
+/// Turkish catalog when the game is set to Turkish. Any other language is shown as written.
 /// </summary>
 internal static class Labels
 {
@@ -47,10 +45,11 @@ internal static class Labels
 		catch { }
 	}
 
-	/// <summary>Whether the CLI's words are shown as they are written: a Turkish game, or no game seen yet.</summary>
-	public static bool Turkish => AsWritten;
+	/// <summary>Whether the CLI's words are shown in Turkish.</summary>
+	public static bool Turkish => Language.StartsWith("turkish", StringComparison.OrdinalIgnoreCase);
 
-	private static bool AsWritten => Language.Length == 0 || Language.StartsWith("turkish", StringComparison.OrdinalIgnoreCase);
+	/// <summary>Whether the text is shown as written: English, or no game seen yet.</summary>
+	private static bool AsWritten => !Turkish;
 
 	/// <summary>A text the CLI prints, in the game's language.</summary>
 	public static string L(string text) => AsWritten ? text : Lookup(text.Replace("{", "{{").Replace("}", "}}")) is { } shown ? string.Format(CultureInfo.CurrentCulture, shown) : text;
@@ -82,7 +81,7 @@ internal static class Labels
 		var table = new Dictionary<string, string>(StringComparer.Ordinal);
 		try
 		{
-			using var stream = typeof(Labels).Assembly.GetManifestResourceStream("labels-english.tsv");
+			using var stream = typeof(Labels).Assembly.GetManifestResourceStream("labels-turkish.tsv");
 			if (stream == null) return table;
 			using var reader = new StreamReader(stream);
 			while (reader.ReadLine() is { } line)

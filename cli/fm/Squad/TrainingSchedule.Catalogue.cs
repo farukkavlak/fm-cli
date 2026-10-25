@@ -82,12 +82,12 @@ internal static partial class Program
 			if (i + 1 < own.Count && Level(own[i + 1].Text)) break;
 			names.Add(own[i].Text);
 		}
-		if (names.Count > 0) lines.Add(L($"Özellikler: {string.Join(", ", names)}"));
+		if (names.Count > 0) lines.Add(L($"Attributes: {string.Join(", ", names)}"));
 		List<string> effects = [];
 		for (var i = 0; i + 1 < own.Count; i++)
 			if (own[i].Path == "binding.Name" && own[i + 1].Path == "row" && Level(own[i + 1].Text))
 				effects.Add($"{GameWords.Of(own[i].Text)} {Effect(own[i + 1].Text)}");
-		if (effects.Count > 0) lines.Add(L($"Etkiler: {string.Join(" · ", effects)}"));
+		if (effects.Count > 0) lines.Add(L($"Effects: {string.Join(" · ", effects)}"));
 		return lines;
 
 		static string Effect(string level) => level switch

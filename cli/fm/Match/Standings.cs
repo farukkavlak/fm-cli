@@ -14,7 +14,7 @@ internal static class Standings
 		var grid = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn("[dim]#[/]").RightAligned())
 			.AddColumn(new TableColumn(""))
-			.AddColumn(new TableColumn(L("[dim]TAKIM[/]")))
+			.AddColumn(new TableColumn(L("[dim]TEAM[/]")))
 			.AddColumn(new TableColumn("[dim]O[/]").RightAligned());
 		if (full)
 			grid.AddColumn(new TableColumn("[dim]G[/]").RightAligned())
@@ -42,7 +42,7 @@ internal static class Standings
 			};
 			if (full) cells.AddRange([Cell(F(row, "LeagueGamesWon")), Cell(F(row, "LeagueGamesDrawn")), Cell(F(row, "LeagueGamesLost")), Cell(shownDifference)]);
 			cells.Add($"[bold{(mine ? " yellow" : "")}]{Ui.Safe(F(row, "LeaguePoints"))}[/]");
-			if (form) cells.Add(string.Join(" ", Form(F(row, "RecentFormValues")).Select(r => $"{r}" == L("G") ? $"[green]{r}[/]" : $"{r}" == L("M") ? $"[red]{r}[/]" : $"[yellow]{r}[/]")));
+			if (form) cells.Add(string.Join(" ", Form(F(row, "RecentFormValues")).Select(r => $"{r}" == L("W") ? $"[green]{r}[/]" : $"{r}" == L("L") ? $"[red]{r}[/]" : $"[yellow]{r}[/]")));
 			grid.AddRow(cells.ToArray());
 		}
 
@@ -92,8 +92,8 @@ internal static class Standings
 		element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "";
 	/// <summary>
 	/// A team's last league results, oldest first, as the game codes them: 3 a win, 0 a defeat,
-	/// 1 a goalless draw and 2 a score draw (FINDINGS §8.115).
+	/// 1 a goalless draw and 2 a score draw.
 	/// </summary>
 	public static string Form(string codes) =>
-		string.Concat(codes.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim() switch { "3" => L("G"), "0" => L("M"), "1" or "2" => L("B"), _ => "" }));
+		string.Concat(codes.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim() switch { "3" => L("W"), "0" => L("L"), "1" or "2" => L("D"), _ => "" }));
 }

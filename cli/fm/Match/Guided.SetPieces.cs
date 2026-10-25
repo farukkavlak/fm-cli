@@ -23,7 +23,7 @@ internal static partial class Program
 
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -44,7 +44,7 @@ internal static partial class Program
 		{
 			if (dry)
 			{
-				Console.WriteLine(L("(kuru) Duran top sihirbazı başlatılacaktı."));
+				Console.WriteLine(L("(dry run) The set piece wizard would have been started."));
 				return 0;
 			}
 			await Fm.Get("press", ("ptr", Field(begin, "Pointer")));
@@ -53,7 +53,7 @@ internal static partial class Program
 
 		if (await Named(onward) == null)
 		{
-			Console.Error.WriteLine(L("Duran top sihirbazı açılmadı. Rutinler zaten kurulmuş olabilir."));
+			Console.Error.WriteLine(L("The set piece wizard did not open. The routines may already be set up."));
 			return 1;
 		}
 
@@ -65,7 +65,7 @@ internal static partial class Program
 			if (!await Until(async () => (list = await Question(previous)) != null
 			                             && list!.Value.GetProperty("Choices").EnumerateArray().All(c => c.GetString() is { Length: > 0 }), seconds: 10, every: 0.25))
 			{
-				Console.Error.WriteLine(L($"{step + 1}. sorunun seçenekleri gelmedi."));
+				Console.Error.WriteLine(L($"The options of question {step + 1} did not come."));
 				return 1;
 			}
 
@@ -74,7 +74,7 @@ internal static partial class Program
 
 			var current = int.TryParse(Field(list!.Value, "Selected"), out var index) && index >= 0 && index < choices.Count ? choices[index] : null;
 			var pick = current;
-			if (step < picks.Count && Choose(choices, picks[step], L($"{step + 1}. soru")) is var asked)
+			if (step < picks.Count && Choose(choices, picks[step], L($"Question {step + 1}")) is var asked)
 			{
 				if (asked == null) return 1;
 				pick = asked;
@@ -84,9 +84,9 @@ internal static partial class Program
 			// with no one to ask, the game's choice stands.
 			if (step >= picks.Count && Ui.Interactive && !dry)
 			{
-				if (Ui.Ask(L($"{step + 1}. soru"), choices, choices.IndexOf(current ?? ""), cancel: L("Sihirbazı burada bırak")) is not { } chosen)
+				if (Ui.Ask(L($"Question {step + 1}"), choices, choices.IndexOf(current ?? ""), cancel: L("Leave the wizard here")) is not { } chosen)
 				{
-					Console.WriteLine(L("Sihirbaz bu soruda açık bırakıldı. Devam için: setpieces new"));
+					Console.WriteLine(L("The wizard was left open at this question. To go on: setpieces new"));
 					return 0;
 				}
 				pick = choices[chosen];
@@ -100,7 +100,7 @@ internal static partial class Program
 
 			if (dry)
 			{
-				Console.WriteLine(L("\n(kuru) Burada duruldu; sihirbaz bu soruda açık."));
+				Console.WriteLine(L("\n(dry run) Stopped here; the wizard is open at this question."));
 				return 0;
 			}
 
@@ -112,7 +112,7 @@ internal static partial class Program
 
 			if (await Named(onward) is not { } button)
 			{
-				Console.Error.WriteLine(L("Sihirbazın ilerle butonu kayboldu."));
+				Console.Error.WriteLine(L("The wizard's continue button disappeared."));
 				return 1;
 			}
 
@@ -122,11 +122,11 @@ internal static partial class Program
 			if (!last) continue;
 
 			var done = await Until(async () => await Named(onward) == null, seconds: 10);
-			Console.WriteLine(done ? L("\nDuran top rutinleri kuruldu.") : L("\nOnaylandı ama sihirbaz hâlâ açık."));
+			Console.WriteLine(done ? L("\nThe set piece routines are set up.") : L("\nConfirmed, but the wizard is still open."));
 			return done ? 0 : 1;
 		}
 
-		Console.Error.WriteLine(L("Sihirbaz on iki sorudan sonra hâlâ bitmedi; bırakıldı."));
+		Console.Error.WriteLine(L("The wizard was still not finished after twelve questions; left it."));
 		return 1;
 
 		// The list of the question now showing: the one named "Option" whose choices are not

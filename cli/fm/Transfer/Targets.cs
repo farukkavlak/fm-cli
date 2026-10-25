@@ -30,10 +30,10 @@ internal static partial class Program
 		var budgets = await BudgetOverview();
 		if (budgets == null)
 		{
-			Console.Error.WriteLine(L("Bütçe sayfası okunamadı."));
+			Console.Error.WriteLine(L("The budget page could not be read."));
 			return 1;
 		}
-		// "£11.1M (bu sezon harcanan …)" and "2.123 £ boşta (haftalık) · …": the figure comes first.
+		// "£11.1M (spent this season …)" and "£2,123 free (weekly) · …": the figure comes first.
 		var transfer = budgets.Count > 0 ? MoneyFormat.Find(budgets[0].Value) ?? "" : "";
 		var wage = budgets.Count > 1 ? budgets[1].Value.Split(" · ")[0] : "";
 
@@ -44,7 +44,7 @@ internal static partial class Program
 		var slot = PositionTurkish.GetValueOrDefault(Fold(typed), typed);
 		if (!PositionNames.ContainsKey(new string(slot.Where(char.IsLetter).ToArray())))
 		{
-			Console.Error.WriteLine(L($"'{typed}' diye bir mevki yok. Mevkiler: {string.Join(" ", DepthRows.SelectMany(r => r))}  (ya da: {string.Join(", ", PositionTurkish.Keys)})"));
+			Console.Error.WriteLine(L($"There is no position called '{typed}'. Positions: {string.Join(" ", DepthRows.SelectMany(r => r))}  (or: {string.Join(", ", PositionTurkish.Keys)})"));
 			return 64;
 		}
 
@@ -53,16 +53,16 @@ internal static partial class Program
 		var limited = passed.Contains("--max-value");
 		if (!limited && Money(transfer) is not > 0)
 		{
-			Console.Error.WriteLine(L($"Transfer bütçesi okunamadı ({transfer}); sınırı kendin ver: targets {typed} --max-value <para>"));
+			Console.Error.WriteLine(L($"The transfer budget could not be read ({transfer}); give the limit yourself: targets {typed} --max-value <money>"));
 			return 1;
 		}
 		if (!json)
 		{
-			Console.WriteLine(L($"{slot.ToUpperInvariant()} — değeri {(limited ? Option(args, "--max-value") : transfer)} ve altı{(limited ? "" : L(" (transfer bütçen; değiştirmek için --max-value <para>)"))}"));
-			Console.WriteLine(L($"Maaş bütçesi: {wage}"));
+			Console.WriteLine(L($"{slot.ToUpperInvariant()} — value {(limited ? Option(args, "--max-value") : transfer)} and under{(limited ? "" : L(" (your transfer budget; to change it --max-value <money>)"))}"));
+			Console.WriteLine(L($"Wage budget: {wage}"));
 		}
 		var found = await Players(json, ["players", "--position", slot, .. (limited ? [] : new[] { "--max-value", transfer }), .. passed]);
-		if (found == 0 && !json) Console.WriteLine(L("Daralt: --age 18-23 · --grade B · --listed · --loan-listed · --attr \"pace>=14\"   (arama oyunda açık kalır: players --clear)"));
+		if (found == 0 && !json) Console.WriteLine(L("Narrow it: --age 18-23 · --grade B · --listed · --loan-listed · --attr \"pace>=14\"   (the search stays open in the game: players --clear)"));
 		return found;
 	}
 
@@ -93,17 +93,17 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L($"Bütçe: transfer {transfer} · maaş {wage}"));
-		Console.WriteLine(thin.Count == 0 ? L("\nKadroda ince mevki yok: her mevkide en az iki sağlam oyuncu var.") : L("\nKadroda ince mevkiler (sağlam oyuncu bir ya da hiç):"));
+		Console.WriteLine(L($"Budget: transfers {transfer} · wages {wage}"));
+		Console.WriteLine(thin.Count == 0 ? L("\nNo thin positions in the squad: every position has at least two fit players.") : L("\nThin positions in the squad (one fit player or none):"));
 		foreach (var (slot, fit, injured) in thin)
 		{
-			var who = fit.Count == 0 ? L("kimse yok") : L($"yalnızca {fit[0]}");
-			var out_ = injured.Count > 0 ? L($"  (sakat: {string.Join(", ", injured)})") : "";
+			var who = fit.Count == 0 ? L("nobody") : L($"only {fit[0]}");
+			var out_ = injured.Count > 0 ? L($"  (injured: {string.Join(", ", injured)})") : "";
 			if (Ui.Rich) Ui.Line($"  [bold]{slot,-4}[/] [red]{Ui.Safe(who)}[/][dim]{Ui.Safe(out_)}[/]");
 			else Console.WriteLine($"  {slot,-4} {who}{out_}");
 		}
-		Console.WriteLine(L($"\nÖbür mevkiler: {string.Join(" · ", depth.Where(d => d.Fit.Count > 1).Select(d => $"{d.Slot} {d.Fit.Count}"))}"));
-		Console.WriteLine(L("\nAramak için: targets <mevki>   (ör. targets DL, targets \"sol bek\")"));
+		Console.WriteLine(L($"\nOther positions: {string.Join(" · ", depth.Where(d => d.Fit.Count > 1).Select(d => $"{d.Slot} {d.Fit.Count}"))}"));
+		Console.WriteLine(L("\nTo search: targets <position>   (e.g. targets DL, targets \"left back\")"));
 		return 0;
 	}
 }

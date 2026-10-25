@@ -11,12 +11,12 @@ internal static class MatchReport
 {
 	private static readonly (string Label, string Field)[] Numbers =
 	[
-		(L("Topla oynama"), "Possession"),
-		(L("Şut"), "Shots"),
-		(L("İsabetli şut"), "ShotsOnTarget"),
-		(L("Gol beklentisi"), "ExpectedGoals"),
-		(L("Korner"), "Corners"),
-		(L("Faul"), "Fouls"),
+		(L("Possession"), "Possession"),
+		(L("Shots"), "Shots"),
+		(L("Shots on target"), "ShotsOnTarget"),
+		(L("Expected goals"), "ExpectedGoals"),
+		(L("Corners"), "Corners"),
+		(L("Fouls"), "Fouls"),
 	];
 
 	public static async Task<int> Show(Bridge fm, bool json, string? expected = null)
@@ -44,15 +44,15 @@ internal static class MatchReport
 		}
 		if (F(fixture, "HasResult") != "True")
 		{
-			Console.Error.WriteLine(L("Oynanmış bir maç yok."));
+			Console.Error.WriteLine(L("No match has been played."));
 			return 1;
 		}
 		if (!matched)
 		{
 			// The caller knows the result it just watched and the game has not moved its last
-			// fixture on (a cup tie lagging, FINDINGS §8.330): saying nothing beats printing the
+			// fixture on (a cup tie lagging): saying nothing beats printing the
 			// previous match as if it were this one.
-			Console.Error.WriteLine(L($"Maç raporu henüz hazır değil; oyunun son fikstürü hâlâ {home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}."));
+			Console.Error.WriteLine(L($"Match report is not ready yet; the game's last fixture is still {home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}."));
 			return 0;
 		}
 
@@ -82,9 +82,9 @@ internal static class MatchReport
 		if (!Ui.Rich)
 		{
 			Console.WriteLine($"{home} {score} {away}" + (competition.Length > 0 ? $"  ({competition})" : ""));
-			if (shootout != null) Console.WriteLine(L($"Penaltılarla kazanan: {shootout}"));
-			if (scorers.Length > 0) Console.WriteLine(L($"Goller: {scorers.Replace("\n", "; ")}"));
-			if (star.Length > 0) Console.WriteLine(L($"Maçın oyuncusu: {star}") + (rating.Length > 0 ? $" ({rating})" : ""));
+			if (shootout != null) Console.WriteLine(L($"Won on penalties: {shootout}"));
+			if (scorers.Length > 0) Console.WriteLine(L($"Goals: {scorers.Replace("\n", "; ")}"));
+			if (star.Length > 0) Console.WriteLine(L($"Player of the match: {star}") + (rating.Length > 0 ? $" ({rating})" : ""));
 			foreach (var (label, field) in Numbers)
 				if (F(fixture, "Home" + field) is { Length: > 0 } h) Console.WriteLine($"{label}: {Shown(field, h)} - {Shown(field, F(fixture, "Away" + field))}");
 			return 0;
@@ -117,14 +117,14 @@ internal static class MatchReport
 		var (own, _) = await fm.OwnTeam();
 		string Side(string team) => team == own ? $"[yellow]{Ui.Safe(team)}[/]" : Ui.Safe(team);
 		var lines = new List<string> { $"[bold]{Side(home)}  {score}  {Side(away)}[/]" };
-		if (competition.Length > 0) lines.Add($"[dim]{Ui.Safe(competition)}" + (F(fixture, "Attendance") is { Length: > 0 } crowd ? L($" · {Ui.Safe(crowd)} seyirci") : "") + "[/]");
-		if (shootout != null) lines.Add(L($"[dim]Penaltılarla kazanan:[/] {Side(shootout)}"));
-		if (scorers.Length > 0) lines.Add(L($"[dim]Goller:[/] {Ui.Safe(scorers.Replace("\n", " · "))}"));
-		if (star.Length > 0) lines.Add(L($"[dim]Maçın oyuncusu:[/] {Ui.Safe(star)}") + (rating.Length > 0 ? $" [green1]{Ui.Safe(rating)}[/]" : ""));
+		if (competition.Length > 0) lines.Add($"[dim]{Ui.Safe(competition)}" + (F(fixture, "Attendance") is { Length: > 0 } crowd ? L($" · {Ui.Safe(crowd)} attendance") : "") + "[/]");
+		if (shootout != null) lines.Add(L($"[dim]Won on penalties:[/] {Side(shootout)}"));
+		if (scorers.Length > 0) lines.Add(L($"[dim]Goals:[/] {Ui.Safe(scorers.Replace("\n", " · "))}"));
+		if (star.Length > 0) lines.Add(L($"[dim]Player of the match:[/] {Ui.Safe(star)}") + (rating.Length > 0 ? $" [green1]{Ui.Safe(rating)}[/]" : ""));
 
 		Ui.Out.Write(new Panel(new Rows(new Markup(string.Join("\n", lines)), new Text(""), grid))
 		{
-			Header = new PanelHeader(L(" [bold]MAÇ RAPORU[/] ")),
+			Header = new PanelHeader(L(" [bold]MATCH REPORT[/] ")),
 			Border = BoxBorder.Rounded,
 			BorderStyle = new Style(Color.Grey),
 			Padding = new Padding(1, 0, 1, 0),
@@ -132,7 +132,7 @@ internal static class MatchReport
 		return 0;
 	}
 
-	/// <summary>"Kerem Aktürkoğlu 36', 77'" for each scorer in a side's list of match events.</summary>
+	/// <summary>"A Player 36', 77'" for each scorer in a side's list of match events.</summary>
 	private static async Task<List<string>> Goals(Bridge fm, string list)
 	{
 		var goals = new List<string>();
@@ -147,7 +147,7 @@ internal static class MatchReport
 				var type = F(entry, "EventType");
 				if (type is not ("0" or "1" or "2")) continue;
 				var time = string.Join(' ', F(entry, "TimeString").Split(' ', StringSplitOptions.RemoveEmptyEntries));
-				if (type == "1") time = L("(kendi kalesine) ") + time.Replace("o.g.", "").Trim();
+				if (type == "1") time = L("(own goal) ") + time.Replace("o.g.", "").Trim();
 				var row = (F(entry, "Row") is { Length: > 0 } at ? at : $"fmcli.{list.Replace('.', '_')}.{F(entry, "Index")}") + ".Player";
 				var name = F(await fm.Pull(row, "Name"), "Name");
 				goals.Add($"{name} {time}".Trim());

@@ -17,10 +17,10 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (!args.Contains("--yes") && !Ui.Interactive)
 		{
-			Console.Error.WriteLine(L("İstifa geri alınamaz. Onaylamak için: resign --yes"));
+			Console.Error.WriteLine(L("Resigning cannot be undone. To confirm: resign --yes"));
 			return 64;
 		}
-		if (Ui.Interactive && Ui.Ask(L("Menajerlikten istifa edilsin mi?"), [L("İstifa et")], cancel: L("Vazgeç")) == null)
+		if (Ui.Interactive && Ui.Ask(L("Resign as manager?"), [L("Resign")], cancel: L("Cancel")) == null)
 			return 0;
 
 		var opened = await OpenPage(Screen.MyContract);
@@ -32,7 +32,7 @@ internal static partial class Program
 			seconds: 8, every: 0.25);
 		if (found is not { } resign)
 		{
-			Console.Error.WriteLine(L("İstifa düğmesi bulunamadı (My Contract sayfasında mı?)."));
+			Console.Error.WriteLine(L("Resign button not found (is the My Contract page open?)."));
 			return 1;
 		}
 
@@ -80,7 +80,7 @@ internal static partial class Program
 
 		var left = await Until(async () => await Unemployed(), seconds: 15, every: 0.5);
 		if (json) Console.WriteLine(JsonOut.Of(new { Resigned = left }));
-		else Console.WriteLine(left ? L("İstifa edildi. İş ilanları: jobs") : L("İstifa istendi ama oyun hâlâ bir kulüp gösteriyor; durum: status"));
+		else Console.WriteLine(left ? L("Resigned. Job listings: jobs") : L("Resign was sent but the game still shows a club; check: status"));
 		return left ? 0 : 1;
 	}
 }

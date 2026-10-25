@@ -91,7 +91,7 @@ internal sealed class Bridge
 	public async Task<JsonElement> Pull(string path, string props, bool list = false)
 	{
 		var wanted = props.Split(',').Length;
-		// A list's entries are put at rows of their own for this reading (FINDINGS §8.68).
+		// A list's entries are put at rows of their own for this reading.
 		var generation = list ? Interlocked.Increment(ref pulls).ToString() + DateTime.UtcNow.Ticks.ToString()[^6..] : "";
 		JsonElement data = default;
 		for (var attempt = 0; attempt < 6; attempt++)

@@ -39,7 +39,7 @@ internal static class Launcher
 	/// <summary>
 	/// Brings the game forward. FM only handles some Continue and UI events while it is the
 	/// active app: a `next` or `press` sent while the terminal is front can queue and wait
-	/// for a frame that never comes (FINDINGS §8.400).
+	/// for a frame that never comes.
 	/// </summary>
 	public static void Activate() => Osascript($"tell application \"{AppName}\" to activate");
 
@@ -49,7 +49,7 @@ internal static class Launcher
 		// loading, which is the part worth doing.
 		if (await Up(fm))
 		{
-			Console.WriteLine(L($"FM zaten açık — ona bağlanıyorum{(debug ? "" : L(", pencereyi küçültüyorum"))}."));
+			Console.WriteLine(L($"FM is already open — connecting to it{(debug ? "" : L(", minimising the window"))}."));
 			if (!debug) Minimise();
 			await GameFolders.Learn(fm);
 			return !load || await LoadSave(fm);
@@ -58,8 +58,8 @@ internal static class Launcher
 		var script = Path.Combine(GameDirectory, "run_bepinex_arm64.sh");
 		if (!File.Exists(script))
 		{
-			Console.Error.WriteLine(L($"BepInEx başlatıcısı bulunamadı: {script}"));
-			Console.Error.WriteLine(L("Oyun başka yerdeyse FM_HOME ile göster."));
+			Console.Error.WriteLine(L($"BepInEx launcher not found: {script}"));
+			Console.Error.WriteLine(L("If the game is elsewhere, point to it with FM_HOME."));
 			return false;
 		}
 
@@ -67,11 +67,11 @@ internal static class Launcher
 
 		var log = Path.Combine(Path.GetTempPath(), "fm-cli-launch.log");
 		Spawn(script, log, debug);
-		Console.WriteLine(L($"FM başlatılıyor…{(debug ? L($"  (log: {log})") : "")}"));
+		Console.WriteLine(L($"Starting FM…{(debug ? L($"  (log: {log})") : "")}"));
 
 		if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
 		{
-			Console.Error.WriteLine(L($"Oyun ana menüye gelmedi. Log: {log}"));
+			Console.Error.WriteLine(L($"The game did not reach the main menu. Log: {log}"));
 			return false;
 		}
 
@@ -88,21 +88,21 @@ internal static class Launcher
 	{
 		if (await fm.InGame())
 		{
-			Console.WriteLine(L("Kayıt zaten yüklü."));
+			Console.WriteLine(L("A save is already loaded."));
 			return true;
 		}
 
 		if (!await Menu(fm))
 		{
-			Console.WriteLine(L("Ana menü bekleniyor…"));
+			Console.WriteLine(L("Waiting for the main menu…"));
 			if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
 			{
-				Console.Error.WriteLine(L("Oyun ana menüye gelmedi."));
+				Console.Error.WriteLine(L("The game did not reach the main menu."));
 				return false;
 			}
 		}
 
-		Console.WriteLine(L("Son kayıt yükleniyor…"));
+		Console.WriteLine(L("Loading the last save…"));
 		var answer = await fm.Get("continue");
 		if (answer.StartsWith("error", StringComparison.Ordinal))
 		{
@@ -112,11 +112,11 @@ internal static class Launcher
 
 		if (!await WaitFor(() => fm.InGame(), TimeSpan.FromMinutes(3)))
 		{
-			Console.Error.WriteLine(L("Kayıt yüklenmedi."));
+			Console.Error.WriteLine(L("The save did not load."));
 			return false;
 		}
 
-		Console.WriteLine(L("Hazır."));
+		Console.WriteLine(L("Ready."));
 		return true;
 	}
 
@@ -187,7 +187,7 @@ internal static class Launcher
 
 		var error = Osascript(script);
 		if (!string.IsNullOrEmpty(error))
-			Console.WriteLine(L("(pencere küçültülemedi — Sistem Ayarları › Gizlilik › Erişilebilirlik'te terminale izin ver)"));
+			Console.WriteLine(L("(the window could not be minimised — allow the terminal in System Settings › Privacy › Accessibility)"));
 	}
 
 	private static string Osascript(string script)
@@ -206,7 +206,7 @@ internal static class Launcher
 
 	/// <summary>
 	/// Closes the game: first through its own quit, which lets it shut down cleanly; a game that
-	/// was only killed could hang on its way out, holding the port (FINDINGS §8.143). Ended by
+	/// was only killed could hang on its way out, holding the port. Ended by
 	/// force when it does not go. True once the bridge has stopped answering.
 	/// </summary>
 	public static async Task<bool> Stop(Bridge fm)
@@ -246,7 +246,8 @@ internal static class Launcher
 		if (kill != null) await kill.WaitForExitAsync();
 	}
 
-	public static Task<bool> Running(Bridge fm) => Up(fm);
+	// A hung game can hold the process with no bridge: it still has to be stoppable.
+	public static async Task<bool> Running(Bridge fm) => await Up(fm) || await Alive();
 
 	private static async Task<bool> Up(Bridge fm)
 	{

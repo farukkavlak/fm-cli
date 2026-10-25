@@ -13,7 +13,7 @@ namespace FmCliProbe;
 /// ?up=N levels), every visible text and every control in reading order, so a caller can pair
 /// each control with the heading above it. Lists and radio groups are chosen from through
 /// /select as anywhere else; sliders and switches, which only settings pages use, are set here
-/// (FINDINGS §8.61). With ?buttons=1 a button is an item too, with the text on it, so a grid of
+///. With ?buttons=1 a button is an item too, with the text on it, so a grid of
 /// them — the calendar's training sessions — can be told apart by the day written above it.
 /// </summary>
 internal static class Form
@@ -118,7 +118,7 @@ internal static class Form
 		}
 
 		// A rating shown in stars and stepped with the buttons beside it; the value is the game's
-		// own scale, not a count of stars (FINDINGS §8.124). Shown counts half stars; a rating that
+		// own scale, not a count of stars. Shown counts half stars; a rating that
 		// is a range (a youngster's potential) fills to Shown and outlines on to ShownMax (§8.152).
 		var stars = e.TryCast<FM.UI.FMStarRatingTemp>();
 		if (stars != null)

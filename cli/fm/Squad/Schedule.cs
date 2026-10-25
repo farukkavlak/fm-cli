@@ -5,8 +5,8 @@ using Spectre.Console;
 namespace FmCli;
 
 /// <summary>
-/// The training schedule (FINDINGS §8.72): Squad › Training › Overview draws this week and the
-/// next as a calendar, read by each text's data path (FINDINGS §8.169): the day, then its three
+/// The training schedule: Squad › Training › Overview draws this week and the
+/// next as a calendar, read by each text's data path: the day, then its three
 /// sessions — a session's name ("Recovery", "Match Tactics", "Rest", "Travel"…) or, on a match day,
 /// where the match is played ("H", "A", "N").
 /// </summary>
@@ -48,7 +48,7 @@ internal static partial class Program
 		var days = TrainingDays(texts, today);
 		if (days.Count == 0)
 		{
-			Console.Error.WriteLine(L("Antrenman programı okunamadı."));
+			Console.Error.WriteLine(L("The training schedule could not be read."));
 			return 1;
 		}
 
@@ -67,26 +67,26 @@ internal static partial class Program
 
 		static string Session(string s) => s switch
 		{
-			"H" => L("MAÇ (iç saha)"),
-			"A" => L("MAÇ (deplasman)"),
-			"N" => L("MAÇ (tarafsız)"),
-			"Rest" => L("dinlenme"),
-			"Travel" => L("yolculuk"),
+			"H" => L("MATCH (home)"),
+			"A" => L("MATCH (away)"),
+			"N" => L("MATCH (neutral)"),
+			"Rest" => L("rest"),
+			"Travel" => L("travel"),
 			_ => s,
 		};
 		static string Day(DateTime x) => $"{ShortDays[(int)x.DayOfWeek]} {x.Day} {Months[x.Month - 1]}";
 
 		if (!Ui.Rich)
 		{
-			Console.WriteLine(L("GÜN\t1. SEANS\t2. SEANS\t3. SEANS"));
+			Console.WriteLine(L("DAY\tSESSION 1\tSESSION 2\tSESSION 3"));
 			foreach (var x in days)
 				Console.WriteLine($"{(x.Day == today ? "*" : "")}{Day(x.Day)}\t{string.Join("\t", x.Sessions.Select(Session))}");
 			return 0;
 		}
 
 		var table = new Spectre.Console.Table().Border(TableBorder.Rounded).BorderColor(Color.Grey)
-			.Title(L("[bold]Antrenman programı[/]"))
-			.AddColumn(L("Gün")).AddColumn("1. seans").AddColumn("2. seans").AddColumn("3. seans");
+			.Title(L("[bold]Training schedule[/]"))
+			.AddColumn(L("Day")).AddColumn("1. seans").AddColumn("2. seans").AddColumn("3. seans");
 		foreach (var x in days)
 		{
 			// A new week starts on Monday; the weeks are kept apart.
@@ -101,7 +101,7 @@ internal static partial class Program
 			var label = x.Day == today ? $"[bold]▶ {Ui.Safe(Day(x.Day))}[/]" : past ? $"[dim]  {Ui.Safe(Day(x.Day))}[/]" : $"  {Ui.Safe(Day(x.Day))}";
 			table.AddRow([label, .. x.Sessions.Select(Cell)]);
 		}
-		table.Caption(L("[dim]▶ bugün · soluk: geçmiş günler ve dinlenme[/]"));
+		table.Caption(L("[dim]▶ today · faded: past days and rest[/]"));
 		Ui.Out.Write(table);
 		return 0;
 	}

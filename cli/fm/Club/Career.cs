@@ -5,7 +5,7 @@ using Spectre.Console;
 namespace FmCli;
 
 /// <summary>
-/// A player's career, season by season (FINDINGS §8.63): the "Career Stats" tile on his page
+/// A player's career, season by season: the "Career Stats" tile on his page
 /// opens a table read as plain text — year, club, how he came (fee, loan, free), nation,
 /// division, appearances, goals, assists, player of the match, average rating — and the
 /// career totals after the last row.
@@ -60,7 +60,7 @@ internal static partial class Program
 		var marks = Enumerable.Range(start, Math.Max(0, totalAt - start)).Where(i => SeasonMark.IsMatch(texts[i])).ToList();
 		if (start < 0 || marks.Count == 0)
 		{
-			Console.Error.WriteLine(L("Kariyer tablosu okunamadı."));
+			Console.Error.WriteLine(L("The career table could not be read."));
 			return 1;
 		}
 
@@ -95,18 +95,18 @@ internal static partial class Program
 		var name = Field(player, "Name");
 		if (!Ui.Rich)
 		{
-			Console.WriteLine(L($"{name} — kariyer"));
-			Console.WriteLine(L($"SEZON\tTAKIM\tGELİŞ\tLİG\tMAÇ\t{(keeper ? L("GOL YEMEDİ") : L("GOL"))}\tASİST\tMO\tPUAN"));
+			Console.WriteLine(L($"{name} — career"));
+			Console.WriteLine(L($"SEASON\tTEAM\tJOINED\tLEAGUE\tAPPS\t{(keeper ? L("CLEAN SHEETS") : L("GOALS"))}\tASSISTS\tPOM\tRATING"));
 			foreach (var r in rows) Console.WriteLine($"{r.Year}\t{r.Team}\t{How(r.How)}\t{r.Division}\t{r.Apps}\t{r.Goals}\t{r.Assists}\t{r.PoM}\t{r.Rating}");
-			if (numbers.Count >= 2) Console.WriteLine(L($"Toplam: {numbers[0]} maç, {numbers[1]} {(keeper ? L("gol yemeden maç") : L("gol"))}{(spent.Length > 0 ? L($" · ödenen bonservisler {spent}") : "")}"));
+			if (numbers.Count >= 2) Console.WriteLine(L($"Total: {numbers[0]} apps, {numbers[1]} {(keeper ? L("clean sheets") : L("goals"))}{(spent.Length > 0 ? L($" · transfer fees paid {spent}") : "")}"));
 			return 0;
 		}
 
 		var table = new Spectre.Console.Table().Border(TableBorder.Rounded).BorderColor(Color.Grey)
-			.Title(L($"[bold]{Ui.Safe(name)}[/] — kariyer"))
-			.AddColumn(L("Sezon")).AddColumn(L("Takım")).AddColumn(L("Geliş")).AddColumn(L("Lig"))
-			.AddColumn(new TableColumn(L("Maç")).RightAligned()).AddColumn(new TableColumn(keeper ? L("Gol yemedi") : "Gol").RightAligned())
-			.AddColumn(new TableColumn(L("Asist")).RightAligned()).AddColumn(new TableColumn("Puan").RightAligned());
+			.Title(L($"[bold]{Ui.Safe(name)}[/] — career"))
+			.AddColumn(L("Season")).AddColumn(L("Team")).AddColumn(L("Joined")).AddColumn(L("League"))
+			.AddColumn(new TableColumn(L("Apps")).RightAligned()).AddColumn(new TableColumn(keeper ? L("Clean sheets") : "Gol").RightAligned())
+			.AddColumn(new TableColumn(L("Assists")).RightAligned()).AddColumn(new TableColumn("Puan").RightAligned());
 		string? lastYear = null;
 		foreach (var r in rows)
 		{
@@ -119,10 +119,10 @@ internal static partial class Program
 				Dim(r.Apps), Dim(r.Goals), Dim(r.Assists), Dim(r.Rating));
 		}
 		if (numbers.Count >= 2)
-			table.Caption(L($"Toplam {numbers[0]} maç · {numbers[1]} {(keeper ? L("gol yemeden maç") : L("gol"))}{(numbers.Count > 2 ? L($" · {numbers[2]} asist") : "")}{(spent.Length > 0 ? L($" · ödenen bonservisler {spent}") : "")}"));
+			table.Caption(L($"Total {numbers[0]} apps · {numbers[1]} {(keeper ? L("clean sheets") : L("goals"))}{(numbers.Count > 2 ? L($" · {numbers[2]} assists") : "")}{(spent.Length > 0 ? L($" · transfer fees paid {spent}") : "")}"));
 		Ui.Out.Write(table);
 		return 0;
 
-		static string How(string how) => how switch { "Loan" => L("kiralık"), "Free" => L("bedelsiz"), "Undisc." => L("açıklanmadı"), "" => "", _ => how };
+		static string How(string how) => how switch { "Loan" => L("loan"), "Free" => L("free"), "Undisc." => L("undisclosed"), "" => "", _ => how };
 	}
 }

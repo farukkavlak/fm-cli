@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Training intensity per player (FINDINGS §8.50, §8.187): Automatic, half, normal or double, a
+/// Training intensity per player: Automatic, half, normal or double, a
 /// rest from pitch and gym work for some days, or a holiday. Read from the players' own data, no
 /// page; changed with the game's own list in the player's row of the individual training table,
 /// chosen by the number the choice stands for, and confirmed from the data.
@@ -25,7 +25,7 @@ internal static partial class Program
 	/// </summary>
 	private static readonly (string Word, string English, int Value)[] IntensityLevels =
 	[
-		("otomatik", "Automatic", -1), ("yarım", "Half Intensity", 0), ("normal", "Normal Intensity", 1), ("çift", "Double Intensity", 2),
+		("otomatik", "Automatic", -1), ("yarim", "Half Intensity", 0), ("normal", "Normal Intensity", 1), ("cift", "Double Intensity", 2),
 	];
 
 	private sealed record IntensityRow(TrainingRow Player, string Shown, int Value, int Rest, int Holiday, int Advised, bool CanEdit);
@@ -39,7 +39,7 @@ internal static partial class Program
 		var all = await IntensityRows();
 		if (all.Count == 0)
 		{
-			Console.Error.WriteLine(L("Antrenman yoğunluğu okunamadı."));
+			Console.Error.WriteLine(L("Could not read training intensity."));
 			return 1;
 		}
 
@@ -51,25 +51,25 @@ internal static partial class Program
 			var players = Matching(all, r => r.Player.Name, who);
 			if (players.Count != 1)
 			{
-				Console.Error.WriteLine(players.Count == 0 ? L($"Listede '{who}' yok.") : L($"'{who}' {players.Count} oyuncuya uyuyor: {string.Join(", ", players.Select(p => p.Player.Name))}"));
+				Console.Error.WriteLine(players.Count == 0 ? L($"No '{who}' in the list.") : L($"'{who}' matches {players.Count} players: {string.Join(", ", players.Select(p => p.Player.Name))}"));
 				return 1;
 			}
 			var player = players[0];
 			if (IntensityValue(level) is not { } wanted)
 			{
-				Console.Error.WriteLine(L($"'{level}' bir seviye değil: otomatik, yarım, normal, çift, \"dinlen <gün>\" (1–6, 7, 14), \"tatil <hafta>\" (1–4)"));
+				Console.Error.WriteLine(L($"'{level}' is not a level: automatic, half, normal, double, \"rest <days>\" (1–6, 7, 14), \"holiday <weeks>\" (1–4)"));
 				return 64;
 			}
 			if (player.Value == wanted)
 			{
-				Console.WriteLine(L($"{player.Player.Name}: zaten {IntensityShown(player)}"));
+				Console.WriteLine(L($"{player.Player.Name}: already {IntensityShown(player)}"));
 				return 0;
 			}
 
 			var control = await TrainingControl(player.Player, IntensityEvent);
 			if (control is not { } list)
 			{
-				Console.Error.WriteLine(L($"{player.Player.Name}: bireysel antrenman sayfasında satırı bulunamadı."));
+				Console.Error.WriteLine(L($"{player.Player.Name}: row not found on the individual training page."));
 				return 1;
 			}
 			var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("value", wanted.ToString(CultureInfo.InvariantCulture)), ("fire", "1"));
@@ -77,7 +77,7 @@ internal static partial class Program
 			{
 				// The list offers no such choice: a holiday is offered only to some players.
 				Console.Error.WriteLine(said.Contains("no choice stands for", StringComparison.Ordinal)
-					? L($"{player.Player.Name}: oyun bu seçeneği sunmuyor.")
+					? L($"{player.Player.Name}: the game does not offer this option.")
 					: said);
 				return 1;
 			}
@@ -93,19 +93,19 @@ internal static partial class Program
 			}, seconds: 10, every: 0.25);
 			if (automatic && now.Value == player.Value && now.Holiday == 0)
 			{
-				Console.WriteLine(L($"{player.Player.Name}: otomatik; oyun yine {IntensityShown(now)} gösteriyor (otomatik kurallar aynı seviyeyi seçmiş olabilir)."));
+				Console.WriteLine(L($"{player.Player.Name}: automatic; the game still shows {IntensityShown(now)} (the automatic rules may pick the same level)."));
 				return 0;
 			}
 			if (automatic ? now.Value == player.Value : now.Value != wanted)
 			{
 				// A holiday booked runs its course: the game takes a rest over it, nothing else.
 				Console.Error.WriteLine(now.Holiday > 0
-					? L($"{player.Player.Name}: tatilde ({now.Holiday} gün kaldı); oyun tatil bitene kadar bunu almıyor ({IntensityShown(now)}).")
-					: L($"{player.Player.Name}: oyun değişikliği almadı ({IntensityShown(now)})."));
+					? L($"{player.Player.Name}: on holiday ({now.Holiday} days left); the game does not take this until it ends ({IntensityShown(now)}).")
+					: L($"{player.Player.Name}: the game did not take the change ({IntensityShown(now)})."));
 				return 1;
 			}
 			Console.WriteLine(automatic && now.Value != wanted
-				? L($"{player.Player.Name}: {IntensityShown(player)} → otomatik ({IntensityShown(now)})")
+				? L($"{player.Player.Name}: {IntensityShown(player)} → automatic ({IntensityShown(now)})")
 				: $"{player.Player.Name}: {IntensityShown(player)} → {IntensityShown(now)}");
 			return 0;
 		}
@@ -116,8 +116,8 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(sorted.Select(r => new { r.Player.Name, Intensity = GameWords.Of(r.Shown), r.Value, RestDays = r.Rest, HolidayDays = r.Holiday })));
 			return 0;
 		}
-		Table.Write([L("OYUNCU"), L("YOĞUNLUK")], sorted.Select(r => new[] { r.Player.Name, IntensityShown(r) }).ToList());
-		Console.WriteLine(L("\nDeğiştirmek: intensity <oyuncu> <otomatik|yarım|normal|çift|\"dinlen 3\"|\"tatil 1\">  ·  hepsini antrenöre bırak: intensity --auto"));
+		Table.Write([L("PLAYER"), L("INTENSITY")], sorted.Select(r => new[] { r.Player.Name, IntensityShown(r) }).ToList());
+		Console.WriteLine(L("\nTo change: intensity <player> <automatic|half|normal|double|\"rest 3\"|\"holiday 1\">  ·  leave them all to the coach: intensity --auto"));
 		return 0;
 	}
 
@@ -144,10 +144,10 @@ internal static partial class Program
 			Number("HolidaysRemaining"), Number("IntensityRecommendation"), Field(data, IntensityOf + "CanEdit") == "True");
 	}
 
-	/// <summary>As the game writes it ("Duble Yoğunluk", "3 Gün"); a rest or a holiday said as such.</summary>
+	/// <summary>As the game writes it ("Double Intensity", "3 Days"); a rest or a holiday said as such.</summary>
 	private static string IntensityShown(IntensityRow row) =>
-		row.Value is >= 10 and <= 17 ? L($"dinlenme {GameWords.Of(row.Shown)}")
-		: row.Value is >= 20 and <= 23 ? L($"tatil {GameWords.Of(row.Shown)}")
+		row.Value is >= 10 and <= 17 ? L($"rest {GameWords.Of(row.Shown)}")
+		: row.Value is >= 20 and <= 23 ? L($"holiday {GameWords.Of(row.Shown)}")
 		: GameWords.Of(row.Shown);
 
 	/// <summary>The number of the choice typed: a level by its name (ours, the game's, English), a rest by days, a holiday by weeks.</summary>
@@ -183,7 +183,7 @@ internal static partial class Program
 		var opened = await OpenSubpage(Screen.Training, Screen.TrainingIntensity, async () => await Ask() != null);
 		if (opened.StartsWith("error", StringComparison.Ordinal) || await Ask() is null)
 		{
-			Console.Error.WriteLine(L("Yoğunlukları antrenöre bırakma seçeneği yok."));
+			Console.Error.WriteLine(L("There is no option to leave the intensities to the coach."));
 			return 1;
 		}
 
@@ -206,14 +206,14 @@ internal static partial class Program
 		}
 		if (!asked || DialogAnswer(dialog[0], yes) is not { } answer)
 		{
-			Console.Error.WriteLine(L("Oyun antrenöre bırakmayı sormadı; hiçbir şey değişmedi."));
+			Console.Error.WriteLine(L("The game did not ask to leave it to the coach; nothing changed."));
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
 		if (!yes)
 		{
-			Console.WriteLine(L($"Oyun soruyor: {Field(dialog[0], "Description")}"));
-			Console.WriteLine(L("Hayır dendi, hiçbir şey değişmedi. Onaylamak için: intensity --auto --yes"));
+			Console.WriteLine(L($"The game asks: {Field(dialog[0], "Description")}"));
+			Console.WriteLine(L("Said no; nothing changed. To confirm: intensity --auto --yes"));
 			return 0;
 		}
 
@@ -223,10 +223,10 @@ internal static partial class Program
 		var changed = after.Join(before, a => a.Player.Id, b => b.Player.Id, (a, b) => (Now: a, Was: b)).Where(x => x.Now.Value != x.Was.Value).ToList();
 		foreach (var (now, was) in changed.OrderBy(x => x.Now.Player.Name, StringComparer.OrdinalIgnoreCase))
 			Console.WriteLine($"{now.Player.Name}: {IntensityShown(was)} → {IntensityShown(now)}");
-		Console.WriteLine(changed.Count == 0 ? L("Antrenör hiçbir yoğunluğu değiştirmedi.") : L($"Antrenör {changed.Count} oyuncunun yoğunluğunu değiştirdi."));
+		Console.WriteLine(changed.Count == 0 ? L("The coach changed no intensity.") : L($"The coach changed the intensity of {changed.Count} players."));
 		if (!done)
 		{
-			Console.Error.WriteLine(L($"Bazı oyuncular antrenörün önerisinde değil: {string.Join(", ", after.Where(r => !Advised(r)).Select(r => r.Player.Name))}"));
+			Console.Error.WriteLine(L($"Some players are not in the coach's suggestion: {string.Join(", ", after.Where(r => !Advised(r)).Select(r => r.Player.Name))}"));
 			return 1;
 		}
 		return 0;

@@ -3,7 +3,7 @@ namespace FmCli;
 /// <summary>
 /// The pages commands open, by the GUID the game's own files give each one (`fm pages` lists
 /// them). The GUID is the same in every language and every save — the home page's was the same
-/// in the first Fenerbahçe save as in Lincoln's — where the page's name is whatever the game's
+/// on one save as on another — where the page's name is whatever the game's
 /// language calls it. The names here are only for reading the code.
 ///
 /// A panel that stands for several teams (First Team, Under 21s and Under 18s are one) is told

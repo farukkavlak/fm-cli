@@ -6,7 +6,7 @@ internal static partial class Program
 {
 	/// <summary>
 	/// What a message carries under "Attachments" — the Code of Conduct it asks to confirm, say
-	/// (FINDINGS §8.145). An answer such as "Confirm" agrees to it, so it is shown with the message.
+	///. An answer such as "Confirm" agrees to it, so it is shown with the message.
 	/// </summary>
 	private static async Task WriteAttachment(string title, HashSet<string> answers)
 	{
@@ -48,7 +48,7 @@ internal static partial class Program
 		var side = rest.FindIndex(t => t is "About Club" or "My Profile");
 		if (side >= 0) rest = rest.Take(side).ToList();
 		if (rest.Count == 0) return;
-		// The same with each text's data path (FINDINGS §8.169), for the readers that go by it.
+		// The same with each text's data path, for the readers that go by it.
 		var page = bound.Skip(start + 1).ToList();
 		if (page.FindIndex(t => t.Text is "About Club" or "My Profile") is >= 0 and var aside) page = page.Take(aside).ToList();
 		string One(string path) => page.FirstOrDefault(t => t.Path == path).Text ?? "";
@@ -58,11 +58,11 @@ internal static partial class Program
 		// a player's card, the club's site), which says nothing more.
 		if (rest.Count > 1 && texts.Take(start).Contains(rest[0]))
 		{
-			Console.WriteLine(L($"\n  Haber: {rest[1].Replace("\n", "\n  ")}"));
+			Console.WriteLine(L($"\n  News: {rest[1].Replace("\n", "\n  ")}"));
 			return;
 		}
 
-		// A press conference's: the likely talking points, then who is coming (FINDINGS §8.145).
+		// A press conference's: the likely talking points, then who is coming.
 		if (rest[0] == "Likely Talking Points")
 		{
 			await PressConferenceAttachment(rest);
@@ -187,7 +187,7 @@ internal static partial class Program
 		// The squad numbers' card: how many are given out; the numbers themselves are numbers' to show.
 		if (One("Team.SquadNumbersAssigned") is { Length: > 0 } assigned)
 		{
-			Console.WriteLine(L($"\n  Ek: forma numaraları — {assigned} oyuncuya numara verilmiş. Ayrıntı ve değiştirmek: numbers"));
+			Console.WriteLine(L($"\n  Attached: squad numbers — {assigned} players have a number. More and changes: numbers"));
 			return;
 		}
 
@@ -246,7 +246,7 @@ internal static partial class Program
 		// Who has just become home-grown and who is about to, each with his age, nation and squad.
 		// The card names itself by the game's own section heading; its rows are the players the game
 		// binds ("binding.Name"), each followed by his age, nation, squad, status and date — so neither
-		// the heading nor the age's sentence ("19 years old" / "19 yaşında") is read. The columns bind
+		// the heading nor the age's sentence is read. The columns bind
 		// one after another, so the read is taken again until every row has its five cells.
 		if (rest.Contains("Upcoming Status Changes"))
 		{
@@ -371,7 +371,7 @@ internal static partial class Program
 			return;
 		}
 
-		Console.WriteLine(L("\n  Ek: ") + rest[0]);
+		Console.WriteLine(L("\n  Attached: ") + rest[0]);
 		var table = rest.IndexOf("Fine Type");
 		if (table >= 0 && table + 4 < rest.Count)
 		{
@@ -380,7 +380,7 @@ internal static partial class Program
 			var i = table + 5;
 			for (; i + 5 < rest.Count && rest[i + 1].StartsWith("Issued", StringComparison.Ordinal); i += 6)
 				rows.Add([rest[i], rest[i + 2], rest[i + 3], rest[i + 4], rest[i + 5]]);
-			Table.Write([L("CEZA (maaştan, Wk = haftalık)"), L("1. KEZ"), L("2. KEZ"), L("3. KEZ"), L("4. KEZ")], rows);
+			Table.Write([L("FINE (from wages, Wk = weekly)"), L("1ST TIME"), L("2ND TIME"), L("3RD TIME"), L("4TH TIME")], rows);
 			rest = rest.Skip(i).ToList();
 		}
 		else rest = rest.Skip(1).ToList();
@@ -396,7 +396,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// An attachment no reader here knows, laid out by its data paths (FINDINGS §8.169): the texts bound
+	/// An attachment no reader here knows, laid out by its data paths: the texts bound
 	/// to the game's data come in records — a table's row is a run of paths that starts again when its
 	/// first path comes round ("binding.Name", "binding.InjuryRiskFactorReason", then "binding.Name"
 	/// again) — and each record is a line; a list of one path ("day.DayOfTheWeek" seven times) is one line.

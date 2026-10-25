@@ -22,7 +22,7 @@ internal static partial class Program
 		var views = viewList?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList() ?? [];
 		if (views.Count == 0)
 		{
-			Console.Error.WriteLine(L("Kadro tablosunun görünüm listesi bulunamadı."));
+			Console.Error.WriteLine(L("The squad table's view list was not found."));
 			return 1;
 		}
 
@@ -34,10 +34,10 @@ internal static partial class Program
 		}
 
 		// A view marked with › is a menu of further views, which this cannot reach into yet.
-		if (Choose(views, wanted, L("Görünüm")) is not { } view) return 1;
+		if (Choose(views, wanted, L("View")) is not { } view) return 1;
 		if (view.EndsWith("›", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor."));
+			Console.Error.WriteLine(L($"'{view}' is a submenu; the views inside it cannot be chosen yet."));
 			return 1;
 		}
 
@@ -74,8 +74,9 @@ internal static partial class Program
 	}
 
 	/// <summary>Prints people with every field their rows carry as a column, less the table's own bookkeeping.</summary>
-	private static void Columns(List<JsonElement> rows, string who = "OYUNCU")
+	private static void Columns(List<JsonElement> rows, string? who = null)
 	{
+		who ??= L("PLAYER");
 		// Bound by a table for its own use (sorting, icons, the pitch view), in every view.
 		string[] noise = ["UniqueId", "Regenerated", "Team", "Count", "PlayerStatusSortType", "NewgenAppearanceDescription",
 			"AverageRating", "Index", "SquadNumberBlankIfInvalid", "PositionValue", "Position", "SubstituteString", "StatusType",
@@ -121,14 +122,14 @@ internal static partial class Program
 			Spectre.Console.TableExtensions.AddRow(table, [name, .. shown.Select(c => Ui.Safe(c!.Values[i]))]);
 		}
 		Ui.Out.Write(table);
-		if (dropped > 0) Ui.Line(L($"[dim]{dropped} kolon sığmadı; hepsi için: fm players --json ya da daha geniş terminal[/]"));
+		if (dropped > 0) Ui.Line(L($"[dim]{dropped} columns did not fit; for all of them: fm players --json or a wider terminal[/]"));
 	}
 
 	/// <summary>The game's raw values as a reader wants them: no "-1", no "Scouting Required", yes for True.</summary>
 	private static string Readable(string field, string value) => (field, value) switch
 	{
 		(_, "-1" or "-" or "None" or "False") => "",
-		(_, "True") => L("evet"),
+		(_, "True") => L("yes"),
 		("ShortGradeString", "Scouting Required") => "",
 		_ => value,
 	};
@@ -152,16 +153,16 @@ internal static partial class Program
 	/// <summary>The columns' names as a reader knows them; anything else spelled out from the game's own field name.</summary>
 	private static readonly Dictionary<string, string> Headings = new()
 	{
-		["PositionCombinedString"] = L("POZİSYON"), ["Age"] = L("YAŞ"), ["Wage"] = L("MAAŞ"), ["SquadNumber"] = "NO",
-		["TransferValueRangeString"] = L("DEĞER"), ["AskingPrice"] = L("İSTENEN"), ["TransferOptions"] = L("TRANSFER DURUMU"),
-		["AgreedPlayingTime"] = L("STATÜ"), ["FutureAgreedPlayingTime"] = L("GELECEK STATÜ"), ["ActualPlayingTime"] = L("GERÇEK SÜRE"),
-		["PlayingTimeHappinessLevel"] = L("SÜRE MEMNUNİYETİ"), ["ContractStatus"] = L("SÖZLEŞME"), ["Condition"] = L("KONDİSYON"),
-		["Sharpness"] = L("MAÇ FORMU"), ["InjuriesTimeMissed"] = L("KAÇIRACAĞI SÜRE"), ["InjurySeverity"] = L("SAKATLIK DERECESİ"),
-		["InjuryDescription"] = L("SAKATLIK"), ["TrainingRating"] = L("ANTRENMAN NOTU"), ["MoraleString"] = "MORAL",
-		["StatusTitleShort"] = L("DURUM"), ["Nation"] = L("ÜLKE"), ["Club"] = L("KULÜP"), ["Personality"] = L("KİŞİLİK"),
-		["HierarchyInfluenceCategoryString"] = L("HİYERARŞİ"), ["SocialGroupString"] = L("GRUP"), ["Height"] = L("BOY"),
-		["ShortName"] = L("KULÜP"), ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = L("SCOUT MASRAFI"),
-		["DaysSinceLastScouted"] = L("SON SCOUT"), ["ScoutedMinWage"] = L("MAAŞ (EN AZ)"), ["ScoutedMaxWage"] = L("MAAŞ (EN ÇOK)"),
+		["PositionCombinedString"] = L("POSITION"), ["Age"] = L("AGE"), ["Wage"] = L("WAGE"), ["SquadNumber"] = "NO",
+		["TransferValueRangeString"] = L("VALUE"), ["AskingPrice"] = L("ASKING PRICE"), ["TransferOptions"] = L("TRANSFER STATUS"),
+		["AgreedPlayingTime"] = L("STATUS"), ["FutureAgreedPlayingTime"] = L("FUTURE STATUS"), ["ActualPlayingTime"] = L("ACTUAL TIME"),
+		["PlayingTimeHappinessLevel"] = L("PLAYING TIME HAPPINESS"), ["ContractStatus"] = L("CONTRACT"), ["Condition"] = L("CONDITION"),
+		["Sharpness"] = L("MATCH SHARPNESS"), ["InjuriesTimeMissed"] = L("TIME OUT"), ["InjurySeverity"] = L("SEVERITY"),
+		["InjuryDescription"] = L("INJURY"), ["TrainingRating"] = L("TRAINING RATING"), ["MoraleString"] = "MORAL",
+		["StatusTitleShort"] = L("STATUS"), ["Nation"] = L("NATION"), ["Club"] = L("CLUB"), ["Personality"] = L("PERSONALITY"),
+		["HierarchyInfluenceCategoryString"] = L("HIERARCHY"), ["SocialGroupString"] = L("GROUP"), ["Height"] = L("HEIGHT"),
+		["ShortName"] = L("CLUB"), ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = L("SCOUTING COST"),
+		["DaysSinceLastScouted"] = L("LAST SCOUTED"), ["ScoutedMinWage"] = L("WAGE (MIN)"), ["ScoutedMaxWage"] = L("WAGE (MAX)"),
 	};
 
 	private static string Heading(string field)
@@ -204,7 +205,7 @@ internal static partial class Program
 
 		if (views == null || filters == null)
 		{
-			Console.Error.WriteLine(L("Oyuncu veritabanı sayfası beklenen listeleri göstermedi."));
+			Console.Error.WriteLine(L("The player search page did not show the lists expected."));
 			return 1;
 		}
 
@@ -237,22 +238,22 @@ internal static partial class Program
 		// its control to, which no language changes; the heading word is not used. A search stays
 		// on in the game until the next one or --clear.
 		var search = new List<(string Rule, string Choice, string What)>();
-		if (Option(args, "--role") is { } searchRole) search.Add(("filter.FilterRuleIpRole.filtervalue", searchRole, L("Rol")));
+		if (Option(args, "--role") is { } searchRole) search.Add(("filter.FilterRuleIpRole.filtervalue", searchRole, L("Role")));
 		if (Option(args, "--age") is { } ages)
 		{
 			var ends = ages.Split('-', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 			if (ends.Length != 2 || !int.TryParse(ends[0], out _) || !int.TryParse(ends[1], out _))
 			{
-				Console.Error.WriteLine(L("Yaş aralığı iki sayıyla:  --age 18-23"));
+				Console.Error.WriteLine(L("An age range takes two numbers:  --age 18-23"));
 				return 64;
 			}
-			search.Add(("filter.filterruleage.minvalue", ends[0], L("En küçük yaş")));
-			search.Add(("filter.filterruleage.maxvalue", ends[1], L("En büyük yaş")));
+			search.Add(("filter.filterruleage.minvalue", ends[0], L("Youngest age")));
+			search.Add(("filter.filterruleage.maxvalue", ends[1], L("Oldest age")));
 		}
-		if (Option(args, "--grade") is { } grade) search.Add(("filter.FilterRuleScoutingGrade.MinValue", grade, L("Scout notu")));
-		if (Option(args, "--contract") is { } contract) search.Add(("filter.filterrulecontract.filtervalue", contract, L("Sözleşme durumu")));
-		if (args.Contains("--listed")) search.Add(("filter.filterruletransferstatus.filtervalue", "Listed", L("Transfer durumu")));
-		if (args.Contains("--loan-listed")) search.Add(("filter.filterruleloanstatus.filtervalue", "Listed", L("Kiralık durumu")));
+		if (Option(args, "--grade") is { } grade) search.Add(("filter.FilterRuleScoutingGrade.MinValue", grade, L("Scout's note")));
+		if (Option(args, "--contract") is { } contract) search.Add(("filter.filterrulecontract.filtervalue", contract, L("Contract status")));
+		if (args.Contains("--listed")) search.Add(("filter.filterruletransferstatus.filtervalue", "Listed", L("Transfer status")));
+		if (args.Contains("--loan-listed")) search.Add(("filter.filterruleloanstatus.filtervalue", "Listed", L("Loan status")));
 		// --attr "pace>=15" (also <=, >, <), as many as wanted.
 		var conditions = new List<(string Attribute, bool AtLeast, int Value)>();
 		for (var i = 0; i + 1 < args.Length; i++)
@@ -261,7 +262,7 @@ internal static partial class Program
 			var match = System.Text.RegularExpressions.Regex.Match(args[i + 1], @"^\s*(.+?)\s*(>=|<=|>|<)\s*(\d+)\s*$");
 			if (!match.Success || !int.TryParse(match.Groups[3].Value, out var bound))
 			{
-				Console.Error.WriteLine(L($"'{args[i + 1]}': nitelik koşulu \"<nitelik>>=<sayı>\" biçiminde (örnek: --attr \"pace>=15\")."));
+				Console.Error.WriteLine(L($"'{args[i + 1]}': an attribute condition takes the form \"<attribute>>=<number>\" (example: --attr \"pace>=15\")."));
 				return 64;
 			}
 			var op = match.Groups[2].Value;
@@ -280,16 +281,16 @@ internal static partial class Program
 				10_000_000, 15_000_000, 20_000_000, 30_000_000, 40_000_000, 60_000_000, 80_000_000, 100_000_000];
 			if (Money(typedValue) is not { } limit || limit < 0)
 			{
-				Console.Error.WriteLine(L($"'{typedValue}': para olmalı (500K, 10M)."));
+				Console.Error.WriteLine(L($"'{typedValue}': must be money (500K, 10M)."));
 				return 64;
 			}
 			maxValue = figures.LastOrDefault(f => f <= limit);
-			if (maxValue != limit) Console.WriteLine(L($"(değer sınırı oyunun listesindeki {MoneyFormat.Short(maxValue.Value)} olarak alındı)"));
+			if (maxValue != limit) Console.WriteLine(L($"(the value limit was taken as {MoneyFormat.Short(maxValue.Value)} from the game's list)"));
 		}
 		if (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null)
 		{
 			// A search is added to whatever an earlier one left on, and two positions both
-			// required find almost no one (FINDINGS §8.131): each search starts from a clean one.
+			// required find almost no one: each search starts from a clean one.
 			if (!args.Contains("--clear"))
 			{
 				var cleared = await Arriving("press", [("event", "EventToPlugin:EventFmxResetFilter")]);
@@ -306,7 +307,7 @@ internal static partial class Program
 		// Free agents are the players whose contract has run out.
 		if ((Option(args, "--filter") ?? (args.Contains("--free") ? "Contract Expired" : null)) is { } wantedFilter)
 		{
-			if (Choose(filterNames, wantedFilter, L("Süzgeç")) is not { } filter) return 1;
+			if (Choose(filterNames, wantedFilter, L("Filter")) is not { } filter) return 1;
 
 			// The filter is sent to the search by the list's own event, not just written.
 			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("choice", filter), ("fire", "1"));
@@ -315,10 +316,10 @@ internal static partial class Program
 
 		if (Option(args, "--view") is { } wantedView)
 		{
-			if (Choose(viewNames, wantedView, L("Görünüm")) is not { } view) return 1;
+			if (Choose(viewNames, wantedView, L("View")) is not { } view) return 1;
 			if (view.EndsWith("›", StringComparison.Ordinal))
 			{
-				Console.Error.WriteLine(L($"'{view}' bir alt menü; içindeki görünümler henüz seçilemiyor."));
+				Console.Error.WriteLine(L($"'{view}' is a submenu; the views inside it cannot be chosen yet."));
 				return 1;
 			}
 
@@ -352,7 +353,7 @@ internal static partial class Program
 		Columns(people.EnumerateArray().ToList());
 
 		var count = await Found("PersonListCountString");
-		Console.WriteLine(L($"\n{people.GetArrayLength()} satır ekranda{(count != null ? L($"; oyun: \"{count}\"") : "")}"));
+		Console.WriteLine(L($"\n{people.GetArrayLength()} rows on screen{(count != null ? L($"; the game: \"{count}\"") : "")}"));
 		return 0;
 	}
 }

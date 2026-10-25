@@ -5,7 +5,7 @@ using SI.Bindable;
 namespace FmCliProbe;
 
 /// <summary>
-/// The opposition instructions card (FINDINGS §8.49): a row per player of the next opponent,
+/// The opposition instructions card: a row per player of the next opponent,
 /// his name in <c>#NameText</c> and four dropdowns after it, in this order: tight marking
 /// (Never/Always), closing down (Never/Always), tackling (Normal/Easy/Hard), show onto foot.
 /// The positions are a column of their own, in the same order.

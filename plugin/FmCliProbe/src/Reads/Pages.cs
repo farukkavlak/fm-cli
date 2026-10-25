@@ -151,7 +151,7 @@ internal static class Pages
 	}
 
 	/// <summary>
-	/// Opens a page listed in a subtab's menu on the bar shown (FINDINGS §8.169): its row there
+	/// Opens a page listed in a subtab's menu on the bar shown: its row there
 	/// carries the page's GUID as the tab menus' rows do. The row is chosen and its events sent. The
 	/// page whose bar it is may still be opening and cover it; the caller checks and asks again.
 	/// With <paramref name="check"/> nothing is chosen: it only says whether the page is the one the bar

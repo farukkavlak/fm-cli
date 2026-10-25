@@ -12,7 +12,7 @@ namespace FmCliProbe;
 /// it, put at a path so its properties can be read (a player's UniqueId).
 ///
 /// Only the rows laid out are found. The individual training table lays out all of its rows,
-/// also those the page has scrolled out of view (FINDINGS §8.186).
+/// also those the page has scrolled out of view.
 /// </summary>
 internal static class RowControls
 {

@@ -4,7 +4,7 @@ namespace FmCli;
 
 /// <summary>
 /// The penalty takers (Match Day › Penalties): who takes them in which order, with his composure
-/// and penalty taking, and the three rules on when the next one steps up (FINDINGS §8.87). The
+/// and penalty taking, and the three rules on when the next one steps up. The
 /// rules are switched here. The order is changed on the page by dragging a row, taking one out,
 /// or adding a player from a list; the table's own handlers for those are called through
 /// /rowmove and /rowremove, and the list is chosen from like any other (§8.90).
@@ -14,9 +14,9 @@ internal static partial class Program
 	/// <summary>The three rules, by the data path each switch writes (the same in every language).</summary>
 	private static readonly (string Label, string Binds, string Say, string[] Words)[] PenaltyRules =
 	[
-		("Allow player who has scored 2 goals to take penalty", "setpiece.PenaltyAllowTwoGoalsScorers", L("İki gol atan da atabilir"), ["iki", "2", "two"]),
-		("Change taker if player has already taken a penalty", "setpiece.PenaltyChangeAlreadyTaken", L("Bir penaltı atan bir sonrakini bırakır"), ["atan", "taken", "atti"]),
-		("Change taker if player has already missed a penalty", "setpiece.PenaltyChangeIfMissed", L("Penaltı kaçıran bir sonrakini bırakır"), ["kaciran", "missed", "kacirdi"]),
+		("Allow player who has scored 2 goals to take penalty", "setpiece.PenaltyAllowTwoGoalsScorers", L("A player who has scored twice may take one"), ["iki", "2", "two"]),
+		("Change taker if player has already taken a penalty", "setpiece.PenaltyChangeAlreadyTaken", L("A player who has taken a penalty leaves the next one"), ["atan", "taken", "atti"]),
+		("Change taker if player has already missed a penalty", "setpiece.PenaltyChangeIfMissed", L("A player who has missed a penalty leaves the next one"), ["kaciran", "missed", "kacirdi"]),
 	];
 
 	private static async Task<int> Penalties(bool json, string[] args)
@@ -34,7 +34,7 @@ internal static partial class Program
 		}
 		if (!form.Any(f => Field(f, "Kind") == "checkbox"))
 		{
-			Console.Error.WriteLine(L("Penaltı sayfası açılmadı."));
+			Console.Error.WriteLine(L("The penalties page did not open."));
 			return 1;
 		}
 
@@ -49,10 +49,10 @@ internal static partial class Program
 				.FirstOrDefault(c => Field(c, "Type") == "StreamedTable" && Field(c, "Events").Contains("PenaltyCandidatesMove", StringComparison.Ordinal));
 			if (table.ValueKind != JsonValueKind.Object)
 			{
-				Console.Error.WriteLine(L("Penaltıcılar tablosu sayfada bulunamadı."));
+				Console.Error.WriteLine(L("The penalty takers table was not found on the page."));
 				return 1;
 			}
-			var order = new DraggedList("penalties", L("Penaltıcı"), L("penaltıcılar"), L("Penaltıcılara"), Field(table, "Pointer"),
+			var order = new DraggedList("penalties", L("Penalty taker"), L("penalty takers"), L("the penalty takers"), Field(table, "Pointer"),
 				async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d!.Value, "Label") == "Add Player"),
 				async () =>
 				{
@@ -74,12 +74,12 @@ internal static partial class Program
 			var on = words.Count > 1 ? Fold(words[1]) switch { "acik" or "on" or "evet" => true, "kapali" or "off" or "hayir" => (bool?)false, _ => null } : null;
 			if (rule.Label == null || on == null)
 			{
-				Console.Error.WriteLine(L("kullanım: penalties <1|2|3> açık|kapalı   (1 iki gol atan, 2 penaltı atan, 3 penaltı kaçıran)"));
+				Console.Error.WriteLine(L("usage: penalties <1|2|3> on|off   (1 one who has scored twice, 2 one who has taken a penalty, 3 one who has missed one)"));
 				return 64;
 			}
 			if (Switch(rule.Binds) is not { } box)
 			{
-				Console.Error.WriteLine(L($"'{rule.Say}' anahtarı sayfada yok."));
+				Console.Error.WriteLine(L($"There is no '{rule.Say}' switch on the page."));
 				return 1;
 			}
 			if ((Field(box, "Value") == "True") != on)
@@ -116,25 +116,25 @@ internal static partial class Program
 			}));
 			return 0;
 		}
-		Table.Write([L("SIRA"), "#", L("OYUNCU"), L("MAÇA"), L("SOĞUKKANLILIK"), L("PENALTI")],
+		Table.Write([L("POS"), "#", L("PLAYER"), L("FOR MATCH"), L("COMPOSURE"), L("PENALTY")],
 			takers.Select(t => new[] { t.Order.ToString(), t.Number, t.Name, LineupWhere(t, lineup), t.Composure, t.Penalties }).ToList());
 		Console.WriteLine();
-		for (var i = 0; i < rules.Count; i++) Console.WriteLine($"  {i + 1}. {rules[i].Say}: {(rules[i].On ? L("açık") : L("kapalı"))}");
+		for (var i = 0; i < rules.Count; i++) Console.WriteLine($"  {i + 1}. {rules[i].Say}: {(rules[i].On ? L("on") : L("off"))}");
 		if (words.Count == 0)
-			Console.WriteLine(L("\nSıra: penalties move <oyuncu> <sıra> · add <oyuncu> [<sıra>] · remove <oyuncu>   ·   kural: penalties <1|2|3> açık|kapalı"));
+			Console.WriteLine(L("\nOrder: penalties move <player> <place> · add <player> [<place>] · remove <player>   ·   rule: penalties <1|2|3> on|off"));
 		return 0;
 
 	}
 
 	private static string Starting(string where) =>
-		where.StartsWith("Starting at ", StringComparison.Ordinal) ? $"ilk 11 · {where[12..]}" : where == "On Subs bench" ? L("yedek") : where;
+		where.StartsWith("Starting at ", StringComparison.Ordinal) ? $"ilk 11 · {where[12..]}" : where == "On Subs bench" ? L("sub") : where;
 
 	/// <summary>
 	/// Whether each of our players is in the eleven on the pitch, by his full name, from the
 	/// tactic's own slots (their <c>PlayerIndex</c>) and the squad's people (whose <c>Index</c> is
 	/// the same person). The page's own line for a taker names the place in English only
 	/// ("Starting at DMCR") or carries the position code into the game's language; this reads the
-	/// place from the game's data instead (FINDINGS §8.218). Null when no tactic is loaded, and the
+	/// place from the game's data instead. Null when no tactic is loaded, and the
 	/// caller falls back to the page's line.
 	/// </summary>
 	private static async Task<Dictionary<string, bool>?> Lineup()
@@ -157,12 +157,12 @@ internal static partial class Program
 
 	/// <summary>Where a taker starts, from the lineup when it is known and the page's own line otherwise.</summary>
 	private static string LineupWhere(PenaltyTaker taker, Dictionary<string, bool>? lineup) =>
-		lineup != null && lineup.TryGetValue(taker.Name, out var starter) ? (starter ? L("ilk 11") : L("yedek")) : Starting(taker.Where);
+		lineup != null && lineup.TryGetValue(taker.Name, out var starter) ? (starter ? L("first XI") : L("sub")) : Starting(taker.Where);
 
 	private sealed record PenaltyTaker(int Order, string Number, string Name, string Where, string Composure, string Penalties);
 
 	/// <summary>
-	/// The takers by each text's data path (FINDINGS §8.169): his place (index), then drawn without a
+	/// The takers by each text's data path: his place (index), then drawn without a
 	/// path his shirt number when he has one, his name (binding.Name), where he starts
 	/// (tactic.TeamSelectedPositionStringFromPlayer), composure and penalty taking (binding.PropertyValue).
 	/// </summary>
@@ -262,13 +262,13 @@ internal static partial class Program
 		{
 			if (who.Length == 0 && !Ui.Interactive)
 			{
-				Console.Error.WriteLine(L($"kullanım: {list.Command} add <oyuncu> [<sıra>]"));
+				Console.Error.WriteLine(L($"usage: {list.Command} add <player> [<place>]"));
 				return 64;
 			}
 			// The list names its players by their index; the squad says whose each is.
 			if (await list.Adds() is not { } adds)
 			{
-				Console.Error.WriteLine(L("Sayfada \"Add Player\" listesi yok."));
+				Console.Error.WriteLine(L("There is no \"Add Player\" list on the page."));
 				return 1;
 			}
 			var squad = (await Fm.Pull("Human.Team.Players", "Name,Index", list: true)).EnumerateArray()
@@ -279,24 +279,24 @@ internal static partial class Program
 			string picked;
 			if (who.Length == 0)
 			{
-				if (Ui.Ask(L($"{list.To} kim eklensin?"), candidates.Select(c => c.Name).ToList()) is not { } asked) return 0;
+				if (Ui.Ask(L($"Who should be added to {list.To}?"), candidates.Select(c => c.Name).ToList()) is not { } asked) return 0;
 				picked = candidates[asked].Name;
 			}
 			else
 			{
 				if (takers.Any(t => Fold(t.Name).Contains(Fold(who), StringComparison.Ordinal)))
 				{
-					Console.Error.WriteLine(L($"'{who}' zaten {list.All} arasında; yerini değiştirmek için: {list.Command} move \"{who}\" <sıra>"));
+					Console.Error.WriteLine(L($"'{who}' is already among the {list.All}; to change their place: {list.Command} move \"{who}\" <place>"));
 					return 1;
 				}
-				picked = Choose(candidates.Select(c => c.Name).ToList(), who, L("Eklenecek oyuncu"));
+				picked = Choose(candidates.Select(c => c.Name).ToList(), who, L("Player to add"));
 				if (picked == null) return 1;
 			}
 			var said = await Fm.Get("select", ("ptr", Field(adds, "Pointer")), ("choice", candidates.First(c => c.Name == picked).Choice), ("fire", "1"));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 			if (!await Shows(now => now.Any(t => t.Name == picked)))
 			{
-				Console.Error.WriteLine(L($"{picked} eklendi ama listede görünmedi."));
+				Console.Error.WriteLine(L($"{picked} was added but did not appear in the list."));
 				return 1;
 			}
 			takers = (await list.Read()).Rows;
@@ -311,10 +311,10 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive || takers.Count == 0)
 			{
-				Console.Error.WriteLine(verb == "move" ? L($"kullanım: {list.Command} move <oyuncu|sıra> <yeni sıra>") : L($"kullanım: {list.Command} remove <oyuncu|sıra>"));
+				Console.Error.WriteLine(verb == "move" ? L($"usage: {list.Command} move <player|place> <new place>") : L($"usage: {list.Command} remove <player|place>"));
 				return 64;
 			}
-			if (Ui.Ask(verb == "move" ? L("Kimin sırası değişsin?") : L("Kim çıkarılsın?"), takers.Select(t => $"{t.Order}. {t.Name}").ToList()) is not { } asked) return 0;
+			if (Ui.Ask(verb == "move" ? L("Whose place should change?") : L("Who should be removed?"), takers.Select(t => $"{t.Order}. {t.Name}").ToList()) is not { } asked) return 0;
 			taker = takers[asked];
 		}
 		else if (int.TryParse(who, out var order) && order >= 1 && order <= takers.Count) taker = takers[order - 1];
@@ -330,19 +330,19 @@ internal static partial class Program
 			var removed = await Dragged(now => now.All(t => t.Name != taker.Name), "rowremove", ("ptr", list.Pointer), ("index", (taker.Order - 1).ToString()), ("force", "1"));
 			if (removed == null) return null;
 			if (removed.Length > 0) return Report(removed);
-			Console.Error.WriteLine(L($"{taker.Name} çıkarıldı ama listede hâlâ görünüyor."));
+			Console.Error.WriteLine(L($"{taker.Name} was removed but still appears in the list."));
 			return 1;
 		}
 
 		if (place == null && Ui.Interactive)
 		{
-			var places = takers.Select(t => L($"{t.Order}. sıra (şimdi {t.Name})")).ToList();
-			if (Ui.Ask(L($"{taker.Name} kaçıncı sırada atsın?"), places, taker.Order - 1) is not { } asked) return 0;
+			var places = takers.Select(t => L($"place {t.Order} (now {t.Name})")).ToList();
+			if (Ui.Ask(L($"In which place should {taker.Name} take them?"), places, taker.Order - 1) is not { } asked) return 0;
 			place = asked + 1;
 		}
 		if (place == null || place < 1 || place > takers.Count)
 		{
-			Console.Error.WriteLine(L($"Yeni sıra 1 ile {takers.Count} arasında olmalı: {list.Command} move \"{taker.Name}\" <sıra>"));
+			Console.Error.WriteLine(L($"The new place must be between 1 and {takers.Count}: {list.Command} move \"{taker.Name}\" <place>"));
 			return 64;
 		}
 		if (place == taker.Order) return null;
@@ -351,7 +351,7 @@ internal static partial class Program
 			("ptr", list.Pointer), ("from", (taker.Order - 1).ToString()), ("to", (place.Value - 1).ToString()), ("force", "1"));
 		if (moved == null) return null;
 		if (moved.Length > 0) return Report(moved);
-		Console.Error.WriteLine(L($"{taker.Name} taşındı ama {place}. sırada görünmüyor."));
+		Console.Error.WriteLine(L($"{taker.Name} was moved but does not appear in place {place}."));
 		return 1;
 	}
 }

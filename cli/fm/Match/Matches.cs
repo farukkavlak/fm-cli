@@ -58,7 +58,7 @@ internal static partial class Program
 		await Until(async () => !(clicked = await Fm.Get("click", ("within", FormTile), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L($"{name} için form kutusu yok (bu sezon maçı olmayabilir)."));
+			Console.Error.WriteLine(L($"There is no form box for {name} (they may have no matches this season)."));
 			return 1;
 		}
 		List<(string Text, string Path)> page = [];
@@ -78,7 +78,7 @@ internal static partial class Program
 		var texts = page.Select(t => t.Text).ToList();
 		if (!page.Any(t => t.Path == FormStats))
 		{
-			Console.Error.WriteLine(L($"{name}: maç puanları sayfası açılmadı."));
+			Console.Error.WriteLine(L($"{name}: the match ratings page did not open."));
 			return 1;
 		}
 
@@ -141,8 +141,8 @@ internal static partial class Program
 		}
 
 		var cleanSheets = all.Count(r => r.Conceded == "0" && r.Position != "-");
-		Console.WriteLine(L($"{name} — {summary.Apps} maç · ortalama {summary.Average} · en iyi {summary.Best} · en kötü {summary.Worst} · ")
-			+ (keeper ? L($"{cleanSheets} gol yemediği maç") : L($"{summary.Goals} gol · {summary.Assists} asist")));
+		Console.WriteLine(L($"{name} — {summary.Apps} matches · average {summary.Average} · best {summary.Best} · worst {summary.Worst} · ")
+			+ (keeper ? L($"{cleanSheets} clean sheets") : L($"{summary.Goals} goals · {summary.Assists} assists")));
 		var subs = all.Any(r => r.OnOff.Length > 0);
 		var rich = Ui.Rich;
 
@@ -153,20 +153,20 @@ internal static partial class Program
 		if (ratings.Count > 1)
 		{
 			var bars = ratings.Select(r => (Bar: Ui.Bar(r, 5.5, 9), Rating: r)).ToList();
-			if (rich) Ui.Line(L($"[dim]puan[/]  {string.Concat(bars.Select(b => b.Rating >= 7.5 ? $"[green]{b.Bar}[/]" : b.Rating < 6.5 ? $"[red]{b.Bar}[/]" : b.Bar.ToString()))}  [dim]eski → yeni[/]"));
-			else Console.WriteLine(L($"puan  {string.Concat(bars.Select(b => b.Bar))}  eski → yeni"));
+			if (rich) Ui.Line(L($"[dim]rating[/]  {string.Concat(bars.Select(b => b.Rating >= 7.5 ? $"[green]{b.Bar}[/]" : b.Rating < 6.5 ? $"[red]{b.Bar}[/]" : b.Bar.ToString()))}  [dim]old → new[/]"));
+			else Console.WriteLine(L($"rating  {string.Concat(bars.Select(b => b.Bar))}  old → new"));
 		}
 		// The page gives the score home side first and does not say which side he was on.
-		var heads = new List<string> { "#", L("TARİH"), L("RAKİP"), L("SKOR (EV-DEP)"), L("MEVKİ") };
-		if (subs) heads.Add(rich ? "" : L("GİRDİ/ÇIKTI"));
-		heads.AddRange(keeper ? ["xGA", L("YEDİĞİ")] : ["xG", L("GOL"), L("AS")]);
-		heads.Add(L("PUAN"));
+		var heads = new List<string> { "#", L("DATE"), L("OPPONENT"), L("SCORE (H-A)"), L("POSITION") };
+		if (subs) heads.Add(rich ? "" : L("ON/OFF"));
+		heads.AddRange(keeper ? ["xGA", L("CONCEDED")] : ["xG", L("GOALS"), L("AST")]);
+		heads.Add(L("RATING"));
 		List<string> Cells(MatchRow r)
 		{
 			var cells = new List<string>
 			{
 				rich ? $"[dim]{r.Number}[/]" : r.Number.ToString(CultureInfo.InvariantCulture), r.Date,
-				rich ? Ui.Safe(r.Opponent) : r.Opponent, r.Score, r.Position == "-" ? (rich ? L("[dim]oynamadı[/]") : L("oynamadı")) : rich ? $"{r.Position} [dim]{r.Role}[/]" : $"{r.Position} {r.Role}",
+				rich ? Ui.Safe(r.Opponent) : r.Opponent, r.Score, r.Position == "-" ? (rich ? L("[dim]did not play[/]") : L("did not play")) : rich ? $"{r.Position} [dim]{r.Role}[/]" : $"{r.Position} {r.Role}",
 			};
 			if (subs) cells.Add(rich ? $"[dim]{OnOff(r.OnOff)}[/]" : OnOff(r.OnOff));
 			if (keeper) cells.AddRange([r.Xg, rich && r.Conceded == "0" ? "[green bold]0[/]" : r.Conceded]);
@@ -186,7 +186,7 @@ internal static partial class Program
 		return 0;
 
 		// "on 75" is a substitute's minute on, "off 60" the minute he went off.
-		static string OnOff(string text) => Regex.Replace(text, @"^(on|off) (\d+)$", m => $"{m.Groups[2].Value}' {(m.Groups[1].Value == "on" ? L("girdi") : L("çıktı"))}");
+		static string OnOff(string text) => Regex.Replace(text, @"^(on|off) (\d+)$", m => $"{m.Groups[2].Value}' {(m.Groups[1].Value == "on" ? L("on") : L("off"))}");
 		static string Count(string n, string colour) => n is "" or "0" ? "[dim]0[/]" : $"[{colour} bold]{n}[/]";
 		static string Colour(string rating) => GameNumbers.Read(rating) is { } r
 			? r >= 7.5 ? $"[green bold]{rating}[/]" : r < 6.5 ? $"[red]{rating}[/]" : rating : rating;
@@ -208,7 +208,7 @@ internal static partial class Program
 	private static IEnumerable<MatchRow> Rows(List<string> texts, bool keeper)
 	{
 		// A date as the game writes it: the order is the game's own preference
-		// (dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, yyyy/dd/mm — BAGIMLILIKLAR §C), so only the year's four
+		// (dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, yyyy/dd/mm), so only the year's four
 		// digits and the separators are taken as they are, never which end the year sits at.
 		static bool Date(string t) => Regex.IsMatch(t, @"^(?:\d{4}([./-])\d{1,2}\1\d{1,2}|\d{1,2}([./-])\d{1,2}\2\d{4})$");
 		var starts = Enumerable.Range(0, Math.Max(0, texts.Count - 1)).Where(i => Regex.IsMatch(texts[i], @"^\d+$") && Date(texts[i + 1])).ToList();

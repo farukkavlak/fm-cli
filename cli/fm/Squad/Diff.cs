@@ -52,7 +52,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -75,7 +75,7 @@ internal static partial class Program
 		if (before == null)
 		{
 			Console.WriteLine(json ? JsonOut.Of(new { First = true, Now = now })
-				: L($"{SayDate(now.Date)} anı kaydedildi. Bir dahaki `fm diff` o günden bu yana neyin değiştiğini söyler."));
+				: L($"Snapshot of {SayDate(now.Date)} saved. The next `fm diff` tells what has changed since that day."));
 			return 0;
 		}
 
@@ -114,29 +114,29 @@ internal static partial class Program
 
 		var days = DateTime.TryParse(now.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var to)
 			&& DateTime.TryParse(before.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var from) ? (to - from).Days : 0;
-		Console.WriteLine(days == 0 ? L($"{SayDate(now.Date)} (aynı gün)") : L($"{SayDate(before.Date)} → {SayDate(now.Date)} · {days} gün"));
+		Console.WriteLine(days == 0 ? L($"{SayDate(now.Date)} (same day)") : L($"{SayDate(before.Date)} → {SayDate(now.Date)} · {days} days"));
 
 		var lines = new List<(string What, string Said)>();
 		if (now.Position > 0 && (now.Position != before.Position || now.Points != before.Points))
 		{
 			var games = now.Played - before.Played;
-			lines.Add((L("Lig"), L($"{before.Position}. → {now.Position}. sıra · {before.Points} → {now.Points} puan")
-				+ (games > 0 ? L($" ({games} maçta {now.Points - before.Points})") : "")));
+			lines.Add((L("League"), L($"position {before.Position} → {now.Position} · {before.Points} → {now.Points} points")
+				+ (games > 0 ? L($" ({now.Points - before.Points} in {games} matches)") : "")));
 		}
 		if (now.Balance != before.Balance) lines.Add(("Kasa", $"{Pound(before.Balance)} → {Pound(now.Balance)} ({Signed(now.Balance - before.Balance)})"));
 		if (now.TransferBudget != before.TransferBudget)
-			lines.Add((L("Transfer bütçesi"), $"{Pound(before.TransferBudget)} → {Pound(now.TransferBudget)} ({Signed(now.TransferBudget - before.TransferBudget)})"));
-		if (joined.Count > 0) lines.Add((L("Gelen"), string.Join(", ", joined.Select(p => p.Name))));
-		if (left.Count > 0) lines.Add((L("Giden"), string.Join(", ", left.Select(p => p.Name))));
-		if (hurt.Count > 0) lines.Add((L("Sakatlanan"), string.Join(", ", hurt.Select(p => $"{p.Name} ({p.Injury}{(p.DaysOut > 0 ? L($", {p.DaysOut} gün") : "")})"))));
-		if (healed.Count > 0) lines.Add((L("İyileşen"), string.Join(", ", healed.Select(p => p.Name))));
-		foreach (var (was, @is) in contracts) lines.Add((L("Sözleşme"), $"{@is.Name}: {Or(was.ContractEnds)} → {Or(@is.ContractEnds)}"));
+			lines.Add((L("Transfer budget"), $"{Pound(before.TransferBudget)} → {Pound(now.TransferBudget)} ({Signed(now.TransferBudget - before.TransferBudget)})"));
+		if (joined.Count > 0) lines.Add((L("In"), string.Join(", ", joined.Select(p => p.Name))));
+		if (left.Count > 0) lines.Add((L("Out"), string.Join(", ", left.Select(p => p.Name))));
+		if (hurt.Count > 0) lines.Add((L("Injured"), string.Join(", ", hurt.Select(p => $"{p.Name} ({p.Injury}{(p.DaysOut > 0 ? L($", {p.DaysOut} days") : "")})"))));
+		if (healed.Count > 0) lines.Add((L("Recovered"), string.Join(", ", healed.Select(p => p.Name))));
+		foreach (var (was, @is) in contracts) lines.Add((L("Contract"), $"{@is.Name}: {Or(was.ContractEnds)} → {Or(@is.ContractEnds)}"));
 		foreach (var (was, @is) in loans)
-			lines.Add((L("Kiralık"), @is.LoanClub.Length > 0 ? $"{@is.Name} → {@is.LoanClub}" : L($"{@is.Name} {was.LoanClub}'dan döndü")));
+			lines.Add((L("Loan"), @is.LoanClub.Length > 0 ? $"{@is.Name} → {@is.LoanClub}" : L($"{@is.Name} returned from {was.LoanClub}")));
 
 		if (lines.Count == 0 && played.Count == 0)
 		{
-			Console.WriteLine(L("Değişen bir şey yok."));
+			Console.WriteLine(L("Nothing has changed."));
 			return 0;
 		}
 		var width = lines.Count > 0 ? lines.Max(l => l.What.Length) : 0;
@@ -147,13 +147,13 @@ internal static partial class Program
 		if (played.Count > 0)
 		{
 			Console.WriteLine();
-			Table.Write([L("OYUNCU"), L("MAÇ"), L("GOL"), L("ASİST"), L("ORT. PUAN")], played.Select(x => new[]
+			Table.Write([L("PLAYER"), L("APPS"), L("GOALS"), L("ASSISTS"), L("AV. RATING")], played.Select(x => new[]
 			{
 				x.Is.Name, Plus(x.Is.Apps - x.Was.Apps), Plus(x.Is.Goals - x.Was.Goals), Plus(x.Is.Assists - x.Was.Assists),
 				x.Is.Rating == x.Was.Rating ? Rating(x.Is.Rating) : $"{Rating(x.Was.Rating)} → {Rating(x.Is.Rating)}",
 			}).ToList());
 		}
-		if (args.Contains("--keep")) Console.WriteLine(L($"\n(--keep: karşılaştırma yine {SayDate(before.Date)} ile yapılacak)"));
+		if (args.Contains("--keep")) Console.WriteLine(L($"\n(--keep: the comparison will again be with {SayDate(before.Date)})"));
 		return 0;
 
 		static string Or(string text) => text.Length > 0 ? text : "-";

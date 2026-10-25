@@ -7,7 +7,7 @@ namespace FmCliProbe;
 /// <summary>
 /// The texts shown under one element, in reading order: the element found by its text
 /// (?anchor=…) and then climbed ?up=N levels. For pages that are read rather than used, like the
-/// next opposition report (FINDINGS §8.57).
+/// next opposition report.
 /// </summary>
 internal static class Texts
 {

@@ -6,16 +6,16 @@ internal static partial class Program
 {
 	private static readonly Dictionary<string, string> PositionNames = new(StringComparer.OrdinalIgnoreCase)
 	{
-		["GK"] = "Goalkeeper", ["DR"] = "Defender (Right)", ["DL"] = "Defender (Left)", ["DC"] = L("Defender (Centre)"),
-		["WBR"] = "Wing-Back (Right)", ["WBL"] = "Wing-Back (Left)", ["DM"] = L("Defensive Midfielder"),
-		["MR"] = L("Midfielder (Right)"), ["ML"] = L("Midfielder (Left)"), ["MC"] = L("Midfielder (Centre)"),
-		["AMR"] = L("Attacking Midfielder (Right)"), ["AML"] = L("Attacking Midfielder (Left)"), ["AMC"] = L("Attacking Midfielder (Centre)"),
-		["ST"] = L("Striker (Centre)"), ["STC"] = L("Striker (Centre)"),
+		["GK"] = "Goalkeeper", ["DR"] = "Defender (Right)", ["DL"] = "Defender (Left)", ["DC"] = L("DC"),
+		["WBR"] = "Wing-Back (Right)", ["WBL"] = "Wing-Back (Left)", ["DM"] = L("DM"),
+		["MR"] = L("MR"), ["ML"] = L("ML"), ["MC"] = L("MC"),
+		["AMR"] = L("AMR"), ["AML"] = L("AML"), ["AMC"] = L("AMC"),
+		["ST"] = L("ST"), ["STC"] = L("ST"),
 	};
 
 	/// <summary>
 	/// The attributes by their English names (folded) and the game's own id for each, which the search
-	/// panel's rows carry in every language (FINDINGS §8.172).
+	/// panel's rows carry in every language.
 	/// </summary>
 	private static readonly Dictionary<string, string> AttributeCodes = new()
 	{
@@ -34,7 +34,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// Each attribute's number on a player's card (the game's attribute type: 42 is Pace) and its name as
-	/// the game writes it in English (FINDINGS §8.172).
+	/// the game writes it in English.
 	/// </summary>
 	private static readonly Dictionary<string, string> AttributeNames = new()
 	{

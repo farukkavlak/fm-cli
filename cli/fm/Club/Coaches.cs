@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Coach assignments (Squad › Training › Coach Assignments, FINDINGS §8.147): which coach leads
+/// Coach assignments (Squad › Training › Coach Assignments): which coach leads
 /// which of the nine training areas, how heavy each area's load is and how good its lead coach.
 /// The page is read as a form: a coach's name and role, then for each area a switch and the
 /// stars he is worth there (shown only where he is assigned), in the order of the headings.
@@ -12,15 +12,15 @@ internal static partial class Program
 {
 	private static readonly (string Heading, string Turkish, string[] Words)[] CoachAreas =
 	[
-		("Att Tact", L("Hücum taktik"), ["hücum taktik", "hucum taktik", "att tact", "attacking tactical"]),
-		("Att Tech", L("Hücum teknik"), ["hücum teknik", "hucum teknik", "att tech", "attacking technical"]),
-		("Def Tact", L("Savunma taktik"), ["savunma taktik", "def tact", "defending tactical"]),
-		("Def Tech", L("Savunma teknik"), ["savunma teknik", "def tech", "defending technical"]),
-		("Poss Tact", L("Topla taktik"), ["topla taktik", "poss tact", "possession tactical"]),
-		("Poss Tech", L("Topla teknik"), ["topla teknik", "poss tech", "possession technical"]),
-		("Glk", L("Kaleci"), ["kaleci", "glk", "goalkeeping"]),
-		("Fit", L("Kondisyon"), ["kondisyon", "fit", "fitness"]),
-		("SPC", L("Duran top"), ["duran top", "spc", "set pieces"]),
+		("Att Tact", L("Attacking tactical"), ["hucum taktik", "att tact", "attacking tactical"]),
+		("Att Tech", L("Attacking technical"), ["hucum teknik", "att tech", "attacking technical"]),
+		("Def Tact", L("Defending tactical"), ["savunma taktik", "def tact", "defending tactical"]),
+		("Def Tech", L("Defending technical"), ["savunma teknik", "def tech", "defending technical"]),
+		("Poss Tact", L("Possession tactical"), ["topla taktik", "poss tact", "possession tactical"]),
+		("Poss Tech", L("Possession technical"), ["topla teknik", "poss tech", "possession technical"]),
+		("Glk", L("Goalkeeping"), ["kaleci", "glk", "goalkeeping"]),
+		("Fit", L("Condition"), ["kondisyon", "fit", "fitness"]),
+		("SPC", L("Set pieces"), ["duran top", "spc", "set pieces"]),
 	];
 
 	private sealed record CoachCell(bool On, bool Enabled, string Pointer, int HalfStars);
@@ -36,7 +36,7 @@ internal static partial class Program
 		(List<CoachRow> Rows, List<(string Load, int HalfStars)> Areas)? page = null;
 		if (!await Until(async () => (page = await ReadCoaches()) is { Rows.Count: > 0 }, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine(L("Antrenör görevleri sayfası açılmadı."));
+			Console.Error.WriteLine(L("The coaching assignments page did not open."));
 			return 1;
 		}
 
@@ -46,7 +46,7 @@ internal static partial class Program
 			var ask = await Labelled("Ask Assistant to Assign");
 			if (ask == null)
 			{
-				Console.Error.WriteLine(L("Görevleri yardımcıya bırakma düğmesi yok."));
+				Console.Error.WriteLine(L("There is no button to leave the assignments to the assistant."));
 				return 1;
 			}
 			var before = Assignments(page);
@@ -54,7 +54,7 @@ internal static partial class Program
 			// The page is rebuilt with the assistant's choice (about half a second). When he would choose
 			// what is already there nothing changes and nothing says so; the wait then ends at its limit.
 			await Until(async () => (page = await ReadCoaches()) is { Rows.Count: > 0 } && Assignments(page) != before, seconds: 3, every: 0.25);
-			Console.WriteLine(L("Yardımcı görevleri dağıttı."));
+			Console.WriteLine(L("The assistant shared out the assignments."));
 			page = await ReadCoaches();
 		}
 		else if (words.Count > 0)
@@ -64,14 +64,14 @@ internal static partial class Program
 			var coach = rows.FirstOrDefault(r => words.Any(w => r.Name.Contains(w, StringComparison.OrdinalIgnoreCase)));
 			if (coach == null)
 			{
-				Console.Error.WriteLine(L($"Antrenör bulunamadı. Antrenörler: {string.Join(", ", rows.Select(r => r.Name))}"));
+				Console.Error.WriteLine(L($"Coach not found. Coaches: {string.Join(", ", rows.Select(r => r.Name))}"));
 				return 1;
 			}
 			var rest = string.Join(" ", words.Where(w => !coach.Name.Contains(w, StringComparison.OrdinalIgnoreCase))).ToLowerInvariant();
 			var area = Array.FindIndex(CoachAreas, a => a.Words.Contains(rest) || a.Heading.Equals(rest, StringComparison.OrdinalIgnoreCase));
 			if (area < 0)
 			{
-				Console.Error.WriteLine(L($"Alan bilinmiyor: '{rest}'. Alanlar: {string.Join(", ", CoachAreas.Select(a => a.Turkish.ToLowerInvariant()))}"));
+				Console.Error.WriteLine(L($"Unknown area: '{rest}'. Areas: {string.Join(", ", CoachAreas.Select(a => a.Turkish.ToLowerInvariant()))}"));
 				return 1;
 			}
 
@@ -79,11 +79,11 @@ internal static partial class Program
 			var on = !args.Contains("--off");
 			if (!cell.Enabled)
 			{
-				Console.Error.WriteLine(L($"{coach.Name} ({coach.Role}) {CoachAreas[area].Turkish.ToLowerInvariant()} alanına atanamaz."));
+				Console.Error.WriteLine(L($"{coach.Name} ({coach.Role}) cannot be assigned to {CoachAreas[area].Turkish.ToLowerInvariant()}."));
 				return 1;
 			}
 			if (cell.On == on)
-				Console.WriteLine(L($"{coach.Name} {CoachAreas[area].Turkish.ToLowerInvariant()} alanında {(on ? L("zaten görevli") : L("zaten görevli değil"))}."));
+				Console.WriteLine(L($"{coach.Name} {(on ? L("is already assigned") : L("is not assigned anyway"))} in {CoachAreas[area].Turkish.ToLowerInvariant()}."));
 			else
 			{
 				var set = await Fm.Get("setcontrol", ("ptr", cell.Pointer), ("value", on ? "1" : "0"));
@@ -93,7 +93,7 @@ internal static partial class Program
 				await Until(async () => await ReadCoaches() is { } after
 					&& after.Rows.FirstOrDefault(r => r.Name == coach.Name)?.Cells[area] is { } now && now.On == on && now.HalfStars > 0 == on,
 					seconds: 5, every: 0.25);
-				Console.WriteLine($"{coach.Name} {CoachAreas[area].Turkish.ToLowerInvariant()} {(on ? L("alanına atandı") : L("görevinden alındı"))}.");
+				Console.WriteLine($"{coach.Name} {CoachAreas[area].Turkish.ToLowerInvariant()} {(on ? L("— assigned") : L("— removed"))}.");
 				page = await ReadCoaches();
 			}
 		}
@@ -123,18 +123,18 @@ internal static partial class Program
 
 		// A coach to a row and an area to a column, as on the page: ✓ and his stars where he leads it,
 		// · where he could, nothing where his job does not allow it.
-		string[] shortNames = [L("HÜC-TAK"), L("HÜC-TEK"), L("SAV-TAK"), L("SAV-TEK"), L("TOP-TAK"), L("TOP-TEK"), L("KALECİ"), L("KOND"), L("DURAN")];
-		var headers = new[] { L("ANTRENÖR") }.Concat(shortNames).ToArray();
+		string[] shortNames = [L("ATT-TAC"), L("ATT-TEC"), L("DEF-TAC"), L("DEF-TEC"), L("POS-TAC"), L("POS-TEC"), L("GK"), L("FIT"), L("SPC")];
+		var headers = new[] { L("COACH") }.Concat(shortNames).ToArray();
 		var table = rows.Select(r => new[] { r.Name }
 			.Concat(r.Cells.Select(c => c.On ? $"✓ {Stars(c.HalfStars)}".Trim() : c.Enabled ? "·" : "")).ToArray()).ToList();
-		table.Add(new[] { L("iş yükü") }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? areas[i].Load : "")).ToArray());
-		table.Add(new[] { L("baş antrenör") }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? Stars(areas[i].HalfStars) is { Length: > 0 } st ? st : "yok" : "")).ToArray());
+		table.Add(new[] { L("workload") }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? areas[i].Load : "")).ToArray());
+		table.Add(new[] { L("lead coach") }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? Stars(areas[i].HalfStars) is { Length: > 0 } st ? st : L("none") : "")).ToArray());
 		Table.Write(headers, table);
-		Console.WriteLine(L("HÜC hücum · SAV savunma · TOP topla oynama · TAK taktik · TEK teknik · KOND kondisyon · DURAN duran top"));
+		Console.WriteLine(L("ATT attacking · DEF defending · POS possession · TAC tactical · TEC technical · FIT fitness · SPC set pieces"));
 
 		var empty = CoachAreas.Where((_, i) => !rows.Any(r => r.Cells[i].On)).Select(a => a.Turkish.ToLowerInvariant()).ToList();
-		if (empty.Count > 0) Console.WriteLine(L($"Antrenörü olmayan alan: {string.Join(", ", empty)}"));
-		Console.WriteLine(L("Atamak için: coaches <antrenör> <alan>   (kaldırmak: --off;  yardımcıya bırakmak: --auto)"));
+		if (empty.Count > 0) Console.WriteLine(L($"Area with no coach: {string.Join(", ", empty)}"));
+		Console.WriteLine(L("To assign: coaches <coach> <area>   (to remove: --off;  to leave it to the assistant: --auto)"));
 	}
 
 	/// <summary>The page as its form reads: the coaches with their nine switches, then each area's load and lead.</summary>

@@ -541,7 +541,7 @@ internal static partial class Buttons
 	/// <summary>
 	/// A disabled button's handler can still be run by a simulated click, and the game is not
 	/// ready for it: the save browser's Delete with nothing selected locked the main thread
-	/// (FINDINGS §8.104).
+	///.
 	/// </summary>
 	private static bool Disabled(SIButton button)
 	{
@@ -562,7 +562,7 @@ internal static partial class Buttons
 				if (element.panel == null || element.worldBound.width <= 0) continue;
 				if (Text.Plain(element.TryCast<TextElement>()?.text ?? "") != wanted) continue;
 				// A card closed earlier keeps its tiles, laid out but hidden; a click there does
-				// nothing and the one on screen is never reached (FINDINGS §8.165).
+				// nothing and the one on screen is never reached.
 				if (!Pages.Shown(element)) continue;
 			}
 			catch { continue; }

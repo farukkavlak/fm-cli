@@ -25,7 +25,7 @@ internal static partial class Program
 			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 
-		Table.Write(new[] { L("LİSTE"), L("SEÇİLİ"), L("SEÇENEKLER") }, rows);
+		Table.Write(new[] { L("LIST"), L("SELECTED"), L("OPTIONS") }, rows);
 		return 0;
 	}
 
@@ -34,7 +34,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: press \"<etiket>\" [--name <ad>] [--dry]   (etiketler için `buttons`)"));
+			Console.Error.WriteLine(L("usage: press \"<label>\" [--name <name>] [--dry]   (for the labels: `buttons`)"));
 			return 64;
 		}
 
@@ -45,8 +45,8 @@ internal static partial class Program
 
 		var answer = await Arriving("press", query.ToArray());
 		// A control's own label is the game's English ("Recent Results") while the screen shows
-		// this language's word for it ("Son Sonuçlar"); a command typed in the shown words is
-		// looked up again in the table (FINDINGS §8.376).
+		// this language's word for it ("Recent Results"); a command typed in the shown words is
+		// looked up again in the table.
 		if (answer.Contains("no control labelled", StringComparison.Ordinal)
 		    && GameWords.English(words[0]) is { } english && english != words[0])
 		{
@@ -63,7 +63,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count < 2)
 		{
-			Console.Error.WriteLine(L("kullanım: select <liste> \"<seçenek>\" [--dry]   (listeler için `dropdowns`)"));
+			Console.Error.WriteLine(L("usage: select <list> \"<option>\" [--dry]   (for the lists: `dropdowns`)"));
 			return 64;
 		}
 
@@ -85,7 +85,7 @@ internal static partial class Program
 		// opening holds the queue for a moment. Either clears by itself or is reported once the
 		// wait is up; a name the game's own page list does not have never will, and asking again
 		// for it only spends the whole wait (measured: nine requests and nine seconds to the same
-		// answer, FINDINGS §8.327).
+		// answer).
 		await Until(async () => !Unanswered(answer = await Fm.Get(route, query)), seconds: 8, every: 1);
 		return answer;
 	}
@@ -136,14 +136,14 @@ internal static partial class Program
 	private static string Flags(JsonElement message)
 	{
 		var flags = new List<string>();
-		if (Field(message, "NewsItemHasBeenRead") != "True") flags.Add(L("okunmadı"));
-		if (Blocking(message)) flags.Add(L("cevap bekliyor"));
-		else if (Answerable(message)) flags.Add(L("cevaplanabilir"));
+		if (Field(message, "NewsItemHasBeenRead") != "True") flags.Add(L("unread"));
+		if (Blocking(message)) flags.Add(L("awaiting an answer"));
+		else if (Answerable(message)) flags.Add(L("can be answered"));
 		return string.Join(", ", flags);
 	}
 
 	/// <summary>
-	/// A dialog's answer by its place rather than its words (FINDINGS §8.165): the game puts the
+	/// A dialog's answer by its place rather than its words: the game puts the
 	/// answer that goes ahead (Yes, Confirm, Ok) in the primary slot and the one that backs out (No,
 	/// Cancel) in the secondary. The bridge takes the slot from the game's dialog manager; failing
 	/// that, the button's element is named for it ("buttons-button-primary-default").

@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The club's finances (FINDINGS §8.78): the balance tile on Club › Overview opens the finances
+/// The club's finances: the balance tile on Club › Overview opens the finances
 /// card — this month's income and expenditure, financial fair play, debts, the wage bill by player
 /// status, sponsorship, the board's projections and the balance month by month.
 /// </summary>
@@ -19,19 +19,19 @@ internal static partial class Program
 			var kind = Fold(words[0]) switch { "gelir" or "income" => "Income", "gider" or "expenditure" or "harcama" => "Expenditure", _ => null };
 			if (kind == null)
 			{
-				Console.Error.WriteLine(L($"'{words[0]}' anlaşılmadı: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]"));
+				Console.Error.WriteLine(L($"'{words[0]}' not understood: finances income|expenditure [month|last month|season|last season]"));
 				return 1;
 			}
 			return await FinanceBreakdown(json, kind, string.Join(" ", words.Skip(1)));
 		}
 
-		// Everything is read from the club's data, with no screen opened (FINDINGS §8.183): the finances
+		// Everything is read from the club's data, with no screen opened: the finances
 		// card's tiles are bound to these same properties.
 		var club = await Fm.Pull("Human.Club", "OverallBalance,TotalIncomeThisMonth,TotalExpenditureThisMonth,TotalDebt,OriginalLoanDebt,"
 			+ "TotalSponsorshipIncomeThisSeason,FfpData.IsPassingFfp,FfpData.Competition.Name");
 		if (Field(club, "OverallBalance") is not { Length: > 0 })
 		{
-			Console.Error.WriteLine(L("Finans kartı okunamadı."));
+			Console.Error.WriteLine(L("The finances card could not be read."));
 			return 1;
 		}
 
@@ -75,7 +75,7 @@ internal static partial class Program
 			IncomeThisMonth = income, ExpenditureThisMonth = spent,
 			// The words are the ones the human lines print: the game's own for the status and the
 			// deal type, the CLI's for the fair play verdict (which is derived here, not read).
-			Ffp = new { ffp.Competition, Status = ffp.Status switch { "Compliant" => L("uyumlu"), "Failing" => L("uyumsuz"), _ => ffp.Status } },
+			Ffp = new { ffp.Competition, Status = ffp.Status switch { "Compliant" => L("compliant"), "Failing" => L("failing"), _ => ffp.Status } },
 			Debt = new { Remaining = Pounds(Field(club, "TotalDebt")), Original = Pounds(Field(club, "OriginalLoanDebt")) },
 			Wages = new { wages.Total, wages.Budget, wages.Share },
 			WagesByStatus = statuses.Select(s => new { Status = GameWords.Of(s.Status), s.Players, s.Wage }),
@@ -107,35 +107,35 @@ internal static partial class Program
 		}
 
 		Heading("Kasa");
-		Row(L("Bakiye"), finances.Balance);
-		Row(L("Bu ay gelir"), income);
-		Row(L("Bu ay gider"), spent);
-		foreach (var (month, balance) in months) Row(L($"{month} bakiyesi"), balance);
-		Row(L("Borç"), L($"{finances.Debt.Remaining} kaldı (başta {finances.Debt.Original})"));
-		Row(L("Finansal fair play"), $"{(ffp.Status switch { "Compliant" => L("uyumlu"), "Failing" => L("uyumsuz"), _ => ffp.Status })} ({ffp.Competition})");
+		Row(L("Balance"), finances.Balance);
+		Row(L("Income this month"), income);
+		Row(L("Expenditure this month"), spent);
+		foreach (var (month, balance) in months) Row(L($"balance on {month}"), balance);
+		Row(L("Debt"), L($"{finances.Debt.Remaining} left (at the start {finances.Debt.Original})"));
+		Row(L("Financial fair play"), $"{(ffp.Status switch { "Compliant" => L("compliant"), "Failing" => L("failing"), _ => ffp.Status })} ({ffp.Competition})");
 
-		Heading(L("Maaş bordrosu"));
-		Row(L("Haftalık toplam"), $"{finances.Wages.Total} / {finances.Wages.Budget} ({finances.Wages.Share})");
+		Heading(L("Payroll"));
+		Row(L("Weekly total"), $"{finances.Wages.Total} / {finances.Wages.Budget} ({finances.Wages.Share})");
 		foreach (var (status, players, wage) in statuses.Where(s => s.Players > 0))
 			// The card writes these in the period the game is set to show (a week, a month, a year).
 			Row($"{GameWords.Of(status)} ({players})", wage);
 
-		Heading(L("Bilet"));
-		Row(L("Maç bileti"), finances.Tickets.Match);
-		Row(L("Kombine"), int.TryParse(finances.Tickets.Holders, out var holders) ? L($"{finances.Tickets.Season} · {holders:N0} kombine sahibi") : finances.Tickets.Season);
+		Heading(L("Tickets"));
+		Row(L("Match ticket"), finances.Tickets.Match);
+		Row(L("Season ticket"), int.TryParse(finances.Tickets.Holders, out var holders) ? L($"{finances.Tickets.Season} · {holders:N0} season ticket holders") : finances.Tickets.Season);
 
-		Heading(L("Sponsorluk"));
-		Row(L("Toplam gelir"), L($"{finances.Sponsorship.Total} ({finances.Sponsorship.Sources} kaynak)"));
+		Heading(L("Sponsorship"));
+		Row(L("Total income"), L($"{finances.Sponsorship.Total} ({finances.Sponsorship.Sources} sources)"));
 		foreach (var d in sponsors)
 		{
-			var term = d[2] is "" or "-" ? "" : L($" · bitiş {d[2]} ({d[3]})");
-			Row(Ui.Fit(GameWords.Of(d[0]), 26), L($"{d[1]} sezonluk{term}"));
+			var term = d[2] is "" or "-" ? "" : L($" · ends {d[2]} ({d[3]})");
+			Row(Ui.Fit(GameWords.Of(d[0]), 26), L($"{d[1]} a season{term}"));
 		}
 
-		Heading(L("Yönetimin projeksiyonu"));
-		foreach (var (season, balance, turnover) in projections) Row(season, L($"bakiye {balance} · ciro {turnover}"));
-		if (Ui.Rich) Ui.Line($"[dim]{Ui.Safe(L("\nKalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]"))}[/]");
-		else Console.WriteLine(L("\nKalem kalem: finances gelir|gider [ay|geçen ay|sezon|geçen sezon]"));
+		Heading(L("The board's projection"));
+		foreach (var (season, balance, turnover) in projections) Row(season, L($"balance {balance} · turnover {turnover}"));
+		if (Ui.Rich) Ui.Line($"[dim]{Ui.Safe(L("\nItem by item: finances income|expenditure [month|last month|season|last season]"))}[/]");
+		else Console.WriteLine(L("\nItem by item: finances income|expenditure [month|last month|season|last season]"));
 		return 0;
 	}
 
@@ -170,7 +170,7 @@ internal static partial class Program
 			.Where(d => d[0].Length > 0).ToList();
 
 	/// <summary>
-	/// Income or expenditure item by item, from the club's data with no screen opened (FINDINGS §8.183):
+	/// Income or expenditure item by item, from the club's data with no screen opened:
 	/// Human.Club.{Income|Expenditure}Breakdown{ThisMonth|LastMonth|ThisSeason|LastSeason} lists each item
 	/// (Name, PropertyValue in pounds), Total{Income|Expenditure}{period} the total and
 	/// TotalIncome{period}Turnover the turnover. The finances card shows the same lists.
@@ -179,15 +179,15 @@ internal static partial class Program
 	{
 		var (when, label) = Fold(period) switch
 		{
-			"" or "ay" or "bu ay" or "month" => ("ThisMonth", "bu ay"),
-			"gecen ay" or "last month" => ("LastMonth", L("geçen ay")),
-			"sezon" or "bu sezon" or "season" => ("ThisSeason", L("bu sezon")),
-			"gecen sezon" or "last season" => ("LastSeason", L("geçen sezon")),
+			"" or "ay" or "bu ay" or "month" => ("ThisMonth", L("this month")),
+			"gecen ay" or "last month" => ("LastMonth", L("last month")),
+			"sezon" or "bu sezon" or "season" => ("ThisSeason", L("this season")),
+			"gecen sezon" or "last season" => ("LastSeason", L("last season")),
 			_ => (null, null),
 		};
 		if (when == null)
 		{
-			Console.Error.WriteLine(L($"'{period}' bir dönem değil: ay, geçen ay, sezon, geçen sezon"));
+			Console.Error.WriteLine(L($"'{period}' is not a period: month, last month, season, last season"));
 			return 1;
 		}
 
@@ -197,7 +197,7 @@ internal static partial class Program
 		var totals = await Fm.Pull("Human.Club", kind == "Income" ? $"TotalIncome{when},TotalIncome{when}Turnover" : $"TotalExpenditure{when}");
 		if (rows.Count == 0 || Field(totals, $"Total{kind}{when}") is not { Length: > 0 } rawTotal)
 		{
-			Console.Error.WriteLine(kind == "Income" ? L("Gelir dökümü okunamadı.") : L("Gider dökümü okunamadı."));
+			Console.Error.WriteLine(kind == "Income" ? L("The income breakdown could not be read.") : L("The expenditure breakdown could not be read."));
 			return 1;
 		}
 		var total = Pounds(rawTotal);
@@ -209,7 +209,7 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new { Kind = kind, Period = when, Total = total, Turnover = turnover, Items = all.Select(a => new { a.Item, a.Amount }) }));
 			return 0;
 		}
-		var title = $"{(kind == "Income" ? L("Gelir") : L("Gider"))} — {label}: {total}" + (turnover != null && turnover != total ? L($" (ciro {turnover})") : "");
+		var title = $"{(kind == "Income" ? L("Income") : L("Expenditure"))} — {label}: {total}" + (turnover != null && turnover != total ? L($" (turnover {turnover})") : "");
 		if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(title)}[/]");
 		else Console.WriteLine(title);
 		// Aligned on the names as shown, in the game's words.

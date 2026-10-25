@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The dressing room (FINDINGS §8.95): how many players back the manager, and where each one
+/// The dressing room: how many players back the manager, and where each one
 /// stands — the social group he belongs to, his place in the hierarchy and his personality.
 /// Read off Squad › Dynamics › Social Groups, which lists every player under his group.
 /// </summary>
@@ -23,7 +23,7 @@ internal static partial class Program
 			async () => (await Read()).Any(t => t.Path.EndsWith("SocialGroupReasons", StringComparison.Ordinal)));
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		// Read by each text's data path (FINDINGS §8.169), anchored on a player's description. A group
+		// Read by each text's data path, anchored on a player's description. A group
 		// is its heading (drawn without a path, one of the game's texts and so in English), a sentence on
 		// what holds it together (Team.<Group>SocialGroupReasons), the column headings, then for each
 		// player his name, description, hierarchy (binding.HierarchyInfluenceCategoryString) and
@@ -71,7 +71,7 @@ internal static partial class Program
 		}
 		if (players.Count == 0)
 		{
-			Console.Error.WriteLine(L("Sosyal gruplar okunamadı."));
+			Console.Error.WriteLine(L("The social groups could not be read."));
 			return 1;
 		}
 
@@ -93,7 +93,7 @@ internal static partial class Program
 		}
 
 		if (Count("Supportive").Length > 0)
-			Console.WriteLine(L($"Menajere destek: {Count("Supportive")} destekliyor · {Count("Neutral")} kararsız · {Count("Opposing")} karşı\n"));
+			Console.WriteLine(L($"Support for the manager: {Count("Supportive")} supportive · {Count("Neutral")} undecided · {Count("Opposing")} against\n"));
 		static int Rank(string hierarchy) => Array.FindIndex(HierarchyOrder, h => hierarchy.StartsWith(h, StringComparison.OrdinalIgnoreCase)) is var i and >= 0 ? i : HierarchyOrder.Length;
 		foreach (var group in groups)
 		{
@@ -101,7 +101,7 @@ internal static partial class Program
 			if (members.Count == 0) continue;
 			Console.WriteLine($"{group.Name} ({members.Count})");
 			if (group.Why.Length > 0) Console.WriteLine($"  {group.Why}");
-			Table.Write([L("OYUNCU"), L("HİYERARŞİ"), L("KİŞİLİK")],
+			Table.Write([L("PLAYER"), L("HIERARCHY"), L("PERSONALITY")],
 				members.Select(p => (string[])[p.Name, p.Hierarchy, p.Personality]).ToList());
 			Console.WriteLine();
 		}

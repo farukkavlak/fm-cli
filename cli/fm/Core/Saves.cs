@@ -5,7 +5,7 @@ namespace FmCli;
 
 /// <summary>
 /// The career saves on disk, newest first: the game keeps the main file, its own rolling backups
-/// ("(v02)") and an overwrite backup beside it (FINDINGS §8.35).
+/// ("(v02)") and an overwrite backup beside it.
 /// </summary>
 internal static partial class Program
 {
@@ -15,13 +15,13 @@ internal static partial class Program
 	{
 		if (!Directory.Exists(SavesFolder))
 		{
-			Console.Error.WriteLine(L($"Kayıt klasörü yok: {SavesFolder}"));
+			Console.Error.WriteLine(L($"There is no save folder: {SavesFolder}"));
 			return 1;
 		}
 		var files = new DirectoryInfo(SavesFolder).GetFiles("*.fm").OrderByDescending(f => f.LastWriteTime).ToList();
 		if (files.Count == 0)
 		{
-			Console.WriteLine(L("Kayıt yok."));
+			Console.WriteLine(L("No saves."));
 			return 0;
 		}
 		if (json)
@@ -33,7 +33,7 @@ internal static partial class Program
 			return 0;
 		}
 		var tr = CultureInfo.InvariantCulture;
-		Table.Write([L("KAYIT"), L("SON YAZILMA"), L("BOYUT")], files.Select(f => new[]
+		Table.Write([L("SAVE"), L("LAST WRITTEN"), L("SIZE")], files.Select(f => new[]
 		{
 			Path.GetFileNameWithoutExtension(f.Name),
 			f.LastWriteTime.ToString("yyyy-MM-dd HH:mm", tr),
@@ -58,7 +58,7 @@ internal static partial class Program
 	};
 
 	/// <summary>
-	/// A name as the game spells it. The disk hands "ç" back as a c and a cedilla, the game shows
+	/// A name as the game spells it. The disk hands a cedilla back as a combining mark, the game shows
 	/// one letter, and its lists are searched by what they show.
 	/// </summary>
 	private static string Composed(string text)
@@ -96,7 +96,7 @@ internal static partial class Program
 		var close = names.Where(n => n.Contains(wanted, StringComparison.OrdinalIgnoreCase)).ToList();
 		if (close.Count == 1) return close[0];
 
-		Console.Error.WriteLine(close.Count == 0 ? L($"'{typed}' adında kayıt yok.") : L($"'{typed}' birden çok kayda uyuyor:"));
+		Console.Error.WriteLine(close.Count == 0 ? L($"No save called '{typed}'.") : L($"'{typed}' matches more than one save:"));
 		foreach (var name in close.Count == 0 ? names : close) Console.Error.WriteLine($"  {name}");
 		return null;
 	}
@@ -191,26 +191,26 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(world));
 			return 0;
 		}
-		Console.WriteLine(L($"Kayıt     {world.Save}"));
+		Console.WriteLine(L($"Save      {world.Save}"));
 		Console.WriteLine($"          {world.LastSaved}{(when.Length > 0 ? $" ({when})" : "")} · {world.Autosave}");
-		Console.WriteLine(L($"Oynanan   {world.Played}"));
-		Console.WriteLine(L($"Dünya     {world.Nations} ülke · {world.Leagues} lig · yaklaşık {world.Players} oyuncu"));
-		Console.WriteLine(L($"Detay     turnuvalar: {world.CompetitionDetail} · milli turnuvalar: {world.InternationalDetail}"));
-		Console.WriteLine(L($"Menajer   {world.Manager} · {world.Club} · {world.Status}"));
+		Console.WriteLine(L($"Played    {world.Played}"));
+		Console.WriteLine(L($"World     {world.Nations} nations · {world.Leagues} leagues · about {world.Players} players"));
+		Console.WriteLine(L($"Detail    competitions: {world.CompetitionDetail} · international competitions: {world.InternationalDetail}"));
+		Console.WriteLine(L($"Manager   {world.Manager} · {world.Club} · {world.Status}"));
 		return 0;
 	}
 
 	/// <summary>
 	/// Opens the game's save browser (FM menu › Save Game As) and says which box takes the name
 	/// and what is in it — the loaded save's own name, until something else is typed or a row is
-	/// selected (FINDINGS §8.104).
+	/// selected.
 	/// </summary>
 	private static async Task<(string Box, string Current)?> OpenSaveBrowser()
 	{
 		if (!await OpenFmMenu()) return null;
 		if (await MenuOption("SaveGameAs") is not { } saveAs)
 		{
-			Console.Error.WriteLine(L("Kayıt tarayıcısı açılmadı."));
+			Console.Error.WriteLine(L("The save browser did not open."));
 			return null;
 		}
 		var asked = await Fm.Get("press", ("ptr", saveAs));
@@ -229,7 +229,7 @@ internal static partial class Program
 		}, seconds: 8, every: 0.25);
 		if (!open)
 		{
-			Console.Error.WriteLine(L("Kayıt tarayıcısı açılmadı."));
+			Console.Error.WriteLine(L("The save browser did not open."));
 			return null;
 		}
 		return (Field(box, "Pointer"), Field(box, "Text"));
@@ -272,13 +272,13 @@ internal static partial class Program
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
 		var go = buttons.FirstOrDefault(b => Field(b, "Events") == "SaveGame");
 		if (go.ValueKind != JsonValueKind.Object)
-			return L("error: kayıt tarayıcısının düğmesi tanınmadı (SaveGame yok).");
+			return L("error: unknown button in the save browser (no SaveGame).");
 		if (save) return await Fm.Get("click", ("ptr", Field(go, "Pointer")));
 
 		var leave = buttons.FirstOrDefault(b => Field(b, "Page") == Field(go, "Page") && Field(b, "Events") == "ClosePanel");
 		return leave.ValueKind == JsonValueKind.Object
 			? await Fm.Get("click", ("ptr", Field(leave, "Pointer")))
-			: L("error: kayıt tarayıcısının kapatma düğmesi bulunamadı.");
+			: L("error: close button not found in the save browser.");
 	}
 
 	private static async Task CloseSaveBrowser()
@@ -306,7 +306,7 @@ internal static partial class Program
 
 		return delete.ValueKind == JsonValueKind.Object
 			? await Fm.Get("click", ("ptr", Field(delete, "Pointer")))
-			: L("error: kayıt tarayıcısının silme düğmesi bulunamadı (DeleteSelectedGame yok).");
+			: L("error: delete button not found in the save browser (no DeleteSelectedGame).");
 	}
 
 	/// <summary>

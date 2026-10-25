@@ -5,28 +5,28 @@ using Spectre.Console;
 namespace FmCli;
 
 /// <summary>
-/// When each contract runs out (FINDINGS §8.72): the squad's players read from the team's data,
+/// When each contract runs out: the squad's players read from the team's data,
 /// each one's FullContract.EndDateDescription ("30/6/2028") under the row the list put him at.
 /// All are bound in one pass and read in a second, so the wait for values is paid once.
 /// </summary>
 internal static partial class Program
 {
-	/// <summary>What a contract can carry besides the wage, by the name of its field (FINDINGS §8.96).</summary>
+	/// <summary>What a contract can carry besides the wage, by the name of its field.</summary>
 	private static readonly (string Field, string Say)[] ContractTerms =
 	[
-		("Wage", L("Ücret")), ("WageAfterTax", L("Vergi sonrası")), ("AgreedPlayingTime", L("Kadro statüsü")), ("ContractType", L("Tür")),
-		("LoyaltyBonus", L("Sadakat primi")), ("AppearanceBonus", L("Maç başı ücret")), ("GoalBonus", L("Gol primi")), ("AssistBonus", L("Asist primi")),
-		("CleanSheetBonus", L("Gol yememe primi")), ("UnusedSubBonus", L("Oynamayan yedek ücreti")), ("InternationalCapBonus", L("Milli maç primi")),
-		("SeasonalLandmarkGoalsBonus", L("Sezon gol hedefi primi")), ("SeasonalLandmarkAssistsBonus", L("Sezon asist hedefi primi")),
-		("SeasonalLandmarkGoalsAndAssistsBonus", L("Sezon gol + asist hedefi primi")),
-		("MinimumFeeReleaseClauseValue", L("Serbest kalma bedeli")), ("DomesticMinimumFeeReleaseClauseValue", L("Serbest kalma bedeli (yurt içi)")),
-		("ForeignMinimumFeeReleaseClauseValue", L("Serbest kalma bedeli (yurt dışı)")),
-		("MajorContinentalCompetitionMinimumFeeReleaseClauseValue", L("Serbest kalma bedeli (Avrupa'da oynayan kulüp)")),
-		("RelegationMinimumFeeReleaseClauseValue", L("Serbest kalma bedeli (küme düşersek)")),
-		("SellingOnFeePercentage", L("Sonraki satıştan pay")), ("SellingOnFeeProfitPercentage", L("Sonraki satış kârından pay")),
-		("PromotionWageIncrease", L("Yükselirsek zam")), ("RelegationWageDecrease", L("Düşersek indirim")),
-		("MatchHighestEarnerClause", L("En yüksek ücretliye eşitleme")), ("InjuryReleaseClause", L("Sakatlıkta fesih")),
-		("WageNextSeason", L("Gelecek sezon ücreti")),
+		("Wage", L("Wage")), ("WageAfterTax", L("After tax")), ("AgreedPlayingTime", L("Squad status")), ("ContractType", L("Type")),
+		("LoyaltyBonus", L("Loyalty bonus")), ("AppearanceBonus", L("Appearance fee")), ("GoalBonus", L("Goal bonus")), ("AssistBonus", L("Assist bonus")),
+		("CleanSheetBonus", L("Clean sheet bonus")), ("UnusedSubBonus", L("Unused substitute fee")), ("InternationalCapBonus", L("International cap bonus")),
+		("SeasonalLandmarkGoalsBonus", L("Season goals target bonus")), ("SeasonalLandmarkAssistsBonus", L("Season assists target bonus")),
+		("SeasonalLandmarkGoalsAndAssistsBonus", L("Season goals + assists target bonus")),
+		("MinimumFeeReleaseClauseValue", L("Release clause")), ("DomesticMinimumFeeReleaseClauseValue", L("Release clause (domestic)")),
+		("ForeignMinimumFeeReleaseClauseValue", L("Release clause (foreign)")),
+		("MajorContinentalCompetitionMinimumFeeReleaseClauseValue", L("Release clause (club in continental competition)")),
+		("RelegationMinimumFeeReleaseClauseValue", L("Release clause (if we are relegated)")),
+		("SellingOnFeePercentage", L("Sell-on fee")), ("SellingOnFeeProfitPercentage", L("Sell-on fee from profit")),
+		("PromotionWageIncrease", L("Rise on promotion")), ("RelegationWageDecrease", L("Cut on relegation")),
+		("MatchHighestEarnerClause", L("Match highest earner")), ("InjuryReleaseClause", L("Release on injury")),
+		("WageNextSeason", L("Next season's wage")),
 	];
 
 	/// <summary>
@@ -43,7 +43,7 @@ internal static partial class Program
 		var hits = Matching(players, p => Field(p, "Name"), wanted);
 		if (hits.Count != 1)
 		{
-			Console.Error.WriteLine(hits.Count == 0 ? L($"'{wanted}' kadroda yok.") : L($"'{wanted}' {hits.Count} oyuncuya uyuyor: {string.Join(", ", hits.Select(h => Field(h, "Name")))}"));
+			Console.Error.WriteLine(hits.Count == 0 ? L($"'{wanted}' is not in the squad.") : L($"'{wanted}' matches {hits.Count} players: {string.Join(", ", hits.Select(h => Field(h, "Name")))}"));
 			return 1;
 		}
 		var contract = Field(hits[0], "Row") + ".FullContract";
@@ -51,7 +51,7 @@ internal static partial class Program
 
 		// One field at a time: a field the contract does not know empties the whole reading.
 		// Asked for once so they are bound, then read until each has come: an unbound field reads as {}, an empty
-		// term as "-", so a field still {} is only late (all 26 arrive, FINDINGS §8.182).
+		// term as "-", so a field still {} is only late (all 26 arrive).
 		foreach (var (field, _) in ContractTerms)
 			try { await Fm.GetJson("pull", ("path", contract), ("props", $"{field}.DisplayValue")); } catch (FmError) { }
 		var values = new Dictionary<string, string>();
@@ -75,11 +75,11 @@ internal static partial class Program
 			var value = values.GetValueOrDefault(field, "");
 			if (value.Length > 0 && value is not ("-" or "N/A" or "None" or "No" or "0%") && !(MoneyFormat.IsMoney(value) && Money(value) == 0)) terms.Add((say, value));
 		}
-		// The wage after tax is written in a sentence ("£10.5K p/w after tax", "Vergi sonrası 10,5B £ aylık"):
+		// The wage after tax is written in a sentence ("£10.5K p/w after tax"):
 		// its amount, by the wage's own period.
-		if (terms.FindIndex(t => t.Say == L("Vergi sonrası")) is var net and >= 0 && MoneyFormat.Find(terms[net].Value) is { } netAmount)
+		if (terms.FindIndex(t => t.Say == L("After tax")) is var net and >= 0 && MoneyFormat.Find(terms[net].Value) is { } netAmount)
 		{
-			var wage = terms.FirstOrDefault(t => t.Say == L("Ücret")).Value ?? "";
+			var wage = terms.FirstOrDefault(t => t.Say == L("Wage")).Value ?? "";
 			var period = MoneyFormat.Find(wage) is { } gross ? wage[(wage.IndexOf(gross, StringComparison.Ordinal) + gross.Length)..] : "";
 			terms[net] = (terms[net].Say, netAmount + period);
 		}
@@ -90,9 +90,9 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new { Name = name, Ends = ends, Terms = terms.ToDictionary(t => t.Say, t => t!.Value) }));
 			return 0;
 		}
-		Console.WriteLine(ends.Length > 0 ? L($"{name} — sözleşme {ends} tarihine kadar") : L($"{name} — sözleşme"));
-		Table.Write([L("ŞART"), L("DEĞER")], terms.Select(t => (string[])[t.Say, t!.Value]).ToList());
-		Console.WriteLine(L($"\nYenilemek için: contract \"{name}\""));
+		Console.WriteLine(ends.Length > 0 ? L($"{name} — contract until {ends}") : L($"{name} — contract"));
+		Table.Write([L("TERM"), L("VALUE")], terms.Select(t => (string[])[t.Say, t!.Value]).ToList());
+		Console.WriteLine(L($"\nTo renew: contract \"{name}\""));
 		return 0;
 	}
 
@@ -100,7 +100,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 		if (string.Join(" ", Words(args)) is { Length: > 0 } wanted) return await ContractOf(json, wanted);
@@ -131,17 +131,17 @@ internal static partial class Program
 		{
 			if (ends is not { } e) return "";
 			var months = (e.Year - today.Year) * 12 + e.Month - today.Month;
-			return months < 12 ? L($"{Math.Max(months, 0)} ay") : L($"{months / 12} yıl {months % 12} ay");
+			return months < 12 ? L($"{Math.Max(months, 0)} months") : L($"{months / 12} yrs {months % 12} mths");
 		}
 
 		if (!Ui.Rich)
 		{
-			Table.Write([L("OYUNCU"), L("YAŞ"), L("MEVKİ"), L("BİTİŞ"), L("KALAN")], rows.Select(r => new[] { r.Name, r.Age, r.Position, r.Text, Left(r.Ends) }).ToList());
+			Table.Write([L("PLAYER"), L("AGE"), L("POSITION"), L("EXPIRES"), L("LEFT")], rows.Select(r => new[] { r.Name, r.Age, r.Position, r.Text, Left(r.Ends) }).ToList());
 			return 0;
 		}
 
 		var table = new Spectre.Console.Table().Border(Spectre.Console.TableBorder.Rounded).BorderColor(Spectre.Console.Color.Grey)
-			.AddColumn(L("Oyuncu")).AddColumn(L("Yaş")).AddColumn(L("Mevki")).AddColumn(L("Bitiş")).AddColumn(L("Kalan"));
+			.AddColumn(L("Player")).AddColumn(L("Age")).AddColumn(L("Position")).AddColumn(L("Expires")).AddColumn(L("Left"));
 		foreach (var r in rows)
 		{
 			// Inside a year a contract is the manager's business now; inside two, soon.
@@ -149,7 +149,7 @@ internal static partial class Program
 			table.AddRow(Ui.Safe(r.Name), r.Age, Ui.Safe(r.Position), $"[{colour}]{Ui.Safe(r.Text)}[/]", $"[{colour}]{Left(r.Ends)}[/]");
 		}
 		Ui.Out.Write(table);
-		Console.WriteLine(L("Yenilemek için: contract <oyuncu>"));
+		Console.WriteLine(L("To renew: contract <player>"));
 		return 0;
 	}
 }

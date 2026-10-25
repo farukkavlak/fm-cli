@@ -38,7 +38,7 @@ internal static partial class Program
 		// The submission screen can take longer to draw than a press is usually given; its button is waited
 		// for. At SubmitTeam the screen itself may not be up yet: Go To Match (ContinueGame) brings it.
 		// The button's own name is generic and its label is a game word (English even in the Turkish
-		// build), so the container it is laid out in is the identity (FINDINGS §8.328).
+		// build), so the container it is laid out in is the identity.
 		async Task<bool> Offered() => !(await Fm.Get("press", ("event", "OpenPanel"), ("within", "InstantResultEnabled"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal);
 		if (!await Until(Offered, seconds: 4, every: 0.5))
 		{
@@ -84,11 +84,11 @@ internal static partial class Program
 					continue;
 				}
 
-				// Which dialog it is still goes by its title (BAGIMLILIKLAR §2.2); the answer goes by its slot.
+				// Which dialog it is still goes by its title ; the answer goes by its slot.
 				var button = Field(dialog, "Title") is "Instant Result" or "Team Selection" ? DialogAnswer(dialog, true) : null;
 				if (button == null)
 				{
-					Console.Error.WriteLine(L($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}   (cevap: dialog)"));
+					Console.Error.WriteLine(L($"The game is asking something: {Field(dialog, "Title")} — {Field(dialog, "Description")}   (to answer: dialog)"));
 					return 1;
 				}
 
@@ -108,7 +108,7 @@ internal static partial class Program
 
 		if (Field(state, "State") is "Tactics" or "SubmitTeam")
 		{
-			Console.Error.WriteLine(L("Anında sonuç istendi ama oyun hâlâ kadro ekranında."));
+			Console.Error.WriteLine(L("An instant result was asked for, but the game is still on the squad screen."));
 			return 1;
 		}
 
@@ -121,13 +121,13 @@ internal static partial class Program
 		}, seconds: 20, every: 0.5);
 		if (afterKey.Length == 0 || afterKey == beforeKey)
 		{
-			Console.Error.WriteLine(L("Maç raporu henüz hazır değil; oyunun son fikstürü değişmedi."));
+			Console.Error.WriteLine(L("Match report is not ready yet; the game's last fixture has not changed."));
 			return 0;
 		}
 
 		// The result is on the fixture itself once played; the newest one with a result is this match.
 		// On the results screen the page list can be empty, so the fixtures may not open; the
-		// report below does not need them (FINDINGS §8.52).
+		// report below does not need them.
 		JsonElement played = default;
 		try
 		{
@@ -137,16 +137,16 @@ internal static partial class Program
 				.LastOrDefault();
 		}
 		catch (FmError) { }
-		Console.WriteLine(L("Maç simüle edildi."));
+		Console.WriteLine(L("The match was simulated."));
 		Console.WriteLine();
 		try
 		{
 			if (await MatchReport.Show(Fm, json: false, expected: afterScore) != 0 && played!.ValueKind == JsonValueKind.Object)
-				Console.WriteLine(L($"{Field(played, "ShortName")} maçı {Field(played, "Result")}"));
+				Console.WriteLine(L($"{Field(played, "ShortName")} match {Field(played, "Result")}"));
 		}
 		catch (FmError)
 		{
-			if (played!.ValueKind == JsonValueKind.Object) Console.WriteLine(L($"{Field(played, "ShortName")} maçı {Field(played, "Result")}"));
+			if (played!.ValueKind == JsonValueKind.Object) Console.WriteLine(L($"{Field(played, "ShortName")} match {Field(played, "Result")}"));
 		}
 
 		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);

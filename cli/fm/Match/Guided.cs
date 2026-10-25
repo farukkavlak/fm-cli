@@ -30,7 +30,7 @@ internal static partial class Program
 
 		if (!tour.TryGetProperty("Step", out _))
 		{
-			Console.Error.WriteLine(L("Açık bir tanıtım turu yok. Başlatmak için: reply <#> Begin"));
+			Console.Error.WriteLine(L("No guided tour is open. To start one: reply <#> Begin"));
 			return 1;
 		}
 
@@ -38,13 +38,13 @@ internal static partial class Program
 		{
 			if (await TourButton("Skip Introduction") is not { } skip)
 			{
-				Console.Error.WriteLine(L("Bu tur atlanamıyor: atlama seçeneği sunmuyor."));
+				Console.Error.WriteLine(L("This tour cannot be skipped: it offers no skip option."));
 				return 1;
 			}
 
 			await Fm.Get("press", ("ptr", Field(skip, "Pointer")));
 			var skipped = await Until(async () => !await TourOpen());
-			Console.WriteLine(skipped ? L("Tur atlandı.") : L("Atla denildi ama tur hâlâ açık."));
+			Console.WriteLine(skipped ? L("Tour skipped.") : L("Told to skip, but the tour is still open."));
 			return skipped ? 0 : 1;
 		}
 
@@ -59,15 +59,15 @@ internal static partial class Program
 			{
 				await Fm.Get("press", ("ptr", Field(end, "Pointer")));
 				var closed = await Until(async () => !await TourOpen());
-				Console.WriteLine(closed ? L("\nTur bitti.") : L("\nTur bitirildi ama hâlâ açık görünüyor."));
+				Console.WriteLine(closed ? L("\nTour finished.") : L("\nThe tour was finished but still looks open."));
 				return closed ? 0 : 1;
 			}
 
 			if (await TourButton("Continue") is not { } next)
 			{
-				Console.Error.WriteLine(L("\nTur bu adımda senden ekranda bir şey yapmanı bekliyor; kendi ilerle butonu yok."));
+				Console.Error.WriteLine(L("\nAt this step the tour expects you to do something on screen; it has no continue button of its own."));
 				if (await Labelled("No Tactic Set") != null)
-					Console.Error.WriteLine(L("Takımın taktiği yok. Oluşturmak için: tactic new"));
+					Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 				return 1;
 			}
 
@@ -87,13 +87,13 @@ internal static partial class Program
 			{
 				// A last step can repeat the one before word for word.
 				if (tour.TryGetProperty("Step", out _) && Field(tour, "Step") != step) continue;
-				Console.Error.WriteLine(L("\nİlerle denildi ama tur aynı adımda kaldı."));
+				Console.Error.WriteLine(L("\nTold to continue, but the tour stayed at the same step."));
 				return 1;
 			}
 			if (!tour.TryGetProperty("Step", out _)) break;
 		}
 
-		Console.WriteLine(L("\nTur bitti."));
+		Console.WriteLine(L("\nTour finished."));
 		return 0;
 	}
 
@@ -155,23 +155,23 @@ internal static partial class Program
 			if (Choose(fees, string.Join(" ", words.Skip(1)), "Bedel") is not { } pick) return 64;
 			var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", pick));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-			Console.WriteLine(L($"Bedel: {pick}. Göndermek için: talk onayla"));
+			Console.WriteLine(L($"Fee: {pick}. To send it: talk confirm"));
 			return 0;
 		}
 		if (words.Count > 0 && words[0] is "onayla" or "confirm")
 		{
-			if (confirm.ValueKind != JsonValueKind.Object) { Console.Error.WriteLine(L("Onay düğmesi yok.")); return 1; }
+			if (confirm.ValueKind != JsonValueKind.Object) { Console.Error.WriteLine(L("There is no confirm button.")); return 1; }
 			var said = await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 			// The window closes on the game's own frame, not at a guessed moment: measured, it
-			// was still up 0.4 s after a fixed 1 s had passed (FINDINGS §8.373).
+			// was still up 0.4 s after a fixed 1 s had passed.
 			await Until(async () => await FeeList() == null, seconds: 3, every: 0.15);
-			Console.WriteLine(L("Bedel önerildi. Devam için: talk"));
+			Console.WriteLine(L("Fee proposed. To go on: talk"));
 			return 0;
 		}
-		Console.WriteLine(L($"Bir bedel öner: şu an {Field(list, "Label")}"));
-		Console.WriteLine(L($"  seçenekler: {string.Join(" · ", fees)}"));
-		Console.WriteLine(L("Değiştirmek için: talk bedel <değer>   ·   göndermek için: talk onayla"));
+		Console.WriteLine(L($"Propose a fee: now {Field(list, "Label")}"));
+		Console.WriteLine(L($"  options: {string.Join(" · ", fees)}"));
+		Console.WriteLine(L("To change it: talk fee <value>   ·   to send it: talk confirm"));
 		return 0;
 	}
 
@@ -182,7 +182,7 @@ internal static partial class Program
 		await Until(async () => await FeeList() != null, seconds: 3, every: 0.15);
 		if (await FeeList() is not { } list) return;
 		var fees = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-		if (Ui.Ask(L("Hangi bedel?"), fees) is not { } at) return;
+		if (Ui.Ask(L("Which fee?"), fees) is not { } at) return;
 		await FeeAsked(["bedel", fees[at]]);
 		await FeeAsked(["onayla"]);
 	}
@@ -260,11 +260,11 @@ internal static partial class Program
 				if (talk != 0) return talk;
 
 				var recommended = await Recommended();
-				var labels = options.Select(o => o.Label + (recommended.Contains(o.Label) ? L("  (önerilen)") : "")).ToList();
+				var labels = options.Select(o => o.Label + (recommended.Contains(o.Label) ? L("  (recommended)") : "")).ToList();
 				Console.WriteLine();
-				if (Ui.Ask(L("Ne diyorsun?"), labels, cancel: L("Şimdilik bir şey deme")) is not { } asked)
+				if (Ui.Ask(L("What do you say?"), labels, cancel: L("Say nothing for now")) is not { } asked)
 				{
-					Console.WriteLine(L("Konuşma açık kaldı. Devam için: talk"));
+					Console.WriteLine(L("The conversation stayed open. To go on: talk"));
 					return 0;
 				}
 
@@ -300,36 +300,36 @@ internal static partial class Program
 			}
 			if (exit is not { } leave)
 			{
-				Console.Error.WriteLine(L("Çıkılacak bir konuşma yok."));
+				Console.Error.WriteLine(L("There is no conversation to leave."));
 				return 1;
 			}
 
 			await Fm.Get("press", ("ptr", Field(leave, "Pointer")));
 			var left = await Until(async () => (await TalkOptions()).Count == 0, seconds: 8);
-			Console.WriteLine(left ? L("Konuşmadan çıkıldı.") : L("Çık denildi ama konuşma hâlâ açık."));
+			Console.WriteLine(left ? L("Left the conversation.") : L("Told to leave, but the conversation is still open."));
 			return left ? 0 : 1;
 		}
 
 		if (options.Count == 0)
 		{
-			Console.Error.WriteLine(L("Açık bir konuşma yok."));
+			Console.Error.WriteLine(L("There is no open conversation."));
 			return 1;
 		}
 
 		var offered = options.Select(o => o.Label).ToList();
-		if (Choose(offered, words[0], L("Cevap")) is not { } pick) return 1;
+		if (Choose(offered, words[0], L("Answer")) is not { } pick) return 1;
 
 		// A number means whatever conversation is open now, which may not be the one it was read
-		// from; letting a player go is never done on a number alone (FINDINGS §8.76).
+		// from; letting a player go is never done on a number alone.
 		if (pick is "Mutual Termination" or "Release On A Free" && !args.Contains("--yes"))
 		{
-			Console.Error.WriteLine(L($"'{pick}' oyuncuyu gönderir; talk ile yalnızca --yes verilirse. Önerilen yol: release <oyuncu>"));
+			Console.Error.WriteLine(L($"'{pick}' sends the player away; through talk only when --yes is given. The suggested way: release <player>"));
 			return 1;
 		}
 
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine(L($"(kuru) Şu söylenecekti: {pick}"));
+			Console.WriteLine(L($"(dry run) Would have said: {pick}"));
 			return 0;
 		}
 
@@ -364,14 +364,14 @@ internal static partial class Program
 				    return Key(options) != was;
 			    }, seconds: 12))
 			{
-				Console.Error.WriteLine(L("Söylendi ama konuşma ilerlemedi."));
+				Console.Error.WriteLine(L("Said, but the conversation did not move on."));
 				return 1;
 			}
 
 			if (options.Count == 0)
 			{
 				LastMood = [];
-				Console.WriteLine(L("Konuşma bitti."));
+				Console.WriteLine(L("The conversation is over."));
 				return 0;
 			}
 			return null;
@@ -395,7 +395,7 @@ internal static partial class Program
 
 			if (offered.Count == 0)
 			{
-				Console.Error.WriteLine(L("Açık bir konuşma yok."));
+				Console.Error.WriteLine(L("There is no open conversation."));
 				return 1;
 			}
 
@@ -414,8 +414,8 @@ internal static partial class Program
 				.ToList();
 			if (mood.Count > 0)
 			{
-				if (Ui.Rich) Ui.Line(L($"\n[dim]Tepkiler:[/] {string.Join(" [dim]·[/] ", mood)}"));
-				else Console.WriteLine(L($"\nTepkiler: {string.Join(" · ", mood)}"));
+				if (Ui.Rich) Ui.Line(L($"\n[dim]Reactions:[/] {string.Join(" [dim]·[/] ", mood)}"));
+				else Console.WriteLine(L($"\nReactions: {string.Join(" · ", mood)}"));
 			}
 			LastMood = counts;
 
@@ -438,11 +438,11 @@ internal static partial class Program
 				if (group != heading && group.Length > 0) Console.WriteLine($"[{group}]");
 				heading = group;
 
-				var recommended = known && Field(detail, "Recommended") == "True" ? L("  (önerilen)") : "";
+				var recommended = known && Field(detail, "Recommended") == "True" ? L("  (recommended)") : "";
 				Console.WriteLine($"  {i + 1,2}  {GameWords.Of(offered[i].Label)}{recommended}");
 			}
 
-			Console.WriteLine(L("\nSöylemek için: talk <numara>"));
+			Console.WriteLine(L("\nTo say something: talk <number>"));
 			return 0;
 		}
 	}

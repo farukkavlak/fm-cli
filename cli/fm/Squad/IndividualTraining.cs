@@ -3,13 +3,13 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Individual training (FINDINGS §8.51, §8.186): per player a position or role to train in, a role
+/// Individual training: per player a position or role to train in, a role
 /// out of possession, and an extra focus. Read from the players' own data, no page; changed with
 /// the game's own lists on the page, found by what they send and whose row they are in.
 /// </summary>
 internal static partial class Program
 {
-	private static readonly string[] TrainingParts = [L("Mevki/rol"), L("Topsuz rol"), L("Odak")];
+	private static readonly string[] TrainingParts = [L("Position/role"), L("Out-of-possession role"), L("Focus")];
 
 	/// <summary>What each part is, under a player's PlayerTraining, and the event its list on the page sends.</summary>
 	private static readonly (string Shown, string Event)[] TrainingData =
@@ -30,7 +30,7 @@ internal static partial class Program
 		var all = await TrainingRows();
 		if (all.Count == 0)
 		{
-			Console.Error.WriteLine(L("Bireysel antrenman okunamadı."));
+			Console.Error.WriteLine(L("Could not read individual training."));
 			return 1;
 		}
 
@@ -42,7 +42,7 @@ internal static partial class Program
 			var players = Matching(all, r => r.Name, words[0]);
 			if (players.Count != 1)
 			{
-				Console.Error.WriteLine(players.Count == 0 ? L($"Listede '{words[0]}' yok.") : L($"'{words[0]}' {players.Count} oyuncuya uyuyor: {string.Join(", ", players.Select(p => p.Name))}"));
+				Console.Error.WriteLine(players.Count == 0 ? L($"No '{words[0]}' in the list.") : L($"'{words[0]}' matches {players.Count} players: {string.Join(", ", players.Select(p => p.Name))}"));
 				return 1;
 			}
 			var player = players[0];
@@ -64,8 +64,8 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(sorted.Select(r => new { r.Name, Position = GameWords.Of(r.Parts[0]), OutOfPossession = GameWords.Of(r.Parts[1]), Focus = GameWords.Of(r.Parts[2]) })));
 			return 0;
 		}
-		Table.Write([L("OYUNCU"), .. TrainingParts.Select(p => p.ToUpperInvariant())], sorted.Select(r => (string[])[r.Name, .. r.Parts.Select(GameWords.Of)]).ToList());
-		Console.WriteLine(L("\nDeğiştirmek: training <oyuncu> --focus \"<odak>\" · --role \"<rol>\" · --position \"<mevki>><rol>\"  (yanlış bir değer seçenekleri listeler)"));
+		Table.Write([L("PLAYER"), .. TrainingParts.Select(p => p.ToUpperInvariant())], sorted.Select(r => (string[])[r.Name, .. r.Parts.Select(GameWords.Of)]).ToList());
+		Console.WriteLine(L("\nTo change: training <player> --focus \"<focus>\" · --role \"<role>\" · --position \"<position>><role>\"  (a wrong value lists the options)"));
 		return 0;
 	}
 
@@ -113,7 +113,7 @@ internal static partial class Program
 		var control = await TrainingControl(player, TrainingData[part].Event);
 		if (control is not { } list)
 		{
-			Console.Error.WriteLine(L($"{player.Name}: bireysel antrenman sayfasında satırı bulunamadı."));
+			Console.Error.WriteLine(L($"{player.Name}: row not found on the individual training page."));
 			return 1;
 		}
 		var pointer = Field(list, "Pointer");
@@ -130,7 +130,7 @@ internal static partial class Program
 		var first = top.FirstOrDefault(c => Is(c, path[0], false)) ?? top.FirstOrDefault(c => path[0].Length > 0 && Is(c, path[0], true));
 		if (first == null)
 		{
-			Console.Error.WriteLine(L($"{TrainingParts[part]}: '{path[0]}' yok. Seçenekler: {string.Join(" · ", top.Select(GameWords.Of))}"));
+			Console.Error.WriteLine(L($"{TrainingParts[part]}: no '{path[0]}'. Options: {string.Join(" · ", top.Select(GameWords.Of))}"));
 			return 1;
 		}
 		var submenu = choices.Contains(first + " ›");
@@ -143,15 +143,15 @@ internal static partial class Program
 			if (leaf == null)
 			{
 				Console.Error.WriteLine(path.Length == 1
-					? L($"{TrainingParts[part]}: '{GameWords.Of(first)}' bir alt menü; seçenekleri: {string.Join(" · ", under)}  (ör. \"{GameWords.Of(first)}>…\")")
-					: L($"{TrainingParts[part]}: '{GameWords.Of(first)}' altında '{typed}' yok. Seçenekler: {string.Join(" · ", under)}"));
+					? L($"{TrainingParts[part]}: '{GameWords.Of(first)}' is a submenu; its options: {string.Join(" · ", under)}  (e.g. \"{GameWords.Of(first)}>…\")")
+					: L($"{TrainingParts[part]}: no '{typed}' under '{GameWords.Of(first)}'. Options: {string.Join(" · ", under)}"));
 				return 1;
 			}
 		}
 		var before = player.Parts[part];
 		if (Is(before, leaf, false))
 		{
-			Console.WriteLine(L($"{player.Name} · {TrainingParts[part]}: zaten {GameWords.Of(before)}"));
+			Console.WriteLine(L($"{player.Name} · {TrainingParts[part]}: already {GameWords.Of(before)}"));
 			return null;
 		}
 
@@ -170,7 +170,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.25);
 		if (now == before)
 		{
-			Console.Error.WriteLine(L($"{player.Name} · {TrainingParts[part]}: oyun değişikliği almadı ({GameWords.Of(before)})."));
+			Console.Error.WriteLine(L($"{player.Name} · {TrainingParts[part]}: the game did not take the change ({GameWords.Of(before)})."));
 			return 1;
 		}
 		Console.WriteLine($"{player.Name} · {TrainingParts[part]}: {GameWords.Of(before)} → {GameWords.Of(now)}");

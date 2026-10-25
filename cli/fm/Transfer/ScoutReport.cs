@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The scouts' report on a player (FINDINGS §8.123): the tile on his page that carries their
+/// The scouts' report on a player: the tile on his page that carries their
 /// grade opens it — who watched him last, what they make of his ability and potential, how
 /// keen he is on a move, what he would cost, the points for and against, and where he would
 /// rank in our squad at his position.
@@ -13,7 +13,7 @@ internal static partial class Program
 	private static async Task<int> PlayerReport(JsonElement card, bool json)
 	{
 		var name = Field(card.GetProperty("Player"), "Name");
-		// The report read by each text's data path (FINDINGS §8.169), from its scout's name.
+		// The report read by each text's data path, from its scout's name.
 		async Task<List<(string Text, string Path)>> Read() =>
 			(await Fm.GetJson("texts", ("anchorpath", "report.ScoutedReportBasicInfo.ReportProvider.Name"), ("up", "16"), ("paths", "1"), ("most", "1"))).EnumerateArray()
 				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
@@ -29,7 +29,7 @@ internal static partial class Program
 			await Until(async () => !(clicked = await Fm.Get("click", ("within", "player-recommendation-cell-remapper"), ("name", "SIButton"))).StartsWith("error", StringComparison.Ordinal), seconds: 5, every: 0.5);
 			if (clicked.StartsWith("error", StringComparison.Ordinal))
 			{
-				Console.Error.WriteLine(L($"{name} için scout raporu yok (kendi oyuncumuz ya da hiç izlenmemiş). İzletmek için: scout player \"{name}\" --for <süre>"));
+				Console.Error.WriteLine(L($"There is no scout report on {name} (one of our own players, or never scouted). To have them scouted: scout player \"{name}\" --for <length>"));
 				return 1;
 			}
 		}
@@ -44,7 +44,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (!Whole(texts))
 		{
-			Console.Error.WriteLine(L($"{name}: scout raporu açılmadı."));
+			Console.Error.WriteLine(L($"{name}: the scout report did not open."));
 			return 1;
 		}
 
@@ -87,19 +87,19 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L($"{name} — scout raporu{(by.Length > 0 ? L($" · son izleyen {by}") : "")}"));
-		Console.WriteLine(L($"  Not: {report.Grade} — {report.Recommendation}"));
-		Console.WriteLine(L($"  Yetenek: {report.CurrentAbility} · Potansiyel: {report.PotentialAbility}"));
-		Console.WriteLine(L($"  Transfere ilgisi: {report.TransferInterest} · kiralığa: {report.LoanInterest}"));
-		Console.WriteLine(L($"  Değer: {report!.Value} · tahmini maaş: {report.Wage}"));
-		if (report.BestRole.Length > 0) Console.WriteLine(L($"  En iyi rol: {report.BestRole} · izlenen maç: {report.MatchesWatched}"));
-		Console.WriteLine(L("Artılar:"));
+		Console.WriteLine(L($"{name} — scout report{(by.Length > 0 ? L($" · last scouted by {by}") : "")}"));
+		Console.WriteLine(L($"  Grade: {report.Grade} — {report.Recommendation}"));
+		Console.WriteLine(L($"  Ability: {report.CurrentAbility} · Potential: {report.PotentialAbility}"));
+		Console.WriteLine(L($"  Interest in a transfer: {report.TransferInterest} · in a loan: {report.LoanInterest}"));
+		Console.WriteLine(L($"  Value: {report!.Value} · expected wage: {report.Wage}"));
+		if (report.BestRole.Length > 0) Console.WriteLine(L($"  Best role: {report.BestRole} · matches watched: {report.MatchesWatched}"));
+		Console.WriteLine(L("Pros:"));
 		foreach (var line in pros) Console.WriteLine($"  + {line}");
-		Console.WriteLine(L("Eksiler:"));
+		Console.WriteLine(L("Cons:"));
 		foreach (var line in cons) Console.WriteLine($"  - {line}");
 		if (ranks.Count > 0)
 		{
-			Console.WriteLine(L($"Kadroda sırası ({position}):"));
+			Console.WriteLine(L($"Place in the squad ({position}):"));
 			foreach (var (rank, player) in ranks) Console.WriteLine($"  {rank,2}  {player}{(Fold(player) == Fold(name) ? "  ←" : "")}");
 		}
 		return 0;

@@ -100,7 +100,7 @@ internal static class Text
 }
 
 /// <summary>
-/// The game's UI texts back in English (FINDINGS §8.167). Every UI text has a number that stays
+/// The game's UI texts back in English. Every UI text has a number that stays
 /// the same in every language; the English for each number ships inside the plugin, and the game
 /// gives the text it shows for that number now. A shown text found among them is answered in
 /// English. In an English game nothing changes.
@@ -125,7 +125,7 @@ internal static class Localisation
 	/// the CLI matches on the English but shows the user the game's own words.
 	/// One English text shown two ways keeps the last, except that words known by the text's number
 	/// are not replaced by words found through the table: "Progression" is a match focus's
-	/// "İlerleme" by its number, and "Kaydedilen İlerleme" elsewhere on the page by the table.
+	/// by its number, and the same word elsewhere on the page by the table.
 	/// </summary>
 	public static readonly System.Collections.Generic.Dictionary<string, string> Seen = new();
 	private static readonly System.Collections.Generic.HashSet<string> seenByNumber = [];
@@ -214,7 +214,7 @@ internal static class Localisation
 		// map would turn them into another text ("A" for away is a Turkish word for "For").
 		if (map == null || englishTexts.Contains(shown)) return shown;
 		if (map.TryGetValue(shown, out var english)) return Saw(english, shown);
-		// A text with a note after it ("Takip Listesinden Çıkar (Varsayılan)") is two of the table's
+		// A text with a note after it ("Remove from Shortlist (Default)") is two of the table's
 		// texts put together; each part is put into English on its own.
 		var note = System.Text.RegularExpressions.Regex.Match(shown, @"^(.+?) \((.+)\)$");
 		// Only words, not codes: "D (M)" is a position, a defender in the centre, not "D" and "M" each.
@@ -263,7 +263,7 @@ internal static class Localisation
 		return toEnglish;
 	}
 
-	/// <summary>How many of the engine's texts (FINDINGS §8.171) were added for this language.</summary>
+	/// <summary>How many of the engine's texts were added for this language.</summary>
 	public static int EngineEntries { get; private set; }
 
 	/// <summary>Builds the tables again: after the CLI has written the engine's texts for this language.</summary>
@@ -273,7 +273,7 @@ internal static class Localisation
 	/// The engine's own texts — what the simulation writes: a menu's entries, a session's name, a
 	/// player's personality — which the UI table does not hold. The CLI unpacks them from the game's
 	/// languages.fmf into ~/.config/fm-cli/engine/<language>.tsv, a shown text and its English per
-	/// line (FINDINGS §8.171); they come after the UI table's, which keep the place where both have a text.
+	/// line; they come after the UI table's, which keep the place where both have a text.
 	/// </summary>
 	private static int LoadEngine(string now)
 	{

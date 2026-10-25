@@ -24,19 +24,19 @@ internal static partial class Program
 				// Every rule holds and Confirm is still off: the game takes no changes to a list
 				// already sent until its window allows them, whatever the list.
 				var window = FoundValues(await Fm.Get("find", ("name", "RegistrationDaysLeft"), ("limit", "1"))).FirstOrDefault();
-				Console.Error.WriteLine(L($"{what} kuralları tutuyor ama oyun şu an değişiklik kabul etmiyor (Confirm kapalı")
-				                        + (string.IsNullOrEmpty(window) ? ")." : L($", kayıt: {window})."))
-				                        + L(" Daha önce gönderilen liste geçerli."));
+				Console.Error.WriteLine(L($"{what} meets the rules, but the game does not accept changes right now (Confirm is closed")
+				                        + (string.IsNullOrEmpty(window) ? ")." : L($", registration: {window})."))
+				                        + L(" The list sent earlier stands."));
 				if (await Labelled("Undo") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
 				return 1;
 			}
 			if (broken.Count > 0)
 			{
-				Console.Error.WriteLine(L($"{what} gönderilemiyor, kurallar tutmuyor:"));
+				Console.Error.WriteLine(L($"{what} cannot be sent, the rules are not met:"));
 				foreach (var (rule, met) in broken) Console.Error.WriteLine($"  {(met ? "✓" : "✗")} {rule}");
-				Console.Error.WriteLine(L("Listeden oyuncu çıkarıp eklemek için: register (terminalde) ya da register --in/--out <oyuncu>"));
+				Console.Error.WriteLine(L("To take players out of the list or add them: register (in a terminal) or register --in/--out <player>"));
 			}
-			else Console.Error.WriteLine(L($"Ekranda '{confirmLabel}' açılmadı."));
+			else Console.Error.WriteLine(L($"'{confirmLabel}' did not open on screen."));
 			return 1;
 		}
 		await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
@@ -48,12 +48,12 @@ internal static partial class Program
 			: null;
 		if (yes == null)
 		{
-			Console.Error.WriteLine(L("Onay penceresi gelmedi; liste gönderilmemiş olabilir. Bakmak için: dialog"));
+			Console.Error.WriteLine(L("No confirmation window came; the list may not have been sent. To look: dialog"));
 			return 1;
 		}
 
 		await Fm.Get("click", ("ptr", Field(yes.Value, "Pointer")));
-		Console.WriteLine(L($"{what} gönderildi."));
+		Console.WriteLine(L($"{what} sent."));
 		return 0;
 	}
 

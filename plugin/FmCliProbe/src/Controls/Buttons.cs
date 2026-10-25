@@ -275,7 +275,7 @@ internal static partial class Buttons
 			case "try": dropdown.TrySetSelectedValue(chosen); break;
 			case "bind": dropdown.UpdateDropdownSelectionBinding(chosen); break;
 			// What a top-level choice writes is the row's own record (RowData), not the menu row
-			// around it; a submenu leaf's record also names what it is for (FINDINGS §8.45).
+			// around it; a submenu leaf's record also names what it is for.
 			// Some lists (players to exchange) have no RowData around the leaf: the leaf is it.
 			case "rowdata":
 				var record = chosen?.Get()?.TryCast<DynamicReference>();

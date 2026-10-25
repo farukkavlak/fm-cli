@@ -20,7 +20,7 @@ internal static partial class FmApi
 	/// <summary>
 	/// Tries to bring back drawing that stopped: the interface's render chain fails its own checks
 	/// ("Assertion failed" in UIR.RenderChain) and a panel, or the whole screen, stays unpainted
-	/// (FINDINGS §8.129, §8.143). ?how=dirty marks every element for repaint; ?how=panel gives each
+	///. ?how=dirty marks every element for repaint; ?how=panel gives each
 	/// document its panel settings again, which builds its render chain anew. (Turning a document
 	/// off and on was tried: it wipes the whole interface for the rest of the session.)
 	/// </summary>
@@ -94,7 +94,7 @@ internal static partial class FmApi
 		var path = q["path"];
 		if (string.IsNullOrEmpty(path)) return "error: ?path=<file.png> required";
 		// The interface is drawn into a texture of its own before it reaches the screen; ?rt=<name>
-		// writes that texture instead, for when the screen itself comes out black (FINDINGS §8.129).
+		// writes that texture instead, for when the screen itself comes out black.
 		if (!string.IsNullOrEmpty(q["rt"]))
 		{
 			foreach (var texture in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.RenderTexture>())
@@ -117,7 +117,7 @@ internal static partial class FmApi
 			return $"error: no render texture named '{q["rt"]}' (?cams=1 lists them)";
 		}
 
-		// A capture several times a large window's size locked the game (FINDINGS §8.124).
+		// A capture several times a large window's size locked the game.
 		var scale = int.TryParse(q["scale"], out var n) && n >= 1 && UnityEngine.Screen.width * n <= 4096 ? n : 1;
 		UnityEngine.ScreenCapture.CaptureScreenshot(path, scale);
 		return $"capturing {UnityEngine.Screen.width * scale}x{UnityEngine.Screen.height * scale} -> {path}";

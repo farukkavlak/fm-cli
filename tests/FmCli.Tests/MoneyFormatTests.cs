@@ -25,7 +25,7 @@ public class MoneyFormatTests
 	[Fact]
 	public void FindsAnAmountInsideASentence()
 	{
-		Assert.Equal("10,5B £", MoneyFormat.Find("Vergi sonrası 10,5B £ aylık"));
+		Assert.Equal("10,5B £", MoneyFormat.Find("After tax 10,5B £ a month"));
 		Assert.Null(MoneyFormat.Find("no amount here"));
 	}
 

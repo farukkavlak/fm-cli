@@ -79,7 +79,7 @@ internal static class MoneyFormat
 	public static bool IsMoney(string text) =>
 		!string.IsNullOrEmpty(text) && text.Any(c => char.GetUnicodeCategory(c) == UnicodeCategory.CurrencySymbol) && text.Any(char.IsDigit);
 
-	/// <summary>The amount within a text ("Vergi sonrası 10,5B £ aylık" → "10,5B £"), or null.</summary>
+	/// <summary>The amount within a text ("£10.5K p/w after tax" → "£10.5K"), or null.</summary>
 	public static string? Find(string text)
 	{
 		var match = Regex.Match(text ?? "", @"\p{Sc}\s*\d[\d.,]*\s*\p{L}{0,2}\b|\d[\d.,]*\s*\p{L}{0,2}\s*\p{Sc}");

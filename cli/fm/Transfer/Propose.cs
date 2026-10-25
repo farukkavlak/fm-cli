@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Offering one of our players to other clubs (FINDINGS §8.94): his contract actions list
+/// Offering one of our players to other clubs: his contract actions list
 /// "Offer via TransferRoom", which opens a small offer of our own — a fee or a loan — and
 /// "Offer Player" sends it round. Interest comes back over the following days.
 /// </summary>
@@ -22,7 +22,7 @@ internal static partial class Program
 		}
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: propose <oyuncu> [ücret] [--yes]  ·  propose <oyuncu> --loan [--yes]   (kulüplere öner; ücret yazılmazsa \"belirtilmemiş\")"));
+			Console.Error.WriteLine(L("usage: propose <player> [fee] [--yes]  ·  propose <player> --loan [--yes]   (offer to clubs; with no fee given, \"unspecified\")"));
 			return 64;
 		}
 		if (await OpenPlayer(string.Join(" ", words)) is not { } card) return 1;
@@ -32,13 +32,13 @@ internal static partial class Program
 		var opened = await Arriving("press", [("text", value), ("name", "SIButton"), ("any", "1")]);
 		if (value.Length == 0 || opened.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L($"{name} bizim oyuncumuz değil ya da transfer seçenekleri açılamıyor."));
+			Console.Error.WriteLine(L($"{name} is not our player, or their transfer options cannot be opened."));
 			return 1;
 		}
 
 		// Both of this screen's own controls carry the game's words ("Offer via TransferRoom",
 		// "Offer Player"), and a language's table may not carry the second one at all — in a Turkish
-		// game it comes back as the game's own "Oyuncuyu Kulüplere Öner", so asking for it by words
+		// game it comes back as the game's own "Offer Player to Clubs", so asking for it by words
 		// never found it (§8.217). What each stands for does not change with the language: the
 		// action the first sends (PersonOfferToClubs) and the event the second sends
 		// (EventFmxTransferOfferResponse).
@@ -52,12 +52,12 @@ internal static partial class Program
 		}
 		if (!await Until(Offered, seconds: 8, every: 0.5))
 		{
-			Console.Error.WriteLine(L($"{name} için kulüplere önerme seçeneği yok (zaten önerilmiş olabilir)."));
+			Console.Error.WriteLine(L($"There is no option to offer {name} to clubs (they may already have been offered)."));
 			return 1;
 		}
 		if (await SpeakToAction(offerAction) is not { } offer)
 		{
-			Console.Error.WriteLine(L($"{name} için kulüplere önerme seçeneği yok (zaten önerilmiş olabilir)."));
+			Console.Error.WriteLine(L($"There is no option to offer {name} to clubs (they may already have been offered)."));
 			return 1;
 		}
 		var pressed = await Fm.Get("press", ("ptr", Field(offer, "Pointer")));
@@ -66,7 +66,7 @@ internal static partial class Program
 		List<JsonElement> buttons = [];
 		if (!await Until(async () => (buttons = await Buttons()).Any(b => Field(b, "Type") == "FMCombobox") && await SpeakToActionEvent(offerResponse) is not null, seconds: 8, every: 0.4))
 		{
-			Console.Error.WriteLine(L("Önerme ekranı açılmadı."));
+			Console.Error.WriteLine(L("The offer screen did not open."));
 			return 1;
 		}
 
@@ -79,14 +79,14 @@ internal static partial class Program
 			// control type is not. Nothing after this reads the old list.
 			if (!await Until(async () => !(await Buttons()).Any(b => Field(b, "Type") == "FMCombobox"), seconds: 8, every: 0.1))
 			{
-				Console.Error.WriteLine(L("Kiralık teklif sekmesi açılmadı."));
+				Console.Error.WriteLine(L("Loan offer tab did not open."));
 				return 1;
 			}
 		}
 		// A loan has no fee of its own on this screen; its terms are clauses added one by one.
 		if (loan && fee != null)
 		{
-			Console.Error.WriteLine(L("Kiralık öneride ücret yazılmıyor (oyun yalnızca ek madde ekletiyor); ücretsiz dene: propose <oyuncu> --loan"));
+			Console.Error.WriteLine(L("A loan offer takes no fee (the game only allows adding clauses); try without one: propose <player> --loan"));
 			return 64;
 		}
 		if (fee != null)
@@ -108,22 +108,22 @@ internal static partial class Program
 		}
 
 		Console.WriteLine(loan
-			? L($"{name} kulüplere kiralık olarak önerilecek.")
-			: L($"{name} kulüplere önerilecek: satış, bonservis {Field(buttons.First(b => Field(b, "Type") == "FMCombobox"), "Label")}"));
+			? L($"{name} will be offered to clubs on loan.")
+			: L($"{name} will be offered to clubs: sale, fee {Field(buttons.First(b => Field(b, "Type") == "FMCombobox"), "Label")}"));
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
 			{
 				await OpenPage(Screen.Home);
-				Console.WriteLine(L($"Göndermek için: propose \"{name}\"{(fee != null ? " " + fee : "")}{(loan ? " --loan" : "")} --yes"));
+				Console.WriteLine(L($"To send it: propose \"{name}\"{(fee != null ? " " + fee : "")}{(loan ? " --loan" : "")} --yes"));
 				return 0;
 			}
-			if (Ui.Ask(L("Önerelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
+			if (Ui.Ask(L("Offer them?"), [L("Yes"), L("No")]) != 0) return 0;
 		}
 
 		if (await SpeakToActionEvent(offerResponse) is not { } send)
 		{
-			Console.Error.WriteLine(L("Öneriyi gönderecek düğme yok."));
+			Console.Error.WriteLine(L("No button to send the offer."));
 			return 1;
 		}
 		pressed = await Fm.Get("press", ("ptr", Field(send, "Pointer")));
@@ -131,12 +131,12 @@ internal static partial class Program
 		// Once he is on offer both actions are gone from his list.
 		if (!await Until(async () => await SpeakToAction(offerAction) is null && await SpeakToActionEvent(offerResponse) is null, seconds: 8, every: 0.5))
 		{
-			Console.Error.WriteLine(L("Öneri gönderilmedi (ekran kapanmadı)."));
+			Console.Error.WriteLine(L("The offer was not sent (the screen did not close)."));
 			return 1;
 		}
 		// His actions stay up on his page and would read as an open conversation to `status`.
 		await OpenPage(Screen.Home);
-		Console.WriteLine(L("Önerildi. İlgilenen kulüpler önümüzdeki günlerde gelen kutusuna düşer."));
+		Console.WriteLine(L("Offered. Interested clubs will come to the inbox in the next few days."));
 		return 0;
 	}
 }

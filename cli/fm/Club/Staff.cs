@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The club's staff (FINDINGS §8.78): the Staff tile on Club › Overview opens a card whose
+/// The club's staff: the Staff tile on Club › Overview opens a card whose
 /// overview counts each role's filled places against the board's minimum, with the board's word
 /// on each team; its All Staff tab is a table (name, team, job, age, nation, full/part time,
 /// contract type, wage, expiry) that lays out only the rows in view, so it is read at a few
@@ -16,7 +16,7 @@ internal static partial class Program
 	private static readonly string[] StaffTeams = ["Coaching Staff", "Recruitment Staff", "Medical Staff"];
 
 	// The All Staff tab's own container: the tab's button is found by the panel it sits in, whose
-	// name no language changes, where its title is the game's word ("Tüm Personel").
+	// name no language changes, where the title is the game's own word.
 	private const string AllStaffTab = "AllStaffTabGridCompositionSet";
 
 	// The staff table itself: the rows are read inside the table, whose name no language changes.
@@ -40,7 +40,7 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.ClubHome);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		// Each staff team from its data (FINDINGS §8.169): head count, each job's filled and wanted
+		// Each staff team from its data: head count, each job's filled and wanted
 		// places (StaffSubGroupJobsData) and the board's word on its size.
 		var teams = new List<(string Team, List<(int Filled, int Wanted, string Role)> Roles, string Board)>();
 		foreach (var (team, group) in new[] { ("Coaching Staff", "StaffCoachingSubGroup"), ("Recruitment Staff", "StaffRecruitmentSubGroup"), ("Medical Staff", "StaffMedicalSubGroup") })
@@ -53,7 +53,7 @@ internal static partial class Program
 		}
 
 		// The staff card, from its tile (laid out in BindingRemapper #ClubAllStaff). When the overview is
-		// being built anew (after a staff member's card, FINDINGS §8.165) a click lands on the tile on
+		// being built anew (after a staff member's card) a click lands on the tile on
 		// its way out and nothing opens, so the tile is clicked again.
 		var clicked = "";
 		var shown = false;
@@ -66,7 +66,7 @@ internal static partial class Program
 		}
 		if (!shown)
 		{
-			Console.Error.WriteLine(L("Personel kartı açılmadı."));
+			Console.Error.WriteLine(L("The staff card did not open."));
 			return 1;
 		}
 
@@ -158,12 +158,12 @@ internal static partial class Program
 		{
 			var name = GameWords.Of(StaffTeamNames[Array.IndexOf(StaffTeams, team)]);
 			var gaps = roles.Where(r => r.Filled < r.Wanted).Select(r => $"{GameWords.Of(r.Role)} {r.Filled}/{r.Wanted}").ToList();
-			if (Ui.Rich) Ui.Line(L($"\n[bold]{Ui.Safe(name)}[/] {roles.Sum(r => r.Filled)} kişi") + (gaps.Count > 0 ? L($" — [yellow]eksik: {Ui.Safe(string.Join(", ", gaps))}[/]") : ""));
-			else Console.WriteLine(L($"\n{name} {roles.Sum(r => r.Filled)} kişi") + (gaps.Count > 0 ? L($" — eksik: {string.Join(", ", gaps)}") : ""));
+			if (Ui.Rich) Ui.Line(L($"\n[bold]{Ui.Safe(name)}[/] {roles.Sum(r => r.Filled)} people") + (gaps.Count > 0 ? L($" — [yellow]missing: {Ui.Safe(string.Join(", ", gaps))}[/]") : ""));
+			else Console.WriteLine(L($"\n{name} {roles.Sum(r => r.Filled)} people") + (gaps.Count > 0 ? L($" — missing: {string.Join(", ", gaps)}") : ""));
 			if (board.Length > 0)
 			{
-				if (Ui.Rich) Ui.Line(L($"  [dim]Yönetim: {Ui.Safe(board)}[/]"));
-				else Console.WriteLine(L($"  Yönetim: {board}"));
+				if (Ui.Rich) Ui.Line(L($"  [dim]Board: {Ui.Safe(board)}[/]"));
+				else Console.WriteLine(L($"  Board: {board}"));
 			}
 		}
 		return 0;

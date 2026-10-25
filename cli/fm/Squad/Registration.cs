@@ -19,7 +19,7 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (!await OpenRegistration())
 		{
-			Console.Error.WriteLine(L("Kadro kayıt ekranı açılmadı."));
+			Console.Error.WriteLine(L("The squad registration screen did not open."));
 			return 1;
 		}
 
@@ -27,7 +27,7 @@ internal static partial class Program
 
 		if (args.Contains("--auto"))
 		{
-			if (!await AssistantPick()) return Report(L("error: yardımcının seçim düğmesi ekranda yok"));
+			if (!await AssistantPick()) return Report(L("error: the assistant's choice button is not on screen"));
 			(rules, players) = await ReadRegistration();
 		}
 
@@ -38,14 +38,14 @@ internal static partial class Program
 			var matches = Matching(players, p => p.Name, wanted);
 			if (matches.Count != 1)
 			{
-				Console.Error.WriteLine(matches.Count == 0 ? L($"Listede '{wanted}' yok.") : L($"'{wanted}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(m => m.Name))}"));
+				Console.Error.WriteLine(matches.Count == 0 ? L($"No '{wanted}' in the list.") : L($"'{wanted}' matches more than one player: {string.Join(", ", matches.Select(m => m.Name))}"));
 				return 1;
 			}
 			var player = matches[0];
 			if (player.On == on) continue;
 			if (!player.CanChange)
 			{
-				Console.Error.WriteLine(L($"{player.Name} değiştirilemiyor ({player.Status})."));
+				Console.Error.WriteLine(L($"{player.Name} cannot be changed ({player.Status})."));
 				return 1;
 			}
 			if (!await Flip(player.Name, on)) return 1;
@@ -63,11 +63,11 @@ internal static partial class Program
 		ShowRegistration(rules, players);
 		// The competition's exemptions (goalkeepers, the young) explain the unticked rows.
 		foreach (var note in await RegistrationNotes()) Console.WriteLine($"  {note}");
-		if (args.Contains("--send")) return await SendList("Confirm", L("Kadro listesi"));
+		if (args.Contains("--send")) return await SendList("Confirm", L("Squad list"));
 
 		Console.WriteLine(rules.All(r => r.Meets)
-			? L("Kurallar tutuyor. Göndermek için: register --send")
-			: L("Oyuncu eklemek / çıkarmak için: register --in <oyuncu> / --out <oyuncu>;  yardımcının seçimi: --auto"));
+			? L("The rules are met. To send it: register --send")
+			: L("To add / remove a player: register --in <player> / --out <player>;  the assistant's choice: --auto"));
 		return 0;
 	}
 
@@ -81,33 +81,33 @@ internal static partial class Program
 		while (true)
 		{
 			var actions = new List<string>();
-			if (rules.All(r => r.Meets)) actions.Add(L("Listeyi gönder"));
-			actions.Add(L("Yardımcı seçsin"));
+			if (rules.All(r => r.Meets)) actions.Add(L("Send the list"));
+			actions.Add(L("Let the assistant choose"));
 			var choosable = players.Where(p => p.CanChange).ToList();
 			var choices = actions.Concat(choosable.Select(p =>
 				$"{(p.On ? "✓" : "·")} {Ui.Fit(p.Name, 24),-24} {p.Age,2}  {Ui.Fit(p.Position, 18),-18} {string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(FlagName))}")).ToList();
 
-			var picked = Ui.Ask(RulesLine(rules), choices, cancel: changed ? L("Çık, değişiklikleri geri al") : L("Çık"));
+			var picked = Ui.Ask(RulesLine(rules), choices, cancel: changed ? L("Leave, undoing the changes") : L("Leave"));
 			if (picked is not { } index)
 			{
 				if (changed && await EventButton("EventFmxRevertChanges") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
-				Console.WriteLine(changed ? L("Değişiklikler geri alındı; liste gönderilmedi.") : L("Liste gönderilmedi."));
+				Console.WriteLine(changed ? L("The changes were undone; the list was not sent.") : L("The list was not sent."));
 				return 0;
 			}
 
 			var action = choices[index];
-			if (action == L("Listeyi gönder"))
+			if (action == L("Send the list"))
 			{
 				// The table above is the list as it was; say what became of it.
 				var now = players.Where(p => p.On).Select(p => p.Name).ToHashSet();
 				var gone = before.Except(now).ToList();
 				var came = now.Except(before).ToList();
-				Ui.Line(L($"Liste: [bold]{now.Count}[/] oyuncu")
+				Ui.Line(L($"List: [bold]{now.Count}[/] players")
 				        + (came.Count > 0 ? $"  [green]+ {Ui.Safe(string.Join(", ", came))}[/]" : "")
 				        + (gone.Count > 0 ? $"  [red]− {Ui.Safe(string.Join(", ", gone))}[/]" : ""));
-				return await SendList("Confirm", L("Kadro listesi"));
+				return await SendList("Confirm", L("Squad list"));
 			}
-			if (action == L("Yardımcı seçsin")) await AssistantPick();
+			if (action == L("Let the assistant choose")) await AssistantPick();
 			else if (choosable[index - actions.Count] is var player && !await Flip(player.Name, !player.On)) return 1;
 
 			changed = true;
@@ -141,18 +141,18 @@ internal static partial class Program
 
 	private static string RuleName(string title) => title switch
 	{
-		"Maximum squad size" => L("en fazla"),
+		"Maximum squad size" => L("at most"),
 		"Minimum squad size" => "en az",
-		"Homegrown in Nation" => L("ülkede yetişmiş (HGN+HGC)"),
-		"Homegrown at Club" => L("kulüpte yetişmiş (HGC)"),
-		"Goalkeepers in the squad" => L("kaleci"),
-		"Replacements" => L("değişiklik"),
+		"Homegrown in Nation" => L("trained in nation (HGN+HGC)"),
+		"Homegrown at Club" => L("trained at club (HGC)"),
+		"Goalkeepers in the squad" => L("goalkeepers"),
+		"Replacements" => L("replacements"),
 		_ => title,
 	};
 
 	/// <summary>
 	/// The lines under the rules that say who need not be on the list, in Turkish where the
-	/// wording is known (FINDINGS §8.146).
+	/// wording is known.
 	/// </summary>
 	private static async Task<List<string>> RegistrationNotes()
 	{
@@ -168,12 +168,12 @@ internal static partial class Program
 			return block.Split('\n').Select(l => l.Trim()).Where(l => l != "").Select(l =>
 			{
 				var young = System.Text.RegularExpressions.Regex.Match(l, @"^Players of the age of (\d+) or younger on (\S+) do not have to be registered\.$");
-				if (young.Success) return L($"Kayıt gerekmez: {young.Groups[2].Value} tarihinde {young.Groups[1].Value} yaş ve altı olanlar");
-				if (l == "Goalkeepers do not have to be registered.") return L("Kayıt gerekmez: kaleciler");
+				if (young.Success) return L($"No registration needed: those aged {young.Groups[1].Value} and under on {young.Groups[2].Value}");
+				if (l == "Goalkeepers do not have to be registered.") return L("No registration needed: goalkeepers");
 				var spaces = System.Text.RegularExpressions.Regex.Match(l, @"^You have (\d+) spaces? available in the squad selection\.$");
-				if (spaces.Success) return L($"Listede {spaces.Groups[1].Value} boş yer var");
+				if (spaces.Success) return L($"There are {spaces.Groups[1].Value} free places in the list");
 				if (l == "If minimum rules cannot be reached, spaces must be left in the squad selection.")
-					return L("Bir alt sınır tutmuyorsa listede onun için yer bırakılmalı");
+					return L("If a minimum is not met, a place must be left for it in the list");
 				return l;
 			}).ToList();
 		}
@@ -185,17 +185,17 @@ internal static partial class Program
 		if (!Ui.Rich)
 		{
 			foreach (var r in rules) Console.WriteLine($"{(r.Meets ? "✓" : "✗")}\t{r.Value}\t{r.Title}");
-			foreach (var p in players) Console.WriteLine($"{(p.On ? "✓" : "·")}\t{p.Name}\t{p.Age}\t{p.Position}\t{p.Flags}\t{p.Status}{(p.CanChange ? "" : L("\tdeğiştirilemez"))}");
+			foreach (var p in players) Console.WriteLine($"{(p.On ? "✓" : "·")}\t{p.Name}\t{p.Age}\t{p.Position}\t{p.Flags}\t{p.Status}{(p.CanChange ? "" : L("\tcannot be changed"))}");
 			return;
 		}
 
 		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
 			.AddColumn(new TableColumn(""))
-			.AddColumn(new TableColumn(L("[dim]OYUNCU[/]")))
-			.AddColumn(new TableColumn(L("[dim]YAŞ[/]")).RightAligned())
-			.AddColumn(new TableColumn(L("[dim]MEVKİ[/]")))
-			.AddColumn(new TableColumn(L("[dim]YETİŞME[/]")))
-			.AddColumn(new TableColumn(L("[dim]DURUM[/]")));
+			.AddColumn(new TableColumn(L("[dim]PLAYER[/]")))
+			.AddColumn(new TableColumn(L("[dim]AGE[/]")).RightAligned())
+			.AddColumn(new TableColumn(L("[dim]POSITION[/]")))
+			.AddColumn(new TableColumn(L("[dim]TRAINED[/]")))
+			.AddColumn(new TableColumn(L("[dim]STATUS[/]")));
 
 		foreach (var p in players)
 		{
@@ -203,13 +203,13 @@ internal static partial class Program
 			var name = !p.CanChange ? $"[dim]{Ui.Safe(p.Name)}[/]" : p.On ? $"[bold]{Ui.Safe(p.Name)}[/]" : Ui.Safe(p.Name);
 			var flags = string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(f => f switch
 			{
-				"HGC" => L("[green]kulüpte[/]"),
-				"HGN" => L("[aqua]ülkede[/]"),
-				"Inj" => L("[red]sakat[/]"),
-				"Wnt" => L("[yellow]ayrılmak istiyor[/]"),
+				"HGC" => L("[green]at club[/]"),
+				"HGN" => L("[aqua]in nation[/]"),
+				"Inj" => L("[red]injured[/]"),
+				"Wnt" => L("[yellow]wants to leave[/]"),
 				_ => $"[dim]{Ui.Safe(f)}[/]",
 			}));
-			table.AddRow(mark, name, p.Age, Ui.Safe(p.Position), flags, p.CanChange ? $"[dim]{Ui.Safe(p.Status)}[/]" : L($"[dim]{Ui.Safe(p.Status)} · değiştirilemez[/]"));
+			table.AddRow(mark, name, p.Age, Ui.Safe(p.Position), flags, p.CanChange ? $"[dim]{Ui.Safe(p.Status)}[/]" : L($"[dim]{Ui.Safe(p.Status)} · cannot be changed[/]"));
 		}
 		Ui.Out.Write(table);
 
@@ -218,7 +218,7 @@ internal static partial class Program
 			// A homegrown minimum the list falls short of can still be met: each missing
 			// homegrown player is one fewer place for the rest, and the game counts it so.
 			var shortBy = Short(r);
-			var note = r.Meets && shortBy > 0 ? L($"  [dim]({shortBy} eksik: listede o kadar yer az)[/]") : "";
+			var note = r.Meets && shortBy > 0 ? L($"  [dim]({shortBy} short: that many fewer places in the list)[/]") : "";
 			Ui.Line($"  {(r.Meets ? "[green]✓[/]" : "[red]✗[/]")} {Ui.Safe(r.Value.Split(' ')[0]),-6} {Ui.Safe(RuleName(r.Title))}{note}");
 		}
 	}
@@ -232,10 +232,10 @@ internal static partial class Program
 
 	private static string FlagName(string flag) => flag switch
 	{
-		"HGC" => L("kulüpte"),
-		"HGN" => L("ülkede"),
-		"Inj" => L("sakat"),
-		"Wnt" => L("ayrılmak istiyor"),
+		"HGC" => L("at club"),
+		"HGN" => L("in nation"),
+		"Inj" => L("injured"),
+		"Wnt" => L("wants to leave"),
 		_ => flag,
 	};
 
@@ -279,7 +279,7 @@ internal static partial class Program
 		{
 			if (await RowOf(name) is not { } row)
 			{
-				Console.Error.WriteLine(L($"{name} ekranda bulunamadı."));
+				Console.Error.WriteLine(L($"{name} was not found on screen."));
 				return false;
 			}
 			if ((Field(row, "Selected") == "True") == on) return true;
@@ -295,7 +295,7 @@ internal static partial class Program
 				    .Any(p => Field(p, "Name") == name && (Field(p, "Selected") == "True") == on), seconds: 6)) return true;
 			if (!refused) break;
 		}
-		Console.Error.WriteLine(L($"{name} değiştirilemedi."));
+		Console.Error.WriteLine(L($"{name} could not be changed."));
 		return false;
 	}
 

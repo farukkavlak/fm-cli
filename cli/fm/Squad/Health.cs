@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The squad's health in one place (FINDINGS §8.71): who is injured and for how long (the
+/// The squad's health in one place: who is injured and for how long (the
 /// first-team table's Injuries view), who is tired or short of match fitness, and who carries
 /// the highest injury risk by the game's own score (its Risk Assessment view, 75 to 385 in steps).
 /// </summary>
@@ -37,10 +37,10 @@ internal static partial class Program
 		var returns = team.GroupBy(p => Field(p, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "CurrentInjury.InjuryReturnDays"));
 		// Who is injured is the team's own word: the table's views do not all carry it (the Injuries view
 		// has the injury's description and the time missed this season, but no flag — Lincoln, 17 Nisan
-		// 2026, when five injured men read as "Sakat: yok").
+		// when five injured men read as none).
 		var injuredNow = team.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToHashSet();
 		bool Hurt(JsonElement p) => Field(p, "IsInjured") == "True" || injuredNow.Contains(Field(p, "Name"));
-		string Left(JsonElement p) => returns.TryGetValue(Field(p, "Name"), out var days) && int.TryParse(days, out var n) && n > 0 ? L($"{n} gün daha") : "";
+		string Left(JsonElement p) => returns.TryGetValue(Field(p, "Name"), out var days) && int.TryParse(days, out var n) && n > 0 ? L($"{n} more days") : "";
 
 		var all = injuries.EnumerateArray().Where(Here).ToList();
 		var hurt = all.Where(p => Hurt(p)).ToList();
@@ -65,16 +65,16 @@ internal static partial class Program
 		void Section(string title, IEnumerable<string> lines)
 		{
 			var list = lines.ToList();
-			if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(title)}[/]{(list.Count == 0 ? L(" [dim]yok[/]") : "")}");
-			else Console.WriteLine(title + (list.Count == 0 ? L(": yok") : ""));
+			if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(title)}[/]{(list.Count == 0 ? L(" [dim]none[/]") : "")}");
+			else Console.WriteLine(title + (list.Count == 0 ? L(": none") : ""));
 			foreach (var line in list) Console.WriteLine($"  {line}");
 		}
 
-		Section(L("Sakat"), hurt.Select(p => $"{Field(p, "Name")} — {string.Join(", ", new[] { Injury(p), Left(p) }.Where(x => x.Length > 0))}"));
-		Section(L("Yorgun (kondisyon %85 altı)"), tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}"));
-		Section(L("Maç formu düşük (%60 altı)"), rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}"));
-		Section(L($"Sakatlık riski en yüksek (oyunun puanı {top})"), atRisk.Select(p => $"{Field(p, "Name")}"));
-		if (tired.Count + atRisk.Count > 0) Console.WriteLine(L("\nDinlendirmek için: intensity <oyuncu> \"dinlen 1\""));
+		Section(L("Injured"), hurt.Select(p => $"{Field(p, "Name")} — {string.Join(", ", new[] { Injury(p), Left(p) }.Where(x => x.Length > 0))}"));
+		Section(L("Tired (condition under 85%)"), tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}"));
+		Section(L("Low match sharpness (under 60%)"), rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}"));
+		Section(L($"Highest injury risk (the game's rating {top})"), atRisk.Select(p => $"{Field(p, "Name")}"));
+		if (tired.Count + atRisk.Count > 0) Console.WriteLine(L("\nTo rest them: intensity <player> \"rest 1\""));
 		return 0;
 
 		// The injury's name, from whichever field the view bound.

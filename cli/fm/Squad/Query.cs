@@ -6,7 +6,7 @@ namespace FmCli;
 
 /// <summary>
 /// A free query over our own players: conditions joined by "ve", each a field, a comparison
-/// and a value ("yaş&lt;23 ve potansiyel&gt;140 ve sözleşme&lt;1yıl"). Everything comes from
+/// and a value ("age&lt;23 and potential&gt;140 and contract&lt;1year"). Everything comes from
 /// one reading of the squad's data, so no screen is opened.
 /// </summary>
 internal static partial class Program
@@ -16,29 +16,29 @@ internal static partial class Program
 	private sealed record QueryField(string Head, string Property, QueryKind Kind, string Means, string[] Words)
 	{
 		/// <summary>The field as it is written in a query, with its Turkish letters.</summary>
-		public string Say => Words[0] switch { "yas" => L("yaş"), "ulke" => L("ülke"), "maas" => L("maaş"), "sozlesme" => L("sözleşme"), "statu" => L("statü"), "mac" => L("maç"), var word => word };
+		public string Say => Words[0] switch { "yas" => L("age"), "ulke" => L("nation"), "maas" => L("wages"), "sozlesme" => L("contract"), "statu" => L("status"), "mac" => L("apps"), var word => word };
 	}
 
 	private static readonly QueryField[] QueryFields =
 	[
-		new(L("AD"), "Name", QueryKind.Text, L("adı"), ["ad", "isim", "name"]),
-		new(L("YAŞ"), "Age", QueryKind.Number, L("yaşı"), ["yas", "age"]),
-		new(L("MEVKİ"), "PositionCombinedString", QueryKind.Text, L("oynadığı mevkiler (ST, D (C), AM…)"), ["mevki", "pozisyon", "position", "pos"]),
-		new(L("NO"), "SquadNumber", QueryKind.Number, L("forma numarası"), ["no", "numara", "number"]),
-		new(L("ÜLKE"), "Nation.Name", QueryKind.Text, L("ülkesi (oyundaki adıyla: Brazil)"), ["ulke", "nation", "milliyet"]),
-		new(L("BOY"), "Height", QueryKind.Number, L("boyu, cm"), ["boy", "height"]),
-		new(L("KONDİSYON"), "Condition", QueryKind.Number, L("kondisyonu, %"), ["kondisyon", "condition"]),
-		new(L("MAÇ FORMU"), "Sharpness", QueryKind.Number, L("maç formu, %"), ["form", "sharpness", "macformu"]),
-		new(L("SAKAT"), "IsInjured", QueryKind.Flag, L("sakat mı (sakat / !sakat)"), ["sakat", "injured"]),
-		new(L("POTANSİYEL"), "PerceivedPotentialAbility", QueryKind.Number, L("kulübün gördüğü potansiyel, 200 üzerinden"), ["potansiyel", "potential", "pa"]),
+		new(L("NAME"), "Name", QueryKind.Text, L("their name"), ["ad", "isim", "name"]),
+		new(L("AGE"), "Age", QueryKind.Number, L("their age"), ["yas", "age"]),
+		new(L("POSITION"), "PositionCombinedString", QueryKind.Text, L("the positions they play (ST, D (C), AM…)"), ["mevki", "pozisyon", "position", "pos"]),
+		new(L("NO"), "SquadNumber", QueryKind.Number, L("squad number"), ["no", "numara", "number"]),
+		new(L("NATION"), "Nation.Name", QueryKind.Text, L("their nation (by the game's name: Brazil)"), ["ulke", "nation", "milliyet"]),
+		new(L("HEIGHT"), "Height", QueryKind.Number, L("their height, cm"), ["boy", "height"]),
+		new(L("CONDITION"), "Condition", QueryKind.Number, L("their condition, %"), ["kondisyon", "condition"]),
+		new(L("MATCH SHARPNESS"), "Sharpness", QueryKind.Number, L("match sharpness, %"), ["form", "sharpness", "macformu"]),
+		new(L("INJURED"), "IsInjured", QueryKind.Flag, L("whether injured (injured / !injured)"), ["sakat", "injured"]),
+		new(L("POTENTIAL"), "PerceivedPotentialAbility", QueryKind.Number, L("potential as the club sees it, out of 200"), ["potansiyel", "potential", "pa"]),
 		// The wage's sort value is the weekly wage in pounds, whatever period and currency the game shows.
-		new(L("MAAŞ"), "FullContract.Wage.SortValue", QueryKind.Money, L("haftalık maaşı, sterlin (50K, 1.2M)"), ["maas", "wage"]),
-		new(L("SÖZLEŞME"), "FullContract.EndDate", QueryKind.Months, L("sözleşmesinin kalan süresi (1yıl, 18ay)"), ["sozlesme", "contract", "kalan"]),
-		new(L("STATÜ"), "FullContract.AgreedPlayingTime.DisplayValue", QueryKind.Text, L("söz verilen oynama süresi (Star Player, Squad Player…)"), ["statu", "status", "sure"]),
-		new(L("MAÇ"), "ClubAppearancesThisSeason", QueryKind.Number, L("bu sezon maç"), ["mac", "apps", "matches"]),
-		new(L("GOL"), "ClubGoalsThisSeason", QueryKind.Number, L("bu sezon gol"), ["gol", "goals"]),
-		new(L("ASİST"), "ClubAssistsThisSeason", QueryKind.Number, L("bu sezon asist"), ["asist", "assists"]),
-		new(L("PUAN"), "ClubAverageRatingThisSeason", QueryKind.Number, L("bu sezon ortalama puan"), ["puan", "rating", "ortalama"]),
+		new(L("WAGE"), "FullContract.Wage.SortValue", QueryKind.Money, L("weekly wage, pounds (50K, 1.2M)"), ["maas", "wage"]),
+		new(L("CONTRACT"), "FullContract.EndDate", QueryKind.Months, L("time left on their contract (1year, 18months)"), ["sozlesme", "contract", "kalan"]),
+		new(L("STATUS"), "FullContract.AgreedPlayingTime.DisplayValue", QueryKind.Text, L("promised playing time (Star Player, Squad Player…)"), ["statu", "status", "sure"]),
+		new(L("APPS"), "ClubAppearancesThisSeason", QueryKind.Number, L("apps this season"), ["mac", "apps", "matches"]),
+		new(L("GOALS"), "ClubGoalsThisSeason", QueryKind.Number, L("goals this season"), ["gol", "goals"]),
+		new(L("ASSISTS"), "ClubAssistsThisSeason", QueryKind.Number, L("assists this season"), ["asist", "assists"]),
+		new(L("RATING"), "ClubAverageRatingThisSeason", QueryKind.Number, L("average rating this season"), ["puan", "rating", "ortalama"]),
 	];
 
 	private sealed record QueryTerm(QueryField Field, string Op, string Raw, double Number);
@@ -49,15 +49,15 @@ internal static partial class Program
 		var words = Words(args).Where(w => w != sortBy).ToList();
 		if (words.Count == 0)
 		{
-			Console.WriteLine(L("kullanım: query \"<koşul> ve <koşul> …\" [--sort <alan>] [--asc]"));
-			Console.WriteLine(L("örnek:    query \"yaş<23 ve potansiyel>140\"     query \"sözleşme<1yıl\"     query \"mevki=ST ve gol>2\"     query \"kondisyon<70 ve !sakat\""));
-			Console.WriteLine(L("Karşılaştırma: <  <=  >  >=  =  !=   (yazıda = ve ~ \"içinde geçiyor\" demek)\n"));
-			Table.Write([L("ALAN"), L("NE")], QueryFields.Select(f => new[] { f.Say, f.Means }).ToList());
+			Console.WriteLine(L("usage: query \"<condition> and <condition> …\" [--sort <field>] [--asc]"));
+			Console.WriteLine(L("example:  query \"age<23 and potential>140\"     query \"contract<1year\"     query \"position=ST and goals>2\"     query \"condition<70 and !injured\""));
+			Console.WriteLine(L("Comparison: <  <=  >  >=  =  !=   (for text, = and ~ mean \"contains\")\n"));
+			Table.Write([L("FIELD"), L("WHAT")], QueryFields.Select(f => new[] { f.Say, f.Means }).ToList());
 			return 0;
 		}
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -70,21 +70,21 @@ internal static partial class Program
 			var field = m.Success ? Named(m.Groups[2].Value) : null;
 			if (field == null)
 			{
-				Console.Error.WriteLine(L($"'{part.Trim()}' anlaşılmadı. Alanlar: {string.Join(", ", QueryFields.Select(f => f.Say))}   (liste için: query)"));
+				Console.Error.WriteLine(L($"'{part.Trim()}' not understood. Fields: {string.Join(", ", QueryFields.Select(f => f.Say))}   (for the list: query)"));
 				return 64;
 			}
 			var op = m.Groups[3].Value;
 			var raw = m.Groups[4].Value.Trim().Trim('"', '\'');
 			if (field.Kind == QueryKind.Flag)
 			{
-				// "sakat", "!sakat", "sakat=evet", "sakat=hayır".
+				// "injured", "!injured", "injured=yes", "injured=no".
 				var yes = op.Length == 0 || Fold(raw) is "evet" or "true" or "1" or "yes";
 				terms.Add(new(field, yes != (m.Groups[1].Success || op == "!=") ? "=" : "!=", "True", 0));
 				continue;
 			}
 			if (op.Length == 0 || raw.Length == 0 || m.Groups[1].Success)
 			{
-				Console.Error.WriteLine(L($"'{part.Trim()}': karşılaştırma ve değer gerek (örnek: {field.Say}{(field.Kind == QueryKind.Text ? "=…" : "<…")})."));
+				Console.Error.WriteLine(L($"'{part.Trim()}': a comparison and a value are needed (example: {field.Say}{(field.Kind == QueryKind.Text ? "=…" : "<…")})."));
 				return 64;
 			}
 			double number = 0;
@@ -97,12 +97,12 @@ internal static partial class Program
 			};
 			if (!understood || (field.Kind == QueryKind.Text && op is "<" or ">" or "<=" or ">="))
 			{
-				Console.Error.WriteLine(L($"'{part.Trim()}': {field.Say} için değer {field.Kind switch
+				Console.Error.WriteLine(L($"'{part.Trim()}': the value for {field.Say} {field.Kind switch
 				{
-					QueryKind.Text => L("yazı; yalnızca =, ~ ya da != ile"),
-					QueryKind.Money => L("para olmalı (50K, 1.2M)"),
-					QueryKind.Months => L("süre olmalı (1yıl, 18ay)"),
-					_ => L("sayı olmalı"),
+					QueryKind.Text => L("text; only with =, ~ or !="),
+					QueryKind.Money => L("must be money (50K, 1.2M)"),
+					QueryKind.Months => L("must be a length of time (1year, 18months)"),
+					_ => L("must be a number"),
 				}}."));
 				return 64;
 			}
@@ -112,7 +112,7 @@ internal static partial class Program
 		QueryField sort = terms[0].Field;
 		if (sortBy != null && (sort = Named(sortBy)) == null)
 		{
-			Console.Error.WriteLine(L($"'{sortBy}' diye bir alan yok. Alanlar: {string.Join(", ", QueryFields.Select(f => f.Say))}"));
+			Console.Error.WriteLine(L($"There is no field called '{sortBy}'. Fields: {string.Join(", ", QueryFields.Select(f => f.Say))}"));
 			return 64;
 		}
 
@@ -168,10 +168,10 @@ internal static partial class Program
 			var text = Field(p, f.Property);
 			return f.Kind switch
 			{
-				QueryKind.Flag => text == "True" ? L("sakat") : "",
+				QueryKind.Flag => text == "True" ? L("injured") : "",
 				QueryKind.Months => Value(p, f) is { } months && GameDay(text) is { } ends
 					? $"{ends.Day} {Months[ends.Month - 1]} {ends.Year} · {Left((int)months)}" : text,
-				QueryKind.Money => Value(p, f) is { } money ? L($"{MoneyFormat.Exact((long)money)}/hafta") : text,
+				QueryKind.Money => Value(p, f) is { } money ? L($"{MoneyFormat.Exact((long)money)}/week") : text,
 				_ when f.Property == "ClubAverageRatingThisSeason" => Value(p, f) is { } r and > 0 ? GameNumbers.Of(r, "0.00") : "-",
 				_ => text,
 			};
@@ -184,16 +184,16 @@ internal static partial class Program
 		}
 		if (found.Count == 0)
 		{
-			Console.WriteLine(L($"Koşula uyan oyuncu yok ({players.Count} oyuncuya bakıldı)."));
+			Console.WriteLine(L($"No player meets the conditions ({players.Count} players looked at)."));
 			return 0;
 		}
-		Table.Write(shown.Select(f => f.Property == "Name" ? L("OYUNCU") : f.Head).ToArray(), found.Select(p => shown.Select(f => Shown(p, f)).ToArray()).ToList());
-		Console.WriteLine(L($"\n{found.Count} oyuncu ({players.Count} içinden)"));
+		Table.Write(shown.Select(f => f.Property == "Name" ? L("PLAYER") : f.Head).ToArray(), found.Select(p => shown.Select(f => Shown(p, f)).ToArray()).ToList());
+		Console.WriteLine(L($"\n{found.Count} players (out of {players.Count})"));
 		return 0;
 
-		static string Left(int months) => months < 0 ? L("bitti") : months < 12 ? L($"{months} ay") : months % 12 == 0 ? L($"{months / 12} yıl") : L($"{months / 12} yıl {months % 12} ay");
+		static string Left(int months) => months < 0 ? L("expired") : months < 12 ? L($"{months} months") : months % 12 == 0 ? L($"{months / 12} yrs") : L($"{months / 12} yrs {months % 12} mths");
 
-		// "1yıl", "2 yil", "18ay", "6": a length of time in months.
+		// "1year", "2 years", "18months", "6": a length of time in months.
 		static double? Span(string text)
 		{
 			var m = Regex.Match(Fold(text).Replace(" ", ""), @"^(\d+(?:[.,]\d+)?)(yil|y|year|years|ay|a|month|months|m)?$");

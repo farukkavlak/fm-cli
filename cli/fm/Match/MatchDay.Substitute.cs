@@ -15,7 +15,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame() || Field(await Fm.GetJson("state"), "DuringMatch") != "True")
 		{
-			Console.Error.WriteLine(L("Değişiklik yalnızca maç sırasında yapılır."));
+			Console.Error.WriteLine(L("Substitutions are made only during a match."));
 			return 1;
 		}
 
@@ -25,7 +25,7 @@ internal static partial class Program
 			await Until(async () => (menus = await Menus()).Any(m => Bench(m).Count > 0), seconds: 4, every: 0.4);
 		if (menus.Count == 0)
 		{
-			Console.Error.WriteLine(L("Sahadaki oyuncuların menüsü ekranda yok (devre arası ya da konuşma ekranı olabilir)."));
+			Console.Error.WriteLine(L("The menu of the players on the pitch is not on screen (it may be half-time or a talk screen)."));
 			return 1;
 		}
 
@@ -44,10 +44,10 @@ internal static partial class Program
 		if (words.Count == 0 && Ui.Rich && await MatchPositions() is { Count: > 0 } positions && positions.Count == menus.Count)
 		{
 			DrawMatchPitch(positions, menus);
-			Console.WriteLine(L($"Kulübe: {string.Join(", ", bench.Select(b => b.Split(" - ")[0]))}"));
+			Console.WriteLine(L($"Bench: {string.Join(", ", bench.Select(b => b.Split(" - ")[0]))}"));
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine(L("\nDeğiştirmek için: sub <çıkan> <giren>"));
+				Console.WriteLine(L("\nTo substitute: sub <off> <on>"));
 				return 0;
 			}
 			Console.WriteLine();
@@ -64,29 +64,29 @@ internal static partial class Program
 					var rows = m.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 					return $"{rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))})";
 				}).ToList();
-				if (Ui.Ask(L("Kim çıksın?"), described) is not { } goingOff) return 0;
+				if (Ui.Ask(L("Who comes off?"), described) is not { } goingOff) return 0;
 				words.Add(onPitch[goingOff]);
 			}
 
-			if (Choose(onPitch, words[0], L("Çıkan")) is not { } named) return 1;
+			if (Choose(onPitch, words[0], L("Off")) is not { } named) return 1;
 			var allowed = Bench(menus[onPitch.IndexOf(named)]);
-			if (Ui.Ask(L($"{named} yerine kim girsin?"), allowed) is not { } comingOn) return 0;
+			if (Ui.Ask(L($"Who comes on for {named}?"), allowed) is not { } comingOn) return 0;
 			words.Add(allowed[comingOn]);
 		}
 
 		if (words.Count < 2)
 		{
 			var match = await MatchPlayers(atStop: true);
-			Console.WriteLine(L("Sahada:"));
+			Console.WriteLine(L("On the pitch:"));
 			foreach (var menu in menus)
 			{
 				var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				var marks = match.TryGetValue(rows[0] ?? "", out var m) ? m.Marks : "";
 				Console.WriteLine($"  {rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))}){(marks.Length > 0 ? "  " + marks : "")}");
 			}
-			Console.WriteLine(L("\nKulübede:"));
+			Console.WriteLine(L("\nOn the bench:"));
 			foreach (var name in bench) Console.WriteLine($"  {name}");
-			Console.WriteLine(L("\nDeğiştirmek için: sub <çıkan> <giren>"));
+			Console.WriteLine(L("\nTo substitute: sub <off> <on>"));
 			return 0;
 		}
 
@@ -106,18 +106,18 @@ internal static partial class Program
 				if (PlannerStop(await Fm.GetJson("buttons", ("json", "1"))) is { } onward) await Fm.Get("press", ("ptr", Field(onward, "Pointer")));
 				var resumed = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 				Console.WriteLine(resumed
-					? L($"Değişiklik yapıldı: {going} çıktı. Maç sürüyor; izlemeye devam: match")
-					: L("Değişiklik seçildi ama maç hâlâ duruyor: match"));
+					? L($"Substitution made: {going} off. The match goes on; to keep watching: match")
+					: L("The substitution was chosen, but the match is still stopped: match"));
 				return resumed ? 0 : 1;
 			}
 		}
 
-		if (Choose(onPitch, words[0], L("Çıkan")) is not { } leaving) return 1;
+		if (Choose(onPitch, words[0], L("Off")) is not { } leaving) return 1;
 		var from = menus[onPitch.IndexOf(leaving)];
 
 		// The bench is listed per player, since who may replace whom can differ.
 		var choices = Bench(from);
-		if (Choose(choices, words[1], L("Giren")) is not { } coming) return 1;
+		if (Choose(choices, words[1], L("On")) is not { } coming) return 1;
 
 		var row = BenchRow(from);
 		var entry = from.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Select(c => c.GetString() ?? "").ToList().IndexOf(coming);
@@ -131,12 +131,12 @@ internal static partial class Program
 		if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine(L($"(kuru) {leaving} çıkacak, {coming} girecekti."));
+			Console.WriteLine(L($"(dry run) {leaving} would have come off, {coming} on."));
 			return 0;
 		}
 
 		// At an injury stop the change waits for "Confirm Changes", which also restarts play. The
-		// button is not on screen the moment the change is chosen (Alanyaspor, 22 Kasım 2025: the
+		// button is not on screen the moment the change is chosen (seen when the
 		// change went in and the match stayed stopped), so it is waited for a little.
 		JsonElement? resume = null;
 		if (Field(await Fm.GetJson("state"), "Playing") != "True")
@@ -147,8 +147,8 @@ internal static partial class Program
 			await Fm.Get("press", ("ptr", Field(resumeAt, "Pointer")));
 			var going = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 			Console.WriteLine(going
-				? L($"Değişiklik yapıldı: {leaving} çıktı, {coming.Split(" - ")[0]} girdi. Maç sürüyor; izlemeye devam: match")
-				: L($"{coming} seçildi ve değişiklik onaylandı ama maç hâlâ duruyor: buttons"));
+				? L($"Substitution made: {leaving} off, {coming.Split(" - ")[0]} on. The match goes on; to keep watching: match")
+				: L($"{coming} was chosen and the substitution confirmed, but the match is still stopped: buttons"));
 			return going ? 0 : 1;
 		}
 
@@ -157,8 +157,8 @@ internal static partial class Program
 		// The bench lists a player with his positions ("Reeco Hackett - M (RL), AM (RLC)").
 		var comer = coming.Split(" - ")[0];
 		Console.WriteLine(made
-			? L($"Değişiklik yapıldı: {leaving} çıktı, {comer} girdi.")
-			: L($"{coming} seçildi ama {leaving} hâlâ sahada görünüyor; oyun onay bekliyor olabilir (buttons)."));
+			? L($"Substitution made: {leaving} off, {comer} on.")
+			: L($"{coming} was chosen, but {leaving} still appears on the pitch; the game may be waiting for confirmation (buttons)."));
 		return made ? 0 : 1;
 
 		// "Draper" names "Freddie Draper" and the planner's own "Draper".
@@ -173,7 +173,7 @@ internal static partial class Program
 				.ToList();
 
 		// The bench is the submenu that starts with the count of changes ("3/5 Substitutes", "15/15
-		// Değişiklik"); the row that opens it can come without its words (a Turkish game, 25 Temmuz 2026).
+		// the substitution label); the row that opens it can come without its words (a Turkish game).
 		static int BenchRow(JsonElement menu)
 		{
 			if (!menu.TryGetProperty("Submenus", out var submenus)) return -1;
@@ -188,7 +188,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// What the score leaves out (PLAN: highlights in words): cards, injuries, and our players by
+	/// What the score leaves out: cards, injuries, and our players by
 	/// their rating, best first. The fixture's own list of events holds only the goals.
 	/// </summary>
 	private static void MatchMoments(Dictionary<string, MatchMan> men, (string Own, string Opponent)? names)
@@ -200,19 +200,19 @@ internal static partial class Program
 			if (watchedMatch || ourNames is not { Count: > 0 }) return string.Join(", ", hits.Select(said));
 			var ours = hits.Where(m => ourNames.Contains(m.Key)).Select(said).ToList();
 			var theirs = hits.Where(m => !ourNames.Contains(m.Key)).Select(said).ToList();
-			return string.Join(" · ", new[] { ours.Count > 0 ? L($"biz: {string.Join(", ", ours)}") : "", theirs.Count > 0 ? L($"rakip: {string.Join(", ", theirs)}") : "" }.Where(x => x.Length > 0));
+			return string.Join(" · ", new[] { ours.Count > 0 ? L($"ours: {string.Join(", ", ours)}") : "", theirs.Count > 0 ? L($"opponent: {string.Join(", ", theirs)}") : "" }.Where(x => x.Length > 0));
 		}
-		var booked = Sides(m => m.Value.Yellow || m.Value.Red, m => m.Key + (m.Value.Red ? L(" (kırmızı)") : ""));
+		var booked = Sides(m => m.Value.Yellow || m.Value.Red, m => m.Key + (m.Value.Red ? L(" (red)") : ""));
 		var hurt = Sides(m => m.Value.Injury != 0, m => m.Key);
-		if (booked.Length > 0) Console.WriteLine(L($"Kartlar: {booked}"));
-		if (hurt.Length > 0) Console.WriteLine(L($"Sakatlanan: {hurt}"));
+		if (booked.Length > 0) Console.WriteLine(L($"Cards: {booked}"));
+		if (hurt.Length > 0) Console.WriteLine(L($"Injured: {hurt}"));
 		if (watchedMatch) return;
 		static double Rated(MatchMan m) => double.TryParse(m.Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) ? r : 0;
 		var ours = OurMen(men).Where(m => Rated(m.Value) > 0).OrderByDescending(m => Rated(m.Value)).ToList();
 		// The screen's ratings are the live ones; the official mark comes with the report and can
 		// differ by a tenth or more (Hackett 9,4 here, 9,5 there, 23 Oct). Saying which is which
 		// keeps a summary from passing for the record.
-		if (ours.Count > 0) Console.WriteLine(L($"Puanlarımız (canlı): {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}   ·   resmî: report"));
+		if (ours.Count > 0) Console.WriteLine(L($"Our ratings (live): {string.Join(" · ", ours.Select(m => $"{m.Key} {Rated(m.Value):0.0}"))}   ·   official: report"));
 	}
 
 	/// <summary>Our men of a match: the squad's names, kept from the team's list.</summary>
@@ -223,17 +223,17 @@ internal static partial class Program
 
 	internal sealed record MatchMan(int Injury, bool Yellow, bool Red, string Rating)
 	{
-		/// <summary>"SAKAT · sarı kart · 6.6": what the match has done to him so far.</summary>
+		/// <summary>"INJURED · yellow card · 6.6": what the match has done to him so far.</summary>
 		public string Marks => string.Join(" · ", new[]
 		{
-			Injury != 0 ? L("SAKAT") : "", Red ? L("kırmızı kart") : Yellow ? L("sarı kart") : "",
-			double.TryParse(Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) && r > 0 ? $"{L("puan")} {r:0.0}" : "",
+			Injury != 0 ? L("INJURED") : "", Red ? L("red card") : Yellow ? L("yellow card") : "",
+			double.TryParse(Rating, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var r) && r > 0 ? $"{L("rating")} {r:0.0}" : "",
 		}.Where(s => s.Length > 0));
 	}
 
 	/// <summary>
 	/// Each player of the match by name, with an injury taken in it, his cards and rating
-	/// (FINDINGS §8.151): the match screen binds a MatchPlayer under every position of its pitch.
+	///: the match screen binds a MatchPlayer under every position of its pitch.
 	/// Its paths start with "..", which a reading cannot take, so each is put at a node of ours first.
 	/// </summary>
 	private static async Task<Dictionary<string, MatchMan>> MatchPlayers(bool atStop = false)

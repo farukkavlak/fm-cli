@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The youth setup (Squad › Youth Setup › Youth Environment, FINDINGS §8.112): how the academy
+/// The youth setup (Squad › Youth Setup › Youth Environment): how the academy
 /// is rated, the facilities behind it, who among the youngsters is thought ready for the first
 /// team, and when the next intake arrives.
 /// </summary>
@@ -15,7 +15,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// The youth team's week in training (Youth Setup › Youth Performance), by each text's data path
-	/// (FINDINGS §8.169): how the week went (the texts before the schedule's name), the average rating,
+	///: how the week went (the texts before the schedule's name), the average rating,
 	/// and each player — name (binding.Name), age from his description (Person.PlayerDescription),
 	/// position and extra focus (binding), then his rating, drawn without a path ("-" when he did not train).
 	/// </summary>
@@ -29,7 +29,7 @@ internal static partial class Program
 		var opened = await OpenSubpage(Screen.YouthSetup, Screen.YouthPerformance, async () => (texts = await Read()).Any(t => t.Path == "binding.Name"));
 		if (opened.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L("Altyapı antrenman tablosu açılmadı."));
+			Console.Error.WriteLine(L("The youth training table did not open."));
 			return 1;
 		}
 		var previous = "";
@@ -63,13 +63,13 @@ internal static partial class Program
 				Players = rows.Select(r => new { Player = r[0], Age = r[1], Position = r[2], Focus = r[3], Rating = r[4] }) }));
 			return 0;
 		}
-		Console.WriteLine(L($"Altyapı antrenman haftası: {string.Join(" · ", notes)}{(average.Length > 0 ? L($" · ortalama {average}") : "")}\n"));
-		Table.Write([L("OYUNCU"), L("YAŞ"), L("MEVKİ"), L("EK ODAK"), L("PUAN")], rows.OrderByDescending(r => double.TryParse(r[4].Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1).ToList());
+		Console.WriteLine(L($"Youth training week: {string.Join(" · ", notes)}{(average.Length > 0 ? L($" · average {average}") : "")}\n"));
+		Table.Write([L("PLAYER"), L("AGE"), L("POSITION"), L("ADDITIONAL FOCUS"), L("RATING")], rows.OrderByDescending(r => double.TryParse(r[4].Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1).ToList());
 		return 0;
 	}
 
 	/// <summary>
-	/// The year's intake, once it has come (Youth Setup › Youth Candidates, FINDINGS §8.152): the game
+	/// The year's intake, once it has come (Youth Setup › Youth Candidates): the game
 	/// groups them by how it rates them (Elite, Top, Good, Decent, Poor prospects); a row is name,
 	/// nation, positions, role and two star ratings, the ages come from the table's own people.
 	/// </summary>
@@ -78,7 +78,7 @@ internal static partial class Program
 		// Whether the year's candidates have come is in the club's data.
 		if (int.TryParse(Field(await Fm.Pull("Human.Club", "YouthCandidatesCount"), "YouthCandidatesCount"), out var came) && came == 0)
 		{
-			Console.Error.WriteLine(L("Bu yılın alım adayları henüz gelmedi (alım tarihi: youth)."));
+			Console.Error.WriteLine(L("This year's intake candidates have not come yet (intake date: youth)."));
 			return 1;
 		}
 		// The headings carry their counts ("Elite Prospects (3)"), so the legend above is read first.
@@ -88,7 +88,7 @@ internal static partial class Program
 		var elite = legend.IndexOf("Elite");
 		if (elite < 1)
 		{
-			Console.Error.WriteLine(L("Alım adayları okunamadı (henüz gelmemiş olabilir: youth)."));
+			Console.Error.WriteLine(L("The intake candidates could not be read (they may not have come yet: youth)."));
 			return 1;
 		}
 		var items = (await Fm.GetJson("form", ("anchor", $"Elite Prospects ({legend[elite - 1]})"), ("up", "7"))).EnumerateArray().ToList();
@@ -123,7 +123,7 @@ internal static partial class Program
 		}
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine(L("Alım adayları okunamadı (henüz gelmemiş olabilir: youth)."));
+			Console.Error.WriteLine(L("The intake candidates could not be read (they may not have come yet: youth)."));
 			return 1;
 		}
 		if (json)
@@ -131,9 +131,9 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(rows.Select(r => new { Group = r[0], Player = r[1], Age = r[2], Position = r[3], Role = r[4], Nation = r[5], Ability = r[6], Potential = r[7] })));
 			return 0;
 		}
-		Console.WriteLine(L($"Altyapı alımı: {rows.Count} aday (oyunun gözünde en umut verici önce)\n"));
-		Table.Write([L("GRUP"), L("OYUNCU"), L("YAŞ"), L("MEVKİ"), L("ROL"), L("ÜLKE"), L("YETENEK"), L("POTANSİYEL")], rows);
-		Console.WriteLine(L("\nBir adayın ayrıntısı: player <ad> · sözleşme önermek oyunda: Youth Candidates › Actions"));
+		Console.WriteLine(L($"Youth intake: {rows.Count} candidates (the most promising in the game's eyes first)\n"));
+		Table.Write([L("GROUP"), L("PLAYER"), L("AGE"), L("POSITION"), L("ROLE"), L("NATION"), L("ABILITY"), L("POTENTIAL")], rows);
+		Console.WriteLine(L("\nA candidate's details: player <name> · to offer a contract in the game: Youth Candidates › Actions"));
 		return 0;
 	}
 
@@ -143,7 +143,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// The academy at a glance, from the club's data and the Youth Setup pages' data paths
-	/// (FINDINGS §8.169): coaching and recruitment levels, the youth stadium, the youth team's staff,
+	///: coaching and recruitment levels, the youth stadium, the youth team's staff,
 	/// the next intake and whether its candidates have come, the youngsters thought ready for the
 	/// first team, and the dressing room's mood.
 	/// </summary>
@@ -216,23 +216,23 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(youth));
 			return 0;
 		}
-		if (youth.Rating.Length > 0) Console.WriteLine(L($"Altyapı notu      {youth.Rating}"));
-		Console.WriteLine(L($"Akademi           antrenman seviyesi {youth.AcademyCoaching} · genç oyuncu bulma {youth.Recruitment} · seviye {youth.Level}"));
-		Console.WriteLine(L($"Stat              {youth.Stadium}"));
-		Console.WriteLine(L($"Kadro             antrenör {youth.Coaches} · tarama {youth.Recruiters} · sağlık {youth.Medical}"));
-		if (intake is { } day) Console.WriteLine(L($"Altyapı alımı     {day.Day} {Months[day.Month - 1]} {day.Year} ({youth.IntakeInDays} gün sonra)"));
-		Console.WriteLine(youth.IntakeCandidates == "awaited" ? L("Alım adayları     henüz yok (her yıl Mart'ta bir maçla belli oluyor)") : L("Alım adayları     GELDİ — liste: youth candidates"));
+		if (youth.Rating.Length > 0) Console.WriteLine(L($"Youth rating      {youth.Rating}"));
+		Console.WriteLine(L($"Academy           training level {youth.AcademyCoaching} · youth recruitment {youth.Recruitment} · level {youth.Level}"));
+		Console.WriteLine(L($"Stadium           {youth.Stadium}"));
+		Console.WriteLine(L($"Staff             coaches {youth.Coaches} · scouting {youth.Recruiters} · medical {youth.Medical}"));
+		if (intake is { } day) Console.WriteLine(L($"Youth intake      {day.Day} {Months[day.Month - 1]} {day.Year} (in {youth.IntakeInDays} days)"));
+		Console.WriteLine(youth.IntakeCandidates == "awaited" ? L("Intake candidates none yet (they are known each March with a match)") : L("Intake candidates ARRIVED — the list: youth candidates"));
 		if (candidates.Count > 0)
 		{
-			Console.WriteLine(L("\nA takıma aday görülenler"));
-			Table.Write([L("OYUNCU"), L("MEVKİ"), L("YAŞ")], candidates);
+			Console.WriteLine(L("\nSeen as first-team prospects"));
+			Table.Write([L("PLAYER"), L("POSITION"), L("AGE")], candidates);
 		}
 		if (atmosphere.Count > 0)
 		{
 			Console.WriteLine();
 			foreach (var line in atmosphere) Console.WriteLine($"  {line}");
 		}
-		Console.WriteLine(L("\nGençlerin antrenman haftası: youth --training"));
+		Console.WriteLine(L("\nThe young players' training week: youth --training"));
 		return 0;
 	}
 }

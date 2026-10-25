@@ -6,7 +6,7 @@ namespace FmCli;
 
 /// <summary>
 /// The transfer offer on the game's screen, read from the plugin's /offer, drawn as a card and
-/// changed one term at a time the way the screen changes it (FINDINGS §8.42).
+/// changed one term at a time the way the screen changes it.
 ///
 /// A term is a row: a fee, the transfer date, a sell-on percentage. It can carry a choice (a
 /// dropdown), an amount (a box), both — "After League Appearances" is a number of games and a
@@ -54,7 +54,7 @@ internal sealed partial class OfferScreen
 
 		// A loan clause with nothing to set ("Can be recalled") is there or not: being there is yes.
 		public string Shown => string.Join(" · ", new[] { Choice?.Value, Amount?.Value, Fixed }.Where(v => !string.IsNullOrEmpty(v))) is { Length: > 0 } shown ? shown
-			: Remove.Length > 0 && Choice == null && Amount == null ? L("evet") : "—";
+			: Remove.Length > 0 && Choice == null && Amount == null ? L("yes") : "—";
 	}
 
 	/// <summary>The offer as it stands, or null when no offer screen is open.</summary>
@@ -122,7 +122,7 @@ internal sealed partial class OfferScreen
 	/// <summary>
 	/// The talks with the game's reason beside each base term it will not take ("Above max
 	/// allowed %"). The screen only shows a warning icon; the reason is in the talks' record
-	/// (FINDINGS §8.44). Bonuses and clauses carry theirs on screen already.
+	///. Bonuses and clauses carry theirs on screen already.
 	/// </summary>
 	public async Task<OfferScreen> WithReasons(Bridge fm)
 	{
@@ -161,7 +161,7 @@ internal sealed partial class OfferScreen
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
 		// The game marks its advice in the list ("Backup (Recommended)") but not in what it shows.
-		return await Settles(fm, s => after(s) is { } c && (c!.Value == choice || choice.StartsWith(c!.Value + " (", StringComparison.Ordinal)), route) ? null : L($"'{choice}' ekranda görünmedi");
+		return await Settles(fm, s => after(s) is { } c && (c!.Value == choice || choice.StartsWith(c!.Value + " (", StringComparison.Ordinal)), route) ? null : L($"'{choice}' did not appear on screen");
 	}
 
 	/// <summary>
@@ -187,7 +187,7 @@ internal sealed partial class OfferScreen
 	{
 		var said = await fm.Get("select", ("ptr", control.Pointer), ("names", string.Join(">", path)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) ? null : L($"'{path[^1]}' ekranda görünmedi");
+		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) ? null : L($"'{path[^1]}' did not appear on screen");
 	}
 
 	/// <summary>Types an amount into a term's box; the game may round it, so whatever it shows is taken.</summary>
@@ -195,19 +195,19 @@ internal sealed partial class OfferScreen
 	{
 		var said = await fm.Get("setnumber", ("ptr", control.Pointer), ("value", amount.ToString(CultureInfo.InvariantCulture)));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) || Program.Money(control.Value) == amount ? null : L("tutar ekranda değişmedi");
+		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) || Program.Money(control.Value) == amount ? null : L("the amount did not change on screen");
 	}
 
 	/// <summary>Sets how firmly a term is held; the lock's choices are indices.</summary>
 	public static async Task<string?> SetLock(Bridge fm, Term term, string lockName, string route = "offer", Func<OfferScreen, Control>? after = null)
 	{
 		var index = term.Lock!.Choices.IndexOf(lockName);
-		if (index < 0) return L($"'{lockName}' bu şartta yok; seçenekler: {string.Join(", ", term.Lock!.Choices)}");
+		if (index < 0) return L($"'{lockName}' is not in this term; options: {string.Join(", ", term.Lock!.Choices)}");
 		// The lock on the entire contract offer only writes its choice, like the offer's deadline.
 		var said = await fm.Get("select", ("ptr", term.Lock.Pointer), ("index", index.ToString(CultureInfo.InvariantCulture)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal) && !said.Contains("has no events to send", StringComparison.Ordinal)) return said;
 		after ??= s => s.Row(term)?.Lock;
-		return await Settles(fm, s => after(s)?.Value == lockName, route) ? null : L($"'{lockName}' ekranda görünmedi");
+		return await Settles(fm, s => after(s)?.Value == lockName, route) ? null : L($"'{lockName}' did not appear on screen");
 	}
 
 	/// <summary>Puts another term in from a heading's "Add" list.</summary>
@@ -216,7 +216,7 @@ internal sealed partial class OfferScreen
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("choice", choice), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
 		// "Players To Exchange" opens a section of its own rather than a row.
-		return await Settles(fm, s => s.Row(choice) != null || s.Adds.Any(a => Same(a.Section, choice)), route) ? null : L($"'{choice}' eklenmedi");
+		return await Settles(fm, s => s.Row(choice) != null || s.Adds.Any(a => Same(a.Section, choice)), route) ? null : L($"'{choice}' was not added");
 	}
 
 	/// <summary>
@@ -231,7 +231,7 @@ internal sealed partial class OfferScreen
 		var said = await fm.Get("select", ("ptr", add.Choice.Pointer), ("names", string.Join(">", names)), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return (said, null);
 		OfferScreen? after = null;
-		if (!await Settles(fm, s => (after = s).Rows.Count > (before?.Rows.Count ?? 0), route)) return (L($"'{names[^1]}' eklenmedi"), null);
+		if (!await Settles(fm, s => (after = s).Rows.Count > (before?.Rows.Count ?? 0), route)) return (L($"'{names[^1]}' was not added"), null);
 		return (null, after!.Rows.FirstOrDefault(r => before?.Row(r) == null) ?? after!.Rows[^1]);
 	}
 
@@ -247,7 +247,7 @@ internal sealed partial class OfferScreen
 		var before = (await Read(fm, route))?.Rows.Count ?? int.MaxValue;
 		var said = await fm.Get("click", ("ptr", term.Remove));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => s.Row(term) == null || s.Rows.Count < before, route) ? null : L($"'{term.Label}' kaldırılmadı");
+		return await Settles(fm, s => s.Row(term) == null || s.Rows.Count < before, route) ? null : L($"'{term.Label}' was not removed");
 	}
 
 	/// <summary>

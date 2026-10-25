@@ -15,7 +15,7 @@ internal static partial class Program
 		{
 			var (own, _) = await Fm.OwnTeam();
 			// A match we only watch — the under-18s against the year's youth candidates — is not the
-			// first team's next fixture: the match on screen names its own two sides (FINDINGS §8.153).
+			// first team's next fixture: the match on screen names its own two sides.
 			watchedMatch = false;
 			if (await MatchSides() is { } sides && sides.Home != own && sides.Away != own)
 			{
@@ -65,7 +65,7 @@ internal static partial class Program
 	{
 		if (Field(dialog, "Title") != "Team Selection") return null;
 		// A notice with only "Ok" on it says the eleven cannot go out as it is — none picked, ten picked,
-		// one injured, suspended or sold but not yet gone ("cannot be registered", Defrel, 30 Kasım
+		// one injured, suspended or sold but not yet gone ("cannot be registered", seen with
 		// 2025). Its words are the engine's, in the game's language, so it is known by having one answer.
 		var answers = dialog.TryGetProperty("Buttons", out var buttons) ? buttons.GetArrayLength() : 0;
 		return answers == 1 ? Field(dialog, "Description").Split('\n')[0].Trim() : null;
@@ -82,12 +82,12 @@ internal static partial class Program
 
 		if (!Ui.Interactive)
 		{
-			Console.Error.WriteLine(L($"{problem} Yardımcıya yeniden seçtirmek için: tactic pick   ·   kendin: tactic player <mevki> <oyuncu>   ·   sonra: match"));
+			Console.Error.WriteLine(L($"{problem} To have the assistant pick again: tactic pick   ·   yourself: tactic player <position> <player>   ·   then: match"));
 			return 1;
 		}
-		if (Ui.Ask(problem, [L("Yardımcı yeniden seçsin (Quick Pick)")], cancel: L("Kendim değiştireceğim, maçtan çık")) == null)
+		if (Ui.Ask(problem, [L("Let the assistant pick again (Quick Pick)")], cancel: L("I will change it myself, leave the match")) == null)
 		{
-			Console.WriteLine(L("Kadro için: tactic player <mevki> <oyuncu>   ·   sonra: match"));
+			Console.WriteLine(L("For the squad: tactic player <position> <player>   ·   then: match"));
 			return 0;
 		}
 		return await TacticPick(dry: false) != 0 ? 1 : null;
@@ -107,8 +107,8 @@ internal static partial class Program
 		if (Field(state, "Period") == "" && Field(state, "State") is "FullTimeTeamTalk" or "PostMatchReaction" or "LeaveMatch"
 		    && period is not ("" or "FullTime") && score != null)
 		{
-			if (LastWhistle != L($"Maç sonu: {score}")) Console.WriteLine(L($"  Maç sonu: {score}"));
-			LastWhistle = L($"Maç sonu: {score}");
+			if (LastWhistle != L($"Full time: {score}")) Console.WriteLine(L($"  Full time: {score}"));
+			LastWhistle = L($"Full time: {score}");
 			period = "FullTime";
 			return;
 		}
@@ -120,7 +120,7 @@ internal static partial class Program
 		var now = $"{home}-{away}";
 		if (watchedMatch && names is { } watched) now = $"{watched.Own} {now} {watched.Opponent}";
 		// With the sides named the board says who is home; without, which side we are.
-		var side = watchedMatch ? "" : names != null && Field(state, "HumanIsHome") is "True" or "False" ? "" : Field(state, "HumanIsHome") switch { "True" => L(" (ev sahibiyiz)"), "False" => L(" (deplasmandayız)"), _ => "" };
+		var side = watchedMatch ? "" : names != null && Field(state, "HumanIsHome") is "True" or "False" ? "" : Field(state, "HumanIsHome") switch { "True" => L(" (we are at home)"), "False" => L(" (we are away)"), _ => "" };
 		if (!watchedMatch && names is { } n && Field(state, "HumanIsHome") is "True" or "False")
 			now = Field(state, "HumanIsHome") == "True" ? $"{n.Own} {now} {n.Opponent}" : $"{n.Opponent} {now} {n.Own}";
 
@@ -129,10 +129,10 @@ internal static partial class Program
 		{
 			var whistle = current switch
 			{
-				"FirstHalf" => L("Maç başladı"),
-				"HalfTime" => L($"Devre arası: {now}{side}"),
-				"SecondHalf" => L("İkinci yarı başladı"),
-				"FullTime" => L($"Maç sonu: {now}{side}"),
+				"FirstHalf" => L("Kick-off"),
+				"HalfTime" => L($"Half time: {now}{side}"),
+				"SecondHalf" => L("Second half under way"),
+				"FullTime" => L($"Full time: {now}{side}"),
 				_ => null,
 			};
 			// The period can drop out for a moment at a break and come back; the whistle is once.
@@ -147,7 +147,7 @@ internal static partial class Program
 		{
 			// The total going down is a goal taken back: offside flagged late, or the video referee.
 			static int Total(string board) => board.Split('-').Sum(x => int.TryParse(x, out var g) ? g : 0);
-			var word = Total(Numbers(now)) < Total(Numbers(score)) ? L("GOL İPTAL") : L("GOL");
+			var word = Total(Numbers(now)) < Total(Numbers(score)) ? L("GOAL DISALLOWED") : L("GOALS");
 			if (Ui.Rich) Ui.Line($"  [bold yellow]{Ui.Safe(Field(state, "MatchTime")),6}  {word}  {Ui.Safe(now)}{side}[/]");
 			else Console.WriteLine($"  {Field(state, "MatchTime")}  {word}  {now}{side}");
 		}

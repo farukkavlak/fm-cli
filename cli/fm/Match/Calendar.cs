@@ -5,8 +5,8 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The club's calendar (FINDINGS §8.66): Portal › Calendar draws a month as a grid, chosen with its
-/// MonthDropdown. Each text in the grid is read with the data path it is bound to (FINDINGS §8.169):
+/// The club's calendar: Portal › Calendar draws a month as a grid, chosen with its
+/// MonthDropdown. Each text in the grid is read with the data path it is bound to:
 /// "day.DayOfTheMonth" starts a day, and what is on it is an event whose fields say what they are —
 /// "Event.Competition.Name", "Event.KickoffTime", "Event.TeamOpponent.Name", "Event.MatchVenueShort",
 /// "Event.DisplayString" for a note. Nothing is told apart by its words, so it reads the same in any language.
@@ -109,7 +109,7 @@ internal static partial class Program
 			if (team.Length > 0) today.Notes.Add($"{team} {(timeOrScore.Length > 0 ? timeOrScore : "v")} {opponent}");
 			// One of our youth sides' is written with the competition's short code.
 			else if (!fields.ContainsKey("Competition.Name") && fields.ContainsKey("Competition.ShortName"))
-				today.Youth.Add(L($"Altyapı {Get("Competition.ShortName")}: {opponent} ({venue}) {timeOrScore}"));
+				today.Youth.Add(L($"Youth {Get("Competition.ShortName")}: {opponent} ({venue}) {timeOrScore}"));
 			else today.Matches.Add(new(today.Day, Get("Competition."), timeOrScore, opponent, Get("LeaguePosition"), venue));
 		}
 	}
@@ -129,7 +129,7 @@ internal static partial class Program
 			&& list.GetProperty("Choices").GetArrayLength() > 0, seconds: 8, every: 0.5);
 		if (list!.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine(L("Takvim sayfasında ay seçici yok."));
+			Console.Error.WriteLine(L("The calendar page has no month picker."));
 			return null;
 		}
 
@@ -138,7 +138,7 @@ internal static partial class Program
 		// the one chosen after it is today's and the rest count from there.
 		if (!DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var today))
 		{
-			Console.Error.WriteLine(L("Oyunun tarihi okunamadı."));
+			Console.Error.WriteLine(L("The game's date could not be read."));
 			return null;
 		}
 		var todayButton = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -183,7 +183,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// A month of the calendar: matches, under-19s matches and the notes on each day, days with
-	/// only training left out. The month is "eylül", "september", "9" or "2025-09"; this month
+	/// only training left out. The month is "september", "9" or "2025-09"; this month
 	/// when none is given.
 	/// </summary>
 	private static async Task<int> CalendarCommand(bool json, string[] args)
@@ -195,14 +195,14 @@ internal static partial class Program
 		var month = wanted.Length == 0 ? showing : PickMonth(months, wanted);
 		if (month == null)
 		{
-			Console.Error.WriteLine(L($"'{wanted}' takvimde yok. Aylar: {string.Join(", ", months.Select(m => $"{Months[m.Month - 1]} {m.Year}"))}"));
+			Console.Error.WriteLine(L($"'{wanted}' is not in the calendar. Months: {string.Join(", ", months.Select(m => $"{Months[m.Month - 1]} {m.Year}"))}"));
 			return 1;
 		}
 
 		var days = await CalendarMonth(month);
 		if (days == null)
 		{
-			Console.Error.WriteLine(L("Takvim okunamadı."));
+			Console.Error.WriteLine(L("The calendar could not be read."));
 			return 1;
 		}
 		var busy = days.Where(d => d.Day.Month == month.Month && (d.Matches.Count > 0 || d.Notes.Count > 0 || d.Youth.Count > 0)).ToList();
@@ -233,7 +233,7 @@ internal static partial class Program
 
 		string MatchLine(CalendarMatch m)
 		{
-			var venue = m.Venue switch { "H" => L("iç saha"), "A" => L("deplasman"), "N" => L("tarafsız"), _ => "" };
+			var venue = m.Venue switch { "H" => L("home"), "A" => L("away"), "N" => L("neutral"), _ => "" };
 			var score = Regex.Match(m.TimeOrScore, @"^(\d+)-(\d+)(p|e)?$");
 			var text = $"{m.Opponent}{(m.Place.Length > 0 ? $" ({m.Place})" : "")} · {venue} · {m.Competition} · {(score.Success ? Ours(m) : m.TimeOrScore)}";
 			if (!Ui.Rich) return text;
@@ -248,7 +248,7 @@ internal static partial class Program
 		var s = Regex.Match(m.TimeOrScore, @"^(\d+)-(\d+)(p|e)?$");
 		if (!s.Success) return m.TimeOrScore;
 		// "p": settled on penalties, "e": after extra time; the mark stays with the score.
-		var mark = s.Groups[3].Success ? $" ({(s.Groups[3].Value == "p" ? "pen." : L("uzt."))})" : "";
+		var mark = s.Groups[3].Success ? $" ({(s.Groups[3].Value == "p" ? "pen." : L("e.t."))})" : "";
 		return (m.Venue == "A" ? $"{s.Groups[2].Value}-{s.Groups[1].Value}" : $"{s.Groups[1].Value}-{s.Groups[2].Value}") + mark;
 	}
 
@@ -258,7 +258,7 @@ internal static partial class Program
 		return s.Success ? Math.Sign(int.Parse(s.Groups[1].Value) - int.Parse(s.Groups[2].Value)) : 0;
 	}
 
-	/// <summary>A month by "eylül", "september", "9", "2025-09" or "eylül 2025"; the first that starts so otherwise.</summary>
+	/// <summary>A month by "september", "9" or "2025-09"; the first that starts so otherwise.</summary>
 	private static CalendarMonthChoice PickMonth(List<CalendarMonthChoice> months, string wanted)
 	{
 		var w = Fold(wanted);

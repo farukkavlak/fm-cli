@@ -33,7 +33,7 @@ internal static partial class Program
 				var choices = steps != null && steps.Length == high + 1 ? steps.ToList() : Enumerable.Range(0, high + 1).Select(i => i.ToString()).ToList();
 				return new(setting, Field(control, "Pointer"), choices, (int)double.Parse(Field(control, "Value"), System.Globalization.CultureInfo.InvariantCulture), enabled);
 			case SettingKind.Checkbox:
-				return new(setting, Field(control, "Pointer"), [L("Kapalı"), L("Açık")], Field(control, "Value") == "True" ? 1 : 0, enabled);
+				return new(setting, Field(control, "Pointer"), [L("Off"), L("On")], Field(control, "Value") == "True" ? 1 : 0, enabled);
 			default:
 				var list = control.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				// Some lists leave their index unset; the label still says what is in force.
@@ -90,7 +90,7 @@ internal static partial class Program
 		}
 
 		var table = new Spectre.Console.Table().Border(TableBorder.Rounded).BorderColor(Color.Grey).HideHeaders()
-			.AddColumn(L("ayar")).AddColumn(L("değer")).AddColumn("not");
+			.AddColumn(L("setting")).AddColumn(L("value")).AddColumn("not");
 		var first = true;
 		foreach (var group in found.GroupBy(f => f.Setting.Group))
 		{

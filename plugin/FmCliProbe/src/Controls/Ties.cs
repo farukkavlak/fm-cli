@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 namespace FmCliProbe;
 
 /// <summary>
-/// The ties of a knockout round as the Stages page draws them (FINDINGS §8.105): one #MainPart
+/// The ties of a knockout round as the Stages page draws them: one #MainPart
 /// each, with the home side in #LeftSide, the away side in #RightSide and between them #Versus —
 /// the score, or "V" before it is played, and beside it how it was settled ("p" penalties, "e"
 /// extra time) on the side that went through. The text alone does not say which side a division

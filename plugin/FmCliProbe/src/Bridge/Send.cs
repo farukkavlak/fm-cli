@@ -51,7 +51,7 @@ internal static class Send
 		// A dry run resolves the whole payload and reports it without sending, which is how a
 		// new event gets checked without putting anything into the save.
 		if (dry) return $"dry run, NOT sent: {type.FullName}\n{log}";
-		if (failed) return $"error: alan çözülemedi, gönderilmedi: {type.FullName}\n{log}";
+		if (failed) return $"error: field could not be resolved, not sent: {type.FullName}\n{log}";
 
 		events.SendEvent(payload);
 		return $"sent {type.FullName}\n{log}";
@@ -117,7 +117,7 @@ internal static class Send
 		}
 
 		// "path:<binding path>" sends what the tree holds there — a choice out of a list, as a
-		// dropdown sends the entry itself and not its number (FINDINGS §8.130).
+		// dropdown sends the entry itself and not its number.
 		if (target == typeof(SI.Core.TypedValue) && raw.StartsWith("path:", StringComparison.Ordinal))
 		{
 			var key = PathKey.Of(raw[5..]);
@@ -172,7 +172,7 @@ internal static class Send
 		}
 		catch (Exception ex)
 		{
-			throw new Exception($"TypedValue oluşturulamadı ({ex.GetType().Name}) — generic çağrı arm64'te çalışmıyor olabilir");
+			throw new Exception($"TypedValue could not be created ({ex.GetType().Name}); the generic call may not work on arm64");
 		}
 	}
 

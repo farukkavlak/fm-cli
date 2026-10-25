@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Moving past what the assistant last said ("Acknowledge and Move On", FINDINGS §8.191): the card's
+/// Moving past what the assistant last said ("Acknowledge and Move On"): the card's
 /// own button, addressed by the event it sends (<c>EventFmxClearChanges</c>, 31) rather than by its
 /// label. The label is the game's own string and would be translated in another language, while the
 /// event is the same everywhere; it is the identity the mentoring flow already uses (§8.188).

@@ -48,7 +48,7 @@ internal static partial class Program
 			}
 			if (tile == null)
 			{
-				Console.Error.WriteLine(L("Ayarlar döşemesi FM menüsünde bulunamadı."));
+				Console.Error.WriteLine(L("Settings tile not found in the FM menu."));
 				return null;
 			}
 			await Fm.Get("click", ("ptr", tile));
@@ -61,7 +61,7 @@ internal static partial class Program
 		}
 		if (!await Showing("All Preferences"))
 		{
-			Console.Error.WriteLine(L("Ayarlar sayfası açılmadı."));
+			Console.Error.WriteLine(L("The settings page did not open."));
 			return null;
 		}
 
@@ -69,7 +69,7 @@ internal static partial class Program
 		// is taken by the container it sits in, whose template name no language changes.
 		if (!TabButtons.TryGetValue(tab, out var tabButton))
 		{
-			Console.Error.WriteLine(Lf("Ayarlarda {0} sekmesi okunamadı.", tab));
+			Console.Error.WriteLine(Lf("The {0} tab in the settings could not be read.", tab));
 			return null;
 		}
 		await Fm.Get("click", ("within", tabButton), ("name", "DetailedPreferencesTabButton"));
@@ -88,7 +88,7 @@ internal static partial class Program
 			read = key;
 			return settled;
 		}, seconds: 8, every: 0.25);
-		if (form.Count == 0) Console.Error.WriteLine(L($"Ayarlarda {tab} sekmesi okunamadı."));
+		if (form.Count == 0) Console.Error.WriteLine(L($"The {tab} tab in the settings could not be read."));
 		return form.Count == 0 ? null : form;
 	}
 
@@ -110,6 +110,6 @@ internal static partial class Program
 	/// <summary>Why the game's FM menu is not there: most often a screen with no menus at all (the results after a match).</summary>
 	private static async Task<string?> FmMenuMissing() =>
 		(await Fm.GetJson("pages")).GetArrayLength() == 0
-			? Lf("Oyun menüsüz bir ekranda ({0}); FM menüsü açılamıyor. Geçmek için: next", Field(await Fm.GetJson("state"), "State"))
-			: L("Oyunun FM menüsü bulunamadı.");
+			? Lf("The game is on a screen without a menu ({0}); the FM menu cannot be opened. To go past it: next", Field(await Fm.GetJson("state"), "State"))
+			: L("The game's FM menu was not found.");
 }

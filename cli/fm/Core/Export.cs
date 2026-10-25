@@ -9,8 +9,8 @@ internal static partial class Program
 {
 	private static readonly (string Command, string Title)[] ExportDefault =
 	[
-		("status", L("Durum")), ("squad", L("Kadro")), ("table", L("Lig tablosu")), ("fixtures", L("Fikstür")),
-		("health", L("Sağlık")), ("contracts", L("Sözleşmeler")), ("finances", L("Finans")),
+		("status", L("Status")), ("squad", L("Squad")), ("table", L("League table")), ("fixtures", L("Fixtures")),
+		("health", L("Medical")), ("contracts", L("Contracts")), ("finances", L("Finances")),
 	];
 
 	private static async Task<int> Export(string[] args)
@@ -26,12 +26,12 @@ internal static partial class Program
 			: ExportDefault.Select(d => (d.Command, d.Title)).ToList();
 		if (csv && commands.Count != 1)
 		{
-			Console.Error.WriteLine(L("CSV tek komutun tablosu: export <dosya.csv> <komut>   (ör. export kadro.csv \"squad --stats\")"));
+			Console.Error.WriteLine(L("CSV is one command's table: export <file.csv> <command>   (e.g. export squad.csv \"squad --stats\")"));
 			return 64;
 		}
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -65,9 +65,9 @@ internal static partial class Program
 		else
 		{
 			File.WriteAllText(file, text);
-			Console.WriteLine(L($"{Path.GetFullPath(file)} yazıldı ({commands.Count - failed.Count}/{commands.Count} bölüm)."));
+			Console.WriteLine(L($"{Path.GetFullPath(file)} written ({commands.Count - failed.Count}/{commands.Count} sections)."));
 		}
-		if (failed.Count > 0) Console.Error.WriteLine(L($"Okunamayan: {string.Join(", ", failed)}"));
+		if (failed.Count > 0) Console.Error.WriteLine(L($"Could not read: {string.Join(", ", failed)}"));
 		return failed.Count == commands.Count ? 1 : 0;
 	}
 }

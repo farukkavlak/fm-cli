@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The recruitment focuses (Recruitment › Recruitment Focuses, FINDINGS §8.109): what the scouts
+/// The recruitment focuses (Recruitment › Recruitment Focuses): what the scouts
 /// have been set to look for, who is on it, and the players each focus has turned up. The page
 /// shows one focus at a time, chosen in a list that names them only by status, so each is
 /// selected in turn and read from the page's own text.
@@ -13,11 +13,11 @@ internal static partial class Program
 {
 	/// <summary>
 	/// A focus that has been removed is not gone: it stays in the list, its status as it was
-	/// until the day turns, and only its button tells — it has "Restart" (FINDINGS §8.120).
+	/// until the day turns, and only its button tells — it has "Restart".
 	/// </summary>
 	private sealed record Focus(int Index, string Name, string Status, string Assigned, int Matched, int Near, int InProgress, bool Running = true)
 	{
-		public string State => Status == "In Progress" && !Running ? L("Durduruldu") : Status;
+		public string State => Status == "In Progress" && !Running ? L("Stopped") : Status;
 	}
 
 	private static async Task<int> Scout(bool json, string[] args)
@@ -31,7 +31,7 @@ internal static partial class Program
 		JsonElement? list = null;
 		if (!await Until(async () => (list = await FocusList()) != null, seconds: 10, every: 0.5))
 		{
-			Console.WriteLine(L("Scout odağı yok."));
+			Console.WriteLine(L("No scouting focuses."));
 			return 0;
 		}
 		var count = list!.Value.GetProperty("Choices").GetArrayLength();
@@ -46,11 +46,11 @@ internal static partial class Program
 			if (json) Console.WriteLine(JsonOut.Of(focuses));
 			else
 			{
-				Table.Write(["#", L("ODAK"), L("DURUM"), L("ATANAN"), L("EŞLEŞEN"), L("YAKIN"), L("SÜREN")], focuses.Select(f => new[]
+				Table.Write(["#", L("FOCUS"), L("STATUS"), L("ASSIGNED"), L("MATCHING"), L("NEAR"), L("ONGOING")], focuses.Select(f => new[]
 				{
 					(f.Index + 1).ToString(), f.Name, f.State, f.Assigned, f.Matched.ToString(), f.Near.ToString(), f.InProgress.ToString(),
 				}).ToList());
-				Console.WriteLine(L("\nBir odağın bulduğu oyuncular: scout <#|ad>   (--near: yakın eşleşenler, --progress: incelenenler)"));
+				Console.WriteLine(L("\nPlayers a focus has found: scout <#|name>   (--near: near matches, --progress: being looked at)"));
 			}
 			return 0;
 		}
@@ -59,19 +59,19 @@ internal static partial class Program
 		if (int.TryParse(words[0], out var number) && number >= 1 && number <= focuses.Count) wanted = focuses[number - 1];
 		else
 		{
-			if (Choose(focuses.Select(f => f.Name).Distinct().ToList(), string.Join(" ", words), L("Odak")) is not { } name) return 64;
+			if (Choose(focuses.Select(f => f.Name).Distinct().ToList(), string.Join(" ", words), L("Focus")) is not { } name) return 64;
 			wanted = focuses.First(f => f.Name == name);
 		}
 		if (await FocusAt(wanted.Index) is not { } shown)
 		{
-			Console.Error.WriteLine(L($"{wanted.Name}: odak açılmadı."));
+			Console.Error.WriteLine(L($"{wanted.Name}: the focus did not open."));
 			return 1;
 		}
 
 		// Which results: those that fit, unless asked otherwise — or unless none fits yet.
 		var tab = args.Contains("--near") ? "nearly-matched-tab" : args.Contains("--progress") ? "in-progress-tab"
 			: args.Contains("--matched") || shown.Matched > 0 ? "matched-tab" : shown.Near > 0 ? "nearly-matched-tab" : "in-progress-tab";
-		var title = tab switch { "matched-tab" => L("eşleşenler"), "nearly-matched-tab" => L("yakın eşleşenler"), _ => L("incelenenler") };
+		var title = tab switch { "matched-tab" => L("matching"), "nearly-matched-tab" => L("near matches"), _ => L("being looked at") };
 		var expected = tab switch { "matched-tab" => shown.Matched, "nearly-matched-tab" => shown.Near, _ => shown.InProgress };
 
 		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == tab);
@@ -131,9 +131,9 @@ internal static partial class Program
 		}
 
 		Console.WriteLine($"{shown.Name} · {shown.State} · {shown.Assigned} — {title} ({expected})");
-		if (rows.Count == 0) Console.WriteLine(L("Bu sekmede oyuncu yok."));
-		else Table.Write([L("OYUNCU"), L("ÜLKE"), L("YAŞ"), L("MEVKİ"), L("ROL"), L("KULÜP"), L("LİG"), L("DEĞER"), L("NOT"), L("TAVSİYE")], rows);
-		if (rows.Count < expected) Console.WriteLine(L($"({expected} oyuncunun {rows.Count} tanesi ekranda; liste yalnızca görünen satırları çiziyor.)"));
+		if (rows.Count == 0) Console.WriteLine(L("No players on this tab."));
+		else Table.Write([L("PLAYER"), L("NATION"), L("AGE"), L("POSITION"), L("ROLE"), L("CLUB"), L("LEAGUE"), L("VALUE"), L("GRADE"), L("RECOMMENDATION")], rows);
+		if (rows.Count < expected) Console.WriteLine(L($"({rows.Count} of {expected} players on screen; the list draws only the rows in view.)"));
 		return 0;
 	}
 
@@ -148,7 +148,7 @@ internal static partial class Program
 	/// <summary>
 	/// Selects a focus and reads it: its name as the page heads it (selectedfocus.Name, with the date
 	/// a finished one carries), and from the focus's own data its status, who is assigned, and how
-	/// many players are matched, nearly matched and still being looked at (FINDINGS §8.169).
+	/// many players are matched, nearly matched and still being looked at.
 	/// </summary>
 	private static async Task<Focus> FocusAt(int index)
 	{
@@ -166,7 +166,7 @@ internal static partial class Program
 		static int Count(JsonElement e, string name) => int.TryParse(Field(e, name), out var n) ? n : 0;
 		var scouts = Count(data, "ScoutCount");
 		var analysts = Count(data, "AnalystCount");
-		var assigned = string.Join(" · ", new[] { scouts > 0 ? L($"{scouts} gözlemci") : "", analysts > 0 ? L($"{analysts} analist") : "" }.Where(x => x.Length > 0));
+		var assigned = string.Join(" · ", new[] { scouts > 0 ? L($"{scouts} scouts") : "", analysts > 0 ? L($"{analysts} analysts") : "" }.Where(x => x.Length > 0));
 
 		Focus read = null;
 		var previous = "?";

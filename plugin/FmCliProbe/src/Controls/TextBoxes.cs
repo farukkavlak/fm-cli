@@ -134,7 +134,7 @@ internal static class TextBoxes
 /// <summary>
 /// The game's number boxes, the money ones on an offer: an FMCombobox around a LongField.
 ///
-/// The box commits a typed number when its field loses focus (FINDINGS §8.42). inspect=1 shows
+/// The box commits a typed number when its field loses focus. inspect=1 shows
 /// what the box is bound to. Writing into its bound values in place hung the game, so that is
 /// not done.
 /// </summary>

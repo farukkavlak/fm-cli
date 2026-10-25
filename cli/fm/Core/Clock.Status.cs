@@ -14,14 +14,14 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
 		var state = await Fm.GetJson("state");
 		if (Field(state, "CanSave") != "True")
 		{
-			Console.Error.WriteLine(L("Oyun şu an kaydetmeye izin vermiyor (maç ya da işlem sürüyor olabilir)."));
+			Console.Error.WriteLine(L("The game does not allow saving right now (a match or processing may be under way)."));
 			return 1;
 		}
 
@@ -29,7 +29,7 @@ internal static partial class Program
 		{
 			if (at + 1 >= args.Length || args[at + 1].StartsWith("--", StringComparison.Ordinal))
 			{
-				Console.Error.WriteLine(L("Hangi adla?  save --as \"<ad>\" --yes"));
+				Console.Error.WriteLine(L("Under which name?  save --as \"<name>\" --yes"));
 				return 64;
 			}
 			return await SaveAs(args[at + 1], state, args.Contains("--yes"));
@@ -37,8 +37,8 @@ internal static partial class Program
 
 		if (!args.Contains("--yes"))
 		{
-			Console.Error.WriteLine(L($"Bu, kayıt dosyasının üzerine yazar ({Pretty(Field(state, "Date"))} durumuyla); geri alınamaz."));
-			Console.Error.WriteLine(L("Onaylamak için: save --yes"));
+			Console.Error.WriteLine(L($"This overwrites the save file (with the state of {Pretty(Field(state, "Date"))}); it cannot be undone."));
+			Console.Error.WriteLine(L("To confirm: save --yes"));
 			return 1;
 		}
 
@@ -51,12 +51,12 @@ internal static partial class Program
 		var dialogs = await Fm.GetJson("dialog");
 		if (dialogs.GetArrayLength() > 0)
 		{
-			Console.Error.WriteLine(L($"Oyun bir şey soruyor: {Field(dialogs[0], "Title")} — {Field(dialogs[0], "Description")}   (cevap: dialog)"));
+			Console.Error.WriteLine(L($"The game is asking something: {Field(dialogs[0], "Title")} — {Field(dialogs[0], "Description")}   (to answer: dialog)"));
 			return 1;
 		}
 		if (!started)
 		{
-			Console.Error.WriteLine(L("Kaydet denildi ama oyun kaydetmeye başlamadı."));
+			Console.Error.WriteLine(L("Told to save, but the game did not start saving."));
 			return 1;
 		}
 
@@ -66,7 +66,7 @@ internal static partial class Program
 			return Field(now, "Saving") != "True" && Field(now, "State") != "Saving";
 		}, seconds: 180);
 
-		Console.WriteLine(done ? L($"Kaydedildi ({Pretty(Field(state, "Date"))}).") : L("Kayıt üç dakikadır sürüyor; beklemeyi bıraktım."));
+		Console.WriteLine(done ? L($"Saved ({Pretty(Field(state, "Date"))}).") : L("Saving has been going on for three minutes; I stopped waiting."));
 		return done ? 0 : 75;
 	}
 
@@ -74,7 +74,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.WriteLine(L("FM açık, kayıt yüklü değil — `continue` ile yükle."));
+			Console.WriteLine(L("FM is open, no save loaded — load one with `continue`."));
 			return 69;
 		}
 
@@ -100,14 +100,14 @@ internal static partial class Program
 			var named = await MatchNames();
 			var board = named is { } sides
 				? home || watchedMatch ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
-				: score + (home ? L(" (ev sahibiyiz)") : L(" (deplasmandayız)"));
+				: score + (home ? L(" (we are at home)") : L(" (we are away)"));
 			var minute = Field(state, "MatchTime");
-			if (watchedMatch) board += L("  (izlediğimiz maç, A takımın değil)");
-			Console.WriteLine(minute == "" ? L($"Maçtayız, başlamadı.  {board}") : L($"Maçtayız. {minute}  {board}"));
+			if (watchedMatch) board += L("  (a match we are watching, not the first team's)");
+			Console.WriteLine(minute == "" ? L($"In a match, not started yet.  {board}") : L($"In a match. {minute}  {board}"));
 			// A team talk holds the match until something is said.
 			Console.WriteLine((await TalkOptions()).Count > 0
-				? L("Konuşmada bekliyor. Söylemek için: talk   (konuşmadan geçmek için: match --no-talk)")
-				: L("Sürdürmek için: match"));
+				? L("Waiting in a team talk. To speak: talk   (to skip the talk: match --no-talk)")
+				: L("To carry on: match"));
 			return 0;
 		}
 		if (flow == "CanContinue" && (await Bound("inbox", "PortalScreen")).EnumerateArray().Any(Blocking)) flow = "NeedAction";
@@ -119,7 +119,7 @@ internal static partial class Program
 			var (team, _) = await Fm.OwnTeam();
 			var manager = Field(await Fm.Pull("Human", "Name"), "Name");
 			var lines = new List<string> { $"[bold]{Ui.Safe(Pretty(Field(state, "Date")))}[/] {Time(state)}" };
-			if (next != null) lines.Add(L($"[dim]Sıradaki maç:[/] {Ui.Safe(next)}"));
+			if (next != null) lines.Add(L($"[dim]Next match:[/] {Ui.Safe(next)}"));
 			if (await Form() is { Length: > 0 } form) lines.Add($"[dim]Form:[/] {form}");
 			if (window != null) lines.Add($"[dim]Transfer:[/] {Ui.Safe(window)}");
 			Ui.Out.Write(new Spectre.Console.Panel(new Spectre.Console.Markup(string.Join("\n", lines)))
@@ -132,21 +132,21 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine(L($"FM açık, kayıt yüklü. {Pretty(Field(state, "Date"))} {Time(state)}"));
-			if (next != null) Console.WriteLine(L($"Sıradaki maç: {GameWords.Of(next)}"));
-			if (window != null) Console.WriteLine(L($"Transfer: {GameWords.Of(window)}"));
+			Console.WriteLine(L($"FM is open, save loaded. {Pretty(Field(state, "Date"))} {Time(state)}"));
+			if (next != null) Console.WriteLine(L($"Next match: {GameWords.Of(next)}"));
+			if (window != null) Console.WriteLine(L($"Transfers: {GameWords.Of(window)}"));
 		}
 		if (await Unemployed())
-			Console.WriteLine(L("İşsizsin: bir kulübün menajeri değilsin, kadro ve taktik komutları çalışmaz. İş ilanları: jobs"));
+			Console.WriteLine(L("You are unemployed: not managing a club, so squad and tactic commands do not work. Job vacancies: jobs"));
 		// A question put after a match (the reaction, a tunnel interview) waits as a conversation
 		// while the game still calls itself free to go on; going on would pass it by unanswered.
 		if ((Passable(flow) || flow is "NeedAction" or "PressConference") && await OpenQuestion() is { } asked)
 		{
-			Console.WriteLine(L($"Açık bir soru var{(asked.Length > 0 ? $": \"{asked}\"" : "")}"));
-			Console.WriteLine(L("Cevaplamak için: talk   (geçmek için: next)"));
+			Console.WriteLine(L($"There is an open question{(asked.Length > 0 ? $": \"{asked}\"" : "")}"));
+			Console.WriteLine(L("To answer: talk   (to go on: next)"));
 			return 0;
 		}
-		if (Passable(flow)) Console.WriteLine(L("İlerlemeye hazır: next"));
+		if (Passable(flow)) Console.WriteLine(L("Ready to continue: next"));
 		else await Explain(state, Console.Out, flow);
 		return 0;
 	}

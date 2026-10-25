@@ -4,14 +4,14 @@ namespace FmCli;
 
 /// <summary>
 /// The contract talks, drawn as a card and changed term by term like the transfer offer
-/// (FINDINGS §8.44). They open after a club accepts a bid ("Enter Contract Negotiations" on the
+///. They open after a club accepts a bid ("Enter Contract Negotiations" on the
 /// message) or, for one of our own players, from his page: a renewal. They come in two stages,
 /// promises and then terms; each is a card of its own.
 /// </summary>
 internal static partial class Program
 {
 	// Only the talks' own buttons: the game's Continue is also labelled "Negotiate Contract"
-	// during the talks, and pressing it walks away from the deal (FINDINGS §8.42).
+	// during the talks, and pressing it walks away from the deal.
 	private const string TalksButton = "StandardButton";
 
 	/// <summary>What the way out of the talks sends (InteropEventIDs.EventFmxExitNegotiations).</summary>
@@ -21,7 +21,7 @@ internal static partial class Program
 	/// What walking away from the terms sends (InteropEventIDs.EventFmxWithdrawContractNegotiationProcess):
 	/// the button the game labels "Cancel Negotiations". Its label is one of the game's own strings and
 	/// this language's table may give several English texts the same word, so the event is what tells it
-	/// apart (FINDINGS §8.296).
+	/// apart.
 	/// </summary>
 	private const string WithdrawNegotiation = "811955833";
 
@@ -36,22 +36,22 @@ internal static partial class Program
 		{
 			if (wanted.Length == 0)
 			{
-				Console.Error.WriteLine(L("Açık bir sözleşme görüşmesi yok.\n")
-					+ L("  Kendi oyuncumuzla yenilemek için: contract <oyuncu>\n")
-					+ L("  Transferde: teklif kabul edilince reply \"<oyuncu> offer accepted\" → Enter Contract Negotiations"));
+				Console.Error.WriteLine(L("There is no open contract negotiation.\n")
+					+ L("  To renew one of our players: contract <player>\n")
+					+ L("  In a transfer: once the offer is accepted, reply \"<player> offer accepted\" → Enter Contract Negotiations"));
 				return 1;
 			}
 			if (await NotNow() is { } refused) return refused;
 			if (await OpenRenewal(wanted) is { } failed) return failed;
 			if ((screen = await TalksSettled()) == null)
 			{
-				Console.Error.WriteLine(L("Sözleşme ekranı açılmadı."));
+				Console.Error.WriteLine(L("The contract screen did not open."));
 				return 1;
 			}
 		}
 		else if (wanted.Length > 0 && !Fold(screen.Player).Contains(Fold(wanted), StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L($"Açık görüşme {screen.Player} ile. Önce onu bitir ya da bırak (contract ile aç, 'Görüşmeyi iptal et')."));
+			Console.Error.WriteLine(L($"There is an open negotiation with {screen.Player}. Finish or leave it first (open it with contract, 'Cancel negotiation')."));
 			return 1;
 		}
 
@@ -61,7 +61,7 @@ internal static partial class Program
 			// The talks were opened from a card (his transfer status with the director beside it), which
 			// comes back up and reads as a question waiting; the portal is opened over it.
 			if (failed == null) await OpenPage(Screen.Home);
-			Console.WriteLine(failed ?? L("Görüşme iptal edildi."));
+			Console.WriteLine(failed ?? L("Negotiation cancelled."));
 			return failed == null ? 0 : 1;
 		}
 
@@ -97,31 +97,31 @@ internal static partial class Program
 		if (left.Count > 0)
 		{
 			Console.Error.WriteLine(shown is { Stage: "Promises" }
-				? L($"Vaatlerde yok, şartlarda denenecek: {string.Join(", ", left)} — vaatleri onaylayıp geçmek için --next ekle.")
-				: L($"Ekranda bulunamadı: {string.Join(", ", left)}"));
+				? L($"Not among the promises, will be tried in the terms: {string.Join(", ", left)} — to confirm the promises and go on, add --next.")
+				: L($"Not found on screen: {string.Join(", ", left)}"));
 			return 1;
 		}
 		if (json && !args.Contains("--sign")) return 0;
 		if (shown is { Stage: "Promises" })
 		{
 			// A card whose promises offer nothing to choose is one the game has locked (seen with
-			// a 34-year-old in his last year, FINDINGS §8.94): --next does nothing on it.
+			// a 34-year-old in his last year): --next does nothing on it.
 			if (shown.Rows.Count > 0 && shown.Rows.All(r => r.Choice is { Value: "None Selected", Choices.Count: 0 }))
 			{
-				Console.WriteLine(L("\nOyun bu kartı kilitli açtı: vaatlerde seçilecek bir şey yok, görüşme ilerlemiyor. Çıkmak için: contract --cancel   (menajere sormak: contract <oyuncu> --agent)"));
+				Console.WriteLine(L("\nThe game opened this card locked: nothing to choose among the promises, the negotiation does not move on. To leave: contract --cancel   (to ask the agent: contract <player> --agent)"));
 				return 1;
 			}
-			Console.WriteLine(L("\nVaatleri onaylayıp şartlara geçmek için: contract --next   (vaat değiştirmek: --term \"Vaat=değer\")"));
+			Console.WriteLine(L("\nTo confirm the promises and go on to the terms: contract --next   (to change a promise: --term \"Promise=value\")"));
 			return 0;
 		}
 		if (!args.Contains("--sign"))
 		{
-			Console.WriteLine(L("\nMenajere sunmak / imzalamak için: contract --sign --yes   (şart değiştirmek: --wage <tutar>, --term \"Şart=değer\")"));
+			Console.WriteLine(L("\nTo offer it to the agent / sign: contract --sign --yes   (to change a term: --wage <amount>, --term \"Term=value\")"));
 			return 0;
 		}
 		if (!args.Contains("--yes"))
 		{
-			Console.Error.WriteLine(L("Sözleşme imzalanınca geri alınamaz. Bitirmek için --yes ekle."));
+			Console.Error.WriteLine(L("A signed contract cannot be undone. Add --yes to finish."));
 			return 1;
 		}
 		// Terms we changed go to the agent first; taken as they stand, --yes has already said to sign them.
@@ -140,7 +140,7 @@ internal static partial class Program
 		foreach (var asked in terms)
 		{
 			if (await SetTerm("contract", asked) is not { } failed) continue;
-			if (failed.StartsWith(L("böyle bir şart yok"), StringComparison.Ordinal)) { left.Add(asked); continue; }
+			if (failed.StartsWith(L("there is no such term"), StringComparison.Ordinal)) { left.Add(asked); continue; }
 			Console.Error.WriteLine($"{asked}: {failed}");
 			return null;
 		}

@@ -16,13 +16,13 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: reply <# | konu> [<cevap no> | \"<cevap>\"] [--dry]   (numaralar için `inbox`)"));
+			Console.Error.WriteLine(L("usage: reply <# | subject> [<answer no> | \"<answer>\"] [--dry]   (for the numbers: `inbox`)"));
 			return 64;
 		}
 
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -76,13 +76,13 @@ internal static partial class Program
 			// the game reports nothing, so the page itself is waited for rather than the number.
 			if (!await Until(async () => await Selected() == id || await OnScreen(), seconds: 8, every: 0.25))
 			{
-				Console.Error.WriteLine(L($"'{title}' açılamadı."));
+				Console.Error.WriteLine(L($"'{title}' could not be opened."));
 				return 1;
 			}
 		}
 
 		// The message's page lists its answers as action titles, but after its title changes both they and
-		// the buttons can still be the previous message's for a while (FINDINGS §8.178). The answers are
+		// the buttons can still be the previous message's for a while. The answers are
 		// this message's once the page under its title and the buttons name the same ones and they are no
 		// longer the previous message's, or none when the inbox says it takes none ("CanRespond"). Two messages with the same answers never tell apart; what is on
 		// screen once the wait runs out is then right as well.
@@ -112,7 +112,7 @@ internal static partial class Program
 			// A report or a piece of advice is mostly its attachment; with nothing to answer it was not
 			// shown at all (30 Nisan 2026).
 			await WriteAttachment(title, []);
-			Console.WriteLine(L("\n(cevap seçeneği yok)"));
+			Console.WriteLine(L("\n(no answer options)"));
 			return 0;
 		}
 
@@ -137,13 +137,13 @@ internal static partial class Program
 			// nothing else, since there is no one there to answer.
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine(L($"\nCevaplamak için: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} <numara>"));
+				Console.WriteLine(L($"\nTo answer: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} <number>"));
 				return 0;
 			}
 
-			if (Ui.Ask(L("Cevabın"), answers.Select(a => Field(a, "Label")).ToList()) is not { } asked)
+			if (Ui.Ask(L("Your answer"), answers.Select(a => Field(a, "Label")).ToList()) is not { } asked)
 			{
-				Console.WriteLine(L("Vazgeçildi, mesaj cevaplanmadı."));
+				Console.WriteLine(L("Cancelled; the message was not answered."));
 				return 0;
 			}
 			answerTo = answers[asked];
@@ -162,9 +162,9 @@ internal static partial class Program
 			else if (Ui.Interactive && Ui.Ask(Field(wanted[0], "Label"), offered) is { } which) chosenFrom = offered[which];
 			if (chosenFrom == null)
 			{
-				Console.Error.WriteLine(L($"'{Field(wanted[0], "Label")}' bir liste; içinden biri seçilmeli:"));
+				Console.Error.WriteLine(L($"'{Field(wanted[0], "Label")}' is a list; one of its options must be chosen:"));
 				for (var c = 0; c < offered.Count; c++) Console.Error.WriteLine($"  {c + 1}  {offered[c]}");
-				Console.Error.WriteLine(L($"Cevaplamak için: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} {words.ElementAtOrDefault(1) ?? "<numara>"} <seçenek>"));
+				Console.Error.WriteLine(L($"To answer: reply {(words[0].Contains(' ') ? $"\"{words[0]}\"" : words[0])} {words.ElementAtOrDefault(1) ?? "<numara>"} <option>"));
 				return 1;
 			}
 		}
@@ -178,11 +178,11 @@ internal static partial class Program
 
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine(L($"(kuru) '{Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}' cevabı verilecekti: {title}"));
+			Console.WriteLine(L($"(dry run) Would have answered '{Field(wanted[0], "Label")}{(chosenFrom != null ? $": {chosenFrom}" : "")}': {title}"));
 			return 0;
 		}
 
-		Console.WriteLine(L($"Cevaplandı: {GameWords.Of(title)} → {GameWords.Of(Field(wanted[0], "Label"))}{(chosenFrom != null ? $": {chosenFrom}" : "")}"));
+		Console.WriteLine(L($"Answered: {GameWords.Of(title)} → {GameWords.Of(Field(wanted[0], "Label"))}{(chosenFrom != null ? $": {chosenFrom}" : "")}"));
 
 		// An answer can open something instead of closing the message: an introduction opens a
 		// tour, "introduce yourself" a meeting. Otherwise the inbox catches up a moment later,
@@ -199,7 +199,7 @@ internal static partial class Program
 
 		// The game often asks "are you sure" for the answer just chosen (the suggested team,
 		// a release, a bid). The answer is the intent; its confirmation is the primary button,
-		// which is the same slot in every language (FINDINGS §8.375).
+		// which is the same slot in every language.
 		if (dialog.GetArrayLength() > 0)
 		{
 			var title2 = Field(dialog[0], "Title");
@@ -210,20 +210,20 @@ internal static partial class Program
 				var confirmed = await Fm.Get("dialog", ("press", "primary"));
 				if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
 				await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.2);
-				Console.WriteLine(L($"Onaylandı: {GameWords.Of(title2)}"));
+				Console.WriteLine(L($"Confirmed: {GameWords.Of(title2)}"));
 			}
 			else
 			{
-				Console.WriteLine(L($"Oyun bir onay penceresi açtı: {title2}   (cevap: dialog)"));
+				Console.WriteLine(L($"The game opened a confirmation: {title2}   (answer: dialog)"));
 			}
 		}
-		else if (tour) Console.WriteLine(L("Tanıtım turu açıldı; mesaj tur bitince kapanır. Yürütmek için: tour"));
-		else if (talking) Console.WriteLine(L("Konuşma açıldı; mesaj konuşma bitince kapanır. Devam için: talk"));
-		else if (!settled && await VisionControls() != null) Console.WriteLine(L("Kulüp vizyonu toplantısı açıldı; mesaj toplantı bitince kapanır. Devam için: vision"));
-		else if (!settled && await RegistrationOnScreen()) Console.WriteLine(L("Kadro kayıt ekranı açıldı; mesaj liste gönderilince kapanır. Liste ve kurallar: register   (yardımcının seçimi: register --auto, sonra register --send)"));
+		else if (tour) Console.WriteLine(L("A guided tour opened; the message closes when the tour is over. To run it: tour"));
+		else if (talking) Console.WriteLine(L("A conversation opened; the message closes when the conversation is over. To go on: talk"));
+		else if (!settled && await VisionControls() != null) Console.WriteLine(L("A club vision meeting opened; the message closes when the meeting is over. To go on: vision"));
+		else if (!settled && await RegistrationOnScreen()) Console.WriteLine(L("The squad registration screen opened; the message closes when the list is sent. The list and the rules: register   (the assistant's choice: register --auto, then register --send)"));
 		else if (!settled && (await Fm.GetJson("texts", ("anchor", "Prom."), ("up", "0"))).GetArrayLength() > 0)
-			Console.WriteLine(L("Forma numaraları ekranı açıldı; mesaj numaralar gönderilince kapanır. Görmek: numbers   (yardımcıya bırakmak: numbers --auto)"));
-		else if (!settled) Console.WriteLine(L("Ama oyun mesajı hâlâ cevap bekliyor gösteriyor."));
+			Console.WriteLine(L("The squad numbers screen opened; the message closes when the numbers are sent. To see them: numbers   (to leave it to the assistant: numbers --auto)"));
+		else if (!settled) Console.WriteLine(L("But the game still shows the message as awaiting an answer."));
 		return 0;
 
 		// The squad registration screen, by its own reading: its players are there when it is up.
@@ -240,7 +240,7 @@ internal static partial class Program
 			{
 				if (number >= 1 && number <= answers.Count) return answers[number - 1];
 
-				Console.Error.WriteLine(L($"{number} numaralı cevap yok. Seçenekler:"));
+				Console.Error.WriteLine(L($"There is no answer number {number}. Options:"));
 				Options(Console.Error);
 				return null;
 			}
@@ -252,8 +252,8 @@ internal static partial class Program
 			if (matches.Count == 1) return matches[0];
 
 			Console.Error.WriteLine(matches.Count == 0
-				? L($"'{pick}' diye bir cevap yok. Seçenekler:")
-				: L($"'{pick}' birden çok cevaba uyuyor:"));
+				? L($"There is no answer '{pick}'. Options:")
+				: L($"'{pick}' matches more than one answer:"));
 			Options(Console.Error);
 			return null;
 		}
@@ -268,10 +268,10 @@ internal static partial class Program
 			for (var i = 0; i < answers.Count; i++)
 			{
 				if (mixed && (i == 0 || Asked(answers[i]) != Asked(answers[i - 1])))
-					output.WriteLine(Asked(answers[i]) ? L("  Mesajdaki soruya cevap:") : L("  Mesajın kendisine cevap (soru cevapsız kalırsa ardından talk ile sorulur):"));
+					output.WriteLine(Asked(answers[i]) ? L("  Answer to the question in the message:") : L("  Answer to the message itself (if the question is left unanswered, it is asked next with talk):"));
 				output.WriteLine($"  {i + 1}  {GameWords.Of(Field(answers[i], "Label"))}");
 				// An answer that is a list: what it offers is the answer ("Confirm pre-season dates" holds
-				// the dates to choose from, 4 Mayıs 2026).
+				// the dates to choose from).
 				if (listed.TryGetValue(Field(answers[i], "Pointer"), out var choices))
 					for (var c = 0; c < choices.Count; c++) output.WriteLine($"       {i + 1} {c + 1}  {choices[c]}");
 			}

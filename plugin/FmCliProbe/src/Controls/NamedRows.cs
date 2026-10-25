@@ -8,7 +8,7 @@ namespace FmCliProbe;
 /// <summary>
 /// A table of players where each row is a name and one setting for him: the name's
 /// <c>#NameText</c>, then the first dropdown with the given element name before the next name.
-/// Training intensity is one such page (FINDINGS §8.50).
+/// Training intensity is one such page.
 /// </summary>
 internal static class NamedRows
 {

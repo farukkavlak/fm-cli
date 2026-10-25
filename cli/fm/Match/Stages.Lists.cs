@@ -42,7 +42,7 @@ internal static partial class Program
 	/// <summary>
 	/// Chooses a round and waits for the page to show it: the stage list's label names the round
 	/// on show, and what the page holds is then no longer what it held before. The old round's
-	/// ties stay drawn and bound while the new one is built (FINDINGS §8.350), so the label alone
+	/// ties stay drawn and bound while the new one is built, so the label alone
 	/// is not enough, and a fixed pause made the wrong round readable.
 	/// </summary>
 	private static async Task<string> PickStage(List<string> stage)
@@ -63,7 +63,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> PickIn(bool stage, (string, string) what)
 	{
-		var answer = L("error: Stages sayfasının listeleri bulunamadı");
+		var answer = L("error: the lists of the Stages page were not found");
 		for (var attempt = 0; attempt < 4; attempt++)
 		{
 			if (await StageLists() is { } lists)
@@ -127,7 +127,7 @@ internal static partial class Program
 	///
 	/// A competition with one stage is a league (its other choice is the xG table), and what it
 	/// holds is a table; a cup's rounds hold ties. The page can bind both at once — the ties of a
-	/// round read before a league was chosen stay drawn and bound (FINDINGS §8.350) — so the
+	/// round read before a league was chosen stay drawn and bound — so the
 	/// stage's own shape says which one is the answer, and the other is not read.
 	/// </summary>
 	private static async Task<(JsonElement? Ties, JsonElement? Table, string Note)> StageContent(bool whole = true)
@@ -159,7 +159,7 @@ internal static partial class Program
 		// The date of a round not drawn yet comes in a sentence the game builds for it, so the
 		// words are not English in every game ("This round will be drawn on 13/8/2026" /
 		// "Bu tur 13/8/2026 tarihinde oynanacak"); the date is taken by its own shape — the
-		// year's four digits and the separators in the game's order (BAGIMLILIKLAR §C), never
+		// year's four digits and the separators in the game's order , never
 		// which end the year sits at.
 		static string DateIn(string text)
 		{
@@ -171,7 +171,7 @@ internal static partial class Program
 			.Select(DateIn)
 			.FirstOrDefault(date => date != null);
 		// A round not drawn yet keeps the ties of the round read before it drawn and bound
-		// (FINDINGS §8.350), so its own sentence is checked before them.
+		//, so its own sentence is checked before them.
 		if (note != null) return (null, null, note);
 
 		var stagesInList = lists.Value.Stage.GetProperty("Choices").EnumerateArray().Count(c => c.GetString() != "xG Table");

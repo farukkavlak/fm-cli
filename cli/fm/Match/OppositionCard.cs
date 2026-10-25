@@ -4,14 +4,14 @@ namespace FmCli;
 
 /// <summary>
 /// The opposition instructions for the next match: per opposing player, tight marking, closing
-/// down, tackling and which foot to show him onto (FINDINGS §8.49). The assistant's advice can be
+/// down, tackling and which foot to show him onto. The assistant's advice can be
 /// taken whole, the instructions cleared, or one set by hand.
 /// </summary>
 internal static partial class Program
 {
 	// Headings spelled out: the CLI runs without culture data, so Turkish upper case is not computed.
 	private static readonly (string Key, string Say, string Head)[] OppositionColumns =
-		[("Marking", L("Sıkı markaj"), L("SIKI MARKAJ")), ("Pressing", L("Pres"), L("PRES")), ("Tackling", L("Sert giriş"), L("SERT GİRİŞ")), ("Foot", L("Ayağa yönlendir"), L("AYAĞA YÖNLENDİR"))];
+		[("Marking", L("Tight marking"), L("TIGHT MARKING")), ("Pressing", L("Pressing"), L("PRESSING")), ("Tackling", L("Tackling"), L("TACKLING")), ("Foot", L("Show onto foot"), L("SHOW ONTO FOOT"))];
 
 	private static async Task<int> Opposition(string[] args)
 	{
@@ -29,7 +29,7 @@ internal static partial class Program
 		}
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine(L("Rakip talimatları kartı açılmadı."));
+			Console.Error.WriteLine(L("The opposition instructions card did not open."));
 			return 1;
 		}
 
@@ -43,7 +43,7 @@ internal static partial class Program
 				await Until(async () => (apply = await Labelled("Apply all advice", "StandardButton")) != null, seconds: 4, every: 0.25);
 				if (apply == null)
 				{
-					Console.Error.WriteLine(L("Yardımcının önerisi yok (ya da zaten uygulanmış)."));
+					Console.Error.WriteLine(L("The assistant has no suggestion (or it is already applied)."));
 					return 1;
 				}
 				await Fm.Get("press", ("ptr", Field(apply.Value, "Pointer")));
@@ -56,7 +56,7 @@ internal static partial class Program
 					.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxOppositionInstructionsClear", StringComparison.Ordinal));
 				if (clear.ValueKind != JsonValueKind.Object)
 				{
-					Console.Error.WriteLine(L("Talimatları temizle düğmesi bulunamadı."));
+					Console.Error.WriteLine(L("Clear instructions button not found."));
 					return 1;
 				}
 				await Fm.Get("press", ("ptr", Field(clear, "Pointer")));
@@ -80,12 +80,12 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count >= 2)
 		{
-			// "opposition <oyuncu> <talimat>=<değer>"
+			// "opposition <player> <instruction>=<value>"
 			var who = words[0];
 			var matches = Matching(rows, r => Field(r, "Name"), who);
 			if (matches.Count != 1)
 			{
-				Console.Error.WriteLine(matches.Count == 0 ? L($"Rakipte '{who}' yok.") : L($"'{who}' {matches.Count} oyuncuya uyuyor: {string.Join(", ", matches.Select(r => Field(r, "Name")))}"));
+				Console.Error.WriteLine(matches.Count == 0 ? L($"No '{who}' in the opposition.") : L($"'{who}' matches {matches.Count} players: {string.Join(", ", matches.Select(r => Field(r, "Name")))}"));
 				return 1;
 			}
 			// The row is found by its own name each time an instruction is picked: the card is redrawn
@@ -110,13 +110,13 @@ internal static partial class Program
 				var column = eq > 0 ? OppositionColumns.FirstOrDefault(c => Fold(c.Key) == Fold(asked[..eq]) || Fold(c.Say) == Fold(asked[..eq])) : default;
 				if (column.Key == null)
 				{
-					Console.Error.WriteLine(L($"biçim: <talimat>=<değer>; talimatlar: {string.Join(", ", OppositionColumns.Select(c => $"{c.Say} ({c.Key})"))}"));
+					Console.Error.WriteLine(L($"format: <instruction>=<value>; instructions: {string.Join(", ", OppositionColumns.Select(c => $"{c.Say} ({c.Key})"))}"));
 					return 64;
 				}
 				var row = await RowNow();
 				if (row.ValueKind != JsonValueKind.Object || !row.TryGetProperty(column.Key, out var control))
 				{
-					Console.Error.WriteLine(L($"Rakipte '{who}' yok."));
+					Console.Error.WriteLine(L($"No '{who}' in the opposition."));
 					return 1;
 				}
 				var choices = control.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
@@ -124,7 +124,7 @@ internal static partial class Program
 				var choice = Pick(choices, value);
 				if (choice == null)
 				{
-					Console.Error.WriteLine(L($"{column.Say}: '{value}' yok. Seçenekler: {string.Join(" · ", choices)}"));
+					Console.Error.WriteLine(L($"{column.Say}: no '{value}'. Options: {string.Join(" · ", choices)}"));
 					return 1;
 				}
 				var said = await Fm.Get("select", ("ptr", Field(control, "Pointer")), ("choice", choice));
@@ -138,7 +138,7 @@ internal static partial class Program
 					var shown = rows.FirstOrDefault(r => Field(r, "Name") == name);
 					return shown.ValueKind == JsonValueKind.Object && Value(shown, column.Key) == choice;
 				}, seconds: 8, every: 0.25);
-				if (!landed) Console.Error.WriteLine(L($"'{name}': {column.Say} kartta görünmedi."));
+				if (!landed) Console.Error.WriteLine(L($"'{name}': {column.Say} did not appear on the card."));
 			}
 		}
 
@@ -151,16 +151,16 @@ internal static partial class Program
 		if (Ui.Rich)
 		{
 			var table = new Spectre.Console.Table { Border = Spectre.Console.TableBorder.Rounded, BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey) };
-			table.AddColumn(new Spectre.Console.TableColumn(L("[dim]OYUNCU[/]")));
+			table.AddColumn(new Spectre.Console.TableColumn(L("[dim]PLAYER[/]")));
 			foreach (var c in OppositionColumns) table.AddColumn(new Spectre.Console.TableColumn($"[dim]{c.Head}[/]"));
 			foreach (var r in rows)
 				Spectre.Console.TableExtensions.AddRow(table, [Ui.Safe(Field(r, "Name")), .. OppositionColumns.Select(c => Value(r, c.Key) is var v && v != "-" ? $"[yellow]{Ui.Safe(v)}[/]" : "[dim]-[/]")]);
 			Ui.Out.Write(table);
 		}
 		else
-			Table.Write([L("OYUNCU"), .. OppositionColumns.Select(c => c.Head)], rows.Select(r => new[] { Field(r, "Name") }.Concat(OppositionColumns.Select(c => Value(r, c.Key))).ToArray()).ToList());
+			Table.Write([L("PLAYER"), .. OppositionColumns.Select(c => c.Head)], rows.Select(r => new[] { Field(r, "Name") }.Concat(OppositionColumns.Select(c => Value(r, c.Key))).ToArray()).ToList());
 		if (words.Count == 0 && !args.Contains("--advice") && !args.Contains("--clear"))
-			Console.WriteLine(L("\nYardımcının önerisi: opposition --advice · temizle: --clear · elle: opposition <oyuncu> Pres=Always Sert giriş=Hard"));
+			Console.WriteLine(L("\nThe assistant's suggestion: opposition --advice · clear: --clear · by hand: opposition <player> Pressing=Always Tackling=Hard"));
 		return 0;
 
 		// The plugin reads the choices in English, but they are shown, and the help line names them,

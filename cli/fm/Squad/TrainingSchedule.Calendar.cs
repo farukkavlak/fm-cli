@@ -24,7 +24,7 @@ internal static partial class Program
 
 		// Each tab keeps a month list of its own, and the general tab's is read too: the month the
 		// training tab shows is known from the training tab's own list, anchored on the game's
-		// "Today", never from whichever list came first (FINDINGS §8.216).
+		// "Today", never from whichever list came first.
 		var today = await GameDate();
 		var anchored = false;
 		int todayValue = int.MinValue;
@@ -48,7 +48,7 @@ internal static partial class Program
 			var list = ActiveMonthList(page);
 			if (list!.ValueKind != JsonValueKind.Object)
 			{
-				Console.Error.WriteLine(L("Takvim sayfasında ay seçici yok."));
+				Console.Error.WriteLine(L("The calendar page has no month picker."));
 				return null;
 			}
 
@@ -64,7 +64,7 @@ internal static partial class Program
 			var wanted = todayValue + (day.Year - today.Year) * 12 + (day.Month - today.Month);
 			if (!values.Contains(wanted))
 			{
-				Console.Error.WriteLine(L($"{DayName(day)} takvimin gösterdiği aylarda yok."));
+				Console.Error.WriteLine(L($"{DayName(day)} is not among the months the calendar shows."));
 				return null;
 			}
 			if (MonthValue(list) != wanted)
@@ -83,7 +83,7 @@ internal static partial class Program
 			}, seconds: 12, every: 0.4);
 			if (drawn) return grid;
 		}
-		Console.Error.WriteLine(L("Takvimin antrenman sekmesi okunamadı."));
+		Console.Error.WriteLine(L("The calendar's training tab could not be read."));
 		return null;
 	}
 
@@ -187,7 +187,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The Training tab's grid read as a form, by each text's data path (FINDINGS §8.169): for each
+	/// The Training tab's grid read as a form, by each text's data path: for each
 	/// week its card (TrainingFocusCard), then its days, each a day (day.DayOfTheMonth) and three
 	/// buttons. A match day's middle button is the competition ("SL", "UEL"). The grid starts on the
 	/// Monday on or before the month's first day; a day out of step ends the reading.
@@ -231,7 +231,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// A day as typed: "2025-10-14", "14" (the next 14th from today), "14 ekim" / "14 oct",
-	/// "bugün", "yarın", or a weekday ("cuma": the next Friday, today included). Says how many words it took.
+	/// "today", "tomorrow", or a weekday ("friday": the next Friday, today included). Says how many words it took.
 	/// </summary>
 	private static DateTime? ScheduleDate(List<string> words, DateTime today, out int used)
 	{
@@ -272,6 +272,6 @@ internal static partial class Program
 	private static string WeekName(DateTime d)
 	{
 		var monday = d.AddDays(-(((int)d.DayOfWeek + 6) % 7));
-		return L($"{monday.Day} {Months[monday.Month - 1]} haftası");
+		return L($"week of {monday.Day} {Months[monday.Month - 1]}");
 	}
 }

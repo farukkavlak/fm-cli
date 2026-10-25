@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The staff database (Recruitment › Staff Database, FINDINGS §8.116): the coaches, scouts and
+/// The staff database (Recruitment › Staff Database): the coaches, scouts and
 /// physios the game knows, as its page lists them — job, contract, wage — with the page's own
 /// ready filters (staff interested in joining) and views (coaching, medical, scouting ratings).
 /// </summary>
@@ -25,7 +25,7 @@ internal static partial class Program
 		}, seconds: 12);
 		if (views == null || filters == null)
 		{
-			Console.Error.WriteLine(L("Personel veritabanı sayfası beklenen listeleri göstermedi."));
+			Console.Error.WriteLine(L("The staff search page did not show the lists expected."));
 			return 1;
 		}
 		var viewNames = views.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
@@ -54,7 +54,7 @@ internal static partial class Program
 			JsonElement edit = default;
 			await Until(async () => (edit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxFilterStoreFilter", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
-			if (edit!.ValueKind != JsonValueKind.Object) return Report(L("error: sayfada arama paneli butonu yok"));
+			if (edit!.ValueKind != JsonValueKind.Object) return Report(L("error: no search panel button on the page"));
 			var panel = await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
 			if (panel.StartsWith("error", StringComparison.Ordinal)) return Report(panel);
 			// The panel's rules write to the club's own fields, whatever the language calls them,
@@ -90,7 +90,7 @@ internal static partial class Program
 			if (role != null)
 			{
 				var list = lists.FirstOrDefault(d => Field(d, "Binds") == RoleRule);
-				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde görev listesi yok")));
+				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: no job list in the search panel")));
 				// Jobs sit one level down, under the department they belong to.
 				var top = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				var jobs = new List<(string Department, string Job)>();
@@ -98,33 +98,33 @@ internal static partial class Program
 					foreach (var sub in subs.EnumerateObject())
 						if (int.TryParse(sub.Name, out var at) && at < top.Count)
 							jobs.AddRange(sub!.Value.EnumerateArray().Select(j => (top[at]![..^2], j.GetString() ?? "")));
-				if (Choose(jobs.Select(j => j.Job).ToList(), role, L("Görev")) is not { } job) return await Cancel(64);
+				if (Choose(jobs.Select(j => j.Job).ToList(), role, L("Job")) is not { } job) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("names", $"{jobs.First(j => j.Job == job).Department}>{job}"), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
-				if (!await Landed(RoleRule, job)) return await Cancel(Report(L($"error: '{job}' görev listesine oturmadı")));
+				if (!await Landed(RoleRule, job)) return await Cancel(Report(L($"error: '{job}' did not fit the job list")));
 			}
 			if (employed != null)
 			{
 				var list = lists.FirstOrDefault(d => Field(d, "Binds") == EmployedRule);
-				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde çalışma durumu listesi yok")));
+				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: no employment status list in the search panel")));
 				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-				if (Choose(choices, employed, L("Çalışma durumu")) is not { } choice) return await Cancel(64);
+				if (Choose(choices, employed, L("Working status")) is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
-				if (!await Landed(EmployedRule, choice)) return await Cancel(Report(L($"error: '{choice}' çalışma durumu listesine oturmadı")));
+				if (!await Landed(EmployedRule, choice)) return await Cancel(Report(L($"error: '{choice}' did not fit the employment status list")));
 			}
 			if (reputation != null)
 			{
 				var list = lists.FirstOrDefault(d => Field(d, "Binds") == ReputationRule);
-				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: arama panelinde itibar listesi yok")));
+				if (list!.ValueKind != JsonValueKind.Object) return await Cancel(Report(L("error: no reputation list in the search panel")));
 				var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-				if (Choose(choices, reputation, L("İtibar")) is not { } choice) return await Cancel(64);
+				if (Choose(choices, reputation, L("Reputation")) is not { } choice) return await Cancel(64);
 				var picked = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", choice), ("fire", "1"));
 				if (picked.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(picked));
-				if (!await Landed(ReputationRule, choice)) return await Cancel(Report(L($"error: '{choice}' itibar listesine oturmadı")));
+				if (!await Landed(ReputationRule, choice)) return await Cancel(Report(L($"error: '{choice}' did not fit the reputation list")));
 			}
 			var apply = await PanelSent(true);
-			if (apply == null) return await Cancel(Report(L("error: arama panelinin Apply düğmesi bulunamadı")));
+			if (apply == null) return await Cancel(Report(L("error: Apply button not found in the search panel")));
 			var applied = await Fm.Get("click", ("ptr", apply));
 			if (applied.StartsWith("error", StringComparison.Ordinal)) return await Cancel(Report(applied));
 			asked = true;
@@ -132,14 +132,14 @@ internal static partial class Program
 
 		if (Option(args, "--filter") is { } wantedFilter)
 		{
-			if (Choose(filterNames, wantedFilter, L("Süzgeç")) is not { } filter) return 1;
+			if (Choose(filterNames, wantedFilter, L("Filter")) is not { } filter) return 1;
 			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("choice", filter), ("fire", "1"));
 			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
 			asked = true;
 		}
 		if (Option(args, "--view") is { } wantedView)
 		{
-			if (Choose(viewNames, wantedView, L("Görünüm")) is not { } view) return 1;
+			if (Choose(viewNames, wantedView, L("View")) is not { } view) return 1;
 			var chosen = await Fm.Get("select", ("ptr", Field(views.Value, "Pointer")), ("choice", view));
 			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
 			asked = true;
@@ -171,11 +171,11 @@ internal static partial class Program
 		}
 		if (rows.Count == 0)
 		{
-			Console.WriteLine(L("Sayfanın gösterdikleri arasında uyan yok."));
+			Console.WriteLine(L("Nothing matches among what the page shows."));
 			return 0;
 		}
-		Columns(rows, L("KİŞİ"));
-		Console.WriteLine(L($"\n{rows.Count} kişi (sayfanın gösterdiği kadarı). Daraltmak: --role <görev> · --free · --reputation <seviye> · --view <görünüm> · sıfırlamak: --clear"));
+		Columns(rows, L("PERSON"));
+		Console.WriteLine(L($"\n{rows.Count} people (as many as the page shows). To narrow it: --role <job> · --free · --reputation <level> · --view <view> · to reset: --clear"));
 		return 0;
 	}
 	/// <summary>

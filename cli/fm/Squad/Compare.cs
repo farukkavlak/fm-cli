@@ -18,7 +18,7 @@ internal static partial class Program
 		var names = split > 0 ? [string.Join(" ", words.Take(split)), string.Join(" ", words.Skip(split + 1))] : words;
 		if (names.Count != 2 || names.Any(n => n.Length == 0))
 		{
-			Console.Error.WriteLine(L("kullanım: compare <oyuncu> <oyuncu>   (çok kelimeli adı tırnakla ya da araya vs koy: compare kerem aktürkoğlu vs osimhen)"));
+			Console.Error.WriteLine(L("usage: compare <player> <player>   (quote a name of several words or put vs between them: compare \"erling haaland\" vs \"kylian mbappe\")"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -32,7 +32,7 @@ internal static partial class Program
 		var (a, b) = (cards[0].GetProperty("Player"), cards[1].GetProperty("Player"));
 		if (Field(a, "Name") == Field(b, "Name"))
 		{
-			Console.Error.WriteLine(L($"İki ad da {Field(a, "Name")}'e çıktı."));
+			Console.Error.WriteLine(L($"Both names came out as {Field(a, "Name")}."));
 			return 1;
 		}
 
@@ -48,11 +48,11 @@ internal static partial class Program
 		var keepers = Field(a, "IsGoalkeeper") == "True" && Field(b, "IsGoalkeeper") == "True";
 		(string Title, List<string> Names)[] blocks =
 		[
-			(keepers ? L("KALECİLİK") : L("TEKNİK"), rest), (L("ZİHİNSEL"), [.. mental]), (L("FİZİKSEL"), [.. physical]), (L("DURAN TOP"), [.. setPieces]),
+			(keepers ? L("GOALKEEPING") : L("TECHNICAL"), rest), (L("MENTAL"), [.. mental]), (L("PHYSICAL"), [.. physical]), (L("SET PIECE"), [.. setPieces]),
 		];
 
 		string[] facts = ["Age", "PositionCombinedString", "Value", "Wage", "ContractEnds", "Personality", "Height", "RightFootednessString", "LeftFootednessString"];
-		string[] factNames = [L("Yaş"), L("Mevki"), L("Değer"), L("Maaş"), L("Sözleşme"), L("Kişilik"), L("Boy"), L("Sağ ayak"), L("Sol ayak")];
+		string[] factNames = [L("Age"), L("Position"), L("Value"), L("Wage"), L("Contract"), L("Personality"), L("Height"), L("Right foot"), L("Left foot")];
 
 		if (json)
 		{
@@ -106,7 +106,7 @@ internal static partial class Program
 		else
 			Table.Write(["", nameA, nameB], rows.Select(r => new[] { r.Label, r.Better == 1 ? $"{r.A} ◂" : r.A, r.Better == 2 ? $"{r.B} ◂" : r.B }).ToList());
 
-		Console.WriteLine(L($"\n{nameA} {ahead[0]} özellikte, {nameB} {ahead[1]} özellikte önde."));
+		Console.WriteLine(L($"\n{nameA} is ahead in {ahead[0]} attributes, {nameB} in {ahead[1]}."));
 		return 0;
 
 		// "15" is 15 to 15, "11-15" is 11 to 15, "-" is nothing.

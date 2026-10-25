@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Letting a player of ours go (FINDINGS §8.76). His wage on his page (`ContractDetails`) opens
+/// Letting a player of ours go. His wage on his page (`ContractDetails`) opens
 /// his contract, where "Release" is a list: "Release On A Free" asks first in a dialog that names
 /// the compensation ("Release Fred?" … "£7.5M in compensation"), but "Mutual Termination" is acted
 /// on at once ("I'll pass on your decision to him…"), so that one is confirmed here before it is sent.
@@ -16,7 +16,7 @@ internal static partial class Program
 		var wage = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(c => Field(c, "Name") == "ContractDetails");
 		if (wage.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine(L($"{name} bizim oyuncumuz değil ya da sözleşmesi açılamıyor."));
+			Console.Error.WriteLine(L($"{name} is not our player, or their contract cannot be opened."));
 			return 1;
 		}
 		var opened = await Arriving("press", [("ptr", Field(wage, "Pointer"))]);
@@ -27,7 +27,7 @@ internal static partial class Program
 	private const string AskAgentAction = "1882353528";
 
 	/// <summary>
-	/// Asking his agent whether he would renew (FINDINGS §8.76): the conversation is the game's
+	/// Asking his agent whether he would renew: the conversation is the game's
 	/// own, carried on with `talk` — how keen we are, then the agent's answer.
 	/// </summary>
 	private static async Task<int> AskAgent(string[] args)
@@ -36,7 +36,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: contract <oyuncu> --agent"));
+			Console.Error.WriteLine(L("usage: contract <player> --agent"));
 			return 64;
 		}
 		if (await OpenPlayer(wanted) is not { } card) return 1;
@@ -44,9 +44,9 @@ internal static partial class Program
 		if (await OpenContractSection(name) is { } failed) return failed;
 
 		// The ask is one of the manager's lines in the game's own conversation, and it is shown in
-		// this language ("Temsilci İle Yeni Sözleşme Hakkında Görüş"); its English is not in this
+		// this language (a contract-talk label); its English is not in this
 		// language's table, so it cannot be asked for by words — the action it stands for is the
-		// same everywhere (FINDINGS §8.210).
+		// same everywhere.
 		JsonElement? offering = null;
 		await Until(async () =>
 		{
@@ -57,10 +57,10 @@ internal static partial class Program
 		}, seconds: 10, every: 0.25);
 		if (offering is not { } ask)
 		{
-			// The game takes the ask away once talks are open (FINDINGS §8.250): the page cannot be
+			// The game takes the ask away once talks are open: the page cannot be
 			// brought back with it, and cancelling talks to get it is a decision the manager makes,
 			// not one made here.
-			Console.Error.WriteLine(L($"{name} için menajerle görüşme seçeneği yok. Açık bir sözleşme görüşmesi varsa önce onu bitir ya da iptal et (contract --cancel); yoksa yakın zamanda konuşulmuş olabilir, birkaç gün sonra yeniden dene."));
+			Console.Error.WriteLine(L($"There is no option to talk to {name}'s agent. If a contract talk is open, finish or cancel it first (contract --cancel); otherwise they may have been spoken to recently, so try again in a few days."));
 			return 1;
 		}
 
@@ -85,7 +85,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: release <oyuncu> [--free | --mutual] [--yes]"));
+			Console.Error.WriteLine(L("usage: release <player> [--free | --mutual] [--yes]"));
 			return 64;
 		}
 		if (await OpenPlayer(wanted) is not { } card) return 1;
@@ -96,7 +96,7 @@ internal static partial class Program
 		// The list is the player's contract card's own dropdown, whatever the game calls it: its
 		// label read "Release" when this was written and "Set For Release" in the current build, so
 		// looking it up by the words beside it found nothing and the command said there was no
-		// release option at all (FINDINGS §8.222).
+		// release option at all.
 		static bool IsReleaseList(JsonElement d) => Field(d, "Label") == "Release"
 			|| Field(d, "Binds") == "selectedaction"
 			   && d.TryGetProperty("Within", out var within) && within.ValueKind == JsonValueKind.Array
@@ -112,15 +112,15 @@ internal static partial class Program
 		}
 		if (!await Until(Listed, seconds: 10, every: 0.5))
 		{
-			Console.Error.WriteLine(L($"{name} için serbest bırakma seçeneği yok."));
+			Console.Error.WriteLine(L($"There is no option to release {name}."));
 			return 1;
 		}
 
 		const string free = "Release On A Free", mutual = "Mutual Termination";
-		// The list's rows come back in the game's own words ("Bedelsiz Serbest Bırak") or in English
+		// The list's rows come back in the game's own words ("Release on a Free") or in English
 		// ("Mutual Termination"), so the row meant is found by the words that fit it rather than by
 		// one fixed spelling: asking for "Release On A Free" by name found nothing in a Turkish game
-		// (FINDINGS §8.222).
+		//.
 		await GameWords.Ask(Fm, free, mutual);
 		string Row(string english)
 		{
@@ -137,12 +137,12 @@ internal static partial class Program
 			if (!Ui.Interactive)
 			{
 				var ends = Field(card.GetProperty("Player"), "ContractEnds");
-				Console.WriteLine(ends.Length > 0 ? L($"{name}: sözleşmesi {ends} tarihinde bitiyor.") : L($"{name}: sözleşmesi sürüyor."));
-				Console.WriteLine(L($"  release \"{name}\" --free     bedelsiz serbest bırak (oyun tazminatı söyleyip onay ister)"));
-				Console.WriteLine(L($"  release \"{name}\" --mutual   karşılıklı fesih teklif et (onay için --yes)"));
+				Console.WriteLine(ends.Length > 0 ? L($"{name}: their contract ends on {ends}.") : L($"{name}: their contract runs on."));
+				Console.WriteLine(L($"  release \"{name}\" --free     release on a free (the game names the compensation and asks to confirm)"));
+				Console.WriteLine(L($"  release \"{name}\" --mutual   offer a mutual termination (--yes to confirm)"));
 				return 0;
 			}
-			if (Ui.Ask(L($"{name}: nasıl?"), [L("Bedelsiz serbest bırak"), L("Karşılıklı fesih teklif et")]) is not { } chosen) return 0;
+			if (Ui.Ask(L($"{name}: how?"), [L("Release on a free"), L("Offer a mutual termination")]) is not { } chosen) return 0;
 			way = chosen == 0 ? free : mutual;
 		}
 
@@ -151,10 +151,10 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.WriteLine(L($"Karşılıklı fesih oyunda onaysız işliyor. Göndermek için: release \"{name}\" --mutual --yes"));
+				Console.WriteLine(L($"The game carries out a mutual termination without asking. To send it: release \"{name}\" --mutual --yes"));
 				return 0;
 			}
-			if (Ui.Ask(L($"{name} ile sözleşmeyi karşılıklı feshetmeyi teklif edelim mi?"), [L("Evet"), L("Hayır")]) != 0) return 0;
+			if (Ui.Ask(L($"Offer {name} a mutual termination of their contract?"), [L("Yes"), L("No")]) != 0) return 0;
 		}
 
 		// The list is rebuilt as the page settles, so a pointer gone stale is looked up again.
@@ -174,30 +174,30 @@ internal static partial class Program
 			JsonElement dialogs = default;
 			if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.5))
 			{
-				Console.Error.WriteLine(L("Onay penceresi gelmedi; ne olduğunu `talk` ile gör."));
+				Console.Error.WriteLine(L("No confirmation window came; see what happened with `talk`."));
 				return 1;
 			}
 			var dialog = dialogs[0];
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
-			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Serbest bırakalım mı?"), [L("Evet"), L("Hayır")]) == 0);
+			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Release them?"), [L("Yes"), L("No")]) == 0);
 			if (DialogAnswer(dialog, go) is { } chosen) await Fm.Get("click", ("ptr", Field(chosen, "Pointer")));
 			if (!go)
 			{
-				if (!Ui.Interactive) Console.WriteLine(L($"Vazgeçildi. Serbest bırakmak için: release \"{name}\" --free --yes"));
+				if (!Ui.Interactive) Console.WriteLine(L($"Cancelled. To release them: release \"{name}\" --free --yes"));
 				return 0;
 			}
-			// The game acts on it when the day moves on (FINDINGS §8.136): until then he is still in the squad.
-			Console.WriteLine(L($"{name} serbest bırakılıyor: oyun onayladı, gün ilerleyince (next) kadrodan çıkar ve tazminat bütçeden düşer."));
+			// The game acts on it when the day moves on: until then he is still in the squad.
+			Console.WriteLine(L($"{name} is being released: the game confirmed; when the day moves on (next) they leave the squad and the compensation comes off the budget."));
 			return 0;
 		}
 
 		// The assistant's answer after mutual termination is the conversation's own speech bubble;
 		// the frame then appends its closing question ("Is there anything else…"), which is written
-		// in this language's words ("Sizin için yapabileceğim başka bir şey var mı hocam?") and so
+		// in this language's words ("Anything else I can do for you?") and so
 		// cannot be told apart by the English it was guessed from. It is the line the conversation's
 		// generic close button ends, and that button's own event (EventFmxClearChanges, 31) is the
 		// same everywhere, so the button — not the text — says which line is the frame's own
-		// (FINDINGS §8.225).
+		//.
 		JsonElement talk = default;
 		await Until(async () => (talk = await Fm.GetJson("talk")).TryGetProperty("Says", out var says) && says.GetArrayLength() > 1, seconds: 6, every: 0.5);
 		var closing = await AcknowledgeButton();
@@ -208,7 +208,7 @@ internal static partial class Program
 			foreach (var line in said) Console.WriteLine($"  {line}");
 		}
 		if (closing is { } button) await Fm.Get("press", ("ptr", Field(button, "Pointer")));
-		Console.WriteLine(L($"{name}: karşılıklı fesih teklif edildi; cevabı gelen kutusuna düşer."));
+		Console.WriteLine(L($"{name}: a mutual termination was offered; the answer will come to the inbox."));
 		return 0;
 	}
 }

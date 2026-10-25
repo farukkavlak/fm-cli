@@ -5,7 +5,7 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>
-	/// The league's transfer window: open with so many days left, or closed (FINDINGS §8.55).
+	/// The league's transfer window: open with so many days left, or closed.
 	/// The window's record is bound on the first read, so it is read until it answers.
 	/// </summary>
 	private static async Task<string> TransferWindow()
@@ -15,14 +15,14 @@ internal static partial class Program
 			var window = await Fm.Pull("Human.Team.Division.TransferWindowData", "TransferWindowStatus,TransferWindowDaysRemaining");
 			var status = Field(window, "TransferWindowStatus");
 			if (status.Length == 0) return null;
-			if (status != "1") return L("dönem kapalı");
-			return int.TryParse(Field(window, "TransferWindowDaysRemaining"), out var days) ? L($"dönem açık, {days} gün kaldı") : L("dönem açık");
+			if (status != "1") return L("window closed");
+			return int.TryParse(Field(window, "TransferWindowDaysRemaining"), out var days) ? L($"window open, {days} days left") : L("window open");
 		}
 		catch (FmError) { return null; }
 	}
 
 	/// <summary>
-	/// "Sarıyer · tarafsız saha · Friendly · 7 Temmuz Pazartesi 14:00 (7 gün sonra)", read from
+	/// "Club · neutral ground · Friendly · Monday 7 July 14:00 (7 days)", read from
 	/// the team's next fixture without opening a screen. The fixture's own date is a packed
 	/// value, so the day is counted on from today by the distance the game gives.
 	/// </summary>
@@ -41,10 +41,10 @@ internal static partial class Program
 
 			var opponent = Field(await Fm.Pull("Human.Team.NextFixture.TeamOpponent", "Name"), "Name");
 			var competition = Field(await Fm.Pull("Human.Team.NextFixture.Competition", "Name"), "Name");
-			var venue = Field(fixture, "MatchVenueShort") switch { "H" => L("iç saha"), "A" => L("deplasman"), "N" => L("tarafsız saha"), var other => other };
+			var venue = Field(fixture, "MatchVenueShort") switch { "H" => L("home"), "A" => L("away"), "N" => L("neutral ground"), var other => other };
 
 			var days = int.TryParse(Field(fixture, "FixtureDateDistanceInDays"), out var d) ? d : -1;
-			var when = days switch { 0 => L("bugün"), 1 => L("yarın"), > 1 => L($"{days} gün sonra"), _ => "" };
+			var when = days switch { 0 => L("today"), 1 => L("tomorrow"), > 1 => L($"in {days} days"), _ => "" };
 			var day = DateTime.TryParseExact(today, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var now) && days >= 0
 				? $"{now.AddDays(days).Day} {Months[now.AddDays(days).Month - 1]} {Days[(int)now.AddDays(days).DayOfWeek]} "
 				: "";
@@ -82,7 +82,7 @@ internal static partial class Program
 		}
 	}
 
-	/// <summary>"2025-07-01" → "1 Temmuz 2025 Salı".</summary>
+	/// <summary>"2025-07-01" → "Tuesday 1 July 2025".</summary>
 	private static string Pretty(string date) =>
 		DateTime.TryParseExact(date, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var day)
 			? $"{day.Day} {Months[day.Month - 1]} {day.Year} {Days[(int)day.DayOfWeek]}"

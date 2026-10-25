@@ -67,7 +67,7 @@ internal static class Report
 
 			// The same player can be bound by more than one list at once — the overview keeps
 			// its tiles while a table is up — and each knows different things about him. One
-			// list can hold a field still empty that another has filled (FINDINGS §8.86).
+			// list can hold a field still empty that another has filled.
 			if (byName.TryGetValue(name, out var known))
 			{
 				foreach (var (key, value) in fields)
@@ -483,7 +483,7 @@ internal static class Report
 				text = Text.Field(name, value);
 
 				// A team's recent results are a list of codes; as a string a list is only its
-				// type's name, so this one is given as its entries (FINDINGS §8.115).
+				// type's name, so this one is given as its entries.
 				if (name.StartsWith("RecentFormValues", StringComparison.Ordinal)
 				    && value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>() is { } results)
 				{

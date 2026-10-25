@@ -14,24 +14,24 @@ internal static partial class Program
 {
 	private static readonly Dictionary<string, string> Stops = new()
 	{
-		["Tactics"] = L("Kadro kontrolü"),
-		["SubmitTeam"] = L("Kadro gönderiliyor"),
-		["TeamTalk"] = L("Takım konuşması"),
-		["StepOntoThePitch"] = L("Sahaya çıkış"),
-		["WarmUp"] = L("Isınma"),
-		["SecondHalf"] = L("İkinci yarı öncesi"),
-		["ExtraTime"] = L("Uzatmalar"),
-		["Penalties"] = L("Penaltılar"),
-		["FullTimeTeamTalk"] = L("Maç sonu konuşması"),
-		["PostMatchReaction"] = L("Maç sonu tepkileri"),
-		["LeaveMatch"] = L("Maçtan çıkış"),
+		["Tactics"] = L("Tactics"),
+		["SubmitTeam"] = L("Submitting the team"),
+		["TeamTalk"] = L("Team talk"),
+		["StepOntoThePitch"] = L("Walking out"),
+		["WarmUp"] = L("Warm-up"),
+		["SecondHalf"] = L("Before the second half"),
+		["ExtraTime"] = L("Extra time"),
+		["Penalties"] = L("Penalties"),
+		["FullTimeTeamTalk"] = L("Full-time team talk"),
+		["PostMatchReaction"] = L("Post-match reactions"),
+		["LeaveMatch"] = L("Leaving the match"),
 	};
 
 	private static async Task<int> PlayMatch(string[] args)
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -40,7 +40,7 @@ internal static partial class Program
 		var inMatch = Field(state, "DuringMatch") == "True";
 		if (!inMatch && Field(state, "State") is not ("Tactics" or "SubmitTeam" or "SquadNumbers"))
 		{
-			Console.Error.WriteLine(L("Şu an oynanacak maç yok. Oyun maç gününe gelince `next` haber verir."));
+			Console.Error.WriteLine(L("No match to play right now. When the game reaches a match day, `next` says so."));
 			return 1;
 		}
 
@@ -49,7 +49,7 @@ internal static partial class Program
 		var instant = args.Contains("--instant");
 		if (!inMatch && !instant && !args.Contains("--play") && Ui.Interactive)
 		{
-			var how = Ui.Ask(L("Maçı nasıl oynayalım?"), [L("İzle: canlı anlatım, konuşmalarda sözü sen seç"), L("Anında sonuç: yardımcılar yönetsin, birkaç saniyede biter")]);
+			var how = Ui.Ask(L("How shall we play the match?"), [L("Watch: live commentary, you choose what to say in the talks"), L("Instant result: the assistants run it, done in a few seconds")]);
 			if (how == null) return 0;
 			instant = how == 1;
 		}
@@ -58,7 +58,7 @@ internal static partial class Program
 		{
 			if (inMatch)
 			{
-				Console.Error.WriteLine(L("Maç başladı; anında sonuç yalnızca kadro gönderilmeden önce istenebiliyor. Sürdürmek için: match"));
+				Console.Error.WriteLine(L("The match has started; an instant result can only be asked for before the team is submitted. To carry on: match"));
 				return 1;
 			}
 			return await InstantResult(state);
@@ -90,10 +90,10 @@ internal static partial class Program
 
 			// At the start of a season the game stops at the squad numbers before it will take
 			// the team. Left alone here the loop sat on that screen until its deadline; hand
-			// them to the assistant the way `numbers --auto` does and carry on (FINDINGS §8.395).
+			// them to the assistant the way `numbers --auto` does and carry on.
 			if (flow == "SquadNumbers" && !inMatch)
 			{
-				Console.WriteLine(L("Forma numaraları ekranı; yardımcıya veriliyor."));
+				Console.WriteLine(L("Squad numbers screen; handing it to the assistant."));
 				if (await Numbers(false, ["--auto"]) != 0) return 1;
 				continue;
 			}
@@ -114,9 +114,9 @@ internal static partial class Program
 					if (arrivedAt != null) Console.WriteLine($"— {lastNamed = arrivedAt}");
 					arrivedAt = null;
 					Pitch.Draw(tactic);
-					if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine(L($"Yedekler: {string.Join(", ", benched)}"));
+					if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine(L($"Substitutes: {string.Join(", ", benched)}"));
 					Console.WriteLine();
-					if (Ui.Ask(L("Kadro bu."), [L("Maça çık")], cancel: L("Değişiklik yapacağım (tactic player / role), sonra match")) == null) return 0;
+					if (Ui.Ask(L("That is the squad."), [L("Go to the match")], cancel: L("I will make changes (tactic player / role), then match")) == null) return 0;
 				}
 			}
 			stop = flow!;
@@ -128,7 +128,7 @@ internal static partial class Program
 			// period drops straight from the second half): so it is looked at now and then through the
 			// match, more often near the end, and the last reading that found them is kept. They are there
 			// about half the time, in stretches of some twenty seconds, so until one reading has found them
-			// it is tried every few seconds: at wider gaps a whole match went by unseen (FINDINGS §8.151).
+			// it is tried every few seconds: at wider gaps a whole match went by unseen.
 			if (Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
 			    && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(finalMen == null ? 5 : lateMinute >= 80 ? 10 : 30))
 			{
@@ -177,14 +177,14 @@ internal static partial class Program
 				{
 					await Fm.Get("dialog", ("press", "primary"));
 					var down = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList();
-					Console.Error.WriteLine(L($"Oyun sakat oyuncu sahadayken sürdürmüyor{(down.Count > 0 ? $": {string.Join(", ", down)}" : "")}. Değişiklik şart: sub <çıkan> <giren>   (kulübe için: sub)"));
+					Console.Error.WriteLine(L($"The game does not carry on while an injured player is on the pitch{(down.Count > 0 ? $": {string.Join(", ", down)}" : "")}. A substitution is needed: sub <off> <on>   (for the bench: sub)"));
 					return 1;
 				}
 
 				if (Field(dialog, "Title") != "Team Selection" || yes == null)
 				{
-					Console.Error.WriteLine(L($"Oyun bir şey soruyor: {Field(dialog, "Title")} — {Field(dialog, "Description")}"));
-					Console.Error.WriteLine(L("Cevaplamak için: dialog"));
+					Console.Error.WriteLine(L($"The game is asking something: {Field(dialog, "Title")} — {Field(dialog, "Description")}"));
+					Console.Error.WriteLine(L("To answer: dialog"));
 					return 1;
 				}
 
@@ -207,12 +207,12 @@ internal static partial class Program
 				{
 					Console.WriteLine();
 					for (var i = 0; i < lines.Count; i++) Console.WriteLine($"  {i + 1,2}  {lines[i].Label}");
-					Console.WriteLine(L("\nMaç konuşmada bekliyor. Söylemek için: talk <numara>, sonra: match")
-					                  + L("   (konuşmadan geçmek için: match --no-talk)"));
+					Console.WriteLine(L("\nThe match is waiting in a talk. To speak: talk <number>, then: match")
+					                  + L("   (to skip the talk: match --no-talk)"));
 					return 0;
 				}
 
-				if (Ui.Ask(L("Ne diyorsun?"), lines.Select(l => l.Label).ToList(), cancel: L("Konuşmadan geç")) is not { } chosen)
+				if (Ui.Ask(L("What do you say?"), lines.Select(l => l.Label).ToList(), cancel: L("Skip the talk")) is not { } chosen)
 				{
 					spoke = flow;
 					continue;
@@ -244,22 +244,22 @@ internal static partial class Program
 				{
 					// The newest mark can come unlabelled; the clock says when it is.
 					var minute = marks.Last() is { Length: > 0 } labelled ? labelled : Field(state, "MatchTime").Split(':')[0].TrimStart('0');
-					if (Ui.Rich) Ui.Line(L($"  [cyan]{Ui.Safe(minute),5}'  Yardımcı: {Ui.Safe(Advice(advice))}[/] [dim](dugout)[/]"));
-					else Console.WriteLine(L($"  {minute,5}'  Yardımcı: {Advice(advice)}  (dugout)"));
+					if (Ui.Rich) Ui.Line(L($"  [cyan]{Ui.Safe(minute),5}'  Assistant: {Ui.Safe(Advice(advice))}[/] [dim](dugout)[/]"));
+					else Console.WriteLine(L($"  {minute,5}'  Assistant: {Advice(advice)}  (dugout)"));
 					foreach (var mark in marks) advised.Add(mark);
 				}
 			}
 
 			// An injury stops the match: the clock halts, play is paused and the screen offers
-			// "Confirm Changes" (FINDINGS §8.69). The assistant's note on the Dugout says who.
+			// "Confirm Changes". The assistant's note on the Dugout says who.
 			if (Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
 			    && PlannerStop(controls) is { } confirm)
 			{
 				var why = await DugoutText();
-				// Who is down, when it is one of ours: the planner's table says so (Moylan, 2 Mayıs 2026 — the
+				// Who is down, when it is one of ours: the planner's table says so (the
 				// stop was announced without a name).
 				var down = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList();
-				Console.WriteLine(L($"  Maç {Field(state, "MatchTime")}'da durdu{(down.Count > 0 ? L($": {string.Join(", ", down)} sakatlandı") : why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}"));
+				Console.WriteLine(L($"  The match stopped at {Field(state, "MatchTime")}'{(down.Count > 0 ? L($": {string.Join(", ", down)} is injured") : why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}"));
 
 				// Called again while stopped, `match` means: go on as things are.
 				if (!Ui.Interactive && firstLook)
@@ -268,14 +268,14 @@ internal static partial class Program
 					// A change given with `sub` beforehand is made by this same press. Whether play went on is
 					// the match's to say: with a hurt man still on, the game answers with a notice instead.
 					if (await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5))
-						Console.WriteLine(L("  Maç sürdürüldü (bekleyen değişiklik varsa onunla)."));
+						Console.WriteLine(L("  The match carried on (with the pending change, if any)."));
 					clockAt = DateTime.UtcNow;
 					firstLook = false;
 					continue;
 				}
 				if (!Ui.Interactive)
 				{
-					Console.WriteLine(L("  Değişiklik için: sub <çıkan> <giren> (maçı da sürdürür)   ·   değişiklik yapmadan sürdürmek: match"));
+					Console.WriteLine(L("  For a substitution: sub <off> <on> (it carries the match on too)   ·   to carry on without one: match"));
 					return 0;
 				}
 				await Substitute(false, ["sub"]);
@@ -305,10 +305,10 @@ internal static partial class Program
 			{
 				var hurt = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0).Select(p => p.Key).ToList();
 				Console.Error.WriteLine(hurt.Count > 0
-					? L($"Maç {time}'da durdu: {string.Join(", ", hurt)} sakatlandı; oyun değişiklik bekliyor.")
-					: L($"Maç {time}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik)."));
-				// Seen at a real injury stop (FINDINGS §8.139): `sub` then `match` carried on from there.
-				Console.Error.WriteLine(L("Değişiklik için: sub <çıkan> <giren>   ·   olduğu gibi sürdürmek: match   ·   ekrandakiler: buttons"));
+					? L($"The match stopped at {time}': {string.Join(", ", hurt)} is injured; the game is waiting for a substitution.")
+					: L($"The match stopped at {time}' and the game is waiting for a decision (most likely a substitution after an injury or a red card)."));
+				// Seen at a real injury stop: `sub` then `match` carried on from there.
+				Console.Error.WriteLine(L("For a substitution: sub <off> <on>   ·   to carry on as it is: match   ·   what is on screen: buttons"));
 				return 1;
 			}
 
@@ -329,12 +329,12 @@ internal static partial class Program
 
 		if (Field(state, "DuringMatch") == "True")
 		{
-			Console.Error.WriteLine(L("Maç kırk dakikadır bitmedi; izlemeyi bıraktım. Durum için: status"));
+			Console.Error.WriteLine(L("The match has not finished in forty minutes; I stopped watching. For the state: status"));
 			return 75;
 		}
 
 		// A bare score does not say who won it; the report below names the sides.
-		Console.WriteLine(score == null ? L("Maçtan çıkıldı.") : score.Any(char.IsLetter) ? L($"Maç bitti: {score}") : L("Maç bitti."));
+		Console.WriteLine(score == null ? L("Left the match.") : score.Any(char.IsLetter) ? L($"Full time: {score}") : L("Full time."));
 		if (score != null)
 		{
 			// The full-time numbers are the first thing a manager looks at after the whistle.

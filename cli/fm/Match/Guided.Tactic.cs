@@ -11,7 +11,7 @@ internal static partial class Program
 
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -20,7 +20,7 @@ internal static partial class Program
 
 		// During a match the planner's pages are gone; the match screen has its own list.
 		if (words.Count > 0 && words[0] == "mentality" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
-			return await MatchList(L("Mentalite"), d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Very Attacking"), wanted, dry, events: false);
+			return await MatchList(L("Mentality"), d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Very Attacking"), wanted, dry, events: false);
 		if (words.Count > 0 && words[0] == "role" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
 			return await MatchRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 
@@ -28,8 +28,8 @@ internal static partial class Program
 		{
 			case "": break;
 			// Each setting is a dropdown on the planner, known by something only it offers.
-			case "mentality": return await TacticSetting(L("Mentalite"), "MentalityString", "Very Defensive", wanted, dry);
-			case "style": return await TacticSetting(L("Stil"), "Style", "Gegenpress", wanted, dry);
+			case "mentality": return await TacticSetting(L("Mentality"), "MentalityString", "Very Defensive", wanted, dry);
+			case "style": return await TacticSetting(L("Style"), "Style", "Gegenpress", wanted, dry);
 			case "pick": return await TacticPick(dry);
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
@@ -42,13 +42,13 @@ internal static partial class Program
 			case "pi": return await PlayerInstructions(words.Skip(1).ToList(), dry);
 			case "instructions" or "instruction": return await TacticInstructions(words.Skip(1).ToList(), args.Contains("--oop"), dry, args.Contains("--refresh"));
 			default:
-				Console.Error.WriteLine(L("kullanım: tactic | tactic new … | tactic slot [<n>] | tactic copy [<taktik>] | tactic clear [<n>] --yes | tactic pi <mevki> [<talimat> [<değer>]] | tactic instructions [<talimat> [<değer>]] | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop] | tactic player <mevki> <oyuncu>   [--dry]"));
+				Console.Error.WriteLine(L("usage: tactic | tactic new … | tactic slot [<n>] | tactic copy [<tactic>] | tactic clear [<n>] --yes | tactic pi <position> [<instruction> [<value>]] | tactic instructions [<instruction> [<value>]] | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <position> [<role>] [--oop] | tactic player <position> <player>   [--dry]"));
 				return 64;
 		}
 
 		if (await Planner() is not { } tactic)
 		{
-			Console.Error.WriteLine(L("Takımın taktiği yok. Oluşturmak için: tactic new"));
+			Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 			return 1;
 		}
 		// The squad table under the pitch, where each player's familiarity is, fills a moment
@@ -69,14 +69,14 @@ internal static partial class Program
 		}
 
 		Console.WriteLine(Field(header, "Name"));
-		Console.WriteLine(L($"Stil: {Field(header, "Style")} · Mentalite: {Field(header, "MentalityString")}")
-		                  + L($" · Yoğunluk: {Field(header, "TacticalIntensity")} · Akıcılık: {Familiarity(header, "TacticalFamiliarity")}\n"));
+		Console.WriteLine(L($"Style: {Field(header, "Style")} · Mentality: {Field(header, "MentalityString")}")
+		                  + L($" · Intensity: {Field(header, "TacticalIntensity")} · Fluidity: {Familiarity(header, "TacticalFamiliarity")}\n"));
 
 		if (Ui.Rich)
 		{
 			Pitch.Draw(tactic);
-			if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine(L($"\nYedekler: {string.Join(", ", benched)}"));
-			if (Unfamiliar(tactic) is { Count: > 0 } learning) Console.WriteLine(L($"Taktiğe tam alışamayanlar: {string.Join(", ", learning)}"));
+			if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine(L($"\nSubstitutes: {string.Join(", ", benched)}"));
+			if (Unfamiliar(tactic) is { Count: > 0 } learning) Console.WriteLine(L($"Not yet fully familiar with the tactic: {string.Join(", ", learning)}"));
 			return 0;
 		}
 
@@ -90,9 +90,9 @@ internal static partial class Program
 			Field(slot, "Familiarity") is { Length: > 0 } known ? GameNumbers.Percent(known) : "-",
 		}).ToList();
 
-		Table.Write([L("TOPLA"), L("ROL"), L("TOPSUZ"), L("ROL"), L("OYUNCU"), L("AKICILIK")], rows);
+		Table.Write([L("IN POSS."), L("ROLE"), L("OUT OF POSS."), L("ROLE"), L("PLAYER"), L("FLUIDITY")], rows);
 
-		if (Bench(tactic) is { Count: > 0 } bench) Console.WriteLine(L($"\nYedekler: {string.Join(", ", bench)}"));
+		if (Bench(tactic) is { Count: > 0 } bench) Console.WriteLine(L($"\nSubstitutes: {string.Join(", ", bench)}"));
 		return 0;
 	}
 
@@ -146,7 +146,7 @@ internal static partial class Program
 	{
 		if (await Planner() is not { } tactic)
 		{
-			Console.Error.WriteLine(L("Takımın taktiği yok. Oluşturmak için: tactic new"));
+			Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 			return 1;
 		}
 
@@ -158,38 +158,38 @@ internal static partial class Program
 		{
 			if (words.Count == 0)
 			{
-				if (Ui.Ask(L("Hangi mevki?"), SlotLabels(slots, "IPRoleName")) is not { } slotAsked) return 0;
+				if (Ui.Ask(L("Which position?"), SlotLabels(slots, "IPRoleName")) is not { } slotAsked) return 0;
 				words.Add(spots[slotAsked]);
 			}
 			var benchNames = squad.Select(e => Field(e, "Name")).ToList();
-			if (Ui.Ask(L($"{words[0]} mevkisine kim?"), benchNames) is not { } asked) return 0;
+			if (Ui.Ask(L($"Who plays {words[0]}?"), benchNames) is not { } asked) return 0;
 			words.Add(benchNames[asked]);
 		}
 
 		if (words.Count < 2)
 		{
-			Console.Error.WriteLine(L($"kullanım: tactic player <mevki> <oyuncu>   mevkiler: {string.Join(" ", spots)}"));
-			if (squad.Count > 0) Console.Error.WriteLine(L($"yedekler: {string.Join(", ", squad.Select(e => Field(e, "Name")))}"));
+			Console.Error.WriteLine(L($"usage: tactic player <position> <player>   positions: {string.Join(" ", spots)}"));
+			if (squad.Count > 0) Console.Error.WriteLine(L($"substitutes: {string.Join(", ", squad.Select(e => Field(e, "Name")))}"));
 			return 64;
 		}
 
-		if (Choose(spots, words[0], L("Mevki")) is not { } spot) return 1;
+		if (Choose(spots, words[0], L("Position")) is not { } spot) return 1;
 		var at = spots.IndexOf(spot);
 
 		var names = squad.Select(e => Field(e, "Name")).ToList();
 		if (names.Count == 0)
 		{
-			Console.Error.WriteLine(L("Maç kadrosu boş; önce: tactic pick"));
+			Console.Error.WriteLine(L("The matchday squad is empty; first: tactic pick"));
 			return 1;
 		}
-		if (Choose(names, words[1], L("Oyuncu")) is not { } name) return 1;
+		if (Choose(names, words[1], L("Player")) is not { } name) return 1;
 
 		var player = Field(squad[names.IndexOf(name)], "PlayerIndex");
 		var slot = Field(slots[at], "TeamSelectionIndex");
 		var current = Field(slots[at], "Player");
 		if (Field(slots[at], "PlayerIndex") == player)
 		{
-			Console.WriteLine(L($"{spot} zaten {name}."));
+			Console.WriteLine(L($"{spot} is already {name}."));
 			return 0;
 		}
 
@@ -200,13 +200,13 @@ internal static partial class Program
 		if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
 		if (dry)
 		{
-			Console.WriteLine(L($"(kuru) {spot}: {current} → {name} yapılacaktı."));
+			Console.WriteLine(L($"(dry run) {spot}: {current} → {name} would have been done."));
 			return 0;
 		}
 
 		var took = await Until(async () =>
 			(await Fm.GetJson("tactic")).TryGetProperty("Slots", out var now) && now.GetArrayLength() > at && Field(now[at], "PlayerIndex") == player, seconds: 8);
-		Console.WriteLine(took ? $"{spot}: {(current.Length > 0 ? current : L("boş"))} → {name}" : L($"{name} seçildi ama {spot} hâlâ {current} gösteriyor."));
+		Console.WriteLine(took ? $"{spot}: {(current.Length > 0 ? current : L("empty"))} → {name}" : L($"{name} was chosen, but {spot} still shows {current}."));
 		// The one taken off goes to the newcomer's place on the bench; an injured man there still keeps the match from starting.
 		if (took)
 			try
@@ -214,8 +214,8 @@ internal static partial class Program
 				var injured = (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
 					.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToList();
 				bool Hurt(string shown) => shown.Length > 0 && injured.Any(n => n.EndsWith(shown, StringComparison.Ordinal));
-				if (Hurt(name)) Console.WriteLine(L($"Dikkat: {name} sakat; maç onunla başlamaz."));
-				if (Hurt(current)) Console.WriteLine(L($"Dikkat: {current} sakat ve şimdi yedeklerde; sakat yedekle maç başlamaz. Yedekleri yardımcıya seçtirmek için: tactic pick"));
+				if (Hurt(name)) Console.WriteLine(L($"Note: {name} is injured; the match does not start with them."));
+				if (Hurt(current)) Console.WriteLine(L($"Note: {current} is injured and now on the bench; the match does not start with an injured substitute. To have the assistant pick the bench: tactic pick"));
 			}
 			catch (FmError) { }
 		if (took) await ShowChange([(at, false), (at, true)]);
@@ -234,7 +234,7 @@ internal static partial class Program
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 10);
 		}
 		// The pitch shows the eleven slots only in its combined view; after "In / Out of
-		// Possession" or "Both" it lays out no slots (FINDINGS §8.55), so it is put back.
+		// Possession" or "Both" it lays out no slots, so it is put back.
 		if (tactic.TryGetProperty("Tactic", out _) && (!tactic.TryGetProperty("Slots", out var slots) || slots.GetArrayLength() == 0)
 			&& await Labelled("Combined") is { } combined)
 		{
@@ -243,7 +243,7 @@ internal static partial class Program
 		}
 		// The team instructions take the pitch's place; the "Team Shape" button in their group puts
 		// it back, and it answers only a real click. It is found by the group the game lays it out
-		// in rather than by its translated label (FINDINGS §8.313).
+		// in rather than by its translated label.
 		if (tactic.TryGetProperty("Tactic", out _) && (!tactic.TryGetProperty("Slots", out var shown) || shown.GetArrayLength() == 0)
 			&& !(await Fm.Get("click", ("within", "FMShapeAndInstructionsButtons"), ("name", "team-shape"))).StartsWith("error", StringComparison.Ordinal))
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);

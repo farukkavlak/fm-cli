@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The media's headlines (Portal › News Site, FINDINGS §8.97): what the press is writing about
+/// The media's headlines (Portal › News Site): what the press is writing about
 /// us, the league and the transfer market — not the inbox, which is `inbox`. Read from the news
 /// items the page binds: title, what it is about, how old it is and, for the larger tiles, the
 /// opening sentence.
@@ -31,7 +31,7 @@ internal static partial class Program
 		}, seconds: 12, every: 0.7);
 		if (items.Count == 0)
 		{
-			Console.Error.WriteLine(L("Haber sitesi okunamadı."));
+			Console.Error.WriteLine(L("The news site could not be read."));
 			return 1;
 		}
 
@@ -46,14 +46,14 @@ internal static partial class Program
 			else if (Matching(items, i => i.Title, wanted) is { Count: 1 } hits) item = hits[0];
 			else
 			{
-				Console.Error.WriteLine(L($"'{wanted}' tek bir habere uymuyor; numarasıyla seç: news"));
+				Console.Error.WriteLine(L($"'{wanted}' does not match a single story; choose it by number: news"));
 				return 1;
 			}
 			var tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Events").Contains("RunNewsAction", StringComparison.Ordinal) && Field(b, "Label") == item.Title);
 			if (tile!.ValueKind != System.Text.Json.JsonValueKind.Object)
 			{
-				Console.Error.WriteLine(L("Haberin karosu sayfada bulunamadı."));
+				Console.Error.WriteLine(L("The story's tile was not found on the page."));
 				return 1;
 			}
 			var pressed = await Fm.Get("press", ("ptr", Field(tile, "Pointer")));
@@ -74,7 +74,7 @@ internal static partial class Program
 				return 0;
 			}
 			Console.WriteLine($"{item.Title}\n{item.About} · {item.Age}\n");
-			Console.WriteLine(body.Length > 0 ? body : L("(haberin metni okunamadı)"));
+			Console.WriteLine(body.Length > 0 ? body : L("(the story's text could not be read)"));
 			return 0;
 		}
 		if (json)
@@ -87,7 +87,7 @@ internal static partial class Program
 			Console.WriteLine($"{n + 1,2}  {items[n].Title}   · {items[n].About} · {items[n].Age}");
 			if (items[n].Body.Length > 0) Console.WriteLine($"      {items[n].Body}");
 		}
-		Console.WriteLine(L("\nTamamı: news <# | başlıktan bir parça>"));
+		Console.WriteLine(L("\nIn full: news <# | part of the headline>"));
 		return 0;
 	}
 

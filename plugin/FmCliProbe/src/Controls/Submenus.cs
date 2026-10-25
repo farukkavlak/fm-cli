@@ -10,7 +10,7 @@ namespace FmCliProbe;
 /// <summary>
 /// A dropdown's submenus, as the game builds them: opening the list lays out a row per choice
 /// (<c>DropdownRowNavigatable</c>), and a row with a submenu carries a child dropdown of its own
-/// whose choices are the submenu (FINDINGS §8.45). This opens a list and reports its rows.
+/// whose choices are the submenu. This opens a list and reports its rows.
 /// </summary>
 internal static class Submenus
 {
@@ -29,7 +29,7 @@ internal static class Submenus
 	/// <summary>
 	/// A row of an open list, chosen the way the keyboard chooses it: a submit event handed to
 	/// the row's own handler (not sent through the panel, where the crash reporter's click
-	/// listener wants a real pointer, FINDINGS §8.43). how=click goes through the shared
+	/// listener wants a real pointer). how=click goes through the shared
 	/// click-or-submit handler instead.
 	/// </summary>
 	public static string Submit(NameValueCollection q)
@@ -143,7 +143,7 @@ internal static class Submenus
 
 	/// <summary>
 	/// Puts a dropdown's row at a path (?ptr=&amp;i=&amp;to=), so a row that is only a reference — a
-	/// list of people with no text, as who can take a duty (FINDINGS §8.135) — can be read by /pull.
+	/// list of people with no text, as who can take a duty — can be read by /pull.
 	/// </summary>
 	public static string Put(NameValueCollection q)
 	{

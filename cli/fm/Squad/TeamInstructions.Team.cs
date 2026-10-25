@@ -8,13 +8,13 @@ internal static partial class Program
 	/// Where the tactic is read and written. Outside a match it is the team's (`Human.Team.Tactic`
 	/// beside a `Boolean` set True); during one it is the match's own (`MatchUI….Tactic`, a
 	/// MatchTacticReference with the same properties), which the game applies at the next stoppage
-	/// and which leaves the team's tactic as it was (FINDINGS §8.137).
+	/// and which leaves the team's tactic as it was.
 	/// </summary>
 	private static string? matchTactic;
 
 	private static string TacticAt(string scope) => matchTactic != null ? $"{scope}.tac" : $"{scope}.team.Tactic";
 
-	private static string Stoppage() => matchTactic != null ? L("   (maçta: ilk ölü topta uygulanır; takımın kayıtlı taktiği değişmez)") : "";
+	private static string Stoppage() => matchTactic != null ? L("   (in a match: applied at the first dead ball; the team's saved tactic does not change)") : "";
 
 	private static (string To, string From, string Number)[] TacticVariables() =>
 		matchTactic != null ? [("tac", matchTactic, "")] : [("Boolean", "const.True", ""), ("team", "Human.Team", "")];
@@ -77,7 +77,7 @@ internal static partial class Program
 			catch (Exception e) when (e is JsonException or InvalidOperationException or IOException) { }
 		}
 
-		if (!Ui.Json) Console.Error.WriteLine(L("Takım talimatları oyundan okunuyor (bir kez)…"));
+		if (!Ui.Json) Console.Error.WriteLine(L("Reading the team instructions from the game (once)…"));
 		async Task<string> Static(string tag, long id)
 		{
 			var scope = $"fmcli.{tag}{id}";
@@ -113,7 +113,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// One position's player instructions with the ball and without it, read and changed with no
-	/// card opened (FINDINGS §8.133). A group (`data.TacticPlayerInstructionGroup` beside a
+	/// card opened. A group (`data.TacticPlayerInstructionGroup` beside a
 	/// `PlayerInstructionGroupID`, 0–10 with the ball, 11–14 without) names its settings by number;
 	/// the tactic gives the slot's (`TeamSelectionIndex`, `InPossession`) setting and whether the
 	/// role fixes it, and takes a new one written there.

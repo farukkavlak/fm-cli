@@ -15,7 +15,7 @@ internal static partial class Program
 		var typed = args.Skip(2).FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal));
 		if (typed == null)
 		{
-			Console.Error.WriteLine(L("Hangi kayıt?  saves delete \"<ad>\" --yes"));
+			Console.Error.WriteLine(L("Which save?  saves delete \"<name>\" --yes"));
 			return 64;
 		}
 		if (SaveNamed(typed) is not { } name) return 1;
@@ -25,17 +25,17 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine(L($"'{name}' diskten silinir; geri alınamaz."));
-				Console.Error.WriteLine(L($"Onaylamak için: saves delete \"{name}\" --yes"));
+				Console.Error.WriteLine(L($"'{name}' is deleted from disk; it cannot be undone."));
+				Console.Error.WriteLine(L($"To confirm: saves delete \"{name}\" --yes"));
 				return 1;
 			}
-			if (Ui.Ask(L($"'{name}' diskten silinsin mi? Geri alınamaz."), [L("Sil")]) is null) return 0;
+			if (Ui.Ask(L($"Delete '{name}' from disk? It cannot be undone."), [L("Delete")]) is null) return 0;
 		}
 
 		if (!await Launcher.Running(Fm) || !await Fm.InGame())
 		{
 			File.Delete(file);
-			Console.WriteLine(L($"Silindi: {name}"));
+			Console.WriteLine(L($"Deleted: {name}"));
 			return 0;
 		}
 
@@ -43,14 +43,14 @@ internal static partial class Program
 		if (string.Equals(Composed(browser.Current), name, StringComparison.OrdinalIgnoreCase))
 		{
 			await CloseSaveBrowser();
-			Console.Error.WriteLine(L($"'{name}' şu an yüklü olan kayıt; silinmez. Önce başka bir kaydı yükle (load) ya da başka adla kaydet (save --as)."));
+			Console.Error.WriteLine(L($"'{name}' is the save loaded now; it is not deleted. Load another save first (load) or save under another name (save --as)."));
 			return 1;
 		}
 
 		if (!await SaveRowInView(name) || (await Fm.Get("rowselect", ("text", name))).StartsWith("error", StringComparison.Ordinal))
 		{
 			await CloseSaveBrowser();
-			Console.Error.WriteLine(L($"Oyunun kayıt listesinde '{name}' yok."));
+			Console.Error.WriteLine(L($"'{name}' is not in the game's list of saves."));
 			return 1;
 		}
 		var clicked = await DeleteButton();
@@ -64,7 +64,7 @@ internal static partial class Program
 		await Until(async () => (yes = await DialogButton("confirmDeleteSelectedSave", "Delete File")) != null, seconds: 6, every: 0.25);
 		if (yes == null)
 		{
-			Console.Error.WriteLine(L("Oyun silmeyi sormadı; kayıt silinmedi."));
+			Console.Error.WriteLine(L("The game did not ask about deleting; the save was not deleted."));
 			await CloseSaveBrowser();
 			return 1;
 		}
@@ -76,10 +76,10 @@ internal static partial class Program
 		await CloseSaveBrowser();
 		if (!gone)
 		{
-			Console.Error.WriteLine(L($"Sil denildi ama dosya duruyor: {file}"));
+			Console.Error.WriteLine(L($"Told to delete, but the file is still there: {file}"));
 			return 1;
 		}
-		Console.WriteLine(L($"Silindi: {name}"));
+		Console.WriteLine(L($"Deleted: {name}"));
 		return 0;
 	}
 
@@ -93,7 +93,7 @@ internal static partial class Program
 		var typed = args.Skip(1).FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal));
 		if (typed == null)
 		{
-			Console.Error.WriteLine(L("Hangi kayıt?  load \"<ad>\"   (kayıtlar: saves)"));
+			Console.Error.WriteLine(L("Which save?  load \"<name>\"   (the saves: saves)"));
 			return 64;
 		}
 		if (SaveNamed(typed) is not { } name) return 1;
@@ -105,19 +105,19 @@ internal static partial class Program
 			{
 				if (!Ui.Interactive)
 				{
-					Console.Error.WriteLine(L("Başka kaydı yüklemek için oyun kapatılıp yeniden açılır; kaydedilmemiş ilerleme gider."));
-					Console.Error.WriteLine(L($"Hangisi:  load \"{name}\" --save   ya da   load \"{name}\" --no-save"));
+					Console.Error.WriteLine(L("To load another save the game is closed and opened again; unsaved progress is lost."));
+					Console.Error.WriteLine(L($"Which one:  load \"{name}\" --save   or   load \"{name}\" --no-save"));
 					return 1;
 				}
 				var date = Pretty(Field(await Fm.GetJson("state"), "Date"));
-				if (Ui.Ask(L($"'{name}' yüklenecek: oyun kapanıp yeniden açılır ({date}). Kaydedilmemiş ilerleme kaybolur."), [L("Önce kaydet"), L("Kaydetmeden yükle")]) is not { } asked) return 0;
+				if (Ui.Ask(L($"'{name}' will be loaded: the game closes and opens again ({date}). Unsaved progress is lost."), [L("Save first"), L("Load without saving")]) is not { } asked) return 0;
 				save = asked == 0;
 			}
 			if (save == true && await SaveGame(["--yes"]) is not 0 and var failed) return failed;
-			Console.WriteLine(L("Oyun kapatılıyor…"));
+			Console.WriteLine(L("Closing the game…"));
 			if (!await Launcher.Stop(Fm))
 			{
-				Console.Error.WriteLine(L("Oyun kapanmadı."));
+				Console.Error.WriteLine(L("The game did not close."));
 				return 1;
 			}
 		}
@@ -125,7 +125,7 @@ internal static partial class Program
 		if (!await Launcher.Start(Fm, debug: false, load: false)) return 69;
 
 		// The list is filled a while after it is first asked for, and shows it only when opened
-		// again (FINDINGS §8.104): close and reopen until the save is on it.
+		// again: close and reopen until the save is on it.
 		var listed = false;
 		for (var attempt = 0; attempt < 4 && !listed; attempt++)
 		{
@@ -137,13 +137,13 @@ internal static partial class Program
 					.FirstOrDefault(b => Field(b, "Events").Contains("LoadGameTileSelection", StringComparison.Ordinal));
 				if (tile!.ValueKind != JsonValueKind.Object)
 				{
-					Console.Error.WriteLine(L("Yükleme ekranında kayıt listesini açan döşeme bulunamadı."));
+					Console.Error.WriteLine(L("Could not find the tile that opens the save list on the loading screen."));
 					return 1;
 				}
 				await Fm.Get("click", ("ptr", Field(tile, "Pointer")));
 				if (!await Until(() => OnScreen("Last saved"), seconds: 20, every: 0.25))
 				{
-					Console.Error.WriteLine(L("Kayıt listesi açılmadı."));
+					Console.Error.WriteLine(L("Save list did not open."));
 					return 1;
 				}
 			}
@@ -164,13 +164,13 @@ internal static partial class Program
 		}
 		if (!listed)
 		{
-			Console.Error.WriteLine(L($"Oyunun yükleme listesinde '{name}' yok."));
+			Console.Error.WriteLine(L($"'{name}' is not in the game's load list."));
 			return 1;
 		}
 
 		await Fm.Get("rowselect", ("text", name));
 		// The screen's own "load this one" button: it sends the game's LoadSelectedGame, and is
-		// shut until a row is picked. Its label is this language's word, not the button (FINDINGS §8.265).
+		// shut until a row is picked. Its label is this language's word, not the button.
 		JsonElement load = default;
 		if (!await Until(async () =>
 		    {
@@ -179,21 +179,21 @@ internal static partial class Program
 			    return load!.ValueKind == JsonValueKind.Object;
 		    }, seconds: 8, every: 0.25))
 		{
-			Console.Error.WriteLine(L("Kayıt seçildi ama yükleme düğmesi açılmadı."));
+			Console.Error.WriteLine(L("Save selected but the load button did not appear."));
 			return 1;
 		}
 
-		Console.WriteLine(L($"'{name}' yükleniyor…"));
+		Console.WriteLine(L($"Loading '{name}'…"));
 		var clicked = await Fm.Get("click", ("ptr", Field(load, "Pointer")));
 		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 
 		if (!await Until(() => Fm.InGame(), seconds: 240, every: 3))
 		{
-			Console.Error.WriteLine(L("Kayıt yüklenmedi."));
+			Console.Error.WriteLine(L("The save did not load."));
 			return 1;
 		}
 		await Until(async () => Field(await Fm.GetJson("state"), "Date").Length > 0, seconds: 60, every: 1);
-		Console.WriteLine(Lf("Hazır: {0} ({1}).", name, Pretty(Field(await Fm.GetJson("state"), "Date"))));
+		Console.WriteLine(Lf("Ready: {0} ({1}).", name, Pretty(Field(await Fm.GetJson("state"), "Date"))));
 		return 0;
 	}
 }

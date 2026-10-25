@@ -28,7 +28,7 @@ internal static partial class Program
 		}
 
 		// "0 of 1636.6": how far down, of how far there is to go. The game writes the mark its
-		// language uses ("1401,8" in Turkish), so its own reader parses it (BAGIMLILIKLAR §C).
+		// language uses ("1401,8" in Turkish), so its own reader parses it.
 		var where = await Scroll(first, null);
 		var extent = where?.Split(" of ") is { Length: 2 } parts ? GameNumbers.Read(parts[1].Trim()) ?? 0 : 0;
 		if (extent <= 0) return first;
@@ -78,12 +78,12 @@ internal static partial class Program
 			if (twoLegged) row.Add(Field(tie, "HomeExtra").Length > 0 ? $"{Field(tie, "HomeExtra")} - {Field(tie, "AwayExtra")}" : "");
 			return row.ToArray();
 		}).ToList();
-		Table.Write(twoLegged ? [L("EV"), L("SKOR"), L("DEPLASMAN"), L("TOPLAM")] : [L("EV"), L("SKOR"), L("DEPLASMAN")], rows);
+		Table.Write(twoLegged ? [L("HOME"), L("SCORE"), L("AWAY"), L("TOTAL")] : [L("HOME"), L("SCORE"), L("AWAY")], rows);
 	}
 
 	/// <summary>
 	/// Every competition in the list's menu as the path to it ("Competitions", "Europe",
-	/// "Türkiye", "Men's", "Turkish Cup"), walked once and kept: the walk is a call a submenu.
+	/// "Turkey", "Men's", "Turkish Cup"), walked once and kept: the walk is a call a submenu.
 	/// </summary>
 	private static async Task<List<string[]>> Competitions(bool refresh)
 	{
@@ -142,7 +142,7 @@ internal static partial class Program
 		if (hits.Count == 1) return hits[0];
 		if (quiet) return null;
 
-		Console.Error.WriteLine(hits.Count == 0 ? L($"'{typed}' diye bir turnuva yok (hepsi: stages --list).") : L($"'{typed}' birden çok turnuvaya uyuyor:"));
+		Console.Error.WriteLine(hits.Count == 0 ? L($"There is no competition called '{typed}' (all of them: stages --list).") : L($"'{typed}' matches more than one competition:"));
 		foreach (var hit in hits.Take(20)) Console.Error.WriteLine($"  {hit[^1]}   ({string.Join(" › ", hit[1..^1])})");
 		return null;
 

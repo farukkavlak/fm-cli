@@ -12,14 +12,14 @@ internal static partial class Program
 		if (position != null)
 		{
 			var squeezed = new string(position.Where(char.IsLetter).ToArray());
-			place = PositionNames.TryGetValue(squeezed, out var full) ? full : Choose(PositionNames.Values.Distinct().ToList(), position, L("Mevki"));
+			place = PositionNames.TryGetValue(squeezed, out var full) ? full : Choose(PositionNames.Values.Distinct().ToList(), position, L("Position"));
 			if (place == null) return "";
 		}
 
 		JsonElement edit = default;
 		await Until(async () => (edit = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxFilterStoreFilter", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
-		if (edit!.ValueKind != JsonValueKind.Object) return L("error: sayfada arama paneli butonu yok");
+		if (edit!.ValueKind != JsonValueKind.Object) return L("error: no search panel button on the page");
 		await Fm.Get("click", ("ptr", Field(edit, "Pointer")));
 
 		async Task<JsonElement?> Under(string rule)
@@ -52,7 +52,7 @@ internal static partial class Program
 		{
 			JsonElement? list = null;
 			await Until(async () => (list = await Under(rule)) != null, seconds: 6, every: 0.4);
-			if (list == null) return await Close(L($"error: arama panelinde '{what}' yok"));
+			if (list == null) return await Close(L($"error: no '{what}' in the search panel"));
 			var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 			// A number typed is the choice itself (an age), not its place in the list.
 			var choice = choices.FirstOrDefault(c => string.Equals(c, typed, StringComparison.OrdinalIgnoreCase)) ?? Choose(choices, typed, what);
@@ -62,7 +62,7 @@ internal static partial class Program
 			var picked = await Fm.Get("select", ("ptr", Field(list!.Value, "Pointer")), ("choice", choice), ("fire", "1"));
 			if (picked.StartsWith("error", StringComparison.Ordinal)) return await Close(picked);
 			if (!await Until(async () => await Under(rule) is { } now && Field(now, "Label") == choice, seconds: 4, every: 0.4))
-				return await Close(L($"error: {what}: '{choice}' seçildi ama panel tutmadı"));
+				return await Close(L($"error: {what}: '{choice}' was chosen, but the panel did not keep it"));
 		}
 
 		// Attribute conditions: "Add Attribute" › Attributes › group › attribute puts a row in the
@@ -71,7 +71,7 @@ internal static partial class Program
 		foreach (var (typed, atLeast, value) in conditions ?? [])
 		{
 			var adder = await Adder();
-			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
+			if (adder.ValueKind != JsonValueKind.Object) return await Close(L("error: no 'Add Attribute' in the search panel"));
 			var attributes = new List<(string Group, string Name, string Code)>();
 			foreach (var group in new[] { "Technical", "Mental", "Physical", "Goalkeeping" })
 			{
@@ -80,10 +80,10 @@ internal static partial class Program
 					attributes.AddRange(names.EnumerateArray().Select(n => n.ValueKind == JsonValueKind.Object ? (group, Field(n, "Text"), Field(n, "Value")) : (group, n.GetString(), "")));
 			}
 			// By the attribute's own id first: in another language the row's words can come back as
-			// another attribute's ("Hız" is Pace, and reads as Speed).
+			// another attribute's (a pace attribute must not read as speed).
 			var name = (AttributeCodes.TryGetValue(new string(Fold(typed).Where(char.IsLetter).ToArray()), out var code) ? attributes.FirstOrDefault(a => a.Code == code).Name : null)
 				?? attributes.Select(a => a.Name).FirstOrDefault(n => Fold(n) == Fold(typed))
-				?? Choose(attributes.Select(a => a.Name).Distinct().ToList(), typed, L("Nitelik"));
+				?? Choose(attributes.Select(a => a.Name).Distinct().ToList(), typed, L("Attribute"));
 			if (name == null) return await Close("");
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{attributes.First(a => a.Name == name).Group}>{name}"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
@@ -98,7 +98,7 @@ internal static partial class Program
 			bool Compare(JsonElement i) => Field(i, "Kind") == "dropdown" && string.Equals(Field(i, "Binds"), SearchCompare, StringComparison.OrdinalIgnoreCase);
 			(List<JsonElement> Items, int At) row = default;
 			if (!await Until(async () => (row = await Row()).At >= 0 && row.Items.Skip(row.At).Any(Compare), seconds: 5, every: 0.4))
-				return await Close(L($"error: {name} koşulu panele eklenmedi"));
+				return await Close(L($"error: the {name} condition was not added to the panel"));
 
 			JsonElement Next(Func<JsonElement, bool> fits) => row.Items.Skip(row.At + 1).FirstOrDefault(fits);
 			// The value shows on a button of its own, between the comparison and the - and +.
@@ -115,14 +115,14 @@ internal static partial class Program
 				var switched = await Fm.Get("select", ("ptr", Field(how, "Pointer")), ("choice", wantedHow), ("fire", "1"));
 				if (switched.StartsWith("error", StringComparison.Ordinal)) return await Close(switched);
 				// The comparison's word changes before the value under it is drawn: the row is taken
-				// only once both are there, or the value reads as missing (FINDINGS §8.290).
+				// only once both are there, or the value reads as missing.
 				if (!await Until(async () =>
 				    {
 					    row = await Row();
 					    return row.At >= 0 && Field(Next(Compare), "Label") == wantedHow
 					           && (Shown() >= 0 || Next(Presets).ValueKind == JsonValueKind.Object);
 				    }, seconds: 6, every: 0.2))
-					return await Close(L($"error: {name}: '{wantedHow}' seçildi ama satır tamamlanmadı"));
+					return await Close(L($"error: {name}: '{wantedHow}' selected but the row did not fill"));
 			}
 
 			// The value: the nearest of the list's, then one step at a time.
@@ -144,7 +144,7 @@ internal static partial class Program
 				// step is not taken as done — the guard runs out and the change is reported as failed.
 				await Until(async () => (row = await Row()).At >= 0 && Shown() != before, seconds: 8, every: 0.3);
 			}
-			if (Shown() != value) return await Close(L($"error: {name} için değer {value} yapılamadı (panelde {Shown()})"));
+			if (Shown() != value) return await Close(L($"error: the value for {name} could not be set to {value} (the panel has {Shown()})"));
 		}
 
 		// The position he is natural at: a condition of its own ("Add Attribute" › Position), a
@@ -153,7 +153,7 @@ internal static partial class Program
 		if (position != null)
 		{
 			var adder = await Adder();
-			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
+			if (adder.ValueKind != JsonValueKind.Object) return await Close(L("error: no 'Add Attribute' in the search panel"));
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Position"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
 			// The list of positions is the one whose rows are the game's position bits (a striker is 16384);
@@ -172,10 +172,10 @@ internal static partial class Program
 			}
 			(JsonElement List, string Row) where = default;
 			if (!await Until(async () => (where = await Where()).Row != null, seconds: 5, every: 0.4))
-				return await Close(L("error: mevki koşulu panele eklenmedi"));
+				return await Close(L("error: the position condition was not added to the panel"));
 			await Fm.Get("select", ("ptr", Field(where.List, "Pointer")), ("choice", where.Row), ("fire", "1"));
 			if (!await Until(async () => Field((await Where()).List, "Label") == where.Row, seconds: 4, every: 0.4))
-				return await Close(L($"error: mevki '{place}' seçildi ama panel tutmadı"));
+				return await Close(L($"error: position '{place}' was chosen, but the panel did not keep it"));
 		}
 
 		// What he may cost at most: "Add Attribute" › Transfer Value, a row that opens on "Is At
@@ -183,25 +183,25 @@ internal static partial class Program
 		if (maxValue != null)
 		{
 			var adder = await Adder();
-			if (adder.ValueKind != JsonValueKind.Object) return await Close("error: arama panelinde 'Add Attribute' yok");
+			if (adder.ValueKind != JsonValueKind.Object) return await Close(L("error: no 'Add Attribute' in the search panel"));
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Transfer Value"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
 			async Task<JsonElement> Amounts() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 				.LastOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => Money(c.GetString() ?? "") == 7_500_000));
 			JsonElement amounts = default;
 			if (!await Until(async () => (amounts = await Amounts()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
-				return await Close(L("error: değer koşulu panele eklenmedi"));
+				return await Close(L("error: the value condition was not added to the panel"));
 			// The figure as the list writes it ("£7.5M", "7,5M £").
 			if (amounts.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").FirstOrDefault(c => Money(c) == maxValue) is not { } figure)
-				return await Close(L($"error: değer listesinde {MoneyFormat.Short(maxValue.Value)} yok"));
+				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} is not in the value list"));
 			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", figure), ("fire", "1"));
 			// Not a fixed pause: the list says what it now holds. Its bound figure is the raw
 			// number, whatever the money is written like, so it is read there.
 			if (!await Until(async () => (await Amounts()) is { ValueKind: JsonValueKind.Object } now && Field(now, "Value") == maxValue.Value.ToString(), seconds: 4, every: 0.25))
-				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} değeri panele oturmadı"));
+				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} did not fit the panel"));
 		}
 
-		if (await PanelSent(true) is not { } apply) return await Close(L("error: arama panelinde Apply düğmesi bulunamadı"));
+		if (await PanelSent(true) is not { } apply) return await Close(L("error: Apply button not found in the search panel"));
 		var applied = await Fm.Get("click", ("ptr", apply));
 		if (applied.StartsWith("error", StringComparison.Ordinal)) return await Close(applied);
 		await Until(async () => await PanelSent(true) == null, seconds: 5, every: 0.4);

@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The squad numbers (FINDINGS §8.126): who wears what, who asked for which, which are free,
+/// The squad numbers: who wears what, who asked for which, which are free,
 /// and — while the game takes them, at the start of the season or when a signing arrives —
 /// giving a player one by hand or having the assistant hand them all out.
 /// </summary>
@@ -20,11 +20,11 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (!await OpenNumbers())
 		{
-			Console.Error.WriteLine(L("'Squad Numbers' ekranı açılmadı."));
+			Console.Error.WriteLine(L("The 'Squad Numbers' screen did not open."));
 			return 1;
 		}
 
-		if (args.Contains("--send")) return await SendList(NumbersConfirm, L("Forma numaraları"));
+		if (args.Contains("--send")) return await SendList(NumbersConfirm, L("Squad numbers"));
 		if (args.Contains("--auto"))
 		{
 			if (await Labelled(NumbersAssist) is not { } assist)
@@ -33,7 +33,7 @@ internal static partial class Program
 				return 1;
 			}
 			await Fm.Get("press", ("ptr", Field(assist, "Pointer")));
-			return await SendList(NumbersConfirm, L("Forma numaraları"));
+			return await SendList(NumbersConfirm, L("Squad numbers"));
 		}
 
 		var words = Words(args).ToList();
@@ -50,7 +50,7 @@ internal static partial class Program
 		}
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine(L("Forma numaraları okunamadı."));
+			Console.Error.WriteLine(L("The squad numbers could not be read."));
 			return 1;
 		}
 		var free = FreeNumbers(rows);
@@ -68,37 +68,37 @@ internal static partial class Program
 			return 0;
 		}
 
-		Table.Write([L("NO"), L("İSTEDİĞİ"), L("OYUNCU"), L("MEVKİ"), L("STATÜ")], Ordered(rows).Select(r => (string[])
+		Table.Write([L("NO"), L("WANTS"), L("PLAYER"), L("POSITION"), L("STATUS")], Ordered(rows).Select(r => (string[])
 			[r.Number, r.Preferred, r.Name, r.Position, r.Status]).ToList());
-		Console.WriteLine(L($"\nBoş numaralar: {string.Join(" ", free)}"));
+		Console.WriteLine(L($"\nFree numbers: {string.Join(" ", free)}"));
 		if (!open)
 		{
 			Console.WriteLine(NumbersLocked);
 			return 0;
 		}
 
-		if (waiting.Count > 0) Console.WriteLine(L($"Numara bekleyen: {string.Join(", ", waiting.Select(r => r.Name))}"));
-		Console.WriteLine(L("Vermek için: numbers <oyuncu> <no>, sonra numbers --send   (hepsini yardımcıya bırakmak için: numbers --auto)"));
+		if (waiting.Count > 0) Console.WriteLine(L($"Waiting for a number: {string.Join(", ", waiting.Select(r => r.Name))}"));
+		Console.WriteLine(L("To give one: numbers <player> <no>, then numbers --send   (to leave them all to the assistant: numbers --auto)"));
 
 		// Handing them all to the assistant is the manager's call; it is offered, not taken.
 		if (Ui.Interactive && await Labelled(NumbersAssist) is { } pick
-		    && Ui.Ask(L("Forma numaraları"), [L("Yardımcı dağıtsın ve gönder")], cancel: L("Şimdilik bırak")) != null)
+		    && Ui.Ask(L("Squad numbers"), [L("Let the assistant hand them out and send")], cancel: L("Leave it for now")) != null)
 		{
 			await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
-			return await SendList(NumbersConfirm, L("Forma numaraları"));
+			return await SendList(NumbersConfirm, L("Squad numbers"));
 		}
 		return 0;
 	}
 
 	private static string NumbersLocked => L(
-		"Oyun şu an numara değişikliği almıyor: numaralar sezon başında ya da yeni transfer gelince kaydediliyor, sonra sezon sonuna kadar değişmiyor.");
+		"The game does not take number changes right now: numbers are saved at the start of the season or when a new signing arrives, and then do not change until the end of the season.");
 
 	/// <summary>`numbers <oyuncu> <no>`: picks the number in the player's row; it is registered by --send.</summary>
 	private static async Task<int> GiveNumber(List<string> words)
 	{
 		if (words.Count < 2 || !int.TryParse(words[^1], out var number))
 		{
-			Console.Error.WriteLine(L("Kullanım: numbers <oyuncu> <no>"));
+			Console.Error.WriteLine(L("Usage: numbers <player> <no>"));
 			return 64;
 		}
 		var typed = string.Join(" ", words.Take(words.Count - 1));
@@ -107,25 +107,25 @@ internal static partial class Program
 		var matches = Matching(rows, r => r.Name, typed);
 		if (matches.Count != 1)
 		{
-			Console.Error.WriteLine(matches.Count == 0 ? L($"'{typed}' kadroda yok.") : L($"'{typed}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(r => r.Name))}"));
+			Console.Error.WriteLine(matches.Count == 0 ? L($"'{typed}' is not in the squad.") : L($"'{typed}' matches more than one player: {string.Join(", ", matches.Select(r => r.Name))}"));
 			return 1;
 		}
 		var player = matches[0];
 		if (!player.Open)
 		{
-			Console.Error.WriteLine($"{player.Name} ({(player.Number == "-" ? L("numarasız") : player.Number)}): {NumbersLocked}");
+			Console.Error.WriteLine($"{player.Name} ({(player.Number == "-" ? L("no number") : player.Number)}): {NumbersLocked}");
 			return 1;
 		}
 
 		var choice = player.Choices.FirstOrDefault(c => c == number.ToString() || c.StartsWith($"{number}. ", StringComparison.Ordinal));
 		if (choice == null)
 		{
-			Console.Error.WriteLine(L($"{number} verilebilen bir numara değil. Boş numaralar: {string.Join(" ", FreeNumbers(rows))}"));
+			Console.Error.WriteLine(L($"{number} is not a number that can be given. Free numbers: {string.Join(" ", FreeNumbers(rows))}"));
 			return 1;
 		}
 		if (choice.Contains(". ", StringComparison.Ordinal) && !choice.EndsWith($". {player.Name}", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L($"{number} dolu: {choice[(choice.IndexOf(". ", StringComparison.Ordinal) + 2)..]}. Boş numaralar: {string.Join(" ", FreeNumbers(rows))}"));
+			Console.Error.WriteLine(L($"{number} is taken: {choice[(choice.IndexOf(". ", StringComparison.Ordinal) + 2)..]}. Free numbers: {string.Join(" ", FreeNumbers(rows))}"));
 			return 1;
 		}
 
@@ -133,7 +133,7 @@ internal static partial class Program
 		var shown = (await ReadNumbers(r => r.Name == player.Name)).FirstOrDefault(r => r.Name == player.Name);
 		if (shown == null)
 		{
-			Console.Error.WriteLine(L($"{player.Name} tabloda yeniden bulunamadı."));
+			Console.Error.WriteLine(L($"{player.Name} could not be found in the table again."));
 			return 1;
 		}
 		var answer = await Fm.Get("select", ("ptr", shown.Dropdown), ("choice", choice), ("fire", "1"));
@@ -145,10 +145,10 @@ internal static partial class Program
 		await Until(async () => (after = (await NumbersInView()).FirstOrDefault(r => r.Name == player.Name))?.Number == number.ToString(), seconds: 5, every: 0.5);
 		if (after?.Number != number.ToString())
 		{
-			Console.Error.WriteLine(L($"Seçildi ama tabloda {player.Name} hâlâ {after?.Number ?? "?"} görünüyor."));
+			Console.Error.WriteLine(L($"Chosen, but {player.Name} still shows {after?.Number ?? "?"} in the table."));
 			return 1;
 		}
-		Console.WriteLine(L($"{player.Name}: {player.Number} → {number} (henüz kaydedilmedi). Kaydetmek için: numbers --send   — kaydedilince sezon sonuna kadar değişmez."));
+		Console.WriteLine(L($"{player.Name}: {player.Number} → {number} (not saved yet). To save: numbers --send   — once saved it does not change until the end of the season."));
 		return 0;
 	}
 

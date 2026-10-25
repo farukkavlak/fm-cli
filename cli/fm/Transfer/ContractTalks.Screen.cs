@@ -15,7 +15,7 @@ internal static partial class Program
 			// The promises stage has no cancel either: nothing has been put to the agent yet, and
 			// walking off the page is the way out. That button stands for the game's own Exit
 			// Negotiations event (42); its label is this language's string and is not asked for
-			// (FINDINGS §8.209). The press is queued; opening another page before it is handled
+			//. The press is queued; opening another page before it is handled
 			// only hides the talks beneath it, so they are waited on to close first.
 			var exit = false;
 			for (var attempt = 0; attempt < 3; attempt++)
@@ -27,7 +27,7 @@ internal static partial class Program
 			}
 			await OpenPage(Screen.Home);
 			if (await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 4, every: 0.25)) return null;
-			return exit ? L("Çıkış denendi ama sözleşme görüşmesi hâlâ açık.") : L("Görüşmede çıkış düğmesi bulunamadı.");
+			return exit ? L("Tried to exit but the contract talks are still open.") : L("Exit button not found in the talks.");
 		}
 		await Fm.Get("press", ("ptr", Field(cancel, "Pointer")));
 
@@ -37,10 +37,10 @@ internal static partial class Program
 			await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
 
 		// Withdrawing closes the talks itself: no "Exit Talks" step follows it, so waiting for that
-		// button only burned its whole 6 s ceiling before the screen was read (FINDINGS §8.296).
+		// button only burned its whole 6 s ceiling before the screen was read.
 		// The screen closing is the game's own signal.
 		return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25)
-			? null : L("İptal denildi ama görüşme ekranı hâlâ açık (talk ile bak).");
+			? null : L("Told to cancel, but the negotiation screen is still open (look with talk).");
 	}
 
 	/// <summary>
@@ -69,7 +69,7 @@ internal static partial class Program
 	/// The way out of the talks and how many of their other buttons still change the deal. The way
 	/// out is the button whose action is the game's exit (<c>IsExitButton</c>), and a button that
 	/// changes a term is one whose action sends an event of its own; the budget adjustment sends
-	/// none. Neither is asked for by its label, which is this language's string (FINDINGS §8.209).
+	/// none. Neither is asked for by its label, which is this language's string.
 	/// </summary>
 	private static async Task<(JsonElement? Exit, int Changing)> TalkEnds()
 	{
@@ -121,8 +121,8 @@ internal static partial class Program
 		{
 			var ours = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Any(p => Field(p, "Name") == name);
 			Console.Error.WriteLine(ours
-				? L($"{name} ile şu an sözleşme görüşmesine girilemiyor: oyun bu seçeneği vermiyor (yakın zamanda iptal edilen bir görüşme olabilir; birkaç gün sonra yeniden dene).")
-				: L($"{name} bizim oyuncumuz değil. Başka kulübün oyuncusuyla görüşme, teklifi kabul edilince açılır: offer {name}"));
+				? L($"Contract talks with {name} cannot be opened right now: the game does not give the option (a negotiation may have been cancelled recently; try again in a few days).")
+				: L($"{name} is not our player. Talks with another club's player open once the offer is accepted: offer {name}"));
 			return 1;
 		}
 
@@ -135,12 +135,12 @@ internal static partial class Program
 		// A notice with only "Ok" on it is the game saying no.
 		if (!DialogAsks(warning))
 		{
-			Console.Error.WriteLine(L($"Oyun diyor ki: {Field(warning, "Title")}. {Field(warning, "Description")}"));
+			Console.Error.WriteLine(L($"The game says: {Field(warning, "Title")}. {Field(warning, "Description")}"));
 			return 1;
 		}
 		var go = !Ui.Interactive
-			|| Ui.Ask(L($"{name}: menajerine sormadan görüşmeye giriliyor; oyuncu ve menajer bundan hoşlanmayabilir."), [L("Yine de gir")], cancel: L("Vazgeç")) != null;
-		if (!Ui.Interactive) Console.WriteLine(L("(Oyun uyardı: menajere sormadan görüşmeye girmek oyuncuyu ve menajeri üzebilir.)"));
+			|| Ui.Ask(L($"{name}: the talks open without asking their agent; the player and the agent may not like that."), [L("Enter anyway")], cancel: L("Cancel")) != null;
+		if (!Ui.Interactive) Console.WriteLine(L("(The game warned: opening talks without asking the agent may upset the player and the agent.)"));
 		await Fm.Get("click", ("ptr", Field(DialogAnswer(warning, go)!.Value, "Pointer")));
 		return go ? null : 0;
 	}

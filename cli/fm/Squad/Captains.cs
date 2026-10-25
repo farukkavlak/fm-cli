@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Captain and vice-captain (FINDINGS §8.58): read from the team's data, changed on Squad ›
+/// Captain and vice-captain: read from the team's data, changed on Squad ›
 /// Dynamics › Captains, where each list asks for a confirmation.
 /// </summary>
 internal static partial class Program
@@ -31,10 +31,10 @@ internal static partial class Program
 			if (dropdown == null)
 			{
 				// The page is a talk with the assistant, and a change made in it takes its list away
-				// until the next day (FINDINGS §8.134).
+				// until the next day.
 				Console.Error.WriteLine(list == "Vice Captain"
-					? L("Yardımcı kaptan bugün zaten değişti; oyun günde bir kez izin veriyor. Yarın (fm next sonrası) yeniden dene.")
-					: L($"Kaptanlar sayfasında '{list}' listesi yok."));
+					? L("The vice-captain has already changed today; the game allows it once a day. Try again tomorrow (after fm next).")
+					: L($"The captains page has no '{list}' list."));
 				return 1;
 			}
 			var choices = dropdown.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
@@ -42,7 +42,7 @@ internal static partial class Program
 			var hits = Matching(names, n => n, wanted);
 			if (hits.Count != 1)
 			{
-				Console.Error.WriteLine(hits.Count == 0 ? L($"'{wanted}' adaylar arasında yok.") : L($"'{wanted}' {hits.Count} oyuncuya uyuyor: {string.Join(", ", hits)}"));
+				Console.Error.WriteLine(hits.Count == 0 ? L($"'{wanted}' is not among the candidates.") : L($"'{wanted}' matches {hits.Count} players: {string.Join(", ", hits)}"));
 				return 1;
 			}
 			var said = await Fm.Get("select", ("ptr", Field(dropdown.Value, "Pointer")), ("choice", choices[names.IndexOf(hits[0])]), ("fire", "1"));
@@ -66,9 +66,9 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new { Captain = captain, ViceCaptain = vice }));
 			return 0;
 		}
-		Console.WriteLine(L($"Kaptan: {(captain.Length > 0 ? captain : "-")}"));
-		Console.WriteLine(L($"Yardımcı kaptan: {(vice.Length > 0 ? vice : "-")}"));
-		if (changes.Count == 0) Console.WriteLine(L("\nDeğiştirmek: captains --captain <oyuncu> · --vice <oyuncu>   (soyunma odasının liderleri: dynamics)"));
+		Console.WriteLine(L($"Captain: {(captain.Length > 0 ? captain : "-")}"));
+		Console.WriteLine(L($"Vice captain: {(vice.Length > 0 ? vice : "-")}"));
+		if (changes.Count == 0) Console.WriteLine(L("\nTo change: captains --captain <player> · --vice <player>   (the dressing room's leaders: dynamics)"));
 		return 0;
 	}
 }

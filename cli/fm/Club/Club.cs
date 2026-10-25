@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The club at a glance (FINDINGS §8.78): Club › Overview lays out the board's vision, its
+/// The club at a glance: Club › Overview lays out the board's vision, its
 /// performance grade, the finances and wage bill, the supporters, the facilities, the staff's
 /// vacancies and the club's reputation as tiles. Each tile is read off the page from its heading
 /// to the next one's.
@@ -19,13 +19,13 @@ internal static partial class Program
 
 	private static readonly Dictionary<string, string> ClubWords = new()
 	{
-		["Required"] = L("zorunlu"), ["Desired"] = L("istenen"), ["Preferred"] = L("tercih"),
-		["On Course"] = L("yolunda"), ["Satisfied"] = L("memnun"), ["Reserving Judgement"] = L("henüz yargılamıyor"),
-		["Not Judging"] = L("değerlendirmiyor"), ["Unsatisfied"] = L("memnun değil"), ["Failed"] = L("başarısız"),
-		["Very Satisfied"] = L("çok memnun"), ["Disappointed"] = L("hayal kırıklığı"),
-		["High"] = L("yüksek"), ["Medium"] = L("orta"), ["Low"] = L("düşük"),
-		["Good"] = L("iyi"), ["Average"] = L("orta"), ["Great"] = L("çok iyi"), ["Excellent"] = L("mükemmel"), ["Poor"] = L("zayıf"),
-		["Continental"] = L("kıtasal"), ["National"] = L("ulusal"), ["World Class"] = L("dünya çapında"), ["Regional"] = L("bölgesel"),
+		["Required"] = L("required"), ["Desired"] = L("wanted"), ["Preferred"] = L("preferred"),
+		["On Course"] = L("On Course"), ["Satisfied"] = L("Satisfied"), ["Reserving Judgement"] = L("Reserving Judgement"),
+		["Not Judging"] = L("Not Judging"), ["Unsatisfied"] = L("Unsatisfied"), ["Failed"] = L("Failed"),
+		["Very Satisfied"] = L("Very Satisfied"), ["Disappointed"] = L("Disappointed"),
+		["High"] = L("High"), ["Medium"] = L("Medium"), ["Low"] = L("Low"),
+		["Good"] = L("Good"), ["Average"] = L("Medium"), ["Great"] = L("Great"), ["Excellent"] = L("Excellent"), ["Poor"] = L("Poor"),
+		["Continental"] = L("Continental"), ["National"] = L("National"), ["World Class"] = L("World Class"), ["Regional"] = L("Regional"),
 	};
 
 	private static string ClubSay(string word) => ClubWords.TryGetValue(word, out var t) ? t : word;
@@ -44,7 +44,7 @@ internal static partial class Program
 		}, seconds: 10, every: 0.5);
 		if (!texts.Contains("Current Season Objective"))
 		{
-			Console.Error.WriteLine(L("Kulüp sayfası okunamadı."));
+			Console.Error.WriteLine(L("The club page could not be read."));
 			return 1;
 		}
 
@@ -149,37 +149,37 @@ internal static partial class Program
 			else Console.WriteLine($"  {label,-22} {value}");
 		}
 
-		Heading(L("Yönetim"));
+		Heading(L("Board"));
 		Row("Not", $"{club.Board.Grade} · {Mood(club.Board.Mood)}");
-		Row(L("Taraftar"), L($"{Mood(supporters)} · yönetime etkisi {Ui.Safe(ClubSay(club.Supporters.Influence))}"));
-		Row(L("Bekleyen talep"), Ui.Safe(Regex.Replace(club.Board.Requests, @"(\d+) requests?", "$1")));
+		Row(L("Supporters"), L($"{Mood(supporters)} · influence on the board {Ui.Safe(ClubSay(club.Supporters.Influence))}"));
+		Row(L("Pending requests"), Ui.Safe(Regex.Replace(club.Board.Requests, @"(\d+) requests?", "$1")));
 
-		Heading(L("Hedefler"));
+		Heading(L("Objectives"));
 		foreach (var o in objectives)
 		{
-			var tag = o.Group == "Current Season Objective" ? L("bu sezon") : ClubSay(o.Importance);
+			var tag = o.Group == "Current Season Objective" ? L("this season") : ClubSay(o.Importance);
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(o.Text)} [dim]({Ui.Safe(tag)})[/] — {Mood(o.Status)}");
 			else Console.WriteLine($"  {o.Text} ({tag}) — {ClubSay(o.Status)}");
 		}
 
-		Heading(L("Finans"));
+		Heading(L("Finances"));
 		Row("Kasa", Ui.Safe(club.Finances.Balance));
-		Row(L("Geçen ay gelir"), Ui.Safe(club.Finances.IncomeLastMonth));
-		Row(L("Geçen ay gider"), Ui.Safe(club.Finances.ExpenditureLastMonth));
-		Row(L("Haftalık maaş"), Ui.Safe($"{club.Finances.Wages} / {club.Finances.WageBudget} ({club.Finances.WageShare})"));
+		Row(L("Income last month"), Ui.Safe(club.Finances.IncomeLastMonth));
+		Row(L("Expenditure last month"), Ui.Safe(club.Finances.ExpenditureLastMonth));
+		Row(L("Weekly wages"), Ui.Safe($"{club.Finances.Wages} / {club.Finances.WageBudget} ({club.Finances.WageShare})"));
 
-		Heading(L("Kulüp"));
-		Row(L("İtibar"), Ui.Safe(ClubSay(club.Reputation)));
-		Row(L("Stadyum"), Ui.Safe($"{club.Stadium} · {ClubSay(club.Facilities.Stadium)}"));
-		Row(L("Antrenman tesisi"), Ui.Safe(club.Facilities.Training));
-		Row(L("Altyapı tesisi"), Ui.Safe(club.Facilities.Youth));
-		Row(L("Ticari"), Ui.Safe(club.Facilities.Corporate));
+		Heading(L("Club"));
+		Row(L("Reputation"), Ui.Safe(ClubSay(club.Reputation)));
+		Row(L("Stadium"), Ui.Safe($"{club.Stadium} · {ClubSay(club.Facilities.Stadium)}"));
+		Row(L("Training facilities"), Ui.Safe(club.Facilities.Training));
+		Row(L("Youth facilities"), Ui.Safe(club.Facilities.Youth));
+		Row(L("Commercial"), Ui.Safe(club.Facilities.Corporate));
 
-		Heading(L("Ekip"));
+		Heading(L("Staff"));
 		foreach (var t in teams)
 		{
-			var name = t.Team switch { "Coaching Team" => L("Antrenörler"), "Recruitment Team" => "Scouting / transfer", _ => L("Sağlık") };
-			var open = Regex.Match(GameWords.Of(t.Vacant), @"\((.*)\)") is { Success: true } m ? L($" — boş: {m.Groups[1].Value}") : "";
+			var name = t.Team switch { "Coaching Team" => L("Coaches"), "Recruitment Team" => "Scouting / transfer", _ => L("Medical") };
+			var open = Regex.Match(GameWords.Of(t.Vacant), @"\((.*)\)") is { Success: true } m ? L($" — vacant: {m.Groups[1].Value}") : "";
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(name),-22} {Ui.Safe(t.Filled)}/{Ui.Safe(t.Places)}[dim]{Ui.Safe(open)}[/]");
 			else Console.WriteLine($"  {name,-22} {t.Filled}/{t.Places}{open}");
 		}

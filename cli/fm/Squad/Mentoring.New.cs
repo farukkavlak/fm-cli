@@ -10,16 +10,16 @@ internal static partial class Program
 		var picks = Words(args).Skip(1).ToList();
 		if (picks.Count is not (0 or 3))
 		{
-			Console.Error.WriteLine(L("Bir mentorluk grubu üç oyuncudan oluşur:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name \"<ad>\"]"));
+			Console.Error.WriteLine(L("A mentoring group is three players:  mentoring new <player> <player> <player> [--name \"<name>\"]"));
 			return 64;
 		}
 
 		// After a group is taken apart the game keeps the old list until the day is processed: the
 		// editor brings the group back, and the new group is given the UniqueId of one still there,
-		// which mixes the two up (FINDINGS §8.188). A group is made only on another day.
+		// which mixes the two up. A group is made only on another day.
 		if (await MentoringRemovedToday())
 		{
-			Console.Error.WriteLine(L("Bugün bir mentorluk grubu dağıtıldı; oyun aynı gün yeni grup açınca eski listeyi geri yüklüyor ve grupları karıştırıyor. Önce bir gün ilerlet (next), sonra kur."));
+			Console.Error.WriteLine(L("A mentoring group was disbanded today; the game reloads the old list when a new group opens the same day and mixes them up. Advance one day (next), then create it."));
 			return 1;
 		}
 
@@ -31,7 +31,7 @@ internal static partial class Program
 
 		if (await MentoringGroups() is not { } before)
 		{
-			Console.Error.WriteLine(L("Mentorluk grupları okunamadı."));
+			Console.Error.WriteLine(L("Could not read mentoring groups."));
 			return 1;
 		}
 		var pressed = await Arriving("press", [("event", AddGroup)]);
@@ -50,7 +50,7 @@ internal static partial class Program
 		if (candidates.Table == null)
 		{
 			await AbandonMentoringGroup(before);
-			Console.Error.WriteLine(L("Grup düzenleyicisi açılmadı."));
+			Console.Error.WriteLine(L("The group editor did not open."));
 			return 1;
 		}
 
@@ -61,8 +61,8 @@ internal static partial class Program
 			if (json) Console.WriteLine(JsonOut.Of(rows.Select(c => new { Player = c[1], Age = c[2], Workload = c[3], Personality = c[4], Hierarchy = c[5] })));
 			else
 			{
-				Table.Write([L("OYUNCU"), L("YAŞ"), L("YÜK"), L("KİŞİLİK"), L("HİYERARŞİ")], rows.Select(r => r[1..]).ToList());
-				Console.WriteLine(L("\nGrup kurmak için üçünü yaz:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name \"<ad>\"]"));
+				Table.Write([L("PLAYER"), L("AGE"), L("LOAD"), L("PERSONALITY"), L("HIERARCHY")], rows.Select(r => r[1..]).ToList());
+				Console.WriteLine(L("\nTo build a group, name all three:  mentoring new <player> <player> <player> [--name \"<name>\"]"));
 			}
 			return 0;
 		}
@@ -70,11 +70,11 @@ internal static partial class Program
 		var chosen = new List<string[]>();
 		foreach (var pick in picks)
 		{
-			var player = Choose(rows.Select(r => r[1]).ToList(), pick, L("Oyuncu"));
+			var player = Choose(rows.Select(r => r[1]).ToList(), pick, L("Player"));
 			var row = rows.FirstOrDefault(r => r[1] == player);
 			if (row == null || chosen.Contains(row))
 			{
-				if (row != null) Console.Error.WriteLine(L($"{player} iki kez yazıldı."));
+				if (row != null) Console.Error.WriteLine(L($"{player} was named twice."));
 				await AbandonMentoringGroup(before);
 				return 64;
 			}
@@ -121,7 +121,7 @@ internal static partial class Program
 			if (!done)
 			{
 				await AbandonMentoringGroup(before);
-				Console.Error.WriteLine(L($"{player[1]} düzenleyicinin tablosunda işaretlenemedi; grup kurulmadı."));
+				Console.Error.WriteLine(L($"{player[1]} could not be ticked in the editor's table; group not created."));
 				return 1;
 			}
 		}
@@ -130,7 +130,7 @@ internal static partial class Program
 		if (!valid)
 		{
 			await AbandonMentoringGroup(before);
-			Console.Error.WriteLine(L("Oyun bu üçlüyü onaylatmıyor; grup kurulmadı."));
+			Console.Error.WriteLine(L("The game does not let this trio be confirmed; no group was built."));
 			return 1;
 		}
 
@@ -139,13 +139,13 @@ internal static partial class Program
 			// The box bound to the name the confirming button sends with the group.
 			var box = (await Fm.GetJson("textboxes")).EnumerateArray().FirstOrDefault(b => Field(b, "Binds") == "newgroupname");
 			if (box.ValueKind == JsonValueKind.Object) await Fm.Get("type", ("ptr", Field(box, "Pointer")), ("text", name));
-			else Console.Error.WriteLine(L("Grup adı kutusu bulunamadı; oyunun verdiği adla kuruluyor."));
+			else Console.Error.WriteLine(L("Group name box not found; creating it with the name the game gives."));
 		}
 
 		if (await MentoringEditorButton("EventToPlugin:EventFmxEditMentoringGroup") is not { } confirm)
 		{
 			await AbandonMentoringGroup(before);
-			Console.Error.WriteLine(L("Onay düğmesi bulunamadı; grup kurulmadı."));
+			Console.Error.WriteLine(L("Confirm button not found; group not created."));
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
@@ -157,11 +157,11 @@ internal static partial class Program
 			seconds: 10, every: 0.25);
 		if (result == null)
 		{
-			Console.Error.WriteLine(L("Onaylandı ama yeni grup oyunun verisinde görünmüyor."));
+			Console.Error.WriteLine(L("Confirmed but the new group is not in the game's data."));
 			return 1;
 		}
-		if (name != null && result.Name != name) Console.Error.WriteLine(L($"Grup kuruldu ama oyun adını '{result.Name}' bıraktı."));
-		Console.WriteLine(L($"Kuruldu: {result.Name} — {string.Join(", ", result.Members.Select(m => m.Player))}"));
+		if (name != null && result.Name != name) Console.Error.WriteLine(L($"Group created but the game left its name as '{result.Name}'."));
+		Console.WriteLine(L($"Built: {result.Name} — {string.Join(", ", result.Members.Select(m => m.Player))}"));
 		return 0;
 	}
 
@@ -171,32 +171,32 @@ internal static partial class Program
 		var typed = string.Join(" ", Words(args).Skip(1));
 		if (await MentoringGroups() is not { } groups)
 		{
-			Console.Error.WriteLine(L("Mentorluk grupları okunamadı."));
+			Console.Error.WriteLine(L("Could not read mentoring groups."));
 			return 1;
 		}
 		if (groups.Count == 0)
 		{
-			Console.WriteLine(L("Mentorluk grubu yok."));
+			Console.WriteLine(L("No mentoring groups."));
 			return 0;
 		}
 		var names = groups.Select(g => g.Name).ToList();
 		if (typed.Length == 0)
 		{
-			Console.Error.WriteLine(L("Hangi grup?  mentoring remove \"<grup>\" --yes"));
+			Console.Error.WriteLine(L("Which group?  mentoring remove \"<group>\" --yes"));
 			foreach (var n in names) Console.Error.WriteLine($"  {n}");
 			return 64;
 		}
-		if (Choose(names, typed, L("Grup")) is not { } picked) return 64;
+		if (Choose(names, typed, L("Group")) is not { } picked) return 64;
 		var group = groups[names.IndexOf(picked)];
 
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine(L($"'{group.Name}' dağıtılır. Onaylamak için: mentoring remove \"{group.Name}\" --yes"));
+				Console.Error.WriteLine(L($"'{group.Name}' will be broken up. To confirm: mentoring remove \"{group.Name}\" --yes"));
 				return 1;
 			}
-			if (Ui.Ask(L($"'{group.Name}' dağıtılsın mı?"), [L("Dağıt")]) is null) return 0;
+			if (Ui.Ask(L($"Break up '{group.Name}'?"), [L("Break up")]) is null) return 0;
 		}
 
 		// The page is opened first, and the group found again in the list as it is then.
@@ -205,12 +205,12 @@ internal static partial class Program
 		var at = now?.FindIndex(g => group.Members.Count > 0 ? g.Who == group.Who : g.Name == group.Name) ?? -1;
 		if (at < 0 || !await DeleteMentoringGroup(at, now!))
 		{
-			Console.Error.WriteLine(L($"'{group.Name}' dağıtılamadı."));
+			Console.Error.WriteLine(L($"'{group.Name}' could not be broken up."));
 			return 1;
 		}
 		try { File.WriteAllText(CacheFile("mentoring-removed"), Field(await Fm.GetJson("state"), "Date")); }
 		catch (IOException) { }
-		Console.WriteLine(L($"Dağıtıldı: {group.Name}"));
+		Console.WriteLine(L($"Broken up: {group.Name}"));
 		return 0;
 	}
 

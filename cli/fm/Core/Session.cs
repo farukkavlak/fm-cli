@@ -8,7 +8,7 @@ internal static class Session
 {
 	public static async Task<int> Run(Func<string[], Task<int>> execute)
 	{
-		Console.WriteLine(L("fm oturumu — komutlar: squad, inbox, next, continue, status, help · çıkış: quit"));
+		Console.WriteLine(L("fm session — commands: squad, inbox, next, continue, status, help · to leave: quit"));
 
 		// Opening on where things stand saves typing the first command of every session.
 		if (Ui.Rich)

@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// What the board and the supporters think of the manager (FINDINGS §8.81), read from the team's
+/// What the board and the supporters think of the manager, read from the team's
 /// own confidence record with no screen: a sentence for each thing they judge (results, the
 /// squad's backing, tactics, transfers, the club's vision and culture, the competitions) and the
 /// lists of what pleased and what worried them.
@@ -12,15 +12,15 @@ internal static partial class Program
 {
 	private static readonly (string Label, string Field)[] BoardAreas =
 	[
-		(L("Genel"), "BoardConfidenceOverallString"), (L("Maçlar"), "BoardMatchString"), (L("Kadro"), "BoardSquadConfidenceString"),
-		(L("Taktik"), "BoardTacticsString"), ("Transfer", "BoardTransferConfidenceOverallSummaryText"), (L("Vizyon"), "BoardVisionString"),
-		(L("Kültür"), "BoardCultureProgressString"), (L("Turnuvalar"), "InternationalCompConfidenceStringLong"),
+		(L("Overall"), "BoardConfidenceOverallString"), (L("Matches"), "BoardMatchString"), (L("Squad"), "BoardSquadConfidenceString"),
+		(L("Tactics"), "BoardTacticsString"), ("Transfer", "BoardTransferConfidenceOverallSummaryText"), (L("Vision"), "BoardVisionString"),
+		(L("Culture"), "BoardCultureProgressString"), (L("Competitions"), "InternationalCompConfidenceStringLong"),
 	];
 
 	private static readonly (string Label, string Field)[] SupporterAreas =
 	[
-		(L("Genel"), "SupporterConfidenceOverallString"), (L("Maçlar"), "SupporterMatchString"), (L("Taktik"), "SupporterTacticsString"),
-		("Transfer", "SupporterTransferConfidenceOverallSummaryText"), (L("Vizyon"), "SupporterVisionString"),
+		(L("Overall"), "SupporterConfidenceOverallString"), (L("Matches"), "SupporterMatchString"), (L("Tactics"), "SupporterTacticsString"),
+		("Transfer", "SupporterTransferConfidenceOverallSummaryText"), (L("Vision"), "SupporterVisionString"),
 	];
 
 	private static async Task<int> Board(bool json)
@@ -46,13 +46,13 @@ internal static partial class Program
 
 		if (BoardAreas.All(a => Field(said, a.Field).Length == 0))
 		{
-			Console.Error.WriteLine(L("Yönetimin görüşü okunamadı."));
+			Console.Error.WriteLine(L("The board's view could not be read."));
 			return 1;
 		}
 
-		Block(L("Yönetim"), BoardAreas, praise, worries);
+		Block(L("Board"), BoardAreas, praise, worries);
 		Console.WriteLine();
-		Block(L("Taraftarlar"), SupporterAreas, fansPraise, fansWorries);
+		Block(L("Supporters"), SupporterAreas, fansPraise, fansWorries);
 		return 0;
 
 		void Block(string title, (string Label, string Field)[] areas, List<string> good, List<string> bad)
@@ -69,8 +69,8 @@ internal static partial class Program
 				else Console.WriteLine($"  {label,-11} {text}");
 			}
 
-			Points(L("Memnun oldukları"), good, "green", "+");
-			Points(L("Endişeleri"), bad, "red", "-");
+			Points(L("Pleased with"), good, "green", "+");
+			Points(L("Concerns"), bad, "red", "-");
 		}
 
 		static void Points(string heading, List<string> points, string colour, string mark)

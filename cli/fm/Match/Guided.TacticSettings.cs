@@ -12,7 +12,7 @@ internal static partial class Program
 	{
 		if (await Planner() is not { } tactic)
 		{
-			Console.Error.WriteLine(L("Takımın taktiği yok. Oluşturmak için: tactic new"));
+			Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 			return 1;
 		}
 
@@ -23,7 +23,7 @@ internal static partial class Program
 			.FirstOrDefault(d => d!.Value.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == marker))) != null, seconds: 8);
 		if (list is not { } dropdown)
 		{
-			Console.Error.WriteLine(L($"{what} listesi taktik ekranında bulunamadı."));
+			Console.Error.WriteLine(L($"The {what} list was not found on the tactics screen."));
 			return 1;
 		}
 
@@ -51,12 +51,12 @@ internal static partial class Program
 		if (Choose(choices, wanted, what) is not { } pick) return 1;
 		if (pick == current)
 		{
-			Console.WriteLine(L($"{what} zaten {pick}."));
+			Console.WriteLine(L($"{what} is already {pick}."));
 			return 0;
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(kuru) {what}: {current} → {pick} yapılacaktı."));
+			Console.WriteLine(L($"(dry run) {what}: {current} → {pick} would have been done."));
 			return 0;
 		}
 
@@ -69,7 +69,7 @@ internal static partial class Program
 			if ((await Fm.GetJson("tactic")).TryGetProperty("Tactic", out var header)) now = Field(header, field);
 			return now == pick;
 		}, seconds: 8);
-		Console.WriteLine(took ? $"{what}: {current} → {pick}" : L($"{what} {pick} seçildi ama taktik hâlâ {now} gösteriyor."));
+		Console.WriteLine(took ? $"{what}: {current} → {pick}" : L($"{what} {pick} was chosen, but the tactic still shows {now}."));
 		return took ? 0 : 1;
 	}
 
@@ -84,7 +84,7 @@ internal static partial class Program
 	{
 		if (await Planner() is not { } tactic)
 		{
-			Console.Error.WriteLine(L("Takımın taktiği yok. Oluşturmak için: tactic new"));
+			Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 			return 1;
 		}
 
@@ -93,16 +93,16 @@ internal static partial class Program
 		if (words.Count == 0 && Ui.Interactive)
 		{
 			var roleField = withoutBall ? "OOPRoleName" : "IPRoleName";
-			if (Ui.Ask(L("Hangi mevki?"), SlotLabels(slots, roleField)) is not { } asked) return 0;
+			if (Ui.Ask(L("Which position?"), SlotLabels(slots, roleField)) is not { } asked) return 0;
 			words.Add(spots[asked]);
 		}
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L($"kullanım: tactic role <mevki> [<rol>] [--oop]   mevkiler: {string.Join(" ", spots)}"));
+			Console.Error.WriteLine(L($"usage: tactic role <position> [<role>] [--oop]   positions: {string.Join(" ", spots)}"));
 			return 64;
 		}
 
-		if (Choose(spots, words[0], L("Mevki")) is not { } spot) return 1;
+		if (Choose(spots, words[0], L("Position")) is not { } spot) return 1;
 		var at = spots.IndexOf(spot);
 
 		List<JsonElement> lists = [];
@@ -119,7 +119,7 @@ internal static partial class Program
 
 		if (lists.Count != slots.Count * 2)
 		{
-			Console.Error.WriteLine(L($"Taktik ekranında {slots.Count * 2} rol listesi bekleniyordu, {lists.Count} var."));
+			Console.Error.WriteLine(L($"{slots.Count * 2} role lists were expected on the tactics screen; there are {lists.Count}."));
 			return 1;
 		}
 
@@ -149,14 +149,14 @@ internal static partial class Program
 
 		if (IdOf(list, current) is { } currentId ? currentId != knownId : !SameRole(current, Role(known)))
 		{
-			Console.Error.WriteLine(L($"{spot} için bulunan liste taktikle uyuşmuyor (listede '{current}', taktikte '{RoleOf(slots[at], withoutBall)}'); dokunulmadı."));
+			Console.Error.WriteLine(L($"The list found for {spot} does not match the tactic ('{current}' in the list, '{RoleOf(slots[at], withoutBall)}' in the tactic); left untouched."));
 			return 1;
 		}
 
 		var phase = withoutBall ? "topsuz" : "topla";
 		if (words.Count < 2 && Ui.Interactive)
 		{
-			if (Ui.Ask(L($"{spot} ({phase}) rolü"), roles, roles.IndexOf(current)) is not { } asked) return 0;
+			if (Ui.Ask(L($"Role of {spot} ({phase})"), roles, roles.IndexOf(current)) is not { } asked) return 0;
 			words.Add(roles[asked]);
 		}
 		if (words.Count < 2)
@@ -166,15 +166,15 @@ internal static partial class Program
 			return 0;
 		}
 
-		if (Choose(roles, words[1], L("Rol")) is not { } pick) return 1;
+		if (Choose(roles, words[1], L("Role")) is not { } pick) return 1;
 		if (pick == current)
 		{
-			Console.WriteLine(L($"{spot} ({phase}) zaten {pick}."));
+			Console.WriteLine(L($"{spot} ({phase}) is already {pick}."));
 			return 0;
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(kuru) {spot} ({phase}): {current} → {pick} yapılacaktı."));
+			Console.WriteLine(L($"(dry run) {spot} ({phase}): {current} → {pick} would have been done."));
 			return 0;
 		}
 
@@ -191,7 +191,7 @@ internal static partial class Program
 			return pickId != null ? Field(list[at], withoutBall ? "OOPRole" : "IPRole") == pickId : Plain(now) == Plain(pick);
 		}, seconds: 8);
 
-		Console.WriteLine(took ? $"{spot} ({phase}): {current} → {pick}" : L($"{pick} seçildi ama taktik hâlâ {Role(now)} gösteriyor."));
+		Console.WriteLine(took ? $"{spot} ({phase}): {current} → {pick}" : L($"{pick} was chosen, but the tactic still shows {Role(now)}."));
 		if (took) await ShowChange([(at, withoutBall)]);
 		return took ? 0 : 1;
 
@@ -208,12 +208,12 @@ internal static partial class Program
 	{
 		if (await Planner() is not { } before)
 		{
-			Console.Error.WriteLine(L("Takımın taktiği yok. Oluşturmak için: tactic new"));
+			Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 			return 1;
 		}
 
 		// The button is found by the event it sends, not by its words: "Quick Pick" is the game's
-		// own phrase read through the plugin's table ("Hızlı Seçim"), so another language's table
+		// own phrase read through the plugin's table (a quick-pick label), so another language's table
 		// could leave it untranslated and the button unfound.
 		var query = new List<(string, string)> { ("event", "EventToPlugin:EventFmxQuickPick") };
 		// The tactic stays bound after another page has been opened over it, so having read it
@@ -227,13 +227,13 @@ internal static partial class Program
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 		if (dry)
 		{
-			Console.WriteLine(L("(kuru) Quick Pick'e basılacaktı."));
+			Console.WriteLine(L("(dry run) Quick Pick would have been pressed."));
 			return 0;
 		}
 
 		// The game's pick arrives whole, a little under half a second after the press, and nothing
 		// says it is done: a pick that moved someone is believed once it reads the same again, one
-		// that moved no one only once nothing has changed for a while (FINDINGS §8.184).
+		// that moved no one only once nothing has changed for a while.
 		JsonElement tactic = before;
 		var old = string.Join("|", Eleven(before));
 		var last = old;
@@ -251,7 +251,7 @@ internal static partial class Program
 		}, seconds: 12, every: 0.25);
 		var full = settled && Eleven(tactic).Count == 11;
 		var names = Eleven(tactic);
-		Console.WriteLine(full ? L($"İlk 11 seçildi: {string.Join(", ", names)}") : L($"Quick Pick'e basıldı ama {names.Count} oyuncu seçili."));
+		Console.WriteLine(full ? L($"Starting eleven picked: {string.Join(", ", names)}") : L($"Quick Pick was pressed, but {names.Count} players are selected."));
 
 		// Whoever the game moved in is marked, so a pick that changed two places shows as two.
 		if (full && Ui.Rich)
@@ -334,7 +334,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The roles as the game's language calls them, by phase and role bit ("ip:4096" → "Ayağı İyi Kaleci").
+	/// The roles as the game's language calls them, by phase and role bit ("ip:4096" → a role name).
 	/// The tactic names a role only in the game's code; the planner's role lists say it in the game's
 	/// language, so the names are read from them and kept for the language (and a match, with no lists).
 	/// </summary>
@@ -387,7 +387,7 @@ internal static partial class Program
 	/// <summary>
 	/// The team keeps up to three tactics, one per slot, and plays the active one. The slots
 	/// other than the active one are buttons numbered by slot (EventFmxSetTacticSlot); the
-	/// active one is shown by its name (FINDINGS §8.47).
+	/// active one is shown by its name.
 	/// </summary>
 	private static async Task<int> TacticSlot(string wanted, bool dry)
 	{
@@ -410,32 +410,32 @@ internal static partial class Program
 				return 0;
 			}
 			foreach (var n in numbers)
-				Console.WriteLine(n == active.ToString() ? L($"{n}  {Field(tactic, "Name")}  (etkin)") : $"{n}");
+				Console.WriteLine(n == active.ToString() ? L($"{n}  {Field(tactic, "Name")}  (active)") : $"{n}");
 			var full = int.TryParse(Field(tactic, "TacticCount"), out var count) && count >= 3;
-			Console.WriteLine(L($"\nGeçmek için: tactic slot <n>{(full ? L(" · üç yuva dolu") : L(" · yeni yuva: tactic new ya da tactic copy"))}"));
+			Console.WriteLine(L($"\nTo switch: tactic slot <n>{(full ? L(" · all three slots taken") : L(" · new slot: tactic new or tactic copy"))}"));
 			return 0;
 		}
 		if (wanted == active.ToString())
 		{
-			Console.WriteLine(L($"{wanted}. yuva zaten etkin: {Field(tactic, "Name")}"));
+			Console.WriteLine(L($"Slot {wanted} is already active: {Field(tactic, "Name")}"));
 			return 0;
 		}
 		if (slots.FirstOrDefault(b => Field(b, "Label") == wanted) is not { ValueKind: JsonValueKind.Object } slot)
 		{
-			Console.Error.WriteLine(L($"{wanted} numaralı taktik yuvası yok. Yuvalar için: tactic slot"));
+			Console.Error.WriteLine(L($"There is no tactic slot {wanted}. For the slots: tactic slot"));
 			return 1;
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(kuru) {wanted}. yuvaya geçilecek."));
+			Console.WriteLine(L($"(dry run) Would switch to slot {wanted}."));
 			return 0;
 		}
-		// Queued, its event does nothing; a click on the button does (FINDINGS §8.47).
+		// Queued, its event does nothing; a click on the button does.
 		await Fm.Get("click", ("ptr", Field(slot, "Pointer")));
 		var now = "";
 		await Until(async () => (now = Field(await TacticInfo(), "CurrentTacticSlot")) == (int.Parse(wanted) - 1).ToString(), seconds: 6, every: 0.25);
 		var name = Field(await TacticInfo(), "Name");
-		Console.WriteLine(now == (int.Parse(wanted) - 1).ToString() ? L($"{wanted}. yuva etkin: {name}") : L("Yuva değişmedi."));
+		Console.WriteLine(now == (int.Parse(wanted) - 1).ToString() ? L($"Slot {wanted} active: {name}") : L("The slot did not change."));
 		return 0;
 	}
 }

@@ -4,7 +4,7 @@ namespace FmCli;
 
 /// <summary>
 /// The team instructions with the ball and without it, read and changed with no page opened
-/// (FINDINGS §8.132). Each instruction is a number: `data.TacticTeamInstruction` answers for it
+///. Each instruction is a number: `data.TacticTeamInstruction` answers for it
 /// once an `ID` variable sits beside the static data, with its name and the numbers of its
 /// settings, and `data.TacticTeamInstructionOption` names a setting the same way. The team's
 /// tactic (`Human.Team.Tactic`, with a `Boolean` variable set True — False is another copy the
@@ -24,35 +24,35 @@ internal static partial class Program
 	/// </summary>
 	private static readonly (string Group, bool WithBall, int[] Ids)[] TeamInstructionGroups =
 	[
-		(L("Genel"), true, [1, 21, 4, 3, 5, 7, 6]),
-		(L("Son üçte bir"), true, [19, 18, 27, 26]),
-		(L("İlerleme"), true, [28, 30, 20]),
-		(L("Oyun kurma"), true, [24, 29, 17, 16]),
-		(L("Topsuz"), false, [8, 9, 15, 10, 25, 11, 12, 22, 23]),
+		(L("Overall"), true, [1, 21, 4, 3, 5, 7, 6]),
+		(L("Final third"), true, [19, 18, 27, 26]),
+		(L("Progression"), true, [28, 30, 20]),
+		(L("Playmaking"), true, [24, 29, 17, 16]),
+		(L("Out of possession"), false, [8, 9, 15, 10, 25, 11, 12, 22, 23]),
 	];
 
 	private static async Task<int> TacticInstructions(List<string> words, bool oop, bool dry, bool refresh)
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 		if (!await FindMatchTactic())
 		{
-			Console.Error.WriteLine(L("Maçın taktiği bulunamadı."));
+			Console.Error.WriteLine(L("The match's tactic was not found."));
 			return 1;
 		}
 		var catalogue = await TeamInstructionCatalogue(refresh);
 		if (catalogue.Count == 0)
 		{
-			Console.Error.WriteLine(L("Takım talimatları oyundan okunamadı."));
+			Console.Error.WriteLine(L("The team instructions could not be read from the game."));
 			return 1;
 		}
 		var now = await TeamInstructionsNow(catalogue);
 		if (now.Count == 0)
 		{
-			Console.Error.WriteLine(L("Takımın taktiği okunamadı. Taktik yoksa: tactic new"));
+			Console.Error.WriteLine(L("The team's tactic could not be read. If there is no tactic: tactic new"));
 			return 1;
 		}
 		string Setting(TeamInstruction i) => now.TryGetValue(i.Id, out var o) ? i.Options.FirstOrDefault(x => x.Id == o).Name ?? o.ToString() : "?";
@@ -70,7 +70,7 @@ internal static partial class Program
 			{
 				if (!first) Console.WriteLine();
 				first = false;
-				if (Ui.Rich) Ui.Line($"[bold underline]{(group.Key ? L("Topla") : L("Topsuz"))}[/]"); else Console.WriteLine(group.Key ? L("TOPLA") : L("TOPSUZ"));
+				if (Ui.Rich) Ui.Line($"[bold underline]{(group.Key ? L("In possession") : L("Out of possession"))}[/]"); else Console.WriteLine(group.Key ? L("IN POSS.") : L("OUT OF POSS."));
 				foreach (var phase in group.GroupBy(i => i.Group))
 				{
 					if (group.Key) { if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(phase.Key)}[/]"); else Console.WriteLine(phase.Key); }
@@ -79,7 +79,7 @@ internal static partial class Program
 						else Console.WriteLine($"  {i.Name}: {Setting(i)}");
 				}
 			}
-			Console.WriteLine(L("\nDeğiştirmek için: tactic instructions \"<talimat>\" [<değer>]"));
+			Console.WriteLine(L("\nTo change: tactic instructions \"<instruction>\" [<value>]"));
 			return 0;
 		}
 
@@ -87,7 +87,7 @@ internal static partial class Program
 		var asked = words[0];
 		if (asked.IndexOf('/') is var slash and > 0) asked = asked[(slash + 1)..];
 		var names = catalogue.Select(i => i.Name).ToList();
-		if (Choose(names, asked.Trim(), L("Talimat")) is not { } named) return 1;
+		if (Choose(names, asked.Trim(), L("Instruction")) is not { } named) return 1;
 		var target = catalogue.First(i => i.Name == named);
 		var current = Setting(target);
 		var choices = target.Options.Select(o => o.Name).ToList();
@@ -100,7 +100,7 @@ internal static partial class Program
 		}
 		else if (Ui.Interactive && !dry)
 		{
-			if (Ui.Ask(target.Name, choices, current: choices.IndexOf(current), cancel: L("Vazgeç")) is not { } picked) return 0;
+			if (Ui.Ask(target.Name, choices, current: choices.IndexOf(current), cancel: L("Cancel")) is not { } picked) return 0;
 			choice = choices[picked];
 		}
 		else if (Ui.Json)
@@ -110,19 +110,19 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine(L($"{target.Name}: {current}\nSeçenekler: {string.Join(" · ", choices)}"));
+			Console.WriteLine(L($"{target.Name}: {current}\nOptions: {string.Join(" · ", choices)}"));
 			return 0;
 		}
 
 		if (dry || choice == current)
 		{
-			Console.WriteLine(dry ? L($"(kuru) {target.Name}: {current} → {choice}") : L($"{target.Name} zaten {choice}."));
+			Console.WriteLine(dry ? L($"(dry run) {target.Name}: {current} → {choice}") : L($"{target.Name} is already {choice}."));
 			return 0;
 		}
 
 		var option = target.Options.First(o => o.Name == choice).Id;
 		var scope = await TacticScope(target.Id);
-		if (scope == null) return Report(L("error: taktik bağlanamadı"));
+		if (scope == null) return Report(L("error: the tactic could not be bound"));
 		// Written before it is bound, the setting stays a value of that place and never reaches the game.
 		await PullEach([($"{TacticAt(scope)}", "SelectedTeamInstructionOption")]);
 		var said = await Fm.Get("pathset", ("to", $"{TacticAt(scope)}.SelectedTeamInstructionOption"), ("int", option.ToString()));
@@ -132,7 +132,7 @@ internal static partial class Program
 		long? after = null;
 		var took = await Until(async () => (after = (await TeamInstructionsNow([target])).GetValueOrDefault(target.Id)) == option, seconds: 5, every: 0.3);
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Instruction = target.Name, Was = current, Value = took ? choice : Setting(target), Changed = took }));
-		else Console.WriteLine(took ? $"{target.Name}: {current} → {choice}{Stoppage()}" : L($"{target.Name}: oyun değişikliği almadı."));
+		else Console.WriteLine(took ? $"{target.Name}: {current} → {choice}{Stoppage()}" : L($"{target.Name}: the game did not take the change."));
 		return took ? 0 : 1;
 	}
 }

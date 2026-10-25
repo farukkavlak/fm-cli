@@ -26,12 +26,12 @@ internal static partial class Program
 			{
 				Field(c, "Label"),
 				Field(c, "Name"),
-				Field(c, "Events") + (Field(c, "Enabled") == "True" ? "" : L("  (kapalı)")),
+				Field(c, "Events") + (Field(c, "Enabled") == "True" ? "" : L("  (closed)")),
 			})
 			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 
-		Table.Write(new[] { L("ETİKET"), L("AD"), L("NE GÖNDERİR") }, rows);
+		Table.Write(new[] { L("LABEL"), L("NAME"), L("WHAT IT SENDS") }, rows);
 		return 0;
 	}
 
@@ -51,7 +51,7 @@ internal static partial class Program
 			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 
-		Table.Write(new[] { L("SEKME"), L("SAYFA") }, rows);
+		Table.Write(new[] { L("TAB"), L("PAGE") }, rows);
 		return 0;
 	}
 
@@ -60,7 +60,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: open \"<sayfa>\" [--tab <sekme>] [--dry]   (sayfalar için `pages`)"));
+			Console.Error.WriteLine(L("usage: open \"<page>\" [--tab <tab>] [--dry]   (for the pages: `pages`)"));
 			return 64;
 		}
 
@@ -85,7 +85,7 @@ internal static partial class Program
 	///
 	/// Such a page is one panel in both places, and a panel already up keeps the form it was
 	/// opened in: the tactics planner's team report, chosen again under Match Day, stays the team
-	/// report and never shows the next-match heading (FINDINGS §8.163). Another page is opened
+	/// report and never shows the next-match heading. Another page is opened
 	/// first so that the panel is built anew.
 	/// </summary>
 	internal static async Task<string> OpenPage(string screen, string? team = null, string? under = null)
@@ -134,7 +134,7 @@ internal static partial class Program
 				return settled;
 			}, seconds: 8, every: 0.3)) return answer;
 		}
-		return L($"error: {answer}, ama sayfa beklenen içeriği göstermedi");
+		return L($"error: {answer}, but the page did not show what was expected");
 	}
 
 	/// <summary>
@@ -149,9 +149,9 @@ internal static partial class Program
 
 	/// <summary>
 	/// Right after a match the navigation is rebuilt and the page list is empty for a while
-	/// (FINDINGS §8.52); it is waited for rather than reported as no such page. Now and then the
+	///; it is waited for rather than reported as no such page. Now and then the
 	/// game is laying out its screen when the page is asked for, and refuses to add the panel
-	/// ("VisualElements cannot be added to an active visual tree…", FINDINGS §8.78); a moment
+	/// ("VisualElements cannot be added to an active visual tree…"); a moment
 	/// later the same request goes through.
 	/// </summary>
 	private static async Task<string> OpenWith((string, string)[] query)
@@ -163,9 +163,9 @@ internal static partial class Program
 			var state = await Fm.GetJson("state");
 			// In a match the pages wait for it to end; what can be done meanwhile is the match's own.
 			if (Field(state, "DuringMatch") == "True")
-				return L("error: maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role; sürdürmek: match");
+				return L("error: pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role; to go on: match");
 			var flow = Field(state, "State");
-			return L($"error: oyun menüsüz bir ekranda ({flow}); sayfalar açılamıyor. Geçmek için: next");
+			return L($"error: the game is on a screen without a menu ({flow}); pages cannot be opened. To go past it: next");
 		}
 
 		var answer = "";

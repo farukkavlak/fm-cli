@@ -44,7 +44,7 @@ internal static partial class Program
 	/// <summary>
 	/// Where the numbers last shown by `inbox` are kept. The inbox drops read messages and takes
 	/// new ones between commands, so "reply 17" means the seventeenth as it was shown, not as
-	/// it is now (PLAN, known bugs: once a reply opened the message above the one meant).
+	/// it is now.
 	/// </summary>
 	private static string NumbersFile => CacheFile("inbox-numbers.json");
 
@@ -74,13 +74,13 @@ internal static partial class Program
 			{
 				var (id, title) = (shown[number - 1][0], shown[number - 1][1]);
 				if (inbox.FirstOrDefault(m => Field(m, "UniqueId") == id) is { ValueKind: JsonValueKind.Object } same) return same;
-				Console.Error.WriteLine(L($"{number} numaralı mesaj ('{title}') artık gelen kutusunda yok. Güncel numaralar için: inbox"));
+				Console.Error.WriteLine(L($"Message {number} ('{title}') is no longer in the inbox. For the current numbers: inbox"));
 				return null;
 			}
 
 			if (number >= 1 && number <= inbox.Count) return inbox[number - 1];
 
-			Console.Error.WriteLine(L($"{number} numaralı mesaj yok; gelen kutusunda {inbox.Count} mesaj var."));
+			Console.Error.WriteLine(L($"There is no message {number}; the inbox has {inbox.Count} messages."));
 			return null;
 		}
 
@@ -91,8 +91,8 @@ internal static partial class Program
 		if (matches.Count == 1) return matches[0];
 
 		Console.Error.WriteLine(matches.Count == 0
-			? L($"Konusunda '{wanted}' geçen mesaj yok.")
-			: L($"'{wanted}' {matches.Count} mesaja uyuyor; numarasıyla seç:"));
+			? L($"No message has '{wanted}' in its subject.")
+			: L($"'{wanted}' matches {matches.Count} messages; choose by number:"));
 		foreach (var match in matches) Console.Error.WriteLine("  " + GameWords.Of(Field(match, "NewsTitleString")));
 		return null;
 	}

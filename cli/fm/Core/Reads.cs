@@ -26,14 +26,14 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
 		var state = await Fm.GetJson("state");
 		if (Field(state, "DuringMatch") == "True")
 		{
-			Console.Error.WriteLine(L("Maç sırasında başka sayfa açılmıyor. Maç için: match"));
+			Console.Error.WriteLine(L("No other page opens during a match. For the match: match"));
 			return 1;
 		}
 		// After a match the game stands on its results and news page until it is passed. A page opened
@@ -41,7 +41,7 @@ internal static partial class Program
 		// session, and only loading the save again brought time back (Stevenage, 18 Nisan 2026).
 		if (Field(state, "State") == "Results")
 		{
-			Console.Error.WriteLine(L("Oyun maç sonrası sonuçlar ekranında; başka sayfa açmadan önce geç: next"));
+			Console.Error.WriteLine(L("The game is on the post-match results screen; go past it before opening another page: next"));
 			return 1;
 		}
 		return null;
@@ -49,7 +49,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// What tells people of one name apart, the way the game's own lists do: age, positions,
-	/// nation and club, one line per search result ("22 · AM (RL), ST (C) · MLI · Fenerbahçe").
+	/// nation and club, one line per search result ("22 · AM (RL), ST (C) · MLI · Club").
 	/// The row binds only the name, so each person is put at a node of ours and read there; the
 	/// game fills the values on the second reading.
 	/// </summary>
@@ -84,7 +84,7 @@ internal static partial class Program
 
 		return results.Select((r, i) => string.Join(" · ", new[]
 		{
-			read[i]?.GetValueOrDefault("Age") is { Length: > 0 } age ? L($"{age} yaş") : "",
+			read[i]?.GetValueOrDefault("Age") is { Length: > 0 } age ? L($"aged {age}") : "",
 			// A coach's positions are from his playing days and would read as his job.
 			Field(r, "Kind") == "Player" ? read[i]?.GetValueOrDefault("Positions") ?? "" : read[i]?.GetValueOrDefault("Job") ?? "",
 			read[i]?.GetValueOrDefault("Nation") ?? "",
@@ -161,7 +161,7 @@ internal static partial class Program
 		var text = string.Join(" ", Words(args));
 		if (text.Length == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: search <metin>"));
+			Console.Error.WriteLine(L("usage: search <text>"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -174,7 +174,7 @@ internal static partial class Program
 		}
 
 		var who = await Who(results);
-		Table.Write([L("TÜR"), L("AD"), L("KİM")], results.Select((r, i) => new[]
+		Table.Write([L("TYPE"), L("NAME"), L("WHO")], results.Select((r, i) => new[]
 		{
 			Field(r, "Kind"),
 			Field(r, "Name") is { Length: > 0 } person ? person : Field(r, "Club") + Field(r, "Competition") + Field(r, "Nation"),
@@ -201,7 +201,7 @@ internal static partial class Program
 		var options = await TalkOptions();
 		if (options.Count == 0)
 		{
-			Console.Error.WriteLine(L($"{name} için aksiyon bulunamadı."));
+			Console.Error.WriteLine(L($"No actions found for {name}."));
 			return 1;
 		}
 
@@ -209,11 +209,11 @@ internal static partial class Program
 		if (!Ui.Interactive)
 		{
 			for (var i = 0; i < labels.Count; i++) Console.WriteLine($"  {i + 1,2}  {labels[i]}");
-			Console.WriteLine(L("\nYapmak için: talk <numara>   (teklif için: offer <oyuncu> <bonservis>)"));
+			Console.WriteLine(L("\nTo do it: talk <number>   (for an offer: offer <player> <fee>)"));
 			return 0;
 		}
 
-		if (Ui.Ask(L($"{name}: ne yapalım?"), labels, cancel: L("Hiçbir şey")) is not { } chosen) return 0;
+		if (Ui.Ask(L($"{name}: what shall we do?"), labels, cancel: L("Nothing")) is not { } chosen) return 0;
 
 		// The offer opens on its card, where the fee is set with the other terms.
 		if (options[chosen].Label == "Make An Offer") return await Offer(["offer", name]);
@@ -248,7 +248,7 @@ internal static partial class Program
 		var fromSquad = false;
 		if (own.Count > 0)
 		{
-			if (Choose(own, wanted, L("Oyuncu")) is not { } mine) return null;
+			if (Choose(own, wanted, L("Player")) is not { } mine) return null;
 			full = mine;
 			if (!(await SearchFor(full)).Any(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)))
 			{
@@ -260,7 +260,7 @@ internal static partial class Program
 					: await Arriving("press", [("text", full), ("name", "NameButton"), ("any", "1")]);
 				if (pressedName.StartsWith("error", StringComparison.Ordinal))
 				{
-					Console.Error.WriteLine(L($"{full} kadroda ama ne aramada ne kadro tablosunda açılabildi."));
+					Console.Error.WriteLine(L($"{full} is in the squad, but could be opened neither in search nor in the squad table."));
 					return null;
 				}
 				fromSquad = true;
@@ -287,10 +287,10 @@ internal static partial class Program
 			if (close.Count != 1)
 			{
 				Console.Error.WriteLine(found.Count == 0
-					? L($"'{wanted}' adında bir oyuncu kadroda da aramada da yok.")
+					? L($"No player called '{wanted}' in the squad or in search.")
 					: close.Count == 0
-						? L($"'{wanted}' aramada tam olarak çıkmadı; en yakınlar:")
-						: L($"'{wanted}' aramada {close.Count} oyuncuya uyuyor; adı biraz daha yaz:"));
+						? L($"'{wanted}' did not come up exactly in search; the closest:")
+						: L($"'{wanted}' matches {close.Count} players in search; type a bit more of the name:"));
 				var hits = close.Count == 0 ? found : close;
 				var who = await Who(hits);
 				for (var i = 0; i < hits.Count; i++) Console.Error.WriteLine($"  {Field(hits[i], "Name")}  ({who[i]})");
@@ -310,7 +310,7 @@ internal static partial class Program
 		// Pages opened earlier stay loaded beneath, so his is asked for by name.
 		if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out _), seconds: 15, every: 0.25))
 		{
-			Console.Error.WriteLine(L($"{full} için oyuncu sayfası açılmadı."));
+			Console.Error.WriteLine(L($"The player page did not open for {full}."));
 			return null;
 		}
 

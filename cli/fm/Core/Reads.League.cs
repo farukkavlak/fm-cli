@@ -4,7 +4,7 @@ namespace FmCli;
 
 internal static partial class Program
 {
-	private static readonly string[] ShortDays = [L("Paz"), L("Pzt"), L("Sal"), L("Çar"), L("Per"), L("Cum"), L("Cmt")];
+	private static readonly string[] ShortDays = [L("Sun"), L("Mon"), L("Tue"), L("Wed"), L("Thu"), L("Fri"), L("Sat")];
 
 	private static async Task<int> LeagueTable(bool json, string[] args)
 	{
@@ -19,7 +19,7 @@ internal static partial class Program
 			// A competition that is not ours has no button to open it from; the Stages page
 			// reaches all of them.
 			if (!ours.Any(o => Fold(o).Contains(Fold(typed))) && !int.TryParse(typed, out _)) return await Stages(json, ["stages", typed]);
-			if (Choose(ours, typed, L("Turnuva")) is not { } chosen) return 64;
+			if (Choose(ours, typed, L("Competition")) is not { } chosen) return 64;
 			wanted = chosen;
 		}
 
@@ -43,7 +43,7 @@ internal static partial class Program
 						&& !p.Any(step => step.StartsWith("Under", StringComparison.Ordinal))).ToList();
 				if (nation.Length > 0 && leagues.Count == 1 && await Stages(false, ["stages", leagues[0][^1], "--bare"]) == 0) return 0;
 				// With the league over its page opens on the stage being played, the play-offs, which is ties
-				// and no table; the table is the league stage's (2 Mayıs 2026).
+				// and no table; the table is the league stage's.
 				if (nation.Length > 0 && leagues.Count == 1 && await Stages(false, ["stages", leagues[0][^1], "league", "--bare"]) == 0) return 0;
 			}
 			catch (Exception e) when (e is FmError or System.Text.Json.JsonException or IOException) { }
@@ -94,7 +94,7 @@ internal static partial class Program
 			var pressed = await Arriving("press", [("text", wanted), ("name", "SIButton"), ("any", "1")]);
 			if (pressed.StartsWith("error", StringComparison.Ordinal) || await Settled(seen, 12) is not { } onPage)
 			{
-				Console.Error.WriteLine(L($"{wanted}: tablo açılmadı (kupada tablo olmaz)."));
+				Console.Error.WriteLine(L($"{wanted}: the table did not open (a cup has no table)."));
 				return 1;
 			}
 			table = onPage;
@@ -123,7 +123,7 @@ internal static partial class Program
 		// A place already settled is said beside the team, as the page does with its "C" and "Pl".
 		static string Team(JsonElement row) => Field(row, "Name") + (Field(row, "Settled") switch
 		{
-			"" => "", "C" => L(" (şampiyon)"), "Pl" => L(" (play-off kesin)"), "P" => L(" (yükseldi)"), "R" => L(" (düştü)"), var mark => $" ({mark})",
+			"" => "", "C" => L(" (champions)"), "Pl" => L(" (play-offs certain)"), "P" => L(" (promoted)"), "R" => L(" (relegated)"), var mark => $" ({mark})",
 		});
 		var rows = table.EnumerateArray().Select(row => full
 			? new[]
@@ -132,7 +132,7 @@ internal static partial class Program
 				Field(row, "LeagueGamesDrawn"), Field(row, "LeagueGamesLost"), Field(row, "LeagueGoalDifference"), Field(row, "LeaguePoints"),
 			}
 			: [Field(row, "TablePosition"), Team(row), Field(row, "LeagueGamesPlayed"), Field(row, "LeaguePoints")]).ToList();
-		string[] headers = full ? ["#", L("TAKIM"), L("O"), L("G"), L("B"), L("M"), L("AV"), L("P")] : ["#", L("TAKIM"), L("O"), L("P")];
+		string[] headers = full ? ["#", L("TEAM"), L("PTS"), L("W"), L("D"), L("L"), L("GD"), L("PTS")] : ["#", L("TEAM"), L("PTS"), L("PTS")];
 
 		// The last five league results, oldest first, where the page binds them.
 		var forms = table.EnumerateArray().Select(row => Standings.Form(Field(row, "RecentFormValues"))).ToList();
@@ -171,7 +171,7 @@ internal static partial class Program
 		}, seconds: 8, every: 0.6);
 		if (rows.Count == 0)
 		{
-			Console.Error.WriteLine(L("Kadro okunamadı."));
+			Console.Error.WriteLine(L("The squad could not be read."));
 			return 1;
 		}
 		rows = rows.OrderByDescending(r => r.Ability.Count > 0 ? r.Ability[^1] - r.Ability[0] : 0).ThenByDescending(r => r.Ability.LastOrDefault()).ToList();
@@ -182,7 +182,7 @@ internal static partial class Program
 			return 0;
 		}
 		static string N(double v) => GameNumbers.Of(v, "0.#");
-		Table.Write([L("OYUNCU"), L("YAŞ"), L("YETENEK (eski → yeni)"), L("DEĞİŞİM"), L("POTANSİYEL")], rows.Select(r =>
+		Table.Write([L("PLAYER"), L("AGE"), L("ABILITY (old → new)"), L("CHANGE"), L("POTENTIAL")], rows.Select(r =>
 		{
 			var change = r.Ability.Count > 0 ? Math.Round(r.Ability[^1] - r.Ability[0], 1) : 0;
 			return new[]
@@ -191,7 +191,7 @@ internal static partial class Program
 				change > 0 ? "+" + N(change) : change < 0 ? N(change) : "=", r.Potential > 0 ? r.Potential.ToString() : "",
 			};
 		}).ToList());
-		Console.WriteLine(L("\nYetenek 200 üzerinden, son dört aylık ölçüm; potansiyel kulübün gözünden."));
+		Console.WriteLine(L("\nAbility out of 200, measured over the last four months; potential as the club sees it."));
 		return 0;
 	}
 
@@ -223,7 +223,7 @@ internal static partial class Program
 		{
 			Short(Field(fixture, "Date")),
 			Field(fixture, "KickoffTime"),
-			Field(fixture, "MatchVenueShort") switch { "H" => L("İç saha"), "A" => L("Deplasman"), "N" => L("Tarafsız"), var other => other },
+			Field(fixture, "MatchVenueShort") switch { "H" => L("Home"), "A" => L("Away"), "N" => L("Neutral"), var other => other },
 			Field(fixture, "ShortName"),
 			Field(fixture, "Name"),
 			Field(fixture, "Result"),
@@ -234,11 +234,11 @@ internal static partial class Program
 			// The game marks each result by what it was for us: 1 a win, 3 a win on penalties,
 			// 9 a draw, 10 a defeat; anything else is left uncoloured.
 			var kinds = fixtures.EnumerateArray().Where(fixture => Field(fixture, "Date") != "").Select(f => Field(f, "ResultType")).ToList();
-			Standings.Fixtures([L("TARİH"), L("SAAT"), L("YER"), L("RAKİP"), L("TURNUVA"), L("SONUÇ")], rows, kinds);
+			Standings.Fixtures([L("DATE"), L("TIME"), L("VENUE"), L("OPPONENT"), L("COMPETITION"), L("RESULT")], rows, kinds);
 			return 0;
 		}
 
-		Table.Write([L("TARİH"), L("SAAT"), L("YER"), L("RAKİP"), L("TURNUVA"), L("SONUÇ")], rows);
+		Table.Write([L("DATE"), L("TIME"), L("VENUE"), L("OPPONENT"), L("COMPETITION"), L("RESULT")], rows);
 		return 0;
 
 		static string Short(string date) =>
@@ -248,7 +248,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The whole season's fixtures, gathered month by month from the calendar (FINDINGS §8.66):
+	/// The whole season's fixtures, gathered month by month from the calendar:
 	/// date, competition, venue, opponent and his league place, kick-off or our score.
 	/// </summary>
 	private static async Task<int> AllFixtures(bool json)
@@ -266,7 +266,7 @@ internal static partial class Program
 		matches = matches.OrderBy(m => m.Day).ToList();
 		if (matches.Count == 0)
 		{
-			Console.Error.WriteLine(L("Takvimde maç bulunamadı."));
+			Console.Error.WriteLine(L("No match found in the calendar."));
 			return 1;
 		}
 
@@ -281,7 +281,7 @@ internal static partial class Program
 		{
 			$"{m.Day.Day} {Months[m.Day.Month - 1][..3]} {ShortDays[(int)m.Day.DayOfWeek]}",
 			played.IsMatch(m.TimeOrScore) ? "" : m.TimeOrScore,
-			m.Venue switch { "H" => L("İç saha"), "A" => L("Deplasman"), "N" => L("Tarafsız"), _ => "" },
+			m.Venue switch { "H" => L("Home"), "A" => L("Away"), "N" => L("Neutral"), _ => "" },
 			m.Opponent + (m.Place.Length > 0 ? $" ({m.Place})" : ""),
 			m.Competition,
 			played.IsMatch(m.TimeOrScore) ? Ours(m).Replace("-", " - ") : "",
@@ -290,7 +290,7 @@ internal static partial class Program
 		// defeat. Level after penalties or extra time is not called a draw.
 		var kinds = matches.Select(m => !played.IsMatch(m.TimeOrScore) ? ""
 			: MatchOutcome(m) switch { > 0 => "1", < 0 => "10", _ => char.IsDigit(m.TimeOrScore[^1]) ? "9" : "" }).ToList();
-		string[] headers = [L("TARİH"), L("SAAT"), L("YER"), L("RAKİP"), L("TURNUVA"), L("SONUÇ")];
+		string[] headers = [L("DATE"), L("TIME"), L("VENUE"), L("OPPONENT"), L("COMPETITION"), L("RESULT")];
 		if (Ui.Rich) Standings.Fixtures(headers, rows, kinds);
 		else Table.Write(headers, rows);
 		return 0;

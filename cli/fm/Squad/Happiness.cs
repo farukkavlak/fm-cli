@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// How happy each player is, and why (Squad › Dynamics › Happiness, FINDINGS §8.59, §8.127).
+/// How happy each player is, and why (Squad › Dynamics › Happiness, §8.127).
 /// The list is read off the page as status flags (Wnt, Unr, FtT, Rst…), name, "N year-old …",
 /// level; the reasons — what pleases him, what he holds against the club — come from the panel
 /// the page fills when his row is selected.
@@ -44,7 +44,7 @@ internal static partial class Program
 		await GameWords.Ask(Fm, HappinessLevels);
 		if (players.Count == 0)
 		{
-			Console.Error.WriteLine(L("Mutluluk sayfası okunamadı."));
+			Console.Error.WriteLine(L("The happiness page could not be read."));
 			return 1;
 		}
 		// Ordered and coloured by the game's own score for a level (HierarchyOverallHappinessLevel),
@@ -63,12 +63,12 @@ internal static partial class Program
 			var matches = Matching(players, p => p.Name, typed);
 			if (matches.Count != 1)
 			{
-				Console.Error.WriteLine(matches.Count == 0 ? L($"'{typed}' mutluluk listesinde yok.") : L($"'{typed}' birden çok oyuncuya uyuyor: {string.Join(", ", matches.Select(p => p.Name))}"));
+				Console.Error.WriteLine(matches.Count == 0 ? L($"'{typed}' is not in the happiness list.") : L($"'{typed}' matches more than one player: {string.Join(", ", matches.Select(p => p.Name))}"));
 				return 1;
 			}
 			if (await WhyHappy(matches[0]) is not { } why)
 			{
-				Console.Error.WriteLine(L($"{matches[0].Name}: nedenler okunamadı."));
+				Console.Error.WriteLine(L($"{matches[0].Name}: the reasons could not be read."));
 				return 1;
 			}
 			if (json) Console.WriteLine(JsonOut.Of(why));
@@ -89,9 +89,9 @@ internal static partial class Program
 			var upset = all.Where(a => a.Why.Negatives.Count > 0).ToList();
 			foreach (var (row, why) in upset) WriteWhy(why, row.Flags, positives: false);
 			Console.WriteLine(upset.Count == 0
-				? L($"{all.Count} oyuncunun hiçbirinin bir şikâyeti yok.")
-				: L($"\n{all.Count} oyuncudan {upset.Count} tanesinin şikâyeti var; kalan {all.Count - upset.Count} oyuncunun yok."));
-			if (all.Count < players.Count) Console.Error.WriteLine(L($"{players.Count - all.Count} oyuncunun nedenleri okunamadı."));
+				? L($"None of the {all.Count} players has a complaint.")
+				: L($"\n{upset.Count} of {all.Count} players have a complaint; the other {all.Count - upset.Count} do not."));
+			if (all.Count < players.Count) Console.Error.WriteLine(L($"The reasons of {players.Count - all.Count} players could not be read."));
 			return 0;
 		}
 
@@ -107,7 +107,7 @@ internal static partial class Program
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(player.Name),-24} [{LevelColour(player.Score)}]{Ui.Safe(say)}[/][dim]{Ui.Safe(flag)}[/]");
 			else Console.WriteLine($"  {player.Name,-24} {say}{flag}");
 		}
-		Console.WriteLine(L("\nNedeni: happiness <oyuncu>   ·   herkesin şikâyetleri: happiness --why"));
+		Console.WriteLine(L("\nWhy: happiness <player>   ·   everyone's complaints: happiness --why"));
 		return 0;
 	}
 
@@ -165,10 +165,10 @@ internal static partial class Program
 			if (Ui.Rich) Ui.Line($"  [green]+[/] {Ui.Safe(positive)}");
 			else Console.WriteLine($"  + {positive}");
 		}
-		if (why.Negatives.Count == 0) Console.WriteLine(L("  Şikâyeti yok."));
+		if (why.Negatives.Count == 0) Console.WriteLine(L("  No complaints."));
 	}
 
-	// Read by each text's data path (FINDINGS §8.169), anchored on a player's description, which
+	// Read by each text's data path, anchored on a player's description, which
 	// only rows of this list carry: a row is its flags (StatusFlag.StatusTitleShort), the name
 	// (binding.Name), the description (Person.PlayerDescription), then the level, which is drawn
 	// without a path but is one of the game's own texts and so comes in English.
@@ -295,7 +295,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Selects his row and reads the panel it fills, by each text's data path (FINDINGS §8.169): his
+	/// Selects his row and reads the panel it fills, by each text's data path: his
 	/// name (Person.Name), morale (Person.MoraleString), standing (Person.HierarchyInfluenceCategoryString)
 	/// and the reasons (Reason.Name), split by the Positives and Negatives headings (game texts). A row
 	/// out of view is not laid out, so the list is scrolled until it can be chosen.

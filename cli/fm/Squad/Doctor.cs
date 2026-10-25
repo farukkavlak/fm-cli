@@ -17,7 +17,7 @@ internal static partial class Program
 
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -74,14 +74,14 @@ internal static partial class Program
 			foreach (var line in lines) Console.WriteLine($"    {line}");
 		}
 
-		Finding(L($"Sakat: {injured.Count}"), injured.Select(p =>
-			$"{Field(p, "Name")} — {Field(p, "CurrentInjury.InjuryDescription")}{(Number(p, "CurrentInjury.InjuryReturnDays") is > 0 and var days ? L($", {days} gün daha") : "")}").ToList(),
+		Finding(L($"Injured: {injured.Count}"), injured.Select(p =>
+			$"{Field(p, "Name")} — {Field(p, "CurrentInjury.InjuryDescription")}{(Number(p, "CurrentInjury.InjuryReturnDays") is > 0 and var days ? L($", {days} more days") : "")}").ToList(),
 			"health");
-		Finding(L($"Yorgun (kondisyon %85 altı): {tired.Count}"), Wrapped(tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}")), L("intensity <oyuncu> \"dinlen 1\""));
-		Finding(L($"Maç formu düşük (%60 altı): {rusty.Count}"), Wrapped(rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}")), "squad --fitness");
-		Finding(L($"Sözleşmesi bir yıl içinde bitiyor: {expiring.Count}"), expiring.Select(x => $"{Field(x.Player, "Name")} — {Field(x.Player, "FullContract.EndDateDescription")}").ToList(), L("contract <oyuncu>"));
-		Finding(L("İnce mevkiler (sağlam oyuncu bir ya da hiç)"), thin.Select(x => $"{x.Slot,-4} {(x.Players.Count == 0 ? L("kimse yok") : L($"yalnızca {x.Players[0]}"))}").ToList(), "depth");
-		Finding(L($"Yönetimin endişeleri: {worries.Count}"), worries.Take(3).Concat(worries.Count > 3 ? [$"… ve {worries.Count - 3} tane daha"] : []).ToList(), "board");
+		Finding(L($"Tired (condition under 85%): {tired.Count}"), Wrapped(tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}")), L("intensity <player> \"rest 1\""));
+		Finding(L($"Low match sharpness (under 60%): {rusty.Count}"), Wrapped(rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}")), "squad --fitness");
+		Finding(L($"Contract ends within a year: {expiring.Count}"), expiring.Select(x => $"{Field(x.Player, "Name")} — {Field(x.Player, "FullContract.EndDateDescription")}").ToList(), L("contract <player>"));
+		Finding(L("Thin positions (one fit player or none)"), thin.Select(x => $"{x.Slot,-4} {(x.Players.Count == 0 ? L("nobody") : L($"only {x.Players[0]}"))}").ToList(), "depth");
+		Finding(L($"The board's concerns: {worries.Count}"), worries.Take(3).Concat(worries.Count > 3 ? [L($"… and {worries.Count - 3} more")] : []).ToList(), "board");
 
 		// A list of names, comma after comma, broken into lines that fit the terminal under the indent.
 		static List<string> Wrapped(IEnumerable<string> items)
@@ -102,9 +102,9 @@ internal static partial class Program
 			return lines;
 		}
 
-		if (problems == 0) Console.WriteLine(L("Kadroda göze batan bir sorun yok."));
-		if (Ui.Rich) Ui.Line(L("[dim]Mutluluk ve taktiğe alışma ayrı: happiness, tactic[/]"));
-		else Console.WriteLine(L("Mutluluk ve taktiğe alışma ayrı: happiness, tactic"));
+		if (problems == 0) Console.WriteLine(L("Nothing in the squad stands out as a problem."));
+		if (Ui.Rich) Ui.Line(L("[dim]Happiness and tactical familiarity are separate: happiness, tactic[/]"));
+		else Console.WriteLine(L("Happiness and tactical familiarity are separate: happiness, tactic"));
 		return 0;
 	}
 }

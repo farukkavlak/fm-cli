@@ -83,7 +83,7 @@ internal static class Pitch
 
 		// Read from the back, without the goalkeeper: 4-1-4-1.
 		var shape = string.Join("-", Enumerable.Range(0, Lines - 1).Reverse().Where(l => counts[l] > 0).Select(l => counts[l]));
-		var title = withoutBall ? L("TOPSUZ") : L("TOPLA");
+		var title = withoutBall ? L("OUT OF POSS.") : L("IN POSS.");
 
 		return new Panel(grid)
 		{

@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Asking the board for something (FINDINGS §8.108). The board's card — Club › Board, the "N
+/// Asking the board for something. The board's card — Club › Board, the "N
 /// board member" tile — has one list a kind of request (Facilities, Finance, Networking, Staff)
 /// and two plain buttons (Build New Stadium, New Contract). Choosing one puts the request to the
 /// board, which answers in a line; the decision itself comes later as a message.
@@ -34,8 +34,8 @@ internal static partial class Program
 			// for its answer (seen after three in one day).
 			var card = (await Fm.GetJson("texts", ("anchor", "Outcome"), ("up", "0"))).GetArrayLength() > 0;
 			Console.Error.WriteLine(card
-				? L("Yönetim şu an talep almıyor: kartta talep seçeneği yok (cevap bekleyen talepler varken yenisi açılmıyor).")
-				: L("Yönetim kartı açılmadı."));
+				? L("The board is not taking requests now: the card has no request option (no new one opens while requests await an answer).")
+				: L("The board card did not open."));
 			return 1;
 		}
 
@@ -45,8 +45,8 @@ internal static partial class Program
 			if (json) Console.WriteLine(JsonOut.Of(requests.Select(r => new { r.Kind, Request = r.Parent == null ? r.Name : $"{r.Parent} › {r.Name}" })));
 			else
 			{
-				Table.Write([L("TÜR"), L("TALEP")], requests.Select(r => new[] { r.Kind, r.Parent == null ? r.Name : $"{r.Parent} › {r.Name}" }).ToList());
-				Console.WriteLine(L("\nTalep etmek için: board request \"<talep>\" --yes"));
+				Table.Write([L("TYPE"), L("REQUEST")], requests.Select(r => new[] { r.Kind, r.Parent == null ? r.Name : $"{r.Parent} › {r.Name}" }).ToList());
+				Console.WriteLine(L("\nTo make a request: board request \"<request>\" --yes"));
 			}
 			return 0;
 		}
@@ -58,7 +58,7 @@ internal static partial class Program
 		if (hits.Count == 0) hits = requests.Where(r => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(word => Fold(Full(r)).Contains(word))).ToList();
 		if (hits.Count != 1)
 		{
-			Console.Error.WriteLine(hits.Count == 0 ? L($"'{typed}' diye bir talep yok (hepsi: board request).") : L($"'{typed}' birden çok talebe uyuyor:"));
+			Console.Error.WriteLine(hits.Count == 0 ? L($"No request called '{typed}' (all of them: board request).") : L($"'{typed}' matches more than one request:"));
 			foreach (var hit in hits) Console.Error.WriteLine($"  {(hit.Parent == null ? hit.Name : $"{hit.Parent} › {hit.Name}")}   ({hit.Kind})");
 			return 64;
 		}
@@ -67,7 +67,7 @@ internal static partial class Program
 
 		if (!args.Contains("--yes"))
 		{
-			Console.Error.WriteLine(L($"Yönetimden istenecek: {shown}  ({request.Kind}). Onaylamak için: board request \"{Full(request)}\" --yes"));
+			Console.Error.WriteLine(L($"To ask the board for: {shown}  ({request.Kind}). To confirm: board request \"{Full(request)}\" --yes"));
 			return 1;
 		}
 
@@ -84,7 +84,7 @@ internal static partial class Program
 		var answered = await Until(async () => (talk = await Fm.GetJson("talk")).TryGetProperty("Says", out var says) && says.GetArrayLength() > 0, seconds: 8, every: 0.5);
 		if (!answered)
 		{
-			Console.Error.WriteLine(L($"{shown}: istendi ama yönetimden bir cevap gelmedi."));
+			Console.Error.WriteLine(L($"{shown}: asked, but no answer came from the board."));
 			return 1;
 		}
 		var lines = talk.GetProperty("Says").EnumerateArray().Select(s => s.GetString() ?? "").Where(s => !s.StartsWith("»", StringComparison.Ordinal)).ToList();
@@ -92,8 +92,8 @@ internal static partial class Program
 		if (json) Console.WriteLine(JsonOut.Of(new { Request = shown, Says = lines, Answers = answers }));
 		else
 		{
-			Console.WriteLine(L($"İstendi: {shown}"));
-			foreach (var line in lines) Console.WriteLine(L($"  Yönetim: {line}"));
+			Console.WriteLine(L($"Asked: {shown}"));
+			foreach (var line in lines) Console.WriteLine(L($"  Board: {line}"));
 		}
 
 		if (answers.Count == 1 && await AcknowledgeButton() is not null)
@@ -101,7 +101,7 @@ internal static partial class Program
 			await Acknowledge();
 			return 0;
 		}
-		if (!json) Console.WriteLine(L($"Yönetim cevap bekliyor ({string.Join(" / ", answers)}) — cevap: talk"));
+		if (!json) Console.WriteLine(L($"The board is waiting for an answer ({string.Join(" / ", answers)}) — to answer: talk"));
 		return 0;
 	}
 

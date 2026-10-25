@@ -4,7 +4,7 @@ using System.Text;
 namespace FmCliProbe;
 
 /// <summary>
-/// The game's own translation table (BAGIMLILIKLAR §7 B): every text the game shows has a number,
+/// The game's own translation table: every text the game shows has a number,
 /// and the translation manager gives that number's text in the language the game is set to.
 /// Experimental: what the numbers are, whether they stay put, and whether a text can be looked up
 /// from its English form are what this is for finding out.

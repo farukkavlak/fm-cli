@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The club vision meeting (FINDINGS §8.160): what the board wants for the coming seasons, opened
+/// The club vision meeting: what the board wants for the coming seasons, opened
 /// by "Negotiate" on its message at the season's end. Each objective has a weight (Required,
 /// Favoured, Desired, Preferred); all but the required ones can be struck out and the rest put to
 /// the board, or the vision accepted as it stands.
@@ -41,7 +41,7 @@ internal static partial class Program
 	{
 		if (await VisionControls() is not { } controls)
 		{
-			Console.Error.WriteLine(L("Kulüp vizyonu toplantısı açık değil. Sezon sonunda gelen kulüp vizyonu mesajının cevabıyla açılır (reply); hedeflerin kendisi: club"));
+			Console.Error.WriteLine(L("The club vision meeting is not open. It opens by answering the club vision message at the end of the season (reply); the objectives themselves: club"));
 			return 1;
 		}
 
@@ -51,7 +51,7 @@ internal static partial class Program
 		{
 			if (Button(label) is not { } button || Field(button, "Enabled") != "True")
 			{
-				Console.Error.WriteLine(L($"'{label}' şu an kapalı{(label == "Suggest" ? L(" (önce bir hedef çıkar: vision remove <no>)") : "")}."));
+				Console.Error.WriteLine(L($"'{label}' is closed right now{(label == "Suggest" ? L(" (remove an objective first: vision remove <no>)") : "")}."));
 				return 1;
 			}
 			var pressed = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
@@ -65,20 +65,20 @@ internal static partial class Program
 		{
 			case "confirm" or "onayla":
 				// Accepting sets what the board will judge the coming seasons by; it is not taken back.
-				if (!args.Contains("--yes") && !(Ui.Interactive && Ui.Ask(L("Yönetimin vizyonu bu haliyle kabul edilsin mi?"), [L("Evet"), L("Hayır")]) == 0))
+				if (!args.Contains("--yes") && !(Ui.Interactive && Ui.Ask(L("Accept the board's vision as it is?"), [L("Yes"), L("No")]) == 0))
 				{
-					if (!Ui.Interactive) Console.Error.WriteLine(L("Vizyonu kabul etmek geri alınmaz. Onaylamak için: vision confirm --yes"));
+					if (!Ui.Interactive) Console.Error.WriteLine(L("Accepting the vision cannot be undone. To confirm: vision confirm --yes"));
 					return 1;
 				}
-				return await Press("Confirm", L("Vizyon onaylandı. Toplantıyı bitirmek için: vision end"));
+				return await Press("Confirm", L("Vision confirmed. To finish the meeting: vision end"));
 			case "suggest" or "oner":
-				return await Press("Suggest", L("Değişiklik yönetime önerildi; cevabı için: vision"));
+				return await Press("Suggest", L("The change was put to the board; for its answer: vision"));
 			case "undo" or "geri":
-				return await Press("Undo", L("Son değişiklik geri alındı."));
+				return await Press("Undo", L("The last change was undone."));
 			case "reset" or "sifirla":
-				return await Press("Reset", L("Hedefler toplantının başındaki haline döndü."));
+				return await Press("Reset", L("The objectives are back as they were at the start of the meeting."));
 			case "end" or "bitir":
-				return await Press("End Meeting", L("Toplantı bitti."));
+				return await Press("End Meeting", L("The meeting is over."));
 			case "remove" or "cikar":
 			{
 				// The bins come in the rows' order, one for each objective that is not required.
@@ -89,7 +89,7 @@ internal static partial class Program
 					: wanted.Length > 0 ? goals.FirstOrDefault(g => g.Text.Contains(wanted, StringComparison.OrdinalIgnoreCase)) : null;
 				if (goal == null)
 				{
-					Console.Error.WriteLine(L("kullanım: vision remove <no | hedefin bir parçası>   (numaralar için: vision)"));
+					Console.Error.WriteLine(L("usage: vision remove <no | part of the objective>   (for the numbers: vision)"));
 					return 64;
 				}
 				// A required objective's bin is left out at first; after an undo the page lays every row out
@@ -97,13 +97,13 @@ internal static partial class Program
 				var bin = bins.Count == goals.Count ? bins[goals.IndexOf(goal)] : bins.Count == loose.Count && loose.Contains(goal) ? bins[loose.IndexOf(goal)] : (JsonElement?)null;
 				if (goal.Weight == "Required" || bin == null || Field(bin.Value, "Enabled") != "True")
 				{
-					Console.Error.WriteLine(goal.Weight == "Required" ? L($"'{goal.Text}' zorunlu; çıkarılamaz.") : L("Hedeflerin çıkarma düğmeleri okunamadı."));
+					Console.Error.WriteLine(goal.Weight == "Required" ? L($"'{goal.Text}' is required; it cannot be removed.") : L("The objectives' remove buttons could not be read."));
 					return 1;
 				}
 				var pressed = await Fm.Get("press", ("ptr", Field(bin.Value, "Pointer")));
 				if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 				await Until(async () => (await VisionRead()).Goals.Count < goals.Count, seconds: 4, every: 0.4);
-				Console.WriteLine(L($"Çıkarıldı: {goal.Text}. Yönetime sunmak için: vision suggest   ·   vazgeçmek: vision undo"));
+				Console.WriteLine(L($"Removed: {goal.Text}. To put it to the board: vision suggest   ·   to undo: vision undo"));
 				return 0;
 			}
 		}
@@ -113,16 +113,16 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new { Says = says, Goals = goals.Select((g, i) => new { No = i + 1, g.Kind, g.Text, g.Weight }) }));
 			return 0;
 		}
-		Console.WriteLine(L("Kulüp vizyonu toplantısı"));
-		if (says.Length > 0) Console.WriteLine(L($"  Yönetim: {says}"));
+		Console.WriteLine(L("Club vision meeting"));
+		if (says.Length > 0) Console.WriteLine(L($"  Board: {says}"));
 		var last = "";
 		for (var i = 0; i < goals.Count; i++)
 		{
-			if (goals[i].Kind != last) Console.WriteLine($"\n{(goals[i].Kind == "Actionable Objectives" ? L("Yapılacak hedefler") : L("Bilgi amaçlı hedefler"))}");
+			if (goals[i].Kind != last) Console.WriteLine($"\n{(goals[i].Kind == "Actionable Objectives" ? L("Objectives to meet") : L("Objectives for information"))}");
 			last = goals[i].Kind;
-			Console.WriteLine($"  {i + 1}  {goals[i].Text} — {goals[i].Weight switch { "Required" => L("zorunlu"), "Favoured" => L("tercih"), "Desired" => L("istenen"), "Preferred" => L("yeğlenen"), var w => w }}");
+			Console.WriteLine($"  {i + 1}  {goals[i].Text} — {goals[i].Weight switch { "Required" => L("required"), "Favoured" => L("preferred"), "Desired" => L("wanted"), "Preferred" => L("preferred"), var w => w }}");
 		}
-		Console.WriteLine(L("\nKabul: vision confirm   ·   bir hedefi çıkar: vision remove <no>, sonra vision suggest   ·   geri al: vision undo / reset   ·   bitir: vision end"));
+		Console.WriteLine(L("\nAccept: vision confirm   ·   remove an objective: vision remove <no>, then vision suggest   ·   undo: vision undo / reset   ·   finish: vision end"));
 		return 0;
 	}
 }

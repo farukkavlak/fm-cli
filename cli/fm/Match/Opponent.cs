@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The next opponent (FINDINGS §8.57, §8.121, §8.169): who they are, their form and usual
+/// The next opponent: who they are, their form and usual
 /// formation, their standout players and manager, how the meeting is expected to go — all from the
 /// game's data on the next fixture's opponent — then from the portal's opposition report, by each
 /// text's data path, the team news (row.Text), previous meetings (prevmeetingfixture.*) and the
@@ -22,7 +22,7 @@ internal static partial class Program
 		var team = await Fm.Pull(them, "Name,Description,MostUsedFormation,RecentFormValues,NextOppositionThreatLevelAssessment");
 		if (Field(team, "Name").Length == 0)
 		{
-			Console.Error.WriteLine(L("Rakip okunamadı (sıradaki maç yok olabilir)."));
+			Console.Error.WriteLine(L("The opponent could not be read (there may be no next match)."));
 			return 1;
 		}
 		async Task<string> Standout(string which)
@@ -38,16 +38,16 @@ internal static partial class Program
 		}
 		var manager = Field(await Fm.Pull($"{them}.Manager", "Name"), "Name");
 		var form = string.Join(" ", Standings.Form(Field(team, "RecentFormValues")));
-		var venue = Field(fixture, "MatchVenueShort") switch { "H" => L("iç saha"), "A" => L("deplasman"), "N" => L("tarafsız saha"), var other => other };
+		var venue = Field(fixture, "MatchVenueShort") switch { "H" => L("home"), "A" => L("away"), "N" => L("neutral ground"), var other => other };
 		var days = Field(fixture, "FixtureDateDistanceInDays");
 		var rows = new List<(string Label, string Value)>
 		{
 			("Form", form),
-			(L("Diziliş"), Field(team, "MostUsedFormation")),
-			(L("Gol kralı"), await Standout("TopGoalscorerPlayer")),
-			(L("Asist kralı"), await Standout("MostAssistsPlayer")),
-			(L("En yüksek ortalama"), await Standout("HighestAverageRatingPlayer")),
-			(L("Menajer"), manager),
+			(L("Formation"), Field(team, "MostUsedFormation")),
+			(L("Top scorer"), await Standout("TopGoalscorerPlayer")),
+			(L("Top assists"), await Standout("MostAssistsPlayer")),
+			(L("Highest average rating"), await Standout("HighestAverageRatingPlayer")),
+			(L("Agent"), manager),
 		};
 
 		// The portal's report page, read by each text's data path.
@@ -101,8 +101,8 @@ internal static partial class Program
 
 		static string Turkish(string label) => label switch
 		{
-			"Gl/Gm" => L("maç başı gol"), "Np-xG/90" => L("penaltısız xG/90"), "Conc/Gm" => L("maç başı yenen"), "xGA/Gm" => L("maç başı xGA"),
-			"Sh/Gm" => L("maç başı şut"), "Shot %" => L("isabet %"), "Pas %" => "pas %", "Tck %" => L("top kapma %"), _ => label,
+			"Gl/Gm" => L("goals per game"), "Np-xG/90" => L("non-penalty xG/90"), "Conc/Gm" => L("conceded per game"), "xGA/Gm" => L("xGA per game"),
+			"Sh/Gm" => L("shots per game"), "Shot %" => L("shots on target %"), "Pas %" => "pas %", "Tck %" => L("tackles won %"), _ => label,
 		};
 
 		if (json)
@@ -123,11 +123,11 @@ internal static partial class Program
 			return 0;
 		}
 		Console.WriteLine($"{Field(team, "Name")} · {Field(team, "Description")}");
-		Console.WriteLine(L($"  Maç: {venue}{(days.Length > 0 ? L($" · {days} gün sonra") : "")}{(Field(fixture, "KickoffTime") is { Length: > 0 } k ? $" · {k}" : "")}"));
+		Console.WriteLine(L($"  Match: {venue}{(days.Length > 0 ? L($" · in {days} days") : "")}{(Field(fixture, "KickoffTime") is { Length: > 0 } k ? $" · {k}" : "")}"));
 		foreach (var (label, value) in rows)
 			if (value.Length > 0) Console.WriteLine($"  {label}: {value}");
-		if (meetings.Count > 0) Console.WriteLine(L($"  Önceki maçlar: {string.Join(" · ", meetings)}"));
-		if (Field(team, "NextOppositionThreatLevelAssessment") is { Length: > 0 } expected) Console.WriteLine(L($"  Beklenti: {expected}"));
+		if (meetings.Count > 0) Console.WriteLine(L($"  Previous matches: {string.Join(" · ", meetings)}"));
+		if (Field(team, "NextOppositionThreatLevelAssessment") is { Length: > 0 } expected) Console.WriteLine(L($"  Expectation: {expected}"));
 		foreach (var t in tiles.Where(t => t.Stats.Count > 0 || t.Verdict.Length > 0))
 		{
 			Console.WriteLine($"{t.Name}{(t.Scope.Length > 0 && t.Stats.Count > 0 ? $" ({t.Scope})" : "")}: {t.Verdict}");
@@ -135,7 +135,7 @@ internal static partial class Program
 		}
 		if (news.Count > 0)
 		{
-			Console.WriteLine(L("Kadro haberleri:"));
+			Console.WriteLine(L("Squad news:"));
 			foreach (var n in news) Console.WriteLine($"  {n}");
 		}
 		return 0;

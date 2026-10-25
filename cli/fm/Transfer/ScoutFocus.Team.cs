@@ -19,7 +19,7 @@ internal static partial class Program
 			.FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
 		if (open.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine(L("Görevler paneli bulunamadı."));
+			Console.Error.WriteLine(L("The assignments panel was not found."));
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(open, "Pointer")));
@@ -30,7 +30,7 @@ internal static partial class Program
 			var last = "";
 			await Until(async () =>
 			{
-				// The panel's heading is the game's word ("Aktif Görevler (4)"), translated with
+				// The panel's heading is the game's word ("Active Assignments (4)"), translated with
 				// the rest of the UI; the scouts it lists and the focuses it shows are bound by
 				// their data paths in every language (§8.335). The staff list fills in over a
 				// frame or two, so it is read until two reads name the same men.
@@ -86,9 +86,9 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, r.Job, JudgingAbility = r.Ability, JudgingPotential = r.Potential, r.Regions, r.Nations, r.Focuses })));
 			return 0;
 		}
-		Table.Write([L("SCOUT"), L("GÖREV"), L("YETENEĞİ GÖRME"), L("POTANSİYELİ GÖRME"), L("BÖLGE"), L("ÜLKE"), L("ODAKLARI")],
+		Table.Write([L("SCOUT"), L("JOB"), L("JUDGING ABILITY"), L("JUDGING POTENTIAL"), L("AREA"), L("NATION"), L("FOCUSES")],
 			rows.Select(r => new[] { r.Name, r.Job, r.Ability, r.Potential, r.Regions, r.Nations, r.Focuses.Count > 0 ? string.Join(", ", r.Focuses) : "-" }).ToList());
-		Console.WriteLine(L($"\n{(first.Count > 0 ? Shown(first[0]) : Field(open, "Label"))}. Bir oyuncuya göndermek: scout player <ad> --by <scout> --for <süre>"));
+		Console.WriteLine(L($"\n{(first.Count > 0 ? Shown(first[0]) : Field(open, "Label"))}. To send one to a player: scout player <name> --by <scout> --for <length>"));
 		return 0;
 	}
 
@@ -142,7 +142,7 @@ internal static partial class Program
 		var clicked = await ClickOptional(CreateFocusIcon);
 		if ((clicked ?? "").StartsWith("error", StringComparison.Ordinal))
 		{
-			// The page does not always offer it (FINDINGS §8.120); the assignments panel behind
+			// The page does not always offer it; the assignments panel behind
 			// "Assignments (n)" has the same create action and opens the same form.
 			var assignments = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal));
 			if (assignments.ValueKind == JsonValueKind.Object)
@@ -153,7 +153,7 @@ internal static partial class Program
 		}
 		if ((clicked ?? "").StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L("Oyun şu an yeni odak açtırmıyor: ne odak sayfasında ne görevler panelinde yeni odak düğmesi var."));
+			Console.Error.WriteLine(L("The game will not open a new focus now: no new-focus button on the focus page or the tasks panel."));
 			return false;
 		}
 		// A form left half-filled (a run that failed, a page opened over it) comes back as it was
@@ -169,7 +169,7 @@ internal static partial class Program
 			await Until(async () => await FormStep() == null, seconds: 6, every: 0.2);
 			return !again && await OpenFocusForm(again: true);
 		}
-		Console.Error.WriteLine(L("Odak formu açılmadı."));
+		Console.Error.WriteLine(L("The focus form did not open."));
 		return false;
 	}
 
@@ -182,7 +182,7 @@ internal static partial class Program
 		if (nextStep == null)
 		{
 			await AbandonFocus();
-			Console.Error.WriteLine(L("Formun ileri adımı bulunamadı."));
+			Console.Error.WriteLine(L("Next step of the form not found."));
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", nextStep));
@@ -191,7 +191,7 @@ internal static partial class Program
 		if (FormBound(form, "possiblescoutingareasdropdownselectedoption") is not { } areas)
 		{
 			await AbandonFocus();
-			Console.Error.WriteLine(L("Bölge listesi bulunamadı."));
+			Console.Error.WriteLine(L("The area list was not found."));
 			return 1;
 		}
 		var path = string.Join(" ", Words(args).Skip(1)).Replace(" > ", ">");
@@ -201,11 +201,11 @@ internal static partial class Program
 				? under.EnumerateArray().Select(c => c.GetString() ?? "").ToList() : [];
 		await AbandonFocus();
 		if (json) Console.WriteLine(JsonOut.Of(list));
-		else if (list.Count == 0) Console.WriteLine(L($"'{path}' altında bir şey yok (yolu İngilizce adlarıyla yaz: scout areas \"Nation>Europe\")."));
+		else if (list.Count == 0) Console.WriteLine(L($"There is nothing under '{path}' (write the path with English names: scout areas \"Nation>Europe\")."));
 		else
 		{
 			foreach (var item in list) Console.WriteLine(item);
-			Console.WriteLine(L($"\n› ile bitenlerin altı var: scout areas \"{(path.Length > 0 ? path + ">" : "")}<ad>\""));
+			Console.WriteLine(L($"\nThose ending in › have more under them: scout areas \"{(path.Length > 0 ? path + ">" : "")}<name>\""));
 		}
 		return 0;
 	}

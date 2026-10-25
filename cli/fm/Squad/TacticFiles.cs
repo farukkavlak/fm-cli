@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// A tactic kept as a file and brought back (FINDINGS §8.107). The planner's tactic menu has
+/// A tactic kept as a file and brought back. The planner's tactic menu has
 /// "Save" — a title and a description, written to the game's tactics folder as .fmf — and
 /// "Load...", a list of those files whose pick replaces the tactic in the active slot.
 /// </summary>
@@ -42,14 +42,14 @@ internal static partial class Program
 		var files = TacticFiles();
 		if (words.Count > 1 && words[0] is "delete" or "sil")
 		{
-			if (Choose(files.Select(f => Composed(Path.GetFileNameWithoutExtension(f.Name))).ToList(), string.Join(" ", words.Skip(1)), L("Taktik")) is not { } gone) return 64;
+			if (Choose(files.Select(f => Composed(Path.GetFileNameWithoutExtension(f.Name))).ToList(), string.Join(" ", words.Skip(1)), L("Tactics")) is not { } gone) return 64;
 			if (!yes)
 			{
-				Console.Error.WriteLine(L($"'{gone}' diskten silinir. Onaylamak için: tactic saved delete \"{gone}\" --yes"));
+				Console.Error.WriteLine(L($"'{gone}' is deleted from disk. To confirm: tactic saved delete \"{gone}\" --yes"));
 				return 1;
 			}
 			File.Delete(Path.Combine(TacticsFolder, gone + ".fmf"));
-			Console.WriteLine(L($"Silindi: {gone}"));
+			Console.WriteLine(L($"Deleted: {gone}"));
 			return 0;
 		}
 
@@ -60,14 +60,14 @@ internal static partial class Program
 		}
 		if (files.Count == 0)
 		{
-			Console.WriteLine(L("Kaydedilmiş taktik yok. Kaydetmek için: tactic save \"<ad>\""));
+			Console.WriteLine(L("No saved tactics. To save one: tactic save \"<name>\""));
 			return 0;
 		}
-		Table.Write([L("TAKTİK"), L("KAYDEDİLME")], files.Select(f => new[]
+		Table.Write([L("TACTIC"), L("SAVED")], files.Select(f => new[]
 		{
 			Composed(Path.GetFileNameWithoutExtension(f.Name)), f.LastWriteTime.ToString("d MMM yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture),
 		}).ToList());
-		Console.WriteLine(L("\nYüklemek için: tactic load \"<ad>\""));
+		Console.WriteLine(L("\nTo load one: tactic load \"<name>\""));
 		return 0;
 	}
 
@@ -76,26 +76,26 @@ internal static partial class Program
 		var name = Composed(string.Join(" ", words).Trim());
 		if (name.Length == 0 || name.IndexOfAny(['/', ':', '\\']) >= 0)
 		{
-			Console.Error.WriteLine(L("Hangi adla?  tactic save \"<ad>\" [--note \"<açıklama>\"]   (ad / : \\ içeremez)"));
+			Console.Error.WriteLine(L("Under which name?  tactic save \"<name>\" [--note \"<description>\"]   (the name cannot contain / : \\)"));
 			return 64;
 		}
 		var file = Path.Combine(TacticsFolder, name + ".fmf");
 		var before = File.Exists(file) ? File.GetLastWriteTimeUtc(file) : DateTime.MinValue;
 		if (File.Exists(file) && !yes)
 		{
-			Console.Error.WriteLine(L($"'{name}' adında kaydedilmiş bir taktik var; üzerine yazmak için: tactic save \"{name}\" --yes"));
+			Console.Error.WriteLine(L($"There is a saved tactic called '{name}'; to overwrite it: tactic save \"{name}\" --yes"));
 			return 1;
 		}
 
 		if (await TacticMenu(SlotMenu) is not { } menu)
 		{
-			Console.Error.WriteLine(L("Taktik menüsü bulunamadı (taktik yoksa önce: tactic new)."));
+			Console.Error.WriteLine(L("The tactic menu was not found (if there is no tactic, first: tactic new)."));
 			return 1;
 		}
 		var tactic = Field(await TacticInfo(), "Name");
 		if (dry)
 		{
-			Console.WriteLine(L($"(kuru) '{tactic}' taktiği '{name}' adıyla kaydedilecek."));
+			Console.WriteLine(L($"(dry run) The tactic '{tactic}' will be saved as '{name}'."));
 			return 0;
 		}
 
@@ -110,7 +110,7 @@ internal static partial class Program
 		});
 		if (!open)
 		{
-			Console.Error.WriteLine(L("Taktik kaydetme paneli açılmadı."));
+			Console.Error.WriteLine(L("The tactic save panel did not open."));
 			return 1;
 		}
 
@@ -125,7 +125,7 @@ internal static partial class Program
 		{
 			var cancel = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(b => Field(b, "Label") == "Cancel" && Field(b, "Events") == "PanelHistoryClose");
 			if (cancel.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(cancel, "Pointer")));
-			Console.Error.WriteLine(L($"Oyun '{name}' adıyla kaydetmeye izin vermedi (Save kapalı kaldı)."));
+			Console.Error.WriteLine(L($"The game did not allow saving as '{name}' (Save stayed closed)."));
 			return 1;
 		}
 
@@ -144,10 +144,10 @@ internal static partial class Program
 
 		if (!written)
 		{
-			Console.Error.WriteLine(L($"Kaydet denildi ama dosya yazılmadı: {file}"));
+			Console.Error.WriteLine(L($"Told to save, but the file was not written: {file}"));
 			return 1;
 		}
-		Console.WriteLine(L($"Kaydedildi: {name}   ({tactic})"));
+		Console.WriteLine(L($"Saved: {name}   ({tactic})"));
 		return 0;
 	}
 
@@ -161,20 +161,20 @@ internal static partial class Program
 		var names = TacticFiles().Select(f => Composed(Path.GetFileNameWithoutExtension(f.Name))).ToList();
 		if (names.Count == 0)
 		{
-			Console.Error.WriteLine(L("Kaydedilmiş taktik yok. Kaydetmek için: tactic save \"<ad>\""));
+			Console.Error.WriteLine(L("No saved tactics. To save one: tactic save \"<name>\""));
 			return 1;
 		}
-		if (Choose(names, string.Join(" ", words), L("Taktik")) is not { } name) return 64;
+		if (Choose(names, string.Join(" ", words), L("Tactics")) is not { } name) return 64;
 
 		if (await TacticMenu(SlotMenu) is not { } menu)
 		{
-			Console.Error.WriteLine(L("Taktik menüsü bulunamadı (taktik yoksa önce: tactic new)."));
+			Console.Error.WriteLine(L("The tactic menu was not found (if there is no tactic, first: tactic new)."));
 			return 1;
 		}
 		var current = Field(await TacticInfo(), "Name");
 		if (!yes || dry)
 		{
-			Console.WriteLine(L($"'{name}', etkin yuvadaki taktiğin ({current}) yerine yüklenecek. Onay için: tactic load \"{name}\" --yes"));
+			Console.WriteLine(L($"'{name}' will be loaded in place of the tactic in the active slot ({current}). To confirm: tactic load \"{name}\" --yes"));
 			return dry ? 0 : 1;
 		}
 
@@ -195,7 +195,7 @@ internal static partial class Program
 		{
 			if (!await TacticPanel(LoadRow, async () => Load(await Fm.GetJson("buttons", ("json", "1"))).ValueKind == JsonValueKind.Object))
 			{
-				Console.Error.WriteLine(L("Taktik yükleme paneli açılmadı."));
+				Console.Error.WriteLine(L("The tactic load panel did not open."));
 				return 1;
 			}
 			listed = await Until(async () => !(await Fm.Get("rowselect", ("text", name), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal), seconds: 4, every: 0.5);
@@ -203,7 +203,7 @@ internal static partial class Program
 		}
 		if (!listed)
 		{
-			Console.Error.WriteLine(L($"Oyunun listesinde '{name}' yok."));
+			Console.Error.WriteLine(L($"'{name}' is not in the game's list."));
 			return 1;
 		}
 		await Fm.Get("rowselect", ("text", name));
@@ -212,7 +212,7 @@ internal static partial class Program
 		if (!await Until(async () => Field(load = Load(await Fm.GetJson("buttons", ("json", "1"))), "Enabled") == "True", seconds: 5, every: 0.3))
 		{
 			await close();
-			Console.Error.WriteLine(L("Satır seçildi ama 'Load' açılmadı."));
+			Console.Error.WriteLine(L("The row was chosen, but 'Load' did not open."));
 			return 1;
 		}
 		var clicked = await Fm.Get("click", ("ptr", Field(load, "Pointer")));
@@ -226,8 +226,8 @@ internal static partial class Program
 			return Field(info, "Name") == name;
 		}, seconds: 10, every: 0.6);
 		Console.WriteLine(loaded
-			? L($"Yüklendi: {name}   (etkin yuvada; önceki: {current})")
-			: L($"Yükle denildi; etkin taktik şimdi: {Field(info, "Name")}"));
+			? L($"Loaded: {name}   (in the active slot; before: {current})")
+			: L($"Told to load; the active tactic is now: {Field(info, "Name")}"));
 		return 0;
 	}
 }

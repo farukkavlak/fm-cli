@@ -87,9 +87,9 @@ internal static partial class Program
 		var name = One("Person.Name") is { Length: > 0 } n ? n : card[0];
 		var job = One("Person.PlayerDescription") is { Length: > 0 } described ? described
 			: page.FindIndex(t => t.Path == "Person.Name") is >= 0 and var named && named + 1 < page.Count && page[named + 1].Path.Length == 0 ? GameWords.Of(page[named + 1].Text) : "";
-		Console.WriteLine(L($"\n  Ek: {name}{(job.Length > 0 ? $" — {job}" : "")}"));
+		Console.WriteLine(L($"\n  Attached: {name}{(job.Length > 0 ? $" — {job}" : "")}"));
 
-		if (card.Contains("Offer made") && One("feestring") is { Length: > 0 } deal) Console.WriteLine(L($"    Bonservis: {deal}"));
+		if (card.Contains("Offer made") && One("feestring") is { Length: > 0 } deal) Console.WriteLine(L($"    Transfer fee: {deal}"));
 
 		var wageAt = page.FindIndex(t => t.Path == "contract.Wage.DisplayValue");
 		var typeAt = page.FindIndex(t => t.Path == "contract.ContractStatusWithType.DisplayValue");
@@ -98,38 +98,38 @@ internal static partial class Program
 			var between = page.Skip(wageAt + 1).Take((typeAt > wageAt ? typeAt : page.Count) - wageAt - 1).ToList();
 			// Beside the wage: what is left after tax and its share of the wage bill, each a sentence in the game's words.
 			var notes = between.Where(t => t.Path == "contract.WageAfterTax.DisplayValue" || t.Path.Length == 0 && t.Text.Contains('%')).Select(t => t.Text).ToList();
-			Console.WriteLine(L($"    Ücret: {page[wageAt].Text}{(notes.Count > 0 ? $" ({string.Join(", ", notes)})" : "")}"));
+			Console.WriteLine(L($"    Fee: {page[wageAt].Text}{(notes.Count > 0 ? $" ({string.Join(", ", notes)})" : "")}"));
 			var dates = between.Where(t => t.Path.Length == 0 && t.Text.Any(char.IsDigit) && !t.Text.Contains('%')).Select(t => t.Text).ToList();
-			if (dates.Count >= 2) Console.WriteLine(L($"    Süre: {dates[0]} – {dates[1]}{(typeAt >= 0 ? $" · {page[typeAt].Text}" : "")}"));
+			if (dates.Count >= 2) Console.WriteLine(L($"    Length: {dates[0]} – {dates[1]}{(typeAt >= 0 ? $" · {page[typeAt].Text}" : "")}"));
 		}
 
 		var addons = new List<string>();
 		for (var i = 0; i < page.Count; i++)
 			if (page[i].Path == "contractaddon.AddOnNameString")
 				addons.Add(i + 1 < page.Count && page[i + 1].Path == "contractaddon.AddOnValueString" ? $"{GameWords.Of(page[i].Text)} {page[i + 1].Text}" : GameWords.Of(page[i].Text));
-		if (addons.Count > 0) Console.WriteLine(L($"    Primler ve maddeler: {string.Join(" · ", addons)}"));
+		if (addons.Count > 0) Console.WriteLine(L($"    Bonuses and clauses: {string.Join(" · ", addons)}"));
 		var verdictAt = page.FindIndex(t => t.Path == "report.ScoutedGradeInfo.GradeString");
 		if (verdictAt > 0)
 		{
 			var grade = page[verdictAt - 1].Path.Length == 0 && page[verdictAt - 1].Text.Length <= 2 ? page[verdictAt - 1].Text + " · " : "";
-			Console.WriteLine(L($"    Gözlemci görüşü: {grade}{page[verdictAt].Text}"));
+			Console.WriteLine(L($"    Scouts' view: {grade}{page[verdictAt].Text}"));
 		}
 
 		var budgets = card.IndexOf("Recruitment Budgets");
 		if (budgets >= 0)
 		{
 			var left = new List<string>();
-			foreach (var (label, said) in new[] { ("Transfer", "transfer"), ("Wage", L("maaş")), ("Scouting", "scouting") })
+			foreach (var (label, said) in new[] { ("Transfer", "transfer"), ("Wage", L("wages")), ("Scouting", "scouting") })
 			{
 				var at = card.IndexOf(label, budgets);
 				if (at < 0 || at + 2 >= card.Count || card[at + 1] != "Available") continue;
 				var amount = card[at + 2];
-				left.Add(amount.StartsWith('(') ? L($"{said} {amount.Replace("(", "-").Replace(")", "")} (aşılmış)") : $"{said} {amount}");
+				left.Add(amount.StartsWith('(') ? L($"{said} {amount.Replace("(", "-").Replace(")", "")} (over)") : $"{said} {amount}");
 			}
-			if (left.Count > 0) Console.WriteLine(L($"    Kalan bütçe: {string.Join(" · ", left)}"));
+			if (left.Count > 0) Console.WriteLine(L($"    Budget left: {string.Join(" · ", left)}"));
 		}
 
-		if (AttachedStaffTeams(page) is { Count: > 0 } teams) Console.WriteLine(L($"    Ekipler: {string.Join(" · ", teams)}"));
+		if (AttachedStaffTeams(page) is { Count: > 0 } teams) Console.WriteLine(L($"    Teams: {string.Join(" · ", teams)}"));
 	}
 
 	/// <summary>

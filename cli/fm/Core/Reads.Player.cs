@@ -15,7 +15,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine(L("kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches] [--report]"));
+			Console.Error.WriteLine(L("usage: player <name or part of a name> [--actions] [--career] [--matches] [--report]"));
 			return 64;
 		}
 
@@ -30,14 +30,14 @@ internal static partial class Program
 		// measured against the club's own level, so it is given as the number.
 		var seen = await Fm.Pull(Field(card.GetProperty("Player"), "Path"), "PerceivedPotentialAbility,AbilityProgressHistory");
 		var potential = int.TryParse(Field(seen, "PerceivedPotentialAbility"), out var pa) && pa > 0 ? pa : 0;
-		// His ability at the last four monthly measurements, out of 200 (FINDINGS §8.113).
+		// His ability at the last four monthly measurements, out of 200.
 		var ability = AbilityHistory(Field(seen, "AbilityProgressHistory"));
 
 		if (json)
 		{
 			var node = System.Text.Json.Nodes.JsonNode.Parse(card.ToString())!;
 			// The page binds these in the game's English; the human lines have always gone through
-			// the game's own words, so the JSON does too (FINDINGS §8.384).
+			// the game's own words, so the JSON does too.
 			var said = new[] { "Nation", "PositionCombinedStringLong", "PlayingTime", "Personality", "ConditionString" }
 				.Select(k => node["Player"]?[k] is System.Text.Json.Nodes.JsonValue v && v.TryGetValue<string>(out var s) ? s : "")
 				.Where(v => v.Length > 0).Distinct().ToArray();
@@ -61,21 +61,21 @@ internal static partial class Program
 
 		void PlainHeader()
 		{
-		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Field(player, "SquadNumber")), Suffixed(Field(player, "Age"), L(" yaş")),
+		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Field(player, "SquadNumber")), Suffixed(Field(player, "Age"), L(" years old")),
 			GameWords.Of(Field(player, "Nation")), GameWords.Of(Field(player, "PositionCombinedStringLong"))));
-		Console.WriteLine(Line(" · ", Prefixed(L("Değer "), Field(player, "Value")), Prefixed(L("Maaş "), Field(player, "Wage")),
-			Prefixed(L("Sözleşme "), Field(player, "ContractEnds")), GameWords.Of(Field(player, "PlayingTime"))));
+		Console.WriteLine(Line(" · ", Prefixed(L("Value "), Field(player, "Value")), Prefixed(L("Wage "), Field(player, "Wage")),
+			Prefixed(L("Contract "), Field(player, "ContractEnds")), GameWords.Of(Field(player, "PlayingTime"))));
 		// A game word stuck to its label with one space is not told apart from it on the way out: put in the game's words here.
-		Console.WriteLine(Line(" · ", Prefixed(L("Kondisyon "), GameWords.Of(Field(player, "ConditionString"))), Prefixed(L("Kişilik "), GameWords.Of(Field(player, "Personality"))),
-			Prefixed(L("Sağ ayak "), GameWords.Of(Field(player, "RightFootednessString"))), Prefixed(L("Sol ayak "), GameWords.Of(Field(player, "LeftFootednessString"))),
+		Console.WriteLine(Line(" · ", Prefixed(L("Condition "), GameWords.Of(Field(player, "ConditionString"))), Prefixed(L("Personality "), GameWords.Of(Field(player, "Personality"))),
+			Prefixed(L("Right foot "), GameWords.Of(Field(player, "RightFootednessString"))), Prefixed(L("Left foot "), GameWords.Of(Field(player, "LeftFootednessString"))),
 			Suffixed(Field(player, "Height"), " cm"), Field(player, "InternationalCapsAndGoalsString")));
 
-		if (ability.Count > 0) Console.WriteLine(L($"Yetenek (son dört ay): {string.Join(" → ", ability.Select(v => GameNumbers.Of(v, "0.#")))} /200"));
-		if (potential > 0) Console.WriteLine(L($"Potansiyel (kulübün gözünden): {potential}/200"));
+		if (ability.Count > 0) Console.WriteLine(L($"Ability (last four months): {string.Join(" → ", ability.Select(v => GameNumbers.Of(v, "0.#")))} /200"));
+		if (potential > 0) Console.WriteLine(L($"Potential (as the club sees it): {potential}/200"));
 		var injury = Field(player, "InjuryDescription");
-		if (injury.Length > 0) Console.WriteLine(L($"Sakatlık: {injury}"));
+		if (injury.Length > 0) Console.WriteLine(L($"Injury: {injury}"));
 
-		if (traits.Count > 0) Console.WriteLine(L($"Alışkanlıklar: {string.Join("; ", traits)}"));
+		if (traits.Count > 0) Console.WriteLine(L($"Traits: {string.Join("; ", traits)}"));
 		foreach (var line in history) Console.WriteLine(line);
 		}
 
@@ -98,8 +98,8 @@ internal static partial class Program
 			return 0;
 		}
 
-		var first = Field(player, "IsGoalkeeper") == "True" ? L("KALECİLİK") : L("TEKNİK");
-		string[] titles = [first, L("ZİHİNSEL"), L("FİZİKSEL"), L("DURAN TOP")];
+		var first = Field(player, "IsGoalkeeper") == "True" ? L("GOALKEEPING") : L("TECHNICAL");
+		string[] titles = [first, L("MENTAL"), L("PHYSICAL"), L("SET PIECE")];
 		List<List<JsonElement>> blocks =
 		[
 			all.Where(a => !mental.Contains(Field(a, "Name")) && !physical.Contains(Field(a, "Name")) && !setPieces.Contains(Field(a, "Name"))).ToList(),
@@ -112,14 +112,14 @@ internal static partial class Program
 		{
 			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList(), potential, ability);
 			foreach (var line in history) Console.WriteLine(line);
-			Ui.Line(L($"[dim]Teklif, kısa liste, scout…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]"));
+			Ui.Line(L($"[dim]Offer, shortlist, scouting…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]"));
 			return 0;
 		}
 
 		var headers = new List<string>();
 		for (var b = 0; b < blocks.Count; b++)
 		{
-			headers.Add(b < titles.Length ? titles[b] : L($"GRUP {b + 1}"));
+			headers.Add(b < titles.Length ? titles[b] : L($"GROUP {b + 1}"));
 			headers.Add("");
 		}
 
@@ -161,7 +161,7 @@ internal static partial class Program
 			.OrderByDescending(p => p.Rating)
 			.ToList();
 		if (positions.Count > 0)
-			lines.Add(L($"Mevkiler (20 doğal, 15+ usta, 10+ yeterli): {string.Join(" · ", positions.Select(p => $"{p.Name} {p.Rating}"))}"));
+			lines.Add(L($"Positions (20 natural, 15+ accomplished, 10+ competent): {string.Join(" · ", positions.Select(p => $"{p.Name} {p.Rating}"))}"));
 
 		var summary = await Fm.Pull(path, "InjuriesThisSeason,InjuriesLastSeason,InjuriesPercentageMissedString");
 		var injuries = (await Fm.Pull(path + ".InjuriesHistory", "InjuryDescription,InjuryDate,InjuryDurationDays,IsActive", list: true)).EnumerateArray()
@@ -171,15 +171,15 @@ internal static partial class Program
 			.ToList();
 		if (injuries.Count == 0)
 		{
-			lines.Add(L("Sakatlık geçmişi: yok"));
+			lines.Add(L("Injury history: none"));
 			return lines;
 		}
 
-		lines.Add(L($"Sakatlık geçmişi: {injuries.Count} sakatlık · bu sezon {Field(summary, "InjuriesThisSeason")}, geçen sezon {Field(summary, "InjuriesLastSeason")}")
-		          + (Field(summary, "InjuriesPercentageMissedString") is { Length: > 0 } missed ? L($" · kaçırdığı maç: {missed.Replace(" missed", "")}") : ""));
+		lines.Add(L($"Injury history: {injuries.Count} injuries · this season {Field(summary, "InjuriesThisSeason")}, last season {Field(summary, "InjuriesLastSeason")}")
+		          + (Field(summary, "InjuriesPercentageMissedString") is { Length: > 0 } missed ? L($" · matches missed: {missed.Replace(" missed", "")}") : ""));
 		foreach (var injury in injuries.Take(5))
-			lines.Add(L($"  {(injury.When is { } on ? $"{Months[on.Month - 1]} {on.Year}" : "?"),-9}  {injury.What}, {injury.Days} gün{(injury.Now ? L(" (sürüyor)") : "")}"));
-		if (injuries.Count > 5) lines.Add(L($"  … ve {injuries.Count - 5} eski sakatlık daha"));
+			lines.Add(L($"  {(injury.When is { } on ? $"{Months[on.Month - 1]} {on.Year}" : "?"),-9}  {injury.What}, {injury.Days} days{(injury.Now ? L(" (ongoing)") : "")}"));
+		if (injuries.Count > 5) lines.Add(L($"  … and {injuries.Count - 5} more past injuries"));
 		return lines;
 	}
 

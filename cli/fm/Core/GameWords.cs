@@ -47,7 +47,7 @@ internal static class GameWords
 	/// <summary>
 	/// The English the game's table holds for a text shown in this language, or the text itself.
 	/// It is what a command typed in the game's words needs when the control's own label is the
-	/// English one (a button read as "Son Sonuçlar" is labelled "Recent Results").
+	/// English one (a button read in Turkish is labelled "Recent Results" in English).
 	/// </summary>
 	public static string English(string shown)
 	{
@@ -68,7 +68,7 @@ internal static class GameWords
 	}
 
 	// What the CLI puts between the game's texts on a line: columns (a tab, or spaces to line them
-	// up), lists ("York · Preparation", "Proposal, İzleniyor"), a label before a value ("Mentalite:
+	// up), lists ("York · Preparation", "Proposal, Watching"), a label before a value ("Mentality:
 	// Balanced"), a note after one ("8-0 (Preparation)") and what it means ("Mid Block — Focus on …").
 	// A quote around a text is between too ("reply \"Collective bonuses to be decided\""), one inside a word
 	// ("Deakin'e") is not.

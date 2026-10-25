@@ -40,7 +40,7 @@ internal static partial class Program
 	};
 
 	/// <summary>
-	/// The command a typed word means: itself, an alias (accents optional: "maç" and "mac" alike),
+	/// The command a typed word means: itself, an alias (accents optional),
 	/// or the one command that starts with it. Null when it means none or several; why is said.
 	/// </summary>
 	private static string ResolveCommand(string typed)
@@ -54,8 +54,8 @@ internal static partial class Program
 		if (folded.Length >= 2 && starting.Count == 1) return starting[0];
 
 		Console.Error.WriteLine(starting.Count > 1 && folded.Length >= 2
-			? L($"'{typed}' birden çok komuta uyuyor: {string.Join(", ", starting)}")
-			: L($"bilinmeyen komut: {typed} — komutlar için `help`"));
+			? L($"'{typed}' matches more than one command: {string.Join(", ", starting)}")
+			: L($"unknown command: {typed} — for the commands: `help`"));
 		return null;
 	}
 
@@ -162,7 +162,7 @@ internal static partial class Program
 
 		if (shell != "zsh")
 		{
-			Console.Error.WriteLine(L("kullanım: completion zsh | completion bash"));
+			Console.Error.WriteLine(L("usage: completion zsh | completion bash"));
 			return 64;
 		}
 
@@ -187,7 +187,7 @@ internal static partial class Program
 			    {{string.Join("|", TakesOurPlayer)}})
 			      # The squad's names come from the running game; nothing is offered when it is not up.
 			      names=(${(f)"$(fm __names 2>/dev/null)"})
-			      _alternative 'players:oyuncu:compadd -a names' 'flags:seçenek:compadd -a flags'
+			      _alternative 'players:oyuncu:compadd -a names' 'flags:secenek:compadd -a flags'
 			      ;;
 			    *)
 			      (( ${#flags} )) && compadd -a flags

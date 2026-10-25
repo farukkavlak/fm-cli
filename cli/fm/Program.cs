@@ -46,12 +46,12 @@ internal static partial class Program
 		var game = Value("game");
 		if (plugin.Length == 0)
 		{
-			Console.Error.WriteLine(L("Eklenti sürümü okunamadı: FmCliProbe eski olabilir. Yeniden kurmak için: tools/install.sh"));
+			Console.Error.WriteLine(L("Could not read the plugin version: FmCliProbe may be old. To reinstall: tools/install.sh"));
 			return 69;
 		}
 		if (game.Length > 0 && !game.StartsWith("26", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L($"Bu Football Manager sürümü desteklenmiyor: {game}. fm-cli FM26 için yazıldı; veri yanlış okunabilir."));
+			Console.Error.WriteLine(L($"This Football Manager version is not supported: {game}. fm-cli is written for FM26; data may be read wrong."));
 			return 69;
 		}
 		return null;
@@ -63,7 +63,7 @@ internal static partial class Program
 		var formats = new[] { "--json", "--csv", "--md" }.Where(args.Contains).ToList();
 		if (formats.Count > 1)
 		{
-			Console.Error.WriteLine(L($"Biçim bayraklarından yalnız biri verilmeli: {string.Join(", ", formats)}"));
+			Console.Error.WriteLine(L($"Give only one format flag: {string.Join(", ", formats)}"));
 			return 64;
 		}
 		var format = formats.FirstOrDefault() is { } only ? only[2..] : null;
@@ -106,7 +106,7 @@ internal static partial class Program
 			var code = await RunCommand(args);
 			if (code == 0 && format == "csv" && !Table.Wrote)
 			{
-				Console.Error.WriteLine(L("Bu komutun çıktısında tablo yok; --md ya da --json dene."));
+				Console.Error.WriteLine(L("This command's output has no table; try --md or --json."));
 				return 1;
 			}
 			return code;
@@ -127,7 +127,7 @@ internal static partial class Program
 		var command = args.Length > 0 ? args[0] : "help";
 		var json = args.Contains("--json");
 
-		// A game in another language reads its engine's texts too, once they are unpacked (FINDINGS §8.171).
+		// A game in another language reads its engine's texts too, once they are unpacked.
 		if (!engineChecked && command is not ("start" or "stop" or "help"))
 		{
 			engineChecked = true;
@@ -258,12 +258,12 @@ internal static partial class Program
 		}
 		catch (FmUnavailable)
 		{
-			Console.Error.WriteLine(L("FM çalışmıyor. `fm start` ile başlat."));
+			Console.Error.WriteLine(L("FM is not running. Start it with `fm start`."));
 			return 69; // EX_UNAVAILABLE
 		}
 		catch (FmBusy)
 		{
-			Console.Error.WriteLine(L("FM yanıt vermedi — meşgul olabilir (yükleme, maç). Tekrar dene."));
+			Console.Error.WriteLine(L("FM did not answer — it may be busy (loading, a match). Try again."));
 			return 75; // EX_TEMPFAIL
 		}
 		catch (FmError error)
@@ -287,7 +287,7 @@ internal static partial class Program
 	{
 		if (!await Launcher.Running(Fm))
 		{
-			Console.WriteLine(L("FM açık değil."));
+			Console.WriteLine(L("FM is not open."));
 			return 0;
 		}
 
@@ -296,21 +296,21 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine(L("Kaydedilmemiş ilerleme oyunla birlikte gider. Hangisi:  stop --save   ya da   stop --no-save"));
+				Console.Error.WriteLine(L("Unsaved progress goes with the game. Which one:  stop --save   or   stop --no-save"));
 				return 1;
 			}
 			var date = Pretty(Field(await Fm.GetJson("state"), "Date"));
-			if (Ui.Ask(L($"Oyun kapanıyor ({date}). Kaydedilmemiş ilerleme kaybolur."), [L("Kaydet ve kapat"), L("Kaydetmeden kapat")]) is not { } asked) return 0;
+			if (Ui.Ask(L($"The game is closing ({date}). Unsaved progress is lost."), [L("Save and close"), L("Close without saving")]) is not { } asked) return 0;
 			save = asked == 0;
 		}
 
 		if (save == true && await SaveGame(["--yes"]) is not 0 and var failed) return failed;
 		if (!await Launcher.Stop(Fm))
 		{
-			Console.Error.WriteLine(L("Oyun kapanmadı."));
+			Console.Error.WriteLine(L("The game did not close."));
 			return 1;
 		}
-		Console.WriteLine(L("FM kapandı."));
+		Console.WriteLine(L("FM closed."));
 		return 0;
 	}
 }

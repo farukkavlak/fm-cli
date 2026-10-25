@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The club's budgets (FINDINGS §8.65): Recruitment › Recruitment Budgets shows the transfer,
+/// The club's budgets: Recruitment › Recruitment Budgets shows the transfer,
 /// wage and scouting budgets, and "Adjust Transfer and Wage Budget" opens a card whose slider
 /// moves money between the first two. Each step's figures are read off the card as the slider
 /// stands on it; "Got It" keeps the step, "Cancel" leaves it as it was.
@@ -19,7 +19,7 @@ internal static partial class Program
 		var overview = await BudgetOverview();
 		if (overview == null)
 		{
-			Console.Error.WriteLine(L("Bütçe sayfası okunamadı."));
+			Console.Error.WriteLine(L("The budget page could not be read."));
 			return 1;
 		}
 
@@ -32,7 +32,7 @@ internal static partial class Program
 				return 0;
 			}
 			foreach (var (name, value) in overview) Console.WriteLine($"{name}: {value}");
-			Console.WriteLine(L("\nTransfer ile maaş bütçesi arasında para kaydırmak: budget ayarla"));
+			Console.WriteLine(L("\nTo move money between the transfer and wage budgets: budget adjust"));
 			return 0;
 		}
 
@@ -43,7 +43,7 @@ internal static partial class Program
 		await Until(async () => (tile = await SpeakToAction(BudgetAdjustAction)) != null, seconds: 8, every: 0.25);
 		if (tile is not { } opening)
 		{
-			Console.Error.WriteLine(L("Bütçe ayarı kartını açan döşeme bulunamadı."));
+			Console.Error.WriteLine(L("Could not find the tile that opens the budget card."));
 			return 1;
 		}
 		var clicked = await Fm.Get("click", ("ptr", Field(opening, "Pointer")));
@@ -57,7 +57,7 @@ internal static partial class Program
 		}, seconds: 8, every: 0.5);
 		if (slider.ValueKind != JsonValueKind.Object)
 		{
-			Console.Error.WriteLine(L("Bütçe ayarı kartı açılmadı."));
+			Console.Error.WriteLine(L("The budget adjustment card did not open."));
 			return 1;
 		}
 
@@ -81,7 +81,7 @@ internal static partial class Program
 		}
 		await Fm.Get("setcontrol", ("ptr", pointer), ("value", start.ToString()));
 
-		var labels = steps.Select(s => L($"Transfer {s.Transfer.TrimEnd('*'),-14} · Maaş {s.Wage.TrimEnd('*')}")).ToList();
+		var labels = steps.Select(s => L($"Transfers {s.Transfer.TrimEnd('*'),-14} · Wages {s.Wage.TrimEnd('*')}")).ToList();
 		if (board != null) Console.WriteLine(board);
 
 		int? target = null;
@@ -90,24 +90,24 @@ internal static partial class Program
 			if (int.TryParse(words[1], out var n) && n >= 0 && n <= high) target = n;
 			else
 			{
-				Console.Error.WriteLine(L($"'{words[1]}' bir adım değil (0–{high})."));
+				Console.Error.WriteLine(L($"'{words[1]}' is not a step (0–{high})."));
 				var left = await PressCardButton(keep: false);
 				if (left.StartsWith("error", StringComparison.Ordinal)) Report(left);
 				return 1;
 			}
 		}
-		else if (Ui.Interactive) target = Ui.Ask(L("Hangi dağılım?"), labels, start);
+		else if (Ui.Interactive) target = Ui.Ask(L("Which split?"), labels, start);
 		else
 		{
-			for (var i = 0; i <= high; i++) Console.WriteLine($"  {i,2}  {labels[i]}{(i == start ? L("  ← şu an") : "")}");
-			Console.WriteLine(L("\nSeçmek: budget ayarla <adım>"));
+			for (var i = 0; i <= high; i++) Console.WriteLine($"  {i,2}  {labels[i]}{(i == start ? L("  ← now") : "")}");
+			Console.WriteLine(L("\nTo choose: budget adjust <step>"));
 		}
 
 		if (target is not { } chosen || chosen == start)
 		{
 			var closed = await PressCardButton(keep: false);
 			if (closed.StartsWith("error", StringComparison.Ordinal)) return Report(closed);
-			if (target == start) Console.WriteLine(L("Bütçe zaten böyle."));
+			if (target == start) Console.WriteLine(L("The budget is already like that."));
 			return 0;
 		}
 
@@ -152,9 +152,9 @@ internal static partial class Program
 		var scoutAt = scouting.IndexOf("Scouting");
 		return
 		[
-			new(L("Transfer bütçesi"), L($"{left} (bu sezon harcanan {After(transfer, "Spent this season")}, başta {After(transfer, "Original Budget")})")),
-			new(L("Maaş bütçesi"), L($"{(free is < 0 ? L($"{MoneyFormat.Exact(-free.Value)} aşılmış") : free is { } f ? L($"{MoneyFormat.Exact(f)} boşta") : "-")} (haftalık) · ödenen {Amount("CurrentWageSpending")} / {Amount("WageBudget")}")),
-			new(L("Scouting bütçesi"), scouting.Skip(scoutAt + 1).FirstOrDefault(MoneyFormat.IsMoney) ?? "-"),
+			new(L("Transfer budget"), L($"{left} (spent this season {After(transfer, "Spent this season")}, at the start {After(transfer, "Original Budget")})")),
+			new(L("Wage budget"), L($"{(free is < 0 ? L($"{MoneyFormat.Exact(-free.Value)} over") : free is { } f ? L($"{MoneyFormat.Exact(f)} free") : "-")} (weekly) · paid {Amount("CurrentWageSpending")} / {Amount("WageBudget")}")),
+			new(L("Scouting budget"), scouting.Skip(scoutAt + 1).FirstOrDefault(MoneyFormat.IsMoney) ?? "-"),
 		];
 	}
 
@@ -191,7 +191,7 @@ internal static partial class Program
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
 		var kept = buttons.FirstOrDefault(b => Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
 		if (kept!.ValueKind != JsonValueKind.Object)
-			return "error: " + L(keep ? "Bütçe kartını onaylayan düğme bulunamadı." : "Bütçe kartını kapatan düğme bulunamadı.");
+			return "error: " + L(keep ? "Could not find the button that confirms the budget card." : "Could not find the button that closes the budget card.");
 		if (keep) return await Fm.Get("click", ("ptr", Field(kept, "Pointer")));
 
 		var leave = buttons.FirstOrDefault(b => Field(b, "Page") == Field(kept, "Page")
@@ -199,6 +199,6 @@ internal static partial class Program
 		                                        && !Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
 		return leave.ValueKind == JsonValueKind.Object
 			? await Fm.Get("click", ("ptr", Field(leave, "Pointer")))
-			: "error: " + L("Bütçe kartını kapatan düğme bulunamadı.");
+			: "error: " + L("Could not find the button that closes the budget card.");
 	}
 }

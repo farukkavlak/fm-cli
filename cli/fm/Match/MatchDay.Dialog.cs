@@ -16,7 +16,7 @@ internal static partial class Program
 
 		if (dialogs.GetArrayLength() == 0)
 		{
-			Console.Error.WriteLine(L("Açık bir onay penceresi yok."));
+			Console.Error.WriteLine(L("There is no open confirmation window."));
 			return 1;
 		}
 
@@ -25,12 +25,12 @@ internal static partial class Program
 		var words = Words(args).ToList();
 
 		// A dialog that only wants acknowledging has one button and no words on it.
-		var labels = buttons.Select(b => Field(b, "Label") is { Length: > 0 } label ? label : L("Tamam")).ToList();
+		var labels = buttons.Select(b => Field(b, "Label") is { Length: > 0 } label ? label : L("OK")).ToList();
 
 		if (words.Count == 0 && Ui.Interactive)
 		{
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}\n");
-			if (Ui.Ask(L("Cevap"), labels) is not { } answer) return 0;
+			if (Ui.Ask(L("Answer"), labels) is not { } answer) return 0;
 			words.Add(labels[answer]);
 		}
 
@@ -38,16 +38,16 @@ internal static partial class Program
 		{
 			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}\n");
 			for (var i = 0; i < buttons.Count; i++) Console.WriteLine($"  {i + 1}  {labels[i]}");
-			if (dialogs.GetArrayLength() > 1) Console.WriteLine(L($"\n({dialogs.GetArrayLength() - 1} pencere daha bunun altında.)"));
-			Console.WriteLine(L("\nCevaplamak için: dialog <numara | yazı>"));
+			if (dialogs.GetArrayLength() > 1) Console.WriteLine(L($"\n({dialogs.GetArrayLength() - 1} more windows under this one.)"));
+			Console.WriteLine(L("\nTo answer: dialog <number | text>"));
 			return 0;
 		}
 
-		if (Choose(labels, words[0], L("Pencere")) is not { } pick) return 1;
+		if (Choose(labels, words[0], L("Window")) is not { } pick) return 1;
 
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine(L($"(kuru) '{pick}' denecekti: {Field(dialog, "Title")}"));
+			Console.WriteLine(L($"(dry run) Would have said '{pick}': {Field(dialog, "Title")}"));
 			return 0;
 		}
 
@@ -63,11 +63,11 @@ internal static partial class Program
 			var now = await Fm.GetJson("dialog");
 			return now.GetArrayLength() < count || Field(now[0], "Title") + "|" + Field(now[0], "Description") != was;
 		}, seconds: 8);
-		Console.WriteLine(closed ? $"{Field(dialog, "Title")} → {pick}" : L($"'{pick}' denildi ama pencere hâlâ açık."));
+		Console.WriteLine(closed ? $"{Field(dialog, "Title")} → {pick}" : L($"Said '{pick}', but the window is still open."));
 
 		var next = await Fm.GetJson("dialog");
 		if (closed && next.GetArrayLength() > 0)
-			Console.WriteLine(L($"Yeni soru: {Field(next[0], "Title")} — {Field(next[0], "Description")}   (cevap: dialog)"));
+			Console.WriteLine(L($"New question: {Field(next[0], "Title")} — {Field(next[0], "Description")}   (to answer: dialog)"));
 		return closed ? 0 : 1;
 	}
 

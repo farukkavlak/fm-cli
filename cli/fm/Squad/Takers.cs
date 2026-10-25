@@ -6,7 +6,7 @@ namespace FmCli;
 /// <summary>
 /// The set piece takers (Match Day › Set Pieces): corners, the three kinds of free kick and
 /// throw-ins in the attacking third each keep two lists of takers in order, one for each foot or side
-/// (FINDINGS §8.91). The page shows one kind at a time and its taker button opens the two lists;
+///. The page shows one kind at a time and its taker button opens the two lists;
 /// they are dragged tables like the penalty takers', and are changed the same way (§8.90).
 /// </summary>
 internal static partial class Program
@@ -17,22 +17,22 @@ internal static partial class Program
 	/// </summary>
 	private static readonly (string Say, int Value, bool ThrowIn, string[] Words)[] SetPieceKinds =
 	[
-		(L("Korner"), 0, false, ["korner", "corner", "corners", "kose"]),
-		(L("Serbest vuruş · şut mesafesi"), 1, false, ["frikik", "serbest", "freekick", "sut"]),
-		(L("Serbest vuruş · kanat"), 3, false, ["kanat", "frikik-kanat", "wide"]),
-		(L("Serbest vuruş · derin"), 4, false, ["derin", "frikik-derin", "deep"]),
+		(L("Corners"), 0, false, ["korner", "corner", "corners", "kose"]),
+		(L("Free kick · shooting range"), 1, false, ["frikik", "serbest", "freekick", "sut"]),
+		(L("Free kick · wide"), 3, false, ["kanat", "frikik-kanat", "wide"]),
+		(L("Free kick · deep"), 4, false, ["derin", "frikik-derin", "deep"]),
 		// Throw-ins in the other two thirds (6, 5) have no taker to choose.
-		(L("Taç · hücum bölgesi"), 2, true, ["tac", "throw", "throwin", "throw-in"]),
+		(L("Throw-in · attacking third"), 2, true, ["tac", "throw", "throwin", "throw-in"]),
 	];
 
 	private static readonly Dictionary<string, string> TakerHeadings = new()
 	{
-		["Right Footers"] = L("sağ ayaklılar"), ["Left Footers"] = L("sol ayaklılar"), ["Right Side"] = L("sağ taraf"), ["Left Side"] = "sol taraf",
+		["Right Footers"] = L("Right Footers"), ["Left Footers"] = L("Left Footers"), ["Right Side"] = L("Right Side"), ["Left Side"] = "sol taraf",
 	};
 
 	private static readonly Dictionary<string, string> TakerColumns = new()
 	{
-		["Tec"] = L("TEKNİK"), ["Tech"] = L("TEKNİK"), ["Cro"] = L("ORTA"), ["Cor"] = L("KORNER"), ["Fre"] = L("FRİKİK"), ["Long Sh."] = L("UZAK ŞUT"), ["Shots"] = L("UZAK ŞUT"), ["L Th"] = L("UZUN TAÇ"), ["Position"] = L("MEVKİ"),
+		["Tec"] = L("TECHNICAL"), ["Tech"] = L("TECHNICAL"), ["Cro"] = L("CRO"), ["Cor"] = L("COR"), ["Fre"] = L("FRE"), ["Long Sh."] = L("LONG SH."), ["Shots"] = L("LONG SH."), ["L Th"] = L("L TH"), ["Position"] = L("POSITION"),
 	};
 
 	private sealed record SetPieceTaker(int Order, string Number, string Name, string Where, List<string> Stats);
@@ -40,7 +40,7 @@ internal static partial class Program
 	/// <summary>One of a kind's two lists: its heading on the page, its columns after the name, and its takers.</summary>
 	private sealed record TakerList(string Heading, List<string> Columns, List<SetPieceTaker> Takers, string Key, bool Whole);
 
-	private static string TakersUsage => L("kullanım: takers [<tür>]   ·   takers <tür> <sağ|sol> move <oyuncu|sıra> <yeni sıra> | add <oyuncu> [<sıra>] | remove <oyuncu|sıra>\ntürler: korner, frikik (şut mesafesi), kanat, derin (serbest vuruşlar), tac (hücum bölgesi)");
+	private static string TakersUsage => L("usage: takers [<kind>]   ·   takers <kind> <right|left> move <player|place> <new place> | add <player> [<place>] | remove <player|place>\nkinds: corner, freekick (shooting range), wide, deep (free kicks), throw (attacking third)");
 
 	private static async Task<int> Takers(bool json, string[] args)
 	{
@@ -53,7 +53,7 @@ internal static partial class Program
 			var kind = SetPieceKinds.FirstOrDefault(k => k.Words.Contains(Fold(words[0])));
 			if (kind.Say == null)
 			{
-				Console.Error.WriteLine(L($"'{words[0]}' bir duran top türü değil.\n{TakersUsage}"));
+				Console.Error.WriteLine(L($"'{words[0]}' is not a set piece type.\n{TakersUsage}"));
 				return 64;
 			}
 			kinds = [kind];
@@ -83,7 +83,7 @@ internal static partial class Program
 		{
 			if (await OpenTakers(kind!.Value, kind.ThrowIn, seen) is not { } tables)
 			{
-				Console.Error.WriteLine(L($"{kind.Say}: atıcı listeleri açılmadı (duran top düzeni kurulmamış olabilir: setpieces new)."));
+				Console.Error.WriteLine(L($"{kind.Say}: the taker lists did not open (set pieces may not be set up: setpieces new)."));
 				return 1;
 			}
 			// The lists are drawn row by row; they are read once both are whole and stand still.
@@ -103,14 +103,14 @@ internal static partial class Program
 
 			if (!await Drawn())
 			{
-				Console.Error.WriteLine(L($"{kind.Say}: atıcı listeleri okunamadı."));
+				Console.Error.WriteLine(L($"{kind.Say}: the taker lists could not be read."));
 				return 1;
 			}
 			if (verb != null)
 			{
 				var at = side!.Value;
 				var heading = lists[at].Heading;
-				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? L("sağ") : L("sol"))}", L("Atıcı"), L("atıcılar"), L("Atıcılara"), tables[at],
+				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? L("right") : L("left"))}", L("Taker"), L("takers"), L("the takers"), tables[at],
 					async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Where(d => Field(d, "Label") == "Add Player").ToList() is { Count: 2 } adds ? adds[at] : null,
 					async () => await TakerLists() is { Count: 2 } now && now[at].Heading == heading
 						? (now[at].Takers.Select(t => new Placed(t.Order, t.Name)).ToList(), now[at].Key, now[at].Whole)
@@ -137,11 +137,11 @@ internal static partial class Program
 
 		if (read.Count > 1)
 		{
-			Table.Write([L("DURAN TOP"), L("SAĞ"), L("SOL")], read.Select(k => (string[])
+			Table.Write([L("SET PIECE"), L("RIGHT"), L("LEFT")], read.Select(k => (string[])
 			[
 				k.Say, .. Enumerable.Range(0, 2).Select(i => i < k.Lists.Count ? string.Join(", ", k.Lists[i].Takers.Select(t => $"{t.Order}. {t.Name}")) : ""),
 			]).ToList());
-			Console.WriteLine(L($"\nAyrıntı ve değiştirmek: takers <tür>   ({string.Join(", ", SetPieceKinds.Select(k => L(k.Words[0])))})"));
+			Console.WriteLine(L($"\nDetails and changes: takers <kind>   ({string.Join(", ", SetPieceKinds.Select(k => L(k.Words[0])))})"));
 			return 0;
 		}
 
@@ -149,15 +149,15 @@ internal static partial class Program
 		for (var i = 0; i < both.Count; i++)
 		{
 			if (i > 0) Console.WriteLine();
-			Console.WriteLine($"{say} — {TakerHeadings.GetValueOrDefault(both[i].Heading, both[i].Heading)}  ({(i == 0 ? L("sağ") : L("sol"))})");
-			if (both[i].Takers.Count == 0) { Console.WriteLine(L("  (boş)")); continue; }
-			Table.Write([L("SIRA"), "#", L("OYUNCU"), L("MAÇA"), .. both[i].Columns.Select(c => TakerColumns.GetValueOrDefault(c, c.ToUpperInvariant()))],
+			Console.WriteLine($"{say} — {TakerHeadings.GetValueOrDefault(both[i].Heading, both[i].Heading)}  ({(i == 0 ? L("right") : L("left"))})");
+			if (both[i].Takers.Count == 0) { Console.WriteLine(L("  (empty)")); continue; }
+			Table.Write([L("POS"), "#", L("PLAYER"), L("FOR MATCH"), .. both[i].Columns.Select(c => TakerColumns.GetValueOrDefault(c, c.ToUpperInvariant()))],
 				both[i].Takers.Select(t => (string[])[t.Order.ToString(), t.Number, t.Name, Starting(t.Where), .. t.Stats]).ToList());
 		}
 		if (verb == null)
 		{
 			var name = kinds[0].Words[0];
-			Console.WriteLine(L($"\nSıra: takers {name} <sağ|sol> move <oyuncu> <sıra> · add <oyuncu> [<sıra>] · remove <oyuncu>"));
+			Console.WriteLine(L($"\nOrder: takers {name} <right|left> move <player> <place> · add <player> [<place>] · remove <player>"));
 		}
 		return 0;
 	}
@@ -249,7 +249,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// A list's rows, by each text's data path (FINDINGS §8.169): a taker is his name (binding.Name),
+	/// A list's rows, by each text's data path: a taker is his name (binding.Name),
 	/// where he starts (tactic.TeamSelectedPositionStringFromPlayer) and a value under each column
 	/// (binding.PropertyValue); before the name, drawn without a path, his place ("1st") and his shirt
 	/// number when he has one. The columns are the headings after "Name", as many as a row has values.

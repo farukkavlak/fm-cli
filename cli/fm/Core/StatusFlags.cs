@@ -5,7 +5,7 @@ namespace FmCli;
 /// <summary>
 /// What the squad table's status column abbreviates — "Unr", "Rst", "Loa" — in full and with its
 /// reason. Each player keeps a list of flags for a team; the table shows only the first and only
-/// three letters of it. The list wants the team and a sort order beside it (FINDINGS §8.148).
+/// three letters of it. The list wants the team and a sort order beside it.
 /// </summary>
 internal static partial class Program
 {
@@ -65,5 +65,5 @@ internal static partial class Program
 	/// game has no flag of its own for that.
 	/// </summary>
 	internal static string FlagWords(IEnumerable<Flag> flags) =>
-		string.Join(", ", flags.Select(f => f.Full.Length > 0 ? f.Full : f.Short).Distinct().Select(t => t == "Free Agent" ? L("Free Agent (denemede)") : t));
+		string.Join(", ", flags.Select(f => f.Full.Length > 0 ? f.Full : f.Short).Distinct().Select(t => t == "Free Agent" ? L("Free Agent (on trial)") : t));
 }

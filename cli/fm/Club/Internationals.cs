@@ -1,7 +1,7 @@
 namespace FmCli;
 
 /// <summary>
-/// Our players' national teams (FINDINGS §8.101): country, caps and goals in all, and what they
+/// Our players' national teams: country, caps and goals in all, and what they
 /// have played for it this season. Read from the players' data, no page opened.
 /// </summary>
 internal static partial class Program
@@ -10,7 +10,7 @@ internal static partial class Program
 	{
 		if (!await Fm.InGame())
 		{
-			Console.Error.WriteLine(L("Kayıt yüklü değil. `fm continue` ile yükle."));
+			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
 
@@ -23,7 +23,7 @@ internal static partial class Program
 			.OrderByDescending(p => p.Games).ThenByDescending(p => Caps(p.Career)).ThenBy(p => p.Name).ToList();
 		if (players.Count == 0)
 		{
-			Console.Error.WriteLine(L("Kadro okunamadı."));
+			Console.Error.WriteLine(L("The squad could not be read."));
 			return 1;
 		}
 
@@ -32,13 +32,13 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(players.Select(p => new { p.Name, p.Nation, Caps = Caps(p.Career), Goals = CareerGoals(p.Career), GamesThisSeason = p.Games, GoalsThisSeason = p.Goals })));
 			return 0;
 		}
-		Table.Write([L("OYUNCU"), L("ÜLKE"), L("MİLLİ MAÇ"), L("GOL"), L("BU SEZON")], players.Select(p => (string[])
+		Table.Write([L("PLAYER"), L("NATION"), L("CAPS"), L("GOALS"), L("THIS SEASON")], players.Select(p => (string[])
 		[
 			p.Name, p.Nation, Caps(p.Career) is > 0 and var caps ? caps.ToString() : "-", CareerGoals(p.Career) is > 0 and var goals ? goals.ToString() : "-",
-			p.Games > 0 ? L($"{p.Games} maç") + (p.Goals > 0 ? L($", {p.Goals} gol") : "") : "",
+			p.Games > 0 ? L($"{p.Games} apps") + (p.Goals > 0 ? L($", {p.Goals} goals") : "") : "",
 		]).ToList());
 		var called = players.Count(p => p.Games > 0);
-		Console.WriteLine(L($"\n{players.Count(p => Caps(p.Career) > 0)} oyuncu milli olmuş; {called} tanesi bu sezon milli takımda oynadı."));
+		Console.WriteLine(L($"\n{players.Count(p => Caps(p.Career) > 0)} players have been capped; {called} of them played for their national team this season."));
 		return 0;
 	}
 

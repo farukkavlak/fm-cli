@@ -17,37 +17,37 @@ internal static partial class Program
 
 	private static readonly Dictionary<string, string> HighlightTurkish = new()
 	{
-		["Full Match"] = L("Tam maç"), ["Comprehensive"] = L("Kapsamlı"), ["Extended"] = L("Geniş"), ["Key"] = L("Önemli anlar"),
-		["Only Commentary"] = L("Yalnızca anlatım"),
+		["Full Match"] = L("Full Match"), ["Comprehensive"] = L("Comprehensive"), ["Extended"] = L("Extended"), ["Key"] = L("Key"),
+		["Only Commentary"] = L("Only Commentary"),
 	};
 
 	private static readonly Dictionary<string, string> IntervalTurkish = new()
 	{
-		["Day"] = L("Her gün"), ["Week"] = L("Her hafta"), ["Fortnight"] = L("İki haftada bir"), ["Month"] = "Her ay",
-		["Three Months"] = L("Üç ayda bir"), ["Year"] = L("Yılda bir"), ["Five Years"] = L("Beş yılda bir"),
-		["After Matches"] = L("Maçlardan sonra"), ["30 Minutes (Real Time)"] = L("Gerçek 30 dakikada bir"),
-		["60 Minutes (Real Time)"] = L("Gerçek 60 dakikada bir"),
+		["Day"] = L("Day"), ["Week"] = L("Week"), ["Fortnight"] = L("Fortnight"), ["Month"] = L("every month"),
+		["Three Months"] = L("Three Months"), ["Year"] = L("Year"), ["Five Years"] = L("Five Years"),
+		["After Matches"] = L("After Matches"), ["30 Minutes (Real Time)"] = L("30 Minutes (Real Time)"),
+		["60 Minutes (Real Time)"] = L("60 Minutes (Real Time)"),
 	};
 
 	private static readonly Dictionary<string, string> SaveTypeTurkish = new()
 	{
-		["Single File"] = L("Tek dosya"), ["Incremental Auto Save"] = L("Her seferinde yeni dosya"),
-		["3 File Rolling Auto Save"] = L("3 dosya, sırayla"), ["5 File Rolling Auto Save"] = L("5 dosya, sırayla"),
-		["10 File Rolling Auto Save"] = L("10 dosya, sırayla"),
+		["Single File"] = L("Single File"), ["Incremental Auto Save"] = L("Incremental Auto Save"),
+		["3 File Rolling Auto Save"] = L("3 File Rolling Auto Save"), ["5 File Rolling Auto Save"] = L("5 File Rolling Auto Save"),
+		["10 File Rolling Auto Save"] = L("10 File Rolling Auto Save"),
 	};
 
 	private static readonly Dictionary<string, string> UnitTurkish = new()
 	{
-		["Weekly"] = L("Haftalık"), ["Monthly"] = L("Aylık"), ["Yearly"] = L("Yıllık"),
-		["Celsius"] = L("Santigrat"), ["Fahrenheit"] = L("Fahrenhayt"), ["Kelvin"] = "Kelvin",
-		["Centimetres"] = L("Santimetre"), ["Metres"] = L("Metre"), ["Feet"] = "Fit",
-		["Yards"] = L("Yarda"), ["Miles"] = "Mil", ["Kilometres"] = L("Kilometre"),
+		["Weekly"] = L("Weekly"), ["Monthly"] = L("Monthly"), ["Yearly"] = L("Yearly"),
+		["Celsius"] = L("Celsius"), ["Fahrenheit"] = L("Fahrenheit"), ["Kelvin"] = "Kelvin",
+		["Centimetres"] = L("Centimetres"), ["Metres"] = L("Metres"), ["Feet"] = "Fit",
+		["Yards"] = L("Yards"), ["Miles"] = "Mil", ["Kilometres"] = L("Kilometres"),
 	};
 
 	/// <summary>
 	/// The container each tab's button sits in: the template's own name, which no translation
 	/// touches, so the tab is opened by it rather than by the words on it — a Turkish game
-	/// labels the tab "Matchday" where the English one says "Match Day" (FINDINGS §8.203).
+	/// labels the tab "Matchday" where the English one says "Match Day".
 	/// </summary>
 	private static readonly Dictionary<string, string> TabButtons = new()
 	{
@@ -58,51 +58,51 @@ internal static partial class Program
 
 	private static readonly Setting[] Settings =
 	[
-		new(L("maç gösterimi"), L("Maç günü"), "Match Day", "Dynamic Mode", SettingKind.Radio, HighlightTurkish,
-			Hint: L("az gösterim maçı kısaltır")),
-		new(L("dinamik mod"), L("Maç günü"), "Match Day", "Dynamic Mode", SettingKind.Checkbox,
-			Hint: L("gösterimi oyun seçer")),
+		new(L("match display"), L("Match day"), "Match Day", "Dynamic Mode", SettingKind.Radio, HighlightTurkish,
+			Hint: L("fewer highlights make the match shorter")),
+		new(L("dynamic mode"), L("Match day"), "Match Day", "Dynamic Mode", SettingKind.Checkbox,
+			Hint: L("the game chooses the highlights")),
 		// The slider's steps as the page labels them, read off it one step at a time.
-		new(L("vurgu hızı"), L("Maç günü"), "Match Day", "Match Speed During Highlights", SettingKind.Slider,
+		new(L("highlight speed"), L("Match day"), "Match Day", "Match Speed During Highlights", SettingKind.Slider,
 			Steps: ["0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x", "2.5x", "3x", "4x", "10x"],
-			Hint: L("pozisyon oynarken")),
-		new(L("ara hızı"), L("Maç günü"), "Match Day", "Match Speed Between Highlights", SettingKind.Slider,
+			Hint: L("while a move is played")),
+		new(L("speed between highlights"), L("Match day"), "Match Day", "Match Speed Between Highlights", SettingKind.Slider,
 			Steps: ["4x", "8x", "10x", "20x", "30x", "40x"],
-			Hint: L("pozisyonlar arası")),
-		new(L("otomatik kayıt"), L("Kayıt"), "Your World", "Use Auto Saves", SettingKind.Checkbox),
+			Hint: L("between moves")),
+		new(L("auto save"), L("Saving"), "Your World", "Use Auto Saves", SettingKind.Checkbox),
 		// The name of the block a list sits in, which the template gives it and no translation
-		// touches; the game's own words for a list can differ from the English one (FINDINGS §8.203).
-		new(L("kayıt sıklığı"), L("Kayıt"), "Your World", "Every", SettingKind.Dropdown, IntervalTurkish, Offers: "Fortnight",
+		// touches; the game's own words for a list can differ from the English one.
+		new(L("save frequency"), L("Saving"), "Your World", "Every", SettingKind.Dropdown, IntervalTurkish, Offers: "Fortnight",
 			Block: "AutoSaveIntervalSetting"),
-		new(L("kayıt türü"), L("Kayıt"), "Your World", "Auto save type", SettingKind.Dropdown, SaveTypeTurkish, Offers: "Single File",
+		new(L("save type"), L("Saving"), "Your World", "Auto save type", SettingKind.Dropdown, SaveTypeTurkish, Offers: "Single File",
 			Block: "AutoSaveTypeSetting"),
-		new(L("dil"), L("Bölge ve birimler"), "Your World", "Game Language", SettingKind.Dropdown,
-			Hint: L("oyunun ve fm'in yazıları bu dilde"), Block: "GameLanguagePreferencesBlock"),
-		new(L("para birimi"), L("Bölge ve birimler"), "Your World", "Currency", SettingKind.Dropdown,
+		new(L("language"), L("Region and units"), "Your World", "Game Language", SettingKind.Dropdown,
+			Hint: L("the game's and fm's texts in this language"), Block: "GameLanguagePreferencesBlock"),
+		new(L("currency"), L("Region and units"), "Your World", "Currency", SettingKind.Dropdown,
 			Block: "CurrencyPreferencesBlock"),
-		new(L("maaş"), L("Bölge ve birimler"), "Your World", "Wages", SettingKind.Dropdown, UnitTurkish,
+		new(L("wages"), L("Region and units"), "Your World", "Wages", SettingKind.Dropdown, UnitTurkish,
 			Block: "WagesPreferencesBlock"),
-		new(L("tarih"), L("Bölge ve birimler"), "Your World", "Format", SettingKind.Dropdown,
+		new(L("date format"), L("Region and units"), "Your World", "Format", SettingKind.Dropdown,
 			Block: "FormatPreferencesBlock"),
-		new(L("sıcaklık"), L("Bölge ve birimler"), "Your World", "Temperature", SettingKind.Dropdown, UnitTurkish,
+		new(L("temperature"), L("Region and units"), "Your World", "Temperature", SettingKind.Dropdown, UnitTurkish,
 			Block: "TemperaturePreferencesBlock"),
-		new(L("boy"), L("Bölge ve birimler"), "Your World", "Height", SettingKind.Dropdown, UnitTurkish,
+		new(L("height"), L("Region and units"), "Your World", "Height", SettingKind.Dropdown, UnitTurkish,
 			Block: "HeightPreferencesBlock"),
-		new(L("kısa mesafe"), L("Bölge ve birimler"), "Your World", "Short Distance", SettingKind.Dropdown, UnitTurkish,
+		new(L("short distance"), L("Region and units"), "Your World", "Short Distance", SettingKind.Dropdown, UnitTurkish,
 			Block: "ShortDistancePreferencesBlock"),
-		new(L("uzun mesafe"), L("Bölge ve birimler"), "Your World", "Long Distance", SettingKind.Dropdown, UnitTurkish,
+		new(L("long distance"), L("Region and units"), "Your World", "Long Distance", SettingKind.Dropdown, UnitTurkish,
 			Block: "LongDistancePreferencesBlock"),
-		new(L("oran biçimi"), L("Bölge ve birimler"), "Your World", "Match Odds", SettingKind.Dropdown,
+		new(L("odds format"), L("Region and units"), "Your World", "Match Odds", SettingKind.Dropdown,
 			Block: "MatchOddsPreferencesBlock"),
 		// The Processing tab puts every one of its lists in the same block, so those keep to their
 		// headings; so does a slider, a checkbox and the radio group, which the game does not report
 		// a block for.
-		new(L("diğer maçların hızı"), L("İşlem"), "Processing", "Speed to Process Other Teams' Matches", SettingKind.Dropdown,
-			Hint: L("Fast: gün ilerletme daha çabuk")),
-		new(L("maç takvimi"), L("İşlem"), "Processing", "Match Scheduling Options", SettingKind.Dropdown,
-			Hint: L("maçlar yayın için kaydırılsın mı")),
-		new(L("okumadan ilerleme yok"), L("İşlem"), "Processing", "Continue Button Legacy Mode", SettingKind.Checkbox,
-			Hint: L("bütün mesajlar okunmadan Continue çalışmaz")),
+		new(L("other matches' speed"), L("Processing"), "Processing", "Speed to Process Other Teams' Matches", SettingKind.Dropdown,
+			Hint: L("Fast: days move on quicker")),
+		new(L("match scheduling"), L("Processing"), "Processing", "Match Scheduling Options", SettingKind.Dropdown,
+			Hint: L("whether matches are moved for broadcasting")),
+		new(L("no continuing unread"), L("Processing"), "Processing", "Continue Button Legacy Mode", SettingKind.Checkbox,
+			Hint: L("Continue does not work until every message is read")),
 	];
 
 	/// <summary>A setting as found on its page: the control, its choices and which one is in force.</summary>
