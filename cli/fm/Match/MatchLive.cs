@@ -41,7 +41,7 @@ internal static class MatchLive
 		lines.Add("  " + new string('─', Width));
 		var shown = view == 2
 			? []
-			: events.OrderBy(Seconds).Where(e => view == 0 || KeyMoment(e)).TakeLast(8).ToList();
+			: events.OrderBy(Seconds).Where(e => view == 0 || !KnownKeyLanguage || KeyMoment(e)).TakeLast(8).ToList();
 		if (shown.Count == 0 && view != 2)
 			lines.Add($"  \x1b[2m{(view == 1 ? L("No key moments yet.") : L("Waiting for the first event…"))}\x1b[0m");
 		foreach (var line in shown)
