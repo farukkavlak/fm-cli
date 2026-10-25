@@ -8,6 +8,16 @@ internal static class MatchLive
 {
 	private static string? last;
 
+	/// <summary>The panel's inner width: the terminal's, with a floor and a ceiling.</summary>
+	private static int Width
+	{
+		get
+		{
+			try { return Math.Clamp(Console.WindowWidth - 6, 56, 86); }
+			catch { return 70; }
+		}
+	}
+
 	/// <summary>Draws the panel when its text changed. Nothing when the output is not a terminal.</summary>
 	public static void Draw(string board, string minute, string period, string stats, string formation,
 		IReadOnlyList<(string Spot, string Player)> shape, int keep, IEnumerable<string> events)
@@ -27,12 +37,15 @@ internal static class MatchLive
 				? minute * 60 + second : int.MaxValue;
 		}
 		if (stats.Length > 0) lines.Add($"  \x1b[2m{stats}\x1b[0m");
-		if (shape.Count > 0) lines.AddRange(PitchLines(formation, shape));
-		lines.Add("  " + new string('─', 72));
+		if (shape.Count > 0) lines.AddRange(PitchLines(formation, shape, Width));
+		lines.Add("  " + new string('─', Width));
 		var shown = keep <= 0 ? [] : events.OrderBy(Seconds).TakeLast(keep).ToList();
 		if (shown.Count == 0) lines.Add($"  \x1b[2m{L("Waiting for the first event…")}\x1b[0m");
 		foreach (var line in shown)
-			lines.Add("  " + line);
+		{
+			var fitted = line.Length > Width ? line[..(Width - 1)] + "…" : line;
+			lines.Add("  " + fitted);
+		}
 		lines.Add("");
 		lines.Add($"  \x1b[2m{L("[s] sub · [h] shout · [t] tactic · [v] view · [+/-] speed")}\x1b[0m");
 
@@ -44,7 +57,7 @@ internal static class MatchLive
 	}
 
 	/// <summary>A small pitch: one line per phase, the player's surname in his lane.</summary>
-	private static IEnumerable<string> PitchLines(string formation, IReadOnlyList<(string Spot, string Player)> shape)
+	private static IEnumerable<string> PitchLines(string formation, IReadOnlyList<(string Spot, string Player)> shape, int width)
 	{
 		var lanes = new string[6, 5];
 		foreach (var (spot, player) in shape)
@@ -59,13 +72,19 @@ internal static class MatchLive
 			var row = string.Concat(Enumerable.Range(0, 5).Select(lane =>
 			{
 				var cell = lanes[line, lane] ?? "";
-				return cell.Length > 13 ? cell[..13] : cell.PadLeft(7).PadRight(14);
+				var text = cell.Length > Math.Max(9, width / 5 - 1) ? cell[..Math.Max(9, width / 5 - 1)] : cell;
+				return text.PadLeft(Math.Max(5, width / 10)).PadRight(Math.Max(10, width / 5));
 			}));
-			if (row.Trim().Length > 0) rows.Add("  │" + row.TrimEnd().PadRight(70) + "│");
+			if (row.Trim().Length > 0)
+			{
+				var fitted = row.TrimEnd();
+				if (fitted.Length > width) fitted = fitted[..width];
+				rows.Add("  │" + fitted.PadRight(width) + "│");
+			}
 		}
 		if (rows.Count == 0) return [];
-		var head = $"  │ {L("Shape")}: {formation}".PadRight(73) + "│";
-		return [ "  ┌" + new string('─', 71) + "┐", head, ..rows, "  └" + new string('─', 71) + "┘" ];
+		var head = $"  │ {L("Shape")}: {formation}".PadRight(width + 1) + "│";
+		return [ "  ┌" + new string('─', width) + "┐", head, ..rows, "  └" + new string('─', width) + "┘" ];
 	}
 
 	/// <summary>The line and lane a short position sits in: goal to strikers, left to right.</summary>

@@ -109,6 +109,33 @@ little work; text- and position-based ones must be rewritten.
   pattern; it once killed the wrong processes.
 - Some actions (mutual termination) apply without asking. Re-read a list before answering by number.
 
+## Fragility review (FM26)
+
+What can still break when the language, theme, terminal, machine or game version changes:
+
+- **English labels in the match flow.** `Confirm Changes` (match stop), `Continue` (tour),
+  `Confirm` (set-piece wizard) and the mentality choice `Very Attacking` are matched by English
+  text. The plugin translates the game's UI to English, so they work while that table is complete;
+  a new game version or a missing translation breaks them. Prefer event ids
+  (`EventFmxConfirmChanges`) and element names when porting.
+- **Live panel.** It uses ANSI clear/colours and `Console.KeyAvailable`; this is a POSIX terminal
+  and macOS. The width adapts to the terminal (56–86 columns), but below that the panel wraps.
+  Keys are off when input is redirected, so scripts and MCP keep plain output.
+- **Live stats.** During a match the bindings only hold `LastFixture`/`NextFixture` and
+  `IsLiveMatch` is false; no live possession/shots. The post-match report has them.
+- **Match speed.** The match screen has no speed dropdown; `+`/`-` looks for one with `1x…`
+  choices and otherwise tells the user to use settings.
+- **Language reverse lookup.** `Labels.Source` builds an English reverse table from the Turkish
+  catalog; duplicate Turkish values can map to the wrong English key. Settings names are unique;
+  keep new translated labels unique or pass the English key explicitly.
+- **MCP.** The tools run the CLI, so their text follows the CLI/game language. Set
+  `FM_LANG=english` (or `fm lang english`) when a model needs English. Read tools are tested with
+  the Python SDK; write tools are not.
+- **Another machine.** Install and launch are macOS arm64 + Steam only; `fm start` window
+  minimising needs Accessibility; Intel, Epic, Game Pass and Windows are out of scope.
+- **Another game.** Page GUIDs, data paths and event names are FM26-specific; start from
+  `docs/PORTING.md` and the dumps in `docs/reference/`.
+
 ## State at the FM26 stop
 
 - Working: 100+ CLI commands and MCP tools — squad, tactics, training, transfers, contracts,
