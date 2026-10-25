@@ -74,10 +74,11 @@ player are entities with a position, so the panel draws the real shape and movem
 from a screenshot. The plugin's `/radar` route returns normalized positions (`x`, `y`), the ball's
 height and each player's shirt number, kit colour and substitute flag. It refreshes every couple of
 seconds; `a` hides it and `r` switches its style (pixel, braille, coloured ASCII, plain ASCII;
-the choice is kept in `panel.json`). It takes the terminal's whole width and the shape pitch's
-place, keeps the pitch in proportion within the rows left over, and says how much room it needs
-when the window is too small. Colours are 24-bit where the terminal has them (`COLORTERM`, or a
-known terminal) and the 256-colour cube otherwise, as in Terminal.app.
+the choice is kept in `panel.json`; `r` turns colour on if it was off and the next style needs it).
+It takes the panel's width (up to 86 columns) and the shape pitch's place, keeps the pitch in
+proportion within the rows left over, and says how much room it needs when the window is too small.
+Colours are 24-bit where the terminal has them (`COLORTERM`, or a known terminal) and the 256-colour
+cube otherwise, as in Terminal.app.
 
 ![Live match panel](manual/img/match/live-match.png)
 

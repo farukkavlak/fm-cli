@@ -52,8 +52,9 @@ internal static class MatchLive
 		}
 		if (stats.Length > 0) lines.Add($"  {Paint("2", stats)}");
 		if (radar is { Count: > 0 }) lines.AddRange(radar);
-		// The radar already shows the shape and takes the room the shape pitch would.
-		var showShape = config.Pitch && shape.Count > 0 && radar is not { Count: > 0 };
+		// A real radar takes the shape pitch's place. A single line means it did not fit (the
+		// "needs at least …" note), so keep the shape pitch under it.
+		var showShape = config.Pitch && shape.Count > 0 && radar is not { Count: > 1 };
 		if (showShape) lines.AddRange(PitchLines(formation, shape, Width));
 		lines.Add("  " + new string('─', Width));
 		var count = Math.Clamp(config.Events, 0, 12);

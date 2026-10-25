@@ -18,12 +18,12 @@ internal static partial class Program
 	// A terminal cell is about twice as tall as it is wide.
 	private const double CellAspect = 2.05;
 
-	/// <summary>The radar's widest: the terminal's width less the panel's margin.</summary>
+	/// <summary>The radar's widest: the panel's width less its margin.</summary>
 	internal static int RadarWidth
 	{
 		get
 		{
-			try { return Math.Clamp(Console.WindowWidth - 4, 30, 220); }
+			try { return Math.Clamp(MatchLive.Width - 2, 30, 220); }
 			catch { return 80; }
 		}
 	}

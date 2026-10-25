@@ -454,11 +454,15 @@ internal static partial class Program
 						case 'a': radarOn = !radarOn; break;
 						case 'r':
 						{
-							// The next style, remembered for the next match too.
-							var now = Array.IndexOf(RadarStyles, ResolveRadarStyle(radarStyle, panel.Colour));
-							radarStyle = RadarStyles[(now + 1) % RadarStyles.Length];
+							// The next style, remembered for the next match too. The pixel, braille
+							// and coloured styles need colour, so pressing r turns it on rather
+							// than leaving the panel on plain ASCII with no visible change.
+							var current = Array.IndexOf(RadarStyles, radarStyle);
+							if (current < 0) current = Array.IndexOf(RadarStyles, ResolveRadarStyle(radarStyle, panel.Colour));
+							radarStyle = RadarStyles[(current + 1) % RadarStyles.Length];
 							radarOn = true;
-							panel = panel with { RadarStyle = radarStyle };
+							panel = panel with { Radar = true, RadarStyle = radarStyle };
+							if (!panel.Colour && radarStyle != "ascii") panel = panel with { Colour = true };
 							PanelConfig.Save(panel);
 							break;
 						}

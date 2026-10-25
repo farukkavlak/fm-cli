@@ -170,8 +170,9 @@ radar draws the ball and every player from the game's own match simulation, so i
 shape rather than a sketch. It comes in four styles, `r` cycling through them: `pixel` (a retro
 pitch with little players in their kits; needs 24-bit colour), `braille` (fine dots, any terminal),
 `colour` (coloured ASCII on mown stripes) and `ascii` (plain). `auto`, the default, is `pixel` where
-the terminal has 24-bit colour and `braille` otherwise. The radar takes the whole width of the
-terminal; when the window is too small for the chosen style it says how much room it needs. Live possession/shots are not in the game's bindings during
+the terminal has 24-bit colour and `braille` otherwise. The radar takes the panel's width (up to 86
+columns); when the window is too small for the chosen style it says how much room it needs, and
+pressing `r` turns colour on if it was off and the next style needs it. Live possession/shots are not in the game's bindings during
 a match, so they appear in `report` after the whistle.
 
 ![fm match --play](manual/img/match/live-match.png)
