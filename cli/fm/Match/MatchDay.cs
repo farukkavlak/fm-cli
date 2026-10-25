@@ -27,6 +27,35 @@ internal static partial class Program
 		["LeaveMatch"] = L("Leaving the match"),
 	};
 
+	/// <summary>The live numbers, our side first; empty until the game has them.</summary>
+	private static async Task<string> LiveStats(JsonElement state)
+	{
+		try
+		{
+			// The bindings carry LastFixture and NextFixture only; during a match neither has the
+			// live numbers (IsLiveMatch is False), so no stats are shown rather than old ones.
+			var fixture = await Fm.Pull("Human.Team.NextFixture",
+				"IsLiveMatch,HomePossession,AwayPossession,HomeShots,AwayShots,HomeShotsOnTarget,AwayShotsOnTarget,HomeExpectedGoals,AwayExpectedGoals,HomeCorners,AwayCorners");
+			if (Field(fixture, "IsLiveMatch") != "True") return "";
+			var home = Field(state, "HumanIsHome") == "True";
+			string Ours(string name) => Field(fixture, (home ? "Home" : "Away") + name);
+			string Theirs(string name) => Field(fixture, (home ? "Away" : "Home") + name);
+			string Xg(string raw) => GameNumbers.Read(raw) is { } value ? GameNumbers.Of(value, "0.00") : raw;
+			var parts = new List<string>();
+			void Add(string label, string a, string b)
+			{
+				if (a.Length > 0 || b.Length > 0) parts.Add($"{label} {GameNumbers.Percent(a)} - {GameNumbers.Percent(b)}");
+			}
+			Add(L("Possession"), Ours("Possession"), Theirs("Possession"));
+			parts.Add($"{L("Shots")} {Ours("Shots")} - {Theirs("Shots")}");
+			parts.Add($"{L("On target")} {Ours("ShotsOnTarget")} - {Theirs("ShotsOnTarget")}");
+			parts.Add($"xG {Xg(Ours("ExpectedGoals"))} - {Xg(Theirs("ExpectedGoals"))}");
+			parts.Add($"{L("Corners")} {Ours("Corners")} - {Theirs("Corners")}");
+			return string.Join(" · ", parts);
+		}
+		catch (FmError) { return ""; }
+	}
+
 	/// <summary>The score with the sides' names, as the live panel shows it.</summary>
 	private static string LiveBoard(JsonElement state, (string Own, string Opponent)? names)
 	{
@@ -90,6 +119,8 @@ internal static partial class Program
 		string stop = null, period = "", score = "", pressed = null, spoke = null, clock = null, commentary = null;
 		Dictionary<string, MatchMan> finalMen = null;
 		var lastLook = DateTime.MinValue;
+		var stats = "";
+		var statsAt = DateTime.MinValue;
 		// Our squad's names tell our men from theirs in the match's list of players.
 		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
@@ -349,8 +380,15 @@ internal static partial class Program
 			}
 
 			if (live)
-				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state),
+			{
+				if (DateTime.UtcNow - statsAt > TimeSpan.FromSeconds(10))
+				{
+					statsAt = DateTime.UtcNow;
+					stats = await LiveStats(state);
+				}
+				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
 					heard.Select(h => $"{h.Minute,6}  {h.Said}"));
+			}
 
 			await Task.Delay(TimeSpan.FromSeconds(3));
 		}

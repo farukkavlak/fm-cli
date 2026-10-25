@@ -60,6 +60,18 @@ fm inbox --tasks                   # offers and registration messages
 Use `--json` where a command offers it for scripts. `--dry` shows what a write would do without
 sending it. Irreversible commands ask at a terminal and need `--yes` in a script.
 
+## Watching a match
+
+`fm match --play` plays the match day in the terminal. At a terminal it draws a live panel with the
+score, clock, period, the last eight events and the commands that work during the match. A
+redirected run, or an MCP call, keeps the plain line-by-line output.
+
+![Live match panel](img/live-match.png)
+
+The panel follows the CLI language; the screenshot is from a Turkish game. The game's bindings do
+not carry live possession, shots or xG during a match, so the panel does not show them; `fm report`
+has the numbers after the whistle.
+
 ## All commands
 
 This is the current `fm help` output.

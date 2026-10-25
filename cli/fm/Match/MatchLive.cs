@@ -9,7 +9,7 @@ internal static class MatchLive
 	private static string? last;
 
 	/// <summary>Draws the panel when its text changed. Nothing when the output is not a terminal.</summary>
-	public static void Draw(string board, string minute, string period, IEnumerable<string> events)
+	public static void Draw(string board, string minute, string period, string stats, IEnumerable<string> events)
 	{
 		if (!Ui.Rich) return;
 
@@ -17,7 +17,6 @@ internal static class MatchLive
 		{
 			"",
 			$"  \x1b[1m{L("LIVE")}\x1b[0m  {board}   \x1b[33m{minute}\x1b[0m  {period}",
-			"  " + new string('─', 72),
 		};
 		// Chronological, even when the game replays a line out of order; the last eight stay.
 		static int Seconds(string line)
@@ -26,6 +25,8 @@ internal static class MatchLive
 			return clock.Length == 2 && int.TryParse(clock[0], out var minute) && int.TryParse(clock[1], out var second)
 				? minute * 60 + second : int.MaxValue;
 		}
+		if (stats.Length > 0) lines.Add($"  \x1b[2m{stats}\x1b[0m");
+		lines.Add("  " + new string('─', 72));
 		var shown = events.OrderBy(Seconds).TakeLast(8).ToList();
 		if (shown.Count == 0) lines.Add($"  \x1b[2m{L("Waiting for the first event…")}\x1b[0m");
 		foreach (var line in shown)

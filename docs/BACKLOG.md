@@ -48,9 +48,12 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [~] Text highlight summary; no minute-by-minute list of key events.
 - [?] Real-time in-match management (a different problem).
 - [~] Live match screen: the first slice shows a live score/clock/period panel with the last eight
-  events, and keeps the plain line output for scripts. Still to do: stats bar, a 2D pitch, a
-  key-moments-only view, keys for substitution/shout/tactic/speed/view, an injury prompt, config
-  through a file and `fm settings`, and the optional ASCII 3D view.
+  events, and keeps the plain line output for scripts. Still to do: a 2D pitch, a key-moments-only
+  view, keys for substitution/shout/tactic/speed/view, an injury prompt, config through a file and
+  `fm settings`, and the optional ASCII 3D view.
+- [?] Live match stats: the bindings carry `LastFixture`/`NextFixture` only, and during a match
+  `IsLiveMatch` is false, so shots/possession are not live. Read the match stats page or use the
+  post-match report.
 - [ ] Sparkline/condition trend (match ratings already have a bar; condition history is not kept).
 
 ## Competitions and club
