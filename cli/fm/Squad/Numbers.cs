@@ -18,6 +18,12 @@ internal static partial class Program
 	private static async Task<int> Numbers(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
+
+		// The numbers screen also comes up on match day, for a signing whose number is still
+		// missing: its table is not the squad page's and the reader below does not see it, but
+		// the assistant's button is the same one and can be clicked where it stands.
+		if (args.Contains("--auto") && await AssistantNumbers() is { } numbered) return numbered;
+
 		if (!await OpenNumbers())
 		{
 			Console.Error.WriteLine(L("The 'Squad Numbers' screen did not open."));
@@ -150,6 +156,31 @@ internal static partial class Program
 		}
 		Console.WriteLine(L($"{player.Name}: {player.Number} → {number} (not saved yet). To save: numbers --send   — once saved it does not change until the end of the season."));
 		return 0;
+	}
+
+	/// <summary>
+	/// The assistant's button on whichever numbers screen is up: it is drawn without an event
+	/// list of its own, so the button catalogue misses it, but the text it carries is the game's
+	/// own English and a click by that text finds it in any language. Null when it is not there.
+	/// </summary>
+	private static async Task<int?> AssistantNumbers()
+	{
+		// The state says the numbers are wanted a moment before the screen is drawn, so the
+		// button is waited for rather than asked once.
+		var dry = "";
+		await Until(async () =>
+		{
+			dry = await Fm.Get("click", ("text", NumbersAssist), ("dry", "1"));
+			return !dry.StartsWith("error", StringComparison.Ordinal);
+		}, seconds: 8, every: 0.5);
+		if (dry.StartsWith("error", StringComparison.Ordinal)) return null;
+		var clicked = await Fm.Get("click", ("text", NumbersAssist));
+		if (clicked.StartsWith("error", StringComparison.Ordinal))
+		{
+			Console.Error.WriteLine(clicked);
+			return 1;
+		}
+		return await SendList(NumbersConfirm, L("Squad numbers"));
 	}
 
 	/// <summary>
