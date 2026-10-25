@@ -164,10 +164,14 @@ fm opponent          # the next opponent: form, formation, key players, news
 At a terminal, `match --play` draws a live panel: score, clock, period, the chosen shape as a small
 pitch, the last events and the commands that work during the match. A redirected run or an MCP call
 keeps the plain line-by-line output. Keys during play: `s` substitution, `h` shout, `t` tactic
-(mentality or role), `v` view (full, key moments, score only), `a` radar on/off, `+`/`-` speed (when the match screen offers it; otherwise it points to settings). The pitch
+(mentality or role), `v` view (full, key moments, score only), `a` radar on/off, `r` radar style, `+`/`-` speed (when the match screen offers it; otherwise it points to settings). The pitch
 refreshes after a substitution; at an injury stop it names the player and asks who comes on. The
 radar draws the ball and every player from the game's own match simulation, so it shows the real
-shape rather than a sketch. Live possession/shots are not in the game's bindings during
+shape rather than a sketch. It comes in four styles, `r` cycling through them: `pixel` (a retro
+pitch with little players in their kits; needs 24-bit colour), `braille` (fine dots, any terminal),
+`colour` (coloured ASCII on mown stripes) and `ascii` (plain). `auto`, the default, is `pixel` where
+the terminal has 24-bit colour and `braille` otherwise. The radar takes the whole width of the
+terminal; when the window is too small for the chosen style it says how much room it needs. Live possession/shots are not in the game's bindings during
 a match, so they appear in `report` after the whistle.
 
 ![fm match --play](manual/img/match/live-match.png)
@@ -178,6 +182,7 @@ The panel's own settings live in `~/.config/fm-cli/panel.json`; change them with
 fm settings panel                              # show them
 fm settings panel view key                     # full, key or score
 fm settings panel pitch off events 5 colour off radar on
+fm settings panel radar braille                # pixel, braille, colour, ascii or auto; shows a preview
 fm settings panel reset
 ```
 

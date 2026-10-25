@@ -51,14 +51,19 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
   the last eight events; the pitch refreshes after substitutions, and an injury stop names the
   player and asks who comes on. Keys: `s` substitution, `h` shout, `t` tactic, `v` view (full / key
   moments / score only; key moments are goals, cards, injuries, substitutions and penalties), `a`
-  radar on/off, `+`/`-` speed. Panel settings live in `~/.config/fm-cli/panel.json` and
-  `fm settings panel` (view, pitch, event count, colour, radar). The radar reads the ball and every
+  radar on/off, `r` radar style, `+`/`-` speed. Panel settings live in `~/.config/fm-cli/panel.json` and
+  `fm settings panel` (view, pitch, event count, colour, radar and its style). The radar reads the ball and every
   player from the game's match simulation, so it shows the live shape rather than a guess.
   Still to do: player names on the radar (the simulation gives only shirt number and player index),
   an explicit team id (the list order and substitutes are used for now) and the optional ASCII 3D
   view.
-- [~] Radar visual styles: TrueColor half-block, braille and isometric prototypes are in
-  `docs/experiments/radar-styles`; none is wired into the CLI yet.
+- [~] Radar visual styles: a catalog of thirteen styles from mock data is in
+  `docs/experiments/catalog-draft` (`tools/radar-catalog.py`). Four are in the CLI (pixel, braille,
+  coloured and plain ASCII; `r` cycles them). Still to do: the 3D styles (isometric, raycasting,
+  voxel) need the scene drawing ported to C#; the image styles (broadcast, tactical, replay…) need an
+  inline image protocol (Kitty graphics for Ghostty/Kitty, OSC 1337 for iTerm2/VS Code/WezTerm), a
+  check of what the terminal supports and an offer to fix it (Ghostty, or VS Code's
+  `terminal.integrated.enableImages`).
 - [?] Live match stats: the bindings carry `LastFixture`/`NextFixture` only, and during a match
   `IsLiveMatch` is false, so shots/possession are not live. Read the match stats page or use the
   post-match report.

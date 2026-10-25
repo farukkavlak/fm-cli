@@ -52,10 +52,8 @@ internal static class MatchLive
 		}
 		if (stats.Length > 0) lines.Add($"  {Paint("2", stats)}");
 		if (radar is { Count: > 0 }) lines.AddRange(radar);
-		// The radar already shows the shape; on a short terminal it takes the shape pitch's
-		// place rather than scrolling the panel off the top.
-		var showShape = config.Pitch && shape.Count > 0
-			&& (radar is not { Count: > 0 } || Height >= 40);
+		// The radar already shows the shape and takes the room the shape pitch would.
+		var showShape = config.Pitch && shape.Count > 0 && radar is not { Count: > 0 };
 		if (showShape) lines.AddRange(PitchLines(formation, shape, Width));
 		lines.Add("  " + new string('─', Width));
 		var count = Math.Clamp(config.Events, 0, 12);
@@ -71,7 +69,7 @@ internal static class MatchLive
 		}
 		lines.Add("");
 		var mode = view switch { 0 => L("full"), 1 => L("key moments"), _ => L("score only") };
-		lines.Add($"  {Paint("2", L("[s] sub · [h] shout · [t] tactic · [v] view · [a] radar · [+/-] speed") + $"   [{mode}]")}");
+		lines.Add($"  {Paint("2", L("[s] sub · [h] shout · [t] tactic · [v] view · [a] radar · [r] style · [+/-] speed") + $"   [{mode}]")}");
 
 		var text = string.Join("\n", lines);
 		if (text == last) return;

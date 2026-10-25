@@ -1,0 +1,95 @@
+using System.Text.RegularExpressions;
+using FmCli;
+using Xunit;
+
+namespace FmCli.Tests;
+
+public class RadarStylesTests
+{
+	private static Program.RadarFrame Frame(string homeKit = "005798", string awayKit = "f8f8f8")
+	{
+		var men = new List<Program.Man> { new(1, 0.08, 0.5, "d0d008", false, 0, "080808") };
+		for (var i = 0; i < 10; i++) men.Add(new(i + 2, 0.2 + i * 0.05, 0.1 + i * 0.08, homeKit, false, 0, "f8f8f8"));
+		men.Add(new(22, 0.92, 0.5, "10b850", false, 1, "080808"));
+		for (var i = 0; i < 10; i++) men.Add(new(i + 2, 0.4 + i * 0.05, 0.9 - i * 0.08, awayKit, false, 1, "d00817"));
+		return new Program.RadarFrame(men, 0.5, 0.5, 0);
+	}
+
+	private static readonly Program.RadarSides Sides = new("Empoli", "Venezia", true);
+
+	private static string Plain(string line) => Regex.Replace(line, "\x1b\\[[0-9;]*m", "");
+
+	[Theory]
+	[InlineData("pixel", "pixel")]
+	[InlineData("retro", "pixel")]
+	[InlineData("Braille", "braille")]
+	[InlineData("color", "colour")]
+	[InlineData("klasik", "ascii")]
+	[InlineData("auto", "auto")]
+	public void ParsesStyleNames(string text, string expected) =>
+		Assert.Equal(expected, Program.ParseRadarStyle(text));
+
+	[Fact]
+	public void RejectsUnknownStyles() => Assert.Null(Program.ParseRadarStyle("3d"));
+
+	[Theory]
+	[InlineData("pixel", 100, 40)]
+	[InlineData("pixel", 160, 30)]
+	[InlineData("braille", 80, 24)]
+	[InlineData("colour", 120, 20)]
+	[InlineData("ascii", 70, 50)]
+	public void FitsTheRoomItIsGiven(string style, int cols, int rows)
+	{
+		var lines = Program.RadarView(Frame(), Sides, style, true, cols, rows);
+		Assert.InRange(lines.Count, 2, rows);
+		Assert.All(lines, l => Assert.True(Plain(l).Length <= cols + 2, $"{Plain(l).Length} > {cols + 2}"));
+	}
+
+	[Fact]
+	public void SaysSoWhenTheTerminalIsTooSmall()
+	{
+		var lines = Program.RadarView(Frame(), Sides, "pixel", true, 36, 10);
+		Assert.Single(lines);
+		Assert.Contains("36×10", Plain(lines[0]));
+	}
+
+	[Fact]
+	public void WithoutColourItIsPlainAsciiWithOAndX()
+	{
+		var lines = Program.RadarView(Frame(), Sides, "pixel", false, 80, 30);
+		Assert.DoesNotContain(lines, l => l.Contains('\x1b'));
+		var text = string.Join("\n", lines);
+		Assert.Contains('o', text);
+		Assert.Contains('x', text);
+	}
+
+	[Fact]
+	public void NamesTheSidesByTheirInitials()
+	{
+		var text = Plain(string.Join("\n", Program.RadarView(Frame(), Sides, "colour", true, 100, 40)));
+		Assert.Contains('E', text);
+		Assert.Contains('V', text);
+	}
+
+	[Fact]
+	public void TheSameInitialFallsBackToOAndX()
+	{
+		var text = Plain(string.Join("\n", Program.RadarView(Frame(), new("Empoli", "Everton", true), "colour", true, 100, 40)));
+		Assert.Contains('o', text);
+		Assert.Contains('x', text);
+	}
+
+	[Theory]
+	[InlineData(255, 0, 0, 196)]
+	[InlineData(0, 0, 0, 16)]
+	[InlineData(128, 128, 128, 244)]
+	public void MapsToTheNearest256Colour(byte r, byte g, byte b, int expected) =>
+		Assert.Equal(expected, Ansi.Index(new Rgb(r, g, b)));
+
+	[Fact]
+	public void ReadsHexColours()
+	{
+		Assert.Equal(new Rgb(0, 0x57, 0x98), Rgb.Hex("005798"));
+		Assert.Equal(new Rgb(200, 200, 200), Rgb.Hex("nope"));
+	}
+}

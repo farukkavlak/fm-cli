@@ -5,11 +5,11 @@ namespace FmCli;
 
 /// <summary>
 /// The live match panel's own settings, kept apart from the game's preferences:
-/// view (full / key moments / score only), the pitch, how many events and colours.
+/// view (full / key moments / score only), the pitch, how many events, colours, and the radar and its style.
 /// </summary>
-internal sealed record PanelConfig(string View, bool Pitch, int Events, bool Colour, bool Radar)
+internal sealed record PanelConfig(string View, bool Pitch, int Events, bool Colour, bool Radar, string RadarStyle = "auto")
 {
-	public static PanelConfig Default { get; } = new("full", true, 8, true, true);
+	public static PanelConfig Default { get; } = new("full", true, 8, true, true, "auto");
 
 	public static string File => Path.Combine(
 		Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "panel.json");
@@ -31,6 +31,7 @@ internal sealed record PanelConfig(string View, bool Pitch, int Events, bool Col
 				View = ParseView(saved.View) ?? Default.View,
 				Events = Math.Clamp(saved.Events, 0, 12),
 				Radar = hasRadar ? saved.Radar : Default.Radar,
+				RadarStyle = Program.ParseRadarStyle(saved.RadarStyle ?? "") ?? Default.RadarStyle,
 			};
 		}
 		catch { return Default; }

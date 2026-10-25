@@ -47,7 +47,10 @@
 - `Core/Reads.cs` — search and player; `Reads.Squad.cs` — squad views; `Reads.League.cs` — league,
   fixtures, progress; `Reads.Player.cs` — player card and history.
 - `Match/MatchDay.cs` — main loop; `MatchLive.cs` — score/clock/event panel at a terminal;
-  `MatchRadar.cs` — the `/radar` frame, parsing and the pitch drawing;
+  `MatchRadar.cs` — reading and parsing the `/radar` frame; `RadarStyles.cs` — the four radar
+  looks (pixel, braille, coloured and plain ASCII) fitted to the room left; `RadarCells.cs` — colour
+  (24-bit or 256), the character grid, braille and half blocks; `RadarSample.cs` — a real frame for
+  the settings preview;
   `PanelConfig.cs` + `PanelSettings.cs` — the panel file and `fm settings panel`;
   `MatchDay.Instant.cs` — instant result; `MatchDay.Team.cs` — lineups; `MatchDay.Substitute.cs` —
   substitutions; `MatchDay.Dialog.cs` — confirmations.
@@ -65,6 +68,8 @@
   matching and drawing.
 - `tools/radar-capture.py` + `radar-styles.py` + `radar-gif.py` — capture `/radar` frames and render
   them in the pixel, braille and isometric styles (see `docs/experiments/radar-styles`).
+- `tools/radar-catalog.py` + `tools/catalog/` + `tools/mock_match.py` — the visualization catalog from
+  mock data, as PNGs, terminal previews and real ANSI output (see `docs/experiments/catalog-draft`).
 
 Add a command in a new file of the same `Program` partial; do not grow `Program.cs`. Keep reads and
 writes of one command together. Reuse `Table`/`Ui` before adding a formatter.

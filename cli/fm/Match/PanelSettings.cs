@@ -48,12 +48,13 @@ internal static partial class Program
 				}
 				case "radar" or "map":
 				{
-					if (at >= words.Count || Flag(words[at]) is not { } on)
+					if (at < words.Count && Flag(words[at]) is { } on) config = config with { Radar = on };
+					else if (at < words.Count && ParseRadarStyle(words[at]) is { } style) config = config with { Radar = true, RadarStyle = style };
+					else
 					{
-						Console.Error.WriteLine(L("The radar must be on or off."));
+						Console.Error.WriteLine(L("The radar: on, off or a style (pixel, braille, colour, ascii, auto)."));
 						return 64;
 					}
-					config = config with { Radar = on };
 					at++;
 					break;
 				}
@@ -93,9 +94,21 @@ internal static partial class Program
 		var view = L(config.View switch { "key" => "key moments", "score" => "score only", _ => "full" });
 		var on = L("on");
 		var off = L("off");
-		Console.WriteLine(Lf("Panel: {0} · pitch {1} · {2} events · colour {3} · radar {4}",
-			view, config.Pitch ? on : off, config.Events, config.Colour ? on : off, config.Radar ? on : off));
+		var style = ResolveRadarStyle(config.RadarStyle, config.Colour);
+		var styleName = config.RadarStyle == "auto" ? $"auto: {style}" : style;
+		Console.WriteLine(Lf("Panel: {0} · pitch {1} · {2} events · colour {3} · radar {4} ({5})",
+			view, config.Pitch ? on : off, config.Events, config.Colour ? on : off, config.Radar ? on : off, styleName));
 		Console.WriteLine(Lf("File: {0}", PanelConfig.File));
+		if (config.Radar && Ui.Rich)
+		{
+			// The chosen style on a real frame, as wide as this terminal allows.
+			var (frame, sides) = RadarSample();
+			Console.WriteLine();
+			Console.WriteLine("  " + Lf("Radar preview ({0}), a frame from a real match:", style));
+			Console.WriteLine();
+			foreach (var line in RadarView(frame, sides, config.RadarStyle, config.Colour, RadarWidth, Math.Max(8, MatchLive.Height - 8)))
+				Console.WriteLine(line);
+		}
 		return 0;
 	}
 }

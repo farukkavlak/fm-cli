@@ -11,3 +11,6 @@ cli/fm/obj/
 __pycache__/
 
 dist/
+
+# Terminal output of the catalog, regenerated with tools/radar-catalog.py --ansi
+docs/experiments/catalog-ansi/
