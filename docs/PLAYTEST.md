@@ -1,40 +1,40 @@
-# Test kontrol listesi
+# Test checklist
 
-## Oturum başlangıcı
+## Session start
 
-- [ ] `fm status` tarih, kulüp, sıradaki maç ve bekleyen işi doğru söylüyor.
-- [ ] `fm doctor --install` yedi kurulum adımını denetliyor.
-- [ ] `fm inbox --tasks` Görevler sekmesindeki teklif/registration mesajlarını gösteriyor.
-- [ ] Oyun ön planda değilken `next` ve `press` takılmıyor; komut oyunu öne getiriyor.
+- [ ] `fm status` gives the date, club, next match and what is waiting.
+- [ ] `fm doctor --install` checks all seven install steps.
+- [ ] `fm inbox --tasks` shows offers and registration messages on the Tasks tab.
+- [ ] `next` and `press` do not hang when the game is not frontmost; the command brings it forward.
 
-## Günlük akış
+## Daily flow
 
-- [ ] `next` yalnız gerçek bir engelde duruyor; durduğunda nedeni ve çözümü yazıyor.
-- [ ] Basın toplantısı, sakatlık, teklif ve disiplin mesajları `reply` ile açılıp kapanıyor.
-- [ ] `talk` seçenekleri gösteriyor; maç sonu basın toplantısı asistanla geçilebiliyor.
-- [ ] `save --yes` sonrası `fm saves` yeni saati ve dosyayı gösteriyor.
+- [ ] `next` stops only at a real blocker and says why and how to clear it.
+- [ ] Press conference, injury, offer and discipline messages open and close with `reply`.
+- [ ] `talk` shows the options; a post-match press conference can be passed to the assistant.
+- [ ] After `save --yes`, `fm saves` shows the new time and file.
 
-## Maç günü
+## Match day
 
-- [ ] `tactic pick` ilk 11'i dolduruyor; boş kadro `match` tarafından açıkça söyleniyor.
-- [ ] Yeni sezonda forma numarası istenirse `numbers --auto` gönderiyor.
-- [ ] `match --instant` raporu **bu maçın** skorunu basıyor; önceki maçın raporu tekrarlanmıyor.
-- [ ] `match --play` anlatım, gol, devre ve maç sonu duraklarını geçiyor.
-- [ ] Maç sonrası sonuç ekranı `next` ile kapanıyor; köprü yanıt veriyor.
+- [ ] `tactic pick` fills the eleven; `match` says so clearly when the squad is empty.
+- [ ] At the start of a season, squad numbers can be sent with `numbers --auto`.
+- [ ] `match --instant` prints **this** match's score, not the previous report.
+- [ ] `match --play` gets through narration, goals, half time and full time.
+- [ ] `next` closes the result screen afterwards and the bridge still answers.
 
-## Sık kırılan yerler
+## Known break points
 
-- **Olay kuyruğu:** bir press/dialog kaynağı gelmezse sonraki `press` komutları da bekler; `/queue` sıfır olmalı.
-- **Odak:** FM bazı Continue/UI olaylarını yalnız ön plandayken işler; `next`/`press` öncesi oyun öne gelmeli.
-- **Görevler:** teklif mesajı varsayılan inbox'ta görünmeyebilir; `inbox --tasks` ile bakılmalı.
-- **Eski rapor:** anında sonuçta son fikstür değişmeden rapor okunmamalı.
-- **Forma numaraları:** sezon başında `SquadNumbers` ekranı `match`i bloklamamalı.
-- **Sakatlık:** tedavi düğmeleri `reply` seçeneklerinde yoksa `buttons` + tam etiketli `press` kullanılmalı.
-- **Eklenti sürümü:** eklenti değişikliği açık oyuna yüklenmez. `/press` "unknown route" (404) dönüyorsa
-  oyun eski eklentiyi taşıyor: `save --yes`, `stop --no-save`, `start`.
+- **Event queue:** if a press/dialog source never arrives, later `press` calls wait too; `/queue`
+  must be zero.
+- **Focus:** FM handles some Continue/UI events only when frontmost; `next`/`press` activate it.
+- **Tasks:** an offer message may not be on the default inbox tab; check `inbox --tasks`.
+- **Stale report:** after an instant result, do not read the report before the last fixture changes.
+- **Squad numbers:** the `SquadNumbers` screen must not block `match` at the start of a season.
+- **Injury:** if the treatment buttons are not in `reply` options, use `buttons` and a full `press`.
+- **Plugin version:** a running game keeps the plugin it started with. If `/press` answers
+  "unknown route" (404), save and restart: `save --yes`, `stop --no-save`, `start`.
 
-## Bilinen açık uçlar
+## Open ends
 
-- Gölge paket ve BepInEx dağıtımı paket içinde; Steam'siz ikinci kullanıcıda oyun açılmıyor.
-- Bazı teklif satırları “Sözleşme” durumunda cevapsız kalabiliyor; Görevler filtresi ve `offers` birlikte kontrol edilmeli.
-- Hareketli pencerede yakalanan görüntülerde görünüm verisi bir kare geç gelebilir; `tools/manual/shots.sh` yeniden dener.
+- The shadow app and BepInEx are in the package; a second macOS user without Steam cannot launch.
+- Some offer rows can stay unanswered in "Contract"; check the Tasks filter and `offers` together.

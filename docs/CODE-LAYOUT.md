@@ -1,135 +1,108 @@
-# Kod düzeni
+# Code layout
 
-## Katmanlar
+## Layers
 
-| Katman | Yer | İş |
+| Layer | Where | Job |
 |---|---|---|
-| CLI girişi | `cli/fm/Program.cs` | `main`, komut yönlendirme, oturum, sürüm kontrolü |
-| CLI komutları | `cli/fm/{Core,Match,Squad,Transfer,Club}/` | bir komut ya da okuma; hepsi `Program` partial'ı |
-| Oyun köprüsü | `cli/fm/Core/Bridge.cs` | HTTP, port, hata ve zaman aşımı |
-| Oyun okuma | `cli/fm/Core/Reads.cs`, `Core/Clock.cs`, `Match/Guided.cs`, `Match/MatchDay.cs` | veri yolu, sayfa, maç akışı |
-| Biçim | `cli/fm/Core/Table.cs`, `Ui.cs`, `MoneyFormat.cs`, `JsonOut.cs`, `InboxView.cs` | tablo, terminal, para/sayı |
-| Metin | `cli/fm/Core/Labels.cs`, `GameWords.cs`, `EngineTexts.cs` | oyunun dili ve CLI sözlüğü |
-| Altyapı | `cli/fm/Core/Launcher.cs`, `Session.cs`, `Screens.cs`, `GameFolders.cs`, `InstallDoctor.cs` | başlatma, klasör, kurulum |
-| Plugin | `plugin/FmCliProbe/src/{Bridge,Controls,Reads}/` | IL2CPP tarafı: köprü, buton, metin, sayfa |
-| Araçlar | `tools/` | paket, yayın, test, ekran görüntüsü |
-| Doküman | `docs/` | `FINDINGS` teknik arşiv, `KILAVUZ` kullanıcı kılavuzu, `PLAYTEST` kontrol listesi |
+| CLI entry | `cli/fm/Program.cs` | `main`, command routing, session, version check |
+| CLI commands | `cli/fm/{Core,Match,Squad,Transfer,Club}/` | one command or read; all are part of the `Program` partial |
+| Game bridge | `cli/fm/Core/Bridge.cs` | HTTP, port, errors, timeouts |
+| Game reads | `cli/fm/Core/Reads*.cs`, `Core/Clock*.cs`, `Match/Guided*.cs`, `Match/MatchDay*.cs` | data paths, pages, match flow |
+| Formatting | `cli/fm/Core/Table.cs`, `Ui.cs`, `MoneyFormat.cs`, `JsonOut.cs`, `InboxView.cs` | tables, terminal, money and numbers |
+| Text | `cli/fm/Core/Labels.cs`, `GameWords.cs`, `EngineTexts.cs` | English source, Turkish catalog, the game's words |
+| Infrastructure | `cli/fm/Core/Launcher.cs`, `Session.cs`, `Screens.cs`, `GameFolders.cs`, `InstallDoctor.cs` | launch, folders, install checks |
+| Plugin | `plugin/FmCliProbe/src/{Bridge,Controls,Reads}/` | IL2CPP side: HTTP, controls, texts, pages |
+| Tools | `tools/` | install, package, publish, test, dumps |
+| Docs | `docs/` | usage, porting notes, layout, test checklist |
 
-## Klasörler
+## Folders
 
-- `Core/` — köprü, okuma, zaman, biçim, etiket, başlatma, oturum, MCP.
-- `Match/` — maç günü, anlatım, takvim, fikstür, lig tablosu, rakip raporu.
-- `Squad/` — kadro, sağlık, moral, sözleşme, taktik, antrenman, duran top, kayıt.
-- `Transfer/` — teklifler, sözleşme görüşmeleri, scout, kısa liste, transfer hedefleri.
-- `Club/` — kulüp, yönetim, finans, personel, tesis, kariyer, iş, istifa.
-- `Program/` — `Program` partial’ları (giriş dışındaki büyük komut blokları).
+- `Core/` — bridge, reads, clock, formatting, labels, launch, session, MCP, settings, saves.
+- `Match/` — match day, narration, calendar, fixtures, table, opponent report, stages.
+- `Squad/` — squad, fitness, morale, contracts, tactics, training, set pieces, registration.
+- `Transfer/` — offers, contract talks, scouting, shortlist, targets.
+- `Club/` — club, board, finances, staff, facilities, career, jobs, resign.
+- `Program/` — large `Program` partials that do not belong to one folder.
 
-## `Program` partial'ları
+## `Program` partials
 
-`Program.cs` yalnız giriş ve yönlendirme taşır. Büyük bloklar sorumluluklarına göre ayrıldı:
+`Program.cs` holds only the entry point and routing. Large blocks are split by responsibility:
 
-- `Program/Program.Squad.cs` — kadro okuma ve görünümleri.
-- `Program/Program.Inbox.cs` — gelen kutusu ve mesaj seçimi; `Program/Program.Reply.cs` — cevap
-  komutu ve cevap düğmeleri.
-- `Squad/Mentoring.cs` — gruplar, adaylar ve otomatik atama; `Squad/Mentoring.New.cs` — yeni grup
-  akışı, silme ve günlük sınır.
-- `Club/StaffSearch.cs` — personel arama komutu; `StaffSearch.Catalog.cs` — mevki/öznitelik adları;
-  `StaffSearch.Rules.cs` — arama kurallarını gönderme ve sonuç okuma.
-- `Club/Responsibilities.cs` — görev listesi ve alanlar; `Responsibilities.Delegate.cs` — devretme,
-  geri alma ve kişi seçimi.
-- `Program/Program.Messages.cs` — mesaj gövdesi, ekler, sözleşme/teklif kartı.
-- `Program/Program.Ui.cs` — buton, sayfa, dropdown, terminal yardımcıları.
+- `Program/Program.Squad.cs` — squad reads and views.
+- `Program/Program.Inbox.cs` — inbox and message choice; `Program.Reply.cs` — reply command.
+- `Program/Program.Messages.cs` — attachment body and unknown attachments;
+  `Messages.Attachments.cs` — shared helpers; `Messages.Cards.cs` — captaincy, match report,
+  season review, opponent, training, data hub, scout, injury and player cards;
+  `Messages.FrontOffice.cs` — budgets, vision, responsibilities, win bonuses;
+  `Messages.SquadCards.cs` — internationals, expiring contracts, recommendations, match prep,
+  bid card; `Messages.Inbox.cs` — message reading and number memory.
+- `Program/Program.Ui.cs` — button/page commands; `Program.Ui.Helpers.cs` — press/select helpers;
+  `Program.Help.cs` + `Core/HelpEnglish.cs` — help text.
 
-Büyük okuma/akış dosyaları da sorumluluklarına göre bölündü:
+## Other splits
 
-- `Match/Guided.cs` — tur ve konuşma; `Guided.SetPieces.cs` — duran top sihirbazı;
-  `Guided.Tactic.cs` — taktik planlayıcı.
-- `Core/Reads.cs` — arama/oyuncu; `Reads.Squad.cs` — kadro görünümleri; `Reads.League.cs` — lig,
-  fikstür ve ilerleme.
-- `Match/MatchDay.cs` — maçın ana döngüsü; `MatchDay.Instant.cs` — anında sonuç;
-  `MatchDay.Team.cs` — kadro/rakip adları; `MatchDay.Substitute.cs` — değişiklikler;
-  `MatchDay.Dialog.cs` — onay pencereleri.
+- `Match/Guided.cs` — tour and talks; `Guided.SetPieces.cs` — set-piece wizard;
+  `Guided.Tactic*.cs` — tactic planner and settings.
+- `Core/Reads.cs` — search and player; `Reads.Squad.cs` — squad views; `Reads.League.cs` — league,
+  fixtures, progress; `Reads.Player.cs` — player card and history.
+- `Match/MatchDay.cs` — main loop; `MatchDay.Instant.cs` — instant result; `MatchDay.Team.cs` —
+  lineups; `MatchDay.Substitute.cs` — substitutions; `MatchDay.Dialog.cs` — confirmations.
+- `Transfer/ContractTalks.cs` — command and terms; `ContractTalks.Terms.cs` — terminal loop and
+  agent answers; `ContractTalks.Screen.cs` — screen reads, exit, renewal.
+- `Transfer/ScoutFocus.cs` + `.Team.cs` + `.Form.cs` — focus list, staff, new-focus form.
+- `Squad/TrainingSchedule.cs` + `.Catalogue.cs` + `.Calendar.cs` — schedule changes, catalog, grid.
+- `Squad/Mentoring.cs` + `Mentoring.New.cs` — groups and new-group flow.
+- `Club/StaffSearch.cs` + `.Catalog.cs` + `.Rules.cs` — command, names, rule sending.
+- `Club/Responsibilities.cs` + `Responsibilities.Delegate.cs` — duty list and delegation.
+- `Core/Saves.cs` + `.SaveAs.cs` + `.Files.cs` — list, save as, delete/load.
+- `Core/Clock.cs` + `.Status.cs` + `.Fixtures.cs` — `next`, status, fixtures.
+- `Core/Mcp.cs` + `Mcp.Tools.cs` — protocol and tool catalog.
+- `Core/Settings.cs` + `.Catalog.cs` + `.Preferences.cs` + `.Draw.cs` — command, catalog, navigation,
+  matching and drawing.
 
-Ek bölünmeler:
-
-- `Match/Guided.Tactic.cs` — ana taktik/oyuncu/planlayıcı; `Guided.TacticSettings.cs` — ayar, rol ve
-  yuva; `Guided.TacticNew.cs` — yeni taktik, maç listesi ve yardımcılar.
-- `Program/Messages.cs` — ek gövdesi ve bilinmeyen ekin okunması; `Messages.Attachments.cs` — ortak ek
-  yardımcıları; `Messages.Cards.cs` — kaptanlık, maç raporu, sezon değerlendirmesi, rakip raporu,
-  antrenman, veri merkezi, scout, sakatlık ve oyuncu kartları; `Messages.FrontOffice.cs` — bütçe,
-  kulüp vizyonu, sorumluluklar ve galibiyet primleri; `Messages.SquadCards.cs` — milli takım,
-  bitecek sözleşmeler, tavsiyeler, maç hazırlığı ve teklif edilen oyuncu kartı; `Messages.Inbox.cs` —
-  mesaj okuma ve numara hatırlama.
-- `Transfer/ContractTalks.cs` — komut ve şart yazma; `ContractTalks.Terms.cs` — terminal döngüsü ve
-  menajerin cevapları; `ContractTalks.Screen.cs` — ekran okuma, çıkış ve yenileme açma.
-- `Transfer/ScoutFocus.cs` — form yardımcıları; `ScoutFocus.Team.cs` — ekip/atama; `ScoutFocus.Form.cs` —
-  yeni odak formu ve kalan komutlar.
-- `Squad/TrainingSchedule.cs` — değiştirme akışı; `TrainingSchedule.Catalogue.cs` — seans kataloğu ve
-  “hakkında”; `TrainingSchedule.Calendar.cs` — takvim, ay ve grid okuma.
-- `Core/Saves.cs` — kayıt listesi/tarayıcı; `Saves.SaveAs.cs` — yeni adla kaydetme;
-  `Saves.Files.cs` — silme/yükleme.
-- `Core/Clock.cs` — `next`/açıklama; `Clock.Status.cs` — kaydetme ve durum;
-  `Clock.Fixtures.cs` — fikstür, form, sakatlar ve açık soru.
-- `Program/Program.Ui.cs` — buton/sayfa komutları; `Program.Ui.Helpers.cs` — press/select,
-  cevap yardımcıları ve alan okuma; `Program.Help.cs` — yardım metinleri.
-- `Transfer/OfferScreen.cs` — model/okuma/değiştirme; `OfferScreen.Draw.cs` — kart çizimi;
-  `OfferScreen.Labels.cs` — etiket/şart çevirileri.
-- `Core/Reads.cs` — arama ve oyuncu açma; `Reads.Player.cs` — oyuncu kartı, geçmiş ve oturma.
-- `Squad/TeamInstructions.cs` — takım talimatları; `TeamInstructions.Team.cs` — takım kapsamı/okuma;
-  `TeamInstructions.Player.cs` — oyuncu talimatları.
-- `Match/Stages.cs` — aşama komutu; `Stages.Lists.cs` — yarışma/aşama listeleri ve içerik;
-  `Stages.Ties.cs` — eşleşmeler ve yarışma kataloğu.
-- `Core/Mcp.cs` — stdio protokolü, çağrı ve argüman çevirisi; `Mcp.Tools.cs` — araç kataloğu.
-- `Core/Settings.cs` — ayar komutu; `Settings.Catalog.cs` — ayar kataloğu ve çeviriler;
-  `Settings.Preferences.cs` — tercihler sayfasında gezinme; `Settings.Draw.cs` — arama, eşleştirme
-  ve çizim.
-
-Yeni bir komut eklerken aynı `Program` partial'ına yeni bir dosya aç; `Program.cs`i büyütme.
-Komutun okuma kısmı ile yazma kısmını aynı dosyada tut; ortak biçimleyiciyi `Format/` altına koyacaksan
-önce mevcut `Table`/`Ui` yardımcılarına bak.
+Add a command in a new file of the same `Program` partial; do not grow `Program.cs`. Keep reads and
+writes of one command together. Reuse `Table`/`Ui` before adding a formatter.
 
 ## Plugin
 
-- `Bridge/` — `FmApi` (HTTP yüzeyi) + `FmApi.System.cs` (quit, repaint, screenshot, path okuma),
-  `HttpBridge`, `Plugin`, `Game`, `State`, `Send`, `Schema`, interop.
-- `Controls/` — `Buttons` + `Buttons.Controls.cs` (katalog/click/queue) + `Buttons.Runtime.cs`
-  (render, shape, pointer), form/radio, satırlar, alt menüler, dialoglar.
-- `Reads/` — sayfalar, paneller, metin/çeviri, oyuncu kartı, teklif, taktik, kayıt.
+- `Bridge/` — `FmApi` (HTTP surface) + `FmApi.System.cs`, `HttpBridge`, `Plugin`, `Game`, `State`,
+  `Send`, `Schema`, interop.
+- `Controls/` — `Buttons` + `Buttons.Controls.cs` (catalog/click/queue) + `Buttons.Runtime.cs`
+  (render, shape, pointer), forms, radios, rows, submenus, dialogs.
+- `Reads/` — pages, panels, text/translation, player card, offer, tactics, saves.
 
-Yeni bir okuma: veri yolunu `KeyPaths`/`Path` ile al; ekran yazısını veya sıra numarasını ölçüt yapma.
-Yeni bir yazma: oyunun kendi olayını gönder; olay kuyruğunun boşalmasını bekle.
+A new read: take the data path in `KeyPaths`/`Path`; never key on screen text or row number.
+A new write: send the game's own event; wait for the queue to drain.
 
-## Nullable politikası
+## Nullable
 
-- Akış analizi açık; gerçek dereference/value/null-literal uyarıları düzeltildi.
-- Kalan beş kategori (`CS8600`, `CS8603`, `CS8604`, `CS8619`, `CS8620`) oyun köprüsünün
-  dinamik JSON sınırında oluşuyor; `JsonRead`/`Field` ve çalışma zamanı kontrolleri kullanılıyor.
-  Bunlar proje düzeyinde bilinçli olarak susturuldu (bkz. `fm.csproj`).
-- Yeni okuma eklerken önce `JsonRead` kullan; tip güvenli DTO’ya geçilince bu liste kaldırılmalı.
+- Flow analysis is on. Real dereference/value/null bugs were fixed.
+- Five categories remain at the dynamic JSON boundary (`CS8600`, `CS8603`, `CS8604`, `CS8619`,
+  `CS8620`); reads go through `JsonRead`/`Field` and runtime checks. They are suppressed at project
+  level in `cli/fm/fm.csproj`. Replace with typed DTOs before removing the list.
 
-## Kurallar
+## Rules
 
-- **Dil ve ekran bağımsız:** veri yolu, olay adı, GUID, kimlik. `press "Confirm"`, `up=N`, sıra numarası yok.
-- **Sabit bekleme yok:** oyunun “oldu” işaretini bekle; süre yalnız üst sınır.
-- **Tek ekran bağlı:** komut kendi ekranını açar; okuma sonrası başka ekranın verisini varsayma.
-- **Hata sessiz kalmasın:** `rc` ve kısa neden; boş tablo ile “veri yok” ayrılsın.
-- **Küçük değişiklik:** bir davranışı düzeltirken aynı dosyada ilgisiz refactor yapma.
+- **Language and screen independent:** data path, event name, GUID, id. No `press "Confirm"`, no
+  `up=N`, no row numbers.
+- **No fixed waits:** wait for the game's signal; time is only an upper bound.
+- **One screen at a time:** a command opens its own screen; do not assume another screen's data.
+- **No silent failures:** return `rc` and a short reason; an empty table is not "no data".
+- **Small changes:** fix one behaviour; do not refactor unrelated code in the same file.
 
-## Derleme ve kontrol
+## Build and check
 
 ```bash
 dotnet build cli/fm/fm.csproj -c Release
 dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release
 tools/install.sh          # plugin + fm + doctor
 fm doctor --install
-fm status                 # köprü ve kayıt kontrolü
-tools/smoke.sh            # build + plugin + testler + yayınlanmış CLI
-tools/ci.sh               # oyun gerekmeyen kontrol (CI ile aynı)
+fm status                 # bridge and save
+tools/smoke.sh            # build + plugin + tests + published CLI
+tools/ci.sh               # without the game (same as CI)
 ```
 
-Test kontrol listesi: `docs/PLAYTEST.md`. Teknik bulgular: `docs/FINDINGS.md`.
-
-Saf yardımcılar için birim testleri (oyun gerekmez):
+Test checklist: `docs/PLAYTEST.md`. Porting notes: `docs/PORTING.md`.
 
 ```bash
 dotnet test tests/FmCli.Tests/FmCli.Tests.csproj -c Release
