@@ -140,6 +140,12 @@ internal static partial class Program
 			Console.WriteLine(L($"Injured: {string.Join(", ", injured)}. If one is in the eleven the match stops; check: squad --fitness · pick: tactic pick"));
 		if (await Unemployed())
 			Console.WriteLine(L("You are unemployed: not managing a club, so squad and tactic commands do not work. Job vacancies: jobs"));
+		// The results screen has to be passed before any page opens; say so instead of "ready".
+		if (Field(state, "State") == "Results")
+		{
+			Console.WriteLine(L("The game is on the post-match results screen; go past it: next"));
+			return 0;
+		}
 		// A question put after a match (the reaction, a tunnel interview) waits as a conversation
 		// while the game still calls itself free to go on; going on would pass it by unanswered.
 		if ((Passable(flow) || flow is "NeedAction" or "PressConference") && await OpenQuestion() is { } asked)
