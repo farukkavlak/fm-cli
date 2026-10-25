@@ -109,11 +109,39 @@ internal static partial class Program
 			var tactic = await Fm.GetJson("tactic");
 			if (!tactic.TryGetProperty("Slots", out var slots)) return [];
 			var picked = slots.EnumerateArray().Select(s => Field(s, "Player")).Concat(Bench(tactic)).Where(n => n.Length > 0).ToList();
-			var injured = (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
-				.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToList();
+			var injured = await InjuredSquad();
 			return picked.Where(n => injured.Any(full => full == n || full.EndsWith(" " + n, StringComparison.Ordinal))).ToList();
 		}
 		catch (FmError) { return []; }
+	}
+
+	/// <summary>The injured in the squad, from its data; no page opened.</summary>
+	private static async Task<List<string>> InjuredSquad()
+	{
+		try
+		{
+			return (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
+				.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToList();
+		}
+		catch (FmError) { return []; }
+	}
+
+	/// <summary>Days to the next fixture, or null when there is none.</summary>
+	private static async Task<int?> DaysToNextMatch()
+	{
+		try
+		{
+			var fixture = await Fm.Pull("Human.Team.NextFixture", "FixtureDateDistanceInDays,IsFutureMatch");
+			return Field(fixture, "IsFutureMatch") == "True" && int.TryParse(Field(fixture, "FixtureDateDistanceInDays"), out var days) ? days : null;
+		}
+		catch (FmError) { return null; }
+	}
+
+	/// <summary>Whether the next fixture is a friendly, which has no opposition report.</summary>
+	private static async Task<bool> NextIsFriendly()
+	{
+		try { return Field(await Fm.Pull("Human.Team.NextFixture.Competition", "IsFriendly"), "IsFriendly") == "True"; }
+		catch (FmError) { return false; }
 	}
 
 	/// <summary>

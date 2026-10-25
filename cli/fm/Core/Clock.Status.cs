@@ -136,6 +136,8 @@ internal static partial class Program
 			if (next != null) Console.WriteLine(L($"Next match: {GameWords.Of(next)}"));
 			if (window != null) Console.WriteLine(L($"Transfers: {GameWords.Of(window)}"));
 		}
+		if (flow is not ("Tactics" or "SubmitTeam") && await DaysToNextMatch() is 0 or 1 && await InjuredSquad() is { Count: > 0 } injured)
+			Console.WriteLine(L($"Injured: {string.Join(", ", injured)}. If one is in the eleven the match stops; check: squad --fitness · pick: tactic pick"));
 		if (await Unemployed())
 			Console.WriteLine(L("You are unemployed: not managing a club, so squad and tactic commands do not work. Job vacancies: jobs"));
 		// A question put after a match (the reaction, a tunnel interview) waits as a conversation

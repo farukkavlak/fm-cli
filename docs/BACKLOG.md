@@ -68,10 +68,6 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 
 ## Quality and reliability
 
-- [ ] `opponent`/`opposition` during pre-season: say "the next match is a friendly, there is no
-  report" instead of a raw page error.
-- [ ] `status` sees an injured player only when the tactic screen is open. Check the eleven before
-  match day, or have `next` check it on the day.
 - [ ] `fm start` shows the window full size until the menu. Minimise earlier: PlayerPrefs, a plugin
   call at start, `open -g -j`, or a separate Space.
 - [~] REPL: a quoted phrase counts as one word.

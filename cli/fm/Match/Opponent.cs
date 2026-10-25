@@ -18,6 +18,7 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 
 		var fixture = await Fm.Pull("Human.Team.NextFixture", "MatchVenueShort,KickoffTime,FixtureDateDistanceInDays");
+		var friendly = await NextIsFriendly();
 		const string them = "Human.Team.NextFixture.TeamOpponent";
 		var team = await Fm.Pull(them, "Name,Description,MostUsedFormation,RecentFormValues,NextOppositionThreatLevelAssessment");
 		if (Field(team, "Name").Length == 0)
@@ -54,7 +55,7 @@ internal static partial class Program
 		var news = new List<string>();
 		var meetings = new List<string>();
 		var tiles = new List<AnalystTile>();
-		if (!(await OpenPage(Screen.OppositionReport, under: Screen.Home)).StartsWith("error", StringComparison.Ordinal))
+		if (!friendly && !(await OpenPage(Screen.OppositionReport, under: Screen.Home)).StartsWith("error", StringComparison.Ordinal))
 		{
 			List<(string Text, string Path)> page = [];
 			// The analysts' tiles say "No Data Available" for a moment before their numbers arrive;
@@ -138,6 +139,7 @@ internal static partial class Program
 			Console.WriteLine(L("Squad news:"));
 			foreach (var n in news) Console.WriteLine($"  {n}");
 		}
+		if (friendly) Console.WriteLine(L("The next match is a friendly; there is no opposition report."));
 		return 0;
 	}
 }

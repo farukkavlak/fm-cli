@@ -16,6 +16,11 @@ internal static partial class Program
 	private static async Task<int> Opposition(string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
+		if (await NextIsFriendly())
+		{
+			Console.WriteLine(L("The next match is a friendly; there are no opposition instructions."));
+			return 0;
+		}
 
 		async Task<List<JsonElement>> Rows() => (await Fm.GetJson("opposition")).EnumerateArray().ToList();
 		var rows = await Rows();

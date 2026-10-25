@@ -285,8 +285,10 @@ internal static partial class Program
 				break;
 			case "Tactics" or "SubmitTeam":
 				output.WriteLine(L("Match day. To play: match"));
-				if (await HurtInSide() is { Count: > 0 } hurt)
-					output.WriteLine(L($"Note: the chosen squad has injured players ({string.Join(", ", hurt)}); the match does not start with them. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>"));
+				var hurt = await HurtInSide();
+				if (hurt.Count == 0) hurt = await InjuredSquad();
+				if (hurt.Count > 0)
+					output.WriteLine(L($"Note: injured ({string.Join(", ", hurt)}); the match does not start with one in the eleven. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>"));
 				break;
 			case "TeamNews": output.WriteLine(L("The game is waiting for the pre-match team news.")); break;
 			case "TeamTalk": output.WriteLine(L("The game is waiting for a team talk.")); break;
