@@ -9,7 +9,7 @@
 | Game bridge | `cli/fm/Core/Bridge.cs` | HTTP, port, errors, timeouts |
 | Game reads | `cli/fm/Core/Reads*.cs`, `Core/Clock*.cs`, `Match/Guided*.cs`, `Match/MatchDay*.cs` | data paths, pages, match flow |
 | Formatting | `cli/fm/Core/Table.cs`, `Ui.cs`, `MoneyFormat.cs`, `JsonOut.cs`, `InboxView.cs` | tables, terminal, money and numbers |
-| Text | `cli/fm/Core/Labels.cs`, `GameWords.cs`, `EngineTexts.cs` | English source, Turkish catalog, the game's words |
+| Text | `cli/fm/Core/Labels.cs`, `Lang.cs`, `GameWords.cs`, `EngineTexts.cs` | English source, Turkish catalog, language choice, the game's words |
 | Infrastructure | `cli/fm/Core/Launcher.cs`, `Session.cs`, `Screens.cs`, `GameFolders.cs`, `InstallDoctor.cs` | launch, folders, install checks |
 | Plugin | `plugin/FmCliProbe/src/{Bridge,Controls,Reads}/` | IL2CPP side: HTTP, controls, texts, pages |
 | Tools | `tools/` | install, package, publish, test, dumps |
@@ -37,7 +37,7 @@
   `Messages.SquadCards.cs` — internationals, expiring contracts, recommendations, match prep,
   bid card; `Messages.Inbox.cs` — message reading and number memory.
 - `Program/Program.Ui.cs` — button/page commands; `Program.Ui.Helpers.cs` — press/select helpers;
-  `Program.Help.cs` + `Core/HelpEnglish.cs` — help text. The whole help is one entry in
+  `Program.Help.cs` + `Core/HelpEnglish.cs` — help text. The help is one entry in
   `labels-turkish.tsv`; update its Turkish value when the English text changes.
 
 ## Other splits
@@ -73,11 +73,11 @@ writes of one command together. Reuse `Table`/`Ui` before adding a formatter.
 - `Reads/` — pages, panels, text/translation, player card, offer, tactics, saves.
 
 A new read: take the data path in `KeyPaths`/`Path`; never key on screen text or row number.
-A new write: send the game's own event; wait for the queue to drain.
+A new write: send the game's event; wait for the queue to drain.
 
 ## Nullable
 
-- Flow analysis is on. Real dereference/value/null bugs were fixed.
+- Flow analysis is on. Dereference, value and null bugs were fixed.
 - Five categories remain at the dynamic JSON boundary (`CS8600`, `CS8603`, `CS8604`, `CS8619`,
   `CS8620`); reads go through `JsonRead`/`Field` and runtime checks. They are suppressed at project
   level in `cli/fm/fm.csproj`. Replace with typed DTOs before removing the list.
@@ -87,7 +87,7 @@ A new write: send the game's own event; wait for the queue to drain.
 - **Language and screen independent:** data path, event name, GUID, id. No `press "Confirm"`, no
   `up=N`, no row numbers.
 - **No fixed waits:** wait for the game's signal; time is only an upper bound.
-- **One screen at a time:** a command opens its own screen; do not assume another screen's data.
+- **One screen at a time:** a command opens the screen it needs; do not assume another screen's data.
 - **No silent failures:** return `rc` and a short reason; an empty table is not "no data".
 - **Small changes:** fix one behaviour; do not refactor unrelated code in the same file.
 

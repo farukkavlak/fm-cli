@@ -4,6 +4,7 @@
 
 - [ ] `fm status` gives the date, club, next match and what is waiting.
 - [ ] `fm doctor --install` checks all seven install steps.
+- [ ] `fm lang english` switches the CLI while the game stays Turkish; `fm lang auto` follows the game again.
 - [ ] `fm inbox --tasks` shows offers and registration messages on the Tasks tab.
 - [ ] `next` and `press` do not hang when the game is not frontmost; the command brings it forward.
 

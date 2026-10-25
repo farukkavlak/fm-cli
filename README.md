@@ -1,14 +1,14 @@
 # fm-cli
 
-Play the real **Football Manager 26** from a terminal. A BepInEx plugin exposes the game's own data
+Play the real **Football Manager 26** from a terminal. A BepInEx plugin exposes the game's data
 tree and events; the CLI turns them into commands. The game stays open in the background — no
 screen capture, no mouse, no vision.
 
 ```
 $ fm status
-FM is running, save loaded. 12 August 2028, 09:00
+FM is open, save loaded. 12 August 2028 09:00
 Next match: League · home · Saturday 15:00 (7 days)
-Transfer window: closed
+Transfers: window closed
 Ready to continue: next
 
 $ fm squad
@@ -26,6 +26,8 @@ $ fm inbox
 Squad and player pages, tactics and team instructions, training, transfers and contracts,
 scouting, match day, press conferences, staff, finances, club vision, settings, saves, and a Model
 Context Protocol server so an AI client can drive the same commands.
+
+The CLI follows the game's language; `fm lang english` switches it without changing the game's data.
 
 Every command and option: `fm help`, or [docs/USAGE.md](docs/USAGE.md).
 
@@ -86,6 +88,7 @@ fm status      # is the game up, is a save loaded, what is next
 fm inbox       # what is waiting
 fm next        # continue; stops when something needs an answer
 fm match       # play the match day
+fm lang english # CLI in English while the game stays Turkish (data keeps the game's words)
 ```
 
 ## Layout

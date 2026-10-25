@@ -1,12 +1,12 @@
 # Porting to FM27
 
 What carries over from the FM26 work, what must be rebuilt, and how to check the first day.
-This is the short version; the code and `docs/reference/` hold the details.
+The code and `docs/reference/` hold the details.
 
-## What this project is
+## Overview
 
 `fm` is a terminal client for the real Football Manager. It does not reimplement the game: a
-BepInEx plugin inside the game exposes the game's own data tree and events over HTTP, and the CLI
+BepInEx plugin inside the game exposes the game's data tree and events over HTTP, and the CLI
 reads and drives that.
 
 ```
@@ -16,11 +16,11 @@ MCP server (same CLI)                        └─ SI.Bindable tree + navigatio
 
 The game stays open in the background. No screen capture, no mouse, no vision.
 
-## Rules that protected us
+## Rules
 
 - **Bind by identity, not by text.** Data path, event name, game id, page GUID. Screen words are
   the last resort.
-- **Wait for the game's own signal.** A value changed, a row was drawn, `Processing` ended, a page
+- **Wait for the game's signal.** A value changed, a row was drawn, `Processing` ended, a page
   bound. A timeout is only an upper bound.
 - **Do not replace one dependency with another.** Swapping a fixed delay for a label or a style is
   still a dependency. Remove all of them together.
@@ -28,7 +28,7 @@ The game stays open in the background. No screen capture, no mouse, no vision.
 - **Keep questions and actions apart.** A path that asks must not change the game.
 - **Measure before coding.** Three states (page first open, already open, another page open) and
   two languages (Turkish and English).
-- **UX first.** A working command is not enough. The terminal output must be readable and quick.
+- **Readable output first.** A working command is not enough; the terminal output must be clear and quick.
 
 Attach order, strongest first:
 
@@ -49,7 +49,7 @@ Most of the plumbing is independent of the game's content:
 | IL2CPP helpers, spans, key paths | `plugin/FmCliProbe/src/Bridge/`, `Reads/` |
 | Game translation table layer | `plugin/FmCliProbe/src/Reads/Text.cs` |
 | Bridge client, `Until` (wait for a signal) | `cli/fm/Core/Bridge.cs` |
-| CLI language layer (English source, Turkish catalog) | `cli/fm/Core/Labels.cs`, `cli/fm/labels-turkish.tsv` |
+| CLI language layer (English source, Turkish catalog, `fm lang` / `FM_LANG`) | `cli/fm/Core/Labels.cs`, `Lang.cs`, `cli/fm/labels-turkish.tsv` |
 | Game words, money and number format | `cli/fm/Core/GameWords.cs`, `MoneyFormat.cs`, `EngineTexts.cs` |
 | Game folders and launch | `cli/fm/Core/GameFolders.cs`, `Launcher.cs` |
 | MCP server | `cli/fm/Core/Mcp.cs`, `Mcp.Tools.cs` |
@@ -113,12 +113,11 @@ little work; text- and position-based ones must be rewritten.
 
 - Working: 100+ CLI commands and MCP tools — squad, tactics, training, transfers, contracts,
   scouting, matches, press, staff, finances, settings. One full season was played end to end.
-- Cleanliness work was unfinished. The old checklist is gone; the code is the source of truth now.
-  The remaining hard dependencies were mostly in match narration and a few screens. Start FM27 with
-  identity-based code and the cleanup never appears.
+- Portability work was unfinished: parts of match narration and a few screens still depended on
+  text, timing or order. `tools/sweep.sh` shows what breaks in a new save or version.
 - Known limits: only macOS arm64 + Steam was tested. Intel, Epic, Game Pass and Windows were not.
 
-## FM27, done differently
+## FM27 plan
 
 1. Identity-based from day one.
 2. Test every command in Turkish and English from day one.
@@ -126,5 +125,5 @@ little work; text- and position-based ones must be rewritten.
 4. No fixed waits. Only `Until(signal, upperBound)`.
 5. Think about install and release early: one place for platform paths, a version guard (the plugin
    knows the game version and refuses unsupported ones), `fm doctor` checks the install.
-6. Readable, quick UX before command count.
+6. Readable, quick output before more commands.
 7. A local natural-language layer comes later, once the base is solid.

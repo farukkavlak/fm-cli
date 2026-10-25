@@ -1,12 +1,25 @@
 # Usage
 
 `fm` is a terminal client for Football Manager 26. The game stays open in the background; commands
-read its data and send its own events. Run `fm` with no arguments for an interactive session, or
+read its data and send its events. Run `fm` with no arguments for an interactive session, or
 run one command at a time.
 
-The CLI is written in English. If the game is set to Turkish, the CLI and its messages are shown in
-Turkish; command names and options stay English. Turkish command aliases also work, with or without
-accents.
+The CLI follows the game's language: English in an English game, Turkish in a Turkish one. Command
+names and options stay English; Turkish command aliases also work, with or without accents. The CLI
+language can also be chosen separately (see Language below).
+
+## Language
+
+To use another language for the CLI alone:
+
+```bash
+fm lang english    # CLI text in English; game data keeps the game's words
+fm lang turkish
+fm lang auto       # follow the game again
+FM_LANG=english fm status   # for one command or a script
+```
+
+`fm lang` with no argument shows the current choice and the game's language.
 
 ## First run
 
@@ -140,6 +153,7 @@ fm — run Football Manager 26 from the terminal
   budget          the transfer, wage and scouting budgets;  budget adjust [<step>]: the transfer ↔ wage split
   settings        game settings: match display and speed, auto save, language, currency, units
   settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x); with no value it is chosen with the arrow keys
+  lang            CLI language: english, turkish or auto (follow the game); FM_LANG also works
   happiness       the players' happiness, unhappiest first
     happiness <player>   why: morale, their place in the dressing room, what pleases them and what they complain about
     --why           everyone with a complaint, with their complaints
