@@ -13,6 +13,11 @@ internal static partial class Program
 {
 	private static async Task<int> SettingsCommand(string[] args)
 	{
+		// The CLI's own panel settings live here too, and need no game.
+		var panelWords = Words(args).ToList();
+		if (panelWords.Count > 0 && panelWords[0] is "panel" or "live")
+			return PanelSettings(panelWords.Skip(1).ToList());
+
 		if (await NotNow() is { } refused) return refused;
 
 		var words = Words(args).ToList();

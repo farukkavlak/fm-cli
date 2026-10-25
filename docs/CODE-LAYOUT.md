@@ -47,6 +47,7 @@
 - `Core/Reads.cs` — search and player; `Reads.Squad.cs` — squad views; `Reads.League.cs` — league,
   fixtures, progress; `Reads.Player.cs` — player card and history.
 - `Match/MatchDay.cs` — main loop; `MatchLive.cs` — score/clock/event panel at a terminal;
+  `PanelConfig.cs` + `PanelSettings.cs` — the panel file and `fm settings panel`;
   `MatchDay.Instant.cs` — instant result; `MatchDay.Team.cs` — lineups; `MatchDay.Substitute.cs` —
   substitutions; `MatchDay.Dialog.cs` — confirmations.
 - `Transfer/ContractTalks.cs` — command and terms; `ContractTalks.Terms.cs` — terminal loop and

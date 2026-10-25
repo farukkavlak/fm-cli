@@ -23,6 +23,7 @@
 - [ ] `match --play` gets through narration, goals, half time and full time.
 - [ ] At a terminal, `match --play` shows the live score/event panel and the shape pitch; a redirected
   run stays line-by-line.
+- [ ] `fm settings panel view key pitch off events 5 colour off` changes the next match; `reset` restores.
 - [ ] `next` closes the result screen afterwards and the bridge still answers.
 
 ## Known break points

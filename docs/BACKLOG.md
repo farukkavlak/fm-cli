@@ -50,9 +50,9 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [~] Live match screen: the panel shows the score, clock, period, a shape pitch and the last eight
   events; the pitch refreshes after substitutions, and an injury stop names the player and asks who
   comes on. Keys: `s` substitution, `h` shout, `t` tactic, `v` view (full / key moments / score
-  only; key moments are goals, cards, injuries, substitutions and penalties), `+`/`-` speed. Still
-  to do: live player/ball positions, config through a file and `fm settings`, and the optional
-  ASCII 3D view.
+  only; key moments are goals, cards, injuries, substitutions and penalties), `+`/`-` speed.
+  Panel settings live in `~/.config/fm-cli/panel.json` and `fm settings panel` (view, pitch, event
+  count, colour). Still to do: live player/ball positions and the optional ASCII 3D view.
 - [?] Live match stats: the bindings carry `LastFixture`/`NextFixture` only, and during a match
   `IsLiveMatch` is false, so shots/possession are not live. Read the match stats page or use the
   post-match report.

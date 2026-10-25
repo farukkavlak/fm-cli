@@ -20,14 +20,15 @@ internal static class MatchLive
 
 	/// <summary>Draws the panel when its text changed. Nothing when the output is not a terminal.</summary>
 	public static void Draw(string board, string minute, string period, string stats, string formation,
-		IReadOnlyList<(string Spot, string Player)> shape, int view, IEnumerable<string> events)
+		IReadOnlyList<(string Spot, string Player)> shape, int view, PanelConfig config, IEnumerable<string> events)
 	{
 		if (!Ui.Rich) return;
 
+		string Paint(string code, string text) => config.Colour ? $"\x1b[{code}m{text}\x1b[0m" : text;
 		var lines = new List<string>
 		{
 			"",
-			$"  \x1b[1m{L("LIVE")}\x1b[0m  {board}   \x1b[33m{minute}\x1b[0m  {period}",
+			$"  {Paint("1", L("LIVE"))}  {board}   {Paint("33", minute)}  {period}",
 		};
 		// Chronological, even when the game replays a line out of order; the last eight stay.
 		static int Seconds(string line)
@@ -36,14 +37,15 @@ internal static class MatchLive
 			return clock.Length == 2 && int.TryParse(clock[0], out var minute) && int.TryParse(clock[1], out var second)
 				? minute * 60 + second : int.MaxValue;
 		}
-		if (stats.Length > 0) lines.Add($"  \x1b[2m{stats}\x1b[0m");
-		if (shape.Count > 0) lines.AddRange(PitchLines(formation, shape, Width));
+		if (stats.Length > 0) lines.Add($"  {Paint("2", stats)}");
+		if (config.Pitch && shape.Count > 0) lines.AddRange(PitchLines(formation, shape, Width));
 		lines.Add("  " + new string('─', Width));
-		var shown = view == 2
+		var count = Math.Clamp(config.Events, 0, 12);
+		var shown = view == 2 || count == 0
 			? []
-			: events.OrderBy(Seconds).Where(e => view == 0 || !KnownKeyLanguage || KeyMoment(e)).TakeLast(8).ToList();
+			: events.OrderBy(Seconds).Where(e => view == 0 || !KnownKeyLanguage || KeyMoment(e)).TakeLast(count).ToList();
 		if (shown.Count == 0 && view != 2)
-			lines.Add($"  \x1b[2m{(view == 1 ? L("No key moments yet.") : L("Waiting for the first event…"))}\x1b[0m");
+			lines.Add($"  {Paint("2", view == 1 ? L("No key moments yet.") : L("Waiting for the first event…"))}");
 		foreach (var line in shown)
 		{
 			var fitted = line.Length > Width ? line[..(Width - 1)] + "…" : line;
@@ -51,7 +53,7 @@ internal static class MatchLive
 		}
 		lines.Add("");
 		var mode = view switch { 0 => L("full"), 1 => L("key moments"), _ => L("score only") };
-		lines.Add($"  \x1b[2m{L("[s] sub · [h] shout · [t] tactic · [v] view · [+/-] speed")}   [{mode}]\x1b[0m");
+		lines.Add($"  {Paint("2", L("[s] sub · [h] shout · [t] tactic · [v] view · [+/-] speed") + $"   [{mode}]")}");
 
 		var text = string.Join("\n", lines);
 		if (text == last) return;

@@ -167,7 +167,8 @@ internal static partial class Program
 		var stats = "";
 		var statsAt = DateTime.MinValue;
 		var shapeAt = DateTime.MinValue;
-		var liveView = 0;
+		var panel = PanelConfig.Load();
+		var liveView = panel.ViewIndex;
 		// Our squad's names tell our men from theirs in the match's list of players.
 		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
@@ -466,7 +467,7 @@ internal static partial class Program
 					stats = await LiveStats(state);
 				}
 				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
-					liveFormation, liveShape, liveView,
+					liveFormation, liveShape, liveView, panel,
 					heard.Select(h => $"{h.Minute,6}  {h.Said}"));
 			}
 

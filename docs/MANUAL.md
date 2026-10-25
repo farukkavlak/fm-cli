@@ -170,6 +170,19 @@ a match, so they appear in `report` after the whistle.
 
 ![fm match --play](manual/img/match/live-match.png)
 
+The panel's own settings live in `~/.config/fm-cli/panel.json`; change them with `fm settings`:
+
+```bash
+fm settings panel                              # show them
+fm settings panel view key                     # full, key or score
+fm settings panel pitch off events 5 colour off
+fm settings panel reset
+```
+
+`view` sets the first view of the `v` cycle; the keys still cycle for the session.
+
+
+
 ![fm report](manual/img/match/report.png)
 
 ![fm opponent](manual/img/match/opponent.png)
