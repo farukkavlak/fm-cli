@@ -12,7 +12,7 @@ internal static class Interop
 	///
 	/// The array-taking constructor does not survive the interop boundary — every path built
 	/// that way arrived as an empty span, so unrelated paths all resolved to the same key.
-	/// Pointing the span straight at the pinned managed string is what actually works. The
+	/// Pointing the span straight at the pinned managed string works. The
 	/// callback shape keeps the string pinned for the whole call, which is required because the
 	/// span carries no reference of its own.
 	/// </summary>

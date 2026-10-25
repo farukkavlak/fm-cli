@@ -22,7 +22,7 @@ internal static class Launcher
 	private const string AppName = "Football Manager 26";
 
 	/// <summary>
-	/// The bundle the launcher actually execs — a shadow of the Steam one, assembled for
+	/// The bundle the launcher starts — a shadow of the Steam one, assembled for
 	/// BepInEx. Its Info.plist is ours to patch; Steam's copy is left alone.
 	/// </summary>
 	private static string AppBundle =>

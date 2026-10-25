@@ -15,7 +15,7 @@ namespace FmCliProbe;
 ///
 /// /buttons only sees controls that carry an event list. Something that reacts to a click
 /// without one — a selectable tile, a drag target — is invisible there, so this shows what is
-/// actually sitting around a label: every element's type and name, and for each the members
+/// sitting around a label: every element's type and name, and for each the members
 /// that hint at how it is driven (binding paths, event lists, selection state).
 /// </summary>
 internal static class Elements

@@ -70,7 +70,7 @@ internal static class Game
 
 	/// <summary>
 	/// Every loaded ScriptableObject type, by il2cpp name. Assumes nothing about which types
-	/// should exist, so it shows what is actually there.
+	/// should exist, so it shows what is there.
 	/// </summary>
 	public static string ScanReport(string filter)
 	{

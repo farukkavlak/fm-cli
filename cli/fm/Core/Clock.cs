@@ -128,7 +128,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// States in which Continue simply goes on. Besides being free to continue, the game stops
+	/// States in which Continue goes on. Besides being free to continue, the game stops
 	/// to show a page — the news site, the latest scores — and pressing Continue there is how
 	/// a player gets past it. Everything else wants something done first.
 	/// </summary>
@@ -182,7 +182,7 @@ internal static partial class Program
 	{
 		for (var look = 0; look < 5; look++)
 		{
-			// Asked raw: a manager with no club simply has no `Team` property, and the ordinary
+			// Asked raw: a manager with no club has no `Team` property, and the ordinary
 			// read would take that for an unfinished answer and keep asking.
 			var human = await Fm.GetJson("pull", ("path", "Human"), ("props", "Name,Team,Club"), ("list", "0"), ("gen", ""));
 			if (Field(human, "Name").Length == 0) return false;

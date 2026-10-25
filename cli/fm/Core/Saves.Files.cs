@@ -7,7 +7,7 @@ internal static partial class Program
 {
 	/// <summary>
 	/// Deletes a save file. In a loaded game it is the game's own Delete in the save browser; with
-	/// no save loaded there is no browser to ask, and the file is simply removed. The loaded
+	/// no save loaded there is no browser to ask, and the file is removed. The loaded
 	/// save's own file is refused: the game would go on believing it is there.
 	/// </summary>
 	private static async Task<int> DeleteSave(string[] args)

@@ -269,7 +269,7 @@ internal static partial class Program
 		else
 		{
 			// The game's search is loose — "icardi" also finds a Vicente — so its results are
-			// narrowed to the names that really contain what was typed, or are a typo away.
+			// narrowed to the names that contain what was typed, or are a typo away.
 			// It finds nothing for a typo, though, so then the name's start is searched for.
 			var found = (await SearchFor(wanted)).Where(r => Field(r, "Kind") == "Player").ToList();
 			var close = Matching(found, r => Field(r, "Name"), wanted);
