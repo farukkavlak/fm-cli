@@ -47,10 +47,10 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [~] Match stats: possession, shots, on target, xG, corners, fouls; no passes or heat map.
 - [~] Text highlight summary; no minute-by-minute list of key events.
 - [?] Real-time in-match management (a different problem).
-- [~] Live match screen: the first slice shows a live score/clock/period panel with the last eight
-  events, and keeps the plain line output for scripts. Still to do: a 2D pitch, a key-moments-only
+- [~] Live match screen: the panel shows the score, clock, period, a shape pitch and the last eight
+  events; plain output stays for scripts. Still to do: live player/ball positions, a key-moments-only
   view, keys for substitution/shout/tactic/speed/view, an injury prompt, config through a file and
-  `fm settings`, and the optional ASCII 3D view.
+  `fm settings`, the pitch refreshing after substitutions, and the optional ASCII 3D view.
 - [?] Live match stats: the bindings carry `LastFixture`/`NextFixture` only, and during a match
   `IsLiveMatch` is false, so shots/possession are not live. Read the match stats page or use the
   post-match report.

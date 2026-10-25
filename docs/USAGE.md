@@ -63,7 +63,8 @@ sending it. Irreversible commands ask at a terminal and need `--yes` in a script
 ## Watching a match
 
 `fm match --play` plays the match day in the terminal. At a terminal it draws a live panel with the
-score, clock, period, the last eight events and the commands that work during the match. A
+score, clock, period, a small pitch of the chosen shape, the last eight events and the commands that
+work during the match. A
 redirected run, or an MCP call, keeps the plain line-by-line output.
 
 ![Live match panel](img/live-match.png)

@@ -12,6 +12,9 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
+	private static List<(string Spot, string Player)> liveShape = [];
+	private static string liveFormation = "";
+
 	private static readonly Dictionary<string, string> Stops = new()
 	{
 		["Tactics"] = L("Tactics"),
@@ -26,6 +29,24 @@ internal static partial class Program
 		["PostMatchReaction"] = L("Post-match reactions"),
 		["LeaveMatch"] = L("Leaving the match"),
 	};
+
+	/// <summary>The chosen shape, read from the tactic screen's slots; left alone when it is not up.</summary>
+	private static async Task LearnShape()
+	{
+		try
+		{
+			var tactic = await Fm.GetJson("tactic");
+			if (!tactic.TryGetProperty("Slots", out var slots)) return;
+			var shape = slots.EnumerateArray()
+				.Select(slot => (Spot: Spot(Field(slot, "IPPosition")), Player: Field(slot, "Player")))
+				.Where(slot => slot.Player.Length > 0).ToList();
+			if (shape.Count == 0) return;
+			liveShape = shape;
+			liveFormation = System.Text.RegularExpressions.Regex.Match(
+				tactic.TryGetProperty("Tactic", out var header) ? Field(header, "Name") : "", @"\d(-\d)+").Value;
+		}
+		catch (FmError) { }
+	}
 
 	/// <summary>The live numbers, our side first; empty until the game has them.</summary>
 	private static async Task<string> LiveStats(JsonElement state)
@@ -83,6 +104,7 @@ internal static partial class Program
 		}
 
 		Launcher.Activate();
+		await LearnShape();
 		var state = await Fm.GetJson("state");
 		var inMatch = Field(state, "DuringMatch") == "True";
 		if (!inMatch && Field(state, "State") is not ("Tactics" or "SubmitTeam" or "SquadNumbers"))
@@ -387,7 +409,7 @@ internal static partial class Program
 					stats = await LiveStats(state);
 				}
 				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
-					heard.Select(h => $"{h.Minute,6}  {h.Said}"));
+					liveFormation, liveShape, heard.Select(h => $"{h.Minute,6}  {h.Said}"));
 			}
 
 			await Task.Delay(TimeSpan.FromSeconds(3));
