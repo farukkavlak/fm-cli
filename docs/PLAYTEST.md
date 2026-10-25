@@ -21,6 +21,7 @@
 - [ ] At the start of a season, squad numbers can be sent with `numbers --auto`.
 - [ ] `match --instant` prints **this** match's score, not the previous report.
 - [ ] `match --play` gets through narration, goals, half time and full time.
+- [ ] At a terminal, `match --play` shows the live score/event panel; a redirected run stays line-by-line.
 - [ ] `next` closes the result screen afterwards and the bridge still answers.
 
 ## Known break points

@@ -27,6 +27,24 @@ internal static partial class Program
 		["LeaveMatch"] = L("Leaving the match"),
 	};
 
+	/// <summary>The score with the sides' names, as the live panel shows it.</summary>
+	private static string LiveBoard(JsonElement state, (string Own, string Opponent)? names)
+	{
+		var home = Field(state, "HomeScore");
+		var away = Field(state, "AwayScore");
+		if (names is not { } n || home.Length == 0 || away.Length == 0) return $"{home}-{away}";
+		return Field(state, "HumanIsHome") == "True" ? $"{n.Own} {home}-{away} {n.Opponent}" : $"{n.Opponent} {home}-{away} {n.Own}";
+	}
+
+	/// <summary>The period as the panel names it.</summary>
+	private static string LivePeriod(JsonElement state) => Field(state, "Period") switch
+	{
+		"FirstHalf" => L("First half"),
+		"SecondHalf" => L("Second half"),
+		"ExtraTime" => L("Extra time"),
+		_ => "",
+	};
+
 	private static async Task<int> PlayMatch(string[] args)
 	{
 		if (!await Fm.InGame())
@@ -76,12 +94,13 @@ internal static partial class Program
 		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
 		string? lastNamed = null;
-		var heard = new Queue<string>();
+		var heard = new Queue<(string Minute, string Said)>();
 		var advised = new HashSet<string>();
 		var firstLook = true;
 		var pressedAt = DateTime.MinValue;
 		var clockAt = DateTime.UtcNow;
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(40);
+		MatchLive.Reset();
 
 		while (DateTime.UtcNow < deadline)
 		{
@@ -144,13 +163,18 @@ internal static partial class Program
 			// A goal is shown again as a replay, its lines and all; a line heard a moment ago
 			// is not news the second time.
 			var said = Field(state, "Commentary");
-			if (said.Length > 0 && said != commentary && !heard.Contains(said) && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime")
+			var live = Ui.Rich && Field(state, "DuringMatch") == "True" && Field(state, "Playing") == "True"
+			           && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime";
+			if (said.Length > 0 && said != commentary && !heard.Any(h => h.Said == said) && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime")
 			{
-				heard.Enqueue(said);
+				heard.Enqueue((Field(state, "MatchTime"), said));
 				if (heard.Count > 40) heard.Dequeue();
-				var minute = Field(state, "MatchTime");
-				if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(minute),6}[/]  {Ui.Safe(said)}");
-				else Console.WriteLine($"  {minute,6}  {said}");
+				if (!live)
+				{
+					var minute = Field(state, "MatchTime");
+					if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(minute),6}[/]  {Ui.Safe(said)}");
+					else Console.WriteLine($"  {minute,6}  {said}");
+				}
 			}
 			var talking = said.Length > 0 && said != commentary;
 			commentary = said;
@@ -323,6 +347,10 @@ internal static partial class Program
 					await Fm.Get("press", ("ptr", Field(onward, "Pointer")));
 				}
 			}
+
+			if (live)
+				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state),
+					heard.Select(h => $"{h.Minute,6}  {h.Said}"));
 
 			await Task.Delay(TimeSpan.FromSeconds(3));
 		}

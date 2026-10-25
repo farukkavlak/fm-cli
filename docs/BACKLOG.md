@@ -47,10 +47,10 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [~] Match stats: possession, shots, on target, xG, corners, fouls; no passes or heat map.
 - [~] Text highlight summary; no minute-by-minute list of key events.
 - [?] Real-time in-match management (a different problem).
-- [ ] Live match screen: fixed score/clock/stats bar; views for a panel, a 2D pitch, key moments
-  only and full commentary; keys for substitution, shout, tactic, speed and view; an injury stop
-  that asks who comes on. Optional ASCII 3D later. Config in a file plus `fm settings`; keep plain
-  output for scripts and MCP.
+- [~] Live match screen: the first slice shows a live score/clock/period panel with the last eight
+  events, and keeps the plain line output for scripts. Still to do: stats bar, a 2D pitch, a
+  key-moments-only view, keys for substitution/shout/tactic/speed/view, an injury prompt, config
+  through a file and `fm settings`, and the optional ASCII 3D view.
 - [ ] Sparkline/condition trend (match ratings already have a bar; condition history is not kept).
 
 ## Competitions and club

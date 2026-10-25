@@ -46,8 +46,9 @@
   `Guided.Tactic*.cs` — tactic planner and settings.
 - `Core/Reads.cs` — search and player; `Reads.Squad.cs` — squad views; `Reads.League.cs` — league,
   fixtures, progress; `Reads.Player.cs` — player card and history.
-- `Match/MatchDay.cs` — main loop; `MatchDay.Instant.cs` — instant result; `MatchDay.Team.cs` —
-  lineups; `MatchDay.Substitute.cs` — substitutions; `MatchDay.Dialog.cs` — confirmations.
+- `Match/MatchDay.cs` — main loop; `MatchLive.cs` — score/clock/event panel at a terminal;
+  `MatchDay.Instant.cs` — instant result; `MatchDay.Team.cs` — lineups; `MatchDay.Substitute.cs` —
+  substitutions; `MatchDay.Dialog.cs` — confirmations.
 - `Transfer/ContractTalks.cs` — command and terms; `ContractTalks.Terms.cs` — terminal loop and
   agent answers; `ContractTalks.Screen.cs` — screen reads, exit, renewal.
 - `Transfer/ScoutFocus.cs` + `.Team.cs` + `.Form.cs` — focus list, staff, new-focus form.
