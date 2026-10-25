@@ -27,6 +27,8 @@
 
 - **Event queue:** if a press/dialog source never arrives, later `press` calls wait too; `/queue`
   must be zero.
+- **One command at a time:** two UI commands run in parallel can fight over the bound page and hang
+  the bridge; run them in sequence.
 - **Focus:** FM handles some Continue/UI events only when frontmost; `next`/`press` activate it.
 - **Tasks:** an offer message may not be on the default inbox tab; check `inbox --tasks`.
 - **Stale report:** after an instant result, do not read the report before the last fixture changes.
