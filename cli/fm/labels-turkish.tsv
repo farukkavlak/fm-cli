@@ -2387,3 +2387,7 @@ On target	İsabetli şut
 Shape	Diziliş
 Injury stop: {0} cannot continue. Who comes on?	Sakatlık durağı: {0} devam edemiyor. Kim girsin?
 a player	bir oyuncu
+[s] sub · [h] shout · [t] tactic · [v] view · [+/-] speed	[s] değişiklik · [h] bağırış · [t] taktik · [v] görünüm · [+/-] hız
+Tactic change	Taktik değişikliği
+Speed: {0}	Hız: {0}
+Match speed is not on this screen; change it in settings.	Hız bu ekranda yok; ayarlardan değiştir.

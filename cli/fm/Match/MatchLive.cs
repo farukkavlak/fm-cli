@@ -10,7 +10,7 @@ internal static class MatchLive
 
 	/// <summary>Draws the panel when its text changed. Nothing when the output is not a terminal.</summary>
 	public static void Draw(string board, string minute, string period, string stats, string formation,
-		IReadOnlyList<(string Spot, string Player)> shape, IEnumerable<string> events)
+		IReadOnlyList<(string Spot, string Player)> shape, int keep, IEnumerable<string> events)
 	{
 		if (!Ui.Rich) return;
 
@@ -29,12 +29,12 @@ internal static class MatchLive
 		if (stats.Length > 0) lines.Add($"  \x1b[2m{stats}\x1b[0m");
 		if (shape.Count > 0) lines.AddRange(PitchLines(formation, shape));
 		lines.Add("  " + new string('─', 72));
-		var shown = events.OrderBy(Seconds).TakeLast(8).ToList();
+		var shown = keep <= 0 ? [] : events.OrderBy(Seconds).TakeLast(keep).ToList();
 		if (shown.Count == 0) lines.Add($"  \x1b[2m{L("Waiting for the first event…")}\x1b[0m");
 		foreach (var line in shown)
 			lines.Add("  " + line);
 		lines.Add("");
-		lines.Add($"  \x1b[2m{L("sub <off> <on> · shout · dugout · tactic")}\x1b[0m");
+		lines.Add($"  \x1b[2m{L("[s] sub · [h] shout · [t] tactic · [v] view · [+/-] speed")}\x1b[0m");
 
 		var text = string.Join("\n", lines);
 		if (text == last) return;

@@ -48,6 +48,29 @@ internal static partial class Program
 		catch (FmError) { }
 	}
 
+	/// <summary>Steps the match speed dropdown on the match screen, when it is there.</summary>
+	private static async Task<int> MatchSpeed(int step)
+	{
+		var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => d.TryGetProperty("Choices", out var choices) && choices.EnumerateArray()
+				.Any(c => System.Text.RegularExpressions.Regex.IsMatch(c.GetString() ?? "", @"^\d+(?:[.,]\d+)?x$")))
+			.ToList();
+		if (lists.Count == 0)
+		{
+			Console.WriteLine(L("Match speed is not on this screen; change it in settings."));
+			return 1;
+		}
+		var list = lists[0];
+		var options = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		var at = options.FindIndex(c => Fold(c) == Fold(Field(list, "Label")));
+		if (at < 0) at = 0;
+		var next = (at + step + options.Count) % options.Count;
+		var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("path", next.ToString()), ("fire", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+		Console.WriteLine(L($"Speed: {options[next]}"));
+		return 0;
+	}
+
 	/// <summary>The live numbers, our side first; empty until the game has them.</summary>
 	private static async Task<string> LiveStats(JsonElement state)
 	{
@@ -144,6 +167,7 @@ internal static partial class Program
 		var stats = "";
 		var statsAt = DateTime.MinValue;
 		var shapeAt = DateTime.MinValue;
+		var liveView = 0;
 		// Our squad's names tell our men from theirs in the match's list of players.
 		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
@@ -404,6 +428,31 @@ internal static partial class Program
 				}
 			}
 
+			if (live && !Console.IsInputRedirected)
+			{
+				while (Console.KeyAvailable)
+				{
+					var key = char.ToLowerInvariant(Console.ReadKey(true).KeyChar);
+					switch (key)
+					{
+						case 's':
+							await Substitute(false, ["sub"]);
+							await LearnShape();
+							break;
+						case 'h': await Shout(["shout"]); break;
+						case 't':
+							if (Ui.Ask(L("Tactic change"), [L("Mentality"), L("Role")]) is { } what)
+							{
+								if (what == 0) await Tactic(false, ["tactic", "mentality"]);
+								else await Tactic(false, ["tactic", "role"]);
+							}
+							break;
+						case 'v': liveView = (liveView + 1) % 3; break;
+						case '+' or '=': await MatchSpeed(1); break;
+						case '-': await MatchSpeed(-1); break;
+					}
+				}
+			}
 			if (live)
 			{
 				if (DateTime.UtcNow - shapeAt > TimeSpan.FromSeconds(10))
@@ -417,10 +466,11 @@ internal static partial class Program
 					stats = await LiveStats(state);
 				}
 				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
-					liveFormation, liveShape, heard.Select(h => $"{h.Minute,6}  {h.Said}"));
+					liveFormation, liveShape, liveView switch { 0 => 8, 1 => 3, _ => 0 },
+					heard.Select(h => $"{h.Minute,6}  {h.Said}"));
 			}
 
-			await Task.Delay(TimeSpan.FromSeconds(3));
+			await Task.Delay(live ? TimeSpan.FromSeconds(1) : TimeSpan.FromSeconds(3));
 		}
 
 		if (Field(state, "DuringMatch") == "True")
