@@ -68,8 +68,9 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 
 ## Quality and reliability
 
-- [ ] `fm start` shows the window full size until the menu. Minimise earlier: PlayerPrefs, a plugin
-  call at start, `open -g -j`, or a separate Space.
+- [~] `fm start` window: it no longer takes focus and is a 320×208 window at the top-left for about
+  45 s, then it disappears. Hiding it earlier needs Accessibility (denied here). An `open -g -j`
+  wrapper hid the menu, but loading a save showed full-size windows, so it was not kept.
 - [~] REPL: a quoted phrase counts as one word.
 - [?] One long MCP run ended with the game quitting; the next run passed all 48 reads. Watch for it.
 - [ ] Remaining position-based reads and fixed waits. `tools/sweep.sh` and a new save show them.
