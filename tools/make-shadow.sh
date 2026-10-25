@@ -14,12 +14,12 @@ SHADOW="${FM_APP:-$HOME/fm26_bep/fm.app}"
 SRC="$GAME/fm.app"
 
 if [ ! -d "$SRC" ]; then
-	echo "Steam paketi yok: $SRC"
-	echo "Steam'den kur ya da FM_HOME ile göster."
+	echo "Steam app not found: $SRC"
+	echo "Install it from Steam, or point at it with FM_HOME."
 	exit 1
 fi
 if [ -d "$SHADOW" ] && [ "${1:-}" != "--force" ]; then
-	echo "Gölge paket zaten var: $SHADOW   (yeniden kurmak için: --force)"
+	echo "Shadow app already exists: $SHADOW   (rebuild with --force)"
 	exit 0
 fi
 
@@ -34,4 +34,4 @@ done
 	|| /usr/libexec/PlistBuddy -c "Set :LSUIElement true" "$SHADOW/Contents/Info.plist" >/dev/null
 codesign --force --sign - "$SHADOW" >/dev/null 2>&1 || true
 
-echo "gölge paket hazır: $SHADOW"
+echo "shadow app ready: $SHADOW"

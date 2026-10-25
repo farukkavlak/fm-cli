@@ -13,5 +13,5 @@ mkdir -p dist
 cp plugin/FmCliProbe/bin/Release/net6.0/FmCliProbe.dll dist/
 
 echo
-echo "hazır: dist/fm/fm (tek dosya, SDK gerekmez)"
+echo "ready: dist/fm/fm (one file, no SDK needed)"
 echo "eklenti: dist/FmCliProbe.dll → BepInEx/plugins/FmCliProbe/"

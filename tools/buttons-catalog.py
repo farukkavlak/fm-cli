@@ -2,11 +2,11 @@
 """Opens every page the game's menus list and writes down the buttons on it: label, element name
 and the events each sends. The label changes with the game's language; the events and the name do
 not, so this is where a command that presses a button by its words finds what to press it by
-instead (BAGIMLILIKLAR §2.2, FINDINGS §8.166).
+instead .
 
 Usage: tools/buttons-catalog.py [output]   (default docs/reference/buttons.txt; the game must be
 between matches). Match Day › Overview is opened last: it stops the screen from being drawn for the
-rest of the session (FINDINGS §8.129).
+rest of the session.
 """
 import json
 import sys

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Runs every read-only command once against the running game and says which failed, how long each
 # took and how much it printed. For a new save, club or game version: a command written against one
-# club's screens shows up here as a failure or an empty answer (FINDINGS §8.155).
+# club's screens shows up here as a failure or an empty answer.
 # Usage: tools/sweep.sh [output-dir]     (the game must be between matches, not on a results screen)
 set -uo pipefail
 OUT="${1:-$(mktemp -d)}"
@@ -25,9 +25,9 @@ for c in "${COMMANDS[@]}"; do
 	rc=$?
 	lines=$(wc -l < "$f" | tr -d ' ')
 	mark="ok"
-	if [ $rc -ne 0 ] || [ "$lines" -eq 0 ]; then mark="HATA"; failed=$((failed + 1)); fi
-	printf "%-5s %-20s rc=%-3s %3ss %4s satır  %s\n" "$mark" "$c" "$rc" "$(( $(date +%s) - start ))" "$lines" "$(head -1 "$f.err" | cut -c1-80)"
+	if [ $rc -ne 0 ] || [ "$lines" -eq 0 ]; then mark="FAIL"; failed=$((failed + 1)); fi
+	printf "%-5s %-20s rc=%-3s %3ss %4s lines  %s\n" "$mark" "$c" "$rc" "$(( $(date +%s) - start ))" "$lines" "$(head -1 "$f.err" | cut -c1-80)"
 done
 echo
-echo "${#COMMANDS[@]} komut, $failed hata. Çıktılar: $OUT"
+echo "${#COMMANDS[@]} commands, $failed failed. Output: $OUT"
 [ $failed -eq 0 ]

@@ -21,7 +21,7 @@ echo "— live status"
 if fm status >/dev/null 2>&1; then
 	fm status | head -4
 else
-	echo "  (oyun köprüsü kapalı; atlandı)"
+	echo "  (game bridge is down; skipped)"
 fi
 
 echo "Smoke: ok"

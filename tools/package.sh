@@ -8,7 +8,7 @@ STAGE=dist/fm-cli-osx-arm64
 ZIP=dist/fm-cli-osx-arm64.zip
 
 if [ ! -d "$GAME/BepInEx" ]; then
-	echo "BepInEx yok: $GAME/BepInEx (önce bu makinede kurulu olmalı)"
+	echo "BepInEx not found: $GAME/BepInEx (install it on this machine first)"
 	exit 1
 fi
 rm -rf "$STAGE"; mkdir -p "$STAGE/bepinex"
@@ -30,8 +30,8 @@ cd "${0:A:h}"
 GAME="${FM_HOME:-$HOME/Library/Application Support/Steam/steamapps/common/Football Manager 26}"
 SHADOW="${FM_APP:-$HOME/fm26_bep/fm.app}"
 export FM_HOME="$GAME"
-[ -d "$GAME" ] || { echo "Oyun yok: $GAME"; exit 1; }
-echo "BepInEx kuruluyor…"
+[ -d "$GAME" ] || { echo "Game not found: $GAME"; exit 1; }
+echo "installing BepInEx…"
 cp -R bepinex/. "$GAME/"
 mkdir -p "$GAME/BepInEx/plugins/FmCliProbe" "$HOME/.local/bin"
 cp FmCliProbe.dll "$GAME/BepInEx/plugins/FmCliProbe/"
@@ -39,21 +39,21 @@ cp fm "$HOME/.local/bin/fm"; chmod +x "$HOME/.local/bin/fm"
 if [ ! -d "$SHADOW" ]; then
 	./make-shadow.sh
 fi
-echo "Kurulum denetleniyor…"
+echo "checking the install…"
 "$HOME/.local/bin/fm" doctor --install
 INSTALL
 chmod +x "$STAGE/install.sh" "$STAGE/make-shadow.sh"
 cat > "$STAGE/NOTICE.txt" <<'NOTICE'
-Bu paket BepInEx 6 (IL2CPP, arm64) içerir — https://github.com/BepInEx/BepInEx — LGPL-2.1.
-BepInEx'in ve FM26 Player Export (macOS) paketinin lisansları kendi projelerine aittir; kaynak
-kodları yukarıdaki adreste bulunur. fm-cli eklentisi (FmCliProbe) bu depoya aittir.
+This package contains BepInEx 6 (IL2CPP, arm64) — https://github.com/BepInEx/BepInEx — LGPL-2.1.
+BepInEx and the FM26 Player Export (macOS) package keep their own licenses; their source is at the
+address above. The fm-cli plugin (FmCliProbe) belongs to this repository.
 NOTICE
 cat > "$STAGE/README.txt" <<'TXT'
 fm-cli (macOS, Apple Silicon)
-1) Football Manager 26'yı Steam'den kur.
-2) Bu klasörü aç ve ./install.sh çalıştır.
-3) fm doctor --install ile denetle; fm start ile başlat.
-BepInEx 6 IL2CPP arm64 ve eklentisi bu pakette (lisans: NOTICE.txt).
+1) Install Football Manager 26 from Steam.
+2) Unpack this folder and run ./install.sh.
+3) Check with fm doctor --install; start with fm start.
+BepInEx 6 IL2CPP arm64 and its plugin are in this package (license: NOTICE.txt).
 TXT
 (cd dist && rm -f fm-cli-osx-arm64.zip && zip -qr fm-cli-osx-arm64.zip fm-cli-osx-arm64)
 ls -lh "$ZIP"

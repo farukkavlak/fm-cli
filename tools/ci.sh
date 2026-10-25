@@ -24,7 +24,7 @@ BEP="${FM26_BEP:-$HOME/fm26_bep}"
 if [[ -f "$BEP/BepInEx/core/BepInEx.Core.dll" ]]; then
 	dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release --nologo
 else
-	echo "  (oyun interop derlemeleri yok; atlandı)"
+	echo "  (game interop assemblies not found; skipped)"
 fi
 
 echo "CI: ok"
