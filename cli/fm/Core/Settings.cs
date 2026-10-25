@@ -26,8 +26,10 @@ internal static partial class Program
 			for (var take = words.Count; take >= 1 && wanted == null; take--)
 			{
 				var name = Fold(string.Join(" ", words.Take(take)));
-				var hits = Settings.Where(s => Fold(s.Name) == name).ToList();
-				if (hits.Count == 0) hits = Settings.Where(s => Fold(s.Name).StartsWith(name, StringComparison.Ordinal)).ToList();
+				// The name may be typed in the game's language or in the English source.
+				bool Named(Setting setting, Func<string, bool> test) => test(Fold(setting.Name)) || test(Fold(Labels.Source(setting.Name)));
+				var hits = Settings.Where(s => Named(s, spelled => spelled == name)).ToList();
+				if (hits.Count == 0) hits = Settings.Where(s => Named(s, spelled => spelled.StartsWith(name, StringComparison.Ordinal))).ToList();
 				if (hits.Count != 1) continue;
 				wanted = hits[0];
 				value = take < words.Count ? string.Join(" ", words.Skip(take)) : null;

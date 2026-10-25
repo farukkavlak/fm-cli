@@ -16,6 +16,7 @@ internal static class Labels
 	private static string? shown;     // the language the CLI prints in
 	private static string? choice;    // the user's choice; "" follows the game
 	private static Dictionary<string, string>? english;
+	private static Dictionary<string, string>? source;
 
 	// The language the game was last seen in, for what is printed before the game has answered.
 	private static string GameCacheFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "language");
@@ -129,6 +130,19 @@ internal static class Labels
 		if (MissingFile != null)
 			try { File.AppendAllText(MissingFile, key.Replace("\t", "\\t").Replace("\n", "\\n") + "\n"); } catch { }
 		return null;
+	}
+
+	/// <summary>The English source of a translated label, or the label itself when it is not one.</summary>
+	public static string Source(string shown)
+	{
+		var table = Labels.english ??= Load();
+		if (table.Count == 0) return shown;
+		if (source == null)
+		{
+			source = new Dictionary<string, string>(StringComparer.Ordinal);
+			foreach (var (key, value) in table) source.TryAdd(value, key);
+		}
+		return source.TryGetValue(shown, out var sourceKey) ? sourceKey : shown;
 	}
 
 	private static Dictionary<string, string> Load()

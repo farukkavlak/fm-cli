@@ -118,4 +118,5 @@ tools/                 install, package, publish, tests, dumps
 tools/ci.sh        # CLI, tests, publish; no game needed
 tools/smoke.sh     # build, plugin, tests, published CLI, live status
 tools/sweep.sh     # run every read-only command against the running game
+python3 tools/mcp-check.py   # real MCP client, read-only (needs: pip install mcp)
 ```

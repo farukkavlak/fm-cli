@@ -74,7 +74,8 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [ ] Remaining position-based reads and fixed waits. `tools/sweep.sh` and a new save show them.
 - [~] An English game end to end: the sweep and one match were checked; a full season has not been
   played in English.
-- [~] MCP: the tools answer over stdio by hand; a real MCP client has not been tested.
+- [~] MCP: 48 read tools pass with the Python SDK (`tools/mcp-check.py`, 98 tools listed);
+  write tools have not been exercised.
 
 ## Portability tests
 

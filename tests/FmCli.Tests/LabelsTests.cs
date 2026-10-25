@@ -17,6 +17,10 @@ public class LabelsTests
 	public void ParsesLanguageNames(string text, string expected) =>
 		Assert.Equal(expected, Labels.Parse(text));
 
+	[Fact]
+	public void FindsTheEnglishSourceOfATranslatedLabel() =>
+		Assert.Equal("highlight speed", Labels.Source("vurgu hızı"));
+
 	[Theory]
 	[InlineData("klingon")]
 	[InlineData("deutsch")]
