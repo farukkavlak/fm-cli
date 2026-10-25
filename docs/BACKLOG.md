@@ -76,12 +76,17 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
   call at start, `open -g -j`, or a separate Space.
 - [~] REPL: a quoted phrase counts as one word.
 - [ ] Remaining position-based reads and fixed waits. `tools/sweep.sh` and a new save show them.
+- [ ] An English game end to end. The CLI was forced to English on a Turkish game; an English game
+  itself has not been played since the labels flip.
+- [~] MCP: the tools answer over stdio by hand; a real MCP client has not been tested.
 
 ## Portability tests
 
 - [ ] Another country and league: a new career, then `tools/sweep.sh`, then play.
 - [ ] Another theme and interface scale: control names, tree depth, virtual row counts.
 - [ ] Intel, Epic, Game Pass and Windows: unsupported for now.
+- [ ] A clean machine: the package and install checks pass, but the second macOS user has no Steam,
+  so the game has not been launched there.
 
 ## Natural language (later; local only)
 
