@@ -466,7 +466,7 @@ internal static partial class Program
 					stats = await LiveStats(state);
 				}
 				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
-					liveFormation, liveShape, liveView switch { 0 => 8, 1 => 3, _ => 0 },
+					liveFormation, liveShape, liveView,
 					heard.Select(h => $"{h.Minute,6}  {h.Said}"));
 			}
 

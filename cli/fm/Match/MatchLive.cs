@@ -20,7 +20,7 @@ internal static class MatchLive
 
 	/// <summary>Draws the panel when its text changed. Nothing when the output is not a terminal.</summary>
 	public static void Draw(string board, string minute, string period, string stats, string formation,
-		IReadOnlyList<(string Spot, string Player)> shape, int keep, IEnumerable<string> events)
+		IReadOnlyList<(string Spot, string Player)> shape, int view, IEnumerable<string> events)
 	{
 		if (!Ui.Rich) return;
 
@@ -39,21 +39,39 @@ internal static class MatchLive
 		if (stats.Length > 0) lines.Add($"  \x1b[2m{stats}\x1b[0m");
 		if (shape.Count > 0) lines.AddRange(PitchLines(formation, shape, Width));
 		lines.Add("  " + new string('─', Width));
-		var shown = keep <= 0 ? [] : events.OrderBy(Seconds).TakeLast(keep).ToList();
-		if (shown.Count == 0) lines.Add($"  \x1b[2m{L("Waiting for the first event…")}\x1b[0m");
+		var shown = view == 2
+			? []
+			: events.OrderBy(Seconds).Where(e => view == 0 || KeyMoment(e)).TakeLast(8).ToList();
+		if (shown.Count == 0 && view != 2)
+			lines.Add($"  \x1b[2m{(view == 1 ? L("No key moments yet.") : L("Waiting for the first event…"))}\x1b[0m");
 		foreach (var line in shown)
 		{
 			var fitted = line.Length > Width ? line[..(Width - 1)] + "…" : line;
 			lines.Add("  " + fitted);
 		}
 		lines.Add("");
-		lines.Add($"  \x1b[2m{L("[s] sub · [h] shout · [t] tactic · [v] view · [+/-] speed")}\x1b[0m");
+		var mode = view switch { 0 => L("full"), 1 => L("key moments"), _ => L("score only") };
+		lines.Add($"  \x1b[2m{L("[s] sub · [h] shout · [t] tactic · [v] view · [+/-] speed")}   [{mode}]\x1b[0m");
 
 		var text = string.Join("\n", lines);
 		if (text == last) return;
 		last = text;
 		Console.Write("\x1b[H\x1b[2J");
 		Console.WriteLine(text);
+	}
+
+	// The words that make a line a key moment, in the two languages the CLI can read. Unknown
+	// languages fall back to the full commentary rather than hiding everything.
+	private static readonly string[] KeyWords =
+	[
+		"gol", "goal", "sarı kart", "kirmizi kart", "kırmızı kart", "yellow card", "red card", "sent off",
+		"sakat", "injur", "değişiklik", "degisiklik", "substitut", "penaltı", "penalt", "own goal", "kendi kalesine",
+	];
+
+	internal static bool KeyMoment(string line)
+	{
+		var text = line.ToLowerInvariant();
+		return KeyWords.Any(word => text.Contains(word, StringComparison.Ordinal));
 	}
 
 	/// <summary>A small pitch: one line per phase, the player's surname in his lane.</summary>

@@ -164,7 +164,7 @@ fm opponent          # the next opponent: form, formation, key players, news
 At a terminal, `match --play` draws a live panel: score, clock, period, the chosen shape as a small
 pitch, the last events and the commands that work during the match. A redirected run or an MCP call
 keeps the plain line-by-line output. Keys during play: `s` substitution, `h` shout, `t` tactic
-(mentality or role), `v` view (full, short, score only), `+`/`-` speed (when the match screen offers it; otherwise it points to settings). The pitch
+(mentality or role), `v` view (full, key moments, score only), `+`/`-` speed (when the match screen offers it; otherwise it points to settings). The pitch
 refreshes after a substitution; at an injury stop it names the player and asks who comes on. Live possession/shots are not in the game's bindings during
 a match, so they appear in `report` after the whistle.
 
