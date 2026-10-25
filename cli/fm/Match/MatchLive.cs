@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace FmCli;
 
 /// <summary>
@@ -9,7 +11,7 @@ internal static class MatchLive
 	private static string? last;
 
 	/// <summary>The panel's inner width: the terminal's, with a floor and a ceiling.</summary>
-	private static int Width
+	internal static int Width
 	{
 		get
 		{
@@ -18,9 +20,20 @@ internal static class MatchLive
 		}
 	}
 
+	/// <summary>The terminal's height, used to keep the radar from scrolling the panel.</summary>
+	internal static int Height
+	{
+		get
+		{
+			try { return Math.Clamp(Console.WindowHeight, 20, 80); }
+			catch { return 40; }
+		}
+	}
+
 	/// <summary>Draws the panel when its text changed. Nothing when the output is not a terminal.</summary>
 	public static void Draw(string board, string minute, string period, string stats, string formation,
-		IReadOnlyList<(string Spot, string Player)> shape, int view, PanelConfig config, IEnumerable<string> events)
+		IReadOnlyList<(string Spot, string Player)> shape, int view, PanelConfig config, IEnumerable<string> events,
+		IReadOnlyList<string>? radar = null)
 	{
 		if (!Ui.Rich) return;
 
@@ -38,7 +51,12 @@ internal static class MatchLive
 				? minute * 60 + second : int.MaxValue;
 		}
 		if (stats.Length > 0) lines.Add($"  {Paint("2", stats)}");
-		if (config.Pitch && shape.Count > 0) lines.AddRange(PitchLines(formation, shape, Width));
+		if (radar is { Count: > 0 }) lines.AddRange(radar);
+		// The radar already shows the shape; on a short terminal it takes the shape pitch's
+		// place rather than scrolling the panel off the top.
+		var showShape = config.Pitch && shape.Count > 0
+			&& (radar is not { Count: > 0 } || Height >= 40);
+		if (showShape) lines.AddRange(PitchLines(formation, shape, Width));
 		lines.Add("  " + new string('─', Width));
 		var count = Math.Clamp(config.Events, 0, 12);
 		var shown = view == 2 || count == 0
@@ -53,7 +71,7 @@ internal static class MatchLive
 		}
 		lines.Add("");
 		var mode = view switch { 0 => L("full"), 1 => L("key moments"), _ => L("score only") };
-		lines.Add($"  {Paint("2", L("[s] sub · [h] shout · [t] tactic · [v] view · [+/-] speed") + $"   [{mode}]")}");
+		lines.Add($"  {Paint("2", L("[s] sub · [h] shout · [t] tactic · [v] view · [a] radar · [+/-] speed") + $"   [{mode}]")}");
 
 		var text = string.Join("\n", lines);
 		if (text == last) return;

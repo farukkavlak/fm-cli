@@ -60,6 +60,7 @@ internal static partial class FmApi
 		"translate" => Translations.Open(q),
 		"money" => Translations.Money(q["values"]),
 		"shot" => Shot(q),
+		"radar" => Radar(),
 		"repaint" => Repaint(q["how"]),
 		"visible" => Visible(q["text"]),
 		"layers" => Layers(q["name"] ?? "PanelManager-container", Int(q["depth"], 3)),

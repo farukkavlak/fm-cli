@@ -66,8 +66,15 @@ sending it. Irreversible commands ask at a terminal and need `--yes` in a script
 
 `fm match --play` plays the match day in the terminal. At a terminal it draws a live panel with the
 score, clock, period, a small pitch of the chosen shape, the last eight events and the commands that
-work during the match (keys: `s` sub, `h` shout, `t` tactic, `v` view (full / key moments / score only), `+/-` speed). A
+work during the match (keys: `s` sub, `h` shout, `t` tactic, `v` view (full / key moments / score only), `a` radar on/off, `+/-` speed). A
 redirected run, or an MCP call, keeps the plain line-by-line output.
+
+The radar is a top-down picture of the match from the game's own simulation: the ball and every
+player are entities with a position, so the panel draws the real shape and movement, not a guess
+from a screenshot. The plugin's `/radar` route returns normalized positions (`x`, `y`), the ball's
+height and each player's shirt number, kit colour and substitute flag. It refreshes every couple of
+seconds; `a` hides it when the panel is too tall. On a short terminal the radar takes the shape
+pitch's place so the panel does not scroll, and its rows are capped to the window height.
 
 ![Live match panel](manual/img/match/live-match.png)
 
@@ -169,7 +176,7 @@ fm — run Football Manager 26 from the terminal
   settings        game settings: match display and speed, auto save, language, currency, units
   settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x); with no value it is chosen with the arrow keys
   lang            CLI language: english, turkish or auto (follow the game); FM_LANG also works
-  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off]   the live match panel
+  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off]   the live match panel
   happiness       the players' happiness, unhappiest first
     happiness <player>   why: morale, their place in the dressing room, what pleases them and what they complain about
     --why           everyone with a complaint, with their complaints

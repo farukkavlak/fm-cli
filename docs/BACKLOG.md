@@ -47,12 +47,18 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [~] Match stats: possession, shots, on target, xG, corners, fouls; no passes or heat map.
 - [~] Text highlight summary; no minute-by-minute list of key events.
 - [?] Real-time in-match management (a different problem).
-- [~] Live match screen: the panel shows the score, clock, period, a shape pitch and the last eight
-  events; the pitch refreshes after substitutions, and an injury stop names the player and asks who
-  comes on. Keys: `s` substitution, `h` shout, `t` tactic, `v` view (full / key moments / score
-  only; key moments are goals, cards, injuries, substitutions and penalties), `+`/`-` speed.
-  Panel settings live in `~/.config/fm-cli/panel.json` and `fm settings panel` (view, pitch, event
-  count, colour). Still to do: live player/ball positions and the optional ASCII 3D view.
+- [~] Live match screen: the panel shows the score, clock, period, a shape pitch, the real radar and
+  the last eight events; the pitch refreshes after substitutions, and an injury stop names the
+  player and asks who comes on. Keys: `s` substitution, `h` shout, `t` tactic, `v` view (full / key
+  moments / score only; key moments are goals, cards, injuries, substitutions and penalties), `a`
+  radar on/off, `+`/`-` speed. Panel settings live in `~/.config/fm-cli/panel.json` and
+  `fm settings panel` (view, pitch, event count, colour, radar). The radar reads the ball and every
+  player from the game's match simulation, so it shows the live shape rather than a guess.
+  Still to do: player names on the radar (the simulation gives only shirt number and player index),
+  an explicit team id (the list order and substitutes are used for now) and the optional ASCII 3D
+  view.
+- [~] Radar visual styles: TrueColor half-block, braille and isometric prototypes are in
+  `docs/experiments/radar-styles`; none is wired into the CLI yet.
 - [?] Live match stats: the bindings carry `LastFixture`/`NextFixture` only, and during a match
   `IsLiveMatch` is false, so shots/possession are not live. Read the match stats page or use the
   post-match report.

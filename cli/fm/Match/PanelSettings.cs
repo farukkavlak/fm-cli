@@ -46,6 +46,17 @@ internal static partial class Program
 					at++;
 					break;
 				}
+				case "radar" or "map":
+				{
+					if (at >= words.Count || Flag(words[at]) is not { } on)
+					{
+						Console.Error.WriteLine(L("The radar must be on or off."));
+						return 64;
+					}
+					config = config with { Radar = on };
+					at++;
+					break;
+				}
 				case "colour" or "color":
 				{
 					if (at >= words.Count || Flag(words[at]) is not { } colour)
@@ -61,7 +72,7 @@ internal static partial class Program
 					config = PanelConfig.Default;
 					break;
 				default:
-					Console.Error.WriteLine(L($"'{what}' is not a panel setting: view, pitch, events, colour, reset"));
+					Console.Error.WriteLine(L($"'{what}' is not a panel setting: view, pitch, events, colour, radar, reset"));
 					return 64;
 			}
 		}
@@ -82,8 +93,8 @@ internal static partial class Program
 		var view = L(config.View switch { "key" => "key moments", "score" => "score only", _ => "full" });
 		var on = L("on");
 		var off = L("off");
-		Console.WriteLine(Lf("Panel: {0} · pitch {1} · {2} events · colour {3}",
-			view, config.Pitch ? on : off, config.Events, config.Colour ? on : off));
+		Console.WriteLine(Lf("Panel: {0} · pitch {1} · {2} events · colour {3} · radar {4}",
+			view, config.Pitch ? on : off, config.Events, config.Colour ? on : off, config.Radar ? on : off));
 		Console.WriteLine(Lf("File: {0}", PanelConfig.File));
 		return 0;
 	}

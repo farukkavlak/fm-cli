@@ -169,6 +169,7 @@ internal static partial class Program
 		var shapeAt = DateTime.MinValue;
 		var panel = PanelConfig.Load();
 		var liveView = panel.ViewIndex;
+		var radarOn = panel.Radar;
 		// Our squad's names tell our men from theirs in the match's list of players.
 		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
@@ -449,6 +450,7 @@ internal static partial class Program
 							}
 							break;
 						case 'v': liveView = (liveView + 1) % 3; break;
+						case 'a': radarOn = !radarOn; break;
 						case '+' or '=': await MatchSpeed(1); break;
 						case '-': await MatchSpeed(-1); break;
 					}
@@ -466,9 +468,14 @@ internal static partial class Program
 					statsAt = DateTime.UtcNow;
 					stats = await LiveStats(state);
 				}
+				var frame = radarOn ? await ReadRadar() : null;
+				var radarLines = frame == null
+					? null
+					: RadarLines(frame, MatchLive.Width - 2, panel.Colour, Field(state, "HumanIsHome") == "True",
+						Math.Clamp(MatchLive.Height - 28, 6, 22)).ToList();
 				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
 					liveFormation, liveShape, liveView, panel,
-					heard.Select(h => $"{h.Minute,6}  {h.Said}"));
+					heard.Select(h => $"{h.Minute,6}  {h.Said}"), radarLines);
 			}
 
 			await Task.Delay(live ? TimeSpan.FromSeconds(1) : TimeSpan.FromSeconds(3));

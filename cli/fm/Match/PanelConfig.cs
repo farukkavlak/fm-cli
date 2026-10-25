@@ -7,9 +7,9 @@ namespace FmCli;
 /// The live match panel's own settings, kept apart from the game's preferences:
 /// view (full / key moments / score only), the pitch, how many events and colours.
 /// </summary>
-internal sealed record PanelConfig(string View, bool Pitch, int Events, bool Colour)
+internal sealed record PanelConfig(string View, bool Pitch, int Events, bool Colour, bool Radar)
 {
-	public static PanelConfig Default { get; } = new("full", true, 8, true);
+	public static PanelConfig Default { get; } = new("full", true, 8, true, true);
 
 	public static string File => Path.Combine(
 		Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "panel.json");
@@ -19,12 +19,18 @@ internal sealed record PanelConfig(string View, bool Pitch, int Events, bool Col
 	{
 		try
 		{
-			var saved = JsonSerializer.Deserialize<PanelConfig>(System.IO.File.ReadAllText(File));
+			var json = System.IO.File.ReadAllText(File);
+			var saved = JsonSerializer.Deserialize<PanelConfig>(json);
 			if (saved == null) return Default;
+			// A panel.json from before the radar has no Radar key at all; the default is on,
+			// and a missing bool would otherwise read as off.
+			using var document = JsonDocument.Parse(json);
+			var hasRadar = document.RootElement.TryGetProperty("Radar", out _);
 			return saved with
 			{
 				View = ParseView(saved.View) ?? Default.View,
 				Events = Math.Clamp(saved.Events, 0, 12),
+				Radar = hasRadar ? saved.Radar : Default.Radar,
 			};
 		}
 		catch { return Default; }

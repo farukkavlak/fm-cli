@@ -47,6 +47,7 @@
 - `Core/Reads.cs` — search and player; `Reads.Squad.cs` — squad views; `Reads.League.cs` — league,
   fixtures, progress; `Reads.Player.cs` — player card and history.
 - `Match/MatchDay.cs` — main loop; `MatchLive.cs` — score/clock/event panel at a terminal;
+  `MatchRadar.cs` — the `/radar` frame, parsing and the pitch drawing;
   `PanelConfig.cs` + `PanelSettings.cs` — the panel file and `fm settings panel`;
   `MatchDay.Instant.cs` — instant result; `MatchDay.Team.cs` — lineups; `MatchDay.Substitute.cs` —
   substitutions; `MatchDay.Dialog.cs` — confirmations.
@@ -62,6 +63,8 @@
 - `Core/Mcp.cs` + `Mcp.Tools.cs` — protocol and tool catalog.
 - `Core/Settings.cs` + `.Catalog.cs` + `.Preferences.cs` + `.Draw.cs` — command, catalog, navigation,
   matching and drawing.
+- `tools/radar-capture.py` + `radar-styles.py` + `radar-gif.py` — capture `/radar` frames and render
+  them in the pixel, braille and isometric styles (see `docs/experiments/radar-styles`).
 
 Add a command in a new file of the same `Program` partial; do not grow `Program.cs`. Keep reads and
 writes of one command together. Reuse `Table`/`Ui` before adding a formatter.
@@ -69,7 +72,7 @@ writes of one command together. Reuse `Table`/`Ui` before adding a formatter.
 ## Plugin
 
 - `Bridge/` — `FmApi` (HTTP surface) + `FmApi.System.cs`, `HttpBridge`, `Plugin`, `Game`, `State`,
-  `Send`, `Schema`, interop.
+  `Send`, `Schema`, interop; `Radar.cs` — the live `MatchSimulationData` read.
 - `Controls/` — `Buttons` + `Buttons.Controls.cs` (catalog/click/queue) + `Buttons.Runtime.cs`
   (render, shape, pointer), forms, radios, rows, submenus, dialogs.
 - `Reads/` — pages, panels, text/translation, player card, offer, tactics, saves.

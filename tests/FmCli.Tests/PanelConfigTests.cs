@@ -23,8 +23,8 @@ public class PanelConfigTests
 	[Fact]
 	public void ViewIndexFollowsTheCycle()
 	{
-		Assert.Equal(0, new PanelConfig("full", true, 8, true).ViewIndex);
-		Assert.Equal(1, new PanelConfig("key", true, 8, true).ViewIndex);
-		Assert.Equal(2, new PanelConfig("score", true, 8, true).ViewIndex);
+		Assert.Equal(0, new PanelConfig("full", true, 8, true, true).ViewIndex);
+		Assert.Equal(1, new PanelConfig("key", true, 8, true, true).ViewIndex);
+		Assert.Equal(2, new PanelConfig("score", true, 8, true, true).ViewIndex);
 	}
 }

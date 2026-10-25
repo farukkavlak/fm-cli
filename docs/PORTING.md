@@ -121,6 +121,12 @@ What can still break when the language, theme, terminal, machine or game version
 - **Live panel.** It uses ANSI clear/colours and `Console.KeyAvailable`; this is a POSIX terminal
   and macOS. The width adapts to the terminal (56–86 columns), but below that the panel wraps.
   Keys are off when input is redirected, so scripts and MCP keep plain output.
+- **Radar.** The plugin reads `FM.Match.Simulation.Match2DSimulation.m_data` (a live MonoBehaviour)
+  and falls back to the binding tree and `MatchSimulationData.GetInstance`; the type moved between
+  game versions, so re-check `FM.Match.dll` when porting. Positions are normalized to the pitch;
+  the player list order is what separates the two teams, because the simulation data carries no
+  team id or name. The fallback from the binding tree only has data while a screen binds it.
+  On a short terminal the radar replaces the shape pitch and its rows are capped to the window.
 - **Key moments.** The filter looks for Turkish and English marker words; another language falls back to the full commentary. Extend `MatchLive.KeyWords` or filter by game events when adding a language.
 - **Live stats.** During a match the bindings only hold `LastFixture`/`NextFixture` and
   `IsLiveMatch` is false; no live possession/shots. The post-match report has them.

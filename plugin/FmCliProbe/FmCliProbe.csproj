@@ -43,6 +43,7 @@
     <Reference Include="Unity.Addressables"><HintPath>$(BepInterop)/Unity.Addressables.dll</HintPath></Reference>
     <Reference Include="Unity.ResourceManager"><HintPath>$(BepInterop)/Unity.ResourceManager.dll</HintPath></Reference>
     <Reference Include="FM.UI"><HintPath>$(BepInterop)/FM.UI.dll</HintPath></Reference>
+    <Reference Include="FM.Match"><HintPath>$(BepInterop)/FM.Match.dll</HintPath></Reference>
     <Reference Include="FMGame"><HintPath>$(BepInterop)/FMGame.dll</HintPath></Reference>
     <Reference Include="SI.Bindable"><HintPath>$(BepInterop)/SI.Bindable.dll</HintPath></Reference>
     <Reference Include="SI.UI"><HintPath>$(BepInterop)/SI.UI.dll</HintPath></Reference>

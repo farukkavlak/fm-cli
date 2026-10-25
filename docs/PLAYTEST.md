@@ -21,9 +21,9 @@
 - [ ] At the start of a season, squad numbers can be sent with `numbers --auto`.
 - [ ] `match --instant` prints **this** match's score, not the previous report.
 - [ ] `match --play` gets through narration, goals, half time and full time.
-- [ ] At a terminal, `match --play` shows the live score/event panel and the shape pitch; a redirected
-  run stays line-by-line.
-- [ ] `fm settings panel view key pitch off events 5 colour off` changes the next match; `reset` restores.
+- [ ] At a terminal, `match --play` shows the live score/event panel, the shape pitch and the radar;
+  `a` hides and shows the radar; a redirected run stays line-by-line.
+- [ ] `fm settings panel view key pitch off events 5 colour off radar off` changes the next match; `reset` restores.
 - [ ] `next` closes the result screen afterwards and the bridge still answers.
 
 ## Known break points
