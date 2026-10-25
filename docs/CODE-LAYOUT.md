@@ -37,7 +37,8 @@
   `Messages.SquadCards.cs` — internationals, expiring contracts, recommendations, match prep,
   bid card; `Messages.Inbox.cs` — message reading and number memory.
 - `Program/Program.Ui.cs` — button/page commands; `Program.Ui.Helpers.cs` — press/select helpers;
-  `Program.Help.cs` + `Core/HelpEnglish.cs` — help text.
+  `Program.Help.cs` + `Core/HelpEnglish.cs` — help text. The whole help is one entry in
+  `labels-turkish.tsv`; update its Turkish value when the English text changes.
 
 ## Other splits
 

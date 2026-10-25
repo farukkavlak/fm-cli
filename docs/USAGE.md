@@ -79,7 +79,7 @@ fm — run Football Manager 26 from the terminal
                               "Fee=Non-Negotiable"); --loan a loan, --dry do not send
                   cannot be undone: asks in a terminal, wants --yes in a script
   targets         transfer targets: the budget left and thin positions in the squad
-  targets <position> [--max-value <money>] [the search options of players]   players in that position the budget allows ("targets DL", "targets \"left back\" --age 18-24")
+  targets <position> [--max-value <money>] [the search options of players]   players in that position the budget allows ("targets DL", "targets 'left back' --age 18-24")
   players         the player search (the rows on screen)
     --filters / --filter "<x>"   the ready filters: Transfer Listed, Contract Expiring…
     --free                       free agents (contract expired; the "Contract Expired" filter)
