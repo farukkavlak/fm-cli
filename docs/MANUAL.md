@@ -181,6 +181,19 @@ a match, so they appear in `report` after the whistle.
 
 ![fm match --play](manual/img/match/live-match.png)
 
+*The live panel with the `iso` radar (Empoli – Avellino, 4 March 2029).* The seven radar styles, each
+from `fm settings panel radar <style>`, which previews a frame from a real match:
+
+| | |
+|---|---|
+| `pixel` ![pixel](manual/img/match/radar-pixel.png) | `iso` ![iso](manual/img/match/radar-iso.png) |
+| `raycast` ![raycast](manual/img/match/radar-raycast.png) | `voxel` ![voxel](manual/img/match/radar-voxel.png) |
+| `braille` ![braille](manual/img/match/radar-braille.png) | `colour` ![colour](manual/img/match/radar-colour.png) |
+| `ascii` ![ascii](manual/img/match/radar-ascii.png) | |
+
+Moving versions from real matches are in `docs/experiments/live-gifs/`. Screenshots are drawn with
+`tools/manual-shot.py` (a command in a 24-bit colour pty, or a frame from `tools/live-capture.py`).
+
 The panel's own settings live in `~/.config/fm-cli/panel.json`; change them with `fm settings`:
 
 ```bash
