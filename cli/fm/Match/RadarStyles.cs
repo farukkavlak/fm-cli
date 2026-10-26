@@ -62,7 +62,7 @@ internal static partial class Program
 		if (cols < minCols || rowsFor(cols) > maxRows)
 		{
 			var need = rowsFor(minCols);
-			return ["  " + Lf("The radar needs at least {0}×{1} cells; this terminal leaves {2}×{3}. Make it bigger, or press r for another style.",
+			return ["  " + Lf("The radar needs at least {0}×{1} cells; this terminal leaves {2}×{3}. Make it bigger, press r for another style, or a to hide it.",
 				minCols, need, Math.Max(0, maxCols), Math.Max(0, maxRows))];
 		}
 		var men = Squads(frame, sides, colour);
