@@ -97,6 +97,7 @@ internal static partial class FmApi
 		"regtoggle" => Registration.Toggle(q),
 		"regscroll" => Registration.ScrollTo(q),
 		"pickplayer" => Tactics.Pick(q),
+		"pickable" => Tactics.Pickable(q),
 		"bindprop" => Materialise.Property(q["path"], q["name"]),
 		"buttons" => Buttons.Catalog(q),
 		"press" => Buttons.Press(q),

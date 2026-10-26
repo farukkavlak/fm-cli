@@ -118,7 +118,8 @@ fm query "age<23 and potential>140" [--sort field] [--asc]
 fm tactic                    # shape, style, mentality, roles, familiarity
 fm tactic pick               # let the game pick the eleven
 fm tactic role <position> [<role>] [--oop]
-fm tactic player <position> <player>
+fm tactic player <position> <player>    # anyone in the squad; the one there goes to the bench
+fm tactic player <substitute> <player>  # swap a substitute (an injured one) for another
 fm tactic instructions ["<instruction>" [<value>]]
 fm tactic pi <position|player> ["<instruction>" [<value>]]
 fm opposition [<player> <instruction>=<value>]

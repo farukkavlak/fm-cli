@@ -30,6 +30,10 @@ internal static partial class Program
 			// Each setting is a dropdown on the planner, known by something only it offers.
 			case "mentality": return await TacticSetting(L("Mentality"), "MentalityString", "Very Defensive", wanted, dry);
 			case "style": return await TacticSetting(L("Style"), "Style", "Gegenpress", wanted, dry);
+			// "pick DL" once ran the whole Quick Pick and replaced two starters (29 Nisan 2029).
+			case "pick" when words.Count > 1:
+				Console.Error.WriteLine(L("tactic pick lets the assistant choose the whole eleven and takes nothing after it. For one position: tactic player <position> <player>"));
+				return 64;
 			case "pick": return await TacticPick(dry);
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
@@ -153,43 +157,53 @@ internal static partial class Program
 		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
 		var spots = slots.Select(s => Spot(Field(s, "IPPosition"))).ToList();
 		var squad = tactic.TryGetProperty("Squad", out var listed) ? listed.EnumerateArray().Where(e => Field(e, "PlayerIndex") != "-1").ToList() : [];
+		var benchNames = squad.Select(e => Field(e, "Name")).ToList();
 
-		if (words.Count < 2 && Ui.Interactive && squad.Count > 0)
+		if (words.Count == 0 && Ui.Interactive && squad.Count > 0)
 		{
-			if (words.Count == 0)
-			{
-				if (Ui.Ask(L("Which position?"), SlotLabels(slots, "IPRoleName")) is not { } slotAsked) return 0;
-				words.Add(spots[slotAsked]);
-			}
-			var benchNames = squad.Select(e => Field(e, "Name")).ToList();
-			if (Ui.Ask(L($"Who plays {words[0]}?"), benchNames) is not { } asked) return 0;
-			words.Add(benchNames[asked]);
+			if (Ui.Ask(L("Which position?"), SlotLabels(slots, "IPRoleName")) is not { } slotAsked) return 0;
+			words.Add(spots[slotAsked]);
 		}
-
-		if (words.Count < 2)
+		if (words.Count == 0)
 		{
 			Console.Error.WriteLine(L($"usage: tactic player <position> <player>   positions: {string.Join(" ", spots)}"));
-			if (squad.Count > 0) Console.Error.WriteLine(L($"substitutes: {string.Join(", ", squad.Select(e => Field(e, "Name")))}"));
+			if (squad.Count > 0) Console.Error.WriteLine(L($"substitutes: {string.Join(", ", benchNames)}"));
 			return 64;
 		}
 
-		if (Choose(spots, words[0], L("Position")) is not { } spot) return 1;
+		// A substitute's place has no position, so it goes by who is in it now: "tactic player Tosto
+		// Nabian" took an injured man off the bench, which the game will not start a match with.
+		if (Choose([.. spots, .. benchNames], words[0], L("Position")) is not { } spot) return 1;
 		var at = spots.IndexOf(spot);
+		var place = at >= 0 ? slots[at] : squad[benchNames.IndexOf(spot)];
+		var slot = Field(place, at >= 0 ? "TeamSelectionIndex" : "Index");
+		var current = Field(place, at >= 0 ? "Player" : "Name");
+		var label = at >= 0 ? spot : L("bench");
 
-		var names = squad.Select(e => Field(e, "Name")).ToList();
+		// Everyone the place's own list offers, the reserves too; the match squad when it cannot be read.
+		var offered = await SlotChoices(slot) ?? squad.Select(e => (Index: Field(e, "PlayerIndex"), Name: Field(e, "Name"))).ToList();
+		var names = offered.Select(o => o.Name).ToList();
 		if (names.Count == 0)
 		{
 			Console.Error.WriteLine(L("The matchday squad is empty; first: tactic pick"));
 			return 1;
 		}
+		if (words.Count < 2)
+		{
+			if (!Ui.Interactive)
+			{
+				Console.Error.WriteLine(L($"usage: tactic player <position> <player>   positions: {string.Join(" ", spots)}"));
+				return 64;
+			}
+			if (Ui.Ask(L($"Who plays {label}?"), names) is not { } asked) return 0;
+			words.Add(names[asked]);
+		}
 		if (Choose(names, words[1], L("Player")) is not { } name) return 1;
 
-		var player = Field(squad[names.IndexOf(name)], "PlayerIndex");
-		var slot = Field(slots[at], "TeamSelectionIndex");
-		var current = Field(slots[at], "Player");
-		if (Field(slots[at], "PlayerIndex") == player)
+		var player = offered[names.IndexOf(name)].Index;
+		if (Field(place, "PlayerIndex") == player)
 		{
-			Console.WriteLine(L($"{spot} is already {name}."));
+			Console.WriteLine(L($"{label} is already {name}."));
 			return 0;
 		}
 
@@ -200,26 +214,51 @@ internal static partial class Program
 		if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
 		if (dry)
 		{
-			Console.WriteLine(L($"(dry run) {spot}: {current} → {name} would have been done."));
+			Console.WriteLine(L($"(dry run) {label}: {current} → {name} would have been done."));
 			return 0;
 		}
 
+		JsonElement after = default;
 		var took = await Until(async () =>
-			(await Fm.GetJson("tactic")).TryGetProperty("Slots", out var now) && now.GetArrayLength() > at && Field(now[at], "PlayerIndex") == player, seconds: 8);
-		Console.WriteLine(took ? $"{spot}: {(current.Length > 0 ? current : L("empty"))} → {name}" : L($"{name} was chosen, but {spot} still shows {current}."));
-		// The one taken off goes to the newcomer's place on the bench.
+		{
+			after = await Fm.GetJson("tactic");
+			return at >= 0
+				? after.TryGetProperty("Slots", out var now) && now.GetArrayLength() > at && Field(now[at], "PlayerIndex") == player
+				: after.TryGetProperty("Squad", out var bench) && bench.EnumerateArray().Any(e => Field(e, "Index") == slot && Field(e, "PlayerIndex") == player);
+		}, seconds: 8);
+		Console.WriteLine(took ? $"{label}: {(current.Length > 0 ? current : L("empty"))} → {name}" : L($"{name} was chosen, but {label} still shows {current}."));
+		// The one taken off goes to the newcomer's place on the bench when the newcomer came from it.
 		if (took)
 			try
 			{
 				var injured = (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
 					.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToList();
 				bool Hurt(string shown) => shown.Length > 0 && injured.Any(n => n.EndsWith(shown, StringComparison.Ordinal));
+				var stillOnBench = after.TryGetProperty("Squad", out var bench) && bench.EnumerateArray().Any(e => Field(e, "PlayerIndex") == Field(place, "PlayerIndex"));
 				if (Hurt(name)) Console.WriteLine(L($"Note: {name} is injured; the game may still let them play, at the risk of making it worse."));
-				if (Hurt(current)) Console.WriteLine(L($"Note: {current} is injured and now on the bench."));
+				if (Hurt(current) && stillOnBench) Console.WriteLine(L($"Note: {current} is injured and now on the bench. To take them out of the squad: tactic player {current} <player>"));
 			}
 			catch (FmError) { }
-		if (took) await ShowChange([(at, false), (at, true)]);
+		if (took && at >= 0) await ShowChange([(at, false), (at, true)]);
 		return took ? 0 : 1;
+	}
+
+	/// <summary>Who a team selection slot's own list offers (the whole squad), or null when the plugin cannot say.</summary>
+	private static async Task<List<(string Index, string Name)>?> SlotChoices(string slot)
+	{
+		try
+		{
+			var list = await Fm.GetJson("pickable", ("slot", slot));
+			if (list.ValueKind != JsonValueKind.Array) return null;
+			// The list names its players by their index; the squad says whose each is.
+			var squad = (await Fm.Pull("Human.Team.Players", "Name,Index", list: true)).EnumerateArray()
+				.Where(p => Field(p, "Name").Length > 0).GroupBy(p => Field(p, "Index")).ToDictionary(g => g.Key, g => Field(g.First(), "Name"));
+			var found = list.EnumerateArray()
+				.Select(e => (Index: Field(e, "PlayerIndex"), Name: squad.GetValueOrDefault(Field(e, "PlayerIndex"), "")))
+				.Where(o => o.Index.Length > 0 && o.Name.Length > 0).OrderBy(o => o.Name).ToList();
+			return found.Count > 0 ? found : null;
+		}
+		catch (FmError) { return null; }
 	}
 
 	/// <summary>The tactic as the planner binds it, opening the planner if it is not up; null without a tactic.</summary>

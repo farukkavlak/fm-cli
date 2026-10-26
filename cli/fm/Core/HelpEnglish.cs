@@ -169,7 +169,8 @@ internal static partial class Program
 			  tactic slot [<n>]           tactic slots; with a number, switch to that tactic
 			  tactic role <position> [<role>]  show or change a position's role (--oop: out-of-possession role)
 			                              during a match: tactic role <player> [<role>]
-			  tactic player <position> <player>  put one of the substitutes in that position (the one there goes to the bench)
+			  tactic player <position> <player>  put a squad player in that position (the one there goes to the bench)
+			  tactic player <substitute> <player>  swap a substitute (an injured one) for another squad player
 			  tactic new ["<style>" ["<in-possession formation>" ["<out-of-possession formation>"]]]
 			                  create a tactic; lists the options of the step left out
 			  tactic copy [<tactic>]  copy a tactic to a new slot · tactic clear [<n>] --yes: empty a slot

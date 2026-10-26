@@ -75,7 +75,7 @@ internal static partial class Mcp
 		new("fm_tactic_role", "Show or change the role of one slot of the tactic. `position` is the slot as fm_tactic prints it (GK, DR, DCR, DML, ST…); during a match it is a player's name instead. Without `role` it lists the roles on offer and marks the current one. `without_ball` picks the out-of-possession role instead.",
 			"""{"type":"object","required":["position"],"properties":{"position":{"type":"string"},"role":{"type":"string","description":"Role number, name, or a unique piece of the name."},"without_ball":{"type":"boolean"},"dry":{"type":"boolean"}}}""",
 			a => ["tactic", "role", Str(a, "position"), .. Opt(a, "role"), .. Flag(a, "without_ball", "--oop"), .. Flag(a, "dry", "--dry")]),
-		new("fm_tactic_player", "Put a substitute into a slot of the starting eleven; whoever was there goes to the bench. `position` is the slot as fm_tactic prints it; `player` is a name from fm_tactic's bench line.",
+		new("fm_tactic_player", "Put a squad player into a slot of the starting eleven (whoever was there goes to the bench), or into a substitute's place. `position` is the slot as fm_tactic prints it, or the name of a substitute from fm_tactic's bench line to swap him (an injured substitute stops the match from starting); `player` is anyone in the squad, reserves included.",
 			"""{"type":"object","required":["position","player"],"properties":{"position":{"type":"string"},"player":{"type":"string"},"dry":{"type":"boolean"}}}""",
 			a => ["tactic", "player", Str(a, "position"), Str(a, "player"), .. Flag(a, "dry", "--dry")]),
 		new("fm_tactic_pick", "Let the game pick the starting eleven (Quick Pick).", None, _ => ["tactic", "pick"]),

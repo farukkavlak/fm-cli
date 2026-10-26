@@ -122,6 +122,61 @@ internal static class Tactics
 		return $"error: no selection list on screen offers player {player} for slot {slot}";
 	}
 
+	/// <summary>
+	/// Everyone a slot's list offers, the whole squad's "All Players" too: each player's index (what
+	/// <see cref="Pick"/> takes) and the slot he is in now (22 and over: not in the match squad).
+	/// The match squad alone left out the reserves, so an injured substitute could not be swapped for one.
+	/// </summary>
+	public static string Pickable(System.Collections.Specialized.NameValueCollection q)
+	{
+		if (!int.TryParse(q["slot"], out var slot)) return "error: ?slot=<team selection index> required (see /tactic)";
+
+		var found = new SortedDictionary<string, Dictionary<string, string>>();
+		void Walk(Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> rows, int depth)
+		{
+			if (rows == null || depth == 0) return;
+			for (var i = 0; i < rows.Count; i++)
+			{
+				if (Record(rows[i]) is { } fields && fields.TryGetValue("TeamSelectionIndex", out var s) && s.AsString() == slot.ToString()
+				    && fields.TryGetValue("Index", out var p) && p.AsString() is { Length: > 0 } player && !found.ContainsKey(player))
+				{
+					// The player is a person reference with no text of its own; the squad's Index says whose.
+					var entry = new Dictionary<string, string> { ["PlayerIndex"] = player };
+					if (fields.TryGetValue("PlayerTeamSelectionIndex", out var at) && at != null && !at.IsNull) entry["At"] = at.AsString();
+					found[player] = entry;
+				}
+				Walk(Buttons.Children(rows[i]), depth - 1);
+			}
+		}
+
+		foreach (var dropdown in Buttons.AllDropdowns())
+		{
+			SI.Bindable.EventList events;
+			try { events = dropdown.SelectionEvents; } catch { continue; }
+			if (events == null || events.Count == 0) continue;
+			string type;
+			try { type = events.Events[0]?.GetIl2CppType().Name ?? ""; } catch { continue; }
+			if (!type.StartsWith("TacticTeamSelectionDropdown", StringComparison.Ordinal)) continue;
+			Walk(dropdown.m_choices, 2);
+		}
+		if (found.Count == 0) return $"error: no selection list on screen is for slot {slot}";
+		return "[\n  " + string.Join(",\n  ", found.Values.Select(Report.Json)) + "\n]\n";
+	}
+
+	/// <summary>The record a selection row shows, through its row data where it has one.</summary>
+	private static Dictionary<string, SI.Core.TypedValue> Record(SI.Core.TypedValue row)
+	{
+		try
+		{
+			var entries = Send.Entries(row?.Get()?.TryCast<DynamicReference>());
+			if (entries.TryGetValue("RowData", out var data) && data != null && !data.IsNull) return Record(data);
+			if (!entries.TryGetValue("DisplayValue", out var shown) || shown == null || shown.IsNull) return null;
+			var record = shown.Get()?.TryCast<DynamicReference>();
+			return record == null ? null : Send.Entries(record);
+		}
+		catch { return null; }
+	}
+
 	private static SI.Core.TypedValue Find(Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> rows, int slot, int player, int depth)
 	{
 		if (rows == null || depth == 0) return null;
@@ -142,15 +197,7 @@ internal static class Tactics
 	{
 		try
 		{
-			var entries = Send.Entries(row?.Get()?.TryCast<DynamicReference>());
-			if (entries.TryGetValue("RowData", out var data) && data != null && !data.IsNull) return Offers(data, slot, player);
-			if (!entries.TryGetValue("DisplayValue", out var shown) || shown == null || shown.IsNull) return false;
-
-			var record = shown.Get()?.TryCast<DynamicReference>();
-			if (record == null) return false;
-
-			var fields = Send.Entries(record);
-			return fields.TryGetValue("TeamSelectionIndex", out var s) && fields.TryGetValue("Index", out var p)
+			return Record(row) is { } fields && fields.TryGetValue("TeamSelectionIndex", out var s) && fields.TryGetValue("Index", out var p)
 			       && s.AsString() == slot.ToString() && p.AsString() == player.ToString();
 		}
 		catch { return false; }
