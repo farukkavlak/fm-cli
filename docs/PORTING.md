@@ -54,6 +54,10 @@ Most of the plumbing is independent of the game's content:
 | Game folders and launch | `cli/fm/Core/GameFolders.cs`, `Launcher.cs` |
 | MCP server | `cli/fm/Core/Mcp.cs`, `Mcp.Tools.cs` |
 | Bulk dumps and scans | `tools/sigdump/`, `tools/sweep.sh`, `tools/buttons-catalog.py` |
+| Bridge batching (many reads in one game frame) | `Core/Bridge.cs` `Batch`, plugin `HttpBridge.cs` |
+| Radar drawing: flat styles, 3D scenes, rasterizer, ANSI cells | `cli/fm/Match/RadarStyles.cs`, `RadarScene.cs`, `Raster3D.cs`, `RadarCells.cs` — they take a frame of normalized positions + kit colours, nothing FM26-specific |
+| Style catalog (Python prototypes of every look) | `tools/catalog/`, `tools/radar-catalog.py` |
+| Live panel capture and GIFs | `tools/live-capture.py`, `tools/live-gif.py` |
 
 Must be rebuilt against the new game: page GUIDs (`Match/Screens.cs`), data paths, event names,
 roles, and any feature the game changed.
@@ -86,6 +90,9 @@ Work in this order; each answer changes the size of the job.
 7. Diff the data paths (`Human.Team…`, `Club.Teams`, `PlayerTraining`…) against the FM26 schema.
 8. Is the translation table / `languages.fmf` the same format?
 9. Run `tools/sweep.sh`, then the same commands in both languages, and list what broke.
+10. Is there still a match simulation entity list (`Match2DSimulation` or its successor) with
+    position, rotation, height and kit colour per man? If yes, the whole radar — all seven styles —
+    ports by changing only `plugin/.../Radar.cs`.
 
 Approach: diff the static dumps first, rebuild only what broke. Identity-based commands should need
 little work; text- and position-based ones must be rewritten.
@@ -127,6 +134,18 @@ What can still break when the language, theme, terminal, machine or game version
   the player list order is what separates the two teams, because the simulation data carries no
   team id or name. The fallback from the binding tree only has data while a screen binds it.
   On a short terminal the radar replaces the shape pitch and its rows are capped to the window.
+  Sides go by kit, not by position in the list: the list keeps its order all match while
+  substitute flags change, so cutting it at bench-to-eleven steps put men on the wrong side after a
+  substitution (`RadarTeams`). The keeper is the man whose kit differs from his side's.
+- **Live panel speed.** Each bridge request waits for a game frame; several reads per redraw froze
+  the panel (match players took 8 s). One `batch` request per redraw brought it to 0.8 s and the
+  radar to ~0.3 s. Batch from day one in FM27.
+- **Radar styles and terminals.** Three tiers: anywhere (ASCII, coloured ASCII, braille — 256
+  colours, close greens kept apart by `Ansi.Apart`); 24-bit colour (pixel, and the 3D iso / raycast
+  / voxel scenes, two colours a cell as sextants or half blocks); image protocols (Kitty / OSC 1337,
+  not done). Terminal.app on macOS 14 has no 24-bit colour. The 3D scenes are pure C# (no SkiaSharp
+  or ImageSharp: single-file publish, any platform) and take 30–90 ms a frame at 120–200 columns.
+  Judge looks in a real terminal, not on a PNG: what looks good as a picture can fall apart in cells.
 - **Key moments.** The filter looks for Turkish and English marker words; another language falls back to the full commentary. Extend `MatchLive.KeyWords` or filter by game events when adding a language.
 - **Live stats.** During a match the bindings only hold `LastFixture`/`NextFixture` and
   `IsLiveMatch` is false; no live possession/shots. The post-match report has them.
