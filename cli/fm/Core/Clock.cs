@@ -211,11 +211,18 @@ internal static partial class Program
 					output.WriteLine(L("Transfer offer waiting: offers   ·   reject: offers <#> reject --yes   (stall does not close this step)"));
 				// A meeting with the board left open is what the game waits on, whatever else is unanswered.
 				if (await VisionControls() != null) output.WriteLine(L("The club vision meeting is open. Objectives and bargaining: vision   ·   to finish: vision end"));
+				// A conversation an answer opened holds its message until it ends; the message is not the step.
+				if ((await TalkOptions()).Count > 0)
+				{
+					output.WriteLine(L("A conversation is open; the message closes when it is over. To go on: talk"));
+					return;
+				}
 				var blocking = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
 				// The game says a message waits and the inbox read shows none: it may be an old one,
 				// or one below the first window.
 				if (blocking.Count == 0) blocking = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
 				if (blocking.Count == 0) blocking = (await AllInbox()).Where(Blocking).ToList();
+				if (blocking.Count == 0) blocking = (await TaskInbox()).Where(Blocking).ToList();
 				if (blocking.Count > 0)
 				{
 					// Say what each waiting message needs: a notice only has to be opened, a question
@@ -285,10 +292,15 @@ internal static partial class Program
 				break;
 			case "Tactics" or "SubmitTeam":
 				output.WriteLine(L("Match day. To play: match"));
-				var hurt = await HurtInSide();
-				if (hurt.Count == 0) hurt = await InjuredSquad();
-				if (hurt.Count > 0)
-					output.WriteLine(L($"Note: injured ({string.Join(", ", hurt)}); the match does not start with one in the eleven. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>"));
+				// The eleven and bench when the tactics screen tells; a clean side says nothing, even
+				// with others injured. Without the screen, the squad's injured are only named.
+				if (await HurtInSide() is { } hurt)
+				{
+					if (hurt.Count > 0)
+						output.WriteLine(L($"Note: injured ({string.Join(", ", hurt)}); the match does not start with one in the eleven. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>"));
+				}
+				else if (await InjuredSquad() is { Count: > 0 } injured)
+					output.WriteLine(L($"Injured: {string.Join(", ", injured)}. If one is in the eleven the match stops; check: squad --fitness · pick: tactic pick"));
 				break;
 			case "TeamNews": output.WriteLine(L("The game is waiting for the pre-match team news.")); break;
 			case "TeamTalk": output.WriteLine(L("The game is waiting for a team talk.")); break;

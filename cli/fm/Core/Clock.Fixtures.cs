@@ -100,19 +100,19 @@ internal static partial class Program
 
 	/// <summary>
 	/// The injured among the eleven and the bench, as the tactics screen of a match day has them
-	/// (by surname); nothing when the screen is not up, so no page is opened for it.
+	/// (by surname); null when the screen is not up, so no page is opened for it.
 	/// </summary>
-	private static async Task<List<string>> HurtInSide()
+	private static async Task<List<string>?> HurtInSide()
 	{
 		try
 		{
 			var tactic = await Fm.GetJson("tactic");
-			if (!tactic.TryGetProperty("Slots", out var slots)) return [];
+			if (!tactic.TryGetProperty("Slots", out var slots)) return null;
 			var picked = slots.EnumerateArray().Select(s => Field(s, "Player")).Concat(Bench(tactic)).Where(n => n.Length > 0).ToList();
 			var injured = await InjuredSquad();
 			return picked.Where(n => injured.Any(full => full == n || full.EndsWith(" " + n, StringComparison.Ordinal))).ToList();
 		}
-		catch (FmError) { return []; }
+		catch (FmError) { return null; }
 	}
 
 	/// <summary>The injured in the squad, from its data; no page opened.</summary>

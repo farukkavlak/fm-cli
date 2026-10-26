@@ -42,7 +42,8 @@ internal static class Ui
 
 	/// <summary>
 	/// Asks for one of a list with the arrow keys. The last entry always lets the question go
-	/// unanswered, which comes back as null; so does a terminal with no one to ask.
+	/// unanswered, which comes back as null; so does a terminal with no one to ask. The list wraps,
+	/// so that entry is one key up from the first, not thirty down (a press question naming the squad).
 	/// </summary>
 	public static int? Ask(string title, IReadOnlyList<string> choices, int current = -1, string? cancel = null)
 	{
@@ -53,6 +54,7 @@ internal static class Ui
 			.Title(Safe(title))
 			.PageSize(Math.Clamp(choices.Count + 1, 3, 20))
 			.HighlightStyle(new Style(Color.Yellow, decoration: Decoration.Bold))
+			.WrapAround()
 			.MoreChoicesText(L("[dim](more below)[/]"))
 			.UseConverter(i => cancel != null && i < 0
 				? $"[dim]{Safe(L(cancel))}[/]"

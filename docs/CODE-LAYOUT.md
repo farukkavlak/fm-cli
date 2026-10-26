@@ -70,7 +70,10 @@
   them in the pixel, braille and isometric styles (see `docs/experiments/radar-styles`).
 - `tools/radar-catalog.py` + `tools/catalog/` + `tools/mock_match.py` — the visualization catalog from
   mock data, as PNGs, terminal previews and real ANSI output (see `docs/experiments/catalog-draft`).
-- `tools/live-gif.py` — captured live-panel frames to a GIF (title strip, goal-centred slice).
+- `tools/live-capture.py` — plays `fm match --play` in a pty, keeps every panel redraw as a frame and
+  types keys on a schedule or from `OUT/keys.in` (prompts, `r`, `a`, `s`).
+- `tools/live-gif.py` — captured live-panel frames to a GIF (title strip, goal-centred slice, a frame
+  range, the capture's own timing).
 
 Add a command in a new file of the same `Program` partial; do not grow `Program.cs`. Keep reads and
 writes of one command together. Reuse `Table`/`Ui` before adding a formatter.

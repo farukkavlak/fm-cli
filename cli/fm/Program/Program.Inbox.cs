@@ -30,6 +30,28 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// The inbox under its own Tasks filter, then back to all messages. A waiting task can be
+	/// missing from the default list and its scrolled pages (an illness, 3 Şubat 2029) while the
+	/// filter shows it.
+	/// </summary>
+	internal static async Task<List<JsonElement>> TaskInbox()
+	{
+		async Task Filter(string name)
+		{
+			var controls = await Fm.GetJson("buttons", ("json", "1"));
+			var button = controls.EnumerateArray().FirstOrDefault(c => Field(c, "Name") == name);
+			if (button.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		}
+		var before = (await Fm.GetJson("inbox")).ToString();
+		await Filter("TaskMessagesTutorial");
+		JsonElement data = default;
+		await Until(async () => (data = await Fm.GetJson("inbox")).ToString() != before, seconds: 2, every: 0.2);
+		var rows = data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().Select(m => m.Clone()).ToList() : [];
+		await Filter("AllMessagesTutorial");
+		return rows;
+	}
+
+	/// <summary>
 	/// Every message the inbox holds, read by scrolling its own streamed list with the list's
 	/// pointer (so the anchor never goes off screen). Used when the first window does not have
 	/// the message — a subject a script names, or the one the game is waiting on.

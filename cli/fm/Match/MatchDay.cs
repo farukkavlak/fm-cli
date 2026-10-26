@@ -228,9 +228,10 @@ internal static partial class Program
 			// period drops straight from the second half): so it is looked at now and then through the
 			// match, more often near the end, and the last reading that found them is kept. They are there
 			// about half the time, in stretches of some twenty seconds, so until one reading has found them
-			// it is tried every few seconds: at wider gaps a whole match went by unseen.
+			// it is tried every fifteen seconds: at wider gaps a whole match went by unseen. A reading walks
+			// the whole screen and holds the live panel for seconds (Spezia, 26 Ekim 2026), so not oftener.
 			if (Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
-			    && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(finalMen == null ? 5 : lateMinute >= 80 ? 10 : 30))
+			    && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(finalMen == null ? 15 : lateMinute >= 80 ? 10 : 30))
 			{
 				lastLook = DateTime.UtcNow;
 				try { if (await MatchPlayers() is { Count: > 0 } men) finalMen = men; } catch (FmError) { }
@@ -483,7 +484,6 @@ internal static partial class Program
 					statsAt = DateTime.UtcNow;
 					stats = await LiveStats(state);
 				}
-				var frame = radarOn ? await ReadRadar() : null;
 				var weAreHome = Field(state, "HumanIsHome") == "True";
 				var sides = names is { } n
 					? new RadarSides(weAreHome ? n.Own : n.Opponent, weAreHome ? n.Opponent : n.Own, weAreHome)
@@ -491,10 +491,29 @@ internal static partial class Program
 				// What is left of the terminal once the panel's other lines are counted, plus a
 				// few lines for the match's own status messages (half time, the second half).
 				var radarRows = MatchLive.Height - 11 - Math.Max(1, Math.Clamp(panel.Events, 0, 12));
-				var radarLines = frame == null ? null : RadarView(frame, sides, radarStyle, panel.Colour, RadarWidth, radarRows);
-				MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
-					liveFormation, liveShape, liveView, panel,
-					heard.Select(h => $"{h.Minute,6}  {h.Said}"), radarLines);
+				async Task DrawLive()
+				{
+					var frame = radarOn ? await ReadRadar() : null;
+					var radarLines = frame == null ? null : RadarView(frame, sides, radarStyle, panel.Colour, RadarWidth, radarRows);
+					MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
+						liveFormation, liveShape, liveView, panel,
+						heard.Select(h => $"{h.Minute,6}  {h.Said}"), radarLines);
+				}
+				await DrawLive();
+
+				// The rest of the second the radar alone is read again and drawn, so the men move
+				// four times a second rather than once; the heavier readings above keep their pace.
+				// A key ends the wait at once.
+				if (radarOn)
+				{
+					var next = DateTime.UtcNow + TimeSpan.FromSeconds(1);
+					while (DateTime.UtcNow < next && (Console.IsInputRedirected || !Console.KeyAvailable))
+					{
+						await Task.Delay(250);
+						await DrawLive();
+					}
+					continue;
+				}
 			}
 
 			await Task.Delay(live ? TimeSpan.FromSeconds(1) : TimeSpan.FromSeconds(3));

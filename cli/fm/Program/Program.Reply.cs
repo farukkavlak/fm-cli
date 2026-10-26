@@ -96,6 +96,14 @@ internal static partial class Program
 			       && (shown.Length > 0 ? shown != previous : Field(chosen, "CanRespond") != "True");
 		}, seconds: 8, every: 0.25);
 
+		// A message whose teammate failed to talk the player round offers its choices again a moment
+		// after the talk ends, while the inbox row read before it still says it takes none
+		// (Hofmeister, 26 Ekim 2026). The game marks it answerable first; its buttons follow.
+		if (answers.Count == 0 && Field(chosen, "CanRespond") != "True" && Field(chosen, "NewsItemIsPriority") == "True")
+			await Until(async () =>
+				(await Fm.GetJson("inbox")).EnumerateArray().Any(m => Field(m, "UniqueId") == id && Field(m, "CanRespond") == "True")
+				&& (answers = await Answers()).Count > 0, seconds: 8, every: 0.25);
+
 		// The answers that are lists, each with what it offers.
 		var listed = new Dictionary<string, List<string>>();
 		if (answers.Any(a => Field(a, "Type") == "SIDropdown"))
@@ -195,7 +203,7 @@ internal static partial class Program
 			(dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0
 			|| (tour = await TourOpen())
 			|| (talking = (await TalkOptions()).Count > 0)
-			|| !StillAnswerable(await Fm.GetJson("inbox"), id), seconds: 8);
+			|| !StillAnswerable(await Fm.GetJson("inbox"), id), seconds: 20);
 
 		// The game often asks "are you sure" for the answer just chosen (the suggested team,
 		// a release, a bid). The answer is the intent; its confirmation is the primary button,

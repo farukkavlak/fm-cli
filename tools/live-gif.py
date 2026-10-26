@@ -130,9 +130,20 @@ def main():
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--mode", choices=("flow", "goal"), default="goal")
     ap.add_argument("--count", type=int, default=30)
+    ap.add_argument("--from", dest="first", type=int, default=0, help="first frame number to use")
+    ap.add_argument("--to", dest="last", type=int, default=10**9, help="last frame number to use")
     args = ap.parse_args()
 
-    files = sorted(args.frames.glob("frame-*.txt"))
+    # The capture's own timeline, when there is one, so the GIF plays at the panel's real pace.
+    times = {}
+    index = args.frames / "frames.jsonl"
+    if index.exists():
+        for line in index.read_text().splitlines():
+            row = json.loads(line)
+            times[row["n"]] = row["t"]
+
+    files = [f for f in sorted(args.frames.glob("frame-*.txt"))
+             if args.first <= int(f.stem.split("-")[1]) <= args.last]
     parsed = []
     prev = None
     goal_at = None
@@ -154,7 +165,12 @@ def main():
         start = max(0, len(parsed) // 3)
     chosen = parsed[start:start + args.count]
     images = []
-    for f, text, h in chosen:
+    durations = []
+    for k, (f, text, h) in enumerate(chosen):
+        n = int(f.stem.split("-")[1])
+        nxt = int(chosen[k + 1][0].stem.split("-")[1]) if k + 1 < len(chosen) else None
+        gap = times.get(nxt, 0) - times.get(n, 0) if nxt and n in times and nxt in times else 0.3
+        durations.append(int(min(max(gap, 0.1), 1.5) * 1000))
         art = render(text, args.style)
         canvas = Image.new("RGB", (art.width, art.height + TITLE), BG)
         canvas.paste(art, (0, TITLE))
@@ -163,7 +179,7 @@ def main():
                font=ImageFont.truetype(MONO, 14), fill=TEXT)
         images.append(canvas)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    images[0].save(args.out, save_all=True, append_images=images[1:], duration=300, loop=0, optimize=True, disposal=2)
+    images[0].save(args.out, save_all=True, append_images=images[1:], duration=durations, loop=0, optimize=True, disposal=2)
     print(args.out, len(images), "frames", args.out.stat().st_size, "bytes", "goal_at", goal_at)
 
 

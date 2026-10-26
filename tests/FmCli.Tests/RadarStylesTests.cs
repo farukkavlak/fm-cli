@@ -93,6 +93,43 @@ public class RadarStylesTests
 		Assert.False(MatchLive.ShowShape(false, 11, ["the radar needs at least 40x15"]));
 	}
 
+	// The simulation's list as the game sent it (Empoli–Frosinone, 26 Ekim 2026): each side's eleven,
+	// keeper first, then its bench, bench keeper first; 23 a side.
+	private static List<(string Kit, bool Sub)> Block(string keeper, string outfield) =>
+		[(keeper, false), .. Enumerable.Repeat((outfield, false), 10), (keeper, true), .. Enumerable.Repeat((outfield, true), 11)];
+
+	[Fact]
+	public void SidesAreSplitByKitWithKeepersJoiningTheirBlock()
+	{
+		var list = Block("7f7f7f", "005798").Concat(Block("008030", "f8c820")).ToList();
+		var teams = Program.RadarTeams(list);
+		Assert.All(teams.Take(23), t => Assert.Equal(0, t));
+		Assert.All(teams.Skip(23), t => Assert.Equal(1, t));
+	}
+
+	[Fact]
+	public void SubstitutionsDoNotMoveMenToTheOtherSide()
+	{
+		var list = Block("7f7f7f", "005798").Concat(Block("008030", "f8c820")).ToList();
+		// One taken off in each eleven, one brought on from each bench.
+		list[5] = (list[5].Kit, true);
+		list[15] = (list[15].Kit, false);
+		list[28] = (list[28].Kit, true);
+		list[40] = (list[40].Kit, false);
+		var teams = Program.RadarTeams(list);
+		Assert.All(teams.Take(23), t => Assert.Equal(0, t));
+		Assert.All(teams.Skip(23), t => Assert.Equal(1, t));
+	}
+
+	[Fact]
+	public void TheSameKitBothSidesSplitsTheListInHalf()
+	{
+		var list = Block("7f7f7f", "005798").Concat(Block("008030", "005798")).ToList();
+		var teams = Program.RadarTeams(list);
+		Assert.Equal(0, teams[22]);
+		Assert.Equal(1, teams[23]);
+	}
+
 	[Theory]
 	[InlineData(255, 0, 0, 196)]
 	[InlineData(0, 0, 0, 16)]

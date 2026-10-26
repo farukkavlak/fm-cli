@@ -467,13 +467,17 @@ internal static partial class Program
 			var (left, topY) = small ? ((int)Math.Round(sx) - 1, (int)Math.Round(sy) - 3) : ((int)Math.Round(sx) - 2, (int)Math.Round(sy) - 6);
 			var skin = Skins[Math.Abs(d.Man.Number * 31 + d.Man.Team * 7) % Skins.Length];
 			var hair = d.Man.Number % 3 == 0 ? new Rgb(58, 40, 26) : new Rgb(24, 18, 14);
+			// A small man is a few pixels: shorts in the number's colour made blue-over-white and
+			// white-over-blue sides look the same (Empoli–Carrarese, 26 Ekim 2026), so his shorts are
+			// his shirt's darker shade and each side reads as one colour.
+			var shorts = small ? d.Shirt.Shade(0.55) : d.Shorts;
 			for (var r = 0; r < sprite.Length; r++)
 				for (var c = 0; c < sprite[r].Length; c++)
 				{
 					Rgb? colour = sprite[r][c] switch
 					{
 						'h' => hair, 'f' => skin, 'k' => skin.Shade(0.9), 's' => d.Shirt, 'S' => d.Shirt, 'D' => d.Shirt.Shade(0.72),
-						'P' => d.Shorts, 'l' => d.Shirt, 'b' => new Rgb(20, 20, 22), _ => null,
+						'P' => shorts, 'l' => d.Shirt, 'b' => new Rgb(20, 20, 22), _ => null,
 					};
 					if (colour is { } p) Set(left + c, topY + r, p);
 				}
