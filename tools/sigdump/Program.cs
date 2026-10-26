@@ -10,8 +10,10 @@ using System.Reflection;
 //   dotnet run --project tools/sigdump -- <assembly.dll> <Type.Full.Name> [member ...]
 
 var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-var interop = Path.Combine(home, "fm26_bep/BepInEx/interop");
-var core = Path.Combine(home, "fm26_bep/BepInEx/core");
+// FM_BEP points at another game's BepInEx install (FM27's), so its metadata can be compared.
+var bep = Environment.GetEnvironmentVariable("FM_BEP") ?? Path.Combine(home, "fm26_bep");
+var interop = Path.Combine(bep, "BepInEx/interop");
+var core = Path.Combine(bep, "BepInEx/core");
 
 if (!Directory.Exists(interop))
 {
@@ -26,6 +28,34 @@ var paths = Directory.GetFiles(interop, "*.dll")
 
 using var mlc = new MetadataLoadContext(new PathAssemblyResolver(paths),
     typeof(object).Assembly.GetName().Name);
+
+// --members: every field and property name of every type, one "Type<TAB>member" a line. The plugin
+// reaches some controls through private fields (m_choices, m_key…); tools/identity-check.py looks
+// them up here when a new game version comes.
+if (args.Length > 0 && args[0] == "--members")
+{
+    foreach (var dll in Directory.GetFiles(interop, "*.dll").OrderBy(x => x))
+    {
+        Assembly a;
+        try { a = mlc.LoadFromAssemblyPath(dll); } catch { continue; }
+        Type[] types;
+        try { types = a.GetTypes(); } catch (ReflectionTypeLoadException e) { types = e.Types.Where(x => x != null).ToArray()!; }
+        foreach (var type in types)
+        {
+            const BindingFlags all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+            IEnumerable<string> names;
+            string owner;
+            try
+            {
+                owner = type.FullName ?? type.Name;
+                names = type.GetFields(all).Select(f => f.Name).Concat(type.GetProperties(all).Select(p => p.Name)).ToList();
+            }
+            catch { continue; }
+            foreach (var n in names.Distinct()) Console.WriteLine($"{owner}\t{n}");
+        }
+    }
+    return 0;
+}
 
 // --holders <TypeFullName>: which types across every interop assembly expose a member of
 // that type. Answers "where do I get one of these at runtime?" authoritatively.

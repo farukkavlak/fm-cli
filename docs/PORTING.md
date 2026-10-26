@@ -97,6 +97,19 @@ Work in this order; each answer changes the size of the job.
 Approach: diff the static dumps first, rebuild only what broke. Identity-based commands should need
 little work; text- and position-based ones must be rewritten.
 
+Steps 5–7 in one pass, once the plugin answers in FM27 (game in English, between matches):
+
+```bash
+FM_BEP=~/fm27_bep python3 tools/identity-check.py catalog /tmp/fm27   # dump the new game's catalogs
+python3 tools/identity-check.py check /tmp/fm27                       # what the code uses that is gone
+```
+
+`docs/reference/identities.tsv` lists every identity the code leans on (pages, events, element
+names, panels, the plugin's private fields, data paths, enum members, English words), with where it
+is used; `check` prints the missing ones, most used first. Controls only seen on match screens are
+not in any catalog and come out as "unchecked": play one match with `fm match` to cover them.
+Regenerate the list after code changes: `tools/identity-check.py uses`.
+
 ## FM26 traps that may return
 
 - The game reports success and does nothing. Read the result back.
