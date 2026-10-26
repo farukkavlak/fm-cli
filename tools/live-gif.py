@@ -183,6 +183,8 @@ def main():
         raise SystemExit("no panel frames")
     if args.mode == "goal" and goal_at is not None:
         start = max(0, goal_at - 10)
+    elif args.first > 0:
+        start = 0
     else:
         start = max(0, len(parsed) // 3)
     chosen = parsed[start:start + args.count]
@@ -192,7 +194,8 @@ def main():
         n = int(f.stem.split("-")[1])
         nxt = int(chosen[k + 1][0].stem.split("-")[1]) if k + 1 < len(chosen) else None
         gap = times.get(nxt, 0) - times.get(n, 0) if nxt and n in times and nxt in times else 0.3
-        durations.append(int(min(max(gap, 0.1), 1.5) * 1000))
+        # the panel draws ~30 times a second since 27 Ekim 2026; browsers play 30 ms frames as given
+        durations.append(int(min(max(gap, 0.03), 1.5) * 1000))
         art = render(text, args.style)
         canvas = Image.new("RGB", (art.width, art.height + TITLE), BG)
         canvas.paste(art, (0, TITLE))

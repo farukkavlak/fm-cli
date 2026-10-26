@@ -544,27 +544,36 @@ internal static partial class Program
 				// What is left of the terminal once the panel's other lines are counted, plus a
 				// few lines for the match's own status messages (half time, the second half).
 				var radarRows = MatchLive.Height - 11 - Math.Max(1, Math.Clamp(panel.Events, 0, 12));
-				async Task DrawLive()
+				void DrawLive()
 				{
-					var frame = radarOn ? await ReadRadar() : null;
+					var frame = radarOn ? ShownRadar() : null;
 					var radarLines = frame == null ? null : RadarView(frame, sides, radarStyle, panel.Colour, RadarWidth, radarRows);
 					MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
 						liveFormation, liveShape, liveView, panel,
 						heard.Select(h => $"{h.Minute,6}  {h.Said}"), radarLines);
 				}
-				await DrawLive();
+				if (radarOn) await ReadRadar();
+				DrawLive();
 
-				// The rest of the second the radar alone is read again and drawn, so the men move
-				// four times a second rather than once; the heavier readings above keep their pace.
-				// A key ends the wait at once.
+				// The rest of the second the radar is read again, one reading after another, and the
+				// panel drawn in between with the men on their way to the newest one; the heavier
+				// readings above keep their pace. A key ends the wait at once.
 				if (radarOn)
 				{
 					var next = DateTime.UtcNow + TimeSpan.FromSeconds(1);
+					Task? reading = null;
 					while (DateTime.UtcNow < next && (Console.IsInputRedirected || !Console.KeyAvailable))
 					{
-						await Task.Delay(250);
-						await DrawLive();
+						reading ??= ReadRadar();
+						await Task.WhenAny(reading, Task.Delay(FrameEvery));
+						if (reading.IsCompleted)
+						{
+							await reading;
+							reading = null;
+						}
+						DrawLive();
 					}
+					if (reading != null) await reading;
 					continue;
 				}
 			}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Play `fm match --play` in a pty and keep every redraw of the live panel.
 
-The panel clears the screen before each redraw, so the output is cut there: one
+The panel starts each redraw from the top (it used to clear the screen), so the output is cut there: one
 `frame-NNNNN.txt` per redraw (ANSI kept), a `frames.jsonl` index (time, keys
 pressed so far) and the whole `raw.log`. `live-gif.py` turns the frames into GIFs.
 
@@ -23,7 +23,8 @@ import termios
 import time
 from pathlib import Path
 
-CLEAR = b"\x1b[H\x1b[2J"
+# a redraw now, and before 27 Ekim 2026
+REDRAWS = (b"\x1b[?2026h\x1b[H", b"\x1b[H\x1b[2J")
 
 
 def main() -> None:
@@ -96,9 +97,10 @@ def main() -> None:
         raw.write(data)
         pending += data
         while True:
-            cut = pending.find(CLEAR, 1)
-            if cut < 0:
+            cuts = [c for c in (pending.find(mark, 1) for mark in REDRAWS) if c >= 0]
+            if not cuts:
                 break
+            cut = min(cuts)
             flush(pending[:cut])
             pending = pending[cut:]
     flush(pending)

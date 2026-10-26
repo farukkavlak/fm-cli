@@ -164,6 +164,14 @@ What can still break when the language, theme, terminal, machine or game version
 - **Live panel speed.** Each bridge request waits for a game frame; several reads per redraw froze
   the panel (match players took 8 s). One `batch` request per redraw brought it to 0.8 s and the
   radar to ~0.3 s. Batch from day one in FM27.
+  The radar itself is not the limit: the engine updates it every tick, and read back to back in
+  the background (not awaited by the drawing) it answers every game frame, ~33 ms (Modena, 27 Ekim
+  2026: 30 readings and redraws a second, iso at 120 columns, fm ~36 % CPU). `RadarMotion` walks
+  the men between readings, matched by entity index (`e`); a move over a quarter of the pitch is a
+  cut or a substitute and is put down at once. At 33 ms the walk barely shows; it is there for slow
+  readings (a busy frame, a slower bridge). Measured per reading at 10x/40x: a man moves 1 % of the
+  pitch at the median, 13 % at p99 (`FM_RADAR_LOG=<file>` keeps the readings). The panel draws over itself (`ESC[H` + `ESC[K`,
+  synchronized output 2026) instead of clearing, or it flickers at that rate.
 - **Radar styles and terminals.** Three tiers: anywhere (ASCII, coloured ASCII, braille — 256
   colours, close greens kept apart by `Ansi.Apart`); 24-bit colour (pixel, and the 3D iso / raycast
   / voxel scenes, two colours a cell as sextants or half blocks); image protocols (Kitty / OSC 1337,

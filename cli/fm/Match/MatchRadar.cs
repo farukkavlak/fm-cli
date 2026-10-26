@@ -10,25 +10,31 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	internal sealed record Man(int Number, double X, double Y, string Kit, bool Substitute, int Team, string Text = "");
+	internal sealed record Man(int Number, double X, double Y, string Kit, bool Substitute, int Team, string Text = "", int Entity = -1);
 	internal sealed record RadarFrame(IReadOnlyList<Man> Men, double BallX, double BallY, double BallHeight);
 
 	private static RadarFrame? radar;
-	private static DateTime radarAt = DateTime.MinValue;
+	private static readonly RadarMotion radarMotion = new();
 	private static int radarMisses;
+	// How often the live panel is drawn while the radar is on: about fifteen times a second, or as
+	// often as the style can be drawn when it takes longer.
+	private static readonly TimeSpan FrameEvery = TimeSpan.FromMilliseconds(66);
+	// FM_RADAR_LOG=<file> keeps every reading with when it came, to see how the panel's motion follows the game.
+	private static readonly string? RadarLog = Environment.GetEnvironmentVariable("FM_RADAR_LOG");
 
-	/// <summary>The newest frame, asked for at most five times a second; the last good one when a quiet frame comes back empty.</summary>
-	private static async Task<RadarFrame?> ReadRadar()
+	/// <summary>One reading of the simulation, kept for the panel to move towards; the last good one stays when a quiet frame comes back empty.</summary>
+	private static async Task ReadRadar()
 	{
-		if (DateTime.UtcNow - radarAt < TimeSpan.FromSeconds(0.2)) return radar;
-		radarAt = DateTime.UtcNow;
 		try
 		{
-			var frame = ParseRadar(await Fm.GetJson("radar"));
+			var json = await Fm.GetJson("radar");
+			if (RadarLog != null) try { File.AppendAllText(RadarLog, $"{DateTime.UtcNow:O}\t{json.GetRawText()}\n"); } catch { }
+			var frame = ParseRadar(json);
 			if (frame.Men.Count > 0)
 			{
 				radar = frame;
 				radarMisses = 0;
+				radarMotion.Add(frame, DateTime.UtcNow);
 			}
 			else if (++radarMisses > 3)
 			{
@@ -39,8 +45,11 @@ internal static partial class Program
 		}
 		catch (FmError) { radar = null; }
 		catch (FmBusy) { }
-		return radar;
+		if (radar == null) radarMotion.Clear();
 	}
+
+	/// <summary>The picture to draw now: on its way from what was drawn last to the newest reading.</summary>
+	private static RadarFrame? ShownRadar() => radar == null ? null : radarMotion.At(DateTime.UtcNow);
 
 	/// <summary>
 	/// Which side each man of the simulation's list is on. The list is one side's block and then the
@@ -76,13 +85,14 @@ internal static partial class Program
 
 	private static RadarFrame ParseRadar(JsonElement json)
 	{
-		var raw = new List<(int Number, double X, double Y, string Kit, bool Sub, string Text)>();
+		var raw = new List<(int Number, double X, double Y, string Kit, bool Sub, string Text, int Entity)>();
 		if (json.TryGetProperty("players", out var players))
 			foreach (var p in players.EnumerateArray())
 				raw.Add((Int(p, "n"), Number(p, "x"), Number(p, "y"), str(p, "kit"),
-					p.TryGetProperty("sub", out var s) && s.ValueKind == JsonValueKind.True, str(p, "txt")));
+					p.TryGetProperty("sub", out var s) && s.ValueKind == JsonValueKind.True, str(p, "txt"),
+					p.TryGetProperty("e", out var e) && e.TryGetInt32(out var entity) ? entity : -1));
 		var teams = RadarTeams(raw.Select(r => (r.Kit, r.Sub)).ToList());
-		var men = raw.Select((r, i) => new Man(r.Number, r.X, r.Y, r.Kit, r.Sub, teams[i], r.Text)).ToList();
+		var men = raw.Select((r, i) => new Man(r.Number, r.X, r.Y, r.Kit, r.Sub, teams[i], r.Text, r.Entity)).ToList();
 		var ball = json.TryGetProperty("ball", out var b) && b.ValueKind == JsonValueKind.Object
 			? (Number(b, "x"), Number(b, "y"), Number(b, "h"))
 			: (0, 0, 0);

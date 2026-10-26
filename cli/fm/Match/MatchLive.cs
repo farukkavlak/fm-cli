@@ -80,8 +80,9 @@ internal static class MatchLive
 		var text = string.Join("\n", lines);
 		if (text == last) return;
 		last = text;
-		Console.Write("\x1b[H\x1b[2J");
-		Console.WriteLine(text);
+		// Written over the last panel rather than after clearing it, so a panel drawn many times a
+		// second does not flicker; the terminals that know it show each one whole (mode 2026).
+		Console.Write("\x1b[?2026h\x1b[H" + string.Join("\n", lines.Select(l => l + "\x1b[0m\x1b[K")) + "\n\x1b[J\x1b[?2026l");
 	}
 
 	// The words that make a line a key moment, in the two languages the CLI can read. Unknown
