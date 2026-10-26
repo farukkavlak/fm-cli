@@ -6,7 +6,12 @@ cd "${0:A:h}/.."
 
 dotnet publish cli/fm -c Release -r osx-arm64 --self-contained true \
 	-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
-	-o dist/fm
+	-o dist/fm.next
+# A running `fm mcp` maps the old file; writing over it breaks that process ("type initializer").
+# Renaming keeps the old file alive for it until it exits.
+mkdir -p dist/fm
+for f in dist/fm.next/*; do mv -f "$f" dist/fm/; done
+rmdir dist/fm.next
 
 dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release >/dev/null
 mkdir -p dist

@@ -148,6 +148,9 @@ Regenerate the list after code changes: `tools/identity-check.py uses`.
   taking him out of the eleven is not enough. Each selection slot, the bench's too, has a list
   with an "All Players" submenu: `pickable?slot=N` lists who it offers (player index; the squad's
   `Index` property names them), `pickplayer` puts one there.
+- Publishing `fm` over the file a running `fm mcp` uses breaks that process ("The type initializer
+  for 'FmCli.Program' threw an exception"). `tools/publish.sh` and `tools/install.sh` publish to
+  `dist/fm.next` and rename the files into place, so the old process keeps its copy.
 - The highlight speed slider, opened again a few seconds after a change, still shows the speed
   before it; count steps from the last speed set, not from the slider.
 

@@ -32,7 +32,12 @@ cp plugin/FmCliProbe/bin/Release/net6.0/FmCliProbe.dll "$PLUGIN/"
 echo "building fm…"
 dotnet publish cli/fm -c Release -r osx-arm64 --self-contained true \
 	-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
-	-o dist/fm >/dev/null
+	-o dist/fm.next >/dev/null
+# A running `fm mcp` maps the old file; writing over it breaks that process ("type initializer").
+# Renaming keeps the old file alive for it until it exits.
+mkdir -p dist/fm
+for f in dist/fm.next/*; do mv -f "$f" dist/fm/; done
+rmdir dist/fm.next
 mkdir -p "$BIN"
 ln -sf "$PWD/dist/fm/fm" "$BIN/fm"
 
