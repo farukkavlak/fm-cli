@@ -117,6 +117,15 @@ little work; text- and position-based ones must be rewritten.
 - Some actions (mutual termination) apply without asking. Re-read a list before answering by number.
 - `IsInjured` is not "cannot play": the game's Quick Pick started a man with a training knock and
   the match went on. Do not tell the user a match will not start; say he may play injured.
+- Match speed is not a dropdown: it is two sliders in the match screen's settings panel (the button
+  inside the template's `#settings` block; close with `PanelHistoryClose`). A change there holds at
+  once. Highlights at 10x jump the radar about three game seconds per redraw; at 1x it is smooth.
+- The staff can put a suggestion on the pre-match team news (`DoItDugoutEvent`, texts at
+  `content.Description` / `content.Text`). `DuringMatch` is already true on that screen.
+- Bringing the game forward (`activate`) puts its window over whatever the user is doing. A whole
+  match ran with the game hidden; hide it again after any command that has to activate it.
+- Once (Sampdoria away) the team talk's `MatchContinue` did nothing however it was pressed; only a
+  restart of the game cleared it.
 
 ## Fragility review (FM26)
 
