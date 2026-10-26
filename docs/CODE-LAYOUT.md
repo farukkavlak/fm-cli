@@ -70,6 +70,7 @@
   them in the pixel, braille and isometric styles (see `docs/experiments/radar-styles`).
 - `tools/radar-catalog.py` + `tools/catalog/` + `tools/mock_match.py` — the visualization catalog from
   mock data, as PNGs, terminal previews and real ANSI output (see `docs/experiments/catalog-draft`).
+- `tools/live-gif.py` — captured live-panel frames to a GIF (title strip, goal-centred slice).
 
 Add a command in a new file of the same `Program` partial; do not grow `Program.cs`. Keep reads and
 writes of one command together. Reuse `Table`/`Ui` before adding a formatter.
