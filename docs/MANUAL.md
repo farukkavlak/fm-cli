@@ -167,9 +167,13 @@ run or an MCP call keeps the plain line-by-line output. Keys during play: `s` su
 (mentality or role), `v` view (full, key moments, score only), `a` radar on/off, `r` radar style, `+`/`-` speed (when the match screen offers it; otherwise it points to settings). The pitch
 refreshes after a substitution; at an injury stop it names the player and asks who comes on. The
 radar draws the ball and every player from the game's own match simulation, so it shows the real
-shape rather than a sketch. It comes in four styles, `r` cycling through them: `pixel` (a retro
-pitch with little players in their kits; needs 24-bit colour), `braille` (fine dots, any terminal),
-`colour` (coloured ASCII on mown stripes) and `ascii` (plain). `auto`, the default, is `pixel` where
+shape rather than a sketch. It comes in seven styles, `r` cycling through them: `pixel` (a retro
+pitch with little players in their kits; needs 24-bit colour), three 3D scenes that need 24-bit
+colour and follow the ball — `iso` (isometric stadium), `raycast` (a low camera on the pitch) and
+`voxel` (little cubes) — then `braille` (fine dots, any terminal), `colour` (coloured ASCII on mown
+stripes) and `ascii` (plain). The 3D scenes use sextant blocks (six pixels a cell) in Ghostty, kitty,
+WezTerm, iTerm2 and VS Code and half blocks elsewhere (`FM_SEXTANTS=0` or `1` overrides); without
+24-bit colour they say so and show braille. `auto`, the default, is `pixel` where
 the terminal has 24-bit colour and `braille` otherwise. The radar takes the panel's width (up to 86
 columns); when the window is too small for the chosen style it says how much room it needs, and
 pressing `r` turns colour on if it was off and the next style needs it. Live possession/shots are not in the game's bindings during
@@ -183,7 +187,7 @@ The panel's own settings live in `~/.config/fm-cli/panel.json`; change them with
 fm settings panel                              # show them
 fm settings panel view key                     # full, key or score
 fm settings panel pitch off events 5 colour off radar on
-fm settings panel radar braille                # pixel, braille, colour, ascii or auto; shows a preview
+fm settings panel radar braille                # pixel, iso, raycast, voxel, braille, colour, ascii or auto; shows a preview
 fm settings panel reset
 ```
 

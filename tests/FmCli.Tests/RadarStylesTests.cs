@@ -26,6 +26,9 @@ public class RadarStylesTests
 	[InlineData("color", "colour")]
 	[InlineData("klasik", "ascii")]
 	[InlineData("auto", "auto")]
+	[InlineData("izometrik", "iso")]
+	[InlineData("raycast", "raycast")]
+	[InlineData("voksel", "voxel")]
 	public void ParsesStyleNames(string text, string expected) =>
 		Assert.Equal(expected, Program.ParseRadarStyle(text));
 
@@ -42,11 +45,15 @@ public class RadarStylesTests
 	[InlineData("colour", 84, 21)]
 	[InlineData("ascii", 70, 50)]
 	[InlineData("ascii", 84, 21)]
+	[InlineData("iso", 120, 40)]
+	[InlineData("raycast", 160, 30)]
+	[InlineData("voxel", 84, 21)]
 	public void FitsTheRoomItIsGiven(string style, int cols, int rows)
 	{
 		var lines = Program.RadarView(Frame(), Sides, style, true, cols, rows);
 		Assert.InRange(lines.Count, 2, rows);
-		Assert.All(lines, l => Assert.True(Plain(l).Length <= cols + 2, $"{Plain(l).Length} > {cols + 2}"));
+		// sextants lie outside the 16-bit range, two chars each but one cell
+		Assert.All(lines, l => Assert.True(Plain(l).EnumerateRunes().Count() <= cols + 2, $"{Plain(l).EnumerateRunes().Count()} > {cols + 2}"));
 	}
 
 	[Fact]
@@ -146,6 +153,23 @@ public class RadarStylesTests
 		var b = Ansi.Apart256(a, new Rgb(r2, g2, b2));
 		Assert.NotEqual(Ansi.Index(a), Ansi.Index(b));
 		Assert.True(a.Distance(b) < 90, $"{b} moved too far from {a}");
+	}
+
+	[Theory]
+	[InlineData(1, 0x1FB00)]
+	[InlineData(20, 0x1FB13)]
+	[InlineData(22, 0x1FB14)]
+	[InlineData(62, 0x1FB3B)]
+	public void NamesSextants(int bits, int codePoint) =>
+		Assert.Equal(char.ConvertFromUtf32(codePoint), Cells.SextantGlyph(bits));
+
+	[Fact]
+	public void SplitsACellBetweenItsTwoColours()
+	{
+		// white on the left, black on the right: the right half in the foreground, as the first pixel is background
+		var px = new Rgb[3, 2];
+		for (var y = 0; y < 3; y++) (px[y, 0], px[y, 1]) = (new Rgb(255, 255, 255), new Rgb(0, 0, 0));
+		Assert.Equal("▐", Plain(Cells.Sextants(px)[0]));
 	}
 
 	[Fact]

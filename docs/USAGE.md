@@ -73,7 +73,7 @@ The radar is a top-down picture of the match from the game's own simulation: the
 player are entities with a position, so the panel draws the real shape and movement, not a guess
 from a screenshot. The plugin's `/radar` route returns normalized positions (`x`, `y`), the ball's
 height and each player's shirt number, kit colour and substitute flag. It refreshes every couple of
-seconds; `a` hides it and `r` switches its style (pixel, braille, coloured ASCII, plain ASCII;
+seconds; `a` hides it and `r` switches its style (pixel, the 3D iso/raycast/voxel scenes, braille, coloured ASCII, plain ASCII;
 the choice is kept in `panel.json`; `r` turns colour on if it was off and the next style needs it).
 It takes the panel's width (up to 86 columns) and the shape pitch's place, keeps the pitch in
 proportion within the rows left over, and says how much room it needs when the window is too small.
@@ -181,7 +181,7 @@ fm — run Football Manager 26 from the terminal
   settings        game settings: match display and speed, auto save, language, currency, units
   settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x); with no value it is chosen with the arrow keys
   lang            CLI language: english, turkish or auto (follow the game); FM_LANG also works
-  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|braille|colour|ascii|auto]   the live match panel
+  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|iso|raycast|voxel|braille|colour|ascii|auto]   the live match panel
   happiness       the players' happiness, unhappiest first
     happiness <player>   why: morale, their place in the dressing room, what pleases them and what they complain about
     --why           everyone with a complaint, with their complaints

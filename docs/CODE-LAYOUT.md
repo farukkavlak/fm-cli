@@ -47,9 +47,11 @@
 - `Core/Reads.cs` — search and player; `Reads.Squad.cs` — squad views; `Reads.League.cs` — league,
   fixtures, progress; `Reads.Player.cs` — player card and history.
 - `Match/MatchDay.cs` — main loop; `MatchLive.cs` — score/clock/event panel at a terminal;
-  `MatchRadar.cs` — reading and parsing the `/radar` frame; `RadarStyles.cs` — the four radar
-  looks (pixel, braille, coloured and plain ASCII) fitted to the room left; `RadarCells.cs` — colour
-  (24-bit or 256), the character grid, braille and half blocks; `RadarSample.cs` — a real frame for
+  `MatchRadar.cs` — reading and parsing the `/radar` frame; `RadarStyles.cs` — the flat radar
+  looks (pixel, braille, coloured and plain ASCII) fitted to the room left; `RadarScene.cs` — the 3D
+  ones (iso, raycast, voxel), ported from `tools/catalog/scene.py`/`voxel.py`, drawn by `Raster3D.cs`
+  (camera, polygon fill, shrink and sharpen, no packages); `RadarCells.cs` — colour
+  (24-bit or 256), the character grid, braille, half blocks and sextants; `RadarSample.cs` — a real frame for
   the settings preview;
   `PanelConfig.cs` + `PanelSettings.cs` — the panel file and `fm settings panel`;
   `MatchDay.Instant.cs` — instant result; `MatchDay.Team.cs` — lineups; `MatchDay.Substitute.cs` —

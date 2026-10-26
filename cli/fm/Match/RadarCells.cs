@@ -56,6 +56,25 @@ internal static class Ansi
 		return term.Contains("kitty") || term.Contains("ghostty") || term.Contains("direct");
 	}
 
+	private static bool? sextants;
+
+	/// <summary>
+	/// Whether the terminal draws the sextant blocks (2×3 to a cell) itself, as Ghostty, kitty,
+	/// WezTerm, iTerm2 and VS Code do; elsewhere the font may lack them, so half blocks are used.
+	/// FM_SEXTANTS=0 or 1 says so outright.
+	/// </summary>
+	public static bool Sextants => sextants ??= DetectSextants();
+
+	private static bool DetectSextants()
+	{
+		var forced = Environment.GetEnvironmentVariable("FM_SEXTANTS");
+		if (forced is "0" or "1") return forced == "1";
+		var program = Environment.GetEnvironmentVariable("TERM_PROGRAM") ?? "";
+		if (program is "iTerm.app" or "vscode" or "WezTerm" or "ghostty") return true;
+		var term = Environment.GetEnvironmentVariable("TERM") ?? "";
+		return term.Contains("kitty") || term.Contains("ghostty");
+	}
+
 	public static string Fg(Rgb c) => TrueColour ? $"\x1b[38;2;{c.R};{c.G};{c.B}m" : $"\x1b[38;5;{Index(c)}m";
 
 	public static string Bg(Rgb c) => TrueColour ? $"\x1b[48;2;{c.R};{c.G};{c.B}m" : $"\x1b[48;5;{Index(c)}m";
@@ -229,4 +248,65 @@ internal static class Cells
 		}
 		return lines;
 	}
+
+	/// <summary>
+	/// A picture two pixels wide and three tall a cell, as sextant blocks: each cell takes the two
+	/// colours, and the split of its six pixels between them, that are nearest what is there.
+	/// </summary>
+	public static List<string> Sextants(Rgb[,] px)
+	{
+		var rows = px.GetLength(0) / 3;
+		var cols = px.GetLength(1) / 2;
+		var lines = new List<string>(rows);
+		Span<int> r = stackalloc int[6], g = stackalloc int[6], b = stackalloc int[6];
+		for (var row = 0; row < rows; row++)
+		{
+			var sb = new StringBuilder(cols * 24);
+			(Rgb, Rgb)? state = null;
+			for (var col = 0; col < cols; col++)
+			{
+				for (var i = 0; i < 6; i++)
+				{
+					var p = px[row * 3 + i / 2, col * 2 + i % 2];
+					(r[i], g[i], b[i]) = (p.R, p.G, p.B);
+				}
+				// The first pixel always in the background: a split and its mirror are the same cell.
+				var (bestErr, bestMask) = (long.MaxValue, 0);
+				Rgb fg = default, bg = default;
+				for (var m = 0; m < 64; m += 2)
+				{
+					int fr = 0, fgr = 0, fb = 0, nf = 0, br = 0, bgr = 0, bb = 0, nb = 0;
+					for (var i = 0; i < 6; i++)
+						if ((m >> i & 1) != 0) { fr += r[i]; fgr += g[i]; fb += b[i]; nf++; }
+						else { br += r[i]; bgr += g[i]; bb += b[i]; nb++; }
+					var f = nf > 0 ? new Rgb((byte)((fr + nf / 2) / nf), (byte)((fgr + nf / 2) / nf), (byte)((fb + nf / 2) / nf)) : default;
+					var k = new Rgb((byte)((br + nb / 2) / nb), (byte)((bgr + nb / 2) / nb), (byte)((bb + nb / 2) / nb));
+					long err = 0;
+					for (var i = 0; i < 6; i++)
+					{
+						var c = (m >> i & 1) != 0 ? f : k;
+						err += (r[i] - c.R) * (r[i] - c.R) + (g[i] - c.G) * (g[i] - c.G) + (b[i] - c.B) * (b[i] - c.B);
+					}
+					if (err < bestErr) (bestErr, bestMask, fg, bg) = (err, m, f, k);
+				}
+				if (bestMask == 0) fg = bg;
+				var cell = (fg, bg);
+				if (cell != state) { sb.Append(Ansi.Fg(fg)).Append(Ansi.Bg(bg)); state = cell; }
+				sb.Append(SextantGlyph(bestMask));
+			}
+			sb.Append(Ansi.Reset);
+			lines.Add(sb.ToString());
+		}
+		return lines;
+	}
+
+	/// <summary>Six pixels, row by row (top left = 1 … bottom right = 32), as a character.</summary>
+	internal static string SextantGlyph(int bits) => bits switch
+	{
+		0 => " ",
+		63 => "█",
+		21 => "▌",
+		42 => "▐",
+		_ => char.ConvertFromUtf32(0x1FB00 + bits - 1 - (bits > 21 ? 1 : 0) - (bits > 42 ? 1 : 0)),
+	};
 }

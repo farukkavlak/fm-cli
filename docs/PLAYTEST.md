@@ -22,8 +22,8 @@
 - [ ] `match --instant` prints **this** match's score, not the previous report.
 - [ ] `match --play` gets through narration, goals, half time and full time.
 - [ ] At a terminal, `match --play` shows the live score/event panel and the radar (it takes the
-  shape pitch's place); `a` hides and shows the radar, `r` cycles its style (pixel, braille, colour,
-  ascii) and the next match starts in the last one; if colour is off, `r` turns it on for the colour
+  shape pitch's place); `a` hides and shows the radar, `r` cycles its style (pixel, iso, raycast,
+  voxel, braille, colour, ascii; the 3D ones only with 24-bit colour) and the next match starts in the last one; if colour is off, `r` turns it on for the colour
   styles; a small window keeps the shape pitch and shows how much room the radar needs; a redirected
   run stays line-by-line.
 - [ ] `fm settings panel radar braille` shows a preview of the style on a real frame; in Terminal.app

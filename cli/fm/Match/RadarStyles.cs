@@ -7,8 +7,8 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	/// <summary>The styles in the order `r` cycles through them.</summary>
-	internal static readonly string[] RadarStyles = ["pixel", "braille", "colour", "ascii"];
+	/// <summary>The styles in the order `r` cycles through them; the 3D ones only where there is 24-bit colour.</summary>
+	internal static string[] RadarStyles => Ansi.TrueColour ? ["pixel", "iso", "raycast", "voxel", "braille", "colour", "ascii"] : ["pixel", "braille", "colour", "ascii"];
 
 	/// <summary>The two sides as the panel names them, and which one is ours.</summary>
 	internal sealed record RadarSides(string Home, string Away, bool WeAreHome);
@@ -34,6 +34,9 @@ internal static partial class Program
 		"braille" or "dots" or "nokta" => "braille",
 		"colour" or "color" or "renkli" => "colour",
 		"ascii" or "classic" or "klasik" => "ascii",
+		"iso" or "isometric" or "izometrik" => "iso",
+		"raycast" or "ray" or "fps" => "raycast",
+		"voxel" or "voksel" or "kup" or "küp" => "voxel",
 		"auto" or "otomatik" => "auto",
 		_ => null,
 	};
@@ -42,7 +45,8 @@ internal static partial class Program
 	internal static string ResolveRadarStyle(string style, bool colour)
 	{
 		if (!colour) return "ascii";
-		if (style == "auto" || Array.IndexOf(RadarStyles, style) < 0) return Ansi.TrueColour ? "pixel" : "braille";
+		// A 3D style stays one where it cannot be drawn, so the radar can say why.
+		if (style == "auto" || (Array.IndexOf(RadarStyles, style) < 0 && !IsSceneStyle(style))) return Ansi.TrueColour ? "pixel" : "braille";
 		return style;
 	}
 
@@ -50,8 +54,16 @@ internal static partial class Program
 	internal static List<string> RadarView(RadarFrame frame, RadarSides sides, string style, bool colour, int maxCols, int maxRows)
 	{
 		style = ResolveRadarStyle(style, colour);
+		// A 3D style is two colours to a cell, which the 256 colours cannot give: say so and show braille.
+		if (IsSceneStyle(style) && !Ansi.TrueColour)
+		{
+			var why = "  " + L("3D styles need 24-bit colour (Ghostty, iTerm2, VS Code); r for another.");
+			if (why.Length > maxCols) why = why[..Math.Max(1, maxCols - 1)] + "…";
+			return [why, .. RadarView(frame, sides, "braille", colour, maxCols, maxRows - 1)];
+		}
 		var (minCols, rowsFor, colsFor) = style switch
 		{
+			"iso" or "raycast" or "voxel" => (48, (Func<int, int>)SceneRows, (Func<int, int>)SceneCols),
 			"braille" => (30, (Func<int, int>)(c => (int)Math.Round(c * 2 * PitchWidth / PitchLength / 4 * 1.12)), (Func<int, int>)(r => (int)(r / (2 * PitchWidth / PitchLength / 4 * 1.12)))),
 			"pixel" => (40, c => PixelRows(c), r => (int)((r * 2 - 14) * 1.85 + 10)),
 			_ => (40, c => (int)Math.Round((c - 4) * PitchWidth / PitchLength / CellAspect) + 2, r => (int)((r - 2) * CellAspect * PitchLength / PitchWidth + 4)),
@@ -71,6 +83,7 @@ internal static partial class Program
 		var lines = style switch
 		{
 			"braille" => BrailleRadar(frame, men, cols, rowsFor(cols)),
+			"iso" or "raycast" or "voxel" => SceneRadar(frame, men, style, cols, rowsFor(cols)),
 			"pixel" => PixelRadar(frame, men, cols, rowsFor(cols)),
 			"colour" => AsciiRadar(frame, men, sides, cols, rowsFor(cols), true, true),
 			_ => AsciiRadar(frame, men, sides, cols, rowsFor(cols), colour, false),
