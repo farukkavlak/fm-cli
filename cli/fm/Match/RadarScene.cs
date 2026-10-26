@@ -32,7 +32,7 @@ internal static partial class Program
 		public bool Checker;
 		public Rgb SkyTop = new(8, 12, 22), SkyBottom = new(22, 30, 44);
 		public Rgb Stand = new(40, 44, 54), StandFace = new(26, 30, 38), Roof = new(18, 20, 26);
-		public double CrowdLight = 1, CrowdDensity = 1, CrowdCalm, ExaggerateBall = 2.4, Rise = 1;
+		public double CrowdLight = 1, CrowdDensity = 1, CrowdCalm, CrowdHaze, ExaggerateBall = 2.4, Rise = 1;
 		public string[] Stands = ["far", "left", "right"];
 		public string Shadows = "flood";
 		public bool Roofs = true, Cutaway;
@@ -95,7 +95,7 @@ internal static partial class Program
 				{
 					Stands = ["far", "near", "left", "right"], SkyTop = new(6, 9, 14), SkyBottom = new(10, 14, 22),
 					GrassA = new(70, 150, 62), GrassB = new(58, 134, 54), Checker = true, Surround = new(48, 112, 46),
-					Shadows = "sun", Roofs = false, Cutaway = true, LineW = 0.42,
+					Shadows = "sun", Roofs = false, Cutaway = true, LineW = 0.42, CrowdHaze = 0.75,
 				};
 				Stadium(st, look, figures, ball, home, away, 3.8);
 				break;
@@ -103,19 +103,19 @@ internal static partial class Program
 			case "raycast":
 			{
 				var target = new V3(fx, fy, 1.3);
-				var eye = new V3(Math.Clamp(fx - 10, -6, PitchLength + 6), Math.Min(fy + 16, PitchWidth + 6), 2.0);
+				var eye = new V3(Math.Clamp(fx - 10, -6, PitchLength + 6), Math.Min(fy + 16, PitchWidth + 6), 3.2);
 				st.Camera(eye, target, fov: 38);
 				var look = new Look
 				{
 					Stands = ["far", "left", "right", "near"], SkyTop = new(10, 14, 34), SkyBottom = new(34, 44, 80),
 					GrassA = new(60, 156, 62), GrassB = new(46, 132, 50), LineW = 0.32, CrowdLight = 1.2,
-					ExaggerateBall = 1.4, Rise = 1.5, CrowdCalm = 0.8,
+					ExaggerateBall = 1.4, Rise = 1.5, CrowdCalm = 0.8, CrowdHaze = 0.7,
 				};
 				Stadium(st, look, figures, ball, home, away, 1.5);
 				break;
 			}
 			default:
-				VoxelScene(st, figures, ball, home, away, (fx, fy), 10.0 * 1.12 * zoom, 0.72);
+				VoxelScene(st, figures, ball, home, away, (fx, fy), 10.0 * 0.8 * zoom, 0.72);
 				break;
 		}
 		return st.Canvas;
@@ -275,6 +275,8 @@ internal static partial class Program
 		var rng = new Random(seed);
 		var seats = new List<(double Depth, double Sx, double Sy, double K, Rgb Colour, Rgb Skin)>(rows * cols);
 		var calm = look.CrowdCalm;
+		// Seat by seat the crowd is noise in a few cells; haze draws each seat toward the stand's own colour.
+		var haze = (sb.HomeShare >= 0.5 ? homeCol : awayCol).Mix(look.Stand, 0.55);
 		for (var r = 0; r < rows; r++)
 			for (var c = 0; c < cols; c++)
 			{
@@ -296,7 +298,7 @@ internal static partial class Program
 				var team = pick < sb.HomeShare ? homeCol : awayCol;
 				var baseColour = other < 0.62 + 0.3 * calm ? team : neutral;
 				var light = (0.55 + 0.45 * (1 - s)) * look.CrowdLight;
-				var colour = Scale(baseColour, light * jitter);
+				var colour = Scale(baseColour.Mix(haze, look.CrowdHaze), light * jitter);
 				seats.Add((cp.Z, sx, sy, k, colour, Scale(skin, light)));
 			}
 		foreach (var seat in seats.OrderByDescending(s => s.Depth))
@@ -490,7 +492,8 @@ internal static partial class Program
 			actors.Add((cam.Depth(new V3(side == 0 ? -1 : PitchLength + 1, PitchWidth / 2, 1.2)), () => Goal(st, side, look)));
 		actors.Add((cam.Depth(ball), () => Ball(st, ball, look)));
 		foreach (var actor in actors.OrderByDescending(a => a.Depth)) actor.Draw();
-		foreach (var s in sides) if (BoardIsNear(s)) Boards(st, s);
+		// A low camera behind a board would see it fill a corner (seen live by the touchline): it looks over it.
+		if (cam.Ortho != null) foreach (var s in sides) if (BoardIsNear(s)) Boards(st, s);
 		foreach (var (n, i) in late) Build(n, i);
 	}
 
