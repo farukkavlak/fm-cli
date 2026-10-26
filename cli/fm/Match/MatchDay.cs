@@ -228,8 +228,8 @@ internal static partial class Program
 			// period drops straight from the second half): so it is looked at now and then through the
 			// match, more often near the end, and the last reading that found them is kept. They are there
 			// about half the time, in stretches of some twenty seconds, so until one reading has found them
-			// it is tried every fifteen seconds: at wider gaps a whole match went by unseen. A reading walks
-			// the whole screen and holds the live panel for seconds (Spezia, 26 Ekim 2026), so not oftener.
+			// it is tried every fifteen seconds: at wider gaps a whole match went by unseen. A reading is some
+			// hundred parts, under a second in batches but still a pause in the panel, so not oftener.
 			if (Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
 			    && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(finalMen == null ? 15 : lateMinute >= 80 ? 10 : 30))
 			{

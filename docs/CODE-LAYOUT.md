@@ -6,7 +6,7 @@
 |---|---|---|
 | CLI entry | `cli/fm/Program.cs` | `main`, command routing, session, version check |
 | CLI commands | `cli/fm/{Core,Match,Squad,Transfer,Club}/` | one command or read; all are part of the `Program` partial |
-| Game bridge | `cli/fm/Core/Bridge.cs` | HTTP, port, errors, timeouts |
+| Game bridge | `cli/fm/Core/Bridge.cs` | HTTP, port, errors, timeouts, `Batch` (many requests in one game frame) |
 | Game reads | `cli/fm/Core/Reads*.cs`, `Core/Clock*.cs`, `Match/Guided*.cs`, `Match/MatchDay*.cs` | data paths, pages, match flow |
 | Formatting | `cli/fm/Core/Table.cs`, `Ui.cs`, `MoneyFormat.cs`, `JsonOut.cs`, `InboxView.cs` | tables, terminal, money and numbers |
 | Text | `cli/fm/Core/Labels.cs`, `Lang.cs`, `GameWords.cs`, `EngineTexts.cs` | English source, Turkish catalog, language choice, the game's words |

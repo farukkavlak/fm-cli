@@ -248,20 +248,19 @@ internal static partial class Program
 			.GroupBy(p => System.Text.RegularExpressions.Regex.Replace(p, @"\.[^.]+\.\d+\.Position\.MatchPlayer$", ""))
 			.Select(g => g.ToList()).ToList();
 		var firsts = new List<(string Path, string Props)>();
+		var placed = await PathSets(tiles.Select((tile, t) => ($"fmcli.mp.t{t}", tile[0])).ToList());
 		for (var t = 0; t < tiles.Count; t++)
-		{
-			try { await Fm.Get("pathset", ("to", $"fmcli.mp.t{t}"), ("from", tiles[t][0])); } catch (FmError) { continue; }
-			firsts.Add(($"fmcli.mp.t{t}.Player", "Name"));
-		}
+			if (placed[t]) firsts.Add(($"fmcli.mp.t{t}.Player", "Name"));
 		var leaders = await PullEach(firsts);
 		paths = tiles.Where((tile, t) => t < leaders.Count).Select((tile, t) => (tile, Lead: Field(leaders[t], "Name")))
 			.Where(x => x.Lead.Length > 0).GroupBy(x => x.Lead).Select(g => g.OrderByDescending(x => x.tile.Count).First().tile)
 			.SelectMany(tile => tile).ToList();
 
 		var readings = new List<(string Path, string Props)>();
+		var set = await PathSets(paths.Select((path, i) => ($"fmcli.mp.p{i}", path)).ToList());
 		for (var i = 0; i < paths.Count; i++)
 		{
-			try { await Fm.Get("pathset", ("to", $"fmcli.mp.p{i}"), ("from", paths[i])); } catch (FmError) { continue; }
+			if (!set[i]) continue;
 			readings.Add(($"fmcli.mp.p{i}", "MatchInjuryType,YellowCardedInMatch,RedCardedInMatch,MatchRating,PitchShirtShowUnavailableFlag"));
 			readings.Add(($"fmcli.mp.p{i}.Player", "Name"));
 		}
@@ -293,5 +292,22 @@ internal static partial class Program
 				catch (FmError) { }
 			}
 		return men;
+	}
+
+	/// <summary>
+	/// Each path put at a node of ours, in one batch when the plugin takes them; whether each was.
+	/// One at a time, the eighty of a match screen took seconds.
+	/// </summary>
+	private static async Task<List<bool>> PathSets(IReadOnlyList<(string To, string From)> sets)
+	{
+		if (await Fm.Batch(sets.Select(s => ("pathset", new[] { ("to", s.To), ("from", s.From) })).ToList()) is { } answers)
+			return answers.Select(a => !a.StartsWith("error", StringComparison.Ordinal)).ToList();
+		var done = new List<bool>();
+		foreach (var (to, from) in sets)
+		{
+			try { done.Add(!(await Fm.Get("pathset", ("to", to), ("from", from))).StartsWith("error", StringComparison.Ordinal)); }
+			catch (FmError) { done.Add(false); }
+		}
+		return done;
 	}
 }

@@ -67,6 +67,39 @@ internal sealed class Bridge
 		}
 	}
 
+	// Whether the running plugin takes batches; an older one answers "unknown route" once and is
+	// then asked one request at a time.
+	private bool? batches;
+
+	/// <summary>
+	/// Several requests run by the game in one frame, answers in the same order; null when the
+	/// plugin is too old for it. One at a time each waits for a frame of its own (~35 ms), so a
+	/// reading of a hundred parts held the live panel for seconds.
+	/// </summary>
+	public async Task<List<string>?> Batch(IReadOnlyList<(string Route, (string Key, string Value)[] Query)> requests)
+	{
+		if (batches == false || requests.Count == 0) return requests.Count == 0 ? [] : null;
+		var lines = string.Join("\n", requests.Select(r => r.Route + (r.Query.Length > 0
+			? "?" + string.Join("&", r.Query.Select(q => $"{q.Key}={Uri.EscapeDataString(q.Value)}"))
+			: "")));
+		try
+		{
+			var started = Clock.ElapsedMilliseconds;
+			using var response = await _http.PostAsync(Base + "batch", new StringContent(lines, System.Text.Encoding.UTF8, "text/plain"));
+			if (response.StatusCode == System.Net.HttpStatusCode.NotFound) { batches = false; return null; }
+			response.EnsureSuccessStatusCode();
+			if (response.Headers.TryGetValues("X-Shown", out var shown)) GameWords.Learn(shown.FirstOrDefault());
+			if (response.Headers.TryGetValues("X-Language", out var language)) Labels.Heard(language.FirstOrDefault());
+			var body = await response.Content.ReadAsStringAsync();
+			if (Trace) Console.Error.WriteLine($"[{started / 1000.0,6:0.00}s +{Clock.ElapsedMilliseconds - started,5}ms] batch ×{requests.Count}");
+			if (!body.TrimStart().StartsWith('[')) { batches = false; return null; }
+			batches = true;
+			return JsonSerializer.Deserialize<List<string>>(body);
+		}
+		catch (HttpRequestException) { throw new FmUnavailable(); }
+		catch (TaskCanceledException) { throw new FmBusy(); }
+	}
+
 	public async Task<JsonElement> GetJson(string route, params (string, string)[] query)
 	{
 		var body = await Get(route, query);

@@ -37,6 +37,7 @@ internal sealed class HttpBridge
 	{
 		public string Route;
 		public NameValueCollection Query;
+		public string Body;
 		public string Result;
 		public string Shown;
 		public string Language;
@@ -109,6 +110,9 @@ internal sealed class HttpBridge
 			{
 				Route = ctx.Request.Url.AbsolutePath.Trim('/').ToLowerInvariant(),
 				Query = ctx.Request.QueryString,
+				Body = ctx.Request.HasEntityBody
+					? new System.IO.StreamReader(ctx.Request.InputStream, Encoding.UTF8).ReadToEnd()
+					: null,
 			};
 			_jobs.Enqueue(job);
 
@@ -138,13 +142,34 @@ internal sealed class HttpBridge
 		catch { /* client hung up */ }
 	}
 
+	/// <summary>
+	/// Several requests in one frame: one a line, <c>route?query</c>, run in order, their answers a
+	/// JSON array in the same order. Each request otherwise waits for a frame of its own, so a
+	/// reading of a hundred small parts took seconds (the match players, 26 Ekim 2026).
+	/// </summary>
+	private string Batch(string lines)
+	{
+		var answers = new System.Collections.Generic.List<string>();
+		foreach (var raw in lines.Split('\n'))
+		{
+			var line = raw.Trim();
+			if (line.Length == 0) continue;
+			var cut = line.IndexOf('?');
+			var route = (cut < 0 ? line : line[..cut]).Trim('/').ToLowerInvariant();
+			var query = System.Web.HttpUtility.ParseQueryString(cut < 0 ? "" : line[(cut + 1)..]);
+			try { answers.Add(route == "batch" ? "error: a batch cannot hold a batch" : _handle(route, query) ?? "unknown route"); }
+			catch (Exception ex) { answers.Add("error: " + ex.Message); }
+		}
+		return System.Text.Json.JsonSerializer.Serialize(answers);
+	}
+
 	/// <summary>Run queued requests. Must be called from Unity's main thread.</summary>
 	public void Pump()
 	{
 		while (_jobs.TryDequeue(out var job))
 		{
 			Localisation.Forget();
-			try { job.Result = _handle(job.Route, job.Query); }
+			try { job.Result = job.Route == "batch" ? Batch(job.Body ?? job.Query["lines"] ?? "") : _handle(job.Route, job.Query); }
 			catch (Exception ex) { job.Result = "error: " + ex; }
 			finally
 			{

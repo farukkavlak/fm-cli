@@ -240,11 +240,20 @@ internal static partial class Program
 		for (var round = 0; round < 8; round++)
 		{
 			read = [];
-			foreach (var (path, props) in readings)
-			{
-				try { read.Add(await Fm.GetJson("pull", ("path", path), ("props", props))); }
-				catch (FmError) { read.Add(JsonDocument.Parse("{}").RootElement); }
-			}
+			// A round is one batch, the game reading every part in one frame; one at a time when
+			// the plugin cannot.
+			if (await Fm.Batch(readings.Select(r => ("pull", new[] { ("path", r.Path), ("props", r.Props) })).ToList()) is { } answers)
+				foreach (var answer in answers)
+				{
+					try { read.Add(JsonDocument.Parse(answer).RootElement.Clone()); }
+					catch (JsonException) { read.Add(JsonDocument.Parse("{}").RootElement); }
+				}
+			else
+				foreach (var (path, props) in readings)
+				{
+					try { read.Add(await Fm.GetJson("pull", ("path", path), ("props", props))); }
+					catch (FmError) { read.Add(JsonDocument.Parse("{}").RootElement); }
+				}
 			var now = string.Join("|", read.Select(r => r.GetRawText()));
 			var whole = read.Zip(readings).All(pair => pair.First!.ValueKind == JsonValueKind.Object
 				&& (pair.First.EnumerateObject().Count() >= pair.Second.Props.Split(',').Length || complete?.Invoke(pair.First) == true));
