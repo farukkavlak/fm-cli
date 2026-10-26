@@ -45,7 +45,8 @@ internal static class State
 		// by name, and only while there is a match to look in.
 		if (fields.TryGetValue("DuringMatch", out var during) && during == "True") Scoreboard(fields);
 
-		return Report.Json(fields) + "\n";
+		// The commentary is only read to the user: it stays in the game's words.
+		return Report.Json(fields, ["Commentary"]) + "\n";
 	}
 
 	private static readonly Dictionary<string, string> MatchFields = new()
@@ -72,7 +73,7 @@ internal static class State
 			{
 				var value = node.Value;
 				if (value == null || value.IsNull) continue;
-				text = Text.Of(value);
+				text = field == "Commentary" ? Text.ShownOf(value) : Text.Of(value);
 			}
 			catch { continue; }
 

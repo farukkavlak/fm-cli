@@ -139,6 +139,17 @@ Regenerate the list after code changes: `tools/identity-check.py uses`.
   match ran with the game hidden; hide it again after any command that has to activate it.
 - Once (Sampdoria away) the team talk's `MatchContinue` did nothing however it was pressed; only a
   restart of the game cleared it.
+- Every value the plugin writes as JSON (`Report.Json`) and every `find` goes back through the
+  English table, so a Turkish game's stock commentary ("Taç atışı kullanılacak") reached the panel
+  as "That's a throw-in" while lines with names stayed Turkish. Text that is only shown to the
+  user must skip that pass (`Report.Json(fields, ["Commentary"])`), and `find` is no proof of
+  what the game holds.
+- An injured man on the bench stops the match from starting ("… bu maçta kullanılamaz"), so
+  taking him out of the eleven is not enough. Each selection slot, the bench's too, has a list
+  with an "All Players" submenu: `pickable?slot=N` lists who it offers (player index; the squad's
+  `Index` property names them), `pickplayer` puts one there.
+- The highlight speed slider, opened again a few seconds after a change, still shows the speed
+  before it; count steps from the last speed set, not from the slider.
 
 ## Fragility review (FM26)
 

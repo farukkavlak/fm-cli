@@ -9,6 +9,16 @@ namespace FmCli;
 internal static class MatchLive
 {
 	private static string? last;
+	private static (string Text, DateTime Until)? note;
+	private static bool drawing;
+
+	/// <summary>A short word for the panel's footer, kept there a few seconds; false when no panel is drawn.</summary>
+	public static bool Note(string text)
+	{
+		if (!drawing) return false;
+		note = (text, DateTime.UtcNow + TimeSpan.FromSeconds(4));
+		return true;
+	}
 
 	/// <summary>The panel's inner width: the terminal's, with a floor and a ceiling.</summary>
 	internal static int Width
@@ -41,6 +51,7 @@ internal static class MatchLive
 		IReadOnlyList<string>? radar = null)
 	{
 		if (!Ui.Rich) return;
+		drawing = true;
 
 		string Paint(string code, string text) => config.Colour ? $"\x1b[{code}m{text}\x1b[0m" : text;
 		var lines = new List<string>
@@ -75,7 +86,8 @@ internal static class MatchLive
 		}
 		lines.Add("");
 		var mode = view switch { 0 => L("full"), 1 => L("key moments"), _ => L("score only") };
-		lines.Add($"  {Paint("2", L("[s] sub · [h] shout · [t] tactic · [v] view · [a] radar · [r] style · [+/-] speed") + $"   [{mode}]")}");
+		var said = note is { } n && n.Until > DateTime.UtcNow ? "   " + Paint("33", n.Text) : "";
+		lines.Add($"  {Paint("2", L("[s] sub · [h] shout · [t] tactic · [v] view · [a] radar · [r] style · [+/-] speed") + $"   [{mode}]")}{said}");
 
 		var text = string.Join("\n", lines);
 		if (text == last) return;
@@ -167,5 +179,10 @@ internal static class MatchLive
 	private static string Surname(string player) => player.Split(' ').Last();
 
 	/// <summary>Forgets the last drawing, so the next match starts with a fresh panel.</summary>
-	public static void Reset() => last = null;
+	public static void Reset()
+	{
+		last = null;
+		note = null;
+		drawing = false;
+	}
 }

@@ -68,6 +68,23 @@ internal static class Text
 	private static int[] Codes(string name) =>
 		name != null && name.EndsWith("MatchVenueShort", StringComparison.Ordinal) ? Localisation.VenueCodes : null;
 
+	/// <summary>
+	/// A bound value in the game's own words, not put into English: for text that is only read to
+	/// the user, never matched against. The commentary went through <see cref="Of"/> and came back
+	/// half English in a Turkish game: the stock lines ("Taç atışı kullanılacak") are in the table, those with names are not.
+	/// </summary>
+	public static string ShownOf(SI.Core.TypedValue value)
+	{
+		if (value == null || value.IsNull) return "";
+		try
+		{
+			return value.DataType?.Name == "TranslationID" && value.As<SI.Translation.TranslationID>() is var tid
+				? Shown(tid.TranslatedString)
+				: Shown(value.AsString());
+		}
+		catch { return ""; }
+	}
+
 	/// <summary>A text as the game shows it, markup and tags removed but not put into English.</summary>
 	internal static string Shown(string value)
 	{

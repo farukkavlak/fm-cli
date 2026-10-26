@@ -49,11 +49,14 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Steps the speed highlights play at, one notch of the game's own slider, from the match
+	/// Steps the speed highlights play at, by notches of the game's own slider, from the match
 	/// screen's settings panel: the change holds at once (1x to 10x mid-match, 8 Nisan 2029).
 	/// The panel opens from the button inside the template's #settings block and closes with
 	/// its own PanelHistoryClose; the slider is the preferences' one, found by its heading.
 	/// </summary>
+	// The highlight speed this match was last set to from the panel.
+	private static int? speedSet;
+
 	private static async Task<int> MatchSpeed(int step)
 	{
 		var setting = Settings.First(s => s.Heading == "Match Speed During Highlights");
@@ -93,9 +96,13 @@ internal static partial class Program
 
 		var low = (int)double.Parse(Field(slider.Value, "Low"), System.Globalization.CultureInfo.InvariantCulture);
 		var high = (int)double.Parse(Field(slider.Value, "High"), System.Globalization.CultureInfo.InvariantCulture);
-		var at = (int)double.Parse(Field(slider.Value, "Value"), System.Globalization.CultureInfo.InvariantCulture);
+		// The panel opened again a few seconds after a change still shows the speed before it, so a
+		// press counted from the slider was lost now and then (Salernitana, 4 Mayıs 2029: five presses
+		// two seconds apart came to four steps). Nobody else moves it during a match: the last one set counts.
+		var at = speedSet ?? (int)double.Parse(Field(slider.Value, "Value"), System.Globalization.CultureInfo.InvariantCulture);
 		var next = Math.Clamp(at + step, low, high);
 		var said = next == at ? "" : await Fm.Get("setcontrol", ("ptr", Field(slider.Value, "Pointer")), ("value", next.ToString()));
+		if (!said.StartsWith("error", StringComparison.Ordinal)) speedSet = next;
 
 		// The panel covers the match; its own close, whatever the speed came to.
 		var close = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -104,7 +111,9 @@ internal static partial class Program
 
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 		var steps = setting.Steps ?? [];
-		Console.WriteLine(L($"Speed: {(next < steps.Length ? steps[next] : next.ToString())}"));
+		var speed = L($"Speed: {(next < steps.Length ? steps[next] : next.ToString())}");
+		// Under the live panel a line is drawn over at once, so the panel shows it a while.
+		if (!MatchLive.Note(speed)) Console.WriteLine(speed);
 		return 0;
 	}
 
@@ -220,6 +229,7 @@ internal static partial class Program
 		var clockAt = DateTime.UtcNow;
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(40);
 		MatchLive.Reset();
+		speedSet = null;
 
 		while (DateTime.UtcNow < deadline)
 		{
@@ -437,7 +447,7 @@ internal static partial class Program
 					Console.WriteLine(L("  For a substitution: sub <off> <on> (it carries the match on too)   ·   to carry on without one: match"));
 					return 0;
 				}
-				Console.WriteLine(L($"  Injury stop: {down.FirstOrDefault() ?? L("a player")} cannot continue. Who comes on?"));
+				Console.WriteLine("  " + L($"Injury stop: {down.FirstOrDefault() ?? L("a player")} cannot continue. Who comes on?"));
 				await Substitute(false, down.Count > 0 ? ["sub", down[0]] : ["sub"]);
 				await LearnShape();
 				await Fm.Get("press", ("ptr", Field(PlannerStop(await Fm.GetJson("buttons", ("json", "1"))) ?? confirm, "Pointer")));
@@ -487,6 +497,7 @@ internal static partial class Program
 
 			if (live && !Console.IsInputRedirected)
 			{
+				var speedSteps = 0;
 				while (Console.KeyAvailable)
 				{
 					var key = char.ToLowerInvariant(Console.ReadKey(true).KeyChar);
@@ -520,10 +531,13 @@ internal static partial class Program
 							PanelConfig.Save(panel);
 							break;
 						}
-						case '+' or '=': await MatchSpeed(1); break;
-						case '-': await MatchSpeed(-1); break;
+						// Pressed together, the steps are made at once: four presses one after another
+						// came to two steps (Modena, 29 Nisan 2029).
+						case '+' or '=': speedSteps++; break;
+						case '-': speedSteps--; break;
 					}
 				}
+				if (speedSteps != 0) await MatchSpeed(speedSteps);
 			}
 			if (live)
 			{

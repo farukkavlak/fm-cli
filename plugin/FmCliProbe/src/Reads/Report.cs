@@ -537,8 +537,11 @@ internal static class Report
 		}
 	}
 
-	internal static string Json(Dictionary<string, string> fields) =>
-		"{" + string.Join(", ", fields.Select(kv => $"\"{Escape(kv.Key)}\": \"{Escape(Localisation.English(kv.Value))}\"")) + "}";
+	internal static string Json(Dictionary<string, string> fields) => Json(fields, []);
+
+	/// <summary>A record as JSON, its values in English where the game's table can say, except the fields named as shown.</summary>
+	internal static string Json(Dictionary<string, string> fields, string[] shown) =>
+		"{" + string.Join(", ", fields.Select(kv => $"\"{Escape(kv.Key)}\": \"{Escape(Array.IndexOf(shown, kv.Key) >= 0 ? kv.Value : Localisation.English(kv.Value))}\"")) + "}";
 
 	internal static string Escape(string s) =>
 		s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "");
