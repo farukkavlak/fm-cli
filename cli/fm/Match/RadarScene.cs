@@ -432,7 +432,9 @@ internal static partial class Program
 	{
 		Shadow(st, b.X, b.Y, "sun", 0.35, 1.3);
 		if (st.Cam.Project(b + new V3(0, 0, 0.11)) is not { } c) return;
-		var r = Math.Max(1.6 * 1.5, 0.11 * look.ExaggerateBall * st.Cam.Ppm(b));
+		// At least two sextant dots across (one is 6×8 canvas pixels); smaller, it shrank into a
+		// green-grey cell and the ball was lost. No dark rim: two colours a cell would mix it in.
+		var r = Math.Max(6.5, 0.11 * look.ExaggerateBall * st.Cam.Ppm(b));
 		var (cx, cy) = c;
 		var canvas = st.Canvas;
 		canvas.Ellipse(cx - r, cy - r, cx + r, cy + r, new Rgb(196, 198, 204));
@@ -621,7 +623,8 @@ internal static partial class Program
 			Add(x0 + 0.5 * s, y0, 5 * s, s, p.Skin);
 			Add(x0 + 0.5 * s, y0, 6 * s, s * 0.9, p.Hair);
 		}
-		Add(ball.X - 0.3, ball.Y - 0.3, ball.Z, 0.6, new Rgb(255, 255, 255), outline: true);
+		// no dark outline: two colours a cell mixed it with the white into a lilac dot
+		Add(ball.X - 0.5, ball.Y - 0.5, ball.Z, 1.0, new Rgb(255, 255, 255));
 
 		var cam = st.Cam;
 		var toEye = cam.Forward * -1;
