@@ -137,6 +137,17 @@ public class RadarStylesTests
 	public void MapsToTheNearest256Colour(byte r, byte g, byte b, int expected) =>
 		Assert.Equal(expected, Ansi.Index(new Rgb(r, g, b)));
 
+	[Theory]
+	[InlineData(62, 150, 66, 52, 134, 58)]
+	[InlineData(10, 42, 22, 13, 50, 27)]
+	public void StripesStayApartIn256Colours(byte r1, byte g1, byte b1, byte r2, byte g2, byte b2)
+	{
+		var a = new Rgb(r1, g1, b1);
+		var b = Ansi.Apart256(a, new Rgb(r2, g2, b2));
+		Assert.NotEqual(Ansi.Index(a), Ansi.Index(b));
+		Assert.True(a.Distance(b) < 90, $"{b} moved too far from {a}");
+	}
+
 	[Fact]
 	public void ReadsHexColours()
 	{

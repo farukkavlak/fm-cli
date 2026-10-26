@@ -27,7 +27,7 @@
   styles; a small window keeps the shape pitch and shows how much room the radar needs; a redirected
   run stays line-by-line.
 - [ ] `fm settings panel radar braille` shows a preview of the style on a real frame; in Terminal.app
-  (256 colours) the pixel style still draws, in duller greens.
+  (256 colours) the pixel style still draws, with its two stripe greens apart.
 - [ ] `fm settings panel view key pitch off events 5 colour off radar off` changes the next match; `reset` restores.
 - [ ] `next` closes the result screen afterwards and the bridge still answers.
 

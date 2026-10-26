@@ -60,6 +60,31 @@ internal static class Ansi
 
 	public static string Bg(Rgb c) => TrueColour ? $"\x1b[48;2;{c.R};{c.G};{c.B}m" : $"\x1b[48;5;{Index(c)}m";
 
+	/// <summary>
+	/// The second of two colours that must stay apart, such as mown stripes: on a 256-colour terminal
+	/// two close greens fall on one cube colour and the stripes vanish (Terminal.app), so the second
+	/// is moved to the nearest colour that does not. Untouched in 24-bit colour.
+	/// </summary>
+	public static Rgb Apart(Rgb a, Rgb b) => TrueColour ? b : Apart256(a, b);
+
+	internal static Rgb Apart256(Rgb a, Rgb b)
+	{
+		if (Index(a) != Index(b)) return b;
+		// The nearest colour of b's own kind that is not a's: nudging one channel slid a mid green onto
+		// the grey ramp, and the nearest green of all was teal. A green's kind is a cube green with red
+		// and blue level; a dark one may be a grey, which is how dark green looks anyway.
+		int[] steps = [0, 95, 135, 175, 215, 255];
+		var green = b.G > b.R && b.G > b.B;
+		var candidates = new List<Rgb>();
+		foreach (var r in steps)
+			foreach (var g in steps)
+				foreach (var bl in steps)
+					if (!green || (g > r && r == bl)) candidates.Add(new Rgb((byte)r, (byte)g, (byte)bl));
+		if (!green || b.Luminance < 60)
+			for (var i = 0; i < 24; i++) candidates.Add(new Rgb((byte)(8 + i * 10), (byte)(8 + i * 10), (byte)(8 + i * 10)));
+		return candidates.Where(c => Index(c) != Index(a)).OrderBy(c => c.Distance(b)).DefaultIfEmpty(b).First();
+	}
+
 	/// <summary>The nearest of the 256 colours: the 6×6×6 cube, or the grey ramp for greys.</summary>
 	internal static int Index(Rgb c)
 	{

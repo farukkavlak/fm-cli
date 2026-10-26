@@ -78,7 +78,8 @@ the choice is kept in `panel.json`; `r` turns colour on if it was off and the ne
 It takes the panel's width (up to 86 columns) and the shape pitch's place, keeps the pitch in
 proportion within the rows left over, and says how much room it needs when the window is too small.
 Colours are 24-bit where the terminal has them (`COLORTERM`, or a known terminal) and the 256-colour
-cube otherwise, as in Terminal.app.
+cube otherwise, as in Terminal.app; there the mown stripes are moved to two cube colours that differ,
+so they do not merge into one green.
 
 ![Live match panel](manual/img/match/live-match.png)
 

@@ -161,7 +161,7 @@ internal static partial class Program
 				var x = (c - mx) / (double)(cols - 1 - 2 * mx) * PitchLength;
 				if (x < 0 || x > PitchLength) continue;
 				var band = (int)(x / (PitchLength / 12));
-				for (var r = 1; r <= rows - 2; r++) grid.Paint(c, r, band % 2 == 0 ? new Rgb(10, 42, 22) : new Rgb(13, 50, 27));
+				for (var r = 1; r <= rows - 2; r++) grid.Paint(c, r, band % 2 == 0 ? new Rgb(10, 42, 22) : Ansi.Apart(new Rgb(10, 42, 22), new Rgb(13, 50, 27)));
 			}
 		}
 
@@ -406,7 +406,7 @@ internal static partial class Program
 		{
 			var a = (int)Math.Round(x0 + (x1 - x0) * i / 12.0) - (i == 0 ? 3 : 0);
 			var b = (int)Math.Round(x0 + (x1 - x0) * (i + 1) / 12.0) + (i == 11 ? 3 : 0);
-			Rect(a, top + 1, b - 1, H - 1, i % 2 == 0 ? new Rgb(62, 150, 66) : new Rgb(52, 134, 58));
+			Rect(a, top + 1, b - 1, H - 1, i % 2 == 0 ? new Rgb(62, 150, 66) : Ansi.Apart(new Rgb(62, 150, 66), new Rgb(52, 134, 58)));
 		}
 		for (var y = top + 2; y < H; y += 2)
 			for (var x = 0; x < W; x++) px[y, x] = px[y, x].Shade(0.97);
