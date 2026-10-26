@@ -121,6 +121,35 @@ internal static partial class Program
 			return 1;
 		}
 
+		// Before kick-off the staff's suggestion sits on the team news and the walk to the dressing
+		// room waits for it to be answered.
+		if (await StaffSuggestion() is { } advice)
+		{
+			if (json)
+			{
+				Console.WriteLine(JsonOut.Of(new { Before = true, advice.Change, advice.Says }));
+				return 0;
+			}
+			Console.WriteLine($"  {advice.Change}");
+			if (advice.Says.Length > 0) Console.WriteLine($"  {advice.Says}");
+			var answer = Words(args).Select(Fold).FirstOrDefault();
+			if (answer == null)
+			{
+				if (Ui.Ask(L("Apply it?"), [L("Apply")], cancel: L("Leave it")) is null)
+				{
+					if (!Ui.Interactive) Console.WriteLine(L("\nTo apply: dugout apply   (the game waits for an answer; its other button opens the tactics)"));
+					return 0;
+				}
+				answer = "apply";
+			}
+			if (answer is not ("uygula" or "apply" or "do" or "evet" or "yes"))
+			{
+				Console.Error.WriteLine(L("Before the match the suggestion can only be applied; the game's other button opens the tactics."));
+				return 1;
+			}
+			return await ApplyStaffSuggestion(advice) ? 0 : 1;
+		}
+
 		// The panel is put away while a highlight plays and comes back between them.
 		var entries = await DugoutEntries();
 		if (entries.Count == 0 && !await DugoutShowing())
@@ -219,6 +248,38 @@ internal static partial class Program
 
 	/// <summary>One entry on the timeline; Open while its "Do it" can still be pressed.</summary>
 	private sealed record DugoutEntry(string Minute, string Pointer, string Text, bool Open);
+
+	/// <summary>A suggestion from the staff on the team news: what it would change and why.</summary>
+	internal sealed record StaffAdvice(string Pointer, string Change, string Says);
+
+	/// <summary>
+	/// The staff's suggestion on the pre-match team news, when there is one to answer. Until it is
+	/// answered the game takes no Continue (Sampdoria away, 22 Nisan 2029: the match waited at the
+	/// team talk). Found by its button's template name and its texts' data paths.
+	/// </summary>
+	internal static async Task<StaffAdvice?> StaffSuggestion(JsonElement? buttons = null)
+	{
+		var controls = buttons ?? await Fm.GetJson("buttons", ("json", "1"));
+		var doIt = controls.EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "DoItDugoutEvent" && Field(b, "Enabled") == "True");
+		if (doIt.ValueKind != JsonValueKind.Object) return null;
+		var texts = await Fm.GetJson("texts", ("anchorname", "DoItDugoutEvent"), ("up", "4"), ("paths", "1"));
+		string Of(string path) => texts.ValueKind == JsonValueKind.Array
+			&& texts.EnumerateArray().FirstOrDefault(t => Field(t, "Path") == path) is { ValueKind: JsonValueKind.Object } found ? Field(found, "Text") : "";
+		return new(Field(doIt, "Pointer"), Of("content.Description"), Of("content.Text"));
+	}
+
+	internal static async Task<bool> ApplyStaffSuggestion(StaffAdvice advice)
+	{
+		var said = await Fm.Get("press", ("ptr", advice.Pointer));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said) == 0;
+		if (!await Until(async () => await StaffSuggestion() == null, seconds: 5, every: 0.25))
+		{
+			Console.Error.WriteLine(L($"{advice.Change} — the button was pressed, but the suggestion is still there."));
+			return false;
+		}
+		Console.WriteLine(L($"Applied: {advice.Change}"));
+		return true;
+	}
 
 	/// <summary>Every entry on the Dugout timeline with its text, oldest first.</summary>
 	private static async Task<List<DugoutEntry>> DugoutEntries()

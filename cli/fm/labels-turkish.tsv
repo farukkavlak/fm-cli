@@ -2407,3 +2407,11 @@ Radar {0}×{1}; here {2}×{3}. Bigger, r style, a hide.	Radar {0}×{1}; burada {
 Radar preview ({0}), a frame from a real match:	Radar önizlemesi ({0}), gerçek bir maçtan bir kare:
 A conversation is open; the message closes when it is over. To go on: talk	Bir konuşma açık; konuşma bitince mesaj kapanır. Devam için: talk
 3D styles need 24-bit colour (Ghostty, iTerm2, VS Code); r for another.	3B stiller 24 bit renk ister (Ghostty, iTerm2, VS Code); r ile başka stil.
+Apply it?	Uygulansın mı?
+Leave it	Şimdilik bırak
+\nTo apply: dugout apply   (the game waits for an answer; its other button opens the tactics)	\nUygulamak: dugout uygula   (oyun cevap bekliyor; öbür düğmesi taktiği açar)
+Before the match the suggestion can only be applied; the game's other button opens the tactics.	Maçtan önce öneri yalnızca uygulanabilir; oyunun öbür düğmesi taktiği açar.
+{0} — the button was pressed, but the suggestion is still there.	{0} — düğmeye basıldı ama öneri hâlâ duruyor.
+Applied: {0}	Uygulandı: {0}
+  Staff suggestion: {0}	  Ekipten öneri: {0}
+The match waits for an answer to it. To apply: dugout apply   (the game's other button opens the tactics)	Maç bu öneriye cevap bekliyor. Uygulamak: dugout uygula   (oyunun öbür düğmesi taktiği açar)

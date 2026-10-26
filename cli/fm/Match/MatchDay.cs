@@ -48,26 +48,63 @@ internal static partial class Program
 		catch (FmError) { }
 	}
 
-	/// <summary>Steps the match speed dropdown on the match screen, when it is there.</summary>
+	/// <summary>
+	/// Steps the speed highlights play at, one notch of the game's own slider, from the match
+	/// screen's settings panel: the change holds at once (1x to 10x mid-match, 8 Nisan 2029).
+	/// The panel opens from the button inside the template's #settings block and closes with
+	/// its own PanelHistoryClose; the slider is the preferences' one, found by its heading.
+	/// </summary>
 	private static async Task<int> MatchSpeed(int step)
 	{
-		var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.Where(d => d.TryGetProperty("Choices", out var choices) && choices.EnumerateArray()
-				.Any(c => System.Text.RegularExpressions.Regex.IsMatch(c.GetString() ?? "", @"^\d+(?:[.,]\d+)?x$")))
-			.ToList();
-		if (lists.Count == 0)
+		var setting = Settings.First(s => s.Heading == "Match Speed During Highlights");
+		async Task<JsonElement?> Slider()
 		{
-			Console.WriteLine(L("Match speed is not on this screen; change it in settings."));
-			return 1;
+			var form = await Fm.GetJson("form", ("anchor", setting.Heading), ("up", "3"));
+			return form.ValueKind == JsonValueKind.Array && form.EnumerateArray().FirstOrDefault(i => Field(i, "Kind") == "slider") is { ValueKind: JsonValueKind.Object } found ? found : null;
 		}
-		var list = lists[0];
-		var options = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-		var at = options.FindIndex(c => Fold(c) == Fold(Field(list, "Label")));
-		if (at < 0) at = 0;
-		var next = (at + step + options.Count) % options.Count;
-		var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("path", next.ToString()), ("fire", "1"));
+
+		var slider = await Slider();
+		if (slider == null)
+		{
+			string? gear = null;
+			foreach (var b in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(b => Field(b, "Type") == "SIButton" && Field(b, "Name") == "" && Field(b, "Events") == "OpenPanel"))
+			{
+				var tree = await Fm.Get("elements", ("ptr", Field(b, "Pointer")), ("up", "1"), ("depth", "0"));
+				if (System.Text.RegularExpressions.Regex.IsMatch(tree, @" #settings\s*$", System.Text.RegularExpressions.RegexOptions.Multiline))
+				{
+					gear = Field(b, "Pointer");
+					break;
+				}
+			}
+			if (gear == null)
+			{
+				Console.WriteLine(L("Match speed is not on this screen; change it in settings."));
+				return 1;
+			}
+			await Fm.Get("press", ("ptr", gear));
+			await Until(async () => (slider = await Slider()) != null, seconds: 5, every: 0.2);
+			if (slider == null)
+			{
+				Console.WriteLine(L("Match speed is not on this screen; change it in settings."));
+				return 1;
+			}
+		}
+
+		var low = (int)double.Parse(Field(slider.Value, "Low"), System.Globalization.CultureInfo.InvariantCulture);
+		var high = (int)double.Parse(Field(slider.Value, "High"), System.Globalization.CultureInfo.InvariantCulture);
+		var at = (int)double.Parse(Field(slider.Value, "Value"), System.Globalization.CultureInfo.InvariantCulture);
+		var next = Math.Clamp(at + step, low, high);
+		var said = next == at ? "" : await Fm.Get("setcontrol", ("ptr", Field(slider.Value, "Pointer")), ("value", next.ToString()));
+
+		// The panel covers the match; its own close, whatever the speed came to.
+		var close = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Events").Contains("PanelHistoryClose", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
+		if (close.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(close, "Pointer")));
+
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-		Console.WriteLine(L($"Speed: {options[next]}"));
+		var steps = setting.Steps ?? [];
+		Console.WriteLine(L($"Speed: {(next < steps.Length ? steps[next] : next.ToString())}"));
 		return 0;
 	}
 
@@ -338,6 +375,21 @@ internal static partial class Program
 			}
 
 			var controls = await Fm.GetJson("buttons", ("json", "1"));
+
+			// The staff's suggestion on the team news holds the walk to the dressing room until answered.
+			// (DuringMatch is already true there, so it is looked for by its button alone.)
+			if (await StaffSuggestion(controls) is { } suggestion)
+			{
+				Console.WriteLine(L($"  Staff suggestion: {suggestion.Change}"));
+				if (suggestion.Says.Length > 0) Console.WriteLine($"    {suggestion.Says}");
+				if (Ui.Ask(L("Apply it?"), [L("Apply")], cancel: L("Leave it")) is null)
+				{
+					Console.WriteLine(L("The match waits for an answer to it. To apply: dugout apply   (the game's other button opens the tactics)"));
+					return 0;
+				}
+				if (!await ApplyStaffSuggestion(suggestion)) return 1;
+				continue;
+			}
 
 			// New advice from the assistant lands on the Dugout timeline under its minute. The
 			// panel shows the newest entry, and only between highlights.
