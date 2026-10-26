@@ -297,10 +297,10 @@ internal static partial class Program
 				if (await HurtInSide() is { } hurt)
 				{
 					if (hurt.Count > 0)
-						output.WriteLine(L($"Note: injured ({string.Join(", ", hurt)}); the match does not start with one in the eleven. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>"));
+						output.WriteLine(L($"Note: injured but picked ({string.Join(", ", hurt)}). The game may still let them play, at the risk of making it worse; to leave one out: tactic player <position> <player>"));
 				}
 				else if (await InjuredSquad() is { Count: > 0 } injured)
-					output.WriteLine(L($"Injured: {string.Join(", ", injured)}. If one is in the eleven the match stops; check: squad --fitness · pick: tactic pick"));
+					output.WriteLine(L($"Injured: {string.Join(", ", injured)}. The game may still let them play, at the risk of making it worse; check: squad --fitness · change: tactic player <position> <player>"));
 				break;
 			case "TeamNews": output.WriteLine(L("The game is waiting for the pre-match team news.")); break;
 			case "TeamTalk": output.WriteLine(L("The game is waiting for a team talk.")); break;

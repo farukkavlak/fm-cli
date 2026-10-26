@@ -115,6 +115,8 @@ little work; text- and position-based ones must be rewritten.
 - Use `127.0.0.1`, not `localhost` (it answers "Not Found"). On macOS, put `pkill` flags before the
   pattern; it once killed the wrong processes.
 - Some actions (mutual termination) apply without asking. Re-read a list before answering by number.
+- `IsInjured` is not "cannot play": the game's Quick Pick started a man with a training knock and
+  the match went on. Do not tell the user a match will not start; say he may play injured.
 
 ## Fragility review (FM26)
 
@@ -146,6 +148,9 @@ What can still break when the language, theme, terminal, machine or game version
   not done). Terminal.app on macOS 14 has no 24-bit colour. The 3D scenes are pure C# (no SkiaSharp
   or ImageSharp: single-file publish, any platform) and take 30–90 ms a frame at 120–200 columns.
   Judge looks in a real terminal, not on a PNG: what looks good as a picture can fall apart in cells.
+  A low perspective camera must skip men right in front of it (one filled the picture live). On
+  key-moments view the ball moves ~10 game seconds between redraws, so a following camera jumps
+  with the data; judge camera smoothness on a slower view.
 - **Key moments.** The filter looks for Turkish and English marker words; another language falls back to the full commentary. Extend `MatchLive.KeyWords` or filter by game events when adding a language.
 - **Live stats.** During a match the bindings only hold `LastFixture`/`NextFixture` and
   `IsLiveMatch` is false; no live possession/shots. The post-match report has them.

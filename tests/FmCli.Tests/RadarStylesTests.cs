@@ -57,6 +57,17 @@ public class RadarStylesTests
 	}
 
 	[Fact]
+	public void TheLowCameraLooksThroughAManRightInFrontOfIt()
+	{
+		// The ball in the middle puts the raycast eye at (42.5, 50); this man stands 3 m in front of it.
+		var frame = Frame();
+		var close = frame with { Men = [.. frame.Men, new(30, 44.1 / 105, 47.5 / 68, "ff00ff", false, 0, "f8f8f8")] };
+		var without = Program.RadarView(frame, Sides, "raycast", true, 120, 40);
+		var with = Program.RadarView(close, Sides, "raycast", true, 120, 40);
+		Assert.Equal(without, with);
+	}
+
+	[Fact]
 	public void SaysSoWhenTheTerminalIsTooSmall()
 	{
 		var lines = Program.RadarView(Frame(), Sides, "pixel", true, 36, 10);

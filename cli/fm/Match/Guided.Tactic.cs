@@ -207,15 +207,15 @@ internal static partial class Program
 		var took = await Until(async () =>
 			(await Fm.GetJson("tactic")).TryGetProperty("Slots", out var now) && now.GetArrayLength() > at && Field(now[at], "PlayerIndex") == player, seconds: 8);
 		Console.WriteLine(took ? $"{spot}: {(current.Length > 0 ? current : L("empty"))} → {name}" : L($"{name} was chosen, but {spot} still shows {current}."));
-		// The one taken off goes to the newcomer's place on the bench; an injured man there still keeps the match from starting.
+		// The one taken off goes to the newcomer's place on the bench.
 		if (took)
 			try
 			{
 				var injured = (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
 					.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToList();
 				bool Hurt(string shown) => shown.Length > 0 && injured.Any(n => n.EndsWith(shown, StringComparison.Ordinal));
-				if (Hurt(name)) Console.WriteLine(L($"Note: {name} is injured; the match does not start with them."));
-				if (Hurt(current)) Console.WriteLine(L($"Note: {current} is injured and now on the bench; the match does not start with an injured substitute. To have the assistant pick the bench: tactic pick"));
+				if (Hurt(name)) Console.WriteLine(L($"Note: {name} is injured; the game may still let them play, at the risk of making it worse."));
+				if (Hurt(current)) Console.WriteLine(L($"Note: {current} is injured and now on the bench."));
 			}
 			catch (FmError) { }
 		if (took) await ShowChange([(at, false), (at, true)]);

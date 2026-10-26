@@ -442,6 +442,9 @@ internal static partial class Program
 	}
 
 	/// <summary>Sky, stands, pitch, boards, goals, figures and ball in the right order for the camera.</summary>
+	/// <summary>Metres in front of a perspective camera within which no one is drawn.</summary>
+	private const double CloseToCamera = 6;
+
 	private static void Stadium(Stage st, Look look, List<Figure> people, V3 ball, Rgb homeCol, Rgb awayCol, double scale)
 	{
 		var cam = st.Cam;
@@ -479,6 +482,8 @@ internal static partial class Program
 		};
 		string[] sides = ["near", "far", "left", "right"];
 		foreach (var s in sides) if (!BoardIsNear(s)) Boards(st, s);
+		// A man right by a low camera would fill the picture (seen in a live match), so the camera looks through him.
+		if (cam.Ortho == null) people = people.Where(p => cam.Depth(new V3(p.X, p.Y, 0.9)) > CloseToCamera).ToList();
 		foreach (var p in people) Shadow(st, p.X, p.Y, look.Shadows);
 		var actors = people.Select(p => (Depth: cam.Depth(new V3(p.X, p.Y, 0.9)), Draw: (Action)(() => PlayerFigure(st, p, scale)))).ToList();
 		foreach (var side in new[] { 0, 1 })

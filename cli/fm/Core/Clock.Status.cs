@@ -137,7 +137,7 @@ internal static partial class Program
 			if (window != null) Console.WriteLine(L($"Transfers: {GameWords.Of(window)}"));
 		}
 		if (flow is not ("Tactics" or "SubmitTeam") && await DaysToNextMatch() is 0 or 1 && await InjuredSquad() is { Count: > 0 } injured)
-			Console.WriteLine(L($"Injured: {string.Join(", ", injured)}. If one is in the eleven the match stops; check: squad --fitness · pick: tactic pick"));
+			Console.WriteLine(L($"Injured: {string.Join(", ", injured)}. The game may still let them play, at the risk of making it worse; check: squad --fitness · change: tactic player <position> <player>"));
 		if (await Unemployed())
 			Console.WriteLine(L("You are unemployed: not managing a club, so squad and tactic commands do not work. Job vacancies: jobs"));
 		// The results screen has to be passed before any page opens; say so instead of "ready".

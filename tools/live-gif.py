@@ -90,6 +90,19 @@ def parse_cells(text: str):
     return cells
 
 
+def sextant(ch: str):
+    """The 2x3 mask of a sextant (or half/full block) character, bit 0 top-left, row by row."""
+    o = ord(ch)
+    if 0x1FB00 <= o <= 0x1FB3B:
+        n = o - 0x1FB00 + 1
+        if n >= 21:
+            n += 1
+        if n >= 42:
+            n += 1
+        return n
+    return {"▌": 21, "▐": 42, "█": 63}.get(ch)
+
+
 def render(text: str, style: str) -> Image.Image:
     cells = parse_cells(text)
     img = Image.new("RGB", (COLS * CW, ROWS * CH), BG)
@@ -102,6 +115,15 @@ def render(text: str, style: str) -> Image.Image:
             if style == "pixel" and ch == "▀":
                 d.rectangle([x, y, x + CW - 1, y + CH // 2 - 1], fill=fg)
                 d.rectangle([x, y + CH // 2, x + CW - 1, y + CH - 1], fill=bg)
+                continue
+            mask = sextant(ch)
+            if mask is not None:
+                # 2x3 blocks (the 3D styles); Menlo has no glyphs for them.
+                for sy in range(3):
+                    for sx in range(2):
+                        on = mask & (1 << (sy * 2 + sx))
+                        xx, yy = x + sx * (CW // 2), y + sy * (CH // 3)
+                        d.rectangle([xx, yy, xx + CW // 2 - 1, yy + CH // 3 - 1], fill=fg if on else bg)
                 continue
             if 0x2800 <= ord(ch) <= 0x28FF:
                 d.rectangle([x, y, x + CW - 1, y + CH - 1], fill=bg)

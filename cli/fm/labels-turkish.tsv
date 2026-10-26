@@ -247,8 +247,8 @@ The matchday squad is empty; first: tactic pick	Maç kadrosu boş; önce: tactic
 (dry run) {0}: {1} → {2} would have been done.	(kuru) {0}: {1} → {2} yapılacaktı.
 empty	boş
 {0} was chosen, but {1} still shows {2}.	{0} seçildi ama {1} hâlâ {2} gösteriyor.
-Note: {0} is injured; the match does not start with them.	Dikkat: {0} sakat; maç onunla başlamaz.
-Note: {0} is injured and now on the bench; the match does not start with an injured substitute. To have the assistant pick the bench: tactic pick	Dikkat: {0} sakat ve şimdi yedeklerde; sakat yedekle maç başlamaz. Yedekleri yardımcıya seçtirmek için: tactic pick
+Note: {0} is injured; the game may still let them play, at the risk of making it worse.	Dikkat: {0} sakat; oyun yine de oynatabilir, sakatlık ağırlaşabilir.
+Note: {0} is injured and now on the bench.	Dikkat: {0} sakat ve şimdi yedeklerde.
 The {0} list was not found on the tactics screen.	{0} listesi taktik ekranında bulunamadı.
 {0} {1} was chosen, but the tactic still shows {2}.	{0} {1} seçildi ama taktik hâlâ {2} gösteriyor.
 usage: tactic role <position> [<role>] [--oop]   positions: {0}	kullanım: tactic role <mevki> [<rol>] [--oop]   mevkiler: {0}
@@ -2367,8 +2367,8 @@ The game's data keeps the game's language.	Oyunun verisi oyunun dilinde kalır.
 CLI language: auto (game: {0})	CLI dili: auto (oyun: {0})
 CLI language: auto{0}	CLI dili: auto{0}
  (game: {0})	 (oyun: {0})
-Injured: {0}. If one is in the eleven the match stops; check: squad --fitness · pick: tactic pick	Sakat: {0}. On birde varsa maç durur; kontrol: squad --fitness · seçim: tactic pick
-Note: injured ({0}); the match does not start with one in the eleven. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>	Not: sakat ({0}); on birde sakatla maç başlamaz. Yardımcı seçsin: tactic pick · kendin: tactic player <mevki> <oyuncu>
+Injured: {0}. The game may still let them play, at the risk of making it worse; check: squad --fitness · change: tactic player <position> <player>	Sakat: {0}. Oyun yine de oynatabilir, sakatlık ağırlaşabilir; kontrol: squad --fitness · değiştir: tactic player <mevki> <oyuncu>
+Note: injured but picked ({0}). The game may still let them play, at the risk of making it worse; to leave one out: tactic player <position> <player>	Not: sakat ama seçili ({0}). Oyun yine de oynatabilir, sakatlık ağırlaşabilir; çıkarmak için: tactic player <mevki> <oyuncu>
 The next match is a friendly; there are no opposition instructions.	Sıradaki maç hazırlık maçı; rakip talimatı yok.
 The next match is a friendly; there is no opposition report.	Sıradaki maç hazırlık maçı; rakip raporu yok.
  · in {0} day	 · {0} gün sonra
