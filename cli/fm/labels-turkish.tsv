@@ -2403,5 +2403,5 @@ The event count must be 0–12.	Olay sayısı 0–12 olmalı.
 Colour must be on or off.	Renk on ya da off olmalı.
 '{0}' is not a panel setting: view, pitch, events, colour, radar, reset	'{0}' bir panel ayarı değil: view, pitch, events, colour, radar, reset
 The radar: on, off or a style (pixel, braille, colour, ascii, auto).	Radar: on, off ya da bir stil (pixel, braille, colour, ascii, auto).
-The radar needs at least {0}×{1} cells; this terminal leaves {2}×{3}. Make it bigger, press r for another style, or a to hide it.	Radar en az {0}×{1} hücre istiyor; bu terminalde {2}×{3} kalıyor. Terminali büyüt, başka bir stil için r'ye bas ya da a ile radarı kapat.
+Radar {0}×{1}; here {2}×{3}. Bigger, r style, a hide.	Radar {0}×{1}; burada {2}×{3}. Büyüt, r stil, a kapat.
 Radar preview ({0}), a frame from a real match:	Radar önizlemesi ({0}), gerçek bir maçtan bir kare:
