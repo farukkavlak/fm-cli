@@ -58,7 +58,7 @@ internal static partial class Program
 		catch { }
 	}
 
-	private static JsonElement? Pick(List<JsonElement> inbox, string wanted)
+	private static JsonElement? Pick(List<JsonElement> inbox, string wanted, bool quiet = false)
 	{
 		if (int.TryParse(wanted, out var number))
 		{
@@ -89,6 +89,7 @@ internal static partial class Program
 			.Where(m => Field(m, "NewsTitleString") is var subject && (subject.Contains(wanted, StringComparison.OrdinalIgnoreCase) || GameWords.Of(subject).Contains(wanted, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 		if (matches.Count == 1) return matches[0];
+		if (matches.Count == 0 && quiet) return null;
 
 		Console.Error.WriteLine(matches.Count == 0
 			? L($"No message has '{wanted}' in its subject.")

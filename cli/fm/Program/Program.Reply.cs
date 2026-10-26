@@ -13,6 +13,19 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> Reply(string[] args)
 	{
+		try { return await ReplyTo(args); }
+		finally
+		{
+			if (taskFilterOn) await AllMessages();
+			taskFilterOn = false;
+		}
+	}
+
+	// Set while the inbox shows its Tasks filter for the message being answered.
+	private static bool taskFilterOn;
+
+	private static async Task<int> ReplyTo(string[] args)
+	{
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
@@ -27,11 +40,15 @@ internal static partial class Program
 		}
 
 		var inbox = (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList();
-		var message = Pick(inbox, words[0]);
-		if (message == null && !int.TryParse(words[0], out _))
+		var byNumber = int.TryParse(words[0], out _);
+		var message = Pick(inbox, words[0], quiet: !byNumber);
+		if (message == null && !byNumber) message = Pick(await AllInbox(), words[0], quiet: true);
+		// A waiting task can be listed only under the inbox's Tasks filter (a loan offer for one of
+		// ours, 16 Mart 2029), the way `next` finds it: the filter stays on while it is answered.
+		if (message == null && !byNumber)
 		{
-			var all = await AllInbox();
-			message = Pick(all, words[0]);
+			taskFilterOn = true;
+			message = Pick(await TaskInbox(stay: true), words[0]);
 		}
 		if (message is not { } chosen) return 1;
 

@@ -34,21 +34,25 @@ internal static partial class Program
 	/// missing from the default list and its scrolled pages (an illness, 3 Şubat 2029) while the
 	/// filter shows it.
 	/// </summary>
-	internal static async Task<List<JsonElement>> TaskInbox()
+	internal static async Task<List<JsonElement>> TaskInbox(bool stay = false)
 	{
-		async Task Filter(string name)
-		{
-			var controls = await Fm.GetJson("buttons", ("json", "1"));
-			var button = controls.EnumerateArray().FirstOrDefault(c => Field(c, "Name") == name);
-			if (button.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(button, "Pointer")));
-		}
 		var before = (await Fm.GetJson("inbox")).ToString();
 		await Filter("TaskMessagesTutorial");
 		JsonElement data = default;
 		await Until(async () => (data = await Fm.GetJson("inbox")).ToString() != before, seconds: 2, every: 0.2);
 		var rows = data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().Select(m => m.Clone()).ToList() : [];
-		await Filter("AllMessagesTutorial");
+		if (!stay) await Filter("AllMessagesTutorial");
 		return rows;
+	}
+
+	/// <summary>The inbox back on all messages, after `TaskInbox(stay: true)`.</summary>
+	internal static Task AllMessages() => Filter("AllMessagesTutorial");
+
+	private static async Task Filter(string name)
+	{
+		var controls = await Fm.GetJson("buttons", ("json", "1"));
+		var button = controls.EnumerateArray().FirstOrDefault(c => Field(c, "Name") == name);
+		if (button.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 	}
 
 	/// <summary>
