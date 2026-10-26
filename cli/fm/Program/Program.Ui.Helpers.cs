@@ -43,7 +43,9 @@ internal static partial class Program
 		if (Option(args, "--name") is { } name) query.Add(("name", name));
 		if (args.Contains("--dry")) query.Add(("dry", "1"));
 
-		var answer = await Arriving("press", query.ToArray());
+		string answer;
+		try { answer = await Arriving("press", query.ToArray()); }
+		finally { Launcher.Background(); }
 		// A control's own label is the game's English ("Recent Results") while the screen shows
 		// this language's word for it ("Recent Results"); a command typed in the shown words is
 		// looked up again in the table.
@@ -53,7 +55,9 @@ internal static partial class Program
 			var again = new List<(string, string)> { ("text", english) };
 			if (Option(args, "--name") is { } n) again.Add(("name", n));
 			if (args.Contains("--dry")) again.Add(("dry", "1"));
-			answer = await Arriving("press", again.ToArray());
+			Launcher.Activate();
+			try { answer = await Arriving("press", again.ToArray()); }
+			finally { Launcher.Background(); }
 		}
 		return Report(answer);
 	}

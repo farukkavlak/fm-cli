@@ -163,7 +163,8 @@ internal static partial class Program
 			return 69;
 		}
 
-		Launcher.Activate();
+		// Not brought forward: a whole match, its stops and half-time Continue included, ran with
+		// the game hidden and another app in front (Sampdoria, 22 Nisan 2029).
 		await LearnShape();
 		var state = await Fm.GetJson("state");
 		var inMatch = Field(state, "DuringMatch") == "True";

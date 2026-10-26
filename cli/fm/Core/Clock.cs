@@ -25,10 +25,15 @@ internal static partial class Program
 			return 69;
 		}
 
-		// FM can sit on a Continue press while another app is front; bring it forward first
-		//.
+		// FM can sit on a Continue press while another app is front; bring it forward first,
+		// and out of the way again when done.
 		Launcher.Activate();
+		try { return await NextSteps(args); }
+		finally { Launcher.Background(); }
+	}
 
+	private static async Task<int> NextSteps(string[] args)
+	{
 		var times = Words(args).Select(w => int.TryParse(w, out var n) ? n : 0).FirstOrDefault(n => n > 0);
 		if (times == 0) times = 1;
 

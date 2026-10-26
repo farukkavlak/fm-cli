@@ -43,6 +43,12 @@ internal static class Launcher
 	/// </summary>
 	public static void Activate() => Osascript($"tell application \"{AppName}\" to activate");
 
+	/// <summary>
+	/// Hides the game again after <see cref="Activate"/>, which gives the front back to the app the
+	/// user was in: activating showed the window over whatever they were doing, command after command.
+	/// </summary>
+	public static void Background() => Osascript($"tell application \"System Events\" to set visible of process \"{AppName}\" to false");
+
 	public static async Task<bool> Start(Bridge fm, bool debug, bool load = true)
 	{
 		// An already-running game is attached to rather than refused: the save may still need
