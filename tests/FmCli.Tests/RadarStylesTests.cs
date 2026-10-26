@@ -83,6 +83,16 @@ public class RadarStylesTests
 		Assert.Contains('x', text);
 	}
 
+	[Fact]
+	public void ATooSmallRadarNoteKeepsTheShapePitch()
+	{
+		Assert.True(MatchLive.ShowShape(true, 11, ["the radar needs at least 40x15"]));
+		Assert.True(MatchLive.ShowShape(true, 11, null));
+		Assert.False(MatchLive.ShowShape(true, 11, ["a real", "radar"]));
+		Assert.False(MatchLive.ShowShape(true, 0, ["the radar needs at least 40x15"]));
+		Assert.False(MatchLive.ShowShape(false, 11, ["the radar needs at least 40x15"]));
+	}
+
 	[Theory]
 	[InlineData(255, 0, 0, 196)]
 	[InlineData(0, 0, 0, 16)]

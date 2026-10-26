@@ -30,6 +30,11 @@ internal static class MatchLive
 		}
 	}
 
+	/// <summary>Whether the shape pitch should be drawn under the radar. A single radar line is the
+	/// "does not fit" note, so the shape stays; a real radar replaces it.</summary>
+	internal static bool ShowShape(bool pitch, int shapeCount, IReadOnlyList<string>? radar) =>
+		pitch && shapeCount > 0 && radar is not { Count: > 1 };
+
 	/// <summary>Draws the panel when its text changed. Nothing when the output is not a terminal.</summary>
 	public static void Draw(string board, string minute, string period, string stats, string formation,
 		IReadOnlyList<(string Spot, string Player)> shape, int view, PanelConfig config, IEnumerable<string> events,
@@ -54,7 +59,7 @@ internal static class MatchLive
 		if (radar is { Count: > 0 }) lines.AddRange(radar);
 		// A real radar takes the shape pitch's place. A single line means it did not fit (the
 		// "needs at least …" note), so keep the shape pitch under it.
-		var showShape = config.Pitch && shape.Count > 0 && radar is not { Count: > 1 };
+		var showShape = ShowShape(config.Pitch, shape.Count, radar);
 		if (showShape) lines.AddRange(PitchLines(formation, shape, Width));
 		lines.Add("  " + new string('─', Width));
 		var count = Math.Clamp(config.Events, 0, 12);
