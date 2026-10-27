@@ -26,6 +26,15 @@ expanded set dev 81% / 74%, held 29% / 17%; about 2 ms a sentence. Cues written 
 sentences barely carry over to new wording: the tool choice needs something that generalises
 (embeddings), the argument readers are reusable either way.
 
+Embedding candidate, `tools/nl-embed.py` (ONNX; dev sentences are the index, the nearest
+neighbours vote the tool). Off the shelf, held tool: multilingual MiniLM 43% (44% with each tool's
+own description indexed too), multilingual-e5-small 36%; football and our tools are not in them
+("kadroda kimler var" → search). `tools/nl-train.py` fine-tunes MiniLM on the dev sentences and
+their noisy variants (same tool pulled together, the rest of the batch pushed apart), word table
+frozen so it trains in ~800 MB on the CPU, about 2.5 minutes an epoch on an M2. One epoch: held
+tool 59%, expanded held 43%, about 5 ms a sentence. Training needs torch with numpy<2 (a venv,
+see the script); scoring needs only onnxruntime and tokenizers.
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.
