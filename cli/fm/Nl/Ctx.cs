@@ -378,6 +378,9 @@ internal sealed partial class Ctx(Text text, string? tool = null)
 
 	public string? Name(int nth = 0) => Names().Count > nth ? Names()[nth].Name : null;
 
+	/// <summary>A name with a word in it that is not a common one: for a tool that runs as well without a name.</summary>
+	public string? StrongName() => Names().Select(n => n.Name).FirstOrDefault(n => !n.Split(' ').All(IsCommon));
+
 	/// <summary>Every name word on its own, for lists ("rinaldi tosto ve marin").</summary>
 	public List<string> NameWords() => [.. Names().SelectMany(n => n.Name.Split(' ').Select(Strip))];
 

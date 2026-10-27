@@ -27,7 +27,11 @@ internal static partial class Router
 	private static readonly Lex Shouts = new(
 		("cesaretlendir", "Cesaretlendir"), ("sakinlestir", "Sakinleştir"), ("daha fazlasini iste", "Daha Fazlasını İste"), ("ov$", "Öv"), ("odaklan", "Odaklan"),
 		("encourage", "Encourage"), ("fire them up", "Fire Up"), ("fire up", "Fire Up"), ("demand more", "Demand More"), ("praise", "Praise"), ("no pressure", "No Pressure"),
-		("calm down", "Calm Down"), ("focus", "Focus"), ("baski yok", "Baskı Yok"));
+		("calm down", "Calm Down"), ("focus", "Focus"), ("baski yok", "Baskı Yok"),
+		("gaza getir", "Ateşle"), ("atesle", "Ateşle"), ("firca", "Azarla"), ("azarla", "Azarla"), ("tebrik", "Öv"), ("aferin", "Öv"), ("rahatla", "Baskı Yok"),
+		("rahat oyna", "Baskı Yok"), ("sakin", "Sakinleştir"), ("odaklan*", "Odaklan"), ("konsantre", "Odaklan"), ("daha fazla", "Daha Fazlasını İste"),
+		("cesaret", "Cesaretlendir"), ("get them going", "Fire Up"), ("pump them up", "Fire Up"), ("well done", "Praise"), ("good job", "Praise"),
+		("concentrate", "Focus"), ("relax", "No Pressure"), ("settle down", "Calm Down"), ("calm", "Calm Down"), ("want more", "Demand More"));
 
 	private static readonly Lex OppositionSets = new(
 		("baski", "Pressing=Always"), ("press$", "Pressing=Always"), ("sert", "Tackling=Hard"), ("tackle hard", "Tackling=Hard"), ("sag ayag", "Foot=Right"),
@@ -35,11 +39,17 @@ internal static partial class Router
 
 	private static readonly Lex PrepFocus = new(
 		("ilerleme", "Progression"), ("orta blok", "Mid Block"), ("savunma kornerleri", "Defending Corners"), ("hucum kornerleri", "Attacking Corners"),
-		("progression", "Progression"), ("mid block", "Mid Block"), ("defending corners", "Defending Corners"));
+		("progression", "Progression"), ("mid block", "Mid Block"), ("defending corners", "Defending Corners"),
+		("hucum serbest vurus", "Attacking Free Kicks"), ("hucum frikik", "Attacking Free Kicks"), ("attacking free kick*", "Attacking Free Kicks"),
+		("savunma serbest vurus", "Defending Free Kicks"), ("savunma frikik", "Defending Free Kicks"), ("defending free kick*", "Defending Free Kicks"),
+		("attacking corners", "Attacking Corners"), ("alcak blok", "Low Block"), ("dusuk blok", "Low Block"), ("low block", "Low Block"), ("yuksek blok", "High Block"),
+		("high block", "High Block"));
 
 	private static readonly Lex SquadViews = new(
 		("kondisyon", "fitness"), ("mac formu", "fitness"), ("yorgun", "fitness"), ("fitness", "fitness"), ("sharpness", "fitness"),
-		("moral", "morale"), ("morale", "morale"),
+		("moral", "morale"), ("morale", "morale"), ("mood", "morale"), ("keyif", "morale"), ("keskinlik", "fitness"), ("yorgunluk", "fitness"), ("condition", "fitness"),
+		("tired", "fitness"), ("gol$", "stats"), ("goller", "stats"), ("goals", "stats"), ("appearances", "stats"), ("ratings", "stats"), ("cards", "stats"),
+		("sozlesme", "Contract"), ("contracts", "Contract"), ("sakatlik", "Injuries"), ("injur*", "Injuries"),
 		("kac gol", "stats"), ("istatistik", "stats"), ("golcusu", "stats"), ("kac mac", "stats"), ("reyting", "stats"), ("kart cezasi", "stats"), ("stats", "stats"), ("most goals", "stats"),
 		("altyapi takim", "youth"), ("youth squads", "youth"), ("genc takim", "youth"), ("youth team", "youth"), ("u18", "youth"), ("u21", "youth"), ("u23", "youth"),
 		("asist", "stats"), ("assists", "stats"),
@@ -50,7 +60,9 @@ internal static partial class Router
 
 	private static readonly Lex Mentalities = new(
 		("otobus", "Çok Defansif"), ("cok defansif", "Çok Defansif"), ("defansif", "Defansif"), ("kapan", "Defansif"), ("skoru koru", "Defansif"),
-		("dengeli", "Dengeli"), ("pozitif", "Pozitif"), ("hucum", "Hücum"), ("saldir", "Hücum"), ("cok hucum", "Çok Hücum"),
+		("dengeli", "Dengeli"), ("pozitif", "Pozitif"), ("hucum", "Hücum"), ("saldir", "Hücum"), ("cok hucum", "Çok Hücum"), ("temkinli", "Temkinli"),
+		("dikkatli", "Temkinli"), ("savunmaci", "Defansif"), ("geride kal", "Defansif"), ("cautious", "Cautious"), ("sit back", "Defensive"), ("defend the lead", "Defensive"),
+		("go for it", "Very Attacking"),
 		("very attacking", "Very Attacking"), ("all out attack", "Very Attacking"), ("attacking", "Attacking"), ("balanced", "Balanced"), ("positive", "Positive"),
 		("see out the game", "Defensive"), ("defensive", "Defensive"), ("very defensive", "Very Defensive"), ("park the bus", "Very Defensive"));
 
@@ -60,12 +72,52 @@ internal static partial class Router
 		("ofsayt", "Ofsayt Taktiği=Uygula"), ("tempo", "Tempo=Daha Yüksek"), ("zaman gecir", "Zaman Geçirme=Daha Fazla"), ("kontra pres", "Karşı Pres="),
 		("kanatlardan", "Hücum Genişliği=Daha Geniş"), ("pres hatti", "Pres Hattı="), ("kaleci topu", "Kaleci Dağıtımı="),
 		("press more", "Pressing Intensity=More"), ("get stuck in", "Tackling=Harder"), ("slow the tempo", "Tempo=Lower"), ("line of engagement", "Line of Engagement="),
-		("defensive line", "Defensive Line=Higher"), ("waste time", "Time Wasting=More"));
+		("defensive line", "Defensive Line=Higher"), ("waste time", "Time Wasting=More"),
+		("defans hatt", "Defansif Çizgi=Daha Yüksek"), ("savunma hatt", "Defansif Çizgi=Daha Yüksek"), ("pres*", "Pres Sıklığı=Daha Fazla"), ("presi azalt", "Pres Sıklığı=Daha Az"),
+		("hizli oyna", "Tempo=Daha Yüksek"), ("yavas oyna", "Tempo=Daha Düşük"), ("oyunu yavaslat", "Tempo=Daha Düşük"), ("pas mesafe", "Pas Mesafesi=Daha Kısa"),
+		("kisa pas", "Pas Mesafesi=Daha Kısa"), ("uzun pas", "Pas Mesafesi=Daha Uzun"), ("uzun top", "Pas Mesafesi=Daha Uzun"), ("genis oyna", "Hücum Genişliği=Daha Geniş"),
+		("hucum genislig", "Hücum Genişliği=Daha Geniş"), ("dar oyna", "Hücum Genişliği=Daha Dar"), ("mudahale", "Müdahale=Sert"), ("zaman kazan", "Zaman Geçirme=Daha Fazla"),
+		("back line", "Defensive Line=Higher"), ("drop deeper", "Defensive Line=Lower"), ("press*", "Pressing Intensity=More"), ("tempo", "Tempo=Higher"),
+		("slow down", "Tempo=Lower"), ("play faster", "Tempo=Higher"), ("time wasting", "Time Wasting=More"), ("tackle harder", "Tackling=Harder"));
 
 	private static readonly Lex PlayerInstructions = new(
 		("sut", "Şut=Daha Sık"), ("bindirme", "İleri Koşular=Daha Sık"), ("ileri cik", "İleri Koşular=Daha Sık"), ("calim", "Top Sürme=Daha Sık"),
 		("prese cik", "Pres Tetikleme=Daha Fazla"), ("tutsun", "Markaj Hedefi="), ("shoot", "Shooting=More Often"), ("dribble", "Dribbling Frequency=More Often"),
-		("fewer risks", "Passing Risk=Less"), ("man mark", "Marking Target="));
+		("fewer risks", "Passing Risk=Less"), ("man mark", "Marking Target="),
+		("sut cek*", "Şut=Daha Sık"), ("ileri kos*", "İleri Koşular=Daha Sık"), ("hucuma cik*", "İleri Koşular=Daha Sık"), ("bindir*", "İleri Koşular=Daha Sık"),
+		("top sur*", "Top Sürme=Daha Sık"), ("riskli pas", "Pas Riski=Daha Fazla"), ("pas riski", "Pas Riski=Daha Fazla"), ("risk al*", "Pas Riski=Daha Fazla"),
+		("pres*", "Pres Tetikleme=Daha Fazla"), ("markaj", "Markaj Hedefi="), ("adam adama", "Markaj Hedefi="),
+		("get forward", "Forward Runs=More Often"), ("forward runs", "Forward Runs=More Often"), ("overlap*", "Forward Runs=More Often"), ("stay back", "Forward Runs=Less Often"),
+		("run with the ball", "Dribbling Frequency=More Often"), ("risky passes", "Passing Risk=More"), ("take risks", "Passing Risk=More"), ("safer passes", "Passing Risk=Less"),
+		("mark their", "Marking Target="));
+
+	private static readonly (string Up, string Down)[] Directions =
+	[
+		("Daha Yüksek", "Daha Düşük"), ("Daha Fazla", "Daha Az"), ("Daha Geniş", "Daha Dar"), ("Daha Uzun", "Daha Kısa"), ("Daha Sık", "Daha Seyrek"),
+		("Higher", "Lower"), ("More Often", "Less Often"), ("More", "Less"), ("Wider", "Narrower"), ("Longer", "Shorter"),
+	];
+
+	private static readonly string[] UpWords = ["yukselt", "yukari", "artir", "arttir", "daha cok", "daha fazla", "more", "higher", "up$", "push", "increase", "raise", "faster"];
+	private static readonly string[] DownWords = ["dusur", "geri", "azalt", "asagi", "daha az", "less", "lower", "drop", "deeper", "decrease", "reduce", "fewer", "slow", "yavas", "seyrek"];
+
+	[System.Text.RegularExpressions.GeneratedRegex("^[a-z]{2,}(masin|mesin|masinlar|mesinler|mayin|meyin)$")]
+	private static partial System.Text.RegularExpressions.Regex TurkishDont();
+
+	/// <summary>
+	/// A value with a direction turned the way the sentence says: "defans hattını geri çek" lowers
+	/// the line, "sol bek ileri çıkmasın" makes the runs rarer ("-masın", "don't" turn it round).
+	/// </summary>
+	private static string Steer(Ctx c, string value)
+	{
+		var pair = Directions.FirstOrDefault(d => d.Up == value || d.Down == value);
+		if (pair == default) return value;
+		var (up, down) = (c.Has(UpWords), c.Has(DownWords));
+		var low = value == pair.Down;
+		if (down && !up) low = true;
+		else if (up && !down) low = false;
+		if (c.W.Any(w => TurkishDont().IsMatch(w)) || c.Has("dont", "do not", "stop", "no more", "never")) low = !low;
+		return low ? pair.Down : pair.Up;
+	}
 
 	private static readonly Lex Roles = new(
 		("hedef adam", "Target Forward"), ("target forward", "Target Forward"), ("pres forvet", "Pressing Forward"), ("pressing forward", "Pressing Forward"),
@@ -85,7 +137,10 @@ internal static partial class Router
 		("kaleciyi rahatsiz", "Kaleciyi Rahatsız Et"), ("mark the keeper", "Distract Keeper"), ("distract the keeper", "Distract Keeper"));
 
 	private static readonly Lex CoachAreas = new(
-		("kaleci", "kaleci"), ("fiziksel", "fitness"), ("goalkeeping", "goalkeeping"), ("fitness", "fitness"), ("savunma", "savunma"), ("hucum", "hücum"),
+		("kaleci", "kaleci"), ("fiziksel", "fitness"), ("fizik", "fitness"), ("kondisyon", "fitness"), ("goalkeeping", "goalkeeping"), ("goalkeepers", "goalkeeping"),
+		("keepers", "goalkeeping"), ("fitness", "fitness"), ("physical", "fitness"), ("savunma", "savunma"), ("defans", "savunma"), ("hucum", "hücum"), ("defence", "defending"),
+		("defense", "defending"), ("attack", "attacking"), ("duran top", "duran top"), ("set piece*", "set pieces"), ("topla taktik", "topla taktik"),
+		("topsuz taktik", "topsuz taktik"), ("possession tactical", "Poss Tact"),
 		("defending", "defending"), ("attacking", "attacking"), ("teknik", "teknik"), ("technical", "technical"));
 
 	private static readonly Lex ScheduleStyles = new(
@@ -113,12 +168,18 @@ internal static partial class Router
 	private static readonly Lex SettingNames = new(
 		("vurgu hizi", "highlight speed"), ("highlight speed", "highlight speed"), ("otomatik kayd", "auto save"), ("otomatik kayit", "auto save"), ("autosave", "auto save"), ("auto save", "auto save"),
 		("para birimi", "currency"), ("currency", "currency"), ("dil", "language"), ("dilini", "language"), ("language", "language"),
-		("key highlights", "highlights"), ("match speed", "match speed"), ("mac hizi", "match speed"));
+		("key highlights", "highlights"), ("match speed", "match speed"), ("mac hizi", "match speed"),
+		("kayit aralig", "save interval"), ("save interval", "save interval"), ("birim", "units"), ("units", "units"), ("vurgular", "highlights"), ("highlights", "highlights"),
+		("onemli an", "highlights"), ("key moments", "highlights"));
 
 	private static readonly Lex SettingValues = new(
 		("2x", "2x"), ("1x", "1x"), ("4x", "4x"), ("ac$", "On"), ("acik olsun", "On"), ("turn on", "On"), ("enable", "On"), ("on$", "On"), ("kapat", "Off"), ("turn off", "Off"),
 		("disable", "Off"), ("off$", "Off"), ("english", "English"), ("turkish", "Türkçe"), ("euro", "Euro"), ("turk lirasi", "Turkish Lira"),
 		("sterlin", "Pound"), ("dolar", "Dollar"), ("ingilizce", "English"), ("turkceye", "Türkçe"), ("turkce", "Türkçe"), ("key$", "Key"));
+
+	private static readonly Lex PersonActions = new(
+		("antrenorluk kurs", "Send On Coaching Course"), ("koçluk kurs", "Send On Coaching Course"), ("kocluk kurs", "Send On Coaching Course"),
+		("coaching course", "Send On Coaching Course"), ("kadro planlayici", "Squad Planner"), ("kadro plan", "Squad Planner"), ("squad planner", "Squad Planner"));
 
 	private static readonly Lex Pages = new(
 		("kadro planlayici", "Kadro Planlayıcı"), ("veri merkez", "Veri Merkezi"), ("transfer merkez", "Transfer Merkezi"), ("ana sayfa", "Ana Sayfa"),
@@ -159,7 +220,8 @@ internal static partial class Router
 
 	private static void Contract(Ctx c)
 	{
-		if (c.Name() is string n && !c.Has("maddelere", "menajere")) c.Set("name", n);
+		// the talks already open are the default, so a common word is not taken for a name here
+		if (c.StrongName() is string n && !c.Has("maddelere", "menajere")) c.Set("name", n);
 		var terms = new List<string>();
 		var years = c.Nums().FirstOrDefault(x => x.At + 1 < c.W.Length && (Text.Matches(c.W[x.At + 1], "yil*") || Text.Matches(c.W[x.At + 1], "year*")));
 		if (years != default) terms.Add($"Contract Length={years.Value} years");

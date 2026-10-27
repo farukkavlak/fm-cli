@@ -242,7 +242,7 @@ internal static partial class Router
 				else if (c.Has("canli", "izle", "anlatim", "live", "watch", "commentary")) c.Set("mode", "play");
 			}),
 		R("fm_sub", "degisiklik=3; yerine=3; cik gir=3; girsin=2; gir$=1.5; cikar$=1.5; yedek kulubesi=4; bench=3; subs$=3; bring on=4; on off=3; sahada kim=4; " +
-			"kondisyonlar macta=4; tired out there=4; yoruldu=2; esposto girsn=1", c =>
+			"kondisyonlar macta=4; tired out there=4; yoruldu=2", c =>
 			{
 				var names = c.Names();
 				var instead = c.Find("yerine");
@@ -257,6 +257,7 @@ internal static partial class Router
 					c.Set("on", onFirst && !offFirst ? names[0].Name : names[1].Name);
 				}
 				else if (names.Count == 1 && c.Has("cikar", "cik$", "off$", "yoruldu")) { c.Set("off", names[0].Name); c.Ask("on"); }
+				else if (names.Count == 1 && c.Has("gir", "girsin", "oyuna al", "oyuna sok", "bring on", "on$", "come on")) { c.Set("on", names[0].Name); c.Ask("off"); }
 				if (c.Has("once ne olacag", "first show", "dry")) c.Set("dry", true);
 				if (c.Has("degisiklik yap") && names.Count == 0) { c.Ask("off"); c.Ask("on"); }
 			}),
@@ -291,9 +292,9 @@ internal static partial class Router
 			}),
 		R("fm_prep", "mac hazirligi=4; hazirlik odagi=4; topla oyunda odak=4; topsuz odak=4; duran top odagi=4; match prep=4; preparation focus=4", c =>
 			{
-				if (c.Has("topla")) c.Set("slot", "topla");
-				else if (c.Has("topsuz")) c.Set("slot", "topsuz");
-				else if (c.Has("duran top")) c.Set("slot", c.Has("ikinci") ? "duran2" : "duran1");
+				if (c.Has("topsuz", "out of possession", "without the ball")) c.Set("slot", "topsuz");
+				else if (c.Has("topla", "in possession", "with the ball")) c.Set("slot", "topla");
+				else if (c.Has("duran top", "set piece")) c.Set("slot", c.Has("ikinci", "second") ? "duran2" : "duran1");
 				var f = c.LexValue(PrepFocus);
 				if (f != null) c.Set("focus", f);
 			}),
@@ -327,6 +328,7 @@ internal static partial class Router
 		R("fm_stages", "la liga=4; serie b=4; premier league=4; coppa italia=4; italya kupasi=4; dunya kupasi=4; world cup=4; kupada=2.5; esles=3; turday=3; " +
 			"ceyrek final=3.5; yari final=3.5; semi final=3.5; quarter final=3.5; play off=3; ties$=3; all rounds=4; grup=1; lider$=1; looking=1", c =>
 			{
+				if (c.Has("hangi turnuva", "turnuvalar", "which competitions", "what competitions", "list the competitions")) { c.Set("list", true); return; }
 				var comp = c.LexValue(Competitions);
 				if (comp != null) c.Set("competition", comp); else c.Ask("competition");
 				var stage = c.LexValue(Stages);
@@ -346,7 +348,8 @@ internal static partial class Router
 				if (top >= 0 && n != default) c.Set("top", n.Value);
 				else if (c.Has("en cok", "en iyi", "most", "best") && c.Nums().FirstOrDefault(x => x.Value is >= 3 and <= 50) is { At: > 0 } m) c.Set("top", m.Value);
 				if (c.Has("takimlar", "takimi", "teams", "team$", "hangi takim")) c.Set("teams", true);
-				if (c.Has("kupa", "cup")) c.Ask("competition");
+				if (c.LexValue(Competitions) is string comp) c.Set("competition", comp);
+				else if (c.Has("kupa", "cup")) c.Ask("competition");
 			}),
 
 		// ---- squad and players
@@ -362,7 +365,7 @@ internal static partial class Router
 			"what do the scouts think=4; show #name=2; #name bak$=1.5; ne alemde=1; sozlesmesi ne zaman=2; bizim kaleci=3", c =>
 			{
 				if (c.Name() is string n) c.Set("name", n);
-				if (c.Has("kariyer", "career")) c.Set("career", true);
+				if (c.Has("kariyer", "career", "hangi takimlarda", "nerelerde oynadi", "eski takim", "played for", "former clubs", "history")) c.Set("career", true);
 				if (c.Has("rapor", "report", "scoutlar", "scouts think")) c.Set("report", true);
 			}),
 		R("fm_compare", "karsilastir=4; compare=4; #name mu #name mi=3; daha iyi=1.5; yan yana=4; side by side=4; whos better=4", c =>
@@ -421,7 +424,7 @@ internal static partial class Router
 				{
 					var parts = ti.Value.Split('=');
 					c.Set("name", parts[0]);
-					if (parts.Length > 1 && parts[1].Length > 0 && !c.Has("secenek", "choices", "options")) c.Set("value", parts[1]);
+					if (parts.Length > 1 && parts[1].Length > 0 && !c.Has("secenek", "choices", "options")) c.Set("value", Steer(c, parts[1]));
 				}
 				if (c.Has("topsuz talimat", "without the ball")) c.Set("without_ball", true);
 			}),
@@ -433,7 +436,7 @@ internal static partial class Router
 				{
 					var parts = pi.Value.Split('=');
 					c.Set("name", parts[0]);
-					if (parts.Length > 1 && parts[1].Length > 0 && !c.Has("secenek")) c.Set("value", parts[1]);
+					if (parts.Length > 1 && parts[1].Length > 0 && !c.Has("secenek")) c.Set("value", Steer(c, parts[1]));
 				}
 			}),
 		R("fm_tactic_pick", "sen sec=4; hizli secim=4; otomatik diz=4; auto pick=5; best xi=4; choose the lineup=4; otomatik sec=4"),
@@ -494,6 +497,7 @@ internal static partial class Router
 				else if (adiyla > 0) c.Set("save", c.Between(c.Find("kaydet") + 1, adiyla));
 				else if (asAt >= 0 && asAt + 1 < c.W.Length) c.Set("save", c.W[asAt + 1]);
 				else if (c.Find("load") is var l && l >= 0) c.Set("load", c.W.Skip(l + 1).First(w => w != "the"));
+				else if (c.Has("yukle", "ac$", "kullan") && c.Find("taktig") is var t && t > 0) c.Set("load", c.Between(0, t).Replace("kayitli", "").Trim());
 				else if (c.Find("delete") is var d && d >= 0) c.Set("delete", c.W[^1]);
 				else if (c.Has("kaydet")) c.Ask("save");
 				if (c.Find("not olarak") is var n && n >= 0) c.Set("note", c.Between(n + 2, c.W.Length));
@@ -563,8 +567,8 @@ internal static partial class Router
 				if (c.Name() is string p) c.Set("player", p);
 				var week = c.Has("hafta", "week");
 				var days = c.Nums().Select(n => (int?)n.Value).FirstOrDefault();
-				if (c.Has("cift", "double")) c.Set("level", "double");
-				else if (c.Has("yarim", "half")) c.Set("level", "half");
+				if (c.Has("cift", "agir", "double", "heavy")) c.Set("level", "double");
+				else if (c.Has("yarim", "hafif", "half", "light")) c.Set("level", "half");
 				else if (c.Has("normal")) c.Set("level", "normal");
 				else if (c.Has("tatil", "holiday")) c.Set("level", $"holiday {days ?? 1}");
 				else if (c.Has("dinlen", "rest")) c.Set("level", week ? $"rest {7 * (days ?? 1)}" : $"rest {days ?? 3}");
@@ -575,6 +579,7 @@ internal static partial class Router
 				if (c.Has("yardimci yapsin", "otomatik", "assistant assign", "auto")) { c.Set("auto", true); return; }
 				if (c.Name() is string n) c.Set("coach", n);
 				if (c.LexValue(CoachAreas) is string a) c.Set("area", a);
+				if (c.Has("ciksin", "cikar", "birak", "take off", "remove", "stop")) c.Set("off", true);
 			}),
 		R("fm_schedule", "bu haftanin antrenman=4; haftalik program=4; seans=4; session=4; sezon oncesi program=4; antrenman stili=4; program tur=4; schedule types=5; " +
 			"this weeks training=5; mac oncesi gun=3", c =>
@@ -605,7 +610,7 @@ internal static partial class Router
 		R("fm_youth", "altyapi=2.5; gencler=2; u19=4; youth academy=5; youth intake=5; intake=4; wonderkid=4; gencler ne zaman=3", c =>
 			{
 				if (c.Has("antrenman", "training")) c.Set("training", true);
-				else if (c.Has("geldi mi", "alimin", "wonderkid", "kim var")) c.Set("candidates", true);
+				else if (c.Has("geldi mi", "alimin", "wonderkid", "kim var", "aday", "gelecek mi", "kimler geliyor", "prospects", "candidates", "who is coming")) c.Set("candidates", true);
 			}),
 
 		// ---- buying and scouting
@@ -708,7 +713,7 @@ internal static partial class Router
 		R("fm_register", "kadro kaydi=5; kadro listesi=4; lige bildir=5; kadro listesini gonder=5; listeden cikar=3; kayit kural=5; avrupa kadrosu=5; kadro belirlenecek=5; " +
 			"registration=5; unregister=5; register=4; submit=4; homegrown=5", c =>
 			{
-				if (c.Has("hallet", "auto")) c.Set("auto", true);
+				if (c.Has("hallet", "otomatik", "auto")) c.Set("auto", true);
 				if (c.Has("bildir", "gonder", "submit", "hallet")) c.Set("send", true);
 				var names = c.NameWords();
 				if (names.Count > 0 && c.Has("cikar", "unregister", "remove")) c.Set("remove", Arr(names));
@@ -726,10 +731,11 @@ internal static partial class Router
 		R("fm_vision", "hedefi cikar=5; yonetime oner=5; geri al=4; toplantiyi bitir=5; remove objective=5; accept the vision=5; undo=4", c =>
 			{
 				if (c.Has("cikar", "remove")) { if (c.Num() is int n) c.Set("remove", n.ToString()); }
-				else if (c.Has("oner", "suggest")) c.Set("action", "suggest");
-				else if (c.Has("geri al", "undo")) c.Set("action", "undo");
-				else if (c.Has("bitir", "end")) c.Set("action", "end");
-				else if (c.Has("accept", "kabul")) c.Set("action", "confirm");
+				else if (c.Has("oner", "sun$", "suggest", "propose", "submit")) c.Set("action", "suggest");
+				else if (c.Has("geri al", "undo", "revert")) c.Set("action", "undo");
+				else if (c.Has("sifirla", "bastan", "reset", "start over")) c.Set("action", "reset");
+				else if (c.Has("bitir", "kapat", "end", "finish", "close")) c.Set("action", "end");
+				else if (c.Has("accept", "kabul", "onayla", "approve", "confirm")) c.Set("action", "confirm");
 			}),
 		R("fm_board", "yonetim=2; seviyo mu=3; kovulacak=5; guven=4; hakkimda=4; isim garanti=5; board confidence=5; getting sacked=5; job safe=5; board think=5; destekliyo=1"),
 		R("fm_board_request", "yonetimden=4; isteyebilirim=3; talep=4; tesislerini gelistir=4; stadyum=4; arttirsinlar=4; board requests=5; ask the board=5; request=4; " +
@@ -810,17 +816,32 @@ internal static partial class Router
 				if (c.LexValue(SettingValues) is string v) c.Set("value", v);
 				if (c.Has("her gun", "every day", "daily")) { c.Set("name", "save interval"); c.Set("value", "Day"); }
 				else if (c.Has("haftada bir", "haftalik", "once a week", "every week", "weekly")) { c.Set("name", "save interval"); c.Set("value", "Week"); }
-				if (!c.Args.ContainsKey("name") && c.Args["value"]?.GetValue<string>() is "English" or "Türkçe") c.Set("name", "language");
+				if (!c.Args.ContainsKey("name") && c.Args["value"]?.GetValue<string>() is string value)
+					c.Set("name", value switch { "English" or "Türkçe" => "language", "Euro" or "Turkish Lira" or "Pound" or "Dollar" => "currency", "Key" => "highlights", _ => null });
 			}),
 		R("fm_pages", "sayfalar=4; sayfalari=4; list pages=5; sekmesindeki=3", c =>
 			{
 				var at = Math.Max(c.Find("sayfa"), c.Find("sekmesindeki"));
 				if (at > 0 && c.W[at - 1] != "oyunun") c.Set("filter", c.W[at - 1].Replace("sekmesindeki", ""));
 			}),
+		R("fm_actions", "sag tik=5; neler yapabilirim=5; ne yapabilirim=4; what can i do with=5; right click=5; actions for=4; options for=3; coaching course=4; " +
+			"antrenorluk kurs=4; squad planner=3; kadro planlayici=3", c =>
+			{
+				if (c.Name() is string p) c.Set("person", p);
+				if (c.LexValue(PersonActions) is string a) c.Set("choose", a);
+			}),
 		R("fm_open", "planlayiciyi ac=5; merkezini ac=5; merkezine git=5; ana sayfaya don=5; ekrani ac=5; open the=3; #name ac$=1", c =>
 			{
 				if (c.LexValue(Pages) is string p) c.Set("page", p);
 				else if (c.T.Raw.Contains(':')) c.Set("page", Text.Fold(c.T.Raw[(c.T.Raw.LastIndexOf(':') + 1)..]).Trim());
+				// "dinamikler sayfasını aç", "open the finances screen", "go to tactics": the page by the words around it
+				else if (new[] { "sayfa", "ekran", "page", "screen" }.Select(w => c.Find(w)).Where(i => i > 0).DefaultIfEmpty(-1).Min() is var end && end > 0)
+				{
+					var start = Math.Max(c.Find("open"), c.Find("to")) + 1;
+					if (c.Between(start, end) is { Length: > 0 } words) c.Set("page", words);
+				}
+				else if (Math.Max(c.Find("open"), c.Find("go to") >= 0 ? c.Find("go to") + 1 : -1) is var open && open >= 0 && c.Between(open + 1, c.W.Length) is { Length: > 0 } rest)
+					c.Set("page", rest);
 			}),
 		R("fm_buttons", "butonu nerde=5; dugmeler=5; buttons=5", c =>
 			{
