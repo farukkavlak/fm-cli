@@ -76,7 +76,7 @@ internal static partial class Router
 	private static Call Fill(string tool, Text text, double score)
 	{
 		var ctx = new Ctx(text);
-		Rules.First(r => r.Tool == tool).Args?.Invoke(ctx);
+		Rules.FirstOrDefault(r => r.Tool == tool)?.Args?.Invoke(ctx);
 		foreach (var need in Required.GetValueOrDefault(tool, []))
 			if (!ctx.Args.ContainsKey(need) && !ctx.Asks.Contains(need)) ctx.Asks.Add(need);
 		return new Call(tool, ctx.Args, ctx.Asks, score);
@@ -84,7 +84,9 @@ internal static partial class Router
 
 	/// <summary>
 	/// `fm __route`: one {"text": "..."} per line in, one {"call", "args", "ask", "others"} per
-	/// line out. tools/nl-score.py runs it over the test set.
+	/// line out. tools/nl-score.py runs it over the test set. A line that also names a "tool"
+	/// (picked by another router, tools/nl-embed.py --hybrid) gets that tool's arguments filled
+	/// by its reader as "forced", next to the rule router's own answer.
 	/// </summary>
 	public static int RouteLines()
 	{
@@ -94,7 +96,8 @@ internal static partial class Router
 		while ((line = Console.ReadLine()) != null)
 		{
 			if (line.Trim().Length == 0) continue;
-			var text = JsonNode.Parse(line)?["text"]?.GetValue<string>() ?? "";
+			var input = JsonNode.Parse(line);
+			var text = input?["text"]?.GetValue<string>() ?? "";
 			var r = Route(text);
 			var o = new JsonObject();
 			if (r.Calls.Count == 0) o["call"] = null;
@@ -109,6 +112,14 @@ internal static partial class Router
 				o["call"] = new JsonArray([.. r.Calls.Select(c => (JsonNode)c.Tool)]);
 				o["args"] = new JsonArray([.. r.Calls.Select(c => (JsonNode)c.Args)]);
 			}
+			if (input?["tool"] is JsonValue forced && forced.GetValue<string>() is { Length: > 0 } tool)
+			{
+				var c = Fill(tool, new Text(text), 0);
+				var f = new JsonObject { ["call"] = c.Tool, ["args"] = c.Args };
+				if (c.Ask.Count > 0) f["ask"] = new JsonArray([.. c.Ask.Select(a => (JsonNode)a)]);
+				o["forced"] = f;
+			}
+			o["score"] = r.Calls.Count > 0 ? r.Calls.Max(c => c.Score) : 0;
 			o["others"] = new JsonArray([.. r.Others.Select(x => (JsonNode)$"{x.Tool} {x.Score:0.#}")]);
 			if (Environment.GetEnvironmentVariable("FM_NL_WORDS") != null) o["words"] = string.Join(' ', new Text(text).Words);
 			w.WriteLine(o.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));

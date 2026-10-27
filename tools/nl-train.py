@@ -62,6 +62,7 @@ def main():
 	ap.add_argument("--threads", type=int, default=4, help="CPU threads (the machine stays usable)")
 	ap.add_argument("--mps", action="store_true", help="train on the GPU: faster, but shares the 8 GB with everything else")
 	ap.add_argument("--lr", type=float, default=3e-5)
+	ap.add_argument("--unfreeze", action="store_true", help="train the word table too (~2.5 GB)")
 	ap.add_argument("--no-noisy", action="store_true", help="leave the noisy variants out")
 	ap.add_argument("--name", help="output name (default: <base>-ft)")
 	a = ap.parse_args()
@@ -78,7 +79,7 @@ def main():
 	model = AutoModel.from_pretrained(repo).to(dev)
 	# the word table is most of the model (250k words); training it costs gigabytes and the
 	# few sentences here could not move it well anyway
-	model.embeddings.word_embeddings.weight.requires_grad_(False)
+	model.embeddings.word_embeddings.weight.requires_grad_(a.unfreeze)
 	train = [p for p in model.parameters() if p.requires_grad]
 	print(f"training {sum(p.numel() for p in train) / 1e6:.0f}M of {sum(p.numel() for p in model.parameters()) / 1e6:.0f}M parameters")
 	opt = torch.optim.AdamW(train, lr=a.lr)

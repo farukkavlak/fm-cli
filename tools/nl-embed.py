@@ -4,7 +4,9 @@
 Every dev sentence of tests/nl/*.jsonl is embedded once; a typed sentence is embedded and the
 tool is voted by its nearest dev neighbours (cosine, weighted). Held sentences are never in the
 index, so the held score is honest. Arguments come from the rule router: with --hybrid the
-picked tool is handed to `fm __route` (FM_NL_TOOL) and its reader fills the arguments.
+picked tool is handed to `fm __route` ("tool" on the line) and its reader fills the arguments;
+a sentence the rules split into several asks stays split, and with --trust-rules S the rules'
+own pick wins when it scores S or more.
 
   tools/nl-score.py --router "tools/nl-embed.py" --set base
   tools/nl-score.py --router "tools/nl-embed.py --model minilm --k 5" --set base
@@ -98,6 +100,7 @@ def main():
 	ap.add_argument("--none-below", type=float, default=0.0, help="no call when the best neighbour is less similar")
 	ap.add_argument("--cards", action="store_true", help="also index each tool's own description")
 	ap.add_argument("--hybrid", action="store_true", help="arguments from fm __route for the picked tool")
+	ap.add_argument("--trust-rules", type=float, default=0.0, help="with --hybrid: the rules win from this score up (0: never)")
 	a = ap.parse_args()
 
 	t0 = time.perf_counter()
@@ -124,24 +127,21 @@ def main():
 			best = "null"
 		picks.append(json.loads(best))
 
-	rules = None
-	if a.hybrid:
-		feed = "".join(json.dumps({"text": t, "tool": p if isinstance(p, str) else None}, ensure_ascii=False) + "\n"
-			for t, p in zip(texts, picks))
-		p = subprocess.run([str(FM), "__route"], input=feed, capture_output=True, text=True, env={**os.environ, "FM_NL_TOOL": "1"})
-		rules = [json.loads(l) for l in p.stdout.splitlines() if l.strip()]
-
-	for i, pick in enumerate(picks):
-		if rules is not None:
-			r = rules[i]
-			# the rule router keeps sentences it splits into several asks
-			if isinstance(r.get("call"), list) or pick is None or isinstance(pick, list):
-				print(json.dumps(r if isinstance(r.get("call"), list) else {"call": pick}, ensure_ascii=False))
-			else:
-				print(json.dumps(r, ensure_ascii=False))
-		else:
+	if not a.hybrid:
+		for pick in picks:
 			print(json.dumps({"call": pick}, ensure_ascii=False))
-
+		return
+	feed = "".join(json.dumps({"text": t, "tool": p if isinstance(p, str) else None}, ensure_ascii=False) + "\n"
+		for t, p in zip(texts, picks))
+	p = subprocess.run([str(FM), "__route"], input=feed, capture_output=True, text=True, check=True)
+	for pick, r in zip(picks, (json.loads(l) for l in p.stdout.splitlines() if l.strip())):
+		if isinstance(r.get("call"), list) or isinstance(pick, list) or (a.trust_rules and r.get("score", 0) >= a.trust_rules):
+			out = r
+		elif pick is None:
+			out = {"call": None}
+		else:
+			out = r["forced"]
+		print(json.dumps(out, ensure_ascii=False))
 
 if __name__ == "__main__":
 	main()

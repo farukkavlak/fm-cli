@@ -35,6 +35,15 @@ frozen so it trains in ~800 MB on the CPU, about 2.5 minutes an epoch on an M2. 
 tool 59%, expanded held 43%, about 5 ms a sentence. Training needs torch with numpy<2 (a venv,
 see the script); scoring needs only onnxruntime and tokenizers.
 
+More epochs: two give held tool 62%, three the same; training the word table too (`--unfreeze`)
+gives 60% at three times the time and twice the memory. Hybrid (`--hybrid`): the fine-tuned
+model picks the tool, the rule router's reader for that tool fills the arguments (`fm __route`
+fills a "tool" given on the line as "forced"), a sentence the rules split stays split. Two
+epochs, held: base 62% tool / 40% with arguments (rules alone 33% / 22%), expanded 47% / 29%
+(rules 29% / 17%); a false "nothing does this" 0.2% (rules 10%). Letting the rules win when they
+score high only lowers it, at every threshold tried. Weak spots: "nothing does this" sentences
+(29% held: the model always finds a nearest tool) and asks (22%).
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.
