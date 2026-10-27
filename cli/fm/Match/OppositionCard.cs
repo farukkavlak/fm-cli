@@ -16,6 +16,15 @@ internal static partial class Program
 	private static async Task<int> Opposition(string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
+		// Between seasons there can be no match at all; the card then lists whoever it last held,
+		// our own players among them.
+		var next = "";
+		try { next = Field(await Fm.Pull("Human.Team.NextFixture.Competition", "Name"), "Name"); } catch (FmError) { }
+		if (next.Length == 0)
+		{
+			Console.WriteLine(L("There is no next match yet, so no opposition instructions (fixtures)."));
+			return 0;
+		}
 		if (await NextIsFriendly())
 		{
 			Console.WriteLine(L("The next match is a friendly; there are no opposition instructions."));

@@ -251,7 +251,7 @@ internal static partial class Program
 		}, seconds: 12, every: 0.25);
 		var full = settled && Eleven(tactic).Count == 11;
 		var names = Eleven(tactic);
-		Console.WriteLine(full ? L($"Starting eleven picked: {string.Join(", ", names)}") : L($"Quick Pick was pressed, but {names.Count} players are selected."));
+		Console.WriteLine(full ? L($"Starting eleven picked: {string.Join(", ", names)}") : L($"Quick Pick was pressed, but {names.Count} players are selected (the game leaves out players on holiday or unavailable: intensity, health)."));
 
 		// Whoever the game moved in is marked, so a pick that changed two places shows as two.
 		if (full && Ui.Rich)

@@ -43,7 +43,7 @@ internal static partial class Program
 
 		if (words.Count == 0)
 		{
-			if (json) Console.WriteLine(JsonOut.Of(focuses));
+			if (json) Console.WriteLine(JsonOut.Of(focuses.Select(f => new { f.Index, Name = GameWords.Of(f.Name), Status = GameWords.Of(f.Status), f.Assigned, f.Matched, f.Near, f.InProgress, f.Running, State = GameWords.Of(f.State) })));
 			else
 			{
 				Table.Write(["#", L("FOCUS"), L("STATUS"), L("ASSIGNED"), L("MATCHING"), L("NEAR"), L("ONGOING")], focuses.Select(f => new[]
@@ -124,8 +124,9 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Focus = shown, Showing = tab[..^4],
-				Players = rows.Select(r => new { Name = r[0], Nation = r[1], Age = r[2], Position = r[3], Role = r[4], Club = r[5], League = r[6], Value = r[7], Grade = r[8], Recommendation = r[9] }),
+				Focus = new { shown.Index, Name = GameWords.Of(shown.Name), Status = GameWords.Of(shown.Status), shown.Assigned, shown.Matched, shown.Near, shown.InProgress, shown.Running, State = GameWords.Of(shown.State) },
+				Showing = tab[..^4],
+				Players = rows.Select(r => r.Select(GameWords.Of).ToArray()).Select(r => new { Name = r[0], Nation = r[1], Age = r[2], Position = r[3], Role = r[4], Club = r[5], League = r[6], Value = r[7], Grade = r[8], Recommendation = r[9] }),
 			}));
 			return 0;
 		}

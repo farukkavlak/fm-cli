@@ -28,7 +28,7 @@ internal static partial class Program
 				Field(c, "Name"),
 				Field(c, "Events") + (Field(c, "Enabled") == "True" ? "" : L("  (closed)")),
 			})
-			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+			.Where(r => filter == null || r.Any(cell => Fold(cell).Contains(Fold(filter)) || Fold(GameWords.Of(cell)).Contains(Fold(filter))))
 			.ToList();
 
 		Table.Write(new[] { L("LABEL"), L("NAME"), L("WHAT IT SENDS") }, rows);
@@ -48,7 +48,7 @@ internal static partial class Program
 		var filter = Words(args).FirstOrDefault();
 		var rows = pages.EnumerateArray()
 			.Select(p => new[] { Field(p, "Tab"), Field(p, "Page") })
-			.Where(r => filter == null || r.Any(cell => cell.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+			.Where(r => filter == null || r.Any(cell => Fold(cell).Contains(Fold(filter)) || Fold(GameWords.Of(cell)).Contains(Fold(filter))))
 			.ToList();
 
 		Table.Write(new[] { L("TAB"), L("PAGE") }, rows);
@@ -144,8 +144,14 @@ internal static partial class Program
 	private static Task<string> OnBar(string screen) => Fm.Get("open", ("guid", screen), ("check", "1"));
 
 	/// <summary>A page as the game's own menus name it, in the game's language: what someone types after `fm open`.</summary>
-	private static Task<string> OpenNamed(string page, string? tab = null) =>
-		OpenWith(tab == null ? [("page", page)] : [("page", page), ("tab", tab)]);
+	private static async Task<string> OpenNamed(string page, string? tab = null)
+	{
+		// The plugin knows the pages by their English names; one typed as the game shows it is put back.
+		static bool Is(string english, string typed) => Fold(english) == Fold(typed) || Fold(GameWords.Of(english)) == Fold(typed);
+		if ((await Fm.GetJson("pages")).EnumerateArray().FirstOrDefault(p => Is(Field(p, "Page"), page) && (tab == null || Is(Field(p, "Tab"), tab))) is { ValueKind: JsonValueKind.Object } known)
+			(page, tab) = (Field(known, "Page"), tab == null ? null : Field(known, "Tab"));
+		return await OpenWith(tab == null ? [("page", page)] : [("page", page), ("tab", tab)]);
+	}
 
 	/// <summary>
 	/// Right after a match the navigation is rebuilt and the page list is empty for a while

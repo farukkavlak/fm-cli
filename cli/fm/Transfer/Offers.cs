@@ -42,7 +42,7 @@ internal static partial class Program
 		{
 			if (json)
 			{
-				Console.WriteLine(JsonOut.Of(offers.Select((o, i) => new { No = i + 1, o.Player, o.Club, o.Kind, o.Status, o.Fee, o.Terms })));
+				Console.WriteLine(JsonOut.Of(offers.Select((o, i) => new { No = i + 1, o.Player, o.Club, Kind = GameWords.Of(o.Kind), Status = GameWords.Of(o.Status), o.Fee, Terms = GameWords.Of(o.Terms) })));
 				return 0;
 			}
 			if (offers.Count == 0)

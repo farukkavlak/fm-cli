@@ -260,7 +260,7 @@ Role of {0} ({1})	{0} ({1}) rolü
 {0} was chosen, but the tactic still shows {1}.	{0} seçildi ama taktik hâlâ {1} gösteriyor.
 (dry run) Quick Pick would have been pressed.	(kuru) Quick Pick'e basılacaktı.
 Starting eleven picked: {0}	İlk 11 seçildi: {0}
-Quick Pick was pressed, but {0} players are selected.	Quick Pick'e basıldı ama {0} oyuncu seçili.
+Quick Pick was pressed, but {0} players are selected (the game leaves out players on holiday or unavailable: intensity, health).	Quick Pick'e basıldı ama {0} oyuncu seçili (oyun tatildeki ya da forma giyemeyecek oyuncuları seçmez: intensity, health).
 {0}  {1}  (active)	{0}  {1}  (etkin)
 \nTo switch: tactic slot <n>{0}	\nGeçmek için: tactic slot <n>{0}
  · all three slots taken	 · üç yuva dolu
@@ -2417,3 +2417,4 @@ Applied: {0}	Uygulandı: {0}
 The match waits for an answer to it. To apply: dugout apply   (the game's other button opens the tactics)	Maç bu öneriye cevap bekliyor. Uygulamak: dugout uygula   (oyunun öbür düğmesi taktiği açar)
 tactic pick lets the assistant choose the whole eleven and takes nothing after it. For one position: tactic player <position> <player>	tactic pick ilk 11'in tamamını yardımcıya seçtirir, ardından bir şey almaz. Tek mevki için: tactic player <mevki> <oyuncu>
 bench	yedek
+There is no next match yet, so no opposition instructions (fixtures).	Henüz sıradaki maç yok, bu yüzden rakip talimatı da yok (fixtures).
