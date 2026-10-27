@@ -80,6 +80,11 @@ def dev_cases():
 				continue  # held: never in the index
 			call = c.get("call")
 			rows.append((text, json.dumps(call)))
+	for f in sorted((ROOT / "tests/nl/train").glob("*.jsonl")):
+		for line in f.read_text().splitlines():
+			if line.strip():
+				c = json.loads(line)
+				rows.append((c.get("tr") or c.get("en"), json.dumps(c.get("call"))))
 	return rows
 
 

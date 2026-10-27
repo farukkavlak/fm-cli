@@ -14,6 +14,13 @@ internal static partial class Router
 		("sakin", "sakin"), ("gurur", "gurur"), ("daha fazla", "daha fazla"), ("hayal kirikligi", "hayal kırıklığı"), ("calm", "calm"), ("proud", "proud"),
 		("disappointed", "disappointed"), ("well done", "well done"), ("aferin", "aferin"));
 
+	private static readonly Lex ReplyAnswers = new(
+		("reddet", "reddet"), ("kabul et", "kabul"), ("accept", "accept"), ("reject", "reject"), ("decline", "decline"));
+
+	private static readonly Lex PenaltyMoves = new(
+		("ekle", "add"), ("listesine", "add"), ("add", "add"), ("put", "add"), ("atmasin", "remove"), ("atmayacak", "remove"), ("cikar", "remove"), ("listeden", "remove"),
+		("remove", "remove"), ("take off", "remove"), ("drop", "remove"));
+
 	private static readonly Lex DialogAnswers = new(
 		("evet", "Yes"), ("yes", "Yes"), ("hayir", "No"), ("no$", "No"), ("tamam", "OK"), ("ok$", "OK"), ("iptal", "Cancel"), ("cancel", "Cancel"));
 
@@ -34,7 +41,8 @@ internal static partial class Router
 		("kondisyon", "fitness"), ("mac formu", "fitness"), ("yorgun", "fitness"), ("fitness", "fitness"), ("sharpness", "fitness"),
 		("moral", "morale"), ("morale", "morale"),
 		("kac gol", "stats"), ("istatistik", "stats"), ("golcusu", "stats"), ("kac mac", "stats"), ("reyting", "stats"), ("kart cezasi", "stats"), ("stats", "stats"), ("most goals", "stats"),
-		("altyapi takim", "youth"), ("youth squads", "youth"),
+		("altyapi takim", "youth"), ("youth squads", "youth"), ("genc takim", "youth"), ("youth team", "youth"), ("u18", "youth"), ("u21", "youth"), ("u23", "youth"),
+		("asist", "stats"), ("assists", "stats"),
 		("sozlesme gorunum", "Contract"), ("contract view", "Contract"), ("transfer gorunum", "Transfer"), ("oynama sure", "Playing Time"), ("gorunumleri neler", "list"));
 
 	private static readonly Lex Styles = new(
@@ -47,7 +55,8 @@ internal static partial class Router
 		("see out the game", "Defensive"), ("defensive", "Defensive"), ("very defensive", "Very Defensive"), ("park the bus", "Very Defensive"));
 
 	private static readonly Lex TeamInstructions = new(
-		("savunma cizgi", "Defansif Çizgi=Daha Yüksek"), ("daha cok pres", "Pres Sıklığı=Daha Fazla"), ("pres yap", "Pres Sıklığı=Daha Fazla"), ("sert mudahale", "Müdahale=Sert"),
+		("savunma cizgi", "Defansif Çizgi=Daha Yüksek"), ("defans cizgi", "Defansif Çizgi=Daha Yüksek"), ("daha cok pres", "Pres Sıklığı=Daha Fazla"),
+		("daha fazla pres", "Pres Sıklığı=Daha Fazla"), ("pres yap*", "Pres Sıklığı=Daha Fazla"), ("sert mudahale", "Müdahale=Sert"),
 		("ofsayt", "Ofsayt Taktiği=Uygula"), ("tempo", "Tempo=Daha Yüksek"), ("zaman gecir", "Zaman Geçirme=Daha Fazla"), ("kontra pres", "Karşı Pres="),
 		("kanatlardan", "Hücum Genişliği=Daha Geniş"), ("pres hatti", "Pres Hattı="), ("kaleci topu", "Kaleci Dağıtımı="),
 		("press more", "Pressing Intensity=More"), ("get stuck in", "Tackling=Harder"), ("slow the tempo", "Tempo=Lower"), ("line of engagement", "Line of Engagement="),
@@ -88,7 +97,7 @@ internal static partial class Router
 	private static readonly Lex StaffRoles = new(
 		("yardimci antrenor", "Assistant Manager"), ("assistant manager", "Assistant Manager"), ("fizyoterapist", "Physio"), ("physio", "Physio"),
 		("fitnes hocasi", "Fitness Coach"), ("fitness coach", "Fitness Coach"), ("kaleci antrenoru", "Goalkeeping Coach"), ("goalkeeping coaches", "Goalkeeping Coach"),
-		("goalkeeping coach", "Goalkeeping Coach"), ("scout", "Scout"), ("gozlemci", "Scout"), ("antrenor", "Coach"), ("coach", "Coach"));
+		("goalkeeping coach", "Goalkeeping Coach"), ("kaleci hoca", "Goalkeeping Coach"), ("kaleci koc", "Goalkeeping Coach"), ("scout", "Scout"), ("gozlemci", "Scout"), ("antrenor", "Coach"), ("coach", "Coach"));
 
 	private static readonly Lex Duties = new(
 		("sozlesme uzatma", "contract"), ("contract renewals", "contract"), ("hazirlik maci", "friendlies"), ("friendlies", "friendlies"),
@@ -102,12 +111,13 @@ internal static partial class Router
 		("stadium", "stadium"), ("scout", "scout"), ("sozlesme", "contract"), ("contract", "contract"), ("maas butce", "wage budget"), ("wage budget", "wage budget"));
 
 	private static readonly Lex SettingNames = new(
-		("vurgu hizi", "highlight speed"), ("highlight speed", "highlight speed"), ("otomatik kayd", "auto save"), ("autosave", "auto save"), ("auto save", "auto save"),
+		("vurgu hizi", "highlight speed"), ("highlight speed", "highlight speed"), ("otomatik kayd", "auto save"), ("otomatik kayit", "auto save"), ("autosave", "auto save"), ("auto save", "auto save"),
 		("para birimi", "currency"), ("currency", "currency"), ("dil", "language"), ("dilini", "language"), ("language", "language"),
 		("key highlights", "highlights"), ("match speed", "match speed"), ("mac hizi", "match speed"));
 
 	private static readonly Lex SettingValues = new(
-		("2x", "2x"), ("1x", "1x"), ("4x", "4x"), ("ac$", "On"), ("turn on", "On"), ("kapat", "Off"), ("turn off", "Off"), ("euro", "Euro"), ("turk lirasi", "Turkish Lira"),
+		("2x", "2x"), ("1x", "1x"), ("4x", "4x"), ("ac$", "On"), ("acik olsun", "On"), ("turn on", "On"), ("enable", "On"), ("on$", "On"), ("kapat", "Off"), ("turn off", "Off"),
+		("disable", "Off"), ("off$", "Off"), ("english", "English"), ("turkish", "Türkçe"), ("euro", "Euro"), ("turk lirasi", "Turkish Lira"),
 		("sterlin", "Pound"), ("dolar", "Dollar"), ("ingilizce", "English"), ("turkceye", "Türkçe"), ("turkce", "Türkçe"), ("key$", "Key"));
 
 	private static readonly Lex Pages = new(
@@ -137,7 +147,7 @@ internal static partial class Router
 	private static void Training(Ctx c)
 	{
 		if (c.Name() is string p) c.Set("player", p);
-		if (c.Has("ogrenebilir", "can learn", "ppms")) { c.Set("traits", true); return; }
+		if (c.Has("ogrenebilir", "can learn", "ppms", "traits")) { c.Set("traits", true); return; }
 		if (c.Has("iptal", "cancel")) { c.Set("trait_cancel", true); return; }
 		if (c.Has("unlearn")) { if (c.LexValue(Traits) is string t) c.Set("trait_remove", t); return; }
 		if (c.Has("teach", "ogret")) { if (c.LexValue(Traits) is string t) c.Set("trait", t); return; }
@@ -151,7 +161,7 @@ internal static partial class Router
 	{
 		if (c.Name() is string n && !c.Has("maddelere", "menajere")) c.Set("name", n);
 		var terms = new List<string>();
-		var years = c.Nums().FirstOrDefault(x => x.At + 1 < c.W.Length && (Text.Matches(c.W[x.At + 1], "yil") || Text.Matches(c.W[x.At + 1], "year*")));
+		var years = c.Nums().FirstOrDefault(x => x.At + 1 < c.W.Length && (Text.Matches(c.W[x.At + 1], "yil*") || Text.Matches(c.W[x.At + 1], "year*")));
 		if (years != default) terms.Add($"Contract Length={years.Value} years");
 		if (c.Has("prim", "appearance fee")) terms.Add("Appearance Fee=remove");
 		var moneys = c.Moneys();
@@ -166,7 +176,7 @@ internal static partial class Router
 		if (terms.Count > 0) c.Set("terms", Arr(terms));
 		if (c.Has("maddelere", "move on to the terms")) c.Set("next", true);
 		if (c.Has("menajere sun", "imzala", "sign")) c.Set("sign", true);
-		if (c.Has("iptal", "gorusmesinden cik", "walk away")) c.Set("cancel", true);
+		if (c.Has("iptal", "gorusmesinden cik", "vazgec", "walk away", "cancel", "call off")) c.Set("cancel", true);
 		if (c.Has("agent if", "menajerine sor")) c.Set("agent", true);
 	}
 
@@ -218,7 +228,8 @@ internal static partial class Router
 		double.Parse(m.TrimEnd('M', 'K'), System.Globalization.CultureInfo.InvariantCulture) * (m.EndsWith('M') ? 1e6 : m.EndsWith('K') ? 1e3 : 1);
 
 	private static readonly Lex PlayerFilters = new(
-		("bonservissiz", "Contract Expired"), ("serbest oyuncu", "Contract Expired"), ("mutsuz", "Unhappy"), ("unhappy", "Unhappy"), ("free agents", "Contract Expired"));
+		("bonservissiz", "Contract Expired"), ("serbest oyuncu", "Contract Expired"), ("mutsuz", "Unhappy"), ("unhappy", "Unhappy"), ("free agents", "Contract Expired"),
+		("kontrati bitmis", "Contract Expired"), ("sozlesmesi bitmis", "Contract Expired"), ("expired contract", "Contract Expired"), ("out of contract", "Contract Expired"));
 
 	private static readonly Lex Attributes = new(
 		("kafa topu", "heading"), ("heading", "heading"), ("pace", "pace"), ("hiz", "pace"), ("finishing", "finishing"), ("bitiricilik", "finishing"),
@@ -226,13 +237,13 @@ internal static partial class Router
 
 	private static void Players(Ctx c)
 	{
-		if (c.Has("filtreyi kaldir", "clear the")) { c.Set("clear", true); return; }
+		if (c.Has("filtreyi kaldir", "temizle", "sifirla", "clear the")) { c.Set("clear", true); return; }
 		if (c.Has("gorunum", "views")) { c.Set("list", "views"); return; }
 		if (c.Has("quick filters", "hizli filtre")) { c.Set("list", "filters"); return; }
 		if (c.Has("sutun", "columns")) { c.Set("view", "Contract"); return; }
 		if (c.LexValue(PlayerFilters) is string f) c.Set("filter", f);
-		if (c.Has("satis listesi", "transfer listesi", "transfer listed")) c.Set("listed", true);
-		if (c.Has("kiralik", "kiralanabil", "loan listed")) c.Set("loan_listed", true);
+		if (c.Has("satis listesi", "transfer listesi", "transfer listed", "transfer list")) c.Set("listed", true);
+		if (c.Has("kiralik", "kiralanabil", "kiraya", "loan listed", "for loan", "on loan")) c.Set("loan_listed", true);
 		if (c.Has("kulubu olmayan", "unattached")) c.Set("contract", "Unattached");
 		else if (c.Has("sozlesme", "deal", "left on")) c.Set("contract", c.Has("6 ay", "6 months") ? "Expiring (6 Months)" : "Expiring (1 Year)");
 		var age = c.AgeRange();
@@ -257,16 +268,17 @@ internal static partial class Router
 
 	private static void ScoutFocus(Ctx c)
 	{
-		if (c.Has("bolge", "areas")) { c.Set("action", "areas"); if (c.LexValue(ScoutAreas) is string a0) c.Set("area", a0); return; }
-		if (c.Has("gozlemcilerim", "scout kadrom", "my scouts")) { c.Set("action", "staff"); return; }
+		if (c.Has("bolge", "areas", "regions")) { c.Set("action", "areas"); if (c.LexValue(ScoutAreas) is string a0) c.Set("area", a0); return; }
+		if (c.Has("gozlemcilerim", "scout kadrom", "my scouts", "scouts ratings")) { c.Set("action", "staff"); return; }
 		var focusNum = c.Num()?.ToString();
 		var named = c.Find("odaginin");
 		if (named < 0) named = c.Find("odagini");
 		var focusName = named > 0 ? c.Between(0, named) : null;
 		var focus = focusNum ?? focusName;
-		if (c.Has("iptal", "stop")) { c.Set("action", "remove"); if (focus != null) c.Set("focus", focus); return; }
+		var isNew = c.Has("yeni", "new");
+		if (!isNew && c.Has("iptal", "sil", "kaldir", "durdur", "stop", "delete", "remove", "cancel")) { c.Set("action", "remove"); if (focus != null) c.Set("focus", focus); return; }
 		if (c.Has("restart", "yeniden")) { c.Set("action", "restart"); if (focus != null) c.Set("focus", focus); return; }
-		var edit = c.Has("odaga", "to focus", "odaginin");
+		var edit = !isNew && c.Has("odaga", "to focus", "odaginin");
 		c.Set("action", edit ? "edit" : "new");
 		if (edit && focus != null) c.Set("focus", focus);
 		if (!edit)

@@ -75,7 +75,7 @@ internal static partial class Router
 
 	private static Call Fill(string tool, Text text, double score)
 	{
-		var ctx = new Ctx(text);
+		var ctx = new Ctx(text, tool);
 		Rules.FirstOrDefault(r => r.Tool == tool)?.Args?.Invoke(ctx);
 		foreach (var need in Required.GetValueOrDefault(tool, []))
 			ctx.Ask(need);

@@ -89,7 +89,7 @@ def main():
 	tools = load_tools()
 	errors, per_file, per_lang, per_tool, texts = [], Counter(), Counter(), Counter(), Counter()
 	kinds = Counter()
-	for path in sorted(CASES.glob("*.jsonl")):
+	for path in sorted(CASES.glob("*.jsonl")) + sorted((CASES / "train").glob("*.jsonl")):
 		for n, line in enumerate(path.read_text().splitlines(), 1):
 			if not line.strip():
 				continue
@@ -114,6 +114,11 @@ def main():
 			per_lang[langs[0]] += 1
 			if "call" not in case:
 				errors.append(f"{where}: no \"call\"")
+				continue
+			if path.parent.name == "train":
+				# training-only: the tool is all the model learns from it
+				if case["call"] is not None and case["call"] not in tools:
+					errors.append(f"{where}: unknown tool {case['call']}")
 				continue
 			kind = check_entry(tools, case, where, errors, per_tool)
 			kinds[kind] += 1

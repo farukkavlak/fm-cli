@@ -74,6 +74,33 @@ e5-small fine-tuned the same way does no better than MiniLM (held 59% / 42%). We
 1 GB, ~6 ms a sentence, less memory than MiniLM in float. False "nothing" can be bought down with
 `--none-margin 1.5` (6.5% → 4.3%, "nothing" 78% → 71%); a product choice, left at 0 here.
 
+Training-only sentences (27 Oct, night): `tests/nl/train/*.jsonl` holds sentences that are never
+scored, only learnt from: `paraphrases` (every tool said other ways, ~770), `conversational`
+(longer, chattier wording for the tools that get mixed up, ~310) and `arguments` (~260 with the
+arguments they should give, the readers are tuned on these). No sentence repeats one of the test
+set (`tools/nl-check.py` checks it); `tools/nl-expand.py --train` writes their noisy variants
+(`tests/nl/expanded/train.jsonl`), never one that reads like a test sentence. `nl-embed.py`
+indexes them and `nl-train.py` trains on them, so dev and held stay as they were. With them in the
+index alone (same model): held tool 65.2% → 69.8%.
+
+The readers on their own: `tools/nl-score.py --given-tool` hands each case its own tool, so only
+the arguments are scored (`--set train` does it on the training sentences). Held base was 64.3%
+(dev 95.7%: the readers knew the dev wording and little else). What was off was mostly the name
+reader: a word starting with a known word was that word ("moretti" was "more"), so a known word
+now needs a plausible ending after it ("kadroyu", "takes"); a typo of a known word kept any first
+letter whose second letter held ("rinaldi" was "final" mistyped, "talimat" was "çalım"), now the
+first letter has to hold or swap with the second; one of the picked tool's own words typed wrong
+is no name ("sgin" for a contract's "sign"); question words, pronouns, someone unnamed ("şu
+çocuğa teklif yap", "sell this guy"), command verbs, Turkish verb forms ("satmak", "istiyorum"),
+numbers said in words, lengths of time and the lexicons' own values are no names either. Each
+reader learnt more ways to say its values (a message by its sender, a talk's words before "de",
+a match watched live, top N, teams, youth views, lengths "for a month"). Held base given the tool
+64.3% → 69.5%, expanded 60.2% → 65.8%, dev 95.7% → 96.7%. Whole router (old model, new index):
+held base tool 71.2% / with arguments 55.0% (was 65.2% / 48.0%), expanded held 59.3% / 43.7%
+(was 53.7% / 37.1%). Tried and left: a common word's typo as a weak name (no change); dropping
+common-word names for tools that need no name (+0.4% held, but "bruno dinlensin" would rest no
+one in particular: a wrong name fails loudly, a dropped one runs the wrong thing).
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.

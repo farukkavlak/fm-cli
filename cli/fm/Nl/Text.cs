@@ -94,8 +94,8 @@ internal sealed partial class Text
 		var prefix = start || (!exact && cue.Length >= 4);
 		if (prefix && word.StartsWith(cue, StringComparison.Ordinal)) return true;
 		if (!typo || cue.Length < 5 || word.Length < 4) return false;
-		// one typo leaves the first or second letter in place (or shifts the second to the front)
-		if (word[0] != cue[0] && word[1] != cue[1] && word[0] != cue[1]) return false;
+		// one typo leaves the first letter in place, or swaps it with the second ("talimat" is no "calim")
+		if (word[0] != cue[0] && !(word[0] == cue[1] && word[1] == cue[0])) return false;
 		if (!prefix) return Distance(word, cue) <= 1;
 		for (var n = cue.Length - 1; n <= cue.Length + 1; n++)
 			if (n <= word.Length && Distance(word[..n], cue) <= 1) return true;

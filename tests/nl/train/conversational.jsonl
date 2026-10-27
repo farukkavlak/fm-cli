@@ -1,0 +1,309 @@
+{"tr": "gözlemcilerim şu an hangi görevlerde", "call": "fm_scout"}
+{"tr": "scout ekibi nereleri tarıyor", "call": "fm_scout"}
+{"tr": "aktif gözlem görevlerini listele", "call": "fm_scout"}
+{"tr": "gözlemcilerin bulduğu oyuncular kimler", "call": "fm_scout"}
+{"tr": "scoutlar ne rapor etti son zamanlarda", "call": "fm_scout"}
+{"en": "what are my scouts working on right now", "call": "fm_scout"}
+{"en": "list the active scouting assignments", "call": "fm_scout"}
+{"en": "which players have the scouts found", "call": "fm_scout"}
+{"en": "show me what the scouting team is up to", "call": "fm_scout"}
+{"en": "any new scout recommendations", "call": "fm_scout"}
+{"tr": "gözlemcilere yeni görev ver almanyada kanat arasınlar", "call": "fm_scout_focus"}
+{"tr": "italyada 21 yaş altı kaleci için gözlem başlat", "call": "fm_scout_focus"}
+{"tr": "fransa liginde ucuz stoper taratalım", "call": "fm_scout_focus"}
+{"tr": "genç yetenek arayışı başlat avrupada", "call": "fm_scout_focus"}
+{"tr": "gözlemcileri sol bek bulmaya gönder", "call": "fm_scout_focus"}
+{"en": "give the scouts a new job looking for wingers in germany", "call": "fm_scout_focus"}
+{"en": "start a scouting assignment for an under 21 keeper", "call": "fm_scout_focus"}
+{"en": "have the scouts search france for a cheap centre back", "call": "fm_scout_focus"}
+{"en": "set up a search for young talent across europe", "call": "fm_scout_focus"}
+{"en": "send the scouts off to find a left back", "call": "fm_scout_focus"}
+{"tr": "kariyer2 kaydını aç", "call": "fm_load"}
+{"tr": "dünkü kaydı yükle", "call": "fm_load"}
+{"tr": "yedek kayıttan geri dön", "call": "fm_load"}
+{"tr": "farklı bir kaydı yükle", "call": "fm_load"}
+{"tr": "deneme kaydına geç", "call": "fm_load"}
+{"en": "load the career2 save", "call": "fm_load"}
+{"en": "go back to yesterday's save", "call": "fm_load"}
+{"en": "restore from the backup save", "call": "fm_load"}
+{"en": "load a different save file", "call": "fm_load"}
+{"en": "open the save named trial", "call": "fm_load"}
+{"tr": "oyunu şimdi kaydet", "call": "fm_save"}
+{"tr": "ilerlemeyi kaydet", "call": "fm_save"}
+{"tr": "bir kayıt al hemen", "call": "fm_save"}
+{"tr": "kaydet ama kapatma", "call": "fm_save"}
+{"tr": "kayıt dosyasını güncelle", "call": "fm_save"}
+{"en": "save my progress", "call": "fm_save"}
+{"en": "save it now", "call": "fm_save"}
+{"en": "make a save", "call": "fm_save"}
+{"en": "save but don't quit", "call": "fm_save"}
+{"en": "update the save file", "call": "fm_save"}
+{"tr": "oyunu kapat kaydetmeden", "call": "fm_stop"}
+{"tr": "fm yi tamamen kapat", "call": "fm_stop"}
+{"tr": "kaydedip oyundan çık", "call": "fm_stop"}
+{"tr": "oyunu sonlandır", "call": "fm_stop"}
+{"tr": "football manager i kapat", "call": "fm_stop"}
+{"en": "close the game without saving", "call": "fm_stop"}
+{"en": "shut down football manager", "call": "fm_stop"}
+{"en": "exit fm completely", "call": "fm_stop"}
+{"en": "close it down", "call": "fm_stop"}
+{"tr": "korner rutinini değiştir", "call": "fm_setpieces"}
+{"tr": "frikiklerde nasıl bir düzen var", "call": "fm_setpieces"}
+{"tr": "duran toplarda kim nereye koşuyor", "call": "fm_setpieces"}
+{"tr": "savunma kornerlerinde adam adama mı", "call": "fm_setpieces"}
+{"tr": "taç atışı rutinini göster", "call": "fm_setpieces"}
+{"en": "change the corner routine", "call": "fm_setpieces"}
+{"en": "how are free kicks set up", "call": "fm_setpieces"}
+{"en": "who goes where on set pieces", "call": "fm_setpieces"}
+{"en": "are we zonal on defensive corners", "call": "fm_setpieces"}
+{"en": "show the throw in routine", "call": "fm_setpieces"}
+{"tr": "kornerleri kim kullanıyor", "call": "fm_takers"}
+{"tr": "frikiklere colombo geçsin", "call": "fm_takers"}
+{"tr": "sağdan kornerleri bruno atsın", "call": "fm_takers"}
+{"tr": "uzak mesafe frikikçi kim", "call": "fm_takers"}
+{"tr": "duran top kullanıcılarını değiştir", "call": "fm_takers"}
+{"en": "who is taking corners", "call": "fm_takers"}
+{"en": "let colombo take free kicks", "call": "fm_takers"}
+{"en": "bruno takes corners from the right", "call": "fm_takers"}
+{"en": "who is the long range free kick taker", "call": "fm_takers"}
+{"en": "change the set piece takers", "call": "fm_takers"}
+{"tr": "her mevkide kaç oyuncum var", "call": "fm_depth"}
+{"tr": "sağ bekte yedek var mı", "call": "fm_depth"}
+{"tr": "kadro derinliği nasıl", "call": "fm_depth"}
+{"tr": "hangi pozisyonda takviye şart", "call": "fm_depth"}
+{"tr": "orta sahada kaç kişi var", "call": "fm_depth"}
+{"en": "how many players per position", "call": "fm_depth"}
+{"en": "do we have a backup right back", "call": "fm_depth"}
+{"en": "how deep is the squad", "call": "fm_depth"}
+{"en": "which position lacks cover", "call": "fm_depth"}
+{"en": "how many midfielders do we have", "call": "fm_depth"}
+{"tr": "kanat oyuncusunu ters kanat yap", "call": "fm_tactic_role"}
+{"tr": "on liberoyu derin oyun kurucu yap", "call": "fm_tactic_role"}
+{"tr": "stoperin rolü top oynayan stoper olsun", "call": "fm_tactic_role"}
+{"tr": "forvet sahte dokuz oynasın", "call": "fm_tactic_role"}
+{"tr": "sağ kanadın görevini destek yap", "call": "fm_tactic_role"}
+{"en": "make the winger an inverted winger", "call": "fm_tactic_role"}
+{"en": "set the dm to deep lying playmaker", "call": "fm_tactic_role"}
+{"en": "centre back role ball playing defender", "call": "fm_tactic_role"}
+{"en": "play the striker as a false nine", "call": "fm_tactic_role"}
+{"en": "right winger on support duty", "call": "fm_tactic_role"}
+{"tr": "kupada kiminle eşleştik", "call": "fm_stages"}
+{"tr": "şampiyonlar ligi grubu", "call": "fm_stages"}
+{"tr": "kupada son 16 eşleşmeleri", "call": "fm_stages"}
+{"tr": "avrupa ligi kura sonucu", "call": "fm_stages"}
+{"tr": "kupa finali ne zaman", "call": "fm_stages"}
+{"en": "who did we draw in the cup", "call": "fm_stages"}
+{"en": "our champions league group", "call": "fm_stages"}
+{"en": "cup last 16 draw", "call": "fm_stages"}
+{"en": "europa league draw", "call": "fm_stages"}
+{"en": "when is the cup final", "call": "fm_stages"}
+{"tr": "ligde kaçıncı sıradayız", "call": "fm_table"}
+{"tr": "lider kaç puan önde", "call": "fm_table"}
+{"tr": "küme düşme hattı", "call": "fm_table"}
+{"tr": "puan cetveli", "call": "fm_table"}
+{"tr": "zirveye kaç puan var", "call": "fm_table"}
+{"en": "what position are we in", "call": "fm_table"}
+{"en": "how far behind the leaders are we", "call": "fm_table"}
+{"en": "relegation zone", "call": "fm_table"}
+{"en": "points table", "call": "fm_table"}
+{"en": "how many points off the top", "call": "fm_table"}
+{"tr": "mevcut taktiği yedekle kopyala", "call": "fm_tactic_copy"}
+{"tr": "aynı taktikten bir tane daha yap", "call": "fm_tactic_copy"}
+{"tr": "taktiği diğer slota kopyala", "call": "fm_tactic_copy"}
+{"en": "clone the current tactic", "call": "fm_tactic_copy"}
+{"en": "make another copy of this tactic", "call": "fm_tactic_copy"}
+{"en": "copy the tactic to another slot", "call": "fm_tactic_copy"}
+{"tr": "yepyeni bir taktik oluştur", "call": "fm_tactic_new"}
+{"tr": "dizilişi 4-3-3e çevir", "call": "fm_tactic_new"}
+{"tr": "farklı bir sistemle başla", "call": "fm_tactic_new"}
+{"tr": "beşli savunmaya geç", "call": "fm_tactic_new"}
+{"en": "make a brand new tactic", "call": "fm_tactic_new"}
+{"en": "change formation to 4-3-3", "call": "fm_tactic_new"}
+{"en": "start a new system", "call": "fm_tactic_new"}
+{"en": "switch to a back five", "call": "fm_tactic_new"}
+{"tr": "maçta değişiklik yap", "call": "fm_sub"}
+{"tr": "yorulanı oyundan al", "call": "fm_sub"}
+{"tr": "contiyi oyuna al", "call": "fm_sub"}
+{"tr": "sakatlanan oyuncunun yerine birini sok", "call": "fm_sub"}
+{"tr": "ikinci yarıda kim girsin", "call": "fm_sub"}
+{"en": "make a change during the match", "call": "fm_sub"}
+{"en": "take off the tired guy", "call": "fm_sub"}
+{"en": "bring conti on", "call": "fm_sub"}
+{"en": "replace the injured player", "call": "fm_sub"}
+{"en": "who should come on in the second half", "call": "fm_sub"}
+{"tr": "ilk 11de sol bekte colombo oynasın", "call": "fm_tactic_player"}
+{"tr": "kadroya contiyi forvet olarak yaz", "call": "fm_tactic_player"}
+{"tr": "kalecimiz costa olsun", "call": "fm_tactic_player"}
+{"tr": "orta sahada bruno başlasın", "call": "fm_tactic_player"}
+{"tr": "verdi sağ kanatta oynasın ilk 11de", "call": "fm_tactic_player"}
+{"en": "start colombo at left back", "call": "fm_tactic_player"}
+{"en": "put conti in the lineup as striker", "call": "fm_tactic_player"}
+{"en": "costa is our keeper", "call": "fm_tactic_player"}
+{"en": "bruno starts in midfield", "call": "fm_tactic_player"}
+{"en": "play verdi on the right wing from the start", "call": "fm_tactic_player"}
+{"tr": "yeni bir kaleci antrenörü bul", "call": "fm_staff_find"}
+{"tr": "boştaki scoutlara bak", "call": "fm_staff_find"}
+{"tr": "fizyo arayışı başlat", "call": "fm_staff_find"}
+{"tr": "iyi bir analist bul", "call": "fm_staff_find"}
+{"tr": "ekibe yeni antrenör lazım", "call": "fm_staff_find"}
+{"en": "find a new goalkeeping coach", "call": "fm_staff_find"}
+{"en": "look at unemployed scouts", "call": "fm_staff_find"}
+{"en": "search for a physio", "call": "fm_staff_find"}
+{"en": "find a good analyst", "call": "fm_staff_find"}
+{"en": "we need a new coach on the staff", "call": "fm_staff_find"}
+{"tr": "antrenörlerin iş yükü", "call": "fm_coaches"}
+{"tr": "taktik antrenmanından kim sorumlu", "call": "fm_coaches"}
+{"tr": "koçları yeniden dağıt", "call": "fm_coaches"}
+{"tr": "fizik antrenmanını kim veriyor", "call": "fm_coaches"}
+{"tr": "antrenör yıldızları", "call": "fm_coaches"}
+{"en": "coach workload", "call": "fm_coaches"}
+{"en": "who is in charge of tactical training", "call": "fm_coaches"}
+{"en": "redistribute the coaches", "call": "fm_coaches"}
+{"en": "who runs fitness training", "call": "fm_coaches"}
+{"en": "coaching star ratings", "call": "fm_coaches"}
+{"tr": "şu an oyunda ne var", "call": "fm_status"}
+{"tr": "oyun beni bekliyor mu", "call": "fm_status"}
+{"tr": "neredeyiz şu an", "call": "fm_status"}
+{"tr": "durum nedir", "call": "fm_status"}
+{"en": "is the game waiting for me", "call": "fm_status"}
+{"en": "what is happening now", "call": "fm_status"}
+{"en": "status please", "call": "fm_status"}
+{"tr": "ana menüden son kariyere devam", "call": "fm_continue"}
+{"tr": "oyunu açınca son kayıttan başla", "call": "fm_continue"}
+{"tr": "devam et butonuyla son kaydı aç", "call": "fm_continue"}
+{"en": "continue the last career from the main menu", "call": "fm_continue"}
+{"en": "pick up from the last save", "call": "fm_continue"}
+{"en": "hit continue on the main menu", "call": "fm_continue"}
+{"tr": "ekrandaki butonlar neler", "call": "fm_buttons"}
+{"tr": "hangi düğmeye basabilirim", "call": "fm_buttons"}
+{"tr": "bu ekranda tuş listesi", "call": "fm_buttons"}
+{"en": "show the buttons on screen", "call": "fm_buttons"}
+{"en": "what can i click", "call": "fm_buttons"}
+{"en": "button list", "call": "fm_buttons"}
+{"tr": "kulüp vizyonu hedeflerini göster", "call": "fm_vision"}
+{"tr": "vizyondaki bir hedefi kaldır", "call": "fm_vision"}
+{"tr": "vizyon görüşmesinde ne konuşulacak", "call": "fm_vision"}
+{"tr": "yönetimin uzun vadeli planı", "call": "fm_vision"}
+{"en": "show the club vision targets", "call": "fm_vision"}
+{"en": "remove a vision objective", "call": "fm_vision"}
+{"en": "what's in the vision meeting", "call": "fm_vision"}
+{"en": "the board's long term plan", "call": "fm_vision"}
+{"tr": "oyunda bir oyuncu ara", "call": "fm_search"}
+{"tr": "bu isimde kulüp var mı", "call": "fm_search"}
+{"tr": "conti adında birini bul", "call": "fm_search"}
+{"tr": "arama kutusuna lombardi yaz", "call": "fm_search"}
+{"en": "search for a player", "call": "fm_search"}
+{"en": "is there a club with this name", "call": "fm_search"}
+{"en": "find someone called conti", "call": "fm_search"}
+{"en": "type lombardi in the search", "call": "fm_search"}
+{"tr": "colombo ile bruno kıyaslaması", "call": "fm_compare"}
+{"tr": "conti mi costa mı oynamalı karşılaştır", "call": "fm_compare"}
+{"tr": "iki stoperi karşılaştır lombardi ve verdi", "call": "fm_compare"}
+{"en": "compare colombo with bruno", "call": "fm_compare"}
+{"en": "who should play conti or costa", "call": "fm_compare"}
+{"en": "compare the two centre backs lombardi and verdi", "call": "fm_compare"}
+{"tr": "kullanmadığım taktiği sil", "call": "fm_tactic_clear"}
+{"tr": "ikinci slottaki taktiği kaldır", "call": "fm_tactic_clear"}
+{"tr": "eski taktiği temizle", "call": "fm_tactic_clear"}
+{"en": "delete the tactic i don't use", "call": "fm_tactic_clear"}
+{"en": "remove the tactic in slot two", "call": "fm_tactic_clear"}
+{"en": "clear the old tactic", "call": "fm_tactic_clear"}
+{"tr": "ilk 11i asistan belirlesin", "call": "fm_tactic_pick"}
+{"tr": "en güçlü kadroyu otomatik seç", "call": "fm_tactic_pick"}
+{"tr": "takımı otomatik diz", "call": "fm_tactic_pick"}
+{"en": "let the assistant choose the eleven", "call": "fm_tactic_pick"}
+{"en": "auto select the strongest lineup", "call": "fm_tactic_pick"}
+{"en": "auto fill the team", "call": "fm_tactic_pick"}
+{"tr": "şu anki ilk 11", "call": "fm_tactic"}
+{"tr": "taktik ekranı", "call": "fm_tactic"}
+{"tr": "kimler ilk 11de", "call": "fm_tactic"}
+{"en": "who is in the starting eleven", "call": "fm_tactic"}
+{"en": "tactic overview", "call": "fm_tactic"}
+{"en": "current lineup", "call": "fm_tactic"}
+{"tr": "rakip hangi oyuncularla tehlikeli", "call": "fm_opponent"}
+{"tr": "karşı takımın formu", "call": "fm_opponent"}
+{"tr": "rakibin son maçları", "call": "fm_opponent"}
+{"tr": "rakip nasıl bir takım", "call": "fm_opponent"}
+{"en": "who are their dangerous players", "call": "fm_opponent"}
+{"en": "opponent form", "call": "fm_opponent"}
+{"en": "their recent results", "call": "fm_opponent"}
+{"en": "what kind of team are they", "call": "fm_opponent"}
+{"tr": "transferde öncelik nerede", "call": "fm_targets"}
+{"tr": "kadroda hangi eksikler var transfer için", "call": "fm_targets"}
+{"tr": "takviye gereken bölgeler", "call": "fm_targets"}
+{"en": "transfer priorities", "call": "fm_targets"}
+{"en": "what gaps do we need to fill", "call": "fm_targets"}
+{"en": "areas to strengthen in the window", "call": "fm_targets"}
+{"tr": "conti için kulübüyle temas kur", "call": "fm_approach"}
+{"tr": "kiralamaya açıklar mı sor costa için", "call": "fm_approach"}
+{"tr": "fiyatını öğren lombardinin", "call": "fm_approach"}
+{"en": "make contact with conti's club", "call": "fm_approach"}
+{"en": "ask if costa is available on loan", "call": "fm_approach"}
+{"en": "find out lombardi's price", "call": "fm_approach"}
+{"tr": "colomboyu gözlemcimize izlet", "call": "fm_scout_player"}
+{"tr": "verdi için detaylı rapor iste", "call": "fm_scout_player"}
+{"tr": "bruno maçlarda izlensin", "call": "fm_scout_player"}
+{"en": "have a scout watch colombo", "call": "fm_scout_player"}
+{"en": "get a full report on verdi", "call": "fm_scout_player"}
+{"en": "watch bruno in his matches", "call": "fm_scout_player"}
+{"tr": "kadro kayıt kurallarını göster", "call": "fm_register"}
+{"tr": "kayıt listesini otomatik doldur", "call": "fm_register"}
+{"tr": "ligde oynayacak listeyi gönder", "call": "fm_register"}
+{"en": "show squad registration rules", "call": "fm_register"}
+{"en": "fill the registration list automatically", "call": "fm_register"}
+{"en": "send the league squad list", "call": "fm_register"}
+{"tr": "maça hazırlıkta duran toplara çalış", "call": "fm_prep"}
+{"tr": "bu maç için hazırlığı hücuma ver", "call": "fm_prep"}
+{"tr": "maç hazırlık seçenekleri", "call": "fm_prep"}
+{"en": "work on set pieces for match prep", "call": "fm_prep"}
+{"en": "focus prep on attacking this game", "call": "fm_prep"}
+{"en": "match prep options", "call": "fm_prep"}
+{"tr": "kadro planlayıcı ekranına geç", "call": "fm_open"}
+{"tr": "finans sayfasını aç", "call": "fm_open"}
+{"tr": "gözlem merkezine git", "call": "fm_open"}
+{"en": "go to the squad planner", "call": "fm_open"}
+{"en": "open the finances screen", "call": "fm_open"}
+{"en": "take me to the scouting centre", "call": "fm_open"}
+{"tr": "yorgun olanlar az çalışsın", "call": "fm_intensity"}
+{"tr": "continin antrenman yoğunluğunu normale al", "call": "fm_intensity"}
+{"tr": "costa 3 gün dinlensin", "call": "fm_intensity"}
+{"en": "the tired ones train lighter", "call": "fm_intensity"}
+{"en": "put conti back to normal intensity", "call": "fm_intensity"}
+{"en": "rest costa for three days", "call": "fm_intensity"}
+{"tr": "sözleşmesi bu sezon bitenler", "call": "fm_contracts"}
+{"tr": "en uzun kontrat kimde", "call": "fm_contracts"}
+{"tr": "sözleşme bitiş listesi", "call": "fm_contracts"}
+{"en": "contracts ending this season", "call": "fm_contracts"}
+{"en": "who has the longest contract", "call": "fm_contracts"}
+{"en": "list of contract expiries", "call": "fm_contracts"}
+{"tr": "bu scoutla anlaş", "call": "fm_staff_hire"}
+{"tr": "antrenörü kadroya al", "call": "fm_staff_hire"}
+{"tr": "fizyoya sözleşme ver", "call": "fm_staff_hire"}
+{"en": "agree terms with this scout", "call": "fm_staff_hire"}
+{"en": "bring the coach in", "call": "fm_staff_hire"}
+{"en": "give the physio a contract", "call": "fm_staff_hire"}
+{"tr": "bilgisayardaki kayıtlarım", "call": "fm_saves"}
+{"tr": "kayıt dosyaları listesi", "call": "fm_saves"}
+{"en": "what save files are there", "call": "fm_saves"}
+{"en": "save list", "call": "fm_saves"}
+{"tr": "contiye neler yapabilirim menüden", "call": "fm_actions"}
+{"tr": "colombo için seçenek listesi", "call": "fm_actions"}
+{"tr": "verdinin sağ tık menüsünü aç", "call": "fm_actions"}
+{"en": "what can i do with conti from the menu", "call": "fm_actions"}
+{"en": "options list for colombo", "call": "fm_actions"}
+{"en": "open verdi's context menu", "call": "fm_actions"}
+{"tr": "bilgisayarı yeniden başlat", "call": null}
+{"tr": "rakip takımın taktiğini ben yöneteyim", "call": null}
+{"tr": "gerçek dünyadaki transfer haberleri", "call": null}
+{"tr": "bana şiir yaz", "call": null}
+{"tr": "oyunun editörünü aç para ekle", "call": null}
+{"tr": "son maçı geri al", "call": null}
+{"tr": "film öner", "call": null}
+{"tr": "ne düşünüyorsun hayat hakkında", "call": null}
+{"en": "restart my computer", "call": null}
+{"en": "let me manage the other team", "call": null}
+{"en": "real life transfer news", "call": null}
+{"en": "open the editor and add money", "call": null}
+{"en": "undo the last match", "call": null}
+{"en": "recommend a movie", "call": null}
+{"en": "what do you think about life", "call": null}

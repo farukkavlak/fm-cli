@@ -10,6 +10,7 @@ never misspelt, so the expected call stays exact. Same seed, same output.
   tools/nl-expand.py                 # 6 variants per case → tests/nl/expanded/all.jsonl
   tools/nl-expand.py -n 10 --seed 2  # more, another draw
   tools/nl-expand.py --stdout | head
+  tools/nl-expand.py --train         # tests/nl/train/ (training only) → tests/nl/expanded/train.jsonl
 """
 import argparse
 import json
@@ -160,10 +161,15 @@ def main():
 	ap.add_argument("-n", type=int, default=6, help="variants per case")
 	ap.add_argument("--seed", type=int, default=1)
 	ap.add_argument("--stdout", action="store_true")
+	ap.add_argument("--train", action="store_true", help="the training-only sentences of tests/nl/train/")
 	opt = ap.parse_args()
+	src, out = (CASES / "train", CASES / "expanded/train.jsonl") if opt.train else (CASES, OUT)
 	rng = random.Random(opt.seed)
 	rows, seen = [], set()
-	for path in sorted(CASES.glob("*.jsonl")):
+	key_of = lambda t: re.sub(r"[^a-z0-9 ]", "", t.lower().translate(FOLD)).split()
+	# a training variant that reads like a test sentence would let the test leak into training
+	tests = {" ".join(key_of(json.loads(l).get("tr") or json.loads(l).get("en"))) for p in CASES.glob("*.jsonl") for l in p.read_text().splitlines() if l.strip()} if opt.train else set()
+	for path in sorted(src.glob("*.jsonl")):
 		for n, line in enumerate(path.read_text().splitlines(), 1):
 			if not line.strip():
 				continue
@@ -176,18 +182,18 @@ def main():
 					break
 				v, ops = variant(case, lang, rng)
 				key = v[lang].lower()
-				if not ops or key in seen:
+				if not ops or key in seen or " ".join(key_of(key)) in tests:
 					continue
 				seen.add(key)
-				rows.append({**v, "from": f"{path.name}:{n}", "noise": ops})
+				rows.append({**v, "from": f"{path.relative_to(CASES)}:{n}", "noise": ops})
 				made += 1
 	text = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
 	if opt.stdout:
 		print(text, end="")
 		return
-	OUT.parent.mkdir(exist_ok=True)
-	OUT.write_text(text)
-	print(f"{len(rows)} variants → {OUT.relative_to(ROOT)}")
+	out.parent.mkdir(exist_ok=True)
+	out.write_text(text)
+	print(f"{len(rows)} variants → {out.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

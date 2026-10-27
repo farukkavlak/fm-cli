@@ -24,9 +24,11 @@ internal sealed class Lex
 internal sealed record Cue(string[] Words, double Weight);
 
 /// <summary>One sentence being read: what it holds (numbers, money, positions, names) and the call's arguments so far.</summary>
-internal sealed partial class Ctx(Text text)
+internal sealed partial class Ctx(Text text, string? tool = null)
 {
 	public readonly Text T = text;
+	/// <summary>The tool whose arguments are being read, once it is picked.</summary>
+	public readonly string? Tool = tool;
 	public string[] W => T.Words;
 	public readonly JsonObject Args = [];
 	public readonly List<string> Asks = [];
@@ -228,16 +230,21 @@ internal sealed partial class Ctx(Text text)
 
 	public static readonly Lex Position = new(
 		("sag stoper", "DCR"), ("sol stoper", "DCL"), ("stoper", "DC"), ("centre back", "DC"), ("center back", "DC"), ("centre backs", "DC"), ("cb$", "DC"), ("dc$", "DC"),
-		("sag bek", "DR"), ("right back", "DR"), ("rb$", "DR"), ("sol bek", "DL"), ("left back", "DL"), ("lb$", "DL"),
+		("sag bek*", "DR"), ("right back", "DR"), ("rb$", "DR"), ("sol bek*", "DL"), ("left back", "DL"), ("lb$", "DL"),
 		("sag kanat", "AMR"), ("right winger", "AMR"), ("right wing", "AMR"), ("amr$", "AMR"), ("saga", "AMR"),
 		("sol kanat", "AML"), ("left winger", "AML"), ("left wing", "AML"), ("aml$", "AML"), ("sola", "AML"),
 		("forvet", "ST"), ("santrfor", "ST"), ("striker", "ST"), ("strikers", "ST"), ("st$", "ST"), ("up front", "ST"), ("golcu", "ST"),
-		("kaleci", "GK"), ("kale$", "GK"), ("kalede", "GK"), ("kaleye", "GK"), ("keeper", "GK"), ("goalkeeper", "GK"), ("gk$", "GK"),
+		("kaleci", "GK"), ("kale$", "GK"), ("kalede", "GK"), ("kaleye", "GK"), ("in goal", "GK"), ("keeper", "GK"), ("goalkeeper", "GK"), ("gk$", "GK"),
 		("dmc", "DM"), ("dm$", "DM"), ("on libero", "DM"), ("defensive midfielder", "DM"),
 		("10 numara", "AMC"), ("amc$", "AMC"), ("ofansif orta saha", "AMC"),
 		("orta saha", "MC"), ("midfielder", "MC"), ("mc$", "MC"), ("cm$", "MC"));
 
 	public List<(string Value, int At, int Len)> Positions() => LexAll(Position);
+
+	/// <summary>Lengths of time: never part of a name ("2 hafta", "for a month").</summary>
+	public static readonly Lex Durations = new(
+		("hafta", "week"), ("haftalik", "week"), ("week*", "week"), ("ay$", "month"), ("aylik", "month"), ("ayligina", "month"), ("month*", "month"),
+		("yil$", "year"), ("yili", "year"), ("yillik", "year"), ("yilligina", "year"), ("year*", "year"), ("gun$", "day"), ("gunluk", "day"), ("day$", "day"), ("days", "day"));
 
 	public string? Pos() => Positions().Select(p => p.Value).FirstOrDefault();
 
@@ -251,17 +258,65 @@ internal sealed partial class Ctx(Text text)
 		"i", "in", "nin", "e", "a", "ye", "ya", "yi", "u", "un", "nun", "dan", "den", "te", "ta", "le", "la", "ile", "mi", "kim", "who", "his", "her", "him", "he", "them", "their",
 		"var", "yok", "olsun", "her", "hep", "cok", "az", "en", "daha", "tum", "butun", "hepsi", "hepsini", "biraz", "simdi", "now", "just", "also", "too", "ise", "iyi",
 		"over", "under", "more", "less", "than", "from", "by", "as", "about", "what", "how", "whats", "hows", "whos", "which", "when", "where", "why", "some", "any", "all", "out",
+		// question words, pronouns and fillers: never a name, even typed with one letter off ("nedden")
+		"neden", "niye", "nicin", "nasil", "hangi", "hangisi", "hangileri", "kimle", "kimin", "kime", "kimi", "kimler", "kimse", "herkes", "hicbir", "nerede", "nereye",
+		"nereden", "kac", "kacta", "kacinci", "sen", "siz", "onlar", "onu", "ona", "onun", "bunu", "buna", "bunun", "sunu", "suna", "bunlar", "sunlar", "artik", "yine",
+		"gene", "belki", "sadece", "bile", "cunku", "eger", "hani", "acaba", "mesela", "falan", "tamam", "evet", "hayir", "lutfen", "diye", "kadar", "gore",
+		"anyone", "anybody", "someone", "somebody", "everyone", "everybody", "nobody", "something", "anything", "everything", "nothing", "whom", "whose", "there",
+		"here", "these", "those", "your", "yours", "you", "its", "they", "she", "been", "was", "were", "would", "could", "should", "have", "has", "had", "not", "yes",
+		"very", "really", "still", "only", "even", "again", "maybe", "pls", "pleease",
+		// someone not named: "şu çocuğa teklif yap", "sell this guy" ask who
+		"biri", "birini", "birine", "birinin", "sey", "seyi", "cocuk", "cocugu", "cocuga", "cocugun", "adam", "adami", "adama", "adamin", "oyuncu", "oyuncuyu", "oyuncuya",
+		"oyuncunun", "oyuncular", "someone", "somebody", "one", "ones", "guy", "lad", "kid", "player", "players", "want", "wanna", "need",
+		// what a command tells the game to do: "sell this guy" names no "sell"
+		"sell", "buy", "sign", "hire", "fire", "sack", "show", "give", "make", "put", "take", "send", "watch", "track", "add", "remove", "drop", "play", "start",
+		"bring", "train", "teach", "offer", "bid", "ask", "tell", "answer", "reply", "open", "read", "find", "search", "compare", "extend", "renew", "cancel",
+		"release", "loan", "scout", "swap", "replace", "keep", "let", "get", "set", "change", "move", "check", "list", "see", "look",
 	];
+
+	public static bool IsStop(string w) => Stop.Contains(w);
+
+	private static readonly string[] LongStop = [.. Stop.Where(w => w.Length >= 5)];
+
+	private static bool StopTypo(string w) => w.Length >= 4 && LongStop.Any(b => w[0] == b[0] && Text.Distance(w, b) <= 1);
 
 	private static readonly Lazy<string[]> Known = new(() =>
 	[
 		.. Router.Rules.SelectMany(r => r.Cues).SelectMany(c => c.Words).Where(w => !w.StartsWith('#')).Distinct(),
 		.. FmCli.Nl.Lex.All.SelectMany(l => l.Items).SelectMany(i => i.Words).Distinct(),
+		// the values the lexicons give are words too ("Daha Sık", "More Often")
+		.. FmCli.Nl.Lex.All.SelectMany(l => l.Items).SelectMany(i => Regex.Split(Text.Fold(i.Value), "[^a-z]+")).Where(w => w.Length >= 3).Select(w => w + "$").Distinct(),
 	]);
 
-	private static bool IsKnown(string w) => Known.Value.Any(k => Text.Matches(w, k, typo: false));
+	/// <summary>
+	/// A known word, or one with an ending on it. The ending has to look like one ("kadroyu", "takes",
+	/// "listesine"), so "moretti" is not "more" and "fontana" not "font".
+	/// </summary>
+	private static bool IsKnown(string w) => Known.Value.Any(k => Text.Matches(w, k, typo: false)
+		&& (k.EndsWith('*') || w.Length == k.TrimEnd('$').Length || Ending(w[k.TrimEnd('$').Length..])));
 
-	private static bool NearKnown(string w) => Known.Value.Any(k => k.TrimEnd('$', '*').Length >= 5 && Text.Matches(w, k));
+	private static bool Ending(string tail) => tail.Length <= 6 && (TurkishEnding().IsMatch(tail) || tail is "s" or "es" or "ed" or "d" or "ing" or "er" or "ers" or "y" or "ly");
+
+	/// <summary>A Turkish verb by its ending: "satmak", "istiyorum", "ilgilendigimizi", "ogrenebilir".</summary>
+	[GeneratedRegex("^[a-z]{3,}(mak|mek|iyor|iyorum|iyoruz|uyor|uyorum|ecek|acak|ecegiz|acagiz|digimizi|digimiz|dugumuzu|digini|abilir|ebilir|abilirim|ebilirim|mali|meli)$")]
+	private static partial Regex TurkishVerb();
+
+	[GeneratedRegex("^(y|n|s|l|d|t|m|k)?[aeiou]([a-z]{0,4})$|^(lar|ler|dan|den|tan|ten|da|de|ta|te|ca|ce|ki|nin|nun|sin|lik)[a-z]{0,3}$")]
+	private static partial Regex TurkishEnding();
+
+	/// <summary>A known word typed one letter off; the first letter has to hold ("rinaldi" is no "final").</summary>
+	private static bool NearKnown(string w) => Known.Value.Any(k => k.TrimEnd('$', '*').Length >= 5 && w[0] == k[0] && Text.Matches(w, k));
+
+	private static readonly Lazy<Dictionary<string, string[]>> ToolWords = new(() => Router.Rules.GroupBy(r => r.Tool).ToDictionary(g => g.Key,
+		g => g.SelectMany(r => r.Cues).SelectMany(c => c.Words).Select(w => w.TrimEnd('$', '*')).Where(w => w.Length >= 4 && !w.StartsWith('#')).Distinct().ToArray()));
+
+	/// <summary>
+	/// One of the picked tool's own words typed wrong: "sgin" for a contract's "sign", "maaasi" for its
+	/// "maas". The first letter has to hold. Other tools' words are left alone, so "marin" stays a name
+	/// though "macin" is a match word.
+	/// </summary>
+	private bool ToolTypo(string w) => Tool != null && w.Length >= 4 && ToolWords.Value.TryGetValue(Tool, out var words)
+		&& words.Any(b => w[0] == b[0] && (b.Length >= 5 ? w.Length <= b.Length + 3 && Text.Matches(w, b) : w.Length <= 5 && Text.Distance(w, b) <= 1));
 
 	private List<(string Name, int At, int Len)>? names;
 
@@ -277,7 +332,14 @@ internal sealed partial class Ctx(Text text)
 		foreach (var lex in FmCli.Nl.Lex.All)
 			foreach (var (_, at, len) in LexAll(lex))
 				for (var k = at; k < at + len; k++) taken[k] = true;
-		bool Nameish(int i) => !taken[i] && Regex.IsMatch(W[i], "^[a-z][a-z0-9]{2,}$") && !Stop.Contains(W[i]) && !IsKnown(W[i]);
+		// "iki oyuncu", "compare two players": a number said in words is no name
+		foreach (var (_, at) in Nums())
+			taken[at] = true;
+		// "20 bin", "3 milyon": the unit after an amount is part of it
+		foreach (var (_, at) in Moneys())
+			if (at + 1 < W.Length && Millions.Concat(Thousands).Any(u => Text.Matches(W[at + 1], u))) taken[at + 1] = true;
+		bool Nameish(int i) => !taken[i] && Regex.IsMatch(W[i], "^[a-z][a-z0-9]{2,}$") && !Stop.Contains(W[i]) && !StopTypo(W[i]) && !IsKnown(W[i]) && !ToolTypo(W[i])
+			&& !TurkishVerb().IsMatch(W[i]);
 		for (var i = 0; i < W.Length; i++)
 		{
 			if (!Nameish(i)) continue;
@@ -310,6 +372,7 @@ internal sealed partial class Ctx(Text text)
 	});
 
 	private static bool IsCommon(string w) => Common.Value.ContainsKey(w);
+
 
 	private static bool CommonIn(string w, string lang) => Common.Value.TryGetValue(w, out var langs) && langs.Contains(lang);
 

@@ -17,6 +17,8 @@ and "nothing does this" counted on their own.
   tools/nl-score.py                          # fm __route, base set and expanded set
   tools/nl-score.py --fails 30 --split dev   # what went wrong, to tune on
   tools/nl-score.py --router "python3 my_router.py" --set base
+  tools/nl-score.py --given-tool              # the argument readers alone: each case's own tool handed to fm __route
+  tools/nl-score.py --given-tool --set train  # the same on the training-only sentences of tests/nl/train/
 """
 import argparse
 import hashlib
@@ -62,6 +64,17 @@ def load(which):
 			by_ref[f"{f.name}:{n}"] = c
 			base.append(c)
 	sets = {}
+	if which == "train":
+		# training-only sentences (never in dev or held); the ones with arguments tune the readers
+		rows = []
+		for f in sorted((CASES / "train").glob("*.jsonl")):
+			for line in f.read_text().splitlines():
+				if line.strip():
+					c = json.loads(line)
+					c["lang"] = "tr" if "tr" in c else "en"
+					c["text"], c["group"], c["split"] = c[c["lang"]], f.stem, "dev"
+					rows.append(c)
+		sets["train"] = rows
 	if which in ("base", "all"):
 		sets["base"] = base
 	if which in ("expanded", "all"):
@@ -116,7 +129,8 @@ def same_value(want, got):
 
 
 def same_args(want, got):
-	got = {k: v for k, v in (got or {}).items() if k not in CONFIRM}
+	# a confirmation the router adds is no mistake, unless the case asks for it ("send" submits a squad list)
+	got = {k: v for k, v in (got or {}).items() if k not in CONFIRM or k in want}
 	if set(want) != set(got):
 		return False
 	return all(same_value(want[k], got[k]) for k in want)
@@ -166,9 +180,9 @@ def judge(case, out):
 	return False, False, kind, f"→ {got_call} {got_args}"
 
 
-def run_router(cmd, texts):
+def run_router(cmd, texts, tools=None):
 	t0 = time.perf_counter()
-	feed = "".join(json.dumps({"text": t}, ensure_ascii=False) + "\n" for t in texts)
+	feed = "".join(json.dumps({"text": t, **({"tool": tools[i]} if tools else {})}, ensure_ascii=False) + "\n" for i, t in enumerate(texts))
 	p = subprocess.run(cmd, input=feed, capture_output=True, text=True, shell=isinstance(cmd, str))
 	took = time.perf_counter() - t0
 	if p.returncode != 0:
@@ -176,7 +190,8 @@ def run_router(cmd, texts):
 	lines = [l for l in p.stdout.splitlines() if l.strip()]
 	if len(lines) != len(texts):
 		sys.exit(f"router gave {len(lines)} answers for {len(texts)} sentences")
-	return [json.loads(l) for l in lines], took
+	outs = [json.loads(l) for l in lines]
+	return ([o["forced"] for o in outs] if tools else outs), took
 
 
 def pct(a, b):
@@ -186,19 +201,24 @@ def pct(a, b):
 def main():
 	ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 	ap.add_argument("--router", help="router command (default: fm __route)")
-	ap.add_argument("--set", choices=["base", "expanded", "all"], default="all")
+	ap.add_argument("--set", choices=["base", "expanded", "all", "train"], default="all")
 	ap.add_argument("--split", choices=["dev", "held", "all"], default="all", help="which split --fails lists")
 	ap.add_argument("--fails", type=int, default=0, help="list this many failures of the first set")
 	ap.add_argument("--group", help="only cases of this group (file stem prefix, e.g. 05)")
 	ap.add_argument("--by", choices=["group", "lang", "tool", "kind"], action="append", default=[], help="breakdown")
 	ap.add_argument("--json", action="store_true", help="print the totals as JSON")
+	ap.add_argument("--given-tool", action="store_true", help="hand each case's own tool to fm __route: the argument readers alone")
 	a = ap.parse_args()
 	cmd = a.router or [str(FM), "__route"]
 	totals = {}
 	for name, cases in load(a.set).items():
 		if a.group:
 			cases = [c for c in cases if c["group"].startswith(a.group)]
-		outs, took = run_router(cmd, [c["text"] for c in cases])
+		if a.given_tool:
+			cases = [c for c in cases if isinstance(c.get("call"), str) and (name != "train" or "args" in c or "ask" in c)]
+			outs, took = run_router([str(FM), "__route"], [c["text"] for c in cases], [c["call"] for c in cases])
+		else:
+			outs, took = run_router(cmd, [c["text"] for c in cases])
 		rows = [(c, o, *judge(c, o)) for c, o in zip(cases, outs)]
 		print(f"\n== {name}: {len(cases)} sentences, {1000 * took / max(len(cases), 1):.2f} ms each (whole run {took:.1f} s)")
 		print(f"{'':10}{'n':>6} {'tool':>7} {'tool+args':>10}   {'call':>7} {'ask':>7} {'multi':>7} {'none':>7} {'false none':>11}")

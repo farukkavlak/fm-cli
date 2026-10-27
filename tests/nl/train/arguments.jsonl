@@ -1,0 +1,257 @@
+{"tr": "4. mesajı göster", "call": "fm_reply", "args": {"message": "4"}}
+{"tr": "sponsorun mailini oku", "call": "fm_reply", "args": {"message": "sponsor"}}
+{"tr": "yönetimden gelen mesaja bak", "call": "fm_reply", "args": {"message": "yönetim"}}
+{"tr": "3 numaralı maile 1 diye yanıt ver", "call": "fm_reply", "args": {"message": "3", "answer": "1"}}
+{"tr": "2. mesaja ikinci seçenekle cevap ver", "call": "fm_reply", "args": {"message": "2", "answer": "2"}}
+{"tr": "sponsor mesajını reddet", "call": "fm_reply", "args": {"message": "sponsor", "answer": "reddet"}}
+{"en": "show message 4", "call": "fm_reply", "args": {"message": "4"}}
+{"en": "read the sponsor email", "call": "fm_reply", "args": {"message": "sponsor"}}
+{"en": "answer message 3 with option 1", "call": "fm_reply", "args": {"message": "3", "answer": "1"}}
+{"en": "reply to the board message with thanks", "call": "fm_reply", "args": {"message": "board", "answer": "thanks"}}
+{"en": "open the second email", "call": "fm_reply", "args": {"message": "2"}}
+{"tr": "2yi seç", "call": "fm_talk", "args": {"say": "2"}}
+{"tr": "üçüncü seçeneği söyle", "call": "fm_talk", "args": {"say": "3"}}
+{"tr": "basın toplantısından ayrıl", "call": "fm_talk", "args": {"say": "leave"}}
+{"tr": "takıma çok iyi gidiyorsunuz de", "call": "fm_talk", "args": {"say": "çok iyi"}}
+{"tr": "muhabire yorum yapmıyorum de", "call": "fm_talk", "args": {"say": "yorum yapmıyorum"}}
+{"en": "choose option 2", "call": "fm_talk", "args": {"say": "2"}}
+{"en": "go with the third answer", "call": "fm_talk", "args": {"say": "3"}}
+{"en": "storm out of the press conference", "call": "fm_talk", "args": {"say": "leave"}}
+{"en": "tell the team i'm proud of them", "call": "fm_talk", "args": {"say": "proud"}}
+{"tr": "maçı hızlıca bitir sonucu göster", "call": "fm_match", "args": {"mode": "instant"}}
+{"tr": "maçı izlemeden sonuçlandır", "call": "fm_match", "args": {"mode": "instant"}}
+{"tr": "maçı canlı izle", "call": "fm_match", "args": {"mode": "play"}}
+{"tr": "maçı oyna ama konuşmaları geç", "call": "fm_match", "args": {"mode": "play_no_talk"}}
+{"en": "simulate it and give me the score", "call": "fm_match", "args": {"mode": "instant"}}
+{"en": "watch the game live", "call": "fm_match", "args": {"mode": "play"}}
+{"en": "play the match without team talks", "call": "fm_match", "args": {"mode": "play_no_talk"}}
+{"en": "skip straight to the result", "call": "fm_match", "args": {"mode": "instant"}}
+{"tr": "en çok gol atan 5 oyuncu", "call": "fm_league", "args": {"stat": "Goals", "top": 5}}
+{"tr": "asistte kim önde", "call": "fm_league", "args": {"stat": "Assists"}}
+{"tr": "en yüksek ortalama reyting", "call": "fm_league", "args": {"stat": "Average Rating"}}
+{"tr": "en çok gol atan takımlar", "call": "fm_league", "args": {"stat": "Goals", "teams": true}}
+{"tr": "en çok kurtarış yapan kim", "call": "fm_league", "args": {"stat": "Saves"}}
+{"en": "top 5 scorers", "call": "fm_league", "args": {"stat": "Goals", "top": 5}}
+{"en": "who leads in assists", "call": "fm_league", "args": {"stat": "Assists"}}
+{"en": "highest rated players in the league", "call": "fm_league", "args": {"stat": "Average Rating"}}
+{"en": "which team scores the most goals", "call": "fm_league", "args": {"stat": "Goals", "teams": true}}
+{"en": "most saves by a keeper", "call": "fm_league", "args": {"stat": "Saves"}}
+{"tr": "oyuncuların kondisyonları", "call": "fm_squad", "args": {"view": "fitness"}}
+{"tr": "takımda morali bozuk olan var mı", "call": "fm_squad", "args": {"view": "morale"}}
+{"tr": "bu sezon kim kaç asist yaptı", "call": "fm_squad", "args": {"view": "stats"}}
+{"tr": "genç takım kadrosu", "call": "fm_squad", "args": {"view": "youth"}}
+{"en": "season stats for the squad", "call": "fm_squad", "args": {"view": "stats"}}
+{"en": "show the youth team", "call": "fm_squad", "args": {"view": "youth"}}
+{"tr": "conti birinci penaltıcı olsun", "call": "fm_penalties", "args": {"action": "move", "player": "conti", "place": 1}}
+{"tr": "costayı penaltı listesine ekle", "call": "fm_penalties", "args": {"action": "add", "player": "costa"}}
+{"tr": "bruno artık penaltı atmasın", "call": "fm_penalties", "args": {"action": "remove", "player": "bruno"}}
+{"tr": "lombardi ikinci penaltıcı", "call": "fm_penalties", "args": {"action": "move", "player": "lombardi", "place": 2}}
+{"en": "conti is the first penalty taker", "call": "fm_penalties", "args": {"action": "move", "player": "conti", "place": 1}}
+{"en": "put costa on the penalty list", "call": "fm_penalties", "args": {"action": "add", "player": "costa"}}
+{"en": "remove bruno from penalties", "call": "fm_penalties", "args": {"action": "remove", "player": "bruno"}}
+{"en": "lombardi second on penalties", "call": "fm_penalties", "args": {"action": "move", "player": "lombardi", "place": 2}}
+{"tr": "mentorlukları otomatik yap", "call": "fm_mentoring", "args": {"auto": true}}
+{"tr": "kimler mentor olabilir", "call": "fm_mentoring", "args": {"candidates": true}}
+{"tr": "conti costa ve brunoyu grup yap", "call": "fm_mentoring", "args": {"players": ["conti", "costa", "bruno"]}}
+{"tr": "1. mentorluk grubunu kaldır", "call": "fm_mentoring", "args": {"remove": "1"}}
+{"en": "set up mentoring automatically", "call": "fm_mentoring", "args": {"auto": true}}
+{"en": "who could be a mentor", "call": "fm_mentoring", "args": {"candidates": true}}
+{"en": "put conti, costa and bruno in a group", "call": "fm_mentoring", "args": {"players": ["conti", "costa", "bruno"]}}
+{"en": "break up mentoring group 2", "call": "fm_mentoring", "args": {"remove": "2"}}
+{"tr": "kontratı bitmiş oyuncular", "call": "fm_players", "args": {"filter": "Contract Expired"}}
+{"tr": "satılık listesindeki oyuncular", "call": "fm_players", "args": {"listed": true}}
+{"tr": "kiraya verilebilecek oyuncular", "call": "fm_players", "args": {"loan_listed": true}}
+{"tr": "3 milyona kadar sağ bek", "call": "fm_players", "args": {"position": "DR", "max_value": "3M"}}
+{"tr": "18-21 yaş kaleciler", "call": "fm_players", "args": {"position": "GK", "age": "18-21"}}
+{"tr": "arama filtrelerini temizle", "call": "fm_players", "args": {"clear": true}}
+{"en": "players with expired contracts", "call": "fm_players", "args": {"filter": "Contract Expired"}}
+{"en": "who is on the transfer list", "call": "fm_players", "args": {"listed": true}}
+{"en": "players available for loan", "call": "fm_players", "args": {"loan_listed": true}}
+{"en": "right backs up to 3m", "call": "fm_players", "args": {"position": "DR", "max_value": "3M"}}
+{"tr": "bütçe dengesini değiştir", "call": "fm_budget", "args": {"adjust": true}}
+{"tr": "maaştan transfere para aktar", "call": "fm_budget", "args": {"adjust": true}}
+{"tr": "bütçe ayarını 4. adıma çek", "call": "fm_budget", "args": {"adjust": true, "step": 4}}
+{"en": "rebalance the budgets", "call": "fm_budget", "args": {"adjust": true}}
+{"en": "shift wage money into transfers", "call": "fm_budget", "args": {"adjust": true}}
+{"en": "put the budget slider on step 2", "call": "fm_budget", "args": {"adjust": true, "step": 2}}
+{"tr": "işsiz bir antrenör bul", "call": "fm_staff_find", "args": {"role": "Coach", "free": true}}
+{"tr": "boşta gözlemci var mı", "call": "fm_staff_find", "args": {"role": "Scout", "free": true}}
+{"tr": "kaleci hocası lazım", "call": "fm_staff_find", "args": {"role": "Goalkeeping Coach"}}
+{"tr": "yeni bir fizyoterapist ara", "call": "fm_staff_find", "args": {"role": "Physio"}}
+{"tr": "yardımcı antrenör arıyorum", "call": "fm_staff_find", "args": {"role": "Assistant Manager"}}
+{"en": "find an unemployed coach", "call": "fm_staff_find", "args": {"role": "Coach", "free": true}}
+{"en": "any free scouts out there", "call": "fm_staff_find", "args": {"role": "Scout", "free": true}}
+{"en": "we need a goalkeeping coach", "call": "fm_staff_find", "args": {"role": "Goalkeeping Coach"}}
+{"en": "search for an assistant manager", "call": "fm_staff_find", "args": {"role": "Assistant Manager"}}
+{"tr": "otomatik kaydetmeyi kapat", "call": "fm_settings", "args": {"name": "auto save", "value": "Off"}}
+{"tr": "otomatik kayıt açık olsun", "call": "fm_settings", "args": {"name": "auto save", "value": "On"}}
+{"tr": "oyunu ingilizceye çevir", "call": "fm_settings", "args": {"name": "language", "value": "English"}}
+{"tr": "haftada bir otomatik kaydet", "call": "fm_settings", "args": {"name": "save interval", "value": "Week"}}
+{"en": "disable autosave", "call": "fm_settings", "args": {"name": "auto save", "value": "Off"}}
+{"en": "turn autosave on", "call": "fm_settings", "args": {"name": "auto save", "value": "On"}}
+{"en": "set the currency to euro", "call": "fm_settings", "args": {"name": "currency", "value": "Euro"}}
+{"en": "change the language to english", "call": "fm_settings", "args": {"name": "language", "value": "English"}}
+{"en": "autosave once a week", "call": "fm_settings", "args": {"name": "save interval", "value": "Week"}}
+{"tr": "yeni gözlem odağı forvet", "call": "fm_scout_focus", "args": {"action": "new", "position": "ST"}}
+{"tr": "3. gözlem odağını sil", "call": "fm_scout_focus", "args": {"action": "remove", "focus": "3"}}
+{"tr": "1. odağı yeniden başlat", "call": "fm_scout_focus", "args": {"action": "restart", "focus": "1"}}
+{"tr": "gözlemcilerim ne kadar iyi", "call": "fm_scout_focus", "args": {"action": "staff"}}
+{"tr": "seçilebilecek bölgeler neler", "call": "fm_scout_focus", "args": {"action": "areas"}}
+{"en": "new scouting focus for a striker", "call": "fm_scout_focus", "args": {"action": "new", "position": "ST"}}
+{"en": "delete scouting focus 3", "call": "fm_scout_focus", "args": {"action": "remove", "focus": "3"}}
+{"en": "restart focus 1", "call": "fm_scout_focus", "args": {"action": "restart", "focus": "1"}}
+{"en": "show my scouts' ratings", "call": "fm_scout_focus", "args": {"action": "staff"}}
+{"en": "which regions can i scout", "call": "fm_scout_focus", "args": {"action": "areas"}}
+{"tr": "lombardiye yeni kontrat teklif et", "call": "fm_contract", "args": {"name": "lombardi"}}
+{"tr": "moretti ile sözleşme yenileyelim", "call": "fm_contract", "args": {"name": "moretti"}}
+{"tr": "haftalık maaşı 30 bin yap", "call": "fm_contract", "args": {"wage": "30K"}}
+{"tr": "kontratı 4 yıllık yap", "call": "fm_contract", "args": {"terms": ["Contract Length=4 years"]}}
+{"tr": "kontratı imzalat", "call": "fm_contract", "args": {"sign": true}}
+{"tr": "görüşmeden vazgeç", "call": "fm_contract", "args": {"cancel": true}}
+{"en": "offer lombardi a new contract", "call": "fm_contract", "args": {"name": "lombardi"}}
+{"en": "extend moretti's deal", "call": "fm_contract", "args": {"name": "moretti"}}
+{"en": "make it 30k a week", "call": "fm_contract", "args": {"wage": "30K"}}
+{"en": "make it a 4 year contract", "call": "fm_contract", "args": {"terms": ["Contract Length=4 years"]}}
+{"en": "cancel the talks", "call": "fm_contract", "args": {"cancel": true}}
+{"tr": "fontanayı al ricciyi oyuna sok", "call": "fm_sub", "args": {"off": "fontana", "on": "ricci"}}
+{"tr": "galli yerine marchetti girsin", "call": "fm_sub", "args": {"off": "galli", "on": "marchetti"}}
+{"tr": "lombardi çıksın moretti girsin", "call": "fm_sub", "args": {"off": "lombardi", "on": "moretti"}}
+{"en": "swap fontana for ricci", "call": "fm_sub", "args": {"off": "fontana", "on": "ricci"}}
+{"en": "replace galli with marchetti", "call": "fm_sub", "args": {"off": "galli", "on": "marchetti"}}
+{"en": "take lombardi off, moretti on", "call": "fm_sub", "args": {"off": "lombardi", "on": "moretti"}}
+{"tr": "sağ bek daha çok bindirme yapsın", "call": "fm_tactic_pi", "args": {"position": "DR", "name": "İleri Koşular", "value": "Daha Sık"}}
+{"tr": "moretti daha fazla çalım atsın", "call": "fm_tactic_pi", "args": {"position": "moretti", "name": "Top Sürme", "value": "Daha Sık"}}
+{"tr": "forvet daha sık şut çeksin", "call": "fm_tactic_pi", "args": {"position": "ST", "name": "Şut", "value": "Daha Sık"}}
+{"tr": "sol kanadın oyuncu talimatları", "call": "fm_tactic_pi", "args": {"position": "AML"}}
+{"en": "striker shoot more often", "call": "fm_tactic_pi", "args": {"position": "ST", "name": "Shooting", "value": "More Often"}}
+{"en": "moretti dribble more", "call": "fm_tactic_pi", "args": {"position": "moretti", "name": "Dribbling Frequency", "value": "More Often"}}
+{"en": "instructions for the left winger", "call": "fm_tactic_pi", "args": {"position": "AML"}}
+{"tr": "mentaliteyi defansif yap", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defansif"}}
+{"tr": "dengeli mentaliteye geç", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Dengeli"}}
+{"tr": "daha hücumcu bir mentalite", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum"}}
+{"en": "switch to a defensive mentality", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defensive"}}
+{"en": "go balanced", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Balanced"}}
+{"en": "play more attacking", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Attacking"}}
+{"tr": "defans çizgisini yukarı çek", "call": "fm_tactic_instructions", "args": {"name": "Defansif Çizgi", "value": "Daha Yüksek"}}
+{"tr": "daha fazla pres yapalım", "call": "fm_tactic_instructions", "args": {"name": "Pres Sıklığı", "value": "Daha Fazla"}}
+{"tr": "zaman geçirmeye başlayın", "call": "fm_tactic_instructions", "args": {"name": "Zaman Geçirme", "value": "Daha Fazla"}}
+{"en": "push the defensive line up", "call": "fm_tactic_instructions", "args": {"name": "Defensive Line", "value": "Higher"}}
+{"en": "press more often", "call": "fm_tactic_instructions", "args": {"name": "Pressing Intensity", "value": "More"}}
+{"en": "start wasting time", "call": "fm_tactic_instructions", "args": {"name": "Time Wasting", "value": "More"}}
+{"tr": "lombardi bir hafta dinlensin", "call": "fm_intensity", "args": {"player": "lombardi", "level": "rest 7"}}
+{"tr": "moretti yarım yoğunlukta çalışsın", "call": "fm_intensity", "args": {"player": "moretti", "level": "half"}}
+{"tr": "fontana normal yoğunluğa dönsün", "call": "fm_intensity", "args": {"player": "fontana", "level": "normal"}}
+{"tr": "ricciye dinlenme ver", "call": "fm_intensity", "args": {"player": "ricci", "level": "rest 3"}}
+{"en": "rest lombardi for a week", "call": "fm_intensity", "args": {"player": "lombardi", "level": "rest 7"}}
+{"en": "moretti on half intensity", "call": "fm_intensity", "args": {"player": "moretti", "level": "half"}}
+{"en": "put fontana back on normal training", "call": "fm_intensity", "args": {"player": "fontana", "level": "normal"}}
+{"tr": "lombardi bitiricilik üzerine çalışsın", "call": "fm_training", "args": {"player": "lombardi", "focus": "Bitiricilik"}}
+{"tr": "moretti pas çalışsın", "call": "fm_training", "args": {"player": "moretti", "focus": "Pas"}}
+{"tr": "fontana kafa vuruşuna çalışsın", "call": "fm_training", "args": {"player": "fontana", "focus": "Kafa"}}
+{"tr": "ricci hangi hareketleri öğrenebilir", "call": "fm_training", "args": {"player": "ricci", "traits": true}}
+{"en": "lombardi work on finishing", "call": "fm_training", "args": {"player": "lombardi", "focus": "Finishing"}}
+{"en": "have moretti train passing", "call": "fm_training", "args": {"player": "moretti", "focus": "Passing"}}
+{"en": "what traits can ricci learn", "call": "fm_training", "args": {"player": "ricci", "traits": true}}
+{"tr": "lombardiye 12 milyon teklif yap", "call": "fm_offer", "args": {"name": "lombardi", "fee": "12M"}}
+{"tr": "moretti için 800 bin teklif ver", "call": "fm_offer", "args": {"name": "moretti", "fee": "800K"}}
+{"tr": "fontanayı kiralamak için teklif gönder", "call": "fm_offer", "args": {"name": "fontana", "loan": true}}
+{"en": "bid 12m for lombardi", "call": "fm_offer", "args": {"name": "lombardi", "fee": "12M"}}
+{"en": "offer 800k for moretti", "call": "fm_offer", "args": {"name": "moretti", "fee": "800K"}}
+{"en": "make a loan bid for fontana", "call": "fm_offer", "args": {"name": "fontana", "loan": true}}
+{"tr": "lombardiyi satışa koy", "call": "fm_propose", "args": {"player": "lombardi"}}
+{"tr": "morettiyi 4 milyona sat", "call": "fm_propose", "args": {"player": "moretti", "fee": "4M"}}
+{"tr": "fontanayı kiraya yolla", "call": "fm_propose", "args": {"player": "fontana", "loan": true}}
+{"en": "put lombardi up for sale", "call": "fm_propose", "args": {"player": "lombardi"}}
+{"en": "sell moretti for 4m", "call": "fm_propose", "args": {"player": "moretti", "fee": "4M"}}
+{"en": "send fontana out on loan", "call": "fm_propose", "args": {"player": "fontana", "loan": true}}
+{"tr": "lombardiyi 6 aylığına kısa listeye ekle", "call": "fm_shortlist_change", "args": {"player": "lombardi", "length": "6 months"}}
+{"tr": "morettiyi kısa listeden kaldır", "call": "fm_shortlist_change", "args": {"player": "moretti", "remove": true}}
+{"tr": "fontanayı süresiz takip et", "call": "fm_shortlist_change", "args": {"player": "fontana", "length": "indefinitely"}}
+{"en": "take moretti off the shortlist", "call": "fm_shortlist_change", "args": {"player": "moretti", "remove": true}}
+{"en": "track fontana indefinitely", "call": "fm_shortlist_change", "args": {"player": "fontana", "length": "indefinitely"}}
+{"tr": "4 gün ilerle", "call": "fm_next", "args": {"times": 4}}
+{"tr": "iki kere devam et", "call": "fm_next", "args": {"times": 2}}
+{"tr": "bir hafta ilerlet", "call": "fm_next", "args": {"times": 7}}
+{"tr": "soruyu geç devam et", "call": "fm_next", "args": {"skip": true}}
+{"en": "advance 4 days", "call": "fm_next", "args": {"times": 4}}
+{"en": "continue three times", "call": "fm_next", "args": {"times": 3}}
+{"en": "skip the question and continue", "call": "fm_next", "args": {"skip": true}}
+{"tr": "lombardiyi 2 hafta gözlemle", "call": "fm_scout_player", "args": {"player": "lombardi", "length": "2 weeks"}}
+{"tr": "moretti için kapsamlı rapor", "call": "fm_scout_player", "args": {"player": "moretti", "length": "extensive"}}
+{"tr": "fontanayı 1 ay izletelim", "call": "fm_scout_player", "args": {"player": "fontana", "length": "1 month"}}
+{"en": "scout lombardi for 2 weeks", "call": "fm_scout_player", "args": {"player": "lombardi", "length": "2 weeks"}}
+{"en": "get an extensive report on moretti", "call": "fm_scout_player", "args": {"player": "moretti", "length": "extensive"}}
+{"en": "watch fontana for a month", "call": "fm_scout_player", "args": {"player": "fontana", "length": "1 month"}}
+{"tr": "kornerleri moretti kullansın", "call": "fm_takers", "args": {"kind": "corner", "action": "move", "player": "moretti", "place": 1}}
+{"tr": "frikikleri kim kullanıyor", "call": "fm_takers", "args": {"kind": "freekick"}}
+{"tr": "taç atışlarını lombardi kullansın", "call": "fm_takers", "args": {"kind": "throw", "action": "move", "player": "lombardi", "place": 1}}
+{"en": "moretti takes the corners", "call": "fm_takers", "args": {"kind": "corner", "action": "move", "player": "moretti", "place": 1}}
+{"en": "who is on free kicks", "call": "fm_takers", "args": {"kind": "freekick"}}
+{"en": "lombardi on throw ins", "call": "fm_takers", "args": {"kind": "throw", "action": "move", "player": "lombardi", "place": 1}}
+{"tr": "lombardi sol bekte oynasın", "call": "fm_tactic_player", "args": {"position": "DL", "player": "lombardi"}}
+{"tr": "kaleye ricciyi koy", "call": "fm_tactic_player", "args": {"position": "GK", "player": "ricci"}}
+{"tr": "moretti forvette başlasın", "call": "fm_tactic_player", "args": {"position": "ST", "player": "moretti"}}
+{"en": "play lombardi at left back", "call": "fm_tactic_player", "args": {"position": "DL", "player": "lombardi"}}
+{"en": "ricci in goal", "call": "fm_tactic_player", "args": {"position": "GK", "player": "ricci"}}
+{"en": "start moretti up front", "call": "fm_tactic_player", "args": {"position": "ST", "player": "moretti"}}
+{"tr": "forveti hedef adam olarak oynat", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Target Forward"}}
+{"tr": "sol beki kanat bek yapalım", "call": "fm_tactic_role", "args": {"position": "DL", "role": "Wing-Back"}}
+{"tr": "on liberonun rolleri neler", "call": "fm_tactic_role", "args": {"position": "DM"}}
+{"en": "left back as a wing back", "call": "fm_tactic_role", "args": {"position": "DL", "role": "Wing-Back"}}
+{"en": "what roles can the dm play", "call": "fm_tactic_role", "args": {"position": "DM"}}
+{"tr": "kaptanlığı lombardiye ver", "call": "fm_captains", "args": {"captain": "lombardi"}}
+{"tr": "moretti yardımcı kaptan olsun", "call": "fm_captains", "args": {"vice": "moretti"}}
+{"en": "make lombardi the captain", "call": "fm_captains", "args": {"captain": "lombardi"}}
+{"en": "moretti as vice captain", "call": "fm_captains", "args": {"vice": "moretti"}}
+{"tr": "lombardiye 5 numarayı ver", "call": "fm_numbers", "args": {"player": "lombardi", "number": 5}}
+{"tr": "moretti 11 numara giysin", "call": "fm_numbers", "args": {"player": "moretti", "number": 11}}
+{"en": "give lombardi number 5", "call": "fm_numbers", "args": {"player": "lombardi", "number": 5}}
+{"en": "moretti wears 11", "call": "fm_numbers", "args": {"player": "moretti", "number": 11}}
+{"tr": "kasım ayının takvimi", "call": "fm_calendar", "args": {"month": "kasım"}}
+{"tr": "aralıkta hangi maçlar var", "call": "fm_calendar", "args": {"month": "aralık"}}
+{"en": "calendar for november", "call": "fm_calendar", "args": {"month": "november"}}
+{"en": "what's on in march", "call": "fm_calendar", "args": {"month": "march"}}
+{"tr": "lombardi teklifini reddet", "call": "fm_offers", "args": {"offer": "lombardi", "answer": "reject"}}
+{"tr": "1 numaralı teklifi kabul et", "call": "fm_offers", "args": {"offer": "1", "answer": "accept"}}
+{"tr": "moretti için gelen teklifi göster", "call": "fm_offers", "args": {"offer": "moretti", "answer": "view"}}
+{"en": "reject the lombardi offer", "call": "fm_offers", "args": {"offer": "lombardi", "answer": "reject"}}
+{"en": "accept offer 1", "call": "fm_offers", "args": {"offer": "1", "answer": "accept"}}
+{"en": "show me the bid for moretti", "call": "fm_offers", "args": {"offer": "moretti", "answer": "view"}}
+{"tr": "lombardi ile ilgilendiğimizi bildir", "call": "fm_approach", "args": {"player": "lombardi", "move": "interest"}}
+{"tr": "morettinin fiyatını öğren", "call": "fm_approach", "args": {"player": "moretti", "move": "enquire"}}
+{"en": "register our interest in lombardi", "call": "fm_approach", "args": {"player": "lombardi", "move": "interest"}}
+{"en": "ask about moretti's price", "call": "fm_approach", "args": {"player": "moretti", "move": "enquire"}}
+{"tr": "bir oyuncu satmak istiyorum", "call": "fm_propose", "ask": "player"}
+{"tr": "şu adamı satışa çıkar", "call": "fm_propose", "ask": "player"}
+{"en": "i want to sell someone", "call": "fm_propose", "ask": "player"}
+{"en": "sell this guy", "call": "fm_propose", "ask": "player"}
+{"tr": "şu çocuğa teklif yap", "call": "fm_offer", "ask": "name"}
+{"tr": "bir forvete teklif ver", "call": "fm_offer", "ask": "name"}
+{"en": "make a bid for him", "call": "fm_offer", "ask": "name"}
+{"en": "put in an offer for this lad", "call": "fm_offer", "ask": "name"}
+{"tr": "bu oyuncuyu göster", "call": "fm_player", "ask": "name"}
+{"tr": "oyuncu profili", "call": "fm_player", "ask": "name"}
+{"en": "show me that player", "call": "fm_player", "ask": "name"}
+{"en": "player profile", "call": "fm_player", "ask": "name"}
+{"tr": "birini izlet", "call": "fm_scout_player", "ask": "player"}
+{"tr": "şu oyuncuyu gözlemle", "call": "fm_scout_player", "ask": "player"}
+{"en": "scout this player", "call": "fm_scout_player", "ask": "player"}
+{"en": "send a scout to watch him", "call": "fm_scout_player", "ask": "player"}
+{"tr": "bu oyuncuyu kısa listeye ekle", "call": "fm_shortlist_change", "ask": "player"}
+{"en": "add him to the shortlist", "call": "fm_shortlist_change", "ask": "player"}
+{"tr": "bir oyuncunun sözleşmesini feshet", "call": "fm_release", "ask": "player"}
+{"en": "release one of my players", "call": "fm_release", "ask": "player"}
+{"tr": "iki oyuncuyu karşılaştır", "call": "fm_compare", "ask": ["a", "b"]}
+{"en": "compare two players", "call": "fm_compare", "ask": ["a", "b"]}
+{"tr": "bir antrenörü kov", "call": "fm_staff_fire", "ask": "name"}
+{"en": "fire one of the coaches", "call": "fm_staff_fire", "ask": "name"}
+{"tr": "bu adamı işe al", "call": "fm_staff_hire", "ask": "name"}
+{"en": "hire him", "call": "fm_staff_hire", "ask": "name"}
+{"tr": "bir oyuncuya talimat ver", "call": "fm_tactic_pi", "ask": "position"}
+{"en": "give a player instructions", "call": "fm_tactic_pi", "ask": "position"}
+{"tr": "bir mesaja cevap ver", "call": "fm_reply", "ask": "message"}
+{"en": "answer a message", "call": "fm_reply", "ask": "message"}
+{"tr": "oyunda bir şey ara", "call": "fm_search", "ask": "text"}
+{"en": "search for something", "call": "fm_search", "ask": "text"}
+{"tr": "bir oyuncuyla ilgilendiğimizi söyle", "call": "fm_approach", "args": {"move": "interest"}, "ask": "player"}
+{"en": "tell them we're interested in him", "call": "fm_approach", "args": {"move": "interest"}, "ask": "player"}

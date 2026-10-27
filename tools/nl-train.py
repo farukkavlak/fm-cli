@@ -47,12 +47,23 @@ def training_rows(noisy):
 			by_ref[f"{f.name}:{n}"] = text
 			if not held(text):
 				rows.append((text, json.dumps(c.get("call"))))
+	# training-only sentences (never scored) and their noisy variants
+	for f in sorted((ROOT / "tests/nl/train").glob("*.jsonl")):
+		for line in f.read_text().splitlines():
+			if line.strip():
+				c = json.loads(line)
+				rows.append((c.get("tr") or c.get("en"), json.dumps(c.get("call"))))
 	exp = ROOT / "tests/nl/expanded/all.jsonl"
 	if noisy and exp.exists():
 		for line in exp.read_text().splitlines():
 			c = json.loads(line)
 			if not held(by_ref[c["from"]]):
 				rows.append((c.get("tr") or c.get("en"), json.dumps(c.get("call"))))
+	exp = ROOT / "tests/nl/expanded/train.jsonl"
+	if noisy and exp.exists():
+		for line in exp.read_text().splitlines():
+			c = json.loads(line)
+			rows.append((c.get("tr") or c.get("en"), json.dumps(c.get("call"))))
 	return rows
 
 
