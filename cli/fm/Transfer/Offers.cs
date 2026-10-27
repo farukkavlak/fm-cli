@@ -17,6 +17,8 @@ internal static partial class Program
 		public string Terms { get; init; } = "";
 		/// <summary>Where the player stands in the page's list; his offers are on screen only while he is chosen there.</summary>
 		public int At { get; init; }
+		/// <summary>The club the player is with, from the panel's own header.</summary>
+		public string PlayerClub { get; init; } = "";
 	}
 
 	private static async Task<int> Offers(bool json, string[] args)
@@ -39,11 +41,12 @@ internal static partial class Program
 		}, seconds: 8, every: 0.6);
 
 		// The page lists our own bids and enquiries too, a player of another club's with that club beside
-		// him: an offer is made to us only when the player is ours.
-		HashSet<string> ours = [];
-		try { ours = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).ToHashSet(); }
+		// him: an offer is made to us only when the player is with our club (the first team's, a youth
+		// side's or one out on loan alike).
+		var club = "";
+		try { club = Field(await Fm.Pull("Human.Team.Club", "Name"), "Name"); }
 		catch (FmError) { }
-		bool Incoming(WaitingOffer o) => ours.Count == 0 || ours.Contains(o.Player);
+		bool Incoming(WaitingOffer o) => club.Length == 0 || o.PlayerClub.Length == 0 || o.PlayerClub == club;
 
 		if (words.Count == 0)
 		{
@@ -233,6 +236,7 @@ internal static partial class Program
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
 		var texts = await OfferTexts();
 		var player = texts.FirstOrDefault(t => t.Path == "binding.name").Text ?? "";
+		var playerClub = texts.FirstOrDefault(t => t.Path == "personclub.Name").Text ?? "";
 		if (player.Length == 0) return [];
 
 		var rows = new List<(string Club, string Kind, string Status, string Fee, List<string> Terms)>();
@@ -255,7 +259,7 @@ internal static partial class Program
 			string Answer(string name) => buttons.Skip(links[n].at + 1).Take(until - links[n].at - 1)
 				.FirstOrDefault(b => Field(b, "Name") == name && Field(b, "Label").Length == 0 && Field(b, "Enabled") == "True") is { ValueKind: JsonValueKind.Object } b ? Field(b, "Pointer") : null;
 			offers.Add(new(player, rows[n].Club, rows[n].Kind, rows[n].Status, rows[n].Fee, Field(links[n].b, "Pointer"),
-				Answer("accept-button"), Answer("stall-button"), Answer("cancel-reject-button")) { Terms = string.Join(" · ", rows[n].Terms) });
+				Answer("accept-button"), Answer("stall-button"), Answer("cancel-reject-button")) { Terms = string.Join(" · ", rows[n].Terms), PlayerClub = playerClub });
 		}
 		return offers;
 	}
