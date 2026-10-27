@@ -271,7 +271,8 @@ internal sealed partial class Ctx(Text text, string? tool = null)
 		// what a command tells the game to do: "sell this guy" names no "sell"
 		"sell", "buy", "sign", "hire", "fire", "sack", "show", "give", "make", "put", "take", "send", "watch", "track", "add", "remove", "drop", "play", "start",
 		"bring", "train", "teach", "offer", "bid", "ask", "tell", "answer", "reply", "open", "read", "find", "search", "compare", "extend", "renew", "cancel",
-		"release", "loan", "scout", "swap", "replace", "keep", "let", "get", "set", "change", "move", "check", "list", "see", "look",
+		"release", "loan", "scout", "swap", "replace", "keep", "let", "lets", "get", "set", "change", "move", "check", "list", "see", "look",
+		"another", "other", "different", "baska", "baskasi", "diger", "yolla", "gonder", "goster", "getir", "koy", "yap", "ver",
 	];
 
 	public static bool IsStop(string w) => Stop.Contains(w);

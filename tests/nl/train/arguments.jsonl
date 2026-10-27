@@ -255,3 +255,41 @@
 {"en": "search for something", "call": "fm_search", "ask": "text"}
 {"tr": "bir oyuncuyla ilgilendiğimizi söyle", "call": "fm_approach", "args": {"move": "interest"}, "ask": "player"}
 {"en": "tell them we're interested in him", "call": "fm_approach", "args": {"move": "interest"}, "ask": "player"}
+{"tr": "maçı başlatalım", "call": "fm_match", "ask": "mode"}
+{"tr": "hadi oynayalım maçı", "call": "fm_match", "ask": "mode"}
+{"en": "let's play the game", "call": "fm_match", "ask": "mode"}
+{"en": "start the game", "call": "fm_match", "ask": "mode"}
+{"tr": "oyunu kapatalım", "call": "fm_stop", "ask": "save"}
+{"tr": "football manageri kapat", "call": "fm_stop", "ask": "save"}
+{"en": "shut the game down", "call": "fm_stop", "ask": "save"}
+{"tr": "kupada sıradaki rakip kim", "call": "fm_stages", "ask": "competition"}
+{"en": "who did we get in the cup draw", "call": "fm_stages", "ask": "competition"}
+{"tr": "kaptanı başkası yapalım", "call": "fm_captains", "ask": "captain"}
+{"tr": "diğer taktiğe geç", "call": "fm_tactic_slot", "ask": "slot"}
+{"en": "switch to the other tactic", "call": "fm_tactic_slot", "ask": "slot"}
+{"tr": "bu taktiği dosyaya kaydet", "call": "fm_tactic_file", "ask": "save"}
+{"en": "save this tactic to a file", "call": "fm_tactic_file", "ask": "save"}
+{"tr": "kornerleri lombardi atsın", "call": "fm_takers", "args": {"kind": "corner", "action": "move", "player": "lombardi", "place": 1}, "ask": "side"}
+{"en": "lombardi takes corners", "call": "fm_takers", "args": {"kind": "corner", "action": "move", "player": "lombardi", "place": 1}, "ask": "side"}
+{"tr": "yeni gözlem odağı kaleci", "call": "fm_scout_focus", "args": {"action": "new", "position": "GK"}, "ask": "priority"}
+{"en": "new scouting focus for a goalkeeper", "call": "fm_scout_focus", "args": {"action": "new", "position": "GK"}, "ask": "priority"}
+{"tr": "önümüzdeki ayın takvimi", "call": "fm_calendar", "ask": "month"}
+{"en": "what's on next month", "call": "fm_calendar", "ask": "month"}
+{"tr": "tüm teklifleri reddet", "call": "fm_offers", "ask": "offer"}
+{"en": "reject all the offers", "call": "fm_offers", "ask": "offer"}
+{"tr": "morettiyi başkasıyla karşılaştır", "call": "fm_compare", "args": {"a": "moretti"}, "ask": "b"}
+{"en": "compare moretti with someone", "call": "fm_compare", "args": {"a": "moretti"}, "ask": "b"}
+{"tr": "moretti ilk 11de oynasın", "call": "fm_tactic_player", "args": {"player": "moretti"}, "ask": "position"}
+{"en": "put moretti in the team", "call": "fm_tactic_player", "args": {"player": "moretti"}, "ask": "position"}
+{"tr": "başka bir kayıt aç", "call": "fm_load", "ask": ["name", "save"]}
+{"en": "load another save", "call": "fm_load", "ask": ["name", "save"]}
+{"tr": "kariyer3 kaydını aç", "call": "fm_load", "args": {"name": "kariyer3"}, "ask": "save"}
+{"en": "load career3", "call": "fm_load", "args": {"name": "career3"}, "ask": "save"}
+{"tr": "lombardiye gözlemci yolla", "call": "fm_scout_player", "args": {"player": "lombardi"}, "ask": "length"}
+{"en": "send a scout to lombardi", "call": "fm_scout_player", "args": {"player": "lombardi"}, "ask": "length"}
+{"tr": "lombardiyi kısa listeye al", "call": "fm_shortlist_change", "args": {"player": "lombardi"}, "ask": "length"}
+{"en": "shortlist lombardi", "call": "fm_shortlist_change", "args": {"player": "lombardi"}, "ask": "length"}
+{"tr": "moretti oyundan çıksın", "call": "fm_sub", "args": {"off": "moretti"}, "ask": "on"}
+{"en": "take moretti off", "call": "fm_sub", "args": {"off": "moretti"}, "ask": "on"}
+{"tr": "bu antrenörü alalım", "call": "fm_staff_hire", "ask": "name"}
+{"en": "let's hire this coach", "call": "fm_staff_hire", "ask": "name"}

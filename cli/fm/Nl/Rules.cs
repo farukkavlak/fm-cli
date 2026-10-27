@@ -141,7 +141,8 @@ internal static partial class Router
 		R("fm_load", "kayit yukle=3; eski kayda=3; load$=2; yukle$=2; kayda don=3; sonra #name ac$=3", c =>
 			{
 				var at = c.Find("load");
-				if (at >= 0 && at + 1 < c.W.Length && !c.W[at + 1].StartsWith("my")) c.Set("name", Ctx.Strip(c.W[at + 1]));
+				var next = at >= 0 ? c.W.Skip(at + 1).FirstOrDefault(w => !Ctx.IsStop(w)) : null;
+				if (next != null && !next.StartsWith("my") && next is not ("save" or "game" or "file")) c.Set("name", Ctx.Strip(next));
 				else if (c.Name() is string n && c.Has("ac$")) c.Set("name", n.TrimEnd('i'));
 				if (c.Has("kaydet")) c.Set("save", true);
 			}),
@@ -256,7 +257,7 @@ internal static partial class Router
 					c.Set("off", onFirst && !offFirst ? names[1].Name : names[0].Name);
 					c.Set("on", onFirst && !offFirst ? names[0].Name : names[1].Name);
 				}
-				else if (names.Count == 1 && c.Has("cikar", "cik$", "off$", "yoruldu")) { c.Set("off", names[0].Name); c.Ask("on"); }
+				else if (names.Count == 1 && c.Has("cikar", "cik$", "ciksin", "oyundan", "off$", "yoruldu")) { c.Set("off", names[0].Name); c.Ask("on"); }
 				else if (names.Count == 1 && c.Has("gir", "girsin", "oyuna al", "oyuna sok", "bring on", "on$", "come on")) { c.Set("on", names[0].Name); c.Ask("off"); }
 				if (c.Has("once ne olacag", "first show", "dry")) c.Set("dry", true);
 				if (c.Has("degisiklik yap") && names.Count == 0) { c.Ask("off"); c.Ask("on"); }
@@ -315,7 +316,7 @@ internal static partial class Router
 					var i = Array.IndexOf(MonthOrder, month.Value);
 					c.Set("month", year > 0 && i >= 0 ? $"{year}-{i + 1:00}" : month.Value);
 				}
-				else if (c.Has("gelecek ay", "next month")) c.Ask("month");
+				else if (c.Has("gelecek ay*", "onumuzdeki ay*", "sonraki ay*", "next month", "coming month")) c.Ask("month");
 				if (c.Has("genc", "youth")) c.Set("youth", true);
 				if (!c.Args.ContainsKey("month") && m is null && c.Has("ekimde", "eylulde")) { }
 			}),
@@ -401,7 +402,7 @@ internal static partial class Router
 					if (!c.Args.ContainsKey(key)) c.Set(key, name);
 				}
 				if (c.Names().Count == 1 && c.Args.ContainsKey("captain") && c.Has("vice", "yardimci kaptan", "ikinci kaptan")) { c.Args.Remove("captain"); c.Set("vice", c.Names()[0].Name); }
-				if (c.Names().Count == 0 && c.Has("degistir", "change")) c.Ask("captain");
+				if (c.Names().Count == 0 && c.Has("degistir", "baskasi", "yeni kaptan", "change", "new captain", "someone else")) c.Ask("captain");
 			}),
 
 		// ---- tactics
@@ -473,7 +474,7 @@ internal static partial class Router
 			"switch to tactic=5; which tactic is active=5; back to slot=5", c =>
 			{
 				if (c.Num() is int n) c.Set("slot", n.ToString());
-				else if (c.Has("yedek taktig", "other tactic")) c.Ask("slot");
+				else if (c.Has("yedek taktig", "diger taktig", "obur taktig", "other tactic", "another tactic", "backup tactic")) c.Ask("slot");
 			}),
 		R("fm_tactic_clear", "slotu temizle=5; bosalt=4; delete the #num tactic=5; delete the third=5; remove this tactic=5; temizle=1", c =>
 			{
@@ -499,7 +500,7 @@ internal static partial class Router
 				else if (c.Find("load") is var l && l >= 0) c.Set("load", c.W.Skip(l + 1).First(w => w != "the"));
 				else if (c.Has("yukle", "ac$", "kullan") && c.Find("taktig") is var t && t > 0) c.Set("load", c.Between(0, t).Replace("kayitli", "").Trim());
 				else if (c.Find("delete") is var d && d >= 0) c.Set("delete", c.W[^1]);
-				else if (c.Has("kaydet")) c.Ask("save");
+				else if (c.Has("kaydet", "save")) c.Ask("save");
 				if (c.Find("not olarak") is var n && n >= 0) c.Set("note", c.Between(n + 2, c.W.Length));
 			}),
 

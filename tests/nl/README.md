@@ -101,6 +101,14 @@ held base tool 71.2% / with arguments 55.0% (was 65.2% / 48.0%), expanded held 5
 common-word names for tools that need no name (+0.4% held, but "bruno dinlensin" would rest no
 one in particular: a wrong name fails loudly, a dropped one runs the wrong thing).
 
+Then (same night): an instruction and its direction are read apart, so "defans hattını geri
+çek" lowers the line and a Turkish "-masın" or a "don't" turns a value round; fm_actions had no
+reader at all; a page is read from the words around "sayfa"/"screen"/"open"; a contract does not
+take a common word for a name (the open talks are the default there, unlike "bruno dinlensin");
+more ways to say the values of most readers, and asks for what a sentence leaves open ("diğer
+taktiğe geç", "change the captain", "load another save"). Readers given the tool, held base
+76.7% (asks 52% → 61%), expanded 72.2%, dev 97.8%.
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.
