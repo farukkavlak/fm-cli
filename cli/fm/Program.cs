@@ -14,6 +14,8 @@ internal static partial class Program
 
 		if (args[0] == "mcp") return await Mcp.Serve(Run);
 
+		if (args[0] == "__route") return Nl.Router.RouteLines();
+
 		if (args[0] == "start" && args.Skip(1).Any(a => a is "--help" or "-h")) return HelpFor("start");
 
 		if (args[0] == "start")

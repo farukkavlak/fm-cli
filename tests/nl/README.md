@@ -13,6 +13,19 @@ next to it, filler words, odd capitals, and another name in place of the player'
 expected arguments changed to match. Argument values in the sentence are never misspelt.
 Six per case by default, about 10 700 in all; same seed, same set.
 
+`tools/nl-score.py` runs a router over the set and scores it: the right tool, the right tool with
+the right arguments, asks and "nothing does this" on their own. Any command that reads
+`{"text": ...}` lines and writes call lines can be scored (`--router`); the default is
+`fm __route`, the rule router in `cli/fm/Nl/`. Each case falls in "dev" (rules may be tuned on
+it) or "held" (never looked at while tuning) by a hash of its sentence, about 70/30; a noisy
+variant follows its case. Only the held numbers say how a router does on sentences it has not
+seen.
+
+First numbers, rule router (27 Oct): base set dev 89% tool / 85% with arguments, held 33% / 22%;
+expanded set dev 81% / 74%, held 29% / 17%; about 2 ms a sentence. Cues written from the dev
+sentences barely carry over to new wording: the tool choice needs something that generalises
+(embeddings), the argument readers are reusable either way.
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.
