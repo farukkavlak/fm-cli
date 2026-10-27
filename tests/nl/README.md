@@ -66,6 +66,14 @@ place of the rules' reading it lowers held to 39.6%, only where the rules read n
 +0.4% held and −1.2% dev; left out. What is left is mostly the tool (held 60%) and readers
 missing wordings (a mode, a view, a flag said another way).
 
+A bigger model (27 Oct, later): multilingual mpnet-base (278M, `--base mpnet`, now the default),
+two epochs, ~10 minutes an epoch on the CPU. Held base: tool 64% / with arguments 47.5% (MiniLM
+60% / 42.6%), "nothing" 79%, false "nothing" 6.0%; expanded held 54% / 38% (MiniLM 46% / 31%).
+e5-small fine-tuned the same way does no better than MiniLM (held 59% / 42%). Weights in int8
+(`--int8`, onnxruntime dynamic quantisation) keep the scores (held 65% / 48%) at 266 MB instead of
+1 GB, ~6 ms a sentence, less memory than MiniLM in float. False "nothing" can be bought down with
+`--none-margin 1.5` (6.5% → 4.3%, "nothing" 78% → 71%); a product choice, left at 0 here.
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.

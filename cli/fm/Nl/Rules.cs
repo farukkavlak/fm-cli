@@ -48,6 +48,38 @@ internal static partial class Router
 
 	private static JsonArray Arr(IEnumerable<string> items) => new([.. items.Select(i => (JsonNode)i)]);
 
+	private static readonly Dictionary<string, int> CountWords = new()
+	{
+		["iki"] = 2, ["uc"] = 3, ["dort"] = 4, ["bes"] = 5, ["alti"] = 6, ["yedi"] = 7, ["sekiz"] = 8, ["dokuz"] = 9, ["on"] = 10,
+		["two"] = 2, ["three"] = 3, ["four"] = 4, ["five"] = 5, ["six"] = 6, ["seven"] = 7, ["eight"] = 8, ["nine"] = 9, ["ten"] = 10,
+		["twice"] = 2, ["thrice"] = 3,
+	};
+
+	/// <summary>
+	/// How many times, as said: "3 kere", "x5", "beş gün", "twice", "bi hafta" (7), "2 weeks" (14),
+	/// "devam et devam et" (2). English "on" is a word, not ten.
+	/// </summary>
+	private static int Times(Ctx c)
+	{
+		var n = 0;
+		for (var i = 0; i < c.W.Length && n == 0; i++)
+		{
+			var w = c.W[i];
+			var m = System.Text.RegularExpressions.Regex.Match(w, @"^x?(\d{1,2})x?$");
+			if (m.Success) n = int.Parse(m.Groups[1].Value);
+			else if (CountWords.TryGetValue(w, out var v) && !(w == "on" && c.Has("go on", "on$ off", "turn on", "on the"))) n = v;
+			else if (w is "bi" or "bir" or "a" or "one" && i + 1 < c.W.Length && Text.Matches(c.W[i + 1], "hafta") | Text.Matches(c.W[i + 1], "week")) n = 1;
+			if (n > 0 && i + 1 < c.W.Length && (Text.Matches(c.W[i + 1], "hafta") || Text.Matches(c.W[i + 1], "week"))) n *= 7;
+		}
+		if (n == 0 && c.Has("hafta", "week")) n = 7;
+		if (n == 0)
+		{
+			var again = c.W.Count(w => w is "devam" or "continue" or "ilerle" or "ilerlet");
+			if (again >= 2) n = again;
+		}
+		return n;
+	}
+
 	/// <summary>A player named, or else a position: tactic tools take either.</summary>
 	private static string? NameOrPos(Ctx c) => c.Name() ?? c.Pos();
 
@@ -88,8 +120,8 @@ internal static partial class Router
 		R("fm_next", "devam$=1.5; devam et=1.5; ilerlet=2; ilerle$=2; gunu gec=3; sonraki gune=3; gec gec=3; continue=1.5; cont$=2; next day=3; advance=2; go on=2; " +
 			"skip ahead=3; press continue=3; on kere=2; cevaplamadan=2; move on=1.5; soruyu=1; soru atla=2", c =>
 			{
-				var times = c.Nums().Select(n => n.Value).FirstOrDefault(v => v >= 2);
-				if (times >= 2) c.Set("times", times);
+				var times = Times(c);
+				if (times >= 2) c.Set("times", Math.Min(times, 30));
 				if (c.Has("soru", "cevaplamadan", "question", "ignore", "post match")) c.Set("skip", true);
 			}),
 		R("fm_continue", "son kayd=3; son kayit=3; last save=4; resume last=4; ana menu=2"),

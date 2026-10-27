@@ -6,7 +6,8 @@ pushed apart (in-batch negatives). Noisy variants (tests/nl/expanded/) of dev se
 held sentences and their variants are never seen. The result is exported to ONNX with its
 tokenizer, under ~/.cache/fm-cli/nl/<name>/, which `tools/nl-embed.py --model DIR` loads.
 
-  tools/nl-train.py --base minilm --epochs 3
+  tools/nl-train.py --epochs 2 --name mpnet-ep2 --int8   # the best so far (~20 min on an M2)
+  tools/nl-train.py --base minilm --epochs 2
 """
 import argparse
 import hashlib
@@ -27,6 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 BASES = {
 	"minilm": ("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", "tokenizer.json", ""),
 	"e5": ("intfloat/multilingual-e5-small", "tokenizer.json", "query: "),
+	"mpnet": ("sentence-transformers/paraphrase-multilingual-mpnet-base-v2", "tokenizer.json", ""),
 }
 
 
@@ -56,7 +58,7 @@ def training_rows(noisy):
 
 def main():
 	ap = argparse.ArgumentParser()
-	ap.add_argument("--base", choices=BASES, default="minilm")
+	ap.add_argument("--base", choices=BASES, default="mpnet")
 	ap.add_argument("--epochs", type=int, default=3)
 	ap.add_argument("--batch", type=int, default=16)
 	ap.add_argument("--threads", type=int, default=4, help="CPU threads (the machine stays usable)")
@@ -65,6 +67,7 @@ def main():
 	ap.add_argument("--unfreeze", action="store_true", help="train the word table too (~2.5 GB)")
 	ap.add_argument("--no-noisy", action="store_true", help="leave the noisy variants out")
 	ap.add_argument("--name", help="output name (default: <base>-ft)")
+	ap.add_argument("--int8", action="store_true", help="also write <name>-q: weights in int8, a quarter of the size, same scores")
 	a = ap.parse_args()
 	repo, tokfile, prefix = BASES[a.base]
 	out = Path.home() / ".cache/fm-cli/nl" / (a.name or f"{a.base}-ft")
@@ -139,6 +142,15 @@ def main():
 		dynamic_axes={"input_ids": {0: "b", 1: "n"}, "attention_mask": {0: "b", 1: "n"}, "last_hidden_state": {0: "b", 1: "n"}},
 		opset_version=14)
 	print(f"saved {out}")
+	if a.int8:
+		from onnxruntime.quantization import QuantType, quantize_dynamic
+		q = out.with_name(out.name + "-q")
+		shutil.rmtree(q, ignore_errors=True)
+		q.mkdir()
+		for f in ("tokenizer.json", "prefix.txt"):
+			shutil.copy(out / f, q / f)
+		quantize_dynamic(str(out / "model.onnx"), str(q / "model.onnx"), weight_type=QuantType.QInt8)
+		print(f"saved {q}")
 
 
 if __name__ == "__main__":
