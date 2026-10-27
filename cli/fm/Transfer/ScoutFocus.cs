@@ -343,13 +343,24 @@ internal static partial class Program
 			return path;
 		}
 
+		// The list names places in English, or in the game's language where the plugin has no English for
+		// them ("İtalya"); a place is taken typed either way.
+		await GameWords.Ask(Fm, typed);
+		var (wanted, local) = (Fold(typed), Fold(GameWords.Of(typed)));
+		string[] Forms(string name) => [Fold(name), Fold(GameWords.Of(name))];
+		bool Is(string name) => Forms(name).Any(f => f == wanted || f == local);
+		bool Has(string name) => Forms(name).Any(f => f.Contains(wanted, StringComparison.Ordinal) || f.Contains(local, StringComparison.Ordinal));
+		// The continents are a level of their own on some lists; on others only the nations' and regions'.
 		var found = new List<string>();
-		foreach (var continent in await Under("Continent"))
+		var continents = await Under("Continent");
+		var whole = continents.Count > 0;
+		if (!whole) continents = (await Under("Nation")).Concat(await Under("Region")).Distinct().ToList();
+		foreach (var continent in continents)
 		{
-			if (Fold(continent) == Fold(typed)) return "Continent>" + continent;
+			if (whole && Is(continent)) return "Continent>" + continent;
 			foreach (var kind in new[] { "Region", "Nation" })
-				found.AddRange((await Under($"{kind}>{continent}")).Where(n => Fold(n).Contains(Fold(typed), StringComparison.Ordinal)).Select(n => $"{kind}>{continent}>{n}"));
-			if (found.FirstOrDefault(p => Fold(p.Split('>')[^1]) == Fold(typed)) is { } exact) return exact;
+				found.AddRange((await Under($"{kind}>{continent}")).Where(Has).Select(n => $"{kind}>{continent}>{n}"));
+			if (found.FirstOrDefault(p => Is(p.Split('>')[^1])) is { } exact) return exact;
 		}
 		if (found.Count == 1) return found[0];
 		Console.Error.WriteLine(found.Count == 0

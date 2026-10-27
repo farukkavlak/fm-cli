@@ -364,8 +364,8 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(jobs.Select(j => new
 			{
-				j.Number, j.Club, j.League, j.Nation, j.Position, Reputation = j.Rating, j.Finances,
-				Manager = j.Manager == "-" ? "" : j.Manager, j.Security, j.CanApply,
+				j.Number, j.Club, j.League, j.Nation, j.Position, Reputation = ReputationTurkish(j.Rating), Finances = GameWords.Of(j.Finances),
+				Manager = j.Manager == "-" ? "" : j.Manager, Security = GameWords.Of(j.Security), j.CanApply,
 			})));
 			return 0;
 		}
@@ -394,7 +394,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { job.Club, job.League, job.Nation, job.Position, Rules = rules.SelectMany(r => r.Split('\n')).Select(r => r.Trim()).Where(r => r.Length > 0), Facts = facts, job.CanApply }));
+			Console.WriteLine(JsonOut.Of(new { job.Club, job.League, job.Nation, job.Position, Rules = rules.SelectMany(r => r.Split('\n')).Select(r => GameWords.Of(r.Trim())).Where(r => r.Length > 0), Facts = facts.ToDictionary(f => GameWords.Of(f.Key), f => GameWords.Of(f.Value)), job.CanApply }));
 			return 0;
 		}
 

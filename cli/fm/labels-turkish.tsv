@@ -952,7 +952,7 @@ Age: {0} cannot be chosen (between 15 and 50, the lower bound below the upper).	
 The area could not be added: {0}{1}	Bölge eklenemedi: {0}{1}
 {0}: could not be set to {1} stars.	{0}: {1} yıldıza getirilemedi.
 The form did not close; the change may not have gone through. Look: scout	Form kapanmadı; değişiklik işlenmemiş olabilir. Bak: scout
-Focus updated: {0} · {1}\n(the game leaves the old one in the list as 'Complete')	Odak güncellendi: {0} · {1}\n(oyun eski halini listede 'Complete' olarak bırakır)
+Focus updated: {0} · {1}\n(the game leaves the old one in the list as 'Complete')	Odak güncellendi: {0} · {1}\n(oyun eski halini listede 'Tamamlandı' olarak bırakır)
 The focus does not look set up; look: scout	Odak kurulmuş görünmüyor; bak: scout
 Focus set up: {0} · {1}{2}{3} · {4}	Odak kuruldu: {0} · {1}{2}{3} · {4}
  · aged {0}–{1}	 · {0}–{1} yaş
@@ -2418,3 +2418,4 @@ The match waits for an answer to it. To apply: dugout apply   (the game's other 
 tactic pick lets the assistant choose the whole eleven and takes nothing after it. For one position: tactic player <position> <player>	tactic pick ilk 11'in tamamını yardımcıya seçtirir, ardından bir şey almaz. Tek mevki için: tactic player <mevki> <oyuncu>
 bench	yedek
 There is no next match yet, so no opposition instructions (fixtures).	Henüz sıradaki maç yok, bu yüzden rakip talimatı da yok (fixtures).
+The assignments panel did not open. If it stays so: fm stop --save, then fm start.	Görevlendirmeler paneli açılmadı. Böyle kalırsa: fm stop --save, sonra fm start.

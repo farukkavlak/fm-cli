@@ -51,6 +51,13 @@ internal static partial class Program
 				&& staff.All(m => m.Name != Shown(first[i])))
 				staff.Add((Shown(first[i]), Shown(first[i + 1])));
 
+		if (staff.Count == 0)
+		{
+			// Seen once after several focus edits in a session: the panel's open event never resolved
+			// and only a restart brought it back (27 Ekim 2026). An empty list would read as no scouts.
+			Console.Error.WriteLine(L("The assignments panel did not open. If it stays so: fm stop --save, then fm start."));
+			return 1;
+		}
 		var rows = new List<(string Name, string Job, string Ability, string Potential, string Regions, string Nations, List<string> Focuses)>();
 		foreach (var (name, job) in staff)
 		{
@@ -83,7 +90,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, r.Job, JudgingAbility = r.Ability, JudgingPotential = r.Potential, r.Regions, r.Nations, r.Focuses })));
+			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, Job = GameWords.Of(r.Job), JudgingAbility = GameWords.Of(r.Ability), JudgingPotential = GameWords.Of(r.Potential), r.Regions, r.Nations, Focuses = r.Focuses.Select(GameWords.Of) })));
 			return 0;
 		}
 		Table.Write([L("SCOUT"), L("JOB"), L("JUDGING ABILITY"), L("JUDGING POTENTIAL"), L("AREA"), L("NATION"), L("FOCUSES")],
