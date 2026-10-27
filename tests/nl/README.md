@@ -7,8 +7,11 @@ half sentences, several asks at once.
 
 `tools/nl-check.py` checks every case against the tool list in `cli/fm/Core/Mcp.Tools.cs`
 (tool names, argument names, enum values, required arguments) and prints counts per tool and
-category. A generator for noisy variants (letters dropped or swapped, Turkish letters folded,
-filler words, other player names) is still to be written.
+category. `tools/nl-expand.py` writes noisy variants of every case into `tests/nl/expanded/`
+(not committed): Turkish letters folded, a letter dropped, doubled, swapped or hit on the key
+next to it, filler words, odd capitals, and another name in place of the player's, with the
+expected arguments changed to match. Argument values in the sentence are never misspelt.
+Six per case by default, about 10 700 in all; same seed, same set.
 
 ## Case format
 
