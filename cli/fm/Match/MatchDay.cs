@@ -608,7 +608,8 @@ internal static partial class Program
 			// The full-time numbers are the first thing a manager looks at after the whistle.
 			Console.WriteLine();
 			// The report is the first team's last match; a match only watched has none of its own here.
-			if (!watchedMatch) try { await MatchReport.Show(Fm, json: false, expected: score); } catch (FmError) { }
+			// Picked up after the post-match talk the board is not read again; the report then stands on its own.
+			if (!watchedMatch) try { await MatchReport.Show(Fm, json: false, expected: score.Length > 0 ? score : null); } catch (FmError) { }
 			if (finalMen is { Count: > 0 }) MatchMoments(finalMen, names);
 		}
 		// What holds the game up after the whistle is read afresh: usually the press conference.
