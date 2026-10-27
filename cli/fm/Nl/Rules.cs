@@ -35,6 +35,17 @@ internal static partial class Router
 		["fm_tactic_set"] = ["setting"],
 	};
 
+	/// <summary>
+	/// What an action needs once it is asked for: with the first argument given (and the second
+	/// not), the third is asked if the sentence leaves it out. A watch is for a length, a sub
+	/// takes one off for another, an application is to a club.
+	/// </summary>
+	private static readonly (string Tool, string When, string? Unless, string Need)[] Needs =
+	[
+		("fm_scout_player", "player", "who", "length"), ("fm_shortlist_change", "player", "remove", "length"),
+		("fm_sub", "off", null, "on"), ("fm_sub", "on", null, "off"), ("fm_jobs", "action", null, "club"),
+	];
+
 	private static JsonArray Arr(IEnumerable<string> items) => new([.. items.Select(i => (JsonNode)i)]);
 
 	/// <summary>A player named, or else a position: tactic tools take either.</summary>

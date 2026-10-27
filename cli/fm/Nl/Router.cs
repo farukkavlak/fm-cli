@@ -78,7 +78,9 @@ internal static partial class Router
 		var ctx = new Ctx(text);
 		Rules.FirstOrDefault(r => r.Tool == tool)?.Args?.Invoke(ctx);
 		foreach (var need in Required.GetValueOrDefault(tool, []))
-			if (!ctx.Args.ContainsKey(need) && !ctx.Asks.Contains(need)) ctx.Asks.Add(need);
+			ctx.Ask(need);
+		foreach (var (_, when, unless, need) in Needs.Where(n => n.Tool == tool))
+			if (ctx.Args.ContainsKey(when) && (unless is null || !ctx.Args.ContainsKey(unless))) ctx.Ask(need);
 		return new Call(tool, ctx.Args, ctx.Asks, score);
 	}
 

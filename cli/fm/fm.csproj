@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="labels-turkish.tsv" LogicalName="labels-turkish.tsv" />
+    <EmbeddedResource Include="Nl/common-words.txt" LogicalName="common-words.txt" />
   </ItemGroup>
 
   <ItemGroup>

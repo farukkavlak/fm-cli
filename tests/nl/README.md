@@ -55,6 +55,17 @@ tool by M: 1.5 gives held 47% "nothing" at 1.3% false; every margin trades one f
 none raises the total, so the default is 0. A dev sentence no longer finds itself in the index,
 so dev numbers are now leave-one-out (base dev tool 91% → 82%).
 
+Asks and names (27 Oct, later): an action asks for what it needs once it is asked for (a watch or
+a shortlist for a length, a sub for the other player, an application for a club): held asks
+22% → 30%. The name reader treats the most used Turkish and English words as weak names
+(`cli/fm/Nl/common-words.txt`, `tools/nl-words.py`, from subtitle frequency lists): a run of
+common words is a name only when nothing less common is, and an English one at the edge goes
+("sell rinaldi", "track pieragnolo indefinitely"); held with arguments 41.3% → 42.0%. Choice
+arguments (flags, enums) voted by the picked tool's nearest dev sentences did not help: in
+place of the rules' reading it lowers held to 39.6%, only where the rules read nothing it is
++0.4% held and −1.2% dev; left out. What is left is mostly the tool (held 60%) and readers
+missing wordings (a mode, a view, a flag said another way).
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.

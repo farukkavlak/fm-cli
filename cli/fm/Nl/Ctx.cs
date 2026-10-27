@@ -284,14 +284,34 @@ internal sealed partial class Ctx(Text text)
 			var j = i;
 			while (j + 1 < W.Length && j - i < 2 && Nameish(j + 1)) j++;
 			var (a, b) = (i, j);
+			bool Uncommon(int x, int y) => W[x..(y + 1)].Any(w => !Common.Value.ContainsKey(w));
+			while (b > a && CommonIn(W[b], "en") && Uncommon(a, b - 1)) b--;
+			while (a < b && CommonIn(W[a], "en") && Uncommon(a + 1, b)) a++;
+			var (i2, j2) = (a, b);
 			while (b > a && NearKnown(W[b])) b--;
 			while (a < b && NearKnown(W[a])) a++;
-			if (!(a == b && NearKnown(W[a]) && i != j))
+			if (!(a == b && NearKnown(W[a]) && i2 != j2))
 				names.Add((string.Join(' ', W[a..(b + 1)].Select((w, k) => a + k == b ? Strip(w) : w)), a, b - a + 1));
 			i = j;
 		}
+		// a common word is a name only when nothing less common is: "sell rinaldi" names rinaldi
+		if (names.Any(n => !n.Name.Split(' ').All(IsCommon)))
+			names = [.. names.Where(n => !n.Name.Split(' ').All(IsCommon))];
 		return names;
 	}
+
+	/// <summary>The most used words, with the languages they are common in (tools/nl-words.py).</summary>
+	private static readonly Lazy<Dictionary<string, string>> Common = new(() =>
+	{
+		using var stream = typeof(Ctx).Assembly.GetManifestResourceStream("common-words.txt");
+		using var reader = new StreamReader(stream!);
+		return reader.ReadToEnd().Split('\n').Where(l => l.Length > 0 && l[0] != '#').Select(l => l.Split('\t'))
+			.ToDictionary(p => p[0], p => p.Length > 1 ? p[1] : "");
+	});
+
+	private static bool IsCommon(string w) => Common.Value.ContainsKey(w);
+
+	private static bool CommonIn(string w, string lang) => Common.Value.TryGetValue(w, out var langs) && langs.Contains(lang);
 
 	public string? Name(int nth = 0) => Names().Count > nth ? Names()[nth].Name : null;
 
