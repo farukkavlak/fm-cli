@@ -120,7 +120,7 @@ internal static partial class Mcp
 			Console.SetError(stderr);
 		}
 
-		var text = printed.ToString().TrimEnd();
+		var text = InToolTerms(printed.ToString().TrimEnd(), tool.Name);
 		return new JsonObject
 		{
 			["content"] = new JsonArray(new JsonObject { ["type"] = "text", ["text"] = text.Length > 0 ? text : "(no output)" }),
