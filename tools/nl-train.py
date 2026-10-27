@@ -6,7 +6,7 @@ pushed apart (in-batch negatives). Noisy variants (tests/nl/expanded/) of dev se
 held sentences and their variants are never seen. The result is exported to ONNX with its
 tokenizer, under ~/.cache/fm-cli/nl/<name>/, which `tools/nl-embed.py --model DIR` loads.
 
-  tools/nl-train.py --epochs 2 --name mpnet-ep2 --int8   # the best so far (~20 min on an M2)
+  tools/nl-train.py --epochs 2 --name mpnet-n --int8     # the best so far (~35 min on the CPU)
   tools/nl-train.py --base minilm --epochs 2
 """
 import argparse

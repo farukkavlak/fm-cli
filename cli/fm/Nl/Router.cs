@@ -88,18 +88,38 @@ internal static partial class Router
 	/// `fm __route`: one {"text": "..."} per line in, one {"call", "args", "ask", "others"} per
 	/// line out. tools/nl-score.py runs it over the test set. A line that also names a "tool"
 	/// (picked by another router, tools/nl-embed.py --hybrid) gets that tool's arguments filled
-	/// by its reader as "forced", next to the rule router's own answer.
+	/// by its reader as "forced", next to the rule router's own answer. With --model DIR the
+	/// nearest example sentences pick the tool and the rules only fill its arguments (a sentence
+	/// the rules split into several asks stays split); --cases DIR is the tests/nl folder whose
+	/// dev and train sentences are the examples.
 	/// </summary>
-	public static int RouteLines()
+	public static int RouteLines(string[] args)
 	{
+		string? Opt(string name) => Array.IndexOf(args, name) is var i and >= 0 && i + 1 < args.Length ? args[i + 1] : null;
+		var texts = new List<(string Text, string? Tool)>();
 		string? line;
-		using var stdout = Console.OpenStandardOutput();
-		using var w = new StreamWriter(stdout) { AutoFlush = false };
 		while ((line = Console.ReadLine()) != null)
 		{
 			if (line.Trim().Length == 0) continue;
 			var input = JsonNode.Parse(line);
-			var text = input?["text"]?.GetValue<string>() ?? "";
+			texts.Add((input?["text"]?.GetValue<string>() ?? "", input?["tool"] is JsonValue t ? t.GetValue<string>() : null));
+		}
+
+		var picks = new string?[texts.Count];
+		if (Opt("--model") is { } model)
+		{
+			model = Path.GetFullPath(model.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)));
+			using var embedder = new Embedder(model);
+			var near = new Neighbours(embedder, Neighbours.Examples(Opt("--cases") ?? "tests/nl", withHeld: false), model);
+			var vectors = near.Embed([.. texts.Select(t => t.Text)]);
+			for (var i = 0; i < texts.Count; i++) picks[i] = near.Pick(texts[i].Text, vectors[i]);
+		}
+
+		using var stdout = Console.OpenStandardOutput();
+		using var w = new StreamWriter(stdout) { AutoFlush = false };
+		for (var i = 0; i < texts.Count; i++)
+		{
+			var (text, forcedTool) = texts[i];
 			var r = Route(text);
 			var o = new JsonObject();
 			if (r.Calls.Count == 0) o["call"] = null;
@@ -114,19 +134,24 @@ internal static partial class Router
 				o["call"] = new JsonArray([.. r.Calls.Select(c => (JsonNode)c.Tool)]);
 				o["args"] = new JsonArray([.. r.Calls.Select(c => (JsonNode)c.Args)]);
 			}
-			if (input?["tool"] is JsonValue forced && forced.GetValue<string>() is { Length: > 0 } tool)
-			{
-				var c = Fill(tool, new Text(text), 0);
-				var f = new JsonObject { ["call"] = c.Tool, ["args"] = c.Args };
-				if (c.Ask.Count > 0) f["ask"] = new JsonArray([.. c.Ask.Select(a => (JsonNode)a)]);
-				o["forced"] = f;
-			}
+			if (forcedTool is { Length: > 0 })
+				o["forced"] = Forced(text, forcedTool);
 			o["score"] = r.Calls.Count > 0 ? r.Calls.Max(c => c.Score) : 0;
 			o["others"] = new JsonArray([.. r.Others.Select(x => (JsonNode)$"{x.Tool} {x.Score:0.#}")]);
 			if (Environment.GetEnvironmentVariable("FM_NL_WORDS") != null) o["words"] = string.Join(' ', new Text(text).Words);
+			if (picks[i] is { } pick && r.Calls.Count < 2 && !pick.StartsWith('['))
+				o = pick == "null" ? new JsonObject { ["call"] = null } : Forced(text, JsonNode.Parse(pick)!.GetValue<string>());
 			w.WriteLine(o.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
 		}
 		w.Flush();
 		return 0;
+	}
+
+	private static JsonObject Forced(string text, string tool)
+	{
+		var c = Fill(tool, new Text(text), 0);
+		var f = new JsonObject { ["call"] = c.Tool, ["args"] = c.Args };
+		if (c.Ask.Count > 0) f["ask"] = new JsonArray([.. c.Ask.Select(a => (JsonNode)a)]);
+		return f;
 	}
 }

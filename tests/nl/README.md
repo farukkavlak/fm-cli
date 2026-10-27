@@ -116,6 +116,29 @@ asks 39% → 52%, false "nothing" 4.0% → 2.2%, but "nothing" 77% → 72%; expa
 → 65.0% / 50.6%. From the night's start (65.2% / 48.0% held base) the whole router gained about
 ten points on tool and fourteen with arguments.
 
+"Nothing" sentences to learn from (28 Oct): the training-only sentences held 31 "nothing" lines
+against ~1 370 for the tools, so `train/none.jsonl` adds 190 (cheats and the editor, turning time
+back, screen and computer settings, real-world football, "what can you do", translating, chat,
+gibberish). The themes were picked from the held "nothing" misses, so the held "nothing" gain
+flatters a little. Retrained (`nl-train.py --epochs 2 --name mpnet-n --int8`, ~35 minutes),
+held base: tool 76.2% → 78.9%, with arguments 63.1% → 64.7%, "nothing" 84.5% → 92.8%, but false
+"nothing" 2.7% → 3.5%; expanded held 65.7% / 51.4% → 67.4% / 53.5%, false "nothing" 4.4% → 7.2%
+(a real ask answered "nothing does this" more often: it fails loudly rather than running the
+wrong tool, still the cost to watch).
+
+The router in .NET (same night): `fm __route --model DIR` picks the tool by the nearest examples
+(`cli/fm/Nl/Neighbours.cs`, the dev and train sentences of `--cases DIR`, default `tests/nl`)
+and the rules fill the arguments, as `nl-embed.py --hybrid`; `cli/fm/Nl/Embedder.cs` runs the
+model with ONNX Runtime and its own unigram tokenizer (the same ids as the Python one on every
+test sentence). Its scores equal the Python router's to the decimal. Two things found on the
+way: the int8 model scales a batch as a whole, so a sentence embedded beside others comes out a
+little different from the same sentence alone; both now embed one at a time (the numbers above
+for 28 Oct are measured so; batched ones moved by up to a point). And ONNX Runtime 1.22.0
+crashed on exit on macOS ("mutex lock failed"); 1.23.2 does not. The index is embedded once
+(~20 s) and kept beside the model (`index-<hash>.bin`); a fresh process then takes ~1.5 s and
+~450 MB to load, ~5 ms a sentence after that. The native library adds ~35 MB to the osx-arm64
+binary.
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.

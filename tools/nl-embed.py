@@ -53,7 +53,9 @@ class Embedder:
 		self.sess = ort.InferenceSession(str(onnx), so, providers=["CPUExecutionProvider"])
 		self.inputs = {i.name for i in self.sess.get_inputs()}
 
-	def __call__(self, texts, batch=64):
+	def __call__(self, texts, batch=1):
+		# one at a time: the int8 model scales a batch as a whole, so a sentence beside others
+		# comes out a little different from the same sentence alone (as a typed one is embedded)
 		out = []
 		for i in range(0, len(texts), batch):
 			enc = self.tok.encode_batch([self.prefix + t for t in texts[i:i + batch]])
