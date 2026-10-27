@@ -146,6 +146,8 @@ internal static partial class Program
 	private static async Task<int?> FeeAsked(List<string> words)
 	{
 		if (await FeeList() is not { } list) return null;
+		// Through MCP the words come as one ("fee 500B").
+		words = string.Join(" ", words).Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
 		var confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.LastOrDefault(b => Field(b, "Events").Contains("EventFmxConfirmChanges", StringComparison.Ordinal));
 		var fees = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
@@ -169,7 +171,10 @@ internal static partial class Program
 			Console.WriteLine(L("Fee proposed. To go on: talk"));
 			return 0;
 		}
-		Console.WriteLine(L($"Propose a fee: now {Field(list, "Label")}"));
+		// The game starts it at the player's own value, which is none of the list's steps and so has no label.
+		var now = Field(list, "Label") is { Length: > 0 } label ? label
+			: long.TryParse(Field(list, "Value"), out var value) ? MoneyFormat.Exact(value) : "";
+		Console.WriteLine(L($"Propose a fee: now {now}"));
 		Console.WriteLine(L($"  options: {string.Join(" · ", fees)}"));
 		Console.WriteLine(L("To change it: talk fee <value>   ·   to send it: talk confirm"));
 		return 0;
@@ -271,6 +276,7 @@ internal static partial class Program
 				var result = await Say(options[asked]);
 				if (result != null) return result!.Value;
 				await AskFee();
+				options = await TalkOptions();
 				Console.WriteLine();
 			}
 		}
@@ -356,8 +362,11 @@ internal static partial class Program
 			// panel is briefly empty, so an empty one is only believed after it has stayed empty.
 			var was = Key(options);
 			var empty = 0;
+			var feeAsked = false;
 			if (!await Until(async () =>
 			    {
+				    // A promise about a fee asks for the fee before the talk goes on.
+				    if (feeAsked = await FeeList() != null) return true;
 				    options = await TalkOptions();
 				    if (options.Count == 0) return ++empty >= 3;
 				    empty = 0;
@@ -367,6 +376,8 @@ internal static partial class Program
 				Console.Error.WriteLine(L("Said, but the conversation did not move on."));
 				return 1;
 			}
+			// Held at a terminal the fee is picked with the arrows (AskFee); otherwise the window is shown.
+			if (feeAsked) return words.Count == 0 && !json && Ui.Interactive ? null : await FeeAsked([]);
 
 			if (options.Count == 0)
 			{

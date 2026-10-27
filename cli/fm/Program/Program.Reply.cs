@@ -67,6 +67,10 @@ internal static partial class Program
 		// opened (none to tell apart when this message is the one already open).
 		string Set(IEnumerable<string> labels) => string.Join("|", labels.Select(GameWords.Of).Distinct().Order());
 		var open = await OnScreen();
+		// A conversation already going on (a player's, opened from another message) keeps its lines on
+		// screen beside the next message, where they read as that message's own question (Kortazar's
+		// message offering what was being said to Konaté, 27 Ekim 2026). They are the conversation's.
+		var talkBefore = open ? [] : (await TalkOptions()).Select(l => l.Label).ToHashSet();
 		var previous = open || await Selected() == id ? null : Set((await Answers()).Select(a => Field(a, "Label")));
 
 		// The same for the body: the message before this one can keep its paragraph a moment after
@@ -219,7 +223,7 @@ internal static partial class Program
 		var settled = await Until(async () =>
 			(dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0
 			|| (tour = await TourOpen())
-			|| (talking = (await TalkOptions()).Count > 0)
+			|| (talking = (await TalkOptions()).Any(l => !talkBefore.Contains(l.Label)))
 			|| !StillAnswerable(await Fm.GetJson("inbox"), id), seconds: 20);
 
 		// The game often asks "are you sure" for the answer just chosen (the suggested team,
@@ -313,6 +317,7 @@ internal static partial class Program
 			(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.Where(c => Field(c, "Events").Contains("SpeakToAction", StringComparison.Ordinal))
 				.Where(c => Field(c, "Enabled") == "True" && Field(c, "Label") != "")
+				.Where(c => !(Field(c, "Name") == "StandardButton" && talkBefore.Contains(Field(c, "Label"))))
 				// A quick question inside a message comes with its answers twice, one button per
 				// layout; they say and do the same, so one of each is listed.
 				.GroupBy(c => Field(c, "Label")).Select(g => g.First())

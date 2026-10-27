@@ -20,7 +20,7 @@ internal static partial class Mcp
 		new("fm_reply", "Open a message: its full text and the answers it offers. Without `answer` it only shows them, so this is also how a message is read. Some answers open a tour (use fm_tour) or a conversation (use fm_talk) instead of closing the message.",
 			"""{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"Message number from fm_inbox, or a piece of its subject."},"answer":{"type":"string","description":"Answer number from the listing, or a piece of its text."},"dry":{"type":"boolean"}}}""",
 			a => ["reply", Str(a, "message"), .. Opt(a, "answer"), .. Flag(a, "dry", "--dry")]),
-		new("fm_talk", "The open conversation (squad meeting, press conference, team talk): what was said, how the listeners react, and the numbered lines that can be said. With `say`, says one (number or a piece of its text) and returns the reply and the next options. say=\"leave\" walks out.",
+		new("fm_talk", "The open conversation (squad meeting, press conference, team talk): what was said, how the listeners react, and the numbered lines that can be said. With `say`, says one (number or a piece of its text) and returns the reply and the next options. say=\"leave\" walks out. A promise about a fee opens a window asking for the fee: say=\"fee 500K\" picks one of the fees it lists, say=\"confirm\" sends it.",
 			"""{"type":"object","properties":{"say":{"type":"string","description":"Option number, a piece of its text, or \"leave\"."}}}""",
 			a => ["talk", .. Opt(a, "say")]),
 		new("fm_tour", "Walk the open introduction tour to its end, printing what the guide says at each step; `skip` skips it if the tour allows.",
