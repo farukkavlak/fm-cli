@@ -109,6 +109,13 @@ more ways to say the values of most readers, and asks for what a sentence leaves
 taktiğe geç", "change the captain", "load another save"). Readers given the tool, held base
 76.7% (asks 52% → 61%), expanded 72.2%, dev 97.8%.
 
+Retrained on the training-only sentences too (`nl-train.py --epochs 2 --name mpnet-t --int8`,
+~19 000 sentences with the noisy ones, ~35 minutes on the CPU; `mpnet-t-q` 275 MB, ~5 ms a
+sentence). Hybrid, today's readers, held base: tool 71.5% → 74.9%, with arguments 58.7% → 61.7%,
+asks 39% → 52%, false "nothing" 4.0% → 2.2%, but "nothing" 77% → 72%; expanded held 59.4% / 46.4%
+→ 65.0% / 50.6%. From the night's start (65.2% / 48.0% held base) the whole router gained about
+ten points on tool and fourteen with arguments.
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.
