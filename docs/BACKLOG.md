@@ -119,12 +119,5 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 
 ## Wild ideas
 
-- [ ] A Discord/Slack bot: manage the team from chat.
-- [ ] Play a season automatically; ask only at key decisions.
-- [ ] Two fm-cli instances, LLMs head to head.
-- [ ] Git integration: one commit per season, squad changes as a diff.
-- [ ] An automatic career diary from match data.
 - [ ] A web dashboard (the plugin already speaks HTTP).
-- [ ] Mobile notification: "X is injured".
 - [ ] Time-series database and a Grafana career dashboard.
-- [ ] The same architecture for other Unity + IL2CPP games.
