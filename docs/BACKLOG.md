@@ -120,4 +120,3 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 ## Wild ideas
 
 - [ ] A web dashboard (the plugin already speaks HTTP).
-- [ ] Time-series database and a Grafana career dashboard.
