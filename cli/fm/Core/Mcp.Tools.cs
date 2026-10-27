@@ -220,7 +220,7 @@ internal static partial class Mcp
 		new("fm_shortlist", "The players on the club's shortlist (anyone an offer was made for is put there too): age, value, scouting grade, status.",
 			"""{"type":"object","properties":{}}""",
 			_ => ["shortlist"]),
-		new("fm_shout", "A touchline shout during a match (Encourage, Calm Down, Focus, Fire Up, No Pressure, Demand More, Praise, Berate). Without `shout` lists them. fm_tactic_set with setting=mentality also works during a match.",
+		new("fm_shout", "A touchline shout during a match. Without `shout` lists them, named in the game's language (in an English game: Encourage, Calm Down, Focus, Fire Up, No Pressure, Demand More, Praise, Berate); `shout` is one of the listed names or a unique start of one. fm_tactic_set with setting=mentality also works during a match.",
 			"""{"type":"object","properties":{"shout":{"type":"string"}}}""",
 			a => ["shout", .. (Str(a, "shout") is { Length: > 0 } x ? new[] { x } : [])]),
 		new("fm_tactic_pi", "One position's player instructions with the ball (Shooting, Forward Runs, Dribbling Frequency, Passing Risk…) and without it (Trigger Press, Marking, Tackling, Marking Target). Ones marked as from the role are fixed by it and change only with the role. `position` is the slot as fm_tactic shows it (DR, AML, ST…) or the player in it; during a match changes go to the match's tactic. With `name` and `value` one is changed, with `name` alone its choices are listed.",

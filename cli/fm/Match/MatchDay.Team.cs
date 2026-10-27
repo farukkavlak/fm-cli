@@ -143,7 +143,8 @@ internal static partial class Program
 
 		// A goal is the numbers moving; the board's words change too once the sides are known.
 		static string Numbers(string board) => System.Text.RegularExpressions.Regex.Match(board, @"\d+-\d+").Value;
-		if (score != null && Numbers(now) != Numbers(score))
+		// The board can read empty before kick-off; its first numbers are no goal (the "0-0" goal at 00:09).
+		if (score != null && Numbers(score).Length > 0 && Numbers(now) != Numbers(score))
 		{
 			// The total going down is a goal taken back: offside flagged late, or the video referee.
 			static int Total(string board) => board.Split('-').Sum(x => int.TryParse(x, out var g) ? g : 0);

@@ -132,7 +132,8 @@ internal static partial class Program
 			}
 			Console.WriteLine($"  {advice.Change}");
 			if (advice.Says.Length > 0) Console.WriteLine($"  {advice.Says}");
-			var answer = Words(args).Select(Fold).FirstOrDefault();
+			// There is one suggestion; a number given with the answer (as the dugout's entries take) names it.
+			var answer = Words(args).Select(Fold).FirstOrDefault(w => !int.TryParse(w, out _));
 			if (answer == null)
 			{
 				if (Ui.Ask(L("Apply it?"), [L("Apply")], cancel: L("Leave it")) is null)
@@ -210,14 +211,17 @@ internal static partial class Program
 			return 1;
 		}
 
-		if (action is "uygula" or "do" or "evet" && !entry.Open)
+		if (event_ == "MatchDugoutConfirm" && !entry.Open)
 		{
 			Console.Error.WriteLine(L($"{entry.Minute}'  {Advice(entry.Text)} — there is nothing in it to apply, or it is already applied."));
 			return 1;
 		}
 
 		// The buttons act on whichever entry is showing, so that one is brought up first.
-		if (await ShowDugoutEntry(entry.Pointer) != entry.Text)
+		// The timeline is laid out again as the match goes on, so a mark gone stale is looked for again by its advice.
+		if (await ShowDugoutEntry(entry.Pointer, entry.Text) != entry.Text
+		    && ((await DugoutEntries()).FirstOrDefault(e => e.Text == entry.Text) is not { } again
+		        || await ShowDugoutEntry((entry = again).Pointer, entry.Text) != entry.Text))
 		{
 			Console.Error.WriteLine(L("The advice could not be opened in the panel; the list may have changed: dugout"));
 			return 1;
@@ -298,6 +302,10 @@ internal static partial class Program
 			if (text.Length > 0 && text != "No Dugout Events") entries.Add(new(minute, pointer, text, await DugoutOpen()));
 		}
 
+		// A mark the panel did not move for reads as the entry before it again; the advice is listed once,
+		// at the minute it was given.
+		entries = entries.GroupBy(e => e.Text).Select(g => g.FirstOrDefault(e => e.Minute.Trim().Length > 0) ?? g.First()).ToList();
+
 		// Put back the entry that was showing, so reading the list changes nothing.
 		var was = entries.FirstOrDefault(e => e.Text == showing);
 		if (was != null && entries.LastOrDefault()?.Text != showing) await ShowDugoutEntry(was.Pointer);
@@ -319,12 +327,13 @@ internal static partial class Program
 		buttons.EnumerateArray().Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$")).Select(b => Field(b, "Label")).ToList();
 
 	/// <summary>Jumps to one entry and returns its text once the panel shows it.</summary>
-	private static async Task<string> ShowDugoutEntry(string pointer)
+	/// <param name="expected">The entry's text when known: waited for, as a live match redraws the panel slowly.</param>
+	private static async Task<string> ShowDugoutEntry(string pointer, string? expected = null)
 	{
 		var before = await DugoutText();
 		await Fm.Get("press", ("ptr", pointer));
 		var text = before;
-		await Until(async () => (text = await DugoutText()) != before, seconds: 1.5, every: 0.2);
+		await Until(async () => (text = await DugoutText()) == expected || expected == null && text != before, seconds: expected == null ? 1.5 : 3, every: 0.2);
 		return text;
 	}
 
