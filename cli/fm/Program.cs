@@ -122,6 +122,16 @@ internal static partial class Program
 
 	private static bool engineChecked;
 
+	/// <summary>The commands about the club the manager runs: its squad, staff, tactics, money and dealings.</summary>
+	private static readonly HashSet<string> ClubCommands =
+	[
+		"squad", "offer", "offers", "register", "numbers", "contract", "contracts", "release", "propose", "opposition", "intensity",
+		"coaches", "shortlist", "progress", "youth", "responsibilities", "opponent", "captains", "vision", "depth", "targets",
+		"happiness", "mentoring", "dynamics", "staff", "finances", "supporters", "board", "facilities", "health", "doctor",
+		"tactic", "setpieces", "penalties", "takers", "training", "prep", "schedule", "budget", "club", "scout", "match", "shout", "sub", "dugout",
+		"resign", "interest", "trial", "enquire",
+	];
+
 	private static async Task<int> RunCommand(string[] args)
 	{
 		var command = args.Length > 0 ? args[0] : "help";
@@ -151,6 +161,14 @@ internal static partial class Program
 		if (command is not ("help" or "start" or "stop" or "continue" or "completion")
 		    && !(command == "doctor" && args.Contains("--install"))
 		    && await VersionGuard() is { } refused) return refused;
+
+		// Without a club these read pages that are not there and fail in the page's terms; the
+		// manager's own record says why at once.
+		if (ClubCommands.Contains(command) && await Fm.InGame() && await Unemployed())
+		{
+			Console.Error.WriteLine(L($"You are unemployed: '{command}' needs a club to manage. Job vacancies: jobs"));
+			return 1;
+		}
 
 		try
 		{

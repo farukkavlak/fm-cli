@@ -2421,3 +2421,4 @@ tactic pick lets the assistant choose the whole eleven and takes nothing after i
 bench	yedek
 There is no next match yet, so no opposition instructions (fixtures).	Henüz sıradaki maç yok, bu yüzden rakip talimatı da yok (fixtures).
 The assignments panel did not open. If it stays so: fm stop --save, then fm start.	Görevlendirmeler paneli açılmadı. Böyle kalırsa: fm stop --save, sonra fm start.
+You are unemployed: '{0}' needs a club to manage. Job vacancies: jobs	İşsizsin: '{0}' için yönetilen bir kulüp gerekiyor. İş ilanları: jobs
