@@ -1,0 +1,117 @@
+{"tr": "mesajlar", "call": "fm_inbox"}
+{"tr": "gelen kutusu", "call": "fm_inbox"}
+{"tr": "maillerime bak", "call": "fm_inbox"}
+{"tr": "yeni mesaj var mı", "call": "fm_inbox"}
+{"tr": "okunmamışlar neler", "call": "fm_inbox"}
+{"tr": "cevap bekleyen mesaj var mi", "call": "fm_inbox"}
+{"tr": "inboxa bak abi", "call": "fm_inbox"}
+{"tr": "mesajlarımı göster", "call": "fm_inbox"}
+{"tr": "msjlar", "call": "fm_inbox"}
+{"tr": "posta kutusu ne diyo", "call": "fm_inbox"}
+{"tr": "gelen kutusunda ne var ne yok", "call": "fm_inbox"}
+{"tr": "beni bekleyen mesaj hangisi", "call": "fm_inbox"}
+{"en": "inbox", "call": "fm_inbox"}
+{"en": "any new messages", "call": "fm_inbox"}
+{"en": "check my mail", "call": "fm_inbox"}
+{"en": "unread msgs?", "call": "fm_inbox"}
+{"en": "which messages need an answer", "call": "fm_inbox"}
+{"en": "show inbox pls", "call": "fm_inbox"}
+{"tr": "3 numaralı mesajı aç", "call": "fm_reply", "args": {"message": "3"}}
+{"tr": "ilk mesajı oku", "call": "fm_reply", "args": {"message": "1"}}
+{"tr": "2yi oku", "call": "fm_reply", "args": {"message": "2"}}
+{"tr": "yönetim mesajını aç", "call": "fm_reply", "args": {"message": "yönetim"}}
+{"tr": "sponsor mesajı ne diyo", "call": "fm_reply", "args": {"message": "sponsor"}}
+{"tr": "kaptanlık mesajına bak", "call": "fm_reply", "args": {"message": "kaptan"}}
+{"tr": "rinaldi teklifi mesajini ac", "call": "fm_reply", "args": {"message": "rinaldi"}}
+{"tr": "maç raporu mesajını oku", "call": "fm_reply", "args": {"message": "maç raporu"}}
+{"tr": "4 nolu mesaja 2 diye cevap ver", "call": "fm_reply", "args": {"message": "4", "answer": "2"}}
+{"tr": "1. mesaja ilk seçenekle cevap ver", "call": "fm_reply", "args": {"message": "1", "answer": "1"}}
+{"tr": "kadro kaydı mesajına tamam de", "call": "fm_reply", "args": {"message": "kadro", "answer": "tamam"}}
+{"tr": "teklif kabul mesajında sözleşme görüşmesine gir", "call": "fm_reply", "args": {"message": "teklif", "answer": "sözleşme"}}
+{"tr": "ghiglione teklifi kabul edilmiş görüşmelere başla", "call": "fm_reply", "args": {"message": "ghiglione", "answer": "görüşme"}}
+{"tr": "sponsor mesajına kabul et de", "call": "fm_reply", "args": {"message": "sponsor", "answer": "kabul"}}
+{"tr": "yönetimin mesajına teşekkürler diye cevap ver", "call": "fm_reply", "args": {"message": "yönetim", "answer": "teşekkür"}}
+{"tr": "2 numaraya ne cevap verebilirim", "call": "fm_reply", "args": {"message": "2"}}
+{"tr": "5'e 3 seçeneğini seç ama göndermeden göster", "call": "fm_reply", "args": {"message": "5", "answer": "3", "dry": true}}
+{"tr": "ikinci mesaja olumlu cevap ver", "call": "fm_reply", "args": {"message": "2"}, "ask": "answer"}
+{"tr": "en üstteki mesajı aç", "call": "fm_reply", "args": {"message": "1"}}
+{"en": "open message 3", "call": "fm_reply", "args": {"message": "3"}}
+{"en": "read the board message", "call": "fm_reply", "args": {"message": "board"}}
+{"en": "what does the sponsor msg say", "call": "fm_reply", "args": {"message": "sponsor"}}
+{"en": "reply 2 to message 4", "call": "fm_reply", "args": {"message": "4", "answer": "2"}}
+{"en": "answer the first msg with option 1", "call": "fm_reply", "args": {"message": "1", "answer": "1"}}
+{"en": "enter contract negotiations on the ghiglione message", "call": "fm_reply", "args": {"message": "ghiglione", "answer": "contract negotiations"}}
+{"en": "what can i answer to msg 2", "call": "fm_reply", "args": {"message": "2"}}
+{"en": "read message about the squad registration", "call": "fm_reply", "args": {"message": "squad"}}
+{"tr": "konuşmada ne diyorlar", "call": "fm_talk"}
+{"tr": "basın toplantısı seçenekleri neler", "call": "fm_talk"}
+{"tr": "takım konuşmasında ne diyebilirim", "call": "fm_talk"}
+{"tr": "açık konuşmayı göster", "call": "fm_talk"}
+{"tr": "gazeteci ne sordu", "call": "fm_talk"}
+{"tr": "oyuncular nasıl tepki verdi konuşmaya", "call": "fm_talk"}
+{"tr": "2 numarayı söyle", "call": "fm_talk", "args": {"say": "2"}}
+{"tr": "1 de", "call": "fm_talk", "args": {"say": "1"}}
+{"tr": "3ü seç", "call": "fm_talk", "args": {"say": "3"}}
+{"tr": "ilkini söyle", "call": "fm_talk", "args": {"say": "1"}}
+{"tr": "takıma sakin olun de", "call": "fm_talk", "args": {"say": "sakin"}}
+{"tr": "gazeteciye yorum yok de", "call": "fm_talk", "args": {"say": "yorum yok"}}
+{"tr": "basın toplantısını terk et", "call": "fm_talk", "args": {"say": "leave"}}
+{"tr": "toplantıdan çık git", "call": "fm_talk", "args": {"say": "leave"}}
+{"tr": "kalk çık basından", "call": "fm_talk", "args": {"say": "leave"}}
+{"tr": "bonservis sözünü 500 bin yap", "call": "fm_talk", "args": {"say": "fee 500K"}}
+{"tr": "bonservisi 1 milyon seç", "call": "fm_talk", "args": {"say": "fee 1M"}}
+{"tr": "bonservis rakamini onayla", "call": "fm_talk", "args": {"say": "confirm"}}
+{"tr": "oyunculara sizinle gurur duyuyorum de", "call": "fm_talk", "args": {"say": "gurur"}}
+{"tr": "takıma daha fazlasını bekliyorum de", "call": "fm_talk", "args": {"say": "daha fazla"}}
+{"tr": "devre arası takıma bağır hayal kırıklığıyım de", "call": "fm_talk", "args": {"say": "hayal kırıklığı"}}
+{"tr": "bu soruya en sakin cevabı ver", "call": "fm_talk", "ask": "say"}
+{"en": "what are my options in the press conference", "call": "fm_talk"}
+{"en": "show the team talk", "call": "fm_talk"}
+{"en": "say 2", "call": "fm_talk", "args": {"say": "2"}}
+{"en": "pick option 1", "call": "fm_talk", "args": {"say": "1"}}
+{"en": "tell them to calm down", "call": "fm_talk", "args": {"say": "calm"}}
+{"en": "walk out of the presser", "call": "fm_talk", "args": {"say": "leave"}}
+{"en": "leave the conference", "call": "fm_talk", "args": {"say": "leave"}}
+{"en": "no comment", "call": "fm_talk", "args": {"say": "no comment"}}
+{"en": "set the fee promise to 500k", "call": "fm_talk", "args": {"say": "fee 500K"}}
+{"en": "confirm the fee", "call": "fm_talk", "args": {"say": "confirm"}}
+{"en": "tell the lads im proud of them", "call": "fm_talk", "args": {"say": "proud"}}
+{"en": "how did the players react", "call": "fm_talk"}
+{"tr": "tanıtım turunu bitir", "call": "fm_tour"}
+{"tr": "rehberi sonuna kadar oku", "call": "fm_tour"}
+{"tr": "turu geç", "call": "fm_tour", "args": {"skip": true}}
+{"tr": "tanıtımı atla", "call": "fm_tour", "args": {"skip": true}}
+{"tr": "şu tur mur neyse atla", "call": "fm_tour", "args": {"skip": true}}
+{"tr": "rehber ne anlatıyo", "call": "fm_tour"}
+{"en": "finish the tour", "call": "fm_tour"}
+{"en": "skip the tutorial tour", "call": "fm_tour", "args": {"skip": true}}
+{"en": "what does the guide say", "call": "fm_tour"}
+{"tr": "açık pencere ne soruyor", "call": "fm_dialog"}
+{"tr": "onay penceresi ne diyo", "call": "fm_dialog"}
+{"tr": "evet de", "call": "fm_dialog", "args": {"answer": "Yes"}}
+{"tr": "hayır bas", "call": "fm_dialog", "args": {"answer": "No"}}
+{"tr": "pencerede tamama bas", "call": "fm_dialog", "args": {"answer": "OK"}}
+{"tr": "çıkan soruya evet", "call": "fm_dialog", "args": {"answer": "Yes"}}
+{"tr": "iptal et pencereyi", "call": "fm_dialog", "args": {"answer": "Cancel"}}
+{"tr": "popup ne", "call": "fm_dialog"}
+{"en": "whats the popup", "call": "fm_dialog"}
+{"en": "answer yes to the dialog", "call": "fm_dialog", "args": {"answer": "Yes"}}
+{"en": "click no on the confirmation", "call": "fm_dialog", "args": {"answer": "No"}}
+{"en": "press ok", "call": "fm_dialog", "args": {"answer": "OK"}, "or": [{"call": "fm_press", "args": {"label": "OK"}}]}
+{"tr": "haberler", "call": "fm_news"}
+{"tr": "gazeteler ne yazıyo", "call": "fm_news"}
+{"tr": "son haberler neler", "call": "fm_news"}
+{"tr": "medyada ne var", "call": "fm_news"}
+{"tr": "manşetler", "call": "fm_news"}
+{"tr": "dedikodu var mı", "call": "fm_news"}
+{"tr": "transfer söylentileri", "call": "fm_news"}
+{"tr": "2. haberi aç", "call": "fm_news", "args": {"item": "2"}}
+{"tr": "ilk haberin tamamını oku", "call": "fm_news", "args": {"item": "1"}}
+{"tr": "empoli hakkındaki haberi oku", "call": "fm_news", "args": {"item": "empoli"}}
+{"tr": "haberlrde ne var", "call": "fm_news"}
+{"en": "news", "call": "fm_news"}
+{"en": "whats in the papers", "call": "fm_news"}
+{"en": "latest headlines", "call": "fm_news"}
+{"en": "any rumours", "call": "fm_news"}
+{"en": "read news item 3", "call": "fm_news", "args": {"item": "3"}}
+{"en": "open the story about the derby", "call": "fm_news", "args": {"item": "derby"}}

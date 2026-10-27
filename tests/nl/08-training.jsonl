@@ -1,0 +1,123 @@
+{"tr": "bireysel antrenman", "call": "fm_training"}
+{"tr": "kim neye çalışıyo", "call": "fm_training"}
+{"tr": "oyuncuların antrenman odakları", "call": "fm_training"}
+{"tr": "bireysel çalışmalar", "call": "fm_training"}
+{"tr": "rinaldi bitiricilik çalışsın", "call": "fm_training", "args": {"player": "rinaldi", "focus": "Bitiricilik"}}
+{"tr": "ghiglione orta açma çalışsın", "call": "fm_training", "args": {"player": "ghiglione", "focus": "Orta"}}
+{"tr": "tosto hız çalışsın", "call": "fm_training", "args": {"player": "tosto", "focus": "Hız"}}
+{"tr": "fazzini uzaktan şut çalışsın", "call": "fm_training", "args": {"player": "fazzini", "focus": "Uzaktan Şut"}}
+{"tr": "esposito kafa vuruşu", "call": "fm_training", "args": {"player": "esposito", "focus": "Kafa"}}
+{"tr": "gyasi sol bekte antrenman yapsın", "call": "fm_training", "args": {"player": "gyasi", "position": "Sol Bek"}}
+{"tr": "colombo stoper olarak çalışsın", "call": "fm_training", "args": {"player": "colombo", "position": "Stoper"}}
+{"tr": "rinaldi hedef adam rolü çalışsın", "call": "fm_training", "args": {"player": "rinaldi", "role": "Hedef Forvet"}}
+{"tr": "maleh nin antrenman raporu", "call": "fm_training", "args": {"player": "maleh", "report": true}}
+{"tr": "hocaya sor tosto nasıl antrenmanda", "call": "fm_training", "args": {"player": "tosto", "report": true}}
+{"tr": "rinaldi hangi hareketleri öğrenebilir", "call": "fm_training", "args": {"player": "rinaldi", "traits": true}}
+{"tr": "gyasiye içe kat etmeyi öğret", "call": "fm_training", "args": {"player": "gyasi", "trait": "İçe Kat Eder"}}
+{"tr": "fazzini uzaktan şut alışkanlığını bıraksın", "call": "fm_training", "args": {"player": "fazzini", "trait_remove": "Uzaktan Şut"}}
+{"tr": "ghiglionenin öğrendiği hareketi iptal et", "call": "fm_training", "args": {"player": "ghiglione", "trait_cancel": true}}
+{"tr": "esposito için yardımcı bir hareket önersin", "call": "fm_training", "args": {"player": "esposito", "trait_suggest": true}}
+{"tr": "rinaldinin antrenmanını değiştir", "call": "fm_training", "args": {"player": "rinaldi"}}
+{"tr": "bitiricilik calissin rinaldi", "call": "fm_training", "args": {"player": "rinaldi", "focus": "Bitiricilik"}}
+{"en": "individual training", "call": "fm_training"}
+{"en": "rinaldi train finishing", "call": "fm_training", "args": {"player": "rinaldi", "focus": "Finishing"}}
+{"en": "ghiglione focus on crossing", "call": "fm_training", "args": {"player": "ghiglione", "focus": "Crossing"}}
+{"en": "train gyasi as a left back", "call": "fm_training", "args": {"player": "gyasi", "position": "Left Back"}}
+{"en": "training report on maleh", "call": "fm_training", "args": {"player": "maleh", "report": true}}
+{"en": "what ppms can rinaldi learn", "call": "fm_training", "args": {"player": "rinaldi", "traits": true}}
+{"en": "teach gyasi cuts inside", "call": "fm_training", "args": {"player": "gyasi", "trait": "Cuts Inside"}}
+{"en": "make fazzini unlearn shoots from distance", "call": "fm_training", "args": {"player": "fazzini", "trait_remove": "Shoots From Distance"}}
+{"en": "cancel ghiglione's trait training", "call": "fm_training", "args": {"player": "ghiglione", "trait_cancel": true}}
+{"tr": "antrenman yoğunluğu", "call": "fm_intensity"}
+{"tr": "kim ne kadar yükleniyo", "call": "fm_intensity"}
+{"tr": "rinaldi dinlensin", "call": "fm_intensity", "args": {"player": "rinaldi", "level": "rest 3"}}
+{"tr": "tosto 1 hafta dinlensin", "call": "fm_intensity", "args": {"player": "tosto", "level": "rest 7"}}
+{"tr": "ghiglione 2 hafta dinlenme", "call": "fm_intensity", "args": {"player": "ghiglione", "level": "rest 14"}}
+{"tr": "fazzini yarım yoğunluk", "call": "fm_intensity", "args": {"player": "fazzini", "level": "half"}}
+{"tr": "esposito çift yoğunluk", "call": "fm_intensity", "args": {"player": "esposito", "level": "double"}}
+{"tr": "gyasi normal antrenman", "call": "fm_intensity", "args": {"player": "gyasi", "level": "normal"}}
+{"tr": "colombo otomatik yoğunluk", "call": "fm_intensity", "args": {"player": "colombo", "level": "automatic"}}
+{"tr": "maleh 1 hafta tatile çıksın", "call": "fm_intensity", "args": {"player": "maleh", "level": "holiday 1"}}
+{"tr": "yoğunluğu fitnes hocası ayarlasın", "call": "fm_intensity", "args": {"auto": true}}
+{"tr": "herkesin yükünü otomatiğe al", "call": "fm_intensity", "args": {"auto": true}}
+{"tr": "bu hafta kimi dinlendirmeliyim", "call": "fm_health", "or": [{"call": "fm_doctor"}, {"call": "fm_intensity"}, {"call": "fm_squad", "args": {"view": "fitness"}}]}
+{"tr": "yorgun olanları dinlendir", "call": "fm_intensity", "args": {"auto": true}, "or": [{"call": ["fm_health", "fm_intensity"], "args": [{}, {}]}]}
+{"tr": "rinaldiye izin ver birkac gun", "call": "fm_intensity", "args": {"player": "rinaldi", "level": "rest 3"}}
+{"en": "training intensity", "call": "fm_intensity"}
+{"en": "rest rinaldi", "call": "fm_intensity", "args": {"player": "rinaldi", "level": "rest 3"}}
+{"en": "rest tosto for a week", "call": "fm_intensity", "args": {"player": "tosto", "level": "rest 7"}}
+{"en": "fazzini half intensity", "call": "fm_intensity", "args": {"player": "fazzini", "level": "half"}}
+{"en": "double intensity for esposito", "call": "fm_intensity", "args": {"player": "esposito", "level": "double"}}
+{"en": "send maleh on holiday for a week", "call": "fm_intensity", "args": {"player": "maleh", "level": "holiday 1"}}
+{"en": "let the fitness coach handle workloads", "call": "fm_intensity", "args": {"auto": true}}
+{"en": "who should i rest this week", "call": "fm_health", "or": [{"call": "fm_doctor"}, {"call": "fm_intensity"}, {"call": "fm_squad", "args": {"view": "fitness"}}]}
+{"tr": "antrenörler", "call": "fm_coaches"}
+{"tr": "hangi hoca neye bakıyo", "call": "fm_coaches"}
+{"tr": "antrenör görevleri", "call": "fm_coaches"}
+{"tr": "koç atamaları", "call": "fm_coaches"}
+{"tr": "cohen'i topla taktiğe ata", "call": "fm_coaches", "args": {"coach": "cohen", "area": "topla taktik"}}
+{"tr": "rossi kalecilere baksın", "call": "fm_coaches", "args": {"coach": "rossi", "area": "kaleci"}}
+{"tr": "bianchi fiziksel antrenmana", "call": "fm_coaches", "args": {"coach": "bianchi", "area": "fitness"}}
+{"tr": "verdi duran toplardan çıksın", "call": "fm_coaches", "args": {"coach": "verdi", "area": "duran top", "off": true}}
+{"tr": "antrenör atamalarını yardımcı yapsın", "call": "fm_coaches", "args": {"auto": true}}
+{"tr": "koçları otomatik dağıt", "call": "fm_coaches", "args": {"auto": true}}
+{"tr": "hangi alanda iş yükü fazla", "call": "fm_coaches"}
+{"en": "coaches", "call": "fm_coaches"}
+{"en": "coaching assignments", "call": "fm_coaches"}
+{"en": "assign cohen to possession tactical", "call": "fm_coaches", "args": {"coach": "cohen", "area": "Poss Tact"}}
+{"en": "put rossi on goalkeeping", "call": "fm_coaches", "args": {"coach": "rossi", "area": "goalkeeping"}}
+{"en": "take verdi off set pieces", "call": "fm_coaches", "args": {"coach": "verdi", "area": "set pieces", "off": true}}
+{"en": "let the assistant assign coaches", "call": "fm_coaches", "args": {"auto": true}}
+{"tr": "antrenman programı", "call": "fm_schedule"}
+{"tr": "bu haftanın antrenmanı", "call": "fm_schedule"}
+{"tr": "haftalık program ne", "call": "fm_schedule"}
+{"tr": "yarın ne çalışıyoz", "call": "fm_schedule"}
+{"tr": "antrenman takvimi", "call": "fm_schedule"}
+{"tr": "14 ekim ilk seansı çabukluk yap", "call": "fm_schedule", "args": {"day": "14 ekim", "slot": 1, "session": "Quickness"}}
+{"tr": "15inde 2. seans dinlenme olsun", "call": "fm_schedule", "args": {"day": "15", "slot": 2, "session": "Rest"}}
+{"tr": "16 ekim üçüncü seans toparlanma", "call": "fm_schedule", "args": {"day": "16 ekim", "slot": 3, "session": "Physical/Recovery"}}
+{"tr": "haftayı gegenpress programına çevir", "call": "fm_schedule", "args": {"style": "Gegenpress"}}
+{"tr": "hafif sezon öncesi program", "call": "fm_schedule", "args": {"style": "Pre-Season Early/Light"}}
+{"tr": "dengeli antrenman stili seç", "call": "fm_schedule", "args": {"style": "Training Style/Balanced"}}
+{"tr": "hangi program türleri var", "call": "fm_schedule", "args": {"style": "?"}}
+{"tr": "20 sinde 1. seansa ne koyabilirim", "call": "fm_schedule", "args": {"day": "20", "slot": 1}}
+{"tr": "maç öncesi gün hafif olsun", "call": "fm_schedule", "ask": "day"}
+{"en": "training schedule", "call": "fm_schedule"}
+{"en": "this week's training", "call": "fm_schedule"}
+{"en": "set the 14th first session to quickness", "call": "fm_schedule", "args": {"day": "14", "slot": 1, "session": "Quickness"}}
+{"en": "rest in session 2 on the 15th", "call": "fm_schedule", "args": {"day": "15", "slot": 2, "session": "Rest"}}
+{"en": "gegenpress week", "call": "fm_schedule", "args": {"style": "Gegenpress"}}
+{"en": "what schedule types are there", "call": "fm_schedule", "args": {"style": "?"}}
+{"tr": "mentorluk grupları", "call": "fm_mentoring"}
+{"tr": "mentor grupları neler", "call": "fm_mentoring"}
+{"tr": "kim kime abilik yapıyo", "call": "fm_mentoring"}
+{"tr": "mentorluk gruplarını yardımcı kursun", "call": "fm_mentoring", "args": {"auto": true}}
+{"tr": "mentorlugu otomatik ayarla", "call": "fm_mentoring", "args": {"auto": true}}
+{"tr": "mentor olabilecekler kim", "call": "fm_mentoring", "args": {"candidates": true}}
+{"tr": "rinaldi tosto ve marinden grup kur", "call": "fm_mentoring", "args": {"players": ["rinaldi", "tosto", "marin"]}}
+{"tr": "maleh colombo esposito mentor grubu olsun adı gençler", "call": "fm_mentoring", "args": {"players": ["maleh", "colombo", "esposito"], "name": "gençler"}}
+{"tr": "2. mentor grubunu dağıt", "call": "fm_mentoring", "args": {"remove": "2"}}
+{"tr": "gençler grubunu boz", "call": "fm_mentoring", "args": {"remove": "gençler"}}
+{"tr": "rinaldi gençlere mentor olsun", "call": "fm_mentoring", "ask": "players"}
+{"en": "mentoring groups", "call": "fm_mentoring"}
+{"en": "auto mentoring", "call": "fm_mentoring", "args": {"auto": true}}
+{"en": "who can mentor", "call": "fm_mentoring", "args": {"candidates": true}}
+{"en": "group rinaldi, tosto and marin", "call": "fm_mentoring", "args": {"players": ["rinaldi", "tosto", "marin"]}}
+{"en": "remove mentoring group 1", "call": "fm_mentoring", "args": {"remove": "1"}}
+{"tr": "altyapı", "call": "fm_youth"}
+{"tr": "akademi ne durumda", "call": "fm_youth"}
+{"tr": "altyapıdan oyuncu gelecek mi", "call": "fm_youth"}
+{"tr": "gençler ne zaman geliyo", "call": "fm_youth"}
+{"tr": "yeni gençler geldi mi", "call": "fm_youth", "args": {"candidates": true}}
+{"tr": "bu yılın altyapı adayları", "call": "fm_youth", "args": {"candidates": true}}
+{"tr": "altyapı alımında kim var", "call": "fm_youth", "args": {"candidates": true}}
+{"tr": "u19 antrenman raporu", "call": "fm_youth", "args": {"training": true}}
+{"tr": "gençlerin antrenmanı nasıl gitti", "call": "fm_youth", "args": {"training": true}}
+{"tr": "a takıma hazır genç var mı", "call": "fm_youth"}
+{"tr": "altyapi tesisleri", "call": "fm_youth", "or": [{"call": "fm_facilities"}]}
+{"en": "youth academy", "call": "fm_youth"}
+{"en": "when is the youth intake", "call": "fm_youth"}
+{"en": "youth intake candidates", "call": "fm_youth", "args": {"candidates": true}}
+{"en": "any wonderkids in the intake", "call": "fm_youth", "args": {"candidates": true}}
+{"en": "u19 training report", "call": "fm_youth", "args": {"training": true}}
+{"en": "which youngsters are ready for the first team", "call": "fm_youth"}

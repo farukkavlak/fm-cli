@@ -1,0 +1,143 @@
+{"tr": "ne durumdayız", "call": "fm_status"}
+{"tr": "oyun ne bekliyo", "call": "fm_status"}
+{"tr": "bugün ayın kaçı oyunda", "call": "fm_status"}
+{"tr": "tarih ne", "call": "fm_status"}
+{"tr": "nerdeyiz şu an", "call": "fm_status"}
+{"tr": "durum", "call": "fm_status"}
+{"tr": "durum ne abi", "call": "fm_status"}
+{"tr": "devam edebilir miyim", "call": "fm_status"}
+{"tr": "neden ilerlemiyo oyun", "call": "fm_status"}
+{"tr": "beni ne tutuyo", "call": "fm_status"}
+{"tr": "maç var mı bugün", "call": "fm_status", "or": [{"call": "fm_fixtures"}]}
+{"tr": "skor kaç", "call": "fm_status"}
+{"tr": "kaç kaç", "call": "fm_status"}
+{"tr": "maçta durum ne", "call": "fm_status"}
+{"tr": "saat kac oyunda", "call": "fm_status"}
+{"tr": "oyun takildi mi", "call": "fm_status"}
+{"tr": "napıyoz şimdi", "call": "fm_status"}
+{"tr": "sıra kimde ne yapmam lazım", "call": "fm_status"}
+{"en": "where are we", "call": "fm_status"}
+{"en": "whats the date", "call": "fm_status"}
+{"en": "status", "call": "fm_status"}
+{"en": "what's the game waiting for", "call": "fm_status"}
+{"en": "why cant i continue", "call": "fm_status"}
+{"en": "whats blocking me", "call": "fm_status"}
+{"en": "score?", "call": "fm_status"}
+{"en": "is it match day", "call": "fm_status"}
+{"en": "wat do i do now", "call": "fm_status"}
+{"tr": "devam", "call": "fm_next"}
+{"tr": "devam et", "call": "fm_next"}
+{"tr": "devan", "call": "fm_next"}
+{"tr": "ilerlet", "call": "fm_next"}
+{"tr": "bi gün ilerlet", "call": "fm_next"}
+{"tr": "günü geç", "call": "fm_next"}
+{"tr": "zamanı ilerlet abi", "call": "fm_next"}
+{"tr": "devam et devam et", "call": "fm_next", "args": {"times": 2}}
+{"tr": "3 kere devam", "call": "fm_next", "args": {"times": 3}}
+{"tr": "5 gün ilerlet", "call": "fm_next", "args": {"times": 5}}
+{"tr": "on kere bas devama", "call": "fm_next", "args": {"times": 10}}
+{"tr": "bi hafta atla", "call": "fm_next", "args": {"times": 7}}
+{"tr": "sonraki güne geç", "call": "fm_next"}
+{"tr": "hadi devam lan", "call": "fm_next"}
+{"tr": "geç geç", "call": "fm_next"}
+{"tr": "devam et soruyu boşver", "call": "fm_next", "args": {"skip": true}}
+{"tr": "maç sonrası soruyu atla devam", "call": "fm_next", "args": {"skip": true}}
+{"tr": "konusmayi gec devam et", "call": "fm_next", "args": {"skip": true}}
+{"tr": "cevaplamadan devam", "call": "fm_next", "args": {"skip": true}}
+{"tr": "devma", "call": "fm_next"}
+{"tr": "contine", "call": "fm_next"}
+{"tr": "ilerle", "call": "fm_next"}
+{"tr": "zamanı akıt", "call": "fm_next"}
+{"en": "continue", "call": "fm_next"}
+{"en": "cont", "call": "fm_next"}
+{"en": "next day", "call": "fm_next"}
+{"en": "advance", "call": "fm_next"}
+{"en": "go on", "call": "fm_next"}
+{"en": "keep going", "call": "fm_next"}
+{"en": "contniue", "call": "fm_next"}
+{"en": "skip ahead 3 days", "call": "fm_next", "args": {"times": 3}}
+{"en": "continue x5", "call": "fm_next", "args": {"times": 5}}
+{"en": "advance a week", "call": "fm_next", "args": {"times": 7}}
+{"en": "press continue twice", "call": "fm_next", "args": {"times": 2}}
+{"en": "move on and skip the question", "call": "fm_next", "args": {"skip": true}}
+{"en": "ignore the post match thing and continue", "call": "fm_next", "args": {"skip": true}}
+{"tr": "ne değişti", "call": "fm_diff"}
+{"tr": "son baktığımdan beri ne oldu", "call": "fm_diff"}
+{"tr": "neler değişti son bakıştan", "call": "fm_diff"}
+{"tr": "farklar ne", "call": "fm_diff"}
+{"tr": "ben yokken ne olmuş", "call": "fm_diff"}
+{"tr": "ozet gec ne degisti", "call": "fm_diff"}
+{"tr": "değişiklikleri göster ama işaretleme", "call": "fm_diff", "args": {"keep": true}}
+{"tr": "farkı sıfırla buradan say", "call": "fm_diff", "args": {"reset": true}}
+{"tr": "şu andan itibaren değişiklikleri izle", "call": "fm_diff", "args": {"reset": true}}
+{"en": "what changed", "call": "fm_diff"}
+{"en": "whats new since last time", "call": "fm_diff"}
+{"en": "diff", "call": "fm_diff"}
+{"en": "catch me up", "call": "fm_diff"}
+{"en": "reset the diff baseline", "call": "fm_diff", "args": {"reset": true}}
+{"en": "show changes but keep the baseline", "call": "fm_diff", "args": {"keep": true}}
+{"tr": "hangi kayıt açık", "call": "fm_world"}
+{"tr": "en son ne zaman kaydettim", "call": "fm_world"}
+{"tr": "otomatik kayıt açık mı", "call": "fm_world", "or": [{"call": "fm_settings"}]}
+{"tr": "kaç saattir oynuyorum", "call": "fm_world"}
+{"tr": "hangi ligler yüklü", "call": "fm_world"}
+{"tr": "oyun dünyası bilgisi", "call": "fm_world"}
+{"tr": "bu kariyer kaç saat oldu", "call": "fm_world"}
+{"en": "which save is this", "call": "fm_world"}
+{"en": "when did i last save", "call": "fm_world"}
+{"en": "time played", "call": "fm_world"}
+{"en": "what leagues are loaded", "call": "fm_world"}
+{"tr": "kaydet", "call": "fm_save"}
+{"tr": "oyunu kaydet", "call": "fm_save"}
+{"tr": "kayıt al", "call": "fm_save"}
+{"tr": "kaydet abi", "call": "fm_save"}
+{"tr": "kaydt", "call": "fm_save"}
+{"tr": "bi save atalım", "call": "fm_save"}
+{"tr": "save at", "call": "fm_save"}
+{"tr": "yedek al deneme1 diye kaydet", "call": "fm_save", "args": {"as": "deneme1"}}
+{"tr": "farklı kaydet sezon2 adıyla", "call": "fm_save", "args": {"as": "sezon2"}}
+{"tr": "transfer öncesi diye ayrı kayıt al", "call": "fm_save", "args": {"as": "transfer öncesi"}}
+{"en": "save", "call": "fm_save"}
+{"en": "save the game", "call": "fm_save"}
+{"en": "sav", "call": "fm_save"}
+{"en": "save as backup1", "call": "fm_save", "args": {"as": "backup1"}}
+{"en": "make a separate save called before derby", "call": "fm_save", "args": {"as": "before derby"}}
+{"tr": "kayıtlarım", "call": "fm_saves"}
+{"tr": "kayıt dosyaları neler", "call": "fm_saves"}
+{"tr": "hangi kayıtlar var", "call": "fm_saves"}
+{"tr": "kayitlari listele", "call": "fm_saves"}
+{"tr": "eski kayıtları göster", "call": "fm_saves"}
+{"tr": "deneme1 kaydını sil", "call": "fm_saves", "args": {"delete": "deneme1"}}
+{"tr": "test kaydini sil gitsin", "call": "fm_saves", "args": {"delete": "test"}}
+{"en": "list saves", "call": "fm_saves"}
+{"en": "my save files", "call": "fm_saves"}
+{"en": "delete the save called old", "call": "fm_saves", "args": {"delete": "old"}}
+{"tr": "deneme1 kaydını yükle", "call": "fm_load", "args": {"name": "deneme1"}, "ask": "save"}
+{"tr": "sezon2yi aç", "call": "fm_load", "args": {"name": "sezon2"}, "ask": "save"}
+{"tr": "eski kayda dön", "call": "fm_load", "ask": ["name", "save"], "or": [{"call": "fm_saves"}]}
+{"tr": "kayıt yükle", "call": "fm_load", "ask": ["name", "save"], "or": [{"call": "fm_saves"}]}
+{"en": "load backup1", "call": "fm_load", "args": {"name": "backup1"}, "ask": "save"}
+{"en": "load a save", "call": "fm_load", "ask": ["name", "save"], "or": [{"call": "fm_saves"}]}
+{"tr": "son kayıttan devam et", "call": "fm_continue"}
+{"tr": "ana menüdeyim son kaydı aç", "call": "fm_continue"}
+{"tr": "kaldığım yerden aç", "call": "fm_continue"}
+{"tr": "son kaydı yükle", "call": "fm_continue"}
+{"en": "load my last save", "call": "fm_continue"}
+{"en": "resume last game", "call": "fm_continue"}
+{"en": "pick up where i left off", "call": "fm_continue"}
+{"tr": "oyunu kapat", "call": "fm_stop", "ask": "save"}
+{"tr": "fm i kapat", "call": "fm_stop", "ask": "save"}
+{"tr": "kaydedip kapat", "call": "fm_stop", "args": {"save": true}}
+{"tr": "kaydet ve çık", "call": "fm_stop", "args": {"save": true}}
+{"tr": "kaydetmeden kapat", "call": "fm_stop", "args": {"save": false}}
+{"tr": "kayıtsız çık boşver", "call": "fm_stop", "args": {"save": false}}
+{"tr": "yeter bugünlük kapat oyunu kaydet", "call": "fm_stop", "args": {"save": true}}
+{"tr": "oyundan çık", "call": "fm_stop", "ask": "save"}
+{"en": "quit", "call": "fm_stop", "ask": "save"}
+{"en": "close the game", "call": "fm_stop", "ask": "save"}
+{"en": "save and quit", "call": "fm_stop", "args": {"save": true}}
+{"en": "quit without saving", "call": "fm_stop", "args": {"save": false}}
+{"en": "im done for today, save n close", "call": "fm_stop", "args": {"save": true}}
+{"tr": "kaydetmeden sezon2ye geç", "call": "fm_load", "args": {"name": "sezon2", "save": false}}
+{"tr": "bunu kaydet sonra deneme1i aç", "call": "fm_load", "args": {"name": "deneme1", "save": true}}
+{"en": "save this then load backup1", "call": "fm_load", "args": {"name": "backup1", "save": true}}

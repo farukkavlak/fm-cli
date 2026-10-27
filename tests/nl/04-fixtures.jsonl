@@ -1,0 +1,117 @@
+{"tr": "fikstür", "call": "fm_fixtures"}
+{"tr": "önümüzdeki maç ne zaman", "call": "fm_fixtures"}
+{"tr": "sıradaki maç kimle", "call": "fm_fixtures", "or": [{"call": "fm_opponent"}]}
+{"tr": "sonraki maçlar", "call": "fm_fixtures"}
+{"tr": "maç programı", "call": "fm_fixtures"}
+{"tr": "son maçların sonuçları", "call": "fm_fixtures"}
+{"tr": "son 5 maçta ne yaptık", "call": "fm_fixtures"}
+{"tr": "deplasmanda mı oynuyoz", "call": "fm_fixtures"}
+{"tr": "fiksture bak", "call": "fm_fixtures"}
+{"tr": "fikstur", "call": "fm_fixtures"}
+{"tr": "maç ne zaman lan", "call": "fm_fixtures"}
+{"tr": "bu hafta maç var mı", "call": "fm_fixtures", "or": [{"call": "fm_calendar"}]}
+{"tr": "kupa maçı ne zaman", "call": "fm_fixtures", "or": [{"call": "fm_calendar"}]}
+{"tr": "bütün sezonun fikstürü", "call": "fm_fixtures", "args": {"all": true}}
+{"tr": "sezonun tüm maçları", "call": "fm_fixtures", "args": {"all": true}}
+{"tr": "tüm fikstürü göster", "call": "fm_fixtures", "args": {"all": true}}
+{"tr": "derbi ne zaman", "call": "fm_fixtures", "args": {"all": true}}
+{"en": "fixtures", "call": "fm_fixtures"}
+{"en": "when's the next game", "call": "fm_fixtures"}
+{"en": "who do we play next", "call": "fm_fixtures", "or": [{"call": "fm_opponent"}]}
+{"en": "upcoming matches", "call": "fm_fixtures"}
+{"en": "recent results", "call": "fm_fixtures"}
+{"en": "full season schedule", "call": "fm_fixtures", "args": {"all": true}}
+{"en": "all fixtures this season", "call": "fm_fixtures", "args": {"all": true}}
+{"en": "fixturs", "call": "fm_fixtures"}
+{"en": "are we home or away next", "call": "fm_fixtures"}
+{"tr": "takvim", "call": "fm_calendar"}
+{"tr": "bu ayın takvimi", "call": "fm_calendar"}
+{"tr": "eylül takvimi", "call": "fm_calendar", "args": {"month": "eylül"}}
+{"tr": "ekimde neler var", "call": "fm_calendar", "args": {"month": "ekim"}}
+{"tr": "ocak ayında maçlar", "call": "fm_calendar", "args": {"month": "ocak"}}
+{"tr": "transfer dönemi ne zaman kapanıyor", "call": "fm_calendar"}
+{"tr": "transfer penceresi ne zaman açılıyo", "call": "fm_calendar"}
+{"tr": "kura çekimi ne zaman", "call": "fm_calendar"}
+{"tr": "milli ara ne zaman", "call": "fm_calendar"}
+{"tr": "9. ayın takvimi", "call": "fm_calendar", "args": {"month": "9"}}
+{"tr": "gelecek ay ne var", "call": "fm_calendar", "ask": "month"}
+{"tr": "u19 maçları dahil takvim", "call": "fm_calendar", "args": {"youth": true}}
+{"tr": "gençlerin maçlarıyla birlikte bu ay", "call": "fm_calendar", "args": {"youth": true}}
+{"tr": "subat takvimi gençler dahil", "call": "fm_calendar", "args": {"month": "şubat", "youth": true}}
+{"tr": "mart 2030 takvim", "call": "fm_calendar", "args": {"month": "2030-03"}}
+{"en": "calendar", "call": "fm_calendar"}
+{"en": "this month's calendar", "call": "fm_calendar"}
+{"en": "september calendar", "call": "fm_calendar", "args": {"month": "september"}}
+{"en": "when does the transfer window close", "call": "fm_calendar"}
+{"en": "when is the international break", "call": "fm_calendar"}
+{"en": "calendar for january with youth games", "call": "fm_calendar", "args": {"month": "january", "youth": true}}
+{"en": "whats on in december", "call": "fm_calendar", "args": {"month": "december"}}
+{"tr": "puan durumu", "call": "fm_table"}
+{"tr": "lig tablosu", "call": "fm_table"}
+{"tr": "kaçıncıyız", "call": "fm_table"}
+{"tr": "ligde kaçıncıyız", "call": "fm_table"}
+{"tr": "puan tablosu", "call": "fm_table"}
+{"tr": "puan durmu", "call": "fm_table"}
+{"tr": "tablo", "call": "fm_table"}
+{"tr": "lider kim", "call": "fm_table"}
+{"tr": "küme düşme hattında mıyız", "call": "fm_table"}
+{"tr": "avrupaya kaç puan var", "call": "fm_table"}
+{"tr": "sıralamada neredeyiz", "call": "fm_table"}
+{"tr": "kacinciyiz abi", "call": "fm_table"}
+{"tr": "avrupa ligi tablosu", "call": "fm_table", "args": {"competition": "UEFA Europa League"}}
+{"tr": "şampiyonlar ligi grubunda durum", "call": "fm_table", "args": {"competition": "UEFA Champions League"}}
+{"tr": "konferans ligi puan durumu", "call": "fm_table", "args": {"competition": "UEFA Conference League"}}
+{"en": "table", "call": "fm_table"}
+{"en": "league table", "call": "fm_table"}
+{"en": "where are we in the league", "call": "fm_table"}
+{"en": "standings", "call": "fm_table"}
+{"en": "who's top", "call": "fm_table"}
+{"en": "are we in the relegation zone", "call": "fm_table"}
+{"en": "europa league table", "call": "fm_table", "args": {"competition": "UEFA Europa League"}}
+{"en": "ucl standings", "call": "fm_table", "args": {"competition": "UEFA Champions League"}}
+{"tr": "gol krallığı", "call": "fm_league", "args": {"stat": "Goals"}}
+{"tr": "ligin gol kralı kim", "call": "fm_league", "args": {"stat": "Goals"}}
+{"tr": "en çok asist yapan", "call": "fm_league", "args": {"stat": "Assists"}}
+{"tr": "asist krallığı ilk 10", "call": "fm_league", "args": {"stat": "Assists", "top": 10}}
+{"tr": "ligin en iyi reytingli oyuncuları", "call": "fm_league", "args": {"stat": "Average Rating"}}
+{"tr": "en çok kurtarış yapan kaleci", "call": "fm_league", "args": {"stat": "Saves"}}
+{"tr": "lig istatistikleri", "call": "fm_league"}
+{"tr": "ligde kim neyde önde", "call": "fm_league"}
+{"tr": "en formda takım hangisi", "call": "fm_league", "args": {"stat": "Form", "teams": true}}
+{"tr": "seyirci ortalaması en yüksek takımlar", "call": "fm_league", "args": {"stat": "Average Attendance", "teams": true}}
+{"tr": "en golcü takımlar", "call": "fm_league", "args": {"stat": "Goals", "teams": true}}
+{"tr": "hangi istatistiklere bakabilirim", "call": "fm_league", "args": {"stats": true}}
+{"tr": "kupada gol krallığı", "call": "fm_league", "args": {"stat": "Goals"}, "ask": "competition"}
+{"tr": "avrupa liginde en çok gol atan", "call": "fm_league", "args": {"competition": "UEFA Europa League", "stat": "Goals"}}
+{"tr": "gol beklentisi en yüksek oyuncular", "call": "fm_league", "args": {"stat": "Expected Goals"}}
+{"tr": "gol krali ilk 5", "call": "fm_league", "args": {"stat": "Goals", "top": 5}}
+{"en": "top scorers", "call": "fm_league", "args": {"stat": "Goals"}}
+{"en": "golden boot race", "call": "fm_league", "args": {"stat": "Goals"}}
+{"en": "most assists in the league", "call": "fm_league", "args": {"stat": "Assists"}}
+{"en": "top 10 by average rating", "call": "fm_league", "args": {"stat": "Average Rating", "top": 10}}
+{"en": "league stats", "call": "fm_league"}
+{"en": "best form team", "call": "fm_league", "args": {"stat": "Form", "teams": true}}
+{"en": "which stats can i rank by", "call": "fm_league", "args": {"stats": true}}
+{"en": "xg leaders", "call": "fm_league", "args": {"stat": "Expected Goals"}}
+{"en": "europa league top scorers", "call": "fm_league", "args": {"competition": "UEFA Europa League", "stat": "Goals"}}
+{"tr": "kupada hangi turdayız", "call": "fm_stages", "ask": "competition"}
+{"tr": "italya kupası eşleşmeleri", "call": "fm_stages", "args": {"competition": "Coppa Italia"}}
+{"tr": "coppa italia sonuçları", "call": "fm_stages", "args": {"competition": "Coppa Italia"}}
+{"tr": "kupada kim kimle eşleşti", "call": "fm_stages", "ask": "competition"}
+{"tr": "şampiyonlar ligi tüm turlar", "call": "fm_stages", "args": {"competition": "UEFA Champions League", "all": true}}
+{"tr": "şampiyonlar ligi çeyrek final", "call": "fm_stages", "args": {"competition": "UEFA Champions League", "stage": "Quarter-Final"}}
+{"tr": "hangi turnuvalara bakabilirim", "call": "fm_stages", "args": {"list": true}}
+{"tr": "süper lig tablosu türkiye", "call": "fm_stages", "args": {"competition": "Super League"}}
+{"tr": "premier lig puan durumu", "call": "fm_stages", "args": {"competition": "Premier League"}}
+{"tr": "la liga tablosu", "call": "fm_stages", "args": {"competition": "LALIGA"}}
+{"tr": "serie b de kim lider", "call": "fm_stages", "args": {"competition": "Serie B"}}
+{"tr": "dünya kupası grupları", "call": "fm_stages", "args": {"competition": "World Cup"}}
+{"tr": "kupa yarı finali sonuçları", "call": "fm_stages", "args": {"stage": "Semi-Final"}, "ask": "competition"}
+{"tr": "play off eşleşmeleri", "call": "fm_stages", "args": {"stage": "Play-Off"}, "ask": "competition"}
+{"en": "cup draw results", "call": "fm_stages", "ask": "competition"}
+{"en": "coppa italia ties", "call": "fm_stages", "args": {"competition": "Coppa Italia"}}
+{"en": "champions league all rounds", "call": "fm_stages", "args": {"competition": "UEFA Champions League", "all": true}}
+{"en": "premier league table", "call": "fm_stages", "args": {"competition": "Premier League"}}
+{"en": "list all competitions", "call": "fm_stages", "args": {"list": true}}
+{"en": "ucl semi final", "call": "fm_stages", "args": {"competition": "UEFA Champions League", "stage": "Semi-Final"}}
+{"en": "how's la liga looking", "call": "fm_stages", "args": {"competition": "LALIGA"}}

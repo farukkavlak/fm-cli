@@ -1,0 +1,71 @@
+{"tr": "ayarlar", "call": "fm_settings"}
+{"tr": "oyun ayarları", "call": "fm_settings"}
+{"tr": "maç hızı ne", "call": "fm_settings"}
+{"tr": "vurgu hızını 2x yap", "call": "fm_settings", "args": {"name": "highlight speed", "value": "2x"}}
+{"tr": "maçı daha hızlı göster", "call": "fm_settings", "args": {"name": "highlight speed"}}
+{"tr": "otomatik kaydı kapat", "call": "fm_settings", "args": {"name": "auto save", "value": "Off"}}
+{"tr": "otomatik kaydı aç", "call": "fm_settings", "args": {"name": "auto save", "value": "On"}}
+{"tr": "her gün otomatik kaydetsin", "call": "fm_settings", "args": {"name": "save interval", "value": "Day"}}
+{"tr": "otomatik kayıt aralığını haftalık yap", "call": "fm_settings", "args": {"name": "save interval", "value": "Week"}}
+{"tr": "para birimini euro yap", "call": "fm_settings", "args": {"name": "currency", "value": "Euro"}}
+{"tr": "para birimi türk lirası olsun", "call": "fm_settings", "args": {"name": "currency", "value": "Turkish Lira"}}
+{"tr": "oyunun dilini ingilizce yap", "call": "fm_settings", "args": {"name": "language", "value": "English"}}
+{"tr": "dili türkçeye çevir", "call": "fm_settings", "args": {"name": "language", "value": "Türkçe"}}
+{"tr": "maçta sadece önemli anları göster", "call": "fm_settings", "args": {"name": "highlights", "value": "Key"}}
+{"tr": "tüm maçı göster", "call": "fm_settings", "args": {"name": "highlights", "value": "Comprehensive"}}
+{"tr": "mesafe birimi metre olsun", "call": "fm_settings", "args": {"name": "units"}}
+{"tr": "vurgu hizi secenekleri", "call": "fm_settings", "args": {"name": "highlight speed"}}
+{"en": "settings", "call": "fm_settings"}
+{"en": "set highlight speed to 2x", "call": "fm_settings", "args": {"name": "highlight speed", "value": "2x"}}
+{"en": "turn off autosave", "call": "fm_settings", "args": {"name": "auto save", "value": "Off"}}
+{"en": "autosave every day", "call": "fm_settings", "args": {"name": "save interval", "value": "Day"}}
+{"en": "change currency to euros", "call": "fm_settings", "args": {"name": "currency", "value": "Euro"}}
+{"en": "switch the game to english", "call": "fm_settings", "args": {"name": "language", "value": "English"}}
+{"en": "key highlights only", "call": "fm_settings", "args": {"name": "highlights", "value": "Key"}}
+{"en": "what options for match speed", "call": "fm_settings", "args": {"name": "match speed"}}
+{"tr": "oyunun sayfaları", "call": "fm_pages"}
+{"tr": "hangi ekranları açabilirim", "call": "fm_pages"}
+{"tr": "transfer sayfaları neler", "call": "fm_pages", "args": {"filter": "transfer"}}
+{"tr": "kulüp sekmesindeki sayfalar", "call": "fm_pages", "args": {"filter": "kulüp"}}
+{"tr": "sayfa listesi", "call": "fm_pages"}
+{"en": "list pages", "call": "fm_pages"}
+{"en": "which screens are there", "call": "fm_pages"}
+{"en": "pages with scouting in the name", "call": "fm_pages", "args": {"filter": "scouting"}}
+{"tr": "kadro planlayıcıyı aç", "call": "fm_open", "args": {"page": "Kadro Planlayıcı"}}
+{"tr": "veri merkezini aç", "call": "fm_open", "args": {"page": "Veri Merkezi"}}
+{"tr": "transfer merkezine git", "call": "fm_open", "args": {"page": "Transfer Merkezi"}}
+{"tr": "ana sayfaya dön", "call": "fm_open", "args": {"page": "Ana Sayfa"}}
+{"tr": "dinamikler sayfasını aç", "call": "fm_open", "args": {"page": "Dinamikler"}, "or": [{"call": "fm_dynamics"}]}
+{"tr": "kulüp sekmesinde genel bakışı aç", "call": "fm_open", "args": {"page": "Genel Bakış", "tab": "Kulüp"}}
+{"tr": "oyunda şu ekranı aç: rapor", "call": "fm_open", "args": {"page": "rapor"}}
+{"en": "open the squad planner", "call": "fm_open", "args": {"page": "Squad Planner"}}
+{"en": "go to data hub", "call": "fm_open", "args": {"page": "Data Hub"}}
+{"en": "open transfers page", "call": "fm_open", "args": {"page": "Transfers"}}
+{"en": "open overview under club", "call": "fm_open", "args": {"page": "Overview", "tab": "Club"}}
+{"tr": "ekranda hangi butonlar var", "call": "fm_buttons"}
+{"tr": "bu sayfada neye basabilirim", "call": "fm_buttons"}
+{"tr": "kaydet butonu nerde", "call": "fm_buttons", "args": {"filter": "kaydet"}}
+{"tr": "düğmeler", "call": "fm_buttons"}
+{"en": "what buttons are on screen", "call": "fm_buttons"}
+{"en": "find the confirm button", "call": "fm_buttons", "args": {"filter": "confirm"}}
+{"en": "controls on this page", "call": "fm_buttons"}
+{"tr": "onayla butonuna bas", "call": "fm_press", "args": {"label": "Onayla"}}
+{"tr": "devam düğmesine tıkla", "call": "fm_press", "args": {"label": "Devam"}}
+{"tr": "geri tuşuna bas", "call": "fm_press", "args": {"label": "Geri"}}
+{"tr": "kaydete bas ama sadece ne olacağını söyle", "call": "fm_press", "args": {"label": "Kaydet", "dry": true}}
+{"tr": "şuna bas: teklif yap", "call": "fm_press", "args": {"label": "Teklif Yap"}}
+{"en": "press confirm", "call": "fm_press", "args": {"label": "Confirm"}}
+{"en": "click the done button", "call": "fm_press", "args": {"label": "Done"}}
+{"en": "hit back", "call": "fm_press", "args": {"label": "Back"}}
+{"tr": "ekrandaki açılır menüler", "call": "fm_dropdowns"}
+{"tr": "seçim kutuları neler", "call": "fm_dropdowns"}
+{"tr": "görünüm menüsünde neler var", "call": "fm_dropdowns", "args": {"filter": "görünüm"}}
+{"en": "dropdowns on screen", "call": "fm_dropdowns"}
+{"en": "what's in the view dropdown", "call": "fm_dropdowns", "args": {"filter": "view"}}
+{"en": "list radio options", "call": "fm_dropdowns"}
+{"tr": "görünüm menüsünden sözleşmeyi seç", "call": "fm_select", "args": {"list": "Görünüm", "choice": "Sözleşme"}}
+{"tr": "süre kutusundan 3 ayı seç", "call": "fm_select", "args": {"list": "Süre", "choice": "3 Ay"}}
+{"tr": "menüden şunu seç", "call": "fm_select", "ask": ["list", "choice"]}
+{"en": "select contract in the view dropdown", "call": "fm_select", "args": {"list": "View", "choice": "Contract"}}
+{"en": "pick 3 months from the length list", "call": "fm_select", "args": {"list": "Length", "choice": "3 Months"}}
+{"en": "choose yes in the radio group", "call": "fm_select", "args": {"choice": "Yes"}, "ask": "list"}
