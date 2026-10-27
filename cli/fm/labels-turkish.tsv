@@ -2422,3 +2422,11 @@ bench	yedek
 There is no next match yet, so no opposition instructions (fixtures).	Henüz sıradaki maç yok, bu yüzden rakip talimatı da yok (fixtures).
 The assignments panel did not open. If it stays so: fm stop --save, then fm start.	Görevlendirmeler paneli açılmadı. Böyle kalırsa: fm stop --save, sonra fm start.
 You are unemployed: '{0}' needs a club to manage. Job vacancies: jobs	İşsizsin: '{0}' için yönetilen bir kulüp gerekiyor. İş ilanları: jobs
+To ask in a sentence the language model is needed: {0}	Cümleyle sormak için dil modeli gerekli: {0}
+No command does that. For the commands: `help`	Bunu yapan bir komut yok. Komutlar için: `help`
+Run `{0}`?	`{0}` çalıştırılsın mı?
+Getting the language model ready (only the first time, about half a minute)…	Dil modeli hazırlanıyor (yalnızca ilk sefer, yarım dakika kadar)…
+Did you mean this?	Bunu mu demek istedin?
+Did you mean one of these?	Şunlardan birini mi demek istedin?
+Which one (1-{0}, Enter: none)? 	Hangisi (1-{0}, Enter: hiçbiri)? 
+[y/N]	[e/H]

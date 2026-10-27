@@ -22,6 +22,20 @@ fm next           # continue; stops at a real blocker
 on the post-match results screen. `next` stops for an unanswered message, a press conference, match
 day, or a question left after a match.
 
+### Asking in a sentence
+
+A sentence works in place of a command, in Turkish or English, in a session or after `fm`:
+`önümüzdeki maç ne zaman`, `rinaldiyi sat`, `who is injured`. The command it became is shown
+dimmed and runs. When the language model is not sure it offers the likeliest commands with their
+share of the vote (three, five when it is far from sure); a number picks one, Enter none. What a
+command needs and the sentence leaves open is asked (`maça çık` asks how). A command that spends,
+signs, sells, lets someone go or cannot be taken back (offer, contract, propose, release, resign,
+load, …) is shown and runs only on a yes. A one-word line, a line starting with a command's
+name and a line with `--options` stay commands. The model is read from `~/.cache/fm-cli/nl/model`
+(or `FM_NL_MODEL`); the first sentence takes about half a minute to get it ready.
+
+![a sentence the model is not sure of](manual/img/ask/options.png)
+
 ### Language
 
 The CLI follows the game's language. To use another language for the CLI alone:

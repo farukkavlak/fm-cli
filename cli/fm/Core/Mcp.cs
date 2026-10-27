@@ -128,6 +128,14 @@ internal static partial class Mcp
 		};
 	}
 
+	/// <summary>The command words a tool call stands for, as fm_* over MCP would run them; null for no such tool.</summary>
+	public static string[]? CommandFor(string tool, JsonObject arguments) =>
+		Tools.FirstOrDefault(t => t.Name == tool) is { } t ? [.. t.Words(JsonDocument.Parse(arguments.ToJsonString()).RootElement)] : null;
+
+	/// <summary>An argument's schema (type, description, choices) from the tool's input schema.</summary>
+	public static JsonObject? ArgumentSchema(string tool, string argument) =>
+		Tools.FirstOrDefault(t => t.Name == tool) is { } t ? JsonNode.Parse(t.Schema)?["properties"]?[argument] as JsonObject : null;
+
 	private static string Str(JsonElement arguments, string name) =>
 		arguments.TryGetProperty(name, out var value)
 			? value.ValueKind == JsonValueKind.String ? value.GetString() ?? "" : value.ToString()

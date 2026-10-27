@@ -139,6 +139,17 @@ crashed on exit on macOS ("mutex lock failed"); 1.23.2 does not. The index is em
 ~450 MB to load, ~5 ms a sentence after that. The native library adds ~35 MB to the osx-arm64
 binary.
 
+Choices instead of a guess (same night). The share of the vote the pick gets from the 15
+nearest examples says how far to trust it: held base, a pick with 90%+ of the vote is right 89%
+of the time, below 80% about half. So from 80% the pick runs, from 50% three choices are offered
+with their shares, below that five (`Router.Sure`, `Unsure`). Counting a choice that holds the
+right tool as right: held base tool 79.4% → 87.3%, expanded held 67.8% → 77.7%; choices come up
+for ~26% of base sentences (21% three, 5% five), ~30% of noisy ones, and in about half of them
+the first is the right one. When "nothing does this" wins, a tool with 20% of the vote is still
+offered (`Maybe`): it brings back few false "nothing"s (3 of 22 base, 24 of 270 noisy), most of
+them sit among "nothing" examples only, and asks back on 5 of 90 real "nothing"s. Offering the
+rule router's pick there was tried and left: it asked back on most real "nothing"s.
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.

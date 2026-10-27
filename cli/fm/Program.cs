@@ -16,6 +16,9 @@ internal static partial class Program
 
 		if (args[0] == "__route") return Nl.Router.RouteLines(args);
 
+		// "fm önümüzdeki maç ne zaman": a sentence, not a command
+		if (IsSentence(args)) return await Understand(string.Join(' ', args), Run);
+
 		if (args[0] == "start" && args.Skip(1).Any(a => a is "--help" or "-h")) return HelpFor("start");
 
 		if (args[0] == "start")
@@ -134,6 +137,13 @@ internal static partial class Program
 		"resign", "interest", "trial", "enquire",
 	];
 
+	/// <summary>In a save; false too when the game is not up, which the command itself then says.</summary>
+	private static async Task<bool> InGameIfUp()
+	{
+		try { return await Fm.InGame(); }
+		catch (FmUnavailable) { return false; }
+	}
+
 	private static async Task<int> RunCommand(string[] args)
 	{
 		var command = args.Length > 0 ? args[0] : "help";
@@ -166,7 +176,7 @@ internal static partial class Program
 
 		// Without a club these read pages that are not there and fail in the page's terms; the
 		// manager's own record says why at once.
-		if (ClubCommands.Contains(command) && await Fm.InGame() && await Unemployed())
+		if (ClubCommands.Contains(command) && await InGameIfUp() && await Unemployed())
 		{
 			Console.Error.WriteLine(L($"You are unemployed: '{command}' needs a club to manage. Job vacancies: jobs"));
 			return 1;

@@ -27,7 +27,13 @@ internal sealed class Neighbours
 	}
 
 	/// <summary>The winning call as JSON (a tool name in quotes, "null" or a list).</summary>
-	public string Pick(string text, float[]? vector = null)
+	public string Pick(string text, float[]? vector = null) => Rank(text, vector, _k)[0].Call;
+
+	/// <summary>
+	/// The calls the nearest <paramref name="k"/> examples vote for, best first, each with its
+	/// share of the vote (the shares add up to one).
+	/// </summary>
+	public List<(string Call, float Weight)> Rank(string text, float[]? vector, int k)
 	{
 		var q = vector ?? _embedder.Embed([text])[0];
 		var top = new List<(float Sim, int At)>();
@@ -38,9 +44,10 @@ internal sealed class Neighbours
 			top.Add((Embedder.Dot(q, _index[j]), j));
 		}
 		var votes = new Dictionary<string, float>();
-		foreach (var (sim, at) in top.OrderByDescending(t => t.Sim).Take(_k))
+		foreach (var (sim, at) in top.OrderByDescending(t => t.Sim).Take(k))
 			votes[_examples[at].Call] = votes.GetValueOrDefault(_examples[at].Call) + sim;
-		return votes.OrderByDescending(v => v.Value).First().Key;
+		var total = votes.Values.Sum();
+		return [.. votes.OrderByDescending(v => v.Value).Select(v => (v.Key, v.Value / total))];
 	}
 
 	public float[][] Embed(IReadOnlyList<string> texts) => _embedder.Embed(texts);
@@ -110,6 +117,29 @@ internal sealed class Neighbours
 			foreach (var f in Directory.GetFiles(train, "*.jsonl").Order(StringComparer.Ordinal)) Read(f, false);
 		return rows;
 	}
+
+	/// <summary>Every example sentence the CLI carries (tests/nl, held ones too, and its train/ sentences).</summary>
+	public static List<(string Text, string Call)> Embedded()
+	{
+		var asm = typeof(Neighbours).Assembly;
+		var rows = new List<(string, string)>();
+		var names = asm.GetManifestResourceNames().Where(n => n.StartsWith("nl/", StringComparison.Ordinal)).ToList();
+		foreach (var name in names.Where(n => !n.StartsWith("nl/train/", StringComparison.Ordinal)).Order(StringComparer.Ordinal)
+			.Concat(names.Where(n => n.StartsWith("nl/train/", StringComparison.Ordinal)).Order(StringComparer.Ordinal)))
+		{
+			using var reader = new StreamReader(asm.GetManifestResourceStream(name)!);
+			while (reader.ReadLine() is { } line)
+			{
+				if (line.Trim().Length == 0) continue;
+				var c = JsonNode.Parse(line)!.AsObject();
+				rows.Add(((c["tr"] ?? c["en"])!.GetValue<string>(), Canonical(c["call"])));
+			}
+		}
+		return rows;
+	}
+
+	/// <summary>Whether the examples are embedded already for this model (else the first use takes a while).</summary>
+	public static bool Indexed(string cacheDir, List<(string Text, string Call)> examples) => File.Exists(CachePath(cacheDir, examples));
 
 	/// <summary>The held 30% of tests/nl: never in the index while scoring.</summary>
 	public static bool Held(string text)

@@ -84,6 +84,40 @@ internal static partial class Router
 		return new Call(tool, ctx.Args, ctx.Asks, score);
 	}
 
+	/// <summary>What a typed sentence was taken to mean: the calls to make, or the choices to offer.</summary>
+	public sealed record Understood(List<Call> Calls, List<(Call Call, float Weight)> Options);
+
+	/// <summary>From this share of the nearest examples' vote up, the pick is taken as meant.</summary>
+	public const float Sure = 0.8f;
+	/// <summary>Below the sure share three choices are offered, below this one five.</summary>
+	public const float Unsure = 0.5f;
+	/// <summary>When "nothing does this" wins, a tool with this share of the vote is still offered.</summary>
+	public const float Maybe = 0.2f;
+
+	/// <summary>
+	/// The model picks the tool by the nearest examples and the rules fill its arguments; a
+	/// sentence the rules split into several asks stays split. A pick with less than the sure
+	/// share of the vote is offered with the runners-up (tests/nl/README.md has the measurements).
+	/// </summary>
+	public static Understood Understand(string text, Neighbours near)
+	{
+		var r = Route(text);
+		if (r.Calls.Count > 1) return new Understood(r.Calls, []);
+		var vector = near.Embed([text])[0];
+		var pick = near.Pick(text, vector);
+		var rank = near.Rank(text, vector, 15);
+		if (pick.StartsWith('[')) return new Understood(r.Calls, []);
+		var tools = rank.Where(v => v.Call.StartsWith('"')).Select(v => (Tool: JsonNode.Parse(v.Call)!.GetValue<string>(), v.Weight)).ToList();
+		if (pick == "null")
+			return new Understood([], [.. tools.Where(t => t.Weight >= Maybe).Take(3).Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))]);
+		var tool = JsonNode.Parse(pick)!.GetValue<string>();
+		var weight = tools.FirstOrDefault(t => t.Tool == tool).Weight;
+		if (weight >= Sure) return new Understood([Fill(tool, new Text(text), 0)], []);
+		var n = weight >= Unsure ? 3 : 5;
+		var options = tools.Where(t => t.Tool == tool).Concat(tools.Where(t => t.Tool != tool)).Take(n);
+		return new Understood([], [.. options.Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))]);
+	}
+
 	/// <summary>
 	/// `fm __route`: one {"text": "..."} per line in, one {"call", "args", "ask", "others"} per
 	/// line out. tools/nl-score.py runs it over the test set. A line that also names a "tool"
@@ -106,13 +140,18 @@ internal static partial class Router
 		}
 
 		var picks = new string?[texts.Count];
+		var ranks = new List<(string Call, float Weight)>?[texts.Count];
 		if (Opt("--model") is { } model)
 		{
 			model = Path.GetFullPath(model.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)));
 			using var embedder = new Embedder(model);
 			var near = new Neighbours(embedder, Neighbours.Examples(Opt("--cases") ?? "tests/nl", withHeld: false), model);
 			var vectors = near.Embed([.. texts.Select(t => t.Text)]);
-			for (var i = 0; i < texts.Count; i++) picks[i] = near.Pick(texts[i].Text, vectors[i]);
+			for (var i = 0; i < texts.Count; i++)
+			{
+				picks[i] = near.Pick(texts[i].Text, vectors[i]);
+				ranks[i] = near.Rank(texts[i].Text, vectors[i], 15);
+			}
 		}
 
 		using var stdout = Console.OpenStandardOutput();
@@ -141,6 +180,8 @@ internal static partial class Router
 			if (Environment.GetEnvironmentVariable("FM_NL_WORDS") != null) o["words"] = string.Join(' ', new Text(text).Words);
 			if (picks[i] is { } pick && r.Calls.Count < 2 && !pick.StartsWith('['))
 				o = pick == "null" ? new JsonObject { ["call"] = null } : Forced(text, JsonNode.Parse(pick)!.GetValue<string>());
+			if (ranks[i] is { } rank)
+				o["votes"] = new JsonArray([.. rank.Take(5).Select(v => (JsonNode)new JsonObject { ["call"] = JsonNode.Parse(v.Call), ["weight"] = Math.Round(v.Weight, 3) })]);
 			w.WriteLine(o.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
 		}
 		w.Flush();

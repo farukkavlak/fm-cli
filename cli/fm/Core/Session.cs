@@ -39,7 +39,8 @@ internal static class Session
 			if (words[0] == "fm") words = words.Skip(1).ToArray();
 			if (words.Length == 0) continue;
 
-			await execute(words);
+			if (Program.IsSentence(words)) await Program.Understand(string.Join(' ', words), execute);
+			else await execute(words);
 		}
 
 		return 0;
