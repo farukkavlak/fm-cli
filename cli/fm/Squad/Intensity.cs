@@ -28,7 +28,11 @@ internal static partial class Program
 		("otomatik", "Automatic", -1), ("yarim", "Half Intensity", 0), ("normal", "Normal Intensity", 1), ("cift", "Double Intensity", 2),
 	];
 
-	private sealed record IntensityRow(TrainingRow Player, string Shown, int Value, int Rest, int Holiday, int Advised, bool CanEdit);
+	private sealed record IntensityRow(TrainingRow Player, string Shown, int Value, int Rest, int Holiday, int Advised, bool CanEdit)
+	{
+		/// <summary>On a holiday booked, told by the level (its days left are not always kept: a whole squad sent off for the summer reads -47247).</summary>
+		public bool OnHoliday => Value is >= 20 and <= 23 || Holiday > 0;
+	}
 
 	private static async Task<int> Intensity(string[] args)
 	{
@@ -66,6 +70,13 @@ internal static partial class Program
 				return 0;
 			}
 
+			// A holiday booked runs its course: the game takes nothing else over it.
+			if (player.OnHoliday)
+			{
+				Console.Error.WriteLine(HolidayRefusal(player));
+				return 1;
+			}
+
 			var control = await TrainingControl(player.Player, IntensityEvent);
 			if (control is not { } list)
 			{
@@ -98,10 +109,7 @@ internal static partial class Program
 			}
 			if (automatic ? now.Value == player.Value : now.Value != wanted)
 			{
-				// A holiday booked runs its course: the game takes a rest over it, nothing else.
-				Console.Error.WriteLine(now.Holiday > 0
-					? L($"{player.Player.Name}: on holiday ({now.Holiday} days left); the game does not take this until it ends ({IntensityShown(now)}).")
-					: L($"{player.Player.Name}: the game did not take the change ({IntensityShown(now)})."));
+				Console.Error.WriteLine(now.OnHoliday ? HolidayRefusal(now) : L($"{player.Player.Name}: the game did not take the change ({IntensityShown(now)})."));
 				return 1;
 			}
 			Console.WriteLine(automatic && now.Value != wanted
@@ -113,7 +121,7 @@ internal static partial class Program
 		var sorted = all.OrderBy(r => r.Player.Name, StringComparer.OrdinalIgnoreCase).ToList();
 		if (args.Contains("--json"))
 		{
-			Console.WriteLine(JsonOut.Of(sorted.Select(r => new { r.Player.Name, Intensity = GameWords.Of(r.Shown), r.Value, RestDays = r.Rest, HolidayDays = r.Holiday })));
+			Console.WriteLine(JsonOut.Of(sorted.Select(r => new { r.Player.Name, Intensity = GameWords.Of(r.Shown), r.Value, RestDays = r.Rest, HolidayDays = r.Holiday > 0 ? r.Holiday : (int?)null })));
 			return 0;
 		}
 		Table.Write([L("PLAYER"), L("INTENSITY")], sorted.Select(r => new[] { r.Player.Name, IntensityShown(r) }).ToList());
@@ -143,6 +151,10 @@ internal static partial class Program
 		return new IntensityRow(player, Field(data, IntensityOf + IntensityData[0]), Number(IntensityData[1]), Number("RestDaysRemaining"),
 			Number("HolidaysRemaining"), Number("IntensityRecommendation"), Field(data, IntensityOf + "CanEdit") == "True");
 	}
+
+	private static string HolidayRefusal(IntensityRow row) => row.Holiday > 0
+		? L($"{row.Player.Name}: on holiday ({row.Holiday} days left); the game does not take this until it ends ({IntensityShown(row)}).")
+		: L($"{row.Player.Name}: on holiday; the game does not take this until it ends ({IntensityShown(row)}).");
 
 	/// <summary>As the game writes it ("Double Intensity", "3 Days"); a rest or a holiday said as such.</summary>
 	private static string IntensityShown(IntensityRow row) =>

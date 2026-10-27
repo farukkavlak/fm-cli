@@ -38,11 +38,18 @@ internal static partial class Program
 			return settled;
 		}, seconds: 8, every: 0.6);
 
+		// The page lists our own bids and enquiries too, a player of another club's with that club beside
+		// him: an offer is made to us only when the player is ours.
+		HashSet<string> ours = [];
+		try { ours = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).ToHashSet(); }
+		catch (FmError) { }
+		bool Incoming(WaitingOffer o) => ours.Count == 0 || ours.Contains(o.Player);
+
 		if (words.Count == 0)
 		{
 			if (json)
 			{
-				Console.WriteLine(JsonOut.Of(offers.Select((o, i) => new { No = i + 1, o.Player, o.Club, Kind = GameWords.Of(o.Kind), Status = GameWords.Of(o.Status), o.Fee, Terms = GameWords.Of(o.Terms) })));
+				Console.WriteLine(JsonOut.Of(offers.Select((o, i) => new { No = i + 1, o.Player, o.Club, Kind = GameWords.Of(o.Kind), Incoming = Incoming(o), Status = GameWords.Of(o.Status), o.Fee, Terms = GameWords.Of(o.Terms) })));
 				return 0;
 			}
 			if (offers.Count == 0)
@@ -50,15 +57,10 @@ internal static partial class Program
 				Console.WriteLine(L("No offers pending."));
 				return 0;
 			}
-			// The page lists our own bids too, a player of another club's with that club beside him:
-			// a transfer is a sale only when the player is ours.
-			HashSet<string> ours = [];
-			try { ours = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).ToHashSet(); }
-			catch (FmError) { }
 			string Kind(WaitingOffer o) => o.Kind switch
 			{
-				"Loan" => ours.Contains(o.Player) || ours.Count == 0 ? L("Loan") : L("Loan in"),
-				"Transfer" => ours.Contains(o.Player) || ours.Count == 0 ? L("Sale") : L("Purchase"),
+				"Loan" => Incoming(o) ? L("Loan") : L("Loan in"),
+				"Transfer" => Incoming(o) ? L("Sale") : L("Purchase"),
 				"Free Transfer" => L("Free transfer"),
 				"Swap" or "Part Exchange" => L("Swap"),
 				var other => other,
@@ -127,6 +129,12 @@ internal static partial class Program
 			return card;
 		}
 
+		// Our own bid or enquiry: its row's cross withdraws it, which is not an answer to anyone.
+		if (verb != "view" && !Incoming(offer))
+		{
+			Console.Error.WriteLine(L($"{what}: this is our own approach for another club's player, not an offer made to us; accept, stall and reject answer offers made to us."));
+			return 1;
+		}
 		var button = verb switch { "accept" => offer.Accept, "stall" => offer.Stall, _ => offer.Reject };
 		if (button == null)
 		{

@@ -533,6 +533,7 @@ rejecting	ret
 accept it?	kabul edelim mi?
 reject it?	reddedelim mi?
 {0}: the answer was sent, but the offer stays the same in the list.	{0}: cevap gönderildi ama teklif listede aynı duruyor.
+{0}: this is our own approach for another club's player, not an offer made to us; accept, stall and reject answer offers made to us.	{0}: bu, başka kulübün oyuncusu için bizim yaptığımız bir girişim, bize gelen teklif değil; accept, stall ve reject bize gelen tekliflere cevap verir.
 accepted	kabul edildi
 stalled	bekletiliyor
 rejected	reddedildi
@@ -2315,6 +2316,7 @@ The game opened a confirmation: {0}   (answer: dialog)	Oyun bir onay penceresi a
 Could not read individual training.	Bireysel antrenman okunamadı.
 \nTo change: training <player> --focus "<focus>" · --role "<role>" · --position "<position>><role>"  (a wrong value lists the options)	\nDeğiştirmek: training <oyuncu> --focus "<odak>" · --role "<rol>" · --position "<mevki>><rol>"  (yanlış bir değer seçenekleri listeler)
 {0}: on holiday ({1} days left); the game does not take this until it ends ({2}).	{0}: tatilde ({1} gün kaldı); oyun tatil bitene kadar bunu almıyor ({2}).
+{0}: on holiday; the game does not take this until it ends ({1}).	{0}: tatilde; oyun tatil bitene kadar bunu almıyor ({1}).
 {0}: {1} → automatic ({2})	{0}: {1} → otomatik ({2})
 rest {0}	dinlenme {0}
 holiday {0}	tatil {0}

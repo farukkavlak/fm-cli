@@ -403,7 +403,8 @@ internal static partial class Program
 
 		if (wanted == null)
 		{
-			var numbers = slots.Select(b => Field(b, "Label")).Append(active.ToString()).OrderBy(n => n).ToList();
+			// A slot button drawn a frame before its number is filled in carries no label.
+			var numbers = slots.Select(b => Field(b, "Label")).Where(n => int.TryParse(n, out _)).Append(active.ToString()).Distinct().OrderBy(n => n).ToList();
 			if (Ui.Json)
 			{
 				Console.WriteLine(JsonOut.Of(numbers.Select(n => new { Slot = int.Parse(n), Active = n == active.ToString(), Name = n == active.ToString() ? Field(tactic, "Name") : null })));

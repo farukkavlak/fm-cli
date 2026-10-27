@@ -190,12 +190,13 @@ internal sealed partial class OfferScreen
 		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) ? null : L($"'{path[^1]}' did not appear on screen");
 	}
 
-	/// <summary>Types an amount into a term's box; the game may round it, so whatever it shows is taken.</summary>
+	/// <summary>Types an amount into a term's box; the game may round it, so whatever it shows is taken.
+	/// An amount already shown ("3.000 £ aylık") is no failure.</summary>
 	public static async Task<string?> Type(Bridge fm, Control control, long amount, Func<OfferScreen, Control> after, string route = "offer")
 	{
 		var said = await fm.Get("setnumber", ("ptr", control.Pointer), ("value", amount.ToString(CultureInfo.InvariantCulture)));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return said;
-		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) || Program.Money(control.Value) == amount ? null : L("the amount did not change on screen");
+		return await Settles(fm, s => after(s) is { } c && c!.Value != control.Value, route) || Program.Money(MoneyFormat.Find(control.Value) ?? control.Value) == amount ? null : L("the amount did not change on screen");
 	}
 
 	/// <summary>Sets how firmly a term is held; the lock's choices are indices.</summary>
