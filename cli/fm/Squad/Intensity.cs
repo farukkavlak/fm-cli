@@ -96,18 +96,22 @@ internal static partial class Program
 			// Taken when the player's own data says so. Automatic hands him to the automatic rules,
 			// which pick a level at once: the data shows that level, not "Automatic".
 			var automatic = wanted == IntensityLevels[0].Value;
+			// A rest is counted from today: asked for one day in the evening, the game shows two (measured
+			// 27 Ekim 2026: 1 → 2, 3 → 4). Any rest the player was not on before is the one asked for.
+			static bool Rest(int value) => value is >= 10 and <= 17;
+			bool Took(IntensityRow r) => r.Value == wanted || Rest(wanted) && Rest(r.Value) && r.Value != player.Value;
 			IntensityRow now = player;
 			await Until(async () =>
 			{
 				now = await IntensityOfPlayer(player.Player) ?? player;
-				return now.Value == wanted || automatic && now.Value != player.Value;
+				return Took(now) || automatic && now.Value != player.Value;
 			}, seconds: 10, every: 0.25);
 			if (automatic && now.Value == player.Value && now.Holiday == 0)
 			{
 				Console.WriteLine(L($"{player.Player.Name}: automatic; the game still shows {IntensityShown(now)} (the automatic rules may pick the same level)."));
 				return 0;
 			}
-			if (automatic ? now.Value == player.Value : now.Value != wanted)
+			if (automatic ? now.Value == player.Value : !Took(now))
 			{
 				Console.Error.WriteLine(now.OnHoliday ? HolidayRefusal(now) : L($"{player.Player.Name}: the game did not take the change ({IntensityShown(now)})."));
 				return 1;
