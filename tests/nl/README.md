@@ -44,6 +44,17 @@ epochs, held: base 62% tool / 40% with arguments (rules alone 33% / 22%), expand
 score high only lowers it, at every threshold tried. Weak spots: "nothing does this" sentences
 (29% held: the model always finds a nearest tool) and asks (22%).
 
+"Nothing does this" (27 Oct, later): a threshold on the nearest neighbour's similarity (`--none-below`)
+does not separate them: at 0.7 held "nothing" goes 24% → 59% but 8% of real asks fall to
+"nothing". What works is more of them to learn from: 00-none grew from 50 to about 290
+sentences (chat, the real world, other apps, cheats and editor edits, undo, running the other
+side, gibberish). Retrained two epochs, held base: tool 60% / with arguments 41%, "nothing" 65%
+(was 24%), a false "nothing" 4.1% (was 0.9% with the old model on the new set 2.5%); expanded
+held "nothing" 59%, false 9%. `--none-margin M` takes "nothing" only when it outvotes the next
+tool by M: 1.5 gives held 47% "nothing" at 1.3% false; every margin trades one for the other,
+none raises the total, so the default is 0. A dev sentence no longer finds itself in the index,
+so dev numbers are now leave-one-out (base dev tool 91% → 82%).
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.

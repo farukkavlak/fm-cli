@@ -196,7 +196,7 @@ internal static partial class Router
 				var names = c.Names();
 				var instead = c.Find("yerine");
 				var bring = c.Find("bring on");
-				if (instead > 0 && names.Count >= 2) { c.Set("off", names.Last(n => n.At < instead).Name); c.Set("on", names.First(n => n.At > instead).Name); }
+				if (instead > 0 && names.Any(n => n.At < instead) && names.Any(n => n.At > instead)) { c.Set("off", names.Last(n => n.At < instead).Name); c.Set("on", names.First(n => n.At > instead).Name); }
 				else if (bring >= 0 && names.Count >= 2) { c.Set("on", names[0].Name); c.Set("off", names[1].Name); }
 				else if (names.Count >= 2)
 				{

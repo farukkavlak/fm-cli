@@ -98,6 +98,7 @@ def main():
 	ap.add_argument("--model", default="e5", help=f"{', '.join(MODELS)} or a tools/nl-train.py directory")
 	ap.add_argument("--k", type=int, default=5)
 	ap.add_argument("--none-below", type=float, default=0.0, help="no call when the best neighbour is less similar")
+	ap.add_argument("--none-margin", type=float, default=0.0, help="\"nothing does this\" only when it outvotes the next tool by this much")
 	ap.add_argument("--cards", action="store_true", help="also index each tool's own description")
 	ap.add_argument("--hybrid", action="store_true", help="arguments from fm __route for the picked tool")
 	ap.add_argument("--trust-rules", type=float, default=0.0, help="with --hybrid: the rules win from this score up (0: never)")
@@ -114,6 +115,12 @@ def main():
 	t1 = time.perf_counter()
 	q = emb(texts)
 	sims = q @ index.T
+	# a dev sentence must not find itself, or the dev score says nothing
+	where = defaultdict(list)
+	for j, (t, _) in enumerate(dev):
+		where[t].append(j)
+	for i, t in enumerate(texts):
+		sims[i, where.get(t, [])] = -1.0
 	print(f"{len(texts)} sentences, {1000 * (time.perf_counter() - t1) / max(len(texts), 1):.2f} ms each", file=sys.stderr)
 
 	picks = []
@@ -122,7 +129,10 @@ def main():
 		votes = defaultdict(float)
 		for j in top:
 			votes[labels[j]] += float(row[j])
-		best = max(votes, key=votes.get)
+		ranked = sorted(votes, key=votes.get, reverse=True)
+		best = ranked[0]
+		if best == "null" and len(ranked) > 1 and votes["null"] - votes[ranked[1]] < a.none_margin:
+			best = ranked[1]
 		if row[top[0]] < a.none_below:
 			best = "null"
 		picks.append(json.loads(best))
