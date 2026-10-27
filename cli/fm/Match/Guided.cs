@@ -359,8 +359,11 @@ internal static partial class Program
 			Console.WriteLine($"» {GameWords.Of(line)}\n");
 
 			// The reply and the next set of answers arrive together, a moment later. In between the
-			// panel is briefly empty, so an empty one is only believed after it has stayed empty.
+			// panel is briefly empty, so an empty one is only believed after it has stayed empty; the
+			// answers come in a group at a time (two of an agent's four first), so a new set is
+			// believed once it reads the same twice.
 			var was = Key(options);
+			var last = was;
 			var empty = 0;
 			var feeAsked = false;
 			if (!await Until(async () =>
@@ -370,7 +373,10 @@ internal static partial class Program
 				    options = await TalkOptions();
 				    if (options.Count == 0) return ++empty >= 3;
 				    empty = 0;
-				    return Key(options) != was;
+				    var now = Key(options);
+				    var settled = now != was && now == last;
+				    last = now;
+				    return settled;
 			    }, seconds: 12))
 			{
 				Console.Error.WriteLine(L("Said, but the conversation did not move on."));
