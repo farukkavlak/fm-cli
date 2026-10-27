@@ -49,6 +49,9 @@ internal static partial class Program
 
 		var marks = texts.Where(t => t.Path == "day.DayOfTheMonth").ToList();
 		if (marks.Count < 28) return null;
+		// A note the plugin puts into English whole ("Transfer window closes (midnight)") and the
+		// nations of another side's match come back without the game's words; those are asked for, parts too.
+		await GameWords.AskWithParts(Fm, texts.Where(t => t.Path.StartsWith("Event.", StringComparison.Ordinal)).Select(t => t.Text));
 
 		// The grid starts on a Monday, which is in the month before unless the month starts on one,
 		// and ends in the month after; a day numbered lower than the one before starts a month.
@@ -106,7 +109,7 @@ internal static partial class Program
 			var venue = Get("MatchVenueShort");
 
 			// Another side's match (a national team's, a youth international) names both teams.
-			if (team.Length > 0) today.Notes.Add($"{team} {(timeOrScore.Length > 0 ? timeOrScore : "v")} {opponent}");
+			if (team.Length > 0) today.Notes.Add($"{GameWords.Of(team)} {(timeOrScore.Length > 0 ? timeOrScore : "-")} {GameWords.Of(opponent)}");
 			// One of our youth sides' is written with the competition's short code.
 			else if (!fields.ContainsKey("Competition.Name") && fields.ContainsKey("Competition.ShortName"))
 				today.Youth.Add(L($"Youth {Get("Competition.ShortName")}: {opponent} ({venue}) {timeOrScore}"));
@@ -209,7 +212,11 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(busy));
+			Console.WriteLine(JsonOut.Of(busy.Select(d => d with
+			{
+				Matches = d.Matches.Select(m => m with { Competition = GameWords.Of(m.Competition), Opponent = GameWords.Of(m.Opponent), Venue = GameWords.Of(m.Venue) }).ToList(),
+				Notes = d.Notes.Select(GameWords.Of).ToList(), Youth = d.Youth.Select(GameWords.Of).ToList(),
+			})));
 			return 0;
 		}
 

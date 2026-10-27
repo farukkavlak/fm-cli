@@ -38,6 +38,10 @@ internal static class GameWords
 		catch (Exception e) when (e is FmUnavailable or FmBusy) { }
 	}
 
+	/// <summary>Asks for texts and for each of their parts (<see cref="InLine"/> looks a line up part by part).</summary>
+	public static Task AskWithParts(Bridge fm, IEnumerable<string> english) =>
+		Ask(fm, english.SelectMany(e => Between.Split(e).Where((_, i) => i % 2 == 0).Select(p => p.Trim()).Prepend(e)).Where(p => p.Length >= 2).ToArray());
+
 	/// <summary>
 	/// Whether two English texts are the same in the game's words: the plugin gives one English for
 	/// a text the game writes for several ("Teklif Yap" for "Make Offer" and "Make An Offer").
