@@ -53,6 +53,9 @@ internal sealed class Bridge
 			if (response.Headers.TryGetValues("X-Language", out var language)) Labels.Heard(language.FirstOrDefault());
 			var body = await response.Content.ReadAsStringAsync();
 			if (Trace) Console.Error.WriteLine(L($"[{started / 1000.0,6:0.00}s +{Clock.ElapsedMilliseconds - started,5}ms] {route} {Uri.UnescapeDataString(url[(Base.Length + route.Length)..])}"));
+			// The plugin gives up on a request the main thread never ran; read as an answer it said "no
+			// save is loaded" of a game that had frozen with one (27 Ekim 2026).
+			if (body.StartsWith("timeout: the main thread", StringComparison.Ordinal)) throw new FmBusy();
 			return body;
 		}
 		catch (HttpRequestException)

@@ -214,7 +214,7 @@ internal static partial class Program
 		if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
 		if (dry)
 		{
-			Console.WriteLine(L($"(dry run) {label}: {current} → {name} would have been done."));
+			Console.WriteLine(L($"(dry run) {label}: {GameWords.Of(current)} → {GameWords.Of(name)} would have been done."));
 			return 0;
 		}
 

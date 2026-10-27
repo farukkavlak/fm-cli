@@ -28,7 +28,6 @@ internal static partial class Program
 		// competition can be told apart there, and what follows is the way when it cannot (or
 		// when the stage it is at is a knockout round, with no table).
 		// The competitions' list is walked once for each language and career and kept (Competitions).
-		if (!json)
 		{
 			try
 			{
@@ -41,10 +40,22 @@ internal static partial class Program
 				if (leagues.Count == 0)
 					leagues = every.Where(p => p[^1].EndsWith(wanted, StringComparison.Ordinal) && p.Contains(nation) && p.Contains("Men's")
 						&& !p.Any(step => step.StartsWith("Under", StringComparison.Ordinal))).ToList();
-				if (nation.Length > 0 && leagues.Count == 1 && await Stages(false, ["stages", leagues[0][^1], "--bare"]) == 0) return 0;
 				// With the league over its page opens on the stage being played, the play-offs, which is ties
 				// and no table; the table is the league stage's.
-				if (nation.Length > 0 && leagues.Count == 1 && await Stages(false, ["stages", leagues[0][^1], "league", "--bare"]) == 0) return 0;
+				if (nation.Length > 0 && leagues.Count == 1)
+					foreach (var stage in new[] { Array.Empty<string>(), ["league"] })
+					{
+						if (!json && await Stages(false, ["stages", leagues[0][^1], .. stage, "--bare"]) == 0) return 0;
+						// As JSON the rows alone, as the tile's table gives them.
+						if (json && await Captured(["stages", leagues[0][^1], .. stage, "--json", "--bare"]) is { ValueKind: JsonValueKind.Object } read
+						    && read.TryGetProperty("Read", out var stages) && stages.ValueKind == JsonValueKind.Array
+						    && stages.EnumerateArray().Select(r => r.TryGetProperty("Table", out var t) ? t : default)
+							    .FirstOrDefault(t => t.ValueKind == JsonValueKind.Array && t.GetArrayLength() > 0) is { ValueKind: JsonValueKind.Array } rows)
+						{
+							Console.WriteLine(rows.ToString());
+							return 0;
+						}
+					}
 			}
 			catch (Exception e) when (e is FmError or System.Text.Json.JsonException or IOException) { }
 		}

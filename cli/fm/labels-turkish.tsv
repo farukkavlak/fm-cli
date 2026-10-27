@@ -29,7 +29,7 @@ The game does not offer 'Approach To Sign' for {0} (talks may be under way, or t
 The contract negotiation did not open.	Sözleşme görüşmesi açılmadı.
 usage: staff fire <name> [--mutual] [--yes]	kullanım: staff fire <ad> [--mutual] [--yes]
 {0} is not on our staff.	{0} bizim personelimiz değil.
-The game does not offer '{1}' for {0}. Their menu: actions "{2}"	{0} için oyun '{1}' sunmuyor. Menüsü: actions "{2}"
+The game does not offer '{0}' for {1}. Their menu: actions "{2}"	{1} için oyun '{0}' sunmuyor. Menüsü: actions "{2}"
 Offer {0} a mutual termination of their contract?	{0} ile sözleşmeyi karşılıklı feshetmeyi teklif edelim mi?
 Yes	Evet
 No	Hayır
@@ -114,7 +114,7 @@ The assistant shared out the assignments.	Yardımcı görevleri dağıttı.
 Coach not found. Coaches: {0}	Antrenör bulunamadı. Antrenörler: {0}
 Unknown area: '{0}'. Areas: {1}	Alan bilinmiyor: '{0}'. Alanlar: {1}
 {0} ({1}) cannot be assigned to {2}.	{0} ({1}) {2} alanına atanamaz.
-{0} {2} in {1}.	{0} {1} alanında {2}.
+{0} {1} in {2}.	{0} {2} alanında {1}.
 is already assigned	zaten görevli
 is not assigned anyway	zaten görevli değil
 — assigned	alanına atandı
@@ -300,7 +300,7 @@ The happiness page could not be read.	Mutluluk sayfası okunamadı.
 '{0}' matches more than one player: {1}	'{0}' birden çok oyuncuya uyuyor: {1}
 {0}: the reasons could not be read.	{0}: nedenler okunamadı.
 None of the {0} players has a complaint.	{0} oyuncunun hiçbirinin bir şikâyeti yok.
-\n{1} of {0} players have a complaint; the other {2} do not.	\n{0} oyuncudan {1} tanesinin şikâyeti var; kalan {2} oyuncunun yok.
+\n{0} of {1} players have a complaint; the other {2} do not.	\n{1} oyuncudan {0} tanesinin şikâyeti var; kalan {2} oyuncunun yok.
 The reasons of {0} players could not be read.	{0} oyuncunun nedenleri okunamadı.
 \nWhy: happiness <player>   ·   everyone's complaints: happiness --why	\nNedeni: happiness <oyuncu>   ·   herkesin şikâyetleri: happiness --why
   No complaints.	  Şikâyeti yok.
@@ -375,7 +375,7 @@ The club's competitions could not be read.	Kulübün turnuvaları okunamadı.
 {0} — leaders	{0} — liderler
 \nFull ranking: league --stat <goals | assists | rating | …>  (all of them: league --stats)	\nTam sıralama: league --stat <gol | asist | puan | …>  (hepsi: league --stats)
 Another competition: league <{0}>	Başka turnuva: league <{0}>
-Stats: there is no {1} stat called '{0}'. All of them: league --stats	İstatistik: '{0}' diye bir {1} istatistiği yok. Hepsi: league --stats
+Stats: there is no {0} stat called '{1}'. All of them: league --stats	İstatistik: '{1}' diye bir {0} istatistiği yok. Hepsi: league --stats
 team	takım
 player	oyuncu
 {0}: no records for {1} (the competition may not have started yet).	{0}: {1} için kayıt yok (turnuva henüz başlamamış olabilir).
@@ -393,7 +393,7 @@ There is no role list for {0}.	{0} için rol listesi yok.
 Which role should {0} play?	{0} hangi rolde oynasın?
 {0}: {1}\nRoles: {2}	{0}: {1}\nRoller: {2}
 (dry run) {0}: {1} → {2}	(kuru) {0}: {1} → {2}
-{1} was chosen for {0}, but their menu still says {2}.	{0} için {1} seçildi ama menüsü hâlâ {2} diyor.
+{0} was chosen for {1}, but their menu still says {2}.	{1} için {0} seçildi ama menüsü hâlâ {2} diyor.
 The assistant's in-match advice is only during a match.	Yardımcının maç içi tavsiyeleri yalnızca maç sırasında.
 The dugout panel hides while a move is being played; waiting…	Dugout paneli pozisyon oynatılırken gizleniyor; bekliyorum…
 The assistant has no advice right now.	Yardımcının şu an bir tavsiyesi yok.
@@ -605,7 +605,7 @@ Which one? prep {0} <{1}>	Hangisi? prep {0} <{1}>
 {0}: already {1}.	{0}: zaten {1}.
 This command's output has no table; try --md or --json.	Bu komutun çıktısında tablo yok; --md ya da --json dene.
 FM is not running. Start it with `fm start`.	FM çalışmıyor. `fm start` ile başlat.
-FM did not answer — it may be busy (loading, a match). Try again.	FM yanıt vermedi — meşgul olabilir (yükleme, maç). Tekrar dene.
+FM did not answer — it may be busy (loading, a match). Try again; if it stays so, the game has frozen: fm stop, then fm start.	FM yanıt vermedi — meşgul olabilir (yükleme, maç). Tekrar dene; böyle kalırsa oyun donmuştur: fm stop, sonra fm start.
 FM is not open.	FM açık değil.
 Unsaved progress goes with the game. Which one:  stop --save   or   stop --no-save	Kaydedilmemiş ilerleme oyunla birlikte gider. Hangisi:  stop --save   ya da   stop --no-save
 The game is closing ({0}). Unsaved progress is lost.	Oyun kapanıyor ({0}). Kaydedilmemiş ilerleme kaybolur.
@@ -995,7 +995,7 @@ ONGOING	SÜREN
 No players on this tab.	Bu sekmede oyuncu yok.
 GRADE	NOT
 RECOMMENDATION	TAVSİYE
-({1} of {0} players on screen; the list draws only the rows in view.)	({0} oyuncunun {1} tanesi ekranda; liste yalnızca görünen satırları çiziyor.)
+({0} of {1} players on screen; the list draws only the rows in view.)	({1} oyuncunun {0} tanesi ekranda; liste yalnızca görünen satırları çiziyor.)
 fm session — commands: squad, inbox, next, continue, status, help · to leave: quit	fm oturumu — komutlar: squad, inbox, next, continue, status, help · çıkış: quit
 '{0}' is not a set piece type.\n{1}	'{0}' bir duran top türü değil.\n{1}
 {0}: the page did not open (set pieces may not be set up: setpieces new).	{0}: sayfa açılmadı (duran top düzeni kurulmamış olabilir: setpieces new).
@@ -1154,7 +1154,7 @@ usage: schedule style <day> [<schedule>]   (day: 14, "14 october", 2025-10-14, t
 usage: schedule set <day> <1|2|3> [<session>]   (day: 14, "14 october", 2025-10-14, tomorrow, friday)	kullanım: schedule set <gün> <1|2|3> [<seans>]   (gün: 14, "14 ekim", 2025-10-14, yarın, cuma)
 Which session? After the day, 1, 2 or 3 (in the day's order).	Hangi seans? Günden sonra 1, 2 ya da 3 (günün sırasıyla).
 {0} was not found in the calendar.	{0} takvimde bulunamadı.
-Session {1} of {0} could not be read.	{0} günü {1}. seans okunamadı.
+Session {0} of {1} could not be read.	{1} günü {0}. seans okunamadı.
 {0}, session {1} is the match itself ({2}); it cannot be changed.	{0}, {1}. seans maçın kendisi ({2}); değiştirilemez.
 {0}, session {1} ({2}) cannot be changed: a past day, or a match/travel.	{0}, {1}. seans ({2}) değiştirilemiyor: geçmiş bir gün ya da maç/yolculuk.
 {0}, session {1}: {2}	{0}, {1}. seans: {2}
@@ -1165,7 +1165,7 @@ Categories: {0}	Kategoriler: {0}
 There is no session called '{0}'. To see the options: schedule set {1:yyyy-MM-dd} {2}	'{0}' diye bir seans yok. Seçenekleri görmek için: schedule set {1:yyyy-MM-dd} {2}
 '{0}' does not appear in the {1} category.	'{0}' {1} kategorisinde görünmüyor.
 {0}, session {1} is already {2}.	{0}, {1}. seans zaten {2}.
-Confirmed, but the calendar shows '{1}' as session {0}.	Onaylandı ama takvimde {0}. seans '{1}' görünüyor.
+Confirmed, but the calendar shows '{0}' as session {1}.	Onaylandı ama takvimde {1}. seans '{0}' görünüyor.
 {0}, session {1}: {2} → {3}	{0}, {1}. seans: {2} → {3}
 The schedule card of the week of {0} could not be read.	{0} haftasının program kartı okunamadı.
 The week of {0} has passed; its schedule cannot be changed.	{0} haftası geçti; programı değiştirilemiyor.
@@ -1205,7 +1205,7 @@ There is no 'Make Offer' button, or it is closed.	'Make Offer' butonu yok ya da 
 Offer sent.	Teklif gönderildi.
 The answer will come to the inbox in a few days.	Cevap birkaç gün içinde gelen kutusuna düşer.
 Offer — choose what to change:	Teklif — değiştirmek istediğini seç:
-An offer of {1} will go for {0}. It cannot be taken back.	{0} için {1} teklif gidecek. Geri alınamaz.
+An offer of {0} will go for {1}. It cannot be taken back.	{1} için {0} teklif gidecek. Geri alınamaz.
 Send	Gönder
 The club vision meeting is not open. It opens by answering the club vision message at the end of the season (reply); the objectives themselves: club	Kulüp vizyonu toplantısı açık değil. Sezon sonunda gelen kulüp vizyonu mesajının cevabıyla açılır (reply); hedeflerin kendisi: club
 '{0}' is closed right now{1}.	'{0}' şu an kapalı{1}.
@@ -1349,7 +1349,7 @@ Next season's wage	Gelecek sezon ücreti
 {0} yrs {1} mths	{0} yıl {1} ay
 League	Lig
 position {0} → {1} · {2} → {3} points	{0}. → {1}. sıra · {2} → {3} puan
- ({1} in {0} matches)	 ({0} maçta {1})
+ ({0} in {1} matches)	 ({1} maçta {0})
 Transfer budget	Transfer bütçesi
 Injured	Sakatlanan
 , {0} days	, {0} gün
@@ -1664,7 +1664,7 @@ Away	Deplasman
 Neutral	Tarafsız
 Send the list	Listeyi gönder
 Let the assistant choose	Yardımcı seçsin
-No registration needed: those aged {1} and under on {0}	Kayıt gerekmez: {0} tarihinde {1} yaş ve altı olanlar
+No registration needed: those aged {0} and under on {1}	Kayıt gerekmez: {1} tarihinde {0} yaş ve altı olanlar
 No registration needed: goalkeepers	Kayıt gerekmez: kaleciler
 There are {0} free places in the list	Listede {0} boş yer var
 If a minimum is not met, a place must be left for it in the list	Bir alt sınır tutmuyorsa listede onun için yer bırakılmalı
@@ -2309,7 +2309,7 @@ Give only one format flag: {0}	Biçim bayraklarından yalnız biri verilmeli: {0
     Details: offers	    Ayrıntı: offers
 Confirmed: {0}	Onaylandı: {0}
 The game opened a confirmation: {0}   (answer: dialog)	Oyun bir onay penceresi açtı: {0}   (cevap: dialog)
-{0}: no '{2}' under '{1}'. Options: {3}	{0}: '{1}' altında '{2}' yok. Seçenekler: {3}
+{0}: no '{1}' under '{2}'. Options: {3}	{0}: '{2}' altında '{1}' yok. Seçenekler: {3}
 {0} · {1}: already {2}	{0} · {1}: zaten {2}
 {0} · {1}: the game did not take the change ({2}).	{0} · {1}: oyun değişikliği almadı ({2}).
 Could not read individual training.	Bireysel antrenman okunamadı.

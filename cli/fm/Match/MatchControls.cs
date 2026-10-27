@@ -66,7 +66,7 @@ internal static partial class Program
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(dry run) {player}: {Current(chosen)} → {role}"));
+			Console.WriteLine(L($"(dry run) {player}: {GameWords.Of(Current(chosen))} → {GameWords.Of(role)}"));
 			return 0;
 		}
 

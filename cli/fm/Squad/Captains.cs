@@ -24,10 +24,23 @@ internal static partial class Program
 				(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == "GenericDropdown"));
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-			// "Change Captain" once there is one, "Select Captain" while there is none.
+			// Both lists are the assistant's "selectedaction" dropdowns, labelled Select / Change / Replace by the
+			// state of the day; each marks the one who holds its place, so the data's captain tells them apart.
+			var (captainNow, viceNow) = await Now();
 			JsonElement? dropdown = null;
-			await Until(async () => (dropdown = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-				.FirstOrDefault(d => Field(d!.Value, "Name") == "GenericDropdown" && (Field(d!.Value, "Label") == $"Change {list}" || Field(d!.Value, "Label") == $"Select {list}"))) != null, seconds: 8, every: 0.5);
+			await Until(async () =>
+			{
+				var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+					.Where(d => Field(d, "Name") == "GenericDropdown" && Field(d, "Binds") == "selectedaction").ToList();
+				string Holder(JsonElement d) => Field(d, "Selected") is var i && int.TryParse(i, out var n) && n >= 0
+					? Unmarked(d.GetProperty("Choices")[n].GetString() ?? "")
+					: d.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").FirstOrDefault(c => Unmarked(c) != c) is { } m ? Unmarked(m) : "";
+				// With no one marked (no captain yet) the captain's list comes first.
+				bool IsCaptains(JsonElement d, int at) => Holder(d) is var h && h.Length > 0 && (h == captainNow || h == viceNow)
+					? h == captainNow : at == 0;
+				dropdown = lists.Select((d, at) => (d, at)).Where(x => IsCaptains(x.d, x.at) == (list == "Captain")).Select(x => (JsonElement?)x.d).FirstOrDefault();
+				return dropdown != null;
+			}, seconds: 8, every: 0.5);
 			if (dropdown == null)
 			{
 				// The page is a talk with the assistant, and a change made in it takes its list away
@@ -38,7 +51,7 @@ internal static partial class Program
 				return 1;
 			}
 			var choices = dropdown.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-			var names = choices.Select(c => c.Replace(" (Selected)", "")).ToList();
+			var names = choices.Select(Unmarked).ToList();
 			var hits = Matching(names, n => n, wanted);
 			if (hits.Count != 1)
 			{
@@ -71,4 +84,8 @@ internal static partial class Program
 		if (changes.Count == 0) Console.WriteLine(L("\nTo change: captains --captain <player> · --vice <player>   (the dressing room's leaders: dynamics)"));
 		return 0;
 	}
+
+	/// <summary>A captains list choice without the game's "(Selected)" mark, in whatever language it is written.</summary>
+	private static string Unmarked(string choice) =>
+		System.Text.RegularExpressions.Regex.Replace(choice, @"\s*\([^()]*\)$", "");
 }

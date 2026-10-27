@@ -56,7 +56,7 @@ internal static partial class Program
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(dry run) {what}: {current} → {pick} would have been done."));
+			Console.WriteLine(L($"(dry run) {what}: {GameWords.Of(current)} → {GameWords.Of(pick)} would have been done."));
 			return 0;
 		}
 
@@ -174,7 +174,7 @@ internal static partial class Program
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(dry run) {spot} ({phase}): {current} → {pick} would have been done."));
+			Console.WriteLine(L($"(dry run) {spot} ({phase}): {GameWords.Of(current)} → {GameWords.Of(pick)} would have been done."));
 			return 0;
 		}
 

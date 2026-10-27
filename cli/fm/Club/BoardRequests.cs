@@ -20,7 +20,8 @@ internal static partial class Program
 
 		// The card is behind the board's tile, known by the panel it is laid out in (BindingRemapper
 		// #Board): its words count the members in the game's language.
-		List<BoardRequest> requests = [];
+		// A card left open by an earlier call covers the tile, so it is read as it is.
+		var requests = await BoardRequestList();
 		for (var attempt = 0; attempt < 3 && requests.Count == 0; attempt++)
 		{
 			var clicked = "";
@@ -42,7 +43,7 @@ internal static partial class Program
 		var typed = string.Join(" ", Words(args).Skip(1));
 		if (typed.Length == 0)
 		{
-			if (json) Console.WriteLine(JsonOut.Of(requests.Select(r => new { r.Kind, Request = r.Parent == null ? r.Name : $"{r.Parent} › {r.Name}" })));
+			if (json) Console.WriteLine(JsonOut.Of(requests.Select(r => new { Kind = GameWords.Of(r.Kind), Request = r.Parent == null ? GameWords.Of(r.Name) : $"{GameWords.Of(r.Parent)} › {GameWords.Of(r.Name)}" })));
 			else
 			{
 				Table.Write([L("TYPE"), L("REQUEST")], requests.Select(r => new[] { r.Kind, r.Parent == null ? r.Name : $"{r.Parent} › {r.Name}" }).ToList());
@@ -52,22 +53,24 @@ internal static partial class Program
 		}
 
 		string Full(BoardRequest r) => r.Parent == null ? r.Name : $"{r.Parent} {r.Name}";
+		// Typed as the game reads it or as the table shows it.
+		string[] Forms(BoardRequest r) => [Fold(Full(r)), Fold(r.Parent == null ? GameWords.Of(r.Name) : $"{GameWords.Of(r.Parent)} {GameWords.Of(r.Name)}")];
 		var wanted = Fold(typed);
-		var hits = requests.Where(r => Fold(Full(r)) == wanted || Fold(r.Name) == wanted).ToList();
-		if (hits.Count == 0) hits = requests.Where(r => Fold(Full(r)).Contains(wanted)).ToList();
-		if (hits.Count == 0) hits = requests.Where(r => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(word => Fold(Full(r)).Contains(word))).ToList();
+		var hits = requests.Where(r => Forms(r).Contains(wanted) || Fold(r.Name) == wanted || Fold(GameWords.Of(r.Name)) == wanted).ToList();
+		if (hits.Count == 0) hits = requests.Where(r => Forms(r).Any(f => f.Contains(wanted))).ToList();
+		if (hits.Count == 0) hits = requests.Where(r => Forms(r).Any(f => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(f.Contains))).ToList();
 		if (hits.Count != 1)
 		{
 			Console.Error.WriteLine(hits.Count == 0 ? L($"No request called '{typed}' (all of them: board request).") : L($"'{typed}' matches more than one request:"));
-			foreach (var hit in hits) Console.Error.WriteLine($"  {(hit.Parent == null ? hit.Name : $"{hit.Parent} › {hit.Name}")}   ({hit.Kind})");
+			foreach (var hit in hits) Console.Error.WriteLine($"  {(hit.Parent == null ? GameWords.Of(hit.Name) : $"{GameWords.Of(hit.Parent)} › {GameWords.Of(hit.Name)}")}   ({GameWords.Of(hit.Kind)})");
 			return 64;
 		}
 		var request = hits[0];
-		var shown = request.Parent == null ? request.Name : $"{request.Parent} › {request.Name}";
+		var shown = request.Parent == null ? GameWords.Of(request.Name) : $"{GameWords.Of(request.Parent)} › {GameWords.Of(request.Name)}";
 
 		if (!args.Contains("--yes"))
 		{
-			Console.Error.WriteLine(L($"To ask the board for: {shown}  ({request.Kind}). To confirm: board request \"{Full(request)}\" --yes"));
+			Console.Error.WriteLine(L($"To ask the board for: {shown}  ({GameWords.Of(request.Kind)}). To confirm: board request \"{Full(request)}\" --yes"));
 			return 1;
 		}
 
@@ -109,10 +112,13 @@ internal static partial class Program
 	private static async Task<List<BoardRequest>> BoardRequestList()
 	{
 		var requests = new List<BoardRequest>();
+		var seen = new HashSet<string>();
 		foreach (var list in (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray().Where(d => Field(d, "Name") == "GenericDropdown"))
 		{
 			var kind = Field(list, "Label");
 			var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+			// A list can sit on the card twice, the second copy without its label.
+			if (!seen.Add(string.Join("\n", choices))) continue;
 			var submenus = list.TryGetProperty("Submenus", out var subs) && subs.ValueKind == JsonValueKind.Object ? subs : default;
 			for (var i = 0; i < choices.Count; i++)
 			{

@@ -247,7 +247,16 @@ internal static partial class Program
 			entry = await EntryUnder(name, entries, "Transfer>Offer Trial", MenuLength(Option(args, "--for")), L("How many weeks should the trial last"), L("--for \"2 weeks\""));
 		else
 		{
-			var how = args.Contains("--top") ? "top" : args.Contains("--transfer") ? "for transfer" : args.Contains("--loan") ? "for loan" : null;
+			// The entries are As Top Target / For Transfer / For Loan, read back from another language
+			// in the plugin's English ("Transfer" for a Turkish game's word for For Transfer).
+			const string folder = "Transfer>Declare Interest>";
+			var how = args.Contains("--top") ? "As Top Target" : args.Contains("--transfer") ? "For Transfer" : args.Contains("--loan") ? "For Loan" : null;
+			if (how != null)
+			{
+				await GameWords.Ask(Fm, "As Top Target", "For Transfer", "For Loan");
+				how = entries.Select(e => Field(e, "Path")).Where(p => p.StartsWith(folder, StringComparison.Ordinal))
+					.Select(p => p[folder.Length..]).FirstOrDefault(label => GameWords.Same(label, how) || label == GameWords.Of(how)) ?? how;
+			}
 			entry = await EntryUnder(name, entries, "Transfer>Declare Interest", how, L("What kind of interest"), "--top | --transfer | --loan");
 		}
 		if (entry is not { } chosen) return 64;

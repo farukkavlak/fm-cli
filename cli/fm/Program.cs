@@ -264,7 +264,7 @@ internal static partial class Program
 		}
 		catch (FmBusy)
 		{
-			Console.Error.WriteLine(L("FM did not answer — it may be busy (loading, a match). Try again."));
+			Console.Error.WriteLine(L("FM did not answer — it may be busy (loading, a match). Try again; if it stays so, the game has frozen: fm stop, then fm start."));
 			return 75; // EX_TEMPFAIL
 		}
 		catch (FmError error)
