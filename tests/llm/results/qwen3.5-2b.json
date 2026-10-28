@@ -1,0 +1,406 @@
+{
+ "manifest": {
+  "when": "2026-10-29T00:51:11+03:00",
+  "gguf": {
+   "name": "qwen3.5-2b-q8_0.gguf",
+   "sha256": "be647507ce6cde229b838924d47bfff9763171105563f7f908670dae57c4dbe2"
+  },
+  "runner": [
+   "version: 0.7.0-dev (build 11669, commit 620d2225c)"
+  ],
+  "snapshot": {
+   "dir": "snapshot-2029-08-04",
+   "sha256": "9c207ec03faf377135fcace7fc9572fe89c952082663f502a61b44c481ac1f8b"
+  },
+  "bench": "101ede71e51ad09ea6164912b75be43063ec4f23003d44213ddf9a447ecf4991",
+  "commit": "9df5211",
+  "dirty": false,
+  "machine": {
+   "cpu": "Apple M2",
+   "mem_gb": 8
+  }
+ },
+ "summary": {
+  "cost": {
+   "fm_status_s_before": 0.81,
+   "swap_mb_before": 6780.19,
+   "load_s": 7.1,
+   "fm_status_s_during": 2.77,
+   "footprint_mb": 379,
+   "ram_mb": 2363,
+   "swap_mb_after": 7564.06,
+   "answer_s_median": 21.12,
+   "answer_s_p90": 36.82,
+   "plan_s_median": 3.69,
+   "plan_s_p90": 8.03,
+   "plan_n": 522,
+   "swap_growth_mb": 784
+  },
+  "memory": "1/10",
+  "unknown_names": 13
+ },
+ "memory": [
+  {
+   "id": "m01",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "hofmeister"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_propose",
+     "args": {
+      "fee": "2M"
+     }
+    }
+   ],
+   "s": 5.61
+  },
+  {
+   "id": "m02",
+   "ok": false,
+   "want": {
+    "call": "fm_happiness",
+    "args": {
+     "player": "kownacki",
+     "why": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "kownacki"
+     }
+    }
+   ],
+   "s": 5.45
+  },
+  {
+   "id": "m03",
+   "ok": false,
+   "want": {
+    "call": "fm_intensity",
+    "args": {
+     "player": "ghiglione",
+     "level": "rest 7"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_schedule",
+     "args": {
+      "day": "2025-10-14",
+      "slot": 1,
+      "session": "Rest"
+     }
+    }
+   ],
+   "s": 6.2
+  },
+  {
+   "id": "m04",
+   "ok": false,
+   "want": {
+    "call": "fm_tactic_player",
+    "args": {
+     "player": "biondini",
+     "position": "ST"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_tactic",
+     "args": {}
+    }
+   ],
+   "s": 5.29
+  },
+  {
+   "id": "m05",
+   "ok": false,
+   "want": {
+    "call": "fm_contract",
+    "args": {
+     "name": "romagna"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "romagna"
+     }
+    }
+   ],
+   "s": 3.98
+  },
+  {
+   "id": "m06",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "orlandi",
+     "loan": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_propose",
+     "args": {
+      "player": "orlandi",
+      "fee": "2M",
+      "loan": true
+     }
+    }
+   ],
+   "s": 6.28
+  },
+  {
+   "id": "m07",
+   "ok": false,
+   "want": {
+    "call": "fm_sub",
+    "args": {
+     "off": "tosto",
+     "on": "kastanos"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_tactic_player",
+     "args": {
+      "position": "1",
+      "player": "kastanos"
+     }
+    }
+   ],
+   "s": 4.68
+  },
+  {
+   "id": "m08",
+   "ok": true,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "yepes",
+     "fee": "2M"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_propose",
+     "args": {
+      "player": "yepes",
+      "fee": "2M"
+     }
+    }
+   ],
+   "s": 5.12
+  },
+  {
+   "id": "m09",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "bagordo",
+     "loan": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "bagordo"
+     }
+    }
+   ],
+   "s": 4.6
+  },
+  {
+   "id": "m10",
+   "ok": false,
+   "want": {
+    "call": "fm_tactic_player",
+    "args": {
+     "player": "biondini",
+     "position": "ST"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_tactic",
+     "args": {}
+    }
+   ],
+   "s": 4.95
+  }
+ ],
+ "conversation": [
+  {
+   "id": "c01",
+   "q": "kadroda durumlar ne?",
+   "answer": "Kadro durumları şu şekilde:\n- **Paolo Ghiglione** ve **Salvatore Elia** sağlık raporlarında sorun var (sağlık puanları %61 ve %69).\n- **Lorenzo Tosto** ve **Yari Verschaeren** kondisyonları yüksek (%71 ve %75).\n- **Achraf el Bouchataoui** formu düşük (%49).\n- **Maj Blažič** ve **Andrea Orlandi** sözleşmelerine bağlı.\n- **Dion Hofmeister** ve **Lorenzo Chiucchiuini** tekliklere maruz.\n- **Federico Brancolini** ve **Filippo Romagna** mutsuz.\n- **Paolo Ghiglione** ve **Salvatore Elia** dinlenmesi öneriliyor.",
+   "s": 26.22,
+   "unknown_names": []
+  },
+  {
+   "id": "c02",
+   "q": "sakat var mı, kim yorgun?",
+   "answer": "Sakat olan yok, ancak **Paolo Ghiglione** ve **Salvatore Elia** yorgun (kondisyon %61 ve %69).\n\n**Sağlık raporuna baktım.**\n\nDinlendirmek için:\n*   Paolo Ghiglione: \"dinlen 1\"\n*   Salvatore Elia: \"dinlen 1\"",
+   "s": 9.86,
+   "unknown_names": [
+    "Sağlık"
+   ]
+  },
+  {
+   "id": "c03",
+   "q": "sıradaki maç ne zaman, rakip nasıl bi takım?",
+   "answer": "Maç 15 Ağustos Pazartesi günü, 15:00'da deplasman olarak **Blu-neri**'ne karşı oynanacak.\nRakip form durumu **G** ve gol kralı **Arthur Avom Ebong** (2 gol).\nMenajer **Eddie Howe** ve 4-3-3 DOS dizilişinde.\nRapor yok, ancak formu iyi görünüyor.",
+   "s": 11.15,
+   "unknown_names": [
+    "Ağustos",
+    "Pazartesi"
+   ]
+  },
+  {
+   "id": "c04",
+   "q": "kim ayrılmak istiyor",
+   "answer": "İzleniyor, Ayrılmak İstiyor veya Sözleşme ile ilgili sorun yaşayan oyuncular:\n1. **Dawid Kownacki** (Ayrılmak İstiyor)\n2. **Dion Hofmeister** (Ayrılmak İstiyor)\n3. **Andrea Orlandi** (Ayrılmak İstiyor)\n4. **Lorenzo Chiucchiuini** (Ayrılmak İstiyor)\n5. **Jordi Martín** (Ayrılmak İstiyor)\n6. **Lorenzo Tosto** (Teklif, İzleniyor, Mutsuz)\n7. **Federico Brancolini** (Sözleşme, Takım arkadaşını destekliyor)\n8. **Filippo Romagna** (Sözleşme, Takım arkadaşını destekliyor)\n9. **Ismaël Konaté** (Sözleşme, Takım arkadaşını destekliyor)\n10. **Mattia Huqi** (Sözleşme, Takım arkadaşını destekliyor)\n11. **Michele Tempre** (Sözleşme, Takım arkadaşını destekliyor)\n12. **Paolo Ghiglione** (Sözleşme, Takım arkadaşını destekliyor)\n13. **Salvatore Elia** (Sözleşme, Takım arkadaşını destekliyor)\n14. **Andrea Orlandi** (Ayrılmak İstiyor)\n15. **Lorenzo Ignacchiti** (Teklif, İzleniyor, Biraz Endişeli)\n16. **Pietro Battaglini** (Teklif, İzleniyor, Biraz Endişeli, Kiralık listesinde)\n17. **Salvatore Dore** (Kiralık listesinde, Takım arkadaşını destekliyor",
+   "s": 40.71,
+   "unknown_names": []
+  },
+  {
+   "id": "c05",
+   "q": "mutsuz oyuncular kim, neden mutsuzlar?",
+   "answer": "Mutsuz oyuncular: Andrea Orlandi, Jordi Martín, Lorenzo Chiucchiuini, Gerard Yepes, Lorenzo Tosto, Federico Brancolini, Filippo Romagna, Ismaël Konaté, Mattia Huqi, Michele Tempre, Paolo Ghiglione, Salvatore Elia, Achraf el Bouchataoui, Maj Blažič, Luigi Cherubini, Cristian Bagordo, Grigoris Kastanos, Nicholas Bonfanti.\nNedenleri: Orlandi ve Orlandi'nin sözleşmesi bitiyor, Martín ve Chiucchiuini'nin sözleşmeleri bitiyor, Yepes ve Tosto kondisyon testleri yapıyor, Brancolini ve Romagna sözleşmelerine bağlı, Konaté ve Huqi sözleşmelerine bağlı, Tempre ve Elia sözleşmelerine bağlı, Ghiglione ve Elia sözleşmelerine bağlı, el Bouchataoui kondisyon testleri yapıyor, Blažič ve Cherubini sözleşmelerine bağlı, Bagordo sözleşmelerine bağlı, Kastanos ve Bonfanti sözleşmelerine bağlı.",
+   "s": 21.37,
+   "unknown_names": []
+  },
+  {
+   "id": "c06",
+   "q": "gelen teklifler neler, sence hangisini kabul edelim?",
+   "answer": "Gelen teklifler:\n1. Ismaël Konaté (Southampton) - Satış\n2. Alessandro Isidori (Juve Stabia) - Satış\n3. Lorenzo Ignacchiti (Pisa) - Satış\n4. Pietro Battaglini (AC Monza) - Satış\n5. Fedele Rinaldi (Frosinone) - Satış\n6. Dion Hofmeister (U.S. Lecce) - Satış\n7. Lorenzo Tosto (QPR) - Satış\n8. Duccio Degli Innocenti (Alanyaspor) - Kiralık\n9. Antonio Fremura (Bologna) - Satış\n\nSence hangisini kabul edelim?\nÖncelikle **Duccio Degli Innocenti**'yi kirak olarak al, çünkü sezon sonu çıkabilir ve kupada oynayabilir.\nDiğerleri için **Satış** yap, çünkü çoğu oyuncu çok değerli ve geri çağrılabilir.\n**Ismaël Konaté**'yi de sat, çünkü Southampton'da çok değerli bir oyuncu.\n**Lorenzo Ignacchiti** ve **Pietro Battaglini**'yi de sat, çünkü bu oyuncular çok değerli.\n**Fedele Rinaldi**'yi sat, çünkü Frosinone'da çok değerli.\n**Dion Hofmeister**'yi sat, çünkü U.S. Lecce'de çok değerli.\n**Lorenzo Tosto**'yu sat, çünkü QPR'de çok değerli.\n**Antonio Fremura**'yı sat, çünkü Bologna'da çok değerli.\n\nKısa ve net:\nSatış yap, çünkü çoğu oyuncu çok değerli ve geri çağrılabilir.\nDuccio Degli Innocenti'yi kirak olarak al, çünkü sezon sonu çıkabilir ve kupada oynayabilir",
+   "s": 36.53,
+   "unknown_names": []
+  },
+  {
+   "id": "c07",
+   "q": "bütçe ne durumda, transfer yapabilir miyiz?",
+   "answer": "Bütçeniz çok iyi, ancak borçlarınız (9.950.560 £) bakiyeyi çok daraltıyor. Transfer yapmaya çalıştığınızda, bu borçları ödemek için ekstra bakiye harcamak zorunda kalırsınız.\n\n**Önemli:** Şu anki bütçede **transfer yapma opsiyonu yok**.\n\nBakiye 1.552.142 £ ve borç 9.950.560 £. Transfer yapmak için bakiye borçları ödemek zorunda kalırdı. Ayrıca, bakiye 1.823.636 £ ise de, bu rakam transfer yapma opsiyonunu göstermez.\n\n**Öneri:** Transfer yapmayın. Bütçeniz borçları ödemek için yeterli değil.",
+   "s": 20.88,
+   "unknown_names": [
+    "Öneri"
+   ]
+  },
+  {
+   "id": "c08",
+   "q": "yönetim benden ne bekliyor?",
+   "answer": "Yönetim, takımın sahada nasıl bir performans göstereceğini merakla bekliyor. Özellikle \"Topa Sahip Ol\" sisteminin pas kalitesini artırdığından ve transferlerinizin ekonomik açıdan memnun edici olmasından ötürü mutlu. Ancak kulüp kültürü oluşturma konusunda hayal kırıklığı yaşıyorlar, bu yüzden genç oyuncu transferinin azlığından endişeli. Ayrıca Antonio Murano, Luigi Di Gregorio, Antonio Galatolo, Antonio D'Onofrio ve Andrea Leone gibi oyuncuların satışındaki mali şartlar yüzünden hayal kırıklığı yaşıyorlar.",
+   "s": 15.27,
+   "unknown_names": []
+  },
+  {
+   "id": "c09",
+   "q": "son haberlerde ne var",
+   "answer": "Modena F.C. ve AC Monza'da sakatlıklar kaydedildi.\nUnion Brescia, Ruggero'yu transfer etme niyetinde.\nVenezia Rosa için kiralama teklifleri alındı.\nCassano'nun geri satın alma maddesi süresi doldu.\nIglesias'ın oynama ihtimali çok düşük.\nAS Monaco, Vaz'ı kadrosuna kattı.\nHändel'in ilk maçta oynama ihtimali çok düşük.\nNorwich, Nelson'u kadrosuna kattı.\nMiddlesbrough, Faris transferini tamamladı.\nSSC Bari'de sezon öncesinde rapor alındı.\nFC Bayern München, Lewis transferini tamamladı.\nSEP, Mısırlı kanat bek Ahmed Fatouh'u bedelsiz transfer etti.\n1. FC Nürnberg, Andreas Hanche-Olsen'i 275.000 £ karşılığında transfer etti.\nLeonardo Rossi'nin deneme süresi sona erdi.\nGerard Yepes Empoli FC'den ayrılma isteğiyle sarstı.",
+   "s": 22.43,
+   "unknown_names": []
+  },
+  {
+   "id": "c10",
+   "q": "gelen kutusunda önemli bişey var mı?",
+   "answer": "Gelen kutuda önemli bir şey yok.\n\nStefano Stefanelli'nin Bologna transfer teklifi okunmadı, ancak bu bir sorun değil.\n\nEğer bir transfer yapacaksan, önce **Degli Innocenti**'nin durumu kontrol et.\n\n**Sağlık raporuna baktım.**",
+   "s": 6.98,
+   "unknown_names": [
+    "Sağlık"
+   ]
+  },
+  {
+   "id": "c11",
+   "q": "lig tablosunda neredeyiz?",
+   "answer": "Lig tablosunda yer almıyorsunuz.\nSağlık raporuna baktım, tüm oyuncuların durumu yok.\nKariyeriniz henüz başlamadı.\nKulüp ve takım bilgileri de yok.\nŞimdi bir maçta oynayalım mı?",
+   "s": 6.29,
+   "unknown_names": []
+  },
+  {
+   "id": "c12",
+   "q": "kulübü bi özetle bana",
+   "answer": "Kulüp, Ulusal 1. Lig'de mücadele ediyor. Stadyumunuz iyi, ancak finansal durumunuz çok zor görünüyor: geliriniz bütçeyi aşmış ve giderleriniz çok yüksek. Antrenman ve altyapı tesisleri orta düzeyde.",
+   "s": 5.76,
+   "unknown_names": []
+  },
+  {
+   "id": "c13",
+   "q": "sonraki maçta kimi dinlendirelim?",
+   "answer": "Evet, dinlenmek çok önemli. Özellikle **Paolo Ghiglione** ve **Salvatore Elia** %60'ın altında performans gösteriyor, bu yüzden onlara öncelik verilmeli.\n\n**Paolo Ghiglione** %61 kondisyonunda ve %77 formda, ancak **Salvatore Elia** %69 kondisyonunda ve %70 formda.\n\n**Lorenzo Tosto** %71 kondisyonunda ve %77 formda, ancak **Michele Tempre** %97 kondisyonunda ama %51 formda.\n\n**Dion Hofmeister** %100 kondisyonunda ve %52 formda, ancak **Andrea Orlandi** %100 kondisyonunda ama %52 formda.\n\n**Duccio Degli Innocenti** %100 kondisyonunda ve %51 formda, ancak **Federico Brancolini** %100 kondisyonunda ama %51 formda.\n\n**Jordi Martín** %95 kondisyonunda ama %53 formda, bu yüzden ayrılmak istiyor.\n\n**Dawid Kownacki** %100 kondisyonunda ama %52 formda, ayrılmak istiyor.\n\n**Dion Hofmeister** %100 kondisyonunda ama %52 formda, teklif alıyor.\n\n**Duccio Degli Innocenti** %100 kondisyonunda ama %51 formda, teklif alıyor.\n\n**Federico Brancolini** %100 kondisyonunda ama %51 formda, mutsuz.\n\n**Lorenzo Chiucchiuini** %100 kondisyonunda ama %53 formda, ayrılmak istiyor.\n\n**Maj Blaž",
+   "s": 28.31,
+   "unknown_names": []
+  },
+  {
+   "id": "c14",
+   "q": "en değerli oyuncumuz kim?",
+   "answer": "En değerli oyuncumuz **Paolo Ghiglione**'dur.\n\nO, 32 yaşında, 32,5B £ aylık maaşla ve 2,5B £ - 6B £ değer aralığında en yüksek maaşlı oyuncudur. Ayrıca \"İlk 11 Oyuncusu\" statüsünde ve sözleşmeli olduğu için bu rakamların geçerliliği yüksek.",
+   "s": 9.65,
+   "unknown_names": []
+  },
+  {
+   "id": "c15",
+   "q": "sözleşmesi biten ya da sözleşme bekleyen var mı",
+   "answer": "Sözleşmesi biten veya bekleyen oyuncular:\n- **Andrea Orlandi**: Yıldız Adayı, 22 yaşında, 2,9B £ aylık maaş.\n- **Dawid Kownacki**: İlk 11 oyuncusu, 32 yaşında, 48,5B £ aylık maaş.\n- **Duccio Degli Innocenti**: Rotasyon oyuncusu, 26 yaşında, 31B £ aylık maaş.\n- **Edoardo Biondini**: İlk 11 oyuncusu, 20 yaşında, 26,5B £ aylık maaş.\n- **Filippo Romagna**: Önemli oyuncu, 32 yaşında, 56,5B £ aylık maaş.\n- **Gerard Yepes**: Rotasyon oyuncusu, 26 yaşında, 45B £ aylık maaş.\n- **Ismaël Konaté**: Yedek oyuncu, 23 yaşında, 30,5B £ aylık maaş.\n- **Jordi Martín**: Rotasyon oyuncusu, 28 yaşında, 27B £ aylık maaş.\n- **Lorenzo Chiucchiuini**: Yıldız Adayı, 22 yaşında, 2,7B £ aylık maaş.\n- **Lorenzo Tosto**: İlk 11 oyuncusu, 23 yaşında, 28,5B £ aylık maaş.\n- **Michele Tempre**: Gelecek vadeden oyuncu, 23 yaşında, 3,4B £ aylık maaş.\n- **Paolo Ghiglione**: İlk 11 oyuncusu, 32 yaşında,",
+   "s": 25.17,
+   "unknown_names": []
+  },
+  {
+   "id": "c16",
+   "q": "takımın morali nasıl?",
+   "answer": "Takımın genel morali **Aşırı Kötü** seviyesinde.\n\n**Nedeni:**\nDawid Kownacki ve Duccio Degli Innocenti'nin moralinin sıfır olduğu ve Dion Hofmeister'in de kötü seviyede olduğu görüldü. Ayrıca Gerard Yepes, Lorenzo Tosto ve Lorenzo Ignacchiti gibi yüksek nüfuzlu oyuncuların da \"Epey Kötü\" veya \"İdare Eder\" olması, takımın genel ruhunu bozuyor.\n\n**Önemli Not:**\nGerard Yepes ve Lorenzo Tosto gibi oyuncuların \"Mutsuz\" (Happiness: 0) olması, kondisyon testleri ve sözleşmelerle ilgili şikâyetler yaratıyor. Bu durum, özellikle \"İdare Eder\" olan oyuncuların (Cristian Bagordo, Federico Brancolini vb.) moralini de etkiliyor.\n\n**Öneri:**\nTakım lideri Filippo Romagna'nın ve yüksek nüfuzlu oyuncuların (Grigoris Kastanos, Nicholas Bonfanti vb.) moralini desteklemesi ve sözleşmelerle ilgili sorunları çözmek, genel morali iyileştirecek.",
+   "s": 20.45,
+   "unknown_names": [
+    "Önemli",
+    "Not",
+    "Öneri"
+   ]
+  },
+  {
+   "id": "c17",
+   "q": "bu hafta neye odaklanalım?",
+   "answer": "Maç takvimi için **Blu-neri**'ne karşı 11. Ağustos'da oynanacak bir maç var. Bu hafta **sağlık ve kondisyon** odaklanmalıyız.\n\nSağlık raporuna baktım, **Tabor**'ya transfer olma önerisi geldi ama bu hafta **Frosinone**'na karşı 2. Ekim'de iç saha maçımız var.\n\n**Önerim:** Frosinone maçında **sağlık kontrolü** yap.\n\n**Neden?**\n1.  **Frosinone** maçında **sağlık** kontrolü yap.\n2.  **Blu-neri**'ne karşı oynanacak maçta **sağlık** ve **kondisyon** odaklan.\n3.  **Tabor** transferi için **sağlık** raporu kontrol et.\n4.  **Blu-neri** maçında **sağlık** ve **kondisyon** odaklan.\n5.  **Frosinone** maçında **sağlık** kontrolü yap.\n6.  **Blu-neri** maçında **sağlık** ve **kondisyon** odaklan.\n\n**Özet:** Bu hafta **sağlık** ve **kondisyon** odaklan.",
+   "s": 21.6,
+   "unknown_names": [
+    "Önerim",
+    "Neden",
+    "Özet"
+   ]
+  },
+  {
+   "id": "c18",
+   "q": "hofmeister için teklif var mı, satalım mı?",
+   "answer": "Dion Hofmeister için teklif var.\n\n**Teklif:**\n- **Kulüp:** U.S. Lecce\n- **Tür:** Satış\n- **Şartlar:** 2 Taksitle 275.000 £ · 20 lig maçından sonra 325.000 £ · Sonraki satıştaki kârdan %30 pay\n- **Geri Satın Alma:** 1,2M £\n\n**Karar:**\n- **Accept:** (Kiralık listesinde, Takım arkadaşını destekliyor, Sözleşme)\n- **Stall:** (Kondisyon Testi, İzleniyor, Mutsuz)\n- **Reject:** (Ayrılmak İstiyor)\n\n**Öneri:**\nKondisyon testini yapmadan teklifi kabul etme. 20 lig maçından sonra 325.000 £'ye kadar gelir, ancak %30 sonrası kâr payı ve geri satın alma opsiyonu önemli.",
+   "s": 24.8,
+   "unknown_names": [
+    "Karar",
+    "Öneri"
+   ]
+  },
+  {
+   "id": "c19",
+   "q": "gençlerden kim parlıyor sence?",
+   "answer": "Genç oyuncuların çoğu \"parlıyor\" ama **Dion Hofmeister** ve **Lorenzo Chiucchiuini** en çok dikkat çekiyor. Hofmeister, 20 yaşında ve 950B-2M £ arası değerinde, takım arkadaşını destekliyor. Chiucchiuini ise 22 yaşında, yıldız aday ve 0 £ değerinde, ayrılmak istiyor.\n\n**Dion Hofmeister** en parlak genç oyuncu.",
+   "s": 12.23,
+   "unknown_names": []
+  },
+  {
+   "id": "c20",
+   "q": "who is tired, and who should start the next match?",
+   "answer": "Salvatore Elia ve Paolo Ghiglione çok yorgun (kondisyon %61-69).\nLorenzo Tosto ve Pietro Battaglini de form ve kondisyonlarını iyileştirmek için dinlenmeli.\nİlk maç için en formda ve en kondisyonlu oyunculara başlamak en mantıklısı.\nJérémy Moray ve Achraf el Bouchataoui en formda ama kondisyonları düşük.\nDion Hofmeister ve Andrea Orlandi en kondisyonlu ama formları düşük.\nSağlık raporuna baktım, Elia ve Ghiglione en çok riskli.\nDion Hofmeister ve Andrea Orlandi en iyi seçenekler.\nDion Hofmeister ve Andrea Orlandi başlatılmalı.\nLorenzo Tosto ve Pietro Battaglini dinlenmeli.\nJérémy Moray ve Achraf el Bouchataoui formlarını korumak için iyi.\nFederico Brancolini ve Ismaël Konaté da formda ama kondisyonları düşük.\nFederico Brancolini ve Ismaël Konaté dinlenmeli.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore deplasman için iyi.\nPaolo Ghiglione ve Salvatore Dore",
+   "s": 36.82,
+   "unknown_names": []
+  }
+ ]
+}
