@@ -1,0 +1,289 @@
+{
+ "manifest": {
+  "when": "2026-10-28T16:57:52+03:00",
+  "router": "cli/fm/bin/Debug/net10.0/fm __route --model ~/.cache/fm-cli/nl/model",
+  "given_tool": false,
+  "model": {
+   "dir": "/Users/farukkavlak/.cache/fm-cli/nl/mpnet-l-q",
+   "name": "mpnet-l-q",
+   "sha256": "06c7cc583de3a8d0a1d8f93729adb4cfcd58b1bb86a282941ef509f883faadd6"
+  },
+  "data": {
+   "tests+train": "eaaf418c994cb844052baa3d85e12e659f3890d7ed4d071ab025ee7da8d8cb4f",
+   "expanded": "db8cef6bb0e11f4a63960a840b72e73ef8ea6ff9eac048a860f0483543b7f0c0"
+  },
+  "split": "sha1(sentence) % 10 < 3 is held",
+  "commit": "62567e2",
+  "dirty": false,
+  "machine": {
+   "os": "macOS-14.6.1-arm64-arm-64bit",
+   "cpu": "Apple M2",
+   "cores": 8,
+   "python": "3.11.2"
+  }
+ },
+ "results": {
+  "base": {
+   "dev": {
+    "n": 1416,
+    "top-1": {
+     "rate": 96.3,
+     "hit": 1363,
+     "of": 1416
+    },
+    "recall@3": {
+     "rate": 99.7,
+     "hit": 1217,
+     "of": 1221
+    },
+    "recall@5": {
+     "rate": 99.7,
+     "hit": 1217,
+     "of": 1221
+    },
+    "tool+args": {
+     "rate": 94.7,
+     "hit": 1341,
+     "of": 1416
+    },
+    "ask": {
+     "rate": 93.3,
+     "hit": 42,
+     "of": 45
+    },
+    "multi": {
+     "rate": 50.0,
+     "hit": 11,
+     "of": 22
+    },
+    "none": {
+     "rate": 99.0,
+     "hit": 193,
+     "of": 195
+    },
+    "false none": {
+     "rate": 0.1,
+     "hit": 1,
+     "of": 1221
+    }
+   },
+   "held": {
+    "n": 628,
+    "top-1": {
+     "rate": 78.8,
+     "hit": 495,
+     "of": 628
+    },
+    "recall@3": {
+     "rate": 87.4,
+     "hit": 465,
+     "of": 532
+    },
+    "recall@5": {
+     "rate": 88.3,
+     "hit": 470,
+     "of": 532
+    },
+    "tool+args": {
+     "rate": 64.6,
+     "hit": 406,
+     "of": 628
+    },
+    "ask": {
+     "rate": 47.8,
+     "hit": 11,
+     "of": 23
+    },
+    "multi": {
+     "rate": 25.0,
+     "hit": 2,
+     "of": 8
+    },
+    "none": {
+     "rate": 87.5,
+     "hit": 84,
+     "of": 96
+    },
+    "false none": {
+     "rate": 2.8,
+     "hit": 15,
+     "of": 532
+    }
+   },
+   "all": {
+    "n": 2044,
+    "top-1": {
+     "rate": 90.9,
+     "hit": 1858,
+     "of": 2044
+    },
+    "recall@3": {
+     "rate": 95.9,
+     "hit": 1682,
+     "of": 1753
+    },
+    "recall@5": {
+     "rate": 96.2,
+     "hit": 1687,
+     "of": 1753
+    },
+    "tool+args": {
+     "rate": 85.5,
+     "hit": 1747,
+     "of": 2044
+    },
+    "ask": {
+     "rate": 77.9,
+     "hit": 53,
+     "of": 68
+    },
+    "multi": {
+     "rate": 43.3,
+     "hit": 13,
+     "of": 30
+    },
+    "none": {
+     "rate": 95.2,
+     "hit": 277,
+     "of": 291
+    },
+    "false none": {
+     "rate": 0.9,
+     "hit": 16,
+     "of": 1753
+    }
+   }
+  },
+  "expanded": {
+   "dev": {
+    "n": 8425,
+    "top-1": {
+     "rate": 94.5,
+     "hit": 7962,
+     "of": 8425
+    },
+    "recall@3": {
+     "rate": 99.5,
+     "hit": 7235,
+     "of": 7271
+    },
+    "recall@5": {
+     "rate": 99.5,
+     "hit": 7238,
+     "of": 7271
+    },
+    "tool+args": {
+     "rate": 88.9,
+     "hit": 7486,
+     "of": 8425
+    },
+    "ask": {
+     "rate": 80.7,
+     "hit": 218,
+     "of": 270
+    },
+    "multi": {
+     "rate": 37.1,
+     "hit": 49,
+     "of": 132
+    },
+    "none": {
+     "rate": 97.7,
+     "hit": 1128,
+     "of": 1154
+    },
+    "false none": {
+     "rate": 0.3,
+     "hit": 25,
+     "of": 7271
+    }
+   },
+   "held": {
+    "n": 3723,
+    "top-1": {
+     "rate": 68.9,
+     "hit": 2567,
+     "of": 3723
+    },
+    "recall@3": {
+     "rate": 78.4,
+     "hit": 2484,
+     "of": 3169
+    },
+    "recall@5": {
+     "rate": 79.4,
+     "hit": 2517,
+     "of": 3169
+    },
+    "tool+args": {
+     "rate": 54.0,
+     "hit": 2010,
+     "of": 3723
+    },
+    "ask": {
+     "rate": 37.7,
+     "hit": 52,
+     "of": 138
+    },
+    "multi": {
+     "rate": 20.8,
+     "hit": 10,
+     "of": 48
+    },
+    "none": {
+     "rate": 82.1,
+     "hit": 455,
+     "of": 554
+    },
+    "false none": {
+     "rate": 5.0,
+     "hit": 160,
+     "of": 3169
+    }
+   },
+   "all": {
+    "n": 12148,
+    "top-1": {
+     "rate": 86.7,
+     "hit": 10529,
+     "of": 12148
+    },
+    "recall@3": {
+     "rate": 93.1,
+     "hit": 9719,
+     "of": 10440
+    },
+    "recall@5": {
+     "rate": 93.4,
+     "hit": 9755,
+     "of": 10440
+    },
+    "tool+args": {
+     "rate": 78.2,
+     "hit": 9496,
+     "of": 12148
+    },
+    "ask": {
+     "rate": 66.2,
+     "hit": 270,
+     "of": 408
+    },
+    "multi": {
+     "rate": 32.8,
+     "hit": 59,
+     "of": 180
+    },
+    "none": {
+     "rate": 92.7,
+     "hit": 1583,
+     "of": 1708
+    },
+    "false none": {
+     "rate": 1.8,
+     "hit": 185,
+     "of": 10440
+    }
+   }
+  }
+ }
+}

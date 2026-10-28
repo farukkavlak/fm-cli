@@ -1,0 +1,153 @@
+{
+ "manifest": {
+  "when": "2026-10-28T16:57:54+03:00",
+  "router": "/Users/farukkavlak/Documents/GitHub/fm-cli/cli/fm/bin/Debug/net10.0/fm __route",
+  "given_tool": true,
+  "model": null,
+  "data": {
+   "tests+train": "eaaf418c994cb844052baa3d85e12e659f3890d7ed4d071ab025ee7da8d8cb4f"
+  },
+  "split": "sha1(sentence) % 10 < 3 is held",
+  "commit": "62567e2",
+  "dirty": false,
+  "machine": {
+   "os": "macOS-14.6.1-arm64-arm-64bit",
+   "cpu": "Apple M2",
+   "cores": 8,
+   "python": "3.11.2"
+  }
+ },
+ "results": {
+  "base": {
+   "dev": {
+    "n": 1199,
+    "top-1": {
+     "rate": 100.0,
+     "hit": 1199,
+     "of": 1199
+    },
+    "recall@3": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "recall@5": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "tool+args": {
+     "rate": 97.8,
+     "hit": 1173,
+     "of": 1199
+    },
+    "ask": {
+     "rate": 95.6,
+     "hit": 43,
+     "of": 45
+    },
+    "multi": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 1199
+    }
+   },
+   "held": {
+    "n": 524,
+    "top-1": {
+     "rate": 100.0,
+     "hit": 524,
+     "of": 524
+    },
+    "recall@3": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "recall@5": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "tool+args": {
+     "rate": 76.7,
+     "hit": 402,
+     "of": 524
+    },
+    "ask": {
+     "rate": 60.9,
+     "hit": 14,
+     "of": 23
+    },
+    "multi": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 524
+    }
+   },
+   "all": {
+    "n": 1723,
+    "top-1": {
+     "rate": 100.0,
+     "hit": 1723,
+     "of": 1723
+    },
+    "recall@3": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "recall@5": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "tool+args": {
+     "rate": 91.4,
+     "hit": 1575,
+     "of": 1723
+    },
+    "ask": {
+     "rate": 83.8,
+     "hit": 57,
+     "of": 68
+    },
+    "multi": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 1723
+    }
+   }
+  }
+ }
+}

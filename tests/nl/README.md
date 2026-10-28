@@ -17,7 +17,7 @@ Written the way people type: typos, no Turkish letters, slang, half sentences.
 |---|---|
 | `tools/nl-check.py` | checks every case against the tools in `cli/fm/Core/Mcp.Tools.cs`; reports a training sentence that repeats a test one |
 | `tools/nl-expand.py [--train]` | writes noisy variants: Turkish letters folded, a letter dropped, doubled, swapped or mistyped, filler words, odd capitals, another player's name |
-| `tools/nl-score.py` | scores a router; `--router CMD` for another one, `--given-tool` for the argument readers alone, `--fails N` to list misses |
+| `tools/nl-score.py` | scores a router; `--router CMD` for another one, `--given-tool` for the argument readers alone, `--fails N` to list misses, `--save` to keep the result in `results/` |
 | `tools/nl-train.py` | fine-tunes the embedding model, exports int8 ONNX to `~/.cache/fm-cli/nl/<name>` |
 | `tools/nl-embed.py` | the same router in Python, for experiments |
 
@@ -44,29 +44,36 @@ python3 tools/nl-expand.py --train
 
 ## Metrics
 
-- **tool**: the right tool (top 1).
-- **tool+args**: the right tool and the right arguments.
-- **ask**: the router asks for what the sentence leaves out instead of guessing.
-- **multi**: several asks in one sentence, all right.
-- **none**: a sentence no tool answers is answered "nothing does this".
-- **false none**: a real ask answered "nothing does this".
+Use these names everywhere: code, docs, commits. Out of all sentences unless noted.
+
+- **top-1**: the router's pick is the right tool (or one of its `or` tools).
+- **recall@k**: the right tool is among the k best-voted tools; for several asks, all of them are.
+  Out of sentences that expect a tool.
+- **tool+args**: the right tool and the right arguments; an expected ask must be asked, not guessed.
+- **ask**: tool+args, out of sentences where something must be asked.
+- **multi**: tool+args, out of sentences with several asks.
+- **none**: answered "nothing does this", out of sentences no tool answers.
+- **false none**: answered "nothing does this", out of sentences that expect a tool.
+
+Every result quoted here comes from a file in `results/`, written by `nl-score.py --save`.
+The file has a manifest: data hash, split rule, model SHA-256, commit (and whether the tree was
+clean), machine.
 
 ## Current numbers
 
-Model `mpnet-l-q` (trained on lower-cased, clean sentences), held:
+Model `mpnet-l-q` (trained on lower-cased, clean sentences), held. From `results/mpnet-l-q.json`:
 
-| set | tool | tool+args | ask | multi | none | false none |
-|---|---|---|---|---|---|---|
-| base | 78.8% | 64.6% | 47.8% | 25.0% | 87.5% | 2.4% |
-| noisy | 68.9% | 54.0% | 37.7% | 20.8% | 82.1% | 4.3% |
+| set | top-1 | recall@3 | recall@5 | tool+args | ask | multi | none | false none |
+|---|---|---|---|---|---|---|---|---|
+| base | 78.8% | 87.4% | 88.3% | 64.6% | 47.8% | 25.0% | 87.5% | 2.8% |
+| noisy | 68.9% | 78.4% | 79.4% | 54.0% | 37.7% | 20.8% | 82.1% | 5.0% |
 
-Previous clean model `mpnet-t-q`: base 76.0% / 62.9%, noisy 67.0% / 52.1%.
+Previous clean model `mpnet-t-q`: base 76.0% / 62.9%, noisy 67.0% / 52.1% (top-1 / tool+args).
 
 Other measurements, held, base set:
 
-- Argument readers alone (the right tool given): 76.7%.
-- Right tool among the top 3 candidates: 87.8%. For several asks in one sentence, all tools in
-  the top 5: 37.5% (only 8 sentences).
+- Argument readers alone (the right tool given): tool+args 76.7%, ask 60.9% (`results/readers.json`).
+- Several asks in one sentence, all tools in the top 5: 37.5% (only 8 sentences).
 - With choices offered below 80% confidence, the right tool is among them 87% of the time
   (noisy: 78%).
 

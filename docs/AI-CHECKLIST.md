@@ -4,16 +4,16 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 
 ## Phase 0 — clean baseline
 - [x] Remove training sentences that repeat test sentences (27 found)
-- [x] Measure the clean baseline: `mpnet-t-q` held tool 75.8% / tool+args 62.8% (noisy 66.9% / 52.0%)
+- [x] Measure the clean baseline: `mpnet-t-q` held top-1 75.8% / tool+args 62.8% (noisy 66.9% / 52.0%)
 - [x] Training refuses to start when `nl-check.py` fails
-- [x] Clean lower-case model `mpnet-l-q` is the default: held tool 78.8% / tool+args 64.6% (noisy 68.9% / 54.0%)
-- [ ] Fix metric names everywhere: top-1, recall@k, tool+args, ask, multi, none, false none
-- [ ] Save a manifest with every result: data hash, split, model SHA, commit, machine
+- [x] Clean lower-case model `mpnet-l-q` is the default: held top-1 78.8% / tool+args 64.6% (noisy 68.9% / 54.0%)
+- [x] Fix metric names everywhere: top-1, recall@k, tool+args, ask, multi, none, false none (`tests/nl/README.md`)
+- [x] Save a manifest with every result: data hash, split, model SHA, commit, machine (`nl-score.py --save` → `tests/nl/results/`)
 - [ ] Split by sentence family, so near-copies stay on one side; keep a final test set nobody tunes on
 - [ ] Grow the multi-ask set (8 held sentences today)
 
 ## Phase 1 — candidates + local LLM experiment
-- [x] Measure recall@k: one ask @1 75% · @3 88% · @5 88%; several asks @5 37.5% (n=8)
+- [x] Measure recall@k: held recall@3 87.4% · recall@5 88.3% (top-1 78.8%); several asks @5 37.5% (n=8)
 - [ ] Candidates from a wider pool of neighbours (e.g. 50); measure recall@5
 - [ ] Several asks: split first, one candidate list per ask; measure recall@5
 - [ ] Write the experiment plan and get it approved: models, versions, licenses, quantization, metrics, thresholds

@@ -54,7 +54,7 @@ input → split into asks → candidate tools per ask → planner → plan
 
 - **Split first.** For several asks in one sentence, all tools are in one top-5 list only 37.5% of the time.
 - **Candidates, not 100 tools.** The router picks the top tools per ask. The planner sees only those.
-- **Planner.** Fills arguments, order and missing values. Readers reach only 76.7% held even with the right tool.
+- **Planner.** Fills arguments, order and missing values. Readers reach only 76.7% held tool+args even when handed the right tool.
 - **Names from the save.** Players, clubs and offers come with game ids. Fuzzy match Turkish endings and typos.
 - **Two good matches → ask.** Never guess a name.
 - **One safety policy.** Each tool is read-only, reversible or high-impact, in one place.
@@ -97,7 +97,7 @@ A sale and a search in one sentence are two steps. Only the sale needs approval.
 
 Build each bench when its feature exists:
 
-- [x] **Tool:** the right tool (today's test set).
+- [x] **Tool:** top-1, recall@k, tool+args, ask, multi, none, false none (`tests/nl/README.md`).
 - [ ] **Safety:** nothing that changes the game runs without approval.
 - [ ] **Entity:** names resolve to the right player or club.
 - [ ] **Plan:** several steps, right order and arguments.
