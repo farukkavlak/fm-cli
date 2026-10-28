@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A local LLM as the planner of a sentence: a router for tools/nl-score.py (docs/LLM-EXPERIMENT.md).
+"""An LLM as the planner of a sentence: a router for tools/nl-score.py (docs/LLM-EXPERIMENT.md).
 
 fm __route --model gives each ask its candidate tools; the LLM picks the steps and their arguments
 from those candidates only. The answer is held to a JSON schema built from the candidates' MCP
@@ -11,17 +11,21 @@ Reads {"text": ...} per line, writes {"call", "args", "ask", "votes", "asks"} pe
 
   tools/nl-llm.py --gguf ~/.cache/fm-cli/llm/qwen3.5-0.8b-q8_0.gguf     # starts llama-server itself
   tools/nl-llm.py --url http://127.0.0.1:8088                            # one already running
+  tools/nl-llm.py --remote claude-haiku-5-5 --workers 4                  # OpenCode Go (OPENCODE_API_KEY, from .env)
   tools/nl-score.py --router "tools/nl-llm.py --gguf FILE" --set base --only held --save NAME
 """
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
 import time
+import uuid
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -30,6 +34,7 @@ TOOLS_CS = ROOT / "cli/fm/Core/Mcp.Tools.cs"
 RULES_CS = ROOT / "cli/fm/Nl/Rules.cs"
 CANDIDATES_MODEL = "~/.cache/fm-cli/nl/mpnet-f-q"  # the measurement model: same candidates as tests/nl/results
 CONFIRM = {"yes", "confirm"}  # added by the layer after a yes, never by the planner
+REMOTE_URL = "https://opencode.ai/zen/go"  # OpenCode Go, OpenAI-style chat completions
 
 SYSTEM = """You turn what a Football Manager player types (Turkish or English, often with typos and no Turkish letters) into tool calls.
 - Use only the tools listed. One step per request, in the order the player said them.
@@ -114,12 +119,15 @@ NONE_STEP = {"type": "object", "properties": {"tool": {"const": NONE}, "args": {
 	"required": ["tool", "args"], "additionalProperties": False}
 
 
-def plan_schema(names, tools, max_steps, none=True, per_ask=None):
+def plan_schema(names, tools, max_steps, none=True, per_ask=None, flat=False):
 	"""At least one step: an empty plan is the easy way out for a small model, so "nothing" is a choice
 	of its own. With per_ask (the router split the sentence), one step per ask from its own candidates."""
-	if per_ask:
+	if per_ask and not flat:
 		steps = {"type": "array", "minItems": len(per_ask), "maxItems": len(per_ask),
 			"prefixItems": [{"anyOf": [step_schema(n, tools[n]) for n in ask] + [NONE_STEP]} for ask in per_ask]}
+	elif per_ask:  # remote providers do not all pass prefixItems on: one list, the count fixed
+		items = [step_schema(n, tools[n]) for n in dict.fromkeys(t for ask in per_ask for t in ask)] + [NONE_STEP]
+		steps = {"type": "array", "minItems": len(per_ask), "maxItems": len(per_ask), "items": {"anyOf": items}}
 	else:
 		items = [step_schema(n, tools[n]) for n in names] + ([NONE_STEP] if none else [])
 		steps = {"type": "array", "minItems": 1, "maxItems": max_steps, "items": {"anyOf": items}}
@@ -147,8 +155,14 @@ def asks_of(step, required, needs):
 
 
 class Server:
-	def __init__(self, url, gguf, ctx, threads):
-		self.url, self.proc = url, None
+	def __init__(self, url, gguf, ctx, threads, remote=None):
+		self.url, self.proc, self.remote = url, None, remote
+		self.headers = {"Content-Type": "application/json"}
+		if remote:
+			self.url = REMOTE_URL
+			key = os.environ.get("OPENCODE_API_KEY") or env_file().get("OPENCODE_API_KEY") or sys.exit("OPENCODE_API_KEY not set (.env)")
+			# one session per run, as OpenCode asks; named honestly
+			self.headers.update({"Authorization": f"Bearer {key}", "x-opencode-session": str(uuid.uuid4()), "User-Agent": "fm-cli-bench/1.0"})
 		if gguf:
 			exe = shutil.which("llama-server") or sys.exit("llama-server not found (brew install llama.cpp)")
 			port = re.search(r":(\d+)", url).group(1)
@@ -172,19 +186,73 @@ class Server:
 		sys.exit("llama-server did not get ready")
 
 	def chat(self, messages, schema, max_tokens):
-		body = {"messages": messages, "temperature": 0, "seed": 1, "max_tokens": max_tokens,
-			"response_format": {"type": "json_schema", "json_schema": {"name": "plan", "schema": schema}},
-			"chat_template_kwargs": {"enable_thinking": False}}
-		req = urllib.request.Request(self.url + "/v1/chat/completions", json.dumps(body).encode(), {"Content-Type": "application/json"})
-		with urllib.request.urlopen(req, timeout=300) as r:
-			out = json.load(r)
-		self.timings = out.get("timings", {})
-		return out["choices"][0]["message"]["content"]
+		"""The answer's text, held to `schema` when given; (text, timings)."""
+		body = {"messages": messages, "temperature": 0, "max_tokens": max_tokens}
+		if schema:
+			body["response_format"] = {"type": "json_schema", "json_schema": {"name": "plan", "schema": schema}}
+		if self.remote:
+			body["model"] = self.remote
+		else:
+			body.update({"seed": 1, "chat_template_kwargs": {"enable_thinking": False}})
+		req = urllib.request.Request(self.url + "/v1/chat/completions", json.dumps(body).encode(), self.headers)
+		dropped = False
+		for attempt in range(5):
+			try:
+				with urllib.request.urlopen(req, timeout=300) as r:
+					out = json.load(r)
+				break
+			except urllib.error.HTTPError as e:
+				# a limit or an outage stops the run: counting it as "none" would score the network, not the model
+				if e.code in (408, 429, 500, 502, 503, 504) and attempt < 4:
+					time.sleep(10 * (attempt + 1))
+					continue
+				detail = e.read()[:300]
+				if e.code == 400 and "response_format" in body:
+					# a provider may refuse a big schema (Anthropic: at most 24 optional fields); then the
+					# prompt alone asks for JSON and parse_steps checks it
+					body.pop("response_format")
+					req = urllib.request.Request(self.url + "/v1/chat/completions", json.dumps(body).encode(), self.headers)
+					dropped = True
+					continue
+				if e.code == 400:
+					print(f"nl-llm: HTTP 400: {detail!r}", file=sys.stderr)
+					raise
+				sys.exit(f"nl-llm: HTTP {e.code}: {detail!r}")
+			except (urllib.error.URLError, TimeoutError) as e:
+				if attempt == 4:
+					sys.exit(f"nl-llm: {e}")
+				time.sleep(10 * (attempt + 1))
+		timings = out.get("timings", {})
+		if self.remote:
+			timings = {"finish": out["choices"][0].get("finish_reason"), "schema_dropped": dropped, **{k: v for k, v in (out.get("usage") or {}).items() if isinstance(v, int)}}
+		return out["choices"][0]["message"]["content"] or "", timings
 
 	def close(self):
 		if self.proc:
 			self.proc.terminate()
 			self.proc.wait()
+
+
+def env_file():
+	f = ROOT / ".env"
+	return dict(l.strip().split("=", 1) for l in open(f) if "=" in l and not l.startswith("#")) if f.exists() else {}
+
+
+def parse_steps(raw, names, tools):
+	"""The plan's steps, checked by our code: a remote model may wrap the JSON or ignore the schema, so
+	only listed tools and their own argument names count."""
+	m = re.search(r"\{.*\}", raw, re.S)
+	try:
+		steps = json.loads(m.group(0))["steps"] if m else []
+	except (json.JSONDecodeError, KeyError, TypeError):
+		return []
+	out = []
+	for st in steps if isinstance(steps, list) else []:
+		if not isinstance(st, dict) or st.get("tool") not in names or not isinstance(st.get("args", {}), dict):
+			continue
+		props = tools[st["tool"]]["schema"].get("properties", {})
+		out.append({"tool": st["tool"], "args": {k: v for k, v in st.get("args", {}).items() if k in props and k not in CONFIRM}})
+	return out
 
 
 def main():
@@ -196,6 +264,8 @@ def main():
 	ap.add_argument("--desc", type=int, default=200, help="tool description length shown to the model (characters, to the end of a sentence)")
 	ap.add_argument("--candidates", default=CANDIDATES_MODEL, help="fm __route --model for the candidate tools")
 	ap.add_argument("--log", help="append each prompt, answer and time here (JSON lines)")
+	ap.add_argument("--remote", metavar="MODEL", help="an OpenCode Go model instead of a local one")
+	ap.add_argument("--workers", type=int, default=4, help="requests at a time to a remote model")
 	a = ap.parse_args()
 
 	lines = [json.loads(l) for l in sys.stdin if l.strip()]
@@ -209,56 +279,59 @@ def main():
 		sys.exit(f"fm __route failed:\n{p.stderr[-2000:]}")
 	routed = [json.loads(l) for l in p.stdout.splitlines() if l.strip()]
 
-	server = Server(a.url, a.gguf, a.ctx, a.threads)
+	server = Server(a.url, a.gguf, a.ctx, a.threads, a.remote)
+
+	def plan(line, r):
+		given = line.get("tool")
+		asks = r.get("asks") or [flatten(v["call"] for v in r.get("votes", []))]
+		names = [given] if given else [n for n in flatten(asks) if n in tools]
+		per_ask = None if given or not r.get("ask_texts") else [[n for n in ask if n in tools] for ask in asks]
+		cards = "\n".join([tool_card(n, tools[n], a.desc, examples.get(n, ())) for n in names] + ([] if given else [NONE_CARD]))
+		said = f"Player: {line['text']}"
+		if per_ask:
+			said += "\nRequests, one step each:" + "".join(f"\n{i + 1}. \"{t}\" ({', '.join(ask)})" for i, (t, ask) in enumerate(zip(r["ask_texts"], per_ask)))
+		messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": f"Tools:\n{cards}\n\n{said}"}]
+		t0 = time.perf_counter()
+		timings = {}
+		if not names:  # the router has no tool for it: nothing to plan
+			raw = '{"steps": []}'
+		else:
+			try:
+				raw, timings = server.chat(messages, plan_schema(names, tools, 1 if given else 2, none=not given, per_ask=per_ask, flat=bool(a.remote)), 2048 if a.remote else 256)
+			except urllib.error.HTTPError as e:
+				raw = f"error {e.code}: {e.read()[:300]!r}"
+				print(f"nl-llm: {line['text']!r}: {raw}", file=sys.stderr)
+		took = time.perf_counter() - t0
+		steps = parse_steps(raw, names, tools)
+		if given and not steps:
+			steps = [{"tool": given, "args": {}}]
+		calls = [st["tool"] for st in steps]
+		# a flag set to false is the same as one left out
+		argss = [{k: v for k, v in st["args"].items() if v is not False} for st in steps]
+		ask = [x for st, args in zip(steps, argss) for x in asks_of({"tool": st["tool"], "args": args}, required, needs)]
+		if not calls:
+			out = {"call": None}
+		elif len(calls) == 1:
+			out = {"call": calls[0], "args": argss[0], "ask": ask}
+		else:
+			out = {"call": calls, "args": argss, "ask": ask}
+		rec = {"text": line["text"], "tools": names, "raw": raw, "ms": round(1000 * took), **({"remote": timings} if a.remote else {}),
+			"prompt_n": timings.get("prompt_n"), "prompt_ms": round(timings.get("prompt_ms", 0)), "out_n": timings.get("predicted_n"), "out_ms": round(timings.get("predicted_ms", 0))}
+		if given:
+			out = {"forced": out}
+		else:
+			out.update({k: r[k] for k in ("votes", "asks") if k in r})
+		return out, rec
+
 	log = open(a.log, "a") if a.log else None
 	try:
-		for line, r in zip(lines, routed):
-			given = line.get("tool")
-			asks = r.get("asks") or [flatten(v["call"] for v in r.get("votes", []))]
-			names = [given] if given else [n for n in flatten(asks) if n in tools]
-			per_ask = None if given or not r.get("ask_texts") else [[n for n in ask if n in tools] for ask in asks]
-			cards = "\n".join([tool_card(n, tools[n], a.desc, examples.get(n, ())) for n in names] + ([] if given else [NONE_CARD]))
-			said = f"Player: {line['text']}"
-			if per_ask:
-				said += "\nRequests, one step each:" + "".join(f"\n{i + 1}. \"{t}\" ({', '.join(ask)})" for i, (t, ask) in enumerate(zip(r["ask_texts"], per_ask)))
-			messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": f"Tools:\n{cards}\n\n{said}"}]
-			t0 = time.perf_counter()
-			server.timings = {}
-			if not names:  # the router has no tool for it: nothing to plan
-				raw = '{"steps": []}'
-			else:
-				try:
-					raw = server.chat(messages, plan_schema(names, tools, 1 if given else 2, none=not given, per_ask=per_ask), 256)
-				except urllib.error.HTTPError as e:
-					raw = f"error {e.code}: {e.read()[:300]!r}"
-					print(f"nl-llm: {line['text']!r}: {raw}", file=sys.stderr)
-			took = time.perf_counter() - t0
-			try:
-				steps = [s for s in json.loads(raw)["steps"] if s["tool"] != NONE]
-			except (json.JSONDecodeError, KeyError, TypeError):
-				steps = []
-			if given and not steps:
-				steps = [{"tool": given, "args": {}}]
-			calls = [s["tool"] for s in steps]
-			# a flag set to false is the same as one left out
-			argss = [{k: v for k, v in s["args"].items() if v is not False} for s in steps]
-			ask = [x for s, args in zip(steps, argss) for x in asks_of({"tool": s["tool"], "args": args}, required, needs)]
-			if not calls:
-				out = {"call": None}
-			elif len(calls) == 1:
-				out = {"call": calls[0], "args": argss[0], "ask": ask}
-			else:
-				out = {"call": calls, "args": argss, "ask": ask}
-			if log:
-				t = server.timings
-				log.write(json.dumps({"text": line["text"], "tools": names, "raw": raw, "ms": round(1000 * took),
-					"prompt_n": t.get("prompt_n"), "prompt_ms": round(t.get("prompt_ms", 0)), "out_n": t.get("predicted_n"), "out_ms": round(t.get("predicted_ms", 0))}, ensure_ascii=False) + "\n")
-				log.flush()
-			if given:
-				out = {"forced": out}
-			else:
-				out.update({k: r[k] for k in ("votes", "asks") if k in r})
-			print(json.dumps(out, ensure_ascii=False), flush=True)
+		# answers come back in order; a local server takes one request at a time
+		with ThreadPoolExecutor(a.workers if a.remote else 1) as pool:
+			for out, rec in pool.map(plan, lines, routed):
+				if log:
+					log.write(json.dumps(rec, ensure_ascii=False) + "\n")
+					log.flush()
+				print(json.dumps(out, ensure_ascii=False), flush=True)
 	finally:
 		server.close()
 		if log:

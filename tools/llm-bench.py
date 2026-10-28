@@ -75,18 +75,10 @@ def fm_status_s(times=3):
 
 
 def chat(server, messages, max_tokens, schema=None):
-	"""Plain text, or JSON held to `schema`; returns (text, seconds)."""
-	if schema:
-		t0 = time.perf_counter()
-		out = server.chat(messages, schema, max_tokens)
-		return out, time.perf_counter() - t0
-	import urllib.request
-	body = {"messages": messages, "temperature": 0, "seed": 1, "max_tokens": max_tokens,
-		"chat_template_kwargs": {"enable_thinking": False}}
-	req = urllib.request.Request(server.url + "/v1/chat/completions", json.dumps(body).encode(), {"Content-Type": "application/json"})
+	"""Plain text, or JSON held to `schema`; returns (text, seconds). A remote model thinks first, so it
+	gets room for that."""
 	t0 = time.perf_counter()
-	with urllib.request.urlopen(req, timeout=600) as r:
-		out = json.load(r)["choices"][0]["message"]["content"]
+	out, _ = server.chat(messages, schema, max_tokens * 8 if server.remote else max_tokens)
 	return out, time.perf_counter() - t0
 
 
@@ -142,10 +134,7 @@ def memory(server, tools):
 				{"role": "assistant", "content": json.dumps({"steps": [{"tool": t["call"], "args": t["args"]}]}, ensure_ascii=False)}]
 		messages.append({"role": "user", "content": f"Tools:\n{cards}\n\nPlayer: {last['user']}"})
 		raw, took = chat(server, messages, 256, llm.plan_schema(names, tools, 2))
-		try:
-			steps = [st for st in json.loads(raw)["steps"] if st["tool"] != llm.NONE]
-		except (json.JSONDecodeError, KeyError, TypeError):
-			steps = []
+		steps = llm.parse_steps(raw, names, tools)
 		for st in steps:  # a flag set to false is the same as one left out (tools/nl-llm.py)
 			st["args"] = {k: v for k, v in st["args"].items() if v is not False}
 		ok = len(steps) == 1 and steps[0]["tool"] == last["call"] and score.same_args(last["args"], steps[0]["args"])
@@ -164,28 +153,32 @@ def sha(path, block=1 << 20):
 
 def main():
 	ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-	ap.add_argument("--gguf", required=True)
+	ap.add_argument("--gguf", help="a local model (or --remote)")
+	ap.add_argument("--remote", metavar="MODEL", help="an OpenCode Go model: no cost on this Mac to measure")
 	ap.add_argument("--snapshot", required=True, help="folder of saved `fm` outputs (<command>.txt)")
 	ap.add_argument("--url", default="http://127.0.0.1:8089")
 	ap.add_argument("--plan-log", help="tools/nl-llm.py --log file of this model's planning run")
 	ap.add_argument("--only", choices=["conversation", "memory"])
 	ap.add_argument("--save", metavar="NAME")
 	a = ap.parse_args()
-	gguf = Path(a.gguf).expanduser().resolve()
+	gguf = Path(a.gguf).expanduser().resolve() if a.gguf else None
+	if not gguf and not a.remote:
+		sys.exit("--gguf or --remote")
 	snapshot = Path(a.snapshot).expanduser()
 	tools = llm.load_tools()
 
-	cost = {"fm_status_s_before": fm_status_s(), "swap_mb_before": swap_used_mb()}
+	cost = {} if a.remote else {"fm_status_s_before": fm_status_s(), "swap_mb_before": swap_used_mb()}
 	t0 = time.perf_counter()
-	server = llm.Server(a.url, str(gguf), 8192, 4)
-	cost["load_s"] = round(time.perf_counter() - t0, 1)
+	server = llm.Server(a.url, str(gguf) if gguf else None, 8192, 4, a.remote)
 	try:
-		# fm status while the model is busy
-		busy = threading.Thread(target=chat, args=(server, [{"role": "user", "content": "Bir futbol takımına uzun bir moral konuşması yaz."}], 600))
-		busy.start()
-		time.sleep(0.5)
-		cost["fm_status_s_during"] = fm_status_s()
-		busy.join()
+		if not a.remote:
+			cost["load_s"] = round(time.perf_counter() - t0, 1)
+			# fm status while the model is busy
+			busy = threading.Thread(target=chat, args=(server, [{"role": "user", "content": "Bir futbol takımına uzun bir moral konuşması yaz."}], 600))
+			busy.start()
+			time.sleep(0.5)
+			cost["fm_status_s_during"] = fm_status_s()
+			busy.join()
 		result = {}
 		if a.only in (None, "memory"):
 			print("memory", file=sys.stderr)
@@ -193,9 +186,10 @@ def main():
 		if a.only in (None, "conversation"):
 			print("conversation", file=sys.stderr)
 			result["conversation"] = conversation(server, snapshot)
-		cost["footprint_mb"] = footprint_mb(server.proc.pid)
-		cost["ram_mb"] = cost["footprint_mb"] + round(gguf.stat().st_size / 2**20) if cost["footprint_mb"] else None
-		cost["swap_mb_after"] = swap_used_mb()
+		if not a.remote:
+			cost["footprint_mb"] = footprint_mb(server.proc.pid)
+			cost["ram_mb"] = cost["footprint_mb"] + round(gguf.stat().st_size / 2**20) if cost["footprint_mb"] else None
+			cost["swap_mb_after"] = swap_used_mb()
 	finally:
 		server.close()
 
@@ -205,7 +199,7 @@ def main():
 	if a.plan_log:
 		ms = [json.loads(l)["ms"] / 1000 for l in open(a.plan_log) if l.strip()]
 		cost["plan_s_median"], cost["plan_s_p90"], cost["plan_n"] = round(statistics.median(ms), 2), p90(ms), len(ms)
-	if cost["swap_mb_before"] is not None and cost["swap_mb_after"] is not None:
+	if cost.get("swap_mb_before") is not None and cost.get("swap_mb_after") is not None:
 		cost["swap_growth_mb"] = round(cost["swap_mb_after"] - cost["swap_mb_before"])
 	summary = {"cost": cost}
 	if "memory" in result:
@@ -215,11 +209,14 @@ def main():
 	print(json.dumps(summary, indent=1))
 
 	if a.save:
-		runner = run(["llama-server", "--version"])
+		if a.remote:
+			model = {"remote": a.remote, "via": llm.REMOTE_URL}
+		else:
+			runner = run(["llama-server", "--version"])
+			model = {"gguf": {"name": gguf.name, "sha256": sha(gguf)}, "runner": (runner.stdout + runner.stderr).strip().splitlines()[:1]}
 		manifest = {
 			"when": datetime.now().astimezone().isoformat(timespec="seconds"),
-			"gguf": {"name": gguf.name, "sha256": sha(gguf)},
-			"runner": (runner.stdout + runner.stderr).strip().splitlines()[:1],
+			**model,
 			"snapshot": {"dir": snapshot.name, "sha256": score.sha256(sorted(snapshot.glob("*.txt")), named=False)},
 			"bench": score.sha256(sorted(BENCH.glob("*.jsonl")), named=False),
 			"commit": score.git("rev-parse", "--short", "HEAD"),

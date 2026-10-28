@@ -251,6 +251,8 @@ def manifest(cmd, which, given_tool, final, group, only=None):
 		d = Path(os.path.expanduser(words[words.index("--model") + 1])).resolve()
 		onnx = d / "model.onnx"
 		model = {"dir": str(d), "name": d.name, "sha256": sha256([onnx], named=False) if onnx.exists() else None}
+	if "--remote" in words:
+		model = {"remote": words[words.index("--remote") + 1], "name": words[words.index("--remote") + 1], "candidates": model}
 	if "--gguf" in words:
 		g = Path(os.path.expanduser(words[words.index("--gguf") + 1])).resolve()
 		runner = subprocess.run(["llama-server", "--version"], capture_output=True, text=True)
