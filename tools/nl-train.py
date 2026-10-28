@@ -14,6 +14,8 @@ import hashlib
 import json
 import random
 import shutil
+import subprocess
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -80,6 +82,12 @@ def main():
 	ap.add_argument("--name", help="output name (default: <base>-ft)")
 	ap.add_argument("--int8", action="store_true", help="also write <name>-q: weights in int8, a quarter of the size, same scores")
 	a = ap.parse_args()
+
+	# a training sentence that repeats a test one makes the held numbers lie
+	check = subprocess.run([sys.executable, str(ROOT / "tools/nl-check.py")], capture_output=True, text=True)
+	if check.returncode != 0:
+		sys.exit("tools/nl-check.py fails; fix the cases before training:\n"
+			+ "\n".join(l for l in check.stdout.splitlines() + check.stderr.splitlines() if "error" in l.lower() or "repeated" in l))
 	repo, tokfile, prefix = BASES[a.base]
 	out = Path.home() / ".cache/fm-cli/nl" / (a.name or f"{a.base}-ft")
 	random.seed(1)

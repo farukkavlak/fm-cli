@@ -4,12 +4,10 @@
 {"tr": "editörle oyuncunun potansiyelini artır", "call": null}
 {"tr": "rakibin kalecisini sakatla", "call": null}
 {"tr": "hakemi bizden yana yap", "call": null}
-{"tr": "golü iptal ettir", "call": null}
 {"tr": "penaltıyı tekrar attır", "call": null}
 {"tr": "maçın sonucunu değiştir 3-0 yap", "call": null}
 {"tr": "rakip kulübün başkanını değiştir", "call": null}
 {"tr": "federasyonun kurallarını değiştirelim", "call": null}
-{"tr": "yabancı sınırını kaldır", "call": null}
 {"tr": "ligdeki takım sayısını artır", "call": null}
 {"tr": "oyun dosyalarını düzenle", "call": null}
 {"tr": "veritabanına yeni oyuncu ekle", "call": null}
@@ -44,17 +42,11 @@
 {"tr": "kısa bir öykü yaz futbol hakkında", "call": null}
 {"tr": "bir şarkı söyle", "call": null}
 {"tr": "beni güldür", "call": null}
-{"tr": "canım sıkıldı", "call": null}
 {"tr": "nasılsın bugün", "call": null}
-{"tr": "günaydın", "call": null}
-{"tr": "iyi geceler", "call": null}
 {"tr": "teşekkür ederim çok sağol", "call": null}
 {"tr": "tamam", "call": null}
-{"tr": "hmm", "call": null}
-{"tr": "asdfgh", "call": null}
 {"tr": "999", "call": null}
 {"tr": "42", "call": null}
-{"tr": "???", "call": null}
 {"tr": "sen kimsin", "call": null}
 {"tr": "neler yapabiliyorsun", "call": null}
 {"tr": "hangi komutlar var", "call": null}
@@ -68,29 +60,24 @@
 {"tr": "whatsapptan mesaj gönder", "call": null}
 {"tr": "dolar kaç tl", "call": null}
 {"tr": "borsa nasıl bugün", "call": null}
-{"tr": "yemek tarifi ver", "call": null}
 {"tr": "en yakın eczane nerede", "call": null}
 {"tr": "kadroyu pes'teki gibi diz", "call": null}
 {"tr": "fifa ultimate team aç", "call": null}
 {"tr": "başka oyun aç", "call": null}
-{"tr": "bilgisayarı kapat", "call": null}
 {"tr": "dosyalarımı temizle", "call": null}
 {"tr": "rakip menajeri kovdur", "call": null}
 {"tr": "başka kulübün oyuncusunu bedavaya al zorla", "call": null}
 {"tr": "rakip takımın kadrosunu ben seçeyim", "call": null}
 {"tr": "yönetim kurulunu dağıt", "call": null}
 {"tr": "kulübü satın al gerçek parayla", "call": null}
-{"tr": "stadyumun rengini değiştir", "call": null}
 {"tr": "forma tasarımı yap", "call": null}
 {"tr": "logoyu değiştir", "call": null}
 {"tr": "oyunun müziklerini değiştir", "call": null}
 {"tr": "hangi fm sürümü daha iyi", "call": null}
 {"tr": "fm27 ne zaman çıkıyor", "call": null}
-{"tr": "bu oyunu kim yaptı", "call": null}
 {"tr": "en iyi genç oyuncular listesi sitede", "call": null}
 {"tr": "hayatın anlamı ne", "call": null}
 {"tr": "aşk nedir", "call": null}
-{"tr": "matematik ödevimi yap", "call": null}
 {"tr": "kod yaz python", "call": null}
 {"tr": "bana bir isim öner kedim için", "call": null}
 {"en": "set every attribute to 20", "call": null}
@@ -98,12 +85,10 @@
 {"en": "make my budget unlimited", "call": null}
 {"en": "boost his potential in the editor", "call": null}
 {"en": "injure their keeper", "call": null}
-{"en": "bribe the referee", "call": null}
 {"en": "overturn that red card", "call": null}
 {"en": "retake the penalty", "call": null}
 {"en": "change the score to 3-0", "call": null}
 {"en": "replace the rival club's chairman", "call": null}
-{"en": "change the league rules", "call": null}
 {"en": "remove the foreign player limit", "call": null}
 {"en": "add more teams to the league", "call": null}
 {"en": "edit the game files", "call": null}
@@ -112,7 +97,6 @@
 {"en": "take me back to last week", "call": null}
 {"en": "replay the match we lost", "call": null}
 {"en": "go back to the start of the season", "call": null}
-{"en": "undo that transfer", "call": null}
 {"en": "change the screen resolution", "call": null}
 {"en": "the game is lagging what do i do", "call": null}
 {"en": "lower the graphics settings", "call": null}
@@ -126,7 +110,6 @@
 {"en": "how old is ronaldo really", "call": null}
 {"en": "who won the last world cup", "call": null}
 {"en": "is arsenal playing tonight in real life", "call": null}
-{"en": "real premier league table", "call": null}
 {"en": "how many goals has haaland scored in real life", "call": null}
 {"en": "find the best tactics online", "call": null}
 {"en": "what does reddit say about him", "call": null}
@@ -141,16 +124,7 @@
 {"en": "make me laugh", "call": null}
 {"en": "i'm bored", "call": null}
 {"en": "how are you today", "call": null}
-{"en": "good morning", "call": null}
-{"en": "good night", "call": null}
 {"en": "thank you so much", "call": null}
-{"en": "ok", "call": null}
-{"en": "hmm", "call": null}
-{"en": "qwerty", "call": null}
-{"en": "999", "call": null}
-{"en": "42", "call": null}
-{"en": "???", "call": null}
-{"en": "who are you", "call": null}
 {"en": "what are you able to do", "call": null}
 {"en": "show me every command", "call": null}
 {"en": "help menu with the commands", "call": null}
@@ -159,7 +133,6 @@
 {"en": "what day is it today", "call": null}
 {"en": "wake me up at 8", "call": null}
 {"en": "remind me later", "call": null}
-{"en": "email my boss", "call": null}
 {"en": "send a whatsapp message", "call": null}
 {"en": "exchange rate dollar to euro", "call": null}
 {"en": "how is the stock market", "call": null}
@@ -176,12 +149,10 @@
 {"en": "dissolve the board", "call": null}
 {"en": "buy the club with real money", "call": null}
 {"en": "change the stadium colour", "call": null}
-{"en": "design a kit", "call": null}
 {"en": "change the badge", "call": null}
 {"en": "change the game music", "call": null}
 {"en": "which fm version is better", "call": null}
 {"en": "when does fm27 come out", "call": null}
-{"en": "who made this game", "call": null}
 {"en": "best wonderkids list from a website", "call": null}
 {"en": "what is the meaning of life", "call": null}
 {"en": "what is love", "call": null}
