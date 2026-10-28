@@ -14,7 +14,8 @@ Which jobs can a small local model do, with FM open on this Mac? Status: **appro
 - `llama.cpp` from Homebrew (`llama-server`; the exact build goes in every result).
 - Not Ollama: the installed 0.9.5 is old, and llama.cpp gives the exact GGUF file and its SHA.
 - JSON output forced by a JSON schema (llama.cpp grammar), so a plan always parses.
-- Context 4096, temperature 0, fixed seed, Metal on.
+- Context 4096 (8192 for conversation), temperature 0, fixed seed, Metal on.
+- One slot (`-np 1`) and no prompt cache (`--cache-ram 0`): the defaults (4 slots, up to 8 GB cache) cost 2.6 GB even for 0.8B.
 
 ## Models
 

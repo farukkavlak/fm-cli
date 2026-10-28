@@ -119,7 +119,7 @@ class Server:
 			exe = shutil.which("llama-server") or sys.exit("llama-server not found (brew install llama.cpp)")
 			port = re.search(r":(\d+)", url).group(1)
 			self.proc = subprocess.Popen([exe, "-m", str(Path(gguf).expanduser()), "--port", port, "-c", str(ctx),
-				"-ngl", "99", "--seed", "1", "-t", str(threads), "--reasoning-budget", "0", "--log-disable"],
+				"-ngl", "99", "--seed", "1", "-t", str(threads), "-np", "1", "--cache-ram", "0", "--reasoning-budget", "0", "--log-disable"],
 				stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 			self.wait_ready()
 
