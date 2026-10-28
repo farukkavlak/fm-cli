@@ -6,7 +6,7 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 - [x] Remove training sentences that repeat test sentences (27 found)
 - [x] Measure the clean baseline: `mpnet-t-q` held tool 75.8% / tool+args 62.8% (noisy 66.9% / 52.0%)
 - [x] Training refuses to start when `nl-check.py` fails
-- [ ] Measure the clean lower-case model `mpnet-l`; if better, make it the default (download name, hashes, `model` link)
+- [x] Clean lower-case model `mpnet-l-q` is the default: held tool 78.8% / tool+args 64.6% (noisy 68.9% / 54.0%)
 - [ ] Fix metric names everywhere: top-1, recall@k, tool+args, ask, multi, none, false none
 - [ ] Save a manifest with every result: data hash, split, model SHA, commit, machine
 - [ ] Split by sentence family, so near-copies stay on one side; keep a final test set nobody tunes on

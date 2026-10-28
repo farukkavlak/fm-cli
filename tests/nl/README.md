@@ -53,12 +53,14 @@ python3 tools/nl-expand.py --train
 
 ## Current numbers
 
-Clean model `mpnet-t-q`, lower-cased input, held:
+Model `mpnet-l-q` (trained on lower-cased, clean sentences), held:
 
 | set | tool | tool+args | ask | multi | none | false none |
 |---|---|---|---|---|---|---|
-| base | 75.8% | 62.8% | 47.8% | 25.0% | 82.5% | 2.7% |
-| noisy | 66.9% | 52.0% | 39.9% | 20.8% | 71.1% | 3.9% |
+| base | 78.8% | 64.6% | 47.8% | 25.0% | 87.5% | 2.4% |
+| noisy | 68.9% | 54.0% | 37.7% | 20.8% | 82.1% | 4.3% |
+
+Previous clean model `mpnet-t-q`: base 76.0% / 62.9%, noisy 67.0% / 52.1%.
 
 Other measurements, held, base set:
 
@@ -78,7 +80,7 @@ What worked, biggest gain first:
 - Better argument readers. A word is not a name if it is a known word with an ending, a question
   word, a verb form, a number, or a common word when a rarer one is there.
 - Int8 weights: same scores, 275 MB instead of 1 GB.
-- Lower-casing the input. Odd capitals were the top cause of false "nothing".
+- Lower-casing the input, in training too. Odd capitals were the top cause of false "nothing".
 
 What did not work:
 

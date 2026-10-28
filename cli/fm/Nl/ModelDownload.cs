@@ -11,7 +11,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private const string NlModelName = "mpnet-n-q";
+	private const string NlModelName = "mpnet-l-q";
 
 	/// <summary>
 	/// Where the model's files are served from: a release of this repository per model,
@@ -21,7 +21,7 @@ internal static partial class Program
 
 	private static readonly (string File, long Size, string Sha256)[] NlModelFiles =
 	[
-		("model.onnx", 278894592, "eb15276e9c281fa79af43c794d6802c822c21d6750ce647c11ec8357868aa7ae"),
+		("model.onnx", 278894592, "06c7cc583de3a8d0a1d8f93729adb4cfcd58b1bb86a282941ef509f883faadd6"),
 		("tokenizer.json", 9081518, "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"),
 	];
 
