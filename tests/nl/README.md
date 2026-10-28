@@ -117,8 +117,8 @@ What did not work:
 - Voting choice arguments with the nearest sentences.
 - Squeezing doubled letters ("kimm" → "kim").
 - Offering the rule router's pick when "nothing" wins.
-- Splitting for candidates where the rules do not: at every cut (dev multi recall@5 −0 to +2,
-  held −2.5, and single asks with "ve"/"and" get split), or where the nearest examples vote for
+- Splitting for candidates where the rules do not: at every cut (dev multi recall@5 +2.3, but
+  single asks with "ve"/"and" get split: dev recall@5 −0.5 overall), or where the nearest examples vote for
   several asks (no change).
 
 Traps:
