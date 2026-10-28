@@ -1,14 +1,15 @@
 {
  "manifest": {
-  "when": "2026-10-28T16:57:54+03:00",
+  "when": "2026-10-28T17:16:55+03:00",
   "router": "/Users/farukkavlak/Documents/GitHub/fm-cli/cli/fm/bin/Debug/net10.0/fm __route",
   "given_tool": true,
   "model": null,
   "data": {
-   "tests+train": "eaaf418c994cb844052baa3d85e12e659f3890d7ed4d071ab025ee7da8d8cb4f"
+   "tests+train": "6508de3923f14236a9e84cc34aac78dc523dcb65e51493868066da9f45a8d443"
   },
-  "split": "sha1(sentence) % 10 < 3 is held",
-  "commit": "62567e2",
+  "split": "families (trigram cosine >= 0.8, or >= 0.65 with the same call; near a training sentence = dev); new family: sha1 % 100 < 18 final, < 48 held",
+  "final_scored": true,
+  "commit": "cc8cb83",
   "dirty": false,
   "machine": {
    "os": "macOS-14.6.1-arm64-arm-64bit",
@@ -20,11 +21,11 @@
  "results": {
   "base": {
    "dev": {
-    "n": 1199,
+    "n": 1094,
     "top-1": {
      "rate": 100.0,
-     "hit": 1199,
-     "of": 1199
+     "hit": 1094,
+     "of": 1094
     },
     "recall@3": {
      "rate": null,
@@ -37,14 +38,14 @@
      "of": 0
     },
     "tool+args": {
-     "rate": 97.8,
-     "hit": 1173,
-     "of": 1199
+     "rate": 92.0,
+     "hit": 1006,
+     "of": 1094
     },
     "ask": {
-     "rate": 95.6,
-     "hit": 43,
-     "of": 45
+     "rate": 88.5,
+     "hit": 46,
+     "of": 52
     },
     "multi": {
      "rate": null,
@@ -59,15 +60,15 @@
     "false none": {
      "rate": 0.0,
      "hit": 0,
-     "of": 1199
+     "of": 1094
     }
    },
    "held": {
-    "n": 524,
+    "n": 395,
     "top-1": {
      "rate": 100.0,
-     "hit": 524,
-     "of": 524
+     "hit": 395,
+     "of": 395
     },
     "recall@3": {
      "rate": null,
@@ -80,14 +81,14 @@
      "of": 0
     },
     "tool+args": {
-     "rate": 76.7,
-     "hit": 402,
-     "of": 524
+     "rate": 91.9,
+     "hit": 363,
+     "of": 395
     },
     "ask": {
-     "rate": 60.9,
-     "hit": 14,
-     "of": 23
+     "rate": 75.0,
+     "hit": 6,
+     "of": 8
     },
     "multi": {
      "rate": null,
@@ -102,7 +103,50 @@
     "false none": {
      "rate": 0.0,
      "hit": 0,
-     "of": 524
+     "of": 395
+    }
+   },
+   "final": {
+    "n": 234,
+    "top-1": {
+     "rate": 100.0,
+     "hit": 234,
+     "of": 234
+    },
+    "recall@3": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "recall@5": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "tool+args": {
+     "rate": 88.0,
+     "hit": 206,
+     "of": 234
+    },
+    "ask": {
+     "rate": 62.5,
+     "hit": 5,
+     "of": 8
+    },
+    "multi": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 234
     }
    },
    "all": {

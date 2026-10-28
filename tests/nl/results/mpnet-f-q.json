@@ -1,0 +1,376 @@
+{
+ "manifest": {
+  "when": "2026-10-28T18:08:16+03:00",
+  "router": "cli/fm/bin/Debug/net10.0/fm __route --model /Users/farukkavlak/.cache/fm-cli/nl/mpnet-f-q",
+  "given_tool": false,
+  "model": {
+   "dir": "/Users/farukkavlak/.cache/fm-cli/nl/mpnet-f-q",
+   "name": "mpnet-f-q",
+   "sha256": "e0b1a5282c5705beda1f4ca6aac0749fa0357379e21faab96d12c1ba036c0bf3"
+  },
+  "data": {
+   "tests+train": "6508de3923f14236a9e84cc34aac78dc523dcb65e51493868066da9f45a8d443",
+   "expanded": "db8cef6bb0e11f4a63960a840b72e73ef8ea6ff9eac048a860f0483543b7f0c0"
+  },
+  "split": "families (trigram cosine >= 0.8, or >= 0.65 with the same call; near a training sentence = dev); new family: sha1 % 100 < 18 final, < 48 held",
+  "final_scored": true,
+  "commit": "cc8cb83",
+  "dirty": false,
+  "machine": {
+   "os": "macOS-14.6.1-arm64-arm-64bit",
+   "cpu": "Apple M2",
+   "cores": 8,
+   "python": "3.11.2"
+  }
+ },
+ "results": {
+  "base": {
+   "dev": {
+    "n": 1295,
+    "top-1": {
+     "rate": 96.9,
+     "hit": 1255,
+     "of": 1295
+    },
+    "recall@3": {
+     "rate": 99.4,
+     "hit": 1105,
+     "of": 1112
+    },
+    "recall@5": {
+     "rate": 99.4,
+     "hit": 1105,
+     "of": 1112
+    },
+    "tool+args": {
+     "rate": 90.3,
+     "hit": 1169,
+     "of": 1295
+    },
+    "ask": {
+     "rate": 86.5,
+     "hit": 45,
+     "of": 52
+    },
+    "multi": {
+     "rate": 27.8,
+     "hit": 5,
+     "of": 18
+    },
+    "none": {
+     "rate": 98.9,
+     "hit": 181,
+     "of": 183
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 1112
+    }
+   },
+   "held": {
+    "n": 467,
+    "top-1": {
+     "rate": 73.9,
+     "hit": 345,
+     "of": 467
+    },
+    "recall@3": {
+     "rate": 82.6,
+     "hit": 332,
+     "of": 402
+    },
+    "recall@5": {
+     "rate": 84.1,
+     "hit": 338,
+     "of": 402
+    },
+    "tool+args": {
+     "rate": 69.6,
+     "hit": 325,
+     "of": 467
+    },
+    "ask": {
+     "rate": 62.5,
+     "hit": 5,
+     "of": 8
+    },
+    "multi": {
+     "rate": 57.1,
+     "hit": 4,
+     "of": 7
+    },
+    "none": {
+     "rate": 89.2,
+     "hit": 58,
+     "of": 65
+    },
+    "false none": {
+     "rate": 3.5,
+     "hit": 14,
+     "of": 402
+    }
+   },
+   "final": {
+    "n": 282,
+    "top-1": {
+     "rate": 71.3,
+     "hit": 201,
+     "of": 282
+    },
+    "recall@3": {
+     "rate": 80.8,
+     "hit": 193,
+     "of": 239
+    },
+    "recall@5": {
+     "rate": 82.0,
+     "hit": 196,
+     "of": 239
+    },
+    "tool+args": {
+     "rate": 65.2,
+     "hit": 184,
+     "of": 282
+    },
+    "ask": {
+     "rate": 37.5,
+     "hit": 3,
+     "of": 8
+    },
+    "multi": {
+     "rate": 80.0,
+     "hit": 4,
+     "of": 5
+    },
+    "none": {
+     "rate": 93.0,
+     "hit": 40,
+     "of": 43
+    },
+    "false none": {
+     "rate": 5.0,
+     "hit": 12,
+     "of": 239
+    }
+   },
+   "all": {
+    "n": 2044,
+    "top-1": {
+     "rate": 88.1,
+     "hit": 1801,
+     "of": 2044
+    },
+    "recall@3": {
+     "rate": 93.0,
+     "hit": 1630,
+     "of": 1753
+    },
+    "recall@5": {
+     "rate": 93.5,
+     "hit": 1639,
+     "of": 1753
+    },
+    "tool+args": {
+     "rate": 82.1,
+     "hit": 1678,
+     "of": 2044
+    },
+    "ask": {
+     "rate": 77.9,
+     "hit": 53,
+     "of": 68
+    },
+    "multi": {
+     "rate": 43.3,
+     "hit": 13,
+     "of": 30
+    },
+    "none": {
+     "rate": 95.9,
+     "hit": 279,
+     "of": 291
+    },
+    "false none": {
+     "rate": 1.5,
+     "hit": 26,
+     "of": 1753
+    }
+   }
+  },
+  "expanded": {
+   "dev": {
+    "n": 7704,
+    "top-1": {
+     "rate": 95.2,
+     "hit": 7331,
+     "of": 7704
+    },
+    "recall@3": {
+     "rate": 99.4,
+     "hit": 6580,
+     "of": 6623
+    },
+    "recall@5": {
+     "rate": 99.5,
+     "hit": 6588,
+     "of": 6623
+    },
+    "tool+args": {
+     "rate": 84.5,
+     "hit": 6513,
+     "of": 7704
+    },
+    "ask": {
+     "rate": 78.2,
+     "hit": 244,
+     "of": 312
+    },
+    "multi": {
+     "rate": 23.1,
+     "hit": 25,
+     "of": 108
+    },
+    "none": {
+     "rate": 98.4,
+     "hit": 1064,
+     "of": 1081
+    },
+    "false none": {
+     "rate": 0.2,
+     "hit": 14,
+     "of": 6623
+    }
+   },
+   "held": {
+    "n": 2776,
+    "top-1": {
+     "rate": 62.8,
+     "hit": 1744,
+     "of": 2776
+    },
+    "recall@3": {
+     "rate": 74.3,
+     "hit": 1777,
+     "of": 2391
+    },
+    "recall@5": {
+     "rate": 76.0,
+     "hit": 1817,
+     "of": 2391
+    },
+    "tool+args": {
+     "rate": 57.0,
+     "hit": 1582,
+     "of": 2776
+    },
+    "ask": {
+     "rate": 47.9,
+     "hit": 23,
+     "of": 48
+    },
+    "multi": {
+     "rate": 33.3,
+     "hit": 14,
+     "of": 42
+    },
+    "none": {
+     "rate": 83.9,
+     "hit": 323,
+     "of": 385
+    },
+    "false none": {
+     "rate": 7.0,
+     "hit": 168,
+     "of": 2391
+    }
+   },
+   "final": {
+    "n": 1668,
+    "top-1": {
+     "rate": 62.9,
+     "hit": 1049,
+     "of": 1668
+    },
+    "recall@3": {
+     "rate": 71.3,
+     "hit": 1017,
+     "of": 1426
+    },
+    "recall@5": {
+     "rate": 72.8,
+     "hit": 1038,
+     "of": 1426
+    },
+    "tool+args": {
+     "rate": 55.3,
+     "hit": 923,
+     "of": 1668
+    },
+    "ask": {
+     "rate": 29.2,
+     "hit": 14,
+     "of": 48
+    },
+    "multi": {
+     "rate": 66.7,
+     "hit": 20,
+     "of": 30
+    },
+    "none": {
+     "rate": 86.0,
+     "hit": 208,
+     "of": 242
+    },
+    "false none": {
+     "rate": 7.4,
+     "hit": 105,
+     "of": 1426
+    }
+   },
+   "all": {
+    "n": 12148,
+    "top-1": {
+     "rate": 83.3,
+     "hit": 10124,
+     "of": 12148
+    },
+    "recall@3": {
+     "rate": 89.8,
+     "hit": 9374,
+     "of": 10440
+    },
+    "recall@5": {
+     "rate": 90.5,
+     "hit": 9443,
+     "of": 10440
+    },
+    "tool+args": {
+     "rate": 74.2,
+     "hit": 9018,
+     "of": 12148
+    },
+    "ask": {
+     "rate": 68.9,
+     "hit": 281,
+     "of": 408
+    },
+    "multi": {
+     "rate": 32.8,
+     "hit": 59,
+     "of": 180
+    },
+    "none": {
+     "rate": 93.4,
+     "hit": 1595,
+     "of": 1708
+    },
+    "false none": {
+     "rate": 2.7,
+     "hit": 287,
+     "of": 10440
+    }
+   }
+  }
+ }
+}

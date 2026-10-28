@@ -15,9 +15,10 @@ Written the way people type: typos, no Turkish letters, slang, half sentences.
 
 | Command | Does |
 |---|---|
-| `tools/nl-check.py` | checks every case against the tools in `cli/fm/Core/Mcp.Tools.cs`; reports a training sentence that repeats a test one |
+| `tools/nl-check.py` | checks every case against the tools in `cli/fm/Core/Mcp.Tools.cs`; reports near-copies on two sides |
+| `tools/nl-split.py` | gives new cases their side (dev, held, final); run it after adding cases |
 | `tools/nl-expand.py [--train]` | writes noisy variants: Turkish letters folded, a letter dropped, doubled, swapped or mistyped, filler words, odd capitals, another player's name |
-| `tools/nl-score.py` | scores a router; `--router CMD` for another one, `--given-tool` for the argument readers alone, `--fails N` to list misses, `--save` to keep the result in `results/` |
+| `tools/nl-score.py` | scores a router; `--router CMD` for another one, `--given-tool` for the argument readers alone, `--fails N` to list misses, `--final` to score the final set too, `--save` to keep the result in `results/` |
 | `tools/nl-train.py` | fine-tunes the embedding model, exports int8 ONNX to `~/.cache/fm-cli/nl/<name>` |
 | `tools/nl-embed.py` | the same router in Python, for experiments |
 
@@ -35,12 +36,19 @@ python3 tools/nl-expand.py --train
 ~/.cache/fm-cli/nl-venv/bin/python tools/nl-train.py --epochs 2 --name NAME --int8
 ```
 
-## Dev and held
+## Dev, held, final
 
-- Each test sentence is in **dev** (~70%) or **held** (~30%), by a hash of its text.
+- Each test case says its side in `"split"`: **dev** (63%), **held** (23%) or **final** (14%).
+- Near-copies form a family, and a family stays on one side. Near = letter-trigram cosine ≥ 0.8,
+  or ≥ 0.65 with the same call (`tools/nl_family.py`).
+- A case near a training sentence is dev: the model has seen it.
+- A new family gets its side by a hash; a case that joins a family takes the family's side.
 - A noisy variant goes with its sentence.
 - Rules and training sentences are tuned on dev only.
-- Only held numbers say how the router does on new wording.
+- Held numbers say how the router does on new wording.
+- Final is scored only to confirm a decision (`--final`). Never list its failures, never tune on it.
+- The split changed on 28 Oct. Rules and readers were tuned on the old dev, which is now partly
+  held and final, so their held numbers read high.
 
 ## Metrics
 
@@ -61,21 +69,21 @@ clean), machine.
 
 ## Current numbers
 
-Model `mpnet-l-q` (trained on lower-cased, clean sentences), held. From `results/mpnet-l-q.json`:
+Model `mpnet-f-q`, trained on the family-split dev only. From `results/mpnet-f-q.json`:
 
-| set | top-1 | recall@3 | recall@5 | tool+args | ask | multi | none | false none |
-|---|---|---|---|---|---|---|---|---|
-| base | 78.8% | 87.4% | 88.3% | 64.6% | 47.8% | 25.0% | 87.5% | 2.8% |
-| noisy | 68.9% | 78.4% | 79.4% | 54.0% | 37.7% | 20.8% | 82.1% | 5.0% |
+| set | split | top-1 | recall@3 | recall@5 | tool+args | ask | multi | none | false none |
+|---|---|---|---|---|---|---|---|---|---|
+| base | held | 73.9% | 82.6% | 84.1% | 69.6% | 62.5% | 57.1% | 89.2% | 3.5% |
+| base | final | 71.3% | 80.8% | 82.0% | 65.2% | 37.5% | 80.0% | 93.0% | 5.0% |
+| noisy | held | 62.8% | 74.3% | 76.0% | 57.0% | 47.9% | 33.3% | 83.9% | 7.0% |
+| noisy | final | 62.9% | 71.3% | 72.8% | 55.3% | 29.2% | 66.7% | 86.0% | 7.4% |
 
-Previous clean model `mpnet-t-q`: base 76.0% / 62.9%, noisy 67.0% / 52.1% (top-1 / tool+args).
-
-Other measurements, held, base set:
-
-- Argument readers alone (the right tool given): tool+args 76.7%, ask 60.9% (`results/readers.json`).
-- Several asks in one sentence, all tools in the top 5: 37.5% (only 8 sentences).
-- With choices offered below 80% confidence, the right tool is among them 87% of the time
-  (noisy: 78%).
+- Base held has only 8 ask and 7 multi sentences, final 8 and 5: those two columns are noise.
+- tool+args and ask read high: the readers were tuned on the old split (see above).
+- Argument readers alone (the right tool given): tool+args held 91.9%, final 88.0%
+  (`results/readers.json`). Same caveat.
+- The CLI still ships `mpnet-l-q`. It was trained on the old dev, which overlaps today's held
+  and final, so it cannot be scored on them.
 
 ## What we learned
 
@@ -113,7 +121,7 @@ The full history of every experiment is in the git log of this file.
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.
 
 ```json
-{"tr": "kadroda yorgun kim var", "call": "fm_squad", "args": {"view": "fitness"}}
+{"tr": "kadroda yorgun kim var", "call": "fm_squad", "args": {"view": "fitness"}, "split": "dev"}
 {"en": "bid 5m for yildiz", "call": "fm_offer", "args": {"name": "yildiz", "fee": "5M"}}
 {"tr": "maça çık", "call": "fm_match", "ask": "mode"}
 {"tr": "sıradaki maç ne zaman ve kimle", "call": "fm_fixtures", "or": [{"call": "fm_opponent"}]}
@@ -126,6 +134,7 @@ One JSON object per line. The text is under its language: `"tr"` or `"en"`.
 - `ask`: the right tool, but something must be asked (a match's mode, a missing player).
 - `call` as a list: several asks in order; `args` is then a list too.
 - `call: null`: no tool does this.
+- `split`: dev, held or final. Left out in the examples above; `tools/nl-split.py` adds it.
 
 Judging:
 
