@@ -1,7 +1,6 @@
 # Local LLM experiment plan
 
-Which jobs can a small local model do, with FM open on this Mac? Status: **waiting for approval.**
-Nothing is downloaded before the plan is approved.
+Which jobs can a small local model do, with FM open on this Mac? Status: **approved 28 Oct.** Starts once disk space is freed.
 
 ## Machine (28 Oct, FM open)
 
@@ -95,9 +94,9 @@ A model passes a job only if all of its marks hold on held.
 - Conversation, memory, cost: `tests/llm/results/<model>.json`.
 - Snapshots and blind scores: `tests/llm/`.
 
-## Needs approval
+## Approved (28 Oct)
 
-- [ ] The four models above (or fewer)
-- [ ] `brew install llama.cpp`
-- [ ] Up to ~3 GB download per model, deleted after its run
-- [ ] Faruk scores 20 blind answers per model that reaches the conversation bench
+- [x] The four models above
+- [x] `brew install llama.cpp`
+- [x] Up to ~3 GB download per model, deleted after its run
+- [x] Blind scoring of the 20 answers, done together
