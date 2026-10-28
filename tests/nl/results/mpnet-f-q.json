@@ -1,7 +1,7 @@
 {
  "manifest": {
-  "when": "2026-10-28T19:38:13+03:00",
-  "router": "cli/fm/bin/Debug/net10.0/fm __route --model /Users/farukkavlak/.cache/fm-cli/nl/mpnet-f-q",
+  "when": "2026-10-28T19:56:21+03:00",
+  "router": "cli/fm/bin/Debug/net10.0/fm __route --model ~/.cache/fm-cli/nl/mpnet-f-q",
   "given_tool": false,
   "model": {
    "dir": "/Users/farukkavlak/.cache/fm-cli/nl/mpnet-f-q",
@@ -14,7 +14,8 @@
   },
   "split": "families (trigram cosine >= 0.8, or >= 0.65 with the same call; near a training sentence = dev); new family: sha1 % 100 < 18 final, < 48 held",
   "final_scored": true,
-  "commit": "c81481a",
+  "group": null,
+  "commit": "9660247",
   "dirty": false,
   "machine": {
    "os": "macOS-14.6.1-arm64-arm-64bit",
@@ -33,13 +34,13 @@
      "of": 1435
     },
     "recall@3": {
-     "rate": 97.7,
-     "hit": 1223,
+     "rate": 98.4,
+     "hit": 1232,
      "of": 1252
     },
     "recall@5": {
-     "rate": 98.8,
-     "hit": 1237,
+     "rate": 98.7,
+     "hit": 1236,
      "of": 1252
     },
     "tool+args": {
@@ -76,13 +77,13 @@
      "of": 522
     },
     "recall@3": {
-     "rate": 86.4,
-     "hit": 395,
+     "rate": 87.3,
+     "hit": 399,
      "of": 457
     },
     "recall@5": {
-     "rate": 88.6,
-     "hit": 405,
+     "rate": 89.1,
+     "hit": 407,
      "of": 457
     },
     "tool+args": {
@@ -119,13 +120,13 @@
      "of": 319
     },
     "recall@3": {
-     "rate": 82.2,
-     "hit": 227,
+     "rate": 84.8,
+     "hit": 234,
      "of": 276
     },
     "recall@5": {
-     "rate": 88.4,
-     "hit": 244,
+     "rate": 89.5,
+     "hit": 247,
      "of": 276
     },
     "tool+args": {
@@ -162,13 +163,13 @@
      "of": 2276
     },
     "recall@3": {
-     "rate": 92.9,
-     "hit": 1845,
+     "rate": 94.0,
+     "hit": 1865,
      "of": 1985
     },
     "recall@5": {
-     "rate": 95.0,
-     "hit": 1886,
+     "rate": 95.2,
+     "hit": 1890,
      "of": 1985
     },
     "tool+args": {
@@ -207,13 +208,13 @@
      "of": 8548
     },
     "recall@3": {
-     "rate": 96.9,
-     "hit": 7237,
+     "rate": 96.6,
+     "hit": 7212,
      "of": 7467
     },
     "recall@5": {
-     "rate": 98.4,
-     "hit": 7350,
+     "rate": 97.4,
+     "hit": 7274,
      "of": 7467
     },
     "tool+args": {
@@ -250,13 +251,13 @@
      "of": 3105
     },
     "recall@3": {
-     "rate": 78.2,
-     "hit": 2126,
+     "rate": 78.9,
+     "hit": 2147,
      "of": 2720
     },
     "recall@5": {
-     "rate": 82.8,
-     "hit": 2251,
+     "rate": 82.9,
+     "hit": 2254,
      "of": 2720
     },
     "tool+args": {
@@ -293,13 +294,13 @@
      "of": 1889
     },
     "recall@3": {
-     "rate": 73.9,
-     "hit": 1217,
+     "rate": 76.4,
+     "hit": 1258,
      "of": 1647
     },
     "recall@5": {
-     "rate": 80.7,
-     "hit": 1329,
+     "rate": 81.8,
+     "hit": 1347,
      "of": 1647
     },
     "tool+args": {
@@ -336,13 +337,13 @@
      "of": 13542
     },
     "recall@3": {
-     "rate": 89.4,
-     "hit": 10580,
+     "rate": 89.7,
+     "hit": 10617,
      "of": 11834
     },
     "recall@5": {
-     "rate": 92.4,
-     "hit": 10930,
+     "rate": 91.9,
+     "hit": 10875,
      "of": 11834
     },
     "tool+args": {

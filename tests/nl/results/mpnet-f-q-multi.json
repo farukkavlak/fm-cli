@@ -1,0 +1,377 @@
+{
+ "manifest": {
+  "when": "2026-10-28T19:56:43+03:00",
+  "router": "cli/fm/bin/Debug/net10.0/fm __route --model ~/.cache/fm-cli/nl/mpnet-f-q",
+  "given_tool": false,
+  "model": {
+   "dir": "/Users/farukkavlak/.cache/fm-cli/nl/mpnet-f-q",
+   "name": "mpnet-f-q",
+   "sha256": "e0b1a5282c5705beda1f4ca6aac0749fa0357379e21faab96d12c1ba036c0bf3"
+  },
+  "data": {
+   "tests+train": "bce2f166a59008db7b5739a9d9cbecac351961b0d241279415552a3022d58828",
+   "expanded": "8f9c168c9669c4e0ee0949106248aa84b1b8876c143db8f42c9b09f0149cb671"
+  },
+  "split": "families (trigram cosine >= 0.8, or >= 0.65 with the same call; near a training sentence = dev); new family: sha1 % 100 < 18 final, < 48 held",
+  "final_scored": true,
+  "group": "13",
+  "commit": "9660247",
+  "dirty": false,
+  "machine": {
+   "os": "macOS-14.6.1-arm64-arm-64bit",
+   "cpu": "Apple M2",
+   "cores": 8,
+   "python": "3.11.2"
+  }
+ },
+ "results": {
+  "base": {
+   "dev": {
+    "n": 89,
+    "top-1": {
+     "rate": 47.2,
+     "hit": 42,
+     "of": 89
+    },
+    "recall@3": {
+     "rate": 92.1,
+     "hit": 82,
+     "of": 89
+    },
+    "recall@5": {
+     "rate": 95.5,
+     "hit": 85,
+     "of": 89
+    },
+    "tool+args": {
+     "rate": 44.9,
+     "hit": 40,
+     "of": 89
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": 44.8,
+     "hit": 39,
+     "of": 87
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 89
+    }
+   },
+   "held": {
+    "n": 39,
+    "top-1": {
+     "rate": 56.4,
+     "hit": 22,
+     "of": 39
+    },
+    "recall@3": {
+     "rate": 97.4,
+     "hit": 38,
+     "of": 39
+    },
+    "recall@5": {
+     "rate": 97.4,
+     "hit": 38,
+     "of": 39
+    },
+    "tool+args": {
+     "rate": 51.3,
+     "hit": 20,
+     "of": 39
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": 52.6,
+     "hit": 20,
+     "of": 38
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 39
+    }
+   },
+   "final": {
+    "n": 30,
+    "top-1": {
+     "rate": 50.0,
+     "hit": 15,
+     "of": 30
+    },
+    "recall@3": {
+     "rate": 86.7,
+     "hit": 26,
+     "of": 30
+    },
+    "recall@5": {
+     "rate": 93.3,
+     "hit": 28,
+     "of": 30
+    },
+    "tool+args": {
+     "rate": 46.7,
+     "hit": 14,
+     "of": 30
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": 46.7,
+     "hit": 14,
+     "of": 30
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 30
+    }
+   },
+   "all": {
+    "n": 158,
+    "top-1": {
+     "rate": 50.0,
+     "hit": 79,
+     "of": 158
+    },
+    "recall@3": {
+     "rate": 92.4,
+     "hit": 146,
+     "of": 158
+    },
+    "recall@5": {
+     "rate": 95.6,
+     "hit": 151,
+     "of": 158
+    },
+    "tool+args": {
+     "rate": 46.8,
+     "hit": 74,
+     "of": 158
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": 47.1,
+     "hit": 73,
+     "of": 155
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 158
+    }
+   }
+  },
+  "expanded": {
+   "dev": {
+    "n": 534,
+    "top-1": {
+     "rate": 39.3,
+     "hit": 210,
+     "of": 534
+    },
+    "recall@3": {
+     "rate": 87.3,
+     "hit": 466,
+     "of": 534
+    },
+    "recall@5": {
+     "rate": 92.9,
+     "hit": 496,
+     "of": 534
+    },
+    "tool+args": {
+     "rate": 36.1,
+     "hit": 193,
+     "of": 534
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": 35.6,
+     "hit": 186,
+     "of": 522
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 534
+    }
+   },
+   "held": {
+    "n": 234,
+    "top-1": {
+     "rate": 47.0,
+     "hit": 110,
+     "of": 234
+    },
+    "recall@3": {
+     "rate": 90.2,
+     "hit": 211,
+     "of": 234
+    },
+    "recall@5": {
+     "rate": 92.7,
+     "hit": 217,
+     "of": 234
+    },
+    "tool+args": {
+     "rate": 41.5,
+     "hit": 97,
+     "of": 234
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": 42.5,
+     "hit": 97,
+     "of": 228
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 234
+    }
+   },
+   "final": {
+    "n": 180,
+    "top-1": {
+     "rate": 40.0,
+     "hit": 72,
+     "of": 180
+    },
+    "recall@3": {
+     "rate": 78.3,
+     "hit": 141,
+     "of": 180
+    },
+    "recall@5": {
+     "rate": 89.4,
+     "hit": 161,
+     "of": 180
+    },
+    "tool+args": {
+     "rate": 36.7,
+     "hit": 66,
+     "of": 180
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": 36.7,
+     "hit": 66,
+     "of": 180
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 180
+    }
+   },
+   "all": {
+    "n": 948,
+    "top-1": {
+     "rate": 41.4,
+     "hit": 392,
+     "of": 948
+    },
+    "recall@3": {
+     "rate": 86.3,
+     "hit": 818,
+     "of": 948
+    },
+    "recall@5": {
+     "rate": 92.2,
+     "hit": 874,
+     "of": 948
+    },
+    "tool+args": {
+     "rate": 37.6,
+     "hit": 356,
+     "of": 948
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": 37.5,
+     "hit": 349,
+     "of": 930
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": 0.0,
+     "hit": 0,
+     "of": 948
+    }
+   }
+  }
+ }
+}

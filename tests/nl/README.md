@@ -55,8 +55,10 @@ python3 tools/nl-expand.py --train
 Use these names everywhere: code, docs, commits. Out of all sentences unless noted.
 
 - **top-1**: the router's pick is the right tool (or one of its `or` tools).
-- **recall@k**: the right tool is among the k best candidate tools; for several asks, all of them
-  are. Candidates come from the 50 nearest examples. Out of sentences that expect a tool.
+- **recall@k**: the right tool is among the k best candidate tools. Candidates come from the 50
+  nearest examples. Out of sentences that expect a tool. Several asks: when the rules split the
+  sentence, each ask has its own list and each expected tool must be in its ask's k best, in
+  order; when they do not, all expected tools must be in the whole sentence's k best.
 - **tool+args**: the right tool and the right arguments; an expected ask must be asked, not guessed.
 - **ask**: tool+args, out of sentences where something must be asked.
 - **multi**: tool+args, out of sentences with several asks.
@@ -73,12 +75,14 @@ Model `mpnet-f-q`, trained on the family-split dev only. From `results/mpnet-f-q
 
 | set | split | top-1 | recall@3 | recall@5 | tool+args | ask | multi | none | false none |
 |---|---|---|---|---|---|---|---|---|---|
-| base | held | 73.0% | 86.4% | 88.6% | 67.0% | 56.2% | 52.6% | 89.2% | 2.6% |
-| base | final | 68.7% | 82.2% | 88.4% | 61.8% | 30.0% | 46.7% | 90.7% | 4.0% |
-| noisy | held | 63.2% | 78.2% | 82.8% | 55.8% | 43.2% | 42.5% | 84.2% | 5.2% |
-| noisy | final | 58.9% | 73.9% | 80.7% | 50.7% | 22.5% | 36.7% | 85.1% | 7.0% |
+| base | held | 73.0% | 87.3% | 89.1% | 67.0% | 56.2% | 52.6% | 89.2% | 2.6% |
+| base | final | 68.7% | 84.8% | 89.5% | 61.8% | 30.0% | 46.7% | 90.7% | 4.0% |
+| noisy | held | 63.2% | 78.9% | 82.9% | 55.8% | 43.2% | 42.5% | 84.2% | 5.2% |
+| noisy | final | 58.9% | 76.4% | 81.8% | 50.7% | 22.5% | 36.7% | 85.1% | 7.0% |
 
 - Base held has 33 ask and 38 multi sentences, final 20 and 30.
+- `13-multi` alone, recall@5: held 97.4%, final 93.3% (`results/mpnet-f-q-multi.json`).
+  The rules split 122 of its 155 multi sentences.
 - Most ask and multi sentences were added on 28 Oct, after the rules were written, so those two
   columns are not tuned on any side yet (dev ask 63.4%, dev multi 44.8%).
 - tool+args reads high for the older sentences: the readers were tuned on the old split (see above).
@@ -101,6 +105,9 @@ What worked, biggest gain first:
 - Candidates from 50 neighbours instead of the 15 that vote: held recall@5 82.1% → 88.6%.
   Summing, max or best-two per tool: within half a point; 100 neighbours: +1 point recall@5,
   −3 points recall@3.
+- One candidate list per ask, where the rules split the sentence: `13-multi` recall@5 held
+  79.5% → 97.4%, final 76.7% → 93.3%. Each ask gets five candidates, so the sentence gets more
+  than five in all.
 
 What did not work:
 
@@ -110,6 +117,9 @@ What did not work:
 - Voting choice arguments with the nearest sentences.
 - Squeezing doubled letters ("kimm" → "kim").
 - Offering the rule router's pick when "nothing" wins.
+- Splitting for candidates where the rules do not: at every cut (dev multi recall@5 −0 to +2,
+  held −2.5, and single asks with "ve"/"and" get split), or where the nearest examples vote for
+  several asks (no change).
 
 Traps:
 
