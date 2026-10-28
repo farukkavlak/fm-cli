@@ -18,4 +18,5 @@ tools/llm-bench.py --gguf FILE --snapshot ~/.cache/fm-cli/llm/snapshot-2029-08-0
 
 - Unknown names: capitalised words in an answer that are not in its snapshot files. Flagged by the
   script, confirmed by hand.
+- RAM: llama-server's footprint (Metal buffers included) plus the GGUF size (the weights are a mapped file, outside the footprint).
 - Memory: earlier turns go in as the plans they became; only the last turn is scored.

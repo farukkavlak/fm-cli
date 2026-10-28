@@ -59,15 +59,19 @@ def swap_used_mb():
 	return float(m.group(1)) if m else None
 
 
-def rss_mb(pid):
-	out = run(["ps", "-o", "rss=", "-p", str(pid)]).stdout.strip()
-	return round(int(out) / 1024) if out else None
+def footprint_mb(pid):
+	"""The process's own memory, Metal buffers included; the weights are a mapped file and not in it."""
+	m = re.search(r"Footprint: ([\d.]+) (MB|GB)", run(["footprint", "-p", str(pid)]).stdout)
+	return round(float(m.group(1)) * (1024 if m.group(2) == "GB" else 1)) if m else None
 
 
-def fm_status_s():
-	t0 = time.perf_counter()
-	run(["fm", "status"])
-	return round(time.perf_counter() - t0, 2)
+def fm_status_s(times=3):
+	took = []
+	for _ in range(times):
+		t0 = time.perf_counter()
+		run(["fm", "status"])
+		took.append(time.perf_counter() - t0)
+	return round(statistics.median(took), 2)
 
 
 def chat(server, messages, max_tokens, schema=None):
@@ -142,6 +146,8 @@ def memory(server, tools):
 			steps = json.loads(raw)["steps"]
 		except (json.JSONDecodeError, KeyError, TypeError):
 			steps = []
+		for st in steps:  # a flag set to false is the same as one left out (tools/nl-llm.py)
+			st["args"] = {k: v for k, v in st["args"].items() if v is not False}
 		ok = len(steps) == 1 and steps[0]["tool"] == last["call"] and score.same_args(last["args"], steps[0]["args"])
 		rows.append({"id": c["id"], "ok": ok, "want": {"call": last["call"], "args": last["args"]}, "got": steps, "s": round(took, 2)})
 		print(f"  {c['id']} {'ok ' if ok else 'BAD'} {took:4.1f}s {json.dumps(steps, ensure_ascii=False)}", file=sys.stderr)
@@ -175,7 +181,7 @@ def main():
 	cost["load_s"] = round(time.perf_counter() - t0, 1)
 	try:
 		# fm status while the model is busy
-		busy = threading.Thread(target=chat, args=(server, [{"role": "user", "content": "Bir futbol takımına moral konuşması yaz."}], 200))
+		busy = threading.Thread(target=chat, args=(server, [{"role": "user", "content": "Bir futbol takımına uzun bir moral konuşması yaz."}], 600))
 		busy.start()
 		time.sleep(0.5)
 		cost["fm_status_s_during"] = fm_status_s()
@@ -187,7 +193,8 @@ def main():
 		if a.only in (None, "conversation"):
 			print("conversation", file=sys.stderr)
 			result["conversation"] = conversation(server, snapshot)
-		cost["rss_mb"] = rss_mb(server.proc.pid)
+		cost["footprint_mb"] = footprint_mb(server.proc.pid)
+		cost["ram_mb"] = cost["footprint_mb"] + round(gguf.stat().st_size / 2**20) if cost["footprint_mb"] else None
 		cost["swap_mb_after"] = swap_used_mb()
 	finally:
 		server.close()
