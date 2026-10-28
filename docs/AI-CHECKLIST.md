@@ -14,7 +14,7 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 
 ## Phase 1 — candidates + local LLM experiment
 - [x] Measure recall@k: held recall@3 80.5% · recall@5 82.1% (`mpnet-f-q`, top-1 73.0%)
-- [ ] Candidates from a wider pool of neighbours (e.g. 50); measure recall@5
+- [x] Candidates from the 50 nearest examples: held recall@5 88.6% · final 88.4% (was 82.1% / 79.3%)
 - [ ] Several asks: split first, one candidate list per ask; measure recall@5
 - [ ] Write the experiment plan and get it approved: models, versions, licenses, quantization, metrics, thresholds
 - [ ] Measure with FM running: understanding · planning (tool + arguments from candidates) · conversation · memory · latency

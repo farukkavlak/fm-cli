@@ -55,8 +55,8 @@ python3 tools/nl-expand.py --train
 Use these names everywhere: code, docs, commits. Out of all sentences unless noted.
 
 - **top-1**: the router's pick is the right tool (or one of its `or` tools).
-- **recall@k**: the right tool is among the k best-voted tools; for several asks, all of them are.
-  Out of sentences that expect a tool.
+- **recall@k**: the right tool is among the k best candidate tools; for several asks, all of them
+  are. Candidates come from the 50 nearest examples. Out of sentences that expect a tool.
 - **tool+args**: the right tool and the right arguments; an expected ask must be asked, not guessed.
 - **ask**: tool+args, out of sentences where something must be asked.
 - **multi**: tool+args, out of sentences with several asks.
@@ -73,10 +73,10 @@ Model `mpnet-f-q`, trained on the family-split dev only. From `results/mpnet-f-q
 
 | set | split | top-1 | recall@3 | recall@5 | tool+args | ask | multi | none | false none |
 |---|---|---|---|---|---|---|---|---|---|
-| base | held | 73.0% | 80.5% | 82.1% | 67.0% | 56.2% | 52.6% | 89.2% | 2.6% |
-| base | final | 68.7% | 78.3% | 79.3% | 61.8% | 30.0% | 46.7% | 90.7% | 4.0% |
-| noisy | held | 63.2% | 73.6% | 75.1% | 55.8% | 43.2% | 42.5% | 84.2% | 5.2% |
-| noisy | final | 58.9% | 68.6% | 71.2% | 50.7% | 22.5% | 36.7% | 85.1% | 7.0% |
+| base | held | 73.0% | 86.4% | 88.6% | 67.0% | 56.2% | 52.6% | 89.2% | 2.6% |
+| base | final | 68.7% | 82.2% | 88.4% | 61.8% | 30.0% | 46.7% | 90.7% | 4.0% |
+| noisy | held | 63.2% | 78.2% | 82.8% | 55.8% | 43.2% | 42.5% | 84.2% | 5.2% |
+| noisy | final | 58.9% | 73.9% | 80.7% | 50.7% | 22.5% | 36.7% | 85.1% | 7.0% |
 
 - Base held has 33 ask and 38 multi sentences, final 20 and 30.
 - Most ask and multi sentences were added on 28 Oct, after the rules were written, so those two
@@ -98,6 +98,9 @@ What worked, biggest gain first:
   word, a verb form, a number, or a common word when a rarer one is there.
 - Int8 weights: same scores, 275 MB instead of 1 GB.
 - Lower-casing the input, in training too. Odd capitals were the top cause of false "nothing".
+- Candidates from 50 neighbours instead of the 15 that vote: held recall@5 82.1% → 88.6%.
+  Summing, max or best-two per tool: within half a point; 100 neighbours: +1 point recall@5,
+  −3 points recall@3.
 
 What did not work:
 
