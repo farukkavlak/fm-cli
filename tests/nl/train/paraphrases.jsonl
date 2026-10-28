@@ -298,10 +298,10 @@
 {"tr": "günü geçir", "call": "fm_next"}
 {"tr": "bir gün ilerle", "call": "fm_next"}
 {"tr": "zamanı ilerlet", "call": "fm_next"}
-{"tr": "maça kadar ilerlet", "call": "fm_next"}
+{"tr": "maça kadar ilerlet", "call": "fm_next", "args": {"until": "match"}}
 {"en": "advance a day", "call": "fm_next"}
 {"en": "move time forward", "call": "fm_next"}
-{"en": "skip ahead to the match", "call": "fm_next"}
+{"en": "skip ahead to the match", "call": "fm_next", "args": {"until": "match"}}
 {"tr": "forma numaralarını göster", "call": "fm_numbers"}
 {"tr": "contiye 7 numara ver", "call": "fm_numbers"}
 {"tr": "boşta hangi numaralar var", "call": "fm_numbers"}

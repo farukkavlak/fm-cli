@@ -14,6 +14,7 @@ in [USAGE.md](USAGE.md).
 fm start          # launch the game, load the last save, enter a session
 fm status         # date, next match, what is waiting
 fm next           # continue; stops at a real blocker
+fm next --until match    # on to match day (or the first thing that wants an answer)
 ```
 
 ![fm status](manual/img/start/status.png)

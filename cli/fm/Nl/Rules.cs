@@ -122,10 +122,15 @@ internal static partial class Router
 		R("fm_status", "durum$=2; durumu ne=1; durumday=3; ne bekli=3; tarih$=3; date$=3; where are we=4; nerdeyiz=3; devam edebilir=3; ilerlemiyo=3; tutuyo=3; " +
 			"saat kac=3; takildi=3; napiyoz=3; ne yapmam=3; sira kimde=3; status=3; cant continue=4; score$=2; what do i do=3; wat do=3; su an=1; macta durum=3"),
 		R("fm_next", "devam$=1.5; devam et=1.5; ilerlet=2; ilerle$=2; gunu gec=3; sonraki gune=3; gec gec=3; continue=1.5; cont$=2; next day=3; advance=2; go on=2; " +
-			"skip ahead=3; press continue=3; on kere=2; cevaplamadan=2; move on=1.5; soruyu=1; soru atla=2", c =>
+			"skip ahead=3; press continue=3; on kere=2; cevaplamadan=2; move on=1.5; soruyu=1; soru atla=2; mac* kadar=2; mesaj gel*=1.5; until the match=2", c =>
 			{
+				// "maça kadar devam et", "skip ahead to the match": as far as match day, or a message
+				if (c.Has("mac* kadar", "mac gun* kadar", "until the match", "until match*", "till the match", "till match*", "to the match", "to match day", "to matchday", "up to the match"))
+					c.Set("until", "match");
+				else if (c.Has("mesaj gel*", "mesaj dus*", "until a message", "until the next message", "until new message*", "till a message", "until someone writes"))
+					c.Set("until", "message");
 				var times = Times(c);
-				if (times >= 2) c.Set("times", Math.Min(times, 30));
+				if (times >= 2 && !c.Args.ContainsKey("until")) c.Set("times", Math.Min(times, 30));
 				if (c.Has("soru", "cevaplamadan", "question", "ignore", "post match")) c.Set("skip", true);
 			}),
 		R("fm_continue", "son kayd=3; son kayit=3; last save=4; resume last=4; ana menu=2"),

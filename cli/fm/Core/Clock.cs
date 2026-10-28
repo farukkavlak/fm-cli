@@ -32,10 +32,21 @@ internal static partial class Program
 		finally { Launcher.Background(); }
 	}
 
+	private const int UntilSteps = 60;
+
 	private static async Task<int> NextSteps(string[] args)
 	{
 		var times = Words(args).Select(w => int.TryParse(w, out var n) ? n : 0).FirstOrDefault(n => n > 0);
-		if (times == 0) times = 1;
+		// --until match goes on until match day, which stops Continue by itself, as does anything
+		// that wants an answer; --until message stops as well once a message comes in. Either
+		// way at most UntilSteps presses.
+		var until = Array.IndexOf(args, "--until") is var u and >= 0 && u + 1 < args.Length ? args[u + 1] : null;
+		if (until is not (null or "match" or "message"))
+		{
+			Console.Error.WriteLine(L($"'{until}' is not something to continue until: match or message"));
+			return 64;
+		}
+		if (times == 0) times = until != null ? UntilSteps : 1;
 
 		var shown = false;
 		for (var taken = 0; taken < times; taken++)
@@ -125,6 +136,9 @@ internal static partial class Program
 			}
 			foreach (var message in arrived)
 				Console.WriteLine(L($"  new: {Field(message, "NewsTitleString")}{(Blocking(message) ? L("  (awaiting an answer)") : "")}"));
+			if (until == "message" && arrived.Count > 0) break;
+			if (until != null && taken == times - 1)
+				Console.WriteLine(L($"Stopped after {times} steps without getting there."));
 		}
 
 		var last = await Fm.GetJson("state");

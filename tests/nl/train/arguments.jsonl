@@ -293,3 +293,12 @@
 {"en": "take moretti off", "call": "fm_sub", "args": {"off": "moretti"}, "ask": "on"}
 {"tr": "bu antrenörü alalım", "call": "fm_staff_hire", "ask": "name"}
 {"en": "let's hire this coach", "call": "fm_staff_hire", "ask": "name"}
+{"tr": "maç gününe kadar devam et", "call": "fm_next", "args": {"until": "match"}}
+{"tr": "maca kadar ilerle", "call": "fm_next", "args": {"until": "match"}}
+{"tr": "bir sonraki maça kadar oyunu ilerlet", "call": "fm_next", "args": {"until": "match"}}
+{"tr": "yeni mesaj gelene kadar devam", "call": "fm_next", "args": {"until": "message"}}
+{"tr": "bi mesaj düşene kadar ilerlet", "call": "fm_next", "args": {"until": "message"}}
+{"en": "continue until the match", "call": "fm_next", "args": {"until": "match"}}
+{"en": "keep going till match day", "call": "fm_next", "args": {"until": "match"}}
+{"en": "advance until a message comes in", "call": "fm_next", "args": {"until": "message"}}
+{"en": "go on until the next message", "call": "fm_next", "args": {"until": "message"}}
