@@ -126,7 +126,8 @@ internal static partial class Router
 	/// by its reader as "forced", next to the rule router's own answer. With --model DIR the
 	/// nearest example sentences pick the tool and the rules only fill its arguments (a sentence
 	/// the rules split into several asks stays split); --cases DIR is the tests/nl folder whose
-	/// dev and train sentences are the examples.
+	/// dev and train sentences are the examples; "votes" then lists the five best candidate
+	/// tools of the 50 nearest examples.
 	/// </summary>
 	public static int RouteLines(string[] args)
 	{
@@ -151,7 +152,7 @@ internal static partial class Router
 			for (var i = 0; i < texts.Count; i++)
 			{
 				picks[i] = near.Pick(texts[i].Text, vectors[i]);
-				ranks[i] = near.Rank(texts[i].Text, vectors[i], 15);
+				ranks[i] = [.. near.Candidates(texts[i].Text, vectors[i]).Select(c => (JsonSerializer.Serialize(c.Tool), c.Weight))];
 			}
 		}
 

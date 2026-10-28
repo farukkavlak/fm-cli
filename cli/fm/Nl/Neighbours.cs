@@ -49,6 +49,30 @@ internal sealed class Neighbours
 		return [.. votes.OrderByDescending(v => v.Value).Select(v => (v.Key, v.Value / total))];
 	}
 
+	/// <summary>
+	/// The tools the nearest <paramref name="pool"/> examples point at, best first, each by the
+	/// sum of its examples' similarities: a list example counts for each of its tools, "nothing
+	/// does this" for none. A wider pool than the vote's finds the right tool more often
+	/// (tests/nl/README.md); the summing rule matters less than the pool size.
+	/// </summary>
+	public List<(string Tool, float Weight)> Candidates(string text, float[]? vector, int pool = 50)
+	{
+		var q = vector ?? _embedder.Embed([text])[0];
+		var near = new List<(float Sim, int At)>();
+		for (var j = 0; j < _index.Length; j++)
+			if (_examples[j].Text != text) near.Add((Embedder.Dot(q, _index[j]), j));
+		var by = new Dictionary<string, float>();
+		foreach (var (sim, at) in near.OrderByDescending(t => t.Sim).Take(pool))
+		{
+			var call = JsonNode.Parse(_examples[at].Call);
+			var tools = call is JsonArray a ? a.Select(x => x!.GetValue<string>()) : call is JsonValue v ? [v.GetValue<string>()] : [];
+			foreach (var t in tools.Distinct())
+				by[t] = by.GetValueOrDefault(t) + sim;
+		}
+		var total = by.Values.Sum();
+		return [.. by.OrderByDescending(v => v.Value).Select(v => (v.Key, v.Value / total))];
+	}
+
 	public float[][] Embed(IReadOnlyList<string> texts) => _embedder.Embed(texts);
 
 	private float[][] Build(string cacheDir, List<(string Text, string Call)> examples)
