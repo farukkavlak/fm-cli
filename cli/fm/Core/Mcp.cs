@@ -132,6 +132,33 @@ internal static partial class Mcp
 	public static string[]? CommandFor(string tool, JsonObject arguments) =>
 		Tools.FirstOrDefault(t => t.Name == tool) is { } t ? [.. t.Words(JsonDocument.Parse(arguments.ToJsonString()).RootElement)] : null;
 
+	/// <summary>
+	/// Whether a command takes free text after its name ("player rinaldi", "search …"): some tool
+	/// standing for it puts a text argument there as it is, not behind an --option. Worked out by
+	/// running each tool's words with a marker in one text argument at a time. A command no tool
+	/// stands for (help, lang, start…) counts as taking text.
+	/// </summary>
+	public static bool TakesText(string command)
+	{
+		const string marker = "§text§";
+		var any = false;
+		foreach (var tool in Tools)
+		{
+			var empty = JsonDocument.Parse("{}").RootElement;
+			if (tool.Words(empty) is not [var name, ..] || name != command) continue;
+			any = true;
+			if (JsonNode.Parse(tool.Schema)?["properties"] is not JsonObject props) continue;
+			foreach (var (arg, schema) in props)
+			{
+				if (schema?["type"]?.GetValue<string>() != "string" || schema["enum"] != null) continue;
+				var words = tool.Words(JsonDocument.Parse(new JsonObject { [arg] = marker }.ToJsonString()).RootElement);
+				var at = words.IndexOf(marker);
+				if (at > 0 && !words[at - 1].StartsWith("--", StringComparison.Ordinal)) return true;
+			}
+		}
+		return !any;
+	}
+
 	/// <summary>An argument's schema (type, description, choices) from the tool's input schema.</summary>
 	public static JsonObject? ArgumentSchema(string tool, string argument) =>
 		Tools.FirstOrDefault(t => t.Name == tool) is { } t ? JsonNode.Parse(t.Schema)?["properties"]?[argument] as JsonObject : null;

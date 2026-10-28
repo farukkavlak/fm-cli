@@ -114,7 +114,8 @@ internal static partial class Router
 		var weight = tools.FirstOrDefault(t => t.Tool == tool).Weight;
 		if (weight >= Sure) return new Understood([Fill(tool, new Text(text), 0)], []);
 		var n = weight >= Unsure ? 3 : 5;
-		var options = tools.Where(t => t.Tool == tool).Concat(tools.Where(t => t.Tool != tool)).Take(n);
+		// the pick is among them however the wider vote ranks it; shown by share
+		var options = tools.Where(t => t.Tool == tool).Concat(tools.Where(t => t.Tool != tool)).Take(n).OrderByDescending(t => t.Weight);
 		return new Understood([], [.. options.Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))]);
 	}
 

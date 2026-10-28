@@ -273,6 +273,8 @@ internal sealed partial class Ctx(Text text, string? tool = null)
 		"bring", "train", "teach", "offer", "bid", "ask", "tell", "answer", "reply", "open", "read", "find", "search", "compare", "extend", "renew", "cancel",
 		"release", "loan", "scout", "swap", "replace", "keep", "let", "lets", "get", "set", "change", "move", "check", "list", "see", "look",
 		"another", "other", "different", "baska", "baskasi", "diger", "yolla", "gonder", "goster", "getir", "koy", "yap", "ver",
+		// what is asked about someone: "rinaldi hakkında bilgi ver" names rinaldi only
+		"hakkinda", "hakkindaki", "bilgi", "bilgisi", "bilgileri", "detay", "detaylari", "info", "details", "detail",
 	];
 
 	public static bool IsStop(string w) => Stop.Contains(w);
@@ -304,6 +306,9 @@ internal sealed partial class Ctx(Text text, string? tool = null)
 
 	[GeneratedRegex("^(y|n|s|l|d|t|m|k)?[aeiou]([a-z]{0,4})$|^(lar|ler|dan|den|tan|ten|da|de|ta|te|ca|ce|ki|nin|nun|sin|lik)[a-z]{0,3}$")]
 	private static partial Regex TurkishEnding();
+
+	/// <summary>A Turkish case ending after a vowel: "konateyi", "rinaldiye", "tostoyu".</summary>
+	private static bool CaseEnded(string w) => Regex.IsMatch(w, "[aeiou]y[aeiu]$");
 
 	/// <summary>A known word typed one letter off; the first letter has to hold ("rinaldi" is no "final").</summary>
 	private static bool NearKnown(string w) => Known.Value.Any(k => k.TrimEnd('$', '*').Length >= 5 && w[0] == k[0] && Text.Matches(w, k));
@@ -345,7 +350,8 @@ internal sealed partial class Ctx(Text text, string? tool = null)
 		{
 			if (!Nameish(i)) continue;
 			var j = i;
-			while (j + 1 < W.Length && j - i < 2 && Nameish(j + 1)) j++;
+			// a case ending comes on a name's last word only: "konateyi isidori ile" is two names
+			while (j + 1 < W.Length && j - i < 2 && Nameish(j + 1) && !CaseEnded(W[j])) j++;
 			var (a, b) = (i, j);
 			bool Uncommon(int x, int y) => W[x..(y + 1)].Any(w => !Common.Value.ContainsKey(w));
 			while (b > a && CommonIn(W[b], "en") && Uncommon(a, b - 1)) b--;

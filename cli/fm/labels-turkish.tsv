@@ -2496,3 +2496,4 @@ Could not download the language model: {0}	Dil modeli indirilemedi: {0}
 Language model ready: sentences work in place of commands.	Dil modeli hazır: komut yerine cümle yazılabilir.
 Language model	Dil modeli
 `fm doctor --install` downloads it (for sentences in place of commands).	`fm doctor --install` indirir (komut yerine cümle yazmak için).
+Run it?	Çalıştırılsın mı?

@@ -31,16 +31,20 @@ internal static partial class Program
 	};
 
 	/// <summary>
-	/// A line is a sentence, not a command, when it has more than one word, does not start with a
-	/// command's own name (or a short alias such as `p`) and carries no --option. A one-word line
-	/// stays a command, as does "squad --fitness"; "kadro ne" or "maç ne zaman" start with an
-	/// alias but read as sentences.
+	/// A line is a sentence, not a command, when it has more than one word and no --option, and
+	/// does not start with a short alias such as `p`. One that starts with a command's own name is
+	/// a sentence only when that command takes no free text and the rest is not a number: "next 3"
+	/// and "player rinaldi" stay commands, "next opponent" or "table please" do not. A one-word
+	/// line stays a command, as does "squad --fitness"; "kadro ne" or "maç ne zaman" start with
+	/// an alias but read as sentences.
 	/// </summary>
-	public static bool IsSentence(string[] words) =>
-		words.Length > 1
-		&& !CommandNames.Contains(words[0])
-		&& !(words[0].Length <= 2 && CommandAliases.ContainsKey(words[0]))
-		&& !words.Any(w => w.StartsWith("--", StringComparison.Ordinal));
+	public static bool IsSentence(string[] args) =>
+		// fm "maç ne zaman" arrives as one argument
+		string.Join(' ', args).Split(' ', StringSplitOptions.RemoveEmptyEntries) is var words
+		&& words.Length > 1
+		&& !words.Any(w => w.StartsWith("--", StringComparison.Ordinal))
+		&& (CommandNames.Contains(words[0]) ? !Mcp.TakesText(words[0]) && !words.Skip(1).All(w => w.All(char.IsDigit))
+			: !(words[0].Length <= 2 && CommandAliases.ContainsKey(words[0])));
 
 	public static async Task<int> Understand(string sentence, Func<string[], Task<int>> execute)
 	{
@@ -71,7 +75,7 @@ internal static partial class Program
 		foreach (var call in calls)
 		{
 			if (!AskFor(call)) return 0;
-			if (Mcp.CommandFor(call.Tool, call.Args) is not { } words) continue;
+			if (Typed(call) is not { } words) continue;
 			var shown = string.Join(' ', words.Select(w => w.Contains(' ') ? $"\"{w}\"" : w));
 			// a pick from the list, with nothing asked after, was already a yes
 			if (IsWeighty(call) && !(chosen && call.Ask.Count == 0))
@@ -102,6 +106,13 @@ internal static partial class Program
 		return near;
 	}
 
+	/// <summary>
+	/// The command as a person would type it: the tool's words without the --json some tools add
+	/// for a model reading them, since here a person reads the output.
+	/// </summary>
+	private static string[]? Typed(Nl.Router.Call call) =>
+		Mcp.CommandFor(call.Tool, call.Args) is { } words ? [.. words.Where(w => w != "--json")] : null;
+
 	private static bool IsWeighty(Nl.Router.Call call) =>
 		Weighty.TryGetValue(call.Tool, out var when) && (when.Length == 0 || when.Any(call.Args.ContainsKey));
 
@@ -113,11 +124,12 @@ internal static partial class Program
 		for (var i = 0; i < options.Count; i++)
 		{
 			var (call, weight) = options[i];
-			var words = Mcp.CommandFor(call.Tool, call.Args) ?? [call.Tool];
+			var words = Typed(call) ?? [call.Tool];
 			var shown = string.Join(' ', words.Select(w => w.Contains(' ') ? $"\"{w}\"" : w));
 			var about = described.GetValueOrDefault(words[0], "");
 			Console.WriteLine($"  {i + 1}. {shown,-28} {weight * 100,3:0}%  {Dim(Short(about))}");
 		}
+		if (options.Count == 1) return Confirm(L("Run it?")) ? options[0].Call : null;
 		Console.Write(L($"Which one (1-{options.Count}, Enter: none)? "));
 		var answer = Console.ReadLine()?.Trim();
 		return int.TryParse(answer, out var n) && n >= 1 && n <= options.Count ? options[n - 1].Call : null;

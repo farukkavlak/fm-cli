@@ -26,4 +26,27 @@ public class NlAskTests
 		var catalog = Catalog();
 		Assert.DoesNotContain(Program.Questions.Values.Concat(Program.AskChoices.Values), t => !catalog.Contains(t));
 	}
+
+	// "next opponent" ran `next` and moved the game on (28 Ekim 2026, live).
+	[Theory]
+	[InlineData("next opponent", true)]
+	[InlineData("next 3", false)]
+	[InlineData("next", false)]
+	[InlineData("table please", false)]
+	[InlineData("player rinaldi", false)]
+	[InlineData("search rinaldi ferro", false)]
+	[InlineData("squad --fitness", false)]
+	[InlineData("squad of ours", true)]
+	[InlineData("status now", true)]
+	[InlineData("inbox has what", true)]
+	[InlineData("kadro ne", true)]
+	[InlineData("maç ne zaman", true)]
+	[InlineData("p rinaldi", false)]
+	[InlineData("önümüzdeki maç ne zaman", true)]
+	public void TellsSentencesFromCommands(string line, bool sentence) =>
+		Assert.Equal(sentence, Program.IsSentence(line.Split(' ')));
+
+	[Fact]
+	public void AQuotedSentenceIsOneArgument() =>
+		Assert.True(Program.IsSentence(["maç ne zaman"]));
 }

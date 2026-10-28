@@ -18,6 +18,8 @@ internal static partial class Program
 
 		// "fm önümüzdeki maç ne zaman": a sentence, not a command
 		if (IsSentence(args)) return await Understand(string.Join(' ', args), Run);
+		// fm "compare konate isidori": a command quoted whole is still its words
+		if (args.Length == 1 && args[0].Contains(' ')) args = args[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
 		if (args[0] == "start" && args.Skip(1).Any(a => a is "--help" or "-h")) return HelpFor("start");
 
