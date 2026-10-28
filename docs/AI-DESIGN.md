@@ -54,7 +54,7 @@ input → split into asks → candidate tools per ask → planner → plan
 
 - **Split first.** For several asks in one sentence, all tools are in one top-5 list only 37.5% of the time.
 - **Candidates, not 100 tools.** The router picks the top tools per ask. The planner sees only those.
-- **Planner.** Fills arguments, order and missing values. Readers miss about one in ten held cases even when handed the right tool (91.9% held tool+args, and that reads high).
+- **Planner.** Fills arguments, order and missing values. Readers miss about one in ten held cases even when handed the right tool (90.0% held tool+args, and that reads high).
 - **Names from the save.** Players, clubs and offers come with game ids. Fuzzy match Turkish endings and typos.
 - **Two good matches → ask.** Never guess a name.
 - **One safety policy.** Each tool is read-only, reversible or high-impact, in one place.

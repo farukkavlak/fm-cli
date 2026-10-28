@@ -73,14 +73,16 @@ Model `mpnet-f-q`, trained on the family-split dev only. From `results/mpnet-f-q
 
 | set | split | top-1 | recall@3 | recall@5 | tool+args | ask | multi | none | false none |
 |---|---|---|---|---|---|---|---|---|---|
-| base | held | 73.9% | 82.6% | 84.1% | 69.6% | 62.5% | 57.1% | 89.2% | 3.5% |
-| base | final | 71.3% | 80.8% | 82.0% | 65.2% | 37.5% | 80.0% | 93.0% | 5.0% |
-| noisy | held | 62.8% | 74.3% | 76.0% | 57.0% | 47.9% | 33.3% | 83.9% | 7.0% |
-| noisy | final | 62.9% | 71.3% | 72.8% | 55.3% | 29.2% | 66.7% | 86.0% | 7.4% |
+| base | held | 73.0% | 80.5% | 82.1% | 67.0% | 56.2% | 52.6% | 89.2% | 2.6% |
+| base | final | 68.7% | 78.3% | 79.3% | 61.8% | 30.0% | 46.7% | 90.7% | 4.0% |
+| noisy | held | 63.2% | 73.6% | 75.1% | 55.8% | 43.2% | 42.5% | 84.2% | 5.2% |
+| noisy | final | 58.9% | 68.6% | 71.2% | 50.7% | 22.5% | 36.7% | 85.1% | 7.0% |
 
-- Base held has only 8 ask and 7 multi sentences, final 8 and 5: those two columns are noise.
-- tool+args and ask read high: the readers were tuned on the old split (see above).
-- Argument readers alone (the right tool given): tool+args held 91.9%, final 88.0%
+- Base held has 33 ask and 38 multi sentences, final 20 and 30.
+- Most ask and multi sentences were added on 28 Oct, after the rules were written, so those two
+  columns are not tuned on any side yet (dev ask 63.4%, dev multi 44.8%).
+- tool+args reads high for the older sentences: the readers were tuned on the old split (see above).
+- Argument readers alone (the right tool given): tool+args held 90.0%, final 86.6%
   (`results/readers.json`). Same caveat.
 - The CLI still ships `mpnet-l-q`. It was trained on the old dev, which overlaps today's held
   and final, so it cannot be scored on them.

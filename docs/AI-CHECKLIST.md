@@ -9,16 +9,16 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 - [x] Clean lower-case model `mpnet-l-q` is the default: held top-1 78.8% / tool+args 64.6% (noisy 68.9% / 54.0%)
 - [x] Fix metric names everywhere: top-1, recall@k, tool+args, ask, multi, none, false none (`tests/nl/README.md`)
 - [x] Save a manifest with every result: data hash, split, model SHA, commit, machine (`nl-score.py --save` → `tests/nl/results/`)
-- [x] Split by sentence family, so near-copies stay on one side; keep a final test set nobody tunes on: retrained `mpnet-f-q` held top-1 73.9% · final 71.3%
-- [ ] Grow the multi-ask and ask sets (held: 7 multi, 8 ask)
+- [x] Split by sentence family, so near-copies stay on one side; keep a final test set nobody tunes on: retrained `mpnet-f-q` held top-1 73.0% · final 68.7%
+- [x] Grow the multi-ask and ask sets: held 38 multi, 33 ask (was 7 and 8); held multi 52.6% · ask 56.2%
 
 ## Phase 1 — candidates + local LLM experiment
-- [x] Measure recall@k: held recall@3 82.6% · recall@5 84.1% (`mpnet-f-q`, top-1 73.9%)
+- [x] Measure recall@k: held recall@3 80.5% · recall@5 82.1% (`mpnet-f-q`, top-1 73.0%)
 - [ ] Candidates from a wider pool of neighbours (e.g. 50); measure recall@5
 - [ ] Several asks: split first, one candidate list per ask; measure recall@5
 - [ ] Write the experiment plan and get it approved: models, versions, licenses, quantization, metrics, thresholds
 - [ ] Measure with FM running: understanding · planning (tool + arguments from candidates) · conversation · memory · latency
-- [ ] Arguments: LLM vs today's readers (readers alone: 91.9% held, reads high: tuned on the old split)
+- [ ] Arguments: LLM vs today's readers (readers alone: 90.0% held, reads high: tuned on the old split)
 - [ ] Decision note: which jobs run locally, which need a cloud model
 
 ## Phase 2 — one safety policy
