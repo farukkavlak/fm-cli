@@ -34,6 +34,8 @@ internal static partial class Program
 				Environment.ProcessPath ?? "fm", L("Link the built fm into ~/.local/bin or /usr/local/bin.")),
 			(L("Save folder"), Directory.Exists(saves), saves,
 				L("Open the game once and make a save; the folder appears by itself.")),
+			(L("Language model"), NlModelInstalled, ModelDir,
+				L("`fm doctor --install` downloads it (for sentences in place of commands).")),
 		};
 
 		if (json)

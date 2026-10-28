@@ -40,6 +40,10 @@ internal static partial class Router
 	/// not), the third is asked if the sentence leaves it out. A watch is for a length, a sub
 	/// takes one off for another, an application is to a club.
 	/// </summary>
+	/// <summary>Every argument the router can ask for by table (the readers ask a few more on their own).</summary>
+	internal static IEnumerable<(string Tool, string Arg)> Askable() =>
+		Required.SelectMany(r => r.Value.Select(a => (r.Key, a))).Concat(Needs.Select(n => (n.Tool, n.Need)));
+
 	private static readonly (string Tool, string When, string? Unless, string Need)[] Needs =
 	[
 		("fm_scout_player", "player", "who", "length"), ("fm_shortlist_change", "player", "remove", "length"),

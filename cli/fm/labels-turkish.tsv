@@ -2422,7 +2422,6 @@ bench	yedek
 There is no next match yet, so no opposition instructions (fixtures).	Henüz sıradaki maç yok, bu yüzden rakip talimatı da yok (fixtures).
 The assignments panel did not open. If it stays so: fm stop --save, then fm start.	Görevlendirmeler paneli açılmadı. Böyle kalırsa: fm stop --save, sonra fm start.
 You are unemployed: '{0}' needs a club to manage. Job vacancies: jobs	İşsizsin: '{0}' için yönetilen bir kulüp gerekiyor. İş ilanları: jobs
-To ask in a sentence the language model is needed: {0}	Cümleyle sormak için dil modeli gerekli: {0}
 No command does that. For the commands: `help`	Bunu yapan bir komut yok. Komutlar için: `help`
 Run `{0}`?	`{0}` çalıştırılsın mı?
 Getting the language model ready (only the first time, about half a minute)…	Dil modeli hazırlanıyor (yalnızca ilk sefer, yarım dakika kadar)…
@@ -2430,3 +2429,71 @@ Did you mean this?	Bunu mu demek istedin?
 Did you mean one of these?	Şunlardan birini mi demek istedin?
 Which one (1-{0}, Enter: none)? 	Hangisi (1-{0}, Enter: hiçbiri)? 
 [y/N]	[e/H]
+How do you want to play the match?	Maçı nasıl oynamak istersin?
+What kind of move?	Nasıl bir adım?
+What to do with the recruitment focus?	Gözlem odağıyla ne yapılsın?
+Which setting?	Hangi ayar?
+Which save?	Hangi kayıt?
+Save the current game first?	Önce şu anki oyun kaydedilsin mi?
+Save before closing?	Kapatmadan önce kaydedilsin mi?
+Name to save the tactic as?	Taktik hangi adla kaydedilsin?
+Which member of staff?	Hangi personel?
+Who to approach for the staff?	Ekibe kim alınsın?
+First player?	Birinci oyuncu?
+Second player?	İkinci oyuncu?
+Which answer (number or a piece of its text)?	Hangi cevap (numarası ya da metninden bir parça)?
+Which piece of advice (its number)?	Hangi tavsiye (numarası)?
+Who is the new captain?	Yeni kaptan kim?
+Which set piece?	Hangi duran top?
+Which side?	Hangi taraf?
+Who?	Kim?
+Which page?	Hangi sayfa?
+Which control (its label)?	Hangi düğme (üstündeki yazı)?
+Which players (e.g. age<23 and position=ST)?	Hangi oyuncular (ör. age<23 and position=ST)?
+Which message (number or a piece of its subject)?	Hangi mesaj (numarası ya da konusundan bir parça)?
+Search for what?	Ne aransın?
+Which list?	Hangi liste?
+Which choice?	Hangi seçenek?
+Which position (e.g. ST, DC)?	Hangi mevki (ör. ST, DC)?
+For how long (e.g. 1 month)?	Ne kadar süre (ör. 1 ay)?
+Who comes on?	Kim girsin?
+Which club?	Hangi kulüp?
+Which month?	Hangi ay?
+Which competition?	Hangi turnuva?
+Which tactic slot (1-3)?	Hangi taktik yuvası (1-3)?
+Which day?	Hangi gün?
+Which offer?	Hangi teklif?
+Which answer?	Hangi cevap?
+Which number?	Hangi numara?
+Instant result (the staff play it)	Anında sonuç (maçı ekip oynar)
+Play it, with the team talks	Oyna, takım konuşmalarıyla
+Play it, skipping the team talks	Oyna, takım konuşmalarını atla
+Show interest	İlgi göster
+Ask his club what it would take	Kulübüne şartlarını sor
+Invite him on trial	Deneme için çağır
+Set up a new focus	Yeni odak kur
+Change a focus	Bir odağı değiştir
+List the areas	Bölgeleri listele
+Stop a focus	Bir odağı durdur
+Restart a focus	Bir odağı yeniden başlat
+List the scouts	Gözlemcileri listele
+Corner	Korner
+Free kick	Serbest vuruş
+Wide free kick	Kenardan serbest vuruş
+Deep free kick	Uzaktan serbest vuruş
+Throw-in	Taç atışı
+Right side	Sağ taraf
+Left side	Sol taraf
+View it	Göster
+Accept	Kabul et
+Stall	Oyala
+Reject	Reddet
+To ask in a sentence the language model is needed: `fm doctor --install` downloads it.	Cümleyle sormak için dil modeli gerekli: `fm doctor --install` indirir.
+The language model has no download address yet; sentences stay off.	Dil modelinin henüz indirme adresi yok; cümleyle sorma kapalı kalır.
+Downloading the language model for sentences (~{0} MB, once)…	Cümleler için dil modeli indiriliyor (~{0} MB, bir kerelik)…
+The downloaded {0} is not the one expected; try again later.	İndirilen {0} beklenen dosya değil; sonra tekrar dene.
+Could not download the language model: {0}	Dil modeli indirilemedi: {0}
+{0} is a folder, not a link; the new model is in {1}.	{0} bağlantı değil, klasör; yeni model şurada: {1}.
+Language model ready: sentences work in place of commands.	Dil modeli hazır: komut yerine cümle yazılabilir.
+Language model	Dil modeli
+`fm doctor --install` downloads it (for sentences in place of commands).	`fm doctor --install` indirir (komut yerine cümle yazmak için).

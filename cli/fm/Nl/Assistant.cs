@@ -27,7 +27,7 @@ internal static partial class Program
 		["fm_save"] = [], ["fm_board_request"] = ["request"], ["fm_jobs"] = ["apply"], ["fm_saves"] = ["delete"],
 		["fm_tactic_clear"] = [], ["fm_tactic_new"] = [], ["fm_setpieces_new"] = [], ["fm_register"] = ["send", "auto"],
 		["fm_numbers"] = ["send", "auto"], ["fm_reply"] = ["answer"], ["fm_dialog"] = ["answer"], ["fm_vision"] = [],
-		["fm_press"] = [], ["fm_select"] = [], ["fm_scout_focus"] = [], ["fm_match"] = [],
+		["fm_press"] = [], ["fm_select"] = [], ["fm_scout_focus"] = [],
 	};
 
 	/// <summary>
@@ -47,7 +47,7 @@ internal static partial class Program
 		if (Model() is not { } model)
 		{
 			Console.Error.WriteLine(L($"unknown command: {sentence.Split(' ')[0]} — for the commands: `help`"));
-			Console.Error.WriteLine(L($"To ask in a sentence the language model is needed: {ModelDir}"));
+			Console.Error.WriteLine(L("To ask in a sentence the language model is needed: `fm doctor --install` downloads it."));
 			return 64;
 		}
 
@@ -127,29 +127,120 @@ internal static partial class Program
 
 	private static string Short(string text) => text.Length <= 60 ? text : text[..57] + "…";
 
+	/// <summary>
+	/// The question for an argument a sentence left open, by "tool.argument" or, for the rest, by
+	/// the argument's name. In English here, in the game's language on screen (labels-turkish.tsv).
+	/// </summary>
+	internal static readonly Dictionary<string, string> Questions = new()
+	{
+		["fm_match.mode"] = "How do you want to play the match?",
+		["fm_approach.move"] = "What kind of move?",
+		["fm_scout_focus.action"] = "What to do with the recruitment focus?",
+		["fm_tactic_set.setting"] = "Which setting?",
+		["fm_load.name"] = "Which save?",
+		["fm_load.save"] = "Save the current game first?",
+		["fm_stop.save"] = "Save before closing?",
+		["fm_tactic_file.save"] = "Name to save the tactic as?",
+		["fm_staff_fire.name"] = "Which member of staff?",
+		["fm_staff_hire.name"] = "Who to approach for the staff?",
+		["fm_compare.a"] = "First player?",
+		["fm_compare.b"] = "Second player?",
+		["fm_reply.answer"] = "Which answer (number or a piece of its text)?",
+		["fm_dugout.number"] = "Which piece of advice (its number)?",
+		["fm_captains.captain"] = "Who is the new captain?",
+		["kind"] = "Which set piece?",
+		["side"] = "Which side?",
+		["player"] = "Which player?",
+		["name"] = "Which player?",
+		["person"] = "Who?",
+		["page"] = "Which page?",
+		["label"] = "Which control (its label)?",
+		["where"] = "Which players (e.g. age<23 and position=ST)?",
+		["message"] = "Which message (number or a piece of its subject)?",
+		["text"] = "Search for what?",
+		["list"] = "Which list?",
+		["choice"] = "Which choice?",
+		["position"] = "Which position (e.g. ST, DC)?",
+		["length"] = "For how long (e.g. 1 month)?",
+		["on"] = "Who comes on?",
+		["off"] = "Who comes off?",
+		["club"] = "Which club?",
+		["month"] = "Which month?",
+		["competition"] = "Which competition?",
+		["slot"] = "Which tactic slot (1-3)?",
+		["day"] = "Which day?",
+		["offer"] = "Which offer?",
+		["answer"] = "Which answer?",
+		["number"] = "Which number?",
+	};
+
+	/// <summary>What a choice of an argument means, by "tool.argument=value" or "argument=value".</summary>
+	internal static readonly Dictionary<string, string> AskChoices = new()
+	{
+		["fm_match.mode=instant"] = "Instant result (the staff play it)",
+		["fm_match.mode=play"] = "Play it, with the team talks",
+		["fm_match.mode=play_no_talk"] = "Play it, skipping the team talks",
+		["fm_approach.move=interest"] = "Show interest",
+		["fm_approach.move=enquire"] = "Ask his club what it would take",
+		["fm_approach.move=trial"] = "Invite him on trial",
+		["fm_scout_focus.action=new"] = "Set up a new focus",
+		["fm_scout_focus.action=edit"] = "Change a focus",
+		["fm_scout_focus.action=areas"] = "List the areas",
+		["fm_scout_focus.action=remove"] = "Stop a focus",
+		["fm_scout_focus.action=restart"] = "Restart a focus",
+		["fm_scout_focus.action=staff"] = "List the scouts",
+		["fm_tactic_set.setting=mentality"] = "Mentality",
+		["fm_tactic_set.setting=style"] = "Style",
+		["kind=corner"] = "Corner",
+		["kind=freekick"] = "Free kick",
+		["kind=wide"] = "Wide free kick",
+		["kind=deep"] = "Deep free kick",
+		["kind=throw"] = "Throw-in",
+		["side=right"] = "Right side",
+		["side=left"] = "Left side",
+		["answer=view"] = "View it",
+		["answer=accept"] = "Accept",
+		["answer=stall"] = "Stall",
+		["answer=reject"] = "Reject",
+	};
+
+	private static string Question(string tool, string arg) =>
+		L(Questions.GetValueOrDefault($"{tool}.{arg}") ?? Questions.GetValueOrDefault(arg) ?? $"{arg}?");
+
+	private static string ChoiceText(string tool, string arg, string value) =>
+		L(AskChoices.GetValueOrDefault($"{tool}.{arg}={value}") ?? AskChoices.GetValueOrDefault($"{arg}={value}") ?? value);
+
 	/// <summary>Asks for what the call needs and the sentence did not say; false when one is left empty.</summary>
 	private static bool AskFor(Nl.Router.Call call)
 	{
 		foreach (var name in call.Ask)
 		{
 			var schema = Mcp.ArgumentSchema(call.Tool, name);
+			var question = Question(call.Tool, name);
+			if (schema?["type"]?.GetValue<string>() == "boolean")
+			{
+				call.Args[name] = Confirm(question);
+				continue;
+			}
 			var choices = schema?["enum"] is JsonArray e ? e.Select(c => c!.GetValue<string>()).ToList() : [];
 			if (choices.Count > 0)
 			{
-				for (var i = 0; i < choices.Count; i++) Console.WriteLine($"  {i + 1}. {choices[i]}");
-				Console.Write($"{name} (1-{choices.Count}): ");
+				Console.WriteLine(question);
+				var shown = choices.Select(c => ChoiceText(call.Tool, name, c)).ToList();
+				for (var i = 0; i < choices.Count; i++) Console.WriteLine($"  {i + 1}. {shown[i]}");
+				Console.Write(L($"Which one (1-{choices.Count}, Enter: none)? "));
 				var typed = Console.ReadLine()?.Trim() ?? "";
-				var value = int.TryParse(typed, out var n) && n >= 1 && n <= choices.Count ? choices[n - 1]
-					: choices.FirstOrDefault(c => c.Equals(typed, StringComparison.OrdinalIgnoreCase));
-				if (value == null) return false;
-				call.Args[name] = value;
+				var at = int.TryParse(typed, out var n) && n >= 1 && n <= choices.Count ? n - 1
+					: choices.FindIndex(c => c.Equals(typed, StringComparison.OrdinalIgnoreCase)) is var i2 and >= 0 ? i2
+					: shown.FindIndex(c => Nl.Text.Fold(c) == Nl.Text.Fold(typed));
+				if (at < 0) return false;
+				call.Args[name] = choices[at];
 				continue;
 			}
-			var about = schema?["description"]?.GetValue<string>() is { Length: > 0 } d ? " " + Dim($"({Short(d)})") : "";
-			Console.Write($"{name}{about}: ");
+			Console.Write($"{question} ");
 			var answer = Console.ReadLine()?.Trim() ?? "";
 			if (answer.Length == 0) return false;
-			call.Args[name] = schema?["type"]?.GetValue<string>() == "boolean" ? IsYes(answer) : answer;
+			call.Args[name] = answer;
 		}
 		return true;
 	}

@@ -13,7 +13,11 @@ internal static partial class Program
 {
 	private static async Task<int> Doctor(bool json, string[] args)
 	{
-		if (args.Contains("--install")) return InstallDoctor(json);
+		if (args.Contains("--install"))
+		{
+			if (!json) await EnsureNlModel();
+			return InstallDoctor(json);
+		}
 
 		if (!await Fm.InGame())
 		{

@@ -31,8 +31,11 @@ share of the vote (three, five when it is far from sure); a number picks one, En
 command needs and the sentence leaves open is asked (`maça çık` asks how). A command that spends,
 signs, sells, lets someone go or cannot be taken back (offer, contract, propose, release, resign,
 load, …) is shown and runs only on a yes. A one-word line, a line starting with a command's
-name and a line with `--options` stay commands. The model is read from `~/.cache/fm-cli/nl/model`
-(or `FM_NL_MODEL`); the first sentence takes about half a minute to get it ready.
+name and a line with `--options` stay commands. The language model behind it (~290 MB) is
+downloaded once by the install (`fm doctor --install`, which `install.sh` runs) into
+`~/.cache/fm-cli/nl/`; `FM_NL_MODEL` points at another. The first sentence takes about half a
+minute to get it ready. The questions and their choices are in the game's language
+(`maça çık` → "Maçı nasıl oynamak istersin? 1. Anında sonuç …").
 
 ![a sentence the model is not sure of](manual/img/ask/options.png)
 
