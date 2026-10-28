@@ -13,8 +13,11 @@ internal static partial class Program
 {
 	private const string NlModelName = "mpnet-n-q";
 
-	/// <summary>Where the model's files are served from; FM_NL_URL overrides it.</summary>
-	private const string NlModelUrl = "";
+	/// <summary>
+	/// Where the model's files are served from: a release of this repository per model,
+	/// made by tools/nl-release.sh. FM_NL_URL overrides it.
+	/// </summary>
+	private const string NlModelUrl = $"https://github.com/farukkavlak/fm-cli/releases/download/nl-{NlModelName}";
 
 	private static readonly (string File, long Size, string Sha256)[] NlModelFiles =
 	[
@@ -36,12 +39,6 @@ internal static partial class Program
 		if (NlModelInstalled) return true;
 		if (Environment.GetEnvironmentVariable("FM_NL_MODEL") is { Length: > 0 }) return false;
 		var url = Environment.GetEnvironmentVariable("FM_NL_URL") is { Length: > 0 } u ? u : NlModelUrl;
-		if (url.Length == 0)
-		{
-			Console.WriteLine(L("The language model has no download address yet; sentences stay off."));
-			return false;
-		}
-
 		var dir = Path.Combine(NlRoot, NlModelName);
 		Directory.CreateDirectory(dir);
 		Console.WriteLine(L($"Downloading the language model for sentences (~{NlModelFiles.Sum(f => f.Size) / 1_000_000} MB, once)…"));

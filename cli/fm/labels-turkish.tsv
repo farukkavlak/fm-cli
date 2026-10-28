@@ -2489,7 +2489,6 @@ Accept	Kabul et
 Stall	Oyala
 Reject	Reddet
 To ask in a sentence the language model is needed: `fm doctor --install` downloads it.	Cümleyle sormak için dil modeli gerekli: `fm doctor --install` indirir.
-The language model has no download address yet; sentences stay off.	Dil modelinin henüz indirme adresi yok; cümleyle sorma kapalı kalır.
 Downloading the language model for sentences (~{0} MB, once)…	Cümleler için dil modeli indiriliyor (~{0} MB, bir kerelik)…
 The downloaded {0} is not the one expected; try again later.	İndirilen {0} beklenen dosya değil; sonra tekrar dene.
 Could not download the language model: {0}	Dil modeli indirilemedi: {0}
