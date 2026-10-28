@@ -20,6 +20,7 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -185,7 +186,15 @@ def main():
 			messages = [{"role": "system", "content": SYSTEM},
 				{"role": "user", "content": f"Tools:\n{cards}\n\nPlayer: {line['text']}"}]
 			t0 = time.perf_counter()
-			raw = server.chat(messages, plan_schema(names, tools, max_steps), 256)
+			server.timings = {}
+			if not names:  # the router has no tool for it: nothing to plan
+				raw = '{"steps": []}'
+			else:
+				try:
+					raw = server.chat(messages, plan_schema(names, tools, max_steps), 256)
+				except urllib.error.HTTPError as e:
+					raw = f"error {e.code}: {e.read()[:300]!r}"
+					print(f"nl-llm: {line['text']!r}: {raw}", file=sys.stderr)
 			took = time.perf_counter() - t0
 			try:
 				steps = json.loads(raw)["steps"]
