@@ -1,0 +1,403 @@
+{
+ "manifest": {
+  "when": "2026-10-28T22:36:36+03:00",
+  "gguf": {
+   "name": "qwen3.5-0.8b-q8_0.gguf",
+   "sha256": "37ae482d336108d23516fa35e8e0c4126688d81018b87178a18d752a1357814f"
+  },
+  "runner": [
+   "version: 0.7.0-dev (build 11669, commit 620d2225c)"
+  ],
+  "snapshot": {
+   "dir": "snapshot-2029-08-04",
+   "sha256": "9c207ec03faf377135fcace7fc9572fe89c952082663f502a61b44c481ac1f8b"
+  },
+  "bench": "101ede71e51ad09ea6164912b75be43063ec4f23003d44213ddf9a447ecf4991",
+  "commit": "b6bd6a3",
+  "dirty": true,
+  "machine": {
+   "cpu": "Apple M2",
+   "mem_gb": 8
+  }
+ },
+ "summary": {
+  "cost": {
+   "fm_status_s_before": 1.02,
+   "swap_mb_before": 8877.31,
+   "load_s": 6.2,
+   "fm_status_s_during": 2.63,
+   "footprint_mb": 359,
+   "ram_mb": 1154,
+   "swap_mb_after": 6884.19,
+   "answer_s_median": 4.53,
+   "answer_s_p90": 20.69,
+   "plan_s_median": 1.0,
+   "plan_s_p90": 2.34,
+   "plan_n": 522,
+   "swap_growth_mb": -1993
+  },
+  "memory": "0/10",
+  "unknown_names": 7
+ },
+ "memory": [
+  {
+   "id": "m01",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "hofmeister"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "onu"
+     }
+    }
+   ],
+   "s": 2.67
+  },
+  {
+   "id": "m02",
+   "ok": false,
+   "want": {
+    "call": "fm_happiness",
+    "args": {
+     "player": "kownacki",
+     "why": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "mutsuz",
+      "report": true
+     }
+    }
+   ],
+   "s": 2.65
+  },
+  {
+   "id": "m03",
+   "ok": false,
+   "want": {
+    "call": "fm_intensity",
+    "args": {
+     "player": "ghiglione",
+     "level": "rest 7"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_schedule",
+     "args": {
+      "day": "2025-10-14",
+      "slot": 1,
+      "session": "Quickness",
+      "style": "Gegenpress"
+     }
+    }
+   ],
+   "s": 4.08
+  },
+  {
+   "id": "m04",
+   "ok": false,
+   "want": {
+    "call": "fm_tactic_player",
+    "args": {
+     "player": "biondini",
+     "position": "ST"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "onu"
+     }
+    }
+   ],
+   "s": 1.77
+  },
+  {
+   "id": "m05",
+   "ok": false,
+   "want": {
+    "call": "fm_contract",
+    "args": {
+     "name": "romagna"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "romagna"
+     }
+    }
+   ],
+   "s": 2.48
+  },
+  {
+   "id": "m06",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "orlandi",
+     "loan": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "orlandi"
+     }
+    }
+   ],
+   "s": 2.46
+  },
+  {
+   "id": "m07",
+   "ok": false,
+   "want": {
+    "call": "fm_sub",
+    "args": {
+     "off": "tosto",
+     "on": "kastanos"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "tosto"
+     }
+    }
+   ],
+   "s": 1.98
+  },
+  {
+   "id": "m08",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "yepes",
+     "fee": "2M"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_offer",
+     "args": {
+      "name": "yepes",
+      "fee": "2M",
+      "terms": []
+     }
+    }
+   ],
+   "s": 2.34
+  },
+  {
+   "id": "m09",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "bagordo",
+     "loan": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "bagordo"
+     }
+    }
+   ],
+   "s": 2.43
+  },
+  {
+   "id": "m10",
+   "ok": false,
+   "want": {
+    "call": "fm_tactic_player",
+    "args": {
+     "player": "biondini",
+     "position": "ST"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_player",
+     "args": {
+      "name": "ikinci"
+     }
+    }
+   ],
+   "s": 2.02
+  }
+ ],
+ "conversation": [
+  {
+   "id": "c01",
+   "q": "kadroda durumlar ne?",
+   "answer": "Kadroda durumlar şu an şu an:\n\n*   **Paolo Ghiglione** %61 (Yorgun)\n*   **Salvatore Elia** %69 (Sağlık riski en yüksek)\n*   **Lorenzo Tosto** %71 (Yorgun)\n*   **Yari Verschaeren** %75 (Yorgun)\n*   **Pietro Battaglini** %75 (Yorgun)\n*   **Luigi Cherubini** %79 (Yorgun)\n*   **Filippo Romagna** %79 (Yorgun)\n*   **Lorenzo Ignacchiti** %80 (Yorgun)\n*   **Edoardo Biondini** %80 (Yorgun)\n*   **Andrea Orlandi** %52 (Yorgun)\n*   **Mattia Huqi** %52 (Yorgun)\n*   **Dawid Kownacki** %52 (Yorgun)\n*   **Ismaël Konaté** %52 (Yorgun)\n*   **Gerard Yepes** %52 (Yorgun)\n*   **Dion Hofmeister** %52 (Yorgun)\n*   **Lorenzo Chiucchiuini** %53 (Yorgun)\n*   **Grigoris Kastanos** %53 (Yorgun)\n*   **Jordi Martín** %53 (Yorgun)\n*   **Cristian Bagordo** %54 (Yorgun)\n*   **Maj Blažič** %55 (Yorgun)\n*   **Salvatore Dore** %50 (Yorgun)\n*   **Michele Tempre",
+   "s": 20.69,
+   "unknown_names": [
+    "Sağlık"
+   ]
+  },
+  {
+   "id": "c02",
+   "q": "sakat var mı, kim yorgun?",
+   "answer": "Sağlık raporuna baktım, Paolo Ghiglione %61 ve Salvatore Elia %69. Yorgunluk %85'inden çok altında.",
+   "s": 2.38,
+   "unknown_names": []
+  },
+  {
+   "id": "c03",
+   "q": "sıradaki maç ne zaman, rakip nasıl bi takım?",
+   "answer": "Sıradaki maç, 29 Ekim Pazartesi 20:45'de Pescara'de, Serie B'de bir takım ile karşılaşacak. Rakip, İtalya'da 3. sırada 7 gün sonra 15:00'de deplasman yaparak hazırlık maçı yapacak.",
+   "s": 4.76,
+   "unknown_names": [
+    "Ekim",
+    "Pazartesi"
+   ]
+  },
+  {
+   "id": "c04",
+   "q": "kim ayrılmak istiyor",
+   "answer": "Bu oyun verisi incelendiğinde, \"Ayrılmak İstiyor\" (Leaving) durumu gösteren oyuncular şunlardır:\n\n*   **Dawid Kownacki** (48,5B)\n*   **Andrea Orlandi** (14B)\n*   **Dion Hofmeister** (950B)\n*   **Duccio Degli Innocenti** (55B)\n*   **Edoardo Biondini** (6,4M)\n*   **Federico Brancolini** (0)\n*   **Filippo Romagna** (8B)\n*   **Gerard Yepes** (550B)\n*   **Jordi Martín** (9B)\n*   **Lorenzo Chiucchiuini** (0)\n*   **Lorenzo Ignacchiti** (100B)\n*   **Lorenzo Tosto** (750B)\n*   **Luigi Cherubini** (120B)\n*   **Maj Blažič** (55B)\n*   **Mattia Huqi** (0)\n*   **Michele Tempre** (0)\n*   **Nicholas Bonfanti** (600B)\n*   **Nicola Viola** (10B)\n*   **Paolo Ghiglione** (2,5B)\n*   **Pietro Battaglini** (1,2M)\n*   **Salvatore Dore** (70B)\n*   **Salvatore Elia** (3,5B)\n*   **Samuele Perisan** (1B)\n*   **Yari Verschaeren** (2,5M)\n*   **Gerard Yepes** (55",
+   "s": 20.29,
+   "unknown_names": [
+    "Leaving"
+   ]
+  },
+  {
+   "id": "c05",
+   "q": "mutsuz oyuncular kim, neden mutsuzlar?",
+   "answer": "Mutsuz oyuncular, kondisyon testleri veya takım arkadaşlarını desteklemeyenlerdir.",
+   "s": 2.19,
+   "unknown_names": []
+  },
+  {
+   "id": "c06",
+   "q": "gelen teklifler neler, sence hangisini kabul edelim?",
+   "answer": "İşte FM'de gelen teklifler ve senin görüşüm:\n\n1.  **Ismaël Konaté (Southampton):** 475B £. Çok düşük bir fiyat, ancak oyuncu çok iyi bir isim.\n2.  **Alessandro Isidori (Juve Stabia):** 44,5B £ (245B £). 2 Taksitle 64.000 £ ve 20 lig maçından sonra 46.000 £. Bu, 20 lig maçından sonra 46.000 £'ye düşecek.\n3.  **Lorenzo Ignacchiti (Pisa):** 125B £ (165B £). 20 lig maçından sonra 28.000 £.\n4.  **Pietro Battaglini (AC Monza):** 550B £ (1,2M £). 3 Taksitle 525.000 £ ve 10 lig maçından sonra 110.000 £.\n5.  **Fedele Rinaldi (Frosinone):** 1M £. Çok yüksek bir fiyat, ancak oyuncu çok iyi bir isim.\n6.  **Dion Hofmeister (U.S. Lecce):** 650B £ (1,2M £). 2 Taksitle 275.000 £ ve 20 lig maçından sonra 325.000 £.\n7.  **Lorenzo Tosto (QPR):** 625B £ (825B £). Ligde çıkacağı maç başına 19.000 £.\n8.  **Duccio Degli Innocenti (Alanyaspor):** Kiralık. 0 £.\n9",
+   "s": 21.22,
+   "unknown_names": []
+  },
+  {
+   "id": "c07",
+   "q": "bütçe ne durumda, transfer yapabilir miyiz?",
+   "answer": "Bütçeniz 1.823.636 £ ile 263.176 £ arasında bir fark var, bu da 1.552.142 £ bakiye ile 9.950.560 £ borçlu bir durumdadır. Transfer yapmak için bu büyük bir finansal risk oluşturur ve 2030/31 döneminde bakiye -25.150.000 £ düşüşü beklenir. Transfer yapmak yerine, mevcut bütçenizi 2030/31 döneminde 16.610.000 £ ciro ile 194.449 £ bakiye hedefleyerek borçlarınızı 9.950.560 £'ye kadar düşürmek en mantıklı yol olacaktır.",
+   "s": 13.05,
+   "unknown_names": []
+  },
+  {
+   "id": "c08",
+   "q": "yönetim benden ne bekliyor?",
+   "answer": "Yönetim, takımın sahada nasıl bir performans göstereceğini merakla bekliyor. Özellikle bu sistemle birlikte pas kalitesinin yükselmesinden bir hayli memnunlar.",
+   "s": 2.94,
+   "unknown_names": []
+  },
+  {
+   "id": "c09",
+   "q": "son haberlerde ne var",
+   "answer": "Son haberlerde Modena'daki Obaretin antrenmanda sakatlık geçirdiği ve Brescia'daki Ruggero'yu transfer etme niyetiyle ilgili haberler var.",
+   "s": 2.93,
+   "unknown_names": []
+  },
+  {
+   "id": "c10",
+   "q": "gelen kutusunda önemli bişey var mı?",
+   "answer": "Gelen kutuda bir şey yok.",
+   "s": 1.46,
+   "unknown_names": []
+  },
+  {
+   "id": "c11",
+   "q": "lig tablosunda neredeyiz?",
+   "answer": "Lig tablosunda şu anki durumu görmek için en üstteki rakamı kontrol etmelisiniz. Eğer rakam 0 ise, bu sezon Lig'de hiçbir takım yok. Eğer rakam 1 ise, ilk sırada olan takımın durumu hakkında bilgi verebiliriz.",
+   "s": 2.95,
+   "unknown_names": [
+    "Lig"
+   ]
+  },
+  {
+   "id": "c12",
+   "q": "kulübü bi özetle bana",
+   "answer": "Kulüp, Ulusal itibarlı bir yapıya sahip ancak bakiyenin 263.176 £'ı altında ve geçişi 2.396.988 £'den 767.801 £'ye düşürüldüğü, 196.239 £'lık haftalık maaşlı bir futbol kulübü. Antrenörler ve sağlık görevleri boş, ancak stadyum ve altyapı tesisleri iyi durumda.",
+   "s": 4.62,
+   "unknown_names": []
+  },
+  {
+   "id": "c13",
+   "q": "sonraki maçta kimi dinlendirelim?",
+   "answer": "Sonraki maçta dinlenmek istediğinizde, sağlık durumunu kontrol etmek için **Paolo Ghiglione** ve **Salvatore Elia**'yı dinlendirmeliyiz.",
+   "s": 4.16,
+   "unknown_names": []
+  },
+  {
+   "id": "c14",
+   "q": "en değerli oyuncumuz kim?",
+   "answer": "En değerli oyuncumuz, Cristiano Bagordo'dur.",
+   "s": 3.13,
+   "unknown_names": [
+    "Cristiano"
+   ]
+  },
+  {
+   "id": "c15",
+   "q": "sözleşmesi biten ya da sözleşme bekleyen var mı",
+   "answer": "Sözleşmelerin bitmesi veya beklenmesi için şu oyuncuların durumları var:\n- **Andrea Orlandi**: Sözleşmesi bitiyor.\n- **Duccio Degli Innocenti**: Sözleşmesi bitiyor.\n- **Federico Brancolini**: Sözleşmesi bitiyor.\n- **Filippo Romagna**: Sözleşmesi bitiyor.\n- **Gerard Yepes**: Sözleşmesi bitiyor.\n- **Jordi Martín**: Sözleşmesi bitiyor.\n- **Jérémy Moray**: Sözleşmesi bitiyor.\n- **Luigi Cherubini**: Sözleşmesi bitiyor.\n- **Maj Blažič**: Sözleşmesi bitiyor.\n- **Mattia Huqi**: Sözleşmesi bitiyor.\n- **Michele Tempre**: Sözleşmesi bitiyor.\n- **Nicholas Bonfanti**: Sözleşmesi bitiyor.\n- **Nicola Viola**: Sözleşmesi bitiyor.\n- **Paolo Ghiglione**: Sözleşmesi bitiyor.\n- **Salvatore Dore**: Sözleşmesi bitiyor.\n- **Salvatore Elia**: Sözleşmesi bitiyor.\n- **Samuele Perisan**: Sözleşmesi bitiyor.\n- **Yari Verschaeren**: Sözleşmesi bitiyor.",
+   "s": 9.77,
+   "unknown_names": []
+  },
+  {
+   "id": "c16",
+   "q": "takımın morali nasıl?",
+   "answer": "Takımın morali şu an **Dawid Kownacki** ve **Duccio Degli Innocenti**'nin en büyük sorunları nedeniyle **Aşırı Kötü** seviyesinde.\n\nBu iki oyuncu tek başlarına takımın morali sıfırlanıyor ve tek bir oyuncu olarak **İkincil Arkadaş Grubu A** olarak sınıflandırılıyor. Diğer oyuncuların durumu ise **İdare Eder** veya **Yüksek Nüfuzlu Oyuncu** gibi daha iyi bir durumdadır.",
+   "s": 6.78,
+   "unknown_names": []
+  },
+  {
+   "id": "c17",
+   "q": "bu hafta neye odaklanalım?",
+   "answer": "Bu hafta hem deplasman maçlarını takip etmeliyiz. Blu-neri ile Jübile maçında 11 Ağustos'ta karşılaşacağız ve bu maçta hem deplasman yapacağız. Ayrıca 15 Ağustos'ta Entella'da deplasman yapacağız.",
+   "s": 3.67,
+   "unknown_names": []
+  },
+  {
+   "id": "c18",
+   "q": "hofmeister için teklif var mı, satalım mı?",
+   "answer": "Hofmeister için teklif var mı? Satalım mı?",
+   "s": 4.43,
+   "unknown_names": []
+  },
+  {
+   "id": "c19",
+   "q": "gençlerden kim parlıyor sence?",
+   "answer": "Gençler arasında en çok parlayanlar, genç oyuncu Jérémy Moray ve genç oyuncu Luca Cherubini'ler.\n\nJérémy Moray, 23 yaşında ve 2,3B £ aylık değerinde, ancak sözleşmesi nedeniyle sözleşme ve takım arkadaşını destekliyor. Luca Cherubini ise 25 yaşında ve 19,25B £ aylık değerinde, takım arkadaşını destekliyor.",
+   "s": 5.71,
+   "unknown_names": [
+    "Luca"
+   ]
+  },
+  {
+   "id": "c20",
+   "q": "who is tired, and who should start the next match?",
+   "answer": "Paolo Ghiglione ve Salvatore Elia, sağlığından çok daha yorgun durumda. İki maçta da bu iki oyuncu da beklenmedik bir şekilde yorgun görünüyor.\n\nİlk maçta, **Salvatore Elia**'nın sağlığı en kritik nokta. Şu an %69'luk bir kondisyon, maçın sonuna kadar yorgunlukla karşı karşıya kalması riski taşıyor. Bu yüzden **Salvatore Elia**'yı ilk maçta başlatmak en güvenli seçenek.\n\nİkinci maçta ise **Paolo Ghiglione**'nın sağlığı %61'likte, bu da maçın sonuna kadar yorgunlukla karşı karşıya kalması riski taşıyor. Bu yüzden **Paolo Ghiglione**'yı da ilk maçta başlatmak en güvenli seçenek.\n\nSonuç olarak, **Salvatore Elia** ve **Paolo Ghiglione**'yı ilk maçta başlatmak en güvenli seçenek.",
+   "s": 8.88,
+   "unknown_names": []
+  }
+ ]
+}
