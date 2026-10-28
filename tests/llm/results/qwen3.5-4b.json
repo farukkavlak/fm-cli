@@ -1,0 +1,395 @@
+{
+ "manifest": {
+  "when": "2026-10-29T02:24:48+03:00",
+  "gguf": {
+   "name": "qwen3.5-4b.gguf",
+   "sha256": "13c16f426047e2de38cd075bdade4a7bcbc8c774384876f677740cda65f8a983"
+  },
+  "runner": [
+   "version: 0.7.0-dev (build 11669, commit 620d2225c)"
+  ],
+  "snapshot": {
+   "dir": "snapshot-2029-08-04",
+   "sha256": "9c207ec03faf377135fcace7fc9572fe89c952082663f502a61b44c481ac1f8b"
+  },
+  "bench": "101ede71e51ad09ea6164912b75be43063ec4f23003d44213ddf9a447ecf4991",
+  "commit": "d81268a",
+  "dirty": false,
+  "machine": {
+   "cpu": "Apple M2",
+   "mem_gb": 8
+  }
+ },
+ "summary": {
+  "cost": {
+   "fm_status_s_before": 0.67,
+   "swap_mb_before": 5500.25,
+   "load_s": 3.5,
+   "fm_status_s_during": 1.07,
+   "footprint_mb": 696,
+   "ram_mb": 3569,
+   "swap_mb_after": 6247.56,
+   "answer_s_median": 15.67,
+   "answer_s_p90": 25.78,
+   "plan_s_median": 5.79,
+   "plan_s_p90": 11.55,
+   "plan_n": 522,
+   "swap_growth_mb": 747
+  },
+  "memory": "3/10",
+  "unknown_names": 1
+ },
+ "memory": [
+  {
+   "id": "m01",
+   "ok": true,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "hofmeister"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_propose",
+     "args": {
+      "player": "hofmeister"
+     }
+    }
+   ],
+   "s": 6.27
+  },
+  {
+   "id": "m02",
+   "ok": true,
+   "want": {
+    "call": "fm_happiness",
+    "args": {
+     "player": "kownacki",
+     "why": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_happiness",
+     "args": {
+      "player": "kownacki",
+      "why": true
+     }
+    }
+   ],
+   "s": 5.35
+  },
+  {
+   "id": "m03",
+   "ok": false,
+   "want": {
+    "call": "fm_intensity",
+    "args": {
+     "player": "ghiglione",
+     "level": "rest 7"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_schedule",
+     "args": {
+      "day": "14",
+      "slot": 1,
+      "session": "Rest"
+     }
+    }
+   ],
+   "s": 5.45
+  },
+  {
+   "id": "m04",
+   "ok": false,
+   "want": {
+    "call": "fm_tactic_player",
+    "args": {
+     "player": "biondini",
+     "position": "ST"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_tactic_player",
+     "args": {
+      "position": "FW",
+      "player": "biondini"
+     }
+    }
+   ],
+   "s": 6.03
+  },
+  {
+   "id": "m05",
+   "ok": false,
+   "want": {
+    "call": "fm_contract",
+    "args": {
+     "name": "romagna"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_contracts",
+     "args": {}
+    }
+   ],
+   "s": 4.42
+  },
+  {
+   "id": "m06",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "orlandi",
+     "loan": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_propose",
+     "args": {
+      "player": "orlandi",
+      "fee": "unspecified",
+      "loan": true
+     }
+    }
+   ],
+   "s": 6.23
+  },
+  {
+   "id": "m07",
+   "ok": false,
+   "want": {
+    "call": "fm_sub",
+    "args": {
+     "off": "tosto",
+     "on": "kastanos"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_tactic_player",
+     "args": {
+      "position": "substitute",
+      "player": "kastanos"
+     }
+    }
+   ],
+   "s": 4.84
+  },
+  {
+   "id": "m08",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "yepes",
+     "fee": "2M"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_propose",
+     "args": {
+      "player": "onu",
+      "fee": "2M"
+     }
+    }
+   ],
+   "s": 4.7
+  },
+  {
+   "id": "m09",
+   "ok": false,
+   "want": {
+    "call": "fm_propose",
+    "args": {
+     "player": "bagordo",
+     "loan": true
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_approach",
+     "args": {
+      "player": "bagordo",
+      "move": "interest",
+      "as": "loan"
+     }
+    }
+   ],
+   "s": 6.02
+  },
+  {
+   "id": "m10",
+   "ok": true,
+   "want": {
+    "call": "fm_tactic_player",
+    "args": {
+     "player": "biondini",
+     "position": "ST"
+    }
+   },
+   "got": [
+    {
+     "tool": "fm_tactic_player",
+     "args": {
+      "position": "ST",
+      "player": "biondini"
+     }
+    }
+   ],
+   "s": 6.91
+  }
+ ],
+ "conversation": [
+  {
+   "id": "c01",
+   "q": "kadroda durumlar ne?",
+   "answer": "Kadroda en kritik sorun, sözleşme ve motivasyon sorunları yaşayan yıldız oyuncularımız (Kownacki, Romagna, Degli Innocenti, Martín, Chiucchiuini) ve sözleşmeleri bitmek üzere olan gençler (Orlandi, Huqi, Tosto).\n\nSağlık raporuna baktım; kondisyon %80'in altında olan 10 oyuncumuz var ve özellikle Ghiglione ve Elia sakatlık riski çok yüksek.\n\nFormu düşük olan 18 oyuncumuz var, bunların çoğu maçta etkili olamayacak durumda.\n\nYorgun oyunculara \"dinlen 1\" komutu vererek kondisyonlarını düzeltmemiz gerekiyor.\n\nKısa vadeli transferler yapmamız gerekecek, çünkü mevcut kadrodaki bazı oyunculara alternatif bulmak zor.",
+   "s": 26.15,
+   "unknown_names": []
+  },
+  {
+   "id": "c02",
+   "q": "sakat var mı, kim yorgun?",
+   "answer": "Sağlık raporuna baktım, şu an sakatlık kaydı yok.\nKondisyon seviyesi %85'in altındaki yorgun oyuncular arasında Paolo Ghiglione, Salvatore Elia, Lorenzo Tosto ve diğerleri var.\nSakatlık riski en yüksek olanlar ise Salvatore Elia ve Paolo Ghiglione.\nBu oyuncuların kondisyonunu artırmak için dinlenmelerini öneriyorum.\nDinlenmek için komut olarak \"intensity <oyuncu> dinlen 1\" yazabilirsin.",
+   "s": 12.09,
+   "unknown_names": []
+  },
+  {
+   "id": "c03",
+   "q": "sıradaki maç ne zaman, rakip nasıl bi takım?",
+   "answer": "Sıradaki maç 11 Ağustos'ta Blu-neri'ye karşı oynanacak. Rakip Serie A'da 3. sırada yer alan ve Eddie Howe yönetimindeki güçlü bir takım. Form durumu genel olarak iyi (G) görünüyor ve Arthur Avom Ebong gibi genç yıldızlar öne çıkıyor. Maç hazırlık maçı olduğu için rakip raporu henüz yok. Takımın 4-3-3 DOS Geniş dizilişini analiz ettim.",
+   "s": 12.0,
+   "unknown_names": [
+    "Ağustos"
+   ]
+  },
+  {
+   "id": "c04",
+   "q": "kim ayrılmak istiyor",
+   "answer": "Şu an \"Ayrılmak İstiyor\" durumundaki oyuncuların listesine baktım.\n\nDawid Kownacki, Jordi Martín, Lorenzo Chiucchiuini ve Lorenzo Tosto gibi oyuncuların moral seviyeleri kritik seviyede. Özellikle Dawid Kownacki'nin moral sıfır, bu da takımın iç huzurunu ciddi şekilde tehdit ediyor.\n\nBu oyuncuların neden ayrılma isteği taşıdığını ve ne yapmam gerektiğini detaylıca incelemem lazım.",
+   "s": 23.46,
+   "unknown_names": []
+  },
+  {
+   "id": "c05",
+   "q": "mutsuz oyuncular kim, neden mutsuzlar?",
+   "answer": "Sağlık raporuna baktım, mutsuzluk durumunu analiz ettim.\n\nŞu an en kritik sorun, moral sıfırda olan ve hemen ayrılmak isteyen Duccio Degli Innocenti, Dion Hofmeister ve Dawid Kownacki. Bu üçü de zaten serbestte veya teklif aşamasında, kulübümüzü terk etmeye hazır.\n\nAyrıca sözleşmeleri bitmek üzere olan Jordi Martín, Lorenzo Chiucchiuini ve Andrea Orlandi da \"çok mutsuz\" durumda. Onlar için sadece sözleşme uzatmak yetmez, onlara ciddi bir gelecek vaat etmemiz gerekiyor.\n\nSon olarak kondisyon testinden geçip de \"mutsu\" olan Gerard Yepes ve Lorenzo Tosto da dikkatimi çekiyor. Fiziksel olarak hazır olsalar da ruh olarak yorgunlar.\n\nÖzetle; en acil durum moral sıfırda olanlar, sözleşme bitiminde olanlar ve kondisyon testinden sonra da mutsuz kalanlar.",
+   "s": 21.7,
+   "unknown_names": []
+  },
+  {
+   "id": "c06",
+   "q": "gelen teklifler neler, sence hangisini kabul edelim?",
+   "answer": "Gelen teklifleri inceledim ve şu anki kadromuzda kritik bir ihtiyaç duyduğumuz bir oyuncu yok.\n\nBu teklifler tamamen dışarıdan gelen satışı veya kiralamayı teklif eden oyunculara ait; kendi takımımızdaki bir oyuncu için bir teklif gelmediği için bu teklifleri kabul etmemiz mantıklı değil.\n\nKendi takımımızdaki oyuncuların durumunu ve transfer listemizi kontrol etmemiz gerekiyor.\n\nŞu anki kadromuzda boşluk var mı? Yoksa bu teklifleri reddetmeli miyiz?",
+   "s": 15.09,
+   "unknown_names": []
+  },
+  {
+   "id": "c07",
+   "q": "bütçe ne durumda, transfer yapabilir miyiz?",
+   "answer": "Bütçeye baktım; şu an 263.176 £ bakiyemiz var ama bu rakam çok düşük.\nBu ayki gelir 528B £, gider 459B £ olduğu için bütçemiz yavaş yavaş artıyor.\nAncak yönetim projeksiyonuna bakınca 2030/31 ve 2031/32 sezonlarında ciddi borçlar oluşuyor.\nFinansal fair play kurallarını da görüyoruz ki şu an - (-) olarak işaretlenmiş.\nŞu anki bütçe ile önemli transferler yapamayız, sadece küçük düzeltmelerde bulunabiliriz.",
+   "s": 17.21,
+   "unknown_names": []
+  },
+  {
+   "id": "c08",
+   "q": "yönetim benden ne bekliyor?",
+   "answer": "Yönetim, kadrodaki kötü atmosferi ve oyuncuların desteğinin eksikliğinden memnun değil. Özellikle genç oyuncu transferlerinin azlığından hayal kırıklığı yaşıyorlar. Ayrıca Antonio Murano, Luigi Di Gregorio ve diğer oyuncuların satışındaki mali şartlardan da çok memnun değiller. Topa Sahip Ol sistemiyle birlikte pas kalitesinin artmasından ise oldukça memnunlar. Takıma yeterince katkı sağlamadığınızdan ötürü endişeleniyorlar.",
+   "s": 14.48,
+   "unknown_names": []
+  },
+  {
+   "id": "c09",
+   "q": "son haberlerde ne var",
+   "answer": "Haberlere baktım, takımımızla ilgili önemli gelişmeler var. Modena'da Obaretin antrenmanda sakatlık geçirdi ve sağlık raporuna baktım, bu yüzden ilk maçta oynaması çok düşük görünüyor. Union Brescia Ruggero'yu transfer etme niyetinde, bu da kadromuzdaki bir boşluğu doldurmak için potansiyel bir rakip olabilir. Venezia Rosa'nın kiralama teklifini kabul etmesi, Serie B'deki bir takımın ilgisini gösteriyor. Ayrıca SEP, Mısırlı kanat bek Ahmed Fatouh'u bedelsiz olarak kadrosuna kattı, bu da genç bir oyuncu eklememiz anlamına geliyor. 1. FC Nürnberg ise Andreas Hanche-Olsen'i 275.000 £ karşılığında transfer etti, bu da transfer pazardaki hareketliliği gösteriyor.",
+   "s": 19.86,
+   "unknown_names": []
+  },
+  {
+   "id": "c10",
+   "q": "gelen kutusunda önemli bişey var mı?",
+   "answer": "Gelen kutuda birkaç önemli gelişme var, özellikle transfer ve kadro konularında. Stefano Stefanelli'nin Alanyaspor'a Degli Innocenti için kiralama teklifi yapması ve Hellas Verona'nın Gisti'yi tamamlaması kritik görünüyor. Ayrıca Yepes'in Pisa'ya gitmesi ve Giuseppe Massara'nın transfer listesine dahil olma isteği dikkat çekiyor. Faruk Kavlak'ın Hofmeister üzerindeki baskısı artıyor, bu da kadro dengesini etkileyebilir. Öncelikle Stefano Stefanelli ile Degli Innocenti teklifi hakkında görüşmeliyim.",
+   "s": 14.14,
+   "unknown_names": []
+  },
+  {
+   "id": "c11",
+   "q": "lig tablosunda neredeyiz?",
+   "answer": "Lig tablosuna baktım; şu an 1. sırada AC Monza ile başlıyoruz.\nMaalesef henüz oynanmış maç yok, bu yüzden puanımız ve sıralamamız sıfır.\nTakımımız henüz ligde yerini almış değil, ilk maçlarını bekliyor.\nŞu an için herhangi bir rakip veya maç durumu yok.\nSabırlı olmalıyız, ilk maçlar geldiğinde durumu tekrar değerlendireceğiz.",
+   "s": 12.22,
+   "unknown_names": []
+  },
+  {
+   "id": "c12",
+   "q": "kulübü bi özetle bana",
+   "answer": "Kulübümüzün finansal durumu şu an oldukça zorlu; geçen ay giderler gelirlerin çok üzerinde ve maaş bütçesini aşmamak zorunlu bir hedef. Serie BKT'de ilk dörtte bitmek istiyoruz ancak bu sezon henüz yargılamadık. Altyapı tesislerimiz çok iyi seviyede, ancak antrenman tesisleri ve stadyum lokasyon hizmetleri orta seviyede. Yönetim memnun, taraftar ise yönetime etkisi makul seviyede.",
+   "s": 14.23,
+   "unknown_names": []
+  },
+  {
+   "id": "c13",
+   "q": "sonraki maçta kimi dinlendirelim?",
+   "answer": "Sonraki maç öncesi kondisyon ve form raporuna baktım.\n\nPaolo Ghiglione ve Salvatore Elia'nın kondisyonları %61 ve %69 seviyesinde, sakatlık riski en yüksek oyuncular arasında yer alıyor. Ayrıca Jordi Martín, Grigoris Kastanos ve Cristian Bagordo gibi oyuncuların formu %50-54 aralığında ve \"Ayrılmak İstiyor\" gibi ciddi sorunlar yaşıyorlar.\n\nEğer dinlenme opsiyonunu kullanmak istersen, öncelikle sakatlık riski taşıyan **Paolo Ghiglione**'ü dinlendirmeni öneririm. İkinci olarak, formu çok düşük ve motivasyon sorunları olan **Jordi Martín** veya **Grigoris Kastanos** gibi oyunculara da odaklanabilirsin. Ancak sözleşme sorunları olan oyuncuların dinlenmesi, motivasyonlarını düzeltmek için daha etkili olacaktır.\n\nHangi oyuncuyu dinlendirmek istersin?",
+   "s": 25.78,
+   "unknown_names": []
+  },
+  {
+   "id": "c14",
+   "q": "en değerli oyuncumuz kim?",
+   "answer": "Kulübe en yüksek değerli oyuncumuz **Achraf el Bouchataoui**'dir.\n\nOyun verisine göre değeri **140 milyar £ ile 220 milyar £** arasında değişmektedir.\n\nAncak, bu yüksek değeri karşılığında aylık **30,5 milyar £** maaş ödememiz gerekiyor.\n\nBu maaş yükü, takımın bütçesini ciddi şekilde yiyerek diğer oyuncuların değerini düşürmektedir.\n\nBouchataoui'nin maaşını düşürmek veya transferi için bir çözüm bulmamız şart.",
+   "s": 16.25,
+   "unknown_names": []
+  },
+  {
+   "id": "c15",
+   "q": "sözleşmesi biten ya da sözleşme bekleyen var mı",
+   "answer": "Evet, sözleşme durumuyla ilgili birkaç önemli oyuncu var.\n\nFilippo Romagna ve Paolo Ghiglione'nin sözleşmeleri bitiyor, ikisi de mutsuz.\n\nDion Hofmeister, Lorenzo Tosto, Ismaël Konaté ve Lorenzo Chiucchiuini gibi oyuncuların sözleşmeleri bitmeden yeni anlaşmalar için görüşmeler devam ediyor.\n\nDuccio Degli Innocenti ise sözleşmesi bitmiş ve serbest durumda.\n\nBu durumları takibe almalıyız, özellikle Romagna ve Ghiglione'nin kalması için hızlı hareket etmemiz gerekiyor.",
+   "s": 7.15,
+   "unknown_names": []
+  },
+  {
+   "id": "c16",
+   "q": "takımın morali nasıl?",
+   "answer": "Sağlık raporuna ve moral verilerine baktım.\nTakımın morali kritik seviyede; üç oyuncunun morali sıfır, en az yedi oyuncunun ise \"çok mutsuz\" veya \"mutsuz\" durumda.\nKownacki, Degli Innocenti ve Hofmeister gibi oyuncuların morali sıfır, sözleşmeleri bitiyor ve kulübü terk etmek istiyorlar.\nÇok mutsuz olan Orlandi, Martín, Chiucchiuini, Yepes ve Tosto gibi oyuncuların dikkatimi çekiyor, çünkü onlar da ayrılmak istiyor.\nBu durumun hemen düzeltilmesi gerekiyor, yoksa takımın kalbi tamamen kırılacak ve performans düşecek.",
+   "s": 18.57,
+   "unknown_names": []
+  },
+  {
+   "id": "c17",
+   "q": "bu hafta neye odaklanalım?",
+   "answer": "Hafta başı önceliğimiz, 11 Ağustos'taki Blu-neri maçı için teknik kadronun hazır olmasını sağlamak.\nKendimle ve antrenör kadromuzla birlikte maç öncesi taktik çalışmaları ve fiziksel kondisyon testlerini yoğunlaştırıyoruz.\nStefano Stefanelli'nin Degli Innocenti için kiralama teklifi geldi, bu oyuncuyu kadromuza dahil etmemiz mi yoksa beklememiz mi gerektiğini değerlendiriyoruz.\nHafif bir yorgunluk hissedilen bazı oyuncularımız var, bu yüzden bu hafta dinlenme sürelerini ve beslenme programını sıkı takip ediyoruz.\nMaçtan sonra analiz toplantısı yapacağız ve Jübile ligi için ilk stratejik adımları belirleyeceğiz.",
+   "s": 14.68,
+   "unknown_names": []
+  },
+  {
+   "id": "c18",
+   "q": "hofmeister için teklif var mı, satalım mı?",
+   "answer": "Dion Hofmeister için yapılan teklifi inceledim.\nOyuncunun değerinin 950B-2M£ arasında olduğunu görüyorum.\nKulüp, 2 taksitte toplam 650B£ ödeyecek ve satış kârından %30 pay istiyor.\nBu teklif oyuncunun değerinin altında kalmış durumda.\nSadece oyuncuyu kiralayabilir veya teklifi reddetmelisin.\nSatış yapmamız mantıklı görünmüyor.",
+   "s": 17.11,
+   "unknown_names": []
+  },
+  {
+   "id": "c19",
+   "q": "gençlerden kim parlıyor sence?",
+   "answer": "Yeni sezonun başında genç yeteneklerimize baktım.\n\nFilippo Romagna ve Dawid Kownacki gibi 30'lu yaşlardaki oyuncularımızda hala çok yüksek maaş ödemek zorunda kalıyoruz.\n\nDion Hofmeister, Lorenzo Tosto ve Ismaël Konaté gibi 20-23 yaş arası gençlerimizde ise maaşlar çok düşük.\n\nBu gençlerimizin maaşlarını düşürmemiz gerekiyor çünkü bu bütçeyi daha iyi gençlere yatırmalıyız.\n\nYeni sezonun başında bu genç yeteneklerimize baktım.",
+   "s": 14.95,
+   "unknown_names": []
+  },
+  {
+   "id": "c20",
+   "q": "who is tired, and who should start the next match?",
+   "answer": "Sağlık raporuna baktım; Paolo Ghiglione ve Salvatore Elia'nın kondisyonları %61 ve %69 seviyesinde, bu yüzden dinlenmeleri gerekiyor.\n\nMaç formu düşük olan oyuncular arasında Jordi Martín, Grigoris Kastanos ve Cristian Bagordo öne çıkıyor; bu oyuncuların formunu yükseltmek için bu hafta dinlenmeleri veya maç dışı tutulmaları gerekebilir.\n\nJordi Martín ve Andrea Orlandi'nin \"Ayrılmak İstiyor\" durumu nedeniyle motivasyonları düşük, bu yüzden onları bu hafta başlatmak yerine sakat riski yüksek olan Elia ve Ghiglione'leri dinletmek daha mantıklı.\n\nTakım arkadaşlarını destekleyen oyuncuların motivasyonları da düşük, bu yüzden bu hafta maç dışı tutulmaları ve kondisyon testleri için dinlenmeleri gerekebilir.\n\nÖzetle, Paolo Ghiglione ve Salvatore Elia dinlenmeli, Jordi Martín ve Andrea Orlandi'nin yerine daha formda olan oyuncular başlatılmalı.",
+   "s": 19.6,
+   "unknown_names": []
+  }
+ ]
+}
