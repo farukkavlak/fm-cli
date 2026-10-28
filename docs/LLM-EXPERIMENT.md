@@ -90,6 +90,11 @@ A model passes a job only if all of its marks hold on held.
 4. Final set for the best model per job.
 5. Decision note (last box of Phase 1).
 
+## Notes so far
+
+- Qwen3.5 0.8B: out. Measured with the first planner (empty plans allowed): arguments 38.7% (readers 90.0%), memory 0/10, invents numbers and names. Not measured again with the fixed planner (Faruk, 29 Oct).
+- Planner fix after 0.8B: `none` is a choice, at least one step, one step per split ask, training examples per tool. Held is scored again for every other model.
+
 ## Results
 
 - Planning and arguments: `tests/nl/results/llm-<model>.json` (same manifest as other results, plus GGUF SHA and runner build).
