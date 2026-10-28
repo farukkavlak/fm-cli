@@ -263,7 +263,8 @@ def manifest(cmd, which, given_tool):
 		"data": data,
 		"split": SPLIT_RULE,
 		"commit": git("rev-parse", "--short", "HEAD"),
-		"dirty": bool(git("status", "--porcelain")),
+		# uncommitted changes to what decides the numbers (docs and saved results do not)
+		"dirty": bool(git("status", "--porcelain", "--", "cli", "tools", "tests/nl/*.jsonl", "tests/nl/train")),
 		"machine": {"os": platform.platform(), "cpu": cpu, "cores": os.cpu_count(), "python": platform.python_version()},
 	}
 
