@@ -1,6 +1,33 @@
-# Local LLM experiment plan
+# Local LLM experiment
 
-Which jobs can a small local model do, with FM open on this Mac? Status: **approved 28 Oct.** Starts once disk space is freed.
+Which jobs can a small local model do, with FM open on this Mac? Status: **done 29 Oct.**
+
+## Outcome
+
+- **No local LLM.** None passed a single job. The router stays for commands.
+- Commands stay local: embeddings + kNN + readers (5 ms, offline).
+- Mahmut (conversation) needs a cloud model. Next: the same benches on free cloud models.
+- Router gaps (multi 52.6%, ask 56.2%, names) are fixed in the router (Phase 3), not with an LLM.
+
+| Held | Router | Qwen3.5 2B | Qwen3.5 4B | Pass |
+|---|---|---|---|---|
+| top-1 | 73.0% | 65.1% | 73.8% | |
+| tool+args | **67.0%** | 29.7% | 47.7% | ≥ router |
+| multi | 52.6% | 21.1% | **57.9%** | ≥ router |
+| false none | 2.6% | 3.1% | 12.0% | ≤ router |
+| arguments alone | **90.0%** (readers) | 41.3% | 51.8% | ≥ readers |
+| memory | – | 1/10 | 3/10 | ≥ 9/10 |
+| invented names (20 answers) | – | 13 | 1 | 0 |
+| plan time p90 | ~5 ms | 8.0 s | 11.6 s | ≤ 2 s |
+| answer time p90 | – | 36.8 s | 25.8 s | ≤ 8 s |
+| RAM | 0.45 GB | 2.4 GB | 3.6 GB | ≤ 3 GB |
+
+- 0.8B: out early (first planner): arguments 38.7%, memory 0/10.
+- Gemma 4 E2B: stopped before its run; 4B already failed every mark and Gemma is smaller.
+- 4B is the only model that beats the router anywhere (multi), and it is ~1000× slower.
+- Small models answer English questions in Turkish, mix up names and numbers.
+- Blind scoring of the answers was skipped: the automatic marks already decided.
+- Downloaded models and the runner are deleted; the code and results stay.
 
 ## Machine (28 Oct, FM open)
 
@@ -11,7 +38,7 @@ Which jobs can a small local model do, with FM open on this Mac? Status: **appro
 
 ## Runner
 
-- `llama.cpp` from Homebrew (`llama-server`; the exact build goes in every result).
+- `llama.cpp` v0.7.0 (prebuilt b11669 from GitHub; Homebrew had no bottle and its source build failed).
 - Not Ollama: the installed 0.9.5 is old, and llama.cpp gives the exact GGUF file and its SHA.
 - JSON output forced by a JSON schema (llama.cpp grammar), so a plan always parses.
 - Context 4096 (8192 for conversation), temperature 0, fixed seed, Metal on.
@@ -94,7 +121,6 @@ A model passes a job only if all of its marks hold on held.
 
 - Qwen3.5 0.8B: out. Measured with the first planner (empty plans allowed): arguments 38.7% (readers 90.0%), memory 0/10, invents numbers and names. Not measured again with the fixed planner (Faruk, 29 Oct).
 - Planner fix after 0.8B: `none` is a choice, at least one step, one step per split ask, training examples per tool. Held is scored again for every other model.
-
 - Next after the local models: the same benches on OpenCode Zen's free cloud models (temporary, may train on what is sent; test data only). Faruk, 29 Oct.
 
 ## Results

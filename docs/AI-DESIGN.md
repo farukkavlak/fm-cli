@@ -21,7 +21,7 @@ How sentences work today and how the assistant will be built.
 |---|---|---|
 | Command | ONNX embeddings + kNN + rules (today) | fast, offline commands |
 | Mahmut Cloud | Claude, OpenAI, … with the user's key | conversation, analysis, plans |
-| Mahmut Local | a small local LLM | offline assistant, if good enough |
+| Mahmut Local | a small local LLM | not now: failed every mark on this Mac (29 Oct) |
 
 - Mahmut belongs to the app, not to a model.
 - His memory, personality, game access and safety rules live in fm-cli.
@@ -84,7 +84,7 @@ A sale and a search in one sentence are two steps. Only the sale needs approval.
 
 ## Local LLM experiment
 
-Plan: [LLM-EXPERIMENT.md](LLM-EXPERIMENT.md).
+Plan and outcome: [LLM-EXPERIMENT.md](LLM-EXPERIMENT.md). Result: no local LLM; the router stays.
 
 - Question: which jobs can a local model do? Not: local or cloud Mahmut.
 - Run with FM open, on an 8 GB Mac.

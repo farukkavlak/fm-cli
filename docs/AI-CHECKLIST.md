@@ -17,9 +17,10 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 - [x] Candidates from the 50 nearest examples: held recall@5 88.6% · final 88.4% (was 82.1% / 79.3%)
 - [x] Several asks: one candidate list per ask where the rules split: `13-multi` recall@5 held 97.4% · final 93.3% (was 79.5% / 76.7%)
 - [x] Write the experiment plan and get it approved: [LLM-EXPERIMENT.md](LLM-EXPERIMENT.md)
-- [ ] Measure with FM running: understanding · planning (tool + arguments from candidates) · conversation · memory · latency
-- [ ] Arguments: LLM vs today's readers (readers alone: 90.0% held, reads high: tuned on the old split)
-- [ ] Decision note: which jobs run locally, which need a cloud model
+- [x] Measure with FM running: Qwen3.5 2B and 4B fail every mark ([LLM-EXPERIMENT.md](LLM-EXPERIMENT.md))
+- [x] Arguments: LLM vs readers: best 51.8% (4B) vs readers 90.0% held
+- [x] Decision: commands stay local with the router; no local LLM; Mahmut needs a cloud model
+- [ ] Same benches on free cloud models (OpenCode Zen) for Mahmut
 
 ## Phase 2 — one safety policy
 - [ ] Mark every tool read-only, reversible or high-impact, next to its definition
@@ -49,7 +50,7 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 - [ ] Plan bench
 
 ## Phase 6 — polish
-- [ ] Mahmut Local, if Phase 1 says so
+- [ ] ~~Mahmut Local~~: Phase 1 says no (small local models fail every mark); look again when better small models come out
 - [ ] Personality setting (serious ↔ fun); dialogue bench
 - [ ] README: short demo, architecture, numbers, limits
 - [ ] Publish the model with `tools/nl-release.sh` once the repo is public
