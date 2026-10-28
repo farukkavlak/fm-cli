@@ -176,3 +176,20 @@
 {"en": "send bianchi on a coaching course", "call": "fm_actions", "args": {"person": "bianchi", "choose": "Send On Coaching Course"}, "split": "dev"}
 {"en": "right click menu for rossi", "call": "fm_actions", "args": {"person": "rossi"}, "split": "final"}
 {"en": "add pieragnolo to the squad planner", "call": "fm_actions", "args": {"person": "pieragnolo", "choose": "Squad Planner"}, "split": "held"}
+{"tr": "şu forvete teklif gönder", "call": "fm_offer", "ask": "name", "split": "dev"}
+{"tr": "bir oyuncuya teklif atalım", "call": "fm_offer", "ask": "name", "split": "dev"}
+{"en": "make a bid", "call": "fm_offer", "ask": "name", "split": "dev"}
+{"tr": "oyunda bir şey arat", "call": "fm_search", "ask": "text", "split": "dev"}
+{"en": "look something up in the game search", "call": "fm_search", "ask": "text", "split": "dev"}
+{"tr": "gözlemciyi birine gönder", "call": "fm_scout_player", "ask": "player", "split": "dev"}
+{"tr": "maleh i izlet", "call": "fm_scout_player", "args": {"player": "maleh"}, "ask": "length", "split": "held"}
+{"en": "send a scout to watch someone", "call": "fm_scout_player", "ask": "player", "split": "dev"}
+{"en": "scout maleh", "call": "fm_scout_player", "args": {"player": "maleh"}, "ask": "length", "split": "dev"}
+{"tr": "pieragnoloyu takip listesine al", "call": "fm_shortlist_change", "args": {"player": "pieragnolo"}, "ask": "length", "split": "held"}
+{"en": "shortlist pieragnolo", "call": "fm_shortlist_change", "args": {"player": "pieragnolo"}, "ask": "length", "split": "dev"}
+{"tr": "forvet için gözlem odağı kur", "call": "fm_scout_focus", "args": {"action": "new", "position": "ST"}, "ask": "priority", "split": "dev"}
+{"en": "set up a scouting focus on strikers", "call": "fm_scout_focus", "args": {"action": "new", "position": "ST"}, "ask": "priority", "split": "dev"}
+{"tr": "bu oyuncuya ilgi göster", "call": "fm_approach", "args": {"move": "interest"}, "ask": "player", "split": "dev"}
+{"en": "show interest in this player", "call": "fm_approach", "args": {"move": "interest"}, "ask": "player", "split": "held"}
+{"tr": "şu oyuncuyla ne yapabilirim", "call": "fm_actions", "ask": "person", "split": "dev"}
+{"en": "what options do i have on that player", "call": "fm_actions", "ask": "person", "split": "dev"}

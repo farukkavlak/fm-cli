@@ -31,3 +31,128 @@
 {"en": "scout yildiz and shortlist him", "call": ["fm_scout_player", "fm_shortlist_change"], "args": [{"player": "yildiz"}, {"player": "yildiz"}], "split": "dev"}
 {"en": "advance 3 days and tell me what changed", "call": ["fm_next", "fm_diff"], "args": [{"times": 3}, {}], "split": "final"}
 {"en": "rest rinaldi and tosto", "call": ["fm_intensity", "fm_intensity"], "args": [{"player": "rinaldi", "level": "rest 3"}, {"player": "tosto", "level": "rest 3"}], "split": "dev"}
+{"tr": "önce puan durumuna bak sonra fikstürü göster", "call": ["fm_table", "fm_fixtures"], "split": "final"}
+{"tr": "mesajları göster ardından devam et", "call": ["fm_inbox", "fm_next"], "split": "dev"}
+{"tr": "sakatlar kim, bir de rakip nasıl", "call": ["fm_health", "fm_opponent"], "split": "final"}
+{"tr": "kaydet sonra 5 gün ilerlet", "call": ["fm_save", "fm_next"], "args": [{}, {"times": 5}], "split": "final"}
+{"tr": "bütçeyi göster ve kısa listeyi aç", "call": ["fm_budget", "fm_shortlist"], "split": "dev"}
+{"tr": "rinaldiyi göster sonra tostoyu", "call": ["fm_player", "fm_player"], "args": [{"name": "rinaldi"}, {"name": "tosto"}], "split": "held"}
+{"tr": "taktiği göster ardından takım talimatlarını", "call": ["fm_tactic", "fm_tactic_instructions"], "split": "dev"}
+{"tr": "maçı anında bitir sonra puan durumu", "call": ["fm_match", "fm_table"], "args": [{"mode": "instant"}, {}], "split": "dev"}
+{"tr": "gelen teklifleri göster sonra sözleşmesi bitenleri", "call": ["fm_offers", "fm_contracts"], "split": "final"}
+{"tr": "kulübün finansları ve yönetim ne düşünüyor", "call": ["fm_finances", "fm_board"], "split": "dev"}
+{"tr": "antrenman programına bak sonra maç hazırlığına", "call": ["fm_schedule", "fm_prep"], "split": "held"}
+{"tr": "haberleri oku sonra gelen kutusuna bak", "call": ["fm_news", "fm_inbox"], "split": "dev"}
+{"tr": "esposito girsin gyasi çıksın sonra sakinleştir", "call": ["fm_sub", "fm_shout"], "args": [{"on": "esposito", "off": "gyasi"}, {"shout": "Sakinleştir"}], "split": "dev"}
+{"tr": "gelişenler kim ardından gençlik akademisi", "call": ["fm_progress", "fm_youth"], "split": "dev"}
+{"tr": "kadro derinliğine bak sonra transfer hedeflerini göster", "call": ["fm_depth", "fm_targets"], "split": "held"}
+{"tr": "soyunma odası nasıl, bir de kim mutsuz", "call": ["fm_dynamics", "fm_happiness"], "split": "dev"}
+{"tr": "fazzini dinlensin sonra ilk 11i otomatik seç", "call": ["fm_intensity", "fm_tactic_pick"], "args": [{"player": "fazzini", "level": "rest 3"}, {}], "split": "dev"}
+{"tr": "rakip raporu sonra rakibe karşı asistanın tavsiyelerini uygula", "call": ["fm_opponent", "fm_opposition"], "args": [{}, {"advice": true}], "split": "held"}
+{"tr": "takvimde bu ay ne var sonra fikstür", "call": ["fm_calendar", "fm_fixtures"], "split": "held"}
+{"tr": "gol krallığı ve asist krallığı", "call": ["fm_league", "fm_league"], "args": [{"stat": "Goals"}, {"stat": "Assists"}], "split": "dev"}
+{"tr": "son maçın raporu sonra ne değişti", "call": ["fm_report", "fm_diff"], "split": "dev"}
+{"tr": "kaptanlara bak ve penaltıcıları göster", "call": ["fm_captains", "fm_penalties"], "split": "held"}
+{"tr": "korner kullananları göster sonra serbest vuruşları", "call": ["fm_takers", "fm_takers"], "args": [{"kind": "corner"}, {"kind": "freekick"}], "split": "dev"}
+{"tr": "tesisleri göster ardından taraftar ne diyor", "call": ["fm_facilities", "fm_supporters"], "split": "dev"}
+{"tr": "personel listesi sonra görev dağılımı", "call": ["fm_staff", "fm_responsibilities"], "split": "dev"}
+{"tr": "milli oyuncular kimler ve takvimde bu ay ne var", "call": ["fm_internationals", "fm_calendar"], "split": "dev"}
+{"tr": "rinaldiyi 3 milyona satışa çıkar sonra kaydet", "call": ["fm_propose", "fm_save"], "args": [{"player": "rinaldi", "fee": "3M"}, {}], "split": "held"}
+{"tr": "tostoyu kiralık ver ve marini serbest bırak", "call": ["fm_propose", "fm_release"], "args": [{"player": "tosto", "loan": true}, {"player": "marin", "free": true}], "split": "held"}
+{"tr": "maça kadar ilerle sonra rakibi göster", "call": ["fm_next", "fm_opponent"], "args": [{"until": "match"}, {}], "split": "held"}
+{"tr": "kayıtları listele sonra kaydetmeden deneme2yi yükle", "call": ["fm_saves", "fm_load"], "args": [{}, {"name": "deneme2", "save": false}], "split": "held"}
+{"tr": "mentorluk gruplarını göster sonra bireysel antrenmanı", "call": ["fm_mentoring", "fm_training"], "split": "dev"}
+{"tr": "gözlem odaklarını göster ve kısa listeye bak", "call": ["fm_scout", "fm_shortlist"], "split": "final"}
+{"tr": "hangi kayıttayız sonra kaydet", "call": ["fm_world", "fm_save"], "split": "final"}
+{"tr": "durum ne, sonra devam et", "call": ["fm_status", "fm_next"], "split": "held"}
+{"tr": "colomboyla espositoyu karşılaştır sonra colomboyu forvete koy", "call": ["fm_compare", "fm_tactic_player"], "args": [{"a": "colombo", "b": "esposito"}, {"position": "ST", "player": "colombo"}], "split": "final"}
+{"tr": "rinaldiye yeni sözleşme teklif et sonra mesajlara bak", "call": ["fm_contract", "fm_inbox"], "args": [{"name": "rinaldi"}, {}], "split": "held"}
+{"tr": "maleh e 1.5 milyon teklif ver ardından kısa listeyi göster", "call": ["fm_offer", "fm_shortlist"], "args": [{"name": "maleh", "fee": "1.5M"}, {}], "split": "held"}
+{"tr": "hücuma geç sonra cesaretlendir", "call": ["fm_tactic_set", "fm_shout"], "args": [{"setting": "mentality", "value": "Hücum"}, {"shout": "Cesaretlendir"}], "split": "held"}
+{"tr": "dengeliye dön ve odaklanın diye bağır", "call": ["fm_tactic_set", "fm_shout"], "args": [{"setting": "mentality", "value": "Dengeli"}, {"shout": "Odaklan"}], "split": "dev"}
+{"tr": "sahada kimler var sonra asistan ne öneriyor", "call": ["fm_sub", "fm_dugout"], "split": "dev"}
+{"tr": "gelir dökümü sonra gider dökümü", "call": ["fm_finances", "fm_finances"], "args": [{"breakdown": "income"}, {"breakdown": "expenditure"}], "split": "final"}
+{"tr": "yönetimden ne isteyebilirim sonra kulübe genel bakış", "call": ["fm_board_request", "fm_club"], "split": "held"}
+{"tr": "boştaki hocaları ara ardından personeli göster", "call": ["fm_staff_find", "fm_staff"], "args": [{"free": true}, {}], "split": "held"}
+{"tr": "boş menajerlik işleri neler sonra kaydet", "call": ["fm_jobs", "fm_save"], "split": "final"}
+{"tr": "maçı konuşmasız oyna sonra raporu göster", "call": ["fm_match", "fm_report"], "args": [{"mode": "play_no_talk"}, {}], "split": "held"}
+{"tr": "2 kere devam et sonra mesajlara bak", "call": ["fm_next", "fm_inbox"], "args": [{"times": 2}, {}], "split": "dev"}
+{"tr": "kondisyonları göster sonra moralleri", "call": ["fm_squad", "fm_squad"], "args": [{"view": "fitness"}, {"view": "morale"}], "split": "dev"}
+{"tr": "marin kaleye geçsin sonra taktiği göster", "call": ["fm_tactic_player", "fm_tactic"], "args": [{"position": "GK", "player": "marin"}, {}], "split": "final"}
+{"tr": "basın toplantısında ilk cevabı ver sonra devam et", "call": ["fm_talk", "fm_next"], "args": [{"say": "1"}, {}], "split": "final"}
+{"tr": "ilk mesajı aç sonra ikinciyi", "call": ["fm_reply", "fm_reply"], "args": [{"message": "1"}, {"message": "2"}], "split": "dev"}
+{"tr": "kupa eşleşmeleri sonra lig tablosu", "call": ["fm_stages", "fm_table"], "split": "dev"}
+{"tr": "avrupa ligi tablosunu göster sonra gol krallığını", "call": ["fm_table", "fm_league"], "args": [{"competition": "UEFA Europa League"}, {"stat": "Goals"}], "split": "dev"}
+{"tr": "antrenman yoğunluklarını göster sonra koçları", "call": ["fm_intensity", "fm_coaches"], "split": "dev"}
+{"tr": "rinaldi çıksın musaba girsin, tosto çıksın marin girsin", "call": ["fm_sub", "fm_sub"], "args": [{"off": "rinaldi", "on": "musaba"}, {"off": "tosto", "on": "marin"}], "split": "dev"}
+{"tr": "forma numaralarına bak sonra kadro listesine", "call": ["fm_numbers", "fm_register"], "split": "final"}
+{"tr": "korner rutinine bak sonra kornercileri göster", "call": ["fm_setpieces", "fm_takers"], "args": [{"kind": "corner"}, {"kind": "corner"}], "split": "dev"}
+{"tr": "gelişim ve sakatlar", "call": ["fm_progress", "fm_health"], "split": "dev"}
+{"tr": "ne değişti, sonra puan durumu", "call": ["fm_diff", "fm_table"], "split": "held"}
+{"tr": "3 gün ilerlet, kaydet, sonra mesajlara bak", "call": ["fm_next", "fm_save", "fm_inbox"], "args": [{"times": 3}, {}, {}], "split": "dev"}
+{"tr": "kadroyu, taktiği ve rakibi göster", "call": ["fm_squad", "fm_tactic", "fm_opponent"], "split": "held"}
+{"tr": "puan durumu, fikstür, sonra devam et", "call": ["fm_table", "fm_fixtures", "fm_next"], "split": "dev"}
+{"tr": "espositoyu sat ardından yerine sol bek bul", "call": ["fm_propose", "fm_targets"], "args": [{"player": "esposito"}, {"position": "DL"}], "split": "held"}
+{"tr": "5 milyona kadar sol bek ara sonra bütçeyi göster", "call": ["fm_targets", "fm_budget"], "args": [{"position": "DL", "max_value": "5M"}, {}], "split": "final"}
+{"tr": "kaleci adayları bul ve kısa listeyi göster", "call": ["fm_targets", "fm_shortlist"], "args": [{"position": "GK"}, {}], "split": "final"}
+{"tr": "yeni 4-3-3 taktik kur sonra ilk 11i seç", "call": ["fm_tactic_new", "fm_tactic_pick"], "args": [{"in_possession": "4-3-3"}, {}], "split": "dev"}
+{"tr": "ikinci taktiğe geç sonra taktiği göster", "call": ["fm_tactic_slot", "fm_tactic"], "args": [{"slot": "2"}, {}], "split": "dev"}
+{"tr": "taktiği kopyala ve hücuma çevir", "call": ["fm_tactic_copy", "fm_tactic_set"], "args": [{}, {"setting": "mentality", "value": "Hücum"}], "split": "dev"}
+{"tr": "rinaldi neden mutsuz, bir de sözleşmeler ne zaman bitiyor", "call": ["fm_happiness", "fm_contracts"], "args": [{"player": "rinaldi"}, {}], "split": "dev"}
+{"tr": "sakatları göster bir de rakipte kim eksik", "call": ["fm_health", "fm_opponent"], "split": "final"}
+{"tr": "takımı defansife çek ve sakin olun diye bağır", "call": ["fm_tactic_set", "fm_shout"], "args": [{"setting": "mentality", "value": "Defansif"}, {"shout": "Sakinleştir"}], "split": "dev"}
+{"tr": "gyasi yarım yoğunluk, esposito çift yoğunluk", "call": ["fm_intensity", "fm_intensity"], "args": [{"player": "gyasi", "level": "half"}, {"player": "esposito", "level": "double"}], "split": "dev"}
+{"tr": "pieragnolo hakkında oyuncu sayfası sonra rinaldiyle kıyasla", "call": ["fm_player", "fm_compare"], "args": [{"name": "pieragnolo"}, {"a": "pieragnolo", "b": "rinaldi"}], "split": "dev"}
+{"tr": "sezonun tüm fikstürü ve puan durumu", "call": ["fm_fixtures", "fm_table"], "args": [{"all": true}, {}], "split": "final"}
+{"tr": "kadroyu otomatik seç ardından maçı hızlı geç", "call": ["fm_tactic_pick", "fm_match"], "args": [{}, {"mode": "instant"}], "split": "held"}
+{"tr": "mesajlara bak, ilkini aç", "call": ["fm_inbox", "fm_reply"], "args": [{}, {"message": "1"}], "split": "dev"}
+{"tr": "kulübü göster sonra tesisleri", "call": ["fm_club", "fm_facilities"], "split": "final"}
+{"tr": "sözleşmesi bitecekler ve bütçe", "call": ["fm_contracts", "fm_budget"], "split": "dev"}
+{"tr": "maç sonu raporu ve gol krallığı", "call": ["fm_report", "fm_league"], "args": [{}, {"stat": "Goals"}], "split": "held"}
+{"tr": "yönetim beni nasıl görüyor sonra taraftarlar", "call": ["fm_board", "fm_supporters"], "split": "held"}
+{"en": "check the table then the fixtures", "call": ["fm_table", "fm_fixtures"], "split": "dev"}
+{"en": "save the game and then advance 5 days", "call": ["fm_save", "fm_next"], "args": [{}, {"times": 5}], "split": "held"}
+{"en": "show injuries and the next opponent", "call": ["fm_health", "fm_opponent"], "split": "dev"}
+{"en": "open the inbox, then continue", "call": ["fm_inbox", "fm_next"], "split": "dev"}
+{"en": "show me rinaldi then tosto", "call": ["fm_player", "fm_player"], "args": [{"name": "rinaldi"}, {"name": "tosto"}], "split": "final"}
+{"en": "sim the match then show the table", "call": ["fm_match", "fm_table"], "args": [{"mode": "instant"}, {}], "split": "dev"}
+{"en": "list incoming bids and then expiring contracts", "call": ["fm_offers", "fm_contracts"], "split": "dev"}
+{"en": "finances and what the board thinks", "call": ["fm_finances", "fm_board"], "split": "dev"}
+{"en": "bring on esposito for gyasi then tell them to calm down", "call": ["fm_sub", "fm_shout"], "args": [{"on": "esposito", "off": "gyasi"}, {"shout": "Calm Down"}], "split": "dev"}
+{"en": "squad depth then transfer targets", "call": ["fm_depth", "fm_targets"], "split": "dev"}
+{"en": "rest fazzini then quick pick the eleven", "call": ["fm_intensity", "fm_tactic_pick"], "args": [{"player": "fazzini", "level": "rest 3"}, {}], "split": "dev"}
+{"en": "go attacking and fire them up", "call": ["fm_tactic_set", "fm_shout"], "args": [{"setting": "mentality", "value": "Attacking"}, {"shout": "Fire Up"}], "split": "dev"}
+{"en": "top scorers and top assists", "call": ["fm_league", "fm_league"], "args": [{"stat": "Goals"}, {"stat": "Assists"}], "split": "dev"}
+{"en": "last match report then what changed", "call": ["fm_report", "fm_diff"], "split": "held"}
+{"en": "show fitness then morale", "call": ["fm_squad", "fm_squad"], "args": [{"view": "fitness"}, {"view": "morale"}], "split": "held"}
+{"en": "continue until match day then show the opponent", "call": ["fm_next", "fm_opponent"], "args": [{"until": "match"}, {}], "split": "held"}
+{"en": "list my saves then load season2 without saving", "call": ["fm_saves", "fm_load"], "args": [{}, {"name": "season2", "save": false}], "split": "held"}
+{"en": "put tosto up for sale at 2m then save", "call": ["fm_propose", "fm_save"], "args": [{"player": "tosto", "fee": "2M"}, {}], "split": "dev"}
+{"en": "bid 1.5m for maleh and then show the shortlist", "call": ["fm_offer", "fm_shortlist"], "args": [{"name": "maleh", "fee": "1.5M"}, {}], "split": "held"}
+{"en": "advance 3 days, save, then check the inbox", "call": ["fm_next", "fm_save", "fm_inbox"], "args": [{"times": 3}, {}, {}], "split": "dev"}
+{"en": "show squad, tactic and opponent", "call": ["fm_squad", "fm_tactic", "fm_opponent"], "split": "dev"}
+{"en": "new 4-3-3 tactic then pick the team", "call": ["fm_tactic_new", "fm_tactic_pick"], "args": [{"in_possession": "4-3-3"}, {}], "split": "held"}
+{"en": "switch to tactic slot 2 then show the tactic", "call": ["fm_tactic_slot", "fm_tactic"], "args": [{"slot": "2"}, {}], "split": "dev"}
+{"en": "income breakdown then expenditure breakdown", "call": ["fm_finances", "fm_finances"], "args": [{"breakdown": "income"}, {"breakdown": "expenditure"}], "split": "final"}
+{"en": "who is improving and who's unhappy", "call": ["fm_progress", "fm_happiness"], "split": "final"}
+{"en": "read the news then the inbox", "call": ["fm_news", "fm_inbox"], "split": "dev"}
+{"en": "show captains and penalty takers", "call": ["fm_captains", "fm_penalties"], "split": "final"}
+{"en": "find a left back under 5m then show the budget", "call": ["fm_targets", "fm_budget"], "args": [{"position": "DL", "max_value": "5M"}, {}], "split": "dev"}
+{"en": "open the first message then the second", "call": ["fm_reply", "fm_reply"], "args": [{"message": "1"}, {"message": "2"}], "split": "dev"}
+{"en": "play it out without team talks then show the report", "call": ["fm_match", "fm_report"], "args": [{"mode": "play_no_talk"}, {}], "split": "dev"}
+{"en": "staff list then responsibilities", "call": ["fm_staff", "fm_responsibilities"], "split": "final"}
+{"en": "marin in goal then show the tactic", "call": ["fm_tactic_player", "fm_tactic"], "args": [{"position": "GK", "player": "marin"}, {}], "split": "dev"}
+{"en": "dressing room atmosphere and who has complaints", "call": ["fm_dynamics", "fm_happiness"], "or": [{"call": ["fm_dynamics", "fm_happiness"], "args": [{}, {"why": true}]}], "split": "final"}
+{"en": "facilities then supporters", "call": ["fm_facilities", "fm_supporters"], "split": "dev"}
+{"en": "sell esposito and then find a left back", "call": ["fm_propose", "fm_targets"], "args": [{"player": "esposito"}, {"position": "DL"}], "split": "final"}
+{"en": "check status then continue twice", "call": ["fm_status", "fm_next"], "args": [{}, {"times": 2}], "split": "dev"}
+{"en": "loan out tosto and release marin", "call": ["fm_propose", "fm_release"], "args": [{"player": "tosto", "loan": true}, {"player": "marin", "free": true}], "split": "held"}
+{"en": "corner takers then free kick takers", "call": ["fm_takers", "fm_takers"], "args": [{"kind": "corner"}, {"kind": "freekick"}], "split": "dev"}
+{"en": "compare colombo with esposito then put colombo up front", "call": ["fm_compare", "fm_tactic_player"], "args": [{"a": "colombo", "b": "esposito"}, {"position": "ST", "player": "colombo"}], "split": "dev"}
+{"en": "copy the tactic and then sit back", "call": ["fm_tactic_copy", "fm_tactic_set"], "args": [{}, {"setting": "mentality", "value": "Defensive"}], "split": "dev"}
+{"en": "quick pick the team then sim the game", "call": ["fm_tactic_pick", "fm_match"], "args": [{}, {"mode": "instant"}], "split": "final"}
+{"en": "check the inbox and open the first one", "call": ["fm_inbox", "fm_reply"], "args": [{}, {"message": "1"}], "split": "dev"}
+{"en": "contracts running out and the budget", "call": ["fm_contracts", "fm_budget"], "split": "dev"}
+{"en": "what does the board think, then the fans", "call": ["fm_board", "fm_supporters"], "split": "dev"}
+{"en": "take rinaldi off for musaba and take tosto off for marin", "call": ["fm_sub", "fm_sub"], "args": [{"off": "rinaldi", "on": "musaba"}, {"off": "tosto", "on": "marin"}], "split": "dev"}
+{"en": "show the whole season's fixtures and then the table", "call": ["fm_fixtures", "fm_table"], "args": [{"all": true}, {}], "split": "dev"}

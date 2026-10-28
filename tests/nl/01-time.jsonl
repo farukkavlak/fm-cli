@@ -141,3 +141,10 @@
 {"tr": "kaydetmeden sezon2ye geç", "call": "fm_load", "args": {"name": "sezon2", "save": false}, "split": "dev"}
 {"tr": "bunu kaydet sonra deneme1i aç", "call": "fm_load", "args": {"name": "deneme1", "save": true}, "split": "dev"}
 {"en": "save this then load backup1", "call": "fm_load", "args": {"name": "backup1", "save": true}, "split": "dev"}
+{"tr": "kaydetmeden başka bir kayda geç", "call": "fm_load", "args": {"save": false}, "ask": "name", "split": "dev"}
+{"tr": "sezon3 kaydına geç", "call": "fm_load", "args": {"name": "sezon3"}, "ask": "save", "split": "held"}
+{"en": "switch to the season3 save", "call": "fm_load", "args": {"name": "season3"}, "ask": "save", "split": "final"}
+{"tr": "oyunu kapatalım artık", "call": "fm_stop", "ask": "save", "split": "dev"}
+{"en": "ok we are done, close fm", "call": "fm_stop", "ask": "save", "split": "dev"}
+{"tr": "bir kaydı sil", "call": "fm_saves", "ask": "delete", "split": "final"}
+{"en": "delete a save", "call": "fm_saves", "ask": "delete", "split": "held"}

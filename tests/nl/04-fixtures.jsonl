@@ -115,3 +115,7 @@
 {"en": "list all competitions", "call": "fm_stages", "args": {"list": true}, "split": "final"}
 {"en": "ucl semi final", "call": "fm_stages", "args": {"competition": "UEFA Champions League", "stage": "Semi-Final"}, "split": "held"}
 {"en": "how's la liga looking", "call": "fm_stages", "args": {"competition": "LALIGA"}, "split": "final"}
+{"tr": "önümüzdeki ay hangi maçlar var", "call": "fm_calendar", "ask": "month", "split": "held"}
+{"en": "anything coming up the month after", "call": "fm_calendar", "ask": "month", "split": "dev"}
+{"tr": "kupada asist krallığı", "call": "fm_league", "args": {"stat": "Assists"}, "ask": "competition", "split": "dev"}
+{"en": "cup assists leaders", "call": "fm_league", "args": {"stat": "Assists"}, "ask": "competition", "split": "dev"}

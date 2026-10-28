@@ -115,3 +115,9 @@
 {"en": "any rumours", "call": "fm_news", "split": "held"}
 {"en": "read news item 3", "call": "fm_news", "args": {"item": "3"}, "split": "dev"}
 {"en": "open the story about the derby", "call": "fm_news", "args": {"item": "derby"}, "split": "dev"}
+{"tr": "üçüncü mesajı cevapla", "call": "fm_reply", "args": {"message": "3"}, "ask": "answer", "split": "dev"}
+{"en": "answer the third message", "call": "fm_reply", "args": {"message": "3"}, "ask": "answer", "split": "dev"}
+{"tr": "basın toplantısında bir şey söyle", "call": "fm_talk", "ask": "say", "split": "dev"}
+{"en": "say something at the press conference", "call": "fm_talk", "ask": "say", "split": "dev"}
+{"tr": "haberlerden birini aç", "call": "fm_news", "ask": "item", "split": "held"}
+{"en": "open a news item", "call": "fm_news", "ask": "item", "split": "dev"}

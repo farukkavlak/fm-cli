@@ -69,3 +69,10 @@
 {"en": "select contract in the view dropdown", "call": "fm_select", "args": {"list": "View", "choice": "Contract"}, "split": "final"}
 {"en": "pick 3 months from the length list", "call": "fm_select", "args": {"list": "Length", "choice": "3 Months"}, "split": "dev"}
 {"en": "choose yes in the radio group", "call": "fm_select", "args": {"choice": "Yes"}, "ask": "list", "split": "final"}
+{"tr": "oyunda bir sayfa aç", "call": "fm_open", "ask": "page", "split": "dev"}
+{"en": "open a page", "call": "fm_open", "ask": "page", "split": "final"}
+{"tr": "ekrandaki şu butona bas", "call": "fm_press", "ask": "label", "split": "held"}
+{"en": "press a button on the screen", "call": "fm_press", "ask": "label", "split": "held"}
+{"tr": "listeden birini seç", "call": "fm_select", "ask": ["list", "choice"], "split": "held"}
+{"tr": "ayarlardan birini değiştir", "call": "fm_settings", "ask": "name", "split": "dev"}
+{"en": "change a setting", "call": "fm_settings", "ask": "name", "split": "dev"}

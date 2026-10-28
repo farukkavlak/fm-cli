@@ -112,3 +112,14 @@
 {"en": "give rinaldi the number 9", "call": "fm_numbers", "args": {"player": "rinaldi", "number": 9}, "split": "dev"}
 {"en": "auto assign shirt numbers", "call": "fm_numbers", "args": {"auto": true}, "split": "final"}
 {"en": "which numbers are free", "call": "fm_numbers", "split": "dev"}
+{"tr": "birini satışa çıkar", "call": "fm_propose", "ask": "player", "split": "dev"}
+{"tr": "kiralık birini gönder", "call": "fm_propose", "args": {"loan": true}, "ask": "player", "split": "final"}
+{"en": "put someone up for sale", "call": "fm_propose", "ask": "player", "split": "dev"}
+{"tr": "bir oyuncuyu serbest bırak", "call": "fm_release", "ask": "player", "split": "dev"}
+{"en": "release one of the players", "call": "fm_release", "ask": "player", "split": "dev"}
+{"tr": "espositoya forma numarası ver", "call": "fm_numbers", "args": {"player": "esposito"}, "ask": "number", "split": "dev"}
+{"en": "give esposito a squad number", "call": "fm_numbers", "args": {"player": "esposito"}, "ask": "number", "split": "dev"}
+{"tr": "birinin sözleşmesini uzat", "call": "fm_contract", "ask": "name", "split": "dev"}
+{"en": "extend someone's contract", "call": "fm_contract", "ask": "name", "split": "held"}
+{"tr": "gelen teklife cevap ver", "call": "fm_offers", "ask": "offer", "split": "held"}
+{"en": "answer the bid", "call": "fm_offers", "ask": "offer", "split": "dev"}

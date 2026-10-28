@@ -68,3 +68,7 @@
 {"en": "set up set pieces", "call": "fm_setpieces_new", "split": "dev"}
 {"en": "set piece wizard", "call": "fm_setpieces_new", "split": "dev"}
 {"en": "set pieces wizard answers 2 1 3", "call": "fm_setpieces_new", "args": {"answers": [2, 1, 3]}, "split": "final"}
+{"tr": "duran top rutinini göster", "call": "fm_setpieces", "ask": "kind", "split": "held"}
+{"en": "show a set piece routine", "call": "fm_setpieces", "ask": "kind", "split": "dev"}
+{"tr": "penaltı listesine birini ekle", "call": "fm_penalties", "args": {"action": "add"}, "ask": "player", "split": "dev"}
+{"en": "add someone to the penalty takers", "call": "fm_penalties", "args": {"action": "add"}, "ask": "player", "split": "dev"}

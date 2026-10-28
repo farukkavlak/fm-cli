@@ -121,3 +121,9 @@
 {"en": "any wonderkids in the intake", "call": "fm_youth", "args": {"candidates": true}, "split": "dev"}
 {"en": "u19 training report", "call": "fm_youth", "args": {"training": true}, "split": "final"}
 {"en": "which youngsters are ready for the first team", "call": "fm_youth", "split": "dev"}
+{"tr": "bir hocayı antrenman alanına ata", "call": "fm_coaches", "ask": ["coach", "area"], "split": "final"}
+{"en": "assign a coach to a training area", "call": "fm_coaches", "ask": ["coach", "area"], "split": "dev"}
+{"tr": "bir günün antrenmanını değiştir", "call": "fm_schedule", "ask": "day", "split": "dev"}
+{"en": "change a day's training", "call": "fm_schedule", "ask": "day", "split": "held"}
+{"tr": "rinaldiye yeni bir hareket öğret", "call": "fm_training", "args": {"player": "rinaldi"}, "ask": "trait", "split": "dev"}
+{"en": "teach rinaldi a new trait", "call": "fm_training", "args": {"player": "rinaldi"}, "ask": "trait", "split": "dev"}

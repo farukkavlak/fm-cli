@@ -233,3 +233,12 @@
 {"en": "tosto vice captain", "call": "fm_captains", "args": {"vice": "tosto"}, "split": "dev"}
 {"en": "captain maleh, vice colombo", "call": "fm_captains", "args": {"captain": "maleh", "vice": "colombo"}, "split": "held"}
 {"en": "give the armband to esposito", "call": "fm_captains", "args": {"captain": "esposito"}, "split": "dev"}
+{"tr": "gyasiyi şununla karşılaştır", "call": "fm_compare", "args": {"a": "gyasi"}, "ask": "b", "split": "held"}
+{"tr": "iki oyuncuyu kıyasla", "call": "fm_compare", "ask": ["a", "b"], "split": "final"}
+{"en": "compare gyasi with someone", "call": "fm_compare", "args": {"a": "gyasi"}, "ask": "b", "split": "dev"}
+{"en": "put two players side by side", "call": "fm_compare", "ask": ["a", "b"], "split": "dev"}
+{"tr": "bir oyuncunun sayfasını aç", "call": "fm_player", "ask": "name", "split": "dev"}
+{"tr": "şu adamın özelliklerine bak", "call": "fm_player", "ask": "name", "split": "dev"}
+{"en": "open a player's profile", "call": "fm_player", "ask": "name", "split": "dev"}
+{"tr": "oyuncuları bir şarta göre süz", "call": "fm_query", "ask": "where", "split": "final"}
+{"en": "filter my players by some condition", "call": "fm_query", "ask": "where", "split": "final"}

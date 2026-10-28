@@ -149,3 +149,18 @@
 {"en": "set in possession prep to progression", "call": "fm_prep", "args": {"slot": "topla", "focus": "Progression"}, "split": "dev"}
 {"en": "out of possession focus mid block", "call": "fm_prep", "args": {"slot": "topsuz", "focus": "Mid Block"}, "split": "held"}
 {"en": "first set piece focus attacking corners", "call": "fm_prep", "args": {"slot": "duran1", "focus": "Attacking Corners"}, "split": "final"}
+{"tr": "bugünkü maça geçelim", "call": "fm_match", "ask": "mode", "split": "held"}
+{"tr": "maç günü geldi oynat", "call": "fm_match", "ask": "mode", "split": "dev"}
+{"tr": "ilk düdüğü çalalım", "call": "fm_match", "ask": "mode", "split": "held"}
+{"en": "let's get the game started", "call": "fm_match", "ask": "mode", "split": "dev"}
+{"en": "start today's fixture", "call": "fm_match", "ask": "mode", "split": "dev"}
+{"tr": "colombo çıksın", "call": "fm_sub", "args": {"off": "colombo"}, "ask": "on", "split": "final"}
+{"tr": "musabayı oyuna sok", "call": "fm_sub", "args": {"on": "musaba"}, "ask": "off", "split": "held"}
+{"tr": "bir oyuncu değişikliği yapalım", "call": "fm_sub", "ask": ["off", "on"], "split": "dev"}
+{"en": "take colombo off", "call": "fm_sub", "args": {"off": "colombo"}, "ask": "on", "split": "held"}
+{"en": "bring musaba on", "call": "fm_sub", "args": {"on": "musaba"}, "ask": "off", "split": "dev"}
+{"en": "lets swap someone out", "call": "fm_sub", "ask": ["off", "on"], "split": "final"}
+{"tr": "bu maç için çalışılacak taktik konuyu başka bir şeye çevir", "call": "fm_prep", "ask": "slot", "split": "dev"}
+{"en": "change the match prep", "call": "fm_prep", "ask": "slot", "split": "dev"}
+{"tr": "rakipte birine sıkı markaj koy", "call": "fm_opposition", "ask": "player", "split": "dev"}
+{"en": "tight mark one of their players", "call": "fm_opposition", "ask": "player", "split": "dev"}

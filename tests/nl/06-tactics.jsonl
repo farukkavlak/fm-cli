@@ -201,3 +201,14 @@
 {"en": "create a gegenpress 4-3-3", "call": "fm_tactic_new", "args": {"style": "Gegenpress", "in_possession": "4-3-3"}, "split": "dev"}
 {"en": "go to a back three, 3-4-3", "call": "fm_tactic_new", "args": {"in_possession": "3-4-3"}, "split": "dev"}
 {"en": "4-2-3-1 with the ball and 4-4-2 without", "call": "fm_tactic_new", "args": {"in_possession": "4-2-3-1", "out_of_possession": "4-4-2"}, "split": "dev"}
+{"tr": "tostoyu bir mevkiye koy", "call": "fm_tactic_player", "args": {"player": "tosto"}, "ask": "position", "split": "final"}
+{"tr": "forvete birini koy", "call": "fm_tactic_player", "args": {"position": "ST"}, "ask": "player", "split": "dev"}
+{"tr": "sol beke kimi koyalım", "call": "fm_tactic_player", "args": {"position": "DL"}, "ask": "player", "split": "dev"}
+{"en": "put tosto somewhere in the lineup", "call": "fm_tactic_player", "args": {"player": "tosto"}, "ask": "position", "split": "dev"}
+{"en": "put someone up front", "call": "fm_tactic_player", "args": {"position": "ST"}, "ask": "player", "split": "held"}
+{"tr": "bir oyuncunun rolünü değiştir", "call": "fm_tactic_role", "ask": "position", "split": "dev"}
+{"en": "change a player's role", "call": "fm_tactic_role", "ask": "position", "split": "dev"}
+{"tr": "bir oyuncuya bireysel talimat ver", "call": "fm_tactic_pi", "ask": "position", "split": "dev"}
+{"en": "set some player instructions for one guy", "call": "fm_tactic_pi", "ask": "position", "split": "final"}
+{"tr": "kayıtlı bir taktiği yükle", "call": "fm_tactic_file", "ask": "load", "split": "dev"}
+{"en": "bring back one of my tactic files", "call": "fm_tactic_file", "ask": "load", "split": "dev"}

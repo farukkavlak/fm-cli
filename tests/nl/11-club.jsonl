@@ -196,3 +196,13 @@
 {"en": "resign", "call": "fm_resign", "split": "dev"}
 {"en": "i quit this job", "call": "fm_resign", "split": "dev"}
 {"en": "resign at the end of the season", "call": "fm_resign", "args": {"end_of_season": true}, "split": "held"}
+{"tr": "fizyoyu kov", "call": "fm_staff_fire", "ask": "name", "split": "dev"}
+{"en": "fire the physio", "call": "fm_staff_fire", "ask": "name", "split": "dev"}
+{"tr": "bir gözlemci işe al", "call": "fm_staff_hire", "ask": "name", "split": "held"}
+{"en": "hire a scout", "call": "fm_staff_hire", "ask": "name", "split": "dev"}
+{"tr": "bir işe başvuru yap", "call": "fm_jobs", "args": {"action": "apply"}, "ask": "club", "split": "held"}
+{"en": "send an application for a vacancy", "call": "fm_jobs", "args": {"action": "apply"}, "ask": "club", "split": "held"}
+{"tr": "yönetimden bir şey iste", "call": "fm_board_request", "ask": "request", "split": "dev"}
+{"en": "ask the board for something", "call": "fm_board_request", "ask": "request", "split": "held"}
+{"tr": "bir görevi devret", "call": "fm_responsibilities", "ask": "delegate", "split": "dev"}
+{"en": "delegate a duty", "call": "fm_responsibilities", "ask": "delegate", "split": "dev"}
