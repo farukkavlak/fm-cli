@@ -105,7 +105,8 @@ def main():
 	print(f"{len(rows)} sentences, {len(by_label)} labels, on {dev}")
 
 	def embed(texts):
-		enc = tok.encode_batch([prefix + t for t in texts])
+		# lower case, "İ" as a plain "i": what the router feeds the model (cli/fm/Nl/Embedder.cs)
+		enc = tok.encode_batch([prefix + t.replace("İ", "i").lower() for t in texts])
 		ids = torch.tensor([e.ids for e in enc], device=dev)
 		mask = torch.tensor([e.attention_mask for e in enc], device=dev)
 		h = model(input_ids=ids, attention_mask=mask).last_hidden_state

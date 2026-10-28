@@ -88,7 +88,7 @@ internal sealed class Neighbours
 	private static string CachePath(string cacheDir, List<(string Text, string Call)> examples)
 	{
 		var model = new FileInfo(Path.Combine(cacheDir, "model.onnx"));
-		var key = $"one-by-one|{model.Length}|{model.LastWriteTimeUtc.Ticks}|" + string.Join('\n', examples.Select(e => e.Text));
+		var key = $"lower|one-by-one|{model.Length}|{model.LastWriteTimeUtc.Ticks}|" + string.Join('\n', examples.Select(e => e.Text));
 		var hash = Convert.ToHexString(SHA1.HashData(Encoding.UTF8.GetBytes(key)))[..12].ToLowerInvariant();
 		return Path.Combine(cacheDir, $"index-{hash}.bin");
 	}

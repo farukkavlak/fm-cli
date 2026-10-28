@@ -150,6 +150,15 @@ offered (`Maybe`): it brings back few false "nothing"s (3 of 22 base, 24 of 270 
 them sit among "nothing" examples only, and asks back on 5 of 90 real "nothing"s. Offering the
 rule router's pick there was tried and left: it asked back on most real "nothing"s.
 
+Typos read as "nothing" (28 Oct). Broken down by the noise put in, held noisy sentences that
+ask something and came back "nothing": odd capitals 12.8%, Turkish letters folded 11.2%, a
+letter doubled 10.0%, dropped 9.2%, swapped 9.1%, a neighbouring key 8.6%, filler 7.9%. The
+tokenizer tells "KADRO" from "kadro", so the router lower-cases what the model sees ("İ" as a
+plain "i"; cli/fm/Nl/Embedder.cs and nl-embed.py alike): expanded held tool 67.4% → 68.5%,
+with arguments 53.5% → 54.1%, false "nothing" 7.2% → 6.1%, "nothing" kept at 88%; base the
+same. Tried and left: doubled letters squeezed to one ("kimm yorgunn"), always (no gain) or
+only when "nothing" won (false "nothing" 7.2% → 6.5% but "nothing" 88% → 85.6%).
+
 ## Case format
 
 One JSON object per line. The text is under its language: `"tr"` or `"en"`.

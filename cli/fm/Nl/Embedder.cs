@@ -38,7 +38,7 @@ internal sealed class Embedder : IDisposable
 		var result = new float[texts.Count][];
 		for (var start = 0; start < texts.Count; start += batch)
 		{
-			var ids = texts.Skip(start).Take(batch).Select(t => _tok.Encode(_prefix + t, MaxTokens)).ToList();
+			var ids = texts.Skip(start).Take(batch).Select(t => _tok.Encode(_prefix + Lower(t), MaxTokens)).ToList();
 			var len = ids.Max(i => i.Length);
 			var input = new DenseTensor<long>([ids.Count, len]);
 			var mask = new DenseTensor<long>([ids.Count, len]);
@@ -65,6 +65,13 @@ internal sealed class Embedder : IDisposable
 		}
 		return result;
 	}
+
+	/// <summary>
+	/// Lower case before the model sees it: the tokenizer tells "KADRO" from "kadro", and odd
+	/// capitals were the biggest cause of a real ask read as "nothing" (12.8% of such noisy
+	/// sentences, held). "İ" goes to a plain "i" (tools/nl-embed.py does the same).
+	/// </summary>
+	public static string Lower(string text) => text.Replace('İ', 'i').ToLowerInvariant();
 
 	public static float Dot(float[] a, float[] b) => System.Numerics.Tensors.TensorPrimitives.Dot(a, b);
 }

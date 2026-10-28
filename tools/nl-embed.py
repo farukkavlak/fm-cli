@@ -58,7 +58,8 @@ class Embedder:
 		# comes out a little different from the same sentence alone (as a typed one is embedded)
 		out = []
 		for i in range(0, len(texts), batch):
-			enc = self.tok.encode_batch([self.prefix + t for t in texts[i:i + batch]])
+			# lower case, "İ" as a plain "i": as cli/fm/Nl/Embedder.cs
+			enc = self.tok.encode_batch([self.prefix + t.replace("İ", "i").lower() for t in texts[i:i + batch]])
 			ids = np.array([e.ids for e in enc], dtype=np.int64)
 			mask = np.array([e.attention_mask for e in enc], dtype=np.int64)
 			feed = {"input_ids": ids, "attention_mask": mask}
