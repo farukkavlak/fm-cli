@@ -1,6 +1,6 @@
 # AI checklist
 
-Work through it in order. Design and reasons: [AI-DESIGN.md](AI-DESIGN.md).
+Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.md](AI-DESIGN.md).
 
 ## Phase 0 — clean baseline
 - [x] Remove training sentences that repeat test sentences (27 found)

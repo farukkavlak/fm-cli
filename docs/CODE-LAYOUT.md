@@ -83,8 +83,9 @@
 - `tools/nl-*.py` — the sentence test set: check, noisy variants, scoring, training, a Python router
   (see `tests/nl/README.md`); `tools/nl-release.sh` publishes the model.
 
-Add a command in a new file of the same `Program` partial; do not grow `Program.cs`. Keep reads and
-writes of one command together. Reuse `Table`/`Ui` before adding a formatter.
+- Add a command in a new file of the `Program` partial; do not grow `Program.cs`.
+- Keep the reads and writes of one command together.
+- Reuse `Table`/`Ui` before adding a formatter.
 
 ## Plugin
 
@@ -94,8 +95,8 @@ writes of one command together. Reuse `Table`/`Ui` before adding a formatter.
   (render, shape, pointer), forms, radios, rows, submenus, dialogs.
 - `Reads/` — pages, panels, text/translation, player card, offer, tactics, saves.
 
-A new read: take the data path in `KeyPaths`/`Path`; never key on screen text or row number.
-A new write: send the game's event; wait for the queue to drain.
+- A new read: take the data path in `KeyPaths`/`Path`; never key on screen text or row number.
+- A new write: send the game's event; wait for the queue to drain.
 
 ## Nullable
 

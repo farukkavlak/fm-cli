@@ -1,7 +1,7 @@
 # Natural-language test set
 
 Sentences a player might type, in Turkish and English, each with the MCP call it should become.
-They are written the way people type: typos, no Turkish letters, slang, half sentences.
+Written the way people type: typos, no Turkish letters, slang, half sentences.
 
 ## Files
 
@@ -37,9 +37,10 @@ python3 tools/nl-expand.py --train
 
 ## Dev and held
 
-Each test sentence is in **dev** (about 70%) or **held** (about 30%) by a hash of its text. A
-noisy variant goes with its sentence. Rules and training sentences are tuned on dev only. Only
-held numbers say how the router does on wording it has not seen.
+- Each test sentence is in **dev** (~70%) or **held** (~30%), by a hash of its text.
+- A noisy variant goes with its sentence.
+- Rules and training sentences are tuned on dev only.
+- Only held numbers say how the router does on new wording.
 
 ## Metrics
 

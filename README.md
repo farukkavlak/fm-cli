@@ -1,8 +1,10 @@
 # fm-cli
 
-Play the real **Football Manager 26** from a terminal. A BepInEx plugin exposes the game's data
-tree and events; the CLI turns them into commands. The game stays open in the background — no
-screen capture, no mouse, no vision.
+Play the real **Football Manager 26** from a terminal.
+
+- A BepInEx plugin inside the game exposes its data and events over local HTTP.
+- The `fm` CLI turns them into commands.
+- The game stays open in the background. No screen capture, no mouse, no vision.
 
 ```
 $ fm status
@@ -23,14 +25,16 @@ $ fm inbox
 
 ## What it can do
 
-Squad and player pages, tactics and team instructions, training, transfers and contracts,
-scouting, match day, press conferences, staff, finances, club vision, settings, saves, and a Model
-Context Protocol server so an AI client can drive the same commands.
-
-The CLI follows the game's language; `fm lang english` switches it without changing the game's data.
-
-A sentence works in place of a command, in Turkish or English. A local model picks the command;
-when it is not sure it offers choices, and anything that changes the game asks first:
+- Squad and player pages, tactics, team instructions, training.
+- Transfers, contracts, scouting.
+- Match day with a live panel and radar, press conferences.
+- Staff, finances, club vision, settings, saves.
+- An MCP server, so an AI client can use the same commands.
+- Output in the game's language; `fm lang english` switches the CLI only.
+- Sentences in place of commands, in Turkish or English:
+  - a local model picks the command,
+  - it offers choices when it is not sure,
+  - anything that changes the game asks first.
 
 ```
 $ fm önümüzdeki maç ne zaman
@@ -39,18 +43,15 @@ $ fm rinaldiyi sat
 `propose rinaldi` çalıştırılsın mı? [e/H]
 ```
 
-How it works and where it is going: [docs/AI-DESIGN.md](docs/AI-DESIGN.md).
-
-Every command and option: `fm help`, or [docs/USAGE.md](docs/USAGE.md).
+Every command and option: `fm help` or [docs/USAGE.md](docs/USAGE.md).
 
 ## Requirements
 
-- macOS on **Apple Silicon**
-- **Football Manager 26** from Steam
-- For the ready package: nothing else — it bundles BepInEx 6 IL2CPP arm64, the plugin and `fm`
-- For development: .NET SDK 10 (the published `dist/fm/fm` needs no SDK)
-
-Intel, Epic, Game Pass and Windows are not supported.
+- macOS on **Apple Silicon**.
+- **Football Manager 26** from Steam.
+- Ready package: nothing else (it bundles BepInEx 6 IL2CPP arm64, the plugin and `fm`).
+- Development: .NET SDK 10. The published `dist/fm/fm` needs no SDK.
+- Not supported: Intel, Epic, Game Pass, Windows.
 
 ## Install — ready package
 
@@ -61,17 +62,18 @@ Build it with `tools/package.sh`, or use `dist/fm-cli-osx-arm64.zip`. Unpack and
 fm doctor --install
 ```
 
-The installer copies BepInEx, the plugin and `fm`, creates the arm64 shadow app
-(`~/fm26_bep/fm.app`) and links `fm` into `~/.local/bin`. If the game is elsewhere:
+- The installer copies BepInEx, the plugin and `fm`.
+- It creates the arm64 shadow app (`~/fm26_bep/fm.app`) and links `fm` into `~/.local/bin`.
+- `fm doctor --install` downloads the language model once (~290 MB).
+- It then checks eight things: game, BepInEx core, launcher, shadow app, plugin, `fm`, save
+  folder, language model. Each missing step says what to do. `--json` for scripts.
+
+Game in another folder:
 
 ```bash
 FM_HOME=/path/to/fm26 ./install.sh
 FM_HOME=/path/to/fm26 fm start
 ```
-
-`fm doctor --install` downloads the language model (~290 MB, once) and checks eight things: game,
-BepInEx core, launcher, shadow app, plugin, `fm` command, save folder and language model. Each
-missing step says what to do. `--json` prints the same for scripts.
 
 ## Install — development
 
@@ -81,8 +83,10 @@ With BepInEx and the shadow app already on the machine:
 tools/install.sh
 ```
 
-It builds the plugin, publishes `fm` as one self-contained file, links it into `~/.local/bin` and
-runs the install check. By hand:
+- Builds the plugin and publishes `fm` as one file.
+- Links it into `~/.local/bin` and runs the install check.
+
+By hand:
 
 ```bash
 dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release
@@ -94,14 +98,14 @@ ln -sf "$PWD/cli/fm/bin/Release/net10.0/fm" ~/.local/bin/fm
 # or: tools/publish.sh → dist/fm/fm (osx-arm64, self-contained)
 ```
 
-Start the game through the shadow app, or `fm start`, then:
+Start the game with `fm start` (or the shadow app), then:
 
 ```bash
-fm status      # is the game up, is a save loaded, what is next
-fm inbox       # what is waiting
-fm next        # continue; stops when something needs an answer
-fm match       # play the match day
-fm lang english # CLI in English while the game stays Turkish (data keeps the game's words)
+fm status        # is the game up, is a save loaded, what is next
+fm inbox         # what is waiting
+fm next          # continue; stops when something needs an answer
+fm match         # play the match day
+fm lang english  # CLI in English, the game stays as it is
 ```
 
 ## Layout
@@ -109,32 +113,33 @@ fm lang english # CLI in English while the game stays Turkish (data keeps the ga
 ```
 plugin/FmCliProbe/     the plugin inside the game (C#, BepInEx 6 IL2CPP)
 cli/fm/                the fm command (.NET; Core/Match/Squad/Transfer/Club/Nl)
-tests/FmCli.Tests/     unit tests for pure helpers (no game needed)
-tests/nl/              sentences and expected commands, to measure the sentence router
-docs/reference/        data model, event, action and enum dumps from the game
-tools/                 install, package, publish, tests, dumps
+tests/FmCli.Tests/     unit tests, no game needed
+tests/nl/              sentences and expected commands, to score the sentence router
+docs/reference/        data model, events, actions and enums dumped from the game
+tools/                 install, package, publish, tests, dumps, router training
 ```
 
 ## Docs
 
 | File | What |
 |---|---|
-| [docs/MANUAL.md](docs/MANUAL.md) | illustrated manual: workflows and screenshots |
-| [docs/USAGE.md](docs/USAGE.md) | every command and option, with examples |
-| [docs/PORTING.md](docs/PORTING.md) | architecture, rules, FM27 checklist, known traps |
-| [docs/BACKLOG.md](docs/BACKLOG.md) | open work, partial features and long-term ideas |
+| [docs/MANUAL.md](docs/MANUAL.md) | illustrated manual |
+| [docs/USAGE.md](docs/USAGE.md) | every command and option |
+| [docs/PORTING.md](docs/PORTING.md) | architecture, rules, FM27 checklist, traps |
+| [docs/BACKLOG.md](docs/BACKLOG.md) | open and partial work, ideas |
 | [docs/CODE-LAYOUT.md](docs/CODE-LAYOUT.md) | which file holds what |
-| [docs/PLAYTEST.md](docs/PLAYTEST.md) | short test checklist |
-| [docs/AI-DESIGN.md](docs/AI-DESIGN.md) | sentences, the router, Mahmut: design and rules |
+| [docs/PLAYTEST.md](docs/PLAYTEST.md) | test checklist |
+| [docs/AI-ROADMAP.md](docs/AI-ROADMAP.md) | the AI goal: sentences now, Mahmut later |
+| [docs/AI-DESIGN.md](docs/AI-DESIGN.md) | how the AI parts work |
 | [docs/AI-CHECKLIST.md](docs/AI-CHECKLIST.md) | AI work, in order |
-| [tests/nl/README.md](tests/nl/README.md) | the sentence test set and its numbers |
-| [docs/reference/](docs/reference/) | generated game data: model, events, actions, enums, translations |
+| [tests/nl/README.md](tests/nl/README.md) | sentence test set and numbers |
+| [docs/reference/](docs/reference/) | generated game data |
 
 ## Checks
 
 ```bash
-tools/ci.sh        # CLI, tests, publish; no game needed
-tools/smoke.sh     # build, plugin, tests, published CLI, live status
-tools/sweep.sh     # run every read-only command against the running game
+tools/ci.sh                  # CLI, tests, publish; no game needed
+tools/smoke.sh               # build, plugin, tests, published CLI, live status
+tools/sweep.sh               # every read-only command against the running game
 python3 tools/mcp-check.py   # real MCP client, read-only (needs: pip install mcp)
 ```

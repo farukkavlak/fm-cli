@@ -1,20 +1,20 @@
 # Porting to FM27
 
-What carries over from the FM26 work, what must be rebuilt, and how to check the first day.
-The code and `docs/reference/` hold the details. Open work and ideas: `docs/BACKLOG.md`.
+- What carries over from FM26, what must be rebuilt, how to check the first day.
+- Details: the code and `docs/reference/`. Open work: `docs/BACKLOG.md`.
 
 ## Overview
 
-`fm` is a terminal client for the real Football Manager. It does not reimplement the game: a
-BepInEx plugin inside the game exposes the game's data tree and events over HTTP, and the CLI
-reads and drives that.
+- `fm` is a terminal client for the real Football Manager. It does not reimplement the game.
+- A BepInEx plugin inside the game exposes its data tree and events over HTTP.
+- The CLI reads and drives that.
 
 ```
 fm (C# CLI)  ──HTTP──▶  127.0.0.1:7777  ◀──  FmCliProbe (BepInEx plugin, in the game)
 MCP server (same CLI)                        └─ SI.Bindable tree + navigation + events
 ```
 
-The game stays open in the background. No screen capture, no mouse, no vision.
+- The game stays open in the background. No screen capture, no mouse, no vision.
 
 ## Rules
 
@@ -41,7 +41,7 @@ New code starts at 1. If it must go lower, say why in a comment.
 
 ## What carries over
 
-Most of the plumbing is independent of the game's content:
+Most of the plumbing does not depend on the game's content:
 
 | Part | Where |
 |---|---|
@@ -58,20 +58,19 @@ Most of the plumbing is independent of the game's content:
 | Radar drawing: flat styles, 3D scenes, rasterizer, ANSI cells | `cli/fm/Match/RadarStyles.cs`, `RadarScene.cs`, `Raster3D.cs`, `RadarCells.cs` — they take a frame of normalized positions + kit colours, nothing FM26-specific |
 | Style catalog (Python prototypes of every look) | `tools/catalog/`, `tools/radar-catalog.py` |
 | Live panel capture and GIFs | `tools/live-capture.py`, `tools/live-gif.py` |
+| Sentence router, its model and test set | `cli/fm/Nl/`, `tests/nl/`, `tools/nl-*.py` |
 
 Must be rebuilt against the new game: page GUIDs (`Match/Screens.cs`), data paths, event names,
 roles, and any feature the game changed.
 
 ## Repo plan for FM27
 
-Stay in this repository. Move the FM26 tree to `archive/fm26/` with `git mv` (history is kept), then
-start the FM27 code clean at the root. The archive is the reference for "how did this screen work,
-which event did it send". Review every copied part against the rules above; do not copy text-,
-timing- or order-based code blindly.
-
-Apple Silicon: the official BepInEx does not work. FM26 needed the patched package from
-DadMych/fm26-player-export-macos. If there is no FM27 package, patch it ourselves; the FM26 patch
-is the starting point.
+- Stay in this repository.
+- Move the FM26 tree to `archive/fm26/` with `git mv` (history is kept).
+- Start FM27 code clean at the root; the archive is the reference.
+- Review every copied part against the rules. Do not copy text-, timing- or order-based code blindly.
+- Apple Silicon: the official BepInEx does not work. FM26 needed the patched package from
+  DadMych/fm26-player-export-macos. If FM27 has none, patch it ourselves from the FM26 patch.
 
 ## First day with FM27
 
@@ -94,8 +93,11 @@ Work in this order; each answer changes the size of the job.
     position, rotation, height and kit colour per man? If yes, the whole radar — all seven styles —
     ports by changing only `plugin/.../Radar.cs`.
 
-Approach: diff the static dumps first, rebuild only what broke. Identity-based commands should need
-little work; text- and position-based ones must be rewritten.
+Approach:
+
+- Diff the static dumps first; rebuild only what broke.
+- Identity-based commands should need little work.
+- Text- and position-based ones must be rewritten.
 
 Steps 5–7 in one pass, once the plugin answers in FM27 (game in English, between matches):
 
@@ -104,128 +106,124 @@ FM_BEP=~/fm27_bep python3 tools/identity-check.py catalog /tmp/fm27   # dump the
 python3 tools/identity-check.py check /tmp/fm27                       # what the code uses that is gone
 ```
 
-`docs/reference/identities.tsv` lists every identity the code leans on (pages, events, element
-names, panels, the plugin's private fields, data paths, enum members, English words), with where it
-is used; `check` prints the missing ones, most used first. Controls only seen on match screens are
-not in any catalog and come out as "unchecked": play one match with `fm match` to cover them.
-Regenerate the list after code changes: `tools/identity-check.py uses`.
+- `docs/reference/identities.tsv` lists every identity the code uses (pages, events, element
+  names, panels, plugin private fields, data paths, enum members, English words) and where.
+- `check` prints the missing ones, most used first.
+- Match-screen controls are not in any catalog ("unchecked"): play one `fm match` to cover them.
+- After code changes, regenerate the list: `tools/identity-check.py uses`.
 
 ## FM26 traps that may return
 
+Game behaviour:
+
 - The game reports success and does nothing. Read the result back.
 - An unbound field returns `{}`; "no path" and "not ready yet" look the same.
-- Scrolling fills table rows in several steps; wait for two equal reads in a row.
-- Do not mutate the game's `TypedValue`s in place (they come from a pool; the main thread locks).
-  Do not click a disabled button; the game locks. Do not walk the whole tree in a polling loop
-  (~40,000 nodes; the game crashes).
-- Copying the plugin DLL while the game is open does nothing: it loads only at start (about 1.5 min).
-- The game's auto-save overwrites the main save; "quit without saving" loses progress.
-- Opening a page from the post-match `Results` screen breaks Continue; Match Day › Overview stops
-  drawing.
-- Deleting and recreating a mentoring group on the same game day mixes the groups up; the game
-  refreshes its own copies when the day advances.
-- Mods that force a display resolution (FM26DisplayFix) draw pages empty.
-- Use `127.0.0.1`, not `localhost` (it answers "Not Found"). On macOS, put `pkill` flags before the
-  pattern; it once killed the wrong processes.
+- Scrolling fills table rows in steps; wait for two equal reads in a row.
 - Some actions (mutual termination) apply without asking. Re-read a list before answering by number.
-- `IsInjured` is not "cannot play": the game's Quick Pick started a man with a training knock and
-  the match went on. Do not tell the user a match will not start; say he may play injured.
-- Match speed is not a dropdown: it is two sliders in the match screen's settings panel (the button
-  inside the template's `#settings` block; close with `PanelHistoryClose`). A change there holds at
-  once. Highlights at 10x jump the radar about three game seconds per redraw; at 1x it is smooth.
-- The staff can put a suggestion on the pre-match team news (`DoItDugoutEvent`, texts at
-  `content.Description` / `content.Text`). `DuringMatch` is already true on that screen.
-- Bringing the game forward (`activate`) puts its window over whatever the user is doing. A whole
-  match ran with the game hidden; hide it again after any command that has to activate it.
-- Once (Sampdoria away) the team talk's `MatchContinue` did nothing however it was pressed; only a
-  restart of the game cleared it.
-- Every value the plugin writes as JSON (`Report.Json`) and every `find` goes back through the
-  English table, so a Turkish game's stock commentary ("Taç atışı kullanılacak") reached the panel
-  as "That's a throw-in" while lines with names stayed Turkish. Text that is only shown to the
-  user must skip that pass (`Report.Json(fields, ["Commentary"])`), and `find` is no proof of
-  what the game holds.
-- An injured man on the bench stops the match from starting ("… bu maçta kullanılamaz"), so
-  taking him out of the eleven is not enough. Each selection slot, the bench's too, has a list
-  with an "All Players" submenu: `pickable?slot=N` lists who it offers (player index; the squad's
-  `Index` property names them), `pickplayer` puts one there.
-- Publishing `fm` over the file a running `fm mcp` uses breaks that process ("The type initializer
-  for 'FmCli.Program' threw an exception"). `tools/publish.sh` and `tools/install.sh` publish to
-  `dist/fm.next` and rename the files into place, so the old process keeps its copy.
-- The highlight speed slider, opened again a few seconds after a change, still shows the speed
-  before it; count steps from the last speed set, not from the slider.
+- The game's auto-save overwrites the main save; "quit without saving" loses progress.
+- Deleting and recreating a mentoring group on the same day mixes the groups up.
+- `IsInjured` is not "cannot play": Quick Pick started a man with a knock. Say he may play injured.
+- An injured man on the bench stops the match from starting ("… bu maçta kullanılamaz").
+  - Each selection slot has an "All Players" submenu.
+  - `pickable?slot=N` lists who it offers; `pickplayer` puts one there.
+- Once (Sampdoria away) the team talk's `MatchContinue` did nothing; only a restart cleared it.
+
+Things that lock or break the game:
+
+- Mutating the game's `TypedValue`s in place (they come from a pool).
+- Clicking a disabled button.
+- Walking the whole tree in a polling loop (~40,000 nodes).
+- Opening a page from the post-match `Results` screen (breaks Continue).
+- Opening Match Day › Overview (the game stops drawing).
+- Mods that force a resolution (FM26DisplayFix): pages draw empty.
+
+Our side:
+
+- The plugin DLL loads only at game start (~1.5 min). Never copy it while the game runs.
+- Use `127.0.0.1`, not `localhost` ("Not Found").
+- On macOS put `pkill` flags before the pattern; it once killed the wrong processes.
+- `activate` puts the game window over the user's work. Hide it again after.
+- Publishing `fm` over the file a running `fm mcp` uses breaks that process. `tools/publish.sh`
+  publishes to `dist/fm.next` and renames into place.
+- `Report.Json` and `find` go through the English table. Turkish stock commentary came out in
+  English. Text only shown to the user skips it (`Report.Json(fields, ["Commentary"])`).
+
+Match speed and staff advice:
+
+- Match speed is two sliders in the match screen's settings panel, not a dropdown.
+  - Open the button inside the template's `#settings` block; close with `PanelHistoryClose`.
+  - A change holds at once.
+  - Reopened a few seconds later, the slider still shows the old speed. Count from the last speed set.
+- At 10x highlights the radar jumps ~3 game seconds per redraw; at 1x it is smooth.
+- Staff suggestions on the pre-match team news: `DoItDugoutEvent`, text at
+  `content.Description` / `content.Text`. `DuringMatch` is already true there.
 
 ## Fragility review (FM26)
 
-What can still break when the language, theme, terminal, machine or game version changes:
+What can break when the language, theme, terminal, machine or game version changes.
 
-- **English labels in the match flow.** `Confirm Changes` (match stop), `Continue` (tour),
-  `Confirm` (set-piece wizard) and the mentality choice `Very Attacking` are matched by English
-  text. The plugin translates the game's UI to English, so they work while that table is complete;
-  a new game version or a missing translation breaks them. Prefer event ids
-  (`EventFmxConfirmChanges`) and element names when porting.
-- **Live panel.** It uses ANSI clear/colours and `Console.KeyAvailable`; this is a POSIX terminal
-  and macOS. The width adapts to the terminal (56–86 columns), but below that the panel wraps.
-  Keys are off when input is redirected, so scripts and MCP keep plain output.
-- **Radar.** The plugin reads `FM.Match.Simulation.Match2DSimulation.m_data` (a live MonoBehaviour)
-  and falls back to the binding tree and `MatchSimulationData.GetInstance`; the type moved between
-  game versions, so re-check `FM.Match.dll` when porting. Positions are normalized to the pitch;
-  the player list order is what separates the two teams, because the simulation data carries no
-  team id or name. The fallback from the binding tree only has data while a screen binds it.
-  On a short terminal the radar replaces the shape pitch and its rows are capped to the window.
-  Sides go by kit, not by position in the list: the list keeps its order all match while
-  substitute flags change, so cutting it at bench-to-eleven steps put men on the wrong side after a
-  substitution (`RadarTeams`). The keeper is the man whose kit differs from his side's.
-- **Live panel speed.** Each bridge request waits for a game frame; several reads per redraw froze
-  the panel (match players took 8 s). One `batch` request per redraw brought it to 0.8 s and the
-  radar to ~0.3 s. Batch from day one in FM27.
-  The radar itself is not the limit: the engine updates it every tick, and read back to back in
-  the background (not awaited by the drawing) it answers every game frame, ~33 ms (Modena, 27 Ekim
-  2026: 30 readings and redraws a second, iso at 120 columns, fm ~36 % CPU). `RadarMotion` walks
-  the men between readings, matched by entity index (`e`); a move over a quarter of the pitch is a
-  cut or a substitute and is put down at once. At 33 ms the walk barely shows; it is there for slow
-  readings (a busy frame, a slower bridge). Measured per reading at 10x/40x: a man moves 1 % of the
-  pitch at the median, 13 % at p99 (`FM_RADAR_LOG=<file>` keeps the readings). The panel draws over itself (`ESC[H` + `ESC[K`,
-  synchronized output 2026) instead of clearing, or it flickers at that rate.
-- **Radar styles and terminals.** Three tiers: anywhere (ASCII, coloured ASCII, braille — 256
-  colours, close greens kept apart by `Ansi.Apart`); 24-bit colour (pixel, and the 3D iso / raycast
-  / voxel scenes, two colours a cell as sextants or half blocks); image protocols (Kitty / OSC 1337,
-  not done). Terminal.app on macOS 14 has no 24-bit colour. The 3D scenes are pure C# (no SkiaSharp
-  or ImageSharp: single-file publish, any platform) and take 30–90 ms a frame at 120–200 columns.
-  Judge looks in a real terminal, not on a PNG: what looks good as a picture can fall apart in cells.
-  A low perspective camera must skip men right in front of it (one filled the picture live). On
-  key-moments view the ball moves ~10 game seconds between redraws, so a following camera jumps
-  with the data; judge camera smoothness on a slower view.
-- **Key moments.** The filter looks for Turkish and English marker words; another language falls back to the full commentary. Extend `MatchLive.KeyWords` or filter by game events when adding a language.
-- **Live stats.** During a match the bindings only hold `LastFixture`/`NextFixture` and
-  `IsLiveMatch` is false; no live possession/shots. The post-match report has them.
-- **Match speed.** The match screen has no speed dropdown; `+`/`-` looks for one with `1x…`
-  choices and otherwise tells the user to use settings.
-- **Language reverse lookup.** `Labels.Source` builds an English reverse table from the Turkish
-  catalog; duplicate Turkish values can map to the wrong English key. Settings names are unique;
-  keep new translated labels unique or pass the English key explicitly.
-- **MCP.** The tools run the CLI, so their text follows the CLI/game language. Set
-  `FM_LANG=english` (or `fm lang english`) when a model needs English. Read tools are tested with
-  the Python SDK; write tools are not.
-- **Another machine.** Install and launch are macOS arm64 + Steam only; `fm start` window
-  minimising needs Accessibility; Intel, Epic, Game Pass and Windows are out of scope.
-- **Another game.** Page GUIDs, data paths and event names are FM26-specific; start from
-  `docs/PORTING.md` and the dumps in `docs/reference/`.
+**English labels in the match flow**
+
+- `Confirm Changes`, `Continue` (tour), `Confirm` (set-piece wizard) and `Very Attacking` are matched by text.
+- They work while the plugin's English table is complete.
+- When porting, prefer event ids (`EventFmxConfirmChanges`) and element names.
+
+**Live panel**
+
+- ANSI colours and `Console.KeyAvailable`: POSIX terminal, macOS.
+- Width adapts from 56 to 86 columns; narrower wraps.
+- Keys are off when input is redirected, so scripts and MCP stay plain.
+- Each bridge request waits for a game frame. Several reads per redraw froze the panel (8 s).
+- One `batch` request per redraw: 0.8 s, radar ~0.3 s. Batch from day one in FM27.
+- The panel draws over itself (`ESC[H` + `ESC[K`, synchronized output) so it does not flicker.
+
+**Radar**
+
+- Read from `FM.Match.Simulation.Match2DSimulation.m_data`; fallback: binding tree,
+  `MatchSimulationData.GetInstance`. The type moved between versions; re-check `FM.Match.dll`.
+- Positions are normalized to the pitch. No team id in the data.
+- Sides go by kit, not list position (`RadarTeams`). The keeper's kit differs from his side's.
+- Read in the background every game frame (~33 ms, 30 redraws a second, fm ~36% CPU).
+- `RadarMotion` moves men between readings, matched by entity index; a jump over a quarter
+  pitch is a cut or a substitute.
+- `FM_RADAR_LOG=<file>` keeps the readings.
+
+**Radar styles and terminals**
+
+- Anywhere: ASCII, coloured ASCII, braille (256 colours; `Ansi.Apart` keeps close greens apart).
+- 24-bit colour: pixel and the 3D iso / raycast / voxel scenes.
+- Image protocols (Kitty, OSC 1337): not done.
+- Terminal.app on macOS 14 has no 24-bit colour.
+- 3D scenes are pure C#, 30–90 ms a frame at 120–200 columns.
+- Judge looks in a real terminal, not on a PNG.
+- A low camera must skip men right in front of it.
+
+**Other**
+
+- Key moments: Turkish and English marker words only; other languages show full commentary
+  (`MatchLive.KeyWords`).
+- Live stats: no live possession or shots during a match; the post-match report has them.
+- `Labels.Source` maps Turkish back to English; duplicate Turkish values can map wrong. Keep new
+  labels unique.
+- MCP output follows the CLI language. Use `FM_LANG=english` when a model needs English. Write
+  tools are not tested with the Python SDK.
+- Install and launch: macOS arm64 + Steam only. `fm start` minimising needs Accessibility.
+- Page GUIDs, data paths and event names are FM26-specific.
 
 ## State at the FM26 stop
 
-- Working: 100+ CLI commands and MCP tools — squad, tactics, training, transfers, contracts,
-  scouting, matches, press, staff, finances, settings. One full season was played end to end.
-- Portability work was unfinished: parts of match narration and a few screens still depended on
-  text, timing or order. `tools/sweep.sh` shows what breaks in a new save or version.
-- Known limits: only macOS arm64 + Steam was tested. Intel, Epic, Game Pass and Windows were not.
+- Working: 100+ commands and MCP tools; one full season played end to end.
+- Sentences in place of commands (Turkish and English), with a local model.
+- Unfinished: parts of match narration and a few screens still depend on text, timing or order.
+  `tools/sweep.sh` shows what breaks.
+- Tested only on macOS arm64 + Steam.
 
 ## FM27 plan
 
 1. Identity-based from day one.
 2. Test every command in Turkish and English from day one.
-3. Keep a second save from day one: another country, another league, a new career.
+3. Keep a second save from day one: another country, league, career.
 4. No fixed waits. Only `Until(signal, upperBound)`.
-5. Think about install and release early: one place for platform paths, a version guard (the plugin
-   knows the game version and refuses unsupported ones), `fm doctor` checks the install.
+5. Install and release early: one place for paths, a version guard, `fm doctor`.
 6. Readable, quick output before more commands.
-7. A local natural-language layer comes later, once the base is solid.
+7. The sentence layer ports as it is: it depends on the tool definitions, not the game.
