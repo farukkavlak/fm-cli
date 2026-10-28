@@ -188,16 +188,21 @@ def judge(case, out):
 
 
 def recall(case, out, k):
-	"""The expected tools are all among the router's k best-voted calls (None without votes).
-	Only for cases that expect a tool; any "or" alternative counts."""
+	"""The expected tools are all among the router's k best candidates (None without votes).
+	When the router split the sentence ("asks": one candidate list per ask), each expected tool
+	must be among the k best of its own ask, in order. Only for cases that expect a tool; any
+	"or" alternative counts."""
 	votes = out.get("votes")
 	want = case.get("call")
 	if votes is None or want is None:
 		return None
+	options = [want] + [o["call"] for o in case.get("or", [])]
+	asks = out.get("asks")
+	if asks:
+		return any(len(as_list(o)) == len(asks) and all(t in a[:k] for t, a in zip(as_list(o), asks)) for o in options)
 	top = set()
 	for v in votes[:k]:
 		top.update(as_list(v["call"]))
-	options = [want] + [o["call"] for o in case.get("or", [])]
 	return any(set(as_list(o)) <= top for o in options)
 
 
@@ -238,7 +243,7 @@ def git(*args):
 	return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True).stdout.strip()
 
 
-def manifest(cmd, which, given_tool, final):
+def manifest(cmd, which, given_tool, final, group):
 	"""Everything needed to tell two results apart, or to get the same one again."""
 	words = shlex.split(cmd) if isinstance(cmd, str) else cmd
 	model = None
@@ -261,6 +266,7 @@ def manifest(cmd, which, given_tool, final):
 		"data": data,
 		"split": SPLIT_RULE,
 		"final_scored": final,
+		"group": group,
 		"commit": git("rev-parse", "--short", "HEAD"),
 		# uncommitted changes to what decides the numbers (docs and saved results do not)
 		"dirty": bool(git("status", "--porcelain", "--", "cli", "tools", "tests/nl/*.jsonl", "tests/nl/train")),
@@ -341,7 +347,7 @@ def main():
 	if a.json:
 		print(json.dumps(totals))
 	if a.save is not None:
-		m = manifest([str(FM), "__route"] if a.given_tool else cmd, a.set, a.given_tool, a.final)
+		m = manifest([str(FM), "__route"] if a.given_tool else cmd, a.set, a.given_tool, a.final, a.group)
 		tag = a.save or "-".join(x for x in (datetime.now().strftime("%Y-%m-%d-%H%M"), (m["model"] or {}).get("name") or ("readers" if a.given_tool else "rules"), a.set) if x)
 		RESULTS.mkdir(exist_ok=True)
 		out = RESULTS / f"{tag}.json"

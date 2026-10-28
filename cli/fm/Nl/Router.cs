@@ -45,22 +45,30 @@ internal static partial class Router
 		return [.. scores.OrderByDescending(s => s.Item2)];
 	}
 
-	/// <summary>Two or more asks in one sentence, when every part names its own tool.</summary>
-	private static List<Call>? Split(string sentence, double wholeScore)
+	/// <summary>
+	/// The sentence cut at "sonra", "then", "ve", "and" and commas, in its own words; each part
+	/// says whether a strong cut ("sonra", "then") came after it.
+	/// </summary>
+	private static List<(string Text, bool Strong)> Parts(string sentence)
 	{
-		var raw = Text.Fold(sentence).Replace(",", " , ");
-		var words = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-		var cuts = words.Select((w, i) => (w, i)).Where(x => Strong.Contains(x.w) || Weak.Contains(x.w)).ToList();
-		if (cuts.Count == 0) return null;
+		var words = sentence.Replace(",", " , ").Split(' ', StringSplitOptions.RemoveEmptyEntries);
 		var parts = new List<(string Text, bool Strong)>();
 		var start = 0;
-		foreach (var (w, i) in cuts)
+		for (var i = 0; i < words.Length; i++)
 		{
+			var w = Text.Fold(words[i]);
+			if (!Strong.Contains(w) && !Weak.Contains(w)) continue;
 			parts.Add((string.Join(' ', words[start..i]), Strong.Contains(w)));
 			start = i + 1;
 		}
 		parts.Add((string.Join(' ', words[start..]), false));
-		parts = [.. parts.Where(p => p.Text.Length > 0)];
+		return [.. parts.Where(p => p.Text.Length > 0)];
+	}
+
+	/// <summary>Two or more asks in one sentence, when every part names its own tool.</summary>
+	private static List<Call>? Split(string sentence, double wholeScore)
+	{
+		var parts = Parts(sentence);
 		if (parts.Count < 2) return null;
 
 		var routed = parts.Select(p => (p.Text, p.Strong, Best: Score(new Text(p.Text)).FirstOrDefault())).ToList();
@@ -72,6 +80,14 @@ internal static partial class Router
 		if (routed.Sum(r => r.Best.Score) + 0.01 < wholeScore) return null;
 		return [.. routed.Select(r => Fill(r.Best.Tool, new Text(r.Text), r.Best.Score))];
 	}
+
+	/// <summary>
+	/// The asks of a sentence, each in its own words, for one candidate list per ask: the parts
+	/// of the rule split when it holds, else the whole sentence. Splitting at every cut, or where
+	/// the nearest examples vote for several asks, did no better (tests/nl/README.md).
+	/// </summary>
+	public static List<string> Asks(string sentence) =>
+		Route(sentence).Calls.Count > 1 ? [.. Parts(sentence).Select(p => p.Text)] : [sentence];
 
 	private static Call Fill(string tool, Text text, double score)
 	{
@@ -127,7 +143,8 @@ internal static partial class Router
 	/// nearest example sentences pick the tool and the rules only fill its arguments (a sentence
 	/// the rules split into several asks stays split); --cases DIR is the tests/nl folder whose
 	/// dev and train sentences are the examples; "votes" then lists the five best candidate
-	/// tools of the 50 nearest examples.
+	/// tools of the 50 nearest examples, and "asks" the five best of each ask when the sentence
+	/// splits into several.
 	/// </summary>
 	public static int RouteLines(string[] args)
 	{
@@ -143,6 +160,7 @@ internal static partial class Router
 
 		var picks = new string?[texts.Count];
 		var ranks = new List<(string Call, float Weight)>?[texts.Count];
+		var perAsk = new List<List<string>>?[texts.Count];
 		if (Opt("--model") is { } model)
 		{
 			model = Path.GetFullPath(model.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)));
@@ -153,6 +171,8 @@ internal static partial class Router
 			{
 				picks[i] = near.Pick(texts[i].Text, vectors[i]);
 				ranks[i] = [.. near.Candidates(texts[i].Text, vectors[i]).Select(c => (JsonSerializer.Serialize(c.Tool), c.Weight))];
+				var asks = Asks(texts[i].Text);
+				if (asks.Count > 1) perAsk[i] = [.. asks.Select(a => near.Candidates(a, null).Select(c => c.Tool).Take(5).ToList())];
 			}
 		}
 
@@ -184,6 +204,8 @@ internal static partial class Router
 				o = pick == "null" ? new JsonObject { ["call"] = null } : Forced(text, JsonNode.Parse(pick)!.GetValue<string>());
 			if (ranks[i] is { } rank)
 				o["votes"] = new JsonArray([.. rank.Take(5).Select(v => (JsonNode)new JsonObject { ["call"] = JsonNode.Parse(v.Call), ["weight"] = Math.Round(v.Weight, 3) })]);
+			if (perAsk[i] is { } pa)
+				o["asks"] = new JsonArray([.. pa.Select(a => (JsonNode)new JsonArray([.. a.Select(t => (JsonNode)t)]))]);
 			w.WriteLine(o.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
 		}
 		w.Flush();
