@@ -1,0 +1,20 @@
+{"id": "c01", "q": "kadroda durumlar ne?", "reads": ["squad", "health"]}
+{"id": "c02", "q": "sakat var mı, kim yorgun?", "reads": ["health"]}
+{"id": "c03", "q": "sıradaki maç ne zaman, rakip nasıl bi takım?", "reads": ["fixtures", "opponent"]}
+{"id": "c04", "q": "kim ayrılmak istiyor", "reads": ["squad", "happiness"]}
+{"id": "c05", "q": "mutsuz oyuncular kim, neden mutsuzlar?", "reads": ["happiness"]}
+{"id": "c06", "q": "gelen teklifler neler, sence hangisini kabul edelim?", "reads": ["offers"]}
+{"id": "c07", "q": "bütçe ne durumda, transfer yapabilir miyiz?", "reads": ["finances"]}
+{"id": "c08", "q": "yönetim benden ne bekliyor?", "reads": ["board"]}
+{"id": "c09", "q": "son haberlerde ne var", "reads": ["news"]}
+{"id": "c10", "q": "gelen kutusunda önemli bişey var mı?", "reads": ["inbox"]}
+{"id": "c11", "q": "lig tablosunda neredeyiz?", "reads": ["table"]}
+{"id": "c12", "q": "kulübü bi özetle bana", "reads": ["club"]}
+{"id": "c13", "q": "sonraki maçta kimi dinlendirelim?", "reads": ["health", "squad-fitness", "fixtures"]}
+{"id": "c14", "q": "en değerli oyuncumuz kim?", "reads": ["squad"]}
+{"id": "c15", "q": "sözleşmesi biten ya da sözleşme bekleyen var mı", "reads": ["squad"]}
+{"id": "c16", "q": "takımın morali nasıl?", "reads": ["squad-morale", "happiness"]}
+{"id": "c17", "q": "bu hafta neye odaklanalım?", "reads": ["status", "fixtures", "inbox"]}
+{"id": "c18", "q": "hofmeister için teklif var mı, satalım mı?", "reads": ["offers", "squad"]}
+{"id": "c19", "q": "gençlerden kim parlıyor sence?", "reads": ["squad"]}
+{"id": "c20", "q": "who is tired, and who should start the next match?", "reads": ["health", "squad-fitness", "fixtures"]}

@@ -11,23 +11,24 @@ Which jobs can a small local model do, with FM open on this Mac? Status: **appro
 
 ## Runner
 
-- `llama.cpp` from Homebrew (`llama-server`, stable 0.7.0 today; record the exact build).
+- `llama.cpp` from Homebrew (`llama-server`; the exact build goes in every result).
 - Not Ollama: the installed 0.9.5 is old, and llama.cpp gives the exact GGUF file and its SHA.
 - JSON output forced by a JSON schema (llama.cpp grammar), so a plan always parses.
 - Context 4096, temperature 0, fixed seed, Metal on.
 
 ## Models
 
-| Model | Quant | File | License |
+| Model | GGUF (Hugging Face) | Size | License |
 |---|---|---|---|
-| Qwen3.5 0.8B Instruct | Q8_0 | ~0.9 GB | Apache 2.0 |
-| Qwen3.5 2B Instruct | Q8_0 | ~2.0 GB | Apache 2.0 |
-| Qwen3.5 4B Instruct | Q4_K_M | ~2.7 GB | Apache 2.0 |
-| Gemma 4 E2B | Q4_K_M | check | check before download |
+| Qwen3.5 0.8B | `ggml-org/Qwen3.5-0.8B-GGUF` Q8_0 | 0.83 GB | Apache 2.0 |
+| Qwen3.5 2B | `bartowski/Qwen_Qwen3.5-2B-GGUF` Q8_0 | 2.08 GB | Apache 2.0 |
+| Qwen3.5 4B | `bartowski/Qwen_Qwen3.5-4B-GGUF` Q4_K_M | 3.01 GB | Apache 2.0 |
+| Gemma 4 E2B | `ggml-org/gemma-4-E2B-it-GGUF` Q4_0 | 2.84 GB | Apache 2.0 |
 
-- GGUF from the vendor's own Hugging Face repo, else a well-known converter; record repo, file and SHA-256.
+- No official Qwen GGUF: ggml-org (the llama.cpp team) where it exists, else bartowski.
+- Gemma: Google's own QAT file is 3.35 GB, over the limit; ggml-org Q4_0 instead.
+- Each download is checked against the repo's SHA-256; the SHA goes in every result.
 - Out: anything over 3 GB (Qwen3.5 9B, Gemma 4 E4B), Phi-4 mini (mostly English), Llama (weak Turkish, custom license).
-- Sizes and Gemma's license are checked on the model page before download.
 
 ## Jobs and benches
 
@@ -91,8 +92,9 @@ A model passes a job only if all of its marks hold on held.
 ## Results
 
 - Planning and arguments: `tests/nl/results/llm-<model>.json` (same manifest as other results, plus GGUF SHA and runner build).
-- Conversation, memory, cost: `tests/llm/results/<model>.json`.
-- Snapshots and blind scores: `tests/llm/`.
+- Conversation, memory, cost: `tests/llm/results/<model>.json` (`tools/llm-bench.py`).
+- Game snapshot: `~/.cache/fm-cli/llm/snapshot-2029-08-04/`, saved `fm` outputs; not in git (game data), its SHA is in each result.
+- Blind scores: `tests/llm/`.
 
 ## Approved (28 Oct)
 

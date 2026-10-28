@@ -243,7 +243,7 @@ def git(*args):
 	return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True).stdout.strip()
 
 
-def manifest(cmd, which, given_tool, final, group):
+def manifest(cmd, which, given_tool, final, group, only=None):
 	"""Everything needed to tell two results apart, or to get the same one again."""
 	words = shlex.split(cmd) if isinstance(cmd, str) else cmd
 	model = None
@@ -251,6 +251,11 @@ def manifest(cmd, which, given_tool, final, group):
 		d = Path(os.path.expanduser(words[words.index("--model") + 1])).resolve()
 		onnx = d / "model.onnx"
 		model = {"dir": str(d), "name": d.name, "sha256": sha256([onnx], named=False) if onnx.exists() else None}
+	if "--gguf" in words:
+		g = Path(os.path.expanduser(words[words.index("--gguf") + 1])).resolve()
+		runner = subprocess.run(["llama-server", "--version"], capture_output=True, text=True)
+		model = {"gguf": str(g), "name": g.name, "sha256": sha256([g], named=False) if g.exists() else None,
+			"runner": (runner.stdout + runner.stderr).strip().splitlines()[0:1], "candidates": model}
 	elif os.environ.get("FM_NL_MODEL"):
 		model = {"dir": os.environ["FM_NL_MODEL"], "note": "FM_NL_MODEL set; not read by fm __route"}
 	files = sorted(CASES.glob("*.jsonl")) + sorted((CASES / "train").glob("*.jsonl"))
@@ -267,6 +272,7 @@ def manifest(cmd, which, given_tool, final, group):
 		"split": SPLIT_RULE,
 		"final_scored": final,
 		"group": group,
+		"only": only,
 		"commit": git("rev-parse", "--short", "HEAD"),
 		# uncommitted changes to what decides the numbers (docs and saved results do not)
 		"dirty": bool(git("status", "--porcelain", "--", "cli", "tools", "tests/nl/*.jsonl", "tests/nl/train")),
@@ -285,7 +291,8 @@ def main():
 	ap.add_argument("--json", action="store_true", help="print the totals as JSON")
 	ap.add_argument("--save", nargs="?", const="", metavar="NAME", help="write the totals and a manifest to tests/nl/results/ (NAME defaults to date + model)")
 	ap.add_argument("--final", action="store_true", help="score the final set too (only to confirm a decision)")
-	ap.add_argument("--given-tool", action="store_true", help="hand each case's own tool to fm __route: the argument readers alone")
+	ap.add_argument("--given-tool", action="store_true", help="hand each case's own tool to the router (fm __route unless --router): the arguments alone")
+	ap.add_argument("--only", choices=["dev", "held"], help="run only this split (a slow router, e.g. tools/nl-llm.py)")
 	a = ap.parse_args()
 	cmd = a.router or [str(FM), "__route"]
 	totals = {}
@@ -293,9 +300,11 @@ def main():
 		if a.group:
 			cases = [c for c in cases if c["group"].startswith(a.group)]
 		cases = [c for c in cases if a.final or c["split"] != "final"]
+		if a.only:
+			cases = [c for c in cases if c["split"] in (a.only, "final")]
 		if a.given_tool:
 			cases = [c for c in cases if isinstance(c.get("call"), str) and (name != "train" or "args" in c or "ask" in c)]
-			outs, took = run_router([str(FM), "__route"], [c["text"] for c in cases], [c["call"] for c in cases])
+			outs, took = run_router(a.router or [str(FM), "__route"], [c["text"] for c in cases], [c["call"] for c in cases])
 		else:
 			outs, took = run_router(cmd, [c["text"] for c in cases])
 		rows = [(c, o, *judge(c, o)) for c, o in zip(cases, outs)]
@@ -347,7 +356,7 @@ def main():
 	if a.json:
 		print(json.dumps(totals))
 	if a.save is not None:
-		m = manifest([str(FM), "__route"] if a.given_tool else cmd, a.set, a.given_tool, a.final, a.group)
+		m = manifest(cmd if a.router or not a.given_tool else [str(FM), "__route"], a.set, a.given_tool, a.final, a.group, a.only)
 		tag = a.save or "-".join(x for x in (datetime.now().strftime("%Y-%m-%d-%H%M"), (m["model"] or {}).get("name") or ("readers" if a.given_tool else "rules"), a.set) if x)
 		RESULTS.mkdir(exist_ok=True)
 		out = RESULTS / f"{tag}.json"

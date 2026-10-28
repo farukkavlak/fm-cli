@@ -1,0 +1,21 @@
+# LLM benches
+
+For the local LLM experiment ([docs/LLM-EXPERIMENT.md](../../docs/LLM-EXPERIMENT.md)).
+Planning and arguments use the NL test set and `tools/nl-score.py`; these files are the rest.
+
+| File | What |
+|---|---|
+| `conversation.jsonl` | 20 questions to Mahmut; `reads` = the saved `fm` outputs he answers from |
+| `memory.jsonl` | 10 short talks; the last turn refers back ("onu sat"); scored as tool+args |
+| `results/` | one file per model: answers, memory plans, cost, manifest |
+
+Run (the snapshot is a folder of `fm <command>` outputs, `<command>.txt`, not in git):
+
+```bash
+tools/nl-score.py --router "tools/nl-llm.py --gguf FILE --log /tmp/plan.log" --set base --only held --save llm-NAME
+tools/llm-bench.py --gguf FILE --snapshot ~/.cache/fm-cli/llm/snapshot-2029-08-04 --plan-log /tmp/plan.log --save NAME
+```
+
+- Unknown names: capitalised words in an answer that are not in its snapshot files. Flagged by the
+  script, confirmed by hand.
+- Memory: earlier turns go in as the plans they became; only the last turn is scored.
