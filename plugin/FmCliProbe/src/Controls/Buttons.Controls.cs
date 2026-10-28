@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes;
 using SI.Bindable;
 using SI.Bindable.Events;
 using UnityEngine;

@@ -191,7 +191,7 @@ internal static partial class Program
 	/// What the score leaves out: cards, injuries, and our players by
 	/// their rating, best first. The fixture's own list of events holds only the goals.
 	/// </summary>
-	private static void MatchMoments(Dictionary<string, MatchMan> men, (string Own, string Opponent)? names)
+	private static void MatchMoments(Dictionary<string, MatchMan> men)
 	{
 		// Ours first, then theirs, each named as such once the squad's names are known.
 		string Sides(Func<KeyValuePair<string, MatchMan>, bool> which, Func<KeyValuePair<string, MatchMan>, string> said)

@@ -14,8 +14,6 @@ internal static class Pitch
 	private const int Lines = 6;   // strikers, attacking midfield, midfield, defensive midfield, defence, goal
 	private const int Cell = 12;
 
-	private static readonly string[] LineNames = ["forvet", "ofansif orta saha", "orta saha", "defansif orta saha", "defans", "kale"];
-
 	/// <summary>
 	/// Draws both phases. <paramref name="changed"/> marks slots by their place in the tactic,
 	/// with the phase the change was made in, so a change is seen where it happened.

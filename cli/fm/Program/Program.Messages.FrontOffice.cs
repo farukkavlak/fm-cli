@@ -49,7 +49,7 @@ internal static partial class Program
 		return;
 	}
 
-	private static async Task WinBonusesAttachment(List<(string Text, string Path)> page, Func<string, string> one)
+	private static async Task WinBonusesAttachment(Func<string, string> one)
 	{
 		Console.WriteLine(L("\n  Attached: the squad's win bonuses (a rise or a cut comes out of the transfer budget)"));
 		foreach (var (name, data) in new[] { (one("collectivewinbonus.BonusLeagueString"), "BonusLeagueData"), (GameWords.Of("Domestic Cups"), "BonusCupData") })

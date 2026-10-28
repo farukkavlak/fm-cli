@@ -79,7 +79,7 @@ internal static partial class Program
 			if (note.Length > maxCols) note = note[..(Math.Max(1, maxCols - 1))] + "…";
 			return [note];
 		}
-		var men = Squads(frame, sides, colour);
+		var men = Squads(frame, sides);
 		var lines = style switch
 		{
 			"braille" => BrailleRadar(frame, men, cols, rowsFor(cols)),
@@ -101,7 +101,7 @@ internal static partial class Program
 	/// from his side's; when the two sides' kits are too alike to tell apart, the away side takes its
 	/// shirt number colour or, failing that, ours go cyan and theirs red.
 	/// </summary>
-	private static List<Drawn> Squads(RadarFrame frame, RadarSides sides, bool colour)
+	private static List<Drawn> Squads(RadarFrame frame, RadarSides sides)
 	{
 		var starters = frame.Men.Where(m => !m.Substitute && m.X is >= 0 and <= 1 && m.Y is >= 0 and <= 1).ToList();
 		Rgb TeamKit(int team) => Rgb.Hex(starters.Where(m => m.Team == team).GroupBy(m => m.Kit)

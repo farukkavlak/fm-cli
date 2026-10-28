@@ -610,7 +610,7 @@ internal static partial class Program
 			// The report is the first team's last match; a match only watched has none of its own here.
 			// Picked up after the post-match talk the board is not read again; the report then stands on its own.
 			if (!watchedMatch) try { await MatchReport.Show(Fm, json: false, expected: score.Length > 0 ? score : null); } catch (FmError) { }
-			if (finalMen is { Count: > 0 }) MatchMoments(finalMen, names);
+			if (finalMen is { Count: > 0 }) MatchMoments(finalMen);
 		}
 		// What holds the game up after the whistle is read afresh: usually the press conference.
 		var after = await Fm.GetJson("state");

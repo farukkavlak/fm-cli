@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace FmCli;
 
 internal static partial class Program
@@ -326,7 +324,7 @@ internal static partial class Program
 		// #high-button), each row found by its own figure.
 		if (page.Any(t => t.Path == "collectivewinbonus.BonusLeagueData.BonusLowAmount"))
 		{
-			await WinBonusesAttachment(page, One);
+			await WinBonusesAttachment(One);
 			return;
 		}
 

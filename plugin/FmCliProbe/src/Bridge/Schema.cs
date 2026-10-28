@@ -168,11 +168,4 @@ internal static class Schema
 		}
 		catch (Exception ex) { return $"<{ex.InnerException?.GetType().Name ?? ex.GetType().Name}>"; }
 	}
-
-	private static string Try(MethodInfo method, uint id)
-	{
-		if (method == null) return null;
-		try { return method.Invoke(null, new object[] { id })?.ToString(); }
-		catch (Exception ex) { return $"<threw {ex.InnerException?.GetType().Name ?? ex.GetType().Name}>"; }
-	}
 }

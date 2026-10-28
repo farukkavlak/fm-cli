@@ -197,19 +197,4 @@ internal static partial class Program
 		if (year < 1900 || year > 2200 || dayOfYear < 1 || dayOfYear > 366) return null;
 		return new DateTime(year, 1, 1).AddDays(dayOfYear - 1);
 	}
-
-	/// <summary>A list read until it stops growing: two readings in a row the same length, and not empty.</summary>
-	private static async Task<List<string>> Settled(Func<Task<List<string>>> read, double seconds = 15)
-	{
-		List<string> now = [];
-		var last = -1;
-		await Until(async () =>
-		{
-			now = await read();
-			var same = now.Count > 0 && now.Count == last;
-			last = now.Count;
-			return same;
-		}, seconds);
-		return now;
-	}
 }

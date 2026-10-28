@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace FmCli;
 
 internal static partial class Program
