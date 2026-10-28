@@ -34,7 +34,7 @@ CONFIRM = {"yes", "confirm"}  # added by the layer after a yes, never by the pla
 SYSTEM = """You turn what a Football Manager player types (Turkish or English, often with typos and no Turkish letters) into tool calls.
 - Use only the tools listed. One step per request, in the order the player said them.
 - Arguments: only what the sentence says. Copy names as written (a Turkish ending like 'yi', 'nin', 'a' is not part of the name). Leave out what it does not say; never guess a value.
-- If none of the tools does what the player asks, or it is just chat, answer with no steps.
+- If none of the tools does what the player asks, or it is just chat, the one step is `none`.
 - Answer with one line of JSON, no spaces or line breaks."""
 
 
@@ -67,7 +67,24 @@ def short(desc, limit):
 	return desc if cut < 0 else desc[:cut + 1]
 
 
-def tool_card(name, tool, limit):
+def load_examples():
+	"""Per tool, from the training-only sentences (never scored): the one with the most arguments and
+	one with none, to show how arguments are written and that unsaid ones are left out."""
+	per = {}
+	for f in sorted((ROOT / "tests/nl/train").glob("*.jsonl")):
+		for l in open(f):
+			c = json.loads(l)
+			if isinstance(c.get("call"), str) and not c.get("ask"):
+				per.setdefault(c["call"], []).append((c.get("tr") or c.get("en"), c.get("args") or {}))
+	out = {}
+	for tool, cs in per.items():
+		most = max(cs, key=lambda c: len(c[1]))
+		bare = next((c for c in cs if not c[1]), None)
+		out[tool] = [c for c in (most, bare) if c] if most[1] else [bare]
+	return out
+
+
+def tool_card(name, tool, limit, examples=()):
 	props = tool["schema"].get("properties", {})
 	args = []
 	for k, p in props.items():
@@ -77,20 +94,37 @@ def tool_card(name, tool, limit):
 		if "enum" in p:
 			kind = "|".join(p["enum"])
 		args.append(f"{k}: {kind}")
-	return f"- {name}({', '.join(args)}): {short(tool['desc'], limit)}"
+	eg = "".join(f"\n    e.g. \"{t}\" → {json.dumps(a, ensure_ascii=False)}" for t, a in examples)
+	return f"- {name}({', '.join(args)}): {short(tool['desc'], limit)}{eg}"
 
 
 def step_schema(name, tool):
-	props = {k: v for k, v in tool["schema"].get("properties", {}).items() if k not in CONFIRM}
+	props = {k: ({**v, "minLength": 1} if v.get("type") == "string" else v) for k, v in tool["schema"].get("properties", {}).items() if k not in CONFIRM}
 	return {"type": "object", "properties": {
 		"tool": {"const": name},
 		"args": {"type": "object", "properties": props, "additionalProperties": False},
 	}, "required": ["tool", "args"], "additionalProperties": False}
 
 
-def plan_schema(names, tools, max_steps):
+NONE = "none"
+NONE_CARD = f"- {NONE}(): none of these tools does it; chat, real life, or out of the game."
+
+
+NONE_STEP = {"type": "object", "properties": {"tool": {"const": NONE}, "args": {"type": "object", "maxProperties": 0}},
+	"required": ["tool", "args"], "additionalProperties": False}
+
+
+def plan_schema(names, tools, max_steps, none=True, per_ask=None):
+	"""At least one step: an empty plan is the easy way out for a small model, so "nothing" is a choice
+	of its own. With per_ask (the router split the sentence), one step per ask from its own candidates."""
+	if per_ask:
+		steps = {"type": "array", "minItems": len(per_ask), "maxItems": len(per_ask),
+			"prefixItems": [{"anyOf": [step_schema(n, tools[n]) for n in ask] + [NONE_STEP]} for ask in per_ask]}
+	else:
+		items = [step_schema(n, tools[n]) for n in names] + ([NONE_STEP] if none else [])
+		steps = {"type": "array", "minItems": 1, "maxItems": max_steps, "items": {"anyOf": items}}
 	return {"type": "object", "properties": {
-		"steps": {"type": "array", "maxItems": max_steps, "items": {"anyOf": [step_schema(n, tools[n]) for n in names]}},
+		"steps": steps,
 	}, "required": ["steps"], "additionalProperties": False}
 
 
@@ -167,6 +201,7 @@ def main():
 	lines = [json.loads(l) for l in sys.stdin if l.strip()]
 	tools = load_tools()
 	required, needs = load_needs()
+	examples = load_examples()
 	feed = "".join(json.dumps({"text": l["text"]}, ensure_ascii=False) + "\n" for l in lines)
 	p = subprocess.run([str(FM), "__route", "--model", str(Path(a.candidates).expanduser()), "--cases", str(ROOT / "tests/nl")],
 		input=feed, capture_output=True, text=True, cwd=ROOT)
@@ -181,23 +216,25 @@ def main():
 			given = line.get("tool")
 			asks = r.get("asks") or [flatten(v["call"] for v in r.get("votes", []))]
 			names = [given] if given else [n for n in flatten(asks) if n in tools]
-			max_steps = 1 if given else max(len(asks), 1) + 1
-			cards = "\n".join(tool_card(n, tools[n], a.desc) for n in names)
-			messages = [{"role": "system", "content": SYSTEM},
-				{"role": "user", "content": f"Tools:\n{cards}\n\nPlayer: {line['text']}"}]
+			per_ask = None if given or not r.get("ask_texts") else [[n for n in ask if n in tools] for ask in asks]
+			cards = "\n".join([tool_card(n, tools[n], a.desc, examples.get(n, ())) for n in names] + ([] if given else [NONE_CARD]))
+			said = f"Player: {line['text']}"
+			if per_ask:
+				said += "\nRequests, one step each:" + "".join(f"\n{i + 1}. \"{t}\" ({', '.join(ask)})" for i, (t, ask) in enumerate(zip(r["ask_texts"], per_ask)))
+			messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": f"Tools:\n{cards}\n\n{said}"}]
 			t0 = time.perf_counter()
 			server.timings = {}
 			if not names:  # the router has no tool for it: nothing to plan
 				raw = '{"steps": []}'
 			else:
 				try:
-					raw = server.chat(messages, plan_schema(names, tools, max_steps), 256)
+					raw = server.chat(messages, plan_schema(names, tools, 1 if given else 2, none=not given, per_ask=per_ask), 256)
 				except urllib.error.HTTPError as e:
 					raw = f"error {e.code}: {e.read()[:300]!r}"
 					print(f"nl-llm: {line['text']!r}: {raw}", file=sys.stderr)
 			took = time.perf_counter() - t0
 			try:
-				steps = json.loads(raw)["steps"]
+				steps = [s for s in json.loads(raw)["steps"] if s["tool"] != NONE]
 			except (json.JSONDecodeError, KeyError, TypeError):
 				steps = []
 			if given and not steps:

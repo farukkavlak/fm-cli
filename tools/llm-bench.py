@@ -135,7 +135,7 @@ def memory(server, tools):
 		names = [n for n in llm.flatten(asks) if n in tools]
 		# the earlier turns' tools are candidates too: "onu" may mean doing more of the same
 		names += [t["call"] for t in before if t["call"] not in names]
-		cards = "\n".join(llm.tool_card(n, tools[n], 200) for n in names)
+		cards = "\n".join([llm.tool_card(n, tools[n], 200) for n in names] + [llm.NONE_CARD])
 		messages = [{"role": "system", "content": llm.SYSTEM + "\n- Words like 'him', 'onu', 'o' refer to the player of the earlier turns."}]
 		for t in before:
 			messages += [{"role": "user", "content": f"Player: {t['user']}"},
@@ -143,7 +143,7 @@ def memory(server, tools):
 		messages.append({"role": "user", "content": f"Tools:\n{cards}\n\nPlayer: {last['user']}"})
 		raw, took = chat(server, messages, 256, llm.plan_schema(names, tools, 2))
 		try:
-			steps = json.loads(raw)["steps"]
+			steps = [st for st in json.loads(raw)["steps"] if st["tool"] != llm.NONE]
 		except (json.JSONDecodeError, KeyError, TypeError):
 			steps = []
 		for st in steps:  # a flag set to false is the same as one left out (tools/nl-llm.py)

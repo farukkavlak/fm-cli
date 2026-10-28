@@ -144,7 +144,7 @@ internal static partial class Router
 	/// the rules split into several asks stays split); --cases DIR is the tests/nl folder whose
 	/// dev and train sentences are the examples; "votes" then lists the five best candidate
 	/// tools of the 50 nearest examples, and "asks" the five best of each ask when the sentence
-	/// splits into several.
+	/// splits into several, with "ask_texts" the words of each.
 	/// </summary>
 	public static int RouteLines(string[] args)
 	{
@@ -161,6 +161,7 @@ internal static partial class Router
 		var picks = new string?[texts.Count];
 		var ranks = new List<(string Call, float Weight)>?[texts.Count];
 		var perAsk = new List<List<string>>?[texts.Count];
+		var askTexts = new List<string>?[texts.Count];
 		if (Opt("--model") is { } model)
 		{
 			model = Path.GetFullPath(model.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)));
@@ -172,7 +173,11 @@ internal static partial class Router
 				picks[i] = near.Pick(texts[i].Text, vectors[i]);
 				ranks[i] = [.. near.Candidates(texts[i].Text, vectors[i]).Select(c => (JsonSerializer.Serialize(c.Tool), c.Weight))];
 				var asks = Asks(texts[i].Text);
-				if (asks.Count > 1) perAsk[i] = [.. asks.Select(a => near.Candidates(a, null).Select(c => c.Tool).Take(5).ToList())];
+				if (asks.Count > 1)
+				{
+					perAsk[i] = [.. asks.Select(a => near.Candidates(a, null).Select(c => c.Tool).Take(5).ToList())];
+					askTexts[i] = asks;
+				}
 			}
 		}
 
@@ -206,6 +211,8 @@ internal static partial class Router
 				o["votes"] = new JsonArray([.. rank.Take(5).Select(v => (JsonNode)new JsonObject { ["call"] = JsonNode.Parse(v.Call), ["weight"] = Math.Round(v.Weight, 3) })]);
 			if (perAsk[i] is { } pa)
 				o["asks"] = new JsonArray([.. pa.Select(a => (JsonNode)new JsonArray([.. a.Select(t => (JsonNode)t)]))]);
+			if (askTexts[i] is { } at)
+				o["ask_texts"] = new JsonArray([.. at.Select(t => (JsonNode)t)]);
 			w.WriteLine(o.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
 		}
 		w.Flush();

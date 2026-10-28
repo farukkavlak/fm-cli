@@ -293,6 +293,7 @@ def main():
 	ap.add_argument("--final", action="store_true", help="score the final set too (only to confirm a decision)")
 	ap.add_argument("--given-tool", action="store_true", help="hand each case's own tool to the router (fm __route unless --router): the arguments alone")
 	ap.add_argument("--only", choices=["dev", "held"], help="run only this split (a slow router, e.g. tools/nl-llm.py)")
+	ap.add_argument("--every", type=int, default=1, metavar="N", help="keep every Nth case: a quick sample for a slow router")
 	a = ap.parse_args()
 	cmd = a.router or [str(FM), "__route"]
 	totals = {}
@@ -302,6 +303,7 @@ def main():
 		cases = [c for c in cases if a.final or c["split"] != "final"]
 		if a.only:
 			cases = [c for c in cases if c["split"] in (a.only, "final")]
+		cases = cases[::a.every]
 		if a.given_tool:
 			cases = [c for c in cases if isinstance(c.get("call"), str) and (name != "train" or "args" in c or "ask" in c)]
 			outs, took = run_router(a.router or [str(FM), "__route"], [c["text"] for c in cases], [c["call"] for c in cases])
