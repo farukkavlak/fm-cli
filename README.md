@@ -29,6 +29,18 @@ Context Protocol server so an AI client can drive the same commands.
 
 The CLI follows the game's language; `fm lang english` switches it without changing the game's data.
 
+A sentence works in place of a command, in Turkish or English. A local model picks the command;
+when it is not sure it offers choices, and anything that changes the game asks first:
+
+```
+$ fm önümüzdeki maç ne zaman
+→ fixtures
+$ fm rinaldiyi sat
+`propose rinaldi` çalıştırılsın mı? [e/H]
+```
+
+How it works and where it is going: [docs/AI-DESIGN.md](docs/AI-DESIGN.md).
+
 Every command and option: `fm help`, or [docs/USAGE.md](docs/USAGE.md).
 
 ## Requirements
@@ -57,8 +69,9 @@ FM_HOME=/path/to/fm26 ./install.sh
 FM_HOME=/path/to/fm26 fm start
 ```
 
-`fm doctor --install` checks seven things: game, BepInEx core, launcher, shadow app, plugin, `fm`
-command and save folder. Each missing step says what to do. `--json` prints the same for scripts.
+`fm doctor --install` downloads the language model (~290 MB, once) and checks eight things: game,
+BepInEx core, launcher, shadow app, plugin, `fm` command, save folder and language model. Each
+missing step says what to do. `--json` prints the same for scripts.
 
 ## Install — development
 
@@ -95,8 +108,9 @@ fm lang english # CLI in English while the game stays Turkish (data keeps the ga
 
 ```
 plugin/FmCliProbe/     the plugin inside the game (C#, BepInEx 6 IL2CPP)
-cli/fm/                the fm command (.NET; Core/Match/Squad/Transfer/Club)
+cli/fm/                the fm command (.NET; Core/Match/Squad/Transfer/Club/Nl)
 tests/FmCli.Tests/     unit tests for pure helpers (no game needed)
+tests/nl/              sentences and expected commands, to measure the sentence router
 docs/reference/        data model, event, action and enum dumps from the game
 tools/                 install, package, publish, tests, dumps
 ```
@@ -111,6 +125,9 @@ tools/                 install, package, publish, tests, dumps
 | [docs/BACKLOG.md](docs/BACKLOG.md) | open work, partial features and long-term ideas |
 | [docs/CODE-LAYOUT.md](docs/CODE-LAYOUT.md) | which file holds what |
 | [docs/PLAYTEST.md](docs/PLAYTEST.md) | short test checklist |
+| [docs/AI-DESIGN.md](docs/AI-DESIGN.md) | sentences, the router, Mahmut: design and rules |
+| [docs/AI-CHECKLIST.md](docs/AI-CHECKLIST.md) | AI work, in order |
+| [tests/nl/README.md](tests/nl/README.md) | the sentence test set and its numbers |
 | [docs/reference/](docs/reference/) | generated game data: model, events, actions, enums, translations |
 
 ## Checks

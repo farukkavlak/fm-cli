@@ -57,9 +57,9 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
   Still to do: player names on the radar (the simulation gives only shirt number and player index)
   and an explicit team id (the list order and substitutes are used for now).
 - [~] Radar visual styles: a catalog of thirteen styles from mock data is in
-  `docs/experiments/catalog-draft` (`tools/radar-catalog.py`). Four are in the CLI (pixel, braille,
-  coloured and plain ASCII; `r` cycles them). Still to do: the 3D styles (isometric, raycasting,
-  voxel) need the scene drawing ported to C#; the image styles (broadcast, tactical, replay…) need an
+  `docs/experiments/catalog-draft` (`tools/radar-catalog.py`). Seven are in the CLI (pixel, iso,
+  raycast, voxel, braille, coloured and plain ASCII; the 3D ones need 24-bit colour; `r` cycles
+  them). Still to do: the image styles (broadcast, tactical, replay…) need an
   inline image protocol (Kitty graphics for Ghostty/Kitty, OSC 1337 for iTerm2/VS Code/WezTerm), a
   check of what the terminal supports and an offer to fix it (Ghostty, or VS Code's
   `terminal.integrated.enableImages`).
@@ -104,18 +104,12 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 - [ ] A clean machine: the package and install checks pass, but the second macOS user has no Steam,
   so the game has not been launched there.
 
-## Natural language (later; local only)
+## Natural language and Mahmut
 
-- Goal: a sentence becomes the right command, nothing else. No cloud or API key by default.
-  Writes show what will happen and ask first.
-- Layers: exact command; rule matcher for common phrases; local router (embeddings/ONNX) over
-  command categories and examples; cloud only if the user turns it on.
-- Start: a 12-category command map, example sentences for the 20 most used commands, a small ONNX
-  embedding test inside `fm`; measure accuracy and RAM.
-- Examples: "who is tired?", "I need a left back, 10M budget", "who should rest this week?",
-  "analyse the opponent and suggest a tactic", "strengthen the squad before the window closes".
-- Voice: STT in front, MCP behind; TTS match commentary.
-- Assistant-manager mode; an LLM handles the post-match press conference.
+Tracked in `docs/AI-CHECKLIST.md`; design in `docs/AI-DESIGN.md`. Ideas not there yet:
+
+- Voice: speech-to-text in front, the same commands behind; spoken match commentary.
+- Mahmut takes the post-match press conference.
 
 ## Wild ideas
 

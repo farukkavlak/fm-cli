@@ -22,6 +22,10 @@
 - `Squad/` — squad, fitness, morale, contracts, tactics, training, set pieces, registration.
 - `Transfer/` — offers, contract talks, scouting, shortlist, targets.
 - `Club/` — club, board, finances, staff, facilities, career, jobs, resign.
+- `Nl/` — sentences in place of commands: `Router.cs` (rules, several asks, confidence),
+  `Rules.cs` + `Ctx.cs` + `Lexicons.cs` (argument readers), `Embedder.cs` (ONNX and tokenizer),
+  `Neighbours.cs` (nearest examples), `Assistant.cs` (choices, questions, approval),
+  `ModelDownload.cs` (install-time download).
 - `Program/` — large `Program` partials that do not belong to one folder.
 
 ## `Program` partials
@@ -76,6 +80,8 @@
   types keys on a schedule or from `OUT/keys.in` (prompts, `r`, `a`, `s`).
 - `tools/live-gif.py` — captured live-panel frames to a GIF (title strip, goal-centred slice, a frame
   range, the capture's own timing).
+- `tools/nl-*.py` — the sentence test set: check, noisy variants, scoring, training, a Python router
+  (see `tests/nl/README.md`); `tools/nl-release.sh` publishes the model.
 
 Add a command in a new file of the same `Program` partial; do not grow `Program.cs`. Keep reads and
 writes of one command together. Reuse `Table`/`Ui` before adding a formatter.

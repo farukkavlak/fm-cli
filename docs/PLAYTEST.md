@@ -3,7 +3,9 @@
 ## Session start
 
 - [ ] `fm status` gives the date, club, next match and what is waiting.
-- [ ] `fm doctor --install` checks all seven install steps.
+- [ ] `fm doctor --install` downloads the language model once and checks all eight install steps.
+- [ ] `fm önümüzdeki maç ne zaman` runs `fixtures`; `fm rinaldiyi sat` asks before `propose`; `fm next opponent`
+  shows the opponent and does not continue; an unclear sentence offers numbered choices.
 - [ ] `fm lang english` switches the CLI while the game stays Turkish; `fm lang auto` follows the game again.
 - [ ] `fm inbox --tasks` shows offers and registration messages on the Tasks tab.
 - [ ] `next` and `press` do not hang when the game is not frontmost; the command brings it forward.
