@@ -85,6 +85,8 @@ What is left, what is partial, and the ideas we do not want to lose. `[ ]` open,
 
 ## Quality and reliability
 
+- [ ] `squad` on match day (before the match) fails: "'GeneralInfo' view chosen but no 'Wage' data". Works on other days. Seen 28 Oct, Tabor friendly.
+
 - [~] `fm start` window: it no longer takes focus and is a 320×208 window at the top-left for about
   45 s, then it disappears. Hiding it earlier needs Accessibility (denied here). An `open -g -j`
   wrapper hid the menu, but loading a save showed full-size windows, so it was not kept.
