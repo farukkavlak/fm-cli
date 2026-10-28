@@ -15,3 +15,6 @@ dist/
 # Terminal output of the catalog, regenerated with tools/radar-catalog.py --ansi
 docs/experiments/catalog-ansi/
 tests/nl/expanded/
+
+# local secrets (API keys)
+.env
