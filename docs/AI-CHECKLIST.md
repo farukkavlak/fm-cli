@@ -16,7 +16,7 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 - [x] Measure recall@k: held recall@3 80.5% · recall@5 82.1% (`mpnet-f-q`, top-1 73.0%)
 - [x] Candidates from the 50 nearest examples: held recall@5 88.6% · final 88.4% (was 82.1% / 79.3%)
 - [x] Several asks: one candidate list per ask where the rules split: `13-multi` recall@5 held 97.4% · final 93.3% (was 79.5% / 76.7%)
-- [ ] Write the experiment plan and get it approved: models, versions, licenses, quantization, metrics, thresholds
+- [ ] Write the experiment plan and get it approved: models, versions, licenses, quantization, metrics, thresholds (written: [LLM-EXPERIMENT.md](LLM-EXPERIMENT.md), waiting for approval)
 - [ ] Measure with FM running: understanding · planning (tool + arguments from candidates) · conversation · memory · latency
 - [ ] Arguments: LLM vs today's readers (readers alone: 90.0% held, reads high: tuned on the old split)
 - [ ] Decision note: which jobs run locally, which need a cloud model

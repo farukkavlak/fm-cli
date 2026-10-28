@@ -84,6 +84,8 @@ A sale and a search in one sentence are two steps. Only the sale needs approval.
 
 ## Local LLM experiment
 
+Plan: [LLM-EXPERIMENT.md](LLM-EXPERIMENT.md).
+
 - Question: which jobs can a local model do? Not: local or cloud Mahmut.
 - Run with FM open, on an 8 GB Mac.
 - Measure separately:
