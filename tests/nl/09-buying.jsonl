@@ -1,178 +1,178 @@
-{"tr": "kenan yıldız ara", "call": "fm_search", "args": {"text": "kenan yıldız"}, "or": [{"call": "fm_player", "args": {"name": "kenan yıldız"}}]}
-{"tr": "juventus'u bul", "call": "fm_search", "args": {"text": "juventus"}}
-{"tr": "galatasaray kulübünü ara", "call": "fm_search", "args": {"text": "galatasaray"}}
-{"tr": "oyunda arda diye kim var", "call": "fm_search", "args": {"text": "arda"}}
-{"tr": "mourinho nerde çalışıyo", "call": "fm_search", "args": {"text": "mourinho"}}
-{"tr": "serie a yı ara", "call": "fm_search", "args": {"text": "serie a"}}
-{"tr": "icardi diye biri var mi", "call": "fm_search", "args": {"text": "icardi"}}
-{"tr": "ara: yamal", "call": "fm_search", "args": {"text": "yamal"}}
-{"en": "search for kenan yildiz", "call": "fm_search", "args": {"text": "kenan yildiz"}, "or": [{"call": "fm_player", "args": {"name": "kenan yildiz"}}]}
-{"en": "find juventus", "call": "fm_search", "args": {"text": "juventus"}}
-{"en": "look up mourinho", "call": "fm_search", "args": {"text": "mourinho"}}
-{"en": "is there anyone called yamal", "call": "fm_search", "args": {"text": "yamal"}}
-{"tr": "bonservissiz oyuncular", "call": "fm_players", "args": {"filter": "Contract Expired"}}
-{"tr": "serbest oyuncular kimler", "call": "fm_players", "args": {"filter": "Contract Expired"}}
-{"tr": "bedava alabileceğim oyuncular", "call": "fm_players", "args": {"filter": "Contract Expired"}}
-{"tr": "satış listesindeki oyuncular", "call": "fm_players", "args": {"listed": true}}
-{"tr": "transfer listesinde olanlar", "call": "fm_players", "args": {"listed": true}}
-{"tr": "kiralık listesi", "call": "fm_players", "args": {"loan_listed": true}}
-{"tr": "kiralanabilecek oyuncular", "call": "fm_players", "args": {"loan_listed": true}}
-{"tr": "sözleşmesi bitmek üzere olan oyuncular dünyada", "call": "fm_players", "args": {"contract": "Expiring (6 Months)"}}
-{"tr": "sözleşmesi 1 yılı kalanlar diğer takımlarda", "call": "fm_players", "args": {"contract": "Expiring (1 Year)"}}
-{"tr": "kulübü olmayan oyuncular", "call": "fm_players", "args": {"contract": "Unattached"}}
-{"tr": "18-23 yaş arası santrforlar", "call": "fm_players", "args": {"role": "Centre Forward", "age": "18-23"}}
-{"tr": "genç derin oyun kurucu arıyorum", "call": "fm_players", "args": {"role": "Deep-Lying Playmaker", "age": "18-23"}}
-{"tr": "sol bek arıyorum 10M bütçem var", "call": "fm_players", "args": {"position": "DL", "max_value": "10M"}, "or": [{"call": "fm_targets", "args": {"position": "DL", "max_value": "10M"}}]}
-{"tr": "5 milyona kadar stoper", "call": "fm_players", "args": {"position": "DC", "max_value": "5M"}, "or": [{"call": "fm_targets", "args": {"position": "DC", "max_value": "5M"}}]}
-{"tr": "hızı 16 üstü bitiriciliği 13 üstü forvetler", "call": "fm_players", "args": {"position": "ST", "attributes": ["pace>=16", "finishing>=13"]}}
-{"tr": "a notlu oyuncular", "call": "fm_players", "args": {"grade": "A"}}
-{"tr": "gözlemci notu b üstü kaleciler", "call": "fm_players", "args": {"position": "GK", "grade": "B"}}
-{"tr": "mutsuz oyuncular diğer kulüplerde", "call": "fm_players", "args": {"filter": "Unhappy"}}
-{"tr": "oyuncu aramasını temizle", "call": "fm_players", "args": {"clear": true}}
-{"tr": "filtreyi kaldır", "call": "fm_players", "args": {"clear": true}}
-{"tr": "oyuncu filtreleri neler", "call": "fm_players", "args": {"list": "filters"}}
-{"tr": "oyuncu arama görünümleri", "call": "fm_players", "args": {"list": "views"}}
-{"tr": "sözleşme sütunlarıyla göster", "call": "fm_players", "args": {"view": "Contract"}}
-{"tr": "kanat bek lazım ucuz 21 yaş altı", "call": "fm_players", "args": {"role": "Wing-Back", "age": "16-21"}, "ask": "max_value"}
-{"tr": "pasi 15 vizyonu 15 ustu orta saha 8m alti", "call": "fm_players", "args": {"position": "MC", "max_value": "8M", "attributes": ["passing>=15", "vision>=15"]}}
-{"tr": "boyu uzun kafa topu iyi stoper", "call": "fm_players", "args": {"position": "DC", "attributes": ["heading>=15"]}}
-{"en": "free agents", "call": "fm_players", "args": {"filter": "Contract Expired"}}
-{"en": "transfer listed players", "call": "fm_players", "args": {"listed": true}}
-{"en": "loan listed", "call": "fm_players", "args": {"loan_listed": true}}
-{"en": "players with 6 months left on their deal", "call": "fm_players", "args": {"contract": "Expiring (6 Months)"}}
-{"en": "young strikers 18-23", "call": "fm_players", "args": {"role": "Centre Forward", "age": "18-23"}}
-{"en": "i need a left back, 10m budget", "call": "fm_players", "args": {"position": "DL", "max_value": "10M"}, "or": [{"call": "fm_targets", "args": {"position": "DL", "max_value": "10M"}}]}
-{"en": "centre backs under 5m", "call": "fm_players", "args": {"position": "DC", "max_value": "5M"}, "or": [{"call": "fm_targets", "args": {"position": "DC", "max_value": "5M"}}]}
-{"en": "strikers with pace 16+ and finishing 13+", "call": "fm_players", "args": {"position": "ST", "attributes": ["pace>=16", "finishing>=13"]}}
-{"en": "A grade players only", "call": "fm_players", "args": {"grade": "A"}}
-{"en": "clear the player search", "call": "fm_players", "args": {"clear": true}}
-{"en": "what quick filters are there", "call": "fm_players", "args": {"list": "filters"}}
-{"tr": "transfer hedefleri", "call": "fm_targets"}
-{"tr": "hangi mevkiye transfer lazım", "call": "fm_targets", "or": [{"call": "fm_depth"}]}
-{"tr": "nereye takviye yapmalıyım", "call": "fm_targets", "or": [{"call": "fm_depth"}]}
-{"tr": "transfer bütçem ne kadar kaldı", "call": "fm_targets", "or": [{"call": "fm_budget"}]}
-{"tr": "sol bek hedefleri", "call": "fm_targets", "args": {"position": "DL"}}
-{"tr": "bütçeme uygun forvet bul", "call": "fm_targets", "args": {"position": "ST"}}
-{"tr": "kaleci lazım 3 milyona kadar", "call": "fm_targets", "args": {"position": "GK", "max_value": "3M"}}
-{"tr": "genç sağ kanat bul 18-21", "call": "fm_targets", "args": {"position": "AMR", "age": "18-21"}}
-{"tr": "ön libero arıyorum", "call": "fm_targets", "args": {"position": "DM"}}
-{"tr": "kadroyu güçlendir transfer dönemi bitmeden", "call": "fm_targets"}
-{"tr": "sol bek bul bana", "call": "fm_targets", "args": {"position": "left back"}}
-{"tr": "stoper lazım abi bi bak", "call": "fm_targets", "args": {"position": "DC"}}
-{"en": "transfer targets", "call": "fm_targets"}
-{"en": "where do we need signings", "call": "fm_targets", "or": [{"call": "fm_depth"}]}
-{"en": "find me a striker within budget", "call": "fm_targets", "args": {"position": "ST"}}
-{"en": "keeper up to 3m", "call": "fm_targets", "args": {"position": "GK", "max_value": "3M"}}
-{"en": "young right winger 18-21", "call": "fm_targets", "args": {"position": "AMR", "age": "18-21"}}
-{"en": "strengthen the squad before the window shuts", "call": "fm_targets"}
-{"tr": "kısa liste", "call": "fm_shortlist"}
-{"tr": "kısa listemde kim var", "call": "fm_shortlist"}
-{"tr": "takip ettiğim oyuncular", "call": "fm_shortlist"}
-{"tr": "kisa listeyi goster", "call": "fm_shortlist"}
-{"tr": "izlediğim oyuncular ne alemde", "call": "fm_shortlist"}
-{"en": "shortlist", "call": "fm_shortlist"}
-{"en": "who's on my shortlist", "call": "fm_shortlist"}
-{"en": "players i'm tracking", "call": "fm_shortlist"}
-{"tr": "kenan yıldızı kısa listeye ekle", "call": "fm_shortlist_change", "args": {"player": "kenan yıldız"}, "ask": "length"}
-{"tr": "arda güleri 3 aylığına listeye al", "call": "fm_shortlist_change", "args": {"player": "arda güler", "length": "3 months"}}
-{"tr": "pieragnoloyu süresiz kısa listeye ekle", "call": "fm_shortlist_change", "args": {"player": "pieragnolo", "length": "indefinitely"}}
-{"tr": "semih kılıçsoyu 1 yıl takip et", "call": "fm_shortlist_change", "args": {"player": "semih kılıçsoy", "length": "1 year"}}
-{"tr": "yamalı kısa listeden çıkar", "call": "fm_shortlist_change", "args": {"player": "yamal", "remove": true}}
-{"tr": "pieragnoloyu listeden sil", "call": "fm_shortlist_change", "args": {"player": "pieragnolo", "remove": true}}
-{"tr": "kenan yildizi 1 aylik takibe al", "call": "fm_shortlist_change", "args": {"player": "kenan yildiz", "length": "1 month"}}
-{"en": "add kenan yildiz to the shortlist", "call": "fm_shortlist_change", "args": {"player": "kenan yildiz"}, "ask": "length"}
-{"en": "shortlist arda guler for 6 months", "call": "fm_shortlist_change", "args": {"player": "arda guler", "length": "6 months"}}
-{"en": "remove yamal from shortlist", "call": "fm_shortlist_change", "args": {"player": "yamal", "remove": true}}
-{"en": "track pieragnolo indefinitely", "call": "fm_shortlist_change", "args": {"player": "pieragnolo", "length": "indefinitely"}}
-{"tr": "kenan yıldıza 30 milyon teklif ver", "call": "fm_offer", "args": {"name": "kenan yıldız", "fee": "30M"}}
-{"tr": "pieragnoloya 2.5M teklif yap", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "2.5M"}}
-{"tr": "arda güler için teklif hazırla", "call": "fm_offer", "args": {"name": "arda güler"}}
-{"tr": "semihi kiralamak için teklif yap", "call": "fm_offer", "args": {"name": "semih", "loan": true}}
-{"tr": "pieragnoloya 750 bin teklif sonraki satıştan yüzde 20", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "750K", "terms": ["Percentage Of Next Sale=20%"]}}
-{"tr": "kenan yıldız teklifini 32 milyona çıkar", "call": "fm_offer", "args": {"name": "kenan yıldız", "fee": "32M"}}
-{"tr": "karşı teklife bak", "call": "fm_offer", "ask": "name", "or": [{"call": "fm_inbox"}]}
-{"tr": "yamal için 100M at", "call": "fm_offer", "args": {"name": "yamal", "fee": "100M"}}
-{"tr": "pieragnolo teklifini sezon sonunda transfer olarak yap", "call": "fm_offer", "args": {"name": "pieragnolo", "terms": ["Transfer Date=End Of Season"]}}
-{"tr": "pieragnoloya teklif ver 3 milyon 20 maç sonra 250 bin", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "3M", "terms": ["After League Appearances=20 games,250K"]}}
-{"tr": "kenana 25m teklif gönder", "call": "fm_offer", "args": {"name": "kenan", "fee": "25M"}}
-{"tr": "pieragnolo icin 2m teklif at", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "2M"}}
-{"tr": "bu çocuğa teklif yap", "call": "fm_offer", "ask": "name"}
-{"en": "bid 30m for kenan yildiz", "call": "fm_offer", "args": {"name": "kenan yildiz", "fee": "30M"}}
-{"en": "make an offer for pieragnolo 2.5m", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "2.5M"}}
-{"en": "loan offer for semih", "call": "fm_offer", "args": {"name": "semih", "loan": true}}
-{"en": "750k for pieragnolo with 20% sell on", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "750K", "terms": ["Percentage Of Next Sale=20%"]}}
-{"en": "raise the yildiz bid to 32m", "call": "fm_offer", "args": {"name": "yildiz", "fee": "32M"}}
-{"en": "prepare a bid for arda guler", "call": "fm_offer", "args": {"name": "arda guler"}}
-{"en": "throw 100m at yamal lol", "call": "fm_offer", "args": {"name": "yamal", "fee": "100M"}}
-{"tr": "kenan yıldıza ilgimizi belirt", "call": "fm_approach", "args": {"player": "kenan yıldız", "move": "interest"}}
-{"tr": "arda güleri kiralamakla ilgilendiğimizi söyle", "call": "fm_approach", "args": {"player": "arda güler", "move": "interest", "as": "loan"}}
-{"tr": "semih için kulübüne ne istersiniz diye sor", "call": "fm_approach", "args": {"player": "semih", "move": "enquire"}}
-{"tr": "pieragnolonun fiyatını sor", "call": "fm_approach", "args": {"player": "pieragnolo", "move": "enquire"}}
-{"tr": "pieragnoloya kaç para istiyolar sor", "call": "fm_approach", "args": {"player": "pieragnolo", "move": "enquire"}}
-{"tr": "bu serbest oyuncuyu 2 haftalık deneme için çağır", "call": "fm_approach", "args": {"move": "trial", "weeks": "2"}, "ask": "player"}
-{"tr": "rossiyi 1 hafta denemeye al", "call": "fm_approach", "args": {"player": "rossi", "move": "trial", "weeks": "1"}}
-{"tr": "kenan yıldız ana hedefimiz de", "call": "fm_approach", "args": {"player": "kenan yıldız", "move": "interest", "as": "top"}}
-{"tr": "arda gülere transfer ilgisi", "call": "fm_approach", "args": {"player": "arda güler", "move": "interest", "as": "transfer"}}
-{"en": "declare interest in kenan yildiz", "call": "fm_approach", "args": {"player": "kenan yildiz", "move": "interest"}}
-{"en": "ask what it'd take for pieragnolo", "call": "fm_approach", "args": {"player": "pieragnolo", "move": "enquire"}}
-{"en": "enquire about semih", "call": "fm_approach", "args": {"player": "semih", "move": "enquire"}}
-{"en": "offer rossi a 2 week trial", "call": "fm_approach", "args": {"player": "rossi", "move": "trial", "weeks": "2"}}
-{"en": "tell them yildiz is our top target", "call": "fm_approach", "args": {"player": "yildiz", "move": "interest", "as": "top"}}
-{"tr": "gözlemciler ne arıyo", "call": "fm_scout"}
-{"tr": "scout odakları", "call": "fm_scout"}
-{"tr": "izleme görevleri", "call": "fm_scout"}
-{"tr": "gözlemciler kimi buldu", "call": "fm_scout"}
-{"tr": "1. odağın bulduğu oyuncular", "call": "fm_scout", "args": {"focus": "1"}}
-{"tr": "sol bek odağında kim çıktı", "call": "fm_scout", "args": {"focus": "sol bek"}}
-{"tr": "genç forvet odağında neredeyse uyanlar", "call": "fm_scout", "args": {"focus": "genç forvet", "show": "near"}}
-{"tr": "2. odakta hala incelenenler", "call": "fm_scout", "args": {"focus": "2", "show": "progress"}}
-{"tr": "scoutlar ne buldu abi", "call": "fm_scout"}
-{"en": "scouting focuses", "call": "fm_scout"}
-{"en": "what have the scouts found", "call": "fm_scout"}
-{"en": "players from focus 1", "call": "fm_scout", "args": {"focus": "1"}}
-{"en": "near matches for the left back focus", "call": "fm_scout", "args": {"focus": "left back", "show": "near"}}
-{"en": "still in progress on focus 2", "call": "fm_scout", "args": {"focus": "2", "show": "progress"}}
-{"tr": "yeni gözlem odağı sol bek", "call": "fm_scout_focus", "args": {"action": "new", "position": "DL"}, "ask": "priority"}
-{"tr": "türkiyede 18-23 yaş forvet arat öncelik yüksek", "call": "fm_scout_focus", "args": {"action": "new", "position": "ST", "area": "Turkey", "age": "18-23", "priority": "top"}}
-{"tr": "güney amerikada genç orta saha arat", "call": "fm_scout_focus", "args": {"action": "new", "position": "MC", "area": "South America"}, "ask": "priority"}
-{"tr": "süper ligi taratsınlar stoper için sürekli", "call": "fm_scout_focus", "args": {"action": "new", "position": "DC", "area": "Competition>Turkey>Super League", "priority": "ongoing"}}
-{"tr": "potansiyeli 4 yıldız üstü kaleci ara standart öncelik", "call": "fm_scout_focus", "args": {"action": "new", "position": "GK", "potential": "4", "priority": "standard"}}
-{"tr": "1. odağa almanyayı da ekle", "call": "fm_scout_focus", "args": {"action": "edit", "focus": "1", "area": "Germany"}}
-{"tr": "sol bek odağının yaşını 20-25 yap", "call": "fm_scout_focus", "args": {"action": "edit", "focus": "sol bek", "age": "20-25"}}
-{"tr": "2. gözlem odağını durdur", "call": "fm_scout_focus", "args": {"action": "remove", "focus": "2"}}
-{"tr": "genç forvet odağını iptal et", "call": "fm_scout_focus", "args": {"action": "remove", "focus": "genç forvet"}}
-{"tr": "durdurduğum odağı tekrar başlat 3", "call": "fm_scout_focus", "args": {"action": "restart", "focus": "3"}}
-{"tr": "hangi bölgeleri seçebilirim", "call": "fm_scout_focus", "args": {"action": "areas"}}
-{"tr": "avrupa altındaki bölgeler", "call": "fm_scout_focus", "args": {"action": "areas", "area": "Europe"}}
-{"tr": "gözlemcilerim kim ne kadar iyi", "call": "fm_scout_focus", "args": {"action": "staff"}}
-{"tr": "scout kadrom", "call": "fm_scout_focus", "args": {"action": "staff"}, "or": [{"call": "fm_staff"}]}
-{"tr": "bianchi ile yeni odak kur sağ bek italya standart", "call": "fm_scout_focus", "args": {"action": "new", "position": "DR", "area": "Italy", "by": "bianchi", "priority": "standard"}}
-{"en": "new scouting focus for a left back", "call": "fm_scout_focus", "args": {"action": "new", "position": "DL"}, "ask": "priority"}
-{"en": "scout turkey for 18-23 strikers, top priority", "call": "fm_scout_focus", "args": {"action": "new", "position": "ST", "area": "Turkey", "age": "18-23", "priority": "top"}}
-{"en": "add germany to focus 1", "call": "fm_scout_focus", "args": {"action": "edit", "focus": "1", "area": "Germany"}}
-{"en": "stop focus 2", "call": "fm_scout_focus", "args": {"action": "remove", "focus": "2"}}
-{"en": "restart focus 3", "call": "fm_scout_focus", "args": {"action": "restart", "focus": "3"}}
-{"en": "how good are my scouts", "call": "fm_scout_focus", "args": {"action": "staff"}}
-{"en": "what scouting areas are there", "call": "fm_scout_focus", "args": {"action": "areas"}}
-{"tr": "kenan yıldızı izlet", "call": "fm_scout_player", "args": {"player": "kenan yıldız"}, "ask": "length"}
-{"tr": "pieragnoloyu 2 hafta izlet", "call": "fm_scout_player", "args": {"player": "pieragnolo", "length": "2 weeks"}}
-{"tr": "arda güleri 1 ay scout etsinler", "call": "fm_scout_player", "args": {"player": "arda güler", "length": "1 month"}}
-{"tr": "semihi 3 maç izlesinler", "call": "fm_scout_player", "args": {"player": "semih", "length": "3 matches"}}
-{"tr": "yamal için kapsamlı rapor iste", "call": "fm_scout_player", "args": {"player": "yamal", "length": "extensive"}}
-{"tr": "bianchi pieragnoloyu 1 hafta izlesin", "call": "fm_scout_player", "args": {"player": "pieragnolo", "length": "1 week", "by": "bianchi"}}
-{"tr": "kenan yıldızı hangi gözlemciye verebilirim", "call": "fm_scout_player", "args": {"player": "kenan yıldız", "who": true}}
-{"tr": "kenan yildiza gozlemci gonder", "call": "fm_scout_player", "args": {"player": "kenan yildiz"}, "ask": "length"}
-{"en": "scout kenan yildiz", "call": "fm_scout_player", "args": {"player": "kenan yildiz"}, "ask": "length"}
-{"en": "send a scout to watch pieragnolo for 2 weeks", "call": "fm_scout_player", "args": {"player": "pieragnolo", "length": "2 weeks"}}
-{"en": "full scouting report on yamal", "call": "fm_scout_player", "args": {"player": "yamal", "length": "extensive"}}
-{"en": "have bianchi watch semih for 1 month", "call": "fm_scout_player", "args": {"player": "semih", "length": "1 month", "by": "bianchi"}}
-{"en": "which scouts can i send on yildiz", "call": "fm_scout_player", "args": {"player": "yildiz", "who": true}}
-{"tr": "kenan yıldız için neler yapabilirim", "call": "fm_actions", "args": {"person": "kenan yıldız"}}
-{"tr": "rossiye sağ tık menüsü", "call": "fm_actions", "args": {"person": "rossi"}}
-{"tr": "bianchiyi antrenörlük kursuna gönder", "call": "fm_actions", "args": {"person": "bianchi", "choose": "Send On Coaching Course"}}
-{"tr": "pieragnoloyu kadro planlayıcıya ekle", "call": "fm_actions", "args": {"person": "pieragnolo", "choose": "Squad Planner"}}
-{"tr": "verdi ile ne yapabilirim", "call": "fm_actions", "args": {"person": "verdi"}}
-{"en": "what can i do with kenan yildiz", "call": "fm_actions", "args": {"person": "kenan yildiz"}}
-{"en": "send bianchi on a coaching course", "call": "fm_actions", "args": {"person": "bianchi", "choose": "Send On Coaching Course"}}
-{"en": "right click menu for rossi", "call": "fm_actions", "args": {"person": "rossi"}}
-{"en": "add pieragnolo to the squad planner", "call": "fm_actions", "args": {"person": "pieragnolo", "choose": "Squad Planner"}}
+{"tr": "kenan yıldız ara", "call": "fm_search", "args": {"text": "kenan yıldız"}, "or": [{"call": "fm_player", "args": {"name": "kenan yıldız"}}], "split": "held"}
+{"tr": "juventus'u bul", "call": "fm_search", "args": {"text": "juventus"}, "split": "dev"}
+{"tr": "galatasaray kulübünü ara", "call": "fm_search", "args": {"text": "galatasaray"}, "split": "dev"}
+{"tr": "oyunda arda diye kim var", "call": "fm_search", "args": {"text": "arda"}, "split": "dev"}
+{"tr": "mourinho nerde çalışıyo", "call": "fm_search", "args": {"text": "mourinho"}, "split": "final"}
+{"tr": "serie a yı ara", "call": "fm_search", "args": {"text": "serie a"}, "split": "dev"}
+{"tr": "icardi diye biri var mi", "call": "fm_search", "args": {"text": "icardi"}, "split": "final"}
+{"tr": "ara: yamal", "call": "fm_search", "args": {"text": "yamal"}, "split": "dev"}
+{"en": "search for kenan yildiz", "call": "fm_search", "args": {"text": "kenan yildiz"}, "or": [{"call": "fm_player", "args": {"name": "kenan yildiz"}}], "split": "held"}
+{"en": "find juventus", "call": "fm_search", "args": {"text": "juventus"}, "split": "final"}
+{"en": "look up mourinho", "call": "fm_search", "args": {"text": "mourinho"}, "split": "dev"}
+{"en": "is there anyone called yamal", "call": "fm_search", "args": {"text": "yamal"}, "split": "dev"}
+{"tr": "bonservissiz oyuncular", "call": "fm_players", "args": {"filter": "Contract Expired"}, "split": "dev"}
+{"tr": "serbest oyuncular kimler", "call": "fm_players", "args": {"filter": "Contract Expired"}, "split": "dev"}
+{"tr": "bedava alabileceğim oyuncular", "call": "fm_players", "args": {"filter": "Contract Expired"}, "split": "dev"}
+{"tr": "satış listesindeki oyuncular", "call": "fm_players", "args": {"listed": true}, "split": "dev"}
+{"tr": "transfer listesinde olanlar", "call": "fm_players", "args": {"listed": true}, "split": "dev"}
+{"tr": "kiralık listesi", "call": "fm_players", "args": {"loan_listed": true}, "split": "dev"}
+{"tr": "kiralanabilecek oyuncular", "call": "fm_players", "args": {"loan_listed": true}, "split": "dev"}
+{"tr": "sözleşmesi bitmek üzere olan oyuncular dünyada", "call": "fm_players", "args": {"contract": "Expiring (6 Months)"}, "split": "dev"}
+{"tr": "sözleşmesi 1 yılı kalanlar diğer takımlarda", "call": "fm_players", "args": {"contract": "Expiring (1 Year)"}, "split": "final"}
+{"tr": "kulübü olmayan oyuncular", "call": "fm_players", "args": {"contract": "Unattached"}, "split": "final"}
+{"tr": "18-23 yaş arası santrforlar", "call": "fm_players", "args": {"role": "Centre Forward", "age": "18-23"}, "split": "dev"}
+{"tr": "genç derin oyun kurucu arıyorum", "call": "fm_players", "args": {"role": "Deep-Lying Playmaker", "age": "18-23"}, "split": "dev"}
+{"tr": "sol bek arıyorum 10M bütçem var", "call": "fm_players", "args": {"position": "DL", "max_value": "10M"}, "or": [{"call": "fm_targets", "args": {"position": "DL", "max_value": "10M"}}], "split": "final"}
+{"tr": "5 milyona kadar stoper", "call": "fm_players", "args": {"position": "DC", "max_value": "5M"}, "or": [{"call": "fm_targets", "args": {"position": "DC", "max_value": "5M"}}], "split": "dev"}
+{"tr": "hızı 16 üstü bitiriciliği 13 üstü forvetler", "call": "fm_players", "args": {"position": "ST", "attributes": ["pace>=16", "finishing>=13"]}, "split": "dev"}
+{"tr": "a notlu oyuncular", "call": "fm_players", "args": {"grade": "A"}, "split": "held"}
+{"tr": "gözlemci notu b üstü kaleciler", "call": "fm_players", "args": {"position": "GK", "grade": "B"}, "split": "held"}
+{"tr": "mutsuz oyuncular diğer kulüplerde", "call": "fm_players", "args": {"filter": "Unhappy"}, "split": "dev"}
+{"tr": "oyuncu aramasını temizle", "call": "fm_players", "args": {"clear": true}, "split": "held"}
+{"tr": "filtreyi kaldır", "call": "fm_players", "args": {"clear": true}, "split": "dev"}
+{"tr": "oyuncu filtreleri neler", "call": "fm_players", "args": {"list": "filters"}, "split": "dev"}
+{"tr": "oyuncu arama görünümleri", "call": "fm_players", "args": {"list": "views"}, "split": "dev"}
+{"tr": "sözleşme sütunlarıyla göster", "call": "fm_players", "args": {"view": "Contract"}, "split": "dev"}
+{"tr": "kanat bek lazım ucuz 21 yaş altı", "call": "fm_players", "args": {"role": "Wing-Back", "age": "16-21"}, "ask": "max_value", "split": "dev"}
+{"tr": "pasi 15 vizyonu 15 ustu orta saha 8m alti", "call": "fm_players", "args": {"position": "MC", "max_value": "8M", "attributes": ["passing>=15", "vision>=15"]}, "split": "dev"}
+{"tr": "boyu uzun kafa topu iyi stoper", "call": "fm_players", "args": {"position": "DC", "attributes": ["heading>=15"]}, "split": "dev"}
+{"en": "free agents", "call": "fm_players", "args": {"filter": "Contract Expired"}, "split": "dev"}
+{"en": "transfer listed players", "call": "fm_players", "args": {"listed": true}, "split": "final"}
+{"en": "loan listed", "call": "fm_players", "args": {"loan_listed": true}, "split": "dev"}
+{"en": "players with 6 months left on their deal", "call": "fm_players", "args": {"contract": "Expiring (6 Months)"}, "split": "final"}
+{"en": "young strikers 18-23", "call": "fm_players", "args": {"role": "Centre Forward", "age": "18-23"}, "split": "dev"}
+{"en": "i need a left back, 10m budget", "call": "fm_players", "args": {"position": "DL", "max_value": "10M"}, "or": [{"call": "fm_targets", "args": {"position": "DL", "max_value": "10M"}}], "split": "dev"}
+{"en": "centre backs under 5m", "call": "fm_players", "args": {"position": "DC", "max_value": "5M"}, "or": [{"call": "fm_targets", "args": {"position": "DC", "max_value": "5M"}}], "split": "dev"}
+{"en": "strikers with pace 16+ and finishing 13+", "call": "fm_players", "args": {"position": "ST", "attributes": ["pace>=16", "finishing>=13"]}, "split": "held"}
+{"en": "A grade players only", "call": "fm_players", "args": {"grade": "A"}, "split": "held"}
+{"en": "clear the player search", "call": "fm_players", "args": {"clear": true}, "split": "dev"}
+{"en": "what quick filters are there", "call": "fm_players", "args": {"list": "filters"}, "split": "held"}
+{"tr": "transfer hedefleri", "call": "fm_targets", "split": "dev"}
+{"tr": "hangi mevkiye transfer lazım", "call": "fm_targets", "or": [{"call": "fm_depth"}], "split": "dev"}
+{"tr": "nereye takviye yapmalıyım", "call": "fm_targets", "or": [{"call": "fm_depth"}], "split": "dev"}
+{"tr": "transfer bütçem ne kadar kaldı", "call": "fm_targets", "or": [{"call": "fm_budget"}], "split": "dev"}
+{"tr": "sol bek hedefleri", "call": "fm_targets", "args": {"position": "DL"}, "split": "dev"}
+{"tr": "bütçeme uygun forvet bul", "call": "fm_targets", "args": {"position": "ST"}, "split": "dev"}
+{"tr": "kaleci lazım 3 milyona kadar", "call": "fm_targets", "args": {"position": "GK", "max_value": "3M"}, "split": "held"}
+{"tr": "genç sağ kanat bul 18-21", "call": "fm_targets", "args": {"position": "AMR", "age": "18-21"}, "split": "dev"}
+{"tr": "ön libero arıyorum", "call": "fm_targets", "args": {"position": "DM"}, "split": "dev"}
+{"tr": "kadroyu güçlendir transfer dönemi bitmeden", "call": "fm_targets", "split": "dev"}
+{"tr": "sol bek bul bana", "call": "fm_targets", "args": {"position": "left back"}, "split": "dev"}
+{"tr": "stoper lazım abi bi bak", "call": "fm_targets", "args": {"position": "DC"}, "split": "dev"}
+{"en": "transfer targets", "call": "fm_targets", "split": "held"}
+{"en": "where do we need signings", "call": "fm_targets", "or": [{"call": "fm_depth"}], "split": "dev"}
+{"en": "find me a striker within budget", "call": "fm_targets", "args": {"position": "ST"}, "split": "dev"}
+{"en": "keeper up to 3m", "call": "fm_targets", "args": {"position": "GK", "max_value": "3M"}, "split": "dev"}
+{"en": "young right winger 18-21", "call": "fm_targets", "args": {"position": "AMR", "age": "18-21"}, "split": "dev"}
+{"en": "strengthen the squad before the window shuts", "call": "fm_targets", "split": "held"}
+{"tr": "kısa liste", "call": "fm_shortlist", "split": "dev"}
+{"tr": "kısa listemde kim var", "call": "fm_shortlist", "split": "dev"}
+{"tr": "takip ettiğim oyuncular", "call": "fm_shortlist", "split": "dev"}
+{"tr": "kisa listeyi goster", "call": "fm_shortlist", "split": "dev"}
+{"tr": "izlediğim oyuncular ne alemde", "call": "fm_shortlist", "split": "dev"}
+{"en": "shortlist", "call": "fm_shortlist", "split": "dev"}
+{"en": "who's on my shortlist", "call": "fm_shortlist", "split": "dev"}
+{"en": "players i'm tracking", "call": "fm_shortlist", "split": "dev"}
+{"tr": "kenan yıldızı kısa listeye ekle", "call": "fm_shortlist_change", "args": {"player": "kenan yıldız"}, "ask": "length", "split": "held"}
+{"tr": "arda güleri 3 aylığına listeye al", "call": "fm_shortlist_change", "args": {"player": "arda güler", "length": "3 months"}, "split": "dev"}
+{"tr": "pieragnoloyu süresiz kısa listeye ekle", "call": "fm_shortlist_change", "args": {"player": "pieragnolo", "length": "indefinitely"}, "split": "held"}
+{"tr": "semih kılıçsoyu 1 yıl takip et", "call": "fm_shortlist_change", "args": {"player": "semih kılıçsoy", "length": "1 year"}, "split": "final"}
+{"tr": "yamalı kısa listeden çıkar", "call": "fm_shortlist_change", "args": {"player": "yamal", "remove": true}, "split": "held"}
+{"tr": "pieragnoloyu listeden sil", "call": "fm_shortlist_change", "args": {"player": "pieragnolo", "remove": true}, "split": "dev"}
+{"tr": "kenan yildizi 1 aylik takibe al", "call": "fm_shortlist_change", "args": {"player": "kenan yildiz", "length": "1 month"}, "split": "held"}
+{"en": "add kenan yildiz to the shortlist", "call": "fm_shortlist_change", "args": {"player": "kenan yildiz"}, "ask": "length", "split": "dev"}
+{"en": "shortlist arda guler for 6 months", "call": "fm_shortlist_change", "args": {"player": "arda guler", "length": "6 months"}, "split": "dev"}
+{"en": "remove yamal from shortlist", "call": "fm_shortlist_change", "args": {"player": "yamal", "remove": true}, "split": "dev"}
+{"en": "track pieragnolo indefinitely", "call": "fm_shortlist_change", "args": {"player": "pieragnolo", "length": "indefinitely"}, "split": "final"}
+{"tr": "kenan yıldıza 30 milyon teklif ver", "call": "fm_offer", "args": {"name": "kenan yıldız", "fee": "30M"}, "split": "dev"}
+{"tr": "pieragnoloya 2.5M teklif yap", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "2.5M"}, "split": "held"}
+{"tr": "arda güler için teklif hazırla", "call": "fm_offer", "args": {"name": "arda güler"}, "split": "dev"}
+{"tr": "semihi kiralamak için teklif yap", "call": "fm_offer", "args": {"name": "semih", "loan": true}, "split": "held"}
+{"tr": "pieragnoloya 750 bin teklif sonraki satıştan yüzde 20", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "750K", "terms": ["Percentage Of Next Sale=20%"]}, "split": "dev"}
+{"tr": "kenan yıldız teklifini 32 milyona çıkar", "call": "fm_offer", "args": {"name": "kenan yıldız", "fee": "32M"}, "split": "dev"}
+{"tr": "karşı teklife bak", "call": "fm_offer", "ask": "name", "or": [{"call": "fm_inbox"}], "split": "held"}
+{"tr": "yamal için 100M at", "call": "fm_offer", "args": {"name": "yamal", "fee": "100M"}, "split": "dev"}
+{"tr": "pieragnolo teklifini sezon sonunda transfer olarak yap", "call": "fm_offer", "args": {"name": "pieragnolo", "terms": ["Transfer Date=End Of Season"]}, "split": "dev"}
+{"tr": "pieragnoloya teklif ver 3 milyon 20 maç sonra 250 bin", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "3M", "terms": ["After League Appearances=20 games,250K"]}, "split": "dev"}
+{"tr": "kenana 25m teklif gönder", "call": "fm_offer", "args": {"name": "kenan", "fee": "25M"}, "split": "dev"}
+{"tr": "pieragnolo icin 2m teklif at", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "2M"}, "split": "dev"}
+{"tr": "bu çocuğa teklif yap", "call": "fm_offer", "ask": "name", "split": "dev"}
+{"en": "bid 30m for kenan yildiz", "call": "fm_offer", "args": {"name": "kenan yildiz", "fee": "30M"}, "split": "dev"}
+{"en": "make an offer for pieragnolo 2.5m", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "2.5M"}, "split": "final"}
+{"en": "loan offer for semih", "call": "fm_offer", "args": {"name": "semih", "loan": true}, "split": "final"}
+{"en": "750k for pieragnolo with 20% sell on", "call": "fm_offer", "args": {"name": "pieragnolo", "fee": "750K", "terms": ["Percentage Of Next Sale=20%"]}, "split": "dev"}
+{"en": "raise the yildiz bid to 32m", "call": "fm_offer", "args": {"name": "yildiz", "fee": "32M"}, "split": "final"}
+{"en": "prepare a bid for arda guler", "call": "fm_offer", "args": {"name": "arda guler"}, "split": "final"}
+{"en": "throw 100m at yamal lol", "call": "fm_offer", "args": {"name": "yamal", "fee": "100M"}, "split": "dev"}
+{"tr": "kenan yıldıza ilgimizi belirt", "call": "fm_approach", "args": {"player": "kenan yıldız", "move": "interest"}, "split": "held"}
+{"tr": "arda güleri kiralamakla ilgilendiğimizi söyle", "call": "fm_approach", "args": {"player": "arda güler", "move": "interest", "as": "loan"}, "split": "dev"}
+{"tr": "semih için kulübüne ne istersiniz diye sor", "call": "fm_approach", "args": {"player": "semih", "move": "enquire"}, "split": "dev"}
+{"tr": "pieragnolonun fiyatını sor", "call": "fm_approach", "args": {"player": "pieragnolo", "move": "enquire"}, "split": "final"}
+{"tr": "pieragnoloya kaç para istiyolar sor", "call": "fm_approach", "args": {"player": "pieragnolo", "move": "enquire"}, "split": "dev"}
+{"tr": "bu serbest oyuncuyu 2 haftalık deneme için çağır", "call": "fm_approach", "args": {"move": "trial", "weeks": "2"}, "ask": "player", "split": "dev"}
+{"tr": "rossiyi 1 hafta denemeye al", "call": "fm_approach", "args": {"player": "rossi", "move": "trial", "weeks": "1"}, "split": "dev"}
+{"tr": "kenan yıldız ana hedefimiz de", "call": "fm_approach", "args": {"player": "kenan yıldız", "move": "interest", "as": "top"}, "split": "held"}
+{"tr": "arda gülere transfer ilgisi", "call": "fm_approach", "args": {"player": "arda güler", "move": "interest", "as": "transfer"}, "split": "held"}
+{"en": "declare interest in kenan yildiz", "call": "fm_approach", "args": {"player": "kenan yildiz", "move": "interest"}, "split": "dev"}
+{"en": "ask what it'd take for pieragnolo", "call": "fm_approach", "args": {"player": "pieragnolo", "move": "enquire"}, "split": "held"}
+{"en": "enquire about semih", "call": "fm_approach", "args": {"player": "semih", "move": "enquire"}, "split": "dev"}
+{"en": "offer rossi a 2 week trial", "call": "fm_approach", "args": {"player": "rossi", "move": "trial", "weeks": "2"}, "split": "dev"}
+{"en": "tell them yildiz is our top target", "call": "fm_approach", "args": {"player": "yildiz", "move": "interest", "as": "top"}, "split": "held"}
+{"tr": "gözlemciler ne arıyo", "call": "fm_scout", "split": "dev"}
+{"tr": "scout odakları", "call": "fm_scout", "split": "final"}
+{"tr": "izleme görevleri", "call": "fm_scout", "split": "dev"}
+{"tr": "gözlemciler kimi buldu", "call": "fm_scout", "split": "dev"}
+{"tr": "1. odağın bulduğu oyuncular", "call": "fm_scout", "args": {"focus": "1"}, "split": "final"}
+{"tr": "sol bek odağında kim çıktı", "call": "fm_scout", "args": {"focus": "sol bek"}, "split": "held"}
+{"tr": "genç forvet odağında neredeyse uyanlar", "call": "fm_scout", "args": {"focus": "genç forvet", "show": "near"}, "split": "dev"}
+{"tr": "2. odakta hala incelenenler", "call": "fm_scout", "args": {"focus": "2", "show": "progress"}, "split": "dev"}
+{"tr": "scoutlar ne buldu abi", "call": "fm_scout", "split": "final"}
+{"en": "scouting focuses", "call": "fm_scout", "split": "dev"}
+{"en": "what have the scouts found", "call": "fm_scout", "split": "dev"}
+{"en": "players from focus 1", "call": "fm_scout", "args": {"focus": "1"}, "split": "dev"}
+{"en": "near matches for the left back focus", "call": "fm_scout", "args": {"focus": "left back", "show": "near"}, "split": "dev"}
+{"en": "still in progress on focus 2", "call": "fm_scout", "args": {"focus": "2", "show": "progress"}, "split": "dev"}
+{"tr": "yeni gözlem odağı sol bek", "call": "fm_scout_focus", "args": {"action": "new", "position": "DL"}, "ask": "priority", "split": "dev"}
+{"tr": "türkiyede 18-23 yaş forvet arat öncelik yüksek", "call": "fm_scout_focus", "args": {"action": "new", "position": "ST", "area": "Turkey", "age": "18-23", "priority": "top"}, "split": "dev"}
+{"tr": "güney amerikada genç orta saha arat", "call": "fm_scout_focus", "args": {"action": "new", "position": "MC", "area": "South America"}, "ask": "priority", "split": "dev"}
+{"tr": "süper ligi taratsınlar stoper için sürekli", "call": "fm_scout_focus", "args": {"action": "new", "position": "DC", "area": "Competition>Turkey>Super League", "priority": "ongoing"}, "split": "dev"}
+{"tr": "potansiyeli 4 yıldız üstü kaleci ara standart öncelik", "call": "fm_scout_focus", "args": {"action": "new", "position": "GK", "potential": "4", "priority": "standard"}, "split": "held"}
+{"tr": "1. odağa almanyayı da ekle", "call": "fm_scout_focus", "args": {"action": "edit", "focus": "1", "area": "Germany"}, "split": "final"}
+{"tr": "sol bek odağının yaşını 20-25 yap", "call": "fm_scout_focus", "args": {"action": "edit", "focus": "sol bek", "age": "20-25"}, "split": "dev"}
+{"tr": "2. gözlem odağını durdur", "call": "fm_scout_focus", "args": {"action": "remove", "focus": "2"}, "split": "dev"}
+{"tr": "genç forvet odağını iptal et", "call": "fm_scout_focus", "args": {"action": "remove", "focus": "genç forvet"}, "split": "dev"}
+{"tr": "durdurduğum odağı tekrar başlat 3", "call": "fm_scout_focus", "args": {"action": "restart", "focus": "3"}, "split": "held"}
+{"tr": "hangi bölgeleri seçebilirim", "call": "fm_scout_focus", "args": {"action": "areas"}, "split": "dev"}
+{"tr": "avrupa altındaki bölgeler", "call": "fm_scout_focus", "args": {"action": "areas", "area": "Europe"}, "split": "dev"}
+{"tr": "gözlemcilerim kim ne kadar iyi", "call": "fm_scout_focus", "args": {"action": "staff"}, "split": "dev"}
+{"tr": "scout kadrom", "call": "fm_scout_focus", "args": {"action": "staff"}, "or": [{"call": "fm_staff"}], "split": "final"}
+{"tr": "bianchi ile yeni odak kur sağ bek italya standart", "call": "fm_scout_focus", "args": {"action": "new", "position": "DR", "area": "Italy", "by": "bianchi", "priority": "standard"}, "split": "dev"}
+{"en": "new scouting focus for a left back", "call": "fm_scout_focus", "args": {"action": "new", "position": "DL"}, "ask": "priority", "split": "dev"}
+{"en": "scout turkey for 18-23 strikers, top priority", "call": "fm_scout_focus", "args": {"action": "new", "position": "ST", "area": "Turkey", "age": "18-23", "priority": "top"}, "split": "final"}
+{"en": "add germany to focus 1", "call": "fm_scout_focus", "args": {"action": "edit", "focus": "1", "area": "Germany"}, "split": "dev"}
+{"en": "stop focus 2", "call": "fm_scout_focus", "args": {"action": "remove", "focus": "2"}, "split": "dev"}
+{"en": "restart focus 3", "call": "fm_scout_focus", "args": {"action": "restart", "focus": "3"}, "split": "dev"}
+{"en": "how good are my scouts", "call": "fm_scout_focus", "args": {"action": "staff"}, "split": "dev"}
+{"en": "what scouting areas are there", "call": "fm_scout_focus", "args": {"action": "areas"}, "split": "dev"}
+{"tr": "kenan yıldızı izlet", "call": "fm_scout_player", "args": {"player": "kenan yıldız"}, "ask": "length", "split": "dev"}
+{"tr": "pieragnoloyu 2 hafta izlet", "call": "fm_scout_player", "args": {"player": "pieragnolo", "length": "2 weeks"}, "split": "dev"}
+{"tr": "arda güleri 1 ay scout etsinler", "call": "fm_scout_player", "args": {"player": "arda güler", "length": "1 month"}, "split": "held"}
+{"tr": "semihi 3 maç izlesinler", "call": "fm_scout_player", "args": {"player": "semih", "length": "3 matches"}, "split": "final"}
+{"tr": "yamal için kapsamlı rapor iste", "call": "fm_scout_player", "args": {"player": "yamal", "length": "extensive"}, "split": "dev"}
+{"tr": "bianchi pieragnoloyu 1 hafta izlesin", "call": "fm_scout_player", "args": {"player": "pieragnolo", "length": "1 week", "by": "bianchi"}, "split": "dev"}
+{"tr": "kenan yıldızı hangi gözlemciye verebilirim", "call": "fm_scout_player", "args": {"player": "kenan yıldız", "who": true}, "split": "dev"}
+{"tr": "kenan yildiza gozlemci gonder", "call": "fm_scout_player", "args": {"player": "kenan yildiz"}, "ask": "length", "split": "dev"}
+{"en": "scout kenan yildiz", "call": "fm_scout_player", "args": {"player": "kenan yildiz"}, "ask": "length", "split": "final"}
+{"en": "send a scout to watch pieragnolo for 2 weeks", "call": "fm_scout_player", "args": {"player": "pieragnolo", "length": "2 weeks"}, "split": "dev"}
+{"en": "full scouting report on yamal", "call": "fm_scout_player", "args": {"player": "yamal", "length": "extensive"}, "split": "dev"}
+{"en": "have bianchi watch semih for 1 month", "call": "fm_scout_player", "args": {"player": "semih", "length": "1 month", "by": "bianchi"}, "split": "dev"}
+{"en": "which scouts can i send on yildiz", "call": "fm_scout_player", "args": {"player": "yildiz", "who": true}, "split": "dev"}
+{"tr": "kenan yıldız için neler yapabilirim", "call": "fm_actions", "args": {"person": "kenan yıldız"}, "split": "dev"}
+{"tr": "rossiye sağ tık menüsü", "call": "fm_actions", "args": {"person": "rossi"}, "split": "final"}
+{"tr": "bianchiyi antrenörlük kursuna gönder", "call": "fm_actions", "args": {"person": "bianchi", "choose": "Send On Coaching Course"}, "split": "dev"}
+{"tr": "pieragnoloyu kadro planlayıcıya ekle", "call": "fm_actions", "args": {"person": "pieragnolo", "choose": "Squad Planner"}, "split": "dev"}
+{"tr": "verdi ile ne yapabilirim", "call": "fm_actions", "args": {"person": "verdi"}, "split": "dev"}
+{"en": "what can i do with kenan yildiz", "call": "fm_actions", "args": {"person": "kenan yildiz"}, "split": "held"}
+{"en": "send bianchi on a coaching course", "call": "fm_actions", "args": {"person": "bianchi", "choose": "Send On Coaching Course"}, "split": "dev"}
+{"en": "right click menu for rossi", "call": "fm_actions", "args": {"person": "rossi"}, "split": "final"}
+{"en": "add pieragnolo to the squad planner", "call": "fm_actions", "args": {"person": "pieragnolo", "choose": "Squad Planner"}, "split": "held"}

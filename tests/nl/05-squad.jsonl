@@ -1,235 +1,235 @@
-{"tr": "kadro", "call": "fm_squad"}
-{"tr": "kadroyu göster", "call": "fm_squad"}
-{"tr": "kadroda kimler var", "call": "fm_squad"}
-{"tr": "takımı göster", "call": "fm_squad"}
-{"tr": "oyuncularım", "call": "fm_squad"}
-{"tr": "kadroo", "call": "fm_squad"}
-{"tr": "kadro ne alemde", "call": "fm_squad"}
-{"tr": "a takım listesi", "call": "fm_squad"}
-{"tr": "kimin maaşı ne kadar", "call": "fm_squad"}
-{"tr": "oyuncuların değerleri", "call": "fm_squad"}
-{"tr": "kadronun kondisyonu", "call": "fm_squad", "args": {"view": "fitness"}}
-{"tr": "maç formu nasıl oyuncuların", "call": "fm_squad", "args": {"view": "fitness"}}
-{"tr": "kondisyon tablosu", "call": "fm_squad", "args": {"view": "fitness"}}
-{"tr": "kadroda yorgun kim var", "call": "fm_squad", "args": {"view": "fitness"}, "or": [{"call": "fm_health"}, {"call": "fm_doctor"}]}
-{"tr": "moraller nasıl", "call": "fm_squad", "args": {"view": "morale"}, "or": [{"call": "fm_happiness"}]}
-{"tr": "takımın morali", "call": "fm_squad", "args": {"view": "morale"}, "or": [{"call": "fm_happiness"}]}
-{"tr": "moral durumu", "call": "fm_squad", "args": {"view": "morale"}, "or": [{"call": "fm_happiness"}]}
-{"tr": "kim kaç gol attı bu sezon", "call": "fm_squad", "args": {"view": "stats"}}
-{"tr": "oyuncu istatistikleri", "call": "fm_squad", "args": {"view": "stats"}}
-{"tr": "sezon istatistikleri kadro", "call": "fm_squad", "args": {"view": "stats"}}
-{"tr": "takımın golcüsü kim", "call": "fm_squad", "args": {"view": "stats"}}
-{"tr": "kim kaç maç oynadı", "call": "fm_squad", "args": {"view": "stats"}}
-{"tr": "ortalama reytingler", "call": "fm_squad", "args": {"view": "stats"}}
-{"tr": "kart cezası olan var mı", "call": "fm_squad", "args": {"view": "stats"}, "or": [{"call": "fm_doctor"}]}
-{"tr": "altyapı takımları", "call": "fm_squad", "args": {"view": "youth"}, "or": [{"call": "fm_youth"}]}
-{"tr": "u19 kadrosu", "call": "fm_squad", "args": {"view": "youth"}}
-{"tr": "genç takımlarda kim var", "call": "fm_squad", "args": {"view": "youth"}}
-{"tr": "kadroyu sözleşme görünümünde aç", "call": "fm_squad", "args": {"view": "Contract"}}
-{"tr": "kadro sakatlık görünümü", "call": "fm_squad", "args": {"view": "Injuries"}}
-{"tr": "kadronun transfer görünümü", "call": "fm_squad", "args": {"view": "Transfer"}}
-{"tr": "oynama süreleri", "call": "fm_squad", "args": {"view": "Playing Time"}}
-{"tr": "kadro görünümleri neler", "call": "fm_squad", "args": {"view": "list"}}
-{"en": "squad", "call": "fm_squad"}
-{"en": "show me the squad", "call": "fm_squad"}
-{"en": "my players", "call": "fm_squad"}
-{"en": "sqaud", "call": "fm_squad"}
-{"en": "who's tired", "call": "fm_squad", "args": {"view": "fitness"}, "or": [{"call": "fm_health"}, {"call": "fm_doctor"}]}
-{"en": "squad fitness", "call": "fm_squad", "args": {"view": "fitness"}}
-{"en": "match sharpness of the squad", "call": "fm_squad", "args": {"view": "fitness"}}
-{"en": "team morale", "call": "fm_squad", "args": {"view": "morale"}, "or": [{"call": "fm_happiness"}]}
-{"en": "squad stats this season", "call": "fm_squad", "args": {"view": "stats"}}
-{"en": "who has the most goals for us", "call": "fm_squad", "args": {"view": "stats"}}
-{"en": "youth squads", "call": "fm_squad", "args": {"view": "youth"}}
-{"en": "squad contract view", "call": "fm_squad", "args": {"view": "Contract"}}
-{"en": "what squad views are there", "call": "fm_squad", "args": {"view": "list"}}
-{"tr": "rinaldi'ye bak", "call": "fm_player", "args": {"name": "rinaldi"}}
-{"tr": "rinaldi nasıl oyuncu", "call": "fm_player", "args": {"name": "rinaldi"}}
-{"tr": "ghiglionenin özellikleri", "call": "fm_player", "args": {"name": "ghiglione"}}
-{"tr": "tosto kaç yaşında", "call": "fm_player", "args": {"name": "tosto"}}
-{"tr": "fazzini hangi mevkilerde oynar", "call": "fm_player", "args": {"name": "fazzini"}}
-{"tr": "esposito'nun sözleşmesi ne zaman bitiyo", "call": "fm_player", "args": {"name": "esposito"}, "or": [{"call": "fm_contracts"}]}
-{"tr": "gyasinin hızı kaç", "call": "fm_player", "args": {"name": "gyasi"}}
-{"tr": "colombo sakatlık geçmişi", "call": "fm_player", "args": {"name": "colombo"}}
-{"tr": "maleh in kişiliği ne", "call": "fm_player", "args": {"name": "maleh"}}
-{"tr": "kenan yıldız profili", "call": "fm_player", "args": {"name": "kenan yıldız"}}
-{"tr": "arda güler kaç para", "call": "fm_player", "args": {"name": "arda güler"}}
-{"tr": "semih kılıçsoy oyuncu kartı", "call": "fm_player", "args": {"name": "semih kılıçsoy"}}
-{"tr": "rinaldi kariyeri", "call": "fm_player", "args": {"name": "rinaldi", "career": true}}
-{"tr": "ghiglione daha önce hangi takımlarda oynadı", "call": "fm_player", "args": {"name": "ghiglione", "career": true}}
-{"tr": "kenan yıldızın kariyer geçmişi", "call": "fm_player", "args": {"name": "kenan yıldız", "career": true}}
-{"tr": "pieragnolo gözlemci raporu", "call": "fm_player", "args": {"name": "pieragnolo", "report": true}}
-{"tr": "scoutlar arda güler için ne diyo", "call": "fm_player", "args": {"name": "arda güler", "report": true}}
-{"tr": "kenan yildiz alinir mi rapor ne diyor", "call": "fm_player", "args": {"name": "kenan yildiz", "report": true}}
-{"tr": "rinaldy", "call": "fm_player", "args": {"name": "rinaldy"}}
-{"tr": "rnaldi ne alemde", "call": "fm_player", "args": {"name": "rnaldi"}}
-{"tr": "şu bizim kaleci nasıl", "call": "fm_player", "ask": "name", "or": [{"call": "fm_squad"}]}
-{"en": "show rinaldi", "call": "fm_player", "args": {"name": "rinaldi"}}
-{"en": "tell me about ghiglione", "call": "fm_player", "args": {"name": "ghiglione"}}
-{"en": "how old is tosto", "call": "fm_player", "args": {"name": "tosto"}}
-{"en": "fazzini attributes", "call": "fm_player", "args": {"name": "fazzini"}}
-{"en": "kenan yildiz profile", "call": "fm_player", "args": {"name": "kenan yildiz"}}
-{"en": "rinaldi career history", "call": "fm_player", "args": {"name": "rinaldi", "career": true}}
-{"en": "where has ghiglione played before", "call": "fm_player", "args": {"name": "ghiglione", "career": true}}
-{"en": "scout report on pieragnolo", "call": "fm_player", "args": {"name": "pieragnolo", "report": true}}
-{"en": "what do the scouts think of arda guler", "call": "fm_player", "args": {"name": "arda guler", "report": true}}
-{"tr": "rinaldi ile ghiglioneyi karşılaştır", "call": "fm_compare", "args": {"a": "rinaldi", "b": "ghiglione"}}
-{"tr": "tosto mu fazzini mi daha iyi", "call": "fm_compare", "args": {"a": "tosto", "b": "fazzini"}}
-{"tr": "esposito vs gyasi", "call": "fm_compare", "args": {"a": "esposito", "b": "gyasi"}}
-{"tr": "kenan yıldızı rinaldiyle kıyasla", "call": "fm_compare", "args": {"a": "kenan yıldız", "b": "rinaldi"}}
-{"tr": "maleh ve marin yan yana", "call": "fm_compare", "args": {"a": "maleh", "b": "marin"}}
-{"tr": "colombo pieragnolo hangisi", "call": "fm_compare", "args": {"a": "colombo", "b": "pieragnolo"}}
-{"tr": "rinaldiyi biriyle karşılaştır", "call": "fm_compare", "args": {"a": "rinaldi"}, "ask": "b"}
-{"en": "compare rinaldi and ghiglione", "call": "fm_compare", "args": {"a": "rinaldi", "b": "ghiglione"}}
-{"en": "tosto vs fazzini", "call": "fm_compare", "args": {"a": "tosto", "b": "fazzini"}}
-{"en": "who's better, esposito or gyasi", "call": "fm_compare", "args": {"a": "esposito", "b": "gyasi"}}
-{"en": "side by side kenan yildiz and rinaldi", "call": "fm_compare", "args": {"a": "kenan yildiz", "b": "rinaldi"}}
-{"tr": "23 yaş altı potansiyeli 140 üstü olanlar", "call": "fm_query", "args": {"where": "age<23 and potential>140"}}
-{"tr": "21 yaşından küçükler", "call": "fm_query", "args": {"where": "age<21"}}
-{"tr": "30 yaş üstü oyuncular", "call": "fm_query", "args": {"where": "age>30"}}
-{"tr": "kondisyonu 80in altında olanlar", "call": "fm_query", "args": {"where": "condition<80"}}
-{"tr": "maç formu düşük olanlar", "call": "fm_query", "args": {"where": "sharpness<70"}, "or": [{"call": "fm_squad", "args": {"view": "fitness"}}, {"call": "fm_doctor"}]}
-{"tr": "sakat olanlar", "call": "fm_query", "args": {"where": "injured=true"}, "or": [{"call": "fm_health"}, {"call": "fm_doctor"}]}
-{"tr": "maaşı 20 binden fazla olanlar", "call": "fm_query", "args": {"where": "wage>20000"}}
-{"tr": "sözleşmesi 1 yıldan az kalanlar", "call": "fm_query", "args": {"where": "contract<12"}, "or": [{"call": "fm_contracts"}]}
-{"tr": "italyan oyuncular", "call": "fm_query", "args": {"where": "nation=Italy"}}
-{"tr": "boyu 190 üstü olanlar", "call": "fm_query", "args": {"where": "height>190"}}
-{"tr": "en çok gol atandan aza sırala", "call": "fm_query", "args": {"where": "goals>0", "sort": "goals"}, "or": [{"call": "fm_squad", "args": {"view": "stats"}}]}
-{"tr": "5ten fazla asisti olanlar", "call": "fm_query", "args": {"where": "assists>5"}}
-{"tr": "reytingi 7 üstü olanlar", "call": "fm_query", "args": {"where": "rating>7"}}
-{"tr": "potansiyele göre sırala gençleri", "call": "fm_query", "args": {"where": "age<23", "sort": "potential"}}
-{"tr": "en ucuz maaşlıdan başlayarak", "call": "fm_query", "args": {"where": "wage>0", "sort": "wage", "ascending": true}}
-{"tr": "stoperlerimiz", "call": "fm_query", "args": {"where": "position=DC"}, "or": [{"call": "fm_depth"}]}
-{"tr": "forvetler kim", "call": "fm_query", "args": {"where": "position=ST"}, "or": [{"call": "fm_depth"}]}
-{"tr": "hiç maça çıkmamışlar", "call": "fm_query", "args": {"where": "apps=0"}}
-{"tr": "yedekte kalan 25 yaş alti", "call": "fm_query", "args": {"where": "age<25 and status=Backup"}}
-{"en": "players under 23 with potential over 140", "call": "fm_query", "args": {"where": "age<23 and potential>140"}}
-{"en": "everyone over 30", "call": "fm_query", "args": {"where": "age>30"}}
-{"en": "condition below 80", "call": "fm_query", "args": {"where": "condition<80"}}
-{"en": "who earns more than 20k a week", "call": "fm_query", "args": {"where": "wage>20000"}}
-{"en": "italian players sorted by age", "call": "fm_query", "args": {"where": "nation=Italy", "sort": "age"}}
-{"en": "players taller than 190", "call": "fm_query", "args": {"where": "height>190"}}
-{"en": "guys with zero apps", "call": "fm_query", "args": {"where": "apps=0"}}
-{"en": "our centre backs", "call": "fm_query", "args": {"where": "position=DC"}, "or": [{"call": "fm_depth"}]}
-{"tr": "kadro derinliği", "call": "fm_depth"}
-{"tr": "hangi mevkide kaç oyuncu var", "call": "fm_depth"}
-{"tr": "sol bekte kim var", "call": "fm_depth"}
-{"tr": "hangi mevki eksik", "call": "fm_depth", "or": [{"call": "fm_targets"}]}
-{"tr": "kanatlarda yedek var mı", "call": "fm_depth"}
-{"tr": "mevki mevki kadro", "call": "fm_depth"}
-{"tr": "derinlik", "call": "fm_depth"}
-{"tr": "pozisyonlara göre oyuncular", "call": "fm_depth"}
-{"en": "squad depth", "call": "fm_depth"}
-{"en": "who can play left back", "call": "fm_depth"}
-{"en": "players per position", "call": "fm_depth"}
-{"en": "which positions are thin", "call": "fm_depth", "or": [{"call": "fm_targets"}]}
-{"tr": "sakatlar", "call": "fm_health"}
-{"tr": "sakat kim var", "call": "fm_health"}
-{"tr": "sakatlık durumu", "call": "fm_health"}
-{"tr": "kim ne zaman döner sakatlıktan", "call": "fm_health"}
-{"tr": "sağlık durumu", "call": "fm_health"}
-{"tr": "yorgun olanlar", "call": "fm_health", "or": [{"call": "fm_squad", "args": {"view": "fitness"}}, {"call": "fm_doctor"}]}
-{"tr": "maç eksiği olanlar", "call": "fm_health", "or": [{"call": "fm_doctor"}]}
-{"tr": "sakatlanma riski olan var mı", "call": "fm_health"}
-{"tr": "revirde kim var", "call": "fm_health"}
-{"tr": "sakatlar listesi abi", "call": "fm_health"}
-{"tr": "sakatlr", "call": "fm_health"}
-{"en": "injuries", "call": "fm_health"}
-{"en": "who's injured", "call": "fm_health"}
-{"en": "injury list", "call": "fm_health"}
-{"en": "when is everyone back", "call": "fm_health"}
-{"en": "injury risk", "call": "fm_health"}
-{"en": "medical report", "call": "fm_health", "or": [{"call": "fm_doctor"}]}
-{"tr": "takımda ne sorun var", "call": "fm_doctor"}
-{"tr": "kadroda sorunlar", "call": "fm_doctor"}
-{"tr": "genel kontrol yap kadroya", "call": "fm_doctor"}
-{"tr": "kim cezalı kim sakat kim yorgun", "call": "fm_doctor"}
-{"tr": "maça kimler yok", "call": "fm_doctor"}
-{"tr": "eksiklerimiz neler", "call": "fm_doctor"}
-{"tr": "kimleri kullanamam", "call": "fm_doctor"}
-{"tr": "doktor", "call": "fm_doctor"}
-{"tr": "tek bakışta sorunlar", "call": "fm_doctor"}
-{"en": "whats wrong with the squad", "call": "fm_doctor"}
-{"en": "who's unavailable", "call": "fm_doctor"}
-{"en": "squad problems", "call": "fm_doctor"}
-{"en": "who is suspended", "call": "fm_doctor"}
-{"en": "quick checkup", "call": "fm_doctor"}
-{"tr": "kim gelişiyo", "call": "fm_progress"}
-{"tr": "gelişim", "call": "fm_progress"}
-{"tr": "oyuncuların gelişimi", "call": "fm_progress"}
-{"tr": "kim düşüşte", "call": "fm_progress"}
-{"tr": "yetenek değişimi aylık", "call": "fm_progress"}
-{"tr": "gençler gelişiyo mu", "call": "fm_progress"}
-{"tr": "kim geriliyor kim ilerliyor", "call": "fm_progress"}
-{"tr": "gelisim tablosu", "call": "fm_progress"}
-{"en": "who's improving", "call": "fm_progress"}
-{"en": "player development", "call": "fm_progress"}
-{"en": "who is declining", "call": "fm_progress"}
-{"en": "progress", "call": "fm_progress"}
-{"tr": "mutsuz oyuncu var mı", "call": "fm_happiness"}
-{"tr": "kim mutsuz", "call": "fm_happiness"}
-{"tr": "oyuncular mutlu mu", "call": "fm_happiness"}
-{"tr": "mutluluk", "call": "fm_happiness"}
-{"tr": "rinaldi neden mutsuz", "call": "fm_happiness", "args": {"player": "rinaldi"}}
-{"tr": "ghiglionenin derdi ne", "call": "fm_happiness", "args": {"player": "ghiglione"}}
-{"tr": "tosto neden surat asıyo", "call": "fm_happiness", "args": {"player": "tosto"}}
-{"tr": "şikayeti olanlar ve nedenleri", "call": "fm_happiness", "args": {"why": true}}
-{"tr": "kim neden şikayetçi", "call": "fm_happiness", "args": {"why": true}}
-{"tr": "kim gitmek istiyo", "call": "fm_happiness"}
-{"tr": "kimle ilgilenen kulüp var", "call": "fm_happiness"}
-{"tr": "mutsuzlar neden mutsuz hepsini listele", "call": "fm_happiness", "args": {"why": true}}
-{"en": "is anyone unhappy", "call": "fm_happiness"}
-{"en": "happiness", "call": "fm_happiness"}
-{"en": "why is rinaldi unhappy", "call": "fm_happiness", "args": {"player": "rinaldi"}}
-{"en": "what's ghiglione's problem", "call": "fm_happiness", "args": {"player": "ghiglione"}}
-{"en": "list all complaints", "call": "fm_happiness", "args": {"why": true}}
-{"en": "who wants to leave", "call": "fm_happiness"}
-{"tr": "soyunma odası", "call": "fm_dynamics"}
-{"tr": "takım içi hiyerarşi", "call": "fm_dynamics"}
-{"tr": "takımın lideri kim", "call": "fm_dynamics"}
-{"tr": "soyunma odası havası nasıl", "call": "fm_dynamics"}
-{"tr": "oyuncular beni destekliyo mu", "call": "fm_dynamics", "or": [{"call": "fm_board"}]}
-{"tr": "kim kimle takılıyo", "call": "fm_dynamics"}
-{"tr": "takım dinamikleri", "call": "fm_dynamics"}
-{"tr": "soyunma odasi atmosferi", "call": "fm_dynamics"}
-{"en": "dressing room", "call": "fm_dynamics"}
-{"en": "team dynamics", "call": "fm_dynamics"}
-{"en": "who are the team leaders", "call": "fm_dynamics"}
-{"en": "do the players back me", "call": "fm_dynamics", "or": [{"call": "fm_board"}]}
-{"en": "hierarchy", "call": "fm_dynamics"}
-{"tr": "milli oyuncularımız", "call": "fm_internationals"}
-{"tr": "kim milli takımda", "call": "fm_internationals"}
-{"tr": "milli takıma çağrılan var mı", "call": "fm_internationals"}
-{"tr": "kimin kaç milli maçı var", "call": "fm_internationals"}
-{"tr": "milli takım golleri", "call": "fm_internationals"}
-{"tr": "milliler", "call": "fm_internationals"}
-{"en": "internationals", "call": "fm_internationals"}
-{"en": "who plays for their country", "call": "fm_internationals"}
-{"en": "caps", "call": "fm_internationals"}
-{"en": "international duty", "call": "fm_internationals"}
-{"tr": "sözleşmeler", "call": "fm_contracts"}
-{"tr": "sözleşmesi biten kim", "call": "fm_contracts"}
-{"tr": "kimin kontratı bitiyo", "call": "fm_contracts"}
-{"tr": "sözleşme bitiş tarihleri", "call": "fm_contracts"}
-{"tr": "yakında sözleşmesi bitecekler", "call": "fm_contracts"}
-{"tr": "kontratlar", "call": "fm_contracts"}
-{"tr": "bedavaya gidebilecek oyuncu var mı", "call": "fm_contracts"}
-{"tr": "sozlesmeler ne durumda", "call": "fm_contracts"}
-{"en": "contracts", "call": "fm_contracts"}
-{"en": "whose contract is expiring", "call": "fm_contracts"}
-{"en": "contract end dates", "call": "fm_contracts"}
-{"en": "who could leave on a free", "call": "fm_contracts"}
-{"tr": "kaptan kim", "call": "fm_captains"}
-{"tr": "kaptanlar", "call": "fm_captains"}
-{"tr": "ikinci kaptan kim", "call": "fm_captains"}
-{"tr": "rinaldiyi kaptan yap", "call": "fm_captains", "args": {"captain": "rinaldi"}}
-{"tr": "kaptanlığı ghiglioneye ver", "call": "fm_captains", "args": {"captain": "ghiglione"}}
-{"tr": "tosto ikinci kaptan olsun", "call": "fm_captains", "args": {"vice": "tosto"}}
-{"tr": "kaptan maleh yardımcısı colombo", "call": "fm_captains", "args": {"captain": "maleh", "vice": "colombo"}}
-{"tr": "kaptan bandini esposito takacak", "call": "fm_captains", "args": {"captain": "esposito"}}
-{"tr": "kaptanı değiştir", "call": "fm_captains", "ask": "captain"}
-{"en": "who's captain", "call": "fm_captains"}
-{"en": "make rinaldi captain", "call": "fm_captains", "args": {"captain": "rinaldi"}}
-{"en": "tosto vice captain", "call": "fm_captains", "args": {"vice": "tosto"}}
-{"en": "captain maleh, vice colombo", "call": "fm_captains", "args": {"captain": "maleh", "vice": "colombo"}}
-{"en": "give the armband to esposito", "call": "fm_captains", "args": {"captain": "esposito"}}
+{"tr": "kadro", "call": "fm_squad", "split": "held"}
+{"tr": "kadroyu göster", "call": "fm_squad", "split": "held"}
+{"tr": "kadroda kimler var", "call": "fm_squad", "split": "dev"}
+{"tr": "takımı göster", "call": "fm_squad", "split": "held"}
+{"tr": "oyuncularım", "call": "fm_squad", "split": "held"}
+{"tr": "kadroo", "call": "fm_squad", "split": "held"}
+{"tr": "kadro ne alemde", "call": "fm_squad", "split": "held"}
+{"tr": "a takım listesi", "call": "fm_squad", "split": "held"}
+{"tr": "kimin maaşı ne kadar", "call": "fm_squad", "split": "dev"}
+{"tr": "oyuncuların değerleri", "call": "fm_squad", "split": "dev"}
+{"tr": "kadronun kondisyonu", "call": "fm_squad", "args": {"view": "fitness"}, "split": "dev"}
+{"tr": "maç formu nasıl oyuncuların", "call": "fm_squad", "args": {"view": "fitness"}, "split": "dev"}
+{"tr": "kondisyon tablosu", "call": "fm_squad", "args": {"view": "fitness"}, "split": "dev"}
+{"tr": "kadroda yorgun kim var", "call": "fm_squad", "args": {"view": "fitness"}, "or": [{"call": "fm_health"}, {"call": "fm_doctor"}], "split": "dev"}
+{"tr": "moraller nasıl", "call": "fm_squad", "args": {"view": "morale"}, "or": [{"call": "fm_happiness"}], "split": "dev"}
+{"tr": "takımın morali", "call": "fm_squad", "args": {"view": "morale"}, "or": [{"call": "fm_happiness"}], "split": "dev"}
+{"tr": "moral durumu", "call": "fm_squad", "args": {"view": "morale"}, "or": [{"call": "fm_happiness"}], "split": "dev"}
+{"tr": "kim kaç gol attı bu sezon", "call": "fm_squad", "args": {"view": "stats"}, "split": "dev"}
+{"tr": "oyuncu istatistikleri", "call": "fm_squad", "args": {"view": "stats"}, "split": "final"}
+{"tr": "sezon istatistikleri kadro", "call": "fm_squad", "args": {"view": "stats"}, "split": "held"}
+{"tr": "takımın golcüsü kim", "call": "fm_squad", "args": {"view": "stats"}, "split": "dev"}
+{"tr": "kim kaç maç oynadı", "call": "fm_squad", "args": {"view": "stats"}, "split": "held"}
+{"tr": "ortalama reytingler", "call": "fm_squad", "args": {"view": "stats"}, "split": "held"}
+{"tr": "kart cezası olan var mı", "call": "fm_squad", "args": {"view": "stats"}, "or": [{"call": "fm_doctor"}], "split": "dev"}
+{"tr": "altyapı takımları", "call": "fm_squad", "args": {"view": "youth"}, "or": [{"call": "fm_youth"}], "split": "dev"}
+{"tr": "u19 kadrosu", "call": "fm_squad", "args": {"view": "youth"}, "split": "final"}
+{"tr": "genç takımlarda kim var", "call": "fm_squad", "args": {"view": "youth"}, "split": "dev"}
+{"tr": "kadroyu sözleşme görünümünde aç", "call": "fm_squad", "args": {"view": "Contract"}, "split": "dev"}
+{"tr": "kadro sakatlık görünümü", "call": "fm_squad", "args": {"view": "Injuries"}, "split": "dev"}
+{"tr": "kadronun transfer görünümü", "call": "fm_squad", "args": {"view": "Transfer"}, "split": "final"}
+{"tr": "oynama süreleri", "call": "fm_squad", "args": {"view": "Playing Time"}, "split": "held"}
+{"tr": "kadro görünümleri neler", "call": "fm_squad", "args": {"view": "list"}, "split": "dev"}
+{"en": "squad", "call": "fm_squad", "split": "dev"}
+{"en": "show me the squad", "call": "fm_squad", "split": "dev"}
+{"en": "my players", "call": "fm_squad", "split": "dev"}
+{"en": "sqaud", "call": "fm_squad", "split": "held"}
+{"en": "who's tired", "call": "fm_squad", "args": {"view": "fitness"}, "or": [{"call": "fm_health"}, {"call": "fm_doctor"}], "split": "held"}
+{"en": "squad fitness", "call": "fm_squad", "args": {"view": "fitness"}, "split": "dev"}
+{"en": "match sharpness of the squad", "call": "fm_squad", "args": {"view": "fitness"}, "split": "held"}
+{"en": "team morale", "call": "fm_squad", "args": {"view": "morale"}, "or": [{"call": "fm_happiness"}], "split": "held"}
+{"en": "squad stats this season", "call": "fm_squad", "args": {"view": "stats"}, "split": "dev"}
+{"en": "who has the most goals for us", "call": "fm_squad", "args": {"view": "stats"}, "split": "dev"}
+{"en": "youth squads", "call": "fm_squad", "args": {"view": "youth"}, "split": "dev"}
+{"en": "squad contract view", "call": "fm_squad", "args": {"view": "Contract"}, "split": "dev"}
+{"en": "what squad views are there", "call": "fm_squad", "args": {"view": "list"}, "split": "dev"}
+{"tr": "rinaldi'ye bak", "call": "fm_player", "args": {"name": "rinaldi"}, "split": "dev"}
+{"tr": "rinaldi nasıl oyuncu", "call": "fm_player", "args": {"name": "rinaldi"}, "split": "dev"}
+{"tr": "ghiglionenin özellikleri", "call": "fm_player", "args": {"name": "ghiglione"}, "split": "final"}
+{"tr": "tosto kaç yaşında", "call": "fm_player", "args": {"name": "tosto"}, "split": "dev"}
+{"tr": "fazzini hangi mevkilerde oynar", "call": "fm_player", "args": {"name": "fazzini"}, "split": "held"}
+{"tr": "esposito'nun sözleşmesi ne zaman bitiyo", "call": "fm_player", "args": {"name": "esposito"}, "or": [{"call": "fm_contracts"}], "split": "dev"}
+{"tr": "gyasinin hızı kaç", "call": "fm_player", "args": {"name": "gyasi"}, "split": "dev"}
+{"tr": "colombo sakatlık geçmişi", "call": "fm_player", "args": {"name": "colombo"}, "split": "dev"}
+{"tr": "maleh in kişiliği ne", "call": "fm_player", "args": {"name": "maleh"}, "split": "dev"}
+{"tr": "kenan yıldız profili", "call": "fm_player", "args": {"name": "kenan yıldız"}, "split": "dev"}
+{"tr": "arda güler kaç para", "call": "fm_player", "args": {"name": "arda güler"}, "split": "dev"}
+{"tr": "semih kılıçsoy oyuncu kartı", "call": "fm_player", "args": {"name": "semih kılıçsoy"}, "split": "final"}
+{"tr": "rinaldi kariyeri", "call": "fm_player", "args": {"name": "rinaldi", "career": true}, "split": "held"}
+{"tr": "ghiglione daha önce hangi takımlarda oynadı", "call": "fm_player", "args": {"name": "ghiglione", "career": true}, "split": "held"}
+{"tr": "kenan yıldızın kariyer geçmişi", "call": "fm_player", "args": {"name": "kenan yıldız", "career": true}, "split": "held"}
+{"tr": "pieragnolo gözlemci raporu", "call": "fm_player", "args": {"name": "pieragnolo", "report": true}, "split": "dev"}
+{"tr": "scoutlar arda güler için ne diyo", "call": "fm_player", "args": {"name": "arda güler", "report": true}, "split": "dev"}
+{"tr": "kenan yildiz alinir mi rapor ne diyor", "call": "fm_player", "args": {"name": "kenan yildiz", "report": true}, "split": "final"}
+{"tr": "rinaldy", "call": "fm_player", "args": {"name": "rinaldy"}, "split": "held"}
+{"tr": "rnaldi ne alemde", "call": "fm_player", "args": {"name": "rnaldi"}, "split": "dev"}
+{"tr": "şu bizim kaleci nasıl", "call": "fm_player", "ask": "name", "or": [{"call": "fm_squad"}], "split": "dev"}
+{"en": "show rinaldi", "call": "fm_player", "args": {"name": "rinaldi"}, "split": "held"}
+{"en": "tell me about ghiglione", "call": "fm_player", "args": {"name": "ghiglione"}, "split": "dev"}
+{"en": "how old is tosto", "call": "fm_player", "args": {"name": "tosto"}, "split": "dev"}
+{"en": "fazzini attributes", "call": "fm_player", "args": {"name": "fazzini"}, "split": "final"}
+{"en": "kenan yildiz profile", "call": "fm_player", "args": {"name": "kenan yildiz"}, "split": "dev"}
+{"en": "rinaldi career history", "call": "fm_player", "args": {"name": "rinaldi", "career": true}, "split": "dev"}
+{"en": "where has ghiglione played before", "call": "fm_player", "args": {"name": "ghiglione", "career": true}, "split": "final"}
+{"en": "scout report on pieragnolo", "call": "fm_player", "args": {"name": "pieragnolo", "report": true}, "split": "dev"}
+{"en": "what do the scouts think of arda guler", "call": "fm_player", "args": {"name": "arda guler", "report": true}, "split": "dev"}
+{"tr": "rinaldi ile ghiglioneyi karşılaştır", "call": "fm_compare", "args": {"a": "rinaldi", "b": "ghiglione"}, "split": "held"}
+{"tr": "tosto mu fazzini mi daha iyi", "call": "fm_compare", "args": {"a": "tosto", "b": "fazzini"}, "split": "dev"}
+{"tr": "esposito vs gyasi", "call": "fm_compare", "args": {"a": "esposito", "b": "gyasi"}, "split": "final"}
+{"tr": "kenan yıldızı rinaldiyle kıyasla", "call": "fm_compare", "args": {"a": "kenan yıldız", "b": "rinaldi"}, "split": "dev"}
+{"tr": "maleh ve marin yan yana", "call": "fm_compare", "args": {"a": "maleh", "b": "marin"}, "split": "dev"}
+{"tr": "colombo pieragnolo hangisi", "call": "fm_compare", "args": {"a": "colombo", "b": "pieragnolo"}, "split": "dev"}
+{"tr": "rinaldiyi biriyle karşılaştır", "call": "fm_compare", "args": {"a": "rinaldi"}, "ask": "b", "split": "final"}
+{"en": "compare rinaldi and ghiglione", "call": "fm_compare", "args": {"a": "rinaldi", "b": "ghiglione"}, "split": "dev"}
+{"en": "tosto vs fazzini", "call": "fm_compare", "args": {"a": "tosto", "b": "fazzini"}, "split": "dev"}
+{"en": "who's better, esposito or gyasi", "call": "fm_compare", "args": {"a": "esposito", "b": "gyasi"}, "split": "final"}
+{"en": "side by side kenan yildiz and rinaldi", "call": "fm_compare", "args": {"a": "kenan yildiz", "b": "rinaldi"}, "split": "held"}
+{"tr": "23 yaş altı potansiyeli 140 üstü olanlar", "call": "fm_query", "args": {"where": "age<23 and potential>140"}, "split": "dev"}
+{"tr": "21 yaşından küçükler", "call": "fm_query", "args": {"where": "age<21"}, "split": "dev"}
+{"tr": "30 yaş üstü oyuncular", "call": "fm_query", "args": {"where": "age>30"}, "split": "dev"}
+{"tr": "kondisyonu 80in altında olanlar", "call": "fm_query", "args": {"where": "condition<80"}, "split": "dev"}
+{"tr": "maç formu düşük olanlar", "call": "fm_query", "args": {"where": "sharpness<70"}, "or": [{"call": "fm_squad", "args": {"view": "fitness"}}, {"call": "fm_doctor"}], "split": "final"}
+{"tr": "sakat olanlar", "call": "fm_query", "args": {"where": "injured=true"}, "or": [{"call": "fm_health"}, {"call": "fm_doctor"}], "split": "dev"}
+{"tr": "maaşı 20 binden fazla olanlar", "call": "fm_query", "args": {"where": "wage>20000"}, "split": "dev"}
+{"tr": "sözleşmesi 1 yıldan az kalanlar", "call": "fm_query", "args": {"where": "contract<12"}, "or": [{"call": "fm_contracts"}], "split": "held"}
+{"tr": "italyan oyuncular", "call": "fm_query", "args": {"where": "nation=Italy"}, "split": "dev"}
+{"tr": "boyu 190 üstü olanlar", "call": "fm_query", "args": {"where": "height>190"}, "split": "held"}
+{"tr": "en çok gol atandan aza sırala", "call": "fm_query", "args": {"where": "goals>0", "sort": "goals"}, "or": [{"call": "fm_squad", "args": {"view": "stats"}}], "split": "dev"}
+{"tr": "5ten fazla asisti olanlar", "call": "fm_query", "args": {"where": "assists>5"}, "split": "final"}
+{"tr": "reytingi 7 üstü olanlar", "call": "fm_query", "args": {"where": "rating>7"}, "split": "dev"}
+{"tr": "potansiyele göre sırala gençleri", "call": "fm_query", "args": {"where": "age<23", "sort": "potential"}, "split": "dev"}
+{"tr": "en ucuz maaşlıdan başlayarak", "call": "fm_query", "args": {"where": "wage>0", "sort": "wage", "ascending": true}, "split": "dev"}
+{"tr": "stoperlerimiz", "call": "fm_query", "args": {"where": "position=DC"}, "or": [{"call": "fm_depth"}], "split": "dev"}
+{"tr": "forvetler kim", "call": "fm_query", "args": {"where": "position=ST"}, "or": [{"call": "fm_depth"}], "split": "final"}
+{"tr": "hiç maça çıkmamışlar", "call": "fm_query", "args": {"where": "apps=0"}, "split": "held"}
+{"tr": "yedekte kalan 25 yaş alti", "call": "fm_query", "args": {"where": "age<25 and status=Backup"}, "split": "held"}
+{"en": "players under 23 with potential over 140", "call": "fm_query", "args": {"where": "age<23 and potential>140"}, "split": "held"}
+{"en": "everyone over 30", "call": "fm_query", "args": {"where": "age>30"}, "split": "final"}
+{"en": "condition below 80", "call": "fm_query", "args": {"where": "condition<80"}, "split": "dev"}
+{"en": "who earns more than 20k a week", "call": "fm_query", "args": {"where": "wage>20000"}, "split": "held"}
+{"en": "italian players sorted by age", "call": "fm_query", "args": {"where": "nation=Italy", "sort": "age"}, "split": "held"}
+{"en": "players taller than 190", "call": "fm_query", "args": {"where": "height>190"}, "split": "final"}
+{"en": "guys with zero apps", "call": "fm_query", "args": {"where": "apps=0"}, "split": "held"}
+{"en": "our centre backs", "call": "fm_query", "args": {"where": "position=DC"}, "or": [{"call": "fm_depth"}], "split": "dev"}
+{"tr": "kadro derinliği", "call": "fm_depth", "split": "dev"}
+{"tr": "hangi mevkide kaç oyuncu var", "call": "fm_depth", "split": "dev"}
+{"tr": "sol bekte kim var", "call": "fm_depth", "split": "final"}
+{"tr": "hangi mevki eksik", "call": "fm_depth", "or": [{"call": "fm_targets"}], "split": "held"}
+{"tr": "kanatlarda yedek var mı", "call": "fm_depth", "split": "dev"}
+{"tr": "mevki mevki kadro", "call": "fm_depth", "split": "held"}
+{"tr": "derinlik", "call": "fm_depth", "split": "held"}
+{"tr": "pozisyonlara göre oyuncular", "call": "fm_depth", "split": "dev"}
+{"en": "squad depth", "call": "fm_depth", "split": "dev"}
+{"en": "who can play left back", "call": "fm_depth", "split": "dev"}
+{"en": "players per position", "call": "fm_depth", "split": "dev"}
+{"en": "which positions are thin", "call": "fm_depth", "or": [{"call": "fm_targets"}], "split": "dev"}
+{"tr": "sakatlar", "call": "fm_health", "split": "held"}
+{"tr": "sakat kim var", "call": "fm_health", "split": "held"}
+{"tr": "sakatlık durumu", "call": "fm_health", "split": "dev"}
+{"tr": "kim ne zaman döner sakatlıktan", "call": "fm_health", "split": "held"}
+{"tr": "sağlık durumu", "call": "fm_health", "split": "dev"}
+{"tr": "yorgun olanlar", "call": "fm_health", "or": [{"call": "fm_squad", "args": {"view": "fitness"}}, {"call": "fm_doctor"}], "split": "held"}
+{"tr": "maç eksiği olanlar", "call": "fm_health", "or": [{"call": "fm_doctor"}], "split": "held"}
+{"tr": "sakatlanma riski olan var mı", "call": "fm_health", "split": "dev"}
+{"tr": "revirde kim var", "call": "fm_health", "split": "dev"}
+{"tr": "sakatlar listesi abi", "call": "fm_health", "split": "dev"}
+{"tr": "sakatlr", "call": "fm_health", "split": "held"}
+{"en": "injuries", "call": "fm_health", "split": "final"}
+{"en": "who's injured", "call": "fm_health", "split": "dev"}
+{"en": "injury list", "call": "fm_health", "split": "held"}
+{"en": "when is everyone back", "call": "fm_health", "split": "held"}
+{"en": "injury risk", "call": "fm_health", "split": "dev"}
+{"en": "medical report", "call": "fm_health", "or": [{"call": "fm_doctor"}], "split": "held"}
+{"tr": "takımda ne sorun var", "call": "fm_doctor", "split": "final"}
+{"tr": "kadroda sorunlar", "call": "fm_doctor", "split": "dev"}
+{"tr": "genel kontrol yap kadroya", "call": "fm_doctor", "split": "dev"}
+{"tr": "kim cezalı kim sakat kim yorgun", "call": "fm_doctor", "split": "held"}
+{"tr": "maça kimler yok", "call": "fm_doctor", "split": "final"}
+{"tr": "eksiklerimiz neler", "call": "fm_doctor", "split": "final"}
+{"tr": "kimleri kullanamam", "call": "fm_doctor", "split": "held"}
+{"tr": "doktor", "call": "fm_doctor", "split": "dev"}
+{"tr": "tek bakışta sorunlar", "call": "fm_doctor", "split": "final"}
+{"en": "whats wrong with the squad", "call": "fm_doctor", "split": "final"}
+{"en": "who's unavailable", "call": "fm_doctor", "split": "dev"}
+{"en": "squad problems", "call": "fm_doctor", "split": "dev"}
+{"en": "who is suspended", "call": "fm_doctor", "split": "dev"}
+{"en": "quick checkup", "call": "fm_doctor", "split": "final"}
+{"tr": "kim gelişiyo", "call": "fm_progress", "split": "held"}
+{"tr": "gelişim", "call": "fm_progress", "split": "held"}
+{"tr": "oyuncuların gelişimi", "call": "fm_progress", "split": "dev"}
+{"tr": "kim düşüşte", "call": "fm_progress", "split": "final"}
+{"tr": "yetenek değişimi aylık", "call": "fm_progress", "split": "dev"}
+{"tr": "gençler gelişiyo mu", "call": "fm_progress", "split": "dev"}
+{"tr": "kim geriliyor kim ilerliyor", "call": "fm_progress", "split": "dev"}
+{"tr": "gelisim tablosu", "call": "fm_progress", "split": "held"}
+{"en": "who's improving", "call": "fm_progress", "split": "dev"}
+{"en": "player development", "call": "fm_progress", "split": "dev"}
+{"en": "who is declining", "call": "fm_progress", "split": "final"}
+{"en": "progress", "call": "fm_progress", "split": "dev"}
+{"tr": "mutsuz oyuncu var mı", "call": "fm_happiness", "split": "dev"}
+{"tr": "kim mutsuz", "call": "fm_happiness", "split": "dev"}
+{"tr": "oyuncular mutlu mu", "call": "fm_happiness", "split": "dev"}
+{"tr": "mutluluk", "call": "fm_happiness", "split": "held"}
+{"tr": "rinaldi neden mutsuz", "call": "fm_happiness", "args": {"player": "rinaldi"}, "split": "dev"}
+{"tr": "ghiglionenin derdi ne", "call": "fm_happiness", "args": {"player": "ghiglione"}, "split": "held"}
+{"tr": "tosto neden surat asıyo", "call": "fm_happiness", "args": {"player": "tosto"}, "split": "dev"}
+{"tr": "şikayeti olanlar ve nedenleri", "call": "fm_happiness", "args": {"why": true}, "split": "held"}
+{"tr": "kim neden şikayetçi", "call": "fm_happiness", "args": {"why": true}, "split": "dev"}
+{"tr": "kim gitmek istiyo", "call": "fm_happiness", "split": "dev"}
+{"tr": "kimle ilgilenen kulüp var", "call": "fm_happiness", "split": "dev"}
+{"tr": "mutsuzlar neden mutsuz hepsini listele", "call": "fm_happiness", "args": {"why": true}, "split": "dev"}
+{"en": "is anyone unhappy", "call": "fm_happiness", "split": "dev"}
+{"en": "happiness", "call": "fm_happiness", "split": "dev"}
+{"en": "why is rinaldi unhappy", "call": "fm_happiness", "args": {"player": "rinaldi"}, "split": "held"}
+{"en": "what's ghiglione's problem", "call": "fm_happiness", "args": {"player": "ghiglione"}, "split": "held"}
+{"en": "list all complaints", "call": "fm_happiness", "args": {"why": true}, "split": "dev"}
+{"en": "who wants to leave", "call": "fm_happiness", "split": "dev"}
+{"tr": "soyunma odası", "call": "fm_dynamics", "split": "dev"}
+{"tr": "takım içi hiyerarşi", "call": "fm_dynamics", "split": "dev"}
+{"tr": "takımın lideri kim", "call": "fm_dynamics", "split": "dev"}
+{"tr": "soyunma odası havası nasıl", "call": "fm_dynamics", "split": "dev"}
+{"tr": "oyuncular beni destekliyo mu", "call": "fm_dynamics", "or": [{"call": "fm_board"}], "split": "held"}
+{"tr": "kim kimle takılıyo", "call": "fm_dynamics", "split": "dev"}
+{"tr": "takım dinamikleri", "call": "fm_dynamics", "split": "held"}
+{"tr": "soyunma odasi atmosferi", "call": "fm_dynamics", "split": "dev"}
+{"en": "dressing room", "call": "fm_dynamics", "split": "dev"}
+{"en": "team dynamics", "call": "fm_dynamics", "split": "dev"}
+{"en": "who are the team leaders", "call": "fm_dynamics", "split": "held"}
+{"en": "do the players back me", "call": "fm_dynamics", "or": [{"call": "fm_board"}], "split": "dev"}
+{"en": "hierarchy", "call": "fm_dynamics", "split": "dev"}
+{"tr": "milli oyuncularımız", "call": "fm_internationals", "split": "dev"}
+{"tr": "kim milli takımda", "call": "fm_internationals", "split": "final"}
+{"tr": "milli takıma çağrılan var mı", "call": "fm_internationals", "split": "held"}
+{"tr": "kimin kaç milli maçı var", "call": "fm_internationals", "split": "dev"}
+{"tr": "milli takım golleri", "call": "fm_internationals", "split": "final"}
+{"tr": "milliler", "call": "fm_internationals", "split": "held"}
+{"en": "internationals", "call": "fm_internationals", "split": "dev"}
+{"en": "who plays for their country", "call": "fm_internationals", "split": "held"}
+{"en": "caps", "call": "fm_internationals", "split": "final"}
+{"en": "international duty", "call": "fm_internationals", "split": "dev"}
+{"tr": "sözleşmeler", "call": "fm_contracts", "split": "dev"}
+{"tr": "sözleşmesi biten kim", "call": "fm_contracts", "split": "held"}
+{"tr": "kimin kontratı bitiyo", "call": "fm_contracts", "split": "final"}
+{"tr": "sözleşme bitiş tarihleri", "call": "fm_contracts", "split": "final"}
+{"tr": "yakında sözleşmesi bitecekler", "call": "fm_contracts", "split": "held"}
+{"tr": "kontratlar", "call": "fm_contracts", "split": "dev"}
+{"tr": "bedavaya gidebilecek oyuncu var mı", "call": "fm_contracts", "split": "dev"}
+{"tr": "sozlesmeler ne durumda", "call": "fm_contracts", "split": "dev"}
+{"en": "contracts", "call": "fm_contracts", "split": "dev"}
+{"en": "whose contract is expiring", "call": "fm_contracts", "split": "dev"}
+{"en": "contract end dates", "call": "fm_contracts", "split": "dev"}
+{"en": "who could leave on a free", "call": "fm_contracts", "split": "held"}
+{"tr": "kaptan kim", "call": "fm_captains", "split": "held"}
+{"tr": "kaptanlar", "call": "fm_captains", "split": "dev"}
+{"tr": "ikinci kaptan kim", "call": "fm_captains", "split": "held"}
+{"tr": "rinaldiyi kaptan yap", "call": "fm_captains", "args": {"captain": "rinaldi"}, "split": "held"}
+{"tr": "kaptanlığı ghiglioneye ver", "call": "fm_captains", "args": {"captain": "ghiglione"}, "split": "final"}
+{"tr": "tosto ikinci kaptan olsun", "call": "fm_captains", "args": {"vice": "tosto"}, "split": "dev"}
+{"tr": "kaptan maleh yardımcısı colombo", "call": "fm_captains", "args": {"captain": "maleh", "vice": "colombo"}, "split": "dev"}
+{"tr": "kaptan bandini esposito takacak", "call": "fm_captains", "args": {"captain": "esposito"}, "split": "dev"}
+{"tr": "kaptanı değiştir", "call": "fm_captains", "ask": "captain", "split": "dev"}
+{"en": "who's captain", "call": "fm_captains", "split": "dev"}
+{"en": "make rinaldi captain", "call": "fm_captains", "args": {"captain": "rinaldi"}, "split": "dev"}
+{"en": "tosto vice captain", "call": "fm_captains", "args": {"vice": "tosto"}, "split": "dev"}
+{"en": "captain maleh, vice colombo", "call": "fm_captains", "args": {"captain": "maleh", "vice": "colombo"}, "split": "held"}
+{"en": "give the armband to esposito", "call": "fm_captains", "args": {"captain": "esposito"}, "split": "dev"}

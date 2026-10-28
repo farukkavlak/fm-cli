@@ -1,114 +1,114 @@
-{"tr": "gelen teklifler", "call": "fm_offers"}
-{"tr": "oyuncularıma teklif var mı", "call": "fm_offers"}
-{"tr": "kim kime teklif yapmış", "call": "fm_offers"}
-{"tr": "bekleyen transfer teklifleri", "call": "fm_offers"}
-{"tr": "rinaldiye teklif gelmiş mi", "call": "fm_offers"}
-{"tr": "teklifler", "call": "fm_offers"}
-{"tr": "tekliflr", "call": "fm_offers"}
-{"tr": "1. teklifin detayı", "call": "fm_offers", "args": {"offer": "1", "answer": "view"}}
-{"tr": "rinaldi teklifini göster", "call": "fm_offers", "args": {"offer": "rinaldi", "answer": "view"}}
-{"tr": "rinaldi teklifini kabul et", "call": "fm_offers", "args": {"offer": "rinaldi", "answer": "accept"}}
-{"tr": "2. teklifi reddet", "call": "fm_offers", "args": {"offer": "2", "answer": "reject"}}
-{"tr": "tosto teklifini oyala", "call": "fm_offers", "args": {"offer": "tosto", "answer": "stall"}}
-{"tr": "ghiglione için gelen teklife hayır", "call": "fm_offers", "args": {"offer": "ghiglione", "answer": "reject"}}
-{"tr": "fazzini teklifini bekletelim", "call": "fm_offers", "args": {"offer": "fazzini", "answer": "stall"}}
-{"tr": "gelen teklifleri hepsini reddet", "call": "fm_offers", "ask": "offer"}
-{"tr": "rinaldi teklfini kabl et", "call": "fm_offers", "args": {"offer": "rinaldi", "answer": "accept"}}
-{"en": "incoming offers", "call": "fm_offers"}
-{"en": "any bids for my players", "call": "fm_offers"}
-{"en": "view offer 1", "call": "fm_offers", "args": {"offer": "1", "answer": "view"}}
-{"en": "accept the rinaldi bid", "call": "fm_offers", "args": {"offer": "rinaldi", "answer": "accept"}}
-{"en": "reject offer 2", "call": "fm_offers", "args": {"offer": "2", "answer": "reject"}}
-{"en": "stall the tosto offer", "call": "fm_offers", "args": {"offer": "tosto", "answer": "stall"}}
-{"en": "turn down the bid for ghiglione", "call": "fm_offers", "args": {"offer": "ghiglione", "answer": "reject"}}
-{"tr": "rinaldiyi sat", "call": "fm_propose", "args": {"player": "rinaldi"}}
-{"tr": "rinaldiyi 5 milyona satışa çıkar", "call": "fm_propose", "args": {"player": "rinaldi", "fee": "5M"}}
-{"tr": "tostoyu kulüplere öner 2M", "call": "fm_propose", "args": {"player": "tosto", "fee": "2M"}}
-{"tr": "ghiglione satılık 3 milyon", "call": "fm_propose", "args": {"player": "ghiglione", "fee": "3M"}}
-{"tr": "fazziniyi kiralık ver", "call": "fm_propose", "args": {"player": "fazzini", "loan": true}}
-{"tr": "marini kiraya gönder gelişsin", "call": "fm_propose", "args": {"player": "marin", "loan": true}}
-{"tr": "colomboyu elden çıkar", "call": "fm_propose", "args": {"player": "colombo"}, "or": [{"call": "fm_release", "args": {"player": "colombo"}}]}
-{"tr": "esposito 1.5m ye gitsin", "call": "fm_propose", "args": {"player": "esposito", "fee": "1.5M"}}
-{"tr": "maleh i satmak istiyorum 800 bin", "call": "fm_propose", "args": {"player": "maleh", "fee": "800K"}}
-{"tr": "gyasiyi pazarla", "call": "fm_propose", "args": {"player": "gyasi"}}
-{"tr": "rinaldyi 5mye sat", "call": "fm_propose", "args": {"player": "rinaldy", "fee": "5M"}}
-{"en": "sell rinaldi", "call": "fm_propose", "args": {"player": "rinaldi"}}
-{"en": "offer tosto to clubs for 2m", "call": "fm_propose", "args": {"player": "tosto", "fee": "2M"}}
-{"en": "loan out fazzini", "call": "fm_propose", "args": {"player": "fazzini", "loan": true}}
-{"en": "send marin on loan", "call": "fm_propose", "args": {"player": "marin", "loan": true}}
-{"en": "shop ghiglione around at 3m", "call": "fm_propose", "args": {"player": "ghiglione", "fee": "3M"}}
-{"en": "get rid of gyasi", "call": "fm_propose", "args": {"player": "gyasi"}, "or": [{"call": "fm_release", "args": {"player": "gyasi"}}]}
-{"tr": "colombonun sözleşmesini fesh et", "call": "fm_release", "args": {"player": "colombo"}}
-{"tr": "colomboyu serbest bırak", "call": "fm_release", "args": {"player": "colombo", "free": true}}
-{"tr": "tostoyla karşılıklı anlaşarak yollarımızı ayıralım", "call": "fm_release", "args": {"player": "tosto", "mutual": true}}
-{"tr": "maleh i bedavaya gönder", "call": "fm_release", "args": {"player": "maleh", "free": true}}
-{"tr": "esposito ile sözleşmeyi karşılıklı feshet", "call": "fm_release", "args": {"player": "esposito", "mutual": true}}
-{"tr": "gyasiyi kovalım", "call": "fm_release", "args": {"player": "gyasi"}}
-{"tr": "marin ile yollari ayir", "call": "fm_release", "args": {"player": "marin"}}
-{"en": "release colombo", "call": "fm_release", "args": {"player": "colombo", "free": true}}
-{"en": "terminate tosto's contract by mutual consent", "call": "fm_release", "args": {"player": "tosto", "mutual": true}}
-{"en": "cut maleh", "call": "fm_release", "args": {"player": "maleh"}}
-{"en": "how can i release esposito", "call": "fm_release", "args": {"player": "esposito"}}
-{"tr": "sözleşme görüşmesi", "call": "fm_contract"}
-{"tr": "açık sözleşme görüşmesini göster", "call": "fm_contract"}
-{"tr": "rinaldiye yeni sözleşme öner", "call": "fm_contract", "args": {"name": "rinaldi"}}
-{"tr": "ghiglionenin sözleşmesini uzat", "call": "fm_contract", "args": {"name": "ghiglione"}}
-{"tr": "tosto ile kontrat yenile", "call": "fm_contract", "args": {"name": "tosto"}}
-{"tr": "fazzininin menajerine uzatmaya açık mı diye sor", "call": "fm_contract", "args": {"name": "fazzini", "agent": true}}
-{"tr": "maaşı 20 bin yap", "call": "fm_contract", "args": {"wage": "20K"}}
-{"tr": "haftalık 15000 teklif et", "call": "fm_contract", "args": {"wage": "15000"}}
-{"tr": "sözleşmeyi 3 yıl yap", "call": "fm_contract", "args": {"terms": ["Contract Length=3 years"]}}
-{"tr": "yıllık maaş artışı yüzde 10 ekle", "call": "fm_contract", "args": {"terms": ["Yearly Wage Rise=10%"]}}
-{"tr": "maça çıkma primini kaldır", "call": "fm_contract", "args": {"terms": ["Appearance Fee=remove"]}}
-{"tr": "kaptan yapacağım sözünü ekle", "call": "fm_contract", "args": {"terms": ["Will appoint player as captain"]}}
-{"tr": "sözleri tamam maddelere geç", "call": "fm_contract", "args": {"next": true}}
-{"tr": "sözleşmeyi imzala", "call": "fm_contract", "args": {"sign": true}}
-{"tr": "teklifi menajere sun", "call": "fm_contract", "args": {"sign": true}}
-{"tr": "görüşmeyi iptal et", "call": "fm_contract", "args": {"cancel": true}}
-{"tr": "sözleşme görüşmesinden çık", "call": "fm_contract", "args": {"cancel": true}}
-{"tr": "maaş 25k 4 yıl imzala", "call": "fm_contract", "args": {"wage": "25K", "terms": ["Contract Length=4 years"], "sign": true}}
-{"tr": "menajer ücretini 500 bin yap", "call": "fm_contract", "args": {"terms": ["Agent Fee=500K"]}}
-{"tr": "serbest kalma maddesi 20 milyon", "call": "fm_contract", "args": {"terms": ["Minimum Fee Release Clause=20M"]}}
-{"tr": "rinaldinin kontratini uzat 3 yil", "call": "fm_contract", "args": {"name": "rinaldi", "terms": ["Contract Length=3 years"]}}
-{"en": "contract talks", "call": "fm_contract"}
-{"en": "offer rinaldi a new contract", "call": "fm_contract", "args": {"name": "rinaldi"}}
-{"en": "renew ghiglione", "call": "fm_contract", "args": {"name": "ghiglione"}}
-{"en": "ask fazzini's agent if he'd renew", "call": "fm_contract", "args": {"name": "fazzini", "agent": true}}
-{"en": "wage 20k", "call": "fm_contract", "args": {"wage": "20K"}}
-{"en": "make it a 3 year deal", "call": "fm_contract", "args": {"terms": ["Contract Length=3 years"]}}
-{"en": "add 10% yearly wage rise", "call": "fm_contract", "args": {"terms": ["Yearly Wage Rise=10%"]}}
-{"en": "drop the appearance fee", "call": "fm_contract", "args": {"terms": ["Appearance Fee=remove"]}}
-{"en": "move on to the terms", "call": "fm_contract", "args": {"next": true}}
-{"en": "sign it", "call": "fm_contract", "args": {"sign": true}}
-{"en": "walk away from the talks", "call": "fm_contract", "args": {"cancel": true}}
-{"en": "20m release clause", "call": "fm_contract", "args": {"terms": ["Minimum Fee Release Clause=20M"]}}
-{"tr": "kadro kaydı", "call": "fm_register"}
-{"tr": "lig kadro listesi", "call": "fm_register"}
-{"tr": "kadroyu lige bildir", "call": "fm_register", "args": {"send": true}}
-{"tr": "kadro listesini gönder", "call": "fm_register", "args": {"send": true}}
-{"tr": "listeye marini ekle", "call": "fm_register", "args": {"add": ["marin"]}}
-{"tr": "rinaldi ve tostoyu listeden çıkar", "call": "fm_register", "args": {"remove": ["rinaldi", "tosto"]}}
-{"tr": "kadro kaydını yardımcı yapsın", "call": "fm_register", "args": {"auto": true}}
-{"tr": "kadroyu otomatik kaydet ve gönder", "call": "fm_register", "args": {"auto": true, "send": true}}
-{"tr": "yerli kuralına uyuyo muyuz", "call": "fm_register"}
-{"tr": "kadro kayıt kuralları", "call": "fm_register"}
-{"tr": "avrupa kadrosuna gyasiyi koy", "call": "fm_register", "args": {"add": ["gyasi"]}}
-{"tr": "kadro belirlenecek mesajı geldi hallet", "call": "fm_register", "args": {"auto": true, "send": true}}
-{"en": "squad registration", "call": "fm_register"}
-{"en": "register marin", "call": "fm_register", "args": {"add": ["marin"]}}
-{"en": "unregister rinaldi and tosto", "call": "fm_register", "args": {"remove": ["rinaldi", "tosto"]}}
-{"en": "auto register and submit", "call": "fm_register", "args": {"auto": true, "send": true}}
-{"en": "submit the squad list", "call": "fm_register", "args": {"send": true}}
-{"en": "do we meet the homegrown rules", "call": "fm_register"}
-{"tr": "forma numaraları", "call": "fm_numbers"}
-{"tr": "kim kaç numara giyiyo", "call": "fm_numbers"}
-{"tr": "boş numaralar hangileri", "call": "fm_numbers"}
-{"tr": "rinaldi 9 numarayı giysin", "call": "fm_numbers", "args": {"player": "rinaldi", "number": 9}}
-{"tr": "marine 10 numara ver", "call": "fm_numbers", "args": {"player": "marin", "number": 10}}
-{"tr": "numaraları yardımcı dağıtsın", "call": "fm_numbers", "args": {"auto": true}}
-{"tr": "numaraları kaydet", "call": "fm_numbers", "args": {"send": true}}
-{"tr": "yeni transfer kaç numara istedi", "call": "fm_numbers"}
-{"en": "squad numbers", "call": "fm_numbers"}
-{"en": "give rinaldi the number 9", "call": "fm_numbers", "args": {"player": "rinaldi", "number": 9}}
-{"en": "auto assign shirt numbers", "call": "fm_numbers", "args": {"auto": true}}
-{"en": "which numbers are free", "call": "fm_numbers"}
+{"tr": "gelen teklifler", "call": "fm_offers", "split": "dev"}
+{"tr": "oyuncularıma teklif var mı", "call": "fm_offers", "split": "dev"}
+{"tr": "kim kime teklif yapmış", "call": "fm_offers", "split": "final"}
+{"tr": "bekleyen transfer teklifleri", "call": "fm_offers", "split": "dev"}
+{"tr": "rinaldiye teklif gelmiş mi", "call": "fm_offers", "split": "dev"}
+{"tr": "teklifler", "call": "fm_offers", "split": "dev"}
+{"tr": "tekliflr", "call": "fm_offers", "split": "dev"}
+{"tr": "1. teklifin detayı", "call": "fm_offers", "args": {"offer": "1", "answer": "view"}, "split": "held"}
+{"tr": "rinaldi teklifini göster", "call": "fm_offers", "args": {"offer": "rinaldi", "answer": "view"}, "split": "held"}
+{"tr": "rinaldi teklifini kabul et", "call": "fm_offers", "args": {"offer": "rinaldi", "answer": "accept"}, "split": "held"}
+{"tr": "2. teklifi reddet", "call": "fm_offers", "args": {"offer": "2", "answer": "reject"}, "split": "dev"}
+{"tr": "tosto teklifini oyala", "call": "fm_offers", "args": {"offer": "tosto", "answer": "stall"}, "split": "dev"}
+{"tr": "ghiglione için gelen teklife hayır", "call": "fm_offers", "args": {"offer": "ghiglione", "answer": "reject"}, "split": "held"}
+{"tr": "fazzini teklifini bekletelim", "call": "fm_offers", "args": {"offer": "fazzini", "answer": "stall"}, "split": "held"}
+{"tr": "gelen teklifleri hepsini reddet", "call": "fm_offers", "ask": "offer", "split": "dev"}
+{"tr": "rinaldi teklfini kabl et", "call": "fm_offers", "args": {"offer": "rinaldi", "answer": "accept"}, "split": "held"}
+{"en": "incoming offers", "call": "fm_offers", "split": "held"}
+{"en": "any bids for my players", "call": "fm_offers", "split": "dev"}
+{"en": "view offer 1", "call": "fm_offers", "args": {"offer": "1", "answer": "view"}, "split": "dev"}
+{"en": "accept the rinaldi bid", "call": "fm_offers", "args": {"offer": "rinaldi", "answer": "accept"}, "split": "dev"}
+{"en": "reject offer 2", "call": "fm_offers", "args": {"offer": "2", "answer": "reject"}, "split": "dev"}
+{"en": "stall the tosto offer", "call": "fm_offers", "args": {"offer": "tosto", "answer": "stall"}, "split": "dev"}
+{"en": "turn down the bid for ghiglione", "call": "fm_offers", "args": {"offer": "ghiglione", "answer": "reject"}, "split": "held"}
+{"tr": "rinaldiyi sat", "call": "fm_propose", "args": {"player": "rinaldi"}, "split": "final"}
+{"tr": "rinaldiyi 5 milyona satışa çıkar", "call": "fm_propose", "args": {"player": "rinaldi", "fee": "5M"}, "split": "held"}
+{"tr": "tostoyu kulüplere öner 2M", "call": "fm_propose", "args": {"player": "tosto", "fee": "2M"}, "split": "dev"}
+{"tr": "ghiglione satılık 3 milyon", "call": "fm_propose", "args": {"player": "ghiglione", "fee": "3M"}, "split": "final"}
+{"tr": "fazziniyi kiralık ver", "call": "fm_propose", "args": {"player": "fazzini", "loan": true}, "split": "dev"}
+{"tr": "marini kiraya gönder gelişsin", "call": "fm_propose", "args": {"player": "marin", "loan": true}, "split": "dev"}
+{"tr": "colomboyu elden çıkar", "call": "fm_propose", "args": {"player": "colombo"}, "or": [{"call": "fm_release", "args": {"player": "colombo"}}], "split": "final"}
+{"tr": "esposito 1.5m ye gitsin", "call": "fm_propose", "args": {"player": "esposito", "fee": "1.5M"}, "split": "held"}
+{"tr": "maleh i satmak istiyorum 800 bin", "call": "fm_propose", "args": {"player": "maleh", "fee": "800K"}, "split": "dev"}
+{"tr": "gyasiyi pazarla", "call": "fm_propose", "args": {"player": "gyasi"}, "split": "dev"}
+{"tr": "rinaldyi 5mye sat", "call": "fm_propose", "args": {"player": "rinaldy", "fee": "5M"}, "split": "dev"}
+{"en": "sell rinaldi", "call": "fm_propose", "args": {"player": "rinaldi"}, "split": "held"}
+{"en": "offer tosto to clubs for 2m", "call": "fm_propose", "args": {"player": "tosto", "fee": "2M"}, "split": "held"}
+{"en": "loan out fazzini", "call": "fm_propose", "args": {"player": "fazzini", "loan": true}, "split": "final"}
+{"en": "send marin on loan", "call": "fm_propose", "args": {"player": "marin", "loan": true}, "split": "dev"}
+{"en": "shop ghiglione around at 3m", "call": "fm_propose", "args": {"player": "ghiglione", "fee": "3M"}, "split": "dev"}
+{"en": "get rid of gyasi", "call": "fm_propose", "args": {"player": "gyasi"}, "or": [{"call": "fm_release", "args": {"player": "gyasi"}}], "split": "dev"}
+{"tr": "colombonun sözleşmesini fesh et", "call": "fm_release", "args": {"player": "colombo"}, "split": "dev"}
+{"tr": "colomboyu serbest bırak", "call": "fm_release", "args": {"player": "colombo", "free": true}, "split": "dev"}
+{"tr": "tostoyla karşılıklı anlaşarak yollarımızı ayıralım", "call": "fm_release", "args": {"player": "tosto", "mutual": true}, "split": "dev"}
+{"tr": "maleh i bedavaya gönder", "call": "fm_release", "args": {"player": "maleh", "free": true}, "split": "final"}
+{"tr": "esposito ile sözleşmeyi karşılıklı feshet", "call": "fm_release", "args": {"player": "esposito", "mutual": true}, "split": "final"}
+{"tr": "gyasiyi kovalım", "call": "fm_release", "args": {"player": "gyasi"}, "split": "held"}
+{"tr": "marin ile yollari ayir", "call": "fm_release", "args": {"player": "marin"}, "split": "held"}
+{"en": "release colombo", "call": "fm_release", "args": {"player": "colombo", "free": true}, "split": "held"}
+{"en": "terminate tosto's contract by mutual consent", "call": "fm_release", "args": {"player": "tosto", "mutual": true}, "split": "dev"}
+{"en": "cut maleh", "call": "fm_release", "args": {"player": "maleh"}, "split": "final"}
+{"en": "how can i release esposito", "call": "fm_release", "args": {"player": "esposito"}, "split": "dev"}
+{"tr": "sözleşme görüşmesi", "call": "fm_contract", "split": "final"}
+{"tr": "açık sözleşme görüşmesini göster", "call": "fm_contract", "split": "final"}
+{"tr": "rinaldiye yeni sözleşme öner", "call": "fm_contract", "args": {"name": "rinaldi"}, "split": "dev"}
+{"tr": "ghiglionenin sözleşmesini uzat", "call": "fm_contract", "args": {"name": "ghiglione"}, "split": "dev"}
+{"tr": "tosto ile kontrat yenile", "call": "fm_contract", "args": {"name": "tosto"}, "split": "dev"}
+{"tr": "fazzininin menajerine uzatmaya açık mı diye sor", "call": "fm_contract", "args": {"name": "fazzini", "agent": true}, "split": "dev"}
+{"tr": "maaşı 20 bin yap", "call": "fm_contract", "args": {"wage": "20K"}, "split": "dev"}
+{"tr": "haftalık 15000 teklif et", "call": "fm_contract", "args": {"wage": "15000"}, "split": "final"}
+{"tr": "sözleşmeyi 3 yıl yap", "call": "fm_contract", "args": {"terms": ["Contract Length=3 years"]}, "split": "dev"}
+{"tr": "yıllık maaş artışı yüzde 10 ekle", "call": "fm_contract", "args": {"terms": ["Yearly Wage Rise=10%"]}, "split": "final"}
+{"tr": "maça çıkma primini kaldır", "call": "fm_contract", "args": {"terms": ["Appearance Fee=remove"]}, "split": "dev"}
+{"tr": "kaptan yapacağım sözünü ekle", "call": "fm_contract", "args": {"terms": ["Will appoint player as captain"]}, "split": "dev"}
+{"tr": "sözleri tamam maddelere geç", "call": "fm_contract", "args": {"next": true}, "split": "held"}
+{"tr": "sözleşmeyi imzala", "call": "fm_contract", "args": {"sign": true}, "split": "final"}
+{"tr": "teklifi menajere sun", "call": "fm_contract", "args": {"sign": true}, "split": "dev"}
+{"tr": "görüşmeyi iptal et", "call": "fm_contract", "args": {"cancel": true}, "split": "held"}
+{"tr": "sözleşme görüşmesinden çık", "call": "fm_contract", "args": {"cancel": true}, "split": "final"}
+{"tr": "maaş 25k 4 yıl imzala", "call": "fm_contract", "args": {"wage": "25K", "terms": ["Contract Length=4 years"], "sign": true}, "split": "dev"}
+{"tr": "menajer ücretini 500 bin yap", "call": "fm_contract", "args": {"terms": ["Agent Fee=500K"]}, "split": "held"}
+{"tr": "serbest kalma maddesi 20 milyon", "call": "fm_contract", "args": {"terms": ["Minimum Fee Release Clause=20M"]}, "split": "dev"}
+{"tr": "rinaldinin kontratini uzat 3 yil", "call": "fm_contract", "args": {"name": "rinaldi", "terms": ["Contract Length=3 years"]}, "split": "final"}
+{"en": "contract talks", "call": "fm_contract", "split": "final"}
+{"en": "offer rinaldi a new contract", "call": "fm_contract", "args": {"name": "rinaldi"}, "split": "dev"}
+{"en": "renew ghiglione", "call": "fm_contract", "args": {"name": "ghiglione"}, "split": "dev"}
+{"en": "ask fazzini's agent if he'd renew", "call": "fm_contract", "args": {"name": "fazzini", "agent": true}, "split": "dev"}
+{"en": "wage 20k", "call": "fm_contract", "args": {"wage": "20K"}, "split": "dev"}
+{"en": "make it a 3 year deal", "call": "fm_contract", "args": {"terms": ["Contract Length=3 years"]}, "split": "dev"}
+{"en": "add 10% yearly wage rise", "call": "fm_contract", "args": {"terms": ["Yearly Wage Rise=10%"]}, "split": "dev"}
+{"en": "drop the appearance fee", "call": "fm_contract", "args": {"terms": ["Appearance Fee=remove"]}, "split": "held"}
+{"en": "move on to the terms", "call": "fm_contract", "args": {"next": true}, "split": "held"}
+{"en": "sign it", "call": "fm_contract", "args": {"sign": true}, "split": "dev"}
+{"en": "walk away from the talks", "call": "fm_contract", "args": {"cancel": true}, "split": "held"}
+{"en": "20m release clause", "call": "fm_contract", "args": {"terms": ["Minimum Fee Release Clause=20M"]}, "split": "dev"}
+{"tr": "kadro kaydı", "call": "fm_register", "split": "dev"}
+{"tr": "lig kadro listesi", "call": "fm_register", "split": "dev"}
+{"tr": "kadroyu lige bildir", "call": "fm_register", "args": {"send": true}, "split": "dev"}
+{"tr": "kadro listesini gönder", "call": "fm_register", "args": {"send": true}, "split": "dev"}
+{"tr": "listeye marini ekle", "call": "fm_register", "args": {"add": ["marin"]}, "split": "dev"}
+{"tr": "rinaldi ve tostoyu listeden çıkar", "call": "fm_register", "args": {"remove": ["rinaldi", "tosto"]}, "split": "dev"}
+{"tr": "kadro kaydını yardımcı yapsın", "call": "fm_register", "args": {"auto": true}, "split": "held"}
+{"tr": "kadroyu otomatik kaydet ve gönder", "call": "fm_register", "args": {"auto": true, "send": true}, "split": "held"}
+{"tr": "yerli kuralına uyuyo muyuz", "call": "fm_register", "split": "dev"}
+{"tr": "kadro kayıt kuralları", "call": "fm_register", "split": "dev"}
+{"tr": "avrupa kadrosuna gyasiyi koy", "call": "fm_register", "args": {"add": ["gyasi"]}, "split": "dev"}
+{"tr": "kadro belirlenecek mesajı geldi hallet", "call": "fm_register", "args": {"auto": true, "send": true}, "split": "final"}
+{"en": "squad registration", "call": "fm_register", "split": "dev"}
+{"en": "register marin", "call": "fm_register", "args": {"add": ["marin"]}, "split": "dev"}
+{"en": "unregister rinaldi and tosto", "call": "fm_register", "args": {"remove": ["rinaldi", "tosto"]}, "split": "dev"}
+{"en": "auto register and submit", "call": "fm_register", "args": {"auto": true, "send": true}, "split": "held"}
+{"en": "submit the squad list", "call": "fm_register", "args": {"send": true}, "split": "dev"}
+{"en": "do we meet the homegrown rules", "call": "fm_register", "split": "dev"}
+{"tr": "forma numaraları", "call": "fm_numbers", "split": "dev"}
+{"tr": "kim kaç numara giyiyo", "call": "fm_numbers", "split": "dev"}
+{"tr": "boş numaralar hangileri", "call": "fm_numbers", "split": "dev"}
+{"tr": "rinaldi 9 numarayı giysin", "call": "fm_numbers", "args": {"player": "rinaldi", "number": 9}, "split": "dev"}
+{"tr": "marine 10 numara ver", "call": "fm_numbers", "args": {"player": "marin", "number": 10}, "split": "final"}
+{"tr": "numaraları yardımcı dağıtsın", "call": "fm_numbers", "args": {"auto": true}, "split": "dev"}
+{"tr": "numaraları kaydet", "call": "fm_numbers", "args": {"send": true}, "split": "dev"}
+{"tr": "yeni transfer kaç numara istedi", "call": "fm_numbers", "split": "dev"}
+{"en": "squad numbers", "call": "fm_numbers", "split": "dev"}
+{"en": "give rinaldi the number 9", "call": "fm_numbers", "args": {"player": "rinaldi", "number": 9}, "split": "dev"}
+{"en": "auto assign shirt numbers", "call": "fm_numbers", "args": {"auto": true}, "split": "final"}
+{"en": "which numbers are free", "call": "fm_numbers", "split": "dev"}

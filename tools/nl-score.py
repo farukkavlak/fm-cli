@@ -9,8 +9,9 @@ writes one per line on stdout, in the same order:
   {"call": ["fm_squad", "fm_tactic"], "args": [{}, {}]}
   {"call": null}
 
-A case is split into "dev" (rules may be tuned on it) or "held" (never looked at while tuning)
-by a hash of its sentence; a noisy variant from tests/nl/expanded/ follows the case it came from.
+Each case says its side in "split" (tools/nl_family.py): "dev" (rules may be tuned on it), "held"
+(never looked at while tuning) or "final" (left out unless --final; only to confirm a decision,
+never listed by --fails). A noisy variant from tests/nl/expanded/ follows the case it came from.
 Metrics, per set and split (names and meanings in tests/nl/README.md): top-1, recall@3,
 recall@5, tool+args, ask, multi, none, false none. recall@k needs the router's "votes" (fm __route
 --model gives them). --save writes the numbers with a manifest (data hash, split, model SHA,
@@ -22,6 +23,7 @@ commit, machine) to tests/nl/results/; numbers quoted in docs come from such a f
   tools/nl-score.py --given-tool              # the argument readers alone: each case's own tool handed to fm __route
   tools/nl-score.py --given-tool --set train  # the same on the training-only sentences of tests/nl/train/
   tools/nl-score.py --router "fm __route --model ~/.cache/fm-cli/nl/model" --save   # keep the result
+  tools/nl-score.py --router "..." --final --save NAME   # confirm a decision on the final set too
 """
 import argparse
 import hashlib
@@ -38,14 +40,15 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from nl_family import RULE as SPLIT_RULE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 CASES = ROOT / "tests/nl"
 EXPANDED = CASES / "expanded/all.jsonl"
 RESULTS = CASES / "results"
 FM = ROOT / "cli/fm/bin/Debug/net10.0/fm"
 CONFIRM = {"yes", "confirm", "send"}
-HELD = 3  # of every 10 cases
-SPLIT_RULE = f"sha1(sentence) % 10 < {HELD} is held"
 METRICS = ("top-1", "recall@3", "recall@5", "tool+args", "ask", "multi", "none", "false none")
 
 
@@ -53,10 +56,6 @@ def fold(s):
 	s = str(s).lower().replace("ı", "i").replace("i̇", "i")
 	s = "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
 	return re.sub(r"[^a-z0-9.]+", " ", s).strip()
-
-
-def split_of(text):
-	return "held" if int(hashlib.sha1(text.encode()).hexdigest(), 16) % 10 < HELD else "dev"
 
 
 def load(which):
@@ -69,7 +68,6 @@ def load(which):
 			c["lang"] = "tr" if "tr" in c else "en"
 			c["text"] = c[c["lang"]]
 			c["group"] = f.stem
-			c["split"] = split_of(c["text"])
 			by_ref[f"{f.name}:{n}"] = c
 			base.append(c)
 	sets = {}
@@ -240,7 +238,7 @@ def git(*args):
 	return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True).stdout.strip()
 
 
-def manifest(cmd, which, given_tool):
+def manifest(cmd, which, given_tool, final):
 	"""Everything needed to tell two results apart, or to get the same one again."""
 	words = shlex.split(cmd) if isinstance(cmd, str) else cmd
 	model = None
@@ -262,6 +260,7 @@ def manifest(cmd, which, given_tool):
 		"model": model,
 		"data": data,
 		"split": SPLIT_RULE,
+		"final_scored": final,
 		"commit": git("rev-parse", "--short", "HEAD"),
 		# uncommitted changes to what decides the numbers (docs and saved results do not)
 		"dirty": bool(git("status", "--porcelain", "--", "cli", "tools", "tests/nl/*.jsonl", "tests/nl/train")),
@@ -279,6 +278,7 @@ def main():
 	ap.add_argument("--by", choices=["group", "lang", "tool", "kind"], action="append", default=[], help="breakdown")
 	ap.add_argument("--json", action="store_true", help="print the totals as JSON")
 	ap.add_argument("--save", nargs="?", const="", metavar="NAME", help="write the totals and a manifest to tests/nl/results/ (NAME defaults to date + model)")
+	ap.add_argument("--final", action="store_true", help="score the final set too (only to confirm a decision)")
 	ap.add_argument("--given-tool", action="store_true", help="hand each case's own tool to fm __route: the argument readers alone")
 	a = ap.parse_args()
 	cmd = a.router or [str(FM), "__route"]
@@ -286,6 +286,7 @@ def main():
 	for name, cases in load(a.set).items():
 		if a.group:
 			cases = [c for c in cases if c["group"].startswith(a.group)]
+		cases = [c for c in cases if a.final or c["split"] != "final"]
 		if a.given_tool:
 			cases = [c for c in cases if isinstance(c.get("call"), str) and (name != "train" or "args" in c or "ask" in c)]
 			outs, took = run_router([str(FM), "__route"], [c["text"] for c in cases], [c["call"] for c in cases])
@@ -295,7 +296,7 @@ def main():
 		print(f"\n== {name}: {len(cases)} sentences, {1000 * took / max(len(cases), 1):.2f} ms each (whole run {took:.1f} s)")
 		print(f"{'':10}{'n':>6}" + "".join(f" {m:>{max(len(m), 6) + 1}}" for m in METRICS))
 		totals[name] = {}
-		for sp in ("dev", "held", "all"):
+		for sp in ("dev", "held", *(["final"] if a.final else []), "all"):
 			rs = [r for r in rows if sp == "all" or r[0]["split"] == sp]
 			by_kind = defaultdict(lambda: [0, 0])
 			for c, o, t, ok, kind, _ in rs:
@@ -328,7 +329,7 @@ def main():
 			for k, (t, ok, n) in sorted(agg.items(), key=lambda kv: kv[1][1] / kv[1][2]):
 				print(f"  {k:28}{n:>6} {pct(t, n):>7} {pct(ok, n):>10}")
 		if a.fails and name == next(iter(load(a.set))):
-			fails = [r for r in rows if not r[3] and (a.split == "all" or r[0]["split"] == a.split)]
+			fails = [r for r in rows if not r[3] and r[0]["split"] != "final" and (a.split == "all" or r[0]["split"] == a.split)]
 			conf = Counter((str(r[0].get("call")), str(r[1].get("call"))) for r in fails if not r[2])
 			print(f"\n  most confused (want → got):")
 			for (w, g), n in conf.most_common(15):
@@ -340,7 +341,7 @@ def main():
 	if a.json:
 		print(json.dumps(totals))
 	if a.save is not None:
-		m = manifest([str(FM), "__route"] if a.given_tool else cmd, a.set, a.given_tool)
+		m = manifest([str(FM), "__route"] if a.given_tool else cmd, a.set, a.given_tool, a.final)
 		tag = a.save or "-".join(x for x in (datetime.now().strftime("%Y-%m-%d-%H%M"), (m["model"] or {}).get("name") or ("readers" if a.given_tool else "rules"), a.set) if x)
 		RESULTS.mkdir(exist_ok=True)
 		out = RESULTS / f"{tag}.json"

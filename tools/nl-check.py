@@ -3,6 +3,8 @@
 
 Every case must name real tools with real arguments: names from the tool's schema, enum values
 from its list, required arguments present (unless the case says the router must ask for them).
+Every test case has its side ("split": dev, held or final) and no family of near-copies crosses
+sides, training sentences included (tools/nl_family.py; tools/nl-split.py fills in new cases).
 Prints counts per file, language and tool, and the tools with no case. Exit 1 on any error.
 
   tools/nl-check.py            # check and summarise
@@ -13,6 +15,9 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from nl_family import SPLITS, families, rows  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS_CS = ROOT / "cli/fm/Core/Mcp.Tools.cs"
@@ -84,6 +89,17 @@ def check_entry(tools, entry, where, errors, per_tool):
 	return "ask" if "ask" in entry else "single"
 
 
+def check_families(errors):
+	"""Near-copies on two sides, or a training sentence near a held or final case, make held lie."""
+	rs = rows()
+	for fam in families(rs):
+		sides = {rs[i]["split"] for i in fam if rs[i]["test"]}
+		near = [rs[i] for i in fam if not rs[i]["test"]]
+		if len(sides) > 1 or (near and sides - {"dev"}):
+			who = "; ".join(f"{rs[i]['where']} {rs[i]['split'] or 'train'} {rs[i]['text']!r}" for i in fam)
+			errors.append(f"near-copies on two sides (rewrite one, or move the family to one side): {who}")
+
+
 def main():
 	quiet = "--quiet" in sys.argv
 	tools = load_tools()
@@ -103,7 +119,8 @@ def main():
 			if len(langs) != 1:
 				errors.append(f"{where}: needs exactly one of \"tr\" / \"en\"")
 				continue
-			unknown = set(case) - {"tr", "en", "call", "args", "or", "ask"}
+			train = path.parent.name == "train"
+			unknown = set(case) - {"tr", "en", "call", "args", "or", "ask"} - (set() if train else {"split"})
 			if unknown:
 				errors.append(f"{where}: unknown keys {sorted(unknown)}")
 			text = case[langs[0]].strip().lower()
@@ -115,7 +132,9 @@ def main():
 			if "call" not in case:
 				errors.append(f"{where}: no \"call\"")
 				continue
-			if path.parent.name == "train":
+			if not train and case.get("split") not in SPLITS:
+				errors.append(f"{where}: no \"split\" (run tools/nl-split.py)")
+			if train:
 				# training-only: the tool is all the model learns from it
 				if case["call"] is not None and case["call"] not in tools:
 					errors.append(f"{where}: unknown tool {case['call']}")
@@ -124,6 +143,8 @@ def main():
 			kinds[kind] += 1
 			for alt in case.get("or", []):
 				check_entry(tools, alt, where + " (or)", errors, None)
+	if not errors:
+		check_families(errors)
 	for e in errors:
 		print(e)
 	if not quiet:

@@ -93,8 +93,8 @@ internal sealed class Neighbours
 	}
 
 	/// <summary>
-	/// The example sentences of a tests/nl folder: its dev cases (held ones, a hash of the
-	/// sentence like tools/nl-score.py, are left out unless asked for) and its train/ sentences.
+	/// The example sentences of a tests/nl folder: its dev cases (held and final ones, by their
+	/// "split", are left out unless asked for) and its train/ sentences.
 	/// </summary>
 	public static List<(string Text, string Call)> Examples(string dir, bool withHeld)
 	{
@@ -106,7 +106,7 @@ internal sealed class Neighbours
 				if (line.Trim().Length == 0) continue;
 				var c = JsonNode.Parse(line)!.AsObject();
 				var text = (c["tr"] ?? c["en"])!.GetValue<string>();
-				if (dev && !withHeld && Held(text)) continue;
+				if (dev && !withHeld && c["split"]?.GetValue<string>() != "dev") continue;
 				rows.Add((text, Canonical(c["call"])));
 			}
 		}
@@ -139,16 +139,6 @@ internal sealed class Neighbours
 
 	/// <summary>Whether the examples are embedded already for this model (else the first use takes a while).</summary>
 	public static bool Indexed(string cacheDir, List<(string Text, string Call)> examples) => File.Exists(CachePath(cacheDir, examples));
-
-	/// <summary>The held 30% of tests/nl: never in the index while scoring.</summary>
-	public static bool Held(string text)
-	{
-		var h = SHA1.HashData(Encoding.UTF8.GetBytes(text));
-		// the whole 160-bit hash as a number, mod 10 (as Python's int(hexdigest, 16) % 10)
-		var rem = 0;
-		foreach (var b in h) rem = (rem * 256 + b) % 10;
-		return rem < 3;
-	}
 
 	private static string Canonical(JsonNode? call) => call?.ToJsonString() ?? "null";
 }

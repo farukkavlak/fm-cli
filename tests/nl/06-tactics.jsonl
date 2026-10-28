@@ -1,203 +1,203 @@
-{"tr": "taktik", "call": "fm_tactic"}
-{"tr": "taktiği göster", "call": "fm_tactic"}
-{"tr": "ilk 11 kim", "call": "fm_tactic"}
-{"tr": "ilk on bir", "call": "fm_tactic"}
-{"tr": "kim oynuyo bu maç", "call": "fm_tactic"}
-{"tr": "diziliş ne", "call": "fm_tactic"}
-{"tr": "hangi formasyonla oynuyoz", "call": "fm_tactic"}
-{"tr": "taktik alışkanlığı nasıl", "call": "fm_tactic"}
-{"tr": "kimin rolü ne", "call": "fm_tactic"}
-{"tr": "mentalite ne", "call": "fm_tactic", "or": [{"call": "fm_tactic_set", "args": {"setting": "mentality"}}]}
-{"tr": "taktik ne abi", "call": "fm_tactic"}
-{"tr": "taktk", "call": "fm_tactic"}
-{"tr": "yedekler kim", "call": "fm_tactic"}
-{"tr": "sahaya kim çıkıyo", "call": "fm_tactic"}
-{"en": "tactic", "call": "fm_tactic"}
-{"en": "show the lineup", "call": "fm_tactic"}
-{"en": "starting xi", "call": "fm_tactic"}
-{"en": "what formation are we using", "call": "fm_tactic"}
-{"en": "whos starting", "call": "fm_tactic"}
-{"en": "tactical familiarity", "call": "fm_tactic"}
-{"en": "tacitc", "call": "fm_tactic"}
-{"tr": "mentaliteyi değiştir", "call": "fm_tactic_set", "args": {"setting": "mentality"}}
-{"tr": "mentalite seçenekleri", "call": "fm_tactic_set", "args": {"setting": "mentality"}}
-{"tr": "daha hücumcu oyna", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum"}}
-{"tr": "mentaliteyi hücum yap", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum"}}
-{"tr": "otobüsü çek", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Çok Defansif"}}
-{"tr": "kapan savunmaya", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defansif"}}
-{"tr": "skoru koru defansif oyna", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defansif"}}
-{"tr": "dengeli oynayalım", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Dengeli"}}
-{"tr": "full hücum herkes ileri", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Çok Hücum"}}
-{"tr": "pozitif mentalite", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Pozitif"}}
-{"tr": "temkinli oyna", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Temkinli"}}
-{"tr": "mentaliteyi 5 yap", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "5"}}
-{"tr": "hücum yapsam ne olur önce göster", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum", "dry": true}}
-{"tr": "oyun stili ne", "call": "fm_tactic_set", "args": {"setting": "style"}}
-{"tr": "oyun tarzını değiştir", "call": "fm_tactic_set", "args": {"setting": "style"}}
-{"tr": "stili gegenpress yap", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Gegenpress"}}
-{"tr": "kontra atak stiline geç", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Kontra"}}
-{"tr": "tiki taka oynayalım", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Tiki-Taka"}}
-{"tr": "gol lazım saldır", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum"}}
-{"en": "change mentality", "call": "fm_tactic_set", "args": {"setting": "mentality"}}
-{"en": "go attacking", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Attacking"}}
-{"en": "park the bus", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Very Defensive"}}
-{"en": "defensive mentality", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defensive"}}
-{"en": "balanced", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Balanced"}}
-{"en": "all out attack", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Very Attacking"}}
-{"en": "we need a goal, push up", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Attacking"}}
-{"en": "see out the game", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defensive"}}
-{"en": "set style to gegenpress", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Gegenpress"}}
-{"en": "what styles are there", "call": "fm_tactic_set", "args": {"setting": "style"}}
-{"en": "play counter attacking", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Counter"}}
-{"tr": "forvetin rolü ne olsun", "call": "fm_tactic_role", "args": {"position": "ST"}}
-{"tr": "santrforu hedef adam yap", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Target Forward"}}
-{"tr": "forveti pres forvet yap", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Pressing Forward"}}
-{"tr": "sağ beki kanat bek yap", "call": "fm_tactic_role", "args": {"position": "DR", "role": "Wing-Back"}}
-{"tr": "sol bek rolleri neler", "call": "fm_tactic_role", "args": {"position": "DL"}}
-{"tr": "dmc'yi derin oyun kurucu yap", "call": "fm_tactic_role", "args": {"position": "DM", "role": "Deep-Lying Playmaker"}}
-{"tr": "sol kanadı içe kat eden forvet yap", "call": "fm_tactic_role", "args": {"position": "AML", "role": "Inside Forward"}}
-{"tr": "10 numarayı gölge forvet yap", "call": "fm_tactic_role", "args": {"position": "AMC", "role": "Shadow Striker"}}
-{"tr": "kaleciyi libero kaleci yap", "call": "fm_tactic_role", "args": {"position": "GK", "role": "Sweeper Keeper"}}
-{"tr": "sol stoperin topsuz rolü ne", "call": "fm_tactic_role", "args": {"position": "DCL", "without_ball": true}}
-{"tr": "forvet topsuzken prese çıksın", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Press", "without_ball": true}}
-{"tr": "rinaldinin rolünü değiştir", "call": "fm_tactic_role", "args": {"position": "rinaldi"}}
-{"tr": "maçta ghiglione hücum bek olsun", "call": "fm_tactic_role", "args": {"position": "ghiglione", "role": "Attacking Full-Back"}}
-{"tr": "sağ kanat rolu", "call": "fm_tactic_role", "args": {"position": "AMR"}}
-{"en": "make the striker a target forward", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Target Forward"}}
-{"en": "roles for left back", "call": "fm_tactic_role", "args": {"position": "DL"}}
-{"en": "dm as deep lying playmaker", "call": "fm_tactic_role", "args": {"position": "DM", "role": "Deep-Lying Playmaker"}}
-{"en": "right back wing back", "call": "fm_tactic_role", "args": {"position": "DR", "role": "Wing-Back"}}
-{"en": "set keeper to sweeper keeper", "call": "fm_tactic_role", "args": {"position": "GK", "role": "Sweeper Keeper"}}
-{"en": "AML inside forward pls", "call": "fm_tactic_role", "args": {"position": "AML", "role": "Inside Forward"}}
-{"en": "out of possession role for the striker", "call": "fm_tactic_role", "args": {"position": "ST", "without_ball": true}}
-{"tr": "rinaldi forvette oynasın", "call": "fm_tactic_player", "args": {"position": "ST", "player": "rinaldi"}}
-{"tr": "kaleye pieragnolo geçsin", "call": "fm_tactic_player", "args": {"position": "GK", "player": "pieragnolo"}}
-{"tr": "sol beke tosto", "call": "fm_tactic_player", "args": {"position": "DL", "player": "tosto"}}
-{"tr": "sağ bekte ghiglione başlasın", "call": "fm_tactic_player", "args": {"position": "DR", "player": "ghiglione"}}
-{"tr": "fazzini 10 numarada oynasın", "call": "fm_tactic_player", "args": {"position": "AMC", "player": "fazzini"}}
-{"tr": "sağ stopere colombo", "call": "fm_tactic_player", "args": {"position": "DCR", "player": "colombo"}}
-{"tr": "esposito ilk 11e girsin", "call": "fm_tactic_player", "args": {"player": "esposito"}, "ask": "position"}
-{"tr": "gyasiyi sol kanada koy", "call": "fm_tactic_player", "args": {"position": "AML", "player": "gyasi"}}
-{"tr": "yedeklerde maleh yerine marin olsun", "call": "fm_tactic_player", "args": {"position": "maleh", "player": "marin"}}
-{"tr": "sakat yedeği değiştir marin gelsin", "call": "fm_tactic_player", "args": {"player": "marin"}, "ask": "position"}
-{"tr": "forvete rinaldi koy ama önce göster", "call": "fm_tactic_player", "args": {"position": "ST", "player": "rinaldi", "dry": true}}
-{"tr": "kalede tosto oynasin", "call": "fm_tactic_player", "args": {"position": "GK", "player": "tosto"}}
-{"en": "put rinaldi up front", "call": "fm_tactic_player", "args": {"position": "ST", "player": "rinaldi"}}
-{"en": "start pieragnolo in goal", "call": "fm_tactic_player", "args": {"position": "GK", "player": "pieragnolo"}}
-{"en": "tosto at left back", "call": "fm_tactic_player", "args": {"position": "DL", "player": "tosto"}}
-{"en": "fazzini in the AMC slot", "call": "fm_tactic_player", "args": {"position": "AMC", "player": "fazzini"}}
-{"en": "swap sub maleh for marin", "call": "fm_tactic_player", "args": {"position": "maleh", "player": "marin"}}
-{"en": "get esposito in the starting 11", "call": "fm_tactic_player", "args": {"player": "esposito"}, "ask": "position"}
-{"tr": "ilk 11i sen seç", "call": "fm_tactic_pick"}
-{"tr": "kadroyu otomatik seç", "call": "fm_tactic_pick"}
-{"tr": "hızlı seçim yap", "call": "fm_tactic_pick"}
-{"tr": "en iyi 11i koy", "call": "fm_tactic_pick"}
-{"tr": "ilk onbiri oyun belirlesin", "call": "fm_tactic_pick"}
-{"tr": "otomatik diz", "call": "fm_tactic_pick"}
-{"tr": "kadroyu yardımcı kursun", "call": "fm_tactic_pick"}
-{"tr": "en formda olanları oynat", "call": "fm_tactic_pick"}
-{"en": "quick pick", "call": "fm_tactic_pick"}
-{"en": "auto pick the team", "call": "fm_tactic_pick"}
-{"en": "pick the best xi", "call": "fm_tactic_pick"}
-{"en": "let the game choose the lineup", "call": "fm_tactic_pick"}
-{"tr": "takım talimatları", "call": "fm_tactic_instructions"}
-{"tr": "takım talimatlarını göster", "call": "fm_tactic_instructions"}
-{"tr": "topsuz talimatlar", "call": "fm_tactic_instructions", "args": {"without_ball": true}}
-{"tr": "savunma çizgisini yükselt", "call": "fm_tactic_instructions", "args": {"name": "Defansif Çizgi", "value": "Daha Yüksek"}}
-{"tr": "defans hattını geri çek", "call": "fm_tactic_instructions", "args": {"name": "Defansif Çizgi", "value": "Daha Düşük"}}
-{"tr": "daha çok pres yap", "call": "fm_tactic_instructions", "args": {"name": "Pres Sıklığı", "value": "Daha Fazla"}}
-{"tr": "sert müdahale etsinler", "call": "fm_tactic_instructions", "args": {"name": "Müdahale", "value": "Sert"}}
-{"tr": "ofsayt taktiği uygula", "call": "fm_tactic_instructions", "args": {"name": "Ofsayt Taktiği", "value": "Uygula"}}
-{"tr": "temponu arttır", "call": "fm_tactic_instructions", "args": {"name": "Tempo", "value": "Daha Yüksek"}}
-{"tr": "pas mesafesini kısalt", "call": "fm_tactic_instructions", "args": {"name": "Pas Mesafesi", "value": "Daha Kısa"}}
-{"tr": "zaman geçirsinler", "call": "fm_tactic_instructions", "args": {"name": "Zaman Geçirme", "value": "Daha Fazla"}}
-{"tr": "kontra presi aç", "call": "fm_tactic_instructions", "args": {"name": "Karşı Pres"}}
-{"tr": "kanatlardan oynasınlar", "call": "fm_tactic_instructions", "args": {"name": "Hücum Genişliği", "value": "Daha Geniş"}}
-{"tr": "pres hattı seçenekleri ne", "call": "fm_tactic_instructions", "args": {"name": "Pres Hattı"}}
-{"tr": "uzun top oynamasınlar", "call": "fm_tactic_instructions", "args": {"name": "Pas Mesafesi", "value": "Daha Kısa"}}
-{"tr": "kaleci topu hızlı dağıtsın", "call": "fm_tactic_instructions", "args": {"name": "Kaleci Dağıtımı"}}
-{"en": "team instructions", "call": "fm_tactic_instructions"}
-{"en": "out of possession instructions", "call": "fm_tactic_instructions", "args": {"without_ball": true}}
-{"en": "higher defensive line", "call": "fm_tactic_instructions", "args": {"name": "Defensive Line", "value": "Higher"}}
-{"en": "press more", "call": "fm_tactic_instructions", "args": {"name": "Pressing Intensity", "value": "More"}}
-{"en": "get stuck in", "call": "fm_tactic_instructions", "args": {"name": "Tackling", "value": "Harder"}}
-{"en": "play offside trap", "call": "fm_tactic_instructions", "args": {"name": "Offside Trap", "value": "Use"}}
-{"en": "waste time", "call": "fm_tactic_instructions", "args": {"name": "Time Wasting", "value": "More"}}
-{"en": "shorter passing", "call": "fm_tactic_instructions", "args": {"name": "Passing Directness", "value": "Shorter"}}
-{"en": "slow the tempo down", "call": "fm_tactic_instructions", "args": {"name": "Tempo", "value": "Lower"}}
-{"en": "what are the choices for line of engagement", "call": "fm_tactic_instructions", "args": {"name": "Line of Engagement"}}
-{"tr": "forvetin oyuncu talimatları", "call": "fm_tactic_pi", "args": {"position": "ST"}}
-{"tr": "rinaldi daha çok şut atsın", "call": "fm_tactic_pi", "args": {"position": "rinaldi", "name": "Şut", "value": "Daha Sık"}}
-{"tr": "sağ bek bindirme yapsın", "call": "fm_tactic_pi", "args": {"position": "DR", "name": "İleri Koşular", "value": "Daha Sık"}}
-{"tr": "sol bek ileri çıkmasın", "call": "fm_tactic_pi", "args": {"position": "DL", "name": "İleri Koşular", "value": "Daha Seyrek"}}
-{"tr": "gyasi daha çok çalım atsın", "call": "fm_tactic_pi", "args": {"position": "gyasi", "name": "Top Sürme", "value": "Daha Sık"}}
-{"tr": "10 numara riskli pas atmasın", "call": "fm_tactic_pi", "args": {"position": "AMC", "name": "Pas Riski", "value": "Daha Az"}}
-{"tr": "forvet prese çıksın", "call": "fm_tactic_pi", "args": {"position": "ST", "name": "Pres Tetikleme", "value": "Daha Fazla"}}
-{"tr": "dmc rakibin 10 numarasını tutsun", "call": "fm_tactic_pi", "args": {"position": "DM", "name": "Markaj Hedefi"}}
-{"tr": "sağ kanadın talimatları neler", "call": "fm_tactic_pi", "args": {"position": "AMR"}}
-{"tr": "fazzininin şut seçenekleri", "call": "fm_tactic_pi", "args": {"position": "fazzini", "name": "Şut"}}
-{"tr": "ghiglione daha az ileri çıksın", "call": "fm_tactic_pi", "args": {"position": "ghiglione", "name": "İleri Koşular", "value": "Daha Seyrek"}}
-{"en": "player instructions for the striker", "call": "fm_tactic_pi", "args": {"position": "ST"}}
-{"en": "rinaldi shoot more often", "call": "fm_tactic_pi", "args": {"position": "rinaldi", "name": "Shooting", "value": "More Often"}}
-{"en": "right back get forward more", "call": "fm_tactic_pi", "args": {"position": "DR", "name": "Forward Runs", "value": "More Often"}}
-{"en": "tell gyasi to dribble more", "call": "fm_tactic_pi", "args": {"position": "gyasi", "name": "Dribbling Frequency", "value": "More Often"}}
-{"en": "AMC take fewer risks with passes", "call": "fm_tactic_pi", "args": {"position": "AMC", "name": "Passing Risk", "value": "Less"}}
-{"en": "dm man mark their 10", "call": "fm_tactic_pi", "args": {"position": "DM", "name": "Marking Target"}}
-{"tr": "taktik slotları", "call": "fm_tactic_slot"}
-{"tr": "hangi taktik aktif", "call": "fm_tactic_slot"}
-{"tr": "kaç taktiğim var", "call": "fm_tactic_slot"}
-{"tr": "ikinci taktiğe geç", "call": "fm_tactic_slot", "args": {"slot": "2"}}
-{"tr": "3. taktiği aktif yap", "call": "fm_tactic_slot", "args": {"slot": "3"}}
-{"tr": "ilk taktiğe dön", "call": "fm_tactic_slot", "args": {"slot": "1"}}
-{"tr": "yedek taktiğe geç", "call": "fm_tactic_slot", "ask": "slot"}
-{"tr": "taktik 2 ye gec", "call": "fm_tactic_slot", "args": {"slot": "2"}}
-{"en": "tactic slots", "call": "fm_tactic_slot"}
-{"en": "switch to tactic 2", "call": "fm_tactic_slot", "args": {"slot": "2"}}
-{"en": "which tactic is active", "call": "fm_tactic_slot"}
-{"en": "back to slot 1", "call": "fm_tactic_slot", "args": {"slot": "1"}}
-{"tr": "taktiği kopyala", "call": "fm_tactic_copy"}
-{"tr": "bu taktiğin kopyasını al", "call": "fm_tactic_copy"}
-{"tr": "4-3-3 taktiğini çoğalt", "call": "fm_tactic_copy", "args": {"tactic": "4-3-3"}}
-{"tr": "gegenpress taktiğinin kopyasını oluştur", "call": "fm_tactic_copy", "args": {"tactic": "gegenpress"}}
-{"tr": "taktigi kopyalayip yeni slota koy", "call": "fm_tactic_copy"}
-{"en": "copy the tactic", "call": "fm_tactic_copy"}
-{"en": "duplicate my 4-2-3-1", "call": "fm_tactic_copy", "args": {"tactic": "4-2-3-1"}}
-{"en": "make a copy of the current tactic", "call": "fm_tactic_copy"}
-{"tr": "2. taktiği sil", "call": "fm_tactic_clear", "args": {"slot": "2"}}
-{"tr": "3. slotu temizle", "call": "fm_tactic_clear", "args": {"slot": "3"}}
-{"tr": "bu taktiği sil", "call": "fm_tactic_clear"}
-{"tr": "kopya taktiği kaldır", "call": "fm_tactic_clear", "ask": "slot"}
-{"tr": "slot 2yi bosalt", "call": "fm_tactic_clear", "args": {"slot": "2"}}
-{"en": "clear tactic slot 2", "call": "fm_tactic_clear", "args": {"slot": "2"}}
-{"en": "delete the third tactic", "call": "fm_tactic_clear", "args": {"slot": "3"}}
-{"en": "remove this tactic", "call": "fm_tactic_clear"}
-{"tr": "kayıtlı taktikler", "call": "fm_tactic_file"}
-{"tr": "dosyadaki taktiklerim", "call": "fm_tactic_file"}
-{"tr": "taktiği dosyaya kaydet presli433 adıyla", "call": "fm_tactic_file", "args": {"save": "presli433"}}
-{"tr": "bu taktiği deplasman diye kaydet", "call": "fm_tactic_file", "args": {"save": "deplasman"}}
-{"tr": "taktiği kaydet ana taktik adıyla not olarak büyük maçlar için", "call": "fm_tactic_file", "args": {"save": "ana taktik", "note": "büyük maçlar için"}}
-{"tr": "presli433ün üstüne yaz", "call": "fm_tactic_file", "args": {"save": "presli433", "overwrite": true}}
-{"tr": "deplasman taktiğini yükle", "call": "fm_tactic_file", "args": {"load": "deplasman"}}
-{"tr": "kayıtlı presli433 ü aç", "call": "fm_tactic_file", "args": {"load": "presli433"}}
-{"tr": "eski taktik dosyasını sil", "call": "fm_tactic_file", "args": {"delete": "eski"}}
-{"tr": "taktigi kaydet", "call": "fm_tactic_file", "ask": "save"}
-{"en": "saved tactics", "call": "fm_tactic_file"}
-{"en": "save this tactic as away433", "call": "fm_tactic_file", "args": {"save": "away433"}}
-{"en": "load the away433 tactic file", "call": "fm_tactic_file", "args": {"load": "away433"}}
-{"en": "delete tactic file old", "call": "fm_tactic_file", "args": {"delete": "old"}}
-{"en": "overwrite away433 with this one", "call": "fm_tactic_file", "args": {"save": "away433", "overwrite": true}}
-{"tr": "yeni taktik oluştur", "call": "fm_tactic_new"}
-{"tr": "yeni taktik yap", "call": "fm_tactic_new"}
-{"tr": "dizilişi değiştir", "call": "fm_tactic_new"}
-{"tr": "4-4-2ye geç", "call": "fm_tactic_new", "args": {"in_possession": "4-4-2"}}
-{"tr": "3 stoperle oynayalım 3-5-2", "call": "fm_tactic_new", "args": {"in_possession": "3-5-2"}}
-{"tr": "gegenpress 4-3-3 yeni taktik", "call": "fm_tactic_new", "args": {"style": "Gegenpress", "in_possession": "4-3-3"}}
-{"tr": "topla 4-2-3-1 topsuz 4-4-2 kur", "call": "fm_tactic_new", "args": {"in_possession": "4-2-3-1", "out_of_possession": "4-4-2"}}
-{"tr": "kontra stilinde yeni taktik", "call": "fm_tactic_new", "args": {"style": "Kontra"}}
-{"tr": "hangi dizilişler var", "call": "fm_tactic_new"}
-{"tr": "formasyon degistir 433", "call": "fm_tactic_new", "args": {"in_possession": "4-3-3"}}
-{"en": "new tactic", "call": "fm_tactic_new"}
-{"en": "change formation to 4-4-2", "call": "fm_tactic_new", "args": {"in_possession": "4-4-2"}}
-{"en": "create a gegenpress 4-3-3", "call": "fm_tactic_new", "args": {"style": "Gegenpress", "in_possession": "4-3-3"}}
-{"en": "go to a back three, 3-4-3", "call": "fm_tactic_new", "args": {"in_possession": "3-4-3"}}
-{"en": "4-2-3-1 with the ball and 4-4-2 without", "call": "fm_tactic_new", "args": {"in_possession": "4-2-3-1", "out_of_possession": "4-4-2"}}
+{"tr": "taktik", "call": "fm_tactic", "split": "dev"}
+{"tr": "taktiği göster", "call": "fm_tactic", "split": "dev"}
+{"tr": "ilk 11 kim", "call": "fm_tactic", "split": "held"}
+{"tr": "ilk on bir", "call": "fm_tactic", "split": "dev"}
+{"tr": "kim oynuyo bu maç", "call": "fm_tactic", "split": "dev"}
+{"tr": "diziliş ne", "call": "fm_tactic", "split": "dev"}
+{"tr": "hangi formasyonla oynuyoz", "call": "fm_tactic", "split": "held"}
+{"tr": "taktik alışkanlığı nasıl", "call": "fm_tactic", "split": "held"}
+{"tr": "kimin rolü ne", "call": "fm_tactic", "split": "dev"}
+{"tr": "mentalite ne", "call": "fm_tactic", "or": [{"call": "fm_tactic_set", "args": {"setting": "mentality"}}], "split": "held"}
+{"tr": "taktik ne abi", "call": "fm_tactic", "split": "dev"}
+{"tr": "taktk", "call": "fm_tactic", "split": "final"}
+{"tr": "yedekler kim", "call": "fm_tactic", "split": "final"}
+{"tr": "sahaya kim çıkıyo", "call": "fm_tactic", "split": "held"}
+{"en": "tactic", "call": "fm_tactic", "split": "dev"}
+{"en": "show the lineup", "call": "fm_tactic", "split": "dev"}
+{"en": "starting xi", "call": "fm_tactic", "split": "held"}
+{"en": "what formation are we using", "call": "fm_tactic", "split": "dev"}
+{"en": "whos starting", "call": "fm_tactic", "split": "held"}
+{"en": "tactical familiarity", "call": "fm_tactic", "split": "held"}
+{"en": "tacitc", "call": "fm_tactic", "split": "dev"}
+{"tr": "mentaliteyi değiştir", "call": "fm_tactic_set", "args": {"setting": "mentality"}, "split": "dev"}
+{"tr": "mentalite seçenekleri", "call": "fm_tactic_set", "args": {"setting": "mentality"}, "split": "held"}
+{"tr": "daha hücumcu oyna", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum"}, "split": "held"}
+{"tr": "mentaliteyi hücum yap", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum"}, "split": "dev"}
+{"tr": "otobüsü çek", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Çok Defansif"}, "split": "held"}
+{"tr": "kapan savunmaya", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defansif"}, "split": "held"}
+{"tr": "skoru koru defansif oyna", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defansif"}, "split": "dev"}
+{"tr": "dengeli oynayalım", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Dengeli"}, "split": "final"}
+{"tr": "full hücum herkes ileri", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Çok Hücum"}, "split": "dev"}
+{"tr": "pozitif mentalite", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Pozitif"}, "split": "held"}
+{"tr": "temkinli oyna", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Temkinli"}, "split": "final"}
+{"tr": "mentaliteyi 5 yap", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "5"}, "split": "dev"}
+{"tr": "hücum yapsam ne olur önce göster", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum", "dry": true}, "split": "dev"}
+{"tr": "oyun stili ne", "call": "fm_tactic_set", "args": {"setting": "style"}, "split": "held"}
+{"tr": "oyun tarzını değiştir", "call": "fm_tactic_set", "args": {"setting": "style"}, "split": "dev"}
+{"tr": "stili gegenpress yap", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Gegenpress"}, "split": "held"}
+{"tr": "kontra atak stiline geç", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Kontra"}, "split": "final"}
+{"tr": "tiki taka oynayalım", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Tiki-Taka"}, "split": "final"}
+{"tr": "gol lazım saldır", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Hücum"}, "split": "dev"}
+{"en": "change mentality", "call": "fm_tactic_set", "args": {"setting": "mentality"}, "split": "held"}
+{"en": "go attacking", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Attacking"}, "split": "dev"}
+{"en": "park the bus", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Very Defensive"}, "split": "final"}
+{"en": "defensive mentality", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defensive"}, "split": "dev"}
+{"en": "balanced", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Balanced"}, "split": "dev"}
+{"en": "all out attack", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Very Attacking"}, "split": "held"}
+{"en": "we need a goal, push up", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Attacking"}, "split": "final"}
+{"en": "see out the game", "call": "fm_tactic_set", "args": {"setting": "mentality", "value": "Defensive"}, "split": "dev"}
+{"en": "set style to gegenpress", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Gegenpress"}, "split": "dev"}
+{"en": "what styles are there", "call": "fm_tactic_set", "args": {"setting": "style"}, "split": "dev"}
+{"en": "play counter attacking", "call": "fm_tactic_set", "args": {"setting": "style", "value": "Counter"}, "split": "held"}
+{"tr": "forvetin rolü ne olsun", "call": "fm_tactic_role", "args": {"position": "ST"}, "split": "held"}
+{"tr": "santrforu hedef adam yap", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Target Forward"}, "split": "held"}
+{"tr": "forveti pres forvet yap", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Pressing Forward"}, "split": "dev"}
+{"tr": "sağ beki kanat bek yap", "call": "fm_tactic_role", "args": {"position": "DR", "role": "Wing-Back"}, "split": "dev"}
+{"tr": "sol bek rolleri neler", "call": "fm_tactic_role", "args": {"position": "DL"}, "split": "held"}
+{"tr": "dmc'yi derin oyun kurucu yap", "call": "fm_tactic_role", "args": {"position": "DM", "role": "Deep-Lying Playmaker"}, "split": "dev"}
+{"tr": "sol kanadı içe kat eden forvet yap", "call": "fm_tactic_role", "args": {"position": "AML", "role": "Inside Forward"}, "split": "final"}
+{"tr": "10 numarayı gölge forvet yap", "call": "fm_tactic_role", "args": {"position": "AMC", "role": "Shadow Striker"}, "split": "held"}
+{"tr": "kaleciyi libero kaleci yap", "call": "fm_tactic_role", "args": {"position": "GK", "role": "Sweeper Keeper"}, "split": "dev"}
+{"tr": "sol stoperin topsuz rolü ne", "call": "fm_tactic_role", "args": {"position": "DCL", "without_ball": true}, "split": "final"}
+{"tr": "forvet topsuzken prese çıksın", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Press", "without_ball": true}, "split": "held"}
+{"tr": "rinaldinin rolünü değiştir", "call": "fm_tactic_role", "args": {"position": "rinaldi"}, "split": "held"}
+{"tr": "maçta ghiglione hücum bek olsun", "call": "fm_tactic_role", "args": {"position": "ghiglione", "role": "Attacking Full-Back"}, "split": "held"}
+{"tr": "sağ kanat rolu", "call": "fm_tactic_role", "args": {"position": "AMR"}, "split": "held"}
+{"en": "make the striker a target forward", "call": "fm_tactic_role", "args": {"position": "ST", "role": "Target Forward"}, "split": "held"}
+{"en": "roles for left back", "call": "fm_tactic_role", "args": {"position": "DL"}, "split": "dev"}
+{"en": "dm as deep lying playmaker", "call": "fm_tactic_role", "args": {"position": "DM", "role": "Deep-Lying Playmaker"}, "split": "dev"}
+{"en": "right back wing back", "call": "fm_tactic_role", "args": {"position": "DR", "role": "Wing-Back"}, "split": "dev"}
+{"en": "set keeper to sweeper keeper", "call": "fm_tactic_role", "args": {"position": "GK", "role": "Sweeper Keeper"}, "split": "dev"}
+{"en": "AML inside forward pls", "call": "fm_tactic_role", "args": {"position": "AML", "role": "Inside Forward"}, "split": "dev"}
+{"en": "out of possession role for the striker", "call": "fm_tactic_role", "args": {"position": "ST", "without_ball": true}, "split": "dev"}
+{"tr": "rinaldi forvette oynasın", "call": "fm_tactic_player", "args": {"position": "ST", "player": "rinaldi"}, "split": "dev"}
+{"tr": "kaleye pieragnolo geçsin", "call": "fm_tactic_player", "args": {"position": "GK", "player": "pieragnolo"}, "split": "dev"}
+{"tr": "sol beke tosto", "call": "fm_tactic_player", "args": {"position": "DL", "player": "tosto"}, "split": "dev"}
+{"tr": "sağ bekte ghiglione başlasın", "call": "fm_tactic_player", "args": {"position": "DR", "player": "ghiglione"}, "split": "held"}
+{"tr": "fazzini 10 numarada oynasın", "call": "fm_tactic_player", "args": {"position": "AMC", "player": "fazzini"}, "split": "dev"}
+{"tr": "sağ stopere colombo", "call": "fm_tactic_player", "args": {"position": "DCR", "player": "colombo"}, "split": "dev"}
+{"tr": "esposito ilk 11e girsin", "call": "fm_tactic_player", "args": {"player": "esposito"}, "ask": "position", "split": "dev"}
+{"tr": "gyasiyi sol kanada koy", "call": "fm_tactic_player", "args": {"position": "AML", "player": "gyasi"}, "split": "held"}
+{"tr": "yedeklerde maleh yerine marin olsun", "call": "fm_tactic_player", "args": {"position": "maleh", "player": "marin"}, "split": "dev"}
+{"tr": "sakat yedeği değiştir marin gelsin", "call": "fm_tactic_player", "args": {"player": "marin"}, "ask": "position", "split": "held"}
+{"tr": "forvete rinaldi koy ama önce göster", "call": "fm_tactic_player", "args": {"position": "ST", "player": "rinaldi", "dry": true}, "split": "dev"}
+{"tr": "kalede tosto oynasin", "call": "fm_tactic_player", "args": {"position": "GK", "player": "tosto"}, "split": "dev"}
+{"en": "put rinaldi up front", "call": "fm_tactic_player", "args": {"position": "ST", "player": "rinaldi"}, "split": "dev"}
+{"en": "start pieragnolo in goal", "call": "fm_tactic_player", "args": {"position": "GK", "player": "pieragnolo"}, "split": "dev"}
+{"en": "tosto at left back", "call": "fm_tactic_player", "args": {"position": "DL", "player": "tosto"}, "split": "dev"}
+{"en": "fazzini in the AMC slot", "call": "fm_tactic_player", "args": {"position": "AMC", "player": "fazzini"}, "split": "held"}
+{"en": "swap sub maleh for marin", "call": "fm_tactic_player", "args": {"position": "maleh", "player": "marin"}, "split": "dev"}
+{"en": "get esposito in the starting 11", "call": "fm_tactic_player", "args": {"player": "esposito"}, "ask": "position", "split": "dev"}
+{"tr": "ilk 11i sen seç", "call": "fm_tactic_pick", "split": "held"}
+{"tr": "kadroyu otomatik seç", "call": "fm_tactic_pick", "split": "dev"}
+{"tr": "hızlı seçim yap", "call": "fm_tactic_pick", "split": "dev"}
+{"tr": "en iyi 11i koy", "call": "fm_tactic_pick", "split": "held"}
+{"tr": "ilk onbiri oyun belirlesin", "call": "fm_tactic_pick", "split": "dev"}
+{"tr": "otomatik diz", "call": "fm_tactic_pick", "split": "dev"}
+{"tr": "kadroyu yardımcı kursun", "call": "fm_tactic_pick", "split": "held"}
+{"tr": "en formda olanları oynat", "call": "fm_tactic_pick", "split": "dev"}
+{"en": "quick pick", "call": "fm_tactic_pick", "split": "dev"}
+{"en": "auto pick the team", "call": "fm_tactic_pick", "split": "dev"}
+{"en": "pick the best xi", "call": "fm_tactic_pick", "split": "dev"}
+{"en": "let the game choose the lineup", "call": "fm_tactic_pick", "split": "dev"}
+{"tr": "takım talimatları", "call": "fm_tactic_instructions", "split": "dev"}
+{"tr": "takım talimatlarını göster", "call": "fm_tactic_instructions", "split": "dev"}
+{"tr": "topsuz talimatlar", "call": "fm_tactic_instructions", "args": {"without_ball": true}, "split": "final"}
+{"tr": "savunma çizgisini yükselt", "call": "fm_tactic_instructions", "args": {"name": "Defansif Çizgi", "value": "Daha Yüksek"}, "split": "dev"}
+{"tr": "defans hattını geri çek", "call": "fm_tactic_instructions", "args": {"name": "Defansif Çizgi", "value": "Daha Düşük"}, "split": "final"}
+{"tr": "daha çok pres yap", "call": "fm_tactic_instructions", "args": {"name": "Pres Sıklığı", "value": "Daha Fazla"}, "split": "final"}
+{"tr": "sert müdahale etsinler", "call": "fm_tactic_instructions", "args": {"name": "Müdahale", "value": "Sert"}, "split": "dev"}
+{"tr": "ofsayt taktiği uygula", "call": "fm_tactic_instructions", "args": {"name": "Ofsayt Taktiği", "value": "Uygula"}, "split": "held"}
+{"tr": "temponu arttır", "call": "fm_tactic_instructions", "args": {"name": "Tempo", "value": "Daha Yüksek"}, "split": "held"}
+{"tr": "pas mesafesini kısalt", "call": "fm_tactic_instructions", "args": {"name": "Pas Mesafesi", "value": "Daha Kısa"}, "split": "dev"}
+{"tr": "zaman geçirsinler", "call": "fm_tactic_instructions", "args": {"name": "Zaman Geçirme", "value": "Daha Fazla"}, "split": "final"}
+{"tr": "kontra presi aç", "call": "fm_tactic_instructions", "args": {"name": "Karşı Pres"}, "split": "dev"}
+{"tr": "kanatlardan oynasınlar", "call": "fm_tactic_instructions", "args": {"name": "Hücum Genişliği", "value": "Daha Geniş"}, "split": "held"}
+{"tr": "pres hattı seçenekleri ne", "call": "fm_tactic_instructions", "args": {"name": "Pres Hattı"}, "split": "dev"}
+{"tr": "uzun top oynamasınlar", "call": "fm_tactic_instructions", "args": {"name": "Pas Mesafesi", "value": "Daha Kısa"}, "split": "final"}
+{"tr": "kaleci topu hızlı dağıtsın", "call": "fm_tactic_instructions", "args": {"name": "Kaleci Dağıtımı"}, "split": "held"}
+{"en": "team instructions", "call": "fm_tactic_instructions", "split": "held"}
+{"en": "out of possession instructions", "call": "fm_tactic_instructions", "args": {"without_ball": true}, "split": "dev"}
+{"en": "higher defensive line", "call": "fm_tactic_instructions", "args": {"name": "Defensive Line", "value": "Higher"}, "split": "dev"}
+{"en": "press more", "call": "fm_tactic_instructions", "args": {"name": "Pressing Intensity", "value": "More"}, "split": "dev"}
+{"en": "get stuck in", "call": "fm_tactic_instructions", "args": {"name": "Tackling", "value": "Harder"}, "split": "held"}
+{"en": "play offside trap", "call": "fm_tactic_instructions", "args": {"name": "Offside Trap", "value": "Use"}, "split": "final"}
+{"en": "waste time", "call": "fm_tactic_instructions", "args": {"name": "Time Wasting", "value": "More"}, "split": "dev"}
+{"en": "shorter passing", "call": "fm_tactic_instructions", "args": {"name": "Passing Directness", "value": "Shorter"}, "split": "dev"}
+{"en": "slow the tempo down", "call": "fm_tactic_instructions", "args": {"name": "Tempo", "value": "Lower"}, "split": "final"}
+{"en": "what are the choices for line of engagement", "call": "fm_tactic_instructions", "args": {"name": "Line of Engagement"}, "split": "dev"}
+{"tr": "forvetin oyuncu talimatları", "call": "fm_tactic_pi", "args": {"position": "ST"}, "split": "dev"}
+{"tr": "rinaldi daha çok şut atsın", "call": "fm_tactic_pi", "args": {"position": "rinaldi", "name": "Şut", "value": "Daha Sık"}, "split": "dev"}
+{"tr": "sağ bek bindirme yapsın", "call": "fm_tactic_pi", "args": {"position": "DR", "name": "İleri Koşular", "value": "Daha Sık"}, "split": "dev"}
+{"tr": "sol bek ileri çıkmasın", "call": "fm_tactic_pi", "args": {"position": "DL", "name": "İleri Koşular", "value": "Daha Seyrek"}, "split": "dev"}
+{"tr": "gyasi daha çok çalım atsın", "call": "fm_tactic_pi", "args": {"position": "gyasi", "name": "Top Sürme", "value": "Daha Sık"}, "split": "dev"}
+{"tr": "10 numara riskli pas atmasın", "call": "fm_tactic_pi", "args": {"position": "AMC", "name": "Pas Riski", "value": "Daha Az"}, "split": "dev"}
+{"tr": "forvet prese çıksın", "call": "fm_tactic_pi", "args": {"position": "ST", "name": "Pres Tetikleme", "value": "Daha Fazla"}, "split": "held"}
+{"tr": "dmc rakibin 10 numarasını tutsun", "call": "fm_tactic_pi", "args": {"position": "DM", "name": "Markaj Hedefi"}, "split": "final"}
+{"tr": "sağ kanadın talimatları neler", "call": "fm_tactic_pi", "args": {"position": "AMR"}, "split": "dev"}
+{"tr": "fazzininin şut seçenekleri", "call": "fm_tactic_pi", "args": {"position": "fazzini", "name": "Şut"}, "split": "final"}
+{"tr": "ghiglione daha az ileri çıksın", "call": "fm_tactic_pi", "args": {"position": "ghiglione", "name": "İleri Koşular", "value": "Daha Seyrek"}, "split": "held"}
+{"en": "player instructions for the striker", "call": "fm_tactic_pi", "args": {"position": "ST"}, "split": "dev"}
+{"en": "rinaldi shoot more often", "call": "fm_tactic_pi", "args": {"position": "rinaldi", "name": "Shooting", "value": "More Often"}, "split": "dev"}
+{"en": "right back get forward more", "call": "fm_tactic_pi", "args": {"position": "DR", "name": "Forward Runs", "value": "More Often"}, "split": "held"}
+{"en": "tell gyasi to dribble more", "call": "fm_tactic_pi", "args": {"position": "gyasi", "name": "Dribbling Frequency", "value": "More Often"}, "split": "dev"}
+{"en": "AMC take fewer risks with passes", "call": "fm_tactic_pi", "args": {"position": "AMC", "name": "Passing Risk", "value": "Less"}, "split": "dev"}
+{"en": "dm man mark their 10", "call": "fm_tactic_pi", "args": {"position": "DM", "name": "Marking Target"}, "split": "held"}
+{"tr": "taktik slotları", "call": "fm_tactic_slot", "split": "dev"}
+{"tr": "hangi taktik aktif", "call": "fm_tactic_slot", "split": "dev"}
+{"tr": "kaç taktiğim var", "call": "fm_tactic_slot", "split": "held"}
+{"tr": "ikinci taktiğe geç", "call": "fm_tactic_slot", "args": {"slot": "2"}, "split": "final"}
+{"tr": "3. taktiği aktif yap", "call": "fm_tactic_slot", "args": {"slot": "3"}, "split": "final"}
+{"tr": "ilk taktiğe dön", "call": "fm_tactic_slot", "args": {"slot": "1"}, "split": "dev"}
+{"tr": "yedek taktiğe geç", "call": "fm_tactic_slot", "ask": "slot", "split": "dev"}
+{"tr": "taktik 2 ye gec", "call": "fm_tactic_slot", "args": {"slot": "2"}, "split": "dev"}
+{"en": "tactic slots", "call": "fm_tactic_slot", "split": "final"}
+{"en": "switch to tactic 2", "call": "fm_tactic_slot", "args": {"slot": "2"}, "split": "dev"}
+{"en": "which tactic is active", "call": "fm_tactic_slot", "split": "dev"}
+{"en": "back to slot 1", "call": "fm_tactic_slot", "args": {"slot": "1"}, "split": "final"}
+{"tr": "taktiği kopyala", "call": "fm_tactic_copy", "split": "dev"}
+{"tr": "bu taktiğin kopyasını al", "call": "fm_tactic_copy", "split": "dev"}
+{"tr": "4-3-3 taktiğini çoğalt", "call": "fm_tactic_copy", "args": {"tactic": "4-3-3"}, "split": "dev"}
+{"tr": "gegenpress taktiğinin kopyasını oluştur", "call": "fm_tactic_copy", "args": {"tactic": "gegenpress"}, "split": "dev"}
+{"tr": "taktigi kopyalayip yeni slota koy", "call": "fm_tactic_copy", "split": "dev"}
+{"en": "copy the tactic", "call": "fm_tactic_copy", "split": "dev"}
+{"en": "duplicate my 4-2-3-1", "call": "fm_tactic_copy", "args": {"tactic": "4-2-3-1"}, "split": "held"}
+{"en": "make a copy of the current tactic", "call": "fm_tactic_copy", "split": "dev"}
+{"tr": "2. taktiği sil", "call": "fm_tactic_clear", "args": {"slot": "2"}, "split": "dev"}
+{"tr": "3. slotu temizle", "call": "fm_tactic_clear", "args": {"slot": "3"}, "split": "dev"}
+{"tr": "bu taktiği sil", "call": "fm_tactic_clear", "split": "dev"}
+{"tr": "kopya taktiği kaldır", "call": "fm_tactic_clear", "ask": "slot", "split": "dev"}
+{"tr": "slot 2yi bosalt", "call": "fm_tactic_clear", "args": {"slot": "2"}, "split": "held"}
+{"en": "clear tactic slot 2", "call": "fm_tactic_clear", "args": {"slot": "2"}, "split": "dev"}
+{"en": "delete the third tactic", "call": "fm_tactic_clear", "args": {"slot": "3"}, "split": "dev"}
+{"en": "remove this tactic", "call": "fm_tactic_clear", "split": "dev"}
+{"tr": "kayıtlı taktikler", "call": "fm_tactic_file", "split": "dev"}
+{"tr": "dosyadaki taktiklerim", "call": "fm_tactic_file", "split": "dev"}
+{"tr": "taktiği dosyaya kaydet presli433 adıyla", "call": "fm_tactic_file", "args": {"save": "presli433"}, "split": "dev"}
+{"tr": "bu taktiği deplasman diye kaydet", "call": "fm_tactic_file", "args": {"save": "deplasman"}, "split": "held"}
+{"tr": "taktiği kaydet ana taktik adıyla not olarak büyük maçlar için", "call": "fm_tactic_file", "args": {"save": "ana taktik", "note": "büyük maçlar için"}, "split": "held"}
+{"tr": "presli433ün üstüne yaz", "call": "fm_tactic_file", "args": {"save": "presli433", "overwrite": true}, "split": "dev"}
+{"tr": "deplasman taktiğini yükle", "call": "fm_tactic_file", "args": {"load": "deplasman"}, "split": "final"}
+{"tr": "kayıtlı presli433 ü aç", "call": "fm_tactic_file", "args": {"load": "presli433"}, "split": "held"}
+{"tr": "eski taktik dosyasını sil", "call": "fm_tactic_file", "args": {"delete": "eski"}, "split": "dev"}
+{"tr": "taktigi kaydet", "call": "fm_tactic_file", "ask": "save", "split": "dev"}
+{"en": "saved tactics", "call": "fm_tactic_file", "split": "dev"}
+{"en": "save this tactic as away433", "call": "fm_tactic_file", "args": {"save": "away433"}, "split": "dev"}
+{"en": "load the away433 tactic file", "call": "fm_tactic_file", "args": {"load": "away433"}, "split": "dev"}
+{"en": "delete tactic file old", "call": "fm_tactic_file", "args": {"delete": "old"}, "split": "held"}
+{"en": "overwrite away433 with this one", "call": "fm_tactic_file", "args": {"save": "away433", "overwrite": true}, "split": "dev"}
+{"tr": "yeni taktik oluştur", "call": "fm_tactic_new", "split": "dev"}
+{"tr": "yeni taktik yap", "call": "fm_tactic_new", "split": "dev"}
+{"tr": "dizilişi değiştir", "call": "fm_tactic_new", "split": "held"}
+{"tr": "4-4-2ye geç", "call": "fm_tactic_new", "args": {"in_possession": "4-4-2"}, "split": "final"}
+{"tr": "3 stoperle oynayalım 3-5-2", "call": "fm_tactic_new", "args": {"in_possession": "3-5-2"}, "split": "dev"}
+{"tr": "gegenpress 4-3-3 yeni taktik", "call": "fm_tactic_new", "args": {"style": "Gegenpress", "in_possession": "4-3-3"}, "split": "held"}
+{"tr": "topla 4-2-3-1 topsuz 4-4-2 kur", "call": "fm_tactic_new", "args": {"in_possession": "4-2-3-1", "out_of_possession": "4-4-2"}, "split": "dev"}
+{"tr": "kontra stilinde yeni taktik", "call": "fm_tactic_new", "args": {"style": "Kontra"}, "split": "final"}
+{"tr": "hangi dizilişler var", "call": "fm_tactic_new", "split": "dev"}
+{"tr": "formasyon degistir 433", "call": "fm_tactic_new", "args": {"in_possession": "4-3-3"}, "split": "dev"}
+{"en": "new tactic", "call": "fm_tactic_new", "split": "dev"}
+{"en": "change formation to 4-4-2", "call": "fm_tactic_new", "args": {"in_possession": "4-4-2"}, "split": "dev"}
+{"en": "create a gegenpress 4-3-3", "call": "fm_tactic_new", "args": {"style": "Gegenpress", "in_possession": "4-3-3"}, "split": "dev"}
+{"en": "go to a back three, 3-4-3", "call": "fm_tactic_new", "args": {"in_possession": "3-4-3"}, "split": "dev"}
+{"en": "4-2-3-1 with the ball and 4-4-2 without", "call": "fm_tactic_new", "args": {"in_possession": "4-2-3-1", "out_of_possession": "4-4-2"}, "split": "dev"}

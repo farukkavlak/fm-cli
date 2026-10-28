@@ -1,33 +1,33 @@
-{"tr": "kadroyu göster sonra taktiği", "call": ["fm_squad", "fm_tactic"]}
-{"tr": "kaydet ve devam et", "call": ["fm_save", "fm_next"]}
-{"tr": "devam et sonra mesajlara bak", "call": ["fm_next", "fm_inbox"]}
-{"tr": "rinaldiyi forvete koy tosto sol beke", "call": ["fm_tactic_player", "fm_tactic_player"], "args": [{"position": "ST", "player": "rinaldi"}, {"position": "DL", "player": "tosto"}]}
-{"tr": "kerem'i sola al, musaba girsin", "call": ["fm_tactic_player", "fm_sub"], "args": [{"position": "AML", "player": "kerem"}, {"on": "musaba"}]}
-{"tr": "rinaldi çıksın esposito girsin ve hücuma geç", "call": ["fm_sub", "fm_tactic_set"], "args": [{"off": "rinaldi", "on": "esposito"}, {"setting": "mentality", "value": "Hücum"}]}
-{"tr": "puan durumu ve gol krallığı", "call": ["fm_table", "fm_league"], "args": [{}, {"stat": "Goals"}]}
-{"tr": "rakibi analiz et taktik öner", "call": ["fm_opponent", "fm_tactic"]}
-{"tr": "sakatları göster sonra ilk 11i otomatik seç", "call": ["fm_health", "fm_tactic_pick"]}
-{"tr": "kenan yıldızı izlet ve kısa listeye ekle", "call": ["fm_scout_player", "fm_shortlist_change"], "args": [{"player": "kenan yıldız"}, {"player": "kenan yıldız"}]}
-{"tr": "pieragnoloya 2m teklif yap sonra kaydet", "call": ["fm_offer", "fm_save"], "args": [{"name": "pieragnolo", "fee": "2M"}, {}]}
-{"tr": "maçı hızlı geç raporu göster", "call": ["fm_match", "fm_report"], "args": [{"mode": "instant"}, {}]}
-{"tr": "fikstür ve rakip", "call": ["fm_fixtures", "fm_opponent"]}
-{"tr": "bütçe ne kadar ve hangi mevkiye ihtiyaç var", "call": ["fm_budget", "fm_targets"], "or": [{"call": "fm_targets"}]}
-{"tr": "rinaldi kaptan tosto yardımcı kaptan olsun", "call": "fm_captains", "args": {"captain": "rinaldi", "vice": "tosto"}}
-{"tr": "sağ bek ve sol bek ileri çıksın", "call": ["fm_tactic_pi", "fm_tactic_pi"], "args": [{"position": "DR", "name": "İleri Koşular", "value": "Daha Sık"}, {"position": "DL", "name": "İleri Koşular", "value": "Daha Sık"}]}
-{"tr": "rinaldi ve tosto dinlensin", "call": ["fm_intensity", "fm_intensity"], "args": [{"player": "rinaldi", "level": "rest 3"}, {"player": "tosto", "level": "rest 3"}]}
-{"tr": "mesajları oku sonra 1. ye cevap ver 2 ile", "call": ["fm_inbox", "fm_reply"], "args": [{}, {"message": "1", "answer": "2"}]}
-{"tr": "3 gün ilerlet sonra ne değişti söyle", "call": ["fm_next", "fm_diff"], "args": [{"times": 3}, {}]}
-{"tr": "kaydet sonra oyunu kapat", "call": "fm_stop", "args": {"save": true}, "or": [{"call": ["fm_save", "fm_stop"], "args": [{}, {"save": false}]}]}
-{"tr": "morali düşükleri bul ve nedenini söyle", "call": "fm_happiness", "args": {"why": true}}
-{"tr": "yeni 4-4-2 taktik yap ve kadroyu otomatik seç", "call": ["fm_tactic_new", "fm_tactic_pick"], "args": [{"in_possession": "4-4-2"}, {}]}
-{"en": "show squad then tactic", "call": ["fm_squad", "fm_tactic"]}
-{"en": "save and continue", "call": ["fm_save", "fm_next"]}
-{"en": "continue then check inbox", "call": ["fm_next", "fm_inbox"]}
-{"en": "rinaldi up front and tosto at left back", "call": ["fm_tactic_player", "fm_tactic_player"], "args": [{"position": "ST", "player": "rinaldi"}, {"position": "DL", "player": "tosto"}]}
-{"en": "sub rinaldi for esposito and go attacking", "call": ["fm_sub", "fm_tactic_set"], "args": [{"off": "rinaldi", "on": "esposito"}, {"setting": "mentality", "value": "Attacking"}]}
-{"en": "table and top scorers", "call": ["fm_table", "fm_league"], "args": [{}, {"stat": "Goals"}]}
-{"en": "analyse the opponent and suggest a tactic", "call": ["fm_opponent", "fm_tactic"]}
-{"en": "sim the game and show the report", "call": ["fm_match", "fm_report"], "args": [{"mode": "instant"}, {}]}
-{"en": "scout yildiz and shortlist him", "call": ["fm_scout_player", "fm_shortlist_change"], "args": [{"player": "yildiz"}, {"player": "yildiz"}]}
-{"en": "advance 3 days and tell me what changed", "call": ["fm_next", "fm_diff"], "args": [{"times": 3}, {}]}
-{"en": "rest rinaldi and tosto", "call": ["fm_intensity", "fm_intensity"], "args": [{"player": "rinaldi", "level": "rest 3"}, {"player": "tosto", "level": "rest 3"}]}
+{"tr": "kadroyu göster sonra taktiği", "call": ["fm_squad", "fm_tactic"], "split": "dev"}
+{"tr": "kaydet ve devam et", "call": ["fm_save", "fm_next"], "split": "held"}
+{"tr": "devam et sonra mesajlara bak", "call": ["fm_next", "fm_inbox"], "split": "dev"}
+{"tr": "rinaldiyi forvete koy tosto sol beke", "call": ["fm_tactic_player", "fm_tactic_player"], "args": [{"position": "ST", "player": "rinaldi"}, {"position": "DL", "player": "tosto"}], "split": "dev"}
+{"tr": "kerem'i sola al, musaba girsin", "call": ["fm_tactic_player", "fm_sub"], "args": [{"position": "AML", "player": "kerem"}, {"on": "musaba"}], "split": "dev"}
+{"tr": "rinaldi çıksın esposito girsin ve hücuma geç", "call": ["fm_sub", "fm_tactic_set"], "args": [{"off": "rinaldi", "on": "esposito"}, {"setting": "mentality", "value": "Hücum"}], "split": "dev"}
+{"tr": "puan durumu ve gol krallığı", "call": ["fm_table", "fm_league"], "args": [{}, {"stat": "Goals"}], "split": "held"}
+{"tr": "rakibi analiz et taktik öner", "call": ["fm_opponent", "fm_tactic"], "split": "dev"}
+{"tr": "sakatları göster sonra ilk 11i otomatik seç", "call": ["fm_health", "fm_tactic_pick"], "split": "final"}
+{"tr": "kenan yıldızı izlet ve kısa listeye ekle", "call": ["fm_scout_player", "fm_shortlist_change"], "args": [{"player": "kenan yıldız"}, {"player": "kenan yıldız"}], "split": "held"}
+{"tr": "pieragnoloya 2m teklif yap sonra kaydet", "call": ["fm_offer", "fm_save"], "args": [{"name": "pieragnolo", "fee": "2M"}, {}], "split": "held"}
+{"tr": "maçı hızlı geç raporu göster", "call": ["fm_match", "fm_report"], "args": [{"mode": "instant"}, {}], "split": "dev"}
+{"tr": "fikstür ve rakip", "call": ["fm_fixtures", "fm_opponent"], "split": "dev"}
+{"tr": "bütçe ne kadar ve hangi mevkiye ihtiyaç var", "call": ["fm_budget", "fm_targets"], "or": [{"call": "fm_targets"}], "split": "dev"}
+{"tr": "rinaldi kaptan tosto yardımcı kaptan olsun", "call": "fm_captains", "args": {"captain": "rinaldi", "vice": "tosto"}, "split": "dev"}
+{"tr": "sağ bek ve sol bek ileri çıksın", "call": ["fm_tactic_pi", "fm_tactic_pi"], "args": [{"position": "DR", "name": "İleri Koşular", "value": "Daha Sık"}, {"position": "DL", "name": "İleri Koşular", "value": "Daha Sık"}], "split": "dev"}
+{"tr": "rinaldi ve tosto dinlensin", "call": ["fm_intensity", "fm_intensity"], "args": [{"player": "rinaldi", "level": "rest 3"}, {"player": "tosto", "level": "rest 3"}], "split": "dev"}
+{"tr": "mesajları oku sonra 1. ye cevap ver 2 ile", "call": ["fm_inbox", "fm_reply"], "args": [{}, {"message": "1", "answer": "2"}], "split": "dev"}
+{"tr": "3 gün ilerlet sonra ne değişti söyle", "call": ["fm_next", "fm_diff"], "args": [{"times": 3}, {}], "split": "final"}
+{"tr": "kaydet sonra oyunu kapat", "call": "fm_stop", "args": {"save": true}, "or": [{"call": ["fm_save", "fm_stop"], "args": [{}, {"save": false}]}], "split": "dev"}
+{"tr": "morali düşükleri bul ve nedenini söyle", "call": "fm_happiness", "args": {"why": true}, "split": "held"}
+{"tr": "yeni 4-4-2 taktik yap ve kadroyu otomatik seç", "call": ["fm_tactic_new", "fm_tactic_pick"], "args": [{"in_possession": "4-4-2"}, {}], "split": "final"}
+{"en": "show squad then tactic", "call": ["fm_squad", "fm_tactic"], "split": "held"}
+{"en": "save and continue", "call": ["fm_save", "fm_next"], "split": "final"}
+{"en": "continue then check inbox", "call": ["fm_next", "fm_inbox"], "split": "dev"}
+{"en": "rinaldi up front and tosto at left back", "call": ["fm_tactic_player", "fm_tactic_player"], "args": [{"position": "ST", "player": "rinaldi"}, {"position": "DL", "player": "tosto"}], "split": "held"}
+{"en": "sub rinaldi for esposito and go attacking", "call": ["fm_sub", "fm_tactic_set"], "args": [{"off": "rinaldi", "on": "esposito"}, {"setting": "mentality", "value": "Attacking"}], "split": "dev"}
+{"en": "table and top scorers", "call": ["fm_table", "fm_league"], "args": [{}, {"stat": "Goals"}], "split": "dev"}
+{"en": "analyse the opponent and suggest a tactic", "call": ["fm_opponent", "fm_tactic"], "split": "dev"}
+{"en": "sim the game and show the report", "call": ["fm_match", "fm_report"], "args": [{"mode": "instant"}, {}], "split": "held"}
+{"en": "scout yildiz and shortlist him", "call": ["fm_scout_player", "fm_shortlist_change"], "args": [{"player": "yildiz"}, {"player": "yildiz"}], "split": "dev"}
+{"en": "advance 3 days and tell me what changed", "call": ["fm_next", "fm_diff"], "args": [{"times": 3}, {}], "split": "final"}
+{"en": "rest rinaldi and tosto", "call": ["fm_intensity", "fm_intensity"], "args": [{"player": "rinaldi", "level": "rest 3"}, {"player": "tosto", "level": "rest 3"}], "split": "dev"}

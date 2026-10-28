@@ -3,14 +3,13 @@
 
 Pairs of dev sentences that ask the same tool are pulled together, everything else in the batch
 pushed apart (in-batch negatives). Noisy variants (tests/nl/expanded/) of dev sentences join in;
-held sentences and their variants are never seen. The result is exported to ONNX with its
+held and final sentences and their variants are never seen. The result is exported to ONNX with its
 tokenizer, under ~/.cache/fm-cli/nl/<name>/, which `tools/nl-embed.py --model DIR` loads.
 
   tools/nl-train.py --epochs 2 --name mpnet-l --int8     # the best so far (~35 min on the CPU)
   tools/nl-train.py --base minilm --epochs 2
 """
 import argparse
-import hashlib
 import json
 import random
 import shutil
@@ -34,10 +33,6 @@ BASES = {
 }
 
 
-def held(text):
-	return int(hashlib.sha1(text.encode()).hexdigest(), 16) % 10 < 3
-
-
 def training_rows(noisy):
 	rows, by_ref = [], {}
 	for f in sorted((ROOT / "tests/nl").glob("*.jsonl")):
@@ -46,8 +41,8 @@ def training_rows(noisy):
 				continue
 			c = json.loads(line)
 			text = c.get("tr") or c.get("en")
-			by_ref[f"{f.name}:{n}"] = text
-			if not held(text):
+			by_ref[f"{f.name}:{n}"] = c["split"]
+			if c["split"] == "dev":
 				rows.append((text, json.dumps(c.get("call"))))
 	# training-only sentences (never scored) and their noisy variants
 	for f in sorted((ROOT / "tests/nl/train").glob("*.jsonl")):
@@ -59,7 +54,7 @@ def training_rows(noisy):
 	if noisy and exp.exists():
 		for line in exp.read_text().splitlines():
 			c = json.loads(line)
-			if not held(by_ref[c["from"]]):
+			if by_ref[c["from"]] == "dev":
 				rows.append((c.get("tr") or c.get("en"), json.dumps(c.get("call"))))
 	exp = ROOT / "tests/nl/expanded/train.jsonl"
 	if noisy and exp.exists():

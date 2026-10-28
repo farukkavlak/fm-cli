@@ -1,70 +1,70 @@
-{"tr": "duran top kullanıcıları", "call": "fm_takers"}
-{"tr": "kornerleri kim kullanıyo", "call": "fm_takers", "args": {"kind": "corner"}}
-{"tr": "frikikleri kim atıyo", "call": "fm_takers", "args": {"kind": "freekick"}}
-{"tr": "taç atışlarını kim kullanıyor", "call": "fm_takers", "args": {"kind": "throw"}}
-{"tr": "uzak mesafe frikik kim", "call": "fm_takers", "args": {"kind": "deep"}}
-{"tr": "kanattan frikikleri kim atar", "call": "fm_takers", "args": {"kind": "wide"}}
-{"tr": "sağ kornerleri fazzini kullansın", "call": "fm_takers", "args": {"kind": "corner", "side": "right", "action": "move", "player": "fazzini", "place": 1}}
-{"tr": "sol kornerde ilk sıraya gyasi", "call": "fm_takers", "args": {"kind": "corner", "side": "left", "action": "move", "player": "gyasi", "place": 1}}
-{"tr": "frikik listesine rinaldiyi ekle sağ taraf", "call": "fm_takers", "args": {"kind": "freekick", "side": "right", "action": "add", "player": "rinaldi"}}
-{"tr": "sol taç atışından tostoyu çıkar", "call": "fm_takers", "args": {"kind": "throw", "side": "left", "action": "remove", "player": "tosto"}}
-{"tr": "kornerleri fazzini kullansın", "call": "fm_takers", "args": {"kind": "corner", "action": "move", "player": "fazzini", "place": 1}, "ask": "side"}
-{"tr": "kornerci kim", "call": "fm_takers", "args": {"kind": "corner"}}
-{"tr": "frikikci degistir", "call": "fm_takers", "args": {"kind": "freekick"}}
-{"tr": "duran topları kim kullanıyo hepsi", "call": "fm_takers"}
-{"en": "set piece takers", "call": "fm_takers"}
-{"en": "who takes corners", "call": "fm_takers", "args": {"kind": "corner"}}
-{"en": "free kick takers", "call": "fm_takers", "args": {"kind": "freekick"}}
-{"en": "who takes throw ins", "call": "fm_takers", "args": {"kind": "throw"}}
-{"en": "fazzini on right corners first", "call": "fm_takers", "args": {"kind": "corner", "side": "right", "action": "move", "player": "fazzini", "place": 1}}
-{"en": "add rinaldi to left free kicks", "call": "fm_takers", "args": {"kind": "freekick", "side": "left", "action": "add", "player": "rinaldi"}}
-{"en": "remove tosto from right throws", "call": "fm_takers", "args": {"kind": "throw", "side": "right", "action": "remove", "player": "tosto"}}
-{"tr": "penaltıcılar", "call": "fm_penalties"}
-{"tr": "penaltıyı kim atıyo", "call": "fm_penalties"}
-{"tr": "penaltı sırası", "call": "fm_penalties"}
-{"tr": "penaltıcı kim", "call": "fm_penalties"}
-{"tr": "penalti listesi", "call": "fm_penalties"}
-{"tr": "rinaldi ilk penaltıcı olsun", "call": "fm_penalties", "args": {"action": "move", "player": "rinaldi", "place": 1}}
-{"tr": "penaltıları fazzini atsın", "call": "fm_penalties", "args": {"action": "move", "player": "fazzini", "place": 1}}
-{"tr": "esposito 2. penaltıcı", "call": "fm_penalties", "args": {"action": "move", "player": "esposito", "place": 2}}
-{"tr": "penaltı listesine maleh ekle", "call": "fm_penalties", "args": {"action": "add", "player": "maleh"}}
-{"tr": "colombo penaltı atmasın", "call": "fm_penalties", "args": {"action": "remove", "player": "colombo"}}
-{"tr": "gyasiyi penaltı listesinden çıkar", "call": "fm_penalties", "args": {"action": "remove", "player": "gyasi"}}
-{"tr": "marini 3. sıraya ekle penaltıda", "call": "fm_penalties", "args": {"action": "add", "player": "marin", "place": 3}}
-{"tr": "penaltı kuralı 1i aç", "call": "fm_penalties", "args": {"rule": 1, "on": true}}
-{"tr": "ikinci penaltı kuralını kapat", "call": "fm_penalties", "args": {"rule": 2, "on": false}}
-{"tr": "penaltı sıralamasında 4. yü 1. yap", "call": "fm_penalties", "args": {"action": "move", "player": "4", "place": 1}}
-{"en": "penalty takers", "call": "fm_penalties"}
-{"en": "who's on pens", "call": "fm_penalties"}
-{"en": "rinaldi first penalty taker", "call": "fm_penalties", "args": {"action": "move", "player": "rinaldi", "place": 1}}
-{"en": "add maleh to the penalty list", "call": "fm_penalties", "args": {"action": "add", "player": "maleh"}}
-{"en": "take colombo off penalties", "call": "fm_penalties", "args": {"action": "remove", "player": "colombo"}}
-{"en": "turn on penalty rule 3", "call": "fm_penalties", "args": {"rule": 3, "on": true}}
-{"en": "pens: esposito second", "call": "fm_penalties", "args": {"action": "move", "player": "esposito", "place": 2}}
-{"tr": "korner taktiği", "call": "fm_setpieces", "args": {"kind": "corner"}}
-{"tr": "korner rutini neler", "call": "fm_setpieces", "args": {"kind": "corner"}}
-{"tr": "frikik düzeni", "call": "fm_setpieces", "args": {"kind": "freekick"}}
-{"tr": "taç atışı rutini", "call": "fm_setpieces", "args": {"kind": "throw"}}
-{"tr": "kornerleri içe döndür", "call": "fm_setpieces", "args": {"kind": "corner", "delivery": "in"}}
-{"tr": "kornerler dışa dönük olsun", "call": "fm_setpieces", "args": {"kind": "corner", "delivery": "out"}}
-{"tr": "kornerde ön direğe at", "call": "fm_setpieces", "args": {"kind": "corner", "aim": "Ön Direk"}}
-{"tr": "kornerlerde arka direği hedefle", "call": "fm_setpieces", "args": {"kind": "corner", "aim": "Arka Direk"}}
-{"tr": "kornerde A1 kaleciyi rahatsız etsin", "call": "fm_setpieces", "args": {"kind": "corner", "slot": "A1", "task": "Kaleciyi Rahatsız Et"}}
-{"tr": "frikikte C2 nin görevi ne olsun", "call": "fm_setpieces", "args": {"kind": "freekick", "slot": "C2"}}
-{"tr": "uzak frikikte topu ceza sahasına göm", "call": "fm_setpieces", "args": {"kind": "deep", "aim": "Ceza Sahası"}}
-{"tr": "kornerleri değiştir", "call": "fm_setpieces", "args": {"kind": "corner"}}
-{"en": "corner routine", "call": "fm_setpieces", "args": {"kind": "corner"}}
-{"en": "free kick routine", "call": "fm_setpieces", "args": {"kind": "freekick"}}
-{"en": "inswinging corners", "call": "fm_setpieces", "args": {"kind": "corner", "delivery": "in"}}
-{"en": "outswinging corners", "call": "fm_setpieces", "args": {"kind": "corner", "delivery": "out"}}
-{"en": "aim corners at the near post", "call": "fm_setpieces", "args": {"kind": "corner", "aim": "Near Post"}}
-{"en": "A1 on corners should mark the keeper", "call": "fm_setpieces", "args": {"kind": "corner", "slot": "A1", "task": "Distract Keeper"}}
-{"en": "long throw routine", "call": "fm_setpieces", "args": {"kind": "throw"}}
-{"tr": "duran top rutinlerini kur", "call": "fm_setpieces_new"}
-{"tr": "duran top sihirbazı", "call": "fm_setpieces_new"}
-{"tr": "duran topları baştan kur oyunun önerisiyle", "call": "fm_setpieces_new"}
-{"tr": "duran top kurulumunda hepsine 1 de", "call": "fm_setpieces_new", "args": {"answers": [1, 1, 1, 1, 1, 1]}}
-{"tr": "duran top sorularını göster", "call": "fm_setpieces_new"}
-{"en": "set up set pieces", "call": "fm_setpieces_new"}
-{"en": "set piece wizard", "call": "fm_setpieces_new"}
-{"en": "set pieces wizard answers 2 1 3", "call": "fm_setpieces_new", "args": {"answers": [2, 1, 3]}}
+{"tr": "duran top kullanıcıları", "call": "fm_takers", "split": "dev"}
+{"tr": "kornerleri kim kullanıyo", "call": "fm_takers", "args": {"kind": "corner"}, "split": "dev"}
+{"tr": "frikikleri kim atıyo", "call": "fm_takers", "args": {"kind": "freekick"}, "split": "dev"}
+{"tr": "taç atışlarını kim kullanıyor", "call": "fm_takers", "args": {"kind": "throw"}, "split": "dev"}
+{"tr": "uzak mesafe frikik kim", "call": "fm_takers", "args": {"kind": "deep"}, "split": "dev"}
+{"tr": "kanattan frikikleri kim atar", "call": "fm_takers", "args": {"kind": "wide"}, "split": "dev"}
+{"tr": "sağ kornerleri fazzini kullansın", "call": "fm_takers", "args": {"kind": "corner", "side": "right", "action": "move", "player": "fazzini", "place": 1}, "split": "dev"}
+{"tr": "sol kornerde ilk sıraya gyasi", "call": "fm_takers", "args": {"kind": "corner", "side": "left", "action": "move", "player": "gyasi", "place": 1}, "split": "held"}
+{"tr": "frikik listesine rinaldiyi ekle sağ taraf", "call": "fm_takers", "args": {"kind": "freekick", "side": "right", "action": "add", "player": "rinaldi"}, "split": "held"}
+{"tr": "sol taç atışından tostoyu çıkar", "call": "fm_takers", "args": {"kind": "throw", "side": "left", "action": "remove", "player": "tosto"}, "split": "held"}
+{"tr": "kornerleri fazzini kullansın", "call": "fm_takers", "args": {"kind": "corner", "action": "move", "player": "fazzini", "place": 1}, "ask": "side", "split": "dev"}
+{"tr": "kornerci kim", "call": "fm_takers", "args": {"kind": "corner"}, "split": "dev"}
+{"tr": "frikikci degistir", "call": "fm_takers", "args": {"kind": "freekick"}, "split": "dev"}
+{"tr": "duran topları kim kullanıyo hepsi", "call": "fm_takers", "split": "held"}
+{"en": "set piece takers", "call": "fm_takers", "split": "dev"}
+{"en": "who takes corners", "call": "fm_takers", "args": {"kind": "corner"}, "split": "dev"}
+{"en": "free kick takers", "call": "fm_takers", "args": {"kind": "freekick"}, "split": "dev"}
+{"en": "who takes throw ins", "call": "fm_takers", "args": {"kind": "throw"}, "split": "dev"}
+{"en": "fazzini on right corners first", "call": "fm_takers", "args": {"kind": "corner", "side": "right", "action": "move", "player": "fazzini", "place": 1}, "split": "dev"}
+{"en": "add rinaldi to left free kicks", "call": "fm_takers", "args": {"kind": "freekick", "side": "left", "action": "add", "player": "rinaldi"}, "split": "dev"}
+{"en": "remove tosto from right throws", "call": "fm_takers", "args": {"kind": "throw", "side": "right", "action": "remove", "player": "tosto"}, "split": "held"}
+{"tr": "penaltıcılar", "call": "fm_penalties", "split": "dev"}
+{"tr": "penaltıyı kim atıyo", "call": "fm_penalties", "split": "dev"}
+{"tr": "penaltı sırası", "call": "fm_penalties", "split": "dev"}
+{"tr": "penaltıcı kim", "call": "fm_penalties", "split": "held"}
+{"tr": "penalti listesi", "call": "fm_penalties", "split": "dev"}
+{"tr": "rinaldi ilk penaltıcı olsun", "call": "fm_penalties", "args": {"action": "move", "player": "rinaldi", "place": 1}, "split": "held"}
+{"tr": "penaltıları fazzini atsın", "call": "fm_penalties", "args": {"action": "move", "player": "fazzini", "place": 1}, "split": "dev"}
+{"tr": "esposito 2. penaltıcı", "call": "fm_penalties", "args": {"action": "move", "player": "esposito", "place": 2}, "split": "dev"}
+{"tr": "penaltı listesine maleh ekle", "call": "fm_penalties", "args": {"action": "add", "player": "maleh"}, "split": "dev"}
+{"tr": "colombo penaltı atmasın", "call": "fm_penalties", "args": {"action": "remove", "player": "colombo"}, "split": "dev"}
+{"tr": "gyasiyi penaltı listesinden çıkar", "call": "fm_penalties", "args": {"action": "remove", "player": "gyasi"}, "split": "held"}
+{"tr": "marini 3. sıraya ekle penaltıda", "call": "fm_penalties", "args": {"action": "add", "player": "marin", "place": 3}, "split": "dev"}
+{"tr": "penaltı kuralı 1i aç", "call": "fm_penalties", "args": {"rule": 1, "on": true}, "split": "held"}
+{"tr": "ikinci penaltı kuralını kapat", "call": "fm_penalties", "args": {"rule": 2, "on": false}, "split": "dev"}
+{"tr": "penaltı sıralamasında 4. yü 1. yap", "call": "fm_penalties", "args": {"action": "move", "player": "4", "place": 1}, "split": "dev"}
+{"en": "penalty takers", "call": "fm_penalties", "split": "dev"}
+{"en": "who's on pens", "call": "fm_penalties", "split": "held"}
+{"en": "rinaldi first penalty taker", "call": "fm_penalties", "args": {"action": "move", "player": "rinaldi", "place": 1}, "split": "dev"}
+{"en": "add maleh to the penalty list", "call": "fm_penalties", "args": {"action": "add", "player": "maleh"}, "split": "dev"}
+{"en": "take colombo off penalties", "call": "fm_penalties", "args": {"action": "remove", "player": "colombo"}, "split": "dev"}
+{"en": "turn on penalty rule 3", "call": "fm_penalties", "args": {"rule": 3, "on": true}, "split": "dev"}
+{"en": "pens: esposito second", "call": "fm_penalties", "args": {"action": "move", "player": "esposito", "place": 2}, "split": "final"}
+{"tr": "korner taktiği", "call": "fm_setpieces", "args": {"kind": "corner"}, "split": "held"}
+{"tr": "korner rutini neler", "call": "fm_setpieces", "args": {"kind": "corner"}, "split": "dev"}
+{"tr": "frikik düzeni", "call": "fm_setpieces", "args": {"kind": "freekick"}, "split": "dev"}
+{"tr": "taç atışı rutini", "call": "fm_setpieces", "args": {"kind": "throw"}, "split": "dev"}
+{"tr": "kornerleri içe döndür", "call": "fm_setpieces", "args": {"kind": "corner", "delivery": "in"}, "split": "final"}
+{"tr": "kornerler dışa dönük olsun", "call": "fm_setpieces", "args": {"kind": "corner", "delivery": "out"}, "split": "final"}
+{"tr": "kornerde ön direğe at", "call": "fm_setpieces", "args": {"kind": "corner", "aim": "Ön Direk"}, "split": "dev"}
+{"tr": "kornerlerde arka direği hedefle", "call": "fm_setpieces", "args": {"kind": "corner", "aim": "Arka Direk"}, "split": "final"}
+{"tr": "kornerde A1 kaleciyi rahatsız etsin", "call": "fm_setpieces", "args": {"kind": "corner", "slot": "A1", "task": "Kaleciyi Rahatsız Et"}, "split": "dev"}
+{"tr": "frikikte C2 nin görevi ne olsun", "call": "fm_setpieces", "args": {"kind": "freekick", "slot": "C2"}, "split": "held"}
+{"tr": "uzak frikikte topu ceza sahasına göm", "call": "fm_setpieces", "args": {"kind": "deep", "aim": "Ceza Sahası"}, "split": "held"}
+{"tr": "kornerleri değiştir", "call": "fm_setpieces", "args": {"kind": "corner"}, "split": "final"}
+{"en": "corner routine", "call": "fm_setpieces", "args": {"kind": "corner"}, "split": "dev"}
+{"en": "free kick routine", "call": "fm_setpieces", "args": {"kind": "freekick"}, "split": "dev"}
+{"en": "inswinging corners", "call": "fm_setpieces", "args": {"kind": "corner", "delivery": "in"}, "split": "final"}
+{"en": "outswinging corners", "call": "fm_setpieces", "args": {"kind": "corner", "delivery": "out"}, "split": "final"}
+{"en": "aim corners at the near post", "call": "fm_setpieces", "args": {"kind": "corner", "aim": "Near Post"}, "split": "dev"}
+{"en": "A1 on corners should mark the keeper", "call": "fm_setpieces", "args": {"kind": "corner", "slot": "A1", "task": "Distract Keeper"}, "split": "held"}
+{"en": "long throw routine", "call": "fm_setpieces", "args": {"kind": "throw"}, "split": "dev"}
+{"tr": "duran top rutinlerini kur", "call": "fm_setpieces_new", "split": "dev"}
+{"tr": "duran top sihirbazı", "call": "fm_setpieces_new", "split": "dev"}
+{"tr": "duran topları baştan kur oyunun önerisiyle", "call": "fm_setpieces_new", "split": "dev"}
+{"tr": "duran top kurulumunda hepsine 1 de", "call": "fm_setpieces_new", "args": {"answers": [1, 1, 1, 1, 1, 1]}, "split": "dev"}
+{"tr": "duran top sorularını göster", "call": "fm_setpieces_new", "split": "final"}
+{"en": "set up set pieces", "call": "fm_setpieces_new", "split": "dev"}
+{"en": "set piece wizard", "call": "fm_setpieces_new", "split": "dev"}
+{"en": "set pieces wizard answers 2 1 3", "call": "fm_setpieces_new", "args": {"answers": [2, 1, 3]}, "split": "final"}

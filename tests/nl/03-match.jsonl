@@ -1,151 +1,151 @@
-{"tr": "maça çık", "call": "fm_match", "ask": "mode"}
-{"tr": "maçı oyna", "call": "fm_match", "ask": "mode"}
-{"tr": "maç başlasın", "call": "fm_match", "ask": "mode"}
-{"tr": "hadi maça", "call": "fm_match", "ask": "mode"}
-{"tr": "maci oyna", "call": "fm_match", "ask": "mode"}
-{"tr": "maçı hızlı sonuçlandır", "call": "fm_match", "args": {"mode": "instant"}}
-{"tr": "maçı simüle et sonucu ver", "call": "fm_match", "args": {"mode": "instant"}}
-{"tr": "direk sonucu göster", "call": "fm_match", "args": {"mode": "instant"}}
-{"tr": "anında sonuç", "call": "fm_match", "args": {"mode": "instant"}}
-{"tr": "maçı geç sonucu söyle", "call": "fm_match", "args": {"mode": "instant"}}
-{"tr": "maçı yardımcıya bırak", "call": "fm_match", "args": {"mode": "instant"}}
-{"tr": "izlemeyecem sonucu ver", "call": "fm_match", "args": {"mode": "instant"}}
-{"tr": "maçı izleyelim", "call": "fm_match", "args": {"mode": "play"}}
-{"tr": "maçı anlatımla oyna", "call": "fm_match", "args": {"mode": "play"}}
-{"tr": "maçı oyna konuşmaları da yapayım", "call": "fm_match", "args": {"mode": "play"}}
-{"tr": "maçı oyna ama takım konuşması yapma", "call": "fm_match", "args": {"mode": "play_no_talk"}}
-{"tr": "konuşmasız oyna maçı", "call": "fm_match", "args": {"mode": "play_no_talk"}}
-{"tr": "maçı izle konuşmaları atla", "call": "fm_match", "args": {"mode": "play_no_talk"}}
-{"tr": "devre arası konuşmasını geç maça devam", "call": "fm_match", "args": {"mode": "play_no_talk"}}
-{"tr": "maça devam et", "call": "fm_match", "ask": "mode", "or": [{"call": "fm_match", "args": {"mode": "play"}}]}
-{"tr": "ikinci yarıyı başlat", "call": "fm_match", "args": {"mode": "play"}, "or": [{"call": "fm_match", "args": {"mode": "play_no_talk"}}]}
-{"en": "play the match", "call": "fm_match", "ask": "mode"}
-{"en": "kick off", "call": "fm_match", "ask": "mode"}
-{"en": "sim the match", "call": "fm_match", "args": {"mode": "instant"}}
-{"en": "instant result", "call": "fm_match", "args": {"mode": "instant"}}
-{"en": "just give me the result", "call": "fm_match", "args": {"mode": "instant"}}
-{"en": "let the assistant handle the game", "call": "fm_match", "args": {"mode": "instant"}}
-{"en": "watch the match with commentary", "call": "fm_match", "args": {"mode": "play"}}
-{"en": "play it but skip the team talks", "call": "fm_match", "args": {"mode": "play_no_talk"}}
-{"en": "play no talk", "call": "fm_match", "args": {"mode": "play_no_talk"}}
-{"en": "resume the match", "call": "fm_match", "ask": "mode", "or": [{"call": "fm_match", "args": {"mode": "play"}}]}
-{"tr": "oyuncu değişikliği", "call": "fm_sub"}
-{"tr": "sahada kim var yedekte kim", "call": "fm_sub"}
-{"tr": "kim yoruldu sahada", "call": "fm_sub"}
-{"tr": "yedek kulübesi", "call": "fm_sub"}
-{"tr": "kondisyonlar maçta nasıl", "call": "fm_sub"}
-{"tr": "rinaldiyi çıkar esposito girsin", "call": "fm_sub", "args": {"off": "rinaldi", "on": "esposito"}}
-{"tr": "esposito girsin rinaldi çıksın", "call": "fm_sub", "args": {"off": "rinaldi", "on": "esposito"}}
-{"tr": "tosto yerine fazzini", "call": "fm_sub", "args": {"off": "tosto", "on": "fazzini"}}
-{"tr": "gyasi çık colombo gir", "call": "fm_sub", "args": {"off": "gyasi", "on": "colombo"}}
-{"tr": "sakatlanan ghiglione yerine pieragnolo", "call": "fm_sub", "args": {"off": "ghiglione", "on": "pieragnolo"}}
-{"tr": "rinaldi yoruldu cikar", "call": "fm_sub", "args": {"off": "rinaldi"}, "ask": "on"}
-{"tr": "colombo oyuna girsin", "call": "fm_sub", "args": {"on": "colombo"}, "ask": "off"}
-{"tr": "sarı kartlı stopere değişiklik yap", "call": "fm_sub", "ask": ["off", "on"]}
-{"tr": "maleh yerine marin ama önce ne olacağını göster", "call": "fm_sub", "args": {"off": "maleh", "on": "marin", "dry": true}}
-{"tr": "rinaldyi cıkar esposto girsn", "call": "fm_sub", "args": {"off": "rinaldy", "on": "esposto"}}
-{"en": "subs", "call": "fm_sub"}
-{"en": "whos on the bench", "call": "fm_sub"}
-{"en": "sub rinaldi off for esposito", "call": "fm_sub", "args": {"off": "rinaldi", "on": "esposito"}}
-{"en": "bring on fazzini for tosto", "call": "fm_sub", "args": {"off": "tosto", "on": "fazzini"}}
-{"en": "take off gyasi", "call": "fm_sub", "args": {"off": "gyasi"}, "ask": "on"}
-{"en": "colombo on, maleh off", "call": "fm_sub", "args": {"off": "maleh", "on": "colombo"}}
-{"en": "who's tired out there", "call": "fm_sub"}
-{"tr": "bağır", "call": "fm_shout"}
-{"tr": "hangi bağırışlar var", "call": "fm_shout"}
-{"tr": "kenardan ne bağırabilirim", "call": "fm_shout"}
-{"tr": "takımı cesaretlendir", "call": "fm_shout", "args": {"shout": "Cesaretlendir"}}
-{"tr": "sakinleştir şunları", "call": "fm_shout", "args": {"shout": "Sakinleştir"}}
-{"tr": "odaklanın diye bağır", "call": "fm_shout", "args": {"shout": "Odaklan"}}
-{"tr": "gaza getir takımı", "call": "fm_shout", "args": {"shout": "Ateşle"}}
-{"tr": "daha fazlasını iste", "call": "fm_shout", "args": {"shout": "Daha Fazlasını İste"}}
-{"tr": "oyuncuları öv", "call": "fm_shout", "args": {"shout": "Öv"}}
-{"tr": "fırça at takıma", "call": "fm_shout", "args": {"shout": "Azarla"}}
-{"tr": "baskı yok de rahat oynasınlar", "call": "fm_shout", "args": {"shout": "Baskı Yok"}}
-{"tr": "kenardan bağır biraz motive olsunlar", "call": "fm_shout", "ask": "shout"}
-{"en": "shouts", "call": "fm_shout"}
-{"en": "encourage the team", "call": "fm_shout", "args": {"shout": "Encourage"}}
-{"en": "tell them to calm down from the touchline", "call": "fm_shout", "args": {"shout": "Calm Down"}}
-{"en": "fire them up", "call": "fm_shout", "args": {"shout": "Fire Up"}}
-{"en": "demand more", "call": "fm_shout", "args": {"shout": "Demand More"}}
-{"en": "berate em", "call": "fm_shout", "args": {"shout": "Berate"}}
-{"en": "praise the players", "call": "fm_shout", "args": {"shout": "Praise"}}
-{"en": "no pressure shout", "call": "fm_shout", "args": {"shout": "No Pressure"}}
-{"tr": "yardımcı ne öneriyor", "call": "fm_dugout"}
-{"tr": "kulübede tavsiye var mı", "call": "fm_dugout"}
-{"tr": "asistan ne diyo maçta", "call": "fm_dugout"}
-{"tr": "yardımcının önerilerini göster", "call": "fm_dugout"}
-{"tr": "1. öneriyi uygula", "call": "fm_dugout", "args": {"number": 1, "action": "apply"}}
-{"tr": "ikinci tavsiyeyi uygula", "call": "fm_dugout", "args": {"number": 2, "action": "apply"}}
-{"tr": "3 numaralı öneriyi kapat", "call": "fm_dugout", "args": {"number": 3, "action": "dismiss"}}
-{"tr": "yardımcının 2. önerisini boşver", "call": "fm_dugout", "args": {"number": 2, "action": "dismiss"}}
-{"tr": "asistanın dediğini yap", "call": "fm_dugout", "args": {"action": "apply"}, "ask": "number"}
-{"en": "dugout advice", "call": "fm_dugout"}
-{"en": "what does my assistant suggest", "call": "fm_dugout"}
-{"en": "apply suggestion 1", "call": "fm_dugout", "args": {"number": 1, "action": "apply"}}
-{"en": "dismiss advice 2", "call": "fm_dugout", "args": {"number": 2, "action": "dismiss"}}
-{"en": "do what the assistant says", "call": "fm_dugout", "args": {"action": "apply"}, "ask": "number"}
-{"tr": "son maç nasıl bitti", "call": "fm_report"}
-{"tr": "maç raporu", "call": "fm_report"}
-{"tr": "geçen maçın istatistikleri", "call": "fm_report"}
-{"tr": "golleri kim attı son maçta", "call": "fm_report"}
-{"tr": "maçın adamı kimdi", "call": "fm_report"}
-{"tr": "topa kim daha çok sahip oldu", "call": "fm_report"}
-{"tr": "son maçta xg kaçtı", "call": "fm_report"}
-{"tr": "kaç şut attık", "call": "fm_report"}
-{"tr": "dunku mac kac bitti", "call": "fm_report"}
-{"tr": "yine mi yenildik", "call": "fm_report"}
-{"tr": "maç özeti ver", "call": "fm_report"}
-{"en": "how did the last game go", "call": "fm_report"}
-{"en": "match report", "call": "fm_report"}
-{"en": "last match stats", "call": "fm_report"}
-{"en": "who scored", "call": "fm_report"}
-{"en": "xg last game", "call": "fm_report"}
-{"en": "potm?", "call": "fm_report"}
-{"en": "did we win", "call": "fm_report"}
-{"tr": "rakip kim", "call": "fm_opponent"}
-{"tr": "rakibi analiz et", "call": "fm_opponent"}
-{"tr": "sonraki rakip nasıl", "call": "fm_opponent"}
-{"tr": "rakip ne dizilişle oynuyo", "call": "fm_opponent"}
-{"tr": "rakibin golcüsü kim", "call": "fm_opponent"}
-{"tr": "rakip form durumu", "call": "fm_opponent"}
-{"tr": "karşı takımın en iyisi kim", "call": "fm_opponent"}
-{"tr": "rakp raporu", "call": "fm_opponent"}
-{"tr": "kime karşı oynuyoruz ve nasıl takım", "call": "fm_opponent"}
-{"tr": "rakip ne kadar iyi", "call": "fm_opponent"}
-{"en": "next opponent", "call": "fm_opponent"}
-{"en": "scout the opposition", "call": "fm_opponent"}
-{"en": "what formation do they play", "call": "fm_opponent"}
-{"en": "who's their top scorer", "call": "fm_opponent"}
-{"en": "opp report", "call": "fm_opponent"}
-{"en": "how good are they", "call": "fm_opponent"}
-{"tr": "rakip talimatları", "call": "fm_opposition"}
-{"tr": "rakip oyunculara özel talimatlar neler", "call": "fm_opposition"}
-{"tr": "yardımcının rakip talimatlarını uygula", "call": "fm_opposition", "args": {"advice": true}}
-{"tr": "rakip talimatlarını asistan ayarlasın", "call": "fm_opposition", "args": {"advice": true}}
-{"tr": "rakip talimatlarını temizle", "call": "fm_opposition", "args": {"clear": true}}
-{"tr": "rakip talimatlarini sil hepsini", "call": "fm_opposition", "args": {"clear": true}}
-{"tr": "lukaku'ya sürekli baskı yap", "call": "fm_opposition", "args": {"player": "lukaku", "set": ["Pressing=Always"]}}
-{"tr": "lautaroya sert müdahale", "call": "fm_opposition", "args": {"player": "lautaro", "set": ["Tackling=Hard"]}}
-{"tr": "barellaya yakın markaj ve sert müdahale", "call": "fm_opposition", "args": {"player": "barella", "set": ["Marking=Tight", "Tackling=Hard"]}}
-{"tr": "dimarco'yu sağ ayağına zorla", "call": "fm_opposition", "args": {"player": "dimarco", "set": ["Foot=Right"]}}
-{"tr": "rakibin yıldızına adam adama", "call": "fm_opposition", "ask": "player"}
-{"en": "opposition instructions", "call": "fm_opposition"}
-{"en": "apply the assistant's opposition instructions", "call": "fm_opposition", "args": {"advice": true}}
-{"en": "clear opposition instructions", "call": "fm_opposition", "args": {"clear": true}}
-{"en": "always press lukaku", "call": "fm_opposition", "args": {"player": "lukaku", "set": ["Pressing=Always"]}}
-{"en": "tight mark barella and tackle hard", "call": "fm_opposition", "args": {"player": "barella", "set": ["Marking=Tight", "Tackling=Hard"]}}
-{"en": "show dimarco onto his right foot", "call": "fm_opposition", "args": {"player": "dimarco", "set": ["Foot=Right"]}}
-{"tr": "maç hazırlığı", "call": "fm_prep"}
-{"tr": "maça hazırlık odağı ne", "call": "fm_prep"}
-{"tr": "bu maç için antrenman odağı", "call": "fm_prep"}
-{"tr": "topla oyunda odak ilerleme olsun", "call": "fm_prep", "args": {"slot": "topla", "focus": "Progression"}}
-{"tr": "topsuz odak orta blok yap", "call": "fm_prep", "args": {"slot": "topsuz", "focus": "Mid Block"}}
-{"tr": "duran top hazırlığına hücum serbest vuruş koy", "call": "fm_prep", "args": {"slot": "duran1", "focus": "Attacking Free Kicks"}}
-{"tr": "ikinci duran top odağı savunma kornerleri", "call": "fm_prep", "args": {"slot": "duran2", "focus": "Defending Corners"}}
-{"tr": "hazırlıkta topsuz oyunu değiştir", "call": "fm_prep", "args": {"slot": "topsuz"}, "ask": "focus"}
-{"en": "match prep", "call": "fm_prep"}
-{"en": "what's the match preparation focus", "call": "fm_prep"}
-{"en": "set in possession prep to progression", "call": "fm_prep", "args": {"slot": "topla", "focus": "Progression"}}
-{"en": "out of possession focus mid block", "call": "fm_prep", "args": {"slot": "topsuz", "focus": "Mid Block"}}
-{"en": "first set piece focus attacking corners", "call": "fm_prep", "args": {"slot": "duran1", "focus": "Attacking Corners"}}
+{"tr": "maça çık", "call": "fm_match", "ask": "mode", "split": "held"}
+{"tr": "maçı oyna", "call": "fm_match", "ask": "mode", "split": "dev"}
+{"tr": "maç başlasın", "call": "fm_match", "ask": "mode", "split": "held"}
+{"tr": "hadi maça", "call": "fm_match", "ask": "mode", "split": "dev"}
+{"tr": "maci oyna", "call": "fm_match", "ask": "mode", "split": "dev"}
+{"tr": "maçı hızlı sonuçlandır", "call": "fm_match", "args": {"mode": "instant"}, "split": "dev"}
+{"tr": "maçı simüle et sonucu ver", "call": "fm_match", "args": {"mode": "instant"}, "split": "dev"}
+{"tr": "direk sonucu göster", "call": "fm_match", "args": {"mode": "instant"}, "split": "final"}
+{"tr": "anında sonuç", "call": "fm_match", "args": {"mode": "instant"}, "split": "final"}
+{"tr": "maçı geç sonucu söyle", "call": "fm_match", "args": {"mode": "instant"}, "split": "final"}
+{"tr": "maçı yardımcıya bırak", "call": "fm_match", "args": {"mode": "instant"}, "split": "held"}
+{"tr": "izlemeyecem sonucu ver", "call": "fm_match", "args": {"mode": "instant"}, "split": "held"}
+{"tr": "maçı izleyelim", "call": "fm_match", "args": {"mode": "play"}, "split": "dev"}
+{"tr": "maçı anlatımla oyna", "call": "fm_match", "args": {"mode": "play"}, "split": "dev"}
+{"tr": "maçı oyna konuşmaları da yapayım", "call": "fm_match", "args": {"mode": "play"}, "split": "dev"}
+{"tr": "maçı oyna ama takım konuşması yapma", "call": "fm_match", "args": {"mode": "play_no_talk"}, "split": "dev"}
+{"tr": "konuşmasız oyna maçı", "call": "fm_match", "args": {"mode": "play_no_talk"}, "split": "dev"}
+{"tr": "maçı izle konuşmaları atla", "call": "fm_match", "args": {"mode": "play_no_talk"}, "split": "dev"}
+{"tr": "devre arası konuşmasını geç maça devam", "call": "fm_match", "args": {"mode": "play_no_talk"}, "split": "dev"}
+{"tr": "maça devam et", "call": "fm_match", "ask": "mode", "or": [{"call": "fm_match", "args": {"mode": "play"}}], "split": "dev"}
+{"tr": "ikinci yarıyı başlat", "call": "fm_match", "args": {"mode": "play"}, "or": [{"call": "fm_match", "args": {"mode": "play_no_talk"}}], "split": "dev"}
+{"en": "play the match", "call": "fm_match", "ask": "mode", "split": "dev"}
+{"en": "kick off", "call": "fm_match", "ask": "mode", "split": "dev"}
+{"en": "sim the match", "call": "fm_match", "args": {"mode": "instant"}, "split": "dev"}
+{"en": "instant result", "call": "fm_match", "args": {"mode": "instant"}, "split": "held"}
+{"en": "just give me the result", "call": "fm_match", "args": {"mode": "instant"}, "split": "dev"}
+{"en": "let the assistant handle the game", "call": "fm_match", "args": {"mode": "instant"}, "split": "dev"}
+{"en": "watch the match with commentary", "call": "fm_match", "args": {"mode": "play"}, "split": "dev"}
+{"en": "play it but skip the team talks", "call": "fm_match", "args": {"mode": "play_no_talk"}, "split": "dev"}
+{"en": "play no talk", "call": "fm_match", "args": {"mode": "play_no_talk"}, "split": "held"}
+{"en": "resume the match", "call": "fm_match", "ask": "mode", "or": [{"call": "fm_match", "args": {"mode": "play"}}], "split": "dev"}
+{"tr": "oyuncu değişikliği", "call": "fm_sub", "split": "dev"}
+{"tr": "sahada kim var yedekte kim", "call": "fm_sub", "split": "dev"}
+{"tr": "kim yoruldu sahada", "call": "fm_sub", "split": "dev"}
+{"tr": "yedek kulübesi", "call": "fm_sub", "split": "held"}
+{"tr": "kondisyonlar maçta nasıl", "call": "fm_sub", "split": "dev"}
+{"tr": "rinaldiyi çıkar esposito girsin", "call": "fm_sub", "args": {"off": "rinaldi", "on": "esposito"}, "split": "dev"}
+{"tr": "esposito girsin rinaldi çıksın", "call": "fm_sub", "args": {"off": "rinaldi", "on": "esposito"}, "split": "dev"}
+{"tr": "tosto yerine fazzini", "call": "fm_sub", "args": {"off": "tosto", "on": "fazzini"}, "split": "final"}
+{"tr": "gyasi çık colombo gir", "call": "fm_sub", "args": {"off": "gyasi", "on": "colombo"}, "split": "held"}
+{"tr": "sakatlanan ghiglione yerine pieragnolo", "call": "fm_sub", "args": {"off": "ghiglione", "on": "pieragnolo"}, "split": "dev"}
+{"tr": "rinaldi yoruldu cikar", "call": "fm_sub", "args": {"off": "rinaldi"}, "ask": "on", "split": "dev"}
+{"tr": "colombo oyuna girsin", "call": "fm_sub", "args": {"on": "colombo"}, "ask": "off", "split": "dev"}
+{"tr": "sarı kartlı stopere değişiklik yap", "call": "fm_sub", "ask": ["off", "on"], "split": "held"}
+{"tr": "maleh yerine marin ama önce ne olacağını göster", "call": "fm_sub", "args": {"off": "maleh", "on": "marin", "dry": true}, "split": "dev"}
+{"tr": "rinaldyi cıkar esposto girsn", "call": "fm_sub", "args": {"off": "rinaldy", "on": "esposto"}, "split": "dev"}
+{"en": "subs", "call": "fm_sub", "split": "held"}
+{"en": "whos on the bench", "call": "fm_sub", "split": "dev"}
+{"en": "sub rinaldi off for esposito", "call": "fm_sub", "args": {"off": "rinaldi", "on": "esposito"}, "split": "final"}
+{"en": "bring on fazzini for tosto", "call": "fm_sub", "args": {"off": "tosto", "on": "fazzini"}, "split": "dev"}
+{"en": "take off gyasi", "call": "fm_sub", "args": {"off": "gyasi"}, "ask": "on", "split": "dev"}
+{"en": "colombo on, maleh off", "call": "fm_sub", "args": {"off": "maleh", "on": "colombo"}, "split": "dev"}
+{"en": "who's tired out there", "call": "fm_sub", "split": "dev"}
+{"tr": "bağır", "call": "fm_shout", "split": "final"}
+{"tr": "hangi bağırışlar var", "call": "fm_shout", "split": "dev"}
+{"tr": "kenardan ne bağırabilirim", "call": "fm_shout", "split": "dev"}
+{"tr": "takımı cesaretlendir", "call": "fm_shout", "args": {"shout": "Cesaretlendir"}, "split": "dev"}
+{"tr": "sakinleştir şunları", "call": "fm_shout", "args": {"shout": "Sakinleştir"}, "split": "held"}
+{"tr": "odaklanın diye bağır", "call": "fm_shout", "args": {"shout": "Odaklan"}, "split": "held"}
+{"tr": "gaza getir takımı", "call": "fm_shout", "args": {"shout": "Ateşle"}, "split": "held"}
+{"tr": "daha fazlasını iste", "call": "fm_shout", "args": {"shout": "Daha Fazlasını İste"}, "split": "dev"}
+{"tr": "oyuncuları öv", "call": "fm_shout", "args": {"shout": "Öv"}, "split": "dev"}
+{"tr": "fırça at takıma", "call": "fm_shout", "args": {"shout": "Azarla"}, "split": "held"}
+{"tr": "baskı yok de rahat oynasınlar", "call": "fm_shout", "args": {"shout": "Baskı Yok"}, "split": "final"}
+{"tr": "kenardan bağır biraz motive olsunlar", "call": "fm_shout", "ask": "shout", "split": "dev"}
+{"en": "shouts", "call": "fm_shout", "split": "held"}
+{"en": "encourage the team", "call": "fm_shout", "args": {"shout": "Encourage"}, "split": "dev"}
+{"en": "tell them to calm down from the touchline", "call": "fm_shout", "args": {"shout": "Calm Down"}, "split": "held"}
+{"en": "fire them up", "call": "fm_shout", "args": {"shout": "Fire Up"}, "split": "dev"}
+{"en": "demand more", "call": "fm_shout", "args": {"shout": "Demand More"}, "split": "dev"}
+{"en": "berate em", "call": "fm_shout", "args": {"shout": "Berate"}, "split": "dev"}
+{"en": "praise the players", "call": "fm_shout", "args": {"shout": "Praise"}, "split": "dev"}
+{"en": "no pressure shout", "call": "fm_shout", "args": {"shout": "No Pressure"}, "split": "dev"}
+{"tr": "yardımcı ne öneriyor", "call": "fm_dugout", "split": "dev"}
+{"tr": "kulübede tavsiye var mı", "call": "fm_dugout", "split": "final"}
+{"tr": "asistan ne diyo maçta", "call": "fm_dugout", "split": "dev"}
+{"tr": "yardımcının önerilerini göster", "call": "fm_dugout", "split": "held"}
+{"tr": "1. öneriyi uygula", "call": "fm_dugout", "args": {"number": 1, "action": "apply"}, "split": "held"}
+{"tr": "ikinci tavsiyeyi uygula", "call": "fm_dugout", "args": {"number": 2, "action": "apply"}, "split": "dev"}
+{"tr": "3 numaralı öneriyi kapat", "call": "fm_dugout", "args": {"number": 3, "action": "dismiss"}, "split": "dev"}
+{"tr": "yardımcının 2. önerisini boşver", "call": "fm_dugout", "args": {"number": 2, "action": "dismiss"}, "split": "final"}
+{"tr": "asistanın dediğini yap", "call": "fm_dugout", "args": {"action": "apply"}, "ask": "number", "split": "dev"}
+{"en": "dugout advice", "call": "fm_dugout", "split": "held"}
+{"en": "what does my assistant suggest", "call": "fm_dugout", "split": "dev"}
+{"en": "apply suggestion 1", "call": "fm_dugout", "args": {"number": 1, "action": "apply"}, "split": "dev"}
+{"en": "dismiss advice 2", "call": "fm_dugout", "args": {"number": 2, "action": "dismiss"}, "split": "final"}
+{"en": "do what the assistant says", "call": "fm_dugout", "args": {"action": "apply"}, "ask": "number", "split": "final"}
+{"tr": "son maç nasıl bitti", "call": "fm_report", "split": "held"}
+{"tr": "maç raporu", "call": "fm_report", "split": "dev"}
+{"tr": "geçen maçın istatistikleri", "call": "fm_report", "split": "dev"}
+{"tr": "golleri kim attı son maçta", "call": "fm_report", "split": "dev"}
+{"tr": "maçın adamı kimdi", "call": "fm_report", "split": "held"}
+{"tr": "topa kim daha çok sahip oldu", "call": "fm_report", "split": "dev"}
+{"tr": "son maçta xg kaçtı", "call": "fm_report", "split": "dev"}
+{"tr": "kaç şut attık", "call": "fm_report", "split": "held"}
+{"tr": "dunku mac kac bitti", "call": "fm_report", "split": "dev"}
+{"tr": "yine mi yenildik", "call": "fm_report", "split": "held"}
+{"tr": "maç özeti ver", "call": "fm_report", "split": "dev"}
+{"en": "how did the last game go", "call": "fm_report", "split": "dev"}
+{"en": "match report", "call": "fm_report", "split": "held"}
+{"en": "last match stats", "call": "fm_report", "split": "dev"}
+{"en": "who scored", "call": "fm_report", "split": "final"}
+{"en": "xg last game", "call": "fm_report", "split": "dev"}
+{"en": "potm?", "call": "fm_report", "split": "held"}
+{"en": "did we win", "call": "fm_report", "split": "dev"}
+{"tr": "rakip kim", "call": "fm_opponent", "split": "dev"}
+{"tr": "rakibi analiz et", "call": "fm_opponent", "split": "held"}
+{"tr": "sonraki rakip nasıl", "call": "fm_opponent", "split": "dev"}
+{"tr": "rakip ne dizilişle oynuyo", "call": "fm_opponent", "split": "final"}
+{"tr": "rakibin golcüsü kim", "call": "fm_opponent", "split": "held"}
+{"tr": "rakip form durumu", "call": "fm_opponent", "split": "dev"}
+{"tr": "karşı takımın en iyisi kim", "call": "fm_opponent", "split": "dev"}
+{"tr": "rakp raporu", "call": "fm_opponent", "split": "dev"}
+{"tr": "kime karşı oynuyoruz ve nasıl takım", "call": "fm_opponent", "split": "dev"}
+{"tr": "rakip ne kadar iyi", "call": "fm_opponent", "split": "dev"}
+{"en": "next opponent", "call": "fm_opponent", "split": "dev"}
+{"en": "scout the opposition", "call": "fm_opponent", "split": "dev"}
+{"en": "what formation do they play", "call": "fm_opponent", "split": "dev"}
+{"en": "who's their top scorer", "call": "fm_opponent", "split": "dev"}
+{"en": "opp report", "call": "fm_opponent", "split": "final"}
+{"en": "how good are they", "call": "fm_opponent", "split": "dev"}
+{"tr": "rakip talimatları", "call": "fm_opposition", "split": "dev"}
+{"tr": "rakip oyunculara özel talimatlar neler", "call": "fm_opposition", "split": "dev"}
+{"tr": "yardımcının rakip talimatlarını uygula", "call": "fm_opposition", "args": {"advice": true}, "split": "dev"}
+{"tr": "rakip talimatlarını asistan ayarlasın", "call": "fm_opposition", "args": {"advice": true}, "split": "final"}
+{"tr": "rakip talimatlarını temizle", "call": "fm_opposition", "args": {"clear": true}, "split": "dev"}
+{"tr": "rakip talimatlarini sil hepsini", "call": "fm_opposition", "args": {"clear": true}, "split": "dev"}
+{"tr": "lukaku'ya sürekli baskı yap", "call": "fm_opposition", "args": {"player": "lukaku", "set": ["Pressing=Always"]}, "split": "dev"}
+{"tr": "lautaroya sert müdahale", "call": "fm_opposition", "args": {"player": "lautaro", "set": ["Tackling=Hard"]}, "split": "dev"}
+{"tr": "barellaya yakın markaj ve sert müdahale", "call": "fm_opposition", "args": {"player": "barella", "set": ["Marking=Tight", "Tackling=Hard"]}, "split": "held"}
+{"tr": "dimarco'yu sağ ayağına zorla", "call": "fm_opposition", "args": {"player": "dimarco", "set": ["Foot=Right"]}, "split": "final"}
+{"tr": "rakibin yıldızına adam adama", "call": "fm_opposition", "ask": "player", "split": "final"}
+{"en": "opposition instructions", "call": "fm_opposition", "split": "dev"}
+{"en": "apply the assistant's opposition instructions", "call": "fm_opposition", "args": {"advice": true}, "split": "dev"}
+{"en": "clear opposition instructions", "call": "fm_opposition", "args": {"clear": true}, "split": "dev"}
+{"en": "always press lukaku", "call": "fm_opposition", "args": {"player": "lukaku", "set": ["Pressing=Always"]}, "split": "final"}
+{"en": "tight mark barella and tackle hard", "call": "fm_opposition", "args": {"player": "barella", "set": ["Marking=Tight", "Tackling=Hard"]}, "split": "dev"}
+{"en": "show dimarco onto his right foot", "call": "fm_opposition", "args": {"player": "dimarco", "set": ["Foot=Right"]}, "split": "dev"}
+{"tr": "maç hazırlığı", "call": "fm_prep", "split": "held"}
+{"tr": "maça hazırlık odağı ne", "call": "fm_prep", "split": "dev"}
+{"tr": "bu maç için antrenman odağı", "call": "fm_prep", "split": "dev"}
+{"tr": "topla oyunda odak ilerleme olsun", "call": "fm_prep", "args": {"slot": "topla", "focus": "Progression"}, "split": "held"}
+{"tr": "topsuz odak orta blok yap", "call": "fm_prep", "args": {"slot": "topsuz", "focus": "Mid Block"}, "split": "dev"}
+{"tr": "duran top hazırlığına hücum serbest vuruş koy", "call": "fm_prep", "args": {"slot": "duran1", "focus": "Attacking Free Kicks"}, "split": "dev"}
+{"tr": "ikinci duran top odağı savunma kornerleri", "call": "fm_prep", "args": {"slot": "duran2", "focus": "Defending Corners"}, "split": "dev"}
+{"tr": "hazırlıkta topsuz oyunu değiştir", "call": "fm_prep", "args": {"slot": "topsuz"}, "ask": "focus", "split": "final"}
+{"en": "match prep", "call": "fm_prep", "split": "dev"}
+{"en": "what's the match preparation focus", "call": "fm_prep", "split": "dev"}
+{"en": "set in possession prep to progression", "call": "fm_prep", "args": {"slot": "topla", "focus": "Progression"}, "split": "dev"}
+{"en": "out of possession focus mid block", "call": "fm_prep", "args": {"slot": "topsuz", "focus": "Mid Block"}, "split": "held"}
+{"en": "first set piece focus attacking corners", "call": "fm_prep", "args": {"slot": "duran1", "focus": "Attacking Corners"}, "split": "final"}

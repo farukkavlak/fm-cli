@@ -2,8 +2,8 @@
 """An embedding candidate for the natural-language router, to measure with tools/nl-score.py.
 
 Every dev sentence of tests/nl/*.jsonl is embedded once; a typed sentence is embedded and the
-tool is voted by its nearest dev neighbours (cosine, weighted). Held sentences are never in the
-index, so the held score is honest. Arguments come from the rule router: with --hybrid the
+tool is voted by its nearest dev neighbours (cosine, weighted). Held and final sentences are never
+in the index, so the held score is honest. Arguments come from the rule router: with --hybrid the
 picked tool is handed to `fm __route` ("tool" on the line) and its reader fills the arguments;
 a sentence the rules split into several asks stays split, and with --trust-rules S the rules'
 own pick wins when it scores S or more.
@@ -12,7 +12,6 @@ own pick wins when it scores S or more.
   tools/nl-score.py --router "tools/nl-embed.py --model minilm --k 5" --set base
 """
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -79,8 +78,8 @@ def dev_cases():
 				continue
 			c = json.loads(line)
 			text = c.get("tr") or c.get("en")
-			if int(hashlib.sha1(text.encode()).hexdigest(), 16) % 10 < 3:
-				continue  # held: never in the index
+			if c["split"] != "dev":
+				continue  # held and final: never in the index
 			call = c.get("call")
 			rows.append((text, json.dumps(call)))
 	for f in sorted((ROOT / "tests/nl/train").glob("*.jsonl")):

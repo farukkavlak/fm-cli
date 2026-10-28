@@ -1,198 +1,198 @@
-{"tr": "kulüp", "call": "fm_club"}
-{"tr": "kulüp durumu", "call": "fm_club"}
-{"tr": "kulübün hedefleri ne", "call": "fm_club"}
-{"tr": "yönetim benden ne bekliyo", "call": "fm_club", "or": [{"call": "fm_board"}]}
-{"tr": "sezon hedefi ne", "call": "fm_club"}
-{"tr": "kulüp vizyonu", "call": "fm_club"}
-{"tr": "yönetimin notu kaç", "call": "fm_club"}
-{"tr": "kulup ozet", "call": "fm_club"}
-{"en": "club overview", "call": "fm_club"}
-{"en": "what are the club's objectives", "call": "fm_club"}
-{"en": "what does the board expect", "call": "fm_club", "or": [{"call": "fm_board"}]}
-{"en": "season target", "call": "fm_club"}
-{"tr": "yönetim beni seviyo mu", "call": "fm_board"}
-{"tr": "kovulacak mıyım", "call": "fm_board"}
-{"tr": "yönetimin güveni", "call": "fm_board"}
-{"tr": "taraftar ve yönetim benim hakkımda ne düşünüyo", "call": "fm_board"}
-{"tr": "işim garanti mi", "call": "fm_board"}
-{"tr": "yonetim memnun mu", "call": "fm_board"}
-{"tr": "koltuk sallanıyo mu", "call": "fm_board"}
-{"en": "board confidence", "call": "fm_board"}
-{"en": "am i getting sacked", "call": "fm_board"}
-{"en": "is my job safe", "call": "fm_board"}
-{"en": "what does the board think of me", "call": "fm_board"}
-{"tr": "yönetimden ne isteyebilirim", "call": "fm_board_request"}
-{"tr": "yönetim talepleri", "call": "fm_board_request"}
-{"tr": "yönetimden transfer bütçesi iste", "call": "fm_board_request", "args": {"request": "transfer budget"}}
-{"tr": "antrenman tesislerini geliştirsinler", "call": "fm_board_request", "args": {"request": "training facilities"}}
-{"tr": "altyapı tesisleri için talep yap", "call": "fm_board_request", "args": {"request": "youth facilities"}}
-{"tr": "yeni stadyum iste", "call": "fm_board_request", "args": {"request": "stadium"}}
-{"tr": "daha fazla scout iste yönetimden", "call": "fm_board_request", "args": {"request": "scout"}}
-{"tr": "yeni sözleşme istiyorum yönetimden", "call": "fm_board_request", "args": {"request": "contract"}}
-{"tr": "maaş bütçesini arttırsınlar", "call": "fm_board_request", "args": {"request": "wage budget"}}
-{"tr": "altyapı alımını geliştirsinler", "call": "fm_board_request", "args": {"request": "youth recruitment"}}
-{"tr": "yonetimden para iste", "call": "fm_board_request", "args": {"request": "transfer budget"}, "or": [{"call": "fm_board_request"}]}
-{"en": "board requests", "call": "fm_board_request"}
-{"en": "ask the board for more transfer money", "call": "fm_board_request", "args": {"request": "transfer budget"}}
-{"en": "request better training facilities", "call": "fm_board_request", "args": {"request": "training facilities"}}
-{"en": "ask for a new stadium", "call": "fm_board_request", "args": {"request": "stadium"}}
-{"en": "ask for a new contract", "call": "fm_board_request", "args": {"request": "contract"}}
-{"tr": "vizyon toplantısı", "call": "fm_vision"}
-{"tr": "kulüp vizyonu görüşmesi neler diyo", "call": "fm_vision"}
-{"tr": "2. hedefi çıkar", "call": "fm_vision", "args": {"remove": "2"}}
-{"tr": "genç oyuncu oynatma hedefini kaldır", "call": "fm_vision", "args": {"remove": "genç"}}
-{"tr": "değişiklikleri yönetime öner", "call": "fm_vision", "args": {"action": "suggest"}}
-{"tr": "vizyonu kabul et", "call": "fm_vision", "args": {"action": "confirm"}}
-{"tr": "son değişikliği geri al", "call": "fm_vision", "args": {"action": "undo"}}
-{"tr": "vizyonu sıfırla", "call": "fm_vision", "args": {"action": "reset"}}
-{"tr": "toplantıyı bitir", "call": "fm_vision", "args": {"action": "end"}}
-{"en": "club vision meeting", "call": "fm_vision"}
-{"en": "remove objective 2", "call": "fm_vision", "args": {"remove": "2"}}
-{"en": "propose the changes to the board", "call": "fm_vision", "args": {"action": "suggest"}}
-{"en": "accept the vision", "call": "fm_vision", "args": {"action": "confirm"}}
-{"en": "undo that", "call": "fm_vision", "args": {"action": "undo"}}
-{"en": "end the meeting", "call": "fm_vision", "args": {"action": "end"}}
-{"tr": "bütçe", "call": "fm_budget"}
-{"tr": "transfer bütçesi ne kadar", "call": "fm_budget"}
-{"tr": "maaş bütçesi", "call": "fm_budget"}
-{"tr": "ne kadar param var transfer için", "call": "fm_budget"}
-{"tr": "kaç para harcayabilirim", "call": "fm_budget"}
-{"tr": "scout bütçesi", "call": "fm_budget"}
-{"tr": "bütçeyi ayarla", "call": "fm_budget", "args": {"adjust": true}}
-{"tr": "transferden maaşa para kaydır", "call": "fm_budget", "args": {"adjust": true}}
-{"tr": "maaş bütçesini transfer bütçesine aktar", "call": "fm_budget", "args": {"adjust": true}}
-{"tr": "bütçe kaydırıcısını 3. adıma getir", "call": "fm_budget", "args": {"adjust": true, "step": 3}}
-{"tr": "butce ne kadar abi", "call": "fm_budget"}
-{"en": "budget", "call": "fm_budget"}
-{"en": "how much can i spend", "call": "fm_budget"}
-{"en": "wage budget", "call": "fm_budget"}
-{"en": "adjust budgets", "call": "fm_budget", "args": {"adjust": true}}
-{"en": "move transfer money into wages", "call": "fm_budget", "args": {"adjust": true}}
-{"en": "set the budget slider to step 5", "call": "fm_budget", "args": {"adjust": true, "step": 5}}
-{"tr": "finans", "call": "fm_finances"}
-{"tr": "kulübün parası ne durumda", "call": "fm_finances"}
-{"tr": "kasada ne kadar var", "call": "fm_finances"}
-{"tr": "borcumuz ne kadar", "call": "fm_finances"}
-{"tr": "finansal fair play durumu", "call": "fm_finances"}
-{"tr": "maaş yükü ne kadar", "call": "fm_finances"}
-{"tr": "sponsorluk anlaşmaları", "call": "fm_finances"}
-{"tr": "bu ayki gelirler kalem kalem", "call": "fm_finances", "args": {"breakdown": "income"}}
-{"tr": "geçen ayın giderleri", "call": "fm_finances", "args": {"breakdown": "expenditure", "period": "last month"}}
-{"tr": "bu sezonun gelirleri", "call": "fm_finances", "args": {"breakdown": "income", "period": "season"}}
-{"tr": "geçen sezon ne harcadık", "call": "fm_finances", "args": {"breakdown": "expenditure", "period": "last season"}}
-{"tr": "para nereye gidiyo", "call": "fm_finances", "args": {"breakdown": "expenditure"}}
-{"tr": "batıyo muyuz", "call": "fm_finances"}
-{"tr": "finanslar", "call": "fm_finances"}
-{"en": "finances", "call": "fm_finances"}
-{"en": "bank balance", "call": "fm_finances"}
-{"en": "how much debt do we have", "call": "fm_finances"}
-{"en": "ffp status", "call": "fm_finances"}
-{"en": "income breakdown this season", "call": "fm_finances", "args": {"breakdown": "income", "period": "season"}}
-{"en": "what did we spend last month", "call": "fm_finances", "args": {"breakdown": "expenditure", "period": "last month"}}
-{"en": "are we going bust", "call": "fm_finances"}
-{"tr": "tesisler", "call": "fm_facilities"}
-{"tr": "stadyum kaç kişilik", "call": "fm_facilities"}
-{"tr": "antrenman tesisleri nasıl", "call": "fm_facilities"}
-{"tr": "stadın adı ne", "call": "fm_facilities"}
-{"tr": "altyapı tesisleri seviyesi", "call": "fm_facilities", "or": [{"call": "fm_youth"}]}
-{"tr": "zemin ısıtması var mı", "call": "fm_facilities"}
-{"tr": "tesisler ne alemde", "call": "fm_facilities"}
-{"en": "facilities", "call": "fm_facilities"}
-{"en": "stadium capacity", "call": "fm_facilities"}
-{"en": "how good are our training facilities", "call": "fm_facilities"}
-{"en": "do we have undersoil heating", "call": "fm_facilities"}
-{"tr": "taraftarlar", "call": "fm_supporters"}
-{"tr": "taraftar memnun mu", "call": "fm_supporters"}
-{"tr": "taraftarlar ne düşünüyo", "call": "fm_supporters", "or": [{"call": "fm_board"}]}
-{"tr": "seyirci ortalamamız", "call": "fm_supporters"}
-{"tr": "taraftar beklentisi", "call": "fm_supporters"}
-{"tr": "taraftarın morali", "call": "fm_supporters"}
-{"tr": "tribünler kızgın mı", "call": "fm_supporters"}
-{"en": "supporters", "call": "fm_supporters"}
-{"en": "are the fans happy", "call": "fm_supporters"}
-{"en": "average attendance", "call": "fm_supporters"}
-{"en": "fan mood", "call": "fm_supporters"}
-{"tr": "personel", "call": "fm_staff"}
-{"tr": "teknik ekip", "call": "fm_staff"}
-{"tr": "çalışanlarımız kim", "call": "fm_staff"}
-{"tr": "yardımcı antrenör kim", "call": "fm_staff"}
-{"tr": "kaç scoutumuz var", "call": "fm_staff"}
-{"tr": "fizyoterapist var mı", "call": "fm_staff"}
-{"tr": "personel listesi", "call": "fm_staff"}
-{"tr": "teknik ekibin maaşları", "call": "fm_staff"}
-{"en": "staff", "call": "fm_staff"}
-{"en": "backroom staff", "call": "fm_staff"}
-{"en": "who's my assistant manager", "call": "fm_staff"}
-{"en": "how many scouts do we have", "call": "fm_staff"}
-{"tr": "boşta antrenör ara", "call": "fm_staff_find", "args": {"role": "Coach", "free": true}}
-{"tr": "serbest scout bul", "call": "fm_staff_find", "args": {"role": "Scout", "free": true}}
-{"tr": "iyi bir fizyoterapist lazım", "call": "fm_staff_find", "args": {"role": "Physio", "reputation": "Good"}}
-{"tr": "kaleci antrenörü ara", "call": "fm_staff_find", "args": {"role": "Goalkeeping Coach"}}
-{"tr": "yeni yardımcı antrenör bul", "call": "fm_staff_find", "args": {"role": "Assistant Manager"}}
-{"tr": "bize gelmek isteyen personel", "call": "fm_staff_find", "args": {"filter": "Interested In Joining First Team"}}
-{"tr": "personel aramasında bianchi", "call": "fm_staff_find", "args": {"text": "bianchi"}}
-{"tr": "antrenörleri koçluk özellikleriyle göster", "call": "fm_staff_find", "args": {"role": "Coach", "view": "Coaching"}}
-{"tr": "personel aramasını sıfırla", "call": "fm_staff_find", "args": {"clear": true}}
-{"tr": "cok iyi seviye bedava fitnes hocasi", "call": "fm_staff_find", "args": {"role": "Fitness Coach", "free": true, "reputation": "Very Good"}}
-{"tr": "veri analisti arıyorum", "call": "fm_staff_find", "args": {"role": "Recruitment Analyst"}}
-{"en": "find a free coach", "call": "fm_staff_find", "args": {"role": "Coach", "free": true}}
-{"en": "unemployed scouts", "call": "fm_staff_find", "args": {"role": "Scout", "free": true}}
-{"en": "i need a good physio", "call": "fm_staff_find", "args": {"role": "Physio", "reputation": "Good"}}
-{"en": "goalkeeping coaches", "call": "fm_staff_find", "args": {"role": "Goalkeeping Coach"}}
-{"en": "staff interested in joining", "call": "fm_staff_find", "args": {"filter": "Interested In Joining First Team"}}
-{"en": "search staff for bianchi", "call": "fm_staff_find", "args": {"text": "bianchi"}}
-{"tr": "rossi'yi işe al", "call": "fm_staff_hire", "args": {"name": "rossi"}}
-{"tr": "bianchi ile görüş antrenör olarak", "call": "fm_staff_hire", "args": {"name": "bianchi"}}
-{"tr": "verdiyi kadroya kat 2000 maaşla", "call": "fm_staff_hire", "args": {"name": "verdi", "wage": "2000"}}
-{"tr": "rossiye 3.5k teklif et ve imzala", "call": "fm_staff_hire", "args": {"name": "rossi", "wage": "3.5K", "sign": true}}
-{"tr": "bu scoutu alalım", "call": "fm_staff_hire", "ask": "name"}
-{"tr": "rossiyi ise al", "call": "fm_staff_hire", "args": {"name": "rossi"}}
-{"en": "hire rossi", "call": "fm_staff_hire", "args": {"name": "rossi"}}
-{"en": "approach bianchi to join", "call": "fm_staff_hire", "args": {"name": "bianchi"}}
-{"en": "offer verdi 2000 a week and sign", "call": "fm_staff_hire", "args": {"name": "verdi", "wage": "2000", "sign": true}}
-{"tr": "verdiyi kov", "call": "fm_staff_fire", "args": {"name": "verdi"}}
-{"tr": "bianchi ile yollarımızı ayıralım", "call": "fm_staff_fire", "args": {"name": "bianchi"}}
-{"tr": "scout rossiyi karşılıklı anlaşmayla gönder", "call": "fm_staff_fire", "args": {"name": "rossi", "mutual": true}}
-{"tr": "yardımcıyı kovarsam ne kadar tazminat öderim", "call": "fm_staff_fire", "ask": "name"}
-{"tr": "verdi'nin işine son ver", "call": "fm_staff_fire", "args": {"name": "verdi"}}
-{"en": "sack verdi", "call": "fm_staff_fire", "args": {"name": "verdi"}}
-{"en": "fire bianchi", "call": "fm_staff_fire", "args": {"name": "bianchi"}}
-{"en": "let rossi go by mutual consent", "call": "fm_staff_fire", "args": {"name": "rossi", "mutual": true}}
-{"tr": "sorumluluklar", "call": "fm_responsibilities"}
-{"tr": "kim neyden sorumlu", "call": "fm_responsibilities"}
-{"tr": "görev dağılımı", "call": "fm_responsibilities"}
-{"tr": "sözleşme uzatmalarını kim yapıyo", "call": "fm_responsibilities", "args": {"filter": "contract"}}
-{"tr": "basın toplantılarını yardımcıya devret", "call": "fm_responsibilities", "args": {"delegate": "press conference"}}
-{"tr": "hazırlık maçı ayarlamayı devret", "call": "fm_responsibilities", "args": {"delegate": "friendlies"}}
-{"tr": "sözleşme yenilemeyi ben yapayım geri al", "call": "fm_responsibilities", "args": {"take": "contract renewals"}}
-{"tr": "personel alımını sportif direktöre ver", "call": "fm_responsibilities", "args": {"give": "hiring", "to": "director of football"}}
-{"tr": "antrenörlük kursları kime verilebilir", "call": "fm_responsibilities", "args": {"give": "coaching courses"}}
-{"tr": "basın toplantilarina ben gitmeyeyim", "call": "fm_responsibilities", "args": {"delegate": "press conference"}}
-{"en": "responsibilities", "call": "fm_responsibilities"}
-{"en": "who handles contract renewals", "call": "fm_responsibilities", "args": {"filter": "contract"}}
-{"en": "delegate press conferences", "call": "fm_responsibilities", "args": {"delegate": "press conference"}}
-{"en": "take back team selection", "call": "fm_responsibilities", "args": {"take": "team selection"}}
-{"en": "give hiring and firing to the dof", "call": "fm_responsibilities", "args": {"give": "hiring", "to": "director of football"}}
-{"tr": "iş ilanları", "call": "fm_jobs"}
-{"tr": "boş teknik direktörlük var mı", "call": "fm_jobs"}
-{"tr": "hangi takımlar hoca arıyo", "call": "fm_jobs"}
-{"tr": "işsizim iş bul", "call": "fm_jobs"}
-{"tr": "napoli işinin detayı", "call": "fm_jobs", "args": {"club": "napoli"}}
-{"tr": "3. işe bak", "call": "fm_jobs", "args": {"club": "3"}}
-{"tr": "napoliye başvur", "call": "fm_jobs", "args": {"club": "napoli", "action": "apply"}}
-{"tr": "romanın işiyle ilgilendiğimi söyle", "call": "fm_jobs", "args": {"club": "roma", "action": "interest"}}
-{"tr": "bir yere başvur", "call": "fm_jobs", "ask": "club"}
-{"en": "job vacancies", "call": "fm_jobs"}
-{"en": "which clubs need a manager", "call": "fm_jobs"}
-{"en": "details on the napoli job", "call": "fm_jobs", "args": {"club": "napoli"}}
-{"en": "apply for napoli", "call": "fm_jobs", "args": {"club": "napoli", "action": "apply"}}
-{"en": "declare interest in the roma job", "call": "fm_jobs", "args": {"club": "roma", "action": "interest"}}
-{"tr": "istifa et", "call": "fm_resign"}
-{"tr": "istifa ediyorum", "call": "fm_resign"}
-{"tr": "bıraktım bu işi", "call": "fm_resign"}
-{"tr": "sezon sonunda istifa edeceğim", "call": "fm_resign", "args": {"end_of_season": true}}
-{"tr": "sezon bitince ayrılıyorum", "call": "fm_resign", "args": {"end_of_season": true}}
-{"tr": "istfa", "call": "fm_resign"}
-{"en": "resign", "call": "fm_resign"}
-{"en": "i quit this job", "call": "fm_resign"}
-{"en": "resign at the end of the season", "call": "fm_resign", "args": {"end_of_season": true}}
+{"tr": "kulüp", "call": "fm_club", "split": "dev"}
+{"tr": "kulüp durumu", "call": "fm_club", "split": "held"}
+{"tr": "kulübün hedefleri ne", "call": "fm_club", "split": "dev"}
+{"tr": "yönetim benden ne bekliyo", "call": "fm_club", "or": [{"call": "fm_board"}], "split": "held"}
+{"tr": "sezon hedefi ne", "call": "fm_club", "split": "dev"}
+{"tr": "kulüp vizyonu", "call": "fm_club", "split": "dev"}
+{"tr": "yönetimin notu kaç", "call": "fm_club", "split": "dev"}
+{"tr": "kulup ozet", "call": "fm_club", "split": "dev"}
+{"en": "club overview", "call": "fm_club", "split": "dev"}
+{"en": "what are the club's objectives", "call": "fm_club", "split": "final"}
+{"en": "what does the board expect", "call": "fm_club", "or": [{"call": "fm_board"}], "split": "held"}
+{"en": "season target", "call": "fm_club", "split": "held"}
+{"tr": "yönetim beni seviyo mu", "call": "fm_board", "split": "dev"}
+{"tr": "kovulacak mıyım", "call": "fm_board", "split": "dev"}
+{"tr": "yönetimin güveni", "call": "fm_board", "split": "dev"}
+{"tr": "taraftar ve yönetim benim hakkımda ne düşünüyo", "call": "fm_board", "split": "held"}
+{"tr": "işim garanti mi", "call": "fm_board", "split": "dev"}
+{"tr": "yonetim memnun mu", "call": "fm_board", "split": "dev"}
+{"tr": "koltuk sallanıyo mu", "call": "fm_board", "split": "dev"}
+{"en": "board confidence", "call": "fm_board", "split": "dev"}
+{"en": "am i getting sacked", "call": "fm_board", "split": "dev"}
+{"en": "is my job safe", "call": "fm_board", "split": "held"}
+{"en": "what does the board think of me", "call": "fm_board", "split": "held"}
+{"tr": "yönetimden ne isteyebilirim", "call": "fm_board_request", "split": "held"}
+{"tr": "yönetim talepleri", "call": "fm_board_request", "split": "held"}
+{"tr": "yönetimden transfer bütçesi iste", "call": "fm_board_request", "args": {"request": "transfer budget"}, "split": "dev"}
+{"tr": "antrenman tesislerini geliştirsinler", "call": "fm_board_request", "args": {"request": "training facilities"}, "split": "dev"}
+{"tr": "altyapı tesisleri için talep yap", "call": "fm_board_request", "args": {"request": "youth facilities"}, "split": "dev"}
+{"tr": "yeni stadyum iste", "call": "fm_board_request", "args": {"request": "stadium"}, "split": "held"}
+{"tr": "daha fazla scout iste yönetimden", "call": "fm_board_request", "args": {"request": "scout"}, "split": "dev"}
+{"tr": "yeni sözleşme istiyorum yönetimden", "call": "fm_board_request", "args": {"request": "contract"}, "split": "final"}
+{"tr": "maaş bütçesini arttırsınlar", "call": "fm_board_request", "args": {"request": "wage budget"}, "split": "dev"}
+{"tr": "altyapı alımını geliştirsinler", "call": "fm_board_request", "args": {"request": "youth recruitment"}, "split": "dev"}
+{"tr": "yonetimden para iste", "call": "fm_board_request", "args": {"request": "transfer budget"}, "or": [{"call": "fm_board_request"}], "split": "dev"}
+{"en": "board requests", "call": "fm_board_request", "split": "dev"}
+{"en": "ask the board for more transfer money", "call": "fm_board_request", "args": {"request": "transfer budget"}, "split": "final"}
+{"en": "request better training facilities", "call": "fm_board_request", "args": {"request": "training facilities"}, "split": "dev"}
+{"en": "ask for a new stadium", "call": "fm_board_request", "args": {"request": "stadium"}, "split": "dev"}
+{"en": "ask for a new contract", "call": "fm_board_request", "args": {"request": "contract"}, "split": "held"}
+{"tr": "vizyon toplantısı", "call": "fm_vision", "split": "held"}
+{"tr": "kulüp vizyonu görüşmesi neler diyo", "call": "fm_vision", "split": "dev"}
+{"tr": "2. hedefi çıkar", "call": "fm_vision", "args": {"remove": "2"}, "split": "held"}
+{"tr": "genç oyuncu oynatma hedefini kaldır", "call": "fm_vision", "args": {"remove": "genç"}, "split": "held"}
+{"tr": "değişiklikleri yönetime öner", "call": "fm_vision", "args": {"action": "suggest"}, "split": "dev"}
+{"tr": "vizyonu kabul et", "call": "fm_vision", "args": {"action": "confirm"}, "split": "final"}
+{"tr": "son değişikliği geri al", "call": "fm_vision", "args": {"action": "undo"}, "split": "dev"}
+{"tr": "vizyonu sıfırla", "call": "fm_vision", "args": {"action": "reset"}, "split": "dev"}
+{"tr": "toplantıyı bitir", "call": "fm_vision", "args": {"action": "end"}, "split": "held"}
+{"en": "club vision meeting", "call": "fm_vision", "split": "dev"}
+{"en": "remove objective 2", "call": "fm_vision", "args": {"remove": "2"}, "split": "dev"}
+{"en": "propose the changes to the board", "call": "fm_vision", "args": {"action": "suggest"}, "split": "held"}
+{"en": "accept the vision", "call": "fm_vision", "args": {"action": "confirm"}, "split": "held"}
+{"en": "undo that", "call": "fm_vision", "args": {"action": "undo"}, "split": "final"}
+{"en": "end the meeting", "call": "fm_vision", "args": {"action": "end"}, "split": "final"}
+{"tr": "bütçe", "call": "fm_budget", "split": "dev"}
+{"tr": "transfer bütçesi ne kadar", "call": "fm_budget", "split": "dev"}
+{"tr": "maaş bütçesi", "call": "fm_budget", "split": "dev"}
+{"tr": "ne kadar param var transfer için", "call": "fm_budget", "split": "dev"}
+{"tr": "kaç para harcayabilirim", "call": "fm_budget", "split": "dev"}
+{"tr": "scout bütçesi", "call": "fm_budget", "split": "held"}
+{"tr": "bütçeyi ayarla", "call": "fm_budget", "args": {"adjust": true}, "split": "final"}
+{"tr": "transferden maaşa para kaydır", "call": "fm_budget", "args": {"adjust": true}, "split": "dev"}
+{"tr": "maaş bütçesini transfer bütçesine aktar", "call": "fm_budget", "args": {"adjust": true}, "split": "dev"}
+{"tr": "bütçe kaydırıcısını 3. adıma getir", "call": "fm_budget", "args": {"adjust": true, "step": 3}, "split": "held"}
+{"tr": "butce ne kadar abi", "call": "fm_budget", "split": "dev"}
+{"en": "budget", "call": "fm_budget", "split": "held"}
+{"en": "how much can i spend", "call": "fm_budget", "split": "held"}
+{"en": "wage budget", "call": "fm_budget", "split": "held"}
+{"en": "adjust budgets", "call": "fm_budget", "args": {"adjust": true}, "split": "held"}
+{"en": "move transfer money into wages", "call": "fm_budget", "args": {"adjust": true}, "split": "dev"}
+{"en": "set the budget slider to step 5", "call": "fm_budget", "args": {"adjust": true, "step": 5}, "split": "dev"}
+{"tr": "finans", "call": "fm_finances", "split": "dev"}
+{"tr": "kulübün parası ne durumda", "call": "fm_finances", "split": "held"}
+{"tr": "kasada ne kadar var", "call": "fm_finances", "split": "dev"}
+{"tr": "borcumuz ne kadar", "call": "fm_finances", "split": "dev"}
+{"tr": "finansal fair play durumu", "call": "fm_finances", "split": "held"}
+{"tr": "maaş yükü ne kadar", "call": "fm_finances", "split": "dev"}
+{"tr": "sponsorluk anlaşmaları", "call": "fm_finances", "split": "dev"}
+{"tr": "bu ayki gelirler kalem kalem", "call": "fm_finances", "args": {"breakdown": "income"}, "split": "dev"}
+{"tr": "geçen ayın giderleri", "call": "fm_finances", "args": {"breakdown": "expenditure", "period": "last month"}, "split": "dev"}
+{"tr": "bu sezonun gelirleri", "call": "fm_finances", "args": {"breakdown": "income", "period": "season"}, "split": "dev"}
+{"tr": "geçen sezon ne harcadık", "call": "fm_finances", "args": {"breakdown": "expenditure", "period": "last season"}, "split": "dev"}
+{"tr": "para nereye gidiyo", "call": "fm_finances", "args": {"breakdown": "expenditure"}, "split": "held"}
+{"tr": "batıyo muyuz", "call": "fm_finances", "split": "dev"}
+{"tr": "finanslar", "call": "fm_finances", "split": "dev"}
+{"en": "finances", "call": "fm_finances", "split": "dev"}
+{"en": "bank balance", "call": "fm_finances", "split": "held"}
+{"en": "how much debt do we have", "call": "fm_finances", "split": "dev"}
+{"en": "ffp status", "call": "fm_finances", "split": "dev"}
+{"en": "income breakdown this season", "call": "fm_finances", "args": {"breakdown": "income", "period": "season"}, "split": "held"}
+{"en": "what did we spend last month", "call": "fm_finances", "args": {"breakdown": "expenditure", "period": "last month"}, "split": "held"}
+{"en": "are we going bust", "call": "fm_finances", "split": "dev"}
+{"tr": "tesisler", "call": "fm_facilities", "split": "dev"}
+{"tr": "stadyum kaç kişilik", "call": "fm_facilities", "split": "dev"}
+{"tr": "antrenman tesisleri nasıl", "call": "fm_facilities", "split": "dev"}
+{"tr": "stadın adı ne", "call": "fm_facilities", "split": "dev"}
+{"tr": "altyapı tesisleri seviyesi", "call": "fm_facilities", "or": [{"call": "fm_youth"}], "split": "dev"}
+{"tr": "zemin ısıtması var mı", "call": "fm_facilities", "split": "held"}
+{"tr": "tesisler ne alemde", "call": "fm_facilities", "split": "dev"}
+{"en": "facilities", "call": "fm_facilities", "split": "dev"}
+{"en": "stadium capacity", "call": "fm_facilities", "split": "final"}
+{"en": "how good are our training facilities", "call": "fm_facilities", "split": "dev"}
+{"en": "do we have undersoil heating", "call": "fm_facilities", "split": "dev"}
+{"tr": "taraftarlar", "call": "fm_supporters", "split": "dev"}
+{"tr": "taraftar memnun mu", "call": "fm_supporters", "split": "dev"}
+{"tr": "taraftarlar ne düşünüyo", "call": "fm_supporters", "or": [{"call": "fm_board"}], "split": "dev"}
+{"tr": "seyirci ortalamamız", "call": "fm_supporters", "split": "dev"}
+{"tr": "taraftar beklentisi", "call": "fm_supporters", "split": "dev"}
+{"tr": "taraftarın morali", "call": "fm_supporters", "split": "held"}
+{"tr": "tribünler kızgın mı", "call": "fm_supporters", "split": "final"}
+{"en": "supporters", "call": "fm_supporters", "split": "held"}
+{"en": "are the fans happy", "call": "fm_supporters", "split": "final"}
+{"en": "average attendance", "call": "fm_supporters", "split": "dev"}
+{"en": "fan mood", "call": "fm_supporters", "split": "dev"}
+{"tr": "personel", "call": "fm_staff", "split": "dev"}
+{"tr": "teknik ekip", "call": "fm_staff", "split": "dev"}
+{"tr": "çalışanlarımız kim", "call": "fm_staff", "split": "dev"}
+{"tr": "yardımcı antrenör kim", "call": "fm_staff", "split": "dev"}
+{"tr": "kaç scoutumuz var", "call": "fm_staff", "split": "dev"}
+{"tr": "fizyoterapist var mı", "call": "fm_staff", "split": "dev"}
+{"tr": "personel listesi", "call": "fm_staff", "split": "dev"}
+{"tr": "teknik ekibin maaşları", "call": "fm_staff", "split": "held"}
+{"en": "staff", "call": "fm_staff", "split": "dev"}
+{"en": "backroom staff", "call": "fm_staff", "split": "held"}
+{"en": "who's my assistant manager", "call": "fm_staff", "split": "held"}
+{"en": "how many scouts do we have", "call": "fm_staff", "split": "held"}
+{"tr": "boşta antrenör ara", "call": "fm_staff_find", "args": {"role": "Coach", "free": true}, "split": "held"}
+{"tr": "serbest scout bul", "call": "fm_staff_find", "args": {"role": "Scout", "free": true}, "split": "held"}
+{"tr": "iyi bir fizyoterapist lazım", "call": "fm_staff_find", "args": {"role": "Physio", "reputation": "Good"}, "split": "dev"}
+{"tr": "kaleci antrenörü ara", "call": "fm_staff_find", "args": {"role": "Goalkeeping Coach"}, "split": "dev"}
+{"tr": "yeni yardımcı antrenör bul", "call": "fm_staff_find", "args": {"role": "Assistant Manager"}, "split": "dev"}
+{"tr": "bize gelmek isteyen personel", "call": "fm_staff_find", "args": {"filter": "Interested In Joining First Team"}, "split": "dev"}
+{"tr": "personel aramasında bianchi", "call": "fm_staff_find", "args": {"text": "bianchi"}, "split": "dev"}
+{"tr": "antrenörleri koçluk özellikleriyle göster", "call": "fm_staff_find", "args": {"role": "Coach", "view": "Coaching"}, "split": "dev"}
+{"tr": "personel aramasını sıfırla", "call": "fm_staff_find", "args": {"clear": true}, "split": "final"}
+{"tr": "cok iyi seviye bedava fitnes hocasi", "call": "fm_staff_find", "args": {"role": "Fitness Coach", "free": true, "reputation": "Very Good"}, "split": "held"}
+{"tr": "veri analisti arıyorum", "call": "fm_staff_find", "args": {"role": "Recruitment Analyst"}, "split": "dev"}
+{"en": "find a free coach", "call": "fm_staff_find", "args": {"role": "Coach", "free": true}, "split": "dev"}
+{"en": "unemployed scouts", "call": "fm_staff_find", "args": {"role": "Scout", "free": true}, "split": "dev"}
+{"en": "i need a good physio", "call": "fm_staff_find", "args": {"role": "Physio", "reputation": "Good"}, "split": "dev"}
+{"en": "goalkeeping coaches", "call": "fm_staff_find", "args": {"role": "Goalkeeping Coach"}, "split": "dev"}
+{"en": "staff interested in joining", "call": "fm_staff_find", "args": {"filter": "Interested In Joining First Team"}, "split": "final"}
+{"en": "search staff for bianchi", "call": "fm_staff_find", "args": {"text": "bianchi"}, "split": "held"}
+{"tr": "rossi'yi işe al", "call": "fm_staff_hire", "args": {"name": "rossi"}, "split": "final"}
+{"tr": "bianchi ile görüş antrenör olarak", "call": "fm_staff_hire", "args": {"name": "bianchi"}, "split": "dev"}
+{"tr": "verdiyi kadroya kat 2000 maaşla", "call": "fm_staff_hire", "args": {"name": "verdi", "wage": "2000"}, "split": "held"}
+{"tr": "rossiye 3.5k teklif et ve imzala", "call": "fm_staff_hire", "args": {"name": "rossi", "wage": "3.5K", "sign": true}, "split": "dev"}
+{"tr": "bu scoutu alalım", "call": "fm_staff_hire", "ask": "name", "split": "dev"}
+{"tr": "rossiyi ise al", "call": "fm_staff_hire", "args": {"name": "rossi"}, "split": "final"}
+{"en": "hire rossi", "call": "fm_staff_hire", "args": {"name": "rossi"}, "split": "held"}
+{"en": "approach bianchi to join", "call": "fm_staff_hire", "args": {"name": "bianchi"}, "split": "dev"}
+{"en": "offer verdi 2000 a week and sign", "call": "fm_staff_hire", "args": {"name": "verdi", "wage": "2000", "sign": true}, "split": "held"}
+{"tr": "verdiyi kov", "call": "fm_staff_fire", "args": {"name": "verdi"}, "split": "dev"}
+{"tr": "bianchi ile yollarımızı ayıralım", "call": "fm_staff_fire", "args": {"name": "bianchi"}, "split": "final"}
+{"tr": "scout rossiyi karşılıklı anlaşmayla gönder", "call": "fm_staff_fire", "args": {"name": "rossi", "mutual": true}, "split": "held"}
+{"tr": "yardımcıyı kovarsam ne kadar tazminat öderim", "call": "fm_staff_fire", "ask": "name", "split": "dev"}
+{"tr": "verdi'nin işine son ver", "call": "fm_staff_fire", "args": {"name": "verdi"}, "split": "final"}
+{"en": "sack verdi", "call": "fm_staff_fire", "args": {"name": "verdi"}, "split": "final"}
+{"en": "fire bianchi", "call": "fm_staff_fire", "args": {"name": "bianchi"}, "split": "held"}
+{"en": "let rossi go by mutual consent", "call": "fm_staff_fire", "args": {"name": "rossi", "mutual": true}, "split": "held"}
+{"tr": "sorumluluklar", "call": "fm_responsibilities", "split": "dev"}
+{"tr": "kim neyden sorumlu", "call": "fm_responsibilities", "split": "held"}
+{"tr": "görev dağılımı", "call": "fm_responsibilities", "split": "dev"}
+{"tr": "sözleşme uzatmalarını kim yapıyo", "call": "fm_responsibilities", "args": {"filter": "contract"}, "split": "final"}
+{"tr": "basın toplantılarını yardımcıya devret", "call": "fm_responsibilities", "args": {"delegate": "press conference"}, "split": "dev"}
+{"tr": "hazırlık maçı ayarlamayı devret", "call": "fm_responsibilities", "args": {"delegate": "friendlies"}, "split": "final"}
+{"tr": "sözleşme yenilemeyi ben yapayım geri al", "call": "fm_responsibilities", "args": {"take": "contract renewals"}, "split": "final"}
+{"tr": "personel alımını sportif direktöre ver", "call": "fm_responsibilities", "args": {"give": "hiring", "to": "director of football"}, "split": "final"}
+{"tr": "antrenörlük kursları kime verilebilir", "call": "fm_responsibilities", "args": {"give": "coaching courses"}, "split": "dev"}
+{"tr": "basın toplantilarina ben gitmeyeyim", "call": "fm_responsibilities", "args": {"delegate": "press conference"}, "split": "final"}
+{"en": "responsibilities", "call": "fm_responsibilities", "split": "dev"}
+{"en": "who handles contract renewals", "call": "fm_responsibilities", "args": {"filter": "contract"}, "split": "final"}
+{"en": "delegate press conferences", "call": "fm_responsibilities", "args": {"delegate": "press conference"}, "split": "held"}
+{"en": "take back team selection", "call": "fm_responsibilities", "args": {"take": "team selection"}, "split": "dev"}
+{"en": "give hiring and firing to the dof", "call": "fm_responsibilities", "args": {"give": "hiring", "to": "director of football"}, "split": "dev"}
+{"tr": "iş ilanları", "call": "fm_jobs", "split": "dev"}
+{"tr": "boş teknik direktörlük var mı", "call": "fm_jobs", "split": "dev"}
+{"tr": "hangi takımlar hoca arıyo", "call": "fm_jobs", "split": "final"}
+{"tr": "işsizim iş bul", "call": "fm_jobs", "split": "dev"}
+{"tr": "napoli işinin detayı", "call": "fm_jobs", "args": {"club": "napoli"}, "split": "dev"}
+{"tr": "3. işe bak", "call": "fm_jobs", "args": {"club": "3"}, "split": "dev"}
+{"tr": "napoliye başvur", "call": "fm_jobs", "args": {"club": "napoli", "action": "apply"}, "split": "dev"}
+{"tr": "romanın işiyle ilgilendiğimi söyle", "call": "fm_jobs", "args": {"club": "roma", "action": "interest"}, "split": "final"}
+{"tr": "bir yere başvur", "call": "fm_jobs", "ask": "club", "split": "dev"}
+{"en": "job vacancies", "call": "fm_jobs", "split": "held"}
+{"en": "which clubs need a manager", "call": "fm_jobs", "split": "final"}
+{"en": "details on the napoli job", "call": "fm_jobs", "args": {"club": "napoli"}, "split": "dev"}
+{"en": "apply for napoli", "call": "fm_jobs", "args": {"club": "napoli", "action": "apply"}, "split": "dev"}
+{"en": "declare interest in the roma job", "call": "fm_jobs", "args": {"club": "roma", "action": "interest"}, "split": "final"}
+{"tr": "istifa et", "call": "fm_resign", "split": "held"}
+{"tr": "istifa ediyorum", "call": "fm_resign", "split": "held"}
+{"tr": "bıraktım bu işi", "call": "fm_resign", "split": "held"}
+{"tr": "sezon sonunda istifa edeceğim", "call": "fm_resign", "args": {"end_of_season": true}, "split": "dev"}
+{"tr": "sezon bitince ayrılıyorum", "call": "fm_resign", "args": {"end_of_season": true}, "split": "dev"}
+{"tr": "istfa", "call": "fm_resign", "split": "dev"}
+{"en": "resign", "call": "fm_resign", "split": "dev"}
+{"en": "i quit this job", "call": "fm_resign", "split": "dev"}
+{"en": "resign at the end of the season", "call": "fm_resign", "args": {"end_of_season": true}, "split": "held"}
