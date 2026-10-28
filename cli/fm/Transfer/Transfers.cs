@@ -10,8 +10,28 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
+	/// <summary>
+	/// Leaves an offer screen unsent. It has no button of its own to leave by (the director's
+	/// question beside it only offers to make or propose the offer), so another page is opened,
+	/// as a manager would click away, and the screen is waited on to be gone.
+	/// </summary>
+	private static async Task<int> CloseOffer()
+	{
+		if (await OfferScreen.Read(Fm) == null)
+		{
+			Console.Error.WriteLine(L("No offer screen is open."));
+			return 1;
+		}
+		await OpenPage(Screen.Home);
+		var closed = await Until(async () => await OfferScreen.Read(Fm) == null, seconds: 8, every: 0.25);
+		Console.WriteLine(closed ? L("Offer screen closed; nothing was sent.") : L("Asked to close, but the offer screen is still open."));
+		return closed ? 0 : 1;
+	}
+
 	private static async Task<int> Offer(string[] args)
 	{
+		if (args.Contains("--close")) return await CloseOffer();
+
 		var words = Words(args).ToList();
 		var loan = args.Contains("--loan");
 		var dry = args.Contains("--dry");
@@ -171,7 +191,7 @@ internal static partial class Program
 
 		if (dry)
 		{
-			Console.WriteLine(L("(dry run) Not sent; the offer screen was left open. To close it: talk leave"));
+			Console.WriteLine(L("(dry run) Not sent; the offer screen was left open. To close it: offer --close"));
 			return 0;
 		}
 
