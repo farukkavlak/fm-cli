@@ -20,7 +20,7 @@ How sentences work today and how the assistant will be built.
 | Mode | Engine | For |
 |---|---|---|
 | Command | ONNX embeddings + kNN + rules (today) | fast, offline commands |
-| Mahmut Cloud | Claude, OpenAI, … with the user's key | conversation, analysis, plans |
+| Mahmut Cloud | Claude Haiku 5.5 (others by choice), user's key | conversation, plans; unsure commands (smart mode) |
 | Mahmut Local | a small local LLM | not now: failed every mark on this Mac (29 Oct) |
 
 - Mahmut belongs to the app, not to a model.
@@ -84,7 +84,7 @@ A sale and a search in one sentence are two steps. Only the sale needs approval.
 
 ## Local LLM experiment
 
-Plan and outcome: [LLM-EXPERIMENT.md](LLM-EXPERIMENT.md). Result: no local LLM; the router stays.
+Plan and outcome: [LLM-EXPERIMENT.md](LLM-EXPERIMENT.md). Result: no local LLM; the router stays; opt-in Haiku 5.5 where the router is unsure and for Mahmut.
 
 - Question: which jobs can a local model do? Not: local or cloud Mahmut.
 - Run with FM open, on an 8 GB Mac.

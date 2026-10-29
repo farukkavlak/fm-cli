@@ -1,0 +1,203 @@
+{
+ "manifest": {
+  "when": "2026-10-29T03:17:33+03:00",
+  "router": "tools/nl-llm.py --remote claude-haiku-5-5 --log /tmp/claude-501/plan-haiku-final.log",
+  "given_tool": false,
+  "model": {
+   "remote": "claude-haiku-5-5",
+   "name": "claude-haiku-5-5",
+   "candidates": null
+  },
+  "data": {
+   "tests+train": "bce2f166a59008db7b5739a9d9cbecac351961b0d241279415552a3022d58828"
+  },
+  "split": "families (trigram cosine >= 0.8, or >= 0.65 with the same call; near a training sentence = dev); new family: sha1 % 100 < 18 final, < 48 held",
+  "final_scored": true,
+  "group": null,
+  "only": "final",
+  "commit": "90e0432",
+  "dirty": false,
+  "machine": {
+   "os": "macOS-14.6.1-arm64-arm-64bit",
+   "cpu": "Apple M2",
+   "cores": 8,
+   "python": "3.11.2"
+  }
+ },
+ "results": {
+  "base": {
+   "dev": {
+    "n": 0,
+    "top-1": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "recall@3": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "recall@5": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "tool+args": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    }
+   },
+   "held": {
+    "n": 0,
+    "top-1": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "recall@3": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "recall@5": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "tool+args": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "ask": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "multi": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    },
+    "false none": {
+     "rate": null,
+     "hit": 0,
+     "of": 0
+    }
+   },
+   "final": {
+    "n": 319,
+    "top-1": {
+     "rate": 77.4,
+     "hit": 247,
+     "of": 319
+    },
+    "recall@3": {
+     "rate": 84.8,
+     "hit": 234,
+     "of": 276
+    },
+    "recall@5": {
+     "rate": 89.5,
+     "hit": 247,
+     "of": 276
+    },
+    "tool+args": {
+     "rate": 70.8,
+     "hit": 226,
+     "of": 319
+    },
+    "ask": {
+     "rate": 40.0,
+     "hit": 8,
+     "of": 20
+    },
+    "multi": {
+     "rate": 73.3,
+     "hit": 22,
+     "of": 30
+    },
+    "none": {
+     "rate": 97.7,
+     "hit": 42,
+     "of": 43
+    },
+    "false none": {
+     "rate": 17.8,
+     "hit": 49,
+     "of": 276
+    }
+   },
+   "all": {
+    "n": 319,
+    "top-1": {
+     "rate": 77.4,
+     "hit": 247,
+     "of": 319
+    },
+    "recall@3": {
+     "rate": 84.8,
+     "hit": 234,
+     "of": 276
+    },
+    "recall@5": {
+     "rate": 89.5,
+     "hit": 247,
+     "of": 276
+    },
+    "tool+args": {
+     "rate": 70.8,
+     "hit": 226,
+     "of": 319
+    },
+    "ask": {
+     "rate": 40.0,
+     "hit": 8,
+     "of": 20
+    },
+    "multi": {
+     "rate": 73.3,
+     "hit": 22,
+     "of": 30
+    },
+    "none": {
+     "rate": 97.7,
+     "hit": 42,
+     "of": 43
+    },
+    "false none": {
+     "rate": 17.8,
+     "hit": 49,
+     "of": 276
+    }
+   }
+  }
+ }
+}

@@ -1,4 +1,4 @@
-# Local LLM experiment
+# LLM experiment
 
 Which jobs can a small local model do, with FM open on this Mac? Status: **done 29 Oct.**
 
@@ -6,7 +6,7 @@ Which jobs can a small local model do, with FM open on this Mac? Status: **done 
 
 - **No local LLM.** None passed a single job. The router stays for commands.
 - Commands stay local: embeddings + kNN + readers (5 ms, offline).
-- Mahmut (conversation) needs a cloud model. Next: the same benches on free cloud models.
+- Mahmut (conversation) needs a cloud model: Claude Haiku 5.5 (below).
 - Router gaps (multi 52.6%, ask 56.2%, names) are fixed in the router (Phase 3), not with an LLM.
 
 | Held | Router | Qwen3.5 2B | Qwen3.5 4B | Pass |
@@ -28,6 +28,34 @@ Which jobs can a small local model do, with FM open on this Mac? Status: **done 
 - Small models answer English questions in Turkish, mix up names and numbers.
 - Blind scoring of the answers was skipped: the automatic marks already decided.
 - Downloaded models and the runner are deleted; the code and results stay.
+
+## Cloud model: Claude Haiku 5.5 (29 Oct)
+
+Same benches through OpenCode Go (`tools/nl-llm.py --remote`, `tools/llm-bench.py --remote`).
+
+| | Router | Haiku alone | **Router first + Haiku** |
+|---|---|---|---|
+| tool+args held · final | 67.0% · 61.8% | 68.6% · 70.8% | **72.6% · 71.5%** |
+| multi held · final | 52.6% · 46.7% | 76.3% · 73.3% | **71.1% · 73.3%** |
+| false none held · final | 2.6% · 4.0% | 14.2% · 17.8% | **2.0% · 1.8%** |
+| ask held · final | 56.2% · 30.0% | 46.9% · 40.0% | 43.8% · 35.0% |
+| none held · final | 89.2% · 90.7% | 95.4% · 97.7% | 89.2% · 88.4% |
+| sentences sent to Haiku | 0% | 100% | 48% (test set is hard; real play less) |
+
+- Router first + Haiku: Haiku only when the router would not run its pick (under 80% of the 15 nearest), when the rules split the sentence, or when the router has no tool; if Haiku says none and the router has a tool, the router's (`tools/nl-hybrid.py`).
+- Arguments alone: Haiku 84.7%, readers 90.0% held.
+- Memory 8/10 (4B: 3/10). Answers 5.5 s median, 8.1 s p90; no invented names. Answers English questions in Turkish.
+- Cost: ~$0.00025 a command, ~$0.001 a Mahmut answer; a 10 h/week player pays ~$1 a month.
+- Other cloud models not measured: Haiku is the cheapest and passed (GLM 5.3 Flash +40%, DeepSeek V4.1 Flash 3×).
+- OpenCode's free models are not served over the API (OpenCode app only); Go needs `x-opencode-session`.
+
+## Decision (29 Oct)
+
+- **Command mode:** the router alone. Free, offline, the default. Nothing needs a key.
+- **Smart mode (opt-in, user's key):** router first, Haiku 5.5 where the router is unsure or the sentence has several asks.
+- **Mahmut:** Haiku 5.5 in the cloud, opt-in, user's key. A bigger model (Sonnet) only as a choice.
+- **No local LLM** for now.
+- Open: Haiku asks less than it should (ask 43.8%); game-changing tools must always ask for a missing value (Phase 2).
 
 ## Machine (28 Oct, FM open)
 
@@ -121,7 +149,6 @@ A model passes a job only if all of its marks hold on held.
 
 - Qwen3.5 0.8B: out. Measured with the first planner (empty plans allowed): arguments 38.7% (readers 90.0%), memory 0/10, invents numbers and names. Not measured again with the fixed planner (Faruk, 29 Oct).
 - Planner fix after 0.8B: `none` is a choice, at least one step, one step per split ask, training examples per tool. Held is scored again for every other model.
-- Next after the local models: the same benches on OpenCode Zen's free cloud models (temporary, may train on what is sent; test data only). Faruk, 29 Oct.
 
 ## Results
 

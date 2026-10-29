@@ -19,8 +19,8 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 - [x] Write the experiment plan and get it approved: [LLM-EXPERIMENT.md](LLM-EXPERIMENT.md)
 - [x] Measure with FM running: Qwen3.5 2B and 4B fail every mark ([LLM-EXPERIMENT.md](LLM-EXPERIMENT.md))
 - [x] Arguments: LLM vs readers: best 51.8% (4B) vs readers 90.0% held
-- [x] Decision: commands stay local with the router; no local LLM; Mahmut needs a cloud model
-- [ ] Same benches on free cloud models (OpenCode Zen) for Mahmut
+- [x] Decision: router by default; opt-in smart mode = router + Haiku 5.5; Mahmut = Haiku 5.5; no local LLM
+- [x] Cloud: Claude Haiku 5.5. Router first + Haiku where unsure: tool+args final 71.5% (router 61.8%), false none 1.8%; memory 8/10
 
 ## Phase 2 — one safety policy
 - [ ] Mark every tool read-only, reversible or high-impact, next to its definition
@@ -36,7 +36,8 @@ Work through it in order. Why: [AI-ROADMAP.md](AI-ROADMAP.md). How: [AI-DESIGN.m
 - [ ] Entity bench
 
 ## Phase 4 — Mahmut, read-only
-- [ ] Model provider interface; cloud adapter with the user's key, off by default
+- [ ] Model provider interface; cloud adapter with the user's key, off by default (Haiku 5.5 first)
+- [ ] Smart mode: router first, Haiku where the router is unsure or the sentence has several asks
 - [ ] Session state: last turns, "him", "that player"
 - [ ] Squad, injuries, fixtures, offers, answered only from what was read
 - [ ] Show what was checked (which tool, which data)
