@@ -82,7 +82,7 @@ internal static partial class Program
 			                  "Will appoint player as captain", "Entire offer=Non-Negotiable")
 			    --wage <amount>  wage, in the game's wage period;  --next: confirm the promises, go on to the terms
 			    --sign --yes  put the terms to the agent / sign;  --cancel: cancel the negotiation
-			  training [player]  individual training: position/role, out-of-possession role, focus;  --focus / --position "A>B" / --role
+			  training [player]  individual training: position/role, out-of-possession role, focus;  --focus / --position "A>B" / --role;  --control player|month|all takes it over from the assistant
 			  training <player> --report [--coach <name>]  ask a coach for a training report and show it
 			  training <player> --trait ["<trait>"]  traits and what can be taught; given one, teach it
 			                  --trait-remove "<t>" drop one · --trait-cancel · --trait-suggest · --yes: despite the assistant's objection

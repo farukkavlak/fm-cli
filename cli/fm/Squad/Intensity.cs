@@ -135,7 +135,7 @@ internal static partial class Program
 
 	/// <summary>Every first-team player on the intensity pages, from his own data.</summary>
 	private static async Task<List<IntensityRow>> IntensityRows() =>
-		(await PlayersTraining("team", "Human.Team", string.Join(",", IntensityData.Select(d => IntensityOf + d))))
+		(await PlayersTraining(string.Join(",", IntensityData.Select(d => IntensityOf + d))))
 			.Select(p => IntensityFrom(p.Row, p.Data))
 			.Where(r => r != null)
 			.ToList();

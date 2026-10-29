@@ -146,7 +146,7 @@ fm opposition [<player> <instruction>=<value>]
 ![fm tactic](manual/img/tactics/tactic.png)
 
 ```bash
-fm training [<player>] [--focus ...] [--position ...] [--role ...]
+fm training [<player>] [--focus ...] [--position ...] [--role ...] [--control player|month|all]
 fm training <player> --report [--coach <name>]
 fm training <player> --trait ["<trait>"]
 fm schedule                  # this week and next, three sessions a day

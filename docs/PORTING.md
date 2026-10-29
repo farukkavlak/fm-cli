@@ -199,7 +199,16 @@ Still open:
 - [x] A tab's own menu is its bar (Training › Coach Assignments); `Subpage` tries real bars first.
 - [x] First-visit tab intros: `/closeintro` presses `#EndTutorialButton`; `OpenPage` calls it. A chosen page does not open under one.
 - [ ] `fm budget adjust`: the tile is now "Adjust Transfer Budget" with a `GenericAction` event, not `SpeakToAction`.
-- [ ] `fm training`: individual training reads nothing (the `PlayerTraining` data paths changed).
+- [x] `fm training`: `PlayerTraining` now asks for `human` and `team` beside the player rows (its parts still a `Judge`).
+  - The page shows one player's lists beside the table. His row is chosen by `UniqueId` (`/checkrows`, other rows unticked:
+    the table keeps several and the lists are the first's); the lists by the event they send, whose they are by the
+    page's `person` (`/rowcontrols?var=person`, read from the scope the list writes into).
+  - The assistant looks after individual training by default: the lists are shut, choosing on one brings up dialog
+    `TrainingControl`. `--control player|month|all` answers it by `EventID`; without it the change is refused.
+  - An answer can lead to the player's own page, which has the same table and lists: only the training page's are taken.
+  - After a change every other player is read again; a change that reached someone else is said.
+  - Tried: TR only (cold start, page open, other page open), 9/9 + 5/5 in a row, all three parts, submenus.
+- [ ] `fm intensity <player> <level>`: same shut list; needs the `--control` answer too (reads work).
 - [x] `fm budget`: "spent this season" is `Human.Club.TransferExpenditureThisSeason`.
 - [ ] `fm stages`: team names empty. `fm happiness`: page opens, read fails.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
