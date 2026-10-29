@@ -112,6 +112,44 @@ python3 tools/identity-check.py check /tmp/fm27                       # what the
 - Match-screen controls are not in any catalog ("unchecked"): play one `fm match` to cover them.
 - After code changes, regenerate the list: `tools/identity-check.py uses`.
 
+## FM27 static check (29 Oct 2026, Launch Preview 27.0.0.2486716)
+
+From disk only, game not modded. Rerun after each FM27 update (full release 10 Nov):
+`tools/metadump` (catalogs from `GameAssembly` + metadata) → `identity-check.py check OUTDIR`.
+
+- Unity `6000.3.18f1-custom` (FM26: 6000.0.52f1). IL2CPP, metadata v39, not encrypted.
+- Universal binary, arm64 slice present.
+- The LibCpp2IL inside our BepInEx 6.0.0-be.755 reads it: 20,009 types. Good sign for BepInEx; not yet launched.
+- `SI.Bindable.Bindings`, `BindingPath.Create` still exist → the core ports.
+- Radar: `Match2DSimulation.m_data`, `MatchSimulationData`, `PlayerEntityData` (position, rotation,
+  height, kit colours) all there → radar should port unchanged.
+- Event and action ids keep their FM26 numbers. 208 new events, 14 gone.
+- Plugin's compiled game references: 467, all present except:
+  - [ ] `SI.Bindable.DropdownRowNavigatable` → `SI.Bindable.DropdownRow`; `m_childDropdown` gone
+    (`Controls/Submenus.cs`; `SIDropdown.m_childrenDropdowns` is a lead)
+  - [ ] `SI.Bindable.TableRowNavigatable` gone (`Controls/TableRows.cs`, `Reads/Registration.cs`)
+  - [ ] `BindableTextEditBox.m_textField` moved to `BindableEditBox<T>` (`Controls/TextBoxes.cs`)
+  - [ ] `Bindings.GetDescendantCount` gone (`Bridge/FmApi.cs` status line only)
+  - [ ] `IdentifierInfo.DisplayName` gone, `Name` remains (`Bridge/Schema.cs`)
+- CLI events gone:
+  - [ ] `EventFmxMatchFocusSelect*` (4, `Match/Prep.cs`); `EventFmxSelectMatchFocusType` remains
+  - Also gone: `EventFmxMatchTacticsChanged`, `EventFmxToggleIndividualTrainingSelection`,
+    `EventFmxSetPieceInstrPlayerMove`, `…PlayersTrainingUnit…` (4), MLS `SetGam/SetTamValue`.
+- `languages.fmf`: same format (zstd + `ctl.` blocks).
+  - [ ] Block names are now native ("Türkçe", "Deutsch", "Français", "Español"); `EngineTexts.BlockNames`
+    expects "Turkish"… → engine texts silently skipped. New: "Bahasa Indonesia".
+- Needs the running game: page GUIDs, data paths, button events, texts (`identity-check.py catalog`).
+
+New in FM27 (from the new events):
+
+- Fantasy Draft / Shuffle Draft mode, cup draw screen, Steam Workshop.
+- Tactical Tweaks (apply / undo / reset), tactic Data Visualisations pinning.
+- Training: week editing from a card, copy/paste week, custom schedules, assistant individual training.
+- Set pieces: edit sessions with undo, captain stand-in candidates, penalty takers quick pick, foot preference.
+- Recruitment Focus rebuilt (stats, objectives, conditions), Scouting Centre acknowledge/discard.
+- Match: replays skip/toggle, speed change event, touchline talk cancel, post-match reactions.
+- Kit editor (shirt/shorts/socks styles), store items, favourite players, "forced screen" onboarding.
+
 ## FM26 traps that may return
 
 Game behaviour:

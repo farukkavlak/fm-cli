@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>metadump</AssemblyName>
+    <!-- The LibCpp2IL that BepInEx ships: if it reads the game, BepInEx's own interop generation will too. -->
+    <BepCore Condition="'$(BepCore)' == ''">/Users/Shared/FM26/BepInEx/core</BepCore>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(BepCore)/LibCpp2IL.dll" />
+    <Reference Include="$(BepCore)/AssetRipper.Primitives.dll" />
+    <Reference Include="$(BepCore)/StableNameDotNet.dll" />
+    <Reference Include="$(BepCore)/Disarm.dll" />
+    <Reference Include="$(BepCore)/Iced.dll" />
+    <Reference Include="$(BepCore)/WasmDisassembler.dll" />
+  </ItemGroup>
+</Project>
