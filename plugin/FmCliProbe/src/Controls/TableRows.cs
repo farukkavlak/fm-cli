@@ -102,8 +102,39 @@ internal static class TableRows
 		}
 		return $"error: no row shows '{wanted}'";
 #else
-		// FM27 dropped TableRowNavigatable (rows sit in the new SI.UI.Focus zones); not measured yet.
-		return "error: table rows are not ported to FM27 yet";
+		if (!string.IsNullOrEmpty(q["table"])) return Check(q);
+		var wanted = q["text"];
+		if (string.IsNullOrEmpty(wanted)) return "error: ?text=<a cell's text> required";
+
+		foreach (var (row, list, index) in Laid())
+		{
+			if (!Shows(row, wanted, 0)) continue;
+			if (!string.IsNullOrEmpty(q["and"]) && !Shows(row, q["and"], 0)) continue;
+			if (q["check"] is "1" or "0" && Toggle(row, 0) == null) continue;
+			if (q["dry"] == "1") return $"dry run, NOT selected: row {index}";
+
+			if (q["expand"] is "1" or "0")
+			{
+				var toggle = Toggle(row, 0);
+				if (toggle == null) return "error: that row has nothing to expand";
+				toggle.value = q["expand"] == "1";
+				return $"row {index} {(toggle.value ? "expanded" : "collapsed")}";
+			}
+
+			if (q["check"] is "1" or "0")
+			{
+				var selection = list.ListElement?.SelectionInternal;
+				if (selection == null) return "error: that row's list keeps no selection";
+				var on = q["check"] == "1";
+				var before = selection.Contains(index);
+				if (before != on) selection.SetSelected(index, on);
+				return $"row {index} {(before ? "ticked" : "unticked")} -> {(selection.Contains(index) ? "ticked" : "unticked")}";
+			}
+
+			list.SetListSelection(index);
+			return $"selected row {index}";
+		}
+		return $"error: no row shows '{wanted}'";
 #endif
 	}
 
@@ -130,6 +161,14 @@ internal static class TableRows
 			}
 			catch { }
 		}
+#else
+		var tables = new List<StreamedListView>();
+		foreach (var (row, table, _) in Laid())
+		{
+			if (Toggle(row, 0) == null || table.ListElement?.SelectionInternal == null || tables.Any(t => t.Pointer == table.Pointer)) continue;
+			tables.Add(table);
+		}
+#endif
 
 		var under = $"fmcli.checkrows.g{q["gen"] ?? "0"}";
 		var rows = new List<string>();
@@ -158,10 +197,6 @@ internal static class TableRows
 			rows.Add($"{{\"Table\": \"0x{tables[t].Pointer.ToInt64():x}\", \"Items\": [{string.Join(", ", items)}], \"Ticked\": [{string.Join(", ", ticked)}]}}");
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";
-#else
-		// FM27 dropped TableRowNavigatable (rows sit in the new SI.UI.Focus zones); not measured yet.
-		return "error: table rows are not ported to FM27 yet";
-#endif
 	}
 
 	/// <summary>Ticks (check=1) or unticks (check=0) the item at ?index= of the table at ?table=.</summary>
@@ -185,6 +220,38 @@ internal static class TableRows
 		}
 		return $"error: no element at {q["table"]}";
 	}
+
+#if !FM26
+	/// <summary>
+	/// Every row a table on screen has laid out, with its table and the place of its item in the
+	/// order the table shows them. FM27 dropped TableRowNavigatable, which knew both; the table
+	/// itself keeps which item each laid-out row element is for, by its place in view (measured on
+	/// the squad table: Archie Brown's row 9, his source place 5).
+	/// </summary>
+	internal static IEnumerable<(UnityEngine.UIElements.VisualElement Row, StreamedListView Table, int Index)> Laid()
+	{
+		var found = new List<(UnityEngine.UIElements.VisualElement, StreamedListView, int)>();
+		foreach (var e in Buttons.Elements())
+		{
+			try
+			{
+				var table = e.TryCast<StreamedListView>();
+				if (table == null || table.panel == null || table.worldBound.width <= 0) continue;
+				var rows = table.m_boundElements;
+				if (rows == null) continue;
+				var step = rows.GetEnumerator();
+				while (step.MoveNext())
+				{
+					var row = step.Current.Key;
+					if (row == null || row.panel == null || row.worldBound.width <= 0) continue;
+					found.Add((row, table, step.Current.Value));
+				}
+			}
+			catch { }
+		}
+		return found;
+	}
+#endif
 
 	private static UnityEngine.UIElements.Toggle Toggle(UnityEngine.UIElements.VisualElement element, int depth)
 	{

@@ -173,7 +173,11 @@ Still open:
 - [x] `fm status` / `inbox` / `reply`: rows found by `NewsItemHasBeenRead` (the path no longer names the list);
   rows pressed with `press?has=<title>` (the sender is now the row's first text); the open message read
   `within=MessagesToolBlockMessageContent`. Training report (`TrainingReport.cs`) uses `has=` too, not tried yet.
-- [ ] Table rows (`TableRows.Select/Checkable`, `Registration`): gated, return "not ported".
+- [x] Table rows (`rowselect`, `checkrows`, `registration`): rows come from the table's own `m_boundElements`
+  (row element → place in view; FM26 rows knew it themselves). It holds the view place, not the source's
+  (squad table: Archie Brown row 9, source 5), so `RowControls` reads `GetItemFromView`. Registration's name
+  text is `#primary-text`. Tried live: select, tick/untick by text and by table+index, registration read + toggle.
+  - `fm register` opens only from the squad overview tile: its GUID is now a Squad submenu page (see Submenus).
 - [ ] Submenus: `DropdownRow` has no `m_childDropdown`.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
 - [ ] `identity-check.py catalog` (game must be in English for the word list).

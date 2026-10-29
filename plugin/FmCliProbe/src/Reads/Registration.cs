@@ -19,6 +19,13 @@ namespace FmCliProbe;
 /// </summary>
 internal static class Registration
 {
+	// The player's name in a row.
+#if FM26
+	private const string NameText = "NameText";
+#else
+	private const string NameText = "primary-text";
+#endif
+
 	public static string Current()
 	{
 		var rules = new List<Dictionary<string, string>>();
@@ -101,14 +108,17 @@ internal static class Registration
 		{
 			TableRowNavigatable row;
 			try { row = element.TryCast<TableRowNavigatable>(); } catch { continue; }
-			if (row == null || Find(row, "NameText") == null) continue;
+			if (row == null || Find(row, NameText) == null) continue;
 
 			// The squad page behind has rows too, without a switch.
 			if (Inner<SICheckBox>(row) is { } box) yield return box;
 		}
 #else
-		// FM27 dropped TableRowNavigatable (rows sit in the new SI.UI.Focus zones); not measured yet.
-		yield break;
+		foreach (var (row, _, _) in TableRows.Laid())
+		{
+			if (Find(row, NameText) == null) continue;
+			if (Inner<SICheckBox>(row) is { } box) yield return box;
+		}
 #endif
 	}
 
@@ -117,11 +127,16 @@ internal static class Registration
 #if FM26
 		VisualElement row = box;
 		while (row != null && row.TryCast<TableRowNavigatable>() == null) row = row.hierarchy.parent;
+#else
+		var laid = TableRows.Laid().Select(r => r.Row.Pointer).ToHashSet();
+		VisualElement row = box;
+		while (row != null && !laid.Contains(row.Pointer)) row = row.hierarchy.parent;
+#endif
 
 		var fields = new Dictionary<string, string>
 		{
 			["Pointer"] = $"0x{box.Pointer.ToInt64():x}",
-			["Name"] = Text.Plain(Find(row, "NameText")?.text ?? ""),
+			["Name"] = Text.Plain(Find(row, NameText)?.text ?? ""),
 		};
 		// What the switch is bound to, read through its own key. Its Value lags until the switch
 		// is first flipped, and the binding tree keeps rows a scroll has left behind, so a
@@ -146,17 +161,13 @@ internal static class Registration
 			string name;
 			try { name = text.name ?? ""; } catch { name = ""; }
 			var value = Text.Plain(text.text ?? "");
-			if (name == "NameText" || flags.Contains(value) || string.IsNullOrWhiteSpace(value)) continue;
+			if (name == NameText || flags.Contains(value) || string.IsNullOrWhiteSpace(value)) continue;
 
 			if (int.TryParse(value, out _)) fields.TryAdd("Age", value);
 			else if (name == "text") fields.TryAdd("Position", value);
 			else fields.TryAdd("Status", value);
 		}
 		return fields;
-#else
-		// FM27 dropped TableRowNavigatable (rows sit in the new SI.UI.Focus zones); not measured yet.
-		return new Dictionary<string, string>();
-#endif
 	}
 
 	private static T Inner<T>(VisualElement root) where T : VisualElement

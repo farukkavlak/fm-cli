@@ -45,7 +45,13 @@ internal static class RowControls
 			var path = "";
 			try
 			{
-				if (table.GetItemFromSource(index)?.TryCast<SI.Core.TypedValue>() is { IsNull: false } item && RawPath.Set($"{under}.{k}", item) == null)
+#if FM26
+				var held = table.GetItemFromSource(index);
+#else
+				// FM27's table keeps each row by its place in view (TableRows.Laid).
+				var held = table.GetItemFromView(index);
+#endif
+				if (held?.TryCast<SI.Core.TypedValue>() is { IsNull: false } item && RawPath.Set($"{under}.{k}", item) == null)
 					path = $"{under}.{k}";
 			}
 			catch { }
