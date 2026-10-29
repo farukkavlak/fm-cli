@@ -170,7 +170,9 @@ Plugin fixes in place: Bind takes an owner (`FmApi.Owner`; null throws), node co
 
 Still open:
 
-- [ ] `fm status` / `inbox`: `/inbox` returns `[]` → the messages data path changed.
+- [x] `fm status` / `inbox` / `reply`: rows found by `NewsItemHasBeenRead` (the path no longer names the list);
+  rows pressed with `press?has=<title>` (the sender is now the row's first text); the open message read
+  `within=MessagesToolBlockMessageContent`. Training report (`TrainingReport.cs`) uses `has=` too, not tried yet.
 - [ ] Table rows (`TableRows.Select/Checkable`, `Registration`): gated, return "not ported".
 - [ ] Submenus: `DropdownRow` has no `m_childDropdown`.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.

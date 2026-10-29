@@ -96,11 +96,11 @@ internal static class Report
 		foreach (var (path, node) in Walk())
 		{
 			if (node.Value?.DataType?.Name != "NewsItemReference") continue;
-			// The inbox is the streamed list on the Messages page; the news site and a message left
-			// open bind news items of their own, and they are not messages waiting here.
-			if (!path.Contains("MessagesStreamedObjectList", StringComparison.Ordinal)) continue;
-
+			// The news site and a message left open bind news items of their own, and they are not
+			// messages waiting here. A row of the inbox list is the one that knows whether it has
+			// been read (FM27 no longer names the list in the path).
 			var fields = Fields(node);
+			if (!fields.ContainsKey("NewsItemHasBeenRead")) continue;
 			if (!fields.TryGetValue("NewsTitleString", out var title) || string.IsNullOrEmpty(title))
 				continue;
 			if (!fields.TryGetValue("UniqueId", out var id) || !seen.Add(id)) continue;

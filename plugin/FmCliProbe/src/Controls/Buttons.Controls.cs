@@ -318,9 +318,12 @@ internal static partial class Buttons
 		var text = q["text"];
 		var name = q["name"];
 		var sends = q["event"];
-		if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(sends))
+		// A row shows more than one text, and which comes first is the skin's choice: FM27 put a
+		// message's sender above its subject. ?has= matches a text anywhere inside the control.
+		var has = q["has"];
+		if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(sends) && string.IsNullOrEmpty(has))
 		{
-			error = "error: ?ptr=<0x…>, ?event=<event[:id]>[&name=] or ?text=<label> required (see /buttons)";
+			error = "error: ?ptr=<0x…>, ?event=<event[:id]>[&name=], ?text=<label> or ?has=<text inside> required (see /buttons)";
 			return null;
 		}
 		text ??= "";
@@ -332,6 +335,7 @@ internal static partial class Buttons
 			.Where(c => string.IsNullOrEmpty(name) || string.Equals(NameOf(c.Element), name, StringComparison.OrdinalIgnoreCase))
 			.Where(c => string.IsNullOrEmpty(sends) || Sends(c, sends))
 			.Where(c => string.IsNullOrEmpty(q["within"]) || Inside(c.Element, q["within"]))
+			.Where(c => string.IsNullOrEmpty(has) || Holds(c.Element, has))
 			.ToList();
 
 		if (matches.Count == 1) return matches[0];
@@ -341,7 +345,8 @@ internal static partial class Buttons
 		if (matches.Count > 1 && q["any"] == "1") return matches[^1];
 
 		error = matches.Count == 0
-			? (text.Length > 0 ? $"error: no control labelled '{text}' on the loaded screens" : $"error: no control sends {sends} on the loaded screens")
+			? (text.Length > 0 ? $"error: no control labelled '{text}' on the loaded screens"
+				: !string.IsNullOrEmpty(has) ? $"error: no control holds '{has}' on the loaded screens" : $"error: no control sends {sends} on the loaded screens")
 			: $"error: {matches.Count} controls are labelled '{text}'{(string.IsNullOrEmpty(sends) ? "" : $" and send {sends}")}; narrow it with &name=\n"
 			  + string.Join("\n", matches.Select(c => $"  0x{c.Element.Pointer.ToInt64():x}  {Short(c.TypeName)}  name={NameOf(c.Element)}"));
 		return null;
@@ -680,6 +685,29 @@ internal static partial class Buttons
 			catch { }
 		}
 		return "";
+	}
+
+	/// <summary>Whether any text inside the control reads the given one.</summary>
+	private static bool Holds(VisualElement element, string wanted)
+	{
+		var queue = new Queue<VisualElement>();
+		queue.Enqueue(element);
+		var seen = 0;
+
+		while (queue.Count > 0 && seen++ < 120)
+		{
+			var current = queue.Dequeue();
+			try
+			{
+				var text = current.TryCast<TextElement>()?.text;
+				if (!string.IsNullOrWhiteSpace(text) && string.Equals(Text.Plain(text), wanted, StringComparison.OrdinalIgnoreCase)) return true;
+
+				var hierarchy = current.hierarchy;
+				for (var i = 0; i < hierarchy.childCount; i++) queue.Enqueue(hierarchy.ElementAt(i));
+			}
+			catch { }
+		}
+		return false;
 	}
 
 	// ------------------------------------------------------------------ describing

@@ -108,7 +108,7 @@ internal static partial class Program
 			return 0;
 		}
 		var title = Field(message, "NewsTitleString");
-		var pressed = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
+		var pressed = await Arriving("press", [("has", title), ("name", "NewsItemButton"), ("any", "1")]);
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
 		// The message and its attachment are one block under the "Attachments" heading; it is the

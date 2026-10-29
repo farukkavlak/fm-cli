@@ -17,12 +17,20 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The open message as the game draws it, from its sender and title down through its attachment,
-	/// each text with its data path: found by the body's element name ("MessageBodyText") and known
-	/// for this message by its title, since the one opened before can still be on screen. Waits a
-	/// while for what <paramref name="wanted"/> asks for; empty when the message is not there.
+	/// Every text of the open message, each with its data path: read inside the message's own
+	/// named block, which holds its sender, title, body and answers (FM27 put the title further from
+	/// the body than a fixed climb from it reached).
 	/// </summary>
-	private static async Task<List<(string Text, string Path)>> OpenMessage(string title, Func<(string Text, string Path), bool> wanted, double seconds, int up = 5)
+	internal static Task<JsonElement> MessageTexts() =>
+		Fm.GetJson("texts", ("within", "MessagesToolBlockMessageContent"), ("paths", "1"));
+
+	/// <summary>
+	/// The open message as the game draws it, from its sender and title down through its attachment,
+	/// each text with its data path, known for this message by its title, since the one opened
+	/// before can still be on screen. Waits a while for what <paramref name="wanted"/> asks for;
+	/// empty when the message is not there.
+	/// </summary>
+	private static async Task<List<(string Text, string Path)>> OpenMessage(string title, Func<(string Text, string Path), bool> wanted, double seconds)
 	{
 		List<(string Text, string Path)> page = [];
 		bool Ours() => page.Any(t => t.Path == "newsitem.NewsTitleString" && (t.Text == title || GameWords.Of(t.Text) == GameWords.Of(title)));
@@ -30,7 +38,7 @@ internal static partial class Program
 		{
 			await Until(async () =>
 			{
-				var found = await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", up.ToString()), ("paths", "1"), ("most", "1"));
+				var found = await MessageTexts();
 				if (found!.ValueKind != JsonValueKind.Array) return false;
 				page = found.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 				return Ours() && page.Any(wanted);

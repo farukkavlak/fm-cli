@@ -59,7 +59,7 @@ internal static partial class Program
 		// as the selected row: opening one unbinds the list that carries that number, so the page is
 		// the mark that holds either way (the post-match conference kept it, 22 Ekim 2026).
 		async Task<bool> OnScreen() =>
-			await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", "6"), ("paths", "1"), ("most", "1")) is { ValueKind: JsonValueKind.Array } page
+			await MessageTexts() is { ValueKind: JsonValueKind.Array } page
 			&& page.EnumerateArray().Any(t => Field(t, "Path") == "newsitem.NewsTitleString"
 			                                   && (Field(t, "Text") == title || GameWords.Of(Field(t, "Text")) == GameWords.Of(title)));
 
@@ -79,7 +79,7 @@ internal static partial class Program
 		{
 			try
 			{
-				var found = await Fm.GetJson("texts", ("anchorname", "MessageBodyText"), ("up", "6"), ("paths", "1"), ("most", "1"));
+				var found = await MessageTexts();
 				if (found.ValueKind != JsonValueKind.Array) return "";
 				var page = found.EnumerateArray().Select(t => (Text: Field(t, "Text"), Path: Field(t, "Path"))).ToList();
 				return page.FirstOrDefault(t => t.Path == "newsitem.NewsBodyString").Text ?? "";
@@ -90,7 +90,7 @@ internal static partial class Program
 
 		if (!open)
 		{
-			var opened = await Arriving("press", [("text", title), ("name", "NewsItemButton"), ("any", "1")]);
+			var opened = await Arriving("press", [("has", title), ("name", "NewsItemButton"), ("any", "1")]);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 			// The row can be pressed before its page has drawn: the press is queued, does nothing and
@@ -110,7 +110,7 @@ internal static partial class Program
 		List<JsonElement> answers = [];
 		await Until(async () =>
 		{
-			var page = await OpenMessage(title, t => t.Path == "newsitem.NewsTitleString", seconds: 5, up: 6);
+			var page = await OpenMessage(title, t => t.Path == "newsitem.NewsTitleString", seconds: 5);
 			answers = await Answers();
 			var shown = Set(answers.Select(a => Field(a, "Label")));
 			return page.Count > 0 && shown == Set(page.Where(t => t.Path == "action.ActionTitle").Select(t => t.Text))
