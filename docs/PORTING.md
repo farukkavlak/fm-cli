@@ -189,13 +189,16 @@ Still open:
   - Budgets → Club › Finances › Transfer Budget; figures from `Human.Club` data, scouting `Human.ScoutingInfo.ScoutingBudget`.
   - Youth Performance → the youth team's own bar › Individual Training (`/open?bar=1`: the Training tab lists it too).
   - Youth environment: now the youth team's Squad Dynamics; no staff counts, the level has no path.
+  - Youth level: no path; the `#description` inside the `#youth-level` tile (`/texts?within=youth-level&named=description`).
+  - Youth training: the team is `Human.Club.YouthTeam`, else `HighestLevelYouthTeam`; the table scrolls by `/scroll?anchorpath=`.
+  - Youth rating: FM27 has none; dropped.
   - FM27 data is in pounds, shown converted: `MoneyFormat.Rate` is learnt from `/money`; wrap data amounts in `Shown()`.
     Thousands are cut, millions rounded.
 - [x] A tab's own menu is its bar (Training › Coach Assignments); `Subpage` tries real bars first.
 - [x] First-visit tab intros: `/closeintro` presses `#EndTutorialButton`; `OpenPage` calls it. A chosen page does not open under one.
 - [ ] `fm budget adjust`: the tile is now "Adjust Transfer Budget" with a `GenericAction` event, not `SpeakToAction`.
 - [ ] `fm training`: individual training reads nothing (the `PlayerTraining` data paths changed).
-- [ ] `fm budget`: "spent this season" is "-" (its label is not in the language table).
+- [x] `fm budget`: "spent this season" is `Human.Club.TransferExpenditureThisSeason`.
 - [ ] `fm stages`: team names empty. `fm happiness`: page opens, read fails.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
 - [ ] `identity-check.py catalog` (game must be in English for the word list).

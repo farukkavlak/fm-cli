@@ -23,6 +23,8 @@ internal static class Texts
 		// ?within= reads everything inside the first shown element of that name, of any kind (a tile's
 		// panel, "FinancesIncome"), with nothing to climb.
 		var within = q["within"];
+		// ?named= keeps only the texts whose own element has that name (a tile's "description").
+		var named = q["named"];
 		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && string.IsNullOrEmpty(anchorName) && string.IsNullOrEmpty(within))
 			return "error: ?anchor=<text>, ?anchorpath=<data path>, ?anchorname=<element name> or ?within=<element name> required";
 		var up = int.TryParse(q["up"], out var n) ? n : 8;
@@ -42,7 +44,7 @@ internal static class Texts
 				if (!string.IsNullOrEmpty(within))
 				{
 					if (element.name != within || element.resolvedStyle.display == DisplayStyle.None) continue;
-					return "[" + string.Join(", ", Under(element, paths)) + "]\n";
+					return "[" + string.Join(", ", Under(element, paths, named)) + "]\n";
 				}
 				var text = element.TryCast<TextElement>();
 				if (text == null) continue;
@@ -54,14 +56,14 @@ internal static class Texts
 			var root = element;
 			for (var i = 0; i < up && root.hierarchy.parent != null; i++) root = root.hierarchy.parent;
 
-			var texts = Under(root, paths);
+			var texts = Under(root, paths, named);
 			if (!most) return "[" + string.Join(", ", texts) + "]\n";
 			if (best == null || texts.Count > best.Count) best = texts;
 		}
 		return "[" + string.Join(", ", best ?? []) + "]\n";
 	}
 
-	private static List<string> Under(VisualElement root, bool paths)
+	private static List<string> Under(VisualElement root, bool paths, string named = null)
 	{
 		var texts = new List<string>();
 		var stack = new Stack<VisualElement>();
@@ -73,7 +75,7 @@ internal static class Texts
 			{
 				if (e.resolvedStyle.display == DisplayStyle.None || e.panel == null) continue;
 				var t = e.TryCast<TextElement>();
-				if (t != null && e.worldBound.width > 0)
+				if (t != null && e.worldBound.width > 0 && (string.IsNullOrEmpty(named) || e.name == named))
 				{
 					var path = paths ? PathOf(t) : null;
 					var plain = Text.FieldShown(path, t.text ?? "");
@@ -104,14 +106,15 @@ internal static class Texts
 	}
 
 	/// <summary>
-	/// Scrolls the list a shown text (?anchor=…) or a control (?ptr=…) sits in to a share of its length (?to=0..1),
+	/// Scrolls the list a shown text (?anchor=…, or ?anchorpath= by the data path it is bound to) or a control (?ptr=…) sits in to a share of its length (?to=0..1),
 	/// for tables that only lay out the rows in view; without ?to= it only says where it is.
 	/// </summary>
 	public static string Scroll(NameValueCollection q)
 	{
 		var anchor = q["anchor"];
+		var anchorPath = q["anchorpath"];
 		var byPointer = Buttons.TryPointer(q["ptr"] ?? "", out var pointer);
-		if (string.IsNullOrEmpty(anchor) && !byPointer) return "error: ?anchor=<text> or ?ptr=<0x…> required";
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && !byPointer) return "error: ?anchor=<text>, ?anchorpath=<data path> or ?ptr=<0x…> required";
 		float? to = float.TryParse(q["to"], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var share)
 			? System.Math.Clamp(share, 0f, 1f) : null;
 
@@ -122,13 +125,14 @@ internal static class Texts
 				// The same text can sit in a list of a page left open underneath; a pointer says which.
 				if (byPointer) { if (element.Pointer != pointer) continue; }
 				else if (element.panel == null || element.worldBound.width <= 0) continue;
-				else if (Text.Plain(element.TryCast<TextElement>()?.text ?? "") != anchor) continue;
+				else if (!string.IsNullOrEmpty(anchorPath) ? element.TryCast<TextElement>() is not { } bound || PathOf(bound) != anchorPath
+				         : Text.Plain(element.TryCast<TextElement>()?.text ?? "") != anchor) continue;
 			}
 			catch { continue; }
 
 			var (offset, end) = Registration.Scroll(element, to);
 			return end <= 0 ? "error: that text is not in a scrolling list" : $"{offset:0.#} of {end:0.#}\n";
 		}
-		return byPointer ? $"error: nothing at {q["ptr"]} (the screen may have changed)" : $"error: nothing shows '{anchor}'";
+		return byPointer ? $"error: nothing at {q["ptr"]} (the screen may have changed)" : $"error: nothing shows '{anchor ?? anchorPath}'";
 	}
 }

@@ -1228,7 +1228,6 @@ The intake candidates could not be read (they may not have come yet: youth).	Al�
 Youth intake: {0} candidates (the most promising in the game's eyes first)\n	Altyapı alımı: {0} aday (oyunun gözünde en umut verici önce)\n
 ABILITY	YETENEK
 \nA candidate's details: player <name> · to offer a contract in the game: Youth Candidates › Actions	\nBir adayın ayrıntısı: player <ad> · sözleşme önermek oyunda: Youth Candidates › Actions
-Youth rating      {0}	Altyapı notu      {0}
 Academy           training level {0} · youth recruitment {1} · level {2}	Akademi           antrenman seviyesi {0} · genç oyuncu bulma {1} · seviye {2}
 Stadium           {0}	Stat              {0}
 Staff             coaches {0} · scouting {1} · medical {2}	Kadro             antrenör {0} · tarama {1} · sağlık {2}

@@ -127,28 +127,22 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The overview's figures, from the club's data: the transfer budget left and the one it started
-	/// from, the wage budget by the week, the scouting budget and what it has cost so far. What was
-	/// spent of the transfer budget the data does not hold: it is the page's figure after its label
-	/// (FM26 Recruitment › Recruitment Budgets, FM27 Club › Finances › Transfer Budget), "-" when the
-	/// label is not one this language's table knows.
+	/// The overview's figures, from the club's data: the transfer budget left, what was spent of it
+	/// this season and the one it started from, the wage budget by the week, the scouting budget.
 	/// </summary>
 	private static async Task<List<KeyValuePair<string, string>>> BudgetOverview()
 	{
 		JsonElement club = default;
 		await Until(async () => long.TryParse(Field(club = await Fm.Pull("Human.Club",
-			"TransferBudget,OriginalTransferBudget,WageBudget,RemainingWageBudget,CurrentWageSpending,ScoutingCostsThisSeason"), "TransferBudget"), out _), seconds: 8, every: 0.5);
+			"TransferBudget,TransferExpenditureThisSeason,OriginalTransferBudget,WageBudget,RemainingWageBudget,CurrentWageSpending"), "TransferBudget"), out _), seconds: 8, every: 0.5);
 		if (!long.TryParse(Field(club, "TransferBudget"), out var left)) return null;
 
 		string Amount(JsonElement from, string field, Func<long, string> format) => long.TryParse(Field(from, field), out var v) ? format(MoneyFormat.Shown(v)) : "-";
-		var page = (await Fm.GetJson("texts", ("anchor", "Original budget"), ("up", "8"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-		var spentAt = page.FindIndex(t => t.Equals("Spent this season", StringComparison.OrdinalIgnoreCase));
-		var spent = spentAt >= 0 && spentAt + 1 < page.Count && MoneyFormat.IsMoney(page[spentAt + 1]) ? page[spentAt + 1] : "-";
 		var free = long.TryParse(Field(club, "RemainingWageBudget"), out var r) ? r : (long?)null;
 		var scouting = await Fm.Pull("Human.ScoutingInfo", "ScoutingBudget");
 		return
 		[
-			new(L("Transfer budget"), L($"{MoneyFormat.Short(MoneyFormat.Shown(left))} (spent this season {spent}, at the start {Amount(club, "OriginalTransferBudget", MoneyFormat.Short)})")),
+			new(L("Transfer budget"), L($"{MoneyFormat.Short(MoneyFormat.Shown(left))} (spent this season {Amount(club, "TransferExpenditureThisSeason", MoneyFormat.Short)}, at the start {Amount(club, "OriginalTransferBudget", MoneyFormat.Short)})")),
 			new(L("Wage budget"), L($"{(free is < 0 ? L($"{MoneyFormat.Exact(MoneyFormat.Shown(-free.Value))} over") : free is { } f ? L($"{MoneyFormat.Exact(MoneyFormat.Shown(f))} free") : "-")} (weekly) · paid {Amount(club, "CurrentWageSpending", MoneyFormat.Exact)} / {Amount(club, "WageBudget", MoneyFormat.Exact)}")),
 			new(L("Scouting budget"), Amount(scouting, "ScoutingBudget", MoneyFormat.Short)),
 		];
