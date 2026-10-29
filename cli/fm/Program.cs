@@ -54,9 +54,9 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Could not read the plugin version: FmCliProbe may be old. To reinstall: tools/install.sh"));
 			return 69;
 		}
-		if (game.Length > 0 && !game.StartsWith("26", StringComparison.Ordinal))
+		if (game.Length > 0 && !game.StartsWith("27", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(L($"This Football Manager version is not supported: {game}. fm-cli is written for FM26; data may be read wrong."));
+			Console.Error.WriteLine(L($"This Football Manager version is not supported: {game}. fm-cli is written for FM27; data may be read wrong."));
 			return 69;
 		}
 		return null;

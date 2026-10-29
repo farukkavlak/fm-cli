@@ -44,6 +44,7 @@ internal static class TableRows
 	/// </summary>
 	public static string Select(NameValueCollection q)
 	{
+#if FM26
 		if (!string.IsNullOrEmpty(q["table"])) return Check(q);
 		var wanted = q["text"];
 		if (string.IsNullOrEmpty(wanted)) return "error: ?text=<a cell's text> required";
@@ -100,6 +101,10 @@ internal static class TableRows
 			return $"selected row {row.Index}";
 		}
 		return $"error: no row shows '{wanted}'";
+#else
+		// FM27 dropped TableRowNavigatable (rows sit in the new SI.UI.Focus zones); not measured yet.
+		return "error: table rows are not ported to FM27 yet";
+#endif
 	}
 
 	/// <summary>
@@ -111,6 +116,7 @@ internal static class TableRows
 	/// </summary>
 	public static string Checkable(NameValueCollection q)
 	{
+#if FM26
 		var tables = new List<StreamedListView>();
 		foreach (var e in Buttons.Elements())
 		{
@@ -152,6 +158,10 @@ internal static class TableRows
 			rows.Add($"{{\"Table\": \"0x{tables[t].Pointer.ToInt64():x}\", \"Items\": [{string.Join(", ", items)}], \"Ticked\": [{string.Join(", ", ticked)}]}}");
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";
+#else
+		// FM27 dropped TableRowNavigatable (rows sit in the new SI.UI.Focus zones); not measured yet.
+		return "error: table rows are not ported to FM27 yet";
+#endif
 	}
 
 	/// <summary>Ticks (check=1) or unticks (check=0) the item at ?index= of the table at ?table=.</summary>

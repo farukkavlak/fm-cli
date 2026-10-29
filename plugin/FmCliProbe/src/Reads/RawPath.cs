@@ -44,8 +44,9 @@ internal static class RawPath
 	public static string Bind(string path)
 	{
 		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
-		var result = Invoke("NativeMethodInfoPtr_Bind_Public_Key_byref_ReadOnlySpan_1_Char_ValueChangedCallback_0", path,
-			[IL2CPP.Il2CppObjectBaseToPtrNotNull(FmApi.NoOp)], out var error);
+		// FM27 added an owner object before the callback.
+		var result = Invoke("NativeMethodInfoPtr_Bind_Public_Key_byref_ReadOnlySpan_1_Char_Object_ValueChangedCallback_0", path,
+			[IL2CPP.Il2CppObjectBaseToPtrNotNull(FmApi.Owner), IL2CPP.Il2CppObjectBaseToPtrNotNull(FmApi.NoOp)], out var error);
 		if (error != null) return error;
 
 		var key = (ulong)Marshal.ReadInt64(IL2CPP.il2cpp_object_unbox(result));

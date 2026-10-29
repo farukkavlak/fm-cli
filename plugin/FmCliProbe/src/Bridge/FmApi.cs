@@ -126,15 +126,35 @@ internal static partial class FmApi
 		$"\"Install\": \"{Report.Escape(UnityEngine.Application.dataPath)}\", " +
 		$"\"Platform\": \"{UnityEngine.Application.platform}\", \"Version\": \"{Report.Escape(UnityEngine.Application.version)}\"}}\n";
 
+	/// <summary>
+	/// The tree's node count, stopping at <paramref name="cap"/>: FM27 dropped Bindings.GetDescendantCount,
+	/// and what callers ask is only "is the UI built yet" (more than ~150 nodes at the main menu).
+	/// </summary>
+	private static int Descendants(Bindings b, int cap)
+	{
+		var n = 0;
+		var stack = new Stack<IReadOnlyNode>();
+		stack.Push(b.RootNode);
+		while (stack.Count > 0 && n < cap)
+		{
+			var node = stack.Pop();
+			for (var c = node?.FirstChild; c != null && n < cap; c = c.NextSibling)
+			{
+				n++;
+				stack.Push(c);
+			}
+		}
+		return n;
+	}
+
 	private static string Health()
 	{
 		var b = Game.Bindings;
 		if (b == null) return "bindings: unavailable (is a game loaded?)";
 
-		var root = Bindings.RootKey;
 		var game = "";
 		try { game = UnityEngine.Application.version ?? ""; } catch { }
-		return $"bindings: ok\nplugin: {Plugin.Version}\ngame: {game}\ndescendants: {b.GetDescendantCount(ref root)}";
+		return $"bindings: ok\nplugin: {Plugin.Version}\ngame: {game}\ndescendants: {Descendants(b, 1000)}";
 	}
 
 	/// <summary>Read a value by path, using a locally computed key rather than a span.</summary>
@@ -340,7 +360,7 @@ internal static partial class FmApi
 		{
 			var key = PathKey.Of(path);
 			var before = b.Exists(ref key);
-			b.Bind(ref key, NoOp);
+			b.Bind(ref key, Owner, NoOp);
 			var after = b.Exists(ref key);
 			var value = after ? Describe(b.Get(ref key)) : null;
 			return $"'{path}': existed={before} -> exists={after}  value={value ?? "<none>"}";
@@ -357,6 +377,12 @@ internal static partial class FmApi
 	/// Binding requires a callback; we only want the side effect. It must be a real il2cpp
 	/// delegate — handing the game a null function pointer crashes it when the value changes.
 	/// </summary>
+	/// <summary>
+	/// The owner FM27's Bind wants beside the callback (a null one throws in SubscriptionOwnerTable);
+	/// one object for the whole session, so the game's weak table keeps every binding of ours.
+	/// </summary>
+	internal static readonly Il2CppSystem.Object Owner = new();
+
 	internal static Bindings.ValueChangedCallback NoOp =>
 		_noOp ??= DelegateSupport.ConvertDelegate<Bindings.ValueChangedCallback>(
 			(Action<Bindings.Key, TypedValue>)((_, _) => { }));

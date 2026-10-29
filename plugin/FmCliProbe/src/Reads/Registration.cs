@@ -96,6 +96,7 @@ internal static class Registration
 	/// <summary>The list switch of every player row on screen.</summary>
 	private static IEnumerable<SICheckBox> Switches()
 	{
+#if FM26
 		foreach (var element in Buttons.Elements())
 		{
 			TableRowNavigatable row;
@@ -105,10 +106,15 @@ internal static class Registration
 			// The squad page behind has rows too, without a switch.
 			if (Inner<SICheckBox>(row) is { } box) yield return box;
 		}
+#else
+		// FM27 dropped TableRowNavigatable (rows sit in the new SI.UI.Focus zones); not measured yet.
+		yield break;
+#endif
 	}
 
 	private static Dictionary<string, string> Row(SICheckBox box)
 	{
+#if FM26
 		VisualElement row = box;
 		while (row != null && row.TryCast<TableRowNavigatable>() == null) row = row.hierarchy.parent;
 
@@ -147,6 +153,10 @@ internal static class Registration
 			else fields.TryAdd("Status", value);
 		}
 		return fields;
+#else
+		// FM27 dropped TableRowNavigatable (rows sit in the new SI.UI.Focus zones); not measured yet.
+		return new Dictionary<string, string>();
+#endif
 	}
 
 	private static T Inner<T>(VisualElement root) where T : VisualElement

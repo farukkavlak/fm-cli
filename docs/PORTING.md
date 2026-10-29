@@ -140,6 +140,42 @@ From disk only, game not modded. Rerun after each FM27 update (full release 10 N
     expects "Turkish"… → engine texts silently skipped. New: "Bahasa Indonesia".
 - Needs the running game: page GUIDs, data paths, button events, texts (`identity-check.py catalog`).
 
+## FM27 BepInEx on Apple Silicon (29 Oct 2026, working)
+
+Layout, Steam's folder untouched:
+
+- `~/fm27_bep/game/`: `BepInEx/` (be.755 from the FM26 package), `run_bepinex_arm64.sh`
+  (copy in `tools/fm27-bep/`), `libdoorstop.dylib`, `dotnet_arm64/`, `steam_appid.txt` (4530370).
+- `~/fm27_bep/fm.app`: shadow bundle (LSUIElement, JIT entitlements, ad-hoc signed).
+- `fm start` launches it: `FM26_BEP=~/fm27_bep run_bepinex_arm64.sh "<Steam>/fm.app"`.
+
+What it took (each one blocked the next):
+
+1. UnityDoorstop **v4.6.0** (NeighTools). The FM26 doorstop read UnityPlayer's chained fixups as
+   zeros → no hook, the game booted vanilla, no `LogOutput.log`.
+2. `dotnet_arm64/` = a copy of the .NET 10 runtime + Microsoft.Extensions.* 6.0.0 (NuGet). The
+   FM26 package lacked them: `FileNotFoundException Microsoft.Extensions.Logging.Abstractions`.
+3. Interop generation reads a **thin x86_64** GameAssembly. On the universal file Cpp2IL throws
+   "Stream does not support writing"; on arm64 "Instruction set handler not registered".
+4. `ScanMethodRefs = false` in `BepInEx.cfg`: the xref pass throws "Sequence contains no elements".
+5. Running loads the **real** GameAssembly. The launcher swaps: interop missing or older than the
+   game → x86_64 copy + generate (that launch then fails, start again); else real file +
+   `UpdateInteropAssemblies = false`.
+
+Live-verified on FM27: plugin loads, bridge on 7777, `health`, `state`, `panels`, `fm start`
+(hidden, loads the save), `fm continue`, `fm squad`. Main menu = 200 nodes (> 150 holds).
+
+Plugin fixes in place: Bind takes an owner (`FmApi.Owner`; null throws), node count walk instead of
+`GetDescendantCount`, `DropdownRow`, `OnClickedOrSubmitted`, no `DisplayName`, `ShowIDs` read-only.
+
+Still open:
+
+- [ ] `fm status` / `inbox`: `/inbox` returns `[]` → the messages data path changed.
+- [ ] Table rows (`TableRows.Select/Checkable`, `Registration`): gated, return "not ported".
+- [ ] Submenus: `DropdownRow` has no `m_childDropdown`.
+- [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
+- [ ] `identity-check.py catalog` (game must be in English for the word list).
+
 New in FM27 (from the new events):
 
 - Fantasy Draft / Shuffle Draft mode, cup draw screen, Steam Workshop.

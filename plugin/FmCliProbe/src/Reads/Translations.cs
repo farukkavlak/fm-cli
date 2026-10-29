@@ -64,8 +64,8 @@ internal static class Translations
 
 		if (q["showids"] is { Length: > 0 } show)
 		{
-			try { SI.Translation.TranslationManager.ShowIDs = show == "1"; sb.AppendLine($"showIDs set {show}"); }
-			catch (System.Exception e) { sb.AppendLine($"showids: <{e.GetType().Name}: {e.Message}>"); }
+			// FM27 made TranslationManager.ShowIDs read-only.
+			sb.AppendLine($"showids: not settable in FM27 (asked {show})");
 		}
 
 		if (int.TryParse(q["id"], out var one)) sb.AppendLine(ById(one));

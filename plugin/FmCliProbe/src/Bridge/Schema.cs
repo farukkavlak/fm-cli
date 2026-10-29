@@ -125,10 +125,8 @@ internal static class Schema
 			var info = property.GetIdentifierSet()?.GetInfo(property);
 			if (info == null) return "<unregistered>";
 
-			var display = info.DisplayName;
-			return string.IsNullOrEmpty(display) || display == info.Name
-				? info.Name
-				: $"{info.Name}  \u2014 {display}";
+			// FM27 dropped IdentifierInfo.DisplayName.
+			return info.Name;
 		}
 		catch (Exception ex) { return $"<threw {ex.GetType().Name}>"; }
 	}

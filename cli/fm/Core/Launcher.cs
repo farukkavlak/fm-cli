@@ -19,7 +19,7 @@ namespace FmCli;
 /// </summary>
 internal static class Launcher
 {
-	private const string AppName = "Football Manager 26";
+	private const string AppName = "Football Manager 27";
 
 	/// <summary>
 	/// The bundle the launcher starts — a shadow of the Steam one, assembled for
@@ -28,7 +28,7 @@ internal static class Launcher
 	private static string AppBundle =>
 		Environment.GetEnvironmentVariable("FM_APP")
 		?? Path.Combine(
-			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "fm26_bep/fm.app");
+			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "fm27_bep/fm.app");
 
 	private static string GameDirectory =>
 		Environment.GetEnvironmentVariable("FM_HOME")
@@ -61,7 +61,9 @@ internal static class Launcher
 			return !load || await LoadSave(fm);
 		}
 
-		var script = Path.Combine(GameDirectory, "run_bepinex_arm64.sh");
+		// FM27: BepInEx and its launcher live beside the shadow bundle (~/fm27_bep/game), not in
+		// Steam's folder; the launcher is told the Steam app and where the shadow is.
+		var script = Path.Combine(Path.GetDirectoryName(AppBundle)!, "game", "run_bepinex_arm64.sh");
 		if (!File.Exists(script))
 		{
 			Console.Error.WriteLine(L($"BepInEx launcher not found: {script}"));
@@ -134,7 +136,9 @@ internal static class Launcher
 
 		// Detached: the game must outlive this command, and its own output goes to a file so a
 		// crash before BepInEx logs anything is still readable.
-		var shell = $"exec \"{script}\"{windowed} >> \"{log}\" 2>&1";
+		var steamApp = Path.Combine(GameDirectory, "fm.app");
+		var shadowRoot = Path.GetDirectoryName(AppBundle)!;
+		var shell = $"FM26_BEP=\"{shadowRoot}\" exec \"{script}\" \"{steamApp}\"{windowed} >> \"{log}\" 2>&1";
 		Process.Start(new ProcessStartInfo("/bin/sh", ["-c", shell])
 		{
 			WorkingDirectory = Path.GetDirectoryName(script)!,

@@ -27,8 +27,8 @@ internal static class GameFolders
 			// Unity's persistent data path: ~/Library/Application Support/<company>/<product> on macOS,
 			// AppData/LocalLow/<company>/<product> on Windows.
 			return OperatingSystem.IsWindows()
-				? Path.Combine(Home, "AppData", "LocalLow", "Sports Interactive", "Football Manager 26")
-				: Path.Combine(Home, "Library", "Application Support", "Sports Interactive", "Football Manager 26");
+				? Path.Combine(Home, "AppData", "LocalLow", "Sports Interactive", "Football Manager 27")
+				: Path.Combine(Home, "Library", "Application Support", "Sports Interactive", "Football Manager 27");
 		}
 	}
 

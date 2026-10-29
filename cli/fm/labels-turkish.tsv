@@ -2301,7 +2301,7 @@ Clear instructions button not found.	Talimatları temizle düğmesi bulunamadı.
 {0}: {1} → {2}.	{0}: {1} → {2}.
 Lists on the Stages page not found.	Stages sayfasının listeleri bulunamadı.
 Could not read the plugin version: FmCliProbe may be old. To reinstall: tools/install.sh	Eklenti sürümü okunamadı: FmCliProbe eski olabilir. Yeniden kurmak için: tools/install.sh
-This Football Manager version is not supported: {0}. fm-cli is written for FM26; data may be read wrong.	Bu Football Manager sürümü desteklenmiyor: {0}. fm-cli FM26 için yazıldı; veri yanlış okunabilir.
+This Football Manager version is not supported: {0}. fm-cli is written for FM27; data may be read wrong.	Bu Football Manager sürümü desteklenmiyor: {0}. fm-cli FM27 için yazıldı; veri yanlış okunabilir.
 Give only one format flag: {0}	Biçim bayraklarından yalnız biri verilmeli: {0}
 \n  Extra: opponent report — {0}{1}	\n  Ek: rakip raporu — {0}{1}
 \n  Extra: offers — {0}	\n  Ek: teklifler — {0}

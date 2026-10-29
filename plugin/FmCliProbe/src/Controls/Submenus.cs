@@ -9,7 +9,7 @@ namespace FmCliProbe;
 
 /// <summary>
 /// A dropdown's submenus, as the game builds them: opening the list lays out a row per choice
-/// (<c>DropdownRowNavigatable</c>), and a row with a submenu carries a child dropdown of its own
+/// (<c>DropdownRow</c>), and a row with a submenu carries a child dropdown of its own
 /// whose choices are the submenu. This opens a list and reports its rows.
 /// </summary>
 internal static class Submenus
@@ -38,11 +38,11 @@ internal static class Submenus
 		foreach (var element in Buttons.Elements())
 		{
 			if (element.Pointer != pointer) continue;
-			var row = element.TryCast<DropdownRowNavigatable>();
+			var row = element.TryCast<DropdownRow>();
 			if (row == null) return "error: not a dropdown row";
 			var evt = NavigationEventBase<NavigationSubmitEvent>.GetPooled(UnityEngine.EventModifiers.None);
-			if (q["how"] == "click") row.OnClickedOrSubmitted(evt);
-			else row.OnNavigationSubmit(evt);
+			// FM27 dropped OnNavigationSubmit; the shared click-or-submit handler is what is left.
+			row.OnClickedOrSubmitted(evt);
 			return "submitted\n" + Rows();
 		}
 		return $"error: no element at {q["ptr"]}";
@@ -178,27 +178,17 @@ internal static class Submenus
 		var sb = new StringBuilder();
 		foreach (var element in Buttons.Elements())
 		{
-			DropdownRowNavigatable row;
-			try { row = element.TryCast<DropdownRowNavigatable>(); } catch { continue; }
+			DropdownRow row;
+			try { row = element.TryCast<DropdownRow>(); } catch { continue; }
 			if (row == null) continue;
 
 			string label, shown, child = "";
 			try { label = Buttons.LabelOf(row); } catch { label = "?"; }
 			try { shown = row.panel != null && row.worldBound.width > 0 ? "" : " HIDDEN"; } catch { shown = " ?"; }
-			try
-			{
-				var inner = row.m_childDropdown;
-				if (inner != null)
-				{
-					var names = new List<string>();
-					var choices = inner.m_choices;
-					for (var i = 0; i < (choices?.Count ?? 0) && i < 40; i++) names.Add(Buttons.ChoiceText(choices[i]) ?? "");
-					child = $"  child=0x{inner.Pointer.ToInt64():x} [{string.Join(" · ", names)}]";
-				}
-			}
-			catch { }
+			// FM27 dropped DropdownRow's m_childDropdown; where a row's submenu lives now is not measured yet.
+			// FM27 dropped DropdownRow.Index: the row's place among its siblings.
 			int index;
-			try { index = row.Index; } catch { index = -1; }
+			try { index = row.hierarchy.parent?.IndexOf(row) ?? -1; } catch { index = -1; }
 			sb.AppendLine($"0x{row.Pointer.ToInt64():x}  #{index}  \"{label}\"{shown}{child}");
 		}
 		return sb.Length > 0 ? sb.ToString() : "no dropdown rows laid out\n";
