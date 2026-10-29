@@ -218,5 +218,5 @@ internal static partial class Program
 		DateTime.TryParse(iso, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? $"{d.Day} {Months[d.Month - 1]} {d.Year}" : iso;
 
 	/// <summary>A sum of money the way the game writes it: £51.26M, £950K (51,26M £ in Turkish).</summary>
-	private static string Pound(long amount) => MoneyFormat.Short(amount);
+	private static string Pound(long amount) => MoneyFormat.Short(MoneyFormat.Shown(amount));
 }

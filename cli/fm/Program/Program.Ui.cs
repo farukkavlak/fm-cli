@@ -90,6 +90,8 @@ internal static partial class Program
 	/// </summary>
 	internal static async Task<string> OpenPage(string screen, string? team = null, string? under = null)
 	{
+		// FM27's first-visit intro over a tab keeps a chosen page from opening.
+		await Fm.Get("closeintro");
 		var query = new List<(string, string)> { ("guid", screen) };
 		if (team != null) query.Add(("object", team));
 		if (under != null)
@@ -124,16 +126,21 @@ internal static partial class Program
 	/// stands on is the game's own word for the page being the one shown (?check=1). The content
 	/// followed in 0.88–1.51 s (TR + EN, §8.302), so the upper bound is 8 s rather than 3 s.
 	/// </summary>
-	internal static async Task<string> OpenSubpage(string parent, string screen, Func<Task<bool>> shown, string? team = null)
+	internal static async Task<string> OpenSubpage(string parent, string screen, Func<Task<bool>> shown, string? team = null, bool bar = false)
 	{
 		var opened = await OpenPage(parent, team);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return opened;
 		var answer = "";
 		for (var attempt = 0; attempt < 4; attempt++)
 		{
+			// The parent's own intro may have come up over it since.
+			await Fm.Get("closeintro");
 			// "shown"/"not shown" once the bar is there, an error while the parent is still coming up.
 			await Until(async () => !(await OnBar(screen)).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.25);
-			await Until(async () => !(answer = await Fm.Get("open", ("guid", screen))).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.5);
+			// With bar, the row is chosen on the parent's bar though a tab menu lists the page too (that
+			// one is the first team's: the youth team's Individual Training, FM27).
+			await Until(async () => !(answer = await (bar ? Fm.Get("open", ("guid", screen), ("bar", "1")) : Fm.Get("open", ("guid", screen))))
+				.StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.5);
 			if (answer.StartsWith("error", StringComparison.Ordinal)) return answer;
 			// The page under this one answers even while the parent draws over it, so it is taken only
 			// when the bar stands on it and the content is there, held over two readings in a row.

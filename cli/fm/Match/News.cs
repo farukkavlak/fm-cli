@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 namespace FmCli;
 
 /// <summary>
-/// The media's headlines (Portal › News Site): what the press is writing about
+/// The media's headlines (Portal › News Site; FM27 Portal › News): what the press is writing about
 /// us, the league and the transfer market — not the inbox, which is `inbox`. Read from the news
 /// items the page binds: title, what it is about, how old it is and, for the larger tiles, the
 /// opening sentence.
@@ -104,16 +104,29 @@ internal static partial class Program
 		{
 			if (Value(lines[i], "NewsTitleString") is not { Length: > 0 } title) continue;
 			string about = "", age = "", body = "";
-			for (var j = i + 1; j < lines.Length && j < i + 40 && Value(lines[j], "NewsTitleString") == null; j++)
+			// FM27 binds the item's other fields before its title too: the item is the run of lines
+			// around the title indented as far as it, under the item's own heading.
+			int Indent(string line) => line.Length - line.TrimStart().Length;
+			var indent = Indent(lines[i]);
+			var from = i;
+			// A body's later paragraphs are lines of their own, not indented.
+			bool IsField(string line) => Regex.IsMatch(line, @"^\s*\S+ = \(");
+			while (from > 0 && (!IsField(lines[from - 1]) || Indent(lines[from - 1]) >= indent) && i - from < 60) from--;
+			while (from < i && !IsField(lines[from])) from++;
+			for (var j = from; j < lines.Length && j < i + 40 && (j <= i || Indent(lines[j]) >= indent && Value(lines[j], "NewsTitleString") == null); j++)
 			{
+				if (j == i) continue;
 				about = about.Length > 0 ? about : Value(lines[j], "HeadlineSubTitle") ?? "";
-				age = age.Length > 0 ? age : Value(lines[j], "NewsItemAgeString") ?? "";
+				// FM26 NewsItemAgeString, FM27 NewsItemAgeRoundedString.
+				age = age.Length > 0 ? age : Value(lines[j], "NewsItemAgeString") ?? Value(lines[j], "NewsItemAgeRoundedString") ?? "";
 				if (body.Length > 0 || Value(lines[j], "NewsBodyString") is not { Length: > 0 } first) continue;
 				// An open article's body runs on over the lines that follow, one per paragraph,
 				// until the next bound property. A tile's body is that one line alone.
 				var more = new List<string> { first };
-				for (var k = j + 1; k < lines.Length && !Regex.IsMatch(lines[k], @"^\s*[A-Za-z_0-9]+ = \("); k++) more.Add(lines[k]);
+				var k = j + 1;
+				for (; k < lines.Length && !Regex.IsMatch(lines[k], @"^\s*[A-Za-z_0-9]+ = \("); k++) more.Add(lines[k]);
 				body = string.Join("\n", more).TrimEnd();
+				j = k - 1;
 			}
 			// The inbox's messages are bound on the same page; they carry no age.
 			if (age.Length == 0) continue;

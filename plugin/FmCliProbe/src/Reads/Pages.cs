@@ -77,9 +77,13 @@ internal static class Pages
 		return $"error: no submenu lists guid {guid}";
 	}
 
-	/// <summary>The pages the bars on screen list (not the tab menus), submenus included: "name\tguid\tdropdown".</summary>
-	public static string BarPages()
+	/// <summary>
+	/// The pages the bars on screen list (not the tab menus), submenus included: "name\tguid\tdropdown".
+	/// With ?all=1 every dropdown, tab menus and hidden bars too.
+	/// </summary>
+	public static string BarPages(NameValueCollection q)
 	{
+		var all = q["all"] == "1";
 		var sb = new System.Text.StringBuilder();
 		void Walk(Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> rows, string prefix, SIDropdown dropdown)
 		{
@@ -94,7 +98,7 @@ internal static class Pages
 		{
 			try
 			{
-				if (dropdown.name == "NavTabDropdown" || !Shown(dropdown)) continue;
+				if (!all && (dropdown.name == "NavTabDropdown" || !Shown(dropdown))) continue;
 				Walk(dropdown.m_choices, "", dropdown);
 			}
 			catch { }
@@ -127,6 +131,11 @@ internal static class Pages
 		// Only a question, never an opening: is this page the one its subtab bar stands on?
 		if (q["check"] == "1")
 			return string.IsNullOrEmpty(guid) ? "error: ?check=1 needs ?guid=" : Subpage(guid, false, true);
+
+		// Only from the bar on screen, though a tab menu lists the page too: the youth team's
+		// Individual Training is the first team's under the Training tab (FM27).
+		if (q["bar"] == "1")
+			return string.IsNullOrEmpty(guid) ? "error: ?bar=1 needs ?guid=" : Subpage(guid, q["dry"] == "1", barOnly: true);
 
 		Page page;
 		if (!string.IsNullOrEmpty(guid))
@@ -212,21 +221,25 @@ internal static class Pages
 	}
 
 	/// <summary>
-	/// Opens a page listed in a subtab's menu on the bar shown: its row there
+	/// Opens a page listed in a subtab's menu on the bar shown (FM27 shows a tab's own menu as its bar): its row there
 	/// carries the page's GUID as the tab menus' rows do. The row is chosen and its events sent. The
 	/// page whose bar it is may still be opening and cover it; the caller checks and asks again.
 	/// With <paramref name="check"/> nothing is chosen: it only says whether the page is the one the bar
 	/// has chosen ("shown" / "not shown").
 	/// </summary>
-	private static string Subpage(string guid, bool dry, bool check = false)
+	private static string Subpage(string guid, bool dry, bool check = false, bool barOnly = false)
 	{
 		var queue = Game.UiEvents;
 		if (queue == null) return "error: UIEventQueue unavailable";
-		foreach (var dropdown in Buttons.AllDropdowns())
+		// The bars first. A tab's own menu is the bar of an FM27 tab (Training › Coach Assignments), but
+		// every tab's menu counts as shown, and the youth team's bar lists pages the Training tab does too.
+		var dropdowns = Buttons.AllDropdowns().ToList();
+		var ordered = dropdowns.Where(d => d.name != "NavTabDropdown").Concat(barOnly ? [] : dropdowns.Where(d => d.name == "NavTabDropdown"));
+		foreach (var dropdown in ordered)
 		{
 			try
 			{
-				if (dropdown.name == "NavTabDropdown" || !Shown(dropdown)) continue;
+				if (!Shown(dropdown)) continue;
 				var choices = dropdown.m_choices;
 				var count = choices?.Count ?? 0;
 				for (var i = 0; i < count; i++)
@@ -250,6 +263,27 @@ internal static class Pages
 			catch { }
 		}
 		return $"error: no page with guid {guid} (a subtab's page: open the page whose bar lists it first)";
+	}
+
+	/// <summary>
+	/// Closes the intro FM27 lays over a tab the first time it is visited ("Got It"): while it is up, a
+	/// page chosen in a menu does not open. Known by its button's name, #EndTutorialButton, in every language.
+	/// </summary>
+	public static string CloseIntro()
+	{
+		foreach (var element in Buttons.Elements())
+		{
+			try
+			{
+				if (element.name != "EndTutorialButton" || !Shown(element)) continue;
+				var button = element.TryCast<SIButton>();
+				if (button == null) continue;
+				button.SimulateButtonClick(false);
+				return "closed";
+			}
+			catch { }
+		}
+		return "none";
 	}
 
 	/// <summary>The first page of a page's tab: the tab's own screen.</summary>

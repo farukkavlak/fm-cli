@@ -148,7 +148,10 @@ internal static partial class Program
 		var items = form.EnumerateArray().ToList();
 		var rows = new List<CoachRow>();
 		var areas = new List<(string, int)>();
-		var start = items.FindIndex(x => Field(x, "Kind") == "text" && Field(x, "Text") == CoachAreas[^1].Heading);
+		// The grid starts at the first coach: a name and a role, then a switch. The headings above it are
+		// worded differently by each game (FM26 "SPC", FM27 "Set Pieces").
+		var start = Enumerable.Range(0, Math.Max(0, items.Count - 2)).FirstOrDefault(j =>
+			Field(items[j], "Kind") == "text" && Field(items[j + 1], "Kind") == "text" && Field(items[j + 2], "Kind") == "checkbox", -1) - 1;
 		if (start < 0) return null;
 
 		// While the page is being built the grid comes in pieces: switches before their stars, rows before

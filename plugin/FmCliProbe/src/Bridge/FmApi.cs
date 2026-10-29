@@ -112,7 +112,8 @@ internal static partial class FmApi
 		"pages" => Pages.Catalog(),
 		"open" => Pages.Open(q),
 		"pageparent" => Pages.Parent(q),
-		"barpages" => Pages.BarPages(),
+		"barpages" => Pages.BarPages(q),
+		"closeintro" => Pages.CloseIntro(),
 		"folders" => Folders(),
 		_ => null, // 404
 	};

@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The club's budgets: Recruitment › Recruitment Budgets shows the transfer,
+/// The club's budgets: Recruitment › Recruitment Budgets (FM27 Club › Finances › Transfer Budget) shows the transfer,
 /// wage and scouting budgets, and "Adjust Transfer and Wage Budget" opens a card whose slider
 /// moves money between the first two. Each step's figures are read off the card as the slider
 /// stands on it; "Got It" keeps the step, "Cancel" leaves it as it was.
@@ -120,41 +120,37 @@ internal static partial class Program
 		var after = overview;
 		// The club's transfer budget is the step's figure once the board has taken it.
 		await Until(async () => Money(wanted) is { } amount && long.TryParse(Field(await Fm.Pull("Human.Club", "TransferBudget"), "TransferBudget"), out var now)
-		                        && Math.Abs(now - amount) <= Math.Max(1000, amount / 100), seconds: 6, every: 0.5);
+		                        && Math.Abs(MoneyFormat.Shown(now) - amount) <= Math.Max(1000, amount / 100), seconds: 6, every: 0.5);
 		after = await BudgetOverview();
 		foreach (var (name, value) in after ?? overview) Console.WriteLine($"{name}: {value}");
 		return 0;
 	}
 
 	/// <summary>
-	/// The overview's figures: the transfer budget left (the club's data) with what was spent and the
-	/// budget it started from (the page, which has them only as words: the figure after its label);
-	/// the wage budget by the week from the club's data; the scouting budget's figure.
+	/// The overview's figures, from the club's data: the transfer budget left and the one it started
+	/// from, the wage budget by the week, the scouting budget and what it has cost so far. What was
+	/// spent of the transfer budget the data does not hold: it is the page's figure after its label
+	/// (FM26 Recruitment › Recruitment Budgets, FM27 Club › Finances › Transfer Budget), "-" when the
+	/// label is not one this language's table knows.
 	/// </summary>
 	private static async Task<List<KeyValuePair<string, string>>> BudgetOverview()
 	{
-		List<string> transfer = [];
-		await Until(async () =>
-		{
-			transfer = (await Fm.GetJson("texts", ("anchor", "Transfer Budget"), ("up", "8"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-			return transfer.Any(MoneyFormat.IsMoney);
-		}, seconds: 8, every: 0.5);
-		if (!transfer.Any(MoneyFormat.IsMoney)) return null;
+		JsonElement club = default;
+		await Until(async () => long.TryParse(Field(club = await Fm.Pull("Human.Club",
+			"TransferBudget,OriginalTransferBudget,WageBudget,RemainingWageBudget,CurrentWageSpending,ScoutingCostsThisSeason"), "TransferBudget"), out _), seconds: 8, every: 0.5);
+		if (!long.TryParse(Field(club, "TransferBudget"), out var left)) return null;
 
-		// The figure after a label, its case as the translation has it ("Original budget").
-		string After(List<string> list, string label) =>
-			list.FindIndex(t => t.Equals(label, StringComparison.OrdinalIgnoreCase)) is var i && i >= 0 && i + 1 < list.Count && MoneyFormat.IsMoney(list[i + 1]) ? list[i + 1] : "-";
-		var club = await Fm.Pull("Human.Club", "TransferBudget,WageBudget,RemainingWageBudget,CurrentWageSpending");
-		string Amount(string field) => long.TryParse(Field(club, field), out var v) ? MoneyFormat.Exact(v) : "-";
-		var left = long.TryParse(Field(club, "TransferBudget"), out var t) ? MoneyFormat.Short(t) : After(transfer, "Current");
+		string Amount(JsonElement from, string field, Func<long, string> format) => long.TryParse(Field(from, field), out var v) ? format(MoneyFormat.Shown(v)) : "-";
+		var page = (await Fm.GetJson("texts", ("anchor", "Original budget"), ("up", "8"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
+		var spentAt = page.FindIndex(t => t.Equals("Spent this season", StringComparison.OrdinalIgnoreCase));
+		var spent = spentAt >= 0 && spentAt + 1 < page.Count && MoneyFormat.IsMoney(page[spentAt + 1]) ? page[spentAt + 1] : "-";
 		var free = long.TryParse(Field(club, "RemainingWageBudget"), out var r) ? r : (long?)null;
-		var scouting = (await Fm.GetJson("texts", ("anchor", "Scouting"), ("up", "6"))).EnumerateArray().Select(x => x.GetString() ?? "").ToList();
-		var scoutAt = scouting.IndexOf("Scouting");
+		var scouting = await Fm.Pull("Human.ScoutingInfo", "ScoutingBudget");
 		return
 		[
-			new(L("Transfer budget"), L($"{left} (spent this season {After(transfer, "Spent this season")}, at the start {After(transfer, "Original Budget")})")),
-			new(L("Wage budget"), L($"{(free is < 0 ? L($"{MoneyFormat.Exact(-free.Value)} over") : free is { } f ? L($"{MoneyFormat.Exact(f)} free") : "-")} (weekly) · paid {Amount("CurrentWageSpending")} / {Amount("WageBudget")}")),
-			new(L("Scouting budget"), scouting.Skip(scoutAt + 1).FirstOrDefault(MoneyFormat.IsMoney) ?? "-"),
+			new(L("Transfer budget"), L($"{MoneyFormat.Short(MoneyFormat.Shown(left))} (spent this season {spent}, at the start {Amount(club, "OriginalTransferBudget", MoneyFormat.Short)})")),
+			new(L("Wage budget"), L($"{(free is < 0 ? L($"{MoneyFormat.Exact(MoneyFormat.Shown(-free.Value))} over") : free is { } f ? L($"{MoneyFormat.Exact(MoneyFormat.Shown(f))} free") : "-")} (weekly) · paid {Amount(club, "CurrentWageSpending", MoneyFormat.Exact)} / {Amount(club, "WageBudget", MoneyFormat.Exact)}")),
+			new(L("Scouting budget"), Amount(scouting, "ScoutingBudget", MoneyFormat.Short)),
 		];
 	}
 

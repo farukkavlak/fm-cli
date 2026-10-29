@@ -19,24 +19,78 @@ internal static class MoneyFormat
 	private static Dictionary<string, long> Defaults() =>
 		new(StringComparer.OrdinalIgnoreCase) { ["K"] = 1_000, ["M"] = 1_000_000, ["B"] = 1_000_000_000, ["BN"] = 1_000_000_000 };
 
+	/// <summary>
+	/// What one unit of the game's data is in the currency it shows. FM27 keeps money in pounds and
+	/// shows it in the player's currency (999 → "1,16B €"); FM26's data was already in it (1).
+	/// </summary>
+	public static double Rate { get; private set; } = 1;
+
+	/// <summary>An amount from the game's data in the currency it shows, before it is written with <see cref="Short"/> or <see cref="Exact"/>.</summary>
+	public static long Shown(double amount) => (long)Math.Round(amount * Rate);
+
 	public static async Task Learn(Bridge fm)
 	{
-		string said;
-		try { said = await fm.Get("money", ("values", "999,1500,1500000,1500000000")); }
-		catch { return; }
-		var shown = said.Split('\n', StringSplitOptions.RemoveEmptyEntries)
-			.Select(l => l.Split('\t')).Where(p => p.Length == 2 && !p[1].StartsWith('<')).ToDictionary(p => p[0], p => p[1].Trim());
-		if (shown.Count < 4 || !shown["999"].Contains("999")) return;
-		var learnt = Defaults();
-		var learntTemplates = new[] { shown["999"].Replace("999", "{0}"), "", "", "" };
-		// The letters after "1.5" (or "1,5") stand for the scale; "B" a thousand in one language is a
-		// thousand million in another, so the game's own meaning replaces the default.
-		foreach (var (value, scale) in new[] { ("1500", 1_000L), ("1500000", 1_000_000L), ("1500000000", 1_000_000_000L) })
+		async Task<Dictionary<double, string>> Format(IEnumerable<double> values)
 		{
-			var match = Regex.Match(shown[value], @"1([.,])5\s*(\p{L}+)");
+			var asked = values.Distinct().ToList();
+			var said = await fm.Get("money", ("values", string.Join(",", asked.Select(v => v.ToString("R", CultureInfo.InvariantCulture)))));
+			return said.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(l => l.Split('\t'))
+				.Where(p => p.Length == 2 && !p[1].StartsWith('<') && double.TryParse(p[0], NumberStyles.Float, CultureInfo.InvariantCulture, out _))
+				.ToDictionary(p => double.Parse(p[0], NumberStyles.Float, CultureInfo.InvariantCulture), p => p[1].Trim());
+		}
+		// A whole number of units with no scale letter ("582 €"), or null.
+		static long? Units(string shown) => Regex.Match(shown, @"^[^\d\p{L}]*(\d+)[^\d\p{L}]*$|^\D*?(\d+)\s*\p{Sc}+$") is { Success: true } m
+			&& long.TryParse(m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value, out var n) ? n : null;
+
+		// The whole figure of an amount in thousands ("453B €" → 453), or null.
+		static long? Thousands(string shown) => Regex.Match(shown, @"^\D*?(\d+)\s*\p{L}+") is { Success: true } m && long.TryParse(m.Groups[1].Value, out var n) ? n : null;
+
+		double rate;
+		try
+		{
+			// A first guess from the largest small amount still written in units, then the two values where
+			// 101 and 998 thousand begin, narrowed down: they lie 897 thousand apart, whatever the rounding.
+			// Thousands, not units: the game rounds what it is given to a whole unit first.
+			var probes = await Format([1000, 100, 10, 1, 0.1, 0.01, 0.001]);
+			var guess = probes.Where(kv => Units(kv.Value) is >= 10 and < 1000).OrderByDescending(kv => kv.Key)
+				.Select(kv => Units(kv.Value)!.Value / kv.Key).FirstOrDefault();
+			if (guess <= 0) return;
+			long[] targets = [101, 998];
+			var low = targets.Select(k => k * 1000 / guess * 0.97).ToArray();
+			var high = targets.Select(k => k * 1000 / guess * 1.03).ToArray();
+			for (var round = 0; round < 6; round++)
+			{
+				var points = Enumerable.Range(0, 2).SelectMany(t => Enumerable.Range(0, 33).Select(i => low[t] + (high[t] - low[t]) * i / 32)).ToList();
+				var shown = await Format(points);
+				for (var t = 0; t < 2; t++)
+				{
+					var line = Enumerable.Range(0, 33).Select(i => low[t] + (high[t] - low[t]) * i / 32).ToList();
+					var first = line.FindIndex(v => shown.TryGetValue(v, out var x) && Thousands(x) >= targets[t]);
+					if (first <= 0) return;
+					(low[t], high[t]) = (line[first - 1], line[first]);
+				}
+			}
+			rate = (targets[1] - targets[0]) * 1000 / (high[1] - high[0]);
+		}
+		catch { return; }
+		if (!(rate > 0) || double.IsInfinity(rate)) return;
+		Rate = Math.Abs(rate - 1) < 1e-6 ? 1 : rate;
+
+		// A few units either side of what the game writes are the same template: only the figure differs.
+		var scales = new[] { 500.0, 1520, 1_520_000, 1_520_000_000 };
+		var formatted = await Format(scales.Select(v => v / Rate));
+		var shownAt = scales.Select(v => formatted.GetValueOrDefault(v / Rate) ?? "").ToArray();
+		if (Units(shownAt[0]) is null) return;
+		var learnt = Defaults();
+		var learntTemplates = new[] { Regex.Replace(shownAt[0], @"\d+", "{0}"), "", "", "" };
+		// The letters after "1.52" (or "1,52") stand for the scale; "B" a thousand in one language is a
+		// thousand million in another, so the game's own meaning replaces the default.
+		foreach (var (at, scale) in new[] { (1, 1_000L), (2, 1_000_000L), (3, 1_000_000_000L) })
+		{
+			var match = Regex.Match(shownAt[at], @"1([.,])5\d*\s*(\p{L}+)");
 			if (!match.Success) return;
 			decimalMark = match.Groups[1].Value[0];
-			learntTemplates[scale switch { 1_000 => 1, 1_000_000 => 2, _ => 3 }] = shown[value].Replace(match.Value, "{0}" + match.Groups[2].Value);
+			learntTemplates[at] = shownAt[at].Replace(match.Value, "{0}" + match.Groups[2].Value);
 			foreach (var key in learnt.Where(kv => kv.Key.Equals(match.Groups[2].Value, StringComparison.OrdinalIgnoreCase)).Select(kv => kv.Key).ToList())
 				learnt.Remove(key);
 			learnt[match.Groups[2].Value] = scale;
@@ -54,7 +108,10 @@ internal static class MoneyFormat
 		catch { }
 	}
 
-	/// <summary>An amount shortened as the game shortens it: three figures at most, cut and not rounded ("673B £", "£2.61M").</summary>
+	/// <summary>
+	/// An amount shortened as the game shortens it: three figures at most; thousands cut ("673B £"), millions
+	/// and up rounded (FM27: 390,000 → "453B €" but 11,167,415 → "13M €" and 11,160,000 → "12,99M €" at one rate).
+	/// </summary>
 	public static string Short(long amount)
 	{
 		var size = Math.Abs(amount);
@@ -62,7 +119,7 @@ internal static class MoneyFormat
 		var value = (double)size / scale;
 		var places = value >= 100 ? 0 : 2;
 		if (scale == 1) places = 0;
-		var cut = Math.Floor(value * Math.Pow(10, places)) / Math.Pow(10, places);
+		var cut = (scale >= 1_000_000 ? Math.Round(value * Math.Pow(10, places), MidpointRounding.AwayFromZero) : Math.Floor(value * Math.Pow(10, places))) / Math.Pow(10, places);
 		var figure = cut.ToString("0.##", CultureInfo.InvariantCulture).Replace('.', decimalMark);
 		return (amount < 0 ? "-" : "") + string.Format(CultureInfo.InvariantCulture, templates[at], figure);
 	}

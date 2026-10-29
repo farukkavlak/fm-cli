@@ -21,6 +21,9 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> YouthTraining(bool json)
 	{
+		// FM27 has no Youth Performance page: the youth team's Individual Training lists the ratings.
+		if (await YouthTrainingOnBar(json) is { } done) return done;
+
 		// Held by the average's heading (one of the game's texts).
 		async Task<List<(string Text, string Path)>> Read() =>
 			(await Fm.GetJson("texts", ("anchor", "Avg. Training Rating"), ("up", "14"), ("paths", "1"))).EnumerateArray()
@@ -142,6 +145,60 @@ internal static partial class Program
 			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 
 	/// <summary>
+	/// The youth team's training ratings, FM27: the youngest team's squad (the last of the Squad tab's
+	/// team rows) is opened and Individual Training chosen on its own bar. Each row is a name
+	/// (primarytext), the squad status (Person.FullContract.AgreedPlayingTime.DisplayValue), the position
+	/// (Value) and the rating, drawn without a path ("-" when he did not train). The table draws only the
+	/// rows in view, so it is read at five places down it. Null when the bar does not list the page (FM26).
+	/// </summary>
+	private static async Task<int?> YouthTrainingOnBar(bool json)
+	{
+		var teams = (await Fm.GetJson("pages")).EnumerateArray().Where(p => Field(p, "Guid") == Screen.Squad).Select(p => Field(p, "Object")).ToList();
+		if (teams.Count < 2) return null;
+		const string Status = "Person.FullContract.AgreedPlayingTime.DisplayValue";
+		async Task<List<(string Text, string Path)>> Read() => await YouthPaths(Status, "30");
+		var opened = await OpenSubpage(Screen.Squad, Screen.IndividualTraining, async () => (await Read()).Any(t => t.Path == Status), teams[^1], bar: true);
+		if (opened.StartsWith("error", StringComparison.Ordinal))
+		{
+			if (opened.Contains(Screen.IndividualTraining, StringComparison.OrdinalIgnoreCase)) return null;
+			Console.Error.WriteLine(L("The youth training table did not open."));
+			return 1;
+		}
+
+		var players = new Dictionary<string, string[]>();
+		foreach (var at in new[] { 0, 0.25, 0.5, 0.75, 1 })
+		{
+			await Fm.Get("scroll", ("anchor", "Training Rating"), ("to", at.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+			List<(string Text, string Path)> texts = [];
+			var previous = "";
+			await Until(async () =>
+			{
+				var now = string.Join("|", (texts = await Read()).Select(t => t.Text));
+				var same = now == previous && texts.Any(t => t.Path == Status);
+				previous = now;
+				return same;
+			}, seconds: 4, every: 0.25);
+			for (var i = 0; i + 3 < texts.Count; i++)
+				if (texts[i].Path == "primarytext" && texts[i + 1].Path == Status && texts[i + 2].Path == "Value" && texts[i + 3].Path.Length == 0)
+					players[texts[i].Text] = [texts[i].Text, GameWords.Of(texts[i + 1].Text), texts[i + 2].Text, texts[i + 3].Text];
+		}
+		await Fm.Get("scroll", ("anchor", "Training Rating"), ("to", "0"));
+
+		double Rating(string text) => double.TryParse(text.Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1;
+		var rows = players.Values.OrderByDescending(r => Rating(r[3])).ToList();
+		var rated = rows.Select(r => Rating(r[3])).Where(v => v >= 0).ToList();
+		var average = rated.Count > 0 ? GameNumbers.Of(rated.Average(), "0.00") : "";
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(new { Average = average, Players = rows.Select(r => new { Player = r[0], Status = r[1], Position = r[2], Rating = r[3] }) }));
+			return 0;
+		}
+		if (average.Length > 0) Console.WriteLine(L($"Youth training: average {average}\n"));
+		Table.Write([L("PLAYER"), L("STATUS"), L("POSITION"), L("RATING")], rows);
+		return 0;
+	}
+
+	/// <summary>
 	/// The academy at a glance, from the club's data and the Youth Setup pages' data paths
 	///: coaching and recruitment levels, the youth stadium, the youth team's staff,
 	/// the next intake and whether its candidates have come, the youngsters thought ready for the
@@ -155,8 +212,11 @@ internal static partial class Program
 
 		// The environment tab: the youth team's staff and the academy's level are bound there.
 		List<(string Text, string Path)> details = [];
-		var opened = await OpenSubpage(Screen.YouthSetup, Screen.YouthEnvironment,
-			async () => (details = await YouthPaths("Team.Club.YouthCoachingLevel", "12")).Any(t => t.Path == "Team.StaffCoachingSubGroup.Count"));
+		// FM27 moved the page under the youth team's squad (Squad Dynamics there) and dropped its staff
+		// counts and the level's path: there it is read from the mood's lines up.
+		var opened = await OpenSubpage(Screen.YouthSetup, Screen.YouthEnvironment, async () =>
+			(details = await YouthPaths("Team.Club.YouthCoachingLevel", "12")).Any(t => t.Path == "Team.StaffCoachingSubGroup.Count")
+			|| (details = await YouthPaths("data.Description", "12")).Any(t => t.Path == "binding.ProConsLongString"));
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		string Bound(List<(string Text, string Path)> texts, string path) => texts.FirstOrDefault(t => t.Path == path).Text ?? "";
 		string Team(string group) => $"{Bound(details, $"Team.{group}.Count")}/{Bound(details, $"Team.{group}.MaxValue")}";
@@ -180,11 +240,14 @@ internal static partial class Program
 			// candidate, by the facilities' heading, one of the game's texts. The rating's own heading
 			// is not: a Turkish game leaves it untranslated.
 			overview = await YouthPaths("binding.InitialSurname", "30");
+			// FM27: name (primarytext), "21-year-old full-back" (Person.PlayerDescription), best position.
+			if (overview.Count == 0) overview = await YouthPaths("Person.PlayerDescription", "30");
 			if (overview.Count == 0)
 				overview = (await Fm.GetJson("texts", ("anchor", "Youth Facilities"), ("up", "9"), ("paths", "1"))).EnumerateArray()
 					.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 			var key = string.Join("|", overview.Select(t => t.Text));
-			var settled = key == previous && overview.Count > 0 && (overview.All(t => t.Path != "binding.InitialSurname") || overview.Any(t => t.Path == "binding"));
+			var settled = key == previous && overview.Count > 0
+			              && (overview.All(t => t.Path is not ("binding.InitialSurname" or "Person.PlayerDescription")) || overview.Any(t => t.Path == "binding"));
 			previous = key;
 			return settled;
 		}, seconds: 6, every: 0.5);
@@ -195,14 +258,23 @@ internal static partial class Program
 				var cells = overview.Skip(at + 1).TakeWhile(t => t.Path == "binding").Select(t => t.Text).ToList();
 				candidates.Add([overview[at].Text, cells.ElementAtOrDefault(0) ?? "", cells.ElementAtOrDefault(1) ?? ""]);
 			}
+			else if (overview[at].Path == "primarytext" && at + 2 < overview.Count && overview[at + 1].Path == "Person.PlayerDescription" && overview[at + 2].Path == "binding")
+			{
+				// The age is the description's number, whatever the language says around it.
+				var age = System.Text.RegularExpressions.Regex.Match(overview[at + 1].Text, @"\d+").Value;
+				candidates.Add([overview[at].Text, overview[at + 2].Text, age]);
+			}
 		// The rating is drawn without a path just before the facilities' heading.
-		var rating = overview.FindIndex(t => t.Text == "Youth Facilities") is > 0 and var r && overview[r - 1].Path.Length == 0 ? overview[r - 1].Text : "";
+		// FM27 has no rating: there the heading before it is Junior Coaching's.
+		var rating = overview.FindIndex(t => t.Text == "Youth Facilities") is > 0 and var r && overview[r - 1].Path.Length == 0 && overview[r - 1].Text != "Junior Coaching" ? overview[r - 1].Text : "";
 
 		var youth = new
 		{
 			Rating = rating,
 			AcademyCoaching = Field(club, "YouthCoaching"), Recruitment = Field(club, "YouthRecruitment"),
-			Level = Bound(details, "Team.Club.YouthCoachingLevel"),
+			// FM27 draws the level without a path, after its heading (one of the game's texts).
+			Level = Bound(details, "Team.Club.YouthCoachingLevel") is { Length: > 0 } level ? level
+				: details.FindIndex(t => t.Text == "Youth Level") is >= 0 and var heading && heading + 1 < details.Count && details[heading + 1].Path.Length == 0 ? GameWords.Of(details[heading + 1].Text) : "",
 			Stadium = town.Length > 0 && stadium.Length > 0 && !stadium.Contains(town) ? $"{stadium}, {town}" : stadium,
 			Coaches = Team("StaffCoachingSubGroup"), Recruiters = Team("StaffRecruitmentSubGroup"), Medical = Team("StaffMedicalSubGroup"),
 			IntakeDate = intake?.ToString("yyyy-MM-dd") ?? "", IntakeInDays = intake is { } when ? (int)(when - today).TotalDays : (int?)null,
@@ -219,7 +291,7 @@ internal static partial class Program
 		if (youth.Rating.Length > 0) Console.WriteLine(L($"Youth rating      {youth.Rating}"));
 		Console.WriteLine(L($"Academy           training level {youth.AcademyCoaching} · youth recruitment {youth.Recruitment} · level {youth.Level}"));
 		Console.WriteLine(L($"Stadium           {youth.Stadium}"));
-		Console.WriteLine(L($"Staff             coaches {youth.Coaches} · scouting {youth.Recruiters} · medical {youth.Medical}"));
+		if (youth.Coaches != "/") Console.WriteLine(L($"Staff             coaches {youth.Coaches} · scouting {youth.Recruiters} · medical {youth.Medical}"));
 		if (intake is { } day) Console.WriteLine(L($"Youth intake      {day.Day} {Months[day.Month - 1]} {day.Year} (in {youth.IntakeInDays} days)"));
 		Console.WriteLine(youth.IntakeCandidates == "awaited" ? L("Intake candidates none yet (they are known each March with a match)") : L("Intake candidates ARRIVED — the list: youth candidates"));
 		if (candidates.Count > 0)

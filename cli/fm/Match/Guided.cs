@@ -173,7 +173,7 @@ internal static partial class Program
 		}
 		// The game starts it at the player's own value, which is none of the list's steps and so has no label.
 		var now = Field(list, "Label") is { Length: > 0 } label ? label
-			: long.TryParse(Field(list, "Value"), out var value) ? MoneyFormat.Exact(value) : "";
+			: long.TryParse(Field(list, "Value"), out var value) ? MoneyFormat.Exact(MoneyFormat.Shown(value)) : "";
 		Console.WriteLine(L($"Propose a fee: now {now}"));
 		Console.WriteLine(L($"  options: {string.Join(" · ", fees)}"));
 		Console.WriteLine(L("To change it: talk fee <value>   ·   to send it: talk confirm"));

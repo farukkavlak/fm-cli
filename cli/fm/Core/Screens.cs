@@ -14,7 +14,7 @@ internal static class Screen
 	// Portal
 	public const string Home = "2d1049f4571df444eb050b39a5b8aaec";
 	public const string Calendar = "373351a1f7249424eb22205fc799d1b9";
-	public const string NewsSite = "0808ae564ebb73744b1ab884b5239fa8";
+	public const string NewsSite = "2d4ceb2449af95b49bfc0f89c6403627";
 	public const string Stages = "c705e9f71253e1c4a8e1259ced17f11a";
 	/// <summary>A competition's own page (Portal › Competitions › the league); one panel for every competition.</summary>
 	public const string Competition = "851a9406c4fc6964c9db74baa71407b7";
@@ -30,7 +30,7 @@ internal static class Screen
 	// Squad
 	/// <summary>A team's squad list; the club's own team unless another is named.</summary>
 	public const string Squad = "7957386accba7b44d81ac248d04efbac";
-	public const string Training = "8d64c97dd31aa8e4cab1d3fc91c7fc91";
+	public const string Training = "ceb0e5333c8c69c448f04279129fdb38";
 	// Training's own subtabs, opened from its bar.
 	public const string IndividualTraining = "41012275212b88b46957d71fc17c5876";
 	public const string Mentoring = "d4f349f49047bdb47a53216fa71298f3";
@@ -56,7 +56,7 @@ internal static class Screen
 	public const string PlayerDatabase = "bfe5117deac3c454f8970018733ac664";
 	public const string StaffDatabase = "a6331fde9dbe9fa47a9da59a7fc09715";
 	public const string RecruitmentFocuses = "c914d186dea95f44a997f5d3609862c7";
-	public const string RecruitmentBudgets = "9bef185e04bef64439c4821d40581882";
+	public const string RecruitmentBudgets = "82e7ca1826bc7fe47a18861a62b45d69";
 	public const string TransferActivity = "ab4d79ab8c8ef994d967c50b148bacb6";
 
 	// Match Day

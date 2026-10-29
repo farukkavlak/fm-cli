@@ -183,11 +183,20 @@ Still open:
     parent; `OpenPage` opens it, then chooses on its bar. Registration from cold: 14 s.
   - Pages only on another page's bar: `Screen.OnBarOf` (Stages ← the league page's "Stages ›"). `fm stages`: 5 s.
   - Lazy submenus (`SIDropdown.HasLazyChildren`, `/lazymenus`): only `YourWorldDropdown` on 3 screens.
-- [ ] Page GUIDs gone in FM27 (no menu or bar lists them): NewsSite (`fm news`), Training schedule (`fm schedule`),
-  RecruitmentBudgets (`fm budget`, `targets`; now Club › Finances' Transfer/Wage/Scouting Budget?), YouthPerformance.
-  `/barpages` lists the pages on the bars shown.
+- [x] Page GUIDs gone in FM27: `/barpages?all=1` dumps every menu and bar with GUIDs.
+  - News → Portal › News (`2d4ceb24…`); an item's fields now come before its title, age is `NewsItemAgeRoundedString`.
+  - Training → the Training tab's Overview (`ceb0e533…`); the calendar is the month, read from where today falls.
+  - Budgets → Club › Finances › Transfer Budget; figures from `Human.Club` data, scouting `Human.ScoutingInfo.ScoutingBudget`.
+  - Youth Performance → the youth team's own bar › Individual Training (`/open?bar=1`: the Training tab lists it too).
+  - Youth environment: now the youth team's Squad Dynamics; no staff counts, the level has no path.
+  - FM27 data is in pounds, shown converted: `MoneyFormat.Rate` is learnt from `/money`; wrap data amounts in `Shown()`.
+    Thousands are cut, millions rounded.
+- [x] A tab's own menu is its bar (Training › Coach Assignments); `Subpage` tries real bars first.
+- [x] First-visit tab intros: `/closeintro` presses `#EndTutorialButton`; `OpenPage` calls it. A chosen page does not open under one.
+- [ ] `fm budget adjust`: the tile is now "Adjust Transfer Budget" with a `GenericAction` event, not `SpeakToAction`.
+- [ ] `fm training`: individual training reads nothing (the `PlayerTraining` data paths changed).
+- [ ] `fm budget`: "spent this season" is "-" (its label is not in the language table).
 - [ ] `fm stages`: team names empty. `fm happiness`: page opens, read fails.
-- [ ] FM27 "first visit" tab intros (Kulüp › "Anladım") stay over the screen.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
 - [ ] `identity-check.py catalog` (game must be in English for the word list).
 

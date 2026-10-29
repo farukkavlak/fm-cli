@@ -153,11 +153,11 @@ internal static partial class Program
 
 	private static string PoundsShort(string raw) =>
 		double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
-			? MoneyFormat.Short((long)Math.Round(v)) : "-";
+			? MoneyFormat.Short(MoneyFormat.Shown(v)) : "-";
 
 	private static string Pounds(string raw) =>
 		double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
-			? MoneyFormat.Exact((long)Math.Round(v)) : "-";
+			? MoneyFormat.Exact(MoneyFormat.Shown(v)) : "-";
 
 	/// <summary>
 	/// Each sponsorship deal from the club's data (FinanceSponsorshipRowReference): type, value per

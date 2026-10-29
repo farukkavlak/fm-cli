@@ -2502,3 +2502,4 @@ Offer screen closed; nothing was sent.	Teklif ekranı kapatıldı; hiçbir şey 
 Asked to close, but the offer screen is still open.	Kapatılması istendi ama teklif ekranı hâlâ açık.
 '{0}' is not something to continue until: match or message	'{0}' devam edilecek bir hedef değil: match ya da message
 Stopped after {0} steps without getting there.	{0} adımda oraya varılamadı, durduruldu.
+Youth training: average {0}\n	Altyapı antrenmanı: ortalama {0}\n

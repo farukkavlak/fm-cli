@@ -5,8 +5,8 @@ using Spectre.Console;
 namespace FmCli;
 
 /// <summary>
-/// The training schedule: Squad › Training › Overview draws this week and the
-/// next as a calendar, read by each text's data path: the day, then its three
+/// The training schedule: Training › Overview draws a calendar (FM26 this week and the next, FM27
+/// the month), shown for this week and the next, read by each text's data path: the day, then its three
 /// sessions — a session's name ("Recovery", "Match Tactics", "Rest", "Travel"…) or, on a match day,
 /// where the match is played ("H", "A", "N").
 /// </summary>
@@ -35,7 +35,7 @@ internal static partial class Program
 		var previous = "";
 		await Until(async () =>
 		{
-			texts = (await Fm.GetJson("texts", ("anchorpath", "day.DayOfTheMonth"), ("up", "9"), ("paths", "1"), ("most", "1")))
+			texts = (await Fm.GetJson("texts", ("anchorpath", "day.DayOfTheMonth"), ("up", "12"), ("paths", "1"), ("most", "1")))
 				.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 			var now = string.Join("|", texts.Select(t => t.Text));
 			var settled = now == previous && texts.Count(t => t.Path == "day.DayOfTheMonth") >= 7;
@@ -109,23 +109,31 @@ internal static partial class Program
 	/// <summary>
 	/// Splits the calendar's texts into days by their data paths: a day (day.DayOfTheMonth) and its
 	/// sessions (Event.SessionName), or where a match is played on a match day (Event.MatchVenueShort,
-	/// "H"/"A"/"N" whatever the language). The grid is this week and the next, from Monday.
+	/// "H"/"A"/"N" whatever the language). FM26 draws this week and the next, from Monday; FM27 the
+	/// month's weeks. The grid's first date is where today's number falls in its run of day numbers
+	/// (a month's name on the first is not read); this week and the next are kept.
 	/// </summary>
 	private static List<TrainingDay> TrainingDays(List<(string Text, string Path)> texts, DateTime today)
 	{
-		List<TrainingDay> days = [];
-		var next = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+		List<(int Number, List<string> Sessions)> cells = [];
 		foreach (var (text, path) in texts)
 		{
 			if (path == "day.DayOfTheMonth")
 			{
-				// A day out of step: what was read is all that can be trusted.
-				if (!int.TryParse(System.Text.RegularExpressions.Regex.Match(text, @"^\d+").Value, out var number) || number != next.Day) return days;
-				days.Add(new TrainingDay(next, []));
-				next = next.AddDays(1);
+				if (!int.TryParse(System.Text.RegularExpressions.Regex.Match(text, @"^\d+").Value, out var number)) break;
+				cells.Add((number, []));
 			}
-			else if (days.Count > 0 && path is "Event.SessionName" or "Event.MatchVenueShort") days[^1].Sessions.Add(text);
+			else if (cells.Count > 0 && path is "Event.SessionName" or "Event.MatchVenueShort") cells[^1].Sessions.Add(text);
 		}
-		return days;
+
+		var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+		for (var at = 0; at < cells.Count; at++)
+		{
+			var start = today.AddDays(-at);
+			if (start.DayOfWeek != DayOfWeek.Monday || cells.Select((c, i) => c.Number == start.AddDays(i).Day).Any(ok => !ok)) continue;
+			return cells.Select((c, i) => new TrainingDay(start.AddDays(i), c.Sessions))
+				.Where(x => x.Day >= monday && x.Day < monday.AddDays(14)).ToList();
+		}
+		return [];
 	}
 }
