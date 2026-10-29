@@ -97,6 +97,18 @@ internal static partial class Program
 			query.Add(("under", under));
 			if (screen != Screen.Home && under != Screen.Home) await OpenWith([("guid", Screen.Home)]);
 		}
+		// FM27 keeps some pages only in a tab menu's submenu (Squad Registration under First Team) or
+		// on another page's bar (Stages): unless that bar is up already, the page it belongs to is
+		// opened, then the page chosen there.
+		if (team == null && under == null && (await OnBar(screen)).StartsWith("error", StringComparison.Ordinal))
+		{
+			// "<parent guid>\t<its team>\t<name>": a youth team's page sits under that team's squad.
+			var parent = await Fm.Get("pageparent", ("guid", screen));
+			if (!parent.StartsWith("error", StringComparison.Ordinal) && parent.Split('\t') is [var guid, var owner, ..])
+				return await OpenSubpage(guid, screen, () => Task.FromResult(true), owner == "-1" ? null : owner);
+			if (Screen.OnBarOf.TryGetValue(screen, out var page))
+				return await OpenSubpage(page, screen, () => Task.FromResult(true));
+		}
 		return await OpenWith(query.ToArray());
 	}
 
@@ -112,9 +124,9 @@ internal static partial class Program
 	/// stands on is the game's own word for the page being the one shown (?check=1). The content
 	/// followed in 0.88–1.51 s (TR + EN, §8.302), so the upper bound is 8 s rather than 3 s.
 	/// </summary>
-	internal static async Task<string> OpenSubpage(string parent, string screen, Func<Task<bool>> shown)
+	internal static async Task<string> OpenSubpage(string parent, string screen, Func<Task<bool>> shown, string? team = null)
 	{
-		var opened = await OpenPage(parent);
+		var opened = await OpenPage(parent, team);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return opened;
 		var answer = "";
 		for (var attempt = 0; attempt < 4; attempt++)

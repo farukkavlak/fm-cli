@@ -172,6 +172,36 @@ internal static class Submenus
 		}
 	}
 
+	/// <summary>
+	/// Which menus fill a submenu only when it is asked for (FM27): per dropdown, whether it binds its
+	/// choices lazily and the rows the game says have children while their child list is still empty.
+	/// </summary>
+	public static string Lazy()
+	{
+		var sb = new StringBuilder();
+		foreach (var dropdown in Buttons.AllDropdowns())
+		{
+			try
+			{
+				var choices = dropdown.m_choices;
+				var count = choices?.Count ?? 0;
+				var waiting = new List<string>();
+				for (var i = 0; i < count; i++)
+				{
+					var record = choices[i]?.Get()?.TryCast<DynamicReference>();
+					if (record == null || !SIDropdown.HasLazyChildren(record) || Buttons.Children(choices[i]) != null) continue;
+					waiting.Add(Buttons.ChoiceText(choices[i]) ?? "?");
+				}
+				var children = dropdown.m_childrenDropdowns?.Count ?? 0;
+				if (!dropdown.ShouldLazyBindChoices && waiting.Count == 0 && children == 0) continue;
+				sb.AppendLine($"0x{dropdown.Pointer.ToInt64():x}  {dropdown.name}  rows={count} lazyBind={dropdown.ShouldLazyBindChoices} requested={dropdown.m_lazyChildrenRequested} childDropdowns={children}"
+				              + (waiting.Count > 0 ? $"  waiting: {string.Join(" | ", waiting.Take(8))}" : ""));
+			}
+			catch (System.Exception e) { sb.AppendLine($"? {e.GetType().Name}"); }
+		}
+		return sb.Length > 0 ? sb.ToString() : "no lazy menus\n";
+	}
+
 	/// <summary>Every dropdown row laid out now, with its child dropdown when it has one.</summary>
 	public static string Rows()
 	{
@@ -185,7 +215,6 @@ internal static class Submenus
 			string label, shown, child = "";
 			try { label = Buttons.LabelOf(row); } catch { label = "?"; }
 			try { shown = row.panel != null && row.worldBound.width > 0 ? "" : " HIDDEN"; } catch { shown = " ?"; }
-			// FM27 dropped DropdownRow's m_childDropdown; where a row's submenu lives now is not measured yet.
 			// FM27 dropped DropdownRow.Index: the row's place among its siblings.
 			int index;
 			try { index = row.hierarchy.parent?.IndexOf(row) ?? -1; } catch { index = -1; }

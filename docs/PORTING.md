@@ -125,7 +125,7 @@ From disk only, game not modded. Rerun after each FM27 update (full release 10 N
   height, kit colours) all there → radar should port unchanged.
 - Event and action ids keep their FM26 numbers. 208 new events, 14 gone.
 - Plugin's compiled game references: 467, all present except:
-  - [ ] `SI.Bindable.DropdownRowNavigatable` → `SI.Bindable.DropdownRow`; `m_childDropdown` gone
+  - [x] `SI.Bindable.DropdownRowNavigatable` → `SI.Bindable.DropdownRow`; `m_childDropdown` gone
     (`Controls/Submenus.cs`; `SIDropdown.m_childrenDropdowns` is a lead)
   - [ ] `SI.Bindable.TableRowNavigatable` gone (`Controls/TableRows.cs`, `Reads/Registration.cs`)
   - [ ] `BindableTextEditBox.m_textField` moved to `BindableEditBox<T>` (`Controls/TextBoxes.cs`)
@@ -178,7 +178,16 @@ Still open:
   (squad table: Archie Brown row 9, source 5), so `RowControls` reads `GetItemFromView`. Registration's name
   text is `#primary-text`. Tried live: select, tick/untick by text and by table+index, registration read + toggle.
   - `fm register` opens only from the squad overview tile: its GUID is now a Squad submenu page (see Submenus).
-- [ ] Submenus: `DropdownRow` has no `m_childDropdown`.
+- [x] Submenus: menu reads go through the rows' `ChildList` and still work; `m_childDropdown` was only a debug column.
+  - Pages FM27 moved into a tab menu's submenu (Squad Registration, Captains, Board…): `/pageparent?guid=` names the
+    parent; `OpenPage` opens it, then chooses on its bar. Registration from cold: 14 s.
+  - Pages only on another page's bar: `Screen.OnBarOf` (Stages ← the league page's "Stages ›"). `fm stages`: 5 s.
+  - Lazy submenus (`SIDropdown.HasLazyChildren`, `/lazymenus`): only `YourWorldDropdown` on 3 screens.
+- [ ] Page GUIDs gone in FM27 (no menu or bar lists them): NewsSite (`fm news`), Training schedule (`fm schedule`),
+  RecruitmentBudgets (`fm budget`, `targets`; now Club › Finances' Transfer/Wage/Scouting Budget?), YouthPerformance.
+  `/barpages` lists the pages on the bars shown.
+- [ ] `fm stages`: team names empty. `fm happiness`: page opens, read fails.
+- [ ] FM27 "first visit" tab intros (Kulüp › "Anladım") stay over the screen.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
 - [ ] `identity-check.py catalog` (game must be in English for the word list).
 

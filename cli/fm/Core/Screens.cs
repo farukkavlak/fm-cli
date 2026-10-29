@@ -16,6 +16,14 @@ internal static class Screen
 	public const string Calendar = "373351a1f7249424eb22205fc799d1b9";
 	public const string NewsSite = "0808ae564ebb73744b1ab884b5239fa8";
 	public const string Stages = "c705e9f71253e1c4a8e1259ced17f11a";
+	/// <summary>A competition's own page (Portal › Competitions › the league); one panel for every competition.</summary>
+	public const string Competition = "851a9406c4fc6964c9db74baa71407b7";
+
+	/// <summary>
+	/// Pages listed only on another page's bar, which no tab menu lists (FM27: Stages is under the
+	/// league page's "Stages ›"). <see cref="Program.OpenPage"/> opens the page first, then chooses there.
+	/// </summary>
+	public static readonly Dictionary<string, string> OnBarOf = new() { [Stages] = Competition };
 	/// <summary>Portal › Opposition Report and Match Day › Next Opposition Report: one page in two menus.</summary>
 	public const string OppositionReport = "b96211c5068254e4287314ac009797f1";
 

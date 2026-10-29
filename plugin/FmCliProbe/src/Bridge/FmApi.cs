@@ -69,6 +69,7 @@ internal static partial class FmApi
 		"contract" => Offer.Contract(),
 		"submenu" => Submenus.Open(q),
 		"dropdownrows" => Submenus.Rows(),
+		"lazymenus" => Submenus.Lazy(),
 		"rowsubmit" => Submenus.Submit(q),
 		"choicedump" => Submenus.Dump(q),
 		"rowput" => Submenus.Put(q),
@@ -110,6 +111,8 @@ internal static partial class FmApi
 		"elements" => Elements.Around(q),
 		"pages" => Pages.Catalog(),
 		"open" => Pages.Open(q),
+		"pageparent" => Pages.Parent(q),
+		"barpages" => Pages.BarPages(),
 		"folders" => Folders(),
 		_ => null, // 404
 	};

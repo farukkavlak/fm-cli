@@ -41,6 +41,67 @@ internal static class Pages
 		public bool HasSubmenu;
 	}
 
+	/// <summary>
+	/// The page a submenu's page is reached from (FM27 moved Squad Registration, Stages… into
+	/// the tab menus' submenus): "&lt;parent guid&gt;\t&lt;parent team&gt;\t&lt;name&gt;". That parent's subtab
+	/// bar lists the page, so it is opened first and the page chosen there.
+	/// </summary>
+	public static string Parent(NameValueCollection q)
+	{
+		var guid = q["guid"];
+		if (string.IsNullOrEmpty(guid)) return "error: ?guid= required";
+		// A page a tab menu lists itself is opened from there, though a submenu may list it too
+		// (Tactics is under First Team as well).
+		if (All().Any(p => string.Equals(p.Guid, guid, StringComparison.OrdinalIgnoreCase))) return $"error: a tab menu lists guid {guid}";
+		foreach (var menu in Buttons.AllDropdowns())
+		{
+			try
+			{
+				if (menu.name != "NavTabDropdown") continue;
+				var choices = menu.m_choices;
+				for (var i = 0; i < (choices?.Count ?? 0); i++)
+				{
+					var children = Buttons.Children(choices[i]);
+					for (var c = 0; c < (children?.Count ?? 0); c++)
+					{
+						var child = Read(children[c]);
+						if (!string.Equals(child?.Guid, guid, StringComparison.OrdinalIgnoreCase)) continue;
+						var parent = Read(choices[i]);
+						if (parent == null || string.Equals(parent.Guid, guid, StringComparison.OrdinalIgnoreCase)) continue;
+						return $"{parent.Guid}\t{parent.ObjectId}\t{child.Name}";
+					}
+				}
+			}
+			catch { }
+		}
+		return $"error: no submenu lists guid {guid}";
+	}
+
+	/// <summary>The pages the bars on screen list (not the tab menus), submenus included: "name\tguid\tdropdown".</summary>
+	public static string BarPages()
+	{
+		var sb = new System.Text.StringBuilder();
+		void Walk(Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> rows, string prefix, SIDropdown dropdown)
+		{
+			for (var i = 0; i < (rows?.Count ?? 0); i++)
+			{
+				var row = Read(rows[i]);
+				if (row != null) sb.AppendLine($"{prefix}{row.Name}\t{row.Guid}\t0x{dropdown.Pointer.ToInt64():x}");
+				Walk(Buttons.Children(rows[i]), prefix + (row?.Name ?? "?") + " › ", dropdown);
+			}
+		}
+		foreach (var dropdown in Buttons.AllDropdowns())
+		{
+			try
+			{
+				if (dropdown.name == "NavTabDropdown" || !Shown(dropdown)) continue;
+				Walk(dropdown.m_choices, "", dropdown);
+			}
+			catch { }
+		}
+		return sb.ToString();
+	}
+
 	public static string Catalog()
 	{
 		var rows = All().Select(p => Report.Json(new Dictionary<string, string>
