@@ -112,7 +112,7 @@ internal static partial class Program
 			  finances income|expenditure [month|last month|season|last season]   income or expenditure item by item
 			  supporters      supporters: atmosphere, expectations and reactions, attendance, season tickets, supporter profile
 			  responsibilities [filter]   who has the staff duties;  delegate "<duty>" hand it over · take "<duty>" take it back
-			  youth           youth: its grade, facilities and staff, first-team prospects, the intake date; --training: the youth team's training week; candidates: the year's intake (group, age, position, ability, potential)
+			  youth           youth: academy levels and stadium, first-team prospects, the intake date; --training: the youth team's training ratings; candidates: whether the year's intake has come
 			  progress        who is getting better, who worse: every player's ability over the last four months and the change
 			  staff find [text] [--filter <filter>] [--view <view>]   the staff search: job, contract, wage, attributes
 			  staff hire <name> [--wage <amount>] [--sign --yes]   hire staff: opens the contract negotiation, carried on with `contract`

@@ -164,7 +164,7 @@ fm penalties                 # penalty order and rules
 
 ![fm youth](manual/img/tactics/youth.png)
 
-![fm youth candidates](manual/img/tactics/youth-candidates.png)
+![fm youth --candidates](manual/img/tactics/youth-candidates.png)
 
 ## 6. Match day
 

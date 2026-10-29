@@ -9,135 +9,29 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static async Task<List<string>> YouthTexts(string anchor, string up) =>
-		(await Fm.GetJson("texts", ("anchor", anchor), ("up", up))).EnumerateArray()
-			.Select(t => t!.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
-
 	/// <summary>
-	/// The youth team's week in training (Youth Setup › Youth Performance), by each text's data path
-	///: how the week went (the texts before the schedule's name), the average rating,
-	/// and each player — name (binding.Name), age from his description (Person.PlayerDescription),
-	/// position and extra focus (binding), then his rating, drawn without a path ("-" when he did not train).
+	/// The youth team's training ratings (FM27; FM26's Youth Performance page is gone).
 	/// </summary>
 	private static async Task<int> YouthTraining(bool json)
 	{
-		// FM27 has no Youth Performance page: the youth team's Individual Training lists the ratings.
 		if (await YouthTrainingOnBar(json) is { } done) return done;
-
-		// Held by the average's heading (one of the game's texts).
-		async Task<List<(string Text, string Path)>> Read() =>
-			(await Fm.GetJson("texts", ("anchor", "Avg. Training Rating"), ("up", "14"), ("paths", "1"))).EnumerateArray()
-				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
-		List<(string Text, string Path)> texts = [];
-		var opened = await OpenSubpage(Screen.YouthSetup, Screen.YouthPerformance, async () => (texts = await Read()).Any(t => t.Path == "binding.Name"));
-		if (opened.StartsWith("error", StringComparison.Ordinal))
-		{
-			Console.Error.WriteLine(L("The youth training table did not open."));
-			return 1;
-		}
-		var previous = "";
-		await Until(async () =>
-		{
-			var now = string.Join("|", (texts = await Read()).Select(t => t.Text));
-			var same = now == previous && texts.Any(t => t.Path == "binding.Name");
-			previous = now;
-			return same;
-		}, seconds: 6, every: 0.4);
-
-		var schedule = texts.FindIndex(t => t.Path == "Team.TeamTraining.LastWeekTrainingTemplateName");
-		var notes = schedule > 1 ? texts.Skip(1).Take(schedule - 1).Where(t => t.Path.Length == 0).Select(t => t.Text).ToList() : [];
-		var firstRow = texts.FindIndex(t => t.Path == "binding.Name");
-		var average = texts.Take(firstRow < 0 ? texts.Count : firstRow).Skip(schedule + 1)
-			.FirstOrDefault(t => t.Path.Length == 0 && double.TryParse(t.Text.Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _)).Text ?? "";
-
-		var rows = new List<string[]>();
-		string[]? row = null;
-		foreach (var (text, path) in texts.Skip(Math.Max(0, firstRow)))
-		{
-			if (path == "binding.Name") { row = [text, "", "", "", "-"]; rows.Add(row); continue; }
-			if (row == null) continue;
-			if (path == "Person.PlayerDescription") row[1] = System.Text.RegularExpressions.Regex.Match(text, @"\d+").Value;
-			else if (path == "binding") { if (row[2] == "") row[2] = text; else row[3] = text; }
-			else if (path.Length == 0 && row[4] == "-") row[4] = text;
-		}
-		if (json)
-		{
-			Console.WriteLine(JsonOut.Of(new { Week = notes.ElementAtOrDefault(0) ?? "", Note = notes.ElementAtOrDefault(1) ?? "", Average = average,
-				Players = rows.Select(r => new { Player = r[0], Age = r[1], Position = r[2], Focus = r[3], Rating = r[4] }) }));
-			return 0;
-		}
-		Console.WriteLine(L($"Youth training week: {string.Join(" · ", notes)}{(average.Length > 0 ? L($" · average {average}") : "")}\n"));
-		Table.Write([L("PLAYER"), L("AGE"), L("POSITION"), L("ADDITIONAL FOCUS"), L("RATING")], rows.OrderByDescending(r => double.TryParse(r[4].Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1).ToList());
-		return 0;
+		Console.Error.WriteLine(L("The youth training table did not open."));
+		return 1;
 	}
 
 	/// <summary>
-	/// The year's intake, once it has come (Youth Setup › Youth Candidates): the game
-	/// groups them by how it rates them (Elite, Top, Good, Decent, Poor prospects); a row is name,
-	/// nation, positions, role and two star ratings, the ages come from the table's own people.
+	/// The year's intake, once it has come (Youth Setup › Youth Candidates). FM26's read held the page
+	/// by its English headings ("Elite Prospects (3)"); FM27's rows have not been seen yet (an intake
+	/// comes each March), so until they are mapped by data path this only says whether they came.
 	/// </summary>
 	private static async Task<int> YouthCandidates(bool json)
 	{
 		// Whether the year's candidates have come is in the club's data.
 		if (int.TryParse(Field(await Fm.Pull("Human.Club", "YouthCandidatesCount"), "YouthCandidatesCount"), out var came) && came == 0)
-		{
 			Console.Error.WriteLine(L("This year's intake candidates have not come yet (intake date: youth)."));
-			return 1;
-		}
-		// The headings carry their counts ("Elite Prospects (3)"), so the legend above is read first.
-		// Still read by its words: no intake has come since the pages were mapped by data path.
-		await OpenSubpage(Screen.YouthSetup, Screen.YouthCandidates, async () => (await YouthTexts("Elite", "3")).Count > 0);
-		var legend = await YouthTexts("Elite", "3");
-		var elite = legend.IndexOf("Elite");
-		if (elite < 1)
-		{
-			Console.Error.WriteLine(L("The intake candidates could not be read (they may not have come yet: youth)."));
-			return 1;
-		}
-		var items = (await Fm.GetJson("form", ("anchor", $"Elite Prospects ({legend[elite - 1]})"), ("up", "7"))).EnumerateArray().ToList();
-		var ages = new Dictionary<string, string>();
-		foreach (var p in (await Fm.GetJson("people")).EnumerateArray()) ages.TryAdd(Field(p, "Name"), Field(p, "Age"));
-
-		// Half stars as the game draws them; a potential still uncertain is a range.
-		static string Stars(int half) => half <= 0 ? "-" : new string('★', half / 2) + (half % 2 == 1 ? "½" : "");
-		static int Half(JsonElement e, string name) => e.TryGetProperty(name, out var v) && int.TryParse(v.GetString(), out var n) ? n : -1;
-		static string Rating(JsonElement e) => Half(e, "ShownMax") > Half(e, "Shown") ? $"{Stars(Half(e, "Shown"))} – {Stars(Half(e, "ShownMax"))}" : Stars(Half(e, "Shown"));
-
-		// A row ends in its two ratings; the four texts before them are name, nation, positions, role.
-		var rows = new List<string[]>();
-		var texts = new List<string>();
-		var stars = new List<JsonElement>();
-		var group = "";
-		foreach (var item in items)
-		{
-			if (Field(item, "Kind") == "stars") stars.Add(item);
-			else if (Field(item, "Kind") == "text")
-			{
-				var text = Field(item, "Text");
-				if (System.Text.RegularExpressions.Regex.Match(text, @"^(\w+) Prospects \(\d+\)$") is { Success: true } m) { group = m.Groups[1].Value; texts.Clear(); }
-				else texts.Add(text);
-				stars.Clear();
-			}
-			if (stars.Count < 2 || texts.Count < 4) continue;
-			var row = texts.TakeLast(4).ToList();
-			rows.Add([group, row[0], ages.GetValueOrDefault(row[0], ""), row[2], row[3], row[1], Rating(stars[0]), Rating(stars[1])]);
-			texts.Clear();
-			stars.Clear();
-		}
-		if (rows.Count == 0)
-		{
-			Console.Error.WriteLine(L("The intake candidates could not be read (they may not have come yet: youth)."));
-			return 1;
-		}
-		if (json)
-		{
-			Console.WriteLine(JsonOut.Of(rows.Select(r => new { Group = r[0], Player = r[1], Age = r[2], Position = r[3], Role = r[4], Nation = r[5], Ability = r[6], Potential = r[7] })));
-			return 0;
-		}
-		Console.WriteLine(L($"Youth intake: {rows.Count} candidates (the most promising in the game's eyes first)\n"));
-		Table.Write([L("GROUP"), L("PLAYER"), L("AGE"), L("POSITION"), L("ROLE"), L("NATION"), L("ABILITY"), L("POTENTIAL")], rows);
-		Console.WriteLine(L("\nA candidate's details: player <name> · to offer a contract in the game: Youth Candidates › Actions"));
-		return 0;
+		else
+			Console.Error.WriteLine(L("This year's intake candidates cannot be read yet; see them in the game: Youth Setup › Youth Candidates."));
+		return 1;
 	}
 
 	private static async Task<List<(string Text, string Path)>> YouthPaths(string anchorPath, string up) =>

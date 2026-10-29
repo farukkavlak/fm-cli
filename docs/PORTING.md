@@ -192,6 +192,8 @@ Still open:
   - Youth level: no path; the `#description` inside the `#youth-level` tile (`/texts?within=youth-level&named=description`).
   - Youth training: the team is `Human.Club.YouthTeam`, else `HighestLevelYouthTeam`; the table scrolls by `/scroll?anchorpath=`.
   - Youth rating: FM27 has none; dropped.
+  - Youth Performance page is gone (FM26 fallback removed).
+- [ ] `fm youth candidates`: the page (`e88d1df4…`) is still there, its rows not seen yet (intake each March); map them by data path.
   - FM27 data is in pounds, shown converted: `MoneyFormat.Rate` is learnt from `/money`; wrap data amounts in `Shown()`.
     Thousands are cut, millions rounded.
 - [x] A tab's own menu is its bar (Training › Coach Assignments); `Subpage` tries real bars first.
