@@ -2418,3 +2418,5 @@ The set piece wizard is open. To answer it: setpieces new   (the game's choices:
   Target      (not readable with no duties: {0})	  Hedef       (görev yokken okunamıyor: {0})
 '{0}' was sent; the game shows no readable sign of the target for this kind.	'{0}' gönderildi; oyun bu türde hedefin okunabilir bir işaretini vermiyor.
   (the list could not be read)	  (liste okunamadı)
+usage: penalties add <player> [<place>]	kullanım: penalties add <oyuncu> [<sıra>]
+{0} is among the penalty takers.	{0} penaltı atıcıları arasında.

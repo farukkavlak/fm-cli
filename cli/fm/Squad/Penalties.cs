@@ -22,8 +22,10 @@ internal static partial class Program
 	private static async Task<int> Penalties(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
-		// The table and the rules under it, from the table's Order heading (one of the game's texts).
-		async Task<List<JsonElement>> Form() => (await Fm.GetJson("form", ("anchor", "Order"), ("up", "26"))).EnumerateArray().ToList();
+		// The rules are the page's switches (known by the data path each writes); the takers are the
+		// set piece's own list (SetPiecePenaltyTakersList), reached through what the page's controls
+		// send to. No heading or column is read.
+		async Task<List<JsonElement>> Form() => (await Fm.GetJson("form", ("page", Screen.Penalties))).EnumerateArray().ToList();
 
 		var form = await Form();
 		if (!form.Any(f => Field(f, "Kind") == "checkbox"))
@@ -53,17 +55,16 @@ internal static partial class Program
 				return 1;
 			}
 			var order = new DraggedList("penalties", L("Penalty taker"), L("penalty takers"), L("the penalty takers"), Field(table, "Pointer"),
-				async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => Field(d!.Value, "Label") == "Add Player"),
+				async () => null,
 				async () =>
 				{
-					// A row half drawn has a number where he starts.
-					var read = await Form();
-					var now = PenaltyTakers(read);
-					return (now.Select(t => new Placed(t.Order, t.Name)).ToList(),
-						string.Join("|", read.Where(f => Field(f, "Kind") == "text").Select(f => Field(f, "Text"))),
-						now.All(t => !int.TryParse(t.Where, out _)));
+					var now = await PenaltyTakerNames();
+					return (now.Select((name, i) => new Placed(i + 1, name)).ToList(), string.Join("|", now), now.Count > 0);
 				});
-			if (await Reorder(order, verb, words.Skip(1).ToList()) is { } failed) return failed;
+			// FM27 adds a taker by choosing him in the players' table and pressing the button that
+			// sends EventFmxAddPenaltyTakersToArea; the list of names beside the table is gone.
+			if (verb == "add" && await AddPenaltyTaker(Words(args).Skip(1).ToList()) is { } added) return added;
+			if (verb != "add" && await Reorder(order, verb, words.Skip(1).ToList()) is { } failed) return failed;
 			form = await Form();
 			words = [];
 		}
@@ -94,7 +95,7 @@ internal static partial class Program
 			}
 		}
 
-		var takers = PenaltyTakers(form);
+		var takers = (await PenaltyTakerNames()).Select((name, i) => new PenaltyTaker(i + 1, "", name, "", "", "")).ToList();
 		var lineup = await Lineup();
 		// The tactic is not bound until its page has been up; the page's own line for a taker then
 		// stays the only source, and on a Turkish page it is the game's sentence with its position
@@ -111,13 +112,13 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Takers = takers.Select(t => new { t.Order, t.Number, t.Name, Where = LineupWhere(t, lineup), t.Composure, t.Penalties }),
+				Takers = takers.Select(t => new { t.Order, t.Name, Where = LineupWhere(t, lineup) }),
 				Rules = rules.Select(r => new { Rule = r.Say, r.On }),
 			}));
 			return 0;
 		}
-		Table.Write([L("POS"), "#", L("PLAYER"), L("FOR MATCH"), L("COMPOSURE"), L("PENALTY")],
-			takers.Select(t => new[] { t.Order.ToString(), t.Number, t.Name, LineupWhere(t, lineup), t.Composure, t.Penalties }).ToList());
+		Table.Write([L("POS"), L("PLAYER"), L("FOR MATCH")],
+			takers.Select(t => new[] { t.Order.ToString(), t.Name, LineupWhere(t, lineup) }).ToList());
 		Console.WriteLine();
 		for (var i = 0; i < rules.Count; i++) Console.WriteLine($"  {i + 1}. {rules[i].Say}: {(rules[i].On ? L("on") : L("off"))}");
 		if (words.Count == 0)
@@ -162,38 +163,54 @@ internal static partial class Program
 	private sealed record PenaltyTaker(int Order, string Number, string Name, string Where, string Composure, string Penalties);
 
 	/// <summary>
-	/// The takers by each text's data path: his place (index), then drawn without a
-	/// path his shirt number when he has one, his name (binding.Name), where he starts
-	/// (tactic.TeamSelectedPositionStringFromPlayer), composure and penalty taking (binding.PropertyValue).
+	/// The penalty takers in order, by name: the set piece's own list, reached through the record the
+	/// page's controls send to (a SetPieceReference). Empty while the page is not up.
 	/// </summary>
-	private static List<PenaltyTaker> PenaltyTakers(List<JsonElement> form)
+	private static async Task<List<string>> PenaltyTakerNames()
 	{
-		var takers = new List<PenaltyTaker>();
-		int? order = null;
-		string number = "", name = null, where = "";
-		var values = new List<string>();
-		void Close()
+		var target = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Select(b => Field(b, "Events").Contains("EventFmxAddPenaltyTakersToArea", StringComparison.Ordinal) ? Field(b, "Target") : "")
+			.FirstOrDefault(t => t.Length > 0);
+		if (target == null) return [];
+		List<string> names = [];
+		await Until(async () =>
 		{
-			if (order is { } o && name != null && values.Count >= 2) takers.Add(new(o, number, name, where, values[0], values[1]));
-			order = null;
-			number = where = "";
-			name = null;
-			values = [];
-		}
-		foreach (var f in form.Where(f => Field(f, "Kind") == "text"))
+			var list = (await Fm.Pull($"{target}.SetPiecePenaltyTakersList", "Player.Name", list: true)).EnumerateArray().ToList();
+			names = list.Select(r => Field(r, "Player.Name")).ToList();
+			return names.All(n => n.Length > 0);
+		}, seconds: 4, every: 0.25);
+		return names.Where(n => n.Length > 0).ToList();
+	}
+
+	/// <summary>
+	/// Adds a penalty taker as FM27 does: his row in the page's players table chosen, then the button
+	/// that sends EventFmxAddPenaltyTakersToArea. Null once he is in the list; else the exit code.
+	/// </summary>
+	private static async Task<int?> AddPenaltyTaker(List<string> words)
+	{
+		var who = string.Join(" ", words.Where(w => !int.TryParse(w, out _)));
+		if (who.Length == 0)
 		{
-			var text = Field(f, "Text");
-			switch (Field(f, "Path"))
-			{
-				case "index": Close(); order = int.TryParse(text, out var n) ? n : takers.Count + 1; break;
-				case "binding.Name" when order != null: name = text; break;
-				case "tactic.TeamSelectedPositionStringFromPlayer" when name != null: where = text; break;
-				case "binding.PropertyValue" when name != null: values.Add(text); break;
-				case "" when order != null && name == null && text.All(char.IsDigit): number = text; break;
-			}
+			Console.Error.WriteLine(L("usage: penalties add <player> [<place>]"));
+			return 64;
 		}
-		Close();
-		return takers;
+		var before = await PenaltyTakerNames();
+		var squad = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToList();
+		if (Choose(squad.Where(n => !before.Contains(n)).ToList(), who, L("Player to add")) is not { } picked) return 1;
+		var chose = await Fm.Get("rowselect", ("text", picked));
+		if (chose.StartsWith("error", StringComparison.Ordinal)) return Report(chose);
+		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxAddPenaltyTakersToArea", StringComparison.Ordinal));
+		if (button.ValueKind != JsonValueKind.Object) { Console.Error.WriteLine(L("The penalty takers table was not found on the page.")); return 1; }
+		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+		if (!await Until(async () => (await PenaltyTakerNames()).Contains(picked), seconds: 6, every: 0.3))
+		{
+			Console.Error.WriteLine(L($"{picked} was added but did not appear in the list."));
+			return 1;
+		}
+		Console.WriteLine(L($"{picked} is among the penalty takers."));
+		return null;
 	}
 
 	private static string PenaltyVerb(string word) => Fold(word) switch

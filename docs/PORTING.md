@@ -329,6 +329,11 @@ Still open:
   - Corner (delivery, aim, D1 duty + otherwise, back), throw-in aim both ways, wide, deep, shooting range: TR.
   - Also: `setpieces korner vurus out` went to the language layer (`Mcp.TakesText` filled every choice and hid `aim`);
     `Choose` takes an exact match in the game's words before pieces ("Geride Dur" vs "Gerekirse Geride Dur").
+- [x] `fm penalties`: FM27 split the page (players table + takers area); the form under "Order" read nothing.
+  Now: rules from the page's form by `Binds` (`form?page=`), takers from `<Target>.SetPiecePenaltyTakersList` › `Player.Name`
+  (Target of the button sending `EventFmxAddPenaltyTakersToArea`). Move/remove still drag the takers table (by its events).
+  Add: the player's row selected by name, then that button. Composure / penalty columns dropped (only by column order).
+  TR: read, move and back, rule on/off. Add not tried.
 - [x] `fm staff`: was the All Staff card scrolled and cut by row order, with "Senior Squad", "N/A" and English job ranks.
   Now `Human.Team.StaffAllList` in the game's order; `JobString` and `FullContract.*` ask `team` and `human` beside each
   row (set as for fixtures). 13 s → 2.4 s, no card. Team grouping dropped (the job string names the youth team).
