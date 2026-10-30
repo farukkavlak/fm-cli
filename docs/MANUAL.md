@@ -135,6 +135,7 @@ fm query "age<23 and potential>140" [--sort field] [--asc]
 ```bash
 fm tactic                    # shape, style, mentality, roles, familiarity
 fm tactic pick               # let the game pick the eleven
+fm tactic pick --youth       # youth players too, when the first team is short
 fm tactic role <position> [<role>] [--oop]
 fm tactic player <position> <player>    # anyone in the squad; the one there goes to the bench
 fm tactic player <substitute> <player>  # swap a substitute (an injured one) for another

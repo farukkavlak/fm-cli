@@ -34,7 +34,7 @@ internal static partial class Program
 			case "pick" when words.Count > 1:
 				Console.Error.WriteLine(L("tactic pick lets the assistant choose the whole eleven and takes nothing after it. For one position: tactic player <position> <player>"));
 				return 64;
-			case "pick": return await TacticPick(dry);
+			case "pick": return await TacticPick(dry, youth: args.Contains("--youth"));
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
 			case "slot": return await TacticSlot(wanted, dry);

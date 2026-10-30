@@ -82,15 +82,16 @@ internal static partial class Program
 
 		if (!Ui.Interactive)
 		{
-			Console.Error.WriteLine(L($"{problem} To have the assistant pick again: tactic pick   ·   yourself: tactic player <position> <player>   ·   then: match"));
+			Console.Error.WriteLine(L($"{problem} To have the assistant pick again: tactic pick (youth players too: tactic pick --youth)   ·   yourself: tactic player <position> <player>   ·   then: match"));
 			return 1;
 		}
-		if (Ui.Ask(problem, [L("Let the assistant pick again (Quick Pick)")], cancel: L("I will change it myself, leave the match")) == null)
+		var choice = Ui.Ask(problem, [L("Let the assistant pick again (Quick Pick)"), L("Let the assistant pick, youth players too")], cancel: L("I will change it myself, leave the match"));
+		if (choice == null)
 		{
 			Console.WriteLine(L("For the squad: tactic player <position> <player>   ·   then: match"));
 			return 0;
 		}
-		return await TacticPick(dry: false) != 0 ? 1 : null;
+		return await TacticPick(dry: false, youth: choice == 1) != 0 ? 1 : null;
 	}
 
 	private static string LastWhistle = "";

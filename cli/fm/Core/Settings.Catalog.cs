@@ -28,6 +28,8 @@ internal static partial class Program
 		new(L("speed between highlights"), L("Match day"), "settings.MatchSpeedBetweenHighlightsIndex", SettingKind.Slider,
 			Steps: ["4x", "8x", "10x", "20x", "30x", "40x"],
 			StepShown: "settings.MatchSpeedBetweenHighlights", Hint: L("between moves")),
+		new(L("sound"), L("Sound"), "settings.AudioMasterEnabled", SettingKind.Checkbox,
+			Hint: L("all of the game's sound")),
 		new(L("auto save"), L("Saving"), "use_auto_saves", SettingKind.Checkbox),
 		new(L("save frequency"), L("Saving"), "auto_save_interval", SettingKind.Dropdown),
 		new(L("save type"), L("Saving"), "auto_save_mode", SettingKind.Dropdown),

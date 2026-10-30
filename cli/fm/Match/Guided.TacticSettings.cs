@@ -203,8 +203,12 @@ internal static partial class Program
 		}
 	}
 
-	/// <summary>Lets the game pick the eleven, as its Quick Pick button does.</summary>
-	private static async Task<int> TacticPick(bool dry)
+	/// <summary>
+	/// Lets the game pick the eleven, as its Quick Pick button does; with <paramref name="youth"/>,
+	/// as the Quick Pick menu's Pick Youth Players does (EventFmxQuickPickYoungsters), which also
+	/// takes youth players when the first team is short (players back from a tournament are on holiday).
+	/// </summary>
+	private static async Task<int> TacticPick(bool dry, bool youth = false)
 	{
 		if (await Planner() is not { } before)
 		{
@@ -223,11 +227,32 @@ internal static partial class Program
 			return Report(opened);
 		if (dry) query.Add(("dry", "1"));
 
-		var pressed = await Arriving("press", query.ToArray());
+		string pressed;
+		if (youth)
+		{
+			// The menu row carries only the event's number; the button's event knows where it goes,
+			// once it has gone there: until Quick Pick has been used on this page, it is used first.
+			var youngsters = new List<(string, string)> { ("event", "EventToPlugin:EventFmxQuickPick"), ("id", "EventFmxQuickPickYoungsters") };
+			if (dry) youngsters.Add(("dry", "1"));
+			pressed = await Fm.Get("pluginevent", youngsters.ToArray());
+			if (pressed.Contains("no target resolved yet", StringComparison.Ordinal) && !dry)
+			{
+				var quick = await Arriving("press", query.ToArray());
+				if (quick.StartsWith("error", StringComparison.Ordinal)) return Report(quick);
+				await Until(async () => (await Fm.Get("pluginevent", [.. youngsters, ("dry", "1")])).StartsWith("dry run", StringComparison.Ordinal), seconds: 5, every: 0.25);
+				pressed = await Fm.Get("pluginevent", youngsters.ToArray());
+			}
+		}
+		else pressed = await Arriving("press", query.ToArray());
+		if (dry && youth && pressed.Contains("no target resolved yet", StringComparison.Ordinal))
+		{
+			Console.WriteLine(L("(dry run) Quick Pick, then Pick Youth Players, would have been used."));
+			return 0;
+		}
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 		if (dry)
 		{
-			Console.WriteLine(L("(dry run) Quick Pick would have been pressed."));
+			Console.WriteLine(youth ? L("(dry run) Pick Youth Players would have been used.") : L("(dry run) Quick Pick would have been pressed."));
 			return 0;
 		}
 

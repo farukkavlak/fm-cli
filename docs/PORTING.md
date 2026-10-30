@@ -220,13 +220,19 @@ Still open:
   waits on it (`NeedAction`, `Respond` 14) and Continue does nothing.
   - Each step has the staff's choice ready; `EventToPlugin` on `buttons-next-primary-default`
     (`EventFmxSetPieceCreatorNextStep`) goes on, 6 presses end it (`Respond` 0). Back: `…CreatorBackStep`.
-  - Done once by hand (TR). No command yet: `next` should name it, and a command should walk it (staff choices or the user's).
+  - Done once by hand (TR). `setpieces new` (six questions) may be this wizard: not tried on it yet; `next` should name it.
 - [x] New continue stop `Messages` (new mail, nothing to answer): one press goes on; `next` passes it.
   FM27 has more page stops (`NextUnreadMessage`, `Training`, `NewsForYou`, `DataHub`…): not seen yet.
 - [x] FM27's match-day screens before kick-off (`SubmitTeam`, `Tactics`) bind no game date: `InGame` took them for
   "no save" (the node count is capped at 1000, so only the date decided). Match-day stops now count as a loaded save.
-- [ ] Squad short on match day: players back from a tournament are on holiday and unusable (TR save, 14 Jul: 8 fit).
-  `tactic pick` and `tactic player` cannot reach U19 players; `tactic player <slot>` without a name lists nobody.
+- [x] Squad short on match day (players on holiday after a tournament): `tactic pick --youth` sends
+  `EventFmxQuickPickYoungsters` (the Quick Pick menu's youth row carries only that number) to the Quick Pick
+  button's target, via `/pluginevent`. The target is resolved only once Quick Pick has fired, so it is pressed first.
+  TR, cold and warm, 4/4: 11 picked; plain Quick Pick still 8. The match-day squad question offers it too.
+  - `tactic player <slot>` without a name still lists nobody.
+- [x] First live match (Viborg 2-0, TR): speed keys + + - went 2x → 2.5x → 3x → 2.5x, `settings` read 2.5x after.
+  `fixtures` shows the played result. Live stats line showed shots 0-0 after a goal: not looked at yet.
+- [x] `settings sound` (`settings.AudioMasterEnabled`): turned off, read back False. Not during a match.
 - [x] `fm fixtures`: the home page binds no fixtures in FM27. Now read from `Human.Team.FixtureList`, no page opened.
   - The list asks `previousamount`, `futureamount`, `fixturepadding`, `yearindex` beside the team (3 / 7 / 0 / 0).
   - Venue, result mark and opponent ask `team` and `human` beside each row; venue, opponent, competition in game words.

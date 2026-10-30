@@ -106,6 +106,7 @@ internal static partial class FmApi
 		"bindprop" => Materialise.Property(q["path"], q["name"]),
 		"buttons" => Buttons.Catalog(q),
 		"press" => Buttons.Press(q),
+		"pluginevent" => Buttons.PluginEvent(q),
 		"click" => Buttons.Click(q),
 		"textboxes" => TextBoxes.Catalog(),
 		"type" => TextBoxes.Type(q),

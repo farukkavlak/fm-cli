@@ -166,6 +166,7 @@ internal static partial class Program
 			  tactic mentality [<x>]      show or change the mentality
 			  tactic style [<x>]          show or change the playing style
 			  tactic pick                 have the game pick the starting eleven (Quick Pick)
+			    --youth                   pick from the youth players too (when the first team is short)
 			  tactic instructions ["<instruction>" [<value>]]  team instructions: in possession (phase by phase) and out of possession; with no value, the options
 			  tactic pi <position|player> ["<instruction>" [<value>]]  player instructions (shooting, runs, pressing, marking…)
 			  tactic slot [<n>]           tactic slots; with a number, switch to that tactic
