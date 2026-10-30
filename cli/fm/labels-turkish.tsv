@@ -2506,3 +2506,7 @@ Warning: {0}'s individual training changed too.	Uyarı: {0} oyuncusunun bireysel
 {0}: row not found on the individual training page.	{0}: bireysel antrenman sayfasında satırı bulunamadı.
 {0}: the game does not let his intensity be changed now ({1}).	{0}: oyun şu an yoğunluğunun değiştirilmesine izin vermiyor ({1}).
 {0}: not available for training (injured or away); the game does not let his intensity be changed ({1}).	{0}: antrenmana katılamıyor (sakat ya da izinde); oyun yoğunluğunun değiştirilmesine izin vermiyor ({1}).
+The board does not allow the budgets to be adjusted now.	Yönetim şu an bütçelerin ayarlanmasına izin vermiyor.
+The budget card cannot be confirmed now.	Bütçe kartı şu an onaylanamıyor.
+The game did not change the budgets.	Oyun bütçeleri değiştirmedi.
+The budget card did not close.	Bütçe kartı kapanmadı.

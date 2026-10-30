@@ -61,6 +61,23 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// The button sending a generic action with the given ActionID, or null. FM27 tiles such as
+	/// "Adjust Transfer Budget" send a GenericAction rather than speak to someone; the plugin puts
+	/// what the button's action id is bound to at its Sends path, and the id is the same in every
+	/// language where the label is the game's own string.
+	/// </summary>
+	private static async Task<JsonElement?> GenericAction(string actionID)
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Events").StartsWith("GenericAction", StringComparison.Ordinal) && Field(b, "Sends").Length > 0 && Field(b, "SendsProps").Length > 0 && Field(b, "Enabled") == "True")
+			.ToList();
+		if (buttons.Count == 0) return null;
+		var ids = await PullEach(buttons.Select(b => (Field(b, "Sends"), Field(b, "SendsProps"))).ToList());
+		return buttons.Zip(ids, (b, a) => (Button: b, ID: Field(a, Field(b, "SendsProps"))))
+			.Where(t => t.ID == actionID).Select(t => (JsonElement?)t.Button).FirstOrDefault();
+	}
+
+	/// <summary>
 	/// The button standing for the speak-to action that <b>sends</b> the given event, or null. Some
 	/// actions carry no id of their own and are named by the event they send instead (the offer
 	/// card's own send, EventFmxTransferOfferResponse, §8.217); like the action id above, the event

@@ -3,10 +3,10 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The club's budgets: Recruitment › Recruitment Budgets (FM27 Club › Finances › Transfer Budget) shows the transfer,
-/// wage and scouting budgets, and "Adjust Transfer and Wage Budget" opens a card whose slider
-/// moves money between the first two. Each step's figures are read off the card as the slider
-/// stands on it; "Got It" keeps the step, "Cancel" leaves it as it was.
+/// The club's budgets: Club › Finances › Transfer Budget shows the transfer, wage and scouting
+/// budgets, and its "Adjust Transfer Budget" tile opens a card whose slider moves money between
+/// the first two. Each step's figures are read off the card by their data paths as the slider
+/// stands on it; the confirm button keeps the step, the other one leaves it as it was.
 /// </summary>
 internal static partial class Program
 {
@@ -39,14 +39,16 @@ internal static partial class Program
 		// The card offers the slider's steps; every one is read by standing on it. The tile that
 		// opens it is found by the action it stands for, not by its words: the label is the game's
 		// own string, put into English by this language's table (§8.209).
+		// The page draws its tiles again after a card closes, so a tile just found may be gone by the press.
 		JsonElement? tile = null;
-		await Until(async () => (tile = await SpeakToAction(BudgetAdjustAction)) != null, seconds: 8, every: 0.25);
-		if (tile is not { } opening)
+		var clicked = "";
+		await Until(async () => (tile = await GenericAction(BudgetAdjustAction)) is { } t
+		                        && !(clicked = await Fm.Get("click", ("ptr", Field(t, "Pointer")))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.25);
+		if (tile == null)
 		{
 			Console.Error.WriteLine(L("Could not find the tile that opens the budget card."));
 			return 1;
 		}
-		var clicked = await Fm.Get("click", ("ptr", Field(opening, "Pointer")));
 		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 		JsonElement slider = default;
 		await Until(async () =>
@@ -65,19 +67,33 @@ internal static partial class Program
 		var start = (int)double.Parse(Field(slider, "Value"), System.Globalization.CultureInfo.InvariantCulture);
 		var high = (int)double.Parse(Field(slider, "High"), System.Globalization.CultureInfo.InvariantCulture);
 		// The board's word on it, a sentence in the game's language, by its data path.
-		var board = (await BudgetCard()).Where(i => Field(i, "Path") == "budget.BudgetAdjustmentBoardString").Select(i => Field(i, "Text")).FirstOrDefault();
+		var card = await BudgetCard();
+		var board = card.Where(i => Field(i, "Path") == "budget.BudgetAdjustmentBoardString").Select(i => Field(i, "Text")).FirstOrDefault();
+
+		// A board that will not talk money yet (season expectations not agreed) shuts the slider;
+		// its sentence says why.
+		if (Field(slider, "Enabled") != "True" || high <= 0)
+		{
+			Console.Error.WriteLine(board is { Length: > 0 } ? board : L("The board does not allow the budgets to be adjusted now."));
+			var shut = await PressCardButton(keep: false);
+			if (shut.StartsWith("error", StringComparison.Ordinal)) Report(shut);
+			return 1;
+		}
 
 		var steps = new List<(string Wage, string Transfer)>();
+		var atStart = BudgetFigures(card);
+		var shown = atStart;
 		for (var step = 0; step <= high; step++)
 		{
 			await Fm.Get("setcontrol", ("ptr", pointer), ("value", step.ToString()));
-			// The figures follow the slider a frame or two later; the last step's are still up meanwhile.
-			var before = steps.Count > 0 ? steps[^1] : default;
+			// The figures follow the slider a frame or two later; the last step's are still up
+			// meanwhile. The step in force shows what the card opened with, any other something new.
+			var before = shown;
 			(string Wage, string Transfer) figures = default;
-			// A step away from the one in force is marked with a star.
-			await Until(async () => (figures = BudgetFigures(await BudgetCard())).Wage != null && figures != before
-			                        && figures.Wage.EndsWith('*') == (step != start), seconds: 3, every: 0.2);
+			await Until(async () => (figures = BudgetFigures(await BudgetCard())).Wage != null
+			                        && (step == start ? figures == atStart : figures != before), seconds: 3, every: 0.2);
 			steps.Add(figures);
+			shown = figures;
 		}
 		await Fm.Get("setcontrol", ("ptr", pointer), ("value", start.ToString()));
 
@@ -111,18 +127,21 @@ internal static partial class Program
 			return 0;
 		}
 
+		long.TryParse(Field(await Fm.Pull("Human.Club", "TransferBudget"), "TransferBudget"), out var budgetBefore);
 		await Fm.Get("setcontrol", ("ptr", pointer), ("value", chosen.ToString()));
 		var kept = await PressCardButton(keep: true);
 		if (kept.StartsWith("error", StringComparison.Ordinal)) return Report(kept);
 
-		// The page's own figures say whether the board took it.
-		var wanted = steps[chosen].Transfer.TrimEnd('*');
-		var after = overview;
-		// The club's transfer budget is the step's figure once the board has taken it.
-		await Until(async () => Money(wanted) is { } amount && long.TryParse(Field(await Fm.Pull("Human.Club", "TransferBudget"), "TransferBudget"), out var now)
-		                        && Math.Abs(MoneyFormat.Shown(now) - amount) <= Math.Max(1000, amount / 100), seconds: 6, every: 0.5);
-		after = await BudgetOverview();
+		// The club's own data says whether the board took it: another step moves the transfer budget.
+		var taken = await Until(async () => long.TryParse(Field(await Fm.Pull("Human.Club", "TransferBudget"), "TransferBudget"), out var now)
+		                                    && now != budgetBefore, seconds: 6, every: 0.5);
+		var after = await BudgetOverview();
 		foreach (var (name, value) in after ?? overview) Console.WriteLine($"{name}: {value}");
+		if (!taken)
+		{
+			Console.Error.WriteLine(L("The game did not change the budgets."));
+			return 1;
+		}
 		return 0;
 	}
 
@@ -148,23 +167,23 @@ internal static partial class Program
 		];
 	}
 
+	/// <summary>The card, found by the figure it is bound to; climbing from it takes in the board's
+	/// sentence, the slider and the figures (7 to 10 levels all hold the same card).</summary>
 	private static async Task<List<JsonElement>> BudgetCard() =>
-		(await Fm.GetJson("form", ("anchor", "Budget Adjustment"), ("up", "6"), ("paths", "1"))).EnumerateArray().ToList();
+		(await Fm.GetJson("form", ("anchorpath", "budget.BudgetAdjustmentEditedTransferValue"), ("up", "8"), ("paths", "1"))).EnumerateArray().ToList();
 
-	/// <summary>The wage and transfer budgets the card shows for where the slider stands.</summary>
+	/// <summary>The wage and transfer budgets the card shows for where the slider stands, by their data paths.</summary>
 	private static (string Wage, string Transfer) BudgetFigures(List<JsonElement> card)
 	{
-		var texts = card.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).ToList();
-		var w = texts.IndexOf("Wage Budget");
-		var t = texts.IndexOf("Transfer Budget");
-		return w >= 0 && t >= 0 && w + 1 < texts.Count && t + 1 < texts.Count ? (texts[w + 1], texts[t + 1]) : (null, null);
+		string Of(string path) => card.Where(i => Field(i, "Path") == path).Select(i => Field(i, "Text")).FirstOrDefault(t => t.Length > 0);
+		return (Of("budget.BudgetAdjustmentEditedOtherValue"), Of("budget.BudgetAdjustmentEditedTransferValue")) is ({ } w, { } t) ? (w, t) : (null, null);
 	}
 
-	/// <summary>The tile that opens the card, by the action it stands for
-	/// (InteropEventIDs.ClubBudgetAdjustmentTransfersAndWages). The tiles beside it carry
-	/// actions of their own (ClubBudgetAdjustmentScouting, 1332374646), so the action tells them
-	/// apart where their words — the game's own strings — are only English when the table says so.</summary>
-	private const string BudgetAdjustAction = "1885623898";
+	/// <summary>The tile that opens the card, by the action it stands for (ActionID
+	/// ClubBudgetAdjustmentTransfers). FM26's ClubBudgetAdjustmentTransfersAndWages (1885623898) is
+	/// now an entry of the board requests menu beside it; the action tells them apart where their
+	/// words, the game's own strings, are only English when the table says so.</summary>
+	private const string BudgetAdjustAction = "894198379";
 
 	/// <summary>What the card's answer that keeps the step sends (InteropEventIDs.EventFmxBudgetAdjustmentConfirm).</summary>
 	private const string BudgetConfirmEvent = "EventFmxBudgetAdjustmentConfirm";
@@ -174,7 +193,8 @@ internal static partial class Program
 	/// EventFmxBudgetAdjustmentConfirm, and the one that drops it is the other button of that same
 	/// panel (the one that only closes it). Both labels ("Got It", "Cancel") are the game's own
 	/// strings run through this language's table, so they are pressed by their pointer; when the
-	/// card is not recognised the command says so rather than guessing at its words.
+	/// card is not recognised the command says so rather than guessing at its words. They are pressed
+	/// by their events (a click on them does nothing in FM27), and the card is read back as gone.
 	/// </summary>
 	private static async Task<string> PressCardButton(bool keep)
 	{
@@ -182,13 +202,25 @@ internal static partial class Program
 		var kept = buttons.FirstOrDefault(b => Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
 		if (kept!.ValueKind != JsonValueKind.Object)
 			return "error: " + L(keep ? "Could not find the button that confirms the budget card." : "Could not find the button that closes the budget card.");
-		if (keep) return await Fm.Get("click", ("ptr", Field(kept, "Pointer")));
+		// The confirm button is shut while the slider stands where it started; pressing a shut button locks the game.
+		if (keep && Field(kept, "Enabled") != "True") return "error: " + L("The budget card cannot be confirmed now.");
+		if (keep) return await PressAndClose(kept);
 
-		var leave = buttons.FirstOrDefault(b => Field(b, "Page") == Field(kept, "Page")
+		var leave = buttons.FirstOrDefault(b => Field(b, "Page") == Field(kept, "Page") && Field(b, "Enabled") == "True"
 		                                        && Field(b, "Events").Contains("ClosePanel", StringComparison.Ordinal)
 		                                        && !Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal));
 		return leave.ValueKind == JsonValueKind.Object
-			? await Fm.Get("click", ("ptr", Field(leave, "Pointer")))
+			? await PressAndClose(leave)
 			: "error: " + L("Could not find the button that closes the budget card.");
+	}
+
+	/// <summary>Presses one of the card's buttons and waits for the card to be gone: its confirm button no longer there.</summary>
+	private static async Task<string> PressAndClose(JsonElement button)
+	{
+		var pressed = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		if (pressed.StartsWith("error", StringComparison.Ordinal)) return pressed;
+		var gone = await Until(async () => !(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Any(b => Field(b, "Events").Contains(BudgetConfirmEvent, StringComparison.Ordinal)), seconds: 5, every: 0.2);
+		return gone ? pressed : "error: " + L("The budget card did not close.");
 	}
 }

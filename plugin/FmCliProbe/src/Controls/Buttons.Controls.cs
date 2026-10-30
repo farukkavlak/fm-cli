@@ -121,8 +121,9 @@ internal static partial class Buttons
 	}
 
 	/// <summary>
-	/// What a plugin event sends (its m_dataToSendBinding, "selectedmentoringgroup.UniqueId"): the
-	/// value its first name stands for at the source, and the rest of the path to read of it. Read
+	/// What a plugin event sends (its m_dataToSendBinding, "selectedmentoringgroup.UniqueId"), or
+	/// which action a generic action button stands for (its m_actionIdBinding): the value the
+	/// path's first name stands for at the source, and the rest of the path to read of it. Read
 	/// right before a press, it says which one the press is for (the group a delete button deletes).
 	/// </summary>
 	private static (SI.Core.TypedValue Value, string Props)? SentOf(EventContextBase context)
@@ -130,10 +131,13 @@ internal static partial class Buttons
 		try
 		{
 			var type = context.GetIl2CppType().FullName;
-			if (!type.EndsWith("EventToPluginContext", StringComparison.Ordinal)) return null;
+			var binding = type.EndsWith("EventToPluginContext", StringComparison.Ordinal) ? "m_dataToSendBinding"
+				: type.EndsWith("GenericActionEventContext", StringComparison.Ordinal) ? "m_actionIdBinding"
+				: null;
+			if (binding == null) return null;
 			var shape = ShapeOf(type);
 			var typed = shape.Wrap(context.Pointer);
-			if (shape.Type?.GetProperty("m_dataToSendBinding")?.GetValue(typed) is not BindingPath path || string.IsNullOrEmpty(path.Path)) return null;
+			if (shape.Type?.GetProperty(binding)?.GetValue(typed) is not BindingPath path || string.IsNullOrEmpty(path.Path)) return null;
 			var parts = path.Path.Split('.', 2);
 			return Nearest(context, parts[0]) is { } value ? (value, parts.Length > 1 ? parts[1] : "") : null;
 		}

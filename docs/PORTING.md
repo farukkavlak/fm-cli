@@ -198,7 +198,12 @@ Still open:
     Thousands are cut, millions rounded.
 - [x] A tab's own menu is its bar (Training › Coach Assignments); `Subpage` tries real bars first.
 - [x] First-visit tab intros: `/closeintro` presses `#EndTutorialButton`; `OpenPage` calls it. A chosen page does not open under one.
-- [ ] `fm budget adjust`: the tile is now "Adjust Transfer Budget" with a `GenericAction` event, not `SpeakToAction`.
+- [ ] `fm budget adjust`: the tile sends a `GenericAction` (ActionID `ClubBudgetAdjustmentTransfers`, 894198379);
+  the plugin puts its `m_actionIdBinding` at the button's `Sends`. FM26's id (1885623898) is now in the board requests menu.
+  - The card is read by data paths (`budget.BudgetAdjustmentEdited{Transfer,Other}Value`, `…BoardString`).
+  - Its buttons need `/press` (a click does nothing); the card is read back as gone.
+  - Before the season expectations meeting the slider is shut: the board's sentence is said and the card closed.
+  - Tried: TR only, refusal 6/6 (page open, card open, from Squad and Inbox). Moving the slider and confirming: not yet.
 - [x] `fm training`: `PlayerTraining` now asks for `human` and `team` beside the player rows (its parts still a `Judge`).
   - The page shows one player's lists beside the table. His row is chosen by `UniqueId` (`/checkrows`, other rows unticked:
     the table keeps several and the lists are the first's); the lists by the event they send, whose they are by the
