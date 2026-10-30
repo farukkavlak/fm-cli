@@ -250,7 +250,7 @@ internal static partial class Program
 		else if (talking) Console.WriteLine(L("A conversation opened; the message closes when the conversation is over. To go on: talk"));
 		else if (!settled && await VisionControls() != null) Console.WriteLine(L("A club vision meeting opened; the message closes when the meeting is over. To go on: vision"));
 		else if (!settled && await RegistrationOnScreen()) Console.WriteLine(L("The squad registration screen opened; the message closes when the list is sent. The list and the rules: register   (the assistant's choice: register --auto, then register --send)"));
-		else if (!settled && (await Fm.GetJson("texts", ("anchor", "Prom."), ("up", "0"))).GetArrayLength() > 0)
+		else if (!settled && (await NumbersInView()).Count > 0)
 			Console.WriteLine(L("The squad numbers screen opened; the message closes when the numbers are sent. To see them: numbers   (to leave it to the assistant: numbers --auto)"));
 		else if (!settled) Console.WriteLine(L("But the game still shows the message as awaiting an answer."));
 		return 0;
