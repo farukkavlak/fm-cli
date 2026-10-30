@@ -260,6 +260,7 @@ fm players [--filter ...] [--view ...]
 fm offer "<player>" [fee] [--term "Label=value"] [--loan] [--dry]
 fm offer "<player>" --send --yes
 fm offers                    # offers for our players
+fm offer "<player> <club>" <fee> --yes [--negotiate]   # their offer back with our terms
 fm propose "<player>" [fee] [--loan] [--yes]
 fm release "<player>" [--free|--mutual] [--yes]
 fm contract ["<player>"]     # talks: promises, then terms

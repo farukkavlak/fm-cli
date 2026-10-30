@@ -28,6 +28,9 @@ internal static partial class Program
 		return closed ? 0 : 1;
 	}
 
+	/// <summary>The answers the director gives to another club's offer (ActionResponseValue: 'ngng', 'ngts', 'ngrj').</summary>
+	private const string NegotiateOffer = "1852272231", SuggestTerms = "1852273779", RejectOffer = "1852273258";
+
 	private static async Task<int> Offer(string[] args)
 	{
 		if (args.Contains("--close")) return await CloseOffer();
@@ -67,6 +70,26 @@ internal static partial class Program
 		// with "Negotiate" or "View Offer" — is carried on from where it is.
 		var open = await OfferScreen.Read(Fm);
 		var resumed = open != null && Fold(open.Player).Contains(Fold(wanted), StringComparison.Ordinal);
+
+		// One of ours with another club's offer waiting: that offer's card is opened, to send it back
+		// with our terms. The club is named too when more than one has made an offer.
+		// Each word typed is in the player's name or the club's ("Levent Brugge").
+		var named = Fold(wanted).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		if (!resumed && (await WaitingOffers()).Where(o => o.Incoming && named.All(w => Fold($"{o.Player} {o.Club}").Contains(w, StringComparison.Ordinal))).ToList() is { Count: > 0 } theirs)
+		{
+			if (theirs.Count > 1)
+			{
+				Console.Error.WriteLine(L($"{theirs.Count} clubs have made an offer for {theirs[0].Player} ({string.Join(", ", theirs.Select(o => o.Club))}); name the club too: offer \"{theirs[0].Player} {theirs[0].Club}\" …"));
+				return 1;
+			}
+			if (await OpenOfferCard(theirs[0]) is { } failed)
+			{
+				Console.Error.WriteLine(failed);
+				return 1;
+			}
+			open = await OfferScreen.Read(Fm);
+			resumed = open != null;
+		}
 
 		string name;
 		if (resumed) name = open!.Player;
@@ -207,19 +230,51 @@ internal static partial class Program
 			if (!await EditOffer()) return 0;
 		}
 
-		if (await Labelled("Make Offer") is not { } send)
+		// Another club's offer for one of ours (the director offers to reject it) goes back to them
+		// only once a term is changed: as our terms, answered in a few days ("Suggest Terms"), or
+		// talked over with them ("Negotiate Offer", --negotiate). All its answers send the offer's
+		// response event and differ by the answer each stands for, the same in every language. One
+		// of them accepts the offer, and in Turkish "Make Offer" reads as that one, so their offer is
+		// never answered by a label. Our own bid goes by "Make Offer".
+		// Their offer is known by its record when its card was open; the reject answer marks one too.
+		var theirOffer = open == null ? null : (await WaitingOffers()).FirstOrDefault(o => o.Incoming && o.Player == open.Player && o.Club == open.Club);
+		var rejectable = await SpeakToActionWith("ActionResponseValue", RejectOffer) != null;
+		var answering = theirOffer != null || rejectable;
+		var send = answering
+			? await SpeakToActionWith("ActionResponseValue", args.Contains("--negotiate") ? NegotiateOffer : SuggestTerms)
+			: await Labelled("Make Offer");
+		if (send is null)
 		{
-			Console.Error.WriteLine(L("There is no 'Make Offer' button, or it is closed."));
+			Console.Error.WriteLine(!answering ? L("There is no 'Make Offer' button, or it is closed.")
+				: rejectable ? L("Nothing to send back yet: change a term of their offer first (only then does the game offer to send it back).")
+				: L($"Nothing can be sent on {open?.Club}'s offer now; it waits on their answer (status: {theirOffer?.Status})."));
 			return 1;
 		}
+		// Their offer is answered in its own record: its status changes, or it leaves the list
+		// (withdrawn at once). The director's words beside it may stay the same.
+		if (answering)
+		{
+			var club = open?.Club ?? "";
+			WaitingOffer? Theirs(List<WaitingOffer> all) => all.FirstOrDefault(o => o.Incoming && o.Player == name && o.Club == club);
+			var was = Theirs(await WaitingOffers());
+			await Fm.Get("press", ("ptr", Field(send.Value, "Pointer")));
+			WaitingOffer? left = was;
+			var moved = await Until(async () => (left = Theirs(await WaitingOffers())) is not { } still || still.Status != was?.Status, seconds: 12, every: 0.25);
+			if (await SpeakToActionWith("IsExitButton", "True") is { } way) await Fm.Get("press", ("ptr", Field(way, "Pointer")));
+			Console.WriteLine(!moved ? L($"Sent, but {club}'s offer stays the same in the list.")
+				: left == null ? L($"{club}'s offer is no longer in the list.")
+				: L($"{club}'s offer — status: {left.Status}"));
+			return moved ? 0 : 1;
+		}
+
 		// What the assistant says before the offer is there already; the answer is what
 		// replaces it, with the talks then offering only a way out.
 		var before = await Said();
-		await Fm.Get("press", ("ptr", Field(send, "Pointer")));
+		await Fm.Get("press", ("ptr", Field(send.Value, "Pointer")));
 
 		var said = before;
 		JsonElement? exit = null;
-		await Until(async () => (said = await Said()) != before && (exit = await Labelled("Exit Talks")) != null, seconds: 12, every: 0.25);
+		await Until(async () => (said = await Said()) != before && (exit = await SpeakToActionWith("IsExitButton", "True")) != null, seconds: 12, every: 0.25);
 		Console.WriteLine(said != before && said.Length > 0 ? said : L("Offer sent."));
 		if (exit is { } leave) await Fm.Get("press", ("ptr", Field(leave, "Pointer")));
 		Console.WriteLine(L("The answer will come to the inbox in a few days."));

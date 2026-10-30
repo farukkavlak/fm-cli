@@ -78,34 +78,9 @@ internal static partial class Program
 		var what = $"{offer.Club} → {offer.Player} ({offer.Fee})";
 		if (verb == "view")
 		{
-			if (await RowButton(offer, "OpenPanel", "transfer-link-button") is not { } link)
+			if (await OpenOfferCard(offer) is { } failed)
 			{
-				Console.Error.WriteLine(L($"{what}: the offer's row was not found on the transfer activity page."));
-				return 1;
-			}
-			var shown = await Arriving("press", [("ptr", link)]);
-			if (shown.StartsWith("error", StringComparison.Ordinal)) return Report(shown);
-			// The card is the game's own answer that the offer has opened: the player and the club
-			// the row named, its first term filled in, and the whole card the same on two reads. A
-			// card still there from an earlier look names someone else, and one drawn a frame ago
-			// carries its rows empty.
-			var was = "";
-			if (!await Until(async () =>
-				{
-					if (await OfferScreen.Read(Fm) is not { } seen || seen.Player != offer.Player || seen.Club != offer.Club
-					    || seen.Rows.Count == 0 || seen.Rows[0].Shown == "—")
-					{
-						was = "";
-						return false;
-					}
-					var now = string.Join("|", seen.Rows.Select(r => $"{r.Label}={r.Shown}"));
-					var settled = was.Length > 0 && now == was;
-					was = now;
-					return settled;
-				}, seconds: 8, every: 0.25))
-			{
-				await OpenPage(Screen.Home);
-				Console.Error.WriteLine(L($"{what}: offer card did not open."));
+				Console.Error.WriteLine(failed);
 				return 1;
 			}
 			var card = await Offer(["offer"]);
@@ -166,6 +141,40 @@ internal static partial class Program
 		var now = after.FirstOrDefault(o => o.Id == offer.Id);
 		Console.WriteLine($"{what}: {(verb == "accept" ? L("accepted") : verb == "stall" ? L("stalled") : L("rejected"))}{(now != null ? L($" — status: {now.Status}") : "")}");
 		return 0;
+	}
+
+	/// <summary>
+	/// Opens the card of an offer in the club's transfer activity by its row's link, and waits for
+	/// the game's own answer that it is up; null once it is, else what went wrong.
+	/// </summary>
+	private static async Task<string?> OpenOfferCard(WaitingOffer offer)
+	{
+		var what = $"{offer.Club} → {offer.Player} ({offer.Fee})";
+		if (await RowButton(offer, "OpenPanel", "transfer-link-button") is not { } link)
+			return L($"{what}: the offer's row was not found on the transfer activity page.");
+		var shown = await Arriving("press", [("ptr", link)]);
+		if (shown.StartsWith("error", StringComparison.Ordinal)) return shown;
+		// The card is the game's own answer that the offer has opened: the player and the club
+		// the row named, its first term filled in, and the whole card the same on two reads. A
+		// card still there from an earlier look names someone else, and one drawn a frame ago
+		// carries its rows empty.
+		var was = "";
+		if (await Until(async () =>
+			{
+				if (await OfferScreen.Read(Fm) is not { } seen || seen.Player != offer.Player || seen.Club != offer.Club
+				    || seen.Rows.Count == 0 || seen.Rows[0].Shown == "—")
+				{
+					was = "";
+					return false;
+				}
+				var now = string.Join("|", seen.Rows.Select(r => $"{r.Label}={r.Shown}"));
+				var settled = was.Length > 0 && now == was;
+				was = now;
+				return settled;
+			}, seconds: 8, every: 0.25))
+			return null;
+		await OpenPage(Screen.Home);
+		return L($"{what}: offer card did not open.");
 	}
 
 	private const string Activity = "Human.Club.TransferActivity.TransferActivityPlayerListAll";

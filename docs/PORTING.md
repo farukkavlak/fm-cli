@@ -265,6 +265,17 @@ Still open:
   - Tried: TR list / view / reject / stall / stall refused / unknown; EN + DE list (3/3), view, stall refused; cold and page open.
   - Right after a language switch the first read is in the old language; the game's own texts change on restart.
   - `offers <name> <answer>` went to the language layer: a text argument beside a choice was not seen (`Mcp.TakesText`).
+- [x] Counter-offer on an offer for our player: `offer "<player> [club]" <fee|--term …> --yes [--negotiate]` opens its card
+  (as `offers view`), changes the terms, sends them back. The director's answers all send `Event` 32
+  (`EventFmxTransferOfferResponse`); they differ by `ActionResponseValue`: `ngap` accept, `ngrj` reject, `ngts` Suggest Terms,
+  `ngng` Negotiate Offer. The two sends appear only once a term is changed.
+  - The send used to be found by the label "Make Offer": in Turkish that matched "Accept Offer" and **accepted** Brugge's
+    offer (save reloaded). Their offer is now answered only by these codes; read back from its record.
+  - Tried TR: unchanged card refused 3/3; Suggest Terms (Brugge withdrew at once); Negotiate (Palermo "Görüşüldü", then
+    withdrew 1 day later); an offer waiting on their answer refused. EN/DE not tried: no offers left.
+- [ ] `fm offer` for another club's player: the player card's `Value` is empty in FM27, so his actions do not open.
+  Our own bid still finds "Make Offer" by its label: give it its `ActionResponseValue` once the screen opens.
+- [ ] `fm load "<save>"` from a loaded save: "save list did not open" (the game closed and reopened); `fm continue` loaded it.
 - [x] `next` listed old messages as new: the inbox binds a window of its list that grows as it is scrolled
   (14 rows, then 41). New now means unseen and a newer id than any held before. TR + EN + DE, 4–5 steps each.
 - [x] Inbox read cut short (19 of 41, the oldest) when another page was bound beside it: the walk's node limit.

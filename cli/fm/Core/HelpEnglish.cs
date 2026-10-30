@@ -30,6 +30,8 @@ internal static partial class Program
 			    --term "<term>=<value>"   set or change a term (e.g. "Percentage Of Next Sale=20%",
 			                              "Fee=Non-Negotiable"); --loan a loan, --dry do not send;
 			                              --close leave an unsent offer screen
+			                              for one of ours with an offer waiting: their offer, sent back
+			                              with our terms (--negotiate: talk it over with them instead)
 			                  cannot be undone: asks in a terminal, wants --yes in a script
 			  targets         transfer targets: the budget left and thin positions in the squad
 			  targets <position> [--max-value <money>] [the search options of players]   players in that position the budget allows ("targets DL", "targets 'left back' --age 18-24")

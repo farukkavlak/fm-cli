@@ -99,7 +99,7 @@ internal static partial class Program
 		["next"] = ["--skip"],
 		["match"] = ["--play", "--instant", "--no-talk"],
 		["dugout"] = ["uygula", "kaldir", "apply", "dismiss"],
-		["offer"] = ["--loan", "--dry", "--term", "--yes"],
+		["offer"] = ["--loan", "--dry", "--term", "--yes", "--negotiate", "--close"],
 		["contract"] = ["--agent", "--term", "--wage", "--next", "--sign", "--cancel", "--yes"],
 		["release"] = ["--free", "--mutual", "--yes"],
 		["propose"] = ["--loan", "--yes"],

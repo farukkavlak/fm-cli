@@ -83,14 +83,21 @@ internal static partial class Program
 	/// card's own send, EventFmxTransferOfferResponse, §8.217); like the action id above, the event
 	/// is the same in every language where the label is the game's own string.
 	/// </summary>
-	private static async Task<JsonElement?> SpeakToActionEvent(string sent)
+	private static async Task<JsonElement?> SpeakToActionEvent(string sent) => await SpeakToActionWith("Event", sent);
+
+	/// <summary>
+	/// The button standing for the speak-to action whose <paramref name="field"/> reads
+	/// <paramref name="value"/>, or null. Answers that send the same event are told apart by what
+	/// the answer is (ActionResponseValue, a four-letter code such as 'ngts'), the same in every language.
+	/// </summary>
+	private static async Task<JsonElement?> SpeakToActionWith(string field, string value)
 	{
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
 			.Where(b => Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
 			.ToList();
 		if (buttons.Count == 0) return null;
-		var events = await PullEach(buttons.Select(b => (Field(b, "Action"), "Event")).ToList());
-		return buttons.Zip(events, (b, e) => (Button: b, Event: Field(e, "Event")))
-			.Where(t => t.Event == sent).Select(t => (JsonElement?)t.Button).FirstOrDefault();
+		var read = await PullEach(buttons.Select(b => (Field(b, "Action"), field)).ToList());
+		return buttons.Zip(read, (b, e) => (Button: b, Value: Field(e, field)))
+			.Where(t => t.Value == value).Select(t => (JsonElement?)t.Button).FirstOrDefault();
 	}
 }
