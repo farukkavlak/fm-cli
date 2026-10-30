@@ -21,7 +21,8 @@ internal static partial class Program
 
 		if (await NotNow() is { } refused) return refused;
 		if (await OpenPlayer(wanted) is not { } card) return 1;
-		if (args.Contains("--actions")) return await PlayerActions(card.GetProperty("Player"));
+		// His actions are the game's menu for him, the same one `actions` raises.
+		if (args.Contains("--actions")) return await Actions(json, ["actions", Field(card.GetProperty("Player"), "Name")]);
 		if (args.Contains("--career")) return await Career(card, json);
 		if (args.Contains("--matches")) return await PlayerMatches(card, json);
 		if (args.Contains("--report")) return await PlayerReport(card, json);

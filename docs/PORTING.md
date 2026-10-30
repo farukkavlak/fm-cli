@@ -273,8 +273,20 @@ Still open:
     offer (save reloaded). Their offer is now answered only by these codes; read back from its record.
   - Tried TR: unchanged card refused 3/3; Suggest Terms (Brugge withdrew at once); Negotiate (Palermo "Görüşüldü", then
     withdrew 1 day later); an offer waiting on their answer refused. EN/DE not tried: no offers left.
-- [ ] `fm offer` for another club's player: the player card's `Value` is empty in FM27, so his actions do not open.
-  Our own bid still finds "Make Offer" by its label: give it its `ActionResponseValue` once the screen opens.
+- [x] `fm offer` for another club's player: FM27 moved his actions from behind his value to the page's actions menu
+  (`#FrameActions`, a `PluginContextMenuBindings`). `/actions` now gives each entry's `Action` (`ActionID` name, read from the
+  closure its `HandleInteraction` runs, found by the field's type) and `/actions?action=<name>` chooses by it.
+  - Opened by `PersonMakeOfferForPlayer`; none in the menu = no offer (our player, free agent, offer already in).
+  - Sent by the director's answer `ngsu` (1852273525), never by the label. Fee +/− by their exact event.
+  - Transfer or loan: the offer record (the kind tabs' `Target`) holds `TransferOfferType`, 1 transfer, 3 loan. The game keeps
+    an unsent offer's kind, so it is chosen both ways (a plain offer once went as a loan: Corredera, 100K/month, sent in test).
+  - `player --actions` is now `actions <name>` (it pressed the empty value).
+  - Tried TR + EN + DE: transfer/loan dry 7/7 and 3/3, own player and free agent refused; one real send (TR).
+- [x] Search result kind: `SearchRecordType` is the game's word ("Spieler"), and the record JSON took it back through the
+  table ("Players"), so German searches found no player. Kind is now the record found (`Person`/`Club`/…); a person is a
+  player or staff by `Person.IsPlayer` (pulled by `Path`); the shown word is `Shown`. TR + EN + DE.
+- [ ] Offer card reading (`/offer`, `OfferScreen`) is still by English text: section headings ("Main Details:" stays English
+  in TR), `IsLoan` by the "Playing Monthly Fee" label, a hard-coded Turkish label table. Move to the game's words / data.
 - [ ] `fm load "<save>"` from a loaded save: "save list did not open" (the game closed and reopened); `fm continue` loaded it.
 - [x] `next` listed old messages as new: the inbox binds a window of its list that grows as it is scrolled
   (14 rows, then 41). New now means unseen and a newer id than any held before. TR + EN + DE, 4–5 steps each.

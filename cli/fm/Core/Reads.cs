@@ -153,7 +153,20 @@ internal static partial class Program
 			results = found.EnumerateArray().ToList();
 			return answer;
 		}, seconds: 12, every: 0.15);
-		return results;
+
+		// A person is a player or staff by his record's IsPlayer, the same in every language (the
+		// kind the row shows is the game's word for it).
+		var people = results.Where(r => Field(r, "Kind") == "Person" && Field(r, "Path").Length > 0).ToList();
+		if (people.Count == 0) return results;
+		var players = await PullEach(people.Select(r => (Field(r, "Path"), "IsPlayer")).ToList(), r => Field(r, "IsPlayer").Length > 0);
+		var isPlayer = people.Zip(players).ToDictionary(p => Field(p.First, "Path"), p => Field(p.Second, "IsPlayer"));
+		return results.Select(r =>
+		{
+			if (!isPlayer.TryGetValue(Field(r, "Path"), out var player) || player.Length == 0) return r;
+			var node = System.Text.Json.Nodes.JsonNode.Parse(r.GetRawText())!.AsObject();
+			node["Kind"] = player == "True" ? "Player" : "Staff";
+			return JsonDocument.Parse(node.ToJsonString()).RootElement.Clone();
+		}).ToList();
 	}
 
 	private static async Task<int> Search(bool json, string[] args)
@@ -176,49 +189,11 @@ internal static partial class Program
 		var who = await Who(results);
 		Table.Write([L("TYPE"), L("NAME"), L("WHO")], results.Select((r, i) => new[]
 		{
-			Field(r, "Kind"),
+			Field(r, "Shown"),
 			Field(r, "Name") is { Length: > 0 } person ? person : Field(r, "Club") + Field(r, "Competition") + Field(r, "Nation"),
 			Field(r, "Name").Length > 0 ? who[i] : "",
 		}).ToList());
 		return 0;
-	}
-
-	/// <summary>
-	/// What can be done about a player, as his page offers it behind his value: shortlist,
-	/// scout, enquire, bid, and the rest. At a terminal one is chosen with the arrows; a bid
-	/// asks for the fee and goes the way `offer` goes.
-	/// </summary>
-	private static async Task<int> PlayerActions(JsonElement player)
-	{
-		var name = Field(player, "Name");
-		if ((await TalkOptions()).Count == 0)
-		{
-			var opened = await Arriving("press", [("text", Field(player, "Value")), ("name", "SIButton"), ("any", "1")]);
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Until(async () => (await TalkOptions()).Count > 0, seconds: 8);
-		}
-
-		var options = await TalkOptions();
-		if (options.Count == 0)
-		{
-			Console.Error.WriteLine(L($"No actions found for {name}."));
-			return 1;
-		}
-
-		var labels = options.Select(o => o.Heading is { Length: > 0 } heading ? $"{heading} › {o.Label}" : o.Label).ToList();
-		if (!Ui.Interactive)
-		{
-			for (var i = 0; i < labels.Count; i++) Console.WriteLine($"  {i + 1,2}  {labels[i]}");
-			Console.WriteLine(L("\nTo do it: talk <number>   (for an offer: offer <player> <fee>)"));
-			return 0;
-		}
-
-		if (Ui.Ask(L($"{name}: what shall we do?"), labels, cancel: L("Nothing")) is not { } chosen) return 0;
-
-		// The offer opens on its card, where the fee is set with the other terms.
-		if (options[chosen].Label == "Make An Offer") return await Offer(["offer", name]);
-
-		return await TalkTo(false, ["talk", (chosen + 1).ToString()]);
 	}
 
 	/// <summary>

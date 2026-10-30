@@ -195,7 +195,10 @@ internal static class Report
 			if (node.Name != "searchresult" || node.Parent == null) continue;
 
 			var fields = new Dictionary<string, string>();
-			if (Fields(node).TryGetValue("SearchRecordType", out var kind)) fields["Kind"] = kind;
+			// The kind as the game shows it ("Spieler" in a German game): for the eye only. Which
+			// kind a result is goes by the record it carries, below.
+			for (var c = node.FirstChild; c != null; c = c.NextSibling)
+				if (c.Name == "SearchRecordType" && c.Value is { IsNull: false } kind) fields["Shown"] = kind.AsString() ?? "";
 
 			// The result's record sits beside the row that shows it: a person with a club, or
 			// just a named club, competition or nation.
@@ -215,10 +218,13 @@ internal static class Report
 				else fields.TryAdd(current.Name, name);
 			}
 
-			if (fields.Count > 1) results.Add(fields);
+			// A person (player or staff: the caller asks his IsPlayer by Path), else the record found.
+			fields["Kind"] = fields.ContainsKey("Name") ? "Person"
+				: fields.ContainsKey("Competition") ? "Competition" : fields.ContainsKey("Nation") ? "Nation" : "Club";
+			if (fields.Count > 2) results.Add(fields);
 		}
 
-		return "[\n  " + string.Join(",\n  ", results.Select(Json)) + "\n]\n";
+		return "[\n  " + string.Join(",\n  ", results.Select(r => Json(r, ["Shown"]))) + "\n]\n";
 	}
 
 	/// <summary>

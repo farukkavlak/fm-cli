@@ -43,7 +43,7 @@ internal static partial class Program
 		if (found.Count > 1)
 		{
 			var who = await Who(found);
-			var labels = found.Select((r, i) => $"{Field(r, "Name")} ({(Field(r, "Kind") == "Player" ? "" : Field(r, "Kind") + ", ")}{who[i]})").ToList();
+			var labels = found.Select((r, i) => $"{Field(r, "Name")} ({(Field(r, "Kind") == "Player" ? "" : Field(r, "Shown") + ", ")}{who[i]})").ToList();
 			if (qualifier != null)
 			{
 				var words = Fold(qualifier).Split(' ', StringSplitOptions.RemoveEmptyEntries);

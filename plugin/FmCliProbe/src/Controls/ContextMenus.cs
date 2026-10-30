@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using FM.UI;
 using SI.UI;
 using UnityEngine.UIElements;
@@ -43,6 +44,20 @@ internal static class ContextMenus
 
 		MenuDescription description = null;
 		try { description = subsystem.m_popupContext?.Description; } catch { }
+
+		// An entry is chosen by the game action it runs (?action=PersonMakeOfferForPlayer), the same in
+		// every language, or by its path of shown words.
+		if (!string.IsNullOrEmpty(q["action"]))
+		{
+			if (description == null) return "error: no menu is open";
+			var entry = Find(description.m_root, q["action"], 0);
+			if (entry == null) return $"error: the menu has no entry for action '{q["action"]}'";
+			if ((entry.Flags & MenuDescription.EntryFlags.Enabled) == 0) return $"error: '{q["action"]}' is disabled";
+			if (q["dry"] == "1") return $"dry run, NOT chosen: {q["action"]}";
+			entry.HandleInteraction.Invoke();
+			if (q["keep"] != "1") subsystem.CloseContextMenu();
+			return $"chose {q["action"]}";
+		}
 
 		if (!string.IsNullOrEmpty(q["choose"]))
 		{
@@ -87,11 +102,55 @@ internal static class ContextMenus
 			try { icon = child.Icon?.StyleOrPath ?? ""; } catch { }
 			rows.Add("{"
 				+ $"\"Path\": \"{Report.Escape(at)}\", \"Name\": \"{Report.Escape(name)}\", \"Icon\": \"{Report.Escape(icon)}\", "
+				+ $"\"Action\": \"{Report.Escape(ActionOf(child) ?? "")}\", "
 				+ $"\"Folder\": {(folder ? "true" : "false")}, "
 				+ $"\"Enabled\": {((flags & MenuDescription.EntryFlags.Enabled) != 0 ? "true" : "false")}, "
 				+ $"\"Selected\": {((flags & MenuDescription.EntryFlags.Selected) != 0 ? "true" : "false")}}}");
 			if (folder) List(child, at, rows, depth + 1);
 		}
+	}
+
+	private static PluginContextMenuBindings Inside(VisualElement element)
+	{
+		for (var i = 0; i < element.hierarchy.childCount; i++)
+		{
+			var child = element.hierarchy[i];
+			if (child.TryCast<PluginContextMenuBindings>() is { } menu) return menu;
+			if (Inside(child) is { } deeper) return deeper;
+		}
+		return null;
+	}
+
+	private static MenuDescription.Entry Find(MenuDescription.Entry parent, string action, int depth)
+	{
+		if (parent == null || depth > 4) return null;
+		for (var child = parent.FirstChild; child != null; child = child.Next)
+		{
+			if ((child.Flags & MenuDescription.EntryFlags.Visible) == 0) continue;
+			if (child.Kind == MenuDescription.EntryKind.Item && ActionOf(child) == action) return child;
+			if (child.Kind == MenuDescription.EntryKind.Folder && Find(child, action, depth + 1) is { } found) return found;
+		}
+		return null;
+	}
+
+	/// <summary>
+	/// The game action an entry runs (ActionID's name, "PersonMakeOfferForPlayer"), or null. The game's
+	/// entries run a closure holding the action's id; it is found by its type, not by the closure's
+	/// generated name, which a game update can renumber.
+	/// </summary>
+	private static string ActionOf(MenuDescription.Entry entry)
+	{
+		try
+		{
+			var target = entry.HandleInteraction?.Target;
+			if (target == null) return null;
+			var name = target.GetIl2CppType().FullName ?? "";
+			var shape = Buttons.ShapeOf(name.Replace("<>", "__"));
+			if (shape.Type == null) shape = Buttons.ShapeOf(name);
+			var property = shape.Type?.GetProperties().FirstOrDefault(p => p.PropertyType == typeof(FM.GamePlugin.ActionID));
+			return property?.GetValue(shape.Wrap(target.Pointer))?.ToString();
+		}
+		catch { return null; }
 	}
 
 	/// <summary>
@@ -138,7 +197,8 @@ internal static class ContextMenus
 				try
 				{
 					if (element.name != q["name"] || element.panel == null || element.worldBound.width <= 0) continue;
-					menu = element.TryCast<PluginContextMenuBindings>();
+					// The element named, or the menu inside it (a page's "#FrameActions" holds its actions menu).
+					menu = element.TryCast<PluginContextMenuBindings>() ?? Inside(element);
 				}
 				catch { continue; }
 				if (menu != null) break;

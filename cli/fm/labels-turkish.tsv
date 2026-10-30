@@ -2496,3 +2496,4 @@ Nothing to send back yet: change a term of their offer first (only then does the
 {0}'s offer — status: {1}	{0} teklifi — durum: {1}
 Sent, but {0}'s offer stays the same in the list.	Gönderildi, ama {0} teklifi listede aynı kaldı.
 Nothing can be sent on {0}'s offer now; it waits on their answer (status: {1}).	{0} teklifinde şu an gönderilecek bir şey yok; onların cevabını bekliyor (durum: {1}).
+Transfer offer tab did not open.	Transfer teklif sekmesi açılmadı.

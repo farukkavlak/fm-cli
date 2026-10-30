@@ -4,9 +4,9 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Bidding for a player, the way the game's own offer screen does it: from his page, the
-/// value opens his actions, "Make An Offer" opens the offer, the fee is typed into its box,
-/// and "Make Offer" sends it.
+/// Bidding for a player, the way the game's own offer screen does it: from his page, his actions
+/// menu's PersonMakeOfferForPlayer opens the offer, the fee is typed into its box, and the
+/// director's 'ngsu' answer sends it.
 /// </summary>
 internal static partial class Program
 {
@@ -30,6 +30,9 @@ internal static partial class Program
 
 	/// <summary>The answers the director gives to another club's offer (ActionResponseValue: 'ngng', 'ngts', 'ngrj').</summary>
 	private const string NegotiateOffer = "1852272231", SuggestTerms = "1852273779", RejectOffer = "1852273258";
+
+	/// <summary>Our own bid's send ('ngsu'), and the player's action that opens the offer screen.</summary>
+	private const string SendOffer = "1852273525", MakeOfferAction = "PersonMakeOfferForPlayer";
 
 	private static async Task<int> Offer(string[] args)
 	{
@@ -99,24 +102,32 @@ internal static partial class Program
 			var player = card.GetProperty("Player");
 			name = Field(player, "Name");
 
-		// The actions sit behind his value on the page.
-		if (await Labelled("Make An Offer") == null)
+		// The offer is an entry of his page's actions menu (#FrameActions), known by the game action
+		// it runs. The menu is filled a moment after it opens; two readings alike are taken as whole.
+		await Fm.Get("actions", ("close", "1"));
+		var opened = await Arriving("actions", [("open", "1"), ("name", "FrameActions")]);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		var listed = "";
+		var offerable = false;
+		await Until(async () =>
 		{
-			var value = Field(player, "Value");
-			var opened = await Arriving("press", [("text", value), ("name", "SIButton"), ("any", "1")]);
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Until(async () => await Labelled("Make An Offer") != null, seconds: 8, every: 0.25);
-		}
-
-		if (await Labelled("Make An Offer") is not { } make)
+			var now = (await Fm.GetJson("actions")).ToString();
+			offerable = now.Contains($"\"{MakeOfferAction}\"", StringComparison.Ordinal);
+			var settled = offerable || now != "[]" && now == listed;
+			listed = now;
+			return settled;
+		}, seconds: 8, every: 0.25);
+		if (!offerable)
 		{
+			await Fm.Get("actions", ("close", "1"));
 			Console.Error.WriteLine(L($"No offer can be made for {name} (the game's actions have no 'Make An Offer'; an offer may already be in, or they may be our player)."));
 			return 1;
 		}
 
 		// The game can refuse with a dialog instead ("Cannot sign …: already agreed to join
 		// his loan club"); that is the answer then, and it is closed.
-		await Fm.Get("press", ("ptr", Field(make, "Pointer")));
+		var chose = await Fm.Get("actions", ("action", MakeOfferAction));
+		if (chose.StartsWith("error", StringComparison.Ordinal)) return Report(chose);
 		JsonElement refusal = default;
 		if (!await Until(async () => await FeeBoxNow() != null || (refusal = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 10, every: 0.25))
 		{
@@ -133,15 +144,18 @@ internal static partial class Program
 		}
 		}
 
-		if (!resumed && loan && await Named("loan-offer-button") is { } loanTab)
+		// The game keeps an unsent offer's kind from the last time its screen was open, so the
+		// kind asked for is chosen either way.
+		if (!resumed && await OfferIsLoan() is { } drawnLoan && drawnLoan != loan
+			&& await Named(loan ? "loan-offer-button" : "transfer-offer-button") is { } loanTab)
 		{
 			await Fm.Get("press", ("ptr", Field(loanTab, "Pointer")));
 			// The loan tab redraws the panel in two steps: the transfer's terms go, then the
 			// loan's own terms are drawn. The screen showing a loan is the game's answer that
 			// the switch has landed; the tab's label is the game's word, the row set is not.
-			if (!await Until(async () => await OfferScreen.Read(Fm) is { IsLoan: true }, seconds: 8, every: 0.1))
+			if (!await Until(async () => await OfferIsLoan() == loan && await OfferScreen.Read(Fm) is { Rows.Count: > 0 }, seconds: 8, every: 0.1))
 			{
-				Console.Error.WriteLine(L("Loan offer tab did not open."));
+				Console.Error.WriteLine(loan ? L("Loan offer tab did not open.") : L("Transfer offer tab did not open."));
 				return 1;
 			}
 		}
@@ -164,8 +178,9 @@ internal static partial class Program
 			string plus = null, minus = null;
 			foreach (var control in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
 			{
-				if (Field(control, "Label") == "+" && Field(control, "Events").Contains("IncrementCashValue", StringComparison.Ordinal)) plus = Field(control, "Pointer");
-				if (Field(control, "Label") == "-" && Field(control, "Events").Contains("DecrementCashValue", StringComparison.Ordinal)) minus = Field(control, "Pointer");
+				// The box's own buttons send only the step; the box itself lists them among its events.
+				if (Field(control, "Events") == "EventToPlugin:EventFmxIncrementCashValue") plus = Field(control, "Pointer");
+				if (Field(control, "Events") == "EventToPlugin:EventFmxDecrementCashValue") minus = Field(control, "Pointer");
 			}
 
 			var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(3);
@@ -235,14 +250,14 @@ internal static partial class Program
 		// talked over with them ("Negotiate Offer", --negotiate). All its answers send the offer's
 		// response event and differ by the answer each stands for, the same in every language. One
 		// of them accepts the offer, and in Turkish "Make Offer" reads as that one, so their offer is
-		// never answered by a label. Our own bid goes by "Make Offer".
+		// never answered by a label. Our own bid goes by its own answer, 'ngsu'.
 		// Their offer is known by its record when its card was open; the reject answer marks one too.
 		var theirOffer = open == null ? null : (await WaitingOffers()).FirstOrDefault(o => o.Incoming && o.Player == open.Player && o.Club == open.Club);
 		var rejectable = await SpeakToActionWith("ActionResponseValue", RejectOffer) != null;
 		var answering = theirOffer != null || rejectable;
 		var send = answering
 			? await SpeakToActionWith("ActionResponseValue", args.Contains("--negotiate") ? NegotiateOffer : SuggestTerms)
-			: await Labelled("Make Offer");
+			: await SpeakToActionWith("ActionResponseValue", SendOffer);
 		if (send is null)
 		{
 			Console.Error.WriteLine(!answering ? L("There is no 'Make Offer' button, or it is closed.")
@@ -336,6 +351,20 @@ internal static partial class Program
 		async Task<string> FeeLabel() => await FeeBox() is { } box ? Field(box, "Label") : null;
 
 		async Task<long?> Fee() => Money(await FeeLabel() ?? "");
+	}
+
+	/// <summary>
+	/// Whether the offer on screen is a loan, from the offer itself: the record its kind tabs send to
+	/// ("transferoffer") holds TransferOfferType, 1 for a transfer and 3 for a loan (what the loan tab
+	/// sends, TransferOfferTypeLoan). Null with no offer screen open.
+	/// </summary>
+	private static async Task<bool?> OfferIsLoan()
+	{
+		var tab = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Name") == "transfer-offer-button" && Field(b, "Target").Length > 0);
+		if (tab.ValueKind != JsonValueKind.Object) return null;
+		var kind = Field((await PullEach([(Field(tab, "Target"), "TransferOfferType")], r => Field(r, "TransferOfferType").Length > 0))[0], "TransferOfferType");
+		return kind.Length > 0 ? kind == "3" : null;
 	}
 
 	private static async Task<JsonElement?> FeeBoxNow() =>
