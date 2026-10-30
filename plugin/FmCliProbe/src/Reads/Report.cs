@@ -104,6 +104,9 @@ internal static class Report
 			if (!fields.TryGetValue("NewsTitleString", out var title) || string.IsNullOrEmpty(title))
 				continue;
 			if (!fields.TryGetValue("UniqueId", out var id) || !seen.Add(id)) continue;
+			// The title as the game shows it: a translated one ("Fitness tests") is otherwise put back into English.
+			for (var c = node.FirstChild; c != null; c = c.NextSibling)
+				if (c.Name == "NewsTitleString" && Text.ShownOf(c.Value) is { Length: > 0 } shown) fields["NewsTitleString"] = shown;
 
 			// The sender lives beside the news item, not inside it, so it is picked up from the
 			// surrounding node rather than the reference.
@@ -117,7 +120,8 @@ internal static class Report
 		var sb = new StringBuilder();
 		sb.AppendLine("[");
 		for (var i = 0; i < messages.Count; i++)
-			sb.AppendLine("  " + Json(messages[i]) + (i < messages.Count - 1 ? "," : ""));
+			// A title or a name is read to the user and pressed by (press?has=): as the game shows it.
+			sb.AppendLine("  " + Json(messages[i], ["NewsTitleString", "Sender"]) + (i < messages.Count - 1 ? "," : ""));
 		sb.AppendLine("]");
 		return sb.ToString();
 	}

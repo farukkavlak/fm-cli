@@ -256,6 +256,9 @@ internal static partial class Program
 			{
 				Console.WriteLine(L("Squad numbers screen; handing it to the assistant."));
 				if (await Numbers(false, ["--auto"]) != 0) return 1;
+				// The screen stays up a moment after the numbers are sent, its button then shut: sent
+				// again, that read as a failure.
+				await Until(async () => Field(await Fm.GetJson("state"), "State") != "SquadNumbers", seconds: 20, every: 0.5);
 				continue;
 			}
 

@@ -236,12 +236,19 @@ Still open:
 - [x] Live stats line: `NextFixture` and the live `MatchReference` keep their `Home*`/`Away*` numbers at 0 until the whistle.
   The root `Match` binding's `Stats` answers live, per side by the `isHomeTeam` variable beside it (`/contexts` names it).
   The first pull of a new path is empty for a frame. Tried TR, one match, panel closed: last live line = `report`.
-  - [ ] `docs/manual/img/match/live-match.png` still the FM26 shot without the line: recapture with `tools/live-capture.py`.
 - [x] The bridge's main-menu Continue is `/loadlast` (was `/continue`) and refuses once a save is loaded:
   called in game it reloaded the last save over five days of play. In-game Continue is `/next`.
 - [x] Board meeting on expectations and promises (FM27, first season): the message's answer opens a talk;
   `talk "<part of a line>"` goes through it (targets, then promises, then "Görüşmeyi Sonlandır"). Options change
   between visits, so parts of lines are safer than numbers. Every promise offered got 17 negative reactions here.
+- [x] Inbox titles came back in English when they are translation ids ("Fitness tests", "Regular News Round-up" in a
+  Turkish game): the title is now read as shown (`Text.ShownOf`). TR 3/3; EN, DE not tried.
+- [x] `InGame`: the in-game Continue's flow (`continue.State`) is bound in a save on every screen and not on the
+  main menu (measured once, cold start), so it replaces the list of match-day stops (`SquadNumbers` was missing).
+- [ ] Squad numbers before a match: the screen stays up a moment after the numbers are sent and `match` sent them
+  again into a shut button ("is disabled"). Now waits for the screen to change: not tried yet.
+- [ ] `next` on a NeedAction with one answerable message (squad selection advice) gives the general hint, not its name.
+- [ ] `next` lists old messages as new every other step (seen 21 Jul, TR).
 - [x] `save` on match-day screens (no game date bound) says "today" instead of "()".
 - [x] `dugout uygula` / `dugout 2 kaldır` went to the language layer (a command word that is not a number made it a
   sentence); a command's own words (`CommandFlags`) now keep it a command.
