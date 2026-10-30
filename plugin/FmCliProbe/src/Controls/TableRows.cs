@@ -199,6 +199,61 @@ internal static class TableRows
 		return "[" + string.Join(",\n ", rows) + "]\n";
 	}
 
+#if !FM26
+	/// <summary>
+	/// The texts of every laid-out row of the tables that show a text bound to ?has= (a data path:
+	/// "Person.PlayerDescription"), each with its data path, and the row's item put at a path of
+	/// its own (?gen=) to be read for whose it is (a player's UniqueId). For a cell drawn without a
+	/// path (the happiness level), which the row's item then names.
+	/// </summary>
+	public static string Shown(NameValueCollection q)
+	{
+		var has = q["has"];
+		if (string.IsNullOrEmpty(has)) return "error: ?has=<data path of a text the rows show> required";
+		var under = $"fmcli.rowtexts.g{q["gen"] ?? "0"}";
+		var tables = new List<long>();
+		var rows = new List<string>();
+		foreach (var (row, table, index) in Laid())
+		{
+			var texts = new List<string>();
+			var shows = false;
+			var stack = new Stack<UnityEngine.UIElements.VisualElement>();
+			stack.Push(row);
+			while (stack.Count > 0)
+			{
+				var e = stack.Pop();
+				try
+				{
+					if (e.resolvedStyle.display == UnityEngine.UIElements.DisplayStyle.None || e.panel == null) continue;
+					if (e.TryCast<UnityEngine.UIElements.TextElement>() is { } t && e.worldBound.width > 0)
+					{
+						var path = Texts.PathOf(t);
+						var plain = Text.FieldShown(path, t.text ?? "");
+						if (path == has) shows = true;
+						if (plain.Length > 0) texts.Add($"{{\"Text\": \"{Report.Escape(plain)}\", \"Path\": \"{Report.Escape(path ?? "")}\"}}");
+					}
+					var h = e.hierarchy;
+					for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
+				}
+				catch { }
+			}
+			if (!shows) continue;
+
+			var at = tables.IndexOf(table.Pointer.ToInt64());
+			if (at < 0) { tables.Add(table.Pointer.ToInt64()); at = tables.Count - 1; }
+			var item = "";
+			try
+			{
+				if (table.GetItemFromView(index)?.TryCast<SI.Core.TypedValue>() is { IsNull: false } value && RawPath.Set($"{under}.{at}.{index}", value) == null)
+					item = $"{under}.{at}.{index}";
+			}
+			catch { }
+			rows.Add($"{{\"Table\": \"0x{table.Pointer.ToInt64():x}\", \"Index\": {index}, \"Item\": \"{item}\", \"Count\": {table.ItemCount}, \"Texts\": [{string.Join(", ", texts)}]}}");
+		}
+		return "[" + string.Join(",\n ", rows) + "]\n";
+	}
+#endif
+
 	/// <summary>Ticks (check=1) or unticks (check=0) the item at ?index= of the table at ?table=.</summary>
 	private static string Check(NameValueCollection q)
 	{

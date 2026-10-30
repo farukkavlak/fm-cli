@@ -217,7 +217,14 @@ Still open:
   is false, which matches `AvailableForTraining` (injured, on leave after a tournament). Refused before the page is opened.
   - Tried: TR only; 3/3 change and back, rest, "already", 2 refusals; from Squad and Inbox.
 - [x] `fm budget`: "spent this season" is `Human.Club.TransferExpenditureThisSeason`.
-- [ ] `fm stages`: team names empty. `fm happiness`: page opens, read fails.
+- [ ] `fm stages`: team names empty.
+- [x] `fm happiness`: read from each player's data, with `human`/`team`/`Judge` beside the rows (as training):
+  `HierarchyOverallHappinessLevel`, `MoraleString`, `HierarchyInfluenceCategoryString`, reason lists
+  `HappinessPositives`/`HappinessNegatives` (each reason's `Name`). No row selecting, no "Negatives" heading.
+  - The level's word has no path: `/rowtexts?has=Person.PlayerDescription` gives each laid-out row's texts and its
+    table item (→ `UniqueId`); the level is the row's one text bound to nothing. Turkish "Biraz Mutlu" is not in the table.
+  - Tried: TR, EN, DE; page open / other page / cold; 3/3 same each; one player, `--why`, unknown name.
+- [ ] `fm settings`: "FM menu not found" in FM27 (language switched through `current_language.xml` meanwhile).
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
 - [ ] `identity-check.py catalog` (game must be in English for the word list).
 

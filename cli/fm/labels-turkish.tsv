@@ -2510,3 +2510,5 @@ The board does not allow the budgets to be adjusted now.	Yönetim şu an bütçe
 The budget card cannot be confirmed now.	Bütçe kartı şu an onaylanamıyor.
 The game did not change the budgets.	Oyun bütçeleri değiştirmedi.
 The budget card did not close.	Bütçe kartı kapanmadı.
+ · morale {0} · {1}	 · moral {0} · {1}
+The level of {0} players was not found on the page; their colour still follows the game's score.	{0} oyuncunun seviyesi sayfada bulunamadı; renkleri yine oyunun puanına göre.

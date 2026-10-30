@@ -84,6 +84,9 @@ internal static partial class FmApi
 		"rowremove" => TableRows.Remove(q),
 		"rowselect" => TableRows.Select(q),
 		"checkrows" => TableRows.Checkable(q),
+#if !FM26
+		"rowtexts" => TableRows.Shown(q),
+#endif
 		"actions" => ContextMenus.Handle(q),
 		"ties" => Ties.Current(),
 		"scoped" => Scoped.Handle(q),
