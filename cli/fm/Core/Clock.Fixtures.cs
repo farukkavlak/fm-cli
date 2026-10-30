@@ -83,6 +83,9 @@ internal static partial class Program
 	}
 
 	/// <summary>"2025-07-01" → "Tuesday 1 July 2025".</summary>
+	/// <summary>The day a save holds, as said in its messages. Match-day screens bind no game date: that is today.</summary>
+	private static string SaveDay(JsonElement state) => Field(state, "Date") is { Length: > 0 } date ? Pretty(date) : L("today");
+
 	private static string Pretty(string date) =>
 		DateTime.TryParseExact(date, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var day)
 			? $"{day.Day} {Months[day.Month - 1]} {day.Year} {Days[(int)day.DayOfWeek]}"

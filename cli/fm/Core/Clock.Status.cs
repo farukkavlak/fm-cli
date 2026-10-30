@@ -35,7 +35,7 @@ internal static partial class Program
 
 		if (!args.Contains("--yes"))
 		{
-			Console.Error.WriteLine(L($"This overwrites the save file (with the state of {Pretty(Field(state, "Date"))}); it cannot be undone."));
+			Console.Error.WriteLine(L($"This overwrites the save file (with the state of {SaveDay(state)}); it cannot be undone."));
 			Console.Error.WriteLine(L("To confirm: save --yes"));
 			return 1;
 		}
@@ -64,7 +64,7 @@ internal static partial class Program
 			return Field(now, "Saving") != "True" && Field(now, "State") != "Saving";
 		}, seconds: 180);
 
-		Console.WriteLine(done ? L($"Saved ({Pretty(Field(state, "Date"))}).") : L("Saving has been going on for three minutes; I stopped waiting."));
+		Console.WriteLine(done ? L($"Saved ({SaveDay(state)}).") : L("Saving has been going on for three minutes; I stopped waiting."));
 		return done ? 0 : 75;
 	}
 
@@ -130,7 +130,7 @@ internal static partial class Program
 		}
 		else
 		{
-			Console.WriteLine(L($"FM is open, save loaded. {Pretty(Field(state, "Date"))} {Time(state)}"));
+			Console.WriteLine(L($"FM is open, save loaded. {SaveDay(state)} {Time(state)}"));
 			if (next != null) Console.WriteLine(L($"Next match: {GameWords.Of(next)}"));
 			if (window != null) Console.WriteLine(L($"Transfers: {GameWords.Of(window)}"));
 		}

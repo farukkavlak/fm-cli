@@ -22,8 +22,8 @@ internal static partial class Program
 		if (!yes)
 		{
 			Console.Error.WriteLine(exists
-				? L($"There is a save called '{name}'; this overwrites it (with the state of {Pretty(Field(state, "Date"))}), and cannot be undone.")
-				: L($"The game is saved to a new file called '{name}' ({Pretty(Field(state, "Date"))}); later saves go there too."));
+				? L($"There is a save called '{name}'; this overwrites it (with the state of {SaveDay(state)}), and cannot be undone.")
+				: L($"The game is saved to a new file called '{name}' ({SaveDay(state)}); later saves go there too."));
 			Console.Error.WriteLine(L($"To confirm: save --as \"{name}\" --yes"));
 			return 1;
 		}
@@ -79,7 +79,7 @@ internal static partial class Program
 		}, seconds: 180);
 
 		Console.WriteLine(done
-			? L($"Saved: {name} ({Pretty(Field(state, "Date"))}). From now on the game saves to this file.")
+			? L($"Saved: {name} ({SaveDay(state)}). From now on the game saves to this file.")
 			: L("Saving has been going on for three minutes; I stopped waiting."));
 		return done ? 0 : 75;
 	}

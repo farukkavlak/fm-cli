@@ -123,22 +123,34 @@ internal static partial class Program
 	{
 		try
 		{
-			// The bindings carry LastFixture and NextFixture only; during a match neither has the
-			// live numbers (IsLiveMatch is False), so no stats are shown rather than old ones.
-			var fixture = await Fm.Pull("Human.Team.NextFixture",
-				"IsLiveMatch,HomePossession,AwayPossession,HomeShots,AwayShots,HomeShotsOnTarget,AwayShotsOnTarget,HomeExpectedGoals,AwayExpectedGoals,HomeCorners,AwayCorners");
-			if (Field(fixture, "IsLiveMatch") != "True") return "";
-			var home = Field(state, "HumanIsHome") == "True";
-			string Ours(string name) => Field(fixture, (home ? "Home" : "Away") + name);
-			string Theirs(string name) => Field(fixture, (home ? "Away" : "Home") + name);
+			// The live match is bound at the root as "Match" while one is on. Its Home*/Away*
+			// numbers stay at 0 until the whistle (as NextFixture's do); its Stats answer live,
+			// for the side named by the isHomeTeam variable beside it.
+			var ownHome = Field(state, "HumanIsHome");
+			if (ownHome is not ("True" or "False")) return "";
+			const string props = "TotalPossession,TotalShots,ShotsOnTarget,ExpectedGoals,Corners";
+			async Task<JsonElement> Side(bool home)
+			{
+				var at = $"fmcli.livestats.{(home ? "home" : "away")}";
+				if ((await Fm.Get("pathset", ("to", $"{at}.Match"), ("from", "Match"))).StartsWith("error", StringComparison.Ordinal)) return default;
+				if ((await Fm.Get("pathset", ("to", $"{at}.isHomeTeam"), ("int", home ? "1" : "0"))).StartsWith("error", StringComparison.Ordinal)) return default;
+				return await Fm.Pull($"{at}.Match.Stats", props);
+			}
+			JsonElement own = default, other = default;
+			// A side's numbers come a frame after its path is first laid out.
+			await Until(async () => Field(own = await Side(ownHome == "True"), "TotalShots").Length > 0
+				&& Field(other = await Side(ownHome != "True"), "TotalShots").Length > 0, seconds: 3, every: 0.2);
+			if (Field(own, "TotalShots").Length == 0 || Field(other, "TotalShots").Length == 0) return "";
+			string Ours(string name) => Field(own, name);
+			string Theirs(string name) => Field(other, name);
 			string Xg(string raw) => GameNumbers.Read(raw) is { } value ? GameNumbers.Of(value, "0.00") : raw;
 			var parts = new List<string>();
 			void Add(string label, string a, string b)
 			{
 				if (a.Length > 0 || b.Length > 0) parts.Add($"{label} {GameNumbers.Percent(a)} - {GameNumbers.Percent(b)}");
 			}
-			Add(L("Possession"), Ours("Possession"), Theirs("Possession"));
-			parts.Add($"{L("Shots")} {Ours("Shots")} - {Theirs("Shots")}");
+			Add(L("Possession"), Ours("TotalPossession"), Theirs("TotalPossession"));
+			parts.Add($"{L("Shots")} {Ours("TotalShots")} - {Theirs("TotalShots")}");
 			parts.Add($"{L("On target")} {Ours("ShotsOnTarget")} - {Theirs("ShotsOnTarget")}");
 			parts.Add($"xG {Xg(Ours("ExpectedGoals"))} - {Xg(Theirs("ExpectedGoals"))}");
 			parts.Add($"{L("Corners")} {Ours("Corners")} - {Theirs("Corners")}");

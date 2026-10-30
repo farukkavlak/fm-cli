@@ -33,8 +33,9 @@ internal static partial class Program
 	/// <summary>
 	/// A line is a sentence, not a command, when it has more than one word and no --option, and
 	/// does not start with a short alias such as `p`. One that starts with a command's own name is
-	/// a sentence only when that command takes no free text and the rest is not a number: "next 3"
-	/// and "player rinaldi" stay commands, "next opponent" or "table please" do not. A one-word
+	/// a sentence only when that command takes no free text and the rest is not numbers and its own
+	/// words: "next 3", "dugout 2 uygula" and "player rinaldi" stay commands, "next opponent" or
+	/// "table please" do not. A one-word
 	/// line stays a command, as does "squad --fitness"; "kadro ne" or "maç ne zaman" start with
 	/// an alias but read as sentences.
 	/// </summary>
@@ -43,7 +44,8 @@ internal static partial class Program
 		string.Join(' ', args).Split(' ', StringSplitOptions.RemoveEmptyEntries) is var words
 		&& words.Length > 1
 		&& !words.Any(w => w.StartsWith("--", StringComparison.Ordinal))
-		&& (CommandNames.Contains(words[0]) ? !Mcp.TakesText(words[0]) && !words.Skip(1).All(w => w.All(char.IsDigit))
+		&& (CommandNames.Contains(words[0]) ? !Mcp.TakesText(words[0])
+			&& !words.Skip(1).All(w => w.All(char.IsDigit) || CommandFlags.GetValueOrDefault(words[0], []).Contains(Nl.Text.Fold(w)))
 			: !(words[0].Length <= 2 && CommandAliases.ContainsKey(words[0])));
 
 	public static async Task<int> Understand(string sentence, Func<string[], Task<int>> execute)

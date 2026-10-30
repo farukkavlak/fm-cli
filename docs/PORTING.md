@@ -231,7 +231,14 @@ Still open:
   TR, cold and warm, 4/4: 11 picked; plain Quick Pick still 8. The match-day squad question offers it too.
   - `tactic player <slot>` without a name still lists nobody.
 - [x] First live match (Viborg 2-0, TR): speed keys + + - went 2x → 2.5x → 3x → 2.5x, `settings` read 2.5x after.
-  `fixtures` shows the played result. Live stats line showed shots 0-0 after a goal: not looked at yet.
+  `fixtures` shows the played result.
+- [x] Live stats line: `NextFixture` and the live `MatchReference` keep their `Home*`/`Away*` numbers at 0 until the whistle.
+  The root `Match` binding's `Stats` answers live, per side by the `isHomeTeam` variable beside it (`/contexts` names it).
+  The first pull of a new path is empty for a frame. Tried TR, one match, panel closed: last live line = `report`.
+  - [ ] `docs/manual/img/match/live-match.png` still the FM26 shot without the line: recapture with `tools/live-capture.py`.
+- [x] `save` on match-day screens (no game date bound) says "today" instead of "()".
+- [x] `dugout uygula` / `dugout 2 kaldır` went to the language layer (a command word that is not a number made it a
+  sentence); a command's own words (`CommandFlags`) now keep it a command.
 - [x] `settings sound` (`settings.AudioMasterEnabled`): turned off, read back False. Not during a match.
 - [x] `fm fixtures`: the home page binds no fixtures in FM27. Now read from `Human.Team.FixtureList`, no page opened.
   - The list asks `previousamount`, `futureamount`, `fixturepadding`, `yearindex` beside the team (3 / 7 / 0 / 0).

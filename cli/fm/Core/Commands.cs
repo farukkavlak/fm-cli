@@ -98,6 +98,7 @@ internal static partial class Program
 		["query"] = ["--sort", "--asc"],
 		["next"] = ["--skip"],
 		["match"] = ["--play", "--instant", "--no-talk"],
+		["dugout"] = ["uygula", "kaldir", "apply", "dismiss"],
 		["offer"] = ["--loan", "--dry", "--term", "--yes"],
 		["contract"] = ["--agent", "--term", "--wage", "--next", "--sign", "--cancel", "--yes"],
 		["release"] = ["--free", "--mutual", "--yes"],
