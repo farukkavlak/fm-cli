@@ -2415,3 +2415,5 @@ Tried to exit but the game is still asking (answer: dialog).	Çıkılmaya çalı
 The game's world could not be read.	Oyunun dünyası okunamadı.
 The set piece wizard is not open: the game offers it only when it asks (its set-piece message). To change a routine: setpieces <type>	Duran top sihirbazı açık değil: oyun onu yalnızca kendisi isteyince açar (duran top mesajı). Bir rutini değiştirmek için: setpieces <tür>
 The set piece wizard is open. To answer it: setpieces new   (the game's choices: setpieces new, then Enter at each question)	Duran top sihirbazı açık. Cevaplamak için: setpieces new   (oyunun seçimleri: setpieces new, sonra her soruda Enter)
+  Target      (not readable with no duties: {0})	  Hedef       (görev yokken okunamıyor: {0})
+'{0}' was sent; the game shows no readable sign of the target for this kind.	'{0}' gönderildi; oyun bu türde hedefin okunabilir bir işaretini vermiyor.

@@ -318,6 +318,17 @@ Still open:
   its list scrolls by `/scroll?within=NonPhoneTable`. Save As opens by `menuoption?option=SaveGameAs` (FM27's FM menu
   is a list). Overwrite and delete questions by their dialog `Type`, answered until gone (a click while drawn is lost);
   delete waits for a save being written. `load` from a loaded save, `save --as`, `saves delete`: TR, 3/3.
+- [x] `setpieces <kind>` read from records, not the page's words and order ("Set Piece Type", "Instructions", "Taker", "Left"):
+  - Each duty list's row item is an instruction (`Name` "a1", `SetPieceCategoryType`); the routine is the `routine` variable
+    in the lists' scope (`/rowcontrols?event=EventFmxSetPieceInstrChanged&var=routine` › `Var`, new for table rows).
+  - Routine: `SetPieceDeliveryType`, `SetPieceStrategy`, `SetPieceTaker`, `PrioritySetPieces` (group names by category).
+  - Delivery and throw-in aim buttons by the value they send (`SendsProps` Zero/One); emptied controls of the kind
+    shown before are left out. "Otherwise" lists by their row's place.
+  - A throw-in worked into the box has no duties and no scope to read: taker from the text bound to
+    `routine.SetPieceTaker.Name`, aim said to be unreadable; changing to it is "sent", not confirmed.
+  - Corner (delivery, aim, D1 duty + otherwise, back), throw-in aim both ways, wide, deep, shooting range: TR.
+  - Also: `setpieces korner vurus out` went to the language layer (`Mcp.TakesText` filled every choice and hid `aim`);
+    `Choose` takes an exact match in the game's words before pieces ("Geride Dur" vs "Gerekirse Geride Dur").
 - [x] `fm health`: read from `Human.Team.Players` (`Condition`, `Sharpness`, `InjuryRiskLevel`, `CurrentInjury.*`), no squad
   views opened (3 s; it failed once on an interview screen). Out on loan: `IsAwayFromContractClub` (was the text "Out On Loan").
   - The squad page also lists youth-team players (`Team.Name` the U19 side, e.g. Mert Günok); `Players` does not.

@@ -273,7 +273,8 @@ internal static partial class Program
 		if (int.TryParse(pick, out var number) && number >= 1 && number <= choices.Count) return choices[number - 1];
 
 		var wanted = Fold(pick);
-		var exact = choices.FirstOrDefault(c => Fold(c) == wanted);
+		// Exact in the plugin's words or in the game's ("Geride Dur" for "Stay Back").
+		var exact = choices.FirstOrDefault(c => Fold(c) == wanted) ?? choices.FirstOrDefault(c => Fold(GameWords.Of(c)) == wanted);
 		if (exact != null) return exact;
 
 		var close = Matching(choices, c => c, pick);

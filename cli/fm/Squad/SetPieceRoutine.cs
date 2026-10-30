@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace FmCli;
 
@@ -10,13 +9,18 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly string[] Deliveries = ["Inswinger", "Outswinger"];
-
 	/// <summary>A player's place in the routine ("A1"), the group it is in, what he does and, where the game offers one, what he does otherwise.</summary>
 	private sealed record RoutineSlot(string Slot, string Group, string Task, string Otherwise, JsonElement? Menu, JsonElement? OtherwiseMenu);
 
-	private sealed record Routine(string Delivery, List<JsonElement> DeliveryButtons, string Taker, string Aim, JsonElement? AimMenu, List<JsonElement> AimButtons, List<RoutineSlot> Slots, string Key)
+	/// <summary>
+	/// Delivery is the routine's SetPieceDeliveryType (0 inswinger, 1 outswinger), its buttons in that
+	/// order by the value each sends; Aim is what the aim menu shows, or the aim button whose sent value
+	/// is the routine's SetPieceStrategy.
+	/// </summary>
+	private sealed record Routine(int? Delivery, List<JsonElement> DeliveryButtons, string Taker, string Aim, JsonElement? AimMenu, List<JsonElement> AimButtons, List<RoutineSlot> Slots, string Key)
 	{
+		public string DeliveryName(int index) => index < DeliveryButtons.Count ? Field(DeliveryButtons[index], "Label") : "";
+
 		public List<string> AimChoices => AimButtons.Count > 0 ? AimButtons.Select(b => Field(b, "Label")).ToList() : AimMenu is { } m ? Choices(m) : [];
 	}
 
@@ -71,11 +75,11 @@ internal static partial class Program
 				if (routine.DeliveryButtons.Count == 0) { Console.Error.WriteLine(L($"{kind.Say}: no delivery type is chosen for this kind.")); return 1; }
 				var wanted = Fold(words[1]) switch { "in" or "ice" or "inswinger" => 0, "out" or "disa" or "outswinger" => 1, _ => -1 };
 				if (wanted < 0) { Console.Error.WriteLine(L("delivery: in (inswinging) or out (outswinging)")); return 64; }
-				if (routine.Delivery != Deliveries[wanted])
+				if (routine.Delivery != wanted && wanted < routine.DeliveryButtons.Count)
 				{
-					var button = routine.DeliveryButtons.First(b => Field(b, "Label") == Deliveries[wanted]);
+					var button = routine.DeliveryButtons[wanted];
 					if (await Fm.Get("press", ("ptr", Field(button, "Pointer"))) is var said && said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-					if (!await Until(async () => (routine = await ReadRoutine())?.Delivery == Deliveries[wanted], seconds: 6, every: 0.4))
+					if (!await Until(async () => (routine = await ReadRoutine())?.Delivery == wanted, seconds: 6, every: 0.4))
 					{
 						Console.Error.WriteLine(L("The delivery did not change."));
 						return 1;
@@ -95,7 +99,8 @@ internal static partial class Program
 					if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 					if (!await Until(async () => (routine = await ReadRoutine())?.Aim == choice, seconds: 6, every: 0.4))
 					{
-						Console.Error.WriteLine(L("The target did not change."));
+						// With no duties the routine cannot be read back: what was sent is said, not claimed.
+						Console.Error.WriteLine(routine is { Slots.Count: 0, Aim: null } ? L($"'{choice}' was sent; the game shows no readable sign of the target for this kind.") : L("The target did not change."));
 						return 1;
 					}
 				}
@@ -144,7 +149,7 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Kind = kind.Say, routine.Delivery, routine.Taker, routine.Aim,
+				Kind = kind.Say, Delivery = routine.Delivery is { } d ? routine.DeliveryName(d) : null, routine.Taker, routine.Aim,
 				routine.AimChoices,
 				Slots = routine.Slots.Select(s => new { s.Slot, s.Group, s.Task, s.Otherwise, Choices = s.Menu is { } m ? Choices(m) : [] }),
 			}));
@@ -152,9 +157,10 @@ internal static partial class Program
 		}
 
 		Console.WriteLine(kind.Say);
-		if (routine.Delivery != null) Console.WriteLine(L($"  Delivery    {routine.Delivery}   ({string.Join(" · ", Deliveries)})"));
+		if (routine.Delivery is { } delivered) Console.WriteLine(L($"  Delivery    {routine.DeliveryName(delivered)}   ({string.Join(" · ", routine.DeliveryButtons.Select(b => Field(b, "Label")))})"));
 		if (routine.Taker != null) Console.WriteLine(L($"  Taker       {routine.Taker}   (order: takers {kind.Words[0]})"));
 		if (routine.Aim != null) Console.WriteLine(L($"  Target      {routine.Aim}   ({string.Join(" · ", routine.AimChoices)})"));
+		else if (routine.AimChoices.Count > 0) Console.WriteLine(L($"  Target      (not readable with no duties: {string.Join(" · ", routine.AimChoices)})"));
 		if (routine.Slots.Count > 0)
 		{
 			Console.WriteLine();
@@ -172,71 +178,63 @@ internal static partial class Program
 		menu.TryGetProperty("Choices", out var c) ? c.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [];
 
 	/// <summary>
-	/// The routine on the page. The texts carry the taker, the aim and each place with its task;
-	/// the menus that change them come in the same order as the places. Which delivery is chosen
-	/// is not in the buttons' names — they keep the ones they were drawn with — but in the bound
-	/// routine (`SetPieceDeliveryType`: 0 inswinger, 1 outswinger).
+	/// The routine on the page, from the game's own records: the routine (the page's variable beside
+	/// its duty lists) holds delivery, aim and taker, and each duty list's row is an instruction record: its place ("a1"), the group it is in
+	/// (SetPieceCategoryType, named by the routine's PrioritySetPieces).
 	/// </summary>
 	private static async Task<Routine> ReadRoutine()
 	{
-		var texts = (await Fm.GetJson("texts", ("anchor", "Set Piece Type"), ("up", "10"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-		var from = texts.IndexOf("Instructions");
-		if (from < 0) return null;
-		string After(string label) => texts.IndexOf(label) is var i and >= 0 && i + 1 < texts.Count ? texts[i + 1] : null;
+		var gen = Environment.TickCount64.ToString();
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", gen))).EnumerateArray().ToList();
+		// Each duty list's row is the instruction it sets; the routine is the page's variable in the
+		// scope the lists write into. A second list in the same row is its "otherwise".
+		var duties = (await Fm.GetJson("rowcontrols", ("event", "EventFmxSetPieceInstrChanged"), ("var", "routine"), ("gen", gen))).EnumerateArray().ToList();
+		var path = duties.Select(r => Field(r, "Var")).FirstOrDefault(v => v.Length > 0);
+		if (path == null)
+		{
+			// A routine with no duties (a throw-in worked into the box) offers no scope to read the
+			// routine from: its taker is the text bound to it, its aim is not known.
+			var takerText = (await Fm.GetJson("texts", ("anchorpath", "routine.SetPieceTaker.Name"), ("up", "0"))).EnumerateArray()
+				.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() : Field(t, "Text")).FirstOrDefault(t => t is { Length: > 0 });
+			static int SentBy(JsonElement b) => Array.IndexOf(["Zero", "One", "Two", "Three"], Field(b, "SendsProps"));
+			var aimButtons = buttons.Where(b => Field(b, "Events").Contains("SetPieceStrategyConfirmed", StringComparison.Ordinal) && Field(b, "Type") == "SIButton"
+				&& Field(b, "Label").Length > 0 && SentBy(b) >= 0).OrderBy(SentBy).ToList();
+			if (takerText == null && aimButtons.Count == 0) return null;
+			return new(null, [], takerText, null, null, aimButtons, [], $"|{takerText}|{aimButtons.Count}");
+		}
+		var read = await PullShown([(path, "SetPieceDeliveryType,SetPieceStrategy,SetPieceType"), ($"{path}.SetPieceTaker", "Name")]);
+		if (Field(read[0], "SetPieceType").Length == 0) return null;
+		var groups = (await Fm.Pull($"{path}.PrioritySetPieces", "Name,SetPieceCategoryType", list: true, shown: "1")).EnumerateArray()
+			.GroupBy(g => Field(g, "SetPieceCategoryType")).ToDictionary(g => g.Key, g => Field(g.First(), "Name"));
 
-		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
+		// A sent value is a constant the game names (Zero, One, Two…): which delivery or aim it is.
+		static int Sent(JsonElement b) => Array.IndexOf(["Zero", "One", "Two", "Three", "Four", "Five"], Field(b, "SendsProps"));
+		// Controls of the kind shown before stay behind, emptied: only those still naming something count.
+		var deliveries = buttons.Where(b => Field(b, "Events").Contains("SetPieceRoutineDeliverySelect", StringComparison.Ordinal) && Sent(b) >= 0 && Field(b, "Label").Length > 0)
+			.OrderBy(Sent).ToList();
+		var strategies = buttons.Where(b => Field(b, "Events").Contains("SetPieceStrategyConfirmed", StringComparison.Ordinal) && Field(b, "Label").Length > 0).ToList();
 		var menus = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().ToDictionary(d => Field(d, "Pointer"), d => d);
-		JsonElement? Menu(JsonElement button) => menus.TryGetValue(Field(button, "Pointer"), out var m) ? m : null;
+		var aim = strategies.Where(b => Field(b, "Type") == "SIDropdown").Select(b => menus.TryGetValue(Field(b, "Pointer"), out var m) ? m : (JsonElement?)null).FirstOrDefault(m => m != null);
+		var aims = strategies.Where(b => Field(b, "Type") == "SIButton" && Sent(b) >= 0).OrderBy(Sent).ToList();
 
-		// Controls of the kind shown before stay behind, so each is taken only when the page names it.
-		var deliveries = texts.Contains("Delivery Type")
-			? buttons.Where(b => Field(b, "Events").Contains("SetPieceRoutineDeliverySelect", StringComparison.Ordinal) && Field(b, "Label").Length > 0).ToList()
-			: [];
-		var strategies = buttons.Where(b => Field(b, "Events").Contains("SetPieceStrategyConfirmed", StringComparison.Ordinal)).ToList();
-		var aim = texts.Contains("Aim For") ? strategies.Select(Menu).FirstOrDefault(m => m != null) : null;
-		var aims = texts.Contains("Throw-In Instructions") ? strategies.Where(b => Field(b, "Type") == "SIButton" && Field(b, "Label").Length > 0).ToList() : [];
+		int? delivery = deliveries.Count > 0 && int.TryParse(Field(read[0], "SetPieceDeliveryType"), out var d) ? d : null;
+		var aimed = aim is { } menu ? Field(menu, "Label")
+			: int.TryParse(Field(read[0], "SetPieceStrategy"), out var st) && st < aims.Count ? Field(aims[st], "Label") : null;
 
-		string delivery = null, aimed = aim != null ? After("Aim For") : null;
-		if (deliveries.Count > 0 || aims.Count > 0)
+		var seconds = (await Fm.GetJson("rowcontrols", ("event", "EventFmxSetPieceSecondaryInstrChanged"), ("gen", gen + "b"))).EnumerateArray().ToList();
+		var places = await PullEach(duties.Select(r => (Field(r, "Item"), "Name,SetPieceCategoryType")).Concat(seconds.Select(r => (Field(r, "Item"), "Name"))).ToList());
+		if (places.Take(duties.Count).Any(p => Field(p, "Name").Length == 0)) return null;
+		var otherwise = seconds.Zip(places.Skip(duties.Count)).ToDictionary(p => Field(p.Second, "Name"), p => p.First);
+
+		var slots = duties.Zip(places).Select(p =>
 		{
-			var tree = await Fm.Get("tree", ("depth", "40"));
-			if (deliveries.Count > 0)
-			{
-				var bound = Regex.Match(tree, @"SetPieceDeliveryType = \(DynamicNumber\) (\d)");
-				if (!bound.Success) return null;
-				delivery = Deliveries[bound.Groups[1].Value == "1" ? 1 : 0];
-			}
-			if (aims.Count > 0)
-			{
-				var bound = Regex.Match(tree, @"SetPieceStrategy = \(DynamicNumber\) (\d)");
-				if (!bound.Success || int.Parse(bound.Groups[1].Value) >= aims.Count) return null;
-				aimed = Field(aims[int.Parse(bound.Groups[1].Value)], "Label");
-			}
-		}
+			var place = Field(p.Second, "Name");
+			var second = otherwise.TryGetValue(place, out var o) ? o : (JsonElement?)null;
+			return new RoutineSlot(place.ToUpperInvariant(), groups.GetValueOrDefault(Field(p.Second, "SetPieceCategoryType"), ""),
+				Field(p.First, "Value"), second is { } s2 ? Field(s2, "Value") : null, p.First, second);
+		}).OrderBy(s => s.Slot, StringComparer.Ordinal).ToList();
 
-		// Tasks and their second choices, in the order of the places they belong to.
-		var tasks = new List<(JsonElement? Menu, JsonElement? Otherwise)>();
-		foreach (var b in buttons)
-		{
-			var events = Field(b, "Events");
-			if (events.Contains("SetPieceInstrChanged", StringComparison.Ordinal)) tasks.Add((Menu(b), null));
-			else if (events.Contains("SetPieceSecondaryInstrChanged", StringComparison.Ordinal) && tasks.Count > 0) tasks[^1] = (tasks[^1].Menu, Menu(b));
-		}
-
-		static bool Place(string text) => Regex.IsMatch(text, @"^[A-Z]{1,2}\d$");
-		var slots = new List<RoutineSlot>();
-		var group = "";
-		for (var i = from + 1; i < texts.Count && texts[i] != "Left" && texts[i] != "Show Starting 11"; i++)
-		{
-			if (i + 1 < texts.Count && Regex.IsMatch(texts[i + 1], @"^\(\d+/\d+\)$")) { group = texts[i]; continue; }
-			if (!Place(texts[i]) || i + 1 >= texts.Count) continue;
-			var (menu, otherwise) = slots.Count < tasks.Count ? tasks[slots.Count] : (null, null);
-			var second = otherwise != null && i + 2 < texts.Count && !Place(texts[i + 2]) ? texts[i + 2] : null;
-			slots.Add(new(texts[i], group, texts[i + 1], second, menu, otherwise));
-		}
-		if (slots.Count != tasks.Count) return null;
-
-		return new(delivery, deliveries, After("TK") ?? After("Taker"), aimed, aim, aims, slots,
-			$"{delivery}|{aimed}|{string.Join("|", texts)}|{string.Join("|", menus.Keys)}");
+		return new(delivery, deliveries, Field(read[1], "Name") is { Length: > 0 } taker ? taker : null, aimed, aim, aims, slots,
+			$"{delivery}|{aimed}|{Field(read[1], "Name")}|{string.Join("|", slots.Select(s => $"{s.Slot}={s.Task}/{s.Otherwise}"))}");
 	}
 }

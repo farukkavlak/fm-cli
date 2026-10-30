@@ -34,7 +34,9 @@ internal static class RowControls
 			try
 			{
 				dropdown = element.TryCast<SIDropdown>();
-				if (dropdown == null || dropdown.panel == null || dropdown.worldBound.width <= 0) continue;
+				// ?any=1 takes a list the page keeps laid out but hidden too (a set piece's aim menu on a
+				// throw-in): what it is for, and the page's variables beside it, are still there.
+				if (dropdown == null || dropdown.panel == null || (dropdown.worldBound.width <= 0 && q["any"] != "1")) continue;
 				if (!Sends(dropdown, wanted)) continue;
 			}
 			catch { continue; }
@@ -73,10 +75,22 @@ internal static class RowControls
 			}
 			catch { }
 
+			// The page's variable beside a row's own item (?var=routine on a duty list's row): read from
+			// the scope the list writes into.
+			var scoped = "";
+			if (table != null && !string.IsNullOrEmpty(variable))
+			{
+				try
+				{
+					if (Kept(dropdown, variable) is { IsNull: false } kept && RawPath.Set($"{under}.v{k}", kept) == null) scoped = $"{under}.v{k}";
+				}
+				catch { }
+			}
+
 			var choices = new List<string>();
 			var list = dropdown.m_choices;
 			for (var i = 0; i < (list?.Count ?? 0); i++) choices.Add($"\"{Report.Escape(Buttons.ChoiceText(list[i]) ?? "")}\"");
-			rows.Add($"{{\"Item\": \"{path}\", \"Index\": {index}, \"Page\": \"{page}\", \"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", \"Writes\": \"{Report.Escape(table == null ? Writes(dropdown) : "")}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", \"Choices\": [{string.Join(", ", choices)}]}}");
+			rows.Add($"{{\"Item\": \"{path}\", \"Var\": \"{scoped}\", \"Index\": {index}, \"Page\": \"{page}\", \"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", \"Writes\": \"{Report.Escape(table == null ? Writes(dropdown) : "")}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", \"Choices\": [{string.Join(", ", choices)}]}}");
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";
 	}

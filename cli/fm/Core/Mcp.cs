@@ -152,13 +152,18 @@ internal static partial class Mcp
 			{
 				if (schema?["type"]?.GetValue<string>() != "string" || schema["enum"] != null) continue;
 				// A text that counts only beside a choice (fm_offers: offer with answer) has the
-				// choices filled in with their first value.
-				var given = new JsonObject { [arg] = marker };
-				foreach (var (other, choice) in props)
-					if (choice?["enum"] is JsonArray { Count: > 0 } choices) given[other] = choices[0]!.DeepClone();
-				var words = tool.Words(JsonDocument.Parse(given.ToJsonString()).RootElement);
-				var at = words.IndexOf(marker);
-				if (at > 0 && !words[at - 1].StartsWith("--", StringComparison.Ordinal)) return true;
+				// choices filled in with their first value; one that another choice would hide
+				// (fm_setpieces: aim beside delivery) has only the required ones filled.
+				var required = (JsonNode.Parse(tool.Schema)?["required"] as JsonArray)?.Select(r => r?.GetValue<string>()).ToHashSet() ?? [];
+				foreach (var onlyRequired in new[] { false, true })
+				{
+					var given = new JsonObject { [arg] = marker };
+					foreach (var (other, choice) in props)
+						if (choice?["enum"] is JsonArray { Count: > 0 } choices && (!onlyRequired || required.Contains(other))) given[other] = choices[0]!.DeepClone();
+					var words = tool.Words(JsonDocument.Parse(given.ToJsonString()).RootElement);
+					var at = words.IndexOf(marker);
+					if (at > 0 && !words[at - 1].StartsWith("--", StringComparison.Ordinal)) return true;
+				}
 			}
 		}
 		return !any;
