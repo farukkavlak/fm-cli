@@ -32,9 +32,9 @@ internal static partial class Program
 		if (requests.Count == 0)
 		{
 			// The card without its request lists: the board takes no more while some are waiting
-			// for its answer (seen after three in one day).
-			var card = (await Fm.GetJson("texts", ("anchor", "Outcome"), ("up", "0"))).GetArrayLength() > 0;
-			Console.Error.WriteLine(card
+			// for its answer (seen after three in one day). Which it is the card does not say but in words.
+			var waiting = Field(await Fm.Pull("Human.Club", "ActiveBoardRequestsCount"), "ActiveBoardRequestsCount");
+			Console.Error.WriteLine(waiting is { Length: > 0 } and not "0"
 				? L("The board is not taking requests now: the card has no request option (no new one opens while requests await an answer).")
 				: L("The board card did not open."));
 			return 1;

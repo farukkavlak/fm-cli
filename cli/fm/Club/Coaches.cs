@@ -43,7 +43,9 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (args.Contains("--auto"))
 		{
-			var ask = await Labelled("Ask Assistant to Assign");
+			var ask = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(b => Field(b, "Events").Contains("EventFmxAssistantAssignCoaches", StringComparison.Ordinal) && Field(b, "Enabled") == "True")
+				.Cast<JsonElement?>().FirstOrDefault();
 			if (ask == null)
 			{
 				Console.Error.WriteLine(L("There is no button to leave the assignments to the assistant."));
@@ -141,7 +143,9 @@ internal static partial class Program
 	private static async Task<(List<CoachRow> Rows, List<(string Load, int HalfStars)> Areas)?> ReadCoaches()
 	{
 		JsonElement form;
-		try { form = await Fm.GetJson("form", ("anchor", "Set Coach Assignments"), ("up", "3")); }
+		// The grid around the first coach's name (bound to Person.Name), up to the page's block: the
+		// title above it is the game's words.
+		try { form = await Fm.GetJson("form", ("anchorpath", "Person.Name"), ("up", "14"), ("most", "1")); }
 		catch (FmError) { return null; }
 		if (form.ValueKind != JsonValueKind.Array) return null;
 
