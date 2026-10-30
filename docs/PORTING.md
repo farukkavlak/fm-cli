@@ -329,6 +329,10 @@ Still open:
   - Corner (delivery, aim, D1 duty + otherwise, back), throw-in aim both ways, wide, deep, shooting range: TR.
   - Also: `setpieces korner vurus out` went to the language layer (`Mcp.TakesText` filled every choice and hid `aim`);
     `Choose` takes an exact match in the game's words before pieces ("Geride Dur" vs "Gerekirse Geride Dur").
+- [x] `player --career`: was the Career Stats tile's texts cut by a season pattern and "Total". Now the card's person
+  (`Player.Path`) › `CareerStatsPerSeason` (year, team, `SeasonTransferInfo`, nation, division, apps, goals / clean
+  sheets by `IsGoalkeeper`) and `SeasonStatLeagueOnly` (assists, PoM, rating); totals summed; fees `CareerTransferFeesTotal`.
+  No tile opened. TR: own player, keeper, another club's.
 - [x] `fm club`: was the page's texts cut by English headings ("Overall Balance", "Club Vision"…). Now records:
   `Human.Team.TeamConfidence` (board/supporter sentences), `Human.Club` (balance, month in/out, influence, requests),
   `ReputationScope.DisplayString`, facility ratings. Objectives: Club › Overview's `Vision` tab (element name), rows by
