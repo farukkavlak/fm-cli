@@ -196,6 +196,8 @@ internal sealed class Bridge
 	}
 
 	/// <summary>True once a save is loaded, rather than merely the game being up.</summary>
+	private static readonly string[] MatchDayStops = ["SubmitTeam", "Tactics", "TeamTalk", "MatchLoading", "WarmUp", "StepOntoThePitch"];
+
 	public async Task<bool> InGame()
 	{
 		var health = await Get("health");
@@ -207,8 +209,10 @@ internal sealed class Bridge
 		if (int.TryParse(digits, out var nodes) && nodes > 1000) return true;
 
 		// A match runs in a scene of its own with only a few hundred nodes bound, far fewer
-		// than the main menu has; what the menu lacks is a game date.
-		return (await Get("state")).Contains("\"Date\"");
+		// than the main menu has; what the menu lacks is a game date. FM27's match-day screens
+		// before kick-off bind no date either, but their continue stops exist only in a save.
+		var state = await Get("state");
+		return state.Contains("\"Date\"") || MatchDayStops.Any(stop => state.Contains($"\"State\": \"{stop}\"", StringComparison.Ordinal));
 	}
 }
 

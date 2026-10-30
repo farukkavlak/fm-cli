@@ -216,6 +216,17 @@ Still open:
   - Its buttons need `/press` (a click does nothing); the card is read back as gone.
   - Before the season expectations meeting the slider is shut: the board's sentence is said and the card closed.
   - Tried: TR only, refusal 6/6 (page open, card open, from Squad and Inbox). Moving the slider and confirming: not yet.
+- [ ] Set-piece creator (FM27, first season): the set-piece intro message's only answer opens a 6-step wizard; the game
+  waits on it (`NeedAction`, `Respond` 14) and Continue does nothing.
+  - Each step has the staff's choice ready; `EventToPlugin` on `buttons-next-primary-default`
+    (`EventFmxSetPieceCreatorNextStep`) goes on, 6 presses end it (`Respond` 0). Back: `…CreatorBackStep`.
+  - Done once by hand (TR). No command yet: `next` should name it, and a command should walk it (staff choices or the user's).
+- [x] New continue stop `Messages` (new mail, nothing to answer): one press goes on; `next` passes it.
+  FM27 has more page stops (`NextUnreadMessage`, `Training`, `NewsForYou`, `DataHub`…): not seen yet.
+- [x] FM27's match-day screens before kick-off (`SubmitTeam`, `Tactics`) bind no game date: `InGame` took them for
+  "no save" (the node count is capped at 1000, so only the date decided). Match-day stops now count as a loaded save.
+- [ ] Squad short on match day: players back from a tournament are on holiday and unusable (TR save, 14 Jul: 8 fit).
+  `tactic pick` and `tactic player` cannot reach U19 players; `tactic player <slot>` without a name lists nobody.
 - [x] `fm fixtures`: the home page binds no fixtures in FM27. Now read from `Human.Team.FixtureList`, no page opened.
   - The list asks `previousamount`, `futureamount`, `fixturepadding`, `yearindex` beside the team (3 / 7 / 0 / 0).
   - Venue, result mark and opponent ask `team` and `human` beside each row; venue, opponent, competition in game words.
