@@ -52,17 +52,18 @@ internal static partial class Program
 	/// Steps the speed highlights play at, by notches of the game's own slider, from the match
 	/// screen's settings panel: the change holds at once (1x to 10x mid-match, 8 Nisan 2029).
 	/// The panel opens from the button inside the template's #settings block and closes with
-	/// its own PanelHistoryClose; the slider is the preferences' one, found by its heading.
+	/// its own PanelHistoryClose; the slider is the preferences' one, found by its preference key.
 	/// </summary>
 	// The highlight speed this match was last set to from the panel.
 	private static int? speedSet;
 
+	private const string HighlightSpeedPref = "settings.LiveMatchSpeedDuringHighlightsIndex";
+
 	private static async Task<int> MatchSpeed(int step)
 	{
-		var setting = Settings.First(s => s.Heading == "Match Speed During Highlights");
 		async Task<JsonElement?> Slider()
 		{
-			var form = await Fm.GetJson("form", ("anchor", setting.Heading), ("up", "3"));
+			var form = await Fm.GetJson("form", ("pref", HighlightSpeedPref));
 			return form.ValueKind == JsonValueKind.Array && form.EnumerateArray().FirstOrDefault(i => Field(i, "Kind") == "slider") is { ValueKind: JsonValueKind.Object } found ? found : null;
 		}
 
@@ -110,7 +111,7 @@ internal static partial class Program
 		if (close.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(close, "Pointer")));
 
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-		var steps = setting.Steps ?? [];
+		var steps = Settings.First(s => s.Pref == HighlightSpeedPref).Steps ?? [];
 		var speed = L($"Speed: {(next < steps.Length ? steps[next] : next.ToString())}");
 		// Under the live panel a line is drawn over at once, so the panel shows it a while.
 		if (!MatchLive.Note(speed)) Console.WriteLine(speed);

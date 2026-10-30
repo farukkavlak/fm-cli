@@ -19,6 +19,7 @@ internal static class Form
 {
 	public static string Read(NameValueCollection q)
 	{
+		if (!string.IsNullOrEmpty(q["page"]) || !string.IsNullOrEmpty(q["pref"])) return OfPage(q["page"], q["pref"]);
 		var anchor = q["anchor"];
 		// As /texts: ?anchorpath= finds the anchor by the data path it is bound to, and ?most=1 takes
 		// the place with the most items around it where a page underneath has the same anchor.
@@ -46,6 +47,61 @@ internal static class Form
 			if (best == null || items.Count > best.Count) best = items;
 		}
 		return best == null ? "[]\n" : "[\n  " + string.Join(",\n  ", best) + "\n]\n";
+	}
+
+	/// <summary>
+	/// ?page=&lt;guid&gt;: every laid-out control whose bound value is that page's data, with no
+	/// text to anchor on: a settings card is told by its Guid and its controls by their Pref.
+	/// ?pref=&lt;key&gt;: the controls for that one preference, on any page (the match screen's
+	/// speed panel shows the preferences' slider).
+	/// </summary>
+	private static string OfPage(string guid, string pref)
+	{
+		var items = new List<string>();
+		foreach (var e in Buttons.Elements())
+		{
+			try
+			{
+				if (e.panel == null || e.worldBound.width <= 0) continue;
+				// The display settings are bound to the shared settings record, not the page's data;
+				// only the preferences show them.
+				var bound = BoundKey(e);
+				if (bound is not { } key) continue;
+				var preference = Preference(key) ?? "";
+				if (!string.IsNullOrEmpty(pref) && !string.Equals(preference, pref, System.StringComparison.OrdinalIgnoreCase)) continue;
+				if (!string.IsNullOrEmpty(guid) && !OnPage(bound, guid) && !preference.StartsWith("settings.", System.StringComparison.Ordinal)) continue;
+				if (Control(e) is { } item) items.Add(item);
+			}
+			catch { }
+		}
+		return "[\n  " + string.Join(",\n  ", items) + "\n]\n";
+	}
+
+	/// <summary>The bound value a control reads and writes, or null for any other element.</summary>
+	private static Bindings.Key? BoundKey(VisualElement e)
+	{
+		if (e.TryCast<SIDropdown>() is { } dropdown) return dropdown.m_selectionValueBindingKey;
+		if (e.TryCast<SIRadioGroup>() is { } radio) return radio.m_selectionKey;
+		if (e.TryCast<SISlider>() is { } slider) return slider.m_bindingKey;
+		if (e.TryCast<SICheckBox>() is { } box) return box.m_valueKey;
+		return null;
+	}
+
+	/// <summary>Whether a bound value sits under the page's data (the node named for its Guid).</summary>
+	private static bool OnPage(Bindings.Key? bound, string guid)
+	{
+		if (bound is not { } key) return false;
+		try
+		{
+			// As in Preference: only a live key, and a bounded walk.
+			var b = Game.Bindings;
+			if (b == null || !b.Exists(ref key)) return false;
+			var depth = 0;
+			for (var node = b.GetNode(ref key); node != null && depth < 40; node = node.Parent, depth++)
+				if ((node.Name ?? "").StartsWith(guid, System.StringComparison.OrdinalIgnoreCase)) return true;
+		}
+		catch { }
+		return false;
 	}
 
 	private static List<string> Items(VisualElement root, bool buttons)
@@ -89,15 +145,16 @@ internal static class Form
 	private static string Control(VisualElement e)
 	{
 		var dropdown = e.TryCast<SIDropdown>();
-		if (dropdown != null) return Kind("dropdown", Buttons.DropdownJson(dropdown, false));
+		if (dropdown != null) return Kind("dropdown", Buttons.DropdownJson(dropdown, false), Preference(dropdown.m_selectionValueBindingKey));
 
 		var radio = e.TryCast<SIRadioGroup>();
-		if (radio != null) return Kind("radio", Radio.Json(radio));
+		if (radio != null) return Kind("radio", Radio.Json(radio), Preference(radio.m_selectionKey) ?? Preference(radio.m_indexKey));
 
 		var slider = e.TryCast<SISlider>();
 		if (slider != null)
 			return "{\"Kind\": \"slider\", "
 				+ $"\"Pointer\": \"0x{e.Pointer.ToInt64():x}\", "
+				+ $"\"Pref\": \"{Report.Escape(Preference(slider.m_bindingKey) ?? "")}\", "
 				+ $"\"Enabled\": \"{(e.enabledInHierarchy ? "True" : "False")}\", "
 				+ $"\"Value\": \"{Number(slider.value)}\", "
 				+ $"\"Low\": \"{Number(slider.lowValue)}\", "
@@ -113,6 +170,7 @@ internal static class Form
 				+ $"\"Pointer\": \"0x{e.Pointer.ToInt64():x}\", "
 				+ $"\"Enabled\": \"{(e.enabledInHierarchy ? "True" : "False")}\", "
 				+ $"\"Binds\": \"{Report.Escape(binds)}\", "
+				+ $"\"Pref\": \"{Report.Escape(Preference(box.m_valueKey) ?? "")}\", "
 				+ $"\"Value\": \"{(box.value ? "True" : "False")}\"}}";
 		}
 
@@ -166,7 +224,41 @@ internal static class Form
 		return texts;
 	}
 
-	private static string Kind(string kind, string json) => $"{{\"Kind\": \"{kind}\", " + json[1..];
+	private static string Kind(string kind, string json, string pref) =>
+		$"{{\"Kind\": \"{kind}\", \"Pref\": \"{Report.Escape(pref ?? "")}\", " + json[1..];
+
+	/// <summary>
+	/// Which preference a control sets, by the game's own key, the same in every language: the
+	/// "Name" a game preference's block binds beside its control (current_language,
+	/// auto_save_interval), or the field of the display settings it is bound to (settings.FrameRate).
+	/// Looked for from the control's bound value up to the page, never past it. Null for any other control.
+	/// </summary>
+	private static string Preference(Bindings.Key key)
+	{
+		try
+		{
+			// A control being built or taken down can hold a key with no node behind it yet (or any
+			// more); walking from it held the game up. Only a live key is followed, and every walk is bounded.
+			var b = Game.Bindings;
+			if (b == null || !b.Exists(ref key)) return null;
+			var node = b.GetNode(ref key);
+			var path = new List<string>();
+			for (var depth = 0; node != null && depth < 6; node = node.Parent, depth++)
+			{
+				var name = node.Name ?? "";
+				// The page binds its data under a node named for its Guid: nothing above it is the control's.
+				if (name.Length >= 32 && name.Take(32).All(System.Uri.IsHexDigit)) return null;
+				path.Insert(0, name);
+				if (string.Equals(name, "settings", System.StringComparison.OrdinalIgnoreCase) && path.Count > 1) return string.Join(".", path);
+				var seen = 0;
+				for (var c = node.FirstChild; c != null && seen < 400; c = c.NextSibling, seen++)
+					if (c.Name == "Name" && c.Value is { IsNull: false } held && Text.Of(held) is { Length: > 0 } pref && pref.All(ch => char.IsLower(ch) || ch == '_' || char.IsDigit(ch)))
+						return pref;
+			}
+		}
+		catch { }
+		return null;
+	}
 
 	private static string Number(float value) => value.ToString("0.###", CultureInfo.InvariantCulture);
 

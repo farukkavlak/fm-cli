@@ -249,6 +249,9 @@ internal static partial class Buttons
 		var count = choices?.Count ?? 0;
 		var names = new List<string>();
 		for (var i = 0; i < count && i < 60; i++) names.Add(Choice(choices[i]));
+		// The same in the game's own words, for showing: Choices are put into English to be matched.
+		var shownNames = new List<string>();
+		for (var i = 0; i < count && i < 60; i++) shownNames.Add(Choice(choices[i], shown: true));
 
 		// Submenus are only spelled out on request: most callers want the top level,
 		// and a menu of menus is large.
@@ -313,6 +316,7 @@ internal static partial class Buttons
 			+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "
 			+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
 			+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "
+			+ "\"Shown\": [" + string.Join(", ", shownNames.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "
 			+ "\"Values\": [" + string.Join(", ", values) + "]" + RolesJson(choices, count) + submenus + "}";
 	}
 
@@ -487,7 +491,7 @@ internal static partial class Buttons
 
 			var queue = Game.UiEvents;
 			if (queue == null) return "error: UIEventQueue unavailable";
-			if (Waiting(queue) > 0) return $"error: the event queue is blocked by {Waiting(queue)} event(s) that never resolved; see /queue";
+			if (Waiting(queue) > 0) return HttpBridge.NotYet + $"error: the event queue is blocked by {Waiting(queue)} event(s) that never resolved; see /queue";
 
 			queue.QueueEvents(events);
 			return $"pressed {name} \"{control.Label}\"";
@@ -689,7 +693,10 @@ internal static partial class Buttons
 	}
 
 	/// <summary>The text a user would read on the control: its own, or the first inside it.</summary>
-	internal static string LabelOf(VisualElement element)
+	internal static string LabelOf(VisualElement element) => LabelOf(element, shown: false);
+
+	/// <param name="shown">The words as the game shows them, not put into English: for text only read to the user.</param>
+	internal static string LabelOf(VisualElement element, bool shown)
 	{
 		var queue = new Queue<VisualElement>();
 		queue.Enqueue(element);
@@ -701,7 +708,7 @@ internal static partial class Buttons
 			try
 			{
 				var text = current.TryCast<TextElement>()?.text;
-				if (!string.IsNullOrWhiteSpace(text)) return Text.Plain(text);
+				if (!string.IsNullOrWhiteSpace(text)) return shown ? Text.Shown(text) : Text.Plain(text);
 
 				var hierarchy = current.hierarchy;
 				for (var i = 0; i < hierarchy.childCount; i++) queue.Enqueue(hierarchy.ElementAt(i));

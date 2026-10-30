@@ -165,6 +165,18 @@ What it took (each one blocked the next):
 Live-verified on FM27: plugin loads, bridge on 7777, `health`, `state`, `panels`, `fm start`
 (hidden, loads the save), `fm continue`, `fm squad`. Main menu = 200 nodes (> 150 holds).
 
+The bridge's moment in the frame (30 Oct 2026, the cause of the "random" settings crashes):
+
+- BepInEx's `MainThreadTick` fires from its `il2cpp_runtime_invoke` hook: any engine call into game code, UI repaint
+  included. A click or value set there broke the page being drawn ("VisualElements cannot change their render data …
+  during visual tree rendering"): lists that never filled, the game's own binding errors, then the game quitting.
+- Now the bridge runs from each UI panel's scheduler (`visualTree.schedule.Execute(...).Every(0)`), once a frame; the
+  tick only schedules new panels and stands in after 3 s with no panel tick (logged). `health` says `runs from: ui|tick`.
+- `Application.onBeforeRender` and `PlayerLoop` are stripped in FM27 ("Method unstripping failed").
+- One run a frame: a press while the UI event queue still drains is retried next frame (`HttpBridge.NotYet`, 5 s cap).
+- Never schedule twice on one panel: copies piled up when frames ran long and the game slowed to a halt.
+- FM's own log: `~/Library/Logs/Sports Interactive/Football Manager 27/Player.log` (exceptions with game stacks).
+
 Plugin fixes in place: Bind takes an owner (`FmApi.Owner`; null throws), node count walk instead of
 `GetDescendantCount`, `DropdownRow`, `OnClickedOrSubmitted`, no `DisplayName`, `ShowIDs` read-only.
 
@@ -247,7 +259,12 @@ Still open:
     change reaches the counts but not the duty's record.
   - A duty has no id: held by tab id, group id + team type, and its title within one command.
   - Tried: TR, EN, DE; cold / other page / page open; take+delegate 3/3, give and back, locked, unknown, ambiguous.
-- [ ] `fm settings`: "FM menu not found" in FM27 (language switched through `current_language.xml` meanwhile).
+- [x] `fm settings`: FM27's FM menu is a list of row keys (`FMMenuOptionQuantiseAndMap`); `/menuoptions` maps each to
+  its `MenuOptionID` (Preferences…) and page GUID, `/menuoption?option=Preferences` chooses it with the list's own events.
+  - Each control's preference by the game's key: the `Name` beside it (`current_language`) or `settings.X` (`/form?page=`).
+  - Tabs by element name: overview `navigation-tab-default-default`, then `AllPreferencesTabButton` › `DetailedPreferencesTabButton`;
+    each clicked once, when drawn and `Processing` is false; after Confirm the page is opened once, not again over itself.
+  - Tried: TR, EN, DE (with switches between); cold / other page / page open; 20/20 change + read back; bad value, unknown name.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
 - [ ] `identity-check.py catalog` (game must be in English for the word list).
 

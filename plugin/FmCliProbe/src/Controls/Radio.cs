@@ -40,12 +40,12 @@ internal static class Radio
 		try { return group.name ?? ""; } catch { return ""; }
 	}
 
-	public static List<string> Choices(SIRadioGroup group)
+	public static List<string> Choices(SIRadioGroup group, bool shown = false)
 	{
 		var names = new List<string>();
 		var buttons = group.m_radioButtons;
 		var count = buttons?.Count ?? 0;
-		for (var i = 0; i < count; i++) names.Add(Buttons.LabelOf(buttons[i]));
+		for (var i = 0; i < count; i++) names.Add(Buttons.LabelOf(buttons[i], shown));
 		return names;
 	}
 
@@ -80,7 +80,8 @@ internal static class Radio
 			+ $"\"Label\": \"{Report.Escape(selected >= 0 && selected < choices.Count ? choices[selected] : "")}\", "
 			+ $"\"Enabled\": \"{(group.enabledInHierarchy ? "True" : "False")}\", "
 			+ $"\"Selected\": \"{selected}\", "
-			+ "\"Choices\": [" + string.Join(", ", choices.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]}";
+			+ "\"Choices\": [" + string.Join(", ", choices.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "
+			+ "\"Shown\": [" + string.Join(", ", Choices(group, shown: true).Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]}";
 	}
 
 	/// <summary>Null when no radio group is meant by the request, so the caller can say so its own way.</summary>

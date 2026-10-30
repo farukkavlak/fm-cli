@@ -74,6 +74,8 @@ internal static partial class FmApi
 		"choicedump" => Submenus.Dump(q),
 		"rowput" => Submenus.Put(q),
 		"menu" => Submenus.Menu(q),
+		"menuoptions" => Buttons.MenuOptions(q),
+		"menuoption" => Buttons.MenuOption(q),
 		"instructions" => Instructions.Current(),
 		"tiles" => Instructions.Tiles(),
 		"texts" => Texts.Around(q),
@@ -161,7 +163,7 @@ internal static partial class FmApi
 
 		var game = "";
 		try { game = UnityEngine.Application.version ?? ""; } catch { }
-		return $"bindings: ok\nplugin: {Plugin.Version}\ngame: {game}\ndescendants: {Descendants(b, 1000)}";
+		return $"bindings: ok\nplugin: {Plugin.Version}\ngame: {game}\ndescendants: {Descendants(b, 1000)}\nruns from: {Plugin.RunsFrom}";
 	}
 
 	/// <summary>Read a value by path, using a locally computed key rather than a span.</summary>

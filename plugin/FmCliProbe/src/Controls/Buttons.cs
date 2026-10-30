@@ -67,21 +67,20 @@ internal static partial class Buttons
 		var list = control.Lists.FirstOrDefault(l => string.Equals(l.Name, listName, StringComparison.OrdinalIgnoreCase));
 		if (list.Events == null) return $"error: control has no event list '{listName}'";
 
-		var described = Describe(control, KeyPaths());
-		if (q["dry"] == "1") return $"dry run, NOT pressed ({list.Name}):\n{described}";
+		if (q["dry"] == "1") return $"dry run, NOT pressed ({list.Name}):\n{Describe(control, KeyPaths())}";
 
 		var queue = Game.UiEvents;
-		if (queue == null) return "error: UIEventQueue unavailable\n" + described;
+		if (queue == null) return "error: UIEventQueue unavailable\n" + Describe(control, KeyPaths());
 
-		// The queue drains every frame, so anything still in it by the time another request
-		// arrives is waiting on data that is not coming — and everything queued behind it
-		// waits too, the game's own clicks included.
+		// An event still in the queue waits on data, and what is queued behind it waits too: the
+		// press goes in once the queue is empty. Still full after the bridge's 5 s, it is waiting
+		// on data that is not coming.
 		var waiting = Waiting(queue);
 		if (waiting > 0)
-			return $"error: the event queue is blocked by {waiting} event(s) that never resolved; see /queue\n" + Queue(null);
+			return HttpBridge.NotYet + $"error: the event queue is blocked by {waiting} event(s) that never resolved; see /queue\n" + Queue(null);
 
 		queue.QueueEvents(list.Events);
-		return $"queued {list.Name}:\n{described}";
+		return $"queued {list.Name}:\n{Describe(control, KeyPaths())}";
 	}
 
 	/// <summary>
@@ -593,19 +592,22 @@ internal static partial class Buttons
 	internal static string ChoiceText(SI.Core.TypedValue choice) => Choice(choice);
 
 	/// <summary>A choice is usually a record with its text in one of a few well-known entries.</summary>
-	private static string Choice(SI.Core.TypedValue choice)
+	private static string Choice(SI.Core.TypedValue choice) => Choice(choice, shown: false);
+
+	/// <param name="shown">In the game's own words rather than English (<see cref="Text.ShownOf"/>).</param>
+	private static string Choice(SI.Core.TypedValue choice, bool shown)
 	{
 		if (choice == null || choice.IsNull) return "<null>";
 
 		var record = choice.Get()?.TryCast<DynamicReference>();
-		if (record == null) return Text.Of(choice);
+		if (record == null) return shown ? Text.ShownOf(choice) : Text.Of(choice);
 
 		var entries = Send.Entries(record);
 
 		// A menu row wraps what it shows in RowData and keeps its own flags beside it.
 		if (entries.TryGetValue("RowData", out var row) && row != null && !row.IsNull)
 		{
-			var inner = Choice(row);
+			var inner = Choice(row, shown);
 			return HasChildren(entries) ? inner + SubmenuMark : inner;
 		}
 
@@ -615,12 +617,12 @@ internal static partial class Buttons
 
 			// What a row shows can itself be a record — a role with its name and how well it
 			// suits the player — and then the text is one level further in.
-			if (value.Get()?.TryCast<DynamicReference>() != null) return Choice(value);
+			if (value.Get()?.TryCast<DynamicReference>() != null) return Choice(value, shown);
 
 			// A list of people shows each as a person reference, which has no text of its own;
 			// the row's value is his index, and the caller knows the squad by that (§8.90). A
 			// set piece taker's value is a record with the index in it, beside the kind and side.
-			var text = Text.Of(value);
+			var text = shown ? Text.ShownOf(value) : Text.Of(value);
 			if (text.EndsWith("PersonReference", StringComparison.Ordinal)
 			    && entries.TryGetValue("PropertyValue", out var person) && person != null && !person.IsNull)
 			{

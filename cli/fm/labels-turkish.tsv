@@ -1022,7 +1022,7 @@ OTHERWISE	OLMAZSA
 There is no setting called '{0}'. Settings: {1}	'{0}' diye bir ayar yok. Ayarlar: {1}
 The setting you want to change	Değiştirmek istediğin ayar
 \nTo change: settings <setting> [<value>]  (e.g. settings "highlight speed" 2x)	\nDeğiştirmek: settings <ayar> [<değer>]  (ör. settings vurgu hızı 2x)
-The '{0}' setting was not found on the {1} tab.	'{0}' ayarı {1} sekmesinde bulunamadı.
+The '{0}' setting was not found in the game's preferences.	'{0}' ayarı oyunun tercihlerinde bulunamadı.
 Options: {0}	Seçenekler: {0}
 '{0}' matches more than one option: {1}	'{0}' birden çok seçeneğe uyuyor: {1}
 '{0}' is not an option for {1}. Options: {2}	'{0}' {1} için bir seçenek değil. Seçenekler: {2}
@@ -1031,7 +1031,6 @@ Options: {0}	Seçenekler: {0}
 could not be read	okunamadı
 The screens are in the new language; the game's own texts (match type, home / away…) change when the game is opened again: save, then stop and start.	Ekranlar yeni dilde; oyunun kendi yazıları (maç türü, iç saha / deplasman…) oyun yeniden açılınca değişir: save, sonra stop ve start.
 The settings page did not open.	Ayarlar sayfası açılmadı.
-The {0} tab in the settings could not be read.	Ayarlarda {0} sekmesi okunamadı.
 error: the preferences' confirm button was not found	error: ayarların onay düğmesi bulunamadı
 The shortlist tile was not found.	Kısa liste döşemesi bulunamadı.
 The shortlist is empty.	Kısa liste boş.
@@ -1877,33 +1876,6 @@ Will improve training facilities	Antrenman tesisleri iyileştirilecek
 Will improve first team coaching staff	A takım çalıştırıcıları güçlendirilecek
 Will play player in preferred position and role	Sevdiği mevki ve rolde oynayacak
 Will look to bring in a suitable signing to help player settle	Uyumu için uygun bir transfer yapılacak
-Full Match	Tam maç
-Comprehensive	Kapsamlı
-Extended	Geniş
-Key	Önemli anlar
-Only Commentary	Yalnızca anlatım
-Week	Her hafta
-Fortnight	İki haftada bir
-Three Months	Üç ayda bir
-Year	Yılda bir
-Five Years	Beş yılda bir
-After Matches	Maçlardan sonra
-30 Minutes (Real Time)	Gerçek 30 dakikada bir
-60 Minutes (Real Time)	Gerçek 60 dakikada bir
-Single File	Tek dosya
-Incremental Auto Save	Her seferinde yeni dosya
-3 File Rolling Auto Save	3 dosya, sırayla
-5 File Rolling Auto Save	5 dosya, sırayla
-10 File Rolling Auto Save	10 dosya, sırayla
-Weekly	Haftalık
-Monthly	Aylık
-Yearly	Yıllık
-Celsius	Santigrat
-Fahrenheit	Fahrenhayt
-Centimetres	Santimetre
-Metres	Metre
-Yards	Yarda
-Kilometres	Kilometre
 DC	Defender (Centre)
 DM	Defensive Midfielder
 MR	Midfielder (Right)
@@ -2134,9 +2106,9 @@ the game chooses the highlights	gösterimi oyun seçer
 while a move is played	pozisyon oynarken
 between moves	pozisyonlar arası
 the game's and fm's texts in this language	oyunun ve fm'in yazıları bu dilde
-Fast: days move on quicker	Fast: gün ilerletme daha çabuk
+how often Continue stops to show you things	Devam'ın bir şey göstermek için ne sık durduğu
 whether matches are moved for broadcasting	maçlar yayın için kaydırılsın mı
-Continue does not work until every message is read	bütün mesajlar okunmadan Continue çalışmaz
+whether Continue waits until every message is read	Devam, bütün mesajlar okunana kadar bekler mi
 None	Hiçbiri
 Do not send, leave the screen open	Gönderme, ekranı açık bırak
 A new tactic will be built in place of the active one ({0}); the old one stays among the saved tactics.	Etkin taktik ({0}) yerine yenisi kurulacak; eskisi kayıtlı taktiklerde kalır.
@@ -2177,10 +2149,9 @@ temperature	sıcaklık
 height	boy
 short distance	kısa mesafe
 long distance	uzun mesafe
-odds format	oran biçimi
-other matches' speed	diğer maçların hızı
+continue flow	devam akışı
 match scheduling	maç takvimi
-no continuing unread	okumadan ilerleme yok
+unread messages	okunmamış mesajlar
 Saving	Kayıt
 Region and units	Bölge ve birimler
 Processing	İşlem
@@ -2253,7 +2224,6 @@ Plugin	Eklenti
 fm command	fm komutu
 Save folder	Kayıt klasörü
 NONE	YOK
-every month	Her ay
 Could not find the button that closes the budget card.	Bütçe kartını kapatan düğme bulunamadı.
 Could not find the tile that opens the budget card.	Bütçe ayarı kartını açan döşeme bulunamadı.
 The "{0}" job panel did not open; details and application status may be missing.	"{0}" iş paneli açılmadı; ayrıntı ve başvuru durumu eksik olabilir.
@@ -2289,7 +2259,6 @@ Save selected but the load button did not appear.	Kayıt seçildi ama yükleme d
 error: unknown button in the save browser (no SaveGame).	error: kayıt tarayıcısının düğmesi tanınmadı (SaveGame yok).
 error: close button not found in the save browser.	error: kayıt tarayıcısının kapatma düğmesi bulunamadı.
 error: delete button not found in the save browser (no DeleteSelectedGame).	error: kayıt tarayıcısının silme düğmesi bulunamadı (DeleteSelectedGame yok).
-Settings tile not found in the FM menu.	Ayarlar döşemesi FM menüsünde bulunamadı.
 Match report is not ready yet; the game's last fixture has not changed.	Maç raporu henüz hazır değil; oyunun son fikstürü değişmedi.
 Squad numbers screen; handing it to the assistant.	Forma numaraları ekranı; yardımcıya veriliyor.
 Match report is not ready yet; the game's last fixture is still {0} {1}-{2} {3}.	Maç raporu henüz hazır değil; oyunun son fikstürü hâlâ {0} {1}-{2} {3}.
@@ -2514,3 +2483,4 @@ The game did not change the budgets.	Oyun bütçeleri değiştirmedi.
 The budget card did not close.	Bütçe kartı kapanmadı.
  · morale {0} · {1}	 · moral {0} · {1}
 The level of {0} players was not found on the page; their colour still follows the game's score.	{0} oyuncunun seviyesi sayfada bulunamadı; renkleri yine oyunun puanına göre.
+The settings page opened but its list did not fill in; try again.	Ayarlar sayfası açıldı ama listesi dolmadı; yeniden deneyin.

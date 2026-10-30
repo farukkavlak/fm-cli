@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net;
 using System.Text;
@@ -33,8 +34,17 @@ internal sealed class HttpBridge
 		_handle = handle;
 	}
 
+	/// <summary>
+	/// What a route answers, before its message, when the game is not ready for it yet (an event
+	/// queue still draining): the request is run again next frame, until it goes through or 5 s
+	/// pass, and then the message is the answer. The bridge runs once a frame, so what one request
+	/// leaves for the game can still be on its way when the next comes.
+	/// </summary>
+	internal const string NotYet = "\u0001not yet\u0001";
+
 	private sealed class Job
 	{
+		public long Since = Environment.TickCount64;
 		public string Route;
 		public NameValueCollection Query;
 		public string Body;
@@ -157,7 +167,7 @@ internal sealed class HttpBridge
 			var cut = line.IndexOf('?');
 			var route = (cut < 0 ? line : line[..cut]).Trim('/').ToLowerInvariant();
 			var query = System.Web.HttpUtility.ParseQueryString(cut < 0 ? "" : line[(cut + 1)..]);
-			try { answers.Add(route == "batch" ? "error: a batch cannot hold a batch" : _handle(route, query) ?? "unknown route"); }
+			try { answers.Add(route == "batch" ? "error: a batch cannot hold a batch" : Unmarked(_handle(route, query)) ?? "unknown route"); }
 			catch (Exception ex) { answers.Add("error: " + ex.Message); }
 		}
 		return System.Text.Json.JsonSerializer.Serialize(answers);
@@ -166,22 +176,33 @@ internal sealed class HttpBridge
 	/// <summary>Run queued requests. Must be called from Unity's main thread.</summary>
 	public void Pump()
 	{
+		List<Job> later = null;
 		while (_jobs.TryDequeue(out var job))
 		{
 			Localisation.Forget();
 			try { job.Result = job.Route == "batch" ? Batch(job.Body ?? job.Query["lines"] ?? "") : _handle(job.Route, job.Query); }
 			catch (Exception ex) { job.Result = "error: " + ex; }
-			finally
+			if (job.Result != null && job.Result.StartsWith(NotYet, StringComparison.Ordinal))
 			{
-				// The English texts in the answer with the words the game showed for them, one pair a
-				// line, so what is shown to the user can be in the game's own language.
-				if (Localisation.Seen.Count > 0)
-					job.Shown = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Join("\n",
-						System.Linq.Enumerable.Select(Localisation.Seen, kv => kv.Key + "\t" + kv.Value))));
-				// The language the game is set to, for the CLI's own words (Labels).
-				try { job.Language = SI.Translation.TranslationManager.CurrentLanguage; } catch { }
-				job.Done.Set();
+				if (Environment.TickCount64 - job.Since < 5000)
+				{
+					(later ??= new()).Add(job);
+					continue;
+				}
+				job.Result = Unmarked(job.Result);
 			}
+			// The English texts in the answer with the words the game showed for them, one pair a
+			// line, so what is shown to the user can be in the game's own language.
+			if (Localisation.Seen.Count > 0)
+				job.Shown = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Join("\n",
+					System.Linq.Enumerable.Select(Localisation.Seen, kv => kv.Key + "\t" + kv.Value))));
+			// The language the game is set to, for the CLI's own words (Labels).
+			try { job.Language = SI.Translation.TranslationManager.CurrentLanguage; } catch { }
+			job.Done.Set();
 		}
+		if (later != null) foreach (var job in later) _jobs.Enqueue(job);
 	}
+
+	private static string Unmarked(string result) =>
+		result != null && result.StartsWith(NotYet, StringComparison.Ordinal) ? result[NotYet.Length..] : result;
 }
