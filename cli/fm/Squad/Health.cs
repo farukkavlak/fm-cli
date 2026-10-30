@@ -3,58 +3,50 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The squad's health in one place: who is injured and for how long (the
-/// first-team table's Injuries view), who is tired or short of match fitness, and who carries
-/// the highest injury risk by the game's own score (its Risk Assessment view, 75 to 385 in steps).
+/// The squad's health in one place: who is injured and for how long, who is tired or short of
+/// match fitness, and who carries the highest injury risk by the game's own score (75 to 385 in
+/// steps). Read from the team's players (Human.Team.Players), with no page opened.
 /// </summary>
 internal static partial class Program
 {
+	private const string HealthFields = "Name,IsInjured,IsAwayFromContractClub,Condition,Sharpness,InjuryRiskLevel,CurrentInjury.InjuryDescription,CurrentInjury.InjuryReturnDays";
+
 	private static async Task<int> Health(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		JsonElement injuries, risks, general;
-		try
+
+		// A new list's fields arrive over a frame or two: it is taken once every player has his risk.
+		List<JsonElement> team = [];
+		await Until(async () =>
 		{
-			// The General view says who is away on loan ("Out On Loan" for playing time).
-			general = await SquadView(SquadTable.GeneralInfo, "AgreedPlayingTime");
-			injuries = await SquadView(SquadTable.Injuries, "InjuriesTimeMissed");
-			risks = await SquadView(SquadTable.RiskAssessment, "OverallInjuryRisk");
-		}
-		catch (FmError e)
+			team = (await Fm.Pull("Human.Team.Players", HealthFields, list: true, shown: "1")).EnumerateArray().ToList();
+			return team.Count > 0 && team.All(p => Field(p, "InjuryRiskLevel").Length > 0);
+		}, seconds: 8, every: 0.3);
+		if (team.Count == 0)
 		{
-			Console.Error.WriteLine(e.Message);
+			Console.Error.WriteLine(L("The squad could not be read."));
 			return 1;
 		}
 
-		// Players out on loan are in the table too; they are someone else's to look after.
-		var away = general.EnumerateArray().Where(p => Field(p, "AgreedPlayingTime") == "Out On Loan").Select(p => Field(p, "Name")).ToHashSet();
-		bool Here(JsonElement p) => !away.Contains(Field(p, "Name"));
 		static int Number(JsonElement p, string f) => int.TryParse(Field(p, f), out var n) ? n : -1;
+		// Players out on loan are his club's, playing elsewhere: someone else's to look after.
+		var all = team.Where(p => Field(p, "IsAwayFromContractClub") != "True").ToList();
+		static bool Hurt(JsonElement p) => Field(p, "IsInjured") == "True";
+		string Left(JsonElement p) => Number(p, "CurrentInjury.InjuryReturnDays") is > 0 and var n ? L($"{n} more days") : "";
+		static string Injury(JsonElement p) => Field(p, "CurrentInjury.InjuryDescription");
 
-		// The Injuries view's time is how long he has been out so far; how long is left is the
-		// injury's own return days, read from the team's data.
-		var team = (await Fm.Pull("Human.Team.Players", "Name,IsInjured,CurrentInjury.InjuryReturnDays", list: true)).EnumerateArray().ToList();
-		var returns = team.GroupBy(p => Field(p, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "CurrentInjury.InjuryReturnDays"));
-		// Who is injured is the team's own word: the table's views do not all carry it (the Injuries view
-		// has the injury's description and the time missed this season, but no flag — Lincoln, 17 Nisan
-		// when five injured men read as none).
-		var injuredNow = team.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToHashSet();
-		bool Hurt(JsonElement p) => Field(p, "IsInjured") == "True" || injuredNow.Contains(Field(p, "Name"));
-		string Left(JsonElement p) => returns.TryGetValue(Field(p, "Name"), out var days) && int.TryParse(days, out var n) && n > 0 ? L($"{n} more days") : "";
-
-		var all = injuries.EnumerateArray().Where(Here).ToList();
-		var hurt = all.Where(p => Hurt(p)).ToList();
+		var hurt = all.Where(Hurt).ToList();
 		var tired = all.Where(p => !Hurt(p) && Number(p, "Condition") is >= 0 and < 85).OrderBy(p => Number(p, "Condition")).ToList();
 		var rusty = all.Where(p => !Hurt(p) && Number(p, "Sharpness") is >= 0 and < 60).OrderBy(p => Number(p, "Sharpness")).ToList();
-		var risky = risks.EnumerateArray().Where(Here).Where(p => !Hurt(p)).ToList();
-		var top = risky.Select(p => Number(p, "OverallInjuryRisk")).DefaultIfEmpty(0).Max();
-		var atRisk = risky.Where(p => Number(p, "OverallInjuryRisk") == top && top > 0).ToList();
+		var risky = all.Where(p => !Hurt(p)).ToList();
+		var top = risky.Select(p => Number(p, "InjuryRiskLevel")).DefaultIfEmpty(0).Max();
+		var atRisk = risky.Where(p => Number(p, "InjuryRiskLevel") == top && top > 0).ToList();
 
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Injured = hurt.Select(p => new { Name = Field(p, "Name"), Injury = Field(p, "InjuryName"), OutSoFar = Field(p, "InjuriesTimeMissed"), Left = Left(p) }),
+				Injured = hurt.Select(p => new { Name = Field(p, "Name"), Injury = Injury(p), Left = Left(p) }),
 				Tired = tired.Select(p => new { Name = Field(p, "Name"), Condition = Number(p, "Condition") }),
 				LowSharpness = rusty.Select(p => new { Name = Field(p, "Name"), Sharpness = Number(p, "Sharpness") }),
 				HighestRisk = atRisk.Select(p => Field(p, "Name")), RiskScore = top,
@@ -76,9 +68,5 @@ internal static partial class Program
 		Section(L($"Highest injury risk (the game's rating {top})"), atRisk.Select(p => $"{Field(p, "Name")}"));
 		if (tired.Count + atRisk.Count > 0) Console.WriteLine(L("\nTo rest them: intensity <player> \"rest 1\""));
 		return 0;
-
-		// The injury's name, from whichever field the view bound.
-		static string Injury(JsonElement p) =>
-			new[] { "InjuryName", "InjuryDescription", "Injury" }.Select(f => Field(p, f)).FirstOrDefault(v => v.Length > 0) ?? "";
 	}
 }
