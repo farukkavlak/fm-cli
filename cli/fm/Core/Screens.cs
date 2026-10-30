@@ -50,6 +50,8 @@ internal static class Screen
 	public const string SocialGroups = "f0783a3c26287104a9d968eb2f2f43ae";
 	public const string Happiness = "236ce198f4ade4a4ea0f33b6fa94937c";
 	public const string Registration = "2711315fec49f2e4cbcbcadd361774b2";
+	/// <summary>Squad › First Team › Squad Numbers (FM27: a page of the first team's submenu).</summary>
+	public const string SquadNumbers = "4b39af3b111fcfd4f84f4d1fa74ceaf9";
 
 	// Recruitment
 	public const string RecruitmentHome = "fba8a55c175acc34d9b0eb9ea1eb6671";

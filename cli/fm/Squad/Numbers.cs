@@ -183,26 +183,13 @@ internal static partial class Program
 		return await SendList(NumbersConfirm, L("Squad numbers"));
 	}
 
-	/// <summary>
-	/// The page fills only when it is reached from the first team's page through the squad
-	/// menu ("Squad › First Team › Numbers"); opened on its own it draws an empty frame.
-	/// </summary>
+	/// <summary>The squad numbers page, by its GUID (FM27 keeps it in the first team's submenu).</summary>
 	private static async Task<bool> OpenNumbers()
 	{
 		if ((await NumbersInView()).Count > 0) return true;
-		for (var attempt = 0; attempt < 2; attempt++)
-		{
-			var opened = await OpenPage(Screen.Squad);
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return false;
-			// The subtab menu is drawn a moment after the page itself, and the game draws every
-			// screen again when the language changes: the row is asked for without choosing it
-			// until the menu offers it, where a fixed 1.5 s used to guess how long that takes (a
-			// language rebuild ran past it and the tab was never chosen).
-			await Until(async () => !(await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Squad Numbers"), ("dry", "1"))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.3);
-			await Fm.Get("select", ("name", "SecondaryTabDropdownButton"), ("choice", "Squad Numbers"), ("fire", "1"));
-			if (await Until(async () => (await NumbersInView()).Count > 0, seconds: 10)) return true;
-		}
-		return false;
+		var opened = await OpenPage(Screen.SquadNumbers);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return false;
+		return await Until(async () => (await NumbersInView()).Count > 0, seconds: 10);
 	}
 
 	/// <summary>
@@ -257,7 +244,9 @@ internal static partial class Program
 	/// <summary>The rows on screen: a number picker, what he asked for (if anything), his name, position, standing, age.</summary>
 	private static async Task<List<NumberRow>> NumbersInView()
 	{
-		var form = await Fm.GetJson("form", ("anchor", "Prom."), ("up", "14"), ("buttons", "1"));
+		// The table around a player's name (bound to primarytext), up to the page's block; its rows are
+		// the pickers laid out inside NumbersDisplay. No heading is read.
+		var form = await Fm.GetJson("form", ("anchorpath", "primarytext"), ("up", "16"), ("buttons", "1"), ("most", "1"));
 		var rows = new List<NumberRow>();
 		if (form.ValueKind != JsonValueKind.Array) return rows;
 
@@ -282,10 +271,12 @@ internal static partial class Program
 		{
 			switch (Field(control, "Kind"))
 			{
-				case "dropdown":
+				case "dropdown" when control.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "NumbersDisplay"):
 					Close();
 					picker = control;
 					break;
+				// The name: FM27 a text bound to primarytext, FM26 a button.
+				case "text" when picker != null && name == null && Field(control, "Path") == "primarytext":
 				case "button" when picker != null && name == null && Field(control, "Name") == "NameButton":
 					name = Field(control, "Text");
 					break;

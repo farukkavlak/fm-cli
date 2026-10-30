@@ -329,6 +329,10 @@ Still open:
   - Corner (delivery, aim, D1 duty + otherwise, back), throw-in aim both ways, wide, deep, shooting range: TR.
   - Also: `setpieces korner vurus out` went to the language layer (`Mcp.TakesText` filled every choice and hid `aim`);
     `Choose` takes an exact match in the game's words before pieces ("Geride Dur" vs "Gerekirse Geride Dur").
+- [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
+  chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
+  the name a text bound to `primarytext` (FM26's `NameButton` kept), the form found from that name (was the heading "Prom.").
+  TR, cold and from another page. Changing a number (season start only) not tried.
 - [x] `fm takers`: was read under the headings "Right Footers"/"Left Footers" with columns by order. Now each takers table
   (events `EventFmxSetPieceTakerMove`) row's item: `Index`, `SetPieceSide` (1 right, 0 left), `Player.Name`.
   Add: the player ticked in the players table (its items are records with `Player`) and the side's button
