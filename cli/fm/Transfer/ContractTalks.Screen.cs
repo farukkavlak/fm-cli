@@ -23,23 +23,27 @@ internal static partial class Program
 				if (await SpeakToActionEvent(ExitNegotiations) is not { } way) break;
 				exit = true;
 				await Fm.Get("press", ("ptr", Field(way, "Pointer")));
-				if (await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 3, every: 0.25)) break;
+				// FM27 asks first ("leave the negotiating table?"); the talks hide beneath the question,
+				// so they only count as closed once no question is left.
+				var asked = false;
+				await Until(async () => (asked = (await Fm.GetJson("dialog")).GetArrayLength() > 0) || await OfferScreen.Read(Fm, "contract") == null, seconds: 3, every: 0.25);
+				if (asked) await AnswerDialog(true);
+				if (await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0 && await OfferScreen.Read(Fm, "contract") == null, seconds: 3, every: 0.25)) break;
 			}
+			if ((await Fm.GetJson("dialog")).GetArrayLength() > 0) return L("Tried to exit but the game is still asking (answer: dialog).");
 			await OpenPage(Screen.Home);
 			if (await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 4, every: 0.25)) return null;
 			return exit ? L("Tried to exit but the contract talks are still open.") : L("Exit button not found in the talks.");
 		}
 		await Fm.Get("press", ("ptr", Field(cancel, "Pointer")));
 
-		JsonElement dialog = default;
-		if (await Until(async () => (dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.25)
-			&& DialogAnswer(dialog[0], true) is { } confirm)
-			await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
+		if (await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.25))
+			await AnswerDialog(true);
 
 		// Withdrawing closes the talks itself: no "Exit Talks" step follows it, so waiting for that
 		// button only burned its whole 6 s ceiling before the screen was read.
 		// The screen closing is the game's own signal.
-		return await Until(async () => await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25)
+		return await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0 && await OfferScreen.Read(Fm, "contract") == null, seconds: 6, every: 0.25)
 			? null : L("Told to cancel, but the negotiation screen is still open (look with talk).");
 	}
 
@@ -54,9 +58,7 @@ internal static partial class Program
 		await Until(async () =>
 		{
 			if ((screen = await OfferScreen.Read(Fm, "contract")) is not { } s || !s.Rows.Any(r => r.Shown != "—") || (stage != null && s.Stage != stage)) return false;
-			if (s.Club.Length > 0 && s.Facts.ContainsKey("Wage")) return true;
-			// One without a club has no wage of his own to wait for (a free agent, staff out of work):
-			// two readings alike are taken as whole.
+			// Two readings alike are taken as whole.
 			var now = string.Join("|", s.Rows.Select(r => r.Label + "=" + r.Shown));
 			var same = now == last;
 			last = now;
@@ -102,22 +104,16 @@ internal static partial class Program
 
 	/// <summary>
 	/// Opens the talks for a new contract with one of our players, the way the game does: his
-	/// value opens his actions, "Enter Contract Negotiations" the talks. The game first warns
+	/// page's actions menu, by the game's action (PersonOfferContract). The game first warns
 	/// that going in without asking his agent may upset them. Null once the talks are open.
 	/// </summary>
 	private static async Task<int?> OpenRenewal(string wanted)
 	{
 		if (await OpenPlayer(wanted) is not { } card) return 1;
-		var player = card.GetProperty("Player");
-		var name = Field(player, "Name");
+		var name = Field(card.GetProperty("Player"), "Name");
 
-		if (await Labelled("Enter Contract Negotiations", TalksButton) == null)
-		{
-			var opened = await Arriving("press", [("text", Field(player, "Value")), ("name", "SIButton"), ("any", "1")]);
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Until(async () => await Labelled("Enter Contract Negotiations", TalksButton) != null, seconds: 8, every: 0.25);
-		}
-		if (await Labelled("Enter Contract Negotiations", TalksButton) is not { } enter)
+		if (await RunPlayerAction(OfferContractAction) is not { } chose) return 1;
+		if (!chose)
 		{
 			var ours = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Any(p => Field(p, "Name") == name);
 			Console.Error.WriteLine(ours
@@ -126,7 +122,6 @@ internal static partial class Program
 			return 1;
 		}
 
-		await Fm.Get("press", ("ptr", Field(enter, "Pointer")));
 		JsonElement dialog = default;
 		await Until(async () => await OfferScreen.Read(Fm, "contract") != null || (dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 10, every: 0.25);
 		if (dialog.ValueKind != JsonValueKind.Array || dialog.GetArrayLength() == 0) return null;
@@ -141,7 +136,7 @@ internal static partial class Program
 		var go = !Ui.Interactive
 			|| Ui.Ask(L($"{name}: the talks open without asking their agent; the player and the agent may not like that."), [L("Enter anyway")], cancel: L("Cancel")) != null;
 		if (!Ui.Interactive) Console.WriteLine(L("(The game warned: opening talks without asking the agent may upset the player and the agent.)"));
-		await Fm.Get("click", ("ptr", Field(DialogAnswer(warning, go)!.Value, "Pointer")));
+		await AnswerDialog(go);
 		return go ? null : 0;
 	}
 }

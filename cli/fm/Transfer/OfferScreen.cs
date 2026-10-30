@@ -26,6 +26,9 @@ internal sealed partial class OfferScreen
 	/// <summary>The contract talks only: "Promises" or "Terms", and what sits beside the terms.</summary>
 	public string Stage { get; private init; } = "";
 	public Dictionary<string, string> Facts { get; private init; } = [];
+	/// <summary>The contract talks: the data path of their record and of the player they are with.</summary>
+	public string Session { get; private init; } = "";
+	public string Person { get; private init; } = "";
 	public bool IsContract => Stage.Length > 0;
 	public List<Term> Options { get; private init; } = [];
 	public List<Term> Rows { get; private init; } = [];
@@ -70,7 +73,8 @@ internal sealed partial class OfferScreen
 		return new OfferScreen
 		{
 			Stage = F(data, "Stage"),
-			Facts = data.TryGetProperty("Facts", out var facts) ? facts.EnumerateObject().ToDictionary(f => f.Name, f => f!.Value.GetString() ?? "") : [],
+			Session = F(data, "Session"),
+			Person = F(data, "Person"),
 			Club = F(data, "Club"),
 			Player = F(data, "Player"),
 			BudgetCost = F(data, "BudgetCost"),
@@ -78,17 +82,17 @@ internal sealed partial class OfferScreen
 			TotalCostTitle = F(data, "TotalCostTitle"),
 			OfferType = F(data, "OfferType"),
 			Options = data.GetProperty("Options").EnumerateArray().Select(o => o.TryGetProperty("Lock", out var l)
-				? new Term("", F(o, "Label"), "", "", null!, null!, "", LockOf(l))
+				? new Term("", F(o, "Label"), "", "", null!, null!, "", LockOf(l)) { Key = F(o, "Key") }
 				: new Term("", F(o, "Label"), "", "", ControlOf(o), null!, "") { Key = F(o, "Key") }).ToList(),
 			Rows = rows.EnumerateArray().Select(r => new Term(F(r, "Section"), F(r, "Label"), F(r, "Detail"), F(r, "Remove"),
 				r.TryGetProperty("Choice", out var c) ? ControlOf(c) : null!,
 				r.TryGetProperty("Amount", out var a) ? new Control(F(a, "Pointer"), F(a, "Value"), []) : null!,
 				F(r, "Fixed"),
 				r.TryGetProperty("Lock", out var l) ? LockOf(l) : null)
-				{ Warning = F(r, "Warning") == "True" }).ToList() is var read
+				{ Warning = F(r, "Warning") == "True", Key = F(r, "Key") }).ToList() is var read
 				? read.Select((r, i) => r with { Nth = read.Take(i).Count(o => Same(o.Label, r.Label)) }).ToList()
 				: [],
-			Adds = data.GetProperty("Adds").EnumerateArray().Select(a => new Term(F(a, "Section"), "Add", "", "", ControlOf(a), null!, "")).ToList(),
+			Adds = data.GetProperty("Adds").EnumerateArray().Select(a => new Term(F(a, "Section"), "Add", "", "", ControlOf(a), null!, "") { Key = F(a, "Key") }).ToList(),
 		};
 
 		// The padlock's choices are the lock values themselves: "0 · 1 · 2", or "0 · 2" where only
@@ -114,46 +118,73 @@ internal sealed partial class OfferScreen
 	/// <summary>The same term on a later reading of the screen.</summary>
 	public Term? Row(Term like) => Rows.FirstOrDefault(r => Same(r.Label, like.Label) && r.Nth == like.Nth);
 
-	/// <summary>The contract's own terms and the part of the talks' record that judges each.</summary>
+	/// <summary>The contract's own terms, by their template, and the part of the talks' record that judges each.</summary>
 	private static readonly Dictionary<string, string> Components = new()
 	{
-		["Wage"] = "WeeklyWageComponentInfo",
-		["Agent Fee"] = "AgentFeeComponentInfo",
-		["Loyalty Bonus"] = "LoyaltyBonusComponentInfo",
-		["Contract Length"] = "EndDateComponentInfo",
-		["Contract Start Date"] = "StartDateComponentInfo",
-		["Playing Time"] = "ContractStatusComponentInfo",
+		["wage-term"] = "WeeklyWageComponentInfo",
+		["agent-fee-term"] = "AgentFeeComponentInfo",
+		["loyalty-bonus-term"] = "LoyaltyBonusComponentInfo",
+		["contract-length-term"] = "EndDateComponentInfo",
+		["start-date-term"] = "StartDateComponentInfo",
+		["contract-status-term"] = "ContractStatusComponentInfo",
+		["primary-job-term"] = "PrimaryJobComponentInfo",
+		["secondary-job-term"] = "SecondaryJobComponentInfo",
+		["playing-time-promise"] = "AgreedPlayingTimeComponentInfo",
+		["start-date-promise"] = "StartDateComponentInfo",
 	};
 
 	/// <summary>
-	/// The talks with the game's reason beside each base term it will not take ("Above max
-	/// allowed %"). The screen only shows a warning icon; the reason is in the talks' record
-	///. Bonuses and clauses carry theirs on screen already.
+	/// A term of the contract by the CLI's word for it ("wage", "agent fee"): its template's name
+	/// without the kind, as --wage and --term name it in any language.
+	/// </summary>
+	public static string KeyWord(string key) =>
+		key.EndsWith("-term", StringComparison.Ordinal) ? key[..^5].Replace('-', ' ')
+		: key.EndsWith("-promise", StringComparison.Ordinal) ? key[..^8].Replace('-', ' ')
+		: "";
+
+	/// <summary>
+	/// The talks with what the screen only draws, read from their record: the game's reason beside
+	/// each base term it will not take ("Above max allowed %"), what the wage does to the budget, and
+	/// the contract he has now. Bonuses and clauses carry their reasons on screen already.
 	/// </summary>
 	public async Task<OfferScreen> WithReasons(Bridge fm)
 	{
-		if (!IsContract) return this;
-		var found = await fm.Get("find", ("name", "negotiation"), ("limit", "10"));
-		var path = found.Split('\n').Select(l => l.Trim())
-			.Where(l => l.EndsWith(".negotiation", StringComparison.Ordinal) && l.Contains("Contract Negotiation", StringComparison.Ordinal) && l.Contains("Block", StringComparison.Ordinal) && !l.Contains("Other Info", StringComparison.Ordinal))
-			.Select(l => l.TrimStart('.'))
-			.FirstOrDefault();
-		if (path == null) return this;
-
-		var rows = new List<Term>();
-		foreach (var row in Rows)
+		if (!IsContract || Session.Length == 0) return this;
+		var readings = new List<(string Path, string Props)>
 		{
-			var reason = "";
-			if (row.Section.Length == 0 && Components.TryGetValue(row.Label, out var component))
-			{
-				var data = await fm.GetJson("pull", ("path", $"{path}.{component}.BaseComponentData"), ("props", "InvalidOrDisabledReason"));
-				reason = F(data, "InvalidOrDisabledReason");
-			}
-			rows.Add(reason.Length > 0 && !row.Detail.Contains(reason, StringComparison.Ordinal) ? row with { Detail = row.Detail.Length > 0 ? $"{row.Detail} · {reason}" : reason } : row);
+			(Session, "ContractNegotiationWageBudgetContribution,ContractNegotiationRemainingWageBudget,ContractNegotiationExistingWageContribution,ContractNegotiationAverageWageForPlayingTime"),
+		};
+		if (Person.Length > 0)
+		{
+			readings.Add(($"{Person}.FullContract", "EndDateDescription"));
+			readings.Add(($"{Person}.FullContract.Wage", "DisplayValue"));
 		}
+		var judged = Rows.Where(r => r.Section.Length == 0 && Components.ContainsKey(r.Key)).ToList();
+		readings.AddRange(judged.Select(r => ($"{Session}.{Components[r.Key]}.BaseComponentData", "InvalidOrDisabledReason")));
+		var read = await Program.PullShown(readings);
+
+		var facts = new Dictionary<string, string>();
+		void Fact(string name, JsonElement from, string field)
+		{
+			// "N/A" where the club has no wage budget: only a figure is a fact.
+			if (F(from, field) is { Length: > 0 } value && value.Any(char.IsDigit)) facts[name] = value;
+		}
+		Fact("Cost", read[0], "ContractNegotiationWageBudgetContribution");
+		Fact("Remaining", read[0], "ContractNegotiationRemainingWageBudget");
+		Fact("Current", read[0], "ContractNegotiationExistingWageContribution");
+		Fact("Avg.", read[0], "ContractNegotiationAverageWageForPlayingTime");
+		if (Person.Length > 0)
+		{
+			Fact("Contract Expires", read[1], "EndDateDescription");
+			Fact("Wage", read[2], "DisplayValue");
+		}
+
+		var reasons = judged.Zip(read.Skip(Person.Length > 0 ? 3 : 1)).ToDictionary(p => p.First, p => F(p.Second, "InvalidOrDisabledReason"));
+		var rows = Rows.Select(row => reasons.TryGetValue(row, out var reason) && reason.Length > 0 && !row.Detail.Contains(reason, StringComparison.Ordinal)
+			? row with { Detail = row.Detail.Length > 0 ? $"{row.Detail} · {reason}" : reason } : row).ToList();
 		return new OfferScreen
 		{
-			Stage = Stage, Facts = Facts, Club = Club, Player = Player, BudgetCost = BudgetCost, TotalCost = TotalCost,
+			Stage = Stage, Facts = facts, Session = Session, Person = Person, Club = Club, Player = Player, BudgetCost = BudgetCost, TotalCost = TotalCost,
 			TotalCostTitle = TotalCostTitle, OfferType = OfferType, Options = Options, Rows = rows, Adds = Adds,
 		};
 	}

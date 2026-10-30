@@ -102,32 +102,15 @@ internal static partial class Program
 			var player = card.GetProperty("Player");
 			name = Field(player, "Name");
 
-		// The offer is an entry of his page's actions menu (#FrameActions), known by the game action
-		// it runs. The menu is filled a moment after it opens; two readings alike are taken as whole.
-		await Fm.Get("actions", ("close", "1"));
-		var opened = await Arriving("actions", [("open", "1"), ("name", "FrameActions")]);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		var listed = "";
-		var offerable = false;
-		await Until(async () =>
+		if (await RunPlayerAction(MakeOfferAction) is not { } chose) return 1;
+		if (!chose)
 		{
-			var now = (await Fm.GetJson("actions")).ToString();
-			offerable = now.Contains($"\"{MakeOfferAction}\"", StringComparison.Ordinal);
-			var settled = offerable || now != "[]" && now == listed;
-			listed = now;
-			return settled;
-		}, seconds: 8, every: 0.25);
-		if (!offerable)
-		{
-			await Fm.Get("actions", ("close", "1"));
 			Console.Error.WriteLine(L($"No offer can be made for {name} (the game's actions have no 'Make An Offer'; an offer may already be in, or they may be our player)."));
 			return 1;
 		}
 
 		// The game can refuse with a dialog instead ("Cannot sign …: already agreed to join
 		// his loan club"); that is the answer then, and it is closed.
-		var chose = await Fm.Get("actions", ("action", MakeOfferAction));
-		if (chose.StartsWith("error", StringComparison.Ordinal)) return Report(chose);
 		JsonElement refusal = default;
 		if (!await Until(async () => await FeeBoxNow() != null || (refusal = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 10, every: 0.25))
 		{
@@ -375,6 +358,37 @@ internal static partial class Program
 		async Task<string> FeeLabel() => await FeeBox() is { } box ? Field(box, "Label") : null;
 
 		async Task<long?> Fee() => Money(await FeeLabel() ?? "");
+	}
+
+	/// <summary>
+	/// Runs one of the open player page's actions, by the game's action id: they sit in the page's
+	/// actions menu (#FrameActions), which is filled a moment after it opens; two readings alike are
+	/// taken as whole. False when the menu has no such action (closed again), null when the menu
+	/// could not be used (said already).
+	/// </summary>
+	private static async Task<bool?> RunPlayerAction(string action)
+	{
+		await Fm.Get("actions", ("close", "1"));
+		var opened = await Arriving("actions", [("open", "1"), ("name", "FrameActions")]);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return null; }
+		var listed = "";
+		var there = false;
+		await Until(async () =>
+		{
+			var now = (await Fm.GetJson("actions")).ToString();
+			there = now.Contains($"\"{action}\"", StringComparison.Ordinal);
+			var settled = there || now != "[]" && now == listed;
+			listed = now;
+			return settled;
+		}, seconds: 8, every: 0.25);
+		if (!there)
+		{
+			await Fm.Get("actions", ("close", "1"));
+			return false;
+		}
+		var chose = await Fm.Get("actions", ("action", action));
+		if (chose.StartsWith("error", StringComparison.Ordinal)) { Report(chose); return null; }
+		return true;
 	}
 
 	/// <summary>

@@ -17,10 +17,10 @@ namespace FmCliProbe;
 /// are the offer-wide choices (negotiable or not, a deadline for the answer) and below them
 /// what it costs. Each heading but the first has an "Add" dropdown that puts another row in.
 ///
-/// The contract talks are built from the same parts: rows named
-/// <c>#frames-contract terms</c>, a lock beside each, "Add Promise" / "Add Bonus" / "Add Clause"
-/// lists, and a lock for the entire offer. They come in two stages, promises and then terms,
-/// each its own block.
+/// The contract talks are built from the same parts: each of the contract's own terms is a template
+/// named for it (wage-term, playing-time-promise), added bonuses and clauses are the items of
+/// add-on-list, with a lock beside each and one for the entire offer. They come in two stages,
+/// promises and then terms.
 /// </summary>
 internal static class Offer
 {
@@ -38,51 +38,20 @@ internal static class Offer
 		var options = new List<string>();
 		var section = "";
 		var lastText = "";
-		var texts = new List<string>();
 		var offerType = "";
+		var lockWrites = "";
 
 		Visit(root);
 
-		// Beside the terms, in panels of their own: what the wage does to the budget, and the
-		// contract he has now.
-		if (contract)
+		// The contract talks' record and the player they are with, as paths: what the wage does to
+		// the budget and the contract he has now are read from them (ContractNegotiation…, FullContract).
+		var session = "";
+		var person = "";
+		if (contract && lockWrites.Length > 0)
 		{
-			texts.Clear();
-			foreach (var element in Buttons.Elements())
-			{
-				try
-				{
-					if (element.name != "text" || !Shown(element)) continue;
-					texts.Add(Text.Plain(element.TryCast<TextElement>()?.text ?? ""));
-				}
-				catch { }
-			}
+			session = lockWrites[..System.Math.Max(0, lockWrites.LastIndexOf('.'))].TrimStart('.');
+			person = Above(session, "Player");
 		}
-		// Labels can repeat elsewhere on screen ("Wage" on a page beneath), so a value is only
-		// taken when it looks like one.
-		var facts = new List<string>();
-		foreach (var (label, looks) in new (string, System.Func<string, bool>)[]
-		{
-			("Cost", Money), ("Current", Money), ("Avg.", Money),
-			("Remaining", v => Money(v) || v == "N/A"), ("Wage", Money), ("Contract Expires", v => v.Any(char.IsDigit) && !Money(v)),
-		})
-		{
-			for (var at = texts.IndexOf(label); at >= 0; at = texts.IndexOf(label, at + 1))
-			{
-				// His contract is read from the talks' player report only, where the wage follows
-				// the transfer value; a page beneath can carry another player's.
-				if (label == "Wage" && (at == 0 || texts[at - 1] != "Transfer Value")) continue;
-				if (label == "Contract Expires" && !texts.Skip(System.Math.Max(0, at - 3)).Take(3).Contains("Wage")) continue;
-				var value = texts.Skip(at + 1).Take(3).FirstOrDefault(looks);
-				if (value == null) continue;
-				facts.Add($"\"{label}\": \"{Report.Escape(value)}\"");
-				break;
-			}
-		}
-
-		// A wage by the week, the month or the year, in any currency: a figure with its symbol ("£4K p/w", "a monthly wage with a comma decimal").
-		static bool Money(string v) =>
-			v.Any(char.IsDigit) && v.Any(c => char.GetUnicodeCategory(c) == System.Globalization.UnicodeCategory.CurrencySymbol);
 
 		string Plain(string name)
 		{
@@ -99,7 +68,7 @@ internal static class Offer
 			+ $"\"OfferType\": \"{offerType}\", "
 			+ "\"Options\": [" + string.Join(", ", options) + "], "
 			+ "\"Rows\": [" + string.Join(", ", rows) + "], "
-			+ "\"Facts\": {" + string.Join(", ", facts) + "}, "
+			+ $"\"Session\": \"{Report.Escape(session)}\", \"Person\": \"{Report.Escape(person)}\", "
 			+ "\"Adds\": [" + string.Join(", ", adds) + "]}\n";
 
 		void Visit(VisualElement element)
@@ -112,29 +81,36 @@ internal static class Offer
 			}
 			catch { return; }
 
-			// A heading is known by its text: the base terms and the players to exchange share
-			// the element name.
 			switch (name)
 			{
-				// A loan's headings have names of their own: options and clauses of the loan, then
-				// the fees and clauses should it become permanent.
+				// The headings: base terms, fees and clauses; a loan's options and clauses, then the
+				// fees and clauses should it become permanent. Their text is only shown.
 				case "players-to-exchange-title" or "fees-title" or "clauses-title"
 					or "clause-area-title" or "ltb-fees-title" or "ltb-additional-fees-title" or "ltb-clauses-title":
 					try { section = Text.Plain(element.TryCast<TextElement>()?.text ?? "") ; } catch { }
 					break;
-				case "frames-contract-terms" or "frames-contract terms":
+				case "frames-contract-terms":
 					if (Row(element, section) is { } row) rows.Add(row);
 					return;
 				// A player put into the deal: his name, his position, transfer or loan, and a way out.
 				case "exchange-player-row-enabled":
 					if (Row(element, section, exchange: true) is { } player) rows.Add(player);
 					return;
-				// The contract's headings are plain text: "Bonuses & Clauses", "Additional
-				// Promises", and "Entire offer" before its lock.
+				// The contract's own terms each have a template of their own, named for what they are
+				// (wage-term, agent-fee-term, playing-time-promise); added bonuses, clauses and promises
+				// are the items of add-on-list.
+				case not null when contract && (name.EndsWith("-term", System.StringComparison.Ordinal) || name.EndsWith("-promise", System.StringComparison.Ordinal)):
+					if (Row(element, "", key: name) is { } term) rows.Add(term);
+					return;
+				case "add-on-list" when contract:
+					section = name;
+					break;
+				case "item-enabled" when contract && section.Length > 0:
+					if (Row(element, section) is { } addOn) rows.Add(addOn);
+					return;
+				// The text before the entire offer's lock is its name, shown only.
 				case "text" when contract:
 					try { lastText = Text.Plain(element.TryCast<TextElement>()?.text ?? ""); } catch { }
-					texts.Add(lastText);
-					if (lastText is "Bonuses & Clauses" or "Additional Promises") section = lastText;
 					break;
 			}
 
@@ -143,16 +119,20 @@ internal static class Offer
 			if (dropdown != null && Shown(dropdown))
 			{
 				var label = Buttons.LabelOf(dropdown);
-				if (label.StartsWith("Add", System.StringComparison.Ordinal) && (contract || section.Length > 0))
-					adds.Add($"{{\"Section\": \"{(contract ? label : section)}\", {Choices(dropdown)}}}");
+				var writes = "";
+				try { writes = dropdown.SelectionValueBinding.Path ?? ""; } catch { }
+				// An "Add" list sits in an element named for it: fees-add-dropdown, add-bonus-dropdown.
+				if (AddHolder(dropdown) is { } holder)
+					adds.Add($"{{\"Section\": \"{Report.Escape(contract ? label : section)}\", \"Key\": \"{holder}\", {Choices(dropdown)}}}");
 				else if (contract && IsLock(dropdown))
-					options.Add($"{{\"Label\": \"{Report.Escape(lastText)}\", \"Lock\": {LockOf(dropdown)}}}");
+				{
+					if (lockWrites.Length == 0) lockWrites = Writes(dropdown);
+					options.Add($"{{\"Label\": \"{Report.Escape(lastText)}\", \"Key\": \"{Report.Escape(writes[(writes.LastIndexOf('.') + 1)..])}\", \"Lock\": {LockOf(dropdown)}}}");
+				}
 				else if (section.Length == 0)
 				{
 					// Which offer-wide choice it is, by the field of the offer it writes
 					// (NegotiableOptionListValue, DeadlineDateOptionValue); the offer's kind sits beside it.
-					var writes = "";
-					try { writes = dropdown.SelectionValueBinding.Path ?? ""; } catch { }
 					if (offerType.Length == 0) offerType = Beside(dropdown, "TransferOfferType");
 					options.Add($"{{\"Label\": \"{Report.Escape(label)}\", \"Key\": \"{Report.Escape(writes[(writes.LastIndexOf('.') + 1)..])}\", {Choices(dropdown)}}}");
 				}
@@ -169,7 +149,7 @@ internal static class Offer
 	}
 
 	/// <summary>One term: its name, what it is set to, and the control that changes it.</summary>
-	private static string Row(VisualElement frame, string section, bool exchange = false)
+	private static string Row(VisualElement frame, string section, bool exchange = false, string key = "")
 	{
 		if (!Shown(frame)) return null;
 
@@ -265,7 +245,8 @@ internal static class Offer
 		}
 
 		var sb = new StringBuilder("{");
-		sb.Append($"\"Section\": \"{section}\", \"Label\": \"{Report.Escape(label)}\", ");
+		sb.Append($"\"Section\": \"{Report.Escape(section)}\", \"Label\": \"{Report.Escape(label)}\", ");
+		if (key.Length > 0) sb.Append($"\"Key\": \"{key}\", ");
 		if (secondary.Length > 0) sb.Append($"\"Detail\": \"{Report.Escape(secondary)}\", ");
 		if (remove.Length > 0) sb.Append($"\"Remove\": \"{remove}\", ");
 		if (warning) sb.Append("\"Warning\": \"True\", ");
@@ -353,33 +334,79 @@ internal static class Offer
 	}
 
 	/// <summary>
-	/// The contract talks' block: "Contract Negotiation Promises Block" first, then
-	/// "Contract Negotiation Contents Block". Found by climbing from a shown term row.
+	/// The contract talks' block: the BlockRemapper above a shown term (a template named *-term
+	/// or *-promise). The promises stage has only promises; the terms stage has terms.
 	/// </summary>
 	private static VisualElement ContractRoot(out string stage)
 	{
 		stage = "";
 		foreach (var element in Buttons.Elements())
 		{
+			string name;
 			try
 			{
-				if (element.name != "frames-contract terms" || !Shown(element)) continue;
+				name = element.name ?? "";
+				if (!(name.EndsWith("-term", System.StringComparison.Ordinal) || name.EndsWith("-promise", System.StringComparison.Ordinal)) || !Shown(element)) continue;
 			}
 			catch { continue; }
 
 			VisualElement root = element;
-			for (var climbed = 0; climbed < 60; climbed++)
+			for (var climbed = 0; climbed < 30; climbed++)
 			{
 				try { root = root.hierarchy.parent; } catch { break; }
 				if (root == null) break;
-				string name;
-				try { name = root.name ?? ""; } catch { continue; }
-				if (!name.StartsWith("Contract Negotiation", System.StringComparison.Ordinal)) continue;
-				stage = name.Contains("Promises") ? "Promises" : "Terms";
+				try { if (root.name != "BlockRemapper") continue; } catch { continue; }
+				stage = name.EndsWith("-promise", System.StringComparison.Ordinal) ? "Promises" : "Terms";
 				return root;
 			}
 		}
 		return null;
+	}
+
+	/// <summary>The name of the element an "Add" list sits in (fees-add-dropdown, add-bonus-dropdown), or null.</summary>
+	private static string AddHolder(VisualElement dropdown)
+	{
+		var at = dropdown;
+		for (var up = 0; up < 5 && at != null; up++)
+		{
+			try
+			{
+				var name = at.name ?? "";
+				if (name.EndsWith("-dropdown", System.StringComparison.Ordinal) && (name.StartsWith("add-", System.StringComparison.Ordinal) || name.Contains("-add-")))
+					return name;
+				at = at.hierarchy.parent;
+			}
+			catch { return null; }
+		}
+		return null;
+	}
+
+	/// <summary>The full data path a dropdown writes its choice to.</summary>
+	private static string Writes(SIDropdown dropdown)
+	{
+		try
+		{
+			var b = Game.Bindings;
+			var written = dropdown.m_selectionValueBindingKey;
+			return b.Exists(ref written) ? b.GetPathDebug(ref written) ?? "" : "";
+		}
+		catch { return ""; }
+	}
+
+	/// <summary>The nearest path above <paramref name="path"/> that has <paramref name="field"/> bound under it, as that field's path.</summary>
+	private static string Above(string path, string field)
+	{
+		try
+		{
+			var b = Game.Bindings;
+			for (var cut = path.LastIndexOf('.'); cut > 0; cut = path.LastIndexOf('.', cut - 1))
+			{
+				var key = PathKey.Of($"{path[..cut]}.{field}");
+				if (b.Exists(ref key) && b.Get(ref key) is { IsNull: false }) return $"{path[..cut]}.{field}";
+			}
+		}
+		catch { }
+		return "";
 	}
 
 	/// <summary>

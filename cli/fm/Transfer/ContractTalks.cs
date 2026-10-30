@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace FmCli;
 
 /// <summary>
@@ -8,9 +10,25 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	// Only the talks' own buttons: the game's Continue is also labelled "Negotiate Contract"
-	// during the talks, and pressing it walks away from the deal.
+	/// <summary>
+	/// The talks' own steps, by the event their speak-to action sends (InteropEventIDs): confirming the
+	/// stage as it stands (EventFmxConfirmTerms: Finalise Promises, Finalise Deal), putting changed ones
+	/// to the agent (EventFmxSuggestTerms), and going on from the promises to the terms
+	/// (EventFmxProceedToContractNegotiations). The labels are this language's words.
+	/// </summary>
+	private const string ConfirmTerms = "41", SuggestContractTerms = "20", ProceedToTerms = "140";
+
+	/// <summary>The talks' own buttons are this element; the game's Continue speaks for the talks too and walks away from the deal.</summary>
 	private const string TalksButton = "StandardButton";
+
+	/// <summary>One of the talks' own steps by the event it sends, or null when it is not offered now.</summary>
+	private static Task<JsonElement?> TalksStep(string sent) => SpeakToActionWith("Event", sent, TalksButton);
+
+	/// <summary>The talks' Reset puts the agent's own terms back (EventFmxResetTerms).</summary>
+	private const string ResetTerms = "EventToPlugin:EventFmxResetTerms";
+
+	/// <summary>Our player's action that opens talks on a new contract.</summary>
+	private const string OfferContractAction = "PersonOfferContract";
 
 	/// <summary>What the way out of the talks sends (InteropEventIDs.EventFmxExitNegotiations).</summary>
 	private const string ExitNegotiations = "42";
@@ -79,8 +97,8 @@ internal static partial class Program
 		{
 			// Changed promises are put to the agent first; he takes them or answers with his own,
 			// and only promises he has taken are finalised.
-			if (await Labelled("Suggest Promises", TalksButton) != null && await Propose() == Outcome.Failed) return 1;
-			if (await Labelled("Finalise Promises", TalksButton) != null)
+			if (await TalksStep(SuggestContractTerms) != null && await Propose() == Outcome.Failed) return 1;
+			if (await TalksStep(ConfirmTerms) != null)
 			{
 				if (await PastPromises() is { } stuck) { Console.Error.WriteLine(stuck); return 1; }
 				left = await ApplyTerms(left);
@@ -104,7 +122,7 @@ internal static partial class Program
 		{
 			// A card whose promises offer nothing to choose is one the game has locked (seen with
 			// a 34-year-old in his last year): --next does nothing on it.
-			if (shown.Rows.Count > 0 && shown.Rows.All(r => r.Choice is { Value: "None Selected", Choices.Count: 0 }))
+			if (shown.Rows.Count > 0 && shown.Rows.All(r => r.Choice is { Choices.Count: 0 }))
 			{
 				Console.WriteLine(L("\nThe game opened this card locked: nothing to choose among the promises, the negotiation does not move on. To leave: contract --cancel   (to ask the agent: contract <player> --agent)"));
 				return 1;

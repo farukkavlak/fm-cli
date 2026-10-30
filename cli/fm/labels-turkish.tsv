@@ -2408,3 +2408,7 @@ Transfer offer tab did not open.	Transfer teklif sekmesi açılmadı.
 Could not read whether the offer on screen is a transfer or a loan; nothing was changed. To close it: offer --close	Ekrandaki teklifin transfer mi kiralık mı olduğu okunamadı; hiçbir şey değiştirilmedi. Kapatmak için: offer --close
 The offer on screen is a transfer and the game does not let it be made a loan now; nothing was changed. To close it: offer --close	Ekrandaki teklif transfer teklifi ve oyun şu an kiralığa çevirmeye izin vermiyor; hiçbir şey değiştirilmedi. Kapatmak için: offer --close
 The offer on screen is a loan and the game does not let it be made a transfer now; nothing was changed. To close it: offer --close	Ekrandaki teklif kiralık teklifi ve oyun şu an transfere çevirmeye izin vermiyor; hiçbir şey değiştirilmedi. Kapatmak için: offer --close
+Additional Promises	Ek sözler
+Bonuses & Clauses	Primler ve maddeler
+Nothing to put to the agent: either a term breaks a rule (red on the card), or the negotiation is at another step (look with talk).	Menajere sunulacak bir şey yok: ya bir şart kurala uymuyor (kartta kırmızı), ya da görüşme başka bir adımda (talk ile bak).
+Tried to exit but the game is still asking (answer: dialog).	Çıkılmaya çalışıldı ama oyun hâlâ soruyor (cevap: dialog).

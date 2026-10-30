@@ -234,6 +234,9 @@ internal static partial class Program
 	/// <param name="complete">When a reading has everything it will have although some properties
 	/// are missing (a player the page leaves out answers only some); by default, all of them.</param>
 	/// <param name="shown">Properties read in the game's own words, as the plugin's pull takes them.</param>
+	/// <summary><see cref="PullEach"/> in the game's own words, for what is only shown.</summary>
+	internal static Task<List<JsonElement>> PullShown(List<(string Path, string Props)> readings) => PullEach(readings, shown: "1");
+
 	private static async Task<List<JsonElement>> PullEach(List<(string Path, string Props)> readings, Func<JsonElement, bool>? complete = null, string shown = "")
 	{
 		List<JsonElement> read = [];

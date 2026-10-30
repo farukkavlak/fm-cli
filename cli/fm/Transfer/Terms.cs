@@ -115,7 +115,8 @@ internal static partial class Program
 				: L($"options: {string.Join(", ", option.Choice.Choices)}");
 		}
 
-		var row = now.Rows.FirstOrDefault(r => Named(r.Label));
+		// A contract term also by the CLI's word for its kind ("Wage", "Agent Fee"), the same in any language.
+		var row = now.Rows.FirstOrDefault(r => Named(r.Label) || OfferScreen.KeyWord(r.Key) is { Length: > 0 } word && Named(word));
 		if (row == null && label.Contains('>'))
 		{
 			// A submenu's leaf: "Bonus After Competition Achievement>Turkish Cup>Bonus upon winning…".

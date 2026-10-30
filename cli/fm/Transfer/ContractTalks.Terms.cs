@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace FmCli;
 
 internal static partial class Program
@@ -28,12 +30,12 @@ internal static partial class Program
 			var items = new List<string>();
 			var actions = new List<Func<Task<string?>>>();
 
-			if (promises && await Labelled("Finalise Promises", TalksButton) != null)
+			if (promises && await TalksStep(ConfirmTerms) != null)
 			{
 				items.Add(L("Confirm the promises, go on to the terms"));
 				actions.Add(PastPromises);
 			}
-			else if (promises && await Labelled("Suggest Promises", TalksButton) != null)
+			else if (promises && await TalksStep(SuggestContractTerms) != null)
 			{
 				items.Add(L("Put the promises to the agent"));
 				actions.Add(async () => await Propose(notes) == Outcome.Failed ? L("The proposal could not be sent.") : null);
@@ -43,12 +45,12 @@ internal static partial class Program
 				items.Add(L("The promises cannot be sent: fix the red rows"));
 				actions.Add(() => Task.FromResult<string?>(null));
 			}
-			else if (await Labelled("Finalise Deal", TalksButton) != null)
+			else if (await TalksStep(ConfirmTerms) != null)
 			{
 				items.Add(L("Sign on these terms"));
 				actions.Add(async () => await Signs(notes) == Outcome.Signed ? "" : null);
 			}
-			else if (await Labelled("Suggest Terms", TalksButton) != null)
+			else if (await TalksStep(SuggestContractTerms) != null)
 			{
 				items.Add(L("Put the terms to the agent"));
 				actions.Add(async () => await Propose(notes) == Outcome.Signed ? "" : null);
@@ -75,10 +77,10 @@ internal static partial class Program
 				items.Add(AddLine("contract", add));
 				actions.Add(() => AddTerm("contract", add));
 			}
-			if (!promises && await Labelled("Reset") != null)
+			if (!promises && await ResetButton() != null)
 			{
 				items.Add(L("Reset (back to what the agent asked for)"));
-				actions.Add(async () => await Labelled("Reset") is { } reset ? (await Fm.Get("press", ("ptr", Field(reset, "Pointer")))).StartsWith("error", StringComparison.Ordinal) ? L("Could not reset.") : null : null);
+				actions.Add(async () => await ResetButton() is { } reset ? (await Fm.Get("press", ("ptr", Field(reset, "Pointer")))).StartsWith("error", StringComparison.Ordinal) ? L("Could not reset.") : null : null);
 			}
 			if (await SpeakToActionEvent(WithdrawNegotiation) != null)
 			{
@@ -124,16 +126,25 @@ internal static partial class Program
 
 		// Finalise Promises, then Negotiate Contract: each is waited out before the next, since
 		// the screen keeps the promises a moment after the first is pressed.
-		foreach (var label in new[] { "Finalise Promises", "Negotiate Contract" })
+		foreach (var sent in new[] { ConfirmTerms, ProceedToTerms })
 		{
 			if (await OnTerms()) return null;
-			if (!await Until(async () => await Labelled(label, TalksButton) != null || await OnTerms(), seconds: 8, every: 0.25)) break;
-			if (await Labelled(label, TalksButton) is not { } button) continue;
+			if (!await Until(async () => await TalksStep(sent) != null || await OnTerms(), seconds: 8, every: 0.25)) break;
+			if (await TalksStep(sent) is not { } button) continue;
 			await Fm.Get("press", ("ptr", Field(button, "Pointer")));
-			await Until(async () => await Labelled(label, TalksButton) == null || await OnTerms(), seconds: 8, every: 0.25);
+			await Until(async () => await TalksStep(sent) == null || await OnTerms(), seconds: 8, every: 0.25);
 		}
 		return await TalksSettled("Terms") is { Stage: "Terms" } ? null : L("Could not go on to the terms; the agent may be waiting for something else (look with talk).");
 	}
+
+	/// <summary>The talks' Reset, by the event it sends.</summary>
+	private static async Task<JsonElement?> ResetButton() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+		.Where(b => Field(b, "Events") == ResetTerms && Field(b, "Enabled") == "True").Cast<JsonElement?>().FirstOrDefault();
+
+	/// <summary>When the player's contract ends now (EndDate of his FullContract), read from the talks' player.</summary>
+	private static async Task<string> ContractEnds(OfferScreen? talks) =>
+		talks is { Person.Length: > 0 } ? Field((await PullEach([($"{talks.Person}.FullContract", "EndDate")]))[0], "EndDate") : "";
 
 	/// <summary>Accepted: the agent took what was suggested as it stood, and Finalise now closes it.</summary>
 	private enum Outcome { Failed, Answered, Accepted, Signed }
@@ -149,19 +160,21 @@ internal static partial class Program
 
 		var ours = await OfferScreen.Read(Fm, "contract");
 		var promises = ours is { Stage: "Promises" };
-		var (finalise, suggest) = promises ? ("Finalise Promises", "Suggest Promises") : ("Finalise Deal", "Suggest Terms");
-		if ((await Labelled(finalise, TalksButton) ?? await Labelled(suggest, TalksButton)) is not { } button)
+		var finalise = await TalksStep(ConfirmTerms);
+		if ((finalise ?? await TalksStep(SuggestContractTerms)) is not { } button)
 		{
-			Console.Error.WriteLine(L($"No '{finalise}' / '{suggest}' button: either a term breaks a rule (red on the card), or the negotiation is at another step (look with talk)."));
+			Console.Error.WriteLine(L("Nothing to put to the agent: either a term breaks a rule (red on the card), or the negotiation is at another step (look with talk)."));
 			return Outcome.Failed;
 		}
-		var finalising = Field(button, "Label") == finalise;
+		var finalising = finalise != null;
 		if (promises && finalising)
 		{
 			if (await PastPromises() is not { } stuck) return Outcome.Answered;
 			Console.Error.WriteLine(stuck);
 			return Outcome.Failed;
 		}
+		// His contract as it ends now: a signed one ends later.
+		var endsBefore = await ContractEnds(ours);
 		var before = await AgentSays();
 		await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 
@@ -182,15 +195,12 @@ internal static partial class Program
 				Tell(L("Tried to exit but the contract talks are still open (check: talk)."));
 				return Outcome.Answered;
 			}
-			// A renewal is not signed there and then: the agent takes it away and answers in a few days.
-			// That is in the agent's words, which only an English game's are known here; in another
-			// language which it was is not guessed.
-			var english = Field(await Fm.GetJson("state"), "Language") is "" or "english";
-			var later = (said ?? "").Contains("final decision", StringComparison.OrdinalIgnoreCase) || (said ?? "").Contains("be in touch", StringComparison.OrdinalIgnoreCase);
+			// A renewal is not always signed there and then: the agent can take it away and answer in a
+			// few days. Signed is his contract ending later than before.
+			var signed = finalising && endsBefore.Length > 0 && await ContractEnds(ours) is { Length: > 0 } endsAfter && endsAfter != endsBefore;
 			Tell(!finalising ? L("The negotiation closed.")
-				: !english ? L("The negotiation closed: the contract was either signed, or the decision will come to the inbox in a few days (contracts).")
-				: later ? L("The offer is with the other side; the decision will come to the inbox in a few days.")
-				: L("Contract signed; the negotiation is closed."));
+				: signed ? L("Contract signed; the negotiation is closed.")
+				: L("The negotiation closed: the contract was either signed, or the decision will come to the inbox in a few days (contracts)."));
 			return finalising ? Outcome.Signed : Outcome.Answered;
 		}
 
@@ -204,7 +214,7 @@ internal static partial class Program
 			.ToList();
 		if (changed.Count > 0) Tell(L($"The agent wants: {string.Join(" · ", changed)}"));
 
-		if (next.Any(l => l.Label == finalise))
+		if (await TalksStep(ConfirmTerms) != null)
 		{
 			if (!promises && changed.Count == 0 && !finalising)
 			{

@@ -90,10 +90,11 @@ internal static partial class Program
 	/// <paramref name="value"/>, or null. Answers that send the same event are told apart by what
 	/// the answer is (ActionResponseValue, a four-letter code such as 'ngts'), the same in every language.
 	/// </summary>
-	private static async Task<JsonElement?> SpeakToActionWith(string field, string value)
+	private static async Task<JsonElement?> SpeakToActionWith(string field, string value, string? name = null)
 	{
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
-			.Where(b => Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
+			.Where(b => Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True"
+				&& (name == null || Field(b, "Name") == name))
 			.ToList();
 		if (buttons.Count == 0) return null;
 		var read = await PullEach(buttons.Select(b => (Field(b, "Action"), field)).ToList());

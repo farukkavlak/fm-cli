@@ -119,7 +119,7 @@ internal sealed partial class OfferScreen
 		var shown = Options.Where(o => o.Choice != null && o.Choice.Value is not "" and not "Current Offer").Select(o => o.Choice.Value).ToList();
 		var costs = new List<string>();
 		if (Facts.TryGetValue("Cost", out var cost)) costs.Add(L($"effect on the wage budget {cost}"));
-		if (Facts.TryGetValue("Remaining", out var left) && left != "N/A") costs.Add(L($"{left} left"));
+		if (Facts.TryGetValue("Remaining", out var left)) costs.Add(L($"{left} left"));
 		var now = Facts.TryGetValue("Wage", out var wage)
 			? L($"now {wage}") + (Facts.TryGetValue("Contract Expires", out var ends) ? L($", until {ends}") : "")
 			: "";
@@ -129,7 +129,7 @@ internal sealed partial class OfferScreen
 			Console.WriteLine($"{Player}{(Club.Length > 0 ? $" · {Club}" : "")} — {title}");
 			foreach (var group in Rows.GroupBy(r => r.Section))
 			{
-				Console.WriteLine($"{(group.Key.Length > 0 ? Say(group.Key) : title)}:");
+				Console.WriteLine($"{ContractSection(group.Key, title)}:");
 				foreach (var row in group)
 					Console.WriteLine($"  {Say(row.Label)}: {row.Shown}{(row.Detail.Length > 0 ? $" ({SayDetail(row.Detail)})" : "")}"
 						+ (row.Lock is { Value: not "Negotiable" and not "" } l ? $"  [{SayLock(l.Value)}]" : "")
@@ -144,7 +144,7 @@ internal sealed partial class OfferScreen
 		var grid = new Grid().AddColumn(new GridColumn().NoWrap().PadRight(2)).AddColumn();
 		foreach (var group in Rows.GroupBy(r => r.Section))
 		{
-			grid.AddRow(new Markup($"[bold]{Ui.Safe(group.Key.Length > 0 ? Say(group.Key) : title)}[/]"), new Text(""));
+			grid.AddRow(new Markup($"[bold]{Ui.Safe(ContractSection(group.Key, title))}[/]"), new Text(""));
 			foreach (var row in group)
 				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(row.Shown)}[/]"
 					+ (row.Detail.Length > 0 ? Stage == "Terms" ? $"  [red]{Ui.Safe(SayDetail(row.Detail))}[/]" : $" [dim]{Ui.Safe(row.Detail)}[/]" : "")
@@ -165,6 +165,10 @@ internal sealed partial class OfferScreen
 			Padding = new Padding(1, 0, 1, 0),
 		});
 	}
+
+	/// <summary>The talks' blocks: the stage's own terms, then what was added to them (add-on-list).</summary>
+	private string ContractSection(string section, string title) =>
+		section.Length == 0 ? title : Stage == "Promises" ? L("Additional Promises") : L("Bonuses & Clauses");
 
 	/// <summary>
 	/// A term open to negotiation is the usual case and goes unmarked. No padlock glyph: it

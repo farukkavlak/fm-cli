@@ -296,8 +296,21 @@ Still open:
   - Unsent edits shut the kind tabs; a new offer presses Reset (`EventFmxRevert`) first, else refuses.
   - `--term` values match in the game's words too ("Sezon Sonu", "%20", "20 %").
   - Tried TR (5 transfer/loan opens in a row, edited loan → transfer), EN, DE (after restart). No offer sent.
-- [ ] Contract talks still read by English text: `Components` (Wage, Agent Fee…), `Facts` ("Transfer Value", "Wage"),
-  headings "Bonuses & Clauses" / "Additional Promises". Their bound records (`…ComponentInfo`) are the way.
+- [x] Contract talks (`fm contract`) on identity in FM27:
+  - Opened from the player's actions menu (`PersonOfferContract`, shared `RunPlayerAction` with `offer`).
+  - Root: the `BlockRemapper` above a term template; a term is its template (`wage-term`, `agent-fee-term`,
+    `playing-time-promise` …, `Key`); added bonuses/clauses/promises are `add-on-list` › `item-enabled`.
+    Stage: `-promise` templates = promises. "Add" lists by their holder (`add-bonus-dropdown`, `fees-add-dropdown`).
+  - Steps by the speak-to action's `Event` on the talks' `StandardButton`s: 41 `EventFmxConfirmTerms` (Finalise Promises /
+    Deal), 20 `EventFmxSuggestTerms`, 140 `EventFmxProceedToContractNegotiations`, 42 exit (asks "leave the table?",
+    answered), 811955833 withdraw. Reset: `EventFmxResetTerms`.
+  - Facts from data: the talks' record (`ContractNegotiationWageBudgetContribution`, …) and the player's `FullContract`
+    (`Session` / `Person` paths from the entire-offer lock's binding). Reasons: `<Session>.<…ComponentInfo>.BaseComponentData`.
+  - `--wage` / `--term "agent fee=…"` match the template's kind in any language. Signed = `FullContract.EndDate` changed
+    (the English "final decision" guess is gone). Not signed in tests.
+  - Dialogs (enter talks, cancel, leave) are answered until gone: one click while drawing was lost.
+  - Tried TR (promise change → suggest → confirm → terms, wage/agent fee, suggest at a terminal, cancel in both stages),
+    EN, DE (after restart).
 - [ ] `--term` by a term's English name fails in a German game (add-list choices not put into English); game words work.
 - [ ] `fm load "<save>"` from a loaded save: "save list did not open" (the game closed and reopened); `fm continue` loaded it.
 - [x] `next` listed old messages as new: the inbox binds a window of its list that grows as it is scrolled

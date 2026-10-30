@@ -161,6 +161,18 @@ internal static partial class Program
 		return null;
 	}
 
+	/// <summary>
+	/// Answers the dialog on screen until it is gone: a click while it is still being drawn is lost.
+	/// True once no dialog is left.
+	/// </summary>
+	internal static async Task<bool> AnswerDialog(bool agree) =>
+		await Until(async () =>
+		{
+			if (await Fm.GetJson("dialog") is not { ValueKind: JsonValueKind.Array } now || now.GetArrayLength() == 0) return true;
+			if (DialogAnswer(now[0], agree) is { } answer) await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
+			return false;
+		}, seconds: 8, every: 0.5);
+
 	/// <summary>A dialog that asks: one answer goes ahead, another backs out.</summary>
 	internal static bool DialogAsks(JsonElement dialog) => DialogAnswer(dialog, true) != null && DialogAnswer(dialog, false) != null;
 }
