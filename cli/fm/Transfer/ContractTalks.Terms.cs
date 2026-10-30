@@ -72,7 +72,7 @@ internal static partial class Program
 			}
 			foreach (var add in now.Adds.Where(a => a.Choice.Open.Count > 0))
 			{
-				items.Add(AddLine(add));
+				items.Add(AddLine("contract", add));
 				actions.Add(() => AddTerm("contract", add));
 			}
 			if (!promises && await Labelled("Reset") != null)

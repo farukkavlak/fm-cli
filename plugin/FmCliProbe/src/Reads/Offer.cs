@@ -39,6 +39,7 @@ internal static class Offer
 		var section = "";
 		var lastText = "";
 		var texts = new List<string>();
+		var offerType = "";
 
 		Visit(root);
 
@@ -95,6 +96,7 @@ internal static class Offer
 			+ $"\"BudgetCost\": \"{Report.Escape(Plain("Text_TransferCostValue"))}\", "
 			+ $"\"TotalCost\": \"{Report.Escape(Plain("Text_TotalCostValue"))}\", "
 			+ $"\"TotalCostTitle\": \"{Report.Escape(Plain("Text_TotalCostTitle"))}\", "
+			+ $"\"OfferType\": \"{offerType}\", "
 			+ "\"Options\": [" + string.Join(", ", options) + "], "
 			+ "\"Rows\": [" + string.Join(", ", rows) + "], "
 			+ "\"Facts\": {" + string.Join(", ", facts) + "}, "
@@ -145,7 +147,15 @@ internal static class Offer
 					adds.Add($"{{\"Section\": \"{(contract ? label : section)}\", {Choices(dropdown)}}}");
 				else if (contract && IsLock(dropdown))
 					options.Add($"{{\"Label\": \"{Report.Escape(lastText)}\", \"Lock\": {LockOf(dropdown)}}}");
-				else if (section.Length == 0) options.Add($"{{\"Label\": \"{Report.Escape(label)}\", {Choices(dropdown)}}}");
+				else if (section.Length == 0)
+				{
+					// Which offer-wide choice it is, by the field of the offer it writes
+					// (NegotiableOptionListValue, DeadlineDateOptionValue); the offer's kind sits beside it.
+					var writes = "";
+					try { writes = dropdown.SelectionValueBinding.Path ?? ""; } catch { }
+					if (offerType.Length == 0) offerType = Beside(dropdown, "TransferOfferType");
+					options.Add($"{{\"Label\": \"{Report.Escape(label)}\", \"Key\": \"{Report.Escape(writes[(writes.LastIndexOf('.') + 1)..])}\", {Choices(dropdown)}}}");
+				}
 				return;
 			}
 
@@ -273,6 +283,26 @@ internal static class Offer
 		if (parts.Count == 0 || parts.Count == 1 && lockList != null) parts.Add($"\"Fixed\": \"{Report.Escape(fixedText)}\"");
 		sb.Append(string.Join(", ", parts));
 		return sb.Append('}').ToString();
+	}
+
+	/// <summary>
+	/// A field of the record a dropdown writes into, read where the dropdown's own field is bound:
+	/// the offer's TransferOfferType (1 transfer, 3 loan) beside its negotiable choice. Empty when not bound.
+	/// </summary>
+	private static string Beside(SIDropdown dropdown, string field)
+	{
+		try
+		{
+			var b = Game.Bindings;
+			var written = dropdown.m_selectionValueBindingKey;
+			if (!b.Exists(ref written)) return "";
+			var path = b.GetPathDebug(ref written) ?? "";
+			var cut = path.LastIndexOf('.');
+			if (cut <= 0) return "";
+			var key = PathKey.Of($"{path[..cut]}.{field}");
+			return b.Exists(ref key) && b.Get(ref key) is { IsNull: false } held ? Text.Of(held) : "";
+		}
+		catch { return ""; }
 	}
 
 	/// <summary>

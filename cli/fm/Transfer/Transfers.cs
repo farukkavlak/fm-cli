@@ -145,11 +145,35 @@ internal static partial class Program
 		}
 
 		// The game keeps an unsent offer's kind from the last time its screen was open, so the
-		// kind asked for is chosen either way.
-		if (!resumed && await OfferIsLoan() is { } drawnLoan && drawnLoan != loan
-			&& await Named(loan ? "loan-offer-button" : "transfer-offer-button") is { } loanTab)
+		// kind asked for is chosen either way. The kind is bound a moment after the screen opens;
+		// unread, nothing is changed, so a fee is never typed into a loan's monthly fee.
+		bool? drawnLoan = null;
+		if (!resumed && !await Until(async () => (drawnLoan = await OfferIsLoan()) != null, seconds: 8, every: 0.1))
 		{
-			await Fm.Get("press", ("ptr", Field(loanTab, "Pointer")));
+			Console.Error.WriteLine(L("Could not read whether the offer on screen is a transfer or a loan; nothing was changed. To close it: offer --close"));
+			return 1;
+		}
+		if (!resumed && drawnLoan != loan)
+		{
+			// The game shuts the kind tabs on an offer whose terms were changed and not sent: a new
+			// offer starts from its own terms, so those are put back with the screen's Reset
+			// (EventFmxRevert) and the tab waited on.
+			var tabName = loan ? "loan-offer-button" : "transfer-offer-button";
+			JsonElement? loanTab = await Named(tabName);
+			if (loanTab == null && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(c => Field(c, "Events") == "EventToPlugin:EventFmxRevert" && Field(c, "Enabled") == "True") is { ValueKind: JsonValueKind.Object } revert)
+			{
+				await Fm.Get("press", ("ptr", Field(revert, "Pointer")));
+				await Until(async () => (loanTab = await Named(tabName)) != null, seconds: 8, every: 0.1);
+			}
+			if (loanTab == null)
+			{
+				Console.Error.WriteLine(loan
+					? L("The offer on screen is a transfer and the game does not let it be made a loan now; nothing was changed. To close it: offer --close")
+					: L("The offer on screen is a loan and the game does not let it be made a transfer now; nothing was changed. To close it: offer --close"));
+				return 1;
+			}
+			await Fm.Get("press", ("ptr", Field(loanTab.Value, "Pointer")));
 			// The loan tab redraws the panel in two steps: the transfer's terms go, then the
 			// loan's own terms are drawn. The screen showing a loan is the game's answer that
 			// the switch has landed; the tab's label is the game's word, the row set is not.
@@ -323,7 +347,7 @@ internal static partial class Program
 				}
 				foreach (var add in now.Adds.Where(a => a.Choice.Open.Count > 0))
 				{
-					items.Add(AddLine(add));
+					items.Add(AddLine("offer", add));
 					actions.Add(() => AddTerm("offer", add));
 				}
 
@@ -354,18 +378,12 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Whether the offer on screen is a loan, from the offer itself: the record its kind tabs send to
-	/// ("transferoffer") holds TransferOfferType, 1 for a transfer and 3 for a loan (what the loan tab
-	/// sends, TransferOfferTypeLoan). Null with no offer screen open.
+	/// Whether the offer on screen is a loan, from the offer itself: its TransferOfferType, 1 for a
+	/// transfer and 3 for a loan, read where its negotiable choice is bound. Null with no offer
+	/// screen open, or one that binds no kind. (The kind tabs' Target is empty until one is pressed.)
 	/// </summary>
-	private static async Task<bool?> OfferIsLoan()
-	{
-		var tab = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
-			.FirstOrDefault(b => Field(b, "Name") == "transfer-offer-button" && Field(b, "Target").Length > 0);
-		if (tab.ValueKind != JsonValueKind.Object) return null;
-		var kind = Field((await PullEach([(Field(tab, "Target"), "TransferOfferType")], r => Field(r, "TransferOfferType").Length > 0))[0], "TransferOfferType");
-		return kind.Length > 0 ? kind == "3" : null;
-	}
+	private static async Task<bool?> OfferIsLoan() =>
+		await OfferScreen.Read(Fm) is { OfferType.Length: > 0 } offer ? offer.IsLoan : null;
 
 	private static async Task<JsonElement?> FeeBoxNow() =>
 		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()

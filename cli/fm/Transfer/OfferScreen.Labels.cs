@@ -5,51 +5,52 @@ namespace FmCli;
 
 internal sealed partial class OfferScreen
 {
+	/// <summary>A term as one line of the edit menu: its value, and its lock when it is not the usual.</summary>
 	public static string MenuLine(Term row) =>
 		$"{Say(row.Label)}: {row.Shown}" + (row.Lock is { Value: not "Negotiable" and not "" } l ? $" ({SayLock(l.Value)})" : "");
 
-	public static string SayLock(string lockName) => lockName == "Negotiable" ? L("Negotiable") : Say(lockName);
+	/// <summary>The padlock's states are the CLI's names for the game's indices (<see cref="Locks"/>).</summary>
+	public static string SayLock(string lockName) => lockName switch
+	{
+		"Negotiable" => L("Negotiable"),
+		"Semi-Negotiable" => L("Semi-Negotiable"),
+		"Non-Negotiable" => L("Non-Negotiable"),
+		"Remove & Exclude" => L("Remove & Exclude"),
+		_ => lockName,
+	};
 
-	/// <summary>A term's notes, each in Turkish where it is known.</summary>
+	/// <summary>A term's notes, each in the game's words.</summary>
 	public static string SayDetail(string detail) => string.Join(" · ", detail.Split(" · ").Select(Say));
 
-	/// <summary>A label in Turkish where one is known; the game's own word otherwise.</summary>
+	/// <summary>
+	/// A text read from the screen in the game's own words: the plugin hands labels over in English
+	/// and the words it saw beside them (<see cref="GameWords"/>).
+	/// </summary>
 	public static string Say(string label) =>
 		label.EndsWith(" ›", StringComparison.Ordinal) ? Say(label[..^2]) + " ›"
-		: Turkish.TryGetValue(label, out var said) ? said
-		: Bonus(label) ?? label.TrimEnd(':');
+		// A heading's colon is in some of the game's texts and not in others.
+		: GameWords.Of(label.Trim()) is var shown && shown != label.Trim() ? shown.TrimEnd(':')
+		: GameWords.Of(label.TrimEnd(':').Trim());
 
 	/// <summary>
-	/// Bonuses for a trophy or an award are named after it, so they are put in Turkish by their
-	/// shape: "Bonus upon winning World Golden Ball", "Bonus upon reaching the Semi Final of the
-	/// Turkish Cup", "Winning the Super League" (a contract's competition bonus).
+	/// The offer-wide choices are told apart by the field of the offer they write; the names are the
+	/// CLI's own, typed in --term ("Deadline=Today").
 	/// </summary>
-	private static string Bonus(string label)
+	public static string OptionKey(Term option) => option.Key switch
 	{
-		var reaching = System.Text.RegularExpressions.Regex.Match(label, @"^Bonus upon reaching the (.+) of the (.+)$");
-		if (reaching.Success) return L($"{reaching.Groups[2].Value}: {reaching.Groups[1].Value} bonus");
-		var winning = System.Text.RegularExpressions.Regex.Match(label, @"^(?:Bonus upon winning|Winning) (?:the )?(.+)$");
-		if (winning.Success) return L($"Bonus if {winning.Groups[1].Value} is won");
-		var qualifying = System.Text.RegularExpressions.Regex.Match(label, @"^Qualifying for the (.+)$");
-		if (qualifying.Success) return L($"Bonus for taking part in {qualifying.Groups[1].Value}");
-		return null;
-	}
-
-	/// <summary>
-	/// The offer-wide choices have no label of their own; what they offer says which is which. The
-	/// negotiation and the offer shown offer the game's own texts; the deadline's choices are the
-	/// engine's (an English label and its game-language pair), so it is the one left over.
-	/// </summary>
-	public static string OptionKey(Term option) =>
-		option.Choice.Choices.Contains("Non-Negotiable") ? "Negotiable"
-		: option.Choice.Choices.Contains("Previous Offer") ? "Shown"
-		: "Deadline";
+		"NegotiableOptionListValue" => "Negotiable",
+		"DeadlineDateOptionValue" => "Deadline",
+		// On the other club's answer: theirs, or the one we sent before it.
+		"CurrentPreviousOfferSelection" => "Shown",
+		var other => other,
+	};
 
 	public static string OptionName(Term option) => OptionKey(option) switch
 	{
-		// On the other club's answer: theirs, or the one we sent before it.
+		"Negotiable" => L("Negotiation"),
+		"Deadline" => L("Deadline"),
 		"Shown" => L("Shown"),
-		var key => Say(key),
+		_ => Say(option.Label),
 	};
 
 	/// <summary>What the screen says, for --json.</summary>
@@ -107,12 +108,13 @@ internal sealed partial class OfferScreen
 	/// <summary>The first block has no heading on a loan; the others are the game's.</summary>
 	private string SectionName(string section) => section.Length > 0 ? Say(section) : IsLoan ? L("Loan terms") : L("Basic terms");
 
-	private string TotalName => TotalCostTitle.Contains("permanent", StringComparison.OrdinalIgnoreCase) ? L("Total if made permanent") : L("Possible total");
+	/// <summary>What the total is of, in the game's words: a loan's is the cost should it become permanent.</summary>
+	private string TotalName => TotalCostTitle.Length > 0 ? Say(TotalCostTitle) : L("Possible total");
 
 	/// <summary>The contract talks: the stage's terms, the offer-wide lock, what it costs.</summary>
 	private void DrawContract()
 	{
-		var title = Say(Stage);
+		var title = Stage == "Promises" ? L("Promises") : L("Terms");
 		var lockLine = Options.Where(o => o.Lock != null).Select(o => $"{Say(o.Label)}: {SayLock(o.Lock!.Value)}").ToList();
 		var shown = Options.Where(o => o.Choice != null && o.Choice.Value is not "" and not "Current Offer").Select(o => o.Choice.Value).ToList();
 		var costs = new List<string>();

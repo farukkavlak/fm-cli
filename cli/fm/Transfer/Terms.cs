@@ -48,27 +48,14 @@ internal static partial class Program
 		return control.Choices[picked] == control.Value ? null : await OfferScreen.Choose(Fm, control, control.Choices[picked], after, route);
 	}
 
-	/// <summary>The menu line for one of the "Add" lists.</summary>
-	private static string AddLine(OfferScreen.Term add) => add.Section switch
-	{
-		"Additional Fees" => L("+ Add an extra payment"),
-		"Players To Exchange" => L("+ Add a player to the swap"),
-		"Add Bonus" => L("+ Add a bonus"),
-		"Add Promise" => L("+ Add a promise"),
-		"Additional Clauses" or "Add Clause" => L("+ Add a clause"),
-		var other => L($"+ Add: {OfferScreen.Say(other)}"),
-	};
+	/// <summary>The menu line for one of the "Add" lists: its heading in the game's words, or on the
+	/// contract talks the list's own name ("Add Bonus").</summary>
+	private static string AddLine(string route, OfferScreen.Term add) =>
+		route == "contract" ? $"+ {OfferScreen.Say(add.Section)}" : L($"+ Add: {OfferScreen.Say(add.Section)}");
 
 	private static async Task<string?> AddTerm(string route, OfferScreen.Term add)
 	{
-		var question = add.Section switch
-		{
-			"Additional Fees" => L("Which payment?"),
-			"Players To Exchange" => L("Which player?"),
-			"Add Bonus" => L("Which bonus?"),
-			"Add Promise" => L("Which promise?"),
-			_ => L("Which clause?"),
-		};
+		var question = OfferScreen.Say(add.Section);
 
 		// A choice ending in › opens a submenu (a trophy, an award, a player of the squad): the
 		// menu walks down it until a choice without one.
@@ -122,7 +109,7 @@ internal static partial class Program
 					? await OfferScreen.SetLock(Fm, option, lockName, route, s => s.Options.FirstOrDefault(o => o.Lock?.Pointer == option.Lock.Pointer)?.Lock)
 					: L($"options: {string.Join(", ", option.Lock.Choices)}");
 			}
-			var picked = values.Length == 1 ? option.Choice.Choices.FirstOrDefault(c => Fold(c) == Fold(values[0])) : null;
+			var picked = values.Length == 1 ? option.Choice.Choices.FirstOrDefault(c => Fold(c) == Fold(values[0]) || Fold(OfferScreen.Say(c)) == Fold(values[0])) : null;
 			return picked != null
 				? await OfferScreen.Choose(Fm, option.Choice, picked, s => s.Options.FirstOrDefault(o => o.Choice?.Pointer == option.Choice.Pointer)?.Choice, route)
 				: L($"options: {string.Join(", ", option.Choice.Choices)}");
@@ -160,8 +147,11 @@ internal static partial class Program
 			if (control == null) return null;
 			// A submenu ("Coaching ›") is not a choice of its own: what is in it is looked for apart.
 			var leaves = control.Choices.Where(c => !c.EndsWith(" ›", StringComparison.Ordinal)).ToList();
-			if (leaves.FirstOrDefault(c => Fold(c) == Fold(value)) is { } exact) return exact;
-			var starting = leaves.Where(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal)).ToList();
+			// Typed as the game shows it ("Sezon Sonu") or as the plugin names it ("End Of Season").
+			if (leaves.FirstOrDefault(c => Fold(c) == Fold(value) || Fold(OfferScreen.Say(c)) == Fold(value)) is { } exact) return exact;
+			// A percentage's sign stands before the figure in some languages ("%20" in Turkish).
+			if (value.Contains('%') && leaves.Where(c => c.Contains('%') && Fold(c).Replace("%", "").Trim() == Fold(value).Replace("%", "").Trim()).ToList() is [var percent]) return percent;
+			var starting = leaves.Where(c => Fold(c).StartsWith(Fold(value), StringComparison.Ordinal) || Fold(OfferScreen.Say(c)).StartsWith(Fold(value), StringComparison.Ordinal)).ToList();
 			return starting.Count == 1 ? starting[0] : null;
 		}
 

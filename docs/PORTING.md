@@ -285,8 +285,20 @@ Still open:
 - [x] Search result kind: `SearchRecordType` is the game's word ("Spieler"), and the record JSON took it back through the
   table ("Players"), so German searches found no player. Kind is now the record found (`Person`/`Club`/…); a person is a
   player or staff by `Person.IsPlayer` (pulled by `Path`); the shown word is `Shown`. TR + EN + DE.
-- [ ] Offer card reading (`/offer`, `OfferScreen`) is still by English text: section headings ("Main Details:" stays English
-  in TR), `IsLoan` by the "Playing Monthly Fee" label, a hard-coded Turkish label table. Move to the game's words / data.
+- [x] Offer card (`/offer`, `OfferScreen`) on identity:
+  - Transfer or loan: the offer's `TransferOfferType`, read where its negotiable choice is bound (`OfferType` in `/offer`).
+    It is bound a moment after the screen opens: `offer` waits for it and refuses unread (a fee once went into a loan's
+    monthly fee because the old check, the kind tabs' `Target`, is empty until a tab is pressed).
+  - Offer-wide choices by the field they write (`Key`: `NegotiableOptionListValue`, `DeadlineDateOptionValue`).
+    `CurrentPreviousOfferSelection` (other club's answer) is assumed from the schema, not seen.
+  - Labels, headings, total's title in the game's words (`GameWords`); the hard-coded Turkish table and the English bonus
+    patterns are gone. Back-translation is not stable: TR "Ana Detaylar" came back "Main Details", EN shows "Base Details".
+  - Unsent edits shut the kind tabs; a new offer presses Reset (`EventFmxRevert`) first, else refuses.
+  - `--term` values match in the game's words too ("Sezon Sonu", "%20", "20 %").
+  - Tried TR (5 transfer/loan opens in a row, edited loan → transfer), EN, DE (after restart). No offer sent.
+- [ ] Contract talks still read by English text: `Components` (Wage, Agent Fee…), `Facts` ("Transfer Value", "Wage"),
+  headings "Bonuses & Clauses" / "Additional Promises". Their bound records (`…ComponentInfo`) are the way.
+- [ ] `--term` by a term's English name fails in a German game (add-list choices not put into English); game words work.
 - [ ] `fm load "<save>"` from a loaded save: "save list did not open" (the game closed and reopened); `fm continue` loaded it.
 - [x] `next` listed old messages as new: the inbox binds a window of its list that grows as it is scrolled
   (14 rows, then 41). New now means unseen and a newer id than any held before. TR + EN + DE, 4–5 steps each.

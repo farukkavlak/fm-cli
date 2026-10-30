@@ -1414,13 +1414,10 @@ the amount did not change on screen	tutar ekranda değişmedi
 '{0}' is not in this term; options: {1}	'{0}' bu şartta yok; seçenekler: {1}
 '{0}' was not removed	'{0}' kaldırılmadı
 Negotiable	Pazarlığa açık
-Bonus if {0} is won	{0} kazanılırsa prim
-Bonus for taking part in {0}	{0}'e katılım primi
 Shown	Gösterilen
 From the budget: {0}	Bütçeden çıkacak: {0}
 Loan terms	Kiralık şartları
 Basic terms	Temel şartlar
-Total if made permanent	Kalıcı olursa toplam
 Possible total	Olası toplam
 now {0}	şu an {0}
 , until {0}	, {0}'e kadar
@@ -1508,8 +1505,6 @@ Progression	İlerleme
    (in a match: applied at the first dead ball; the team's saved tactic does not change)	   (maçta: ilk ölü topta uygulanır; takımın kayıtlı taktiği değişmez)
 This term cannot be changed.	Bu şart değiştirilemiyor.
 '{0}' is not an amount.	'{0}' bir tutar değil.
-+ Add an extra payment	+ Ek ödeme ekle
-Which payment?	Hangi ödeme?
 This menu is empty.	Bu menü boş.
 format: "Term=value", e.g. "Percentage Of Next Sale=20%"	biçim: "Şart=değer", ör. "Percentage Of Next Sale=20%"
 the screen is not open	ekran açık değil
@@ -1778,102 +1773,23 @@ Double Intensity	Çift
 No pitch or gym work	Dinleniyor
 Send On Holiday	Tatilde
 Penalties	Penaltılar
-Additional Fees	Ek ödemeler
-Additional Clauses	Ek maddeler
 Players To Exchange	Takas oyuncuları
 Fee	Bonservis
-Transfer Date	Transfer tarihi
 Negotiation	Pazarlık
 Deadline	Cevap süresi
 After League Appearances	Lig maçı sonrası
-Per League Appearance	Lig maçı başına
-After International Appearances	Milli maç sonrası
-Minimum League Goals	Lig golü sonrası
-Instalments (6 monthly)	Taksit (6 ayda bir)
-Instalments (12 monthly)	Taksit (12 ayda bir)
-Sell Player First	Önce oyuncu satması
-Buy Back Price	Geri alım bedeli
-Selling Team Wage Contribution	Satan kulübün maaş katkısı
-Arrange Friendly	Hazırlık maçı
-Loan Back Length	Geri kiralama süresi
-Can Be Recalled From Loan Back	Geri kiralamadan çağrılabilir
 Semi-Negotiable	Yarı pazarlıklı
 Non-Negotiable	Pazarlıksız
 Remove & Exclude	Çıkar ve yasakla
-Loan Options	Kiralık seçenekleri
-Loan Clauses	Kiralık maddeleri
-Loan-to-buy Fees	Satın alma bedelleri
-Future Additional Fees	Satın almada ek ödemeler
-Future Additional Clauses	Satın almada ek maddeler
-Playing Monthly Fee	Aylık ücret (oynarsa)
-Unused Monthly Fee	Aylık ücret (oynamazsa)
-Playing Wage Percentage	Maaş katkısı (oynarsa)
-Unused Wage Percentage	Maaş katkısı (oynamazsa)
 Duration	Süre
-Agreed Playing Time	Söz verilen forma süresi
-Preferred Position	Tercih edilen mevki
-Preferred Role	Tercih edilen rol
-Can play in cup matches	Kupa maçlarında oynayabilir
-Can play against own team	Kendi kulübüne karşı oynayabilir
 Can be recalled	Geri çağrılabilir
-Loan cannot be terminated	Kiralık feshedilemez
-Can play against parent club's B team	Kulübün B takımına karşı oynayabilir
-Can play for parent club	Kendi kulübünde de oynayabilir
-Can play for parent club reserves	Kulübün yedeklerinde oynayabilir
-Can play for parent club in cup matches	Kupada kendi kulübünde oynayabilir
-Increased playing time second season	İkinci sezon daha çok forma
-Loan To Buy Fee	Satın alma opsiyonu
-Optional Future Fee	Opsiyonlu satın alma bedeli
-Mandatory Future Fee	Zorunlu satın alma bedeli
-Future Fee After Matches Played	Maç sayısına bağlı satın alma
-Future Fee After Competition Achievement	Başarıya bağlı satın alma
 Promises	Vaatler
 Terms	Şartlar
-Additional Promises	Ek vaatler
-Bonuses & Clauses	Primler ve maddeler
-Entire offer	Tüm teklif
 Contract Start Date	Başlangıç
 Agent Fee	Menajer ücreti
-Signing On Fee	İmza parası
-Contract Type	Sözleşme türü
-Promotion Wage Rise	Lig atlarsa zam
-Yearly Wage Rise	Yıllık zam
-Top Division Relegation Wage Drop	Küme düşerse maaş indirimi
-One-Year Extension After League Games (Final Season)	Lig maçı sayısıyla 1 yıl uzatma (son sezon)
-One-Year Extension After League Games (Avoid Relegation Final Season)	Lig maçı sayısıyla 1 yıl uzatma (kümede kalınırsa)
-Optional Contract Extension By Club	Kulüp opsiyonu
-Minimum Fee Release Clause (Foreign Clubs)	Serbest kalma bedeli (yabancı kulüpler)
-Minimum Fee Release Clause (Domestic Clubs)	Serbest kalma bedeli (yerli kulüpler)
-Relegation Release Clause	Küme düşerse serbest kalma
-Sell On Fee Percentage	Satıştan oyuncuya pay
-Match Highest Earner Clause	En yüksek maaşa eşitleme
-Injury Release Clause	Uzun sakatlıkta fesih
 Bonus After Competition Achievement	Turnuva başarısı primi
-Bonus After Player Award Achievement	Oyuncu ödülü primi
-Competition Bonuses	Turnuva primleri
-Award Bonuses	Ödül primleri
-Other Player From Squad	Kadrodan bir oyuncu
 Senior Squad	A takım
-U19 Squad	U19 takımı
-Above max allowed %	izin verilen oranın üstünde
-Contract too short	sözleşme bunun için fazla kısa
-Not allowed to exceed appearance bonus	maç başı ücreti aşamaz
-Clause offers no wage increase	madde ücreti artırmıyor
-Wage After Reaching International Appearances	Milli maç sayısına ulaşınca ücret
-Wage After Reaching Club League Games	Lig maçı sayısına ulaşınca ücret
-The long-term aims for the club are:	Kulübün uzun vadeli hedefi
-The aims for the league this season are:	Bu sezon ligdeki hedef
-The aims for cup competitions this season are:	Bu sezon kupalardaki hedef
-Will look to strengthen the following area of the first team squad:	Kadroda şu bölge güçlendirilecek
 Will appoint player as captain	Kaptan yapılacak
-Will appoint player as vice-captain	Kaptan yardımcısı yapılacak
-Will assign player as free kick taker	Serbest vuruşları o kullanacak
-Will assign player as penalty taker	Penaltıları o kullanacak
-Will allow the player to treat the club as a stepping stone	Kulübü basamak olarak görebilecek
-Will improve training facilities	Antrenman tesisleri iyileştirilecek
-Will improve first team coaching staff	A takım çalıştırıcıları güçlendirilecek
-Will play player in preferred position and role	Sevdiği mevki ve rolde oynayacak
-Will look to bring in a suitable signing to help player settle	Uyumu için uygun bir transfer yapılacak
 DC	Defender (Centre)
 DM	Defensive Midfielder
 MR	Midfielder (Right)
@@ -2002,7 +1918,6 @@ Window	Pencere
 Group	Grup
 yes	evet
 '{0}' was not added	'{0}' eklenmedi
-{0}: {1} bonus	{0}: {1} primi
 [dim]Offer[/]	[dim]Teklif[/]
 {0} left	kalan {0}
   [red]breaks a rule[/]	  [red]kurala uymuyor[/]
@@ -2056,15 +1971,7 @@ Free Agent (on trial)	Free Agent (denemede)
 Playmaking	Oyun kurma
 Instruction	Talimat
 {0} · {1} / out of possession {2}	{0} · {1} / topsuz {2}
-+ Add a player to the swap	+ Takasa oyuncu ekle
-+ Add a bonus	+ Prim ekle
-+ Add a promise	+ Vaat ekle
-+ Add a clause	+ Madde ekle
-+ Add: {0}	+ Ekle: {0}
 Which player?	Hangi oyuncu?
-Which bonus?	Hangi prim?
-Which promise?	Hangi vaat?
-Which clause?	Hangi madde?
 Effects: {0}	Etkiler: {0}
 {0} (spent this season {1}, at the start {2})	{0} (bu sezon harcanan {1}, başta {2})
 Wage budget	Maaş bütçesi
@@ -2497,3 +2404,7 @@ Nothing to send back yet: change a term of their offer first (only then does the
 Sent, but {0}'s offer stays the same in the list.	Gönderildi, ama {0} teklifi listede aynı kaldı.
 Nothing can be sent on {0}'s offer now; it waits on their answer (status: {1}).	{0} teklifinde şu an gönderilecek bir şey yok; onların cevabını bekliyor (durum: {1}).
 Transfer offer tab did not open.	Transfer teklif sekmesi açılmadı.
++ Add: {0}	+ Ekle: {0}
+Could not read whether the offer on screen is a transfer or a loan; nothing was changed. To close it: offer --close	Ekrandaki teklifin transfer mi kiralık mı olduğu okunamadı; hiçbir şey değiştirilmedi. Kapatmak için: offer --close
+The offer on screen is a transfer and the game does not let it be made a loan now; nothing was changed. To close it: offer --close	Ekrandaki teklif transfer teklifi ve oyun şu an kiralığa çevirmeye izin vermiyor; hiçbir şey değiştirilmedi. Kapatmak için: offer --close
+The offer on screen is a loan and the game does not let it be made a transfer now; nothing was changed. To close it: offer --close	Ekrandaki teklif kiralık teklifi ve oyun şu an transfere çevirmeye izin vermiyor; hiçbir şey değiştirilmedi. Kapatmak için: offer --close

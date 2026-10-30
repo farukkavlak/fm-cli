@@ -20,7 +20,9 @@ internal sealed partial class OfferScreen
 	public string TotalCost { get; private init; } = "";
 	/// <summary>What the total is of: a loan's is the cost should it become permanent.</summary>
 	public string TotalCostTitle { get; private init; } = "";
-	public bool IsLoan => Rows.Any(r => r.Label == "Playing Monthly Fee");
+	/// <summary>The offer's own kind (TransferOfferType): 1 a transfer, 3 a loan; empty where the screen binds none.</summary>
+	public string OfferType { get; private init; } = "";
+	public bool IsLoan => OfferType == "3";
 	/// <summary>The contract talks only: "Promises" or "Terms", and what sits beside the terms.</summary>
 	public string Stage { get; private init; } = "";
 	public Dictionary<string, string> Facts { get; private init; } = [];
@@ -46,6 +48,9 @@ internal sealed partial class OfferScreen
 
 	public sealed record Term(string Section, string Label, string Detail, string Remove, Control Choice, Control Amount, string Fixed, Control? Lock = null)
 	{
+		/// <summary>An offer-wide choice: the field of the offer it writes (NegotiableOptionListValue).</summary>
+		public string Key { get; init; } = "";
+
 		/// <summary>The game marks a contract term the agent will not take as it stands.</summary>
 		public bool Warning { get; init; }
 
@@ -71,9 +76,10 @@ internal sealed partial class OfferScreen
 			BudgetCost = F(data, "BudgetCost"),
 			TotalCost = F(data, "TotalCost"),
 			TotalCostTitle = F(data, "TotalCostTitle"),
+			OfferType = F(data, "OfferType"),
 			Options = data.GetProperty("Options").EnumerateArray().Select(o => o.TryGetProperty("Lock", out var l)
 				? new Term("", F(o, "Label"), "", "", null!, null!, "", LockOf(l))
-				: new Term("", F(o, "Label"), "", "", ControlOf(o), null!, "")).ToList(),
+				: new Term("", F(o, "Label"), "", "", ControlOf(o), null!, "") { Key = F(o, "Key") }).ToList(),
 			Rows = rows.EnumerateArray().Select(r => new Term(F(r, "Section"), F(r, "Label"), F(r, "Detail"), F(r, "Remove"),
 				r.TryGetProperty("Choice", out var c) ? ControlOf(c) : null!,
 				r.TryGetProperty("Amount", out var a) ? new Control(F(a, "Pointer"), F(a, "Value"), []) : null!,
@@ -148,7 +154,7 @@ internal sealed partial class OfferScreen
 		return new OfferScreen
 		{
 			Stage = Stage, Facts = Facts, Club = Club, Player = Player, BudgetCost = BudgetCost, TotalCost = TotalCost,
-			Options = Options, Rows = rows, Adds = Adds,
+			TotalCostTitle = TotalCostTitle, OfferType = OfferType, Options = Options, Rows = rows, Adds = Adds,
 		};
 	}
 
