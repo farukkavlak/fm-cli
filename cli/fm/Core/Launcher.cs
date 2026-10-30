@@ -111,7 +111,7 @@ internal static class Launcher
 		}
 
 		Console.WriteLine(L("Loading the last save…"));
-		var answer = await fm.Get("continue");
+		var answer = await fm.Get("loadlast");
 		if (answer.StartsWith("error", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine(answer.Trim());

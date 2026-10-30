@@ -222,6 +222,7 @@ Still open:
     (`EventFmxSetPieceCreatorNextStep`) goes on, 6 presses end it (`Respond` 0). Back: `…CreatorBackStep`.
   - Done once by hand (TR). `setpieces new` (six questions) may be this wizard: not tried on it yet; `next` should name it.
 - [x] New continue stop `Messages` (new mail, nothing to answer): one press goes on; `next` passes it.
+  - `AroundTheWorld` (world news page): one press goes on, seen once (TR).
   FM27 has more page stops (`NextUnreadMessage`, `Training`, `NewsForYou`, `DataHub`…): not seen yet.
 - [x] FM27's match-day screens before kick-off (`SubmitTeam`, `Tactics`) bind no game date: `InGame` took them for
   "no save" (the node count is capped at 1000, so only the date decided). Match-day stops now count as a loaded save.
@@ -236,6 +237,11 @@ Still open:
   The root `Match` binding's `Stats` answers live, per side by the `isHomeTeam` variable beside it (`/contexts` names it).
   The first pull of a new path is empty for a frame. Tried TR, one match, panel closed: last live line = `report`.
   - [ ] `docs/manual/img/match/live-match.png` still the FM26 shot without the line: recapture with `tools/live-capture.py`.
+- [x] The bridge's main-menu Continue is `/loadlast` (was `/continue`) and refuses once a save is loaded:
+  called in game it reloaded the last save over five days of play. In-game Continue is `/next`.
+- [x] Board meeting on expectations and promises (FM27, first season): the message's answer opens a talk;
+  `talk "<part of a line>"` goes through it (targets, then promises, then "Görüşmeyi Sonlandır"). Options change
+  between visits, so parts of lines are safer than numbers. Every promise offered got 17 negative reactions here.
 - [x] `save` on match-day screens (no game date bound) says "today" instead of "()".
 - [x] `dugout uygula` / `dugout 2 kaldır` went to the language layer (a command word that is not a number made it a
   sentence); a command's own words (`CommandFlags`) now keep it a command.

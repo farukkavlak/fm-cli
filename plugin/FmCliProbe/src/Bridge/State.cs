@@ -49,6 +49,12 @@ internal static class State
 		return Report.Json(fields, ["Commentary"]) + "\n";
 	}
 
+	/// <summary>
+	/// Whether a save is loaded: the in-game Continue button's flow is bound only then. (The game
+	/// date is not enough: match-day screens bind none.)
+	/// </summary>
+	public static bool InSave() => Game.Bindings is { } bindings && Read(bindings, "continue.State") != null;
+
 	private static readonly Dictionary<string, string> MatchFields = new()
 	{
 		["MatchTime"] = "MatchTime",

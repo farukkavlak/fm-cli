@@ -27,7 +27,7 @@ internal static partial class FmApi
 		"subsystems" => Game.SubsystemReport(),
 		"scan" => Game.ScanReport(q["q"]),
 		"find" => Find(q["name"], Int(q["limit"], 10)),
-		"continue" => Continue(),
+		"loadlast" => LoadLast(),
 		"next" => Next(),
 		"refprops" => RefProps(q["path"]),
 		"bind" => Bind(q["path"]),
@@ -250,10 +250,15 @@ internal static partial class FmApi
 	/// Resume the most recent save. The main menu exposes it as a DynamicReference, which
 	/// derives from Record, so it can be handed straight to the load event the game listens for.
 	/// </summary>
-	private static string Continue()
+	/// <summary>
+	/// The main menu's Continue: loads the last save. Not the in-game Continue (that is /next).
+	/// Refused once a save is loaded, where it would throw away everything since the last save.
+	/// </summary>
+	private static string LoadLast()
 	{
 		var events = Game.Events;
 		if (events == null) return "error: event subsystem unavailable";
+		if (State.InSave()) return "error: a save is loaded; this would reload the last save over it (the in-game Continue is /next)";
 
 		var hits = FindAll("LastSave", 1);
 		if (hits.Count == 0) return "error: no LastSave node (is the main menu up?)";

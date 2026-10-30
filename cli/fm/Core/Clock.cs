@@ -150,10 +150,11 @@ internal static partial class Program
 	/// States in which Continue goes on. Besides being free to continue, the game stops
 	/// to show a page — the news site, the latest scores — and pressing Continue there is how
 	/// a player gets past it. Everything else wants something done first. FM27 also stops on new
-	/// messages (Messages), with nothing to answer: one press goes on.
+	/// messages (Messages) and on the world news page (AroundTheWorld), with nothing to answer:
+	/// one press goes on.
 	/// </summary>
 	private static bool Passable(string flow) =>
-		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages";
+		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages" or "AroundTheWorld";
 
 	/// <summary>
 	/// The state once the game has stopped working, or null if it never did.
