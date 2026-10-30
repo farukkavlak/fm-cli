@@ -3,61 +3,66 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Who does what at the club (Club › Responsibilities): each duty with whether
-/// the manager has kept it or handed it on, and to whom. The page is one long list in groups;
-/// a duty is a title, a line about it, the pair "Take Control" / "Delegate" and the list of who
-/// can take it, showing who has it.
+/// Who does what at the club (Club › Responsibilities): each duty with whether the manager has
+/// kept it or handed it on, and to whom. Read from the page's edit session (TeamSettingsEditSession),
+/// not from what the page lays out: its tabs (ResponsibilityTabList, each with its ResponsibilityTabID),
+/// each tab's groups, each group's duties (IsUserInControl, CanHumanTakeControl, CanHumanChange,
+/// StaffMemberInCharge). A change is made in the session, then confirmed, as the page's Confirm does.
 /// </summary>
 internal static partial class Program
 {
-	private sealed record Duty(string Group, string Title, string About, bool Mine, string Holder, string Take, bool CanTake, string Delegate, bool CanDelegate, string Staff = "", string Area = "");
+	/// <param name="Group">The group's ResponsibilityGroupID and team type: a first team's group and its youth team's share the id.</param>
+	/// <param name="Row">Where the duty was put for this reading; good only until the next.</param>
+	/// <param name="TabAt">The tab's place in the session's list, which is the page's radio group of tabs.</param>
+	private sealed record Duty(int Tab, int TabAt, string Area, string Group, string GroupName, string Title, string About,
+		bool Mine, string Holder, string HolderId, bool CanTake, bool CanDelegate, bool CanChange, string Row);
 
 	private static async Task<int> Responsibilities(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
 		var opened = await OpenPage(Screen.Responsibilities);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		if (await DutySession() is not { } session)
+		{
+			Console.Error.WriteLine(L("The responsibilities page could not be read."));
+			return 1;
+		}
 
 		var words = Words(args).ToList();
-		if (words.Count > 0 && words[0] is "give" or "ver") return await GiveDuty(words.Skip(1).ToList(), args.Contains("--yes"));
+		if (words.Count > 0 && words[0] is "give" or "ver") return await GiveDuty(session, words.Skip(1).ToList());
 		var action = words.Count > 0 && words[0] is "take" or "delegate" or "al" or "devret" ? words[0] : null;
-		if (action != null) return await SetDuty(action is "take" or "al", string.Join(" ", words.Skip(1)), args.Contains("--yes"));
+		if (action != null) return await SetDuty(session, action is "take" or "al", string.Join(" ", words.Skip(1)));
 
-		// An area by name ("medya", "antrenman") shows that one; other words are looked for in them all.
-		var typed = Fold(string.Join(" ", words));
-		var area = DutyAreaWords.GetValueOrDefault(typed) ?? DutyAreas.FirstOrDefault(a => typed.Length > 0 && Fold(a) == typed);
-		var duties = await AllDuties(area != null ? [area] : null);
+		var duties = await AllDuties(session);
 		if (duties.Count == 0)
 		{
 			Console.Error.WriteLine(L("The responsibilities page could not be read."));
 			return 1;
 		}
-		if (area == null && typed.Length > 0) duties = duties.Where(d => Fold(d.Area + " " + d.Group + " " + d.Title + " " + d.Holder).Contains(typed)).ToList();
+
+		// An area by its tab ("medya", "antrenman", or the game's own word for it) shows that one;
+		// other words are looked for in them all.
+		var typed = Fold(string.Join(" ", words));
+		int? area = DutyAreaWords.TryGetValue(typed, out var tab) ? tab
+			: duties.FirstOrDefault(d => typed.Length > 0 && Fold(d.Area) == typed)?.Tab;
+		if (area != null) duties = duties.Where(d => d.Tab == area).ToList();
+		else if (typed.Length > 0)
+			duties = duties.Where(d => Fold(string.Join(" ", d.Area, d.GroupName, d.Title, d.Holder)).Contains(typed)).ToList();
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(duties.Select(d => new { d.Area, d.Group, Duty = d.Title, d.About, By = d.Mine ? "manager" : "delegated", d.Holder })));
+			Console.WriteLine(JsonOut.Of(duties.Select(d => new { d.Area, d.Tab, Group = d.GroupName, Duty = d.Title, d.About, By = d.Mine ? "manager" : "delegated", d.Holder })));
 			return 0;
 		}
-		// The areas are named here in the English the page matches on; the game shows its own words
-		// for them, so the heading goes in those (the game's own board name, not "Board").
-		await GameWords.Ask(Fm, DutyAreas);
-		// The page's groups and duty names come back in the English the plugin matches on, and some
-		// are a template with a suffix in brackets ("Staff Contract Renewals (U21)"); the game's words
-		// exist for the part before the bracket, which is what is asked for. The bracket stays as the
-		// page shows it (a Turkish game's "Taktikler (U21)").
-		var pageTexts = duties.SelectMany(d => new[] { d.Group, d.Title })
-			.Select(t => t.Split(" (")[0].Trim())
-			.Where(t => t.Length > 0).Distinct().ToList();
-		foreach (var part in pageTexts.Chunk(20)) await GameWords.Ask(Fm, part);
-		foreach (var inArea in duties.GroupBy(d => d.Area))
+		foreach (var inArea in duties.GroupBy(d => d.Tab))
 		{
 			var mine = inArea.Count(d => d.Mine);
-			Console.WriteLine(L($"\n== {GameWords.Of(inArea.Key)}  ({mine} yours, {inArea.Count() - mine} delegated)"));
-			foreach (var group in inArea.GroupBy(d => d.Group))
+			Console.WriteLine(L($"\n== {inArea.First().Area}  ({mine} yours, {inArea.Count() - mine} delegated)"));
+			var groups = inArea.GroupBy(d => d.Group).ToList();
+			foreach (var group in groups)
 			{
-				// An area of one group repeats its name; the heading is said once.
-				if (group.Key != inArea.Key) Console.WriteLine($"\n{group.Key}");
+				// A tab of one group repeats its name; the heading is said only where there are several.
+				if (groups.Count > 1) Console.WriteLine($"\n{group.First().GroupName}");
 				Table.Write([L("JOB"), L("WHO HAS IT"), ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? L("yours") : d.CanTake ? L("delegated") : L("delegated (locked)") }).ToList());
 			}
 		}
@@ -67,235 +72,90 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Takes the page back to the top of its long list, waited for on the list's own answer: the
-	/// scroll says where it came to rest ("0 of 728,6"), so nothing is guessed about how long the
-	/// move takes. The rows are painted a moment later, which the settled read that follows takes in.
+	/// The page's edit session: what its Confirm (EventFmxResponsibilitySettingsChangeConfirm) is
+	/// sent to. The page draws it a moment after it opens.
 	/// </summary>
-	private static async Task ToTop()
+	private static async Task<string?> DutySession()
 	{
-		var anchor = "";
-		await Until(async () =>
-		{
-			if (anchor.Length == 0)
-				anchor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-					.Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault() ?? "";
-			if (anchor.Length == 0) return false;
-			return (await Fm.Get("scroll", ("anchor", anchor), ("to", "0"))).Split(" of ")[0].Trim() == "0";
-		}, seconds: 6, every: 0.3);
+		string? session = null;
+		await Until(async () => (session = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Page") == Screen.Responsibilities && Field(b, "Events").Contains("EventFmxResponsibilitySettingsChangeConfirm", StringComparison.Ordinal))
+			.Select(b => Field(b, "Target")).FirstOrDefault(t => t.Length > 0)) != null, seconds: 8, every: 0.3);
+		return session;
 	}
 
-	/// <summary>
-	/// The duties, gathered down the list — it lays out only what is in view. With a title to
-	/// stop at, the walk ends with that duty on screen, so its buttons can be pressed.
-	/// </summary>
-	private static async Task<List<Duty>> Duties(string? stopAt)
+	/// <summary>The tabs down the page's left side by their ResponsibilityTabID, for the words a player types.</summary>
+	private static readonly Dictionary<string, int> DutyAreaWords = new()
 	{
-		var duties = new List<Duty>();
-		var seen = new HashSet<string>();
-		string? anchor = null;
-
-		async Task<List<JsonElement>> Read()
-		{
-			List<JsonElement> items = [];
-			var previous = "?";
-			await Until(async () =>
-			{
-				// The page is found by any of its group buttons, whichever is in view.
-				anchor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-					.Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault();
-				if (anchor == null) return false;
-				items = (await Fm.GetJson("form", ("anchor", anchor), ("up", "12"), ("buttons", "1"))).EnumerateArray().ToList();
-				var key = string.Join("|", items.Select(i => Field(i, "Text") + Field(i, "Label")));
-				var settled = key == previous && items.Count > 3;
-				previous = key;
-				return settled;
-			}, seconds: 6, every: 0.4);
-			return items;
-		}
-
-		// From the top, a viewful at a time: "0 of 85.8" says how far below the view the list goes.
-		var items = await Read();
-		if (anchor == null) return duties;
-		var top = await Fm.Get("scroll", ("anchor", anchor), ("to", "0"));
-		var parts = top.Split(" of ");
-		var hidden = parts.Length == 2 && double.TryParse(parts[1].Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var h) ? h : 6000;
-		var steps = Math.Clamp((int)Math.Ceiling(hidden / 450), 0, 12);
-		if (parts.Length == 2 && parts[0].Trim() != "0") items = await Read();
-		for (var step = 0; ; step++)
-		{
-			if (items.Count == 0) break;
-			var found = false;
-			foreach (var duty in ParseDuties(items))
-			{
-				if (seen.Add(duty.Group + "|" + duty.Title)) duties.Add(duty);
-				else duties[duties.FindIndex(d => d.Group == duty.Group && d.Title == duty.Title)] = duty;
-				if (stopAt != null && duty.Title == stopAt) found = true;
-			}
-			if (found || step >= steps) break;
-
-			var moved = await Fm.Get("scroll", ("anchor", anchor), ("to", ((step + 1) / (double)steps).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)));
-			if (moved.StartsWith("error", StringComparison.Ordinal)) break;
-			items = await Read();
-		}
-		return duties;
-	}
-
-	/// <summary>The page's areas, down its left side; each shows its own groups of duties.</summary>
-	private static readonly string[] DutyAreas =
-		["Board", "Staff Responsibilities", "Scouting Responsibility", "Transfer and Contract Responsibilities", "Media", "Training Responsibility", "Tactics", "Match Day", "Set Pieces"];
-
-	private static readonly Dictionary<string, string> DutyAreaWords = new()
-	{
-		["yonetim"] = "Board", ["board"] = "Board", ["personel"] = "Staff Responsibilities", ["staff"] = "Staff Responsibilities",
-		["scout"] = "Scouting Responsibility", ["scouting"] = "Scouting Responsibility", ["transfer"] = "Transfer and Contract Responsibilities",
-		["sozlesme"] = "Transfer and Contract Responsibilities", ["medya"] = "Media", ["media"] = "Media", ["basin"] = "Media",
-		["antrenman"] = "Training Responsibility", ["training"] = "Training Responsibility", ["taktik"] = "Tactics", ["tactics"] = "Tactics",
-		["mac"] = "Match Day", ["mac gunu"] = "Match Day", ["match day"] = "Match Day", ["duran top"] = "Set Pieces", ["set pieces"] = "Set Pieces",
+		["yonetim"] = 0, ["board"] = 0, ["personel"] = 1, ["staff"] = 1, ["scout"] = 2, ["scouting"] = 2, ["gozlem"] = 2,
+		["transfer"] = 3, ["sozlesme"] = 3, ["medya"] = 4, ["media"] = 4, ["basin"] = 4, ["antrenman"] = 5, ["training"] = 5,
+		["taktik"] = 6, ["tactics"] = 6, ["mac"] = 7, ["mac gunu"] = 7, ["match day"] = 7, ["matchday"] = 7,
+		["duran top"] = 8, ["set pieces"] = 8,
 	};
 
-	/// <summary>Turns the page to one area with its radio button; true once its duties are up.</summary>
-	private static async Task<bool> DutyArea(string area)
-	{
-		// The areas are the page's radio group (StaffResponsibilitiesRadioGroup, bound to the team's list
-		// of responsibility tabs), in the game's fixed order; an area is chosen by its words, or, where a
-		// language words it otherwise (a matchday comes back as "Matchday"), by its place in that order.
-		// The page draws it a moment after it opens.
-		const string group = "StaffResponsibilitiesRadioGroup";
-		if (!await Until(async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == group), seconds: 6, every: 0.3))
-			return false;
-		// What is up before is waited for, or the area the page opens on would pass for the one asked.
-		var before = "";
-		await Until(async () => (before = await DutyKey()).Length > 0, seconds: 6, every: 0.3);
-		var said = await Fm.Get("select", ("name", group), ("choice", area));
-		if (said.StartsWith("error", StringComparison.Ordinal) && Array.IndexOf(DutyAreas, area) is >= 0 and var at)
-			said = await Fm.Get("select", ("name", group), ("index", at.ToString()));
-		if (said.StartsWith("error", StringComparison.Ordinal)) return false;
-		if (said.Contains("already", StringComparison.Ordinal) || said.Contains("was " + Array.IndexOf(DutyAreas, area) + ")", StringComparison.Ordinal)) return true;
-		return await Until(async () => await DutyKey() is var now && now.Length > 0 && now != before, seconds: 5, every: 0.25);
-
-		async Task<string> DutyKey()
-		{
-			var anchor = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.Where(b => Field(b, "Name") is "TakeControlAll" or "DelegateAll").Select(b => Field(b, "Label")).FirstOrDefault();
-			if (anchor == null) return "";
-			return string.Join("|", (await Fm.GetJson("form", ("anchor", anchor), ("up", "12"))).EnumerateArray().Take(4).Select(i => Field(i, "Text")));
-		}
-	}
-
-	/// <summary>Every duty of the areas given, or of them all, each with its area.</summary>
-	private static async Task<List<Duty>> AllDuties(IEnumerable<string>? areas = null)
-	{
-		var all = new List<Duty>();
-		foreach (var area in areas ?? DutyAreas)
-		{
-			if (!await DutyArea(area)) continue;
-			all.AddRange((await Duties(stopAt: null)).Select(d => d with { Area = area }));
-		}
-		if (areas == null && all.Count > 0) KeepDutyAreas(all);
-		return all;
-	}
-
 	/// <summary>
-	/// Which area each duty is in, kept from the last whole reading: the titles do not change, and
-	/// reading all nine areas to find one duty takes half a minute.
+	/// Every duty, tab by tab, from the session: nothing is laid out, scrolled or chosen on the page.
+	/// Each list is put at rows of its own for this reading, so a row is good only until the next.
 	/// </summary>
-	private static string DutyAreasFile => CacheFile("duty-areas.json");
-
-	private static void KeepDutyAreas(List<Duty> all)
+	private static async Task<List<Duty>> AllDuties(string session)
 	{
-		try
-		{
-			Directory.CreateDirectory(DiffFolder);
-			File.WriteAllText(DutyAreasFile, JsonSerializer.Serialize(all.GroupBy(d => d.Title).ToDictionary(g => g.Key, g => g.Select(d => d.Area).Distinct().ToList())));
-		}
-		catch (IOException) { }
-	}
+		var tabs = Records(await Fm.Pull($"{session}.ResponsibilityTabList", "ResponsibilityName,ResponsibilityTabID", list: true, shown: "ResponsibilityName"));
+		var groupsOf = await Task.WhenAll(tabs.Select(t => Fm.Pull(Field(t, "Row") + ".ResponsibilityGroupList", "ResponsibilityName,ResponsibilityGroupID,ResponsibilityGroupTeamType", list: true, shown: "ResponsibilityName")));
+		var groups = tabs.Zip(groupsOf).SelectMany(p => Records(p.Second).Select(g => (Tab: p.First, Group: g))).ToList();
+		var dutiesOf = await Task.WhenAll(groups.Select(g => Fm.Pull(Field(g.Group, "Row") + ".ResponsibilityList",
+			"ResponsibilityName,ResponsibilityDescription,IsUserInControl,CanHumanTakeControl,CanHumanChange,StaffMemberInCharge.Name,StaffMemberInCharge.UniqueId", list: true,
+			shown: "ResponsibilityName,ResponsibilityDescription")));
 
-	private static Dictionary<string, List<string>> KeptDutyAreas()
-	{
-		try { return JsonSerializer.Deserialize<Dictionary<string, List<string>>>(File.ReadAllText(DutyAreasFile)) ?? []; }
-		catch (Exception e) when (e is IOException or JsonException) { return []; }
-	}
-
-	private static List<Duty> ParseDuties(List<JsonElement> items)
-	{
-		var duties = new List<Duty>();
-		string group = null, title = null, about = "";
-		JsonElement take = default, hand = default;
-		var holders = new List<string>();
-		var staff = "";
-
-		void Close()
-		{
-			if (group != null && title != null && take.ValueKind == JsonValueKind.Object && hand!.ValueKind == JsonValueKind.Object && holders.Count > 0)
-				// Which of the pair is in force is told by the other being the one that can be
-				// pressed: "Take Control" is dead while the duty is the manager's own.
-				duties.Add(new Duty(group, title, about, Field(take, "Enabled") != "True" && Field(hand, "Enabled") == "True", string.Join(", ", holders.Distinct()),
-					Field(take, "Pointer"), Field(take, "Enabled") == "True", Field(hand, "Pointer"), Field(hand, "Enabled") == "True", staff));
-			title = null;
-			about = "";
-			take = hand = default;
-			holders = [];
-			staff = "";
-		}
-
-		for (var at = 0; at < items.Count; at++)
-		{
-			var item = items[at];
-			var kind = Field(item, "Kind");
-			if (kind == "text")
+		var all = new List<Duty>();
+		foreach (var ((tab, group), list) in groups.Zip(dutiesOf))
+			foreach (var d in Records(list))
 			{
-				// A text right before the group's own pair of buttons names the group.
-				var next = at + 1 < items.Count ? items[at + 1] : default;
-				if (next!.ValueKind == JsonValueKind.Object && Field(next, "Name") == "TakeControlAll")
-				{
-					Close();
-					group = Field(item, "Text");
-				}
-				else if (title == null || take.ValueKind == JsonValueKind.Object)
-				{
-					Close();
-					title = Field(item, "Text");
-				}
-				else about = Field(item, "Text");
+				var mine = Field(d, "IsUserInControl") == "True";
+				var change = Field(d, "CanHumanChange") == "True";
+				all.Add(new Duty(int.TryParse(Field(tab, "ResponsibilityTabID"), out var id) ? id : -1,
+					int.TryParse(Field(tab, "Index"), out var at) ? at : -1, Field(tab, "ResponsibilityName"),
+					Field(group, "ResponsibilityGroupID") + "/" + Field(group, "ResponsibilityGroupTeamType"), Field(group, "ResponsibilityName"), Field(d, "ResponsibilityName"), Field(d, "ResponsibilityDescription"),
+					mine, Field(d, "StaffMemberInCharge.Name"), Field(d, "StaffMemberInCharge.UniqueId"),
+					!mine && Field(d, "CanHumanTakeControl") == "True", mine && change, change, Field(d, "Row")));
 			}
-			// A duty's pair, in the order the page draws it: "Take Control" then "Delegate". Their
-			// labels are the game's own words — German's delegate comes back "Delegation", which no
-			// English sentence matches — so the pair is found by its own template class instead.
-			else if (kind == "button" && Field(item, "Name").StartsWith("buttons-segmented-button-row", StringComparison.Ordinal))
-			{
-				if (take.ValueKind != JsonValueKind.Object) take = item;
-				else if (hand!.ValueKind != JsonValueKind.Object) hand = item;
-			}
-			else if (kind == "dropdown" && Field(item, "Name") == "AssignableStaff")
-			{
-				holders.Add(Field(item, "Label"));
-				staff = Field(item, "Pointer");
-			}
-		}
-		Close();
-		return duties;
+		return all;
+
+		static List<JsonElement> Records(JsonElement list) => list.ValueKind == JsonValueKind.Array ? list.EnumerateArray().ToList() : [];
 	}
 
 	/// <summary>One duty by its title, whole or by its words; null (with the candidates said) when it is not one.</summary>
-	private static async Task<Duty> FindDuty(string typed)
+	private static async Task<Duty?> FindDuty(string session, string typed)
 	{
+		var all = await AllDuties(session);
 		var wanted = Fold(typed);
-		bool Exact(string title) => Fold(title) == wanted;
-		bool Worded(string title) => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(w => Fold(title).Contains(w));
-		// A title known from before is looked for in its own area alone.
-		var kept = KeptDutyAreas();
-		var titles = kept.Keys.Where(Exact).ToList();
-		if (titles.Count == 0) titles = kept.Keys.Where(Worded).ToList();
-		var areas = titles.Count == 1 ? kept[titles[0]] : null;
-		var all = await AllDuties(areas);
-		if (areas != null && !all.Any(d => Exact(d.Title) || Worded(d.Title))) all = await AllDuties();
-		var hits = all.Where(d => Exact(d.Title)).ToList();
-		if (hits.Count == 0) hits = all.Where(d => Worded(d.Title)).ToList();
-		// The page is left on the duty's own area, where its buttons are.
-		if (hits.Count == 1) return await DutyArea(hits[0].Area) ? hits[0] : null;
+		bool Exact(Duty d) => Fold(d.Title) == wanted;
+		bool Worded(Duty d) => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(w => Fold(d.Title).Contains(w));
+		var hits = all.Where(Exact).ToList();
+		if (hits.Count == 0) hits = all.Where(Worded).ToList();
+		if (hits.Count == 1) return hits[0];
 		Console.Error.WriteLine(hits.Count == 0 ? L($"There is no duty called '{typed}' (all of them: responsibilities).") : L($"'{typed}' matches more than one duty:"));
-		foreach (var hit in hits) Console.Error.WriteLine($"  {hit.Title}   ({(hit.Group == hit.Area ? hit.Area : $"{hit.Area} › {hit.Group}")})");
+		foreach (var hit in hits) Console.Error.WriteLine($"  {hit.Title}   ({hit.Area} › {hit.GroupName})");
 		return null;
 	}
+
+	/// <summary>
+	/// Puts the page on the duty's tab, held by its ResponsibilityTabID. A change to a duty of a tab
+	/// that is not up reaches the game (its counts move) but not the duty's own record, so it could
+	/// not be read back; the page's own buttons are only ever on the tab that is up.
+	/// </summary>
+	private static async Task<bool> DutyTab(string session, Duty duty)
+	{
+		async Task<bool> Up() => Field(await Fm.Pull(session, "SelectedResponsibilityTab.ResponsibilityTabID"), "SelectedResponsibilityTab.ResponsibilityTabID") == duty.Tab.ToString();
+		if (await Up()) return true;
+		var said = await Fm.Get("select", ("name", "StaffResponsibilitiesRadioGroup"), ("index", duty.TabAt.ToString()));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return false;
+		return await Until(Up, seconds: 5, every: 0.25);
+	}
+
+	/// <summary>
+	/// The same duty in a fresh reading: same tab, same group (id and team type), and within it the
+	/// same title as the game's data gave it a moment ago. Duties have no id of their own.
+	/// </summary>
+	private static async Task<Duty?> DutyAgain(string session, Duty duty) =>
+		(await AllDuties(session)).FirstOrDefault(d => d.Tab == duty.Tab && d.Group == duty.Group && d.Title == duty.Title);
 }

@@ -864,7 +864,7 @@ usage: responsibilities give "<duty>" [<person>]	kullanım: responsibilities giv
 {0}: locked, the game does not let it be given to someone else ({1}).	{0}: kilitli, oyun başkasına verdirmiyor ({1}).
 {0}: who it can be given to could not be read.	{0}: kimlere verilebileceği okunamadı.
 {0}: {1}\nCan be given to: {2}	{0}: {1}\nVerilebilecekler: {2}
-The game asks: {0} — {1}   (to answer: dialog, or repeat the command with --yes)	Oyun soruyor: {0} — {1}   (cevap: dialog, ya da komutu --yes ile yinele)
+The game asks: {0} — {1}   (to answer: dialog)	Oyun soruyor: {0} — {1}   (cevap: dialog)
 {0}: {1} was chosen, but the duty is still {2}.	{0}: {1} seçildi ama görev hâlâ {2}.
 Which duty?  responsibilities {0} "<duty>"	Hangi görev?  responsibilities {0} "<görev>"
 yours	sende
@@ -873,6 +873,8 @@ delegated ({0})	devredilmiş ({0})
 does not let it be taken back	geri aldırmıyor
 does not let it be delegated	devrettirmiyor
 {0}: the button was pressed, but nothing changed.	{0}: butona basıldı ama durum değişmedi.
+The responsibilities page has changes that were not confirmed; confirm or undo them in the game first.	Sorumluluklar sayfasında onaylanmamış değişiklikler var; önce oyunda onaylayın ya da geri alın.
+The change was made but the game did not take the confirmation.	Değişiklik yapıldı ama oyun onayı almadı.
 {0}: now yours.	{0}: artık sende.
 {0}: delegated → {1}	{0}: devredildi → {1}
 There is no save folder: {0}	Kayıt klasörü yok: {0}

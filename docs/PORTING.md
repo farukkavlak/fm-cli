@@ -235,6 +235,18 @@ Still open:
   - The level's word has no path: `/rowtexts?has=Person.PlayerDescription` gives each laid-out row's texts and its
     table item (→ `UniqueId`); the level is the row's one text bound to nothing. Turkish "Biraz Mutlu" is not in the table.
   - Tried: TR, EN, DE; page open / other page / cold; 3/3 same each; one player, `--why`, unknown name.
+- [x] `fm responsibilities`: read from the page's edit session (`TeamSettingsEditSession`), not the page's layout.
+  - The session is what the page's Confirm (`EventFmxResponsibilitySettingsChangeConfirm`) is sent to: buttons
+    (`gen=`) now give `Target`, the value their `m_targetHandler` names.
+  - `ResponsibilityTabList` › `ResponsibilityGroupList` › `ResponsibilityList`: `IsUserInControl`, `CanHumanTakeControl`,
+    `CanHumanChange`, `StaffMemberInCharge.Name` (dotted props work in `/pull`). All 79 duties in ~2 s, no scrolling.
+  - Names come raw: `/pull?shown=<props>` keeps them in the game's words (English → game words chose "Übersicht" for "Training").
+  - Take/delegate: `EventFmxResponsibilityTakeOrDelegateControl` to the duty; give: its `StaffMemberInCharge` set from
+    `AssignableStaffList`; then Confirm, read back. A failed change is reverted (`EventFmxRevert`).
+  - The duty's tab must be up (radio group, checked by `SelectedResponsibilityTab.ResponsibilityTabID`): otherwise the
+    change reaches the counts but not the duty's record.
+  - A duty has no id: held by tab id, group id + team type, and its title within one command.
+  - Tried: TR, EN, DE; cold / other page / page open; take+delegate 3/3, give and back, locked, unknown, ambiguous.
 - [ ] `fm settings`: "FM menu not found" in FM27 (language switched through `current_language.xml` meanwhile).
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
 - [ ] `identity-check.py catalog` (game must be in English for the word list).

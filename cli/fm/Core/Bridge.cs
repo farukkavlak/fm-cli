@@ -124,7 +124,8 @@ internal sealed class Bridge
 	/// </summary>
 	private static int pulls;
 
-	public async Task<JsonElement> Pull(string path, string props, bool list = false)
+	/// <param name="shown">Properties to have in the game's own words rather than English.</param>
+	public async Task<JsonElement> Pull(string path, string props, bool list = false, string shown = "")
 	{
 		var wanted = props.Split(',').Length;
 		// A list's entries are put at rows of their own for this reading.
@@ -133,7 +134,7 @@ internal sealed class Bridge
 		for (var attempt = 0; attempt < 6; attempt++)
 		{
 			// A list bound by this very call holds nothing until the next frame.
-			try { data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation)); }
+			try { data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation), ("shown", shown)); }
 			catch (FmError e) when (attempt < 5 && e.Message.Contains("is not a list", StringComparison.Ordinal))
 			{
 				await Task.Delay(TimeSpan.FromMilliseconds(250));

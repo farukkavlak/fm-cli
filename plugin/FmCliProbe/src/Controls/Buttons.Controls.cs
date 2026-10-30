@@ -68,7 +68,7 @@ internal static partial class Buttons
 		foreach (var control in Controls(out _))
 		{
 			var events = new List<string>();
-			string page = null, action = null, sends = null, sendsProps = null;
+			string page = null, action = null, sends = null, sendsProps = null, target = null;
 			foreach (var (listName, list) in control.Lists)
 			{
 				var contexts = list.Events;
@@ -84,6 +84,8 @@ internal static partial class Buttons
 						sends = $"fmcli.speak.g{gen}.{spoken++}";
 						sendsProps = sent.Props;
 					}
+					if (gen != null && target == null && TargetOf(contexts[i]) is { } aimed && RawPath.Set($"fmcli.speak.g{gen}.{spoken}", aimed) == null)
+						target = $"fmcli.speak.g{gen}.{spoken++}";
 				}
 			}
 
@@ -102,6 +104,7 @@ internal static partial class Buttons
 				["Action"] = action ?? "",
 				["Sends"] = sends ?? "",
 				["SendsProps"] = sendsProps ?? "",
+				["Target"] = target ?? "",
 			}));
 		}
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
@@ -140,6 +143,23 @@ internal static partial class Buttons
 			if (shape.Type?.GetProperty(binding)?.GetValue(typed) is not BindingPath path || string.IsNullOrEmpty(path.Path)) return null;
 			var parts = path.Path.Split('.', 2);
 			return Nearest(context, parts[0]) is { } value ? (value, parts.Length > 1 ? parts[1] : "") : null;
+		}
+		catch { return null; }
+	}
+
+	/// <summary>
+	/// What a plugin event is sent to (its m_targetHandler, "teamsettings"): the record the game
+	/// acts on, such as a page's edit session, whose Confirm and Undo go to it.
+	/// </summary>
+	private static SI.Core.TypedValue TargetOf(EventContextBase context)
+	{
+		try
+		{
+			var type = context.GetIl2CppType().FullName;
+			if (!type.EndsWith("EventToPluginContext", StringComparison.Ordinal)) return null;
+			var shape = ShapeOf(type);
+			if (shape.Type?.GetProperty("m_targetHandler")?.GetValue(shape.Wrap(context.Pointer)) is not BindingPath path || string.IsNullOrEmpty(path.Path)) return null;
+			return path.Path.Contains('.') ? null : Nearest(context, path.Path);
 		}
 		catch { return null; }
 	}

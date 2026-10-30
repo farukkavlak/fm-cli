@@ -174,9 +174,12 @@ internal static class RawPath
 	/// and present in the next; asking until nothing is missing is the caller's part.
 	/// An entry of a list is not a node the tree can bind under, so each one is first put at
 	/// a node of its own, fmcli.&lt;list&gt;.&lt;n&gt;, the way a screen's table gives each row one.
+	/// The properties named in <paramref name="shown"/> come in the game's own words, not put into
+	/// English: text only shown, which the way back from English can land on another word.
 	/// </summary>
-	public static string Pull(string path, string props, bool list, string generation = null)
+	public static string Pull(string path, string props, bool list, string generation = null, string shown = null)
 	{
+		var inGameWords = new System.Collections.Generic.HashSet<string>((shown ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
 		if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(props)) return "error: ?path=&props=a,b,c required";
 		var b = Game.Bindings;
 		if (b == null) return "error: bindings unavailable";
@@ -250,9 +253,9 @@ internal static class RawPath
 					}
 				}
 				catch { }
-				try { fields[name] = Text.Field(name, value); } catch { }
+				try { fields[name] = inGameWords.Contains(name) ? Text.ShownOf(value) : Text.Field(name, value); } catch { }
 			}
-			return Report.Json(fields);
+			return Report.Json(fields, [.. inGameWords]);
 		}
 	}
 
