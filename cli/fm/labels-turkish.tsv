@@ -2421,3 +2421,5 @@ The set piece wizard is open. To answer it: setpieces new   (the game's choices:
 usage: penalties add <player> [<place>]	kullanım: penalties add <oyuncu> [<sıra>]
 {0} is among the penalty takers.	{0} penaltı atıcıları arasında.
 {0} was not found in the page's players table.	{0} sayfadaki oyuncu tablosunda bulunamadı.
+{0} cannot be added to this side (the game keeps its button shut).	{0} bu tarafa eklenemiyor (oyun düğmesini kapalı tutuyor).
+LEFT SIDE	SOL

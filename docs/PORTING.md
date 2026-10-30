@@ -329,6 +329,10 @@ Still open:
   - Corner (delivery, aim, D1 duty + otherwise, back), throw-in aim both ways, wide, deep, shooting range: TR.
   - Also: `setpieces korner vurus out` went to the language layer (`Mcp.TakesText` filled every choice and hid `aim`);
     `Choose` takes an exact match in the game's words before pieces ("Geride Dur" vs "Gerekirse Geride Dur").
+- [x] `fm takers`: was read under the headings "Right Footers"/"Left Footers" with columns by order. Now each takers table
+  (events `EventFmxSetPieceTakerMove`) row's item: `Index`, `SetPieceSide` (1 right, 0 left), `Player.Name`.
+  Add: the player ticked in the players table (its items are records with `Player`) and the side's button
+  (`EventFmxAddSetPieceRightFooter` / `…LeftFooter`). Stats columns dropped. TR: read all kinds, move and back, add/remove.
 - [x] `fm penalties`: FM27 split the page (players table + takers area); the form under "Order" read nothing.
   Now: rules from the page's form by `Binds` (`form?page=`), takers from `<Target>.SetPiecePenaltyTakersList` › `Player.Name`
   (Target of the button sending `EventFmxAddPenaltyTakersToArea`). Move/remove still drag the takers table (by its events).

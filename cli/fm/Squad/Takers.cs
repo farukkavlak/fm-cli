@@ -24,20 +24,10 @@ internal static partial class Program
 		(L("Throw-in · attacking third"), 2, true, ["tac", "throw", "throwin", "throw-in"]),
 	];
 
-	private static readonly Dictionary<string, string> TakerHeadings = new()
-	{
-		["Right Footers"] = L("Right Footers"), ["Left Footers"] = L("Left Footers"), ["Right Side"] = L("Right Side"), ["Left Side"] = "sol taraf",
-	};
-
-	private static readonly Dictionary<string, string> TakerColumns = new()
-	{
-		["Tec"] = L("TECHNICAL"), ["Tech"] = L("TECHNICAL"), ["Cro"] = L("CRO"), ["Cor"] = L("COR"), ["Fre"] = L("FRE"), ["Long Sh."] = L("LONG SH."), ["Shots"] = L("LONG SH."), ["L Th"] = L("L TH"), ["Position"] = L("POSITION"),
-	};
-
 	private sealed record SetPieceTaker(int Order, string Number, string Name, string Where, List<string> Stats);
 
 	/// <summary>One of a kind's two lists: its heading on the page, its columns after the name, and its takers.</summary>
-	private sealed record TakerList(string Heading, List<string> Columns, List<SetPieceTaker> Takers, string Key, bool Whole);
+	private sealed record TakerList(string Heading, List<string> Columns, List<SetPieceTaker> Takers, string Key, bool Whole, string Table = "");
 
 	private static string TakersUsage => L("usage: takers [<kind>]   ·   takers <kind> <right|left> move <player|place> <new place> | add <player> [<place>] | remove <player|place>\nkinds: corner, freekick (shooting range), wide, deep (free kicks), throw (attacking third)");
 
@@ -109,12 +99,19 @@ internal static partial class Program
 			{
 				var at = side!.Value;
 				var heading = lists[at].Heading;
-				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? L("right") : L("left"))}", L("Taker"), L("takers"), L("the takers"), tables[at],
-					async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Where(d => Field(d, "Label") == "Add Player").ToList() is { Count: 2 } adds ? adds[at] : null,
-					async () => await TakerLists() is { Count: 2 } now && now[at].Heading == heading
+				var list = new DraggedList($"takers {kind.Words[0]} {(at == 0 ? L("right") : L("left"))}", L("Taker"), L("takers"), L("the takers"), lists[at].Table,
+					async () => null,
+					async () => await TakerLists() is { Count: 2 } now
 						? (now[at].Takers.Select(t => new Placed(t.Order, t.Name)).ToList(), now[at].Key, now[at].Whole)
 						: ([], "", false));
-				if (await Reorder(list, verb, words) is { } failed) return failed;
+				// FM27 adds a taker by ticking him in the players' table and pressing the side's own
+				// button (EventFmxAddSetPieceRightFooter / …LeftFooter).
+				if (verb == "add")
+				{
+					if (await AddSetPieceTaker(at == 0 ? "EventFmxAddSetPieceRightFooter" : "EventFmxAddSetPieceLeftFooter", words,
+						async () => (await TakerLists() is { Count: 2 } now ? now[at].Takers.Select(t => t.Name).ToList() : [])) is { } failed) return failed;
+				}
+				else if (await Reorder(list, verb, words) is { } failed) return failed;
 				await Drawn();
 			}
 			read.Add((kind.Say, lists));
@@ -128,7 +125,7 @@ internal static partial class Program
 				Lists = k.Lists.Select(l => new
 				{
 					l.Heading,
-					Takers = l.Takers.Select(t => new { t.Order, t.Number, t.Name, t.Where, Stats = l.Columns.Zip(t.Stats).ToDictionary(x => x.First, x => x.Second) }),
+					Takers = l.Takers.Select(t => new { t.Order, t.Name }),
 				}),
 			})));
 			return 0;
@@ -136,7 +133,7 @@ internal static partial class Program
 
 		if (read.Count > 1)
 		{
-			Table.Write([L("SET PIECE"), L("RIGHT"), L("LEFT")], read.Select(k => (string[])
+			Table.Write([L("SET PIECE"), L("RIGHT"), L("LEFT SIDE")], read.Select(k => (string[])
 			[
 				k.Say, .. Enumerable.Range(0, 2).Select(i => i < k.Lists.Count ? string.Join(", ", k.Lists[i].Takers.Select(t => $"{t.Order}. {t.Name}")) : ""),
 			]).ToList());
@@ -145,13 +142,14 @@ internal static partial class Program
 		}
 
 		var (say, both) = read[0];
+		var lineup = await Lineup();
 		for (var i = 0; i < both.Count; i++)
 		{
 			if (i > 0) Console.WriteLine();
-			Console.WriteLine($"{say} — {TakerHeadings.GetValueOrDefault(both[i].Heading, both[i].Heading)}  ({(i == 0 ? L("right") : L("left"))})");
+			Console.WriteLine($"{say} — {both[i].Heading}");
 			if (both[i].Takers.Count == 0) { Console.WriteLine(L("  (empty)")); continue; }
-			Table.Write([L("POS"), "#", L("PLAYER"), L("FOR MATCH"), .. both[i].Columns.Select(c => TakerColumns.GetValueOrDefault(c, c.ToUpperInvariant()))],
-				both[i].Takers.Select(t => (string[])[t.Order.ToString(), t.Number, t.Name, Starting(t.Where), .. t.Stats]).ToList());
+			Table.Write([L("POS"), L("PLAYER"), L("FOR MATCH")],
+				both[i].Takers.Select(t => (string[])[t.Order.ToString(), t.Name, LineupWhere(new PenaltyTaker(t.Order, "", t.Name, "", "", ""), lineup)]).ToList());
 		}
 		if (verb == null)
 		{
@@ -231,66 +229,83 @@ internal static partial class Program
 		return tables;
 	}
 
-	/// <summary>The two lists that are up, right then left; each read from under its own heading.</summary>
+	/// <summary>
+	/// The two lists that are up, right then left, from their rows' own items: each row of a takers
+	/// table (the tables that send EventFmxSetPieceTakerMove) is a taker record with his place
+	/// (Index), side (SetPieceSide: 1 right foot or side, 0 left) and Player. No heading is read.
+	/// </summary>
 	private static async Task<List<TakerList>> TakerLists()
 	{
+		var gen = Environment.TickCount64.ToString();
+		var tables = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Type") == "StreamedTable" && Field(b, "Events").Contains("SetPieceTakerMove", StringComparison.Ordinal))
+			.Select(b => Field(b, "Pointer")).ToHashSet();
+		var rows = (await Fm.GetJson("rowtexts", ("has", "primarytext"), ("gen", gen))).EnumerateArray()
+			.Where(r => tables.Contains(Field(r, "Table"))).ToList();
+		var items = await PullEach(rows.Select(r => (Field(r, "Item"), "Index,SetPieceSide,Player.Name")).ToList());
 		var lists = new List<TakerList>();
-		foreach (var pair in new[] { new[] { "Right Footers", "Right Side" }, ["Left Footers", "Left Side"] })
-			foreach (var heading in pair)
-			{
-				var texts = (await Fm.GetJson("form", ("anchor", heading), ("up", "8"))).EnumerateArray()
-					.Where(f => Field(f, "Kind") == "text").Select(f => (Field(f, "Text"), Field(f, "Path"))).ToList();
-				if (texts.Count == 0 || texts[0].Item1 != heading) continue;
-				lists.Add(TakerRows(heading, texts));
-				break;
-			}
-		return lists;
+		foreach (var side in new[] { "1", "0" })
+		{
+			var mine = rows.Zip(items).Where(x => Field(x.Second, "SetPieceSide") == side)
+				.OrderBy(x => int.TryParse(Field(x.Second, "Index"), out var n) ? n : 99).ToList();
+			// A list with no one in it still has its table; it is the one the other side does not hold.
+			var table = mine.Select(x => Field(x.First, "Table")).FirstOrDefault()
+				?? tables.FirstOrDefault(t => !rows.Zip(items).Any(x => Field(x.First, "Table") == t && Field(x.Second, "SetPieceSide") != side)) ?? "";
+			var takers = mine.Select((x, i) => new SetPieceTaker(i + 1, "", Field(x.Second, "Player.Name"), "", [])).ToList();
+			lists.Add(new(side == "1" ? L("right") : L("left"), [], takers, string.Join("|", takers.Select(t => t.Name)), takers.All(t => t.Name.Length > 0), table));
+		}
+		return tables.Count == 2 ? lists : [];
 	}
 
 	/// <summary>
-	/// A list's rows, by each text's data path: a taker is his name (binding.Name),
-	/// where he starts (tactic.TeamSelectedPositionStringFromPlayer) and a value under each column
-	/// (binding.PropertyValue); before the name, drawn without a path, his place ("1st") and his shirt
-	/// number when he has one. The columns are the headings after "Name", as many as a row has values.
+	/// Adds a set piece taker: his row ticked in the players' table (by his UniqueId), then the
+	/// side's add button. Null once he shows in the side's list; else the exit code.
 	/// </summary>
-	private static TakerList TakerRows(string heading, List<(string Text, string Path)> texts)
+	private static async Task<int?> AddSetPieceTaker(string addEvent, List<string> words, Func<Task<List<string>>> listed)
 	{
-		// The columns are the headings after "Name", as many as a row has values.
-		var headings = texts.TakeWhile(t => t.Path != "binding.Name").Where(t => t.Path.Length == 0).Select(t => t.Text).ToList();
-		var width = texts.SkipWhile(t => t.Path != "binding.Name").Skip(1).TakeWhile(t => t.Path != "binding.Name").Count(t => t.Path == "binding.PropertyValue");
-		var columns = headings.Skip(headings.IndexOf("Name") + 1).Take(width).ToList();
-		var takers = new List<SetPieceTaker>();
-		var before = new List<string>();
-		(string Number, string Name, string Where, List<string> Stats)? row = null;
-		void Close()
+		var who = string.Join(" ", words.Where(w => !int.TryParse(w, out _)));
+		if (who.Length == 0)
 		{
-			if (row is { } r) takers.Add(new(takers.Count + 1, r.Number, r.Name, r.Where, r.Stats));
-			row = null;
+			Console.Error.WriteLine(TakersUsage);
+			return 64;
 		}
-		foreach (var (text, path) in texts)
+		var before = await listed();
+		var squad = (await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true)).EnumerateArray().Where(p => Field(p, "Name").Length > 0).ToList();
+		if (Choose(squad.Select(p => Field(p, "Name")).Where(n => !before.Contains(n)).ToList(), who, L("Player to add")) is not { } picked) return 1;
+		var id = Field(squad.First(p => Field(p, "Name") == picked), "UniqueId");
+		var ticked = false;
+		foreach (var table in (await Fm.GetJson("checkrows", ("gen", Environment.TickCount64.ToString()))).EnumerateArray())
 		{
-			switch (path)
-			{
-				case "binding.Name":
-					Close();
-					// A player without a shirt number has only his place before his name.
-					var number = before.Count >= 2 && before[^1].All(char.IsDigit) ? before[^1] : "";
-					row = (number, text, "", []);
-					before.Clear();
-					break;
-				case "tactic.TeamSelectedPositionStringFromPlayer" when row is { } r:
-					row = r with { Where = text };
-					break;
-				case "binding.PropertyValue" when row is { } r:
-					r.Stats.Add(text);
-					break;
-				default:
-					if (path.Length == 0) before.Add(text);
-					break;
-			}
+			var items = table.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").ToList();
+			// A row's item is the player, or a record with him as its Player.
+			var at = (await PullEach(items.Select(i => (i, "UniqueId,Player.UniqueId")).ToList(), complete: r => r.EnumerateObject().Any()))
+				.FindIndex(i => Field(i, "UniqueId") == id || Field(i, "Player.UniqueId") == id);
+			if (at < 0) continue;
+			foreach (var other in table.GetProperty("Ticked").EnumerateArray().Select(t => t.GetInt32()).Where(t => t != at))
+				await Fm.Get("rowselect", ("table", Field(table, "Table")), ("index", other.ToString()), ("check", "0"));
+			ticked = !(await Fm.Get("rowselect", ("table", Field(table, "Table")), ("index", at.ToString()), ("check", "1"))).StartsWith("error", StringComparison.Ordinal);
+			break;
 		}
-		Close();
-		var whole = takers.Count > 0 && takers.All(t => t.Where.Length > 0 && t.Stats.Count == columns.Count);
-		return new(heading, columns, takers, string.Join("|", texts.Select(t => t.Text)), whole);
+		if (!ticked)
+		{
+			Console.Error.WriteLine(L($"{picked} was not found in the page's players table."));
+			return 1;
+		}
+		JsonElement button = default;
+		await Until(async () => (button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Events").Contains(addEvent, StringComparison.Ordinal) && Field(b, "Enabled") == "True")).ValueKind == JsonValueKind.Object, seconds: 4, every: 0.25);
+		if (button.ValueKind != JsonValueKind.Object)
+		{
+			Console.Error.WriteLine(L($"{picked} cannot be added to this side (the game keeps its button shut)."));
+			return 1;
+		}
+		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+		if (!await Until(async () => (await listed()).Contains(picked), seconds: 6, every: 0.3))
+		{
+			Console.Error.WriteLine(L($"{picked} was added but did not appear in the list."));
+			return 1;
+		}
+		return null;
 	}
 }

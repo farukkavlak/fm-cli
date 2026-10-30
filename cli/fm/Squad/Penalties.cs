@@ -204,7 +204,9 @@ internal static partial class Program
 		foreach (var table in (await Fm.GetJson("checkrows", ("gen", Environment.TickCount64.ToString()))).EnumerateArray())
 		{
 			var items = table.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").ToList();
-			var at = (await PullEach(items.Select(i => (i, "UniqueId")).ToList())).FindIndex(i => Field(i, "UniqueId") == id);
+			// A row's item is the player, or a record with him as its Player.
+			var at = (await PullEach(items.Select(i => (i, "UniqueId,Player.UniqueId")).ToList(), complete: r => r.EnumerateObject().Any()))
+				.FindIndex(i => Field(i, "UniqueId") == id || Field(i, "Player.UniqueId") == id);
 			if (at < 0) continue;
 			foreach (var other in table.GetProperty("Ticked").EnumerateArray().Select(t => t.GetInt32()).Where(t => t != at))
 				await Fm.Get("rowselect", ("table", Field(table, "Table")), ("index", other.ToString()), ("check", "0"));
