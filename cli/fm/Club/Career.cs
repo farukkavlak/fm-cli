@@ -27,7 +27,7 @@ internal static partial class Program
 		List<JsonElement> seasons = [];
 		await Until(async () =>
 		{
-			seasons = (await Fm.Pull($"{path}.CareerStatsPerSeason", "SeasonYearLong,Team.Name,SeasonTransferInfo,Nation.Name,Division.Name,Appearances,Goals,CleanSheets", list: true, shown: "1")).EnumerateArray().ToList();
+			seasons = (await Fm.Pull($"{path}.CareerStatsPerSeason", "SeasonYearLong,Team.Name,SeasonTransferInfo,Nation.Name,Division.Name,Appearances,Goals,CleanSheets", list: true, shown: "SeasonTransferInfo")).EnumerateArray().ToList();
 			return seasons.Count > 0 && seasons.All(r => Field(r, "SeasonYearLong").Length > 0);
 		}, seconds: 8, every: 0.3);
 		if (seasons.Count == 0)

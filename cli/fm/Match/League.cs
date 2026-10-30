@@ -235,7 +235,8 @@ internal static partial class Program
 	/// are missing (a player the page leaves out answers only some); by default, all of them.</param>
 	/// <param name="shown">Properties read in the game's own words, as the plugin's pull takes them.</param>
 	/// <summary><see cref="PullEach"/> in the game's own words, for what is only shown.</summary>
-	internal static Task<List<JsonElement>> PullShown(List<(string Path, string Props)> readings) => PullEach(readings, shown: "1");
+	internal static Task<List<JsonElement>> PullShown(List<(string Path, string Props)> readings) =>
+		PullEach(readings, shown: string.Join(",", readings.SelectMany(r => r.Props.Split(',')).Distinct()));
 
 	private static async Task<List<JsonElement>> PullEach(List<(string Path, string Props)> readings, Func<JsonElement, bool>? complete = null, string shown = "")
 	{

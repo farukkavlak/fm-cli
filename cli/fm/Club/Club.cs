@@ -36,7 +36,7 @@ internal static partial class Program
 		var teams = new List<(string Team, string Filled, string Places, string Vacant)>();
 		foreach (var (team, subgroup) in new[] { (L("Coaches"), "StaffCoachingSubGroup"), ("Scouting / transfer", "StaffRecruitmentSubGroup"), (L("Medical"), "StaffMedicalSubGroup") })
 		{
-			var counts = await Fm.Pull($"Human.Team.{subgroup}", "Count,MaxValue,LongString", shown: "1");
+			var counts = await Fm.Pull($"Human.Team.{subgroup}", "Count,MaxValue,LongString", shown: "LongString");
 			teams.Add((team, Field(counts, "Count"), Field(counts, "MaxValue"), Field(counts, "LongString")));
 		}
 

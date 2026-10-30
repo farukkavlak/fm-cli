@@ -329,6 +329,10 @@ Still open:
   - Corner (delivery, aim, D1 duty + otherwise, back), throw-in aim both ways, wide, deep, shooting range: TR.
   - Also: `setpieces korner vurus out` went to the language layer (`Mcp.TakesText` filled every choice and hid `aim`);
     `Choose` takes an exact match in the game's words before pieces ("Geride Dur" vs "Gerekirse Geride Dur").
+- [x] `fm staff`: was the All Staff card scrolled and cut by row order, with "Senior Squad", "N/A" and English job ranks.
+  Now `Human.Team.StaffAllList` in the game's order; `JobString` and `FullContract.*` ask `team` and `human` beside each
+  row (set as for fixtures). 13 s → 2.4 s, no card. Team grouping dropped (the job string names the youth team).
+- `Bridge.Pull`'s `shown` is a list of properties, not a switch; `PullShown` passes the ones asked.
 - [x] `player --career`: was the Career Stats tile's texts cut by a season pattern and "Total". Now the card's person
   (`Player.Path`) › `CareerStatsPerSeason` (year, team, `SeasonTransferInfo`, nation, division, apps, goals / clean
   sheets by `IsGoalkeeper`) and `SeasonStatLeagueOnly` (assists, PoM, rating); totals summed; fees `CareerTransferFeesTotal`.

@@ -19,7 +19,7 @@ internal static partial class Program
 		List<JsonElement> team = [];
 		await Until(async () =>
 		{
-			team = (await Fm.Pull("Human.Team.Players", HealthFields, list: true, shown: "1")).EnumerateArray().ToList();
+			team = (await Fm.Pull("Human.Team.Players", HealthFields, list: true, shown: "CurrentInjury.InjuryDescription")).EnumerateArray().ToList();
 			return team.Count > 0 && team.All(p => Field(p, "InjuryRiskLevel").Length > 0);
 		}, seconds: 8, every: 0.3);
 		if (team.Count == 0)

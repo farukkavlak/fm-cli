@@ -204,7 +204,7 @@ internal static partial class Program
 		}
 		var read = await PullShown([(path, "SetPieceDeliveryType,SetPieceStrategy,SetPieceType"), ($"{path}.SetPieceTaker", "Name")]);
 		if (Field(read[0], "SetPieceType").Length == 0) return null;
-		var groups = (await Fm.Pull($"{path}.PrioritySetPieces", "Name,SetPieceCategoryType", list: true, shown: "1")).EnumerateArray()
+		var groups = (await Fm.Pull($"{path}.PrioritySetPieces", "Name,SetPieceCategoryType", list: true, shown: "Name")).EnumerateArray()
 			.GroupBy(g => Field(g, "SetPieceCategoryType")).ToDictionary(g => g.Key, g => Field(g.First(), "Name"));
 
 		// A sent value is a constant the game names (Zero, One, Two…): which delivery or aim it is.
