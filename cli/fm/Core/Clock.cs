@@ -84,6 +84,7 @@ internal static partial class Program
 			}
 
 			var known = inbox.Select(m => Field(m, "UniqueId")).ToHashSet();
+			var newest = inbox.Select(Id).DefaultIfEmpty(-1).Max();
 
 			var sent = await Fm.Get("next");
 			if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
@@ -110,8 +111,11 @@ internal static partial class Program
 				now = again;
 			}
 
+			// The inbox binds a window of its list that grows as it is scrolled (14 rows, then 41), so
+			// a message missing before may only have been out of the window. One that came in has a
+			// newer id than any held before.
 			var arrived = (await TopInbox()).EnumerateArray()
-				.Where(m => !known.Contains(Field(m, "UniqueId")))
+				.Where(m => !known.Contains(Field(m, "UniqueId")) && Id(m) > newest)
 				.ToList();
 
 			var from = Field(state, "Date");

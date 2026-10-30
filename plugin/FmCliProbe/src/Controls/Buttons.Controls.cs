@@ -731,7 +731,10 @@ internal static partial class Buttons
 			try
 			{
 				var text = current.TryCast<TextElement>()?.text;
-				if (!string.IsNullOrWhiteSpace(text) && string.Equals(Text.Plain(text), wanted, StringComparison.OrdinalIgnoreCase)) return true;
+				// Asked for as the game shows it (an inbox title in Turkish) or in English.
+				if (!string.IsNullOrWhiteSpace(text)
+				    && (string.Equals(Text.Shown(text), wanted, StringComparison.OrdinalIgnoreCase)
+				        || string.Equals(Text.Plain(text), wanted, StringComparison.OrdinalIgnoreCase))) return true;
 
 				var hierarchy = current.hierarchy;
 				for (var i = 0; i < hierarchy.childCount; i++) queue.Enqueue(hierarchy.ElementAt(i));

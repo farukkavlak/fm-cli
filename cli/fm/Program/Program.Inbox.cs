@@ -126,9 +126,12 @@ internal static partial class Program
 	private static JsonElement Oldest(JsonElement data)
 	{
 		if (data.ValueKind != JsonValueKind.Array) return data;
-		var rows = data.EnumerateArray().OrderBy(m => long.TryParse(Field(m, "UniqueId"), out var id) ? id : long.MaxValue).Select(m => m.GetRawText());
+		var rows = data.EnumerateArray().OrderBy(m => Id(m) is var id and >= 0 ? id : long.MaxValue).Select(m => m.GetRawText());
 		return JsonDocument.Parse("[" + string.Join(",", rows) + "]").RootElement;
 	}
+
+	/// <summary>A message's id, or -1. Ids are the game's own and grow with the day a message arrived.</summary>
+	private static long Id(JsonElement message) => long.TryParse(Field(message, "UniqueId"), out var id) ? id : -1;
 
 	private static async Task<JsonElement> Bound(string route, string panel)
 	{

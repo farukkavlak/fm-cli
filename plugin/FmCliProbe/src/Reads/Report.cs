@@ -93,17 +93,24 @@ internal static class Report
 		var messages = new List<Dictionary<string, string>>();
 		var seen = new HashSet<string>();
 
-		foreach (var (path, node) in Walk())
+		var lists = new HashSet<string>();
+		foreach (var (path, found) in Walk())
 		{
-			if (node.Value?.DataType?.Name != "NewsItemReference") continue;
-			// The news site and a message left open bind news items of their own, and they are not
-			// messages waiting here. A row of the inbox list is the one that knows whether it has
-			// been read (FM27 no longer names the list in the path).
+			if (!IsMessage(found)) continue;
+			// FM27 binds the whole inbox, and its newest rows lie past the walk's node limit when
+			// another page is still bound beside it (19 of 41, the oldest). The list a row sits
+			// in (item › cell › message) is read whole instead.
+			var list = found.Parent?.Parent?.Parent;
+			var listPath = Up(path, 3);
+			if (list != null && listPath != null && lists.Add(listPath))
+				foreach (var (at, node) in Messages(list, listPath, depth: 3)) Message(at, node);
+			else Message(path, found);
+		}
+
+		void Message(string path, IReadOnlyNode node)
+		{
 			var fields = Fields(node);
-			if (!fields.ContainsKey("NewsItemHasBeenRead")) continue;
-			if (!fields.TryGetValue("NewsTitleString", out var title) || string.IsNullOrEmpty(title))
-				continue;
-			if (!fields.TryGetValue("UniqueId", out var id) || !seen.Add(id)) continue;
+			if (!fields.TryGetValue("UniqueId", out var id) || !seen.Add(id)) return;
 			// The title as the game shows it: a translated one ("Fitness tests") is otherwise put back into English.
 			for (var c = node.FirstChild; c != null; c = c.NextSibling)
 				if (c.Name == "NewsTitleString" && Text.ShownOf(c.Value) is { Length: > 0 } shown) fields["NewsTitleString"] = shown;
@@ -124,6 +131,40 @@ internal static class Report
 			sb.AppendLine("  " + Json(messages[i], ["NewsTitleString", "Sender"]) + (i < messages.Count - 1 ? "," : ""));
 		sb.AppendLine("]");
 		return sb.ToString();
+	}
+
+	/// <summary>
+	/// A message of the inbox list. The news site and a message left open bind news items of
+	/// their own, and they are not messages waiting here: a row of the list is the one that knows
+	/// whether it has been read (FM27 no longer names the list in the path).
+	/// </summary>
+	private static bool IsMessage(IReadOnlyNode node)
+	{
+		if (node.Value?.DataType?.Name != "NewsItemReference") return false;
+		var fields = Fields(node);
+		return fields.ContainsKey("NewsItemHasBeenRead")
+			&& fields.TryGetValue("NewsTitleString", out var title) && !string.IsNullOrEmpty(title);
+	}
+
+	/// <summary>The messages under a node, down to the given depth, with their paths.</summary>
+	private static IEnumerable<(string Path, IReadOnlyNode Node)> Messages(IReadOnlyNode node, string path, int depth)
+	{
+		if (IsMessage(node)) yield return (path, node);
+		if (depth == 0) yield break;
+		for (var c = node.FirstChild; c != null; c = c.NextSibling)
+			foreach (var found in Messages(c, path + "." + c.Name, depth - 1)) yield return found;
+	}
+
+	/// <summary>A path with its last parts taken off, or null when it is not that deep.</summary>
+	private static string Up(string path, int parts)
+	{
+		for (var i = 0; i < parts; i++)
+		{
+			var dot = path.LastIndexOf('.');
+			if (dot < 0) return null;
+			path = path[..dot];
+		}
+		return path;
 	}
 
 	/// <summary>The streamed list the Messages page draws, by its own element name, for scrolling it.</summary>

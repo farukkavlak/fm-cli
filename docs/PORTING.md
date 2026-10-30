@@ -248,7 +248,12 @@ Still open:
 - [ ] Squad numbers before a match: the screen stays up a moment after the numbers are sent and `match` sent them
   again into a shut button ("is disabled"). Now waits for the screen to change: not tried yet.
 - [ ] `next` on a NeedAction with one answerable message (squad selection advice) gives the general hint, not its name.
-- [ ] `next` lists old messages as new every other step (seen 21 Jul, TR).
+- [x] `next` listed old messages as new: the inbox binds a window of its list that grows as it is scrolled
+  (14 rows, then 41). New now means unseen and a newer id than any held before. TR + EN + DE, 4–5 steps each.
+- [x] Inbox read cut short (19 of 41, the oldest) when another page was bound beside it: the walk's node limit.
+  The list a row sits in is now read whole.
+- [x] `reply "<title>"` failed on titles that are translation ids ("Maç sonu basın toplantısı"): `press?has=`
+  compared the row's text in English. It now matches the text as shown or in English. TR + EN + DE, 3/3 each.
 - [x] `save` on match-day screens (no game date bound) says "today" instead of "()".
 - [x] `dugout uygula` / `dugout 2 kaldır` went to the language layer (a command word that is not a number made it a
   sentence); a command's own words (`CommandFlags`) now keep it a command.
