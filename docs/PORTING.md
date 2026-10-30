@@ -312,7 +312,12 @@ Still open:
   - Tried TR (promise change → suggest → confirm → terms, wage/agent fee, suggest at a terminal, cancel in both stages),
     EN, DE (after restart).
 - [ ] `--term` by a term's English name fails in a German game (add-list choices not put into English); game words work.
-- [ ] `fm load "<save>"` from a loaded save: "save list did not open" (the game closed and reopened); `fm continue` loaded it.
+- [x] Saves: the save browser (load list, Save As) is known by its Delete (`DeleteSelectedGame`), not "Last saved";
+  its list scrolls by `/scroll?within=NonPhoneTable`. Save As opens by `menuoption?option=SaveGameAs` (FM27's FM menu
+  is a list). Overwrite and delete questions by their dialog `Type`, answered until gone (a click while drawn is lost);
+  delete waits for a save being written. `load` from a loaded save, `save --as`, `saves delete`: TR, 3/3.
+- [x] `fm world`: read from `game.*`, `game.GameCurrentManager`, `app.LastSaveSummary`, no menu opened. The manager's
+  status pill (bound to nothing, taken by order) is dropped. TR only.
 - [x] `next` listed old messages as new: the inbox binds a window of its list that grows as it is scrolled
   (14 rows, then 41). New now means unseen and a newer id than any held before. TR + EN + DE, 4–5 steps each.
 - [x] Inbox read cut short (19 of 41, the oldest) when another page was bound beside it: the walk's node limit.

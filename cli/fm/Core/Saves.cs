@@ -43,8 +43,12 @@ internal static partial class Program
 		return 0;
 	}
 
-	private static async Task<bool> OnScreen(string text) =>
-		(await Fm.GetJson("texts", ("anchor", text), ("up", "0"))).GetArrayLength() > 0;
+	/// <summary>
+	/// The save browser is up (the main menu's load list or the in-game Save As): its Delete,
+	/// which sends DeleteSelectedGame, is laid out with it, shut or not.
+	/// </summary>
+	private static async Task<bool> SaveBrowserOpen() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Events") == "DeleteSelectedGame");
 
 	// Letter + combining mark → the single letter, for the marks European names use. The
 	// runtime's own Normalize does nothing here: the CLI is built without ICU.
@@ -102,89 +106,40 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The pointer of an option on the FM menu, by the option it is rather than by the word on it:
-	/// the game names each one in the event's own field (`m_selectedOption = SaveGameAs`, the
-	/// `FM.UI.FMMenuOption`) while the label is the language's word. Empty while the menu is away.
-	/// </summary>
-	private static async Task<string> MenuOption(string option)
-	{
-		var listed = await Fm.Get("buttons", ("type", "FMMenuOptionFromIDEventContext"), ("limit", "1000"));
-		string? pointer = null;
-		foreach (var line in listed.Split('\n'))
-		{
-			if (line.StartsWith("0x", StringComparison.Ordinal)) pointer = line.Split(' ')[0];
-			else if (pointer != null && line.Trim() == $"m_selectedOption = {option}") return pointer;
-		}
-		return null;
-	}
-
-	/// <summary>The FM menu behind the unlabelled button on the top bar: the save, the world, preferences.</summary>
-	private static async Task<bool> OpenFmMenu()
-	{
-		if (await MenuOption("SaveGameAs") is not null) return true;
-		var menu = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "dashboard-hud-fm-button");
-		if (menu!.ValueKind != JsonValueKind.Object)
-		{
-			Console.Error.WriteLine(await FmMenuMissing());
-			return false;
-		}
-		await Fm.Get("click", ("ptr", Field(menu, "Pointer")));
-		return await Until(async () => await MenuOption("SaveGameAs") is not null, seconds: 8, every: 0.25);
-	}
-
-	/// <summary>
-	/// The game's world and the save it is in, as the FM menu tells it: which file, when it was
-	/// last saved, how many nations, leagues and players are loaded, the detail level, the time
-	/// played.
+	/// The game's world and the save it is in: which file, when it was last saved, how many nations,
+	/// leagues and players are loaded, the detail level, the time played. Read from the game's own
+	/// record (game.*), with no page or menu opened: FM27 moved these into the FM menu's Game Status
+	/// page, and the data is the same wherever it is shown.
 	/// </summary>
 	private static async Task<int> World(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		if (!await OpenFmMenu()) return 1;
 
-		// The menu's tiles fill in one after another; it is read once two looks agree and the two
-		// values that say the tiles are there have arrived. The menu is found — and every value taken
-		// — by the data path it is bound to: what it is, whatever word stands beside it. The labels
-		// and sentences around them ("Saves automatically…", "Estimated game speed:", "Save Game")
-		// are the game's own and read differently in another language.
-		var menu = new List<(string Text, string Path)>();
-		var previous = "?";
-		await Until(async () =>
-		{
-			menu = (await Fm.GetJson("texts", ("anchorpath", "game.GameTime"), ("up", "12"), ("paths", "1"))).EnumerateArray()
-				.Select(t => (Text: Field(t, "Text"), Path: Field(t, "Path"))).ToList();
-			var key = string.Join("|", menu.Select(f => $"{f.Path}={f.Text}"));
-			var settled = key == previous && menu.Any(f => f.Path == "game.GameTime") && menu.Any(f => f.Path == "game.RealTimeSinceLastSave");
-			previous = key;
-			return settled;
-		}, seconds: 8, every: 0.5);
+		var read = await PullShown([
+			("game", "GameTime,GameTimeSinceLastSave,RealTimeSinceLastSave,ActiveLeaguesCount,ActiveNationsCount,AutosaveModeAndIntervalString,EstimatedPlayerCount"),
+			("game.DetailLevelClub", "DisplayValue"),
+			("game.DetailLevelInternational", "DisplayValue"),
+			("game.GameCurrentManager", "Name,ManagedTeamsString"),
+			("app.LastSaveSummary", "GameSummaryGameName"),
+		]);
+		string At(int i, string field) => Field(read[i], field);
 
-		string At(string path) => menu.FirstOrDefault(f => f.Path == path).Text ?? "";
-
-		// The manager's status is the tile's own pill, bound to nothing; it is taken as the text
-		// standing right after the club the game gives — by what it sits beside, not by the label
-		// above ("Game Status") nor by where it falls in the list.
-		string Status()
-		{
-			var at = menu.FindIndex(f => f.Path == "Person.ManagedTeamsString");
-			return at >= 0 && at + 1 < menu.Count ? menu[at + 1].Text : "";
-		}
-
-		var when = At("game.GameTimeSinceLastSave");
+		var when = At(0, "GameTimeSinceLastSave");
 		when = when.StartsWith('(') ? when.Trim('(', ')') : "";
 		var world = new
 		{
-			Save = At("app.LastSaveSummary.GameSummaryGameName"),
-			LastSaved = At("game.RealTimeSinceLastSave"), LastSavedAt = when,
-			Autosave = At("game.AutosaveModeAndIntervalString"), Played = At("game.GameTime"),
-			Nations = At("game.ActiveNationsCount"), Leagues = At("game.ActiveLeaguesCount"), Players = At("game.EstimatedPlayerCount"),
-			Manager = At("Person.Name"), Club = At("Person.ManagedTeamsString"), Status = Status(),
-			InternationalDetail = At("game.DetailLevelInternational.DisplayValue"), CompetitionDetail = At("game.DetailLevelClub.DisplayValue"),
+			Save = At(4, "GameSummaryGameName"),
+			LastSaved = At(0, "RealTimeSinceLastSave"), LastSavedAt = when,
+			Autosave = At(0, "AutosaveModeAndIntervalString"), Played = At(0, "GameTime"),
+			Nations = At(0, "ActiveNationsCount"), Leagues = At(0, "ActiveLeaguesCount"), Players = At(0, "EstimatedPlayerCount"),
+			Manager = At(3, "Name"), Club = At(3, "ManagedTeamsString"),
+			InternationalDetail = At(2, "DisplayValue"), CompetitionDetail = At(1, "DisplayValue"),
 		};
-
-		// The menu is a layer over the page; it is closed again so the next command finds the page.
-		var close = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(b => Field(b, "Events") == "PanelHistoryClose");
-		if (close.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
+		if (world.Played.Length == 0)
+		{
+			Console.Error.WriteLine(L("The game's world could not be read."));
+			return 1;
+		}
 
 		if (json)
 		{
@@ -196,7 +151,7 @@ internal static partial class Program
 		Console.WriteLine(L($"Played    {world.Played}"));
 		Console.WriteLine(L($"World     {world.Nations} nations · {world.Leagues} leagues · about {world.Players} players"));
 		Console.WriteLine(L($"Detail    competitions: {world.CompetitionDetail} · international competitions: {world.InternationalDetail}"));
-		Console.WriteLine(L($"Manager   {world.Manager} · {world.Club} · {world.Status}"));
+		Console.WriteLine(L($"Manager   {world.Manager} · {world.Club}"));
 		return 0;
 	}
 
@@ -207,23 +162,21 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<(string Box, string Current)?> OpenSaveBrowser()
 	{
-		if (!await OpenFmMenu()) return null;
-		if (await MenuOption("SaveGameAs") is not { } saveAs)
+		// FM27's FM menu is a list on the top bar: its SaveGameAs row is chosen by the option it is.
+		if (!await SaveBrowserOpen())
 		{
-			Console.Error.WriteLine(L("The save browser did not open."));
-			return null;
-		}
-		var asked = await Fm.Get("press", ("ptr", saveAs));
-		if (asked.StartsWith("error", StringComparison.Ordinal))
-		{
-			Console.Error.WriteLine(asked);
-			return null;
+			var asked = await Fm.Get("menuoption", ("option", "SaveGameAs"));
+			if (asked.StartsWith("error", StringComparison.Ordinal))
+			{
+				Console.Error.WriteLine(await FmMenuMissing());
+				return null;
+			}
 		}
 
 		JsonElement box = default;
 		var open = await Until(async () =>
 		{
-			if (!await OnScreen("Last saved")) return false;
+			if (!await SaveBrowserOpen()) return false;
 			box = (await Fm.GetJson("textboxes")).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "EditBox");
 			return box.ValueKind == JsonValueKind.Object;
 		}, seconds: 8, every: 0.25);
@@ -246,14 +199,8 @@ internal static partial class Program
 
 		foreach (var share in new[] { "0", "0.25", "0.5", "0.75", "1" })
 		{
-			// The list is scrolled by a text that is in it, and which rows are changes as it moves.
-			var texts = (await Fm.GetJson("texts", ("anchor", "Last saved"), ("up", "16"))).EnumerateArray()
-				.Select(t => t!.ValueKind == JsonValueKind.String ? t.GetString() : "").ToList();
-			var at = texts.IndexOf("Last saved");
-			if (at < 0 || at + 2 >= texts.Count) return false;
-			// The row's date rather than its name: the name can be on the screen behind as well.
-			var moved = await Fm.Get("scroll", ("anchor", texts[at + 2]), ("to", share));
-			if (moved.StartsWith("error", StringComparison.Ordinal)) moved = await Fm.Get("scroll", ("anchor", texts[at + 1]), ("to", share));
+			// The list is the load screen's table (NonPhoneTable); which rows are laid out changes as it moves.
+			var moved = await Fm.Get("scroll", ("within", "NonPhoneTable"), ("to", share));
 			if (moved.StartsWith("error", StringComparison.Ordinal)) return false;
 			if (await Until(There, seconds: 1.5, every: 0.5)) return true;
 		}
@@ -284,7 +231,7 @@ internal static partial class Program
 	private static async Task CloseSaveBrowser()
 	{
 		await BrowserButton(save: false);
-		await Until(async () => !await OnScreen("Last saved"), seconds: 5, every: 0.25);
+		await Until(async () => !await SaveBrowserOpen(), seconds: 5, every: 0.25);
 	}
 
 	/// <summary>
@@ -315,10 +262,10 @@ internal static partial class Program
 	/// manager: ConfirmSaveOverrideDialog, confirmDeleteSelectedSave), so it does not change with
 	/// the language; the title is kept only as a fallback for a window the bridge cannot name.
 	/// </summary>
-	private static async Task<string> DialogButton(string type, string title)
+	private static async Task<string> DialogButton(string type)
 	{
 		foreach (var dialog in (await Fm.GetJson("dialog")).EnumerateArray())
-			if ((Field(dialog, "Type") == type || Field(dialog, "Title").StartsWith(title, StringComparison.Ordinal))
+			if (Field(dialog, "Type") == type
 			    && DialogAnswer(dialog, true) is { } button)
 				return Field(button, "Pointer");
 		return null;

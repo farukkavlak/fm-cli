@@ -889,7 +889,7 @@ Save      {0}	Kayıt     {0}
 Played    {0}	Oynanan   {0}
 World     {0} nations · {1} leagues · about {2} players	Dünya     {0} ülke · {1} lig · yaklaşık {2} oyuncu
 Detail    competitions: {0} · international competitions: {1}	Detay     turnuvalar: {0} · milli turnuvalar: {1}
-Manager   {0} · {1} · {2}	Menajer   {0} · {1} · {2}
+Manager   {0} · {1}	Menajer   {0} · {1}
 The save browser did not open.	Kayıt tarayıcısı açılmadı.
 A save name cannot be empty or contain / : \\	Kayıt adı boş olamaz ve / : \\ içeremez.
 There is a save called '{0}'; this overwrites it (with the state of {1}), and cannot be undone.	'{0}' adında bir kayıt var; bu onun üzerine yazar ({1} durumuyla), geri alınamaz.
@@ -2412,3 +2412,4 @@ Additional Promises	Ek sözler
 Bonuses & Clauses	Primler ve maddeler
 Nothing to put to the agent: either a term breaks a rule (red on the card), or the negotiation is at another step (look with talk).	Menajere sunulacak bir şey yok: ya bir şart kurala uymuyor (kartta kırmızı), ya da görüşme başka bir adımda (talk ile bak).
 Tried to exit but the game is still asking (answer: dialog).	Çıkılmaya çalışıldı ama oyun hâlâ soruyor (cevap: dialog).
+The game's world could not be read.	Oyunun dünyası okunamadı.

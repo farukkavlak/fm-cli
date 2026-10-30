@@ -38,6 +38,8 @@ internal static partial class Program
 			return 0;
 		}
 
+		// A save still being written holds the game's questions back until it is done.
+		await Until(async () => Field(await Fm.GetJson("state"), "Saving") != "True", seconds: 60, every: 0.5);
 		if (await OpenSaveBrowser() is not { } browser) return 1;
 		if (string.Equals(Composed(browser.Current), name, StringComparison.OrdinalIgnoreCase))
 		{
@@ -60,15 +62,20 @@ internal static partial class Program
 		}
 
 		string? yes = null;
-		await Until(async () => (yes = await DialogButton("confirmDeleteSelectedSave", "Delete File")) != null, seconds: 6, every: 0.25);
+		await Until(async () => (yes = await DialogButton("confirmDeleteSelectedSave")) != null, seconds: 15, every: 0.25);
 		if (yes == null)
 		{
 			Console.Error.WriteLine(L("The game did not ask about deleting; the save was not deleted."));
 			await CloseSaveBrowser();
 			return 1;
 		}
-		await Fm.Get("click", ("ptr", yes));
-		var gone = await Until(() => Task.FromResult(!File.Exists(file)), seconds: 10, every: 0.25);
+		// Answered again while the question stays up: a click while it is still drawn is lost.
+		var gone = await Until(async () =>
+		{
+			if (!File.Exists(file)) return true;
+			if (await DialogButton("confirmDeleteSelectedSave") is { } again) await Fm.Get("click", ("ptr", again));
+			return false;
+		}, seconds: 10, every: 0.5);
 
 		// Selecting the row put its name in the box; leaving through Cancel keeps it from being
 		// saved under.
@@ -128,7 +135,7 @@ internal static partial class Program
 		var listed = false;
 		for (var attempt = 0; attempt < 4 && !listed; attempt++)
 		{
-			if (!await OnScreen("Last saved"))
+			if (!await SaveBrowserOpen())
 			{
 				// The tile that opens the save list, by the event it sends (its own words are this
 				// language's, so the English sentence it used to be clicked by matched nothing).
@@ -140,7 +147,7 @@ internal static partial class Program
 					return 1;
 				}
 				await Fm.Get("click", ("ptr", Field(tile, "Pointer")));
-				if (!await Until(() => OnScreen("Last saved"), seconds: 20, every: 0.25))
+				if (!await Until(SaveBrowserOpen, seconds: 20, every: 0.25))
 				{
 					Console.Error.WriteLine(L("Save list did not open."));
 					return 1;
@@ -149,17 +156,14 @@ internal static partial class Program
 			// Left in its file-browser form, the screen names files rather than saves. The way back
 			// is the button laid out in its own panel: its label is a translated word, its panel a
 			// name the language never changes.
-			if (await OnScreen("Back to last saves"))
-			{
-				await Fm.Get("click", ("within", "back-to-last-saves-SIVisible"), ("name", "button-base-leading-icon-label"));
-				await Until(async () => !await OnScreen("Back to last saves"), seconds: 5, every: 0.25);
-			}
+			if (!(await Fm.Get("click", ("within", "back-to-last-saves-SIVisible"), ("name", "button-base-leading-icon-label"))).StartsWith("error", StringComparison.Ordinal))
+				await SaveRowInView(name);
 			listed = await SaveRowInView(name);
 			if (listed) break;
 
 			var close = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Events") == "PanelHistoryClose");
 			if (close.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
-			await Until(async () => !await OnScreen("Last saved"), seconds: 5, every: 0.25);
+			await Until(async () => !await SaveBrowserOpen(), seconds: 5, every: 0.25);
 		}
 		if (!listed)
 		{

@@ -45,15 +45,14 @@ internal static partial class Program
 		}
 
 		// An existing name is asked about once; anything else the game asks is not ours to answer.
-		var confirmed = false;
 		var started = await Until(async () =>
 		{
 			var now = await Fm.GetJson("state");
 			if (Field(now, "Saving") == "True" || Field(now, "State") == "Saving") return true;
 			if (File.Exists(file) && File.GetLastWriteTimeUtc(file) > before) return true;
-			if (!confirmed && await DialogButton("ConfirmSaveOverrideDialog", "Replace Existing File") is { } confirm)
+			// Asked again while it stays up: a click while the dialog is still drawn is lost.
+			if (await DialogButton("ConfirmSaveOverrideDialog") is { } confirm)
 			{
-				confirmed = true;
 				await Fm.Get("click", ("ptr", confirm));
 			}
 			return false;

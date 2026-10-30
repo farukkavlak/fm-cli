@@ -114,9 +114,26 @@ internal static class Texts
 		var anchor = q["anchor"];
 		var anchorPath = q["anchorpath"];
 		var byPointer = Buttons.TryPointer(q["ptr"] ?? "", out var pointer);
-		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && !byPointer) return "error: ?anchor=<text>, ?anchorpath=<data path> or ?ptr=<0x…> required";
 		float? to = float.TryParse(q["to"], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var share)
 			? System.Math.Clamp(share, 0f, 1f) : null;
+		// ?within= the list inside the first shown element of that name (the load screen's
+		// NonPhoneTable), by the first text laid out in it: no text of the list is needed.
+		if (!string.IsNullOrEmpty(q["within"]))
+		{
+			foreach (var element in Buttons.Elements())
+			{
+				try
+				{
+					if (element.name != q["within"] || element.panel == null || element.worldBound.width <= 0) continue;
+				}
+				catch { continue; }
+				if (FirstText(element) is not { } inside) return "error: nothing laid out in that list yet";
+				var (offset, end) = Registration.Scroll(inside, to);
+				return end <= 0 ? "error: that element holds no scrolling list" : $"{offset:0.#} of {end:0.#}\n";
+			}
+			return $"error: nothing named '{q["within"]}' is shown";
+		}
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && !byPointer) return "error: ?anchor=<text>, ?anchorpath=<data path>, ?within=<element name> or ?ptr=<0x…> required";
 
 		foreach (var element in Buttons.Elements())
 		{
@@ -134,5 +151,23 @@ internal static class Texts
 			return end <= 0 ? "error: that text is not in a scrolling list" : $"{offset:0.#} of {end:0.#}\n";
 		}
 		return byPointer ? $"error: nothing at {q["ptr"]} (the screen may have changed)" : $"error: nothing shows '{anchor ?? anchorPath}'";
+	}
+
+	private static UnityEngine.UIElements.VisualElement FirstText(UnityEngine.UIElements.VisualElement root)
+	{
+		var stack = new System.Collections.Generic.Stack<UnityEngine.UIElements.VisualElement>();
+		stack.Push(root);
+		for (var seen = 0; stack.Count > 0 && seen < 5000; seen++)
+		{
+			var at = stack.Pop();
+			try
+			{
+				if (at.TryCast<UnityEngine.UIElements.TextElement>() != null && at.worldBound.width > 0 && at != root) return at;
+				var h = at.hierarchy;
+				for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
+			}
+			catch { }
+		}
+		return null;
 	}
 }
