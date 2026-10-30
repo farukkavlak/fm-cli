@@ -217,7 +217,10 @@ Still open:
   is false, which matches `AvailableForTraining` (injured, on leave after a tournament). Refused before the page is opened.
   - Tried: TR only; 3/3 change and back, rest, "already", 2 refusals; from Squad and Inbox.
 - [x] `fm budget`: "spent this season" is `Human.Club.TransferExpenditureThisSeason`.
-- [ ] `fm stages`: team names empty.
+- [x] `fm stages`: a table row's team is now `LeagueTableName`, its short name `AbbreviatedName` (were `Name`, `ShortName`).
+  - Tried: TR, Süper Lig / 1. Lig / Premier League, 3/3 same, JSON. The settled mark ("C", "Pl") not seen yet (pre-season).
+- [ ] `fm table`: "table did not open". The league is found by its name in the Stages menu: `Human.Team.Division`
+  is "Süper Lig", the menu's "Türkiye Süper Ligi"; `Men's`/`Under` filters are words too. Needs the menu item's identity.
 - [x] `fm happiness`: read from each player's data, with `human`/`team`/`Judge` beside the rows (as training):
   `HierarchyOverallHappinessLevel`, `MoraleString`, `HierarchyInfluenceCategoryString`, reason lists
   `HappinessPositives`/`HappinessNegatives` (each reason's `Name`). No row selecting, no "Negatives" heading.

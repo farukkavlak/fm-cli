@@ -100,15 +100,19 @@ internal static partial class Program
 	/// team — "C" for the champions, "Pl" for a play-off place — under the same name as the team's own,
 	/// and the mark is what comes through ("1 C 84", Bolton, 18 Nisan 2026). The team is still known by
 	/// its short name, which another table on screen pairs with the full one; the mark is kept as Settled.
+	/// FM27 binds them as LeagueTableName and AbbreviatedName; they go out as Name and ShortName.
 	/// </summary>
 	private static JsonElement NamedStandings(JsonElement table, JsonElement tables)
 	{
+		static string Of(JsonElement row, string fm26, string fm27) => Field(row, fm26) is { Length: > 0 } old ? old : Field(row, fm27);
 		var names = new Dictionary<string, string>();
 		foreach (var row in tables.EnumerateArray().SelectMany(t => t.EnumerateArray()))
-			if (Field(row, "ShortName") is { Length: > 0 } code && Field(row, "Name") is { Length: > 3 } name) names.TryAdd(code, name);
+			if (Of(row, "ShortName", "AbbreviatedName") is { Length: > 0 } code && Of(row, "Name", "LeagueTableName") is { Length: > 3 } name) names.TryAdd(code, name);
 		var rows = table.EnumerateArray().Select(row =>
 		{
 			var fields = row.EnumerateObject().ToDictionary(f => f.Name, f => f!.Value.ToString());
+			fields["Name"] = Of(row, "Name", "LeagueTableName");
+			fields["ShortName"] = Of(row, "ShortName", "AbbreviatedName");
 			var name = fields.GetValueOrDefault("Name", "");
 			if (name.Length is > 0 and <= 3 && fields.GetValueOrDefault("ShortName", "") is { Length: > 0 } code && code != name)
 			{
