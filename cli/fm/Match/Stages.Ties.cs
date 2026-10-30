@@ -117,7 +117,7 @@ internal static partial class Program
 				else found.Add([.. path, child]);
 			}
 		}
-		await Walk(["Competitions"], 0);
+		await Walk([], 0);
 
 		if (found.Count > 0)
 		{

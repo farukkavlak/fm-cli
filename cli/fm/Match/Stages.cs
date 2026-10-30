@@ -36,8 +36,26 @@ internal static partial class Program
 			return 0;
 		}
 
-		// Which competition: the one named, or the one the page opens on — the next match's.
-		if (words.Count > 0)
+		// Which competition: one of the club's own given by its data path (by `table`), the one named, or
+		// the one the page opens on — the next match's. The path is the record itself: the list's name for
+		// a league ("Türkiye Süper Ligi") is not the league's own ("Süper Lig").
+		if (Option(args, "--record") is { Length: > 0 } record)
+		{
+			if (await StageLists() is not { } before)
+			{
+				Console.Error.WriteLine(L("Lists on the Stages page not found."));
+				return 1;
+			}
+			var was = Signature(before);
+			var wasShown = await ContentSignature();
+			var picked = "";
+			await Until(async () => !(picked = await PickIn(false, ("record", record))).StartsWith("error: no record at", StringComparison.Ordinal), seconds: 3, every: 0.2);
+			if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
+			if (!picked.StartsWith("already", StringComparison.Ordinal))
+				await Until(async () => await StageLists() is { } now && Signature(now) != was
+					&& await ContentSignature() != wasShown, seconds: 10, every: 0.2);
+		}
+		else if (words.Count > 0)
 		{
 			var every = await Competitions(refresh: false);
 			var path = CompetitionNamed(every, words[0], quiet: true);
@@ -79,16 +97,18 @@ internal static partial class Program
 		var top = page.Stage.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 		var showing = current >= 0 && current < top.Count ? stages.FirstOrDefault(s => s[0] == top[current]!.TrimEnd(' ', '›')) : null;
 
+		// The stage's words follow the competition's, which a record stands in for.
+		var stageWords = Option(args, "--record") is { Length: > 0 } ? words : words.Skip(1).ToList();
 		List<List<string>?> wanted;
 		if (all) wanted = stages;
-		else if (words.Count > 1)
+		else if (stageWords.Count > 0)
 		{
-			var typed = Fold(string.Join(" ", words.Skip(1)));
+			var typed = Fold(string.Join(" ", stageWords));
 			var hits = stages.Where(s => Fold(string.Join(" ", s)) == typed).ToList();
 			if (hits.Count == 0) hits = stages.Where(s => Fold(string.Join(" ", s)).Contains(typed)).ToList();
 			if (hits.Count != 1)
 			{
-				Console.Error.WriteLine(hits.Count == 0 ? L($"{competition}: there is no stage called '{string.Join(" ", words.Skip(1))}'. Stages:") : L("Matches more than one stage:"));
+				Console.Error.WriteLine(hits.Count == 0 ? L($"{competition}: there is no stage called '{string.Join(" ", stageWords)}'. Stages:") : L("Matches more than one stage:"));
 				foreach (var s in hits.Count == 0 ? stages : hits) Console.Error.WriteLine($"  {string.Join(" › ", s)}");
 				return 64;
 			}
@@ -106,6 +126,20 @@ internal static partial class Program
 			}
 			var name = stage != null ? string.Join(" › ", stage) : showing != null ? string.Join(" › ", showing) : Field((await StageLists())!.Value.Stage, "Label");
 			var (ties, table, note) = await StageContent();
+
+			// Asked for the table alone (`table`): when the stage the page opens on has none — the play-offs
+			// once the league is over — it is the stage that has one, whatever the stage is called. Only the
+			// list's own rows of a kind that is not a knockout round are looked at (a cup's rounds and its
+			// qualifying paths' submenus have no table).
+			if (bare && stage == null && table == null)
+				foreach (var other in await TableStages(page.Stage, stages, showing))
+				{
+					if ((await PickStage(other)).StartsWith("error", StringComparison.Ordinal)) continue;
+					(ties, table, note) = await StageContent();
+					if (table == null) continue;
+					name = string.Join(" › ", other);
+					break;
+				}
 
 			// With no stage named, a cup opens on a round that is yet to be drawn; the last one
 			// that has been is what there is to see, and the draw's date goes under it.

@@ -169,6 +169,10 @@ internal static partial class Buttons
 		// "7,3" is the fourth row of the eighth row's submenu.
 		if (!string.IsNullOrEmpty(q["path"])) return SelectPath(dropdown, q["path"], q);
 
+		// Or by the game's record the row stands for, as held at a data path ("Human.Team.Division"):
+		// the Stages page's competition list names a league otherwise than the league's own name does.
+		if (!string.IsNullOrEmpty(q["record"])) return SelectRecord(dropdown, q["record"], q);
+
 		// Or by the names down to it: "Bonus After Competition Achievement>Turkish Cup>Bonus upon…".
 		if (!string.IsNullOrEmpty(q["names"]))
 		{
@@ -240,6 +244,81 @@ internal static partial class Buttons
 			return $"selected {described} and sent its {events.Count} event(s)";
 		}
 		return $"selected {described}, now {dropdown.SelectedIndex}";
+	}
+
+	/// <summary>
+	/// Chooses the menu row whose record (its RowData's PropertyValue) is the database record held at
+	/// a data path, searched through every submenu. The one already chosen is said, not chosen again:
+	/// the page would not be rebuilt, and what waits for that would wait in vain.
+	/// </summary>
+	private static string SelectRecord(SIDropdown dropdown, string dataPath, NameValueCollection q)
+	{
+		var b = Game.Bindings;
+		if (b == null) return "error: bindings unavailable";
+		var key = PathKey.Of(dataPath);
+		if (!b.Exists(ref key)) RawPath.Bind(dataPath);
+		// A path bound by this very call holds nothing until the next frame.
+		if (!b.Exists(ref key) || RecordAt(b.Get(ref key)) is not { } wanted) return $"error: no record at '{dataPath}' yet";
+
+		try
+		{
+			var selectionKey = dropdown.m_selectionValueBindingKey;
+			if (b.Exists(ref selectionKey) && RecordOfRow(b.Get(ref selectionKey)) is { } now && now == wanted)
+				return $"already chosen: {LabelOf(dropdown)}";
+			// A page just opened has chosen nothing yet and shows its own: the record its scope holds as
+			// `comp`, beside what the list writes (the Stages card).
+			if (b.GetNode(ref selectionKey)?.Parent is { } scope && Shown(scope, 0) is { } shown && shown == wanted)
+				return $"already chosen: {LabelOf(dropdown)}";
+		}
+		catch { }
+
+		var path = new List<int>();
+		bool Find(Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> rows, int depth)
+		{
+			for (var i = 0; i < (rows?.Count ?? 0) && depth < 8; i++)
+			{
+				path.Add(i);
+				if (Children(rows[i]) is { } children ? Find(children, depth + 1) : RecordOfRow(rows[i]) == wanted) return true;
+				path.RemoveAt(path.Count - 1);
+			}
+			return false;
+		}
+		if (!Find(dropdown.m_choices, 0)) return $"error: no row of this dropdown stands for the record at '{dataPath}'";
+		return SelectPath(dropdown, string.Join(",", path), q);
+
+		static int? Shown(IReadOnlyNode node, int depth)
+		{
+			for (var c = node.FirstChild; c != null && depth < 2; c = c.NextSibling)
+			{
+				if (c.Name == "comp" && RecordAt(c.Value) is { } record) return record;
+				if (Shown(c, depth + 1) is { } below) return below;
+			}
+			return null;
+		}
+		// A database record (competition, club, nation) as its index and table type together.
+		static int? RecordAt(SI.Core.TypedValue value)
+		{
+			try { return value?.Get()?.TryCast<FM.UI.DatabaseRecordReference>()?.CombinedIndexAndType; }
+			catch { return null; }
+		}
+		// A menu row's record, through its RowData when it has one (a chosen value is the RowData itself).
+		static int? RecordOfRow(SI.Core.TypedValue row)
+		{
+			try
+			{
+				var record = row?.Get()?.TryCast<DynamicReference>();
+				if (record == null) return null;
+				var entries = Send.Entries(record);
+				if (entries.TryGetValue("RowData", out var inner) && inner != null && !inner.IsNull)
+				{
+					record = inner.Get()?.TryCast<DynamicReference>();
+					if (record == null) return null;
+					entries = Send.Entries(record);
+				}
+				return entries.TryGetValue("PropertyValue", out var held) && held != null && !held.IsNull ? RecordAt(held) : null;
+			}
+			catch { return null; }
+		}
 	}
 
 	private static string SelectPath(SIDropdown dropdown, string raw, NameValueCollection q)

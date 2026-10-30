@@ -11,15 +11,16 @@ internal static class Text
 	/// separated by anything reliable — padding only appears when the blob's length calls for
 	/// it. So the game's own parser does the work rather than a guess at the delimiter.
 	/// </summary>
-	public static string Clean(string value)
+	public static string Clean(string value, bool translate = true)
 	{
 		if (string.IsNullOrEmpty(value)) return value;
 
 		try
 		{
-			return Localisation.English(SI.Translation.EmbeddedDataUtilities.ContainsEmbeddedData(value)
+			var bare = SI.Translation.EmbeddedDataUtilities.ContainsEmbeddedData(value)
 				? SI.Translation.EmbeddedDataUtilities.RemoveEmbeddedData(value)
-				: value);
+				: value;
+			return translate ? Localisation.English(bare) : bare;
 		}
 		catch { return value; }
 	}
@@ -36,6 +37,13 @@ internal static class Text
 		{
 			if (value.DataType?.Name == "TranslationID" && value.As<SI.Translation.TranslationID>() is var tid && Localisation.EnglishOf(tid.GameID) is { } english)
 				return Localisation.Seeing(english, Shown(tid.TranslatedString));
+		}
+		catch { }
+		// A number is not a word: taken back through the table, a German game's "6" is the text some
+		// English "F" is translated to, and a table's sixth place came out "F" and was lost.
+		try
+		{
+			if (value.DataType?.Name == "DynamicNumber") return Clean(value.AsString(), translate: false);
 		}
 		catch { }
 		// A date is packed into a struct whose text is only its fields; it is given as the day.

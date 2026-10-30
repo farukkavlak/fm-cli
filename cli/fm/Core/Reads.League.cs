@@ -10,105 +10,86 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		// Which competition: the league unless another of ours is named. Read in one go: a slot the
-		// club has no competition in never arrives, and asked one at a time each such slot was waited for.
-		var ours = (await ClubCompetitions()).Select(c => c.Name).ToList();
+		// Which competition: the league unless another of ours is named. Each is held by its data path
+		// (Human.Team.Division, Human.Team.CurrentComp2), never by its name.
+		var ours = await ClubCompetitions();
+		var record = "Human.Team.Division";
 		var wanted = await LeagueName();
 		if (string.Join(" ", Words(args)) is { Length: > 0 } typed)
 		{
-			// A competition that is not ours has no button to open it from; the Stages page
-			// reaches all of them.
-			if (!ours.Any(o => Fold(o).Contains(Fold(typed))) && !int.TryParse(typed, out _)) return await Stages(json, ["stages", typed]);
-			if (Choose(ours, typed, L("Competition")) is not { } chosen) return 64;
-			wanted = chosen;
+			// A competition that is not ours has no data path to hold it by; the Stages page
+			// reaches all of them by name.
+			if (!ours.Any(o => Fold(o.Name).Contains(Fold(typed))) && !int.TryParse(typed, out _)) return await Stages(json, ["stages", typed]);
+			if (Choose(ours.Select(o => o.Name).ToList(), typed, L("Competition")) is not { } chosen) return 64;
+			(wanted, record) = ours.First(o => o.Name == chosen);
 		}
 
 		// The Stages page has the whole table — wins, draws, defeats, goal difference and the
-		// last five results — where the portal's tile has games and points; it is used when the
-		// competition can be told apart there, and what follows is the way when it cannot (or
-		// when the stage it is at is a knockout round, with no table).
-		// The competitions' list is walked once for each language and career and kept (Competitions).
+		// last five results — where the portal's tile has games and points. The competition is chosen
+		// there by the record its row stands for, and the stage with a table is found by Stages itself.
+		try
 		{
-			try
+			if (!json && await Stages(false, ["stages", "--record", record, "--bare"]) == 0) return 0;
+			// As JSON the rows alone, as the tile's table gives them.
+			if (json && await Captured(["stages", "--record", record, "--json", "--bare"]) is { ValueKind: JsonValueKind.Object } read
+			    && read.TryGetProperty("Read", out var stages) && stages.ValueKind == JsonValueKind.Array
+			    && stages.EnumerateArray().Select(r => r.TryGetProperty("Table", out var t) ? t : default)
+				    .FirstOrDefault(t => t.ValueKind == JsonValueKind.Array && t.GetArrayLength() > 0) is { ValueKind: JsonValueKind.Array } rows)
 			{
-				var nation = "";
-				await Until(async () => (nation = Field(await Fm.Pull("Human.Team.Nation", "Name"), "Name")).Length > 0, seconds: 3, every: 0.5);
-				var every = await Competitions(false);
-				// A continental competition goes by its own name there; a domestic one by the
-				// country's ("Super League" is "Turkish Super League").
-				var leagues = every.Where(p => p[^1] == wanted).ToList();
-				if (leagues.Count == 0)
-					leagues = every.Where(p => p[^1].EndsWith(wanted, StringComparison.Ordinal) && p.Contains(nation) && p.Contains("Men's")
-						&& !p.Any(step => step.StartsWith("Under", StringComparison.Ordinal))).ToList();
-				// With the league over its page opens on the stage being played, the play-offs, which is ties
-				// and no table; the table is the league stage's.
-				if (nation.Length > 0 && leagues.Count == 1)
-					foreach (var stage in new[] { Array.Empty<string>(), ["league"] })
-					{
-						if (!json && await Stages(false, ["stages", leagues[0][^1], .. stage, "--bare"]) == 0) return 0;
-						// As JSON the rows alone, as the tile's table gives them.
-						if (json && await Captured(["stages", leagues[0][^1], .. stage, "--json", "--bare"]) is { ValueKind: JsonValueKind.Object } read
-						    && read.TryGetProperty("Read", out var stages) && stages.ValueKind == JsonValueKind.Array
-						    && stages.EnumerateArray().Select(r => r.TryGetProperty("Table", out var t) ? t : default)
-							    .FirstOrDefault(t => t.ValueKind == JsonValueKind.Array && t.GetArrayLength() > 0) is { ValueKind: JsonValueKind.Array } rows)
-						{
-							Console.WriteLine(rows.ToString());
-							return 0;
-						}
-					}
+				Console.WriteLine(rows.ToString());
+				return 0;
 			}
-			catch (Exception e) when (e is FmError or System.Text.Json.JsonException or IOException) { }
 		}
+		catch (Exception e) when (e is FmError or System.Text.Json.JsonException or IOException) { }
 
 		// The portal's tile holds the table of the competition the next match is in — the
 		// league most weeks, Europe before a European night — so it is only taken when that is
-		// the one asked for. Any other is on the competition's own page, opened from its name.
+		// the one asked for, told by the competition's own id.
+		string Id(JsonElement read) => Field(read, "UniqueId");
+		var next = "";
+		var asked = "";
+		try
+		{
+			await Until(async () => (next = Id(await Fm.Pull("Human.Team.NextFixture.Competition", "UniqueId"))).Length > 0
+				& (asked = Id(await Fm.Pull(record, "UniqueId"))).Length > 0, seconds: 3, every: 0.3);
+		}
+		catch (FmError) { }
+
+		if (next.Length == 0 || next != asked)
+		{
+			Console.Error.WriteLine(L($"{wanted}: the table did not open (a cup has no table)."));
+			return 1;
+		}
+
 		var opened = await OpenPage(Screen.Home);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		// Each table bound on screen apart from the others (the tile and a competition's page
-		// can both be up); the biggest of those not seen before is the one just opened.
 		// Names and points come first and the other columns a moment after: read by those two alone, a
 		// table counted as settled while its games were still to come, and went out with places and
 		// points only (18 Nisan 2026).
 		static string Key(JsonElement t) => string.Join("|", t.EnumerateArray().Select(r => Field(r, "Name") + Field(r, "LeaguePoints") + "/" + Field(r, "LeagueGamesPlayed") + "/" + Field(r, "LeagueGamesWon")));
-		async Task<JsonElement?> Biggest(HashSet<string> not) =>
+		async Task<JsonElement?> Biggest() =>
 			(await Fm.GetJson("table", ("groups", "1"))).EnumerateArray().Cast<JsonElement?>()
-				.Where(t => t!.Value.GetArrayLength() >= 10 && !not.Contains(Key(t!.Value)))
+				.Where(t => t!.Value.GetArrayLength() >= 10)
 				// Two tables of the same league can be up at once, a tile with places and points only and the
 				// full one; of equals the one with the games played is the table (18 Nisan 2026).
 				.OrderByDescending(t => t!.Value.GetArrayLength())
 				.ThenByDescending(t => t!.Value.EnumerateArray().Count(r => Field(r, "LeagueGamesPlayed").Length > 0)).FirstOrDefault();
-		async Task<JsonElement?> Settled(HashSet<string> not, double seconds)
+		JsonElement? tile = null;
+		var previous = "";
+		await Until(async () =>
 		{
-			JsonElement? found = null;
-			var previous = "";
-			return await Until(async () =>
-			{
-				found = await Biggest(not);
-				var key = found is { } t ? Key(t) : "";
-				var same = key.Length > 0 && key == previous;
-				previous = key;
-				return same;
-			}, seconds: seconds, every: 0.6) ? found : null;
-		}
+			tile = await Biggest();
+			var key = tile is { } t ? Key(t) : "";
+			var same = key.Length > 0 && key == previous;
+			previous = key;
+			return same;
+		}, seconds: 8, every: 0.6);
 
-		var tile = await Settled([], 8);
-		string? shown = null;
-		try { shown = Field(await Fm.Pull("Human.Team.NextFixture.Competition", "Name"), "Name"); } catch (FmError) { }
-
-		JsonElement table;
-		if (tile is { } onTile && (wanted == null || shown == wanted)) table = onTile;
-		else
+		if (tile is not { } table)
 		{
-			var seen = (await Fm.GetJson("table", ("groups", "1"))).EnumerateArray().Select(Key).ToHashSet();
-			var pressed = await Arriving("press", [("text", wanted), ("name", "SIButton"), ("any", "1")]);
-			if (pressed.StartsWith("error", StringComparison.Ordinal) || await Settled(seen, 12) is not { } onPage)
-			{
-				Console.Error.WriteLine(L($"{wanted}: the table did not open (a cup has no table)."));
-				return 1;
-			}
-			table = onPage;
+			Console.Error.WriteLine(L($"{wanted}: the table did not open (a cup has no table)."));
+			return 1;
 		}
 
 		if (json)

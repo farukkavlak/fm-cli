@@ -6,25 +6,21 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>
-	/// The page's two lists: the competition (the one whose only choice is the "Competitions"
-	/// submenu) and, right after it, the stage. They are found afresh each time — choosing a
-	/// competition rebuilds the page and its controls with it.
+	/// The page's two lists, by what they write: the competition's writes the stages block's `pairData`
+	/// (the portal's competition tile has a list writing one too, outside the block), the stage's
+	/// `selectedstagemenu`. They are found afresh each time — choosing a competition rebuilds the page
+	/// and its controls with it; until both are there with their names the page is still being built.
 	/// </summary>
 	private static async Task<(JsonElement Competition, JsonElement Stage)?> StageLists()
 	{
-		var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().ToList();
-		for (var i = 0; i + 1 < lists.Count; i++)
-		{
-			var choices = lists[i].GetProperty("Choices");
-			if (choices.GetArrayLength() != 1 || choices[0].GetString() != "Competitions ›") continue;
-			if (Field(lists[i], "Label").Length == 0) continue;
-			// The stage list is the one that ends in the xG table; until it is there the page
-			// is still being built, and the list after the competition's is the season's.
-			var stage = lists.Skip(i + 1).FirstOrDefault(l => l.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "xG Table"));
-			if (stage!.ValueKind != JsonValueKind.Object) return null;
-			return (lists[i], stage);
-		}
-		return null;
+		// The lists of the page before it was rebuilt can linger, with no name.
+		var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(l => Field(l, "Label").Length > 0 && l.GetProperty("Choices").GetArrayLength() > 0).ToList();
+		var competition = lists.FirstOrDefault(l => Field(l, "Binds") == "pairData"
+			&& l.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "BindingExpect_StagesBlock"));
+		var stage = lists.FirstOrDefault(l => Field(l, "Binds") == "selectedstagemenu");
+		if (competition.ValueKind != JsonValueKind.Object || stage.ValueKind != JsonValueKind.Object) return null;
+		return (competition, stage);
 	}
 
 	private static string Signature((JsonElement Competition, JsonElement Stage) lists) =>
@@ -76,13 +72,46 @@ internal static partial class Program
 		return answer;
 	}
 
+	private const int KnockoutRound = 0, XgTable = 4;
+
+	/// <summary>The stages that can hold a table: rows of the list itself whose kind is neither a knockout round nor the xG table.</summary>
+	private static async Task<List<List<string>>> TableStages(JsonElement list, List<List<string>> stages, List<string>? showing)
+	{
+		var types = await StageTypes(list);
+		var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		return stages.Where(s => s != showing && s.Count == 1 && choices.IndexOf(s[0]) is var i && i >= 0 && i < types.Count
+			&& types[i] is { } type && type != KnockoutRound && type != XgTable).ToList();
+	}
+	private static readonly Dictionary<string, List<int?>> stageTypesSeen = [];
+
+	/// <summary>
+	/// The kind of stage each row of the stage list stands for: the game's StageType of the row's stage
+	/// (a league stage 2, the xG table 4, a knockout round 0; seen on Süper Lig, 1. Lig, Championship,
+	/// Türkiye Kupası). A row that only opens a submenu has none. Each row is put in the tree to be read;
+	/// what a list held is kept for as long as the list is the same one.
+	/// </summary>
+	private static async Task<List<int?>> StageTypes(JsonElement list)
+	{
+		var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		var key = Field(list, "Pointer") + "|" + string.Join("|", choices);
+		if (stageTypesSeen.TryGetValue(key, out var kept)) return kept;
+		var at = $"fmcli.stagerows.g{DateTime.UtcNow.Ticks % 1_000_000_000}";
+		for (var i = 0; i < choices.Count; i++)
+			await Fm.Get("rowput", ("ptr", Field(list, "Pointer")), ("i", i.ToString()), ("to", $"{at}.{i}"));
+		var read = await PullEach(choices.Select((_, i) => ($"{at}.{i}.RowData.Stage", "StageType")).ToList());
+		var types = read.Select(r => int.TryParse(Field(r, "StageType"), out var type) ? type : (int?)null).ToList();
+		if (types.Any(t => t != null)) stageTypesSeen[key] = types;
+		return types;
+	}
+
 	/// <summary>The stages in the stage list, submenus opened ("Main Path › First Qualifying Round"); the xG table is not one.</summary>
 	private static async Task<List<List<string>>> StageNames(JsonElement list)
 	{
 		var stages = new List<List<string>>();
-		foreach (var choice in list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? ""))
+		var types = await StageTypes(list);
+		foreach (var (choice, i) in list.GetProperty("Choices").EnumerateArray().Select((c, i) => (c.GetString() ?? "", i)))
 		{
-			if (choice == "xG Table") continue;
+			if (i < types.Count && types[i] == XgTable) continue;
 			if (!choice!.EndsWith(" ›", StringComparison.Ordinal))
 			{
 				stages.Add([choice]);
@@ -178,8 +207,8 @@ internal static partial class Program
 		//, so its own sentence is checked before them.
 		if (note != null) return (null, null, note);
 
-		var stagesInList = lists.Value.Stage.GetProperty("Choices").EnumerateArray().Count(c => c.GetString() != "xG Table");
-		var league = stagesInList <= 1;
+		var types = await StageTypes(lists.Value.Stage);
+		var league = types.Count(t => t != XgTable) <= 1;
 
 		if (!league && ties.GetArrayLength() > 0) return (whole ? await EveryTie(ties) : ties, null, null);
 		if (league && table.ValueKind == JsonValueKind.Array) return (null, table, null);

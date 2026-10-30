@@ -219,8 +219,16 @@ Still open:
 - [x] `fm budget`: "spent this season" is `Human.Club.TransferExpenditureThisSeason`.
 - [x] `fm stages`: a table row's team is now `LeagueTableName`, its short name `AbbreviatedName` (were `Name`, `ShortName`).
   - Tried: TR, Süper Lig / 1. Lig / Premier League, 3/3 same, JSON. The settled mark ("C", "Pl") not seen yet (pre-season).
-- [ ] `fm table`: "table did not open". The league is found by its name in the Stages menu: `Human.Team.Division`
-  is "Süper Lig", the menu's "Türkiye Süper Ligi"; `Men's`/`Under` filters are words too. Needs the menu item's identity.
+- [x] `fm table`: the competition is held by its data path (`Human.Team.Division`, `CurrentCompN`), never its name.
+  - `/select?record=<path>` chooses the menu row whose `RowData.PropertyValue` is that database record (`CombinedIndexAndType`);
+    "already chosen" when the list's binding or the card's `comp` holds it (a fresh page has chosen nothing).
+  - Stages lists by what they write: competition `pairData` inside `BindingExpect_StagesBlock`, stage `selectedstagemenu`.
+  - A stage row's kind is its `RowData.Stage.StageType` (put with `/rowput`): league 2, xG table 4, knockout round 0
+    (seen, not from an enum). The table is looked for only in rows that are not 0 or 4.
+  - The portal tile is used only when the next fixture's competition has the same `UniqueId`.
+  - Numbers (`DynamicNumber`) are no longer taken back through the translation table: German "6" came back "F".
+  - Tried: TR, EN, DE; cold / page open / other page / after another competition; 10/10 + 11/11; cup and UCL refused.
+  - Not yet: a league over (play-offs shown), UCL league phase. `stages <name>` still breaks ties by `Men's`/`Under` text.
 - [x] `fm happiness`: read from each player's data, with `human`/`team`/`Judge` beside the rows (as training):
   `HierarchyOverallHappinessLevel`, `MoraleString`, `HierarchyInfluenceCategoryString`, reason lists
   `HappinessPositives`/`HappinessNegatives` (each reason's `Name`). No row selecting, no "Negatives" heading.

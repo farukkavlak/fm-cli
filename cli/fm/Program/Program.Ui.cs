@@ -141,7 +141,14 @@ internal static partial class Program
 			// one is the first team's: the youth team's Individual Training, FM27).
 			await Until(async () => !(answer = await (bar ? Fm.Get("open", ("guid", screen), ("bar", "1")) : Fm.Get("open", ("guid", screen))))
 				.StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.5);
-			if (answer.StartsWith("error", StringComparison.Ordinal)) return answer;
+			// Now and then the parent comes up without the bar ever answering for the page (Stages from
+			// the squad page, 2 in 16): it is opened again rather than given up on.
+			if (answer.StartsWith("error", StringComparison.Ordinal))
+			{
+				if (attempt == 3) return answer;
+				if ((opened = await OpenPage(parent, team)).StartsWith("error", StringComparison.Ordinal)) return opened;
+				continue;
+			}
 			// The page under this one answers even while the parent draws over it, so it is taken only
 			// when the bar stands on it and the content is there, held over two readings in a row.
 			var standing = false;
