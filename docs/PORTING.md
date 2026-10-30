@@ -247,7 +247,15 @@ Still open:
   main menu (measured once, cold start), so it replaces the list of match-day stops (`SquadNumbers` was missing).
 - [ ] Squad numbers before a match: the screen stays up a moment after the numbers are sent and `match` sent them
   again into a shut button ("is disabled"). Now waits for the screen to change: not tried yet.
-- [ ] `next` on a NeedAction with one answerable message (squad selection advice) gives the general hint, not its name.
+- [x] NeedAction with nothing to answer (`Respond` 0, no priority message): FM27 wants a message read (a forwarded
+  match story, squad selection advice; not always in the inbox's first window). One Continue opens it; `next` presses,
+  says "opened: <title>" and goes on, also through two in a row.
+  - `Respond` tells the stops apart: 0 read, 1 answer a message, 3 an offer, 14 set-piece wizard.
+    `Game.ImmediateUserRequiredTask.HasTask` is false in all of them: not a sign.
+  - A message wanting an answer (pitch size, registration, squad numbers) is still left to `reply`.
+  - Tried: TR, 4 read stops (23, 24 ×2, 27 Tem), 3 answer stops. EN, DE not tried (the stop is rare: ~1 in 15 steps).
+- [ ] `fm offers` says "no offer" while the game waits on one (`Respond` 3, Palermo for Levent, 4 Ağu 2026).
+  The offer's message is in the inbox and `reply` lists its answers.
 - [x] `next` listed old messages as new: the inbox binds a window of its list that grows as it is scrolled
   (14 rows, then 41). New now means unseen and a newer id than any held before. TR + EN + DE, 4–5 steps each.
 - [x] Inbox read cut short (19 of 41, the oldest) when another page was bound beside it: the walk's node limit.

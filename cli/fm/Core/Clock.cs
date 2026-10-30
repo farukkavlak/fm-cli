@@ -49,6 +49,7 @@ internal static partial class Program
 		if (times == 0) times = until != null ? UntilSteps : 1;
 
 		var shown = false;
+		var reads = 0;
 		for (var taken = 0; taken < times; taken++)
 		{
 			var state = await Fm.GetJson("state");
@@ -67,6 +68,30 @@ internal static partial class Program
 			// are waiting; the inbox knows better until the first real stop.
 			var flow = Field(state, "State");
 			if (flow == "CanContinue" && inbox.Any(Blocking)) flow = "NeedAction";
+
+			// A message the game wants read: one press opens it and frees the clock. It is named.
+			if (flow == "NeedAction" && await OnlyToRead(state, inbox))
+			{
+				var (read, opened) = await PressAndRead(state);
+				if (read is not { } freed)
+				{
+					Console.Error.WriteLine(L("The game has been processing for three minutes; I stopped waiting. For the state: status"));
+					return 75;
+				}
+				if (opened.Length > 0) Console.WriteLine(L($"  opened: {GameWords.Of(opened)}"));
+				// The same press can go on past the message (27 → 28 Tem 2026 in one press).
+				if (Field(freed, "Date") != Field(state, "Date")) Console.WriteLine($"{Pretty(Field(state, "Date"))} → {Pretty(Field(freed, "Date"))} {Time(freed)}");
+				else if (Field(freed, "Clock") != Field(state, "Clock")) Console.WriteLine($"{Pretty(Field(freed, "Date"))} {Time(state)} → {Time(freed)}");
+				// Still held with nothing new opened: not a message to read after all; said as any
+				// other stop. Held after opening one: another may wait (two in a row, 24 Tem 2026).
+				if ((Field(freed, "State") == "NeedAction" && opened.Length == 0) || ++reads > UntilSteps)
+				{
+					await Explain(freed, taken == 0 ? Console.Error : Console.Out);
+					return taken == 0 ? 1 : 0;
+				}
+				taken--;
+				continue;
+			}
 
 			if (!Passable(flow))
 			{
@@ -157,6 +182,41 @@ internal static partial class Program
 	/// messages (Messages) and on the world news page (AroundTheWorld), with nothing to answer:
 	/// one press goes on.
 	/// </summary>
+	/// <summary>
+	/// FM27 also stops on NeedAction with nothing to answer, when a message it wants read is waiting
+	/// (a forwarded match story, not in the inbox's first window). The Continue's must-respond kind
+	/// says which: 0 then, 1 for a message wanting an answer, 3 an offer, 14 the set-piece wizard.
+	/// One Continue opens the message (23–24 Tem 2026, TR). The game's required task
+	/// (`Game.ImmediateUserRequiredTask.HasTask`) is false in both, so it does not tell them apart.
+	/// </summary>
+	private static async Task<bool> OnlyToRead(JsonElement state, List<JsonElement> inbox) =>
+		Field(state, "Respond") == "0" && !inbox.Any(Blocking)
+		&& (await TalkOptions()).Count == 0 && await VisionControls() == null;
+
+	/// <summary>
+	/// Presses Continue on a message stop: the state after, or null when the game never settled,
+	/// and the title of the message it opened ("" when no new one is up).
+	/// </summary>
+	private static async Task<(JsonElement? State, string Title)> PressAndRead(JsonElement state)
+	{
+		async Task<string> Title()
+		{
+			var texts = await MessageTexts();
+			return texts.ValueKind == JsonValueKind.Array
+				? texts.EnumerateArray().Where(t => Field(t, "Path") == "newsitem.NewsTitleString").Select(t => Field(t, "Text")).FirstOrDefault() ?? ""
+				: "";
+		}
+
+		// A message already open stays drawn: only a different title is the one this press opened.
+		var before = await Title();
+		var sent = await Fm.Get("next");
+		if (sent.StartsWith("error", StringComparison.Ordinal)) return (state, "");
+		if (await Settled(state) is not { } now) return (null, "");
+		var title = "";
+		await Until(async () => (title = await Title()).Length > 0 && title != before, seconds: 3, every: 0.3);
+		return (now, title != before ? title : "");
+	}
+
 	private static bool Passable(string flow) =>
 		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages" or "AroundTheWorld";
 
@@ -283,6 +343,11 @@ internal static partial class Program
 					if (Field(state, "Respond") == "3")
 					{
 						output.WriteLine(L("An offer for one of our players awaits an answer. To see it: offers   ·   to answer: offers <#> view | accept | stall | reject"));
+						return;
+					}
+					if (await OnlyToRead(state, (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList()))
+					{
+						output.WriteLine(L("The game is waiting for a message to be read; next opens it."));
 						return;
 					}
 					// Something to do that no message holds: a deal to go on with, a screen to finish.

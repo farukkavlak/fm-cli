@@ -85,6 +85,7 @@ The game has been processing for three minutes; I stopped waiting. For the state
 Told to continue, but neither the clock nor the inbox changed.	İlerle denildi ama ne saat ne gelen kutusu değişti.
 The game showed a page first ({0}); time did not move on.	Oyun önce bir sayfa gösterdi ({0}); zaman ilerlemedi.
   new: {0}{1}	  yeni: {0}{1}
+  opened: {0}	  açıldı: {0}
   (awaiting an answer)	  (cevap bekliyor)
 The game does not allow saving right now (a match or processing may be under way).	Oyun şu an kaydetmeye izin vermiyor (maç ya da işlem sürüyor olabilir).
 Under which name?  save --as "<name>" --yes	Hangi adla?  save --as "<ad>" --yes
@@ -2491,3 +2492,4 @@ Let the assistant pick, youth players too	Yardımcı seçsin, gençlerden de
 sound	ses
 Sound	Ses
 all of the game's sound	oyunun bütün sesi
+The game is waiting for a message to be read; next opens it.	Oyun bir mesajın okunmasını bekliyor; next onu açar.
