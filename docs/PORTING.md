@@ -220,7 +220,9 @@ Still open:
   waits on it (`NeedAction`, `Respond` 14) and Continue does nothing.
   - Each step has the staff's choice ready; `EventToPlugin` on `buttons-next-primary-default`
     (`EventFmxSetPieceCreatorNextStep`) goes on, 6 presses end it (`Respond` 0). Back: `…CreatorBackStep`.
-  - Done once by hand (TR). `setpieces new` (six questions) may be this wizard: not tried on it yet; `next` should name it.
+  - Done once by hand (TR). `setpieces new` now starts and steps it by events (`EventFmxSetPieceCreatorStart`,
+    `…NextStep`); done is the Next button gone (was the labels "Let’s go" / "Confirm"). `next` names it at `Respond` 14.
+    NOT tried: the game offers it once; the Set Pieces page's "Reset Set Piece Routines" does not bring it back.
 - [x] New continue stop `Messages` (new mail, nothing to answer): one press goes on; `next` passes it.
   - `AroundTheWorld` (world news page): one press goes on, seen once (TR).
   FM27 has more page stops (`NextUnreadMessage`, `Training`, `NewsForYou`, `DataHub`…): not seen yet.

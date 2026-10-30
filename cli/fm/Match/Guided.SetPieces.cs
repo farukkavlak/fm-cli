@@ -27,20 +27,18 @@ internal static partial class Program
 			return 69;
 		}
 
-		// The wizard's Next and its final Confirm are the same button under two labels.
-		const string onward = "buttons-next-primary-default";
-		const string start = "Let’s go";
+		// The wizard's steps, by the events their buttons send: Start on its first card, then Next
+		// (the last one under another label, Confirm). FM27 offers the wizard only when the game asks
+		// for it (the set-piece message of the first season, Respond 14).
+		const string startEvent = "EventFmxSetPieceCreatorStart", nextEvent = "EventFmxSetPieceCreatorNextStep";
 		var picks = words.Skip(1).ToList();
 		var dry = args.Contains("--dry");
+		async Task<JsonElement?> Sending(string ev) =>
+			(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Events").Contains(ev, StringComparison.Ordinal) && Field(b, "Enabled") == "True")
+			.Cast<JsonElement?>().FirstOrDefault();
 
-		if (await Named(onward) == null && await Labelled(start) == null)
-		{
-			var opened = await OpenPage(Screen.SetPieces);
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-			await Until(async () => await Labelled(start) != null || await Named(onward) != null, seconds: 10);
-		}
-
-		if (await Labelled(start) is { } begin)
+		if (await Sending(startEvent) is { } begin)
 		{
 			if (dry)
 			{
@@ -48,12 +46,12 @@ internal static partial class Program
 				return 0;
 			}
 			await Fm.Get("press", ("ptr", Field(begin, "Pointer")));
-			await Until(async () => await Named(onward) != null, seconds: 10);
+			await Until(async () => await Sending(nextEvent) != null, seconds: 10);
 		}
 
-		if (await Named(onward) == null)
+		if (await Sending(nextEvent) == null)
 		{
-			Console.Error.WriteLine(L("The set piece wizard did not open. The routines may already be set up."));
+			Console.Error.WriteLine(L("The set piece wizard is not open: the game offers it only when it asks (its set-piece message). To change a routine: setpieces <type>"));
 			return 1;
 		}
 
@@ -110,20 +108,19 @@ internal static partial class Program
 				if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
 			}
 
-			if (await Named(onward) is not { } button)
+			if (await Sending(nextEvent) is not { } button)
 			{
 				Console.Error.WriteLine(L("The wizard's continue button disappeared."));
 				return 1;
 			}
-
-			var last = Field(button, "Label") == "Confirm";
 			await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 
-			if (!last) continue;
+			// The next question, or the wizard gone: the last Next confirms it.
+			await Until(async () => await Sending(nextEvent) == null || await Question(previous) != null, seconds: 10, every: 0.25);
+			if (await Sending(nextEvent) != null) continue;
 
-			var done = await Until(async () => await Named(onward) == null, seconds: 10);
-			Console.WriteLine(done ? L("\nThe set piece routines are set up.") : L("\nConfirmed, but the wizard is still open."));
-			return done ? 0 : 1;
+			Console.WriteLine(L("\nThe set piece routines are set up."));
+			return 0;
 		}
 
 		Console.Error.WriteLine(L("The wizard was still not finished after twelve questions; left it."));

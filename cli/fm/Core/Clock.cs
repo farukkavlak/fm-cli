@@ -292,8 +292,14 @@ internal static partial class Program
 			case "NeedAction":
 				// A transfer offer blocks the clock until it is accepted or rejected; stalling it
 				// leaves the game waiting (measured, 23 Oct).
-				if (Field(state, "Respond") == "3" || button.Contains("Transfer Offer", StringComparison.Ordinal))
+				if (Field(state, "Respond") == "3")
 					output.WriteLine(L("Transfer offer waiting: offers   ·   reject: offers <#> reject --yes   (stall does not close this step)"));
+				// The set piece wizard the game opens once (its own number, 14): nothing goes on until it is done.
+				if (Field(state, "Respond") == "14")
+				{
+					output.WriteLine(L("The set piece wizard is open. To answer it: setpieces new   (the game's choices: setpieces new, then Enter at each question)"));
+					return;
+				}
 				// A meeting with the board left open is what the game waits on, whatever else is unanswered.
 				if (await VisionControls() != null) output.WriteLine(L("The club vision meeting is open. Objectives and bargaining: vision   ·   to finish: vision end"));
 				// A conversation an answer opened holds its message until it ends; the message is not the step.

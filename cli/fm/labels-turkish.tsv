@@ -2413,3 +2413,5 @@ Bonuses & Clauses	Primler ve maddeler
 Nothing to put to the agent: either a term breaks a rule (red on the card), or the negotiation is at another step (look with talk).	Menajere sunulacak bir şey yok: ya bir şart kurala uymuyor (kartta kırmızı), ya da görüşme başka bir adımda (talk ile bak).
 Tried to exit but the game is still asking (answer: dialog).	Çıkılmaya çalışıldı ama oyun hâlâ soruyor (cevap: dialog).
 The game's world could not be read.	Oyunun dünyası okunamadı.
+The set piece wizard is not open: the game offers it only when it asks (its set-piece message). To change a routine: setpieces <type>	Duran top sihirbazı açık değil: oyun onu yalnızca kendisi isteyince açar (duran top mesajı). Bir rutini değiştirmek için: setpieces <tür>
+The set piece wizard is open. To answer it: setpieces new   (the game's choices: setpieces new, then Enter at each question)	Duran top sihirbazı açık. Cevaplamak için: setpieces new   (oyunun seçimleri: setpieces new, sonra her soruda Enter)
