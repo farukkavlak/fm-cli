@@ -1424,9 +1424,6 @@ Total if made permanent	Kalıcı olursa toplam
 Possible total	Olası toplam
 now {0}	şu an {0}
 , until {0}	, {0}'e kadar
-Sale	Satış
-Free transfer	Bedelsiz
-Swap	Takas
 Formation	Diziliş
 Top scorer	Gol kralı
 Top assists	Asist kralı
@@ -2173,8 +2170,6 @@ AST	AS
 FITNESS TEST	KONDİSYON TESTİ
 MATCH ({0})	MAÇ ({0})
     Bonuses and clauses: {0}	    Primler ve maddeler: {0}
-Loan in	Kiralık alım
-Purchase	Alım
 \n  Attached: player report — {0}	\n  Ek: oyuncu raporu — {0}
     Value {0} · wage {1} · contract until {2}	    Değer {0} · ücret {1} · sözleşme {2}'e kadar
     Happiness: {0} ({1} positives, {2} negatives) · squad mood: {3}	    Mutluluk: {0} ({1} artı, {2} eksi) · takım havası: {3}
@@ -2493,3 +2488,5 @@ sound	ses
 Sound	Ses
 all of the game's sound	oyunun bütün sesi
 The game is waiting for a message to be read; next opens it.	Oyun bir mesajın okunmasını bekliyor; next onu açar.
+{0} (our bid)	{0} (bizim teklifimiz)
+{0}: the offer's row was not found on the transfer activity page.	{0}: teklifin satırı Transfer Hareketliliği sayfasında bulunamadı.

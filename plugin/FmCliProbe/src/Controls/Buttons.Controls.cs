@@ -380,6 +380,10 @@ internal static partial class Buttons
 		return null;
 	}
 
+	/// <summary>Every control on the loaded screens that sends this event (EventToPlugin:EventFmx…), with its label.</summary>
+	internal static List<(VisualElement Element, string Label)> Sending(string eventName) =>
+		Controls(out _).Where(c => Sends(c, eventName)).Select(c => (c.Element, c.Label)).ToList();
+
 	private static bool Sends(Control control, string eventName)
 	{
 		foreach (var (_, list) in control.Lists)

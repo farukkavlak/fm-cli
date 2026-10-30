@@ -151,7 +151,12 @@ internal static partial class Mcp
 			foreach (var (arg, schema) in props)
 			{
 				if (schema?["type"]?.GetValue<string>() != "string" || schema["enum"] != null) continue;
-				var words = tool.Words(JsonDocument.Parse(new JsonObject { [arg] = marker }.ToJsonString()).RootElement);
+				// A text that counts only beside a choice (fm_offers: offer with answer) has the
+				// choices filled in with their first value.
+				var given = new JsonObject { [arg] = marker };
+				foreach (var (other, choice) in props)
+					if (choice?["enum"] is JsonArray { Count: > 0 } choices) given[other] = choices[0]!.DeepClone();
+				var words = tool.Words(JsonDocument.Parse(given.ToJsonString()).RootElement);
 				var at = words.IndexOf(marker);
 				if (at > 0 && !words[at - 1].StartsWith("--", StringComparison.Ordinal)) return true;
 			}

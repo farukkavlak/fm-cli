@@ -24,6 +24,7 @@ internal static class RowControls
 	{
 		var wanted = q["event"];
 		if (string.IsNullOrEmpty(wanted)) return "error: ?event=<simulation event id> required (see /buttons)";
+		if (q["buttons"] == "1") return RowButtons(wanted, q["name"], q["gen"]);
 
 		var variable = q["var"];
 		var found = new List<(SIDropdown Dropdown, StreamedListView Table, int Index)>();
@@ -76,6 +77,47 @@ internal static class RowControls
 			var list = dropdown.m_choices;
 			for (var i = 0; i < (list?.Count ?? 0); i++) choices.Add($"\"{Report.Escape(Buttons.ChoiceText(list[i]) ?? "")}\"");
 			rows.Add($"{{\"Item\": \"{path}\", \"Index\": {index}, \"Page\": \"{page}\", \"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", \"Writes\": \"{Report.Escape(table == null ? Writes(dropdown) : "")}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", \"Choices\": [{string.Join(", ", choices)}]}}");
+		}
+		return "[" + string.Join(",\n ", rows) + "]\n";
+	}
+
+	/// <summary>
+	/// The buttons that send this event (?event=EventToPlugin:EventFmxTransferCentreResponseAccept&amp;buttons=1),
+	/// each with the table item of the row it sits in, put at a path: one answer per offer row, told
+	/// apart by the offer's own record rather than by its place among the buttons. &amp;name= narrows
+	/// an event many buttons send (OpenPanel) to one element name (transfer-link-button).
+	/// </summary>
+	private static string RowButtons(string wanted, string name, string generation)
+	{
+		var under = $"fmcli.rowbtn.g{generation ?? "0"}";
+		var rows = new List<string>();
+		var k = 0;
+		foreach (var (button, label) in Buttons.Sending(wanted))
+		{
+			var path = "";
+			var index = -1;
+			var enabled = false;
+			try
+			{
+				if (button.worldBound.width <= 0) continue;
+				// A kind of event many buttons send (OpenPanel) is narrowed by the element's name.
+				if (!string.IsNullOrEmpty(name) && button.name != name) continue;
+				enabled = button.enabledInHierarchy;
+				if (RowOf(button) is { } at)
+				{
+					index = at.Index;
+#if FM26
+					var held = at.Table.GetItemFromSource(at.Index);
+#else
+					var held = at.Table.GetItemFromView(at.Index);
+#endif
+					if (held?.TryCast<SI.Core.TypedValue>() is { IsNull: false } item && RawPath.Set($"{under}.{k}", item) == null)
+						path = $"{under}.{k}";
+				}
+			}
+			catch { }
+			rows.Add($"{{\"Item\": \"{path}\", \"Index\": {index}, \"Pointer\": \"0x{button.Pointer.ToInt64():x}\", \"Enabled\": \"{(enabled ? "True" : "False")}\", \"Label\": \"{Report.Escape(label ?? "")}\"}}");
+			k++;
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";
 	}

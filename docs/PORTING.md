@@ -253,9 +253,18 @@ Still open:
   - `Respond` tells the stops apart: 0 read, 1 answer a message, 3 an offer, 14 set-piece wizard.
     `Game.ImmediateUserRequiredTask.HasTask` is false in all of them: not a sign.
   - A message wanting an answer (pitch size, registration, squad numbers) is still left to `reply`.
-  - Tried: TR, 4 read stops (23, 24 ×2, 27 Tem), 3 answer stops. EN, DE not tried (the stop is rare: ~1 in 15 steps).
-- [ ] `fm offers` says "no offer" while the game waits on one (`Respond` 3, Palermo for Levent, 4 Ağu 2026).
-  The offer's message is in the inbox and `reply` lists its answers.
+  - Tried: TR, 6 read stops (two in a row twice), 3 answer stops; DE 2 in a row. EN not met (the stop is rare: ~1 in 15 steps).
+- [x] `fm offers`: read from the club's own records, no page opened: `Human.Club.TransferActivity.TransferActivityPlayerListAll`
+  › each player's `TransferOffers` (`UniqueId`, `BuyingClub`/`SellingClub`, `TransferOfferTypeString`, `TransferOfferStatusString`,
+  fee, clause and option strings, `CanAcceptOffer` / `CanStallOffer` / `CanRejectCancelWithdrawOffer`).
+  - To us: `SellingClub.UniqueId` is `Human.Club`'s. Words in the game's language (`shown=`); fee lines lose their `<b>`.
+  - Answers: the row's buttons by the event they send (`EventFmxTransferCentreResponse{Accept,Stall,CancelReject}`), their row
+    by its table item's `UniqueId` (`/rowcontrols?buttons=1`); view: `transfer-link-button` the same way. When the offer's player
+    is not chosen on the page, each player in its list is tried until the row is up.
+  - FM26's reading (club `Club.Name`, buttons by place after the row) is gone: FM27's club text is `primarytext`.
+  - Tried: TR list / view / reject / stall / stall refused / unknown; EN + DE list (3/3), view, stall refused; cold and page open.
+  - Right after a language switch the first read is in the old language; the game's own texts change on restart.
+  - `offers <name> <answer>` went to the language layer: a text argument beside a choice was not seen (`Mcp.TakesText`).
 - [x] `next` listed old messages as new: the inbox binds a window of its list that grows as it is scrolled
   (14 rows, then 41). New now means unseen and a newer id than any held before. TR + EN + DE, 4–5 steps each.
 - [x] Inbox read cut short (19 of 41, the oldest) when another page was bound beside it: the walk's node limit.

@@ -3,31 +3,29 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// The offers waiting for an answer (Recruitment › Transfer Activity): who wants
-/// which of our players, for what, and the three answers each row carries — accept, stall, reject.
+/// The offers waiting for an answer (Transfers › Transfer Activity): who wants which of our players,
+/// for what. They are read from the club's own transfer activity (`Human.Club.TransferActivity`), each
+/// offer its own record; the page is opened only to answer one, by the row buttons that offer's record sits under.
 /// An offer's message drops off the inbox after a few days while the offer still waits; this is
 /// where it is answered then.
 /// </summary>
 internal static partial class Program
 {
-	private sealed record WaitingOffer(string Player, string Club, string Kind, string Status, string Fee, string Link, string Accept, string Stall, string Reject)
+	private sealed record WaitingOffer(string Id, string Player, string Club, string Kind, string Status, string Fee, bool Incoming)
 	{
-		/// <summary>What comes with the fee: instalments, appearance money, a loan's terms and wage share.</summary>
+		/// <summary>What comes with the fee: clauses, options, a loan's wage share.</summary>
 		public string Terms { get; init; } = "";
-		/// <summary>Where the player stands in the page's list; his offers are on screen only while he is chosen there.</summary>
-		public int At { get; init; }
-		/// <summary>The club the player is with, from the panel's own header.</summary>
-		public string PlayerClub { get; init; } = "";
+		public bool CanAccept { get; init; }
+		public bool CanStall { get; init; }
+		public bool CanReject { get; init; }
 	}
 
 	private static async Task<int> Offers(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
 		var words = Words(args).ToList();
-		var opened = await OpenPage(Screen.TransferActivity);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		// The list is drawn after the page; it is read once two readings agree.
+		// Read once two readings agree: a list bound by the first read fills in a frame later.
 		List<WaitingOffer> offers = [];
 		var previous = "?";
 		await Until(async () =>
@@ -37,21 +35,13 @@ internal static partial class Program
 			var settled = key == previous;
 			previous = key;
 			return settled;
-		}, seconds: 8, every: 0.6);
-
-		// The page lists our own bids and enquiries too, a player of another club's with that club beside
-		// him: an offer is made to us only when the player is with our club (the first team's, a youth
-		// side's or one out on loan alike).
-		var club = "";
-		try { club = Field(await Fm.Pull("Human.Team.Club", "Name"), "Name"); }
-		catch (FmError) { }
-		bool Incoming(WaitingOffer o) => club.Length == 0 || o.PlayerClub.Length == 0 || o.PlayerClub == club;
+		}, seconds: 8, every: 0.4);
 
 		if (words.Count == 0)
 		{
 			if (json)
 			{
-				Console.WriteLine(JsonOut.Of(offers.Select((o, i) => new { No = i + 1, o.Player, o.Club, Kind = GameWords.Of(o.Kind), Incoming = Incoming(o), Status = GameWords.Of(o.Status), o.Fee, Terms = GameWords.Of(o.Terms) })));
+				Console.WriteLine(JsonOut.Of(offers.Select((o, i) => new { No = i + 1, o.Player, o.Club, o.Kind, o.Incoming, o.Status, o.Fee, o.Terms })));
 				return 0;
 			}
 			if (offers.Count == 0)
@@ -59,16 +49,8 @@ internal static partial class Program
 				Console.WriteLine(L("No offers pending."));
 				return 0;
 			}
-			string Kind(WaitingOffer o) => o.Kind switch
-			{
-				"Loan" => Incoming(o) ? L("Loan") : L("Loan in"),
-				"Transfer" => Incoming(o) ? L("Sale") : L("Purchase"),
-				"Free Transfer" => L("Free transfer"),
-				"Swap" or "Part Exchange" => L("Swap"),
-				var other => other,
-			};
 			Table.Write(["#", L("PLAYER"), L("CLUB"), L("TYPE"), L("STATUS"), L("FEE"), L("TERMS")],
-				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, Kind(o), o.Status, o.Fee, o.Terms]).ToList());
+				offers.Select((o, i) => (string[])[(i + 1).ToString(), o.Player, o.Club, o.Incoming ? o.Kind : L($"{o.Kind} (our bid)"), o.Status, o.Fee, o.Terms]).ToList());
 			Console.WriteLine(L("\nAnswer: offers <# | player> view | accept | stall | reject   (view shows the offer as a card)"));
 			return 0;
 		}
@@ -93,12 +75,15 @@ internal static partial class Program
 			offer = hits[0];
 		}
 
-		// Only the chosen player's offers are on screen, and the last one read is the last one chosen.
-		if ((await WaitingOffers(offer.At)).FirstOrDefault(o => o.Player == offer.Player && o.Club == offer.Club) is { } fresh) offer = fresh;
 		var what = $"{offer.Club} → {offer.Player} ({offer.Fee})";
 		if (verb == "view")
 		{
-			var shown = await Arriving("press", [("ptr", offer.Link)]);
+			if (await RowButton(offer, "OpenPanel", "transfer-link-button") is not { } link)
+			{
+				Console.Error.WriteLine(L($"{what}: the offer's row was not found on the transfer activity page."));
+				return 1;
+			}
+			var shown = await Arriving("press", [("ptr", link)]);
 			if (shown.StartsWith("error", StringComparison.Ordinal)) return Report(shown);
 			// The card is the game's own answer that the offer has opened: the player and the club
 			// the row named, its first term filled in, and the whole card the same on two reads. A
@@ -132,13 +117,12 @@ internal static partial class Program
 		}
 
 		// Our own bid or enquiry: its row's cross withdraws it, which is not an answer to anyone.
-		if (verb != "view" && !Incoming(offer))
+		if (!offer.Incoming)
 		{
 			Console.Error.WriteLine(L($"{what}: this is our own approach for another club's player, not an offer made to us; accept, stall and reject answer offers made to us."));
 			return 1;
 		}
-		var button = verb switch { "accept" => offer.Accept, "stall" => offer.Stall, _ => offer.Reject };
-		if (button == null)
+		if (!(verb switch { "accept" => offer.CanAccept, "stall" => offer.CanStall, _ => offer.CanReject }))
 		{
 			Console.Error.WriteLine(L($"{what}: the game does not give '{verb}' as an answer to this offer (an offer with no negotiation, or one about to expire, cannot be stalled)."));
 			return 1;
@@ -154,112 +138,131 @@ internal static partial class Program
 			if (Ui.Ask($"{what}: {(verb == "accept" ? L("accept it?") : L("reject it?"))}", [L("Yes"), L("No")]) != 0) return 0;
 		}
 
+		// Each row's answers send their own event; the row is the offer's record.
+		var sends = verb switch
+		{
+			"accept" => "EventToPlugin:EventFmxTransferCentreResponseAccept",
+			"stall" => "EventToPlugin:EventFmxTransferCentreResponseStall",
+			_ => "EventToPlugin:EventFmxTransferCentreResponseCancelReject",
+		};
+		if (await RowButton(offer, sends) is not { } button)
+		{
+			Console.Error.WriteLine(L($"{what}: the offer's row was not found on the transfer activity page."));
+			return 1;
+		}
 		var said = await Fm.Get("press", ("ptr", button));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-		// An answered offer changes its status or leaves the list.
+
+		// An answered offer changes its status or leaves the list: read back from the record.
 		List<WaitingOffer> after = [];
 		var changed = await Until(async () =>
-			!(after = await WaitingOffers()).Any(o => o.Player == offer.Player && o.Club == offer.Club && o.Status == offer.Status), seconds: 8, every: 0.5);
+			!(after = await WaitingOffers()).Any(o => o.Id == offer.Id && o.Status == offer.Status), seconds: 8, every: 0.5);
+		await OpenPage(Screen.Home);
 		if (!changed)
 		{
 			Console.Error.WriteLine(L($"{what}: the answer was sent, but the offer stays the same in the list."));
 			return 1;
 		}
-		var now = after.FirstOrDefault(o => o.Player == offer.Player && o.Club == offer.Club);
+		var now = after.FirstOrDefault(o => o.Id == offer.Id);
 		Console.WriteLine($"{what}: {(verb == "accept" ? L("accepted") : verb == "stall" ? L("stalled") : L("rejected"))}{(now != null ? L($" — status: {now.Status}") : "")}");
 		return 0;
 	}
 
+	private const string Activity = "Human.Club.TransferActivity.TransferActivityPlayerListAll";
+
 	/// <summary>
-	/// The offers on the page. On the left the players with offers, a radio group; on the
-	/// right the offers for the one chosen there, so each is chosen in turn. A row is the club, the kind
-	/// (Transfer, Loan), any number of clauses, the status and the fee — and for a loan the wage share
-	/// after it; the buttons give each offer its link and three unlabelled answers, in the same order.
+	/// Every offer in the club's transfer activity, ours and to us: each player with offers, then his
+	/// offers, read from their records in the game's words. To us when the selling club is ours (by id).
 	/// </summary>
-	private static async Task<List<WaitingOffer>> WaitingOffers(int? only = null)
+	private static async Task<List<WaitingOffer>> WaitingOffers()
 	{
+		var ours = "";
+		try { ours = Field(await Fm.Pull("Human.Club", "UniqueId"), "UniqueId"); }
+		catch (FmError) { }
+
 		var offers = new List<WaitingOffer>();
-		var group = await OfferPlayers();
-		var players = group is { } g ? g.GetProperty("Choices").GetArrayLength() : 1;
-		for (var at = 0; at < players; at++)
+		JsonElement players;
+		try { players = await Fm.Pull(Activity, "Person.Name", list: true); }
+		catch (FmError) { return offers; }
+		if (players.ValueKind != JsonValueKind.Array) return offers;
+		foreach (var player in players.EnumerateArray())
 		{
-			if (only != null && only != at) continue;
-			if (group is { } list && (players > 1 || only != null))
+			JsonElement rows;
+			try
 			{
-				await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("index", at.ToString()), ("fire", "1"));
+				rows = await Fm.Pull($"{Field(player, "Row")}.TransferOffers",
+					"UniqueId,Person.Name,BuyingClub.Name,SellingClub.Name,SellingClub.UniqueId,TransferOfferStatusString,TransferOfferTypeString,TransferActivityTableFeeString1,TransferActivityTableFeeString2,TransferActivityTableClausesString1,TransferActivityTableClausesString2,TransferActivityTableOptionsString1,TransferActivityTableOptionsString2,CanAcceptOffer,CanStallOffer,CanRejectCancelWithdrawOffer",
+					list: true,
+					shown: "TransferOfferStatusString,TransferOfferTypeString,TransferActivityTableClausesString1,TransferActivityTableClausesString2,TransferActivityTableOptionsString1,TransferActivityTableOptionsString2");
 			}
-			// The right side follows the choice in pieces — the rows before the clubs' names in them — so it
-			// is read once two readings agree and the page says how many offers it holds.
-			var last = "";
-			await Until(async () =>
+			catch (FmError) { continue; }
+			if (rows.ValueKind != JsonValueKind.Array) continue;
+			foreach (var row in rows.EnumerateArray())
 			{
-				var texts = await OfferTexts();
-				var now = string.Join("|", texts.Select(t => t.Text));
-				var settled = now == last && texts.Any(t => t.Path == "binding.name") && texts.Any(t => t.Path == "binding.TransferOfferStatusString");
-				last = now;
-				return settled;
-			}, seconds: 4, every: 0.35);
-			offers.AddRange((await OffersShown()).Select(o => o with { At = at }));
+				var incoming = ours.Length > 0 && Field(row, "SellingClub.UniqueId") == ours;
+				var terms = new[] { "TransferActivityTableClausesString1", "TransferActivityTableClausesString2", "TransferActivityTableOptionsString1", "TransferActivityTableOptionsString2", "TransferActivityTableFeeString2" }
+					.Select(name => Plain(Field(row, name))).Where(t => t.Length > 0 && t != "-");
+				offers.Add(new(Field(row, "UniqueId"), Field(row, "Person.Name") is { Length: > 0 } name ? name : Field(player, "Person.Name"),
+					Field(row, incoming ? "BuyingClub.Name" : "SellingClub.Name"), Field(row, "TransferOfferTypeString"), Field(row, "TransferOfferStatusString"),
+					Plain(Field(row, "TransferActivityTableFeeString1")), incoming)
+				{
+					Terms = string.Join(" · ", terms),
+					CanAccept = Field(row, "CanAcceptOffer") == "True",
+					CanStall = Field(row, "CanStallOffer") == "True",
+					CanReject = Field(row, "CanRejectCancelWithdrawOffer") == "True",
+				});
+			}
 		}
 		return offers;
 	}
 
-	/// <summary>The list of players with offers, when the page has one.</summary>
-	private static async Task<JsonElement?> OfferPlayers()
+	/// <summary>A fee line as the game marks it up for the table ("&lt;b&gt;80K €&lt;/b&gt;"), plain.</summary>
+	private static string Plain(string text) =>
+		System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "").Replace('\u00a0', ' ').Trim();
+
+	/// <summary>
+	/// The button sending <paramref name="sends"/> in this offer's row of the transfer activity page,
+	/// found by the record its row is for (the offer's UniqueId), never by its place. The page shows
+	/// one player's offers at a time: when the row is not up, each player in the page's list is chosen
+	/// in turn until it is.
+	/// </summary>
+	private static async Task<string?> RowButton(WaitingOffer offer, string sends, string? name = null)
 	{
+		var opened = await OpenPage(Screen.TransferActivity);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return null;
+
+		async Task<string?> Find()
+		{
+			string? found = null;
+			await Until(async () =>
+			{
+				var gen = DateTime.UtcNow.Ticks.ToString();
+				var buttons = await Fm.GetJson("rowcontrols", ("event", sends), ("buttons", "1"), ("name", name ?? ""), ("gen", gen));
+				foreach (var b in buttons.EnumerateArray())
+				{
+					if (Field(b, "Item") is not { Length: > 0 } item) continue;
+					if (Field(await Fm.Pull(item, "UniqueId"), "UniqueId") == offer.Id) { found = Field(b, "Pointer"); return true; }
+				}
+				return false;
+			}, seconds: 3, every: 0.3);
+			return found;
+		}
+
+		if (await Find() is { } here) return here;
+		JsonElement? group = null;
 		try
 		{
 			// Radio groups are listed with the dropdowns, by their element's name.
-			return (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
+			group = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
 				.FirstOrDefault(c => Field(c!.Value, "Name") == "transfers-list-radio-group");
 		}
-		catch (FmError) { return null; }
-	}
-
-	/// <summary>
-	/// The panel of the player chosen in the list, each text with its data path,
-	/// from one of its offers' kind, which only this panel carries.
-	/// </summary>
-	private static async Task<List<(string Text, string Path)>> OfferTexts() =>
-		(await Fm.GetJson("texts", ("anchorpath", "binding.TransferOfferTypeString"), ("up", "18"), ("paths", "1"))).EnumerateArray()
-			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
-
-	/// <summary>
-	/// The offers for the player chosen in the list, by each text's data path: the player
-	/// (binding.name), then per offer the club (Club.Name), its kind (binding.TransferOfferTypeString),
-	/// clauses and options (binding.TransferActivityTable{Clauses,Options}StringN), its status
-	/// (binding.TransferOfferStatusString) and fee lines (binding.TransferActivityTableFeeStringN).
-	/// </summary>
-	private static async Task<List<WaitingOffer>> OffersShown()
-	{
-		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
-		var texts = await OfferTexts();
-		var player = texts.FirstOrDefault(t => t.Path == "binding.name").Text ?? "";
-		var playerClub = texts.FirstOrDefault(t => t.Path == "personclub.Name").Text ?? "";
-		if (player.Length == 0) return [];
-
-		var rows = new List<(string Club, string Kind, string Status, string Fee, List<string> Terms)>();
-		foreach (var (text, path) in texts)
+		catch (FmError) { }
+		if (group is not { } list) return null;
+		for (var at = 0; at < list.GetProperty("Choices").GetArrayLength(); at++)
 		{
-			if (path == "Club.Name") { rows.Add((text, "", "", "", [])); continue; }
-			if (rows.Count == 0) continue;
-			var row = rows[^1];
-			if (path == "binding.TransferOfferTypeString") rows[^1] = row with { Kind = text };
-			else if (path == "binding.TransferOfferStatusString") rows[^1] = row with { Status = text };
-			else if (path == "binding.TransferActivityTableFeeString1") rows[^1] = row with { Fee = text };
-			else if (path.StartsWith("binding.TransferActivityTable", StringComparison.Ordinal) && text != "-") row.Terms.Add(text);
+			await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("index", at.ToString()), ("fire", "1"));
+			if (await Find() is { } there) return there;
 		}
-
-		var offers = new List<WaitingOffer>();
-		var links = buttons.Select((b, at) => (b, at)).Where(x => Field(x.b, "Name") == "transfer-link-button").ToList();
-		for (var n = 0; n < rows.Count && n < links.Count; n++)
-		{
-			var until = n + 1 < links.Count ? links[n + 1].at : buttons.Count;
-			string Answer(string name) => buttons.Skip(links[n].at + 1).Take(until - links[n].at - 1)
-				.FirstOrDefault(b => Field(b, "Name") == name && Field(b, "Label").Length == 0 && Field(b, "Enabled") == "True") is { ValueKind: JsonValueKind.Object } b ? Field(b, "Pointer") : null;
-			offers.Add(new(player, rows[n].Club, rows[n].Kind, rows[n].Status, rows[n].Fee, Field(links[n].b, "Pointer"),
-				Answer("accept-button"), Answer("stall-button"), Answer("cancel-reject-button")) { Terms = string.Join(" · ", rows[n].Terms), PlayerClub = playerClub });
-		}
-		return offers;
+		return null;
 	}
 }
