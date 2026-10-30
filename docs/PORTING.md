@@ -208,7 +208,9 @@ Still open:
   - An answer can lead to the player's own page, which has the same table and lists: only the training page's are taken.
   - After a change every other player is read again; a change that reached someone else is said.
   - Tried: TR only (cold start, page open, other page open), 9/9 + 5/5 in a row, all three parts, submenus.
-- [ ] `fm intensity <player> <level>`: same shut list; needs the `--control` answer too (reads work).
+- [x] `fm intensity <player> <level>`: the list is not the assistant's; it is shut when `TrainingIntensityOrRest.CanEdit`
+  is false, which matches `AvailableForTraining` (injured, on leave after a tournament). Refused before the page is opened.
+  - Tried: TR only; 3/3 change and back, rest, "already", 2 refusals; from Squad and Inbox.
 - [x] `fm budget`: "spent this season" is `Human.Club.TransferExpenditureThisSeason`.
 - [ ] `fm stages`: team names empty. `fm happiness`: page opens, read fails.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.

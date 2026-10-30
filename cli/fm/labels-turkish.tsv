@@ -2504,3 +2504,5 @@ This year's intake candidates cannot be read yet; see them in the game: Youth Se
 The game did not ask to take over individual training.	Oyun bireysel antrenmanı devralmayı sormadı.
 Warning: {0}'s individual training changed too.	Uyarı: {0} oyuncusunun bireysel antrenmanı da değişti.
 {0}: row not found on the individual training page.	{0}: bireysel antrenman sayfasında satırı bulunamadı.
+{0}: the game does not let his intensity be changed now ({1}).	{0}: oyun şu an yoğunluğunun değiştirilmesine izin vermiyor ({1}).
+{0}: not available for training (injured or away); the game does not let his intensity be changed ({1}).	{0}: antrenmana katılamıyor (sakat ya da izinde); oyun yoğunluğunun değiştirilmesine izin vermiyor ({1}).

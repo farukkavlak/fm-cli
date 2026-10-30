@@ -16,7 +16,7 @@ internal static partial class Program
 
 	/// <summary>What is read of each player's TrainingIntensityOrRest (it asks for the team, as "team").</summary>
 	private static readonly string[] IntensityData =
-		["IndividualTrainingIntensityRow.DisplayValue", "IndividualTrainingIntensityRow.PropertyValue", "RestDaysRemaining", "HolidaysRemaining", "IntensityRecommendation", "CanEdit"];
+		["IndividualTrainingIntensityRow.DisplayValue", "IndividualTrainingIntensityRow.PropertyValue", "RestDaysRemaining", "HolidaysRemaining", "IntensityRecommendation", "CanEdit", "AvailableForTraining"];
 
 	/// <summary>
 	/// The numbers the game's list gives its choices, the same in every language (the row's
@@ -28,7 +28,7 @@ internal static partial class Program
 		("otomatik", "Automatic", -1), ("yarim", "Half Intensity", 0), ("normal", "Normal Intensity", 1), ("cift", "Double Intensity", 2),
 	];
 
-	private sealed record IntensityRow(TrainingRow Player, string Shown, int Value, int Rest, int Holiday, int Advised, bool CanEdit)
+	private sealed record IntensityRow(TrainingRow Player, string Shown, int Value, int Rest, int Holiday, int Advised, bool CanEdit, bool Available)
 	{
 		/// <summary>On a holiday booked, told by the level (its days left are not always kept: a whole squad sent off for the summer reads -47247).</summary>
 		public bool OnHoliday => Value is >= 20 and <= 23 || Holiday > 0;
@@ -74,6 +74,15 @@ internal static partial class Program
 			if (player.OnHoliday)
 			{
 				Console.Error.WriteLine(HolidayRefusal(player));
+				return 1;
+			}
+
+			// A player away from training (injured, on leave) has his list shut; the game takes nothing for him.
+			if (!player.CanEdit)
+			{
+				Console.Error.WriteLine(player.Available
+					? L($"{player.Player.Name}: the game does not let his intensity be changed now ({IntensityShown(player)}).")
+					: L($"{player.Player.Name}: not available for training (injured or away); the game does not let his intensity be changed ({IntensityShown(player)})."));
 				return 1;
 			}
 
@@ -153,7 +162,8 @@ internal static partial class Program
 			int.TryParse(Field(data, IntensityOf + name), NumberStyles.Integer, CultureInfo.InvariantCulture, out var n) ? n : 0;
 		if (Field(data, IntensityOf + IntensityData[1]).Length == 0) return null;
 		return new IntensityRow(player, Field(data, IntensityOf + IntensityData[0]), Number(IntensityData[1]), Number("RestDaysRemaining"),
-			Number("HolidaysRemaining"), Number("IntensityRecommendation"), Field(data, IntensityOf + "CanEdit") == "True");
+			Number("HolidaysRemaining"), Number("IntensityRecommendation"), Field(data, IntensityOf + "CanEdit") == "True",
+			Field(data, IntensityOf + "AvailableForTraining") != "False");
 	}
 
 	private static string HolidayRefusal(IntensityRow row) => row.Holiday > 0
