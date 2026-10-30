@@ -126,27 +126,19 @@ internal static partial class Program
 		}
 
 		// The result is on the fixture itself once played; the newest one with a result is this match.
-		// On the results screen the page list can be empty, so the fixtures may not open; the
-		// report below does not need them.
-		JsonElement played = default;
-		try
-		{
-			played = (await Shown("fixtures", Screen.Home)).EnumerateArray()
-				.Where(f => Field(f, "Result") != "" && Field(f, "Date") != "")
-				.OrderBy(f => Field(f, "Date"))
-				.LastOrDefault();
-		}
+		TeamFixture? played = null;
+		try { played = (await TeamFixtures())?.LastOrDefault(f => f.Played && f.Result != ""); }
 		catch (FmError) { }
 		Console.WriteLine(L("The match was simulated."));
 		Console.WriteLine();
 		try
 		{
-			if (await MatchReport.Show(Fm, json: false, expected: afterScore) != 0 && played!.ValueKind == JsonValueKind.Object)
-				Console.WriteLine(L($"{Field(played, "ShortName")} match {Field(played, "Result")}"));
+			if (await MatchReport.Show(Fm, json: false, expected: afterScore) != 0 && played != null)
+				Console.WriteLine(L($"{played.Opponent} match {played.Result}"));
 		}
 		catch (FmError)
 		{
-			if (played!.ValueKind == JsonValueKind.Object) Console.WriteLine(L($"{Field(played, "ShortName")} match {Field(played, "Result")}"));
+			if (played != null) Console.WriteLine(L($"{played.Opponent} match {played.Result}"));
 		}
 
 		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);

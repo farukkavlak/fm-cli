@@ -233,7 +233,8 @@ internal static partial class Program
 	/// </summary>
 	/// <param name="complete">When a reading has everything it will have although some properties
 	/// are missing (a player the page leaves out answers only some); by default, all of them.</param>
-	private static async Task<List<JsonElement>> PullEach(List<(string Path, string Props)> readings, Func<JsonElement, bool>? complete = null)
+	/// <param name="shown">Properties read in the game's own words, as the plugin's pull takes them.</param>
+	private static async Task<List<JsonElement>> PullEach(List<(string Path, string Props)> readings, Func<JsonElement, bool>? complete = null, string shown = "")
 	{
 		List<JsonElement> read = [];
 		var previous = "";
@@ -242,7 +243,7 @@ internal static partial class Program
 			read = [];
 			// A round is one batch, the game reading every part in one frame; one at a time when
 			// the plugin cannot.
-			if (await Fm.Batch(readings.Select(r => ("pull", new[] { ("path", r.Path), ("props", r.Props) })).ToList()) is { } answers)
+			if (await Fm.Batch(readings.Select(r => ("pull", new[] { ("path", r.Path), ("props", r.Props), ("shown", shown) })).ToList()) is { } answers)
 				foreach (var answer in answers)
 				{
 					try { read.Add(JsonDocument.Parse(answer).RootElement.Clone()); }
@@ -251,7 +252,7 @@ internal static partial class Program
 			else
 				foreach (var (path, props) in readings)
 				{
-					try { read.Add(await Fm.GetJson("pull", ("path", path), ("props", props))); }
+					try { read.Add(await Fm.GetJson("pull", ("path", path), ("props", props), ("shown", shown))); }
 					catch (FmError) { read.Add(JsonDocument.Parse("{}").RootElement); }
 				}
 			var now = string.Join("|", read.Select(r => r.GetRawText()));

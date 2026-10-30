@@ -202,35 +202,29 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (all) return await AllFixtures(json);
 
-		var fixtures = await Shown("fixtures", Screen.Home);
+		var fixtures = await TeamFixtures();
+		if (fixtures == null)
+		{
+			Console.Error.WriteLine(L("The fixtures could not be read."));
+			return 1;
+		}
 		if (json)
 		{
-			Console.WriteLine(fixtures.ToString());
+			Console.WriteLine(JsonOut.Of(fixtures));
 			return 0;
 		}
 
-		// League fixtures between other clubs are bound by the same kind of record on some
-		// pages, without a date of their own; the team's fixtures always carry one.
-		var rows = fixtures.EnumerateArray().Where(fixture => Field(fixture, "Date") != "").Select(fixture => new[]
-		{
-			Short(Field(fixture, "Date")),
-			Field(fixture, "KickoffTime"),
-			Field(fixture, "MatchVenueShort") switch { "H" => L("Home"), "A" => L("Away"), "N" => L("Neutral"), var other => other },
-			Field(fixture, "ShortName"),
-			Field(fixture, "Name"),
-			Field(fixture, "Result"),
-		}).ToList();
-
+		var rows = fixtures.Select(f => new[] { Short(f.Date), f.Played ? "" : f.Kickoff, f.Venue, f.Opponent, f.Competition, f.Result }).ToList();
+		string[] headers = [L("DATE"), L("TIME"), L("VENUE"), L("OPPONENT"), L("COMPETITION"), L("RESULT")];
 		if (Ui.Rich)
 		{
 			// The game marks each result by what it was for us: 1 a win, 3 a win on penalties,
 			// 9 a draw, 10 a defeat; anything else is left uncoloured.
-			var kinds = fixtures.EnumerateArray().Where(fixture => Field(fixture, "Date") != "").Select(f => Field(f, "ResultType")).ToList();
-			Standings.Fixtures([L("DATE"), L("TIME"), L("VENUE"), L("OPPONENT"), L("COMPETITION"), L("RESULT")], rows, kinds);
+			Standings.Fixtures(headers, rows, fixtures.Select(f => f.Played ? f.ResultType : "").ToList());
 			return 0;
 		}
 
-		Table.Write([L("DATE"), L("TIME"), L("VENUE"), L("OPPONENT"), L("COMPETITION"), L("RESULT")], rows);
+		Table.Write(headers, rows);
 		return 0;
 
 		static string Short(string date) =>
@@ -238,6 +232,47 @@ internal static partial class Program
 				? $"{day.Day} {Months[day.Month - 1][..3]} {ShortDays[(int)day.DayOfWeek]}"
 				: date;
 	}
+
+	private sealed record TeamFixture(string Date, string Kickoff, string Venue, string Opponent, string Competition, bool Played, string Result, string ResultType);
+
+	/// <summary>
+	/// The last three matches played and the next seven, from the team's own fixture list
+	/// (`Team.FixtureList`), no page opened. The list is asked with the variables the Fixture
+	/// Schedule page lays beside its team: how many before and after today, padding, and the
+	/// season (0 this one). A fixture's venue, result mark and opponent are told relative to a
+	/// `team` and `human` beside its row. Venue, opponent and competition come in the game's words.
+	/// </summary>
+	private static async Task<List<TeamFixture>?> TeamFixtures()
+	{
+		const string at = "fmcli.fixtures";
+		(string Variable, string Value, bool Number)[] context =
+			[("team", "Human.Team", false), ("previousamount", "3", true), ("futureamount", "7", true), ("fixturepadding", "0", true), ("yearindex", "0", true)];
+		foreach (var (variable, value, number) in context)
+			if ((await Fm.Get("pathset", ("to", $"{at}.{variable}"), (number ? "int" : "from", value))).StartsWith("error", StringComparison.Ordinal))
+				return null;
+
+		JsonElement list;
+		try { list = await Fm.Pull($"{at}.team.FixtureList", "FixtureDate,HasResult", list: true); }
+		catch (Exception e) when (e is FmError or FmUnavailable or FmBusy) { return null; }
+		if (list.ValueKind != JsonValueKind.Array) return null;
+		var rows = list.EnumerateArray().Select(f => (Date: Field(f, "FixtureDate"), Played: Field(f, "HasResult") == "True", Row: Field(f, "Row")))
+			.Where(r => r.Row.Contains('.') && r.Date.Length > 0).ToList();
+		if (rows.Count == 0) return [];
+
+		var under = rows[0].Row[..rows[0].Row.LastIndexOf('.')];
+		// The variable is bound by this very call when nothing has bound it yet: then a frame later.
+		foreach (var (variable, from) in FixtureContext)
+			if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.{variable}"), ("from", from))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.2))
+				return null;
+
+		const string shown = "MatchVenue,TeamOpponent.Name,Competition.Name";
+		var read = await PullEach(rows.Select(r => (r.Row, $"KickoffTime,ResultLinkableNoSpaces,ResultType,{shown}")).ToList(), shown: shown);
+		return rows.Zip(read).Select(x => new TeamFixture(x.First.Date, Field(x.Second, "KickoffTime"), Field(x.Second, "MatchVenue"),
+			Field(x.Second, "TeamOpponent.Name"), Field(x.Second, "Competition.Name"), x.First.Played,
+			x.First.Played ? Field(x.Second, "ResultLinkableNoSpaces") : "", Field(x.Second, "ResultType"))).ToList();
+	}
+
+	private static readonly (string Variable, string From)[] FixtureContext = [("team", "Human.Team"), ("human", "Human")];
 
 	/// <summary>
 	/// The whole season's fixtures, gathered month by month from the calendar:

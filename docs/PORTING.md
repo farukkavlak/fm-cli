@@ -216,6 +216,11 @@ Still open:
   - Its buttons need `/press` (a click does nothing); the card is read back as gone.
   - Before the season expectations meeting the slider is shut: the board's sentence is said and the card closed.
   - Tried: TR only, refusal 6/6 (page open, card open, from Squad and Inbox). Moving the slider and confirming: not yet.
+- [x] `fm fixtures`: the home page binds no fixtures in FM27. Now read from `Human.Team.FixtureList`, no page opened.
+  - The list asks `previousamount`, `futureamount`, `fixturepadding`, `yearindex` beside the team (3 / 7 / 0 / 0).
+  - Venue, result mark and opponent ask `team` and `human` beside each row; venue, opponent, competition in game words.
+  - Tried TR + EN + DE, from three pages. Played results (`HasResult`, `ResultLinkableNoSpaces`) not seen yet: no match played.
+  - Friendlies keep the name they got when made ("Hazırlık" in an English game): the game's own page shows it so too.
 - [x] `fm training`: `PlayerTraining` now asks for `human` and `team` beside the player rows (its parts still a `Judge`).
   - The page shows one player's lists beside the table. His row is chosen by `UniqueId` (`/checkrows`, other rows unticked:
     the table keeps several and the lists are the first's); the lists by the event they send, whose they are by the
