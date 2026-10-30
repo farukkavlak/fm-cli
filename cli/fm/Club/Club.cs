@@ -1,122 +1,59 @@
-using System.Text.RegularExpressions;
+using System.Text.Json;
 
 namespace FmCli;
 
 /// <summary>
-/// The club at a glance: Club › Overview lays out the board's vision, its
-/// performance grade, the finances and wage bill, the supporters, the facilities, the staff's
-/// vacancies and the club's reputation as tiles. Each tile is read off the page from its heading
-/// to the next one's.
+/// The club at a glance, from the game's own records: the board's and the supporters' view
+/// (Human.Team.TeamConfidence), the vision's objectives with the board's word on each, the
+/// finances and wage bill, the facilities, reputation and the staff's vacancies. Only the
+/// objectives need a page: Club › Overview's Vision tab lays out their list.
 /// </summary>
 internal static partial class Program
 {
-	private static readonly string[] ClubTiles =
-	[
-		"Club Vision", "Board", "Finances", "Supporters", "Affiliates", "Facilities", "Job Centre Report",
-		"Performance Feedback", "Club Site", "Transfer History", "Staff", "Responsibilities",
-	];
-
-	private static readonly Dictionary<string, string> ClubWords = new()
-	{
-		["Required"] = L("required"), ["Desired"] = L("wanted"), ["Preferred"] = L("preferred"),
-		["On Course"] = L("On Course"), ["Satisfied"] = L("Satisfied"), ["Reserving Judgement"] = L("Reserving Judgement"),
-		["Not Judging"] = L("Not Judging"), ["Unsatisfied"] = L("Unsatisfied"), ["Failed"] = L("Failed"),
-		["Very Satisfied"] = L("Very Satisfied"), ["Disappointed"] = L("Disappointed"),
-		["High"] = L("High"), ["Medium"] = L("Medium"), ["Low"] = L("Low"),
-		["Good"] = L("Good"), ["Average"] = L("Medium"), ["Great"] = L("Great"), ["Excellent"] = L("Excellent"), ["Poor"] = L("Poor"),
-		["Continental"] = L("Continental"), ["National"] = L("National"), ["World Class"] = L("World Class"), ["Regional"] = L("Regional"),
-	};
-
-	private static string ClubSay(string word) => ClubWords.TryGetValue(word, out var t) ? t : word;
-
 	private static async Task<int> Club(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage(Screen.ClubHome);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		List<string> texts = [];
-		await Until(async () =>
-		{
-			texts = (await Fm.GetJson("texts", ("anchor", "Overall Balance"), ("up", "18"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-			return texts.Contains("Current Season Objective") && texts.Contains("Coaching Team");
-		}, seconds: 10, every: 0.5);
-		if (!texts.Contains("Current Season Objective"))
+		var read = await PullShown([
+			("Human.Team.TeamConfidence", "BoardConfidenceOverallString,BoardVisionString,SupporterConfidenceOverallString"),
+			("Human.Club", "OverallBalance,TotalIncomeLastMonth,TotalExpenditureLastMonth,SupporterBoardInfluenceString,ActiveBoardRequestsCount"),
+			("Human.Club.ReputationScope", "DisplayString"),
+			("Human.Team.Club.TrainingFacilityRating", "Description"),
+			("Human.Team.Club.YouthFacilityRating", "Description"),
+			("Human.Team.Club.CorporateFacilityRating", "Description"),
+		]);
+		string At(int i, string field) => Field(read[i], field) is { Length: > 0 } v ? v : "-";
+		if (Field(read[1], "OverallBalance").Length == 0)
 		{
 			Console.Error.WriteLine(L("The club page could not be read."));
 			return 1;
 		}
 
-		// Each tile from its heading up to the next tile's heading.
-		var tiles = new Dictionary<string, List<string>>();
-		// Only the tiles after this one end it: "Board" and "Supporters" recur inside the feedback tile.
-		var at = 0;
-		for (var n = 0; n < ClubTiles.Length; n++)
-		{
-			var name = ClubTiles[n];
-			var start = texts.IndexOf(name, at);
-			if (start < 0) continue;
-			var end = ClubTiles.Skip(n + 1).Select(next => texts.IndexOf(next, start + 1)).Where(i => i > start).DefaultIfEmpty(texts.Count).Min();
-			tiles[name] = texts.GetRange(start + 1, end - start - 1);
-			at = end;
-		}
-		List<string> Tile(string name) => tiles.TryGetValue(name, out var t) ? t : [];
-		static string After(List<string> list, string label, int skip = 1) =>
-			list.IndexOf(label) is var i && i >= 0 && i + skip < list.Count ? list[i + skip] : "-";
+		var objectives = await VisionObjectives();
 
-		// Objectives come as (text, importance, status) under their group heading.
-		var vision = Tile("Club Vision");
-		var objectives = new List<(string Group, string Text, string Importance, string Status)>();
-		var group = "";
-		for (var i = 0; i < vision.Count; i++)
-		{
-			if (vision[i] is "Actionable Objectives" or "Informational Objectives" or "Current Season Objective")
-			{
-				group = vision[i];
-				if (i + 1 < vision.Count && Regex.IsMatch(vision[i + 1], @"^\(\d+\)$")) i++;
-				continue;
-			}
-			if (i + 2 < vision.Count && vision[i + 1] is "Required" or "Desired" or "Preferred")
-			{
-				objectives.Add((group, vision[i], vision[i + 1], vision[i + 2]));
-				i += 2;
-			}
-		}
-
-		var feedback = Tile("Performance Feedback");
-		var supporters = After(feedback, "Supporters");
-		var finances = Tile("Finances");
-		var facilities = Tile("Facilities");
-		var site = Tile("Club Site");
-		var staff = Tile("Staff");
 		// Each staff team's head count, places and what is missing, from the team's data; the sentence
 		// is the game's own ("1 vacant role (Set Piece Coach)"), in its language.
 		var teams = new List<(string Team, string Filled, string Places, string Vacant)>();
-		foreach (var (team, subgroup) in new[] { ("Coaching Team", "StaffCoachingSubGroup"), ("Recruitment Team", "StaffRecruitmentSubGroup"), ("Medical Team", "StaffMedicalSubGroup") })
+		foreach (var (team, subgroup) in new[] { (L("Coaches"), "StaffCoachingSubGroup"), ("Scouting / transfer", "StaffRecruitmentSubGroup"), (L("Medical"), "StaffMedicalSubGroup") })
 		{
-			var counts = await Fm.Pull($"Human.Team.{subgroup}", "Count,MaxValue,LongString");
+			var counts = await Fm.Pull($"Human.Team.{subgroup}", "Count,MaxValue,LongString", shown: "1");
 			teams.Add((team, Field(counts, "Count"), Field(counts, "MaxValue"), Field(counts, "LongString")));
 		}
-		// The facilities' grades as the game describes them, from the club's data.
-		async Task<string> Grade(string rating) => Field(await Fm.Pull($"Human.Team.Club.{rating}", "Description"), "Description");
-		var training = await Grade("TrainingFacilityRating");
-		var youthFacilities = await Grade("YouthFacilityRating");
-		var corporate = await Grade("CorporateFacilityRating");
 
 		var wages = await WageBill();
 		var club = new
 		{
-			Objectives = objectives.Select(o => new { o.Group, o.Text, o.Importance, o.Status }),
-			Board = new { Grade = After(feedback, "Board"), Mood = After(feedback, "Board", 2), Requests = Tile("Board").FirstOrDefault() ?? "-" },
-			Supporters = new { Mood = supporters, Influence = After(Tile("Supporters"), "Supporter influence on the board") },
+			Objectives = objectives.Select(o => new { o.Text, o.Board }),
+			Board = new { Confidence = At(0, "BoardConfidenceOverallString"), Vision = At(0, "BoardVisionString"), Requests = At(1, "ActiveBoardRequestsCount") },
+			Supporters = new { Confidence = At(0, "SupporterConfidenceOverallString"), Influence = At(1, "SupporterBoardInfluenceString") },
 			Finances = new
 			{
-				Balance = finances.FirstOrDefault() ?? "-", IncomeLastMonth = After(finances, "Income"), ExpenditureLastMonth = After(finances, "Expenditure"),
+				Balance = Pounds(Field(read[1], "OverallBalance")), IncomeLastMonth = Pounds(Field(read[1], "TotalIncomeLastMonth")),
+				ExpenditureLastMonth = Pounds(Field(read[1], "TotalExpenditureLastMonth")),
 				Wages = wages.Total, WageBudget = wages.Budget, WageShare = wages.Share,
 			},
-			Facilities = new { Stadium = After(facilities, "Stadium"), Training = training, Youth = youthFacilities, Corporate = corporate },
-			Reputation = After(site, "Club Reputation"),
-			Stadium = After(site, "Stadium"),
+			Facilities = new { Training = At(3, "Description"), Youth = At(4, "Description"), Corporate = At(5, "Description") },
+			Reputation = At(2, "DisplayString"),
 			Staff = teams.Select(t => new { t.Team, t.Filled, t.Places, t.Vacant }),
 		};
 		if (json)
@@ -130,58 +67,69 @@ internal static partial class Program
 			if (Ui.Rich) Ui.Line($"\n[bold]{Ui.Safe(title)}[/]");
 			else Console.WriteLine($"\n{title}");
 		}
-		string Mood(string status)
-		{
-			var say = ClubSay(status);
-			if (!Ui.Rich) return say;
-			var colour = status switch
-			{
-				"On Course" or "Satisfied" or "Very Satisfied" => "green",
-				"Unsatisfied" or "Failed" or "Disappointed" => "red",
-				_ => "yellow",
-			};
-			return $"[{colour}]{Ui.Safe(say)}[/]";
-		}
 		void Row(string label, string value)
 		{
-			if (Ui.Rich) Ui.Line($"  {Ui.Safe(label),-22} {value}");
+			if (Ui.Rich) Ui.Line($"  {Ui.Safe(label),-22} {Ui.Safe(value)}");
 			else Console.WriteLine($"  {label,-22} {value}");
 		}
 
 		Heading(L("Board"));
-		Row(L("Grade"), $"{club.Board.Grade} · {Mood(club.Board.Mood)}");
-		Row(L("Supporters"), L($"{Mood(supporters)} · influence on the board {Ui.Safe(ClubSay(club.Supporters.Influence))}"));
-		Row(L("Pending requests"), Ui.Safe(Regex.Replace(club.Board.Requests, @"(\d+) requests?", "$1")));
+		Console.WriteLine($"  {club.Board.Confidence}");
+		Console.WriteLine($"  {club.Board.Vision}");
+		Row(L("Pending requests"), club.Board.Requests);
+		Heading(L("Supporters"));
+		Console.WriteLine($"  {club.Supporters.Confidence}");
+		Row(L("Influence on the board"), club.Supporters.Influence);
 
 		Heading(L("Objectives"));
+		if (objectives.Count == 0) Console.WriteLine(L("  (the list could not be read)"));
 		foreach (var o in objectives)
 		{
-			var tag = o.Group == "Current Season Objective" ? L("this season") : ClubSay(o.Importance);
-			if (Ui.Rich) Ui.Line($"  {Ui.Safe(o.Text)} [dim]({Ui.Safe(tag)})[/] — {Mood(o.Status)}");
-			else Console.WriteLine($"  {o.Text} ({tag}) — {ClubSay(o.Status)}");
+			if (Ui.Rich) Ui.Line($"  {Ui.Safe(o.Text)}[dim]{(o.Board.Length > 0 ? " — " + Ui.Safe(o.Board) : "")}[/]");
+			else Console.WriteLine($"  {o.Text}{(o.Board.Length > 0 ? " — " + o.Board : "")}");
 		}
 
 		Heading(L("Finances"));
-		Row(L("Balance"), Ui.Safe(club.Finances.Balance));
-		Row(L("Income last month"), Ui.Safe(club.Finances.IncomeLastMonth));
-		Row(L("Expenditure last month"), Ui.Safe(club.Finances.ExpenditureLastMonth));
-		Row(L("Weekly wages"), Ui.Safe($"{club.Finances.Wages} / {club.Finances.WageBudget} ({club.Finances.WageShare})"));
+		Row(L("Balance"), club.Finances.Balance);
+		Row(L("Income last month"), club.Finances.IncomeLastMonth);
+		Row(L("Expenditure last month"), club.Finances.ExpenditureLastMonth);
+		Row(L("Weekly wages"), $"{club.Finances.Wages} / {club.Finances.WageBudget} ({club.Finances.WageShare})");
 
 		Heading(L("Club"));
-		Row(L("Reputation"), Ui.Safe(ClubSay(club.Reputation)));
-		Row(L("Stadium"), Ui.Safe($"{club.Stadium} · {ClubSay(club.Facilities.Stadium)}"));
-		Row(L("Training facilities"), Ui.Safe(club.Facilities.Training));
-		Row(L("Youth facilities"), Ui.Safe(club.Facilities.Youth));
-		Row(L("Commercial"), Ui.Safe(club.Facilities.Corporate));
+		Row(L("Reputation"), club.Reputation);
+		Row(L("Training facilities"), club.Facilities.Training);
+		Row(L("Youth facilities"), club.Facilities.Youth);
+		Row(L("Commercial"), club.Facilities.Corporate);
 
 		Heading(L("Staff"));
 		foreach (var t in teams)
 		{
-			var name = t.Team switch { "Coaching Team" => L("Coaches"), "Recruitment Team" => "Scouting / transfer", _ => L("Medical") };
-			var open = Regex.Match(GameWords.Of(t.Vacant), @"\((.*)\)") is { Success: true } m ? L($" — vacant: {m.Groups[1].Value}") : "";
-			if (Ui.Rich) Ui.Line($"  {Ui.Safe(name),-22} {Ui.Safe(t.Filled)}/{Ui.Safe(t.Places)}[dim]{Ui.Safe(open)}[/]");
-			else Console.WriteLine($"  {name,-22} {t.Filled}/{t.Places}{open}");
+			var open = System.Text.RegularExpressions.Regex.Match(t.Vacant, @"\((.*)\)") is { Success: true } m ? L($" — vacant: {m.Groups[1].Value}") : "";
+			if (Ui.Rich) Ui.Line($"  {Ui.Safe(t.Team),-22} {Ui.Safe(t.Filled)}/{Ui.Safe(t.Places)}[dim]{Ui.Safe(open)}[/]");
+			else Console.WriteLine($"  {t.Team,-22} {t.Filled}/{t.Places}{open}");
 		}
 		return 0;
+	}
+
+	/// <summary>
+	/// The vision's objectives, each with the board's sentence on how it goes (VisionObjectivePerformance).
+	/// They are laid out only on Club › Overview's Vision tab (its element name); the rows are the
+	/// list's own items, found by the text bound to an objective's name.
+	/// </summary>
+	private static async Task<List<(string Text, string Board)>> VisionObjectives()
+	{
+		var opened = await OpenPage(Screen.ClubHome);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return [];
+		var gen = Environment.TickCount64.ToString();
+		JsonElement rows = default;
+		await Until(async () =>
+		{
+			await Fm.Get("click", ("name", "Vision"));
+			rows = await Fm.GetJson("rowtexts", ("has", "clubvision.VisionObjectiveName"), ("gen", gen));
+			return rows.ValueKind == JsonValueKind.Array && rows.GetArrayLength() > 0;
+		}, seconds: 10, every: 0.5);
+		if (rows.ValueKind != JsonValueKind.Array) return [];
+		var items = await PullShown(rows.EnumerateArray().Select(r => (Field(r, "Item"), "VisionObjectiveName,VisionObjectivePerformance")).ToList());
+		return items.Select(i => (Field(i, "VisionObjectiveName"), Field(i, "VisionObjectivePerformance"))).Where(o => o.Item1.Length > 0).ToList();
 	}
 }

@@ -19,7 +19,7 @@ internal static partial class Program
 		["State Of The Art"] = L("State Of The Art"), ["Fair"] = L("Fair"), ["Yes"] = L("Yes"), ["No"] = L("none"), ["Club"] = L("Club"),
 	};
 
-	private static string CardSay(string word) => CardWords.TryGetValue(word, out var t) ? t : ClubSay(word);
+	private static string CardSay(string word) => CardWords.TryGetValue(word, out var t) ? t : GameWords.Of(word);
 
 	/// <summary>
 	/// Opens a card from its tile on Club › Overview — the tile known by the panel it is laid out in

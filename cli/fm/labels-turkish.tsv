@@ -2417,3 +2417,4 @@ The set piece wizard is not open: the game offers it only when it asks (its set-
 The set piece wizard is open. To answer it: setpieces new   (the game's choices: setpieces new, then Enter at each question)	Duran top sihirbazı açık. Cevaplamak için: setpieces new   (oyunun seçimleri: setpieces new, sonra her soruda Enter)
   Target      (not readable with no duties: {0})	  Hedef       (görev yokken okunamıyor: {0})
 '{0}' was sent; the game shows no readable sign of the target for this kind.	'{0}' gönderildi; oyun bu türde hedefin okunabilir bir işaretini vermiyor.
+  (the list could not be read)	  (liste okunamadı)
