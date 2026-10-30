@@ -2420,3 +2420,4 @@ The set piece wizard is open. To answer it: setpieces new   (the game's choices:
   (the list could not be read)	  (liste okunamadı)
 usage: penalties add <player> [<place>]	kullanım: penalties add <oyuncu> [<sıra>]
 {0} is among the penalty takers.	{0} penaltı atıcıları arasında.
+{0} was not found in the page's players table.	{0} sayfadaki oyuncu tablosunda bulunamadı.

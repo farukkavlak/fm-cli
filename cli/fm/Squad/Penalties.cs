@@ -195,10 +195,27 @@ internal static partial class Program
 			return 64;
 		}
 		var before = await PenaltyTakerNames();
-		var squad = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToList();
-		if (Choose(squad.Where(n => !before.Contains(n)).ToList(), who, L("Player to add")) is not { } picked) return 1;
-		var chose = await Fm.Get("rowselect", ("text", picked));
-		if (chose.StartsWith("error", StringComparison.Ordinal)) return Report(chose);
+		var squad = (await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true)).EnumerateArray().Where(p => Field(p, "Name").Length > 0).ToList();
+		if (Choose(squad.Select(p => Field(p, "Name")).Where(n => !before.Contains(n)).ToList(), who, L("Player to add")) is not { } picked) return 1;
+		var id = Field(squad.First(p => Field(p, "Name") == picked), "UniqueId");
+
+		// His row in the players table, by the player its item is; only his stays ticked.
+		var ticked = false;
+		foreach (var table in (await Fm.GetJson("checkrows", ("gen", Environment.TickCount64.ToString()))).EnumerateArray())
+		{
+			var items = table.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").ToList();
+			var at = (await PullEach(items.Select(i => (i, "UniqueId")).ToList())).FindIndex(i => Field(i, "UniqueId") == id);
+			if (at < 0) continue;
+			foreach (var other in table.GetProperty("Ticked").EnumerateArray().Select(t => t.GetInt32()).Where(t => t != at))
+				await Fm.Get("rowselect", ("table", Field(table, "Table")), ("index", other.ToString()), ("check", "0"));
+			ticked = !(await Fm.Get("rowselect", ("table", Field(table, "Table")), ("index", at.ToString()), ("check", "1"))).StartsWith("error", StringComparison.Ordinal);
+			break;
+		}
+		if (!ticked)
+		{
+			Console.Error.WriteLine(L($"{picked} was not found in the page's players table."));
+			return 1;
+		}
 		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxAddPenaltyTakersToArea", StringComparison.Ordinal));
 		if (button.ValueKind != JsonValueKind.Object) { Console.Error.WriteLine(L("The penalty takers table was not found on the page.")); return 1; }

@@ -332,8 +332,9 @@ Still open:
 - [x] `fm penalties`: FM27 split the page (players table + takers area); the form under "Order" read nothing.
   Now: rules from the page's form by `Binds` (`form?page=`), takers from `<Target>.SetPiecePenaltyTakersList` › `Player.Name`
   (Target of the button sending `EventFmxAddPenaltyTakersToArea`). Move/remove still drag the takers table (by its events).
-  Add: the player's row selected by name, then that button. Composure / penalty columns dropped (only by column order).
-  TR: read, move and back, rule on/off. Add not tried.
+  Add: the player's row ticked in the players table by its item's `UniqueId` (`/checkrows`), then that button.
+  Composure / penalty columns dropped (only by column order).
+  TR: read, move and back, rule on/off, add and remove.
 - [x] `fm staff`: was the All Staff card scrolled and cut by row order, with "Senior Squad", "N/A" and English job ranks.
   Now `Human.Team.StaffAllList` in the game's order; `JobString` and `FullContract.*` ask `team` and `human` beside each
   row (set as for fixtures). 13 s → 2.4 s, no card. Team grouping dropped (the job string names the youth team).
