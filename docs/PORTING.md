@@ -384,9 +384,10 @@ Still open:
     - Read back: the card's title (`week.TrainingScheduleName`); a mix's variant is not in the title, so the week's
       session kinds (`SessionType` from the session buttons) changing counts too.
     - TR + EN + DE: each kind, both variants, back to the start; unknown, ambiguous ("dengeli") and past week refused.
-  - [ ] `fm schedule` (read) fails in German ("could not be read"): it reads day numbers in order (`TrainingDays`).
-    Move it to the session buttons (`Date`, `SessionIndex`, label) like `schedule set`.
-  - `fm schedule` reads it; the Overview is the page's own GUID now (was chosen by the words "Training" / "Overview").
+  - [x] `fm schedule` (read, FM27): from the same session buttons (`Date`, `SessionIndex`, `SessionType`; rest 300,
+    travel 402), name from the button's label. A match is the day's place with no button; its venue is the team's
+    fixture that day (`FixtureList` row `MatchVenueShort`). Was day numbers in order, which failed in German.
+    TR + EN + DE, cold, page open and from another page; same output as before in TR. FM26 calendar texts kept as fallback.
 - [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
   chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
   the name a text bound to `primarytext` (FM26's `NameButton` kept); the form is `form?within=NumbersDisplay` (was the

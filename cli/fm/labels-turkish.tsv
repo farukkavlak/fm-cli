@@ -1451,6 +1451,10 @@ travel	yolculuk
 MATCH (home)	MAÇ (iç saha)
 MATCH (away)	MAÇ (deplasman)
 MATCH (neutral)	MAÇ (tarafsız)
+MATCH	MAÇ
+Session 1	1. seans
+Session 2	2. seans
+Session 3	3. seans
 Expected goals	Gol beklentisi
 Corners	Korner
 Possession	Topla oynama

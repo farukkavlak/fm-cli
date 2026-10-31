@@ -233,7 +233,7 @@ internal static partial class Program
 				: date;
 	}
 
-	private sealed record TeamFixture(string Date, string Kickoff, string Venue, string Opponent, string Competition, bool Played, string Result, string ResultType);
+	private sealed record TeamFixture(string Date, string Kickoff, string Venue, string Opponent, string Competition, bool Played, string Result, string ResultType, string VenueShort = "");
 
 	/// <summary>
 	/// The last three matches played and the next seven, from the team's own fixture list
@@ -266,10 +266,10 @@ internal static partial class Program
 				return null;
 
 		const string shown = "MatchVenue,TeamOpponent.Name,Competition.Name";
-		var read = await PullEach(rows.Select(r => (r.Row, $"KickoffTime,ResultLinkableNoSpaces,ResultType,{shown}")).ToList(), shown: shown);
+		var read = await PullEach(rows.Select(r => (r.Row, $"KickoffTime,ResultLinkableNoSpaces,ResultType,MatchVenueShort,{shown}")).ToList(), shown: shown);
 		return rows.Zip(read).Select(x => new TeamFixture(x.First.Date, Field(x.Second, "KickoffTime"), Field(x.Second, "MatchVenue"),
 			Field(x.Second, "TeamOpponent.Name"), Field(x.Second, "Competition.Name"), x.First.Played,
-			x.First.Played ? Field(x.Second, "ResultLinkableNoSpaces") : "", Field(x.Second, "ResultType"))).ToList();
+			x.First.Played ? Field(x.Second, "ResultLinkableNoSpaces") : "", Field(x.Second, "ResultType"), Field(x.Second, "MatchVenueShort"))).ToList();
 	}
 
 	private static readonly (string Variable, string From)[] FixtureContext = [("team", "Human.Team"), ("human", "Human")];
