@@ -41,6 +41,7 @@ internal static class ContextMenus
 			return "closed";
 		}
 		if (q["open"] == "1") return Open(q);
+		if (q["menus"] == "1") return Menus();
 
 		MenuDescription description = null;
 		try { description = subsystem.m_popupContext?.Description; } catch { }
@@ -200,6 +201,36 @@ internal static class ContextMenus
 			}
 			if (menu == null) return $"error: nothing showing '{wanted}' raises a menu";
 		}
+		else if (!string.IsNullOrEmpty(q["path"]))
+		{
+			// The menu bound to that record or to something beneath it: a search row's menu holds the
+			// row's person, where a name on screen can be someone else's of the same name.
+			var node = FmApi.NodeAt(q["path"], out var error);
+			if (node == null) return error;
+			var keys = new HashSet<ulong>();
+			var queue = new Queue<SI.Bindable.IReadOnlyNode>();
+			queue.Enqueue(node);
+			while (queue.Count > 0 && keys.Count < 600)
+			{
+				var current = queue.Dequeue();
+				keys.Add(current.Key.m_key);
+				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+			}
+			var fitting = new List<PluginContextMenuBindings>();
+			foreach (var element in Buttons.Elements())
+			{
+				try
+				{
+					if (element.panel == null || element.worldBound.width <= 0) continue;
+					if (element.TryCast<PluginContextMenuBindings>() is not { } bound || bound.m_manipulator == null) continue;
+					if (KeysOf(bound).Any(keys.Contains)) fitting.Add(bound);
+				}
+				catch { }
+			}
+			if (fitting.Count == 0) return $"error: no menu showing is bound to '{q["path"]}'";
+			// Several over one row (its name and its picture) raise the same menu; menus of other records are not among them.
+			menu = fitting[0];
+		}
 		else if (!string.IsNullOrEmpty(q["name"]))
 		{
 			foreach (var element in Buttons.Elements())
@@ -215,7 +246,7 @@ internal static class ContextMenus
 			}
 			if (menu == null) return $"error: no menu named '{q["name"]}' is showing";
 		}
-		else return "error: ?ptr=<0x…>, ?text=<shown text> or ?name=<element name> required";
+		else return "error: ?ptr=<0x…>, ?path=<record path>, ?text=<shown text> or ?name=<element name> required";
 
 		var manipulator = menu.m_manipulator;
 		if (manipulator == null) return "error: that menu has nothing to open it";
@@ -226,5 +257,33 @@ internal static class ContextMenus
 		if (q["how"] == "submit") ContextMenuDescriptionManipulator.OnSubmit(evt, manipulator);
 		else manipulator.OpenOnShortcutEvent(evt);
 		return $"opened 0x{menu.Pointer.ToInt64():x} name={menu.name}";
+	}
+
+	private static IEnumerable<ulong> KeysOf(PluginContextMenuBindings menu)
+	{
+		var keys = menu.m_bindingKeys;
+		if (keys == null) yield break;
+		for (var i = 0; i < keys.Count; i++) yield return keys[i].m_key;
+	}
+
+	/// <summary>Every menu showing, with the paths and keys it is bound to (diagnosis).</summary>
+	private static string Menus()
+	{
+		var rows = new List<string>();
+		foreach (var element in Buttons.Elements())
+		{
+			try
+			{
+				if (element.panel == null || element.worldBound.width <= 0) continue;
+				if (element.TryCast<PluginContextMenuBindings>() is not { } bound) continue;
+				var paths = new List<string>();
+				var bp = bound.BindingPaths;
+				for (var i = 0; bp != null && i < bp.Count; i++) paths.Add(bp[i].Path ?? "");
+				rows.Add($"{{\"Ptr\": \"0x{bound.Pointer.ToInt64():x}\", \"Name\": \"{Report.Escape(bound.name ?? "")}\", "
+				         + $"\"Paths\": \"{Report.Escape(string.Join(" | ", paths))}\", \"Keys\": \"{string.Join(",", KeysOf(bound))}\"}}");
+			}
+			catch { }
+		}
+		return "[" + string.Join(", ", rows) + "]\n";
 	}
 }

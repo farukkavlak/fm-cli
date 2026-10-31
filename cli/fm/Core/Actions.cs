@@ -62,8 +62,9 @@ internal static partial class Program
 		chosen:
 		var name = Field(found[0], "Name");
 
+		// The menu is the one bound to this result's person: a name on screen can be another's of the same name.
 		await Fm.Get("actions", ("close", "1"));
-		var opened = await Arriving("actions", [("open", "1"), ("text", name)]);
+		var opened = await Arriving("actions", [("open", "1"), ("path", Field(found[0], "Path"))]);
 		if (opened.StartsWith("error", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine(L($"The game did not open an actions menu for {name}."));
@@ -80,8 +81,8 @@ internal static partial class Program
 			entries = now.EnumerateArray().ToList();
 			return settled;
 		}, seconds: 8, every: 0.4);
-		// The first entry is the person himself (it opens his page), not something done to him.
-		if (entries.Count > 0 && Fold(Field(entries[0], "Name")) == Fold(name)) entries.RemoveAt(0);
+		// The link to the person himself (it opens his page) is not something done to him.
+		entries.RemoveAll(e => Field(e, "Action") == "ObjectLink");
 		if (entries.Count == 0)
 		{
 			await Fm.Get("actions", ("close", "1"));

@@ -386,8 +386,14 @@ Still open:
     also when another Ederson's page is already open.
   - TR + EN + DE: cold, page open, from Squad, another Ederson's page open; non-squad players still open.
   - [ ] The squad-table fallback (a short name search leaves out) still presses `NameButton` by the name's text.
-  - [ ] `PersonMenu` (`--actions`, staff, offers): after "Ederson (15 yaş)" is chosen the menu is opened by
-    `actions?text=<name>`, which can raise another Ederson's menu. Open it by the result's path.
+  - [x] `PersonMenu` (`actions`, scout, shortlist, interest…): the menu is the one whose `m_bindingKeys` hold the chosen
+    search result's person (`/actions?open=1&path=`), not one raised by the name's text; the link to the person is
+    dropped by its `ObjectLink` action. `/actions?menus=1` lists menus with their keys.
+    TR + EN + DE: our Ederson and the other three alternately, squad page open; repeated.
+  - [ ] Staff search rows (`#StaffResult`) are a plain link with no menu in FM27, so `staff hire/fire` (and `actions`
+    for staff) say "no actions menu"; the old text way failed too. Open the staff page by its link, then its `#FrameActions`.
+  - [ ] `PersonMenu`'s callers still pick entries by English paths ("Approach To Sign", "Report>Cancel Assignment"):
+    move them to `Action` names.
 - [ ] German shows Balance as "Kontostand": English attribute names are put into the game's words by `GameWords`,
   which picks the wrong sense. Take the names in the game's language by attribute id.
   - [ ] `--trait-suggest`: FM27's menu has no `PlayerAskStaffToSuggestPlayerTraitTraining` entry and the page no

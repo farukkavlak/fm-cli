@@ -173,6 +173,8 @@ internal static partial class FmApi
 		return value;
 	}
 
+	internal static IReadOnlyNode NodeAt(string path, out string error) => Resolve(path, out error);
+
 	/// <summary>Walk a dotted path down from the root by node name.</summary>
 	private static IReadOnlyNode Resolve(string path, out string error)
 	{
