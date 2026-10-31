@@ -65,6 +65,11 @@ internal static partial class Program
 				return Familiar(tactic);
 			}, seconds: 4, every: 0.25);
 		var header = tactic.GetProperty("Tactic");
+		// FM27 rates each player's and the team's tactical effectiveness (out of 100) where FM26
+		// gave familiarity; the word is the game's own.
+		var rated = Field(header, "Effectiveness").Length > 0;
+		if (rated) await GameWords.Ask(Fm, "Effectiveness");
+		var ratedWord = GameWords.Of("Effectiveness");
 
 		if (json)
 		{
@@ -74,7 +79,9 @@ internal static partial class Program
 
 		Console.WriteLine(Field(header, "Name"));
 		Console.WriteLine(L($"Style: {Field(header, "Style")} · Mentality: {Field(header, "MentalityString")}")
-		                  + L($" · Intensity: {Field(header, "TacticalIntensity")} · Fluidity: {Familiarity(header, "TacticalFamiliarity")}\n"));
+		                  + (rated
+			                  ? L($" · Intensity: {Field(header, "TacticalIntensity")}") + $" · {ratedWord}: {Field(header, "Effectiveness")}\n"
+			                  : L($" · Intensity: {Field(header, "TacticalIntensity")} · Fluidity: {Familiarity(header, "TacticalFamiliarity")}\n")));
 
 		if (Ui.Rich)
 		{
@@ -91,10 +98,11 @@ internal static partial class Program
 			Spot(Field(slot, "OOPPosition")),
 			RoleOf(slot, withoutBall: true),
 			Field(slot, "Player") is { Length: > 0 } player ? player : "-",
-			Field(slot, "Familiarity") is { Length: > 0 } known ? GameNumbers.Percent(known) : "-",
+			rated ? Field(slot, "Effectiveness") is { Length: > 0 } score ? score : "-"
+				: Field(slot, "Familiarity") is { Length: > 0 } known ? GameNumbers.Percent(known) : "-",
 		}).ToList();
 
-		Table.Write([L("IN POSS."), L("ROLE"), L("OUT OF POSS."), L("ROLE"), L("PLAYER"), L("FLUIDITY")], rows);
+		Table.Write([L("IN POSS."), L("ROLE"), L("OUT OF POSS."), L("ROLE"), L("PLAYER"), rated ? ratedWord : L("FLUIDITY")], rows);
 
 		if (Bench(tactic) is { Count: > 0 } bench) Console.WriteLine(L($"\nSubstitutes: {string.Join(", ", bench)}"));
 		return 0;
@@ -119,7 +127,7 @@ internal static partial class Program
 		int.TryParse(Field(header, field), out var tenThousandths) ? GameNumbers.Percent((tenThousandths + 50) / 100) : "-";
 
 	private static bool Familiar(JsonElement tactic) =>
-		tactic.TryGetProperty("Slots", out var slots) && slots.EnumerateArray().Any(s => Field(s, "Familiarity").Length > 0);
+		tactic.TryGetProperty("Slots", out var slots) && slots.EnumerateArray().Any(s => Field(s, "Familiarity").Length > 0 || Field(s, "Effectiveness").Length > 0);
 
 	/// <summary>"Oosterwolde 71%": the eleven who do not know the tactic fully yet, least first.</summary>
 	private static List<string> Unfamiliar(JsonElement tactic) =>

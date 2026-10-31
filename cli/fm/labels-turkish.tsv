@@ -2456,3 +2456,4 @@ The game does not offer this for {0} now. Their menu: actions "{1}"	{0} için oy
 {0}: whether they left the shortlist could not be read back; see: shortlist	{0}: kısa listeden çıkıp çıkmadığı geri okunamadı; bakmak için: shortlist
 {0}: the game took the answer but kept them on the shortlist.	{0}: oyun cevabı aldı ama kısa listede tuttu.
 {0}: taken off the shortlist.	{0}: kısa listeden çıkarıldı.
+ · Intensity: {0}	 · Yoğunluk: {0}

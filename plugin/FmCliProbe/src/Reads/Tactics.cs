@@ -18,14 +18,16 @@ internal static class Tactics
 		var slots = new SortedDictionary<int, Dictionary<string, string>>();
 		var selection = new SortedDictionary<int, Dictionary<string, string>>();
 		var familiarity = new Dictionary<string, string>();
+		var effectiveness = new Dictionary<string, string>();
+		string headerPath = null;
 
-		foreach (var (_, node) in Report.Walk())
+		foreach (var (path, node) in Report.Walk())
 		{
 			switch (node.Name)
 			{
 				case "Tactic" when header == null:
 					var fields = Report.Fields(node);
-					if (fields.ContainsKey("MentalityString")) header = fields;
+					if (fields.ContainsKey("MentalityString")) (header, headerPath) = (fields, path);
 					break;
 
 				// A style is bound as a name next to its id, two levels up from the name.
@@ -57,6 +59,12 @@ internal static class Tactics
 					if (RowPlayer(node) is { } rowPlayer) familiarity.TryAdd(rowPlayer, ((tenths + 50) / 100).ToString());
 					break;
 
+				// FM27 has no familiarity: the squad table's Effectiveness column binds each row's
+				// player's tactical effectiveness under the page's own name for it.
+				case "effectiveness":
+					if (Score($"{path}.OverallEffectiveness") is { } score && RowPlayer(node) is { } rated) effectiveness.TryAdd(rated, score);
+					break;
+
 				case "Position":
 					var slot = Report.Fields(node);
 					if (!slot.ContainsKey("IPRole") || !slot.TryGetValue("TeamSelectionIndex", out var raw)) break;
@@ -75,7 +83,12 @@ internal static class Tactics
 			header.Remove(key);
 
 		foreach (var record in slots.Values.Concat(selection.Values))
-			if (record.TryGetValue("PlayerIndex", out var who) && familiarity.TryGetValue(who, out var percent)) record["Familiarity"] = percent;
+		{
+			if (!record.TryGetValue("PlayerIndex", out var who)) continue;
+			if (familiarity.TryGetValue(who, out var percent)) record["Familiarity"] = percent;
+			if (effectiveness.TryGetValue(who, out var rated)) record["Effectiveness"] = rated;
+		}
+		if (Score($"{headerPath}.TacticalEffectiveness.OverallEffectiveness") is { } overall) header["Effectiveness"] = overall;
 
 		if (header.TryGetValue("TacticalStyle", out var styleId) && styles.TryGetValue(styleId, out var styleName))
 			header["Style"] = styleName;
@@ -211,6 +224,28 @@ internal static class Tactics
 	/// The player a cell of a squad table row belongs to: the nearest ancestor with a player
 	/// index a few levels down is the row, and that index is his.
 	/// </summary>
+	/// <summary>
+	/// A tactical effectiveness score out of 100: "53", or "45-60" while the game is not sure of
+	/// it (a player not fully scouted). Its numbers are bound on first asking and arrive over the
+	/// next frames, so a first read may have none.
+	/// </summary>
+	private static string Score(string path)
+	{
+		var b = Game.Bindings;
+		if (b == null || path == null) return null;
+		// The walk's paths start at the unnamed root ("..page.Tactic"); a path key has no such part.
+		path = path.TrimStart('.');
+		string Value(string name)
+		{
+			var key = PathKey.Of($"{path}.{name}");
+			if (!b.Exists(ref key)) RawPath.Bind($"{path}.{name}");
+			try { return b.Exists(ref key) && b.Get(ref key) is { IsNull: false } value ? value.AsString() : null; }
+			catch { return null; }
+		}
+		if (Value("MinValue") is not { Length: > 0 } low) return null;
+		return Value("UsesRange") == "True" && Value("MaxValue") is { Length: > 0 } high && high != low ? $"{low}-{high}" : low;
+	}
+
 	private static string RowPlayer(IReadOnlyNode cell)
 	{
 		var holder = cell.Parent;
