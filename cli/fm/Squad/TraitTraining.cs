@@ -62,8 +62,9 @@ internal static partial class Program
 		}
 
 		// What he has is on his card; the "Remove Trait" list is gone while one is being worked on.
-		var has = card.TryGetProperty("Traits", out var known) && known.ValueKind == JsonValueKind.Array
-			? known.EnumerateArray().Select(c => c.GetString() ?? "").ToList()
+		var known = await PlayerTraits(Field(card.GetProperty("Player"), "Path"));
+		var has = known.Count > 0
+			? known
 			: removing.ValueKind == JsonValueKind.Object
 				? removing.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList()
 				: [];

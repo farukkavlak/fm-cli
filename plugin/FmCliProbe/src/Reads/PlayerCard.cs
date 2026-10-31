@@ -57,7 +57,6 @@ internal static class PlayerCard
 
 		var header = new Dictionary<string, string>();
 		var attributes = new List<Dictionary<string, string>>();
-		var traits = new List<string>();
 		var groups = new List<ulong>();
 		SI.Core.TypedValue personValue = null;
 
@@ -100,10 +99,11 @@ internal static class PlayerCard
 
 				case "attribute":
 					var type = Child(node, "AttributeTypeInfo");
-					var values = Child(node, "AttributeValues");
-					if (type == null || values == null) break;
+					if (type == null) break;
 					if (!Report.Fields(type).TryGetValue("Name", out var attribute)) break;
-					if (!Report.Fields(values).TryGetValue("PropertyValue", out var rating)) break;
+					// FM26 bound the rating on the attribute itself; FM27 binds it on another element of
+					// the same row, still as the attribute's AttributeValues.PropertyValue.
+					if (Rating(node) is not { } rating) break;
 
 					// Each block of attributes is a list of its own, and the lists come in the
 					// order the page shows them.
@@ -120,15 +120,6 @@ internal static class PlayerCard
 
 				case "Nation" when !header.ContainsKey("Nation"):
 					if (Report.Fields(node).TryGetValue("Name", out var nation)) header["Nation"] = nation;
-					break;
-
-				case "Text":
-					try
-					{
-						var text = Text.Of(node.Value);
-						if (text.Length > 0 && !traits.Contains(text)) traits.Add(text);
-					}
-					catch { }
 					break;
 
 				default:
@@ -154,8 +145,27 @@ internal static class PlayerCard
 			header["Path"] = $"fmcli.card.p{(uint)who.GetHashCode()}";
 
 		return "{\"Player\": " + Report.Json(header)
-		       + ", \"Traits\": [" + string.Join(", ", traits.Select(t => $"\"{Report.Escape(t)}\"")) + "]"
 		       + ", \"Attributes\": [\n  " + string.Join(",\n  ", attributes.Select(Report.Json)) + "\n]}\n";
+	}
+
+	/// <summary>The rating bound for this attribute in its row: AttributeValues.PropertyValue on it or beside it.</summary>
+	private static string Rating(IReadOnlyNode attribute)
+	{
+		foreach (var within in new[] { attribute, attribute.Parent })
+		{
+			if (within == null) continue;
+			var queue = new Queue<IReadOnlyNode>();
+			queue.Enqueue(within);
+			var seen = 0;
+			while (queue.Count > 0 && seen++ < 200)
+			{
+				var node = queue.Dequeue();
+				for (var c = node.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+				if (node.Name != "AttributeValues") continue;
+				if (Report.Fields(node).TryGetValue("PropertyValue", out var rating) && rating.Length > 0) return rating;
+			}
+		}
+		return null;
 	}
 
 	private static ulong ListOf(IReadOnlyNode node)

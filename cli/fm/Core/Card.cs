@@ -155,8 +155,8 @@ internal static class Card
 
 	private static string Feet(JsonElement player)
 	{
-		var right = F(player, "RightFootednessString");
-		var left = F(player, "LeftFootednessString");
+		var right = GameWords.Of(F(player, "RightFootednessString"));
+		var left = GameWords.Of(F(player, "LeftFootednessString"));
 		if (right.Length == 0 && left.Length == 0) return "";
 		return L($"right {right} · left {left}");
 	}

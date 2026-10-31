@@ -47,16 +47,14 @@ internal static partial class Program
 				if (node["Player"]?[key] is System.Text.Json.Nodes.JsonValue value && value.TryGetValue<string>(out var shown))
 					node["Player"]![key] = GameWords.Of(shown);
 			if (potential > 0) node["Player"]!["PerceivedPotentialAbility"] = potential;
+			node["Traits"] = new System.Text.Json.Nodes.JsonArray([.. (await PlayerTraits(Field(card.GetProperty("Player"), "Path"))).Select(t => (System.Text.Json.Nodes.JsonNode)t)]);
 			if (ability.Count > 0) node["Player"]!["AbilityHistory"] = new System.Text.Json.Nodes.JsonArray(ability.Select(v => (System.Text.Json.Nodes.JsonNode)v).ToArray());
 			Console.WriteLine(node.ToJsonString());
 			return 0;
 		}
 
 		var player = card.GetProperty("Player");
-		var traits = card.GetProperty("Traits").EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-		// The traits come back in the game's English; show them in the words the game uses.
-		await GameWords.Ask(Fm, [.. traits.Where(t => !string.IsNullOrEmpty(t))]);
-		traits = [.. traits.Select(t => GameWords.Of(t))];
+		var traits = await PlayerTraits(Field(player, "Path"));
 		var history = await PlayerHistory(Field(player, "Path"));
 		if (!Ui.Rich) PlainHeader();
 
@@ -82,13 +80,16 @@ internal static partial class Program
 
 		// The page lays its attributes out in blocks, but binds them in no order that says which
 		// block is which. The mental, physical and set piece attributes are the same fourteen,
-		// eight and four for every player; what is left is technical, or goalkeeping for a keeper.
-		string[] mental = ["Aggression", "Anticipation", "Bravery", "Composure", "Concentration", "Decisions", "Determination",
-			"Flair", "Leadership", "Off The Ball", "Positioning", "Teamwork", "Vision", "Work Rate"];
-		string[] physical = ["Acceleration", "Agility", "Balance", "Jumping Reach", "Natural Fitness", "Pace", "Stamina", "Strength"];
-		string[] setPieces = ["Corners", "Free Kick Taking", "Long Throws", "Penalty Taking"];
+		// eight and four for every player, told by the game's own attribute ids (their English
+		// names changed between versions); what is left is technical, or goalkeeping for a keeper.
+		int[] mental = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38];
+		int[] physical = [39, 40, 41, 42, 43, 44, 45, 46];
+		int[] setPieces = [16, 19, 20, 24];
+		int Id(JsonElement a) => int.TryParse(Field(a, "Id"), out var id) ? id : 0;
 
-		var all = card.GetProperty("Attributes").EnumerateArray().OrderBy(a => Field(a, "Name")).ToList();
+		// Within a block they are in the game's own alphabetical order of the words it shows.
+		var all = card.GetProperty("Attributes").EnumerateArray()
+			.OrderBy(a => Nl.Text.Fold(GameWords.Of(Field(a, "Name"))), StringComparer.Ordinal).ToList();
 		if (all.Count == 0)
 		{
 			if (Ui.Rich)
@@ -103,10 +104,10 @@ internal static partial class Program
 		string[] titles = [first, L("MENTAL"), L("PHYSICAL"), L("SET PIECE")];
 		List<List<JsonElement>> blocks =
 		[
-			all.Where(a => !mental.Contains(Field(a, "Name")) && !physical.Contains(Field(a, "Name")) && !setPieces.Contains(Field(a, "Name"))).ToList(),
-			all.Where(a => mental.Contains(Field(a, "Name"))).ToList(),
-			all.Where(a => physical.Contains(Field(a, "Name"))).ToList(),
-			all.Where(a => setPieces.Contains(Field(a, "Name"))).ToList(),
+			all.Where(a => !mental.Contains(Id(a)) && !physical.Contains(Id(a)) && !setPieces.Contains(Id(a))).ToList(),
+			all.Where(a => mental.Contains(Id(a))).ToList(),
+			all.Where(a => physical.Contains(Id(a))).ToList(),
+			all.Where(a => setPieces.Contains(Id(a))).ToList(),
 		];
 
 		if (Ui.Rich)
@@ -143,6 +144,15 @@ internal static partial class Program
 		static string Line(string separator, params string[] parts) => string.Join(separator, parts.Where(p => p.Length > 0));
 		static string Prefixed(string prefix, string value) => value.Length > 0 ? prefix + value : "";
 		static string Suffixed(string value, string suffix) => value.Length > 0 ? value + suffix : "";
+	}
+
+	/// <summary>His traits, from his own record in the game's words: PlayerTraits, each one's Text.</summary>
+	private static async Task<List<string>> PlayerTraits(string path)
+	{
+		if (path.Length == 0) return [];
+		var traits = await Fm.Pull($"{path}.PlayerTraits", "Text", list: true, shown: "Text");
+		return traits.ValueKind != JsonValueKind.Array ? [] :
+			[.. traits.EnumerateArray().Select(t => Field(t, "Text")).Where(t => t.Length > 0).Distinct()];
 	}
 
 	/// <summary>

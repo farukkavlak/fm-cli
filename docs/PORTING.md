@@ -373,6 +373,17 @@ Still open:
     row record), so where they sit is the identity. Read back: the stop appears and the trait leaves the list.
     TR 3/3 + EN + DE, each cancelled after. The list now also prints his traits from that folder.
   - [x] Disabled "Discipline Training" entry no longer listed as teachable.
+- [x] `fm player` card (FM27): the rating is no longer on the `attribute` itself but on another element of its row,
+  still bound as `AttributeValues.PropertyValue`; the plugin looks for it in the attribute, then its row.
+  - Traits come from his record: `<card Path>.PlayerTraits`, each one's `Text` (`shown=Text` gives the game's words).
+    The page's "Text" nodes are no longer collected.
+  - Blocks are told by attribute id (mental 25–38, physical 39–46, set pieces 16/19/20/24); FM27 renamed some
+    English names (Pace → Speed, Heading → Header). Within a block: alphabetical in the shown words.
+  - TR + EN + DE, page open / another page / repeated, keeper, player with no traits.
+- [ ] Opening a squad player whose name someone else also has (`player Ederson`) opens the other one from search:
+  `OpenPlayer` goes by name. Open ours by his record instead.
+- [ ] German shows Balance as "Kontostand": English attribute names are put into the game's words by `GameWords`,
+  which picks the wrong sense. Take the names in the game's language by attribute id.
   - [ ] `--trait-suggest`: FM27's menu has no `PlayerAskStaffToSuggestPlayerTraitTraining` entry and the page no
     button for it; the command says so. The assistant's view per trait is in each entry's `ConfirmationDialogData`.
 - [x] `schedule set` (FM27): each session on Training › Overview is a button whose sent value names it (`Date`,
