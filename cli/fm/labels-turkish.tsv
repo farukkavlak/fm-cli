@@ -2450,3 +2450,9 @@ Another week's choice window is open; close it first.	Başka bir haftanın seçi
 FM27 offers no trait suggestion from the assistant; his misgivings come up when a trait is started or dropped.	FM27'de yardımcıdan alışkanlık önerisi istenemiyor; çekinceleri bir alışkanlık başlatılırken ya da bırakılırken çıkıyor.
 {0}: "{1}" was chosen, but nothing started.	{0}: "{1}" seçildi ama bir şey başlamadı.
 \nTo teach: training "{0}" --trait "<trait>"  ·  to drop one: --trait-remove "<trait>"	\nÖğretmek için: training "{0}" --trait "<alışkanlık>"  ·  bırakmak: --trait-remove "<alışkanlık>"
+The game does not offer this for {0} now. Their menu: actions "{1}"	{0} için oyun bunu şu an sunmuyor. Menüsü: actions "{1}"
+{0}: there is no option '{1}'. Options: {2}	{0}: '{1}' diye bir seçenek yok. Seçenekler: {2}
+{0}: whether the assignment was removed could not be read back; see: scout player "{1}"	{0}: görevin kalkıp kalkmadığı geri okunamadı; bakmak için: scout player "{1}"
+{0}: whether they left the shortlist could not be read back; see: shortlist	{0}: kısa listeden çıkıp çıkmadığı geri okunamadı; bakmak için: shortlist
+{0}: the game took the answer but kept them on the shortlist.	{0}: oyun cevabı aldı ama kısa listede tuttu.
+{0}: taken off the shortlist.	{0}: kısa listeden çıkarıldı.

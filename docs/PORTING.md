@@ -399,8 +399,20 @@ Still open:
     - Folder names come as the game's English key; put into the game's words by `/translate`.
     - TR + EN + DE: menu, fire refused 5×, hire opens talks and cancelled; from Squad, a player page, the page open.
       Firing and signing for real: not tried.
-  - [ ] Player callers still pick entries by English paths (scout "Report>Cancel Assignment", "Assign to Scouting
-    Pool", shortlist, "Make Enquiry", "Offer Trial", "Declare Interest"): move them to `Action` names.
+  - [x] Player callers pick entries by action and what it hands it, not English paths.
+    - `/actions` gives each entry `Who` (the record it names) and `Data` (its numbers by property id), read from the
+      `DynamicReference` its closure holds; `/actions?action=&who=&data=<id>:<v>,…` chooses the entry that hands those.
+    - Among entries of one action, the one number that differs tells them apart: trial weeks, shortlist months
+      (0 = indefinitely), scouting days / matches 1–4 / 100 = until extensive, interest 92 top / 1 transfer / 3 loan.
+    - Actions: `PersonAssignScoutToPlayersClub`, `PersonStopScoutPlayersClub`, `PersonAddPlayersToShortlist`,
+      `PersonRemovePlayersFromShortlist`, `PersonOfferTrialToPlayer`, `PersonEnquireAboutPlayer`,
+      `PersonDeclareInterestInPlayer`. Scout = `Who`; the pool is the `Who` of the shallowest assign entries (shape).
+    - `actions "<person>" "<option>"` chooses the same way when that singles the entry out, else by path.
+    - FM27 asks before taking a player off the shortlist: answered yes, read back from the menu.
+    - Questions are read once drawn (title + buttons); a "no" is answered until the window is gone.
+    - TR + EN + DE: scout who / by name / pool / lengths, shortlist add+remove 3×, trial and interest (answered no),
+      wrong length / scout / not on list. Enquire not sent (no question before it).
+    - [ ] `scout player --cancel`: the game takes "Yes" and keeps the assignment (as in FM26); the command says so.
 - [ ] German shows Balance as "Kontostand": English attribute names are put into the game's words by `GameWords`,
   which picks the wrong sense. Take the names in the game's language by attribute id.
   - [ ] `--trait-suggest`: FM27's menu has no `PlayerAskStaffToSuggestPlayerTraitTraining` entry and the page no

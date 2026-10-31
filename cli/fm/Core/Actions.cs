@@ -116,6 +116,22 @@ internal static partial class Program
 		return menus.Zip(ids).Where(p => Field(p.Second, "UniqueId") == id).Select(p => p.First.Ptr).FirstOrDefault();
 	}
 
+	/// <summary>
+	/// Chooses an entry by the game action it runs and what it hands it (the record, the numbers),
+	/// the same in every language; by its path of words only when that does not single it out.
+	/// </summary>
+	private static async Task<string> ChooseEntry(JsonElement entry, List<JsonElement> entries)
+	{
+		static string Data(JsonElement e) => e.TryGetProperty("Data", out var d) && d.ValueKind == JsonValueKind.Object
+			? string.Join(",", d.EnumerateObject().Select(p => $"{p.Name}:{p.Value.GetString()}"))
+			: "";
+		static string Identity(JsonElement e) => $"{Field(e, "Action")}|{Field(e, "Who")}|{Data(e)}";
+		var action = Field(entry, "Action");
+		if (action.Length > 0 && entries.Count(e => !IsFolder(e) && Identity(e) == Identity(entry)) == 1)
+			return await Fm.Get("actions", ("action", action), ("who", Field(entry, "Who")), ("data", Data(entry)));
+		return await Fm.Get("actions", ("choose", Field(entry, "Path")));
+	}
+
 	private static bool IsFolder(JsonElement entry) => entry.TryGetProperty("Folder", out var f) && f!.ValueKind == JsonValueKind.True;
 	private static bool IsEnabled(JsonElement entry) => entry.TryGetProperty("Enabled", out var e) && e.ValueKind == JsonValueKind.True;
 
@@ -157,7 +173,9 @@ internal static partial class Program
 		var said = false;
 		await Until(async () =>
 		{
-			if ((dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0) return true;
+			// The window comes before its words and buttons are drawn: it is read once it has both.
+			if ((dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0
+			    && Field(dialogs[0], "Title").Length > 0 && dialogs[0].GetProperty("Buttons").GetArrayLength() > 0) return true;
 			if ((talks = await OfferScreen.Read(Fm, "contract")) != null) return true;
 			var now = await TalkButtons();
 			return said = now.Length > 0 && now != talkBefore;
@@ -201,7 +219,7 @@ internal static partial class Program
 				await Fm.Get("actions", ("close", "1"));
 				return 1;
 			}
-			return await ChooseAction(name, entry);
+			return await ChooseAction(name, entry, entries);
 		}
 
 		if (json)
@@ -225,7 +243,7 @@ internal static partial class Program
 					at = Parent(at);
 					continue;
 				}
-				if (!IsFolder(level[picked])) return await ChooseAction(name, level[picked]);
+				if (!IsFolder(level[picked])) return await ChooseAction(name, level[picked], entries);
 				at = Field(level[picked], "Path");
 			}
 		}
@@ -257,7 +275,7 @@ internal static partial class Program
 		static string Parent(string path) => path.LastIndexOf('>') is var cut && cut >= 0 ? path[..cut] : "";
 	}
 
-	private static async Task<int> ChooseAction(string name, JsonElement entry)
+	private static async Task<int> ChooseAction(string name, JsonElement entry, List<JsonElement> entries)
 	{
 		var path = Field(entry, "Path");
 		if (!IsEnabled(entry))
@@ -267,7 +285,7 @@ internal static partial class Program
 			return 1;
 		}
 		var before = await TalkButtons();
-		var chosen = await Fm.Get("actions", ("choose", path));
+		var chosen = await ChooseEntry(entry, entries);
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
 		return await AfterAction(name, path, before);
 	}

@@ -52,8 +52,12 @@ internal static class ContextMenus
 		{
 			if (description == null) return "error: no menu is open";
 			// With ?name= the entry of that action with that name (a trait under PersonTrainingNewPreferredMove),
-			// as the plugin gives it or as the game shows it.
-			var entry = Find(description.m_root, q["action"], 0, q["name"]);
+			// as the plugin gives it or as the game shows it. With ?who= and ?data=<property>:<value>,… the one
+			// handing its action that record and those numbers (a scout and a length of time), as listed.
+			var wanted = new List<(string Key, string Value)>();
+			foreach (var pair in (q["data"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+				if (pair.Split(':') is { Length: 2 } kv) wanted.Add((kv[0], kv[1]));
+			var entry = Find(description.m_root, q["action"], 0, q["name"], q["who"], wanted);
 			if (entry == null) return $"error: the menu has no entry for action '{q["action"]}'";
 			if ((entry.Flags & MenuDescription.EntryFlags.Enabled) == 0) return $"error: '{q["action"]}' is disabled";
 			if (q["dry"] == "1") return $"dry run, NOT chosen: {q["action"]}";
@@ -106,6 +110,7 @@ internal static class ContextMenus
 			rows.Add("{"
 				+ $"\"Path\": \"{Report.Escape(at)}\", \"Name\": \"{Report.Escape(name)}\", \"Icon\": \"{Report.Escape(icon)}\", "
 				+ $"\"Action\": \"{Report.Escape(ActionOf(child) ?? "")}\", "
+				+ DataOf(child)
 				+ $"\"Folder\": {(folder ? "true" : "false")}, "
 				+ $"\"Enabled\": {((flags & MenuDescription.EntryFlags.Enabled) != 0 ? "true" : "false")}, "
 				+ $"\"Selected\": {((flags & MenuDescription.EntryFlags.Selected) != 0 ? "true" : "false")}}}");
@@ -124,17 +129,27 @@ internal static class ContextMenus
 		return null;
 	}
 
-	private static MenuDescription.Entry Find(MenuDescription.Entry parent, string action, int depth, string name = null)
+	private static MenuDescription.Entry Find(MenuDescription.Entry parent, string action, int depth, string name = null,
+		string who = null, List<(string Key, string Value)> data = null)
 	{
 		if (parent == null || depth > 4) return null;
 		for (var child = parent.FirstChild; child != null; child = child.Next)
 		{
 			if ((child.Flags & MenuDescription.EntryFlags.Visible) == 0) continue;
 			if (child.Kind == MenuDescription.EntryKind.Item && ActionOf(child) == action
-			    && (string.IsNullOrEmpty(name) || Named(child, name))) return child;
-			if (child.Kind == MenuDescription.EntryKind.Folder && Find(child, action, depth + 1, name) is { } found) return found;
+			    && (string.IsNullOrEmpty(name) || Named(child, name))
+			    && ((string.IsNullOrEmpty(who) && (data == null || data.Count == 0)) || Hands(child, who, data))) return child;
+			if (child.Kind == MenuDescription.EntryKind.Folder && Find(child, action, depth + 1, name, who, data) is { } found) return found;
 		}
 		return null;
+	}
+
+	/// <summary>Whether the entry hands its action that record and those numbers, as <see cref="DataOf"/> lists them.</summary>
+	private static bool Hands(MenuDescription.Entry entry, string who, List<(string Key, string Value)> data)
+	{
+		var listed = DataOf(entry);
+		if (!string.IsNullOrEmpty(who) && !listed.Contains($"\"Who\": \"{Report.Escape(who)}\"", StringComparison.Ordinal)) return false;
+		return data == null || data.All(d => listed.Contains($"\"{d.Key}\": \"{Report.Escape(d.Value)}\"", StringComparison.Ordinal));
 	}
 
 	private static bool Named(MenuDescription.Entry entry, string name)
@@ -149,7 +164,48 @@ internal static class ContextMenus
 	/// entries run a closure holding the action's id; it is found by its type, not by the closure's
 	/// generated name, which a game update can renumber.
 	/// </summary>
-	private static string ActionOf(MenuDescription.Entry entry)
+	private static string ActionOf(MenuDescription.Entry entry) =>
+		Closure(entry, typeof(FM.GamePlugin.ActionID))?.ToString();
+
+	/// <summary>
+	/// What the entry hands its action: the record it names (`Who`: the scout an assignment goes to)
+	/// and its numbers and flags by property (`Data`). Among entries of one action, a length of time
+	/// or a kind of interest is the number that differs, where their words differ by language.
+	/// </summary>
+	private static string DataOf(MenuDescription.Entry entry)
+	{
+		var who = "";
+		var fields = new List<string>();
+		try
+		{
+			if (Closure(entry, typeof(SI.Core.TypedValue)) is SI.Core.TypedValue value && !value.IsNull
+			    && value.Get()?.TryCast<SI.Bindable.DynamicReference>() is { } record)
+			{
+				var keys = new Il2CppSystem.Collections.Generic.List<SI.Bindable.Reference.Core.PropertyID>();
+				record.GetProperties(keys);
+				foreach (var key in keys)
+				{
+					SI.Core.TypedValue v = null;
+					try { v = record[key.ID]; } catch { }
+					if (v == null || v.IsNull) continue;
+					var name = Schema.NameOf(key);
+					var inner = v.Get()?.TryCast<SI.Bindable.DynamicReference>();
+					if (name == "DatabaseReferenceField" && inner != null)
+					{
+						try { who = Text.Of(inner[key.ID]); } catch { }
+						continue;
+					}
+					if (inner != null || v.DataType?.Name is not ("DynamicNumber" or "Boolean")) continue;
+					fields.Add($"\"{key.ID}\": \"{Report.Escape(Text.Of(v))}\"");
+				}
+			}
+		}
+		catch { }
+		return $"\"Who\": \"{Report.Escape(who)}\", \"Data\": {{{string.Join(", ", fields)}}}, ";
+	}
+
+	/// <summary>The value of the given type the entry's closure holds, found by its type, not by the closure's generated name.</summary>
+	private static object Closure(MenuDescription.Entry entry, Type type)
 	{
 		try
 		{
@@ -158,8 +214,8 @@ internal static class ContextMenus
 			var name = target.GetIl2CppType().FullName ?? "";
 			var shape = Buttons.ShapeOf(name.Replace("<>", "__"));
 			if (shape.Type == null) shape = Buttons.ShapeOf(name);
-			var property = shape.Type?.GetProperties().FirstOrDefault(p => p.PropertyType == typeof(FM.GamePlugin.ActionID));
-			return property?.GetValue(shape.Wrap(target.Pointer))?.ToString();
+			var property = shape.Type?.GetProperties().FirstOrDefault(p => p.PropertyType == type);
+			return property?.GetValue(shape.Wrap(target.Pointer));
 		}
 		catch { return null; }
 	}
