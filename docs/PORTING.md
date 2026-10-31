@@ -333,7 +333,9 @@ Still open:
   answered "ask again" and the league page, once up, hid the listing bar so the check never said "shown" (`stages`,
   `table`: 45 s, error). Now: on "ask again" the portal home is opened first; a listing bar gone after "opened" counts
   as the page up when its own check passes. stages from club / targets / squad: TR 3/3.
-- [ ] Sweep 31 Oct night: 44/51 ran (%86). Still failing: `squad --u19`, `shortlist` (tile gone), `supporters`
+- [x] `squad --u19`: from `Human.Club.HighestLevelYouthTeam` / `YouthTeam` › `Players` (team = where he plays), no squad
+  page or view list. 1.9 s, 32 players, TR.
+- [ ] Sweep 31 Oct night: 44/51 ran (%86). Still failing: `shortlist` (tile gone), `supporters`
   (FM27 has no Supporters tile on Club › Overview; it is a Club subtab), `prep` (friendly), `league` (season not started).
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language

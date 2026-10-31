@@ -111,39 +111,20 @@ internal static partial class Program
 	private static async Task<int> SquadYouth(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var sides = await YouthSides();
-		var names = sides.Select(s => s.Name).ToHashSet(StringComparer.Ordinal);
+		// The club's youth sides from its own record (the highest one, then the youngest), no squad page
+		// opened. A player out on loan (IsAwayFromContractClub) is named with the club he plays for.
 		var youth = new List<JsonElement>();
-		foreach (var (name, id) in sides)
+		foreach (var side in new[] { "Human.Club.HighestLevelYouthTeam", "Human.Club.YouthTeam" })
 		{
-			// Opening another squad page from a squad page can keep the table on the side before
-			// it; the portal first makes the page build anew.
-			await OpenPage(Screen.Home);
-			if ((await OpenPage(Screen.Squad, team: id)).StartsWith("error", StringComparison.Ordinal)) continue;
-			// The table keeps whichever view was last chosen, and the first team's dynamics view
-			// carries neither age nor position. Pick the general view by its number in the list
-			// (the names are each language's) before the rows are read.
-			await Until(async () => await ViewList(SquadViews) is { } list
-				&& !(await Fm.Get("select", ("ptr", Field(list, "Pointer")),
-					("value", ((int)SquadTable.GeneralInfo).ToString()))).StartsWith("error", StringComparison.Ordinal),
-				seconds: 8, every: 0.3);
-			// The rows come in over a moment: the count is taken once two readings agree. A side
-			// that does not bind costs its rows, not the command, so rows are taken for every
-			// youth side and deduplicated.
-			List<JsonElement> rows = [];
-			var last = -1;
-			await Until(async () =>
-			{
-				rows = (await Fm.GetJson("squad")).EnumerateArray()
-					.Where(p => names.Contains(Field(p, "Team")) && Field(p, "Age") != "")
-					.ToList();
-				var settled = rows.Count > 0 && rows.Count == last;
-				last = rows.Count;
-				return settled;
-			}, seconds: 10, every: 0.5);
+			var rows = (await Fm.Pull($"{side}.Players", "Name,Age,PositionCombinedString,Team.Name", list: true)).EnumerateArray()
+				.Where(p => Field(p, "Name").Length > 0).ToList();
 			foreach (var row in rows)
-				if (!youth.Any(y => Field(y, "Team") == Field(row, "Team") && Field(y, "Name") == Field(row, "Name")))
-					youth.Add(row);
+				if (!youth.Any(y => Field(y, "Name") == Field(row, "Name")))
+					youth.Add(JsonDocument.Parse(JsonOut.Of(new Dictionary<string, string>
+					{
+						["Name"] = Field(row, "Name"), ["Age"] = Field(row, "Age"),
+						["PositionCombinedString"] = Field(row, "PositionCombinedString"), ["Team"] = Field(row, "Team.Name"),
+					})).RootElement);
 		}
 		if (json)
 		{
