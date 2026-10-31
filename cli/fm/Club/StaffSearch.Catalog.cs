@@ -51,6 +51,10 @@ internal static partial class Program
 		["46"] = "Natural Fitness"
 	};
 
+	/// <summary>An attribute as the page shows it; the English name put into the game's words where the page gave none.</summary>
+	internal static string AttributeShown(JsonElement attribute) =>
+		Field(attribute, "Shown") is { Length: > 0 } shown ? shown : GameWords.Of(Field(attribute, "Name"));
+
 	/// <summary>
 	/// A player's card with each attribute named by its id: in another language the name read back
 	/// from the words can be another attribute's (Pace comes back as Speed in a Turkish game).

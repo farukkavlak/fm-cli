@@ -345,13 +345,15 @@ internal static partial class Program
 		return await Named(card);
 
 		// The names are the game's English ones, picked by the attribute's number rather than by the
-		// word the page happens to bind (a Turkish page can bind another attribute's word); the game
-		// also has its own words for them, and those are what it shows. Learn them once per run.
+		// word the page binds put back into English (a Turkish "Teknik" comes back "Technical"). What is
+		// shown is the page's own word ("Shown"); the English is put into the game's words only where
+		// the page gave none, since one English word can stand for several (German "Balance").
 		static async Task<JsonElement> Named(JsonElement card)
 		{
 			card = WithAttributeNames(card);
 			if (card.TryGetProperty("Attributes", out var attributes))
-				await GameWords.Ask(Fm, [.. attributes.EnumerateArray().Select(a => Field(a, "Name")).Where(n => n.Length > 0).Distinct()]);
+				await GameWords.Ask(Fm, [.. attributes.EnumerateArray().Where(a => Field(a, "Shown").Length == 0)
+					.Select(a => Field(a, "Name")).Where(n => n.Length > 0).Distinct()]);
 			return card;
 		}
 	}

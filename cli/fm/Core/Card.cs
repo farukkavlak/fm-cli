@@ -60,7 +60,7 @@ internal static class Card
 		{
 			var shown = F(attribute, "Value");
 			var (low, high) = Range(shown);
-			grid.AddRow(new Text(GameWords.Of(F(attribute, "Name"))), new Markup(Bar(low, high)), new Markup($"[{Colour(high)} bold]{Ui.Safe(shown)}[/]"));
+			grid.AddRow(new Text(Program.AttributeShown(attribute)), new Markup(Bar(low, high)), new Markup($"[{Colour(high)} bold]{Ui.Safe(shown)}[/]"));
 		}
 
 		return new Panel(grid)

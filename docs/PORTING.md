@@ -413,8 +413,11 @@ Still open:
     - TR + EN + DE: scout who / by name / pool / lengths, shortlist add+remove 3×, trial and interest (answered no),
       wrong length / scout / not on list. Enquire not sent (no question before it).
     - [ ] `scout player --cancel`: the game takes "Yes" and keeps the assignment (as in FM26); the command says so.
-- [ ] German shows Balance as "Kontostand": English attribute names are put into the game's words by `GameWords`,
-  which picks the wrong sense. Take the names in the game's language by attribute id.
+- [x] German showed Balance as "Kontostand": the English name was put back into the game's words, and one English
+  word stands for several. The card now gives each attribute's word as the page binds it (`Shown`, from
+  `AttributeTypeInfo.Name` read as shown); the English `Name` by attribute id stays for matching.
+  - The plugin's JSON no longer puts numbers into English: a German "6" came out "F" (a rating, an attribute id).
+  - TR + EN + DE: card 3×, compare, finances page open; squad, table, finances, fixtures still read.
   - [ ] `--trait-suggest`: FM27's menu has no `PlayerAskStaffToSuggestPlayerTraitTraining` entry and the page no
     button for it; the command says so. The assistant's view per trait is in each entry's `ConfirmationDialogData`.
 - [x] `schedule set` (FM27): each session on Training › Overview is a button whose sent value names it (`Date`,

@@ -39,6 +39,8 @@ internal static partial class Program
 		Dictionary<string, string> Values(JsonElement card) => card.GetProperty("Attributes").EnumerateArray()
 			.GroupBy(x => Field(x, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "Value"));
 		var (va, vb) = (Values(cards[0]), Values(cards[1]));
+		var shownAs = cards.SelectMany(c => c.GetProperty("Attributes").EnumerateArray())
+			.GroupBy(x => Field(x, "Name")).ToDictionary(g => g.Key, g => AttributeShown(g.First()));
 
 		string[] mental = ["Aggression", "Anticipation", "Bravery", "Composure", "Concentration", "Decisions", "Determination",
 			"Flair", "Leadership", "Off The Ball", "Positioning", "Teamwork", "Vision", "Work Rate"];
@@ -81,7 +83,7 @@ internal static partial class Program
 				var (x, y) = (va.GetValueOrDefault(n, ""), vb.GetValueOrDefault(n, ""));
 				var better = Span(x) is { } p && Span(y) is { } q ? (p.Low > q.High ? 1 : q.Low > p.High ? 2 : 0) : 0;
 				if (better > 0) ahead[better - 1]++;
-				rows.Add((GameWords.Of(n), x, y, better, false));
+				rows.Add((shownAs.GetValueOrDefault(n, n), x, y, better, false));
 			}
 		}
 

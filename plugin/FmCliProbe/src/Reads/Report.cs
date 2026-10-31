@@ -626,9 +626,17 @@ internal static class Report
 
 	internal static string Json(Dictionary<string, string> fields) => Json(fields, []);
 
-	/// <summary>A record as JSON, its values in English where the game's table can say, except the fields named as shown.</summary>
+	/// <summary>
+	/// A record as JSON, its values in English where the game's table can say, except the fields named
+	/// as shown and numbers: a number is not a word, and a German game's "6" is the text some English
+	/// "F" is translated to (a squad number, a rating, an attribute's id came out "F").
+	/// </summary>
 	internal static string Json(Dictionary<string, string> fields, string[] shown) =>
-		"{" + string.Join(", ", fields.Select(kv => $"\"{Escape(kv.Key)}\": \"{Escape(Array.IndexOf(shown, kv.Key) >= 0 ? kv.Value : Localisation.English(kv.Value))}\"")) + "}";
+		"{" + string.Join(", ", fields.Select(kv => $"\"{Escape(kv.Key)}\": \"{Escape(Array.IndexOf(shown, kv.Key) >= 0 || IsNumber(kv.Value) ? kv.Value : Localisation.English(kv.Value))}\"")) + "}";
+
+	// Digits with what separates or ranges them ("6", "11-15", "1.250"), and nothing else.
+	private static bool IsNumber(string value) =>
+		!string.IsNullOrEmpty(value) && value.Any(char.IsDigit) && value.All(c => char.IsDigit(c) || c is '-' or '–' or '.' or ',' or ' ' or '/');
 
 	internal static string Escape(string s) =>
 		s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "");

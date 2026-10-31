@@ -89,7 +89,7 @@ internal static partial class Program
 
 		// Within a block they are in the game's own alphabetical order of the words it shows.
 		var all = card.GetProperty("Attributes").EnumerateArray()
-			.OrderBy(a => Nl.Text.Fold(GameWords.Of(Field(a, "Name"))), StringComparer.Ordinal).ToList();
+			.OrderBy(a => Nl.Text.Fold(AttributeShown(a)), StringComparer.Ordinal).ToList();
 		if (all.Count == 0)
 		{
 			if (Ui.Rich)
@@ -131,7 +131,7 @@ internal static partial class Program
 			var row = new List<string>();
 			foreach (var block in blocks)
 			{
-				row.Add(r < block.Count ? GameWords.Of(Field(block[r], "Name")) : "");
+				row.Add(r < block.Count ? AttributeShown(block[r]) : "");
 				row.Add(r < block.Count ? Field(block[r], "Value") : "");
 			}
 			rows.Add(row.ToArray());

@@ -115,7 +115,11 @@ internal static class PlayerCard
 					// The screen binds only its name; the id is in the record itself.
 					var id = "";
 					try { id = Submenus.RowId(type.Value).Id.ToString(); } catch { }
-					attributes.Add(new Dictionary<string, string> { ["Name"] = attribute, ["Value"] = rating, ["Group"] = group.ToString(), ["Id"] = id });
+					// The word the page shows for it, as shown: put into English and back, one English word can
+					// stand for several ("Balance" came back as a bank balance in German).
+					var shown = "";
+					try { shown = Text.ShownOf(Child(type, "Name")?.Value); } catch { }
+					attributes.Add(new Dictionary<string, string> { ["Name"] = attribute, ["Shown"] = shown, ["Value"] = rating, ["Group"] = group.ToString(), ["Id"] = id });
 					break;
 
 				case "Nation" when !header.ContainsKey("Nation"):
@@ -145,7 +149,7 @@ internal static class PlayerCard
 			header["Path"] = $"fmcli.card.p{(uint)who.GetHashCode()}";
 
 		return "{\"Player\": " + Report.Json(header)
-		       + ", \"Attributes\": [\n  " + string.Join(",\n  ", attributes.Select(Report.Json)) + "\n]}\n";
+		       + ", \"Attributes\": [\n  " + string.Join(",\n  ", attributes.Select(a => Report.Json(a, ["Shown"]))) + "\n]}\n";
 	}
 
 	/// <summary>The rating bound for this attribute in its row: AttributeValues.PropertyValue on it or beside it.</summary>
@@ -162,7 +166,9 @@ internal static class PlayerCard
 				var node = queue.Dequeue();
 				for (var c = node.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
 				if (node.Name != "AttributeValues") continue;
-				if (Report.Fields(node).TryGetValue("PropertyValue", out var rating) && rating.Length > 0) return rating;
+				// As read: a rating is a number (or a range), not a word to put into English.
+				var rating = Text.ShownOf(Child(node, "PropertyValue")?.Value);
+				if (!string.IsNullOrEmpty(rating)) return rating;
 			}
 		}
 		return null;
