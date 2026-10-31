@@ -27,7 +27,10 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"{what} meets the rules, but the game does not accept changes right now (Confirm is closed")
 				                        + (string.IsNullOrEmpty(window) ? ")." : L($", registration: {window})."))
 				                        + L(" The list sent earlier stands."));
-				if (await Labelled("Undo") is { } undo) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
+				// Undo, by what it sends (EventFmxRevertChanges), not its word.
+				var undo = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.FirstOrDefault(b => Field(b, "Events").Contains("EventFmxRevertChanges", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
+				if (undo.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(undo, "Pointer")));
 				return 1;
 			}
 			if (broken.Count > 0)
