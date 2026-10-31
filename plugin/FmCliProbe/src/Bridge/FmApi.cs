@@ -47,7 +47,7 @@ internal static partial class FmApi
 		"squad" => Report.Squad(),
 		"people" => Report.People(),
 		"search" => Report.SearchResults(),
-		"searchopen" => Report.OpenSearchResult(q["name"], q["dry"] == "1"),
+		"searchopen" => Report.OpenSearchResult(q["name"], q["path"], q["dry"] == "1"),
 		"inbox" => Report.Inbox(q["paths"] == "1"),
 		"inboxlist" => Report.InboxList(),
 		"tour" => Report.Tour(),

@@ -230,28 +230,33 @@ internal static class Report
 	/// <summary>
 	/// Open the page of a person the search found, by pressing the button of that result's own
 	/// row. Results from an earlier search can still be loaded with buttons of their own, so
-	/// the button is matched to the row by where it takes its data from.
+	/// the button is matched to the row by where it takes its data from. The result is named by
+	/// its person's path (?path=, from /search), which tells two people of one name apart, or by
+	/// the name.
 	/// </summary>
-	public static string OpenSearchResult(string name, bool dry)
+	public static string OpenSearchResult(string name, string person, bool dry)
 	{
-		if (string.IsNullOrEmpty(name)) return "error: ?name=<person's full name> required (see /search)";
+		if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(person))
+			return "error: ?path=<result's Path> or ?name=<person's full name> required (see /search)";
 
-		foreach (var (_, node) in Walk())
+		foreach (var (path, node) in Walk())
 		{
 			if (node.Name != "searchresult" || node.Parent == null) continue;
 
 			var keys = new HashSet<ulong>();
 			var matches = false;
 
-			var queue = new Queue<IReadOnlyNode>();
-			queue.Enqueue(node.Parent);
+			var queue = new Queue<(IReadOnlyNode Node, string Path)>();
+			queue.Enqueue((node.Parent, path[..path.LastIndexOf('.')]));
 			while (queue.Count > 0 && keys.Count < 600)
 			{
-				var current = queue.Dequeue();
+				var (current, at) = queue.Dequeue();
 				keys.Add(current.Key.m_key);
-				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue((c, at + "." + c.Name));
 
-				if (current.Name == "Person" && Fields(current).TryGetValue("Name", out var who) && who == name) matches = true;
+				if (current.Name != "Person") continue;
+				if (!string.IsNullOrEmpty(person) ? at == person
+				    : Fields(current).TryGetValue("Name", out var who) && who == name) matches = true;
 			}
 			if (!matches) continue;
 
@@ -261,7 +266,7 @@ internal static class Report
 			if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
 		}
 
-		return $"error: no search result on screen opens '{name}'";
+		return $"error: no search result on screen opens '{(string.IsNullOrEmpty(person) ? name : person)}'";
 	}
 
 	/// <summary>

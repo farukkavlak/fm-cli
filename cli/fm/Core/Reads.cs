@@ -197,6 +197,28 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// The game's id of the person at each path ("" where none is read). A page's or a search
+	/// row's person cannot have more bound beneath it where it sits, so each is put at a node
+	/// of ours and read there; the game fills the value on a later reading.
+	/// </summary>
+	private static async Task<List<string>> RecordIds(List<string> paths)
+	{
+		var ids = paths.Select(_ => "").ToList();
+		for (var i = 0; i < paths.Count; i++)
+			if (paths[i].Length > 0)
+				try { await Fm.Get("pathset", ("to", $"fmcli.record.p{i}"), ("from", paths[i])); } catch (FmError) { }
+		await Until(async () =>
+		{
+			for (var i = 0; i < paths.Count; i++)
+				if (paths[i].Length > 0 && ids[i].Length == 0)
+					try { ids[i] = Field(await Fm.GetJson("pull", ("path", $"fmcli.record.p{i}"), ("props", "UniqueId")), "UniqueId"); }
+					catch (FmError) { }
+			return ids.Select((v, i) => paths[i].Length == 0 || v.Length > 0).All(x => x);
+		}, seconds: 4, every: 0.25);
+		return ids;
+	}
+
+	/// <summary>
 	/// Brings up a player's page and returns what it binds, or null having said why not.
 	///
 	/// Every page is reached with the game's search, whose player results each open that
@@ -206,26 +228,39 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<JsonElement?> OpenPlayer(string wanted)
 	{
-		var card = await Fm.GetJson("player");
-		if (card.TryGetProperty("Player", out var open) && Fold(Field(open, "Name")).Contains(Fold(wanted), StringComparison.Ordinal))
-			return await Named(card);
-
 		var folded = Fold(wanted);
-		var squad = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray()
-			.Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct().ToList();
+		var records = (await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true)).EnumerateArray()
+			.Where(p => Field(p, "Name").Length > 0).ToList();
+		var squad = records.Select(p => Field(p, "Name")).Distinct().ToList();
 		var own = squad.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
+
+		// A page already open is his when it shows the record asked for: a player of ours is known
+		// by his id, as someone elsewhere can have his name ("Ederson").
+		var card = await Fm.GetJson("player");
+		if (card.TryGetProperty("Player", out var open) && Fold(Field(open, "Name")).Contains(folded, StringComparison.Ordinal))
+		{
+			var ours = records.Where(p => Fold(Field(p, "Name")) == Fold(Field(open, "Name"))).Select(p => Field(p, "UniqueId")).ToList();
+			if (own.Count == 0 || ours.Contains((await RecordIds([Field(open, "Path")]))[0])) return await Named(card);
+		}
 		// A typo of one of ours — unless someone elsewhere has the name as it was typed.
 		if (own.Count == 0 && Matching(squad, n => n, wanted) is { Count: > 0 } typo
 		    && !(await SearchFor(wanted)).Any(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")).Contains(folded, StringComparison.Ordinal)))
 			own = typo;
 
 		string full;
+		// The search result to open, by its person's path, and for one of ours his id.
+		var result = "";
+		var id = "";
 		var fromSquad = false;
 		if (own.Count > 0)
 		{
 			if (Choose(own, wanted, L("Player")) is not { } mine) return null;
 			full = mine;
-			if (!(await SearchFor(full)).Any(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)))
+			id = Field(records.First(p => Field(p, "Name") == full), "UniqueId");
+			var named = (await SearchFor(full)).Where(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)).ToList();
+			var ids = await RecordIds([.. named.Select(r => Field(r, "Path"))]);
+			result = named.Zip(ids).Where(p => p.Second == id).Select(p => Field(p.First, "Path")).FirstOrDefault() ?? "";
+			if (result.Length == 0)
 			{
 				// The game's search lists only its first few hits, and a short name like "Fred"
 				// can be left out; a player of ours is then opened from the squad's own table, where
@@ -272,20 +307,26 @@ internal static partial class Program
 				return null;
 			}
 			full = Field(close[0], "Name");
+			result = Field(close[0], "Path");
 		}
 
 		// Each result has a button of its own; the plugin finds the one fed from this result's
 		// row, since an earlier search's buttons can still be loaded.
 		if (!fromSquad)
 		{
-			var pressed = await Arriving("searchopen", [("name", full)]);
+			var pressed = await Arriving("searchopen", [("path", result)]);
 			if (pressed.StartsWith("error", StringComparison.Ordinal)) { Report(pressed); return null; }
 		}
 
-		// Pages opened earlier stay loaded beneath, so his is asked for by name.
-		if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out _), seconds: 15, every: 0.25))
+		// Pages opened earlier stay loaded beneath, so his is asked for by name, and one of ours
+		// is believed only once the page shows his record.
+		var shown = "";
+		if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out var page)
+		                             && (id.Length == 0 || (shown = (await RecordIds([Field(page, "Path")]))[0]) == id), seconds: 15, every: 0.25))
 		{
-			Console.Error.WriteLine(L($"The player page did not open for {full}."));
+			Console.Error.WriteLine(shown.Length > 0
+				? L($"Another {full}'s page opened, not the one in the squad.")
+				: L($"The player page did not open for {full}."));
 			return null;
 		}
 

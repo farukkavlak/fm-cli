@@ -380,8 +380,14 @@ Still open:
   - Blocks are told by attribute id (mental 25–38, physical 39–46, set pieces 16/19/20/24); FM27 renamed some
     English names (Pace → Speed, Heading → Header). Within a block: alphabetical in the shown words.
   - TR + EN + DE, page open / another page / repeated, keeper, player with no traits.
-- [ ] Opening a squad player whose name someone else also has (`player Ederson`) opens the other one from search:
-  `OpenPlayer` goes by name. Open ours by his record instead.
+- [x] Opening a squad player whose name someone else also has (`player Ederson`): ours is known by his `UniqueId`.
+  - Search rows and the page's person bind nothing more where they sit: put at a node of ours (`/pathset`), then pulled.
+  - The search result is opened by its person's path (`/searchopen?path=`), the page believed only once its id is his,
+    also when another Ederson's page is already open.
+  - TR + EN + DE: cold, page open, from Squad, another Ederson's page open; non-squad players still open.
+  - [ ] The squad-table fallback (a short name search leaves out) still presses `NameButton` by the name's text.
+  - [ ] `PersonMenu` (`--actions`, staff, offers): after "Ederson (15 yaş)" is chosen the menu is opened by
+    `actions?text=<name>`, which can raise another Ederson's menu. Open it by the result's path.
 - [ ] German shows Balance as "Kontostand": English attribute names are put into the game's words by `GameWords`,
   which picks the wrong sense. Take the names in the game's language by attribute id.
   - [ ] `--trait-suggest`: FM27's menu has no `PlayerAskStaffToSuggestPlayerTraitTraining` entry and the page no

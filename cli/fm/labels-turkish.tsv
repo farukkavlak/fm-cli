@@ -784,6 +784,7 @@ No player called '{0}' in the squad or in search.	'{0}' adında bir oyuncu kadro
 '{0}' did not come up exactly in search; the closest:	'{0}' aramada tam olarak çıkmadı; en yakınlar:
 '{0}' matches {1} players in search; type a bit more of the name:	'{0}' aramada {1} oyuncuya uyuyor; adı biraz daha yaz:
 The player page did not open for {0}.	{0} için oyuncu sayfası açılmadı.
+Another {0}'s page opened, not the one in the squad.	Kadrodaki değil, başka bir {0} sayfası açıldı.
 usage: player <name or part of a name> [--actions] [--career] [--matches] [--report]	kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches] [--report]
 Ability (last four months): {0} /200	Yetenek (son dört ay): {0} /200
 Potential (as the club sees it): {0}/200	Potansiyel (kulübün gözünden): {0}/200
