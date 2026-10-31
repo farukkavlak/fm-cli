@@ -55,6 +55,8 @@ internal static class Screen
 
 	// Recruitment
 	public const string RecruitmentHome = "fba8a55c175acc34d9b0eb9ea1eb6671";
+	/// <summary>Transfers › Shortlists (FM27: a row of the Transfers menu of its own).</summary>
+	public const string Shortlists = "6eb3e66627a5fe7469f9d179885acaa9";
 	public const string PlayerDatabase = "bfe5117deac3c454f8970018733ac664";
 	public const string StaffDatabase = "a6331fde9dbe9fa47a9da59a7fc09715";
 	public const string RecruitmentFocuses = "c914d186dea95f44a997f5d3609862c7";
