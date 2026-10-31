@@ -390,10 +390,17 @@ Still open:
     search result's person (`/actions?open=1&path=`), not one raised by the name's text; the link to the person is
     dropped by its `ObjectLink` action. `/actions?menus=1` lists menus with their keys.
     TR + EN + DE: our Ederson and the other three alternately, squad page open; repeated.
-  - [ ] Staff search rows (`#StaffResult`) are a plain link with no menu in FM27, so `staff hire/fire` (and `actions`
-    for staff) say "no actions menu"; the old text way failed too. Open the staff page by its link, then its `#FrameActions`.
-  - [ ] `PersonMenu`'s callers still pick entries by English paths ("Approach To Sign", "Report>Cancel Assignment"):
-    move them to `Action` names.
+  - [x] Staff search rows have no menu in FM27: their `StaffSearchButton` (fed by the person's remapper) opens the
+    staff page (`/searchopen?path=`), and the page's actions menu is the one whose bound record (`At` in
+    `/actions?menus=1`) has the result's `UniqueId`.
+    - `staff hire/fire` choose by action: `PersonApproachToSign`, `PersonReleaseClubFreeTransfer` (Terminate),
+      `PersonMutualTerminationContract`; "offer pending" is `PersonWithdrawContractOffer`.
+    - The fire question is read once drawn and answered until gone (`AnswerDialog`).
+    - Folder names come as the game's English key; put into the game's words by `/translate`.
+    - TR + EN + DE: menu, fire refused 5×, hire opens talks and cancelled; from Squad, a player page, the page open.
+      Firing and signing for real: not tried.
+  - [ ] Player callers still pick entries by English paths (scout "Report>Cancel Assignment", "Assign to Scouting
+    Pool", shortlist, "Make Enquiry", "Offer Trial", "Declare Interest"): move them to `Action` names.
 - [ ] German shows Balance as "Kontostand": English attribute names are put into the game's words by `GameWords`,
   which picks the wrong sense. Take the names in the game's language by attribute id.
   - [ ] `--trait-suggest`: FM27's menu has no `PlayerAskStaffToSuggestPlayerTraitTraining` entry and the page no

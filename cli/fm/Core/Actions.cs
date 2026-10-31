@@ -64,7 +64,18 @@ internal static partial class Program
 
 		// The menu is the one bound to this result's person: a name on screen can be another's of the same name.
 		await Fm.Get("actions", ("close", "1"));
-		var opened = await Arriving("actions", [("open", "1"), ("path", Field(found[0], "Path"))]);
+		var path = Field(found[0], "Path");
+		var opened = await Fm.Get("actions", ("open", "1"), ("path", path));
+		// A staff result is a plain link with no menu: his page's actions menu is the one bound to
+		// the record with his UniqueId.
+		if (opened.StartsWith("error", StringComparison.Ordinal)
+		    && Field((await PullEach([(path, "UniqueId")], r => Field(r, "UniqueId").Length > 0))[0], "UniqueId") is { Length: > 0 } id
+		    && !(await Arriving("searchopen", [("path", path)])).StartsWith("error", StringComparison.Ordinal))
+		{
+			string? ptr = null;
+			await Until(async () => (ptr = await MenuOf(id)) != null, seconds: 10, every: 0.5);
+			if (ptr != null) opened = await Fm.Get("actions", ("open", "1"), ("ptr", ptr));
+		}
 		if (opened.StartsWith("error", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine(L($"The game did not open an actions menu for {name}."));
@@ -83,6 +94,8 @@ internal static partial class Program
 		}, seconds: 8, every: 0.4);
 		// The link to the person himself (it opens his page) is not something done to him.
 		entries.RemoveAll(e => Field(e, "Action") == "ObjectLink");
+		// A folder's name comes as the game's English key, its shown words only from the game's table.
+		await GameWords.Ask(Fm, entries.Where(IsFolder).Select(e => Field(e, "Name")).ToArray());
 		if (entries.Count == 0)
 		{
 			await Fm.Get("actions", ("close", "1"));
@@ -90,6 +103,17 @@ internal static partial class Program
 			return null;
 		}
 		return (name, entries);
+	}
+
+	/// <summary>The menu showing that is bound to the person with this UniqueId, or null.</summary>
+	private static async Task<string?> MenuOf(string id)
+	{
+		var menus = (await Fm.GetJson("actions", ("menus", "1"))).EnumerateArray()
+			.SelectMany(m => Field(m, "At").Split(" | ", StringSplitOptions.RemoveEmptyEntries).Select(at => (Ptr: Field(m, "Ptr"), At: at)))
+			.ToList();
+		if (menus.Count == 0) return null;
+		var ids = await PullEach(menus.Select(m => (m.At, "UniqueId")).ToList(), r => Field(r, "UniqueId").Length > 0);
+		return menus.Zip(ids).Where(p => Field(p.Second, "UniqueId") == id).Select(p => p.First.Ptr).FirstOrDefault();
 	}
 
 	private static bool IsFolder(JsonElement entry) => entry.TryGetProperty("Folder", out var f) && f!.ValueKind == JsonValueKind.True;
@@ -194,7 +218,7 @@ internal static partial class Program
 			while (true)
 			{
 				var level = entries.Where(e => Parent(Field(e, "Path")) == at && IsEnabled(e)).ToList();
-				var labels = level.Select(e => Field(e, "Name") + (IsFolder(e) ? " ›" : "")).ToList();
+				var labels = level.Select(e => GameWords.Of(Field(e, "Name")) + (IsFolder(e) ? " ›" : "")).ToList();
 				if (Ui.Ask(at.Length == 0 ? L($"{name}: what shall we do?") : $"{name} › {at.Replace(">", " › ")}", labels, cancel: at.Length == 0 ? L("Nothing") : L("Back")) is not { } picked)
 				{
 					if (at.Length == 0) { await Fm.Get("actions", ("close", "1")); return 0; }
@@ -218,7 +242,7 @@ internal static partial class Program
 			folded = null;
 			var depth = path.Count(c => c == '>');
 			var under = entries.Count(e => Field(e, "Path").StartsWith(path + ">", StringComparison.Ordinal));
-			var line = new string(' ', 2 + depth * 2) + Field(entry, "Name");
+			var line = new string(' ', 2 + depth * 2) + GameWords.Of(Field(entry, "Name"));
 			if (IsFolder(entry))
 			{
 				if (!all && under > 12 && depth > 0) { folded = path; line += L($" ›  ({under} options; all of them: --all)"); }
@@ -280,18 +304,19 @@ internal static partial class Program
 
 		if (await PersonMenu(wanted, "Staff") is not { } menu) return 1;
 		var (name, entries) = menu;
-		var approach = entries.FirstOrDefault(e => Field(e, "Path") == "Approach To Sign");
+		// Entries are told by the game action they run, the same in every language.
+		var approach = entries.FirstOrDefault(e => Field(e, "Action") == "PersonApproachToSign");
 		if (approach.ValueKind != JsonValueKind.Object || !IsEnabled(approach))
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.Error.WriteLine(entries.Any(e => Field(e, "Path") == "Contract>Terminate Contract")
+			Console.Error.WriteLine(entries.Any(e => Field(e, "Action") == "PersonReleaseClubFreeTransfer")
 				? L($"{name} is already on our staff.")
-				: entries.Any(e => Field(e, "Path") == "Contract>Withdraw Contract Offer")
+				: entries.Any(e => Field(e, "Action") == "PersonWithdrawContractOffer")
 				? L($"Our offer to {name} is already on the table; the answer will come to the inbox. To withdraw: actions \"{name}\" \"Withdraw Contract Offer\" · to change: actions \"{name}\" \"Change Contract Offer\"")
 				: L($"The game does not offer 'Approach To Sign' for {name} (talks may be under way, or they may not want to come). Their menu: actions \"{name}\""));
 			return 1;
 		}
-		var chosen = await Fm.Get("actions", ("choose", "Approach To Sign"));
+		var chosen = await Fm.Get("actions", ("action", "PersonApproachToSign"));
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
 
 		JsonElement dialogs = default;
@@ -327,15 +352,16 @@ internal static partial class Program
 		if (await PersonMenu(wanted, "Staff") is not { } menu) return 1;
 		var (name, entries) = menu;
 
-		const string terminate = "Contract>Terminate Contract", mutual = "Contract>Mutual Termination";
+		// Told by the game action each runs: "Terminate Contract" lets him go on a free, "Mutual Termination" agrees it.
+		const string terminate = "PersonReleaseClubFreeTransfer", mutual = "PersonMutualTerminationContract";
 		var way = args.Contains("--mutual") ? mutual : terminate;
-		var entry = entries.FirstOrDefault(e => Field(e, "Path") == way);
+		var entry = entries.FirstOrDefault(e => Field(e, "Action") == way);
 		if (entry.ValueKind != JsonValueKind.Object || !IsEnabled(entry))
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.Error.WriteLine(entries.Any(e => Field(e, "Path") == "Approach To Sign")
+			Console.Error.WriteLine(entries.Any(e => Field(e, "Action") == "PersonApproachToSign")
 				? L($"{name} is not on our staff.")
-				: L($"The game does not offer '{way.Split('>')[1]}' for {name}. Their menu: actions \"{name}\""));
+				: L($"The game does not offer '{(entry.ValueKind == JsonValueKind.Object ? Field(entry, "Name") : way)}' for {name}. Their menu: actions \"{name}\""));
 			return 1;
 		}
 
@@ -350,21 +376,27 @@ internal static partial class Program
 		}
 
 		var before = way == mutual ? await TalkButtons() : null;
-		var chosen = await Fm.Get("actions", ("choose", way));
+		var chosen = await Fm.Get("actions", ("action", way));
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
-		if (way == mutual) return await AfterAction(name, way, before);
+		if (way == mutual) return await AfterAction(name, Field(entry, "Path"), before);
 
+		// The window comes before its words and buttons are drawn: it is read once it has both.
 		JsonElement dialogs = default;
-		if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 6, every: 0.5))
+		if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0
+		                             && Field(dialogs[0], "Title").Length > 0 && DialogAsks(dialogs[0]), seconds: 6, every: 0.5))
 		{
+			if (dialogs.ValueKind == JsonValueKind.Array && dialogs.GetArrayLength() > 0) await AnswerDialog(false);
 			Console.Error.WriteLine(L("No confirmation window came; see what happened with `staff`."));
 			return 1;
 		}
 		var dialog = dialogs[0];
-		var buttons = dialog.GetProperty("Buttons").EnumerateArray().ToList();
 		Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
 		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Terminate their contract?"), [L("Yes"), L("No")]) == 0);
-		if (DialogAnswer(dialog, go) is { } answer) await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
+		if (!await AnswerDialog(go))
+		{
+			Console.Error.WriteLine(L("The confirmation window did not close; answer it with: dialog"));
+			return 1;
+		}
 		if (!go)
 		{
 			if (!Ui.Interactive) Console.WriteLine(L($"\nCancelled. To terminate: staff fire \"{name}\" --yes"));

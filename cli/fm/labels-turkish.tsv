@@ -37,6 +37,7 @@ The game carries out a mutual termination without asking. To send it: staff fire
 No confirmation window came; see what happened with `staff`.	Onay penceresi gelmedi; ne olduğunu `staff` ile gör.
 Terminate their contract?	Sözleşmesini feshedelim mi?
 \nCancelled. To terminate: staff fire "{0}" --yes	\nVazgeçildi. Feshetmek için: staff fire "{0}" --yes
+The confirmation window did not close; answer it with: dialog	Onay penceresi kapanmadı; cevaplamak için: dialog
 \nParted ways with {0}.	\n{0} ile yollar ayrıldı.
 The board's view could not be read.	Yönetimin görüşü okunamadı.
 The board is not taking requests now: the card has no request option (no new one opens while requests await an answer).	Yönetim şu an talep almıyor: kartta talep seçeneği yok (cevap bekleyen talepler varken yenisi açılmıyor).

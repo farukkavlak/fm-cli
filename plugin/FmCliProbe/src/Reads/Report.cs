@@ -266,6 +266,23 @@ internal static class Report
 			if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
 		}
 
+		// A staff result has no searchresult node: its button is fed by the person's own remapper,
+		// the parent of …PersonRemapper1.Person.
+		if (!string.IsNullOrEmpty(person) && FmApi.NodeAt(person, out _) is { Parent: { } remapper })
+		{
+			var keys = new HashSet<ulong>();
+			var queue = new Queue<IReadOnlyNode>();
+			queue.Enqueue(remapper);
+			while (queue.Count > 0 && keys.Count < 600)
+			{
+				var current = queue.Dequeue();
+				keys.Add(current.Key.m_key);
+				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+			}
+			var pressed = Buttons.PressFedBy("StaffSearchButton", keys, dry);
+			if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
+		}
+
 		return $"error: no search result on screen opens '{(string.IsNullOrEmpty(person) ? name : person)}'";
 	}
 

@@ -266,10 +266,14 @@ internal static class ContextMenus
 		for (var i = 0; i < keys.Count; i++) yield return keys[i].m_key;
 	}
 
-	/// <summary>Every menu showing, with the paths and keys it is bound to (diagnosis).</summary>
+	/// <summary>
+	/// Every menu showing, with the paths and keys it is bound to, and "At": the full paths of the
+	/// records those keys are, so whose menu it is can be read from the record (a person page's
+	/// actions menu, bound to the page's person).
+	/// </summary>
 	private static string Menus()
 	{
-		var rows = new List<string>();
+		var found = new List<(PluginContextMenuBindings Menu, List<string> Paths, List<ulong> Keys)>();
 		foreach (var element in Buttons.Elements())
 		{
 			try
@@ -279,11 +283,23 @@ internal static class ContextMenus
 				var paths = new List<string>();
 				var bp = bound.BindingPaths;
 				for (var i = 0; bp != null && i < bp.Count; i++) paths.Add(bp[i].Path ?? "");
-				rows.Add($"{{\"Ptr\": \"0x{bound.Pointer.ToInt64():x}\", \"Name\": \"{Report.Escape(bound.name ?? "")}\", "
-				         + $"\"Paths\": \"{Report.Escape(string.Join(" | ", paths))}\", \"Keys\": \"{string.Join(",", KeysOf(bound))}\"}}");
+				found.Add((bound, paths, KeysOf(bound).ToList()));
 			}
 			catch { }
 		}
+		var wanted = new HashSet<ulong>(found.SelectMany(f => f.Keys));
+		var at = new Dictionary<ulong, string>();
+		if (wanted.Count > 0)
+			foreach (var (path, node) in Report.Walk())
+			{
+				var key = node.Key.m_key;
+				if (wanted.Contains(key) && !at.ContainsKey(key)) at[key] = path;
+				if (at.Count == wanted.Count) break;
+			}
+		var rows = found.Select(f =>
+			$"{{\"Ptr\": \"0x{f.Menu.Pointer.ToInt64():x}\", \"Name\": \"{Report.Escape(f.Menu.name ?? "")}\", "
+			+ $"\"Paths\": \"{Report.Escape(string.Join(" | ", f.Paths))}\", \"Keys\": \"{string.Join(",", f.Keys)}\", "
+			+ $"\"At\": \"{Report.Escape(string.Join(" | ", f.Keys.Where(at.ContainsKey).Select(k => at[k])))}\"}}");
 		return "[" + string.Join(", ", rows) + "]\n";
 	}
 }
