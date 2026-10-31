@@ -88,6 +88,7 @@ internal static partial class FmApi
 		"checkrows" => TableRows.Checkable(q),
 #if !FM26
 		"rowtexts" => TableRows.Shown(q),
+		"rowlinks" => TableRows.Links(q),
 #endif
 		"actions" => ContextMenus.Handle(q),
 		"ties" => Ties.Current(),

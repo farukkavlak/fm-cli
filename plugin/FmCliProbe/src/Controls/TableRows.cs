@@ -301,6 +301,83 @@ internal static class TableRows
 	/// itself keeps which item each laid-out row element is for, by its place in view (measured on
 	/// the squad table: Archie Brown's row 9, his source place 5).
 	/// </summary>
+	/// <summary>
+	/// The links in every laid-out row (a squad table's player name), each with the data path its
+	/// text is bound to and the row's item put at a path of its own (?gen=) to be read for whose it
+	/// is (a player's UniqueId). ?ptr= follows one link, as a click on it does.
+	/// </summary>
+	public static string Links(NameValueCollection q)
+	{
+		if (!string.IsNullOrEmpty(q["ptr"]))
+		{
+			if (!Buttons.TryPointer(q["ptr"], out var pointer)) return $"error: '{q["ptr"]}' is not a pointer";
+			foreach (var (row, _, index) in Laid())
+				foreach (var link in LinksIn(row))
+				{
+					if (link.Pointer != pointer) continue;
+					// The link itself is the text's embedded link: invoked as a click on it is.
+					var text = link.m_linkText?.TryCast<SIText>();
+					if (text == null || text.EmbeddedLinkCount < 1) return $"error: the link in row {index} holds no embedded link";
+					if (q["dry"] == "1") return $"dry run, NOT followed: link in row {index}";
+					text.InvokeLink(0);
+					return $"followed link in row {index}";
+				}
+			return $"error: no link at {q["ptr"]} in a laid-out row (the screen may have changed)";
+		}
+
+		var under = $"fmcli.rowlinks.g{q["gen"] ?? "0"}";
+		var tables = new List<long>();
+		var rows = new List<string>();
+		foreach (var (row, table, index) in Laid())
+		{
+			var links = LinksIn(row);
+			if (links.Count == 0) continue;
+			var at = tables.IndexOf(table.Pointer.ToInt64());
+			if (at < 0) { tables.Add(table.Pointer.ToInt64()); at = tables.Count - 1; }
+			var item = "";
+			try
+			{
+				if (table.GetItemFromView(index)?.TryCast<SI.Core.TypedValue>() is { IsNull: false } value && RawPath.Set($"{under}.{at}.{index}", value) == null)
+					item = $"{under}.{at}.{index}";
+			}
+			catch { }
+			foreach (var link in links)
+			{
+				var path = "";
+				var count = 0;
+				try
+				{
+					var text = link.m_linkText?.TryCast<SIText>();
+					path = text != null ? Texts.PathOf(text) ?? "" : "";
+					count = text?.EmbeddedLinkCount ?? 0;
+				}
+				catch { }
+				rows.Add($"{{\"Table\": \"0x{table.Pointer.ToInt64():x}\", \"Index\": {index}, \"Item\": \"{item}\", \"Pointer\": \"0x{link.Pointer.ToInt64():x}\", \"Path\": \"{Report.Escape(path)}\", \"Links\": {count}}}");
+			}
+		}
+		return "[" + string.Join(",\n ", rows) + "]\n";
+	}
+
+	private static List<NavigableLink> LinksIn(UnityEngine.UIElements.VisualElement row)
+	{
+		var found = new List<NavigableLink>();
+		var stack = new Stack<UnityEngine.UIElements.VisualElement>();
+		stack.Push(row);
+		while (stack.Count > 0)
+		{
+			var e = stack.Pop();
+			try
+			{
+				if (e.panel == null || e.resolvedStyle.display == UnityEngine.UIElements.DisplayStyle.None) continue;
+				if (e.TryCast<NavigableLink>() is { } link && e.worldBound.width > 0) found.Add(link);
+				var h = e.hierarchy;
+				for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
+			}
+			catch { }
+		}
+		return found;
+	}
+
 	internal static IEnumerable<(UnityEngine.UIElements.VisualElement Row, StreamedListView Table, int Index)> Laid()
 	{
 		var found = new List<(UnityEngine.UIElements.VisualElement, StreamedListView, int)>();

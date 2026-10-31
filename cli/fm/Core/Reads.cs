@@ -263,11 +263,24 @@ internal static partial class Program
 			if (result.Length == 0)
 			{
 				// The game's search lists only its first few hits, and a short name like "Fred"
-				// can be left out; a player of ours is then opened from the squad's own table, where
-				// his name can show twice (the page and the one beneath), both opening him.
+				// can be left out; a player of ours is then opened from the squad's own table: the
+				// name link in the row whose item is his record (his name links twice there).
 				var opened = await OpenPage(Screen.Squad);
-				var pressedName = opened.StartsWith("error", StringComparison.Ordinal) ? opened
-					: await Arriving("press", [("text", full), ("name", "NameButton"), ("any", "1")]);
+				var link = "";
+				if (!opened.StartsWith("error", StringComparison.Ordinal))
+					await Until(async () =>
+					{
+						var links = await Fm.GetJson("rowlinks", ("gen", Environment.TickCount64.ToString()));
+						foreach (var row in links.EnumerateArray())
+							if (Field(row, "Item") is { Length: > 0 } item && Field(await Fm.Pull(item, "UniqueId"), "UniqueId") == id)
+							{
+								link = Field(row, "Pointer");
+								return true;
+							}
+						return false;
+					}, seconds: 8, every: 0.4);
+				var pressedName = link.Length == 0 ? "error: no row of the squad table is his"
+					: await Fm.Get("rowlinks", ("ptr", link));
 				if (pressedName.StartsWith("error", StringComparison.Ordinal))
 				{
 					Console.Error.WriteLine(L($"{full} is in the squad, but could be opened neither in search nor in the squad table."));

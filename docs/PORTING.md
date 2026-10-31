@@ -390,7 +390,10 @@ Still open:
   - The search result is opened by its person's path (`/searchopen?path=`), the page believed only once its id is his,
     also when another Ederson's page is already open.
   - TR + EN + DE: cold, page open, from Squad, another Ederson's page open; non-squad players still open.
-  - [ ] The squad-table fallback (a short name search leaves out) still presses `NameButton` by the name's text.
+  - [x] The squad-table fallback (a short name search leaves out): FM27's names are `NavigableLink`s, no `NameButton`.
+    `/rowlinks` lists each laid-out row's links with the row's item; the row whose item has his `UniqueId` is
+    followed (`?ptr=`: the text's embedded link, `SIText.InvokeLink(0)`). TR + EN, forced on: 11/11 from a player
+    page, inbox, tactics, the squad page open, last row, repeated.
   - [x] `PersonMenu` (`actions`, scout, shortlist, interest…): the menu is the one whose `m_bindingKeys` hold the chosen
     search result's person (`/actions?open=1&path=`), not one raised by the name's text; the link to the person is
     dropped by its `ObjectLink` action. `/actions?menus=1` lists menus with their keys.
