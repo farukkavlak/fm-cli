@@ -347,6 +347,9 @@ Still open:
   place after it; now the name is a text bound to `primarytext` and each list is known by what it writes
   (`tactic.oppositionplayer{marking,pressingtrigger,tackling,showontofoot}`). "Apply all advice" by its element
   (`ApplyAllAdviceButton`, was its label). TR vs Salzburg (UEL): read, --advice, one set by hand, --clear.
+- [ ] Message attachments (`reply`): shown by English headings and labels ("Attachments", "Player Report", "Duration",
+  "Fine Type", "Issued"); in FM27 a message's attachment is not printed at all (loan report, TR). Needs the attachment's
+  own panel and data found.
 - [x] `fm prep`: FM27 has no match focuses (one `EventFmxSelectMatchFocusType` left, `TrainingMatchFocus` reads nothing);
   the preparation is the week's Match Preparation sessions. `prep` says so and points to `schedule` / `schedule set`.
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
