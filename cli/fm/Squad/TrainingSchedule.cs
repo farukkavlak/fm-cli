@@ -43,6 +43,7 @@ internal static partial class Program
 
 		// FM27: Training › Overview's month, each session a button that opens the week's editor.
 		if (!style && await ChangeSessionInWeek(day, int.Parse(words[0]), string.Join(" ", words.Skip(1))) is { } done) return done;
+		if (style && await ChangeWeekInSelector(day, string.Join(" ", words)) is { } weekDone) return weekDone;
 
 		var grid = await TrainingCalendar(day);
 		if (grid == null) return 1;
@@ -405,16 +406,7 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.Training);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		JsonElement? button = null;
-		var date = day.ToString("yyyy-MM-dd");
-		async Task<JsonElement?> Find()
-		{
-			var all = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
-				.Where(b => Field(b, "Events").Contains("EventFmxBeginTrainingWeekEditFromCard", StringComparison.Ordinal) && Field(b, "Sends").Length > 0).ToList();
-			if (all.Count == 0) return null;
-			var sent = await PullEach(all.Select(b => (Field(b, "Sends"), "Date,SessionIndex")).ToList());
-			var at = sent.FindIndex(x => Field(x, "Date") == date && Field(x, "SessionIndex") == (slot - 1).ToString());
-			return at >= 0 ? all[at] : (JsonElement?)default(JsonElement);
-		}
+		Task<JsonElement?> Find() => SessionButton(day, slot - 1);
 		await Until(async () => (button = await Find()) != null, seconds: 8, every: 0.5);
 		if (button == null) return null;
 		if (button.Value.ValueKind != JsonValueKind.Object)
@@ -471,5 +463,21 @@ internal static partial class Program
 		await Leave();
 		Console.Error.WriteLine(L($"There is no session called '{wanted}'. Sessions: {string.Join(", ", all.Distinct())}"));
 		return 1;
+	}
+
+	/// <summary>
+	/// A session's button on Training › Overview, known by the day and place it sends (Date,
+	/// SessionIndex). Null while the page has no such buttons; an empty element when it has them
+	/// but not this one.
+	/// </summary>
+	private static async Task<JsonElement?> SessionButton(DateTime day, int index)
+	{
+		var date = day.ToString("yyyy-MM-dd");
+		var all = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Events").Contains("EventFmxBeginTrainingWeekEditFromCard", StringComparison.Ordinal) && Field(b, "Sends").Length > 0).ToList();
+		if (all.Count == 0) return null;
+		var sent = await PullEach(all.Select(b => (Field(b, "Sends"), "Date,SessionIndex")).ToList());
+		var at = sent.FindIndex(x => Field(x, "Date") == date && Field(x, "SessionIndex") == index.ToString());
+		return at >= 0 ? all[at] : default(JsonElement);
 	}
 }

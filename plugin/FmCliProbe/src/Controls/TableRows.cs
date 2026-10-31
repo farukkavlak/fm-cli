@@ -143,7 +143,8 @@ internal static class TableRows
 	/// the order the table shows them put at a path of its own (?gen=) to be read for whose it is
 	/// (a player's UniqueId), and the items ticked now. The selection counts in that order, not the
 	/// source's (a sorted table's differ): an item is ticked by its place there with
-	/// /rowselect?table=&amp;index=&amp;check=, whether or not its row is laid out.
+	/// /rowselect?table=&amp;index=&amp;check=, whether or not its row is laid out. ?named= takes a list by
+	/// its element name instead, and /rowselect?table=&amp;index=&amp;choose=1 makes an item its one choice.
 	/// </summary>
 	public static string Checkable(NameValueCollection q)
 	{
@@ -165,7 +166,9 @@ internal static class TableRows
 		var tables = new List<StreamedListView>();
 		foreach (var (row, table, _) in Laid())
 		{
-			if (Toggle(row, 0) == null || table.ListElement?.SelectionInternal == null || tables.Any(t => t.Pointer == table.Pointer)) continue;
+			// ?named= takes a list by its element name (or an ancestor's: #category-list holds its view), ticks or not.
+			if ((string.IsNullOrEmpty(q["named"]) ? Toggle(row, 0) == null : !Named(table, q["named"]))
+			    || table.ListElement?.SelectionInternal == null || tables.Any(t => t.Pointer == table.Pointer)) continue;
 			tables.Add(table);
 		}
 #endif
@@ -259,7 +262,8 @@ internal static class TableRows
 	{
 		if (!Buttons.TryPointer(q["table"], out var pointer)) return "error: ?table=<0x…> from /checkrows required";
 		if (!int.TryParse(q["index"], out var index) || index < 0) return "error: ?index=<item> required (0-based)";
-		if (q["check"] is not ("1" or "0")) return "error: ?check=1|0 required";
+		var choose = q["choose"] == "1";
+		if (!choose && q["check"] is not ("1" or "0")) return "error: ?check=1|0 (tick) or ?choose=1 (the one chosen) required";
 		foreach (var e in Buttons.Elements())
 		{
 			if (e.Pointer != pointer) continue;
@@ -267,6 +271,13 @@ internal static class TableRows
 			var selection = list?.ListElement?.SelectionInternal;
 			if (selection == null) return "error: that element is not a table that keeps a selection";
 			if (index >= list.ItemCount) return $"error: the table has {list.ItemCount} items";
+			// A list that keeps one choice (a schedule selector's categories): chosen as a click on its row would.
+			if (choose)
+			{
+				if (q["dry"] == "1") return $"dry run, NOT chosen: item {index}";
+				list.SetListSelection(index);
+				return $"chose item {index}";
+			}
 			if (q["dry"] == "1") return $"dry run, NOT ticked: item {index}";
 			var on = q["check"] == "1";
 			var before = selection.Contains(index);
@@ -274,6 +285,13 @@ internal static class TableRows
 			return $"item {index} {(before ? "ticked" : "unticked")} -> {(selection.Contains(index) ? "ticked" : "unticked")}";
 		}
 		return $"error: no element at {q["table"]}";
+	}
+
+	private static bool Named(UnityEngine.UIElements.VisualElement element, string name)
+	{
+		for (var i = 0; element != null && i < 4; i++, element = element.hierarchy.parent)
+			try { if (element.name == name) return true; } catch { return false; }
+		return false;
 	}
 
 #if !FM26

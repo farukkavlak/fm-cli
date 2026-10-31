@@ -231,12 +231,33 @@ internal static partial class FmApi
 		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
 
 		var value = ValueAt(path, out var error);
+		// A path that runs on past the tree into a record's own fields ("….EventData"): the longest
+		// part the tree has, then each further name a field of the record before it.
+		var tail = new System.Collections.Generic.List<string>();
+		var head = path;
+		while (error != null && head.LastIndexOf('.') is var cut and > 0)
+		{
+			tail.Insert(0, head[(cut + 1)..]);
+			head = head[..cut];
+			value = ValueAt(head, out error);
+		}
 		if (error != null) return error;
 
 		var record = value.TryCast<SI.Bindable.DynamicReference>();
+		var keys = new Il2CppSystem.Collections.Generic.List<PropertyID>();
+		foreach (var field in tail)
+		{
+			if (record == null) return $"error: not a DynamicReference before '{field}'";
+			keys.Clear();
+			record.GetProperties(keys);
+			SI.Bindable.DynamicReference inner = null;
+			foreach (var key in keys)
+				if (Schema.NameOf(key) == field) { try { inner = record[key.ID]?.Get()?.TryCast<SI.Bindable.DynamicReference>(); } catch { } break; }
+			record = inner;
+		}
 		if (record == null) return $"error: not a DynamicReference ({value.GetIl2CppType()?.Name})";
 
-		var keys = new Il2CppSystem.Collections.Generic.List<PropertyID>();
+		keys.Clear();
 		record.GetProperties(keys);
 
 		var sb = new StringBuilder();

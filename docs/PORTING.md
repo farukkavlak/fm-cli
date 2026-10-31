@@ -375,10 +375,17 @@ Still open:
   they show (`trainingselector.TrainingSessionCategoryOnlyDropdown` / `…SessionsForCategoryDropdown`); Confirm
   `EventFmxCommitTrainingWeekFromCard`, Cancel `…CancelTrainingWeekEditFromCard`. Read back from the same button.
   TR: Wed 1 → Penaltılar → back, Fri 3 → Rejenerasyon → back, unknown session and a match day refused.
-  - [ ] `schedule style` not built for FM27. A week's selector is an `SIFloatingPopupWidget` (`#TrainingScheduleSelectorPopup`,
-    disabled for past weeks), opened by the new `/popup?ptr=` (its `Clicked`). Inside: categories on the left, and only the
-    hovered category's schedules as `apply-schedule` buttons (`EventFmxConfirmTrainingSchedule`, label = schedule name).
-    Moving between categories has no event found yet.
+  - [x] `schedule style` (FM27): a week's selector (`#TrainingScheduleSelectorPopup`, a floating popup, disabled for past
+    weeks and this week) is found beside the day's session button: `/popup?near=<ptr>&named=` (its row's popup, with `Title`).
+    - Categories: `#category-list`, a list kept as one choice; `/checkrows?named=category-list` gives its items
+      (`PropertyValue` id, `DisplayValue`), `/rowselect?table=&index=&choose=1` chooses one (no hover needed).
+    - Schedules: `/rowcontrols?event=EventToPlugin:EventFmxConfirmTrainingSchedule&buttons=1`, each row's item has
+      `ScheduleIndex`, `DescriptionShort` (`shown=`), `Recommended`, `Description`, `ScheduleCategory.PropertyValue`.
+    - Read back: the card's title (`week.TrainingScheduleName`); a mix's variant is not in the title, so the week's
+      session kinds (`SessionType` from the session buttons) changing counts too.
+    - TR + EN + DE: each kind, both variants, back to the start; unknown, ambiguous ("dengeli") and past week refused.
+  - [ ] `fm schedule` (read) fails in German ("could not be read"): it reads day numbers in order (`TrainingDays`).
+    Move it to the session buttons (`Date`, `SessionIndex`, label) like `schedule set`.
   - `fm schedule` reads it; the Overview is the page's own GUID now (was chosen by the words "Training" / "Overview").
 - [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
   chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
