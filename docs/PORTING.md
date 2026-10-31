@@ -240,6 +240,11 @@ Still open:
   The first pull of a new path is empty for a frame. Tried TR, one match, panel closed: last live line = `report`.
 - [x] The bridge's main-menu Continue is `/loadlast` (was `/continue`) and refuses once a save is loaded:
   called in game it reloaded the last save over five days of play. In-game Continue is `/next`.
+- [x] Windows known by identity, shown in the game's words: `/dialog` gives `Type` (dialog manager windows:
+  `Confirm<action id>`, `ConfirmSaveOverrideDialog`…) or `Panel` (windows the game opens as a panel, no `Type`).
+  - Match day: `InstantResultPanel` (instant result), `TeamSelectionInfoDialog` (team warning; one answer = cannot play).
+  - Injured player at a match stop: a one-answer notice while one of ours on the pitch is hurt (its panel not seen yet).
+  - `Title`/`Description`/`Label` are put into English for matching; `ShownTitle`/`ShownDescription`/`ShownLabel` for showing.
 - [x] Board meeting on expectations and promises (FM27, first season): the message's answer opens a talk;
   `talk "<part of a line>"` goes through it (targets, then promises, then "Görüşmeyi Sonlandır"). Options change
   between visits, so parts of lines are safer than numbers. Every promise offered got 17 negative reactions here.

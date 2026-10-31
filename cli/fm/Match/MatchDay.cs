@@ -342,16 +342,18 @@ internal static partial class Program
 				}
 
 				// Playing on from a stop with a hurt man still on: the game will not, and says so with a
-				// notice that has nothing but "Ok" on it. It is closed, and who has to come off is named.
-				if (Field(dialog, "Title") == "Injured Players")
+				// notice that has nothing but "Ok" on it. Its words are the only thing that names it, so
+				// it is known by the match instead: a one-answer notice while one of ours on the pitch is
+				// hurt. It is closed, and who has to come off is named.
+				if (dialog.GetProperty("Buttons").GetArrayLength() == 1
+				    && (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList() is { Count: > 0 } down)
 				{
 					await Fm.Get("dialog", ("press", "primary"));
-					var down = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList();
-					Console.Error.WriteLine(L($"The game does not carry on while an injured player is on the pitch{(down.Count > 0 ? $": {string.Join(", ", down)}" : "")}. A substitution is needed: sub <off> <on>   (for the bench: sub)"));
+					Console.Error.WriteLine(L($"The game does not carry on while an injured player is on the pitch: {string.Join(", ", down)}. A substitution is needed: sub <off> <on>   (for the bench: sub)"));
 					return 1;
 				}
 
-				if (Field(dialog, "Title") != "Team Selection" || yes == null)
+				if (Field(dialog, "Panel") != TeamSelectionPanel || yes == null)
 				{
 					Console.Error.WriteLine(L($"The game is asking something: {DialogWords(dialog, "Title")} — {DialogWords(dialog, "Description")}"));
 					Console.Error.WriteLine(L("To answer: dialog"));

@@ -420,7 +420,7 @@ The match has started; an instant result can only be asked for before the team i
 Substitutes: {0}	Yedekler: {0}
 That is the squad.	Kadro bu.
 Go to the match	Maça çık
-The game does not carry on while an injured player is on the pitch{0}. A substitution is needed: sub <off> <on>   (for the bench: sub)	Oyun sakat oyuncu sahadayken sürdürmüyor{0}. Değişiklik şart: sub <çıkan> <giren>   (kulübe için: sub)
+The game does not carry on while an injured player is on the pitch: {0}. A substitution is needed: sub <off> <on>   (for the bench: sub)	Oyun sakat oyuncu sahadayken sürdürmüyor: {0}. Değişiklik şart: sub <çıkan> <giren>   (kulübe için: sub)
 The game is asking something: {0} — {1}	Oyun bir şey soruyor: {0} — {1}
 To answer: dialog	Cevaplamak için: dialog
 \nThe match is waiting in a talk. To speak: talk <number>, then: match	\nMaç konuşmada bekliyor. Söylemek için: talk <numara>, sonra: match

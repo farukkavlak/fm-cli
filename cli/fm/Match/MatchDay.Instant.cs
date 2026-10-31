@@ -84,8 +84,8 @@ internal static partial class Program
 					continue;
 				}
 
-				// Which dialog it is still goes by its title ; the answer goes by its slot.
-				var button = Field(dialog, "Title") is "Instant Result" or "Team Selection" ? DialogAnswer(dialog, true) : null;
+				// Which window it is goes by the panel it is drawn in; the answer by its slot.
+				var button = Field(dialog, "Panel") is InstantResultPanel or TeamSelectionPanel ? DialogAnswer(dialog, true) : null;
 				if (button == null)
 				{
 					Console.Error.WriteLine(L($"The game is asking something: {DialogWords(dialog, "Title")} — {DialogWords(dialog, "Description")}   (to answer: dialog)"));

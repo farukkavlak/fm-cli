@@ -56,6 +56,9 @@ internal static partial class Program
 		catch (FmError) { return null; }
 	}
 
+	/// <summary>The panels the game opens its match-day windows in: their names are the same in every language.</summary>
+	private const string TeamSelectionPanel = "TeamSelectionInfoDialog", InstantResultPanel = "InstantResultPanel";
+
 	/// <summary>
 	/// What is wrong with the team, when the game's Team Selection notice says it cannot play as
 	/// picked: no eleven at all, or someone injured or otherwise unavailable in it. Null for the
@@ -63,7 +66,7 @@ internal static partial class Program
 	/// </summary>
 	private static string TeamProblem(JsonElement dialog)
 	{
-		if (Field(dialog, "Title") != "Team Selection") return null;
+		if (Field(dialog, "Panel") != TeamSelectionPanel) return null;
 		// A notice with only "Ok" on it says the eleven cannot go out as it is — none picked, ten picked,
 		// one injured, suspended or sold but not yet gone ("cannot be registered", seen with
 		// 2025). Its words are the engine's, in the game's language, so it is known by having one answer.

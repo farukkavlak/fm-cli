@@ -87,6 +87,22 @@ internal static class Dialogs
 		catch { return null; }
 	}
 
+	/// <summary>
+	/// The name of the panel a window is drawn in ("InstantResultPanel", "TeamSelectionInfoDialog"):
+	/// the windows the game opens as panels have no type at the dialog manager, and their panel's
+	/// name is the same in every language. Empty when there is none.
+	/// </summary>
+	private static string PanelOf(VisualElement element)
+	{
+		try
+		{
+			for (var at = element.hierarchy.parent; at != null; at = at.hierarchy.parent)
+				if (at.GetIl2CppType().Name == "Panel") return at.name ?? "";
+		}
+		catch { }
+		return "";
+	}
+
 	public static string Open(System.Collections.Specialized.NameValueCollection q)
 	{
 		if (q["data"] == "1") return Data();
@@ -122,6 +138,7 @@ internal static class Dialogs
 
 			var description = "";
 			try { description = root.Q<TextElement>("dialog-description")?.text ?? ""; } catch { }
+			var panel = PanelOf(element);
 
 			// The manager holds one dialog; it is this one when its buttons are these.
 			var mine = current is { } c && buttons.Any(b => c.Buttons.ContainsKey(b.Label)) ? current : null;
@@ -136,6 +153,7 @@ internal static class Dialogs
 				+ $"\"Description\": \"{Report.Escape(Text.Plain(description))}\", "
 				+ $"\"ShownDescription\": \"{Report.Escape(Text.Shown(description))}\", "
 				+ (mine is { } d ? $"\"Type\": \"{Report.Escape(d.Type)}\", " : "")
+				+ (panel.Length > 0 ? $"\"Panel\": \"{Report.Escape(panel)}\", " : "")
 				+ "\"Buttons\": [" + string.Join(", ", buttons.Select(b =>
 					$"{{\"Label\": \"{Report.Escape(b.Label)}\", \"ShownLabel\": \"{Report.Escape(b.Shown)}\", \"Pointer\": \"{b.Pointer}\", \"Name\": \"{Report.Escape(b.Name)}\"{Slot(b.Label)}}}")) + "]}");
 		}
