@@ -357,9 +357,12 @@ Still open:
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
   restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.
-- [ ] `training <player> --trait…`: opens tiles by the words "Training Rating" / "Traits" and lists by "Start New Trait
-  Training" / "Remove Trait"; none of those is on FM27's player page. The assistant's answer is now read with `talk`
-  (was the text after "Assistant Manager"). Needs FM27's trait screen found first.
+- [x] `training <player> --trait…` (FM27): the player's Development › Training page (`Screen.IndividualTraining` on his
+  bar) has an Actions menu (`#ActionsBar`). Each teachable trait is an entry of `PersonTrainingNewPreferredMove` in a folder;
+  the same action at the menu's top (only while a trait is worked on) stops it. Chosen by action + name
+  (`/actions?action=&name=`, new). List, start (read back as no longer offered), cancel: TR, Yasir Boz.
+  - [ ] `--trait-suggest`, `--trait-remove` not built for FM27. `PlayerTraining.Traits` (Active/Addable/Removable,
+    TraitInDevelopment) did not read from a copied person even with `human`, `team`, `Judge` beside it.
 - [x] `schedule set` (FM27): each session on Training › Overview is a button whose sent value names it (`Date`,
   `SessionIndex`); pressing it opens the week's editor. Categories and sessions are two radio groups known by the lists
   they show (`trainingselector.TrainingSessionCategoryOnlyDropdown` / `…SessionsForCategoryDropdown`); Confirm

@@ -50,7 +50,9 @@ internal static class ContextMenus
 		if (!string.IsNullOrEmpty(q["action"]))
 		{
 			if (description == null) return "error: no menu is open";
-			var entry = Find(description.m_root, q["action"], 0);
+			// With ?name= the entry of that action with that name (a trait under PersonTrainingNewPreferredMove),
+			// as the plugin gives it or as the game shows it.
+			var entry = Find(description.m_root, q["action"], 0, q["name"]);
 			if (entry == null) return $"error: the menu has no entry for action '{q["action"]}'";
 			if ((entry.Flags & MenuDescription.EntryFlags.Enabled) == 0) return $"error: '{q["action"]}' is disabled";
 			if (q["dry"] == "1") return $"dry run, NOT chosen: {q["action"]}";
@@ -121,16 +123,24 @@ internal static class ContextMenus
 		return null;
 	}
 
-	private static MenuDescription.Entry Find(MenuDescription.Entry parent, string action, int depth)
+	private static MenuDescription.Entry Find(MenuDescription.Entry parent, string action, int depth, string name = null)
 	{
 		if (parent == null || depth > 4) return null;
 		for (var child = parent.FirstChild; child != null; child = child.Next)
 		{
 			if ((child.Flags & MenuDescription.EntryFlags.Visible) == 0) continue;
-			if (child.Kind == MenuDescription.EntryKind.Item && ActionOf(child) == action) return child;
-			if (child.Kind == MenuDescription.EntryKind.Folder && Find(child, action, depth + 1) is { } found) return found;
+			if (child.Kind == MenuDescription.EntryKind.Item && ActionOf(child) == action
+			    && (string.IsNullOrEmpty(name) || Named(child, name))) return child;
+			if (child.Kind == MenuDescription.EntryKind.Folder && Find(child, action, depth + 1, name) is { } found) return found;
 		}
 		return null;
+	}
+
+	private static bool Named(MenuDescription.Entry entry, string name)
+	{
+		var raw = entry.Name ?? "";
+		return string.Equals(Text.Plain(raw), name, StringComparison.OrdinalIgnoreCase)
+		       || string.Equals(Text.Shown(raw), name, StringComparison.OrdinalIgnoreCase);
 	}
 
 	/// <summary>

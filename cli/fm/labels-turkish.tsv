@@ -2430,3 +2430,9 @@ The week's editor did not open.	Haftanın düzenleyicisi açılmadı.
 Sent, but the calendar shows {0} for {1} session {2}.	Gönderildi ama takvim {1} {2}. seansta {0} gösteriyor.
 There is no session called '{0}'. Sessions: {1}	'{0}' adında seans yok. Seanslar: {1}
 The match preparation could not be read as focuses; in FM27 it is the week's Match Preparation sessions. To see them: schedule · to change one: schedule set <day> <1|2|3> <session>	Maç hazırlığı odak olarak okunamadı; FM27'de haftanın Maç Hazırlığı seanslarıdır. Görmek için: schedule · değiştirmek için: schedule set <gün> <1|2|3> <seans>
+{0}: no trait can be started now (the game's actions offer none).	{0}: şu an özellik antrenmanı başlatılamaz (oyunun eylemleri sunmuyor).
+In FM27 only starting a trait is done by command so far: training <player> --trait "<trait>"	FM27'de şimdilik yalnız özellik başlatma komutla yapılıyor: training <oyuncu> --trait "<özellik>"
+{0}: "{1}" was chosen, but the game still offers it.	{0}: "{1}" seçildi ama oyun hâlâ sunuyor.
+{0}: asked to cancel, but the trait training still runs.	{0}: iptal istendi ama özellik antrenmanı sürüyor.
+In FM27 starting and cancelling a trait are done by command so far: --trait "<trait>" · --trait-cancel	FM27'de şimdilik özellik başlatma ve iptal komutla yapılıyor: --trait "<özellik>" · --trait-cancel
+{0} is working on a trait now; to stop it: training "{1}" --trait-cancel	{0} şu an bir özellik üzerinde çalışıyor; durdurmak için: training "{1}" --trait-cancel

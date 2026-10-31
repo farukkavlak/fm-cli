@@ -24,6 +24,7 @@ internal static partial class Program
 		}
 		if (await OpenPlayer(wanted) is not { } card) return 1;
 		var name = Field(card.GetProperty("Player"), "Name");
+		if (await TraitMenu(name, args) is { } fm27) return fm27;
 
 		// Each tile sits on the panel the one before it opens, so it is only there once that panel
 		// is built. The tile is waited for by asking for it without pressing (a dry run), so the
@@ -254,5 +255,108 @@ internal static partial class Program
 			if (!answer.StartsWith("error", StringComparison.Ordinal)) break;
 		}
 		return answer;
+	}
+
+	/// <summary>
+	/// FM27's trait training: the player's Development › Training page (the individual training
+	/// page's GUID, on his own bar) has an Actions menu (#ActionsBar) whose entries run the game's
+	/// actions; each trait he can be taught is an entry of PersonTrainingNewPreferredMove named for it.
+	/// A trait is started by that action and its name; it is read back as no longer offered. Null when
+	/// the menu has no such entries (FM26's card), so the older way is tried.
+	/// </summary>
+	private static async Task<int?> TraitMenu(string name, string[] args)
+	{
+		await Until(async () => (await Fm.Get("open", ("guid", Screen.IndividualTraining), ("bar", "1"))).StartsWith("opened", StringComparison.Ordinal), seconds: 8, every: 0.5);
+		async Task<List<(string Action, string Name, string Path)>> Entries()
+		{
+			await Fm.Get("actions", ("close", "1"));
+			if ((await Arriving("actions", [("open", "1"), ("name", "ActionsBar")])).StartsWith("error", StringComparison.Ordinal)) return [];
+			var listed = new List<(string, string, string)>();
+			var previous = "";
+			await Until(async () =>
+			{
+				var now = await Fm.GetJson("actions");
+				var flat = new List<(string, string, string)>();
+				if (now.ValueKind == JsonValueKind.Array)
+					foreach (var e in now.EnumerateArray()) flat.Add((Field(e, "Action"), Field(e, "Name"), Field(e, "Path")));
+				var key = string.Join("|", flat.Select(f => f.Item2));
+				var settled = flat.Count > 0 && key == previous;
+				previous = key;
+				listed = flat;
+				return settled;
+			}, seconds: 8, every: 0.3);
+			return listed;
+		}
+		var entries = await Entries();
+		// The traits sit in the menu's folders; the same action at the menu's top is the way to stop
+		// the trait being worked on, there only while one is.
+		var traits = entries.Where(e => e.Action == "PersonTrainingNewPreferredMove" && e.Path.Contains('>')).ToList();
+		var stop = entries.Where(e => e.Action == "PersonTrainingNewPreferredMove" && !e.Path.Contains('>')).Cast<(string Action, string Name, string Path)?>().FirstOrDefault();
+		if (entries.Count == 0) return null;
+		if (args.Contains("--trait-cancel"))
+		{
+			if (stop == null)
+			{
+				await Fm.Get("actions", ("close", "1"));
+				Console.WriteLine(L($"{name} is not working on a trait now."));
+				return 0;
+			}
+			var cancelled = await Fm.Get("actions", ("action", "PersonTrainingNewPreferredMove"), ("name", stop.Value.Name));
+			if (cancelled.StartsWith("error", StringComparison.Ordinal)) return Report(cancelled);
+			if (await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 3, every: 0.3))
+			{
+				var go = args.Contains("--yes");
+				await AnswerDialog(go);
+				if (!go) { Console.WriteLine(L("To confirm, run the same command with --yes.")); return 0; }
+			}
+			var gone = await Until(async () => !(await Entries()).Any(e => e.Action == "PersonTrainingNewPreferredMove" && !e.Path.Contains('>')), seconds: 6, every: 0.5);
+			await Fm.Get("actions", ("close", "1"));
+			Console.WriteLine(gone ? L($"{name}: trait training cancelled.") : L($"{name}: asked to cancel, but the trait training still runs."));
+			return gone ? 0 : 1;
+		}
+		if (args.Contains("--trait-suggest") || Option(args, "--trait-remove") != null)
+		{
+			await Fm.Get("actions", ("close", "1"));
+			Console.Error.WriteLine(L("In FM27 starting and cancelling a trait are done by command so far: --trait \"<trait>\" · --trait-cancel"));
+			return 1;
+		}
+		if (traits.Count == 0)
+		{
+			await Fm.Get("actions", ("close", "1"));
+			Console.WriteLine(stop != null ? L($"{name} is working on a trait now; to stop it: training \"{name}\" --trait-cancel") : L($"{name}: no trait can be started now (the game's actions offer none)."));
+			return 0;
+		}
+		// A trait's group is the folder it sits in, the game's own word.
+		static string Group(string path) => path.Split('>') is { Length: > 2 } parts ? parts[^2] : "";
+		var learn = Option(args, "--trait") is { } v && !v.StartsWith("--", StringComparison.Ordinal) ? v : null;
+		if (learn == null)
+		{
+			await Fm.Get("actions", ("close", "1"));
+			Console.WriteLine(L("Can be taught:"));
+			foreach (var group in traits.GroupBy(t => Group(t.Path)))
+				Console.WriteLine($"  {(group.Key.Length > 0 ? group.Key : L("Other"))}: {string.Join(", ", group.Select(t => t.Name))}");
+			Console.WriteLine(L($"\nTo teach: training \"{name}\" --trait \"<trait>\""));
+			return 0;
+		}
+		if (Choose(traits.Select(t => t.Name).ToList(), learn, L("Trait")) is not { } picked)
+		{
+			await Fm.Get("actions", ("close", "1"));
+			return 1;
+		}
+		var chose = await Fm.Get("actions", ("action", "PersonTrainingNewPreferredMove"), ("name", picked));
+		if (chose.StartsWith("error", StringComparison.Ordinal)) return Report(chose);
+		// The game can ask first (the assistant's misgivings): --yes goes ahead, anything else backs out.
+		if (await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 3, every: 0.3))
+		{
+			var dialog = (await Fm.GetJson("dialog"))[0];
+			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}");
+			var go = args.Contains("--yes");
+			await AnswerDialog(go);
+			if (!go) { Console.WriteLine(L("To confirm, run the same command with --yes.")); return 0; }
+		}
+		var started = await Until(async () => !(await Entries()).Any(e => e.Action == "PersonTrainingNewPreferredMove" && e.Path.Contains('>') && e.Name == picked), seconds: 6, every: 0.5);
+		await Fm.Get("actions", ("close", "1"));
+		Console.WriteLine(started ? L($"{name}: training on \"{picked}\" has begun.") : L($"{name}: \"{picked}\" was chosen, but the game still offers it."));
+		return started ? 0 : 1;
 	}
 }
