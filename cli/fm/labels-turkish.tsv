@@ -2423,3 +2423,10 @@ usage: penalties add <player> [<place>]	kullanım: penalties add <oyuncu> [<sır
 {0} was not found in the page's players table.	{0} sayfadaki oyuncu tablosunda bulunamadı.
 {0} cannot be added to this side (the game keeps its button shut).	{0} bu tarafa eklenemiyor (oyun düğmesini kapalı tutuyor).
 LEFT SIDE	SOL
+Session {0} of {1} is not in the calendar on screen.	{1} günü {0}. seans ekrandaki takvimde yok.
+Session {0} of {1} cannot be changed (a past day or a match).	{1} günü {0}. seans değiştirilemez (geçmiş gün ya da maç).
+The week's editor did not open.	Haftanın düzenleyicisi açılmadı.
+{0} session {1}: {2}.	{0} {1}. seans: {2}.
+Sent, but the calendar shows {0} for {1} session {2}.	Gönderildi ama takvim {1} {2}. seansta {0} gösteriyor.
+There is no session called '{0}'. Sessions: {1}	'{0}' adında seans yok. Seanslar: {1}
+The match preparation could not be read as focuses; in FM27 it is the week's Match Preparation sessions. To see them: schedule · to change one: schedule set <day> <1|2|3> <session>	Maç hazırlığı odak olarak okunamadı; FM27'de haftanın Maç Hazırlığı seanslarıdır. Görmek için: schedule · değiştirmek için: schedule set <gün> <1|2|3> <seans>

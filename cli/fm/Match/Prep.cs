@@ -21,7 +21,9 @@ internal static partial class Program
 		var slots = await FocusSlots();
 		if (slots == null)
 		{
-			Console.Error.WriteLine(L("The match preparation could not be read (there may be no next match)."));
+			// FM27 has no match focuses of their own: the preparation is the Match Preparation sessions
+			// of the week, set in its calendar.
+			Console.Error.WriteLine(L("The match preparation could not be read as focuses; in FM27 it is the week's Match Preparation sessions. To see them: schedule · to change one: schedule set <day> <1|2|3> <session>"));
 			return 1;
 		}
 

@@ -347,19 +347,20 @@ Still open:
   place after it; now the name is a text bound to `primarytext` and each list is known by what it writes
   (`tactic.oppositionplayer{marking,pressingtrigger,tackling,showontofoot}`). "Apply all advice" by its element
   (`ApplyAllAdviceButton`, was its label). TR vs Salzburg (UEL): read, --advice, one set by hand, --clear.
-- [ ] `fm prep`: `Human.Team.TeamTraining.TrainingMatchFocus` with `FixtureHasResult` beside it reads nothing in FM27, also
-  with a UEFA match two days off (the friendly was not the cause). The game binds it nowhere on Training › Overview; the
-  coach's "Match Preparation: <opponent>" message has no answers. FM27's preparation screen still to be found.
+- [x] `fm prep`: FM27 has no match focuses (one `EventFmxSelectMatchFocusType` left, `TrainingMatchFocus` reads nothing);
+  the preparation is the week's Match Preparation sessions. `prep` says so and points to `schedule` / `schedule set`.
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
   restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.
 - [ ] `training <player> --trait…`: opens tiles by the words "Training Rating" / "Traits" and lists by "Start New Trait
   Training" / "Remove Trait"; none of those is on FM27's player page. The assistant's answer is now read with `talk`
   (was the text after "Assistant Manager"). Needs FM27's trait screen found first.
-- [ ] `schedule set` / `schedule style`: FM27's training calendar is not FM26's ("the training tab of the calendar could
-  not be read"). FM27: a month grid on Training › Overview; each session a button sending
-  `EventFmxBeginTrainingWeekEditFromCard` + `EventFmxSelectTrainingSession` (opens a week editor), each week a style list
-  and Copy/Paste/Clear (`EventFmx{Copy,Paste,Reset}TrainingWeek`). Not built yet.
+- [x] `schedule set` (FM27): each session on Training › Overview is a button whose sent value names it (`Date`,
+  `SessionIndex`); pressing it opens the week's editor. Categories and sessions are two radio groups known by the lists
+  they show (`trainingselector.TrainingSessionCategoryOnlyDropdown` / `…SessionsForCategoryDropdown`); Confirm
+  `EventFmxCommitTrainingWeekFromCard`, Cancel `…CancelTrainingWeekEditFromCard`. Read back from the same button.
+  TR: Wed 1 → Penaltılar → back, Fri 3 → Rejenerasyon → back, unknown session and a match day refused.
+  - [ ] `schedule style` (a week's schedule list) not built for FM27.
   - `fm schedule` reads it; the Overview is the page's own GUID now (was chosen by the words "Training" / "Overview").
 - [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
   chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
