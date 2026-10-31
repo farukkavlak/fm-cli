@@ -341,7 +341,11 @@ Still open:
 - [x] `fm supporters`: FM27 has no Supporters tile on Club › Overview. Now `Human.Club` (influence, season tickets, waiting
   list, `AverageOrExpectedAttendance`, followers, rival counts), `TeamConfidence`, `SupporterProfile`; expectations are the
   rows of Club › Supporters (`Screen.SupportersPage`) with the fans' `VisionObjectivePerformance`. TR.
-- [ ] Sweep 31 Oct night: 44/51 ran (%86). Still failing: `prep` (friendly), `league` (season not started).
+- [ ] Sweep 31 Oct night: 44/51 ran (%86); fixed since: `squad --u19`, `shortlist`, `supporters`, `numbers`, `stages`
+  → 49/51. Still failing: `prep`, `league` (season not started, expected).
+- [ ] `fm prep`: `Human.Team.TeamTraining.TrainingMatchFocus` with `FixtureHasResult` beside it reads nothing in FM27, also
+  with a UEFA match two days off (the friendly was not the cause). The game binds it nowhere on Training › Overview; the
+  coach's "Match Preparation: <opponent>" message has no answers. FM27's preparation screen still to be found.
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
   restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.
