@@ -68,7 +68,7 @@ internal static partial class Buttons
 		foreach (var control in Controls(out _))
 		{
 			var events = new List<string>();
-			string page = null, action = null, sends = null, sendsProps = null, target = null;
+			string page = null, action = null, sends = null, sendsProps = null, target = null, opens = null, source = null;
 			foreach (var (listName, list) in control.Lists)
 			{
 				var contexts = list.Events;
@@ -77,6 +77,8 @@ internal static partial class Buttons
 					if (contexts[i] == null) continue;
 					try { events.Add(Summary(contexts[i], listName)); } catch { }
 					page ??= PageOf(contexts[i]);
+					opens ??= OpensOf(contexts[i]);
+					source ??= SourceOf(contexts[i]);
 					if (gen != null && action == null && ActionOf(contexts[i]) is { } value && RawPath.Set($"fmcli.speak.g{gen}.{spoken}", value) == null)
 						action = $"fmcli.speak.g{gen}.{spoken++}";
 					if (gen != null && sends == null && SentOf(contexts[i]) is { } sent && RawPath.Set($"fmcli.speak.g{gen}.{spoken}", sent.Value) == null)
@@ -105,6 +107,8 @@ internal static partial class Buttons
 				["Sends"] = sends ?? "",
 				["SendsProps"] = sendsProps ?? "",
 				["Target"] = target ?? "",
+				["Opens"] = opens ?? "",
+				["Source"] = source ?? "",
 			}));
 		}
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
@@ -181,6 +185,39 @@ internal static partial class Buttons
 	/// page's Guid (the page binds its data under "&lt;guid&gt;B0"). Tells apart two buttons that
 	/// send the same event from two pages open together, whatever they say.
 	/// </summary>
+	/// <summary>
+	/// The panel an OpenPanel button opens, by its asset's GUID: the same in every language, where
+	/// the button's label is not and its event alone ("OpenPanel") is shared by every such button.
+	/// </summary>
+	internal static string OpensOf(EventContextBase context)
+	{
+		try
+		{
+			var guid = context.TryCast<SI.Bindable.Events.OpenPanelEventContext>()?.m_asset?.AssetGUID;
+			return string.IsNullOrEmpty(guid) ? null : guid;
+		}
+		catch { return null; }
+	}
+
+	/// <summary>
+	/// The data path an event is bound at, which /pull can read beside: a row's button sits under
+	/// the row, whose record says which entry of the list it is (a focus's edit button, its focus).
+	/// </summary>
+	internal static string SourceOf(EventContextBase context)
+	{
+		try
+		{
+			var key = context.SourceKey;
+			var parts = new List<string>();
+			for (var node = Game.Bindings?.GetNode(ref key); node != null; node = node.Parent)
+				if (!string.IsNullOrEmpty(node.Name)) parts.Add(node.Name);
+			parts.Reverse();
+			// The root's own name is dots; a path key starts below it.
+			return parts.Count == 0 ? null : string.Join(".", parts).TrimStart('.');
+		}
+		catch { return null; }
+	}
+
 	internal static string PageOf(EventContextBase context)
 	{
 		try

@@ -958,7 +958,6 @@ Age: {0} cannot be chosen (between 15 and 50, the lower bound below the upper).	
 The area could not be added: {0}{1}	Bölge eklenemedi: {0}{1}
 {0}: could not be set to {1} stars.	{0}: {1} yıldıza getirilemedi.
 The form did not close; the change may not have gone through. Look: scout	Form kapanmadı; değişiklik işlenmemiş olabilir. Bak: scout
-Focus updated: {0} · {1}\n(the game leaves the old one in the list as 'Complete')	Odak güncellendi: {0} · {1}\n(oyun eski halini listede 'Tamamlandı' olarak bırakır)
 The focus does not look set up; look: scout	Odak kurulmuş görünmüyor; bak: scout
 Focus set up: {0} · {1}{2}{3} · {4}	Odak kuruldu: {0} · {1}{2}{3} · {4}
  · aged {0}–{1}	 · {0}–{1} yaş
@@ -2457,3 +2456,11 @@ The game does not offer this for {0} now. Their menu: actions "{1}"	{0} için oy
 {0}: the game took the answer but kept them on the shortlist.	{0}: oyun cevabı aldı ama kısa listede tuttu.
 {0}: taken off the shortlist.	{0}: kısa listeden çıkarıldı.
  · Intensity: {0}	 · Yoğunluk: {0}
+Minimum ability: could not be set to {0} stars.	En düşük yetenek {0} yıldıza ayarlanamadı.
+Minimum potential: could not be set to {0} stars.	En düşük potansiyel {0} yıldıza ayarlanamadı.
+Focus updated: {0} · {1}	Odak güncellendi: {0} · {1}
+Top	Yüksek öncelik
+Standard	Standart
+Ongoing	Sürekli
+Restarting a completed focus is not done by fm yet; the game has it under Scouting › Recruitment Focuses › Completed.	Tamamlanan bir odağı yeniden başlatmayı fm henüz yapmıyor; oyunda Gözlemcilik › İşe Alım Odakları › Tamamlanan altında.
+Focus stopped: {0}  (the game moves it to the completed focuses)	Odak durduruldu: {0}  (oyun onu tamamlanan odaklara taşır)

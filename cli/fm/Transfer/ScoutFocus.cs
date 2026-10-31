@@ -14,9 +14,6 @@ internal static partial class Program
 	private static async Task<List<JsonElement>> FocusForm(string anchor) =>
 		(await Fm.GetJson("form", ("anchor", anchor), ("up", "12"), ("buttons", "1"))).EnumerateArray().ToList();
 
-	private static JsonElement? FormButton(List<JsonElement> form, string text) =>
-		form.Where(i => Field(i, "Kind") == "button" && Field(i, "Text") == text).Cast<JsonElement?>().FirstOrDefault();
-
 	/// <summary>
 	/// A control the form binds to a data path, whatever its heading says. The form's own names
 	/// ("minagevalue", an "Ongoing-Tab") come from the game, so no language changes them.
@@ -67,6 +64,14 @@ internal static partial class Program
 
 	private const string ScoutEditConfirm = "EventFmxRecruitmentFocusScoutAnalystEditConfirm";
 
+	/// <summary>The focus form's position buttons on the pitch, known by the event they send.</summary>
+	private static async Task<List<JsonElement>> PositionButtons() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Events").Contains("EventFmxSelectPosition", StringComparison.Ordinal)).ToList();
+
+	/// <summary>The window FM27 asks "confirm this Focus?" in, by the event its answer sends.</summary>
+	private const string FocusConfirmDialog = "EventFmxRecruitmentFocusEditConfirm";
+
 	/// <summary>
 	/// A button the game itself names by the event it sends, pressed by its pointer. The observer
 	/// window's two buttons ("Cancel" / "Confirm") both send their own event and close the window,
@@ -83,13 +88,6 @@ internal static partial class Program
 		item.ValueKind == JsonValueKind.Object && item.TryGetProperty("Texts", out var texts) && texts.ValueKind == JsonValueKind.Array
 			? texts.EnumerateArray().Select(t => t.GetString() ?? "").Where(t => t.Length > 0).ToList()
 			: [];
-
-	/// <summary>The control that follows a heading in reading order.</summary>
-	private static JsonElement? FormAfter(List<JsonElement> form, string heading, string kind, int nth = 0)
-	{
-		var at = form.FindIndex(i => Field(i, "Kind") == "text" && Field(i, "Text").StartsWith(heading, StringComparison.Ordinal));
-		return at < 0 ? null : form.Skip(at + 1).Where(i => Field(i, "Kind") == kind).Skip(nth).Cast<JsonElement?>().FirstOrDefault();
-	}
 
 	/// <summary>
 	/// A control the form binds to a data path, whatever its heading says. A heading with a count
@@ -115,10 +113,13 @@ internal static partial class Program
 	/// <summary>"DL", "d (l)", "stc", "st": a position as the form's pitch writes it.</summary>
 	private static string FocusPosition(IEnumerable<string> labels, string typed)
 	{
+		// A label is matched as the plugin gives it and as the game shows it ("GK" / "KL").
 		static string Bare(string text) => Regex.Replace(Fold(text), "[^a-z]", "");
 		var all = labels.Distinct().ToList();
 		var want = Bare(typed);
-		return all.FirstOrDefault(l => Bare(l) == want) ?? (all.Where(l => Bare(l).StartsWith(want, StringComparison.Ordinal)).ToList() is { Count: 1 } one ? one[0] : null);
+		bool Is(string l) => Bare(l) == want || Bare(GameWords.Of(l)) == want;
+		bool Starts(string l) => Bare(l).StartsWith(want, StringComparison.Ordinal) || Bare(GameWords.Of(l)).StartsWith(want, StringComparison.Ordinal);
+		return all.FirstOrDefault(Is) ?? (all.Where(Starts).ToList() is { Count: 1 } one ? one[0] : null);
 	}
 
 	/// <summary>"3", "3.5", "2,5": a number of stars, as the half-star steps the form counts in (1–10).</summary>
@@ -131,18 +132,30 @@ internal static partial class Program
 	/// game counts half stars from 1 to 10; an untouched rating sits above that (11–15, drawn as
 	/// one to five half stars —), so it is stepped down from there.
 	/// </summary>
-	private static async Task<bool> SetStars(string heading, int steps)
+	///
+	/// The rating and its two buttons are known by identity: the buttons by the event they send
+	/// (current or potential ability) and the number they hand it (0 lower, 1 higher), the rating
+	/// by the focus's own field (PlayerCurrentAbility / PlayerPotentialAbility), read where the
+	/// buttons aim their event.
+	private static async Task<bool> SetStars(bool current, int steps)
 	{
+		var sent = current ? "EventFmxRecruitmentFocusCurrentAbilityUpdated" : "EventFmxRecruitmentFocusPotentialAbilityUpdated";
+		var field = current ? "PlayerCurrentAbility" : "PlayerPotentialAbility";
 		for (var tries = 0; tries < 24; tries++)
 		{
-			var form = await FocusForm("Back");
-			if (FormAfter(form, heading, "stars") is not { } stars || !int.TryParse(Field(stars, "Value"), out var now)) return false;
+			var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+				.Where(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal)).ToList();
+			if (buttons.Count == 0 || Field(buttons[0], "Target") is not { Length: > 0 } focus) return false;
+			async Task<int?> Rating() => int.TryParse(Field(await Fm.Pull($"{focus}.{field}", "MinValue"), "MinValue"), out var v) ? v : null;
+			if (await Rating() is not { } now) return false;
 			if (now == steps) return true;
-			if (FormAfter(form, heading, "button", now < steps ? 1 : 0) is not { } step || Field(step, "Enabled") != "True") return false;
-			await Fm.Get("click", ("ptr", Field(step, "Pointer")));
-			// The rating turns 0.23–0.26 s after a step, but the first step after the form opens takes
-			// 0.53–0.65 s (measured in both languages), so 3 s was only ~4.6×; 8 s leaves ~12×.
-			await Until(async () => FormAfter(await FocusForm("Back"), heading, "stars") is { } after && Field(after, "Value") != now.ToString(), seconds: 8, every: 0.2);
+			JsonElement? step = null;
+			foreach (var b in buttons)
+				if ((await Fm.Get("get", ("path", Field(b, "Sends")))).Trim().EndsWith(now < steps ? " 1" : " 0", StringComparison.Ordinal)) step = b;
+			if (step is not { } press || Field(press, "Enabled") != "True") return false;
+			await Fm.Get("click", ("ptr", Field(press, "Pointer")));
+			// The rating turns 0.23–0.26 s after a step, the first step after the form opens 0.53–0.65 s.
+			await Until(async () => await Rating() != now, seconds: 8, every: 0.2);
 		}
 		return false;
 	}
@@ -367,51 +380,5 @@ internal static partial class Program
 			? L($"Area: '{typed}' was not found as a continent, region or nation. For a league write its path: \"Competition>Turkey>Super League\"; the options: scout areas [path]")
 			: L($"Area: '{typed}' matches more than one place: {string.Join(" · ", found.Select(p => p.Replace(">", " › ")))}"));
 		return null;
-	}
-
-	/// <summary>
-	/// The remove icon beside a focus in the assignments panel ("Assignments (n)" on the focus
-	/// page): the panel shows one scout's focuses at a time, so each scout is selected in turn
-	/// until the focus is found. The icon is the second of the two after its name (the first edits).
-	/// </summary>
-	private static async Task<bool> RemoveInAssignments(string focus)
-	{
-		var open = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal));
-		if (open.ValueKind != JsonValueKind.Object) return false;
-		await Fm.Get("click", ("ptr", Field(open, "Pointer")));
-
-		async Task<List<JsonElement>> Panel()
-		{
-			List<JsonElement> items = [];
-			await Until(async () =>
-			{
-				// The panel's title is the game's own word ("Active Assignments (4)"), translated with
-				// the rest of the UI; the scout it heads is bound as Scout.Name in every language.
-				items = (await Fm.GetJson("form", ("anchorpath", "Scout.Name"), ("up", "13"), ("buttons", "1"))).EnumerateArray().ToList();
-				return items.Count(i => Field(i, "Path") == "binding.Name") >= 1 && items.Any(i => Field(i, "Path") == "Scout.Name");
-			}, seconds: 6, every: 0.5);
-			return items;
-		}
-
-		var panel = await Panel();
-		// The staff list: the panel's own names, not its words (the heading is translated).
-		var staff = panel.Where(i => Field(i, "Path") == "binding.Name").Select(i => Field(i, "Text")).Distinct().ToList();
-
-		foreach (var scout in staff)
-		{
-			await Fm.Get("rowselect", ("text", scout));
-			// The right-hand side is his once it is headed with his name; the focuses follow it.
-			await Until(async () =>
-			{
-				panel = (await Fm.GetJson("form", ("anchorpath", "Scout.Name"), ("up", "13"), ("buttons", "1"))).EnumerateArray().ToList();
-				return panel.Any(i => Field(i, "Path") == "Scout.Name" && Field(i, "Text") == scout);
-			}, seconds: 5, every: 0.2);
-			var at = panel.FindIndex(i => Field(i, "Path") == "focusitem.Name" && Field(i, "Text") == focus);
-			if (at < 0) continue;
-			var icons = panel.Skip(at + 1).TakeWhile(i => Field(i, "Kind") == "button" && Field(i, "Name") == "button-base-leading-icon").ToList();
-			if (icons.Count < 2) return false;
-			return !(await Fm.Get("click", ("ptr", Field(icons[1], "Pointer")))).StartsWith("error", StringComparison.Ordinal);
-		}
-		return false;
 	}
 }

@@ -548,7 +548,34 @@ Still open:
     each clicked once, when drawn and `Processing` is false; after Confirm the page is opened once, not again over itself.
   - Tried: TR, EN, DE (with switches between); cold / other page / page open; 20/20 change + read back; bad value, unknown name.
 - [ ] `/translate`, `EngineTexts` block names, `EventFmxMatchFocusSelect*`.
-- [ ] `identity-check.py catalog` (game must be in English for the word list).
+- [x] `identity-check.py catalog` run on FM27 (EN, 1 Nov). Really gone: `EventFmxMatchFocusSelect*` (prep), the
+  scouting result tabs (`matched-tab`…), `SessionGroupFocusName` (training catalogue), `TacticalFamiliarity` /
+  `AverageFamiliarity`, `OpensCard`, `PanelTitle`. Page GUIDs and short event names it lists are false alarms
+  (no screens catalog; `PanelHistoryClose` is `PanelHistoryCloseEvent`).
+- [x] `fm tactic`: FM27 has no familiarity; each player's and the team's tactical effectiveness (out of 100, a range
+  while not sure) replaces it. Team: `<Tactic node>.TacticalEffectiveness.OverallEffectiveness` (`MinValue`,
+  `MaxValue`, `UsesRange`); players: the squad table's `effectiveness` per row. Word shown is the game's
+  ("Effectiveness", "Verimlilik"). TR + EN; cold, page open, another page open.
+- [x] Recruitment focus (`scout`, `scout new|edit|remove|areas`) on FM27:
+  - Buttons carry `Opens` (an OpenPanel's panel asset GUID) and `Source` (the data path the event is bound at).
+  - New focus: the button that opens `0ee5aea7…` with no `focusitem` beside it; a row's edit button is the one whose
+    `{Source}.focusitem.UniqueId` is that focus; remove is the row's `TriggerDialog` button, its window `RecruitmentFocusRemove`.
+  - FM27 asks again after Confirm: window `EventFmxRecruitmentFocusEditConfirm`, answered primary.
+  - Positions by their event (`EventFmxSelectPosition`, each hands its position id); "Any Position" by
+    `focusitem.anyposition`; role by `focusitem.rolevalue`; stars by their event (Current/PotentialAbilityUpdated, 0
+    lower, 1 higher) and the focus's `PlayerCurrentAbility.MinValue`.
+  - Read from `Human.ScoutingInfo.SelectedRecruitmentFocus` (name, `FocusStatusString`, counts, `UniqueId`) and its
+    pools (`RecommendedPlayerPool`, `NearMissPlayerPool`, `CurrentPlayerPool`); value wants `human`, the scouts' word
+    `team` beside the rows. List entries copied from `RecruitmentFocusesList` have no name; the selected one has.
+  - Remove = the game's "complete": the focus leaves `RecruitmentFocusesList`. Edit is in place (new UniqueId).
+  - Tried TR + EN: list, results, new (position, stars, ages, area, priority), edit, remove, bad position, no `--yes`.
+  - [ ] `scout restart`: completed focuses are only under the Completed tab; not done.
+  - [ ] Area paths still go through the menu's English (`Nation>Europe`); continent and nation names come in the save's
+    language ("Avrupa", "Türkiye" in an English game), as the game shows them. Areas list levels by identity: not found yet.
+  - [ ] Scouts/analysts window (`--by`, `--analysts`) not tried on FM27.
+- Language switch: the first reads after a restart into another language can still be in the old one (venue "D",
+  positions "D/KB/OS (Sl)"); a second read is right. Save data (nations, injuries, focus names) stays in the language
+  it was made in, as the game shows it.
 
 New in FM27 (from the new events):
 

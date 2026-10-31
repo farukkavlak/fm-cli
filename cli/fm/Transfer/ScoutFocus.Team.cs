@@ -99,66 +99,45 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>How many assignments are running, as the focus page's "Assignments (n)" button counts them.</summary>
-	private static async Task<int?> Assignments() =>
-		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Select(b => Regex.Match(Field(b, "Label"), @"^Assignments \((\d+)\)$"))
-			.FirstOrDefault(m => m.Success) is { } found ? int.Parse(found.Groups[1].Value) : null;
+	/// <summary>The asset of the "Create a New Recruitment Focus" form (FM27), which its button opens.</summary>
+	private const string CreateFocusPanel = "0ee5aea7e53ea5f45b841c12509bf108";
 
 	/// <summary>
-	/// The menu icon the focus page's "open a new focus" action is drawn with. Its label is the
-	/// game's words, and every one of these buttons carries ActionID 0, so the action reference's
-	/// own menu icon is what tells it from the recommended, edit and remove buttons (§8.334).
+	/// A focus's edit button: one of the list's rows' buttons that open the focus form, the one
+	/// whose row holds that focus's record (focusitem.UniqueId beside the button). An empty id is
+	/// the new-focus button, the one with no focus beside it.
 	/// </summary>
-	private const string CreateFocusIcon = "929682755";
+	private static Task<string?> EditButton(string id) => RowButton(b => Field(b, "Opens") == CreateFocusPanel, id);
 
-	/// <summary>The menu icon of the action that opens the selected focus for editing.</summary>
-	private const string EditFocusIcon = "464150106";
+	/// <summary>A focus row's remove button (it asks the game's "complete this focus?" window).</summary>
+	private static Task<string?> RemoveButton(string id) => RowButton(b => Field(b, "Events") == "TriggerDialog", id);
 
-	/// <summary>
-	/// The optional button whose action is drawn with this menu icon: the label is translated,
-	/// the icon is not. These are the buttons of the messages panel; the same action is offered
-	/// there from the focus page and from the assignments panel.
-	/// </summary>
-	private static async Task<JsonElement?> OptionalButton(string icon)
+	private static async Task<string?> RowButton(Func<JsonElement, bool> kind, string id)
 	{
-		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
-			.Where(b => Field(b, "Type") == "SIButton" && Field(b, "Name") == "StandardButton"
-			            && Field(b, "Events") == "SpeakToAction" && Field(b, "Action").Length > 0 && Field(b, "Enabled") == "True")
-			.ToList();
-		if (buttons.Count == 0) return null;
-		var icons = await PullEach(buttons.Select(b => (Field(b, "Action"), "MenuIconID")).ToList());
-		return buttons.Zip(icons, (b, i) => (Button: b, Icon: Field(i, "MenuIconID")))
-			.Where(t => t.Icon == icon).Select(t => (JsonElement?)t.Button).LastOrDefault();
-	}
-
-	/// <summary>Presses that optional button until it answers; a redrawn list leaves its pointer stale.</summary>
-	private static async Task<string?> ClickOptional(string icon, double seconds = 8)
-	{
-		var answer = "";
-		await Until(async () => !(answer = await OptionalButton(icon) is { } button
-			? await Fm.Get("click", ("ptr", Field(button, "Pointer")))
-			: $"error: no optional button carries the menu icon {icon}").StartsWith("error", StringComparison.Ordinal), seconds: seconds, every: 0.5);
-		return answer;
+		var rows = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => kind(b) && Field(b, "Enabled") == "True" && Field(b, "Source").Length > 0).ToList();
+		foreach (var row in rows)
+		{
+			string held;
+			try { held = Field(await Fm.Pull($"{Field(row, "Source")}.focusitem", "UniqueId"), "UniqueId"); }
+			catch (FmError) { held = ""; }
+			if (held == id) return Field(row, "Pointer");
+		}
+		return null;
 	}
 
 	private static async Task<bool> OpenFocusForm(bool again = false)
 	{
 		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) { Report(opened); return false; }
-		// The button is drawn a moment after the page; clicked, not queued — its action is code.
-		var clicked = await ClickOptional(CreateFocusIcon);
-		if ((clicked ?? "").StartsWith("error", StringComparison.Ordinal))
-		{
-			// The page does not always offer it; the assignments panel behind
-			// "Assignments (n)" has the same create action and opens the same form.
-			var assignments = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal));
-			if (assignments.ValueKind == JsonValueKind.Object)
-			{
-				await Fm.Get("click", ("ptr", Field(assignments, "Pointer")));
-				clicked = await ClickOptional(CreateFocusIcon);
-			}
-		}
-		if ((clicked ?? "").StartsWith("error", StringComparison.Ordinal))
+		// FM27's "Create New Focus" is a plain OpenPanel button, told from the page's others by the
+		// panel it opens, and from the rows' edit buttons (the same panel) by having no focus beside
+		// it; drawn a moment after the page, and clicked (its action is code).
+		var clicked = "";
+		await Until(async () => !(clicked = await EditButton("") is { } create
+				? await Fm.Get("click", ("ptr", create))
+				: "error: no button opens the new-focus form").StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
+		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine(L("The game will not open a new focus now: no new-focus button on the focus page or the tasks panel."));
 			return false;

@@ -47,9 +47,9 @@ internal static partial class Program
 		// ("Obscure" for the ongoing one), so it is only ever shown, never matched.
 		var tabs = new Dictionary<string, (string Tab, string Word)>
 		{
-			["top"] = ("Priority-Tab", "Top"), ["standard"] = ("Standard-Tab", "Standard"),
-			["ongoing"] = ("Ongoing-Tab", "Ongoing"), ["standart"] = ("Standard-Tab", "Standard"),
-			["surekli"] = ("Ongoing-Tab", "Ongoing"),
+			["top"] = ("Priority-Tab", L("Top")), ["standard"] = ("Standard-Tab", L("Standard")),
+			["ongoing"] = ("Ongoing-Tab", L("Ongoing")), ["standart"] = ("Standard-Tab", L("Standard")),
+			["surekli"] = ("Ongoing-Tab", L("Ongoing")),
 		};
 		if (priority != null && !tabs.ContainsKey(Fold(priority)))
 		{
@@ -77,8 +77,8 @@ internal static partial class Program
 			if (int.TryParse(which, out var number) && number >= 1 && number <= existing.Count) editing = existing[number - 1];
 			else if (Choose(existing.Select(f => f.Name).Distinct().ToList(), which, L("Focus")) is { } wanted) editing = existing.First(f => f.Name == wanted);
 			else return 64;
-			if (await FocusAt(editing.Index) is not { } shown || shown.Name != editing.Name
-				|| ((await ClickOptional(EditFocusIcon, seconds: 5)) ?? "").StartsWith("error", StringComparison.Ordinal)
+			if (await FocusAt(editing.Index) is not { } shown || shown.Id != editing.Id
+				|| ((await EditButton(editing.Id) is { } pencil ? await Fm.Get("click", ("ptr", pencil)) : null) ?? "error").StartsWith("error", StringComparison.Ordinal)
 				|| !await Until(async () => await FormStep() == "next", seconds: 8, every: 0.5))
 			{
 				Console.Error.WriteLine(L($"The game did not open editing for '{editing.Name}'."));
@@ -91,25 +91,29 @@ internal static partial class Program
 		var chosen = new List<string>();
 		if (position != null)
 		{
+			// "Any Position" by the field it writes; the pitch's position buttons by the event they
+			// send (each hands the game its position's id); the role list by the field it writes.
 			var form = await FocusForm("Next");
-			if (form.FirstOrDefault(i => Field(i, "Kind") == "checkbox") is { ValueKind: JsonValueKind.Object } any && Field(any, "Value") == "True")
+			if (FormControl(form, "checkbox", "anyposition") is { } any && Field(any, "Value") == "True")
 				await Fm.Get("setcontrol", ("ptr", Field(any, "Pointer")), ("value", "false"));
-			await Until(async () => (form = await FocusForm("Next")).Any(i => Field(i, "Text") == "GK" && Field(i, "Enabled") == "True"), seconds: 5, every: 0.4);
-			var labels = form.Where(i => Field(i, "Kind") == "button" && Regex.IsMatch(Field(i, "Text"), @"^(GK|DM|[A-Z]{1,2} \([A-Z]+\))$")).Select(i => Field(i, "Text")).ToList();
+			List<JsonElement> spots = [];
+			await Until(async () => (spots = await PositionButtons()).Any(b => Field(b, "Enabled") == "True"), seconds: 5, every: 0.4);
+			var labels = spots.Where(b => Field(b, "Enabled") == "True").Select(b => Field(b, "Label")).ToList();
+			await GameWords.Ask(Fm, labels.Distinct().ToArray());
 			if (FocusPosition(labels, position) is not { } label)
 			{
 				await AbandonFocus();
 				Console.Error.WriteLine(L($"Position: no '{position}'. Options: {string.Join(" · ", labels.Distinct())}"));
 				return 64;
 			}
-			await Fm.Get("click", ("ptr", Field(FormButton(form, label)!.Value, "Pointer")));
+			await Fm.Get("click", ("ptr", Field(spots.First(b => Field(b, "Label") == label && Field(b, "Enabled") == "True"), "Pointer")));
 			// Step one is still on screen and the game has taken the position: the step's own
 			// button, which was offering nothing, is open (FocusSteps + the form read).
 			await Until(async () => (form = await FocusForm("Next")).Count > 0 && await FormStep() == "next", seconds: 5, every: 0.4);
 			chosen.Add(label);
 			if (role != null)
 			{
-				var roles = FormAfter(form, "Role (In Possession)", "dropdown");
+				var roles = FormControl(form, "dropdown", "rolevalue");
 				var choices = roles?.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList() ?? [];
 				if (Choose(choices, role, L("Role")) is not { } picked)
 				{
@@ -202,16 +206,16 @@ internal static partial class Program
 			}
 			chosen.Add(path.Split('>')[^1]);
 		}
-		foreach (var (heading, typed) in new[] { ("Minimum Current Ability", ability), ("Minimum Potential Ability", potential) })
+		foreach (var (current, typed) in new[] { (true, ability), (false, potential) })
 		{
 			if (typed == null) continue;
-			if (!await SetStars(heading, StarSteps(typed)!.Value))
+			if (!await SetStars(current, StarSteps(typed)!.Value))
 			{
 				await AbandonFocus();
-				Console.Error.WriteLine(L($"{heading}: could not be set to {typed} stars."));
+				Console.Error.WriteLine(current ? L($"Minimum ability: could not be set to {typed} stars.") : L($"Minimum potential: could not be set to {typed} stars."));
 				return 1;
 			}
-			chosen.Add($"{(heading.Contains("Current") ? L("ability") : L("potential"))} ≥ {StarSteps(typed)!.Value / 2.0:0.#}★");
+			chosen.Add($"{(current ? L("ability") : L("potential"))} ≥ {StarSteps(typed)!.Value / 2.0:0.#}★");
 		}
 		var (tabName, tabWord) = priority == null ? (null, null) : tabs[Fold(priority)];
 		if (tabName != null)
@@ -262,6 +266,15 @@ internal static partial class Program
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(formConfirm, "Pointer")));
+		// FM27 asks once more ("confirm this Focus?"), a window known by the event it sends; FM26
+		// took the form down at once. Answered with the window's own primary answer.
+		if (await Until(async () => (await Fm.GetJson("dialog")).EnumerateArray().Any(d => Field(d, "Type") == FocusConfirmDialog)
+				|| await FormStep() == null, seconds: 6, every: 0.3)
+			&& (await Fm.GetJson("dialog")).EnumerateArray().Any(d => Field(d, "Type") == FocusConfirmDialog))
+		{
+			await Fm.Get("dialog", ("press", "primary"));
+			await Until(async () => !(await Fm.GetJson("dialog")).EnumerateArray().Any(d => Field(d, "Type") == FocusConfirmDialog), seconds: 5, every: 0.2);
+		}
 		// The form is gone once neither step button is there any more (FormStep) — the game takes
 		// the whole form down in the same instant it commits (measured: both the buttons and the
 		// form read go empty 0.04–0.27s after Confirm, as the list grows by one).
@@ -273,7 +286,7 @@ internal static partial class Program
 				return 1;
 			}
 			if (ages != null) chosen.Add(L($"aged {ages.Groups[1].Value}–{ages.Groups[2].Value}"));
-			Console.WriteLine(L($"Focus updated: {name ?? editing!.Name} · {string.Join(" · ", chosen)}\n(the game leaves the old one in the list as 'Complete')"));
+			Console.WriteLine(L($"Focus updated: {name ?? editing!.Name} · {string.Join(" · ", chosen)}"));
 			return 0;
 		}
 		// Made once the form is gone and the list of focuses is one longer.
@@ -284,8 +297,8 @@ internal static partial class Program
 			Console.Error.WriteLine(L("The focus does not look set up; look: scout"));
 			return 1;
 		}
-		// The new one: running, and of a name there is now one more of.
-		var added = after.FirstOrDefault(f => f.Running && after.Count(a => a.Name == f.Name) > existing.Count(e => e.Name == f.Name)) ?? after[^1];
+		// The new one: the record whose id was not there before.
+		var added = after.FirstOrDefault(f => existing.All(e => e.Id != f.Id)) ?? after[^1];
 		Console.WriteLine(L($"Focus set up: {added.Name} · {tabWord}{(chosen.Count > 0 ? " · " + string.Join(" · ", chosen) : "")}{(ages != null ? L($" · aged {ages.Groups[1].Value}–{ages.Groups[2].Value}") : "")} · {added.Assigned}"));
 		Console.WriteLine(L($"To see what it finds: scout \"{added.Name}\""));
 		return 0;
@@ -298,38 +311,29 @@ internal static partial class Program
 		if (!await Until(async () => (list = await FocusList()) != null, seconds: 8, every: 0.5)) return focuses;
 		for (var index = 0; index < list!.Value.GetProperty("Choices").GetArrayLength(); index++)
 			if (await FocusAt(index) is { } focus) focuses.Add(focus);
+		await GameWords.Ask(Fm, focuses.Select(f => f.Name).Distinct().ToArray());
 		return focuses;
 	}
 
-	/// <summary>What the page's two buttons' actions send (InteropEventIDs): the game names them,
-	/// so the button is found by that and not by what it says. The label is the game's own string
-	/// and this language's table may not carry its English (§8.209).</summary>
-	private const string RemoveEvent = "53";  // EventFmxRecruitmentFocusRemove
-
-	private const string RestartEvent = "54"; // EventFmxRecruitmentFocusRestart
+	/// <summary>The window the game asks "complete this focus?" in, known by its type.</summary>
+	private const string RemoveDialog = "RecruitmentFocusRemove";
 
 	/// <summary>
-	/// The button on the recruitment-focus page whose action sends the given event, pressed by its
-	/// pointer; an error line when this page does not offer it (a focus that is running has no
-	/// Restart, one already stopped no Remove).
-	/// </summary>
-	private static async Task<string?> PressPageButton(string sent) =>
-		await SpeakToActionEvent(sent) is { } button
-			? await Fm.Get("click", ("ptr", Field(button, "Pointer")))
-			: $"error: no button on the loaded screens sends the recruitment-focus event {sent}";
-
-	/// <summary>
-	/// Stopping a focus ("Remove Recruitment Focus": it leaves the scouting priorities but stays
-	/// listed), or setting a stopped or finished one going again ("Restart": a new focus is made
-	/// of it, the old entry kept).
+	/// Stopping a focus: FM27 calls it completing it, and it leaves the list of focuses in
+	/// progress for the completed ones. Restarting a completed one is not done here yet.
 	/// </summary>
 	private static async Task<int> ScoutRemove(string[] args)
 	{
 		var restart = args[1] is "restart" or "yeniden";
 		var words = Words(args).Skip(1).ToList();
+		if (restart)
+		{
+			Console.Error.WriteLine(L("Restarting a completed focus is not done by fm yet; the game has it under Scouting › Recruitment Focuses › Completed."));
+			return 1;
+		}
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(restart ? L("usage: scout restart <#|name>   (restarts a stopped or finished focus)") : L("usage: scout remove <#|name> [--yes]   (stops the focus)"));
+			Console.Error.WriteLine(L("usage: scout remove <#|name> [--yes]   (stops the focus)"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
@@ -343,83 +347,37 @@ internal static partial class Program
 		}
 		Focus wanted;
 		if (int.TryParse(words[0], out var number) && number >= 1 && number <= focuses.Count) wanted = focuses[number - 1];
-		else
-		{
-			// Of two with a name (a stopped one and its restart) the one this can be done to is meant.
-			var able = focuses.Where(f => f.Running != restart).ToList();
-			if (Choose((able.Count > 0 ? able : focuses).Select(f => f.Name).Distinct().ToList(), string.Join(" ", words), L("Focus")) is not { } name) return 64;
-			wanted = (able.Count > 0 ? able : focuses).First(f => f.Name == name);
-		}
-		if (await FocusAt(wanted.Index) is not { } shown || shown.Name != wanted.Name)
-		{
-			Console.Error.WriteLine(L($"{wanted.Name}: the focus did not open."));
-			return 1;
-		}
-		if (shown.Running == restart)
-		{
-			Console.Error.WriteLine(restart
-				? shown.Status == "In Progress" ? L($"'{shown.Name}' is already running.") : L($"The game does not offer 'Restart Recruitment Focus' for '{shown.Name}' ({shown.Status}).")
-				: L($"'{shown.Name}' is already stopped ({shown.State}). To restart it: scout restart {shown.Index + 1}"));
-			return 1;
-		}
+		else if (Choose(focuses.Select(f => f.Name).Distinct().ToList(), string.Join(" ", words), L("Focus")) is { } name) wanted = focuses.First(f => f.Name == name);
+		else return 64;
 
-		if (restart)
-		{
-			var started = await PressPageButton(RestartEvent);
-			if ((started ?? "").StartsWith("error", StringComparison.Ordinal))
-			{
-				Console.Error.WriteLine(L($"The game does not offer 'Restart Recruitment Focus' for '{shown.Name}'."));
-				return 1;
-			}
-			if (!await Until(async () => await FocusList() is { } list && list.GetProperty("Choices").GetArrayLength() > focuses.Count, seconds: 8, every: 0.5))
-			{
-				Console.Error.WriteLine(L($"'{shown.Name}' does not look restarted; look: scout"));
-				return 1;
-			}
-			Console.WriteLine(L($"Focus restarted: {shown.Name}  (the old one stays in the list as stopped)"));
-			return 0;
-		}
-
-		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L($"Stop the focus '{shown.Name}'? ({shown.Matched} matching, {shown.Near} near)"), [L("Yes"), L("No")]) == 0);
+		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L($"Stop the focus '{wanted.Name}'? ({wanted.Matched} matching, {wanted.Near} near)"), [L("Yes"), L("No")]) == 0);
 		if (!go)
 		{
-			if (!Ui.Interactive) Console.WriteLine(L($"'{shown.Name}' ({shown.Matched} matching, {shown.Near} near) is taken off the scouting priorities. To confirm: scout remove {shown.Index + 1} --yes"));
+			if (!Ui.Interactive) Console.WriteLine(L($"'{wanted.Name}' ({wanted.Matched} matching, {wanted.Near} near) is taken off the scouting priorities. To confirm: scout remove {wanted.Index + 1} --yes"));
 			return 0;
 		}
-		if (await Assignments() is not { } assignments)
+		// The row's remove button, by the focus beside it; the game asks in a window of its own type.
+		if (await RemoveButton(wanted.Id) is not { } bin)
 		{
-			Console.Error.WriteLine(L("The number of assignments could not be read on the page; look: scout"));
+			Console.Error.WriteLine(L($"The game does not offer removing '{wanted.Name}': there is no remove button on the focus page or in the assignments panel."));
 			return 1;
 		}
-		var clicked = await PressPageButton(RemoveEvent);
-		// The page does not always have the button; the assignments panel lists
-		// each scout's focuses with a remove icon beside them.
-		if ((clicked ?? "").StartsWith("error", StringComparison.Ordinal) && !await RemoveInAssignments(shown.Name))
-		{
-			Console.Error.WriteLine(L($"The game does not offer removing '{shown.Name}': there is no remove button on the focus page or in the assignments panel."));
-			return 1;
-		}
-		JsonElement dialogs = default;
-		if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.4)
-			|| DialogAnswer(dialogs[0], true) is not { } confirm)
+		await Fm.Get("click", ("ptr", bin));
+		if (!await Until(async () => (await Fm.GetJson("dialog")).EnumerateArray().Any(d => Field(d, "Type") == RemoveDialog), seconds: 5, every: 0.3))
 		{
 			Console.Error.WriteLine(L("The game did not ask about stopping; look: scout"));
 			return 1;
 		}
-		await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
-		// The page cannot be brought forward again while the confirmation is still up; it goes
-		// as soon as the answer is taken.
-		await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.2);
-		await OpenPage(Screen.RecruitmentFocuses);
-		// Stopped once the page counts one assignment fewer: the entry itself stays listed, and
-		// until the day turns nothing on it says it has stopped.
-		var stopped = await Until(async () => await Assignments() is { } now && now < assignments, seconds: 15, every: 0.7);
+		await Fm.Get("dialog", ("press", "primary"));
+		// Stopped once its record has left the club's focuses in progress.
+		var stopped = await Until(async () => (await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray()
+			.All(e => Field(e, "UniqueId") != wanted.Id), seconds: 10, every: 0.5);
 		if (!stopped)
 		{
-			Console.Error.WriteLine(L($"'{shown.Name}' still looks running; look: scout"));
+			Console.Error.WriteLine(L($"'{wanted.Name}' still looks running; look: scout"));
 			return 1;
 		}
-		Console.WriteLine(L($"Focus stopped: {shown.Name}  (it stays in the list; to restart: scout restart)"));
+		Console.WriteLine(L($"Focus stopped: {wanted.Name}  (the game moves it to the completed focuses)"));
 		return 0;
 	}
 }
