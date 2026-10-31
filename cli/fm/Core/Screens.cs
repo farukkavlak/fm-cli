@@ -55,6 +55,8 @@ internal static class Screen
 
 	// Recruitment
 	public const string RecruitmentHome = "fba8a55c175acc34d9b0eb9ea1eb6671";
+	/// <summary>Club › Supporters (FM27: a subtab of the Club tab; it was a card behind a tile).</summary>
+	public const string SupportersPage = "0bc05f9601b07db468b6ec7078a417db";
 	/// <summary>Transfers › Shortlists (FM27: a row of the Transfers menu of its own).</summary>
 	public const string Shortlists = "6eb3e66627a5fe7469f9d179885acaa9";
 	public const string PlayerDatabase = "bfe5117deac3c454f8970018733ac664";

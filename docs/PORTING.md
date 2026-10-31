@@ -338,8 +338,10 @@ Still open:
 - [x] `fm shortlist`: was the recruitment overview's tile labelled "Shortlists" and `/people` (every list on screen mixed,
   the squad's too). Now Transfers › Shortlists by GUID (`Screen.Shortlists`), rows of the table whose `Page` is that page,
   items pulled (value asks `human` beside). TR from club / squad / tactics.
-- [ ] Sweep 31 Oct night: 44/51 ran (%86). Still failing: `supporters`
-  (FM27 has no Supporters tile on Club › Overview; it is a Club subtab), `prep` (friendly), `league` (season not started).
+- [x] `fm supporters`: FM27 has no Supporters tile on Club › Overview. Now `Human.Club` (influence, season tickets, waiting
+  list, `AverageOrExpectedAttendance`, followers, rival counts), `TeamConfidence`, `SupporterProfile`; expectations are the
+  rows of Club › Supporters (`Screen.SupportersPage`) with the fans' `VisionObjectivePerformance`. TR.
+- [ ] Sweep 31 Oct night: 44/51 ran (%86). Still failing: `prep` (friendly), `league` (season not started).
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
   restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.

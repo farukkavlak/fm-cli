@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace FmCli;
@@ -68,55 +69,48 @@ internal static partial class Program
 	private static async Task<int> Supporters(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		// The card read by each text's data path, from its spokesman's report line; an
-		// expectation is its objective (binding.VisionObjectiveName) and then, drawn without a path,
-		// its importance, type and the fans' reaction, which come a moment after the rest. A fresh
-		// page once answered with neither the expectations nor the rival counts while the rest was
-		// already there, so the card is taken only once those have bound too.
-		static bool Ready(List<(string Text, string Path)> t)
-		{
-			var at = t.FindIndex(x => x.Path == "binding.VisionObjectiveName");
-			// The expectations bind after the rest: once the card's own heading is drawn they are
-			// waited for, so a card caught mid-binding is not read as one without any.
-			var heading = t.FindIndex(x => x.Text == "Supporter Culture & Expectations");
-			return t.Any(x => x.Path == "Club.SupporterProfile.Description")
-				&& t.Any(x => x.Path == "Club.FierceRivalCount") && t.Any(x => x.Path == "Club.OtherRivalCount")
-				&& (heading < 0 || at >= 0 && at + 3 < t.Count && t.Skip(at + 1).Take(3).All(x => x.Path.Length == 0));
-		}
-		List<(string Text, string Path)> t;
-		try { t = await ClubCard("Supporters", "Club.SupporterProfile.SupporterReportCompliedBy", 12, Ready); }
-		catch (FmError e) { return Report(e.Message); }
-		if (t == null)
+		// The fans from the club's records; their expectations are the rows of Club › Supporters (by
+		// its GUID), each the objective with the fans' own sentence on it. No heading or label is read.
+		var read = await PullShown([
+			("Human.Club", "SupporterBoardInfluenceString,SeasonTicketHolders,SeasonTicketWaitingList,AverageOrExpectedAttendance,SocialMediaFollowers,FierceRivalCount,OtherRivalCount"),
+			("Human.Club.MainTeam.TeamConfidence", "SupporterConfidenceOverallString"),
+			("Human.Club.SupporterProfile", "Description"),
+		]);
+		string At(int i, string field) => Field(read[i], field) is { Length: > 0 } v ? v : "-";
+		if (Field(read[0], "SeasonTicketHolders").Length == 0)
 		{
 			Console.Error.WriteLine(L("The supporters card could not be read."));
 			return 1;
 		}
-		string Bound(string path) => t.FirstOrDefault(x => x.Path == path).Text ?? "-";
-		// The numbers the card writes after their labels (one of the game's texts, in English here).
-		string After(string label) => t.FindIndex(x => x.Text == label) is var i && i >= 0 && i + 1 < t.Count ? t[i + 1].Text : "-";
 
 		var expectations = new List<string[]>();
-		for (var i = 0; i < t.Count; i++)
-			if (t[i].Path == "binding.VisionObjectiveName" && i + 3 < t.Count)
-				expectations.Add([t[i].Text, t[i + 1].Text, t[i + 2].Text, t[i + 3].Text]);
+		if (!(await OpenPage(Screen.SupportersPage)).StartsWith("error", StringComparison.Ordinal))
+		{
+			JsonElement rows = default;
+			var gen = Environment.TickCount64.ToString();
+			await Until(async () => (rows = await Fm.GetJson("rowtexts", ("has", "binding.VisionObjectiveName"), ("gen", gen))).ValueKind == JsonValueKind.Array && rows.GetArrayLength() > 0, seconds: 8, every: 0.4);
+			if (rows.ValueKind == JsonValueKind.Array)
+				expectations = (await PullShown(rows.EnumerateArray().Select(r => (Field(r, "Item"), "VisionObjectiveName,VisionObjectivePerformance")).ToList()))
+					.Where(x => Field(x, "VisionObjectiveName").Length > 0)
+					.Select(x => new[] { Field(x, "VisionObjectiveName"), Field(x, "VisionObjectivePerformance") }).ToList();
+		}
 
 		// The profile from the club's data: the share of each kind of supporter.
 		var shares = await Fm.Pull("Human.Club.SupporterProfile", "FanPercentageCore,FanPercentageFamily,FanPercentageFairWeather,FanPercentageCasual,FanPercentageHardcore,FanPercentageCorporate");
 		var profile = new[] { ("Core", "Core"), ("Family", "Family"), ("Fair Weather", "FairWeather"), ("Casual", "Casual"), ("Hardcore", "Hardcore"), ("Corporate", "Corporate") }
 			.Select(g => (Share: Field(shares, $"FanPercentage{g.Item2}"), Group: g.Item1)).Where(g => g.Share.Length > 0).ToList();
-		var club = await Fm.Pull("Human.Club", "SeasonTicketHolders");
 
 		var fans = new
 		{
-			Mood = Bound("Club.MainTeam.TeamConfidence.SupporterConfidenceOverallString"),
-			Influence = Bound("Club.SupporterBoardInfluenceString"),
-			SeasonTicketHolders = After("Season Ticket Holders") is not "-" and var holders ? holders : Field(club, "SeasonTicketHolders"),
-			SeasonTicketWaitingList = After("Season Ticket Waiting List"),
-			AverageAttendance = After("Average Attendance"), SocialMediaFollowers = After("Social media followers"),
+			Mood = At(1, "SupporterConfidenceOverallString"),
+			Influence = At(0, "SupporterBoardInfluenceString"),
+			SeasonTicketHolders = At(0, "SeasonTicketHolders"),
+			SeasonTicketWaitingList = At(0, "SeasonTicketWaitingList"),
+			AverageAttendance = At(0, "AverageOrExpectedAttendance"), SocialMediaFollowers = At(0, "SocialMediaFollowers"),
 			Profile = profile.Select(p => new { p.Group, Share = GameNumbers.Percent(p.Share) }),
-			Expectations = expectations.Select(e => new { Text = e[0], Importance = e[1], Type = e[2], Reaction = e[3] }),
-			About = Bound("Club.SupporterProfile.Description"),
-			FierceRivals = Bound("Club.FierceRivalCount"), OtherRivals = Bound("Club.OtherRivalCount"),
+			Expectations = expectations.Select(e => new { Text = e[0], Fans = e[1] }),
+			About = At(2, "Description"),
+			FierceRivals = At(0, "FierceRivalCount"), OtherRivals = At(0, "OtherRivalCount"),
 		};
 		if (json)
 		{
@@ -128,11 +122,7 @@ internal static partial class Program
 				Influence = GameWords.Of(CardSay(fans.Influence)),
 				fans.SeasonTicketHolders, fans.SeasonTicketWaitingList, fans.AverageAttendance, fans.SocialMediaFollowers,
 				Profile = profile.Select(p => new { Group = CardSay(p.Group), Share = GameNumbers.Percent(p.Share) }),
-				Expectations = expectations.Select(e => new
-				{
-					Text = GameWords.Of(e[0]),
-					Importance = GameWords.Of(CardSay(e[1])), Type = GameWords.Of(CardSay(e[2])), Reaction = GameWords.Of(CardSay(e[3])),
-				}),
+				Expectations = expectations.Select(e => new { Text = GameWords.Of(e[0]), Fans = e[1] }),
 				About = GameWords.Of(fans.About),
 				fans.FierceRivals, fans.OtherRivals,
 			};
@@ -151,13 +141,8 @@ internal static partial class Program
 		CardHeading(L("Expectations"));
 		foreach (var e in expectations)
 		{
-			var tag = $"({CardSay(e[1])}, {CardSay(e[2])})";
-			if (Ui.Rich)
-			{
-				var colour = e[3] switch { "Pleased" or "Satisfied" or "Delighted" => "green", "Concerned" or "Disappointed" or "Angry" => "red", _ => "yellow" };
-				Ui.Line($"  {Ui.Safe(e[0])} [dim]{Ui.Safe(tag)}[/] — [{colour}]{Ui.Safe(CardSay(e[3]))}[/]");
-			}
-			else Console.WriteLine($"  {e[0]} {tag} — {CardSay(e[3])}");
+			if (Ui.Rich) Ui.Line($"  {Ui.Safe(e[0])}[dim]{(e[1].Length > 0 ? " — " + Ui.Safe(e[1]) : "")}[/]");
+			else Console.WriteLine($"  {e[0]}{(e[1].Length > 0 ? " — " + e[1] : "")}");
 		}
 
 		CardHeading(L("Supporter profile"));
