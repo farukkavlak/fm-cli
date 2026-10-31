@@ -355,6 +355,9 @@ Still open:
   (9 rows), scout report. The FM26 readers keyed on English headings ("Player Report", "Fine Type"…) stay for FM26.
 - [x] `fm prep`: FM27 has no match focuses (one `EventFmxSelectMatchFocusType` left, `TrainingMatchFocus` reads nothing);
   the preparation is the week's Match Preparation sessions. `prep` says so and points to `schedule` / `schedule set`.
+- [x] 1 Nov, EN + DE (after restart): squad --u19, shortlist, supporters, opposition, training --trait (list),
+  stages, schedule set (and back), reply attachment: all in the game's language. Session names are typed in the game's
+  words (EN "Press Avoidance", DE "Geheimtraining").
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
   restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.
