@@ -108,6 +108,7 @@ internal static partial class FmApi
 		"press" => Buttons.Press(q),
 		"pluginevent" => Buttons.PluginEvent(q),
 		"click" => Buttons.Click(q),
+		"popup" => Popups.Open(q),
 		"textboxes" => TextBoxes.Catalog(),
 		"type" => TextBoxes.Type(q),
 		"setnumber" => NumberBoxes.Set(q),

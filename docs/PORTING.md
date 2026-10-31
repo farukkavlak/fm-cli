@@ -369,7 +369,10 @@ Still open:
   they show (`trainingselector.TrainingSessionCategoryOnlyDropdown` / `…SessionsForCategoryDropdown`); Confirm
   `EventFmxCommitTrainingWeekFromCard`, Cancel `…CancelTrainingWeekEditFromCard`. Read back from the same button.
   TR: Wed 1 → Penaltılar → back, Fri 3 → Rejenerasyon → back, unknown session and a match day refused.
-  - [ ] `schedule style` (a week's schedule list) not built for FM27.
+  - [ ] `schedule style` not built for FM27. A week's selector is an `SIFloatingPopupWidget` (`#TrainingScheduleSelectorPopup`,
+    disabled for past weeks), opened by the new `/popup?ptr=` (its `Clicked`). Inside: categories on the left, and only the
+    hovered category's schedules as `apply-schedule` buttons (`EventFmxConfirmTrainingSchedule`, label = schedule name).
+    Moving between categories has no event found yet.
   - `fm schedule` reads it; the Overview is the page's own GUID now (was chosen by the words "Training" / "Overview").
 - [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
   chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
