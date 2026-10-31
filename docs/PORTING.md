@@ -333,7 +333,10 @@ Still open:
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
   restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.
 - [ ] `schedule set` / `schedule style`: FM27's training calendar is not FM26's ("the training tab of the calendar could
-  not be read"); `fm schedule` reads, the Overview menu is still chosen by the words "Training" / "Overview".
+  not be read"). FM27: a month grid on Training › Overview; each session a button sending
+  `EventFmxBeginTrainingWeekEditFromCard` + `EventFmxSelectTrainingSession` (opens a week editor), each week a style list
+  and Copy/Paste/Clear (`EventFmx{Copy,Paste,Reset}TrainingWeek`). Not built yet.
+  - `fm schedule` reads it; the Overview is the page's own GUID now (was chosen by the words "Training" / "Overview").
 - [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
   chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
   the name a text bound to `primarytext` (FM26's `NameButton` kept), the form found from that name (was the heading "Prom.").

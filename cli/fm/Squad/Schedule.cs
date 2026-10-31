@@ -20,13 +20,7 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.Training);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		// "Overview" is on every subtab menu of the tab, so the Training one is chosen by its pointer.
-		// It is chosen even when it says so already: the menu keeps its choice while the squad's
-		// own overview is up, and there the calendar is drawn without its days.
-		var menu = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.FirstOrDefault(d => Field(d, "Name") == "SecondaryTabDropdownButton" && Field(d, "Label") == "Training");
-		if (menu!.ValueKind == JsonValueKind.Object)
-			await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("choice", "Overview"), ("fire", "1"));
+		// The page opened is the Training tab's Overview itself (its GUID): nothing is chosen by its words.
 
 		// The calendar is drawn over a few frames; it is read once two readings in a row agree. It is
 		// found by its days' data path, not a weekday's name: the squad overview left open underneath
