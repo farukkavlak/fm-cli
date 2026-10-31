@@ -54,7 +54,9 @@ internal static partial class Program
 			{
 				// The assistant's buttons come a moment after the card's rows.
 				JsonElement? apply = null;
-				await Until(async () => (apply = await Labelled("Apply all advice", "StandardButton")) != null, seconds: 4, every: 0.25);
+				// "Apply all advice" is its own element (ApplyAllAdviceButton); "Apply Advice" sends the same event for one.
+				await Until(async () => (apply = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.Where(b => Field(b, "Name") == "ApplyAllAdviceButton" && Field(b, "Enabled") == "True").Cast<JsonElement?>().FirstOrDefault()) != null, seconds: 4, every: 0.25);
 				if (apply == null)
 				{
 					Console.Error.WriteLine(L("The assistant has no suggestion (or it is already applied)."));

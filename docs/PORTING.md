@@ -343,6 +343,10 @@ Still open:
   rows of Club › Supporters (`Screen.SupportersPage`) with the fans' `VisionObjectivePerformance`. TR.
 - [ ] Sweep 31 Oct night: 44/51 ran (%86); fixed since: `squad --u19`, `shortlist`, `supporters`, `numbers`, `stages`
   → 49/51. Still failing: `prep`, `league` (season not started, expected).
+- [x] `fm opposition`: FM27's Tactics › Oppo. page (same GUID). The plugin read rows by `#NameText` and the lists by their
+  place after it; now the name is a text bound to `primarytext` and each list is known by what it writes
+  (`tactic.oppositionplayer{marking,pressingtrigger,tackling,showontofoot}`). "Apply all advice" by its element
+  (`ApplyAllAdviceButton`, was its label). TR vs Salzburg (UEL): read, --advice, one set by hand, --clear.
 - [ ] `fm prep`: `Human.Team.TeamTraining.TrainingMatchFocus` with `FixtureHasResult` beside it reads nothing in FM27, also
   with a UEFA match two days off (the friendly was not the cause). The game binds it nowhere on Training › Overview; the
   coach's "Match Preparation: <opponent>" message has no answers. FM27's preparation screen still to be found.
