@@ -268,19 +268,19 @@ internal static partial class Program
 	private static async Task<int?> TraitMenu(string name, string[] args)
 	{
 		await Until(async () => (await Fm.Get("open", ("guid", Screen.IndividualTraining), ("bar", "1"))).StartsWith("opened", StringComparison.Ordinal), seconds: 8, every: 0.5);
-		async Task<List<(string Action, string Name, string Path, bool Folder, bool Enabled)>> Entries()
+		async Task<List<(string Action, string Name, string Shown, string Path, string ShownPath, bool Folder, bool Enabled)>> Entries()
 		{
 			await Fm.Get("actions", ("close", "1"));
 			if ((await Arriving("actions", [("open", "1"), ("name", "ActionsBar")])).StartsWith("error", StringComparison.Ordinal)) return [];
-			var listed = new List<(string, string, string, bool, bool)>();
+			var listed = new List<(string, string, string, string, string, bool, bool)>();
 			var previous = "";
 			await Until(async () =>
 			{
 				var now = await Fm.GetJson("actions");
-				var flat = new List<(string, string, string, bool, bool)>();
+				var flat = new List<(string, string, string, string, string, bool, bool)>();
 				if (now.ValueKind == JsonValueKind.Array)
 					foreach (var e in now.EnumerateArray())
-						flat.Add((Field(e, "Action"), Field(e, "Name"), Field(e, "Path"), e.TryGetProperty("Folder", out var f) && f.ValueKind == JsonValueKind.True,
+						flat.Add((Field(e, "Action"), Field(e, "Name"), ShownName(e), Field(e, "Path"), ShownPath(e), e.TryGetProperty("Folder", out var f) && f.ValueKind == JsonValueKind.True,
 							e.TryGetProperty("Enabled", out var en) && en.ValueKind == JsonValueKind.True));
 				var key = string.Join("|", flat.Select(f => f.Item2));
 				var settled = flat.Count > 0 && key == previous;
@@ -294,7 +294,7 @@ internal static partial class Program
 		if (entries.Count == 0) return null;
 		var (traits, removable, stop) = TraitEntries(entries);
 		// What he has is what can be dropped; the remove folder is gone while a trait is worked on.
-		if (removable.Count > 0) Console.WriteLine(L($"{name} — traits: {string.Join(", ", removable.Select(r => r.Name))}"));
+		if (removable.Count > 0) Console.WriteLine(L($"{name} — traits: {string.Join(", ", removable.Select(r => r.Shown))}"));
 		if (args.Contains("--trait-cancel"))
 		{
 			if (stop == null)
@@ -331,13 +331,14 @@ internal static partial class Program
 				Console.WriteLine(L($"{name} is working on a trait now; cancel it first: --trait-cancel"));
 				return 0;
 			}
-			if (Choose(removable.Select(r => r.Name).ToList(), unlearn, L("Trait")) is not { } dropping)
+			if (Choose(removable.Select(r => r.Shown).ToList(), unlearn, L("Trait")) is not { } dropping)
 			{
 				await Fm.Get("actions", ("close", "1"));
 				return 1;
 			}
 			// Teaching and dropping are one action; the entry under the remove folder is the drop.
-			var path = removable.First(r => r.Name == dropping).Path;
+			var drop = removable.First(r => r.Shown == dropping);
+			var path = drop.Path;
 			var sent = await Fm.Get("actions", ("choose", path));
 			if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 			if (await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 3, every: 0.3))
@@ -349,7 +350,7 @@ internal static partial class Program
 				if (!go) { Console.WriteLine(L("To confirm, run the same command with --yes.")); return 0; }
 			}
 			// Read back: a trait is now being worked on, and this one is no longer offered for dropping.
-			var begun = await Until(async () => TraitEntries(await Entries()) is var t && t.Stop != null && !t.Removable.Any(r => r.Name == dropping), seconds: 6, every: 0.5);
+			var begun = await Until(async () => TraitEntries(await Entries()) is var t && t.Stop != null && !t.Removable.Any(r => r.Name == drop.Name), seconds: 6, every: 0.5);
 			await Fm.Get("actions", ("close", "1"));
 			Console.WriteLine(begun ? L($"{name}: will try to drop \"{dropping}\".") : L($"{name}: \"{dropping}\" was chosen, but nothing started."));
 			return begun ? 0 : 1;
@@ -361,23 +362,24 @@ internal static partial class Program
 			return 0;
 		}
 		// A trait's group is the folder it sits in, the game's own word.
-		static string Group(string path) => path.Split('>') is { Length: > 2 } parts ? parts[^2] : "";
+		static string Group(string shownPath) => shownPath.Split(" › ") is { Length: > 2 } parts ? parts[^2] : "";
 		var learn = Option(args, "--trait") is { } v && !v.StartsWith("--", StringComparison.Ordinal) ? v : null;
 		if (learn == null)
 		{
 			await Fm.Get("actions", ("close", "1"));
 			Console.WriteLine(L("Can be taught:"));
-			foreach (var group in traits.GroupBy(t => Group(t.Path)))
-				Console.WriteLine($"  {(group.Key.Length > 0 ? group.Key : L("Other"))}: {string.Join(", ", group.Select(t => t.Name))}");
+			foreach (var group in traits.GroupBy(t => Group(t.ShownPath)))
+				Console.WriteLine($"  {(group.Key.Length > 0 ? group.Key : L("Other"))}: {string.Join(", ", group.Select(t => t.Shown))}");
 			Console.WriteLine(L($"\nTo teach: training \"{name}\" --trait \"<trait>\"  ·  to drop one: --trait-remove \"<trait>\""));
 			return 0;
 		}
-		if (Choose(traits.Select(t => t.Name).ToList(), learn, L("Trait")) is not { } picked)
+		if (Choose(traits.Select(t => t.Shown).ToList(), learn, L("Trait")) is not { } picked)
 		{
 			await Fm.Get("actions", ("close", "1"));
 			return 1;
 		}
-		var chose = await Fm.Get("actions", ("action", "PersonTrainingNewPreferredMove"), ("name", picked));
+		var teach = traits.First(t => t.Shown == picked);
+		var chose = await Fm.Get("actions", ("action", "PersonTrainingNewPreferredMove"), ("name", teach.Name));
 		if (chose.StartsWith("error", StringComparison.Ordinal)) return Report(chose);
 		// The game can ask first (the assistant's misgivings): --yes goes ahead, anything else backs out.
 		if (await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 3, every: 0.3))
@@ -388,7 +390,7 @@ internal static partial class Program
 			await AnswerDialog(go);
 			if (!go) { Console.WriteLine(L("To confirm, run the same command with --yes.")); return 0; }
 		}
-		var started = await Until(async () => !TraitEntries(await Entries()).Teachable.Any(e => e.Name == picked), seconds: 6, every: 0.5);
+		var started = await Until(async () => !TraitEntries(await Entries()).Teachable.Any(e => e.Name == teach.Name), seconds: 6, every: 0.5);
 		await Fm.Get("actions", ("close", "1"));
 		Console.WriteLine(started ? L($"{name}: training on \"{picked}\" has begun.") : L($"{name}: \"{picked}\" was chosen, but the game still offers it."));
 		return started ? 0 : 1;
@@ -401,10 +403,10 @@ internal static partial class Program
 	/// the stop is at the menu's top, there only while a trait is worked on. Disabled entries
 	/// ("Discipline Training", a heading) are left out.
 	/// </summary>
-	private static (List<(string Action, string Name, string Path, bool Folder, bool Enabled)> Teachable,
-		List<(string Action, string Name, string Path, bool Folder, bool Enabled)> Removable,
-		(string Action, string Name, string Path, bool Folder, bool Enabled)? Stop)
-		TraitEntries(List<(string Action, string Name, string Path, bool Folder, bool Enabled)> entries)
+	private static (List<(string Action, string Name, string Shown, string Path, string ShownPath, bool Folder, bool Enabled)> Teachable,
+		List<(string Action, string Name, string Shown, string Path, string ShownPath, bool Folder, bool Enabled)> Removable,
+		(string Action, string Name, string Shown, string Path, string ShownPath, bool Folder, bool Enabled)? Stop)
+		TraitEntries(List<(string Action, string Name, string Shown, string Path, string ShownPath, bool Folder, bool Enabled)> entries)
 	{
 		var moves = entries.Where(e => e.Action == "PersonTrainingNewPreferredMove" && !e.Folder).ToList();
 		static int Depth(string path) => path.Count(c => c == '>');
@@ -412,7 +414,7 @@ internal static partial class Program
 		var withFolders = entries.Where(e => e.Folder && Depth(e.Path) >= 1).Select(e => Top(e.Path)).ToHashSet();
 		var teachable = moves.Where(e => e.Enabled && Depth(e.Path) >= 2).ToList();
 		var removable = moves.Where(e => e.Enabled && Depth(e.Path) == 1 && !withFolders.Contains(Top(e.Path))).ToList();
-		var stop = moves.Where(e => Depth(e.Path) == 0).Cast<(string, string, string, bool, bool)?>().FirstOrDefault();
+		var stop = moves.Where(e => Depth(e.Path) == 0).Cast<(string, string, string, string, string, bool, bool)?>().FirstOrDefault();
 		return (teachable, removable, stop);
 	}
 }
