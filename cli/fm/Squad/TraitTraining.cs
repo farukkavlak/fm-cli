@@ -82,13 +82,8 @@ internal static partial class Program
 			}
 		}
 
-		// The assistant's answer, right after what was asked in the conversation.
-		async Task<string> Answer(string asked)
-		{
-			var texts = (await Fm.GetJson("texts", ("anchor", "Assistant Manager"), ("up", "30"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-			var at = texts.IndexOf(asked);
-			return at >= 0 && at + 1 < texts.Count ? texts[at + 1] : "";
-		}
+		// The assistant's answer: what the conversation says now, our own line left out (as the talks read it).
+		async Task<string> Answer(string asked) => await AgentSays() ?? "";
 
 		// Starting, removing or cancelling can be met by the assistant's misgivings in a dialog;
 		// at a terminal they are asked about, otherwise --yes goes ahead and anything else does not.
@@ -134,6 +129,7 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"{name}: trait suggestion button not found."));
 				return 1;
 			}
+			var before = await AgentSays() ?? "";
 			var asked = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 			if (asked.StartsWith("error", StringComparison.Ordinal)) return Report(asked);
 			// A suggestion comes as a dialog offering to start on it; no suggestion is a sentence
@@ -142,7 +138,8 @@ internal static partial class Program
 			string said = "";
 			var question = Field(button, "Label");
 			await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0
-			                        || (question.Length > 0 && (said = await Answer(question)).Length > 0), seconds: 6, every: 0.5);
+			                        || ((said = await Answer(question)).Length > 0 && said != before), seconds: 6, every: 0.5);
+			if (said == before) said = "";
 			if (said.Length > 0) return await Done(said);
 			return await Confirmed() ? await Done(L($"{name}: training on the suggested trait has begun.")) : 0;
 		}

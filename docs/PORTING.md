@@ -332,6 +332,9 @@ Still open:
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
   restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.
+- [ ] `training <player> --trait…`: opens tiles by the words "Training Rating" / "Traits" and lists by "Start New Trait
+  Training" / "Remove Trait"; none of those is on FM27's player page. The assistant's answer is now read with `talk`
+  (was the text after "Assistant Manager"). Needs FM27's trait screen found first.
 - [ ] `schedule set` / `schedule style`: FM27's training calendar is not FM26's ("the training tab of the calendar could
   not be read"). FM27: a month grid on Training › Overview; each session a button sending
   `EventFmxBeginTrainingWeekEditFromCard` + `EventFmxSelectTrainingSession` (opens a week editor), each week a style list
