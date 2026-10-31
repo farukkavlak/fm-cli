@@ -160,135 +160,82 @@ internal static partial class Program
 		return false;
 	}
 
+	/// <summary>The window the focus form's scouts and analysts "Edit" buttons open (FM27).</summary>
+	private const string AssignPanel = "e7c08a2441ed7054eb326e0647aebb3d";
+
 	/// <summary>
 	/// Names the scouts — or the analysts — a focus is given to, in the window behind "Assign
-	/// Scouts › Edit": "Assign Any Scouts" is switched off, which opens the table, and each one
-	/// wanted is ticked. The names as the game has them, or null (the reason said) when one is
-	/// not among them.
+	/// Scouts › Edit": "any" is switched off and each one wanted is ticked. All by identity: both
+	/// Edit buttons open one window (by its panel GUID), told apart by the field its box writes
+	/// (focusitem.anyscout / anyanalyst); the people are their table's own records; the
+	/// window's two answers are known by the event each sends. The names as the game has them,
+	/// or null (the reason said) when one is not among them.
 	/// </summary>
 	private static async Task<List<string>> AssignFocusScouts(string typed, bool analysts = false)
 	{
-		var who = analysts ? L("Analyst") : "Scout";
-		// The window's own box: "Assign Any Scouts", but "Assign Any Analyst". In a Turkish game
-		// the game leaves these two labels in English (measured), so the box is the same words in
-		// every language; what it is bound to (focusitem.anyscout / focusitem.anyanalyst) is
-		// checked below, so a window for the wrong list is caught rather than ticked.
-		var box = analysts ? "Assign Any Analyst" : "Assign Any Scouts";
-		var form = await FocusForm("Back");
-		// The scouts and analysts rows carry the same button template, and the heading above them
-		// is the game's own sentence (assign a scout, assign an analyst), so
-		// neither can be looked for in English. The row is the one whose heading or people carry
-		// the role's own word ("(Scout)", "(Player Analyst)"), asked from the game's table; a
-		// form that says neither keeps its order (scouts first, analysts second).
-		await GameWords.Ask(Fm, "Scout", "Analyst");
-		var role = GameWords.Of(analysts ? "Analyst" : "Scout");
-		string RowAt(int at)
-		{
-			var said = at > 0 && Field(form[at - 1], "Kind") == "text" ? Field(form[at - 1], "Text") : "";
-			for (var next = at + 1; next < form.Count && Field(form[next], "Kind") != "text"; next++)
-				said += " " + string.Join(" ", FormTexts(form[next]));
-			return said;
-		}
-		var rows = Enumerable.Range(0, form.Count)
-			.Where(at => Field(form[at], "Kind") == "button" && Field(form[at], "Name") == "button-base-trailing-icon-label")
-			.ToList();
-		var pick = rows.FirstOrDefault(at => RowAt(at).Contains(role, StringComparison.OrdinalIgnoreCase), -1);
-		if (pick < 0 && rows.Count > 0) pick = analysts ? rows[^1] : rows[0];
-		if (pick < 0)
-		{
-			Console.Error.WriteLine(L($"The form has no button to choose {who.ToLowerInvariant()}."));
-			return null;
-		}
-		await Fm.Get("click", ("ptr", Field(form[pick], "Pointer")));
-		async Task<List<JsonElement>> Window() => (await Fm.GetJson("form", ("anchor", box), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
-		// The list the window is for: a box bound to the focus' own field for it.
+		var who = analysts ? L("Analyst") : L("Scout");
 		var bind = analysts ? "focusitem.anyanalyst" : "focusitem.anyscout";
-		List<JsonElement> window = [];
-		if (!await Until(async () => (window = await Window()).Any(i => Field(i, "Kind") == "checkbox" && Field(i, "Binds") == bind), seconds: 6, every: 0.4))
+		async Task<JsonElement?> Box() => (await Fm.GetJson("form", ("page", AssignPanel), ("buttons", "1"))).EnumerateArray()
+			.Where(i => Field(i, "Kind") == "checkbox" && Field(i, "Binds").StartsWith("focusitem.any", StringComparison.Ordinal)).Cast<JsonElement?>().FirstOrDefault();
+		async Task<bool> Close(string sent)
+		{
+			// Each of the window's answers closes it; the window is gone once its box is.
+			var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal) && Field(b, "Page") == AssignPanel && Field(b, "Enabled") == "True");
+			if (button.ValueKind != JsonValueKind.Object) return false;
+			await Fm.Get("click", ("ptr", Field(button, "Pointer")));
+			return await Until(async () => await Box() == null, seconds: 4, every: 0.3);
+		}
+
+		// Each Edit button in turn, until the window it opens is the one for this list.
+		var edits = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Opens") == AssignPanel && Field(b, "Enabled") == "True").Select(b => Field(b, "Pointer")).ToList();
+		JsonElement? any = null;
+		foreach (var edit in edits)
+		{
+			await Fm.Get("click", ("ptr", edit));
+			if (!await Until(async () => (any = await Box()) != null, seconds: 6, every: 0.3)) continue;
+			if (Field(any!.Value, "Binds") == bind) break;
+			await Close(ScoutEditCancel);
+			any = null;
+		}
+		if (any is not { } box)
 		{
 			Console.Error.WriteLine(L($"The window to choose {who} did not open."));
 			return null;
 		}
-		async Task<bool> Close(string sent)
-		{
-			// The window's own two buttons, by the event each sends. The word on them is the game's
-			// and is not used: a window this cannot recognise is reported rather than guessed at.
-			if (await EventButton(sent) is not { } close) return false;
-			await Fm.Get("click", ("ptr", Field(close, "Pointer")));
-			return await Until(async () => (await Window()).Count == 0, seconds: 4, every: 0.3);
-		}
+		if (Field(box, "Value") == "True") await Fm.Get("setcontrol", ("ptr", Field(box, "Pointer")), ("value", "false"));
 
-		var any = window.First(i => Field(i, "Kind") == "checkbox");
-		if (Field(any, "Value") == "True") await Fm.Get("setcontrol", ("ptr", Field(any, "Pointer")), ("value", "false"));
-		// A row is a name, a job and how many focuses he is on; the count is what marks it — the
-		// column headings above carry no number in the cell the count sits in — so a row is found
-		// by its own shape and not by the game's word for a heading ("World Knowledge", which the
-		// window only writes in this language).
-		static List<string> Rows(List<JsonElement> view)
+		// The people, from the table's own records (the window's scouts-table or analysts-table).
+		async Task<(string Table, List<string> Items, List<string> Ticked)?> Table()
 		{
-			var texts = view.Where(i => Field(i, "Kind") == "text").Select(i => Field(i, "Text")).ToList();
-			return Enumerable.Range(0, Math.Max(0, texts.Count - 2)).Where(i => int.TryParse(texts[i + 2], out _)).Select(i => texts[i]).ToList();
+			var lists = (await Fm.GetJson("checkrows", ("named", analysts ? "analysts-table" : "scouts-table"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray().ToList();
+			if (lists.Count == 0) return null;
+			return (Field(lists[0], "Table"), lists[0].GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").ToList(),
+				lists[0].GetProperty("Ticked").EnumerateArray().Select(i => i.ToString()).ToList());
 		}
-		// The table lays out only the rows in view — at times a single one — so it
-		// is read at three depths, and each name keeps the depth it showed at. A row's nation
-		// button says which list to scroll.
-		async Task Show(string share)
-		{
-			// The row buttons are whatever is left once the window's own two are taken out, by the
-			// event each of those sends (they say Cancel/Confirm, and that is the game's word).
-			var own = new List<string>();
-			foreach (var sent in new[] { ScoutEditCancel, ScoutEditConfirm })
-				if (await EventButton(sent) is { } button) own.Add(Field(button, "Pointer"));
-			var inRow = (await Window()).FirstOrDefault(i => Field(i, "Kind") == "button" && !own.Contains(Field(i, "Pointer")));
-			if (inRow.ValueKind != JsonValueKind.Object) return;
-			await Fm.Get("scroll", ("ptr", Field(inRow, "Pointer")), ("to", share));
-			// The rows are laid out again after the scroll, so the same rows
-			// twice in a row is the game's own sign the layout has stopped moving; no fixed pause.
-			List<string> before = null;
-			await Until(async () =>
-			{
-				var now = Rows(await Window());
-				var done = now.Count > 0 && before != null && now.SequenceEqual(before);
-				before = now;
-				return done;
-			}, seconds: 2, every: 0.2);
-		}
-		var depth = new Dictionary<string, string>();
-		foreach (var share in new[] { "0", "0.5", "1" })
-		{
-			await Show(share);
-			foreach (var shown in Rows(await Window())) depth.TryAdd(shown, share);
-		}
-		var names = depth.Keys.ToList();
+		(string Table, List<string> Items, List<string> Ticked)? table = null;
+		List<JsonElement> people = [];
+		await Until(async () => (table = await Table()) is { Items.Count: > 0 }
+			&& (people = await PullEach(table.Value.Items.Select(i => (i, "Name,UniqueId")).ToList(), shown: "Name")).All(p => Field(p, "Name").Length > 0), seconds: 6, every: 0.3);
+		var names = people.Select(p => Field(p, "Name")).ToList();
 		var picked = new List<string>();
 		foreach (var wanted in typed.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
 		{
-			if (Choose(names, wanted, who) is not { } name)
+			if (names.Count == 0 || Choose(names, wanted, who) is not { } name)
 			{
+				if (names.Count == 0) Console.Error.WriteLine(L($"No {who} to choose in the window."));
 				if (!await Close(ScoutEditCancel)) Console.Error.WriteLine(L($"The {who} picker did not close."));
 				return null;
 			}
 			if (!picked.Contains(name)) picked.Add(name);
 		}
-		// Ticked ones the caller did not name (an edited focus has its own) come off.
-		foreach (var name in names)
-		{
-			await Show(depth[name]);
-			await Fm.Get("rowselect", ("text", name), ("check", picked.Contains(name) ? "1" : "0"));
-		}
-		// How many are ticked is the game's own sentence ("1 scout selected"
-		// selected"), so it is not written out and looked for; the place it is drawn in
-		// (SIVisible-selected-scouts-number / …-analysts-number, the template's own names) is the
-		// same in every language, and the number inside it is what is checked.
-		var countBox = analysts ? "SIVisible-selected-analysts-number" : "SIVisible-selected-scouts-number";
-		async Task<int?> Ticked()
-		{
-			var said = (await Fm.GetJson("texts", ("within", countBox))).EnumerateArray()
-				.Select(t => t.GetString() ?? "")
-				.FirstOrDefault(t => Regex.IsMatch(t, @"\d"));
-			return said != null && int.TryParse(Regex.Match(said, @"\d+").Value, out var n) ? n : null;
-		}
-		if (!await Until(async () => await Ticked() == picked.Count, seconds: 4, every: 0.3))
+		// Each row ticked or not by its place in the table's own order; ones the caller did not
+		// name (an edited focus has its own) come off.
+		for (var i = 0; i < names.Count; i++)
+			await Fm.Get("rowselect", ("table", table!.Value.Table), ("index", i.ToString()), ("check", picked.Contains(names[i]) ? "1" : "0"));
+		var want = Enumerable.Range(0, names.Count).Where(i => picked.Contains(names[i])).Select(i => i.ToString()).ToList();
+		if (!await Until(async () => await Table() is { } now && now.Ticked.OrderBy(x => x).SequenceEqual(want.OrderBy(x => x)), seconds: 4, every: 0.3))
 		{
 			if (!await Close(ScoutEditCancel)) Console.Error.WriteLine(L($"The {who} picker did not close."));
 			Console.Error.WriteLine(L($"{who} could not be chosen (the window did not show how many were chosen)."));

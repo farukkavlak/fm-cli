@@ -2464,3 +2464,5 @@ Standard	Standart
 Ongoing	Sürekli
 Restarting a completed focus is not done by fm yet; the game has it under Scouting › Recruitment Focuses › Completed.	Tamamlanan bir odağı yeniden başlatmayı fm henüz yapmıyor; oyunda Gözlemcilik › İşe Alım Odakları › Tamamlanan altında.
 Focus stopped: {0}  (the game moves it to the completed focuses)	Odak durduruldu: {0}  (oyun onu tamamlanan odaklara taşır)
+No {0} to choose in the window.	Pencerede seçilecek {0} yok.
+Scout	Gözlemci

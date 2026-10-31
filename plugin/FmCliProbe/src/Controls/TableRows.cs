@@ -197,7 +197,15 @@ internal static class TableRows
 				}
 			}
 			catch { }
-			rows.Add($"{{\"Table\": \"0x{tables[t].Pointer.ToInt64():x}\", \"Items\": [{string.Join(", ", items)}], \"Ticked\": [{string.Join(", ", ticked)}]}}");
+			// The element names from the list up (its own, then its holders'), for telling one list from another.
+			var names = new List<string>();
+			try
+			{
+				for (UnityEngine.UIElements.VisualElement e = list; e != null && names.Count < 8; e = e.parent)
+					if (!string.IsNullOrEmpty(e.name)) names.Add($"\"{e.name}\"");
+			}
+			catch { }
+			rows.Add($"{{\"Table\": \"0x{tables[t].Pointer.ToInt64():x}\", \"Items\": [{string.Join(", ", items)}], \"Ticked\": [{string.Join(", ", ticked)}], \"Names\": [{string.Join(", ", names)}]}}");
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";
 	}

@@ -572,7 +572,10 @@ Still open:
   - [ ] `scout restart`: completed focuses are only under the Completed tab; not done.
   - [ ] Area paths still go through the menu's English (`Nation>Europe`); continent and nation names come in the save's
     language ("Avrupa", "Türkiye" in an English game), as the game shows them. Areas list levels by identity: not found yet.
-  - [ ] Scouts/analysts window (`--by`, `--analysts`) not tried on FM27.
+  - [x] Scouts/analysts window (`--by`, `--analysts`): both Edit buttons open panel `e7c08a24…`, told apart by the box's
+    field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
+    (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
+    answers by event. TR + EN: new and edit with both, unknown name.
 - Language switch: the first reads after a restart into another language can still be in the old one (venue "D",
   positions "D/KB/OS (Sl)"); a second read is right. Save data (nations, injuries, focus names) stays in the language
   it was made in, as the game shows it.
