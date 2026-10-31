@@ -132,6 +132,14 @@ internal static partial class Program
 		return await Fm.Get("actions", ("choose", Field(entry, "Path")));
 	}
 
+	/// <summary>An entry's path as the menu shows it, "›" between its levels; its English path from an older plugin.</summary>
+	private static string ShownPath(JsonElement entry) =>
+		(Field(entry, "ShownPath") is { Length: > 0 } shown ? shown : Field(entry, "Path")).Replace(">", " › ");
+
+	/// <summary>An entry's words as the menu shows them; the English ones put back into the game's from an older plugin.</summary>
+	private static string ShownName(JsonElement entry) =>
+		Field(entry, "Shown") is { Length: > 0 } shown ? shown : GameWords.Of(Field(entry, "Name"));
+
 	private static bool IsFolder(JsonElement entry) => entry.TryGetProperty("Folder", out var f) && f!.ValueKind == JsonValueKind.True;
 	private static bool IsEnabled(JsonElement entry) => entry.TryGetProperty("Enabled", out var e) && e.ValueKind == JsonValueKind.True;
 
@@ -140,15 +148,18 @@ internal static partial class Program
 	{
 		var items = entries.Where(e => !IsFolder(e)).ToList();
 		var want = Fold(typed.Replace(" > ", ">").Replace("›", ">"));
-		var whole = items.Where(e => Fold(Field(e, "Path")) == want).ToList();
+		// Typed in the menu's own words or in English.
+		static string[] Paths(JsonElement e) => [Fold(Field(e, "Path")), Fold(Field(e, "ShownPath"))];
+		static string[] Names(JsonElement e) => [Fold(Field(e, "Name")), Fold(Field(e, "Shown"))];
+		var whole = items.Where(e => Paths(e).Contains(want)).ToList();
 		if (whole.Count == 1) return whole[0];
-		var ending = items.Where(e => Fold(Field(e, "Path")).EndsWith(">" + want, StringComparison.Ordinal) || Fold(Field(e, "Name")) == want).ToList();
+		var ending = items.Where(e => Paths(e).Any(p => p.EndsWith(">" + want, StringComparison.Ordinal)) || Names(e).Contains(want)).ToList();
 		if (ending.Count == 1) return ending[0];
-		var holding = items.Where(e => Fold(Field(e, "Path")).Contains(want, StringComparison.Ordinal)).ToList();
+		var holding = items.Where(e => Paths(e).Any(p => p.Length > 0 && p.Contains(want, StringComparison.Ordinal))).ToList();
 		if (holding.Count == 1) return holding[0];
 		var near = ending.Count > 1 ? ending : holding;
 		Console.Error.WriteLine(near.Count > 1
-			? L($"'{typed}' matches more than one option:\n") + string.Join("\n", near.Take(12).Select(e => "  " + Field(e, "Path").Replace(">", " › ")))
+			? L($"'{typed}' matches more than one option:\n") + string.Join("\n", near.Take(12).Select(e => "  " + ShownPath(e)))
 			: L($"No '{typed}' in the menu."));
 		return null;
 	}
@@ -196,7 +207,7 @@ internal static partial class Program
 		}
 		if (talks != null) return await Contract(["contract"]);
 		if (said) return await TalkTo(false, ["talk"]);
-		Console.WriteLine(L($"{name}: {path.Replace(">", " › ")} — done."));
+		Console.WriteLine(L($"{name}: {path} — done."));
 		return 0;
 	}
 
@@ -225,7 +236,7 @@ internal static partial class Program
 		if (json)
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.WriteLine(JsonOut.Of(new { Name = name, Actions = entries.Where(e => !IsFolder(e)).Select(e => new { Path = Field(e, "Path"), Enabled = IsEnabled(e) }) }));
+			Console.WriteLine(JsonOut.Of(new { Name = name, Actions = entries.Where(e => !IsFolder(e)).Select(e => new { Path = Field(e, "ShownPath") is { Length: > 0 } shown ? shown : Field(e, "Path"), Enabled = IsEnabled(e) }) }));
 			return 0;
 		}
 
@@ -236,8 +247,9 @@ internal static partial class Program
 			while (true)
 			{
 				var level = entries.Where(e => Parent(Field(e, "Path")) == at && IsEnabled(e)).ToList();
-				var labels = level.Select(e => GameWords.Of(Field(e, "Name")) + (IsFolder(e) ? " ›" : "")).ToList();
-				if (Ui.Ask(at.Length == 0 ? L($"{name}: what shall we do?") : $"{name} › {at.Replace(">", " › ")}", labels, cancel: at.Length == 0 ? L("Nothing") : L("Back")) is not { } picked)
+				var labels = level.Select(e => ShownName(e) + (IsFolder(e) ? " ›" : "")).ToList();
+				var here = entries.FirstOrDefault(e => IsFolder(e) && Field(e, "Path") == at);
+				if (Ui.Ask(at.Length == 0 ? L($"{name}: what shall we do?") : $"{name} › {ShownPath(here)}", labels, cancel: at.Length == 0 ? L("Nothing") : L("Back")) is not { } picked)
 				{
 					if (at.Length == 0) { await Fm.Get("actions", ("close", "1")); return 0; }
 					at = Parent(at);
@@ -260,7 +272,7 @@ internal static partial class Program
 			folded = null;
 			var depth = path.Count(c => c == '>');
 			var under = entries.Count(e => Field(e, "Path").StartsWith(path + ">", StringComparison.Ordinal));
-			var line = new string(' ', 2 + depth * 2) + GameWords.Of(Field(entry, "Name"));
+			var line = new string(' ', 2 + depth * 2) + ShownName(entry);
 			if (IsFolder(entry))
 			{
 				if (!all && under > 12 && depth > 0) { folded = path; line += L($" ›  ({under} options; all of them: --all)"); }
@@ -269,7 +281,7 @@ internal static partial class Program
 			if (!IsEnabled(entry)) line += L("  (closed)");
 			Console.WriteLine(line);
 		}
-		Console.WriteLine(L($"\nTo do it: actions \"{name}\" \"<option>\"   e.g. actions \"{name}\" \"{Field(entries.First(e => !IsFolder(e)), "Path").Replace(">", " > ")}\""));
+		Console.WriteLine(L($"\nTo do it: actions \"{name}\" \"<option>\"   e.g. actions \"{name}\" \"{ShownPath(entries.First(e => !IsFolder(e))).Replace(" › ", " > ")}\""));
 		return 0;
 
 		static string Parent(string path) => path.LastIndexOf('>') is var cut && cut >= 0 ? path[..cut] : "";
@@ -277,11 +289,11 @@ internal static partial class Program
 
 	private static async Task<int> ChooseAction(string name, JsonElement entry, List<JsonElement> entries)
 	{
-		var path = Field(entry, "Path");
+		var path = ShownPath(entry);
 		if (!IsEnabled(entry))
 		{
 			await Fm.Get("actions", ("close", "1"));
-			Console.Error.WriteLine(L($"{name}: '{path.Replace(">", " › ")}' is not available right now."));
+			Console.Error.WriteLine(L($"{name}: '{path}' is not available right now."));
 			return 1;
 		}
 		var before = await TalkButtons();
@@ -396,7 +408,7 @@ internal static partial class Program
 		var before = way == mutual ? await TalkButtons() : null;
 		var chosen = await Fm.Get("actions", ("action", way));
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
-		if (way == mutual) return await AfterAction(name, Field(entry, "Path"), before);
+		if (way == mutual) return await AfterAction(name, ShownPath(entry), before);
 
 		// The window comes before its words and buttons are drawn: it is read once it has both.
 		JsonElement dialogs = default;

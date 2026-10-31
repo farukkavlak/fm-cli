@@ -352,7 +352,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> ChooseAndAnswer(string name, JsonElement entry, List<JsonElement> entries, string[] args)
 	{
-		var path = Field(entry, "Path");
+		var path = ShownPath(entry);
 		var done = await ChooseEntry(entry, entries);
 		if (done.StartsWith("error", StringComparison.Ordinal)) return Report(done);
 
@@ -362,7 +362,7 @@ internal static partial class Program
 			&& Field(dialogs[0], "Title").Length > 0 && dialogs[0].GetProperty("Buttons").GetArrayLength() > 0, seconds: seconds, every: 0.4);
 		if (!await Asked(3))
 		{
-			Console.WriteLine(L($"{name}: {path.Replace(">", " › ")} — done."));
+			Console.WriteLine(L($"{name}: {path} — done."));
 			return 0;
 		}
 		var dialog = dialogs[0];
@@ -393,7 +393,7 @@ internal static partial class Program
 			if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() == 0 || Field(dialogs[0], "Title") != was, seconds: 4, every: 0.4)
 				|| dialogs.GetArrayLength() == 0)
 			{
-				Console.WriteLine(L($"\n{name}: {path.Replace(">", " › ")} — sent."));
+				Console.WriteLine(L($"\n{name}: {path} — sent."));
 				return 0;
 			}
 			dialog = dialogs[0];

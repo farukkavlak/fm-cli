@@ -90,11 +90,13 @@ internal static class ContextMenus
 		}
 
 		var rows = new List<string>();
-		if (description != null) List(description.m_root, "", rows, 0);
+		if (description != null) List(description.m_root, "", "", rows, 0);
 		return "[" + string.Join(", ", rows) + "]\n";
 	}
 
-	private static void List(MenuDescription.Entry parent, string path, List<string> rows, int depth)
+	/// <remarks>`Path` and `Name` are put into English for matching; `ShownPath` and `Shown` are the words as
+	/// the menu shows them, for showing: one English word can stand for several of another language's.</remarks>
+	private static void List(MenuDescription.Entry parent, string path, string shownPath, List<string> rows, int depth)
 	{
 		if (parent == null || depth > 4) return;
 		for (var child = parent.FirstChild; child != null && rows.Count < 400; child = child.Next)
@@ -103,18 +105,21 @@ internal static class ContextMenus
 			if ((flags & MenuDescription.EntryFlags.Visible) == 0) continue;
 			var name = Text.Plain(child.Name ?? "");
 			var at = path.Length > 0 ? $"{path}>{name}" : name;
+			var shown = Text.Shown(child.Name ?? "");
+			var shownAt = shownPath.Length > 0 ? $"{shownPath}>{shown}" : shown;
 			var folder = child.Kind == MenuDescription.EntryKind.Folder;
 			// The entry's icon names what it does whatever language its words are in.
 			var icon = "";
 			try { icon = child.Icon?.StyleOrPath ?? ""; } catch { }
 			rows.Add("{"
-				+ $"\"Path\": \"{Report.Escape(at)}\", \"Name\": \"{Report.Escape(name)}\", \"Icon\": \"{Report.Escape(icon)}\", "
+				+ $"\"Path\": \"{Report.Escape(at)}\", \"Name\": \"{Report.Escape(name)}\", "
+				+ $"\"ShownPath\": \"{Report.Escape(shownAt)}\", \"Shown\": \"{Report.Escape(shown)}\", \"Icon\": \"{Report.Escape(icon)}\", "
 				+ $"\"Action\": \"{Report.Escape(ActionOf(child) ?? "")}\", "
 				+ DataOf(child)
 				+ $"\"Folder\": {(folder ? "true" : "false")}, "
 				+ $"\"Enabled\": {((flags & MenuDescription.EntryFlags.Enabled) != 0 ? "true" : "false")}, "
 				+ $"\"Selected\": {((flags & MenuDescription.EntryFlags.Selected) != 0 ? "true" : "false")}}}");
-			if (folder) List(child, at, rows, depth + 1);
+			if (folder) List(child, at, shownAt, rows, depth + 1);
 		}
 	}
 
