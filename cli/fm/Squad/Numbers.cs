@@ -244,9 +244,8 @@ internal static partial class Program
 	/// <summary>The rows on screen: a number picker, what he asked for (if anything), his name, position, standing, age.</summary>
 	private static async Task<List<NumberRow>> NumbersInView()
 	{
-		// The table around a player's name (bound to primarytext), up to the page's block; its rows are
-		// the pickers laid out inside NumbersDisplay. No heading is read.
-		var form = await Fm.GetJson("form", ("anchorpath", "primarytext"), ("up", "16"), ("buttons", "1"), ("most", "1"));
+		// The table is the page's own NumbersDisplay; its rows are the pickers in it. No heading is read.
+		var form = await Fm.GetJson("form", ("within", "NumbersDisplay"), ("buttons", "1"));
 		var rows = new List<NumberRow>();
 		if (form.ValueKind != JsonValueKind.Array) return rows;
 

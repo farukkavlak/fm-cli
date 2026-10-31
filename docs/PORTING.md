@@ -342,7 +342,8 @@ Still open:
   - `fm schedule` reads it; the Overview is the page's own GUID now (was chosen by the words "Training" / "Overview").
 - [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
   chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
-  the name a text bound to `primarytext` (FM26's `NameButton` kept), the form found from that name (was the heading "Prom.").
+  the name a text bound to `primarytext` (FM26's `NameButton` kept); the form is `form?within=NumbersDisplay` (was the
+  heading "Prom."; climbing from a name picked the registration list left open underneath).
   TR, cold and from another page. Changing a number (season start only) not tried.
 - [x] `fm takers`: was read under the headings "Right Footers"/"Left Footers" with columns by order. Now each takers table
   (events `EventFmxSetPieceTakerMove`) row's item: `Index`, `SetPieceSide` (1 right, 0 left), `Player.Name`.

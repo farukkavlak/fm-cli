@@ -24,7 +24,22 @@ internal static class Form
 		// As /texts: ?anchorpath= finds the anchor by the data path it is bound to, and ?most=1 takes
 		// the place with the most items around it where a page underneath has the same anchor.
 		var anchorPath = q["anchorpath"];
-		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath)) return "error: ?anchor=<text> or ?anchorpath=<data path> required";
+		// ?within= reads inside the first shown element of that name (the squad numbers' NumbersDisplay):
+		// no anchor, no climbing, nothing of a page left open underneath.
+		if (!string.IsNullOrEmpty(q["within"]))
+		{
+			foreach (var element in Buttons.Elements())
+			{
+				try
+				{
+					if (element.name != q["within"] || element.panel == null || element.worldBound.width <= 0) continue;
+				}
+				catch { continue; }
+				return "[\n  " + string.Join(",\n  ", Items(element, q["buttons"] == "1")) + "\n]\n";
+			}
+			return "[]\n";
+		}
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath)) return "error: ?anchor=<text>, ?anchorpath=<data path> or ?within=<element name> required";
 		var up = int.TryParse(q["up"], out var n) ? n : 8;
 		var most = q["most"] == "1";
 
