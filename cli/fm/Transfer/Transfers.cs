@@ -120,7 +120,7 @@ internal static partial class Program
 		if (refusal.ValueKind == JsonValueKind.Array && refusal.GetArrayLength() > 0)
 		{
 			var dialog = refusal[0];
-			Console.Error.WriteLine(L($"No offer can be made for {name}. The game says: {Field(dialog, "Title")}. {Field(dialog, "Description")}").TrimEnd());
+			Console.Error.WriteLine(L($"No offer can be made for {name}. The game says: {DialogWords(dialog, "Title")}. {DialogWords(dialog, "Description")}").TrimEnd());
 			if (DialogAnswer(dialog, true) is { } ok)
 				await Fm.Get("click", ("ptr", Field(ok, "Pointer")));
 			return 1;

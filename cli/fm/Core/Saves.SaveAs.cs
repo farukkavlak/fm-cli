@@ -62,7 +62,7 @@ internal static partial class Program
 		{
 			var dialogs = await Fm.GetJson("dialog");
 			if (dialogs.GetArrayLength() > 0)
-				Console.Error.WriteLine(L($"The game is asking something: {Field(dialogs[0], "Title")} — {Field(dialogs[0], "Description")}   (to answer: dialog)"));
+				Console.Error.WriteLine(L($"The game is asking something: {DialogWords(dialogs[0], "Title")} — {DialogWords(dialogs[0], "Description")}   (to answer: dialog)"));
 			else
 			{
 				Console.Error.WriteLine(L("Told to save, but the game did not start saving."));

@@ -110,7 +110,7 @@ internal static class Dialogs
 			catch { continue; }
 
 			VisualElement root = element;
-			List<(string Pointer, string Label, string Name)> buttons = new();
+			List<(string Pointer, string Label, string Name, string Shown)> buttons = new();
 			for (var climbed = 0; climbed < 8 && buttons.Count == 0; climbed++)
 			{
 				VisualElement parent;
@@ -128,12 +128,16 @@ internal static class Dialogs
 			string Slot(string label) => mine is { } m && m.Buttons.TryGetValue(label, out var at)
 				? $", \"Slot\": \"{at.Slot}\", \"EventID\": \"{Report.Escape(at.Event)}\"" : "";
 
+			// Title, Description and Label are put into English for matching; the Shown ones are the
+			// words as the window shows them, for showing.
 			rows.Add("{"
-				+ $"\"Title\": \"{Report.Escape(Text.Plain(title ?? ""))}\", "
+				+ $"\"Title\": \"{Report.Escape(Text.Plain(title))}\", "
+				+ $"\"ShownTitle\": \"{Report.Escape(Text.Shown(title))}\", "
 				+ $"\"Description\": \"{Report.Escape(Text.Plain(description))}\", "
+				+ $"\"ShownDescription\": \"{Report.Escape(Text.Shown(description))}\", "
 				+ (mine is { } d ? $"\"Type\": \"{Report.Escape(d.Type)}\", " : "")
 				+ "\"Buttons\": [" + string.Join(", ", buttons.Select(b =>
-					$"{{\"Label\": \"{Report.Escape(b.Label)}\", \"Pointer\": \"{b.Pointer}\", \"Name\": \"{Report.Escape(b.Name)}\"{Slot(b.Label)}}}")) + "]}");
+					$"{{\"Label\": \"{Report.Escape(b.Label)}\", \"ShownLabel\": \"{Report.Escape(b.Shown)}\", \"Pointer\": \"{b.Pointer}\", \"Name\": \"{Report.Escape(b.Name)}\"{Slot(b.Label)}}}")) + "]}");
 		}
 
 		return "[" + string.Join(", ", rows) + "]\n";

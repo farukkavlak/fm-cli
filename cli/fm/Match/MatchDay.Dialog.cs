@@ -25,18 +25,21 @@ internal static partial class Program
 		var words = Words(args).ToList();
 
 		// A dialog that only wants acknowledging has one button and no words on it.
-		var labels = buttons.Select(b => Field(b, "Label") is { Length: > 0 } label ? label : L("OK")).ToList();
+		var labels = buttons.Select(b => DialogWords(b, "Label") is { Length: > 0 } label ? label : L("OK")).ToList();
+		// Typed in the window's own words or in English.
+		if (words.Count > 0 && buttons.FindIndex(b => Field(b, "Label").Length > 0 && string.Equals(Field(b, "Label"), words[0], StringComparison.OrdinalIgnoreCase)) is >= 0 and var english)
+			words[0] = labels[english];
 
 		if (words.Count == 0 && Ui.Interactive)
 		{
-			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}\n");
+			Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description")}\n");
 			if (Ui.Ask(L("Answer"), labels) is not { } answer) return 0;
 			words.Add(labels[answer]);
 		}
 
 		if (words.Count == 0)
 		{
-			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}\n");
+			Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description")}\n");
 			for (var i = 0; i < buttons.Count; i++) Console.WriteLine($"  {i + 1}  {labels[i]}");
 			if (dialogs.GetArrayLength() > 1) Console.WriteLine(L($"\n({dialogs.GetArrayLength() - 1} more windows under this one.)"));
 			Console.WriteLine(L("\nTo answer: dialog <number | text>"));
@@ -47,7 +50,7 @@ internal static partial class Program
 
 		if (args.Contains("--dry"))
 		{
-			Console.WriteLine(L($"(dry run) Would have said '{pick}': {Field(dialog, "Title")}"));
+			Console.WriteLine(L($"(dry run) Would have said '{pick}': {DialogWords(dialog, "Title")}"));
 			return 0;
 		}
 
@@ -63,11 +66,11 @@ internal static partial class Program
 			var now = await Fm.GetJson("dialog");
 			return now.GetArrayLength() < count || Field(now[0], "Title") + "|" + Field(now[0], "Description") != was;
 		}, seconds: 8);
-		Console.WriteLine(closed ? $"{Field(dialog, "Title")} → {pick}" : L($"Said '{pick}', but the window is still open."));
+		Console.WriteLine(closed ? $"{DialogWords(dialog, "Title")} → {pick}" : L($"Said '{pick}', but the window is still open."));
 
 		var next = await Fm.GetJson("dialog");
 		if (closed && next.GetArrayLength() > 0)
-			Console.WriteLine(L($"New question: {Field(next[0], "Title")} — {Field(next[0], "Description")}   (to answer: dialog)"));
+			Console.WriteLine(L($"New question: {DialogWords(next[0], "Title")} — {DialogWords(next[0], "Description")}   (to answer: dialog)"));
 		return closed ? 0 : 1;
 	}
 

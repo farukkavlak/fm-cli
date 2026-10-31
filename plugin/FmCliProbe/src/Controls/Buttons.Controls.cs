@@ -621,10 +621,10 @@ internal static partial class Buttons
 		return $"error: no button shows '{wanted}'";
 	}
 
-	/// <summary>Every button inside one element, with or without events, as pointer, label and name.</summary>
-	internal static List<(string Pointer, string Label, string Name)> ButtonsUnder(VisualElement root)
+	/// <summary>Every button inside one element, with or without events, as pointer, label, name and its words as shown.</summary>
+	internal static List<(string Pointer, string Label, string Name, string Shown)> ButtonsUnder(VisualElement root)
 	{
-		var found = new List<(string, string, string)>();
+		var found = new List<(string, string, string, string)>();
 		var stack = new Stack<VisualElement>();
 		stack.Push(root);
 		var seen = 0;
@@ -636,7 +636,7 @@ internal static partial class Buttons
 			{
 				if (element.TryCast<SIButton>() != null && element.enabledInHierarchy && element.worldBound.width > 0)
 				{
-					found.Add(($"0x{element.Pointer.ToInt64():x}", LabelOf(element), NameOf(element)));
+					found.Add(($"0x{element.Pointer.ToInt64():x}", LabelOf(element), NameOf(element), LabelOf(element, shown: true)));
 					continue;
 				}
 

@@ -353,7 +353,7 @@ internal static partial class Program
 
 				if (Field(dialog, "Title") != "Team Selection" || yes == null)
 				{
-					Console.Error.WriteLine(L($"The game is asking something: {Field(dialog, "Title")} — {Field(dialog, "Description")}"));
+					Console.Error.WriteLine(L($"The game is asking something: {DialogWords(dialog, "Title")} — {DialogWords(dialog, "Description")}"));
 					Console.Error.WriteLine(L("To answer: dialog"));
 					return 1;
 				}

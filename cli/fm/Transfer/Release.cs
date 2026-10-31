@@ -178,7 +178,7 @@ internal static partial class Program
 				return 1;
 			}
 			var dialog = dialogs[0];
-			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
+			Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description").Replace("\n\n", "\n  ")}");
 			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Release them?"), [L("Yes"), L("No")]) == 0);
 			if (DialogAnswer(dialog, go) is { } chosen) await Fm.Get("click", ("ptr", Field(chosen, "Pointer")));
 			if (!go)

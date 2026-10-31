@@ -97,10 +97,10 @@ internal static partial class Program
 			var buttons = dialog.GetProperty("Buttons").EnumerateArray().ToList();
 			var go = buttons.FirstOrDefault(b => Field(b, "Name").Contains("primary", StringComparison.Ordinal));
 			var stop = buttons.FirstOrDefault(b => Field(b, "Name").Contains("secondary", StringComparison.Ordinal));
-			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}");
+			Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description")}");
 			bool yes;
 			if (args.Contains("--yes")) yes = true;
-			else if (Ui.Interactive) yes = Ui.Ask(L("What shall we do?"), [Field(go, "Label"), Field(stop, "Label")]) == 0;
+			else if (Ui.Interactive) yes = Ui.Ask(L("What shall we do?"), [DialogWords(go, "Label"), DialogWords(stop, "Label")]) == 0;
 			else
 			{
 				yes = false;
@@ -343,7 +343,7 @@ internal static partial class Program
 			if (await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 3, every: 0.3))
 			{
 				var dialog = (await Fm.GetJson("dialog"))[0];
-				Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}");
+				Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description")}");
 				var go = args.Contains("--yes");
 				await AnswerDialog(go);
 				if (!go) { Console.WriteLine(L("To confirm, run the same command with --yes.")); return 0; }
@@ -383,7 +383,7 @@ internal static partial class Program
 		if (await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 3, every: 0.3))
 		{
 			var dialog = (await Fm.GetJson("dialog"))[0];
-			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description")}");
+			Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description")}");
 			var go = args.Contains("--yes");
 			await AnswerDialog(go);
 			if (!go) { Console.WriteLine(L("To confirm, run the same command with --yes.")); return 0; }

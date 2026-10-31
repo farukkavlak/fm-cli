@@ -231,7 +231,7 @@ internal static partial class Program
 		// which is the same slot in every language.
 		if (dialog.GetArrayLength() > 0)
 		{
-			var title2 = Field(dialog[0], "Title");
+			var title2 = DialogWords(dialog[0], "Title");
 			var primary = dialog[0].GetProperty("Buttons").EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Slot") == "primary");
 			if (primary.ValueKind == JsonValueKind.Object)
@@ -239,7 +239,7 @@ internal static partial class Program
 				var confirmed = await Fm.Get("dialog", ("press", "primary"));
 				if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
 				await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.2);
-				Console.WriteLine(L($"Confirmed: {GameWords.Of(title2)}"));
+				Console.WriteLine(L($"Confirmed: {title2}"));
 			}
 			else
 			{

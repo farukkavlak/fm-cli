@@ -238,7 +238,7 @@ internal static partial class Program
 		await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
 		if (!yes)
 		{
-			Console.WriteLine(L($"The game asks: {Field(dialog[0], "Description")}"));
+			Console.WriteLine(L($"The game asks: {DialogWords(dialog[0], "Description")}"));
 			Console.WriteLine(L("Said no; nothing changed. To confirm: intensity --auto --yes"));
 			return 0;
 		}

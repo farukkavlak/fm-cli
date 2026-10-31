@@ -88,7 +88,7 @@ internal static partial class Program
 				var button = Field(dialog, "Title") is "Instant Result" or "Team Selection" ? DialogAnswer(dialog, true) : null;
 				if (button == null)
 				{
-					Console.Error.WriteLine(L($"The game is asking something: {Field(dialog, "Title")} — {Field(dialog, "Description")}   (to answer: dialog)"));
+					Console.Error.WriteLine(L($"The game is asking something: {DialogWords(dialog, "Title")} — {DialogWords(dialog, "Description")}   (to answer: dialog)"));
 					return 1;
 				}
 

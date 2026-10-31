@@ -130,7 +130,7 @@ internal static partial class Program
 		// A notice with only "Ok" on it is the game saying no.
 		if (!DialogAsks(warning))
 		{
-			Console.Error.WriteLine(L($"The game says: {Field(warning, "Title")}. {Field(warning, "Description")}"));
+			Console.Error.WriteLine(L($"The game says: {DialogWords(warning, "Title")}. {DialogWords(warning, "Description")}"));
 			return 1;
 		}
 		var go = !Ui.Interactive

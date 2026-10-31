@@ -20,7 +20,7 @@ internal static partial class Program
 		// A question already on screen would be taken for the answer to whatever is chosen here.
 		if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } waiting && waiting.GetArrayLength() > 0)
 		{
-			Console.Error.WriteLine(L($"The game is waiting on a question: {Field(waiting[0], "Title")} — answer it first: dialog"));
+			Console.Error.WriteLine(L($"The game is waiting on a question: {DialogWords(waiting[0], "Title")} — answer it first: dialog"));
 			return null;
 		}
 		// "Nathan Ferguson (Hartlepool)": what is in brackets tells apart people of one name, by age, position, nation or club.
@@ -147,7 +147,7 @@ internal static partial class Program
 	private static JsonElement? MenuEntry(List<JsonElement> entries, string typed)
 	{
 		var items = entries.Where(e => !IsFolder(e)).ToList();
-		var want = Fold(typed.Replace(" > ", ">").Replace("›", ">"));
+		var want = Fold(typed.Replace("›", ">").Replace(" > ", ">"));
 		// Typed in the menu's own words or in English.
 		static string[] Paths(JsonElement e) => [Fold(Field(e, "Path")), Fold(Field(e, "ShownPath"))];
 		static string[] Names(JsonElement e) => [Fold(Field(e, "Name")), Fold(Field(e, "Shown"))];
@@ -195,14 +195,14 @@ internal static partial class Program
 		if (dialogs.ValueKind == JsonValueKind.Array && dialogs.GetArrayLength() > 0)
 		{
 			var dialog = dialogs[0];
-			Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
+			Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description").Replace("\n\n", "\n  ")}");
 			// A note with one button asks nothing: it is read out and closed, or it would sit over the next command.
 			if (dialog.GetProperty("Buttons").GetArrayLength() == 1)
 			{
 				await Fm.Get("click", ("ptr", Field(dialog.GetProperty("Buttons")[0], "Pointer")));
 				return 0;
 			}
-			Console.WriteLine(L($"\nTo answer: dialog <{string.Join(" | ", dialog.GetProperty("Buttons").EnumerateArray().Select(b => Field(b, "Label")))}>"));
+			Console.WriteLine(L($"\nTo answer: dialog <{string.Join(" | ", dialog.GetProperty("Buttons").EnumerateArray().Select(b => DialogWords(b, "Label")))}>"));
 			return 0;
 		}
 		if (talks != null) return await Contract(["contract"]);
@@ -356,7 +356,7 @@ internal static partial class Program
 		{
 			if (dialogs.ValueKind == JsonValueKind.Array && dialogs.GetArrayLength() > 0)
 			{
-				Console.Error.WriteLine(L($"{Field(dialogs[0], "Title")}\n  {Field(dialogs[0], "Description").Replace("\n\n", "\n  ")}\nTo answer: dialog"));
+				Console.Error.WriteLine(L($"{DialogWords(dialogs[0], "Title")}\n  {DialogWords(dialogs[0], "Description").Replace("\n\n", "\n  ")}\nTo answer: dialog"));
 				return 1;
 			}
 			Console.Error.WriteLine(L("The contract negotiation did not open."));
@@ -420,7 +420,7 @@ internal static partial class Program
 			return 1;
 		}
 		var dialog = dialogs[0];
-		Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
+		Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description").Replace("\n\n", "\n  ")}");
 		var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Terminate their contract?"), [L("Yes"), L("No")]) == 0);
 		if (!await AnswerDialog(go))
 		{

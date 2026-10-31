@@ -367,13 +367,13 @@ internal static partial class Program
 		}
 		var dialog = dialogs[0];
 		var buttons = dialog.GetProperty("Buttons").EnumerateArray().ToList();
-		Console.WriteLine($"{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
+		Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description").Replace("\n\n", "\n  ")}");
 		if (buttons.Count > 1)
 		{
 			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Send it?"), [L("Yes"), L("No")]) == 0);
 			if (DialogAnswer(dialog, go) is not { } answer)
 			{
-				Console.WriteLine(L($"\nTo answer: dialog <{string.Join(" | ", buttons.Select(b => Field(b, "Label")))}>"));
+				Console.WriteLine(L($"\nTo answer: dialog <{string.Join(" | ", buttons.Select(b => DialogWords(b, "Label")))}>"));
 				return 0;
 			}
 			var was = Field(dialog, "Title");
@@ -398,10 +398,10 @@ internal static partial class Program
 			}
 			dialog = dialogs[0];
 			buttons = dialog.GetProperty("Buttons").EnumerateArray().ToList();
-			Console.WriteLine($"\n{Field(dialog, "Title")}\n  {Field(dialog, "Description").Replace("\n\n", "\n  ")}");
+			Console.WriteLine($"\n{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description").Replace("\n\n", "\n  ")}");
 		}
 		if (buttons.Count == 1) await Fm.Get("click", ("ptr", Field(buttons[0], "Pointer")));
-		else Console.WriteLine(L($"\nTo answer: dialog <{string.Join(" | ", buttons.Select(b => Field(b, "Label")))}>"));
+		else Console.WriteLine(L($"\nTo answer: dialog <{string.Join(" | ", buttons.Select(b => DialogWords(b, "Label")))}>"));
 		return 0;
 	}
 }

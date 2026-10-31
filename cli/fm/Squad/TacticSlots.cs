@@ -120,7 +120,7 @@ internal static partial class Program
 		if (asked && dialogs.GetArrayLength() > 0)
 		{
 			var go = dialogs[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(x => Field(x, "Name").Contains("primary", StringComparison.Ordinal));
-			Console.WriteLine($"{Field(dialogs[0], "Title")} → {Field(go, "Label")}");
+			Console.WriteLine($"{DialogWords(dialogs[0], "Title")} → {DialogWords(go, "Label")}");
 			if (go.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(go, "Pointer")));
 		}
 		var cleared = await Until(async () => int.TryParse(Field(info = await TacticInfo(), "TacticCount"), out var c) && c < before, seconds: 6, every: 0.25);

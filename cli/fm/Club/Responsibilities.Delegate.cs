@@ -169,7 +169,7 @@ internal static partial class Program
 		var asked = await Fm.GetJson("dialog");
 		if (asked.GetArrayLength() > 0)
 		{
-			Console.Error.WriteLine(L($"The game asks: {Field(asked[0], "Title")} — {Field(asked[0], "Description")}   (to answer: dialog)"));
+			Console.Error.WriteLine(L($"The game asks: {DialogWords(asked[0], "Title")} — {DialogWords(asked[0], "Description")}   (to answer: dialog)"));
 			return 1;
 		}
 		if (!done)

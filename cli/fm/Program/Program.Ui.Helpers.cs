@@ -147,6 +147,14 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// A dialog's title, description or button label ("Title", "Description", "Label") as the window
+	/// shows it; the English one put back into the game's words from an older plugin. Only for showing:
+	/// matching goes by the English field.
+	/// </summary>
+	internal static string DialogWords(JsonElement element, string field) =>
+		Field(element, "Shown" + field) is { Length: > 0 } shown ? shown : GameWords.Of(Field(element, field));
+
+	/// <summary>
 	/// A dialog's answer by its place rather than its words: the game puts the
 	/// answer that goes ahead (Yes, Confirm, Ok) in the primary slot and the one that backs out (No,
 	/// Cancel) in the secondary. The bridge takes the slot from the game's dialog manager; failing
