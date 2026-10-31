@@ -345,6 +345,9 @@ Still open:
   `stages` / `table` right after `targets` took 150 s+: the plugin's `/table` walks the whole binding tree (40k nodes with
   the player search bound) reading every node's values. Now a node's children's names are checked for `LeaguePoints`
   first: 150 s → 0 s; stages 5 s.
+- [x] `dugout` (live match): the panel was found by its title text "Dugout" and the advice as the texts after it. Now the
+  panel's own element (`#Dugout`, `texts?within=`), the advice its `content.Description`; an insight card (no path) its long
+  sentence. TR, UEL vs Salzburg: listed "Takım talimatı ekle: Ayakta Savun". The panel hides during replays (as before).
 - [x] `fm opposition`: FM27's Tactics › Oppo. page (same GUID). The plugin read rows by `#NameText` and the lists by their
   place after it; now the name is a text bound to `primarytext` and each list is known by what it writes
   (`tactic.oppositionplayer{marking,pressingtrigger,tackling,showontofoot}`). "Apply all advice" by its element

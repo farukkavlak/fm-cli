@@ -319,8 +319,9 @@ internal static partial class Program
 	private static string Mark(DugoutEntry entry) =>
 		IsScoreCard(entry.Text) ? "" : entry.Open ? "  [uygulanabilir]" : "";
 
+	/// <summary>The Dugout panel is up: its own element (#Dugout) has something laid out in it.</summary>
 	private static async Task<bool> DugoutShowing() =>
-		(await Fm.GetJson("texts", ("anchor", "Dugout"), ("up", "0"))).GetArrayLength() > 0;
+		(await Fm.GetJson("texts", ("within", "Dugout"))).GetArrayLength() > 0;
 
 	/// <summary>The minutes on the Dugout timeline, from a listing of the screen's buttons: a new one is new advice.</summary>
 	internal static List<string> DugoutMarks(JsonElement buttons) =>
@@ -343,10 +344,17 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> DugoutText()
 	{
-		// The advice's button ("Do it") can come back as another English the game writes the same way ("Apply").
-		await GameWords.Ask(Fm, "Do it");
-		var texts = (await Fm.GetJson("texts", ("anchor", "Dugout"), ("up", "12"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-		return string.Join(" ", texts.Skip(1).Where(t => !GameWords.Same(t, "Do it")));
+		// Inside the panel's own element: a piece of advice is its content.Description; a score card has
+		// no description, and is its bound texts. The title and the button's words are bound to nothing.
+		var texts = (await Fm.GetJson("texts", ("within", "Dugout"), ("paths", "1"))).EnumerateArray()
+			.Select(t => (Text: Field(t, "Text"), Path: Field(t, "Path"))).ToList();
+		var advice = texts.FirstOrDefault(t => t.Path == "content.Description").Text;
+		if (advice is { Length: > 0 }) return advice;
+		// An insight card's sentence is drawn without a path; it is the panel's long text (the title and
+		// the button are a word or two).
+		var sentence = texts.Where(t => t.Path.Length == 0 && t.Text.Length >= 25).Select(t => t.Text).FirstOrDefault();
+		var bound = string.Join(" ", texts.Where(t => t.Path.Length > 0).Select(t => t.Text));
+		return sentence != null ? $"{bound} {sentence}".Trim() : bound;
 	}
 
 	// "FB 0 - 0 LIVE", maybe with the scorers and a line on the table after it.
