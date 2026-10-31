@@ -341,9 +341,10 @@ Still open:
 - [x] `fm supporters`: FM27 has no Supporters tile on Club › Overview. Now `Human.Club` (influence, season tickets, waiting
   list, `AverageOrExpectedAttendance`, followers, rival counts), `TeamConfidence`, `SupporterProfile`; expectations are the
   rows of Club › Supporters (`Screen.SupportersPage`) with the fans' `VisionObjectivePerformance`. TR.
-- [ ] Sweep 1 Nov: 48/51 (%94). `league` (season not started), `prep` (now a pointer to the sessions, exit 1), and
-  `stages` right after `targets`: the plugin's `/ties` read took over the bridge's 120 s (FM unanswered); alone it reads in
-  ~6 s. Likely the player search's huge element tree walked by `Buttons.Elements()`: not fixed.
+- [x] Sweep 1 Nov: 48/51 (%94); `league` (season not started) and `prep` (a pointer to the sessions) fail by design.
+  `stages` / `table` right after `targets` took 150 s+: the plugin's `/table` walks the whole binding tree (40k nodes with
+  the player search bound) reading every node's values. Now a node's children's names are checked for `LeaguePoints`
+  first: 150 s → 0 s; stages 5 s.
 - [x] `fm opposition`: FM27's Tactics › Oppo. page (same GUID). The plugin read rows by `#NameText` and the lists by their
   place after it; now the name is a text bound to `primarytext` and each list is known by what it writes
   (`tactic.oppositionplayer{marking,pressingtrigger,tackling,showontofoot}`). "Apply all advice" by its element

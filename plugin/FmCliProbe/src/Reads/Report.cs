@@ -280,6 +280,9 @@ internal static class Report
 
 		foreach (var (path, node) in Walk())
 		{
+			// Only a node with a LeaguePoints child is a row: its children's names are looked at before
+			// any value is read (a player search left bound walks tens of thousands of nodes).
+			if (!HasChild(node, "LeaguePoints")) continue;
 			var fields = Fields(node);
 			if (!fields.ContainsKey("LeaguePoints") || !fields.TryGetValue("TablePosition", out var raw)) continue;
 			if (!int.TryParse(raw, out var position)) continue;
@@ -510,6 +513,17 @@ internal static class Report
 			if (FormUnder(c, depth + 1) is { } found) return found;
 		}
 		return null;
+	}
+
+	private static bool HasChild(IReadOnlyNode node, string name)
+	{
+		try
+		{
+			for (var c = node.FirstChild; c != null; c = c.NextSibling)
+				if (c.Name == name) return true;
+		}
+		catch { }
+		return false;
 	}
 
 	internal static Dictionary<string, string> Fields(IReadOnlyNode node)
