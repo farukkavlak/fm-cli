@@ -2438,7 +2438,6 @@ The match preparation could not be read as focuses; in FM27 it is the week's Mat
 In FM27 only starting a trait is done by command so far: training <player> --trait "<trait>"	FM27'de şimdilik yalnız özellik başlatma komutla yapılıyor: training <oyuncu> --trait "<özellik>"
 {0}: "{1}" was chosen, but the game still offers it.	{0}: "{1}" seçildi ama oyun hâlâ sunuyor.
 {0}: asked to cancel, but the trait training still runs.	{0}: iptal istendi ama özellik antrenmanı sürüyor.
-In FM27 starting and cancelling a trait are done by command so far: --trait "<trait>" · --trait-cancel	FM27'de şimdilik özellik başlatma ve iptal komutla yapılıyor: --trait "<özellik>" · --trait-cancel
 {0} is working on a trait now; to stop it: training "{1}" --trait-cancel	{0} şu an bir özellik üzerinde çalışıyor; durdurmak için: training "{1}" --trait-cancel
 \n  Attached:	\n  Ek:
 {0} is not in the calendar on screen.	{0} ekrandaki takvimde yok.
@@ -2446,3 +2445,6 @@ In FM27 starting and cancelling a trait are done by command so far: --trait "<tr
 '{0}' could not be found again in the choice window.	'{0}' seçim penceresinde yeniden bulunamadı.
 Sent, but the week's card and sessions did not change ({0}); it may already be this schedule.	Gönderildi ama haftanın kartı da seansları da değişmedi ({0}); hafta zaten bu programda olabilir.
 Another week's choice window is open; close it first.	Başka bir haftanın seçim penceresi açık; önce onu kapatın.
+FM27 offers no trait suggestion from the assistant; his misgivings come up when a trait is started or dropped.	FM27'de yardımcıdan alışkanlık önerisi istenemiyor; çekinceleri bir alışkanlık başlatılırken ya da bırakılırken çıkıyor.
+{0}: "{1}" was chosen, but nothing started.	{0}: "{1}" seçildi ama bir şey başlamadı.
+\nTo teach: training "{0}" --trait "<trait>"  ·  to drop one: --trait-remove "<trait>"	\nÖğretmek için: training "{0}" --trait "<alışkanlık>"  ·  bırakmak: --trait-remove "<alışkanlık>"

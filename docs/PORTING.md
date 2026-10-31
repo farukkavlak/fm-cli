@@ -368,8 +368,13 @@ Still open:
   bar) has an Actions menu (`#ActionsBar`). Each teachable trait is an entry of `PersonTrainingNewPreferredMove` in a folder;
   the same action at the menu's top (only while a trait is worked on) stops it. Chosen by action + name
   (`/actions?action=&name=`, new). List, start (read back as no longer offered), cancel: TR, Yasir Boz.
-  - [ ] `--trait-suggest`, `--trait-remove` not built for FM27. `PlayerTraining.Traits` (Active/Addable/Removable,
-    TraitInDevelopment) did not read from a copied person even with `human`, `team`, `Judge` beside it.
+  - [x] `--trait-remove`: same action, its entries straight in a folder with no subfolders (teachable ones sit in
+    category folders; the stop at the top). Entries carry no trait id or add/remove flag (checked: closure data and
+    row record), so where they sit is the identity. Read back: the stop appears and the trait leaves the list.
+    TR 3/3 + EN + DE, each cancelled after. The list now also prints his traits from that folder.
+  - [x] Disabled "Discipline Training" entry no longer listed as teachable.
+  - [ ] `--trait-suggest`: FM27's menu has no `PlayerAskStaffToSuggestPlayerTraitTraining` entry and the page no
+    button for it; the command says so. The assistant's view per trait is in each entry's `ConfirmationDialogData`.
 - [x] `schedule set` (FM27): each session on Training › Overview is a button whose sent value names it (`Date`,
   `SessionIndex`); pressing it opens the week's editor. Categories and sessions are two radio groups known by the lists
   they show (`trainingselector.TrainingSessionCategoryOnlyDropdown` / `…SessionsForCategoryDropdown`); Confirm
