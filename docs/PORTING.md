@@ -329,6 +329,11 @@ Still open:
   - Corner (delivery, aim, D1 duty + otherwise, back), throw-in aim both ways, wide, deep, shooting range: TR.
   - Also: `setpieces korner vurus out` went to the language layer (`Mcp.TakesText` filled every choice and hid `aim`);
     `Choose` takes an exact match in the game's words before pieces ("Geride Dur" vs "Gerekirse Geride Dur").
+- [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
+  throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
+  restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.
+- [ ] `schedule set` / `schedule style`: FM27's training calendar is not FM26's ("the training tab of the calendar could
+  not be read"); `fm schedule` reads, the Overview menu is still chosen by the words "Training" / "Overview".
 - [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
   chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
   the name a text bound to `primarytext` (FM26's `NameButton` kept), the form found from that name (was the heading "Prom.").
