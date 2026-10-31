@@ -329,6 +329,12 @@ Still open:
   - Corner (delivery, aim, D1 duty + otherwise, back), throw-in aim both ways, wide, deep, shooting range: TR.
   - Also: `setpieces korner vurus out` went to the language layer (`Mcp.TakesText` filled every choice and hid `aim`);
     `Choose` takes an exact match in the game's words before pieces ("Geride Dur" vs "Gerekirse Geride Dur").
+- [x] Pages under a submenu that has its own bar (Portal › Competitions › a league): after the transfer search the parent
+  answered "ask again" and the league page, once up, hid the listing bar so the check never said "shown" (`stages`,
+  `table`: 45 s, error). Now: on "ask again" the portal home is opened first; a listing bar gone after "opened" counts
+  as the page up when its own check passes. stages from club / targets / squad: TR 3/3.
+- [ ] Sweep 31 Oct night: 44/51 ran (%86). Still failing: `squad --u19`, `shortlist` (tile gone), `supporters`
+  (FM27 has no Supporters tile on Club › Overview; it is a Club subtab), `prep` (friendly), `league` (season not started).
 - [x] 31 Oct night, EN + DE (after restart) run of: club, staff, health, world, penalties, takers, setpieces (corner,
   throw-in), numbers, coaches, career, offer --dry: all read in the game's language. Once, right after a language
   restart, the first `numbers` missed one row (Guendouzi); TR cold from another page 3/3 whole.

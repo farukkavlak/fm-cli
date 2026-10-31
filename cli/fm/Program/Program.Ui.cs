@@ -129,6 +129,15 @@ internal static partial class Program
 	internal static async Task<string> OpenSubpage(string parent, string screen, Func<Task<bool>> shown, string? team = null, bool bar = false)
 	{
 		var opened = await OpenPage(parent, team);
+		// A submenu's own first page (Portal › Competitions › Overview) can keep answering "open its
+		// tab first" without the tab coming up (seen after the transfer search): the portal's own home
+		// is opened by its page, and the page is chosen on its bar below.
+		if (opened.StartsWith("error", StringComparison.Ordinal) && opened.Contains("ask again", StringComparison.Ordinal))
+		{
+			await OpenPage(Screen.Home);
+			opened = await OpenPage(parent, team);
+			if (opened.Contains("ask again", StringComparison.Ordinal)) opened = "";
+		}
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return opened;
 		var answer = "";
 		for (var attempt = 0; attempt < 4; attempt++)
@@ -146,15 +155,24 @@ internal static partial class Program
 			if (answer.StartsWith("error", StringComparison.Ordinal))
 			{
 				if (attempt == 3) return answer;
-				if ((opened = await OpenPage(parent, team)).StartsWith("error", StringComparison.Ordinal)) return opened;
+				// The parent can say it opened without its tab coming up (Portal › Competitions after the
+				// transfer search): the portal's home is opened by its own page first.
+				await OpenPage(Screen.Home);
+				opened = await OpenPage(parent, team);
+				if (opened.StartsWith("error", StringComparison.Ordinal) && !opened.Contains("ask again", StringComparison.Ordinal)) return opened;
 				continue;
 			}
 			// The page under this one answers even while the parent draws over it, so it is taken only
 			// when the bar stands on it and the content is there, held over two readings in a row.
+			// A page with a bar of its own (a competition's page) puts that bar in place of the one that
+			// listed it: the listing bar gone after the page answered "opened" is the page up, as long as
+			// what it should show is there (a page further down checks its own bar).
 			var standing = false;
 			if (await Until(async () =>
 			{
-				var on = (await OnBar(screen)).StartsWith("shown", StringComparison.Ordinal) && await shown();
+				var bar = await OnBar(screen);
+				var on = (bar.StartsWith("shown", StringComparison.Ordinal) || bar.StartsWith("error", StringComparison.Ordinal) && answer.StartsWith("opened", StringComparison.Ordinal))
+				         && await shown();
 				var settled = on && standing;
 				standing = on;
 				return settled;
