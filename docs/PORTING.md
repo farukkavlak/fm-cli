@@ -659,7 +659,13 @@ Still open:
     opens only at the season's end; not changed until it can be measured.
   - [ ] `next` (`Core/Clock.cs` `Settled`): "at rest" is the state read the same twice 0.7 s apart. Candidate sign:
     `ContinueManagerModule.m_continueState` / `m_currentAction` (plugin). Needs measuring over many days of `next`.
-  - [ ] `stages` table: team names and some columns empty (old and new alike).
+  - [x] `table` / `stages` table: FM27's page binds no team name and no draws, so both came out empty. Now the
+    stage's own record: the stage list's `Selected` row → `RowData.Stage.LeagueTable` with `LeagueTableType` 0
+    (overall; 1 home, 2 away): `Team.LeagueTableName`, W/D/L, GD, points, zone, a settled place by `LeagueFateEnum`
+    + `LeagueFate.Name` (was the page's "C"/"Pl" marks). The last five results are bound on the page only, taken
+    from its row at the same `TablePosition`. The rich table's headers were fixed Turkish; now labels.
+    TR + EN: Süper Lig cold and after 5 other pages, Premier League, Championship, Europa/Champions League phase,
+    a U19 group league; a cup round still gives its ties. A settled place not seen yet (October).
 - [x] `release`: FM27's actions menu "Contract › Release On A Free" / "Mutual Termination" by their actions
   (`PersonReleaseClubFreeTransfer`, `PersonMutualTerminationContract`), the menu raised from the player's record (a
   namesake elsewhere is never the one). Was the contract card's list and its English rows ("not our player" in FM27).

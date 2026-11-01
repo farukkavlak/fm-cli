@@ -122,32 +122,49 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// A table with its teams' names put back. Once a place is settled the page writes it beside the
-	/// team — "C" for the champions, "Pl" for a play-off place — under the same name as the team's own,
-	/// and the mark is what comes through ("1 C 84", Bolton, 18 Nisan 2026). The team is still known by
-	/// its short name, which another table on screen pairs with the full one; the mark is kept as Settled.
-	/// FM27 binds them as LeagueTableName and AbbreviatedName; they go out as Name and ShortName.
+	/// The table of the stage chosen in the stage list, from the stage's own record: the list's
+	/// selected row (`Selected`) put in the tree, its `RowData.Stage.LeagueTable` asked with
+	/// `LeagueTableType` 0, the overall table (1 is home, 2 away). Each row's team by its record, a place
+	/// already settled by `LeagueFateEnum` with `LeagueFate.Name` in the game's words. The last five
+	/// results are bound only on the page (<paramref name="onPage"/>, its tables): taken from the row at the same `TablePosition`.
+	/// Null when the stage has no table.
 	/// </summary>
-	private static JsonElement NamedStandings(JsonElement table, JsonElement tables)
+	private static async Task<JsonElement?> StageTable(JsonElement list, JsonElement onPage)
 	{
-		static string Of(JsonElement row, string fm26, string fm27) => Field(row, fm26) is { Length: > 0 } old ? old : Field(row, fm27);
-		var names = new Dictionary<string, string>();
-		foreach (var row in tables.EnumerateArray().SelectMany(t => t.EnumerateArray()))
-			if (Of(row, "ShortName", "AbbreviatedName") is { Length: > 0 } code && Of(row, "Name", "LeagueTableName") is { Length: > 3 } name) names.TryAdd(code, name);
-		var rows = table.EnumerateArray().Select(row =>
+		if (!int.TryParse(Field(list, "Selected"), out var selected) || selected < 0) return null;
+		var at = $"fmcli.stagetable.g{DateTime.UtcNow.Ticks % 1_000_000_000}";
+		if ((await Fm.Get("rowput", ("ptr", Field(list, "Pointer")), ("i", selected.ToString()), ("to", $"{at}.row"))).StartsWith("error", StringComparison.Ordinal)) return null;
+		// A variable is bound by this very call when nothing has bound it yet: then a frame later.
+		foreach (var (to, kind, value) in new[] { ($"{at}.stage", "from", $"{at}.row.RowData.Stage"), ($"{at}.stage.LeagueTableType", "int", "0") })
+			if (!await Until(async () => !(await Fm.Get("pathset", ("to", to), (kind, value))).StartsWith("error", StringComparison.Ordinal), seconds: 4, every: 0.2))
+				return null;
+
+		const string shown = "Team.LeagueTableName,LeagueFate.Name";
+		// A knockout round's stage has no table: the game says it is no list.
+		JsonElement read;
+		try
 		{
-			var fields = row.EnumerateObject().ToDictionary(f => f.Name, f => f!.Value.ToString());
-			fields["Name"] = Of(row, "Name", "LeagueTableName");
-			fields["ShortName"] = Of(row, "ShortName", "AbbreviatedName");
-			var name = fields.GetValueOrDefault("Name", "");
-			if (name.Length is > 0 and <= 3 && fields.GetValueOrDefault("ShortName", "") is { Length: > 0 } code && code != name)
-			{
-				fields["Settled"] = name;
-				fields["Name"] = names.GetValueOrDefault(code, code);
-			}
-			return fields;
-		}).ToList();
-		return JsonSerializer.SerializeToElement(rows);
+			read = await Fm.Pull($"{at}.stage.LeagueTable",
+			$"TablePosition,Team.UniqueId,LeagueGamesPlayed,LeagueGamesWon,LeagueGamesDrawn,LeagueGamesLost,LeagueGoalDifference,LeaguePoints,StageQualificationPlaceColorGroupId,LeagueFateEnum,{shown}",
+			list: true, shown: shown);
+		}
+		catch (FmError) { return null; }
+		var rows = read.ValueKind == JsonValueKind.Array ? read.EnumerateArray().Where(r => Field(r, "TablePosition").Length > 0).ToList() : [];
+		if (rows.Count == 0) return null;
+
+		// The page can hold the table twice, with and without the form column: any of its tables as long as this one.
+		var forms = onPage.EnumerateArray().Where(t => t.GetArrayLength() == rows.Count).SelectMany(t => t.EnumerateArray())
+			.Where(r => Field(r, "RecentFormValues").Length > 0)
+			.GroupBy(r => Field(r, "TablePosition")).ToDictionary(g => g.Key, g => Field(g.First(), "RecentFormValues"));
+		return JsonSerializer.SerializeToElement(rows.OrderBy(r => int.TryParse(Field(r, "TablePosition"), out var p) ? p : int.MaxValue).Select(r => new Dictionary<string, string>
+		{
+			["TablePosition"] = Field(r, "TablePosition"), ["Name"] = Field(r, "Team.LeagueTableName"), ["UniqueId"] = Field(r, "Team.UniqueId"),
+			["LeagueGamesPlayed"] = Field(r, "LeagueGamesPlayed"), ["LeagueGamesWon"] = Field(r, "LeagueGamesWon"), ["LeagueGamesDrawn"] = Field(r, "LeagueGamesDrawn"),
+			["LeagueGamesLost"] = Field(r, "LeagueGamesLost"), ["LeagueGoalDifference"] = Field(r, "LeagueGoalDifference"), ["LeaguePoints"] = Field(r, "LeaguePoints"),
+			["StageQualificationPlaceColorGroupId"] = Field(r, "StageQualificationPlaceColorGroupId"),
+			["Fate"] = Field(r, "LeagueFateEnum") is { Length: > 0 } fate && fate != "0" ? Field(r, "LeagueFate.Name") : "",
+			["RecentFormValues"] = forms.GetValueOrDefault(Field(r, "TablePosition"), ""),
+		}).ToList());
 	}
 
 	/// <summary>
@@ -181,10 +198,10 @@ internal static partial class Program
 		var table = tables.EnumerateArray().Where(t => t.GetArrayLength() >= 2).Reverse()
 			.OrderByDescending(t => t.GetArrayLength())
 			.ThenByDescending(t => t.EnumerateArray().Count(r => Field(r, "LeagueGamesWon").Length > 0)).FirstOrDefault();
-		if (table.ValueKind == JsonValueKind.Array) table = NamedStandings(table, tables);
-
 		var lists = await StageLists();
 		if (lists == null) return (null, null, null);
+		// The page's rows bind no team names in FM27: what it holds is only a sign there is a table.
+		if (table.ValueKind == JsonValueKind.Array) table = await StageTable(lists.Value.Stage, tables) ?? default;
 		var stage = Field(lists.Value.Stage, "Label");
 		// The date of a round not drawn yet comes in a sentence the game builds for it, so the
 		// words are not English in every game ("This round will be drawn on 13/8/2026" /

@@ -112,11 +112,8 @@ internal static partial class Program
 	{
 		// The portal's tile has only games and points; the columns it leaves out are left out.
 		var full = table.EnumerateArray().Any(r => Field(r, "LeagueGamesWon").Length > 0);
-		// A place already settled is said beside the team, as the page does with its "C" and "Pl".
-		static string Team(JsonElement row) => Field(row, "Name") + (Field(row, "Settled") switch
-		{
-			"" => "", "C" => L(" (champions)"), "Pl" => L(" (play-offs certain)"), "P" => L(" (promoted)"), "R" => L(" (relegated)"), var mark => $" ({mark})",
-		});
+		// A place already settled is said beside the team in the game's words ("Champions").
+		static string Team(JsonElement row) => Field(row, "Name") + (Field(row, "Fate") is { Length: > 0 } fate ? $" ({fate})" : "");
 		var rows = table.EnumerateArray().Select(row => full
 			? new[]
 			{

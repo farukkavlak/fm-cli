@@ -15,13 +15,13 @@ internal static class Standings
 			.AddColumn(new TableColumn("[dim]#[/]").RightAligned())
 			.AddColumn(new TableColumn(""))
 			.AddColumn(new TableColumn(L("[dim]TEAM[/]")))
-			.AddColumn(new TableColumn("[dim]O[/]").RightAligned());
+			.AddColumn(new TableColumn($"[dim]{L("P")}[/]").RightAligned());
 		if (full)
-			grid.AddColumn(new TableColumn("[dim]G[/]").RightAligned())
-				.AddColumn(new TableColumn("[dim]B[/]").RightAligned())
-				.AddColumn(new TableColumn("[dim]M[/]").RightAligned())
-				.AddColumn(new TableColumn("[dim]AV[/]").RightAligned());
-		grid.AddColumn(new TableColumn("[dim]P[/]").RightAligned());
+			grid.AddColumn(new TableColumn($"[dim]{L("W")}[/]").RightAligned())
+				.AddColumn(new TableColumn($"[dim]{L("D")}[/]").RightAligned())
+				.AddColumn(new TableColumn($"[dim]{L("L")}[/]").RightAligned())
+				.AddColumn(new TableColumn($"[dim]{L("GD")}[/]").RightAligned());
+		grid.AddColumn(new TableColumn($"[dim]{L("PTS")}[/]").RightAligned());
 		var form = table.EnumerateArray().Any(r => F(r, "RecentFormValues").Length > 0);
 		if (form) grid.AddColumn(new TableColumn("[dim]FORM[/]"));
 
@@ -37,7 +37,7 @@ internal static class Standings
 			{
 				Cell(F(row, "TablePosition")),
 				Zone(F(row, "StageQualificationPlaceColorGroupId")),
-				Cell(F(row, "Name") + (mine ? "  ◀" : "")),
+				Cell(F(row, "Name") + (F(row, "Fate") is { Length: > 0 } fate ? $" ({fate})" : "") + (mine ? "  ◀" : "")),
 				Cell(F(row, "LeagueGamesPlayed")),
 			};
 			if (full) cells.AddRange([Cell(F(row, "LeagueGamesWon")), Cell(F(row, "LeagueGamesDrawn")), Cell(F(row, "LeagueGamesLost")), Cell(shownDifference)]);
