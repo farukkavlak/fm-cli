@@ -1,13 +1,16 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace FmCli;
 
 internal static partial class Program
 {
+	/// <summary>The scouting assignments panel (FM27), which the focus page's "Assignments (n)" button opens.</summary>
+	private const string AssignmentsPanel = "5ccd19d87218c4a40b10dd2f612884da";
+
 	/// <summary>
-	/// The scouting team as the assignments panel shows it: each scout's eye for ability and
-	/// potential, how much of the world he knows, and the focuses he is working on.
+	/// The scouting team as the assignments panel lists it, each from his own record: his job, his
+	/// eye for ability and potential (1–20), how many nations he knows, and how many focuses of each
+	/// priority he is on. The panel by the asset its button opens, its list by its element's name.
 	/// </summary>
 	private static async Task<int> ScoutStaff(bool json)
 	{
@@ -16,7 +19,7 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		JsonElement open = default;
 		await Until(async () => (open = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.FirstOrDefault(b => Field(b, "Label").StartsWith("Assignments (", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
+			.FirstOrDefault(b => Field(b, "Opens") == AssignmentsPanel && Field(b, "Enabled") == "True")).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
 		if (open.ValueKind != JsonValueKind.Object)
 		{
 			Console.Error.WriteLine(L("The assignments panel was not found."));
@@ -24,78 +27,36 @@ internal static partial class Program
 		}
 		await Fm.Get("click", ("ptr", Field(open, "Pointer")));
 
-		async Task<List<JsonElement>> Panel()
+		List<string> items = [];
+		// The panel's list by the element names it sits in (a level or two above it, past unnamed ones).
+		await Until(async () => (await Fm.GetJson("checkrows", ("gen", "staff"))).EnumerateArray()
+				.FirstOrDefault(t => t.TryGetProperty("Names", out var names) && names.EnumerateArray().Any(n => n.GetString() == "RecruitmentScoutAssignmentsTable")) is { ValueKind: JsonValueKind.Object } list
+			&& (items = list.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").Where(i => i.Length > 0).ToList()).Count > 0, seconds: 8, every: 0.4);
+		if (items.Count == 0)
 		{
-			List<JsonElement> items = [];
-			var last = "";
-			await Until(async () =>
-			{
-				// The panel's heading is the game's word ("Active Assignments (4)"), translated with
-				// the rest of the UI; the scouts it lists and the focuses it shows are bound by
-				// their data paths in every language (§8.335). The staff list fills in over a
-				// frame or two, so it is read until two reads name the same men.
-				items = (await Fm.GetJson("texts", ("anchorpath", "Scout.Name"), ("up", "13"), ("paths", "1"))).EnumerateArray().ToList();
-				var staff = string.Join("|", items.Where(i => Field(i, "Path") == "binding.Name").Select(Shown));
-				var settled = staff.Length > 0 && staff == last && items.Any(i => Field(i, "Path") == "Scout.Name");
-				last = staff;
-				return settled;
-			}, seconds: 6, every: 0.4);
-			return items;
-		}
-
-		static string Shown(JsonElement item) => Field(item, "Text");
-		var first = await Panel();
-		var staff = new List<(string Name, string Job)>();
-		for (var i = 0; i + 1 < first.Count; i++)
-			if (Field(first[i], "Path") == "binding.Name" && Field(first[i + 1], "Path") == "binding.JobString"
-				&& staff.All(m => m.Name != Shown(first[i])))
-				staff.Add((Shown(first[i]), Shown(first[i + 1])));
-
-		if (staff.Count == 0)
-		{
-			// Seen once after several focus edits in a session: the panel's open event never resolved
-			// and only a restart brought it back (27 Ekim 2026). An empty list would read as no scouts.
 			Console.Error.WriteLine(L("The assignments panel did not open. If it stays so: fm stop --save, then fm start."));
 			return 1;
 		}
-		var rows = new List<(string Name, string Job, string Ability, string Potential, string Regions, string Nations, List<string> Focuses)>();
-		foreach (var (name, job) in staff)
-		{
-			await Fm.Get("rowselect", ("text", name));
-			List<JsonElement> panel = [];
-			var last = "";
-			// The right-hand side is his once the panel names him there and the focuses under
-			// him have stopped changing: the name arrives a frame before the list does.
-			await Until(async () =>
-			{
-				panel = await Panel();
-				var at = panel.FindIndex(i => Field(i, "Path") == "Scout.Name" && Shown(i) == name);
-				if (at < 0) { last = ""; return false; }
-				var own = string.Join("|", panel.Skip(at).Where(i => Field(i, "Path") is "Scout.Name" or "focusitem.Name").Select(Shown));
-				var settled = own == last;
-				last = own;
-				return settled;
-			}, seconds: 5, every: 0.4);
-			var at = panel.FindIndex(i => Field(i, "Path") == "Scout.Name" && Shown(i) == name);
-			var ownItems = at >= 0 ? panel.Skip(at + 1).ToList() : [];
-			var own = ownItems.Select(Shown).ToList();
-			string After(string label) => own.IndexOf(label) is var i && i >= 0 && i + 1 < own.Count ? own[i + 1] : "";
-			// "Regions (7)" and "Nations (13)" are the game's own words; Turkish shortens the
-			// second to "Nation (13)", so only the part both languages share is matched.
-			static string Count(string label) => Regex.Match(label ?? "", @"\((\d+)\)") is { Success: true } m ? m.Groups[1].Value : "-";
-			var focuses = ownItems.Where(i => Field(i, "Path") == "focusitem.Name").Select(Shown).ToList();
-			rows.Add((name, job, After("Judging Player Ability"), After("Judging Player Potential"),
-				Count(own.FirstOrDefault(t => t.StartsWith("Region", StringComparison.Ordinal))), Count(own.FirstOrDefault(t => t.StartsWith("Nation", StringComparison.Ordinal))), focuses));
-		}
+		// The job is worded for the club it is at: the club, the human and his team beside the rows.
+		var under = items[0][..items[0].LastIndexOf('.')];
+		foreach (var (name, from) in new[] { ("club", "Human.Club"), ("human", "Human"), ("team", "Human.Team") })
+			await Fm.Get("pathset", ("to", $"{under}.{name}"), ("from", from));
+		const string focuses = "StaffRecruitmentFocuses";
+		const string props = $"Name,JobString,JudgingPlayerAbility,JudgingPlayerPotential,ScoutingKnowledgeListCount,{focuses}.TopFocusesCount,{focuses}.StandardFocusesCount,{focuses}.OngoingFocusesCount";
+		var people = await PullEach(items.Select(i => (i, props)).ToList(), p => Field(p, "Name").Length > 0 && Field(p, "JobString").Length > 0, shown: "Name,JobString");
+		var rows = people.Where(p => Field(p, "Name").Length > 0).Select(p => (
+			Name: Field(p, "Name"), Job: Field(p, "JobString"), Ability: Field(p, "JudgingPlayerAbility"), Potential: Field(p, "JudgingPlayerPotential"),
+			Nations: Field(p, "ScoutingKnowledgeListCount"),
+			Top: Field(p, $"{focuses}.TopFocusesCount"), Standard: Field(p, $"{focuses}.StandardFocusesCount"), Ongoing: Field(p, $"{focuses}.OngoingFocusesCount"))).ToList();
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, Job = GameWords.Of(r.Job), JudgingAbility = GameWords.Of(r.Ability), JudgingPotential = GameWords.Of(r.Potential), r.Regions, r.Nations, Focuses = r.Focuses.Select(GameWords.Of) })));
+			Console.WriteLine(JsonOut.Of(rows.Select(r => new { r.Name, r.Job, JudgingAbility = r.Ability, JudgingPotential = r.Potential, r.Nations, Focuses = new { r.Top, r.Standard, r.Ongoing } })));
 			return 0;
 		}
-		Table.Write([L("SCOUT"), L("JOB"), L("JUDGING ABILITY"), L("JUDGING POTENTIAL"), L("AREA"), L("NATION"), L("FOCUSES")],
-			rows.Select(r => new[] { r.Name, r.Job, r.Ability, r.Potential, r.Regions, r.Nations, r.Focuses.Count > 0 ? string.Join(", ", r.Focuses) : "-" }).ToList());
-		Console.WriteLine(L($"\n{(first.Count > 0 ? Shown(first[0]) : Field(open, "Label"))}. To send one to a player: scout player <name> --by <scout> --for <length>"));
+		Table.Write([L("SCOUT"), L("JOB"), L("JUDGING ABILITY"), L("JUDGING POTENTIAL"), L("NATIONS KNOWN"), L("FOCUSES")],
+			rows.Select(r => new[] { r.Name, r.Job, r.Ability, r.Potential, r.Nations, L($"{r.Top} top · {r.Standard} standard · {r.Ongoing} ongoing") }).ToList());
+		Console.WriteLine(L("\nTo send one to a player: scout player <name> --by <scout> --for <length>"));
 		return 0;
 	}
 

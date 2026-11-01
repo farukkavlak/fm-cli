@@ -581,6 +581,11 @@ Still open:
     their shown text; chosen by `/select?path=`. Added once the form's focus `AreaCount` grows (read at the target of an
     enabled button on the form's panel: a form closed earlier leaves disabled copies). Names are as the game shows them:
     a save keeps continents and nations in the language it was made in ("Avrupa" in an English game). TR + EN.
+  - [x] `scout staff`: the assignments panel by the asset its button opens (`5ccd19d8…`), its list by the element it sits
+    in (`RecruitmentScoutAssignmentsTable`, from `/checkrows` `Names`), each scout from his record: `JobString` (wants
+    club/human/team beside the rows), `JudgingPlayerAbility`/`Potential` (1–20), `ScoutingKnowledgeListCount` (FM27 knows
+    nations, not regions), `StaffRecruitmentFocuses.*FocusesCount`. Was the panel's words ("Assignments (", "Judging
+    Player Ability"). TR; EN pending.
   - [x] Scouts/analysts window (`--by`, `--analysts`): both Edit buttons open panel `e7c08a24…`, told apart by the box's
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;

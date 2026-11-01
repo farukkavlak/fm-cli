@@ -2476,3 +2476,6 @@ Match preparation sessions until the match on {0} {1}:	{0} {1} maçına kadarki 
 \nTo change one: schedule set <day> <1|2|3> <session>   (the whole week: schedule)	\nBirini değiştirmek: schedule set <gün> <1|2|3> <seans>   (bütün hafta: schedule)
 FM27 has no match focuses to choose; the preparation is the week's sessions: schedule set <day> <1|2|3> <session>	FM27'de seçilecek maç odağı yok; hazırlık haftanın seanslarıdır: schedule set <gün> <1|2|3> <seans>
 (pen) 	(penaltı) 
+NATIONS KNOWN	BİLDİĞİ ÜLKE
+{0} top · {1} standard · {2} ongoing	{0} yüksek · {1} standart · {2} sürekli
+\nTo send one to a player: scout player <name> --by <scout> --for <length>	\nBirini oyuncuya göndermek: scout player <ad> --by <gözlemci> --for <süre>
