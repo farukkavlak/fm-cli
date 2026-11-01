@@ -140,7 +140,7 @@ internal static partial class Program
 			if (body.Length > 0) Console.WriteLine($"  {body.Replace("\n", "\n  ")}");
 			// A report or a piece of advice is mostly its attachment; with nothing to answer it was not
 			// shown at all (30 Nisan 2026).
-			await WriteAttachment(title, []);
+			await WriteAttachment([]);
 			Console.WriteLine(L("\n(no answer options)"));
 			return 0;
 		}
@@ -158,7 +158,7 @@ internal static partial class Program
 			Console.WriteLine(title);
 			var says = await MessageBody(title, Field(chosen, "NewsFirstBubbleSpeechString"), previousBody);
 			if (says.Length > 0) Console.WriteLine($"  {says.Replace("\n", "\n  ")}");
-			await WriteAttachment(title, answers.Select(a => Field(a, "Label")).ToHashSet());
+			await WriteAttachment(answers.Select(a => Field(a, "Label")).ToHashSet());
 			Console.WriteLine();
 			if (!Ui.Interactive) Options(Console.Out);
 

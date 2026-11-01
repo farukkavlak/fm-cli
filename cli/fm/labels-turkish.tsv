@@ -650,90 +650,19 @@ But the game still shows the message as awaiting an answer.	Ama oyun mesajı hâ
 There is no answer number {0}. Options:	{0} numaralı cevap yok. Seçenekler:
 There is no answer '{0}'. Options:	'{0}' diye bir cevap yok. Seçenekler:
 '{0}' matches more than one answer:	'{0}' birden çok cevaba uyuyor:
-\n  News: {0}	\n  Haber: {0}
-\n  Possible topics:	\n  Olası konular:
-\n  Journalists coming ({0}, {1} shown on screen):	\n  Gelecek gazeteciler ({0} kişi, ekranda görünen {1}):
-\n  Journalists coming ({0}):	\n  Gelecek gazeteciler ({0}):
-JOURNALIST	GAZETECİ
-OUTLET	KURUM
-INFLUENCE	ETKİ
-RELATIONSHIP	İLİŞKİ
-\n  Attached: captain {0}, vice-captain {1}. To see and choose: captains (--captain / --vice <player>)	\n  Ek: kaptan {0}, yardımcısı {1}. Görmek ve seçmek için: captains (--captain / --vice <oyuncu>)
-not chosen	seçilmedi
-\n  Attached: coaching assignments. To see and assign: coaches	\n  Ek: antrenör görevleri. Görmek ve atamak için: coaches
-\n  Attached: registration list{0}, unregistered {1}. Details: register	\n  Ek: kayıt listesi{0}, kayıtsız {1}. Ayrıntı: register
-\n  Attached: season review	\n  Ek: sezon değerlendirmesi
-    The board's expectation — {0}	    Yönetimin beklentisi — {0}
-    Transfers: {0}	    Transfer: {0}
-    Prediction, {0}: {1}	    Öngörü, {0}: {1}
-\n  Attached: budgets	\n  Ek: bütçeler
     {0,-9}{1} available{2}	    {0,-9}{1} kullanılabilir{2}
-    Balance  {0}	    Kasa     {0}
-    Details: budget · finances	    Ayrıntı: budget · finances
-\n  Attached: club vision	\n  Ek: kulüp vizyonu
 Objectives to meet	Yapılacak hedefler
 Objectives for information	Bilgi amaçlı hedefler
 required	zorunlu
 preferred	tercih
 wanted	istenen
-    Details: club	    Ayrıntı: club
-\n  Attached: the season's injuries — {0}	\n  Ek: sezonun sakatlıkları — {0}
-    Against expectation {0} · against last season {1}	    Beklenene göre {0} · geçen sezona göre {1}
-    Severity: {0}	    Ağırlık: {0}
 Major	Major
-Moderate	Moderate
 Minor	Minor
-    Most injuries in the league: {0}	    Ligde en çok sakatlık: {0}
-\n  Attached: offer — {0} ({1})	\n  Ek: teklif — {0} ({1})
-    Fee: {0}	    Bedel: {0}
-    Coach's view: {0} · {1}	    Antrenör görüşü: {0} · {1}
     Interested clubs: {0}   (all of them: offers)	    İlgilenen kulüpler: {0}   (hepsi: offers)
-\n  Attached: loans — {0}	\n  Ek: kiralıklar — {0}
     {0,-22}{1,-22}average {2}	    {0,-22}{1,-22}ortalama {2}
-\n  Attached: advice summary — {0}	\n  Ek: tavsiye özeti — {0}
 \n  Attached: opposition report — {0} {1}{2}	\n  Ek: rakip raporu — {0} {1}{2}
-    Formation: {0}	    Diziliş: {0}
-    Manager: {0}	    Menajer: {0}
-    Team news: {0}	    Takım haberleri: {0}
-    Probable XI{0}: {1}	    Muhtemel 11{0}: {1}
-    Details: opponent	    Ayrıntı: opponent
-\n  Attached: home-grown status	\n  Ek: altyapı (home-grown) statüsü
-\n  Attached: responsibilities — {0} yours · {1} delegated	\n  Ek: sorumluluklar — {0} sende · {1} devredilmiş
-    Staff: {0}	    Personel: {0}
-    Reported: {0}	    Bildirilen: {0}
-    Details: responsibilities	    Ayrıntı: responsibilities
-\n  Attached: training schedule	\n  Ek: antrenman programı
-    Individual training: {0}	    Bireysel antrenman: {0}
-    To change: schedule	    Değiştirmek: schedule
-\n  Attached: scouting focuses — {0}  ({1})	\n  Ek: scouting odakları — {0}  ({1})
-    Details: scout	    Ayrıntı: scout
-\n  Attached: match report — {0} {1} {2}  ({3}, {4})	\n  Ek: maç raporu — {0} {1} {2}  ({3}, {4})
-    Goals: {0}	    Goller: {0}
-    Highlights: {0}	    Öne çıkanlar: {0}
-\n  Attached: youth intake — {0}	\n  Ek: altyapı alımı — {0}
-    All of them: youth candidates	    Hepsi: youth candidates
-\n  Attached: players on international duty	\n  Ek: milli takımdakiler
-    Next matches: {0}	    Sıradaki maçlar: {0}
-\n  Attached: {0}{1}	\n  Ek: {0}{1}
 option {0}	{0}. seçenek
-\n  Attached: {0}	\n  Ek: {0}
-    Condition: {0}	    Kondisyon: {0}
-    Coach's note: {0}{1}	    Antrenör notu: {0}{1}
-    Interested club: {0}	    İlgilenen kulüp: {0}
-    Contract: {0} – {1} · {2}	    Sözleşme: {0} – {1} · {2}
-    Club balance: {0}	    Kulübün kasası: {0}
-\n  Attached: 	\n  Ek: 
-FINE (from wages, Wk = weekly)	CEZA (maaştan, Wk = haftalık)
-1ST TIME	1. KEZ
-2ND TIME	2. KEZ
-3RD TIME	3. KEZ
-4TH TIME	4. KEZ
-    Transfer fee: {0}	    Bonservis: {0}
-    Fee: {0}{1}	    Ücret: {0}{1}
-    Length: {0} – {1}{2}	    Süre: {0} – {1}{2}
     Clauses: {0}	    Maddeler: {0}
-    Budget left: {0}	    Kalan bütçe: {0}
-    Teams: {0}	    Ekipler: {0}
 Message {0} ('{1}') is no longer in the inbox. For the current numbers: inbox	{0} numaralı mesaj ('{1}') artık gelen kutusunda yok. Güncel numaralar için: inbox
 There is no message {0}; the inbox has {1} messages.	{0} numaralı mesaj yok; gelen kutusunda {1} mesaj var.
 No message has '{0}' in its subject.	Konusunda '{0}' geçen mesaj yok.
@@ -1152,7 +1081,6 @@ The report came but could not be read: reply "{0}"	Rapor geldi ama okunamadı: r
 \n[dim]To follow or question the advice: reply "{0}"[/]	\n[dim]Tavsiyeyi uygulamak ya da eleştirmek için: reply "{0}"[/]
 {0} — training report ({1})	{0} — antrenman raporu ({1})
   Progress: {0}	  Gidişat: {0}
-  Training rating {0}{1}{2}	  Antrenman puanı {0}{1}{2}
 To follow or question the advice: reply "{0}"	Tavsiyeyi uygulamak ya da eleştirmek için: reply "{0}"
 usage: schedule style <day> [<schedule>]   (day: 14, "14 october", 2025-10-14, tomorrow, friday)	kullanım: schedule style <gün> [<program>]   (gün: 14, "14 ekim", 2025-10-14, yarın, cuma)
 usage: schedule set <day> <1|2|3> [<session>]   (day: 14, "14 october", 2025-10-14, tomorrow, friday)	kullanım: schedule set <gün> <1|2|3> [<seans>]   (gün: 14, "14 ekim", 2025-10-14, yarın, cuma)
@@ -1441,8 +1369,6 @@ A player who has missed a penalty leaves the next one	Penaltı kaçıran bir son
   Answer to the message itself (if the question is left unanswered, it is asked next with talk):	  Mesajın kendisine cevap (soru cevapsız kalırsa ardından talk ile sorulur):
 Board	Yönetim
 Supporters	Taraftar
-Strengths	Güçlü yanları
-Weaknesses	Zayıf yanları
 Mon	Pzt
 Wed	Çar
 Sat	Cmt
@@ -1636,8 +1562,6 @@ The '{0}' view was chosen, but the '{1}' data did not come.	'{0}' görünümü s
 Gaining status	Statü kazananlar
 Coming changes (status · date)	Yaklaşan değişiklikler (statü · tarih)
 {0} improving	{0} gelişen
-highlights: {0}	öne çıkanlar: {0}
-{0} {1} (over)	{0} {1} (aşılmış)
 {0} {1} people, {2}	{0} {1} kişi, {2}
 unread	okunmadı
 Value 	Değer 
@@ -1733,14 +1657,12 @@ Not Judging	değerlendirmiyor
 Unsatisfied	memnun değil
 Failed	başarısız
 Very Satisfied	çok memnun
-Disappointed	hayal kırıklığı
 High	yüksek
 Medium	orta
 Low	düşük
 Good	iyi
 Great	çok iyi
 Excellent	mükemmel
-Poor	zayıf
 World Class	dünya çapında
 Pleased	hoşnut
 Concerned	endişeli
@@ -2071,55 +1993,9 @@ Height	Boy
 AST	AS
 {0} months	{0} ay
     Scout's view: {0} · {1}	    Gözlemci görüşü: {0} · {1}
-    Coach's view: {0}{1}	    Antrenör görüşü: {0}{1}
-    Scouts' view: {0}{1}	    Gözlemci görüşü: {0}{1}
-    Bids from: {0}   (all: offers)	    Teklif yapanlar: {0}   (hepsi: offers)
-\n  Attached: training recap — {0} players improved, {1} declined	\n  Ek: antrenman özeti — {0} oyuncu gelişti, {1} oyuncu geriledi
-    Best: {0}	    En iyi: {0}
-    Worst: {0}	    En kötü: {0}
-\n  Attached: {0}{1}{2}	\n  Ek: {0}{1}{2}
- · pre-match fitness test: {0}	 · maç öncesi kondisyon testi: {0}
-FITNESS TEST	KONDİSYON TESTİ
 MATCH ({0})	MAÇ ({0})
-    Bonuses and clauses: {0}	    Primler ve maddeler: {0}
-\n  Attached: player report — {0}	\n  Ek: oyuncu raporu — {0}
-    Value {0} · wage {1} · contract until {2}	    Değer {0} · ücret {1} · sözleşme {2}'e kadar
-    Happiness: {0} ({1} positives, {2} negatives) · squad mood: {3}	    Mutluluk: {0} ({1} artı, {2} eksi) · takım havası: {3}
-\n  Attached: registration list {0} · {1} · {2}, {3}	\n  Ek: kayıt listesi {0} · {1} · {2}, {3}
-    More: register	    Ayrıntı: register
-\n  Attached: suggested team	\n  Ek: önerilen kadro
-INSTEAD OF	YERİNE
-WHY	NEDEN
-\n  Attached: squad dynamics	\n  Ek: takım dinamikleri
-\n  Attached: squad numbers — {0} players have a number. More and changes: numbers	\n  Ek: forma numaraları — {0} oyuncuya numara verilmiş. Ayrıntı ve değiştirmek: numbers
-    Training rating {0}{1}	    Antrenman puanı {0}{1}
-\n  Attached: scout report — {0}{1}	\n  Ek: gözlemci raporu — {0}{1}
-    {0} · now: {1} · to come: {2}	    {0} · şu an: {1} · gelecek: {2}
-    Value {0} · wage {1}{2}	    Değer {0} · ücret {1}{2}
- · contract until {0}	 · sözleşme {0}'e kadar
-    Value {0} · wage {1} {2}	    Değer {0} · ücret {1} {2}
-    Fitness: {0} · morale: {1} · average rating {2}	    Kondisyon: {0} · moral: {1} · ortalama puan {2}
-    Transfer status: {0} · loan: {1}	    Transfer durumu: {0} · kiralık: {1}
-    Offers: {0} · clubs interested {1}	    Teklifler: {0} · ilgilenen kulüp {1}
-\n  Attached: player recommendations — {0}	\n  Ek: oyuncu tavsiyeleri — {0}
-    Recruitment focuses: {0} · {1} ({2} {3} · {4} {5} · {6} {7})	    Transfer odakları: {0} · {1} ({2} {3} · {4} {5} · {6} {7})
-    Budget left: transfer {0} · wages {1} · scouting {2}	    Kalan bütçe: transfer {0} · maaş {1} · scouting {2}
-\n  Attached: data hub — {0} {1} {2}  ({3}, {4}{5})	\n  Ek: veri merkezi — {0} {1} {2}  ({3}, {4}{5})
-    Expected goals {0} - {1}	    Gol beklentisi {0} - {1}
-    Player of the match: {0}	    Maçın oyuncusu: {0}
-    Key findings:	    Önemli bulgular:
-    Tactics: {0}	    Taktikler: {0}
 , crowd {0}	, {0} seyirci
-\n  Attached: match preparation — {0} ({1}, {2})	\n  Ek: maç hazırlığı — {0} ({1}, {2})
-    To change: prep	    Değiştirmek: prep
-\n  Attached: the squad's win bonuses (a rise or a cut comes out of the transfer budget)	\n  Ek: kadronun galibiyet primleri (artış ya da düşüş transfer bütçesine yansır)
-RECOMMENDED	ÖNERİLEN
-\n  Attached: contracts running out — {0}{1}	\n  Ek: sözleşmesi bitecekler — {0}{1}
 , {0} shown	, ekranda görünen {0}
-    All of them, and offering a contract: contracts	    Hepsi ve sözleşme teklifi: contracts
-    Training: {0} · rating {1}{2}	    Antrenman: {0} · puan {1}{2}
-    Happiness: {0} ({1} good, {2} bad)	    Mutluluk: {0} ({1} artı, {2} eksi)
-    Positional ability: {0}	    Mevkide yeteneği: {0}
 error: pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role; to go on: match	error: maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role; sürdürmek: match
 first XI	ilk 11
 There is an open contract talk with {0}. Finish or cancel it first: contract --cancel   (then: contract {0} --agent)	{0} ile açık bir sözleşme görüşmesi var. Önce onu bitir ya da iptal et: contract --cancel   (sonra: contract {0} --agent)
@@ -2177,11 +2053,6 @@ Lists on the Stages page not found.	Stages sayfasının listeleri bulunamadı.
 Could not read the plugin version: FmCliProbe may be old. To reinstall: tools/install.sh	Eklenti sürümü okunamadı: FmCliProbe eski olabilir. Yeniden kurmak için: tools/install.sh
 This Football Manager version is not supported: {0}. fm-cli is written for FM27; data may be read wrong.	Bu Football Manager sürümü desteklenmiyor: {0}. fm-cli FM27 için yazıldı; veri yanlış okunabilir.
 Give only one format flag: {0}	Biçim bayraklarından yalnız biri verilmeli: {0}
-\n  Extra: opponent report — {0}{1}	\n  Ek: rakip raporu — {0}{1}
-\n  Extra: offers — {0}	\n  Ek: teklifler — {0}
-    Value {0} · wage {1}	    Değer {0} · ücret {1}
-    Status: {0} · loan: {1}	    Durum: {0} · kiralık: {1}
-    Details: offers	    Ayrıntı: offers
 Confirmed: {0}	Onaylandı: {0}
 The game opened a confirmation: {0}   (answer: dialog)	Oyun bir onay penceresi açtı: {0}   (cevap: dialog)
 {0}: no '{1}' under '{2}'. Options: {3}	{0}: '{2}' altında '{1}' yok. Seçenekler: {3}
@@ -2490,3 +2361,5 @@ PLAYING TIME	OYNAMA SÜRESİ
 FUTURE PLAYING TIME	GELECEK OYNAMA SÜRESİ
 {0}: the training page's actions menu has no trait entries.	{0}: antrenman sayfasının eylem menüsünde alışkanlık girişi yok.
 The training page shows no session buttons.	Antrenman sayfasında seans düğmesi görünmüyor.
+: {0} is sent off	: {0} kırmızı kartla oyundan atıldı
+Red card: {0} is off. A change to reshape the side?	Kırmızı kart: {0} oyundan atıldı. Takımı yeniden dizmek için değişiklik?
