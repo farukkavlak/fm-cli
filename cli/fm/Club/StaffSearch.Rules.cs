@@ -44,7 +44,7 @@ internal static partial class Program
 		{
 			JsonElement found = default;
 			await Until(async () => (found = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-				.FirstOrDefault(d => Field(d, "Binds") == "conditiontoadd" || Field(d, "Label") == "Add Condition")).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
+				.FirstOrDefault(d => Field(d, "Binds") == "conditiontoadd")).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
 			return found;
 		}
 

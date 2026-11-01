@@ -81,7 +81,7 @@ internal static partial class Program
 		string[] noise = ["UniqueId", "Regenerated", "Team", "Count", "PlayerStatusSortType", "NewgenAppearanceDescription",
 			"AverageRating", "Index", "SquadNumberBlankIfInvalid", "PositionValue", "Position", "SubstituteString", "StatusType",
 			"TransferValueRangeStatus", "Level", "AddOnType", "MaxValue", "MinValue", "Grade", "ScoutedBestRole",
-			"ScoutedBestPosition", "Text", "Person"];
+			"ScoutedBestPosition", "Text", "Person", "IsRetired", "ShowDescriptorText", "EnableDebugText"];
 
 		var columns = rows.SelectMany(p => p.EnumerateObject().Select(f => f.Name))
 			.Distinct()
@@ -159,7 +159,7 @@ internal static partial class Program
 		["PlayingTimeHappinessLevel"] = L("PLAYING TIME HAPPINESS"), ["ContractStatus"] = L("CONTRACT"), ["Condition"] = L("CONDITION"),
 		["Sharpness"] = L("MATCH SHARPNESS"), ["InjuriesTimeMissed"] = L("TIME OUT"), ["InjurySeverity"] = L("SEVERITY"),
 		["InjuryDescription"] = L("INJURY"), ["TrainingRating"] = L("TRAINING RATING"), ["MoraleString"] = "MORAL",
-		["StatusTitleShort"] = L("STATUS"), ["Nation"] = L("NATION"), ["Club"] = L("CLUB"), ["Personality"] = L("PERSONALITY"),
+		["StatusTitleShort"] = L("STATUS"), ["Nation"] = L("NATION"), ["ThreeLetterName"] = L("NATION"), ["Club"] = L("CLUB"), ["Personality"] = L("PERSONALITY"),
 		["HierarchyInfluenceCategoryString"] = L("HIERARCHY"), ["SocialGroupString"] = L("GROUP"), ["Height"] = L("HEIGHT"),
 		["ShortName"] = L("CLUB"), ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = L("SCOUTING COST"),
 		["DaysSinceLastScouted"] = L("LAST SCOUTED"), ["ScoutedMinWage"] = L("WAGE (MIN)"), ["ScoutedMaxWage"] = L("WAGE (MAX)"),
