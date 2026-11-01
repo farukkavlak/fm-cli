@@ -217,8 +217,11 @@ internal static partial class Program
 		return (now, title != before ? title : "");
 	}
 
+	// Screens the game only wants looked at; Continue goes on from them. FM27's round-up of a league
+	// matchday is "CompetitionHub": one press and the flow is CanContinue again (13 Eyl 2026).
 	private static bool Passable(string flow) =>
-		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages" or "AroundTheWorld";
+		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages" or "AroundTheWorld"
+			or "CompetitionHub";
 
 	/// <summary>
 	/// The state once the game has stopped working, or null if it never did.
