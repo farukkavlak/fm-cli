@@ -241,6 +241,9 @@ internal static partial class Buttons
 	{
 		var text = Short(context.GetIl2CppType().FullName).Replace("EventContext", "").Replace("Context", "");
 		if (EventId(context) is { } id) text += ":" + id;
+		// The match's tactics panel closes by one event with or without the changes: "Confirm Changes"
+		// and "Cancel" differ only by this flag.
+		else if (context.TryCast<FM.Match.MatchCloseTacticalPanelEventContext>() is { } close) text += close.ConfirmTacticalChanges ? ":Confirm" : ":Cancel";
 		return listName is "Events" or "SelectionEvents" or "ShortcutEvent" ? text : $"{listName}→{text}";
 	}
 

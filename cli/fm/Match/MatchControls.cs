@@ -425,48 +425,33 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The position each player on the pitch is playing, as the match screen labels the button
-	/// before his menu ("GK", "D (R)", "DM", "AM (L)"), in the same order as the menus.
+	/// Where each of the eleven plays, by his UniqueId: the position bits of his slot in the match's
+	/// own tactic (the labels on the match screen are in the game's language).
 	/// </summary>
-	private static async Task<List<string>> MatchPositions() =>
-		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Where(b => Field(b, "Events") == "OpenDescendantDropdown" && Regex.IsMatch(Field(b, "Label"), @"^(GK|D|WB|DM|M|AM|ST)( \([RLC]+\))?$"))
-			.Select(b => Field(b, "Label"))
-			.ToList();
+	private static async Task<Dictionary<string, string>> MatchPositions()
+	{
+		if (!await FindMatchTactic() || matchTactic == null) return [];
+		var read = await PullEach((await SlotScopes()).Select(s => ($"{TacticAt(s)}", "IPPosition,PlayerFromTeamSelectionIndex.UniqueId")).ToList());
+		return read.Select(r => (Id: Field(r, "PlayerFromTeamSelectionIndex.UniqueId"), Mask: Field(r, "IPPosition")))
+			.Where(r => r.Id.Length > 0 && r.Mask.Length > 0 && r.Mask != "0").DistinctBy(r => r.Id).ToDictionary(r => r.Id, r => r.Mask);
+	}
 
 	/// <summary>
 	/// The eleven on a pitch, attacking upwards, from the match screen: each at the position he
-	/// is playing, with his name and how he is doing. Lanes are shared out within a line, so two
-	/// centre-backs stand side by side.
+	/// is playing, with his name and how he is doing.
 	/// </summary>
-	internal static void DrawMatchPitch(List<string> positions, List<PlayerMenu> menus)
+	internal static void DrawMatchPitch(Dictionary<string, string> positions, List<PlayerMenu> menus)
 	{
-		string[] lines = ["ST", "AM", "M", "DM", "D", "GK"];
+		const int lines = 6;
 		var placed = new List<(int Line, int Lane, string Name, string Note)>();
-		for (var i = 0; i < positions.Count && i < menus.Count; i++)
-		{
-			var m = Regex.Match(positions[i], @"^(\w+)(?: \(([RLC]+)\))?$");
-			var code = m.Groups[1].Value == "WB" ? "DM" : m.Groups[1].Value;
-			var line = Array.IndexOf(lines, code);
-			if (line < 0) continue;
-			var side = m.Groups[2].Value;
-			var lane = side == "R" ? 4 : side == "L" ? 0 : -1;
-			placed.Add((line, lane, menus[i].Name, menus[i].Shown(PlayerMenu.ConditionRow)));
-		}
-
-		// Central players share the middle three lanes. The screen lists each line from the
-		// right (DR, DCR, DCL, DL), so the first of them stands furthest right.
-		foreach (var line in placed.Select(p => p.Line).Distinct().ToList())
-		{
-			var centre = placed.Select((p, i) => (p, i)).Where(x => x.p.Line == line && x.p.Lane < 0).Select(x => x.i).ToList();
-			int[] lanes = centre.Count switch { 1 => [2], 2 => [3, 1], 3 => [3, 2, 1], _ => Enumerable.Range(0, centre.Count).Select(k => Math.Max(0, 4 - k)).ToArray() };
-			for (var k = 0; k < centre.Count; k++) placed[centre[k]] = placed[centre[k]] with { Lane = lanes[k] };
-		}
+		foreach (var menu in menus)
+			if (positions.TryGetValue(menu.Id, out var mask) && Pitch.Place(mask) is var (line, lane))
+				placed.Add((line, lane, menu.Name, menu.Shown(PlayerMenu.ConditionRow)));
 
 		var grid = new Spectre.Console.Grid();
 		for (var lane = 0; lane < 5; lane++) grid.AddColumn(new Spectre.Console.GridColumn().Width(14).Centered().NoWrap());
 		var first = true;
-		for (var line = 0; line < lines.Length; line++)
+		for (var line = 0; line < lines; line++)
 		{
 			var here = placed.Where(p => p.Line == line).ToList();
 			if (here.Count == 0) continue;
@@ -478,7 +463,7 @@ internal static partial class Program
 				var p = here.FirstOrDefault(x => x.Lane == lane);
 				cells[lane] = p.Name == null
 					? new Spectre.Console.Text(" \n ")
-					: new Spectre.Console.Markup($"[bold {(line == lines.Length - 1 ? "aqua" : "white")}]{Ui.Safe(Ui.Fit(Surname(p.Name), 14))}[/]\n[dim]{Ui.Safe(p.Note)}[/]");
+					: new Spectre.Console.Markup($"[bold {(line == lines - 1 ? "aqua" : "white")}]{Ui.Safe(Ui.Fit(Surname(p.Name), 14))}[/]\n[dim]{Ui.Safe(p.Note)}[/]");
 			}
 			grid.AddRow(cells);
 		}

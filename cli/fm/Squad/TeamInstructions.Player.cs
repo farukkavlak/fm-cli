@@ -132,6 +132,25 @@ internal static partial class Program
 		return took ? 0 : 1;
 	}
 
+	/// <summary>
+	/// A place beside the tactic for each player of the team selection, where his slot's properties answer.
+	/// The index is the man's, not the position's: during a match a substitute keeps his own (11 on) and
+	/// takes the position, and the man he replaced is left with none (0). So in a match the bench is
+	/// asked too, and only those with a position count.
+	/// </summary>
+	private static async Task<List<string>> SlotScopes()
+	{
+		var scopes = new List<string>();
+		for (var i = 0; i < (matchTactic != null ? 30 : 11); i++)
+		{
+			var scope = $"fmcli.sl{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
+			foreach (var (to, from, number) in (IEnumerable<(string, string, string)>)[.. TacticVariables(), ("TeamSelectionIndex", "", i.ToString()), ("InPossession", "const.True", "")])
+				if (from.Length > 0) await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("from", from)); else await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("int", number));
+			scopes.Add(scope);
+		}
+		return scopes;
+	}
+
 	private sealed record PiSlot(string Spot, string Index, string Player, string Role, string RoleWithoutBall);
 
 	/// <summary>
@@ -141,17 +160,10 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<PiSlot>> PiSlots()
 	{
-		var scopes = new List<string>();
-		for (var i = 0; i < 11; i++)
-		{
-			var scope = $"fmcli.sl{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
-			foreach (var (to, from, number) in (IEnumerable<(string, string, string)>)[.. TacticVariables(), ("TeamSelectionIndex", "", i.ToString()), ("InPossession", "const.True", "")])
-				if (from.Length > 0) await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("from", from)); else await Fm.Get("pathset", ("to", $"{scope}.{to}"), ("int", number));
-			scopes.Add(scope);
-		}
+		var scopes = await SlotScopes();
 		var read = await PullEach(scopes.Select(s => ($"{TacticAt(s)}", "IPPosition,PlayerFromTeamSelectionIndex.Name")).ToList());
 		var slots = read.Select((r, i) => new PiSlot(Spot(Field(r, "IPPosition")), i.ToString(), Field(r, "PlayerFromTeamSelectionIndex.Name"), "", ""))
-			.Where(s => Field(read[int.Parse(s.Index)], "IPPosition").Length > 0).ToList();
+			.Where(s => Field(read[int.Parse(s.Index)], "IPPosition") is { Length: > 0 } mask && mask != "0").ToList();
 		if (slots.Count == 0 || Field(await Fm.GetJson("state"), "DuringMatch") == "True") return slots;
 
 		if (await Planner() is { } tactic && tactic.TryGetProperty("Slots", out var planned))

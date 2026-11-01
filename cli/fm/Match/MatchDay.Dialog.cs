@@ -74,10 +74,16 @@ internal static partial class Program
 		return closed ? 0 : 1;
 	}
 
-	/// <summary>The "Confirm Changes" button the match screen shows while it waits at a stop, if it does.</summary>
+	/// <summary>
+	/// The "Confirm Changes" button the match screen shows while it waits at a stop, if it is lit. It
+	/// and "Cancel" send the same event; the plugin names which by the event's own flag.
+	/// </summary>
 	private static JsonElement? ConfirmChanges(JsonElement controls) =>
 		controls.EnumerateArray().Cast<JsonElement?>()
-			.FirstOrDefault(c => Field(c!.Value, "Label") == "Confirm Changes" && Field(c!.Value, "Enabled") == "True");
+			.FirstOrDefault(c => ClosesTactics(c!.Value, "Confirm") && Field(c!.Value, "Enabled") == "True");
+
+	private static bool ClosesTactics(JsonElement control, string how) =>
+		Field(control, "Events").Contains($"MatchCloseTacticalPanel:{how}", StringComparison.Ordinal);
 
 	/// <summary>
 	/// The button that takes the match on from a stop: "Confirm Changes". It is greyed out until the
@@ -90,8 +96,7 @@ internal static partial class Program
 	{
 		if (ConfirmChanges(controls) is { } confirm) return confirm;
 		var all = controls.EnumerateArray().Cast<JsonElement?>().ToList();
-		return all.FirstOrDefault(c => Field(c!.Value, "Label") == "Confirm Changes")
-			?? all.FirstOrDefault(c => Field(c!.Value, "Label") == "Cancel" && Field(c!.Value, "Enabled") == "True"
-				&& Field(c!.Value, "Events").Contains("MatchOpenTactics", StringComparison.Ordinal));
+		return all.FirstOrDefault(c => ClosesTactics(c!.Value, "Confirm"))
+			?? all.FirstOrDefault(c => ClosesTactics(c!.Value, "Cancel") && Field(c!.Value, "Enabled") == "True");
 	}
 }

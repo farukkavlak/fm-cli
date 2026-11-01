@@ -266,8 +266,18 @@ Still open:
     a few seconds later.
   - Tried live: TR 4 changes (both halves) + role with/without ball; EN 3 changes + roles; an unknown name and a
     role from the other list refused. The stop's "Who comes on?" not met yet.
-  - [ ] Still by words: the pitch drawing's positions (`MatchPositions`, English labels: never drawn in Turkish),
-    the stop's "Confirm Changes"/"Cancel" labels, the planner's "Inj" in `MatchPlayers(atStop)`.
+  - [x] No words left in `sub` and the stop:
+    - Pitch drawing: each man's position bits from the match tactic, by `PlayerFromTeamSelectionIndex.UniqueId`.
+      The index is the man's: a substitute keeps his own (11 on) and the man he replaced is left at 0, so in a match
+      30 indices are asked and 0 dropped (`tactic pi` showed "0 (Asensio)" before).
+    - Stop buttons: "Confirm Changes" and "Cancel" both send `MatchCloseTacticalPanel`; the plugin adds the event's
+      own `ConfirmTacticalChanges` (`:Confirm` / `:Cancel`).
+    - Hurt at a stop: the `MatchPlayer`'s `PlayerStatus.StatusFlag` (`FM.UI.PlayerStatusFlag`: 8, 41, 114, 126, 130,
+      136, 138), which wants the match tactic as `Tactic` beside it; it answers a frame later (wait for `Position`).
+    - Tried TR + EN live: pitch drawn 6×, also after 3 changes; flags read on the opened panel; a pause with the
+      panel open taken for a stop and Confirm pressed by its flag. A real injury stop not met yet.
+  - [ ] After a goal with a change pending, the game asks "Confirm Tactical Changes" (dialog `Type` `cancelChanges`);
+    `match` stops and says `dialog`. It could answer it itself (the change was ours).
   - A red-card stop was called an injury stop: now the player's `RedCardedInMatch` names it.
 - [ ] The active tactic is named "xxxx…" (200 letters) since the tactic-file title test; there is no rename command.
 - [ ] Squad numbers before a match: the screen stays up a moment after the numbers are sent and `match` sent them

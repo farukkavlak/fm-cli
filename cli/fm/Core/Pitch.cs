@@ -93,7 +93,7 @@ internal static class Pitch
 	}
 
 	/// <summary>Where a position stands: its line from the front and its lane from the left.</summary>
-	private static (int Line, int Lane)? Place(string mask)
+	internal static (int Line, int Lane)? Place(string mask)
 	{
 		if (!long.TryParse(mask, out var bits)) return null;
 

@@ -39,7 +39,7 @@ internal static partial class Program
 		}
 
 		// At a terminal the eleven are drawn where they play before anything is asked.
-		if (words.Count == 0 && Ui.Rich && await MatchPositions() is { Count: > 0 } positions && positions.Count == menus.Count)
+		if (words.Count == 0 && Ui.Rich && await MatchPositions() is { Count: > 0 } positions)
 		{
 			DrawMatchPitch(positions, menus);
 			Console.WriteLine(L($"Bench: {string.Join(", ", bench.Select(b => b.Name))}"));
@@ -245,21 +245,24 @@ internal static partial class Program
 				Field(read[i], "YellowCardedInMatch") == "True", Field(read[i], "RedCardedInMatch") == "True", Field(read[i], "MatchRating"));
 		}
 		// At a stop neither field need say it (Draper, 11 Nisan 2026: type 0, shirt not flagged) while the
-		// planner's own table does, "Inj" in his row; a row is found by the name as written there, "F. Draper".
-		if (atStop)
-			foreach (var (name, man) in men.Where(m => m.Value.Injury == 0 && !m.Value.Red).ToList())
-			{
-				var space = name.IndexOf(' ');
-				var shown = space > 0 ? $"{name[0]}. {name[(space + 1)..]}" : name;
-				try
-				{
-					var row = (await Fm.GetJson("texts", ("anchor", shown), ("up", "11"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-					if (row.Contains("Inj")) men[name] = man with { Injury = -1 };
-				}
-				catch (FmError) { }
-			}
+		// planner's status column does; that column is his first status flag, which wants the match's tactic beside him.
+		if (atStop && men.Values.Any(m => m.Injury == 0 && !m.Red) && await FindMatchTactic() && matchTactic != null
+		    && !(await Fm.Get("pathset", ("to", "fmcli.mp.Tactic"), ("from", matchTactic))).StartsWith("error", StringComparison.Ordinal))
+		{
+			// The tactic is taken up a frame after it is put there: answered once his position is.
+			var asked = Enumerable.Range(0, paths.Count).Where(i => set[i]).Select(i => ($"fmcli.mp.p{i}", "Position,PlayerStatus.StatusFlag,Player.Name")).ToList();
+			var status = new List<JsonElement>();
+			await Until(async () => (status = await PullEach(asked)).Any(r => Field(r, "Position").Length > 0), seconds: 3, every: 0.1);
+			foreach (var row in status)
+				if (men.TryGetValue(Field(row, "Player.Name"), out var man) && man.Injury == 0 && !man.Red
+				    && int.TryParse(Field(row, "PlayerStatus.StatusFlag"), out var flag) && InjuryFlags.Contains(flag))
+					men[Field(row, "Player.Name")] = man with { Injury = -1 };
+		}
 		return men;
 	}
+
+	/// <summary>The game's status flags (FM.UI.PlayerStatusFlag) that say a man is hurt: in training, major, minor, injured off.</summary>
+	private static readonly HashSet<int> InjuryFlags = [8, 41, 114, 126, 130, 136, 138];
 
 	/// <summary>
 	/// Each path put at a node of ours, in one batch when the plugin takes them; whether each was.
