@@ -24,7 +24,7 @@ internal static partial class Program
 			return 64;
 		}
 		// A slot by its position as the pitch shows it, or by the player in it.
-		var slot = slots.FirstOrDefault(s => Fold(s.Spot) == Fold(words[0]));
+		var slot = SlotOf(slots.Select(s => s.Mask).ToList(), words[0], L("Position"), quiet: true) is { } at ? slots[at] : null;
 		if (slot == null)
 		{
 			var byName = Matching(slots, s => s.Player, words[0]);
@@ -151,7 +151,7 @@ internal static partial class Program
 		return scopes;
 	}
 
-	private sealed record PiSlot(string Spot, string Index, string Player, string Role, string RoleWithoutBall);
+	private sealed record PiSlot(string Spot, string Index, string Player, string Role, string RoleWithoutBall, string Mask = "");
 
 	/// <summary>
 	/// The eleven slots with the player in each, read from the tactic with no page,
@@ -160,9 +160,10 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<PiSlot>> PiSlots()
 	{
+		await EngineTexts.Positions(Fm);
 		var scopes = await SlotScopes();
 		var read = await PullEach(scopes.Select(s => ($"{TacticAt(s)}", "IPPosition,PlayerFromTeamSelectionIndex.Name")).ToList());
-		var slots = read.Select((r, i) => new PiSlot(Spot(Field(r, "IPPosition")), i.ToString(), Field(r, "PlayerFromTeamSelectionIndex.Name"), "", ""))
+		var slots = read.Select((r, i) => new PiSlot(SpotShown(Field(r, "IPPosition")), i.ToString(), Field(r, "PlayerFromTeamSelectionIndex.Name"), "", "", Field(r, "IPPosition")))
 			.Where(s => Field(read[int.Parse(s.Index)], "IPPosition") is { Length: > 0 } mask && mask != "0").ToList();
 		if (slots.Count == 0 || Field(await Fm.GetJson("state"), "DuringMatch") == "True") return slots;
 

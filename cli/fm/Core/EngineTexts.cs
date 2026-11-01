@@ -92,6 +92,9 @@ internal static class EngineTexts
 
 	private static Dictionary<string, string>? positions;
 
+	/// <summary>The codes <see cref="Positions"/> has read in this run; empty until then, and in an English game.</summary>
+	public static IReadOnlyDictionary<string, string> KnownPositions => positions ?? [];
+
 	/// <summary>
 	/// The game's codes for the pitch positions in its language, by the English ones ("AMC" → "OOSM"); empty in
 	/// an English game. A code whose id no longer holds that code in the English block (a game update moved it)
@@ -116,6 +119,7 @@ internal static class EngineTexts
 		{
 			foreach (var line in File.ReadAllLines(target))
 				if (line.Split('\t') is [var code, var shown]) positions[code] = shown;
+			GameWords.Keep(positions.Values);
 			return positions;
 		}
 		try
@@ -135,6 +139,7 @@ internal static class EngineTexts
 			await File.WriteAllTextAsync(stamp, from);
 		}
 		catch (Exception) { positions.Clear(); }
+		GameWords.Keep(positions.Values);
 		return positions;
 	}
 

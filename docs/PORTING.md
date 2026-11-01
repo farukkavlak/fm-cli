@@ -651,6 +651,13 @@ Still open:
     ability, interest, value, wage, matches watched, best role, pros/cons (`ScoutedProConsList.ProsList/ConsList`),
     squad comparison (`ScoutedSquadComparisonPlayers`: `Ranking`, `Player.Name`), all in the game's words. Was labels
     ("Transfer Interest", "Negatives") and order. TR + EN: three scouted players, our own (the staff's view), unscouted.
+  - [x] Tactic positions in the game's codes: `tactic`, `tactic role/player/pi`, the pitch and slot lists show
+    `SpotShown` (engine codes, as the match list); a paired slot's side, which the game's codes lack, in the CLI's
+    words ("DM (sağ)"), left out on the pitch where the lane says it. Input takes the game's code first ("DM" is
+    both Turkish centre-backs, asked which), then the English one ("AMC", "DCR"), or the number. The line writer
+    leaves those codes be (`GameWords.Keep`): "DM" was being put into Turkish a second time as "DOS". The phase
+    words were fixed Turkish ("topla"); now labels. TR + EN: role/player/pi by Turkish, English, paired, wrong code,
+    bench name, number; English output unchanged.
   - [x] `penalties`: FM26's "Starting at …" / "On Subs bench" reading (and its fixed Turkish "ilk 11") removed; FM27
     gives no line there, the eleven comes from the tactic's slots. TR + EN.
   - [x] `fm stop` (`Core/Launcher.cs`): the quit question by its `Type` (`QuitGameDialog`) and the button sending

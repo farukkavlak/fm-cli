@@ -94,16 +94,17 @@ internal static partial class Program
 		{
 			var roleField = withoutBall ? "OOPRoleName" : "IPRoleName";
 			if (Ui.Ask(L("Which position?"), SlotLabels(slots, roleField)) is not { } asked) return 0;
-			words.Add(spots[asked]);
+			words.Add((asked + 1).ToString());
 		}
+		var masks = slots.Select(s => Field(s, "IPPosition")).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L($"usage: tactic role <position> [<role>] [--oop]   positions: {string.Join(" ", spots)}"));
+			Console.Error.WriteLine(L($"usage: tactic role <position> [<role>] [--oop]   positions: {string.Join(" ", masks.Select(m => SpotShown(m)))}"));
 			return 64;
 		}
 
-		if (Choose(spots, words[0], L("Position")) is not { } spot) return 1;
-		var at = spots.IndexOf(spot);
+		if (SlotOf(masks, words[0], L("Position")) is not { } at) return 1;
+		var spot = SpotShown(masks[at]);
 
 		List<JsonElement> lists = [];
 		await Until(async () =>
@@ -153,7 +154,7 @@ internal static partial class Program
 			return 1;
 		}
 
-		var phase = withoutBall ? "topsuz" : "topla";
+		var phase = withoutBall ? L("out of possession") : L("in possession");
 		if (words.Count < 2 && Ui.Interactive)
 		{
 			if (Ui.Ask(L($"Role of {spot} ({phase})"), roles, roles.IndexOf(current)) is not { } asked) return 0;
@@ -319,6 +320,57 @@ internal static partial class Program
 		if ((bits & 1048576) != 0) name += "L";
 		if ((bits & 2097152) != 0) name += "R";
 		return name;
+	}
+
+	/// <summary>
+	/// A pitch position as the game writes it in its language ("OOSM"), by the engine's own codes
+	/// (<see cref="EngineTexts.Positions"/>, read before). The game's codes do not say which side of
+	/// centre a paired slot stands on (DCL, DCR, STL…); that is said in the CLI's own words. In an
+	/// English game, or before the codes are read, the CLI's code as it always was. On the pitch the
+	/// lane says the side, and <paramref name="side"/> leaves it out.
+	/// </summary>
+	internal static string SpotShown(string mask, bool side = true)
+	{
+		var known = EngineTexts.KnownPositions;
+		if (known.Count == 0 || !long.TryParse(mask, out var bits)) return Spot(mask);
+		var left = (bits & (1048576 | 65536)) != 0;
+		var right = (bits & (2097152 | 32768)) != 0;
+		var central = bits & ~(1048576L | 2097152L);
+		if ((central & (32768 | 65536)) != 0) central = (central & ~(32768L | 65536L)) | 16384;
+		var code = Spot(central.ToString(System.Globalization.CultureInfo.InvariantCulture));
+		var shown = known.GetValueOrDefault(code, code);
+		return !side ? shown : left ? shown + L(" (left)") : right ? shown + L(" (right)") : shown;
+	}
+
+	/// <summary>
+	/// The slot a typed position stands for: its number in the listing, the game's code as shown
+	/// ("OOSM", "DM sağ"), the game's code of a pair when only one slot has it, else the CLI's English
+	/// code ("AMC", "DCR"). The game's words come first: "DM" is a centre-back in a Turkish game and a
+	/// defensive midfielder in English. Null, with the options said, when it stands for none or several.
+	/// </summary>
+	private static int? SlotOf(List<string> masks, string typed, string what, bool quiet = false)
+	{
+		static string Squash(string text) => new(Fold(text).Where(char.IsLetterOrDigit).ToArray());
+		var shown = masks.Select(m => SpotShown(m)).ToList();
+		var english = masks.Select(Spot).ToList();
+		var wanted = Squash(typed);
+		if (int.TryParse(typed, out var number) && number >= 1 && number <= masks.Count) return number - 1;
+		if (shown.FindIndex(s => Squash(s) == wanted) is >= 0 and var exact) return exact;
+		// The game's code of a pair: "DM" is both centre-backs.
+		var known = EngineTexts.KnownPositions;
+		var paired = Enumerable.Range(0, masks.Count).Where(i => known.Count > 0 && Squash(known.GetValueOrDefault(Spot(Central(masks[i])), "")) == wanted).ToList();
+		if (paired.Count == 1) return paired[0];
+		if (paired.Count == 0 && english.FindIndex(s => Squash(s) == wanted) is >= 0 and var code) return code;
+		var close = paired.Count > 1 ? paired : Enumerable.Range(0, masks.Count).Where(i => Squash(shown[i]).StartsWith(wanted, StringComparison.Ordinal) && wanted.Length > 0).ToList();
+		if (close.Count == 1) return close[0];
+		if (quiet) return null;
+		Console.Error.WriteLine(close.Count == 0 ? L($"{what}: there is no option '{typed}'. Options:") : L($"{what}: '{typed}' matches more than one option:"));
+		foreach (var i in close.Count == 0 ? Enumerable.Range(0, masks.Count) : close) Console.Error.WriteLine($"  {shown[i]}");
+		return null;
+
+		static string Central(string mask) => long.TryParse(mask, out var b)
+			? ((b & (32768 | 65536)) != 0 ? (b & ~(32768L | 65536L | 1048576L | 2097152L)) | 16384 : b & ~(1048576L | 2097152L)).ToString(System.Globalization.CultureInfo.InvariantCulture)
+			: mask;
 	}
 
 	/// <summary>Where a slot stands as the pitch is read: its line from the goal, then right to left.</summary>

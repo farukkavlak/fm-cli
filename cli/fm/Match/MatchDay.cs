@@ -35,6 +35,7 @@ internal static partial class Program
 	{
 		try
 		{
+			await EngineTexts.Positions(Fm);
 			var tactic = await Fm.GetJson("tactic");
 			if (!tactic.TryGetProperty("Slots", out var slots)) return;
 			var shape = slots.EnumerateArray()

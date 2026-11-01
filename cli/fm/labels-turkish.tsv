@@ -2364,3 +2364,7 @@ FUTURE PLAYING TIME	GELECEK OYNAMA SÜRESİ
 The training page shows no session buttons.	Antrenman sayfasında seans düğmesi görünmüyor.
 : {0} is sent off	: {0} kırmızı kartla oyundan atıldı
 Red card: {0} is off. A change to reshape the side?	Kırmızı kart: {0} oyundan atıldı. Takımı yeniden dizmek için değişiklik?
+ (left)	 (sol)
+ (right)	 (sağ)
+in possession	topla
+out of possession	topsuz

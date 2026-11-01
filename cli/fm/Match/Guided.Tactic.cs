@@ -17,6 +17,8 @@ internal static partial class Program
 
 		var dry = args.Contains("--dry");
 		var wanted = words.Count > 1 ? words[1] : null;
+		// Positions are shown, and may be typed, in the game's own codes.
+		await EngineTexts.Positions(Fm);
 
 		// During a match the planner's pages are gone; the match screen has its own list.
 		if (words.Count > 0 && words[0] == "mentality" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
@@ -93,9 +95,9 @@ internal static partial class Program
 
 		var rows = tactic.GetProperty("Slots").EnumerateArray().Select(slot => new[]
 		{
-			Spot(Field(slot, "IPPosition")),
+			SpotShown(Field(slot, "IPPosition")),
 			RoleOf(slot, withoutBall: false),
-			Spot(Field(slot, "OOPPosition")),
+			SpotShown(Field(slot, "OOPPosition")),
 			RoleOf(slot, withoutBall: true),
 			Field(slot, "Player") is { Length: > 0 } player ? player : "-",
 			rated ? Field(slot, "Effectiveness") is { Length: > 0 } score ? score : "-"
@@ -110,7 +112,7 @@ internal static partial class Program
 
 	/// <summary>"AMR   Asensio · Inside Forward": a slot as it reads in a list to choose from.</summary>
 	private static List<string> SlotLabels(List<JsonElement> slots, string roleField) =>
-		slots.Select(s => $"{Spot(Field(s, "IPPosition")),-4}  {(Field(s, "Player") is { Length: > 0 } p ? p : "—")} · {RoleOf(s, roleField == "OOPRoleName")}").ToList();
+		slots.Select(s => $"{SpotShown(Field(s, "IPPosition")),-4}  {(Field(s, "Player") is { Length: > 0 } p ? p : "—")} · {RoleOf(s, roleField == "OOPRoleName")}").ToList();
 
 	/// <summary>After a change, the pitch with what changed marked, for someone at a terminal.</summary>
 	private static async Task ShowChange(HashSet<(int, bool)> changed)
@@ -170,20 +172,28 @@ internal static partial class Program
 		if (words.Count == 0 && Ui.Interactive && squad.Count > 0)
 		{
 			if (Ui.Ask(L("Which position?"), SlotLabels(slots, "IPRoleName")) is not { } slotAsked) return 0;
-			words.Add(spots[slotAsked]);
+			words.Add((slotAsked + 1).ToString());
 		}
+		var masks = slots.Select(s => Field(s, "IPPosition")).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L($"usage: tactic player <position> <player>   positions: {string.Join(" ", spots)}"));
+			Console.Error.WriteLine(L($"usage: tactic player <position> <player>   positions: {string.Join(" ", masks.Select(m => SpotShown(m)))}"));
 			if (squad.Count > 0) Console.Error.WriteLine(L($"substitutes: {string.Join(", ", benchNames)}"));
 			return 64;
 		}
 
 		// A substitute's place has no position, so it goes by who is in it now: "tactic player Tosto
 		// Nabian" took an injured man off the bench, which the game will not start a match with.
-		if (Choose([.. spots, .. benchNames], words[0], L("Position")) is not { } spot) return 1;
-		var at = spots.IndexOf(spot);
-		var place = at >= 0 ? slots[at] : squad[benchNames.IndexOf(spot)];
+		var at = SlotOf(masks, words[0], L("Position"), quiet: true) ?? -1;
+		var benched = at >= 0 ? -1 : Matching(benchNames, n => n, words[0]) is [var one] ? benchNames.IndexOf(one) : -1;
+		if (at < 0 && benched < 0)
+		{
+			SlotOf(masks, words[0], L("Position"));
+			if (benchNames.Count > 0) Console.Error.WriteLine(L($"substitutes: {string.Join(", ", benchNames)}"));
+			return 1;
+		}
+		var spot = at >= 0 ? SpotShown(masks[at]) : benchNames[benched];
+		var place = at >= 0 ? slots[at] : squad[benched];
 		var slot = Field(place, at >= 0 ? "TeamSelectionIndex" : "Index");
 		var current = Field(place, at >= 0 ? "Player" : "Name");
 		var label = at >= 0 ? spot : L("bench");
@@ -200,7 +210,7 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
-				Console.Error.WriteLine(L($"usage: tactic player <position> <player>   positions: {string.Join(" ", spots)}"));
+				Console.Error.WriteLine(L($"usage: tactic player <position> <player>   positions: {string.Join(" ", masks.Select(m => SpotShown(m)))}"));
 				return 64;
 			}
 			if (Ui.Ask(L($"Who plays {label}?"), names) is not { } asked) return 0;

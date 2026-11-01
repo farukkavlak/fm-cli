@@ -11,6 +11,18 @@ internal static class GameWords
 {
 	private static readonly Dictionary<string, string> words = new(StringComparer.Ordinal);
 
+	/// <summary>Texts the CLI already has in the game's words, which a line must not put in them twice.</summary>
+	private static readonly HashSet<string> kept = new(StringComparer.Ordinal);
+
+	/// <summary>
+	/// Marks texts as the game's own words already, so a line leaves them be: a Turkish position code
+	/// can be an English one ("DM" is a centre-back in Turkish, a defensive midfielder in English).
+	/// </summary>
+	public static void Keep(IEnumerable<string> shown)
+	{
+		foreach (var text in shown) kept.Add(text);
+	}
+
 	/// <summary>Takes in the pairs an answer came with: base64 of "english\tshown" lines.</summary>
 	public static void Learn(string? header)
 	{
@@ -106,7 +118,7 @@ internal static class GameWords
 			var part = parts[i];
 			var core = part.Trim();
 			// A single letter inside a line is a code ("D (M)"), not one of the game's words.
-			if (core.Length < 2 || !words.TryGetValue(core, out var shown)) continue;
+			if (core.Length < 2 || kept.Contains(core) || !words.TryGetValue(core, out var shown)) continue;
 			parts[i] = part.Replace(core, shown);
 			carry = shown.Length - core.Length;
 			changed = true;

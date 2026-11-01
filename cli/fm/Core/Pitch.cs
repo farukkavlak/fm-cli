@@ -57,7 +57,7 @@ internal static class Pitch
 			if (Place(mask) is not var (line, lane)) continue;
 
 			var player = Field(slots[i], "Player") is { Length: > 0 } name ? Ui.Fit(name, Cell) : "—";
-			var spot = Program.Spot(mask);
+			var spot = Program.SpotShown(mask, side: false);
 			var role = Short(Program.RoleOf(slots[i], withoutBall));
 			var colour = changed.Contains((i, withoutBall)) ? "yellow" : line == Lines - 1 ? "aqua" : "white";
 
