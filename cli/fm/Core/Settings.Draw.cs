@@ -33,7 +33,8 @@ internal static partial class Program
 				var shown = Strings(control, "Shown");
 				if (shown.Count != source.Count) shown = source;
 				var current = int.TryParse(Field(control, "Selected"), out var selected) ? selected : -1;
-				return new(setting, pointer, shown, source, current, enabled);
+				var ids = Strings(control, "Ids");
+				return new(setting, pointer, shown, source, current, enabled, ids.Count == source.Count ? ids : null);
 		}
 
 		static List<string> Strings(JsonElement item, string name) =>
@@ -63,6 +64,8 @@ internal static partial class Program
 	private static int MatchChoice(SettingNow now, string value)
 	{
 		var wanted = Fold(value);
+		// The game's own word first: "turkish" is its key whether the list shows Türkçe or Turkish.
+		if (now.Ids?.FindIndex(id => id.Length > 0 && Fold(id) == wanted) is >= 0 and var keyed) return keyed;
 		var names = now.Choices.Select((c, i) => (Game: Fold(c), Source: Fold(i < now.Source.Count ? now.Source[i] : c))).ToList();
 
 		var exact = names.FindIndex(n => n.Game == wanted || n.Source == wanted);

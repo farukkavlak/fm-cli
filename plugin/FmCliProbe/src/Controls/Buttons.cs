@@ -428,6 +428,23 @@ internal static partial class Buttons
 		catch { return null; }
 	}
 
+	/// <summary>The word a row stands for (its record's PropertyValue when that is plain text, not a number or a record), or null.</summary>
+	internal static string IdOf(SI.Core.TypedValue choice)
+	{
+		try
+		{
+			var record = choice?.Get()?.TryCast<DynamicReference>();
+			if (record == null) return null;
+			var entries = Send.Entries(record);
+			if (entries.TryGetValue("RowData", out var row) && row != null && !row.IsNull) return IdOf(row);
+			if (!entries.TryGetValue("PropertyValue", out var value) || value == null || value.IsNull) return null;
+			if (value.Get()?.TryCast<DynamicReference>() != null) return null;
+			var text = value.AsString();
+			return string.IsNullOrEmpty(text) || int.TryParse(text, out _) ? null : text;
+		}
+		catch { return null; }
+	}
+
 	/// <summary>
 	/// The tactical role a row offers (its shown record's Role, the game's role bit: 4096 a
 	/// ball-playing goalkeeper), or null when it is not a role.

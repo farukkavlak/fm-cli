@@ -327,6 +327,11 @@ internal static partial class Buttons
 				if (ValueOf(children[c]) is { } inner) values.Add(inner.ToString());
 		}
 
+		// The game's own key for each row when it is a word, not a number: a language's is "turkish"
+		// whatever the list shows it as.
+		var ids = new List<string>();
+		for (var i = 0; i < count && i < 60; i++) ids.Add($"\"{Report.Escape(IdOf(choices[i]) ?? "")}\"");
+
 		// The named elements a list sits in say whose list it is (the squad table's is inside
 		// BindingRemapper #FirstTeam), which no label does. Walking the whole binding tree for the
 		// value it writes instead, on every poll, took the game down twice.
@@ -354,7 +359,8 @@ internal static partial class Buttons
 			+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
 			+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "
 			+ "\"Shown\": [" + string.Join(", ", shownNames.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "
-			+ "\"Values\": [" + string.Join(", ", values) + "]" + RolesJson(choices, count) + submenus + "}";
+			+ "\"Values\": [" + string.Join(", ", values) + "], "
+			+ "\"Ids\": [" + string.Join(", ", ids) + "]" + RolesJson(choices, count) + submenus + "}";
 	}
 
 	/// <summary>
