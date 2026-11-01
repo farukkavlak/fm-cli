@@ -31,6 +31,7 @@ internal static partial class Program
 		}
 
 		var keeper = Field(await Fm.Pull(path, "IsGoalkeeper"), "IsGoalkeeper") == "True";
+		var positions = await EngineTexts.Positions(Fm);
 		var stats = await Fm.Pull($"{path}.Form.MatchRatingsStats", "GamesPlayed,MaxValue,MinValue,AverageRating,Goals,Assists,CleanSheets");
 		if (Field(stats, "GamesPlayed").Length == 0)
 		{
@@ -53,7 +54,7 @@ internal static partial class Program
 			{
 				var played = Field(r.Record, "Position") is { Length: > 0 } p && p != "0";
 				return new MatchRow(r.Number, MatchDate(Field(r.Record, "Date")),
-					played ? Spot(Field(r.Record, "Position")) : "-", played ? RoleName(Field(r.Record, "Role")) : "",
+					played ? Position(Field(r.Record, "Position"), positions) : "-", played ? RoleName(Field(r.Record, "Role")) : "",
 					Field(r.Record, "Team.Name"), Field(r.Record, "Fixture.ResultLinkableNoSpaces"), Field(r.Record, "GameTime"),
 					Decimal(Field(r.Record, keeper ? "ExpectedGoalsAgainst" : "ExpectedGoals")),
 					keeper ? "" : Field(r.Record, "Assists"), keeper ? "" : Field(r.Record, "Goals"),
@@ -126,6 +127,17 @@ internal static partial class Program
 		DateTime.TryParseExact(date, "yyyy-MM-dd", null, DateTimeStyles.None, out var day)
 			? $"{day.Day} {Months[day.Month - 1][..3]} {day.Year}"
 			: date;
+
+	/// <summary>
+	/// Where he played, as the game writes the position in its language ("OOSM"; "AMC" in English). The side
+	/// a central player stood on (DCL, DCR) has no code of its own in the game, and is not said.
+	/// </summary>
+	private static string Position(string mask, IReadOnlyDictionary<string, string> positions)
+	{
+		if (!long.TryParse(mask, out var bits)) return mask;
+		var code = Spot((bits & ~(1048576L | 2097152L)).ToString(CultureInfo.InvariantCulture));
+		return positions.GetValueOrDefault(code, code);
+	}
 
 	/// <summary>
 	/// The role he played, by its code in the game's own words: the names the tactic's role lists

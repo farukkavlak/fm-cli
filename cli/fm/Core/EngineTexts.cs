@@ -78,6 +78,66 @@ internal static class EngineTexts
 		await fm.Get("translate", ("engine", "1"), ("reload", "1"));
 	}
 
+	/// <summary>
+	/// The pitch positions' codes as the engine writes them ("AMC"), by their ids: the same ids in every
+	/// language, so a position comes out as the game writes it in its own ("OOSM" in Turkish, "OMZ" in German).
+	/// AML stands apart from the other thirteen in FM27's file.
+	/// </summary>
+	private static readonly (string Code, ulong Id)[] PositionCodes =
+	[
+		("GK", 269119505), ("DR", 269119504), ("DL", 269119502), ("DC", 269119503), ("WBR", 269119501), ("WBL", 269119499),
+		("DM", 269119500), ("MR", 269119498), ("ML", 269119496), ("MC", 269119497), ("AMR", 269119495), ("AML", 268868848),
+		("AMC", 269119493), ("ST", 269119494),
+	];
+
+	private static Dictionary<string, string>? positions;
+
+	/// <summary>
+	/// The game's codes for the pitch positions in its language, by the English ones ("AMC" → "OOSM"); empty in
+	/// an English game. A code whose id no longer holds that code in the English block (a game update moved it)
+	/// is left out, and the English code is shown. Read from the game file once per language and kept.
+	/// </summary>
+	public static async Task<IReadOnlyDictionary<string, string>> Positions(Bridge fm)
+	{
+		if (positions != null) return positions;
+		positions = [];
+		System.Text.Json.JsonElement engine;
+		try { engine = await fm.GetJson("translate", ("engine", "1")); }
+		catch { return positions; }
+		var language = Field(engine, "Language");
+		var file = Field(engine, "File");
+		if (language.Length == 0 || language.StartsWith("english", StringComparison.OrdinalIgnoreCase) && language.Length <= 7) return positions;
+		if (!BlockNames.TryGetValue(language, out var blocks) || file.Length == 0 || !File.Exists(file)) return positions;
+
+		var target = Path.Combine(Folder, language + ".positions.tsv");
+		var stamp = target + ".stamp";
+		var from = $"{new FileInfo(file).Length}:{File.GetLastWriteTimeUtc(file).Ticks}";
+		if (File.Exists(target) && File.Exists(stamp) && File.ReadAllText(stamp).Trim() == from)
+		{
+			foreach (var line in File.ReadAllLines(target))
+				if (line.Split('\t') is [var code, var shown]) positions[code] = shown;
+			return positions;
+		}
+		try
+		{
+			var english = new Dictionary<ulong, string>();
+			var shownIn = new Dictionary<ulong, string>();
+			foreach (var (name, first, table) in Blocks(Unpack(File.ReadAllBytes(file))))
+			{
+				var into = name == "English" ? english : blocks.Contains(name) ? shownIn : null;
+				if (into == null) continue;
+				foreach (var (id, text) in table) into[((ulong)(first == 0 ? 1 : 0) << 32) | id] = text;
+			}
+			foreach (var (code, id) in PositionCodes)
+				if (english.GetValueOrDefault(id) == code && shownIn.GetValueOrDefault(id) is { Length: > 0 } shown) positions[code] = shown;
+			Directory.CreateDirectory(Folder);
+			await File.WriteAllLinesAsync(target, positions.Select(p => $"{p.Key}\t{p.Value}"));
+			await File.WriteAllTextAsync(stamp, from);
+		}
+		catch (Exception) { positions.Clear(); }
+		return positions;
+	}
+
 	/// <summary>Each text of a language's blocks against the English blocks' text under the same id.</summary>
 	private static Dictionary<string, string> Build(string file, string[] language)
 	{

@@ -641,8 +641,10 @@ Still open:
     rows from `Form.MatchesData` (`Index`, `Date`, `Position` bits, `Role` code, `GameTime` in the game's words, xG, goals,
     `TotalRating`, `Team.Name`, `Fixture.ResultLinkableNoSpaces`), keeper by `IsGoalkeeper`. Was labels ("Apps",
     "Avg. Rating"…) and column order; FM27 had renamed two labels, so average and goals were empty. Position is the
-    CLI's code (`AMC`, as the tactic shows it): the game's own short form has no path, and its parts do not translate
-    one to one. Role by the tactic's role names. TR + EN: outfield, keeper, sub, did not play, same rows as before.
+    game's own code in its language (`AMC`, `OOSM`, `OMZ`): the engine's position codes by id (`EngineTexts.Positions`,
+    13 in one block from 269119493, AML at 268868848), checked against the English block, kept per language in
+    `~/.config/fm-cli/engine/<language>.positions.tsv`. The page's "AM (C)" form is built by the engine from parts
+    that have no ids of their own. Role by the tactic's role names. TR + EN: outfield, keeper, sub, did not play, same rows as before.
     Players of other clubs have no form here (old and new alike).
   - [x] `player --report` (`Transfer/ScoutReport.cs`): was not working on FM27 (the tile it clicked is gone). Now the
     player's `PlayerReportForContextTeam`, with `team`, `human` and `InPossession` set beside him: grade, sentence,
