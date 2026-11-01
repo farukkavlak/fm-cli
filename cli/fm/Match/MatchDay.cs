@@ -445,8 +445,12 @@ internal static partial class Program
 				var why = await DugoutText();
 				// Who is down, when it is one of ours: the planner's table says so (the
 				// stop was announced without a name).
-				var down = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && (ourNames is not { Count: > 0 } || ourNames.Contains(p.Key))).Select(p => p.Key).ToList();
-				Console.WriteLine(L($"  The match stopped at {Field(state, "MatchTime")}'{(down.Count > 0 ? L($": {string.Join(", ", down)} is injured") : why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}"));
+				var men = await MatchPlayers(atStop: true);
+				bool Ours(string name) => ourNames is not { Count: > 0 } || ourNames.Contains(name);
+				var down = men.Where(p => p.Value.Injury != 0 && Ours(p.Key)).Select(p => p.Key).ToList();
+				// A red card stops play the same way, with no one hurt: the player's own record says so.
+				var sentOff = down.Count > 0 ? [] : men.Where(p => p.Value.Red && Ours(p.Key)).Select(p => p.Key).ToList();
+				Console.WriteLine(L($"  The match stopped at {Field(state, "MatchTime")}'{(down.Count > 0 ? L($": {string.Join(", ", down)} is injured") : sentOff.Count > 0 ? L($": {string.Join(", ", sentOff)} is sent off") : why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}"));
 
 				// Called again while stopped, `match` means: go on as things are.
 				if (!Ui.Interactive && firstLook)
@@ -465,7 +469,9 @@ internal static partial class Program
 					Console.WriteLine(L("  For a substitution: sub <off> <on> (it carries the match on too)   ·   to carry on without one: match"));
 					return 0;
 				}
-				Console.WriteLine("  " + L($"Injury stop: {down.FirstOrDefault() ?? L("a player")} cannot continue. Who comes on?"));
+				Console.WriteLine("  " + (sentOff.Count > 0 && down.Count == 0
+					? L($"Red card: {sentOff[0]} is off. A change to reshape the side?")
+					: L($"Injury stop: {down.FirstOrDefault() ?? L("a player")} cannot continue. Who comes on?")));
 				await Substitute(false, down.Count > 0 ? ["sub", down[0]] : ["sub"]);
 				await LearnShape();
 				await Fm.Get("press", ("ptr", Field(PlannerStop(await Fm.GetJson("buttons", ("json", "1"))) ?? confirm, "Pointer")));

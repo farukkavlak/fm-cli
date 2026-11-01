@@ -254,6 +254,12 @@ Still open:
   Turkish game): the title is now read as shown (`Text.ShownOf`). TR 3/3; EN, DE not tried.
 - [x] `InGame`: the in-game Continue's flow (`continue.State`) is bound in a save on every screen and not on the
   main menu (measured once, cold start), so it replaces the list of match-day stops (`SquadNumbers` was missing).
+- [ ] In-match substitution on FM27 (`sub`, and the stop's "Who comes on?"): the ten players' menus in
+  `BindingRoot_SquadOverviewPlayerBlock` come with no rows (seen at a red-card stop, EN). It crashed on the empty menu;
+  empty menus are now left out and the command says the menu is not there. Still by words/order: the bench is the
+  submenu whose first row looks like "3/5 …", a name is the first row, " - " splits it. Never tried on FM27.
+  - A red-card stop was called an injury stop: now the player's `RedCardedInMatch` names it.
+- [ ] The active tactic is named "xxxx…" (200 letters) since the tactic-file title test; there is no rename command.
 - [ ] Squad numbers before a match: the screen stays up a moment after the numbers are sent and `match` sent them
   again into a shut button ("is disabled"). Now waits for the screen to change: not tried yet.
 - [x] NeedAction with nothing to answer (`Respond` 0, no priority message): FM27 wants a message read (a forwarded
@@ -605,9 +611,10 @@ Still open:
   - [x] Trait training and `schedule set/style`: FM26's ways (by "Start New Trait Training", "Monday", "Training",
     "Today") removed; when FM27's actions menu or session buttons are not there the command says so. TR + EN: trait
     list 2/2, unknown trait refused, schedule options read, one session changed and back.
-  - [~] `Program/Program.Messages*.cs`: FM27 goes straight to its own block (`MessagesToolBlockMessageContent`, rows
-    after `newsitem.NewsBodyString`) and no longer waits 3 s on FM26's "Attachments" heading (reply 2.1 s, TR). The FM26
-    heading path and its card readers (titles, "About Club") are still there, now unused on FM27. TR + EN.
+  - [x] `Program/Program.Messages*.cs`: attachments are read only from FM27's own block (`MessagesToolBlockMessageContent`,
+    rows after `newsitem.NewsBodyString`). FM26's "Attachments" heading path and its 40 card readers (titles, "About
+    Club", English labels) removed, with their 129 labels. TR + EN: loan report, team of the week, recruitment advice.
+    The data-path readers (offer, scout report, win bonuses…) are in git if FM27's block wants them back.
   - [ ] `Match/MatchLive.cs` key-moment words (see above).
 - [x] `release`: FM27's actions menu "Contract › Release On A Free" / "Mutual Termination" by their actions
   (`PersonReleaseClubFreeTransfer`, `PersonMutualTerminationContract`), the menu raised from the player's record (a
@@ -633,6 +640,12 @@ Still open:
   - Looked (TR, live, 0-1 at 54'): the root `Match`'s `Incidents`, `HomeEventInfos`/`AwayEventInfos`, `TeamIncidents`
     stay empty until the whistle, `GoalscorersString` too; only the score in `/state` moves live. Next: the dugout's
     `MatchDugoutTimelineEvents`, or a score change for goals.
+  - Looked again (EN, live, 1 Nov): the metadata names `MatchLowerThirdPopupType` / `…PopupVisibility` / `…Player1`,
+    `MatchEventBannerVisibility`, `MatchFlashingCommentaryKey`, `MatchDugoutLatestEventTimestamp` (30, 41 = minutes).
+    `/find` reaches them only under UI panels (first node by name, so values flicker between instances); bound from
+    the root `Match` they have no value. The banner showed once (type 1) at a free kick. Not a sign yet.
+    Next: read the banner's own panel path, and the player records (`RedCardedInMatch`, `YellowCardedInMatch`,
+    `MatchInjuryType`, already read by `MatchPlayers`) + the score for goals/cards/injuries.
 - [x] `fm prep` on FM27: the Match Preparation sessions from today up to the next match (`NextFixture`'s distance in days),
   read off the calendar's session buttons by `SessionType` 100–199 (seen: 100 Press Avoidance … 108 Penalties; 0–7 tactical,
   200 individual, 300+ rest/recovery, 402 travel). The range is what the game gave, not a published list. Changing goes

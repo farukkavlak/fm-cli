@@ -167,9 +167,11 @@ internal static partial class Program
 				|| typed.EndsWith(" " + full, StringComparison.OrdinalIgnoreCase));
 
 		// A player's menu is one in his block on the match screen, known by where it stands, not by a row's words.
+		// A menu not drawn yet has no rows (at an injury stop): it is left out until it has.
 		async Task<List<JsonElement>> Menus() =>
 			(await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
 				.Where(d => d.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "BindingRoot_SquadOverviewPlayerBlock"))
+				.Where(d => d.TryGetProperty("Choices", out var choices) && choices.GetArrayLength() > 0)
 				.ToList();
 
 		// The bench is the submenu that starts with the count of changes ("3/5 Substitutes", "15/15
