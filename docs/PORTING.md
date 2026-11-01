@@ -635,17 +635,18 @@ Still open:
   its detail from `Team.Club.ManagerRules` and `WageBudget`. 2.7 s. TR + EN.
 - [x] Match report goals: the minute is the end of the game's `TimeString` ("37'", "90+2'"); own goal and penalty come from
   `EventType` (1, 2), not the game's prefix ("o.g." in English was stripped, "k.k." in Turkish was not). TR + EN (no own goal in the EN read).
-- [ ] Live key moments (`match --play`, view 1) are picked by words in the commentary (`MatchLive.KeyWords`, TR + EN only).
-  Find the event's own type in the live data (a score change is a goal; cards and subs?).
-  - Looked (TR, live, 0-1 at 54'): the root `Match`'s `Incidents`, `HomeEventInfos`/`AwayEventInfos`, `TeamIncidents`
-    stay empty until the whistle, `GoalscorersString` too; only the score in `/state` moves live. Next: the dugout's
-    `MatchDugoutTimelineEvents`, or a score change for goals.
-  - Looked again (EN, live, 1 Nov): the metadata names `MatchLowerThirdPopupType` / `…PopupVisibility` / `…Player1`,
-    `MatchEventBannerVisibility`, `MatchFlashingCommentaryKey`, `MatchDugoutLatestEventTimestamp` (30, 41 = minutes).
-    `/find` reaches them only under UI panels (first node by name, so values flicker between instances); bound from
-    the root `Match` they have no value. The banner showed once (type 1) at a free kick. Not a sign yet.
-    Next: read the banner's own panel path, and the player records (`RedCardedInMatch`, `YellowCardedInMatch`,
-    `MatchInjuryType`, already read by `MatchPlayers`) + the score for goals/cards/injuries.
+- [x] Live key moments (`match --play`, view 1) come from the plugin's `/moments`: the match frame's own
+  `CommentaryEvents`, each with its `CommentaryEventID` and the class the match screen gives it for its banner
+  (`FMMatchUIComponent.CommentaryEventToLowerThirdType`: Goal, Card, Substitution, Injury, VAR, DisallowedGoal).
+  No words; the word list (`MatchLive.KeyWords`) is gone.
+  - The list is worked out ahead of play (202 events, 135 played): only up to `CurrentLastEventIndex` is sent.
+  - A slice is 1/4 s, but slices drift from the clock after the first half's added time: the minute is the
+    clock when read, less the short gap in slices.
+  - Seen live in the panel, matched to `/moments` line for line: TR (Konyaspor: goal, card, three subs) and
+    EN (Monaco 3-3: goals, cards, subs, VAR, `DisallowedGoal`). A card's first line can be the lead-up
+    ("elini cebine götürüyor"), as the game sorts it. No injury or red card seen yet.
+- [x] `next` passes FM27's `CompetitionHub` (the league round-up; one Continue press and the flow is `CanContinue`).
+  Seen once by hand; a stop there under `next` not seen again yet.
 - [x] `fm prep` on FM27: the Match Preparation sessions from today up to the next match (`NextFixture`'s distance in days),
   read off the calendar's session buttons by `SessionType` 100–199 (seen: 100 Press Avoidance … 108 Penalties; 0–7 tactical,
   200 individual, 300+ rest/recovery, 402 travel). The range is what the game gave, not a published list. Changing goes
@@ -756,8 +757,7 @@ What can break when the language, theme, terminal, machine or game version chang
 
 **Other**
 
-- Key moments: Turkish and English marker words only; other languages show full commentary
-  (`MatchLive.KeyWords`).
+- Key moments: the game's own class of each commentary event (`/moments`), any language.
 - Live stats: no live possession or shots during a match; the post-match report has them.
 - `Labels.Source` maps Turkish back to English; duplicate Turkish values can map wrong. Keep new
   labels unique.

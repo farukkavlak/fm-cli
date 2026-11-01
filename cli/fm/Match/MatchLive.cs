@@ -46,7 +46,7 @@ internal static class MatchLive
 	/// <summary>Draws the panel when its text changed. Nothing when the output is not a terminal.</summary>
 	public static void Draw(string board, string minute, string period, string stats, string formation,
 		IReadOnlyList<(string Spot, string Player)> shape, int view, PanelConfig config, IEnumerable<string> events,
-		IReadOnlyList<string>? radar = null)
+		IEnumerable<string> moments, IReadOnlyList<string>? radar = null)
 	{
 		if (!Ui.Rich) return;
 		drawing = true;
@@ -74,7 +74,7 @@ internal static class MatchLive
 		var count = Math.Clamp(config.Events, 0, 12);
 		var shown = view == 2 || count == 0
 			? []
-			: events.OrderBy(Seconds).Where(e => view == 0 || !KnownKeyLanguage || KeyMoment(e)).TakeLast(count).ToList();
+			: (view == 0 ? events : moments).OrderBy(Seconds).TakeLast(count).ToList();
 		if (shown.Count == 0 && view != 2)
 			lines.Add($"  {Paint("2", view == 1 ? L("No key moments yet.") : L("Waiting for the first event…"))}");
 		foreach (var line in shown)
@@ -95,24 +95,26 @@ internal static class MatchLive
 		Console.Write("\x1b[?2026h\x1b[H" + string.Join("\n", lines.Select(l => l + "\x1b[0m\x1b[K")) + "\n\x1b[J\x1b[?2026l");
 	}
 
-	// The words that make a line a key moment, in the two languages the CLI can read. Unknown
-	// languages fall back to the full commentary rather than hiding everything.
-	private static readonly string[] KeyWords =
-	[
-		"gol", "goal", "sarı kart", "kirmizi kart", "kırmızı kart", "yellow card", "red card", "sent off",
-		"sakat", "injur", "değişiklik", "degisiklik", "substitut", "penaltı", "penalt", "own goal", "kendi kalesine",
-	];
+	/// <summary>
+	/// Whether a commentary event is a key moment: the class the match screen gives its id for the
+	/// banner it puts up (Goal, Card, Substitution, Injury, VAR, DisallowedGoal), "None" for the rest.
+	/// The game's own sorting, the same in every language.
+	/// </summary>
+	internal static bool KeyMoment(string kind) => kind.Length > 0 && kind != "None";
 
-	// The marker words are Turkish and English. Another language gets the full commentary rather
-	// than an empty key-moments view.
-	private static bool KnownKeyLanguage =>
-		Labels.Language.StartsWith("turkish", StringComparison.OrdinalIgnoreCase)
-		|| Labels.Language.StartsWith("english", StringComparison.OrdinalIgnoreCase);
-
-	internal static bool KeyMoment(string line)
+	/// <summary>
+	/// The match clock of an event, as "mm:ss": the clock now, less how long ago it happened in the
+	/// match's time slices (four a second). The slices themselves run apart from the clock after the
+	/// first half's added time, so only the short gap is taken from them; with no clock to read, the
+	/// slice alone stands in.
+	/// </summary>
+	internal static string Placed(string clock, int now, int slice)
 	{
-		var text = line.ToLowerInvariant();
-		return KeyWords.Any(word => text.Contains(word, StringComparison.Ordinal));
+		var parts = clock.Split(':');
+		var at = parts.Length == 2 && int.TryParse(parts[0], out var minute) && int.TryParse(parts[1], out var second)
+			? Math.Max(0, minute * 60 + second - Math.Max(0, now - slice) / 4)
+			: Math.Max(0, slice / 4);
+		return $"{at / 60:00}:{at % 60:00}";
 	}
 
 	/// <summary>A small pitch: one line per phase, the player's surname in his lane.</summary>

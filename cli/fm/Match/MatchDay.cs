@@ -160,6 +160,30 @@ internal static partial class Program
 	}
 
 	/// <summary>The score with the sides' names, as the live panel shows it.</summary>
+	/// <summary>
+	/// The key moments played since the last reading, put on <paramref name="moments"/> with the clock
+	/// they happened at; the index to read from next. Each commentary event comes with the class the
+	/// match screen gives it for its banner, so nothing is told from the line's words.
+	/// </summary>
+	private static async Task<int> ReadMoments(JsonElement state, List<(string Minute, string Said)> moments, int from)
+	{
+		JsonElement read;
+		try { read = await Fm.GetJson("moments", ("from", from.ToString(System.Globalization.CultureInfo.InvariantCulture))); }
+		catch (FmError) { return from; }
+		if (read.ValueKind != JsonValueKind.Object || !read.TryGetProperty("Events", out var events)) return from;
+		var now = int.TryParse(JsonRead.RawText(read, "Now"), out var slice) ? slice : 0;
+		var next = from;
+		foreach (var e in events.EnumerateArray())
+		{
+			if (int.TryParse(JsonRead.RawText(e, "Index"), out var index)) next = Math.Max(next, index + 1);
+			if (!MatchLive.KeyMoment(Field(e, "Kind"))) continue;
+			var at = int.TryParse(JsonRead.RawText(e, "Slice"), out var s) ? s : now;
+			moments.Add((MatchLive.Placed(Field(state, "MatchTime"), now, at), Field(e, "Line")));
+		}
+		if (moments.Count > 40) moments.RemoveRange(0, moments.Count - 40);
+		return next;
+	}
+
 	private static string LiveBoard(JsonElement state, (string Own, string Opponent)? names)
 	{
 		var home = Field(state, "HomeScore");
@@ -236,6 +260,9 @@ internal static partial class Program
 		catch (FmError) { ourNames = []; }
 		string? lastNamed = null;
 		var heard = new Queue<(string Minute, string Said)>();
+		// The key moments: the events the game itself sorts as goals, cards, changes and injuries.
+		var moments = new List<(string Minute, string Said)>();
+		var momentFrom = 0;
 		var advised = new HashSet<string>();
 		var firstLook = true;
 		var pressedAt = DateTime.MinValue;
@@ -588,8 +615,9 @@ internal static partial class Program
 					var radarLines = frame == null ? null : RadarView(frame, sides, radarStyle, panel.Colour, RadarWidth, radarRows);
 					MatchLive.Draw(LiveBoard(state, names), Field(state, "MatchTime"), LivePeriod(state), stats,
 						liveFormation, liveShape, liveView, panel,
-						heard.Select(h => $"{h.Minute,6}  {h.Said}"), radarLines);
+						heard.Select(h => $"{h.Minute,6}  {h.Said}"), moments.Select(m => $"{m.Minute,6}  {m.Said}"), radarLines);
 				}
+				momentFrom = await ReadMoments(state, moments, momentFrom);
 				if (radarOn) await ReadRadar();
 				DrawLive();
 
