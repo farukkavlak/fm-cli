@@ -590,6 +590,8 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] `fm calendar`: today's month is the calendar's own entry `Human.GeneralCalendar.TodayMonthDropdownEntry`
+  (`PropertyValue`, the month list's value), not a click on the button labelled "Today". EN; TR pending.
 - [x] `fm jobs` on FM27 (was "could not be read"): the table (in `#JobMarketTableBlock`, found by `/checkrows` `Names`)
   hands all 644 rows' records (JobStatus: `State` True = no manager, `Status` job security, `Team`, `Manager`), read
   with `Team.Name/Division.Name/Nation.ThreeLetterName/LeaguePosition`, `Team.Club.ReputationScope.DisplayString`,

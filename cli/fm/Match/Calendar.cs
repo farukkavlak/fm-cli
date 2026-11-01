@@ -137,42 +137,20 @@ internal static partial class Program
 		}
 
 		// The list counts months from the season's first, which the names (the game's own, in its
-		// language) would have to be read for. Its Today button chooses the month the game is in, so
-		// the one chosen after it is today's and the rest count from there.
+		// language) would have to be read for. The calendar keeps today's month as an entry of that
+		// list (TodayMonthDropdownEntry, what its Today button writes to it), so the rest count from it.
 		if (!DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var today))
 		{
 			Console.Error.WriteLine(L("The game's date could not be read."));
 			return null;
 		}
-		var todayButton = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.FirstOrDefault(b => Field(b, "Label") == "Today" && Field(b, "Events").Contains("SetDatastoreValue", StringComparison.Ordinal));
-		if (todayButton.ValueKind == JsonValueKind.Object)
-		{
-			// Where the list stands before the click. The game moves it a moment later (measured: the
-			// read straight after the click still gives the old month, 95–130 ms; the new one is there
-			// 198–304 ms), so two equal reads of the place it was would pass for "settled" and the whole
-			// month would be counted from the wrong one. The sign is a value that has **moved** and then
-			// held — and the button being refused means it is already on today (its "Today" is disabled
-			// there), so nothing has to be waited for.
-			var before = Field(list, "Selected");
-			var clicked = await Fm.Get("click", ("ptr", Field(todayButton, "Pointer")));
-			if (!clicked.StartsWith("error", StringComparison.Ordinal))
-			{
-				var previous = "";
-				await Until(async () =>
-				{
-					list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Name") == "MonthDropdown");
-					var now = list!.ValueKind == JsonValueKind.Object ? Field(list, "Selected") : "";
-					var settled = now.Length > 0 && now != before && now == previous;
-					previous = now;
-					return settled;
-				}, seconds: 8, every: 0.3);
-			}
-		}
+		int? fromToday = null;
+		await Until(async () => int.TryParse(Field(await Fm.Pull("Human.GeneralCalendar.TodayMonthDropdownEntry", "PropertyValue"), "PropertyValue"), out var v)
+			&& (fromToday = v) != null, seconds: 3, every: 0.2);
 		var labels = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 		var values = list.GetProperty("Values").EnumerateArray().Select(v => v.ValueKind == JsonValueKind.Number ? v.GetInt32() : int.MinValue).ToList();
 		var at = int.TryParse(Field(list, "Selected"), out var chosen) && chosen >= 0 && chosen < values.Count ? chosen : 0;
-		var todayValue = values[at] == int.MinValue ? 0 : values[at];
+		var todayValue = fromToday ?? (values[at] == int.MinValue ? 0 : values[at]);
 		var months = new List<CalendarMonthChoice>();
 		for (var i = 0; i < labels.Count && i < values.Count; i++)
 		{
