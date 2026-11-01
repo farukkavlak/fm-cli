@@ -216,6 +216,18 @@ internal static partial class Program
 			if (Ui.Ask(L($"Who plays {label}?"), names) is not { } asked) return 0;
 			words.Add(names[asked]);
 		}
+		// The one in the place now is not on its list: named, it is no change. He is known by the
+		// place's own PlayerIndex, his full name from the squad.
+		if (Matching(names, n => n, words[1]).Count == 0 && Field(place, "PlayerIndex") is { Length: > 0 } inPlace and not "-1")
+		{
+			var full = Field((await Fm.Pull("Human.Team.Players", "Name,Index", list: true)).EnumerateArray()
+				.FirstOrDefault(p => Field(p, "Index") == inPlace), "Name");
+			if (Matching(new[] { full, current }.Where(n => n.Length > 0), n => n, words[1]).Count > 0)
+			{
+				Console.WriteLine(L($"{label} is already {(full.Length > 0 ? full : current)}."));
+				return 0;
+			}
+		}
 		if (Choose(names, words[1], L("Player")) is not { } name) return 1;
 
 		var player = offered[names.IndexOf(name)].Index;
