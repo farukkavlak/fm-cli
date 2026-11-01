@@ -2475,3 +2475,4 @@ Match preparation sessions until the match on {0} {1}:	{0} {1} maçına kadarki 
   none	  yok
 \nTo change one: schedule set <day> <1|2|3> <session>   (the whole week: schedule)	\nBirini değiştirmek: schedule set <gün> <1|2|3> <seans>   (bütün hafta: schedule)
 FM27 has no match focuses to choose; the preparation is the week's sessions: schedule set <day> <1|2|3> <session>	FM27'de seçilecek maç odağı yok; hazırlık haftanın seanslarıdır: schedule set <gün> <1|2|3> <seans>
+(pen) 	(penaltı) 

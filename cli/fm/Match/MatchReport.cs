@@ -146,8 +146,11 @@ internal static class MatchReport
 				// for the player who put it in), 2 a penalty ("pen 56'"). Other types are cards and the like.
 				var type = F(entry, "EventType");
 				if (type is not ("0" or "1" or "2")) continue;
-				var time = string.Join(' ', F(entry, "TimeString").Split(' ', StringSplitOptions.RemoveEmptyEntries));
-				if (type == "1") time = L("(own goal) ") + time.Replace("o.g.", "").Trim();
+				// The minute is the end of the game's text ("37'", "90+2'"); what comes before it is the
+				// game's word for the kind ("o.g.", "k.k.", "pen"), which the type already says.
+				var shown = string.Join(' ', F(entry, "TimeString").Split(' ', StringSplitOptions.RemoveEmptyEntries));
+				var minute = System.Text.RegularExpressions.Regex.Match(shown, @"\d+(\+\d+)?'$") is { Success: true } m ? m.Value : shown;
+				var time = type switch { "1" => L("(own goal) ") + minute, "2" => L("(pen) ") + minute, _ => minute };
 				var row = (F(entry, "Row") is { Length: > 0 } at ? at : $"fmcli.{list.Replace('.', '_')}.{F(entry, "Index")}") + ".Player";
 				var name = F(await fm.Pull(row, "Name"), "Name");
 				goals.Add($"{name} {time}".Trim());

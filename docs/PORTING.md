@@ -585,6 +585,10 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] Match report goals: the minute is the end of the game's `TimeString` ("37'", "90+2'"); own goal and penalty come from
+  `EventType` (1, 2), not the game's prefix ("o.g." in English was stripped, "k.k." in Turkish was not). TR; EN pending.
+- [ ] Live key moments (`match --play`, view 1) are picked by words in the commentary (`MatchLive.KeyWords`, TR + EN only).
+  Find the event's own type in the live data (a score change is a goal; cards and subs?).
 - [x] `fm prep` on FM27: the Match Preparation sessions from today up to the next match (`NextFixture`'s distance in days),
   read off the calendar's session buttons by `SessionType` 100–199 (seen: 100 Press Avoidance … 108 Penalties; 0–7 tactical,
   200 individual, 300+ rest/recovery, 402 travel). The range is what the game gave, not a published list. Changing goes
