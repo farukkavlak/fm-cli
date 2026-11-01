@@ -590,6 +590,10 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] `training <player> --report`: FM27 offers it in his actions menu ("Training › Request Training Report › <coach>",
+  action `PersonRequestTrainingReport`, one entry per coach); chosen by action and entry, not the tile and a list labelled
+  "Request Training Report". The report message is shown as `reply` shows one: in FM27 (Launch Preview) its body draws
+  empty in the game too, only the title and the answers (Apply Advice, Delegate…). EN; TR pending.
 - [x] `fm calendar`: today's month is the calendar's own entry `Human.GeneralCalendar.TodayMonthDropdownEntry`
   (`PropertyValue`, the month list's value), not a click on the button labelled "Today". EN; TR pending.
 - [x] `fm jobs` on FM27 (was "could not be read"): the table (in `#JobMarketTableBlock`, found by `/checkrows` `Names`)

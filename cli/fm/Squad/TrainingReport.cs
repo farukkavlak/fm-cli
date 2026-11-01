@@ -3,9 +3,8 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// A coach's training report on a player. The "Training Rating" tile on his
-/// page opens his training, where "Request Training Report" is a list of the coaches; the one
-/// chosen sends a message straight away ("Fred's training report"): a few sentences, and a
+/// A coach's training report on a player. FM27 offers it in his actions menu, one entry per coach
+/// (action PersonRequestTrainingReport); the one chosen sends a message straight away ("Fred's training report"): a few sentences, and a
 /// Progress Report attached — the trend, a few attributes (which ones varies by player), the
 /// training rating, a load level ("None", "Half"; drawn with the condition icon) and his unit.
 /// The message answers "Apply Advice" and "Criticise …'s Training".
@@ -24,40 +23,18 @@ internal static partial class Program
 		// The report arrives as a new message at once; what was there before is noted to tell it
 		// apart. It is noted first, since reading the inbox can bring the inbox page up.
 		var before = (await Bound("inbox", "PortalScreen")).EnumerateArray().Select(m => Field(m, "UniqueId")).ToHashSet();
-		if (await OpenPlayer(wanted) is not { } card) return 1;
-		var name = Field(card.GetProperty("Player"), "Name");
-
-		// The tile is found by the panel it is laid out in ("PlayerTrainingOverview"), whose name no
-		// language changes, not by its title. The player's page remembers the tab it was left on:
-		// on the training page the tile is covered by that page and the coaches' list is already up,
-		// which is the same place reached either way.
-		static bool Coaches(JsonElement d) => Field(d, "Label") == "Request Training Report";
-		async Task<JsonElement> CoachList() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(Coaches);
-		var opened = "";
-		await Until(async () =>
-			!(opened = await Fm.Get("click", ("within", "PlayerTrainingOverview"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal)
-			|| (await CoachList()).ValueKind == JsonValueKind.Object,
-			seconds: 8, every: 0.5);
-		if (opened.StartsWith("error", StringComparison.Ordinal) && (await CoachList()).ValueKind != JsonValueKind.Object)
-			return Report(opened);
-
-		// After a request the coach's answer stays up ("Okay, I'll sort that out for you now.") and
-		// the list only comes back once that is moved past; the page is reused from player to player.
-		JsonElement list = default;
-		async Task<bool> Listed()
+		// FM27: his menu's "Training › Request Training Report › <coach>", each entry the action
+		// PersonRequestTrainingReport with that coach; the menu is raised from his record.
+		if (await PersonMenu(wanted) is not { } menu) return 1;
+		var name = menu.Name;
+		var offered = menu.Entries.Where(e => Field(e, "Action") == "PersonRequestTrainingReport" && !IsFolder(e) && IsEnabled(e)).ToList();
+		if (offered.Count == 0)
 		{
-			list = await CoachList();
-			if (list!.ValueKind == JsonValueKind.Object) return true;
-			await Acknowledge();
-			return false;
-		}
-		if (!await Until(Listed, seconds: 10, every: 0.5))
-		{
+			await Fm.Get("actions", ("close", "1"));
 			Console.Error.WriteLine(L($"The place to ask for a training report on {name} did not open."));
 			return 1;
 		}
-
-		var coaches = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		var coaches = offered.Select(ShownName).ToList();
 		string coach;
 		if (Option(args, "--coach") is { } asked)
 		{
@@ -66,13 +43,18 @@ internal static partial class Program
 			{
 				Console.Error.WriteLine(fits.Count == 0 ? L($"There is no coach called '{asked}'.") : L($"'{asked}' matches {fits.Count} coaches:"));
 				foreach (var c in fits.Count == 0 ? coaches : fits) Console.Error.WriteLine($"  {c}");
+				await Fm.Get("actions", ("close", "1"));
 				return 1;
 			}
 			coach = fits[0];
 		}
 		else if (Ui.Interactive)
 		{
-			if (Ui.Ask(L($"{name}: who should prepare the report?"), coaches) is not { } chosen) return 0;
+			if (Ui.Ask(L($"{name}: who should prepare the report?"), coaches) is not { } chosen)
+			{
+				await Fm.Get("actions", ("close", "1"));
+				return 0;
+			}
 			coach = coaches[chosen];
 		}
 		else
@@ -80,19 +62,11 @@ internal static partial class Program
 			Console.WriteLine(L($"Coaches who can prepare the report on {name}:"));
 			foreach (var c in coaches) Console.WriteLine($"  {c}");
 			Console.WriteLine(L($"\nTo ask: training \"{name}\" --report --coach \"<name>\""));
+			await Fm.Get("actions", ("close", "1"));
 			return 0;
 		}
 
-		// The list is rebuilt as the page settles, so a pointer gone stale is looked up again.
-		var sent = "";
-		for (var attempt = 0; attempt < 6; attempt++)
-		{
-			if (list!.ValueKind != JsonValueKind.Object) sent = "error: no dropdown at the coaches' list";
-			else sent = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", coach), ("fire", "1"));
-			if (!sent.StartsWith("error: no dropdown at", StringComparison.Ordinal)) break;
-			await Task.Delay(500);
-			await Until(Listed, seconds: 5, every: 0.5);
-		}
+		var sent = await ChooseEntry(offered[coaches.IndexOf(coach)], menu.Entries);
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 		await Acknowledge();
 
@@ -107,60 +81,10 @@ internal static partial class Program
 			Console.WriteLine(L($"{coach} will prepare the report; it will come to the inbox."));
 			return 0;
 		}
+		// The report is a message: shown as reply shows one, its words and its attachment as the game
+		// lays them out, with its answers (follow the advice, question his training).
 		var title = Field(message, "NewsTitleString");
-		var pressed = await Arriving("press", [("has", title), ("name", "NewsItemButton"), ("any", "1")]);
-		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
-
-		// The message and its attachment are one block under the "Attachments" heading; it is the
-		// right one once the body names him and the attachment has drawn.
-		// It draws over a few frames, so two readings in a row must agree.
-		List<string> texts = [];
-		var previous = "";
-		await Until(async () =>
-		{
-			texts = (await Fm.GetJson("texts", ("anchor", "Attachments"), ("up", "2"))).EnumerateArray().Select(t => t.GetString() ?? "").ToList();
-			var now = string.Join("|", texts);
-			var settled = now == previous && texts.Count > 0 && texts[0].Contains(name, StringComparison.Ordinal) && texts.Contains("T.Rat");
-			previous = now;
-			return settled;
-		}, seconds: 10, every: 0.5);
-		if (texts.Count == 0 || !texts[0].Contains(name, StringComparison.Ordinal))
-		{
-			Console.Error.WriteLine(L($"The report came but could not be read: reply \"{title}\""));
-			return 1;
-		}
-
-		// The body opens with "I've put together a training report on …", then the findings.
-		var findings = texts[0].Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Skip(1).ToList();
-		var progress = texts.IndexOf("Progress Report");
-		var attribute = texts.IndexOf("Attribute");
-		var training = attribute < 0 ? -1 : texts.IndexOf("Training", attribute);
-		var rating = texts.IndexOf("T.Rat");
-		var end = texts.IndexOf("Player Report") is var p && p > rating ? p : texts.Count;
-		var trend = progress >= 0 && progress + 1 < texts.Count ? texts[progress + 1] : "";
-		var attributes = new List<(string Name, string Value)>();
-		for (var i = attribute + 1; attribute >= 0 && i + 1 < training; i += 2) attributes.Add((texts[i], texts[i + 1]));
-		var score = rating > 0 ? texts[rating - 1] : "";
-		var after = rating >= 0 ? texts.Skip(rating + 1).Take(end - rating - 1).ToList() : [];
-
-		if (Ui.Rich)
-		{
-			Ui.Line(L($"[bold]{Ui.Safe(name)}[/] — training report [dim]({Ui.Safe(coach)})[/]"));
-			foreach (var line in findings) Ui.Line($"  {Ui.Safe(line)}");
-			if (trend.Length > 0) Ui.Line(L($"\n  [bold]Progress:[/] {Ui.Safe(trend)}"));
-			if (attributes.Count > 0) Ui.Line("  " + string.Join(" · ", attributes.Select(a => $"{Ui.Safe(a.Name)} [bold]{Ui.Safe(a.Value)}[/]")));
-			if (score.Length > 0) Ui.Line(L($"  Training rating [bold]{Ui.Safe(score)}[/]{(after.Count > 0 ? L($" · load {Ui.Safe(after[0])}") : "")}{(after.Count > 1 ? $" · {Ui.Safe(after[1])}" : "")}"));
-			Ui.Line(L($"\n[dim]To follow or question the advice: reply \"{Ui.Safe(title)}\"[/]"));
-		}
-		else
-		{
-			Console.WriteLine(L($"{name} — training report ({coach})"));
-			foreach (var line in findings) Console.WriteLine($"  {line}");
-			if (trend.Length > 0) Console.WriteLine(L($"  Progress: {trend}"));
-			if (attributes.Count > 0) Console.WriteLine("  " + string.Join(" · ", attributes.Select(a => $"{a.Name} {a.Value}")));
-			if (score.Length > 0) Console.WriteLine(L($"  Training rating {score}{(after.Count > 0 ? L($" · load {after[0]}") : "")}{(after.Count > 1 ? $" · {after[1]}" : "")}"));
-			Console.WriteLine(L($"To follow or question the advice: reply \"{title}\""));
-		}
-		return 0;
+		Console.WriteLine(L($"{name} — training report ({coach})\n"));
+		return await Reply(["reply", title]);
 	}
 }
