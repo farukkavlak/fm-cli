@@ -447,7 +447,7 @@ Still open:
   - [x] `fm schedule` (read, FM27): from the same session buttons (`Date`, `SessionIndex`, `SessionType`; rest 300,
     travel 402), name from the button's label. A match is the day's place with no button; its venue is the team's
     fixture that day (`FixtureList` row `MatchVenueShort`). Was day numbers in order, which failed in German.
-    TR + EN + DE, cold, page open and from another page; same output as before in TR. FM26 calendar texts kept as fallback.
+    TR + EN + DE, cold, page open and from another page; same output as before in TR.
 - [x] `fm numbers`: FM27 moved Squad Numbers to the first team's submenu (`Screen.SquadNumbers`, `4b39af3b…`); it was
   chosen by the menu row's words "Squad Numbers". Rows: pickers inside `NumbersDisplay` (bound `editsession.numselected`),
   the name a text bound to `primarytext` (FM26's `NameButton` kept); the form is `form?within=NumbersDisplay` (was the
@@ -602,8 +602,9 @@ Still open:
     form between "Coach Workload" and "Lead Coach Rating". TR + EN. Still by order: the nine cells' areas.
   - [x] `Squad/TacticFiles.cs`: the save panel's close is the `PanelHistoryClose` on Save's own page, not "Cancel".
     Save tried (TR); the close path is not: no title was refused (200 letters were taken).
-  - [ ] `Squad/TraitTraining.cs:51-52`, `Squad/TrainingSchedule.Calendar.cs`: FM26 fallbacks ("Start New Trait
-    Training", "Today", "Training"); FM27 takes the action-menu / session-button ways first.
+  - [x] Trait training and `schedule set/style`: FM26's ways (by "Start New Trait Training", "Monday", "Training",
+    "Today") removed; when FM27's actions menu or session buttons are not there the command says so. TR + EN: trait
+    list 2/2, unknown trait refused, schedule options read, one session changed and back.
   - [~] `Program/Program.Messages*.cs`: FM27 goes straight to its own block (`MessagesToolBlockMessageContent`, rows
     after `newsitem.NewsBodyString`) and no longer waits 3 s on FM26's "Attachments" heading (reply 2.1 s, TR). The FM26
     heading path and its card readers (titles, "About Club") are still there, now unused on FM27. TR + EN.

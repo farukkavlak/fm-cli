@@ -18,7 +18,7 @@ internal static partial class Program
 
 	private sealed record WeekSchedule(int Category, int Index, string Name, string About, bool Recommended, string Pointer);
 
-	/// <summary>Null when the page is not FM27's (no session buttons), so the older calendar is tried.</summary>
+	/// <summary>Null when the page shows no session buttons.</summary>
 	private static async Task<int?> ChangeWeekInSelector(DateTime day, string wanted)
 	{
 		var opened = await OpenPage(Screen.Training);
