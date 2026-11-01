@@ -635,7 +635,31 @@ Still open:
     rows after `newsitem.NewsBodyString`). FM26's "Attachments" heading path and its 40 card readers (titles, "About
     Club", English labels) removed, with their 129 labels. TR + EN: loan report, team of the week, recruitment advice.
     The data-path readers (offer, scout report, win bonuses…) are in git if FM27's block wants them back.
-  - [ ] `Match/MatchLive.cs` key-moment words (see above).
+  - [x] `Match/MatchLive.cs` key moments: by the game's own event class (`/moments`, below); no words left.
+  - [x] `player --matches` (`Match/Matches.cs`): the player's own `Form` record, no page opened. Summary from
+    `Form.MatchRatingsStats` (`GamesPlayed`, `MaxValue`, `MinValue`, `AverageRating`, `Goals`, `Assists`, `CleanSheets`),
+    rows from `Form.MatchesData` (`Index`, `Date`, `Position` bits, `Role` code, `GameTime` in the game's words, xG, goals,
+    `TotalRating`, `Team.Name`, `Fixture.ResultLinkableNoSpaces`), keeper by `IsGoalkeeper`. Was labels ("Apps",
+    "Avg. Rating"…) and column order; FM27 had renamed two labels, so average and goals were empty. Position is the
+    CLI's code (`AMC`, as the tactic shows it): the game's own short form has no path, and its parts do not translate
+    one to one. Role by the tactic's role names. TR + EN: outfield, keeper, sub, did not play, same rows as before.
+    Players of other clubs have no form here (old and new alike).
+  - [x] `player --report` (`Transfer/ScoutReport.cs`): was not working on FM27 (the tile it clicked is gone). Now the
+    player's `PlayerReportForContextTeam`, with `team`, `human` and `InPossession` set beside him: grade, sentence,
+    ability, interest, value, wage, matches watched, best role, pros/cons (`ScoutedProConsList.ProsList/ConsList`),
+    squad comparison (`ScoutedSquadComparisonPlayers`: `Ranking`, `Player.Name`), all in the game's words. Was labels
+    ("Transfer Interest", "Negatives") and order. TR + EN: three scouted players, our own (the staff's view), unscouted.
+  - [x] `penalties`: FM26's "Starting at …" / "On Subs bench" reading (and its fixed Turkish "ilk 11") removed; FM27
+    gives no line there, the eleven comes from the tactic's slots. TR + EN.
+  - [x] `fm stop` (`Core/Launcher.cs`): the quit question by its `Type` (`QuitGameDialog`) and the button sending
+    `QuitGame`, pressed by its slot once drawn (polled every 0.25 s, 15 s at most). Was the title "Quit Game" and a
+    half-second loop that pressed whatever was primary. EN 1, TR 2, from the main menu 1: all clean, 3–7 s.
+  - [x] `stages` competition/stage choice: the four 0.7 s tries are now a wait for the list (4 s at most). TR + EN 4/4.
+  - [ ] `vision` (`Club/Vision.cs`): heading, weights, objective kinds and buttons all by English words. The meeting
+    opens only at the season's end; not changed until it can be measured.
+  - [ ] `next` (`Core/Clock.cs` `Settled`): "at rest" is the state read the same twice 0.7 s apart. Candidate sign:
+    `ContinueManagerModule.m_continueState` / `m_currentAction` (plugin). Needs measuring over many days of `next`.
+  - [ ] `stages` table: team names and some columns empty (old and new alike).
 - [x] `release`: FM27's actions menu "Contract › Release On A Free" / "Mutual Termination" by their actions
   (`PersonReleaseClubFreeTransfer`, `PersonMutualTerminationContract`), the menu raised from the player's record (a
   namesake elsewhere is never the one). Was the contract card's list and its English rows ("not our player" in FM27).

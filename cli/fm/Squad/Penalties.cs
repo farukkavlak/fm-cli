@@ -95,11 +95,10 @@ internal static partial class Program
 			}
 		}
 
-		var takers = (await PenaltyTakerNames()).Select((name, i) => new PenaltyTaker(i + 1, "", name, "", "", "")).ToList();
+		var takers = (await PenaltyTakerNames()).Select((name, i) => new PenaltyTaker(i + 1, name)).ToList();
 		var lineup = await Lineup();
-		// The tactic is not bound until its page has been up; the page's own line for a taker then
-		// stays the only source, and on a Turkish page it is the game's sentence with its position
-		// code. Opening the tactic page here reads the eleven from the game's own slots instead.
+		// The tactic is not bound until its page has been up: opening it reads the eleven from the
+		// game's own slots.
 		if (lineup == null && takers.Count > 0
 		    && !(await OpenPage(Screen.Tactics)).StartsWith("error", StringComparison.Ordinal))
 		{
@@ -127,16 +126,10 @@ internal static partial class Program
 
 	}
 
-	private static string Starting(string where) =>
-		where.StartsWith("Starting at ", StringComparison.Ordinal) ? $"ilk 11 · {where[12..]}" : where == "On Subs bench" ? L("sub") : where;
-
 	/// <summary>
 	/// Whether each of our players is in the eleven on the pitch, by his full name, from the
 	/// tactic's own slots (their <c>PlayerIndex</c>) and the squad's people (whose <c>Index</c> is
-	/// the same person). The page's own line for a taker names the place in English only
-	/// ("Starting at DMCR") or carries the position code into the game's language; this reads the
-	/// place from the game's data instead. Null when no tactic is loaded, and the
-	/// caller falls back to the page's line.
+	/// the same person). Null when no tactic is loaded.
 	/// </summary>
 	private static async Task<Dictionary<string, bool>?> Lineup()
 	{
@@ -156,11 +149,11 @@ internal static partial class Program
 		return lineup.Count > 0 ? lineup : null;
 	}
 
-	/// <summary>Where a taker starts, from the lineup when it is known and the page's own line otherwise.</summary>
+	/// <summary>Where a taker starts, from the lineup; nothing when no tactic is loaded.</summary>
 	private static string LineupWhere(PenaltyTaker taker, Dictionary<string, bool>? lineup) =>
-		lineup != null && lineup.TryGetValue(taker.Name, out var starter) ? (starter ? L("first XI") : L("sub")) : Starting(taker.Where);
+		lineup != null && lineup.TryGetValue(taker.Name, out var starter) ? (starter ? L("first XI") : L("sub")) : "";
 
-	private sealed record PenaltyTaker(int Order, string Number, string Name, string Where, string Composure, string Penalties);
+	private sealed record PenaltyTaker(int Order, string Name);
 
 	/// <summary>
 	/// The penalty takers in order, by name: the set piece's own list, reached through the record the

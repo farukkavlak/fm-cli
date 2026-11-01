@@ -224,12 +224,20 @@ internal static class Launcher
 		try
 		{
 			await fm.Get("quit");
-			// With a game loaded it asks "Quit Game And Exit?"; the caller has already settled saving.
-			for (var i = 0; i < 10; i++)
+			// With a game loaded it asks first (`QuitGameDialog`); the caller has already settled saving.
+			// The answer is the button that sends `QuitGame`, pressed once the dialog has drawn it.
+			// Without a game the bridge simply stops answering.
+			await WaitFor(async () =>
 			{
-				await Task.Delay(500);
-				if ((await fm.Get("dialog")).Contains("Quit Game")) { await fm.Get("dialog", ("press", "primary")); break; }
-			}
+				if (!await Up(fm)) return true;
+				var quit = (await fm.GetJson("dialog")).EnumerateArray()
+					.Where(d => d.TryGetProperty("Type", out var type) && type.GetString() == "QuitGameDialog")
+					.SelectMany(d => d.GetProperty("Buttons").EnumerateArray())
+					.FirstOrDefault(b => b.TryGetProperty("EventID", out var id) && id.GetString() == "QuitGame");
+				if (quit.ValueKind != System.Text.Json.JsonValueKind.Object) return false;
+				await fm.Get("dialog", ("press", quit.GetProperty("Slot").GetString() ?? ""));
+				return true;
+			}, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(0.25));
 		}
 		catch (FmUnavailable) { }
 		// The bridge closes as the game starts to quit; the process follows a few seconds later.
@@ -281,13 +289,14 @@ internal static class Launcher
 		catch (FmUnavailable) { return false; }
 	}
 
-	private static async Task<bool> WaitFor(Func<Task<bool>> condition, TimeSpan timeout)
+	/// <summary>Asks <paramref name="condition"/> again every <paramref name="every"/> (3 s unless said) until it holds or time is up.</summary>
+	private static async Task<bool> WaitFor(Func<Task<bool>> condition, TimeSpan timeout, TimeSpan? every = null)
 	{
 		var deadline = DateTime.UtcNow + timeout;
 		while (DateTime.UtcNow < deadline)
 		{
 			if (await condition()) return true;
-			await Task.Delay(TimeSpan.FromSeconds(3));
+			await Task.Delay(every ?? TimeSpan.FromSeconds(3));
 		}
 		return false;
 	}

@@ -149,7 +149,7 @@ internal static partial class Program
 			Console.WriteLine($"{say} — {both[i].Heading}");
 			if (both[i].Takers.Count == 0) { Console.WriteLine(L("  (empty)")); continue; }
 			Table.Write([L("POS"), L("PLAYER"), L("FOR MATCH")],
-				both[i].Takers.Select(t => (string[])[t.Order.ToString(), t.Name, LineupWhere(new PenaltyTaker(t.Order, "", t.Name, "", "", ""), lineup)]).ToList());
+				both[i].Takers.Select(t => (string[])[t.Order.ToString(), t.Name, LineupWhere(new PenaltyTaker(t.Order, t.Name), lineup)]).ToList());
 		}
 		if (verb == null)
 		{

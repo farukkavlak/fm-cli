@@ -913,6 +913,7 @@ There is no scout report on {0} (one of our own players, or never scouted). To h
 {0} — scout report{1}	{0} — scout raporu{1}
  · last scouted by {0}	 · son izleyen {0}
   Grade: {0} — {1}	  Not: {0} — {1}
+  Grade: {0}	  Not: {0}
   Ability: {0} · Potential: {1}	  Yetenek: {0} · Potansiyel: {1}
   Interest in a transfer: {0} · in a loan: {1}	  Transfere ilgisi: {0} · kiralığa: {1}
   Value: {0} · expected wage: {1}	  Değer: {0} · tahmini maaş: {1}

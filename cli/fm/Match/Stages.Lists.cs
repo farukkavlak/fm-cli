@@ -60,15 +60,12 @@ internal static partial class Program
 	private static async Task<string> PickIn(bool stage, (string, string) what)
 	{
 		var answer = L("error: the lists of the Stages page were not found");
-		for (var attempt = 0; attempt < 4; attempt++)
+		await Until(async () =>
 		{
-			if (await StageLists() is { } lists)
-			{
-				answer = await Fm.Get("select", ("ptr", Field(stage ? lists.Stage : lists.Competition, "Pointer")), what);
-				if (!answer.StartsWith("error: no dropdown", StringComparison.Ordinal)) return answer;
-			}
-			await Task.Delay(700);
-		}
+			if (await StageLists() is not { } lists) return false;
+			answer = await Fm.Get("select", ("ptr", Field(stage ? lists.Stage : lists.Competition, "Pointer")), what);
+			return !answer.StartsWith("error: no dropdown", StringComparison.Ordinal);
+		}, seconds: 4, every: 0.25);
 		return answer;
 	}
 
