@@ -585,7 +585,7 @@ Still open:
     in (`RecruitmentScoutAssignmentsTable`, from `/checkrows` `Names`), each scout from his record: `JobString` (wants
     club/human/team beside the rows), `JudgingPlayerAbility`/`Potential` (1–20), `ScoutingKnowledgeListCount` (FM27 knows
     nations, not regions), `StaffRecruitmentFocuses.*FocusesCount`. Was the panel's words ("Assignments (", "Judging
-    Player Ability"). TR; EN pending.
+    Player Ability"). TR + EN.
   - [x] Scouts/analysts window (`--by`, `--analysts`): both Edit buttons open panel `e7c08a24…`, told apart by the box's
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
@@ -595,9 +595,9 @@ Still open:
   with `Team.Name/Division.Name/Nation.ThreeLetterName/LeaguePosition`, `Team.Club.ReputationScope.DisplayString`,
   `Team.Club.FinancialStatus.DisplayValue`. Lists the open posts (5, as the page's "5 Boş İş"); `--all` every job.
   A job is selected by its table index (the table is laid out again after the page opens: found again before choosing),
-  its detail from `Team.Club.ManagerRules` and `WageBudget`. 2.7 s. TR; EN pending.
+  its detail from `Team.Club.ManagerRules` and `WageBudget`. 2.7 s. TR + EN.
 - [x] Match report goals: the minute is the end of the game's `TimeString` ("37'", "90+2'"); own goal and penalty come from
-  `EventType` (1, 2), not the game's prefix ("o.g." in English was stripped, "k.k." in Turkish was not). TR; EN pending.
+  `EventType` (1, 2), not the game's prefix ("o.g." in English was stripped, "k.k." in Turkish was not). TR + EN (no own goal in the EN read).
 - [ ] Live key moments (`match --play`, view 1) are picked by words in the commentary (`MatchLive.KeyWords`, TR + EN only).
   Find the event's own type in the live data (a score change is a goal; cards and subs?).
   - Looked (TR, live, 0-1 at 54'): the root `Match`'s `Incidents`, `HomeEventInfos`/`AwayEventInfos`, `TeamIncidents`
