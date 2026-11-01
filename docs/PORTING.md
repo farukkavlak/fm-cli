@@ -672,7 +672,12 @@ Still open:
     (left at its default, "on date"). A message waiting for an answer keeps the game from starting one: said.
     A month took 8.5 min (TR).
   - [ ] `vision` (`Club/Vision.cs`): heading, weights, objective kinds and buttons all by English words. The meeting
-    opens only at the season's end; not changed until it can be measured.
+    opens only at the season's end (the new job's "Season expectations" message has no answer and opens none);
+    not changed until it can be measured. Its record is known: `Club.ClubVisionMeetingEditSession` (needs `human`
+    and `ClubVisionNegotiationType`): `ClubVisionMeetingActionableObjectives` / `…InformationalObjectives` (kind),
+    each objective's `VisionObjectiveImportance`, `ClubVisionMeetingCanObjectiveBeRemoved`, and `CanConfirmTerms`,
+    `CanSuggestTerms`, `CanUndo`, `CanRevert` for the buttons. Reaching the end of a season by holiday failed
+    twice: the assistant got the manager sacked (Fenerbahçe in June, Başakşehir in January).
   - [x] `next` (`Core/Clock.cs` `Settled`): was "nothing changed for 4 s, then the state read the same twice 0.7 s
     apart"; the old way once returned while the game was still moving (a change 0.7 s after it said done). Now the
     Continue button's own module (plugin `/continueflags`: `ContinueManagerModule.m_gameStateFlags`, flow,
