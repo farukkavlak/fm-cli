@@ -590,6 +590,10 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] Played through the tool (2 Nov, TR then EN): two weeks of `next` with read stops, a journalist question
+  (reply → talk), UECL and league registration messages (`register --auto/--send`, "Confirm Selection"), deadline day
+  declined; matches instant (2-2, 3-2), live (0-1) and a derby live with every talk (team talk, walking-out interview,
+  half time, post-match): 1-0. No stop needed the bridge.
 - [x] Sweep 2 Nov: TR 50/51 (prep, before its FM27 view) and EN 51/51 with data; MCP check 48/48. Slowest: takers 20 s,
   club 13 s, opponent 12 s.
 - [ ] Still held by words or order (found by grepping label/text comparisons, 2 Nov):
