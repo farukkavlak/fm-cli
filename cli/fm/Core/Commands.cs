@@ -12,7 +12,7 @@ internal static partial class Program
 	private static readonly string[] CommandNames =
 	[
 		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "offers", "contract", "contracts", "release", "propose",
-		"table", "stages", "league", "fixtures", "calendar", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
+		"table", "stages", "league", "fixtures", "calendar", "holiday", "report", "inbox", "reply", "next", "match", "shout", "sub", "dugout",
 		"resign", "dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "coaches", "budget", "settings", "happiness", "dynamics", "jobs", "news", "internationals", "mentoring", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "vision", "opponent",
 		"opposition", "saves", "save", "load", "world", "shortlist", "scout", "responsibilities", "youth", "progress", "register", "numbers", "tactic", "setpieces", "pages", "open", "buttons",
@@ -29,7 +29,7 @@ internal static partial class Program
 		["p"] = "player", ["tc"] = "tactic", ["sq"] = "squad",
 		["durum"] = "status", ["kapat"] = "stop", ["kadro"] = "squad", ["oyuncu"] = "player", ["oyuncular"] = "players", ["ara"] = "search",
 		["sozlesme"] = "contract", ["sozlesmeler"] = "contracts", ["tablo"] = "table", ["puan"] = "table", ["lig"] = "league",
-		["fikstur"] = "fixtures", ["takvim"] = "calendar", ["rapor"] = "report", ["mesaj"] = "inbox", ["gelen"] = "inbox",
+		["fikstur"] = "fixtures", ["takvim"] = "calendar", ["tatil"] = "holiday", ["rapor"] = "report", ["mesaj"] = "inbox", ["gelen"] = "inbox",
 		["cevap"] = "reply", ["ileri"] = "next", ["mac"] = "match", ["bagir"] = "shout", ["degis"] = "sub",
 		["konus"] = "talk", ["istifa"] = "resign", ["antrenman"] = "training", ["hazirlik"] = "prep", ["program"] = "schedule",
 		["yogunluk"] = "intensity", ["antrenorler"] = "coaches", ["butce"] = "budget", ["ayarlar"] = "settings", ["mutluluk"] = "happiness", ["dinamik"] = "dynamics", ["isler"] = "jobs", ["ilanlar"] = "jobs", ["mentor"] = "mentoring", ["milli"] = "internationals", ["milliler"] = "internationals", ["haber"] = "news", ["haberler"] = "news",
@@ -76,6 +76,7 @@ internal static partial class Program
 		["players"] = ["--position", "--max-value", "--attr", "--role", "--age", "--grade", "--contract", "--listed", "--loan-listed", "--filters", "--filter", "--free", "--clear", "--views", "--view"],
 		["fixtures"] = ["--all"],
 		["calendar"] = ["--u19"],
+		["holiday"] = ["week", "month", "match", "hafta", "ay", "mac"],
 		["schedule"] = ["set", "style"],
 		["penalties"] = ["move", "add", "remove"],
 		["takers"] = ["korner", "frikik", "kanat", "derin", "tac"],

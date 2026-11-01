@@ -14,6 +14,8 @@ internal static class Screen
 	// Portal
 	public const string Home = "2d1049f4571df444eb050b39a5b8aaec";
 	public const string Calendar = "373351a1f7249424eb22205fc799d1b9";
+	/// <summary>Portal › Calendar › Go On Holiday.</summary>
+	public const string Holiday = "7ee51df42b0a89646a12ba40c2446ee5";
 	public const string NewsSite = "2d4ceb2449af95b49bfc0f89c6403627";
 	public const string Stages = "c705e9f71253e1c4a8e1259ced17f11a";
 	/// <summary>A competition's own page (Portal › Competitions › the league); one panel for every competition.</summary>

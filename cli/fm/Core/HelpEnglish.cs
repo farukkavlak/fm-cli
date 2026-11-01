@@ -60,6 +60,7 @@ internal static partial class Program
 			  next [n]        move time on (n times; stops when something is in the way), say what happened
 			    --until match   go on until match day;  --until message  until a message arrives
 			    --skip        go past an open post-match question without answering
+			  holiday week|month|match   go on holiday: the assistant runs the club until then
 			  match           play the match day: asks whether to watch in the terminal or take an instant result
 			    --play        watch the match: commentary, goals, result; asks what to say in the talks
 			                  (in a script it stops at a talk: talk <no>, then match)

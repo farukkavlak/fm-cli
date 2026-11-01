@@ -664,6 +664,11 @@ Still open:
     `QuitGame`, pressed by its slot once drawn (polled every 0.25 s, 15 s at most). Was the title "Quit Game" and a
     half-second loop that pressed whatever was primary. EN 1, TR 2, from the main menu 1: all clean, 3–7 s.
   - [x] `stages` competition/stage choice: the four 0.7 s tries are now a wait for the list (4 s at most). TR + EN 4/4.
+  - [x] `fm holiday week|month|match` (`Core/Holiday.cs`): Portal › Calendar › Go On Holiday by GUID (`7ee51df4…`),
+    the return list by its binding (`holiday.returndatedropdownselectedoption`, values 0 week, 1 month, 2 next
+    match), `GoOnHolidayButton`; on and over by `Human.IsOnHoliday`. The return-type radio group has no values
+    (left at its default, "on date"). A message waiting for an answer keeps the game from starting one: said.
+    A month took 8.5 min (TR).
   - [ ] `vision` (`Club/Vision.cs`): heading, weights, objective kinds and buttons all by English words. The meeting
     opens only at the season's end; not changed until it can be measured.
   - [x] `next` (`Core/Clock.cs` `Settled`): was "nothing changed for 4 s, then the state read the same twice 0.7 s

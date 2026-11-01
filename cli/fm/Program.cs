@@ -234,6 +234,7 @@ internal static partial class Program
 				"dugout" => await Dugout(json, args),
 				"budget" => await Budget(json, args),
 				"calendar" => await CalendarCommand(json, args),
+				"holiday" => await HolidayCommand(args),
 				"league" => await League(json, args),
 				"health" => await Health(json),
 				"club" => await Club(json),
