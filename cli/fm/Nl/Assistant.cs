@@ -27,7 +27,7 @@ internal static partial class Program
 		["fm_save"] = [], ["fm_board_request"] = ["request"], ["fm_jobs"] = ["apply"], ["fm_saves"] = ["delete"],
 		["fm_tactic_clear"] = [], ["fm_tactic_new"] = [], ["fm_setpieces_new"] = [], ["fm_register"] = ["send", "auto"],
 		["fm_numbers"] = ["send", "auto"], ["fm_reply"] = ["answer"], ["fm_dialog"] = ["answer"], ["fm_vision"] = [],
-		["fm_press"] = [], ["fm_select"] = [], ["fm_scout_focus"] = [],
+		["fm_press"] = [], ["fm_select"] = [], ["fm_scout_focus"] = [], ["fm_holiday"] = [],
 	};
 
 	/// <summary>
