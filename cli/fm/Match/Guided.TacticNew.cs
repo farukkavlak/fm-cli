@@ -94,13 +94,10 @@ internal static partial class Program
 
 	private static async Task<int> TacticNew(List<string> picks, bool dry)
 	{
-		// One row per stage: what is chosen, the list it is chosen from, the button that moves on.
-		(string What, string List, string Onward)[] stages =
-		[
-			(L("Style"), "tac-styles-options", "Formation (In Possession)"),
-			(L("Formation in possession"), "all-options-list", "Formation (Out of Possession)"),
-			(L("Formation out of possession"), "all-options-list", "Confirm"),
-		];
+		// The wizard's three stages, by what each chooses. Its list is the one bound to the wizard's own
+		// data (tactic.TacticCreator…) not chosen yet, and the button that moves on sends its
+		// IncrementStage event: no list or button is known by its name or label.
+		string[] stages = [L("Style"), L("Formation in possession"), L("Formation out of possession")];
 
 		if (!await Fm.InGame())
 		{
@@ -112,7 +109,13 @@ internal static partial class Program
 		// The team's tactics are read on the tactics page, before the wizard covers it.
 		hadTactic = false;
 		if (stage == null && !(await OpenPage(Screen.Tactics)).StartsWith("error", StringComparison.Ordinal))
-			hadTactic = await Until(async () => int.TryParse(Field(await TacticInfo(), "TacticCount"), out var tactics) && tactics >= 1, seconds: 4, every: 0.4);
+		{
+			// The wizard binds its state on the tactics page: one left open (a tour waiting for a
+			// tactic) is found once that page is up.
+			stage = await CreatorStage();
+			if (stage == null)
+				hadTactic = await Until(async () => int.TryParse(Field(await TacticInfo(), "TacticCount"), out var tactics) && tactics >= 1, seconds: 4, every: 0.4);
+		}
 		if (stage == null)
 		{
 			// A team without a tactic shows a tile saying so, and that tile opens the wizard. A
@@ -166,10 +169,11 @@ internal static partial class Program
 		var chosen = new List<string>();
 		for (var i = at; i < stages.Length; i++)
 		{
-			var (what, list, onward) = stages[i];
+			var what = stages[i];
 
 			List<string> choices = null;
-			if (!await Until(async () => (choices = await Offered(list)) != null))
+			var list = "";
+			if (!await Until(async () => (await Offered()) is var (ptr, offered) && (choices = offered) != null && (list = ptr).Length > 0))
 			{
 				Console.Error.WriteLine(L($"The {what} options did not come."));
 				return 1;
@@ -207,12 +211,12 @@ internal static partial class Program
 				return 0;
 			}
 
-			var selected = await Fm.Get("select", ("name", list), ("choice", pick));
+			var selected = await Fm.Get("select", ("ptr", list), ("choice", pick));
 			if (selected.StartsWith("error", StringComparison.Ordinal)) return Report(selected);
 
 			// The button onward stays disabled until the game has taken the choice in.
 			JsonElement? button = null;
-			if (!await Until(async () => (button = await Labelled(onward)) != null))
+			if (!await Until(async () => (button = await Onward()) != null))
 			{
 				Console.Error.WriteLine(L($"{what} chosen ({pick}), but the wizard did not allow going on."));
 				return 1;
@@ -224,7 +228,7 @@ internal static partial class Program
 			// and a second one went through — so the button is pressed once more before giving up.
 			var expected = i + 1 < stages.Length ? i + 1 : (int?)null;
 			if (!await Until(async () => await CreatorStage() == expected, seconds: 8)
-			    && await Labelled(onward) is { } again)
+			    && await Onward() is { } again)
 				await Fm.Get("press", ("ptr", Field(again, "Pointer")));
 
 			if (!await Until(async () => await CreatorStage() == expected, seconds: 12))
@@ -251,18 +255,32 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// What a stage's list offers, once exactly one list by that name is still unchosen: the
-	/// stage before keeps its list on screen for a moment under the same name.
+	/// The stage's list and what it offers: the list bound to the wizard's own data
+	/// (tactic.TacticCreator…) with nothing chosen yet — the stage before keeps its list on screen
+	/// for a moment, chosen — or, when it is the only one, the stage's list chosen by an earlier run.
+	/// FM27 offers formations in a suggested list and sometimes a full one
+	/// beside it, both bound alike; the fuller is taken.
 	/// </summary>
-	private static async Task<List<string>> Offered(string list)
+	private static async Task<(string Pointer, List<string> Choices)?> Offered()
 	{
-		var open = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.Where(d => Field(d, "Name") == list && Field(d, "Selected") == "-1")
+		var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Binds").StartsWith("tactic.TacticCreator", StringComparison.Ordinal) && d.GetProperty("Choices").GetArrayLength() > 0)
 			.ToList();
-		if (open.Count != 1) return null;
-
-		return open[0].GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		// A list chosen by an earlier run stays chosen when the wizard is come back to: then the only one.
+		var open = lists.Where(d => Field(d, "Selected") == "-1").OrderByDescending(d => d.GetProperty("Choices").GetArrayLength()).ToList();
+		if (open.Count == 0 && lists.Count == 1) open = lists;
+		if (open.Count == 0) return null;
+		return (Field(open[0], "Pointer"), open[0].GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList());
 	}
+
+	/// <summary>
+	/// The wizard's button that moves on, once the game has let it: IncrementStage between stages,
+	/// ConfirmedCreateNewTactic at the last.
+	/// </summary>
+	private static async Task<JsonElement?> Onward() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
+		.FirstOrDefault(b => Field(b!.Value, "Enabled") == "True" && Field(b!.Value, "Events") is var events
+		                     && (events.Contains("EventFmxTacticCreatorIncrementStage", StringComparison.Ordinal) || events.Contains("EventFmxConfirmedCreateNewTactic", StringComparison.Ordinal)));
 
 	/// <summary>
 	/// A choice by its number in the listing, its exact name, or a piece of it that fits only one.
