@@ -590,6 +590,14 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [ ] Still held by words or order (found by grepping label/text comparisons, 2 Nov):
+  - [ ] `Club/Coaches.cs` `ReadCoaches`: the form read in order between "Coach Workload" and "Lead Coach Rating".
+  - [ ] `Squad/TacticFiles.cs:126`: the file dialog's "Cancel" (with `PanelHistoryClose`).
+  - [ ] `Squad/TraitTraining.cs:51-52`, `Squad/TrainingSchedule.Calendar.cs`: FM26 fallbacks ("Start New Trait
+    Training", "Today", "Training"); FM27 takes the action-menu / session-button ways first.
+  - [ ] `Program/Program.Messages*.cs`: attachments by headings ("Attachments", card titles); `Squad/TrainingReport.cs`
+    no longer uses them.
+  - [ ] `Match/MatchLive.cs` key-moment words (see above).
 - [x] `release`: FM27's actions menu "Contract › Release On A Free" / "Mutual Termination" by their actions
   (`PersonReleaseClubFreeTransfer`, `PersonMutualTerminationContract`), the menu raised from the player's record (a
   namesake elsewhere is never the one). Was the contract card's list and its English rows ("not our player" in FM27).
