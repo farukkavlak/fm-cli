@@ -659,8 +659,15 @@ Still open:
   - [x] `stages` competition/stage choice: the four 0.7 s tries are now a wait for the list (4 s at most). TR + EN 4/4.
   - [ ] `vision` (`Club/Vision.cs`): heading, weights, objective kinds and buttons all by English words. The meeting
     opens only at the season's end; not changed until it can be measured.
-  - [ ] `next` (`Core/Clock.cs` `Settled`): "at rest" is the state read the same twice 0.7 s apart. Candidate sign:
-    `ContinueManagerModule.m_continueState` / `m_currentAction` (plugin). Needs measuring over many days of `next`.
+  - [x] `next` (`Core/Clock.cs` `Settled`): was "nothing changed for 4 s, then the state read the same twice 0.7 s
+    apart"; the old way once returned while the game was still moving (a change 0.7 s after it said done). Now the
+    Continue button's own module (plugin `/continueflags`: `ContinueManagerModule.m_gameStateFlags`, flow,
+    `IsProcessing`, its processing card's timer): a press is taken once the module processes, the flow changes or
+    the clock moves (seen 0.3–1.1 s after the press; 8 s bound), and dealt with once the module stops processing —
+    it stays on through the page the game flashes after (Fixtures, CompetitionHub). A page-only press (Messages →
+    CanContinue) starts no work and is told by the flow. Measured: a quick step keeps the card ~3 s (the game's own).
+    Tried: TR 12 steps (messages, injury, match day), EN 4 (post-match, messages): nothing changed in the 3 s after
+    any return. Not seen: a press nothing comes of (the 8 s bound). Harmony hooks are not an option (no MonoMod on arm64).
   - [x] `table` / `stages` table: FM27's page binds no team name and no draws, so both came out empty. Now the
     stage's own record: the stage list's `Selected` row → `RowData.Stage.LeagueTable` with `LeagueTableType` 0
     (overall; 1 home, 2 away): `Team.LeagueTableName`, W/D/L, GD, points, zone, a settled place by `LeagueFateEnum`

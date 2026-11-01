@@ -100,6 +100,7 @@ internal static partial class FmApi
 		"rowcontrols" => RowControls.Read(q),
 		"talk" => Talk.Current(),
 		"state" => State.Current(),
+		"continueflags" => State.ContinueFlags(),
 		"tactic" => Tactics.Current(),
 		"registration" => Registration.Current(),
 		"regtoggle" => Registration.Toggle(q),

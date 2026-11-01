@@ -224,35 +224,41 @@ internal static partial class Program
 			or "CompetitionHub";
 
 	/// <summary>
-	/// The state once the game has stopped working, or null if it never did.
+	/// The state once the game has dealt with a Continue press, or null if it was still at it after
+	/// three minutes. <paramref name="before"/> is the state read before the press.
 	///
-	/// Continue returns at once and the work starts a moment later, so this first waits for
-	/// anything at all to change, then for the game to report itself idle twice running.
+	/// The Continue button's own module says it (`/continueflags`): a press that sets the game working
+	/// turns its `IsProcessing` on, and it stays on, with its processing card, until the flow has come
+	/// to rest — past the page the game shows for a moment after (Fixtures, CompetitionHub). A press on
+	/// a page the game only wanted looked at changes the flow and starts no work. So the press has been
+	/// taken once either is seen (or the date moved), and dealt with once the module is no longer
+	/// processing. Measured 1 Nov 2026: the first sign came 0.3–1.1 s after the press.
 	/// </summary>
 	private static async Task<JsonElement?> Settled(JsonElement before)
 	{
-		var was = before.ToString();
+		var flow = Field(before, "State");
 		JsonElement now = before;
-
-		var started = DateTime.UtcNow;
-		while (DateTime.UtcNow - started < TimeSpan.FromSeconds(4))
+		JsonElement module = default;
+		async Task Read()
 		{
-			await Task.Delay(300);
 			now = await Fm.GetJson("state");
-			if (Busy(now) || now.ToString() != was) break;
+			module = await Fm.GetJson("continueflags");
 		}
+		bool Working() => Field(module, "IsProcessing") == "True" || Field(module, "ProcessingCard") == "True" || Busy(now);
 
-		var calm = 0;
-		while (DateTime.UtcNow - started < TimeSpan.FromMinutes(3))
+		// A press nothing came of (the game had nothing to do) leaves everything as it was: said once the bound is up.
+		if (!await Until(async () =>
+		    {
+			    await Read();
+			    return Working() || Field(now, "State") != flow || Field(now, "Date") != Field(before, "Date") || Field(now, "Clock") != Field(before, "Clock");
+		    }, seconds: 8, every: 0.1))
+			return now;
+
+		return await Until(async () =>
 		{
-			var seen = now.ToString();
-			await Task.Delay(700);
-			now = await Fm.GetJson("state");
-
-			calm = !Busy(now) && now.ToString() == seen ? calm + 1 : 0;
-			if (calm >= 2) return now;
-		}
-		return null;
+			await Read();
+			return !Working();
+		}, seconds: 180, every: 0.1) ? now : null;
 
 		static bool Busy(JsonElement state) =>
 			Field(state, "Processing") == "True" || Field(state, "Saving") == "True"

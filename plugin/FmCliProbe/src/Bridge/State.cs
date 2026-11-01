@@ -49,6 +49,45 @@ internal static class State
 		return Report.Json(fields, ["Commentary"]) + "\n";
 	}
 
+	private static FM.UI.ContinueManagerModule continueManager;
+
+	/// <summary>
+	/// The Continue button's own module, as it holds the flow: its flags (what the game is in:
+	/// Processing, Waiting, Messages…), its flow state, whether it is processing, an instant result
+	/// being worked out, and whether its processing card's timer runs. Read only; for telling when a
+	/// press has been dealt with.
+	/// </summary>
+	public static string ContinueFlags()
+	{
+		try
+		{
+			if (continueManager == null)
+			{
+				var found = UnityEngine.Resources.FindObjectsOfTypeAll<FM.UI.ContinueManagerModule>();
+				for (var i = 0; i < found.Length && continueManager == null; i++)
+					if (found[i] != null && found[i].isActiveAndEnabled) continueManager = found[i];
+			}
+			var m = continueManager;
+			if (m == null) return "error: no continue manager";
+			var flags = m.m_gameStateFlags;
+			var named = new List<string>();
+			foreach (FM.UI.ContinueManagerModule.ContinueFlowFlags f in Enum.GetValues(typeof(FM.UI.ContinueManagerModule.ContinueFlowFlags)))
+				if (f != 0 && (flags & f) == f) named.Add(f.ToString());
+			var fields = new Dictionary<string, string>
+			{
+				["Flags"] = string.Join(",", named),
+				["FlagBits"] = ((long)flags).ToString(),
+				["Flow"] = m.m_continueState?.Value.ToString() ?? "",
+				["IsProcessing"] = m.IsProcessing.ToString(),
+				["InstantResult"] = m.m_isProcessingInstantResult.ToString(),
+				["ProcessingCard"] = (m.m_processingCardTimerCoroutine != null).ToString(),
+				["Action"] = (m.m_currentAction != null).ToString(),
+			};
+			return Report.Json(fields) + "\n";
+		}
+		catch (Exception e) { continueManager = null; return $"error: {e.GetType().Name}: {e.Message}"; }
+	}
+
 	/// <summary>
 	/// Whether a save is loaded: the in-game Continue button's flow is bound only then. (The game
 	/// date is not enough: match-day screens bind none.)
