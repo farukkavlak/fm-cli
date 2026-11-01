@@ -2479,3 +2479,7 @@ FM27 has no match focuses to choose; the preparation is the week's sessions: sch
 NATIONS KNOWN	BİLDİĞİ ÜLKE
 {0} top · {1} standard · {2} ongoing	{0} yüksek · {1} standart · {2} sürekli
 \nTo send one to a player: scout player <name> --by <scout> --for <length>	\nBirini oyuncuya göndermek: scout player <ad> --by <gözlemci> --for <süre>
+{0} manager's jobs\n	{0} menajerlik görevi\n
+\nDetails: jobs <club|#>   ·   apply: jobs <club> apply   ·   declare interest: jobs <club> interest   ·   every job: jobs --all	\nAyrıntı: jobs <kulüp|#>   ·   başvur: jobs <kulüp> apply   ·   ilgi bildir: jobs <kulüp> interest   ·   bütün işler: jobs --all
+MANAGER	MENAJER
+SECURITY	GÜVENCE

@@ -590,6 +590,12 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] `fm jobs` on FM27 (was "could not be read"): the table (in `#JobMarketTableBlock`, found by `/checkrows` `Names`)
+  hands all 644 rows' records (JobStatus: `State` True = no manager, `Status` job security, `Team`, `Manager`), read
+  with `Team.Name/Division.Name/Nation.ThreeLetterName/LeaguePosition`, `Team.Club.ReputationScope.DisplayString`,
+  `Team.Club.FinancialStatus.DisplayValue`. Lists the open posts (5, as the page's "5 Boş İş"); `--all` every job.
+  A job is selected by its table index (the table is laid out again after the page opens: found again before choosing),
+  its detail from `Team.Club.ManagerRules` and `WageBudget`. 2.7 s. TR; EN pending.
 - [x] Match report goals: the minute is the end of the game's `TimeString` ("37'", "90+2'"); own goal and penalty come from
   `EventType` (1, 2), not the game's prefix ("o.g." in English was stripped, "k.k." in Turkish was not). TR; EN pending.
 - [ ] Live key moments (`match --play`, view 1) are picked by words in the commentary (`MatchLive.KeyWords`, TR + EN only).
