@@ -211,12 +211,13 @@ Still open:
     Thousands are cut, millions rounded.
 - [x] A tab's own menu is its bar (Training › Coach Assignments); `Subpage` tries real bars first.
 - [x] First-visit tab intros: `/closeintro` presses `#EndTutorialButton`; `OpenPage` calls it. A chosen page does not open under one.
-- [ ] `fm budget adjust`: the tile sends a `GenericAction` (ActionID `ClubBudgetAdjustmentTransfers`, 894198379);
+- [x] `fm budget adjust`: the tile sends a `GenericAction` (ActionID `ClubBudgetAdjustmentTransfers`, 894198379);
   the plugin puts its `m_actionIdBinding` at the button's `Sends`. FM26's id (1885623898) is now in the board requests menu.
   - The card is read by data paths (`budget.BudgetAdjustmentEdited{Transfer,Other}Value`, `…BoardString`).
   - Its buttons need `/press` (a click does nothing); the card is read back as gone.
   - Before the season expectations meeting the slider is shut: the board's sentence is said and the card closed.
-  - Tried: TR only, refusal 6/6 (page open, card open, from Squad and Inbox). Moving the slider and confirming: not yet.
+  - Tried: TR refusal 6/6 (page open, card open, from Squad and Inbox). After the expectations meeting: moved and
+    confirmed, read back from `Human.Club` (TR 15→14→15, 13→15; EN 14→15); a step out of range refused.
 - [ ] Set-piece creator (FM27, first season): the set-piece intro message's only answer opens a 6-step wizard; the game
   waits on it (`NeedAction`, `Respond` 14) and Continue does nothing.
   - Each step has the staff's choice ready; `EventToPlugin` on `buttons-next-primary-default`
