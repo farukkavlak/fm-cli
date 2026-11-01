@@ -217,7 +217,9 @@ internal static partial class FmApi
 
 		var sb = new StringBuilder();
 		var count = 0;
-		Walk(node, 0, depth, sb, ref count);
+		// From the root, what /pull and the routes put at fmcli.* is left out: it is ours, not the
+		// screen's, and its live values (lists of records read earlier) made a whole dump take minutes.
+		Walk(node, 0, depth, sb, ref count, skipOwn: string.IsNullOrEmpty(path));
 		sb.AppendLine($"-- {count} node(s)");
 		return sb.ToString();
 	}
@@ -460,9 +462,10 @@ internal static partial class FmApi
 
 	// ------------------------------------------------------------------ walking
 
-	private static void Walk(IReadOnlyNode node, int depth, int maxDepth, StringBuilder sb, ref int count)
+	private static void Walk(IReadOnlyNode node, int depth, int maxDepth, StringBuilder sb, ref int count, bool skipOwn = false)
 	{
 		if (count >= MaxNodes || depth > maxDepth) return;
+		if (skipOwn && depth == 1 && node.Name == "fmcli") return;
 		count++;
 
 		var children = node.ChildCount;
@@ -473,7 +476,7 @@ internal static partial class FmApi
 
 		for (var c = node.FirstChild; c != null; c = c.NextSibling)
 		{
-			Walk(c, depth + 1, maxDepth, sb, ref count);
+			Walk(c, depth + 1, maxDepth, sb, ref count, skipOwn);
 			if (count >= MaxNodes) return;
 		}
 	}

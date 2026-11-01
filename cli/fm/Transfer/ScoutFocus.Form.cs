@@ -72,8 +72,7 @@ internal static partial class Program
 		if (page.StartsWith("error", StringComparison.Ordinal)) return Report(page);
 		var existing = await ScoutFocuses();
 		// The club's focuses by record, read from its data (a form left open does not hide them).
-		async Task<List<string>> Ids() => (await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray().Select(e => Field(e, "UniqueId")).ToList();
-		var known = await Ids();
+		var known = await FocusIds();
 		Focus editing = null;
 		if (edit)
 		{
@@ -295,7 +294,7 @@ internal static partial class Program
 		// Made once the form is gone and the list of focuses is one longer.
 		List<Focus> after = [];
 		List<string> fresh = [];
-		var made = await Until(async () => await FormStep() == null && (fresh = (await Ids()).Except(known).ToList()).Count > 0, seconds: 12, every: 0.7);
+		var made = await Until(async () => await FormStep() == null && (fresh = (await FocusIds()).Except(known).ToList()).Count > 0, seconds: 12, every: 0.7);
 		if (made) after = await ScoutFocuses();
 		if (!made)
 		{
@@ -319,8 +318,9 @@ internal static partial class Program
 		var focuses = new List<Focus>();
 		JsonElement? list = null;
 		if (!await Until(async () => (list = await FocusList()) != null, seconds: 8, every: 0.5)) return focuses;
+		var ids = await FocusIds();
 		for (var index = 0; index < list!.Value.GetProperty("Choices").GetArrayLength(); index++)
-			if (await FocusAt(index) is { } focus) focuses.Add(focus);
+			if (await FocusAt(index, ids) is { } focus) focuses.Add(focus);
 		await GameWords.Ask(Fm, focuses.Select(f => f.Name).Distinct().ToArray());
 		return focuses;
 	}
@@ -376,8 +376,7 @@ internal static partial class Program
 		}
 		await Fm.Get("dialog", ("press", "primary"));
 		// Stopped once its record has left the club's focuses in progress.
-		var stopped = await Until(async () => (await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray()
-			.All(e => Field(e, "UniqueId") != wanted.Id), seconds: 10, every: 0.5);
+		var stopped = await Until(async () => (await FocusIds()).All(id => id != wanted.Id), seconds: 10, every: 0.5);
 		if (!stopped)
 		{
 			Console.Error.WriteLine(L($"'{wanted.Name}' still looks running; look: scout"));
@@ -403,7 +402,6 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		async Task<List<string>> Ids() => (await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray().Select(e => Field(e, "UniqueId")).ToList();
 		async Task<bool> Showing(string tab, string kind)
 		{
 			if (Field(await Fm.Pull("Human.ScoutingInfo", "RecruitmentFocusesListType"), "RecruitmentFocusesListType") == kind) return true;
@@ -413,7 +411,7 @@ internal static partial class Program
 			return await Until(async () => Field(await Fm.Pull("Human.ScoutingInfo", "RecruitmentFocusesListType"), "RecruitmentFocusesListType") == kind, seconds: 5, every: 0.3);
 		}
 		if (!await Showing("ButtonInProgress", "1")) return Report("error: the focus page's lists did not answer");
-		var known = await Ids();
+		var known = await FocusIds();
 		if (!await Showing("ButtonCompleted", "2")) return Report("error: the completed focuses did not open");
 
 		// The completed ones, from their rows' restart buttons and the focus beside each.
@@ -447,7 +445,7 @@ internal static partial class Program
 		await Fm.Get("click", ("ptr", wanted.Pointer));
 		// Restarted once a new record is among the focuses in progress.
 		await Showing("ButtonInProgress", "1");
-		if (!await Until(async () => (await Ids()).Except(known).Any(), seconds: 10, every: 0.5))
+		if (!await Until(async () => (await FocusIds()).Except(known).Any(), seconds: 10, every: 0.5))
 		{
 			Console.Error.WriteLine(L($"'{wanted.Name}' does not look restarted; look: scout"));
 			return 1;

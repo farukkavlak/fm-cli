@@ -35,8 +35,9 @@ internal static partial class Program
 
 		var words = Words(args).ToList();
 		var focuses = new List<Focus>();
+		var ids = await FocusIds();
 		for (var index = 0; index < count; index++)
-			if (await FocusAt(index) is { } focus) focuses.Add(focus);
+			if (await FocusAt(index, ids) is { } focus) focuses.Add(focus);
 		// A name is shown in the game's words ("GK" as "KL"), so it is taken typed either way.
 		await GameWords.Ask(Fm, focuses.Select(f => f.Name).Distinct().ToArray());
 
@@ -130,7 +131,13 @@ internal static partial class Program
 	/// at that place in the club's list (by UniqueId): its name and status, who is assigned, and how
 	/// many players are matched, nearly matched and still being looked at.
 	/// </summary>
-	private static async Task<Focus> FocusAt(int index)
+	/// <summary>The club's focuses in the list now shown, by record, from its data.</summary>
+	private static async Task<List<string>> FocusIds() =>
+		(await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray().Select(e => Field(e, "UniqueId")).ToList();
+
+	/// <param name="ids">The list's records when the caller has them (read once for a whole listing:
+	/// each reading of a list leaves its rows bound).</param>
+	private static async Task<Focus> FocusAt(int index, List<string>? ids = null)
 	{
 		if (await FocusList() is not { } list) return null;
 		if (Field(list, "Selected") != index.ToString())
@@ -142,7 +149,7 @@ internal static partial class Program
 		// The selected focus's own record: its name and status in the game's words, whether it is
 		// complete, who is on it and the size of each of its pools.
 		const string props = "UniqueId,Name,FocusStatusString,IsFocusComplete,ScoutCount,AnalystCount,RecommendedPlayerPoolCount,NearMissPlayerPoolCount,CurrentPlayerPoolCount";
-		var ids = (await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray().Select(e => Field(e, "UniqueId")).ToList();
+		ids ??= await FocusIds();
 		if (index >= ids.Count) return null;
 		JsonElement data = default;
 		if (!await Until(async () => Field(data = await Fm.Pull("Human.ScoutingInfo.SelectedRecruitmentFocus", props, shown: "Name,FocusStatusString"), "UniqueId") == ids[index]

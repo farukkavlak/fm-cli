@@ -584,6 +584,10 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] Whole-tree reads (`/tree` from the root: `news`) took minutes once many lists had been read: each list read leaves
+  its rows bound at `fmcli.*`, and the dump worked out their live values. The root dump now leaves `fmcli` out;
+  `scout` reads the focus list once per listing. News after scout/tactic: 4–5 s, 3/3 (was 2 min, "FM did not answer").
+  Likely the cause of the sweep's earlier hangs too (table, news, stages, register).
 - Language switch: the first reads after a restart into another language can still be in the old one (venue "D",
   positions "D/KB/OS (Sl)"); a second read is right. Save data (nations, injuries, focus names) stays in the language
   it was made in, as the game shows it.
