@@ -11,7 +11,7 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>
-	/// A role change during a match. Each player's menu on the match screen has two role rows,
+	/// A role change during a match. Each player's menu on the match screen has two role folders,
 	/// with the ball and without it, each opening the roles he can take there; choosing one is
 	/// written to the menu and its event sent, as a substitution is.
 	/// </summary>
@@ -24,26 +24,28 @@ internal static partial class Program
 			return 1;
 		}
 
-		var names = menus.Select(m => Rows(m)[0]).ToList();
-		string Current(JsonElement menu) => RoleRow(menu, withoutBall) is var row and >= 0 ? Rows(menu)[row].Replace(" ›", "") : "?";
+		var kind = withoutBall ? PlayerMenu.RoleWithoutBall : PlayerMenu.RoleWithBall;
+		var names = menus.Select(m => m.Name).ToList();
+		// The folder reads the role he has now.
+		string Current(PlayerMenu menu) => menu.Folder(kind)?.Shown ?? "?";
 
 		if (words.Count == 0 && Ui.Interactive)
 		{
-			if (Ui.Ask(withoutBall ? L("Whose out-of-possession role?") : L("Whose role?"), menus.Select(m => $"{Rows(m)[0]}  ({Current(m)})").ToList()) is not { } asked) return 0;
+			if (Ui.Ask(withoutBall ? L("Whose out-of-possession role?") : L("Whose role?"), menus.Select(m => $"{m.Name}  ({Current(m)})").ToList()) is not { } asked) return 0;
 			words.Add(names[asked]);
 		}
 		if (words.Count == 0)
 		{
 			Console.WriteLine(withoutBall ? L("Out-of-possession roles:") : L("Roles:"));
-			foreach (var menu in menus) Console.WriteLine($"  {Rows(menu)[0]}: {Current(menu)}");
+			foreach (var menu in menus) Console.WriteLine($"  {menu.Name}: {Current(menu)}");
 			Console.WriteLine(L($"\nTo change: tactic role <player> <role>{(withoutBall ? " --oop" : "")}"));
 			return 0;
 		}
 
 		if (Choose(names, words[0], L("Player")) is not { } player) return 1;
 		var chosen = menus[names.IndexOf(player)];
-		var roleRow = RoleRow(chosen, withoutBall);
-		var roles = roleRow >= 0 ? Submenu(chosen, roleRow) : [];
+		var roleRows = chosen.Under(chosen.Folder(kind));
+		var roles = roleRows.Select(r => r.Shown).ToList();
 		if (roles.Count == 0)
 		{
 			Console.Error.WriteLine(L($"There is no role list for {player}."));
@@ -66,45 +68,90 @@ internal static partial class Program
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(dry run) {player}: {GameWords.Of(Current(chosen))} → {GameWords.Of(role)}"));
+			Console.WriteLine(L($"(dry run) {player}: {Current(chosen)} → {role}"));
 			return 0;
 		}
 
-		var said = await Fm.Get("select", ("ptr", Field(chosen, "Pointer")), ("path", $"{roleRow},{roles.IndexOf(role)}"), ("fire", "1"));
+		var said = await Fm.Get("select", ("ptr", chosen.Pointer), ("path", roleRows[roles.IndexOf(role)].Path), ("fire", "1"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
-		// The menu's own row says the role he now has.
+		// His menu, read afresh, says the role he now has.
 		var before = Current(chosen);
-		var made = await Until(async () => (await PlayerMenus()).FirstOrDefault(m => Rows(m)[0] == player) is { ValueKind: JsonValueKind.Object } m && Current(m) == role, seconds: 5, every: 0.25);
+		var made = await Until(async () => (await PlayerMenus(fresh: true)).FirstOrDefault(m => m.Id == chosen.Id) is { } m && Current(m) == role, seconds: 5, every: 0.25);
 		Console.WriteLine(made ? $"{player}: {before} → {role}" : L($"{role} was chosen for {player}, but their menu still says {before}."));
 		return made ? 0 : 1;
 	}
 
-	/// <summary>The menus of the players on the pitch, each with its submenus spelled out.</summary>
-	private static async Task<List<JsonElement>> PlayerMenus() =>
-		(await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
-			.Where(d => d.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "BindingRoot_SquadOverviewPlayerBlock"))
-			.ToList();
-
-	private static List<string> Rows(JsonElement menu) =>
-		menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-
-	private static List<string> Submenu(JsonElement menu, int row) =>
-		menu.TryGetProperty("Submenus", out var submenus) && submenus.TryGetProperty(row.ToString(), out var list)
-			? list.EnumerateArray().Select(c => c.GetString() ?? "").ToList()
-			: [];
-
-	/// <summary>The row of the role with the ball (the first of the two) or without it (the second).</summary>
-	private static int RoleRow(JsonElement menu, bool withoutBall)
+	/// <summary>
+	/// A row of a match player's menu, known by the game's own kind for it (<c>FM.UI.PlayerMenuOption</c>
+	/// in <c>RowData.Type</c>) rather than by its words or place. A folder is kind 0 with the kind it
+	/// opens as its value. A row standing for a person (his name, a substitute) carries his name and id.
+	/// </summary>
+	internal sealed record MenuRow(string Path, int Type, int Value, bool Disabled, string Shown, string Name, string Id)
 	{
-		var rows = Rows(menu);
-		var roleRows = Enumerable.Range(0, rows.Count)
-			.Where(i => rows[i].EndsWith(" ›", StringComparison.Ordinal)
-			            && !rows[i].StartsWith("Touchline Shouts", StringComparison.Ordinal)
-			            && !rows[i].StartsWith("Substitute Off", StringComparison.Ordinal))
-			.ToList();
-		var at = withoutBall ? 1 : 0;
-		return at < roleRows.Count ? roleRows[at] : -1;
+		public int Depth => Path.Count(c => c == ',');
+	}
+
+	/// <summary>A player's menu on the match screen: whose it is, and its rows by kind.</summary>
+	internal sealed record PlayerMenu(string Pointer, List<MenuRow> Rows)
+	{
+		// FM.UI.PlayerMenuOption
+		public const int NameRow = 1, MoraleRow = 2, ConditionRow = 3, RoleWithBall = 4, RoleWithoutBall = 5, SubstituteOff = 7;
+
+		MenuRow? Head => Rows.FirstOrDefault(r => r.Depth == 0 && r.Type == NameRow);
+		public string Name => Head?.Name ?? "";
+		public string Id => Head?.Id ?? "";
+		public string Shown(int kind) => Rows.FirstOrDefault(r => r.Depth == 0 && r.Type == kind)?.Shown ?? "";
+		public MenuRow? Folder(int kind) => Rows.FirstOrDefault(r => r.Depth == 0 && r.Type == 0 && r.Value == kind);
+		public List<MenuRow> Under(MenuRow? folder) => folder == null ? [] : Rows.Where(r => r.Depth == 1 && r.Path.StartsWith(folder.Path + ",", StringComparison.Ordinal)).ToList();
+
+		/// <summary>Who may come on for him: the substitute rows the game will take.</summary>
+		public List<MenuRow> Bench => Under(Folder(SubstituteOff)).Where(r => r.Type == SubstituteOff && !r.Disabled && r.Name.Length > 0).ToList();
+
+		/// <summary>"Morale, condition" as the game shows them.</summary>
+		public string State => string.Join(", ", new[] { Shown(MoraleRow), Shown(ConditionRow) }.Where(s => s.Length > 0));
+	}
+
+	/// <summary>
+	/// The menus of the players on the pitch, found by the block they sit in. FM27 fills such a menu
+	/// only once it is opened, and keeps what it was first given: each is opened (again, with
+	/// fresh, after a change), read once the game has filled it, and shut.
+	/// </summary>
+	private static async Task<List<PlayerMenu>> PlayerMenus(bool fresh = false)
+	{
+		var pointers = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => d.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "BindingRoot_SquadOverviewPlayerBlock"))
+			.Select(d => Field(d, "Pointer")).ToList();
+
+		var read = new List<(string Pointer, List<JsonElement> Rows)>();
+		for (var m = 0; m < pointers.Count; m++)
+		{
+			(string, string)[] Ask(params (string, string)[] more) => [("ptr", pointers[m]), ("put", $"fmcli.pm.{m}"), .. more];
+			var before = await Fm.GetJson("menukinds", Ask());
+			var menu = await Fm.GetJson("menukinds", Ask(("load", "1"), ("fresh", fresh ? "1" : "0")));
+			if (fresh || Filled(menu) == 0)
+			{
+				// Opened on that frame, filled on a later one: with a list of its own.
+				await Until(async () => (menu = await Fm.GetJson("menukinds", Ask())) is var now && Filled(now) > 0
+					&& Field(now, "List") != Field(before, "List"), seconds: 3, every: 0.05);
+				menu = await Fm.GetJson("menukinds", Ask(("close", "1")));
+			}
+			if (Filled(menu) > 0) read.Add((pointers[m], menu.GetProperty("Rows").EnumerateArray().ToList()));
+		}
+
+		// Who each person row is, in one batch.
+		var people = read.SelectMany(r => r.Rows).Select(r => Field(r, "At")).Where(a => a.Length > 0).Distinct().ToList();
+		var named = (await PullEach(people.Select(a => (a, "Name,UniqueId")).ToList()))
+			.Zip(people).ToDictionary(p => p.Second, p => (Name: Field(p.First, "Name"), Id: Field(p.First, "UniqueId")));
+
+		return read.Select(r => new PlayerMenu(r.Pointer, r.Rows.Select(row =>
+		{
+			var who = named.TryGetValue(Field(row, "At"), out var n) ? n : ("", "");
+			return new MenuRow(Field(row, "Path"), int.TryParse(Field(row, "Type"), out var t) ? t : -1, int.TryParse(Field(row, "Value"), out var v) ? v : -1,
+				row.TryGetProperty("Disabled", out var d) && d.GetBoolean(), Field(row, "Shown"), who.Item1, who.Item2);
+		}).ToList())).Where(m => m.Name.Length > 0).ToList();
+
+		static int Filled(JsonElement menu) => menu.TryGetProperty("Rows", out var r) ? r.GetArrayLength() : 0;
 	}
 
 	/// <summary>
@@ -392,7 +439,7 @@ internal static partial class Program
 	/// is playing, with his name and how he is doing. Lanes are shared out within a line, so two
 	/// centre-backs stand side by side.
 	/// </summary>
-	internal static void DrawMatchPitch(List<string> positions, List<JsonElement> menus)
+	internal static void DrawMatchPitch(List<string> positions, List<PlayerMenu> menus)
 	{
 		string[] lines = ["ST", "AM", "M", "DM", "D", "GK"];
 		var placed = new List<(int Line, int Lane, string Name, string Note)>();
@@ -404,8 +451,7 @@ internal static partial class Program
 			if (line < 0) continue;
 			var side = m.Groups[2].Value;
 			var lane = side == "R" ? 4 : side == "L" ? 0 : -1;
-			var rows = Rows(menus[i]);
-			placed.Add((line, lane, rows[0], rows.Count > 2 ? rows[2] : ""));
+			placed.Add((line, lane, menus[i].Name, menus[i].Shown(PlayerMenu.ConditionRow)));
 		}
 
 		// Central players share the middle three lanes. The screen lists each line from the

@@ -183,6 +183,64 @@ internal static class Submenus
 	}
 
 	/// <summary>
+	/// Every row of a dropdown, submenus included, by what the game says it is rather than what it
+	/// reads: the row's own kind (<c>RowData.Type</c>; a match player's menu numbers them as
+	/// <c>FM.UI.PlayerMenuOption</c>: 1 his name, 7 a substitute for him, a folder 0 with the kind it
+	/// holds as its value), its value, whether it is greyed out, and its text as shown.
+	/// A row standing for a person is put at ?put=&lt;prefix&gt;.&lt;n&gt; ("At") so his fields can be read.
+	/// A menu FM27 fills only when opened (<c>ShouldLazyBindChoices</c>, the match screen's player
+	/// menus) is opened with ?load=1, and again with ?load=1&amp;fresh=1 since it keeps what it was first
+	/// given (a substitute in, the old name still there). It fills on a later frame, with a new list
+	/// ("List"), and ?close=1 shuts it then.
+	/// </summary>
+	public static string Kinds(NameValueCollection q)
+	{
+		if (!Buttons.TryPointer(q["ptr"] ?? "", out var pointer)) return "error: ?ptr=<0x…> required";
+		var dropdown = Buttons.AllDropdowns().FirstOrDefault(d => d.Pointer == pointer);
+		if (dropdown == null) return $"error: no dropdown at {q["ptr"]}";
+
+		if (q["load"] == "1" && (q["fresh"] == "1" || (dropdown.m_choices?.Count ?? 0) == 0)) dropdown.ShowDropdown();
+		if (q["close"] == "1") dropdown.CloseSelfAndAllChildren();
+
+		var rows = new List<string>();
+		var people = 0;
+		void Add(SI.Core.TypedValue choice, string path)
+		{
+			var entries = choice?.Get()?.TryCast<DynamicReference>() is { } record ? Send.Entries(record) : null;
+			Dictionary<string, SI.Core.TypedValue> data = null;
+			if (entries != null && entries.TryGetValue("RowData", out var row) && row?.Get()?.TryCast<DynamicReference>() is { } inner)
+				data = Send.Entries(inner);
+			string Field(Dictionary<string, SI.Core.TypedValue> from, string name) =>
+				from != null && from.TryGetValue(name, out var v) && v != null && !v.IsNull ? Text.Of(v) : "";
+
+			var value = data != null && data.TryGetValue("PropertyValue", out var held) && held != null && !held.IsNull ? held : null;
+			var at = "";
+			if (value?.DataType?.Name == "PersonReference" && !string.IsNullOrEmpty(q["put"]))
+			{
+				var to = $"{q["put"]}.{people++}";
+				if (RawPath.Set(to, value) == null) at = to;
+			}
+			var disabled = Field(entries, "Disabled") == "True" || Field(data, "Disabled") == "True";
+			var children = Buttons.Children(choice);
+			// The text alone: whether it opens a submenu is in the paths under it.
+			var shown = Buttons.ChoiceShown(choice) ?? "";
+			if (children != null && shown.EndsWith(" ›", System.StringComparison.Ordinal)) shown = shown[..^2];
+			rows.Add($"{{\"Path\": \"{path}\", \"Type\": \"{Report.Escape(Field(data, "Type"))}\", "
+			         + $"\"Value\": \"{Report.Escape(value?.DataType?.Name == "PersonReference" ? "" : Field(data, "PropertyValue"))}\", "
+			         + $"\"Disabled\": {(disabled ? "true" : "false")}, \"At\": \"{at}\", "
+			         + $"\"Shown\": \"{Report.Escape(shown)}\"}}");
+
+			for (var c = 0; c < (children?.Count ?? 0) && c < 60; c++) Add(children[c], $"{path},{c}");
+		}
+
+		var top = dropdown.m_choices;
+		for (var i = 0; i < (top?.Count ?? 0) && i < 60; i++) Add(top[i], i.ToString());
+		// Each filling hands the menu a new list: a list other than the one read before says it was filled again.
+		var list = top == null ? "" : $"0x{top.Pointer.ToInt64():x}";
+		return $"{{\"List\": \"{list}\", \"Rows\": [\n  " + string.Join(",\n  ", rows) + "\n]}\n";
+	}
+
+	/// <summary>
 	/// Puts a dropdown's row at a path (?ptr=&amp;i=&amp;to=), so a row that is only a reference — a
 	/// list of people with no text, as who can take a duty — can be read by /pull.
 	/// </summary>

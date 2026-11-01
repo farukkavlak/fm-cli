@@ -254,10 +254,20 @@ Still open:
   Turkish game): the title is now read as shown (`Text.ShownOf`). TR 3/3; EN, DE not tried.
 - [x] `InGame`: the in-game Continue's flow (`continue.State`) is bound in a save on every screen and not on the
   main menu (measured once, cold start), so it replaces the list of match-day stops (`SquadNumbers` was missing).
-- [ ] In-match substitution on FM27 (`sub`, and the stop's "Who comes on?"): the ten players' menus in
-  `BindingRoot_SquadOverviewPlayerBlock` come with no rows (seen at a red-card stop, EN). It crashed on the empty menu;
-  empty menus are now left out and the command says the menu is not there. Still by words/order: the bench is the
-  submenu whose first row looks like "3/5 …", a name is the first row, " - " splits it. Never tried on FM27.
+- [x] In-match substitution and role on FM27 (`sub`, `tactic role` during a match): the players' menus in
+  `BindingRoot_SquadOverviewPlayerBlock` fill only once opened (`ShouldLazyBindChoices`) and keep what they were first
+  given. `/menukinds?load=1` opens one; it is filled on a later frame with a new list ("List"), then `close=1`.
+  `fresh=1` opens it again after a change. `LoadChoices` and open+shut on one frame leave it empty.
+  - Rows by the game's kind (`RowData.Type`, `FM.UI.PlayerMenuOption`): 1 name, 2 morale, 3 condition, folders are
+    kind 0 with the kind as value (4 role with ball, 5 without, 7 substitution, 8 shouts); a substitute is kind 7.
+    People by their `PropertyValue` record (`At`, then `Name`, `UniqueId`); the change count row is the folder's greyed row.
+  - Writing the row (`select path= fire=1`) makes the change; read back by the newcomer's `UniqueId` in a refilled menu.
+  - Right after a change the newcomer's menu can come without role folders (a folder 7 "came on later"); it is whole
+    a few seconds later.
+  - Tried live: TR 4 changes (both halves) + role with/without ball; EN 3 changes + roles; an unknown name and a
+    role from the other list refused. The stop's "Who comes on?" not met yet.
+  - [ ] Still by words: the pitch drawing's positions (`MatchPositions`, English labels: never drawn in Turkish),
+    the stop's "Confirm Changes"/"Cancel" labels, the planner's "Inj" in `MatchPlayers(atStop)`.
   - A red-card stop was called an injury stop: now the player's `RedCardedInMatch` names it.
 - [ ] The active tactic is named "xxxx…" (200 letters) since the tactic-file title test; there is no rename command.
 - [ ] Squad numbers before a match: the screen stays up a moment after the numbers are sent and `match` sent them

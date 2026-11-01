@@ -75,6 +75,7 @@ internal static partial class FmApi
 		"choicedump" => Submenus.Dump(q),
 		"rowput" => Submenus.Put(q),
 		"menu" => Submenus.Menu(q),
+		"menukinds" => Submenus.Kinds(q),
 		"menuoptions" => Buttons.MenuOptions(q),
 		"menuoption" => Buttons.MenuOption(q),
 		"instructions" => Instructions.Current(),

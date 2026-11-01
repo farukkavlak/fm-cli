@@ -7,9 +7,9 @@ internal static partial class Program
 	/// <summary>
 	/// A substitution during a match.
 	///
-	/// On the match screen every player on the pitch has a menu, and one of its rows opens the
-	/// bench: choosing a name there takes him off for that player. So who is on, who is on the
-	/// bench and how many changes are left are all read from those menus.
+	/// On the match screen every player on the pitch has a menu, and its substitution folder lists
+	/// the bench: choosing a name there takes him off for that player. So who is on, who is on the
+	/// bench and how many changes are left are all read from those menus, row by the game's kind.
 	/// </summary>
 	private static async Task<int> Substitute(bool json, string[] args)
 	{
@@ -19,24 +19,22 @@ internal static partial class Program
 			return 1;
 		}
 
-		var menus = await Menus();
-		// At a stop the tactics screen comes up first and spells out the bench a moment later.
-		if (menus.Count > 0 && menus.All(m => Bench(m).Count == 0))
-			await Until(async () => (menus = await Menus()).Any(m => Bench(m).Count > 0), seconds: 4, every: 0.4);
+		// A change made since a menu was first filled is only in it once it is filled again.
+		var menus = await PlayerMenus(fresh: true);
 		if (menus.Count == 0)
 		{
 			Console.Error.WriteLine(L("The menu of the players on the pitch is not on screen (it may be half-time or a talk screen)."));
 			return 1;
 		}
 
-		var onPitch = menus.Select(m => m.GetProperty("Choices")[0].GetString()).ToList();
+		var onPitch = menus.Select(m => m.Name).ToList();
 		// The goalkeeper's menu can come without the bench spelled out; any other has it.
-		var bench = menus.Select(Bench).FirstOrDefault(b => b.Count > 0) ?? [];
+		var bench = menus.Select(m => m.Bench).FirstOrDefault(b => b.Count > 0) ?? [];
 		var words = Words(args).ToList();
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { OnPitch = onPitch, Bench = bench }));
+			Console.WriteLine(JsonOut.Of(new { OnPitch = onPitch, Bench = bench.Select(b => b.Name) }));
 			return 0;
 		}
 
@@ -44,7 +42,7 @@ internal static partial class Program
 		if (words.Count == 0 && Ui.Rich && await MatchPositions() is { Count: > 0 } positions && positions.Count == menus.Count)
 		{
 			DrawMatchPitch(positions, menus);
-			Console.WriteLine(L($"Bench: {string.Join(", ", bench.Select(b => b.Split(" - ")[0]))}"));
+			Console.WriteLine(L($"Bench: {string.Join(", ", bench.Select(b => b.Name))}"));
 			if (!Ui.Interactive)
 			{
 				Console.WriteLine(L("\nTo substitute: sub <off> <on>"));
@@ -59,19 +57,14 @@ internal static partial class Program
 		{
 			if (words.Count == 0)
 			{
-				var described = menus.Select(m =>
-				{
-					var rows = m.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-					return $"{rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))})";
-				}).ToList();
-				if (Ui.Ask(L("Who comes off?"), described) is not { } goingOff) return 0;
+				if (Ui.Ask(L("Who comes off?"), menus.Select(m => $"{m.Name}  ({m.State})").ToList()) is not { } goingOff) return 0;
 				words.Add(onPitch[goingOff]);
 			}
 
 			if (Choose(onPitch, words[0], L("Off")) is not { } named) return 1;
-			var allowed = Bench(menus[onPitch.IndexOf(named)]);
-			if (Ui.Ask(L($"Who comes on for {named}?"), allowed) is not { } comingOn) return 0;
-			words.Add(allowed[comingOn]);
+			var allowed = menus[onPitch.IndexOf(named)].Bench;
+			if (Ui.Ask(L($"Who comes on for {named}?"), allowed.Select(b => b.Shown).ToList()) is not { } comingOn) return 0;
+			words.Add(allowed[comingOn].Name);
 		}
 
 		if (words.Count < 2)
@@ -80,12 +73,11 @@ internal static partial class Program
 			Console.WriteLine(L("On the pitch:"));
 			foreach (var menu in menus)
 			{
-				var rows = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-				var marks = match.TryGetValue(rows[0] ?? "", out var m) ? m.Marks : "";
-				Console.WriteLine($"  {rows[0]}  ({string.Join(", ", rows.Skip(1).Take(2))}){(marks.Length > 0 ? "  " + marks : "")}");
+				var marks = match.TryGetValue(menu.Name, out var m) ? m.Marks : "";
+				Console.WriteLine($"  {menu.Name}  ({menu.State}){(marks.Length > 0 ? "  " + marks : "")}");
 			}
 			Console.WriteLine(L("\nOn the bench:"));
-			foreach (var name in bench) Console.WriteLine($"  {name}");
+			foreach (var row in bench) Console.WriteLine($"  {row.Shown}");
 			Console.WriteLine(L("\nTo substitute: sub <off> <on>"));
 			return 0;
 		}
@@ -116,15 +108,13 @@ internal static partial class Program
 		var from = menus[onPitch.IndexOf(leaving)];
 
 		// The bench is listed per player, since who may replace whom can differ.
-		var choices = Bench(from);
-		if (Choose(choices, words[1], L("On")) is not { } coming) return 1;
-
-		var row = BenchRow(from);
-		var entry = from.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Select(c => c.GetString() ?? "").ToList().IndexOf(coming);
+		var choices = from.Bench;
+		if (Choose(choices.Select(b => b.Name).ToList(), words[1], L("On")) is not { } coming) return 1;
+		var entry = choices.First(b => b.Name == coming);
 
 		// A submenu row is written to the menu's bound value and the menu's own events sent
 		// after it, which is what choosing it by hand comes to.
-		var query = new List<(string, string)> { ("ptr", Field(from, "Pointer")), ("path", $"{row},{entry}"), ("fire", "1") };
+		var query = new List<(string, string)> { ("ptr", from.Pointer), ("path", entry.Path), ("fire", "1") };
 		if (args.Contains("--dry")) query.Add(("dry", "1"));
 
 		var selected = await Fm.Get("select", query.ToArray());
@@ -143,21 +133,18 @@ internal static partial class Program
 			await Until(async () => (resume = ConfirmChanges(await Fm.GetJson("buttons", ("json", "1")))) != null, seconds: 5, every: 0.5);
 		if (resume is { } confirmed)
 		{
-			var resumeAt = confirmed;
-			await Fm.Get("press", ("ptr", Field(resumeAt, "Pointer")));
+			await Fm.Get("press", ("ptr", Field(confirmed, "Pointer")));
 			var going = await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 10, every: 0.5);
 			Console.WriteLine(going
-				? L($"Substitution made: {leaving} off, {coming.Split(" - ")[0]} on. The match goes on; to keep watching: match")
+				? L($"Substitution made: {leaving} off, {coming} on. The match goes on; to keep watching: match")
 				: L($"{coming} was chosen and the substitution confirmed, but the match is still stopped: buttons"));
 			return going ? 0 : 1;
 		}
 
-		// Done when the player who left no longer has a menu on the pitch.
-		var made = await Until(async () => !(await Menus()).Any(m => m.GetProperty("Choices")[0].GetString() == leaving), seconds: 20);
-		// The bench lists a player with his positions ("Reeco Hackett - M (RL), AM (RLC)").
-		var comer = coming.Split(" - ")[0];
+		// Done when his menu, filled afresh, is the newcomer's: the game's own id, not the name.
+		var made = entry.Id.Length > 0 && await Until(async () => (await PlayerMenus(fresh: true)).Any(m => m.Id == entry.Id), seconds: 20);
 		Console.WriteLine(made
-			? L($"Substitution made: {leaving} off, {comer} on.")
+			? L($"Substitution made: {leaving} off, {coming} on.")
 			: L($"{coming} was chosen, but {leaving} still appears on the pitch; the game may be waiting for confirmation (buttons)."));
 		return made ? 0 : 1;
 
@@ -165,28 +152,6 @@ internal static partial class Program
 		static bool Named(string full, string typed) => full.Length > 0 && typed.Length > 0
 			&& (full.Equals(typed, StringComparison.OrdinalIgnoreCase) || full.EndsWith(" " + typed, StringComparison.OrdinalIgnoreCase)
 				|| typed.EndsWith(" " + full, StringComparison.OrdinalIgnoreCase));
-
-		// A player's menu is one in his block on the match screen, known by where it stands, not by a row's words.
-		// A menu not drawn yet has no rows (at an injury stop): it is left out until it has.
-		async Task<List<JsonElement>> Menus() =>
-			(await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
-				.Where(d => d.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "BindingRoot_SquadOverviewPlayerBlock"))
-				.Where(d => d.TryGetProperty("Choices", out var choices) && choices.GetArrayLength() > 0)
-				.ToList();
-
-		// The bench is the submenu that starts with the count of changes ("3/5 Substitutes", "15/15
-		// the substitution label); the row that opens it can come without its words (a Turkish game).
-		static int BenchRow(JsonElement menu)
-		{
-			if (!menu.TryGetProperty("Submenus", out var submenus)) return -1;
-			foreach (var sub in submenus.EnumerateObject())
-				if (sub!.Value.GetArrayLength() > 0 && System.Text.RegularExpressions.Regex.IsMatch(sub!.Value[0].GetString() ?? "", @"^\d+/\d+ ") && int.TryParse(sub.Name, out var row))
-					return row;
-			return -1;
-		}
-
-		static List<string> Bench(JsonElement menu) =>
-			BenchRow(menu) is >= 0 and var row ? menu.GetProperty("Submenus").GetProperty(row.ToString()).EnumerateArray().Skip(1).Select(c => c.GetString() ?? "").ToList() : [];
 	}
 
 	/// <summary>
