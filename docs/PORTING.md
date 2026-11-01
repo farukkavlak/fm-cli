@@ -592,7 +592,8 @@ Still open:
     answers by event. TR + EN: new and edit with both, unknown name.
 - [ ] Still held by words or order (found by grepping label/text comparisons, 2 Nov):
   - [ ] `Club/Coaches.cs` `ReadCoaches`: the form read in order between "Coach Workload" and "Lead Coach Rating".
-  - [ ] `Squad/TacticFiles.cs:126`: the file dialog's "Cancel" (with `PanelHistoryClose`).
+  - [x] `Squad/TacticFiles.cs`: the save panel's close is the `PanelHistoryClose` on Save's own page, not "Cancel".
+    Save tried (TR); the close path is not: no title was refused (200 letters were taken).
   - [ ] `Squad/TraitTraining.cs:51-52`, `Squad/TrainingSchedule.Calendar.cs`: FM26 fallbacks ("Start New Trait
     Training", "Today", "Training"); FM27 takes the action-menu / session-button ways first.
   - [ ] `Program/Program.Messages*.cs`: attachments by headings ("Attachments", card titles); `Squad/TrainingReport.cs`

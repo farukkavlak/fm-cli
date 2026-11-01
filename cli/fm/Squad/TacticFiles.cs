@@ -123,7 +123,9 @@ internal static partial class Program
 		var clicked = ready ? await Fm.Get("click", ("ptr", Field(save, "Pointer"))) : "error: disabled";
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
-			var cancel = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(b => Field(b, "Label") == "Cancel" && Field(b, "Events") == "PanelHistoryClose");
+			// The panel's own close: the one that shuts the history on the same page as its Save.
+			var cancel = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.LastOrDefault(b => Field(b, "Events") == "PanelHistoryClose" && Field(b, "Page").Length > 0 && Field(b, "Page") == Field(save, "Page"));
 			if (cancel.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(cancel, "Pointer")));
 			Console.Error.WriteLine(L($"The game did not allow saving as '{name}' (Save stayed closed)."));
 			return 1;
