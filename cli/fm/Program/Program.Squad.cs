@@ -77,7 +77,7 @@ internal static partial class Program
 			})
 			.ToList();
 
-		Table.Write(new[] { L("PLAYER"), L("POSITION"), L("AGE"), L("STATUS"), L("WAGE"), L("VALUE"), L("STATUS") }, rows);
+		Table.Write(new[] { L("PLAYER"), L("POSITION"), L("AGE"), L("PLAYING TIME"), L("WAGE"), L("VALUE"), L("STATUS") }, rows);
 		return 0;
 	}
 

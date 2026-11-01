@@ -155,7 +155,7 @@ internal static partial class Program
 	{
 		["PositionCombinedString"] = L("POSITION"), ["Age"] = L("AGE"), ["Wage"] = L("WAGE"), ["SquadNumber"] = "NO",
 		["TransferValueRangeString"] = L("VALUE"), ["AskingPrice"] = L("ASKING PRICE"), ["TransferOptions"] = L("TRANSFER STATUS"),
-		["AgreedPlayingTime"] = L("STATUS"), ["FutureAgreedPlayingTime"] = L("FUTURE STATUS"), ["ActualPlayingTime"] = L("ACTUAL TIME"),
+		["AgreedPlayingTime"] = L("PLAYING TIME"), ["FutureAgreedPlayingTime"] = L("FUTURE PLAYING TIME"), ["ActualPlayingTime"] = L("ACTUAL TIME"),
 		["PlayingTimeHappinessLevel"] = L("PLAYING TIME HAPPINESS"), ["ContractStatus"] = L("CONTRACT"), ["Condition"] = L("CONDITION"),
 		["Sharpness"] = L("MATCH SHARPNESS"), ["InjuriesTimeMissed"] = L("TIME OUT"), ["InjurySeverity"] = L("SEVERITY"),
 		["InjuryDescription"] = L("INJURY"), ["TrainingRating"] = L("TRAINING RATING"), ["MoraleString"] = "MORAL",
