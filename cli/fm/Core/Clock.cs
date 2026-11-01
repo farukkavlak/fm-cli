@@ -218,10 +218,11 @@ internal static partial class Program
 	}
 
 	// Screens the game only wants looked at; Continue goes on from them. FM27's round-up of a league
-	// matchday is "CompetitionHub": one press and the flow is CanContinue again (13 Eyl 2026).
+	// matchday is "CompetitionHub": one press and the flow is CanContinue again (13 Eyl 2026); its
+	// manager vacancies page for an unemployed manager is "ManagerVacancies", the same (21 Haz 2027).
 	private static bool Passable(string flow) =>
 		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages" or "AroundTheWorld"
-			or "CompetitionHub";
+			or "CompetitionHub" or "ManagerVacancies";
 
 	/// <summary>
 	/// The state once the game has dealt with a Continue press, or null if it was still at it after
