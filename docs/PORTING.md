@@ -590,6 +590,11 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] `release`: FM27's actions menu "Contract › Release On A Free" / "Mutual Termination" by their actions
+  (`PersonReleaseClubFreeTransfer`, `PersonMutualTerminationContract`), the menu raised from the player's record (a
+  namesake elsewhere is never the one). Was the contract card's list and its English rows ("not our player" in FM27).
+  The game's window (Confirm1214855239) is read once its words have drawn and answered until gone (a click while it
+  drew was lost and left it open). EN: list, mutual dry, free cancelled 3/3, one real free release (gone next day). TR pending.
 - [x] `training <player> --report`: FM27 offers it in his actions menu ("Training › Request Training Report › <coach>",
   action `PersonRequestTrainingReport`, one entry per coach); chosen by action and entry, not the tile and a list labelled
   "Request Training Report". The report message is shown as `reply` shows one: in FM27 (Launch Preview) its body draws

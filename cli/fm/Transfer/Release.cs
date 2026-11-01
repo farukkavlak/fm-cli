@@ -88,61 +88,34 @@ internal static partial class Program
 			Console.Error.WriteLine(L("usage: release <player> [--free | --mutual] [--yes]"));
 			return 64;
 		}
-		if (await OpenPlayer(wanted) is not { } card) return 1;
-		var name = Field(card.GetProperty("Player"), "Name");
-
-		if (await OpenContractSection(name) is { } failed) return failed;
-
-		// The list is the player's contract card's own dropdown, whatever the game calls it: its
-		// label read "Release" when this was written and "Set For Release" in the current build, so
-		// looking it up by the words beside it found nothing and the command said there was no
-		// release option at all.
-		static bool IsReleaseList(JsonElement d) => Field(d, "Label") == "Release"
-			|| Field(d, "Binds") == "selectedaction"
-			   && d.TryGetProperty("Within", out var within) && within.ValueKind == JsonValueKind.Array
-			   && within.EnumerateArray().Any(w => w.GetString() == "PlayerContractCard");
-
-		JsonElement list = default;
-		async Task<bool> Listed()
+		// FM27: his actions menu's "Contract › Release On A Free" and "Mutual Termination", each known by
+		// its action (PersonReleaseClubFreeTransfer, PersonMutualTerminationContract); the menu is raised
+		// from his record, so a namesake at another club is never the one released.
+		if (await PersonMenu(wanted) is not { } menu) return 1;
+		var name = menu.Name;
+		const string free = "PersonReleaseClubFreeTransfer", mutual = "PersonMutualTerminationContract";
+		JsonElement? Entry(string action) => menu.Entries.Where(e => Field(e, "Action") == action && !IsFolder(e) && IsEnabled(e)).Cast<JsonElement?>().FirstOrDefault();
+		if (Entry(free) == null && Entry(mutual) == null)
 		{
-			list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(IsReleaseList);
-			if (list!.ValueKind == JsonValueKind.Object) return true;
-			await Acknowledge();
-			return false;
-		}
-		if (!await Until(Listed, seconds: 10, every: 0.5))
-		{
+			await Fm.Get("actions", ("close", "1"));
 			Console.Error.WriteLine(L($"There is no option to release {name}."));
 			return 1;
-		}
-
-		const string free = "Release On A Free", mutual = "Mutual Termination";
-		// The list's rows come back in the game's own words ("Release on a Free") or in English
-		// ("Mutual Termination"), so the row meant is found by the words that fit it rather than by
-		// one fixed spelling: asking for "Release On A Free" by name found nothing in a Turkish game
-		//.
-		await GameWords.Ask(Fm, free, mutual);
-		string Row(string english)
-		{
-			if (list!.ValueKind != JsonValueKind.Object || !list.TryGetProperty("Choices", out var rows)) return english;
-			var shown = rows.EnumerateArray().Select(r => r.GetString() ?? "").ToList();
-			var own = GameWords.Of(english);
-			return shown.FirstOrDefault(r => Fold(r) == Fold(english) || Fold(r) == Fold(own))
-				?? shown.FirstOrDefault(r => Fold(own).Length > 1 && Fold(r).EndsWith(Fold(own), StringComparison.Ordinal))
-				?? english;
 		}
 		string way = args.Contains("--free") ? free : args.Contains("--mutual") ? mutual : null;
 		if (way == null)
 		{
 			if (!Ui.Interactive)
 			{
-				var ends = Field(card.GetProperty("Player"), "ContractEnds");
-				Console.WriteLine(ends.Length > 0 ? L($"{name}: their contract ends on {ends}.") : L($"{name}: their contract runs on."));
+				await Fm.Get("actions", ("close", "1"));
 				Console.WriteLine(L($"  release \"{name}\" --free     release on a free (the game names the compensation and asks to confirm)"));
 				Console.WriteLine(L($"  release \"{name}\" --mutual   offer a mutual termination (--yes to confirm)"));
 				return 0;
 			}
-			if (Ui.Ask(L($"{name}: how?"), [L("Release on a free"), L("Offer a mutual termination")]) is not { } chosen) return 0;
+			if (Ui.Ask(L($"{name}: how?"), [L("Release on a free"), L("Offer a mutual termination")]) is not { } chosen)
+			{
+				await Fm.Get("actions", ("close", "1"));
+				return 0;
+			}
 			way = chosen == 0 ? free : mutual;
 		}
 
@@ -151,28 +124,30 @@ internal static partial class Program
 		{
 			if (!Ui.Interactive)
 			{
+				await Fm.Get("actions", ("close", "1"));
 				Console.WriteLine(L($"The game carries out a mutual termination without asking. To send it: release \"{name}\" --mutual --yes"));
 				return 0;
 			}
-			if (Ui.Ask(L($"Offer {name} a mutual termination of their contract?"), [L("Yes"), L("No")]) != 0) return 0;
+			if (Ui.Ask(L($"Offer {name} a mutual termination of their contract?"), [L("Yes"), L("No")]) != 0)
+			{
+				await Fm.Get("actions", ("close", "1"));
+				return 0;
+			}
 		}
-
-		// The list is rebuilt as the page settles, so a pointer gone stale is looked up again.
-		var sent = "";
-		for (var attempt = 0; attempt < 6; attempt++)
+		if (Entry(way) is not { } entry)
 		{
-			if (list!.ValueKind != JsonValueKind.Object) sent = "error: no dropdown at the release list";
-			else sent = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", Row(way)), ("fire", "1"));
-			if (!sent.StartsWith("error: no dropdown at", StringComparison.Ordinal)) break;
-			await Task.Delay(500);
-			await Until(Listed, seconds: 5, every: 0.5);
+			await Fm.Get("actions", ("close", "1"));
+			Console.Error.WriteLine(way == free ? L($"The game does not offer releasing {name} on a free now.") : L($"The game does not offer a mutual termination to {name} now."));
+			return 1;
 		}
+		var sent = await ChooseEntry(entry, menu.Entries);
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 
 		if (way == free)
 		{
 			JsonElement dialogs = default;
-			if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 5, every: 0.5))
+			// Read once its words have drawn: the first frames carry the window with its texts still empty.
+			if (!await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0 && Field(dialogs[0], "Description").Length > 0, seconds: 5, every: 0.3))
 			{
 				Console.Error.WriteLine(L("No confirmation window came; see what happened with `talk`."));
 				return 1;
@@ -180,7 +155,12 @@ internal static partial class Program
 			var dialog = dialogs[0];
 			Console.WriteLine($"{DialogWords(dialog, "Title")}\n  {DialogWords(dialog, "Description").Replace("\n\n", "\n  ")}");
 			var go = args.Contains("--yes") || (Ui.Interactive && Ui.Ask(L("Release them?"), [L("Yes"), L("No")]) == 0);
-			if (DialogAnswer(dialog, go) is { } chosen) await Fm.Get("click", ("ptr", Field(chosen, "Pointer")));
+			// Answered until the window is gone: a click while it is still being drawn is lost.
+			if (!await AnswerDialog(go))
+			{
+				Console.Error.WriteLine(L("The game's window did not take the answer; look: dialog"));
+				return 1;
+			}
 			if (!go)
 			{
 				if (!Ui.Interactive) Console.WriteLine(L($"Cancelled. To release them: release \"{name}\" --free --yes"));
