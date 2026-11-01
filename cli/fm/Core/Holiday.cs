@@ -40,7 +40,10 @@ internal static partial class Program
 		await Until(async () =>
 		{
 			list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Binds") == "holiday.returndatedropdownselectedoption");
-			confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "GoOnHolidayButton");
+			// Two buttons go by this name: the calendar's own opens the holiday panel, the panel's sends
+			// GoOnHoliday (the Continue bar's break-in button sends it too, beside BreakIntoProcessing).
+			confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == "GoOnHolidayButton"
+				&& Field(b, "Events").Split(", ").Contains("GoOnHoliday"));
 			return list.ValueKind == JsonValueKind.Object && confirm.ValueKind == JsonValueKind.Object;
 		}, seconds: 8, every: 0.25);
 		if (list.ValueKind != JsonValueKind.Object || confirm.ValueKind != JsonValueKind.Object)
@@ -77,7 +80,7 @@ internal static partial class Program
 		if (!await Until(Away, seconds: 15, every: 0.25))
 		{
 			Console.Error.WriteLine(L("The game did not start the holiday."));
-			await Explain(await Fm.GetJson("state"), Console.Error);
+			if (await Fm.GetJson("state") is var held && !Passable(Field(held, "State"))) await Explain(held, Console.Error);
 			return 1;
 		}
 		Console.WriteLine(L($"On holiday until: {until}"));
