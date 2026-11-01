@@ -593,14 +593,14 @@ Still open:
 - [ ] Still held by words or order (found by grepping label/text comparisons, 2 Nov):
   - [x] `Club/Coaches.cs` `ReadCoaches`: rows by `Person.Name` + `Person.JobString` and their switches; the loads are the
     last nine words without a path before the selected coach's panel (his `Person.Name`), each with its stars. Was the
-    form between "Coach Workload" and "Lead Coach Rating". TR; EN pending. Still by order: the nine cells' areas.
+    form between "Coach Workload" and "Lead Coach Rating". TR + EN. Still by order: the nine cells' areas.
   - [x] `Squad/TacticFiles.cs`: the save panel's close is the `PanelHistoryClose` on Save's own page, not "Cancel".
     Save tried (TR); the close path is not: no title was refused (200 letters were taken).
   - [ ] `Squad/TraitTraining.cs:51-52`, `Squad/TrainingSchedule.Calendar.cs`: FM26 fallbacks ("Start New Trait
     Training", "Today", "Training"); FM27 takes the action-menu / session-button ways first.
   - [~] `Program/Program.Messages*.cs`: FM27 goes straight to its own block (`MessagesToolBlockMessageContent`, rows
     after `newsitem.NewsBodyString`) and no longer waits 3 s on FM26's "Attachments" heading (reply 2.1 s, TR). The FM26
-    heading path and its card readers (titles, "About Club") are still there, now unused on FM27.
+    heading path and its card readers (titles, "About Club") are still there, now unused on FM27. TR + EN.
   - [ ] `Match/MatchLive.cs` key-moment words (see above).
 - [x] `release`: FM27's actions menu "Contract › Release On A Free" / "Mutual Termination" by their actions
   (`PersonReleaseClubFreeTransfer`, `PersonMutualTerminationContract`), the menu raised from the player's record (a
