@@ -15,14 +15,16 @@ namespace FmCli;
 internal static class EngineTexts
 {
 	/// <summary>The game's language setting and the name its block goes by in the file.</summary>
-	private static readonly Dictionary<string, string> BlockNames = new(StringComparer.OrdinalIgnoreCase)
+	// The block a language's texts are in: FM26 named some in English ("Turkish"), FM27 names them all
+	// in their own language ("Türkçe"); either is taken.
+	private static readonly Dictionary<string, string[]> BlockNames = new(StringComparer.OrdinalIgnoreCase)
 	{
-		["turkish"] = "Turkish", ["german"] = "German", ["french"] = "French", ["spanish"] = "Spanish",
-		["italian"] = "Italiano", ["portuguese"] = "Português", ["dutch"] = "Nederlands", ["polish"] = "Polski",
-		["russian"] = "Русский", ["danish"] = "Dansk", ["norwegian"] = "Norsk", ["swedish"] = "Svenska",
-		["greek"] = "Ελληνικά", ["korean"] = "한국어", ["japanese"] = "日本語", ["arabic"] = "اَلْعَرَبِيَّةُ",
-		["chinese"] = "简体中文", ["simplified chinese"] = "简体中文", ["latin american spanish"] = "Español latinoamericano",
-		["english (us)"] = "English (US)", ["american english"] = "English (US)",
+		["turkish"] = ["Turkish", "Türkçe"], ["german"] = ["German", "Deutsch"], ["french"] = ["French", "Français"],
+		["spanish"] = ["Spanish", "Español"], ["italian"] = ["Italiano"], ["portuguese"] = ["Português"], ["dutch"] = ["Nederlands"],
+		["polish"] = ["Polski"], ["russian"] = ["Русский"], ["danish"] = ["Dansk"], ["norwegian"] = ["Norsk"], ["swedish"] = ["Svenska"],
+		["greek"] = ["Ελληνικά"], ["korean"] = ["한국어"], ["japanese"] = ["日本語"], ["arabic"] = ["اَلْعَرَبِيَّةُ"],
+		["chinese"] = ["简体中文"], ["simplified chinese"] = ["简体中文"], ["latin american spanish"] = ["Español latinoamericano"],
+		["indonesian"] = ["Bahasa Indonesia"], ["english (us)"] = ["English (US)"], ["american english"] = ["English (US)"],
 	};
 
 	private static string Field(System.Text.Json.JsonElement element, string name) =>
@@ -42,40 +44,49 @@ internal static class EngineTexts
 		var language = Field(engine, "Language");
 		if (language.Length == 0 || language.StartsWith("english", StringComparison.OrdinalIgnoreCase) && language.Length <= 7) return;
 		var target = Path.Combine(Folder, language + ".tsv");
-		if (File.Exists(target))
+		var file = Field(engine, "File");
+		// The table is the game file's: one written from another game or version (FM26's, before an
+		// update) is written again. Which file it came from is kept beside it.
+		var stamp = target + ".stamp";
+		var from = file.Length > 0 && File.Exists(file) ? $"{new FileInfo(file).Length}:{File.GetLastWriteTimeUtc(file).Ticks}" : "";
+		if (File.Exists(target) && (from.Length == 0 || File.Exists(stamp) && File.ReadAllText(stamp).Trim() == from))
 		{
 			if (Field(engine, "Engine") == "0") await fm.Get("translate", ("engine", "1"), ("reload", "1"));
 			return;
 		}
-		var file = Field(engine, "File");
-		if (file.Length == 0 || !BlockNames.TryGetValue(language, out var block)) return;
+		if (file.Length == 0 || !BlockNames.TryGetValue(language, out var blocks)) return;
 
-		Console.Error.WriteLine(L($"The game engine's texts ({block}) are being extracted, once…"));
+		Console.Error.WriteLine(L($"The game engine's texts ({blocks[^1]}) are being extracted, once…"));
 		Dictionary<string, string> pairs;
-		try { pairs = Build(file, block); }
+		try { pairs = Build(file, blocks); }
 		catch (Exception e)
 		{
-			// The texts are a help, never a reason for the command to fail.
+			// The texts are a help, never a reason for the command to fail; nor to try again on every one.
 			Console.Error.WriteLine(L($"The engine's texts could not be extracted: {e.Message}"));
+			pairs = [];
+		}
+		Directory.CreateDirectory(Folder);
+		if (pairs.Count == 0)
+		{
+			await File.WriteAllTextAsync(stamp, from);
 			return;
 		}
-		if (pairs.Count == 0) return;
-		Directory.CreateDirectory(Folder);
 		var temp = target + ".tmp";
 		await File.WriteAllLinesAsync(temp, pairs.Select(p => $"{p.Key}\t{p.Value}"));
 		File.Move(temp, target, overwrite: true);
+		await File.WriteAllTextAsync(stamp, from);
 		await fm.Get("translate", ("engine", "1"), ("reload", "1"));
 	}
 
 	/// <summary>Each text of a language's blocks against the English blocks' text under the same id.</summary>
-	private static Dictionary<string, string> Build(string file, string language)
+	private static Dictionary<string, string> Build(string file, string[] language)
 	{
 		var data = Unpack(File.ReadAllBytes(file));
 		var english = new Dictionary<ulong, string>();
 		var shown = new Dictionary<ulong, string>();
 		foreach (var (name, first, table) in Blocks(data))
 		{
-			var into = name == "English" ? english : name == language ? shown : null;
+			var into = name == "English" ? english : language.Contains(name) ? shown : null;
 			if (into == null) continue;
 			// The two blocks of a language (first 1001 and first 0) number their texts apart.
 			foreach (var (id, text) in table) into[((ulong)(first == 0 ? 1 : 0) << 32) | id] = text;

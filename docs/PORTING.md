@@ -136,8 +136,9 @@ From disk only, game not modded. Rerun after each FM27 update (full release 10 N
   - Also gone: `EventFmxMatchTacticsChanged`, `EventFmxToggleIndividualTrainingSelection`,
     `EventFmxSetPieceInstrPlayerMove`, `…PlayersTrainingUnit…` (4), MLS `SetGam/SetTamValue`.
 - `languages.fmf`: same format (zstd + `ctl.` blocks).
-  - [ ] Block names are now native ("Türkçe", "Deutsch", "Français", "Español"); `EngineTexts.BlockNames`
-    expects "Turkish"… → engine texts silently skipped. New: "Bahasa Indonesia".
+  - [x] Block names are now native ("Türkçe", "Deutsch", "Français", "Español"): `EngineTexts.BlockNames` takes either.
+    The table is written again when the game's `languages.fmf` changes (`<language>.tsv.stamp`: size and time); the
+    Turkish one had stayed FM26's (34,868 pairs; FM27's 34,857, ~2,500 different).
 - Needs the running game: page GUIDs, data paths, button events, texts (`identity-check.py catalog`).
 
 ## FM27 BepInEx on Apple Silicon (29 Oct 2026, working)
