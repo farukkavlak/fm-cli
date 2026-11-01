@@ -88,8 +88,7 @@ internal static partial class Program
 			  training <player> --report [--coach <name>]  ask a coach for a training report and show it
 			  training <player> --trait ["<trait>"]  traits and what can be taught; given one, teach it
 			                  --trait-remove "<t>" drop one · --trait-cancel · --trait-suggest · --yes: despite the assistant's objection
-			  prep            match preparation training: the tactical and set piece focuses, the options of each
-			  prep <in | out | sp1 | sp2> [focus]   change that preparation ("prep in progression"); with no focus given the options are offered
+			  prep            match preparation: the Match Preparation sessions up to the next match (change one: schedule set)
 			  schedule        the training schedule: this week and next, three sessions a day
 			  schedule set <day> <1|2|3> [<session>]   change a session; with no session given choose it with the arrow keys
 			  schedule style <day> [<schedule>]        change that week's schedule (Tactical, Gegenpress…)

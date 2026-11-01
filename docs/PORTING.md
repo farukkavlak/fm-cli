@@ -585,6 +585,10 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] `fm prep` on FM27: the Match Preparation sessions from today up to the next match (`NextFixture`'s distance in days),
+  read off the calendar's session buttons by `SessionType` 100–199 (seen: 100 Press Avoidance … 108 Penalties; 0–7 tactical,
+  200 individual, 300+ rest/recovery, 402 travel). The range is what the game gave, not a published list. Changing goes
+  through `schedule set`; `prep <slot> <focus>` is refused. TR + EN; MCP check 48/48.
 - [x] Whole-tree reads (`/tree` from the root: `news`) took minutes once many lists had been read: each list read leaves
   its rows bound at `fmcli.*`, and the dump worked out their live values. The root dump now leaves `fmcli` out;
   `scout` reads the focus list once per listing. News after scout/tactic: 4–5 s, 3/3 (was 2 min, "FM did not answer").

@@ -153,7 +153,7 @@ fm training <player> --trait ["<trait>"]
 fm schedule                  # this week and next, three sessions a day
 fm intensity                 # per-player intensity
 fm coaches                   # coaching assignments
-fm prep                      # match preparation focuses
+fm prep                      # match preparation sessions up to the next match
 fm setpieces new             # set-piece routines
 fm takers                    # set-piece takers
 fm penalties                 # penalty order and rules

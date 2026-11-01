@@ -22,9 +22,13 @@ internal static partial class Program
 		if (slots == null)
 		{
 			// FM27 has no match focuses of their own: the preparation is the Match Preparation sessions
-			// of the week, set in its calendar.
-			Console.Error.WriteLine(L("The match preparation could not be read as focuses; in FM27 it is the week's Match Preparation sessions. To see them: schedule · to change one: schedule set <day> <1|2|3> <session>"));
-			return 1;
+			// of the days up to the next match, set in the week's calendar; they are changed there.
+			if (Words(args).Any())
+			{
+				Console.Error.WriteLine(L("FM27 has no match focuses to choose; the preparation is the week's sessions: schedule set <day> <1|2|3> <session>"));
+				return 64;
+			}
+			return await PrepSessions(json);
 		}
 
 		var words = Words(args).ToList();
@@ -170,5 +174,54 @@ internal static partial class Program
 			new("duran1", L("Set piece 1"), "EventFmxMatchFocusSelectFirstSetPiece", Field(now, "MatchFocusFirstSetPiece.MatchFocusSessionName"), setPieces),
 			new("duran2", L("Set piece 2"), "EventFmxMatchFocusSelectSecondSetPiece", Field(now, "MatchFocusSecondSetPiece.MatchFocusSessionName"), setPieces),
 		];
+	}
+
+	/// <summary>
+	/// FM27's match preparation: the sessions from today to the next match whose SessionType is one of
+	/// the game's Match Preparation sessions (100–199: Press Avoidance, Final Third, Corners, Penalties…;
+	/// 0–99 are the tactical ones, 200 individual, 300 rest, 400 travel), read off the training
+	/// calendar's own session buttons. The range is what the game gave in a save, not a list it publishes.
+	/// </summary>
+	private static async Task<int> PrepSessions(bool json)
+	{
+		var opened = await OpenPage(Screen.Training);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		var state = await Fm.GetJson("state");
+		var today = DateTime.TryParseExact(Field(state, "Date"), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var d) ? d : DateTime.Today;
+		if (await SessionDays(today) is not { Count: > 0 } days)
+		{
+			Console.Error.WriteLine(L("The training schedule could not be read."));
+			return 1;
+		}
+		static bool Preparation(DaySession s) => int.TryParse(s.Type, out var t) && t is >= 100 and < 200;
+		// The next match by the team's own fixture (today's may be played already), its day counted on from today.
+		DateTime? next = null;
+		try
+		{
+			var fixture = await Fm.Pull("Human.Team.NextFixture", "FixtureDateDistanceInDays,IsFutureMatch");
+			if (Field(fixture, "IsFutureMatch") == "True" && int.TryParse(Field(fixture, "FixtureDateDistanceInDays"), out var away)) next = today.AddDays(away);
+		}
+		catch (FmError) { }
+		var ahead = days.Where(x => x.Day >= today).ToList();
+		var until = next is { } on ? ahead.Where(x => x.Day <= on).ToList() : ahead;
+		var match = next != null && until.Count > 0 && until[^1].Day == next ? 0 : -1;
+		var sessions = until.SelectMany(x => x.Sessions.Select((s, i) => (x.Day, Place: i + 1, Session: s))).Where(x => Preparation(x.Session)).ToList();
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(new
+			{
+				Match = match < 0 ? null : until[^1].Day.ToString("yyyy-MM-dd"),
+				Sessions = sessions.Select(x => new { Date = x.Day.ToString("yyyy-MM-dd"), x.Place, x.Session.Name, Type = x.Session.Type }),
+			}));
+			return 0;
+		}
+		Console.WriteLine(match < 0
+			? L("Match preparation sessions in the next two weeks (no match in them):")
+			: L($"Match preparation sessions until the match on {until[^1].Day.Day} {Months[until[^1].Day.Month - 1]}:"));
+		if (sessions.Count == 0) Console.WriteLine(L("  none"));
+		foreach (var (day, place, session) in sessions)
+			Console.WriteLine($"  {day.Day} {Months[day.Month - 1]} {Days[(int)day.DayOfWeek]} · {place} · {session.Name}");
+		Console.WriteLine(L("\nTo change one: schedule set <day> <1|2|3> <session>   (the whole week: schedule)"));
+		return 0;
 	}
 }

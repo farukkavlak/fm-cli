@@ -12,8 +12,8 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	/// <summary>A session: its name in the game's words, and what it is ("rest", "travel", a match's venue "H"/"A"/"N", else "").</summary>
-	private sealed record DaySession(string Name, string Kind);
+	/// <summary>A session: its name in the game's words, what it is ("rest", "travel", a match's venue "H"/"A"/"N", else ""), and the game's SessionType.</summary>
+	private sealed record DaySession(string Name, string Kind, string Type = "");
 
 	private sealed record TrainingDay(DateTime Day, List<DaySession> Sessions);
 
@@ -130,7 +130,7 @@ internal static partial class Program
 			var date = g.Key.ToString("yyyy-MM-dd");
 			var match = fixtures.FirstOrDefault(f => f.Date == date);
 			var sessions = Enumerable.Range(0, places).Select(i => g.FirstOrDefault(x => x.Index == i) is { Name: not null } x
-				? new DaySession(x.Name, x.Type switch { RestSession => "rest", TravelSession => "travel", _ => "" })
+				? new DaySession(x.Name, x.Type switch { RestSession => "rest", TravelSession => "travel", _ => "" }, x.Type)
 				: new DaySession("", match is { VenueShort: "H" or "A" or "N" } ? match.VenueShort : "match")).ToList();
 			return new TrainingDay(g.Key, sessions);
 		}).ToList();
