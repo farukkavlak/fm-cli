@@ -620,7 +620,10 @@ internal static class Report
 
 			yield return (path, node);
 
-			for (var c = node.FirstChild; c != null; c = c.NextSibling) queue.Enqueue((c, path));
+			// What /pull and the routes put at fmcli.* is ours, not the screen's: left out, so it does
+			// not use up the node limit before the screen's own nodes are reached.
+			for (var c = node.FirstChild; c != null; c = c.NextSibling)
+				if (prefix.Length != 0 || c.Name != "fmcli") queue.Enqueue((c, path));
 		}
 	}
 
