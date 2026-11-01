@@ -71,6 +71,9 @@ internal static partial class Program
 		var page = await OpenPage(Screen.RecruitmentFocuses);
 		if (page.StartsWith("error", StringComparison.Ordinal)) return Report(page);
 		var existing = await ScoutFocuses();
+		// The club's focuses by record, read from its data (a form left open does not hide them).
+		async Task<List<string>> Ids() => (await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray().Select(e => Field(e, "UniqueId")).ToList();
+		var known = await Ids();
 		Focus editing = null;
 		if (edit)
 		{
@@ -190,21 +193,21 @@ internal static partial class Program
 				return 1;
 			}
 			var pointer = Field(list, "Pointer");
-			if (await FocusArea(pointer, one) is not { } path)
+			if (await FocusArea(pointer, one) is not { } place)
 			{
 				await AbandonFocus();
 				return 64;
 			}
-			var before = FormHeadingBefore(second, "possiblescoutingareasdropdownselectedoption");
-			var said = await Fm.Get("select", ("ptr", pointer), ("names", path), ("fire", "1"));
-			if (said.StartsWith("error", StringComparison.Ordinal) || !await Until(async () =>
-				FormHeadingBefore(await FocusForm("Back"), "possiblescoutingareasdropdownselectedoption") is { Length: > 0 } now && now != before, seconds: 5, every: 0.4))
+			// In once the focus counts one area more (its own AreaCount).
+			var before = await FocusAreaCount();
+			var said = await Fm.Get("select", ("ptr", pointer), ("path", place.Path), ("fire", "1"));
+			if (said.StartsWith("error", StringComparison.Ordinal) || !await Until(async () => await FocusAreaCount() is { } now && now != before, seconds: 5, every: 0.4))
 			{
 				await AbandonFocus();
-				Console.Error.WriteLine(L($"The area could not be added: {path.Replace(">", " › ")}{(said.StartsWith("error", StringComparison.Ordinal) ? " — " + said : "")}"));
+				Console.Error.WriteLine(L($"The area could not be added: {place.Text}{(said.StartsWith("error", StringComparison.Ordinal) ? " — " + said : "")}"));
 				return 1;
 			}
-			chosen.Add(path.Split('>')[^1]);
+			chosen.Add(place.Text);
 		}
 		foreach (var (current, typed) in new[] { (true, ability), (false, potential) })
 		{
@@ -291,14 +294,21 @@ internal static partial class Program
 		}
 		// Made once the form is gone and the list of focuses is one longer.
 		List<Focus> after = [];
-		var made = await Until(async () => await FormStep() == null && (after = await ScoutFocuses()).Count > existing.Count, seconds: 12, every: 0.7);
+		List<string> fresh = [];
+		var made = await Until(async () => await FormStep() == null && (fresh = (await Ids()).Except(known).ToList()).Count > 0, seconds: 12, every: 0.7);
+		if (made) after = await ScoutFocuses();
 		if (!made)
 		{
 			Console.Error.WriteLine(L("The focus does not look set up; look: scout"));
 			return 1;
 		}
 		// The new one: the record whose id was not there before.
-		var added = after.FirstOrDefault(f => existing.All(e => e.Id != f.Id)) ?? after[^1];
+		var added = after.FirstOrDefault(f => fresh.Contains(f.Id));
+		if (added == null)
+		{
+			Console.Error.WriteLine(L("The focus does not look set up; look: scout"));
+			return 1;
+		}
 		Console.WriteLine(L($"Focus set up: {added.Name} · {tabWord}{(chosen.Count > 0 ? " · " + string.Join(" · ", chosen) : "")}{(ages != null ? L($" · aged {ages.Groups[1].Value}–{ages.Groups[2].Value}") : "")} · {added.Assigned}"));
 		Console.WriteLine(L($"To see what it finds: scout \"{added.Name}\""));
 		return 0;

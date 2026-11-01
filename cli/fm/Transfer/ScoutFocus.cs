@@ -64,6 +64,20 @@ internal static partial class Program
 
 	private const string ScoutEditConfirm = "EventFmxRecruitmentFocusScoutAnalystEditConfirm";
 
+	/// <summary>
+	/// How many areas the focus in the form has (its AreaCount), read where the form's own buttons
+	/// (on the form's panel, not the focus page's under it; a form closed earlier leaves its own
+	/// copies behind, disabled) aim their events; null when the form is not up.
+	/// </summary>
+	private static async Task<string?> FocusAreaCount()
+	{
+		var aimed = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Page") == CreateFocusPanel && Field(b, "Enabled") == "True"
+				&& Field(b, "Events").Contains("EventFmxRecruitmentFocus", StringComparison.Ordinal) && Field(b, "Target").Length > 0);
+		if (aimed.ValueKind != JsonValueKind.Object) return null;
+		return Field(await Fm.Pull(Field(aimed, "Target"), "AreaCount"), "AreaCount") is { Length: > 0 } n ? n : null;
+	}
+
 	/// <summary>The focus form's position buttons on the pitch, known by the event they send.</summary>
 	private static async Task<List<JsonElement>> PositionButtons() =>
 		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -83,12 +97,6 @@ internal static partial class Program
 			.Where(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal) && Field(b, "Enabled") == "True")
 			.Cast<JsonElement?>().FirstOrDefault();
 
-	/// <summary>The texts drawn in a control, as the form gives them ("(Scout)" with a name).</summary>
-	private static List<string> FormTexts(JsonElement item) =>
-		item.ValueKind == JsonValueKind.Object && item.TryGetProperty("Texts", out var texts) && texts.ValueKind == JsonValueKind.Array
-			? texts.EnumerateArray().Select(t => t.GetString() ?? "").Where(t => t.Length > 0).ToList()
-			: [];
-
 	/// <summary>
 	/// A control the form binds to a data path, whatever its heading says. A heading with a count
 	/// in it ("Scouting Areas (0)") is the game's own sentence, so in another language its English
@@ -97,18 +105,6 @@ internal static partial class Program
 	private static JsonElement? FormBound(List<JsonElement> form, string binds) =>
 		form.FirstOrDefault(i => Field(i, "Binds").EndsWith(binds, StringComparison.Ordinal)) is { ValueKind: JsonValueKind.Object } control
 			? control : null;
-
-	/// <summary>
-	/// The heading drawn just above a bound control, as the game writes it. The areas list's own
-	/// heading carries a count in the game's sentence ("Scouting Areas (n)"
-	/// (n)"), so no fixed words can be looked for in it; that this same heading changed after an
-	/// area was added is the sign — the element, whatever language it is written in — that it got in.
-	/// </summary>
-	private static string FormHeadingBefore(List<JsonElement> form, string binds)
-	{
-		var at = form.FindIndex(i => Field(i, "Binds").EndsWith(binds, StringComparison.Ordinal));
-		return at > 0 && Field(form[at - 1], "Kind") == "text" ? Field(form[at - 1], "Text") : "";
-	}
 
 	/// <summary>"DL", "d (l)", "stc", "st": a position as the form's pitch writes it.</summary>
 	private static string FocusPosition(IEnumerable<string> labels, string typed)
@@ -144,7 +140,7 @@ internal static partial class Program
 		for (var tries = 0; tries < 24; tries++)
 		{
 			var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
-				.Where(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal)).ToList();
+				.Where(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal) && Field(b, "Enabled") == "True").ToList();
 			if (buttons.Count == 0 || Field(buttons[0], "Target") is not { Length: > 0 } focus) return false;
 			async Task<int?> Rating() => int.TryParse(Field(await Fm.Pull($"{focus}.{field}", "MinValue"), "MinValue"), out var v) ? v : null;
 			if (await Rating() is not { } now) return false;
@@ -267,65 +263,90 @@ internal static partial class Program
 			await Fm.Get("click", ("ptr", Field(confirm, "Pointer")));
 	}
 
-	/// <summary>
-	/// An area as the form's list nests it. A whole path ("Competition>Turkey>Super League") is
-	/// walked as typed; a single name is looked for among the continents, regions and nations.
-	/// </summary>
-	private static async Task<string?> FocusArea(string pointer, string typed)
+	/// <summary>A row of the areas list: its path of indices, its text as shown, and the database record it stands for.</summary>
+	private sealed record AreaRow(string Path, string Text, bool Folder, long Record)
 	{
-		// A leaf has nothing under it, and the bridge says so as an error.
-		async Task<List<string>> Under(string path)
-		{
-			try
-			{
-				return (await Fm.GetJson("menu", ("ptr", pointer), ("names", path))) is { ValueKind: JsonValueKind.Array } list
-					? list.EnumerateArray().Select(x => (x.GetString() ?? "").Replace(" ›", "")).ToList() : [];
-			}
-			catch (FmError) { return []; }
-		}
+		/// <summary>The record's kind, its top byte: 5 continent, 10 nation, 19 region, 25 competition.</summary>
+		public int Kind => (int)(Record >> 24);
+	}
 
+	private const int ContinentKind = 5, NationKind = 10, RegionKind = 19, CompetitionKind = 25;
+
+	/// <summary>The areas list whole, as /menu?tree=1 gives it.</summary>
+	private static async Task<List<AreaRow>> AreaTree(string pointer) =>
+		(await Fm.GetJson("menu", ("ptr", pointer), ("tree", "1"))).EnumerateArray()
+			.Select(r => new AreaRow(Field(r, "Path"), Field(r, "Text"), r.TryGetProperty("Folder", out var f) && f.ValueKind == JsonValueKind.True,
+				long.TryParse(Field(r, "Record"), out var id) ? id : 0)).ToList();
+
+	/// <summary>
+	/// The kind a top-level entry is for, by the records under it, not by its words ("Competition",
+	/// "Lig"); 0 for a mixed one (Recently Selected).
+	/// </summary>
+	private static int KindOf(List<AreaRow> tree, AreaRow top)
+	{
+		var kinds = tree.Where(r => !r.Folder && r.Record != 0 && r.Path.StartsWith(top.Path + ",", StringComparison.Ordinal)).Select(r => r.Kind).Distinct().ToList();
+		return kinds.Count == 1 ? kinds[0] : 0;
+	}
+
+	/// <summary>A top-level entry by what was typed: its kind's English word, the CLI's word for it, or its text as shown.</summary>
+	private static AreaRow? TopArea(List<AreaRow> tree, string typed)
+	{
+		var wanted = Fold(typed);
+		var words = new Dictionary<int, string[]>
+		{
+			[CompetitionKind] = ["competition", Fold(L("competition"))], [NationKind] = ["nation", Fold(L("nation"))],
+			[RegionKind] = ["region", Fold(L("region"))], [ContinentKind] = ["continent", Fold(L("continent"))],
+		};
+		var tops = tree.Where(r => !r.Path.Contains(',')).ToList();
+		return tops.FirstOrDefault(t => Fold(t.Text) == wanted)
+			?? tops.FirstOrDefault(t => words.TryGetValue(KindOf(tree, t), out var w) && w.Contains(wanted));
+	}
+
+	/// <summary>The entries one level under a row (or the top level).</summary>
+	private static List<AreaRow> Under(List<AreaRow> tree, string? path) =>
+		tree.Where(r => path == null ? !r.Path.Contains(',') : r.Path.StartsWith(path + ",", StringComparison.Ordinal) && r.Path.Count(c => c == ',') == path.Count(c => c == ',') + 1).ToList();
+
+	/// <summary>
+	/// An area as the form's list nests it, as the row to select. A whole path ("Competition>
+	/// International>…", the first part a kind) is walked by the texts as shown; a single name is
+	/// looked for among the continents, regions and nations, which are told apart by their records.
+	/// Names are the game's ("Türkiye", "Avrupa": a save keeps them in the language it was made in).
+	/// </summary>
+	private static async Task<AreaRow?> FocusArea(string pointer, string typed)
+	{
+		var tree = await AreaTree(pointer);
 		var parts = typed.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		if (parts.Length > 1)
 		{
-			var path = "";
-			var level = new List<string> { "Competition", "Nation", "Region", "Continent", "Recently Selected" };
-			foreach (var part in parts)
+			if (TopArea(tree, parts[0]) is not { } row)
 			{
-				if (Choose(level, part, L("Area")) is not { } step) return null;
-				path = path.Length == 0 ? step : path + ">" + step;
-				level = await Under(path);
-			}
-			if (level.Count > 0)
-			{
-				Console.Error.WriteLine(L($"'{path.Replace(">", " › ")}' is a submenu; under it: {string.Join(" · ", level)}"));
+				Console.Error.WriteLine(L($"Area: no '{parts[0]}' at the top of the list. Options: {string.Join(" · ", Under(tree, null).Select(r => r.Text))}"));
 				return null;
 			}
-			return path;
+			foreach (var part in parts.Skip(1))
+			{
+				var level = Under(tree, row.Path);
+				if (Choose(level.Select(r => r.Text).ToList(), part, L("Area")) is not { } step) return null;
+				row = level.First(r => r.Text == step);
+			}
+			if (row.Folder)
+			{
+				Console.Error.WriteLine(L($"'{row.Text}' is a submenu; under it: {string.Join(" · ", Under(tree, row.Path).Select(r => r.Text))}"));
+				return null;
+			}
+			return row;
 		}
 
-		// The list names places in English, or in the game's language where the plugin has no English for
-		// them ("İtalya"); a place is taken typed either way.
-		await GameWords.Ask(Fm, typed);
-		var (wanted, local) = (Fold(typed), Fold(GameWords.Of(typed)));
-		string[] Forms(string name) => [Fold(name), Fold(GameWords.Of(name))];
-		bool Is(string name) => Forms(name).Any(f => f == wanted || f == local);
-		bool Has(string name) => Forms(name).Any(f => f.Contains(wanted, StringComparison.Ordinal) || f.Contains(local, StringComparison.Ordinal));
-		// The continents are a level of their own on some lists; on others only the nations' and regions'.
-		var found = new List<string>();
-		var continents = await Under("Continent");
-		var whole = continents.Count > 0;
-		if (!whole) continents = (await Under("Nation")).Concat(await Under("Region")).Distinct().ToList();
-		foreach (var continent in continents)
-		{
-			if (whole && Is(continent)) return "Continent>" + continent;
-			foreach (var kind in new[] { "Region", "Nation" })
-				found.AddRange((await Under($"{kind}>{continent}")).Where(Has).Select(n => $"{kind}>{continent}>{n}"));
-			if (found.FirstOrDefault(p => Is(p.Split('>')[^1])) is { } exact) return exact;
-		}
-		if (found.Count == 1) return found[0];
-		Console.Error.WriteLine(found.Count == 0
+		var places = tree.Where(r => !r.Folder && r.Kind is ContinentKind or RegionKind or NationKind).ToList();
+		var wanted = Fold(typed);
+		static int Order(AreaRow r) => r.Kind switch { ContinentKind => 0, RegionKind => 1, _ => 2 };
+		var exact = places.Where(r => Fold(r.Text) == wanted).OrderBy(Order).ToList();
+		if (exact.Count > 0) return exact[0];
+		var close = places.Where(r => Fold(r.Text).Contains(wanted, StringComparison.Ordinal)).GroupBy(r => r.Record).Select(g => g.First()).ToList();
+		if (close.Count == 1) return close[0];
+		Console.Error.WriteLine(close.Count == 0
 			? L($"Area: '{typed}' was not found as a continent, region or nation. For a league write its path: \"Competition>Turkey>Super League\"; the options: scout areas [path]")
-			: L($"Area: '{typed}' matches more than one place: {string.Join(" · ", found.Select(p => p.Replace(">", " › ")))}"));
+			: L($"Area: '{typed}' matches more than one place: {string.Join(" · ", close.Select(r => r.Text))}"));
 		return null;
 	}
 }

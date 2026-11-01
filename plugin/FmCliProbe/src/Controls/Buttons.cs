@@ -591,6 +591,9 @@ internal static partial class Buttons
 
 	internal static string ChoiceText(SI.Core.TypedValue choice) => Choice(choice);
 
+	/// <summary>A choice's text in the game's own words, not put into English.</summary>
+	internal static string ChoiceShown(SI.Core.TypedValue choice) => Choice(choice, shown: true);
+
 	/// <summary>A choice is usually a record with its text in one of a few well-known entries.</summary>
 	private static string Choice(SI.Core.TypedValue choice) => Choice(choice, shown: false);
 

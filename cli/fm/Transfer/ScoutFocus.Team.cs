@@ -180,17 +180,22 @@ internal static partial class Program
 			Console.Error.WriteLine(L("The area list was not found."));
 			return 1;
 		}
+		// One level of the list, walked by the texts as shown; the top level's entries may also be
+		// named by their kind (Competition, Nation, Region, Continent), told by the records under them.
 		var path = string.Join(" ", Words(args).Skip(1)).Replace(" > ", ">");
-		var list = path.Length == 0
-			? areas.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList()
-			: (await Fm.GetJson("menu", ("ptr", Field(areas, "Pointer")), ("names", path))) is { ValueKind: JsonValueKind.Array } under
-				? under.EnumerateArray().Select(c => c.GetString() ?? "").ToList() : [];
+		var tree = await AreaTree(Field(areas, "Pointer"));
 		await AbandonFocus();
-		if (json) Console.WriteLine(JsonOut.Of(list));
-		else if (list.Count == 0) Console.WriteLine(L($"There is nothing under '{path}' (write the path with English names: scout areas \"Nation>Europe\")."));
+		var parts = path.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+		AreaRow? at = null;
+		if (parts.Length > 0 && (at = TopArea(tree, parts[0])) != null)
+			foreach (var part in parts.Skip(1))
+				at = Under(tree, at!.Path).FirstOrDefault(r => Fold(r.Text) == Fold(part));
+		var list = parts.Length > 0 && at == null ? [] : Under(tree, at?.Path);
+		if (json) Console.WriteLine(JsonOut.Of(list.Select(r => new { r.Text, r.Folder, Kind = r.Folder ? "" : r.Kind switch { ContinentKind => "continent", RegionKind => "region", NationKind => "nation", CompetitionKind => "competition", _ => "" } })));
+		else if (list.Count == 0) Console.WriteLine(L($"There is nothing under '{path}'; the top of the list: scout areas"));
 		else
 		{
-			foreach (var item in list) Console.WriteLine(item);
+			foreach (var row in list) Console.WriteLine(row.Folder ? $"{row.Text} ›" : row.Text);
 			Console.WriteLine(L($"\nThose ending in › have more under them: scout areas \"{(path.Length > 0 ? path + ">" : "")}<name>\""));
 		}
 		return 0;

@@ -58,6 +58,8 @@ internal static class Submenus
 		var dropdown = Buttons.AllDropdowns().FirstOrDefault(d => d.Pointer == pointer);
 		if (dropdown == null) return $"error: no dropdown at {q["ptr"]}";
 
+		if (q["tree"] == "1") return Tree(dropdown);
+
 		var level = dropdown.m_choices;
 		foreach (var part in (q["names"] ?? "").Split('>', System.StringSplitOptions.RemoveEmptyEntries))
 		{
@@ -91,6 +93,45 @@ internal static class Submenus
 			else names.Add($"\"{text}\"");
 		}
 		return "[" + string.Join(", ", names) + "]\n";
+	}
+
+	/// <summary>
+	/// The whole menu at once, one row a line: its path of indices (what /select?path= takes), the
+	/// text as shown, whether it opens a submenu, and the game's database record it stands for
+	/// (DatabaseReferenceField: its top byte says the kind, a nation or a continent), which no
+	/// language changes. A scouting focus's area list is told apart by those records alone.
+	/// </summary>
+	private static string Tree(SI.Bindable.SIDropdown dropdown)
+	{
+		var rows = new List<string>();
+		void Walk(Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue> level, string at, int depth)
+		{
+			for (var i = 0; i < (level?.Count ?? 0) && rows.Count < 20000; i++)
+			{
+				var path = at.Length == 0 ? i.ToString() : $"{at},{i}";
+				var children = Buttons.Children(level[i]);
+				var text = Report.Escape((Buttons.ChoiceShown(level[i]) ?? "").Replace(" ›", ""));
+				rows.Add($"{{\"Path\": \"{path}\", \"Text\": \"{text}\", \"Folder\": {(children != null ? "true" : "false")}, \"Record\": \"{RecordOf(level[i])}\"}}");
+				if (children != null && depth < 6) Walk(children, path, depth + 1);
+			}
+		}
+		Walk(dropdown.m_choices, "", 0);
+		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
+	}
+
+	/// <summary>A menu row's database record (its PropertyValue's DatabaseReferenceField), or "".</summary>
+	private static string RecordOf(SI.Core.TypedValue row)
+	{
+		try
+		{
+			var record = row?.Get()?.TryCast<DynamicReference>();
+			if (record == null) return "";
+			var entries = Send.Entries(record);
+			if (entries.TryGetValue("RowData", out var inner) && inner?.Get()?.TryCast<DynamicReference>() is { } data) entries = Send.Entries(data);
+			if (!entries.TryGetValue("PropertyValue", out var value) || value?.Get()?.TryCast<DynamicReference>() is not { } held) return "";
+			return Send.Entries(held).TryGetValue("DatabaseReferenceField", out var id) && id != null && !id.IsNull ? Text.Of(id) : "";
+		}
+		catch { return ""; }
 	}
 
 	/// <summary>A four-character id as its characters ("pf20"), or the number when they are not letters.</summary>

@@ -570,8 +570,12 @@ Still open:
   - Remove = the game's "complete": the focus leaves `RecruitmentFocusesList`. Edit is in place (new UniqueId).
   - Tried TR + EN: list, results, new (position, stars, ages, area, priority), edit, remove, bad position, no `--yes`.
   - [ ] `scout restart`: completed focuses are only under the Completed tab; not done.
-  - [ ] Area paths still go through the menu's English (`Nation>Europe`); continent and nation names come in the save's
-    language ("Avrupa", "Türkiye" in an English game), as the game shows them. Areas list levels by identity: not found yet.
+  - [x] Areas by the list's own records: `/menu?tree=1` gives every row's index path, shown text and database record
+    (`DatabaseReferenceField`; top byte 5 continent, 10 nation, 19 region, 25 competition). Top entries are known by the
+    kind of records under them, typed as the kind's English word, the CLI's word or the game's ("Kıta"); rows below by
+    their shown text; chosen by `/select?path=`. Added once the form's focus `AreaCount` grows (read at the target of an
+    enabled button on the form's panel: a form closed earlier leaves disabled copies). Names are as the game shows them:
+    a save keeps continents and nations in the language it was made in ("Avrupa" in an English game). TR + EN.
   - [x] Scouts/analysts window (`--by`, `--analysts`): both Edit buttons open panel `e7c08a24…`, told apart by the box's
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
