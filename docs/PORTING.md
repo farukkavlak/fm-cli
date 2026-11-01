@@ -218,13 +218,15 @@ Still open:
   - Before the season expectations meeting the slider is shut: the board's sentence is said and the card closed.
   - Tried: TR refusal 6/6 (page open, card open, from Squad and Inbox). After the expectations meeting: moved and
     confirmed, read back from `Human.Club` (TR 15→14→15, 13→15; EN 14→15); a step out of range refused.
-- [ ] Set-piece creator (FM27, first season): the set-piece intro message's only answer opens a 6-step wizard; the game
+- [x] Set-piece creator (FM27, first season): the set-piece intro message's only answer opens a 6-step wizard; the game
   waits on it (`NeedAction`, `Respond` 14) and Continue does nothing.
   - Each step has the staff's choice ready; `EventToPlugin` on `buttons-next-primary-default`
     (`EventFmxSetPieceCreatorNextStep`) goes on, 6 presses end it (`Respond` 0). Back: `…CreatorBackStep`.
   - Done once by hand (TR). `setpieces new` now starts and steps it by events (`EventFmxSetPieceCreatorStart`,
     `…NextStep`); done is the Next button gone (was the labels "Let’s go" / "Confirm"). `next` names it at `Respond` 14.
-    NOT tried: the game offers it once; the Set Pieces page's "Reset Set Piece Routines" does not bring it back.
+    Tried (TR, 30 Haz 2027, a new club's "Set Piece Organisation" briefing → Begin): six steps by the staff's
+    choices in 5 s, the game's Respond back to 0 and nothing left waiting. The briefing's Respond 14 is shared
+    with the other briefings, so the wizard is told by its buttons' events.
 - [x] New continue stop `Messages` (new mail, nothing to answer): one press goes on; `next` passes it.
   - `AroundTheWorld` (world news page): one press goes on, seen once (TR).
   FM27 has more page stops (`NextUnreadMessage`, `Training`, `NewsForYou`, `DataHub`…): not seen yet.
