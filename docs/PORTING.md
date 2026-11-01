@@ -590,6 +590,8 @@ Still open:
     field (`focusitem.anyscout` / `anyanalyst`, `/form?page=`); people from `scouts-table` / `analysts-table` records
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
+- [x] Sweep 2 Nov: TR 50/51 (prep, before its FM27 view) and EN 51/51 with data; MCP check 48/48. Slowest: takers 20 s,
+  club 13 s, opponent 12 s.
 - [ ] Still held by words or order (found by grepping label/text comparisons, 2 Nov):
   - [x] `Club/Coaches.cs` `ReadCoaches`: rows by `Person.Name` + `Person.JobString` and their switches; the loads are the
     last nine words without a path before the selected coach's panel (his `Person.Name`), each with its stars. Was the
