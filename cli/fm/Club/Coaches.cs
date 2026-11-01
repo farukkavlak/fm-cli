@@ -162,7 +162,9 @@ internal static partial class Program
 		// their coach's name. Every switch has its stars (none shown where he is not assigned), so the grid
 		// is whole only when it reads as name, role and nine switch-and-stars cells up to the loads.
 		var i = start + 1;
-		while (i < items.Count && !(Field(items[i], "Kind") == "text" && Field(items[i], "Text") == "Coach Workload"))
+		// A row is a coach's name and job (Person.Name, Person.JobString) and his switches; the grid ends
+		// at the first item that does not start one.
+		while (i < items.Count && Field(items[i], "Path") == "Person.Name")
 		{
 			if (i + 1 >= items.Count || Field(items[i], "Kind") != "text" || Field(items[i + 1], "Kind") != "text") return null;
 			var name = Field(items[i], "Text");
@@ -183,17 +185,21 @@ internal static partial class Program
 		}
 		if (i >= items.Count) return null;
 
-		// Under the grid: each area's load in words, then its lead coach's stars (none for an area nobody leads).
+		// Under the grid: each area's load in words, then its lead coach's stars (none for an area nobody
+		// leads), up to the selected coach's own panel (his Person.Name again). The headings above them are
+		// the game's words; the last nine words before the panel are the areas', each with its stars when it has a lead.
 		// The load is one of the game's words, shown as the game writes it: in a game set to another
 		// language its English can come back as another text translated the same way ("Minor" for "Light").
-		var lead = items.FindIndex(i, x => Field(x, "Kind") == "text" && Field(x, "Text") == "Lead Coach Rating");
-		for (var j = lead + 1; lead > 0 && j < items.Count && areas.Count < CoachAreas.Length; j++)
+		var panel = items.FindIndex(i, x => Field(x, "Path") == "Person.Name");
+		var under = items.Skip(i).Take((panel < 0 ? items.Count : panel) - i).ToList();
+		var pairs = new List<(string, int)>();
+		for (var j = 0; j < under.Count; j++)
 		{
-			if (Field(items[j], "Kind") != "text") break;
-			var half = j + 1 < items.Count && Field(items[j + 1], "Kind") == "stars" && int.TryParse(Field(items[j + 1], "Shown"), out var s) ? s : 0;
-			areas.Add((Field(items[j], "Text"), half));
-			if (j + 1 < items.Count && Field(items[j + 1], "Kind") == "stars") j++;
+			if (Field(under[j], "Kind") != "text" || Field(under[j], "Path").Length > 0) continue;
+			var half = j + 1 < under.Count && Field(under[j + 1], "Kind") == "stars" && int.TryParse(Field(under[j + 1], "Shown"), out var s) ? s : 0;
+			pairs.Add((Field(under[j], "Text"), half));
 		}
+		areas.AddRange(pairs.Skip(Math.Max(0, pairs.Count - CoachAreas.Length)));
 		return (rows, areas);
 	}
 }

@@ -591,7 +591,9 @@ Still open:
     (`/checkrows?named=`, which now gives each list's element `Names`), ticked by index, read back by `Ticked`;
     answers by event. TR + EN: new and edit with both, unknown name.
 - [ ] Still held by words or order (found by grepping label/text comparisons, 2 Nov):
-  - [ ] `Club/Coaches.cs` `ReadCoaches`: the form read in order between "Coach Workload" and "Lead Coach Rating".
+  - [x] `Club/Coaches.cs` `ReadCoaches`: rows by `Person.Name` + `Person.JobString` and their switches; the loads are the
+    last nine words without a path before the selected coach's panel (his `Person.Name`), each with its stars. Was the
+    form between "Coach Workload" and "Lead Coach Rating". TR; EN pending. Still by order: the nine cells' areas.
   - [x] `Squad/TacticFiles.cs`: the save panel's close is the `PanelHistoryClose` on Save's own page, not "Cancel".
     Save tried (TR); the close path is not: no title was refused (200 letters were taken).
   - [ ] `Squad/TraitTraining.cs:51-52`, `Squad/TrainingSchedule.Calendar.cs`: FM26 fallbacks ("Start New Trait
