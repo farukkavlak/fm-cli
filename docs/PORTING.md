@@ -589,6 +589,9 @@ Still open:
   `EventType` (1, 2), not the game's prefix ("o.g." in English was stripped, "k.k." in Turkish was not). TR; EN pending.
 - [ ] Live key moments (`match --play`, view 1) are picked by words in the commentary (`MatchLive.KeyWords`, TR + EN only).
   Find the event's own type in the live data (a score change is a goal; cards and subs?).
+  - Looked (TR, live, 0-1 at 54'): the root `Match`'s `Incidents`, `HomeEventInfos`/`AwayEventInfos`, `TeamIncidents`
+    stay empty until the whistle, `GoalscorersString` too; only the score in `/state` moves live. Next: the dugout's
+    `MatchDugoutTimelineEvents`, or a score change for goals.
 - [x] `fm prep` on FM27: the Match Preparation sessions from today up to the next match (`NextFixture`'s distance in days),
   read off the calendar's session buttons by `SessionType` 100–199 (seen: 100 Press Avoidance … 108 Penalties; 0–7 tactical,
   200 individual, 300+ rest/recovery, 402 travel). The range is what the game gave, not a published list. Changing goes
