@@ -567,9 +567,12 @@ Still open:
   - Read from `Human.ScoutingInfo.SelectedRecruitmentFocus` (name, `FocusStatusString`, counts, `UniqueId`) and its
     pools (`RecommendedPlayerPool`, `NearMissPlayerPool`, `CurrentPlayerPool`); value wants `human`, the scouts' word
     `team` beside the rows. List entries copied from `RecruitmentFocusesList` have no name; the selected one has.
-  - Remove = the game's "complete": the focus leaves `RecruitmentFocusesList`. Edit is in place (new UniqueId).
+  - Remove = the game's "complete": the focus leaves `RecruitmentFocusesList` for the completed list.
   - Tried TR + EN: list, results, new (position, stars, ages, area, priority), edit, remove, bad position, no `--yes`.
-  - [ ] `scout restart`: completed focuses are only under the Completed tab; not done.
+  - [x] `scout restart`: the page's two lists are one data list whose kind the tabs set (`ScoutingInfo.RecruitmentFocusesListType`
+    1 in progress, 2 completed; tabs `ButtonInProgress` / `ButtonCompleted`). A completed row's restart button sends
+    `EventFmxRecruitmentFocusRestart` with its `focusitem.UniqueId`; no window; a new record joins the list in progress,
+    the completed one stays. Edit also leaves the old one under Completed. TR + EN.
   - [x] Areas by the list's own records: `/menu?tree=1` gives every row's index path, shown text and database record
     (`DatabaseReferenceField`; top byte 5 continent, 10 nation, 19 region, 25 competition). Top entries are known by the
     kind of records under them, typed as the kind's English word, the CLI's word or the game's ("Kıta"); rows below by

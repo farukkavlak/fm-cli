@@ -289,7 +289,7 @@ internal static partial class Program
 				return 1;
 			}
 			if (ages != null) chosen.Add(L($"aged {ages.Groups[1].Value}–{ages.Groups[2].Value}"));
-			Console.WriteLine(L($"Focus updated: {name ?? editing!.Name} · {string.Join(" · ", chosen)}"));
+			Console.WriteLine(L($"Focus updated: {name ?? editing!.Name} · {string.Join(" · ", chosen)}\n(the game leaves the old one in the list as 'Complete')"));
 			return 0;
 		}
 		// Made once the form is gone and the list of focuses is one longer.
@@ -330,17 +330,13 @@ internal static partial class Program
 
 	/// <summary>
 	/// Stopping a focus: FM27 calls it completing it, and it leaves the list of focuses in
-	/// progress for the completed ones. Restarting a completed one is not done here yet.
+	/// progress for the completed ones.
 	/// </summary>
 	private static async Task<int> ScoutRemove(string[] args)
 	{
 		var restart = args[1] is "restart" or "yeniden";
 		var words = Words(args).Skip(1).ToList();
-		if (restart)
-		{
-			Console.Error.WriteLine(L("Restarting a completed focus is not done by fm yet; the game has it under Scouting › Recruitment Focuses › Completed."));
-			return 1;
-		}
+		if (restart) return await ScoutRestart(words);
 		if (words.Count == 0)
 		{
 			Console.Error.WriteLine(L("usage: scout remove <#|name> [--yes]   (stops the focus)"));
@@ -388,6 +384,75 @@ internal static partial class Program
 			return 1;
 		}
 		Console.WriteLine(L($"Focus stopped: {wanted.Name}  (the game moves it to the completed focuses)"));
+		return 0;
+	}
+
+	/// <summary>
+	/// Sets a completed focus going again: the game makes a new focus in progress of it and keeps
+	/// the completed one. The page's two lists are one data list whose kind the tabs set
+	/// (ScoutingInfo.RecruitmentFocusesListType: 1 in progress, 2 completed); each completed row's
+	/// restart button sends its focus's id, and is found by that focus beside it.
+	/// </summary>
+	private static async Task<int> ScoutRestart(List<string> words)
+	{
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine(L("usage: scout restart <#|name>   (restarts a stopped or finished focus)"));
+			return 64;
+		}
+		if (await NotNow() is { } refused) return refused;
+		var opened = await OpenPage(Screen.RecruitmentFocuses);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		async Task<List<string>> Ids() => (await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray().Select(e => Field(e, "UniqueId")).ToList();
+		async Task<bool> Showing(string tab, string kind)
+		{
+			if (Field(await Fm.Pull("Human.ScoutingInfo", "RecruitmentFocusesListType"), "RecruitmentFocusesListType") == kind) return true;
+			var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Name") == tab && Field(b, "Enabled") == "True");
+			if (button.ValueKind != JsonValueKind.Object) return false;
+			await Fm.Get("click", ("ptr", Field(button, "Pointer")));
+			return await Until(async () => Field(await Fm.Pull("Human.ScoutingInfo", "RecruitmentFocusesListType"), "RecruitmentFocusesListType") == kind, seconds: 5, every: 0.3);
+		}
+		if (!await Showing("ButtonInProgress", "1")) return Report("error: the focus page's lists did not answer");
+		var known = await Ids();
+		if (!await Showing("ButtonCompleted", "2")) return Report("error: the completed focuses did not open");
+
+		// The completed ones, from their rows' restart buttons and the focus beside each.
+		List<(string Pointer, string Name, string Id)> done = [];
+		await Until(async () =>
+		{
+			done = [];
+			foreach (var b in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				         .Where(b => Field(b, "Events").Contains("EventFmxRecruitmentFocusRestart", StringComparison.Ordinal) && Field(b, "Enabled") == "True" && Field(b, "Source").Length > 0))
+			{
+				var focus = await Fm.Pull($"{Field(b, "Source")}.focusitem", "Name,UniqueId", shown: "Name");
+				if (Field(focus, "Name").Length > 0) done.Add((Field(b, "Pointer"), Field(focus, "Name"), Field(focus, "UniqueId")));
+			}
+			return done.Count > 0;
+		}, seconds: 6, every: 0.5);
+		if (done.Count == 0)
+		{
+			await Showing("ButtonInProgress", "1");
+			Console.WriteLine(L("No completed focuses to restart."));
+			return 0;
+		}
+		await GameWords.Ask(Fm, done.Select(d => d.Name).Distinct().ToArray());
+		(string Pointer, string Name, string Id) wanted;
+		if (int.TryParse(words[0], out var number) && number >= 1 && number <= done.Count) wanted = done[number - 1];
+		else if (Choose(done.Select(d => d.Name).Distinct().ToList(), string.Join(" ", words), L("Focus")) is { } name) wanted = done.First(d => d.Name == name);
+		else
+		{
+			await Showing("ButtonInProgress", "1");
+			return 64;
+		}
+		await Fm.Get("click", ("ptr", wanted.Pointer));
+		// Restarted once a new record is among the focuses in progress.
+		await Showing("ButtonInProgress", "1");
+		if (!await Until(async () => (await Ids()).Except(known).Any(), seconds: 10, every: 0.5))
+		{
+			Console.Error.WriteLine(L($"'{wanted.Name}' does not look restarted; look: scout"));
+			return 1;
+		}
+		Console.WriteLine(L($"Focus restarted: {wanted.Name}  (the old one stays in the list as stopped)"));
 		return 0;
 	}
 }
