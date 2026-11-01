@@ -598,8 +598,9 @@ Still open:
     Save tried (TR); the close path is not: no title was refused (200 letters were taken).
   - [ ] `Squad/TraitTraining.cs:51-52`, `Squad/TrainingSchedule.Calendar.cs`: FM26 fallbacks ("Start New Trait
     Training", "Today", "Training"); FM27 takes the action-menu / session-button ways first.
-  - [ ] `Program/Program.Messages*.cs`: attachments by headings ("Attachments", card titles); `Squad/TrainingReport.cs`
-    no longer uses them.
+  - [~] `Program/Program.Messages*.cs`: FM27 goes straight to its own block (`MessagesToolBlockMessageContent`, rows
+    after `newsitem.NewsBodyString`) and no longer waits 3 s on FM26's "Attachments" heading (reply 2.1 s, TR). The FM26
+    heading path and its card readers (titles, "About Club") are still there, now unused on FM27.
   - [ ] `Match/MatchLive.cs` key-moment words (see above).
 - [x] `release`: FM27's actions menu "Contract › Release On A Free" / "Mutual Termination" by their actions
   (`PersonReleaseClubFreeTransfer`, `PersonMutualTerminationContract`), the menu raised from the player's record (a

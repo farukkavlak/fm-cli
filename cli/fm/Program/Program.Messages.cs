@@ -14,6 +14,13 @@ internal static partial class Program
 		// messages, 30 Nisan 2026. The heading arrives first and the card binds its content in steps
 		// (measured: heading ~0.09 s, first text ~0.16 s, more up to ~0.7 s), so what follows it is
 		// waited for rather than read the moment the heading is there.
+		// FM27 lays the message out in its own block, the attachment under the body with no heading: read
+		// there by its element and the body's data path, with no wait on FM26's "Attachments".
+		if ((await Fm.GetJson("texts", ("within", "MessagesToolBlockMessageContent"))) is { ValueKind: System.Text.Json.JsonValueKind.Array } block && block.GetArrayLength() > 0)
+		{
+			await AttachmentRows(answers);
+			return;
+		}
 		var bound = await OpenMessage(title, t => t.Text == "Attachments", seconds: 3);
 		var texts = bound.Select(t => t.Text).ToList();
 		var start = texts.IndexOf("Attachments");
