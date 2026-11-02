@@ -41,8 +41,8 @@ An event the code never names is not always a gap; each line was checked against
   known (`Club.ClubVisionMeetingEditSession`, PORTING). Needs the season-end meeting (Pendikspor, May 2028).
 - [ ] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal").
 - [ ] T4 `tour` prints the tour's text in English in a Turkish game.
-- [ ] T5 Calendar (`Match/Calendar.cs`) and training week (`Squad/Schedule.cs`) read the venue from
-  `MatchVenueShort` (shown letter). Use the teams' ids as `status` does.
+- [x] T5 Calendar (`Match/Calendar.cs`) and training week (`Squad/Schedule.cs`) read the venue from
+  `MatchVenueShort` (shown letter). Use the teams' ids as `status` does. Done (db727ca): home and away right in TR and EN, calendar and week, 3 runs each.
 - [ ] T6 `coaches`: the nine workload cells are read by order (`Club/Coaches.cs`).
 - [ ] T7 `staff find` rules add "Position" / "Transfer Value" by choice name (`Club/StaffSearch.Rules.cs:157,187`).
 - [ ] T8 `tactic`: the "Combined" view tab by label (`Match/Guided.Tactic.cs:308`).
