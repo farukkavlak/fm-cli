@@ -146,3 +146,16 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [ ] T82 Epic Games Store copy (macOS and Windows): install, start, play one month, stop.
 - [ ] T83 A fresh install on a clean machine from the README alone (`tools/install.sh`, plugin, first start).
 - [ ] T84 A new career started through the tool (or the documented manual step), then one month played.
+
+## 12. Final check (after section 11; the last box)
+
+- [ ] T85 A full audit of `cli/fm` and the plugin for anything held by other than identity, the rule above all
+  (CLAUDE.md). Every hit is fixed or written here with why it cannot be:
+  - shown text, translated or not: labels, titles, choice names, dialog words, `Contains`/`==` on text
+  - language: English (or any one language's) words, date and number formats, currency
+  - place: pixels, coordinates, screen or button positions, sizes, scrolling by distance
+  - look: colours, style classes, icons, fonts
+  - order: `[i]`, `[^1]`, `First()`/`Last()` on screen lists, "the text after the heading", row numbers
+  - one of a kind: one club, league, player, save, platform or store
+  - time: fixed waits (`Task.Delay`, `sleep`) used as the mechanism, not as an upper bound
+  Done when the audit finds nothing new, read by a second pass (another person or agent) as well.
