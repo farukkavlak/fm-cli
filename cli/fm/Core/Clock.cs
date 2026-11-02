@@ -302,9 +302,10 @@ internal static partial class Program
 					output.WriteLine(L("Transfer offer waiting: offers   ·   reject: offers <#> reject --yes   (stall does not close this step)"));
 				// The set piece wizard the game opens once: nothing goes on until it is done. Its number (14)
 				// is the game's for an introduction too (a new club's briefings, 29 Haz 2027), so the wizard is
-				// told by its own buttons' events; a briefing is a message, said below.
+				// told by its own buttons' events; a briefing is a message, said below. A finished wizard
+				// leaves its buttons in the tree out of sight, so only ones on screen count.
 				if (Field(state, "Respond") == "14" && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-					    .Any(b => Field(b, "Events").Contains("EventFmxSetPieceCreator", StringComparison.Ordinal)))
+					    .Any(b => Field(b, "Events").Contains("EventFmxSetPieceCreator", StringComparison.Ordinal) && Field(b, "Visible") == "True"))
 				{
 					output.WriteLine(L("The set piece wizard is open. To answer it: setpieces new   (the game's choices: setpieces new, then Enter at each question)"));
 					return;

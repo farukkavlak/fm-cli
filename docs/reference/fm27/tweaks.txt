@@ -1,0 +1,80 @@
+# FM27 in-match Active Tactical Tweaks popup (2 Nov 2026, TR, Pendikspor v Konyaspor, half time)
+# Opened from the match tactics panel: SIFloatingPopupWidget #tweaks-button (/popup?ptr=); tabs Team / Individual; Reset sends ResetTacticalTweaks.
+# Team tab rows (TR shown): Kanatları Değiştir, Uzun Oyna, Geriden Oyun Kur, Daha Acil Oyna, Daha Sabırlı Oyna, Fiziksel Oyna, Soluklan, Genişliği Kullan, Daha Dar Oyna, Boz, Agresif Pres Yap, Daha Az Agresif Pres Yap, Kaleciyi Duran Toplarda İleri Gönder, Tüm Kozları Oyna, Kepenkleri İndir
+# Enum FM.UI.TacticalTweak (docs/reference/fm27/enums.txt). One row:
+0x3fbee7320 VisualElement #tweak-row
+  0x3fbec1000 InteractionSetter #focus-hover-state
+  0x3fbf3ea80 SIStyleSetter #row-state
+  0x3fbee7000 VisualElement #state-indicator HIDDEN
+  0x3fbf3fc80 VisualElement #tweak-header
+    0x3fbf3e540 SIButton #toggle-overlay
+    0x3fbf3f960 VisualElement
+      0x3fbf3e000 SIStyleSetter #tweak-icon-badge
+        0x3fbf3f640 VisualElement
+      0x3fbfbea80 SIText #tweak-title "Take a Breather"
+    0x3fbf3f320 VisualElement #instruct-pill HIDDEN
+      0x3fbfbe540 SIText #instruct-pill-label "Instruct"
+    0x3fbf3f000 VisualElement #stop-pill HIDDEN
+      0x3fbfbe000 SIText #stop-pill-label "Stop"
+    0x3fbfc0c80 VisualElement #instructing-pill HIDDEN
+      0x3fbfc1a80 SIText #instructing-pill-label "Instructing"
+    0x3fbfc0960 VisualElement #stopping-pill HIDDEN
+      0x3fbfc1540 SIText #stopping-pill-label "Stopping"
+    0x3fbfc0640 VisualElement #cancel-apply-icon HIDDEN
+      0x3fbfc0320 VisualElement #cancel-icon
+    0x3fbfc0000 VisualElement #cancel-remove-icon HIDDEN
+      0x3fb808c80 VisualElement #cancel-icon
+    0x3fb808960 VisualElement #tooltip
+      0x3fb808640 TemplateContainer
+        0x3fb808320 ComponentElement
+          0x3fb808000 TemplateContainer #InfoIcon
+            0x3fb80ac80 VisualElement
+              0x3fb80a960 VisualElement
+          0x3fbfc1000 Tooltip #tooltip HIDDEN
+            0x3fb80a640 BindingRoot
+
+-- 1 of 1 match(es)
+
+# Tabs:
+0x40e6bea80 TabGroup #TabGroup
+  0x40e6be540 ButtonGroup #TabButtons
+    0x40e13f640 TemplateContainer
+      0x40e13f320 BindingRoot
+        0x40e140000 SIVisible HIDDEN
+    0x40e6be000 SIButton #TeamTab
+      0x40e7daa80 SIText #TabText "Team"
+      0x40e7da540 SIVisible #TeamTabCountVisible HIDDEN
+    0x40e7da000 SIButton #IndividualTab
+      0x40e7dca80 SIText #TabText "Individual"
+      0x40e7dc540 SIVisible #IndividualTabCountVisible HIDDEN
+    0x40e6bf960 SIEnabled #ResetEnabled
+      0x40e6bf640 BindingVariables #BindingVariables
+        0x40e136800 SIDropdown #reset-dropdown
+          0x40e6bf320 VisualElement #SelectionField
+            0x40e6bf000 VisualElement #DropdownArrow
+            0x40e7dc000 SIText #reset-label "Reset"
+            0x40e13fc80 VisualElement
+    0x40e13f000 TemplateContainer
+      0x40e1d9c80 BindingRoot
+        0x40e1daa80 SIVisible HIDDEN
+  0x40e140a80 SwitchElement #TabsContent
+    0x40e1d9960 VisualElement #TeamTabContent
+      0x40e166000 StreamedObjectList #TeamTweaksList
+        0x40e1da540 VirtualisedList
+          0x40e1da000 SIScrollView
+            0x40e1d9640 VisualElement #unity-content-and-vertical-scroll-container
+              0x40e1d9320 VisualElement #unity-content-viewport
+                0x40e1d9000 VisualElement #unity-content-container
+              0x40e250960 Scroller DISABLED
+                0x40e329a80 RepeatButton #unity-low-button DISABLED HIDDEN
+                0x40e329540 RepeatButton #unity-high-button DISABLED HIDDEN
+                0x40e2ae540 ScrollerSlider #unity-slider DISABLED
+            0x40e24dc80 Scroller DISABLED HIDDEN
+              0x40e24e000 RepeatButton #unity-low-button DISABLED HIDDEN
+              0x40e2aea80 RepeatButton #unity-high-button DISABLED HIDDEN
+              0x40e24ea80 ScrollerSlider #unity-slider DISABLED
+                0x40e24d960 VisualElement DISABLED
+        0x40e2b1320 VisualElement
+  0x40e6bfc80 VisualElement
+
+-- 1 of 1 match(es)

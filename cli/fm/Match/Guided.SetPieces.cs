@@ -35,7 +35,7 @@ internal static partial class Program
 		var dry = args.Contains("--dry");
 		async Task<JsonElement?> Sending(string ev) =>
 			(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Where(b => Field(b, "Events").Contains(ev, StringComparison.Ordinal) && Field(b, "Enabled") == "True")
+			.Where(b => Field(b, "Events").Contains(ev, StringComparison.Ordinal) && Field(b, "Enabled") == "True" && Field(b, "Visible") == "True")
 			.Cast<JsonElement?>().FirstOrDefault();
 
 		if (await Sending(startEvent) is { } begin)
