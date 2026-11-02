@@ -25,11 +25,7 @@ internal static partial class Program
 			return 69;
 		}
 
-		// FM can sit on a Continue press while another app is front; bring it forward first,
-		// and out of the way again when done.
-		Launcher.Activate();
-		try { return await NextSteps(args); }
-		finally { Launcher.Background(); }
+		return await NextSteps(args);
 	}
 
 	private const int UntilSteps = 60;

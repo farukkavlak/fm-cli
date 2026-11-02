@@ -37,17 +37,11 @@ internal static class Launcher
 			"Library/Application Support/Steam/steamapps/common", AppName);
 
 	/// <summary>
-	/// Brings the game forward. FM only handles some Continue and UI events while it is the
-	/// active app: a `next` or `press` sent while the terminal is front can queue and wait
-	/// for a frame that never comes.
+	/// Hides the game, minimised or not: Continue and button events go on with it hidden (measured
+	/// 2 Nov 2026, FM27: ten `next` in a row with another app in front), so no command brings it
+	/// forward.
 	/// </summary>
-	public static void Activate() => Osascript($"tell application \"{AppName}\" to activate");
-
-	/// <summary>
-	/// Hides the game again after <see cref="Activate"/>, which gives the front back to the app the
-	/// user was in: activating showed the window over whatever they were doing, command after command.
-	/// </summary>
-	public static void Background() => Osascript($"tell application \"System Events\" to set visible of process \"{AppName}\" to false");
+	private static void Hide() => Osascript($"tell application \"System Events\" to set visible of process \"{AppName}\" to false");
 
 	public static async Task<bool> Start(Bridge fm, bool debug, bool load = true)
 	{
@@ -56,7 +50,7 @@ internal static class Launcher
 		if (await Up(fm))
 		{
 			Console.WriteLine(L($"FM is already open — connecting to it{(debug ? "" : L(", minimising the window"))}."));
-			if (!debug) Minimise();
+			if (!debug) { Minimise(); Hide(); }
 			await GameFolders.Learn(fm);
 			return !load || await LoadSave(fm);
 		}
@@ -83,7 +77,7 @@ internal static class Launcher
 			return false;
 		}
 
-		if (!debug) Minimise();
+		if (!debug) { Minimise(); Hide(); }
 		await GameFolders.Learn(fm);
 
 		return !load || await LoadSave(fm);

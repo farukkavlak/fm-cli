@@ -1,0 +1,44 @@
+kind          ok  missing  unchecked
+page           0        0         46
+event         57       16         17
+element        0        0         47
+panel          0        0          1
+field         32        0          0
+path           0        0        178
+property       0        0        360
+enum          23        0          0
+text           0        0         97
+
+## missing event (16)
+  SpeakToAction
+      used 10x: cli/fm/Club/BoardRequests.cs:138 cli/fm/Core/Acknowledge.cs:24 cli/fm/Core/Acknowledge.cs:55
+  OpenPanel
+      used 6x: cli/fm/Core/Reads.cs:106 cli/fm/Match/MatchDay.Instant.cs:42 cli/fm/Match/MatchDay.Instant.cs:48
+  ClosePanel
+      used 4x: cli/fm/Club/Budget.cs:210 cli/fm/Core/Saves.cs:225 cli/fm/Match/Guided.cs:289
+  PanelHistoryClose
+      used 4x: cli/fm/Core/Saves.Files.cs:164 cli/fm/Match/MatchDay.cs:111 cli/fm/Squad/TacticFiles.cs:128
+  PanelHistoryBack
+      used 3x: cli/fm/Squad/Mentoring.New.cs:48 cli/fm/Squad/Mentoring.cs:218 cli/fm/Squad/Mentoring.cs:219
+  TacticTeamSelectionDropdown
+      used 2x: plugin/FmCliProbe/src/Reads/Tactics.cs:120 plugin/FmCliProbe/src/Reads/Tactics.cs:172
+  EventFmxMatchFocusSelectFirstSetPiece
+      used 1x: cli/fm/Match/Prep.cs:174
+  EventFmxMatchFocusSelectInPossessionType
+      used 1x: cli/fm/Match/Prep.cs:172
+  EventFmxMatchFocusSelectOutOfPossessionType
+      used 1x: cli/fm/Match/Prep.cs:173
+  EventFmxMatchFocusSelectSecondSetPiece
+      used 1x: cli/fm/Match/Prep.cs:175
+  EventToPlugin:EventFmxFilterStoreFilter
+      used 1x: cli/fm/Core/Reads.Squad.cs:301
+  EventToPlugin:EventFmxRevert
+      used 1x: cli/fm/Transfer/Transfers.cs:147
+  GenericAction
+      used 1x: cli/fm/Core/Acknowledge.cs:72
+  RoleOption
+      used 1x: cli/fm/Match/Guided.TacticSettings.cs:113
+  RunNewsAction
+      used 1x: cli/fm/Match/News.cs:53
+  TriggerDialog
+      used 1x: cli/fm/Transfer/ScoutFocus.Team.cs:74

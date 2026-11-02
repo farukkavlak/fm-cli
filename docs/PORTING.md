@@ -777,9 +777,12 @@ Our side:
 - The plugin DLL loads only at game start (~1.5 min). Never copy it while the game runs.
 - Use `127.0.0.1`, not `localhost` ("Not Found").
 - On macOS put `pkill` flags before the pattern; it once killed the wrong processes.
-- `activate` puts the game window over the user's work. Hide it again after.
-- Publishing `fm` over the file a running `fm mcp` uses breaks that process. `tools/publish.sh`
-  publishes to `dist/fm.next` and renames into place.
+- No command brings the game forward. `fm start` minimises and hides it; Continue and button events go on
+  hidden (2 Nov, FM27, TR: 15 `next` and 3 `press` with another app in front, none stalled). The FM26-era
+  `activate` before `next`/`press` put the window over the user's work every command; it is gone.
+- Publishing `fm` over the file a running `fm mcp` uses breaks that process, and copying over
+  `dist/fm/fm` makes every new `fm` hang (macOS). `tools/publish.sh` publishes to `dist/fm.next`
+  and renames into place.
 - `Report.Json` and `find` go through the English table. Turkish stock commentary came out in
   English. Text only shown to the user skips it (`Report.Json(fields, ["Commentary"])`).
 
