@@ -39,21 +39,13 @@ internal static class Launcher
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
 			"Library/Application Support/Steam/steamapps/common", AppName);
 
-	/// <summary>
-	/// Hides the game, minimised or not: Continue and button events go on with it hidden (measured
-	/// 2 Nov 2026, FM27: ten `next` in a row with another app in front), so no command brings it
-	/// forward.
-	/// </summary>
-	private static void Hide() => Osascript($"tell application \"System Events\" to set visible of process \"{AppName}\" to false");
-
 	public static async Task<bool> Start(Bridge fm, bool debug, bool load = true)
 	{
 		// An already-running game is attached to rather than refused: the save may still need
 		// loading, which is the part worth doing.
 		if (await Up(fm))
 		{
-			Console.WriteLine(L($"FM is already open — connecting to it{(debug ? "" : L(", minimising the window"))}."));
-			if (!debug) { Minimise(); Hide(); }
+			Console.WriteLine(L("FM is already open — connecting to it."));
 			await GameFolders.Learn(fm);
 			return !load || await LoadSave(fm);
 		}
@@ -75,24 +67,17 @@ internal static class Launcher
 		}
 
 		var log = Path.Combine(Path.GetTempPath(), "fm-cli-launch.log");
-		try
-		{
-			Spawn(script, log, debug);
-			Console.WriteLine(L($"Starting FM…{(debug ? L($"  (log: {log})") : "")}"));
+		Spawn(script, log, debug);
+		Console.WriteLine(L($"Starting FM…{(debug ? L($"  (log: {log})") : "")}"));
 
-			if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
-			{
-				Console.Error.WriteLine(L($"The game did not reach the main menu. Log: {log}"));
-				return false;
-			}
-
-			await GameFolders.Learn(fm);
-			return !load || await LoadSave(fm);
-		}
-		finally
+		if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
 		{
-			if (!debug) { Minimise(); Hide(); }
+			Console.Error.WriteLine(L($"The game did not reach the main menu. Log: {log}"));
+			return false;
 		}
+
+		await GameFolders.Learn(fm);
+		return !load || await LoadSave(fm);
 	}
 
 	/// <summary>
@@ -122,17 +107,20 @@ internal static class Launcher
 	{
 		var domain = PrefsDomain;
 		if (domain.Length == 0) return;
-		// The player's values are kept once: a second start must not keep our own small window as theirs.
-		if (!File.Exists(DisplayBackup))
-		{
-			var kept = HiddenDisplay.ToDictionary(k => k.Key, k => Defaults(["read", domain, k.Key]) is var (ok, value) && ok ? value : null);
-			File.WriteAllText(DisplayBackup, System.Text.Json.JsonSerializer.Serialize(kept));
-		}
+		var now = HiddenDisplay.ToDictionary(k => k.Key, k => Defaults(["read", domain, k.Key]) is var (ok, value) && ok ? value : null);
+		// What is there now is the player's, unless it is our own window: then a start before did not
+		// get to put theirs back (the game died before it was up), and the kept copy still holds theirs.
+		var ours = HiddenDisplay.All(k => now[k.Key] == k.Value);
+		if (!ours || !File.Exists(DisplayBackup)) File.WriteAllText(DisplayBackup, System.Text.Json.JsonSerializer.Serialize(now));
 		foreach (var (key, type, value) in HiddenDisplay) Defaults(["write", domain, key, type, value]);
 	}
 
-	/// <summary>Puts the player's own display settings back once the game is closed.</summary>
-	private static void RestoreDisplay()
+	/// <summary>
+	/// Puts the player's own display settings back once the game is closed. Not earlier: written back
+	/// as soon as the bridge answered, the game read them again around the menu / save load and went
+	/// full screen on a Space of its own, a black screen with the window transparent (2 Nov 2026).
+	/// </summary>
+	private static void RestoreDisplay(bool forget)
 	{
 		var domain = PrefsDomain;
 		if (domain.Length == 0 || !File.Exists(DisplayBackup)) return;
@@ -142,7 +130,7 @@ internal static class Launcher
 			if (!kept.TryGetValue(key, out var value)) continue;
 			Defaults(value == null ? ["delete", domain, key] : ["write", domain, key, type, value]);
 		}
-		File.Delete(DisplayBackup);
+		if (forget) File.Delete(DisplayBackup);
 	}
 
 	private static (bool Ok, string Output) Defaults(string[] args)
@@ -251,41 +239,6 @@ internal static class Launcher
 	}
 
 	/// <summary>
-	/// Takes the window off the screen. Moving it instead does not work — macOS clamps the
-	/// position back so part of it stays reachable.
-	/// </summary>
-	private static void Minimise()
-	{
-		var script = $"""
-			tell application "System Events" to tell process "{AppName}"
-				repeat with w in windows
-					try
-						set value of attribute "AXMinimized" of w to true
-					end try
-				end repeat
-			end tell
-			""";
-
-		var error = Osascript(script);
-		if (!string.IsNullOrEmpty(error))
-			Console.WriteLine(L("(the window could not be minimised — allow the terminal in System Settings › Privacy › Accessibility)"));
-	}
-
-	private static string Osascript(string script)
-	{
-		try
-		{
-			using var osascript = Process.Start(new ProcessStartInfo("/usr/bin/osascript", ["-e", script])
-			{ RedirectStandardError = true, RedirectStandardOutput = true })!;
-
-			var error = osascript.StandardError.ReadToEnd().Trim();
-			osascript.WaitForExit(10000);
-			return error;
-		}
-		catch (Exception ex) { return ex.Message; }
-	}
-
-	/// <summary>
 	/// Closes the game: first through its own quit, which lets it shut down cleanly; a game that
 	/// was only killed could hang on its way out, holding the port. Ended by
 	/// force when it does not go. True once the bridge has stopped answering.
@@ -325,7 +278,7 @@ internal static class Launcher
 			gone = await WaitFor(async () => !await Alive(), TimeSpan.FromSeconds(10));
 		}
 		// Written once the game is gone: it saves its settings on the way out.
-		if (gone) RestoreDisplay();
+		if (gone) RestoreDisplay(forget: true);
 		return gone;
 	}
 

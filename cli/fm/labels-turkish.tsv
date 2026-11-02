@@ -356,8 +356,7 @@ To send it: jobs "{0}" {1} --yes	Göndermek için: jobs "{0}" {1} --yes
 Send it?	Gönderelim mi?
 The game asked a question: dialog	Oyun bir soru sordu: dialog
 Sent. The answer will come to the inbox: inbox	Gönderildi. Cevap gelen kutusuna düşer: inbox
-FM is already open — connecting to it{0}.	FM zaten açık — ona bağlanıyorum{0}.
-, minimising the window	, pencereyi küçültüyorum
+FM is already open — connecting to it.	FM zaten açık — ona bağlanıyorum.
 BepInEx launcher not found: {0}	BepInEx başlatıcısı bulunamadı: {0}
 If the game is elsewhere, point to it with FM_HOME.	Oyun başka yerdeyse FM_HOME ile göster.
 Starting FM…{0}	FM başlatılıyor…{0}
@@ -369,7 +368,6 @@ The game did not reach the main menu.	Oyun ana menüye gelmedi.
 Loading the last save…	Son kayıt yükleniyor…
 The save did not load.	Kayıt yüklenmedi.
 Ready.	Hazır.
-(the window could not be minimised — allow the terminal in System Settings › Privacy › Accessibility)	(pencere küçültülemedi — Sistem Ayarları › Gizlilik › Erişilebilirlik'te terminale izin ver)
 Player stats ({0}) — league --stat <name>	Oyuncu istatistikleri ({0}) — league --stat <ad>
 \nTeam stats ({0}) — league --stat <name> --teams	\nTakım istatistikleri ({0}) — league --stat <ad> --teams
 The club's competitions could not be read.	Kulübün turnuvaları okunamadı.

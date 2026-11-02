@@ -21,8 +21,6 @@ An event the code never names is not always a gap; each line was checked against
   - [x] the plugin makes the window transparent and click-through (`WindowHider`, `FMCLI_HIDDEN=1`)
   - [x] `tools/window-watch` proves it: 3 × start/squad/calendar/stop and 2 × next, never on screen
   - [ ] during a match (match screen, resolution changes), and the crawl kept off display settings
-  - [ ] the player's display settings come back even when the game is not closed by `fm stop` (crash,
-    force quit, Mac restart): put them back as soon as the game has read them at boot, and again at stop
   - [ ] a hidden game is never forgotten: `fm start` / `fm status` say when a hidden FM is running, and a
     second FM (opened from Steam) on the same save is warned about before two games write it
 
