@@ -169,7 +169,7 @@ internal static partial class FmApi
 
 		var game = "";
 		try { game = UnityEngine.Application.version ?? ""; } catch { }
-		return $"bindings: ok\nplugin: {Plugin.Version}\ngame: {game}\ndescendants: {Descendants(b, 1000)}\nruns from: {Plugin.RunsFrom}";
+		return $"bindings: ok\nplugin: {Plugin.Version}\ngame: {game}\ndescendants: {Descendants(b, 1000)}\nruns from: {Plugin.RunsFrom}\nhidden: {(WindowHider.Wanted ? WindowHider.Hidden.ToString() : "off")}";
 	}
 
 	/// <summary>Read a value by path, using a locally computed key rather than a span.</summary>

@@ -10,6 +10,18 @@ Sources: the code scan for shown text and order (2 Nov), `fm crawl` TR + EN (`re
 match screens (`reference/fm27/tweaks.txt`), the FM26 → FM27 enum diff (`reference/fm27/new-in-fm27.txt`).
 An event the code never names is not always a gap; each line was checked against the commands.
 
+## 0. First, before anything else
+
+- [ ] T0 The game never shows itself: `fm start` keeps it out of sight from launch to a loaded save and after,
+  whatever the game's own display settings say. Today FM27's saved settings (full screen, native size,
+  `com.SportsInteractive.FootballManager27` prefs) override `-screen-width 640` and the window covers the
+  screen; a full-screen window cannot be minimised and, out of the Dock, not even switched away from.
+  Without this the tool is unusable. Also: the crawl must not touch the display settings.
+  - [x] start sets the game's display settings to a 1920×1080 window, stop puts the player's back
+  - [x] the plugin makes the window transparent and click-through (`WindowHider`, `FMCLI_HIDDEN=1`)
+  - [x] `tools/window-watch` proves it: 3 × start/squad/calendar/stop and 2 × next, never on screen
+  - [ ] during a match (match screen, resolution changes), and the crawl kept off display settings
+
 ## 1. Held by text or order (the rule above all)
 
 - [ ] T1 `tactic new` entry: "No Tactic Set" tile and "Create New Tactic" by label (`Match/Guided.TacticNew.cs`,
@@ -24,6 +36,8 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T6 `coaches`: the nine workload cells are read by order (`Club/Coaches.cs`).
 - [ ] T7 `staff find` rules add "Position" / "Transfer Value" by choice name (`Club/StaffSearch.Rules.cs:157,187`).
 - [ ] T8 `tactic`: the "Combined" view tab by label (`Match/Guided.Tactic.cs:308`).
+- [ ] T86 Calendar / `fixtures --all` read a cup result's marks from the shown score ("u3-2" in Turkish,
+  `^\d+-\d+(p|e)?$` in `Match/Calendar.cs`): extra time and penalties by the fixture's data, not its letters.
 - [ ] T9 `--term` by a term's English name fails in a German game (PORTING).
 
 ## 2. New in FM27, no command

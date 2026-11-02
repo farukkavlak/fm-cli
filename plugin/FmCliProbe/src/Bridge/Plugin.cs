@@ -44,6 +44,10 @@ public class Plugin : BasePlugin
 		// the terminal would hang waiting for a frame that never comes.
 		Application.runInBackground = true;
 
+		// Out of sight before anything else, and kept so on every tick (see WindowHider).
+		WindowHider.Apply();
+		IL2CPPChainloader.MainThreadTick += WindowHider.Apply;
+
 		_bridge = new HttpBridge(Port, FmApi.Handle);
 		_bridge.Start();
 

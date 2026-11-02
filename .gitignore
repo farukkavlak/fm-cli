@@ -18,3 +18,4 @@ tests/nl/expanded/
 
 # local secrets (API keys)
 .env
+tools/window-watch/window-watch
