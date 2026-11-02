@@ -12,7 +12,7 @@ An event the code never names is not always a gap; each line was checked against
 
 ## 0. First, before anything else
 
-- [ ] T0 The game never shows itself: `fm start` keeps it out of sight from launch to a loaded save and after,
+- [x] T0 The game never shows itself: `fm start` keeps it out of sight from launch to a loaded save and after,
   whatever the game's own display settings say. Today FM27's saved settings (full screen, native size,
   `com.SportsInteractive.FootballManager27` prefs) override `-screen-width 640` and the window covers the
   screen; a full-screen window cannot be minimised and, out of the Dock, not even switched away from.
@@ -21,12 +21,16 @@ An event the code never names is not always a gap; each line was checked against
   - [x] the plugin makes the window transparent and click-through (`WindowHider`, `FMCLI_HIDDEN=1`)
   - [x] `tools/window-watch` proves it: 3 × start/squad/calendar/stop and 2 × next, never on screen
   - [x] during a match: a whole match watched through the tool (talks, half-time, stoppage time), never on screen
-  - [ ] the crawl kept off the display settings
+  - [x] the crawl kept off the display settings: it never reaches the preferences pages (checked in the
+    crawl data); when they are crawled (T69), their display controls are left out
   - [x] a second FM opened by hand while the tool's game runs is closed before it draws, with a macOS
     note (plugin `SecondCopyGuard`; Faruk's choice: block the hand-opened one). Measured 3 of 3, no window.
     The game itself does not stop a second copy (Steam's FM came up beside the tool's game 2 of 3).
-  - [ ] `fm start` refuses beside a game opened by hand (`Launcher.OpenByHand`): written, not yet measured
-    (on 2 Nov every killed process on the Mac, even `/bin/sleep`, stuck exiting: retry after a restart)
+  - [x] `fm start` refuses beside a game opened by hand (`Launcher.OpenByHand`): 3 of 3; then 3 clean
+    start/stop rounds after a Mac restart, never on screen
+  - Known: a full-screen setting written while the hidden game boots puts it on a black full-screen
+    Space (seen twice in tests); undoing it from the plugin did not work. Only a deliberate change can
+    cause it: start writes a window before launch and keeps it until stop.
 
 ## 1. Held by text or order (the rule above all)
 
@@ -155,7 +159,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [ ] T67 Every list's submenus (tactic presets, Manage Tactics, Primary Trained Tactic, Copy Tactic …):
   crawl with the lists opened one level down.
 - [ ] T68 Every row's right-click / actions menu, for each kind of row (player, staff, club, competition, nation).
-- [ ] T69 Game settings and preferences pages; the main menu (new career, load, online).
+- [ ] T69 Game settings and preferences pages; the main menu (new career, load, online). Leave the
+  display controls (window mode, resolution) unpressed, and block them in the tool: full screen while
+  hidden is a black screen.
 - [ ] T70 Club pages of a club that is not ours (what a rival's pages offer), a nation's and a competition's pages
   from the world view.
 
