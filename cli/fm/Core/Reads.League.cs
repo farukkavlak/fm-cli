@@ -263,10 +263,11 @@ internal static partial class Program
 				return null;
 
 		const string shown = "MatchVenue,TeamOpponent.Name,Competition.Name";
-		var read = await PullEach(rows.Select(r => (r.Row, $"KickoffTime,ResultLinkableNoSpaces,ResultType,MatchVenueShort,{shown}")).ToList(), shown: shown);
+		var ours = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
+		var read = await PullEach(rows.Select(r => (r.Row, $"KickoffTime,ResultLinkableNoSpaces,ResultType,HomeTeam.UniqueId,AwayTeam.UniqueId,{shown}")).ToList(), shown: shown);
 		return rows.Zip(read).Select(x => new TeamFixture(x.First.Date, Field(x.Second, "KickoffTime"), Field(x.Second, "MatchVenue"),
 			Field(x.Second, "TeamOpponent.Name"), Field(x.Second, "Competition.Name"), x.First.Played,
-			x.First.Played ? Field(x.Second, "ResultLinkableNoSpaces") : "", Field(x.Second, "ResultType"), Field(x.Second, "MatchVenueShort"))).ToList();
+			x.First.Played ? Field(x.Second, "ResultLinkableNoSpaces") : "", Field(x.Second, "ResultType"), Venue(ours, Field(x.Second, "HomeTeam.UniqueId"), Field(x.Second, "AwayTeam.UniqueId")))).ToList();
 	}
 
 	private static readonly (string Variable, string From)[] FixtureContext = [("team", "Human.Team"), ("human", "Human")];

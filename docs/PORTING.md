@@ -671,6 +671,11 @@ Still open:
     match), `GoOnHolidayButton`; on and over by `Human.IsOnHoliday`. The return-type radio group has no values
     (left at its default, "on date"). A message waiting for an answer keeps the game from starting one: said.
     A month took 8.5 min (TR).
+  - [x] Venue of the next match and of the fixture list (`status`, `opponent`, `fixtures`): our team's `UniqueId`
+    against the fixture's `HomeTeam`/`AwayTeam`. Was `MatchVenueShort`, a shown letter ("E" came out in an English game
+    just switched from Turkish). A neutral ground has no field and is no longer said. TR + EN.
+  - [ ] Calendar (`Match/Calendar.cs`) and the training week (`Squad/Schedule.cs`) still read `MatchVenueShort` as
+    shown text ("H"/"A"/"N").
   - [ ] `vision` (`Club/Vision.cs`): heading, weights, objective kinds and buttons all by English words. The meeting
     opens only at the season's end (the new job's "Season expectations" message has no answer and opens none);
     not changed until it can be measured. Its record is known: `Club.ClubVisionMeetingEditSession` (needs `human`

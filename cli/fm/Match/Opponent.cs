@@ -15,7 +15,8 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 
-		var fixture = await Fm.Pull("Human.Team.NextFixture", "MatchVenueShort,KickoffTime,FixtureDateDistanceInDays");
+		var fixture = await Fm.Pull("Human.Team.NextFixture", "KickoffTime,FixtureDateDistanceInDays");
+		var where = await FixtureVenue();
 		var friendly = await NextIsFriendly();
 		const string them = "Human.Team.NextFixture.TeamOpponent";
 		var team = await Fm.Pull(them, "Name,Description,MostUsedFormation,RecentFormValues,NextOppositionThreatLevelAssessment");
@@ -37,7 +38,7 @@ internal static partial class Program
 		}
 		var manager = Field(await Fm.Pull($"{them}.Manager", "Name"), "Name");
 		var form = string.Join(" ", Standings.Form(Field(team, "RecentFormValues")));
-		var venue = Field(fixture, "MatchVenueShort") switch { "H" => L("home"), "A" => L("away"), "N" => L("neutral ground"), var other => other };
+		var venue = VenueWord(where);
 		var days = Field(fixture, "FixtureDateDistanceInDays");
 		var rows = new List<(string Label, string Value)>
 		{
@@ -108,7 +109,7 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new
 			{
-				Team = Field(team, "Name"), Description = GameWords.Of(Field(team, "Description")), Venue = Field(fixture, "MatchVenueShort"),
+				Team = Field(team, "Name"), Description = GameWords.Of(Field(team, "Description")), Venue = where,
 				Kickoff = Field(fixture, "KickoffTime"), InDays = days,
 				Summary = rows.ToDictionary(r => r.Label, r => r.Value),
 				News = news.Select(GameWords.Of).ToList(), PreviousMeetings = meetings.Select(GameWords.Of).ToList(),

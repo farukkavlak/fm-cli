@@ -20,6 +20,9 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		var output = words.FirstOrDefault(w => w.EndsWith(".json", StringComparison.Ordinal)) ?? "crawl.json";
 		var only = Option(args, "--only")?.Split(',').ToHashSet();
+		// Panels not to press for: one that leaves a popup up holds every later event (the opposition
+		// report's analysis-level badge, FM27).
+		var skip = Option(args, "--skip")?.Split(',').ToHashSet() ?? [];
 		// --here: the screen as it stands (a person's or a club's page, opened by the command for it)
 		// and the pages on its own bars, chosen there; nothing else is opened.
 		var here = args.Contains("--here");
@@ -135,10 +138,18 @@ internal static partial class Program
 			Console.Error.WriteLine($"{i + 1,3}/{queue.Count}  {buttons.Count,3} controls  {dropdowns.Count,2} lists  {title}");
 			if (!here || guid == "here") await Discover(title, guid);
 
+			// A screen that leaves the game's event queue held (a popup it opened) would make every page
+			// after it fail: the walk stops there and says so.
+			if ((await Fm.Get("queue")).Split(' ')[0] is var held && held != "0")
+			{
+				Console.Error.WriteLine($"the game's event queue is held ({held} waiting) after {title}; stopped. Leave it out with --skip {guid}");
+				break;
+			}
+
 			// The panels this screen opens that no menu or bar listed: one control each, up to three deep.
 			var via = chains.TryGetValue(guid, out var mine) ? mine : [guid];
 			if (!here && via.Count < 4)
-				foreach (var target in buttons.Select(b => Field(b, "Opens")).Where(o => o.Length == 32 && !names.ContainsKey(o)).Distinct())
+				foreach (var target in buttons.Select(b => Field(b, "Opens")).Where(o => o.Length == 32 && !names.ContainsKey(o) && !skip.Contains(o)).Distinct())
 				{
 					var label = buttons.First(b => Field(b, "Opens") == target) is var b0 && Field(b0, "Label") is { Length: > 0 } l ? l : Field(b0, "Name");
 					names[target] = [$"{names[guid].First()} › [{label}]"];

@@ -28,20 +28,34 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<string> FixtureVenue()
 	{
-		try { return Field(await Fm.Pull("Human.Team.NextFixture", "MatchVenueShort"), "MatchVenueShort"); }
+		try
+		{
+			var fixture = await Fm.Pull("Human.Team.NextFixture", "HomeTeam.UniqueId,AwayTeam.UniqueId");
+			return Venue(Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId"), Field(fixture, "HomeTeam.UniqueId"), Field(fixture, "AwayTeam.UniqueId"));
+		}
 		catch (FmError) { return ""; }
 	}
+
+	/// <summary>
+	/// Where a fixture is played for our team, by the teams' own ids: "H" or "A", "" when neither
+	/// side is ours. The game's short code (MatchVenueShort) is a shown letter ("E"/"D" in Turkish).
+	/// A neutral ground has no field of its own and is not told apart.
+	/// </summary>
+	internal static string Venue(string ours, string home, string away) =>
+		ours.Length == 0 ? "" : ours == home ? "H" : ours == away ? "A" : "";
+
+	internal static string VenueWord(string code) => code switch { "H" => L("home"), "A" => L("away"), _ => "" };
 
 	private static async Task<string> NextMatch(string today)
 	{
 		try
 		{
-			var fixture = await Fm.Pull("Human.Team.NextFixture", "KickoffTime,MatchVenueShort,FixtureDateDistanceInDays,IsFutureMatch");
+			var fixture = await Fm.Pull("Human.Team.NextFixture", "KickoffTime,FixtureDateDistanceInDays,IsFutureMatch");
 			if (Field(fixture, "IsFutureMatch") != "True") return null;
 
 			var opponent = Field(await Fm.Pull("Human.Team.NextFixture.TeamOpponent", "Name"), "Name");
 			var competition = Field(await Fm.Pull("Human.Team.NextFixture.Competition", "Name"), "Name");
-			var venue = Field(fixture, "MatchVenueShort") switch { "H" => L("home"), "A" => L("away"), "N" => L("neutral ground"), var other => other };
+			var venue = VenueWord(await FixtureVenue());
 
 			var days = int.TryParse(Field(fixture, "FixtureDateDistanceInDays"), out var d) ? d : -1;
 			var when = days switch { 0 => L("today"), 1 => L("tomorrow"), > 1 => L($"in {days} days"), _ => "" };
