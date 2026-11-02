@@ -21,6 +21,10 @@ An event the code never names is not always a gap; each line was checked against
   - [x] the plugin makes the window transparent and click-through (`WindowHider`, `FMCLI_HIDDEN=1`)
   - [x] `tools/window-watch` proves it: 3 × start/squad/calendar/stop and 2 × next, never on screen
   - [ ] during a match (match screen, resolution changes), and the crawl kept off display settings
+  - [ ] the player's display settings come back even when the game is not closed by `fm stop` (crash,
+    force quit, Mac restart): put them back as soon as the game has read them at boot, and again at stop
+  - [ ] a hidden game is never forgotten: `fm start` / `fm status` say when a hidden FM is running, and a
+    second FM (opened from Steam) on the same save is warned about before two games write it
 
 ## 1. Held by text or order (the rule above all)
 
@@ -93,6 +97,17 @@ An event the code never names is not always a gap; each line was checked against
   `settings language` should say so (or restart).
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
 - [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING).
+
+- [ ] T87 Playing FM by hand and through the tool on one install (the real install goes into Steam's own
+  game folder; `~/fm27_bep` is only our test copy):
+  - a game opened from Steam by hand loads BepInEx and the plugin too: it must stay visible and normal
+    (no hiding, Dock icon kept: LSUIElement only for the tool's launch, not in Steam's Info.plist)
+  - a Steam update replaces the game's files: the tool tells a changed game version, and puts BepInEx
+    back or says how, instead of failing to start
+  - a game left by hand on a dialog, a tutorial or another screen: every command first gets past it
+    (`status` / `dialog` name it) instead of getting stuck
+  - what the tool changes for good in the game (language, a tactic's name, preferences) is only what
+    the player asked for; tests leave nothing behind
 
 ## 6. Plugin: FM27 API changes still open (PORTING "API")
 
