@@ -126,7 +126,8 @@ tools/                 install, package, publish, tests, dumps, router training
 | [docs/MANUAL.md](docs/MANUAL.md) | illustrated manual |
 | [docs/USAGE.md](docs/USAGE.md) | every command and option |
 | [docs/PORTING.md](docs/PORTING.md) | architecture, rules, FM27 checklist, traps |
-| [docs/BACKLOG.md](docs/BACKLOG.md) | open and partial work, ideas |
+| [docs/TASKS.md](docs/TASKS.md) | open work, one checklist by id |
+| [docs/BACKLOG.md](docs/BACKLOG.md) | ideas |
 | [docs/CODE-LAYOUT.md](docs/CODE-LAYOUT.md) | which file holds what |
 | [docs/PLAYTEST.md](docs/PLAYTEST.md) | test checklist |
 | [docs/AI-ROADMAP.md](docs/AI-ROADMAP.md) | the AI goal: sentences now, Mahmut later |

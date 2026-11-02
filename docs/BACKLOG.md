@@ -1,6 +1,6 @@
 # Backlog
 
-What is left, what is partial, and the ideas we do not want to lose. `[ ]` open, `[~]` partial,
+Ideas we do not want to lose. Work to do is in `docs/TASKS.md`. `[ ]` open, `[~]` partial,
 `[?]` uncertain. FM27 porting has its own file: `docs/PORTING.md`.
 
 ## Product decisions
