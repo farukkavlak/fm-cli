@@ -29,7 +29,7 @@ internal static partial class Program
 		// The page opened is the Training tab's Overview itself (its GUID): nothing is chosen by its words.
 		var state = await Fm.GetJson("state");
 		var today = DateTime.TryParseExact(Field(state, "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var d) ? d : DateTime.Today;
-		var days = await SessionDays(today) ?? TrainingDays(await CalendarTexts(), today);
+		var days = await SessionDays(today) ?? TrainingDays(await CalendarTexts(), today, await FixtureVenues());
 		if (days.Count == 0)
 		{
 			Console.Error.WriteLine(L("The training schedule could not be read."));
@@ -159,13 +159,14 @@ internal static partial class Program
 
 	/// <summary>
 	/// FM26: splits the calendar's texts into days by their data paths: a day (day.DayOfTheMonth) and its
-	/// sessions (Event.SessionName), or where a match is played on a match day (Event.MatchVenueShort,
-	/// "H"/"A"/"N" whatever the language). FM26 draws this week and the next, from Monday. The grid's first date is where today's number falls in its run of day numbers
+	/// sessions (Event.SessionName), or a match (Event.MatchVenueShort, whose letter is the game's shown
+	/// one; the venue is taken from the fixture list's team ids by the day instead). A rest or travel
+	/// session is not told apart here: only its shown name would say so. FM26 draws this week and the next, from Monday. The grid's first date is where today's number falls in its run of day numbers
 	/// (a month's name on the first is not read); this week and the next are kept.
 	/// </summary>
-	private static List<TrainingDay> TrainingDays(List<(string Text, string Path)> texts, DateTime today)
+	private static List<TrainingDay> TrainingDays(List<(string Text, string Path)> texts, DateTime today, Dictionary<string, string> venues)
 	{
-		List<(int Number, List<string> Sessions)> cells = [];
+		List<(int Number, List<(string Text, bool Match)> Sessions)> cells = [];
 		foreach (var (text, path) in texts)
 		{
 			if (path == "day.DayOfTheMonth")
@@ -173,7 +174,7 @@ internal static partial class Program
 				if (!int.TryParse(System.Text.RegularExpressions.Regex.Match(text, @"^\d+").Value, out var number)) break;
 				cells.Add((number, []));
 			}
-			else if (cells.Count > 0 && path is "Event.SessionName" or "Event.MatchVenueShort") cells[^1].Sessions.Add(text);
+			else if (cells.Count > 0 && path is "Event.SessionName" or "Event.MatchVenueShort") cells[^1].Sessions.Add((text, path == "Event.MatchVenueShort"));
 		}
 
 		var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
@@ -181,8 +182,9 @@ internal static partial class Program
 		{
 			var start = today.AddDays(-at);
 			if (start.DayOfWeek != DayOfWeek.Monday || cells.Select((c, i) => c.Number == start.AddDays(i).Day).Any(ok => !ok)) continue;
-			return cells.Select((c, i) => new TrainingDay(start.AddDays(i), c.Sessions.Select(s => new DaySession(GameWords.Of(s),
-					s switch { "H" or "A" or "N" => s, "Rest" => "rest", "Travel" => "travel", _ => "" })).ToList()))
+			return cells.Select((c, i) => new TrainingDay(start.AddDays(i), c.Sessions.Select(s => s.Match
+					? new DaySession("", venues.GetValueOrDefault(start.AddDays(i).ToString("yyyy-MM-dd"), "match"))
+					: new DaySession(GameWords.Of(s.Text), "")).ToList()))
 				.Where(x => x.Day >= monday && x.Day < monday.AddDays(14)).ToList();
 		}
 		return [];

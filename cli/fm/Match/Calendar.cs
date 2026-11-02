@@ -27,9 +27,22 @@ internal static partial class Program
 	private static readonly string[] MonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 	/// <summary>Opens the calendar on a month and reads its grid; null when it cannot.</summary>
-	private static async Task<List<CalendarDay>> CalendarMonth(CalendarMonthChoice month) =>
+	private static async Task<List<CalendarDay>> CalendarMonth(CalendarMonthChoice month)
+	{
 		// Straight after the page opens the month can be chosen before the grid listens.
-		await CalendarMonthOnce(month) ?? await CalendarMonthOnce(month);
+		var days = await CalendarMonthOnce(month) ?? await CalendarMonthOnce(month);
+		if (days == null) return null;
+		// Where a match is played comes from the fixture list by the teams' ids: the grid's own
+		// MatchVenueShort is a shown letter ("E"/"D" in Turkish).
+		seasonVenues ??= await FixtureVenues();
+		return days.Select(d => d with
+		{
+			Matches = d.Matches.Select(m => m with { Venue = seasonVenues.GetValueOrDefault(m.Day.ToString("yyyy-MM-dd"), "") }).ToList(),
+		}).ToList();
+	}
+
+	/// <summary>Our matches' venues this season by day, read once per run.</summary>
+	private static Dictionary<string, string>? seasonVenues;
 
 	private static async Task<List<CalendarDay>> CalendarMonthOnce(CalendarMonthChoice month)
 	{
@@ -106,6 +119,7 @@ internal static partial class Program
 			if (opponent.Length == 0) return;
 			var team = Get("Team.");
 			var timeOrScore = Get("Result") is { Length: > 0 } result ? result : Get("KickoffTime");
+			// Shown as the game writes it for a youth side's match; our own match's venue is set by ids above.
 			var venue = Get("MatchVenueShort");
 
 			// Another side's match (a national team's, a youth international) names both teams.
@@ -192,7 +206,7 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(busy.Select(d => d with
 			{
-				Matches = d.Matches.Select(m => m with { Competition = GameWords.Of(m.Competition), Opponent = GameWords.Of(m.Opponent), Venue = GameWords.Of(m.Venue) }).ToList(),
+				Matches = d.Matches.Select(m => m with { Competition = GameWords.Of(m.Competition), Opponent = GameWords.Of(m.Opponent) }).ToList(),
 				Notes = d.Notes.Select(GameWords.Of).ToList(), Youth = d.Youth.Select(GameWords.Of).ToList(),
 			})));
 			return 0;
@@ -218,7 +232,7 @@ internal static partial class Program
 
 		string MatchLine(CalendarMatch m)
 		{
-			var venue = m.Venue switch { "H" => L("home"), "A" => L("away"), "N" => L("neutral"), _ => "" };
+			var venue = VenueWord(m.Venue);
 			var score = Regex.Match(m.TimeOrScore, @"^(\d+)-(\d+)(p|e)?$");
 			var text = $"{m.Opponent}{(m.Place.Length > 0 ? $" ({m.Place})" : "")} · {venue} · {m.Competition} · {(score.Success ? Ours(m) : m.TimeOrScore)}";
 			if (!Ui.Rich) return text;

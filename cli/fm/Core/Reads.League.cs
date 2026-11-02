@@ -241,18 +241,9 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<TeamFixture>?> TeamFixtures()
 	{
-		const string at = "fmcli.fixtures";
-		(string Variable, string Value, bool Number)[] context =
-			[("team", "Human.Team", false), ("previousamount", "3", true), ("futureamount", "7", true), ("fixturepadding", "0", true), ("yearindex", "0", true)];
-		foreach (var (variable, value, number) in context)
-			if ((await Fm.Get("pathset", ("to", $"{at}.{variable}"), (number ? "int" : "from", value))).StartsWith("error", StringComparison.Ordinal))
-				return null;
-
-		JsonElement list;
-		try { list = await Fm.Pull($"{at}.team.FixtureList", "FixtureDate,HasResult", list: true); }
-		catch (Exception e) when (e is FmError or FmUnavailable or FmBusy) { return null; }
-		if (list.ValueKind != JsonValueKind.Array) return null;
-		var rows = list.EnumerateArray().Select(f => (Date: Field(f, "FixtureDate"), Played: Field(f, "HasResult") == "True", Row: Field(f, "Row")))
+		var list = await FixtureList(3, 7, "FixtureDate,HasResult");
+		if (list is not { ValueKind: JsonValueKind.Array } fixtures) return null;
+		var rows = fixtures.EnumerateArray().Select(f => (Date: Field(f, "FixtureDate"), Played: Field(f, "HasResult") == "True", Row: Field(f, "Row")))
 			.Where(r => r.Row.Contains('.') && r.Date.Length > 0).ToList();
 		if (rows.Count == 0) return [];
 
@@ -268,6 +259,40 @@ internal static partial class Program
 		return rows.Zip(read).Select(x => new TeamFixture(x.First.Date, Field(x.Second, "KickoffTime"), Field(x.Second, "MatchVenue"),
 			Field(x.Second, "TeamOpponent.Name"), Field(x.Second, "Competition.Name"), x.First.Played,
 			x.First.Played ? Field(x.Second, "ResultLinkableNoSpaces") : "", Field(x.Second, "ResultType"), Venue(ours, Field(x.Second, "HomeTeam.UniqueId"), Field(x.Second, "AwayTeam.UniqueId")))).ToList();
+	}
+
+	/// <summary>
+	/// The team's own fixture list (`Team.FixtureList`), asked with the variables the Fixture Schedule
+	/// page lays beside its team: how many before and after today, padding, and the season (0 this one).
+	/// Null when it cannot be read.
+	/// </summary>
+	private static async Task<JsonElement?> FixtureList(int previous, int future, string props)
+	{
+		const string at = "fmcli.fixtures";
+		(string Variable, string Value, bool Number)[] context =
+			[("team", "Human.Team", false), ("previousamount", previous.ToString(), true), ("futureamount", future.ToString(), true), ("fixturepadding", "0", true), ("yearindex", "0", true)];
+		foreach (var (variable, value, number) in context)
+			if ((await Fm.Get("pathset", ("to", $"{at}.{variable}"), (number ? "int" : "from", value))).StartsWith("error", StringComparison.Ordinal))
+				return null;
+		try { return await Fm.Pull($"{at}.team.FixtureList", props, list: true); }
+		catch (Exception e) when (e is FmError or FmUnavailable or FmBusy) { return null; }
+	}
+
+	/// <summary>
+	/// Where each of our matches this season is played, by its day ("yyyy-MM-dd" → "H"/"A"), told by
+	/// the teams' ids rather than the shown letter. Empty when the list cannot be read.
+	/// </summary>
+	private static async Task<Dictionary<string, string>> FixtureVenues()
+	{
+		// A season has well under a hundred matches either side of today.
+		var list = await FixtureList(100, 100, "FixtureDate,HomeTeam.UniqueId,AwayTeam.UniqueId");
+		if (list is not { ValueKind: JsonValueKind.Array } rows) return [];
+		var ours = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
+		Dictionary<string, string> venues = [];
+		foreach (var f in rows.EnumerateArray())
+			if (Field(f, "FixtureDate") is { Length: > 0 } date && Venue(ours, Field(f, "HomeTeam.UniqueId"), Field(f, "AwayTeam.UniqueId")) is { Length: > 0 } venue)
+				venues[date] = venue;
+		return venues;
 	}
 
 	private static readonly (string Variable, string From)[] FixtureContext = [("team", "Human.Team"), ("human", "Human")];
