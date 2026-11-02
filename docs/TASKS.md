@@ -1,6 +1,8 @@
 # Tasks
 
 Everything left to do, in one list. Pick by id ("T12"). Tick a box in the commit that does it.
+**The project is done (100%) when every box here is ticked**, the acceptance tests (section 11) last.
+A task found along the way is added here before it is worked on.
 Details live where the link says: `PORTING.md` (FM27 port notes), `reference/fm27/` (crawl data),
 `BACKLOG.md` (ideas, not yet tasks).
 
@@ -95,3 +97,52 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T52 Publishing: `tools/install.sh` builds `osx-arm64` only.
 - [ ] T53 Plugin on Windows x64: untried (Harmony would work there; arm64 has no MonoMod).
 - [ ] T54 Save and user folders on Windows (`Core/GameFolders.cs` has the path; untried).
+
+## 8. Moments the crawl has not seen (crawl them when they come: `fm crawl out.json --here`)
+
+Each: crawl the screen, map it to a command, open a task for what is missing.
+
+- [ ] T55 Season's end: club vision meeting, end-of-season awards, players whose contracts end, retirements.
+- [ ] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
+- [ ] T57 Cup draws and the cup's own screens.
+- [ ] T58 International break: call-ups, the national side's screens.
+- [ ] T59 Youth intake (March): candidates, intake preview.
+- [ ] T60 Board meeting and board requests answered; job offers while employed; being sacked.
+- [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.
+- [ ] T62 Pre-season: friendlies, pre-season training, new-season expectations.
+- [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,
+  penalty shootout, extra time, injury during a match.
+- [ ] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
+
+## 9. Depth the crawl has not reached
+
+- [ ] T65 Player interaction: praise, criticise, promise, warn, talk about form or a transfer (no command today).
+- [ ] T66 Team meeting started by the manager (the game's own; `talk` only answers one the game opened).
+- [ ] T67 Every list's submenus (tactic presets, Manage Tactics, Primary Trained Tactic, Copy Tactic …):
+  crawl with the lists opened one level down.
+- [ ] T68 Every row's right-click / actions menu, for each kind of row (player, staff, club, competition, nation).
+- [ ] T69 Game settings and preferences pages; the main menu (new career, load, online).
+- [ ] T70 Club pages of a club that is not ours (what a rival's pages offer), a nation's and a competition's pages
+  from the world view.
+
+## 10. Quality, for everything above
+
+- [ ] T71 Every new command has its MCP tool (`Core/Mcp.Tools.cs`) and help line (`HelpEnglish.cs`, labels).
+- [ ] T72 Every new command is reachable from the natural-language layer (`cli/fm/Nl`), `tools/nl-check.py` passes.
+- [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`).
+- [ ] T74 Full sweep passes after the last task: `tools/sweep.sh` (every read command) and `tools/mcp-check.py`,
+  TR and EN.
+- [ ] T75 `docs/AI-CHECKLIST.md` open items done or moved here.
+- [ ] T76 `docs/BACKLOG.md` ideas decided: each made a task here or dropped.
+- [ ] T77 `fm crawl` TR + EN again at the end; the report shows no event or page without a command (or a reason).
+
+## 11. Acceptance tests (last; each is passed in one go, through the tool only, no bridge)
+
+- [ ] T78 Two full seasons played only through the CLI (`fm …`), Turkish game: every match, message, talk,
+  transfer window, season end and vision meeting. Every stop where the tool fails is a task, then the test restarts.
+- [ ] T79 Two full seasons played only through MCP (`fm_*`), English game, same rule.
+- [ ] T80 A third language (German or Spanish): one month through the CLI, the sweep passes.
+- [ ] T81 Windows (Steam): install from the README, start, play one month, sweep, stop.
+- [ ] T82 Epic Games Store copy (macOS and Windows): install, start, play one month, stop.
+- [ ] T83 A fresh install on a clean machine from the README alone (`tools/install.sh`, plugin, first start).
+- [ ] T84 A new career started through the tool (or the documented manual step), then one month played.
