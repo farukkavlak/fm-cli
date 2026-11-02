@@ -66,7 +66,7 @@ internal static partial class Program
 			if (await TourButton("Continue") is not { } next)
 			{
 				Console.Error.WriteLine(L("\nAt this step the tour expects you to do something on screen; it has no continue button of its own."));
-				if (await Labelled("No Tactic Set") != null)
+				if (Field(await TacticInfo(), "TacticCount") == "0")
 					Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 				return 1;
 			}

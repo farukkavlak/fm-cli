@@ -281,9 +281,9 @@ The players heard a shout a moment ago; the game does not allow a new shout for 
 {0}: {1} sent, but the game did not close the shouts list; it may not have been heard.	{0}: {1} gönderildi ama oyun bağırış listesini kapatmadı; duyulmamış olabilir.
  (the game closed new shouts for a while)	 (oyun yeni bağırışı bir süre kapattı)
 Shouts are only during a match.	Bağırışlar yalnızca maç sırasında.
-A new tactic cannot be made: all three tactic slots are taken (the game does not give 'Create New Tactic'). Switch to a slot and empty it in the game; for the slots: tactic slot	Yeni taktik kurulamıyor: üç taktik yuvası dolu (oyun 'Create New Tactic' vermiyor). Bir yuvaya geçip oyunda boşaltmak gerek; yuvalar için: tactic slot
+A new tactic cannot be made: all three tactic slots are taken. To empty one: tactic clear <n> --yes; for the slots: tactic slot	Yeni taktik kurulamıyor: üç taktik yuvası dolu. Birini boşaltmak için: tactic clear <n> --yes; yuvalar için: tactic slot
 Continue	Devam
-(dry run) The team has a tactic; 'Create New Tactic' will open the wizard and build a new one in place of the active tactic.	(kuru) Takımın taktiği var; 'Create New Tactic' sihirbazı açacak ve etkin taktiğin yerine yenisini kuracak.
+(dry run) The team has a tactic; 'Create New Tactic' will open the wizard and build a new one in a free slot.	(kuru) Takımın taktiği var; 'Create New Tactic' sihirbazı açacak ve yenisini boş bir yuvada kuracak.
 The tactic wizard did not open.	Taktik sihirbazı açılmadı.
 The {0} options did not come.	{0} seçenekleri gelmedi.
 Choose {0}	{0} seç
@@ -1942,7 +1942,7 @@ whether matches are moved for broadcasting	maçlar yayın için kaydırılsın m
 whether Continue waits until every message is read	Devam, bütün mesajlar okunana kadar bekler mi
 None	Hiçbiri
 Do not send, leave the screen open	Gönderme, ekranı açık bırak
-A new tactic will be built in place of the active one ({0}); the old one stays among the saved tactics.	Etkin taktik ({0}) yerine yenisi kurulacak; eskisi kayıtlı taktiklerde kalır.
+A new tactic will be built in a free slot and made active; the active one ({0}) stays in its slot.	Yeni taktik boş bir yuvada kurulup etkin olacak; şimdiki ({0}) kendi yuvasında kalır.
 The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next	Oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next
 Ready: {0} ({1}).	Hazır: {0} ({1}).
 The game is on a screen without a menu ({0}); the FM menu cannot be opened. To go past it: next	Oyun menüsüz bir ekranda ({0}); FM menüsü açılamıyor. Geçmek için: next

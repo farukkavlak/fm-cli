@@ -34,9 +34,11 @@ An event the code never names is not always a gap; each line was checked against
 
 ## 1. Held by text or order (the rule above all)
 
-- [ ] T1 `tactic new` entry: "No Tactic Set" tile and "Create New Tactic" by label (`Match/Guided.TacticNew.cs`,
-  `Match/Guided.cs:69`). The tactics page's `add-data` list gives "Create New Tactic" the value 1: choose by value.
-  Once said "three slots taken" with the wizard already up; not reproduced.
+- [x] T1 `tactic new` entry: the add list (`add-data`) by its row's value 1, the slots-full case by
+  `TacticCount`, the tour hint by `TacticCount` 0. TR + EN, 3 runs each: wizard opens, a full build lands
+  in a free slot, slots full says so (the game lists the row and does nothing).
+  - [ ] The no-tactic tile (`layout-tile-interaction-button` opening the tactics page, only when the team
+    has no tactic) is not measured: it shows only in a new job. Measure it at the next new job.
 - [ ] T2 `vision` (`Club/Vision.cs`): heading, weights, objective kinds, buttons by English words. Its record is
   known (`Club.ClubVisionMeetingEditSession`, PORTING). Needs the season-end meeting (Pendikspor, May 2028).
 - [ ] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal").
@@ -48,6 +50,8 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T8 `tactic`: the "Combined" view tab by label (`Match/Guided.Tactic.cs:308`).
 - [ ] T86 Calendar / `fixtures --all` read a cup result's marks from the shown score ("u3-2" in Turkish,
   `^\d+-\d+(p|e)?$` in `Match/Calendar.cs`): extra time and penalties by the fixture's data, not its letters.
+- [ ] T89 `tactic copy` finds "Copy Tactic ›" and the "Copy Tactic>…" path by name (`Squad/TacticSlots.cs:32,68`):
+  the `add-data` list's submenu row by its place in Submenus, not its text.
 - [ ] T9 `--term` by a term's English name fails in a German game (PORTING).
 
 ## 2. New in FM27, no command
@@ -107,6 +111,9 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
 - [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING).
 
+- [ ] T88 `tactic clear`: the first try after another tactic command often says "not emptied" (seen 4 times,
+  2 Nov, TR and EN, active slot or not); the next try works. `tactic slot` lists the inactive slots without
+  their names.
 - [ ] T87 Playing FM by hand and through the tool on one install (the real install goes into Steam's own
   game folder; `~/fm27_bep` is only our test copy):
   - a game opened from Steam by hand loads BepInEx and the plugin too: it must stay visible and normal

@@ -86,6 +86,44 @@ internal static partial class Program
 	/// <summary>Whether the team had a tactic when the wizard was opened; with it open the tactic cannot be read.</summary>
 	private static bool hadTactic;
 
+	/// <summary>The number the tactics page's add list gives "Create New Tactic", whatever it reads.</summary>
+	private const int CreateNewTacticRow = 1;
+
+	/// <summary>
+	/// The numbers a list's own rows stand for. The plugin's Values runs a submenu's entries in
+	/// after the row that opens it; those are left out here, so a number deeper down is not taken
+	/// for a row of the list itself. The list must be read with deep=1, which gives its Submenus.
+	/// </summary>
+	private static List<int> TopValues(JsonElement list)
+	{
+		var values = list.TryGetProperty("Values", out var v) && v.ValueKind == JsonValueKind.Array ? v.EnumerateArray().ToList() : [];
+		var rows = list.TryGetProperty("Choices", out var c) && c.ValueKind == JsonValueKind.Array ? c.GetArrayLength() : 0;
+		var subs = list.TryGetProperty("Submenus", out var s) && s.ValueKind == JsonValueKind.Object ? s : default;
+		var top = new List<int>();
+		for (int row = 0, at = 0; row < rows && at < values.Count; row++)
+		{
+			if (values[at].ValueKind == JsonValueKind.Number) top.Add(values[at].GetInt32());
+			at++;
+			if (subs.ValueKind == JsonValueKind.Object && subs.TryGetProperty(row.ToString(), out var inner))
+				at += inner.EnumerateArray().Count();
+		}
+		return top;
+	}
+
+	/// <summary>
+	/// The tile a team without a tactic shows on the match day overview (and a tour waiting for a
+	/// tactic shows at once): a tile button that opens the tactics page. Only looked for when the
+	/// team has no tactic; with one, the same tile names the tactic instead.
+	/// </summary>
+	private static async Task<JsonElement?> NoTacticTile()
+	{
+		foreach (var control in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
+			if (Field(control, "Name") == "layout-tile-interaction-button" && Field(control, "Opens") == Screen.Tactics
+			    && Field(control, "Enabled") == "True" && Field(control, "Visible") == "True")
+				return control;
+		return null;
+	}
+
 	/// <summary>Cancels the tactic wizard, unless the team has no tactic yet and the wizard is what it is waiting on.</summary>
 	private static async Task LeaveCreator()
 	{
@@ -121,11 +159,11 @@ internal static partial class Program
 			// A team without a tactic shows a tile saying so, and that tile opens the wizard. A
 			// tour waiting for a tactic has it on screen already; otherwise it is on the match
 			// day overview. Opening the tactics page directly shows nothing at all.
-			JsonElement? tile = await Labelled("No Tactic Set");
-			if (tile == null)
+			JsonElement? tile = hadTactic ? null : await NoTacticTile();
+			if (tile == null && !hadTactic)
 			{
 				await OpenPage(Screen.MatchDayHome);
-				await Until(async () => (tile = await Labelled("No Tactic Set")) != null, seconds: 10);
+				await Until(async () => (tile = await NoTacticTile()) != null, seconds: 10);
 			}
 
 			if (tile != null)
@@ -136,26 +174,35 @@ internal static partial class Program
 			else
 			{
 				// With a tactic in place the tactics page's own "Create New Tactic" opens the same
-				// wizard; the new tactic takes the slot and the old one stays loadable by name
-				//. This is how a formation is changed.
+				// wizard; the new tactic goes to a free slot and becomes the active one, and the old
+				// one stays in its slot. This is how a formation is changed.
+				// It is the row that stands for CreateNewTactic in the list the page's add button
+				// opens (bound to add-data). With all three slots taken the game still lists it and
+				// does nothing when it is chosen, so the team's tactic count is asked first.
 				await OpenPage(Screen.Tactics);
-				JsonElement? create = null;
-				await Until(async () => (create = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-					.Cast<JsonElement?>()
-					.FirstOrDefault(d => d!.Value.TryGetProperty("Choices", out var cs) && cs.ValueKind == JsonValueKind.Array && cs.EnumerateArray().Any(c => c!.ValueKind == JsonValueKind.String && c.GetString() == "Create New Tactic"))) != null, seconds: 10);
-				if (create == null)
+				if (int.TryParse(Field(await TacticInfo(), "TacticCount"), out var slots) && slots >= 3)
 				{
-					Console.Error.WriteLine(L("A new tactic cannot be made: all three tactic slots are taken (the game does not give 'Create New Tactic'). Switch to a slot and empty it in the game; for the slots: tactic slot"));
+					Console.Error.WriteLine(L("A new tactic cannot be made: all three tactic slots are taken. To empty one: tactic clear <n> --yes; for the slots: tactic slot"));
 					return 1;
 				}
-				if (!dry && Ui.Interactive && Ui.Ask(Lf("A new tactic will be built in place of the active one ({0}); the old one stays among the saved tactics.", Field(await TacticInfo(), "Name")), [L("Continue")], cancel: L("Cancel")) == null)
+				JsonElement? create = null;
+				await Until(async () => (create = (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray()
+					.Cast<JsonElement?>()
+					.FirstOrDefault(d => Field(d!.Value, "Binds") == "add-data" && TopValues(d!.Value).Contains(CreateNewTacticRow))) != null, seconds: 10);
+				if (create == null)
+				{
+					Console.Error.WriteLine(L("A new tactic cannot be made: all three tactic slots are taken. To empty one: tactic clear <n> --yes; for the slots: tactic slot"));
+					return 1;
+				}
+				if (!dry && Ui.Interactive && Ui.Ask(Lf("A new tactic will be built in a free slot and made active; the active one ({0}) stays in its slot.", Field(await TacticInfo(), "Name")), [L("Continue")], cancel: L("Cancel")) == null)
 					return 0;
 				if (dry)
 				{
-					Console.WriteLine(L("(dry run) The team has a tactic; 'Create New Tactic' will open the wizard and build a new one in place of the active tactic."));
+					Console.WriteLine(L("(dry run) The team has a tactic; 'Create New Tactic' will open the wizard and build a new one in a free slot."));
 					return 0;
 				}
-				await Fm.Get("select", ("ptr", Field(create.Value, "Pointer")), ("choice", "Create New Tactic"), ("fire", "1"));
+				var sent = await Fm.Get("select", ("ptr", Field(create.Value, "Pointer")), ("value", CreateNewTacticRow.ToString()), ("fire", "1"));
+				if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 				await Until(async () => (stage = await CreatorStage()) != null, seconds: 12);
 			}
 		}
