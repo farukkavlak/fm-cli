@@ -47,6 +47,16 @@ internal static partial class Program
 				.FirstOrDefault(d => Field(d, "Binds") == "conditiontoadd")).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.4);
 			return found;
 		}
+		// A top row of that list by the property it adds ("ppos" for the position, "pval" for the
+		// transfer value): the game's own code, where the row's words are the language's. The row's
+		// text is only carried back to the game to pick it.
+		async Task<string?> AddRow(JsonElement adder, string code)
+		{
+			var rows = await Fm.GetJson("menu", ("ptr", Field(adder, "Pointer")), ("ids", "1"));
+			if (rows.ValueKind != JsonValueKind.Array) return null;
+			var row = rows.EnumerateArray().FirstOrDefault(r => r.ValueKind == JsonValueKind.Object && Field(r, "Id") == code);
+			return row.ValueKind == JsonValueKind.Object ? Field(row, "Text") : null;
+		}
 
 		foreach (var (rule, typed, what) in wanted)
 		{
@@ -154,7 +164,8 @@ internal static partial class Program
 		{
 			var adder = await Adder();
 			if (adder.ValueKind != JsonValueKind.Object) return await Close(L("error: no 'Add Attribute' in the search panel"));
-			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Position"), ("fire", "1"));
+			if (await AddRow(adder, "ppos") is not { } positionRow) return await Close(L("error: no position condition in the search panel's list"));
+			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", positionRow), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
 			// The list of positions is the one whose rows are the game's position bits (a striker is 16384);
 			// its words differ by language ("Defence (Right)" in a Turkish game's English).
@@ -179,26 +190,35 @@ internal static partial class Program
 		}
 
 		// What he may cost at most: "Add Attribute" › Transfer Value, a row that opens on "Is At
-		// Most" with the amount chosen from a list of round figures.
+		// Most" with the amount chosen from a list of round figures. The list is told by the element
+		// it sits in (cash-list-frame), and its figures are the game's: they differ by currency
+		// (£100M is the last in pounds, 116M € in euros). The largest not above what was typed is
+		// taken; each row also holds the amount the game keeps (in its own base currency), and the
+		// list is read back by that number, not by the words.
 		if (maxValue != null)
 		{
 			var adder = await Adder();
 			if (adder.ValueKind != JsonValueKind.Object) return await Close(L("error: no 'Add Attribute' in the search panel"));
-			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", "Transfer Value"), ("fire", "1"));
+			if (await AddRow(adder, "pval") is not { } valueRow) return await Close(L("error: no transfer value condition in the search panel's list"));
+			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", valueRow), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
 			async Task<JsonElement> Amounts() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-				.LastOrDefault(d => d.GetProperty("Choices").EnumerateArray().Any(c => Money(c.GetString() ?? "") == 7_500_000));
+				.LastOrDefault(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var within)
+				                    && within.EnumerateArray().Any(w => w.GetString() == "cash-list-frame"));
 			JsonElement amounts = default;
 			if (!await Until(async () => (amounts = await Amounts()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
 				return await Close(L("error: the value condition was not added to the panel"));
-			// The figure as the list writes it ("£7.5M", "7,5M £").
-			if (amounts.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").FirstOrDefault(c => Money(c) == maxValue) is not { } figure)
-				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} is not in the value list"));
-			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", figure), ("fire", "1"));
-			// Not a fixed pause: the list says what it now holds. Its bound figure is the raw
-			// number, whatever the money is written like, so it is read there.
-			if (!await Until(async () => (await Amounts()) is { ValueKind: JsonValueKind.Object } now && Field(now, "Value") == maxValue.Value.ToString(), seconds: 4, every: 0.25))
-				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} did not fit the panel"));
+			var figures = amounts.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+			var kept = amounts.GetProperty("Values").EnumerateArray().Select(v => v.ValueKind == JsonValueKind.Number ? v.GetRawText() : "").ToList();
+			var at = -1;
+			for (var i = 0; i < figures.Count; i++)
+				if (Money(figures[i]) is { } amount && amount <= maxValue && (at < 0 || amount > Money(figures[at]))) at = i;
+			if (at < 0 || at >= kept.Count || kept[at] == "")
+				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} is below every figure in the value list"));
+			if (Money(figures[at]) != maxValue) Console.WriteLine(L($"(the value limit was taken as {figures[at]} from the game's list)"));
+			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", figures[at]), ("fire", "1"));
+			if (!await Until(async () => (await Amounts()) is { ValueKind: JsonValueKind.Object } now && Field(now, "Value") == kept[at], seconds: 4, every: 0.25))
+				return await Close(L($"error: {figures[at]} did not fit the panel"));
 		}
 
 		if (await PanelSent(true) is not { } apply) return await Close(L("error: Apply button not found in the search panel"));

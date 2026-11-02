@@ -302,22 +302,28 @@ internal static partial class Program
 
 			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 10);
 		}
-		// The pitch shows the eleven slots only in its combined view; after "In / Out of
-		// Possession" or "Both" it lays out no slots, so it is put back.
+		// The pitch shows the eleven slots only in its overall view ("All"); after "In / Out of
+		// Possession" or "Both" it lays out no slots, so it is put back. The view tabs are told by
+		// their element names in the tab group (#overview, #IP, #OOP, #both), not by their words.
 		if (tactic.TryGetProperty("Tactic", out _) && (!tactic.TryGetProperty("Slots", out var slots) || slots.GetArrayLength() == 0)
-			&& await Labelled("Combined") is { } combined)
-		{
-			await Fm.Get("press", ("ptr", Field(combined, "Pointer")));
-			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);
-		}
+			&& !(await Fm.Get("click", ("within", "sivisible-tabs"), ("name", "overview"))).StartsWith("error", StringComparison.Ordinal))
+			await Until(async () => Laid(tactic = await Fm.GetJson("tactic")), seconds: 6, every: 0.25);
 		// The team instructions take the pitch's place; the "Team Shape" button in their group puts
 		// it back, and it answers only a real click. It is found by the group the game lays it out
 		// in rather than by its translated label.
 		if (tactic.TryGetProperty("Tactic", out _) && (!tactic.TryGetProperty("Slots", out var shown) || shown.GetArrayLength() == 0)
 			&& !(await Fm.Get("click", ("within", "FMShapeAndInstructionsButtons"), ("name", "team-shape"))).StartsWith("error", StringComparison.Ordinal))
-			await Until(async () => (tactic = await Fm.GetJson("tactic")).TryGetProperty("Slots", out var s) && s.GetArrayLength() >= 11, seconds: 6, every: 0.25);
+			await Until(async () => Laid(tactic = await Fm.GetJson("tactic")), seconds: 6, every: 0.25);
 		if (!tactic.TryGetProperty("Tactic", out _)) return null;
 		await KnowRoles(tactic);
 		return tactic;
 	}
+
+	/// <summary>
+	/// The pitch is laid out again: eleven slots, and each slot that holds a player (his index comes
+	/// first) also has his name, which the game binds a moment later.
+	/// </summary>
+	private static bool Laid(JsonElement tactic) =>
+		tactic.TryGetProperty("Slots", out var slots) && slots.GetArrayLength() >= 11
+		&& slots.EnumerateArray().All(slot => !(long.TryParse(Field(slot, "PlayerIndex"), out var index) && index > 0) || Field(slot, "Player").Length > 0);
 }

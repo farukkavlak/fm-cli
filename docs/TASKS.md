@@ -46,8 +46,9 @@ An event the code never names is not always a gap; each line was checked against
 - [x] T5 Calendar (`Match/Calendar.cs`) and training week (`Squad/Schedule.cs`) read the venue from
   `MatchVenueShort` (shown letter). Use the teams' ids as `status` does. Done (db727ca): home and away right in TR and EN, calendar and week, 3 runs each.
 - [ ] T6 `coaches`: the nine workload cells are read by order (`Club/Coaches.cs`).
-- [ ] T7 `staff find` rules add "Position" / "Transfer Value" by choice name (`Club/StaffSearch.Rules.cs:157,187`).
-- [ ] T8 `tactic`: the "Combined" view tab by label (`Match/Guided.Tactic.cs:308`).
+- [x] T7 `players` search adds Position / Transfer Value by the row's code (`ppos`, `pval`); the value list by
+  `cash-list-frame`, its figures from the game (any currency), read back by the kept amount.
+- [x] T8 `tactic`: the pitch view is put back by the tab's element name (`#overview` in `#sivisible-tabs`).
 - [ ] T86 Calendar / `fixtures --all` read a cup result's marks from the shown score ("u3-2" in Turkish,
   `^\d+-\d+(p|e)?$` in `Match/Calendar.cs`): extra time and penalties by the fixture's data, not its letters.
 - [ ] T89 `tactic copy` finds "Copy Tactic ›" and the "Copy Tactic>…" path by name (`Squad/TacticSlots.cs:32,68`):

@@ -271,21 +271,17 @@ internal static partial class Program
 		var searched = false;
 		var position = Option(args, "--position");
 
-		// The most he may be worth: the page takes round figures, so the largest of them that
-		// is not above what was typed is used, and said when it differs.
+		// The most he may be worth: the panel takes the round figures of its own list, chosen there.
 		long? maxValue = null;
 		if (Option(args, "--max-value") is { } typedValue)
 		{
-			// The list's figures, in any currency's symbol and any language's letters.
-			long[] figures = [0, 1_000, 10_000, 20_000, 40_000, 60_000, 100_000, 250_000, 500_000, 1_000_000, 2_500_000, 5_000_000, 7_500_000,
-				10_000_000, 15_000_000, 20_000_000, 30_000_000, 40_000_000, 60_000_000, 80_000_000, 100_000_000];
+			// Any currency's symbol and any language's letters.
 			if (Money(typedValue) is not { } limit || limit < 0)
 			{
 				Console.Error.WriteLine(L($"'{typedValue}': must be money (500K, 10M)."));
 				return 64;
 			}
-			maxValue = figures.LastOrDefault(f => f <= limit);
-			if (maxValue != limit) Console.WriteLine(L($"(the value limit was taken as {MoneyFormat.Short(maxValue.Value)} from the game's list)"));
+			maxValue = limit;
 		}
 		if (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null)
 		{
