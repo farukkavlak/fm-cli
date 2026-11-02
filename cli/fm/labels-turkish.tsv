@@ -2373,3 +2373,5 @@ The return date could not be chosen on the holiday page.	Tatil sayfasında dön�
 On holiday until: {0}	Tatil, dönüş: {0}
 Still on holiday after half an hour; for the state: status	Yarım saattir hâlâ tatilde; durum için: status
 The game did not start the holiday.	Oyun tatili başlatmadı.
+FM is already open (not by fm). Close it first, then: fm start	FM zaten açık (fm açmadı). Önce onu kapat, sonra: fm start
+fm is playing FM in the background, so this copy was closed. To play by hand: fm stop	fm arkada FM oynatıyor, bu yüzden bu kopya kapatıldı. Elle oynamak için: fm stop

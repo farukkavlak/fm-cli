@@ -47,6 +47,7 @@ public class Plugin : BasePlugin
 		// Out of sight before anything else, and kept so on every tick (see WindowHider).
 		WindowHider.Apply();
 		IL2CPPChainloader.MainThreadTick += WindowHider.Apply;
+		SecondCopyGuard.Start();
 
 		_bridge = new HttpBridge(Port, FmApi.Handle);
 		_bridge.Start();

@@ -60,6 +60,14 @@ internal static class Launcher
 			return false;
 		}
 
+		// A game already open without our bridge (opened by hand) is not started beside: two games
+		// on one save can each write it, and the game itself does not stop a second copy.
+		if (await OpenByHand())
+		{
+			Console.Error.WriteLine(L("FM is already open (not by fm). Close it first, then: fm start"));
+			return false;
+		}
+
 		if (!debug)
 		{
 			DropFromDock();
@@ -196,7 +204,9 @@ internal static class Launcher
 		var steamApp = Path.Combine(GameDirectory, "fm.app");
 		var shadowRoot = Path.GetDirectoryName(AppBundle)!;
 		// FMCLI_HIDDEN: the plugin makes the game's window transparent from inside (WindowHider).
-		var hidden = debug ? "" : "FMCLI_HIDDEN=1 ";
+		// The plugin closes a copy opened by hand while it runs and says why in this note (SecondCopyGuard).
+		var notice = L("fm is playing FM in the background, so this copy was closed. To play by hand: fm stop").Replace("'", "");
+		var hidden = debug ? "" : $"FMCLI_HIDDEN=1 FMCLI_SECOND_COPY_NOTICE='{notice}' ";
 		var shell = $"{hidden}FM26_BEP=\"{shadowRoot}\" exec \"{script}\" \"{steamApp}\"{windowed} >> \"{log}\" 2>&1";
 		Process.Start(new ProcessStartInfo("/bin/sh", ["-c", shell])
 		{
@@ -308,6 +318,22 @@ internal static class Launcher
 	{
 		using var kill = Process.Start(new ProcessStartInfo("/usr/bin/pkill", [.. flags, "-f", AppBundle]) { UseShellExecute = false });
 		if (kill != null) await kill.WaitForExitAsync();
+	}
+
+	/// <summary>
+	/// A running game not started by us: a process of the game's executable (named by the bundle's
+	/// own CFBundleExecutable) that is neither ours nor stuck on its way out.
+	/// </summary>
+	private static async Task<bool> OpenByHand()
+	{
+		var executable = Plist("Print :CFBundleExecutable", Path.Combine(AppBundle, "Contents/Info.plist"));
+		if (executable.Length == 0) return false;
+		using var ps = Process.Start(new ProcessStartInfo("/bin/ps", ["-axo", "stat=,comm="]) { UseShellExecute = false, RedirectStandardOutput = true });
+		if (ps == null) return false;
+		var lines = (await ps.StandardOutput.ReadToEndAsync()).Split('\n', StringSplitOptions.RemoveEmptyEntries);
+		await ps.WaitForExitAsync();
+		return lines.Select(l => l.Trim()).Any(l => l.Split(' ', 2) is [var state, var path]
+			&& !state.Contains('E') && Path.GetFileName(path.Trim()) == executable && !path.Contains(AppBundle, StringComparison.Ordinal));
 	}
 
 	// A hung game can hold the process with no bridge: it still has to be stoppable.
