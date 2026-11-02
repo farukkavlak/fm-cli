@@ -20,9 +20,12 @@ An event the code never names is not always a gap; each line was checked against
   - [x] start sets the game's display settings to a 1920×1080 window, stop puts the player's back
   - [x] the plugin makes the window transparent and click-through (`WindowHider`, `FMCLI_HIDDEN=1`)
   - [x] `tools/window-watch` proves it: 3 × start/squad/calendar/stop and 2 × next, never on screen
-  - [ ] during a match (match screen, resolution changes), and the crawl kept off display settings
+  - [x] during a match: a whole match watched through the tool (talks, half-time, stoppage time), never on screen
+  - [ ] the crawl kept off the display settings
   - [ ] a hidden game is never forgotten: `fm start` / `fm status` say when a hidden FM is running, and a
-    second FM (opened from Steam) on the same save is warned about before two games write it
+    second FM (opened from Steam) on the same save is warned about before two games write it.
+    Measured: with the tool's game running, Steam's FM opened as a second game twice out of three
+    (once it quit by itself before drawing); the game does not stop a second copy.
 
 ## 1. Held by text or order (the rule above all)
 
@@ -90,7 +93,9 @@ An event the code never names is not always a gap; each line was checked against
 
 - [ ] T39 `fm crawl`: two panels leave a popup that holds the event queue (`--skip 7bab4b19…,cd095383…`); close
   such popups instead of skipping.
-- [ ] T40 `fm stop`: the game once hung on its way out (process stuck exiting, not killable); cause unknown.
+- [ ] T40 `fm stop`: the game hangs on its way out now and then (process stuck exiting, state UE, not killable,
+  its window kept until a restart); cause unknown. Seen again 2 Nov after `stop --save` straight after a
+  match with a press question open. `stop` no longer counts such a process as running.
 - [ ] T41 Changing the game's language with the game open leaves Portal pages unopenable until a restart:
   `settings language` should say so (or restart).
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
