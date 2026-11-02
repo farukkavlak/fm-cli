@@ -109,6 +109,8 @@ internal static partial class Buttons
 				["Target"] = target ?? "",
 				["Opens"] = opens ?? "",
 				["Source"] = source ?? "",
+				// On screen now, not a page left behind in the tree (`fm crawl` tells a page's own by it).
+				["Visible"] = Pages.Shown(control.Element) ? "True" : "False",
 			}));
 		}
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
@@ -359,6 +361,7 @@ internal static partial class Buttons
 			+ $"\"Name\": \"{Report.Escape(NameOf(dropdown))}\", "
 			+ $"\"Label\": \"{Report.Escape(LabelOf(dropdown))}\", "
 			+ $"\"Enabled\": \"{(dropdown.enabledInHierarchy ? "True" : "False")}\", "
+			+ $"\"Visible\": \"{(Pages.Shown(dropdown) ? "True" : "False")}\", "
 			+ $"\"Selected\": \"{dropdown.SelectedIndex}\", "
 			+ "\"Choices\": [" + string.Join(", ", names.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "
 			+ "\"Shown\": [" + string.Join(", ", shownNames.Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "], "

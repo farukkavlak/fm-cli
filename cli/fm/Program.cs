@@ -274,6 +274,7 @@ internal static partial class Program
 				"setpieces" => await SetPieces(args),
 				"tactic" => await Tactic(json, args),
 				"pages" => await PageList(json, args),
+				"crawl" => await Crawl(args),
 				"open" => await Open(args),
 				"buttons" => await Buttons(json, args),
 				"dropdowns" => await Dropdowns(json, args),
