@@ -126,7 +126,7 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T34 Club profile: affiliates, facts, stats, club news.
 - [ ] T35 Career: my profile, history, relationships, managerial stats.
   - [x] Managerial stats: `fm manager` reads the page's `Person.*` paths (TR, 3 × from another page; the figures are
-    the page's own, `Human` does not bind most of them). EN pending.
+    the page's own, `Human` does not bind most of them). EN checked.
 - [ ] T36 Competition: past winners, awards, records, rules, structure, qualification places, coefficients,
   nation agreements, rankings, season preview, suspensions, injury table, manager movements, rumours,
   transfer window report.
