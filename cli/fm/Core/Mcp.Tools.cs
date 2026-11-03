@@ -216,9 +216,11 @@ internal static partial class Mcp
 			a => Str(a, "remove") is { Length: > 0 } r ? ["vision", "remove", r]
 				: Str(a, "action") is { Length: > 0 } act ? act == "confirm" ? ["vision", "confirm", "--yes"] : ["vision", act]
 				: ["vision", "--json"]),
-		new("fm_captains", "The captain and vice-captain; `captain` or `vice` with a player's name changes one (the game's confirmation is answered).",
-			"""{"type":"object","properties":{"captain":{"type":"string"},"vice":{"type":"string"}}}""",
-			a => ["captains", .. Opt2(a, "captain", "--captain"), .. Opt2(a, "vice", "--vice")]),
+		new("fm_captains", "The captain and vice-captain; `captain` or `vice` with a player's name changes one (the game's confirmation is answered). standins=true lists the stand-ins, who lead the side in order when both are off; `standins_action` changes them: 'quick' (the assistant picks), 'add', 'remove' (with `player`) or 'clear'.",
+			"""{"type":"object","properties":{"captain":{"type":"string"},"vice":{"type":"string"},"standins":{"type":"boolean"},"standins_action":{"type":"string","enum":["quick","add","remove","clear"]},"player":{"type":"string"}}}""",
+			a => Flag(a, "standins", "--standins").Length > 0 || Str(a, "standins_action") is { Length: > 0 }
+				? ["captains", "--standins", .. (Str(a, "standins_action") is { Length: > 0 } act ? new[] { act } : []), .. (Str(a, "player") is { Length: > 0 } pl ? new[] { pl } : []), "--json"]
+				: ["captains", .. Opt2(a, "captain", "--captain"), .. Opt2(a, "vice", "--vice")]),
 		new("fm_opponent", "The next opponent's report summary: their form, most used formation, top scorer and assister, best-rated player and team news (injuries, unregistered players).",
 			"""{"type":"object","properties":{}}""",
 			_ => ["opponent"]),

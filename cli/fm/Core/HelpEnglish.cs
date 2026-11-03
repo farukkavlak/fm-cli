@@ -131,6 +131,7 @@ internal static partial class Program
 			  health          squad health: injured, tired, low sharpness, highest injury risk
 			  depth           squad depth: who can play each position, age profile
 			  captains        captain and vice-captain;  --captain <player> / --vice <player>
+			    captains --standins [quick | add <player> | remove <player> | clear]   the stand-ins, in order
 			  vision          the end-of-season club vision meeting: objectives;  confirm | remove <no> | suggest | undo | reset | end
 			  penalties       penalty order (composure, penalty taking) and the rules on who leaves the next one;  penalties <1|2|3> on|off
 			  penalties move <player|place> <new place> · add <player> [<place>] · remove <player|place>   change the order
