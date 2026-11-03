@@ -12,7 +12,7 @@ namespace FmCli;
 /// the objectives by their rows' data path (ClubVisionMeetingObjectiveIdentifier), their kind by the
 /// section their table sits in (#ActionableSection / #InformationalSection), whether one is required by
 /// its record (ClubVisionMeetingCanObjectiveBeRemoved), its weight as the game shows it (#ImportanceText),
-/// a row's remove button by the row it sits in. Headings and the board's words are the game's own texts.
+/// a row's remove button by the row it sits in. Headings and the board's words are its speech bubbles' rows (bubble.DisplayString).
 /// </summary>
 internal static partial class Program
 {
@@ -37,6 +37,17 @@ internal static partial class Program
 	{
 		var texts = await Fm.GetJson("texts", query);
 		return texts.ValueKind == JsonValueKind.Array ? string.Join(" ", texts.EnumerateArray().Select(t => t.GetString() ?? "")).Trim() : "";
+	}
+
+	/// <summary>What the board says, one line per speech bubble, in the conversation's own order.</summary>
+	private static async Task<List<string>> VisionSays()
+	{
+		var rows = await Fm.GetJson("rowtexts", ("has", "bubble.DisplayString"), ("gen", Environment.TickCount64.ToString()));
+		if (rows.ValueKind != JsonValueKind.Array) return [];
+		return rows.EnumerateArray()
+			.OrderBy(r => Field(r, "Table"), StringComparer.Ordinal).ThenBy(r => int.TryParse(JsonRead.RawText(r, "Index"), out var i) ? i : 0)
+			.Select(r => r.GetProperty("Texts").EnumerateArray().Where(t => Field(t, "Path") == "bubble.DisplayString").Select(t => Field(t, "Text")).FirstOrDefault() ?? "")
+			.Where(t => t.Length > 0).ToList();
 	}
 
 	private static async Task<List<VisionGoal>> VisionGoals()
@@ -69,7 +80,8 @@ internal static partial class Program
 
 		var words = Words(args).ToList();
 		JsonElement? Button(string simulationEvent) => controls.Cast<JsonElement?>().FirstOrDefault(c => VisionSends(c!.Value, simulationEvent));
-		async Task<int> Press(string simulationEvent, string done, string closedHint = "")
+		// took: the game's own sign that the press was taken, read back before saying so.
+		async Task<int> Press(string simulationEvent, string done, string closedHint = "", Func<Task<bool>> took = null)
 		{
 			if (Button(simulationEvent) is not { } button || Field(button, "Enabled") != "True")
 			{
@@ -78,6 +90,11 @@ internal static partial class Program
 			}
 			var pressed = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 			if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+			if (took != null && !await Until(took, seconds: 8, every: 0.3))
+			{
+				Console.Error.WriteLine(L($"The game did not take '{Field(button, "Label")}'; for where the meeting stands: vision"));
+				return 1;
+			}
 			Console.WriteLine(done);
 			return 0;
 		}
@@ -92,15 +109,31 @@ internal static partial class Program
 					if (!Ui.Interactive) Console.Error.WriteLine(L("Accepting the vision cannot be undone. To confirm: vision confirm --yes"));
 					return 1;
 				}
-				return await Press("EventFmxConfirmTerms", L("Vision confirmed. To finish the meeting: vision end"));
+				// Once the board has the vision, its confirm button closes.
+				return await Press("EventFmxConfirmTerms", L("Vision confirmed. To finish the meeting: vision end"),
+					took: async () => await VisionControls() is not { } now || !now.Any(c => VisionSends(c, "EventFmxConfirmTerms") && Field(c, "Enabled") == "True"));
 			case "suggest" or "oner":
-				return await Press("EventFmxSuggestTerms", L("The change was put to the board; for its answer: vision"), L(" (remove an objective first: vision remove <no>)"));
+			{
+				// The board answers in new speech bubbles; the objectives it will not drop come back.
+				var before = string.Join("\n", await VisionSays());
+				var said = await Press("EventFmxSuggestTerms", L("The change was put to the board."), L(" (remove an objective first: vision remove <no>)"));
+				if (said != 0) return said;
+				List<string> answer = [];
+				if (!await Until(async () => string.Join("\n", answer = await VisionSays()) is var now && now.Length > 0 && now != before, seconds: 8, every: 0.3))
+				{
+					Console.Error.WriteLine(L("The board has not answered yet; for its answer: vision"));
+					return 1;
+				}
+				foreach (var line in answer) Console.WriteLine(L($"  Board: {line}"));
+				Console.WriteLine(L("For the objectives as they stand now: vision"));
+				return 0;
+			}
 			case "undo" or "geri":
 				return await Press("EventFmxUndo", L("The last change was undone."));
 			case "reset" or "sifirla":
 				return await Press("EventFmxRevert", L("The objectives are back as they were at the start of the meeting."));
 			case "end" or "bitir":
-				return await Press("EventFmxConfirmChanges", L("The meeting is over."));
+				return await Press("EventFmxConfirmChanges", L("The meeting is over."), took: async () => await VisionControls() == null);
 			case "remove" or "cikar":
 			{
 				var wanted = words.ElementAtOrDefault(1) ?? "";
@@ -136,7 +169,7 @@ internal static partial class Program
 			}
 		}
 
-		var says = await VisionText(("anchorpath", "bubble.DisplayString"), ("up", "0"));
+		var says = await VisionSays();
 		var headings = new Dictionary<bool, string>
 		{
 			[true] = await VisionText(("within", "ActionableSection"), ("named", "ActionableTitle")),
@@ -152,7 +185,7 @@ internal static partial class Program
 			return 0;
 		}
 		Console.WriteLine(L("Club vision meeting"));
-		if (says.Length > 0) Console.WriteLine(L($"  Board: {says}"));
+		foreach (var line in says) Console.WriteLine(L($"  Board: {line}"));
 		bool? last = null;
 		for (var i = 0; i < goals.Count; i++)
 		{

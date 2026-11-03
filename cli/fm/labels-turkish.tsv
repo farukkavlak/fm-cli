@@ -1628,7 +1628,6 @@ Trait	Alışkanlık
 Send the offer	Teklifi gönder
 [dim](more below)[/]	[dim](aşağıda daha fazlası)[/]
 Vision confirmed. To finish the meeting: vision end	Vizyon onaylandı. Toplantıyı bitirmek için: vision end
-The change was put to the board; for its answer: vision	Değişiklik yönetime önerildi; cevabı için: vision
 The last change was undone.	Son değişiklik geri alındı.
 The objectives are back as they were at the start of the meeting.	Hedefler toplantının başındaki haline döndü.
 The meeting is over.	Toplantı bitti.
@@ -2388,3 +2387,7 @@ The match's tactics panel is open: the change is made when it is closed with Con
 Tactical tweaks are made while the match is played; it is over.	Taktik ince ayarları maç oynanırken yapılır; maç bitti.
  (cannot be removed)	 (çıkarılamaz)
 '{0}' is still there: the game did not take it out.	'{0}' hâlâ duruyor: oyun çıkarmadı.
+The change was put to the board.	Değişiklik yönetime önerildi.
+The board has not answered yet; for its answer: vision	Yönetim henüz cevap vermedi; cevabı için: vision
+For the objectives as they stand now: vision	Hedeflerin şimdiki hali için: vision
+The game did not take '{0}'; for where the meeting stands: vision	Oyun '{0}' düğmesini almadı; toplantının durumu için: vision

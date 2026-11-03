@@ -42,7 +42,9 @@ An event the code never names is not always a gap; each line was checked against
 - [x] T2 `vision` (`Club/Vision.cs`): buttons by their events, objectives by their rows' data path, kind by
   `#ActionableSection`, required by `ClubVisionMeetingCanObjectiveBeRemoved`, weight by `#ImportanceText`, a
   row's remove button by its row. TR + EN: read, remove + undo 3 runs each, two removed + reset, the
-  negatives (a required one, suggest with nothing removed). Suggest, confirm and end not pressed (Faruk's choice).
+  negatives (a required one, suggest with nothing removed). Suggest prints the board's answer (its speech
+  bubbles' rows); confirm and end read back (confirm closes, the meeting goes). Suggest + confirm TR, confirm + end TR + EN.
+  `club` objectives: the tab clicked by `within=TabButtons&name=Vision` (`click?name=` was never a route). TR + EN, 3 runs.
 - [ ] T93 Vision, new in FM27: an objective's weight stepper (`SIStepper` beside `#ImportanceText`), add an
   objective (`EventFmxAddClubVisionObjective`, `ClubVisionMeetingPossibleObjectivesToAdd`), the 5 Year Plan tab.
 - [ ] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal").

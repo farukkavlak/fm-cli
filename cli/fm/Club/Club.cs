@@ -124,7 +124,7 @@ internal static partial class Program
 		JsonElement rows = default;
 		await Until(async () =>
 		{
-			await Fm.Get("click", ("name", "Vision"));
+			await Fm.Get("click", ("within", "TabButtons"), ("name", "Vision"));
 			rows = await Fm.GetJson("rowtexts", ("has", "clubvision.VisionObjectiveName"), ("gen", gen));
 			return rows.ValueKind == JsonValueKind.Array && rows.GetArrayLength() > 0;
 		}, seconds: 10, every: 0.5);
