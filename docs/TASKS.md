@@ -108,7 +108,10 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T29 After a goal with a change pending, the "Confirm Tactical Changes" dialog (PORTING).
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
   rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.
-- [ ] T31 `scout player --cancel`: the game keeps the assignment (PORTING).
+- [ ] T31 `scout player --cancel`: the game keeps the assignment (PORTING). Measured TR: the entry is Report › Cancel
+  Assignments (`PersonStopScoutPlayersClub`), its question `Confirm1198281291` has a Yes with no event; answered by the
+  dialog handler it closes, and the player's `IsBeingScouted` stays True (also after `next`). Read back now by
+  `IsBeingScouted` (the person kept at `fmcli.scoutcancel`). Next: Scouting › Assignments (`ScoutingCentreActions`).
 - [ ] T32 `training --trait-suggest`: FM27 has no such menu entry (PORTING).
 
 ## 4. Pages no command reads (read only, lower priority)

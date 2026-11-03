@@ -15,6 +15,9 @@ internal static partial class Program
 	/// <summary>
 	/// Finds the person with the game's search and raises his menu. Null having said why not.
 	/// </summary>
+	/// <summary>The data path of the person the last <see cref="PersonMenu"/> found: his record, to read back what an action did.</summary>
+	private static string LastPersonPath = "";
+
 	private static async Task<(string Name, List<JsonElement> Entries)?> PersonMenu(string wanted, string? kind = null)
 	{
 		// A question already on screen would be taken for the answer to whatever is chosen here.
@@ -65,6 +68,7 @@ internal static partial class Program
 		// The menu is the one bound to this result's person: a name on screen can be another's of the same name.
 		await Fm.Get("actions", ("close", "1"));
 		var path = Field(found[0], "Path");
+		LastPersonPath = path;
 		var opened = await Fm.Get("actions", ("open", "1"), ("path", path));
 		// A staff result is a plain link with no menu: his page's actions menu is the one bound to
 		// the record with his UniqueId.

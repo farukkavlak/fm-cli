@@ -2434,3 +2434,4 @@ The job applications list did not open.	İş başvurusu listesi açılmadı.
 The kind of club could not be chosen on the holiday page.	Tatil sayfasında kulüp türü seçilemedi.
 Applies for jobs at: {0}	İş başvurusu: {0}
 (dry run) Would go on holiday until: {0}	(deneme) Şu tarihe kadar tatile çıkılacaktı: {0}
+{0}: the game does not offer to stop this assignment from his menu (the entry is closed); it ends by itself when its time is up.	{0}: oyun bu görevi oyuncunun menüsünden durdurmaya izin vermiyor (seçenek kapalı); süresi dolunca kendiliğinden biter.

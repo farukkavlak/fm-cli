@@ -152,25 +152,35 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"There is no scouting assignment running for {name}."));
 				return 1;
 			}
+			// FM27 shows the entry closed while a scout is on him ("Currently Scouting"): stopping is not
+			// offered from his menu, and choosing the closed entry did nothing.
+			if (!IsEnabled(off))
+			{
+				await Fm.Get("actions", ("close", "1"));
+				Console.Error.WriteLine(L($"{name}: the game does not offer to stop this assignment from his menu (the entry is closed); it ends by itself when its time is up."));
+				return 1;
+			}
+			// His record kept at a node of its own while the search that found him is still up: its
+			// path goes with the search.
+			const string person = "fmcli.scoutcancel";
+			await Fm.Get("pathset", ("to", person), ("from", LastPersonPath));
 			// The game asks whether to stop scouting him; having been told to here, the answer is yes.
 			var chosen = await ChooseEntry(off, entries);
 			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
+			// It is answered the way the game's own handler does (dialog?press=primary): a simulated click
+			// on its Yes closed the question and left the assignment (FM26 and FM27 alike).
 			JsonElement dialogs = default;
-			if (await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0 && DialogAsks(dialogs[0]), seconds: 5, every: 0.5)
-				&& DialogAnswer(dialogs[0], true) is { } yes)
+			if (await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0 && DialogAsks(dialogs[0]), seconds: 5, every: 0.5))
 			{
-				await Fm.Get("click", ("ptr", Field(yes, "Pointer")));
+				await Fm.Get("dialog", ("press", "primary"));
 				// The question stays drawn a moment after its answer.
 				await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.3);
 			}
-			// Believed only once his menu no longer offers it: the game has closed the question and kept the assignment before.
-			if (await PersonMenu(name, "Player") is not { } after)
-			{
-				Console.Error.WriteLine(L($"{name}: whether the assignment was removed could not be read back; see: scout player \"{name}\""));
-				return 1;
-			}
-			var still = FirstOf(after.Entries, stop) != null;
+			// Believed once his record says he is no longer being scouted (IsBeingScouted): the game has
+			// closed the question and kept the assignment before.
 			await Fm.Get("actions", ("close", "1"));
+			async Task<bool> Scouted() => Field(await Fm.Pull(person, "IsBeingScouted"), "IsBeingScouted") == "True";
+			var still = !await Until(async () => !await Scouted(), seconds: 5, every: 0.3);
 			if (still)
 			{
 				Console.Error.WriteLine(L($"{name}: the game took the confirmation but did not remove the assignment (the game's own behaviour); it ends by itself when its time is up."));
