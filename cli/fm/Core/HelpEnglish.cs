@@ -120,7 +120,7 @@ internal static partial class Program
 			  responsibilities [filter]   who has the staff duties;  delegate "<duty>" hand it over · take "<duty>" take it back · delegate all / take all "<group or area>"
 			  youth           youth: academy levels and stadium, first-team prospects, the intake date; --training: the youth team's training ratings; candidates: whether the year's intake has come
 			  progress        who is getting better, who worse: every player's ability over the last four months and the change
-			  staff find [text] [--filter <filter>] [--view <view>]   the staff search: job, contract, wage, attributes
+			  staff find [text] [--filter <filter>] [--view <view>] [--own | --no-own]   the staff search: job, contract, wage, attributes; --own: our staff too
 			  staff hire <name> [--wage <amount>] [--sign --yes]   hire staff: opens the contract negotiation, carried on with `contract`
 			  staff fire <name> [--mutual] [--yes]   part ways with staff: the game names the compensation, says "No" without --yes
 			  actions <person> ["<option>"]   the game's right-click menu for that person (assign a scout, shortlist, send on a course…); an option given is carried out

@@ -20,7 +20,9 @@ internal static partial class Program
 		{
 			var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().ToList();
 			views = lists.Where(d => Field(d, "Name") == "ViewAltDropdown").Cast<JsonElement?>().FirstOrDefault();
-			filters = lists.Where(d => Field(d, "Name") == "inputs-combobox-default-default").Cast<JsonElement?>().FirstOrDefault();
+			// The page's own list of who to leave out (SelectedExcludeOption): a player search left open
+			// underneath has a list with the same element name.
+			filters = lists.Where(d => Field(d, "Binds") == "SelectedExcludeOption").Cast<JsonElement?>().FirstOrDefault();
 			return views != null && filters != null;
 		}, seconds: 12);
 		if (views == null || filters == null)
@@ -29,7 +31,7 @@ internal static partial class Program
 			return 1;
 		}
 		var viewNames = views.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-		var filterNames = filters.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+		var filterNames = (filters.Value.TryGetProperty("Shown", out var shownFilters) ? shownFilters : filters.Value.GetProperty("Choices")).EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 		if (args.Contains("--filters")) { foreach (var name in filterNames) Console.WriteLine(name); return 0; }
 		if (args.Contains("--views")) { foreach (var name in viewNames) Console.WriteLine(name); return 0; }
 
@@ -133,8 +135,22 @@ internal static partial class Program
 		if (Option(args, "--filter") is { } wantedFilter)
 		{
 			if (Choose(filterNames, wantedFilter, L("Filter")) is not { } filter) return 1;
-			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("choice", filter), ("fire", "1"));
+			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("index", filterNames.IndexOf(filter).ToString()), ("fire", "1"));
 			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
+			asked = true;
+		}
+		// Our own staff among the results or not: the page's switch sending EventFmxFilterSetIncludeOwnStaff.
+		if (args.Contains("--own") || args.Contains("--no-own"))
+		{
+			var toggle = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Page") == Screen.StaffDatabase && Field(b, "Events").Contains("EventFmxFilterSetIncludeOwnStaff", StringComparison.Ordinal));
+			if (toggle.ValueKind != JsonValueKind.Object)
+			{
+				Console.Error.WriteLine(L("The staff search has no switch for our own staff."));
+				return 1;
+			}
+			var set = await Fm.Get("setcontrol", ("ptr", Field(toggle, "Pointer")), ("value", args.Contains("--own") ? "1" : "0"));
+			if (set.StartsWith("error", StringComparison.Ordinal)) return Report(set);
 			asked = true;
 		}
 		if (Option(args, "--view") is { } wantedView)

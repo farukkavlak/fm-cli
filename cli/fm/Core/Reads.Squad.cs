@@ -201,13 +201,13 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.PlayerDatabase);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		const string filterList = "inputs-combobox-default-default";
 		JsonElement? views = null, filters = null;
 		await Until(async () =>
 		{
 			var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().ToList();
 			views = await ViewList(PlayerSearchViews);
-			filters = lists.Where(d => Field(d, "Name") == filterList).Cast<JsonElement?>().FirstOrDefault();
+			// The quick filters by the data the list writes (SelectedQuickFilter): the staff search has a list of the same element name.
+			filters = lists.Where(d => Field(d, "Binds") == "SelectedQuickFilter").Cast<JsonElement?>().FirstOrDefault();
 			return views != null && filters != null;
 		}, seconds: 12);
 

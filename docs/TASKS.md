@@ -94,7 +94,10 @@ An event the code never names is not always a gap; each line was checked against
   confirmed at once, and a failed one is undone with Reset.
 - [x] T20 `coaches --clear` (`EventFmxClearCoaches`), read back; TR + EN 3 runs with `--auto` between.
 - [ ] T21 Opposition scouting priorities: prioritise / cancel.
-- [ ] T22 `search`: quick filters, scouted only; `staff find`: exclude / own-staff filters.
+- [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
+  Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
+  (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
+  search's list left open underneath). Players TR + EN 3 ×; staff EN 3 ×, TR pending.
 - [ ] T23 `shortlist`: more than one shortlist.
 - [x] T24 `inbox --read-all` (`EventFmxMarkAllHumanMessagesAsRead`), read back by `NewsItemHasBeenRead`; TR 33 → 0,
   then "already read". `news <#>` marks a story read already: its tile sends `MarkMediaNewsAsRead` with `RunNewsAction`.
