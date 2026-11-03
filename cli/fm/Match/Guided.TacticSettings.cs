@@ -463,8 +463,8 @@ internal static partial class Program
 
 	/// <summary>
 	/// The team keeps up to three tactics, one per slot, and plays the active one. The slots
-	/// other than the active one are buttons numbered by slot (EventFmxSetTacticSlot); the
-	/// active one is shown by its name.
+	/// other than the active one are buttons (EventFmxSetTacticSlot), each known by the slot it sends
+	/// (0-based, read from the button's own event data, not its shown number); the active one is shown by its name.
 	/// </summary>
 	private static async Task<int> TacticSlot(string wanted, bool dry)
 	{
@@ -472,8 +472,8 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		List<JsonElement> slots = [];
-		await Until(async () => (slots = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Where(b => Field(b, "Events").Contains("EventFmxSetTacticSlot", StringComparison.Ordinal)).ToList()).Count > 0
+		await Until(async () => (slots = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Events").Contains("EventFmxSetTacticSlot", StringComparison.Ordinal) && Field(b, "Sends").Length > 0).ToList()).Count > 0
 			|| Field(await TacticInfo(), "TacticCount") == "1", seconds: 6, every: 0.5);
 		var tactic = await TacticInfo();
 		var active = int.TryParse(Field(tactic, "CurrentTacticSlot"), out var a) ? a + 1 : 0;
@@ -501,7 +501,12 @@ internal static partial class Program
 			Console.WriteLine(L($"Slot {wanted} is already active: {Field(tactic, "Name")}"));
 			return 0;
 		}
-		if (slots.FirstOrDefault(b => Field(b, "Label") == wanted) is not { ValueKind: JsonValueKind.Object } slot)
+		// Each button's slot is the number its event sends ("(DynamicNumber) 1" for slot 2).
+		JsonElement? slot = null;
+		if (int.TryParse(wanted, out var asked))
+			foreach (var b in slots)
+				if ((await Fm.Get("get", ("path", Field(b, "Sends")))).Trim().Split(' ').LastOrDefault() == (asked - 1).ToString()) { slot = b; break; }
+		if (slot == null)
 		{
 			Console.Error.WriteLine(L($"There is no tactic slot {wanted}. For the slots: tactic slot"));
 			return 1;
@@ -512,11 +517,16 @@ internal static partial class Program
 			return 0;
 		}
 		// Queued, its event does nothing; a click on the button does.
-		await Fm.Get("click", ("ptr", Field(slot, "Pointer")));
+		await Fm.Get("click", ("ptr", Field(slot.Value, "Pointer")));
 		var now = "";
-		await Until(async () => (now = Field(await TacticInfo(), "CurrentTacticSlot")) == (int.Parse(wanted) - 1).ToString(), seconds: 6, every: 0.25);
+		await Until(async () => (now = Field(await TacticInfo(), "CurrentTacticSlot")) == (asked - 1).ToString(), seconds: 6, every: 0.25);
 		var name = Field(await TacticInfo(), "Name");
-		Console.WriteLine(now == (int.Parse(wanted) - 1).ToString() ? L($"Slot {wanted} active: {name}") : L("The slot did not change."));
+		if (now != (asked - 1).ToString())
+		{
+			Console.Error.WriteLine(L("The slot did not change."));
+			return 1;
+		}
+		Console.WriteLine(L($"Slot {wanted} active: {name}"));
 		return 0;
 	}
 }

@@ -130,8 +130,8 @@ An event the code never names is not always a gap; each line was checked against
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;
   an inactive slot, three slots, only one tactic (refused).
-- [ ] T94 `tactic slot <n>` finds the slot's switch button by its shown number (`Label` "1"–"3"): the button's
-  event data (`EventFmxSetTacticSlot`) is readable only after it is used once. Find the slot by identity.
+- [x] T94 `tactic slot <n>`: the switch button by the slot its event sends (`Sends`, 0-based), not its shown
+  number. TR + EN: 1↔2 and 1/3/2 three runs each, another page open, slot 4 / "x" refused, clearing an inactive slot.
 - [ ] T87 Playing FM by hand and through the tool on one install (the real install goes into Steam's own
   game folder; `~/fm27_bep` is only our test copy):
   - a game opened from Steam by hand loads BepInEx and the plugin too: it must stay visible and normal
