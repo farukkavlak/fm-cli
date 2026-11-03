@@ -133,7 +133,7 @@ internal static partial class Program
 		"squad", "offer", "offers", "register", "numbers", "contract", "contracts", "release", "propose", "opposition", "intensity",
 		"coaches", "shortlist", "progress", "youth", "responsibilities", "opponent", "captains", "vision", "depth", "targets",
 		"happiness", "mentoring", "dynamics", "staff", "finances", "supporters", "board", "facilities", "health", "doctor",
-		"tactic", "setpieces", "penalties", "takers", "training", "prep", "schedule", "budget", "club", "scout", "match", "shout", "sub", "dugout",
+		"tactic", "setpieces", "penalties", "takers", "training", "prep", "schedule", "budget", "club", "scout", "match", "shout", "tweak", "sub", "dugout",
 		"resign", "interest", "trial", "enquire",
 	];
 
@@ -201,6 +201,7 @@ internal static partial class Program
 				"intensity" => await Intensity(args),
 				"coaches" => await Coaches(args),
 				"shout" => await Shout(args),
+				"tweak" => await Tweaks(json, args),
 				"shortlist" => args.Length > 1 && args[1] is "add" or "ekle" or "remove" or "sil" or "cikar" ? await ShortlistChange(args) : await Shortlist(json),
 				"interest" or "trial" or "enquire" => await Approach(args[0], args),
 				"stages" => await Stages(json, args),

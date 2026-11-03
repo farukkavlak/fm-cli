@@ -57,8 +57,11 @@ An event the code never names is not always a gap; each line was checked against
 
 ## 2. New in FM27, no command
 
-- [ ] T10 Tactical tweaks in a match: 15 team tweaks + Individual tab; `#tweaks-button` popup, `#tweak-row`,
-  `#toggle-overlay`, Reset = `ResetTacticalTweaks` (`reference/fm27/tweaks.txt`).
+- [x] T10 Tactical tweaks in a match, team tab: `fm tweak` / `fm_tweak` (list, on, `--off`), by
+  `TacticalTweak` id; works once kicked off (a pre-kick-off tweak is dropped by the game).
+- [ ] T90 Tactical tweaks, rest: the Individual tab (`TargetPlayer`, `TacticalTweakIndividualOptions`) and
+  Reset (`ResetTacticalTweaksEvent`); extra time not measured; refresh `docs/MANUAL.md` with a `tweak` image
+  at the next match.
 - [ ] T11 TransferRoom (In, Out, Agent Offers): adverts by type and view, discard agents' offered players.
 - [ ] T12 Squad Planner (planner, contracts, current best XI): add, move, remove, ask assistant, copy.
 - [ ] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
@@ -112,6 +115,11 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
 - [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING).
 
+- [ ] T91 `fm start` hangs at the main menu when a dead game (UE) still holds 7777: it asks the old port
+  before the plugin writes the new one, and the dead listener never answers (3 Nov). A request needs a short
+  timeout there, and start should re-read the port file.
+- [ ] T92 The game crashed once leaving a match (after the post-match talk, 15 Apr 2028, tweaks used in that
+  match with a wrong bound path); not seen again in 4 matches. Watch for it.
 - [ ] T88 `tactic clear`: the first try after another tactic command often says "not emptied" (seen 4 times,
   2 Nov, TR and EN, active slot or not); the next try works. `tactic slot` lists the inactive slots without
   their names.
