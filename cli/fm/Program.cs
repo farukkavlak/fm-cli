@@ -134,7 +134,7 @@ internal static partial class Program
 		"coaches", "shortlist", "progress", "youth", "responsibilities", "opponent", "captains", "vision", "depth", "targets",
 		"happiness", "mentoring", "dynamics", "staff", "finances", "supporters", "board", "facilities", "health", "doctor",
 		"tactic", "setpieces", "penalties", "takers", "training", "prep", "schedule", "budget", "club", "scout", "match", "shout", "tweak", "sub", "dugout",
-		"resign", "interest", "trial", "enquire",
+		"resign", "manager", "interest", "trial", "enquire",
 	];
 
 	/// <summary>In a save; false too when the game is not up, which the command itself then says.</summary>
@@ -272,6 +272,7 @@ internal static partial class Program
 				"save" => await SaveGame(args),
 				"dialog" => await Dialog(json, args),
 				"resign" => await Resign(json, args),
+				"manager" => await ManagerStats(json),
 				"setpieces" => await SetPieces(args),
 				"tactic" => await Tactic(json, args),
 				"pages" => await PageList(json, args),

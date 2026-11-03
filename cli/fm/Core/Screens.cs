@@ -85,4 +85,7 @@ internal static class Screen
 
 	// Career
 	public const string ManagerialVacancies = "5b0a6d8141dcf4d4d984c668a4a94404";
+	public const string ManagerialStats = "68efd9db1cff14c4dac379345b44ce92";
+	/// <summary>Portal › Career, which opens on My Profile; its bar lists the other career pages.</summary>
+	public const string Career = "91b6526ebabc40047adb3280a897e0a0";
 }

@@ -73,6 +73,7 @@ internal static partial class Program
 			  tweak [<x>]     during a match, the tactical tweaks (Take a Breather, Lock It Down…): which are on;  tweak <x> puts one on, --off takes it off
 			  sub             during a match: on the pitch and on the bench;  sub <off> <on>: make a substitution
 			  dugout          during a match, the assistant's advice;  dugout <no> apply | dismiss
+			  manager         the manager's record: clubs, transfers, results at this club and over the career
 			  resign [--yes]  resign from the club (test career; then look at jobs)
 			  dialog [answer] show or answer the open confirmation window
 			  talk            show the open conversation: what was said, reactions, what you can say

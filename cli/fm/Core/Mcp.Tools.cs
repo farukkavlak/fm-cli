@@ -340,6 +340,8 @@ internal static partial class Mcp
 		new("fm_diff", "What has changed since the last look: league position, balance, budget, players in and out, injuries, contracts, appearances, goals and assists. Each call becomes the next look unless `keep`; `reset` only stores the state now.",
 			"""{"type":"object","properties":{"keep":{"type":"boolean"},"reset":{"type":"boolean"}}}""",
 			a => ["diff", .. Flag(a, "keep", "--keep"), .. Flag(a, "reset", "--reset")]),
+		new("fm_manager", "The manager's own record: clubs and national teams managed, longest and shortest time at a club, awards, transfers (bought, sold, fees, agents' fees, released) and the results at this club beside the whole career (played, won, drawn, lost, goals, win %, cups, titles, promotions, relegations).",
+			None, _ => ["manager", "--json"]),
 		new("fm_resign", "Resign as manager of the club (or the national team). It cannot be undone, so it only goes ahead with confirm=true. `end_of_season` leaves at the end of the club season instead of now.",
 			"""{"type":"object","properties":{"confirm":{"type":"boolean"},"end_of_season":{"type":"boolean"}}}""",
 			a => ["resign", .. Flag(a, "end_of_season", "--end-of-season"), .. Flag(a, "confirm", "--yes")]),
