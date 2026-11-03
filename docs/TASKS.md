@@ -47,9 +47,9 @@ An event the code never names is not always a gap; each line was checked against
   `club` objectives: the tab clicked by `within=TabButtons&name=Vision` (`click?name=` was never a route). TR + EN, 3 runs.
 - [ ] T93 Vision, new in FM27: an objective's weight stepper (`SIStepper` beside `#ImportanceText`), add an
   objective (`EventFmxAddClubVisionObjective`, `ClubVisionMeetingPossibleObjectivesToAdd`), the 5 Year Plan tab.
-- [ ] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal"). Fixed: speech bubbles are
+- [x] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal"). Fixed: speech bubbles are
   read in the game's words (`Report.Spoken`), match talks show answers by `GameWords.Of`. TR measured (a whole
-  season-end team meeting); EN still to see in one talk.
+  season-end team meeting); EN a player's transfer talk with a fee window.
 - [ ] T4 `tour` prints the tour's text in English in a Turkish game.
 - [x] T5 Calendar (`Match/Calendar.cs`) and training week (`Squad/Schedule.cs`) read the venue from
   `MatchVenueShort` (shown letter). Use the teams' ids as `status` does. Done (db727ca): home and away right in TR and EN, calendar and week, 3 runs each.

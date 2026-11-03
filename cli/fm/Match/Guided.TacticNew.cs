@@ -368,6 +368,17 @@ internal static partial class Program
 		                          || Shown(i).Contains(wanted, StringComparison.Ordinal)).ToList();
 		if (holding.Count > 0 || wanted.Length < 4) return holding;
 
+		// Several words, each the start of a word of the name, in any order and with others between:
+		// "enes sahin orduspor" is Enes Şahin's offer from 52 Orduspor FK.
+		var typedWords = wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		if (typedWords.Length > 1)
+		{
+			static string[] WordsOf(string text) => text.Split(' ', '-', '\'', '(', ')');
+			var worded = all.Where(i => typedWords.All(w => WordsOf(Fold(name(i))).Any(x => x.StartsWith(w, StringComparison.Ordinal))
+			                                             || WordsOf(Shown(i)).Any(x => x.StartsWith(w, StringComparison.Ordinal)))).ToList();
+			if (worded.Count > 0) return worded;
+		}
+
 		var leeway = wanted.Length >= 7 ? 2 : 1;
 		int Distance(T item)
 		{
