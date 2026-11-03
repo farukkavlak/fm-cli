@@ -85,12 +85,14 @@ An event the code never names is not always a gap; each line was checked against
 
 ## 3. Existing commands, missing a part
 
-- [ ] T18 `captains`: Quick Pick, stand-ins.
+- [x] T18 `captains --standins [quick | add | remove | clear]`: the stand-ins list (`StandInTable`, by its remove
+  event), rows by their record (`binding.Player`, `Index`), the page's own squad table by `SquadCaptains`.
+  TR + EN: 3 rounds of quick / remove / add / clear; captain, unknown, not a stand-in, already one, two names.
 - [x] T19 `responsibilities delegate all | take all "<group or area>"`: the group's own buttons, told by the group record
   they sit on (`responsibilitygroup.ResponsibilityGroupID` + team type), then confirmed and read back. EN: an area
-  (media) 3 × both ways, one group, nothing to do, unknown name; TR pending. Undo / redo not needed: every change is
+  (media) 3 × both ways, one group, nothing to do, unknown name; TR 3 rounds. Undo / redo not needed: every change is
   confirmed at once, and a failed one is undone with Reset.
-- [x] T20 `coaches --clear` (`EventFmxClearCoaches`), read back; EN 3 runs with `--auto` between; TR pending.
+- [x] T20 `coaches --clear` (`EventFmxClearCoaches`), read back; TR + EN 3 runs with `--auto` between.
 - [ ] T21 Opposition scouting priorities: prioritise / cancel.
 - [ ] T22 `search`: quick filters, scouted only; `staff find`: exclude / own-staff filters.
 - [ ] T23 `shortlist`: more than one shortlist.
