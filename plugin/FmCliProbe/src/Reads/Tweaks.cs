@@ -80,6 +80,8 @@ internal static class Tweaks
 	{
 		if (q["where"] == "1") return Where();
 		if (q["period"] == "1") { var (state, match) = Period(); return $"{state}\t{match}\n"; }
+		if (q["individual"] == "1") return Individual();
+		if (!string.IsNullOrEmpty(q["toggle"]) && !string.IsNullOrEmpty(q["player"])) return TogglePlayer(q["toggle"], q["player"], q["off"] == "1", q["dry"] == "1");
 		if (!string.IsNullOrEmpty(q["toggle"])) return Toggle(q["toggle"], q["off"] == "1", q["dry"] == "1");
 		return Current(q["gen"]);
 	}
@@ -188,6 +190,93 @@ internal static class Tweaks
 		var payload = new FM.UI.ToggleTacticalTweakEvent { Target = tactic, Tweak = entry, TurnOff = off };
 		events.SendEvent(payload.TryCast<SI.Core.EventBase>());
 		return $"sent ToggleTacticalTweakEvent {id} off={off}\n";
+	}
+
+	/// <summary>
+	/// The individual tweaks and the players they are made for, as the tweaks popup's Individual tab binds
+	/// them (there only once that tab has been opened): the options list (TacticalTweakIndividualOptions,
+	/// each entry with the positions it is for) and each player's record in IndividualPlayersList.
+	/// </summary>
+	private static string Individual()
+	{
+		var options = IndividualOptions();
+		if (options == null) return "error: the individual tweaks are not bound: open the tweaks popup's Individual tab";
+		var rows = options.Select(entry =>
+		{
+			string name;
+			try { name = Text.Shown(entry.NameTranslationID.TranslatedString ?? ""); } catch { name = ""; }
+			return $"{{\"Id\": {Quote(entry.TweakID.ToString())}, \"Number\": \"{(int)entry.TweakID}\", \"Name\": {Quote(name)}, \"Positions\": \"{(ulong)entry.ValidPositions}\"}}";
+		});
+		var players = Players().Select(p => $"{{\"Id\": {Quote(p.Id)}, \"Name\": {Quote(p.Name)}, \"Index\": {Quote(p.Index)}, \"Position\": {Quote(p.Position)}}}");
+		return $"{{\"Options\": [{string.Join(", ", rows)}], \"Players\": [{string.Join(", ", players)}]}}\n";
+	}
+
+	private static List<FM.UI.TacticalTweakEntry> IndividualOptions()
+	{
+		foreach (var (_, node) in Report.Walk())
+		{
+			if (node.Name != "TacticalTweakIndividualOptions") continue;
+			try
+			{
+				if (node.Value?.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<FM.UI.TacticalTweakEntry>>() is not { } list) continue;
+				var entries = new List<FM.UI.TacticalTweakEntry>();
+				for (var i = 0; i < list.Count; i++) if (list[i] != null) entries.Add(list[i]);
+				if (entries.Count > 0) return entries;
+			}
+			catch { }
+		}
+		return null;
+	}
+
+	/// <summary>The players of the Individual tab: each row's Person, its team selection index and position.</summary>
+	private static List<(string Id, string Name, string Index, string Position, string Path, SI.Core.TypedValue Value)> Players()
+	{
+		var found = new List<(string, string, string, string, string, SI.Core.TypedValue)>();
+		var seen = new HashSet<string>();
+		foreach (var (path, node) in Report.Walk())
+		{
+			if (node.Name != "Person" || !path.Contains("IndividualPlayersList") || path.Contains("PlayerTweaksList")) continue;
+			if (node.Value is not { IsNull: false } value || value.Get()?.TryCast<FM.UI.PersonReference>() is null) continue;
+			var at = path.TrimStart('.');
+			var pulled = RawPath.Pull(at, "Name,UniqueId", false, "twp", "Name");
+			string Field(string key) => System.Text.RegularExpressions.Regex.Match(pulled, $"\"{key}\": \"([^\"]*)\"").Groups[1].Value;
+			var id = Field("UniqueId");
+			if (id.Length == 0 || !seen.Add(id)) continue;
+			// The row beside the person keeps his place in the selection and his position.
+			string index = "", position = "";
+			for (var c = node.Parent?.FirstChild; c != null; c = c.NextSibling)
+			{
+				if (c.Name == "TeamSelectionIndex" && c.Value is { IsNull: false } i) index = Text.Of(i);
+				if (c.Name == "PlayerPosition" && c.Value is { IsNull: false } p) position = Text.Of(p);
+			}
+			found.Add((id, Field("Name"), index, position, at, value));
+		}
+		return found;
+	}
+
+	/// <summary>Sends what an individual tweak's row sends: the tweak, for one player (by his UniqueId).</summary>
+	private static string TogglePlayer(string wanted, string player, bool off, bool dry)
+	{
+		if (!Enum.TryParse<FM.UI.TacticalTweak>(wanted, ignoreCase: true, out var id))
+			return $"error: '{wanted}' is not a FM.UI.TacticalTweak";
+		var options = IndividualOptions();
+		if (options == null) return "error: the individual tweaks are not bound: open the tweaks popup's Individual tab";
+		var entry = options.FirstOrDefault(e => e.TweakID == id);
+		if (entry == null) return $"error: {id} is not among the individual tweaks";
+		var who = Players().FirstOrDefault(p => p.Id == player);
+		if (who.Value == null) return $"error: no player {player} in the Individual tab";
+
+		var path = Tactic();
+		if (path == null) return "error: no match tactic in the tree";
+		var tactic = FmApi.ValueAt(path, out var error)?.TryCast<FM.UI.MatchTacticReference>();
+		if (tactic == null) return error ?? $"error: {path} is not the match's tactic";
+		if (dry) return $"dry run, NOT sent: ToggleTacticalTweakEvent {id} for {who.Name} off={off}\n";
+
+		var events = Game.Events;
+		if (events == null) return "error: event subsystem unavailable";
+		var payload = new FM.UI.ToggleTacticalTweakEvent { Target = tactic, Tweak = entry, TargetPlayer = who.Value, TurnOff = off };
+		events.SendEvent(payload.TryCast<SI.Core.EventBase>());
+		return $"sent ToggleTacticalTweakEvent {id} for {who.Name} off={off}\n";
 	}
 
 	private static string Quote(string text) => $"\"{Report.Escape(text ?? "")}\"";

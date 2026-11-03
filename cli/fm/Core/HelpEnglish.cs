@@ -71,7 +71,9 @@ internal static partial class Program
 			    --instant     do not play it, leave it to the assistants: the game simulates it in a few seconds
 			  shout [<x>]     shout from the touchline during a match (Encourage, Fire Up, Calm Down…)
 			  tweak [<x>]     during a match, the tactical tweaks (Take a Breather, Lock It Down…): which are on;  tweak <x> puts one on, --off takes it off
+			    tweak [<x>] --player <player>   his individual tweaks;  tweak --reset team|individual|all
 			  sub             during a match: on the pitch and on the bench;  sub <off> <on>: make a substitution
+			  pause / resume  during a match: pause it, play on;  skip: skip the replay that is playing
 			  dugout          during a match, the assistant's advice;  dugout <no> apply | dismiss
 			  manager         the manager's record: clubs, transfers, results at this club and over the career
 			  resign [--yes]  resign from the club (test career; then look at jobs)

@@ -476,4 +476,45 @@ internal static partial class Program
 
 		static string Surname(string name) => name.Contains(' ') && name.Length > 14 ? name[(name.LastIndexOf(' ') + 1)..] : name;
 	}
+
+	/// <summary>
+	/// The match screen's play / pause (its playpause button, MatchTogglePlayPause), told by the match's own
+	/// Playing; and a replay skipped by the button that sends MatchSkipReplay, only there while one runs.
+	/// </summary>
+	private static async Task<int> MatchPause(string command)
+	{
+		var state = await Fm.GetJson("state");
+		if (Field(state, "DuringMatch") != "True")
+		{
+			Console.Error.WriteLine(L("There is no match on."));
+			return 1;
+		}
+		if (command == "skip")
+		{
+			var skip = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Events").Contains("MatchSkipReplay", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
+			if (skip.ValueKind != JsonValueKind.Object)
+			{
+				Console.Error.WriteLine(L("No replay is playing now."));
+				return 1;
+			}
+			await Fm.Get("press", ("ptr", Field(skip, "Pointer")));
+			var gone = await Until(async () => !(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Any(b => Field(b, "Events").Contains("MatchSkipReplay", StringComparison.Ordinal) && Field(b, "Enabled") == "True"), seconds: 5, every: 0.25);
+			Console.WriteLine(gone ? L("Replay skipped.") : L("Told to skip the replay, but it is still playing."));
+			return gone ? 0 : 1;
+		}
+		var wantPlaying = command == "resume";
+		async Task<bool> Playing() => Field(await Fm.GetJson("state"), "Playing") == "True";
+		if (await Playing() == wantPlaying)
+		{
+			Console.WriteLine(wantPlaying ? L("The match is playing already.") : L("The match is paused already."));
+			return 0;
+		}
+		var said = await Fm.Get("press", ("event", "MatchTogglePlayPause"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+		var done = await Until(async () => await Playing() == wantPlaying, seconds: 5, every: 0.25);
+		Console.WriteLine(!done ? L("The button was pressed, but the match did not change.") : wantPlaying ? L("The match goes on.") : L("The match is paused."));
+		return done ? 0 : 1;
+	}
 }

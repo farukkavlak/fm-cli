@@ -74,6 +74,9 @@ internal static partial class Program
 			return 1;
 		}
 
+		if (Option(args, "--player") is { } playerName) return await PlayerTweaks(json, args, playerName);
+		if (args.Contains("--reset")) return await ResetTweaks(args);
+
 		var tweaks = await ReadTweaks();
 		if (tweaks.Count == 0)
 		{
@@ -167,6 +170,172 @@ internal static partial class Program
 		// The game takes off by itself what does not go with the new one (Go Long and Play Out of Defence).
 		var dropped = now.Where(t => t.Id != hit.Id && !t.WillBeOn && tweaks.Any(b => b.Id == t.Id && b.WillBeOn)).Select(t => t.Name).ToList();
 		if (dropped.Count > 0) Console.WriteLine(L($"The game takes off what does not go with it: {string.Join(", ", dropped)}"));
+		return 0;
+	}
+
+	/// <summary>
+	/// Puts up the match tactics' tweaks popup (the panel by its MatchOpenTactics event, the popup by its
+	/// element tweaks-button) on one of its tabs (TeamTab, IndividualTab). True when it is up; whether the
+	/// panel was opened here, so it is closed again with Confirm.
+	/// </summary>
+	private static async Task<(bool Up, bool Opened)> TweaksPopup(string tab)
+	{
+		var opened = false;
+		var controls = await Fm.GetJson("buttons", ("json", "1"));
+		if (!controls.EnumerateArray().Any(c => ClosesTactics(c, "Confirm") && Field(c, "Visible") == "True"))
+		{
+			await Fm.Get("press", ("event", "MatchOpenTactics"));
+			opened = true;
+		}
+		if (!await Until(async () => !(await Fm.Get("popup", ("name", "tweaks-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.4))
+			return (false, opened);
+		var clicked = false;
+		await Until(async () => clicked = !(await Fm.Get("click", ("within", "TabButtons"), ("name", tab))).StartsWith("error", StringComparison.Ordinal), seconds: 4, every: 0.3);
+		return (clicked, opened);
+	}
+
+	/// <summary>Closes the match tactics panel with its Confirm (the close event's confirm flag), which makes the changes.</summary>
+	private static async Task ConfirmTactics()
+	{
+		var confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(c => ClosesTactics(c, "Confirm"));
+		if (confirm.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
+	}
+
+	/// <summary>
+	/// One player's individual tweaks (the popup's Individual tab): the ones for his position, which is on
+	/// (the tactic's TacticActiveTweaks at his team selection index) and with a tweak named, put on or off.
+	/// Held by the tweaks' ids and the player's UniqueId; names only shown and matched against what was typed.
+	/// </summary>
+	private static async Task<int> PlayerTweaks(bool json, string[] args, string playerName)
+	{
+		var (up, opened) = await TweaksPopup("IndividualTab");
+		if (!up)
+		{
+			Console.Error.WriteLine(L("The tactical tweaks could not be opened."));
+			return 1;
+		}
+		try
+		{
+			JsonElement read = default;
+			await Until(async () =>
+			{
+				var said = await Fm.Get("tweaks", ("individual", "1"));
+				if (said.StartsWith("error", StringComparison.Ordinal)) return false;
+				read = JsonDocument.Parse(said).RootElement;
+				return read.GetProperty("Players").GetArrayLength() >= 11;
+			}, seconds: 8, every: 0.4);
+			if (read.ValueKind != JsonValueKind.Object)
+			{
+				Console.Error.WriteLine(L("The individual tweaks could not be read."));
+				return 1;
+			}
+			var players = read.GetProperty("Players").EnumerateArray().ToList();
+			var hits = Matching(players, p => Field(p, "Name"), playerName);
+			if (hits.Count != 1)
+			{
+				Console.Error.WriteLine(hits.Count == 0 ? L($"'{playerName}' is not on the pitch. On it: {string.Join(", ", players.Select(p => Field(p, "Name")))}")
+					: L($"'{playerName}' matches more than one player: {string.Join(", ", hits.Select(p => Field(p, "Name")))}"));
+				return 1;
+			}
+			var player = hits[0];
+			// The tweaks for his position: each entry's ValidPositions mask holds the row's PlayerPosition.
+			ulong.TryParse(Field(player, "Position"), out var position);
+			var options = read.GetProperty("Options").EnumerateArray()
+				.Where(o => position == 0 || ulong.TryParse(Field(o, "Positions"), out var mask) && (mask & position) != 0).ToList();
+
+			async Task<HashSet<string>> OnFor()
+			{
+				var now = JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"p{Environment.TickCount64}"))).RootElement;
+				var on = now.GetProperty("Active").EnumerateArray().Where(a => Field(a, "TacticTweakTargetPlayerIndex") == Field(player, "Index"))
+					.Select(a => Field(a, "TacticTweakID")).ToHashSet();
+				foreach (var op in now.GetProperty("Pending").EnumerateArray().Where(o => Field(o, "UniqueId") == Field(player, "Id")))
+				{
+					if (Field(op, "TacticTweakPendingOpKind") == "1") on.Add(Field(op, "TacticTweakID"));
+					else on.Remove(Field(op, "TacticTweakID"));
+				}
+				return on;
+			}
+			var active = await OnFor();
+			var words = Words(args).ToList();
+			if (words.Count == 0)
+			{
+				if (json)
+				{
+					Console.WriteLine(JsonOut.Of(options.Select(o => new { Id = Field(o, "Id"), Name = Field(o, "Name"), On = active.Contains(Field(o, "Number")) })));
+					return 0;
+				}
+				Console.WriteLine(Field(player, "Name"));
+				foreach (var o in options) Console.WriteLine($"  {(active.Contains(Field(o, "Number")) ? "✓" : " ")} {Field(o, "Name")}");
+				Console.WriteLine(L($"\nPut one on: tweak <name> --player \"{Field(player, "Name")}\"   ·   take it off: … --off"));
+				return 0;
+			}
+
+			var wanted = string.Join(" ", words);
+			var names = options.Select(o => Field(o, "Name")).ToList();
+			var hit = options.Cast<JsonElement?>().FirstOrDefault(o => string.Equals(Field(o!.Value, "Id"), wanted, StringComparison.OrdinalIgnoreCase));
+			if (hit == null && Choose(names, wanted, L("Tactical tweak")) is { } named) hit = options[names.IndexOf(named)];
+			if (hit is not { } tweak) return 1;
+			var off = args.Contains("--off");
+			if (active.Contains(Field(tweak, "Number")) != off)
+			{
+				Console.WriteLine(L($"{Field(player, "Name")} · {Field(tweak, "Name")}: already {(off ? L("off") : L("on"))}"));
+				return 0;
+			}
+			var said = await Fm.Get("tweaks", ("toggle", Field(tweak, "Id")), ("player", Field(player, "Id")), ("off", off ? "1" : "0"));
+			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+			if (!await Until(async () => (await OnFor()).Contains(Field(tweak, "Number")) != off, seconds: 5, every: 0.25))
+			{
+				Console.Error.WriteLine(L($"{Field(tweak, "Name")}: sent, but the game did not take the change."));
+				return 1;
+			}
+			// The change is made when the panel is closed with Confirm.
+			await ConfirmTactics();
+			opened = false;
+			var made = await Until(async () =>
+			{
+				var now = JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"c{Environment.TickCount64}"))).RootElement;
+				var isOn = now.GetProperty("Active").EnumerateArray().Any(a => Field(a, "TacticTweakTargetPlayerIndex") == Field(player, "Index") && Field(a, "TacticTweakID") == Field(tweak, "Number"));
+				return isOn != off;
+			}, seconds: 60, every: 0.5);
+			Console.WriteLine(made ? $"{Field(player, "Name")} · {Field(tweak, "Name")}: {(off ? L("off") : L("on"))}"
+				: L($"{Field(player, "Name")} · {Field(tweak, "Name")}: confirmed; the game makes it when play goes on."));
+			return 0;
+		}
+		finally
+		{
+			if (opened) await ConfirmTactics();
+		}
+	}
+
+	/// <summary>The popup's Reset, by its list's own values (resetscope: 0 team, 1 individual, 2 all), then confirmed.</summary>
+	private static async Task<int> ResetTweaks(string[] args)
+	{
+		var scope = Words(args).FirstOrDefault() switch { "team" or "takim" => 0, "individual" or "bireysel" => 1, _ => 2 };
+		var (up, _) = await TweaksPopup("TeamTab");
+		if (!up)
+		{
+			Console.Error.WriteLine(L("The tactical tweaks could not be opened."));
+			await ConfirmTactics();
+			return 1;
+		}
+		var reset = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Binds") == "resetscope");
+		if (reset.ValueKind != JsonValueKind.Object)
+		{
+			Console.Error.WriteLine(L("The tweaks popup has no Reset."));
+			await ConfirmTactics();
+			return 1;
+		}
+		var said = await Fm.Get("select", ("ptr", Field(reset, "Pointer")), ("value", scope.ToString()), ("fire", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) { await ConfirmTactics(); return Report(said); }
+		await ConfirmTactics();
+		bool Left(JsonElement now) => now.GetProperty("Active").EnumerateArray().Any(a => scope switch
+		{
+			0 => Field(a, "TacticTweakTargetPlayerIndex") is "" or "-1",
+			1 => Field(a, "TacticTweakTargetPlayerIndex") is not ("" or "-1"),
+			_ => true,
+		});
+		var cleared = await Until(async () => !Left(JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"r{Environment.TickCount64}"))).RootElement), seconds: 60, every: 0.5);
+		Console.WriteLine(cleared ? L("Tactical tweaks reset.") : L("Reset sent; the game makes it when play goes on."));
 		return 0;
 	}
 }

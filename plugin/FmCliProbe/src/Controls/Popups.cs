@@ -14,10 +14,18 @@ internal static class Popups
 	public static string Open(NameValueCollection q)
 	{
 		if (!string.IsNullOrEmpty(q["near"])) return Near(q["near"], q["named"]);
-		if (!Buttons.TryPointer(q["ptr"] ?? "", out var pointer)) return "error: ?ptr=<0x…> required (an SIFloatingPopupWidget)";
+		// ?name= the shown popup of that element name (the match tactics' tweaks-button).
+		var byName = q["name"];
+		var pointer = System.IntPtr.Zero;
+		if (string.IsNullOrEmpty(byName) && !Buttons.TryPointer(q["ptr"] ?? "", out pointer)) return "error: ?ptr=<0x…> or ?name= required (an SIFloatingPopupWidget)";
 		foreach (var element in Buttons.Elements())
 		{
-			if (element.Pointer != pointer) continue;
+			if (!string.IsNullOrEmpty(byName))
+			{
+				try { if (element.name != byName || element.panel == null || element.worldBound.width <= 0) continue; }
+				catch { continue; }
+			}
+			else if (element.Pointer != pointer) continue;
 			SIFloatingPopupWidget popup = null;
 			try { popup = element.TryCast<SIFloatingPopupWidget>(); } catch { }
 			if (popup == null) return $"error: {q["ptr"]} is not a floating popup";
@@ -31,7 +39,7 @@ internal static class Popups
 			}
 			catch (System.Exception e) { return $"error: {e.Message}"; }
 		}
-		return $"error: nothing at {q["ptr"]} (the screen may have changed)";
+		return string.IsNullOrEmpty(byName) ? $"error: nothing at {q["ptr"]} (the screen may have changed)" : $"error: no popup named '{byName}' is shown";
 	}
 
 	/// <summary>
