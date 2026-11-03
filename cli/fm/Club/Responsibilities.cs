@@ -31,6 +31,8 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count > 0 && words[0] is "give" or "ver") return await GiveDuty(session, words.Skip(1).ToList());
 		var action = words.Count > 0 && words[0] is "take" or "delegate" or "al" or "devret" ? words[0] : null;
+		if (action != null && words.Count > 1 && words[1] is "all" or "hepsi" or "hepsini" or "tum")
+			return await SetGroup(session, action is "take" or "al", string.Join(" ", words.Skip(2)));
 		if (action != null) return await SetDuty(session, action is "take" or "al", string.Join(" ", words.Skip(1)));
 
 		var duties = await AllDuties(session);

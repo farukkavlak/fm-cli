@@ -52,23 +52,33 @@ internal static partial class Program
 		}
 
 		var words = Words(args).ToList();
-		if (args.Contains("--auto"))
+		// The assistant's share-out and Remove All, each by the event its button sends.
+		if ((args.Contains("--auto"), args.Contains("--clear")) is (true, _) or (_, true))
 		{
-			var ask = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.Where(b => Field(b, "Events").Contains("EventFmxAssistantAssignCoaches", StringComparison.Ordinal) && Field(b, "Enabled") == "True")
+			var (wanted, missing, done) = args.Contains("--auto")
+				? ("EventFmxAssistantAssignCoaches", L("There is no button to leave the assignments to the assistant."), L("The assistant shared out the assignments."))
+				: ("EventFmxClearCoaches", L("There is no button to remove all the assignments."), L("Every assignment removed."));
+			var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(b => Field(b, "Events").Contains(wanted, StringComparison.Ordinal) && Field(b, "Enabled") == "True")
 				.Cast<JsonElement?>().FirstOrDefault();
-			if (ask == null)
+			if (button == null)
 			{
-				Console.Error.WriteLine(L("There is no button to leave the assignments to the assistant."));
+				Console.Error.WriteLine(missing);
 				return 1;
 			}
 			var before = Assignments(page);
-			await Fm.Get("press", ("ptr", Field(ask.Value, "Pointer")));
-			// The page is rebuilt with the assistant's choice (about half a second). When he would choose
-			// what is already there nothing changes and nothing says so; the wait then ends at its limit.
+			await Fm.Get("press", ("ptr", Field(button.Value, "Pointer")));
+			// The page is rebuilt with the new assignments (about half a second). When they are what is
+			// already there nothing changes and nothing says so; the wait then ends at its limit.
 			await Until(async () => (page = await ReadCoaches()) is { Rows.Count: > 0 } && Assignments(page) != before, seconds: 3, every: 0.25);
-			Console.WriteLine(L("The assistant shared out the assignments."));
 			page = await ReadCoaches();
+			// Read back: after Remove All no coach may be left in an area he could leave.
+			if (args.Contains("--clear") && page is { } after && after.Rows.Any(r => r.Cells.Any(c => c.On && c.Enabled)))
+			{
+				Console.Error.WriteLine(L("Told to remove every assignment, but some are still there."));
+				return 1;
+			}
+			Console.WriteLine(done);
 		}
 		else if (words.Count > 0)
 		{

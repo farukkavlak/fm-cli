@@ -114,7 +114,7 @@ internal static partial class Program
 			  finances        finances: balance, this month's income/expenditure, debt, FFP, payroll by player status, sponsorship, projection
 			  finances income|expenditure [month|last month|season|last season]   income or expenditure item by item
 			  supporters      supporters: atmosphere, expectations and reactions, attendance, season tickets, supporter profile
-			  responsibilities [filter]   who has the staff duties;  delegate "<duty>" hand it over · take "<duty>" take it back
+			  responsibilities [filter]   who has the staff duties;  delegate "<duty>" hand it over · take "<duty>" take it back · delegate all / take all "<group or area>"
 			  youth           youth: academy levels and stadium, first-team prospects, the intake date; --training: the youth team's training ratings; candidates: whether the year's intake has come
 			  progress        who is getting better, who worse: every player's ability over the last four months and the change
 			  staff find [text] [--filter <filter>] [--view <view>]   the staff search: job, contract, wage, attributes
@@ -153,7 +153,7 @@ internal static partial class Program
 			  trial <name> --for <1-4 weeks> [--yes]   invite a player on trial
 			  intensity       training intensity player by player;  intensity <player> <double|"rest 3"|"holiday 1">, --auto [--yes]
 			  coaches         coaching assignments: who is in which training area, the areas' workload and lead coach
-			    coaches <coach> <area> [--off]   assign / remove ("coaches Cohen attacking tactical");  --auto: leave it to the assistant
+			    coaches <coach> <area> [--off]   assign / remove ("coaches Cohen attacking tactical");  --auto: leave it to the assistant;  --clear: remove them all
 			  opposition      player-by-player instructions against the next opponent (marking, pressing, tackling, foot)
 			    --advice / --clear   apply / clear the assistant's suggestion;  opposition <player> Pressing=Always
 			  register        competition squad list: who is on it, home-grown quotas, rules; add/remove with the arrow keys in a terminal
