@@ -147,6 +147,11 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
 - [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING).
 
+- [x] T95 `next` stopped at "The game does not move on: TransferHub" when the window opened (28 Jun 2028): FM27's
+  look-only screens (TransferHub, NewsForYou, CompetitionOverview, DataHub, YouthSetup; `ContinueFlowFlags`) are
+  passed like CompetitionHub. Training is left out until seen. Passed once, EN.
+- [x] T96 A name typed as several words matches by the starts of the name's words when no part is typed whole
+  ("Enes Şahin Orduspor" for 52 Orduspor FK's offer).
 - [x] T91 `fm start` hung at the main menu when a dead game (UE) still held the port the file named: the menu check
   asked `health` with the long timeout. Now it asks briefly first (`Answers`, 3 s) and the port file is read on every
   call. Measured with 7777 held by a dead game: 2 normal starts and one with the file set to 7777, 75–78 s each.
