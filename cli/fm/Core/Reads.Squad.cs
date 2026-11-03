@@ -161,7 +161,7 @@ internal static partial class Program
 		["InjuryDescription"] = L("INJURY"), ["TrainingRating"] = L("TRAINING RATING"), ["MoraleString"] = "MORAL",
 		["StatusTitleShort"] = L("STATUS"), ["Nation"] = L("NATION"), ["ThreeLetterName"] = L("NATION"), ["Club"] = L("CLUB"), ["Personality"] = L("PERSONALITY"),
 		["HierarchyInfluenceCategoryString"] = L("HIERARCHY"), ["SocialGroupString"] = L("GROUP"), ["Height"] = L("HEIGHT"),
-		["ShortName"] = L("CLUB"), ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = L("SCOUTING COST"),
+		["ShortName"] = L("CLUB"), ["JobString"] = L("JOB"), ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = L("SCOUTING COST"),
 		["DaysSinceLastScouted"] = L("LAST SCOUTED"), ["ScoutedMinWage"] = L("WAGE (MIN)"), ["ScoutedMaxWage"] = L("WAGE (MAX)"),
 	};
 
