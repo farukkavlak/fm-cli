@@ -96,7 +96,9 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T21 Opposition scouting priorities: prioritise / cancel.
 - [ ] T22 `search`: quick filters, scouted only; `staff find`: exclude / own-staff filters.
 - [ ] T23 `shortlist`: more than one shortlist.
-- [ ] T24 `inbox`: mark all read; `news`: mark read.
+- [x] T24 `inbox --read-all` (`EventFmxMarkAllHumanMessagesAsRead`), read back by `NewsItemHasBeenRead`; TR 33 → 0,
+  then "already read". `news <#>` marks a story read already: its tile sends `MarkMediaNewsAsRead` with `RunNewsAction`.
+  EN to try at the next unread inbox. The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
 - [ ] T25 `dugout`: next / previous / dismiss advice.
 - [ ] T26 `match`: skip replay, pause.
 - [ ] T27 `holiday`: the "apply for jobs" choice.

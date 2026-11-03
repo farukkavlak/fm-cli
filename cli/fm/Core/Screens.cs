@@ -13,6 +13,8 @@ internal static class Screen
 {
 	// Portal
 	public const string Home = "2d1049f4571df444eb050b39a5b8aaec";
+	/// <summary>Portal › Messages, the inbox.</summary>
+	public const string Inbox = "b557c0aee6f6fcb4eb20a1212a26b388";
 	public const string Calendar = "373351a1f7249424eb22205fc799d1b9";
 	/// <summary>Portal › Calendar › Go On Holiday.</summary>
 	public const string Holiday = "7ee51df42b0a89646a12ba40c2446ee5";

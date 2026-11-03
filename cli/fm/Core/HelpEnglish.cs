@@ -54,6 +54,7 @@ internal static partial class Program
 			  calendar [month] calendar: that month's matches and key dates (transfer window, draws…);  --u19 youth matches too
 			  report          the last match's report: score, goals, player of the match, stats
 			  inbox           the inbox
+			    --read-all    mark every message read
 			  news [#]        what the press writes: the headlines on the news site, in the page's own order; with a number, the whole story
 			  reply <#>       open a message: its full text and answers; in a terminal the answer is chosen with the arrow keys
 			  reply <#> <no>  answer a message (a number or part of the answer)

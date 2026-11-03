@@ -185,9 +185,47 @@ internal static partial class Program
 			var task = controls.EnumerateArray().FirstOrDefault(c => Field(c, "Name") == "TaskMessagesTutorial");
 			if (task.ValueKind == JsonValueKind.Object)
 			{
+				// The list is put again under the filter: the press counts once it reads differently.
+				var shown = (await FreshInbox()).GetRawText();
 				await Fm.Get("press", ("ptr", Field(task, "Pointer")));
-				await Task.Delay(500);
+				await Until(async () => (await FreshInbox()).GetRawText() != shown, seconds: 3, every: 0.25);
 			}
+		}
+
+		// Every message marked read with the inbox's own Mark All Read (EventFmxMarkAllHumanMessagesAsRead).
+		if (args.Contains("--read-all"))
+		{
+			static int Unread(JsonElement list) => list.EnumerateArray().Count(m => Field(m, "NewsItemHasBeenRead") != "True");
+			var before = Unread(await FreshInbox());
+			if (before == 0)
+			{
+				Console.WriteLine(L("Every message is read already."));
+				return 0;
+			}
+			var mark = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(c => Field(c, "Events").Contains("EventFmxMarkAllHumanMessagesAsRead", StringComparison.Ordinal) && Field(c, "Enabled") == "True");
+			if (mark.ValueKind != JsonValueKind.Object)
+			{
+				await OpenPage(Screen.Inbox);
+				await Until(async () => (mark = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.FirstOrDefault(c => Field(c, "Events").Contains("EventFmxMarkAllHumanMessagesAsRead", StringComparison.Ordinal) && Field(c, "Enabled") == "True")).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.3);
+			}
+			if (mark.ValueKind != JsonValueKind.Object)
+			{
+				Console.Error.WriteLine(L("The inbox has no Mark All Read button now."));
+				return 1;
+			}
+			await Fm.Get("press", ("ptr", Field(mark, "Pointer")));
+			var left = before;
+			await Until(async () => (left = Unread(await FreshInbox())) < before, seconds: 5, every: 0.3);
+			await Until(async () => (left = Unread(await FreshInbox())) == 0, seconds: 2, every: 0.3);
+			if (left == before)
+			{
+				Console.Error.WriteLine(L("Told to mark every message read, but none changed."));
+				return 1;
+			}
+			Console.WriteLine(left == 0 ? L($"{before} messages marked read.") : L($"{before - left} of {before} messages marked read; {left} still unread."));
+			return 0;
 		}
 
 		// `--all` reads every message the inbox holds, scrolling its streamed list; the bound
