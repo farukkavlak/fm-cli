@@ -97,19 +97,19 @@ An event the code never names is not always a gap; each line was checked against
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
-  search's list left open underneath). Players TR + EN 3 ×; staff EN 3 ×, TR pending.
+  search's list left open underneath). Players and staff TR + EN 3 ×.
 - [x] T23 `shortlist --lists | --list "<name>" | --new "<name>"`: the selector `human.humanselectedshortlist`, each list's
   record (`DisplayString`, `CountString`; the one shown is the selector's own choice), a new one by `create-shortlist-button`
   and `EventFmxCreateShortlist`. `shortlist add … --to "<list>"` picks the list's folder in the menu. EN: made one, add /
-  show / remove 3 ×, unknown list, the name taken; TR pending. Delete / rename a list: not yet.
+  show / remove 3 ×, unknown list, the name taken; TR add / remove 3 ×. Delete / rename a list: not yet.
 - [x] T24 `inbox --read-all` (`EventFmxMarkAllHumanMessagesAsRead`), read back by `NewsItemHasBeenRead`; TR 33 → 0,
   then "already read". `news <#>` marks a story read already: its tile sends `MarkMediaNewsAsRead` with `RunNewsAction`.
-  EN to try at the next unread inbox. The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
+  EN 9 → 0, then "already read". The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
 - [ ] T25 `dugout`: next / previous / dismiss advice.
 - [ ] T26 `match`: skip replay, pause.
 - [x] T27 `holiday … --jobs <kind> | --no-jobs`: the switch `holiday.applyforjobs` and the list
   `holiday.applyforjobsdropdownselectedoption` by its own values (−1 is the prompt), or by the shown words. `--dry` sets the
-  page and leaves by its CancelButton. TR: 3 × two kinds, an unknown kind, a real week with `--no-jobs`; EN pending.
+  page and leaves by its CancelButton. TR: 3 × two kinds, an unknown kind, a real week with `--no-jobs`; EN 3 × and a kind by the game's words.
 - [ ] T28 `fm youth candidates`: rows not seen yet (intake each March; PORTING).
 - [ ] T29 After a goal with a change pending, the "Confirm Tactical Changes" dialog (PORTING).
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
