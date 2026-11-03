@@ -126,9 +126,12 @@ An event the code never names is not always a gap; each line was checked against
   timeout there, and start should re-read the port file.
 - [ ] T92 The game crashed once leaving a match (after the post-match talk, 15 Apr 2028, tweaks used in that
   match with a wrong bound path); not seen again in 4 matches. Watch for it.
-- [ ] T88 `tactic clear`: the first try after another tactic command often says "not emptied" (seen 4 times,
-  2 Nov, TR and EN, active slot or not); the next try works. `tactic slot` lists the inactive slots without
-  their names.
+- [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
+  which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
+  every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;
+  an inactive slot, three slots, only one tactic (refused).
+- [ ] T94 `tactic slot <n>` finds the slot's switch button by its shown number (`Label` "1"–"3"): the button's
+  event data (`EventFmxSetTacticSlot`) is readable only after it is used once. Find the slot by identity.
 - [ ] T87 Playing FM by hand and through the tool on one install (the real install goes into Steam's own
   game folder; `~/fm27_bep` is only our test copy):
   - a game opened from Steam by hand loads BepInEx and the plugin too: it must stay visible and normal

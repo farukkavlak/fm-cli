@@ -480,15 +480,18 @@ internal static partial class Program
 
 		if (wanted == null)
 		{
-			// A slot button drawn a frame before its number is filled in carries no label.
-			var numbers = slots.Select(b => Field(b, "Label")).Where(n => int.TryParse(n, out _)).Append(active.ToString()).Distinct().OrderBy(n => n).ToList();
+			// The slots by the tactic's own fields (Slot1Valid, Slot1Name…), bound by the first read.
+			await Until(async () => (tactic = await TacticInfo()).TryGetProperty("Slot1Valid", out _), seconds: 3, every: 0.25);
+			var held = Enumerable.Range(1, 3)
+				.Select(n => (Slot: n, Valid: Field(tactic, $"Slot{n}Valid") == "True", Name: Field(tactic, $"Slot{n}Name")))
+				.Where(t => t.Valid || t.Slot == active).ToList();
 			if (Ui.Json)
 			{
-				Console.WriteLine(JsonOut.Of(numbers.Select(n => new { Slot = int.Parse(n), Active = n == active.ToString(), Name = n == active.ToString() ? Field(tactic, "Name") : null })));
+				Console.WriteLine(JsonOut.Of(held.Select(t => new { t.Slot, Active = t.Slot == active, t.Name })));
 				return 0;
 			}
-			foreach (var n in numbers)
-				Console.WriteLine(n == active.ToString() ? L($"{n}  {Field(tactic, "Name")}  (active)") : $"{n}");
+			foreach (var t in held)
+				Console.WriteLine(t.Slot == active ? L($"{t.Slot}  {t.Name}  (active)") : $"{t.Slot}  {t.Name}");
 			var full = int.TryParse(Field(tactic, "TacticCount"), out var count) && count >= 3;
 			Console.WriteLine(L($"\nTo switch: tactic slot <n>{(full ? L(" · all three slots taken") : L(" · new slot: tactic new or tactic copy"))}"));
 			return 0;

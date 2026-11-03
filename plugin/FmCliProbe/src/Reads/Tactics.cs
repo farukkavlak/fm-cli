@@ -90,6 +90,14 @@ internal static class Tactics
 		}
 		if (Score($"{headerPath}.TacticalEffectiveness.OverallEffectiveness") is { } overall) header["Effectiveness"] = overall;
 
+		// Each of the three slots' tactic name and whether it holds one, by the tactic's own fields
+		// (TacticSlot1Name, TacticSlot1Valid…); bound by the first read, there on the next.
+		for (var n = 1; n <= 3; n++)
+		{
+			if (Bound($"{headerPath}.TacticSlot{n}Valid") is { } valid) header[$"Slot{n}Valid"] = valid;
+			if (Bound($"{headerPath}.TacticSlot{n}Name") is { } name) header[$"Slot{n}Name"] = name;
+		}
+
 		if (header.TryGetValue("TacticalStyle", out var styleId) && styles.TryGetValue(styleId, out var styleName))
 			header["Style"] = styleName;
 
@@ -229,6 +237,18 @@ internal static class Tactics
 	/// it (a player not fully scouted). Its numbers are bound on first asking and arrive over the
 	/// next frames, so a first read may have none.
 	/// </summary>
+	/// <summary>The value at a path, bound first if need be (null until the game fills it in).</summary>
+	private static string Bound(string path)
+	{
+		var b = Game.Bindings;
+		if (b == null || path == null) return null;
+		path = path.TrimStart('.');
+		var key = PathKey.Of(path);
+		if (!b.Exists(ref key)) RawPath.Bind(path);
+		try { return b.Exists(ref key) && b.Get(ref key) is { IsNull: false } value ? value.AsString() : null; }
+		catch { return null; }
+	}
+
 	private static string Score(string path)
 	{
 		var b = Game.Bindings;

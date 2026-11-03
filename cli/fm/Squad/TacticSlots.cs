@@ -107,21 +107,22 @@ internal static partial class Program
 		var sent = await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("value", ClearRow.ToString()), ("fire", "1"));
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 
-		// The game may ask first; the answer that goes ahead is its primary button. The question is
-		// not given a fixed while of its own: the slot's count dropping is the same answer, so a
-		// machine that brings the question late gets it answered instead of counted as "no question".
+		// The game asks first (its deleteTacticConfirmation dialog); it is answered the way the game's
+		// own handler does (dialog?press=primary): a simulated click on the button often closed nothing.
+		// The question is not given a fixed while of its own: the slot's count dropping is the same answer.
 		JsonElement dialogs = default;
 		var asked = await Until(async () =>
 		{
 			dialogs = await Fm.GetJson("dialog");
-			return dialogs.GetArrayLength() > 0
+			return dialogs.ValueKind == JsonValueKind.Array && dialogs.EnumerateArray().Any(d => Field(d, "Type") == "deleteTacticConfirmation")
 				|| int.TryParse(Field(info = await TacticInfo(), "TacticCount"), out var c) && c < before;
 		}, seconds: 8, every: 0.25);
-		if (asked && dialogs.GetArrayLength() > 0)
+		if (asked && dialogs.EnumerateArray().FirstOrDefault(d => Field(d, "Type") == "deleteTacticConfirmation") is { ValueKind: JsonValueKind.Object } question)
 		{
-			var go = dialogs[0].GetProperty("Buttons").EnumerateArray().FirstOrDefault(x => Field(x, "Name").Contains("primary", StringComparison.Ordinal));
-			Console.WriteLine($"{DialogWords(dialogs[0], "Title")} → {DialogWords(go, "Label")}");
-			if (go.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(go, "Pointer")));
+			var go = question.GetProperty("Buttons").EnumerateArray().FirstOrDefault(x => Field(x, "Slot") == "primary");
+			var said = await Fm.Get("dialog", ("press", "primary"));
+			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+			Console.WriteLine($"{DialogWords(question, "Title")} → {DialogWords(go, "Label")}");
 		}
 		var cleared = await Until(async () => int.TryParse(Field(info = await TacticInfo(), "TacticCount"), out var c) && c < before, seconds: 6, every: 0.25);
 		Console.WriteLine(cleared ? L($"Slot {slot} emptied. Active: {Field(info, "Name")}") : L("The slot was not emptied; look: tactic slot"));
