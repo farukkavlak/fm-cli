@@ -106,7 +106,8 @@ An event the code never names is not always a gap; each line was checked against
   page and leaves by its CancelButton. TR: 3 × two kinds, an unknown kind, a real week with `--no-jobs`; EN pending.
 - [ ] T28 `fm youth candidates`: rows not seen yet (intake each March; PORTING).
 - [ ] T29 After a goal with a change pending, the "Confirm Tactical Changes" dialog (PORTING).
-- [ ] T30 Rename a tactic (the active one is "xxxx…" since a test; PORTING).
+- [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
+  rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.
 - [ ] T31 `scout player --cancel`: the game keeps the assignment (PORTING).
 - [ ] T32 `training --trait-suggest`: FM27 has no such menu entry (PORTING).
 

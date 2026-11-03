@@ -281,7 +281,7 @@ Still open:
   - [ ] After a goal with a change pending, the game asks "Confirm Tactical Changes" (dialog `Type` `cancelChanges`);
     `match` stops and says `dialog`. It could answer it itself (the change was ours).
   - A red-card stop was called an injury stop: now the player's `RedCardedInMatch` names it.
-- [ ] The active tactic is named "xxxx…" (200 letters) since the tactic-file title test; there is no rename command.
+- [x] The active tactic is named again (`tactic load`); FM27 has no rename in its tactic menus.
 - [ ] Squad numbers before a match: the screen stays up a moment after the numbers are sent and `match` sent them
   again into a shut button ("is disabled"). Now waits for the screen to change: not tried yet.
 - [x] NeedAction with nothing to answer (`Respond` 0, no priority message): FM27 wants a message read (a forwarded
