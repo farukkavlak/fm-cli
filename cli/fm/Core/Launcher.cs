@@ -343,12 +343,17 @@ internal static class Launcher
 	{
 		if (!await fm.Answers()) return false;
 		try { return (await fm.Get("health")).Length > 0; }
-		catch (FmUnavailable) { return false; }
+		catch (Exception e) when (e is FmUnavailable or FmBusy) { return false; }
 	}
 
-	/// <summary>The menu is built a little after the bridge answers, and loading needs it.</summary>
+	/// <summary>
+	/// The menu is built a little after the bridge answers, and loading needs it. Asked briefly first:
+	/// until the new plugin writes its port, the port file can still name one a dead game holds, which
+	/// takes the connection and never answers (3 Nov 2026: start sat there for good).
+	/// </summary>
 	private static async Task<bool> Menu(Bridge fm)
 	{
+		if (!await fm.Answers()) return false;
 		try
 		{
 			var health = await fm.Get("health");
@@ -358,7 +363,7 @@ internal static class Launcher
 			var digits = new string((line ?? "").Where(char.IsDigit).ToArray());
 			return int.TryParse(digits, out var nodes) && nodes > 150;
 		}
-		catch (FmUnavailable) { return false; }
+		catch (Exception e) when (e is FmUnavailable or FmBusy) { return false; }
 	}
 
 	/// <summary>Asks <paramref name="condition"/> again every <paramref name="every"/> (3 s unless said) until it holds or time is up.</summary>

@@ -145,9 +145,9 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
 - [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING).
 
-- [ ] T91 `fm start` hangs at the main menu when a dead game (UE) still holds 7777: it asks the old port
-  before the plugin writes the new one, and the dead listener never answers (3 Nov). A request needs a short
-  timeout there, and start should re-read the port file.
+- [x] T91 `fm start` hung at the main menu when a dead game (UE) still held the port the file named: the menu check
+  asked `health` with the long timeout. Now it asks briefly first (`Answers`, 3 s) and the port file is read on every
+  call. Measured with 7777 held by a dead game: 2 normal starts and one with the file set to 7777, 75–78 s each.
 - [ ] T92 The game crashed once leaving a match (after the post-match talk, 15 Apr 2028, tweaks used in that
   match with a wrong bound path); not seen again in 4 matches. Watch for it.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
