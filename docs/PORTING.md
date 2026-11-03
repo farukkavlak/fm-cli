@@ -676,13 +676,12 @@ Still open:
     just switched from Turkish). A neutral ground has no field and is no longer said. TR + EN.
   - [ ] Calendar (`Match/Calendar.cs`) and the training week (`Squad/Schedule.cs`) still read `MatchVenueShort` as
     shown text ("H"/"A"/"N").
-  - [ ] `vision` (`Club/Vision.cs`): heading, weights, objective kinds and buttons all by English words. The meeting
-    opens only at the season's end (the new job's "Season expectations" message has no answer and opens none);
-    not changed until it can be measured. Its record is known: `Club.ClubVisionMeetingEditSession` (needs `human`
-    and `ClubVisionNegotiationType`): `ClubVisionMeetingActionableObjectives` / `…InformationalObjectives` (kind),
-    each objective's `VisionObjectiveImportance`, `ClubVisionMeetingCanObjectiveBeRemoved`, and `CanConfirmTerms`,
-    `CanSuggestTerms`, `CanUndo`, `CanRevert` for the buttons. Reaching the end of a season by holiday failed
-    twice: the assistant got the manager sacked (Fenerbahçe in June, Başakşehir in January).
+  - [x] `vision` (`Club/Vision.cs`): was the heading, weights, kinds and buttons by English words. Now buttons by
+    their events (`EventFmxConfirmTerms`, `…SuggestTerms`, `…Undo`, `…Revert`, `…ConfirmChanges`), objectives by
+    `/rowtexts?has=clubvision.ClubVisionMeetingObjectiveIdentifier.DisplayValue`, kind by the table's section
+    (`Within`: `ActionableSection`), required by `ClubVisionMeetingCanObjectiveBeRemoved`, weight by `#ImportanceText`,
+    remove button by `/rowcontrols` table + index. Headings `#ActionableTitle`/`#InformationalTitle`, board's words
+    `bubble.DisplayString`. TR + EN.
   - [x] `next` (`Core/Clock.cs` `Settled`): was "nothing changed for 4 s, then the state read the same twice 0.7 s
     apart"; the old way once returned while the game was still moving (a change 0.7 s after it said done). Now the
     Continue button's own module (plugin `/continueflags`: `ContinueManagerModule.m_gameStateFlags`, flow,

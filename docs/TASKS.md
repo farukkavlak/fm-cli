@@ -39,8 +39,12 @@ An event the code never names is not always a gap; each line was checked against
   in a free slot, slots full says so (the game lists the row and does nothing).
   - [ ] The no-tactic tile (`layout-tile-interaction-button` opening the tactics page, only when the team
     has no tactic) is not measured: it shows only in a new job. Measure it at the next new job.
-- [ ] T2 `vision` (`Club/Vision.cs`): heading, weights, objective kinds, buttons by English words. Its record is
-  known (`Club.ClubVisionMeetingEditSession`, PORTING). Needs the season-end meeting (Pendikspor, May 2028).
+- [x] T2 `vision` (`Club/Vision.cs`): buttons by their events, objectives by their rows' data path, kind by
+  `#ActionableSection`, required by `ClubVisionMeetingCanObjectiveBeRemoved`, weight by `#ImportanceText`, a
+  row's remove button by its row. TR + EN: read, remove + undo 3 runs each, two removed + reset, the
+  negatives (a required one, suggest with nothing removed). Suggest, confirm and end not pressed (Faruk's choice).
+- [ ] T93 Vision, new in FM27: an objective's weight stepper (`SIStepper` beside `#ImportanceText`), add an
+  objective (`EventFmxAddClubVisionObjective`, `ClubVisionMeetingPossibleObjectivesToAdd`), the 5 Year Plan tab.
 - [ ] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal").
 - [ ] T4 `tour` prints the tour's text in English in a Turkish game.
 - [x] T5 Calendar (`Match/Calendar.cs`) and training week (`Squad/Schedule.cs`) read the venue from

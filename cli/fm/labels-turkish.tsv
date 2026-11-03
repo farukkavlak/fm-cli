@@ -649,8 +649,6 @@ There is no answer number {0}. Options:	{0} numaralı cevap yok. Seçenekler:
 There is no answer '{0}'. Options:	'{0}' diye bir cevap yok. Seçenekler:
 '{0}' matches more than one answer:	'{0}' birden çok cevaba uyuyor:
     {0,-9}{1} available{2}	    {0,-9}{1} kullanılabilir{2}
-Objectives to meet	Yapılacak hedefler
-Objectives for information	Bilgi amaçlı hedefler
 required	zorunlu
 preferred	tercih
 wanted	istenen
@@ -2388,3 +2386,5 @@ The game takes off what does not go with it: {0}	Oyun bununla birlikte olmayanı
 Tactical tweaks can be made once the match has kicked off.	Taktik ince ayarları maç başlayınca yapılabilir.
 The match's tactics panel is open: the change is made when it is closed with Confirm Changes.	Maçın taktik paneli açık: değişiklik panel Değişiklikleri Onayla ile kapanınca yapılır.
 Tactical tweaks are made while the match is played; it is over.	Taktik ince ayarları maç oynanırken yapılır; maç bitti.
+ (cannot be removed)	 (çıkarılamaz)
+'{0}' is still there: the game did not take it out.	'{0}' hâlâ duruyor: oyun çıkarmadı.

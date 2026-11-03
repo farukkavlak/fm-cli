@@ -97,8 +97,9 @@ internal static class RowControls
 
 	/// <summary>
 	/// The buttons that send this event (?event=EventToPlugin:EventFmxTransferCentreResponseAccept&amp;buttons=1),
-	/// each with the table item of the row it sits in, put at a path: one answer per offer row, told
-	/// apart by the offer's own record rather than by its place among the buttons. &amp;name= narrows
+	/// each with the table item of the row it sits in, put at a path, and that row's table and index
+	/// (as /rowtexts gives them): one answer per offer row, told apart by the offer's own record
+	/// rather than by its place among the buttons. &amp;name= narrows
 	/// an event many buttons send (OpenPanel) to one element name (transfer-link-button).
 	/// </summary>
 	private static string RowButtons(string wanted, string name, string generation)
@@ -110,6 +111,7 @@ internal static class RowControls
 		{
 			var path = "";
 			var index = -1;
+			var table = 0L;
 			var enabled = false;
 			try
 			{
@@ -120,6 +122,7 @@ internal static class RowControls
 				if (RowOf(button) is { } at)
 				{
 					index = at.Index;
+					table = at.Table.Pointer.ToInt64();
 #if FM26
 					var held = at.Table.GetItemFromSource(at.Index);
 #else
@@ -130,7 +133,7 @@ internal static class RowControls
 				}
 			}
 			catch { }
-			rows.Add($"{{\"Item\": \"{path}\", \"Index\": {index}, \"Pointer\": \"0x{button.Pointer.ToInt64():x}\", \"Enabled\": \"{(enabled ? "True" : "False")}\", \"Label\": \"{Report.Escape(label ?? "")}\"}}");
+			rows.Add($"{{\"Item\": \"{path}\", \"Table\": \"0x{table:x}\", \"Index\": {index}, \"Pointer\": \"0x{button.Pointer.ToInt64():x}\", \"Enabled\": \"{(enabled ? "True" : "False")}\", \"Label\": \"{Report.Escape(label ?? "")}\"}}");
 			k++;
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";

@@ -215,7 +215,9 @@ internal static class TableRows
 	/// The texts of every laid-out row of the tables that show a text bound to ?has= (a data path:
 	/// "Person.PlayerDescription"), each with its data path, and the row's item put at a path of
 	/// its own (?gen=) to be read for whose it is (a player's UniqueId). For a cell drawn without a
-	/// path (the happiness level), which the row's item then names.
+	/// path (the happiness level), which the row's item then names. Each text also comes with its
+	/// element's own name, and each row with the names of the named elements its table sits in
+	/// ("ActionableSection"): which of a page's like tables a row belongs to, by name.
 	/// </summary>
 	public static string Shown(NameValueCollection q)
 	{
@@ -241,7 +243,7 @@ internal static class TableRows
 						var path = Texts.PathOf(t);
 						var plain = Text.FieldShown(path, t.text ?? "");
 						if (path == has) shows = true;
-						if (plain.Length > 0) texts.Add($"{{\"Text\": \"{Report.Escape(plain)}\", \"Path\": \"{Report.Escape(path ?? "")}\"}}");
+						if (plain.Length > 0) texts.Add($"{{\"Text\": \"{Report.Escape(plain)}\", \"Path\": \"{Report.Escape(path ?? "")}\", \"Name\": \"{Report.Escape(e.name ?? "")}\"}}");
 					}
 					var h = e.hierarchy;
 					for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
@@ -259,7 +261,14 @@ internal static class TableRows
 					item = $"{under}.{at}.{index}";
 			}
 			catch { }
-			rows.Add($"{{\"Table\": \"0x{table.Pointer.ToInt64():x}\", \"Index\": {index}, \"Item\": \"{item}\", \"Count\": {table.ItemCount}, \"Texts\": [{string.Join(", ", texts)}]}}");
+			var within = new List<string>();
+			try
+			{
+				for (var up = table.hierarchy.parent; up != null && within.Count < 8; up = up.hierarchy.parent)
+					if (!string.IsNullOrEmpty(up.name)) within.Add($"\"{Report.Escape(up.name)}\"");
+			}
+			catch { }
+			rows.Add($"{{\"Table\": \"0x{table.Pointer.ToInt64():x}\", \"Index\": {index}, \"Item\": \"{item}\", \"Count\": {table.ItemCount}, \"Within\": [{string.Join(", ", within)}], \"Texts\": [{string.Join(", ", texts)}]}}");
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";
 	}
