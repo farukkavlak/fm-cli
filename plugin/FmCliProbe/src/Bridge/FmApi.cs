@@ -99,6 +99,7 @@ internal static partial class FmApi
 		"namedrows" => NamedRows.Read(q),
 		"rowcontrols" => RowControls.Read(q),
 		"talk" => Talk.Current(),
+		"coachareas" => CoachAreas.Current(),
 		"tweaks" => Tweaks.Handle(q),
 		"state" => State.Current(),
 		"continueflags" => State.ContinueFlags(),

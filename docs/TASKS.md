@@ -47,11 +47,15 @@ An event the code never names is not always a gap; each line was checked against
   `club` objectives: the tab clicked by `within=TabButtons&name=Vision` (`click?name=` was never a route). TR + EN, 3 runs.
 - [ ] T93 Vision, new in FM27: an objective's weight stepper (`SIStepper` beside `#ImportanceText`), add an
   objective (`EventFmxAddClubVisionObjective`, `ClubVisionMeetingPossibleObjectivesToAdd`), the 5 Year Plan tab.
-- [ ] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal").
+- [ ] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal"). Fixed: speech bubbles are
+  read in the game's words (`Report.Spoken`), match talks show answers by `GameWords.Of`. TR measured (a whole
+  season-end team meeting); EN still to see in one talk.
 - [ ] T4 `tour` prints the tour's text in English in a Turkish game.
 - [x] T5 Calendar (`Match/Calendar.cs`) and training week (`Squad/Schedule.cs`) read the venue from
   `MatchVenueShort` (shown letter). Use the teams' ids as `status` does. Done (db727ca): home and away right in TR and EN, calendar and week, 3 runs each.
-- [ ] T6 `coaches`: the nine workload cells are read by order (`Club/Coaches.cs`).
+- [x] T6 `coaches`: a cell's area by the record its switch writes (form `Of`: `AttackingTacticalCategory` …), load and
+  lead rating by the page's record (`coachareas`: `CoachWorkload`, `LeadCoachRating`), stars by a control showing the same value.
+  TR + EN: read, assign + remove 3 runs each, a coach the job forbids refused, from another page, `--auto`.
 - [x] T7 `players` search adds Position / Transfer Value by the row's code (`ppos`, `pval`); the value list by
   `cash-list-frame`, its figures from the game (any currency), read back by the kept amount.
 - [x] T8 `tactic`: the pitch view is put back by the tab's element name (`#overview` in `#sivisible-tabs`).

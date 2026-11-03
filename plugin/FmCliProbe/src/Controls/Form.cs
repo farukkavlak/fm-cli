@@ -102,6 +102,44 @@ internal static class Form
 		return null;
 	}
 
+	/// <summary>
+	/// The name a control's record goes by in the record above it: a coach-assignment switch writes
+	/// "binding.IsAssigned" in its cell, and that cell's "binding" is one of the nine areas the
+	/// row's own record names (AttackingTacticalCategory …). Says which column a cell is, in any
+	/// language and whatever order the columns are drawn in. Null when no record above holds it.
+	/// </summary>
+	private static string HeldAs(Bindings.Key key)
+	{
+		try
+		{
+			var b = Game.Bindings;
+			if (b == null || !b.Exists(ref key)) return null;
+			var held = b.GetNode(ref key)?.Parent;
+			var pointer = held?.Value?.Get()?.Pointer ?? System.IntPtr.Zero;
+			if (pointer == System.IntPtr.Zero) return null;
+
+			var keys = new Il2CppSystem.Collections.Generic.List<SI.Bindable.Reference.Core.PropertyID>();
+			var depth = 0;
+			for (var up = held.Parent; up != null && depth < 6; up = up.Parent, depth++)
+				for (var c = up.FirstChild; c != null; c = c.NextSibling)
+				{
+					if (c.Name != held.Name || c.Value?.Get()?.TryCast<DynamicReference>() is not { } record || record.Pointer == pointer) continue;
+					keys.Clear();
+					record.GetProperties(keys);
+					foreach (var property in keys)
+					{
+						try
+						{
+							if (record[property.ID]?.Get()?.Pointer == pointer) return Schema.NameOf(property);
+						}
+						catch { }
+					}
+				}
+		}
+		catch { }
+		return null;
+	}
+
 	/// <summary>Whether a bound value sits under the page's data (the node named for its Guid).</summary>
 	private static bool OnPage(Bindings.Key? bound, string guid)
 	{
@@ -185,6 +223,7 @@ internal static class Form
 				+ $"\"Pointer\": \"0x{e.Pointer.ToInt64():x}\", "
 				+ $"\"Enabled\": \"{(e.enabledInHierarchy ? "True" : "False")}\", "
 				+ $"\"Binds\": \"{Report.Escape(binds)}\", "
+				+ $"\"Of\": \"{Report.Escape(HeldAs(box.m_valueKey) ?? "")}\", "
 				+ $"\"Pref\": \"{Report.Escape(Preference(box.m_valueKey) ?? "")}\", "
 				+ $"\"Value\": \"{(box.value ? "True" : "False")}\"}}";
 		}

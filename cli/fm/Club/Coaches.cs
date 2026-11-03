@@ -10,18 +10,29 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly (string Heading, string Turkish, string[] Words)[] CoachAreas =
+	/// <summary>The nine areas, each by the name the game's records give it (CoachAssignmentReference).</summary>
+	private static readonly (string Heading, string Turkish, string[] Words, string Record)[] CoachAreas =
 	[
-		("Att Tact", L("Attacking tactical"), ["hucum taktik", "att tact", "attacking tactical"]),
-		("Att Tech", L("Attacking technical"), ["hucum teknik", "att tech", "attacking technical"]),
-		("Def Tact", L("Defending tactical"), ["savunma taktik", "def tact", "defending tactical"]),
-		("Def Tech", L("Defending technical"), ["savunma teknik", "def tech", "defending technical"]),
-		("Poss Tact", L("Possession tactical"), ["topla taktik", "poss tact", "possession tactical"]),
-		("Poss Tech", L("Possession technical"), ["topla teknik", "poss tech", "possession technical"]),
-		("Glk", L("Goalkeeping"), ["kaleci", "glk", "goalkeeping"]),
-		("Fit", L("Condition"), ["kondisyon", "fit", "fitness"]),
-		("SPC", L("Set pieces"), ["duran top", "spc", "set pieces"]),
+		("Att Tact", L("Attacking tactical"), ["hucum taktik", "att tact", "attacking tactical"], "AttackingTacticalCategory"),
+		("Att Tech", L("Attacking technical"), ["hucum teknik", "att tech", "attacking technical"], "AttackingTechnicalCategory"),
+		("Def Tact", L("Defending tactical"), ["savunma taktik", "def tact", "defending tactical"], "DefendingTacticalCategory"),
+		("Def Tech", L("Defending technical"), ["savunma teknik", "def tech", "defending technical"], "DefendingTechnicalCategory"),
+		("Poss Tact", L("Possession tactical"), ["topla taktik", "poss tact", "possession tactical"], "PossessionTacticalCategory"),
+		("Poss Tech", L("Possession technical"), ["topla teknik", "poss tech", "possession technical"], "PossessionTechnicalCategory"),
+		("Glk", L("Goalkeeping"), ["kaleci", "glk", "goalkeeping"], "GoalkeepingCategory"),
+		("Fit", L("Condition"), ["kondisyon", "fit", "fitness"], "FitnessCategory"),
+		("SPC", L("Set pieces"), ["duran top", "spc", "set pieces"], "SetPiecesCategory"),
 	];
+
+	/// <summary>An area's load as the record numbers it (0 none … 4 very heavy), in the CLI's words.</summary>
+	private static string WorkloadWord(int load) => load switch
+	{
+		0 => L("No load"),
+		1 => L("Light"),
+		2 => L("Average"),
+		3 => L("Heavy"),
+		_ => L("Very heavy"),
+	};
 
 	private sealed record CoachCell(bool On, bool Enabled, string Pointer, int HalfStars);
 	private sealed record CoachRow(string Name, string Role, CoachCell[] Cells);
@@ -139,67 +150,64 @@ internal static partial class Program
 		Console.WriteLine(L("To assign: coaches <coach> <area>   (to remove: --off;  to leave it to the assistant: --auto)"));
 	}
 
-	/// <summary>The page as its form reads: the coaches with their nine switches, then each area's load and lead.</summary>
+	/// <summary>
+	/// The page as its form reads: the coaches with their nine switches, then each area's load and lead.
+	/// Every cell is known by the area its record names (the switch's "Of"), and every load and lead
+	/// by the area its block is remapped to ("Remap"), so neither the columns' order nor their headings count.
+	/// </summary>
 	private static async Task<(List<CoachRow> Rows, List<(string Load, int HalfStars)> Areas)?> ReadCoaches()
 	{
 		JsonElement form;
-		// The grid around the first coach's name (bound to Person.Name), up to the page's block: the
-		// title above it is the game's words.
+		// The grid around the first coach's name (bound to Person.Name), up to the page's block.
 		try { form = await Fm.GetJson("form", ("anchorpath", "Person.Name"), ("up", "14"), ("most", "1")); }
 		catch (FmError) { return null; }
 		if (form.ValueKind != JsonValueKind.Array) return null;
 
 		var items = form.EnumerateArray().ToList();
 		var rows = new List<CoachRow>();
-		var areas = new List<(string, int)>();
-		// The grid starts at the first coach: a name and a role, then a switch. The headings above it are
-		// worded differently by each game (FM26 "SPC", FM27 "Set Pieces").
-		var start = Enumerable.Range(0, Math.Max(0, items.Count - 2)).FirstOrDefault(j =>
-			Field(items[j], "Kind") == "text" && Field(items[j + 1], "Kind") == "text" && Field(items[j + 2], "Kind") == "checkbox", -1) - 1;
-		if (start < 0) return null;
+		var i = items.FindIndex(x => Field(x, "Path") == "Person.Name");
+		if (i < 0) return null;
 
-		// While the page is being built the grid comes in pieces: switches before their stars, rows before
-		// their coach's name. Every switch has its stars (none shown where he is not assigned), so the grid
-		// is whole only when it reads as name, role and nine switch-and-stars cells up to the loads.
-		var i = start + 1;
-		// A row is a coach's name and job (Person.Name, Person.JobString) and his switches; the grid ends
-		// at the first item that does not start one.
+		// A row is a coach's name and job (Person.Name, Person.JobString), then for each area a switch and
+		// his stars there (none shown where he is not assigned). While the page is being built the grid
+		// comes in pieces, so it counts only when every row has all nine areas, each named by its record.
 		while (i < items.Count && Field(items[i], "Path") == "Person.Name")
 		{
-			if (i + 1 >= items.Count || Field(items[i], "Kind") != "text" || Field(items[i + 1], "Kind") != "text") return null;
+			if (i + 1 >= items.Count || Field(items[i + 1], "Kind") != "text") return null;
 			var name = Field(items[i], "Text");
 			var role = Field(items[i + 1], "Text");
 			i += 2;
-			var cells = new List<CoachCell>();
-			while (cells.Count < CoachAreas.Length && i + 1 < items.Count && Field(items[i], "Kind") == "checkbox")
+			var cells = new Dictionary<string, CoachCell>();
+			while (i + 1 < items.Count && Field(items[i], "Kind") == "checkbox")
 			{
 				var box = items[i];
 				var stars = items[i + 1];
-				if (Field(stars, "Kind") != "stars") return null;
-				cells.Add(new CoachCell(Field(box, "Value") == "True", Field(box, "Enabled") == "True", Field(box, "Pointer"),
-					int.TryParse(Field(stars, "Shown"), out var s) ? s : 0));
+				if (Field(stars, "Kind") != "stars" || Field(box, "Of") is not { Length: > 0 } of) return null;
+				cells[of] = new CoachCell(Field(box, "Value") == "True", Field(box, "Enabled") == "True", Field(box, "Pointer"),
+					int.TryParse(Field(stars, "Shown"), out var s) ? s : 0);
 				i += 2;
 			}
-			if (cells.Count != CoachAreas.Length) return null;
-			rows.Add(new CoachRow(name, role, cells.ToArray()));
+			if (CoachAreas.Any(a => !cells.ContainsKey(a.Record))) return null;
+			rows.Add(new CoachRow(name, role, CoachAreas.Select(a => cells[a.Record]).ToArray()));
 		}
-		if (i >= items.Count) return null;
 
-		// Under the grid: each area's load in words, then its lead coach's stars (none for an area nobody
-		// leads), up to the selected coach's own panel (his Person.Name again). The headings above them are
-		// the game's words; the last nine words before the panel are the areas', each with its stars when it has a lead.
-		// The load is one of the game's words, shown as the game writes it: in a game set to another
-		// language its English can come back as another text translated the same way ("Minor" for "Light").
-		var panel = items.FindIndex(i, x => Field(x, "Path") == "Person.Name");
-		var under = items.Skip(i).Take((panel < 0 ? items.Count : panel) - i).ToList();
-		var pairs = new List<(string, int)>();
-		for (var j = 0; j < under.Count; j++)
+		// Under the grid, each area's load and its lead coach's rating: from the page's record, which
+		// names each area (the blocks that show them follow no heading the CLI can read in every language).
+		// The rating is the game's own scale; a star control on the page showing the same value says
+		// how many stars it is.
+		JsonElement figures;
+		try { figures = await Fm.GetJson("coachareas"); }
+		catch (FmError) { return null; }
+		var byArea = figures.EnumerateArray().ToDictionary(f => Field(f, "Area"));
+		if (CoachAreas.Any(a => !byArea.ContainsKey(a.Record))) return null;
+		var shown = items.Where(x => Field(x, "Kind") == "stars").GroupBy(x => Field(x, "Value"))
+			.ToDictionary(g => g.Key, g => int.TryParse(Field(g.First(), "Shown"), out var h) ? h : 0);
+		var areas = CoachAreas.Select(a =>
 		{
-			if (Field(under[j], "Kind") != "text" || Field(under[j], "Path").Length > 0) continue;
-			var half = j + 1 < under.Count && Field(under[j + 1], "Kind") == "stars" && int.TryParse(Field(under[j + 1], "Shown"), out var s) ? s : 0;
-			pairs.Add((Field(under[j], "Text"), half));
-		}
-		areas.AddRange(pairs.Skip(Math.Max(0, pairs.Count - CoachAreas.Length)));
+			var area = byArea[a.Record];
+			var load = int.TryParse(Field(area, "Workload"), out var w) ? WorkloadWord(w) : "";
+			return (load, shown.TryGetValue(Field(area, "Lead"), out var half) ? half : 0);
+		}).ToList();
 		return (rows, areas);
 	}
 }

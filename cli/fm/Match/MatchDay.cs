@@ -406,13 +406,13 @@ internal static partial class Program
 				if (!Ui.Interactive)
 				{
 					Console.WriteLine();
-					for (var i = 0; i < lines.Count; i++) Console.WriteLine($"  {i + 1,2}  {lines[i].Label}");
+					for (var i = 0; i < lines.Count; i++) Console.WriteLine($"  {i + 1,2}  {GameWords.Of(lines[i].Label)}");
 					Console.WriteLine(L("\nThe match is waiting in a talk. To speak: talk <number>, then: match")
 					                  + L("   (to skip the talk: match --no-talk)"));
 					return 0;
 				}
 
-				if (Ui.Ask(L("What do you say?"), lines.Select(l => l.Label).ToList(), cancel: L("Skip the talk")) is not { } chosen)
+				if (Ui.Ask(L("What do you say?"), lines.Select(l => GameWords.Of(l.Label)).ToList(), cancel: L("Skip the talk")) is not { } chosen)
 				{
 					spoke = flow;
 					continue;
@@ -423,7 +423,7 @@ internal static partial class Program
 					? await Fm.Get("press", ("ptr", line.Pointer))
 					: await Fm.Get("select", ("ptr", line.Pointer), ("choice", line.Choice), ("fire", "1"));
 				if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
-				Console.WriteLine($"  » {line.Label}");
+				Console.WriteLine($"  » {GameWords.Of(line.Label)}");
 
 				// What comes back, and whether there is more to say, arrives a moment later.
 				var before = string.Join("|", lines.Select(l => l.Label));

@@ -422,8 +422,24 @@ internal static class Report
 			for (var c = node.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
 
 			if (node.Name != "bubble" || !int.TryParse(node.Parent?.Name, out var index)) continue;
-			if (Fields(node).TryGetValue("DisplayString", out var text)) bubbles[index] = text;
+			if (Spoken(node) is { } text) bubbles[index] = text;
 		}
+	}
+
+	/// <summary>
+	/// What a speech bubble says, in the game's own words: a line of speech is only shown, never
+	/// matched, and put into English it came back half translated (the stock lines are in the table,
+	/// those with names are not) and the CLI could not put it back.
+	/// </summary>
+	internal static string Spoken(IReadOnlyNode bubble)
+	{
+		for (var c = bubble.FirstChild; c != null; c = c.NextSibling)
+			if (c.Name == "DisplayString")
+			{
+				var text = Text.ShownOf(c.Value);
+				return text.Length > 0 ? text : null;
+			}
+		return null;
 	}
 
 	/// <summary>

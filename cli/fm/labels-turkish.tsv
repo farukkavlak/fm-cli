@@ -2392,3 +2392,8 @@ The board has not answered yet; for its answer: vision	Yönetim henüz cevap ver
 For the objectives as they stand now: vision	Hedeflerin şimdiki hali için: vision
 The game did not take '{0}'; for where the meeting stands: vision	Oyun '{0}' düğmesini almadı; toplantının durumu için: vision
 The tactics page's copy list was not found.	Taktik sayfasının kopyalama listesi bulunamadı.
+No load	Yok
+Light	Hafif
+Average	Orta
+Heavy	Ağır
+Very heavy	Çok ağır

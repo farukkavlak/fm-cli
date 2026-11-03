@@ -27,7 +27,7 @@ internal static class Talk
 			{
 				case "bubble" when int.TryParse(node.Parent?.Name, out var index):
 					var bubble = Report.Fields(node);
-					if (bubble.TryGetValue("DisplayString", out var line) && !says.ContainsKey(index))
+					if (Report.Spoken(node) is { } line && !says.ContainsKey(index))
 						says[index] = (bubble.TryGetValue("IsHuman", out var human) && human == "True" ? "» " : "") + line;
 					break;
 
