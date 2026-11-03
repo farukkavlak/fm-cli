@@ -36,8 +36,9 @@ internal static partial class Program
 			  targets         transfer targets: the budget left and thin positions in the squad
 			  targets <position> [--max-value <money>] [the search options of players]   players in that position the budget allows ("targets DL", "targets 'left back' --age 18-24")
 			  players         the player search (the rows on screen)
-			    --filters / --filter "<x>"   the ready filters: Transfer Listed, Contract Expiring…
-			    --free                       free agents (contract expired; the "Contract Expired" filter)
+			    --filters / --filter "<x>"   the ready filters, by the game's name or: listed, loan listed, free, expiring, unhappy, goalkeepers…
+			    --free                       free agents (contract expired)
+			    --scouted / --unscouted      only the players the scouts know / everyone again
 			    --clear                      remove the filter (it stays in the game)
 			    --views / --view "<x>"       the views that set the columns
 			  table [competition] league table; with a competition's name, that competition's table (e.g. table europa)

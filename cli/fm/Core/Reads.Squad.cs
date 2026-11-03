@@ -81,7 +81,7 @@ internal static partial class Program
 		string[] noise = ["UniqueId", "Regenerated", "Team", "Count", "PlayerStatusSortType", "NewgenAppearanceDescription",
 			"AverageRating", "Index", "SquadNumberBlankIfInvalid", "PositionValue", "Position", "SubstituteString", "StatusType",
 			"TransferValueRangeStatus", "Level", "AddOnType", "MaxValue", "MinValue", "Grade", "ScoutedBestRole",
-			"ScoutedBestPosition", "Text", "Person", "IsRetired", "ShowDescriptorText", "EnableDebugText"];
+			"ScoutedBestPosition", "Text", "Person", "IsRetired", "ShowDescriptorText", "EnableDebugText", "UsesRange"];
 
 		var columns = rows.SelectMany(p => p.EnumerateObject().Select(f => f.Name))
 			.Distinct()
@@ -186,6 +186,14 @@ internal static partial class Program
 	/// columns the rows carry. Only the rows the page has on screen are bound, so this is the
 	/// top of the list, not all of it.
 	/// </summary>
+	/// <summary>The CLI's words for the player search's quick filters, by the list's own values.</summary>
+	private static readonly Dictionary<string, int> QuickFilterValues = new()
+	{
+		["transfer listed"] = 1, ["listed"] = 1, ["loan listed"] = 2, ["free"] = 4, ["expired"] = 4, ["expiring"] = 8,
+		["homegrown"] = 16, ["unhappy"] = 128, ["no preferred foot"] = 256, ["goalkeepers"] = 512, ["defenders"] = 1024,
+		["midfielders"] = 2048, ["attackers"] = 4096, ["well known"] = 8192, ["no work permit"] = 16384,
+	};
+
 	private static async Task<int> Players(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
@@ -300,14 +308,34 @@ internal static partial class Program
 			searched = true;
 		}
 
-		// Free agents are the players whose contract has run out.
-		if ((Option(args, "--filter") ?? (args.Contains("--free") ? "Contract Expired" : null)) is { } wantedFilter)
+		// A quick filter by the list's own value (QuickFilterValues), or by its name as the game writes it.
+		// Free agents are the players whose contract has run out (value 4).
+		if ((Option(args, "--filter") ?? (args.Contains("--free") ? "free" : null)) is { } wantedFilter)
 		{
-			if (Choose(filterNames, wantedFilter, L("Filter")) is not { } filter) return 1;
+			var values = filters.Value.GetProperty("Values").EnumerateArray().Select(v => v.ToString()).ToList();
+			var shownNames = filters.Value.TryGetProperty("Shown", out var sh) ? sh.EnumerateArray().Select(v => v.GetString() ?? "").ToList() : filterNames;
+			string? value = QuickFilterValues.TryGetValue(Fold(wantedFilter), out var known) && values.Contains(known.ToString()) ? known.ToString()
+				: Choose(shownNames, wantedFilter, L("Filter")) is { } byName ? values.ElementAtOrDefault(shownNames.IndexOf(byName)) : null;
+			if (value == null) return 1;
 
 			// The filter is sent to the search by the list's own event, not just written.
-			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("choice", filter), ("fire", "1"));
+			var chosen = await Fm.Get("select", ("ptr", Field(filters.Value, "Pointer")), ("value", value), ("fire", "1"));
 			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
+		}
+
+		// Only players the scouts know (the page's switch sending EventFmxFilterSetScoutedOnly), or all again.
+		if (args.Contains("--scouted") || args.Contains("--unscouted"))
+		{
+			var on = args.Contains("--scouted");
+			var toggle = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Page") == Screen.PlayerDatabase && Field(b, "Events").Contains("EventFmxFilterSetScoutedOnly", StringComparison.Ordinal));
+			if (toggle.ValueKind != JsonValueKind.Object)
+			{
+				Console.Error.WriteLine(L("The player search has no scouted-only switch."));
+				return 1;
+			}
+			var set = await Fm.Get("setcontrol", ("ptr", Field(toggle, "Pointer")), ("value", on ? "1" : "0"));
+			if (set.StartsWith("error", StringComparison.Ordinal)) return Report(set);
 		}
 
 		if (Option(args, "--view") is { } wantedView)
