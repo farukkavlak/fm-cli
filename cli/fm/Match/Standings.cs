@@ -42,7 +42,10 @@ internal static class Standings
 			};
 			if (full) cells.AddRange([Cell(F(row, "LeagueGamesWon")), Cell(F(row, "LeagueGamesDrawn")), Cell(F(row, "LeagueGamesLost")), Cell(shownDifference)]);
 			cells.Add($"[bold{(mine ? " yellow" : "")}]{Ui.Safe(F(row, "LeaguePoints"))}[/]");
-			if (form) cells.Add(string.Join(" ", Form(F(row, "RecentFormValues")).Select(r => $"{r}" == L("W") ? $"[green]{r}[/]" : $"{r}" == L("L") ? $"[red]{r}[/]" : $"[yellow]{r}[/]")));
+			// Coloured by the game's own codes (3 won, 0 lost, else drawn), the letter only shown.
+			if (form) cells.Add(string.Join(" ", F(row, "RecentFormValues").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim())
+				.Where(c => c is "0" or "1" or "2" or "3")
+				.Select(c => c switch { "3" => $"[green]{L("W")}[/]", "0" => $"[red]{L("L")}[/]", _ => $"[yellow]{L("D")}[/]" })));
 			grid.AddRow(cells.ToArray());
 		}
 

@@ -80,9 +80,13 @@ internal static partial class Program
 
 		while (true)
 		{
+			// The menu's own entries, told apart by what they do, not by their words.
 			var actions = new List<string>();
-			if (rules.All(r => r.Meets)) actions.Add(L("Send the list"));
+			var canSend = rules.All(r => r.Meets);
+			if (canSend) actions.Add(L("Send the list"));
 			actions.Add(L("Let the assistant choose"));
+			var sendAt = canSend ? 0 : -1;
+			var assistantAt = canSend ? 1 : 0;
 			var choosable = players.Where(p => p.CanChange).ToList();
 			var choices = actions.Concat(choosable.Select(p =>
 				$"{(p.On ? "✓" : "·")} {Ui.Fit(p.Name, 24),-24} {p.Age,2}  {Ui.Fit(p.Position, 18),-18} {string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(FlagName))}")).ToList();
@@ -95,8 +99,7 @@ internal static partial class Program
 				return 0;
 			}
 
-			var action = choices[index];
-			if (action == L("Send the list"))
+			if (index == sendAt)
 			{
 				// The table above is the list as it was; say what became of it.
 				var now = players.Where(p => p.On).Select(p => p.Name).ToHashSet();
@@ -107,7 +110,7 @@ internal static partial class Program
 				        + (gone.Count > 0 ? $"  [red]− {Ui.Safe(string.Join(", ", gone))}[/]" : ""));
 				return await SendList("Confirm", L("Squad list"));
 			}
-			if (action == L("Let the assistant choose")) await AssistantPick();
+			if (index == assistantAt) await AssistantPick();
 			else if (choosable[index - actions.Count] is var player && !await Flip(player.Name, !player.On)) return 1;
 
 			changed = true;

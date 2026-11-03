@@ -255,5 +255,6 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - one of a kind: one club, league, player, save, platform or store
   - time: fixed waits (`Task.Delay`, `sleep`) used as the mechanism, not as an upper bound
   Done when the audit finds nothing new, read by a second pass (another person or agent) as well.
-  - Known: comparisons against the CLI's own labels that work in any language but break the rule:
-    `Squad/Registration.cs` (menu actions), `Transfer/Contracts.cs` ("After tax", "Wage"), `Match/Standings.cs` (form W/L).
+  - [x] Comparisons against the CLI's own labels gone: `register`'s menu by its entries' places, `contracts` terms by
+    their field, the table's form by the game's codes.
+  - Known: `Transfer/Contracts.cs` leaves out terms whose value reads "-", "N/A", "None", "No" (English words the plugin gives).

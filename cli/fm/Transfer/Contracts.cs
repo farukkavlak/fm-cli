@@ -69,19 +69,19 @@ internal static partial class Program
 			}
 			return values.Count == ContractTerms.Length;
 		}, seconds: 5, every: 0.1);
-		var terms = new List<(string Say, string Value)>();
+		var terms = new List<(string Field, string Say, string Value)>();
 		foreach (var (field, say) in ContractTerms)
 		{
 			var value = values.GetValueOrDefault(field, "");
-			if (value.Length > 0 && value is not ("-" or "N/A" or "None" or "No" or "0%") && !(MoneyFormat.IsMoney(value) && Money(value) == 0)) terms.Add((say, value));
+			if (value.Length > 0 && value is not ("-" or "N/A" or "None" or "No" or "0%") && !(MoneyFormat.IsMoney(value) && Money(value) == 0)) terms.Add((field, say, value));
 		}
 		// The wage after tax is written in a sentence ("£10.5K p/w after tax"):
 		// its amount, by the wage's own period.
-		if (terms.FindIndex(t => t.Say == L("After tax")) is var net and >= 0 && MoneyFormat.Find(terms[net].Value) is { } netAmount)
+		if (terms.FindIndex(t => t.Field == "WageAfterTax") is var net and >= 0 && MoneyFormat.Find(terms[net].Value) is { } netAmount)
 		{
-			var wage = terms.FirstOrDefault(t => t.Say == L("Wage")).Value ?? "";
+			var wage = terms.FirstOrDefault(t => t.Field == "Wage").Value ?? "";
 			var period = MoneyFormat.Find(wage) is { } gross ? wage[(wage.IndexOf(gross, StringComparison.Ordinal) + gross.Length)..] : "";
-			terms[net] = (terms[net].Say, netAmount + period);
+			terms[net] = (terms[net].Field, terms[net].Say, netAmount + period);
 		}
 
 		var name = Field(hits[0], "Name");
