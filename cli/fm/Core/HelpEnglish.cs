@@ -151,6 +151,7 @@ internal static partial class Program
 			                  table, fixtures, health, contracts, finances);  export <file.csv> "<command>": that command's table
 			  --json / --csv / --md   with every command: JSON, CSV or Markdown in place of the table; no questions are asked
 			  shortlist       the players on the shortlist (those with offers too)
+			    --lists · --list "<name>" · --new "<name>"   the shortlists; show another; make one  (add … --to "<list>" with several)
 			    add <name> --for <length> · remove <name>   put on the list ("3 months", "1 year", "indefinitely") / take off it
 			  interest <name> --top|--transfer|--loan [--yes]   declare our interest in a player
 			  enquire <name>  ask their club what it would want

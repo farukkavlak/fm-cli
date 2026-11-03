@@ -305,7 +305,22 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{name} is already on the shortlist."));
 			return 1;
 		}
-		if (await EntryBy(name, OfAction(entries, "PersonAddPlayersToShortlist"), ShortlistMonths, Option(args, "--for"), L("How long should they stay on the list"), "--for \"3 ay\"") is not { } add) return 64;
+		// With more than one shortlist the menu has a folder for each, named as the list is.
+		var adds = OfAction(entries, "PersonAddPlayersToShortlist");
+		static string ListOf(JsonElement e) => Field(e, "ShownPath").Split('>') is { Length: >= 3 } parts ? parts[^2] : "";
+		var lists = adds.Select(ListOf).Where(l => l.Length > 0).Distinct().ToList();
+		if (lists.Count > 1)
+		{
+			var hits = Option(args, "--to") is { } to ? Matching(lists, l => l, to) : [];
+			if (hits.Count != 1)
+			{
+				await Fm.Get("actions", ("close", "1"));
+				Console.Error.WriteLine(L($"Which shortlist? --to \"<list>\": {string.Join(" · ", lists)}"));
+				return 64;
+			}
+			adds = adds.Where(e => ListOf(e) == hits[0]).ToList();
+		}
+		if (await EntryBy(name, adds, ShortlistMonths, Option(args, "--for"), L("How long should they stay on the list"), "--for \"3 ay\"") is not { } add) return 64;
 		return await ChooseAction(name, add, entries);
 	}
 

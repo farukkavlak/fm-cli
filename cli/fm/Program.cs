@@ -202,7 +202,7 @@ internal static partial class Program
 				"coaches" => await Coaches(args),
 				"shout" => await Shout(args),
 				"tweak" => await Tweaks(json, args),
-				"shortlist" => args.Length > 1 && args[1] is "add" or "ekle" or "remove" or "sil" or "cikar" ? await ShortlistChange(args) : await Shortlist(json),
+				"shortlist" => args.Length > 1 && args[1] is "add" or "ekle" or "remove" or "sil" or "cikar" ? await ShortlistChange(args) : await Shortlist(json, args),
 				"interest" or "trial" or "enquire" => await Approach(args[0], args),
 				"stages" => await Stages(json, args),
 				"progress" => await Progress(json),

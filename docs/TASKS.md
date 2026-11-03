@@ -98,7 +98,10 @@ An event the code never names is not always a gap; each line was checked against
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
   search's list left open underneath). Players TR + EN 3 ×; staff EN 3 ×, TR pending.
-- [ ] T23 `shortlist`: more than one shortlist.
+- [x] T23 `shortlist --lists | --list "<name>" | --new "<name>"`: the selector `human.humanselectedshortlist`, each list's
+  record (`DisplayString`, `CountString`; the one shown is the selector's own choice), a new one by `create-shortlist-button`
+  and `EventFmxCreateShortlist`. `shortlist add … --to "<list>"` picks the list's folder in the menu. EN: made one, add /
+  show / remove 3 ×, unknown list, the name taken; TR pending. Delete / rename a list: not yet.
 - [x] T24 `inbox --read-all` (`EventFmxMarkAllHumanMessagesAsRead`), read back by `NewsItemHasBeenRead`; TR 33 → 0,
   then "already read". `news <#>` marks a story read already: its tile sends `MarkMediaNewsAsRead` with `RunNewsAction`.
   EN to try at the next unread inbox. The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
