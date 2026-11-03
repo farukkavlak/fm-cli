@@ -57,8 +57,9 @@ An event the code never names is not always a gap; each line was checked against
 - [x] T8 `tactic`: the pitch view is put back by the tab's element name (`#overview` in `#sivisible-tabs`).
 - [ ] T86 Calendar / `fixtures --all` read a cup result's marks from the shown score ("u3-2" in Turkish,
   `^\d+-\d+(p|e)?$` in `Match/Calendar.cs`): extra time and penalties by the fixture's data, not its letters.
-- [ ] T89 `tactic copy` finds "Copy Tactic ›" and the "Copy Tactic>…" path by name (`Squad/TacticSlots.cs:32,68`):
-  the `add-data` list's submenu row by its place in Submenus, not its text.
+- [x] T89 `tactic copy`: the copy list is the add list's one row with a submenu, chosen by its path of indices
+  (`select?path=2,0`), full slots by `TacticCount`. With no tactic named it lists them (it used to copy the only
+  one unasked). TR + EN: copy each source, three slots full refused, unknown name refused; paths checked by dry run.
 - [ ] T9 `--term` by a term's English name fails in a German game (PORTING).
 
 ## 2. New in FM27, no command

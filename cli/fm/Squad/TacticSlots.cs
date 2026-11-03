@@ -6,7 +6,8 @@ namespace FmCli;
 /// Copying a tactic into a slot of its own and clearing a slot. The tactics page
 /// has two menus without labels: one for the slot's tactic ("Edit Tactic", "Presets… ›", "Save",
 /// "Load…", "Manage Tactics…", "Clear Slot") and one to fill a slot ("Create New Tactic", "Load
-/// Tactic", "Copy Tactic ›" with the tactics to copy in its submenu).
+/// Tactic", "Copy Tactic ›" with the tactics to copy in its submenu). Known by the data each list
+/// writes, rows by their values or the path to them, never by what they read.
 /// </summary>
 internal static partial class Program
 {
@@ -29,15 +30,22 @@ internal static partial class Program
 
 	private static async Task<int> TacticCopy(string wanted, bool dry)
 	{
-		if (await TacticMenu(FillMenu) is not { } menu || !menu.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Copy Tactic ›"))
+		// Full slots are told by the tactic count, not by the copy row being missing.
+		if (int.TryParse(Field(await TacticInfo(), "TacticCount"), out var held) && held >= 3)
 		{
-			Console.Error.WriteLine(L("No room to copy to: all three tactic slots may be taken (for the slots: tactic slot)."));
+			Console.Error.WriteLine(L("No room to copy to: all three tactic slots are taken (for the slots: tactic slot)."));
 			return 1;
 		}
-		var at = menu.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList().IndexOf("Copy Tactic ›");
-		var tactics = menu.TryGetProperty("Submenus", out var subs) && subs.TryGetProperty(at.ToString(), out var list)
-			? list.EnumerateArray().Select(t => t.GetString() ?? "").ToList()
-			: [];
+		// The copy row is the add list's one row with a submenu; its rows are the tactics, by name.
+		var menu = await TacticMenu(FillMenu);
+		var folders = menu is { } m && m.TryGetProperty("Submenus", out var subs) ? subs.EnumerateObject().ToList() : [];
+		if (menu == null || folders.Count != 1)
+		{
+			Console.Error.WriteLine(L("The tactics page's copy list was not found."));
+			return 1;
+		}
+		var copyRow = folders[0].Name;
+		var tactics = folders[0].Value.EnumerateArray().Select(t => t.GetString() ?? "").ToList();
 		if (tactics.Count == 0)
 		{
 			Console.Error.WriteLine(L("No tactic to copy."));
@@ -50,7 +58,6 @@ internal static partial class Program
 			if (Choose(tactics, wanted, L("Tactics")) is not { } named) return 1;
 			tactic = named;
 		}
-		else if (tactics.Count == 1) tactic = tactics[0];
 		else if (Ui.Interactive && Ui.Ask(L("Which tactic should be copied?"), tactics) is { } chosen) tactic = tactics[chosen];
 		else
 		{
@@ -65,7 +72,7 @@ internal static partial class Program
 			return 0;
 		}
 		var before = int.TryParse(Field(await TacticInfo(), "TacticCount"), out var c0) ? c0 : 0;
-		var sent = await Fm.Get("select", ("ptr", Field(menu, "Pointer")), ("names", $"Copy Tactic>{tactic}"), ("fire", "1"));
+		var sent = await Fm.Get("select", ("ptr", Field(menu.Value, "Pointer")), ("path", $"{copyRow},{tactics.IndexOf(tactic)}"), ("fire", "1"));
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 		JsonElement info = default;
 		var copied = await Until(async () => int.TryParse(Field(info = await TacticInfo(), "TacticCount"), out var c) && c > before, seconds: 6, every: 0.25);

@@ -1007,7 +1007,7 @@ The tactic load panel did not open.	Taktik yükleme paneli açılmadı.
 The row was chosen, but 'Load' did not open.	Satır seçildi ama 'Load' açılmadı.
 Loaded: {0}   (in the active slot; before: {1})	Yüklendi: {0}   (etkin yuvada; önceki: {1})
 Told to load; the active tactic is now: {0}	Yükle denildi; etkin taktik şimdi: {0}
-No room to copy to: all three tactic slots may be taken (for the slots: tactic slot).	Kopyalanacak yer yok: üç taktik yuvası dolu olabilir (yuvalar için: tactic slot).
+No room to copy to: all three tactic slots are taken (for the slots: tactic slot).	Kopyalanacak yer yok: üç taktik yuvası dolu (yuvalar için: tactic slot).
 No tactic to copy.	Kopyalanacak taktik yok.
 Which tactic should be copied?	Hangi taktik kopyalansın?
 \nTo copy: tactic copy "<tactic>"	\nKopyalamak için: tactic copy "<taktik>"
@@ -2391,3 +2391,4 @@ The change was put to the board.	Değişiklik yönetime önerildi.
 The board has not answered yet; for its answer: vision	Yönetim henüz cevap vermedi; cevabı için: vision
 For the objectives as they stand now: vision	Hedeflerin şimdiki hali için: vision
 The game did not take '{0}'; for where the meeting stands: vision	Oyun '{0}' düğmesini almadı; toplantının durumu için: vision
+The tactics page's copy list was not found.	Taktik sayfasının kopyalama listesi bulunamadı.
