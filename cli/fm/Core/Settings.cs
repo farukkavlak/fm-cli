@@ -164,8 +164,8 @@ internal static partial class Program
 		engineChecked = false;
 		// The screens change at once; the game's own texts (a fixture's venue, a match's kind) only
 		// once it is started again, which would lose what is not saved, so it is said, not done.
-		if (wanted.Name == L("language"))
-			Console.WriteLine(L("The screens are in the new language; the game's own texts (match type, home / away…) change when the game is opened again: save, then stop and start."));
+		if (wanted.Pref == "current_language")
+			Console.WriteLine(L("The screens are in the new language, but until the game is opened again its own texts (match type, home / away…) stay in the old one and some pages (the portal's) do not open: save, then stop and start."));
 		return 0;
 	}
 }

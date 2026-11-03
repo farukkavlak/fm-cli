@@ -140,8 +140,8 @@ An event the code never names is not always a gap; each line was checked against
   its window kept until a restart); cause unknown. Seen again 2 Nov after `stop --save` straight after a
   match with a press question open. `stop` no longer counts such a process as running.
   Same evening even a killed `/bin/sleep` stuck exiting (UE): the Mac, not the game; check after a restart.
-- [ ] T41 Changing the game's language with the game open leaves Portal pages unopenable until a restart:
-  `settings language` should say so (or restart).
+- [x] T41 `settings language` says the portal's pages do not open until the game is opened again (save, stop,
+  start); the language setting is told by its pref `current_language`, not by the CLI's word for it.
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
 - [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING).
 
@@ -248,3 +248,5 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - one of a kind: one club, league, player, save, platform or store
   - time: fixed waits (`Task.Delay`, `sleep`) used as the mechanism, not as an upper bound
   Done when the audit finds nothing new, read by a second pass (another person or agent) as well.
+  - Known: comparisons against the CLI's own labels that work in any language but break the rule:
+    `Squad/Registration.cs` (menu actions), `Transfer/Contracts.cs` ("After tax", "Wage"), `Match/Standings.cs` (form W/L).

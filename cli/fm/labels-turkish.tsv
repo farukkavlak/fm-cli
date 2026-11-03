@@ -2446,3 +2446,4 @@ There is a shortlist called '{0}' already.	'{0}' adında bir takip listesi zaten
 Told to make the shortlist '{0}', but it is not among the lists.	'{0}' takip listesi yap dendi ama listelerde yok.
 Shortlist made: {0}	Takip listesi oluşturuldu: {0}
 Which shortlist? --to \"<list>\": {0}	Hangi takip listesi? --to \"<liste>\": {0}
+The screens are in the new language, but until the game is opened again its own texts (match type, home / away…) stay in the old one and some pages (the portal's) do not open: save, then stop and start.	Ekranlar yeni dilde, ama oyun yeniden açılana kadar oyunun kendi yazıları (maç türü, iç saha / deplasman…) eski dilde kalır ve bazı sayfalar (portal) açılmaz: kaydet, sonra stop ve start.
