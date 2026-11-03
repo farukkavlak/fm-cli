@@ -62,6 +62,7 @@ internal static partial class Program
 			    --until match   go on until match day;  --until message  until a message arrives
 			    --skip        go past an open post-match question without answering
 			  holiday week|month|match   go on holiday: the assistant runs the club until then
+			    --jobs <kind> / --no-jobs   apply for manager jobs while away (any, top, higher, reputation, national …)
 			  match           play the match day: asks whether to watch in the terminal or take an instant result
 			    --play        watch the match: commentary, goals, result; asks what to say in the talks
 			                  (in a script it stops at a talk: talk <no>, then match)

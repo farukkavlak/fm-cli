@@ -101,7 +101,9 @@ An event the code never names is not always a gap; each line was checked against
   EN to try at the next unread inbox. The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
 - [ ] T25 `dugout`: next / previous / dismiss advice.
 - [ ] T26 `match`: skip replay, pause.
-- [ ] T27 `holiday`: the "apply for jobs" choice.
+- [x] T27 `holiday … --jobs <kind> | --no-jobs`: the switch `holiday.applyforjobs` and the list
+  `holiday.applyforjobsdropdownselectedoption` by its own values (−1 is the prompt), or by the shown words. `--dry` sets the
+  page and leaves by its CancelButton. TR: 3 × two kinds, an unknown kind, a real week with `--no-jobs`; EN pending.
 - [ ] T28 `fm youth candidates`: rows not seen yet (intake each March; PORTING).
 - [ ] T29 After a goal with a change pending, the "Confirm Tactical Changes" dialog (PORTING).
 - [ ] T30 Rename a tactic (the active one is "xxxx…" since a test; PORTING).
