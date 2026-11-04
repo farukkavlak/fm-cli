@@ -12,7 +12,7 @@ COMMANDS=(
 	"coaches" "staff" "scout" "shortlist" "contracts" "offers" "health" "internationals" "mentoring" "captains"
 	"takers" "penalties" "tactic" "depth" "opponent" "opposition" "progress" "world" "league" "supporters"
 	"numbers" "register" "responsibilities" "youth" "youth --training" "report" "saves" "targets" "stages" "prep"
-	"inbox"
+	"inbox" "read" "read club-history" "read data-hub" "manager"
 )
 failed=0
 i=0

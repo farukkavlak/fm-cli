@@ -22,7 +22,7 @@ internal static partial class Program
 		new("club-affiliates", "Affiliates", "08c2d1212edd2e4479a4e725a4d6bc85", null),
 		new("club-facts", "Club Facts", "6ab5db851d581e64c810f2b26b46a6a6", "9d324a9fbee18304cb7dbac45ecc0ee9"),
 		new("club-stats", "Club Stats", "4cafec025b2c8b248a446a262333cedb", "9d324a9fbee18304cb7dbac45ecc0ee9"),
-		new("season-preview", "Season Preview", "33cb544af48facf4786ff77b194640c5", null),
+		new("season-preview", "Season Preview", "33cb544af48facf4786ff77b194640c5", Screen.Competition),
 		new("past-winners", "Past Winners", "0bb18e07a01f27e40b87c71d627917ad", Screen.Competition),
 		new("award-winners", "Award Winners", "3753b600c679e4e4e90da82648a9fb29", Screen.Competition),
 		new("comp-records", "Competition Records", "89a69714acbe1e940a9c421d89ed9134", Screen.Competition),

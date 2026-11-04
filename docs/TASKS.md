@@ -109,11 +109,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
   pages no command reads (T16); a real critique line (only "no advice" seen).
 - [ ] T15 Training week card: copy / paste / reset a week, pick a session, confirm / cancel the card.
-- [ ] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
+- [x] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
+  `fm read <page>`: the page by its GUID, its texts by `/shown` (in the body on top, by the game's hit test), tables by row. TR + EN, a list of 58 tests (`tests/live/read-pages.toml`), plus 3 repeats.
   Goal / Set Piece Analysis. Not found yet: how to read one page's texts. `texts?within=<page guid>` finds nothing;
   `within=MenuBody` gives the portal left open underneath, whichever page is up, even keeping only `Pages.Shown` ones (EN, 3 pages).
   Next: each page's own data paths in `/tree`, as `opponent` holds `Team.Description`.
-- [ ] T17 Recruitment Objectives and Recruitment Feedback pages.
+- [x] T17 Recruitment Objectives and Recruitment Feedback pages.
+  `fm read recruitment-objectives`, `recruitment-feedback`.
 
 ## 3. Existing commands, missing a part
 
@@ -172,16 +174,21 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 
 ## 4. Pages no command reads (read only, lower priority)
 
-- [ ] T33 Club history: overview, records, honours, landmarks, manager history, all-time best XI.
-- [ ] T34 Club profile: affiliates, facts, stats, club news.
-- [ ] T35 Career: my profile, history, relationships, managerial stats.
+- [x] T33 Club history: overview, records, honours, landmarks, manager history, all-time best XI.
+  `fm read club-history | club-honours | club-records | club-best-xi | club-landmarks | club-managers`.
+- [x] T34 Club profile: affiliates, facts, stats, club news.
+  `fm read club-profile | club-info | club-news | club-affiliates | club-facts | club-stats`.
+- [x] T35 Career: my profile, history, relationships, managerial stats.
   - [x] Managerial stats: `fm manager` reads the page's `Person.*` paths (TR, 3 × from another page; the figures are
     the page's own, `Human` does not bind most of them). EN checked.
-- [ ] T36 Competition: past winners, awards, records, rules, structure, qualification places, coefficients,
+- [x] T36 Competition: past winners, awards, records, rules, structure, qualification places, coefficients,
+  `fm read past-winners | award-winners | comp-records | comp-rules | comp-structure | qualification | coefficients | nation-agreements | rankings | season-preview | suspensions | injury-table | manager-movements | rumours | window-report`; the season preview is there only before a season, refused otherwise.
   nation agreements, rankings, season preview, suspensions, injury table, manager movements, rumours,
   transfer window report.
-- [ ] T37 Transfers: history, window, clauses. Scouting: reports, priorities, range, not interested.
-- [ ] T38 Squad: discipline, loans, promises, squad feedback. Medical centre: risk assessment, recently returned,
+- [x] T37 Transfers: history, window, clauses. Scouting: reports, priorities, range, not interested.
+  `fm read transfer-history | transfer-window | clauses | scout-reports | scout-priorities | scout-range | not-interested`.
+- [x] T38 Squad: discipline, loans, promises, squad feedback. Medical centre: risk assessment, recently returned,
+  `fm read discipline | loans | promises | squad-feedback | risk-assessment | recently-returned | medical-season | medical-player`.
   season summary, player summary.
 
 ## 5. Robustness
@@ -228,18 +235,19 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 
 ## 6. Plugin: FM27 API changes still open (PORTING "API")
 
-- [ ] T44 `SI.Bindable.TableRowNavigatable` gone (`Controls/TableRows.cs`, `Reads/Registration.cs`).
-- [ ] T45 `BindableTextEditBox.m_textField` moved to `BindableEditBox<T>` (`Controls/TextBoxes.cs`).
-- [ ] T46 `Bindings.GetDescendantCount` gone (`Bridge/FmApi.cs`, status line only).
-- [ ] T47 `IdentifierInfo.DisplayName` gone (`Bridge/Schema.cs`).
-- [ ] T48 `EventFmxMatchFocusSelect*` gone (`Match/Prep.cs`); `EventFmxSelectMatchFocusType` remains.
+- [x] T44 `SI.Bindable.TableRowNavigatable` gone (`Controls/TableRows.cs`, `Reads/Registration.cs`).
+- [x] T45 `BindableTextEditBox.m_textField` moved to `BindableEditBox<T>` (`Controls/TextBoxes.cs`).
+- [x] T46 `Bindings.GetDescendantCount` gone (`Bridge/FmApi.cs`, status line only).
+- [x] T47 `IdentifierInfo.DisplayName` gone (`Bridge/Schema.cs`).
+- [x] T48 `EventFmxMatchFocusSelect*` gone (`Match/Prep.cs`); `prep` reads the training calendar's sessions on FM27, changed by `schedule set`.
 
 ## 7. Platform (macOS-only today)
 
 - [ ] T49 `fm start` / `stop`: `/bin/sh` + `run_bepinex_arm64.sh`, the `fm27_bep/fm.app` bundle, `PlistBuddy`,
   `pgrep` / `pkill`, Steam's macOS path (`Core/Launcher.cs`). Windows has none of it.
 - [ ] T50 Window hiding by `osascript` (`Launcher.Minimise/Hide/DropFromDock`); Windows needs its own.
-- [ ] T51 `doctor` (`Core/InstallDoctor.cs`) still checks FM26 paths (`fm26_bep`, "Football Manager 26").
+- [x] T51 `doctor` (`Core/InstallDoctor.cs`) still checks FM26 paths (`fm26_bep`, "Football Manager 26").
+  `doctor` and `install.sh`, `package.sh`, README hold FM27's layout (`~/fm27_bep/game`). `doctor --install` passes here; a clean machine is T83.
 - [ ] T52 Publishing: `tools/install.sh` builds `osx-arm64` only.
 - [ ] T53 Plugin on Windows x64: untried (Harmony would work there; arm64 has no MonoMod).
 - [ ] T54 Save and user folders on Windows (`Core/GameFolders.cs` has the path; untried).
