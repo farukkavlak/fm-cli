@@ -52,6 +52,7 @@ internal static partial class Program
 					Console.WriteLine(JsonOut.Of(shown.Summary()));
 					return 0;
 				}
+				shown.Incoming = args.Contains("--incoming");
 				shown.Draw();
 				var answers = await TalkOptions();
 				if (answers.Count > 0) Console.WriteLine(L($"\nThe options on screen: {string.Join(" · ", answers.Select(a => a.Label))}  (talk <no>)"));

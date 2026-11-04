@@ -77,7 +77,7 @@ internal sealed partial class OfferScreen
 				Console.WriteLine($"{SectionName(group.Key)}:");
 				foreach (var row in group) Console.WriteLine($"  {Say(row.Label)}: {row.Shown}{(row.Lock is { Value: not "Negotiable" and not "" } l ? $"  [{SayLock(l.Value)}]" : "")}");
 			}
-			var costs = new[] { BudgetCost.Length > 0 ? L($"From the budget: {BudgetCost}") : "", TotalCost.Length > 0 ? $"{TotalName}: {TotalCost}" : "" }.Where(c => c.Length > 0).ToList();
+			var costs = new[] { BudgetCost.Length > 0 && !Incoming ? L($"From the budget: {BudgetCost}") : "", TotalCost.Length > 0 ? $"{TotalName}: {TotalCost}" : "" }.Where(c => c.Length > 0).ToList();
 			if (costs.Count > 0) Console.WriteLine(string.Join(" · ", costs));
 			return;
 		}
@@ -92,7 +92,7 @@ internal sealed partial class OfferScreen
 					+ LockMark(row.Lock)));
 		}
 		grid.AddRow(new Text(""), new Text(""));
-		if (BudgetCost.Length > 0) grid.AddRow(new Markup(L("[dim]From the budget[/]")), new Markup($"[bold]{Ui.Safe(BudgetCost)}[/]"));
+		if (BudgetCost.Length > 0 && !Incoming) grid.AddRow(new Markup(L("[dim]From the budget[/]")), new Markup($"[bold]{Ui.Safe(BudgetCost)}[/]"));
 		if (TotalCost.Length > 0) grid.AddRow(new Markup($"[dim]{Ui.Safe(TotalName)}[/]"), new Markup($"{Ui.Safe(TotalCost)}"));
 		grid.AddRow(new Markup(L("[dim]Offer[/]")), new Markup(Ui.Safe(string.Join(" · ", Options.Select(o => o.Choice.Value)))));
 

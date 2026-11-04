@@ -83,7 +83,7 @@ internal static partial class Program
 				Console.Error.WriteLine(failed);
 				return 1;
 			}
-			var card = await Offer(["offer"]);
+			var card = await Offer(offer.Incoming ? ["offer", "--incoming"] : ["offer"]);
 			// The card stays up in the game with the director's conversation beside it, which reads as a
 			// question waiting (status, next) though there is nothing to answer there. The offers list is
 			// the row already chosen in its menu and does not reopen, so the portal is opened instead.

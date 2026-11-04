@@ -17,6 +17,8 @@ internal sealed partial class OfferScreen
 	public string Club { get; private init; } = "";
 	public string Player { get; private init; } = "";
 	public string BudgetCost { get; private init; } = "";
+	/// <summary>An offer made to us: its fee comes in, so no line says it leaves the budget.</summary>
+	public bool Incoming { get; set; }
 	public string TotalCost { get; private init; } = "";
 	/// <summary>What the total is of: a loan's is the cost should it become permanent.</summary>
 	public string TotalCostTitle { get; private init; } = "";

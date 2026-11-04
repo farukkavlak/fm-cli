@@ -101,7 +101,8 @@ internal static partial class Program
 				: score + (home ? L(" (we are at home)") : L(" (we are away)"));
 			var minute = Field(state, "MatchTime");
 			if (watchedMatch) board += L("  (a match we are watching, not the first team's)");
-			Console.WriteLine(minute == "" ? L($"In a match, not started yet.  {board}") : L($"In a match. {minute}  {board}"));
+			// The clock is not bound at a goal's stop either, and then there is a score: "–" is one before kick-off.
+			Console.WriteLine(minute == "" && score == "–" ? L($"In a match, not started yet.  {board}") : L($"In a match. {minute}  {board}"));
 			// A team talk holds the match until something is said.
 			Console.WriteLine((await TalkOptions()).Count > 0
 				? L("Waiting in a team talk. To speak: talk   (to skip the talk: match --no-talk)")
@@ -149,7 +150,8 @@ internal static partial class Program
 		if ((Passable(flow) || flow is "NeedAction" or "PressConference") && await OpenQuestion() is { } asked)
 		{
 			Console.WriteLine(L($"There is an open question{(asked.Length > 0 ? $": \"{asked}\"" : "")}"));
-			Console.WriteLine(L("To answer: talk   (to go on: next)"));
+			// A conversation an answer opened holds the game (next refuses it); a question after a match does not.
+			Console.WriteLine(flow == "NeedAction" ? L("To answer: talk") : L("To answer: talk   ·   to go on without answering: next --skip"));
 			return 0;
 		}
 		if (Passable(flow)) Console.WriteLine(L("Ready to continue: next"));

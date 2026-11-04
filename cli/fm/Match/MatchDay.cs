@@ -241,6 +241,17 @@ internal static partial class Program
 			return await InstantResult(state);
 		}
 
+		// Stopped by `pause`: asking for the match is asking for it to go on. Without this it would stand
+		// still until the watch below calls it a decision the game is waiting for. No dialog may be up
+		// (a button under one would act behind it), and a talk screen has no such button.
+		if (inMatch && Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
+		    && (await Fm.GetJson("dialog")).GetArrayLength() == 0
+		    && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Events").Contains("MatchTogglePlayPause", StringComparison.Ordinal)) is { ValueKind: JsonValueKind.Object } play)
+		{
+			await Fm.Get("press", ("ptr", Field(play, "Pointer")));
+			await Until(async () => Field(await Fm.GetJson("state"), "Playing") == "True", seconds: 5, every: 0.25);
+		}
+
 		// A talk stop waits for someone to choose what is said. At a terminal it is asked on the
 		// spot; a script is handed the choice and the match left waiting, unless told to pass
 		// the talks by.
@@ -529,7 +540,7 @@ internal static partial class Program
 				var hurt = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0).Select(p => p.Key).ToList();
 				Console.Error.WriteLine(hurt.Count > 0
 					? L($"The match stopped at {time}': {string.Join(", ", hurt)} is injured; the game is waiting for a substitution.")
-					: L($"The match stopped at {time}' and the game is waiting for a decision (most likely a substitution after an injury or a red card)."));
+					: L($"The match stopped at {time}'. If it was paused: resume. Otherwise the game is waiting for a decision (most likely a substitution after an injury or a red card)."));
 				// Seen at a real injury stop: `sub` then `match` carried on from there.
 				Console.Error.WriteLine(L("For a substitution: sub <off> <on>   ·   to carry on as it is: match   ·   what is on screen: buttons"));
 				return 1;

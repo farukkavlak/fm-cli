@@ -244,10 +244,36 @@ internal static partial class Program
 				return 1;
 			}
 			var player = hits[0];
-			// The tweaks for his position: each entry's ValidPositions mask holds the row's PlayerPosition.
-			ulong.TryParse(Field(player, "Position"), out var position);
-			var options = read.GetProperty("Options").EnumerateArray()
-				.Where(o => position == 0 || !ulong.TryParse(Field(o, "Positions"), out var mask) || mask == 0 || (mask & position) != 0).ToList();
+			// The tweaks the game offers him: his row's own list, there once the row is expanded (only one
+			// row is at a time), with the game's own word on which are greyed out. His row's toggle is told by
+			// the row its Source names, so no order of rows comes into it.
+			var options = new List<JsonElement>();
+			var expanded = false;
+			var offeredCount = -1;
+			await Until(async () =>
+			{
+				var said = await Fm.Get("tweaks", ("rows", Field(player, "Id")));
+				if (said.StartsWith("error", StringComparison.Ordinal)) return false;
+				var rows = JsonDocument.Parse(said).RootElement.GetProperty("Options").EnumerateArray().ToList();
+				if (rows.Count == 0 && !expanded)
+				{
+					var toggle = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+						.FirstOrDefault(b => Field(b, "Name") == "expand-toggle" && Field(b, "Source") == Field(player, "Row"));
+					if (toggle.ValueKind != JsonValueKind.Object) return false;
+					await Fm.Get("press", ("ptr", Field(toggle, "Pointer")));
+					expanded = true;
+					return false;
+				}
+				var settled = rows.Count > 0 && rows.Count == offeredCount && rows.All(r => Field(r, "Disabled").Length > 0);
+				offeredCount = rows.Count;
+				options = rows;
+				return settled;
+			}, seconds: 8, every: 0.3);
+			if (options.Count == 0 || options.Any(r => Field(r, "Disabled").Length == 0))
+			{
+				Console.Error.WriteLine(L("The individual tweaks could not be read."));
+				return 1;
+			}
 
 			async Task<HashSet<string>> OnFor()
 			{
@@ -261,17 +287,20 @@ internal static partial class Program
 				}
 				return on;
 			}
+			// In the game's own order: its list of individual tweaks (a row's list reads in reverse).
+			var shownOrder = read.GetProperty("Options").EnumerateArray().Select(o => Field(o, "Number")).ToList();
+			options = options.OrderBy(o => shownOrder.IndexOf(Field(o, "Number"))).ToList();
 			var active = await OnFor();
 			var words = Words(args).ToList();
 			if (words.Count == 0)
 			{
 				if (json)
 				{
-					Console.WriteLine(JsonOut.Of(options.Select(o => new { Id = Field(o, "Id"), Name = Field(o, "Name"), On = active.Contains(Field(o, "Number")) })));
+					Console.WriteLine(JsonOut.Of(options.Select(o => new { Id = Field(o, "Id"), Name = Field(o, "Name"), On = active.Contains(Field(o, "Number")), Disabled = Field(o, "Disabled") == "True" })));
 					return 0;
 				}
 				Console.WriteLine(Field(player, "Name"));
-				foreach (var o in options) Console.WriteLine($"  {(active.Contains(Field(o, "Number")) ? "✓" : " ")} {Field(o, "Name")}");
+				foreach (var o in options) Console.WriteLine($"  {(active.Contains(Field(o, "Number")) ? "✓" : " ")} {Field(o, "Name")}{(Field(o, "Disabled") == "True" ? L("  (not available now)") : "")}");
 				Console.WriteLine(L($"\nPut one on: tweak <name> --player \"{Field(player, "Name")}\"   ·   take it off: … --off"));
 				return 0;
 			}
@@ -286,6 +315,12 @@ internal static partial class Program
 			{
 				Console.WriteLine(L($"{Field(player, "Name")} · {Field(tweak, "Name")}: already {(off ? L("off") : L("on"))}"));
 				return 0;
+			}
+			// The game greys a tweak out when it would change nothing for him; its row cannot be clicked.
+			if (!off && Field(tweak, "Disabled") == "True")
+			{
+				Console.Error.WriteLine(L($"{Field(player, "Name")} · {Field(tweak, "Name")}: the game does not offer it now."));
+				return 1;
 			}
 			var said = await Fm.Get("tweaks", ("toggle", Field(tweak, "Id")), ("player", Field(player, "Id")), ("off", off ? "1" : "0"));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
@@ -340,8 +375,47 @@ internal static partial class Program
 			return 1;
 		}
 		var said = await Fm.Get("select", ("ptr", Field(reset, "Pointer")), ("value", scope.ToString()), ("fire", "1"));
+		if (said.StartsWith("error", StringComparison.Ordinal))
+		{
+			await ShutTweaksPopup(opened);
+			return Report(said);
+		}
+		// The game's Reset leaves a change still waiting to go on (measured TR: a team tweak made at a stop,
+		// then Reset, came on when play went on). Each is taken back as its own row's click would.
+		bool ForPlayer(JsonElement op) => Field(op, "TacticTweakTargetPlayerIndex") is { Length: > 0 } at && at != "-1";
+		bool InScope(JsonElement op) => scope == 2 || ForPlayer(op) == (scope == 1);
+		async Task<JsonElement> Now() => JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"r{Environment.TickCount64}"))).RootElement;
+		// The pending list is a log: taking a change back adds a removal after it, so a tweak's last entry is what it will be.
+		List<JsonElement> Waiting(JsonElement now) => now.GetProperty("Pending").EnumerateArray()
+			.GroupBy(op => (Field(op, "TacticTweakID"), Field(op, "TacticTweakTargetPlayerIndex"))).Select(g => g.Last())
+			.Where(op => Field(op, "TacticTweakPendingOpKind") == "1" && InScope(op)).ToList();
+		var seen = await Now();
+		var waiting = Waiting(seen);
+		foreach (var op in waiting.Where(op => !ForPlayer(op)))
+			if (seen.GetProperty("Team").EnumerateArray().FirstOrDefault(t => Field(t, "Number") == Field(op, "TacticTweakID")) is { ValueKind: JsonValueKind.Object } team)
+				await Fm.Get("tweaks", ("toggle", Field(team, "Id")), ("off", "1"));
+		if (waiting.Any(ForPlayer) && (await TweaksPopup("IndividualTab")).Up)
+		{
+			JsonElement individual = default;
+			await Until(async () =>
+			{
+				var read = await Fm.Get("tweaks", ("individual", "1"));
+				if (read.StartsWith("error", StringComparison.Ordinal)) return false;
+				individual = JsonDocument.Parse(read).RootElement;
+				return individual.GetProperty("Players").GetArrayLength() > 0;
+			}, seconds: 8, every: 0.3);
+			if (individual.ValueKind == JsonValueKind.Object)
+				foreach (var op in waiting.Where(ForPlayer))
+					if (individual.GetProperty("Options").EnumerateArray().FirstOrDefault(o => Field(o, "Number") == Field(op, "TacticTweakID")) is { ValueKind: JsonValueKind.Object } option)
+						await Fm.Get("tweaks", ("toggle", Field(option, "Id")), ("player", Field(op, "UniqueId")), ("off", "1"));
+		}
+		var dropped = waiting.Count == 0 || await Until(async () => Waiting(await Now()).Count == 0, seconds: 5, every: 0.25);
 		await ShutTweaksPopup(opened);
-		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+		if (!dropped)
+		{
+			Console.Error.WriteLine(L("Reset sent, but a change still waiting did not go: see tweak."));
+			return 1;
+		}
 		if (await TacticsPanelOpen())
 		{
 			Console.WriteLine(L("The match's tactics panel is open: the change is made when it is closed with Confirm Changes."));

@@ -430,7 +430,6 @@ To answer: dialog	Cevaplamak için: dialog
   The match carried on (with the pending change, if any).	  Maç sürdürüldü (bekleyen değişiklik varsa onunla).
   For a substitution: sub <off> <on> (it carries the match on too)   ·   to carry on without one: match	  Değişiklik için: sub <çıkan> <giren> (maçı da sürdürür)   ·   değişiklik yapmadan sürdürmek: match
 The match stopped at {0}': {1} is injured; the game is waiting for a substitution.	Maç {0}'da durdu: {1} sakatlandı; oyun değişiklik bekliyor.
-The match stopped at {0}' and the game is waiting for a decision (most likely a substitution after an injury or a red card).	Maç {0}'da durdu ve oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik).
 For a substitution: sub <off> <on>   ·   to carry on as it is: match   ·   what is on screen: buttons	Değişiklik için: sub <çıkan> <giren>   ·   olduğu gibi sürdürmek: match   ·   ekrandakiler: buttons
 The match has not finished in forty minutes; I stopped watching. For the state: status	Maç kırk dakikadır bitmedi; izlemeyi bıraktım. Durum için: status
 Left the match.	Maçtan çıkıldı.
@@ -2400,7 +2399,7 @@ Very heavy	Çok ağır
 There is no button to remove all the assignments.	Tüm atamaları kaldıracak bir düğme yok.
 Every assignment removed.	Tüm atamalar kaldırıldı.
 Told to remove every assignment, but some are still there.	Tüm atamaları kaldır dendi ama bazıları hâlâ duruyor.
-Which group or area?  responsibilities {0} all \"<group>\"   (or an area: media, training …)	Hangi grup ya da alan?  responsibilities {0} all \"<grup>\"   (ya da bir alan: medya, antrenman …)
+Which group or area?  responsibilities {0} all "<group>"   (or an area: media, training …)	Hangi grup ya da alan?  responsibilities {0} all "<grup>"   (ya da bir alan: medya, antrenman …)
 There is no group or area called '{0}' (all of them: responsibilities).	'{0}' adında grup ya da alan yok (hepsi: responsibilities).
 '{0}' matches groups in more than one area:	'{0}' birden çok alandaki gruplara uyuyor:
 {0}: the area could not be opened on the page.	{0}: sayfada bu alan açılamadı.
@@ -2436,7 +2435,7 @@ Applies for jobs at: {0}	İş başvurusu: {0}
 {0}: the game does not offer to stop this assignment from his menu (the entry is closed); it ends by itself when its time is up.	{0}: oyun bu görevi oyuncunun menüsünden durdurmaya izin vermiyor (seçenek kapalı); süresi dolunca kendiliğinden biter.
 The player search has no scouted-only switch.	Oyuncu aramasında "sadece gözlemlenenler" anahtarı yok.
 The staff search has no switch for our own staff.	Personel aramasında kendi personelimiz için anahtar yok.
-\nTo see one: shortlist --list \"<name>\"   ·   a new one: shortlist --new \"<name>\"	\nBirini görmek: shortlist --list \"<ad>\"   ·   yenisi: shortlist --new \"<ad>\"
+\nTo see one: shortlist --list "<name>"   ·   a new one: shortlist --new "<name>"	\nBirini görmek: shortlist --list "<ad>"   ·   yenisi: shortlist --new "<ad>"
 There is no shortlist called '{0}'. The lists: {1}	'{0}' adında takip listesi yok. Listeler: {1}
 '{0}' matches {1} shortlists.	'{0}' {1} takip listesine uyuyor.
 '{0}' could not be chosen.	'{0}' seçilemedi.
@@ -2444,7 +2443,7 @@ Shortlist: {0}	Takip listesi: {0}
 There is a shortlist called '{0}' already.	'{0}' adında bir takip listesi zaten var.
 Told to make the shortlist '{0}', but it is not among the lists.	'{0}' takip listesi yap dendi ama listelerde yok.
 Shortlist made: {0}	Takip listesi oluşturuldu: {0}
-Which shortlist? --to \"<list>\": {0}	Hangi takip listesi? --to \"<liste>\": {0}
+Which shortlist? --to "<list>": {0}	Hangi takip listesi? --to "<liste>": {0}
 The screens are in the new language, but until the game is opened again its own texts (match type, home / away…) stay in the old one and some pages (the portal's) do not open: save, then stop and start.	Ekranlar yeni dilde, ama oyun yeniden açılana kadar oyunun kendi yazıları (maç türü, iç saha / deplasman…) eski dilde kalır ve bazı sayfalar (portal) açılmaz: kaydet, sonra stop ve start.
 Clubs managed	Çalıştırdığı kulüp
 National teams managed	Çalıştırdığı milli takım
@@ -2479,7 +2478,7 @@ CAREER	KARİYER
 The tactical tweaks could not be opened.	Taktik ince ayarları açılamadı.
 The individual tweaks could not be read.	Bireysel ince ayarlar okunamadı.
 '{0}' is not on the pitch. On it: {1}	'{0}' sahada değil. Sahadakiler: {1}
-\nPut one on: tweak <name> --player \"{0}\"   ·   take it off: … --off	\nAçmak: tweak <ad> --player \"{0}\"   ·   kapatmak: … --off
+\nPut one on: tweak <name> --player "{0}"   ·   take it off: … --off	\nAçmak: tweak <ad> --player "{0}"   ·   kapatmak: … --off
 {0} · {1}: the game makes it when play goes on.	{0} · {1}: oyun devam edince uygulanır.
 The tweaks popup has no Reset.	İnce ayar penceresinde Sıfırla yok.
 Tactical tweaks reset.	Taktik ince ayarlar sıfırlandı.
@@ -2493,3 +2492,9 @@ The match is paused already.	Maç zaten duraklatılmış.
 The button was pressed, but the match did not change.	Düğmeye basıldı ama maç değişmedi.
 The match goes on.	Maç devam ediyor.
 The match is paused.	Maç duraklatıldı.
+  (not available now)	  (şu an seçilemez)
+{0} · {1}: the game does not offer it now.	{0} · {1}: oyun bunu şu an sunmuyor.
+Reset sent, but a change still waiting did not go: see tweak.	Sıfırlama gönderildi ama bekleyen bir değişiklik kaldı: tweak ile bak.
+The match's play button is not on this screen. To carry on: match	Bu ekranda maçın oynat düğmesi yok. Sürdürmek için: match
+To answer: talk	Cevaplamak için: talk
+The match stopped at {0}'. If it was paused: resume. Otherwise the game is waiting for a decision (most likely a substitution after an injury or a red card).	Maç {0}'da durdu. Sen duraklattıysan: resume. Yoksa oyun bir karar bekliyor (büyük olasılıkla sakatlık ya da kırmızı kart sonrası değişiklik).

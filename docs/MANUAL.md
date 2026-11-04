@@ -192,6 +192,11 @@ seconds, at a break when play goes on. The game itself takes off a tweak that do
 new one. Tweaks work once the match has kicked off. `--player` and `--reset` need the match screen, so
 they do not work on a talk screen.
 
+- `--player` lists what the game offers that player: a goalkeeper gets fewer. One the game has greyed out
+  is marked and cannot be put on.
+- `--reset` also takes back changes still waiting to go on.
+- After `pause`, `match` carries on as `resume` does.
+
 - A change left waiting when a goal goes in: the game asks "Proceed with tweak after this goal?". `match`
   stops and says `dialog`; Yes keeps the waiting changes, No drops them.
 

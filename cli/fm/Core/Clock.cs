@@ -347,6 +347,10 @@ internal static partial class Program
 					var again = (await Bound("inbox", "PortalScreen")).EnumerateArray()
 						.Where(m => Field(m, "NewsItemIsPriority") == "True" && Field(m, "CanRespond") == "True")
 						.Select(m => Field(m, "NewsTitleString")).Where(t => t is { Length: > 0 }).ToList();
+					// Like the blocking messages above, it may be below the first window.
+					if (again.Count == 0)
+						again = (await AllInbox()).Where(m => Field(m, "NewsItemIsPriority") == "True" && Field(m, "CanRespond") == "True")
+							.Select(m => Field(m, "NewsTitleString")).Where(t => t is { Length: > 0 }).ToList();
 					if (again.Count > 0)
 					{
 						output.WriteLine(L("The game may be waiting for a message to be answered again:"));

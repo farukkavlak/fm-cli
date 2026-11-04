@@ -81,6 +81,7 @@ internal static class Tweaks
 		if (q["where"] == "1") return Where();
 		if (q["period"] == "1") { var (state, match) = Period(); return $"{state}\t{match}\n"; }
 		if (q["individual"] == "1") return Individual();
+		if (!string.IsNullOrEmpty(q["rows"])) return PlayerRows(q["rows"]);
 		if (!string.IsNullOrEmpty(q["toggle"]) && !string.IsNullOrEmpty(q["player"])) return TogglePlayer(q["toggle"], q["player"], q["off"] == "1", q["dry"] == "1");
 		if (!string.IsNullOrEmpty(q["toggle"])) return Toggle(q["toggle"], q["off"] == "1", q["dry"] == "1");
 		return Current(q["gen"]);
@@ -205,9 +206,9 @@ internal static class Tweaks
 		{
 			string name;
 			try { name = Text.Shown(entry.NameTranslationID.TranslatedString ?? ""); } catch { name = ""; }
-			return $"{{\"Id\": {Quote(entry.TweakID.ToString())}, \"Number\": \"{(int)entry.TweakID}\", \"Name\": {Quote(name)}, \"Positions\": \"{(ulong)entry.ValidPositions}\"}}";
+			return $"{{\"Id\": {Quote(entry.TweakID.ToString())}, \"Number\": \"{(int)entry.TweakID}\", \"Name\": {Quote(name)}}}";
 		});
-		var players = Players().Select(p => $"{{\"Id\": {Quote(p.Id)}, \"Name\": {Quote(p.Name)}, \"Index\": {Quote(p.Index)}, \"Position\": {Quote(p.Position)}}}");
+		var players = Players().Select(p => $"{{\"Id\": {Quote(p.Id)}, \"Name\": {Quote(p.Name)}, \"Index\": {Quote(p.Index)}, \"Row\": {Quote(p.Row)}}}");
 		return $"{{\"Options\": [{string.Join(", ", rows)}], \"Players\": [{string.Join(", ", players)}]}}\n";
 	}
 
@@ -229,9 +230,9 @@ internal static class Tweaks
 	}
 
 	/// <summary>The players of the Individual tab: each row's Person and its place in the selection (the row's Slot.Index, what TacticTweakTargetPlayerIndex holds).</summary>
-	private static List<(string Id, string Name, string Index, string Position, string Path, SI.Core.TypedValue Value)> Players()
+	private static List<(string Id, string Name, string Index, string Row, SI.Core.TypedValue Value)> Players()
 	{
-		var found = new List<(string, string, string, string, string, SI.Core.TypedValue)>();
+		var found = new List<(string, string, string, string, SI.Core.TypedValue)>();
 		var seen = new HashSet<string>();
 		foreach (var (path, node) in Report.Walk())
 		{
@@ -250,9 +251,46 @@ internal static class Tweaks
 				for (var s = c.FirstChild; s != null; s = s.NextSibling)
 					if (s.Name == "Index" && s.Value is { IsNull: false } i) index = Text.Of(i);
 			}
-			found.Add((id, Field("Name"), index, "", at, value));
+			// The row's own path: what its expand-toggle gives as Source.
+			found.Add((id, Field("Name"), index, at[..at.LastIndexOf('.')], value));
 		}
 		return found;
+	}
+
+	/// <summary>
+	/// The tweaks the game offers one player: the rows of his PlayerTweaksList, there only while his row is
+	/// expanded, so the game's own filter by position has been through them. Whether each is greyed out is
+	/// the game's own check, IsTweakDisabled, on the very values that row binds.
+	/// </summary>
+	private static string PlayerRows(string player)
+	{
+		var row = Players().FirstOrDefault(p => p.Id == player).Row;
+		if (row == null) return $"error: no player {player} in the Individual tab";
+		var rows = new List<string>();
+		foreach (var (path, node) in Report.Walk())
+		{
+			if (node.Name != "tweak" || !path.TrimStart('.').StartsWith(row + ".PlayerTweaksList", StringComparison.Ordinal)) continue;
+			if (node.Value?.Get()?.TryCast<FM.UI.TacticalTweakEntry>() is not { } entry) continue;
+			SI.Core.TypedValue position = null, instructions = null, mentality = null;
+			for (var c = node.Parent?.FirstChild; c != null; c = c.NextSibling)
+				for (var f = c.FirstChild; f != null; f = f.NextSibling)
+				{
+					if (f.Name == "PlayerPosition") position = f.Value;
+					else if (f.Name == "savedinstructions") instructions = f.Value;
+					else if (f.Name == "savedmentality") mentality = f.Value;
+				}
+			string name;
+			try { name = Text.Shown(entry.NameTranslationID.TranslatedString ?? ""); } catch { name = ""; }
+			string disabled;
+			try
+			{
+				disabled = position == null || instructions == null || mentality == null || !uint.TryParse(Text.Of(position), out var mask) ? ""
+					: FM.UI.TacticalTweakVisualFunctions.IsTweakDisabled(node.Value, instructions, mentality, mask) ? "True" : "False";
+			}
+			catch (Exception e) { return $"error: IsTweakDisabled: {e.GetType().Name}: {e.Message}"; }
+			rows.Add($"{{\"Id\": {Quote(entry.TweakID.ToString())}, \"Number\": \"{(int)entry.TweakID}\", \"Name\": {Quote(name)}, \"Disabled\": {Quote(disabled)}}}");
+		}
+		return $"{{\"Row\": {Quote(row)}, \"Options\": [{string.Join(", ", rows)}]}}\n";
 	}
 
 	/// <summary>Sends what an individual tweak's row sends: the tweak, for one player (by his UniqueId).</summary>

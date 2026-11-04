@@ -504,6 +504,12 @@ internal static partial class Program
 			Console.WriteLine(gone ? L("Replay skipped.") : L("Told to skip the replay, but it is still playing."));
 			return gone ? 0 : 1;
 		}
+		// A talk or another screen has no play button: the match goes on from there by match.
+		if (!(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Events").Contains("MatchTogglePlayPause", StringComparison.Ordinal)))
+		{
+			Console.Error.WriteLine(L("The match's play button is not on this screen. To carry on: match"));
+			return 1;
+		}
 		var wantPlaying = command == "resume";
 		async Task<bool> Playing() => Field(await Fm.GetJson("state"), "Playing") == "True";
 		if (await Playing() == wantPlaying)
@@ -514,6 +520,8 @@ internal static partial class Program
 		var said = await Fm.Get("press", ("event", "MatchTogglePlayPause"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 		var done = await Until(async () => await Playing() == wantPlaying, seconds: 5, every: 0.25);
+		// At the game's own stop (a red card, an injury) the button changes nothing; match carries on from there.
+		if (!done && wantPlaying) Console.Error.WriteLine(L("To carry on: match"));
 		Console.WriteLine(!done ? L("The button was pressed, but the match did not change.") : wantPlaying ? L("The match goes on.") : L("The match is paused."));
 		return done ? 0 : 1;
 	}
