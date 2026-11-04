@@ -19,3 +19,6 @@ tests/nl/expanded/
 # local secrets (API keys)
 .env
 tools/window-watch/window-watch
+
+# Live test reports
+tests/live/results/

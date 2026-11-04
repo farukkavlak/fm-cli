@@ -2504,3 +2504,4 @@ The planner offers no advice list now.	Taktik ekranı şu an öneri listesi sunm
 The assistant did not answer.	Yardımcı cevap vermedi.
 The assistant's evaluation could not be read.	Yardımcının değerlendirmesi okunamadı.
 {0} was chosen, but the game does not show them as {1}. To look: captains · dialog	{0} seçildi, ama oyun onu {1} olarak göstermiyor. Bakmak için: captains · dialog
+Told to load '{0}', but the game is in '{1}'.	Kayıt '{0}' yüklensin denildi ama oyun '{1}' kaydında.

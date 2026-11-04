@@ -129,6 +129,10 @@ if [ ! -f "$shadow_bin" ] || [ "$executable_path" -nt "$shadow_bin" ]; then
     ln -sfn "$real_contents/PlugIns"    "$shadow_app/Contents/PlugIns"
     ln -sfn "$real_contents/Resources"  "$shadow_app/Contents/Resources"
     cp -f "$real_contents/Info.plist"   "$shadow_app/Contents/Info.plist"
+    # Anything left beside the binary (a crash-time preloader log, the tool's Info.plist.backup) makes
+    # codesign refuse it as a subcomponent. Info.plist is copied again below.
+    find "$shadow_app/Contents/MacOS" -type f ! -path "$shadow_bin" -delete
+    rm -f "$shadow_app/Contents/Info.plist.backup"
     cp -f "$executable_path" "$shadow_bin"
 
     ents="$(mktemp /tmp/fm26_ents.XXXXXX)"

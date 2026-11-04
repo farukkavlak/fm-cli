@@ -1,0 +1,32 @@
+# Round 1. Run: tools/fm-round.py dry tests/live/round1.toml, then run.
+
+[[test]]
+task = "T106"
+name = "an unknown captain is refused, nothing changes"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "captains", path = "Captain", keep = "before", present = true },
+  { run = "captains --captain zzzq", rc = "fail" },
+  { read = "captains", path = "Captain", same_as = "before" },
+]
+
+[[test]]
+task = "T106"
+name = "an unknown vice captain is refused, nothing changes"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "captains", path = "ViceCaptain", keep = "before", present = true },
+  { run = "captains --vice zzzq", rc = "fail" },
+  { read = "captains", path = "ViceCaptain", same_as = "before" },
+]
+
+[[test]]
+task = "T105"
+name = "the tool itself: a state it reads is a state it can hold to"
+at = "kickoff"
+steps = [
+  { read = "status", path = "State", is = "Tactics" },
+  { read = "status", path = "DuringMatch", is = "False" },
+]

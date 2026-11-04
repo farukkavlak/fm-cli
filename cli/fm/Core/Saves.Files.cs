@@ -171,15 +171,17 @@ internal static partial class Program
 			return 1;
 		}
 
-		await Fm.Get("rowselect", ("text", name));
-		// The screen's own "load this one" button: it sends the game's LoadSelectedGame, and is
-		// shut until a row is picked. Its label is this language's word, not the button.
+		var picked = await Fm.Get("rowselect", ("text", name));
+		if (picked.StartsWith("error", StringComparison.Ordinal)) return Report(picked);
+		// The list's own "load this one" button: it sends LoadSelectedGame and closes the list's panel, and is
+		// shut until a row is picked. The main menu's tile sends LoadSelectedGame alone, and that one
+		// always opens the last save.
 		JsonElement load = default;
 		if (!await Until(async () =>
 		    {
-			    load = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				    .FirstOrDefault(b => Field(b, "Events").Contains("LoadSelectedGame", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
-			    return load!.ValueKind == JsonValueKind.Object;
+			    load = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Enabled") == "True"
+				    && Field(b, "Events").Split(", ") is var sent && sent.Contains("LoadSelectedGame") && sent.Contains("ClosePanel"));
+			    return load.ValueKind == JsonValueKind.Object;
 		    }, seconds: 8, every: 0.25))
 		{
 			Console.Error.WriteLine(L("Save selected but the load button did not appear."));
@@ -196,6 +198,14 @@ internal static partial class Program
 			return 1;
 		}
 		await Until(async () => Field(await Fm.GetJson("state"), "Date").Length > 0, seconds: 60, every: 1);
+		// Read back: the game can report a load and be in another save.
+		var loaded = "";
+		await Until(async () => (loaded = Field((await PullShown([("app.LastSaveSummary", "GameSummaryGameName")]))[0], "GameSummaryGameName")).Length > 0, seconds: 30, every: 0.5);
+		if (!string.Equals(Composed(loaded), name, StringComparison.OrdinalIgnoreCase))
+		{
+			Console.Error.WriteLine(L($"Told to load '{name}', but the game is in '{loaded}'."));
+			return 1;
+		}
 		Console.WriteLine(Lf("Ready: {0} ({1}).", name, Pretty(Field(await Fm.GetJson("state"), "Date"))));
 		return 0;
 	}

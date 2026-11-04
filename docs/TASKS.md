@@ -17,8 +17,16 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T106 `captains --captain / --vice`: lists told by their element (`ChangeCaptain`, `ChangeViceCaptain`), Yes waited for, result read back.
   EN: unknown name refused; a real change finished by hand once. Left: the whole path 3 ×, vice, TR.
 - [ ] T107 `dugout 1 zzz`: the language layer drops the unknown word and opens advice 1, so "not understood" is never said. Same for other commands?
-- [ ] T104 Scenario saves: kick-off, season's end, transfer window, cup, each one load away. Measure load and language-switch times.
-- [ ] T105 One test tool: a task states what to run and where the result is read back; dry-run before a match; runs in EN, then TR.
+- [ ] T104 Scenario saves, each one load away: `tools/fm-round.py scenarios`, kept in `~/fm27_bep/scenarios`. Entering one takes about 85 s,
+  a language switch about 10 s more; a simulated match 15 s. Kept: `calm`, `cup`, `cup-draw`, `kickoff`, `window`, `sacked`, `interview`, `job-offer`, `newjob`.
+  - [ ] Season's end. A month's holiday got the manager sacked twice (Pendikspor, Varzim): go by `forward`, not holiday.
+- [x] T105 One test tool: `tools/fm-round.py`, lists in `tests/live/*.toml`. `dry` finds a broken list without the game's time (scenario, step shape, command, flag,
+  read path); `run` goes EN then TR and checks only `--json` and exit codes.
+- [x] T109 `load` opened the last save whatever it was asked and said it loaded the named one: the main menu's tile sends `LoadSelectedGame` too. The list's
+  button is told by also sending `ClosePanel`; the save's name is read back from `app.LastSaveSummary`. EN 3 scenarios, TR 1, unknown name refused.
+- [x] T110 A game update stopped `fm start`: files left beside the launch binary made its signing fail. They are removed first. Update to 27.0.0.2493426 passed, the plugin rebuilt.
+  - [ ] `start` waits the whole 4 minutes when the launch has already failed; it should say so at once.
+- [ ] T108 After a simulated match `status` has no date (`game.CurrentGameDate` reads nothing) until a page opens or a day goes by.
 - [x] T0 The game never shows itself: `fm start` keeps it out of sight from launch to a loaded save and after,
   whatever the game's own display settings say. Today FM27's saved settings (full screen, native size,
   `com.SportsInteractive.FootballManager27` prefs) override `-screen-width 640` and the window covers the
