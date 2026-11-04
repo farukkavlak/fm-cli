@@ -348,8 +348,12 @@ internal static partial class Program
 			var line = said.Label;
 
 			// The room before the line, to say afterwards what it moved.
-			if ((await Fm.GetJson("talk")).TryGetProperty("Mood", out var before))
+			var room = await Fm.GetJson("talk");
+			if (room.TryGetProperty("Mood", out var before))
 				LastMood = before.EnumerateObject().ToDictionary(m => m.Name, m => int.TryParse(m.Value.GetString(), out var n) ? n : 0);
+			// What was said to us: a journalist can press with the same answers on offer, and only his words change.
+			static string Spoken(JsonElement talk) => talk.TryGetProperty("Says", out var says) ? says.ToString() : "";
+			var spoke = Spoken(room);
 			var pressed = said.Choice == null
 				? await Fm.Get("press", ("ptr", said.Pointer))
 				: await Fm.Get("select", ("ptr", said.Pointer), ("choice", said.Choice), ("fire", "1"));
@@ -362,7 +366,7 @@ internal static partial class Program
 			// panel is briefly empty, so an empty one is only believed after it has stayed empty; the
 			// answers come in a group at a time (two of an agent's four first), so a new set is
 			// believed once it reads the same twice.
-			var was = Key(options);
+			var was = spoke + "\n" + Key(options);
 			var last = was;
 			var empty = 0;
 			var feeAsked = false;
@@ -373,7 +377,7 @@ internal static partial class Program
 				    options = await TalkOptions();
 				    if (options.Count == 0) return ++empty >= 3;
 				    empty = 0;
-				    var now = Key(options);
+				    var now = Spoken(await Fm.GetJson("talk")) + "\n" + Key(options);
 				    var settled = now != was && now == last;
 				    last = now;
 				    return settled;

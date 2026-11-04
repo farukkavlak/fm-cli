@@ -228,7 +228,7 @@ internal static class Tweaks
 		return null;
 	}
 
-	/// <summary>The players of the Individual tab: each row's Person, its team selection index and position.</summary>
+	/// <summary>The players of the Individual tab: each row's Person and its place in the selection (the row's Slot.Index, what TacticTweakTargetPlayerIndex holds).</summary>
 	private static List<(string Id, string Name, string Index, string Position, string Path, SI.Core.TypedValue Value)> Players()
 	{
 		var found = new List<(string, string, string, string, string, SI.Core.TypedValue)>();
@@ -242,14 +242,15 @@ internal static class Tweaks
 			string Field(string key) => System.Text.RegularExpressions.Regex.Match(pulled, $"\"{key}\": \"([^\"]*)\"").Groups[1].Value;
 			var id = Field("UniqueId");
 			if (id.Length == 0 || !seen.Add(id)) continue;
-			// The row beside the person keeps his place in the selection and his position.
-			string index = "", position = "";
-			for (var c = node.Parent?.FirstChild; c != null; c = c.NextSibling)
+			// The row above the person keeps his place in the selection in its Slot record.
+			var index = "";
+			for (var c = node.Parent?.Parent?.FirstChild; c != null; c = c.NextSibling)
 			{
-				if (c.Name == "TeamSelectionIndex" && c.Value is { IsNull: false } i) index = Text.Of(i);
-				if (c.Name == "PlayerPosition" && c.Value is { IsNull: false } p) position = Text.Of(p);
+				if (c.Name != "Slot") continue;
+				for (var s = c.FirstChild; s != null; s = s.NextSibling)
+					if (s.Name == "Index" && s.Value is { IsNull: false } i) index = Text.Of(i);
 			}
-			found.Add((id, Field("Name"), index, position, at, value));
+			found.Add((id, Field("Name"), index, "", at, value));
 		}
 		return found;
 	}

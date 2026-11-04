@@ -177,6 +177,10 @@ fm sub               # during a match: on the pitch and the bench
 fm sub <off> <on>
 fm shout [<x>]
 fm tweak [<x>] [--off]   # tactical tweaks: Take a Breather, Lock It Down…
+fm tweak [<x>] --player <player>   # one player's tweaks
+fm tweak --reset team|individual|all
+fm pause             # during a match; fm resume goes on
+fm skip              # skip the replay that is playing
 fm dugout [<no> <apply|dismiss>]
 fm report            # the last match: score, scorers, player of the match, stats
 fm opponent          # the next opponent: form, formation, key players, news
@@ -185,7 +189,13 @@ fm opponent          # the next opponent: form, formation, key players, news
 `tweak` lists the team's tactical tweaks in the game's words, with the ones that are on. `tweak <x>`
 puts one on and `--off` takes it off; while the ball is rolling the game makes the change within
 seconds, at a break when play goes on. The game itself takes off a tweak that does not go with the
-new one. Tweaks work once the match has kicked off.
+new one. Tweaks work once the match has kicked off. `--player` and `--reset` need the match screen, so
+they do not work on a talk screen.
+
+- A change left waiting when a goal goes in: the game asks "Proceed with tweak after this goal?". `match`
+  stops and says `dialog`; Yes keeps the waiting changes, No drops them.
+
+![Tactical tweaks of one player](manual/img/match/tweak.png)
 
 At a terminal, `match --play` draws a live panel: score, clock, period, the radar (or the shape pitch
 when the radar is off), the last events and the commands that work during the match. A redirected

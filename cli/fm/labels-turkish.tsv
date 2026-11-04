@@ -2480,7 +2480,7 @@ The tactical tweaks could not be opened.	Taktik ince ayarları açılamadı.
 The individual tweaks could not be read.	Bireysel ince ayarlar okunamadı.
 '{0}' is not on the pitch. On it: {1}	'{0}' sahada değil. Sahadakiler: {1}
 \nPut one on: tweak <name> --player \"{0}\"   ·   take it off: … --off	\nAçmak: tweak <ad> --player \"{0}\"   ·   kapatmak: … --off
-{0} · {1}: confirmed; the game makes it when play goes on.	{0} · {1}: onaylandı; oyun devam edince uygulanır.
+{0} · {1}: the game makes it when play goes on.	{0} · {1}: oyun devam edince uygulanır.
 The tweaks popup has no Reset.	İnce ayar penceresinde Sıfırla yok.
 Tactical tweaks reset.	Taktik ince ayarlar sıfırlandı.
 Reset sent; the game makes it when play goes on.	Sıfırlama gönderildi; oyun devam edince uygulanır.

@@ -151,9 +151,7 @@ internal static partial class Program
 		// With the match's tactics panel open the change waits for the panel's Confirm (its close
 		// event with the confirm flag, not its label). Otherwise, while the ball is rolling, the game
 		// makes it by itself within seconds; at a stop it waits for play to go on.
-		var panelOpen = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Any(c => ClosesTactics(c, "Confirm") && Field(c, "Visible") == "True");
-		if (panelOpen)
+		if (await TacticsPanelOpen())
 		{
 			Console.WriteLine($"{hit.Name}: {Mark(after)}");
 			Console.WriteLine(L("The match's tactics panel is open: the change is made when it is closed with Confirm Changes."));
@@ -174,36 +172,32 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Puts up the match tactics' tweaks popup (the panel by its MatchOpenTactics event, the popup by its
-	/// element tweaks-button) on one of its tabs (TeamTab, IndividualTab). True when it is up; whether the
-	/// panel was opened here, so it is closed again with Confirm.
+	/// Puts up the tweaks popup (element tweaks-button, on the match bar, or in the tactics panel when
+	/// that is open) on one of its tabs (TeamTab, IndividualTab). True when it is up; whether it was
+	/// opened here, so it is shut again. No panel is needed: the bar's popup offers the same.
 	/// </summary>
 	private static async Task<(bool Up, bool Opened)> TweaksPopup(string tab)
 	{
-		var opened = false;
-		var controls = await Fm.GetJson("buttons", ("json", "1"));
-		if (!controls.EnumerateArray().Any(c => ClosesTactics(c, "Confirm") && Field(c, "Visible") == "True"))
-		{
-			// The match screen's own Tactics button (element "tactic"); other controls send the same event.
-			await Fm.Get("press", ("event", "MatchOpenTactics"), ("name", "tactic"));
-			opened = true;
-		}
 		async Task<bool> Tab() => !(await Fm.Get("click", ("within", "TabButtons"), ("name", tab))).StartsWith("error", StringComparison.Ordinal);
 		// The popup's own click opens it and shuts it again: it is clicked only while its tabs are not up.
-		if (await Tab()) return (true, opened);
-		if (!await Until(async () => !(await Fm.Get("popup", ("name", "tweaks-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.4))
-			return (false, opened);
+		if (await Tab()) return (true, false);
+		if ((await Fm.Get("popup", ("name", "tweaks-button"))).StartsWith("error", StringComparison.Ordinal))
+			return (false, false);
 		var clicked = false;
 		await Until(async () => clicked = await Tab(), seconds: 4, every: 0.3);
-		return (clicked, opened);
+		return (clicked, true);
 	}
 
-	/// <summary>Closes the match tactics panel with its Confirm (the close event's confirm flag), which makes the changes.</summary>
-	private static async Task ConfirmTactics()
+	/// <summary>Shuts the tweaks popup if it was opened here (its own click, as it opened).</summary>
+	private static async Task ShutTweaksPopup(bool opened)
 	{
-		var confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(c => ClosesTactics(c, "Confirm"));
-		if (confirm.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
+		if (opened) await Fm.Get("popup", ("name", "tweaks-button"));
 	}
+
+	/// <summary>Whether the match's tactics panel is up: then a change waits for its Confirm.</summary>
+	private static async Task<bool> TacticsPanelOpen() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Any(c => ClosesTactics(c, "Confirm") && Field(c, "Visible") == "True");
 
 	/// <summary>
 	/// One player's individual tweaks (the popup's Individual tab): the ones for his position, which is on
@@ -216,17 +210,25 @@ internal static partial class Program
 		if (!up)
 		{
 			Console.Error.WriteLine(L("The tactical tweaks could not be opened."));
+			await ShutTweaksPopup(opened);
 			return 1;
 		}
 		try
 		{
+			// The rows are bound a few at a time, and a side down to ten has fewer: believed once the
+			// same number reads twice, every row with its place in the selection.
 			JsonElement read = default;
+			var count = -1;
 			await Until(async () =>
 			{
 				var said = await Fm.Get("tweaks", ("individual", "1"));
 				if (said.StartsWith("error", StringComparison.Ordinal)) return false;
 				read = JsonDocument.Parse(said).RootElement;
-				return read.GetProperty("Players").GetArrayLength() >= 11;
+				var players = read.GetProperty("Players");
+				var now = players.GetArrayLength();
+				var settled = now > 0 && now == count && players.EnumerateArray().All(p => Field(p, "Index").Length > 0);
+				count = now;
+				return settled;
 			}, seconds: 8, every: 0.4);
 			if (read.ValueKind != JsonValueKind.Object)
 			{
@@ -292,53 +294,70 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"{Field(tweak, "Name")}: sent, but the game did not take the change."));
 				return 1;
 			}
-			// The change is made when the panel is closed with Confirm.
-			await ConfirmTactics();
-			opened = false;
-			var made = await Until(async () =>
+			// With the tactics panel up the change waits for its Confirm, the player's own to give. Otherwise
+			// the game makes it by itself while the ball is rolling, and at a stop when play goes on.
+			if (await TacticsPanelOpen())
+			{
+				Console.WriteLine($"{Field(player, "Name")} · {Field(tweak, "Name")}: {(off ? L("off") : L("on"))}");
+				Console.WriteLine(L("The match's tactics panel is open: the change is made when it is closed with Confirm Changes."));
+				return 0;
+			}
+			var made = Field(await Fm.GetJson("state"), "Playing") == "True" && await Until(async () =>
 			{
 				var now = JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"c{Environment.TickCount64}"))).RootElement;
-				var isOn = now.GetProperty("Active").EnumerateArray().Any(a => Field(a, "TacticTweakTargetPlayerIndex") == Field(player, "Index") && Field(a, "TacticTweakID") == Field(tweak, "Number"));
+				var rows = now.GetProperty("Active").EnumerateArray().ToList();
+				// A row bound just now has its fields a frame later: not believed until it reads.
+				if (rows.Any(a => Field(a, "TacticTweakID").Length == 0)) return false;
+				var isOn = rows.Any(a => Field(a, "TacticTweakTargetPlayerIndex") == Field(player, "Index") && Field(a, "TacticTweakID") == Field(tweak, "Number"));
 				return isOn != off;
 			}, seconds: 60, every: 0.5);
 			Console.WriteLine(made ? $"{Field(player, "Name")} · {Field(tweak, "Name")}: {(off ? L("off") : L("on"))}"
-				: L($"{Field(player, "Name")} · {Field(tweak, "Name")}: confirmed; the game makes it when play goes on."));
+				: L($"{Field(player, "Name")} · {Field(tweak, "Name")}: the game makes it when play goes on."));
 			return 0;
 		}
 		finally
 		{
-			if (opened) await ConfirmTactics();
+			await ShutTweaksPopup(opened);
 		}
 	}
 
-	/// <summary>The popup's Reset, by its list's own values (resetscope: 0 team, 1 individual, 2 all), then confirmed.</summary>
+	/// <summary>The popup's Reset, by its list's own values (resetscope: 0 team, 1 individual, 2 all); read back like a change.</summary>
 	private static async Task<int> ResetTweaks(string[] args)
 	{
 		var scope = Words(args).FirstOrDefault() switch { "team" or "takim" => 0, "individual" or "bireysel" => 1, _ => 2 };
-		var (up, _) = await TweaksPopup("TeamTab");
+		var (up, opened) = await TweaksPopup("TeamTab");
 		if (!up)
 		{
 			Console.Error.WriteLine(L("The tactical tweaks could not be opened."));
-			await ConfirmTactics();
+			await ShutTweaksPopup(opened);
 			return 1;
 		}
 		var reset = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Binds") == "resetscope");
 		if (reset.ValueKind != JsonValueKind.Object)
 		{
 			Console.Error.WriteLine(L("The tweaks popup has no Reset."));
-			await ConfirmTactics();
+			await ShutTweaksPopup(opened);
 			return 1;
 		}
 		var said = await Fm.Get("select", ("ptr", Field(reset, "Pointer")), ("value", scope.ToString()), ("fire", "1"));
-		if (said.StartsWith("error", StringComparison.Ordinal)) { await ConfirmTactics(); return Report(said); }
-		await ConfirmTactics();
-		bool Left(JsonElement now) => now.GetProperty("Active").EnumerateArray().Any(a => scope switch
+		await ShutTweaksPopup(opened);
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+		if (await TacticsPanelOpen())
 		{
-			0 => Field(a, "TacticTweakTargetPlayerIndex") is "" or "-1",
-			1 => Field(a, "TacticTweakTargetPlayerIndex") is not ("" or "-1"),
-			_ => true,
-		});
-		var cleared = await Until(async () => !Left(JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"r{Environment.TickCount64}"))).RootElement), seconds: 60, every: 0.5);
+			Console.WriteLine(L("The match's tactics panel is open: the change is made when it is closed with Confirm Changes."));
+			return 0;
+		}
+		// A row bound just now has its fields a frame later: not believed until it reads. The game's own
+		// removals wait in the pending list, so a reset is not made while that holds any.
+		bool Left(JsonElement now) => now.GetProperty("Pending").GetArrayLength() > 0 || now.GetProperty("Active").EnumerateArray().Any(a =>
+			Field(a, "TacticTweakID").Length == 0 || scope switch
+			{
+				0 => Field(a, "TacticTweakTargetPlayerIndex") == "-1",
+				1 => Field(a, "TacticTweakTargetPlayerIndex") != "-1",
+				_ => true,
+			});
+		var cleared = Field(await Fm.GetJson("state"), "Playing") == "True"
+			&& await Until(async () => !Left(JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"r{Environment.TickCount64}"))).RootElement), seconds: 60, every: 0.5);
 		Console.WriteLine(cleared ? L("Tactical tweaks reset.") : L("Reset sent; the game makes it when play goes on."));
 		return 0;
 	}

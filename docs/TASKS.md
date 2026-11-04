@@ -71,14 +71,14 @@ An event the code never names is not always a gap; each line was checked against
 - [x] T10 Tactical tweaks in a match, team tab: `fm tweak` / `fm_tweak` (list, on, `--off`), by
   `TacticalTweak` id; works once kicked off (a pre-kick-off tweak is dropped by the game).
 - [ ] T90 Tactical tweaks, rest:
-  - Done in code (6f2d2f4 and after): `tweak --player <p>` lists and toggles a player's tweaks by the popup's data
-    (`tweaks?individual=1`: TacticalTweakIndividualOptions, IndividualPlayersList) and the game's event with TargetPlayer;
-    `tweak --reset team|individual|all` by the `resetscope` list's values. Measured EN: list 2/2, one put on and
-    confirmed. Open: after the panel is closed with Confirm the next call says "could not be opened" (the panel
-    button `tactic` or the popup does not come up again) — find why. Entries' ValidPositions read 0 (all kept).
-  - Was: the Individual tab (`TargetPlayer`, `TacticalTweakIndividualOptions`) and
-  Reset (`ResetTacticalTweaksEvent`); extra time not measured; refresh `docs/MANUAL.md` with a `tweak` image
-  at the next match.
+  - `tweak --player <p>` and `tweak --reset team|individual|all` go through the match bar's tweaks popup
+    (`tweaks-button`), no tactics panel; the popup is shut again. A player's place is his row's `Slot.Index`. While the
+    ball rolls the game makes a change by itself, at a stop when play goes on; with the panel up, at its Confirm.
+    Measured EN, Pendikspor – Ankaragücü: list cold, repeated, another player, unknown player; on / off / already on,
+    paused and playing; reset read back with the ball rolling: individual 3, team 2, all 2; at a goal's stop it says "when play goes on"; on a talk screen it says it cannot open.
+  - [ ] The same in Turkish.
+  - [ ] Extra time.
+  - [ ] Individual tweaks by position: every entry's `ValidPositions` reads 0, so a goalkeeper is offered the outfield list.
 - [ ] T11 TransferRoom (In, Out, Agent Offers): adverts by type and view, discard agents' offered players.
 - [ ] T12 Squad Planner (planner, contracts, current best XI): add, move, remove, ask assistant, copy.
 - [ ] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
@@ -113,12 +113,20 @@ An event the code never names is not always a gap; each line was checked against
   EN 9 → 0, then "already read". The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
 - [ ] T25 `dugout`: next / previous / dismiss advice.
 - [ ] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): EN 3 × each, both already-states. `skip`
-  (MatchSkipReplay): the button is always there; only an enabled one counts. No replay seen yet to measure.
+  (MatchSkipReplay): the button is always there; only an enabled one counts. EN: a replay skipped once, no replay 3 × says
+  so; once right after a goal it said "still playing", cause not known. Turkish left.
 - [x] T27 `holiday … --jobs <kind> | --no-jobs`: the switch `holiday.applyforjobs` and the list
   `holiday.applyforjobsdropdownselectedoption` by its own values (−1 is the prompt), or by the shown words. `--dry` sets the
   page and leaves by its CancelButton. TR: 3 × two kinds, an unknown kind, a real week with `--no-jobs`; EN 3 × and a kind by the game's words.
 - [ ] T28 `fm youth candidates`: rows not seen yet (intake each March; PORTING).
-- [ ] T29 After a goal with a change pending, the "Confirm Tactical Changes" dialog (PORTING).
+- [ ] T29 After a goal with a change pending, the game's question (dialog `Type` `cancelTweaks`, "Proceed with tweak
+  after this goal?"). `match` stops and says `dialog`. EN, 3 goals: Yes then Confirm made the tweak; No twice dropped every
+  pending change, active ones stay. Turkish left, and `cancelChanges` (a tactic change, not a tweak) not met.
+- [ ] T97 The match bar's Tactics button (`tactic`, `MatchOpenTactics`): opens the panel once on a screen; after the panel
+  is cancelled, press and click do nothing (EN: 6 of 6, paused and playing) until the screen is rebuilt at half time. Nothing
+  depends on it now; find why before a command needs the panel.
+- [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
+  too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
   rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.
 - [ ] T31 `scout player --cancel`: the game keeps the assignment (PORTING). Measured TR: the entry is Report › Cancel
@@ -152,7 +160,8 @@ An event the code never names is not always a gap; each line was checked against
 - [x] T41 `settings language` says the portal's pages do not open until the game is opened again (save, stop,
   start); the language setting is told by its pref `current_language`, not by the CLI's word for it.
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
-- [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING).
+- [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING). EN, once: handed to
+  the assistant and sent, no "is disabled". The screen comes only at a season's start or a new signing.
 
 - [x] T95 `next` stopped at "The game does not move on: TransferHub" when the window opened (28 Jun 2028): FM27's
   look-only screens (TransferHub, NewsForYou, CompetitionOverview, DataHub, YouthSetup; `ContinueFlowFlags`) are
