@@ -125,6 +125,9 @@ An event the code never names is not always a gap; each line was checked against
   then "already read". `news <#>` marks a story read already: its tile sends `MarkMediaNewsAsRead` with `RunNewsAction`.
   EN 9 → 0, then "already read". The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
 - [ ] T25 `dugout`: next / previous / dismiss advice.
+  `dugout <no>` and `dugout <no> apply | dismiss` exist. EN, ball rolling, 3 Sep 2028: the list also shows the panel's score ticker
+  ("76 mins 52 Orduspor FK 1 Ankaragücü 2 …") as advice; while a move is played the panel hides, so `dismiss` and a wrong number end in "no advice"
+  with no word on what happened; once "could not be opened". Measure paused: what tells advice from a ticker entry, read back a dismiss.
 - [ ] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): TR and EN, both already-states; no play button (a
   talk) says `match`; at the game's own stop the button does nothing and it says `match`. `match` after `pause` plays on. `skip`
   (MatchSkipReplay): only an enabled button counts. EN and TR: a replay skipped once each, no replay says so. Left: once right
@@ -136,9 +139,8 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T29 After a goal with a change pending, the game's question (dialog `Type` `cancelTweaks`). `match` stops and says
   `dialog`. EN 3 goals, TR 2: Yes makes the tweak, No drops every waiting change, active ones stay. Left: `cancelChanges`
   (a tactic change, not a tweak) not met.
-- [ ] T97 The match bar's Tactics button (`tactic`, `MatchOpenTactics`): EN, first half, after the panel was cancelled press
-  and click did nothing, 6 of 6, until half time. TR: second half paused 5 of 5 opens again; before kick-off 5 of 5. First half
-  not tried again. Nothing depends on it now.
+- [x] T97 The match bar's Tactics button opens the panel every time. EN first half, paused and playing, 12 of 12; TR second half 5 of 5.
+  What looked like a dead button: a Cancel pressed as the panel appears can be lost, the panel stays up and the button stays hidden. Cancel is read back.
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
