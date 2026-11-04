@@ -12,6 +12,13 @@ An event the code never names is not always a gap; each line was checked against
 
 ## 0. First, before anything else
 
+How to work through this list: "Work in rounds" in `CLAUDE.md`.
+
+- [ ] T106 `captains --captain / --vice`: lists told by their element (`ChangeCaptain`, `ChangeViceCaptain`), Yes waited for, result read back.
+  EN: unknown name refused; a real change finished by hand once. Left: the whole path 3 ×, vice, TR.
+- [ ] T107 `dugout 1 zzz`: the language layer drops the unknown word and opens advice 1, so "not understood" is never said. Same for other commands?
+- [ ] T104 Scenario saves: kick-off, season's end, transfer window, cup, each one load away. Measure load and language-switch times.
+- [ ] T105 One test tool: a task states what to run and where the result is read back; dry-run before a match; runs in EN, then TR.
 - [x] T0 The game never shows itself: `fm start` keeps it out of sight from launch to a loaded save and after,
   whatever the game's own display settings say. Today FM27's saved settings (full screen, native size,
   `com.SportsInteractive.FootballManager27` prefs) override `-screen-width 640` and the window covers the
@@ -124,10 +131,14 @@ An event the code never names is not always a gap; each line was checked against
 - [x] T24 `inbox --read-all` (`EventFmxMarkAllHumanMessagesAsRead`), read back by `NewsItemHasBeenRead`; TR 33 → 0,
   then "already read". `news <#>` marks a story read already: its tile sends `MarkMediaNewsAsRead` with `RunNewsAction`.
   EN 9 → 0, then "already read". The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
-- [ ] T25 `dugout`: next / previous / dismiss advice.
-  `dugout <no>` and `dugout <no> apply | dismiss` exist. EN, ball rolling, 3 Sep 2028: the list also shows the panel's score ticker
-  ("76 mins 52 Orduspor FK 1 Ankaragücü 2 …") as advice; while a move is played the panel hides, so `dismiss` and a wrong number end in "no advice"
-  with no word on what happened; once "could not be opened". Measure paused: what tells advice from a ticker entry, read back a dismiss.
+- [ ] T25 `dugout`: a card is told by `MatchDugoutSelectedEventType` (4 is a score update, left out), "can apply" by
+  `MatchDugoutIsSelectedEventActionable`, its place by `MatchDugoutSelectedEventIndex` with two readings agreeing; apply is `DugoutAdviceAccept`
+  (it never matched in FM27 before). EN and TR, paused and rolling: apply, dismiss, wrong number, nothing to apply; no score card listed.
+  Next / previous not needed: `dugout <no>` jumps. `match` prints every new card.
+  - [ ] Left, round 1: read the effect of apply during the match. The game's flag turns off, but after the match mentality and
+    instructions read as before; the match's tactic may be separate. Read it before and after an apply, and after play goes on.
+  - The panel is hidden during a move, even paused: `dugout` waits while the ball rolls and says so when paused.
+  - While the ball rolls the list can move between two calls, so a number can mean another card (T101 removes the need for numbers).
 - [ ] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): TR and EN, both already-states; no play button (a
   talk) says `match`; at the game's own stop the button does nothing and it says `match`. `match` after `pause` plays on. `skip`
   (MatchSkipReplay): only an enabled button counts. EN and TR: a replay skipped once each, no replay says so. Left: once right
@@ -177,7 +188,8 @@ An event the code never names is not always a gap; each line was checked against
   start); the language setting is told by its pref `current_language`, not by the CLI's word for it.
 - [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
 - [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING). EN, once: handed to
-  the assistant and sent, no "is disabled". The screen comes only at a season's start or a new signing.
+  the assistant and sent, no "is disabled". The screen comes only at a season's start or a new signing. EN once: "No confirmation
+  window came" while the window was up. Now waits for its Yes; not met again yet.
 
 - [x] T95 `next` stopped at "The game does not move on: TransferHub" when the window opened (28 Jun 2028): FM27's
   look-only screens (TransferHub, NewsForYou, CompetitionOverview, DataHub, YouthSetup; `ContinueFlowFlags`) are
@@ -263,6 +275,17 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [ ] T75 `docs/AI-CHECKLIST.md` open items done or moved here.
 - [ ] T76 `docs/BACKLOG.md` ideas decided: each made a task here or dropped.
 - [ ] T77 `fm crawl` TR + EN again at the end; the report shows no event or page without a command (or a reason).
+
+UX: `fm` is a conversation, so no running command should make you leave it or open a second terminal. Found by reading the code;
+not yet tried in a live terminal.
+
+- [ ] T100 Command line during a match: a key pauses play and opens `fm›` under the panel; any command runs there, then play goes on.
+  Today only the fixed keys work (`s h t v a r + -`, `MatchDay.cs`).
+- [ ] T101 One key for the common match actions: pause / resume, and apply or pass on advice as it appears. No key today for `pause`,
+  `resume`, `skip`, `tweak`, `dugout`. The advice line prints only the selected card, so two new at once can lose one: show them all.
+- [ ] T102 Long commands (`next`, `holiday` up to 30 min, save, load): show progress, and keep the prompt usable where the game allows.
+- [ ] T103 Ctrl-C: no handler in the CLI, so it likely ends the whole `fm` session while the game runs on (try it first). It should stop
+  the command and return to `fm›`; cancel a holiday only by the game's own way.
 
 ## 11. Acceptance tests (last; each is passed in one go, through the tool only, no bridge)
 
