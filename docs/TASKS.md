@@ -70,7 +70,13 @@ An event the code never names is not always a gap; each line was checked against
 
 - [x] T10 Tactical tweaks in a match, team tab: `fm tweak` / `fm_tweak` (list, on, `--off`), by
   `TacticalTweak` id; works once kicked off (a pre-kick-off tweak is dropped by the game).
-- [ ] T90 Tactical tweaks, rest: the Individual tab (`TargetPlayer`, `TacticalTweakIndividualOptions`) and
+- [ ] T90 Tactical tweaks, rest:
+  - Done in code (6f2d2f4 and after): `tweak --player <p>` lists and toggles a player's tweaks by the popup's data
+    (`tweaks?individual=1`: TacticalTweakIndividualOptions, IndividualPlayersList) and the game's event with TargetPlayer;
+    `tweak --reset team|individual|all` by the `resetscope` list's values. Measured EN: list 2/2, one put on and
+    confirmed. Open: after the panel is closed with Confirm the next call says "could not be opened" (the panel
+    button `tactic` or the popup does not come up again) — find why. Entries' ValidPositions read 0 (all kept).
+  - Was: the Individual tab (`TargetPlayer`, `TacticalTweakIndividualOptions`) and
   Reset (`ResetTacticalTweaksEvent`); extra time not measured; refresh `docs/MANUAL.md` with a `tweak` image
   at the next match.
 - [ ] T11 TransferRoom (In, Out, Agent Offers): adverts by type and view, discard agents' offered players.
@@ -106,7 +112,8 @@ An event the code never names is not always a gap; each line was checked against
   then "already read". `news <#>` marks a story read already: its tile sends `MarkMediaNewsAsRead` with `RunNewsAction`.
   EN 9 → 0, then "already read". The `--tasks` filter's fixed 500 ms wait is now "the list reads differently".
 - [ ] T25 `dugout`: next / previous / dismiss advice.
-- [ ] T26 `match`: skip replay, pause.
+- [ ] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): EN 3 × each, both already-states. `skip`
+  (MatchSkipReplay): the button is always there; only an enabled one counts. No replay seen yet to measure.
 - [x] T27 `holiday … --jobs <kind> | --no-jobs`: the switch `holiday.applyforjobs` and the list
   `holiday.applyforjobsdropdownselectedoption` by its own values (−1 is the prompt), or by the shown words. `--dry` sets the
   page and leaves by its CancelButton. TR: 3 × two kinds, an unknown kind, a real week with `--no-jobs`; EN 3 × and a kind by the game's words.

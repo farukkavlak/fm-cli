@@ -184,13 +184,17 @@ internal static partial class Program
 		var controls = await Fm.GetJson("buttons", ("json", "1"));
 		if (!controls.EnumerateArray().Any(c => ClosesTactics(c, "Confirm") && Field(c, "Visible") == "True"))
 		{
-			await Fm.Get("press", ("event", "MatchOpenTactics"));
+			// The match screen's own Tactics button (element "tactic"); other controls send the same event.
+			await Fm.Get("press", ("event", "MatchOpenTactics"), ("name", "tactic"));
 			opened = true;
 		}
+		async Task<bool> Tab() => !(await Fm.Get("click", ("within", "TabButtons"), ("name", tab))).StartsWith("error", StringComparison.Ordinal);
+		// The popup's own click opens it and shuts it again: it is clicked only while its tabs are not up.
+		if (await Tab()) return (true, opened);
 		if (!await Until(async () => !(await Fm.Get("popup", ("name", "tweaks-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.4))
 			return (false, opened);
 		var clicked = false;
-		await Until(async () => clicked = !(await Fm.Get("click", ("within", "TabButtons"), ("name", tab))).StartsWith("error", StringComparison.Ordinal), seconds: 4, every: 0.3);
+		await Until(async () => clicked = await Tab(), seconds: 4, every: 0.3);
 		return (clicked, opened);
 	}
 
@@ -241,7 +245,7 @@ internal static partial class Program
 			// The tweaks for his position: each entry's ValidPositions mask holds the row's PlayerPosition.
 			ulong.TryParse(Field(player, "Position"), out var position);
 			var options = read.GetProperty("Options").EnumerateArray()
-				.Where(o => position == 0 || ulong.TryParse(Field(o, "Positions"), out var mask) && (mask & position) != 0).ToList();
+				.Where(o => position == 0 || !ulong.TryParse(Field(o, "Positions"), out var mask) || mask == 0 || (mask & position) != 0).ToList();
 
 			async Task<HashSet<string>> OnFor()
 			{
