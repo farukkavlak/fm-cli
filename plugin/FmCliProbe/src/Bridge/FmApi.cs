@@ -82,6 +82,7 @@ internal static partial class FmApi
 		"instructions" => Instructions.Current(),
 		"tiles" => Instructions.Tiles(),
 		"texts" => Texts.Around(q),
+		"shown" => Texts.OnScreen(q),
 		"scroll" => Texts.Scroll(q),
 		"form" => Form.Read(q),
 		"setcontrol" => Form.Set(q),

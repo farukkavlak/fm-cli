@@ -280,6 +280,11 @@ internal static partial class Router
 				if (c.Has("sifirla", "reset")) c.Set("reset", c.Has("bireysel", "individual") ? "individual" : c.Has("hepsi", "all") ? "all" : "team");
 				if (c.Has("kapat", "kaldir", "turn off", " off$")) c.Set("off", true);
 			}),
+		R("fm_read", "kulup tarihi=5; kupalarimiz=4; kulup rekor=5; tarihce=3; club history=6; honours=4; past winners=5; gecmis sampiyon=5; turnuva kural=5; competition rules=6; veri merkezi=5; data hub=6; takim analizi=5; gol analizi=5; duran top analizi=5; transfer gecmisi=5; transfer history=6; sezon onizleme=5; ceza alanlar=3; suspensions=4; manager movements=6; transfer soylenti=5; rumours=4", c =>
+			{
+				foreach (var (cue, key) in new[] { ("kulup tarihi", "club-history"), ("club history", "club-history"), ("kupalarimiz", "club-honours"), ("honours", "club-honours"), ("kulup rekor", "club-records"), ("past winners", "past-winners"), ("gecmis sampiyon", "past-winners"), ("turnuva kural", "comp-rules"), ("competition rules", "comp-rules"), ("veri merkezi", "data-hub"), ("data hub", "data-hub"), ("takim analizi", "team-analysis"), ("gol analizi", "goal-analysis"), ("duran top analizi", "set-piece-analysis"), ("transfer gecmisi", "transfer-history"), ("transfer history", "transfer-history"), ("sezon onizleme", "season-preview"), ("suspensions", "suspensions"), ("manager movements", "manager-movements"), ("transfer soylenti", "rumours"), ("rumours", "rumours") })
+					if (c.Has(cue)) { c.Set("page", key); break; }
+			}),
 		R("fm_manager", "menajer kariyer=5; menajer istatistik=5; kariyerim=4; kariyer istatistik=5; menajerlik kariyer=5; my career=4; my record=4; manager record=5; manager stats=5; career stats=4", c => { }),
 		R("fm_tactic_advice", "taktik onerisi=5; taktik tavsiye=5; yardimci taktik=4; taktik degerlendir=5; tactic advice=6; tactical advice=6; assistant think of the tactic=6; evaluate my tactic=6; evaluate the tactic=6", c =>
 			{

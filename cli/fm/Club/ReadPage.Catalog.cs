@@ -1,0 +1,65 @@
+namespace FmCli;
+
+/// <summary>The look-only pages `read` opens. GUIDs from the crawl (docs/reference/fm27), the same in every language.</summary>
+internal static partial class Program
+{
+	private static class ReadPageCatalog
+	{
+		public static readonly ReadablePage[] Pages =
+		[
+		new("career-profile", "My Profile", "91b6526ebabc40047adb3280a897e0a0", null),
+		new("career-history", "My History", "bd082d34d96a1064b856111dce762324", "91b6526ebabc40047adb3280a897e0a0"),
+		new("career-relationships", "My Relationships", "a22fd157f3577f440ba2149e57beef03", "91b6526ebabc40047adb3280a897e0a0"),
+		new("club-history", "Club History", "27c647efaf54667489a0bbd72e1677aa", null),
+		new("club-honours", "Honours", "0b247eb2c2afd93438be01e9923541e1", "27c647efaf54667489a0bbd72e1677aa"),
+		new("club-records", "Club Records", "17cc0f45b28370041ab8add7270f1793", "27c647efaf54667489a0bbd72e1677aa"),
+		new("club-best-xi", "All-Time Best XI", "548f5c9404388b547aa8032670de41d6", "27c647efaf54667489a0bbd72e1677aa"),
+		new("club-landmarks", "Landmarks", "463b5915ad91a6f4ca98299d10654e86", "27c647efaf54667489a0bbd72e1677aa"),
+		new("club-managers", "Manager History", "dc0c7df06747c4f47bd4dfd4e06402be", "27c647efaf54667489a0bbd72e1677aa"),
+		new("club-affiliates", "Affiliates", "08c2d1212edd2e4479a4e725a4d6bc85", null),
+		new("club-facts", "Club Facts", "6ab5db851d581e64c810f2b26b46a6a6", null),
+		new("club-stats", "Club Stats", "4cafec025b2c8b248a446a262333cedb", null),
+		new("season-preview", "Season Preview", "33cb544af48facf4786ff77b194640c5", null),
+		new("past-winners", "Past Winners", "0bb18e07a01f27e40b87c71d627917ad", Screen.Competition),
+		new("award-winners", "Award Winners", "3753b600c679e4e4e90da82648a9fb29", Screen.Competition),
+		new("comp-records", "Competition Records", "89a69714acbe1e940a9c421d89ed9134", Screen.Competition),
+		new("comp-rules", "Competition Rules", "6972849a51b57ba449e99cb85fc9bc86", Screen.Competition),
+		new("comp-structure", "Competition Structure", "a03bbdf2c7c064c4aafcf4ff6ddfefd0", Screen.Competition),
+		new("qualification", "Qualification Places", "28df1e67964c510469a50d00f7d8fef4", Screen.Competition),
+		new("coefficients", "Club Coefficients", "27337d970bd58e74ab927ecd2d9bd37a", Screen.Competition),
+		new("nation-agreements", "Nation Agreements", "9524461503a82ed459b0f19aedc7edb8", Screen.Competition),
+		new("rankings", "Rankings", "872c37deaaed80749a8616642a47ec3e", Screen.Competition),
+		new("suspensions", "Current Suspensions", "c6bd53b160baac24e8bf3b227e043d1d", Screen.Competition),
+		new("injury-table", "Injury Table", "1479155b6f97e5e49be5381322489837", Screen.Competition),
+		new("manager-movements", "Manager Movements", "51eafd46f92c8d54c90cbf3bb1ee87c7", Screen.Competition),
+		new("rumours", "Transfer Rumours", "450bc0bd780107a429fa3aa28ba89a20", Screen.Competition),
+		new("window-report", "Transfer Window Report", "88194404f990bc544ac35c4e9cda00fe", Screen.Competition),
+		new("transfer-history", "Transfer History", "7d082c85954edba46a6213e6ad4e93c2", null),
+		new("transfer-window", "Transfer Window", "3ce997dda731e61468b15e676a2e6819", null),
+		new("clauses", "Clauses", "13766ffa5c7373840b9107ebea20da52", null),
+		new("scout-reports", "Scout Reports", "c6308dba088ce2b4faba8a570681ccf6", null),
+		new("scout-priorities", "Scout Priorities", "6bc226ccaa1b5cd46bdd9d7d05d503a2", "c6308dba088ce2b4faba8a570681ccf6"),
+		new("scout-range", "Scouting Range", "9005a99750b539947b692133937d8220", "c6308dba088ce2b4faba8a570681ccf6"),
+		new("not-interested", "Not Interested List", "96199c306acd78944ad7b227f5eaaa17", "c6308dba088ce2b4faba8a570681ccf6"),
+		new("discipline", "Discipline", "1d20cdf2399f034488de49b4c6762090", null),
+		new("loans", "Loans", "6329caa4335143c44a1ede0337d12df7", null),
+		new("promises", "Promises", "259b7b1ce5adce94187449760f6964d4", null),
+		new("squad-feedback", "Squad Feedback", "01185d994697feb45b44c3254ded8282", null),
+		new("risk-assessment", "Risk Assessment", "e6cc2ce45b6b1b04aa2cb7a86f231d4a", "441b97c2507a7674da333bd6ad56c0bd"),
+		new("recently-returned", "Recently Returned", "7538d68b93455274dad19399a50f9073", "441b97c2507a7674da333bd6ad56c0bd"),
+		new("medical-season", "Medical Season Summary", "cd6b539f9abae114096061975297ce30", "441b97c2507a7674da333bd6ad56c0bd"),
+		new("medical-player", "Medical Player Summary", "7b0196c94a57da247a2118b08797a24a", "441b97c2507a7674da333bd6ad56c0bd"),
+		new("data-hub", "Data Hub", "18d422cf9dec91e4cbacb588c83d7a48", null),
+		new("last-match", "Last Match Analysis", "18d422cf9dec91e4cbacb588c83d7a48", null, "LastMatch"),
+		new("team-analysis", "Team Analysis", "18d422cf9dec91e4cbacb588c83d7a48", null, "TeamAnalytics"),
+		new("player-analysis", "Player Analysis", "18d422cf9dec91e4cbacb588c83d7a48", null, "PlayerAnalytics"),
+		new("formation-analysis", "Formation Analysis", "18d422cf9dec91e4cbacb588c83d7a48", null, "FormationAnalysis"),
+		new("goal-analysis", "Goal Analysis", "18d422cf9dec91e4cbacb588c83d7a48", null, "GoalAnalysis"),
+		new("set-piece-analysis", "Set Piece Analysis", "18d422cf9dec91e4cbacb588c83d7a48", null, "SetPieceAnalysis"),
+		new("tactical-effectiveness", "Tactical Effectiveness", "8b68d3d4d01629248a8b097c02804991", null),
+		new("tactics-feedback", "Tactics Feedback", "a9fb5ab8073271e4e9ab55bdb9ffa4e8", null),
+		new("recruitment-objectives", "Recruitment Objectives", "d774da76c1083f447817c41a23c331bf", null),
+		new("recruitment-feedback", "Recruitment Feedback", "e6f45f39a0976eb4c8601a6f99637e7c", null),
+		];
+	}
+}

@@ -211,3 +211,9 @@
 {"tr": "menajerlik kariyerim nasıl", "call": "fm_manager", "split": "held"}
 {"en": "my career stats", "call": "fm_manager", "split": "held"}
 {"en": "manager record", "call": "fm_manager", "split": "dev"}
+{"tr": "kulüp tarihi", "call": "fm_read", "args": {"page": "club-history"}, "split": "held"}
+{"tr": "kupalarımız neler", "call": "fm_read", "args": {"page": "club-honours"}, "split": "held"}
+{"en": "show the data hub", "call": "fm_read", "args": {"page": "data-hub"}, "split": "dev"}
+{"en": "competition rules", "call": "fm_read", "args": {"page": "comp-rules"}, "split": "dev"}
+{"tr": "gol analizi", "call": "fm_read", "args": {"page": "goal-analysis"}, "split": "held"}
+{"en": "transfer history", "call": "fm_read", "args": {"page": "transfer-history"}, "split": "held"}

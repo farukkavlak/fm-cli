@@ -63,6 +63,74 @@ internal static class Texts
 		return "[" + string.Join(", ", best ?? []) + "]\n";
 	}
 
+	/// <summary>
+	/// Every text a person can see, in the tree's order, each with its data path, the row it stands in and the
+	/// names above it: for a page read as it stands, whichever panel it was opened in. Row is the table row's
+	/// place, -1 outside a table. Occluded pages keep their style, so the caller tells them by ?under= (an element
+	/// name some ancestor must have) or the names returned.
+	/// </summary>
+	public static string OnScreen(NameValueCollection q)
+	{
+		var under = q["under"];
+		var chain = q["chain"] == "1";
+		// ?top=1: only the body a person sees, whichever it is (MenuBody, ReportBody…): pages left open under
+		// it keep their style. The game's own hit test says which one is on top.
+		VisualElement topBody = q["top"] == "1" ? TopBody() : null;
+		if (q["top"] == "1" && topBody == null) return "[]\n";
+		var rows = new Dictionary<VisualElement, (int Index, long Table)>();
+#if !FM26
+		foreach (var (row, table, index) in TableRows.Laid()) rows[row] = (index, table.Pointer.ToInt64());
+#endif
+		var texts = new List<string>();
+		foreach (var element in Buttons.Elements())
+		{
+			try
+			{
+				var text = element.TryCast<TextElement>();
+				if (text == null || !Pages.Shown(element)) continue;
+				var path = PathOf(text);
+				var plain = Text.FieldShown(path, text.text ?? "");
+				if (plain.Length == 0) continue;
+				var at = -1;
+				var table = 0L;
+				var names = new List<string>();
+				var inside = string.IsNullOrEmpty(under) && topBody == null;
+				for (var e = element.parent; e != null; e = e.parent)
+				{
+					if (topBody != null && e.Pointer == topBody.Pointer) inside = true;
+					if (at < 0 && rows.TryGetValue(e, out var place)) (at, table) = place;
+					if (!inside && e.name == under) inside = true;
+					if (chain && !string.IsNullOrEmpty(e.name)) names.Add(e.name);
+				}
+				if (!inside) continue;
+				names.Reverse();
+				texts.Add($"{{\"Text\": \"{Report.Escape(plain)}\", \"Path\": \"{Report.Escape(path ?? "")}\", \"Row\": {at}, \"Table\": \"0x{table:x}\", \"Pointer\": \"0x{element.Pointer.ToInt64():x}\", \"Name\": \"{Report.Escape(element.name ?? "")}\", \"Above\": \"{Report.Escape(string.Join("/", names))}\"}}");
+				if (texts.Count >= 3000) break;
+			}
+			catch { }
+		}
+		return "[" + string.Join(",\n", texts) + "]\n";
+	}
+
+	/// <summary>The child of the main document that holds what is on top in the middle of the screen.</summary>
+	private static VisualElement TopBody()
+	{
+		foreach (var element in Buttons.Elements())
+		{
+			try
+			{
+				if (element.name != "MainUIDocument-container" || element.panel == null) continue;
+				var box = element.worldBound;
+				var hit = element.panel.Pick(box.center);
+				for (var e = hit; e != null; e = e.parent)
+					if (e.parent != null && e.parent.Pointer == element.Pointer) return e;
+				return null;
+			}
+			catch { }
+		}
+		return null;
+	}
+
 	private static List<string> Under(VisualElement root, bool paths, string named = null)
 	{
 		var texts = new List<string>();
