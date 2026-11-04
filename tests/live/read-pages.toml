@@ -1,0 +1,624 @@
+# Every look-only page: it opens, reads something, and the game does not move. Generated once from the catalog.
+
+[[test]]
+task = "T35"
+name = "read career-profile"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read career-profile", path = "Page", is = "career-profile" },
+  { read = "read career-profile", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T35"
+name = "read career-history"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read career-history", path = "Page", is = "career-history" },
+  { read = "read career-history", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T35"
+name = "read career-relationships"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read career-relationships", path = "Page", is = "career-relationships" },
+  { read = "read career-relationships", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T33"
+name = "read club-history"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-history", path = "Page", is = "club-history" },
+  { read = "read club-history", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T33"
+name = "read club-honours"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-honours", path = "Page", is = "club-honours" },
+  { read = "read club-honours", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T33"
+name = "read club-records"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-records", path = "Page", is = "club-records" },
+  { read = "read club-records", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T33"
+name = "read club-best-xi"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-best-xi", path = "Page", is = "club-best-xi" },
+  { read = "read club-best-xi", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T33"
+name = "read club-landmarks"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-landmarks", path = "Page", is = "club-landmarks" },
+  { read = "read club-landmarks", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T33"
+name = "read club-managers"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-managers", path = "Page", is = "club-managers" },
+  { read = "read club-managers", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T34"
+name = "read club-profile"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-profile", path = "Page", is = "club-profile" },
+  { read = "read club-profile", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T34"
+name = "read club-info"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-info", path = "Page", is = "club-info" },
+  { read = "read club-info", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T34"
+name = "read club-news"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-news", path = "Page", is = "club-news" },
+  { read = "read club-news", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T34"
+name = "read club-affiliates"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-affiliates", path = "Page", is = "club-affiliates" },
+  { read = "read club-affiliates", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T34"
+name = "read club-facts"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-facts", path = "Page", is = "club-facts" },
+  { read = "read club-facts", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T34"
+name = "read club-stats"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read club-stats", path = "Page", is = "club-stats" },
+  { read = "read club-stats", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read past-winners"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read past-winners", path = "Page", is = "past-winners" },
+  { read = "read past-winners", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read award-winners"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read award-winners", path = "Page", is = "award-winners" },
+  { read = "read award-winners", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read comp-records"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read comp-records", path = "Page", is = "comp-records" },
+  { read = "read comp-records", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read comp-rules"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read comp-rules", path = "Page", is = "comp-rules" },
+  { read = "read comp-rules", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read comp-structure"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read comp-structure", path = "Page", is = "comp-structure" },
+  { read = "read comp-structure", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read qualification"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read qualification", path = "Page", is = "qualification" },
+  { read = "read qualification", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read coefficients"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read coefficients", path = "Page", is = "coefficients" },
+  { read = "read coefficients", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read nation-agreements"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read nation-agreements", path = "Page", is = "nation-agreements" },
+  { read = "read nation-agreements", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read rankings"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read rankings", path = "Page", is = "rankings" },
+  { read = "read rankings", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read suspensions"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read suspensions", path = "Page", is = "suspensions" },
+  { read = "read suspensions", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read injury-table"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read injury-table", path = "Page", is = "injury-table" },
+  { read = "read injury-table", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read manager-movements"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read manager-movements", path = "Page", is = "manager-movements" },
+  { read = "read manager-movements", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read rumours"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read rumours", path = "Page", is = "rumours" },
+  { read = "read rumours", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "read window-report"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read window-report", path = "Page", is = "window-report" },
+  { read = "read window-report", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T37"
+name = "read transfer-history"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read transfer-history", path = "Page", is = "transfer-history" },
+  { read = "read transfer-history", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T37"
+name = "read transfer-window"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read transfer-window", path = "Page", is = "transfer-window" },
+  { read = "read transfer-window", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T37"
+name = "read clauses"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read clauses", path = "Page", is = "clauses" },
+  { read = "read clauses", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T37"
+name = "read scout-reports"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read scout-reports", path = "Page", is = "scout-reports" },
+  { read = "read scout-reports", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T37"
+name = "read scout-priorities"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read scout-priorities", path = "Page", is = "scout-priorities" },
+  { read = "read scout-priorities", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T37"
+name = "read scout-range"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read scout-range", path = "Page", is = "scout-range" },
+  { read = "read scout-range", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T37"
+name = "read not-interested"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read not-interested", path = "Page", is = "not-interested" },
+  { read = "read not-interested", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T38"
+name = "read discipline"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read discipline", path = "Page", is = "discipline" },
+  { read = "read discipline", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T38"
+name = "read loans"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read loans", path = "Page", is = "loans" },
+  { read = "read loans", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T38"
+name = "read promises"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read promises", path = "Page", is = "promises" },
+  { read = "read promises", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T38"
+name = "read squad-feedback"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read squad-feedback", path = "Page", is = "squad-feedback" },
+  { read = "read squad-feedback", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T38"
+name = "read risk-assessment"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read risk-assessment", path = "Page", is = "risk-assessment" },
+  { read = "read risk-assessment", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T38"
+name = "read recently-returned"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read recently-returned", path = "Page", is = "recently-returned" },
+  { read = "read recently-returned", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T38"
+name = "read medical-season"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read medical-season", path = "Page", is = "medical-season" },
+  { read = "read medical-season", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T38"
+name = "read medical-player"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read medical-player", path = "Page", is = "medical-player" },
+  { read = "read medical-player", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read data-hub"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read data-hub", path = "Page", is = "data-hub" },
+  { read = "read data-hub", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read last-match"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read last-match", path = "Page", is = "last-match" },
+  { read = "read last-match", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read team-analysis"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read team-analysis", path = "Page", is = "team-analysis" },
+  { read = "read team-analysis", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read player-analysis"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read player-analysis", path = "Page", is = "player-analysis" },
+  { read = "read player-analysis", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read formation-analysis"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read formation-analysis", path = "Page", is = "formation-analysis" },
+  { read = "read formation-analysis", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read goal-analysis"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read goal-analysis", path = "Page", is = "goal-analysis" },
+  { read = "read goal-analysis", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read set-piece-analysis"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read set-piece-analysis", path = "Page", is = "set-piece-analysis" },
+  { read = "read set-piece-analysis", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read tactical-effectiveness"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read tactical-effectiveness", path = "Page", is = "tactical-effectiveness" },
+  { read = "read tactical-effectiveness", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T16"
+name = "read tactics-feedback"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read tactics-feedback", path = "Page", is = "tactics-feedback" },
+  { read = "read tactics-feedback", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T17"
+name = "read recruitment-objectives"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read recruitment-objectives", path = "Page", is = "recruitment-objectives" },
+  { read = "read recruitment-objectives", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T17"
+name = "read recruitment-feedback"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read recruitment-feedback", path = "Page", is = "recruitment-feedback" },
+  { read = "read recruitment-feedback", path = "Parts.#", not = 0 },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T36"
+name = "season preview reads before a season"
+at = "window"
+steps = [ { read = "read season-preview", path = "Parts.#", not = 0, live = true } ]
+
+[[test]]
+task = "T33"
+name = "an unknown page is refused"
+at = "calm"
+steps = [ { run = "read zzqq", rc = "fail" } ]
+
+[[test]]
+task = "T36"
+name = "season preview is refused when the game has none"
+at = "calm"
+steps = [ { run = "read season-preview", rc = "fail" } ]

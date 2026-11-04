@@ -89,7 +89,8 @@ internal static class Texts
 				var text = element.TryCast<TextElement>();
 				if (text == null || !Pages.Shown(element)) continue;
 				var path = PathOf(text);
-				var plain = Text.FieldShown(path, text.text ?? "");
+				// As a person sees it, in the game's language; nothing is told by these words.
+				var plain = System.Text.RegularExpressions.Regex.Replace(Text.Clean(text.text ?? "", translate: false) ?? "", "<[^>]+>", "").Trim();
 				if (plain.Length == 0) continue;
 				var at = -1;
 				var table = 0L;

@@ -11,7 +11,7 @@ internal static partial class Program
 {
 	/// <summary>
 	/// Key, the page's name in English (translated by the catalog), its GUID, the page whose bar lists it (or null),
-	/// and the tab inside the page, by its element's name under the page's TabButtons.
+	/// and the tab inside the page, by the name of the element that holds its button.
 	/// </summary>
 	private sealed record ReadablePage(string Key, string Name, string Guid, string? Bar = null, string? Tab = null);
 
@@ -59,18 +59,24 @@ internal static partial class Program
 		await Fm.Get("closeintro");
 		if (page.Tab != null)
 		{
+			// The tab's page is told from the page under it, not from whatever was up before.
+			await Until(async () => (await ShownTexts()).Any(t => Field(t, "Above").Split('/').Contains(page.Tab)), seconds: 8, every: 0.25);
+			before = await ShownTexts();
 			var clicked = "";
-			await Until(async () => !(clicked = await Fm.Get("click", ("within", "TabButtons"), ("name", page.Tab))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.25);
+			await Until(async () => !(clicked = await Fm.Get("click", ("within", page.Tab), ("name", "navigation-tab-default-default"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.25);
 			if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 		}
 
-		// Read once two readings agree and the page has drawn something. A page opened on itself reads as before.
+		// Read once two readings agree and the page has drawn something: first it has to change, unless it
+		// was this page all along, which the bound only lets pass.
+		string Key(List<JsonElement> from) => string.Join("\n", from.Select(t => Field(t, "Text")));
+		await Until(async () => Key(await ShownTexts()) != Key(before), seconds: 3, every: 0.25);
 		List<JsonElement> texts = [];
 		var last = "";
 		var settled = await Until(async () =>
 		{
 			texts = await ShownTexts();
-			var now = string.Join("\n", texts.Select(t => Field(t, "Text")));
+			var now = Key(texts);
 			var same = texts.Count > 0 && now == last;
 			last = now;
 			return same;
@@ -106,7 +112,7 @@ internal static partial class Program
 				{
 					Keep(await ShownTexts());
 					return rows.Count > seen;
-				}, seconds: 1.5, every: 0.25);
+				}, seconds: 0.75, every: 0.25);
 				idle = rows.Count > seen ? 0 : idle + 1;
 				any = (await ShownTexts()).Where(t => Field(t, "Table") == table.Key).Select(t => Field(t, "Pointer")).FirstOrDefault() ?? any;
 			}

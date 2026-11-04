@@ -30,3 +30,40 @@ steps = [
   { read = "status", path = "State", is = "Tactics" },
   { read = "status", path = "DuringMatch", is = "False" },
 ]
+
+[[test]]
+task = "T106"
+name = "a captain's change lands and reads back"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "captains", path = "ViceCaptain", keep = "vice" },
+  { read = "captains", path = "Captain", keep = "captain" },
+  { run = "captains --captain {vice}" },
+  { read = "captains", path = "Captain", same_as = "vice" },
+]
+
+[[test]]
+task = "T106"
+name = "a vice-captain's change lands and reads back; the game refuses a second one that day"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "0.Name", keep = "other" },
+  { read = "captains", path = "ViceCaptain", keep = "vice" },
+  { run = "captains --vice {other}", rc = "any" },
+  { read = "captains", path = "ViceCaptain", differs_from = "vice" },
+  { run = "captains --vice {vice}", rc = "fail" },
+]
+
+[[test]]
+task = "T1"
+name = "a new job's first day: tactic new opens the wizard with no tactic"
+at = "newjob"
+fresh = true
+repeat = 3
+steps = [
+  { run = "tactic new" },
+]
