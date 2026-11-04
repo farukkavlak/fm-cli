@@ -101,6 +101,7 @@ internal static partial class FmApi
 		"talk" => Talk.Current(),
 		"coachareas" => CoachAreas.Current(),
 		"tweaks" => Tweaks.Handle(q),
+		"critiques" => Report.Critiques(),
 		"state" => State.Current(),
 		"continueflags" => State.ContinueFlags(),
 		"tactic" => Tactics.Current(),

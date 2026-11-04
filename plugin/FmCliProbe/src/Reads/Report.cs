@@ -383,6 +383,16 @@ internal static class Report
 		return "[\n  " + string.Join(",\n  ", fixtures.Select(Json)) + "\n]\n";
 	}
 
+	/// <summary>The lines of the assistant's tactics evaluation (the rows of its CritiquesList), in the game's words.</summary>
+	public static string Critiques()
+	{
+		var lines = new List<string>();
+		foreach (var (path, node) in Walk())
+			if (node.Name == "Value" && path.Contains("CritiquesList") && path.Contains(".items") && Text.ShownOf(node.Value) is { Length: > 0 } line)
+				lines.Add($"\"{Escape(line)}\"");
+		return "[" + string.Join(", ", lines) + "]\n";
+	}
+
 	/// <summary>
 	/// The introduction tour on screen: which step it is on and what the guide is saying.
 	///

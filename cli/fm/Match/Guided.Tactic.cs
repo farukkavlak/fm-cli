@@ -45,6 +45,7 @@ internal static partial class Program
 			case "save": return await TacticSave(words.Skip(1).ToList(), Array.IndexOf(args, "--note") is >= 0 and var n && n + 1 < args.Length ? args[n + 1] : null, args.Contains("--yes"), dry);
 			case "load": return await TacticLoad(words.Skip(1).ToList(), args.Contains("--yes"), dry);
 			case "saved": return TacticSaved(words.Skip(1).ToList(), args.Contains("--yes"));
+			case "advice": return await TacticAdvice(words.Skip(1).FirstOrDefault(), dry);
 			case "pi": return await PlayerInstructions(words.Skip(1).ToList(), dry);
 			case "instructions" or "instruction": return await TacticInstructions(words.Skip(1).ToList(), args.Contains("--oop"), dry, args.Contains("--refresh"));
 			default:

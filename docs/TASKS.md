@@ -51,6 +51,8 @@ An event the code never names is not always a gap; each line was checked against
   read in the game's words (`Report.Spoken`), match talks show answers by `GameWords.Of`. TR measured (a whole
   season-end team meeting); EN a player's transfer talk with a fee window.
 - [ ] T4 `tour` prints the tour's text in English in a Turkish game.
+  The guide's lines now come from `Report.Spoken` (T3), in the game's words; not seen in a tour yet, which opens only in a new job.
+  `TourButton` still holds its buttons by label (`GameWords`): move them to the buttons' own data with a tour open.
 - [x] T5 Calendar (`Match/Calendar.cs`) and training week (`Squad/Schedule.cs`) read the venue from
   `MatchVenueShort` (shown letter). Use the teams' ids as `status` does. Done (db727ca): home and away right in TR and EN, calendar and week, 3 runs each.
 - [x] T6 `coaches`: a cell's area by the record its switch writes (form `Of`: `AttackingTacticalCategory` …), load and
@@ -87,7 +89,10 @@ An event the code never names is not always a gap; each line was checked against
 - [ ] T12 Squad Planner (planner, contracts, current best XI): add, move, remove, ask assistant, copy.
 - [ ] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
-- [ ] T14 Tactics advice options (`AdviceOptionsSelection`).
+- [ ] T14 `tactic advice [evaluation | xi | opposition]`: the planner's Advice list by its event, choices by `FM.UI.AdviceOption`.
+  Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
+  opposition is `opponent`. TR 3 × evaluation, xi, opposition, wrong word, `--dry`. Left: English; upcoming match (2) and Data Hub (4) open
+  pages no command reads (T16); a real critique line (only "no advice" seen).
 - [ ] T15 Training week card: copy / paste / reset a week, pick a session, confirm / cancel the card.
 - [ ] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
   Goal / Set Piece Analysis.
@@ -103,7 +108,9 @@ An event the code never names is not always a gap; each line was checked against
   (media) 3 × both ways, one group, nothing to do, unknown name; TR 3 rounds. Undo / redo not needed: every change is
   confirmed at once, and a failed one is undone with Reset.
 - [x] T20 `coaches --clear` (`EventFmxClearCoaches`), read back; TR + EN 3 runs with `--auto` between.
-- [ ] T21 Opposition scouting priorities: prioritise / cancel.
+- [ ] T21 Opposition scouting priorities: prioritise / cancel. Tactics › Oppo. › Team Report Priorities
+  (`6e8ea46097c185d468f2723d4931e63b`, opened with `open?guid=&bar=1` from Oppo.). Buttons `EventFmxPrioritiseScoutingTeam`,
+  `EventFmxCancelScoutingTeam`, list `scout`. TR, 30 Aug 2028: the list is empty and both are off; needs a game with assignments.
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
