@@ -17,6 +17,30 @@ internal static class Session
 			await execute(["status"]);
 		}
 
+		// Ctrl-C ends the command, not the session: at the prompt it starts a new line, and the game is left
+		// to go on with what it was doing (a holiday ends only by the game's own way).
+		var running = new CancellationTokenSource();
+		var busy = false;
+		Console.CancelKeyPress += (_, press) =>
+		{
+			press.Cancel = true;
+			if (busy) running.Cancel();
+			else Console.Write($"\n{Prompt()}");
+		};
+		async Task Interruptible(Func<Task> command)
+		{
+			running = new CancellationTokenSource();
+			Bridge.Interruption = running.Token;
+			busy = true;
+			try { await command(); }
+			catch (Interrupted) { Console.WriteLine(L("\nStopped. What the game was doing goes on: status")); }
+			finally
+			{
+				busy = false;
+				Bridge.Interruption = default;
+			}
+		}
+
 		while (true)
 		{
 			Console.Write(Prompt());
@@ -39,8 +63,7 @@ internal static class Session
 			if (words[0] == "fm") words = words.Skip(1).ToArray();
 			if (words.Length == 0) continue;
 
-			if (Program.IsSentence(words)) await Program.Understand(string.Join(' ', words), execute);
-			else await execute(words);
+			await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), execute) : execute(words));
 		}
 
 		return 0;
@@ -50,7 +73,7 @@ internal static class Session
 	/// Splits a line into words, keeping a quoted phrase whole: a button's label is often two
 	/// words, and there is no shell here to do the quoting.
 	/// </summary>
-	private static string[] Split(string line)
+	internal static string[] Split(string line)
 	{
 		var words = new List<string>();
 		var word = new System.Text.StringBuilder();

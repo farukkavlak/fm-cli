@@ -52,7 +52,7 @@ internal static partial class Mcp
 						["protocolVersion"] = version,
 						["capabilities"] = new JsonObject { ["tools"] = new JsonObject() },
 						["serverInfo"] = new JsonObject { ["name"] = "fm-cli", ["version"] = "0.1.0" },
-						["instructions"] = "Plays Football Manager 26 through the running game. Start with fm_status; it says what the game is waiting for and which tool deals with it. Command output is in the language the game is set to (Turkish words in a Turkish game, English otherwise).",
+						["instructions"] = "Plays Football Manager through the running game. Start with fm_status; it says what the game is waiting for and which tool deals with it. Command output is in the language the game is set to (Turkish words in a Turkish game, English otherwise).",
 					};
 					break;
 

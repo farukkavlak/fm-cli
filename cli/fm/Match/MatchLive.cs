@@ -11,6 +11,9 @@ internal static class MatchLive
 	private static bool drawing;
 
 	/// <summary>A short word for the panel's footer, kept there a few seconds; false when no panel is drawn.</summary>
+	/// <summary>The next draw writes the whole panel again: something else has written over it.</summary>
+	public static void Redraw() => last = "";
+
 	public static bool Note(string text)
 	{
 		if (!drawing) return false;
@@ -85,7 +88,7 @@ internal static class MatchLive
 		lines.Add("");
 		var mode = view switch { 0 => L("full"), 1 => L("key moments"), _ => L("score only") };
 		var said = note is { } n && n.Until > DateTime.UtcNow ? "   " + Paint("33", n.Text) : "";
-		lines.Add($"  {Paint("2", L("[s] sub · [h] shout · [t] tactic · [v] view · [a] radar · [r] style · [+/-] speed") + $"   [{mode}]")}{said}");
+		lines.Add($"  {Paint("2", L("[p] pause · [s] sub · [h] shout · [t] tactic · [d] dugout · [k] skip replay · [:] command · [v] view · [a] radar · [r] style · [+/-] speed") + $"   [{mode}]")}{said}");
 
 		var text = string.Join("\n", lines);
 		if (text == last) return;

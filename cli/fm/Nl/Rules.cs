@@ -271,6 +271,28 @@ internal static partial class Router
 				if (c.Has("once ne olacag", "first show", "dry")) c.Set("dry", true);
 				if (c.Has("degisiklik yap") && names.Count == 0) { c.Ask("off"); c.Ask("on"); }
 			}),
+		R("fm_pause", "durdur$=3; maci durdur=5; duraklat=4; mola ver$=2; pause=4; devam ettir=3; maci surdur=5; resume=4; play on=4; tekrari gec=5; tekrari atla=5; skip the replay=5; skip replay=5", c =>
+			{
+				c.Set("do", c.Has("tekrar", "replay") ? "skip" : c.Has("devam ettir", "surdur", "resume", "play on") ? "resume" : "pause");
+			}),
+		R("fm_tweak", "ince ayar=5; incayar=5; taktik ince=4; tweak=5; tactical tweak=6; soluklan=4; take a breather=6; lock it down=6; kitchen sink=6; go long=3", c =>
+			{
+				if (c.Has("sifirla", "reset")) c.Set("reset", c.Has("bireysel", "individual") ? "individual" : c.Has("hepsi", "all") ? "all" : "team");
+				if (c.Has("kapat", "kaldir", "turn off", " off$")) c.Set("off", true);
+			}),
+		R("fm_manager", "menajer kariyer=5; menajer istatistik=5; kariyerim=4; kariyer istatistik=5; menajerlik kariyer=5; my career=4; my record=4; manager record=5; manager stats=5; career stats=4", c => { }),
+		R("fm_tactic_advice", "taktik onerisi=5; taktik tavsiye=5; yardimci taktik=4; taktik degerlendir=5; tactic advice=6; tactical advice=6; assistant think of the tactic=6; evaluate my tactic=6; evaluate the tactic=6", c =>
+			{
+				if (c.Has("kadro", "ilk 11", "on bir", "eleven", "xi")) c.Set("what", "xi");
+				else if (c.Has("rakip", "opposition", "opponent")) c.Set("what", "opposition");
+			}),
+		R("fm_holiday", "tatile cik=6; tatil=4; holiday=5; go on holiday=6; yardimci yonetsin=3", c =>
+			{
+				if (c.Has("hafta", "week")) c.Set("until", "week");
+				else if (c.Has("ay", "ay$", "month")) c.Set("until", "month");
+				else if (c.Has("mac", "match")) c.Set("until", "match");
+				else c.Ask("until");
+			}),
 		R("fm_shout", "bagir=3; shout=3; cesaretlendir=4; sakinlestir=4; daha fazlasini iste=4; ov$=4; encourage=4; fire them up=4; fire up=4; demand more=4; praise=4; " +
 			"no pressure=4; kenardan=3", c =>
 			{

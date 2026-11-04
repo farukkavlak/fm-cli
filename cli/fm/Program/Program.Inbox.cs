@@ -155,6 +155,9 @@ internal static partial class Program
 
 			data = await Fm.GetJson(route);
 			if (data.GetArrayLength() > 0) return data;
+
+			// The subtab event still waiting after a while: a popup holds the game's queue, and nothing will come.
+			if (DateTime.UtcNow > deadline - TimeSpan.FromSeconds(17) && (await Fm.Get("queue")).Split(' ')[0] != "0") break;
 		}
 
 		return data;

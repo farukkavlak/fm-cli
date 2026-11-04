@@ -164,3 +164,14 @@
 {"en": "change the match prep", "call": "fm_prep", "ask": "slot", "split": "dev"}
 {"tr": "rakipte birine sıkı markaj koy", "call": "fm_opposition", "ask": "player", "split": "dev"}
 {"en": "tight mark one of their players", "call": "fm_opposition", "ask": "player", "split": "dev"}
+{"tr": "maçı durdur", "call": "fm_pause", "args": {"do": "pause"}, "split": "dev"}
+{"tr": "duraklat", "call": "fm_pause", "args": {"do": "pause"}, "split": "dev"}
+{"en": "pause the match", "call": "fm_pause", "args": {"do": "pause"}, "split": "held"}
+{"tr": "maçı sürdür", "call": "fm_pause", "args": {"do": "resume"}, "split": "dev"}
+{"en": "skip the replay", "call": "fm_pause", "args": {"do": "skip"}, "split": "held"}
+{"tr": "tekrarı geç", "call": "fm_pause", "args": {"do": "skip"}, "split": "dev"}
+{"tr": "ince ayarlar", "call": "fm_tweak", "split": "final"}
+{"tr": "hangi ince ayar açık", "call": "fm_tweak", "split": "dev"}
+{"en": "tactical tweaks", "call": "fm_tweak", "split": "held"}
+{"en": "show the tweaks", "call": "fm_tweak", "split": "held"}
+{"tr": "ince ayarları sıfırla", "call": "fm_tweak", "args": {"reset": "team"}, "split": "final"}

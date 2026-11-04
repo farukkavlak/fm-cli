@@ -148,3 +148,8 @@
 {"en": "ok we are done, close fm", "call": "fm_stop", "ask": "save", "split": "dev"}
 {"tr": "bir kaydı sil", "call": "fm_saves", "ask": "delete", "split": "final"}
 {"en": "delete a save", "call": "fm_saves", "ask": "delete", "split": "held"}
+{"tr": "bir hafta tatile çık", "call": "fm_holiday", "args": {"until": "week"}, "split": "held"}
+{"tr": "bir ay tatile çık", "call": "fm_holiday", "args": {"until": "month"}, "split": "held"}
+{"en": "go on holiday for a month", "call": "fm_holiday", "args": {"until": "month"}, "split": "dev"}
+{"en": "go on holiday until the next match", "call": "fm_holiday", "args": {"until": "match"}, "split": "held"}
+{"tr": "maça kadar tatil", "call": "fm_holiday", "args": {"until": "match"}, "split": "dev"}

@@ -1,6 +1,6 @@
 # fm-cli
 
-Play the real **Football Manager 26** from a terminal.
+Play the real **Football Manager 27** from a terminal.
 
 - A BepInEx plugin inside the game exposes its data and events over local HTTP.
 - The `fm` CLI turns them into commands.
@@ -48,7 +48,7 @@ Every command and option: `fm help` or [docs/USAGE.md](docs/USAGE.md).
 ## Requirements
 
 - macOS on **Apple Silicon**.
-- **Football Manager 26** from Steam.
+- **Football Manager 27** from Steam.
 - Ready package: nothing else (it bundles BepInEx 6 IL2CPP arm64, the plugin and `fm`).
 - Development: .NET SDK 10. The published `dist/fm/fm` needs no SDK.
 - Not supported: Intel, Epic, Game Pass, Windows.
@@ -63,7 +63,7 @@ fm doctor --install
 ```
 
 - The installer copies BepInEx, the plugin and `fm`.
-- It creates the arm64 shadow app (`~/fm26_bep/fm.app`) and links `fm` into `~/.local/bin`.
+- It puts them in `~/fm27_bep/game` and links `fm` into `~/.local/bin`. The first `fm start` builds the shadow app and prepares for your game version.
 - `fm doctor --install` downloads the language model once (~290 MB).
 - It then checks eight things: game, BepInEx core, launcher, shadow app, plugin, `fm`, save
   folder, language model. Each missing step says what to do. `--json` for scripts.
@@ -71,8 +71,8 @@ fm doctor --install
 Game in another folder:
 
 ```bash
-FM_HOME=/path/to/fm26 ./install.sh
-FM_HOME=/path/to/fm26 fm start
+FM_HOME=/path/to/fm27 ./install.sh
+FM_HOME=/path/to/fm27 fm start
 ```
 
 ## Install — development
@@ -89,9 +89,9 @@ tools/install.sh
 By hand:
 
 ```bash
-dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release
+FM26_BEP=$HOME/fm27_bep dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release
 cp plugin/FmCliProbe/bin/Release/net6.0/FmCliProbe.dll \
-   "$HOME/Library/Application Support/Steam/steamapps/common/Football Manager 26/BepInEx/plugins/FmCliProbe/"
+   "$HOME/fm27_bep/game/BepInEx/plugins/FmCliProbe/"
 
 dotnet build cli/fm -c Release
 ln -sf "$PWD/cli/fm/bin/Release/net10.0/fm" ~/.local/bin/fm

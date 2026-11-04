@@ -254,11 +254,14 @@ internal static partial class Program
 		    }, seconds: 8, every: 0.1))
 			return now;
 
-		return await Until(async () =>
+		var finished = await Until(async () =>
 		{
 			await Read();
+			if (Working() && Field(now, "Date") is { Length: > 0 } day) Ui.Progress($"  {Pretty(day)}");
 			return !Working();
-		}, seconds: 180, every: 0.1) ? now : null;
+		}, seconds: 180, every: 0.1);
+		Ui.Progress(null);
+		return finished ? now : null;
 
 		static bool Busy(JsonElement state) =>
 			Field(state, "Processing") == "True" || Field(state, "Saving") == "True"

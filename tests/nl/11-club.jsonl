@@ -206,3 +206,8 @@
 {"en": "ask the board for something", "call": "fm_board_request", "ask": "request", "split": "held"}
 {"tr": "bir görevi devret", "call": "fm_responsibilities", "ask": "delegate", "split": "dev"}
 {"en": "delegate a duty", "call": "fm_responsibilities", "ask": "delegate", "split": "dev"}
+{"tr": "kariyerim", "call": "fm_manager", "split": "dev"}
+{"tr": "menajer istatistiklerim", "call": "fm_manager", "split": "dev"}
+{"tr": "menajerlik kariyerim nasıl", "call": "fm_manager", "split": "held"}
+{"en": "my career stats", "call": "fm_manager", "split": "held"}
+{"en": "manager record", "call": "fm_manager", "split": "dev"}

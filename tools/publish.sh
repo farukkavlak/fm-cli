@@ -13,7 +13,7 @@ mkdir -p dist/fm
 for f in dist/fm.next/*; do mv -f "$f" dist/fm/; done
 rmdir dist/fm.next
 
-dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release >/dev/null
+FM26_BEP="${FM26_BEP:-$HOME/fm27_bep}" dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release >/dev/null
 mkdir -p dist
 cp plugin/FmCliProbe/bin/Release/net6.0/FmCliProbe.dll dist/
 

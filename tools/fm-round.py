@@ -33,6 +33,7 @@ Steps:
   until = "<command>"      a read asked again until it holds; seconds = the upper bound (default 300)
   start = "<command>"      runs beside the next steps (a match); `finish = true` waits for it to end
   live = true              on a read: it can only be read at that moment, so a dry run does not ask it
+  {name} in a command      the value kept under that name
 
 Checks read only --json and exit codes, never printed words: a test holds in every language.
 """
@@ -322,7 +323,7 @@ def dry(args):
                 if seen[word][1]:
                     found.append(f"{test['task']} {test['name']}: `{word}` does not name {flag} in its help")
             # Reads are asked, once each: their path must be there, unless only that moment has it.
-            if kind in ("read", "until") and not step.get("live"):
+            if kind in ("read", "until") and not step.get("live") and "{" not in command:
                 key = f"{command}|{step.get('path')}"
                 if key not in asked:
                     asked[key] = True
@@ -350,12 +351,17 @@ def holds(step, value, kept):
     return None
 
 
+def filled(command, kept):
+    return re.sub(r"\{(\w+)\}", lambda m: shlex.quote(str(kept[m.group(1)])), command)
+
+
 def play(test):
     """One pass of a test's steps. Raises Failed with what was wrong; nothing printed is compared."""
     kept = {}
     side = None
     try:
         for number, step in enumerate(test["steps"], 1):
+            step = {k: filled(v, kept) if k in ("run", "read", "until", "start") else v for k, v in step.items()}
             if "run" in step:
                 rc, out, err, _ = fm(step["run"])
                 wanted = step.get("rc", 0)
@@ -379,8 +385,6 @@ def play(test):
                 limit = time.time() + step.get("seconds", 300)
                 wrong = "never asked"
                 while time.time() < limit:
-                    if side is not None and side.poll() is not None and step.get("seconds") is None:
-                        pass
                     try:
                         wrong = holds(step, dig(read_json(step["until"], 120), step["path"]), kept)
                     except (Failed, KeyError, IndexError, ValueError, TypeError) as error:

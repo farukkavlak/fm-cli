@@ -2,6 +2,9 @@ using System.Text.Json;
 
 namespace FmCli;
 
+/// <summary>The command was stopped by Ctrl-C in a session; the game goes on with what it was doing.</summary>
+internal sealed class Interrupted : Exception;
+
 /// <summary>Talks to the plugin running inside the game.</summary>
 internal sealed class Bridge
 {
@@ -20,6 +23,9 @@ internal sealed class Bridge
 	}
 
 	// The words the game showed come back in a header (GameWords), which on a long page outgrows the usual limit.
+	/// <summary>Ctrl-C in a session: every request to the game stops, which ends whatever command is waiting on it.</summary>
+	public static CancellationToken Interruption { get; set; }
+
 	private readonly HttpClient _http = new(new HttpClientHandler { MaxResponseHeadersLength = 4096 }) { Timeout = TimeSpan.FromSeconds(120) };
 
 	// FM_TRACE=1 prints every call and how long it took, to see where a command's time goes.
@@ -47,7 +53,7 @@ internal sealed class Bridge
 		try
 		{
 			var started = Clock.ElapsedMilliseconds;
-			using var response = await _http.GetAsync(url);
+			using var response = await _http.GetAsync(url, Interruption);
 			response.EnsureSuccessStatusCode();
 			if (response.Headers.TryGetValues("X-Shown", out var shown)) GameWords.Learn(shown.FirstOrDefault());
 			if (response.Headers.TryGetValues("X-Language", out var language)) Labels.Heard(language.FirstOrDefault());
@@ -61,6 +67,10 @@ internal sealed class Bridge
 		catch (HttpRequestException)
 		{
 			throw new FmUnavailable();
+		}
+		catch (TaskCanceledException) when (Interruption.IsCancellationRequested)
+		{
+			throw new Interrupted();
 		}
 		catch (TaskCanceledException)
 		{
@@ -88,7 +98,7 @@ internal sealed class Bridge
 		try
 		{
 			var started = Clock.ElapsedMilliseconds;
-			using var response = await _http.PostAsync(Base + "batch", new StringContent(lines, System.Text.Encoding.UTF8, "text/plain"));
+			using var response = await _http.PostAsync(Base + "batch", new StringContent(lines, System.Text.Encoding.UTF8, "text/plain"), Interruption);
 			if (response.StatusCode == System.Net.HttpStatusCode.NotFound) { batches = false; return null; }
 			response.EnsureSuccessStatusCode();
 			if (response.Headers.TryGetValues("X-Shown", out var shown)) GameWords.Learn(shown.FirstOrDefault());
@@ -100,6 +110,7 @@ internal sealed class Bridge
 			return JsonSerializer.Deserialize<List<string>>(body);
 		}
 		catch (HttpRequestException) { throw new FmUnavailable(); }
+		catch (TaskCanceledException) when (Interruption.IsCancellationRequested) { throw new Interrupted(); }
 		catch (TaskCanceledException) { throw new FmBusy(); }
 	}
 

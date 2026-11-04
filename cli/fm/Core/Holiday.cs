@@ -99,10 +99,15 @@ internal static partial class Program
 		Console.WriteLine(L($"On holiday until: {until}"));
 		var back = await Until(async () =>
 		{
-			if (await Away()) return false;
+			if (await Away())
+			{
+				if (Field(await Fm.GetJson("state"), "Date") is { Length: > 0 } day) Ui.Progress($"  {Pretty(day)}");
+				return false;
+			}
 			var module = await Fm.GetJson("continueflags");
 			return Field(module, "IsProcessing") != "True" && Field(module, "ProcessingCard") != "True";
 		}, seconds: 1800, every: 1);
+		Ui.Progress(null);
 		var after = await Fm.GetJson("state");
 		if (!back)
 		{

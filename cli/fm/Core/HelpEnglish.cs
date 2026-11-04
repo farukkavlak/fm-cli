@@ -4,7 +4,7 @@ internal static partial class Program
 {
 	/// <summary>The help text, in English; the Turkish catalog holds its translation.</summary>
 	private const string HelpEnglish = """
-			fm — run Football Manager 26 from the terminal
+			fm — run Football Manager from the terminal
 
 			  fm start        start the game, load the save, enter the session   (--menu: leave it at the main menu)
 			    --debug       show the window (normally kept out of the Dock and off screen)

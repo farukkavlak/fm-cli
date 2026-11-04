@@ -64,6 +64,11 @@ internal static partial class Program
 			return 1;
 		}
 
+		// A line that starts with the command it means is that command, every word kept: the command says
+		// what it does not understand, where a filled-in call would drop the word ("dugout 1 zzz" opening advice 1).
+		var typed = sentence.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		if (understood.Calls is [var only] && only.Tool == $"fm_{typed[0]}") return await execute(typed);
+
 		var calls = understood.Calls;
 		var chosen = false;
 		if (calls.Count == 0)

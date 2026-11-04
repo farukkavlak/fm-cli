@@ -212,3 +212,8 @@
 {"en": "set some player instructions for one guy", "call": "fm_tactic_pi", "ask": "position", "split": "final"}
 {"tr": "kayıtlı bir taktiği yükle", "call": "fm_tactic_file", "ask": "load", "split": "dev"}
 {"en": "bring back one of my tactic files", "call": "fm_tactic_file", "ask": "load", "split": "dev"}
+{"tr": "taktik önerisi", "call": "fm_tactic_advice", "split": "dev"}
+{"tr": "yardımcı taktik hakkında ne diyor", "call": "fm_tactic_advice", "split": "dev"}
+{"en": "tactic advice", "call": "fm_tactic_advice", "split": "held"}
+{"en": "evaluate my tactic", "call": "fm_tactic_advice", "split": "final"}
+{"tr": "taktik önerisi rakip", "call": "fm_tactic_advice", "args": {"what": "opposition"}, "split": "dev"}

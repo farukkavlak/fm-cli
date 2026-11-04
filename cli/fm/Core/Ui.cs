@@ -10,6 +10,13 @@ internal static class Ui
 {
 	public static bool Rich => Format == null && !Console.IsOutputRedirected;
 
+	/// <summary>One line that shows how a long wait goes, written over itself; only on a terminal. Null clears it.</summary>
+	public static void Progress(string? text)
+	{
+		if (!Rich) return;
+		Console.Write($"\r\u001b[2K{(text == null ? "" : $"\u001b[2m{text}\u001b[0m")}");
+	}
+
 	/// <summary>
 	/// "json", "csv" or "md" when the command was asked for one: nothing is drawn and nothing
 	/// is asked, and the tables come out in that form.

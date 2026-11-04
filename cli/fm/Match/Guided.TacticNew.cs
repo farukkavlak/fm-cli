@@ -149,10 +149,14 @@ internal static partial class Program
 		if (stage == null && !(await OpenPage(Screen.Tactics)).StartsWith("error", StringComparison.Ordinal))
 		{
 			// The wizard binds its state on the tactics page: one left open (a tour waiting for a
-			// tactic) is found once that page is up.
-			stage = await CreatorStage();
-			if (stage == null)
-				hadTactic = await Until(async () => int.TryParse(Field(await TacticInfo(), "TacticCount"), out var tactics) && tactics >= 1, seconds: 4, every: 0.4);
+			// tactic) is found once that page is up, a moment after it is asked for. Either that or the
+			// team's tactics say what is there.
+			await Until(async () =>
+			{
+				stage = await CreatorStage();
+				hadTactic = stage == null && int.TryParse(Field(await TacticInfo(), "TacticCount"), out var tactics) && tactics >= 1;
+				return stage != null || hadTactic;
+			}, seconds: 4, every: 0.4);
 		}
 		if (stage == null)
 		{
@@ -191,7 +195,8 @@ internal static partial class Program
 					.FirstOrDefault(d => Field(d!.Value, "Binds") == "add-data" && TopValues(d!.Value).Contains(CreateNewTacticRow))) != null, seconds: 10);
 				if (create == null)
 				{
-					Console.Error.WriteLine(L("A new tactic cannot be made: all three tactic slots are taken. To empty one: tactic clear <n> --yes; for the slots: tactic slot"));
+					// The slots were counted above: this is not that case.
+					Console.Error.WriteLine(L("The tactic wizard did not open."));
 					return 1;
 				}
 				if (!dry && Ui.Interactive && Ui.Ask(Lf("A new tactic will be built in a free slot and made active; the active one ({0}) stays in its slot.", Field(await TacticInfo(), "Name")), [L("Continue")], cancel: L("Cancel")) == null)

@@ -11,23 +11,24 @@ internal static partial class Program
 	private static int InstallDoctor(bool json)
 	{
 		var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-		var game = Environment.GetEnvironmentVariable("FM_HOME")
-			?? Path.Combine(home, "Library/Application Support/Steam/steamapps/common/Football Manager 26");
-		var bundle = Environment.GetEnvironmentVariable("FM_APP") ?? Path.Combine(home, "fm26_bep/fm.app");
-		var saves = Path.Combine(home, "Library/Application Support/Sports Interactive/Football Manager 26/games");
+		var game = Launcher.GameDirectory;
+		var bundle = Launcher.AppBundle;
+		// BepInEx and its launcher live beside the shadow bundle, not in Steam's folder: an update there leaves them alone.
+		var beside = Path.Combine(Path.GetDirectoryName(bundle)!, "game");
+		var saves = Directory.Exists(GameFolders.Saves) ? GameFolders.Saves : Path.Combine(home, $"Library/Application Support/Sports Interactive/{Launcher.AppName}/games");
 
 		var checks = new List<(string Name, bool Ok, string Detail, string Fix)>
 		{
-			(L("Game"), Directory.Exists(game) && File.Exists(Path.Combine(game, "fm.app/Contents/MacOS/Football Manager 26")),
-				game, L("Install Football Manager 26 from Steam; set FM_HOME if it is elsewhere.")),
-			(L("BepInEx core"), File.Exists(Path.Combine(game, "BepInEx/core/BepInEx.Unity.IL2CPP.dll")),
-				Path.Combine(game, "BepInEx"), L("Unpack BepInEx 6 IL2CPP arm64 into the game folder (see docs/PORTING.md).")),
-			(L("BepInEx launcher"), File.Exists(Path.Combine(game, "run_bepinex_arm64.sh")),
-				Path.Combine(game, "run_bepinex_arm64.sh"), L("Put BepInEx's macOS launcher in the game folder.")),
+			(L("Game"), Directory.Exists(game) && File.Exists(Path.Combine(game, $"fm.app/Contents/MacOS/{Launcher.AppName}")),
+				game, L($"Install {Launcher.AppName} from Steam; set FM_HOME if it is elsewhere.")),
+			(L("BepInEx core"), File.Exists(Path.Combine(beside, "BepInEx/core/BepInEx.Unity.IL2CPP.dll")),
+				Path.Combine(beside, "BepInEx"), L("Unpack BepInEx 6 IL2CPP arm64 beside the shadow bundle (see docs/PORTING.md).")),
+			(L("BepInEx launcher"), File.Exists(Path.Combine(beside, "run_bepinex_arm64.sh")),
+				Path.Combine(beside, "run_bepinex_arm64.sh"), L("Copy tools/fm27-bep/run_bepinex_arm64.sh beside BepInEx.")),
 			(L("Shadow bundle"), Directory.Exists(bundle) && File.Exists(Path.Combine(bundle, "Contents/Info.plist")),
-				bundle, L("Create ~/fm26_bep/fm.app from the Steam copy (Info.plist patch; see README).")),
-			(L("Plugin"), File.Exists(Path.Combine(game, "BepInEx/plugins/FmCliProbe/FmCliProbe.dll")),
-				Path.Combine(game, "BepInEx/plugins/FmCliProbe/FmCliProbe.dll"), L("Build the plugin and copy it to BepInEx/plugins/FmCliProbe/.")),
+				bundle, L("The launcher builds it on the first `fm start`.")),
+			(L("Plugin"), File.Exists(Path.Combine(beside, "BepInEx/plugins/FmCliProbe/FmCliProbe.dll")),
+				Path.Combine(beside, "BepInEx/plugins/FmCliProbe/FmCliProbe.dll"), L("Build the plugin and copy it to BepInEx/plugins/FmCliProbe/.")),
 			(L("fm command"), OnPath(home),
 				Environment.ProcessPath ?? "fm", L("Link the built fm into ~/.local/bin or /usr/local/bin.")),
 			(L("Save folder"), Directory.Exists(saves), saves,

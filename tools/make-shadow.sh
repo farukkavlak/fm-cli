@@ -5,12 +5,12 @@
 #
 # Usage: tools/make-shadow.sh [--force]
 #   FM_HOME  the Steam game folder (default: the usual Steam path)
-#   FM_APP   where the shadow goes  (default: ~/fm26_bep/fm.app)
+#   FM_APP   where the shadow goes  (default: ~/fm27_bep/fm.app)
 set -eu
 cd "${0:A:h}/.."
 
-GAME="${FM_HOME:-$HOME/Library/Application Support/Steam/steamapps/common/Football Manager 26}"
-SHADOW="${FM_APP:-$HOME/fm26_bep/fm.app}"
+GAME="${FM_HOME:-$HOME/Library/Application Support/Steam/steamapps/common/Football Manager 27}"
+SHADOW="${FM_APP:-$HOME/fm27_bep/fm.app}"
 SRC="$GAME/fm.app"
 
 if [ ! -d "$SRC" ]; then
@@ -24,7 +24,7 @@ if [ -d "$SHADOW" ] && [ "${1:-}" != "--force" ]; then
 fi
 
 mkdir -p "$SHADOW/Contents/MacOS"
-cp -f "$SRC/Contents/MacOS/Football Manager 26" "$SHADOW/Contents/MacOS/"
+cp -f "$SRC/Contents/MacOS/Football Manager 27" "$SHADOW/Contents/MacOS/"
 cp -f "$SRC/Contents/Info.plist" "$SHADOW/Contents/Info.plist"
 for d in Frameworks PlugIns Resources; do
 	rm -rf "$SHADOW/Contents/$d"

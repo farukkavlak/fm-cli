@@ -22,18 +22,18 @@ namespace FmCli;
 /// </summary>
 internal static class Launcher
 {
-	private const string AppName = "Football Manager 27";
+	internal const string AppName = "Football Manager 27";
 
 	/// <summary>
 	/// The bundle the launcher starts — a shadow of the Steam one, assembled for
 	/// BepInEx. Its Info.plist is ours to patch; Steam's copy is left alone.
 	/// </summary>
-	private static string AppBundle =>
+	internal static string AppBundle =>
 		Environment.GetEnvironmentVariable("FM_APP")
 		?? Path.Combine(
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "fm27_bep/fm.app");
 
-	private static string GameDirectory =>
+	internal static string GameDirectory =>
 		Environment.GetEnvironmentVariable("FM_HOME")
 		?? Path.Combine(
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -75,10 +75,28 @@ internal static class Launcher
 		}
 
 		var log = Path.Combine(Path.GetTempPath(), "fm-cli-launch.log");
-		Spawn(script, log, debug);
+		var launch = Spawn(script, log, debug);
 		Console.WriteLine(L($"Starting FM…{(debug ? L($"  (log: {log})") : "")}"));
 
-		if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
+		// A game update: the launcher's first launch only generates BepInEx's copy of the game's code and
+		// goes no further, so it is seen through and the game started again.
+		if (GameUpdated(out var generated))
+		{
+			Console.WriteLine(L("The game was updated; preparing for the new version, this takes a minute or two…"));
+			var ready = await WaitFor(() => Task.FromResult(launch.HasExited || File.GetLastWriteTimeUtc(generated) > File.GetLastWriteTimeUtc(UpdatedFile)), TimeSpan.FromMinutes(6));
+			if (launch.HasExited || !ready)
+			{
+				Console.Error.WriteLine(L($"The game could not be prepared for its new version. Log: {log}"));
+				return false;
+			}
+			await Pkill(["-9"]);
+			await WaitFor(async () => !await Alive(), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1));
+			launch = Spawn(script, log, debug);
+		}
+
+		// The launcher execs the game, so its ending before the menu is the launch having failed.
+		await WaitFor(async () => launch.HasExited || await Menu(fm), TimeSpan.FromMinutes(4));
+		if (launch.HasExited || !await Menu(fm))
 		{
 			Console.Error.WriteLine(L($"The game did not reach the main menu. Log: {log}"));
 			return false;
@@ -193,7 +211,19 @@ internal static class Launcher
 		return true;
 	}
 
-	private static void Spawn(string script, string log, bool debug)
+	private static string UpdatedFile => Path.Combine(GameDirectory, "fm.app", "Contents/Frameworks/GameAssembly.dylib");
+
+	/// <summary>The game's code is newer than BepInEx's copy of it: the launcher's own test, on its own marker.</summary>
+	private static bool GameUpdated(out string generated)
+	{
+		var interop = Path.Combine(Path.GetDirectoryName(AppBundle)!, "game", "BepInEx", "interop");
+		// Written last; the launcher tests FM.UI.dll, written just before it.
+		generated = Path.Combine(interop, "assembly-hash.txt");
+		var marker = Path.Combine(interop, "FM.UI.dll");
+		return File.Exists(UpdatedFile) && (!File.Exists(marker) || File.GetLastWriteTimeUtc(UpdatedFile) > File.GetLastWriteTimeUtc(marker));
+	}
+
+	private static Process Spawn(string script, string log, bool debug)
 	{
 		// A windowed launch is what makes the window minimisable later; fullscreen would put the
 		// game on its own Space instead.
@@ -208,12 +238,12 @@ internal static class Launcher
 		var notice = L("fm is playing FM in the background, so this copy was closed. To play by hand: fm stop").Replace("'", "");
 		var hidden = debug ? "" : $"FMCLI_HIDDEN=1 FMCLI_SECOND_COPY_NOTICE='{notice}' ";
 		var shell = $"{hidden}FM26_BEP=\"{shadowRoot}\" exec \"{script}\" \"{steamApp}\"{windowed} >> \"{log}\" 2>&1";
-		Process.Start(new ProcessStartInfo("/bin/sh", ["-c", shell])
+		return Process.Start(new ProcessStartInfo("/bin/sh", ["-c", shell])
 		{
 			WorkingDirectory = Path.GetDirectoryName(script)!,
 			UseShellExecute = false,
 			RedirectStandardOutput = false,
-		});
+		})!;
 	}
 
 	/// <summary>

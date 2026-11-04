@@ -2,7 +2,7 @@
 
 For screenshots and worked examples, see [MANUAL.md](MANUAL.md).
 
-`fm` is a terminal client for Football Manager 26. The game stays open in the background; commands
+`fm` is a terminal client for Football Manager 27. The game stays open in the background; commands
 read its data and send its events. Run `fm` with no arguments for an interactive session, or
 run one command at a time.
 
@@ -92,7 +92,7 @@ has the numbers after the whistle.
 This is the current `fm help` output.
 
 ```
-fm — run Football Manager 26 from the terminal
+fm — run Football Manager 27 from the terminal
 
   fm start        start the game, load the save, enter the session   (--menu: leave it at the main menu)
     --debug       show the window (normally kept out of the Dock and off screen)

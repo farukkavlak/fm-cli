@@ -472,7 +472,9 @@ internal static partial class Program
 				{
 					foreach (var card in cards.Where(c => saidCards.Add($"{c.Minute}|{c.Text}")))
 					{
-						if (Ui.Rich) Ui.Line(L($"  [cyan]{Ui.Safe(card.Minute),5}'  Assistant: {Ui.Safe(card.Text)}[/] [dim](dugout)[/]"));
+						// On the live panel it joins the events, or the next draw would take it away.
+						if (live) heard.Enqueue((card.Minute, L($"Assistant: {card.Text}  (dugout)")));
+						else if (Ui.Rich) Ui.Line(L($"  [cyan]{Ui.Safe(card.Minute),5}'  Assistant: {Ui.Safe(card.Text)}[/] [dim](dugout)[/]"));
 						else Console.WriteLine(L($"  {card.Minute,5}'  Assistant: {card.Text}  (dugout)"));
 					}
 					foreach (var mark in marks) advised.Add(mark);
@@ -574,6 +576,12 @@ internal static partial class Program
 							await LearnShape();
 							break;
 						case 'h': await Shout(["shout"]); break;
+						case 'p':
+							await Quietly(MatchPause(Field(await Fm.GetJson("state"), "Playing") == "True" ? "pause" : "resume"));
+							break;
+						case 'k': await Quietly(MatchPause("skip")); break;
+						case 'd': await LiveCommand(["dugout"], stopPlay: true); break;
+						case ':': await LiveLine(); break;
 						case 't':
 							if (Ui.Ask(L("Tactic change"), [L("Mentality"), L("Role")]) is { } what)
 							{
