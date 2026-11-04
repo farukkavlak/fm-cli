@@ -202,10 +202,9 @@ internal static partial class Program
 		var entries = await DugoutEntries();
 		if (entries.Count == 0 && !await DugoutShowing())
 		{
-			Console.Error.WriteLine(L("The dugout panel hides while a move is being played; waiting…"));
+			if (!await DugoutComesBack()) return 1;
 			// Its entries are drawn a moment after it shows.
-			if (await Until(DugoutShowing, seconds: 30, every: 0.5))
-				await Until(async () => (entries = await DugoutEntries()).Count > 0, seconds: 3, every: 0.25);
+			await Until(async () => (entries = await DugoutEntries()).Count > 0, seconds: 3, every: 0.25);
 		}
 		if (entries.Count == 0)
 		{
@@ -222,8 +221,8 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			for (var i = 0; i < entries.Count; i++) Console.WriteLine($"  {i + 1}  {entries[i].Minute,3}'  {Advice(entries[i].Text)}{Mark(entries[i])}");
-			if (Ui.Ask(L("Which one?"), entries.Select(e => $"{e.Minute}'  {Advice(e.Text)}{Mark(e)}").ToList()) is not { } picked)
+			for (var i = 0; i < entries.Count; i++) Console.WriteLine($"  {i + 1}  {entries[i].Minute,3}'  {entries[i].Text}{Mark(entries[i])}");
+			if (Ui.Ask(L("Which one?"), entries.Select(e => $"{e.Minute}'  {e.Text}{Mark(e)}").ToList()) is not { } picked)
 			{
 				if (!Ui.Interactive) Console.WriteLine(L("\nTo apply: dugout <no> apply   ·   to dismiss: dugout <no> dismiss"));
 				return 0;
@@ -241,14 +240,14 @@ internal static partial class Program
 		var action = words.Count > 1 ? Fold(words[1]) : null;
 		if (action == null)
 		{
-			Console.WriteLine($"{entry.Minute}'  {Advice(entry.Text)}");
+			Console.WriteLine($"{entry.Minute}'  {entry.Text}");
 			if (Ui.Ask(L("What shall we do?"), [L("Apply"), L("Dismiss")]) is not { } asked) return 0;
 			action = asked == 0 ? "uygula" : "kaldir";
 		}
 
 		var (event_, verb) = action switch
 		{
-			"uygula" or "apply" or "do" or "evet" or "yes" => ("MatchDugoutConfirm", L("applied")),
+			"uygula" or "apply" or "do" or "evet" or "yes" => (AcceptEvent, L("applied")),
 			"kaldir" or "sil" or "dismiss" or "hayir" or "no" => ("MatchDugoutDismiss", L("dismissed")),
 			_ => (null, null),
 		};
@@ -258,17 +257,18 @@ internal static partial class Program
 			return 1;
 		}
 
-		if (event_ == "MatchDugoutConfirm" && !entry.Open)
+		if (event_ == AcceptEvent && !entry.Open)
 		{
-			Console.Error.WriteLine(L($"{entry.Minute}'  {Advice(entry.Text)} — there is nothing in it to apply, or it is already applied."));
+			Console.Error.WriteLine(L($"{entry.Minute}'  {entry.Text} — there is nothing in it to apply, or it is already applied."));
 			return 1;
 		}
 
 		// The buttons act on whichever entry is showing, so that one is brought up first.
 		// The timeline is laid out again as the match goes on, so a mark gone stale is looked for again by its advice.
-		if (await ShowDugoutEntry(entry.Pointer, entry.Text) != entry.Text
+		if (!await DugoutShowing() && !await DugoutComesBack()) return 1;
+		if ((await ShowDugoutEntry(entry.Pointer, entry.Index))?.Text != entry.Text
 		    && ((await DugoutEntries()).FirstOrDefault(e => e.Text == entry.Text) is not { } again
-		        || await ShowDugoutEntry((entry = again).Pointer, entry.Text) != entry.Text))
+		        || (await ShowDugoutEntry((entry = again).Pointer, entry.Index))?.Text != entry.Text))
 		{
 			Console.Error.WriteLine(L("The advice could not be opened in the panel; the list may have changed: dugout"));
 			return 1;
@@ -283,22 +283,34 @@ internal static partial class Program
 		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
-		// Taken advice keeps its place but its "Do it" goes dark; dismissed advice leaves the
-		// timeline. The panel may also have moved on to the next entry meanwhile.
+		// Taken advice keeps its place but stops being actionable; dismissed advice leaves the timeline.
+		// A hidden panel lists nothing, which says nothing: only a panel that is up counts, however long a move takes.
 		var done = await Until(async () =>
 		{
-			var now = await DugoutEntries();
-			var same = now.FirstOrDefault(e => e.Minute == entry.Minute && e.Text == entry.Text);
-			return event_ == "MatchDugoutConfirm" ? same is { Open: false } : same == null;
-		}, seconds: 8, every: 1);
+			if (!await DugoutShowing()) return false;
+			var same = (await DugoutEntries()).FirstOrDefault(e => e.Minute == entry.Minute && e.Text == entry.Text);
+			return event_ == AcceptEvent ? same is { Open: false } : same == null;
+		}, seconds: 60, every: 1);
 		Console.WriteLine(done
-			? $"{entry.Minute}'  {Advice(entry.Text)} — {verb}."
-			: L($"{entry.Minute}'  {Advice(entry.Text)} — the button was pressed, but the game {(event_ == "MatchDugoutConfirm" ? L("does not show the advice as applied") : L("did not remove the advice from the list"))}."));
+			? $"{entry.Minute}'  {entry.Text} — {verb}."
+			: L($"{entry.Minute}'  {entry.Text} — the button was pressed, but the game {(event_ == AcceptEvent ? L("does not show the advice as applied") : L("did not remove the advice from the list"))}."));
 		return done ? 0 : 1;
 	}
 
-	/// <summary>One entry on the timeline; Open while its "Do it" can still be pressed.</summary>
-	private sealed record DugoutEntry(string Minute, string Pointer, string Text, bool Open);
+	/// <summary>One entry on the timeline, at its place there; Open while the game calls it actionable.</summary>
+	private sealed record DugoutEntry(string Minute, int Index, string Pointer, string Text, bool Open);
+
+	/// <summary>The event on the panel's "Do it" button (`MatchDugoutConfirm` belongs to FM26).</summary>
+	private const string AcceptEvent = "DugoutAdviceAccept";
+
+	/// <summary>`MatchDugoutSelectedEventType` of a score update (`MatchDugoutEventScoreUpdateReference`): other grounds' goals and the table. 3 is advice or a note, 1 and 2 an analysis.</summary>
+	private const int ScoreUpdateCard = 4;
+
+	/// <summary>The card the panel has selected, from the game's own values for it.</summary>
+	private sealed record DugoutCard(int Type, int Index, string Minute, bool Actionable, string Text)
+	{
+		public bool IsScoreUpdate => Type == ScoreUpdateCard;
+	}
 
 	/// <summary>A suggestion from the staff on the team news: what it would change and why.</summary>
 	internal sealed record StaffAdvice(string Pointer, string Change, string Says);
@@ -332,96 +344,86 @@ internal static partial class Program
 		return true;
 	}
 
-	/// <summary>Every entry on the Dugout timeline with its text, oldest first.</summary>
+	/// <summary>Every piece of advice on the Dugout timeline, oldest first; score updates are left out.</summary>
 	private static async Task<List<DugoutEntry>> DugoutEntries()
 	{
+		// The screen holds a second copy of the timeline that is never enabled.
 		var marks = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$"))
-			.OrderBy(b => int.Parse(Field(b, "Name")["DugoutEvent".Length..]))
-			.Select(b => (Minute: Field(b, "Label"), Pointer: Field(b, "Pointer")))
+			.Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$") && Field(b, "Enabled") == "True")
+			.Select(b => (Index: int.Parse(Field(b, "Name")["DugoutEvent".Length..]), Pointer: Field(b, "Pointer")))
+			.OrderBy(m => m.Index)
 			.ToList();
 
 		var entries = new List<DugoutEntry>();
-		var showing = await DugoutText();
-		foreach (var (minute, pointer) in marks)
-		{
-			var text = await ShowDugoutEntry(pointer);
-			if (text.Length > 0 && text != "No Dugout Events") entries.Add(new(minute, pointer, text, await DugoutOpen()));
-		}
-
-		// A mark the panel did not move for reads as the entry before it again; the advice is listed once,
-		// at the minute it was given.
-		entries = entries.GroupBy(e => e.Text).Select(g => g.FirstOrDefault(e => e.Minute.Trim().Length > 0) ?? g.First()).ToList();
+		var showing = (await DugoutNow())?.Index;
+		foreach (var (index, pointer) in marks)
+			if (await ShowDugoutEntry(pointer, index) is { IsScoreUpdate: false, Text.Length: > 0 } card)
+				entries.Add(new(card.Minute, index, pointer, card.Text, card.Actionable));
 
 		// Put back the entry that was showing, so reading the list changes nothing.
-		var was = entries.FirstOrDefault(e => e.Text == showing);
-		if (was != null && entries.LastOrDefault()?.Text != showing) await ShowDugoutEntry(was.Pointer);
+		if (marks.Count > 0 && showing != marks[^1].Index && marks.FirstOrDefault(m => m.Index == showing) is { Pointer: not null } was)
+			await ShowDugoutEntry(was.Pointer, was.Index);
 		return entries;
 	}
 
-	private static async Task<bool> DugoutOpen() =>
-		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Any(b => Field(b, "Events").Contains("MatchDugoutConfirm", StringComparison.Ordinal) && Field(b, "Enabled") == "True");
-
-	private static string Mark(DugoutEntry entry) =>
-		IsScoreCard(entry.Text) ? "" : entry.Open ? "  [uygulanabilir]" : "";
+	private static string Mark(DugoutEntry entry) => entry.Open ? L("  [can be applied]") : "";
 
 	/// <summary>The Dugout panel is up: its own element (#Dugout) has something laid out in it.</summary>
 	private static async Task<bool> DugoutShowing() =>
 		(await Fm.GetJson("texts", ("within", "Dugout"))).GetArrayLength() > 0;
 
+	/// <summary>Waits out a move being played. Says so if the panel stays away.</summary>
+	private static async Task<bool> DugoutComesBack()
+	{
+		// Paused in the middle of a move it stays away until play goes on.
+		if (Field(await Fm.GetJson("state"), "Playing") != "True")
+		{
+			Console.Error.WriteLine(L("The dugout panel is hidden while this move is paused: resume, then dugout"));
+			return false;
+		}
+		Console.Error.WriteLine(L("The dugout panel hides while a move is being played; waiting…"));
+		if (await Until(DugoutShowing, seconds: 60, every: 0.5)) return true;
+		Console.Error.WriteLine(L("The dugout panel did not come back, so nothing was done; try again: dugout"));
+		return false;
+	}
+
 	/// <summary>The minutes on the Dugout timeline, from a listing of the screen's buttons: a new one is new advice.</summary>
 	internal static List<string> DugoutMarks(JsonElement buttons) =>
 		buttons.EnumerateArray().Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$")).Select(b => Field(b, "Label")).ToList();
 
-	/// <summary>Jumps to one entry and returns its text once the panel shows it.</summary>
-	/// <param name="expected">The entry's text when known: waited for, as a live match redraws the panel slowly.</param>
-	private static async Task<string> ShowDugoutEntry(string pointer, string? expected = null)
+	/// <summary>
+	/// Jumps to one entry and returns its card once the game says that place is selected and two readings
+	/// agree: the card's values and texts follow the place a moment later, each at its own pace.
+	/// </summary>
+	private static async Task<DugoutCard?> ShowDugoutEntry(string pointer, int index)
 	{
-		var before = await DugoutText();
 		await Fm.Get("press", ("ptr", pointer));
-		var text = before;
-		await Until(async () => (text = await DugoutText()) == expected || expected == null && text != before, seconds: expected == null ? 1.5 : 3, every: 0.2);
-		return text;
+		DugoutCard? card = null;
+		return await Until(async () =>
+		{
+			var now = await DugoutNow();
+			var settled = now?.Index == index && now == card;
+			card = now;
+			return settled;
+		}, seconds: 4, every: 0.2) ? card : null;
 	}
 
-	/// <summary>
-	/// What the Dugout panel says now, between its title and "Do it": a line of advice, or a
-	/// score card ("FB", "0 - 0", "LIVE", "Club move up to 13th position").
-	/// </summary>
+	/// <summary>The panel's selected card; null while the panel is hidden, as the game then binds none of it.</summary>
+	private static async Task<DugoutCard?> DugoutNow()
+	{
+		var card = await Fm.GetJson("dugoutcard");
+		if (!int.TryParse(Field(card, "MatchDugoutSelectedEventIndex"), out var index)
+		    || !int.TryParse(Field(card, "MatchDugoutSelectedEventType"), out var type)) return null;
+		return new(type, index, Field(card, "AnalysisFeedbackMinute"), Field(card, "MatchDugoutIsSelectedEventActionable") == "True", await DugoutText());
+	}
+
+	/// <summary>The panel's sentence: advice is the content's description, a note, an analysis or a score its text.</summary>
 	private static async Task<string> DugoutText()
 	{
-		// Inside the panel's own element: a piece of advice is its content.Description; a score card has
-		// no description, and is its bound texts. The title and the button's words are bound to nothing.
 		var texts = (await Fm.GetJson("texts", ("within", "Dugout"), ("paths", "1"))).EnumerateArray()
 			.Select(t => (Text: Field(t, "Text"), Path: Field(t, "Path"))).ToList();
 		var advice = texts.FirstOrDefault(t => t.Path == "content.Description").Text;
-		if (advice is { Length: > 0 }) return advice;
-		// An insight card's sentence is drawn without a path; it is the panel's long text (the title and
-		// the button are a word or two).
-		var sentence = texts.Where(t => t.Path.Length == 0 && t.Text.Length >= 25).Select(t => t.Text).FirstOrDefault();
-		var bound = string.Join(" ", texts.Where(t => t.Path.Length > 0).Select(t => t.Text));
-		return sentence != null ? $"{bound} {sentence}".Trim() : bound;
-	}
-
-	// "FB 0 - 0 LIVE", maybe with the scorers and a line on the table after it.
-	private static readonly Regex ScoreCard = new(@"^(\S+) (\d+ - \d+) (\S+)(?: (.+))?$", RegexOptions.Singleline);
-
-	/// <summary>A score card is news of the table, not something to act on.</summary>
-	private static bool IsScoreCard(string text) => ScoreCard.IsMatch(text);
-
-	/// <summary>The kind of advice said in Turkish, its substance left as the game puts it.</summary>
-	private static string Advice(string text)
-	{
-		var card = ScoreCard.Match(text);
-		if (card.Success) return L($"Score {card.Groups[1].Value} {card.Groups[2].Value} {card.Groups[3].Value}{(card.Groups[4].Success ? $" — {card.Groups[4].Value}" : "")}");
-		var team = Regex.Match(text, @"^Add team instruction: (.+)$");
-		if (team.Success) return L($"Team instruction: {team.Groups[1].Value}");
-		var opposition = Regex.Match(text, @"^Add opposition instruction for (.+?): (.+)$");
-		if (opposition.Success) return L($"Opposition instruction ({opposition.Groups[1].Value}): {opposition.Groups[2].Value}");
-		var tell = Regex.Match(text, @"^Tell (.+?): (.+)$");
-		if (tell.Success) return L($"Player instruction ({tell.Groups[1].Value}): {tell.Groups[2].Value}");
-		return text;
+		return advice is { Length: > 0 } ? advice : texts.FirstOrDefault(t => t.Path == "content.Text").Text ?? "";
 	}
 
 	/// <summary>

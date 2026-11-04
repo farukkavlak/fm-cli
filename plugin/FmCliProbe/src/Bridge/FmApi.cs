@@ -27,6 +27,7 @@ internal static partial class FmApi
 		"subsystems" => Game.SubsystemReport(),
 		"scan" => Game.ScanReport(q["q"]),
 		"find" => Find(q["name"], Int(q["limit"], 10)),
+		"dugoutcard" => DugoutCard(),
 		"loadlast" => LoadLast(),
 		"next" => Next(),
 		"refprops" => RefProps(q["path"]),
@@ -299,26 +300,34 @@ internal static partial class FmApi
 		return sb.ToString();
 	}
 
+	/// <summary>The dugout panel's selected card, from one walk of the tree; nothing while the panel is hidden.</summary>
+	private static string DugoutCard()
+	{
+		var fields = new Dictionary<string, string>();
+		var wanted = new[] { "MatchDugoutSelectedEventIndex", "MatchDugoutSelectedEventType", "AnalysisFeedbackMinute", "MatchDugoutIsSelectedEventActionable" };
+		foreach (var (_, node) in Report.Walk())
+		{
+			var name = node.Name;
+			if (name == null || fields.ContainsKey(name) || Array.IndexOf(wanted, name) < 0) continue;
+			try
+			{
+				if (node.Value is { IsNull: false } value) fields[name] = Text.Of(value);
+			}
+			catch { continue; }
+			if (fields.Count == wanted.Length) break;
+		}
+		return Report.Json(fields) + "\n";
+	}
+
 	private static List<(string Path, IReadOnlyNode Node)> FindAll(string name, int limit)
 	{
+		// The full walk: its limit is the larger one, and it leaves out our own fmcli.* nodes, which in a long
+		// session used up the limit before the screen's nodes were reached.
 		var hits = new List<(string, IReadOnlyNode)>();
-		var root = Root(out var err);
-		if (err != null) return hits;
-
-		var queue = new Queue<(IReadOnlyNode Node, string Path)>();
-		queue.Enqueue((root, ""));
-		var seen = 0;
-
-		while (queue.Count > 0 && seen < MaxNodes && hits.Count < limit)
+		foreach (var (path, node) in Report.Walk())
 		{
-			var (n, prefix) = queue.Dequeue();
-			seen++;
-
-			var nodeName = n.Name ?? "";
-			var path = prefix.Length == 0 ? nodeName : prefix + "." + nodeName;
-			if (string.Equals(nodeName, name, StringComparison.OrdinalIgnoreCase)) hits.Add((path, n));
-
-			for (var c = n.FirstChild; c != null; c = c.NextSibling) queue.Enqueue((c, path));
+			if (string.Equals(node.Name ?? "", name, StringComparison.OrdinalIgnoreCase)) hits.Add((path, node));
+			if (hits.Count >= limit) break;
 		}
 
 		return hits;

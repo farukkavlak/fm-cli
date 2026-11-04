@@ -20,28 +20,21 @@ internal static partial class Program
 			.Where(c => Option(args, c.Item1) != null).Select(c => (Wanted: Option(args, c.Item1), List: c.Item2)).ToList();
 		foreach (var (wanted, list) in changes)
 		{
-			// The captains page is a talk with the assistant whose lists are GenericDropdowns.
-			var opened = await OpenSubpage(Screen.Dynamics, Screen.Captains, async () =>
-				(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Any(d => Field(d, "Name") == "GenericDropdown"));
-			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-
-			// Both lists are the assistant's "selectedaction" dropdowns, labelled Select / Change / Replace by the
-			// state of the day; each marks the one who holds its place, so the data's captain tells them apart.
-			var (captainNow, viceNow) = await Now();
-			JsonElement? dropdown = null;
-			await Until(async () =>
+			// Each list is told by its own element in the game's path (ChangeCaptain, ChangeViceCaptain), on
+			// the captains page and on the "choose a captain" message alike.
+			var element = list == "Captain" ? ".ChangeCaptain" : ".ChangeViceCaptain";
+			async Task<JsonElement?> Listed()
 			{
-				var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-					.Where(d => Field(d, "Name") == "GenericDropdown" && Field(d, "Binds") == "selectedaction").ToList();
-				string Holder(JsonElement d) => Field(d, "Selected") is var i && int.TryParse(i, out var n) && n >= 0
-					? Unmarked(d.GetProperty("Choices")[n].GetString() ?? "")
-					: d.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").FirstOrDefault(c => Unmarked(c) != c) is { } m ? Unmarked(m) : "";
-				// With no one marked (no captain yet) the captain's list comes first.
-				bool IsCaptains(JsonElement d, int at) => Holder(d) is var h && h.Length > 0 && (h == captainNow || h == viceNow)
-					? h == captainNow : at == 0;
-				dropdown = lists.Select((d, at) => (d, at)).Where(x => IsCaptains(x.d, x.at) == (list == "Captain")).Select(x => (JsonElement?)x.d).FirstOrDefault();
-				return dropdown != null;
-			}, seconds: 8, every: 0.5);
+				var pointers = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.Where(b => Field(b, "Source").Contains(element, StringComparison.Ordinal)).Select(b => Field(b, "Pointer")).ToHashSet();
+				return (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+					.Where(d => pointers.Contains(Field(d, "Pointer")) && Field(d, "Enabled") == "True" && Field(d, "Visible") == "True")
+					.Select(d => (JsonElement?)d).FirstOrDefault();
+			}
+			var opened = await OpenSubpage(Screen.Dynamics, Screen.Captains, async () => await PageButton("EventFmxAddCandidatesToCaptainStandin", open: false) != null);
+			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+			JsonElement? dropdown = null;
+			await Until(async () => (dropdown = await Listed()) != null, seconds: 8, every: 0.5);
 			if (dropdown == null)
 			{
 				// The page is a talk with the assistant, and a change made in it takes its list away
@@ -62,13 +55,21 @@ internal static partial class Program
 			var said = await Fm.Get("select", ("ptr", Field(dropdown.Value, "Pointer")), ("choice", choices[names.IndexOf(hits[0])]), ("fire", "1"));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
-			// The game asks "Are you sure…"; asking for it is the answer.
-			JsonElement dialog = default;
-			if (await Until(async () => (dialog = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 4, every: 0.25)
-				&& DialogAnswer(dialog[0], true) is { } yes)
-				await Fm.Get("click", ("ptr", Field(yes, "Pointer")));
+			// The game asks "Are you sure…"; asking for it is the answer. On a full page its window takes a while.
+			JsonElement? yes = null;
+			await Until(async () =>
+			{
+				var dialogs = await Fm.GetJson("dialog");
+				yes = dialogs.GetArrayLength() > 0 ? DialogAnswer(dialogs[0], true) : null;
+				return yes != null;
+			}, seconds: 20, every: 0.25);
+			if (yes != null) await Fm.Get("click", ("ptr", Field(yes.Value, "Pointer")));
 			var field = list == "Captain" ? 0 : 1;
-			await Until(async () => (field == 0 ? (await Now()).Captain : (await Now()).Vice) == hits[0], seconds: 5, every: 0.25);
+			if (!await Until(async () => (field == 0 ? (await Now()).Captain : (await Now()).Vice) == hits[0], seconds: 10, every: 0.25))
+			{
+				Console.Error.WriteLine(L($"{hits[0]} was chosen, but the game does not show them as {list}. To look: captains · dialog"));
+				return 1;
+			}
 		}
 
 		// The assistant then asks whether there is anything else; leaving it asked would stand as an open question.

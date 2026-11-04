@@ -395,7 +395,10 @@ Which role should {0} play?	{0} hangi rolde oynasın?
 (dry run) {0}: {1} → {2}	(kuru) {0}: {1} → {2}
 {0} was chosen for {1}, but their menu still says {2}.	{1} için {0} seçildi ama menüsü hâlâ {2} diyor.
 The assistant's in-match advice is only during a match.	Yardımcının maç içi tavsiyeleri yalnızca maç sırasında.
+The dugout panel is hidden while this move is paused: resume, then dugout	Dugout paneli bu pozisyon duraklatılmışken gizli: önce resume, sonra dugout
 The dugout panel hides while a move is being played; waiting…	Dugout paneli pozisyon oynatılırken gizleniyor; bekliyorum…
+The dugout panel did not come back, so nothing was done; try again: dugout	Dugout paneli geri gelmedi, bir şey yapılmadı; yeniden dene: dugout
+  [can be applied]	  [uygulanabilir]
 The assistant has no advice right now.	Yardımcının şu an bir tavsiyesi yok.
 Which one?	Hangisi?
 \nTo apply: dugout <no> apply   ·   to dismiss: dugout <no> dismiss	\nUygulamak: dugout <no> uygula   ·   kaldırmak: dugout <no> kaldır
@@ -1312,9 +1315,6 @@ Insecure	Kırılgan
 Precarious	Çok riskli
 applied	uygulandı
 dismissed	kaldırıldı
-Team instruction: {0}	Takım talimatı: {0}
-Opposition instruction ({0}): {1}	Rakip talimatı ({0}): {1}
-Player instruction ({0}): {1}	Oyuncu talimatı ({0}): {1}
 Kick-off	Maç başladı
 Half time: {0}{1}	Devre arası: {0}{1}
 Second half under way	İkinci yarı başladı
@@ -1828,7 +1828,6 @@ Style	Stil
 Out-of-possession role	Topsuz rol
 Focus	Odak
 Players	Oyuncular
-Score {0} {1} {2}{3}	Skor {0} {1} {2}{3}
  [bold]ON THE PITCH[/] 	 [bold]SAHADA[/] 
 opponent: {0}	rakip: {0}
 ours: {0}	biz: {0}
@@ -2504,3 +2503,4 @@ The planner offers no advice list now.	Taktik ekranı şu an öneri listesi sunm
 (dry run) the assistant's advice: {0}	(deneme) yardımcının önerisi: {0}
 The assistant did not answer.	Yardımcı cevap vermedi.
 The assistant's evaluation could not be read.	Yardımcının değerlendirmesi okunamadı.
+{0} was chosen, but the game does not show them as {1}. To look: captains · dialog	{0} seçildi, ama oyun onu {1} olarak göstermiyor. Bakmak için: captains · dialog

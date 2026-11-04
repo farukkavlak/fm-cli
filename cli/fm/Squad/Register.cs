@@ -45,10 +45,14 @@ internal static partial class Program
 		await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
 
 		JsonElement dialogs = default;
-		await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0, seconds: 15);
-		var yes = dialogs.ValueKind == JsonValueKind.Array && dialogs.GetArrayLength() > 0
-			? DialogAnswer(dialogs[0], true)
-			: null;
+		// The window can be listed before its buttons are drawn, so its Yes is what is waited for.
+		JsonElement? yes = null;
+		await Until(async () =>
+		{
+			dialogs = await Fm.GetJson("dialog");
+			yes = dialogs.GetArrayLength() > 0 ? DialogAnswer(dialogs[0], true) : null;
+			return yes != null;
+		}, seconds: 15);
 		if (yes == null)
 		{
 			Console.Error.WriteLine(L("No confirmation window came; the list may not have been sent. To look: dialog"));

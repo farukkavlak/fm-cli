@@ -276,6 +276,7 @@ internal static partial class Program
 		var moments = new List<(string Minute, string Said)>();
 		var momentFrom = 0;
 		var advised = new HashSet<string>();
+		var saidCards = new HashSet<string>();
 		var firstLook = true;
 		var pressedAt = DateTime.MinValue;
 		var clockAt = DateTime.UtcNow;
@@ -464,14 +465,16 @@ internal static partial class Program
 			var marks = DugoutMarks(controls);
 			if (marks.Count > 0 && marks.Any(m => !advised.Contains(m)))
 			{
-				var advice = await DugoutText();
-				if (advice.Length > 0 && (IsScoreCard(advice) || advice == "No Dugout Events")) foreach (var mark in marks) advised.Add(mark);
-				else if (advice.Length > 0)
+				// Every new card, not only the selected one: two can land between looks. A hidden panel, or one
+				// whose values are not bound yet, lists nothing, so the marks stay new until a card can be read.
+				var cards = await DugoutEntries();
+				if (cards.Count > 0 || await DugoutNow() != null)
 				{
-					// The newest mark can come unlabelled; the clock says when it is.
-					var minute = marks.Last() is { Length: > 0 } labelled ? labelled : Field(state, "MatchTime").Split(':')[0].TrimStart('0');
-					if (Ui.Rich) Ui.Line(L($"  [cyan]{Ui.Safe(minute),5}'  Assistant: {Ui.Safe(Advice(advice))}[/] [dim](dugout)[/]"));
-					else Console.WriteLine(L($"  {minute,5}'  Assistant: {Advice(advice)}  (dugout)"));
+					foreach (var card in cards.Where(c => saidCards.Add($"{c.Minute}|{c.Text}")))
+					{
+						if (Ui.Rich) Ui.Line(L($"  [cyan]{Ui.Safe(card.Minute),5}'  Assistant: {Ui.Safe(card.Text)}[/] [dim](dugout)[/]"));
+						else Console.WriteLine(L($"  {card.Minute,5}'  Assistant: {card.Text}  (dugout)"));
+					}
 					foreach (var mark in marks) advised.Add(mark);
 				}
 			}
@@ -481,7 +484,7 @@ internal static partial class Program
 			if (Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
 			    && PlannerStop(controls) is { } confirm)
 			{
-				var why = await DugoutText();
+				var why = await DugoutNow() is { IsScoreUpdate: false } note ? note.Text : "";
 				// Who is down, when it is one of ours: the planner's table says so (the
 				// stop was announced without a name).
 				var men = await MatchPlayers(atStop: true);
@@ -489,7 +492,7 @@ internal static partial class Program
 				var down = men.Where(p => p.Value.Injury != 0 && Ours(p.Key)).Select(p => p.Key).ToList();
 				// A red card stops play the same way, with no one hurt: the player's own record says so.
 				var sentOff = down.Count > 0 ? [] : men.Where(p => p.Value.Red && Ours(p.Key)).Select(p => p.Key).ToList();
-				Console.WriteLine(L($"  The match stopped at {Field(state, "MatchTime")}'{(down.Count > 0 ? L($": {string.Join(", ", down)} is injured") : sentOff.Count > 0 ? L($": {string.Join(", ", sentOff)} is sent off") : why.Length > 0 && !IsScoreCard(why) ? $": {Advice(why)}" : "")}"));
+				Console.WriteLine(L($"  The match stopped at {Field(state, "MatchTime")}'{(down.Count > 0 ? L($": {string.Join(", ", down)} is injured") : sentOff.Count > 0 ? L($": {string.Join(", ", sentOff)} is sent off") : why.Length > 0 ? $": {why}" : "")}"));
 
 				// Called again while stopped, `match` means: go on as things are.
 				if (!Ui.Interactive && firstLook)
