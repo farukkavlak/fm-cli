@@ -91,11 +91,13 @@ An event the code never names is not always a gap; each line was checked against
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
 - [ ] T14 `tactic advice [evaluation | xi | opposition]`: the planner's Advice list by its event, choices by `FM.UI.AdviceOption`.
   Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
-  opposition is `opponent`. TR 3 × evaluation, xi, opposition, wrong word, `--dry`. Left: English; upcoming match (2) and Data Hub (4) open
+  opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
   pages no command reads (T16); a real critique line (only "no advice" seen).
 - [ ] T15 Training week card: copy / paste / reset a week, pick a session, confirm / cancel the card.
 - [ ] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
-  Goal / Set Piece Analysis.
+  Goal / Set Piece Analysis. Not found yet: how to read one page's texts. `texts?within=<page guid>` finds nothing;
+  `within=MenuBody` gives the portal left open underneath, whichever page is up, even keeping only `Pages.Shown` ones (EN, 3 pages).
+  Next: each page's own data paths in `/tree`, as `opponent` holds `Team.Description`.
 - [ ] T17 Recruitment Objectives and Recruitment Feedback pages.
 
 ## 3. Existing commands, missing a part
