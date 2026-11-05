@@ -171,10 +171,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T97 The match bar's Tactics button opens the panel every time. EN first half, paused and playing, 12 of 12; TR second half 5 of 5.
   What looked like a dead button: a Cancel pressed as the panel appears can be lost, the panel stays up and the button stays hidden. Cancel is read back.
 - [x] T113 `talk --json`: its answers came in the game's order, `talk <number>` counts the buttons' (a manager's contract: first listed Cancel, `talk 1` was Finalise Deal). Now `--json` lists them as `talk` takes them, with `Number`. Passed TR + EN (`round6.toml`, an interview).
-- [ ] T114 Deadline day, coverage taken part in: `game.CurrentGameDate` went unbound and `status` stood on 3 Sep
+- [x] T114 Deadline day, coverage taken part in: `game.CurrentGameDate` went unbound and `status` stood on 3 Sep
   while the game ran on to 7 Sep (match "today", fixtures 7 Sep). The plugin now takes `game.CurrentGameDay`
   when it is later or the packed date is missing. To check: `tests/live/round6.toml`, TR + EN. Round 6 did not
-  reach it: an incoming offer (Twente for Frans) stops `next` at 09:00 first. Next round: reject it by `offers --json`.
+  reach it (an offer stopped `next`); round 7, offers rejected on the way, passed TR + EN: 3 → 6 Sep, and at the end
+  `CurrentGameDate` was unbound while the date read 6 Sep from `CurrentGameDay`.
 - [ ] T115 Inbox lost its older messages: on 29 Sep 2029 (scenario `intl-break`) `inbox` lists 10–14 rows, the
   day's, and `reply "Four players called up for international duty"` finds nothing, while an hour earlier it was
   row 4 of 37. `inboxlist` answers "no inbox list", even on Portal › Messages. Find what the list binds now.- [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count

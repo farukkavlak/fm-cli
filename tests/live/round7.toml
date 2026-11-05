@@ -1,0 +1,40 @@
+# Round 7: T114 the date after deadline day's coverage, offers rejected on the way. Run: tools/fm-round.py dry tests/live/round7.toml, then run. Every answer: results/round7-<lang>.log.
+
+# Deadline day, its coverage taken part in: the game's packed date went unbound and the date stood on 3 Sep while
+# the game ran on to 7 Sep, the match day. The date must follow the game; the match day is 7 Sep.
+[[test]]
+task = "T114"
+name = "the date goes on after deadline day's coverage"
+at = "deadline"
+fresh = true
+steps = [
+  { read = "status", path = "Date", is = "2029-09-03", live = true },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "deadline", live = true },
+  { run = "reply {deadline} 1", note = "take part (the game's first answer)" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { run = "next", rc = "any" },
+  { run = "offers \"Giovanie Frans\" reject --yes", rc = "any", note = "Twente bids for him at 09:00 and again later; a waiting offer stops next" },
+  { read = "status", path = "Date", not = "2029-09-03", note = "not stuck on deadline day" },
+]
+
