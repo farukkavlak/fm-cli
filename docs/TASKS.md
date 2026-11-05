@@ -106,6 +106,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
   Found: a row's `XIButton` sends the player's index, so a row is held by `Slots.PlayerIndex`; the toggle sits in the same `Items.<n>`; pressing it lights the row (seen by /shot). No data path found to read it back yet: not written.
+  Measured 5 Nov (11 toggles on the page): a whole-tree diff (depth 6) moves only `CanUndo`. The button's parent is an `SIStyleSetter` beside `#PersonalisedInstructionsTooltip`. Next: the path that setter is bound to (a read of the setter's own binding); no style or colour is read.
 - [ ] T14 `tactic advice [evaluation | xi | opposition]`: the planner's Advice list by its event, choices by `FM.UI.AdviceOption`.
   Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
   opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
