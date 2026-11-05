@@ -195,9 +195,24 @@ def answer_something():
 
 
 def forward(args):
-    """Days forward through the tool, matches simulated, up to a date. Stops where the game asks something."""
+    """Days forward through the tool, matches simulated, up to a date. Stops where the game asks something.
+    With --answer the first answers can lose the job (a board meeting answered blindly, 1 Mar 2030): while
+    employed it saves once a week, and stops the moment the job is gone, so the week's save is the way back."""
+    employed = fm("squad")[0] == 0
+    saved_week = None
+    answered = False
     while True:
         now = state()
+        if args.answer and employed:
+            # The job first: a save taken after it is gone would write over the way back.
+            week = datetime.date.fromisoformat(now["Date"]).isocalendar()[:2] if now.get("Date") else None
+            saving = week and week != saved_week
+            if (answered or saving) and fm("squad")[0] != 0:
+                print(f"Stopped at {now.get('Date')}: the job is gone. The save from the week of {saved_week} is the way back.")
+                return 3
+            answered = False
+            if saving and fm("save --yes")[0] == 0:
+                saved_week = week
         if now.get("Date", "") >= args.date:
             print(f"Reached {now['Date']} ({now['State']}).")
             return 0
@@ -211,6 +226,7 @@ def forward(args):
             if args.answer and match_day and fm("tactic pick")[0] == 0:
                 continue
             if args.answer and answer_something():
+                answered = True
                 continue
             print(f"Stopped at {state().get('Date')}, the game asks:\n{(out + err).strip()[-900:]}")
             return 2
