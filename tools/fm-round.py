@@ -411,7 +411,7 @@ def dry(args):
                     asked[key] = True
                     try:
                         dig(read_json(command, 300), step.get("path", ""))
-                    except (Failed, KeyError, IndexError, ValueError, TypeError) as error:
+                    except (Failed, KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
                         found.append(f"{test['task']} {test['name']}: read `{command}` path `{step.get('path')}`: {error}")
     for problem in found:
         print(f"  ! {problem}")
@@ -481,7 +481,7 @@ def play(test):
             elif "read" in step:
                 try:
                     value = dig(read_json(step["read"]), step["path"])
-                except (KeyError, IndexError, ValueError, TypeError) as error:
+                except (KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
                     raise Failed(f"step {number} `{step['read']}` {step['path']}: not there ({error})") from error
                 if "keep" in step:
                     kept[step["keep"]] = value
@@ -495,7 +495,7 @@ def play(test):
                         raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong}, and the match beside it ended")
                     try:
                         wrong = holds(step, dig(read_json(step["until"], 120), step["path"]), kept)
-                    except (Failed, KeyError, IndexError, ValueError, TypeError) as error:
+                    except (Failed, KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
                         wrong = str(error)
                     if wrong is None:
                         break

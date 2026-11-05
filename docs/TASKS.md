@@ -270,6 +270,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 Each: crawl the screen, map it to a command, open a task for what is missing.
 
 - [ ] T55 Season's end: club vision meeting, end-of-season awards, players whose contracts end, retirements.
+  - [x] Vision meeting: Negotiate, remove, a required one refused, undo, reset (closed with nothing changed). TR + EN, `round9.toml`.
+  - [x] Contracts ending on the last day: `contracts`. TR + EN.
+  - [ ] Awards and retirements: their messages, from `season-end` forward.
 - [ ] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
 - [x] T57 Cup draws: a draw's message offers skip or view; view opens the draw screen, `fm draw` runs it (`EventFmxDrawAllTeams`, read back by the button going off) and prints it. `fm read here` reads whatever is on top. TR + EN, nothing open refused.
 - [ ] T58 International break: call-ups, the national side's screens.

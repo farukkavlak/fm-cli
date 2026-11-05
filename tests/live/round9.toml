@@ -1,0 +1,39 @@
+# Round 9: T55 the season's end (vision meeting, contracts ending). Run: tools/fm-round.py dry tests/live/round9.toml, then run. Every answer: results/round9-<lang>.log.
+
+# Two messages wait: the vision meeting and the pre-season date. Each is asked for its second answer; only the
+# meeting has one (Negotiate), so the other refuses and the meeting opens. A removal, a refused removal, undo.
+[[test]]
+task = "T55"
+name = "the season's vision meeting: remove, refuse the required one, undo"
+at = "season-end"
+fresh = true
+steps = [
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.#", not = "0", live = true },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "a", live = true },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.1.NewsTitleString", keep = "b", live = true },
+  { run = "reply {a} 2", rc = "any" },
+  { run = "reply {b} 2", rc = "any" },
+  { read = "vision", path = "Goals.#", keep = "all", live = true },
+  { read = "vision", path = "Goals.?Required.0.No", keep = "required", live = true },
+  { read = "vision", path = "Goals.?Required=False.0.No", keep = "free", live = true },
+  { run = "vision remove {free}" },
+  { read = "vision", path = "Goals.#", differs_from = "all", live = true },
+  { run = "vision undo" },
+  { read = "vision", path = "Goals.#", same_as = "all", live = true },
+  { run = "vision remove {required}", rc = "fail" },
+  { read = "vision", path = "Goals.#", same_as = "all", live = true, note = "the required one stays" },
+  { run = "vision reset", rc = "fail", note = "nothing changed: the game closes Reset" },
+  { run = "vision remove {free}" },
+  { run = "vision reset" },
+  { read = "vision", path = "Goals.#", same_as = "all", live = true },
+]
+
+# Players whose contracts end on the season's last day are listed with that date.
+[[test]]
+task = "T55"
+name = "contracts ending at the season's end"
+at = "season-end"
+steps = [
+  { read = "contracts", path = "#", not = "0", live = true },
+  { read = "contracts", path = "0.Ends", keep = "first", live = true },
+]
