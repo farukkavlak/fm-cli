@@ -198,9 +198,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T41 `settings language` says the portal's pages do not open until the game is opened again (save, stop,
   start); the language setting is told by its pref `current_language`, not by the CLI's word for it.
 - [x] T42 `status` with a held event queue: the inbox's wait gives up when its event still waits after 3 s. 5 s measured (it was 2 minutes).
-- [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING). EN, once: handed to
-  the assistant and sent, no "is disabled". The screen comes only at a season's start or a new signing. EN once: "No confirmation
-  window came" while the window was up. Now waits for its Yes; not met again yet.
+- [x] T43 Squad numbers and the squad list at a season's start (scenario `season-lists`): the assistant's pick by `EventFmxAutoSelect`, Confirm by being the page's primary button that raises the question, answered by the game's handler. `numbers --auto` and `register --auto`, `--send`: TR + EN.
 
 - [x] T95 `next` stopped at "The game does not move on: TransferHub" when the window opened (28 Jun 2028): FM27's
   look-only screens (TransferHub, NewsForYou, CompetitionOverview, DataHub, YouthSetup; `ContinueFlowFlags`) are

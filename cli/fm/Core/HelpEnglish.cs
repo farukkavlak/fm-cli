@@ -78,6 +78,8 @@ internal static partial class Program
 			  manager         the manager's record: clubs, transfers, results at this club and over the career
 			  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them; read here: what is on screen
 			  meeting         hold a team meeting; answer it with talk
+			  jobs [<club>] [apply|interest] [--yes] [--all]   job vacancies; apply or say you are interested
+			  crawl <out.json> [--here] [--only <guid>,…] [--skip <guid>,…]   for developers: a map of the game's pages
 			  draw            run a cup draw its message opened, and show the ties
 			  resign [--yes]  resign from the club (test career; then look at jobs)
 			  dialog [answer] show or answer the open confirmation window
