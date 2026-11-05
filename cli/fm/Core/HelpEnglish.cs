@@ -194,6 +194,7 @@ internal static partial class Program
 			                              during a match: tactic role <player> [<role>]
 			  tactic player <position> <player>  put a squad player in that position (the one there goes to the bench)
 			  tactic player <substitute> <player>  swap a substitute (an injured one) for another squad player
+			  tactic player <position> --clear  leave the position empty
 			  tactic new ["<style>" ["<in-possession formation>" ["<out-of-possession formation>"]]]
 			                  create a tactic; lists the options of the step left out
 			  tactic copy [<tactic>]  copy a tactic to a new slot · tactic clear [<n>] --yes: empty a slot

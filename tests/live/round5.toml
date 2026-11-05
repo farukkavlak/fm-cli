@@ -1,0 +1,65 @@
+# Round 5: T13 a place left empty, T25 an applied card in the first half at normal speed. Run: tools/fm-round.py dry tests/live/round5.toml, then run. Every answer: results/round5-<lang>.log.
+
+[[test]]
+task = "T13"
+name = "a place is left empty and filled again; two starters swap; the wrong ones"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { read = "tactic", path = "Slots.3.PlayerIndex", keep = "was", live = true },
+  { read = "tactic", path = "Slots.3.Player", keep = "name", live = true },
+  { read = "tactic", path = "Slots.9.Player", keep = "other", live = true },
+  { read = "tactic", path = "Slots.9.PlayerIndex", keep = "otherindex", live = true },
+  { run = "tactic player 99 --clear", rc = "fail" },
+  { run = "tactic player 4 --clear" },
+  { read = "tactic", path = "Slots.3.PlayerIndex", is = "-1" },
+  { read = "tactic", path = "Slots.9.PlayerIndex", same_as = "otherindex", note = "only that place" },
+  { run = "tactic player 4 --clear", note = "already empty" },
+  { run = "tactic player 4 {name}" },
+  { read = "tactic", path = "Slots.3.PlayerIndex", same_as = "was" },
+  { run = "tactic player 4 {other}", note = "a starter: the two swap" },
+  { read = "tactic", path = "Slots.3.PlayerIndex", same_as = "otherindex" },
+  { read = "tactic", path = "Slots.9.PlayerIndex", same_as = "was" },
+  { run = "tactic player 4 {name}" },
+  { read = "tactic", path = "Slots.3.PlayerIndex", same_as = "was" },
+  { run = "squad", note = "from another page" },
+  { run = "tactic player 4 --clear" },
+  { read = "tactic", path = "Slots.3.PlayerIndex", is = "-1" },
+  { run = "tactic player 4 {name}" },
+]
+
+# One first half: cards came by 35' at normal speed. A card with no tweak still counts as an apply; the log says what each did.
+[[test]]
+task = "T25"
+name = "an applied card puts a tactical tweak on, in the first half, normal speed"
+at = "kickoff"
+fresh = true
+steps = [
+  { start = "match --play --no-talk" },
+  { until = "tweak", path = "#", not = "0", seconds = 300, every = 5, live = true, note = "kicked off; asked slowly (T92)" },
+  { read = "tweak", path = "?WillBeOn.#", keep = "before", live = true },
+  { until = "dugout apply", path = "TweaksOn.#", not = "0", seconds = 420, every = 5, live = true },
+  { read = "tweak", path = "?WillBeOn.#", differs_from = "before", live = true },
+  { run = "dugout 99 apply", rc = "fail", note = "not a card" },
+  { until = "tweak", path = "?On.#", not = "0", seconds = 120, every = 5, live = true, note = "on after play went on, not only waiting" },
+  { stop = true },
+]
+
+# The form's other flags: a wrong word is refused by each list and nothing is made; all agents' players discarded.
+[[test]]
+task = "T11"
+name = "a requirement's lists refuse a wrong word; discard --all"
+at = "window"
+fresh = true
+steps = [
+  { read = "transferroom", path = "0.Position", keep = "position" },
+  { run = "transferroom new --position {position} --time zzzq", rc = "fail" },
+  { run = "transferroom new --position {position} --type zzzq", rc = "fail" },
+  { run = "transferroom new --position {position} --oop-role zzzq", rc = "fail" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+  { read = "transferroom agents", path = "#", not = "0" },
+  { run = "transferroom discard --all" },
+  { read = "transferroom agents", path = "#", is = "0" },
+  { run = "transferroom discard --all", note = "nobody left" },
+]

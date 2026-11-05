@@ -140,6 +140,7 @@ fm tactic advice             # the assistant's evaluation of the tactic; also: x
 fm tactic role <position> [<role>] [--oop]
 fm tactic player <position> <player>    # anyone in the squad; the one there goes to the bench
 fm tactic player <substitute> <player>  # swap a substitute (an injured one) for another
+fm tactic player <position> --clear     # leave the position empty
 fm tactic instructions ["<instruction>" [<value>]]
 fm tactic pi <position|player> ["<instruction>" [<value>]]
 fm opposition [<player> <instruction>=<value>]

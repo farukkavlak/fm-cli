@@ -38,6 +38,7 @@ internal static partial class Program
 				return 64;
 			case "pick": return await TacticPick(dry, youth: args.Contains("--youth"));
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
+			case "player" when args.Contains("--clear"): return await TacticClearPlace(words.Skip(1).ToList(), dry);
 			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
 			case "slot": return await TacticSlot(wanted, dry);
 			case "copy": return await TacticCopy(wanted, dry);
@@ -275,6 +276,77 @@ internal static partial class Program
 	}
 
 	/// <summary>Who a team selection slot's own list offers (the whole squad), or null when the plugin cannot say.</summary>
+	/// <summary>
+	/// Takes the player out of a place and leaves it empty. The place's button sends this on its right-click list
+	/// (EventFmxTeamSelectionClearOrPickPlayerAuto); it is told from the others by its row's own PlayerIndex,
+	/// read back from the place's PlayerIndex (-1 is empty).
+	/// </summary>
+	private static async Task<int> TacticClearPlace(List<string> words, bool dry)
+	{
+		if (await Planner() is not { } tactic)
+		{
+			Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
+			return 1;
+		}
+		var slots = tactic.GetProperty("Slots").EnumerateArray().ToList();
+		var masks = slots.Select(s => Field(s, "IPPosition")).ToList();
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine(L($"usage: tactic player <position> --clear   positions: {string.Join(" ", masks.Select(m => SpotShown(m)))}"));
+			return 64;
+		}
+		if (SlotOf(masks, words[0], L("Position")) is not { } at) return 1;
+		var spot = SpotShown(masks[at]);
+		var place = Field(slots[at], "TeamSelectionIndex");
+		var inPlace = Field(slots[at], "PlayerIndex");
+		if (inPlace is "" or "-1")
+		{
+			Console.WriteLine(L($"{spot} is already empty."));
+			return 0;
+		}
+
+		async Task<JsonElement?> Button()
+		{
+			var rows = await Fm.GetJson("rowcontrols", ("event", "OpenPanel"), ("name", "XIButton"), ("buttons", "1"), ("gen", Environment.TickCount64.ToString()));
+			foreach (var row in rows.EnumerateArray())
+				if (Field(row, "Item") is { Length: > 0 } item && Field(await Fm.Pull(item, "PlayerIndex"), "PlayerIndex") == inPlace)
+					return row;
+			return null;
+		}
+
+		// The tactic stays bound under another page, so having read it does not mean its buttons are up.
+		var button = await Button();
+		if (button == null)
+		{
+			var opened = await OpenPage(Screen.Tactics);
+			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+			await Until(async () => (button = await Button()) != null, seconds: 10, every: 0.25);
+		}
+		if (button == null)
+		{
+			Console.Error.WriteLine(L($"{spot}: the place's button is not on the tactics page."));
+			return 1;
+		}
+		if (dry)
+		{
+			Console.WriteLine(L($"(dry run) {spot} would be left empty."));
+			return 0;
+		}
+		var said = await Fm.Get("press", ("ptr", Field(button.Value, "Pointer")), ("list", "RightClickEvents"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+
+		var empty = await Until(async () => await Planner() is { } now
+			&& now.GetProperty("Slots").EnumerateArray().FirstOrDefault(s => Field(s, "TeamSelectionIndex") == place) is { ValueKind: JsonValueKind.Object } slot
+			&& Field(slot, "PlayerIndex") == "-1", seconds: 5, every: 0.25);
+		if (!empty)
+		{
+			Console.Error.WriteLine(L($"{spot}: the button was pressed, but the player is still there."));
+			return 1;
+		}
+		Console.WriteLine(L($"{spot} is empty now: {Field(slots[at], "Player")} left it."));
+		return 0;
+	}
+
 	private static async Task<List<(string Index, string Name)>?> SlotChoices(string slot)
 	{
 		try

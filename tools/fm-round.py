@@ -33,6 +33,7 @@ Steps:
                            differs_from / present = true, and keep = "<name>" remembers the value
   until = "<command>"      a read asked again until it holds; seconds = the upper bound (default 300), every = the pace of asking (default 1)
   start = "<command>"      runs beside the next steps (a match); `finish = true` waits for it to end
+  stop = true              ends what `start` began, the match staying where it is (the next test starts fresh)
   live = true              on a read: it can only be read at that moment, so a dry run does not ask it
   {name} in a command      the value kept under that name
 
@@ -255,7 +256,7 @@ def load_list(path):
         return tomllib.load(file).get("test", [])
 
 
-STEP_KINDS = ("run", "read", "until", "start", "finish")
+STEP_KINDS = ("run", "read", "until", "start", "finish", "stop")
 READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "seconds", "every", "live", "note"}
 
 
@@ -294,7 +295,7 @@ def problems_in(tests):
                 found.append(f"{where} step {number}: unknown {sorted(set(step) - {'run', 'rc', 'note'})}")
             if kind == "start":
                 running = True
-            if kind == "finish":
+            if kind in ("finish", "stop"):
                 if not running:
                     found.append(f"{where} step {number}: finish with nothing started")
                 running = False
@@ -413,6 +414,10 @@ def play(test):
                 side = subprocess.Popen(["fm", *shlex.split(step["start"])], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
             elif "finish" in step:
                 side.wait(timeout=COMMAND_LIMIT)
+                side = None
+            elif "stop" in step:
+                side.terminate()
+                side.wait(timeout=60)
                 side = None
             elif "read" in step:
                 try:

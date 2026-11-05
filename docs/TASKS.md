@@ -100,11 +100,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   message offered its choices again but was not named, though the same case with Utku was. `AllInbox` is now looked at too; not met again.
 - [ ] T11 TransferRoom: `fm transferroom`. Adverts (transfer, loan, every row), offer a player, requirements (new, read, delete), agents' players (read, discard). TR + EN 3 × with the negatives (`tests/live/round2.toml`).
   - A player whose question has two answers: `offer` leaves the talk open for the player to answer.
-  - [ ] Left: `responses` and `activity --loan` hold their tables by names not seen yet (`responses-transfers-table`, `responses-loans-table`, `activity-loans-table`); no such rows in the scenario. Offer through a list of several players: measured by hand once, EN only. `discard --all`, `--oop-position`, `--oop-role`, `--role`, `--time`, `--type`: not run through the tool yet.
+  - [ ] Left: `responses` and `activity --loan` hold their tables by names not seen yet (`responses-transfers-table`, `responses-loans-table`, `activity-loans-table`); no such rows in the scenario. Offer through a list of several players: measured by hand once, EN only. `discard --all` and a wrong word to `--time`, `--type`, `--oop-role`: TR + EN (list `round5`). A real value through `--oop-position`, `--oop-role`, `--role`, `--time`, `--type`: not run yet.
 - [ ] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
   - [ ] Left: copy a plan (EventFmxSquadPlannerCopy). The list's entry sent by `select` and by a row's submit changes nothing in the other season, so there is no command. Next: what a click sends that these do not; the rows' ticks (`SelectedPlayers`).
 - [ ] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
+  - [x] Swap two starters: `tactic player <position> <starter>` already does it (the two change places). Clear a place: `tactic player <position> --clear`, the place's `XIButton` told by its row's `PlayerIndex`, its right-click list sends `EventFmxTeamSelectionClearOrPickPlayerAuto`, read back by the place's `PlayerIndex` -1. TR + EN 3 × (list `round5`): wrong position, only that place, already empty, filled again, from another page.
+  - [ ] Personalised roles, the rest of this task:
   Found: a row's `XIButton` sends the player's index, so a row is held by `Slots.PlayerIndex`; the toggle sits in the same `Items.<n>`; pressing it lights the row (seen by /shot). No data path found to read it back yet: not written.
   Measured 5 Nov (11 toggles on the page): a whole-tree diff (depth 6) moves only `CanUndo`. The button's parent is an `SIStyleSetter` beside `#PersonalisedInstructionsTooltip`. Next: the path that setter is bound to (a read of the setter's own binding); no style or colour is read.
 - [ ] T14 `tactic advice [evaluation | xi | opposition]`: the planner's Advice list by its event, choices by `FM.UI.AdviceOption`.
@@ -149,7 +151,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   (it never matched in FM27 before). EN and TR, paused and rolling: apply, dismiss, wrong number, nothing to apply; no score card listed.
   Next / previous not needed: `dugout <no>` jumps. `match` prints every new card.
   - What apply does: a tactical tweak on the match's tactic (the button's `DugoutAdviceAcceptEventContext` carries its id), not a change of mentality or instructions. Pending at once, on after play goes on; `dugout apply` (the newest card that can be) says which. Measured: yellow-card card → Go Narrower (EN paused). List `round4`: TR 1 of 1, EN 0 of 3 (no apply with a tweak seen in the whole match; why is not known, as the test keeps no failed try).
-  - [ ] Next round: tried at the highest speeds (10x / 40x) in one match each: no card taken. The panel stays hidden, and in both languages `match` stopped at an injury that needs a substitute (scenario `kickoff`, 46'), so the list must answer with `sub`, or play at normal speed.
+  - [ ] Next round: tried at the highest speeds (10x / 40x) in one match each: no card taken. The panel stays hidden, and in both languages `match` stopped at an injury that needs a substitute (scenario `kickoff`, 46'), so the list must answer with `sub`, or play at normal speed. Normal speed, first half (list `round5`): TR no card taken in 7 minutes, the panel away for most calls; EN the game died at team submission (T92). Next: a way to apply that does not need the panel up, or a scenario set just before a card.
   - The panel is hidden during a move, even paused: `dugout` waits while the ball rolls and says so when paused.
   - While the ball rolls the list can move between two calls, so a number can mean another card (T101 removes the need for numbers).
 - [x] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): TR and EN, both already-states; no play button (a
@@ -213,7 +215,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T91 `fm start` hung at the main menu when a dead game (UE) still held the port the file named: the menu check
   asked `health` with the long timeout. Now it asks briefly first (`Answers`, 3 s) and the port file is read on every
   call. Measured with 7777 held by a dead game: 2 normal starts and one with the file set to 7777, 75–78 s each.
-- [ ] T92 The game crashed once leaving a match (15 Apr 2028, tweaks used in that match with a wrong bound path). Twice more on 5 Nov at kick-off, in a terminal with `status` asked every 2 s from another process (SIGBUS on the GC Finalizer thread); not with it asked every 5 s or not at all. Cause not known. Again 5 Nov, EN, list `round4`: gone before kick-off with `tweak` asked every second; the two reports of that day on the GC Finalizer jump to a bad address from UnityPlayer. `until` now takes `every`.
+- [ ] T92 The game crashed once leaving a match (15 Apr 2028, tweaks used in that match with a wrong bound path). Twice more on 5 Nov at kick-off, in a terminal with `status` asked every 2 s from another process (SIGBUS on the GC Finalizer thread); not with it asked every 5 s or not at all. Cause not known. Again 5 Nov, EN, list `round4`: gone before kick-off with `tweak` asked every second; the two reports of that day on the GC Finalizer jump to a bad address from UnityPlayer. `until` now takes `every`. Again 5 Nov 20:03, EN, ten seconds after `match` began submitting the team, with `tweak` asked every 5 s.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;
@@ -281,8 +283,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 
 ## 10. Quality, for everything above
 
-- [ ] T71 Every new command has its MCP tool (`Core/Mcp.Tools.cs`) and help line (`HelpEnglish.cs`, labels).
-- [ ] T72 Every new command is reachable from the natural-language layer (`cli/fm/Nl`), `tools/nl-check.py` passes.
+- [x] T71 Every new command has its MCP tool (`Core/Mcp.Tools.cs`) and help line (`HelpEnglish.cs`, labels).
+- [x] T72 Every new command is reachable from the natural-language layer (`cli/fm/Nl`), `tools/nl-check.py` passes.
 - [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`). `live-match.png` shows the new key line. To capture: `tools/live-capture.py … -- fm match --play --no-talk` (the `--` is needed).
 - [ ] T74 Full sweep passes after the last task: `tools/sweep.sh` (every read command) and `tools/mcp-check.py`,
   TR and EN.

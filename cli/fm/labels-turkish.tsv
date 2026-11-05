@@ -2673,3 +2673,9 @@ Told to remove {0}, but the game still lists him.	{0} çıkarılsın denildi ama
 There is nothing to apply right now.	Şu an uygulanacak bir şey yok.
   Tactical tweak on: {0}	  Taktik ince ayar açıldı: {0}
   Tactical tweak off: {0}	  Taktik ince ayar kapandı: {0}
+usage: tactic player <position> --clear   positions: {0}	kullanım: tactic player <mevki> --clear   mevkiler: {0}
+{0} is already empty.	{0} zaten boş.
+{0}: the place's button is not on the tactics page.	{0}: bu yerin düğmesi taktik sayfasında yok.
+(dry run) {0} would be left empty.	(deneme) {0} boş bırakılacaktı.
+{0}: the button was pressed, but the player is still there.	{0}: düğmeye basıldı ama oyuncu hâlâ orada.
+{0} is empty now: {1} left it.	{0} artık boş: {1} çıktı.
