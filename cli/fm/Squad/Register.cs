@@ -9,11 +9,18 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>Presses the page's Confirm and answers the question it asks.</summary>
-	private static async Task<int> SendList(string confirmLabel, string what)
+	private static async Task<int> SendList(string what)
 	{
 		// Confirm stays disabled until the list is complete, which a pick takes a moment over.
 		JsonElement? ready = null;
-		await Until(async () => (ready = await Labelled(confirmLabel)) != null, seconds: 12);
+		// The page's primary button that raises the game's question; its words are the page's own.
+		await Until(async () =>
+		{
+			var found = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Visible") == "True" && Field(b, "Enabled") == "True"
+				&& Field(b, "Name").StartsWith("button-primary", StringComparison.Ordinal) && Field(b, "Events").Split(", ").Contains("TriggerDialog"));
+			ready = found.ValueKind == JsonValueKind.Object ? found : null;
+			return ready != null;
+		}, seconds: 12);
 		if (ready is not { } confirm)
 		{
 			// The list breaks one of the competition's rules: say which, since what to leave
@@ -39,7 +46,7 @@ internal static partial class Program
 				foreach (var (rule, met) in broken) Console.Error.WriteLine($"  {(met ? "✓" : "✗")} {rule}");
 				Console.Error.WriteLine(L("To take players out of the list or add them: register (in a terminal) or register --in/--out <player>"));
 			}
-			else Console.Error.WriteLine(L($"'{confirmLabel}' did not open on screen."));
+			else Console.Error.WriteLine(L($"{what}: its confirm button is not on screen."));
 			return 1;
 		}
 		await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));

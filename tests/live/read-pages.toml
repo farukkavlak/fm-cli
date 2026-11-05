@@ -622,3 +622,251 @@ task = "T36"
 name = "season preview is refused when the game has none"
 at = "calm"
 steps = [ { run = "read season-preview", rc = "fail" } ]
+
+[[test]]
+task = "T77"
+name = "read news-for-you"
+at = "calm"
+steps = [
+  { read = "read news-for-you", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read news-world"
+at = "calm"
+steps = [
+  { read = "read news-world", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read news-competitions"
+at = "calm"
+steps = [
+  { read = "read news-competitions", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read news-transfers"
+at = "calm"
+steps = [
+  { read = "read news-transfers", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read competitions"
+at = "calm"
+steps = [
+  { read = "read competitions", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read internationals-page"
+at = "calm"
+steps = [
+  { read = "read internationals-page", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read targets-page"
+at = "calm"
+steps = [
+  { read = "read targets-page", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read report-priorities"
+at = "calm"
+steps = [
+  { read = "read report-priorities", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read planner"
+at = "calm"
+steps = [
+  { read = "read planner", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read best-xi"
+at = "calm"
+steps = [
+  { read = "read best-xi", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read planner-contracts"
+at = "calm"
+steps = [
+  { read = "read planner-contracts", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read transferroom-out"
+at = "calm"
+steps = [
+  { read = "read transferroom-out", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read transferroom-in"
+at = "calm"
+steps = [
+  { read = "read transferroom-in", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read agent-offers"
+at = "calm"
+steps = [
+  { read = "read agent-offers", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read staff-transfers"
+at = "calm"
+steps = [
+  { read = "read staff-transfers", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read staff-shortlist"
+at = "calm"
+steps = [
+  { read = "read staff-shortlist", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read staff-adverts"
+at = "calm"
+steps = [
+  { read = "read staff-adverts", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read club-facilities"
+at = "calm"
+steps = [
+  { read = "read club-facilities", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read club-vision"
+at = "calm"
+steps = [
+  { read = "read club-vision", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read vision-feedback"
+at = "calm"
+steps = [
+  { read = "read vision-feedback", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read finances"
+at = "calm"
+steps = [
+  { read = "read finances", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read finances-summary"
+at = "calm"
+steps = [
+  { read = "read finances-summary", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read finances-income"
+at = "calm"
+steps = [
+  { read = "read finances-income", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read finances-expenditure"
+at = "calm"
+steps = [
+  { read = "read finances-expenditure", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read finances-wages"
+at = "calm"
+steps = [
+  { read = "read finances-wages", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read finances-sponsorship"
+at = "calm"
+steps = [
+  { read = "read finances-sponsorship", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read finances-projections"
+at = "calm"
+steps = [
+  { read = "read finances-projections", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read debts"
+at = "calm"
+steps = [
+  { read = "read debts", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read ffp"
+at = "calm"
+steps = [
+  { read = "read ffp", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read wage-budget"
+at = "calm"
+steps = [
+  { read = "read wage-budget", path = "Parts.#", not = 0, live = true },
+]
+
+[[test]]
+task = "T77"
+name = "read scouting-budget"
+at = "calm"
+steps = [
+  { read = "read scouting-budget", path = "Parts.#", not = 0, live = true },
+]

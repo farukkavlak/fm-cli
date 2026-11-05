@@ -9,8 +9,6 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private const string NumbersConfirm = "Confirm Squad Numbers";
-	private const string NumbersAssist = "Ask Assistant to Assign";
 
 	/// <summary>A row of the numbers table; Dropdown is only good until the table is scrolled.</summary>
 	private sealed record NumberRow(string Name, string Number, string Preferred, string Position, string Status, string Age, string Dropdown, bool Open, List<string> Choices);
@@ -30,16 +28,16 @@ internal static partial class Program
 			return 1;
 		}
 
-		if (args.Contains("--send")) return await SendList(NumbersConfirm, L("Squad numbers"));
+		if (args.Contains("--send")) return await SendList(L("Squad numbers"));
 		if (args.Contains("--auto"))
 		{
-			if (await Labelled(NumbersAssist) is not { } assist)
+			if (await EventButton("EventFmxAutoSelect") is not { } assist)
 			{
 				Console.Error.WriteLine(NumbersLocked);
 				return 1;
 			}
 			await Fm.Get("press", ("ptr", Field(assist, "Pointer")));
-			return await SendList(NumbersConfirm, L("Squad numbers"));
+			return await SendList(L("Squad numbers"));
 		}
 
 		var words = Words(args).ToList();
@@ -87,11 +85,11 @@ internal static partial class Program
 		Console.WriteLine(L("To give one: numbers <player> <no>, then numbers --send   (to leave them all to the assistant: numbers --auto)"));
 
 		// Handing them all to the assistant is the manager's call; it is offered, not taken.
-		if (Ui.Interactive && await Labelled(NumbersAssist) is { } pick
+		if (Ui.Interactive && await EventButton("EventFmxAutoSelect") is { } pick
 		    && Ui.Ask(L("Squad numbers"), [L("Let the assistant hand them out and send")], cancel: L("Leave it for now")) != null)
 		{
 			await Fm.Get("press", ("ptr", Field(pick, "Pointer")));
-			return await SendList(NumbersConfirm, L("Squad numbers"));
+			return await SendList(L("Squad numbers"));
 		}
 		return 0;
 	}
@@ -167,20 +165,16 @@ internal static partial class Program
 	{
 		// The state says the numbers are wanted a moment before the screen is drawn, so the
 		// button is waited for rather than asked once.
-		var dry = "";
-		await Until(async () =>
-		{
-			dry = await Fm.Get("click", ("text", NumbersAssist), ("dry", "1"));
-			return !dry.StartsWith("error", StringComparison.Ordinal);
-		}, seconds: 8, every: 0.5);
-		if (dry.StartsWith("error", StringComparison.Ordinal)) return null;
-		var clicked = await Fm.Get("click", ("text", NumbersAssist));
+		System.Text.Json.JsonElement? assist = null;
+		await Until(async () => (assist = await EventButton("EventFmxAutoSelect")) != null, seconds: 8, every: 0.5);
+		if (assist is not { } button) return null;
+		var clicked = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
 			Console.Error.WriteLine(clicked);
 			return 1;
 		}
-		return await SendList(NumbersConfirm, L("Squad numbers"));
+		return await SendList(L("Squad numbers"));
 	}
 
 	/// <summary>The squad numbers page, by its GUID (FM27 keeps it in the first team's submenu).</summary>

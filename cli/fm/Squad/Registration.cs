@@ -63,7 +63,7 @@ internal static partial class Program
 		ShowRegistration(rules, players);
 		// The competition's exemptions (goalkeepers, the young) explain the unticked rows.
 		foreach (var note in await RegistrationNotes()) Console.WriteLine($"  {note}");
-		if (args.Contains("--send")) return await SendList("Confirm", L("Squad list"));
+		if (args.Contains("--send")) return await SendList(L("Squad list"));
 
 		Console.WriteLine(rules.All(r => r.Meets)
 			? L("The rules are met. To send it: register --send")
@@ -108,7 +108,7 @@ internal static partial class Program
 				Ui.Line(L($"List: [bold]{now.Count}[/] players")
 				        + (came.Count > 0 ? $"  [green]+ {Ui.Safe(string.Join(", ", came))}[/]" : "")
 				        + (gone.Count > 0 ? $"  [red]− {Ui.Safe(string.Join(", ", gone))}[/]" : ""));
-				return await SendList("Confirm", L("Squad list"));
+				return await SendList(L("Squad list"));
 			}
 			if (index == assistantAt) await AssistantPick();
 			else if (choosable[index - actions.Count] is var player && !await Flip(player.Name, !player.On)) return 1;
