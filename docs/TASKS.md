@@ -14,8 +14,7 @@ An event the code never names is not always a gap; each line was checked against
 
 How to work through this list: "Work in rounds" in `CLAUDE.md`.
 
-- [ ] T106 `captains --captain / --vice`: lists told by their element (`ChangeCaptain`, `ChangeViceCaptain`), Yes waited for, result read back.
-  EN: unknown name refused; a real change finished by hand once. Left: the whole path 3 ×, vice, TR.
+- [x] T106 `captains --captain / --vice`: lists told by their element (`ChangeCaptain`, `ChangeViceCaptain`), Yes by the game's dialog handler, result read back. TR + EN, list `round1`: unknown name refused 3 ×, captain 3 ×, vice there and back 3 ×.
 - [ ] T107 `dugout 1 zzz`: the language layer drops the unknown word and opens advice 1, so "not understood" is never said. Same for other commands?
 - [ ] T104 Scenario saves, each one load away: `tools/fm-round.py scenarios`, kept in `~/fm27_bep/scenarios`. Entering one takes about 85 s,
   a language switch about 10 s more; a simulated match 15 s. Kept: `calm`, `cup`, `cup-draw`, `kickoff`, `window`, `sacked`, `interview`, `job-offer`, `newjob`.

@@ -394,8 +394,13 @@ fm actions "<person>" ["<option>"]   # the game's right-click menu
 fm vision [confirm|remove|suggest|undo|reset|end]
 fm jobs [<club>] [apply|interest] [--yes] [--all]
 fm resign [--yes]
+fm read [<page>]            # the game's look-only pages, read as they stand
 fm saves · fm save · fm load
 ```
+
+`fm read` lists the pages (club history, honours, records, career, competition rules and past winners, transfer
+history, scouting, the medical centre, the data hub's analysis…); `fm read club-honours` reads one. What it prints is what
+the page shows, in the game's language.
 
 `fm help` lists every command and flag; [USAGE.md](USAGE.md) has the full text.
 

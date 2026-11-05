@@ -46,7 +46,7 @@ steps = [
 
 [[test]]
 task = "T106"
-name = "a vice-captain's change lands and reads back; the game refuses a second one that day"
+name = "a vice-captain's change lands and reads back, and back again the same day"
 at = "calm"
 fresh = true
 repeat = 3
@@ -55,8 +55,8 @@ steps = [
   { read = "captains", path = "ViceCaptain", keep = "vice" },
   { run = "captains --vice {other}" },
   { read = "captains", path = "ViceCaptain", same_as = "other" },
-  { run = "captains --vice {vice}", rc = "fail" },
-  { read = "captains", path = "ViceCaptain", same_as = "other" },
+  { run = "captains --vice {vice}" },
+  { read = "captains", path = "ViceCaptain", same_as = "vice" },
 ]
 
 [[test]]
@@ -67,4 +67,18 @@ fresh = true
 repeat = 3
 steps = [
   { run = "tactic new" },
+]
+
+[[test]]
+task = "T108"
+name = "the date stays read after a simulated match, and moves on after"
+at = "kickoff"
+fresh = true
+repeat = 2
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { run = "match --instant" },
+  { read = "status", path = "Date", same_as = "day" },
+  { run = "next", rc = "any" },
+  { read = "status", path = "Date", present = true },
 ]

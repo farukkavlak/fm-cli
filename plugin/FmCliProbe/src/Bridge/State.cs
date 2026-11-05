@@ -35,6 +35,11 @@ internal static class State
 
 		// The packed date as the game gives it, not as a day: its clock bits are wanted too.
 		var date = Date(Read(bindings, "game.CurrentGameDate", raw: true));
+		// After a simulated match the game's date is not bound for a while, though the game runs on: the day it
+		// last said stands. With no flow state there is no game to speak of (the main menu).
+		if (date != null) lastDate = date;
+		else if (fields.ContainsKey("State")) date = lastDate;
+		else lastDate = null;
 		if (date != null)
 		{
 			fields["Date"] = date.Value.Day.ToString("yyyy-MM-dd");
@@ -132,6 +137,8 @@ internal static class State
 	{
 		if (!string.IsNullOrEmpty(value)) fields[name] = value;
 	}
+
+	private static (DateTime Day, int Clock)? lastDate;
 
 	private static string Read(Bindings bindings, string path, bool raw = false)
 	{
