@@ -174,7 +174,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   Assignments (`PersonStopScoutPlayersClub`), its question `Confirm1198281291` has a Yes with no event; answered by the
   dialog handler it closes, and the player's `IsBeingScouted` stays True (also after `next`). Read back now by
   `IsBeingScouted` (the person kept at `fmcli.scoutcancel`). Next: Scouting › Assignments (`ScoutingCentreActions`).
-- [ ] T32 `training --trait-suggest`: FM27 has no such menu entry (PORTING).
+- [x] T32 `training --trait-suggest`: FM27 has no such entry in the actions menu and no button for it, so the flag leaves help, the MCP tool and the tests; typed by hand it says so (PORTING). The refusal itself not run again after this change.
 
 ## 4. Pages no command reads (read only, lower priority)
 

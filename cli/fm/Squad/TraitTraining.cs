@@ -15,7 +15,7 @@ internal static partial class Program
 		var wanted = string.Join(" ", Words(args));
 		if (wanted.Length == 0)
 		{
-			Console.Error.WriteLine(L("usage: training <player> --trait [\"<trait>\"] | --trait-remove \"<trait>\" | --trait-cancel | --trait-suggest"));
+			Console.Error.WriteLine(L("usage: training <player> --trait [\"<trait>\"] | --trait-remove \"<trait>\" | --trait-cancel"));
 			return 64;
 		}
 		if (await OpenPlayer(wanted) is not { } card) return 1;

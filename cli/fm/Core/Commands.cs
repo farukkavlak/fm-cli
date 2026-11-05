@@ -106,7 +106,7 @@ internal static partial class Program
 		["propose"] = ["--loan", "--yes"],
 		["mentoring"] = ["new", "remove", "--auto", "--name", "--yes"],
 		["offers"] = ["view", "accept", "stall", "reject", "--yes"],
-		["training"] = ["--report", "--coach", "--trait", "--trait-remove", "--trait-cancel", "--trait-suggest", "--focus", "--position", "--role", "--yes"],
+		["training"] = ["--report", "--coach", "--trait", "--trait-remove", "--trait-cancel", "--focus", "--position", "--role", "--yes"],
 		["tactic"] = ["--clear", "new", "slot", "copy", "clear", "save", "load", "saved", "--note", "--yes", "pi", "instructions", "--refresh", "mentality", "style", "pick", "--youth", "role", "player", "--oop", "--dry"],
 		["finances"] = ["gelir", "gider"],
 		["diff"] = ["--keep", "--reset"],

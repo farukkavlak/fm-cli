@@ -250,7 +250,7 @@
 {"en": "show the squad planner", "call": "fm_planner", "split": "held"}
 {"tr": "transfer odasını aç", "call": "fm_transferroom", "split": "held"}
 {"en": "open the transfer room", "call": "fm_transferroom", "split": "held"}
-{"tr": "planlayıcıda forvete bak", "call": "fm_planner", "split": "train"}
-{"en": "open the planner", "call": "fm_planner", "split": "train"}
-{"tr": "menajer tekliflerine bak", "call": "fm_transferroom", "split": "train"}
-{"en": "what agent offers do we have", "call": "fm_transferroom", "split": "train"}
+{"tr": "planlayıcıda forvete bak", "call": "fm_planner", "split": "final"}
+{"en": "open the planner", "call": "fm_planner", "split": "dev"}
+{"tr": "menajer tekliflerine bak", "call": "fm_transferroom", "split": "dev"}
+{"en": "what agent offers do we have", "call": "fm_transferroom", "split": "final"}

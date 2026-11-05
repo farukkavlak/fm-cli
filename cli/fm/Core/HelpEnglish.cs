@@ -100,7 +100,7 @@ internal static partial class Program
 			  training [player]  individual training: position/role, out-of-possession role, focus;  --focus / --position "A>B" / --role;  --control player|month|all takes it over from the assistant
 			  training <player> --report [--coach <name>]  ask a coach for a training report and show it
 			  training <player> --trait ["<trait>"]  traits and what can be taught; given one, teach it
-			                  --trait-remove "<t>" drop one · --trait-cancel · --trait-suggest · --yes: despite the assistant's objection
+			                  --trait-remove "<t>" drop one · --trait-cancel · --yes: despite the assistant's objection
 			  prep            match preparation: the Match Preparation sessions up to the next match (change one: schedule set)
 			  schedule        the training schedule: this week and next, three sessions a day
 			  schedule set <day> <1|2|3> [<session>]   change a session; with no session given choose it with the arrow keys

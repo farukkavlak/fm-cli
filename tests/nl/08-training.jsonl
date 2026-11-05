@@ -16,7 +16,6 @@
 {"tr": "gyasiye içe kat etmeyi öğret", "call": "fm_training", "args": {"player": "gyasi", "trait": "İçe Kat Eder"}, "split": "dev"}
 {"tr": "fazzini uzaktan şut alışkanlığını bıraksın", "call": "fm_training", "args": {"player": "fazzini", "trait_remove": "Uzaktan Şut"}, "split": "final"}
 {"tr": "ghiglionenin öğrendiği hareketi iptal et", "call": "fm_training", "args": {"player": "ghiglione", "trait_cancel": true}, "split": "dev"}
-{"tr": "esposito için yardımcı bir hareket önersin", "call": "fm_training", "args": {"player": "esposito", "trait_suggest": true}, "split": "dev"}
 {"tr": "rinaldinin antrenmanını değiştir", "call": "fm_training", "args": {"player": "rinaldi"}, "split": "held"}
 {"tr": "bitiricilik calissin rinaldi", "call": "fm_training", "args": {"player": "rinaldi", "focus": "Bitiricilik"}, "split": "dev"}
 {"en": "individual training", "call": "fm_training", "split": "dev"}
