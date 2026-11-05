@@ -59,7 +59,12 @@ internal static partial class Program
 			return 1;
 		}
 
-		await Fm.Get("click", ("ptr", Field(yes.Value, "Pointer")));
+		var answered = await AnswerDialog(agree: true);
+		if (!answered)
+		{
+			Console.Error.WriteLine(L("The confirmation window stayed up; the list may not have been sent. To look: dialog"));
+			return 1;
+		}
 		Console.WriteLine(L($"{what} sent."));
 		return 0;
 	}

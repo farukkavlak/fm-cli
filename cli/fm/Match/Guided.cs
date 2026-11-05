@@ -15,9 +15,9 @@ internal static partial class Program
 	/// <summary>
 	/// Walks the open introduction to its end, printing what the guide says at each step.
 	///
-	/// A tour offers its own Continue until the last step, where it becomes End Introduction,
-	/// and the message that started it only counts as answered after that. A step that offers
-	/// neither is waiting for the player to do something on the screen it shows.
+	/// A tour offers its own way on until the last step, where it ends the tour, and the message
+	/// that started it only counts as answered after that. A step that offers neither is waiting
+	/// for the player to do something on the screen it shows.
 	/// </summary>
 	private static async Task<int> Tour(bool json, string[] args)
 	{
@@ -36,34 +36,43 @@ internal static partial class Program
 
 		if (args.Contains("--skip"))
 		{
-			if (await TourButton("Skip Introduction") is not { } skip)
+			if ((await TourButtons()).FirstOrDefault(b => b.Exit) is not { Exit: true } skip)
 			{
 				Console.Error.WriteLine(L("This tour cannot be skipped: it offers no skip option."));
 				return 1;
 			}
 
-			await Fm.Get("press", ("ptr", Field(skip, "Pointer")));
+			await Fm.Get("press", ("ptr", skip.Pointer));
 			var skipped = await Until(async () => !await TourOpen());
 			Console.WriteLine(skipped ? L("Tour skipped.") : L("Told to skip, but the tour is still open."));
 			return skipped ? 0 : 1;
 		}
 
-		for (var guard = 0; guard < 40; guard++)
+		// A step offers one way on, and from the second step one way back, told apart by nothing but what they
+		// do: the way on is the button that moved the step up. It keeps its place in the list while its words change.
+		string? onward = null;
+		var back = new HashSet<string>();
+		var shownStep = "";
+		for (var guard = 0; guard < 60; guard++)
 		{
 			var step = Field(tour, "Step");
-			Console.WriteLine($"[{step}/{Field(tour, "Max")}]");
-			foreach (var line in tour.GetProperty("Says").EnumerateArray())
-				Console.WriteLine("  " + line.GetString()?.Replace("\n", "\n  "));
-
-			if (await TourButton("End Introduction") is { } end)
+			if (step != shownStep)
 			{
-				await Fm.Get("press", ("ptr", Field(end, "Pointer")));
-				var closed = await Until(async () => !await TourOpen());
-				Console.WriteLine(closed ? L("\nTour finished.") : L("\nThe tour was finished but still looks open."));
-				return closed ? 0 : 1;
+				if (int.TryParse(step, out var now) && !(int.TryParse(shownStep, out var had) && now < had))
+				{
+					Console.WriteLine($"[{step}/{Field(tour, "Max")}]");
+					foreach (var line in tour.GetProperty("Says").EnumerateArray())
+						Console.WriteLine("  " + line.GetString()?.Replace("\n", "\n  "));
+				}
+				shownStep = step;
 			}
 
-			if (await TourButton("Continue") is not { } next)
+			var offered = await TourButtons();
+			var ways = offered.Where(b => !b.Exit).ToList();
+			var next = ways.FirstOrDefault(b => b.Source == onward) ?? ways.FirstOrDefault(b => !back.Contains(b.Source));
+			// The last step's way on is the way out.
+			if (next == null && step == Field(tour, "Max") && offered.FirstOrDefault(b => b.Exit) is { } finish) next = finish;
+			if (next == null)
 			{
 				Console.Error.WriteLine(L("\nAt this step the tour expects you to do something on screen; it has no continue button of its own."));
 				if (Field(await TacticInfo(), "TacticCount") == "0")
@@ -72,7 +81,7 @@ internal static partial class Program
 			}
 
 			var said = Says(tour);
-			await Fm.Get("press", ("ptr", Field(next, "Pointer")));
+			await Fm.Get("press", ("ptr", next.Pointer));
 			// The step's number moves before its words, and between two steps the tour is briefly
 			// not there at all: a step counts once its words have changed too, and the tour as
 			// over only when it stays gone.
@@ -86,22 +95,49 @@ internal static partial class Program
 			}, seconds: 20, every: 0.5))
 			{
 				// A last step can repeat the one before word for word.
-				if (tour.TryGetProperty("Step", out _) && Field(tour, "Step") != step) continue;
-				Console.Error.WriteLine(L("\nTold to continue, but the tour stayed at the same step."));
-				return 1;
+				if (!tour.TryGetProperty("Step", out _) || Field(tour, "Step") == step)
+				{
+					Console.Error.WriteLine(L("\nTold to continue, but the tour stayed at the same step."));
+					return 1;
+				}
 			}
 			if (!tour.TryGetProperty("Step", out _)) break;
+			if (int.TryParse(Field(tour, "Step"), out var after) && int.TryParse(step, out var before))
+			{
+				if (after > before)
+				{
+					onward = next.Source;
+					back.UnionWith(ways.Where(b => b.Source != next.Source).Select(b => b.Source));
+				}
+				else
+				{
+					back.Add(next.Source);
+					onward = null;
+				}
+			}
 		}
 
-		Console.WriteLine(L("\nTour finished."));
-		return 0;
+		var closed = await Until(async () => !await TourOpen());
+		Console.WriteLine(closed ? L("\nTour finished.") : L("\nThe tour was finished but still looks open."));
+		return closed ? 0 : 1;
+	}
+
+	private sealed record TourWay(string Pointer, string Source, bool Exit);
+
+	/// <summary>The tour's own buttons, on the message card they answer: the way out by the game's IsExitButton on its action.</summary>
+	private static async Task<List<TourWay>> TourButtons()
+	{
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			.Where(b => Field(b, "Events").Split(", ").Contains("SpeakToAction") && Field(b, "Visible") == "True" && Field(b, "Enabled") == "True"
+			            && Field(b, "Source").Contains("NewsResponseOptionalButtons", StringComparison.Ordinal) && Field(b, "Action").Length > 0).ToList();
+		var read = await PullEach(buttons.Select(b => (Field(b, "Action"), "IsExitButton")).ToList());
+		// The part of its source that stays from step to step: where it stands in its own list.
+		static string Place(string source) => source[(source.LastIndexOf(".items", StringComparison.Ordinal) + 1)..];
+		return buttons.Select((b, i) => new TourWay(Field(b, "Pointer"), Place(Field(b, "Source")), Field(read[i], "IsExitButton") == "True")).ToList();
 	}
 
 	private static string Says(JsonElement tour) =>
 		tour.TryGetProperty("Says", out var says) ? string.Join("\n", says.EnumerateArray().Select(l => l.GetString() ?? "")) : "";
-
-	/// <summary>The tour's own buttons share labels with the game's, and differ by name.</summary>
-	private static async Task<JsonElement?> TourButton(string label) => await Labelled(label, "StandardButton");
 
 	private static async Task<JsonElement?> Labelled(string label, string? name = null)
 	{

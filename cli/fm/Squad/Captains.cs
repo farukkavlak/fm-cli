@@ -63,7 +63,7 @@ internal static partial class Program
 				yes = dialogs.GetArrayLength() > 0 ? DialogAnswer(dialogs[0], true) : null;
 				return yes != null;
 			}, seconds: 20, every: 0.25);
-			if (yes != null) await Fm.Get("click", ("ptr", Field(yes.Value, "Pointer")));
+			if (yes != null) await AnswerDialog(agree: true);
 			var field = list == "Captain" ? 0 : 1;
 			if (!await Until(async () => (field == 0 ? (await Now()).Captain : (await Now()).Vice) == hits[0], seconds: 10, every: 0.25))
 			{

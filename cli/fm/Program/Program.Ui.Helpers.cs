@@ -172,7 +172,9 @@ internal static partial class Program
 		await Until(async () =>
 		{
 			if (await Fm.GetJson("dialog") is not { ValueKind: JsonValueKind.Array } now || now.GetArrayLength() == 0) return true;
-			if (DialogAnswer(now[0], agree) is { } answer) await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
+			// By the game's own handler; a simulated click on the answer often leaves the question up.
+			if ((await Fm.Get("dialog", ("press", agree ? "primary" : "secondary"))).StartsWith("error", StringComparison.Ordinal)
+			    && DialogAnswer(now[0], agree) is { } answer) await Fm.Get("click", ("ptr", Field(answer, "Pointer")));
 			return false;
 		}, seconds: 8, every: 0.5);
 

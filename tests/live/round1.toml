@@ -51,11 +51,12 @@ at = "calm"
 fresh = true
 repeat = 3
 steps = [
-  { read = "squad", path = "0.Name", keep = "other" },
+  { read = "captains", path = "Captain", keep = "other" },
   { read = "captains", path = "ViceCaptain", keep = "vice" },
-  { run = "captains --vice {other}", rc = "any" },
-  { read = "captains", path = "ViceCaptain", differs_from = "vice" },
+  { run = "captains --vice {other}" },
+  { read = "captains", path = "ViceCaptain", same_as = "other" },
   { run = "captains --vice {vice}", rc = "fail" },
+  { read = "captains", path = "ViceCaptain", same_as = "other" },
 ]
 
 [[test]]
