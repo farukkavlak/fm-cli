@@ -205,6 +205,8 @@ def forward(args):
         match_day = now["State"] in ("Tactics", "SubmitTeam", "SquadNumbers")
         rc, out, err, _ = fm("match --instant" if match_day else "next")
         stopped = rc != 0 or (not match_day and (state().get("Date"), state().get("Clock")) == before)
+        if stopped and not match_day and state()["State"] in ("Tactics", "SubmitTeam", "SquadNumbers"):
+            continue  # opening the last message led on to the match: not a stop
         if stopped:
             if args.answer and match_day and fm("tactic pick")[0] == 0:
                 continue
