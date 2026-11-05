@@ -103,6 +103,7 @@ internal static partial class Program
 			  schedule        the training schedule: this week and next, three sessions a day
 			  schedule set <day> <1|2|3> [<session>]   change a session; with no session given choose it with the arrow keys
 			  schedule style <day> [<schedule>]        change that week's schedule (Tactical, Gegenpress…)
+			  schedule copy | paste | clear [this|<weeks ahead>]   the training week's own buttons (next week unless told)
 			  budget          the transfer, wage and scouting budgets;  budget adjust [<step>]: the transfer ↔ wage split
 			  settings        game settings: match display and speed, auto save, language, currency, units
 			  settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x); with no value it is chosen with the arrow keys

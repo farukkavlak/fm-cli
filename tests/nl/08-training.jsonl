@@ -127,3 +127,8 @@
 {"en": "change a day's training", "call": "fm_schedule", "ask": "day", "split": "held"}
 {"tr": "rinaldiye yeni bir hareket öğret", "call": "fm_training", "args": {"player": "rinaldi"}, "ask": "trait", "split": "dev"}
 {"en": "teach rinaldi a new trait", "call": "fm_training", "args": {"player": "rinaldi"}, "ask": "trait", "split": "dev"}
+{"tr": "antrenman haftasını kopyala", "call": "fm_schedule_week", "args": {"do": "copy"}, "split": "dev"}
+{"tr": "haftayı yapıştır", "call": "fm_schedule_week", "args": {"do": "paste"}, "split": "held"}
+{"tr": "haftayı temizle", "call": "fm_schedule_week", "args": {"do": "clear"}, "split": "held"}
+{"en": "copy the week", "call": "fm_schedule_week", "args": {"do": "copy"}, "split": "final"}
+{"en": "clear the week", "call": "fm_schedule_week", "args": {"do": "clear"}, "split": "held"}

@@ -252,6 +252,8 @@ internal static partial class Program
 		else if (!settled && await RegistrationOnScreen()) Console.WriteLine(L("The squad registration screen opened; the message closes when the list is sent. The list and the rules: register   (the assistant's choice: register --auto, then register --send)"));
 		else if (!settled && (await NumbersInView()).Count > 0)
 			Console.WriteLine(L("The squad numbers screen opened; the message closes when the numbers are sent. To see them: numbers   (to leave it to the assistant: numbers --auto)"));
+		else if (!settled && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Visible") == "True" && Field(b, "Events").Contains("EventFmxDrawAllTeams", StringComparison.Ordinal)))
+			Console.WriteLine(L("The cup draw is open; the message closes when it is done. To run it: draw"));
 		else if (!settled) Console.WriteLine(L("But the game still shows the message as awaiting an answer."));
 		return 0;
 

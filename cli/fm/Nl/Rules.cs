@@ -287,6 +287,10 @@ internal static partial class Router
 			}),
 		R("fm_meeting", "takim toplantisi=6; toplanti yap=5; team meeting=6; hold a meeting=6", c => { }),
 		R("fm_draw", "kura cek=6; kurayi cek=6; kura=3; run the draw=6; cup draw=5; do the draw=6", c => { }),
+		R("fm_schedule_week", "antrenman haftasini=5; haftayi kopyala=6; haftayi yapistir=6; haftayi temizle=6; copy the week=6; paste the week=6; clear the week=6", c =>
+			{
+				c.Set("do", c.Has("kopyala", "copy") ? "copy" : c.Has("yapistir", "paste") ? "paste" : "clear");
+			}),
 		R("fm_manager", "menajer kariyer=5; menajer istatistik=5; kariyerim=4; kariyer istatistik=5; menajerlik kariyer=5; my career=4; my record=4; manager record=5; manager stats=5; career stats=4", c => { }),
 		R("fm_tactic_advice", "taktik onerisi=5; taktik tavsiye=5; yardimci taktik=4; taktik degerlendir=5; tactic advice=6; tactical advice=6; assistant think of the tactic=6; evaluate my tactic=6; evaluate the tactic=6", c =>
 			{
