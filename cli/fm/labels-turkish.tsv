@@ -1835,7 +1835,6 @@ OK	Tamam
 Window	Pencere
  · {0} attendance	 · {0} seyirci
 [dim]Goals:[/] {0}	[dim]Goller:[/] {0}
-(own goal) 	(kendi kalesine) 
 Group	Grup
 yes	evet
 '{0}' was not added	'{0}' eklenmedi
@@ -2340,7 +2339,6 @@ Match preparation sessions until the match on {0} {1}:	{0} {1} maçına kadarki 
   none	  yok
 \nTo change one: schedule set <day> <1|2|3> <session>   (the whole week: schedule)	\nBirini değiştirmek: schedule set <gün> <1|2|3> <seans>   (bütün hafta: schedule)
 FM27 has no match focuses to choose; the preparation is the week's sessions: schedule set <day> <1|2|3> <session>	FM27'de seçilecek maç odağı yok; hazırlık haftanın seanslarıdır: schedule set <gün> <1|2|3> <seans>
-(pen) 	(penaltı) 
 NATIONS KNOWN	BİLDİĞİ ÜLKE
 {0} top · {1} standard · {2} ongoing	{0} yüksek · {1} standart · {2} sürekli
 \nTo send one to a player: scout player <name> --by <scout> --for <length>	\nBirini oyuncuya göndermek: scout player <ad> --by <gözlemci> --for <süre>
@@ -2672,3 +2670,6 @@ Told to remove {0}, but the game still lists him.	{0} çıkarılsın denildi ama
 \nOther positions: planner --position <one of> {0}	\nDiğer mevkiler: planner --position <biri> {0}
 {0} · {1}: name one of them:	{0} · {1}: birini söyle:
 {0} has no rounds to show.	{0} için gösterilecek tur yok.
+There is nothing to apply right now.	Şu an uygulanacak bir şey yok.
+  Tactical tweak on: {0}	  Taktik ince ayar açıldı: {0}
+  Tactical tweak off: {0}	  Taktik ince ayar kapandı: {0}

@@ -212,13 +212,13 @@ internal static partial class Program
 			return 0;
 		}
 
-		if (json)
+		var words = Words(args).ToList();
+		if (json && words.Count == 0)
 		{
 			Console.WriteLine(JsonOut.Of(entries.Select(e => new { e.Minute, e.Text, CanDo = e.Open })));
 			return 0;
 		}
 
-		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
 			for (var i = 0; i < entries.Count; i++) Console.WriteLine($"  {i + 1}  {entries[i].Minute,3}'  {entries[i].Text}{Mark(entries[i])}");
@@ -228,6 +228,18 @@ internal static partial class Program
 				return 0;
 			}
 			words.Add((picked + 1).ToString());
+		}
+
+		// "dugout apply" with no number: the newest one that can be applied, for the list can move between two calls.
+		if (!int.TryParse(words[0], out _) && Fold(words[0]) is "uygula" or "apply" or "do" or "evet" or "yes")
+		{
+			var newest = entries.FindLastIndex(e => e.Open);
+			if (newest < 0)
+			{
+				Console.Error.WriteLine(L("There is nothing to apply right now."));
+				return 1;
+			}
+			words.Insert(0, (newest + 1).ToString());
 		}
 
 		if (!int.TryParse(words[0], out var number) || number < 1 || number > entries.Count)
@@ -280,6 +292,9 @@ internal static partial class Program
 			Console.Error.WriteLine(L("That button is closed for this advice right now."));
 			return 1;
 		}
+		// What an applied card does is a tactical tweak on the match's tactic (the button's event context
+		// carries the tweak's id): the tweak list before and after says which, when it is one.
+		var before = event_ == AcceptEvent ? await ReadTweaks() : [];
 		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
@@ -291,9 +306,22 @@ internal static partial class Program
 			var same = (await DugoutEntries()).FirstOrDefault(e => e.Minute == entry.Minute && e.Text == entry.Text);
 			return event_ == AcceptEvent ? same is { Open: false } : same == null;
 		}, seconds: 60, every: 1);
+		var tweaksOn = new List<string>();
+		var tweaksOff = new List<string>();
+		if (done && event_ == AcceptEvent)
+			foreach (var tweak in await ReadTweaks())
+				if (before.FirstOrDefault(b => b.Id == tweak.Id) is { } was && was.WillBeOn != tweak.WillBeOn)
+					(tweak.WillBeOn ? tweaksOn : tweaksOff).Add(tweak.Name);
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = tweaksOn, TweaksOff = tweaksOff }));
+			return done ? 0 : 1;
+		}
 		Console.WriteLine(done
 			? $"{entry.Minute}'  {entry.Text} — {verb}."
 			: L($"{entry.Minute}'  {entry.Text} — the button was pressed, but the game {(event_ == AcceptEvent ? L("does not show the advice as applied") : L("did not remove the advice from the list"))}."));
+		foreach (var name in tweaksOn) Console.WriteLine(L($"  Tactical tweak on: {name}"));
+		foreach (var name in tweaksOff) Console.WriteLine(L($"  Tactical tweak off: {name}"));
 		return done ? 0 : 1;
 	}
 

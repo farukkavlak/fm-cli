@@ -1,0 +1,35 @@
+# Round 4: T112 a scorer's goals, T25 what an applied card does. Run: tools/fm-round.py dry tests/live/round4.toml, then run.
+
+[[test]]
+task = "T112"
+name = "report lists the goals, a scorer's several as one entry"
+at = "cup"
+fresh = true
+steps = [
+  { run = "match --instant" },
+  { read = "report", path = "Fixture.HasResult", is = "True", live = true },
+  { read = "report", path = "PlayerOfTheMatch", present = true, live = true },
+  { read = "report", path = "HomeGoals.#", live = true },
+  { read = "report", path = "AwayGoals.#", live = true, note = "both lists are there; a side with no goals has an empty one" },
+]
+
+# One match, several cards: each apply is a repeat. The panel hides during a move and old cards leave the list, so an apply is asked until one is taken. Every answer is in results/round4-<lang>.log.
+[[test]]
+task = "T25"
+name = "applied cards put tactical tweaks on, while the ball rolls; then the wrong ones"
+at = "kickoff"
+fresh = true
+fast = true
+steps = [
+  { start = "match --play --no-talk" },
+  { until = "tweak", path = "#", not = "0", seconds = 600, every = 5, live = true, note = "kicked off; asked slowly (T92)" },
+  { read = "tweak", path = "?WillBeOn.#", keep = "before", live = true },
+  { until = "dugout apply", path = "TweaksOn.#", not = "0", seconds = 900, every = 5, live = true },
+  { read = "tweak", path = "?WillBeOn.#", differs_from = "before", live = true },
+  { run = "dugout 99 apply", rc = "fail", note = "not a card" },
+  { until = "tweak", path = "?On.#", not = "0", seconds = 300, every = 5, live = true, note = "on after play went on, not only waiting" },
+  { until = "dugout apply", path = "Done", is = "True", seconds = 900, every = 5, live = true, note = "a second card" },
+  { until = "dugout apply", path = "Done", is = "True", seconds = 900, every = 5, live = true, note = "a third card" },
+  { finish = true },
+  { run = "dugout apply", rc = "fail", note = "no match" },
+]

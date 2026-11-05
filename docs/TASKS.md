@@ -75,7 +75,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T86 Cup results by the game's numbers, not the shown letters ("u3-2", "p"). `stages` reads the round's own list (`Stage.CupTies` under the page's GUID, new plugin route `pullbound`): whole, no scrolling, no portal tile's ties mixed in, divisions back. Result codes: 1 win, 2 won in extra time, 3 won on penalties, 7 won a leg of a two-legged tie, 9 draw, 10 defeat. `calendar`, `fixtures`, `fixtures --all`, `report`: score, level with a winner is a shootout, code 2 is extra time. Croky Cup, every round, TR and EN agree: 154 ties, 13 penalties, 7 extra time. List `round3`, 3 ×.
   - [ ] Our own match settled by extra time or penalties: not met in simulated cup ties yet (we win them). `ResultType` on another club's fixture list reads empty, so code 2 on a `Team` fixture is not measured.
 - [x] T111 `stages`: after a competition with no rounds the page has no stage list and every `stages` said "did not open". The competition list is held on its own; the competition says it has no rounds. TR + EN 3 ×.
-- [ ] T112 `report`: goals list shorter than the score once (2-5, three of Pendikspor's five listed; EN, cup tie, instant result). `Goals` reads `HomeEventInfos` / `AwayEventInfos`; not looked at yet.
+- [x] T112 `report`: goals short of the score. One scorer's goals are one entry ("22', 31', pen 76'"), and only the last minute was kept. The game's text is now shown whole, nothing read inside it; `--json` has `HomeGoals`, `AwayGoals`. 13 played fixtures read against their scores; TR + EN list `round4`.
 - [x] T89 `tactic copy`: the copy list is the add list's one row with a submenu, chosen by its path of indices
   (`select?path=2,0`), full slots by `TacticCount`. With no tactic named it lists them (it used to copy the only
   one unasked). TR + EN: copy each source, three slots full refused, unknown name refused; paths checked by dry run.
@@ -147,8 +147,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   `MatchDugoutIsSelectedEventActionable`, its place by `MatchDugoutSelectedEventIndex` with two readings agreeing; apply is `DugoutAdviceAccept`
   (it never matched in FM27 before). EN and TR, paused and rolling: apply, dismiss, wrong number, nothing to apply; no score card listed.
   Next / previous not needed: `dugout <no>` jumps. `match` prints every new card.
-  - [ ] Left, round 1: read the effect of apply during the match. The game's flag turns off, but after the match mentality and
-    instructions read as before; the match's tactic may be separate. Read it before and after an apply, and after play goes on.
+  - What apply does: a tactical tweak on the match's tactic (the button's `DugoutAdviceAcceptEventContext` carries its id), not a change of mentality or instructions. Pending at once, on after play goes on; `dugout apply` (the newest card that can be) says which. Measured: yellow-card card → Go Narrower (EN paused). List `round4`: TR 1 of 1, EN 0 of 3 (no apply with a tweak seen in the whole match; why is not known, as the test keeps no failed try).
+  - [ ] Next round: tried at the highest speeds (10x / 40x) in one match each: no card taken. The panel stays hidden, and in both languages `match` stopped at an injury that needs a substitute (scenario `kickoff`, 46'), so the list must answer with `sub`, or play at normal speed.
   - The panel is hidden during a move, even paused: `dugout` waits while the ball rolls and says so when paused.
   - While the ball rolls the list can move between two calls, so a number can mean another card (T101 removes the need for numbers).
 - [x] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): TR and EN, both already-states; no play button (a
@@ -212,7 +212,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T91 `fm start` hung at the main menu when a dead game (UE) still held the port the file named: the menu check
   asked `health` with the long timeout. Now it asks briefly first (`Answers`, 3 s) and the port file is read on every
   call. Measured with 7777 held by a dead game: 2 normal starts and one with the file set to 7777, 75–78 s each.
-- [ ] T92 The game crashed once leaving a match (15 Apr 2028, tweaks used in that match with a wrong bound path). Twice more on 5 Nov at kick-off, in a terminal with `status` asked every 2 s from another process (SIGBUS on the GC Finalizer thread); not with it asked every 5 s or not at all. Cause not known.
+- [ ] T92 The game crashed once leaving a match (15 Apr 2028, tweaks used in that match with a wrong bound path). Twice more on 5 Nov at kick-off, in a terminal with `status` asked every 2 s from another process (SIGBUS on the GC Finalizer thread); not with it asked every 5 s or not at all. Cause not known. Again 5 Nov, EN, list `round4`: gone before kick-off with `tweak` asked every second; the two reports of that day on the GC Finalizer jump to a bad address from UnityPlayer. `until` now takes `every`.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;
@@ -282,7 +282,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 
 - [ ] T71 Every new command has its MCP tool (`Core/Mcp.Tools.cs`) and help line (`HelpEnglish.cs`, labels).
 - [ ] T72 Every new command is reachable from the natural-language layer (`cli/fm/Nl`), `tools/nl-check.py` passes.
-- [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`). Open: `live-match.png` still shows the old key line (5 Nov capture failed).
+- [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`). `live-match.png` shows the new key line. To capture: `tools/live-capture.py … -- fm match --play --no-talk` (the `--` is needed).
 - [ ] T74 Full sweep passes after the last task: `tools/sweep.sh` (every read command) and `tools/mcp-check.py`,
   TR and EN.
 - [ ] T75 `docs/AI-CHECKLIST.md` open items done or moved here.

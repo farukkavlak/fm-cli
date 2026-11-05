@@ -20,6 +20,7 @@ A test list (tests/live/*.toml):
   at = "calm"              # scenario
   fresh = true             # load it again first (a test before this one changed the game)
   repeat = 3
+  fast = true              # the match speeds at their highest for this test, put back after
   steps = [
     { read = "captains", keep = "before", path = "Captain" },
     { run = "captains --captain zzzq --yes", rc = "fail" },
@@ -28,9 +29,9 @@ A test list (tests/live/*.toml):
 
 Steps:
   run = "<command>"        rc = 0 (default), a number, "fail" (any non-zero) or "any"
-  read = "<command>"       run with --json; path = "A.B.0.C", "#" is a list's length. Then is / not / same_as /
+  read = "<command>"       run with --json; path = "A.B.0.C", "#" is a list's length, "?Field" keeps a list's entries with it set. Then is / not / same_as /
                            differs_from / present = true, and keep = "<name>" remembers the value
-  until = "<command>"      a read asked again until it holds; seconds = the upper bound (default 300)
+  until = "<command>"      a read asked again until it holds; seconds = the upper bound (default 300), every = the pace of asking (default 1)
   start = "<command>"      runs beside the next steps (a match); `finish = true` waits for it to end
   live = true              on a read: it can only be read at that moment, so a dry run does not ask it
   {name} in a command      the value kept under that name
@@ -62,14 +63,21 @@ class Failed(Exception):
     pass
 
 
+LOG = None  # a run keeps every command's answer here: a failed try can be read without playing it again
+
+
 def fm(command, timeout=COMMAND_LIMIT):
     """One command through the tool. Stdin is shut, so it never stops at a prompt."""
     start = time.time()
     try:
         done = subprocess.run(["fm", *shlex.split(command)], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=timeout)
-        return done.returncode, done.stdout, done.stderr, time.time() - start
+        result = done.returncode, done.stdout, done.stderr, time.time() - start
     except subprocess.TimeoutExpired:
-        return 124, "", f"no answer in {timeout} s", time.time() - start
+        result = 124, "", f"no answer in {timeout} s", time.time() - start
+    if LOG:
+        LOG.write(f"{datetime.datetime.now():%H:%M:%S} fm {command} rc={result[0]} {result[3]:.1f}s\n{result[1][:1500]}{result[2][:500]}\n")
+        LOG.flush()
+    return result
 
 
 def must(command, timeout=COMMAND_LIMIT):
@@ -93,10 +101,12 @@ def saves_folder():
 
 
 def dig(data, path):
-    """A value by its path; "#" is a list's length. Raises KeyError when the path is not there."""
+    """A value by its path; "#" is a list's length, "?Field" a list's entries with it set. Raises KeyError when the path is not there."""
     for part in path.split(".") if path else []:
         if part == "#":
             data = len(data)
+        elif part.startswith("?"):
+            data = [entry for entry in data if entry.get(part[1:])]
         elif isinstance(data, list):
             data = data[int(part)]
         else:
@@ -246,7 +256,7 @@ def load_list(path):
 
 
 STEP_KINDS = ("run", "read", "until", "start", "finish")
-READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "seconds", "live", "note"}
+READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "seconds", "every", "live", "note"}
 
 
 def problems_in(tests):
@@ -307,9 +317,19 @@ def commands_of(test):
                 yield step, kind, step[kind]
 
 
+def worst_case(tests):
+    """Minutes a list can take at most: each entry about 2 minutes, each `until` its upper bound, every repeat."""
+    seconds = 0
+    for test in tests:
+        steps = test.get("steps", [])
+        seconds += test.get("repeat", 1) * (120 * bool(test.get("fresh")) + sum(s.get("seconds", 300) for s in steps if "until" in s))
+    return round(seconds / 60)
+
+
 def dry(args):
     tests = load_list(args.list)
     found = problems_in(tests)
+    print(f"Worst case {worst_case(tests)} minutes a language.")
     seen = {}
     asked = {}
     for test in tests:
@@ -357,6 +377,26 @@ def filled(command, kept):
     return re.sub(r"\{(\w+)\}", lambda m: shlex.quote(str(kept[m.group(1)])), command)
 
 
+SPEEDS = ("highlight speed", "speed between highlights")
+
+
+def fast_matches():
+    """The game's two match speeds at their highest for a test; what they were, to put back. The player's own settings."""
+    was = {}
+    for name in SPEEDS:
+        now = read_json(f'settings "{name}"')
+        was[name] = now["Value"]
+        must(f'settings "{name}" "{now["Choices"][-1]}"')
+    return was
+
+
+def put_back(speeds):
+    """The player's speeds again. During a match the page does not open: what is left stays in `speeds` for later."""
+    for name, value in list(speeds.items()):
+        if fm(f'settings "{name}" "{value}"')[0] == 0:
+            del speeds[name]
+
+
 def play(test):
     """One pass of a test's steps. Raises Failed with what was wrong; nothing printed is compared."""
     kept = {}
@@ -370,7 +410,7 @@ def play(test):
                 if wanted != "any" and ((wanted == "fail" and rc == 0) or (wanted != "fail" and rc != wanted)):
                     raise Failed(f"step {number} `{step['run']}`: rc={rc}, wanted {wanted}: {(err or out).strip()[:200]}")
             elif "start" in step:
-                side = subprocess.Popen(["fm", *shlex.split(step["start"])], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                side = subprocess.Popen(["fm", *shlex.split(step["start"])], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
             elif "finish" in step:
                 side.wait(timeout=COMMAND_LIMIT)
                 side = None
@@ -387,13 +427,15 @@ def play(test):
                 limit = time.time() + step.get("seconds", 300)
                 wrong = "never asked"
                 while time.time() < limit:
+                    if side is not None and side.poll() is not None:
+                        raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong}, and the match beside it ended")
                     try:
                         wrong = holds(step, dig(read_json(step["until"], 120), step["path"]), kept)
                     except (Failed, KeyError, IndexError, ValueError, TypeError) as error:
                         wrong = str(error)
                     if wrong is None:
                         break
-                    time.sleep(1)  # only the pace of asking: what ends the wait is the value
+                    time.sleep(step.get("every", 1))  # only the pace of asking: what ends the wait is the value
                 if wrong is not None:
                     raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong} after {step.get('seconds', 300)} s")
     finally:
@@ -414,9 +456,12 @@ def run(args):
     RESULTS.mkdir(parents=True, exist_ok=True)
     stem = pathlib.Path(args.list).stem
     failed = 0
+    global LOG
+    restore = {}
     for lang in args.lang.split(","):
         rows = []
         loaded = None
+        LOG = open(RESULTS / f"{stem}-{lang}.log", "w")
         for test in sorted(tests, key=lambda t: t["at"]):  # one load per scenario where the tests allow it
             passes = []
             for _ in range(test.get("repeat", 1)):
@@ -424,12 +469,18 @@ def run(args):
                     if loaded != test["at"] or test.get("fresh"):
                         print(f"[{lang}] entering {test['at']}: {json.dumps(enter(test['at'], lang))}", flush=True)
                         loaded = test["at"]
-                    play(test)
+                    was = fast_matches() if test.get("fast") else {}
+                    try:
+                        play(test)
+                    finally:
+                        restore.update(was)
+                        put_back(restore)
                     passes.append(None)
                 except Failed as error:
                     passes.append(str(error))
                     # Whatever it left behind must not fail the next test: that one starts fresh.
                     loaded = None
+                    break  # a task that fails moves to the next round: no more of its time this one
             bad = [p for p in passes if p]
             failed += bool(bad)
             mark = "pass" if not bad else "FAIL"
@@ -440,6 +491,8 @@ def run(args):
         report = RESULTS / f"{stem}-{lang}.md"
         report.write_text(f"# {stem}, {lang}, {datetime.datetime.now():%Y-%m-%d %H:%M}\n\n" + "\n".join(rows) + "\n")
         print(f"[{lang}] written: {report}", flush=True)
+    if restore:
+        print(f"NOT PUT BACK, a match is still on: {restore}. When it ends: fm settings \"<name>\" <value>")
     print(f"{len(tests)} tests, {failed} failed somewhere.")
     return 1 if failed else 0
 

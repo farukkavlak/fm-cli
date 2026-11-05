@@ -74,7 +74,7 @@ internal static partial class Program
 			    tweak [<x>] --player <player>   his individual tweaks;  tweak --reset team|individual|all
 			  sub             during a match: on the pitch and on the bench;  sub <off> <on>: make a substitution
 			  pause / resume  during a match: pause it, play on;  skip: skip the replay that is playing
-			  dugout          during a match, the assistant's advice;  dugout <no> apply | dismiss
+			  dugout          during a match, the assistant's advice;  dugout apply (the newest one, says what it turned on);  dugout <no> apply | dismiss
 			  manager         the manager's record: clubs, transfers, results at this club and over the career
 			  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them; read here: what is on screen
 			  meeting         hold a team meeting; answer it with talk

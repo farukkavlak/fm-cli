@@ -183,7 +183,7 @@ fm tweak [<x>] --player <player>   # one player's tweaks
 fm tweak --reset team|individual|all
 fm pause             # during a match; fm resume goes on
 fm skip              # skip the replay that is playing
-fm dugout [<no> <apply|dismiss>]
+fm dugout [apply | <no> <apply|dismiss>]
 fm report            # the last match: score, scorers, player of the match, stats
 fm opponent          # the next opponent: form, formation, key players, news
 ```
