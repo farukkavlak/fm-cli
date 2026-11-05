@@ -3,7 +3,8 @@
 
   fm-round.py scenarios                       the scenario saves kept
   fm-round.py make <scenario> "<moment>"      keep the game's present moment as a scenario
-  fm-round.py forward <yyyy-mm-dd>            days forward, matches simulated, until then or until the game asks
+  fm-round.py forward <yyyy-mm-dd> [--answer] days forward, matches simulated, until then or until the game asks;
+                                              --answer: the first answer to whatever it asks, to reach a moment
   fm-round.py enter <scenario> [--lang en]    a fresh copy of it, loaded, in that language
   fm-round.py dry <list.toml>                 check a test list; changes nothing in the game
   fm-round.py run <list.toml> [--lang en,tr] [--only T106]
@@ -164,6 +165,31 @@ def make(args):
     return 0
 
 
+def answer_something():
+    """Only to reach a moment: the first answer to whatever is open, each one printed.
+    True only when the game's state moved, so an answer the game ignores cannot loop forever."""
+    _, shown, _, _ = fm("status")
+    moved = lambda: fm("status")[1] != shown
+    rc, out, _, _ = fm("talk --json")
+    if rc == 0 and out.lstrip().startswith("{") and json.loads(out).get("Answers"):
+        print(f"  talk: {json.loads(out)['Says'][:1]}", flush=True)
+        if fm("talk 1")[0] == 0 and moved():
+            return True
+    names = list(dict.fromkeys(re.findall(r'reply "([^"]+)"', shown) + [line.strip() for line in shown.splitlines() if line.startswith("  ")]))
+    for name in names:
+        print(f"  reply: {name}", flush=True)
+        if fm(f'reply "{name}"')[0] == 0:
+            fm(f'reply "{name}" 1')  # a message with no choices is answered by opening it
+            if moved():
+                return True
+    # Screens a message cannot answer: squad numbers at the season's start, the set-piece wizard of a new job.
+    for step in ("numbers --auto", "setpieces new", "next --skip"):
+        if fm(step)[0] == 0 and moved():
+            print(f"  {step}", flush=True)
+            return True
+    return False
+
+
 def forward(args):
     """Days forward through the tool, matches simulated, up to a date. Stops where the game asks something."""
     while True:
@@ -171,8 +197,15 @@ def forward(args):
         if now.get("Date", "") >= args.date:
             print(f"Reached {now['Date']} ({now['State']}).")
             return 0
-        rc, out, err, _ = fm("match --instant" if now["State"] == "Tactics" else "next")
-        if rc != 0:
+        before = now.get("Date"), now.get("Clock")
+        match_day = now["State"] in ("Tactics", "SubmitTeam", "SquadNumbers")
+        rc, out, err, _ = fm("match --instant" if match_day else "next")
+        stopped = rc != 0 or (not match_day and (state().get("Date"), state().get("Clock")) == before)
+        if stopped:
+            if args.answer and match_day and fm("tactic pick")[0] == 0:
+                continue
+            if args.answer and answer_something():
+                continue
             print(f"Stopped at {state().get('Date')}, the game asks:\n{(out + err).strip()[-900:]}")
             return 2
 
@@ -512,6 +545,7 @@ def main():
     one.set_defaults(go=make)
     one = sub.add_parser("forward")
     one.add_argument("date")
+    one.add_argument("--answer", action="store_true", help="to reach a moment: the first answer to whatever the game asks, printed")
     one.set_defaults(go=forward)
     one = sub.add_parser("enter")
     one.add_argument("name")
