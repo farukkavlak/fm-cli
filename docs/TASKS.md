@@ -166,7 +166,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   (a tactic change, not a tweak) not met.
 - [x] T97 The match bar's Tactics button opens the panel every time. EN first half, paused and playing, 12 of 12; TR second half 5 of 5.
   What looked like a dead button: a Cancel pressed as the panel appears can be lost, the panel stays up and the button stays hidden. Cancel is read back.
-- [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
+- [ ] T113 `talk --json`: its answers came in the game's order, `talk <number>` counts the buttons' (a manager's contract: first listed Cancel, `talk 1` was Finalise Deal). Now `--json` lists them as `talk` takes them, with `Number`. To check in a talk, TR + EN.
+- [ ] T114 Deadline day, coverage taken part in: `game.CurrentGameDate` went unbound and `status` stood on 3 Sep
+  while the game ran on to 7 Sep (match "today", fixtures 7 Sep). The plugin now takes `game.CurrentGameDay`
+  when it is later or the packed date is missing. To check: `tests/live/round6.toml`, TR + EN.- [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
   rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.

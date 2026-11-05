@@ -103,10 +103,14 @@ def saves_folder():
 
 
 def dig(data, path):
-    """A value by its path; "#" is a list's length, "?Field" a list's entries with it set. Raises KeyError when the path is not there."""
+    """A value by its path; "#" is a list's length, "?Field" a list's entries with it set, "?Field=value" those with
+    that value. Raises KeyError when the path is not there."""
     for part in path.split(".") if path else []:
         if part == "#":
             data = len(data)
+        elif part.startswith("?") and "=" in part:
+            field, value = part[1:].split("=", 1)
+            data = [entry for entry in data if str(entry.get(field)) == value]
         elif part.startswith("?"):
             data = [entry for entry in data if entry.get(part[1:])]
         elif isinstance(data, list):

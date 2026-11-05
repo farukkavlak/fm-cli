@@ -1,0 +1,44 @@
+# Round 6: T114 the day after deadline day's coverage, T113 a talk's answers by number. Run: tools/fm-round.py dry tests/live/round6.toml, then run. Every answer: results/round6-<lang>.log.
+
+# Deadline day, its coverage taken part in: the game's packed date went unbound and the date stood on 3 Sep while
+# the game ran on to 7 Sep, the match day. The date must follow the game; the match day is 7 Sep.
+[[test]]
+task = "T114"
+name = "the date goes on after deadline day's coverage"
+at = "deadline"
+fresh = true
+steps = [
+  { read = "status", path = "Date", is = "2029-09-03" },
+  { read = "inbox", path = "?CanRespond=True.?NewsHasResponded=False.0.NewsTitleString", keep = "deadline" },
+  { run = "reply \"{deadline}\" 1", note = "take part (the game's first answer)" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { run = "next", rc = "any" },
+  { read = "status", path = "Date", not = "2029-09-03", note = "not stuck on deadline day" },
+]
+
+# A talk's answers come numbered in the order they are offered, the number `talk <n>` takes.
+[[test]]
+task = "T113"
+name = "talk --json numbers the answers"
+at = "interview"
+fresh = true
+steps = [
+  { read = "talk", path = "Answers.0.Number", is = "1" },
+  { read = "talk", path = "Answers.1.Number", is = "2" },
+  { read = "talk", path = "Answers.0.Label", keep = "first" },
+  { run = "talk 99", rc = "fail" },
+]
