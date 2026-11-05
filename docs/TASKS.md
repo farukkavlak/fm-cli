@@ -17,8 +17,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T106 `captains --captain / --vice`: lists told by their element (`ChangeCaptain`, `ChangeViceCaptain`), Yes by the game's dialog handler, result read back. TR + EN, list `round1`: unknown name refused 3 ×, captain 3 ×, vice there and back 3 ×.
 - [x] T107 A line that starts with the command it means is that command, every word kept: `dugout 1 zzz` says 'zzz' not understood. TR + EN in a match.
 - [ ] T104 Scenario saves, each one load away: `tools/fm-round.py scenarios`, kept in `~/fm27_bep/scenarios`. Entering one takes about 85 s,
-  a language switch about 10 s more; a simulated match 15 s. Kept: `calm`, `cup`, `cup-draw`, `kickoff`, `window`, `sacked`, `interview`, `job-offer`, `newjob`.
-  - [ ] Season's end. A month's holiday got the manager sacked twice (Pendikspor, Varzim): go by `forward`, not holiday.
+  a language switch about 10 s more; a simulated match 15 s. Kept: `calm`, `cup`, `cup-draw`, `kickoff`, `window`, `season-lists`, `sacked`, `interview`, `job-offer`, `newjob`, `spring`.
+  - [ ] Season's end. Not reached: Pendikspor's board sacked the manager on holiday, Varzim (taken last in March) lost him at its last match, 5 May, both ways of going forward. Needs a club that is safe by May, from `interview`.
 - [x] T105 One test tool: `tools/fm-round.py`, lists in `tests/live/*.toml`. `dry` finds a broken list without the game's time (scenario, step shape, command, flag,
   read path); `run` goes EN then TR and checks only `--json` and exit codes.
 - [x] T109 `load` opened the last save whatever it was asked and said it loaded the named one: the main menu's tile sends `LoadSelectedGame` too. The list's
@@ -189,8 +189,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 
 ## 5. Robustness
 
-- [ ] T39 `fm crawl`: two panels leave a popup that holds the event queue (`--skip 7bab4b19…,cd095383…`); close
-  such popups instead of skipping.
+- [ ] T39 `fm crawl`: a popup that holds the event queue is closed and the queue let go, instead of stopping. Written; the one run over the opposition report's panels (14 pages) did not stop, but the queue was left held at its end. Check in the full crawl (T77).
 - [ ] T40 `fm stop`: the game hangs on its way out now and then (process stuck exiting, state UE, not killable,
   its window kept until a restart); cause unknown. Seen again 2 Nov after `stop --save` straight after a
   match with a press question open. `stop` no longer counts such a process as running.
@@ -208,8 +207,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T91 `fm start` hung at the main menu when a dead game (UE) still held the port the file named: the menu check
   asked `health` with the long timeout. Now it asks briefly first (`Answers`, 3 s) and the port file is read on every
   call. Measured with 7777 held by a dead game: 2 normal starts and one with the file set to 7777, 75–78 s each.
-- [ ] T92 The game crashed once leaving a match (after the post-match talk, 15 Apr 2028, tweaks used in that
-  match with a wrong bound path); not seen again in 4 matches. Watch for it.
+- [ ] T92 The game crashed once leaving a match (15 Apr 2028, tweaks used in that match with a wrong bound path). Twice more on 5 Nov at kick-off, in a terminal with `status` asked every 2 s from another process (SIGBUS on the GC Finalizer thread); not with it asked every 5 s or not at all. Cause not known.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;
@@ -279,7 +277,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 
 - [ ] T71 Every new command has its MCP tool (`Core/Mcp.Tools.cs`) and help line (`HelpEnglish.cs`, labels).
 - [ ] T72 Every new command is reachable from the natural-language layer (`cli/fm/Nl`), `tools/nl-check.py` passes.
-- [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`).
+- [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`). Open: `live-match.png` still shows the old key line (5 Nov capture failed).
 - [ ] T74 Full sweep passes after the last task: `tools/sweep.sh` (every read command) and `tools/mcp-check.py`,
   TR and EN.
 - [ ] T75 `docs/AI-CHECKLIST.md` open items done or moved here.

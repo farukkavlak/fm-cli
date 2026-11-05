@@ -401,6 +401,8 @@ fm draw                     # a cup draw its message opened: runs it, shows the 
 fm saves · fm save · fm load
 ```
 
+![fm read](manual/img/club/read.png)
+
 `fm read` lists the pages (club history, honours, records, career, competition rules and past winners, transfer
 history, scouting, the medical centre, the data hub's analysis…); `fm read club-honours` reads one. What it prints is what
 the page shows, in the game's language.
