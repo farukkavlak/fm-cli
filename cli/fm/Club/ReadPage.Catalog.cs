@@ -70,7 +70,7 @@ internal static partial class Program
 		new("competitions", "Competitions Overview", "ed5ea2b61dbc27843a5bdae84aefc91f", null),
 		new("internationals-page", "Internationals Page", "65540f95134655b48b0857786150bf3b", null),
 		new("targets-page", "Squad Targets", "9d0f5cf246d9daa41b3e9eeca00afa61", null),
-		new("report-priorities", "Team Report Priorities", "6e8ea46097c185d468f2723d4931e63b", "b96211c5068254e4287314ac009797f1"),
+		new("report-priorities", "Team Report Priorities", "6e8ea46097c185d468f2723d4931e63b", Screen.OppositionInstructions),
 		new("planner", "Squad Planner", "32b8aab26a73bd84c90f1a32d9dff682", null),
 		new("best-xi", "Current Best XI", "5ae0022b8ce94d14cbfa717447ed678d", "32b8aab26a73bd84c90f1a32d9dff682"),
 		new("planner-contracts", "Planner Contracts", "2227772f742266144b68ed6c1017b17a", "32b8aab26a73bd84c90f1a32d9dff682"),
