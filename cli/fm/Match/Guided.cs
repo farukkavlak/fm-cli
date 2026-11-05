@@ -446,6 +446,25 @@ internal static partial class Program
 			var talk = await Fm.GetJson("talk");
 			if (json)
 			{
+				// The answers as `talk <number>` takes them: the game's list and the buttons can come in different orders.
+				if (offered.Count > 0 && System.Text.Json.Nodes.JsonNode.Parse(talk.GetRawText()) is System.Text.Json.Nodes.JsonObject whole)
+				{
+					var said = talk.TryGetProperty("Answers", out var listed)
+						? listed.EnumerateArray().GroupBy(a => Field(a, "Label")).ToDictionary(g => g.Key, g => g.First())
+						: [];
+					var numbered = new System.Text.Json.Nodes.JsonArray();
+					for (var i = 0; i < offered.Count; i++)
+					{
+						var answer = new System.Text.Json.Nodes.JsonObject { ["Number"] = i + 1, ["Label"] = offered[i].Label };
+						if (said.TryGetValue(offered[i].Label, out var more))
+							foreach (var field in more.EnumerateObject().Where(f => f.Name != "Label"))
+								answer[field.Name] = System.Text.Json.Nodes.JsonNode.Parse(field.Value.GetRawText());
+						numbered.Add(answer);
+					}
+					whole["Answers"] = numbered;
+					Console.WriteLine(whole.ToJsonString());
+					return 0;
+				}
 				Console.WriteLine(talk.ToString());
 				return 0;
 			}

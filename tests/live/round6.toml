@@ -9,8 +9,8 @@ at = "deadline"
 fresh = true
 steps = [
   { read = "status", path = "Date", is = "2029-09-03" },
-  { read = "inbox", path = "?CanRespond=True.?NewsHasResponded=False.0.NewsTitleString", keep = "deadline" },
-  { run = "reply \"{deadline}\" 1", note = "take part (the game's first answer)" },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "deadline" },
+  { run = "reply {deadline} 1", note = "take part (the game's first answer)" },
   { run = "next", rc = "any" },
   { run = "next", rc = "any" },
   { run = "next", rc = "any" },
@@ -37,8 +37,10 @@ name = "talk --json numbers the answers"
 at = "interview"
 fresh = true
 steps = [
-  { read = "talk", path = "Answers.0.Number", is = "1" },
-  { read = "talk", path = "Answers.1.Number", is = "2" },
-  { read = "talk", path = "Answers.0.Label", keep = "first" },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "invite", live = true },
+  { run = "reply {invite} 2", note = "attend (the game's second answer; the first declines)" },
+  { read = "talk", path = "Answers.0.Number", is = "1", live = true },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { read = "talk", path = "Answers.0.Label", keep = "first", live = true },
   { run = "talk 99", rc = "fail" },
 ]
