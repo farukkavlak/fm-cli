@@ -285,6 +285,8 @@ internal static partial class Router
 				foreach (var (cue, key) in new[] { ("kulup tarihi", "club-history"), ("club history", "club-history"), ("kupalarimiz", "club-honours"), ("honours", "club-honours"), ("kulup rekor", "club-records"), ("past winners", "past-winners"), ("gecmis sampiyon", "past-winners"), ("turnuva kural", "comp-rules"), ("competition rules", "comp-rules"), ("veri merkezi", "data-hub"), ("data hub", "data-hub"), ("takim analizi", "team-analysis"), ("gol analizi", "goal-analysis"), ("duran top analizi", "set-piece-analysis"), ("transfer gecmisi", "transfer-history"), ("transfer history", "transfer-history"), ("sezon onizleme", "season-preview"), ("suspensions", "suspensions"), ("manager movements", "manager-movements"), ("transfer soylenti", "rumours"), ("rumours", "rumours") })
 					if (c.Has(cue)) { c.Set("page", key); break; }
 			}),
+		R("fm_transferroom", "transferroom=7; transfer room=7; transfer odasi=6; menajer teklifleri=5; agent offers=5", c => { }),
+		R("fm_planner", "squad planner=7; planner=5; kadro plani=6; kadro planlayici=6", c => { }),
 		R("fm_meeting", "takim toplantisi=6; toplanti yap=5; team meeting=6; hold a meeting=6", c => { }),
 		R("fm_draw", "kura cek=6; kurayi cek=6; kura=3; run the draw=6; cup draw=5; do the draw=6", c => { }),
 		R("fm_schedule_week", "antrenman haftasini=5; haftayi kopyala=6; haftayi yapistir=6; haftayi temizle=6; copy the week=6; paste the week=6; clear the week=6", c =>

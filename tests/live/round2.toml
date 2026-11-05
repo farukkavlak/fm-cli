@@ -1,0 +1,94 @@
+# Round 2: TransferRoom (T11), Squad Planner (T12; copying a plan is open). Run: tools/fm-round.py dry tests/live/round2.toml, then run.
+
+[[test]]
+task = "T11"
+name = "adverts, transfers and loans, every row read"
+at = "window"
+fresh = true
+steps = [
+  { read = "transferroom", path = "#", keep = "adverts", not = "0" },
+  { read = "transferroom", path = "0.Club", present = true },
+  { read = "transferroom --loan", path = "0.Club", present = true },
+  { run = "transferroom offer 999", rc = "fail" },
+  { run = "transferroom offer zzzq", rc = "fail" },
+]
+
+[[test]]
+task = "T11"
+name = "a player offered to an advert is listed as offered"
+at = "window"
+repeat = 3
+steps = [
+  { read = "transferroom activity", path = "#", keep = "offered" },
+  { run = "transferroom offer 1" },
+  { run = "talk 1", rc = "any", note = "some players' question has two answers, and offer leaves that to the player" },
+  { read = "transferroom activity", path = "#", differs_from = "offered" },
+]
+
+[[test]]
+task = "T11"
+name = "a requirement made, read and deleted"
+at = "window"
+repeat = 3
+steps = [
+  { run = "transferroom new --position Q --role zzzq", rc = "fail" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+  { read = "transferroom", path = "0.Position", keep = "position" },
+  { run = "transferroom new --position {position} --max-age 28" },
+  { read = "transferroom wanted", path = "0.Position", same_as = "position", live = true },
+  { run = "transferroom delete 9", rc = "fail" },
+  { run = "transferroom delete 1" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+]
+
+[[test]]
+task = "T11"
+name = "a player agents offered is discarded"
+at = "window"
+repeat = 3
+steps = [
+  { read = "transferroom agents", path = "#", keep = "offered" },
+  { read = "transferroom agents", path = "0.Player", keep = "first" },
+  { run = "transferroom discard zzzq", rc = "fail" },
+  { run = "transferroom discard {first}" },
+  { read = "transferroom agents", path = "#", differs_from = "offered" },
+]
+
+[[test]]
+task = "T12"
+name = "the planner's positions and seasons"
+at = "window"
+repeat = 2
+steps = [
+  { read = "planner --season current --position ST", path = "Season", is = "0" },
+  { read = "planner --position ST", path = "Players.0.Name", present = true },
+  { read = "planner --position GK", path = "PositionMask", is = "1" },
+  { run = "planner --position zzzq", rc = "fail" },
+  { read = "planner --season next", path = "Season", is = "1" },
+  { read = "planner --season after", path = "Season", is = "2" },
+  { read = "planner --season current", path = "Season", is = "0" },
+]
+
+[[test]]
+task = "T12"
+name = "planner add, move, remove, suggest"
+at = "window"
+repeat = 3
+steps = [
+  { read = "planner --season current --position GK", path = "Players.#", keep = "before" },
+  { run = "planner add zzzq", rc = "fail" },
+  { run = "planner remove zzzq", rc = "fail" },
+  { run = "planner suggest zzzq", rc = "fail" },
+  { read = "planner --position GK", path = "Players.0.Name", keep = "first" },
+  { read = "planner --position GK", path = "Players.1.Name", keep = "second" },
+  { run = "planner move {second} 1" },
+  { read = "planner --position GK", path = "Players.0.Name", same_as = "second" },
+  { run = "planner move {second} 2" },
+  { run = "planner move {first} 99", rc = "fail" },
+  { run = "planner remove {second}" },
+  { read = "planner --position GK", path = "Players.#", differs_from = "before" },
+  { run = "planner add {second}" },
+  { read = "planner --position GK", path = "Players.#", same_as = "before" },
+  { run = "planner suggest position" },
+  { run = "planner --season current" },
+]

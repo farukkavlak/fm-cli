@@ -246,3 +246,11 @@
 {"tr": "takımı topla toplantı yap", "call": "fm_meeting", "split": "held"}
 {"en": "hold a team meeting", "call": "fm_meeting", "split": "held"}
 {"en": "team meeting please", "call": "fm_meeting", "split": "final"}
+{"tr": "kadro planını göster", "call": "fm_planner", "split": "held"}
+{"en": "show the squad planner", "call": "fm_planner", "split": "held"}
+{"tr": "transfer odasını aç", "call": "fm_transferroom", "split": "held"}
+{"en": "open the transfer room", "call": "fm_transferroom", "split": "held"}
+{"tr": "planlayıcıda forvete bak", "call": "fm_planner", "split": "train"}
+{"en": "open the planner", "call": "fm_planner", "split": "train"}
+{"tr": "menajer tekliflerine bak", "call": "fm_transferroom", "split": "train"}
+{"en": "what agent offers do we have", "call": "fm_transferroom", "split": "train"}

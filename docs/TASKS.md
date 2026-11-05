@@ -96,8 +96,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - [ ] Extra time.
 - [ ] T99 `next` said "offer or half-way message" after a teammate failed to talk Atakan round, 16 Aug 2028: the answered
   message offered its choices again but was not named, though the same case with Utku was. `AllInbox` is now looked at too; not met again.
-- [ ] T11 TransferRoom (In, Out, Agent Offers): adverts by type and view, discard agents' offered players.
-- [ ] T12 Squad Planner (planner, contracts, current best XI): add, move, remove, ask assistant, copy.
+- [ ] T11 TransferRoom: `fm transferroom`. Adverts (transfer, loan, every row), offer a player, requirements (new, read, delete), agents' players (read, discard). TR + EN 3 × with the negatives (`tests/live/round2.toml`).
+  - A player whose question has two answers: `offer` leaves the talk open for the player to answer.
+  - [ ] Left: `responses` and `activity --loan` hold their tables by names not seen yet (`responses-transfers-table`, `responses-loans-table`, `activity-loans-table`); no such rows in the scenario. Offer through a list of several players: measured by hand once, EN only. `discard --all`, `--oop-position`, `--oop-role`, `--role`, `--time`, `--type`: not run through the tool yet.
+- [ ] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
+  - [ ] Left: copy a plan (EventFmxSquadPlannerCopy). The list's entry sent by `select` and by a row's submit changes nothing in the other season, so there is no command. Next: what a click sends that these do not; the rows' ticks (`SelectedPlayers`).
 - [ ] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
   Found: a row's `XIButton` sends the player's index, so a row is held by `Slots.PlayerIndex`; the toggle sits in the same `Items.<n>`; pressing it lights the row (seen by /shot). No data path found to read it back yet: not written.

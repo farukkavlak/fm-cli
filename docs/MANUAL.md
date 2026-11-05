@@ -382,6 +382,15 @@ ask at a terminal and need `--yes` in a script.
 ```bash
 fm news [#]                 # the press: headlines, or one story in full
 fm shortlist [add|remove <player> --for <length>]
+fm transferroom [--loan]    # clubs' adverts for players you could offer
+fm transferroom offer <no or club> [player]   # send one; activity lists those sent
+fm transferroom wanted | responses            # your own requirements and the replies
+fm transferroom new --position "ST (C)" [--role <r>] [--max-age <n>] [--time <t>] [--type <t>]
+fm transferroom delete <no>
+fm transferroom agents | discard <player> | discard --all    # players agents offered
+fm planner [--season current|next|after] [--position <p>]    # the Squad Planner
+fm planner add|remove <player> · move <player> <place>
+fm planner suggest position|tactic|season|all
 fm interest "<player>" --top|--transfer|--loan [--yes]
 fm enquire "<player>"       # ask the club what it wants
 fm trial "<player>" --for <1-4 weeks> [--yes]
