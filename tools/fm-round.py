@@ -4,7 +4,7 @@
   fm-round.py scenarios                       the scenario saves kept
   fm-round.py make <scenario> "<moment>"      keep the game's present moment as a scenario
   fm-round.py forward <yyyy-mm-dd> [--answer] days forward, matches simulated, until then or until the game asks;
-                                              --answer: the first answer to whatever it asks, to reach a moment
+                                              --answer: opens what needs no choice; stops at a choice
   fm-round.py enter <scenario> [--lang en]    a fresh copy of it, loaded, in that language
   fm-round.py dry <list.toml>                 check a test list; changes nothing in the game
   fm-round.py run <list.toml> [--lang en,tr] [--only T106]
@@ -170,22 +170,26 @@ def make(args):
 
 
 def answer_something():
-    """Only to reach a moment: the first answer to whatever is open, each one printed.
-    True only when the game's state moved, so an answer the game ignores cannot loop forever."""
+    """Only to reach a moment: what needs no choice is opened or handed to the assistant, each step printed.
+    A conversation or a message with choices is not answered: the first choice once declined three job
+    interviews and lost a job at a board meeting (Mar 2030). The game's own `CanRespond` says which has them.
+    True only when the game's state moved, so a step the game ignores cannot loop forever."""
     _, shown, _, _ = fm("status")
     moved = lambda: fm("status")[1] != shown
     rc, out, _, _ = fm("talk --json")
     if rc == 0 and out.lstrip().startswith("{") and json.loads(out).get("Answers"):
-        print(f"  talk: {json.loads(out)['Says'][:1]}", flush=True)
-        if fm("talk 1")[0] == 0 and moved():
-            return True
+        print(f"  a conversation waits: {json.loads(out)['Says'][:1]}", flush=True)
+        return False
+    rc, out, _, _ = fm("inbox --json")
+    choices = {m.get("NewsTitleString") for m in json.loads(out) if m.get("CanRespond") == "True"} if rc == 0 and out.lstrip().startswith("[") else set()
     names = list(dict.fromkeys(re.findall(r'reply "([^"]+)"', shown) + [line.strip() for line in shown.splitlines() if line.startswith("  ")]))
     for name in names:
-        print(f"  reply: {name}", flush=True)
-        if fm(f'reply "{name}"')[0] == 0:
-            fm(f'reply "{name}" 1')  # a message with no choices is answered by opening it
-            if moved():
-                return True
+        if name in choices:
+            print(f"  a message with choices waits: {name}", flush=True)
+            return False
+        print(f"  opened: {name}", flush=True)
+        if fm(f'reply "{name}"')[0] == 0 and moved():
+            return True
     # Screens a message cannot answer: squad numbers at the season's start, the set-piece wizard of a new job.
     for step in ("numbers --auto", "setpieces new", "next --skip"):
         if fm(step)[0] == 0 and moved():
@@ -567,7 +571,7 @@ def main():
     one.set_defaults(go=make)
     one = sub.add_parser("forward")
     one.add_argument("date")
-    one.add_argument("--answer", action="store_true", help="to reach a moment: the first answer to whatever the game asks, printed")
+    one.add_argument("--answer", action="store_true", help="to reach a moment: opens what needs no choice, stops at a choice")
     one.set_defaults(go=forward)
     one = sub.add_parser("enter")
     one.add_argument("name")

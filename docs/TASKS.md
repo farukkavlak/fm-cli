@@ -17,8 +17,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T106 `captains --captain / --vice`: lists told by their element (`ChangeCaptain`, `ChangeViceCaptain`), Yes by the game's dialog handler, result read back. TR + EN, list `round1`: unknown name refused 3 ×, captain 3 ×, vice there and back 3 ×.
 - [x] T107 A line that starts with the command it means is that command, every word kept: `dugout 1 zzz` says 'zzz' not understood. TR + EN in a match.
 - [ ] T104 Scenario saves, each one load away: `tools/fm-round.py scenarios`, kept in `~/fm27_bep/scenarios`. Entering one takes about 85 s,
-  a language switch about 10 s more; a simulated match 15 s. Kept: `calm`, `cup`, `cup-draw`, `kickoff`, `window`, `season-lists`, `sacked`, `interview`, `job-offer`, `newjob`, `spring`.
-  - [ ] Season's end. Not reached: Pendikspor's board sacked the manager on holiday, Varzim (taken last in March) lost him at its last match, 5 May, both ways of going forward. Needs a club that is safe by May, from `interview`.
+  a language switch about 10 s more; a simulated match 15 s. Kept: `calm`, `cup`, `cup-draw`, `kickoff`, `window`, `season-lists`, `sacked`, `interview`, `job-offer`, `newjob`, `spring`,
+  `deadline`, `intl-break`, `helmond-may`, `playoffs`, `playoff-final`, `season-end` (the list: `scenarios`).
+  - [x] Season's end: `season-end`, 4 Jun 2030, Helmond Sport after a lost play-off final; the vision meeting and the pre-season date wait.
 - [x] T105 One test tool: `tools/fm-round.py`, lists in `tests/live/*.toml`. `dry` finds a broken list without the game's time (scenario, step shape, command, flag,
   read path); `run` goes EN then TR and checks only `--json` and exit codes.
 - [x] T109 `load` opened the last save whatever it was asked and said it loaded the named one: the main menu's tile sends `LoadSelectedGame` too. The list's
@@ -60,6 +61,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   `club` objectives: the tab clicked by `within=TabButtons&name=Vision` (`click?name=` was never a route). TR + EN, 3 runs.
 - [ ] T93 Vision, new in FM27: an objective's weight stepper (`SIStepper` beside `#ImportanceText`), add an
   objective (`EventFmxAddClubVisionObjective`, `ClubVisionMeetingPossibleObjectivesToAdd`), the 5 Year Plan tab.
+  Measured at `season-end` (Helmond, 4 Jun 2030, EN): the meeting offers only remove, Suggest, Undo, Reset, Confirm,
+  End Meeting; no stepper and no add control, before or after a removal. The 5-Year Plan tab is there
+  (`Board-Vision-Button`, `SetDatastoreValue`), not read yet. Next: read that tab; look for the stepper at another club.
 - [x] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal"). Fixed: speech bubbles are
   read in the game's words (`Report.Spoken`), match talks show answers by `GameWords.Of`. TR measured (a whole
   season-end team meeting); EN a player's transfer talk with a fee window.
