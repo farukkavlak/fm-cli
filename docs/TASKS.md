@@ -176,9 +176,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   when it is later or the packed date is missing. To check: `tests/live/round6.toml`, TR + EN. Round 6 did not
   reach it (an offer stopped `next`); round 7, offers rejected on the way, passed TR + EN: 3 → 6 Sep, and at the end
   `CurrentGameDate` was unbound while the date read 6 Sep from `CurrentGameDay`.
-- [ ] T115 Inbox lost its older messages: on 29 Sep 2029 (scenario `intl-break`) `inbox` lists 10–14 rows, the
+- [x] T115 Inbox lost its older messages: on 29 Sep 2029 (scenario `intl-break`) `inbox` lists 10–14 rows, the
   day's, and `reply "Four players called up for international duty"` finds nothing, while an hour earlier it was
-  row 4 of 37. `inboxlist` answers "no inbox list", even on Portal › Messages. Find what the list binds now.- [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
+  row 4 of 37. Fixed: FM27's list has no element name, so `inboxlist` finds it by its type
+  (`MessagesStreamedObjectList`) and gives its scroll view's content, which `scroll` takes. 3/3 TR + EN (`round8.toml`).- [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
   rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.

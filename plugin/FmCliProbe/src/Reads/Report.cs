@@ -167,7 +167,10 @@ internal static class Report
 		return path;
 	}
 
-	/// <summary>The streamed list the Messages page draws, by its own element name, for scrolling it.</summary>
+	/// <summary>
+	/// The streamed list the Messages page draws, for scrolling it: by its element name, or by its type when it
+	/// has no name (FM27's Messages page, 29 Sep 2029: unnamed, so the inbox read only the ten rows drawn).
+	/// </summary>
 	public static string InboxList()
 	{
 		foreach (var e in Buttons.Elements())
@@ -175,12 +178,29 @@ internal static class Report
 			try
 			{
 				var name = e.name ?? "";
-				if (name.Contains("MessagesStreamedObjectList", StringComparison.Ordinal))
-					return $"0x{e.Pointer.ToInt64():x}";
+				if (name.Contains("MessagesStreamedObjectList", StringComparison.Ordinal) || e.GetIl2CppType().Name == "MessagesStreamedObjectList")
+					// The list holds its scroll view; `scroll` looks for one above what it is given, so it is given
+					// the scroll view's own content, which is inside it.
+					return $"0x{(ScrollContent(e) ?? e).Pointer.ToInt64():x}";
 			}
 			catch { }
 		}
 		return "error: no inbox list";
+	}
+
+	/// <summary>The first `#unity-content-container` under an element: a Unity scroll view's own content.</summary>
+	private static UnityEngine.UIElements.VisualElement ScrollContent(UnityEngine.UIElements.VisualElement root)
+	{
+		var queue = new Queue<UnityEngine.UIElements.VisualElement>();
+		queue.Enqueue(root);
+		while (queue.Count > 0)
+		{
+			var at = queue.Dequeue();
+			if (at != root && at.name == "unity-content-container") return at;
+			var hierarchy = at.hierarchy;
+			for (var i = 0; i < hierarchy.childCount; i++) queue.Enqueue(hierarchy.ElementAt(i));
+		}
+		return null;
 	}
 
 	/// <summary>

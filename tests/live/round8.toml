@@ -1,0 +1,19 @@
+# Round 8: T115 an older message after a day goes by. Run: tools/fm-round.py dry tests/live/round8.toml, then run. Every answer: results/round8-<lang>.log.
+
+# Freshly loaded, the inbox binds every row; after `next` the Messages page draws only the rows in view, and the
+# list to scroll had no name, so a message further down was "not in the inbox".
+[[test]]
+task = "T115"
+name = "an older message is still found after next"
+at = "intl-break"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "#", not = "0", live = true },
+  { read = "inbox", path = "30.NewsTitleString", keep = "old", live = true },
+  { read = "inbox", path = "?NewsItemIsPriority=False.25.NewsTitleString", keep = "older", live = true },
+  { run = "next" },
+  { run = "reply {old}" },
+  { run = "reply {older}" },
+  { run = "reply zzqqxx-no-such-message", rc = "fail" },
+]
