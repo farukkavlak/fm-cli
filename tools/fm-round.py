@@ -188,7 +188,9 @@ def set_language(lang, times):
     if not lang or current in (None, LANGUAGES[lang][0]):
         return False
     step = time.time()
-    must(f'settings language "{LANGUAGES[lang][1]}"', 300)
+    # A match on (or a screen that takes no settings) refuses; the load after it asks again.
+    if fm(f'settings language "{LANGUAGES[lang][1]}"', 300)[0] != 0:
+        return False
     times["language"] = times.get("language", 0) + round(time.time() - step, 1)
     return True
 

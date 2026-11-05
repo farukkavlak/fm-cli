@@ -272,6 +272,8 @@ internal static partial class Program
 		catch (FmError) { ourNames = []; }
 		string? lastNamed = null;
 		var heard = new Queue<(string Minute, string Said)>();
+		// Paused from the panel's own key: the panel stays up and takes keys; no stop of the game's own.
+		var heldByKey = false;
 		// The key moments: the events the game itself sorts as goals, cards, changes and injuries.
 		var moments = new List<(string Minute, string Said)>();
 		var momentFrom = 0;
@@ -349,7 +351,8 @@ internal static partial class Program
 			// A goal is shown again as a replay, its lines and all; a line heard a moment ago
 			// is not news the second time.
 			var said = Field(state, "Commentary");
-			var live = Ui.Rich && Field(state, "DuringMatch") == "True" && Field(state, "Playing") == "True"
+			if (Field(state, "Playing") == "True") heldByKey = false;
+			var live = Ui.Rich && Field(state, "DuringMatch") == "True" && (Field(state, "Playing") == "True" || heldByKey)
 			           && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime";
 			if (said.Length > 0 && said != commentary && !heard.Any(h => h.Said == said) && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime")
 			{
@@ -483,7 +486,7 @@ internal static partial class Program
 
 			// An injury stops the match: the clock halts, play is paused and the screen offers
 			// "Confirm Changes". The assistant's note on the Dugout says who.
-			if (Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
+			if (!heldByKey && Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
 			    && PlannerStop(controls) is { } confirm)
 			{
 				var why = await DugoutNow() is { IsScoreUpdate: false } note ? note.Text : "";
@@ -535,7 +538,7 @@ internal static partial class Program
 			// The clock can also hang on a minute while play goes on (seen after a corner, for
 			// most of a minute); commentary still coming means the match is still going.
 			var time = Field(state, "MatchTime");
-			if (time != clock || talking || button != null || Field(state, "Period") is not ("FirstHalf" or "SecondHalf" or "ExtraTime"))
+			if (heldByKey || time != clock || talking || button != null || Field(state, "Period") is not ("FirstHalf" or "SecondHalf" or "ExtraTime"))
 			{
 				clock = time;
 				clockAt = DateTime.UtcNow;
@@ -578,9 +581,10 @@ internal static partial class Program
 						case 'h': await Shout(["shout"]); break;
 						case 'p':
 							await Quietly(MatchPause(Field(await Fm.GetJson("state"), "Playing") == "True" ? "pause" : "resume"));
+							heldByKey = Field(await Fm.GetJson("state"), "Playing") != "True";
 							break;
 						case 'k': await Quietly(MatchPause("skip")); break;
-						case 'd': await LiveCommand(["dugout"], stopPlay: true); break;
+						case 'd': await LiveCommand(["dugout"], stopPlay: false); break;
 						case ':': await LiveLine(); break;
 						case 't':
 							if (Ui.Ask(L("Tactic change"), [L("Mentality"), L("Role")]) is { } what)

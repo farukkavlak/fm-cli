@@ -15,7 +15,7 @@ An event the code never names is not always a gap; each line was checked against
 How to work through this list: "Work in rounds" in `CLAUDE.md`.
 
 - [x] T106 `captains --captain / --vice`: lists told by their element (`ChangeCaptain`, `ChangeViceCaptain`), Yes by the game's dialog handler, result read back. TR + EN, list `round1`: unknown name refused 3 ×, captain 3 ×, vice there and back 3 ×.
-- [ ] T107 `dugout 1 zzz`: the language layer drops the unknown word and opens advice 1, so "not understood" is never said. Same for other commands?
+- [x] T107 A line that starts with the command it means is that command, every word kept: `dugout 1 zzz` says 'zzz' not understood. TR + EN in a match.
 - [ ] T104 Scenario saves, each one load away: `tools/fm-round.py scenarios`, kept in `~/fm27_bep/scenarios`. Entering one takes about 85 s,
   a language switch about 10 s more; a simulated match 15 s. Kept: `calm`, `cup`, `cup-draw`, `kickoff`, `window`, `sacked`, `interview`, `job-offer`, `newjob`.
   - [ ] Season's end. A month's holiday got the manager sacked twice (Pendikspor, Varzim): go by `forward`, not holiday.
@@ -24,8 +24,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T109 `load` opened the last save whatever it was asked and said it loaded the named one: the main menu's tile sends `LoadSelectedGame` too. The list's
   button is told by also sending `ClosePanel`; the save's name is read back from `app.LastSaveSummary`. EN 3 scenarios, TR 1, unknown name refused.
 - [x] T110 A game update stopped `fm start`: files left beside the launch binary made its signing fail. They are removed first. Update to 27.0.0.2493426 passed, the plugin rebuilt.
-  - [ ] `start` waits the whole 4 minutes when the launch has already failed; it should say so at once.
-- [ ] T108 After a simulated match `status` has no date (`game.CurrentGameDate` reads nothing) until a page opens or a day goes by.
+  - [x] `start` says at once when the launch failed, and carries an update through itself: the generating launch, then the real one. 99 s with the interop made out of date by hand.
+- [x] T108 After a simulated match `status` kept no date (`game.CurrentGameDate` not bound for a while). The plugin keeps the day it last read while a flow state is there. TR + EN, 2 × each.
 - [x] T0 The game never shows itself: `fm start` keeps it out of sight from launch to a loaded save and after,
   whatever the game's own display settings say. Today FM27's saved settings (full screen, native size,
   `com.SportsInteractive.FootballManager27` prefs) override `-screen-width 640` and the window covers the
@@ -51,8 +51,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T1 `tactic new` entry: the add list (`add-data`) by its row's value 1, the slots-full case by
   `TacticCount`, the tour hint by `TacticCount` 0. TR + EN, 3 runs each: wizard opens, a full build lands
   in a free slot, slots full says so (the game lists the row and does nothing).
-  - [ ] The no-tactic tile (`layout-tile-interaction-button` opening the tactics page, only when the team
-    has no tactic) is not measured: it shows only in a new job. Measure it at the next new job.
+  - [x] The no-tactic case in a new job (scenario `newjob`): the wizard is waited for after the tactics page opens, and the slots-full message is said only for full slots. EN 3 ×, TR 3 ×.
 - [x] T2 `vision` (`Club/Vision.cs`): buttons by their events, objectives by their rows' data path, kind by
   `#ActionableSection`, required by `ClubVisionMeetingCanObjectiveBeRemoved`, weight by `#ImportanceText`, a
   row's remove button by its row. TR + EN: read, remove + undo 3 runs each, two removed + reset, the
@@ -64,9 +63,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal"). Fixed: speech bubbles are
   read in the game's words (`Report.Spoken`), match talks show answers by `GameWords.Of`. TR measured (a whole
   season-end team meeting); EN a player's transfer talk with a fee window.
-- [ ] T4 `tour` prints the tour's text in English in a Turkish game.
-  The guide's lines now come from `Report.Spoken` (T3), in the game's words; not seen in a tour yet, which opens only in a new job.
-  `TourButton` still holds its buttons by label (`GameWords`): move them to the buttons' own data with a tour open.
+- [x] T4 `tour` in the game's words, its buttons by the game's data: the way out by `IsExitButton` on its action, the way on by the button that moves the step up, the last step's by the exit. EN and TR: a whole tour 2 ×, skip, nothing open refused, a step that waits for the player.
 - [x] T5 Calendar (`Match/Calendar.cs`) and training week (`Squad/Schedule.cs`) read the venue from
   `MatchVenueShort` (shown letter). Use the teams' ids as `status` does. Done (db727ca): home and away right in TR and EN, calendar and week, 3 runs each.
 - [x] T6 `coaches`: a cell's area by the record its switch writes (form `Of`: `AttackingTacticalCategory` …), load and
@@ -294,10 +291,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 UX: `fm` is a conversation, so no running command should make you leave it or open a second terminal. Found by reading the code;
 not yet tried in a live terminal.
 
-- [ ] T100 Command line during a match: a key pauses play and opens `fm›` under the panel; any command runs there, then play goes on.
+- [x] T100 `:` on the live panel pauses play and opens `fm›` under it; any command runs there, a key goes back, play goes on. Measured in a terminal, EN and TR.
   Today only the fixed keys work (`s h t v a r + -`, `MatchDay.cs`).
-- [ ] T101 One key for the common match actions: pause / resume, and apply or pass on advice as it appears. No key today for `pause`,
-  `resume`, `skip`, `tweak`, `dugout`. The advice line prints only the selected card, so two new at once can lose one: show them all.
+- [x] T101 Keys on the live panel: `p` pause / resume (the panel stays up while paused), `k` skip a replay, `d` dugout. New advice joins the panel's events, every card. EN and TR.
 - [ ] T102 Long commands (`next`, `holiday` up to 30 min, save, load): show progress, and keep the prompt usable where the game allows.
 - [ ] T103 Ctrl-C: no handler in the CLI, so it likely ends the whole `fm` session while the game runs on (try it first). It should stop
   the command and return to `fm›`; cancel a holiday only by the game's own way.
