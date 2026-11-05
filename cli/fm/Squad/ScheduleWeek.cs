@@ -48,8 +48,27 @@ internal static partial class Program
 		var before = await Week();
 		await Fm.Get("press", ("ptr", Field(opener, "Pointer")));
 
+		// The card lays its weeks out one after another, each with its own three buttons: the place of the wanted
+		// week among the card's dates is the place of its buttons among those. What it did is read back below.
 		JsonElement button = default;
-		await Until(async () => (button = await Shown(sent)).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.25);
+		await Until(async () =>
+		{
+			var all = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray().Where(b => Field(b, "Visible") == "True").ToList();
+			var mine = all.Where(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal)).ToList();
+			if (mine.Count == 0) return false;
+			// The card's weeks that can still be changed: their sessions are on, where its buttons are laid out.
+			var source = Field(mine[0], "Source");
+			var cut = source.LastIndexOf(".prefix", StringComparison.Ordinal);
+			var root = cut > 0 ? source[..cut] : source;
+			var days = await PullEach(all.Where(b => Field(b, "Events").Contains("EventFmxBeginTrainingWeekEditFromCard", StringComparison.Ordinal) && Field(b, "Sends").Length > 0 && Field(b, "Enabled") == "True" && Field(b, "Source").StartsWith(root, StringComparison.Ordinal))
+				.Select(b => (Field(b, "Sends"), "Date")).ToList());
+			var dates = days.Select(x => DateTime.TryParseExact(Field(x, "Date"), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var day) ? day : DateTime.MaxValue).Where(x => x != DateTime.MaxValue).ToList();
+			if (dates.Count == 0) return false;
+			var first = dates.Min();
+			var place = (monday - first.AddDays(-(((int)first.DayOfWeek + 6) % 7))).Days / 7;
+			button = place >= 0 && place < mine.Count ? mine[place] : default;
+			return true;
+		}, seconds: 8, every: 0.25);
 		async Task Leave(string events)
 		{
 			if ((await Shown(events)) is { ValueKind: JsonValueKind.Object } leave) await Fm.Get("press", ("ptr", Field(leave, "Pointer")));
@@ -57,6 +76,7 @@ internal static partial class Program
 		}
 		if (button.ValueKind != JsonValueKind.Object)
 		{
+			await Leave("EventFmxCancelTrainingWeekEditFromCard");
 			Console.Error.WriteLine(L("The week's card did not open."));
 			return 1;
 		}
@@ -73,7 +93,7 @@ internal static partial class Program
 		await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (what == "copy")
 		{
-			await Leave("EventFmxCancelTrainingWeekEditFromCard");
+			await Leave("EventFmxCommitTrainingWeekFromCard");
 			Console.WriteLine(L("The week is copied. To put it on another: schedule paste <weeks ahead>"));
 			return 0;
 		}

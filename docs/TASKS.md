@@ -105,7 +105,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
   opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
   pages no command reads (T16); a real critique line (only "no advice" seen).
-- [ ] T15 Training week card: copy / paste / reset a week, pick a session, confirm / cancel the card.
+- [x] T15 Training week card: `schedule copy | paste | clear [this|<weeks ahead>]` by the card's own events, left by Confirm or Cancel, read back from the week's sessions; a session by `schedule set`. TR + EN: copy, paste, clear 2 ×, nothing copied, nothing to clear, a week the card does not offer.
 - [x] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
   `fm read <page>`: the page by its GUID, its texts by `/shown` (in the body on top, by the game's hit test), tables by row. TR + EN, a list of 58 tests (`tests/live/read-pages.toml`), plus 3 repeats.
   Goal / Set Piece Analysis. Not found yet: how to read one page's texts. `texts?within=<page guid>` finds nothing;
