@@ -72,8 +72,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T7 `players` search adds Position / Transfer Value by the row's code (`ppos`, `pval`); the value list by
   `cash-list-frame`, its figures from the game (any currency), read back by the kept amount.
 - [x] T8 `tactic`: the pitch view is put back by the tab's element name (`#overview` in `#sivisible-tabs`).
-- [ ] T86 Calendar / `fixtures --all` read a cup result's marks from the shown score ("u3-2" in Turkish,
-  `^\d+-\d+(p|e)?$` in `Match/Calendar.cs`): extra time and penalties by the fixture's data, not its letters.
+- [ ] T86 Cup results by the game's numbers, not the shown letters ("u3-2", "p"). `stages` reads the round's own list (`Stage.CupTies` under the page's GUID, new plugin route `pullbound`): whole, no scrolling, no portal tile's ties mixed in, divisions back. Result codes: 1 win, 2 won in extra time, 3 won on penalties, 7 won a leg of a two-legged tie, 9 draw, 10 defeat. `calendar`, `fixtures`, `fixtures --all`, `report`: score, level with a winner is a shootout, code 2 is extra time. Croky Cup, every round, TR and EN agree: 154 ties, 13 penalties, 7 extra time. List `round3`, 3 ×.
+  - [ ] Our own match settled by extra time or penalties: not met in simulated cup ties yet (we win them). `ResultType` on another club's fixture list reads empty, so code 2 on a `Team` fixture is not measured.
+- [x] T111 `stages`: after a competition with no rounds the page has no stage list and every `stages` said "did not open". The competition list is held on its own; the competition says it has no rounds. TR + EN 3 ×.
+- [ ] T112 `report`: goals list shorter than the score once (2-5, three of Pendikspor's five listed; EN, cup tie, instant result). `Goals` reads `HomeEventInfos` / `AwayEventInfos`; not looked at yet.
 - [x] T89 `tactic copy`: the copy list is the add list's one row with a submenu, chosen by its path of indices
   (`select?path=2,0`), full slots by `TacticCount`. With no tactic named it lists them (it used to copy the only
   one unasked). TR + EN: copy each source, three slots full refused, unknown name refused; paths checked by dry run.

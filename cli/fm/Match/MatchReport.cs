@@ -22,7 +22,7 @@ internal static class MatchReport
 	public static async Task<int> Show(Bridge fm, bool json, string? expected = null)
 	{
 		const string at = "Human.Team.LastFixture";
-		var fields = string.Join(",", new[] { "HasResult", "HomeScore", "AwayScore", "GoalscorersString", "PlayerOfTheMatchRating", "Attendance", "Result", "HomeTeamWon", "AwayTeamWon" }
+		var fields = string.Join(",", new[] { "HasResult", "HomeScore", "AwayScore", "GoalscorersString", "PlayerOfTheMatchRating", "Attendance", "ResultType", "HomeTeamWon", "AwayTeamWon" }
 			.Concat(Numbers.SelectMany(n => new[] { "Home" + n.Field, "Away" + n.Field })));
 
 		// Straight after the whistle the last fixture is still the one before (seen: the old
@@ -64,11 +64,12 @@ internal static class MatchReport
 
 		var score = $"{F(fixture, "HomeScore")}-{F(fixture, "AwayScore")}";
 
-		// A draw settled on penalties: the game marks the result with a "p" and says who won.
-		var shootout = F(fixture, "Result").EndsWith(" p", StringComparison.Ordinal)
+		// Level with a winner is a shootout: the fixture's own numbers, in any language.
+		var shootout = F(fixture, "HomeScore") == F(fixture, "AwayScore")
 			? F(fixture, "HomeTeamWon") == "True" ? home : F(fixture, "AwayTeamWon") == "True" ? away : null
 			: null;
 		if (shootout != null) score += " (pen.)";
+		else if (F(fixture, "ResultType") == "2") score += $" ({L("e.t.")})";
 
 		// Each side's goals, from its own list of match events; the fixture's scorers string
 		// only names the team it is read for.

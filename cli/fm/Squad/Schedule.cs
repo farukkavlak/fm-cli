@@ -29,7 +29,7 @@ internal static partial class Program
 		// The page opened is the Training tab's Overview itself (its GUID): nothing is chosen by its words.
 		var state = await Fm.GetJson("state");
 		var today = DateTime.TryParseExact(Field(state, "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var d) ? d : DateTime.Today;
-		var days = await SessionDays(today) ?? TrainingDays(await CalendarTexts(), today, await FixtureVenues());
+		var days = await SessionDays(today) ?? TrainingDays(await CalendarTexts(), today, (await FixtureFacts()).ToDictionary(f => f.Key, f => f.Value.Venue));
 		if (days.Count == 0)
 		{
 			Console.Error.WriteLine(L("The training schedule could not be read."));

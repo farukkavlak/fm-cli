@@ -2671,3 +2671,4 @@ Told to move {0}, but his place did not change.	{0} taşınsın denildi ama sır
 Told to remove {0}, but the game still lists him.	{0} çıkarılsın denildi ama oyun hâlâ listeliyor.
 \nOther positions: planner --position <one of> {0}	\nDiğer mevkiler: planner --position <biri> {0}
 {0} · {1}: name one of them:	{0} · {1}: birini söyle:
+{0} has no rounds to show.	{0} için gösterilecek tur yok.

@@ -13,7 +13,8 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record CalendarMatch(DateTime Day, string Competition, string TimeOrScore, string Opponent, string Place, string Venue);
+	/// <summary>A match on the calendar. Time is its kick-off; Score, ours first, and Kind (the game's result code) come from the fixture, empty until it is played.</summary>
+	private sealed record CalendarMatch(DateTime Day, string Competition, string Time, string Opponent, string Place, string Venue, string Score = "", string Kind = "");
 
 	private sealed record CalendarDay(DateTime Day, List<CalendarMatch> Matches, List<string> Notes, List<string> Youth);
 
@@ -32,17 +33,18 @@ internal static partial class Program
 		// Straight after the page opens the month can be chosen before the grid listens.
 		var days = await CalendarMonthOnce(month) ?? await CalendarMonthOnce(month);
 		if (days == null) return null;
-		// Where a match is played comes from the fixture list by the teams' ids: the grid's own
-		// MatchVenueShort is a shown letter ("E"/"D" in Turkish).
-		seasonVenues ??= await FixtureVenues();
+		// Where a match is played and how it ended come from the fixture list by the teams' ids and the
+		// fixture's numbers: the grid's MatchVenueShort and Result are shown letters ("E"/"D", "u3-2" in Turkish).
+		seasonFixtures ??= await FixtureFacts();
 		return days.Select(d => d with
 		{
-			Matches = d.Matches.Select(m => m with { Venue = seasonVenues.GetValueOrDefault(m.Day.ToString("yyyy-MM-dd"), "") }).ToList(),
+			Matches = d.Matches.Select(m => seasonFixtures.TryGetValue(m.Day.ToString("yyyy-MM-dd"), out var f)
+				? m with { Venue = f.Venue, Score = f.Score, Kind = f.Kind } : m).ToList(),
 		}).ToList();
 	}
 
-	/// <summary>Our matches' venues this season by day, read once per run.</summary>
-	private static Dictionary<string, string>? seasonVenues;
+	/// <summary>Our matches this season by day, read once per run.</summary>
+	private static Dictionary<string, (string Venue, string Score, string Kind)>? seasonFixtures;
 
 	private static async Task<List<CalendarDay>> CalendarMonthOnce(CalendarMonthChoice month)
 	{
@@ -118,16 +120,17 @@ internal static partial class Program
 			var opponent = Get("TeamOpponent.");
 			if (opponent.Length == 0) return;
 			var team = Get("Team.");
-			var timeOrScore = Get("Result") is { Length: > 0 } result ? result : Get("KickoffTime");
+			var kickoff = Get("KickoffTime");
+			var result = Get("Result");
 			// Shown as the game writes it for a youth side's match; our own match's venue is set by ids above.
 			var venue = Get("MatchVenueShort");
 
 			// Another side's match (a national team's, a youth international) names both teams.
-			if (team.Length > 0) today.Notes.Add($"{GameWords.Of(team)} {(timeOrScore.Length > 0 ? timeOrScore : "-")} {GameWords.Of(opponent)}");
+			if (team.Length > 0) today.Notes.Add($"{GameWords.Of(team)} {(result.Length > 0 ? result : kickoff.Length > 0 ? kickoff : "-")} {GameWords.Of(opponent)}");
 			// One of our youth sides' is written with the competition's short code.
 			else if (!fields.ContainsKey("Competition.Name") && fields.ContainsKey("Competition.ShortName"))
-				today.Youth.Add(L($"Youth {Get("Competition.ShortName")}: {opponent} ({venue}) {timeOrScore}"));
-			else today.Matches.Add(new(today.Day, Get("Competition."), timeOrScore, opponent, Get("LeaguePosition"), venue));
+				today.Youth.Add(L($"Youth {Get("Competition.ShortName")}: {opponent} ({venue}) {(result.Length > 0 ? result : kickoff)}"));
+			else today.Matches.Add(new(today.Day, Get("Competition."), kickoff, opponent, Get("LeaguePosition"), venue));
 		}
 	}
 
@@ -233,28 +236,11 @@ internal static partial class Program
 		string MatchLine(CalendarMatch m)
 		{
 			var venue = VenueWord(m.Venue);
-			var score = Regex.Match(m.TimeOrScore, @"^(\d+)-(\d+)(p|e)?$");
-			var text = $"{m.Opponent}{(m.Place.Length > 0 ? $" ({m.Place})" : "")} · {venue} · {m.Competition} · {(score.Success ? Ours(m) : m.TimeOrScore)}";
+			var text = $"{m.Opponent}{(m.Place.Length > 0 ? $" ({m.Place})" : "")} · {venue} · {m.Competition} · {(m.Score.Length > 0 ? m.Score : m.Time)}";
 			if (!Ui.Rich) return text;
-			var colour = !score.Success ? "white" : MatchOutcome(m) switch { > 0 => "green", < 0 => "red", _ => "yellow" };
+			var colour = m.Score.Length == 0 ? "white" : m.Kind switch { "1" or "2" or "3" or "7" => "green", "10" => "red", _ => "yellow" };
 			return $"[bold {colour}]{Ui.Safe(text)}[/]";
 		}
-	}
-
-	/// <summary>The score as ours–theirs: the calendar writes it home–away.</summary>
-	private static string Ours(CalendarMatch m)
-	{
-		var s = Regex.Match(m.TimeOrScore, @"^(\d+)-(\d+)(p|e)?$");
-		if (!s.Success) return m.TimeOrScore;
-		// "p": settled on penalties, "e": after extra time; the mark stays with the score.
-		var mark = s.Groups[3].Success ? $" ({(s.Groups[3].Value == "p" ? "pen." : L("e.t."))})" : "";
-		return (m.Venue == "A" ? $"{s.Groups[2].Value}-{s.Groups[1].Value}" : $"{s.Groups[1].Value}-{s.Groups[2].Value}") + mark;
-	}
-
-	private static int MatchOutcome(CalendarMatch m)
-	{
-		var s = Regex.Match(Ours(m), @"^(\d+)-(\d+)");
-		return s.Success ? Math.Sign(int.Parse(s.Groups[1].Value) - int.Parse(s.Groups[2].Value)) : 0;
 	}
 
 	/// <summary>A month by "september", "9" or "2025-09"; the first that starts so otherwise.</summary>

@@ -4,77 +4,59 @@ namespace FmCli;
 
 internal static partial class Program
 {
+	private const string TieProps = "HomeTeam.Team.Name,AwayTeam.Team.Name,HomeTeam.TeamList,AwayTeam.TeamList,HomeScore,AwayScore,HomeResultTypeRaw,AwayResultTypeRaw,AggregateHomeScore,AggregateAwayScore,HomeTeam.Team.Division.Name,AwayTeam.Team.Division.Name,ShowTeamDivisions";
+
 	/// <summary>
-	/// A long round only lays out the ties in view, so the list is walked top to bottom and what
-	/// each stop shows is added in the order it first appears.
+	/// The ties of the round on show, whole: the page's own list (`Stage.CupTies`) under the page's GUID, so
+	/// neither the portal tile's ties left open underneath nor what is scrolled out of view changes it.
 	/// </summary>
-	private static async Task<JsonElement> EveryTie(JsonElement first)
+	private static async Task<JsonElement> RoundTies()
 	{
-		static string Key(JsonElement tie) => Field(tie, "Home") + "|" + Field(tie, "Away");
-		async Task<string?> Scroll(JsonElement shown, string? to)
+		var rows = await Fm.GetJson("pullbound", ("name", "CupTies"), ("under", Screen.Stages), ("props", TieProps),
+			("shown", "HomeTeam.Team.Name,AwayTeam.Team.Name,HomeTeam.Team.Division.Name,AwayTeam.Team.Division.Name"));
+		return JsonSerializer.SerializeToElement(rows.EnumerateArray().Select(tie =>
 		{
-			// The list is moved by a text that is in it; a club's name can also be elsewhere on
-			// the screen, so the first one that answers as a list is used.
-			foreach (var tie in shown.EnumerateArray())
+			string Side(string side) => Field(tie, $"{side}Team.Team.Name") is { Length: > 0 } team ? team
+				: string.Join(" / ", Field(tie, $"{side}Team.TeamList").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+			var played = Field(tie, "HomeResultTypeRaw") is { Length: > 0 } raw && raw != "0" && Field(tie, "HomeScore").Length > 0;
+			var divisions = Field(tie, "ShowTeamDivisions") == "True";
+			return new
 			{
-				if (Field(tie, "Home").Length == 0) continue;
-				var query = new List<(string, string)> { ("anchor", Field(tie, "Home")) };
-				if (to != null) query.Add(("to", to));
-				var answer = await Fm.Get("scroll", [.. query]);
-				if (!answer.StartsWith("error", StringComparison.Ordinal)) return answer;
-			}
-			return null;
-		}
-
-		// "0 of 1636.6": how far down, of how far there is to go. The game writes the mark its
-		// language uses ("1401,8" in Turkish), so its own reader parses it.
-		var where = await Scroll(first, null);
-		var extent = where?.Split(" of ") is { Length: 2 } parts ? GameNumbers.Read(parts[1].Trim()) ?? 0 : 0;
-		if (extent <= 0) return first;
-
-		var seen = new HashSet<string>();
-		var every = new List<JsonElement>();
-		var shown = first;
-		for (var step = 0; step <= 10; step++)
-		{
-			if (await Scroll(shown, (step / 10.0).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)) == null) break;
-			var last = "";
-			await Until(async () =>
-			{
-				shown = await Fm.GetJson("ties");
-				var now = shown.GetRawText();
-				var settled = now == last;
-				last = now;
-				return settled;
-			}, seconds: 3, every: 0.2);
-			foreach (var tie in shown.EnumerateArray())
-				if (seen.Add(Key(tie))) every.Add(tie.Clone());
-		}
-		await Scroll(shown, "0");
-		return JsonSerializer.SerializeToElement(every);
+				Home = Side("Home"),
+				HomeDivision = divisions ? Field(tie, "HomeTeam.Team.Division.Name") : "",
+				Score = played ? $"{Field(tie, "HomeScore")} - {Field(tie, "AwayScore")}" : "",
+				// The game's own codes for the side that went through.
+				HomeHow = Settled(Field(tie, "HomeResultTypeRaw")),
+				AwayHow = Settled(Field(tie, "AwayResultTypeRaw")),
+				Away = Side("Away"),
+				AwayDivision = divisions ? Field(tie, "AwayTeam.Team.Division.Name") : "",
+				HomeAggregate = Field(tie, "AggregateHomeScore"),
+				AwayAggregate = Field(tie, "AggregateAwayScore"),
+			};
+		}).ToList());
 	}
 
-	/// <summary>
-	/// One line a tie. The small text beside a team is its division in a domestic cup and its
-	/// aggregate in a two-legged tie; "p" and "e" beside the score say the side they are on went
-	/// through on penalties or in extra time.
-	/// </summary>
+	/// <summary>How a tie was won, from the game's result code; empty for a plain win, a defeat or none yet.</summary>
+	private static string Settled(string code) => code switch { PenaltiesWon => "pen", ExtraTimeWon => "aet", _ => "" };
+
+	private const string PenaltiesWon = "3", ExtraTimeWon = "2";
+
+	/// <summary>One line a tie: its division in a domestic cup, how it was settled and, two-legged, its aggregate.</summary>
 	private static void WriteTies(JsonElement ties)
 	{
 		static string Side(JsonElement tie, string side)
 		{
-			var extra = Field(tie, side + "Extra");
-			var note = Field(tie, side + "Note") switch { "p" => " (pen.)", "e" => " (uz.)", "" => "", var other => $" ({other})" };
-			var division = extra.Length > 0 && !extra.All(char.IsDigit) ? $" [{extra}]" : "";
+			var division = Field(tie, side + "Division") is { Length: > 0 } d ? $" [{d}]" : "";
+			var note = Field(tie, side + "How") switch { "pen" => " (pen.)", "aet" => $" ({L("e.t.")})", _ => "" };
 			return Field(tie, side) + division + note;
 		}
 
-		var twoLegged = ties.EnumerateArray().Any(t => Field(t, "HomeExtra") is { Length: > 0 } e && e.All(char.IsDigit));
+		var twoLegged = ties.EnumerateArray().Any(t => Field(t, "HomeAggregate").Length > 0);
 		var rows = ties.EnumerateArray().Select(tie =>
 		{
-			var score = Field(tie, "Score") is "V" or "" ? "-" : Field(tie, "Score");
+			var score = Field(tie, "Score") is { Length: > 0 } played ? played : "-";
 			var row = new List<string> { Side(tie, "Home"), score, Side(tie, "Away") };
-			if (twoLegged) row.Add(Field(tie, "HomeExtra").Length > 0 ? $"{Field(tie, "HomeExtra")} - {Field(tie, "AwayExtra")}" : "");
+			if (twoLegged) row.Add(Field(tie, "HomeAggregate").Length > 0 ? $"{Field(tie, "HomeAggregate")} - {Field(tie, "AwayAggregate")}" : "");
 			return row.ToArray();
 		}).ToList();
 		Table.Write(twoLegged ? [L("HOME"), L("SCORE"), L("AWAY"), L("TOTAL")] : [L("HOME"), L("SCORE"), L("AWAY")], rows);

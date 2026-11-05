@@ -255,10 +255,10 @@ internal static partial class Program
 
 		const string shown = "MatchVenue,TeamOpponent.Name,Competition.Name";
 		var ours = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
-		var read = await PullEach(rows.Select(r => (r.Row, $"KickoffTime,ResultLinkableNoSpaces,ResultType,HomeTeam.UniqueId,AwayTeam.UniqueId,{shown}")).ToList(), shown: shown);
+		var read = await PullEach(rows.Select(r => (r.Row, $"KickoffTime,HomeScore,AwayScore,HomeTeamWon,AwayTeamWon,ResultType,HomeTeam.UniqueId,AwayTeam.UniqueId,{shown}")).ToList(), shown: shown);
 		return rows.Zip(read).Select(x => new TeamFixture(x.First.Date, Field(x.Second, "KickoffTime"), Field(x.Second, "MatchVenue"),
 			Field(x.Second, "TeamOpponent.Name"), Field(x.Second, "Competition.Name"), x.First.Played,
-			x.First.Played ? Field(x.Second, "ResultLinkableNoSpaces") : "", Field(x.Second, "ResultType"), Venue(ours, Field(x.Second, "HomeTeam.UniqueId"), Field(x.Second, "AwayTeam.UniqueId")))).ToList();
+			x.First.Played ? $"{Field(x.Second, "HomeScore")} - {Field(x.Second, "AwayScore")}" + ResultMark(x.Second) : "", Field(x.Second, "ResultType"), Venue(ours, Field(x.Second, "HomeTeam.UniqueId"), Field(x.Second, "AwayTeam.UniqueId")))).ToList();
 	}
 
 	/// <summary>
@@ -279,20 +279,48 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Where each of our matches this season is played, by its day ("yyyy-MM-dd" → "H"/"A"), told by
-	/// the teams' ids rather than the shown letter. Empty when the list cannot be read.
+	/// Each of our matches this season by its day ("yyyy-MM-dd"): where it is played, told by the teams' ids,
+	/// its score ours first, and the game's code for how it ended. Level with a winner is a shootout:
+	/// the game's numbers say so in any language. Empty when the list cannot be read.
 	/// </summary>
-	private static async Task<Dictionary<string, string>> FixtureVenues()
+	private static async Task<Dictionary<string, (string Venue, string Score, string Kind)>> FixtureFacts()
 	{
 		// A season has well under a hundred matches either side of today.
-		var list = await FixtureList(100, 100, "FixtureDate,HomeTeam.UniqueId,AwayTeam.UniqueId");
-		if (list is not { ValueKind: JsonValueKind.Array } rows) return [];
+		var list = await FixtureList(100, 100, "FixtureDate,HomeTeam.UniqueId,AwayTeam.UniqueId,HasResult,HomeScore,AwayScore,HomeTeamWon,AwayTeamWon");
+		if (list is not { ValueKind: JsonValueKind.Array } rows || rows.GetArrayLength() == 0) return [];
 		var ours = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
-		Dictionary<string, string> venues = [];
-		foreach (var f in rows.EnumerateArray())
-			if (Field(f, "FixtureDate") is { Length: > 0 } date && Venue(ours, Field(f, "HomeTeam.UniqueId"), Field(f, "AwayTeam.UniqueId")) is { Length: > 0 } venue)
-				venues[date] = venue;
-		return venues;
+		// The result code is asked with the variables beside the rows, as `fixtures` does.
+		var first = Field(rows[0], "Row");
+		if (first.Contains('.'))
+			foreach (var (variable, from) in FixtureContext)
+				await Until(async () => !(await Fm.Get("pathset", ("to", $"{first[..first.LastIndexOf('.')]}.{variable}"), ("from", from))).StartsWith("error", StringComparison.Ordinal), seconds: 5, every: 0.2);
+		var codes = await PullEach(rows.EnumerateArray().Select(f => (Field(f, "Row"), "ResultType")).ToList());
+		Dictionary<string, (string, string, string)> facts = [];
+		foreach (var (f, code) in rows.EnumerateArray().Zip(codes))
+		{
+			if (Field(f, "FixtureDate") is not { Length: > 0 } date || Venue(ours, Field(f, "HomeTeam.UniqueId"), Field(f, "AwayTeam.UniqueId")) is not { Length: > 0 } venue) continue;
+			var score = "";
+			if (Field(f, "HasResult") == "True")
+			{
+				var (home, away) = (Field(f, "HomeScore"), Field(f, "AwayScore"));
+				// `ResultMark` wants the code as well as the numbers.
+				var mark = ResultMark(f, Field(code, "ResultType"));
+				score = (venue == "A" ? $"{away}-{home}" : $"{home}-{away}") + mark;
+			}
+			facts[date] = (venue, score, Field(code, "ResultType"));
+		}
+		return facts;
+	}
+
+	/// <summary>
+	/// How a played fixture was settled, beside its score. Level with a winner is a shootout, by the fixture's own
+	/// numbers; the winner's code 2 is extra time, the same code as a cup tie's `ResultTypeRaw`.
+	/// </summary>
+	private static string ResultMark(JsonElement fixture, string? code = null)
+	{
+		var level = Field(fixture, "HomeScore") == Field(fixture, "AwayScore");
+		if (level && (Field(fixture, "HomeTeamWon") == "True" || Field(fixture, "AwayTeamWon") == "True")) return " (pen.)";
+		return (code ?? Field(fixture, "ResultType")) == ExtraTimeWon ? $" ({L("e.t.")})" : "";
 	}
 
 	private static readonly (string Variable, string From)[] FixtureContext = [("team", "Human.Team"), ("human", "Human")];
@@ -326,20 +354,17 @@ internal static partial class Program
 			return 0;
 		}
 
-		var played = new System.Text.RegularExpressions.Regex(@"^\d+-\d+[pe]?$");
 		var rows = matches.Select(m => new[]
 		{
 			$"{m.Day.Day} {Months[m.Day.Month - 1][..3]} {ShortDays[(int)m.Day.DayOfWeek]}",
-			played.IsMatch(m.TimeOrScore) ? "" : m.TimeOrScore,
+			m.Score.Length > 0 ? "" : m.Time,
 			m.Venue switch { "H" => L("Home"), "A" => L("Away"), "N" => L("Neutral"), _ => "" },
 			m.Opponent + (m.Place.Length > 0 ? $" ({m.Place})" : ""),
 			m.Competition,
-			played.IsMatch(m.TimeOrScore) ? Ours(m).Replace("-", " - ") : "",
+			m.Score.Replace("-", " - "),
 		}).ToList();
-		// The game's own result marks, as `fixtures` colours them: 1 a win, 9 a draw, 10 a
-		// defeat. Level after penalties or extra time is not called a draw.
-		var kinds = matches.Select(m => !played.IsMatch(m.TimeOrScore) ? ""
-			: MatchOutcome(m) switch { > 0 => "1", < 0 => "10", _ => char.IsDigit(m.TimeOrScore[^1]) ? "9" : "" }).ToList();
+		// The game's own result marks, as `fixtures` colours them.
+		var kinds = matches.Select(m => m.Score.Length == 0 ? "" : m.Kind).ToList();
 		string[] headers = [L("DATE"), L("TIME"), L("VENUE"), L("OPPONENT"), L("COMPETITION"), L("RESULT")];
 		if (Ui.Rich) Standings.Fixtures(headers, rows, kinds);
 		else Table.Write(headers, rows);

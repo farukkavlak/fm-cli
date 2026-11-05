@@ -38,6 +38,7 @@ internal static partial class FmApi
 		"contexts" => RawPath.Contexts(q["path"]),
 		"pathset" => RawPath.Put(q["to"], q["from"], q["int"], q["flags"]),
 		"pull" => RawPath.Pull(q["path"], q["props"], q["list"] == "1", q["gen"], q["shown"]),
+		"pullbound" => RawPath.PullBound(q["name"], q["under"], q["props"], q["shown"]),
 		"rawexists" => RawExists(q["path"]),
 		"keys" => Keys(Int(q["depth"], 4)),
 		"schema" => Schema.Catalog(q["filter"]),
@@ -95,7 +96,6 @@ internal static partial class FmApi
 		"rowlinks" => TableRows.Links(q),
 #endif
 		"actions" => ContextMenus.Handle(q),
-		"ties" => Ties.Current(),
 		"scoped" => Scoped.Handle(q),
 		"opposition" => Opposition.Current(),
 		"namedrows" => NamedRows.Read(q),

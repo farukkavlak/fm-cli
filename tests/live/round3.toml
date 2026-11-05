@@ -1,0 +1,37 @@
+# Round 3: cup results by the game's codes (T86), a competition with no rounds. Run: tools/fm-round.py dry tests/live/round3.toml, then run.
+
+[[test]]
+task = "T86"
+name = "a round is read whole, from its own list, not the portal's"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "stages \"Croky Cup\"", path = "Read.0.Ties.#", keep = "ties", not = "0" },
+  { read = "stages \"Carabao Cup\"", path = "Read.0.Ties.#", not = "0" },
+  { read = "stages \"Croky Cup\"", path = "Read.0.Ties.#", same_as = "ties" },
+]
+
+[[test]]
+task = "T86"
+name = "a competition with no rounds says so, and the page moves on"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "stages \"UEFA Super Cup\"", path = "Stages.#", is = "0" },
+  { read = "stages \"UEFA Super Cup\"", path = "Stages.#", is = "0" },
+  { read = "stages \"Carabao Cup\"", path = "Stages.#", not = "0" },
+]
+
+[[test]]
+task = "T86"
+name = "our cup tie, simulated: calendar, fixtures and report agree"
+at = "cup"
+fresh = true
+steps = [
+  { run = "match --instant" },
+  { read = "report", path = "Competition", present = true, live = true },
+  { read = "report", path = "Fixture.HasResult", is = "True", live = true },
+  { read = "fixtures", path = "#", not = "0" },
+  { run = "next", rc = "any", note = "past the result screen: pages open again" },
+  { read = "fixtures --all", path = "#", not = "0", live = true },
+]

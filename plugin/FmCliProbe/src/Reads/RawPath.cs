@@ -259,6 +259,28 @@ internal static class RawPath
 		}
 	}
 
+	/// <summary>
+	/// A list the page has bound under a page of its own, read like /pull's lists: the first node named ?name= below the page
+	/// ?under= (its GUID), which has no path from `Human`. It is kept at a path of our own; rows are read
+	/// afresh for each list the game builds (its pointer is the reading's generation).
+	/// </summary>
+	public static string PullBound(string name, string under, string props, string shown)
+	{
+		if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(under)) return "error: ?name=&under=&props= required";
+		foreach (var (path, node) in Report.Walk())
+		{
+			if (node.Name != name || !path.Contains(under, StringComparison.Ordinal)) continue;
+			var value = node.Value;
+			if (value is not { IsNull: false }) continue;
+			var entries = value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>();
+			if (entries == null) continue;
+			var at = $"fmcli.bound.{name}";
+			if (Set(at, value) is { } error) return error;
+			return Pull(at, props, true, entries.Pointer.ToInt64().ToString("x"), shown);
+		}
+		return "[]\n";
+	}
+
 	/// <summary>Invokes a method whose first parameter is the path, passing the rest as given: an object's pointer, or a pointer to a value.</summary>
 	private static unsafe IntPtr Invoke(string field, string path, IntPtr[] rest, out string error)
 	{

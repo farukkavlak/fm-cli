@@ -22,7 +22,9 @@ internal static partial class Program
 
 		var opened = await OpenPage(Screen.Stages);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		if (!await Until(async () => await StageLists() != null, seconds: 10, every: 0.5))
+		// A competition with no rounds yet leaves the page with no stage list, and reopening a page already
+		// on show does not rebuild it: its own competition list says the page is there all the same.
+		if (!await Until(async () => await CompetitionList() != null, seconds: 10, every: 0.5))
 		{
 			Console.Error.WriteLine(L("The stages page did not open."));
 			return 1;
@@ -73,9 +75,21 @@ internal static partial class Program
 			var before = await StageLists();
 			if (before == null)
 			{
-				Console.Error.WriteLine(L("Lists on the Stages page not found."));
-				return 1;
+				// On a competition with no rounds: only its competition list is there to choose in.
+				if (await CompetitionList() is not { } list)
+				{
+					Console.Error.WriteLine(L("Lists on the Stages page not found."));
+					return 1;
+				}
+				var left = Field(list, "Label");
+				if (!path[^1].EndsWith(left, StringComparison.Ordinal))
+				{
+					var moved = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("names", string.Join(">", path)));
+					if (moved.StartsWith("error", StringComparison.Ordinal)) return Report(moved);
+					await Until(async () => await CompetitionList() is { } now && Field(now, "Label") != left, seconds: 10, every: 0.2);
+				}
 			}
+			else
 			if (!path[^1].EndsWith(Field(before.Value.Competition, "Label"), StringComparison.Ordinal))
 			{
 				// The page is rebuilt when its competition changes: its lists are new ones, and
@@ -90,6 +104,14 @@ internal static partial class Program
 			}
 		}
 
+		// The stage list comes with the page, a moment after the competition's; a competition with no rounds has none.
+		if (!await Until(async () => await StageLists() != null, seconds: 3, every: 0.2))
+		{
+			var empty = await CompetitionList() is { } shown ? Field(shown, "Label") : "";
+			if (json) Console.WriteLine(JsonOut.Of(new { Competition = empty, Stages = Array.Empty<string>(), Read = Array.Empty<object>() }));
+			else Console.WriteLine(L($"{empty} has no rounds to show."));
+			return 0;
+		}
 		var page = (await StageLists())!.Value;
 		var competition = Field(page.Competition, "Label");
 		var stages = await StageNames(page.Stage);
@@ -155,7 +177,7 @@ internal static partial class Program
 					var middle = (low + high) / 2;
 					var stepped = await PickStage(stages[middle]);
 					if (stepped.StartsWith("error", StringComparison.Ordinal)) break;
-					var (t, tb, n) = await StageContent(whole: false);
+					var (t, tb, n) = await StageContent();
 					if (n == null)
 					{
 						(best, low) = (middle, middle + 1);
@@ -168,7 +190,6 @@ internal static partial class Program
 				}
 				if (best >= 0)
 				{
-					// The looks took only what was in view; the round is now read whole.
 					await PickStage(stages[best]);
 					(ties, table, note) = await StageContent();
 					name = string.Join(" › ", stages[best]);

@@ -23,6 +23,14 @@ internal static partial class Program
 		return (competition, stage);
 	}
 
+	/// <summary>The page's competition list, which is there also for a competition with no rounds to show, with no stage list.</summary>
+	private static async Task<JsonElement?> CompetitionList()
+	{
+		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(l => Field(l, "Binds") == "pairData" && Field(l, "Label").Length > 0
+			&& l.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(w => w.GetString() == "BindingExpect_StagesBlock"));
+		return list.ValueKind == JsonValueKind.Object ? list : null;
+	}
+
 	private static string Signature((JsonElement Competition, JsonElement Stage) lists) =>
 		Field(lists.Competition, "Label") + "|" + Field(lists.Competition, "Pointer") + "|" + Field(lists.Stage, "Pointer") + "|" + lists.Stage.GetProperty("Choices").GetRawText();
 
@@ -32,7 +40,7 @@ internal static partial class Program
 		var lists = await StageLists();
 		var anchor = lists is { } l ? Field(l.Stage, "Label") : "";
 		var texts = anchor.Length > 0 ? (await Fm.GetJson("texts", ("anchor", anchor), ("up", "12"))).GetRawText() : "";
-		return (await Fm.GetJson("ties")).GetRawText() + (await Fm.GetJson("table", ("groups", "1"))).GetRawText() + texts;
+		return (await RoundTies()).GetRawText() + (await Fm.GetJson("table", ("groups", "1"))).GetRawText() + texts;
 	}
 
 	/// <summary>
@@ -177,13 +185,13 @@ internal static partial class Program
 	/// round read before a league was chosen stay drawn and bound — so the
 	/// stage's own shape says which one is the answer, and the other is not read.
 	/// </summary>
-	private static async Task<(JsonElement? Ties, JsonElement? Table, string Note)> StageContent(bool whole = true)
+	private static async Task<(JsonElement? Ties, JsonElement? Table, string Note)> StageContent()
 	{
 		JsonElement ties = default, tables = default;
 		var last = "";
 		await Until(async () =>
 		{
-			ties = await Fm.GetJson("ties");
+			ties = await RoundTies();
 			tables = await Fm.GetJson("table", ("groups", "1"));
 			var now = ties.GetRawText() + tables.GetRawText();
 			var settled = now == last;
@@ -224,9 +232,9 @@ internal static partial class Program
 		var types = await StageTypes(lists.Value.Stage);
 		var league = types.Count(t => t != XgTable) <= 1;
 
-		if (!league && ties.GetArrayLength() > 0) return (whole ? await EveryTie(ties) : ties, null, null);
+		if (!league && ties.GetArrayLength() > 0) return (ties, null, null);
 		if (league && table.ValueKind == JsonValueKind.Array) return (null, table, null);
-		if (ties.GetArrayLength() > 0) return (whole ? await EveryTie(ties) : ties, null, null);
+		if (ties.GetArrayLength() > 0) return (ties, null, null);
 
 		return table.ValueKind == JsonValueKind.Array ? (null, table, null) : (null, null, null);
 	}
