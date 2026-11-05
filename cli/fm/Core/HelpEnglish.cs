@@ -77,6 +77,7 @@ internal static partial class Program
 			  dugout          during a match, the assistant's advice;  dugout <no> apply | dismiss
 			  manager         the manager's record: clubs, transfers, results at this club and over the career
 			  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them
+			  meeting         hold a team meeting; answer it with talk
 			  resign [--yes]  resign from the club (test career; then look at jobs)
 			  dialog [answer] show or answer the open confirmation window
 			  talk            show the open conversation: what was said, reactions, what you can say

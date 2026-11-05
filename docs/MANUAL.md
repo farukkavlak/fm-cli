@@ -395,6 +395,7 @@ fm vision [confirm|remove|suggest|undo|reset|end]
 fm jobs [<club>] [apply|interest] [--yes] [--all]
 fm resign [--yes]
 fm read [<page>]            # the game's look-only pages, read as they stand
+fm meeting                  # a team meeting of your own; answer with talk
 fm saves · fm save · fm load
 ```
 

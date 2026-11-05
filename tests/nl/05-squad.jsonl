@@ -242,3 +242,7 @@
 {"en": "open a player's profile", "call": "fm_player", "ask": "name", "split": "dev"}
 {"tr": "oyuncuları bir şarta göre süz", "call": "fm_query", "ask": "where", "split": "final"}
 {"en": "filter my players by some condition", "call": "fm_query", "ask": "where", "split": "final"}
+{"tr": "takım toplantısı yap", "call": "fm_meeting", "split": "held"}
+{"tr": "takımı topla toplantı yap", "call": "fm_meeting", "split": "held"}
+{"en": "hold a team meeting", "call": "fm_meeting", "split": "held"}
+{"en": "team meeting please", "call": "fm_meeting", "split": "final"}

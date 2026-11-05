@@ -82,3 +82,14 @@ steps = [
   { run = "next", rc = "any" },
   { read = "status", path = "Date", present = true },
 ]
+
+[[test]]
+task = "T66"
+name = "a team meeting opens a talk that ends"
+at = "calm"
+fresh = true
+repeat = 2
+steps = [
+  { run = "meeting" },
+  { read = "talk", path = "Lines", present = true, live = true, note = "the talk is open" },
+]

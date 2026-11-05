@@ -285,6 +285,7 @@ internal static partial class Router
 				foreach (var (cue, key) in new[] { ("kulup tarihi", "club-history"), ("club history", "club-history"), ("kupalarimiz", "club-honours"), ("honours", "club-honours"), ("kulup rekor", "club-records"), ("past winners", "past-winners"), ("gecmis sampiyon", "past-winners"), ("turnuva kural", "comp-rules"), ("competition rules", "comp-rules"), ("veri merkezi", "data-hub"), ("data hub", "data-hub"), ("takim analizi", "team-analysis"), ("gol analizi", "goal-analysis"), ("duran top analizi", "set-piece-analysis"), ("transfer gecmisi", "transfer-history"), ("transfer history", "transfer-history"), ("sezon onizleme", "season-preview"), ("suspensions", "suspensions"), ("manager movements", "manager-movements"), ("transfer soylenti", "rumours"), ("rumours", "rumours") })
 					if (c.Has(cue)) { c.Set("page", key); break; }
 			}),
+		R("fm_meeting", "takim toplantisi=6; toplanti yap=5; team meeting=6; hold a meeting=6", c => { }),
 		R("fm_manager", "menajer kariyer=5; menajer istatistik=5; kariyerim=4; kariyer istatistik=5; menajerlik kariyer=5; my career=4; my record=4; manager record=5; manager stats=5; career stats=4", c => { }),
 		R("fm_tactic_advice", "taktik onerisi=5; taktik tavsiye=5; yardimci taktik=4; taktik degerlendir=5; tactic advice=6; tactical advice=6; assistant think of the tactic=6; evaluate my tactic=6; evaluate the tactic=6", c =>
 			{
