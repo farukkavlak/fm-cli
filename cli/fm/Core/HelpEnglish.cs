@@ -76,8 +76,9 @@ internal static partial class Program
 			  pause / resume  during a match: pause it, play on;  skip: skip the replay that is playing
 			  dugout          during a match, the assistant's advice;  dugout <no> apply | dismiss
 			  manager         the manager's record: clubs, transfers, results at this club and over the career
-			  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them
+			  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them; read here: what is on screen
 			  meeting         hold a team meeting; answer it with talk
+			  draw            run a cup draw its message opened, and show the ties
 			  resign [--yes]  resign from the club (test career; then look at jobs)
 			  dialog [answer] show or answer the open confirmation window
 			  talk            show the open conversation: what was said, reactions, what you can say

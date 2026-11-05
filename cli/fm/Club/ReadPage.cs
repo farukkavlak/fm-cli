@@ -31,6 +31,8 @@ internal static partial class Program
 			Console.WriteLine(L("\nTo read one: read <page>"));
 			return 0;
 		}
+		// `here`: whatever is on top now, opened by anything else (a cup draw, a card).
+		if (string.Equals(typed, "here", StringComparison.OrdinalIgnoreCase)) return await PrintPage(json, new ReadablePage("here", "On screen", ""), [], opening: false);
 		if (await NotNow() is { } refused) return refused;
 		var hits = ReadablePages.Where(p => string.Equals(p.Key, typed, StringComparison.OrdinalIgnoreCase)).ToList();
 		if (hits.Count == 0)
@@ -43,10 +45,12 @@ internal static partial class Program
 			Console.Error.WriteLine(hits.Count == 0 ? L($"No page called '{typed}'. The pages: read") : L($"'{typed}' fits several pages: {string.Join(", ", hits.Select(h => h.Key))}"));
 			return 1;
 		}
-		var page = hits[0];
+		return await PrintPage(json, hits[0], await ShownTexts(), opening: true);
+	}
 
-		var before = await ShownTexts();
-		var opened = page.Bar == null
+	private static async Task<int> PrintPage(bool json, ReadablePage page, List<JsonElement> before, bool opening)
+	{
+		var opened = !opening ? "" : page.Bar == null
 			? await OpenPage(page.Guid)
 			: await OpenSubpage(page.Bar, page.Guid, () => Task.FromResult(true));
 		// A page the game lists only at some moments (a season preview before the season).

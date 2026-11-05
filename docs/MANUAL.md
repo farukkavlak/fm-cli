@@ -396,6 +396,7 @@ fm jobs [<club>] [apply|interest] [--yes] [--all]
 fm resign [--yes]
 fm read [<page>]            # the game's look-only pages, read as they stand
 fm meeting                  # a team meeting of your own; answer with talk
+fm draw                     # a cup draw its message opened: runs it, shows the ties
 fm saves · fm save · fm load
 ```
 

@@ -119,3 +119,7 @@
 {"en": "anything coming up the month after", "call": "fm_calendar", "ask": "month", "split": "dev"}
 {"tr": "kupada asist krallığı", "call": "fm_league", "args": {"stat": "Assists"}, "ask": "competition", "split": "dev"}
 {"en": "cup assists leaders", "call": "fm_league", "args": {"stat": "Assists"}, "ask": "competition", "split": "dev"}
+{"tr": "kurayı çek", "call": "fm_draw", "split": "dev"}
+{"tr": "kupa kurasını çek", "call": "fm_draw", "split": "dev"}
+{"en": "run the draw", "call": "fm_draw", "split": "final"}
+{"en": "do the cup draw", "call": "fm_draw", "split": "dev"}

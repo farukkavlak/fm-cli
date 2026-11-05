@@ -100,6 +100,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T12 Squad Planner (planner, contracts, current best XI): add, move, remove, ask assistant, copy.
 - [ ] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
+  Found: a row's `XIButton` sends the player's index, so a row is held by `Slots.PlayerIndex`; the toggle sits in the same `Items.<n>`; pressing it lights the row (seen by /shot). No data path found to read it back yet: not written.
 - [ ] T14 `tactic advice [evaluation | xi | opposition]`: the planner's Advice list by its event, choices by `FM.UI.AdviceOption`.
   Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
   opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
@@ -145,10 +146,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     instructions read as before; the match's tactic may be separate. Read it before and after an apply, and after play goes on.
   - The panel is hidden during a move, even paused: `dugout` waits while the ball rolls and says so when paused.
   - While the ball rolls the list can move between two calls, so a number can mean another card (T101 removes the need for numbers).
-- [ ] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): TR and EN, both already-states; no play button (a
+- [x] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): TR and EN, both already-states; no play button (a
   talk) says `match`; at the game's own stop the button does nothing and it says `match`. `match` after `pause` plays on. `skip`
-  (MatchSkipReplay): only an enabled button counts. EN and TR: a replay skipped once each, no replay says so. Left: once right
-  after a goal (EN) it said "still playing", cause not known.
+  (MatchSkipReplay): only an enabled button counts. EN and TR: a replay skipped once each, no replay says so.
 - [x] T27 `holiday … --jobs <kind> | --no-jobs`: the switch `holiday.applyforjobs` and the list
   `holiday.applyforjobsdropdownselectedoption` by its own values (−1 is the prompt), or by the shown words. `--dry` sets the
   page and leaves by its CancelButton. TR: 3 × two kinds, an unknown kind, a real week with `--no-jobs`; EN 3 × and a kind by the game's words.
@@ -197,7 +197,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   Same evening even a killed `/bin/sleep` stuck exiting (UE): the Mac, not the game; check after a restart.
 - [x] T41 `settings language` says the portal's pages do not open until the game is opened again (save, stop,
   start); the language setting is told by its pref `current_language`, not by the CLI's word for it.
-- [ ] T42 `status` takes two minutes when the UI is held (inbox `Bound` waits 20 s, several times).
+- [x] T42 `status` with a held event queue: the inbox's wait gives up when its event still waits after 3 s. 5 s measured (it was 2 minutes).
 - [ ] T43 Squad numbers before a match: the screen stays up a moment after they are sent (PORTING). EN, once: handed to
   the assistant and sent, no "is disabled". The screen comes only at a season's start or a new signing. EN once: "No confirmation
   window came" while the window was up. Now waits for its Yes; not met again yet.
@@ -254,7 +254,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 
 - [ ] T55 Season's end: club vision meeting, end-of-season awards, players whose contracts end, retirements.
 - [ ] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
-- [ ] T57 Cup draws and the cup's own screens.
+- [x] T57 Cup draws: a draw's message offers skip or view; view opens the draw screen, `fm draw` runs it (`EventFmxDrawAllTeams`, read back by the button going off) and prints it. `fm read here` reads whatever is on top. TR + EN, nothing open refused.
 - [ ] T58 International break: call-ups, the national side's screens.
 - [ ] T59 Youth intake (March): candidates, intake preview.
 - [ ] T60 Board meeting and board requests answered; job offers while employed; being sacked.
@@ -266,8 +266,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 
 ## 9. Depth the crawl has not reached
 
-- [ ] T65 Player interaction: praise, criticise, promise, warn, talk about form or a transfer (no command today).
-- [ ] T66 Team meeting started by the manager (the game's own; `talk` only answers one the game opened).
+- [x] T65 Player interaction: `actions <player>` lists the game's Interaction menu (praise, criticise, advice…), `actions <player> "<entry>"` opens its talk, `talk` answers. TR + EN, a whole praise, an unknown entry refused.
+- [x] T66 `fm meeting`: the squad page's own button by its element (`HoldTeamMeeting`), a talk answered with `talk`; a second one the same day is refused by the game and said. TR + EN.
 - [ ] T67 Every list's submenus (tactic presets, Manage Tactics, Primary Trained Tactic, Copy Tactic …):
   crawl with the lists opened one level down.
 - [ ] T68 Every row's right-click / actions menu, for each kind of row (player, staff, club, competition, nation).
@@ -294,9 +294,8 @@ not yet tried in a live terminal.
 - [x] T100 `:` on the live panel pauses play and opens `fm›` under it; any command runs there, a key goes back, play goes on. Measured in a terminal, EN and TR.
   Today only the fixed keys work (`s h t v a r + -`, `MatchDay.cs`).
 - [x] T101 Keys on the live panel: `p` pause / resume (the panel stays up while paused), `k` skip a replay, `d` dugout. New advice joins the panel's events, every card. EN and TR.
-- [ ] T102 Long commands (`next`, `holiday` up to 30 min, save, load): show progress, and keep the prompt usable where the game allows.
-- [ ] T103 Ctrl-C: no handler in the CLI, so it likely ends the whole `fm` session while the game runs on (try it first). It should stop
-  the command and return to `fm›`; cancel a holiday only by the game's own way.
+- [x] T102 Long commands: `holiday` and `next` show the day on one line that writes over itself, on a terminal only. The prompt comes back with Ctrl-C (T103). TR + EN.
+- [x] T103 Ctrl-C in a session ends the command (every request to the game stops), says the game goes on with what it was doing, and returns to `fm›`; at the prompt it starts a new line. A holiday stays on. TR + EN, in a real terminal.
 
 ## 11. Acceptance tests (last; each is passed in one go, through the tool only, no bridge)
 
