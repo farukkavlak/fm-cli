@@ -117,7 +117,7 @@ internal static partial class Mcp
 		new("fm_propose", "Offer one of our players to other clubs: for sale at `fee` (e.g. \"2M\"; left out = unspecified) or on loan (loan=true). Without yes=true it only shows what would be sent.",
 			"""{"type":"object","properties":{"player":{"type":"string"},"fee":{"type":"string"},"loan":{"type":"boolean"},"yes":{"type":"boolean"}},"required":["player"]}""",
 			a => ["propose", Str(a, "player") ?? "", .. Opt(a, "fee"), .. Flag(a, "loan", "--loan"), .. Flag(a, "yes", "--yes")]),
-		new("fm_internationals", "Our players' national teams: country, caps and goals in all, and games and goals for it this season.",
+		new("fm_internationals", "Our players' national teams: country, the career (caps and goals) as the game words it, games and goals for it this season, and who is away with it now (Away, AwayStatus) and the day he is back (Back).",
 			"""{"type":"object","properties":{}}""",
 			a => ["internationals", "--json"]),
 		new("fm_mentoring", "The mentoring groups (three players each, grouped to learn from one another) with each member's personality. auto=true asks the assistant to set the groups up (with groups already there the game deletes them all first: confirm must be true, else the question is shown and answered no). candidates=true lists who can be picked (age, workload, personality, standing). players (exactly three names, optional name) makes a group, not on a game day a group was taken apart; remove takes a group apart (confirm must be true).",

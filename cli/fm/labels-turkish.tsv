@@ -2704,3 +2704,6 @@ usage: tactic personal <position> on | off   positions: {0}	kullanım: tactic pe
 {0}: the button was pressed, but the role did not change.	{0}: düğmeye basıldı ama rol değişmedi.
 {0} ({1}) has a personalised role now.	{0} ({1}) artık kişisel rolde.
 {0} ({1}) is back on the role as set.	{0} ({1}) yeniden taktikteki rolünde.
+NOW	ŞU AN
+{0}, back {1}	{0}, dönüş {1}
+\n{0} away with their national side now; {1} played for it this season.	\n{0} oyuncu şu an milli takımında; {1} oyuncu bu sezon milli takımda oynadı.

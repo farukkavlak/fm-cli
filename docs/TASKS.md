@@ -286,6 +286,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [ ] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
 - [x] T57 Cup draws: a draw's message offers skip or view; view opens the draw screen, `fm draw` runs it (`EventFmxDrawAllTeams`, read back by the button going off) and prints it. `fm read here` reads whatever is on top. TR + EN, nothing open refused.
 - [ ] T58 International break: call-ups, the national side's screens.
+  - [x] Who is away now: `internationals` by the status's ineligibility reason (3 joining, 4 coming back, 5 on duty)
+    and the day he is back (`InternationalReturnDate`); `squad --json` Flags carry `Ineligible`. The career is shown as
+    the game words it: it was taken apart by the English words "caps" / "goals" (0 in a Turkish game). TR + EN 3/3,
+    nobody away outside a break (`round12.toml`).
+  - [ ] The postponement request a call-up brings ("Request … postponement?"): answered with `reply`, read back.
 - [ ] T59 Youth intake (March): candidates, intake preview.
 - [ ] T60 Board meeting and board requests answered; job offers while employed; being sacked.
 - [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.

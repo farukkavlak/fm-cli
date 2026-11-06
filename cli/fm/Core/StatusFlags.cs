@@ -12,7 +12,12 @@ internal static partial class Program
 	/// <param name="Id">The game's own number for the flag (FM.UI.PlayerStatusFlag: 20 retiring, 75 free agent), the same in every
 	/// language; -1 for a status that is not a flag (on holiday).</param>
 	/// <param name="Type">The game's kind of status (StatusType), set for every one.</param>
-	internal record Flag(string Short, string Full, string Reason, int Id = -1, int Type = -1);
+	/// <param name="Ineligible">Why he cannot play, by the game's number (FM.UI.PlayerIneligibilityReasonFlag: 3 joining his
+	/// national side, 4 coming back from it, 5 on international duty, 15 on holiday), 0 when he can.</param>
+	internal record Flag(string Short, string Full, string Reason, int Id = -1, int Type = -1, int Ineligible = 0);
+
+	/// <summary>Away with his national side: joining it, with it, or on his way back.</summary>
+	internal static bool WithNation(Flag flag) => flag.Ineligible is 3 or 4 or 5;
 
 	private const int FreeAgentFlag = 75;
 
@@ -36,7 +41,7 @@ internal static partial class Program
 		}
 		catch (FmError) { return flags; }
 
-		const string props = "StatusTitleShort,StatusTitleFull,StatusReason,StatusFlag,StatusType";
+		const string props = "StatusTitleShort,StatusTitleFull,StatusReason,StatusFlag,StatusType,IneligibilityReason";
 		var waiting = rows.ToList();
 		// A list is bound by its first reading and filled on a later one: all are asked each round.
 		for (var round = 0; round < 5 && waiting.Count > 0; round++)
@@ -53,7 +58,7 @@ internal static partial class Program
 				if (entries.Any(e => Field(e, "StatusTitleShort").Length == 0)) continue;
 				// An empty list on the first round may only not be bound yet.
 				if (round == 0 && entries.Count == 0) continue;
-				flags[r.Name] = entries.Select(e => new Flag(Field(e, "StatusTitleShort"), Field(e, "StatusTitleFull"), Field(e, "StatusReason"), int.TryParse(Field(e, "StatusFlag"), out var id) ? id : -1, int.TryParse(Field(e, "StatusType"), out var type) ? type : -1)).ToList();
+				flags[r.Name] = entries.Select(e => new Flag(Field(e, "StatusTitleShort"), Field(e, "StatusTitleFull"), Field(e, "StatusReason"), int.TryParse(Field(e, "StatusFlag"), out var id) ? id : -1, int.TryParse(Field(e, "StatusType"), out var type) ? type : -1, int.TryParse(Field(e, "IneligibilityReason"), out var why) ? why : 0)).ToList();
 				waiting.Remove(r);
 			}
 			if (waiting.Count > 0) await Task.Delay(250);

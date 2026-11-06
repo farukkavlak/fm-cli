@@ -60,7 +60,7 @@ internal static partial class Program
 				if (held.TryGetValue(Field(p, "Name"), out var mine))
 					row["Flags"] = new System.Text.Json.Nodes.JsonArray(mine.Select(f => (System.Text.Json.Nodes.JsonNode)new System.Text.Json.Nodes.JsonObject
 					{
-						["Id"] = f.Id, ["Type"] = f.Type, ["Text"] = f.Full.Length > 0 ? f.Full : f.Short, ["Reason"] = f.Reason,
+						["Id"] = f.Id, ["Type"] = f.Type, ["Ineligible"] = f.Ineligible, ["Text"] = f.Full.Length > 0 ? f.Full : f.Short, ["Reason"] = f.Reason,
 					}).ToArray());
 				return row;
 			});

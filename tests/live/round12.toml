@@ -1,0 +1,28 @@
+# Round 12: T58 the international break. Run: tools/fm-round.py dry tests/live/round12.toml, then run.
+
+# During the break: who is away with his national side, why by the game's number, the day he is back.
+[[test]]
+task = "T58"
+name = "internationals: who is away now and until when"
+at = "intl-break"
+fresh = true
+repeat = 3
+steps = [
+  { read = "internationals", path = "#", not = "0", live = true },
+  { read = "internationals", path = "?Away.#", not = "0", live = true },
+  { read = "internationals", path = "?Away.0.AwayReason", is = "5", live = true },
+  { read = "internationals", path = "?Away.0.Back", not = "", live = true },
+  { read = "internationals", path = "?Away.0.AwayStatus", not = "", live = true },
+  { read = "squad", path = "?Flags.0.Flags.0.Ineligible", present = true, live = true },
+]
+
+# No break: nobody away.
+[[test]]
+task = "T58"
+name = "internationals: nobody away outside a break"
+at = "kickoff"
+fresh = true
+steps = [
+  { read = "internationals", path = "#", not = "0", live = true },
+  { read = "internationals", path = "?Away.#", is = "0", live = true },
+]
