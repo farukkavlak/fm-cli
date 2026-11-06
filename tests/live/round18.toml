@@ -1,0 +1,15 @@
+# Round 18: waits moved to the game's own signs (T85). `scout` with
+# no focus by the club's list in its data. Run: tools/fm-round.py dry tests/live/round18.toml, then run.
+
+# scout: none, then one, then none again.
+[[test]]
+task = "T85"
+name = "scout with no focus, one, none again"
+at = "kickoff"
+steps = [
+  { read = "scout", path = "#", is = "0", live = true },
+  { run = "scout new --position GK --priority standard --name fmclir18" },
+  { read = "scout", path = "#", is = "1", live = true },
+  { run = "scout remove fmclir18 --yes" },
+  { read = "scout", path = "#", is = "0", live = true },
+]

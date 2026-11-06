@@ -25,8 +25,9 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.RecruitmentFocuses);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
+		// Whether there are any is the club's own list, read from its data; the page's list is waited for only when there are.
 		JsonElement? list = null;
-		if (!await Until(async () => (list = await FocusList()) != null, seconds: 10, every: 0.5))
+		if ((await FocusIds()).Count == 0 || !await Until(async () => (list = await FocusList()) != null, seconds: 10, every: 0.5))
 		{
 			Console.WriteLine(json ? "[]" : L("No scouting focuses."));
 			return 0;

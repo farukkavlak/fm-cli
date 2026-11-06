@@ -404,11 +404,14 @@ not yet tried in a live terminal.
     - [x] `Transfer/ScoutFocus*.cs`: the form was found by the buttons' words "Back" / "Next" (Turkish only through the
       plugin's English); now from the step button itself (told by what it sends), plugin `form?ptr=`. Old and new
       reads the same on both steps (49 and 44 items, EN).
-    - [ ] `Transfer/Scouting.cs`: "no focus" is known by a 10 s wait for the list running out.
+    - [x] `Transfer/Scouting.cs`: "no focus" was known by a 10 s wait running out; now by the club's list in its data
+      (`Human.ScoutingInfo.RecruitmentFocusesList`): 4 s, none / one / none TR + EN (`round18.toml`).
     - [x] `Squad/TacticFiles.cs`: the save panel's title and note boxes by their bindings (`SelectedFileName`,
       `Description`), not by order.
     - [x] `Club/ClubCards.cs` `CardWords`: the game's values (grades, yes/no) now in the game's words (`GameWords.Of`:
       "Hayır" where the CLI said "yok"); the kinds of supporter are the CLI's own list (by their data fields), so its
       own words (`L`).
-    - [ ] Waits on "two reads agree" (about 100 places: `settled`, `== last`): each is a time-based sign; move to the
-      game's own sign where one is known (as T93, T119 did).
+    - [ ] Waits on "two reads agree" (about 100 places in 45 files: `settled`, `== last`): each is a time-based sign; move to
+      the game's own sign where one is known (as T93, T119 did), one by one, measured. Tried and kept as it was:
+      `squad --view` (the rows keep fields of views shown before and gain the new ones over several reads, so "the
+      columns changed" is not a sign that the view has landed; TR + EN, `round18.toml`).
