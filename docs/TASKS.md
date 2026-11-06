@@ -261,6 +261,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   asked `health` with the long timeout. Now it asks briefly first (`Answers`, 3 s) and the port file is read on every
   call. Measured with 7777 held by a dead game: 2 normal starts and one with the file set to 7777, 75–78 s each.
 - [ ] T92 The game crashed once leaving a match (15 Apr 2028, tweaks used in that match with a wrong bound path). Twice more on 5 Nov at kick-off, in a terminal with `status` asked every 2 s from another process (SIGBUS on the GC Finalizer thread); not with it asked every 5 s or not at all. Cause not known. Again 5 Nov, EN, list `round4`: gone before kick-off with `tweak` asked every second; the two reports of that day on the GC Finalizer jump to a bad address from UnityPlayer. `until` now takes `every`. Again 5 Nov 20:03, EN, ten seconds after `match` began submitting the team, with `tweak` asked every 5 s.
+  6 Nov, `kickoff` EN: 3 of 4 matches died at "Submitting the team" with nothing else asking (GC Finalizer, SIGSEGV
+  at 0x20, GameAssembly → UnityPlayer). That day the plugin had begun reading every event context of every control
+  for `Writes` on each `buttons?json=1`, which the submission asks many times; `Writes` is now only read when asked
+  (`writes=1`, only `vision plan` asks). After: 3 of 3 kicked off, game alive (EN). Older crashes predate it: still open.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;

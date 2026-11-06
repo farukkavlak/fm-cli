@@ -49,7 +49,7 @@ internal static partial class Program
 	private static async Task<List<(JsonElement Button, int Value)>> VisionWriters(string data, string destination)
 	{
 		var found = new List<(JsonElement, int)>();
-		foreach (var b in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
+		foreach (var b in (await Fm.GetJson("buttons", ("json", "1"), ("writes", "1"))).EnumerateArray())
 		{
 			var writes = Field(b, "Writes");
 			if (!writes.StartsWith($"{destination}=", StringComparison.Ordinal)) continue;

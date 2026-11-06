@@ -61,7 +61,9 @@ internal static partial class Buttons
 	/// action it stands for put at a path of its own (Action), for its ActionID, IsExitButton…
 	/// to be read: which of an assistant's buttons asks and which acknowledges his answer, in any
 	/// language.</param>
-	private static string ControlsJson(string gen = null)
+	/// <param name="withWrites">Each datastore button's "destination=source" (Writes). Only when asked: reading it wraps
+	/// every event context of every control, and a match's team submission asks for the buttons many times.</param>
+	private static string ControlsJson(string gen = null, bool withWrites = false)
 	{
 		var rows = new List<string>();
 		var spoken = 0;
@@ -78,7 +80,7 @@ internal static partial class Buttons
 					try { events.Add(Summary(contexts[i], listName)); } catch { }
 					page ??= PageOf(contexts[i]);
 					opens ??= OpensOf(contexts[i]);
-					writes ??= WritesOf(contexts[i]);
+					if (withWrites) writes ??= WritesOf(contexts[i]);
 					source ??= SourceOf(contexts[i]);
 					if (gen != null && action == null && ActionOf(contexts[i]) is { } value && RawPath.Set($"fmcli.speak.g{gen}.{spoken}", value) == null)
 						action = $"fmcli.speak.g{gen}.{spoken++}";

@@ -24,7 +24,7 @@ internal static partial class Buttons
 
 	public static string Catalog(NameValueCollection q)
 	{
-		if (q["json"] == "1") return ControlsJson(q["gen"]);
+		if (q["json"] == "1") return ControlsJson(q["gen"], q["writes"] == "1");
 
 		var typeFilter = q["type"];
 		var textFilter = q["text"];
