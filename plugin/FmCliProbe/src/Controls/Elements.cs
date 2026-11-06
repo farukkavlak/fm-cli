@@ -109,6 +109,20 @@ internal static class Elements
 		catch { }
 	}
 
+	/// <summary>The data path of a binding key's node, or null when it names none.</summary>
+	private static string KeyPath(SI.Bindable.Bindings.Key key)
+	{
+		try
+		{
+			var parts = new List<string>();
+			for (var node = Game.Bindings?.GetNode(ref key); node != null; node = node.Parent)
+				if (!string.IsNullOrEmpty(node.Name)) parts.Add(node.Name);
+			parts.Reverse();
+			return parts.Count == 0 ? null : string.Join(".", parts).TrimStart('.');
+		}
+		catch { return null; }
+	}
+
 	/// <summary>The members a game element adds on top of Unity's: where its behaviour lives.</summary>
 	private static void Members(VisualElement element, string typeName, string pad, StringBuilder sb)
 	{
@@ -137,6 +151,8 @@ internal static class Elements
 						BindingPath path => string.IsNullOrEmpty(path.Path) ? null : $"-> \"{path.Path}\"",
 						string s => s.Length == 0 ? null : $"\"{s}\"",
 						bool b => b ? "True" : null,
+						// A binding key names a node of the bound data tree: its path is what the element follows.
+						SI.Bindable.Bindings.Key key => KeyPath(key) is { } at ? $"{key} @ {at}" : key.ToString(),
 						Il2CppObjectBase => null,
 						_ => held.ToString(),
 					};

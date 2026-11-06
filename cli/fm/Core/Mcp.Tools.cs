@@ -81,6 +81,11 @@ internal static partial class Mcp
 		new("fm_tactic_player", "Put a squad player into a slot of the starting eleven (whoever was there goes to the bench; a starter named there swaps places), or into a substitute's place; `clear` leaves the slot empty. `position` is the slot as fm_tactic prints it, or the name of a substitute from fm_tactic's bench line to swap him (an injured substitute stops the match from starting); `player` is anyone in the squad, reserves included.",
 			"""{"type":"object","required":["position"],"properties":{"position":{"type":"string"},"player":{"type":"string"},"clear":{"type":"boolean"},"dry":{"type":"boolean"}}}""",
 			a => ["tactic", "player", Str(a, "position"), .. Str(a, "player") is { Length: > 0 } who ? new[] { who } : [], .. Flag(a, "clear", "--clear"), .. Flag(a, "dry", "--dry")]),
+		new("fm_tactic_personal", "Personalised roles (FM27): without arguments, each starter's place with whether his role is made his own; `position` (as fm_tactic prints it) with `on` true or false turns it on or off, read back from the game.",
+			"""{"type":"object","properties":{"position":{"type":"string"},"on":{"type":"boolean"},"dry":{"type":"boolean"}}}""",
+			a => Str(a, "position") is { Length: > 0 } at && a.TryGetProperty("on", out var on) && on.ValueKind is JsonValueKind.True or JsonValueKind.False
+				? ["tactic", "personal", at, on.ValueKind == JsonValueKind.True ? "on" : "off", .. Flag(a, "dry", "--dry")]
+				: ["tactic", "personal", "--json"]),
 		new("fm_tactic_advice", "The assistant's advice on the tactic: his evaluation (default), his eleven (`xi`, answered with fm_talk), or the opposition report.",
 			"""{"type":"object","properties":{"what":{"type":"string","enum":["evaluation","xi","opposition"]}}}""",
 			a => ["tactic", "advice", .. Str(a, "what") is { Length: > 0 } what ? new[] { what } : []]),

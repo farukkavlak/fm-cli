@@ -39,6 +39,7 @@ internal static partial class Program
 			case "pick": return await TacticPick(dry, youth: args.Contains("--youth"));
 			case "role": return await TacticRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 			case "player" when args.Contains("--clear"): return await TacticClearPlace(words.Skip(1).ToList(), dry);
+			case "personal" or "kisisel": return await TacticPersonal(json, words.Skip(1).ToList(), dry);
 			case "player": return await TacticPlayer(words.Skip(1).ToList(), dry);
 			case "slot": return await TacticSlot(wanted, dry);
 			case "copy": return await TacticCopy(wanted, dry);

@@ -1,0 +1,40 @@
+# Round 11: T13 personalised roles. Run: tools/fm-round.py dry tests/live/round11.toml, then run.
+
+# Cold start: the save just loaded. A starter's personalised role on, again (already), off; read back each time.
+[[test]]
+task = "T13"
+name = "personalised role on and off, read back, from a fresh load"
+at = "kickoff"
+fresh = true
+steps = [
+  { read = "tactic personal", path = "#", not = "0", live = true },
+  { read = "tactic personal", path = "0.Position", keep = "pos", live = true },
+  { read = "tactic personal", path = "0.Personal", is = "False", live = true },
+  { read = "tactic personal", path = "1.Personal", keep = "other", live = true },
+  { run = "tactic personal {pos} on" },
+  { read = "tactic personal", path = "0.Personal", is = "True", live = true },
+  { read = "tactic personal", path = "1.Personal", same_as = "other", live = true, note = "only that place" },
+  { run = "tactic personal {pos} on", note = "already on: said, nothing pressed" },
+  { read = "tactic personal", path = "0.Personal", is = "True", live = true },
+  { run = "tactic personal {pos} off" },
+  { read = "tactic personal", path = "0.Personal", is = "False", live = true },
+]
+
+# Another page open first, then the tactics page already open; the negatives.
+[[test]]
+task = "T13"
+name = "personalised role from another page, the page open, and the negatives"
+at = "kickoff"
+repeat = 3
+steps = [
+  { run = "squad" },
+  { read = "tactic personal", path = "0.Position", keep = "pos", live = true },
+  { run = "tactic personal {pos} on" },
+  { read = "tactic personal", path = "0.Personal", is = "True", live = true },
+  { run = "tactic personal {pos} off" },
+  { read = "tactic personal", path = "0.Personal", is = "False", live = true },
+  { run = "tactic personal zzq on", rc = "fail" },
+  { run = "tactic personal {pos} maybe", rc = 64 },
+  { run = "tactic personal {pos} on --dry" },
+  { read = "tactic personal", path = "0.Personal", is = "False", live = true, note = "a dry run changes nothing" },
+]
