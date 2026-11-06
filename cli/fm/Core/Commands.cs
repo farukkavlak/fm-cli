@@ -85,7 +85,7 @@ internal static partial class Program
 		["load"] = ["--save", "--no-save"],
 		["staff"] = ["find", "hire", "fire", "--wage", "--term", "--sign", "--mutual", "--yes", "--role", "--free", "--employed", "--reputation", "--filter", "--view", "--filters", "--views", "--clear"],
 		["responsibilities"] = ["take", "delegate", "--yes"],
-		["youth"] = ["--training", "--candidates", "candidates"],
+		["youth"] = ["--training", "--candidates", "candidates", "preview"],
 		["friendly"] = ["--date", "--away", "--rules", "--yes"],
 		["numbers"] = ["--auto", "--send"],
 		["happiness"] = ["--why"],

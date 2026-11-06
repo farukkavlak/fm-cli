@@ -216,7 +216,7 @@ fm — run Football Manager from the terminal
   finances income|expenditure [month|last month|season|last season]   income or expenditure item by item
   supporters      supporters: atmosphere, expectations and reactions, attendance, season tickets, supporter profile
   responsibilities [filter]   who has the staff duties;  delegate "<duty>" hand it over · take "<duty>" take it back · delegate all / take all "<group or area>"
-  youth           youth: academy levels and stadium, first-team prospects, the intake date; --training: the youth team's training ratings; candidates: whether the year's intake has come
+  youth           youth: academy levels and stadium, first-team prospects, the intake date; --training: the youth team's training ratings; candidates: the year's intake; preview: the look ahead at it
   progress        who is getting better, who worse: every player's ability over the last four months and the change
   staff find [text] [--filter <filter>] [--view <view>] [--own | --no-own]   the staff search: job, contract, wage, attributes; --own: our staff too
   staff hire <name> [--wage <amount>] [--sign --yes]   hire staff: opens the contract negotiation, carried on with `contract`

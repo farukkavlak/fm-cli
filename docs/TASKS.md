@@ -332,12 +332,15 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     the game words it: it was taken apart by the English words "caps" / "goals" (0 in a Turkish game). TR + EN 3/3,
     nobody away outside a break (`round12.toml`).
   - [ ] The postponement request a call-up brings ("Request … postponement?"): answered with `reply`, read back.
-- [ ] T59 Youth intake (March): candidates, intake preview.
+- [x] T59 Youth intake (March): candidates, intake preview.
   - [x] Candidates (T28). The intake came on 4 Apr 2029 (Varzim) with no message of its own in the inbox.
   - [x] A candidate's status by the game's data (on trial until signed: no trial club once signed); a youth contract
     offered with `contract <candidate>` (the game's approach to sign, PersonApproachToSign, when there is no contract
     to renew), his answer by message (EN by hand: Agostinho signed, then "signed" in the list). The rest of his
     menu through `actions`. TR + EN 3/3 (`round25.toml`).
+  - [x] Intake preview: `youth preview` (the club's `YouthCandidatesPreview`: title, verdict, status in the game's words,
+    the positions foreseen by their masks in the game's abbreviations; the list bound by asking the preview for it).
+    TR + EN 3/3 (`round26.toml`), no candidates before the intake.
 - [ ] T60 Board meeting and board requests answered; job offers while employed; being sacked.
   - [x] Sacked (`sacked`): the message, `status` says unemployed, `jobs` lists 45; applications by the game's own button.
   - [x] Interview (`interview`) through `reply` and `talk`, to a job offer, its contract card (`contract` now reads an
@@ -464,6 +467,8 @@ not yet tried in a live terminal.
     - [x] `Club/ClubCards.cs` `CardWords`: the game's values (grades, yes/no) now in the game's words (`GameWords.Of`:
       "Hayır" where the CLI said "yok"); the kinds of supporter are the CLI's own list (by their data fields), so its
       own words (`L`).
+    - [ ] `Club/Youth.cs` overview (`youth`): first-team prospects read as "the cells after a name" (order) and the
+      age as the number in "21-year-old full-back" (a sentence); waits on two reads agreeing.
     - [ ] Waits on "two reads agree" (about 100 places in 45 files: `settled`, `== last`): each is a time-based sign; move to
       the game's own sign where one is known (as T93, T119 did), one by one, measured. Tried and kept as it was:
       `squad --view` (the rows keep fields of views shown before and gain the new ones over several reads, so "the

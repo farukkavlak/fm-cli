@@ -1,0 +1,15 @@
+# Round 26: the intake preview (T59). The head of youth development's look ahead: title, verdict and status in the
+# game's words, the positions foreseen. Run: tools/fm-round.py dry tests/live/round26.toml, then run.
+
+[[test]]
+task = "T59"
+name = "intake preview read in October"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { read = "youth preview", path = "Title", not = "", live = true },
+  { read = "youth preview", path = "Verdict", not = "", live = true },
+  { read = "youth preview", path = "Positions.#", not = "0", live = true },
+  { read = "youth candidates", path = "#", is = "0", live = true, note = "no candidates before the intake" },
+]

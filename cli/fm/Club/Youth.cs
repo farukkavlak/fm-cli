@@ -64,6 +64,44 @@ internal static partial class Program
 		return 0;
 	}
 
+	/// <summary>
+	/// The head of youth development's look ahead at the coming intake (Human.Club.YouthCandidatesPreview): its title
+	/// and verdict as the game writes them, its status, and the positions it foresees (position masks, written in the
+	/// game's own abbreviations). Read once its fields are bound; bound only over a few reads.
+	/// </summary>
+	private static async Task<int> YouthPreview(bool json)
+	{
+		JsonElement preview = default;
+		var read = await Until(async () => Field(preview = await Fm.Pull("Human.Club.YouthCandidatesPreview", "Title,YouthIntakeDescription,YouthIntakeStatus,IsValid"), "Title").Length > 0, seconds: 6, every: 0.3);
+		if (!read || Field(preview, "IsValid") != "True")
+		{
+			Console.Error.WriteLine(L("There is no intake preview yet (the head of youth development sends it before the intake)."));
+			return 1;
+		}
+		await EngineTexts.Positions(Fm);
+		var positions = new List<string>();
+		JsonElement rows = default;
+		// The list is a value of the preview: asked for with the preview first, which binds it, then read as a list.
+		await Until(async () => (await Fm.Pull("Human.Club.YouthCandidatesPreview", "YouthIntakePositionPreviews")).ValueKind == JsonValueKind.Object
+			&& (rows = await Fm.GetJson("pullbound", ("name", "YouthIntakePositionPreviews"), ("under", "Human"), ("props", "Position"), ("gen", Environment.TickCount64.ToString()))).ValueKind == JsonValueKind.Array
+			&& rows.GetArrayLength() > 0 && rows.EnumerateArray().All(r => Field(r, "Position").Length > 0), seconds: 6, every: 0.3);
+		if (rows.ValueKind == JsonValueKind.Array)
+			positions = rows.EnumerateArray().Select(r => SpotShown(Field(r, "Position"), side: false)).Where(p => p.Length > 0).ToList();
+		var title = Field(preview, "Title");
+		var verdict = GameWords.Of(Field(preview, "YouthIntakeDescription"));
+		var status = GameWords.Of(Field(preview, "YouthIntakeStatus"));
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(new { Title = title, Verdict = verdict, Status = status, Positions = positions }));
+			return 0;
+		}
+		Console.WriteLine(title);
+		Console.WriteLine($"  {verdict}");
+		Console.WriteLine(L($"  Status: {status}"));
+		if (positions.Count > 0) Console.WriteLine(L($"  Positions foreseen: {string.Join(", ", positions)}"));
+		return 0;
+	}
+
 	private static async Task<List<(string Text, string Path)>> YouthPaths(string anchorPath, string up) =>
 		(await Fm.GetJson("texts", ("anchorpath", anchorPath), ("up", up), ("paths", "1"), ("most", "1"))).EnumerateArray()
 			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
@@ -134,6 +172,7 @@ internal static partial class Program
 		if (await NotNow() is { } refused) return refused;
 		if (args.Contains("--training") || args.Skip(1).Any(w => w is "training" or "antrenman")) return await YouthTraining(json);
 		if (args.Contains("--candidates") || args.Skip(1).Any(w => w is "candidates" or "adaylar" or "aday")) return await YouthCandidates(json);
+		if (args.Skip(1).Any(w => w is "preview" or "onizleme")) return await YouthPreview(json);
 
 		// The environment tab: the youth team's staff and the academy's level are bound there.
 		List<(string Text, string Path)> details = [];
