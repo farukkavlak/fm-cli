@@ -362,12 +362,14 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     as `shout-button` rows sending their record (`TouchlineShoutAction`, `Title` in the game's words); read back by
     the match tactic's `HavePendingTouchlineShout`; while one waits the popup is gone, said as the cooldown.
     TR 3/3 (`round22.toml`); EN by hand (list, json, wrong name, Up Your Game shouted, cooldown); EN run died at
-    submission (T92): again next round. The Individual tab: not yet.
+    submission (T92); round23 EN 2/3 passed, the third died at submission again (T92). The Individual tab: not yet.
   - [x] Injury during a match: the game's "Injured Players" window is answered with `dialog`, the player changed
     with `sub <off> <on>`, read back by `sub` (EN by hand: Sušak off, Ozan on).
-  - [ ] Set pieces during a match: `setpieces` refuses ("no other page during a match"); the match bar's own
-    `SetPieces` button opens them in the tactics panel: read and change them there.
-  - [ ] `status` in a match does not say a window is open (it says only "match").
+  - [x] Set pieces during a match: opened through the match bar's tactics button (or, once a change waits, the
+    pending card's edit: whatever sends MatchOpenTactics and is not a tab), then its `SetPieces` tab; a change is
+    confirmed by the panel's own Confirm Changes, a read leaves by Cancel; both read back by the panel going.
+    TR 3/3, EN 2/3 (one died at submission, T92), `round23.toml`.
+  - [x] `status` in a match says a window the game opened (by the dialog route), with `dialog` to answer it.
 - [ ] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
 
 ## 9. Depth the crawl has not reached

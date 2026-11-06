@@ -2743,3 +2743,6 @@ No single shout '{0}'. Shouts: {1}	Tek bir '{0}' bağırışı yok. Bağırışl
 (dry run) {0} would be shouted.	(deneme) {0} bağırılırdı.
 {0} was pressed, but the game shows no shout pending.	{0} basıldı ama oyunda bekleyen bağırış görünmüyor.
 Shouted: {0}	Bağırıldı: {0}
+A window is open: {0}. To answer: dialog	Açık bir pencere var: {0}. Cevaplamak için: dialog
+The change waits in the tactics panel: its Confirm Changes did not close it.	Değişiklik taktik panelinde bekliyor: Confirm Changes paneli kapatmadı.
+Confirmed in the match: the change goes on when play does.	Maçta onaylandı: değişiklik oyun sürünce geçerli olur.

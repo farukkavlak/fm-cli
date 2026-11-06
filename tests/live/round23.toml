@@ -1,0 +1,26 @@
+# Round 23: in a match (T63). Shouts again in English (round 22 lost its English run to T92); set pieces read and
+# changed in the match through the bar's tactics panel, confirmed there, read back both ways.
+# Run: tools/fm-round.py dry tests/live/round23.toml, then run.
+
+[[test]]
+task = "T63"
+name = "in a match: shouts, and set pieces read, changed, confirmed, read back"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { start = "match --no-talk" },
+  { until = "status", path = "DuringMatch", is = "True", seconds = 600, every = 10, live = true, note = "asked slowly (T92)" },
+  { until = "shout", path = "#", not = "0", seconds = 300, every = 10, live = true },
+  { stop = true },
+  { run = "pause", rc = "any" },
+  { run = "shout zzq", rc = 64 },
+  { read = "shout 2", path = "Heard", is = "True", live = true },
+  { run = "shout 1", rc = "fail", note = "a shout waits" },
+  { read = "setpieces corner", path = "Delivery", keep = "was", live = true },
+  { run = "setpieces corner delivery out" },
+  { read = "setpieces corner", path = "Delivery", keep = "out", live = true },
+  { run = "setpieces corner delivery in" },
+  { read = "setpieces corner", path = "Delivery", differs_from = "out", live = true },
+  { run = "setpieces zzq", rc = 64 },
+]

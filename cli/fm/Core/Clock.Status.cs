@@ -1,3 +1,4 @@
+using System.Text.Json;
 namespace FmCli;
 
 internal static partial class Program
@@ -103,6 +104,13 @@ internal static partial class Program
 			if (watchedMatch) board += L("  (a match we are watching, not the first team's)");
 			// The clock is not bound at a goal's stop either, and then there is a score: "–" is one before kick-off.
 			Console.WriteLine(minute == "" && score == "–" ? L($"In a match, not started yet.  {board}") : L($"In a match. {minute}  {board}"));
+			// A window the game opened (an injured player left on, a change to confirm) holds the match until answered.
+			if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } open && open.GetArrayLength() > 0)
+			{
+				var asking = open[0];
+				Console.WriteLine(L($"A window is open: {DialogWords(asking, "Title")}. To answer: dialog"));
+				return 0;
+			}
 			// A team talk holds the match until something is said.
 			Console.WriteLine((await TalkOptions()).Count > 0
 				? L("Waiting in a team talk. To speak: talk   (to skip the talk: match --no-talk)")

@@ -26,9 +26,56 @@ internal static partial class Program
 
 	private static string RoutineUsage => L("usage: setpieces <kind>   ·   setpieces <kind> delivery <in|out> | aim <option> | <place> <duty> [<otherwise>]\n          setpieces new [<no> …]   (if set pieces have never been set up)\nkinds: corner, freekick (shooting range), wide, deep (free kicks), throw (attacking third)");
 
+	/// <summary>The match bar's Set Pieces (element `SetPieces`, MatchOpenTactics): the tactics panel on its set pieces.</summary>
+	private static async Task<string> MatchSetPieces()
+	{
+		async Task<JsonElement> Bar(string name) => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Name") == name && Field(b, "Events").Contains("MatchOpenTactics", StringComparison.Ordinal) && Field(b, "Visible") == "True");
+		// The match bar has the tactics' own button (`tactic`); the panel it opens has a tab per part (`SetPieces`).
+		var setPieces = await Bar("SetPieces");
+		if (setPieces.ValueKind != JsonValueKind.Object)
+		{
+			// The bar's tactics button, or once a change waits, the pending card's own edit (it sends
+			// EventFmxModifyPendingTacticalChanges with MatchOpenTactics): what opens the panel, not one of its tabs.
+			var tactics = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.FirstOrDefault(b => Field(b, "Events").Contains("MatchOpenTactics", StringComparison.Ordinal)
+				                     && !Field(b, "Events").Contains("SetDatastoreValue", StringComparison.Ordinal) && Field(b, "Visible") == "True");
+			if (tactics.ValueKind != JsonValueKind.Object) return "error: the match bar is not on screen (pause the match first: pause)";
+			await Fm.Get("press", ("ptr", Field(tactics, "Pointer")));
+			await Until(async () => (setPieces = await Bar("SetPieces")).ValueKind == JsonValueKind.Object, seconds: 6, every: 0.2);
+		}
+		if (setPieces.ValueKind != JsonValueKind.Object) return "error: the tactics panel has no Set Pieces";
+		return await Fm.Get("press", ("ptr", Field(setPieces, "Pointer")));
+	}
+
 	private static async Task<int> SetPieceRoutine(bool json, List<string> words)
 	{
-		if (await NotNow() is { } refused) return refused;
+		var inMatch = Field(await Fm.GetJson("state"), "DuringMatch") == "True";
+		var rc = await SetPieceRoutineOn(json, words);
+		if (!inMatch) return rc;
+		// In a match the tactics panel holds a change until its own Confirm Changes (MatchCloseTacticalPanel:Confirm);
+		// a read leaves by its Cancel. Either way the panel goes, which reads it back.
+		var panel = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Events").StartsWith("MatchCloseTacticalPanel:", StringComparison.Ordinal) && Field(b, "Visible") == "True").ToList();
+		var confirm = panel.FirstOrDefault(b => Field(b, "Events") == "MatchCloseTacticalPanel:Confirm" && Field(b, "Enabled") == "True");
+		var leave = confirm.ValueKind == JsonValueKind.Object ? confirm : panel.FirstOrDefault(b => Field(b, "Events") == "MatchCloseTacticalPanel:Cancel");
+		if (leave.ValueKind != JsonValueKind.Object) return rc;
+		await Fm.Get("press", ("ptr", Field(leave, "Pointer")));
+		var closed = await Until(async () => !(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Any(b => Field(b, "Events").StartsWith("MatchCloseTacticalPanel:", StringComparison.Ordinal) && Field(b, "Visible") == "True"), seconds: 5, every: 0.2);
+		if (confirm.ValueKind == JsonValueKind.Object)
+		{
+			if (!closed) { Console.Error.WriteLine(L("The change waits in the tactics panel: its Confirm Changes did not close it.")); return 1; }
+			if (!json) Console.WriteLine(L("Confirmed in the match: the change goes on when play does."));
+		}
+		return rc;
+	}
+
+	private static async Task<int> SetPieceRoutineOn(bool json, List<string> words)
+	{
+		// During a match no page opens; the match bar's own Set Pieces (its element name) opens them in the tactics panel.
+		var inMatch = Field(await Fm.GetJson("state"), "DuringMatch") == "True";
+		if (!inMatch && await NotNow() is { } refused) return refused;
 
 		var kind = SetPieceKinds.FirstOrDefault(k => k.Words.Contains(Fold(words[0])));
 		if (kind.Say == null)
@@ -38,7 +85,7 @@ internal static partial class Program
 		}
 		words.RemoveAt(0);
 
-		var opened = await OpenPage(Screen.SetPieces);
+		var opened = inMatch ? await MatchSetPieces() : await OpenPage(Screen.SetPieces);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		if (await ShowSetPieceKind(kind!.Value, kind.ThrowIn) == null)
 		{
