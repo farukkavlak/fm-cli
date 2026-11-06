@@ -267,6 +267,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   (`writes=1`, only `vision plan` asks). After: 3 of 3 kicked off, game alive (EN). Older crashes predate it: still open.
   Later the same night: round22 EN died once more at submission (GC Finalizer, `status` asked every 10 s); TR 3 of 3
   fine. Rarer, not gone. `shown`'s `Under` is also only read when asked (`remap=1`).
+  A lead: every death that night was in an English run; the Turkish runs (6 of 6 in rounds 22–23) never died.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;
@@ -371,6 +372,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     TR 3/3, EN 2/3 (one died at submission, T92), `round23.toml`.
   - [x] `status` in a match says a window the game opened (by the dialog route), with `dialog` to answer it.
 - [ ] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
+  - [x] The new manager's unveiling: its invitation answered with `reply` (Attend), every question with `talk`, the
+    conference over (no answers left, `talk` then has no conversation). TR + EN 3/3 (`round24.toml`, scenario `press`).
+  - [x] Pre- and post-match invitations are messages with Send / Delegate / Attend, answered with `reply` (seen in
+    the Helmond spring run); attended ones are the same `talk`.
+  - [ ] A transfer question and an unhappy player's media question: not met yet.
 
 ## 9. Depth the crawl has not reached
 

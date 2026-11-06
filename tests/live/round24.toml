@@ -1,0 +1,27 @@
+# Round 24: press (T64). The new manager's unveiling press conference: invitation answered (Attend), every question
+# answered with talk, the conference over. Run: tools/fm-round.py dry tests/live/round24.toml, then run.
+
+[[test]]
+task = "T64"
+name = "unveiling press conference: attended and answered to its end"
+at = "press"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 9", rc = "fail", note = "no ninth answer" },
+  { run = "reply {msg} 2" },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { run = "talk 99", rc = "fail" },
+  { run = "talk 1", note = "start" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any", note = "up to nine answers; the unveiling has six questions and an exit" },
+  { read = "talk", path = "Answers.#", is = "0", live = true, note = "the conference is over" },
+  { run = "talk", rc = "fail", note = "no open conversation" },
+]
