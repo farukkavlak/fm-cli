@@ -197,6 +197,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     name (`TotalNumberText` at `comp.TransfersTotalNumberInWindow`, `DealText` …). Open: a sign that the card is drawn
     (the open message's `NewsItem.DynamicCardId` node is there but unbound). Plan: `rowtexts` gives each table's
     headings (texts of its parent outside the table).
+- [ ] T118 `tour` at a step that waits for something done on screen says only that: the new club's Tactics Introduction
+  ("select the tactical display shown", no tactic set) passed once `tactic new` made a tactic. Name the command for
+  such a step by the step's anchor (`FM.UI.TutorialAnchorID`) or action (`TutorialActionsID`), not its words.
+- [x] T119 `news <no>` printed "the story's text could not be read" for every story (EN, 31 May 2030): it walked the
+  whole tree for the text. Now the story's title on screen names its record (`Under`), and the title and text are read
+  together from that record (`newsitem.NewsBodyString`). TR + EN 3/3 (`round14.toml`).
+  - [ ] The list's age reads "Just Now" in a Turkish game: find where the game's own words for it are bound.
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
@@ -292,7 +299,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [x] Contracts ending on the last day: `contracts`. TR + EN.
   - [x] A player's statuses by the game's numbers: `squad --json` `Flags` (`Id`: 20 retiring, 75 free agent; `Type`).
     The on-trial note is told by the flag, not its words. TR + EN (`round10.toml`).
-  - [ ] Awards and retirements: their messages, from `season-end` forward.
+  - [x] Retirements come as news stories ("Lopes retires"): `news`, `news <no>` (T119). Award winners: `read
+    award-winners`, the table with its headings. TR + EN (`round14.toml`, scenario `helmond-june`, 31 May 2030).
+  - [ ] This season's award, once given (not out by 31 May): its message or story, and the page's new row.
 - [ ] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
   - [x] Deadline day (`deadline`): its message's question (Take Part / Decline) answered with `reply`, read back by the
     message no longer waiting; a wrong answer number refused. The offers waiting are free-transfer ones the game answers

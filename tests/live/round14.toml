@@ -1,0 +1,33 @@
+# Round 14: T55 the season's end in the news (retirements are stories) and the award winners' page; T119 a news
+# story's whole text. Run: tools/fm-round.py dry tests/live/round14.toml, then run.
+
+# A story opened by its number: the title is the one listed, the text is read from that story's own record.
+[[test]]
+task = "T119"
+name = "news: a story's whole text, from its own record"
+at = "helmond-june"
+fresh = true
+repeat = 3
+steps = [
+  { read = "news", path = "#", not = "0", live = true },
+  { read = "news", path = "0.Title", keep = "t1", live = true },
+  { read = "news", path = "2.Title", keep = "t3", live = true },
+  { read = "news 1", path = "Title", same_as = "t1", live = true },
+  { read = "news 1", path = "Body", not = "", live = true },
+  { read = "news 3", path = "Title", same_as = "t3", live = true },
+  { read = "news 3", path = "Body", not = "", live = true },
+  { read = "news 1", path = "Body", keep = "b1", live = true },
+  { read = "news 3", path = "Body", differs_from = "b1", live = true, note = "another story, another text" },
+  { run = "news 9999", rc = "fail" },
+]
+
+# The award winners' page: its table with headings and rows.
+[[test]]
+task = "T55"
+name = "award winners page"
+at = "helmond-june"
+steps = [
+  { read = "read award-winners", path = "Parts.?Rows.#", not = "0", live = true },
+  { read = "read award-winners", path = "Parts.?Rows.0.Head.#", not = "0", live = true },
+  { read = "read award-winners", path = "Parts.?Rows.0.Rows.#", not = "0", live = true },
+]

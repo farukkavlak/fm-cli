@@ -58,16 +58,24 @@ internal static partial class Program
 			}
 			var pressed = await Fm.Get("press", ("ptr", Field(tile, "Pointer")));
 			if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
-			// The page binds the article's whole text — paragraph after paragraph — the tile in
-			// the list often only its opening sentence; the longer reading is the one to keep.
-			var opening = item.Body;
+			// The article opens in a popup over the site. A title on screen names the record it is drawn from (the
+			// remapper node above it, `Under`); the title and the whole text are read together from that record, so
+			// the text is this story's and not another tile's. It is the story asked for when that record's title is.
+			var body = "";
 			await Until(async () =>
 			{
-				var now = NewsItems(await Fm.Get("tree", ("depth", "40"))).FirstOrDefault(i => i.Title == item.Title);
-				if (now.Body is { Length: > 0 } read && read.Length > opening.Length) opening = read;
-				return opening.Length > 0 && (await Fm.GetJson("texts", ("anchor", item.Title), ("up", "0"))).GetArrayLength() > 0;
-			}, seconds: 6, every: 0.5);
-			var body = opening;
+				var shown = await Fm.GetJson("shown");
+				if (shown.ValueKind != System.Text.Json.JsonValueKind.Array) return false;
+				foreach (var title in shown.EnumerateArray().Where(t => Field(t, "Path") == "newsitem.NewsTitleString" && Field(t, "Text") == item.Title && Field(t, "Under").Length > 0))
+				{
+					var story = await Fm.Pull($"{Field(title, "Under")}.newsitem", "NewsTitleString,NewsBodyString");
+					if (Field(story, "NewsTitleString") != item.Title || Field(story, "NewsBodyString") is not { Length: > 0 } text) continue;
+					body = text;
+					return true;
+				}
+				return false;
+			}, seconds: 8, every: 0.3);
+			if (body.Length == 0) body = item.Body;
 			if (json)
 			{
 				Console.WriteLine(JsonOut.Of(new { item.Title, item.About, item.Age, Body = body }));
