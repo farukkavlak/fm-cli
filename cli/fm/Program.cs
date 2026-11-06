@@ -176,7 +176,9 @@ internal static partial class Program
 
 		// Without a club these read pages that are not there and fail in the page's terms; the
 		// manager's own record says why at once.
-		if (ClubCommands.Contains(command) && await InGameIfUp() && await Unemployed())
+		// `contract` with no player reads the card already open, which a job offer's talks open without a club.
+		var openCard = command == "contract" && Words(args).Count() == 0;
+		if (ClubCommands.Contains(command) && !openCard && await InGameIfUp() && await Unemployed())
 		{
 			Console.Error.WriteLine(L($"You are unemployed: '{command}' needs a club to manage. Job vacancies: jobs"));
 			return 1;

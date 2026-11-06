@@ -1,0 +1,39 @@
+# Round 19: moments. The youth intake read from the club's data (T28, T59); a job offer's contract card read while
+# unemployed (T60). Run: tools/fm-round.py dry tests/live/round19.toml, then run.
+
+# The day after the intake: every candidate read, each with a name and a potential.
+[[test]]
+task = "T28"
+name = "youth candidates from the club's data"
+at = "intake"
+fresh = true
+repeat = 3
+steps = [
+  { read = "youth candidates", path = "#", not = "0", live = true },
+  { read = "youth candidates", path = "0.Name", not = "", live = true },
+  { read = "youth candidates", path = "0.Potential", not = "0", live = true },
+]
+
+# Before the intake: none yet, as an empty list.
+[[test]]
+task = "T28"
+name = "youth candidates before the intake"
+at = "spring"
+fresh = true
+steps = [
+  { read = "youth candidates", path = "#", is = "0", live = true },
+]
+
+# A job offer: its talks entered, the card read with its terms while still without a club; then left without signing.
+[[test]]
+task = "T60"
+name = "job offer: the contract card read while unemployed"
+at = "job-offer"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 2", rc = "any" },
+  { read = "contract", path = "Terms.#", not = "0", live = true },
+  { run = "contract zzq", rc = "fail", note = "a player's name still needs a club" },
+]

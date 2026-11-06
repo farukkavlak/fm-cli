@@ -168,7 +168,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T27 `holiday … --jobs <kind> | --no-jobs`: the switch `holiday.applyforjobs` and the list
   `holiday.applyforjobsdropdownselectedoption` by its own values (−1 is the prompt), or by the shown words. `--dry` sets the
   page and leaves by its CancelButton. TR: 3 × two kinds, an unknown kind, a real week with `--no-jobs`; EN 3 × and a kind by the game's words.
-- [ ] T28 `fm youth candidates`: rows not seen yet (intake each March; PORTING).
+- [x] T28 `fm youth candidates`: the club's own list (`Human.Club.AllYouthCandidates`), read once it holds the club's
+  count (`YouthCandidatesCount`) with every field filled: name, age, positions, nation, potential as the club sees it.
+  `youth candidates` is taken as a word (it fell to the language model). TR + EN 3/3, none before the intake
+  (`round19.toml`, scenario `intake`, 5 Apr 2029).
 - [ ] T29 After a goal with a change pending, the game's question (dialog `Type` `cancelTweaks`). `match` stops and says
   `dialog`. EN 3 goals, TR 2: Yes makes the tweak, No drops every waiting change, active ones stay. Left: `cancelChanges`
   (a tactic change, not a tweak) not met.
@@ -321,7 +324,15 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     nobody away outside a break (`round12.toml`).
   - [ ] The postponement request a call-up brings ("Request … postponement?"): answered with `reply`, read back.
 - [ ] T59 Youth intake (March): candidates, intake preview.
+  - [x] Candidates (T28). The intake came on 4 Apr 2029 (Varzim) with no message of its own in the inbox.
+  - [ ] What can be done with a candidate (offer a youth contract, release): not looked at yet.
 - [ ] T60 Board meeting and board requests answered; job offers while employed; being sacked.
+  - [x] Sacked (`sacked`): the message, `status` says unemployed, `jobs` lists 45; applications by the game's own button.
+  - [x] Interview (`interview`) through `reply` and `talk`, to a job offer, its contract card (`contract` now reads an
+    open card while unemployed: it was refused for want of a club), `talk` Finalise, the new club. TR + EN 3/3 for the
+    card (`round19.toml`). Left: the card's heading has no name (" — Terms") and its last line speaks of an agent.
+  - [x] Board requests (T85, `round16.toml`).
+  - [ ] Board meeting; a job offer while employed.
 - [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.
 - [ ] T62 Pre-season: friendlies, pre-season training, new-season expectations.
 - [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,

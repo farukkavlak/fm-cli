@@ -20,18 +20,44 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The year's intake, once it has come (Youth Setup › Youth Candidates). FM26's read held the page
-	/// by its English headings ("Elite Prospects (3)"); FM27's rows have not been seen yet (an intake
-	/// comes each March), so until they are mapped by data path this only says whether they came.
+	/// The year's intake, once it has come: the club's own list of candidates (Human.Club.AllYouthCandidates), each with
+	/// name, age, positions as the game writes them, nation and potential as the club sees it (out of 200). The list's
+	/// fields are bound over a few reads; it is read once it holds as many as the club's count, every one filled.
 	/// </summary>
 	private static async Task<int> YouthCandidates(bool json)
 	{
-		// Whether the year's candidates have come is in the club's data.
-		if (int.TryParse(Field(await Fm.Pull("Human.Club", "YouthCandidatesCount"), "YouthCandidatesCount"), out var came) && came == 0)
-			Console.Error.WriteLine(L("This year's intake candidates have not come yet (intake date: youth)."));
-		else
-			Console.Error.WriteLine(L("This year's intake candidates cannot be read yet; see them in the game: Youth Setup › Youth Candidates."));
-		return 1;
+		if (!int.TryParse(Field(await Fm.Pull("Human.Club", "YouthCandidatesCount"), "YouthCandidatesCount"), out var came) || came == 0)
+		{
+			if (json) Console.WriteLine("[]");
+			else Console.Error.WriteLine(L("This year's intake candidates have not come yet (intake date: youth)."));
+			return json ? 0 : 1;
+		}
+		const string Props = "Name,Age,PositionCombinedString,Nation.Name,PerceivedPotentialAbility";
+		List<JsonElement> rows = [];
+		var whole = await Until(async () =>
+		{
+			var read = await Fm.Pull("Human.Club.AllYouthCandidates", Props, list: true);
+			rows = read.ValueKind == JsonValueKind.Array ? read.EnumerateArray().Select(r => r.Clone()).ToList() : [];
+			return rows.Count == came && rows.All(r => Props.Split(',').All(f => Field(r, f).Length > 0));
+		}, seconds: 10, every: 0.3);
+		if (!whole)
+		{
+			Console.Error.WriteLine(L($"The intake's {came} candidates could not all be read."));
+			return 1;
+		}
+		var candidates = rows
+			.Select(r => (Name: Field(r, "Name"), Age: Field(r, "Age"), Position: Field(r, "PositionCombinedString"), Nation: Field(r, "Nation.Name"),
+				Potential: int.TryParse(Field(r, "PerceivedPotentialAbility"), out var pa) ? pa : 0))
+			.OrderByDescending(c => c.Potential).ThenBy(c => c.Name).ToList();
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(candidates.Select(c => new { c.Name, Age = int.TryParse(c.Age, out var a) ? a : 0, c.Position, c.Nation, c.Potential })));
+			return 0;
+		}
+		Table.Write([L("PLAYER"), L("AGE"), L("POSITION"), L("NATION"), L("POTENTIAL")],
+			candidates.Select(c => new[] { c.Name, c.Age, c.Position, c.Nation, $"{c.Potential}/200" }).ToList());
+		Console.WriteLine(L($"\n{candidates.Count} candidates in this year's intake (potential as the club sees it)."));
+		return 0;
 	}
 
 	private static async Task<List<(string Text, string Path)>> YouthPaths(string anchorPath, string up) =>

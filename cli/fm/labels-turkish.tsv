@@ -2714,3 +2714,5 @@ The board's request list is not on the page.	Yönetim istek listesi sayfada yok.
 To ask the board for: {0}. To confirm: board request {1} --yes	Yönetimden istenecek: {0}. Onaylamak için: board request {1} --yes
   (the request is still offered in the list: check the board's page)	  (istek listede hâlâ duruyor: yönetim sayfasına bakın)
 Family	aile
+The intake's {0} candidates could not all be read.	Alımın {0} adayının hepsi okunamadı.
+\n{0} candidates in this year's intake (potential as the club sees it).	\nBu yılki alımda {0} aday var (potansiyel kulübün gözünden).
