@@ -75,7 +75,8 @@ internal static partial class Program
 			if (next == null)
 			{
 				Console.Error.WriteLine(L("\nAt this step the tour expects you to do something on screen; it has no continue button of its own."));
-				if (Field(await TacticInfo(), "TacticCount") == "0")
+				// No tactic at all reads as no planner (TacticCount is not even bound then), as `tactic` itself tells it.
+				if (await Planner() is null || Field(await TacticInfo(), "TacticCount") == "0")
 					Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
 				return 1;
 			}

@@ -143,6 +143,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T21 Opposition scouting priorities: prioritise / cancel. Tactics › Oppo. › Team Report Priorities
   (`6e8ea46097c185d468f2723d4931e63b`, opened with `open?guid=&bar=1` from Oppo.). Buttons `EventFmxPrioritiseScoutingTeam`,
   `EventFmxCancelScoutingTeam`, list `scout`. TR, 30 Aug 2028: the list is empty and both are off; needs a game with assignments.
+  EN `calm` 7 Nov: empty too. An assignment is made from a club's own menu (Scout ›), which `actions` does not reach
+  (it takes people): needs T68's club rows first.
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
@@ -200,9 +202,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     name (`TotalNumberText` at `comp.TransfersTotalNumberInWindow`, `DealText` …). Open: a sign that the card is drawn
     (the open message's `NewsItem.DynamicCardId` node is there but unbound). Plan: `rowtexts` gives each table's
     headings (texts of its parent outside the table).
-- [ ] T118 `tour` at a step that waits for something done on screen says only that: the new club's Tactics Introduction
+- [x] T118 `tour` at a step that waits for something done on screen says only that: the new club's Tactics Introduction
   ("select the tactical display shown", no tactic set) passed once `tactic new` made a tactic. Name the command for
   such a step by the step's anchor (`FM.UI.TutorialAnchorID`) or action (`TutorialActionsID`), not its words.
+  Done by the data that says why: a step with no way on while the team has no tactic (no planner, as `tactic` tells it)
+  says `tactic new`. The check was there but asked TacticCount, which is not bound with no tactic. The induction steps
+  carry no anchor of their own (only CurrentInductionStepIndex). TR + EN by hand (`helmond-may`): the hint is text, which
+  the test tool does not read.
 - [x] T119 `news <no>` printed "the story's text could not be read" for every story (EN, 31 May 2030): it walked the
   whole tree for the text. Now the story's title on screen names its record (`Under`), and the title and text are read
   together from that record (`newsitem.NewsBodyString`). TR + EN 3/3 (`round14.toml`).
