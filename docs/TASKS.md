@@ -187,6 +187,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T116 With the vision meeting open, `status` took 3 minutes and `reply` 64 s: the meeting covers the inbox, so
   every read of it waited out its bound. Both now say the meeting is open and stop; the whole inbox is read once.
   `status` 4 s, `reply` refused in 0.6 s. 3/3 TR + EN (`round10.toml`, `within` bounds a step's time).
+- [ ] T117 A message's attachment (`reply`, `inbox` opening one): the deadline day's Transfer News card prints its
+  tables as bare rows, no headings, and its figures (done deals, spent, net) are left out. `AttachmentRows` also leans on
+  order (what follows the body) and on two reads agreeing. Hold it by the attachment's own elements and rows, with the
+  game's column headings; measure on several kinds (Code of Conduct, deadline day, a scouting report).
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
@@ -284,6 +288,12 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     The on-trial note is told by the flag, not its words. TR + EN (`round10.toml`).
   - [ ] Awards and retirements: their messages, from `season-end` forward.
 - [ ] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
+  - [x] Deadline day (`deadline`): its message's question (Take Part / Decline) answered with `reply`, read back by the
+    message no longer waiting; a wrong answer number refused. The offers waiting are free-transfer ones the game answers
+    only from their message: `offers <#> reject` says so (it called every refusal a stall). TR + EN 3/3 (`round13.toml`).
+    Taking part brings a journalist's question that the game itself closes on the next hour (`next` presses Continue
+    once, nothing else).
+  - [ ] A bid with a fee rejected and accepted through `offers`, read back; the window's own pages (Transfer Activity).
 - [x] T57 Cup draws: a draw's message offers skip or view; view opens the draw screen, `fm draw` runs it (`EventFmxDrawAllTeams`, read back by the button going off) and prints it. `fm read here` reads whatever is on top. TR + EN, nothing open refused.
 - [ ] T58 International break: call-ups, the national side's screens.
   - [x] Who is away now: `internationals` by the status's ineligibility reason (3 joining, 4 coming back, 5 on duty)

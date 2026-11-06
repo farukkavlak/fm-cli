@@ -1,0 +1,24 @@
+# Round 13: T56 deadline day. Run: tools/fm-round.py dry tests/live/round13.toml, then run.
+
+# The deadline message's question answered (Decline), read back by the message no longer waiting. The offers waiting
+# are free-transfer ones the game answers only from their message: `offers … reject` is refused and nothing changes.
+[[test]]
+task = "T56"
+name = "deadline day: the deadline message answered; offers listed, an answer the game does not give refused"
+at = "deadline"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.#", keep = "waiting", live = true },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 9", rc = "fail", note = "no ninth answer" },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.#", same_as = "waiting", live = true },
+  { run = "reply {msg} 2" },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.#", differs_from = "waiting", live = true },
+  { read = "offers", path = "#", not = "0", live = true },
+  { read = "offers", path = "#", keep = "offers", live = true },
+  { run = "offers 99 reject --yes", rc = "fail" },
+  { read = "offers", path = "#", same_as = "offers", live = true },
+  { run = "offers 1 reject --yes", rc = "fail", note = "the game gives no reject here" },
+  { read = "offers", path = "#", same_as = "offers", live = true },
+]

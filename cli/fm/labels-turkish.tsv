@@ -2707,3 +2707,5 @@ usage: tactic personal <position> on | off   positions: {0}	kullanım: tactic pe
 NOW	ŞU AN
 {0}, back {1}	{0}, dönüş {1}
 \n{0} away with their national side now; {1} played for it this season.	\n{0} oyuncu şu an milli takımında; {1} oyuncu bu sezon milli takımda oynadı.
+{0}: the game does not give 'stall' as an answer to this offer (an offer with no negotiation, or one about to expire, cannot be stalled).	{0}: oyun bu teklife 'stall' cevabını vermiyor (pazarlıksız ya da süresi dolmak üzere olan teklif bekletilemez).
+{0}: the game does not give '{1}' as an answer to this offer here; what it gives: offers <#> view	{0}: oyun bu teklife burada '{1}' cevabını vermiyor; verdikleri için: offers <#> view

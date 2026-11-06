@@ -99,7 +99,9 @@ internal static partial class Program
 		}
 		if (!(verb switch { "accept" => offer.CanAccept, "stall" => offer.CanStall, _ => offer.CanReject }))
 		{
-			Console.Error.WriteLine(L($"{what}: the game does not give '{verb}' as an answer to this offer (an offer with no negotiation, or one about to expire, cannot be stalled)."));
+			Console.Error.WriteLine(verb == "stall"
+				? L($"{what}: the game does not give 'stall' as an answer to this offer (an offer with no negotiation, or one about to expire, cannot be stalled).")
+				: L($"{what}: the game does not give '{verb}' as an answer to this offer here; what it gives: offers <#> view"));
 			return 1;
 		}
 		// The game sends these at once, without asking; selling a player is asked about here.
