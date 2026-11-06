@@ -88,7 +88,7 @@ internal static partial class Program
 			  talk <no>       say it (a number or part of the sentence);  talk leave: leave the conversation
 			  tour            run the open guided tour to the end
 			    --skip        skip the tour (if the tour allows it)
-			  contract [player]  the contract negotiation card: promises, then terms; edited with the arrow keys in a terminal
+			  contract [player]  the contract negotiation card: promises, then terms; edited with the arrow keys in a terminal; --next: on to the terms · --sign --yes: offer it
 			  contract <player> --agent  ask their agent whether they are open to a renewal (then with talk)
 			  offers          offers for our players awaiting an answer;  offers <# | player> view | accept | stall | reject
 			  propose <player> [fee] [--loan] [--yes]  offer the player to clubs (a sale or a loan)

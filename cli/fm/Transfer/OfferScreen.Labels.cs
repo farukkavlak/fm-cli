@@ -126,7 +126,9 @@ internal sealed partial class OfferScreen
 
 		if (!Ui.Rich)
 		{
-			Console.WriteLine($"{Player}{(Club.Length > 0 ? $" · {Club}" : "")} — {title}");
+			// A job offer's card has no player: its heading is the stage alone, not " — Terms".
+			var who = string.Join(" · ", new[] { Player, Club }.Where(w => w.Length > 0));
+			Console.WriteLine(who.Length > 0 ? $"{who} — {title}" : title);
 			foreach (var group in Rows.GroupBy(r => r.Section))
 			{
 				Console.WriteLine($"{ContractSection(group.Key, title)}:");
@@ -159,7 +161,8 @@ internal sealed partial class OfferScreen
 
 		Ui.Out.Write(new Panel(grid)
 		{
-			Header = new PanelHeader($" [bold]{Ui.Safe(Player)}[/]{(Club.Length > 0 ? $" · {Ui.Safe(Club)}" : "")} — {Ui.Safe(title)} "),
+			Header = new PanelHeader(Player.Length + Club.Length == 0 ? $" [bold]{Ui.Safe(title)}[/] "
+				: $" [bold]{Ui.Safe(Player)}[/]{(Club.Length > 0 ? $" · {Ui.Safe(Club)}" : "")} — {Ui.Safe(title)} "),
 			Border = BoxBorder.Rounded,
 			BorderStyle = new Style(Color.Grey),
 			Padding = new Padding(1, 0, 1, 0),

@@ -1,0 +1,20 @@
+# Round 21: contract renewals (T61). A player whose contract ends: promises, terms, the offer sent; the talks then
+# closed. A player the game gives no talks with is refused. Run: tools/fm-round.py dry tests/live/round21.toml, then run.
+
+[[test]]
+task = "T61"
+name = "renewal: promises, terms, offer sent; one the game will not talk with refused"
+at = "june"
+fresh = true
+repeat = 3
+steps = [
+  { read = "contracts", path = "#", not = "0", live = true },
+  { read = "contracts", path = "0.Name", keep = "first", live = true },
+  { read = "contracts", path = "1.Name", keep = "second", live = true },
+  { run = "contract {second}", rc = "fail", note = "the game gives no talks with him in this save" },
+  { read = "contract {first}", path = "Terms.#", not = "0", live = true },
+  { run = "contract --next" },
+  { read = "contract", path = "Terms.#", not = "0", live = true },
+  { run = "contract --sign --yes" },
+  { run = "contract", rc = "fail", note = "the talks are closed" },
+]

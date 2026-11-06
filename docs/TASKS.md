@@ -336,6 +336,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [x] Board requests (T85, `round16.toml`).
   - [ ] Board meeting; a job offer while employed.
 - [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.
+  - [x] A renewal we start: `contract <player>` promises, `--next` terms, `--sign --yes` offered; the player's answer
+    comes by message and `contracts` shows the new end (EN by hand: Ahmet Koşar, 30/6/2028 → 30/6/2030). A player the
+    game gives no talks with is refused. TR + EN 3/3 (`round21.toml`, scenario `june`). A job offer's card has no
+    player: its heading is the stage alone (was " — Terms").
+  - [ ] A player asking for a new deal himself; an unhappy player's demand (moments not met yet).
 - [ ] T62 Pre-season: friendlies, pre-season training, new-season expectations.
   - [x] Friendlies: `friendly` (new) lists the opponents the game offers (by reputation, with fees), the open dates and
     the rules; `friendly <#> [--date] [--away] [--rules] --yes` proposes one. The panel by its button (`ArrangeFriendly`),
