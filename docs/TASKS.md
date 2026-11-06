@@ -191,6 +191,12 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   tables as bare rows, no headings, and its figures (done deals, spent, net) are left out. `AttachmentRows` also leans on
   order (what follows the body) and on two reads agreeing. Hold it by the attachment's own elements and rows, with the
   game's column headings; measure on several kinds (Code of Conduct, deadline day, a scouting report).
+  - Measured TR 6 Nov (deadline, a training report): the attachment is under `#MessageAttachments` (the body beside it,
+    `newsitem.NewsBodyString`); a card is a `Portal Card Template Element` (deadline: `states-transfer-window_report`);
+    a table's headings sit in its own `table` element (`ScrollView_Headers`) beside its rows (`View`); card figures by
+    name (`TotalNumberText` at `comp.TransfersTotalNumberInWindow`, `DealText` …). Open: a sign that the card is drawn
+    (the open message's `NewsItem.DynamicCardId` node is there but unbound). Plan: `rowtexts` gives each table's
+    headings (texts of its parent outside the table).
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
