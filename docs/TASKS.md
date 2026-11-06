@@ -143,8 +143,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T21 Opposition scouting priorities: prioritise / cancel. Tactics › Oppo. › Team Report Priorities
   (`6e8ea46097c185d468f2723d4931e63b`, opened with `open?guid=&bar=1` from Oppo.). Buttons `EventFmxPrioritiseScoutingTeam`,
   `EventFmxCancelScoutingTeam`, list `scout`. TR, 30 Aug 2028: the list is empty and both are off; needs a game with assignments.
-  EN `calm` 7 Nov: empty too. An assignment is made from a club's own menu (Scout ›), which `actions` does not reach
-  (it takes people): needs T68's club rows first.
+  EN `calm` 7 Nov: empty too. FM27 has no club right-click menu: league table rows and a club's own page carry only
+  person menus (`actions?menus=1`; `ClubButton` has no right-click events), so `ScoutTeam` is not reached that way.
+  Next: find where the game fills `ScoutTeamPriorities.SpecificallyScoutedTeams` (scouting staff, a date with fixtures ahead).
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
@@ -397,6 +398,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [ ] T67 Every list's submenus (tactic presets, Manage Tactics, Primary Trained Tactic, Copy Tactic …):
   crawl with the lists opened one level down.
 - [ ] T68 Every row's right-click / actions menu, for each kind of row (player, staff, club, competition, nation).
+  FM27, 7 Nov: club rows have none (see T21). `search` now gives a club result's `ClubPath`, and `searchopen?path=`
+  opens that club's page by its `ClubSearchButton` (T70 can start there).
 - [ ] T69 Game settings and preferences pages; the main menu (new career, load, online). Leave the
   display controls (window mode, resolution) unpressed, and block them in the tool: full screen while
   hidden is a black screen.

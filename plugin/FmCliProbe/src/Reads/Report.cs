@@ -235,7 +235,8 @@ internal static class Report
 				// The person's path lets a caller pull what the row does not show (age, positions,
 				// nation) to tell two of the same name apart.
 				if (current.Name == "Person" && fields.TryAdd("Name", name)) fields["Path"] = at;
-				else fields.TryAdd(current.Name, name);
+				// A club, competition or nation result's record path too: its own right-click menu is bound to it.
+				else if (fields.TryAdd(current.Name, name)) fields[current.Name + "Path"] = at;
 			}
 
 			// A person (player or staff: the caller asks his IsPlayer by Path), else the record found.
@@ -300,6 +301,23 @@ internal static class Report
 				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
 			}
 			var pressed = Buttons.PressFedBy("StaffSearchButton", keys, dry);
+			if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
+		}
+
+		// A club, competition or nation result (…items.N.1.ClubRemapper1.Club): its button, named for the
+		// record ("ClubSearchButton"), is fed by the remapper's parent.
+		if (!string.IsNullOrEmpty(person) && FmApi.NodeAt(person, out _) is { Name: not "Person", Parent.Parent: { } holder } record)
+		{
+			var keys = new HashSet<ulong>();
+			var queue = new Queue<IReadOnlyNode>();
+			queue.Enqueue(holder);
+			while (queue.Count > 0 && keys.Count < 600)
+			{
+				var current = queue.Dequeue();
+				keys.Add(current.Key.m_key);
+				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+			}
+			var pressed = Buttons.PressFedBy(record.Name + "SearchButton", keys, dry);
 			if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
 		}
 
