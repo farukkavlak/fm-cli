@@ -1041,7 +1041,7 @@ Budget: transfers {0} · wages {1}	Bütçe: transfer {0} · maaş {1}
 \nNo thin positions in the squad: every position has at least two fit players.	\nKadroda ince mevki yok: her mevkide en az iki sağlam oyuncu var.
 \nThin positions in the squad (one fit player or none):	\nKadroda ince mevkiler (sağlam oyuncu bir ya da hiç):
 \nOther positions: {0}	\nÖbür mevkiler: {0}
-\nTo search: targets <position>   (e.g. targets DL, targets "left back")	\nAramak için: targets <mevki>   (ör. targets DL, targets "sol bek")
+\nTo search: targets <position>   (e.g. targets {0}, targets "left back")	\nAramak için: targets <mevki>   (ör. targets {0}, targets "sol bek")
 The match's tactic was not found.	Maçın taktiği bulunamadı.
 The team instructions could not be read from the game.	Takım talimatları oyundan okunamadı.
 The team's tactic could not be read. If there is no tactic: tactic new	Takımın taktiği okunamadı. Taktik yoksa: tactic new

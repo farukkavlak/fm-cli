@@ -36,13 +36,15 @@ internal static partial class Program
 		var wage = budgets.Count > 1 ? budgets[1].Value.Split(" · ")[0] : "";
 
 		var words = Words(args).ToList();
+		await EngineTexts.Positions(Fm);
 		if (words.Count == 0) return await ThinPositions(json, transfer, wage);
 
 		var typed = string.Join(" ", words);
-		var slot = PositionTurkish.GetValueOrDefault(Fold(typed), typed);
+		// The game's own abbreviation first ("KL" in a Turkish game), then the code, then a Turkish name.
+		var slot = PositionTyped(typed) ?? PositionTurkish.GetValueOrDefault(Fold(typed), typed);
 		if (!PositionNames.ContainsKey(new string(slot.Where(char.IsLetter).ToArray())))
 		{
-			Console.Error.WriteLine(L($"There is no position called '{typed}'. Positions: {string.Join(" ", DepthRows.SelectMany(r => r))}  (or: {string.Join(", ", PositionTurkish.Keys)})"));
+			Console.Error.WriteLine(L($"There is no position called '{typed}'. Positions: {string.Join(" ", DepthRows.SelectMany(r => r).Select(PositionShown))}  (or: {string.Join(", ", PositionTurkish.Keys)})"));
 			return 64;
 		}
 
@@ -56,7 +58,7 @@ internal static partial class Program
 		}
 		if (!json)
 		{
-			Console.WriteLine(L($"{slot.ToUpperInvariant()} — value {(limited ? Option(args, "--max-value") : transfer)} and under{(limited ? "" : L(" (your transfer budget; to change it --max-value <money>)"))}"));
+			Console.WriteLine(L($"{PositionShown(slot.ToUpperInvariant())} — value {(limited ? Option(args, "--max-value") : transfer)} and under{(limited ? "" : L(" (your transfer budget; to change it --max-value <money>)"))}"));
 			Console.WriteLine(L($"Wage budget: {wage}"));
 		}
 		var found = await Players(json, ["players", "--position", slot, .. (limited ? [] : new[] { "--max-value", transfer }), .. passed]);
@@ -97,11 +99,11 @@ internal static partial class Program
 		{
 			var who = fit.Count == 0 ? L("nobody") : L($"only {fit[0]}");
 			var out_ = injured.Count > 0 ? L($"  (injured: {string.Join(", ", injured)})") : "";
-			if (Ui.Rich) Ui.Line($"  [bold]{slot,-4}[/] [red]{Ui.Safe(who)}[/][dim]{Ui.Safe(out_)}[/]");
-			else Console.WriteLine($"  {slot,-4} {who}{out_}");
+			if (Ui.Rich) Ui.Line($"  [bold]{Ui.Safe(PositionShown(slot)),-4}[/] [red]{Ui.Safe(who)}[/][dim]{Ui.Safe(out_)}[/]");
+			else Console.WriteLine($"  {PositionShown(slot),-4} {who}{out_}");
 		}
-		Console.WriteLine(L($"\nOther positions: {string.Join(" · ", depth.Where(d => d.Fit.Count > 1).Select(d => $"{d.Slot} {d.Fit.Count}"))}"));
-		Console.WriteLine(L("\nTo search: targets <position>   (e.g. targets DL, targets \"left back\")"));
+		Console.WriteLine(L($"\nOther positions: {string.Join(" · ", depth.Where(d => d.Fit.Count > 1).Select(d => $"{PositionShown(d.Slot)} {d.Fit.Count}"))}"));
+		Console.WriteLine(L($"\nTo search: targets <position>   (e.g. targets {PositionShown("DL")}, targets \"left back\")"));
 		return 0;
 	}
 }

@@ -13,7 +13,12 @@ COMMANDS=(
 	"takers" "penalties" "tactic" "depth" "opponent" "opposition" "progress" "world" "league" "supporters"
 	"numbers" "register" "responsibilities" "youth" "youth --training" "report" "saves" "targets" "stages" "prep"
 	"inbox" "read" "read club-history" "read data-hub" "manager"
+	"news 1" "tactic personal" "planner" "transferroom" "jobs" "fixtures --all" "read award-winners" "internationals --json"
 )
+# A game that is not running or has no save loaded fails every command for the same reason: say it once.
+if ! fm status < /dev/null > /dev/null 2>&1; then
+	echo "fm status fails: start the game and load a save first."; exit 2
+fi
 failed=0
 i=0
 for c in "${COMMANDS[@]}"; do

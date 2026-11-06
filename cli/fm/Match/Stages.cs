@@ -43,7 +43,11 @@ internal static partial class Program
 		// a league ("Türkiye Süper Ligi") is not the league's own ("Süper Lig").
 		if (Option(args, "--record") is { Length: > 0 } record)
 		{
-			if (await StageLists() is not { } before)
+			// The competition list comes first; on the page's first opening after a load the stage lists are
+			// built a moment later (EN, 6 Nov: failed once, then passed three times). They are waited for.
+			(System.Text.Json.JsonElement Competition, System.Text.Json.JsonElement Stage)? found = null;
+			await Until(async () => (found = await StageLists()) != null, seconds: 10, every: 0.25);
+			if (found is not { } before)
 			{
 				Console.Error.WriteLine(L("Lists on the Stages page not found."));
 				return 1;

@@ -28,6 +28,22 @@ internal static partial class Program
 		(256, "MR"), (512, "ML"), (1024, "MC"), (2048, "AMR"), (4096, "AML"), (8192, "AMC"), (16384, "ST"),
 	];
 
+	/// <summary>
+	/// A position's code ("GK") as the game writes it in its language ("KL"), by the engine's own codes
+	/// (<see cref="EngineTexts.Positions"/>); the code itself in an English game.
+	/// </summary>
+	internal static string PositionShown(string code) => EngineTexts.KnownPositions.GetValueOrDefault(code, code);
+
+	/// <summary>The position code a typed word stands for: the game's own abbreviation ("KL") or the code ("GK"); null for neither.</summary>
+	internal static string? PositionTyped(string typed)
+	{
+		static string Squash(string text) => new(Fold(text).Where(char.IsLetterOrDigit).ToArray());
+		var wanted = Squash(typed);
+		foreach (var code in DepthRows.SelectMany(r => r))
+			if (Squash(PositionShown(code)) == wanted) return code;
+		return null;
+	}
+
 	/// <summary>A PositionCombined mask as slots: 36 → DR, WBR.</summary>
 	internal static HashSet<string> Positions(string mask) =>
 		int.TryParse(mask, out var bits) ? PositionBits.Where(p => (bits & p.Bit) != 0).Select(p => p.Slot).ToHashSet() : [];
@@ -35,6 +51,7 @@ internal static partial class Program
 	private static async Task<int> Depth(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
+		await EngineTexts.Positions(Fm);
 		var squad = await SquadView(SquadTable.GeneralInfo, "AgreedPlayingTime");
 		var youth = await YouthTeams();
 		// Players out on loan are someone else's; one loaned to us has us as his loan club.
@@ -59,10 +76,11 @@ internal static partial class Program
 			foreach (var slot in row)
 			{
 				var names = depth[slot];
+				var shown = PositionShown(slot);
 				var mark = names.Count == 0 ? L("NONE") : names.Count == 1 ? L("one") : $"{names.Count}";
 				if (Ui.Rich)
-					Ui.Line($"[bold]{slot,-4}[/] {(names.Count <= 1 ? "[red]" : names.Count == 2 ? "[yellow]" : "[green]")}{mark,3}[/]  {Ui.Safe(string.Join(", ", names))}");
-				else Console.WriteLine($"{slot,-4} {mark,3}  {string.Join(", ", names)}");
+					Ui.Line($"[bold]{Ui.Safe(shown),-4}[/] {(names.Count <= 1 ? "[red]" : names.Count == 2 ? "[yellow]" : "[green]")}{mark,3}[/]  {Ui.Safe(string.Join(", ", names))}");
+				else Console.WriteLine($"{shown,-4} {mark,3}  {string.Join(", ", names)}");
 			}
 
 		var ages = players.Select(p => p.Age).Where(a => a > 0).ToList();

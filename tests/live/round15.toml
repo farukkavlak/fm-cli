@@ -1,0 +1,25 @@
+# Round 15: what the sweep found. `table` right after a load (the stage lists come a moment after the page),
+# `targets` / `depth` in the game's own position words. Run: tools/fm-round.py dry tests/live/round15.toml, then run.
+
+# The first command after a fresh load is `table`: it failed once in English ("Lists on the Stages page not found").
+[[test]]
+task = "T120"
+name = "table right after a fresh load"
+at = "helmond-june"
+fresh = true
+repeat = 3
+steps = [
+  { read = "table", path = "#", not = "0", live = true },
+]
+
+# targets: the thin positions read, one searched for by its code from the read; a wrong word refused.
+[[test]]
+task = "T120"
+name = "targets and depth: positions by the game's words, a wrong one refused"
+at = "helmond-june"
+steps = [
+  { read = "depth", path = "GK.#", not = "0", live = true },
+  { read = "targets", path = "Thin.#", present = true, live = true },
+  { run = "targets zzq", rc = 64 },
+  { run = "targets GK --max-value 1" },
+]

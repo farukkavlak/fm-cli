@@ -204,6 +204,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   whole tree for the text. Now the story's title on screen names its record (`Under`), and the title and text are read
   together from that record (`newsitem.NewsBodyString`). TR + EN 3/3 (`round14.toml`).
   - [ ] The list's age reads "Just Now" in a Turkish game: find where the game's own words for it are bound.
+- [x] T120 Found by the sweep (`tools/sweep.sh`, `helmond-june` and `kickoff`, TR + EN): `table` right after a load
+  failed once ("Lists on the Stages page not found": the stage lists come a moment after the page; now waited for);
+  `depth` and `targets` wrote positions in the CLI's English codes in a Turkish game (now the game's own, "KL", and
+  `targets KL` is taken). TR + EN 3/3 (`round15.toml`); the sweep: 63 commands, `kickoff` TR + EN all pass.
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
@@ -383,3 +387,13 @@ not yet tried in a live terminal.
   - [x] Comparisons against the CLI's own labels gone: `register`'s menu by its entries' places, `contracts` terms by
     their field, the table's form by the game's codes.
   - Known: `Transfer/Contracts.cs` leaves out terms whose value reads "-", "N/A", "None", "No" (English words the plugin gives).
+  - Found 6 Nov (grep of the source; each needs its identity measured in the game):
+    - [ ] `Club/BoardRequests.cs`: the stadium and new-contract requests are found by their buttons' English labels
+      ("Build New Stadium", "New Contract"); missing in a Turkish game. Hold them by their SpeakTo action.
+    - [ ] `Squad/Registration.cs`: the rules block is found by the words "Registration Open/Closed", its lines are
+      English sentences taken apart; the registration button is "the one before '<n> assigned'" (words and order).
+    - [ ] `Squad/Query.cs`: a wage is split at the English "p/w|m|a"; wage filters and sorting fail in Turkish.
+    - [x] `Club/Internationals.cs` caps/goals from English words (T58); `Core/StatusFlags.cs` "Free Agent" (T55);
+      `Match/News.cs` story text (T119); `depth` / `targets` positions in English codes (now the game's own).
+    - [ ] Waits on "two reads agree" (about 100 places: `settled`, `== last`): each is a time-based sign; move to the
+      game's own sign where one is known (as T93, T119 did).
