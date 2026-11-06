@@ -401,10 +401,14 @@ not yet tried in a live terminal.
       `Match/News.cs` story text (T119); `depth` / `targets` positions in English codes (now the game's own).
     - [ ] Plugin audit 6 Nov: no literal text, colour, position or style compare found. Known: `Reads/Pages.cs` takes a
       menu's first row as the tab's own screen (order).
-    - [ ] `Transfer/ScoutFocus*.cs`: the form found by the buttons' words "Back" / "Next" (works in Turkish only through
-      the plugin turning shown text into English): hold it by the buttons' events.
-    - [ ] `Squad/TacticFiles.cs`: the save panel's title and note boxes by order (`boxes[0]`, `boxes[1]`).
-    - [ ] `Club/ClubCards.cs` `CardWords`: fan groups, grades, Yes/No shown in the CLI's words from the game's English;
-      `GameWords.Of` leaves fan groups in English in a Turkish game (tried, reverted): find the game's own words.
+    - [x] `Transfer/ScoutFocus*.cs`: the form was found by the buttons' words "Back" / "Next" (Turkish only through the
+      plugin's English); now from the step button itself (told by what it sends), plugin `form?ptr=`. Old and new
+      reads the same on both steps (49 and 44 items, EN).
+    - [ ] `Transfer/Scouting.cs`: "no focus" is known by a 10 s wait for the list running out.
+    - [x] `Squad/TacticFiles.cs`: the save panel's title and note boxes by their bindings (`SelectedFileName`,
+      `Description`), not by order.
+    - [x] `Club/ClubCards.cs` `CardWords`: the game's values (grades, yes/no) now in the game's words (`GameWords.Of`:
+      "Hayır" where the CLI said "yok"); the kinds of supporter are the CLI's own list (by their data fields), so its
+      own words (`L`).
     - [ ] Waits on "two reads agree" (about 100 places: `settled`, `== last`): each is a time-based sign; move to the
       game's own sign where one is known (as T93, T119 did).

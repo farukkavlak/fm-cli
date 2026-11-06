@@ -9,18 +9,18 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly Dictionary<string, string> CardWords = new()
-	{
-		["Pleased"] = L("Pleased"), ["Concerned"] = L("Concerned"), ["Angry"] = L("Angry"), ["Delighted"] = L("Delighted"),
-		["Playing style"] = L("Playing style"), ["Reputation"] = L("Reputation"), ["Signing"] = "transfer", ["Rivalry"] = L("Rivalry"),
-		["Competition"] = L("Competition"), ["Youth"] = L("Youth"), ["Finance"] = L("Finance"),
-		["Core"] = L("Core"), ["Family"] = "aile", ["Fair Weather"] = L("Fair Weather"), ["Casual"] = L("Casual"),
-		["Hardcore"] = L("Hardcore"), ["Corporate"] = L("Corporate"),
-		["Very Good"] = L("Great"), ["Adequate"] = L("Adequate"), ["Basic"] = L("Basic"), ["Superb"] = L("Superb"),
-		["State Of The Art"] = L("State Of The Art"), ["Fair"] = L("Fair"), ["Yes"] = L("Yes"), ["No"] = L("none"), ["Club"] = L("Club"),
-	};
+	/// <summary>A value the game gives (a mood, a grade, yes or no) as the game writes it in its language.</summary>
+	private static string CardSay(string word) => GameWords.Of(word);
 
-	private static string CardSay(string word) => CardWords.TryGetValue(word, out var t) ? t : GameWords.Of(word);
+	/// <summary>
+	/// A kind of supporter, named in the CLI's own words: which kinds there are is the CLI's list, held by their data
+	/// fields (FanPercentageCore …), not read from the game's screen.
+	/// </summary>
+	private static string FanGroup(string group) => group switch
+	{
+		"Core" => L("Core"), "Family" => L("Family"), "Fair Weather" => L("Fair Weather"),
+		"Casual" => L("Casual"), "Hardcore" => L("Hardcore"), "Corporate" => L("Corporate"), _ => group,
+	};
 
 	/// <summary>
 	/// Opens a card from its tile on Club › Overview — the tile known by the panel it is laid out in
@@ -119,9 +119,9 @@ internal static partial class Program
 			var said = new
 			{
 				Mood = GameWords.Of(fans.Mood),
-				Influence = GameWords.Of(CardSay(fans.Influence)),
+				Influence = CardSay(fans.Influence),
 				fans.SeasonTicketHolders, fans.SeasonTicketWaitingList, fans.AverageAttendance, fans.SocialMediaFollowers,
-				Profile = profile.Select(p => new { Group = CardSay(p.Group), Share = GameNumbers.Percent(p.Share) }),
+				Profile = profile.Select(p => new { Group = FanGroup(p.Group), Share = GameNumbers.Percent(p.Share) }),
 				Expectations = expectations.Select(e => new { Text = GameWords.Of(e[0]), Fans = e[1] }),
 				About = GameWords.Of(fans.About),
 				fans.FierceRivals, fans.OtherRivals,
@@ -147,7 +147,7 @@ internal static partial class Program
 
 		CardHeading(L("Supporter profile"));
 		foreach (var (share, group) in profile.OrderByDescending(p => int.TryParse(p.Share, out var n) ? n : 0))
-			CardRow(CardSay(group), GameNumbers.Percent(share));
+			CardRow(FanGroup(group), GameNumbers.Percent(share));
 		if (fans.About is { Length: > 1 } about)
 		{
 			if (Ui.Rich) Ui.Line($"\n[dim]{Ui.Safe(about)}[/]");

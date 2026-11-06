@@ -11,8 +11,18 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static async Task<List<JsonElement>> FocusForm(string anchor) =>
-		(await Fm.GetJson("form", ("anchor", anchor), ("up", "12"), ("buttons", "1"))).EnumerateArray().ToList();
+	/// <summary>
+	/// The form at its first step (true) or second (false), read from that step's own button (<see cref="FocusSteps"/>,
+	/// told by what it sends) up to the form around it: no word on the screen is looked for.
+	/// </summary>
+	private static async Task<List<JsonElement>> FocusForm(bool first)
+	{
+		var steps = await FocusSteps();
+		var button = first ? steps.Next : steps.Back;
+		if (button == null) return [];
+		var form = await Fm.GetJson("form", ("ptr", button), ("up", "12"), ("buttons", "1"));
+		return form.ValueKind == JsonValueKind.Array ? form.EnumerateArray().ToList() : [];
+	}
 
 	/// <summary>
 	/// A control the form binds to a data path, whatever its heading says. The form's own names

@@ -102,11 +102,12 @@ internal static partial class Program
 		// The panel: a title box, a description box, Cancel and Save ("SaveAddon").
 		JsonElement save = default;
 		List<JsonElement> boxes = [];
+		string? Box(string binds) => boxes.Where(b => Field(b, "Binds") == binds).Select(b => Field(b, "Pointer")).FirstOrDefault();
 		var open = await TacticPanel(SaveRow, async () =>
 		{
 			save = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Events") == "SaveAddon");
 			boxes = (await Fm.GetJson("textboxes")).EnumerateArray().Where(b => Field(b, "Name") == "EditBox").ToList();
-			return save.ValueKind == JsonValueKind.Object && boxes.Count >= 2;
+			return save.ValueKind == JsonValueKind.Object && Box("SelectedFileName") != null;
 		});
 		if (!open)
 		{
@@ -114,8 +115,9 @@ internal static partial class Program
 			return 1;
 		}
 
-		await Fm.Get("type", ("ptr", Field(boxes[0], "Pointer")), ("text", name));
-		if (!string.IsNullOrEmpty(note)) await Fm.Get("type", ("ptr", Field(boxes[1], "Pointer")), ("text", note));
+		// The title and the description by the data each box is bound to, not by which comes first.
+		await Fm.Get("type", ("ptr", Box("SelectedFileName")!), ("text", name));
+		if (!string.IsNullOrEmpty(note) && Box("Description") is { } described) await Fm.Get("type", ("ptr", described), ("text", note));
 		// Save comes alive a moment after the title is in; a title the game will not take leaves
 		// it dead, and the panel is then closed again.
 		var ready = await Until(async () => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()

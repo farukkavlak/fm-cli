@@ -28,7 +28,7 @@ internal static partial class Program
 		JsonElement? list = null;
 		if (!await Until(async () => (list = await FocusList()) != null, seconds: 10, every: 0.5))
 		{
-			Console.WriteLine(L("No scouting focuses."));
+			Console.WriteLine(json ? "[]" : L("No scouting focuses."));
 			return 0;
 		}
 		var count = list!.Value.GetProperty("Choices").GetArrayLength();

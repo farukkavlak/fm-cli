@@ -1,0 +1,38 @@
+# Round 17: the audit's finds (T85). The recruitment focus form read from its step buttons, not their words; the tactic
+# save panel's boxes by their bindings; the club cards' values in the game's words.
+# Run: tools/fm-round.py dry tests/live/round17.toml, then run.
+
+# A focus made through the whole form (both steps), read back, then removed; a scout list with none is JSON too.
+[[test]]
+task = "T85"
+name = "scout focus: made through both steps of the form, read back, removed"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { read = "scout", path = "#", keep = "before", live = true },
+  { run = "scout new --position GK --priority standard --name fmclir17" },
+  { read = "scout", path = "#", differs_from = "before", live = true },
+  { run = "scout remove fmclir17 --yes" },
+  { read = "scout", path = "#", same_as = "before", live = true },
+]
+
+# The tactic saved under a name typed into the title box (by its binding), found in the saved list.
+[[test]]
+task = "T85"
+name = "tactic save: the title box by its binding"
+at = "kickoff"
+steps = [
+  { run = "tactic save fmcli-r17 --note r17 --yes" },
+  { read = "tactic saved", path = "?Name=fmcli-r17.#", is = "1", live = true },
+]
+
+# The club's cards read in the game's words.
+[[test]]
+task = "T85"
+name = "facilities and supporters read"
+at = "kickoff"
+steps = [
+  { read = "facilities", path = "Stadium.Name", not = "", live = true },
+  { read = "supporters", path = "Profile.#", not = "0", live = true },
+]

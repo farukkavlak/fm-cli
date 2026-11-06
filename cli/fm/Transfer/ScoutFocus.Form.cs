@@ -95,7 +95,7 @@ internal static partial class Program
 		{
 			// "Any Position" by the field it writes; the pitch's position buttons by the event they
 			// send (each hands the game its position's id); the role list by the field it writes.
-			var form = await FocusForm("Next");
+			var form = await FocusForm(first: true);
 			if (FormControl(form, "checkbox", "anyposition") is { } any && Field(any, "Value") == "True")
 				await Fm.Get("setcontrol", ("ptr", Field(any, "Pointer")), ("value", "false"));
 			List<JsonElement> spots = [];
@@ -111,7 +111,7 @@ internal static partial class Program
 			await Fm.Get("click", ("ptr", Field(spots.First(b => Field(b, "Label") == label && Field(b, "Enabled") == "True"), "Pointer")));
 			// Step one is still on screen and the game has taken the position: the step's own
 			// button, which was offering nothing, is open (FocusSteps + the form read).
-			await Until(async () => (form = await FocusForm("Next")).Count > 0 && await FormStep() == "next", seconds: 5, every: 0.4);
+			await Until(async () => (form = await FocusForm(first: true)).Count > 0 && await FormStep() == "next", seconds: 5, every: 0.4);
 			chosen.Add(label);
 			if (role != null)
 			{
@@ -147,7 +147,7 @@ internal static partial class Program
 		// answer — the one going back is there, the one going on is not (FocusSteps) — with the
 		// form read taken in the same breath so it is never read half drawn.
 		List<JsonElement> second = [];
-		if (!await Until(async () => (second = await FocusForm("Back")).Count > 0 && await FormStep() == "back", seconds: 8, every: 0.5))
+		if (!await Until(async () => (second = await FocusForm(first: false)).Count > 0 && await FormStep() == "back", seconds: 8, every: 0.5))
 		{
 			await AbandonFocus();
 			Console.Error.WriteLine(L("The form's second step did not open."));
@@ -165,7 +165,7 @@ internal static partial class Program
 			// confirmation that the click landed, not a pause long enough for it.
 			foreach (var (binds, value) in new[] { ("minagevalue", ages.Groups[1].Value), ("maxagevalue", ages.Groups[2].Value) })
 			{
-				second = await FocusForm("Back");
+				second = await FocusForm(first: false);
 				var list = FormControl(second, "dropdown", binds);
 				if (list is not { } control || !control.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == value))
 				{
@@ -174,7 +174,7 @@ internal static partial class Program
 					return 64;
 				}
 				await Fm.Get("select", ("ptr", Field(control, "Pointer")), ("choice", value!), ("fire", "1"));
-				if (!await Until(async () => FormControl(await FocusForm("Back"), "dropdown", binds) is { } now && FormShown(now) == value, seconds: 4, every: 0.2))
+				if (!await Until(async () => FormControl(await FocusForm(first: false), "dropdown", binds) is { } now && FormShown(now) == value, seconds: 4, every: 0.2))
 				{
 					await AbandonFocus();
 					Console.Error.WriteLine(L($"Age: {value} selected but the list does not show it."));
@@ -184,7 +184,7 @@ internal static partial class Program
 		}
 		foreach (var one in (area ?? "").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
 		{
-			second = await FocusForm("Back");
+			second = await FocusForm(first: false);
 			if (FormBound(second, "possiblescoutingareasdropdownselectedoption") is not { } list)
 			{
 				await AbandonFocus();
@@ -222,7 +222,7 @@ internal static partial class Program
 		var (tabName, tabWord) = priority == null ? (null, null) : tabs[Fold(priority)];
 		if (tabName != null)
 		{
-			second = await FocusForm("Back");
+			second = await FocusForm(first: false);
 			// The button itself: the click is queued in the game's own order, and Confirm is
 			// queued after it, so nothing has to be waited out between the two.
 			if (second.FirstOrDefault(i => Field(i, "Kind") == "button" && Field(i, "Name") == tabName) is not { ValueKind: JsonValueKind.Object } tabButton)

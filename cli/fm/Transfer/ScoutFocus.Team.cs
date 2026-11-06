@@ -134,7 +134,7 @@ internal static partial class Program
 		}
 		await Fm.Get("click", ("ptr", nextStep));
 		List<JsonElement> form = [];
-		await Until(async () => FormBound(form = await FocusForm("Back"), "possiblescoutingareasdropdownselectedoption") != null, seconds: 8, every: 0.5);
+		await Until(async () => FormBound(form = await FocusForm(first: false), "possiblescoutingareasdropdownselectedoption") != null, seconds: 8, every: 0.5);
 		if (FormBound(form, "possiblescoutingareasdropdownselectedoption") is not { } areas)
 		{
 			await AbandonFocus();

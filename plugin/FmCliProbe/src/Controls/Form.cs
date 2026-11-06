@@ -39,8 +39,22 @@ internal static class Form
 			}
 			return "[]\n";
 		}
-		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath)) return "error: ?anchor=<text>, ?anchorpath=<data path> or ?within=<element name> required";
 		var up = int.TryParse(q["up"], out var n) ? n : 8;
+		// ?ptr= starts from an element the caller found by its identity (a form's step button, by what it sends),
+		// climbing ?up= levels: no text to anchor on.
+		if (!string.IsNullOrEmpty(q["ptr"]))
+		{
+			if (!Buttons.TryPointer(q["ptr"], out var pointer)) return $"error: '{q["ptr"]}' is not a pointer";
+			foreach (var element in Buttons.Elements())
+			{
+				if (element.Pointer != pointer) continue;
+				var root = element;
+				for (var i = 0; i < up && root.hierarchy.parent != null; i++) root = root.hierarchy.parent;
+				return "[\n  " + string.Join(",\n  ", Items(root, q["buttons"] == "1")) + "\n]\n";
+			}
+			return "[]\n";
+		}
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath)) return "error: ?anchor=<text>, ?anchorpath=<data path>, ?ptr=<element> or ?within=<element name> required";
 		var most = q["most"] == "1";
 
 		List<string> best = null;
