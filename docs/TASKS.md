@@ -265,6 +265,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   at 0x20, GameAssembly → UnityPlayer). That day the plugin had begun reading every event context of every control
   for `Writes` on each `buttons?json=1`, which the submission asks many times; `Writes` is now only read when asked
   (`writes=1`, only `vision plan` asks). After: 3 of 3 kicked off, game alive (EN). Older crashes predate it: still open.
+  Later the same night: round22 EN died once more at submission (GC Finalizer, `status` asked every 10 s); TR 3 of 3
+  fine. Rarer, not gone. `shown`'s `Under` is also only read when asked (`remap=1`).
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;
@@ -356,6 +358,16 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [ ] Pre-season training and the new season's expectations.
 - [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,
   penalty shootout, extra time, injury during a match.
+  - [x] FM27's shouts: a popup on the match bar (the floating widget inside `#shouts-cooldown-disable`), team shouts
+    as `shout-button` rows sending their record (`TouchlineShoutAction`, `Title` in the game's words); read back by
+    the match tactic's `HavePendingTouchlineShout`; while one waits the popup is gone, said as the cooldown.
+    TR 3/3 (`round22.toml`); EN by hand (list, json, wrong name, Up Your Game shouted, cooldown); EN run died at
+    submission (T92): again next round. The Individual tab: not yet.
+  - [x] Injury during a match: the game's "Injured Players" window is answered with `dialog`, the player changed
+    with `sub <off> <on>`, read back by `sub` (EN by hand: Sušak off, Ozan on).
+  - [ ] Set pieces during a match: `setpieces` refuses ("no other page during a match"); the match bar's own
+    `SetPieces` button opens them in the tactics panel: read and change them there.
+  - [ ] `status` in a match does not say a window is open (it says only "match").
 - [ ] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
 
 ## 9. Depth the crawl has not reached

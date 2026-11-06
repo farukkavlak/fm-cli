@@ -14,13 +14,23 @@ internal static class Popups
 	public static string Open(NameValueCollection q)
 	{
 		if (!string.IsNullOrEmpty(q["near"])) return Near(q["near"], q["named"]);
-		// ?name= the shown popup of that element name (the match tactics' tweaks-button).
+		// ?name= the shown popup of that element name (the match tactics' tweaks-button); ?within= the popup inside
+		// the shown element of that name (FM27's shouts: no name of its own, inside #shouts-cooldown-disable).
 		var byName = q["name"];
+		var within = q["within"];
 		var pointer = System.IntPtr.Zero;
-		if (string.IsNullOrEmpty(byName) && !Buttons.TryPointer(q["ptr"] ?? "", out pointer)) return "error: ?ptr=<0x…> or ?name= required (an SIFloatingPopupWidget)";
+		if (string.IsNullOrEmpty(byName) && string.IsNullOrEmpty(within) && !Buttons.TryPointer(q["ptr"] ?? "", out pointer)) return "error: ?ptr=<0x…>, ?name= or ?within= required (an SIFloatingPopupWidget)";
 		foreach (var element in Buttons.Elements())
 		{
-			if (!string.IsNullOrEmpty(byName))
+			if (!string.IsNullOrEmpty(within))
+			{
+				try
+				{
+					if (element.panel == null || element.worldBound.width <= 0 || element.TryCast<SIFloatingPopupWidget>() == null || !Buttons.Inside(element, within)) continue;
+				}
+				catch { continue; }
+			}
+			else if (!string.IsNullOrEmpty(byName))
 			{
 				try { if (element.name != byName || element.panel == null || element.worldBound.width <= 0) continue; }
 				catch { continue; }

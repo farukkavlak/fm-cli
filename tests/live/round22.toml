@@ -1,0 +1,42 @@
+# Round 22: in a match (T63). FM27's touchline shouts from their popup, read back by the pending shout; a wrong name
+# refused; the cooldown said. Re-checks T93 (vision plan) and T119 (news), whose plugin reads changed (Under on demand).
+# Run: tools/fm-round.py dry tests/live/round22.toml, then run.
+
+[[test]]
+task = "T63"
+name = "shouts: listed, a wrong one refused, one shouted and read back, the cooldown said"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { start = "match --no-talk" },
+  { until = "status", path = "DuringMatch", is = "True", seconds = 600, every = 10, live = true, note = "asked slowly (T92)" },
+  { until = "shout", path = "#", not = "0", seconds = 300, every = 10, live = true, note = "the bar's popup is up once play runs" },
+  { stop = true },
+  { run = "shout zzq", rc = 64 },
+  { read = "shout 2", path = "Heard", is = "True", live = true },
+  { run = "shout 1", rc = "fail", note = "a shout waits: the game allows no new one for a while" },
+]
+
+[[test]]
+task = "T93"
+name = "vision plan still read (Under now asked for)"
+at = "season-end"
+fresh = true
+steps = [
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "a", live = true },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.1.NewsTitleString", keep = "b", live = true },
+  { run = "reply {a} 2", rc = "any" },
+  { run = "reply {b} 2", rc = "any" },
+  { read = "vision plan", path = "Seasons.#", not = "0", live = true },
+  { read = "vision plan", path = "Seasons.0.Season", not = "", live = true },
+]
+
+[[test]]
+task = "T119"
+name = "news story still read (Under now asked for)"
+at = "helmond-june"
+fresh = true
+steps = [
+  { read = "news 1", path = "Body", not = "", live = true },
+]

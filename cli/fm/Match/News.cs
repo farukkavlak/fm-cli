@@ -64,7 +64,7 @@ internal static partial class Program
 			var body = "";
 			await Until(async () =>
 			{
-				var shown = await Fm.GetJson("shown");
+				var shown = await Fm.GetJson("shown", ("remap", "1"));
 				if (shown.ValueKind != System.Text.Json.JsonValueKind.Array) return false;
 				foreach (var title in shown.EnumerateArray().Where(t => Field(t, "Path") == "newsitem.NewsTitleString" && Field(t, "Text") == item.Title && Field(t, "Under").Length > 0))
 				{

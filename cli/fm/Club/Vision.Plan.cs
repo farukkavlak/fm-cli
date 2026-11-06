@@ -81,7 +81,7 @@ internal static partial class Program
 	/// <summary>The plan's seasons in the game's order: the ID each button writes, its name as the game shows it.</summary>
 	private static async Task<List<(JsonElement Button, int Id, string Name)>> VisionSeasons(string data)
 	{
-		var shown = await Fm.GetJson("shown", ("under", "Season-Selection"));
+		var shown = await Fm.GetJson("shown", ("under", "Season-Selection"), ("remap", "1"));
 		var names = new Dictionary<int, string>();
 		foreach (var t in shown.ValueKind == JsonValueKind.Array ? shown.EnumerateArray() : Enumerable.Empty<JsonElement>())
 			if (Field(t, "Path") == VisionYearPath && Field(t, "Under") is { Length: > 0 } under && await NumberAt($"{under}.ID") is { } id)

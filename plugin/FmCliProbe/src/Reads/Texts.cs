@@ -73,6 +73,8 @@ internal static class Texts
 	{
 		var under = q["under"];
 		var chain = q["chain"] == "1";
+		// ?remap=1: each text's data node (Under). Only when asked: it wraps every ancestor of every text.
+		var remap = q["remap"] == "1";
 		// ?top=1: only the body a person sees, whichever it is (MenuBody, ReportBody…): pages left open under
 		// it keep their style. The game's own hit test says which one is on top.
 		VisualElement topBody = q["top"] == "1" ? TopBody() : null;
@@ -99,7 +101,7 @@ internal static class Texts
 				string remapped = null;
 				for (var e = element.parent; e != null; e = e.parent)
 				{
-					remapped ??= RemappedAt(e);
+					if (remap) remapped ??= RemappedAt(e);
 					if (topBody != null && e.Pointer == topBody.Pointer) inside = true;
 					if (at < 0 && rows.TryGetValue(e, out var place)) (at, table) = place;
 					if (!inside && e.name == under) inside = true;

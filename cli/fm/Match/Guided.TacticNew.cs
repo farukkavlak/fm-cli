@@ -60,6 +60,12 @@ internal static partial class Program
 		return 0;
 	}
 
+	/// <summary>
+	/// FM27's touchline shouts: a popup on the match bar (the floating widget inside #shouts-cooldown-disable), its
+	/// team shouts as `shout-button` rows, each sending its row (TouchlineShoutEvent) whose record names it
+	/// (`TouchlineShoutAction`, `Title` in the game's words). A shout is read back by the match tactic's
+	/// `HavePendingTouchlineShout`, or the popup closing for a while (the game's cooldown).
+	/// </summary>
 	private static async Task<int> Shout(string[] args)
 	{
 		if (Field(await Fm.GetJson("state"), "DuringMatch") != "True")
@@ -67,8 +73,85 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Shouts are only during a match."));
 			return 1;
 		}
+		var json = args.Contains("--json");
 		var words = Words(args).ToList();
-		return await MatchList(L("Shout"), d => Field(d, "Name") == "shouts-dropdown", words.Count > 0 ? string.Join(" ", words) : null, args.Contains("--dry"), events: true);
+		var opened = await Fm.Get("popup", ("within", "shouts-cooldown-disable"));
+		if (opened.Contains("disabled", StringComparison.Ordinal))
+		{
+			Console.Error.WriteLine(L("The players heard a shout a moment ago; the game does not allow a new shout for a while."));
+			return 1;
+		}
+		if (opened.StartsWith("error", StringComparison.Ordinal))
+		{
+			// The popup goes while a shout waits to reach the players.
+			var pending = (await Fm.Get("find", ("name", "HavePendingTouchlineShout"))).Contains("(Boolean) True", StringComparison.Ordinal);
+			Console.Error.WriteLine(pending
+				? L("The players heard a shout a moment ago; the game does not allow a new shout for a while.")
+				: L("There is no shout list on the match screen."));
+			return 1;
+		}
+		List<(string Pointer, string Title, string Action)> shouts = [];
+		await Until(async () =>
+		{
+			shouts = [];
+			foreach (var b in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				         .Where(b => Field(b, "Name") == "shout-button" && Field(b, "Visible") == "True" && Field(b, "Source").Length > 0))
+			{
+				var row = await Fm.Pull($"{Field(b, "Source").TrimStart('.')}.row", "Title,TouchlineShoutAction");
+				shouts.Add((Field(b, "Pointer"), Field(row, "Title"), Field(row, "TouchlineShoutAction")));
+			}
+			return shouts.Count > 0 && shouts.All(x => x.Title.Length > 0 && x.Action.Length > 0);
+		}, seconds: 5, every: 0.2);
+		async Task Close() => await Fm.Get("popup", ("within", "shouts-cooldown-disable"), ("close", "1"));
+		if (shouts.Count == 0)
+		{
+			await Close();
+			Console.Error.WriteLine(L("The shouts popup opened with no shouts in it."));
+			return 1;
+		}
+		if (words.Count == 0)
+		{
+			await Close();
+			if (json) Console.WriteLine(JsonOut.Of(shouts.Select((x, i) => new { No = i + 1, Shout = x.Title, Action = x.Action })));
+			else
+			{
+				for (var i = 0; i < shouts.Count; i++) Console.WriteLine($"  {i + 1}  {shouts[i].Title}");
+				Console.WriteLine(L("To shout: shout <no | name>"));
+			}
+			return 0;
+		}
+		var typed = string.Join(" ", words);
+		var hits = int.TryParse(typed, out var no) && no >= 1 && no <= shouts.Count ? [shouts[no - 1]]
+			: shouts.Where(x => Fold(x.Title).Contains(Fold(typed), StringComparison.Ordinal)).ToList();
+		if (hits.Count != 1)
+		{
+			await Close();
+			Console.Error.WriteLine(L($"No single shout '{typed}'. Shouts: {string.Join(" · ", shouts.Select((x, i) => $"{i + 1} {x.Title}"))}"));
+			return 64;
+		}
+		if (args.Contains("--dry"))
+		{
+			await Close();
+			Console.WriteLine(L($"(dry run) {hits[0].Title} would be shouted."));
+			return 0;
+		}
+		async Task<bool> Pending()
+		{
+			var found = await Fm.Get("find", ("name", "HavePendingTouchlineShout"));
+			return found.Split('\n').Any(l => l.Contains("(Boolean) True", StringComparison.Ordinal));
+		}
+		await Fm.Get("press", ("ptr", hits[0].Pointer));
+		// Heard: the match tactic holds it as pending, or the popup is closed for the cooldown.
+		var heard = await Until(async () => await Pending()
+			|| (await Fm.Get("popup", ("within", "shouts-cooldown-disable"), ("close", "1"))).Contains("disabled", StringComparison.Ordinal), seconds: 5, every: 0.2);
+		if (!heard)
+		{
+			Console.Error.WriteLine(L($"{hits[0].Title} was pressed, but the game shows no shout pending."));
+			return 1;
+		}
+		if (json) Console.WriteLine(JsonOut.Of(new { Shout = hits[0].Title, Action = hits[0].Action, Heard = true }));
+		else Console.WriteLine(L($"Shouted: {hits[0].Title}"));
+		return 0;
 	}
 
 	/// <summary>The active tactic's fields; empty while the planner is between tactics.</summary>

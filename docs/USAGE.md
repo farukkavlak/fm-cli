@@ -157,7 +157,7 @@ fm — run Football Manager from the terminal
                   (in a script it stops at a talk: talk <no>, then match)
     --no-talk     skip the talks
     --instant     do not play it, leave it to the assistants: the game simulates it in a few seconds
-  shout [<x>]     shout from the touchline during a match (Encourage, Fire Up, Calm Down…)
+  shout [<x>]     shout from the touchline during a match (Well Done, Up Your Game, Calm Down…)
   tweak [<x>]     during a match, the tactical tweaks (Take a Breather, Lock It Down…): which are on;  tweak <x> puts one on, --off takes it off
     tweak [<x>] --player <player>   his individual tweaks;  tweak --reset team|individual|all
   sub             during a match: on the pitch and on the bench;  sub <off> <on>: make a substitution
