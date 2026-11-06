@@ -399,5 +399,12 @@ not yet tried in a live terminal.
     - [x] `Squad/Query.cs`: the wage is the game's sort value; the English "p/w" fallback (never reached) removed. TR + EN.
     - [x] `Club/Internationals.cs` caps/goals from English words (T58); `Core/StatusFlags.cs` "Free Agent" (T55);
       `Match/News.cs` story text (T119); `depth` / `targets` positions in English codes (now the game's own).
+    - [ ] Plugin audit 6 Nov: no literal text, colour, position or style compare found. Known: `Reads/Pages.cs` takes a
+      menu's first row as the tab's own screen (order).
+    - [ ] `Transfer/ScoutFocus*.cs`: the form found by the buttons' words "Back" / "Next" (works in Turkish only through
+      the plugin turning shown text into English): hold it by the buttons' events.
+    - [ ] `Squad/TacticFiles.cs`: the save panel's title and note boxes by order (`boxes[0]`, `boxes[1]`).
+    - [ ] `Club/ClubCards.cs` `CardWords`: fan groups, grades, Yes/No shown in the CLI's words from the game's English;
+      `GameWords.Of` leaves fan groups in English in a Turkish game (tried, reverted): find the game's own words.
     - [ ] Waits on "two reads agree" (about 100 places: `settled`, `== last`): each is a time-based sign; move to the
       game's own sign where one is known (as T93, T119 did).
