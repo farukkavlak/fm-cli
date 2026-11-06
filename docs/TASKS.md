@@ -315,7 +315,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     only from their message: `offers <#> reject` says so (it called every refusal a stall). TR + EN 3/3 (`round13.toml`).
     Taking part brings a journalist's question that the game itself closes on the next hour (`next` presses Continue
     once, nothing else).
-  - [ ] A bid with a fee rejected and accepted through `offers`, read back; the window's own pages (Transfer Activity).
+  - [x] Fee bids rejected (gone from the list) and accepted (status moves on) through `offers`. TR + EN 3/3
+    (`round20.toml`, scenario `window-bids`).
+  - [ ] The window's own pages (Transfer Activity).
 - [x] T57 Cup draws: a draw's message offers skip or view; view opens the draw screen, `fm draw` runs it (`EventFmxDrawAllTeams`, read back by the button going off) and prints it. `fm read here` reads whatever is on top. TR + EN, nothing open refused.
 - [ ] T58 International break: call-ups, the national side's screens.
   - [x] Who is away now: `internationals` by the status's ineligibility reason (3 joining, 4 coming back, 5 on duty)
@@ -335,6 +337,14 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [ ] Board meeting; a job offer while employed.
 - [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.
 - [ ] T62 Pre-season: friendlies, pre-season training, new-season expectations.
+  - [x] Friendlies: `friendly` (new) lists the opponents the game offers (by reputation, with fees), the open dates and
+    the rules; `friendly <#> [--date] [--away] [--rules] --yes` proposes one. The panel by its button (`ArrangeFriendly`),
+    opponents by their binding (`selectedteam`), venue by the value its button sends, rules by `matchrules`, the date
+    from the game's own open dates (they depend on opponent and venue, read after both are set) written where the
+    picker writes (`selectedDate`); read back by the panel's record (`IsOppositionTeamValid`, `IsMatchVenueHome`,
+    `IsValid`) and the panel closing. EN by hand: Almere City accepted, on the calendar; Gençlerbirliği rejected.
+    A friendly proposed to us: `reply` accept, on the calendar after the game moves on. TR + EN 3/3 (`round20.toml`).
+  - [ ] Pre-season training and the new season's expectations.
 - [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,
   penalty shootout, extra time, injury during a match.
 - [ ] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).

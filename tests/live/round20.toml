@@ -1,0 +1,53 @@
+# Round 20: moments. Arranging a friendly and answering one (T62); fee bids rejected and accepted (T56).
+# Run: tools/fm-round.py dry tests/live/round20.toml, then run.
+
+# Arrange a friendly: the opponents and dates the game offers, the negatives, a proposal sent (the panel's confirm
+# closes it; the club answers later by message).
+[[test]]
+task = "T62"
+name = "friendly: list, refused ones, a proposal sent"
+at = "denbosch-june"
+fresh = true
+repeat = 3
+steps = [
+  { read = "friendly", path = "Opponents.#", not = "0", live = true },
+  { read = "friendly", path = "Dates.#", not = "0", live = true },
+  { run = "friendly 9999", rc = 64 },
+  { run = "friendly 1 --date 2000-01-01", rc = 64 },
+  { run = "friendly 1 --rules 9", rc = 64 },
+  { run = "friendly 1", rc = 1, note = "no --yes: said, the panel closed" },
+  { read = "friendly 1 --yes", path = "Sent", is = "True", live = true },
+]
+
+# A friendly the other club proposes: accepted by its message, on the calendar once the game has moved on.
+[[test]]
+task = "T62"
+name = "friendly proposed to us: accepted, then on the calendar"
+at = "window"
+fresh = true
+steps = [
+  { read = "calendar 2028-07", path = "?Matches.#", is = "0", live = true },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 2" },
+  { run = "next", rc = "any" },
+  { read = "calendar 2028-07", path = "?Matches.#", is = "1", live = true },
+]
+
+# Fee bids for our players: one rejected (gone from the list), one accepted (its status moves on).
+[[test]]
+task = "T56"
+name = "fee bids: one rejected, one accepted, read back"
+at = "window-bids"
+fresh = true
+repeat = 3
+steps = [
+  { read = "offers", path = "#", keep = "all", live = true },
+  { read = "offers", path = "2.Player", keep = "player3", live = true },
+  { read = "offers", path = "2.Status", keep = "status3", live = true },
+  { run = "offers 99 reject --yes", rc = "fail" },
+  { run = "offers 2 reject --yes" },
+  { read = "offers", path = "#", differs_from = "all", live = true },
+  { read = "offers", path = "1.Player", same_as = "player3", live = true, note = "the third offer is second now" },
+  { run = "offers 2 accept --yes" },
+  { read = "offers", path = "1.Status", differs_from = "status3", live = true },
+]

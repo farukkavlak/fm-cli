@@ -205,8 +205,16 @@ def forward(args):
     employed = fm("squad")[0] == 0
     saved_week = None
     answered = False
+    # Answers that do not move the game on (offers opened again and again, 6 Nov) end the run instead of looping.
+    idle, last_moment = 0, None
     while True:
         now = state()
+        moment = (now.get("Date"), now.get("Clock"))
+        idle = idle + 1 if moment == last_moment else 0
+        last_moment = moment
+        if idle > 3:
+            print(f"Stopped at {now.get('Date')}: answering does not move the game on; it waits for:\n{fm('status')[1].strip()[-600:]}")
+            return 2
         if args.answer and employed:
             # The job first: a save taken after it is gone would write over the way back.
             week = datetime.date.fromisoformat(now["Date"]).isocalendar()[:2] if now.get("Date") else None

@@ -169,6 +169,7 @@ fm — run Football Manager from the terminal
   jobs [<club>] [apply|interest] [--yes] [--all]   job vacancies; apply or say you are interested
   crawl <out.json> [--here] [--only <guid>,…] [--skip <guid>,…]   for developers: a map of the game's pages
   draw            run a cup draw its message opened, and show the ties
+  friendly [<#|club> [--date yyyy-mm-dd] [--away] [--rules <no>] --yes]   arrange a friendly: the opponents offered, open dates, match rules
   resign [--yes]  resign from the club (test career; then look at jobs)
   dialog [answer] show or answer the open confirmation window
   talk            show the open conversation: what was said, reactions, what you can say
