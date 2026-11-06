@@ -334,7 +334,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [ ] The postponement request a call-up brings ("Request … postponement?"): answered with `reply`, read back.
 - [ ] T59 Youth intake (March): candidates, intake preview.
   - [x] Candidates (T28). The intake came on 4 Apr 2029 (Varzim) with no message of its own in the inbox.
-  - [ ] What can be done with a candidate (offer a youth contract, release): not looked at yet.
+  - [x] A candidate's status by the game's data (on trial until signed: no trial club once signed); a youth contract
+    offered with `contract <candidate>` (the game's approach to sign, PersonApproachToSign, when there is no contract
+    to renew), his answer by message (EN by hand: Agostinho signed, then "signed" in the list). The rest of his
+    menu through `actions`. TR + EN 3/3 (`round25.toml`).
 - [ ] T60 Board meeting and board requests answered; job offers while employed; being sacked.
   - [x] Sacked (`sacked`): the message, `status` says unemployed, `jobs` lists 45; applications by the game's own button.
   - [x] Interview (`interview`) through `reply` and `talk`, to a job offer, its contract card (`contract` now reads an

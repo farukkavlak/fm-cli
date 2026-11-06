@@ -32,13 +32,15 @@ internal static partial class Program
 			else Console.Error.WriteLine(L("This year's intake candidates have not come yet (intake date: youth)."));
 			return json ? 0 : 1;
 		}
-		const string Props = "Name,Age,PositionCombinedString,Nation.Name,PerceivedPotentialAbility";
+		// Every candidate is at the club on trial until signed: a signed one has no trial club any more.
+		const string Props = "Name,Age,PositionCombinedString,Nation.Name,PerceivedPotentialAbility,Club.UniqueId,TrialClub.UniqueId";
+		const string Required = "Name,Age,PositionCombinedString,Nation.Name,PerceivedPotentialAbility,Club.UniqueId";
 		List<JsonElement> rows = [];
 		var whole = await Until(async () =>
 		{
 			var read = await Fm.Pull("Human.Club.AllYouthCandidates", Props, list: true);
 			rows = read.ValueKind == JsonValueKind.Array ? read.EnumerateArray().Select(r => r.Clone()).ToList() : [];
-			return rows.Count == came && rows.All(r => Props.Split(',').All(f => Field(r, f).Length > 0));
+			return rows.Count == came && rows.All(r => Required.Split(',').All(f => Field(r, f).Length > 0));
 		}, seconds: 10, every: 0.3);
 		if (!whole)
 		{
@@ -47,15 +49,17 @@ internal static partial class Program
 		}
 		var candidates = rows
 			.Select(r => (Name: Field(r, "Name"), Age: Field(r, "Age"), Position: Field(r, "PositionCombinedString"), Nation: Field(r, "Nation.Name"),
-				Potential: int.TryParse(Field(r, "PerceivedPotentialAbility"), out var pa) ? pa : 0))
+				Potential: int.TryParse(Field(r, "PerceivedPotentialAbility"), out var pa) ? pa : 0,
+				Signed: Field(r, "TrialClub.UniqueId").Length == 0))
 			.OrderByDescending(c => c.Potential).ThenBy(c => c.Name).ToList();
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(candidates.Select(c => new { c.Name, Age = int.TryParse(c.Age, out var a) ? a : 0, c.Position, c.Nation, c.Potential })));
+			Console.WriteLine(JsonOut.Of(candidates.Select(c => new { c.Name, Age = int.TryParse(c.Age, out var a) ? a : 0, c.Position, c.Nation, c.Potential, c.Signed })));
 			return 0;
 		}
-		Table.Write([L("PLAYER"), L("AGE"), L("POSITION"), L("NATION"), L("POTENTIAL")],
-			candidates.Select(c => new[] { c.Name, c.Age, c.Position, c.Nation, $"{c.Potential}/200" }).ToList());
+		Table.Write([L("PLAYER"), L("AGE"), L("POSITION"), L("NATION"), L("POTENTIAL"), L("STATUS")],
+			candidates.Select(c => new[] { c.Name, c.Age, c.Position, c.Nation, $"{c.Potential}/200", c.Signed ? L("signed") : L("on trial") }).ToList());
+		Console.WriteLine(L("To offer one a youth contract: contract <player>"));
 		Console.WriteLine(L($"\n{candidates.Count} candidates in this year's intake (potential as the club sees it)."));
 		return 0;
 	}

@@ -2746,3 +2746,6 @@ Shouted: {0}	Bağırıldı: {0}
 A window is open: {0}. To answer: dialog	Açık bir pencere var: {0}. Cevaplamak için: dialog
 The change waits in the tactics panel: its Confirm Changes did not close it.	Değişiklik taktik panelinde bekliyor: Confirm Changes paneli kapatmadı.
 Confirmed in the match: the change goes on when play does.	Maçta onaylandı: değişiklik oyun sürünce geçerli olur.
+signed	imzaladı
+on trial	denemede
+To offer one a youth contract: contract <player>	Birine gençlik sözleşmesi önermek için: contract <oyuncu>

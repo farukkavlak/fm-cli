@@ -104,7 +104,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// Opens the talks for a new contract with one of our players, the way the game does: his
-	/// page's actions menu, by the game's action (PersonOfferContract). The game first warns
+	/// page's actions menu, by the game's action (PersonOfferContract; for a player here on trial, PersonApproachToSign). The game first warns
 	/// that going in without asking his agent may upset them. Null once the talks are open.
 	/// </summary>
 	private static async Task<int?> OpenRenewal(string wanted)
@@ -113,6 +113,9 @@ internal static partial class Program
 		var name = Field(card.GetProperty("Player"), "Name");
 
 		if (await RunPlayerAction(OfferContractAction) is not { } chose) return 1;
+		// A player at the club on trial (a youth intake candidate) has no contract to renew: his menu offers the
+		// game's approach to sign (PersonApproachToSign), which opens the same talks.
+		if (!chose && await RunPlayerAction("PersonApproachToSign") is true) chose = true;
 		if (!chose)
 		{
 			var ours = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Any(p => Field(p, "Name") == name);
