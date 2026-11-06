@@ -317,7 +317,13 @@ internal static partial class Program
 					return;
 				}
 				// A meeting with the board left open is what the game waits on, whatever else is unanswered.
-				if (await VisionControls() != null) output.WriteLine(L("The club vision meeting is open. Objectives and bargaining: vision   ·   to finish: vision end"));
+				// The meeting covers the portal, so the inbox cannot be bound under it: looking there
+				// only waits out every read (3 minutes, 6 Nov).
+				if (await VisionControls() != null)
+				{
+					output.WriteLine(L("The club vision meeting is open. Objectives and bargaining: vision   ·   to finish: vision end"));
+					return;
+				}
 				// A conversation an answer opened holds its message until it ends; the message is not the step.
 				if ((await TalkOptions()).Count > 0)
 				{
@@ -328,7 +334,9 @@ internal static partial class Program
 				// The game says a message waits and the inbox read shows none: it may be an old one,
 				// or one below the first window.
 				if (blocking.Count == 0) blocking = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
-				if (blocking.Count == 0) blocking = (await AllInbox()).Where(Blocking).ToList();
+				// The whole inbox is read once: scrolling it takes a dozen seconds.
+				List<JsonElement>? all = null;
+				if (blocking.Count == 0) blocking = (all = await AllInbox()).Where(Blocking).ToList();
 				if (blocking.Count == 0) blocking = (await TaskInbox()).Where(Blocking).ToList();
 				if (blocking.Count > 0)
 				{
@@ -352,7 +360,7 @@ internal static partial class Program
 						.Select(m => Field(m, "NewsTitleString")).Where(t => t is { Length: > 0 }).ToList();
 					// Like the blocking messages above, it may be below the first window.
 					if (again.Count == 0)
-						again = (await AllInbox()).Where(m => Field(m, "NewsItemIsPriority") == "True" && Field(m, "CanRespond") == "True")
+						again = (all ?? await AllInbox()).Where(m => Field(m, "NewsItemIsPriority") == "True" && Field(m, "CanRespond") == "True")
 							.Select(m => Field(m, "NewsTitleString")).Where(t => t is { Length: > 0 }).ToList();
 					if (again.Count > 0)
 					{

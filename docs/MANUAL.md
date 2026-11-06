@@ -402,7 +402,7 @@ fm mentoring [--auto|new|remove]
 fm dynamics                 # dressing room: atmosphere, support, hierarchy
 fm captains [--captain|--vice <player>]
 fm actions "<person>" ["<option>"]   # the game's right-click menu
-fm vision [confirm|remove|suggest|undo|reset|end]
+fm vision [confirm|remove|suggest|undo|reset|end|plan|add]   # plan: the 5 Year Plan
 fm jobs [<club>] [apply|interest] [--yes] [--all]
 fm resign [--yes]
 fm read [<page>]            # the game's look-only pages, read as they stand

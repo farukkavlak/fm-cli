@@ -264,7 +264,8 @@ internal static class RawPath
 	/// ?under= (its GUID), which has no path from `Human`. It is kept at a path of our own; rows are read
 	/// afresh for each list the game builds (its pointer is the reading's generation).
 	/// </summary>
-	public static string PullBound(string name, string under, string props, string shown)
+	/// <param name="gen">The caller's own reading: a list object the game fills again in place reads afresh.</param>
+	public static string PullBound(string name, string under, string props, string shown, string gen = null)
 	{
 		if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(under)) return "error: ?name=&under=&props= required";
 		foreach (var (path, node) in Report.Walk())
@@ -276,7 +277,7 @@ internal static class RawPath
 			if (entries == null) continue;
 			var at = $"fmcli.bound.{name}";
 			if (Set(at, value) is { } error) return error;
-			return Pull(at, props, true, entries.Pointer.ToInt64().ToString("x"), shown);
+			return Pull(at, props, true, entries.Pointer.ToInt64().ToString("x") + (string.IsNullOrEmpty(gen) ? "" : $"_{gen}"), shown);
 		}
 		return "[]\n";
 	}

@@ -16,7 +16,14 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record VisionGoal(bool Actionable, string Text, string Weight, int Importance, bool Removable, string Table, int Index);
+	/// <param name="ShowsWeight">The objective's record says its weight is drawn (ClubVisionMeetingCanObjectiveDisplayImportance).</param>
+	private sealed record VisionGoal(bool Actionable, string Text, string Weight, int Importance, bool Removable, string Table, int Index, bool ShowsWeight = false);
+
+	/// <summary>
+	/// The rows are drawn whole: each row whose record says its weight is shown has its weight's text.
+	/// Read too soon after a tab is shown, the weights were still empty (TR, 6 Nov).
+	/// </summary>
+	private static bool VisionDrawn(IEnumerable<VisionGoal> goals) => goals.All(g => g.Text.Length > 0 && (!g.ShowsWeight || g.Weight.Length > 0));
 
 	private const string VisionObjectivePath = "clubvision.ClubVisionMeetingObjectiveIdentifier.DisplayValue";
 	private const string VisionRemoveEvent = "EventToPlugin:EventFmxRemoveClubVisionObjective";
@@ -50,21 +57,25 @@ internal static partial class Program
 			.Where(t => t.Length > 0).ToList();
 	}
 
-	private static async Task<List<VisionGoal>> VisionGoals()
+	/// <param name="plan">The 5 Year Plan's rows (inside #FiveYearPlan) instead of the objectives' tab.</param>
+	private static async Task<List<VisionGoal>> VisionGoals(bool plan = false)
 	{
 		var rows = await Fm.GetJson("rowtexts", ("has", VisionObjectivePath), ("gen", Environment.TickCount64.ToString()));
 		if (rows.ValueKind != JsonValueKind.Array) return [];
-		var read = await Task.WhenAll(rows.EnumerateArray().Select(async row =>
+		var read = await Task.WhenAll(rows.EnumerateArray()
+			.Where(row => row.GetProperty("Within").EnumerateArray().Any(n => n.GetString() == "FiveYearPlan") == plan)
+			.Select(async row =>
 		{
 			var texts = row.GetProperty("Texts").EnumerateArray().ToList();
-			var record = await Fm.Pull(Field(row, "Item"), "ClubVisionMeetingCanObjectiveBeRemoved,VisionObjectiveImportance");
+			var record = await Fm.Pull(Field(row, "Item"), "ClubVisionMeetingCanObjectiveBeRemoved,VisionObjectiveImportance,ClubVisionMeetingCanObjectiveDisplayImportance");
 			return new VisionGoal(
 				row.GetProperty("Within").EnumerateArray().Any(n => n.GetString() == "ActionableSection"),
 				texts.Where(t => Field(t, "Path") == VisionObjectivePath).Select(t => Field(t, "Text")).FirstOrDefault() ?? "",
 				texts.Where(t => Field(t, "Name") == "ImportanceText").Select(t => Field(t, "Text")).FirstOrDefault() ?? "",
 				int.TryParse(Field(record, "VisionObjectiveImportance"), out var importance) ? importance : 0,
 				Field(record, "ClubVisionMeetingCanObjectiveBeRemoved") == "True",
-				Field(row, "Table"), int.TryParse(JsonRead.RawText(row, "Index"), out var index) ? index : -1);
+				Field(row, "Table"), int.TryParse(JsonRead.RawText(row, "Index"), out var index) ? index : -1,
+				Field(record, "ClubVisionMeetingCanObjectiveDisplayImportance") == "True");
 		}));
 		// Actionable objectives first, each table's rows in the game's own order.
 		return read.OrderBy(g => g.Actionable ? 0 : 1).ThenBy(g => g.Table, StringComparer.Ordinal).ThenBy(g => g.Index).ToList();
@@ -79,6 +90,19 @@ internal static partial class Program
 		}
 
 		var words = Words(args).ToList();
+		switch (words.ElementAtOrDefault(0))
+		{
+			case "plan" or "5yil":
+				return await VisionPlanCommand(json, words);
+			case "add" or "ekle":
+				return await VisionAdd(words);
+		}
+		// The objectives' own tab: the plan's tab hides their rows.
+		if (await VisionData() is { } data)
+		{
+			await VisionTab(data, plan: false);
+			controls = await VisionControls() ?? controls;
+		}
 		JsonElement? Button(string simulationEvent) => controls.Cast<JsonElement?>().FirstOrDefault(c => VisionSends(c!.Value, simulationEvent));
 		// took: the game's own sign that the press was taken, read back before saying so.
 		async Task<int> Press(string simulationEvent, string done, string closedHint = "", Func<Task<bool>> took = null)
@@ -99,7 +123,9 @@ internal static partial class Program
 			return 0;
 		}
 
-		var goals = await VisionGoals();
+		// Read once every row is drawn whole (the game's own records say which rows show a weight).
+		List<VisionGoal> goals = [];
+		await Until(async () => (goals = await VisionGoals()).Count > 0 && VisionDrawn(goals), seconds: 8, every: 0.3);
 		switch (words.ElementAtOrDefault(0))
 		{
 			case "confirm" or "onayla":

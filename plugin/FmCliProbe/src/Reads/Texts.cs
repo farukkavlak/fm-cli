@@ -96,8 +96,10 @@ internal static class Texts
 				var table = 0L;
 				var names = new List<string>();
 				var inside = string.IsNullOrEmpty(under) && topBody == null;
+				string remapped = null;
 				for (var e = element.parent; e != null; e = e.parent)
 				{
+					remapped ??= RemappedAt(e);
 					if (topBody != null && e.Pointer == topBody.Pointer) inside = true;
 					if (at < 0 && rows.TryGetValue(e, out var place)) (at, table) = place;
 					if (!inside && e.name == under) inside = true;
@@ -105,7 +107,7 @@ internal static class Texts
 				}
 				if (!inside) continue;
 				names.Reverse();
-				texts.Add($"{{\"Text\": \"{Report.Escape(plain)}\", \"Path\": \"{Report.Escape(path ?? "")}\", \"Row\": {at}, \"Table\": \"0x{table:x}\", \"Pointer\": \"0x{element.Pointer.ToInt64():x}\", \"Name\": \"{Report.Escape(element.name ?? "")}\", \"Above\": \"{Report.Escape(string.Join("/", names))}\"}}");
+				texts.Add($"{{\"Text\": \"{Report.Escape(plain)}\", \"Path\": \"{Report.Escape(path ?? "")}\", \"Row\": {at}, \"Table\": \"0x{table:x}\", \"Pointer\": \"0x{element.Pointer.ToInt64():x}\", \"Name\": \"{Report.Escape(element.name ?? "")}\", \"Above\": \"{Report.Escape(string.Join("/", names))}\", \"Under\": \"{Report.Escape(remapped ?? "")}\"}}");
 				if (texts.Count >= 3000) break;
 			}
 			catch { }
@@ -159,6 +161,26 @@ internal static class Texts
 			catch { }
 		}
 		return texts;
+	}
+
+	/// <summary>
+	/// The data node a BindingRemapper hands its children (a plan's season: "…9.3", whose ID is 3), or null.
+	/// A text's own path ("Club.VisionObjectiveYearString") is relative to it.
+	/// </summary>
+	private static string RemappedAt(VisualElement element)
+	{
+		try
+		{
+			var remapper = element.TryCast<SI.Bindable.BindingRemapper>();
+			if (remapper == null) return null;
+			var key = remapper.Key;
+			var parts = new List<string>();
+			for (var node = Game.Bindings?.GetNode(ref key); node != null; node = node.Parent)
+				if (!string.IsNullOrEmpty(node.Name)) parts.Add(node.Name);
+			parts.Reverse();
+			return parts.Count == 0 ? null : string.Join(".", parts).TrimStart('.');
+		}
+		catch { return null; }
 	}
 
 	/// <summary>The data path a text is bound to directly, or null when it is set some other way.</summary>

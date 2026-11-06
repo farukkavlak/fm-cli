@@ -59,11 +59,14 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   negatives (a required one, suggest with nothing removed). Suggest prints the board's answer (its speech
   bubbles' rows); confirm and end read back (confirm closes, the meeting goes). Suggest + confirm TR, confirm + end TR + EN.
   `club` objectives: the tab clicked by `within=TabButtons&name=Vision` (`click?name=` was never a route). TR + EN, 3 runs.
-- [ ] T93 Vision, new in FM27: an objective's weight stepper (`SIStepper` beside `#ImportanceText`), add an
-  objective (`EventFmxAddClubVisionObjective`, `ClubVisionMeetingPossibleObjectivesToAdd`), the 5 Year Plan tab.
-  Measured at `season-end` (Helmond, 4 Jun 2030, EN): the meeting offers only remove, Suggest, Undo, Reset, Confirm,
-  End Meeting; no stepper and no add control, before or after a removal. The 5-Year Plan tab is there
-  (`Board-Vision-Button`, `SetDatastoreValue`), not read yet. Next: read that tab; look for the stepper at another club.
+- [x] T93 Vision, new in FM27: `vision plan` reads the 5 Year Plan, `vision add <no>` adds an objective.
+  The plan's tab by `Board-Vision-Button` and the value it writes (`selectedtab`); a season's button by the value it
+  writes (`visionobjectiveyear`), its name by its text's data node; a season read when the meeting shows it and the
+  rows drawn are the game's list (`ClubVisionMeetingObjectivesForYear`). Add: the list sending
+  `EventFmxAddClubVisionObjective`, open once a season is shown; read back by `CanUndo` or the season's list.
+  The weight stepper only draws the weight: the game has no event to change it. TR + EN 3/3 (`round10.toml`):
+  read twice the same, add, undo, reset, wrong number, the objectives' tab after the plan's.
+  - The objectives' tab is the `selectedtab` button that is not the plan's, read back by its rows being drawn whole.
 - [x] T3 `talk` echoes the chosen line in English in a Turkish game ("» Finalise Deal"). Fixed: speech bubbles are
   read in the game's words (`Report.Spoken`), match talks show answers by `GameWords.Of`. TR measured (a whole
   season-end team meeting); EN a player's transfer talk with a fee window.
@@ -179,7 +182,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T115 Inbox lost its older messages: on 29 Sep 2029 (scenario `intl-break`) `inbox` lists 10–14 rows, the
   day's, and `reply "Four players called up for international duty"` finds nothing, while an hour earlier it was
   row 4 of 37. Fixed: FM27's list has no element name, so `inboxlist` finds it by its type
-  (`MessagesStreamedObjectList`) and gives its scroll view's content, which `scroll` takes. 3/3 TR + EN (`round8.toml`).- [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
+  (`MessagesStreamedObjectList`) and gives its scroll view's content, which `scroll` takes. 3/3 TR + EN (`round8.toml`).
+- [x] T116 With the vision meeting open, `status` took 3 minutes and `reply` 64 s: the meeting covers the inbox, so
+  every read of it waited out its bound. Both now say the meeting is open and stop; the whole inbox is read once.
+  `status` 4 s, `reply` refused in 0.6 s. 3/3 TR + EN (`round10.toml`, `within` bounds a step's time).
+- [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
   rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.
@@ -272,6 +279,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [ ] T55 Season's end: club vision meeting, end-of-season awards, players whose contracts end, retirements.
   - [x] Vision meeting: Negotiate, remove, a required one refused, undo, reset (closed with nothing changed). TR + EN, `round9.toml`.
   - [x] Contracts ending on the last day: `contracts`. TR + EN.
+  - [x] A player's statuses by the game's numbers: `squad --json` `Flags` (`Id`: 20 retiring, 75 free agent; `Type`).
+    The on-trial note is told by the flag, not its words. TR + EN (`round10.toml`).
   - [ ] Awards and retirements: their messages, from `season-end` forward.
 - [ ] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
 - [x] T57 Cup draws: a draw's message offers skip or view; view opens the draw screen, `fm draw` runs it (`EventFmxDrawAllTeams`, read back by the button going off) and prints it. `fm read here` reads whatever is on top. TR + EN, nothing open refused.

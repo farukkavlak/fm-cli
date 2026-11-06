@@ -68,7 +68,7 @@ internal static partial class Buttons
 		foreach (var control in Controls(out _))
 		{
 			var events = new List<string>();
-			string page = null, action = null, sends = null, sendsProps = null, target = null, opens = null, source = null;
+			string page = null, action = null, sends = null, sendsProps = null, target = null, opens = null, source = null, writes = null;
 			foreach (var (listName, list) in control.Lists)
 			{
 				var contexts = list.Events;
@@ -78,6 +78,7 @@ internal static partial class Buttons
 					try { events.Add(Summary(contexts[i], listName)); } catch { }
 					page ??= PageOf(contexts[i]);
 					opens ??= OpensOf(contexts[i]);
+					writes ??= WritesOf(contexts[i]);
 					source ??= SourceOf(contexts[i]);
 					if (gen != null && action == null && ActionOf(contexts[i]) is { } value && RawPath.Set($"fmcli.speak.g{gen}.{spoken}", value) == null)
 						action = $"fmcli.speak.g{gen}.{spoken++}";
@@ -108,6 +109,7 @@ internal static partial class Buttons
 				["SendsProps"] = sendsProps ?? "",
 				["Target"] = target ?? "",
 				["Opens"] = opens ?? "",
+				["Writes"] = writes ?? "",
 				["Source"] = source ?? "",
 				// On screen now, not a page left behind in the tree (`fm crawl` tells a page's own by it).
 				["Visible"] = Pages.Shown(control.Element) ? "True" : "False",
@@ -191,6 +193,23 @@ internal static partial class Buttons
 	/// The panel an OpenPanel button opens, by its asset's GUID: the same in every language, where
 	/// the button's label is not and its event alone ("OpenPanel") is shared by every such button.
 	/// </summary>
+	/// <summary>
+	/// What a datastore button writes, as "destination=source" ("selectedtab=tab2"): a page's own
+	/// tabs are told apart by the value each sets, the same in every language.
+	/// </summary>
+	internal static string WritesOf(EventContextBase context)
+	{
+		try
+		{
+			var set = context.TryCast<SI.Bindable.Events.SetDatastoreValueEventContext>();
+			if (set == null) return null;
+			var to = set.m_destination?.Path;
+			var from = set.m_source?.Path;
+			return string.IsNullOrEmpty(to) ? null : $"{to}={from}";
+		}
+		catch { return null; }
+	}
+
 	internal static string OpensOf(EventContextBase context)
 	{
 		try

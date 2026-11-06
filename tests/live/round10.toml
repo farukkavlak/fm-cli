@@ -1,0 +1,62 @@
+# Round 10: T116 `status` with the vision meeting open; T93 the meeting's 5 Year Plan and adding an objective;
+# T55 a player's status flags by the game's numbers. Run: tools/fm-round.py dry tests/live/round10.toml, then run.
+
+# The meeting covers the inbox: `status` says the meeting is open and stops there (it took 3 minutes before);
+# `reply` to the other message refuses at once (64 s before).
+[[test]]
+task = "T116"
+name = "status and reply with the vision meeting open answer at once"
+at = "season-end"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "a", live = true },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.1.NewsTitleString", keep = "b", live = true },
+  { run = "reply {a} 2", rc = "any", within = 20 },
+  { run = "reply {b} 2", rc = "any", within = 20 },
+  { read = "vision", path = "Goals.#", not = "0", live = true },
+  { run = "reply {a} 2", rc = "fail", within = 10, note = "the meeting is open: refused at once" },
+  { run = "status", within = 20 },
+  { run = "status", within = 20 },
+  { run = "status", within = 20 },
+]
+
+# The plan: every season with its objectives, the ones the board offers; an add read back, undone; a wrong number.
+# The objectives' tab comes back for `vision` after the plan's tab was shown.
+[[test]]
+task = "T93"
+name = "the 5 Year Plan: read, add, undo, wrong number"
+at = "season-end"
+repeat = 3
+steps = [
+  { read = "vision", path = "Goals", keep = "goals", live = true },
+  { read = "vision plan", path = "Seasons.#", not = "0", live = true },
+  { read = "vision plan", path = "Seasons", keep = "plan", live = true },
+  { read = "vision plan", path = "Seasons", same_as = "plan", live = true, note = "read twice, the same" },
+  { read = "vision", path = "Goals", same_as = "goals", live = true, note = "the objectives' tab again" },
+  { read = "vision plan", path = "CanAdd.#", not = "0", live = true },
+  { run = "vision add 99", rc = "fail" },
+  { read = "vision plan", path = "Seasons", same_as = "plan", live = true },
+  { run = "vision add 1" },
+  { read = "vision plan", path = "Seasons", differs_from = "plan", live = true },
+  { run = "vision undo" },
+  { read = "vision plan", path = "Seasons", same_as = "plan", live = true },
+  { run = "vision add 1" },
+  { run = "vision reset" },
+  { read = "vision plan", path = "Seasons", same_as = "plan", live = true },
+  { read = "vision", path = "Goals", same_as = "goals", live = true },
+]
+
+# Every status a player has comes with the game's own numbers: its kind always, its flag (-1 for a status that is
+# not a flag, such as a holiday). The squad page does not open over the meeting: a fresh copy.
+[[test]]
+task = "T55"
+name = "squad flags carry the game's numbers"
+at = "season-end"
+fresh = true
+steps = [
+  { read = "squad", path = "#", not = "0", live = true },
+  { read = "squad", path = "?Flags.#", not = "0", live = true },
+  { read = "squad", path = "?Flags.0.Flags.0.Type", not = "-1", live = true },
+  { read = "squad", path = "?Flags.0.Flags.0.Id", present = true, live = true },
+]

@@ -39,6 +39,13 @@ internal static partial class Program
 			return 69;
 		}
 
+		// The vision meeting covers the inbox: no message can be found under it (64 s of looking, 6 Nov).
+		if (await VisionControls() != null)
+		{
+			Console.Error.WriteLine(L("The club vision meeting is open and covers the inbox. Objectives and bargaining: vision   ·   to finish: vision end"));
+			return 1;
+		}
+
 		var inbox = (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList();
 		var byNumber = int.TryParse(words[0], out _);
 		var message = Pick(inbox, words[0], quiet: !byNumber);

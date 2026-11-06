@@ -29,7 +29,7 @@ A test list (tests/live/*.toml):
   ]
 
 Steps:
-  run = "<command>"        rc = 0 (default), a number, "fail" (any non-zero) or "any"
+  run = "<command>"        rc = 0 (default), a number, "fail" (any non-zero) or "any"; within = seconds it must answer in
   read = "<command>"       run with --json; path = "A.B.0.C", "#" is a list's length, "?Field" keeps a list's entries with it set. Then is / not / same_as /
                            differs_from / present = true, and keep = "<name>" remembers the value
   until = "<command>"      a read asked again until it holds; seconds = the upper bound (default 300), every = the pace of asking (default 1)
@@ -350,8 +350,8 @@ def problems_in(tests):
                     kept.add(step["keep"])
                 if kind == "until" and not {"is", "not"} & set(step):
                     found.append(f"{where} step {number}: until waits for is / not")
-            if kind == "run" and set(step) - {"run", "rc", "note"}:
-                found.append(f"{where} step {number}: unknown {sorted(set(step) - {'run', 'rc', 'note'})}")
+            if kind == "run" and set(step) - {"run", "rc", "within", "note"}:
+                found.append(f"{where} step {number}: unknown {sorted(set(step) - {'run', 'rc', 'within', 'note'})}")
             if kind == "start":
                 running = True
             if kind in ("finish", "stop"):
@@ -465,10 +465,12 @@ def play(test):
         for number, step in enumerate(test["steps"], 1):
             step = {k: filled(v, kept) if k in ("run", "read", "until", "start") else v for k, v in step.items()}
             if "run" in step:
-                rc, out, err, _ = fm(step["run"])
+                rc, out, err, took = fm(step["run"])
                 wanted = step.get("rc", 0)
                 if wanted != "any" and ((wanted == "fail" and rc == 0) or (wanted != "fail" and rc != wanted)):
                     raise Failed(f"step {number} `{step['run']}`: rc={rc}, wanted {wanted}: {(err or out).strip()[:200]}")
+                if "within" in step and took > step["within"]:
+                    raise Failed(f"step {number} `{step['run']}`: took {took:.0f} s, wanted within {step['within']} s")
             elif "start" in step:
                 side = subprocess.Popen(["fm", *shlex.split(step["start"])], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
             elif "finish" in step:

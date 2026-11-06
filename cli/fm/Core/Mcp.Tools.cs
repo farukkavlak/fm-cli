@@ -214,9 +214,11 @@ internal static partial class Mcp
 		new("fm_contracts", "When each squad player's contract ends, soonest first, with age, position and time left.",
 			"""{"type":"object","properties":{}}""",
 			_ => ["contracts"]),
-		new("fm_vision", "The club vision meeting with the board, open after `Negotiate` on its end-of-season message: what the board says and the objectives, each numbered with its weight. `remove` (a number or part of an objective's text) strikes one that is not required, `action` is one of suggest (put the changes to the board; prints the board's answer), undo, reset, confirm (accept the vision; not taken back) or end (close the meeting).",
-			"""{"type":"object","properties":{"remove":{"type":"string"},"action":{"type":"string","enum":["suggest","undo","reset","confirm","end"]}}}""",
+		new("fm_vision", "The club vision meeting with the board, open after `Negotiate` on its end-of-season message: what the board says and the objectives, each numbered with its weight. `remove` (a number or part of an objective's text) strikes one that is not required, `action` is one of suggest (put the changes to the board; prints the board's answer), undo, reset, confirm (accept the vision; not taken back), end (close the meeting) or plan (the 5 Year Plan: each season's objectives and the objectives the board offers to add, numbered). `add` (a number from plan, or part of an objective's text) adds one of those.",
+			"""{"type":"object","properties":{"remove":{"type":"string"},"add":{"type":"string"},"action":{"type":"string","enum":["suggest","undo","reset","confirm","end","plan"]}}}""",
 			a => Str(a, "remove") is { Length: > 0 } r ? ["vision", "remove", r]
+				: Str(a, "add") is { Length: > 0 } ad ? ["vision", "add", ad]
+				: Str(a, "action") == "plan" ? ["vision", "plan", "--json"]
 				: Str(a, "action") is { Length: > 0 } act ? act == "confirm" ? ["vision", "confirm", "--yes"] : ["vision", act]
 				: ["vision", "--json"]),
 		new("fm_captains", "The captain and vice-captain; `captain` or `vice` with a player's name changes one (the game's confirmation is answered). standins=true lists the stand-ins, who lead the side in order when both are off; `standins_action` changes them: 'quick' (the assistant picks), 'add', 'remove' (with `player`) or 'clear'.",

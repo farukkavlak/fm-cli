@@ -50,11 +50,18 @@ internal static partial class Program
 		{
 			// The plugin names the agreed playing time in English; the line output puts the game's
 			// own word back through GameWords, so `--json` says the same. Everything else stays raw.
+			// Each player's status flags by the game's own numbers (Id 20 retiring …, Type its kind) and as it words them.
+			var held = await SquadFlags();
 			var said = squad.EnumerateArray().Select(p =>
 			{
 				var row = System.Text.Json.Nodes.JsonNode.Parse(p.GetRawText())!.AsObject();
 				if (row.TryGetPropertyValue("AgreedPlayingTime", out var agreed) && agreed is System.Text.Json.Nodes.JsonValue value && value.TryGetValue<string>(out var word))
 					row["AgreedPlayingTime"] = GameWords.Of(word);
+				if (held.TryGetValue(Field(p, "Name"), out var mine))
+					row["Flags"] = new System.Text.Json.Nodes.JsonArray(mine.Select(f => (System.Text.Json.Nodes.JsonNode)new System.Text.Json.Nodes.JsonObject
+					{
+						["Id"] = f.Id, ["Type"] = f.Type, ["Text"] = f.Full.Length > 0 ? f.Full : f.Short, ["Reason"] = f.Reason,
+					}).ToArray());
 				return row;
 			});
 			Console.WriteLine(JsonOut.Of(said));

@@ -144,7 +144,7 @@ internal static partial class Program
 			  depth           squad depth: who can play each position, age profile
 			  captains        captain and vice-captain;  --captain <player> / --vice <player>
 			    captains --standins [quick | add <player> | remove <player> | clear]   the stand-ins, in order
-			  vision          the end-of-season club vision meeting: objectives;  confirm | remove <no> | suggest | undo | reset | end
+			  vision          the end-of-season club vision meeting: objectives;  confirm | remove <no> | suggest | undo | reset | end | plan | add <no>
 			  penalties       penalty order (composure, penalty taking) and the rules on who leaves the next one;  penalties <1|2|3> on|off
 			  penalties move <player|place> <new place> · add <player> [<place>] · remove <player|place>   change the order
 			  takers [<kind>] set piece takers: corner, freekick, wide, deep, throw; with a kind, both lists in detail
