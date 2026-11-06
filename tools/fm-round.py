@@ -272,7 +272,12 @@ def fresh_load(name, folder, times):
     times["stop"] = times.get("stop", 0) + round(time.time() - step, 1)
     in_scenario(folder, name)
     step = time.time()
-    must(f'load "{PREFIX}{name}" --no-save', 600)
+    # Starting the game for the load failed now and then (6 Nov: "did not reach the main menu", "FM is not
+    # running"), and the next try passed: one more try, said in the times.
+    rc, out, err, _ = fm(f'load "{PREFIX}{name}" --no-save', 600)
+    if rc != 0:
+        times["load_retry"] = (err or out).strip()[:80]
+        must(f'load "{PREFIX}{name}" --no-save', 600)
     times["load"] = times.get("load", 0) + round(time.time() - step, 1)
 
 

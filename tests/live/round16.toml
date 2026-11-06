@@ -1,0 +1,42 @@
+# Round 16: the source audit's finds (T85). Board requests from FM27's one list; the registration rules by their data
+# path, as the game writes them; the wage query by its number. Run: tools/fm-round.py dry tests/live/round16.toml, then run.
+
+# The list read, the negatives, then a request under a kind put to the board: its dialog answered, read back by the
+# entry leaving the list.
+[[test]]
+task = "T85"
+name = "board request: list, refused ones, one asked and read back"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "board request", path = "#", not = "0", live = true },
+  { read = "board request", path = "#", keep = "all", live = true },
+  { read = "board request", path = "?Kind.0.No", keep = "n", live = true },
+  { run = "board request zzq --yes", rc = 64 },
+  { run = "board request {n}", rc = 1, note = "no --yes: said, not asked" },
+  { read = "board request", path = "#", same_as = "all", live = true },
+  { run = "board request {n} --yes" },
+  { read = "board request", path = "#", differs_from = "all", live = true },
+]
+
+# The registration rules: by their data path, each line as the game writes it.
+[[test]]
+task = "T85"
+name = "register: the competition's rules read by their data path"
+at = "kickoff"
+fresh = true
+steps = [
+  { read = "register", path = "Notes.#", not = "0", live = true },
+  { read = "register", path = "Players.#", not = "0", live = true },
+]
+
+# The wage condition: the game's sort value, in any language.
+[[test]]
+task = "T85"
+name = "query by wage"
+at = "kickoff"
+steps = [
+  { read = "query wage>1", path = "#", not = "0", live = true },
+  { read = "query wage>100000000", path = "#", is = "0", live = true },
+]

@@ -54,7 +54,7 @@ internal static partial class Program
 
 		if (args.Contains("--json") && !args.Contains("--send"))
 		{
-			Console.WriteLine(JsonOut.Of(new { Rules = rules, Players = players }));
+			Console.WriteLine(JsonOut.Of(new { Rules = rules, Players = players, Notes = await RegistrationNotes() }));
 			return 0;
 		}
 		if (Ui.Interactive && changes.Count == 0 && !args.Contains("--send"))
@@ -159,28 +159,12 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<string>> RegistrationNotes()
 	{
-		foreach (var anchor in new[] { "Registration Open", "Registration Closed" })
-		{
-			List<(string Text, string Path)> texts;
-			try { texts = (await Fm.GetJson("texts", ("anchor", anchor), ("up", "6"), ("paths", "1"))).EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList(); }
-			catch (FmError) { continue; }
-			// The block is known by its data path; a line the wording of which is not known here is
-			// shown as the game writes it, in its language.
-			var block = texts.FirstOrDefault(t => t.Path == "squadreg.ExtraSquadRules").Text;
-			if (block == null) continue;
-			return block.Split('\n').Select(l => l.Trim()).Where(l => l != "").Select(l =>
-			{
-				var young = System.Text.RegularExpressions.Regex.Match(l, @"^Players of the age of (\d+) or younger on (\S+) do not have to be registered\.$");
-				if (young.Success) return L($"No registration needed: those aged {young.Groups[1].Value} and under on {young.Groups[2].Value}");
-				if (l == "Goalkeepers do not have to be registered.") return L("No registration needed: goalkeepers");
-				var spaces = System.Text.RegularExpressions.Regex.Match(l, @"^You have (\d+) spaces? available in the squad selection\.$");
-				if (spaces.Success) return L($"There are {spaces.Groups[1].Value} free places in the list");
-				if (l == "If minimum rules cannot be reached, spaces must be left in the squad selection.")
-					return L("If a minimum is not met, a place must be left for it in the list");
-				return l;
-			}).ToList();
-		}
-		return [];
+		// The block is known by its data path alone, and its lines are shown as the game writes them, in its language:
+		// taking the English sentences apart gave two lines in the CLI's words and the third in the game's.
+		var shown = await Fm.GetJson("shown");
+		if (shown.ValueKind != JsonValueKind.Array) return [];
+		var block = shown.EnumerateArray().Where(t => Field(t, "Path") == "squadreg.ExtraSquadRules").Select(t => Field(t, "Text")).FirstOrDefault();
+		return block == null ? [] : block.Split('\n').Select(l => l.Trim()).Where(l => l != "").ToList();
 	}
 
 	private static void ShowRegistration(List<RegRule> rules, List<Registered> players)
@@ -341,7 +325,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// The registration page. Opening it by name sometimes leaves the squad overview up, where
-	/// the list is a tile; the tile's competition button, just before "N assigned", opens it.
+	/// the list is a tile; the tile's button that opens the registration page (by its GUID) opens it.
 	/// </summary>
 	private static async Task<bool> OpenRegistration()
 	{
@@ -351,11 +335,12 @@ internal static partial class Program
 		await OpenPage(Screen.Registration);
 		if (await Until(Up, seconds: 5)) return true;
 
-		var controls = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
-		var assigned = controls.FindIndex(c => System.Text.RegularExpressions.Regex.IsMatch(Field(c, "Label"), @"^\d+ assigned$"));
-		if (assigned <= 0) return false;
+		// The squad overview's tile: its button is the one that opens the registration page.
+		var tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(c => Field(c, "Opens") == Screen.Registration && Field(c, "Visible") == "True");
+		if (tile.ValueKind != JsonValueKind.Object) return false;
 
-		await Fm.Get("press", ("ptr", Field(controls[assigned - 1], "Pointer")));
+		await Fm.Get("press", ("ptr", Field(tile, "Pointer")));
 		return await Until(Up, seconds: 10);
 	}
 

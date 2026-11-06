@@ -129,11 +129,8 @@ internal static partial class Program
 			switch (f.Kind)
 			{
 				case QueryKind.Money:
-					if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var pounds)) return pounds;
-					// "£230K p/w"; a wage shown by the month or year is brought to the week.
-					var wage = Regex.Match(text, @"^(.+?)\s*p/([wma])$");
-					return wage.Success && Money(wage.Groups[1].Value) is { } money
-						? money / (wage.Groups[2].Value switch { "m" => 52 / 12.0, "a" => 52, _ => 1 }) : null;
+					// The sort value is a number (weekly, pounds) in every language; the shown wage is never taken apart.
+					return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var pounds) ? pounds : null;
 				case QueryKind.Months:
 					return GameDay(text) is { } ends
 						? (ends.Year - today.Year) * 12 + ends.Month - today.Month + (ends.Day >= today.Day ? 0 : -1) : null;

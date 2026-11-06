@@ -3,14 +3,20 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Asking the board for something. The board's card — Club › Board, the "N
-/// board member" tile — has one list a kind of request (Facilities, Finance, Networking, Staff)
-/// and two plain buttons (Build New Stadium, New Contract). Choosing one puts the request to the
+/// Asking the board for something. FM27 puts every request in one list on the board's page (Club › Club Vision,
+/// "Make Board Request"): plain entries (expanding the stadium) and kinds with their own entries (Facilities,
+/// Finance, Networking, Staff, Personal), some a level deeper (a youth team). Choosing one puts the request to the
 /// board, which answers in a line; the decision itself comes later as a message.
+///
+/// Held by identity: the list by the element it sits in (`#MakeBoardRequestButton`), each request by its place in
+/// the game's own menu (the path of indices, read afresh each time), named as the game names it.
 /// </summary>
 internal static partial class Program
 {
-	private sealed record BoardRequest(string Kind, string Name, string? List, string? Parent);
+	/// <param name="Path">The entry's place in the game's menu ("2,3"), what /select takes.</param>
+	/// <param name="Kind">The kind it is under, as the game names it; "" for a plain entry.</param>
+	/// <param name="Shown">The entry with the levels above it below the kind ("Physios Allowed › U19s").</param>
+	private sealed record BoardRequest(string Path, string Kind, string Shown, string List);
 
 	private static async Task<int> BoardRequests(bool json, string[] args)
 	{
@@ -18,77 +24,84 @@ internal static partial class Program
 		var opened = await OpenPage(Screen.Board);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
-		// The card is behind the board's tile, known by the panel it is laid out in (BindingRemapper
-		// #Board): its words count the members in the game's language.
-		// A card left open by an earlier call covers the tile, so it is read as it is.
-		var requests = await BoardRequestList();
-		for (var attempt = 0; attempt < 3 && requests.Count == 0; attempt++)
-		{
-			var clicked = "";
-			await Until(async () => !(clicked = await Fm.Get("click", ("within", "Board"), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.4);
-			if (clicked.StartsWith("error", StringComparison.Ordinal)) break;
-			await Until(async () => (requests = await BoardRequestList()).Count > 0, seconds: 5, every: 0.5);
-		}
+		List<BoardRequest> requests = [];
+		await Until(async () => (requests = await BoardRequestList()).Count > 0, seconds: 8, every: 0.4);
 		if (requests.Count == 0)
 		{
-			// The card without its request lists: the board takes no more while some are waiting
-			// for its answer (seen after three in one day). Which it is the card does not say but in words.
+			// The list is there with nothing to choose, or not there, while requests wait for the board's answer.
 			var waiting = Field(await Fm.Pull("Human.Club", "ActiveBoardRequestsCount"), "ActiveBoardRequestsCount");
 			Console.Error.WriteLine(waiting is { Length: > 0 } and not "0"
 				? L("The board is not taking requests now: the card has no request option (no new one opens while requests await an answer).")
-				: L("The board card did not open."));
+				: L("The board's request list is not on the page."));
 			return 1;
 		}
 
 		var typed = string.Join(" ", Words(args).Skip(1));
+		string Named(BoardRequest r) => r.Kind.Length == 0 ? r.Shown : $"{r.Kind} › {r.Shown}";
 		if (typed.Length == 0)
 		{
-			if (json) Console.WriteLine(JsonOut.Of(requests.Select(r => new { Kind = GameWords.Of(r.Kind), Request = r.Parent == null ? GameWords.Of(r.Name) : $"{GameWords.Of(r.Parent)} › {GameWords.Of(r.Name)}" })));
+			if (json) Console.WriteLine(JsonOut.Of(requests.Select((r, i) => new { No = i + 1, r.Kind, Request = r.Shown })));
 			else
 			{
-				Table.Write([L("TYPE"), L("REQUEST")], requests.Select(r => new[] { r.Kind, r.Parent == null ? r.Name : $"{r.Parent} › {r.Name}" }).ToList());
-				Console.WriteLine(L("\nTo make a request: board request \"<request>\" --yes"));
+				Table.Write(["#", L("TYPE"), L("REQUEST")], requests.Select((r, i) => new[] { (i + 1).ToString(), r.Kind, r.Shown }).ToList());
+				Console.WriteLine(L("\nTo make a request: board request <#> --yes"));
 			}
 			return 0;
 		}
 
-		string Full(BoardRequest r) => r.Parent == null ? r.Name : $"{r.Parent} {r.Name}";
-		// Typed as the game reads it or as the table shows it.
-		string[] Forms(BoardRequest r) => [Fold(Full(r)), Fold(r.Parent == null ? GameWords.Of(r.Name) : $"{GameWords.Of(r.Parent)} {GameWords.Of(r.Name)}")];
+		// By its number in the list just read, or by words of its name as the game writes it.
 		var wanted = Fold(typed);
-		var hits = requests.Where(r => Forms(r).Contains(wanted) || Fold(r.Name) == wanted || Fold(GameWords.Of(r.Name)) == wanted).ToList();
-		if (hits.Count == 0) hits = requests.Where(r => Forms(r).Any(f => f.Contains(wanted))).ToList();
-		if (hits.Count == 0) hits = requests.Where(r => Forms(r).Any(f => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(f.Contains))).ToList();
+		var hits = int.TryParse(typed, out var no) && no >= 1 && no <= requests.Count ? [requests[no - 1]]
+			: requests.Where(r => Fold(r.Shown) == wanted || Fold(Named(r)) == wanted).ToList();
+		if (hits.Count == 0) hits = requests.Where(r => wanted.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(Fold(Named(r)).Contains)).ToList();
 		if (hits.Count != 1)
 		{
 			Console.Error.WriteLine(hits.Count == 0 ? L($"No request called '{typed}' (all of them: board request).") : L($"'{typed}' matches more than one request:"));
-			foreach (var hit in hits) Console.Error.WriteLine($"  {(hit.Parent == null ? GameWords.Of(hit.Name) : $"{GameWords.Of(hit.Parent)} › {GameWords.Of(hit.Name)}")}   ({GameWords.Of(hit.Kind)})");
+			foreach (var hit in hits) Console.Error.WriteLine($"  {Named(hit)}");
 			return 64;
 		}
 		var request = hits[0];
-		var shown = request.Parent == null ? GameWords.Of(request.Name) : $"{GameWords.Of(request.Parent)} › {GameWords.Of(request.Name)}";
+		var shown = Named(request);
 
 		if (!args.Contains("--yes"))
 		{
-			Console.Error.WriteLine(L($"To ask the board for: {shown}  ({GameWords.Of(request.Kind)}). To confirm: board request \"{Full(request)}\" --yes"));
+			Console.Error.WriteLine(L($"To ask the board for: {shown}. To confirm: board request {requests.IndexOf(request) + 1} --yes"));
 			return 1;
 		}
 
-		var sent = request.List == null
-			? await Fm.Get("click", ("text", request.Name))
-			: request.Parent == null
-				? await Fm.Get("select", ("ptr", request.List), ("choice", request.Name), ("fire", "1"))
-				: await Fm.Get("select", ("ptr", request.List), ("names", $"{request.Parent}>{request.Name}"), ("fire", "1"));
+		// The entry is chosen into the list's binding, then the list sends its own event (SpeakToDropdownAction) with it.
+		var chosen = await Fm.Get("select", ("ptr", request.List), ("path", request.Path));
+		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
+		var sent = await Fm.Get("press", ("ptr", request.List));
 		if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 
-		// What the board says back; a line with nothing to choose is acknowledged, anything
-		// with a choice in it is left for `talk`.
+		// What the board says back: in FM27 a dialog of its own kind (`board_request_ok`), answered by its one
+		// button; a conversation (a line, maybe with choices) as before. The request is read back by its entry
+		// leaving the list: one waiting for the board's decision is not offered again.
 		JsonElement talk = default;
-		var answered = await Until(async () => (talk = await Fm.GetJson("talk")).TryGetProperty("Says", out var says) && says.GetArrayLength() > 0, seconds: 8, every: 0.5);
+		JsonElement dialog = default;
+		var answered = await Until(async () =>
+			(dialog = (await Fm.GetJson("dialog")).EnumerateArray().FirstOrDefault(d => Field(d, "Type") == "board_request_ok")).ValueKind == JsonValueKind.Object
+			|| ((talk = await Fm.GetJson("talk")).TryGetProperty("Says", out var says) && says.GetArrayLength() > 0), seconds: 8, every: 0.3);
 		if (!answered)
 		{
 			Console.Error.WriteLine(L($"{shown}: asked, but no answer came from the board."));
 			return 1;
+		}
+		if (dialog.ValueKind == JsonValueKind.Object)
+		{
+			var said = Field(dialog, "ShownDescription") is { Length: > 0 } words ? words : Field(dialog, "Description");
+			var closed = await Fm.Get("dialog", ("press", "primary"));
+			if (closed.StartsWith("error", StringComparison.Ordinal)) return Report(closed);
+			var gone = await Until(async () => !(await BoardRequestList()).Any(r => r.Kind == request.Kind && r.Shown == request.Shown), seconds: 5, every: 0.3);
+			if (json) Console.WriteLine(JsonOut.Of(new { Request = shown, Says = new[] { said }, Answers = Array.Empty<string>(), Pending = gone }));
+			else
+			{
+				Console.WriteLine(L($"Asked: {shown}"));
+				Console.WriteLine(L($"  Board: {said}"));
+				if (!gone) Console.WriteLine(L("  (the request is still offered in the list: check the board's page)"));
+			}
+			return gone ? 0 : 1;
 		}
 		var lines = talk.GetProperty("Says").EnumerateArray().Select(s => s.GetString() ?? "").Where(s => !s.StartsWith("»", StringComparison.Ordinal)).ToList();
 		var answers = talk.GetProperty("Answers").EnumerateArray().Select(a => Field(a, "Label")).ToList();
@@ -108,35 +121,25 @@ internal static partial class Program
 		return 0;
 	}
 
-	/// <summary>Every request the card offers: the lists' choices (a submenu's under their parent) and the two buttons.</summary>
+	/// <summary>Every request the board's list offers, read from the game's menu as it stands.</summary>
 	private static async Task<List<BoardRequest>> BoardRequestList()
 	{
-		var requests = new List<BoardRequest>();
-		var seen = new HashSet<string>();
-		foreach (var list in (await Fm.GetJson("dropdowns", ("json", "1"), ("deep", "1"))).EnumerateArray().Where(d => Field(d, "Name") == "GenericDropdown"))
+		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(d => d.TryGetProperty("Within", out var within) && within.EnumerateArray().Any(n => n.GetString() == "MakeBoardRequestButton"));
+		if (list.ValueKind != JsonValueKind.Object || Field(list, "Enabled") != "True") return [];
+		var pointer = Field(list, "Pointer");
+		var tree = await Fm.GetJson("menu", ("ptr", pointer), ("tree", "1"));
+		if (tree.ValueKind != JsonValueKind.Array) return [];
+		var rows = tree.EnumerateArray().Select(r => (Path: Field(r, "Path"), Text: Field(r, "Text"), Folder: r.GetProperty("Folder").GetBoolean())).ToList();
+		var names = rows.ToDictionary(r => r.Path, r => r.Text);
+		return rows.Where(r => !r.Folder).Select(r =>
 		{
-			var kind = Field(list, "Label");
-			var choices = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-			// A list can sit on the card twice, the second copy without its label.
-			if (!seen.Add(string.Join("\n", choices))) continue;
-			var submenus = list.TryGetProperty("Submenus", out var subs) && subs.ValueKind == JsonValueKind.Object ? subs : default;
-			for (var i = 0; i < choices.Count; i++)
-			{
-				if (!choices[i]!.EndsWith(" ›", StringComparison.Ordinal))
-				{
-					requests.Add(new(kind, choices[i], Field(list, "Pointer"), null));
-					continue;
-				}
-				if (submenus.ValueKind != JsonValueKind.Object || !submenus.TryGetProperty(i.ToString(), out var children)) continue;
-				foreach (var child in children.EnumerateArray())
-					requests.Add(new(kind, child.GetString() ?? "", Field(list, "Pointer"), choices[i]![..^2]));
-			}
-		}
-		if (requests.Count == 0) return requests;
-
-		foreach (var button in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			         .Where(b => Field(b, "Name") == "StandardButton" && Field(b, "Events") == "SpeakToAction" && Field(b, "Label") is "Build New Stadium" or "New Contract"))
-			requests.Add(new(Field(button, "Label"), Field(button, "Label"), null, null));
-		return requests;
+			// The levels above it, by their own paths: "4,4,0" is under "4" (the kind) and "4,4".
+			var parts = r.Path.Split(',');
+			var above = Enumerable.Range(1, parts.Length - 1).Select(n => names.GetValueOrDefault(string.Join(",", parts[..n]), "")).ToList();
+			var kind = above.Count > 0 ? above[0] : "";
+			var shown = string.Join(" › ", above.Skip(1).Append(r.Text));
+			return new BoardRequest(r.Path, kind, shown, pointer);
+		}).ToList();
 	}
 }

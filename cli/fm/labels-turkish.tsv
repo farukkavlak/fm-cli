@@ -2709,3 +2709,7 @@ NOW	ŞU AN
 \n{0} away with their national side now; {1} played for it this season.	\n{0} oyuncu şu an milli takımında; {1} oyuncu bu sezon milli takımda oynadı.
 {0}: the game does not give 'stall' as an answer to this offer (an offer with no negotiation, or one about to expire, cannot be stalled).	{0}: oyun bu teklife 'stall' cevabını vermiyor (pazarlıksız ya da süresi dolmak üzere olan teklif bekletilemez).
 {0}: the game does not give '{1}' as an answer to this offer here; what it gives: offers <#> view	{0}: oyun bu teklife burada '{1}' cevabını vermiyor; verdikleri için: offers <#> view
+The board's request list is not on the page.	Yönetim istek listesi sayfada yok.
+\nTo make a request: board request <#> --yes	\nİstekte bulunmak için: board request <#> --yes
+To ask the board for: {0}. To confirm: board request {1} --yes	Yönetimden istenecek: {0}. Onaylamak için: board request {1} --yes
+  (the request is still offered in the list: check the board's page)	  (istek listede hâlâ duruyor: yönetim sayfasına bakın)

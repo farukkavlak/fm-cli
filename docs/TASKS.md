@@ -388,11 +388,15 @@ not yet tried in a live terminal.
     their field, the table's form by the game's codes.
   - Known: `Transfer/Contracts.cs` leaves out terms whose value reads "-", "N/A", "None", "No" (English words the plugin gives).
   - Found 6 Nov (grep of the source; each needs its identity measured in the game):
-    - [ ] `Club/BoardRequests.cs`: the stadium and new-contract requests are found by their buttons' English labels
-      ("Build New Stadium", "New Contract"); missing in a Turkish game. Hold them by their SpeakTo action.
-    - [ ] `Squad/Registration.cs`: the rules block is found by the words "Registration Open/Closed", its lines are
-      English sentences taken apart; the registration button is "the one before '<n> assigned'" (words and order).
-    - [ ] `Squad/Query.cs`: a wage is split at the English "p/w|m|a"; wage filters and sorting fail in Turkish.
+    - [x] `Club/BoardRequests.cs`: whole command broken in this FM27 build (the card it clicked is gone); the stadium
+      and new-contract requests were found by English labels. Now FM27's one list (`#MakeBoardRequestButton`), each
+      request by its menu path, sent by the list's own event; the answer is a dialog (`board_request_ok`), read back
+      by the entry leaving the list. TR + EN 3/3 (`round16.toml`). A board takes only so many at once: later ones
+      were left unsent with no answer (EN, by hand); said as "no answer came".
+    - [x] `Squad/Registration.cs`: the rules by their data path (`squadreg.ExtraSquadRules`), each line as the game
+      writes it (`register --json` Notes); TR + EN (`round16.toml`). The page's fallback is the button opening its
+      GUID, not "the one before '<n> assigned'"; that fallback's case was not met (the page opened directly).
+    - [x] `Squad/Query.cs`: the wage is the game's sort value; the English "p/w" fallback (never reached) removed. TR + EN.
     - [x] `Club/Internationals.cs` caps/goals from English words (T58); `Core/StatusFlags.cs` "Free Agent" (T55);
       `Match/News.cs` story text (T119); `depth` / `targets` positions in English codes (now the game's own).
     - [ ] Waits on "two reads agree" (about 100 places: `settled`, `== last`): each is a time-based sign; move to the
