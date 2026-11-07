@@ -218,11 +218,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   failed once ("Lists on the Stages page not found": the stage lists come a moment after the page; now waited for);
   `depth` and `targets` wrote positions in the CLI's English codes in a Turkish game (now the game's own, "KL", and
   `targets KL` is taken). TR + EN 3/3 (`round15.toml`); the sweep: 63 commands, `kickoff` TR + EN all pass.
-- [ ] T122 `reply` says "answered" when the game did nothing: "choose your captain" (club captain gone) confirmed
-  with no captain picked stays in place; the walk answered it 78 times. Read the message back after the press and
-  say the game wants a choice first (`captains --captain`). Scenario `caught-2029-03-31`.
-- [ ] T123 The manager's own new contract (board offer, `reply` → talks): `talk` shows "our first offer" with no
-  terms (wage, length). Show them; `manager` should show the contract's end. Scenario `caught-2029-05-26`.
+- [x] T122 `reply` said "answered" when the game did nothing: a window whose only button closes it is now the game
+  turning the answer down when the message still waits after it; its own reason is said, exit 1 ("choose a captain
+  before confirming"). A list's option by number is only that place now ("9" of four took the date with a 9).
+  TR + EN 3/3 (`round29.toml`, `caught-2029-03-31`).
+- [x] T123 The manager's own new contract: `reply` → talks says "the terms: contract"; `talk` points there too;
+  `contract` reads the terms (wage, length, clauses, the current deal's end), `--sign --yes` signs. TR + EN 3/3
+  (`round29.toml`, `caught-2029-05-26`).
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
@@ -359,7 +361,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     open card while unemployed: it was refused for want of a club), `talk` Finalise, the new club. TR + EN 3/3 for the
     card (`round19.toml`). Left: the card's heading has no name (" — Terms") and its last line speaks of an agent.
   - [x] Board requests (T85, `round16.toml`).
-  - [ ] Board meeting; a job offer while employed.
+  - [x] Board meeting from its message (club objectives): "discuss" opens `vision`; remove, put to the board, accept.
+    The board's "change season expectations": `reply <msg> --pick <n>` chooses the level, read back by the game's
+    own mark; `board` shows it once time moves on (a page built before keeps the old level, the game's own).
+    End of season: pre-season start date and camp place from the message's list. TR + EN 3/3 (`round29.toml`).
+  - [ ] A job offer while employed.
 - [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.
   - [x] A renewal we start: `contract <player>` promises, `--next` terms, `--sign --yes` offered; the player's answer
     comes by message and `contracts` shows the new end (EN by hand: Ahmet Koşar, 30/6/2028 → 30/6/2030). A player the

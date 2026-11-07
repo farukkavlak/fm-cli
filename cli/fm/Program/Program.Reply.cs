@@ -152,6 +152,35 @@ internal static partial class Program
 			return 0;
 		}
 
+		// Some messages hold a choice of their own beside the answers (the board's "change the season's
+		// expectations": one level per competition). Chosen first, then the message answered.
+		var choices = await InMessageChoices();
+		// The options are drawn a moment after the message: its bound attachment says they are coming.
+		if (choices.Count == 0 && await MessageTexts() is { ValueKind: JsonValueKind.Array } attached
+		    && attached.EnumerateArray().Any(t => Field(t, "Path").Contains("ClubSeasonExpectationsPotentialExpectationsOption", StringComparison.Ordinal)))
+			await Until(async () => (choices = await InMessageChoices()).Count > 0, seconds: 5, every: 0.25);
+		if (Option(args, "--pick") is { } pickWord)
+		{
+			if (!int.TryParse(pickWord, out var nth) || nth < 1 || nth > choices.Count)
+			{
+				Console.Error.WriteLine(choices.Count == 0 ? L("This message holds no choice of its own.") : L($"There is no choice number {pickWord}. Choices:"));
+				WriteChoices(Console.Error, choices);
+				return 1;
+			}
+			var picked = choices[nth - 1];
+			var sent = await Fm.Get("press", ("ptr", Field(picked.Button, "Pointer")));
+			if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
+			// Read back: the game's own mark on the option, not the press.
+			if (!await Until(async () => (await InMessageChoices()).Any(c => c.Source == picked.Source && c.Selected), seconds: 5, every: 0.2))
+			{
+				Console.Error.WriteLine(L($"The game did not take the choice: {picked.Competition} → {picked.Label}"));
+				return 1;
+			}
+			Console.WriteLine(L($"Chosen: {picked.Competition} → {picked.Label}"));
+			choices = await InMessageChoices();
+			if (words.Count == 1) return 0;
+		}
+
 		JsonElement? answerTo = null;
 		if (words.Count > 1)
 		{
@@ -168,6 +197,11 @@ internal static partial class Program
 			await WriteAttachment(answers.Select(a => Field(a, "Label")).ToHashSet());
 			Console.WriteLine();
 			if (!Ui.Interactive) Options(Console.Out);
+			if (choices.Count > 0)
+			{
+				Console.WriteLine(L("\nIn the message, to choose before answering (reply <message> --pick <number>):"));
+				WriteChoices(Console.Out, choices);
+			}
 
 			// At a terminal the choice is asked for on the spot. A script gets the listing and
 			// nothing else, since there is no one there to answer.
@@ -193,7 +227,9 @@ internal static partial class Program
 		if (listed.TryGetValue(Field(wanted[0], "Pointer"), out var offered) && offered.Count > 0)
 		{
 			if (words.Count > 2)
-				chosenFrom = int.TryParse(words[2], out var nth) && nth >= 1 && nth <= offered.Count ? offered[nth - 1]
+				// A number is a place in the list and nothing else: "9" of four must not become the
+				// date that has a 9 in it.
+				chosenFrom = int.TryParse(words[2], out var nth) ? (nth >= 1 && nth <= offered.Count ? offered[nth - 1] : null)
 					: offered.FirstOrDefault(o => o.Contains(words[2], StringComparison.OrdinalIgnoreCase));
 			else if (Ui.Interactive && Ui.Ask(Field(wanted[0], "Label"), offered) is { } which) chosenFrom = offered[which];
 			if (chosenFrom == null)
@@ -239,8 +275,25 @@ internal static partial class Program
 		if (dialog.GetArrayLength() > 0)
 		{
 			var title2 = DialogWords(dialog[0], "Title");
-			var primary = dialog[0].GetProperty("Buttons").EnumerateArray()
-				.FirstOrDefault(b => Field(b, "Slot") == "primary");
+			var buttons = dialog[0].GetProperty("Buttons").EnumerateArray().ToList();
+			var primary = buttons.FirstOrDefault(b => Field(b, "Slot") == "primary");
+			// A window whose only button closes it either tells what the answer did, or is the game
+			// turning the answer down ("choose a captain before confirming"). Which one: after it
+			// closes, the message still waits for its answer or not.
+			if (buttons.Count > 0 && buttons.All(b => Field(b, "EventID") == "close"))
+			{
+				await Fm.Get("dialog", ("press", "primary"));
+				await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.2);
+				var why = DialogWords(dialog[0], "Description");
+				if (!await Until(async () => !StillAnswerable(await Fm.GetJson("inbox"), id), seconds: 3, every: 0.25))
+				{
+					Console.Error.WriteLine(L($"The game did not take the answer: {(why.Length > 0 ? why : title2)}"));
+					Console.Error.WriteLine(L("The message still waits for its answer; do what it asks first, then answer again."));
+					return 1;
+				}
+				Console.WriteLine($"{title2}: {why}");
+				return 0;
+			}
 			if (primary.ValueKind == JsonValueKind.Object)
 			{
 				var confirmed = await Fm.Get("dialog", ("press", "primary"));
@@ -254,6 +307,8 @@ internal static partial class Program
 			}
 		}
 		else if (tour) Console.WriteLine(L("A guided tour opened; the message closes when the tour is over. To run it: tour"));
+		else if (talking && await OfferScreen.Read(Fm, "contract") != null)
+			Console.WriteLine(L("Contract talks opened; the message closes when they are over. The terms: contract   (to accept them: contract --sign --yes)"));
 		else if (talking) Console.WriteLine(L("A conversation opened; the message closes when the conversation is over. To go on: talk"));
 		else if (!settled && await VisionControls() != null) Console.WriteLine(L("A club vision meeting opened; the message closes when the meeting is over. To go on: vision"));
 		else if (!settled && await RegistrationOnScreen()) Console.WriteLine(L("The squad registration screen opened; the message closes when the list is sent. The list and the rules: register   (the assistant's choice: register --auto, then register --send)"));
@@ -269,6 +324,37 @@ internal static partial class Program
 		{
 			try { return (await Fm.GetJson("registration")).TryGetProperty("Players", out var players) && players.GetArrayLength() > 0; }
 			catch (FmError) { return false; }
+		}
+
+		// The choices a message holds beside its answers, held by the event their buttons send and
+		// read back by the game's own mark on each option; each under the competition it is for,
+		// found by walking up from the option to the row that names one.
+		static async Task<List<InMessageChoice>> InMessageChoices()
+		{
+			const string selected = "row.ClubSeasonExpectationsPotentialExpectationsIsOptionSelected";
+			const string competition = "row.ClubSeasonExpectationsCompetition.Name";
+			var found = new List<InMessageChoice>();
+			foreach (var b in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
+			{
+				if (Field(b, "Visible") != "True" || !Field(b, "Events").Contains("EVentFmxSelectCurrentSeasonExpectationLevel", StringComparison.Ordinal)) continue;
+				var source = Field(b, "Source");
+				var mark = Field(await Fm.GetJson("pull", ("path", source), ("props", selected)), selected);
+				var name = "";
+				for (var up = source; name.Length == 0 && up.LastIndexOf('.') is var dot and > 0; up = up[..dot])
+					name = Field(await Fm.GetJson("pull", ("path", up[..dot]), ("props", competition)), competition);
+				found.Add(new InMessageChoice(b, source, GameWords.Of(name), GameWords.Of(Field(b, "Label")), mark == "True"));
+			}
+			return found;
+		}
+
+		static void WriteChoices(TextWriter to, List<InMessageChoice> choices)
+		{
+			string? heading = null;
+			for (var i = 0; i < choices.Count; i++)
+			{
+				if (choices[i].Competition != heading) to.WriteLine($"  {heading = choices[i].Competition}");
+				to.WriteLine($"    {i + 1}  [{(choices[i].Selected ? "x" : " ")}] {choices[i].Label}");
+			}
 		}
 
 		// An answer is named by its number in the listing or by a piece of its text.
@@ -333,3 +419,5 @@ internal static partial class Program
 				.ToList();
 	}
 }
+
+internal sealed record InMessageChoice(System.Text.Json.JsonElement Button, string Source, string Competition, string Label, bool Selected);

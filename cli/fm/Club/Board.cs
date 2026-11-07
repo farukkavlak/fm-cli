@@ -106,7 +106,11 @@ internal static partial class Program
 		var count = Field(await Fm.Pull("Human.Club.ClubVisionMeetingSeasonExpectations", "ClubSeasonExpectationsNumberCompetitions"), "ClubSeasonExpectationsNumberCompetitions");
 		if (!int.TryParse(count, out var wanted) || wanted == 0) return [];
 		if ((await OpenPage(Screen.Competitions)).StartsWith("error", StringComparison.Ordinal)) return [];
+		// The count says whether there are any, not how many rows the page has (4 against the page's
+		// 2 after a day: it follows the last expectations meeting). The rows are taken once two
+		// readings agree.
 		var found = new List<(string, string)>();
+		string? last = null;
 		await Until(async () =>
 		{
 			var shown = await Fm.GetJson("shown", ("remap", "1"));
@@ -114,11 +118,15 @@ internal static partial class Program
 			var rows = shown.EnumerateArray()
 				.Where(t => Field(t, "Path") == "comp.TeamsBoardExpectationsInCompString" && Field(t, "Text").Length > 0 && Field(t, "Under").Length > 0)
 				.ToList();
-			if (rows.Count < wanted) return false;
+			if (rows.Count == 0) return false;
 			found = [];
 			foreach (var row in rows)
 				if (Field(await Fm.Pull($"{Field(row, "Under")}.comp", "Name"), "Name") is { Length: > 0 } name) found.Add((name, Field(row, "Text")));
-			return found.Count == rows.Count;
+			if (found.Count != rows.Count) return false;
+			var now = string.Join("|", found);
+			var same = now == last;
+			last = now;
+			return same;
 		}, seconds: 10, every: 0.3);
 		return found;
 	}

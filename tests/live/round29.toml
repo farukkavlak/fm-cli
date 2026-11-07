@@ -1,0 +1,98 @@
+# Round 29: the board and the manager (T60, T122, T123), from moments the catching walk kept.
+# - an answer the game turns down is said, not reported as given (choose a captain with none chosen);
+# - the board's "change the season's expectations": the level chosen in the message, answered, read on board;
+# - the board's new contract for the manager: talks, the terms by contract, signed;
+# - the board's club vision meeting from its message: an objective removed, put to the board, the vision accepted;
+# - end of season: the pre-season start date chosen from the message's list, the camp's place.
+# Run: tools/fm-round.py dry tests/live/round29.toml, then run.
+
+[[test]]
+task = "T122"
+name = "captain: confirming with no captain is turned down and said; with both chosen it is taken"
+at = "caught-2029-03-31"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=830115.0.NewsTitleString", keep = "msg", live = true, note = "choose your captain" },
+  { read = "captains", path = "ViceCaptain", not = "", keep = "vice", live = true },
+  { run = "reply {msg} 1", rc = "fail", note = "no captain chosen" },
+  { read = "inbox", path = "?UniqueId=830115.0.NewsHasResponded", is = "False", live = true },
+  { run = "captains --captain {vice}" },
+  { run = "reply {msg} 1", rc = "fail", note = "the vice captain's place now empty" },
+  { run = "captains --vice 'Utku Yuvakuran'", note = "a candidate in this save (a listed player is not one)" },
+  { read = "captains", path = "Captain", same_as = "vice", live = true },
+  { run = "reply {msg} 1" },
+  { run = "reply {msg} 1", rc = "any", note = "a second answer changes nothing" },
+]
+
+[[test]]
+task = "T60"
+name = "season expectations changed in the board's message and read back on the board"
+at = "caught-2028-12-29"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=737124.0.NewsTitleString", keep = "msg", live = true, note = "change the season's expectations" },
+  { read = "board", path = "Expectations.0.Expectation", not = "", keep = "before", live = true },
+  { run = "reply {msg} --pick 9", rc = "fail" },
+  { run = "reply {msg} --pick 2" },
+  { run = "reply {msg} --pick 2", note = "already that one" },
+  { run = "reply {msg} --pick 1" },
+  { run = "reply {msg} --pick 2" },
+  { run = "reply {msg} 1" },
+  { run = "next", rc = "any", note = "a board page built before the answer keeps the old level until time moves on (the game's own)" },
+  { read = "board", path = "Expectations.0.Expectation", differs_from = "before", live = true },
+]
+
+[[test]]
+task = "T123"
+name = "the manager's new contract: talks opened from the message, terms read, signed"
+at = "caught-2029-05-26"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=860453.0.NewsTitleString", keep = "msg", live = true, note = "the board offers a new contract" },
+  { run = "contract", rc = "fail", note = "no talks open yet" },
+  { run = "reply {msg} 9", rc = "fail" },
+  { run = "reply {msg} 2" },
+  { read = "contract", path = "Terms.#", not = "0", live = true },
+  { read = "contract", path = "Stage", is = "Terms", live = true },
+  { run = "contract --sign --yes" },
+  { run = "contract", rc = "fail", note = "the talks are over" },
+  { read = "inbox", path = "?UniqueId=860453.0.NewsHasResponded", is = "True", live = true },
+]
+
+[[test]]
+task = "T60"
+name = "club vision meeting from the board's message: remove, put to the board, accept"
+at = "caught-2029-05-07"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=850407.0.NewsTitleString", keep = "msg", live = true, note = "club objectives and expectations meeting" },
+  { run = "reply {msg} 2" },
+  { read = "vision", path = "Goals.#", not = "0", keep = "goals", live = true },
+  { run = "vision remove 1", rc = "fail", note = "a required objective" },
+  { run = "vision remove 3" },
+  { run = "vision suggest" },
+  { read = "vision", path = "Says.#", not = "0", live = true, note = "the board answered" },
+  { run = "vision confirm --yes" },
+  { read = "inbox", path = "?UniqueId=850407.#", is = "0", live = true, note = "accepted: the game takes the message away" },
+]
+
+[[test]]
+task = "T60"
+name = "end of season: pre-season start date from the message's list; the camp's place"
+at = "caught-2029-05-07"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=850411.0.NewsTitleString", keep = "date", live = true, note = "pre-season start date" },
+  { run = "reply {date} 1", rc = "fail", note = "a list: one of its options must be chosen" },
+  { run = "reply {date} 1 9", rc = "fail" },
+  { run = "reply {date} 1 3" },
+  { read = "inbox", path = "?UniqueId=850411.0.NewsHasResponded", is = "True", live = true },
+  { read = "inbox", path = "?UniqueId=850412.0.NewsTitleString", keep = "camp", live = true, note = "pre-season camp" },
+  { run = "reply {camp} 1 2" },
+  { read = "inbox", path = "?UniqueId=850412.0.NewsHasResponded", is = "True", live = true },
+]

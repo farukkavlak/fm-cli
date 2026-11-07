@@ -520,6 +520,10 @@ internal static partial class Program
 			}
 
 			Console.WriteLine(L("\nTo say something: talk <number>"));
+			// Contract talks (a renewal, the manager's own new deal) say little in words: the terms
+			// are on the offer, which `contract` reads and changes.
+			if (await OfferScreen.Read(Fm, "contract") != null)
+				Console.WriteLine(L("The terms on the table, and changing them: contract"));
 			return 0;
 		}
 	}
