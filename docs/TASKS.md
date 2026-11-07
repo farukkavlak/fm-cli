@@ -193,16 +193,16 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T116 With the vision meeting open, `status` took 3 minutes and `reply` 64 s: the meeting covers the inbox, so
   every read of it waited out its bound. Both now say the meeting is open and stop; the whole inbox is read once.
   `status` 4 s, `reply` refused in 0.6 s. 3/3 TR + EN (`round10.toml`, `within` bounds a step's time).
-- [ ] T117 A message's attachment (`reply`, `inbox` opening one): the deadline day's Transfer News card prints its
-  tables as bare rows, no headings, and its figures (done deals, spent, net) are left out. `AttachmentRows` also leans on
-  order (what follows the body) and on two reads agreeing. Hold it by the attachment's own elements and rows, with the
-  game's column headings; measure on several kinds (Code of Conduct, deadline day, a scouting report).
-  - Measured TR 6 Nov (deadline, a training report): the attachment is under `#MessageAttachments` (the body beside it,
-    `newsitem.NewsBodyString`); a card is a `Portal Card Template Element` (deadline: `states-transfer-window_report`);
-    a table's headings sit in its own `table` element (`ScrollView_Headers`) beside its rows (`View`); card figures by
-    name (`TotalNumberText` at `comp.TransfersTotalNumberInWindow`, `DealText` …). Open: a sign that the card is drawn
-    (the open message's `NewsItem.DynamicCardId` node is there but unbound). Plan: `rowtexts` gives each table's
-    headings (texts of its parent outside the table).
+- [ ] T117 A message's attachment (`reply`, `inbox` opening one).
+  - [x] Held by the attachment's own elements (plugin `/attachment`, under `#MessageAttachments`): a table's headings
+    (its `ScrollView_Headers`), its laid-out rows (its list's rows, with how many more it holds), every other group of
+    texts; in the game's words (was English words in a Turkish game), the body left out. Nothing chosen by place;
+    the order is only how it is shown. Deadline day's card now has its figures, headline deals and the activity
+    table's headings; the portal's league table no longer mixed in. TR + EN by hand: deadline card, Code of Conduct,
+    an opposition scout report.
+  - [ ] A sign that the card is drawn (the open message's `NewsItem.DynamicCardId` node is there but unbound): taken
+    now once two readings agree.
+  - [ ] A figure and its label come as two lines ("88" / "Done Deals"): they sit in different elements.
 - [x] T118 `tour` at a step that waits for something done on screen says only that: the new club's Tactics Introduction
   ("select the tactical display shown", no tactic set) passed once `tactic new` made a tactic. Name the command for
   such a step by the step's anchor (`FM.UI.TutorialAnchorID`) or action (`TutorialActionsID`), not its words.
