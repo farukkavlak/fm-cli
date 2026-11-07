@@ -225,6 +225,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T123 The manager's own new contract: `reply` → talks says "the terms: contract"; `talk` points there too;
   `contract` reads the terms (wage, length, clauses, the current deal's end), `--sign --yes` signs. TR + EN 3/3
   (`round29.toml`, `caught-2029-05-26`).
+- [ ] T124 `squad --json` Flags `Text` comes in English in a Turkish game for some statuses ("Transfer listed",
+  "Unhappy"; "İzleniyor" is Turkish): `StatusTitleFull` read raw. Try /pull's `shown` for the game's words; measure
+  TR + EN (`caught-2029-02-02`, Sušak).
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
@@ -374,6 +377,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [x] An unhappy player's demand (`unhappy`, 26 Jun 2028: a bid for Ozan rejected): his message answered with
     `reply` (talk to him), the conversation through `talk`, a fee proposed when he asks (`talk fee`, `talk confirm`),
     to its end; the message read back as answered. TR + EN 3/3 (`round27.toml`).
+  - [x] Players' concerns (`round30.toml`, TR + EN 3/3): given to a team-mate to settle (the message goes); talked
+    through with a promise; one thinking of leaving for free talked round; a transfer-list request granted, read back
+    by the game's own status (flag 6) once the day moves on.
   - [ ] A player asking for a new deal himself (moment not met yet).
 - [x] T62 Pre-season: friendlies, pre-season training, new-season expectations.
   - [x] Friendlies: `friendly` (new) lists the opponents the game offers (by reputation, with fees), the open dates and
@@ -406,12 +412,14 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     confirmed by the panel's own Confirm Changes, a read leaves by Cancel; both read back by the panel going.
     TR 3/3, EN 2/3 (one died at submission, T92), `round23.toml`.
   - [x] `status` in a match says a window the game opened (by the dialog route), with `dialog` to answer it.
-- [ ] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
+- [x] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
   - [x] The new manager's unveiling: its invitation answered with `reply` (Attend), every question with `talk`, the
     conference over (no answers left, `talk` then has no conversation). TR + EN 3/3 (`round24.toml`, scenario `press`).
   - [x] Pre- and post-match invitations are messages with Send / Delegate / Attend, answered with `reply` (seen in
     the Helmond spring run); attended ones are the same `talk`.
-  - [ ] A transfer question and an unhappy player's media question: not met yet.
+  - [x] Media questions about a player who wants out (a loan, a transfer list): `reply` Answer → `talk` to its end,
+    or Decline; read back as answered. The post-match conference attended and talked to its end. TR + EN 3/3
+    (`round30.toml`, `caught-2028-08-14`, `caught-2028-08-06`, `caught-2029-02-02`).
 
 ## 9. Depth the crawl has not reached
 

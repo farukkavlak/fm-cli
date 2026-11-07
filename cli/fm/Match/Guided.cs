@@ -448,7 +448,9 @@ internal static partial class Program
 			if (json)
 			{
 				// The answers as `talk <number>` takes them: the game's list and the buttons can come in different orders.
-				if (offered.Count > 0 && System.Text.Json.Nodes.JsonNode.Parse(talk.GetRawText()) is System.Text.Json.Nodes.JsonObject whole)
+				// None offered is no conversation, as the plain output says: a message's own answers left on
+				// screen once a conference is over are not the conversation's (they read as one answer left).
+				if (System.Text.Json.Nodes.JsonNode.Parse(talk.GetRawText()) is System.Text.Json.Nodes.JsonObject whole)
 				{
 					var said = talk.TryGetProperty("Answers", out var listed)
 						? listed.EnumerateArray().GroupBy(a => Field(a, "Label")).ToDictionary(g => g.Key, g => g.First())

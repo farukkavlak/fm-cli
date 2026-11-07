@@ -7,7 +7,7 @@
                                               --answer: opens what needs no choice; stops at a choice
   fm-round.py enter <scenario> [--lang en]    a fresh copy of it, loaded, in that language
   fm-round.py dry <list.toml>                 check a test list; changes nothing in the game
-  fm-round.py run <list.toml> [--lang en,tr] [--only T106]
+  fm-round.py run <list.toml> [--lang en,tr] [--only T106 | a piece of a test's name]
   fm-round.py home "<save>"                   back to a real save after a round
 
 Scenarios are kept outside the game's folder, so nothing can write over them. Each entry copies one in as
@@ -33,6 +33,7 @@ Steps:
   read = "<command>"       run with --json; path = "A.B.0.C", "#" is a list's length, "?Field" keeps a list's entries with it set. Then is / not / same_as /
                            differs_from / present = true, and keep = "<name>" remembers the value
   until = "<command>"      a read asked again until it holds; seconds = the upper bound (default 300), every = the pace of asking (default 1)
+                           doing = "<command>" runs between the readings instead of waiting (`talk 1` until the talk is over)
   start = "<command>"      runs beside the next steps (a match); `finish = true` waits for it to end
   stop = true              ends what `start` began, the match staying where it is (the next test starts fresh)
   live = true              on a read: it can only be read at that moment, so a dry run does not ask it
@@ -411,7 +412,7 @@ def load_list(path):
 
 
 STEP_KINDS = ("run", "read", "until", "start", "finish", "stop")
-READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "seconds", "every", "live", "note"}
+READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "seconds", "every", "live", "note", "doing"}
 
 
 def problems_in(tests):
@@ -596,6 +597,10 @@ def play(test):
                         wrong = str(error)
                     if wrong is None:
                         break
+                    if "doing" in step:
+                        # A step of our own each round (a conversation of any length: `talk 1` until it is over).
+                        fm(filled(step["doing"], kept), 120)
+                        continue
                     time.sleep(step.get("every", 1))  # only the pace of asking: what ends the wait is the value
                 if wrong is not None:
                     raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong} after {step.get('seconds', 300)} s")
@@ -608,7 +613,7 @@ def run(args):
     tests = load_list(args.list)
     if args.only:
         wanted = set(args.only.split(","))
-        tests = [t for t in tests if t["task"] in wanted]
+        tests = [t for t in tests if t["task"] in wanted or any(w in t["name"] for w in wanted)]
     if problems := problems_in(tests):
         for problem in problems:
             print(f"  ! {problem}")

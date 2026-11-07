@@ -1,0 +1,112 @@
+# Round 30: the press and players' concerns (T64, T61), from moments the catching walk kept.
+# - a journalist's question about a player who wants to leave, answered through `talk`; another declined;
+# - the post-match press conference attended and talked to its end;
+# - a player's concern given to a team-mate to settle; another talked through with a promise;
+# - a player thinking of leaving for free, talked round;
+# - a player's request to be transfer-listed granted, read back by the game's own status (flag 6).
+# Run: tools/fm-round.py dry tests/live/round30.toml, then run.
+
+[[test]]
+task = "T64"
+name = "a journalist's question about a player wanting out: answered through talk to its end"
+at = "caught-2029-02-02"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=790124.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 9", rc = "fail" },
+  { run = "reply {msg} 2", note = "answer" },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { run = "talk 99", rc = "fail" },
+  { until = "talk", path = "Answers.#", is = "0", doing = "talk 1", seconds = 240, note = "talk 1 until the conversation is over" },
+  { read = "inbox", path = "?UniqueId=790124.0.NewsHasResponded", is = "True", live = true },
+]
+
+[[test]]
+task = "T64"
+name = "a journalist's question declined"
+at = "caught-2028-08-14"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=640077.0.NewsTitleString", keep = "msg", live = true },
+  { read = "inbox", path = "?UniqueId=640077.0.NewsHasResponded", is = "False", live = true },
+  { run = "reply {msg} 1", note = "decline" },
+  { read = "inbox", path = "?UniqueId=640077.0.NewsHasResponded", is = "True", live = true },
+  { read = "talk", path = "Answers.#", is = "0", live = true, note = "no conversation opened" },
+]
+
+[[test]]
+task = "T64"
+name = "post-match press conference attended and talked to its end"
+at = "caught-2028-08-06"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=633580.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 3", note = "attend" },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { until = "talk", path = "Answers.#", is = "0", doing = "talk 1", seconds = 240, note = "talk 1 until the conversation is over" },
+  { run = "talk", rc = "fail" },
+  { read = "inbox", path = "?UniqueId=633580.0.NewsHasResponded", is = "True", live = true },
+]
+
+[[test]]
+task = "T61"
+name = "a player's concern given to a team-mate to settle"
+at = "caught-2028-08-10"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=636826.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 9", rc = "fail" },
+  { run = "reply {msg} 2", note = "ask the team-mate" },
+  { read = "inbox", path = "?UniqueId=636826.#", is = "0", live = true, note = "the game takes the message away" },
+]
+
+[[test]]
+task = "T61"
+name = "a player's concern talked through with a promise; one thinking of leaving for free talked round"
+at = "caught-2028-08-14"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=640404.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 3", note = "talk to him" },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { until = "talk", path = "Answers.#", is = "0", doing = "talk 1", seconds = 240, note = "talk 1 until the conversation is over" },
+  { read = "inbox", path = "?UniqueId=640404.0.NewsHasResponded", is = "True", live = true },
+]
+
+[[test]]
+task = "T61"
+name = "a player thinking of leaving for free, talked round"
+at = "caught-2028-08-23"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=645918.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 2" },
+  { read = "talk", path = "Answers.#", is = "4", live = true },
+  { run = "talk 4", note = "persuade" },
+  { until = "talk", path = "Answers.#", is = "0", doing = "talk 1", seconds = 240, note = "talk 1 until the conversation is over" },
+  { read = "inbox", path = "?UniqueId=645918.0.NewsHasResponded", is = "True", live = true },
+]
+
+[[test]]
+task = "T61"
+name = "a player's request to be transfer-listed granted; listed once the day moves on"
+at = "caught-2029-02-02"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=790122.0.NewsTitleString", keep = "msg", live = true },
+  { read = "squad", path = "?Name=Mirko Sušak.0.Flags.?Id=6.#", is = "0", live = true, note = "not listed" },
+  { run = "reply {msg} 2", note = "grant" },
+  { read = "inbox", path = "?UniqueId=790122.0.NewsHasResponded", is = "True", live = true },
+  { run = "offers 1 reject --yes", rc = "any", note = "three bids hold the day up" },
+  { run = "offers 1 reject --yes", rc = "any" },
+  { run = "offers 1 reject --yes", rc = "any" },
+  { run = "next", rc = "any" },
+  { read = "squad", path = "?Name=Mirko Sušak.0.Flags.?Id=6.#", is = "1", live = true, note = "transfer listed" },
+]
