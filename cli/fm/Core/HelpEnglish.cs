@@ -162,7 +162,7 @@ internal static partial class Program
 			                  table, fixtures, health, contracts, finances);  export <file.csv> "<command>": that command's table
 			  --json / --csv / --md   with every command: JSON, CSV or Markdown in place of the table; no questions are asked
 			  shortlist       the players on the shortlist (those with offers too)
-			  transferroom    clubs' adverts for players you could offer (--loan);  offer <no or club> [player] | activity | wanted | responses | new --position <p> [--role <r>] [--oop-position <p>] [--oop-role <r>] [--min-age <n>] [--max-age <n>] [--time <t>] [--type <t>] | delete <no> | agents | discard <player> | discard --all
+			  transferroom    clubs' adverts for players you could offer (--loan);  offer <no or club> [player] | activity | wanted | responses | new --position <p> [--role <r>] [--oop-position <p>] [--oop-role <r>] [--min-age <n>] [--max-age <n>] [--time <t>] [--type <t>] (a list's word, or its value as an error lists it) | delete <no> | agents | discard <player> | discard --all
 			  planner         the Squad Planner: the plan at a position (--season current|next|after, --position <p>);  add <player> | remove <player> | move <player> <place> | suggest position|tactic|season|all
 			    --lists · --list "<name>" · --new "<name>"   the shortlists; show another; make one  (add … --to "<list>" with several)
 			    add <name> --for <length> · remove <name>   put on the list ("3 months", "1 year", "indefinitely") / take off it

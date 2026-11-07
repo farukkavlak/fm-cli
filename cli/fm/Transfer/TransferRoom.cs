@@ -409,10 +409,18 @@ internal static partial class Program
 		if (list.ValueKind != JsonValueKind.Object) return L($"The form does not offer '{typed}' now.");
 		// A list narrowed by the position chosen: "Shown" is what it offers now, and an index counts there.
 		var choices = list.GetProperty("Shown").EnumerateArray().Select((c, i) => (Text: c.GetString() ?? "", At: i)).ToList();
+		// Each choice's own value in the game (a role's bit, a playing time's code), read with the words in one
+		// reading: a value is taken as it is, the same in every language, and tells apart two entries one word
+		// names (Emergency Backup, kept 21 and outfield 9).
+		var values = list.TryGetProperty("Values", out var v) && v.ValueKind == JsonValueKind.Array
+			? v.EnumerateArray().Select(x => x.ValueKind == JsonValueKind.Number ? x.GetRawText() : "").ToList() : [];
+		if (values.Count != choices.Count) values = [];
+		var byValue = values.Count > 0 && long.TryParse(typed, out _) ? choices.Where(c => values[c.At] == typed).ToList() : [];
 		var exact = choices.Where(c => string.Equals(c.Text, typed, StringComparison.OrdinalIgnoreCase)).ToList();
-		var hits = exact.Count > 0 ? exact : Matching(choices, c => c.Text, typed);
+		var hits = byValue.Count > 0 ? byValue : exact.Count > 0 ? exact : Matching(choices, c => c.Text, typed);
 		// One word can name two entries of a list (Emergency Backup, kept and outfield): the game's list says the same to the player.
-		if (hits.Count == 0 || hits.Select(h => h.Text).Distinct().Count() != 1) return L($"'{typed}' is not one of: {string.Join(", ", choices.Select(c => c.Text))}");
+		if (hits.Count == 0 || (byValue.Count == 0 && hits.Select(h => h.Text).Distinct().Count() != 1))
+			return L($"'{typed}' is not one of: {string.Join(", ", choices.Select(c => values.Count > 0 ? $"{c.Text} ({values[c.At]})" : c.Text))}");
 		// The form's lists write their value; they send no event.
 		var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("index", hits[0].At.ToString()));
 		return said.StartsWith("error", StringComparison.Ordinal) ? said : null;

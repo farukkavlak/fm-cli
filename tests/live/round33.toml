@@ -1,0 +1,40 @@
+# Round 33: TransferRoom requirements by the game's own values (T11): a list's choice given by its value (a playing
+# time's code, a role's bit) is the same in every language; made, read back, deleted. The lists' wrong words and
+# discard --all, now 3 x. Run: tools/fm-round.py dry tests/live/round33.toml, then run.
+
+[[test]]
+task = "T11"
+name = "a requirement made by the lists' values, read back and deleted; a wrong value refused"
+at = "window"
+fresh = true
+repeat = 3
+steps = [
+  { read = "transferroom", path = "0.Position", keep = "position" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+  { run = "transferroom new --position {position} --time 999", rc = "fail" },
+  { run = "transferroom new --position {position} --time 4 --role 0 --min-age 20 --max-age 28" },
+  { read = "transferroom wanted", path = "#", is = "1", live = true },
+  { read = "transferroom wanted", path = "0.Age", is = "20-28", live = true },
+  { read = "transferroom wanted", path = "0.PlayingTime", not = "-", keep = "time", live = true },
+  { run = "transferroom delete 1" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+  { run = "transferroom delete 1", rc = "fail", note = "nothing left" },
+]
+
+[[test]]
+task = "T11"
+name = "a requirement's lists refuse a wrong word; discard --all"
+at = "window"
+fresh = true
+repeat = 3
+steps = [
+  { read = "transferroom", path = "0.Position", keep = "position" },
+  { run = "transferroom new --position {position} --time zzzq", rc = "fail" },
+  { run = "transferroom new --position {position} --type zzzq", rc = "fail" },
+  { run = "transferroom new --position {position} --oop-role zzzq", rc = "fail" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+  { read = "transferroom agents", path = "#", not = "0" },
+  { run = "transferroom discard --all" },
+  { read = "transferroom agents", path = "#", is = "0" },
+  { run = "transferroom discard --all", note = "nobody left" },
+]

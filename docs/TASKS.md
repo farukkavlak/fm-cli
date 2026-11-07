@@ -111,6 +111,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     (`window`): the lists take the game's words only ("Squad Player"), no number, so one test cannot run in both
     languages; a read of each list's choices (`transferroom new --position <p> --choices --json`) would let a test
     keep one. `--role` with a wrong word listed every role, not the position's.
+    Done: a list's choice is taken by the game's own value too (a playing time's code, a role's bit; an error lists
+    each choice with it), the same in every language; a requirement made by values, read back, deleted; the wrong
+    words and `discard --all`: TR + EN 3/3 (`round33.toml`). The type list and some roles carry no value: by word.
 - [ ] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
   - [ ] Left: copy a plan (EventFmxSquadPlannerCopy). The list's entry sent by `select` and by a row's submit changes nothing in the other season, so there is no command. Next: what a click sends that these do not; the rows' ticks (`SelectedPlayers`).
 - [x] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
