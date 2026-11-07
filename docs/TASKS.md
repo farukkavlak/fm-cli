@@ -243,6 +243,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   Assignments (`PersonStopScoutPlayersClub`), its question `Confirm1198281291` has a Yes with no event; answered by the
   dialog handler it closes, and the player's `IsBeingScouted` stays True (also after `next`). Read back now by
   `IsBeingScouted` (the person kept at `fmcli.scoutcancel`). Next: Scouting › Assignments (`ScoutingCentreActions`).
+  - Measured EN 8 Nov (`deadline`, Michut, 1 week): his menu shows "Scouting In Progress" closed; Scouting ›
+    Assignments (`5ccd19d8…`) lists only focuses ("Active Assignments (0)"). The game's own event
+    `EventFmxCancelScoutingPlayer` and `CanCancelScoutedPlayersSelection` point to the Scout Reports list
+    (`c6308dba…`) with the player selected; `open?guid=…&bar=1` said opened but the screen stayed on Assignments.
+    Next: Scout Reports by its bar's own list, tick his row (`checkrows`), find the button sending that event.
 - [x] T32 `training --trait-suggest`: FM27 has no such entry in the actions menu and no button for it, so the flag leaves help, the MCP tool and the tests; typed by hand it says so (PORTING). The refusal itself not run again after this change.
 
 ## 4. Pages no command reads (read only, lower priority)
