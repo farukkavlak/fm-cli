@@ -19,7 +19,7 @@ internal static partial class Program
 	private sealed record WeekSchedule(int Category, int Index, string Name, string About, bool Recommended, string Pointer);
 
 	/// <summary>Null when the page shows no session buttons.</summary>
-	private static async Task<int?> ChangeWeekInSelector(DateTime day, string wanted)
+	private static async Task<int?> ChangeWeekInSelector(DateTime day, string wanted, bool json = false)
 	{
 		var opened = await OpenPage(Screen.Training);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
@@ -44,7 +44,7 @@ internal static partial class Program
 		var current = Field(selector, "Title");
 		if (Field(selector, "Enabled") != "True")
 		{
-			Console.Error.WriteLine(L($"The week of {DayName(day)} has passed; its schedule cannot be changed."));
+			Console.Error.WriteLine(L($"The game does not let the week of {DayName(day)} change its schedule (a week under way or gone)."));
 			return 1;
 		}
 
@@ -108,6 +108,18 @@ internal static partial class Program
 		WeekSchedule? chosen = null;
 		if (wanted.Length == 0)
 		{
+			if (json)
+			{
+				await Close();
+				// Each schedule by the game's own numbers (category.index): `schedule style <day> <id>` takes them.
+				Console.WriteLine(JsonOut.Of(new
+				{
+					Week = day.ToString("yyyy-MM-dd"), Current = current,
+					CurrentId = all.SelectMany(a => a.Schedules).FirstOrDefault(s => s.Name == current) is { } on ? $"{on.Category}.{on.Index}" : "",
+					Schedules = all.SelectMany(a => a.Schedules.Select(s => new { Id = $"{s.Category}.{s.Index}", Kind = categories[a.At].Name, s.Name, s.Recommended })),
+				}));
+				return 0;
+			}
 			if (!Ui.Interactive)
 			{
 				await Close();
@@ -133,7 +145,9 @@ internal static partial class Program
 		else
 		{
 			var every = all.SelectMany(a => a.Schedules).ToList();
-			var hits = every.Where(s => Fold(s.Name) == Fold(wanted)).ToList();
+			// The game's own numbers (category.index, from --json) name one exactly in any language.
+			var hits = every.Where(s => $"{s.Category}.{s.Index}" == wanted.Trim()).ToList();
+			if (hits.Count == 0) hits = every.Where(s => Fold(s.Name) == Fold(wanted)).ToList();
 			if (hits.Count == 0) hits = Matching(every, s => s.Name, wanted);
 			if (hits.Count != 1)
 			{

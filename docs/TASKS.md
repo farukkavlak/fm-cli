@@ -364,7 +364,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     `reply` (talk to him), the conversation through `talk`, a fee proposed when he asks (`talk fee`, `talk confirm`),
     to its end; the message read back as answered. TR + EN 3/3 (`round27.toml`).
   - [ ] A player asking for a new deal himself (moment not met yet).
-- [ ] T62 Pre-season: friendlies, pre-season training, new-season expectations.
+- [x] T62 Pre-season: friendlies, pre-season training, new-season expectations.
   - [x] Friendlies: `friendly` (new) lists the opponents the game offers (by reputation, with fees), the open dates and
     the rules; `friendly <#> [--date] [--away] [--rules] --yes` proposes one. The panel by its button (`ArrangeFriendly`),
     opponents by their binding (`selectedteam`), venue by the value its button sends, rules by `matchrules`, the date
@@ -372,7 +372,14 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     picker writes (`selectedDate`); read back by the panel's record (`IsOppositionTeamValid`, `IsMatchVenueHome`,
     `IsValid`) and the panel closing. EN by hand: Almere City accepted, on the calendar; Gençlerbirliği rejected.
     A friendly proposed to us: `reply` accept, on the calendar after the game moves on. TR + EN 3/3 (`round20.toml`).
-  - [ ] Pre-season training and the new season's expectations.
+  - [x] Pre-season training and the new season's expectations (`preseason`, 3 Jul 2028). The team meeting
+    ("Pre-Season Team Meeting") answered with `reply` and talked to its end with `talk`, read back as answered.
+    `board` adds this season's expectation in each competition (`comp.TeamsBoardExpectationsInCompString`, bound only
+    on Portal › Competitions: the page is opened and read whole once there are as many as
+    `ClubSeasonExpectationsNumberCompetitions`); measured cold, page open, another page open. The pre-season stages are
+    `schedule style` programs: `--json` lists them by the game's numbers (category.index), which `style` takes; the
+    week under way is refused (the game's selector is off; the message said "passed"). TR + EN 3/3 (`round28.toml`).
+  - [ ] The "Season expectations" message's attachment shows only the competitions' names (T117).
 - [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,
   penalty shootout, extra time, injury during a match.
   - [x] FM27's shouts: a popup on the match bar (the floating widget inside `#shouts-cooldown-disable`), team shouts

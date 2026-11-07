@@ -20,6 +20,8 @@ internal static class Screen
 	public const string Holiday = "7ee51df42b0a89646a12ba40c2446ee5";
 	public const string NewsSite = "2d4ceb2449af95b49bfc0f89c6403627";
 	public const string Stages = "c705e9f71253e1c4a8e1259ced17f11a";
+	/// <summary>Portal › Competitions: the competitions we are in, the board's expectation in each.</summary>
+	public const string Competitions = "ed5ea2b61dbc27843a5bdae84aefc91f";
 	/// <summary>A competition's own page (Portal › Competitions › the league); one panel for every competition.</summary>
 	public const string Competition = "851a9406c4fc6964c9db74baa71407b7";
 

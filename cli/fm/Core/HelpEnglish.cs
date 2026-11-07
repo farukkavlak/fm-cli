@@ -105,7 +105,7 @@ internal static partial class Program
 			  prep            match preparation: the Match Preparation sessions up to the next match (change one: schedule set)
 			  schedule        the training schedule: this week and next, three sessions a day
 			  schedule set <day> <1|2|3> [<session>]   change a session; with no session given choose it with the arrow keys
-			  schedule style <day> [<schedule>]        change that week's schedule (Tactical, Gegenpress…)
+			  schedule style <day> [<schedule>]        change that week's schedule (Tactical, Gegenpress…; --json: by number)
 			  schedule copy | paste | clear [this|<weeks ahead>]   the training week's own buttons (next week unless told)
 			  budget          the transfer, wage and scouting budgets;  budget adjust [<step>]: the transfer ↔ wage split
 			  settings        game settings: match display and speed, auto save, language, currency, units
@@ -134,7 +134,7 @@ internal static partial class Program
 			  staff hire <name> [--wage <amount>] [--sign --yes]   hire staff: opens the contract negotiation, carried on with `contract`
 			  staff fire <name> [--mutual] [--yes]   part ways with staff: the game names the compensation, says "No" without --yes
 			  actions <person> ["<option>"]   the game's right-click menu for that person (assign a scout, shortlist, send on a course…); an option given is carried out
-			  board           the board's and supporters' view: matches, squad, tactics, transfers, vision; what pleases them, their concerns
+			  board           the board's and supporters' view: matches, squad, tactics, transfers, vision; what pleases them, their concerns; this season's expectations
 			    request ["<request>" --yes]   what can be asked of the board; ask for one by name
 			  doctor          what is wrong in the squad: injured, tired, low sharpness, ending contracts, thin positions, the board's concerns
 			    --install     check the installation: game, BepInEx, shadow bundle, plugin, fm command, save folder

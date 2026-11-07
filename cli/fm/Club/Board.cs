@@ -29,6 +29,7 @@ internal static partial class Program
 		var worries = await Fm.Strings(at + ".BoardFeedbackCriticism");
 		var fansPraise = await Fm.Strings(at + ".SupporterFeedbackHighlights");
 		var fansWorries = await Fm.Strings(at + ".SupporterFeedbackCriticism");
+		var expected = await SeasonExpectations();
 
 		if (json)
 		{
@@ -38,6 +39,7 @@ internal static partial class Program
 				// words the line path puts back at write time are put back here (Board, Turkish game).
 				Board = BoardAreas.ToDictionary(a => a.Label, a => GameWords.Of(Field(said, a.Field))), BoardPraise = praise, BoardWorries = worries,
 				Supporters = SupporterAreas.ToDictionary(a => a.Label, a => GameWords.Of(Field(said, a.Field))), SupporterPraise = fansPraise, SupporterWorries = fansWorries,
+				Expectations = expected.Select(e => new { e.Competition, e.Expectation }),
 			}));
 			return 0;
 		}
@@ -49,6 +51,16 @@ internal static partial class Program
 		}
 
 		Block(L("Board"), BoardAreas, praise, worries);
+		if (expected.Count > 0)
+		{
+			if (Ui.Rich) Ui.Line($"  [dim]{L("This season")}[/]");
+			else Console.WriteLine($"  {L("This season")}");
+			foreach (var (competition, expectation) in expected)
+			{
+				if (Ui.Rich) Ui.Line($"    {Ui.Safe(competition)}: {Ui.Safe(expectation)}");
+				else Console.WriteLine($"    {competition}: {expectation}");
+			}
+		}
 		Console.WriteLine();
 		Block(L("Supporters"), SupporterAreas, fansPraise, fansWorries);
 		return 0;
@@ -82,5 +94,32 @@ internal static partial class Program
 				else Console.WriteLine($"    {mark} {point}");
 			}
 		}
+	}
+
+	/// <summary>
+	/// What the board expects of us in each competition this season, in the game's words. The words are bound only on
+	/// Portal › Competitions (each competition's record there carries them for our team), so that page is opened and the
+	/// expectations read by their data path; whole once there are as many as the board judges competitions.
+	/// </summary>
+	private static async Task<List<(string Competition, string Expectation)>> SeasonExpectations()
+	{
+		var count = Field(await Fm.Pull("Human.Club.ClubVisionMeetingSeasonExpectations", "ClubSeasonExpectationsNumberCompetitions"), "ClubSeasonExpectationsNumberCompetitions");
+		if (!int.TryParse(count, out var wanted) || wanted == 0) return [];
+		if ((await OpenPage(Screen.Competitions)).StartsWith("error", StringComparison.Ordinal)) return [];
+		var found = new List<(string, string)>();
+		await Until(async () =>
+		{
+			var shown = await Fm.GetJson("shown", ("remap", "1"));
+			if (shown.ValueKind != System.Text.Json.JsonValueKind.Array) return false;
+			var rows = shown.EnumerateArray()
+				.Where(t => Field(t, "Path") == "comp.TeamsBoardExpectationsInCompString" && Field(t, "Text").Length > 0 && Field(t, "Under").Length > 0)
+				.ToList();
+			if (rows.Count < wanted) return false;
+			found = [];
+			foreach (var row in rows)
+				if (Field(await Fm.Pull($"{Field(row, "Under")}.comp", "Name"), "Name") is { Length: > 0 } name) found.Add((name, Field(row, "Text")));
+			return found.Count == rows.Count;
+		}, seconds: 10, every: 0.3);
+		return found;
 	}
 }

@@ -1,0 +1,78 @@
+# Round 28: pre-season (T62). The pre-season team meeting talked through to its end; the board's expectations for the
+# season (board, by the competitions page's own data, from a cold load, with the page open, with another page open);
+# a coming week's pre-season stage changed by the game's own schedule numbers and back, the week under way refused.
+# Run: tools/fm-round.py dry tests/live/round28.toml, then run.
+
+[[test]]
+task = "T62"
+name = "pre-season team meeting: answered and talked to its end"
+at = "preseason"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=598197.0.NewsTitleString", keep = "msg", live = true, note = "the meeting's message, by its id in this save" },
+  { run = "reply {msg} 9", rc = "fail" },
+  { run = "reply {msg} 1" },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { run = "talk 99", rc = "fail" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { read = "talk", path = "Answers.#", is = "0", live = true, note = "the meeting is over" },
+  { run = "talk", rc = "fail" },
+  { read = "inbox", path = "?UniqueId=598197.0.NewsHasResponded", is = "True", live = true },
+]
+
+[[test]]
+task = "T62"
+name = "season expectations: cold, page open, another page open"
+at = "preseason"
+fresh = true
+repeat = 3
+steps = [
+  { read = "board", path = "Expectations.#", is = "2", live = true, note = "league and cup" },
+  { read = "board", path = "Expectations.0.Expectation", not = "", keep = "league", live = true },
+  { read = "board", path = "Expectations.0.Expectation", same_as = "league", live = true, note = "the page already open" },
+  { run = "schedule" },
+  { read = "board", path = "Expectations.#", is = "2", live = true, note = "another page open" },
+  { read = "board", path = "Expectations.1.Expectation", not = "", live = true },
+]
+
+[[test]]
+task = "T62"
+name = "pre-season stage of a coming week changed by the game's numbers and back"
+at = "preseason"
+fresh = true
+repeat = 3
+steps = [
+  { read = "schedule style 12", path = "CurrentId", is = "0.0", live = true, note = "the first stage, recommended" },
+  { read = "schedule style 12", path = "Schedules.?Recommended=True.0.Id", is = "0.0", live = true },
+  { run = "schedule style 12 0.1" },
+  { read = "schedule style 12", path = "CurrentId", is = "0.1", live = true },
+  { run = "schedule style 12 0.1", note = "already that one" },
+  { run = "schedule style 12 0.0" },
+  { read = "schedule style 12", path = "CurrentId", is = "0.0", live = true },
+  { run = "schedule style 12 9.9", rc = "fail" },
+  { run = "schedule style 4 0.1", rc = "fail", note = "the week under way: the game's selector is off" },
+]
