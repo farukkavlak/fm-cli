@@ -634,8 +634,8 @@ internal static class Report
 				text = Text.Field(name, value);
 
 				// A team's recent results are a list of codes; as a string a list is only its
-				// type's name, so this one is given as its entries.
-				if (name.StartsWith("RecentFormValues", StringComparison.Ordinal)
+				// type's name, so this one is given as its entries; a message's tags (the game's category numbers) too.
+				if ((name.StartsWith("RecentFormValues", StringComparison.Ordinal) || name == "TagsList")
 				    && value.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>() is { } results)
 				{
 					var codes = new List<string>();

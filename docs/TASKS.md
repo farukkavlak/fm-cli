@@ -379,7 +379,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     `ClubSeasonExpectationsNumberCompetitions`); measured cold, page open, another page open. The pre-season stages are
     `schedule style` programs: `--json` lists them by the game's numbers (category.index), which `style` takes; the
     week under way is refused (the game's selector is off; the message said "passed"). TR + EN 3/3 (`round28.toml`).
-  - [ ] The "Season expectations" message's attachment shows only the competitions' names (T117).
+  - [ ] The "Season expectations" message's attachment shows only the competitions' names (T117). The Code of
+    Conduct attachment came out in English words in a Turkish game on 7 Nov ("Team Leaders", "Multiple Booking ban").
 - [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,
   penalty shootout, extra time, injury during a match.
   - [x] FM27's shouts: a popup on the match bar (the floating widget inside `#shouts-cooldown-disable`), team shouts

@@ -198,6 +198,59 @@ def answer_something():
     return False
 
 
+
+CAUGHT = STORE / "caught.json"
+
+
+def moments_waiting():
+    """What the game waits on now, each by its kind in the game's own terms, never its words: a message with
+    choices by its tags (the game's category numbers) and how many answers it offers, a window by its type, an
+    open conversation. The title is kept only for reading the log."""
+    found = []
+    rc, out, _, _ = fm("dialog --json")
+    if rc == 0 and out.lstrip().startswith("["):
+        found += [(f"dialog:{d.get('Type', '')}", d.get("Title", "")) for d in json.loads(out)]
+    rc, out, _, _ = fm("talk --json")
+    if rc == 0 and out.lstrip().startswith("{") and json.loads(out).get("Answers"):
+        found.append((f"talk:{len(json.loads(out)['Answers'])}", (json.loads(out).get("Says") or [""])[0]))
+    rc, out, _, _ = fm("inbox --json")
+    if rc == 0 and out.lstrip().startswith("["):
+        for m in json.loads(out):
+            if m.get("CanRespond") != "True" or m.get("NewsHasResponded") == "True":
+                continue
+            _, shown, _, _ = fm(f'reply "{m.get("NewsTitleString", "")}"')
+            answers = len(re.findall(r"^ *\d+  \S", shown, re.M))
+            found.append((f"message:{m.get('TagsList', '')}:{answers}", m.get("NewsTitleString", "")))
+    return found
+
+
+def catch():
+    """One scenario kept where kinds of moment not kept before wait; caught.json says which kinds, when, their titles."""
+    caught = json.loads(CAUGHT.read_text()) if CAUGHT.exists() else []
+    kinds = {c["kind"] for c in caught}
+    new = [(kind, title) for kind, title in moments_waiting() if kind not in kinds]
+    new = list({kind: (kind, title) for kind, title in new}.values())
+    if not new:
+        return
+    # A kept save is ~175 MB: the disk is not filled for it.
+    if shutil.disk_usage(STORE).free < 4 * 1024 ** 3:
+        print(f"  not kept (under 4 GB free): {new}", flush=True)
+        return
+    now = state()
+    if now.get("CanSave") != "True":
+        return
+    name = f"caught-{now.get('Date', 'x')}"
+    try:
+        make(argparse.Namespace(name=name, moment="caught: " + "; ".join(f"{k} ({t})" for k, t in new)))
+    except Failed as error:
+        print(f"  could not keep {new}: {error}", flush=True)
+        return
+    for kind, title in new:
+        caught.append({"kind": kind, "title": title, "date": now.get("Date"), "scenario": name})
+        print(f"  caught {kind}: {title} -> {name}", flush=True)
+    CAUGHT.write_text(json.dumps(caught, indent=1, ensure_ascii=False))
+
+
 def forward(args):
     """Days forward through the tool, matches simulated, up to a date. Stops where the game asks something.
     With --answer the first answers can lose the job (a board meeting answered blindly, 1 Mar 2030): while
@@ -234,6 +287,8 @@ def forward(args):
         stopped = rc != 0 or (not match_day and (state().get("Date"), state().get("Clock")) == before)
         if stopped and not match_day and state()["State"] in ("Tactics", "SubmitTeam", "SquadNumbers"):
             continue  # opening the last message led on to the match: not a stop
+        if stopped and args.catch:
+            catch()
         if stopped:
             if args.answer and match_day and fm("tactic pick")[0] == 0:
                 continue
@@ -587,6 +642,7 @@ def main():
     one = sub.add_parser("forward")
     one.add_argument("date")
     one.add_argument("--answer", action="store_true", help="to reach a moment: opens what needs no choice, stops at a choice")
+    one.add_argument("--catch", action="store_true", help="keep a scenario at each kind of moment not kept before (caught.json)")
     one.set_defaults(go=forward)
     one = sub.add_parser("enter")
     one.add_argument("name")
