@@ -1,0 +1,17 @@
+# Round 32: our cup tie simulated, the result read the same by report, fixtures and the full list (T86), TR + EN 3 x.
+# Run: tools/fm-round.py dry tests/live/round32.toml, then run.
+
+[[test]]
+task = "T86"
+name = "our cup tie, simulated: report, fixtures and the full list agree"
+at = "cup"
+fresh = true
+repeat = 3
+steps = [
+  { run = "match --instant" },
+  { read = "report", path = "Competition", present = true, live = true },
+  { read = "report", path = "Fixture.HasResult", is = "True", live = true },
+  { read = "fixtures", path = "#", not = "0" },
+  { run = "next", rc = "any", note = "past the result screen: pages open again" },
+  { read = "fixtures --all", path = "#", not = "0", live = true },
+]
