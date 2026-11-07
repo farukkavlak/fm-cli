@@ -495,7 +495,7 @@ def play(test):
                 side = None
             elif "read" in step:
                 try:
-                    value = dig(read_json(step["read"]), step["path"])
+                    value = dig(read_json(step["read"]), re.sub(r"\{(\w+)\}", lambda m: str(kept[m.group(1)]), step["path"]))
                 except (KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
                     raise Failed(f"step {number} `{step['read']}` {step['path']}: not there ({error})") from error
                 if "keep" in step:

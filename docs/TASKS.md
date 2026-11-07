@@ -360,7 +360,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     comes by message and `contracts` shows the new end (EN by hand: Ahmet Koşar, 30/6/2028 → 30/6/2030). A player the
     game gives no talks with is refused. TR + EN 3/3 (`round21.toml`, scenario `june`). A job offer's card has no
     player: its heading is the stage alone (was " — Terms").
-  - [ ] A player asking for a new deal himself; an unhappy player's demand (moments not met yet).
+  - [x] An unhappy player's demand (`unhappy`, 26 Jun 2028: a bid for Ozan rejected): his message answered with
+    `reply` (talk to him), the conversation through `talk`, a fee proposed when he asks (`talk fee`, `talk confirm`),
+    to its end; the message read back as answered. TR + EN 3/3 (`round27.toml`).
+  - [ ] A player asking for a new deal himself (moment not met yet).
 - [ ] T62 Pre-season: friendlies, pre-season training, new-season expectations.
   - [x] Friendlies: `friendly` (new) lists the opponents the game offers (by reputation, with fees), the open dates and
     the rules; `friendly <#> [--date] [--away] [--rules] --yes` proposes one. The panel by its button (`ArrangeFriendly`),

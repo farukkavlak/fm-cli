@@ -1,0 +1,29 @@
+# Round 27: an unhappy player's demand (T61). A rejected bid makes the player ask to talk about his future: the
+# message answered (talk to him), the conversation through talk, a fee proposed when he asks for one, to its end.
+# Run: tools/fm-round.py dry tests/live/round27.toml, then run.
+
+[[test]]
+task = "T61"
+name = "unhappy player: his message answered, the talk to its end"
+at = "unhappy"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 9", rc = "fail", note = "no ninth answer" },
+  { run = "reply {msg} 4", note = "talk to him about it" },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { run = "talk 99", rc = "fail" },
+  { run = "talk 3", note = "a fair offer lets him go" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk confirm", rc = "any", note = "a fee asked for is sent; elsewhere refused" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk confirm", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk confirm", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { run = "talk 1", rc = "any" },
+  { read = "talk", path = "Answers.#", is = "0", live = true, note = "the talk is over" },
+  { run = "talk", rc = "fail", note = "no open conversation" },
+  { read = "inbox", path = "?NewsTitleString={msg}.0.NewsHasResponded", is = "True", live = true },
+]
