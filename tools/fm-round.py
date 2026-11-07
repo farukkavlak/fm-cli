@@ -220,6 +220,8 @@ def moments_waiting():
                 continue
             _, shown, _, _ = fm(f'reply "{m.get("NewsTitleString", "")}"')
             answers = len(re.findall(r"^ *\d+  \S", shown, re.M))
+            if answers == 0:
+                continue  # read and put away: nothing to choose
             found.append((f"message:{m.get('TagsList', '')}:{answers}", m.get("NewsTitleString", "")))
     return found
 
@@ -240,15 +242,37 @@ def catch():
     if now.get("CanSave") != "True":
         return
     name = f"caught-{now.get('Date', 'x')}"
+    while (STORE / f"{name}.fm").exists():
+        name += "b"
     try:
         make(argparse.Namespace(name=name, moment="caught: " + "; ".join(f"{k} ({t})" for k, t in new)))
     except Failed as error:
         print(f"  could not keep {new}: {error}", flush=True)
         return
+    # The game now saves to this one; the walk's earlier working copies are kept in the store already.
+    for old in saves_folder().glob(f"{PREFIX}caught-*.fm"):
+        if not old.name.startswith(f"{PREFIX}{name}"):
+            old.unlink()
     for kind, title in new:
         caught.append({"kind": kind, "title": title, "date": now.get("Date"), "scenario": name})
         print(f"  caught {kind}: {title} -> {name}", flush=True)
     CAUGHT.write_text(json.dumps(caught, indent=1, ensure_ascii=False))
+
+
+def reject_bids():
+    """In a walk the squad is kept: each incoming bid the game lets us refuse is refused. True if one was."""
+    tried, done = set(), False
+    while True:
+        rc, out, _, _ = fm("offers --json")
+        if rc != 0 or not out.lstrip().startswith("["):
+            return done
+        left = [o for o in json.loads(out) if o.get("Incoming") and (o.get("Player"), o.get("Club")) not in tried]
+        if not left:
+            return done
+        tried.add((left[0].get("Player"), left[0].get("Club")))
+        if fm(f"offers {left[0]['No']} reject --yes")[0] == 0:
+            print(f"  refused: {left[0].get('Club')} for {left[0].get('Player')}", flush=True)
+            done = True
 
 
 def forward(args):
@@ -287,10 +311,13 @@ def forward(args):
         stopped = rc != 0 or (not match_day and (state().get("Date"), state().get("Clock")) == before)
         if stopped and not match_day and state()["State"] in ("Tactics", "SubmitTeam", "SquadNumbers"):
             continue  # opening the last message led on to the match: not a stop
-        if stopped and args.catch:
+        # Not on a match day: the tool's own windows (the result handed over) would be caught and stop a save.
+        if stopped and args.catch and not match_day:
             catch()
         if stopped:
             if args.answer and match_day and fm("tactic pick")[0] == 0:
+                continue
+            if args.catch and reject_bids():
                 continue
             if args.answer and answer_something():
                 answered = True
