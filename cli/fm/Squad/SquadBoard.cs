@@ -46,7 +46,7 @@ internal static class SquadBoard
 	/// <summary>The flags in words, an injury in red before the rest.</summary>
 	private static string Flags(bool injured, List<Program.Flag> mine)
 	{
-		var rest = Program.FlagWords((mine ?? []).Where(f => f.Full != "Injured"));
+		var rest = Program.FlagWords((mine ?? []).Where(f => f.Id != Program.InjuredFlag));
 		var said = Ui.Safe(rest);
 		return injured ? L("[red]injured[/]") + (said.Length > 0 ? $"[dim], {said}[/]" : "") : $"[dim]{said}[/]";
 	}

@@ -225,9 +225,15 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T123 The manager's own new contract: `reply` → talks says "the terms: contract"; `talk` points there too;
   `contract` reads the terms (wage, length, clauses, the current deal's end), `--sign --yes` signs. TR + EN 3/3
   (`round29.toml`, `caught-2029-05-26`).
-- [ ] T124 `squad --json` Flags `Text` comes in English in a Turkish game for some statuses ("Transfer listed",
-  "Unhappy"; "İzleniyor" is Turkish): `StatusTitleFull` read raw. Try /pull's `shown` for the game's words; measure
-  TR + EN (`caught-2029-02-02`, Sušak).
+- [x] T124 Status flags in the game's words: `squad --json` Flags `Text` came raw, English in a Turkish game for some
+  ("Unhappy", "Transfer listed", "Retiring"); now read with /pull `shown` (TR "Mutsuz", "Transfer listesinde"; EN
+  "Unhappy"). The squad board left out the injury flag by its English word: now by its number (41,
+  InjuredNotInTraining). TR + EN by hand (`caught-2029-02-02`, `caught-2029-03-31`).
+- [ ] T125 `squad` reads only the rows the table has drawn: 22 of 33 on a 1080-high window (`caught-2029-03-31`; the
+  injured, at the bottom, are missing). `depth`, `squad --fitness`, anything on `SquadView` too. The game's data has
+  all 33 (`Human.Team.Players`: Name, Age, PositionCombinedString, Condition, Sharpness, SquadNumberBlankIfInvalid);
+  the wage and playing time are not on the person (a contract's `Wage`, `AgreedPlayingTime` elsewhere). Way: rows from
+  the data, the table's own columns joined where drawn; or find the table's whole list behind its drawn rows.
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no

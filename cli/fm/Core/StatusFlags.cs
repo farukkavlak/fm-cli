@@ -21,6 +21,9 @@ internal static partial class Program
 
 	private const int FreeAgentFlag = 75;
 
+	/// <summary>The injury flag (PlayerStatusFlag.InjuredNotInTraining): the squad board says it in red already.</summary>
+	internal const int InjuredFlag = 41;
+
 	/// <summary>Every flag of each of our first-team players by name; empty when the game gives none.</summary>
 	private static async Task<Dictionary<string, List<Flag>>> SquadFlags()
 	{
@@ -49,7 +52,8 @@ internal static partial class Program
 			foreach (var r in waiting.ToList())
 			{
 				string answer;
-				try { answer = await Fm.Get("pull", ("path", r.Row + ".PlayerStatusFlagsForTeam"), ("props", props), ("list", "1"), ("gen", "f")); }
+				// The words as the game shows them: raw, some came in English in a Turkish game ("Unhappy").
+				try { answer = await Fm.Get("pull", ("path", r.Row + ".PlayerStatusFlagsForTeam"), ("props", props), ("list", "1"), ("gen", "f"), ("shown", "StatusTitleShort,StatusTitleFull,StatusReason")); }
 				catch (FmError) { continue; }
 				if (answer.StartsWith("error", StringComparison.Ordinal)) continue;
 				var read = JsonDocument.Parse(answer).RootElement;
