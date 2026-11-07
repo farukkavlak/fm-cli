@@ -221,6 +221,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T122 `reply` says "answered" when the game did nothing: "choose your captain" (club captain gone) confirmed
   with no captain picked stays in place; the walk answered it 78 times. Read the message back after the press and
   say the game wants a choice first (`captains --captain`). Scenario `caught-2029-03-31`.
+- [ ] T123 The manager's own new contract (board offer, `reply` → talks): `talk` shows "our first offer" with no
+  terms (wage, length). Show them; `manager` should show the contract's end. Scenario `caught-2029-05-26`.
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
