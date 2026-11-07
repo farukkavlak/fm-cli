@@ -67,7 +67,17 @@ internal static class Registration
 
 	internal static (float Offset, float End) Scroll(VisualElement inside, float? to)
 	{
-		if (inside == null) return (0, 0);
+		var view = ViewOf(inside);
+		if (view == null) return (0, 0);
+		var scroller = view.verticalScroller;
+		if (to is { } share) scroller.value = scroller.highValue * share;
+		return (scroller.value, scroller.highValue);
+	}
+
+	/// <summary>The list an element scrolls with: the nearest scroller above it with something to scroll.</summary>
+	internal static ScrollView ViewOf(VisualElement inside)
+	{
+		if (inside == null) return null;
 		ScrollView view = null;
 		for (var e = inside.hierarchy.parent; e != null && view == null; e = e.hierarchy.parent)
 		{
@@ -77,11 +87,7 @@ internal static class Registration
 			// list is further up.
 			try { if (view != null && view.verticalScroller.highValue <= 0) view = null; } catch { view = null; }
 		}
-		if (view == null) return (0, 0);
-
-		var scroller = view.verticalScroller;
-		if (to is { } share) scroller.value = scroller.highValue * share;
-		return (scroller.value, scroller.highValue);
+		return view;
 	}
 
 	/// <summary>Puts a player on the list or takes him off, by the pointer /registration gave for his row.</summary>

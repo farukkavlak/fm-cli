@@ -1,0 +1,21 @@
+# Round 31: the squad table read whole (T125). The table lays out only the rows in view (22 of 33 on a 1080-high
+# window, the injured at the bottom missing); every player now comes with his view's own field, from a cold load,
+# with the page open, with another page open. Save `caught-2029-03-31`: 33 in the first team, 5 injured.
+# Run: tools/fm-round.py dry tests/live/round31.toml, then run.
+
+[[test]]
+task = "T125"
+name = "squad: every player with his wage; fitness: every player with his condition; three states"
+at = "caught-2029-03-31"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "#", is = "33", live = true, note = "cold" },
+  { read = "squad", path = "?Wage.#", is = "33", live = true },
+  { read = "squad", path = "?Name=Mesut Özdemir.#", is = "1", live = true, note = "injured, at the table's bottom" },
+  { read = "squad", path = "?Wage.#", is = "33", live = true, note = "the page already open" },
+  { read = "squad --fitness", path = "?Condition.#", is = "33", live = true, note = "another view" },
+  { run = "inbox" },
+  { read = "squad --fitness", path = "?Condition.#", is = "33", live = true, note = "another page open" },
+  { read = "squad", path = "?Wage.#", is = "33", live = true },
+]

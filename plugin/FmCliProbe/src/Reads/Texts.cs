@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Collections.Specialized;
 using UnityEngine.UIElements;
 
@@ -227,6 +228,33 @@ internal static class Texts
 			return $"error: nothing named '{q["within"]}' is shown";
 		}
 		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && !byPointer) return "error: ?anchor=<text>, ?anchorpath=<data path>, ?within=<element name> or ?ptr=<0x…> required";
+
+		// ?all=1 with ?anchorpath=: every list that binds that path is scrolled, so the one on show is
+		// among them whichever it is (a table's other views stay laid out beside it, scrolled apart).
+		if (q["all"] == "1" && !string.IsNullOrEmpty(anchorPath))
+		{
+			var views = new System.Collections.Generic.List<ScrollView>();
+			foreach (var element in Buttons.Elements())
+			{
+				try
+				{
+					if (element.panel == null || element.worldBound.width <= 0) continue;
+					if (element.TryCast<TextElement>() is not { } bound || PathOf(bound) != anchorPath) continue;
+					var view = Registration.ViewOf(element);
+					if (view != null && !views.Any(v => v.Pointer == view.Pointer)) views.Add(view);
+				}
+				catch { }
+			}
+			if (views.Count == 0) return $"error: nothing shows '{anchorPath}' in a scrolling list";
+			var said = new System.Text.StringBuilder();
+			foreach (var view in views)
+			{
+				var scroller = view.verticalScroller;
+				if (to is { } part) scroller.value = scroller.highValue * part;
+				said.Append($"{scroller.value:0.#} of {scroller.highValue:0.#}\n");
+			}
+			return said.ToString();
+		}
 
 		foreach (var element in Buttons.Elements())
 		{

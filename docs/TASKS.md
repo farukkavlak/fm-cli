@@ -229,11 +229,12 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   ("Unhappy", "Transfer listed", "Retiring"); now read with /pull `shown` (TR "Mutsuz", "Transfer listesinde"; EN
   "Unhappy"). The squad board left out the injury flag by its English word: now by its number (41,
   InjuredNotInTraining). TR + EN by hand (`caught-2029-02-02`, `caught-2029-03-31`).
-- [ ] T125 `squad` reads only the rows the table has drawn: 22 of 33 on a 1080-high window (`caught-2029-03-31`; the
-  injured, at the bottom, are missing). `depth`, `squad --fitness`, anything on `SquadView` too. The game's data has
-  all 33 (`Human.Team.Players`: Name, Age, PositionCombinedString, Condition, Sharpness, SquadNumberBlankIfInvalid);
-  the wage and playing time are not on the person (a contract's `Wage`, `AgreedPlayingTime` elsewhere). Way: rows from
-  the data, the table's own columns joined where drawn; or find the table's whole list behind its drawn rows.
+- [x] T125 `squad` read only the rows the table had drawn: 22 of 33 on a 1080-high window (the injured, at the
+  bottom, missing); `depth`, `squad --fitness` too. Now, when fewer rows carry the view's own field (Wage,
+  Condition) than the team has players (`Human.Team.Players`), the table is scrolled down in four steps and the rows
+  put together by name. The scroll holds by the cells the rows bind (the value range, the substitute mark); /scroll
+  `all=1` moves every list binding one, since a table's other views stay laid out beside it. TR + EN 3/3, cold, page
+  open, another page open (`round31.toml`).
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no

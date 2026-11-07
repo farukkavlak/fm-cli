@@ -281,7 +281,7 @@ internal static partial class Program
 		var youth = await YouthTeams();
 		bool Senior(JsonElement rows) => rows.EnumerateArray().Any(p => !youth.Contains(Field(p, "Team")));
 		var squad = await Fm.GetJson("squad");
-		if (Carries(squad, marker) && Senior(squad)) return squad;
+		if (Carries(squad, marker) && Senior(squad)) return await WholeTable(squad, marker);
 
 		if (!Senior(squad) || !await Choose(view))
 		{
@@ -300,13 +300,87 @@ internal static partial class Program
 		if (!Carries(squad, marker))
 			throw new FmError(L($"The '{view}' view was chosen, but the '{marker}' data did not come."));
 
-		return squad;
+		return await WholeTable(squad, marker);
 
 		async Task<bool> Choose(SquadTable choice) =>
 			await ViewList(SquadViews) is { } list
 			&& Sent(await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("value", ((int)choice).ToString())));
 
 		static bool Sent(string answer) => !answer.StartsWith("error", StringComparison.Ordinal);
+	}
+
+	// Cells the rows of the squad table bind, one for each kind of list a view lays out (the
+	// general views' value range, the selection views' substitute mark): every list binding one is
+	// scrolled together, so the one on show moves whichever it is.
+	private static readonly string[] SquadRowAnchors = ["binding.TransferValueRangeString", "Tactic.SubstituteString"];
+
+	private static async Task<bool> ScrollSquad(string to)
+	{
+		var moved = false;
+		foreach (var anchor in SquadRowAnchors)
+			moved |= !(await Fm.Get("scroll", ("anchorpath", anchor), ("all", "1"), ("to", to))).StartsWith("error", StringComparison.Ordinal);
+		return moved;
+	}
+
+	/// <summary>
+	/// The table lays out only the rows in view and reuses them as it scrolls (22 of 33 on a
+	/// 1080-high window, the bottom ones missing). When it holds fewer than the team's players in
+	/// the game's data (counted by the view's own field), it is read at four more places down and the rows put together by name, an
+	/// empty field filled from another reading; then it is put back at the top.
+	/// </summary>
+	private static async Task<JsonElement> WholeTable(JsonElement squad, string marker)
+	{
+		JsonElement team;
+		try { team = await Fm.Pull("Human.Team.Players", "Name", list: true); }
+		catch (FmError) { return squad; }
+		var expected = team.ValueKind == JsonValueKind.Array ? team.GetArrayLength() : 0;
+		// Rows scrolled out of view stay bound with part of their fields: what counts is the rows
+		// carrying the view's own field, not the names.
+		if (squad.EnumerateArray().Count(p => Field(p, marker).Length > 0) >= expected) return squad;
+
+		var rows = new Dictionary<string, System.Text.Json.Nodes.JsonObject>();
+		void Take(JsonElement read)
+		{
+			foreach (var p in read.EnumerateArray())
+			{
+				var name = Field(p, "Name");
+				if (name.Length == 0) continue;
+				if (!rows.TryGetValue(name, out var row))
+				{
+					rows[name] = System.Text.Json.Nodes.JsonNode.Parse(p.GetRawText())!.AsObject();
+					continue;
+				}
+				foreach (var f in p.EnumerateObject())
+					if (f.Value.ValueKind == JsonValueKind.String && f.Value.GetString() is { Length: > 0 }
+					    && (!row.TryGetPropertyValue(f.Name, out var had) || had?.ToString() is null or ""))
+						row[f.Name] = f.Value.GetString();
+			}
+		}
+		Take(squad);
+		var last = string.Join("|", squad.EnumerateArray().Where(p => Field(p, marker).Length > 0).Select(p => Field(p, "Name") + "=" + Field(p, marker)));
+		foreach (var at in new[] { "0.25", "0.5", "0.75", "1" })
+		{
+			if (!await ScrollSquad(at)) break;
+			// The rows are taken once two readings agree: the reused rows are bound again a moment after.
+			JsonElement read = default;
+			var previous = "";
+			var before = last;
+			await Until(async () =>
+			{
+				read = await Fm.GetJson("squad");
+				// Settled when the rows carrying the view's field are the same twice and are not the
+				// ones of the place before (the names alone stay bound once scrolled past).
+				var now = string.Join("|", read.EnumerateArray().Where(p => Field(p, marker).Length > 0).Select(p => Field(p, "Name") + "=" + Field(p, marker)));
+				var same = now == previous && now != before;
+				previous = now;
+				return same;
+			}, seconds: 4, every: 0.25);
+			if (read.ValueKind == JsonValueKind.Array) Take(read);
+			last = previous;
+			if (rows.Values.Count(r => r.TryGetPropertyValue(marker, out var v) && v?.ToString() is { Length: > 0 }) >= expected) break;
+		}
+		await ScrollSquad("0");
+		return JsonDocument.Parse(new System.Text.Json.Nodes.JsonArray([.. rows.Values.Select(r => (System.Text.Json.Nodes.JsonNode)r)]).ToJsonString()).RootElement;
 	}
 
 	/// <summary>The element the squad table's view list sits in; the player database's is another.</summary>
