@@ -232,6 +232,13 @@ internal static partial class Program
 		}
 
 		var what = loan ? L("loan offer") : L("transfer offer");
+		// A dry run with --json gives the screen as it stands, as `offer --json` does.
+		if (dry && args.Contains("--json"))
+		{
+			if (await OfferScreen.Read(Fm) is not { } read) return 1;
+			Console.WriteLine(JsonOut.Of(read.Summary()));
+			return 0;
+		}
 		if (await OfferScreen.Read(Fm) is { } offer) offer.Draw();
 		else Console.WriteLine($"{name}: {what}{(await FeeLabel() is { } shown ? L($", fee {shown}") : "")}");
 

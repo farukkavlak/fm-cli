@@ -348,7 +348,10 @@ Still open:
   - Dialogs (enter talks, cancel, leave) are answered until gone: one click while drawing was lost.
   - Tried TR (promise change → suggest → confirm → terms, wage/agent fee, suggest at a terminal, cancel in both stages),
     EN, DE (after restart).
-- [ ] `--term` by a term's English name fails in a German game (add-list choices not put into English); game words work.
+- [x] `--term` by a term's English name in any language: an "Add" list's entries carry the game's code for the kind
+  of fee or clause (`Codes`, "nspc"); the CLI's English word is keyed by the code (`OfferScreen.CodeWords`), the code
+  itself is taken too. A term already in is its row under the list's words for the code. It failed in Turkish too
+  ("Sonraki Satıştan Yüzde" was not put back into English). `offer --json` gives each term's `Code`.
 - [x] Saves: the save browser (load list, Save As) is known by its Delete (`DeleteSelectedGame`), not "Last saved";
   its list scrolls by `/scroll?within=NonPhoneTable`. Save As opens by `menuoption?option=SaveGameAs` (FM27's FM menu
   is a list). Overwrite and delete questions by their dialog `Type`, answered until gone (a click while drawn is lost);

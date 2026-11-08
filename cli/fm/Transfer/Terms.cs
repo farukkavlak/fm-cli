@@ -117,23 +117,28 @@ internal static partial class Program
 
 		// A contract term also by the CLI's word for its kind ("Wage", "Agent Fee"), the same in any language.
 		var row = now.Rows.FirstOrDefault(r => Named(r.Label) || OfferScreen.KeyWord(r.Key) is { Length: > 0 } word && Named(word));
+		// A term already in, by the code of its entry in an "Add" list: the list keeps it (closed) under the
+		// same words as its row, so the CLI's word for the code finds the row in any language.
+		if (row == null && now.Adds.Select(a => a.Choice.Named(label, Fold)).FirstOrDefault(c => c != null) is { } listed)
+			row = now.Row(listed);
 		if (row == null && label.Contains('>'))
 		{
 			// A submenu's leaf: "Bonus After Competition Achievement>Turkish Cup>Bonus upon winning…".
 			var names = label.Split('>', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-			var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(c => Fold(c.Replace(" ›", "")) == Fold(names[0]) || Fold(OfferScreen.Say(c.Replace(" ›", ""))) == Fold(names[0])));
+			// A list's entry by the game's code for it too ("cmpb"), and the CLI's word for that code, in any language.
+			var add = now.Adds.FirstOrDefault(a => a.Choice.Named(names[0], Fold) != null);
 			if (add == null) return L($"'{names[0]}' is in none of the lists to add from");
-			names[0] = add.Choice.Choices.First(c => Fold(c.Replace(" ›", "")) == Fold(names[0]) || Fold(OfferScreen.Say(c.Replace(" ›", ""))) == Fold(names[0])).Replace(" ›", "");
+			names[0] = add.Choice.Named(names[0], Fold)!.Replace(" ›", "");
 			var (failed, added) = await OfferScreen.AddPath(Fm, add, names, route);
 			if (failed != null) return failed;
 			row = added;
 		}
 		if (row == null)
 		{
-			var add = now.Adds.FirstOrDefault(a => a.Choice.Choices.Any(Named));
+			var add = now.Adds.FirstOrDefault(a => a.Choice.Named(label, Fold) != null);
 			if (add == null) return L($"there is no such term. Those that can be added: {string.Join(", ", now.Adds.SelectMany(a => a.Choice.Open))}");
-			if (add.Choice.Disabled.Any(Named)) return L($"the game does not give the '{label}' clause in this offer (closed in the list)");
-			var full = add.Choice.Choices.First(Named);
+			var full = add.Choice.Named(label, Fold)!;
+			if (add.Choice.Disabled.Contains(full)) return L($"the game does not give the '{label}' clause in this offer (closed in the list)");
 			if (await OfferScreen.Add(Fm, add, full, route) is { } failed) return failed;
 			var after = await OfferScreen.Read(Fm, route);
 			if (after?.Adds.Any(a => Fold(a.Section) == Fold(full)) == true && values.Length == 0) return null;

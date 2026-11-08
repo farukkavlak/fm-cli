@@ -1,0 +1,23 @@
+# Round 37: T9 an offer's term by its English name in any language. An "Add" list's entries carry the game's code
+# for the kind of fee or clause ("nspc", a percentage of the next sale); --term takes the code, the CLI's word for
+# it, or the game's own words. In a Turkish game the English name failed before: the list's entry came in Turkish.
+# Nothing is sent: every step is a dry run. Run: tools/fm-round.py dry tests/live/round37.toml, then run.
+
+[[test]]
+task = "T9"
+name = "a clause by its English name, by its code, changed once in; closed and unknown ones refused"
+at = "window-bids"
+fresh = true
+repeat = 3
+steps = [
+  { read = "offer \"Emirhan İlkhan\" --dry", live = true, path = "Terms.?Code=nspc.#", is = "0" },
+  { read = "offer \"Emirhan İlkhan\" --term \"Percentage Of Next Sale=20%\" --dry", live = true, path = "Terms.?Code=nspc.#", is = "1" },
+  { read = "offer --json", live = true, path = "Terms.?Code=nspc.0.Value", keep = "v20" },
+  { read = "offer \"Emirhan İlkhan\" --term \"Percentage Of Next Sale=30%\" --dry", live = true, path = "Terms.?Code=nspc.0.Value", differs_from = "v20", note = "already in: the row by the same name" },
+  { read = "offer \"Emirhan İlkhan\" --term \"nspc=20%\" --dry", live = true, path = "Terms.?Code=nspc.0.Value", same_as = "v20", note = "by the code" },
+  { read = "offer \"Emirhan İlkhan\" --term \"Instalments (6 monthly)\" --dry", live = true, path = "Terms.?Code=In6m.#", is = "1", note = "a fee's entry" },
+  { run = "offer \"Emirhan İlkhan\" --term \"Can Be Recalled From Loan Back\" --dry", rc = "fail", note = "closed in the list" },
+  { run = "offer \"Emirhan İlkhan\" --term \"Zzz Clause=5\" --dry", rc = "fail" },
+  { read = "offer --json", live = true, path = "Terms.?Code=nspc.#", is = "1", note = "a refusal changed nothing" },
+  { run = "offer --close" },
+]

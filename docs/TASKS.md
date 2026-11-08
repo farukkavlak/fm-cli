@@ -86,7 +86,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T89 `tactic copy`: the copy list is the add list's one row with a submenu, chosen by its path of indices
   (`select?path=2,0`), full slots by `TacticCount`. With no tactic named it lists them (it used to copy the only
   one unasked). TR + EN: copy each source, three slots full refused, unknown name refused; paths checked by dry run.
-- [ ] T9 `--term` by a term's English name fails in a German game (PORTING).
+- [x] T9 `--term` by a term's English name in any language: an "Add" list's entry by the game's code for it ("nspc"),
+  the CLI's word keyed by the code; the code is taken too, and a term already in is found the same way. `offer --json`
+  (and `--dry --json`) gives each term's `Code`. TR + EN 3/3 (`round37.toml`): by name, by code, changed once in, a
+  fee's entry, a closed one and an unknown one refused. Left: an amount the game corrects ("Buy Back Price") is
+  said as "did not change", in any language.
 
 ## 2. New in FM27, no command
 

@@ -315,17 +315,34 @@ internal static class Offer
 	{
 		var names = new List<string>();
 		var disabled = new List<string>();
+		var codes = new List<string>();
 		var choices = dropdown.m_choices;
 		for (var i = 0; i < (choices?.Count ?? 0) && i < 60; i++)
 		{
 			var name = $"\"{Report.Escape(Buttons.ChoiceText(choices[i]) ?? "")}\"";
 			names.Add(name);
 			if (Buttons.ChoiceDisabled(choices[i])) disabled.Add(name);
+			codes.Add($"\"{Code(Buttons.ValueOf(choices[i]))}\"");
 		}
 		var enabled = false;
 		try { enabled = dropdown.enabledInHierarchy; } catch { }
 		return $"\"Pointer\": \"0x{dropdown.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(dropdown))}\", "
-			+ $"\"Enabled\": \"{enabled}\", \"Choices\": [{string.Join(", ", names)}], \"Disabled\": [{string.Join(", ", disabled)}]";
+			+ $"\"Enabled\": \"{enabled}\", \"Choices\": [{string.Join(", ", names)}], \"Disabled\": [{string.Join(", ", disabled)}], "
+			+ $"\"Codes\": [{string.Join(", ", codes)}]";
+	}
+
+	/// <summary>
+	/// What an "Add" list's row stands for in the game: the kind of fee or clause, a four-letter code packed in
+	/// a number ("nspc", a percentage of the next sale), the same in every language. A number that is not four
+	/// letters is given as it is; none is "".
+	/// </summary>
+	private static string Code(int? value)
+	{
+		if (value is not { } v || v == 0) return "";
+		var bytes = new[] { (byte)(v >> 24), (byte)(v >> 16), (byte)(v >> 8), (byte)v };
+		return bytes.All(b => b is >= (byte)'0' and <= (byte)'9' or >= (byte)'A' and <= (byte)'Z' or >= (byte)'a' and <= (byte)'z')
+			? System.Text.Encoding.ASCII.GetString(bytes)
+			: v.ToString(System.Globalization.CultureInfo.InvariantCulture);
 	}
 
 	private static bool Shown(VisualElement element)

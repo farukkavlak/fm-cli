@@ -42,7 +42,53 @@ internal sealed partial class OfferScreen
 		public List<string> Disabled { get; init; } = [];
 
 		public List<string> Open => Choices.Where(c => !Disabled.Contains(c)).ToList();
+
+		/// <summary>What each choice stands for in the game ("nspc"), beside it; "" where it says nothing.</summary>
+		public List<string> Codes { get; init; } = [];
+
+		/// <summary>
+		/// The choice a name means: as the game shows it, as the plugin names it, by its code, or by the CLI's
+		/// own word for that code ("Percentage Of Next Sale"), which is the same in every language.
+		/// </summary>
+		public string? Named(string name, Func<string, string> fold)
+		{
+			var wanted = fold(name.Replace(" ›", "").TrimEnd(':'));
+			for (var i = 0; i < Choices.Count; i++)
+			{
+				var choice = Choices[i].Replace(" ›", "").TrimEnd(':');
+				var code = i < Codes.Count ? Codes[i] : "";
+				if (fold(choice) == wanted || fold(Say(choice)) == wanted
+				    || (code.Length > 0 && (fold(code) == wanted || (CodeWords.TryGetValue(code, out var word) && fold(word) == wanted))))
+					return Choices[i];
+			}
+			return null;
+		}
 	}
+
+	/// <summary>
+	/// The CLI's own words for the kinds of fee and clause an offer's "Add" lists hold, by the game's code for
+	/// each (read from the lists' rows, `Codes`): typed in --term in any language. Measured EN 8 Nov.
+	/// </summary>
+	public static readonly Dictionary<string, string> CodeWords = new()
+	{
+		["In6m"] = "Instalments (6 monthly)",
+		["In12"] = "Instalments (12 monthly)",
+		["falC"] = "After League Appearances",
+		["fplC"] = "Per League Appearance",
+		["faiC"] = "After International Appearances",
+		["fagC"] = "Minimum League Goals",
+		["exch"] = "Players To Exchange",
+		["cmpb"] = "Bonus After Competition Achievement",
+		["awdb"] = "Bonus After Player Award Achievement",
+		["tlnb"] = "Loan Back Length",
+		["tlbr"] = "Can Be Recalled From Loan Back",
+		["nspc"] = "Percentage Of Next Sale",
+		["nspp"] = "Percentage Of Profit From Next Sale",
+		["bbcs"] = "Buy Back Price",
+		["stwc"] = "Selling Team Wage Contribution",
+		["arfr"] = "Arrange Friendly",
+		["btsf"] = "Sell Player First",
+	};
 
 	/// <summary>
 	/// How firmly a term is held in the talks: the padlock beside it. Its choices are bare
@@ -112,6 +158,7 @@ internal sealed partial class OfferScreen
 			new(F(e, "Pointer"), F(e, "Value"), e.TryGetProperty("Choices", out var c) ? c.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [])
 			{
 				Disabled = e.TryGetProperty("Disabled", out var d) ? d.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [],
+				Codes = e.TryGetProperty("Codes", out var k) ? k.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [],
 			};
 	}
 

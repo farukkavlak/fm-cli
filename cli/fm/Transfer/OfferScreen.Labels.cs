@@ -57,9 +57,19 @@ internal sealed partial class OfferScreen
 	public object Summary() => new
 	{
 		Club, Player, Stage, BudgetCost, TotalCost, IsLoan, Facts,
-		Terms = Rows.Select(r => new { r.Section, r.Label, Value = r.Shown, r.Detail, r.Warning }),
+		// A term's code is its entry's in an "Add" list, which keeps it under the same words once it is in.
+		Terms = Rows.Select(r => new { r.Section, r.Label, Code = CodeOf(r.Label), Value = r.Shown, r.Detail, r.Warning }),
 		Options = Options.Select(o => new { o.Label, Value = o.Shown }),
 	};
+
+	/// <summary>The game's code for a term by its entry in an "Add" list ("nspc"), or "".</summary>
+	private string CodeOf(string label)
+	{
+		foreach (var add in Adds)
+			for (var i = 0; i < add.Choice.Choices.Count && i < add.Choice.Codes.Count; i++)
+				if (Same(add.Choice.Choices[i].Replace(" ›", ""), label)) return add.Choice.Codes[i];
+		return "";
+	}
 
 	public void Draw()
 	{
