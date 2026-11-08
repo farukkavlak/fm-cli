@@ -483,6 +483,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   and a post applied for leaves the list): unchanged within the bound, it says the club turned it down. TR by hand:
   Sheff Wed, Newell's, Defensa y Justicia "sent", each "application received" in the inbox. Left: the turned-down
   case seen again with the new code (Vitesse no longer offers the button); EN.
+- [ ] T131 A new club's first days (Antalyaspor, 27 Mar 2031): Continue said "Messages" and showed the page again and
+  again while a briefing waited listed only under the inbox's Tasks filter; `next` said only that a page was shown.
+  `next` now looks under the Tasks filter when nothing moved and names what waits there. Left: seen again with the new
+  code (the one waiting was open on screen, so not in the list); the open message on screen named too (T128).
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
   pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of

@@ -171,6 +171,18 @@ internal static partial class Program
 
 		var last = await Fm.GetJson("state");
 		if (!Passable(Field(last, "State"))) await Explain(last, Console.Out);
+		// Nothing moved with the game free to go on: a message waiting under the inbox's Tasks filter only holds the day
+		// (a new club's Dynamics briefing, 27 Mar 2031: Continue said "Messages" and showed the page, again and again).
+		if (!moved && Passable(Field(last, "State")))
+		{
+			var waiting = (await TaskInbox()).Where(Blocking).ToList();
+			if (waiting.Count > 0)
+			{
+				Console.WriteLine(L("Waiting for an answer, listed under the inbox's Tasks filter:"));
+				foreach (var m in waiting) Console.WriteLine($"  {GameWords.Of(Field(m, "NewsTitleString"))}");
+				Console.WriteLine(L("To answer: inbox --tasks, then reply <#>"));
+			}
+		}
 		// Nothing moved: the game holds the day for something (a message asked again), and a script or the
 		// MCP must not read it as a step taken.
 		return moved ? 0 : 1;
