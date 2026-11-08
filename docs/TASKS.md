@@ -176,6 +176,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   EN `spring` 8 Nov, round 36: a club's page opens from `search` (`searchopen?path=<ClubPath>`); its Team Report
   tab (Overview, Formation / Goal / Team Analysis) has no scouting or request button, only "Analysis Staff Rating";
   a club search row raises no menu (`actions?open=1&path=`). `ScoutTeam` is an `ActionID`, but on no menu seen.
+  8 Nov, `bonuses` (EN): `send ?event=GenericActionEvent&ID=ScoutTeam&ActionData=path:<the opponent>` reaches the
+  game's handler (`FM.Game.PluginContextActionsModule.HandleActionEvent`), which wants `ActionData` as a `Record`
+  (the menu entries' action data), not a team: "Unable to cast TeamReference to Record". Next: read the record a
+  menu's scouting entry carries (a player's `ScoutPlayer`, its keys), build one with the team (a plugin route), send.
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
